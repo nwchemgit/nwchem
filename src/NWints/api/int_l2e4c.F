@@ -1,13 +1,15 @@
       subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, lscr, scr)
-c $Id: int_l2e4c.F,v 1.12 1995-12-22 01:39:07 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.13 1996-01-22 21:46:33 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c
 c::external subroutines used
 c errquit
@@ -38,6 +40,7 @@ c::local
 c
 c:statement function
 c
+#include "bas_ibs_sfn.fh"
       isym2(i,j)=(max(i,j)*(max(i,j)-1))/2 + min(i,j)
 c
 c check initialization and shells 
@@ -180,10 +183,14 @@ c
         bra = brain + BASIS_HANDLE_OFFSET
         ket = ketin + BASIS_HANDLE_OFFSET
         
-        numint =         ibs_cn2bfr(2,ish,bra)-ibs_cn2bfr(1,ish,bra)+1
-        numint = numint*(ibs_cn2bfr(2,jsh,bra)-ibs_cn2bfr(1,jsh,bra)+1)
-        numint = numint*(ibs_cn2bfr(2,ksh,ket)-ibs_cn2bfr(1,ksh,ket)+1)
-        numint = numint*(ibs_cn2bfr(2,lsh,ket)-ibs_cn2bfr(1,lsh,ket)+1)
+        numint =         (sf_ibs_cn2bfr(2,ish,bra))-
+     &        (sf_ibs_cn2bfr(1,ish,bra))+1
+        numint = numint*((sf_ibs_cn2bfr(2,jsh,bra))-
+     &        (sf_ibs_cn2bfr(1,jsh,bra))+1)
+        numint = numint*((sf_ibs_cn2bfr(2,ksh,ket))-
+     &        (sf_ibs_cn2bfr(1,ksh,ket))+1)
+        numint = numint*((sf_ibs_cn2bfr(2,lsh,ket))-
+     &        (sf_ibs_cn2bfr(1,lsh,ket))+1)
         newlscr = lscr - numint
         call int_2e4c(brain,ish,jsh,ketin,ksh,lsh,
      &      newlscr,scr(numint+1),numint,scr)
@@ -196,11 +203,15 @@ c
 c
         nint = 0
         icount = 0
-        do 00100 i = ibs_cn2bfr(1,ish,bra), ibs_cn2bfr(2,ish,bra)
-          do 00200 j = ibs_cn2bfr(1,jsh,bra), ibs_cn2bfr(2,jsh,bra)
+        do 00100 i = (sf_ibs_cn2bfr(1,ish,bra)),
+     &        (sf_ibs_cn2bfr(2,ish,bra))
+          do 00200 j = (sf_ibs_cn2bfr(1,jsh,bra)),
+     &          (sf_ibs_cn2bfr(2,jsh,bra))
             ij = isym2(i,j)
-            do 00300 k = ibs_cn2bfr(1,ksh,ket), ibs_cn2bfr(2,ksh,ket)
-              do 00400 l = ibs_cn2bfr(1,lsh,ket), ibs_cn2bfr(2,lsh,ket)
+            do 00300 k = (sf_ibs_cn2bfr(1,ksh,ket)),
+              (sf_ibs_cn2bfr(2,ksh,ket))
+              do 00400 l = (sf_ibs_cn2bfr(1,lsh,ket)),
+     &              (sf_ibs_cn2bfr(2,lsh,ket))
                 kl = isym2(k,l)
                 icount = icount + 1
                 if (abs(scr(icount)).ge.zerotol) then
@@ -228,10 +239,14 @@ c
         braket = bra .eq. ket
         nint = 0
         icount = 0
-        do 00100 i = ibs_cn2bfr(1,ish,bra), ibs_cn2bfr(2,ish,bra)
-          do 00200 j = ibs_cn2bfr(1,jsh,bra), ibs_cn2bfr(2,jsh,bra)
-            do 00300 k = ibs_cn2bfr(1,ksh,ket), ibs_cn2bfr(2,ksh,ket)
-              do 00400 l = ibs_cn2bfr(1,lsh,ket), ibs_cn2bfr(2,lsh,ket)
+        do 00100 i = (sf_ibs_cn2bfr(1,ish,bra)),
+     &        (sf_ibs_cn2bfr(2,ish,bra))
+          do 00200 j = (sf_ibs_cn2bfr(1,jsh,bra)),
+     &          (sf_ibs_cn2bfr(2,jsh,bra))
+            do 00300 k = (sf_ibs_cn2bfr(1,ksh,ket)),
+     &            (sf_ibs_cn2bfr(2,ksh,ket))
+              do 00400 l = (sf_ibs_cn2bfr(1,lsh,ket)),
+     &              (sf_ibs_cn2bfr(2,lsh,ket))
                 icount = icount + 1
                 if (abs(scr(icount)).ge.zerotol) then
                   nint = nint + 1

@@ -1,7 +1,7 @@
       subroutine datoms(geom, basis, hatom, g_dens, oprin,
      + pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      + cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener)
-C$Id: datoms.F,v 1.12 1995-11-03 20:41:31 d3g681 Exp $
+C$Id: datoms.F,v 1.13 1996-01-22 21:49:40 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -137,6 +137,12 @@ c
                if (.not. bas_continfo(basis, icont, type, nprim, ngen,
      $              sphcart))
      $              call errquit('guess atom dens: bas_continfo', icont)
+*rak:               write(6,*)' basis handle    =',basis
+*rak:               write(6,*)' for contraction =',icont
+*rak:               write(6,*)' type            =',type
+*rak:               write(6,*)' nprim           =',nprim
+*rak:               write(6,*)' ngen            =',ngen
+*rak:               write(6,*)' sphcart         =',sphcart
                if (.not. bas_cn2bfr(basis, icont, ibflo, ibfhi))
      $              call errquit('guess atom dens: bas_cn2bfr', icont)
                if (nprim.gt.mxnprim .or. ngen.gt.mxngen) call errquit

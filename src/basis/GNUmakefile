@@ -1,8 +1,10 @@
-#$Id: GNUmakefile,v 1.16 1995-11-28 22:24:42 og845 Exp $
+#$Id: GNUmakefile,v 1.17 1996-01-22 21:50:03 d3e129 Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a
-       HEADERS = bas.fh basP.fh bas_staticP.fh geobasmapP.fh basdeclsP.fh
+       HEADERS = bas.fh basP.fh bas_staticP.fh basdeclsP.fh geobasmapP.fh  \
+                 bas_exndcf.fh bas_exndcf_dec.fh bas_exndcf_sfn.fh \
+                 bas_ibs.fh bas_ibs_dec.fh bas_ibs_sfn.fh 
            OBJ = bas_input.o bas_contrib.o
   OBJ_OPTIMIZE = basis.o basisP.o
 
@@ -10,6 +12,7 @@ ifeq ($(TARGET),CRAY-T3D)
    OBJ_OPTIMIZE = basis.o 
    OBJ =  basisP.o bas_input.o bas_contrib.o
 endif
+
    LIB_TARGETS = testbasis testbasis.o
 
 ifeq ($(TARGET),DELTA)
@@ -20,10 +23,12 @@ endif
 
      USES_BLAS = basis.F basisP.F
 
+     TESTLIBS = -lutil
+
 include ../config/makelib.h
 
 testbasis:	testbasis.o
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ testbasis.o $(LIBS)
+	$(FC) $(FFLAGS) -o $@ testbasis.o  $(LDFLAGS) $(LIBS) $(TESTLIBS)
 
 basP.fh:	bas_staticP.fh
 	@touch basP.fh

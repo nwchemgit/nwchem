@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.18 1996-01-19 19:16:06 d3g681 Exp $
+c $Id: bas_input.F,v 1.19 1996-01-22 21:49:56 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -26,6 +26,8 @@ c
       character*255 test, name, filename, standard
       logical status, ospherical, osegment, oprint
       integer ind, basis
+      logical bas_add_ucnt_init
+      external bas_add_ucnt_init
       data opts /'spherical', 'cartesian', 'segment', 'nosegment',
      $     'library', 'file', 'print', 'noprint'/
 c
@@ -124,6 +126,8 @@ c
 c     Now left with reading in from the input additional specifications
 c     for basis functions or standard sets on specific tags
 c
+      if (.not.bas_add_ucnt_init(basis)) call errquit
+     &    ('bas_input: failed to init add_ucnt ',911)
       call bas_input_body(basis, osegment)
 c
 c     Now have processed the entire basis directive.  Print out

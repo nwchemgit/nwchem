@@ -1,9 +1,11 @@
       subroutine int_lgen1e(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, l1e, Gen1e, lscr, scr, numgen) 
-c $Id: int_lgen1e.F,v 1.8 1994-09-22 13:34:14 d3e129 Exp $
+c $Id: int_lgen1e.F,v 1.9 1996-01-22 21:46:34 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c
 c::external subroutines used
 c dcopy
@@ -21,6 +23,8 @@ c::local
       logical ijbas
       logical shells_ok
       logical nonzero
+c
+#include "bas_ibs_sfn.fh"
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
@@ -40,8 +44,10 @@ c
 c
       numgen = 0
       icount = 0
-      do 00100 i = ibs_cn2bfr(1,ish,ibas), ibs_cn2bfr(2,ish,ibas)
-        do 00200 j = ibs_cn2bfr(1,jsh,jbas), ibs_cn2bfr(2,jsh,jbas)
+      do 00100 i = (sf_ibs_cn2bfr(1,ish,ibas)),
+     &      (sf_ibs_cn2bfr(2,ish,ibas))
+        do 00200 j = (sf_ibs_cn2bfr(1,jsh,jbas)),
+     &        (sf_ibs_cn2bfr(2,jsh,jbas))
           icount = icount + 1
           nonzero = abs(scr(icount)).ge.zerotol
           if (nonzero) then

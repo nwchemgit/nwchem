@@ -1,9 +1,71 @@
+      subroutine print_exndcf(msg)
+      implicit none
+#include "basP.fh"
+      character *(*) msg
+      integer i,j
+      write(6,*)'<<<< print_exndcf: ',msg,' >>>>'
+      do i = 1, nbasis_bsmx
+        write(6,10000)i,(exndcf(j,i), j=1,3)
+      enddo
+10000 format(' basis:',i2,' handle :',i10,/
+     &       '         ', ' index  :',i10,/
+     &       '         ', ' size   :',i10/)
+      end
+      logical function bas_add_ucnt_init(basisin)
+      implicit none
+#include "mafdecls.fh"
+#include "basP.fh"
+#include "bas_exndcf_dec.fh"
+      integer basisin
+c::local
+      integer input_size
+      parameter(input_size = 10000)
+      integer basis, h_tmp, k_tmp
+c
+#include "bas_exndcf_sfn.fh"
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+      bas_add_ucnt_init = ma_alloc_get(
+     &    mt_dbl,input_size,' input for basis heap ',
+     &    h_tmp,k_tmp)
+      exndcf(H_exndcf,basis) = h_tmp
+      exndcf(K_exndcf,basis)= k_tmp
+      if (.not. bas_add_ucnt_init) call errquit
+     &    ('bas_add_unct_init: error allocating input heap space',911)
+      exndcf(SZ_exndcf,basis) = input_size
+      end
+      logical function bas_add_ucnt_tidy(basisin)
+      implicit none
+#include "mafdecls.fh"
+#include "basP.fh"
+#include "bas_exndcf_dec.fh"
+      integer basisin
+c::local
+      integer basis 
+      integer h_tmp
+c
+#include "bas_exndcf_sfn.fh"
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+      h_tmp = exndcf(H_exndcf,basis)
+      bas_add_ucnt_tidy = ma_free_heap(h_tmp)
+      if (.not.bas_add_ucnt_tidy) call errquit
+     &    ('bas_add_unct_tidy: error freeing heap',911)
+      exndcf(H_exndcf ,basis) = 0
+      exndcf(K_exndcf ,basis) = 0
+      exndcf(SZ_exndcf,basis) = 0
+      bas_add_ucnt_tidy = .true.
+      end
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
-c $Id: basisP.F,v 1.13 1995-12-01 16:57:49 d3g681 Exp $
+c $Id: basisP.F,v 1.14 1996-01-22 21:50:01 d3e129 Exp $
       implicit none
+#include "mafdecls.fh"
 #include "basdeclsP.fh"
 #include "basP.fh"
+#include "bas_exndcf_dec.fh"
       integer basis             ! [input] basis handle
       character*(*) tag         ! [input] tag on which to contraction
       integer l_value           ! [input] type of contraction (s, p, ..., sp)
@@ -16,14 +78,15 @@ c
       integer ind               ! Index into basis function structures
       integer free              ! Free space pointer
       integer i, itag, jtag, iu_cont, ntags ! Locals
+      integer s_old, s_new, k_old, k_new, h_old, h_new
 c
       logical bas_add_utag
       external bas_add_utag
 c
       logical bas_check_handle
       external bas_check_handle
-      external basis_data  ! This for the T3D linker
 c
+#include "bas_exndcf_sfn.fh"
 c     adds a new general contraction on the specified tag.  If the
 c     tag is not present it will also add that by calling bas_add_utag
 c      
@@ -39,11 +102,30 @@ c
 c     Update header information about all unique contractions on all tags
 c     Free points to next free word in the exndcf
 c
-      free = infbs_head(HEAD_NPRIM,ind) + infbs_head(HEAD_NCOEF,ind) + 1
-      if ((free+nprim*ngen+nprim-1) .gt. mxbs_exndcf) then
-         write(6,*) 'bas_add_ucnt: too many prims/coeffs'
-         bas_add_ucnt = .false.
-         return
+*old      free = infbs_head(HEAD_NPRIM,ind)+infbs_head(HEAD_NCOEF,ind)+1
+      free = infbs_head(HEAD_EXCFPTR,ind) + 1
+      s_old = exndcf(SZ_exndcf,ind)
+      if ((free+nprim*ngen+nprim-1) .gt. s_old) then
+        h_old = exndcf(H_exndcf,ind)
+        k_old = exndcf(K_exndcf,ind)
+        s_new = free+nprim*ngen+nprim-1
+        if (.not.ma_alloc_get(
+     &      mt_dbl,s_new,' input for basis heap ',
+     &      h_new, k_new)) then
+          write(6,*)'bas_add_ucnt: too many prims/coeffs'
+          write(6,*)' allocated size for input is :',
+     &        exndcf(SZ_exndcf,ind)
+          write(6,*)' size requested here         :',
+     &        (free+nprim*ngen+nprim-1)
+          bas_add_ucnt = .false.
+          return
+        endif
+        exndcf(H_exndcf,ind) = h_new
+        exndcf(K_exndcf,ind) = k_new
+        exndcf(SZ_exndcf,ind) = s_new
+        call dcopy(s_old,dbl_mb(k_old),1,dbl_mb(k_new),1)
+        if (.not.ma_free_heap(h_old)) call errquit
+     &      ('bas_add_ucnt: error freeing old exponents',911)
       endif
       if (infbs_head(HEAD_NCONT,ind)+1 .gt. nucont_bsmx) then
          write(6,*) 'bas_add_ucnt: too many contractions '
@@ -55,6 +137,8 @@ c
       infbs_head(HEAD_NPRIM,ind) = infbs_head(HEAD_NPRIM,ind) + nprim
       infbs_head(HEAD_NCOEF,ind) = infbs_head(HEAD_NCOEF,ind) +
      $     ngen*nprim
+      infbs_head(HEAD_EXCFPTR,ind) =  infbs_head(HEAD_EXCFPTR,ind) +
+     &      nprim+ngen*nprim
 c
       ntags = infbs_head(HEAD_NTAGS,ind)
       if (itag .ne. ntags) then
@@ -108,10 +192,11 @@ c
 c
 c     Copy real data over
 c
-      call dcopy(nprim, expnt, 1, exndcf(free,ind), 1)
+      call dcopy(nprim, expnt, 1, dbl_mb(mb_exndcf(free,ind)), 1)
       free = free + nprim
       do i = 1, ngen
-         call dcopy(nprim, coeffs(1,i), 1, exndcf(free,ind), 1)
+         call dcopy
+     &      (nprim, coeffs(1,i), 1, dbl_mb(mb_exndcf(free,ind)), 1)
          free = free + nprim
       enddo
 *      write(6,*) ' expnt input ', nprim
@@ -208,9 +293,11 @@ c
 c......................................................................
       logical function bas_getu_coeff(basisin,icont,coeff)
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
+#include "bas_exndcf_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -222,6 +309,8 @@ c::passed
 c::local
       integer basis, myucont, icontmax
       integer mycoeffptr, myprim, mygen
+c
+#include "bas_exndcf_sfn.fh"
 c
       bas_getu_coeff = bas_check_handle(basisin,'bas_getu_coeff')
       if (.not.bas_getu_coeff) return
@@ -243,7 +332,8 @@ c
       mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
       myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
       mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-      call dcopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
+      call dcopy ((myprim*mygen),
+     &    dbl_mb(mb_exndcf(mycoeffptr,basis)),1,coeff,1)
 c
       bas_getu_coeff = .true.
 c
@@ -252,9 +342,11 @@ c
 c......................................................................
       logical function bas_getu_exponent(basisin,icont,exp)
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
+#include "bas_exndcf_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -266,6 +358,8 @@ c::passed
 c::local
       integer basis, myucont, icontmax
       integer myprim,myexptr
+c
+#include "bas_exndcf_sfn.fh"
 c
       bas_getu_exponent = bas_check_handle(basisin,'bas_getu_exponent')
       if (.not.bas_getu_exponent) return
@@ -286,7 +380,7 @@ c
 c
       myexptr = infbs_cont(CONT_IEXP,myucont,basis)
       myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      call dcopy(myprim,exndcf(myexptr,basis),1,exp,1)
+      call dcopy(myprim,dbl_mb(mb_exndcf(myexptr,basis)),1,exp,1)
 c
       bas_getu_exponent = .true.
 c
@@ -295,9 +389,11 @@ c
 c......................................................................
       logical function bas_setu_coeff(basisin,icont,coeff,ncoeff)
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
+#include "bas_exndcf_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -309,6 +405,8 @@ c::passed
 c::local
       integer basis, myucont, icontmax
       integer mycoeffptr, myprim, mygen
+c
+#include "bas_exndcf_sfn.fh"
 c
       bas_setu_coeff = bas_check_handle(basisin,'bas_setu_coeff')
       if (.not.bas_setu_coeff) return
@@ -340,7 +438,8 @@ c
         write(6,*)' stored nprim*ngen: ',(myprim*mygen)
         return
       endif
-      call dcopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
+      call dcopy(ncoeff,coeff,1,
+     &    dbl_mb(mb_exndcf(mycoeffptr,basis)),1)
 c
       bas_setu_coeff = .true.
 c
@@ -352,6 +451,8 @@ c......................................................................
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -363,6 +464,8 @@ c::passed
 c::local
       integer basis, myucont, icontmax
       integer myprim,myexptr
+c
+#include "bas_exndcf_sfn.fh"
 c
       bas_setu_exponent = bas_check_handle(basisin,'bas_setu_exponent')
       if (.not.bas_setu_exponent) return
@@ -392,7 +495,8 @@ c
         write(6,*)' stored nprim: ',myprim
         return
       endif
-      call dcopy(nexp,exp,1,exndcf(myexptr,basis),1)
+c
+      call dcopy(nexp,exp,1,dbl_mb(mb_exndcf(myexptr,basis)),1)
 c
       bas_setu_exponent = .true.
 c
@@ -480,7 +584,7 @@ c
       data bsactive /nbasis_bsmx*.false./
       data angular_bs /nbasis_bsmx*-565/
       data nbfmax_bs /nbasis_bsmx*-565/
-      data bsversion /1.10d00/
+      data bsversion /3.00d00/
 c     
       end
 c......................................................................

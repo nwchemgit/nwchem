@@ -1,13 +1,15 @@
       subroutine int_l2e2c(brain, ish, ketin, jsh, 
      &       zerotol, leri, eri, nint, ilab, jlab, 
      &       lscr, scr)
-c $Id: int_l2e2c.F,v 1.6 1995-12-22 01:39:04 d3e129 Exp $
+c $Id: int_l2e2c.F,v 1.7 1996-01-22 21:46:31 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c
 c::external subroutines used
 c errquit
@@ -25,6 +27,7 @@ c::local
 c
 c:statement function
 c
+#include "bas_ibs_sfn.fh"
 c
 c check shells 
 c
@@ -55,16 +58,20 @@ c
 c compute eris into scr instead of copying them
 c
 c 
-      numint =         ibs_cn2bfr(2,ish,bra)-ibs_cn2bfr(1,ish,bra)+1
-      numint = numint*(ibs_cn2bfr(2,jsh,ket)-ibs_cn2bfr(1,jsh,ket)+1)
+      numint =         (sf_ibs_cn2bfr(2,ish,bra))-
+     &      (sf_ibs_cn2bfr(1,ish,bra))+1
+      numint = numint*((sf_ibs_cn2bfr(2,jsh,ket))-
+     &      (sf_ibs_cn2bfr(1,jsh,ket))+1)
       newlscr = lscr - numint
       call int_2e2c(brain,ish,ketin,jsh,
      &    newlscr,scr(numint+1),numint,scr)
 c
       nint = 0
       icount = 0
-      do 00100 i = ibs_cn2bfr(1,ish,bra), ibs_cn2bfr(2,ish,bra)
-        do 00200 j = ibs_cn2bfr(1,jsh,ket), ibs_cn2bfr(2,jsh,ket)
+      do 00100 i = (sf_ibs_cn2bfr(1,ish,bra)),
+     &      (sf_ibs_cn2bfr(2,ish,bra))
+        do 00200 j = (sf_ibs_cn2bfr(1,jsh,ket)),
+     &        (sf_ibs_cn2bfr(2,jsh,ket))
           icount = icount + 1
           if (abs(scr(icount)).ge.zerotol) then
             if (bra.eq.ket) then

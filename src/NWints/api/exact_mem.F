@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.20 1995-06-14 07:35:25 d3e129 Exp $
+c $Id: exact_mem.F,v 1.21 1996-01-22 21:46:08 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -121,6 +121,8 @@ c
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
 c::function
       integer nbf_from_ucont
       external nbf_from_ucont
@@ -134,6 +136,8 @@ c::local
       integer i_prim, j_prim, k_prim
       integer memdum, j_lim, k_lim
       integer nbfimax, nbfjmax, nbfkmax
+c
+#include "bas_exndcf_sfn.fh"
 c
       memsize = 0
       nbfimax = 0
@@ -190,12 +194,21 @@ c
 c**            k_gen  = infbs_cont(CONT_NGEN,ikc,kbas)
             
             memdum  = 9 000 000
+*rak:            call hf3OIs(
+*rak:     &             exndcf,exndcf,exndcf,i_prim,i_type,
+*rak:     &             exndcf,exndcf,exndcf,j_prim,j_type,
+*rak:     &             exndcf,exndcf,exndcf,k_prim,k_type,
+*rak:     &             exndcf,1,.false.,
+*rak:     &             .true.,exndcf,memdum)
             call hf3OIs(
-     &             exndcf,exndcf,exndcf,i_prim,i_type,
-     &             exndcf,exndcf,exndcf,j_prim,j_type,
-     &             exndcf,exndcf,exndcf,k_prim,k_type,
-     &             exndcf,1,.false.,
-     &             .true.,exndcf,memdum)
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),i_prim,i_type,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),j_prim,j_type,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),k_prim,k_type,
+     &            dbl_mb(mb_exndcf(1,1)),1,.false.,
+     &            .true.,dbl_mb(mb_exndcf(1,1)),memdum)
             memsize = max(memsize,memdum)
 00300     continue
 00200   continue
@@ -214,6 +227,8 @@ c
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
 c::passed
       integer brain   ! [input] bra basis set handle
       integer ketin   ! [input] ket basis set handle
@@ -225,6 +240,8 @@ c::local
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
+c
+#include "bas_exndcf_sfn.fh"
 c
       memsize = 0
       max1e = 0
@@ -271,11 +288,19 @@ c
           endif
 c
           memdum = 9 000 000
-          call hf1(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,1,
-     &             exndcf,exndcf,exndcf,1,.true.,.true.,.true.,.false.,
-     &             .true.,exndcf,memdum)
+*rak:          call hf1(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,exndcf,1,
+*rak:     &             exndcf,exndcf,exndcf,1,.true.,.true.,.true.,.false.,
+*rak:     &             .true.,exndcf,memdum)
+          call hf1(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),1,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),1,.true.,.true.,.true.,.false.,
+     &          .true.,dbl_mb(mb_exndcf(1,1)),memdum)
             memsize = max(memsize,memdum)
 00200   continue
 00100 continue
@@ -297,6 +322,8 @@ c
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
 c::functions
       integer nbf_from_ucont
       external nbf_from_ucont
@@ -316,6 +343,8 @@ c::local
 c
       logical bra_cando_sp
       logical ket_cando_sp
+c
+#include "bas_exndcf_sfn.fh"
 c
       memsize = 0
       maxg = 0
@@ -367,46 +396,86 @@ c
 c
           memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
-          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,1,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
+*rak:          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,1,.false.,.false.,.false.,
+*rak:     &             .true.,exndcf,memdum)
+          call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
+     &          dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+     &          .true.,dbl_mb(mb_exndcf(1,1)),memdum)
 *:debug   write(6,*)' coul ',ibc,ibc,ikc,ikc,memdum
           memsize = max(memsize,memdum)
 c
           memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
-          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,1,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
+*rak:          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,1,.false.,.false.,.false.,
+*rak:     &             .true.,exndcf,memdum)
+          call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
+     &          dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+     &          .true.,dbl_mb(mb_exndcf(1,1)),memdum)
 *:debug   write(6,*)' exch ',ibc,ikc,ibc,ikc,memdum
           memsize = max(memsize,memdum)
 c
           if (brain.eq.ketin) then
             memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
-            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,1,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
+*rak:            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,1,.false.,.false.,.false.,
+*rak:     &             .true.,exndcf,memdum)
+            call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
+     &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+     &            .true.,dbl_mb(mb_exndcf(1,1)),memdum)
 *:debug     write(6,*)' bbbk ',ibc,ibc,ibc,ikc,memdum
             memsize = max(memsize,memdum)
 c
             memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
-            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,1,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
+*rak:            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,1,.false.,.false.,.false.,
+*rak:     &             .true.,exndcf,memdum)
+            call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
+     &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+     &            .true.,dbl_mb(mb_exndcf(1,1)),memdum) 
 *:debug     write(6,*)' bkkk ',ibc,ikc,ikc,ikc,memdum
             memsize = max(memsize,memdum)
 *:debug     write(6,*)' full ',memsize
@@ -436,6 +505,8 @@ c
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
 c::functions
       integer nbf_from_ucont
       external nbf_from_ucont
@@ -450,6 +521,8 @@ c::local
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
+c
+#include "bas_exndcf_sfn.fh"
 c
       memsize = 0
       maxg = 0
@@ -497,12 +570,25 @@ c
 c
           memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
-          call hf2(exndcf,exndcf,exndcf,1,1,0,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,1,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
+*rak:          call hf2(exndcf,exndcf,exndcf,1,1,0,
+*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,1,.false.,.false.,.false.,
+*rak:     &             .true.,exndcf,memdum)
+          call hf2(dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          1, 1, 0, dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          bra_prim, bra_gen, bra_type,
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), ket_prim, ket_gen,
+     &          ket_type, dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          ket_prim, ket_gen, ket_type,
+     &          dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
+     &          .false., .true., dbl_mb(mb_exndcf(1,1)),
+     &          memdum ) 
           memsize = max(memsize,memdum)
 c
 00200   continue
@@ -529,6 +615,8 @@ c
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
 c::functions
       integer nbf_from_ucont
       external nbf_from_ucont
@@ -543,6 +631,8 @@ c::local
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
+c
+#include "bas_exndcf_sfn.fh"
 c
       memsize = 0
       maxg = 0
@@ -591,12 +681,25 @@ c
 c
           memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
-          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,1,1,0,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,exndcf,1,1,0,
-     &             exndcf,1,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
+*rak:          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+*rak:     &             exndcf,exndcf,exndcf,1,1,0,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+*rak:     &             exndcf,exndcf,exndcf,1,1,0,
+*rak:     &             exndcf,1,.false.,.false.,.false.,
+*rak:     &             .true.,exndcf,memdum)
+          call hf2(
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
+     &          bra_type, dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          1, 1, 0, dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          ket_prim, ket_gen, ket_type,
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), 1, 1, 0,
+     &          dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
+     &          .false., .true., dbl_mb(mb_exndcf(1,1)),
+     &          memdum)
 *          write(6,*)' emem_2e2c: memdum',memdum, memsize
           memsize = max(memsize,memdum)
 c
@@ -623,6 +726,8 @@ c
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
 c::functions
       integer nbf_from_ucont
       external nbf_from_ucont
@@ -643,6 +748,8 @@ c::local
 c
       logical bra_cando_sp
       logical ket_cando_sp
+c
+#include "bas_exndcf_sfn.fh"
 c
       memsize = 0
       maxg = 0
@@ -705,25 +812,49 @@ c
 c
               memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
+*rak:              call hf2(
+*rak:     &            exndcf,exndcf,exndcf,i_prim,i_gen,i_type,
+*rak:     &            exndcf,exndcf,exndcf,j_prim,j_gen,j_type,
+*rak:     &            exndcf,exndcf,exndcf,k_prim,k_gen,k_type,
+*rak:     &            exndcf,exndcf,exndcf,l_prim,l_gen,l_type,
+*rak:     &            exndcf,1,.false.,.false.,.false.,
+*rak:     &            .true.,exndcf,memdum)
               call hf2(
-     &            exndcf,exndcf,exndcf,i_prim,i_gen,i_type,
-     &            exndcf,exndcf,exndcf,j_prim,j_gen,j_type,
-     &            exndcf,exndcf,exndcf,k_prim,k_gen,k_type,
-     &            exndcf,exndcf,exndcf,l_prim,l_gen,l_type,
-     &            exndcf,1,.false.,.false.,.false.,
-     &            .true.,exndcf,memdum)
+     &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)), i_prim, i_gen, i_type,
+     &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)), j_prim, j_gen, j_type,
+     &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)), k_prim, k_gen, k_type,
+     &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)), l_prim, l_gen, l_type,
+     &              dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
+     &              .false.,.true., dbl_mb(mb_exndcf(1,1)),
+     &              memdum)
               write(6,*)' coul ',ibc,jbc,kbc,lbc,memdum
               memsize = max(memsize,memdum)
 c
               memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
+*rak:              call hf2(
+*rak:     &            exndcf,exndcf,exndcf,i_prim,i_gen,i_type,
+*rak:     &            exndcf,exndcf,exndcf,l_prim,l_gen,l_type,
+*rak:     &            exndcf,exndcf,exndcf,k_prim,k_gen,k_type,
+*rak:     &            exndcf,exndcf,exndcf,j_prim,j_gen,j_type,
+*rak:     &            exndcf,1,.false.,.false.,.false.,
+*rak:     &            .true.,exndcf,memdum)
               call hf2(
-     &            exndcf,exndcf,exndcf,i_prim,i_gen,i_type,
-     &            exndcf,exndcf,exndcf,l_prim,l_gen,l_type,
-     &            exndcf,exndcf,exndcf,k_prim,k_gen,k_type,
-     &            exndcf,exndcf,exndcf,j_prim,j_gen,j_type,
-     &            exndcf,1,.false.,.false.,.false.,
-     &            .true.,exndcf,memdum)
+     &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)), i_prim, i_gen, i_type,
+     &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)), l_prim, l_gen, l_type,
+     &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)), k_prim, k_gen, k_type,
+     &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)), j_prim, j_gen, j_type,
+     &              dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
+     &              .false., .true., dbl_mb(mb_exndcf(1,1)),
+     &              memdum)
               write(6,*)' exch ',ibc,jbc,kbc,lbc,memdum
               memsize = max(memsize,memdum)
               memsize = max(memsize,memdum)

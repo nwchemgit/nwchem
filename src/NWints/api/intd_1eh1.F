@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.3 1994-08-05 19:39:12 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.4 1996-01-22 21:46:39 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -92,6 +92,9 @@ c
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c::external subroutines used
 c... errquit
 c::passed
@@ -111,26 +114,29 @@ c::local
       integer ibas,iatom,inp,igen,iexp,icf,itype,igeom
       integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom
 c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
 c
-      ucont = ibs_cn2ucn(ish,ibas)
+      ucont = (sf_ibs_cn2ucn(ish,ibas))
       inp   = infbs_cont(CONT_NPRIM,ucont,ibas)
       igen  = infbs_cont(CONT_NGEN,ucont,ibas)
       iexp  = infbs_cont(CONT_IEXP,ucont,ibas)
       icf   = infbs_cont(CONT_ICFP,ucont,ibas)
       itype = infbs_cont(CONT_TYPE,ucont,ibas) 
       igeom = ibs_geom(ibas)
-      iatom = ibs_cn2ce(ish,ibas)
+      iatom = (sf_ibs_cn2ce(ish,ibas))
 c
-      ucont = ibs_cn2ucn(jsh,jbas)
+      ucont = (sf_ibs_cn2ucn(jsh,jbas))
       jnp   = infbs_cont(CONT_NPRIM,ucont,jbas)
       jgen  = infbs_cont(CONT_NGEN,ucont,jbas)
       jexp  = infbs_cont(CONT_IEXP,ucont,jbas)
       jcf   = infbs_cont(CONT_ICFP,ucont,jbas)
       jtype = infbs_cont(CONT_TYPE,ucont,jbas) 
       jgeom = ibs_geom(jbas)
-      jatom = ibs_cn2ce(jsh,jbas)
+      jatom = (sf_ibs_cn2ce(jsh,jbas))
 c
       if (igeom.ne.jgeom) then
         write(6,*)'intd_1eh1P.F: two different geometries for',
@@ -146,13 +152,13 @@ c
         
       call hf1d(
      &       coords(1,iatom,igeom),
-     &       exndcf(iexp,ibas),
-     &       exndcf(icf,ibas),
+     &       dbl_mb(mb_exndcf(iexp,ibas)),
+     &       dbl_mb(mb_exndcf(icf,ibas)),
      &       inp,igen,itype,iatom,
 c
      &       coords(1,jatom,jgeom),
-     &       exndcf(jexp,jbas),
-     &       exndcf(jcf,jbas),
+     &       dbl_mb(mb_exndcf(jexp,jbas)),
+     &       dbl_mb(mb_exndcf(jcf,jbas)),
      &       jnp,jgen,jtype,jatom,
 c
      &       coords(1,1,igeom),charge(1,igeom),ncenter(igeom),

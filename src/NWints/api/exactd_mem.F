@@ -1,5 +1,5 @@
       subroutine exactd_mem(bases,nbas)
-c $Id: exactd_mem.F,v 1.8 1995-02-08 21:25:14 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.9 1996-01-22 21:46:13 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -67,6 +67,8 @@ c
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "geomP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
 c::functions
       integer int_unint
       external int_unint
@@ -81,6 +83,8 @@ c::local
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket, nat
+c
+#include "bas_exndcf_sfn.fh"
 c
       memsize = 0
       max1e = 0
@@ -127,12 +131,23 @@ c
 c
           memdum = 15 000 000
           nint = int_unint(brain,ibc,ketin,ikc,0,0,0,0)
+*rak:          call hf1d(
+*rak:     &         exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
+*rak:     &         exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,2,
+*rak:     &         exndcf,exndcf,nat,
+*rak:     &         exndcf,exndcf,exndcf,nint,.true.,.true.,.true.,.false.,
+*rak:     &         .true.,exndcf,memdum)
           call hf1d(
-     &         exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
-     &         exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,2,
-     &         exndcf,exndcf,nat,
-     &         exndcf,exndcf,exndcf,nint,.true.,.true.,.true.,.false.,
-     &         .true.,exndcf,memdum)
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
+     &          bra_type, 1, dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          ket_prim, ket_gen, ket_type, 2,
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          nat, dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          nint, .true., .true., .true., .false., .true.,
+     &          dbl_mb(mb_exndcf(1,1)), memdum)
           memsize = max(memsize,memdum)
 00200   continue
 00100 continue
@@ -154,6 +169,8 @@ c
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "geomP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
 c::functions
       integer int_unint
       external int_unint
@@ -172,6 +189,8 @@ c::local
 *rak:-start-debug
 *rak:      integer fbra, fket, find
 *rak:-start-end
+c
+#include "bas_exndcf_sfn.fh"
 c
       memsize = 0
       maxg = 0
@@ -219,13 +238,26 @@ c
           memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
           nint = int_unint(brain,ibc,brain,ibc,ketin,ikc,ketin,ikc)
+*rak:          call hf2d(
+*rak:     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
+*rak:     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,2,
+*rak:     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,3,
+*rak:     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
+*rak:     &           exndcf,nint,.false.,.false.,.false.,
+*rak:     &           .true.,exndcf,memdum)
           call hf2d(
-     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
-     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,2,
-     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,3,
-     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
-     &           exndcf,nint,.false.,.false.,.false.,
-     &           .true.,exndcf,memdum)
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
+     &          bra_type, 1, dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          bra_prim, bra_gen, bra_type, 2,
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), ket_prim, ket_gen,
+     &          ket_type, 3, dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          ket_prim, ket_gen, ket_type, 4,
+     &          dbl_mb(mb_exndcf(1,1)), nint, .false., .false.,
+     &          .false.,.true.,dbl_mb(mb_exndcf(1,1)), memdum)
 *rak:-start-debug
 *rak:          write(6,*)
 *rak:          write(6,*)'===============================================',
@@ -244,13 +276,23 @@ c
           memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
           nint = int_unint(brain,ibc,brain,ibc,ketin,ikc,ketin,ikc)
-          call hf2d(
-     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
-     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,2,
-     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,3,
-     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
-     &           exndcf,nint,.false.,.false.,.false.,
-     &           .true.,exndcf,memdum)
+*rak:          call hf2d(
+*rak:     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
+*rak:     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,2,
+*rak:     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,3,
+*rak:     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
+*rak:     &           exndcf,nint,.false.,.false.,.false.,
+*rak:     &           .true.,exndcf,memdum)
+          call hf2d(dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen, bra_type,
+     &          1, dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), ket_prim, ket_gen, ket_type,
+     &          2, dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen, bra_type,
+     &          3, dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)), ket_prim, ket_gen, ket_type,
+     &          4, dbl_mb(mb_exndcf(1,1)), nint,.false.,.false.,
+     &          .false., .true., dbl_mb(mb_exndcf(1,1)), memdum)
 *rak:-start-debug
 *rak:          find = fbra*fbra*fket*fket
 *rak:          write(6,10000)ibc,ikc,ibc,ikc,
@@ -263,13 +305,26 @@ c
             memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
             nint = int_unint(brain,ibc,brain,ibc,brain,ibc,ketin,ikc)
+*rak:            call hf2d(
+*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
+*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,2,
+*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,3,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
+*rak:     &             exndcf,nint,.false.,.false.,.false.,
+*rak:     &             .true.,exndcf,memdum)
             call hf2d(
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,2,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,3,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
-     &             exndcf,nint,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
+     &            bra_type, 1,  dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim, bra_gen, bra_type, 2,
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
+     &            bra_type, 3, dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim, ket_gen, ket_type, 4,
+     &            dbl_mb(mb_exndcf(1,1)), nint, .false., .false.,
+     &            .false., .true., dbl_mb(mb_exndcf(1,1)), memdum)
 *rak:-start-debug
 *rak:          find = fbra*fbra*fbra*fket
 *rak:          write(6,10000)ibc,ibc,ibc,ikc,
@@ -281,13 +336,25 @@ c
             memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
             nint = int_unint(brain,ibc,ketin,ikc,ketin,ikc,ketin,ikc)
+*rak:            call hf2d(
+*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,2,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,3,
+*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
+*rak:     &             exndcf,nint,.false.,.false.,.false.,
+*rak:     &             .true.,exndcf,memdum)
             call hf2d(
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,2,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,3,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
-     &             exndcf,nint,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
+     &            bra_type, 1, dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim, ket_gen, ket_type, 2,
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1))
+     &            ,dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type
+     &            ,3,dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1))
+     &            ,dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type
+     &            ,4,dbl_mb(mb_exndcf(1,1)),nint,.false.,.false.,
+     &            .false.,.true.,dbl_mb(mb_exndcf(1,1)),memdum)
 *rak:-start-debug
 *rak:          find = fbra*fket*fket*fket
 *rak:          write(6,10000)ibc,ikc,ikc,ikc,

@@ -1,6 +1,6 @@
       subroutine intp_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
      &       lscr, scr, leri, eri)
-c $Id: intp_2e3c.F,v 1.3 1995-06-16 09:44:19 d3e129 Exp $
+c $Id: intp_2e3c.F,v 1.4 1996-01-22 21:46:52 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two 
@@ -15,6 +15,9 @@ c
 #include "geomP.fh"
 #include "geobasmapP.fh"
 #include "stdio.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c
 c::external subroutines used
 c errquit
@@ -52,6 +55,9 @@ c
       save WarnP
       data WarnP /0/
 c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
 c check initialization
 c
       if (.not.int_chk_init('intp_2e3c'))
@@ -80,9 +86,9 @@ c
         WarnP = 1
       endif
 c
-      p_cent  = ibs_cn2ce(ish,bra)
-      c_cent  = ibs_cn2ce(jsh,ket)
-      d_cent  = ibs_cn2ce(ksh,ket)
+      p_cent  = (sf_ibs_cn2ce(ish,bra))
+      c_cent  = (sf_ibs_cn2ce(jsh,ket))
+      d_cent  = (sf_ibs_cn2ce(ksh,ket))
 c.. translate ish center coordinates based on Ri
       call intp_txyz(p_cent,p_geom,Ri,xyz_new_i)
 c.. translate jsh center coordinates based on Rj
@@ -90,21 +96,21 @@ c.. translate jsh center coordinates based on Rj
 c
       if(cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh)) then
 c
-        ucont   = ibs_cn2ucn(ish,bra)
+        ucont   = (sf_ibs_cn2ucn(ish,bra))
         Lp      = infbs_cont(CONT_TYPE ,ucont,bra)
         p_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
         p_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
         p_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
         p_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
 c
-        ucont   = ibs_cn2ucn(jsh,ket)
+        ucont   = (sf_ibs_cn2ucn(jsh,ket))
         Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
         c_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
         c_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
         c_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
         c_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
 c
-        ucont   = ibs_cn2ucn(ksh,ket)
+        ucont   = (sf_ibs_cn2ucn(ksh,ket))
         Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
         d_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
         d_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
@@ -112,14 +118,14 @@ c
         d_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
 c      
         call hf2(
-     &         xyz_new_i, exndcf(p_iexp,bra),
-     &         exndcf(p_icfp,bra), p_prim, p_gen, Lp,
+     &         xyz_new_i, dbl_mb(mb_exndcf(p_iexp,bra)),
+     &         dbl_mb(mb_exndcf(p_icfp,bra)), p_prim, p_gen, Lp,
      &         xyz_new_i, DCexp,
      &         DCcoeff           ,      1,     1, 0,
-     &         xyz_new_j, exndcf(c_iexp,ket),
-     &         exndcf(c_icfp,ket), c_prim, c_gen, Lc,
-     &         coords(1,d_cent,cd_geom), exndcf(d_iexp,ket),
-     &         exndcf(d_icfp,ket), d_prim,d_gen,Ld,
+     &         xyz_new_j, dbl_mb(mb_exndcf(c_iexp,ket)),
+     &         dbl_mb(mb_exndcf(c_icfp,ket)), c_prim, c_gen, Lc,
+     &         coords(1,d_cent,cd_geom), dbl_mb(mb_exndcf(d_iexp,ket)),
+     &         dbl_mb(mb_exndcf(d_icfp,ket)), d_prim,d_gen,Ld,
 c......................... canAB    canCD    canPQ
      &         eri, leri, .false., .false., .false.,
 c............ dryrun

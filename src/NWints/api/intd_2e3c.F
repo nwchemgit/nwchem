@@ -1,6 +1,6 @@
       subroutine intd_2e3c(brain, ish, ketin, jsh, ksh, 
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e3c.F,v 1.1 1994-11-06 12:54:34 d3e129 Exp $
+c $Id: intd_2e3c.F,v 1.2 1996-01-22 21:46:45 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -11,6 +11,9 @@ c
 #include "geomP.fh"
 #include "geobasmapP.fh"
 #include "apiP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c
 *:need to fix:#if defined(INT_TIMING)
 *:need to fix:#include "int_tim.fh"
@@ -85,6 +88,9 @@ c::local
       integer jnp, jgen, jexp, jcf, jtype, jatom
       integer knp, kgen, kexp, kcf, ktype, katom
 c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
       nint = int_nint(brain,ish,ketin,jsh,ketin,ksh,ketin,0)
       if (nint*3*4.gt.leri) then
         write(6,*) 'nint*3*4 = ',nint*3*4
@@ -104,29 +110,29 @@ c
       endif
       
 c
-      ucont = ibs_cn2ucn(ish,bra)
+      ucont = (sf_ibs_cn2ucn(ish,bra))
       inp   = infbs_cont(CONT_NPRIM,ucont,bra)
       igen  = infbs_cont(CONT_NGEN,ucont,bra)
       iexp  = infbs_cont(CONT_IEXP,ucont,bra)
       icf   = infbs_cont(CONT_ICFP,ucont,bra)
       itype = infbs_cont(CONT_TYPE,ucont,bra) 
-      iatom = ibs_cn2ce(ish,bra)
+      iatom = (sf_ibs_cn2ce(ish,bra))
 c
-      ucont = ibs_cn2ucn(jsh,ket)
+      ucont = (sf_ibs_cn2ucn(jsh,ket))
       jnp   = infbs_cont(CONT_NPRIM,ucont,ket)
       jgen  = infbs_cont(CONT_NGEN,ucont,ket)
       jexp  = infbs_cont(CONT_IEXP,ucont,ket)
       jcf   = infbs_cont(CONT_ICFP,ucont,ket)
       jtype = infbs_cont(CONT_TYPE,ucont,ket) 
-      jatom = ibs_cn2ce(jsh,ket)
+      jatom = (sf_ibs_cn2ce(jsh,ket))
 c
-      ucont = ibs_cn2ucn(ksh,ket)
+      ucont = (sf_ibs_cn2ucn(ksh,ket))
       knp   = infbs_cont(CONT_NPRIM,ucont,ket)
       kgen  = infbs_cont(CONT_NGEN,ucont,ket)
       kexp  = infbs_cont(CONT_IEXP,ucont,ket)
       kcf   = infbs_cont(CONT_ICFP,ucont,ket)
       ktype = infbs_cont(CONT_TYPE,ucont,ket) 
-      katom = ibs_cn2ce(ksh,ket)
+      katom = (sf_ibs_cn2ce(ksh,ket))
 c
 *:need to fix:#if defined(INT_TIMING)
 *:need to fix:      if(o_int_time.and.(int_time_level.ge.2))
@@ -140,17 +146,17 @@ c... new logic
       endif
 c
       call hf2d(
-     &       coords(1,iatom,ab_geom),exndcf(iexp,bra),
-     &       exndcf(icf,bra),inp,igen,itype,iatom,
+     &       coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
+     &       dbl_mb(mb_exndcf(icf,bra)),inp,igen,itype,iatom,
 c
      &       coords(1,iatom,ab_geom),DCexp,
      &       DCcoeff,1,1,0,iatom,
 c
-     &       coords(1,jatom,cd_geom),exndcf(jexp,ket),
-     &       exndcf(jcf,ket),jnp,jgen,jtype,jatom,
+     &       coords(1,jatom,cd_geom),dbl_mb(mb_exndcf(jexp,ket)),
+     &       dbl_mb(mb_exndcf(jcf,ket)),jnp,jgen,jtype,jatom,
 c
-     &       coords(1,katom,cd_geom),exndcf(kexp,ket),
-     &       exndcf(kcf,ket),knp,kgen,ktype,katom,
+     &       coords(1,katom,cd_geom),dbl_mb(mb_exndcf(kexp,ket)),
+     &       dbl_mb(mb_exndcf(kcf,ket)),knp,kgen,ktype,katom,
 c
      &       eri,nint,.false.,.false.,.false.,.false.,
      &       scr,lscr)

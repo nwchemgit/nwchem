@@ -1,11 +1,14 @@
       subroutine int_1cg(i_basis,ish,lscr,scr,l1g,G1e)
-c $Id: int_1cg.F,v 1.2 1995-01-09 08:48:22 d3e129 Exp $
+c $Id: int_1cg.F,v 1.3 1996-01-22 21:46:14 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c::external subroutines used
 c... errquit
 c::functions
@@ -29,6 +32,9 @@ c
       save WarnP
       data WarnP /0/
 c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
 c check initialization and shells
 c
       if (.not.int_chk_init('int_1cg'))
@@ -40,33 +46,37 @@ c
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
 c
-      ucont   = ibs_cn2ucn(ish,ibas)
+      ucont   = (sf_ibs_cn2ucn(ish,ibas))
       Li      = infbs_cont(CONT_TYPE ,ucont,ibas)
       i_prim  = infbs_cont(CONT_NPRIM,ucont,ibas)
       i_gen   = infbs_cont(CONT_NGEN ,ucont,ibas)
       i_iexp  = infbs_cont(CONT_IEXP ,ucont,ibas)
       i_icfp  = infbs_cont(CONT_ICFP ,ucont,ibas)
-      i_cent  = ibs_cn2ce(ish,ibas)
+      i_cent  = (sf_ibs_cn2ce(ish,ibas))
       i_geom  = ibs_geom(ibas)
 c
       if (cando_sp(i_basis,ish,0)) then
         call int_hf1sp(
-     &         coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
-     &         exndcf(i_icfp,ibas), i_prim, i_gen, Li,
-     &         coords(1,i_cent,i_geom),DCexp,
-     &         DCcoeff, 1, 1, 0,
-     &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        coords(1,i_cent,i_geom),
+     &        dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &        dbl_mb(mb_exndcf(i_icfp,ibas)),
+     &        i_prim, i_gen, Li,
+     &        coords(1,i_cent,i_geom), DCexp, DCcoeff, 1, 1,
+     &        0,coords(1,1,i_geom),charge(1,i_geom),
+     &        ncenter(i_geom),
 c............................. doS    doT     doV     canonical
-     &         G1e,scr,scr,l1g,.true.,.false.,.false.,.false.,
+     &        G1e,scr,scr,l1g,.true.,.false.,.false.,.false.,
 c.............. dryrun
-     &         .false.,scr,lscr,'int_1cg')
+     &        .false.,scr,lscr,'int_1cg')
       elseif (cando_nw(i_basis,ish,0)) then
         call hf1(
-     &         coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
-     &         exndcf(i_icfp,ibas), i_prim, i_gen, Li,
-     &         coords(1,i_cent,i_geom),DCexp,
-     &         DCcoeff, 1, 1, 0,
-     &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        coords(1,i_cent,i_geom),
+     &        dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &        dbl_mb(mb_exndcf(i_icfp,ibas)),
+     &        i_prim, i_gen, Li,
+     &        coords(1,i_cent,i_geom),DCexp,
+     &        DCcoeff, 1, 1, 0,
+     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
 c............................. doS    doT     doV     canonical
      &         G1e,scr,scr,l1g,.true.,.false.,.false.,.false.,
 c.............. dryrun

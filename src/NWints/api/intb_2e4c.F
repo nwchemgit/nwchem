@@ -2,7 +2,7 @@
      &    num_q, q4, use_q4, zerotol, canonicalize,
      &    ilab, jlab, klab, llab, eri,
      &    l_erilab, nint, lscr, scr)
-* $Id: intb_2e4c.F,v 1.4 1995-12-22 01:39:09 d3e129 Exp $
+* $Id: intb_2e4c.F,v 1.5 1996-01-22 21:46:38 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -10,6 +10,7 @@
 #include "geobasmapP.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::functions
       logical cando_txs
       external cando_txs
@@ -42,6 +43,8 @@ c::local
       integer numint, numinti, numintj, numintk, numintl, nint_for_q
       integer i_q, i_q_done
       logical status
+c
+#include "bas_ibs_sfn.fh"
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
@@ -93,10 +96,14 @@ c
       num_q_last = num_q_start
       nint = 0
       do 00100 i_q = num_q_start, num_q
-        numinti=ibs_cn2bfr(2,icl(i_q),bra)-ibs_cn2bfr(1,icl(i_q),bra)+1
-        numintj=ibs_cn2bfr(2,jcl(i_q),bra)-ibs_cn2bfr(1,jcl(i_q),bra)+1
-        numintk=ibs_cn2bfr(2,kcl(i_q),ket)-ibs_cn2bfr(1,kcl(i_q),ket)+1
-        numintl=ibs_cn2bfr(2,lcl(i_q),ket)-ibs_cn2bfr(1,lcl(i_q),ket)+1
+        numinti=(sf_ibs_cn2bfr(2,icl(i_q),bra))-
+     &        (sf_ibs_cn2bfr(1,icl(i_q),bra))+1
+        numintj=(sf_ibs_cn2bfr(2,jcl(i_q),bra))-
+     &        (sf_ibs_cn2bfr(1,jcl(i_q),bra))+1
+        numintk=(sf_ibs_cn2bfr(2,kcl(i_q),ket))-
+     &        (sf_ibs_cn2bfr(1,kcl(i_q),ket))+1
+        numintl=(sf_ibs_cn2bfr(2,lcl(i_q),ket))-
+     &        (sf_ibs_cn2bfr(1,lcl(i_q),ket))+1
         numint=numinti*numintj*numintk*numintl
         if (numint.gt.leri_left) then
           goto 00002

@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.17 1995-12-22 01:38:58 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.18 1996-01-22 21:46:24 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -11,6 +11,9 @@ c
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c
 #if defined(INT_TIMING)
 #include "int_tim.fh"
@@ -64,6 +67,10 @@ c... statement function for int_chk_sh
       inline_chk_sh(bra,ish) =
      $     ((ish.gt.0) .and. (ish.le.ncont_tot_gb(bra)))
 #endif
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
 #if defined(PERF_NORMAL)
 c
 c check initialization
@@ -101,10 +108,10 @@ c
       endif
 c
 #endif
-      a_cent  = ibs_cn2ce(ish,bra)
-      b_cent  = ibs_cn2ce(jsh,bra)
-      c_cent  = ibs_cn2ce(ksh,ket)
-      d_cent  = ibs_cn2ce(lsh,ket)
+      a_cent  = (sf_ibs_cn2ce(ish,bra))
+      b_cent  = (sf_ibs_cn2ce(jsh,bra))
+      c_cent  = (sf_ibs_cn2ce(ksh,ket))
+      d_cent  = (sf_ibs_cn2ce(lsh,ket))
 c
 #if defined(INT_TIMING)
       if(o_int_time.and.(int_time_level.ge.1))
@@ -115,13 +122,13 @@ c... stat sp
 
 c... stat texas
       texas_ang_limit = 2
-      ucont   = ibs_cn2ucn(ish,bra)
+      ucont   = (sf_ibs_cn2ucn(ish,bra))
       La      = infbs_cont(CONT_TYPE ,ucont,bra)
-      ucont   = ibs_cn2ucn(jsh,bra)
+      ucont   = (sf_ibs_cn2ucn(jsh,bra))
       Lb      = infbs_cont(CONT_TYPE ,ucont,bra)
-      ucont   = ibs_cn2ucn(ksh,ket)
+      ucont   = (sf_ibs_cn2ucn(ksh,ket))
       Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
-      ucont   = ibs_cn2ucn(lsh,ket)
+      ucont   = (sf_ibs_cn2ucn(lsh,ket))
       Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
       status_txs = cando_txs(brain,ish,jsh).and.cando_txs(ketin,ksh,lsh)
       status_txs = status_txs .and. brain.eq.ketin
@@ -162,28 +169,28 @@ c............... gen labs .. more_integrals
 
       elseif(status_nw) then
 c
-        ucont   = ibs_cn2ucn(ish,bra)
+        ucont   = (sf_ibs_cn2ucn(ish,bra))
         La      = infbs_cont(CONT_TYPE ,ucont,bra)
         a_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
         a_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
         a_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
         a_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
 c
-        ucont   = ibs_cn2ucn(jsh,bra)
+        ucont   = (sf_ibs_cn2ucn(jsh,bra))
         Lb      = infbs_cont(CONT_TYPE ,ucont,bra)
         b_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
         b_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
         b_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
         b_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
 c      
-        ucont   = ibs_cn2ucn(ksh,ket)
+        ucont   = (sf_ibs_cn2ucn(ksh,ket))
         Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
         c_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
         c_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
         c_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
         c_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
 c
-        ucont   = ibs_cn2ucn(lsh,ket)
+        ucont   = (sf_ibs_cn2ucn(lsh,ket))
         Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
         d_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
         d_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
@@ -191,14 +198,14 @@ c
         d_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
 c      
         call hf2(
-     &         coords(1,a_cent,ab_geom), exndcf(a_iexp,bra),
-     &         exndcf(a_icfp,bra), a_prim, a_gen, La,
-     &         coords(1,b_cent,ab_geom), exndcf(b_iexp,bra),
-     &         exndcf(b_icfp,bra), b_prim, b_gen, Lb,
-     &         coords(1,c_cent,cd_geom), exndcf(c_iexp,ket),
-     &         exndcf(c_icfp,ket), c_prim, c_gen, Lc,
-     &         coords(1,d_cent,cd_geom), exndcf(d_iexp,ket),
-     &         exndcf(d_icfp,ket), d_prim,d_gen,Ld,
+     &         coords(1,a_cent,ab_geom), dbl_mb(mb_exndcf(a_iexp,bra)),
+     &         dbl_mb(mb_exndcf(a_icfp,bra)), a_prim, a_gen, La,
+     &         coords(1,b_cent,ab_geom), dbl_mb(mb_exndcf(b_iexp,bra)),
+     &         dbl_mb(mb_exndcf(b_icfp,bra)), b_prim, b_gen, Lb,
+     &         coords(1,c_cent,cd_geom), dbl_mb(mb_exndcf(c_iexp,ket)),
+     &         dbl_mb(mb_exndcf(c_icfp,ket)), c_prim, c_gen, Lc,
+     &         coords(1,d_cent,cd_geom), dbl_mb(mb_exndcf(d_iexp,ket)),
+     &         dbl_mb(mb_exndcf(d_icfp,ket)), d_prim,d_gen,Ld,
 c....................... canAB    canCD    canPQ
      &         eri, leri, .false., .false., .false.,
 c............ dryrun

@@ -1,6 +1,6 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.12 1996-01-05 01:59:49 d3e129 Exp $
+c $Id: cando_sp.F,v 1.13 1996-01-22 21:46:05 d3e129 Exp $
 c
 c a zero [i|j]sh means ignore this shell
 c this allows one function for all 1e and 2e permutations
@@ -16,10 +16,14 @@ c
 #include "basdeclsP.fh"
 #include "candoP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::passed
       integer basisin,ish,jsh
 c::local
       integer basis, mytype, mycont
+      integer ucont
+#include "bas_ibs_sfn.fh"
 c
       if (user_cando_sp) then
         cando_sp = def_cando_sp
@@ -32,8 +36,9 @@ c
 c
 c.... check ish
       if (ish.gt.0) then
-        mytype = infbs_cont(CONT_TYPE,ibs_cn2ucn(ish,basis),basis)
-        mycont = infbs_cont(CONT_NPRIM,ibs_cn2ucn(ish,basis),basis)
+        ucont = (sf_ibs_cn2ucn(ish,basis))
+        mytype = infbs_cont(CONT_TYPE, ucont,basis)
+        mycont = infbs_cont(CONT_NPRIM,ucont,basis)
         cando_sp = cando_sp .and.
      &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
      $         (mycont.le.25)
@@ -41,8 +46,9 @@ c.... check ish
 c
 c.... check jsh
       if (jsh.gt.0) then
-        mytype = infbs_cont(CONT_TYPE,ibs_cn2ucn(jsh,basis),basis)
-        mycont = infbs_cont(CONT_NPRIM,ibs_cn2ucn(jsh,basis),basis)
+        ucont = (sf_ibs_cn2ucn(jsh,basis))
+        mytype = infbs_cont(CONT_TYPE, ucont,basis)
+        mycont = infbs_cont(CONT_NPRIM,ucont,basis)
         cando_sp = cando_sp .and.
      &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
      $         (mycont.le.25)
@@ -67,10 +73,14 @@ c
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "candoP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::passed
       integer basisin,ish,jsh
 c::local
-      integer basis, mytype
+      integer basis, mytype, ucont
+c
+#include "bas_ibs_sfn.fh"
 c
       if (user_cando_nw) then
         cando_nw = def_cando_nw
@@ -83,13 +93,15 @@ c
 c
 c.... check ish
       if (ish.gt.0) then
-        mytype = infbs_cont(CONT_TYPE,ibs_cn2ucn(ish,basis),basis)
+        ucont  = (sf_ibs_cn2ucn(ish,basis))
+        mytype = infbs_cont(CONT_TYPE,ucont,basis)
         cando_nw = cando_nw .and.(mytype.gt.-1)
       endif
 c
 c.... check jsh
       if (jsh.gt.0) then
-        mytype = infbs_cont(CONT_TYPE,ibs_cn2ucn(jsh,basis),basis)
+        ucont  = (sf_ibs_cn2ucn(jsh,basis))
+        mytype = infbs_cont(CONT_TYPE,ucont,basis)
         cando_nw = cando_nw .and.(mytype.gt.-1)
       endif
 c

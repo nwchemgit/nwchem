@@ -1,6 +1,6 @@
       subroutine genr70(bra, ish, xi, jsh, xj, ket, ksh, xk, lsh, xl,
      $     eri)
-c $Id: genr70.F,v 1.4 1994-10-06 00:18:55 d3g681 Exp $
+c $Id: genr70.F,v 1.5 1996-01-22 21:49:13 d3e129 Exp $
 c
 c     Generic interface to the gaussian two electron integral package.
 c     Evaluates those integrals involving only s, p and sp functions.
@@ -15,6 +15,9 @@ c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "shllfo.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c
       integer bra, ket          ! [input] bra/ket basis handles
       integer ish, jsh, ksh, lsh ![input] indices of contractions
@@ -39,6 +42,10 @@ c
       external bas_check_handle
 #endif
 c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+c
 c     check basis handles, prepare to get data from basis structures
 c
 #ifdef BASIS_DEBUG
@@ -54,10 +61,10 @@ c
 c     Map from user shell/contractions to internal unique contractions
 c     and get the shell types
 c
-      ush(1) = ibs_cn2ucn(ish,bas(1))
-      ush(2) = ibs_cn2ucn(jsh,bas(2))
-      ush(3) = ibs_cn2ucn(ksh,bas(3))
-      ush(4) = ibs_cn2ucn(lsh,bas(4))
+      ush(1) = (sf_ibs_cn2ucn(ish,bas(1)))
+      ush(2) = (sf_ibs_cn2ucn(jsh,bas(2)))
+      ush(3) = (sf_ibs_cn2ucn(ksh,bas(3)))
+      ush(4) = (sf_ibs_cn2ucn(lsh,bas(4)))
       typ(1) = infbs_cont(CONT_TYPE,ush(1),bas(1))
       typ(2) = infbs_cont(CONT_TYPE,ush(2),bas(2))
       typ(3) = infbs_cont(CONT_TYPE,ush(3),bas(3))
@@ -206,15 +213,19 @@ c
 c     Sinfo computes info about axis rotation etc.
 c
       call sinfo(
-     $     iush, isht, exndcf(iptc,ibas), exndcf(ipte,ibas),
-     $     ngi, x(1,ib(1)),
-     $     jush, jsht, exndcf(jptc,jbas), exndcf(jpte,jbas),
-     $     ngj, x(1,ib(2)),
-     $     kush, ksht, exndcf(kptc,kbas), exndcf(kpte,kbas),
-     $     ngk, x(1,ib(3)),
-     $     lush, lsht, exndcf(lptc,lbas), exndcf(lpte,lbas),
-     $     ngl, x(1,ib(4)),
-     $     jtype)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+     $      iush, isht, dbl_mb(mb_exndcf(iptc,ibas)),
+     &      dbl_mb(mb_exndcf(ipte,ibas)),
+     $      ngi, x(1,ib(1)),
+     $      jush, jsht, dbl_mb(mb_exndcf(jptc,jbas)),
+     &      dbl_mb(mb_exndcf(jpte,jbas)),
+     $      ngj, x(1,ib(2)),
+     $      kush, ksht, dbl_mb(mb_exndcf(kptc,kbas)),
+     &      dbl_mb(mb_exndcf(kpte,kbas)),
+     $      ngk, x(1,ib(3)),
+     $      lush, lsht, dbl_mb(mb_exndcf(lptc,lbas)),
+     &      dbl_mb(mb_exndcf(lpte,lbas)),
+     $      ngl, x(1,ib(4)), jtype)
 c
       go to(440,480,500,520,540,560),jtype
   440 call sp0000(eri)          ! Fast return for (ss|ss)

@@ -3,12 +3,15 @@
 c
 c routine to calculate the 3 center overlap integrals
 c
-C$Id: int_1e3ov.F,v 1.5 1995-02-02 23:08:35 d3g681 Exp $
+C$Id: int_1e3ov.F,v 1.6 1996-01-22 21:46:15 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "geomP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c:: external subroutines used
 c..  errquit
 c::functions
@@ -38,6 +41,9 @@ c
       save WarnP
       data WarnP /0/
 c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
 c check initialization and shells
 c
       if (.not.int_chk_init('int_1e3ov'))
@@ -53,31 +59,31 @@ c
       jbas = j_basis + BASIS_HANDLE_OFFSET
       kbas = k_basis + BASIS_HANDLE_OFFSET
 c
-      ucont   = ibs_cn2ucn(ish,ibas)
+      ucont   = (sf_ibs_cn2ucn(ish,ibas))
       Li      = infbs_cont(CONT_TYPE ,ucont,ibas)
       i_prim  = infbs_cont(CONT_NPRIM,ucont,ibas)
       i_gen   = infbs_cont(CONT_NGEN ,ucont,ibas)
       i_iexp  = infbs_cont(CONT_IEXP ,ucont,ibas)
       i_icfp  = infbs_cont(CONT_ICFP ,ucont,ibas)
-      i_cent  = ibs_cn2ce(ish,ibas)
+      i_cent  = (sf_ibs_cn2ce(ish,ibas))
       i_geom  = ibs_geom(ibas)
 c
-      ucont   = ibs_cn2ucn(jsh,jbas)
+      ucont   = (sf_ibs_cn2ucn(jsh,jbas))
       Lj      = infbs_cont(CONT_TYPE ,ucont,jbas)
       j_prim  = infbs_cont(CONT_NPRIM,ucont,jbas)
       j_gen   = infbs_cont(CONT_NGEN ,ucont,jbas)
       j_iexp  = infbs_cont(CONT_IEXP ,ucont,jbas)
       j_icfp  = infbs_cont(CONT_ICFP ,ucont,jbas)
-      j_cent  = ibs_cn2ce(jsh,jbas)
+      j_cent  = (sf_ibs_cn2ce(jsh,jbas))
       j_geom  = ibs_geom(jbas)
 c
-      ucont   = ibs_cn2ucn(ksh,kbas)
+      ucont   = (sf_ibs_cn2ucn(ksh,kbas))
       Lk      = infbs_cont(CONT_TYPE ,ucont,kbas)
       k_prim  = infbs_cont(CONT_NPRIM,ucont,kbas)
       k_gen   = infbs_cont(CONT_NGEN ,ucont,kbas)
       k_iexp  = infbs_cont(CONT_IEXP ,ucont,kbas)
       k_icfp  = infbs_cont(CONT_ICFP ,ucont,kbas)
-      k_cent  = ibs_cn2ce(ksh,kbas)
+      k_cent  = (sf_ibs_cn2ce(ksh,kbas))
       k_geom  = ibs_geom(kbas)
 c
       if ((i_geom.ne.j_geom.or.j_geom.ne.k_geom).and.WarnP.eq.0) then
@@ -89,12 +95,18 @@ c
       endif
 c
       call hf3OIs(
-     &       coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
-     &       exndcf(i_icfp,ibas),i_prim, Li,
-     &       coords(1,j_cent,j_geom),exndcf(j_iexp,jbas),
-     &       exndcf(j_icfp,jbas),j_prim, Lj,
-     &       coords(1,k_cent,k_geom),exndcf(k_iexp,kbas),
-     &       exndcf(k_icfp,kbas),k_prim, Lk,
+     &      coords(1,i_cent,i_geom),
+     &      dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &      dbl_mb(mb_exndcf(i_icfp,ibas)),
+     &      i_prim, Li,
+     &      coords(1,j_cent,j_geom),
+     &      dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &      dbl_mb(mb_exndcf(j_icfp,jbas)),
+     &      j_prim, Lj,
+     &      coords(1,k_cent,k_geom),
+     &      dbl_mb(mb_exndcf(k_iexp,kbas)),
+     &      dbl_mb(mb_exndcf(k_icfp,kbas)),
+     &      k_prim, Lk,
 c.....................TriDiag..DryRun
      &       OV3,lov3,.false.,.false.,scr,lscr)
       end

@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.12 1996-01-22 18:32:21 d3g681 Exp $
+c $Id: texas_face.F,v 1.13 1996-01-22 21:49:27 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -270,6 +270,8 @@ c----------------------------------------------------------------------
       common /c_rtdb_copy/ rtdb_copy
       character*255 basis_name,trans_bname
       integer bas
+c
+c
 c----------------------------------------------------------------------
 c only for tests:
 c
@@ -444,28 +446,39 @@ c
 c==============1
       subroutine basdat(bas, ics, datbas,inx, ipshell)
       implicit real*8 (a-h,o-z)
+****
+**  This routine should be changed to be only the interface calls
+**  RAK
+****
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
       integer bas
       dimension datbas(13,*),inx(12,*)
       dimension isize(10)
       data isize /1, 3, 4, 5, 6, 7, 10, 15, 21, 28 /
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
 c---------------  s  p  l d5 d6  f7 f10 g15 h21 i28 -----------c
 c
       inx(1,ics)=ipshell
-      inx(2,ics)=ibs_cn2ce(ics,bas)
-      itype = infbs_cont(CONT_TYPE,ibs_cn2ucn(ics,bas),bas)
+      inx(2,ics)=(sf_ibs_cn2ce(ics,bas))
+      itype = infbs_cont(CONT_TYPE,(sf_ibs_cn2ucn(ics,bas)),bas)
       ityp1 = itype + 1
       if(itype.eq.-1) ityp1=3
       if(itype.eq.2 ) ityp1=5
       if(itype.gt.2 ) ityp1=itype+4
       inx(3,ics)=isize(ityp1)
-      igen = infbs_cont(CONT_NGEN,ibs_cn2ucn(ics,bas),bas)
+      igen = infbs_cont(CONT_NGEN,(sf_ibs_cn2ucn(ics,bas)),bas)
       inx(4,ics)=igen-1
       if(ityp1.eq.3) inx(4,ics)=0
-      iprim = infbs_cont(CONT_NPRIM,ibs_cn2ucn(ics,bas),bas)
+      iprim = infbs_cont(CONT_NPRIM,(sf_ibs_cn2ucn(ics,bas)),bas)
       inx(5,ics)=ipshell+iprim
 c------------------
 c     inx(6,ics)= symm.
@@ -480,21 +493,22 @@ c------------------
 c
 c transfer primitive shells info :
 c
-      iexppnl = infbs_cont(CONT_IEXP,ibs_cn2ucn(ics,bas),bas) - 1
-      icofpnl = infbs_cont(CONT_ICFP,ibs_cn2ucn(ics,bas),bas) - 1
+      iexppnl = infbs_cont(CONT_IEXP,(sf_ibs_cn2ucn(ics,bas)),bas) - 1
+      icofpnl = infbs_cont(CONT_ICFP,(sf_ibs_cn2ucn(ics,bas)),bas) - 1
       do 100 ipr=1,iprim
         ips=ipr+ipshell
 *       datbas(1,ips)=ext(ipr)
-        datbas(1,ips)=exndcf(iexppnl+ipr,bas)
+        datbas(1,ips)=sf_exndcf(iexppnl+ipr,bas)
         if(ityp1.eq.3) then
-           datbas(2,ips)=exndcf(icofpnl+ipr,bas)
-           datbas(3,ips)=exndcf(icofpnl+ipr+iprim,bas)
+           datbas(2,ips)=sf_exndcf(icofpnl+ipr,bas)
+           datbas(3,ips)=sf_exndcf(icofpnl+ipr+iprim,bas)
         else
            do 150 igc=1,igen
-            datbas(1+igc,ips)=exndcf(icofpnl+ipr+((igc-1)*iprim),bas)
+            datbas(1+igc,ips)=
+     &             sf_exndcf(icofpnl+ipr+((igc-1)*iprim),bas)
  150       continue
         endif
-        iat = ibs_cn2ce(ics,bas)
+        iat = (sf_ibs_cn2ce(ics,bas))
         datbas(11,ips)=coords(1,iat,ibs_geom(bas))
         datbas(12,ips)=coords(2,iat,ibs_geom(bas))
         datbas(13,ips)=coords(3,iat,ibs_geom(bas))

@@ -1,6 +1,6 @@
       subroutine intd_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri, idatom2)
-c $Id: intd_2e2c.F,v 1.2 1995-12-22 01:39:10 d3e129 Exp $
+c $Id: intd_2e2c.F,v 1.3 1996-01-22 21:46:43 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -11,6 +11,9 @@ c
 #include "geomP.fh"
 #include "geobasmapP.fh"
 #include "apiP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 *:need to fix:#if defined(INT_TIMING)
 *:need to fix:#include "int_tim.fh"
 *:need to fix:#include "pstat.fh"
@@ -72,6 +75,9 @@ c::local
       integer inp, igen, iexp, icf, itype, iatom
       integer jnp, jgen, jexp, jcf, jtype, jatom
 c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
       nint = int_nint(brain,ish,ketin,jsh,brain,0,ketin,0)
       if (nint*3*4.gt.leri) then
         write(6,*) 'nint*3*4 = ',nint*3*4
@@ -91,21 +97,21 @@ c
       endif
       
 c
-      ucont = ibs_cn2ucn(ish,bra)
+      ucont = (sf_ibs_cn2ucn(ish,bra))
       inp   = infbs_cont(CONT_NPRIM,ucont,bra)
       igen  = infbs_cont(CONT_NGEN,ucont,bra)
       iexp  = infbs_cont(CONT_IEXP,ucont,bra)
       icf   = infbs_cont(CONT_ICFP,ucont,bra)
       itype = infbs_cont(CONT_TYPE,ucont,bra) 
-      iatom = ibs_cn2ce(ish,bra)
+      iatom = (sf_ibs_cn2ce(ish,bra))
 c
-      ucont = ibs_cn2ucn(jsh,ket)
+      ucont = (sf_ibs_cn2ucn(jsh,ket))
       jnp   = infbs_cont(CONT_NPRIM,ucont,ket)
       jgen  = infbs_cont(CONT_NGEN,ucont,ket)
       jexp  = infbs_cont(CONT_IEXP,ucont,ket)
       jcf   = infbs_cont(CONT_ICFP,ucont,ket)
       jtype = infbs_cont(CONT_TYPE,ucont,ket) 
-      jatom = ibs_cn2ce(jsh,ket)
+      jatom = (sf_ibs_cn2ce(jsh,ket))
 c
 c... new logic
       if (iatom.eq.jatom) then
@@ -120,14 +126,14 @@ c
 *:need to fix:#endif
 c
       call hf2d(
-     &       coords(1,iatom,ab_geom),exndcf(iexp,bra),
-     &       exndcf(icf,bra),inp,igen,itype,iatom,
+     &       coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
+     &       dbl_mb(mb_exndcf(icf,bra)),inp,igen,itype,iatom,
 c
      &       coords(1,iatom,ab_geom),DCexp,
      &       DCcoeff,1,1,0,iatom,
 c
-     &       coords(1,jatom,cd_geom),exndcf(jexp,ket),
-     &       exndcf(jcf,ket),jnp,jgen,jtype,jatom,
+     &       coords(1,jatom,cd_geom),dbl_mb(mb_exndcf(jexp,ket)),
+     &       dbl_mb(mb_exndcf(jcf,ket)),jnp,jgen,jtype,jatom,
 c
      &       coords(1,jatom,cd_geom),DCexp,
      &       DCcoeff,1,1,0,jatom,

@@ -1,6 +1,6 @@
       subroutine int_mpole(i_basis, ish, j_basis, jsh, lmax, centerl,
      &    lscr, scr, lmpint, MP)
-c $Id: int_mpole.F,v 1.4 1995-03-04 16:32:52 d3e129 Exp $
+c $Id: int_mpole.F,v 1.5 1996-01-22 21:46:35 d3e129 Exp $
 c
 c routine to compute multipole integrals up to level lmax
 c The general form is <shell|pole|shell>
@@ -20,6 +20,9 @@ c
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "geomP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c
 c::functions
       logical int_chk_init
@@ -51,6 +54,9 @@ c
       save WarnP
       data WarnP /0/
 c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
 c... statement function for int_chk_sh
       inline_chk_sh(ibas,ish) =
      $     ((ish.gt.0) .and. (ish.le.ncont_tot_gb(ibas)))
@@ -70,22 +76,22 @@ c
       if (.not. shells_ok)
      &       call errquit('int_mpole: invalid contraction/shell',0)
 c
-      ucont   = ibs_cn2ucn(ish,ibas)
+      ucont   = (sf_ibs_cn2ucn(ish,ibas))
       Li      = infbs_cont(CONT_TYPE ,ucont,ibas)
       i_prim  = infbs_cont(CONT_NPRIM,ucont,ibas)
       i_gen   = infbs_cont(CONT_NGEN ,ucont,ibas)
       i_iexp  = infbs_cont(CONT_IEXP ,ucont,ibas)
       i_icfp  = infbs_cont(CONT_ICFP ,ucont,ibas)
-      i_cent  = ibs_cn2ce(ish,ibas)
+      i_cent  = (sf_ibs_cn2ce(ish,ibas))
       i_geom  = ibs_geom(ibas)
 c
-      ucont   = ibs_cn2ucn(jsh,jbas)
+      ucont   = (sf_ibs_cn2ucn(jsh,jbas))
       Lj      = infbs_cont(CONT_TYPE ,ucont,jbas)
       j_prim  = infbs_cont(CONT_NPRIM,ucont,jbas)
       j_gen   = infbs_cont(CONT_NGEN ,ucont,jbas)
       j_iexp  = infbs_cont(CONT_IEXP ,ucont,jbas)
       j_icfp  = infbs_cont(CONT_ICFP ,ucont,jbas)
-      j_cent  = ibs_cn2ce(jsh,jbas)
+      j_cent  = (sf_ibs_cn2ce(jsh,jbas))
       j_geom  = ibs_geom(jbas)
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
@@ -113,12 +119,12 @@ c
           call errquit('int_mpole: lmpint too small ',911)
         endif
         call hf3ois(
-     &       coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
-     &       exndcf(i_icfp,ibas),i_prim, Li,
+     &       coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &       dbl_mb(mb_exndcf(i_icfp,ibas)),i_prim, Li,
      &       centerl,DCexp,
      &       DCcoeff, 1,  lval,
-     &       coords(1,j_cent,j_geom),exndcf(j_iexp,jbas),
-     &       exndcf(j_icfp,jbas),j_prim, Lj,
+     &       coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &       dbl_mb(mb_exndcf(j_icfp,jbas)),j_prim, Lj,
 c...................................TriDiag..DryRun
      &       MP(int_point),int_size,.false.,.false.,scr,lscr)
 00100 continue

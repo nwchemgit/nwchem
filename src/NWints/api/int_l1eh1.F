@@ -1,9 +1,11 @@
       subroutine int_l1eh1(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, lh1, H1, lscr, scr, numgen) 
-c $Id: int_l1eh1.F,v 1.2 1995-12-22 01:39:01 d3e129 Exp $
+c $Id: int_l1eh1.F,v 1.3 1996-01-22 21:46:27 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c
 c::external subroutines used
 c errquit
@@ -22,6 +24,8 @@ c::local
       logical nonzero
       integer numint, newlscr
 c
+#include "bas_ibs_sfn.fh"
+c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
@@ -31,16 +35,20 @@ c
       jbas  = j_basis + BASIS_HANDLE_OFFSET
       ijbas = ibas .eq. jbas
 c
-      numint =         ibs_cn2bfr(2,ish,ibas)-ibs_cn2bfr(1,ish,ibas)+1
-      numint = numint*(ibs_cn2bfr(2,jsh,jbas)-ibs_cn2bfr(1,jsh,jbas)+1)
+      numint =         (sf_ibs_cn2bfr(2,ish,ibas))-
+     &      (sf_ibs_cn2bfr(1,ish,ibas))+1
+      numint = numint*((sf_ibs_cn2bfr(2,jsh,jbas))-
+     &      (sf_ibs_cn2bfr(1,jsh,jbas))+1)
       newlscr = lscr - numint
       call int_1eh1(i_basis, ish, j_basis, jsh,
      &    newlscr,scr(numint+1),numint,scr)
 c
       numgen = 0
       icount = 0
-      do 00100 i = ibs_cn2bfr(1,ish,ibas), ibs_cn2bfr(2,ish,ibas)
-        do 00200 j = ibs_cn2bfr(1,jsh,jbas), ibs_cn2bfr(2,jsh,jbas)
+      do 00100 i = (sf_ibs_cn2bfr(1,ish,ibas)),
+     &      (sf_ibs_cn2bfr(2,ish,ibas))
+        do 00200 j = (sf_ibs_cn2bfr(1,jsh,jbas)),
+     &        (sf_ibs_cn2bfr(2,jsh,jbas))
           icount = icount + 1
           nonzero = abs(scr(icount)).ge.zerotol
           if (nonzero) then

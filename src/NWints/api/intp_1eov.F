@@ -1,10 +1,13 @@
       subroutine intp_1eov(i_basis,ish,j_basis,jsh,R,lscr,scr,lov,Ov)
-c $Id: intp_1eov.F,v 1.4 1995-06-16 09:44:15 d3e129 Exp $
+c $Id: intp_1eov.F,v 1.5 1996-01-22 21:46:49 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c::external subroutines used
 c... errquit
 c::functions
@@ -38,6 +41,9 @@ c
       integer WarnP
       save WarnP
       data WarnP /0/
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c... statement function for int_chk_sh
       inline_chk_sh(ibas,ish) =
      $     ((ish.gt.0) .and. (ish.le.ncont_tot_gb(ibas)))
@@ -55,22 +61,22 @@ c
       if (.not.shells_ok)
      &       call errquit('intp_1eov: invalid contraction/shell',0)
 c
-      ucont   = ibs_cn2ucn(ish,ibas)
+      ucont   = (sf_ibs_cn2ucn(ish,ibas))
       Li      = infbs_cont(CONT_TYPE ,ucont,ibas)
       i_prim  = infbs_cont(CONT_NPRIM,ucont,ibas)
       i_gen   = infbs_cont(CONT_NGEN ,ucont,ibas)
       i_iexp  = infbs_cont(CONT_IEXP ,ucont,ibas)
       i_icfp  = infbs_cont(CONT_ICFP ,ucont,ibas)
-      i_cent  = ibs_cn2ce(ish,ibas)
+      i_cent  = (sf_ibs_cn2ce(ish,ibas))
       i_geom  = ibs_geom(ibas)
 c
-      ucont   = ibs_cn2ucn(jsh,jbas)
+      ucont   = (sf_ibs_cn2ucn(jsh,jbas))
       Lj      = infbs_cont(CONT_TYPE ,ucont,jbas)
       j_prim  = infbs_cont(CONT_NPRIM,ucont,jbas)
       j_gen   = infbs_cont(CONT_NGEN ,ucont,jbas)
       j_iexp  = infbs_cont(CONT_IEXP ,ucont,jbas)
       j_icfp  = infbs_cont(CONT_ICFP ,ucont,jbas)
-      j_cent  = ibs_cn2ce(jsh,jbas)
+      j_cent  = (sf_ibs_cn2ce(jsh,jbas))
       j_geom  = ibs_geom(jbas)
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
@@ -85,10 +91,10 @@ c.. translate coordinates based on R
 c
       if (cando_sp(i_basis,ish,0).and.cando_sp(j_basis,jsh,0)) then
         call int_hf1sp(
-     &         coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
-     &         exndcf(i_icfp,ibas), i_prim, i_gen, Li,
-     &         xyz_new,exndcf(j_iexp,jbas),
-     &         exndcf(j_icfp,jbas), j_prim, j_gen, Lj,
+     &         coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &         dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
+     &         xyz_new,dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &         dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
      &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
 c............................. doS    doT     doV     canonical
      &         Ov,scr,scr,lov,.true.,.false.,.false.,.false.,
@@ -96,10 +102,10 @@ c.............. dryrun
      &         .false.,scr,lscr,'intp_1eov')
       elseif (cando_nw(i_basis,ish,0).and.cando_nw(j_basis,jsh,0)) then
         call hf1(
-     &         coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
-     &         exndcf(i_icfp,ibas), i_prim, i_gen, Li,
-     &         xyz_new,exndcf(j_iexp,jbas),
-     &         exndcf(j_icfp,jbas), j_prim, j_gen, Lj,
+     &         coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &         dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
+     &         xyz_new,dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &         dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
      &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
 c............................. doS    doT     doV     canonical
      &         Ov,scr,scr,lov,.true.,.false.,.false.,.false.,

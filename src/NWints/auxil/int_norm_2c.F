@@ -1,5 +1,5 @@
       logical function int_norm_2c(basisin)
-c $Id: int_norm_2c.F,v 1.1 1994-10-20 23:31:49 d3e129 Exp $
+c $Id: int_norm_2c.F,v 1.2 1996-01-22 21:48:56 d3e129 Exp $
 c::assumptions
 *..   MA_init has been called
 c
@@ -8,9 +8,12 @@ c
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
       integer basisin             ! [input] basis handle
       integer basis, nucont, iucont, type, nprim, ngen, ept, cpt, igen
       integer maxg2c, mem2c, lscr, h_scr, i_scr, maxang
+c
+#include "bas_exndcf_sfn.fh"
 c
 c     Normalize the contraction coefficients in this basis.
 c     Eventually we need to store both the normalized and unnormalized
@@ -42,23 +45,28 @@ c
          cpt   = infbs_cont(CONT_ICFP, iucont,basis)
          if (type .ge. 0) then
             do igen = 0,ngen-1
-              call nmcoef2c(exndcf(ept, basis),
-     &            exndcf(cpt+igen*nprim,basis), type, nprim,
-     &            dbl_mb(i_scr), lscr)
+              call nmcoef2c(dbl_mb(mb_exndcf(ept, basis)),
+     &              dbl_mb(mb_exndcf(cpt+igen*nprim,basis)),
+     &              type, nprim, dbl_mb(i_scr), lscr)
             enddo
 c....... sp
          else if (type .eq. -1) then
-            call nmcoef2c(exndcf(ept, basis), exndcf(cpt, basis), 
+            call nmcoef2c(dbl_mb(mb_exndcf(ept, basis)),
+     &           dbl_mb(mb_exndcf(cpt, basis)), 
      &           0, nprim, dbl_mb(i_scr), lscr)
-            call nmcoef2c(exndcf(ept, basis), exndcf(cpt+nprim,basis),
+            call nmcoef2c(dbl_mb(mb_exndcf(ept, basis)),
+     &            dbl_mb(mb_exndcf(cpt+nprim,basis)),
      &           1, nprim, dbl_mb(i_scr), lscr)
          else if (type .eq. -2) then
 c........ spd
-            call nmcoef2c(exndcf(ept, basis), exndcf(cpt, basis), 
+            call nmcoef2c(dbl_mb(mb_exndcf(ept, basis)),
+     &           dbl_mb(mb_exndcf(cpt, basis)), 
      &           0, nprim, dbl_mb(i_scr), lscr)
-            call nmcoef2c(exndcf(ept, basis), exndcf(cpt+nprim,basis),
+            call nmcoef2c(dbl_mb(mb_exndcf(ept, basis)),
+     &            dbl_mb(mb_exndcf(cpt+nprim,basis)),
      &           1, nprim, dbl_mb(i_scr), lscr)
-            call nmcoef2c(exndcf(ept, basis), exndcf(cpt+2*nprim,basis),
+            call nmcoef2c(dbl_mb(mb_exndcf(ept, basis)),
+     &            dbl_mb(mb_exndcf(cpt+2*nprim,basis)),
      &           2, nprim, dbl_mb(i_scr), lscr)
          else
             call errquit('int_norm_2c: invalid contraction type', 0)

@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.36 1995-12-13 01:34:26 d3g681 Exp $
+c $Id: basis.F,v 1.37 1996-01-22 21:49:59 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -18,20 +18,21 @@ c.. character data
       cdata = cdata + 16*ntags_bsmx*nbasis_bsmx 
 c      
 c.. real data 
-      rdata = mxbs_exndcf*nbasis_bsmx + 1
+c      rdata = mxbs_exndcf*nbasis_bsmx + 1
+      rdata =  1 
       rdata = 8*rdata
 c
 c.. integer data in basis set object common
-      idata =         ndbs_head*nbasis_bsmx
+      idata = 3*nbasis_bsmx
+      idata = idata + ndbs_head*nbasis_bsmx
       idata = idata + ndbs_tags*ntags_bsmx*nbasis_bsmx
-      idata = idata + ndbs_ucont*nucont_bsmx*nbasis_bsmx
+      idata = idata + ndbs_ucont*(nucont_bsmx+1)*nbasis_bsmx
       idata = idata + nbasis_bsmx*5 + 1
       idata = idata + nbasis_rtdb_mx
       idata = 4*idata
 c
 c.. integer data in the mapped object.  
-      mapidata =            4*ncont_mx*nbasis_bsmx
-      mapidata = mapidata + 3*nat_mx*nbasis_bsmx
+      mapidata =            5*3*nbasis_bsmx
       mapidata = mapidata + 4*nbasis_bsmx
       mapidata = 4*mapidata
 c
@@ -41,21 +42,21 @@ c.. total space
       total4 = total4 + rdata + cdata 
 c
       write(6,'(////1x,a,f5.2,a)')
-     &       ' **** basis set version ',bsversion,' ****'
+     &      ' **** basis set version ',bsversion,' ****'
       write(6,'(1x,a,i20,a)')
-     &       '   character data in-core ',cdata,' bytes'
+     &      '   character data in-core ',cdata,' bytes'
       write(6,'(1x,a,i20,a)')
-     &       '   real      data in-core ',rdata,' bytes'
+     &      '   real      data in-core ',rdata,' bytes'
       write(6,'(1x,a,i20,a)')
-     &       '   integer*4 data in-core ',idata,' bytes'
+     &      '   integer*4 data in-core ',idata,' bytes'
       write(6,'(1x,a,i20,a)')
-     &       'or integer*8 data in-core ',(2*idata),' bytes'
+     &      'or integer*8 data in-core ',(2*idata),' bytes'
       write(6,'(1x,a,i20,a)')
-     &       '   integer*4 mapping data in-core ',
-     &       mapidata,' bytes'
+     &      '   integer*4 mapping data in-core ',
+     &      mapidata,' bytes'
       write(6,'(1x,a,i20,a/)')
-     &       'or integer*8 mapping data in-core ',
-     &       (2*mapidata),' bytes'
+     &      'or integer*8 mapping data in-core ',
+     &      (2*mapidata),' bytes'
       write(6,*)' total(4)   = ',total4,' bytes'
       write(6,*)' total(8)   = ',total8,' bytes'
 c
@@ -67,22 +68,22 @@ c
       mapidata = (mapidata + 999) / 1000
       total4   = (total4   + 999) / 1000
       total8   = (total8   + 999) / 1000
-      write(6,'(1x,a,f5.2,a)')
-     &       ' **** basis set version ',bsversion,' ****'
+      write(6,'(///1x,a,f5.2,a)')
+     &      ' **** basis set version ',bsversion,' ****'
       write(6,'(1x,a,i20,a)')
-     &       '   character data in-core ',cdata,' Kbytes'
+     &      '   character data in-core ',cdata,' Kbytes'
       write(6,'(1x,a,i20,a)')
-     &       '   real      data in-core ',rdata,' Kbytes'
+     &      '   real      data in-core ',rdata,' Kbytes'
       write(6,'(1x,a,i20,a)')
-     &       '   integer*4 data in-core ',idata,' Kbytes'
+     &      '   integer*4 data in-core ',idata,' Kbytes'
       write(6,'(1x,a,i20,a)')
-     &       'or integer*8 data in-core ',(2*idata),' Kbytes'
+     &      'or integer*8 data in-core ',(2*idata),' Kbytes'
       write(6,'(1x,a,i20,a)')
-     &       '   integer*4 mapping data in-core ',
-     &       mapidata,' Kbytes'
+     &      '   integer*4 mapping data in-core ',
+     &      mapidata,' Kbytes'
       write(6,'(1x,a,i20,a/)')
-     &       'or integer*8 mapping data in-core ',
-     &       (2*mapidata),' Kbytes'
+     &      'or integer*8 mapping data in-core ',
+     &      (2*mapidata),' Kbytes'
       write(6,*)' total(4)   = ',total4,' Kbytes'
       write(6,*)' total(8)   = ',total8,' Kbytes'
       write(6,'(////)')
@@ -95,17 +96,23 @@ c
 c creates a handle and marks it active in the in-core data structure
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "inp.fh"
 #include "basdeclsP.fh"
+#include "bas_exndcf_dec.fh"
 c::functions
 c ifill from util
 c dfill from util
 c::passed
 c
-      integer basis       ! [output] returned handle
-      character*(*)name   ! [input] name of basis set.  
+      integer basis             ! [output] returned handle
+      character*(*)name         ! [input] name of basis set.  
+c
+      external basis_data  ! This for the T3D linker
+c
+#include "bas_exndcf_sfn.fh"
 c
       do 00100 basis=1,nbasis_bsmx
         if (.not.bsactive(basis)) goto 01000
@@ -127,19 +134,21 @@ c Initialize basis info to be empty
 c
       bs_trans(basis) = ' '
       call ifill(ndbs_head, 0, infbs_head(1,basis), 1)
-      call dfill(mxbs_exndcf, 0.0d0, exndcf(1,basis), 1)
+      exndcf(H_exndcf ,basis) = 0 ! handle 
+      exndcf(K_exndcf ,basis) = 0 ! index
+      exndcf(SZ_exndcf,basis) = 0 ! allocated size
       call ifill(ndbs_tags*ntags_bsmx, 0,
-     $     infbs_tags(1,1,basis), 1)
+     $      infbs_tags(1,1,basis), 1)
       call ifill(ndbs_ucont*nucont_bsmx, 0,
-     $     infbs_cont(1,1,basis), 1)
+     $      infbs_cont(1,1,basis), 1)
 c
 c Initialize geo-basis info to empty
 c
-      call ifill(ncont_mx, 0, ibs_cn2ucn(1,basis), 1)
-      call ifill(ncont_mx, 0, ibs_cn2ce (1,basis), 1)
-      call ifill(nat_mx,   0, ibs_ce2uce(1,basis), 1)
-      call ifill(2*ncont_mx,0,ibs_cn2bfr(1,1,basis), 1)
-      call ifill(2*nat_mx, 0, ibs_ce2cnr(1,1,basis), 1)
+      call ifill(3, 0, ibs_cn2ucn(1,basis), 1)
+      call ifill(3, 0, ibs_cn2ce (1,basis), 1)
+      call ifill(3, 0, ibs_ce2uce(1,basis), 1)
+      call ifill(3, 0, ibs_cn2bfr(1,basis), 1)
+      call ifill(3, 0, ibs_ce2cnr(1,basis), 1)
       ncont_tot_gb(basis) = 0
       nprim_tot_gb(basis) = 0
       nbf_tot_gb(basis)   = 0
@@ -159,7 +168,9 @@ c destroys information about an active incore basis
 c and the associated mapping arrays.
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
+#include "bas_exndcf_dec.fh"
 c::functions used
 c::bas
       logical bas_check_handle
@@ -167,10 +178,13 @@ c::bas
       external gbs_map_clear
       external bas_check_handle
 c::passed
-      integer basisin ![input] basis set handle to be destroyed
+      integer basisin           ![input] basis set handle to be destroyed
 c::local
       integer basis
-
+      integer h_tmp
+c
+#include "bas_exndcf_sfn.fh"
+c
       bas_destroy = bas_check_handle(basisin,'bas_destroy')
       if (.not. bas_destroy) return
 
@@ -183,6 +197,14 @@ c::local
       endif
 
       bsactive(basis) = .false.
+      if (exndcf(SZ_exndcf,basis).gt.0) then
+        h_tmp = exndcf(H_exndcf,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('bas_destroy: error freeing heap',911)
+      endif
+      exndcf(H_exndcf ,basis) = 0
+      exndcf(K_exndcf ,basis) = 0
+      exndcf(SZ_exndcf,basis) = 0
       bas_destroy = .true.
 c
       return
@@ -195,15 +217,15 @@ c
       implicit none
 #include "basP.fh"
 c:passed
-      integer basisin    ! [input] handle
-      character*(*) msg  ! [input] error message
+      integer basisin           ! [input] handle
+      character*(*) msg         ! [input] error message
 c::local
       integer basis
 c
       basis = basisin + BASIS_HANDLE_OFFSET
       bas_check_handle = basis.gt.0 .and. basis.le.nbasis_bsmx
       if (bas_check_handle)
-     &       bas_check_handle = bas_check_handle .and. bsactive(basis)
+     &      bas_check_handle = bas_check_handle .and. bsactive(basis)
 c
       if (.not. bas_check_handle) then
         write(6,*)msg,': basis handle is invalid '
@@ -218,9 +240,10 @@ c......................................................................
 c
 c routine to load the rtdb with 321g basis sets for atoms 1-20
 c H to Ca
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
-#
+#include "bas_exndcf_dec.fh"
 c
 c function declarations
 c
@@ -229,14 +252,25 @@ c::function
       logical bas_print
       logical bas_rtdb_do_store
       logical bas_destroy
+      logical bas_add_ucnt_init
+      logical bas_add_ucnt
       external bas_print
       external bas_create
       external bas_rtdb_do_store
       external bas_destroy
+      external bas_add_ucnt_init
+      external bas_add_ucnt
 c:: passed
-      integer rtdb  ! [input] valid rtdb handle
+      integer rtdb              ! [input] valid rtdb handle
 c:: local
-      integer basis,usebas, itag, icont
+      integer basis, usebas
+*      integer itag, icont
+      character*2 a_tag
+      integer a_lval, a_ngen, a_nprim
+      double precision a_exp(3), a_cof(3)
+      logical a_status
+c
+#include "bas_exndcf_sfn.fh"
 c
       if (.not.bas_create(basis,'321g:1-20')) then
         write(6,*)' basis set handle not created '
@@ -245,7 +279,7 @@ c
       endif
 c
       usebas = basis + BASIS_HANDLE_OFFSET
-      bs_name(usebas) = '321g:1-20'
+c     bs_name(usebas) = '321g:1-20'
 c
 c.. only h and o for now
 c
@@ -253,141 +287,258 @@ c
 c.. hydrogen and oxygen
 c
 c
-      bs_tags(1,usebas) = 'H'
-      bs_tags(2,usebas) = 'He'
-      bs_tags(3,usebas) = 'O'
-      infbs_head(HEAD_NTAGS,usebas) = 3
-      infbs_head(HEAD_NCONT,usebas) = 9
-      infbs_head(HEAD_NPRIM,usebas) = 30
-      infbs_head(HEAD_NCOEF,usebas) = 30
-c.. hydrogen
-      itag = 1
-      infbs_tags(TAG_NCONT,itag,usebas) = 2
-      infbs_tags(TAG_NPRIM,itag,usebas) = 3
-      infbs_tags(TAG_NCOEF,itag,usebas) = 3
-      infbs_tags(TAG_FCONT,itag,usebas) = 1
-      infbs_tags(TAG_LCONT,itag,usebas) = 2
-c.. hydrogen cont 1 bas 1
-      icont = 1
-      infbs_cont(CONT_TYPE ,icont,usebas)  = 0
-      infbs_cont(CONT_NPRIM,icont,usebas)  = 2
-      infbs_cont(CONT_NGEN ,icont,usebas)  = 1
-      infbs_cont(CONT_IEXP ,icont,usebas)  = 1
-      infbs_cont(CONT_ICFP ,icont,usebas)  = 3
-      infbs_cont(CONT_TAG  ,icont,usebas)  = itag
-      exndcf(1,usebas) =  5.44717800d00
-      exndcf(2,usebas) =  0.82454700d00
-      exndcf(3,usebas) =  0.15628500d00
-      exndcf(4,usebas) =  0.90469100d00
-c.. hydrogen cont 2 bas 2
-      icont = icont + 1
-      infbs_cont(CONT_TYPE ,icont,usebas)  = 0
-      infbs_cont(CONT_NPRIM,icont,usebas)  = 1
-      infbs_cont(CONT_NGEN ,icont,usebas)  = 1
-      infbs_cont(CONT_IEXP ,icont,usebas)  = 5
-      infbs_cont(CONT_ICFP ,icont,usebas)  = 6
-      infbs_cont(CONT_TAG  ,icont,usebas)  = itag
-      exndcf(5,usebas) =  0.18319200d00
-      exndcf(6,usebas) =  1.00000000d00
-c.. helium 
-      itag = itag + 1
-      icont = icont + 1
-      infbs_tags(TAG_NCONT,itag,usebas) = 2
-      infbs_tags(TAG_NPRIM,itag,usebas) = 3
-      infbs_tags(TAG_NCOEF,itag,usebas) = 3
-      infbs_tags(TAG_FCONT,itag,usebas) = icont
-      infbs_tags(TAG_LCONT,itag,usebas) = icont + 2 - 1
-c.. helium cont 1 bas 3
-      infbs_cont(CONT_TYPE,icont,usebas)  = 0
-      infbs_cont(CONT_NPRIM,icont,usebas) = 2
-      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-      infbs_cont(CONT_IEXP,icont,usebas)  = 7
-      infbs_cont(CONT_ICFP,icont,usebas)  = 9
-      infbs_cont(CONT_TAG,icont,usebas)   = itag
-      exndcf(7,usebas) = 13.62670000
-      exndcf(8,usebas) =  1.99935000
-      exndcf(9,usebas) =  0.17523000
-      exndcf(10,usebas)=  0.89348300
-c.. helium cont 2 bas 4
-      icont = icont + 1
-      infbs_cont(CONT_TYPE,icont,usebas)  = 0
-      infbs_cont(CONT_NPRIM,icont,usebas) = 1
-      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-      infbs_cont(CONT_IEXP,icont,usebas)  = 11
-      infbs_cont(CONT_ICFP,icont,usebas)  = 12
-      infbs_cont(CONT_TAG,icont,usebas)   = itag
-      exndcf(11,usebas) =  0.38299300
-      exndcf(12,usebas) =  1.00000000
-c.. oxygen
-      itag = itag + 1
-      icont = icont + 1
-      infbs_tags(TAG_NCONT,itag,usebas) = 5
-      infbs_tags(TAG_NPRIM,itag,usebas) = 9
-      infbs_tags(TAG_NCOEF,itag,usebas) = 9
-      infbs_tags(TAG_FCONT,itag,usebas) = icont
-      infbs_tags(TAG_LCONT,itag,usebas) = icont + 5 - 1
-c.. oxygen cont 1 bas 5
-      infbs_cont(CONT_TYPE,icont,usebas)  = 0
-      infbs_cont(CONT_NPRIM,icont,usebas) = 3
-      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-      infbs_cont(CONT_IEXP,icont,usebas)  = 13
-      infbs_cont(CONT_ICFP,icont,usebas)  = 16
-      infbs_cont(CONT_TAG,icont,usebas)   = itag
-      exndcf(13,usebas)  =  322.03700000d00
-      exndcf(14,usebas)  =   48.43080000d00
-      exndcf(15,usebas)  =   10.42060000d00
-      exndcf(16,usebas) =    0.05923940d00
-      exndcf(17,usebas) =    0.35150000d00
-      exndcf(18,usebas) =    0.70765800d00
-c.. oxygen cont 2 bas 6
-      icont = icont + 1
-      infbs_cont(CONT_TYPE,icont,usebas)  = 0
-      infbs_cont(CONT_NPRIM,icont,usebas) = 2
-      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-      infbs_cont(CONT_IEXP,icont,usebas)  = 19
-      infbs_cont(CONT_ICFP,icont,usebas)  = 21
-      infbs_cont(CONT_TAG,icont,usebas)   = 2
-      exndcf(19,usebas) =   7.40294000d00
-      exndcf(20,usebas) =   1.57620000d00
-      exndcf(21,usebas) =  -0.40445300d00
-      exndcf(22,usebas) =   1.22156000d00
-c.. oxygen cont 3 bas 7      
-      icont = icont + 1
-      infbs_cont(CONT_TYPE,icont,usebas)  = 1
-      infbs_cont(CONT_NPRIM,icont,usebas) = 2
-      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-      infbs_cont(CONT_IEXP,icont,usebas)  = 23
-      infbs_cont(CONT_ICFP,icont,usebas)  = 25
-      infbs_cont(CONT_TAG,icont,usebas)   = 2
-      exndcf(23,usebas) =   7.40294000d00
-      exndcf(24,usebas) =   1.57620000d00
-      exndcf(25,usebas) =   0.24458600d00
-      exndcf(26,usebas) =   0.85395500d00
-c.. oxygen cont 4 bas 8
-      icont = icont + 1
-      infbs_cont(CONT_TYPE,icont,usebas)  = 0
-      infbs_cont(CONT_NPRIM,icont,usebas) = 1
-      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-      infbs_cont(CONT_IEXP,icont,usebas)  = 27
-      infbs_cont(CONT_ICFP,icont,usebas)  = 28
-      infbs_cont(CONT_TAG,icont,usebas)   = 2
-      exndcf(27,usebas) = 0.37368400d00
-      exndcf(28,usebas) = 1.00000000d00
-c.. oxygen cont 5 bas 9
-      icont = icont + 1
-      infbs_cont(CONT_TYPE,icont,usebas)  = 1
-      infbs_cont(CONT_NPRIM,icont,usebas) = 1
-      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-      infbs_cont(CONT_IEXP,icont,usebas)  = 29
-      infbs_cont(CONT_ICFP,icont,usebas)  = 30
-      infbs_cont(CONT_TAG,icont,usebas)   = 2
-      exndcf(29,usebas) = 0.37368400d00
-      exndcf(30,usebas) = 1.00000000d00
-c
+      call print_exndcf(' b4 ucnt init ')
+      if (.not. bas_add_ucnt_init(basis)) call errquit
+     &      ('bas_321g_load: bas_add_ucnt_init failed',911)
+      call print_exndcf(' after ucnt init')
+c 1s on H
+      a_tag   = 'H '
+      a_lval  = 0 
+      a_ngen  = 1
+      a_nprim = 2
+      a_exp (1) = 5.44717800d00
+      a_exp (2) = 0.82454700d00
+      a_cof (1) = 0.15628500d00
+      a_cof (2) = 0.90469100d00
+      a_status = bas_add_ucnt (basis,
+     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+      if (.not. a_status) call errquit
+     &      ('bas_321g_load: bas_add_ucnt failed',911)
+c 2s on H
+      a_lval  = 0 
+      a_ngen  = 1
+      a_nprim = 1
+      a_exp (1) = 0.18319200d00
+      a_cof (1) = 1.00000000d00
+      a_status = bas_add_ucnt (basis,
+     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+      if (.not. a_status) call errquit
+     &      ('bas_321g_load: bas_add_ucnt failed',911)
+c 1s on He
+      a_tag   = 'He'
+      a_lval  = 0 
+      a_ngen  = 1
+      a_nprim = 2
+      a_exp (1) = 13.62670000d00
+      a_exp (2) =  1.99935000d00
+      a_cof (1) =  0.17523000d00
+      a_cof (2) =  0.89348300d00
+      a_status = bas_add_ucnt (basis,
+     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+      if (.not. a_status) call errquit
+     &      ('bas_321g_load: bas_add_ucnt failed',911)
+c 2s on He
+      a_lval  = 0 
+      a_ngen  = 1
+      a_nprim = 1
+      a_exp (1) = 0.38299300d00
+      a_cof (1) = 1.00000000d00
+      a_status = bas_add_ucnt (basis,
+     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+      if (.not. a_status) call errquit
+     &      ('bas_321g_load: bas_add_ucnt failed',911)
+c 1s on O
+      a_tag   = 'O '
+      a_lval  = 0 
+      a_ngen  = 1
+      a_nprim = 3
+      a_exp (1) =  322.03700000d00 
+      a_exp (2) =   48.43080000d00 
+      a_exp (3) =   10.42060000d00 
+      a_cof (1) =    0.05923940d00  
+      a_cof (2) =    0.35150000d00  
+      a_cof (3) =    0.70765800d00  
+      a_status = bas_add_ucnt (basis,
+     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+      if (.not. a_status) call errquit
+     &      ('bas_321g_load: bas_add_ucnt failed',911)
+c 1sp on O
+c add s first
+      a_tag   = 'O '
+      a_lval  = 0
+      a_ngen  = 1
+      a_nprim = 2
+      a_exp (1) =    7.40294000d00
+      a_exp (2) =    1.57620000d00
+      a_cof (1) =   -0.40445300d00
+      a_cof (2) =    1.22156000d00
+      a_status = bas_add_ucnt (basis,
+     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+      if (.not. a_status) call errquit
+     &      ('bas_321g_load: bas_add_ucnt failed',911)
+c add p now
+      a_tag   = 'O '
+      a_lval  = 1
+      a_ngen  = 1
+      a_nprim = 2
+      a_exp (1) =   7.40294000d00
+      a_exp (2) =   1.57620000d00
+      a_cof (1) =   0.24458600d00
+      a_cof (2) =   0.85395500d00
+      a_status = bas_add_ucnt (basis,
+     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+      if (.not. a_status) call errquit
+     &      ('bas_321g_load: bas_add_ucnt failed',911)
+c 2sp on O
+c add s first
+      a_tag   = 'O '
+      a_lval  = 0
+      a_ngen  = 1
+      a_nprim = 1
+      a_exp (1) =  0.37368400d00
+      a_cof (1) =  1.00000000d00
+      a_status = bas_add_ucnt (basis,
+     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+      if (.not. a_status) call errquit
+     &      ('bas_321g_load: bas_add_ucnt failed',911)
+c add p now
+      a_tag   = 'O '
+      a_lval  = 1
+      a_ngen  = 1
+      a_nprim = 1
+      a_exp (1) =  0.37368400d00
+      a_cof (1) =  1.00000000d00
+      a_status = bas_add_ucnt (basis,
+     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+      if (.not. a_status) call errquit
+     &      ('bas_321g_load: bas_add_ucnt failed',911)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+*rak:      bs_tags(1,usebas) = 'H'
+*rak:      bs_tags(2,usebas) = 'He'
+*rak:      bs_tags(3,usebas) = 'O'
+*rak:      infbs_head(HEAD_NTAGS,usebas) = 3
+*rak:      infbs_head(HEAD_NCONT,usebas) = 9
+*rak:      infbs_head(HEAD_NPRIM,usebas) = 30
+*rak:      infbs_head(HEAD_NCOEF,usebas) = 30
+*rak:c.. hydrogen
+*rak:      itag = 1
+*rak:      infbs_tags(TAG_NCONT,itag,usebas) = 2
+*rak:      infbs_tags(TAG_NPRIM,itag,usebas) = 3
+*rak:      infbs_tags(TAG_NCOEF,itag,usebas) = 3
+*rak:      infbs_tags(TAG_FCONT,itag,usebas) = 1
+*rak:      infbs_tags(TAG_LCONT,itag,usebas) = 2
+*rak:c.. hydrogen cont 1 bas 1
+*rak:      icont = 1
+*rak:      infbs_cont(CONT_TYPE ,icont,usebas)  = 0
+*rak:      infbs_cont(CONT_NPRIM,icont,usebas)  = 2
+*rak:      infbs_cont(CONT_NGEN ,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_IEXP ,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_ICFP ,icont,usebas)  = 3
+*rak:      infbs_cont(CONT_TAG  ,icont,usebas)  = itag
+*rak:      exndcf(1,usebas) =  5.44717800d00
+*rak:      exndcf(2,usebas) =  0.82454700d00
+*rak:      exndcf(3,usebas) =  0.15628500d00
+*rak:      exndcf(4,usebas) =  0.90469100d00
+*rak:c.. hydrogen cont 2 bas 2
+*rak:      icont = icont + 1
+*rak:      infbs_cont(CONT_TYPE ,icont,usebas)  = 0
+*rak:      infbs_cont(CONT_NPRIM,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_NGEN ,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_IEXP ,icont,usebas)  = 5
+*rak:      infbs_cont(CONT_ICFP ,icont,usebas)  = 6
+*rak:      infbs_cont(CONT_TAG  ,icont,usebas)  = itag
+*rak:      exndcf(5,usebas) =  0.18319200d00
+*rak:      exndcf(6,usebas) =  1.00000000d00
+*rak:c.. helium 
+*rak:      itag = itag + 1
+*rak:      icont = icont + 1
+*rak:      infbs_tags(TAG_NCONT,itag,usebas) = 2
+*rak:      infbs_tags(TAG_NPRIM,itag,usebas) = 3
+*rak:      infbs_tags(TAG_NCOEF,itag,usebas) = 3
+*rak:      infbs_tags(TAG_FCONT,itag,usebas) = icont
+*rak:      infbs_tags(TAG_LCONT,itag,usebas) = icont + 2 - 1
+*rak:c.. helium cont 1 bas 3
+*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
+*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 2
+*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 7
+*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 9
+*rak:      infbs_cont(CONT_TAG,icont,usebas)   = itag
+*rak:      exndcf(7,usebas) = 13.62670000
+*rak:      exndcf(8,usebas) =  1.99935000
+*rak:      exndcf(9,usebas) =  0.17523000
+*rak:      exndcf(10,usebas)=  0.89348300
+*rak:c.. helium cont 2 bas 4
+*rak:      icont = icont + 1
+*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
+*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 1
+*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 11
+*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 12
+*rak:      infbs_cont(CONT_TAG,icont,usebas)   = itag
+*rak:      exndcf(11,usebas) =  0.38299300
+*rak:      exndcf(12,usebas) =  1.00000000
+*rak:c.. oxygen
+*rak:      itag = itag + 1
+*rak:      icont = icont + 1
+*rak:      infbs_tags(TAG_NCONT,itag,usebas) = 5
+*rak:      infbs_tags(TAG_NPRIM,itag,usebas) = 9
+*rak:      infbs_tags(TAG_NCOEF,itag,usebas) = 9
+*rak:      infbs_tags(TAG_FCONT,itag,usebas) = icont
+*rak:      infbs_tags(TAG_LCONT,itag,usebas) = icont + 5 - 1
+*rak:c.. oxygen cont 1 bas 5
+*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
+*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 3
+*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 13
+*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 16
+*rak:      infbs_cont(CONT_TAG,icont,usebas)   = itag
+*rak:      exndcf(13,usebas)  =  322.03700000d00
+*rak:      exndcf(14,usebas)  =   48.43080000d00
+*rak:      exndcf(15,usebas)  =   10.42060000d00
+*rak:      exndcf(16,usebas) =    0.05923940d00
+*rak:      exndcf(17,usebas) =    0.35150000d00
+*rak:      exndcf(18,usebas) =    0.70765800d00  
+*rak:c.. oxygen cont 2 bas 6
+*rak:      icont = icont + 1
+*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
+*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 2
+*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 19
+*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 21
+*rak:      infbs_cont(CONT_TAG,icont,usebas)   = 2
+*rak:      exndcf(19,usebas) =   7.40294000d00
+*rak:      exndcf(20,usebas) =   1.57620000d00
+*rak:      exndcf(21,usebas) =  -0.40445300d00
+*rak:      exndcf(22,usebas) =   1.22156000d00
+*rak:c.. oxygen cont 3 bas 7      
+*rak:      icont = icont + 1
+*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 2
+*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 23
+*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 25
+*rak:      infbs_cont(CONT_TAG,icont,usebas)   = 2
+*rak:      exndcf(23,usebas) =   7.40294000d00
+*rak:      exndcf(24,usebas) =   1.57620000d00
+*rak:      exndcf(25,usebas) =   0.24458600d00
+*rak:      exndcf(26,usebas) =   0.85395500d00
+*rak:c.. oxygen cont 4 bas 8
+*rak:      icont = icont + 1
+*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
+*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 1
+*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 27
+*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 28
+*rak:      infbs_cont(CONT_TAG,icont,usebas)   = 2
+*rak:      exndcf(27,usebas) = 0.37368400d00
+*rak:      exndcf(28,usebas) = 1.00000000d00
+*rak:c.. oxygen cont 5 bas 9
+*rak:      icont = icont + 1
+*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 1
+*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 29
+*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 30
+*rak:      infbs_cont(CONT_TAG,icont,usebas)   = 2
+*rak:      exndcf(29,usebas) = 0.37368400d00
+*rak:      exndcf(30,usebas) = 1.00000000d00
+*rak:c
       bas_321g_load = bas_rtdb_do_store(rtdb,
      &       bs_name(usebas), bs_tags(1,usebas), 
      &       infbs_head(1,usebas), infbs_tags(1,1,usebas),
-     &       infbs_cont(1,1,usebas),exndcf(1,usebas),3,9,30)
+     &       infbs_cont(1,1,usebas),
+     &      dbl_mb(mb_exndcf(1,usebas)),3,9,30)
 c
       write(6,*)' inside 321g load '
       write(6,*)' inside 321g load '
@@ -410,6 +561,7 @@ c
 c routine to print unique basis information that is in core
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "inp.fh"
@@ -430,6 +582,8 @@ c:: local
       character*3 ctype(0:6),cltype(2)
       character*3 shell_type
       character*35 buffer  ! Room for tag+space+(+element+) = 16+1+1+16+1
+c
+#include "bas_exndcf.fh"
 c
       ctype(0)='S'
       ctype(1)='P'
@@ -498,8 +652,8 @@ c
           iexptr = infbs_cont(CONT_IEXP,ifcont,basis) - 1
           icfptr = infbs_cont(CONT_ICFP,ifcont,basis) - 1
           do 00300 k=1,myprim
-             write(6,7) j, shell_type(1:2), exndcf((iexptr+k),basis),
-     &             (exndcf((icfptr+k+(l-1)*myprim),basis),l=1,mygen)
+            write(6,7) j, shell_type(1:2), sf_exndcf((iexptr+k),basis),
+     &             (sf_exndcf((icfptr+k+(l-1)*myprim),basis),l=1,mygen)
  7           format(1x,i2,1x,a2,1x,f14.6,20f10.6)
 00300     continue
           write(6,*)
@@ -537,28 +691,25 @@ c function declarations
 c
 c::function
 c:bas
-      integer nbf_from_ucont
       logical bas_check_handle
-      external nbf_from_ucont
+      logical bas_geobas_build
       external bas_check_handle
+      external bas_geobas_build
 c:: passed  
       integer rtdb        ! [input] rtdb handle      
       integer geom        ! [input] geometry handle with info loaded
       integer basisin     ! [input] basis handle
       character*(*) name  ! [input] basis set name that must be on the rtdb
 c:: local
-      character*16 element
-      character*2  symbol
-      integer atn
-      integer lentmp, basis
+      character*25 nameex
+      integer lentmp, basis, nexcf
       character*256 tmp
-      logical rtdb_status, status
-      integer i,nat, idum_cont, idum_at
-      integer j,jstart,jend, jsize
-      integer kstart,kend,ksize,lsize, icount
-      integer nbf, iu_cont, myang
-      logical foundit
+      logical rtdb_status
+      integer h_tmp, k_tmp
+c:: statement functions
+#include "bas_exndcf.fh"
 c:: initalize local
+c
       rtdb_status = .true.
 c
 c
@@ -591,10 +742,27 @@ c
       rtdb_status = rtdb_status .and.
      &       rtdb_cget(rtdb, tmp, ntags_bsmx, bs_tags(1,basis))
 c
+      nexcf = 0
+      tmp(lentmp:) = ':number of exps and coeffs'
+      rtdb_status = rtdb_status .and.
+     &    rtdb_get(rtdb,tmp,mt_int,1,nexcf)
+c
+      write(nameex,'(a23,i2)')' basis exps and coeffs ',basis
+      if (.not.ma_alloc_get(mt_dbl,(nexcf+2),nameex,
+     &    h_tmp, k_tmp)) then
+        write(6,*)' not enough memory'
+        call errquit
+     &      (' bas_rtdb_load: error allocating space for exndcf',911)
+      else
+        exndcf(H_exndcf,basis) = h_tmp
+        exndcf(K_exndcf,basis) = k_tmp
+        exndcf(SZ_exndcf,basis) = (nexcf+2)
+      endif
+c
       tmp(lentmp:) = ':exps and coeffs'
       rtdb_status = rtdb_status .and.
      &       rtdb_get(
-     &       rtdb, tmp, mt_dbl, mxbs_exndcf, exndcf(1,basis))
+     &       rtdb, tmp, mt_dbl, nexcf, dbl_mb(mb_exndcf(1,basis)))
 c
       tmp(lentmp:) = ':header'
       rtdb_status = rtdb_status .and.
@@ -628,14 +796,91 @@ c.....add diagnostics later
          return
       endif
 c
+c compute internal information and geobas maps
+c
+      bas_rtdb_load = bas_geobas_build(basisin)
+c
+c Add zero exponent S function for sp code, incore only
+c
+      k_tmp = infbs_head(HEAD_EXCFPTR,basis)
+      infbs_cont(CONT_TYPE, 0,basis) = 0
+      infbs_cont(CONT_NPRIM,0,basis) = 1
+      infbs_cont(CONT_NGEN, 0,basis) = 1
+      infbs_cont(CONT_TAG,  0,basis) = -1
+      k_tmp = k_tmp + 1
+      infbs_cont(CONT_IEXP, 0,basis) = k_tmp
+      dbl_mb(mb_exndcf(k_tmp,basis)) = 0.0d00
+      k_tmp = k_tmp + 1
+      infbs_cont(CONT_ICFP, 0,basis) = k_tmp
+      dbl_mb(mb_exndcf(k_tmp,basis)) = 1.0d00
+      infbs_head(HEAD_EXCFPTR,basis) = k_tmp
+      end
+      logical function bas_geobas_build(basisin)
+      implicit none
+#include "rtdb.fh"
+#include "geomP.fh"
+#include "geom.fh"
+#include "context.fh"
+#include "mafdecls.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+#include "inp.fh"
+#include "global.fh"
+#include "bas_ibs_dec.fh"
+c::passed
+      integer basisin
+c::local
+      integer basis
+      integer geom
+      integer nat
+      integer i, idum_cont, idum_at
+      integer j, jstart, jend, jsize
+      integer kstart, kend, ksize, lsize, icount
+      integer nbf, iu_cont, myang
+      integer atn
+      character*16 element
+      character*2  symbol
+      logical status
+      logical foundit
+      integer int_dummy
+      integer h_tmp, k_tmp
+      character*15 name_tmp
+c::functions
+      integer nbf_from_ucont
+      external nbf_from_ucont
+c
+#include "bas_ibs_sfn.fh"
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      geom  = ibs_geom(basis)
+c
       status = geom_ncent(geom, nat)
       if (nat.eq.0.or..not.status) then
-        write(6,*)' bas_rtdb_load: ERROR '
+        write(6,*)' bas_geobas_build: ERROR '
         write(6,*)' number of centers is zero or weird'
         write(6,*)' nat = ',nat
-        bas_rtdb_load = .false.
+        bas_geobas_build = .false.
 c..... add diagnostics later
         return
+      endif
+c... clear old ibs_ce2uce if it exists
+      if (ibs_ce2uce(SZ_ibs,basis).gt.0) then
+        h_tmp = ibs_ce2uce(H_ibs,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('bas_geobas_build: error freeing ibs_ce2uce',911)
+        ibs_ce2uce(H_ibs,basis)  = 0
+        ibs_ce2uce(K_ibs,basis)  = 0
+        ibs_ce2uce(SZ_ibs,basis) = 0 
+      endif
+c                                 123456789101
+      write(name_tmp,'(a11,i4)') ' ibs_ce2uce ',basis
+      if (.not.ma_alloc_get(mt_int,nat,name_tmp,h_tmp,k_tmp)) then
+        call errquit('bas_geobas_build: error ma_alloc ibs_ce2uce',911)
+      else
+        ibs_ce2uce(H_ibs,basis)  = h_tmp
+        ibs_ce2uce(K_ibs,basis)  = k_tmp
+        ibs_ce2uce(SZ_ibs,basis) = nat
       endif
 c
 c build center to unique center map
@@ -643,13 +888,13 @@ c
       if (nat.gt.nat_mx) then
         write(6,*)' nat     = ',nat
         write(6,*)' nat max = ',nat_mx
-        call errquit ('bas_rtdb_load: nat.gt.nat_mx',911)
+        call errquit ('bas_geobas_build: nat.gt.nat_mx',911)
       endif
       do 00100 i=1,nat
         foundit = .false.
         do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
           if(tags(i,geom) .eq. bs_tags(j,basis)) then
-            ibs_ce2uce(i,basis) = j
+            int_mb(mb_ibs_ce2uce(i,basis)) = j
             foundit = .true.
             goto 00102
           endif
@@ -664,7 +909,8 @@ c
      $             'but has no functions in basis "',a,'"'/
      $             ' ERROR: only bq* centers can have no functions')
               call util_flush(6)
-              call errquit('bas_rtdb_load: basis/geometry mismatch', 0)
+              call errquit
+     &              ('bas_geobas_build: basis/geometry mismatch', 0)
            else
               write(6,11) i, tags(i,geom)(1:inp_strlen(tags(i,geom))),
      $             bs_name(basis)(1:inp_strlen(bs_name(basis)))
@@ -676,50 +922,132 @@ c
 00102   continue
 00100 continue
 c
-c build total # of contractions and center -> contraction range map 
+c build total # of contractions 
 c      
       ncont_tot_gb(basis)  = 0
-      do 00200 i=1,nat
-         if (ibs_ce2uce(i,basis).gt.0) then
-            idum_cont = infbs_tags(TAG_NCONT,ibs_ce2uce(i,basis),basis)
-            ibs_ce2cnr(1,i,basis) = ncont_tot_gb(basis) + 1
-            ibs_ce2cnr(2,i,basis) = ncont_tot_gb(basis) + idum_cont
+      do 10200 i=1,nat
+         if (sf_ibs_ce2uce(i,basis).gt.0) then
+            idum_cont =
+     &           infbs_tags(TAG_NCONT,sf_ibs_ce2uce(i,basis),basis)
             ncont_tot_gb(basis)   = idum_cont + ncont_tot_gb(basis)
+         endif
+10200 continue
+c
+c allocate space for center -> contraction range map
+c
+c... clear old ibs_ce2cnr if it exists
+      if (ibs_ce2cnr(SZ_ibs,basis).gt.0) then
+        h_tmp = ibs_ce2cnr(H_ibs,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('bas_geobas_build: error freeing ibs_ce2cnr',911)
+        ibs_ce2cnr(H_ibs,basis)  = 0
+        ibs_ce2cnr(K_ibs,basis)  = 0
+        ibs_ce2cnr(SZ_ibs,basis) = 0 
+      endif
+c                                 123456789101
+      write(name_tmp,'(a11,i4)') ' ibs_ce2cnr ',basis
+      if (.not.ma_alloc_get(mt_int,(2*nat),
+     &      name_tmp,h_tmp,k_tmp)) then
+        call errquit('bas_geobas_build: error ma_alloc ibs_ce2cnr',911)
+      else
+        ibs_ce2cnr(H_ibs,basis)  = h_tmp
+        ibs_ce2cnr(K_ibs,basis)  = k_tmp
+        ibs_ce2cnr(SZ_ibs,basis) = 2*nat
+      endif
+c
+c build center -> contraction range map 
+c
+      int_dummy = 0
+      do 00200 i=1,nat
+         if (sf_ibs_ce2uce(i,basis).gt.0) then
+            idum_cont =
+     &           infbs_tags(TAG_NCONT,sf_ibs_ce2uce(i,basis),basis)
+            int_mb(mb_ibs_ce2cnr(1,i,basis)) = int_dummy + 1
+            int_mb(mb_ibs_ce2cnr(2,i,basis)) = int_dummy + idum_cont
+            int_dummy = idum_cont + int_dummy
          else
-            ibs_ce2cnr(1,i,basis) = 0 ! No functions on this center
-            ibs_ce2cnr(2,i,basis) = -1
+            int_mb(mb_ibs_ce2cnr(1,i,basis)) = 0 ! No functions on this center
+            int_mb(mb_ibs_ce2cnr(2,i,basis)) = -1
          endif
 00200 continue
 c
       if (ncont_tot_gb(basis) .eq. 0) call errquit
-     $    ('bas_rtdb_load: no functions in basis set', 0)
+     $    ('bas_geobas_build: no functions in basis set', 0)
       if (ncont_tot_gb(basis) .gt. ncont_mx) then
         write(6,*)' number of contractions     = ',
      &      ncont_tot_gb(basis)
         write(6,*)' number of contractions max = ',ncont_mx
-        call errquit ('bas_rtdb_load: ncont.gt.ncont_mx ',911)
+        call errquit ('bas_geobas_build: ncont.gt.ncont_mx ',911)
+      endif
+c
+c allocate space for contraction -> center map
+c
+c... clear old ibs_cn2ce if it exists
+      if (ibs_cn2ce(SZ_ibs,basis).gt.0) then
+        h_tmp = ibs_cn2ce(H_ibs,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('bas_geobas_build: error freeing ibs_cn2ce',911)
+        ibs_cn2ce(H_ibs,basis)  = 0
+        ibs_cn2ce(K_ibs,basis)  = 0
+        ibs_cn2ce(SZ_ibs,basis) = 0 
+      endif
+c                                 123456789101
+      write(name_tmp,'(a11,i4)') ' ibs_cn2ce  ',basis
+      if (.not.ma_alloc_get(mt_int,(1+ncont_tot_gb(basis)),
+     &      name_tmp,h_tmp,k_tmp)) then
+        call errquit('bas_geobas_build: error ma_alloc ibs_cn2ce',911)
+      else
+        ibs_cn2ce(H_ibs,basis)  = h_tmp
+        ibs_cn2ce(K_ibs,basis)  = k_tmp
+        ibs_cn2ce(SZ_ibs,basis) = 1+ncont_tot_gb(basis)
       endif
 c      
 c build contraction -> center map
 c
       do 00300 i=1,nat
-         if (ibs_ce2uce(i,basis).gt.0) then
-            jstart = ibs_ce2cnr(1,i,basis)
-            jend   = ibs_ce2cnr(2,i,basis)
+         if (sf_ibs_ce2uce(i,basis).gt.0) then
+            jstart = sf_ibs_ce2cnr(1,i,basis)
+            jend   = sf_ibs_ce2cnr(2,i,basis)
             do 00400 j=jstart,jend
-               ibs_cn2ce(j,basis) = i
+               int_mb(mb_ibs_cn2ce(j,basis)) = i
 00400       continue
          endif
 00300 continue
 c
+c set zero element of cn2ce to something useless
+c
+      int_mb(mb_ibs_cn2ce(0,basis)) = -1
+c
+c allocate space for ibs_cn2ucn map
+c
+c... clear old ibs_cn2ucn if it exists
+      if (ibs_cn2ucn(SZ_ibs,basis).gt.0) then
+        h_tmp = ibs_cn2ucn(H_ibs,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('bas_geobas_build: error freeing ibs_cn2ucn',911)
+        ibs_cn2ucn(H_ibs,basis)  = 0
+        ibs_cn2ucn(K_ibs,basis)  = 0
+        ibs_cn2ucn(SZ_ibs,basis) = 0 
+      endif
+c                                 123456789101
+      write(name_tmp,'(a11,i4)') ' ibs_cn2ucn ',basis
+      if (.not.ma_alloc_get(mt_int,(1+ncont_tot_gb(basis)),
+     &      name_tmp,h_tmp,k_tmp)) then
+        call errquit('bas_geobas_build: error ma_alloc ibs_cn2ucn',911)
+      else
+        ibs_cn2ucn(H_ibs,basis)  = h_tmp
+        ibs_cn2ucn(K_ibs,basis)  = k_tmp
+        ibs_cn2ucn(SZ_ibs,basis) = 1+ncont_tot_gb(basis)
+      endif
+c
 c build contraction -> unique contraction map
 c
       do 00500 i=1,nat
-         jstart = ibs_ce2cnr(1,i,basis)
-         jend   = ibs_ce2cnr(2,i,basis)
+         jstart = sf_ibs_ce2cnr(1,i,basis)
+         jend   = sf_ibs_ce2cnr(2,i,basis)
          jsize  = jend - jstart + 1
          if (jsize .gt. 0) then
-            idum_at = ibs_ce2uce(i,basis)
+            idum_at = sf_ibs_ce2uce(i,basis)
             kstart = infbs_tags(TAG_FCONT,idum_at,basis)
             kend   = infbs_tags(TAG_LCONT,idum_at,basis)
             ksize  = kend - kstart + 1
@@ -727,22 +1055,48 @@ c
             if (jsize.eq.ksize.and.ksize.eq.lsize) then
                icount = 0
                do 00600 j=jstart,jend
-                  ibs_cn2ucn(j,basis) = kstart + icount
+                  int_mb(mb_ibs_cn2ucn(j,basis)) = kstart + icount
                   icount = icount + 1
 00600          continue
             else
-               write(6,*)' bas_rtdb_load: ERROR '
+               write(6,*)' bas_geobas_build: ERROR '
                write(6,*)' contraction range size mismatch'
                write(6,*)'        cont. range (',jstart,':',jend,')'
                write(6,*)' unique cont. range (',kstart,':',kend,')'
                write(6,*)'        cont. size: ',jsize
                write(6,*)' calculated unique cont. size: ',ksize
                write(6,*)'     lookup unique cont. size: ',lsize
-               bas_rtdb_load = .false.
+               bas_geobas_build = .false.
                return
             endif
          endif
 00500 continue
+c
+c set zero element
+c
+      int_mb(mb_ibs_cn2ucn(0,basis)) = 0
+c
+c allocate space for ibs_cn2bfr map
+c
+c... clear old ibs_cn2bfr if it exists
+      if (ibs_cn2bfr(SZ_ibs,basis).gt.0) then
+        h_tmp = ibs_cn2bfr(H_ibs,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('bas_geobas_build: error freeing ibs_cn2bfr',911)
+        ibs_cn2bfr(H_ibs,basis)  = 0
+        ibs_cn2bfr(K_ibs,basis)  = 0
+        ibs_cn2bfr(SZ_ibs,basis) = 0 
+      endif
+c                                 123456789101
+      write(name_tmp,'(a11,i4)') ' ibs_cn2bfr ',basis
+      if (.not.ma_alloc_get(mt_int,(2*(1+ncont_tot_gb(basis))),
+     &      name_tmp,h_tmp,k_tmp)) then
+        call errquit('bas_geobas_build: error ma_alloc ibs_cn2bfr',911)
+      else
+        ibs_cn2bfr(H_ibs,basis)  = h_tmp
+        ibs_cn2bfr(K_ibs,basis)  = k_tmp
+        ibs_cn2bfr(SZ_ibs,basis) = 2*(1+ncont_tot_gb(basis))
+      endif
 c
 c build nprim_tot_gb, nbf_tot_gb, and 
 c contraction -> basis function range map 
@@ -751,18 +1105,23 @@ c
       nbf_tot_gb(basis)   = 0
       nprim_tot_gb(basis) = 0
       do 00700 i = 1,ncont_tot_gb(basis)
-        iu_cont = ibs_cn2ucn(i,basis)
+        iu_cont = sf_ibs_cn2ucn(i,basis)
 c
         nbf = nbf_from_ucont(iu_cont,basisin)
         nbfmax_bs(basis) = max(nbfmax_bs(basis),nbf)
 c
-        ibs_cn2bfr(1,i,basis) = nbf_tot_gb(basis) + 1
-        ibs_cn2bfr(2,i,basis) = nbf_tot_gb(basis) + nbf
+        int_mb(mb_ibs_cn2bfr(1,i,basis)) = nbf_tot_gb(basis) + 1
+        int_mb(mb_ibs_cn2bfr(2,i,basis)) = nbf_tot_gb(basis) + nbf
 
         nbf_tot_gb(basis) = nbf_tot_gb(basis) + nbf
         nprim_tot_gb(basis) = nprim_tot_gb(basis) +
      &         infbs_cont(CONT_NPRIM,iu_cont,basis)
 00700 continue
+c
+c set zero elements of cn2bfr
+c
+      int_mb(mb_ibs_cn2bfr(1,0,basis)) = 0
+      int_mb(mb_ibs_cn2bfr(2,0,basis)) = 0
 c
 c build high angular momentum of this loaded <basis|geom> pair
 c note angular_bs(*) initialized in block data function
@@ -779,6 +1138,7 @@ c......................................................................
 c
 c routine that does an incore basis set store to the rtdb
 c
+#include "mafdecls.fh"
 #include "basdeclsP.fh"
 #include "basP.fh"
 c::passed
@@ -794,18 +1154,21 @@ c     basis in into the rtdb with the given name
 c
 c::local
       integer basis               ! Actual index into basis set arrays
+c:: statement functions
+#include "bas_exndcf.fh"      
 c
       bas_rtdb_store = bas_check_handle(basisin,'bas_rtdb_store')
       if (.not. bas_rtdb_store) return
       basis = basisin + BASIS_HANDLE_OFFSET
 c
       bas_rtdb_store = bas_rtdb_do_store(rtdb, name, 
-     $     bs_tags(1,basis), infbs_head(1,basis),
-     $     infbs_tags(1,1,basis),
-     $     infbs_cont(1,1,basis), exndcf(1,basis),
-     $     infbs_head(HEAD_NTAGS,basis),
-     $     infbs_head(HEAD_NCONT,basis), 
-     $     infbs_head(HEAD_NPRIM,basis)+infbs_head(HEAD_NCOEF,basis))
+     $    bs_tags(1,basis), infbs_head(1,basis),
+     $    infbs_tags(1,1,basis),
+     $    infbs_cont(1,1,basis),
+     &    dbl_mb(mb_exndcf(1,basis)),
+     $    infbs_head(HEAD_NTAGS,basis),
+     $    infbs_head(HEAD_NCONT,basis), 
+     $    infbs_head(HEAD_NPRIM,basis)+infbs_head(HEAD_NCOEF,basis))
 c
       end
 c......................................................................
@@ -866,6 +1229,9 @@ c
       tmp(lentmp:) = ':bs_tags'
       status = status .and. rtdb_cput(rtdb,tmp,ntagsin,tagsin)
       
+      tmp(lentmp:) = ':number of exps and coeffs'
+      status = status .and. rtdb_put(rtdb,tmp,mt_int,1,nexcf)
+
       tmp(lentmp:) = ':exps and coeffs'
       status = status .and. rtdb_put(rtdb,tmp,mt_dbl,nexcf,excfin)
 
@@ -940,6 +1306,8 @@ c......................................................................
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c
 c routine to clear online map information and basis information
 c
@@ -952,7 +1320,10 @@ c::passed
       integer basisin  ! [input] basis set handle
 c::local
       integer basis
-
+      integer h_tmp
+c
+#include "bas_ibs_sfn.fh"
+c
       gbs_map_clear = bas_check_handle(basisin,'gbs_map_clear')
       if (.not. gbs_map_clear ) then
         write(6,*) ' basis handle not valid '
@@ -960,11 +1331,57 @@ c::local
       endif
 c
       basis = basisin + BASIS_HANDLE_OFFSET
-      call ifill(ncont_mx,0,ibs_cn2ucn(1,basis),1)
-      call ifill(ncont_mx,0,ibs_cn2ce(1,basis),1)
-      call ifill(2*ncont_mx,0,ibs_cn2bfr(1,1,basis),1)
-      call ifill(nat_mx,0,ibs_ce2uce(1,basis),1)
-      call ifill(2*nat_mx,0,ibs_ce2cnr(1,1,basis),1)
+c... clear old ibs_ce2uce if it exists
+      if (ibs_ce2uce(SZ_ibs,basis).gt.0) then
+        h_tmp = ibs_ce2uce(H_ibs,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('gbs_map_clear: error freeing ibs_ce2uce',911)
+        ibs_ce2uce(H_ibs,basis)  = 0
+        ibs_ce2uce(K_ibs,basis)  = 0
+        ibs_ce2uce(SZ_ibs,basis) = 0 
+      endif
+c... clear old ibs_ce2cnr if it exists
+      if (ibs_ce2cnr(SZ_ibs,basis).gt.0) then
+        h_tmp = ibs_ce2cnr(H_ibs,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('gbs_map_clear: error freeing ibs_ce2cnr',911)
+        ibs_ce2cnr(H_ibs,basis)  = 0
+        ibs_ce2cnr(K_ibs,basis)  = 0
+        ibs_ce2cnr(SZ_ibs,basis) = 0 
+      endif
+c... clear old ibs_cn2ce if it exists
+      if (ibs_cn2ce(SZ_ibs,basis).gt.0) then
+        h_tmp = ibs_cn2ce(H_ibs,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('gbs_map_clear: error freeing ibs_cn2ce',911)
+        ibs_cn2ce(H_ibs,basis)  = 0
+        ibs_cn2ce(K_ibs,basis)  = 0
+        ibs_cn2ce(SZ_ibs,basis) = 0 
+      endif
+c... clear old ibs_cn2ucn if it exists
+      if (ibs_cn2ucn(SZ_ibs,basis).gt.0) then
+        h_tmp = ibs_cn2ucn(H_ibs,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('gbs_map_clear: error freeing ibs_cn2ucn',911)
+        ibs_cn2ucn(H_ibs,basis)  = 0
+        ibs_cn2ucn(K_ibs,basis)  = 0
+        ibs_cn2ucn(SZ_ibs,basis) = 0 
+      endif
+c... clear old ibs_cn2bfr if it exists
+      if (ibs_cn2bfr(SZ_ibs,basis).gt.0) then
+        h_tmp = ibs_cn2bfr(H_ibs,basis)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &        ('gbs_map_clear: error freeing ibs_cn2bfr',911)
+        ibs_cn2bfr(H_ibs,basis)  = 0
+        ibs_cn2bfr(K_ibs,basis)  = 0
+        ibs_cn2bfr(SZ_ibs,basis) = 0 
+      endif
+c
+      call ifill(3,0,ibs_cn2ucn(1,basis),1)
+      call ifill(3,0,ibs_cn2ce (1,basis),1)
+      call ifill(3,0,ibs_cn2bfr(1,basis),1)
+      call ifill(3,0,ibs_ce2uce(1,basis),1)
+      call ifill(3,0,ibs_ce2cnr(1,basis),1)
       ncont_tot_gb(basis) = 0
       nprim_tot_gb(basis) = 0
       nbf_tot_gb(basis)   = 0
@@ -984,6 +1401,8 @@ c
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
 #include "geom.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -993,6 +1412,8 @@ c::local
       integer nat, basis, i, myfirst, mylast, mysize, mycenter, myucont
       integer mygeom
       logical status
+c
+#include "bas_ibs_sfn.fh"
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
@@ -1038,9 +1459,10 @@ c
      &       '=============================='
       do 00100 i=1,nat
         write(6,'(1x,a,i4,2x,a,i3)')
-     &         'center:',i,'maps to unique center:',ibs_ce2uce(i,basis)
-        myfirst = ibs_ce2cnr(1,i,basis)
-        mylast  = ibs_ce2cnr(2,i,basis)
+     &         'center:',i,'maps to unique center:',
+     &        sf_ibs_ce2uce(i,basis)
+        myfirst = sf_ibs_ce2cnr(1,i,basis)
+        mylast  = sf_ibs_ce2cnr(2,i,basis)
         mysize  = mylast - myfirst + 1
         write(6,'(14x,a,i4,2x,a,i4,a,i4,a,/)')
      &         'has',mysize,'contractions   <first:',
@@ -1062,10 +1484,10 @@ c
      &       '=============================='
 c
       do 00200 i=1,ncont_tot_gb(basis)
-        mycenter = ibs_cn2ce(i,basis)
-        myucont  = ibs_cn2ucn(i,basis)
-        myfirst  = ibs_cn2bfr(1,i,basis)
-        mylast   = ibs_cn2bfr(2,i,basis)
+        mycenter = sf_ibs_cn2ce(i,basis)
+        myucont  = sf_ibs_cn2ucn(i,basis)
+        myfirst  = sf_ibs_cn2bfr(1,i,basis)
+        mylast   = sf_ibs_cn2bfr(2,i,basis)
         mysize   = mylast - myfirst + 1
         write(6,'(1x,a,i4,2x,a,i3)')
      &         'contraction',i,'is on center:',mycenter
@@ -1214,6 +1636,8 @@ c returns the center for a given mapped contraction
 c
 #include "basP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -1223,19 +1647,20 @@ c::passed
       integer center    ! [output] center index
 c::local
       integer basis
+#include "bas_ibs_sfn.fh"
 c
       bas_cn2ce = bas_check_handle(basisin,'bas_cn2ce')
       if(.not.bas_cn2ce) return
 c
       basis = basisin + BASIS_HANDLE_OFFSET
-      bas_cn2ce = cont.gt.0 .and. cont.le.ncont_tot_gb(basis)
+      bas_cn2ce = cont.ge.0 .and. cont.le.ncont_tot_gb(basis)
       if (.not.bas_cn2ce) then
         write(6,*)' bas_cn2ce: invalid contraction information '
-        write(6,*)' contraction range is 1:',ncont_tot_gb(basis)
+        write(6,*)' contraction range is 0:',ncont_tot_gb(basis)
         write(6,*)' input contraction was: ',cont
         return
       endif
-      center = ibs_cn2ce(cont,basis)
+      center = sf_ibs_cn2ce(cont,basis)
 c
       return
       end
@@ -1248,6 +1673,8 @@ c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -1259,6 +1686,8 @@ c::passed
 c::local 
       integer basis
 c
+#include "bas_ibs_sfn.fh"
+c
       bas_cn2bfr = .true.
 #ifdef BASIS_DEBUG      
       bas_cn2bfr = bas_check_handle(basisin,'bas_cn2bfr')
@@ -1266,16 +1695,16 @@ c
 #endif
 c
       basis = basisin + BASIS_HANDLE_OFFSET
-      bas_cn2bfr = cont.gt.0 .and. cont.le.ncont_tot_gb(basis)
+      bas_cn2bfr = cont.ge.0 .and. cont.le.ncont_tot_gb(basis)
       if (.not.bas_cn2bfr) then
         write(6,*)' bas_cn2bfr: invalid contraction information '
-        write(6,*)' contraction range is 1:',ncont_tot_gb(basis)
+        write(6,*)' contraction range is 0:',ncont_tot_gb(basis)
         write(6,*)' input contraction was: ',cont
         return
       endif
 c
-      ifirst = ibs_cn2bfr(1,cont,basis)
-      ilast  = ibs_cn2bfr(2,cont,basis)
+      ifirst = sf_ibs_cn2bfr(1,cont,basis)
+      ilast  = sf_ibs_cn2bfr(2,cont,basis)
 c
       return
       end
@@ -1316,6 +1745,8 @@ c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "geom.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -1326,6 +1757,7 @@ c::passed
       integer ilast    ! [output] last mapped contraction
 c::local 
       integer basis, nat
+#include "bas_ibs_sfn.fh"
 c
       bas_ce2cnr = .true.
 #ifdef BASIS_DEBUG
@@ -1352,8 +1784,8 @@ c..... add diagnostics later
         return
       endif
 c
-      ifirst = ibs_ce2cnr(1, center, basis)
-      ilast  = ibs_ce2cnr(2, center, basis)
+      ifirst = sf_ibs_ce2cnr(1, center, basis)
+      ilast  = sf_ibs_ce2cnr(2, center, basis)
 c
       return
       end
@@ -1366,6 +1798,8 @@ c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "geom.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -1375,6 +1809,8 @@ c::passed
       integer center  ! [output] center index
 c::local
       integer basis, nat, iat, ibflo, ibfhi
+c
+#include "bas_ibs_sfn.fh"
 c
       bas_bf2ce = bas_check_handle(basisin,'bas_bf2ce')
       if (.not. bas_bf2ce) return
@@ -1393,8 +1829,8 @@ c... linear search through atoms
 c
       center = -1
       do 00100 iat = 1,nat
-        ibflo = ibs_cn2bfr(1,ibs_ce2cnr(1,iat,basis),basis)
-        ibfhi = ibs_cn2bfr(2,ibs_ce2cnr(2,iat,basis),basis)
+        ibflo = sf_ibs_cn2bfr(1,(sf_ibs_ce2cnr(1,iat,basis)),basis)
+        ibfhi = sf_ibs_cn2bfr(2,(sf_ibs_ce2cnr(2,iat,basis)),basis)
         if (testbf.ge.ibflo.and.testbf.le.ibfhi) then
           center = iat
           return
@@ -1411,6 +1847,8 @@ c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::function
       logical bas_numcont
       logical bas_check_handle
@@ -1423,6 +1861,8 @@ c::passed
 c::local
       integer basis, icont, ibflo, ibfhi
       integer numcont
+c
+#include "bas_ibs_sfn.fh"
 c
       bas_bf2cn = bas_check_handle(basisin,'bas_bf2cn')
       if (.not. bas_bf2cn) return
@@ -1438,8 +1878,8 @@ c
 c... linear search through contractions
       cont = -1 
       do 00100 icont = 1,numcont
-        ibflo = ibs_cn2bfr(1,icont,basis)
-        ibfhi = ibs_cn2bfr(2,icont,basis)
+        ibflo = sf_ibs_cn2bfr(1,icont,basis)
+        ibfhi = sf_ibs_cn2bfr(2,icont,basis)
         if(testbf.ge.ibflo.and.testbf.le.ibfhi) then
           cont = icont
           return
@@ -1512,9 +1952,12 @@ c
 c  returns the exponents of a given mapped contraction 
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -1527,17 +1970,20 @@ c::passed
 c::local
       integer basis, myucont, icontmax
       integer myprim,myexptr
+c:: statement functions
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c
       bas_get_exponent = bas_check_handle(basisin,'bas_get_exponent')
       if (.not.bas_get_exponent) return
 
       basis = basisin + BASIS_HANDLE_OFFSET 
       icontmax = ncont_tot_gb(basis)
-      myucont = ibs_cn2ucn(icont,basis)
-      bas_get_exponent = icont.gt.0.and.icont.le.icontmax
+      myucont = sf_ibs_cn2ucn(icont,basis)
+      bas_get_exponent = icont.ge.0.and.icont.le.icontmax
       if (.not.(bas_get_exponent)) then
         write(6,*)' bas_get_exponent: ERROR '
-        write(6,*)' contraction range for basis is 1:',
+        write(6,*)' contraction range for basis is 0:',
      &         icontmax
         write(6,*)' information requested for contraction:',icont
         return
@@ -1545,7 +1991,7 @@ c
 c
       myexptr = infbs_cont(CONT_IEXP,myucont,basis)
       myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      call dcopy(myprim,exndcf(myexptr,basis),1,exp,1)
+      call dcopy(myprim,dbl_mb(mb_exndcf(myexptr,basis)),1,exp,1)
 c
       bas_get_exponent = .true.
 c
@@ -1561,6 +2007,8 @@ c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -1574,6 +2022,8 @@ c::passed
 c::local
       integer basis,myucont,icontmax
 c
+#include "bas_ibs_sfn.fh"
+c
       nprimo = -123
       ngeno  = -456
       sphcart = -789
@@ -1585,16 +2035,16 @@ c
 c
       icontmax = ncont_tot_gb(basis)
 c
-      if (.not.(icont.gt.0.and.icont.le.icontmax)) then
+      if (.not.(icont.ge.0.and.icont.le.icontmax)) then
         write(6,*)' bas_continfo: ERROR '
-        write(6,*)' contraction range for basis is 1:',
+        write(6,*)' contraction range for basis is 0:',
      &         icontmax
         write(6,*)' information requested for contraction:',icont
         bas_continfo = .false.
         return
       endif
 c
-      myucont = ibs_cn2ucn(icont,basis)
+      myucont = sf_ibs_cn2ucn(icont,basis)
 c... no spherical yet 3/94 only cart. 
       sphcart = 0
       type    = infbs_cont(CONT_TYPE, myucont,basis)
@@ -1639,9 +2089,12 @@ c
 c returns the coefficients for the given mapped contraction
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
+#include "bas_ibs_dec.fh"
+#include "bas_exndcf_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -1654,6 +2107,9 @@ c::passed
 c::local
       integer basis, myucont, icontmax
       integer mycoeffptr, myprim, mygen
+c:: statement functions
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c
       bas_get_coeff = bas_check_handle(basisin,'bas_get_coeff')
       if (.not.bas_get_coeff) return
@@ -1661,11 +2117,11 @@ c
       basis = basisin + BASIS_HANDLE_OFFSET 
 c
       icontmax = ncont_tot_gb(basis)
-      myucont = ibs_cn2ucn(icont,basis)
-      bas_get_coeff = icont.gt.0.and.icont.le.icontmax
+      myucont = sf_ibs_cn2ucn(icont,basis)
+      bas_get_coeff = icont.ge.0.and.icont.le.icontmax
       if (.not.(bas_get_coeff)) then
         write(6,*)' bas_get_coeff: ERROR '
-        write(6,*)' contraction range for basis is 1:',
+        write(6,*)' contraction range for basis is 0:',
      &         icontmax
         write(6,*)' information requested for contraction:',icont
         return
@@ -1674,7 +2130,8 @@ c
       mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
       myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
       mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-      call dcopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
+      call dcopy((myprim*mygen),
+     &    dbl_mb(mb_exndcf(mycoeffptr,basis)),1,coeff,1)
 c
       bas_get_coeff = .true.
 c
@@ -1686,9 +2143,12 @@ c
 c sets the exponents to the input array for a given mapped contraction
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
+#include "bas_ibs_dec.fh"
+#include "bas_exndcf_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -1702,6 +2162,9 @@ c::passed
 c::local
       integer basis, myucont, icontmax
       integer myprim,myexptr
+c:: statement functions
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c
       bas_set_exponent = bas_check_handle(basisin,'bas_set_exponent')
       if (.not.bas_set_exponent) return
@@ -1709,12 +2172,12 @@ c
       basis = basisin + BASIS_HANDLE_OFFSET 
 
       icontmax = ncont_tot_gb(basis)
-      myucont = ibs_cn2ucn(icont,basis)
+      myucont = sf_ibs_cn2ucn(icont,basis)
 
-      bas_set_exponent = icont.gt.0.and.icont.le.icontmax
+      bas_set_exponent = icont.ge.0.and.icont.le.icontmax
       if (.not.(bas_set_exponent)) then
         write(6,*)' bas_set_exponent: ERROR '
-        write(6,*)' contraction range for basis is 1:',
+        write(6,*)' contraction range for basis is 0:',
      &         icontmax
         write(6,*)' information requested for contraction:',icont
         return
@@ -1731,7 +2194,7 @@ c
         write(6,*)' stored nprim: ',myprim
         return
       endif
-      call dcopy(nexp,exp,1,exndcf(myexptr,basis),1)
+      call dcopy(nexp,exp,1,dbl_mb(mb_exndcf(myexptr,basis)),1)
 c
       bas_set_exponent = .true.
 c
@@ -1743,9 +2206,12 @@ c
 c sets the coefficients of the given mapped contraction
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
+#include "bas_ibs_dec.fh"
+#include "bas_exndcf_dec.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -1759,6 +2225,9 @@ c::passed
 c::local
       integer basis, myucont, icontmax
       integer mycoeffptr, myprim, mygen
+c:: statement functions
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c
       bas_set_coeff = bas_check_handle(basisin,'bas_set_coeff')
       if (.not.bas_set_coeff) return
@@ -1766,12 +2235,12 @@ c
       basis = basisin + BASIS_HANDLE_OFFSET 
 c
       icontmax = ncont_tot_gb(basis)
-      myucont = ibs_cn2ucn(icont,basis)
+      myucont = sf_ibs_cn2ucn(icont,basis)
 
-      bas_set_coeff = icont.gt.0.and.icont.le.icontmax
+      bas_set_coeff = icont.ge.0.and.icont.le.icontmax
       if (.not.(bas_set_coeff)) then
         write(6,*)' bas_set_coeff: ERROR '
-        write(6,*)' contraction range for basis is 1:',
+        write(6,*)' contraction range for basis is 0:',
      &         icontmax
         write(6,*)' information requested for contraction:',icont
         return
@@ -1790,7 +2259,7 @@ c
         write(6,*)' stored nprim*ngen: ',(myprim*mygen)
         return
       endif
-      call dcopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
+      call dcopy(ncoeff,coeff,1,dbl_mb(mb_exndcf(mycoeffptr,basis)),1)
 c
       bas_set_coeff = .true.
 c
@@ -1853,6 +2322,8 @@ c
 #include "geom.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c::functions
       logical bas_check_handle
       external bas_check_handle
@@ -1862,6 +2333,8 @@ c:: passed
 c                           !          atom in the given basis.
 c:local
       integer basis, mynat, iat, mylo, myhi, mynbf
+c
+#include "bas_ibs_sfn.fh"
 c
       bas_nbf_ce_max = bas_check_handle(basisin,'bas_nbf_ce_max')
       if (.not. bas_nbf_ce_max ) then
@@ -1881,8 +2354,8 @@ c
 c
       nbf_max = -1
       do 00100 iat = 1,mynat
-        mylo  = ibs_cn2bfr(1,ibs_ce2cnr(1,iat,basis),basis)
-        myhi  = ibs_cn2bfr(2,ibs_ce2cnr(2,iat,basis),basis)
+        mylo  = sf_ibs_cn2bfr(1,(sf_ibs_ce2cnr(1,iat,basis)),basis)
+        myhi  = sf_ibs_cn2bfr(2,(sf_ibs_ce2cnr(2,iat,basis)),basis)
         mynbf = myhi - mylo + 1
         nbf_max = max(nbf_max, mynbf)
 00100 continue

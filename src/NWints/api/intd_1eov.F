@@ -1,6 +1,6 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.2 1994-08-05 19:39:13 d3e129 Exp $
+c $Id: intd_1eov.F,v 1.3 1996-01-22 21:46:41 d3e129 Exp $
       implicit none
 c
 c returns 1e overlap derivative integrals for shells/contractions ish,jsh
@@ -9,6 +9,9 @@ c
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c::external subroutines used
 c... errquit
 c::functions
@@ -60,6 +63,9 @@ c::local
       integer ibas,iatom,inp,igen,iexp,icf,itype,igeom
       integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom
 c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
       nint = int_nint(i_basis,ish,j_basis,jsh,0,0,0,0)
       if (nint*3*2.gt.lOva) then
         write(6,*) 'nint*3*2 = ',nint*3*2
@@ -70,8 +76,8 @@ c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
 c
-      iatom = ibs_cn2ce(ish,ibas)
-      jatom = ibs_cn2ce(jsh,jbas)
+      iatom = (sf_ibs_cn2ce(ish,ibas))
+      jatom = (sf_ibs_cn2ce(jsh,jbas))
       if (iatom.eq.jatom) then
         idatom(1) = 0
         idatom(2) = 0
@@ -81,7 +87,7 @@ c
       idatom(1) = iatom
       idatom(2) = jatom
 c
-      ucont = ibs_cn2ucn(ish,ibas)
+      ucont = (sf_ibs_cn2ucn(ish,ibas))
       inp   = infbs_cont(CONT_NPRIM,ucont,ibas)
       igen  = infbs_cont(CONT_NGEN,ucont,ibas)
       iexp  = infbs_cont(CONT_IEXP,ucont,ibas)
@@ -89,7 +95,7 @@ c
       itype = infbs_cont(CONT_TYPE,ucont,ibas) 
       igeom = ibs_geom(ibas)
 c
-      ucont = ibs_cn2ucn(jsh,jbas)
+      ucont = (sf_ibs_cn2ucn(jsh,jbas))
       jnp   = infbs_cont(CONT_NPRIM,ucont,jbas)
       jgen  = infbs_cont(CONT_NGEN,ucont,jbas)
       jexp  = infbs_cont(CONT_IEXP,ucont,jbas)
@@ -105,13 +111,13 @@ c
 c
       call hf1d(
      &       coords(1,iatom,igeom),
-     &       exndcf(iexp,ibas),
-     &       exndcf(icf,ibas),
+     &       dbl_mb(mb_exndcf(iexp,ibas)),
+     &       dbl_mb(mb_exndcf(icf,ibas)),
      &       inp,igen,itype,iatom,
 c
      &       coords(1,jatom,jgeom),
-     &       exndcf(jexp,jbas),
-     &       exndcf(jcf,jbas),
+     &       dbl_mb(mb_exndcf(jexp,jbas)),
+     &       dbl_mb(mb_exndcf(jcf,jbas)),
      &       jnp,jgen,jtype,jatom,
 c
      &       coords(1,1,igeom),charge(1,igeom),ncenter(igeom),

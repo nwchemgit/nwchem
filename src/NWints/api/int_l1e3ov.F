@@ -3,10 +3,12 @@
 c
 c routine to calculate labels for 3 center overlap integrals 
 c
-C$Id: int_l1e3ov.F,v 1.6 1995-12-22 01:38:59 d3e129 Exp $
+C$Id: int_l1e3ov.F,v 1.7 1996-01-22 21:46:25 d3e129 Exp $
       implicit none 
 #include "basP.fh"
 #include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
 c
 c::external subroutines used
 c..  errquit
@@ -38,6 +40,8 @@ c::local
 c
       logical ijbas, jkbas, ikbas, allbas  ! check of basis set handles for canonicalization
 c
+#include "bas_ibs_sfn.fh"
+c
 c
 c check shells
 c
@@ -56,9 +60,12 @@ c
       ikbas  = ibas.eq.kbas
       allbas = ijbas .and. jkbas
 c
-      numint =         ibs_cn2bfr(2,ish,ibas)-ibs_cn2bfr(1,ish,ibas)+1
-      numint = numint*(ibs_cn2bfr(2,jsh,jbas)-ibs_cn2bfr(1,jsh,jbas)+1)
-      numint = numint*(ibs_cn2bfr(2,ksh,kbas)-ibs_cn2bfr(1,ksh,kbas)+1)
+      numint =         (sf_ibs_cn2bfr(2,ish,ibas))-
+     &      (sf_ibs_cn2bfr(1,ish,ibas))+1
+      numint = numint*((sf_ibs_cn2bfr(2,jsh,jbas))-
+     &      (sf_ibs_cn2bfr(1,jsh,jbas))+1)
+      numint = numint*((sf_ibs_cn2bfr(2,ksh,kbas))-
+     &      (sf_ibs_cn2bfr(1,ksh,kbas))+1)
       newlscr = lscr-numint
       call int_1e3ov(i_basis, ish, j_basis, jsh, k_basis, ksh,
      &    newlscr,scr(numint+1),numint,scr)
@@ -66,9 +73,12 @@ c
       numov3 = 0
       icount = 0
 c
-      do 00100 i = ibs_cn2bfr(1,ish,ibas), ibs_cn2bfr(2,ish,ibas)
-        do 00200 j = ibs_cn2bfr(1,jsh,jbas), ibs_cn2bfr(2,jsh,jbas)
-          do 00300 k = ibs_cn2bfr(1,ksh,kbas), ibs_cn2bfr(2,ksh,kbas)
+      do 00100 i = (sf_ibs_cn2bfr(1,ish,ibas)),
+     &      (sf_ibs_cn2bfr(2,ish,ibas))
+        do 00200 j = (sf_ibs_cn2bfr(1,jsh,jbas)),
+     &        (sf_ibs_cn2bfr(2,jsh,jbas))
+          do 00300 k = (sf_ibs_cn2bfr(1,ksh,kbas)),
+     &          (sf_ibs_cn2bfr(2,ksh,kbas))
             icount = icount + 1
             nonzero = abs(scr(icount)).ge.zerotol
             if (nonzero) then

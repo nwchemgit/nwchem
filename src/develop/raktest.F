@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.43 1996-01-17 21:46:42 d3e129 Exp $
+c $Id: raktest.F,v 1.44 1996-01-22 21:51:06 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -3751,6 +3751,8 @@ c.... buf is now -- buf(nbfj_sp,nbfi_sp)
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c
       logical int_normalize
       external int_normalize
@@ -3766,6 +3768,9 @@ c test hf3 nai type routines
       integer nint_out
       logical status
       character*255 mo_basis, geom_name
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c
       if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
      &    mo_basis = 'ao basis'
@@ -3803,71 +3808,81 @@ c
      &        '==================== start =========='
           write(6,*)' '
           
-          ucont = ibs_cn2ucn(ish,basis_id)
+          ucont = (sf_ibs_cn2ucn(ish,basis_id))
           Li      = infbs_cont(CONT_TYPE ,ucont,basis_id)
           i_prim  = infbs_cont(CONT_NPRIM,ucont,basis_id)
           i_gen   = infbs_cont(CONT_NGEN ,ucont,basis_id)
           i_iexp  = infbs_cont(CONT_IEXP ,ucont,basis_id)
           i_icfp  = infbs_cont(CONT_ICFP ,ucont,basis_id)
-          i_cent  = ibs_cn2ce(ish,basis_id)
+          i_cent  = (sf_ibs_cn2ce(ish,basis_id))
           i_geom  = ibs_geom(basis_id)
 c
-          ucont = ibs_cn2ucn(jsh,basis_id)
+          ucont = (sf_ibs_cn2ucn(jsh,basis_id))
           Lj      = infbs_cont(CONT_TYPE ,ucont,basis_id)
           j_prim  = infbs_cont(CONT_NPRIM,ucont,basis_id)
           j_gen   = infbs_cont(CONT_NGEN ,ucont,basis_id)
           j_iexp  = infbs_cont(CONT_IEXP ,ucont,basis_id)
           j_icfp  = infbs_cont(CONT_ICFP ,ucont,basis_id)
-          j_cent  = ibs_cn2ce(ish,basis_id)
+          j_cent  = (sf_ibs_cn2ce(jsh,basis_id))
           j_geom  = ibs_geom(basis_id)
           
           call hf1tmp(
-     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
-     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
-     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
-     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
-     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
-     &        dbl_mb(k_scr),dbl_mb(k_scr),dbl_mb(k_buf),membuf,
-     &        .false., .false., .true., .false., .false.,
-     &        dbl_mb(k_scr), memscr)
+     &          coords(1,i_cent,i_geom),
+     &          dbl_mb(mb_exndcf(i_iexp,basis_id)),
+     &          dbl_mb(mb_exndcf(i_icfp,basis_id)), i_prim, i_gen, Li,
+     &          coords(1,j_cent,j_geom),
+     &          dbl_mb(mb_exndcf(j_iexp,basis_id)),
+     &          dbl_mb(mb_exndcf(j_icfp,basis_id)), j_prim, j_gen, Lj,
+     &          coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &          dbl_mb(k_scr),dbl_mb(k_scr),dbl_mb(k_buf),membuf,
+     &          .false., .false., .true., .false., .false.,
+     &          dbl_mb(k_scr), memscr)
           write(6,*)' i = c center '
           call hf3pot(
-     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
-     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
-     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
-     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
-     &        coords(1,i_cent,i_geom),0.0d00, 1.0d00, 1, 1, 0,
-     &        dbl_mb(k_buf), membuf, nint_out, .false.,
-     &        dbl_mb(k_scr), memscr)
+     &          coords(1,i_cent,i_geom),
+     &          dbl_mb(mb_exndcf(i_iexp,basis_id)),
+     &          dbl_mb(mb_exndcf(i_icfp,basis_id)), i_prim, i_gen, Li,
+     &          coords(1,j_cent,j_geom),
+     &          dbl_mb(mb_exndcf(j_iexp,basis_id)),
+     &          dbl_mb(mb_exndcf(j_icfp,basis_id)), j_prim, j_gen, Lj,
+     &          coords(1,i_cent,i_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &          dbl_mb(k_buf), membuf, nint_out, .false.,
+     &          dbl_mb(k_scr), memscr)
           write(6,*)' j = c center '
           call hf3pot(
-     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
-     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
-     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
-     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
-     &        coords(1,j_cent,j_geom),0.0d00, 1.0d00, 1, 1, 0,
-     &        dbl_mb(k_buf), membuf, nint_out, .false.,
-     &        dbl_mb(k_scr), memscr)
+     &          coords(1,i_cent,i_geom),
+     &          dbl_mb(mb_exndcf(i_iexp,basis_id)),
+     &          dbl_mb(mb_exndcf(i_icfp,basis_id)), i_prim, i_gen, Li,
+     &          coords(1,j_cent,j_geom),
+     &          dbl_mb(mb_exndcf(j_iexp,basis_id)),
+     &          dbl_mb(mb_exndcf(j_icfp,basis_id)), j_prim, j_gen, Lj,
+     &          coords(1,j_cent,j_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &          dbl_mb(k_buf), membuf, nint_out, .false.,
+     &          dbl_mb(k_scr), memscr)
           write(6,*)' i = c center swap'
           call hf3pot(
-     &        coords(1,i_cent,i_geom),0.0d00, 1.0d00, 1, 1, 0,
-     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
-     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
-     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
-     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
-     &        dbl_mb(k_buf), membuf, nint_out, .false.,
-     &        dbl_mb(k_scr), memscr)
+     &          coords(1,i_cent,i_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &          coords(1,j_cent,j_geom),
+     &          dbl_mb(mb_exndcf(j_iexp,basis_id)),
+     &          dbl_mb(mb_exndcf(j_icfp,basis_id)), j_prim, j_gen, Lj,
+     &          coords(1,i_cent,i_geom),
+     &          dbl_mb(mb_exndcf(i_iexp,basis_id)),
+     &          dbl_mb(mb_exndcf(i_icfp,basis_id)), i_prim, i_gen, Li,
+     &          dbl_mb(k_buf), membuf, nint_out, .false.,
+     &          dbl_mb(k_scr), memscr)
           write(6,*)' j = c center swap'
           call hf3pot(
-     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
-     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
-     &        coords(1,j_cent,j_geom),0.0d00, 1.0d00, 1, 1, 0,
-     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
-     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
-     &        dbl_mb(k_buf), membuf, nint_out, .false.,
-     &        dbl_mb(k_scr), memscr)
+     &          coords(1,i_cent,i_geom),
+     &          dbl_mb(mb_exndcf(i_iexp,basis_id)),
+     &          dbl_mb(mb_exndcf(i_icfp,basis_id)), i_prim, i_gen, Li,
+     &          coords(1,j_cent,j_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &          coords(1,j_cent,j_geom),
+     &          dbl_mb(mb_exndcf(j_iexp,basis_id)),
+     &          dbl_mb(mb_exndcf(j_icfp,basis_id)), j_prim, j_gen, Lj,
+     &          dbl_mb(k_buf), membuf, nint_out, .false.,
+     &          dbl_mb(k_scr), memscr)
           write(6,*)' ============= shells <',ish,'|',jsh,'>',
-     &        '====================  end  =========='
+     &          '====================  end  =========='
           write(6,*)' '
         enddo
       enddo

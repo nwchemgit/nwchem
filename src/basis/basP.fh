@@ -1,4 +1,4 @@
-c $Id: basP.fh,v 1.4 1995-11-03 20:41:36 d3g681 Exp $
+c $Id: basP.fh,v 1.5 1996-01-22 21:49:54 d3e129 Exp $
 c:basP.fh
 c
 c basis set object/api  
@@ -55,7 +55,11 @@ c  Integer itag(num_cont)  ! tag identifier for contraction
 c                          ! (redundant for just atomic info)
 c  Real*8 exndcf(nprim_tag+ncoeff_tag) ! linearized real*8 array of 
 c                                      ! exponents and coefficients
-c
+c                                      ! allocated on heap; exndcf now
+c                                      ! integer pointer array (3)
+c                                      ! 1 = ma handle
+c                                      ! 2 = ma index to dbl_mb(*)
+c                                      ! 3 = stored size of ma segment
 c......................................................................
 c
 c The basis set information is the number of tags and the above tag 
@@ -88,6 +92,11 @@ c                                    ! each cont. on each tag
 c  Integer itag(num_cont)            ! tag identifier for contraction
 c  Real*8 exndcf(*)                  ! linearized real*8 array of 
 c                                    ! exponents and coefficients
+c                                    ! allocated on heap; exndcf now
+c                                    ! integer pointer array (3)
+c                                    ! 1 = ma handle
+c                                    ! 2 = ma index to dbl_mb(*)
+c                                    ! 3 = stored size of ma segment
 c
 c  Note: exndcf does not carry the num_cont label because it is a 
 c        linearized real*8 array and the added dimensionality is 
@@ -104,11 +113,13 @@ c
 c The more appropriate "basis" data structure is as follows:
 c  Character*256 bs_name             ! as "mo basis" 
 c  Character*16 tags(num_tags)       ! character string of tags 
-c  Integer infbs_head(4)             ! header information
+c  Integer infbs_head(6)             ! header information
 c           ! 1 = num_tags           ! num of tags in basis
 c           ! 2 = num_cont_total     ! num of conts in basis
 c           ! 3 = num_prim_total     ! num of prims(ex) in basis
 c           ! 4 = num_coeff_total    ! num of coeffs in basis
+c           ! 5 = ex_off             ! next ptr in exndcf array
+c           ! 6 = ecp                ! yes/no  1/o
 c  Integer infbs_tags(5,num_tags)      
 c           ! 1 = num_cont   ! Num of conts on tag
 c           ! 2 = nprim_tag  ! Num of prim exponents on tag
@@ -131,6 +142,11 @@ c                          ! each cont. on each tag
 c           ! 6 = itag     ! cunique tag number
 c  Real*8 exndcf(*)        ! linearized real*8 array of 
 c                          ! exponents and coefficients
+c                          ! allocated on heap; exndcf now
+c                          ! integer pointer array (3)
+c                          ! 1 = ma handle
+c                          ! 2 = ma index to dbl_mb(*)
+c                          ! 3 = stored size of ma segment
 c
 c......................................................................
 c
@@ -138,11 +154,13 @@ c The above data structure now must handle multiple basis sets.
 c The "multiple basis set" data structure is as follows:
 c  Character*256 bs_name(nbasis)       ! as "mo basis" 
 c  Character*16 tags(num_tags,nbasis)  ! character string of tags 
-c  Integer infbs_head(4,nbasis)
+c  Integer infbs_head(6,nbasis)
 c           ! 1 = num_tags             ! num of tags in basis
 c           ! 2 = num_cont_total       ! num of conts in basis
 c           ! 3 = num_prim_total       ! num of prims(ex) in basis
 c           ! 4 = num_coeff_total      ! num of coeffs in basis
+c           ! 5 = ex_off               ! next ptr in exndcf array
+c           ! 6 = ecp                  ! yes/no  1/o
 c  Integer infbs_tags(5,num_tags,nbasis)      
 c           ! 1 = num_cont_tag         ! Num of conts on tag
 c           ! 2 = nprim_tag            ! Num of prim exponents on tag
@@ -165,6 +183,11 @@ c                            ! each cont. on each tag
 c           ! 6 = tag number ! unique center lexical index
 c  Real*8 exndcf(*,nbasis)   ! linearized real*8 array of 
 c                            ! exponents and coefficients
+c                            ! allocated on heap; exndcf now
+c                            ! integer pointer array (3)
+c                            ! 1 = ma handle
+c                            ! 2 = ma index to dbl_mb(*)
+c                            ! 3 = stored size of ma segment
 c
 c         
 c......................................................................
@@ -173,18 +196,19 @@ c actual names are set to protect name space between the geom and
 c  basis objects
 c
 c offset for basis handle
-#define BASIS_HANDLE_OFFSET ((0-565))
+      integer BASIS_HANDLE_OFFSET
+      parameter (BASIS_HANDLE_OFFSET=((0-565)))
 c
 c.. static dimension information for common blocks
 #include "bas_staticP.fh"
 c
 c leading dimensions of compressed arrays
       integer ndbs_tags, ndbs_ucont, ndbs_head
-      parameter(ndbs_tags=5, ndbs_ucont=6, ndbs_head=4)
+      parameter(ndbs_tags=5, ndbs_ucont=6, ndbs_head=6)
 c.. stored structures
       character*256 bs_name
       character*16  bs_tags
-      real*8  exndcf
+      integer exndcf   ! now allocated on heap
       integer infbs_head,infbs_tags,infbs_cont
 c.. incore sturctures
       real*8 bsversion
@@ -201,10 +225,10 @@ c......... above for each basis is stored ... below is in-core
      &       bs_names_rtdb(nbasis_rtdb_mx)
      
       common /cbsdata/
-     &       exndcf(mxbs_exndcf,nbasis_bsmx),bsversion,
+     &       bsversion,exndcf(3,nbasis_bsmx),
      &       infbs_head(ndbs_head,nbasis_bsmx),
      &       infbs_tags(ndbs_tags,ntags_bsmx,nbasis_bsmx),
-     &       infbs_cont(ndbs_ucont,nucont_bsmx,nbasis_bsmx),
+     &       infbs_cont(ndbs_ucont,0:nucont_bsmx,nbasis_bsmx),
 c......... above for each basis is stored ... below is in-core
      &       len_bs_name(nbasis_bsmx),
      &       len_bs_trans(nbasis_bsmx),
