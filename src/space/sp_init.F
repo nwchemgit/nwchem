@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.93 2001-11-15 04:31:31 d3j191 Exp $
+c $Id: sp_init.F,v 1.94 2001-11-15 05:59:39 d3j191 Exp $
 c
       implicit none
 c
@@ -2832,14 +2832,14 @@ c
       if(lfs) then
       if(lvs) then
       do 111 i=1,nums
-      write(lfntrj,1006) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3),
+      write(lfntrj,1016) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3),
      + (bfs(i,j),j=1,3)
  1016 format(6f8.3,3f8.1)
       if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i)
   111 continue
       else
       do 121 i=1,nums
-      write(lfntrj,1007) (bxs(i,j),j=1,3),(bfs(i,j),j=1,3)
+      write(lfntrj,1017) (bxs(i,j),j=1,3),(bfs(i,j),j=1,3)
  1017 format(3f8.3,3f8.1)
       if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i)
   121 continue
