@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.10 2004-04-09 23:05:09 marat Exp $
+c $Id: cons_utils.F,v 1.11 2004-04-19 04:37:26 marat Exp $
       function cons_print()
       implicit none
 #include "global.fh"
@@ -418,6 +418,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "global.fh"
 c     
       integer rtdb
 c
@@ -453,7 +454,9 @@ c
      >     'cons_info_fixed_atoms: unable to get prior fixed atoms',
      >      0, MA_ERR)
        
+       if(ga_nodeid().eq.0) then
        write(*,*) "fixed atoms          ",(int_mb(i_tmp_id +i-1),i=1,n)
+       end if
 
       if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
      &    'cons_info_fixed_atoms: unable to free h_tmp_id',
@@ -468,6 +471,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "global.fh"
 c
       integer rtdb
 c     
@@ -495,7 +499,8 @@ c
       end if
        
       if (nhb .eq. 0 ) then
-         write(*,*) "no springs found"
+         if(ga_nodeid().eq.0)    
+     >     write(*,*) "no springs found"
          return
       end if
 
@@ -525,12 +530,14 @@ c
        end if
 
      
+      if(ga_nodeid().eq.0) then   
       do i=1,nhb
       write(*,FMT=200) int_mb(i_tmp_id+2*(i-1)),
      >           int_mb(i_tmp_id+2*(i-1)+1),
      >           dbl_mb(i_tmp_k+i-1),
      >           dbl_mb(i_tmp_r+i-1)
       end do
+      end if
 200   FORMAT(" spring bond (i,j,k,r0)",T29,I6,2X,I6,2X,F6.3,2X,F6.3)
       if (.not. ma_pop_stack(h_tmp_r) ) call errquit(
      &    'cons_info_springs: unable to free h_tmp_r',
@@ -713,7 +720,6 @@ c
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
-#include "cons_data.fh"
 c     
       logical cons_fixed_atoms
       character*(*) namespace
@@ -730,6 +736,32 @@ c
         cons_fixed_atoms=.false.
       else
         cons_fixed_atoms=.true.
+      end if
+
+      return
+      end
+
+      function cons_hbonds(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+c     
+      logical cons_hbonds
+      character*(*) namespace
+      integer rtdb
+c
+      integer nhb
+      character(255) tag_n
+
+      call cons_hbond_n_tag(namespace,tag_n)
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhb)) nhb=0
+     
+      if(nhb.eq.0) then
+        cons_hbonds=.false.
+      else
+        cons_hbonds=.true.
       end if
 
       return

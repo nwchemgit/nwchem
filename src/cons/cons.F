@@ -27,7 +27,6 @@ c
       character(255) tag_n
       character(255) namespace
       logical oprint
-      logical oqmmm
 c
       call util_print_push()
       call util_print_rtdb_load(rtdb,'cons')
@@ -40,18 +39,19 @@ c
          namespace=cons_default
       end if
 
-      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
-     &    oqmmm = .false.
-
-
       if(.not.cons_activate(namespace,rtdb)) then
         status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .false.)
         if(.not.status)
      &  call errquit('cons_init',0,RTDB_ERR) 
         write(*,*) "cons_init:no constraints found "//namespace
         write(*,*) "cons_init: constraints will be deactivated"
+        call errquit("cons_init:no constraints found "//namespace,
+     >               ,0,RTDB_ERR) 
         return
       end if
+c
+c     initialize harmonic bobds
+      call cons_set_hbond_nhb(0)
 c
 c     load geometry 
 c     -------------
@@ -135,12 +135,7 @@ c     --------------------
       if(.not.status) 
      & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
 
-      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
-     &    oqmmm = .false.
-
       call cons_load_fixed_atoms(namespace,rtdb)
-      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
-     &    oqmmm = .false.
 
       call cons_print_gen_info(rtdb)
 c
@@ -148,10 +143,6 @@ c
      >    write(*,*) "finished cons_init"
 c
       call util_print_pop()
-
-      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
-     &    oqmmm = .false.
-
 
       return
       end
@@ -243,20 +234,6 @@ c
       call cons_set_hbond_nhb(0)
       end if
       end
-
-      subroutine cons_load_constraints(namespace,rtdb)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "geom.fh"
-      integer rtdb
-      character*(*) namespace
-      
-      call cons_set_namespace(namespace)
-
-      end
 c
       subroutine cons_load_hbonds(namespace,rtdb)
       implicit none
@@ -288,9 +265,14 @@ c
 c     load harmonic constraints
 c
       status=rtdb_get(rtdb,tag_n,mt_int,1,nhb)
-      if(.not.status .or. nhb.eq.0) call errquit(
-     >     'cons_load_hbonds: unable to get number of harm bonds:',
-     >      nhb, MA_ERR)
+c     
+c     exit if no harm bonds
+      if(.not.status .or. nhb.eq.0) then
+c            call errquit(
+c     >     'cons_load_hbonds: unable to get number of harm bonds:',
+c     >      nhb, MA_ERR)
+      return
+      end if
  
       if ( .not. ma_alloc_get( MT_INT, 2*nhb, tag_id,
      &      h_ijhb, i_ijhb) ) call errquit(
@@ -320,35 +302,20 @@ c
        call cons_set_h_hbond_k(h_khb)
        call cons_set_h_hbond_r(h_rhb)
 
-c      if(rtdb_get(rtdb,tag_n,mt_int,1,nhb)) then
-c        status = rtdb_ma_get(rtdb,"cons:hbond_ij",
-c     >     ma_type,ma_size,h_ijhb) 
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get cons:hbond_n',
-c     >      nhb, RTDB_ERR)
-c        status = ma_get_index(h_ijhb,i_ijhb)
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get ijhb',
-c     >      nhb, RTDB_ERR)
-c        status = rtdb_ma_get(rtdb,tag_k,
-c     >     ma_type,ma_size,h_khb) 
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get h_khb',
-c     >      nhb, RTDB_ERR)
-c        status = ma_get_index(h_khb,i_khb)
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get i_khb',
-c     >      nhb, RTDB_ERR)
-c        status = rtdb_ma_get(rtdb,tag_r,
-c     >     ma_type,ma_size,h_rhb) 
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get h_rhb',
-c     >      nhb, RTDB_ERR)
-c        status = ma_get_index(h_rhb,i_rhb)
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get i_irhb',
-c     >      nhb, RTDB_ERR)
-c      end if
+      end
+c
+      subroutine cons_load_constraints(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "geom.fh"
+      integer rtdb
+      character*(*) namespace
+      
+      call cons_set_namespace(namespace)
+
       end
 c
       subroutine cons_load_fixed_atoms(namespace,rtdb)
@@ -441,10 +408,6 @@ c
           end if
         end do
         
-      if(cons_print())
-     > write(*,*) "cons_load_fixed_atoms",
-     > j,(int_mb(i_tmp_id1-i+1),i=1,j)
-
       status = rtdb_put(rtdb,'geometry:actlist',
      >     mt_int,nat-nfa,int_mb(i_tmp_id1))
         if(.not.status) call errquit(
@@ -763,33 +726,38 @@ c
       call cons_load_hbonds(namespace,rtdb)
 c
       call cons_get_hbond_nhb(nhb)
-      i_c    = cons_get_i_c()
-      i_ijhb = cons_get_i_hbond_id()
-      i_khb  = cons_get_i_hbond_k()
-      i_rhb  = cons_get_i_hbond_r()
+      
+      if(nhb.ne.0) then
+        i_c    = cons_get_i_c()
+        i_ijhb = cons_get_i_hbond_id()
+        i_khb  = cons_get_i_hbond_k()
+        i_rhb  = cons_get_i_hbond_r()
 c
-      etot=0.0d0
-      do inb=1,nhb
-       iat=int_mb(i_ijhb+2*(inb-1))
-       jat=int_mb(i_ijhb+2*(inb-1)+1)
-       r0 =dbl_mb(i_rhb+inb-1)
-       k  =dbl_mb(i_khb+inb-1)
+        etot=0.0d0
+        do inb=1,nhb
+         iat=int_mb(i_ijhb+2*(inb-1))
+         jat=int_mb(i_ijhb+2*(inb-1)+1)
+         r0 =dbl_mb(i_rhb+inb-1)
+         k  =dbl_mb(i_khb+inb-1)
 c
-       call cons_spring_force(k,r0,
-     >           dbl_mb(i_c+(iat-1)*3),
-     >           dbl_mb(i_c+(jat-1)*3),
-     >           r,e,f)
+         call cons_spring_force(k,r0,
+     >             dbl_mb(i_c+(iat-1)*3),
+     >             dbl_mb(i_c+(jat-1)*3),
+     >             r,e,f)
 
-       if(master) then
-        write(6,*)"  spring #                    : ",inb
-        write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
-        write(6,*)"  spring length               :",r
-        write(6,*)"  spring energy               :",e
-        write(6,*)"  spring forces               :",(f(i),i=1,3)
-        write(6,*)"  "
-       end if
-       etot=etot+e
-      end do
+         if(master) then
+          write(6,*)"  spring #                    : ",inb
+          write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
+          write(6,*)"  spring length               :",r
+          write(6,*)"  spring energy               :",e
+          write(6,*)"  spring forces               :",(f(i),i=1,3)
+          write(6,*)"  "
+         end if
+         etot=etot+e
+        end do
+      else
+       etot = 0
+      end if
 
       if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
      $        call errquit('driver: could not get energy',0, RTDB_ERR)
