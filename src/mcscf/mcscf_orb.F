@@ -1,7 +1,7 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.1 1995-10-25 01:27:19 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.2 1995-10-27 23:26:44 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
      $                           nact, osym, dm1, dm2,
@@ -18,7 +18,7 @@ c
 c
        integer rtdb, geom, basis                       ! [input] Handles
        integer nbf, nclosed, nact                      ! [input] Orbital parameters
-       integer osym(nbf)                               ! [input] Orbital irreps
+       logical osym                                    ! [input] Symmetry toggle
        double precision dm1(*)                         ! [input] 1-PDM
        double precision dm2(*)                         ! [input] 2-PDM
        integer g_coul                                  ! [input] Coulomb operator
@@ -160,7 +160,8 @@ c
          call rohf_k2cf( basis, nbf, nclosed, nact, g_kvec,
      $                   g_movecs, g_newvecs )
          if (gnorm.gt.1.d-3) then
-           call moints_build_6x( basis, molo, molo, mohi, 1, nbf,
+           call moints_build_6x( basis, osym,
+     $                           molo, molo, mohi, 1, nbf,
      $                           g_newvecs, g_coul, .true.,
      $                           g_exch, .false., 16 )
          endif
@@ -221,7 +222,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.1 1995-10-25 01:27:19 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.2 1995-10-27 23:26:44 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch

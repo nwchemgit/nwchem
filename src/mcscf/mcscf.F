@@ -30,12 +30,12 @@ c
        integer mo_lo, mo_hi
        integer i, iter, maxiter
        integer voff, aoff, aend
-       INTEGER OSYM(40)
        double precision pfac, d1over
        double precision eone, etwo, energy, enrep
        double precision tol2e, gnorm
        DOUBLE PRECISION CRAP(1000)
        logical oconj
+       logical osym
 c
 C       INTEGER L_HESS, K_HESS
 C       INTEGER PFLG
@@ -47,6 +47,10 @@ c
        external ga_create_atom_blocked, ga_create_JKblocked
        INTEGER MCSCF_ROHF_DEN2OCC
        EXTERNAL MCSCF_ROHF_DEN2OCC
+c
+c
+c
+       data osym/.true./
 c
 c Get w.f. parameters
 c
@@ -152,14 +156,12 @@ c
 c  Tranform 
 c
          if (ga_nodeid().eq.0) PRINT*,'Calling 4index'
-         call moints_build_6x( basis, mo_lo, mo_lo, mo_hi, 1, nbf,
+         call moints_build_6x( basis, osym,
+     $                         mo_lo, mo_lo, mo_hi, 1, nbf,
      $                         g_movecs, g_coul, .true.,
      $                         g_exch, .true., 16 )
-         call mcscf_fcore( basis, nbf, nclosed, nact, osym, g_movecs,
+         call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $                     g_coul, g_exch, g_h )
-c$$$         PRINT*,'--oo Orbital Symmetry oo--'
-c$$$         WRITE(6,982) (OSYM(I),I=1,NBF)
-c$$$ 982     FORMAT(16i3)
 c
 c  CI solver
 c
@@ -241,12 +243,13 @@ c
        call ga_zero(g_grad)
        call ga_zero(g_x)
        call ga_zero(g_prod)
-       call moints_build_6x( basis, mo_lo, mo_lo, mo_hi, 1, nbf,
+       call moints_build_6x( basis, osym,
+     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .true., 16 )
 c
 c
-       call mcscf_fcore( basis, nbf, nclosed, nact, osym, g_movecs,
+       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $                   g_coul, g_exch, g_afock )
 c
 c  Print 1-PDM

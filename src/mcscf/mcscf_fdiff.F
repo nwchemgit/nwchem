@@ -24,7 +24,8 @@ c
        integer g_grad                                 ! [output] Gradient
 c
 c
-c
+c     
+       logical osym
        integer npt
        parameter(npt=2)
        integer g_kvec, g_tmpmo, g_exch
@@ -33,6 +34,7 @@ c
        double precision g1
        double precision del(4), ee(4)
        data del/0.001d0,-0.001d0,0.01d0,-0.01d0/
+       data osym/.false./
 c
 c
 c
@@ -64,7 +66,8 @@ c
              call ga_put(g_kvec,ij,ij,1,1,del(ipt),1)
              call rohf_k2cf( basis, nbf, nclosed, nact, g_kvec,
      $                       g_movecs, g_tmpmo )
-             call moints_build_6x( basis, mo_lo, mo_lo, mo_hi, 1, nbf,
+             call moints_build_6x( basis, osym,
+     $                             mo_lo, mo_lo, mo_hi, 1, nbf,
      $                             g_tmpmo, g_coul, .true.,
      $                             g_exch, .false., 16 )
              call mcscf_etrace( geom, basis, nbf, nclosed, nact,
@@ -86,7 +89,8 @@ c$$$           write(6,901) i,(voff+j),ij,g1
              call ga_put(g_kvec,ij,ij,1,1,del(ipt),1)
              call rohf_k2cf( basis, nbf, nclosed, nact, g_kvec,
      $                       g_movecs, g_tmpmo )
-             call moints_build_6x( basis, mo_lo, mo_lo, mo_hi, 1, nbf,
+             call moints_build_6x( basis, osym,
+     $                             mo_lo, mo_lo, mo_hi, 1, nbf,
      $                             g_tmpmo, g_coul, .true.,
      $                             g_exch, .false., 16 )
              call mcscf_etrace( geom, basis, nbf, nclosed, nact,
@@ -102,7 +106,8 @@ c$$$           write(6,901) i,(nclosed+j),ij,g1
 c
 c  Restore old MO integrals
 c
-       call moints_build_6x( basis, mo_lo, mo_lo, mo_hi, 1, nbf,
+       call moints_build_6x( basis, osym,
+     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .false., 16 )
 c
@@ -153,6 +158,7 @@ c
 c
 c
 c
+       logical osym
        integer npt
        parameter(npt=2)
        integer g_k2, g_tmp1, g_tmp2, g_exch
@@ -162,6 +168,7 @@ c
        double precision eone, e2ii, e2ia, e2aa, h
        double precision del(4), ee(4,4)
        double precision ee2ii(4,4), ee2ia(4,4), ee2aa(4,4)
+       data osym/.false./
        data del/0.001d0,-0.001d0,0.01d0,-0.01d0/
 c
 c
@@ -200,7 +207,7 @@ c
                call ga_put(g_k2,j,j,1,1,del(jpt),1)
                call rohf_k2cf( basis, nbf, nclosed, nact, g_k2,
      $                         g_tmp1, g_tmp2 )
-               call moints_build_2x( basis, .true.,
+               call moints_build_6x( basis, osym,
      $                               mo_lo, mo_lo, mo_hi, 1, nbf,
      $                               g_tmp2, g_coul, .true.,
      $                               g_exch, .false., 16 )
@@ -222,7 +229,8 @@ c
 c
 c  Restore old MO integrals
 c
-       call moints_build_6x( basis, mo_lo, mo_lo, mo_hi, 1, nbf,
+       call moints_build_6x( basis, osym,
+     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .false., 16 )
 c

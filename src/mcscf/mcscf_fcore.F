@@ -10,7 +10,7 @@ c       F    =  h   +  sum ( 2J   - K   )       inactive Fock element
 c        rs      rs       i    ii    ii
 c
 c
-       subroutine mcscf_fcore( basis, nbf, nclosed, nact, osym,
+       subroutine mcscf_fcore( basis, nbf, nclosed, nact,
      $                         g_movecs, g_coul, g_exch, g_fcore )
        implicit none
 #include "mafdecls.fh"       
@@ -19,7 +19,6 @@ c
        integer nbf
        integer nclosed
        integer nact
-       integer osym(nbf)
        integer g_movecs
        integer g_coul
        integer g_exch
@@ -27,16 +26,10 @@ c
        integer nn, t, u, tu, jlo, jhi, k_j, k_k, ld1
        logical ga_check_JKblocked
        external ga_check_JKblocked
-       DOUBLE PRECISION CRAP(200)
 c
 c  1e Hamiltononian
 c
        call moints_1e( nbf, basis, g_movecs, g_fcore)
-       call moints_1esym( nbf, g_fcore, osym )
-c
-c$$$       CALL GA_GET(G_FCORE,1,NBF,1,NBF,CRAP,NBF)
-c$$$       PRINT*,'<<<<<<< 1e Hamiltonian >>>>>>>>'
-c$$$       CALL MAT_PRINT(NBF,NBF,CRAP)
 c
 c  Inactive-active Coulomb interation
 c
@@ -112,34 +105,6 @@ c
 
 
 
-       subroutine moints_1esym( nbf, g_a, osym )
-       implicit none
-#include "global.fh"
-       integer nbf
-       integer g_a
-       integer osym(nbf)
-       integer i,j,jj,isym
-       double precision xx,yy
-c
-       isym = 0
-       do i=1,nbf
-         yy = 0.d0
-         do j=1,i-1
-           call ga_get(g_a,i,i,j,j,xx,1)
-           if (abs(xx).gt.yy) then
-             yy = abs(xx)
-             jj = j
-           endif
-         enddo
-         if (yy.gt.1.d-8) then
-           osym(i) = osym(jj)
-         else
-           isym = isym + 1
-           osym(i) = isym
-         endif
-       enddo
-       return
-       end
 
 
 
