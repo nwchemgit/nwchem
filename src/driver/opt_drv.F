@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.109 2004-11-29 16:00:04 bylaska Exp $
+* $Id: opt_drv.F,v 1.110 2004-12-08 20:11:26 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -3164,7 +3164,8 @@ c
       if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, e0))
      $     call errquit('driver: could not get energy',0,0)
 c
-         write(6,8) "comp","anal-g","num-g","error","hess","step","de" 
+      if (ga_nodeid() .eq. 0) 
+     >   write(6,8) "comp","anal-g","num-g","error","hess","step","de" 
  8       format(1x,'checkgrad ',A5,4A16,2x,2A12)
 c
       do i = 1, ncart
@@ -3212,7 +3213,8 @@ c
          grad = (ep - em) / (2.d0*step)
          hess = (ep+em-2.0d0*e0) / (2.d0*step*step)
 c
-         write(6,7) i, gx(i), grad,abs(gx(i)-grad), hess, step, ep-e0
+         if (ga_nodeid() .eq. 0) 
+     >     write(6,7) i, gx(i), grad,abs(gx(i)-grad), hess, step, ep-e0
  7       format(1x,'checkgrad ',i5,2f16.8,e16.8,f16.8,2x,2f12.6)
       enddo
 c
