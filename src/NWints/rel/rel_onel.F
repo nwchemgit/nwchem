@@ -1,4 +1,4 @@
-C $Id: rel_onel.F,v 1.8 2000-01-25 19:53:23 mg201 Exp $
+C $Id: rel_onel.F,v 1.9 2000-04-24 20:10:03 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_onel}
 c:tex-This routine generates the modified one-electron integrals for
@@ -118,6 +118,8 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
      &    ('rel_onel: can''t do NW or HONDO integrals',99)
 *
       if (debug_gen) then
+        write (LuOut,*)
+        write (LuOut,*) 'rel_onel:'
         write (LuOut,*) 'l_A',l_A
         write (LuOut,*) 'n_prim_A',n_prim_A
         write (LuOut,*) 'n_cont_A',n_cont_A
@@ -352,8 +354,9 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
      &      canAB,DryRun,scr(i_scr),memscr)
       end if
       if (DryRun) then
-        if (debug_addresses) write (luout,*) '++:max_mem = ',max_mem
         max_mem = max(max_mem,i_scr+memscr-1)
+        if (debug_addresses) 
+     &      write (luout,*) '++:memscr,max_mem = ',memscr,max_mem
         memscr = lscr-i_scr+1
       end if
 *
@@ -374,8 +377,9 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
      &        canAB,DryRun,scr(i_scr),memscr)
         end if
         if (DryRun) then
-          if (debug_addresses) write (luout,*) '-+:max_mem = ',max_mem
           max_mem = max(max_mem,i_scr+memscr-1)
+          if (debug_addresses) 
+     &        write (luout,*) '-+:memscr,max_mem = ',memscr,max_mem
           memscr = lscr-i_scr+1
         end if
       end if
@@ -397,8 +401,9 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
      &        canAB,DryRun,scr(i_scr),memscr)
         end if
         if (DryRun) then
-          if (debug_addresses) write (luout,*) '+-:max_mem = ',max_mem
           max_mem = max(max_mem,i_scr+memscr-1)
+          if (debug_addresses) 
+     &        write (luout,*) '+-:memscr,max_mem = ',memscr,max_mem
           memscr = lscr-i_scr+1
         end if
 *     
@@ -419,8 +424,9 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
      &          canAB,DryRun,scr(i_scr),memscr)
           end if
           if (DryRun) then
-            if (debug_addresses) write (luout,*) '--:max_mem = ',max_mem
             max_mem = max(max_mem,i_scr+memscr-1)
+            if (debug_addresses) 
+     &          write (luout,*) '--:memscr,max_mem = ',memscr,max_mem
             memscr = lscr-i_scr+1
           end if
         end if
