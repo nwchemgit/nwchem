@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.10 2000-05-10 22:32:52 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.11 2000-05-24 20:48:43 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
       integer i,lq
       character*3 cnum
 c
-      integer ib,jb,nsb
+      integer ib,jb,nsb,nwb
 c
       if(me.eq.0) then
 c
@@ -37,9 +37,9 @@ c
       open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      read(lfntrj,1003) nwa,nsa,nsb
-      write(44,1003) nwa,nsa,nsb
- 1003 format(3i10)
+      read(lfntrj,1003) nwa,nsa,nsb,nwb
+      write(44,1003) nwa,nsa,nsb,nwb
+ 1003 format(4i10)
       if(nsa.gt.msa) call errquit('Error in trj',0)
       if(nwa.gt.0) then
       do 2 i=1,nwa
@@ -55,8 +55,8 @@ c
  1005 format(a16)
     3 continue
       endif
-      if(nsb.gt.0) then
-      do 4 i=1,nsb
+      if(nsb+nwb.gt.0) then
+      do 4 i=1,nsb+nwb
       read(lfntrj,1001) ib,jb
       write(44,1001) ib,jb
  1001 format(2i8)
@@ -88,7 +88,7 @@ c
       open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      write(44,1003) nwa,nsa,nsb
+      write(44,1003) nwa,nsa,nsb,0
       endif
       if(nsa.gt.msa) call errquit('Error in trj',0)
    12 continue

@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel)
 c
-c $Id: ana_wtfram.F,v 1.11 2000-05-10 22:30:46 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.12 2000-05-24 20:48:43 d3j191 Exp $
 c
       implicit none
 c
@@ -97,13 +97,13 @@ c
       if(lxw.and..not.lsonly) then
       do 44 i=1,nwm
       write(string,'(i7)') i+nss
-      if(string(1:1).eq.' ') string=string(2:6)//' '
-      if(string(1:1).eq.' ') string=string(2:6)//' '
-      if(string(1:1).eq.' ') string=string(2:6)//' '
-      if(string(1:1).eq.' ') string=string(2:6)//' '
-      if(string(1:1).eq.' ') string=string(2:6)//' '
-      if(string(1:1).eq.' ') string=string(2:6)//' '
-      if(string(1:1).eq.' ') string=string(2:6)//' '
+      if(string(1:1).eq.' ') string=string(2:7)//' '
+      if(string(1:1).eq.' ') string=string(2:7)//' '
+      if(string(1:1).eq.' ') string=string(2:7)//' '
+      if(string(1:1).eq.' ') string=string(2:7)//' '
+      if(string(1:1).eq.' ') string=string(2:7)//' '
+      if(string(1:1).eq.' ') string=string(2:7)//' '
+      if(string(1:1).eq.' ') string=string(2:7)//' '
       do 45 j=1,nwa
       if(wnam(j)(6:6).eq.' '.or.
      + wnam(j)(6:6).eq.'2'.or.wnam(j)(6:6).eq.'3'.or.

@@ -1,6 +1,6 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel)
 c
-c $Id: ana_wthdr.F,v 1.9 2000-03-24 05:41:35 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.10 2000-05-24 20:48:43 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
 c
       character*80 label
 c
-      integer i,ib,j,jb,nsb,lq
+      integer i,ib,j,jb,nsb,lq,nwb
       logical binary
 c
       character*1 cdummy
@@ -69,13 +69,13 @@ c
       open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      read(44,4401) nwa,nsa,nsb
+      read(44,4401) nwa,nsa,nsb,nwb
       if(nsa.eq.nsel) then
-      write(iunit,4401) nwa,nsel,nsb
+      write(iunit,4401) nwa,nsel,nsb,nwb
       else
-      write(iunit,4401) nwa,nsel,0
+      write(iunit,4401) nwa,nsel,0,0
       endif
- 4401 format(3i10)
+ 4401 format(4i10)
       do 1 i=1,nwa
       read(44,4402) cwa
  4402 format(a16,i10)
@@ -86,7 +86,7 @@ c
       if(isel(i).ne.0) write(iunit,4402) cwa,i
     2 continue
       if(nsa.eq.nsel) then
-      do 3 i=1,nsb
+      do 3 i=1,nsb+nwb
       read(44,4403) ib,jb
       write(iunit,4403) ib,jb
  4403 format(2i8)
@@ -126,7 +126,7 @@ c
       open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      read(44,4401) nwa,nsa,nsb
+      read(44,4401) nwa,nsa,nsb,nwb
       do 4 i=1,nwa+nsa
       read(44,4402) cdummy
     4 continue
@@ -165,7 +165,7 @@ c
       open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      read(44,4401) nwa,nsa,nsb
+      read(44,4401) nwa,nsa,nsb,nwb
       do 8 i=1,nwa+nsa
       read(44,4402) cdummy
     8 continue
