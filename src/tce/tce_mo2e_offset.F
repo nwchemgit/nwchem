@@ -1,6 +1,6 @@
       subroutine tce_mo2e_offset(l_2e_offset,k_2e_offset,size)
 c
-c $Id: tce_mo2e_offset.F,v 1.1 2002-10-18 23:42:08 sohirata Exp $
+c $Id: tce_mo2e_offset.F,v 1.2 2002-11-20 06:01:33 sohirata Exp $
 c 
       implicit none
 #include "global.fh"
@@ -30,19 +30,23 @@ c
             do g4b = g3b,Nb
               if (int_mb(k_spin+g1b-1)+int_mb(k_spin+g2b-1)
      1          .eq. int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1)) then
-                if (ieor(int_mb(k_sym+g1b-1),ieor(int_mb(k_sym+g2b-1),
-     1            ieor(int_mb(k_sym+g3b-1),int_mb(k_sym+g4b-1))))
-     2            .eq. 0) then
-                  int_mb(k_2e_offset+(((g1b-1)*Nb+g2b-1)*Nb
-     1              +g3b-1)*Nb+g4b-1) = size
-                  if (nodezero.and.util_print('offset',print_debug))
-     1              write(LuOut,9010) g1b,g2b,g3b,g4b,
-     2              (((g1b-1)*Nb+g2b-1)*Nb+g3b-1)*Nb+g4b-1,size
-                  size = size + int_mb(k_range+g1b-1)
-     1                        * int_mb(k_range+g2b-1)
-     2                        * int_mb(k_range+g3b-1)
-     3                        * int_mb(k_range+g4b-1)
-                endif
+              if ((.not.restricted).or.
+     1          (int_mb(k_spin+g1b-1)+int_mb(k_spin+g2b-1)+
+     2          int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1).ne.8)) then
+              if (ieor(int_mb(k_sym+g1b-1),ieor(int_mb(k_sym+g2b-1),
+     1          ieor(int_mb(k_sym+g3b-1),int_mb(k_sym+g4b-1))))
+     2          .eq. 0) then
+                int_mb(k_2e_offset+(((g1b-1)*Nb+g2b-1)*Nb
+     1            +g3b-1)*Nb+g4b-1) = size
+                if (nodezero.and.util_print('offset',print_debug))
+     1            write(LuOut,9010) g1b,g2b,g3b,g4b,
+     2            (((g1b-1)*Nb+g2b-1)*Nb+g3b-1)*Nb+g4b-1,size
+                size = size + int_mb(k_range+g1b-1)
+     1                      * int_mb(k_range+g2b-1)
+     2                      * int_mb(k_range+g3b-1)
+     3                      * int_mb(k_range+g4b-1)
+              endif
+              endif
               endif
             enddo
           enddo

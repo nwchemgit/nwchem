@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.5 2002-11-11 18:25:55 sohirata Exp $
+c $Id: tce_mo2e.F,v 1.6 2002-11-20 06:01:33 sohirata Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -73,13 +73,17 @@ c
             do sb = rb,Nb
               if (int_mb(k_spin+pb-1)+int_mb(k_spin+qb-1) .eq.
      1            int_mb(k_spin+rb-1)+int_mb(k_spin+sb-1)) then
-                if (ieor(int_mb(k_sym+pb-1),ieor(int_mb(k_sym+qb-1),
-     1              ieor(int_mb(k_sym+rb-1),int_mb(k_sym+sb-1)))) 
-     2              .eq. 0) then
-                  sf_size_pqrs = sf_size_pqrs 
-     1              + int_mb(k_range+pb-1) * int_mb(k_range+qb-1)
-     2              * int_mb(k_range+rb-1) * int_mb(k_range+sb-1)
-                endif
+              if ((.not.restricted).or.
+     1          (int_mb(k_spin+pb-1)+int_mb(k_spin+qb-1)+
+     2           int_mb(k_spin+rb-1)+int_mb(k_spin+sb-1).ne.8)) then
+              if (ieor(int_mb(k_sym+pb-1),ieor(int_mb(k_sym+qb-1),
+     1            ieor(int_mb(k_sym+rb-1),int_mb(k_sym+sb-1)))) 
+     2            .eq. 0) then
+                sf_size_pqrs = sf_size_pqrs 
+     1            + int_mb(k_range+pb-1) * int_mb(k_range+qb-1)
+     2            * int_mb(k_range+rb-1) * int_mb(k_range+sb-1)
+              endif
+              endif
               endif
             enddo
           enddo
@@ -126,56 +130,58 @@ c
                 spin_rs = int_mb(k_spin+rb-1)+int_mb(k_spin+sb-1)
                 sym_rs = ieor(int_mb(k_sym+rb-1),int_mb(k_sym+sb-1))
                 if (spin_pq .eq. spin_rs) then
-                  if (ieor(sym_pq,sym_rs) .eq. 0) then
-                    r_range = int_mb(k_range+rb-1)
-                    s_range = int_mb(k_range+sb-1)
-                    sf_size_rs = r_range * s_range
-                    if (.not.ma_push_get(mt_dbl,s_range*nbf,
-     1                'sl',l_sl,k_sl))
-     2                call errquit('tce_mo2e: MA problem',3)
-                    if (.not.ma_push_get(mt_dbl,sf_size_pq*sf_size_rs,
-     1                'rs',l_pqrs,k_pqrs))
-     2                call errquit('tce_mo2e: MA problem',4)
-                    pq = 0
-                    pqoff = 0
-                    do p = 1,int_mb(k_range+pb-1)
-                      do q = 1,int_mb(k_range+qb-1)
-                        pq = pq + 1
-                        call dcopy(sf_size_kl,
-     1                    dbl_mb(k_pqkl_packed+pq-1),
-     2                    sf_size_pq,dbl_mb(k_kl),1)
-                        if (transpose) then
-                          call ma_transpose(dbl_mb(k_kl),nbf)
-                        else
-                          call ma_scale(dbl_mb(k_kl),nbf**2,-1.0d0)
-                        endif
-                        call dgemm('T','N',s_range,nbf,nbf,
-     1                    1.0d0,dbl_mb(k_movecs_sorted
-     2                    +int_mb(k_offset+sb-1)*nbf),nbf,
-     3                    dbl_mb(k_kl),nbf,
-     4                    0.0d0,dbl_mb(k_sl),s_range)
-                        call dgemm('N','N',s_range,r_range,nbf,
-     1                    1.0d0,dbl_mb(k_sl),s_range,
-     2                    dbl_mb(k_movecs_sorted
-     3                    +int_mb(k_offset+rb-1)*nbf),nbf,
-     4                    0.0d0,dbl_mb(k_pqrs+pqoff),s_range)
-                        pqoff = pqoff + r_range * s_range
-                      enddo
+                if ((.not.restricted).or.(spin_pq+spin_rs.ne.8)) then
+                if (ieor(sym_pq,sym_rs) .eq. 0) then
+                  r_range = int_mb(k_range+rb-1)
+                  s_range = int_mb(k_range+sb-1)
+                  sf_size_rs = r_range * s_range
+                  if (.not.ma_push_get(mt_dbl,s_range*nbf,
+     1              'sl',l_sl,k_sl))
+     2              call errquit('tce_mo2e: MA problem',3)
+                  if (.not.ma_push_get(mt_dbl,sf_size_pq*sf_size_rs,
+     1              'rs',l_pqrs,k_pqrs))
+     2              call errquit('tce_mo2e: MA problem',4)
+                  pq = 0
+                  pqoff = 0
+                  do p = 1,int_mb(k_range+pb-1)
+                    do q = 1,int_mb(k_range+qb-1)
+                      pq = pq + 1
+                      call dcopy(sf_size_kl,
+     1                  dbl_mb(k_pqkl_packed+pq-1),
+     2                  sf_size_pq,dbl_mb(k_kl),1)
+                      if (transpose) then
+                        call ma_transpose(dbl_mb(k_kl),nbf)
+                      else
+                        call ma_scale(dbl_mb(k_kl),nbf**2,-1.0d0)
+                      endif
+                      call dgemm('T','N',s_range,nbf,nbf,
+     1                  1.0d0,dbl_mb(k_movecs_sorted
+     2                  +int_mb(k_offset+sb-1)*nbf),nbf,
+     3                  dbl_mb(k_kl),nbf,
+     4                  0.0d0,dbl_mb(k_sl),s_range)
+                      call dgemm('N','N',s_range,r_range,nbf,
+     1                  1.0d0,dbl_mb(k_sl),s_range,
+     2                  dbl_mb(k_movecs_sorted
+     3                  +int_mb(k_offset+rb-1)*nbf),nbf,
+     4                  0.0d0,dbl_mb(k_pqrs+pqoff),s_range)
+                      pqoff = pqoff + r_range * s_range
                     enddo
-                    if (util_print('mo2e',print_debug))
-     1                then 
-                      write(LuOut,9200) pb,qb,rb,sb
-                      call ma_print_compact(dbl_mb(k_pqrs),
-     1                sf_size_pq*sf_size_rs,1,'MO 2e')
-                    endif
-                    call put_block(d_mo2e,dbl_mb(k_pqrs),
-     1                sf_size_pq*sf_size_rs,int_mb(k_2e_offset
-     2                +(((pb-1)*Nb+qb-1)*Nb+rb-1)*Nb+sb-1))
-                    if (.not.ma_pop_stack(l_pqrs)) 
-     1                call errquit('tcc_mo2e: MA problem',5)
-                    if (.not.ma_pop_stack(l_sl)) 
-     1                call errquit('tcc_mo2e: MA problem',6)
+                  enddo
+                  if (util_print('mo2e',print_debug))
+     1              then 
+                    write(LuOut,9200) pb,qb,rb,sb
+                    call ma_print_compact(dbl_mb(k_pqrs),
+     1              sf_size_pq*sf_size_rs,1,'MO 2e')
                   endif
+                  call put_block(d_mo2e,dbl_mb(k_pqrs),
+     1              sf_size_pq*sf_size_rs,int_mb(k_2e_offset
+     2              +(((pb-1)*Nb+qb-1)*Nb+rb-1)*Nb+sb-1))
+                  if (.not.ma_pop_stack(l_pqrs)) 
+     1              call errquit('tcc_mo2e: MA problem',5)
+                  if (.not.ma_pop_stack(l_sl)) 
+     1              call errquit('tcc_mo2e: MA problem',6)
+                endif
+                endif
                 endif
               enddo
             enddo
