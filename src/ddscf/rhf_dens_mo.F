@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.9 1998-07-02 20:17:19 ng972 Exp $
+C     $Id: rhf_dens_mo.F,v 1.10 1998-08-29 00:39:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -87,8 +87,8 @@ c
 c     
 c     Compute contributions to the energy and symmetrize
 c     
-      call ga_screen(g_hcore, 1.0d-12) ! Force zeroes
-      call ga_screen(g_fock, 1.0d-12) ! Force zeroes
+*      call ga_screen(g_hcore, 1.0d-12) ! Force zeroes
+*      call ga_screen(g_fock, 1.0d-12) ! Force zeroes
       eone = ga_ddot(g_hcore,g_dens)
       etwo = 0.5d0*ga_ddot(g_fock,g_dens)
       escf = eone + etwo + enrep

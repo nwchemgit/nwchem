@@ -1,6 +1,6 @@
       subroutine rohf_k2cf(basis, nbf, nmo, nclosed, nopen,
      $                     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.11 1997-04-16 16:52:26 d3g681 Exp $
+C     $Id: rohf_k2cf.F,v 1.12 1998-08-29 00:39:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -109,7 +109,7 @@ c     enforce symmetry (which is expensive in high order groups).
 c     Also, screening must tend to zero for high convergence
 c
       call ga_maxelt(g_u, kmax)
-      kmax = min(kmax*1d-2,1d-12)
+      kmax = min(kmax*1d-2,kmax*kmax,1d-12)
       call ga_screen(g_u, kmax)
 c     
 c     Get a unitary 2nd order approximation to exp(K)
