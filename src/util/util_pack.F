@@ -8,7 +8,6 @@ c
       integer npacked_per_int
       integer i, ij, kl, ijkl, ind
 #include "bitops.fh"
-      integer lshift
 c
       npacked_per_int = ma_sizeof(mt_int, 1, mt_byte) / 2
 c
@@ -43,7 +42,6 @@ c
 c
       integer npacked_per_int
       integer i, ij, ijkl, ind
-      integer rshift
 #include "bitops.fh"
 c
       npacked_per_int = ma_sizeof(mt_int, 1, mt_byte) / 2
@@ -81,7 +79,6 @@ c
       integer nunpacked, packed(*), unpacked(*)
       integer npacked_per_int
       integer i, ij, kl, ijkl, ind, mn, pq, mnpq
-      integer lshift
 #include "bitops.fh"
 c
       npacked_per_int = ma_sizeof(mt_int, 1, mt_byte)
