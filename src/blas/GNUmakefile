@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.14 1995-10-17 08:52:45 d3g681 Exp $
+#$Id: GNUmakefile,v 1.15 1995-10-25 01:06:08 rg240 Exp $
 
 include ../config/makefile.h
 
@@ -58,12 +58,16 @@ ifeq ($(PRECISION),double)
 OBJ_OPTIMIZE =  ddot.o    dnrm2.o    dspr.o    idamax.o \
                 dasum.o   dgemm.o    drot.o    dswap.o    lsame.o \
                 daxpy.o   dgemv.o    dscal.o   dtrmm.o    xerbla.o \
-                dcopy.o   dger.o     dspmv.o   dtrmv.o    dtrsm.o dsyrk.o
+                dcopy.o   dger.o     dspmv.o   dtrmv.o    dtrsm.o \
+                dsyrk.o   dsyr2k.o   dsymm.o   dtrsv.o    dsyr2.o \
+		dsymv.o 
 else
 OBJ_OPTIMIZE =  sdot.o    snrm2.o    sspr.o    isamax.o \
                 sasum.o   sgemm.o    srot.o    sswap.o    lsame.o \
                 saxpy.o   sgemv.o    sscal.o   strmm.o    xerbla.o \
-                scopy.o   sger.o     sspmv.o   strmv.o    strsm.o ssyrk.o
+                scopy.o   sger.o     sspmv.o   strmv.o    strsm.o \
+                ssyrk.o   ssyr2k.o   ssymm.o   strsv.o    ssyr2.o \
+		ssymv.o 
 endif
 ifeq ($(TARGET),CRAY-T3D)
 OBJ_OPTIMIZE = idamax.o
