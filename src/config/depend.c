@@ -1,5 +1,5 @@
 /*
- $Id: depend.c,v 1.5 2003-07-25 18:05:24 sohirata Exp $
+ $Id: depend.c,v 1.6 2003-10-21 00:39:03 edo Exp $
  */
 
 #include <stdio.h>
@@ -158,8 +158,8 @@ char *include_directive(FILE *file)
 
 int main(int argc, const char *argv[])
 {
-#define MAXINCDIR 256
-#define MAXFILE 8192
+#define MAXINCDIR 1024
+#define MAXFILE 16384
     const char *incdirlist[MAXINCDIR];
     char *filelist[MAXFILE];
     int nincdir, nfiles;
