@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.45 1997-12-04 22:43:49 d3e129 Exp $
+c $Id: texas_face.F,v 1.46 1998-06-05 16:04:51 d3j191 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1188,6 +1188,7 @@ c=================================================================
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "global.fh"
 c-----------------------------------------------------
 c default values for options in two-el. integ. program 
 c change these if needed by reading in new values from 
@@ -1727,6 +1728,7 @@ c
      *                     nat_bas_1,nat_bas_2,nat_bas_3,
      *                     ncf_bas_1,ncf_bas_2,ncf_bas_3 
       dimension datnuc(5,*), datbas(13,*)
+#include "global.fh"
 c
       do ibasis=1,nbas
         if(ibasis.eq.1) then

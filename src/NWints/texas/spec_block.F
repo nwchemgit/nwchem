@@ -152,6 +152,7 @@ c
       dimension mxsize(*),mxpair(*)   ! (nbl4)
 c
       double precision nquart_all
+#include "global.fh"
 c
 c-----------------------------------------------------
 c total memory allowed for texas (limxmem) should be
