@@ -87,7 +87,8 @@ internally as a basis set. The form of the input for the
         [print || noprint default print]
 
      <string tag> library [<string tag_in_lib>] \
-                  <string standard_set> [file <filename>]
+                  <string standard_set> [file <filename>] \
+                  [except <string tag list>]
 
      <string tag> [nelec] <integer number_of_electrons_replaced>
  
@@ -216,14 +217,14 @@ used instead of \verb+ECP+. Note that there currently are no spin-orbit
 ECPs defined in the standard NWChem library.  The \verb+SO+ 
 directive is as follows:
 
-%     <string tag> library [<string tag_in_lib>] \
-%                  <string standard_set> [file <filename>]
-%
-%        ...
-%
 \begin{verbatim}
   SO [<string name default "so basis">] \
         [print || noprint default print]
+
+     <string tag> library [<string tag_in_lib>] \
+                  <string standard_set> [file <filename>]
+                  [except <string tag list>]
+        ...
 
      <string tag> <string shell_type>
      <real r-exponent> <real Gaussian-exponent> <real list_of_coefficients>
