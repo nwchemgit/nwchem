@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.30 2003-02-21 00:02:40 edo Exp $
+* $Id: util_legal.F,v 1.31 2003-03-05 22:14:39 bylaska Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
 *              2000, 2001, 2002, 2003                                *
@@ -147,6 +147,9 @@ c
         write(luout,10106) 6
         write(luout,10107) 7
         write(luout,10108) 8
+        write(luout,10109) 9
+        write(luout,10110) 10
+        write(luout,10111) 11
       endif
 10000 format(
      &    /,12x,
@@ -280,5 +283,22 @@ c
      + /,8x,' Computer Phys. Comm. 128, ',
      &    '377 (2000).'
      &    /,/)
+c    ***PAW references***
+10109 format(1x,i5,'.',1x,
+     + ' M. Valiev, E. J. Bylaska, A. Gramda, and J. H. Weare,'
+     + /,8x,' Reviews in Modern Quantum Chemistry, pages 1684-1734',
+     + /,8x,' (World Scientific, Singapore, 2002).'
+     &    /,/)
+10110 format(1x,i5,'.',1x,
+     + ' E. J. Bylaska, M. Valiev, R. Kawai, and J. H. Weare,',
+     + /,8x,' Computer Phys. Comm. 143, ',
+     &    '11 (2002).'
+     &    /,/)
+10111 format(1x,i5,'.',1x,
+     + ' M. Valiev and J. H. Weare,',
+     + /,8x,' J. Phys. Chem. A, 103, ',
+     &    '10588 (1999).'
+     &    /,/)
+
 c
       end
