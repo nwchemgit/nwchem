@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.79 2000-09-13 19:36:35 d3j191 Exp $
+c $Id: cf_main.F,v 1.80 2000-09-20 22:41:18 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2071,7 +2071,7 @@ c
       return
       end
       subroutine cf_fix(lfn,numfix,iwgmn,iwdt,numw,
-     + isgan,isatt,isdt,nums)
+     + isgan,isatt,isdt,issgm,nums)
 c
       implicit none
 c
@@ -2080,14 +2080,15 @@ c
 c
       integer lfn,numfix,numw,nums
       integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
+      integer issgm(msa)
 c
       call cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
-     + isgan,isatt,isdt,nums,byte_mb(i_snam))
+     + isgan,isatt,isdt,issgm,nums,byte_mb(i_snam))
 c
       return
       end
       subroutine cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
-     + isgan,isatt,isdt,nums,snam)
+     + isgan,isatt,isdt,issgm,nums,snam)
 c
       implicit none
 c
@@ -2102,6 +2103,7 @@ c
 c
       integer lfn,numfix,numw,nums
       integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
+      integer issgm(msa)
       character*16 snam(nsatot)
 c
       integer i,j,ndof(3),ifix,ifr,ito,l,len,number
@@ -2129,6 +2131,7 @@ c
       read(string(6:28),'(i3,2i10)') ifix,ifr,ito
       target=string(29:80)
       len=index(target,' ')-1
+      len=4
 c
 c     solvent
 c
@@ -2187,13 +2190,15 @@ c
       endif
       else
       do 7 i=1,nums
+      if(issgm(i).ge.ifr.anf.issgm(i).le.ito) then
       tag=snam(i)
       do 71 j=1,16
       if(target(j:j).eq.'?') tag(j:j)='?'
    71 continue
       if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
       number=number+1
-c      isdt(i)=ior(isdt(i),lfixed)
+      isdt(i)=ior(isdt(i),lfixed)
+      endif
       endif
     7 continue
       endif
@@ -2233,13 +2238,15 @@ c
       endif
       else
       do 10 i=1,nums
+      if(issgm(i).ge.ifr.anf.issgm(i).le.ito) then
       tag=snam(i)
       do 101 j=1,16
       if(target(j:j).eq.'?') tag(j:j)='?'
   101 continue
       if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
-c      isdt(i)=ior(isdt(i),lfixed)
+      isdt(i)=ior(isdt(i),lfixed)
       number=number+1
+      endif
       endif
    10 continue
       endif

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.79 2000-09-18 18:36:34 d3j191 Exp $
+c $Id: md_start.F,v 1.80 2000-09-20 22:41:08 d3j191 Exp $
 c
       implicit none
 c
@@ -168,7 +168,7 @@ c
       call cf_fix(lfncmd,numfix,int_mb(i_iw+(lwgmn-1)*mwm),
      + int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
      + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lsatt-1)*msa),
-     + int_mb(i_is+(lsdyn-1)*msa),nsaloc)
+     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lssgm-1)*msa),nsaloc)
       if(me.eq.0) then
       close(unit=lfncmd)
       endif
