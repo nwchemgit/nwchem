@@ -1,8 +1,8 @@
-A more complete description should be available at 
+%A more complete description should be available at 
 %\begin{verbatim}
 %   http://emsl.pnl.gov:2080/docs/nwchem/nwchem.html
-\htmladdnormallink{http://www.emsl.pnl.gov:2080/docs/nwchem/nwchem.html}
-{http://www.emsl.pnl.gov:2080/docs/nwchem/nwchem.html}
+%\htmladdnormallink{http://www.emsl.pnl.gov:2080/docs/nwchem/nwchem.html}
+%{http://www.emsl.pnl.gov:2080/docs/nwchem/nwchem.html}
 %\end{verbatim}
 
 The command required to invoke NWChem is machine dependent, whereas
@@ -14,12 +14,18 @@ specific resources, and differing services provided by the operating system.} .
 
 To run NWChem sequentially on nearly all UNIX-based platforms simply
 use the command \verb+nwchem+ and provide the name of the input file
-as an argument (section \ref{sec:inputstructure}).
+as an argument (See section \ref{sec:inputstructure} for more information).
+This does assume that either \verb+nwchem+ is in your path or you have
+set an alias of \verb+nwchem+ to point to the appropriate executable.
 
 Output is to standard output, standard error and Fortran unit 6
 (usually the same as standard output).  Files are created by default
 in the current directory, though this may be overridden in the input
 (section \ref{sec:dirs}).
+
+Generally, one will run a job with the following command:
+
+\verb+nwchem input.nw >& input.out &+
 
 \section{Parallel execution on UNIX-based parallel machines
 including workstation clusters using TCGMSG}
@@ -96,6 +102,26 @@ had to be created on workstation clusters to support remote access to
 shared memory.  This is no longer the case.  The TCGMSG process group
 file now just needs to refer to processes running NWChem.
 
+\section{Parallel execution on UNIX-based parallel machines
+including workstation clusters using MPI}
+
+To run with MPI, \verb+parallel+ should not be used.  The way
+we usually run nwchem under MPI are the following (again assuming that
+nwchem is in your path):
+
+\begin{itemize}
+\item using mpirun:
+\begin{verbatim}
+     mpirun -np 8 nwchem input.nw
+\end{verbatim}
+\item If you have all nodes connected via shared memory
+     and you have installed the ch\_shmem version of MPICH,
+     you can do
+\begin{verbatim}
+     nwchem -np 8 h2o.nw
+\end{verbatim}
+\end{itemize}
+
 \section{Parallel execution on MPPs}
 
 All of these machines require use of different commands in order to
@@ -104,7 +130,7 @@ gain exclusive access to computational resources.
 \section{IBM SP}
 
 If using POE (IBM's Parallel Operating Environment) interactively,
-simply create the list nodes to use in the file \verb+"host.list"+ in
+simply create the list of nodes to use in the file \verb+"host.list"+ in
 the current directory and invoke NWChem with
 \begin{verbatim}
   nwchem <input_file> -procs <n>
@@ -129,7 +155,9 @@ In addition, if the IBM is running PSSP version 3.1, or later
 \end{itemize}
 
 For batch execution, we recommend use of the \verb+llnw+ command which
-is installed in \verb+/usr/local/bin+ on the EMSL/PNNL IBM SP.
+is installed in \verb+/usr/local/bin+ on the EMSL/PNNL IBM SP.  If you 
+are not running on that system, the \verb+llnw+ script may be found in
+the NWChem distribution directory contrib/loadleveler.
 Interactive help may be obtained with the command \verb+llnw -help+.
 Otherwise, the very simplest job to run NWChem in batch using Load
 Leveller is something like this
@@ -137,14 +165,15 @@ Leveller is something like this
 #!/bin/csh -x
 # @ job_type         =    parallel
 # @ class            =    small
-# @ requirements     =    (Adapter == "hps_user")
+# @ network.lapi     = css0,not_shared,US
 # @ input            =    /dev/null
 # @ output           =    <OUTPUT_FILE_NAME>
 # @ error            =    <ERROUT_FILE_NAME>
-# @ environment      =    COPY_ALL; MP_EUILIB=us ; MP_CSS_INTERRUPT=yes
+# @ environment      =    COPY_ALL; MP_PULSE=0; MP_SINGLE_THREAD=yes; MP_WAIT_MODE=yield; restart=no
 # @ min_processors   =    7
 # @ max_processors   =    7
 # @ cpu_limit        =    1:00:00
+# @ wall_clock_limit =    1:00:00
 # @ queue
 #
 
@@ -155,7 +184,25 @@ nwchem <INPUT_FILE_NAME>
 
 Substitute \verb+<OUTPUT_FILE_NAME>+, \verb+<ERROUT_FILE_NAME>+ and
 \verb+<INPUT_FILE_NAME>+ with the {\em full} path of the appropriate
-files.  These files and the NWChem executable must be in a file system
+files.  Also, if you are using an SP with more than one processor per node,
+you will need to substitute
+
+\begin{verbatim}
+# @ network.lapi     = css0,shared,US
+# @ node             = NNODE
+# @ tasks_per_node   = NTASK
+\end{verbatim}
+for the lines
+\begin{verbatim}
+# @ network.lapi     = css0,not_shared,US
+# @ min_processors   =    7
+# @ max_processors   =    7
+\end{verbatim}
+where \verb+NNODE+ is the number of physical nodes to be used and 
+\verb+NTASK+ is the
+number of tasks per node.
+
+These files and the NWChem executable must be in a file system
 accessible to all processes.  Put the above into a file (e.g.,
 \verb+"test.job"+) and submit it with the command
 \begin{verbatim}
