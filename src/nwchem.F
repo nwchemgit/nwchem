@@ -16,7 +16,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.49 1995-03-23 00:58:12 gg502 Exp $
+c     $Id: nwchem.F,v 1.50 1995-03-31 01:31:13 d3g681 Exp $
 c
       character*255 input_filename
 c
@@ -100,15 +100,28 @@ c
 c
 c     Close the RTDB
 c
+      if (util_print('rtdbvalues', print_debug)) then
+         if (.not. rtdb_print(rtdb, .true.))
+     $     call errquit('control: rtdb_print failed', 0)
+      else if (util_print('rtdb', print_high)) then
+         if (.not. rtdb_print(rtdb, .false.))
+     $     call errquit('control: rtdb_print failed', 0)
+      endif
+c
       if (.not. rtdb_close(rtdb, 'keep'))
      $     call errquit('nwchem: rtdb_close failed', rtdb)
+c
+      if (util_print('rtdb', print_high) .or.
+     $    util_print('rtdbvalues', print_high)) then
+         call rtdb_print_usage  ! Called after closing so memory leaks apparent
+      endif
 c
 c     Tidy up pstat
 c
       if (.not. pstat_terminate()) call errquit
      $     ('nwchem: pstat_terminate failed', 0)
 c
-c     Print memory info
+c     Print memory and other info
 c
       if (ga_nodeid() .eq. 0) then
          if (util_print('ga summary', print_default))
@@ -247,7 +260,7 @@ c     rtdbprint
 c     
  30      if (.not. rtdb_print(rtdb, .true.))
      $        call errquit('control: rtdb_print failed', 0)
-         goto 1001
+         goto 1000
 c     
 c     scf ... eventually there will be no such task name
 c     
@@ -334,14 +347,6 @@ c
 c     Eventually this will be where the next task is identified
 c     
  1000 continue
-      if (util_print('rtdbvalues', print_debug)) then
-         if (.not. rtdb_print(rtdb, .true.))
-     $     call errquit('control: rtdb_print failed', 0)
-      else if (util_print('rtdb', print_high)) then
-         if (.not. rtdb_print(rtdb, .false.))
-     $     call errquit('control: rtdb_print failed', 0)
-      endif
- 1001 continue
 c
 c     Finished ... eventually need to track status of tasks so that
 c     restarts happen correctly.  For now assume that the task completed
