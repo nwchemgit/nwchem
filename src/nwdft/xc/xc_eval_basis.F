@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.8 2002-04-05 07:46:06 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.9 2003-02-05 01:56:19 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -267,8 +267,13 @@ c!!! These calls could be causing too much overhead - check
 c
 c     Evaluate the radial components of the contracted Gaussian functions
 c
+            if(maxder.eq.0) then
+            call eval_radial0(dbl_mb(irad), rq(1,ictr), nq, 
+     &           dbl_mb(izprim), dbl_mb(iccoef), nprimo, ncontr)
+         else
             call eval_radial(dbl_mb(irad), rq(1,ictr), nq, maxder,
      &           dbl_mb(izprim), dbl_mb(iccoef), nprimo, ncontr)
+         endif
 c
 c     Compute and store the derivatives of the radial function
 c
@@ -319,34 +324,11 @@ c
       integer n, iprimo
       double precision zeta, t(0:3), tmp
 c
-*      write(6,*)' eval_radial new used '
-      if (ncontr .ne. 1) then
-         call errquit('Implement ncontr .ne. 1 in eval_radial', ncontr)
-      endif
 c
 c     Store results for first primitive directly and then sum the rest
 c
       if (maxd .gt. 3) then
         call errquit('Unexpected in eval_radial', maxd)
-      endif
-      if(maxd.eq.0) then
-         if(nprimo.eq.1) then
-            zeta = -zprim(1)
-            t0 = ccoef(1,1)
-            do n = 1,nq
-               crad(0,n) =  exp(zeta*r2(n))*t0
-            enddo
-         else
-            call dfill(nq,0d0,crad,maxd+1) 
-            do iprimo = 1, nprimo
-               zeta = -zprim(iprimo)
-               t0 = ccoef(iprimo,1)
-               do n = 1,nq
-                  crad(0,n) = crad(0,n) + exp(zeta*r2(n))*t0
-               enddo
-            enddo
-         endif
-         return
       endif
       zeta = -zprim(1)
       t(0) = ccoef(1,1)
@@ -2341,5 +2323,37 @@ c
          enddo
       endif
 c
+      return
+      end
+      subroutine eval_radial0(crad, r2, nq, zprim, ccoef,
+     *     nprimo, ncontr)
+      implicit none
+      integer nq, nprimo, ncontr
+      integer nd
+      double precision crad(nq), r2(nq),
+     *     zprim(nprimo), ccoef(nprimo,ncontr),t0
+c
+      integer n, iprimo
+      double precision zeta, t(0:3), tmp
+c
+c
+c     Store results for first primitive directly and then sum the rest
+c
+      if(nprimo.eq.1) then
+         zeta = -zprim(1)
+         t0 = ccoef(1,1)
+         do n = 1,nq
+            crad(n) = exp(zeta*r2(n))*t0
+         enddo
+      else
+         call dcopy(nq,0d0,0,crad,1) 
+         do iprimo = 1, nprimo
+            zeta = -zprim(iprimo)
+            t0 = ccoef(iprimo,1)
+            do n = 1,nq
+               crad(n) = crad(n) + exp(zeta*r2(n))*t0
+            enddo
+         enddo
+      endif
       return
       end
