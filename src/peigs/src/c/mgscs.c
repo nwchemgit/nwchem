@@ -51,9 +51,9 @@ extern void daxpy_(), dscal_();
   */
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
-#define SGN(a) ((a) > (0) ? (1.0e0) : (-1.0e0))
+#define SGN(a) ((a) > (0) ? (DoublePrecision) (1.0e0) : (DoublePrecision) (-1.0e0))
 #define MIN(a,b) ((a) > (b) ? (b) : (a))
-#define FABS(a) ((a) > (0) ? (a) : (-a))
+#define FABS(a) ((a) > ((DoublePrecision) 0.0e0 ) ? (a) : (-a))
 
 
 #define sync0  prs1sync0
@@ -250,9 +250,6 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   */
   
   
-
-  
-  
   column_indx = ii;
   csize = bn - b1 + 1 ;
   for (i=c1; i<= cn; i++) {
@@ -264,11 +261,11 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
       dcopy_( &csize, &vecA[column_indx][b1], &IONE, work, &IONE);
       column_indx++;
       bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision),
-		i+1, mapA[i], n_procs, proclist);
+	       c1, mapA[i], n_procs, proclist);
     }
     else
-      bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision), i+1, 
-		mapA[i], n_procs, proclist);
+      bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision), c1, 
+	       mapA[i], n_procs, proclist);
     
     
     
@@ -277,17 +274,17 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
       if ( mapA[j] == me ) {
 	t = -ddot_( &csize, work, &IONE, &vecA[k][b1], &IONE);
 	if ( FABS(t) > DLAMCHE )
-	daxpy_( &csize, &t, work, &IONE, &vecA[k][b1], &IONE);
+	  daxpy_( &csize, &t, work, &IONE, &vecA[k][b1], &IONE);
 	k++;
       }
     }
   }
-
+  
   /*
-  syncco[0] = 0.0e0;
-  gsum00( (char *) syncco, 1, 5, 10, mapA[c1], n_procs, proclist, work);
-  */
-
+     syncco[0] = 0.0e0;
+     gsum00( (char *) syncco, 1, 5, 10, mapA[c1], n_procs, proclist, work);
+     */
+  
   
   return 0;
 }
