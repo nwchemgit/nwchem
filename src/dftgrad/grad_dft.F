@@ -70,14 +70,17 @@ c
 c
       Logical int_normalize
       External int_normalize
+      Logical int_norm_2c
+      External int_norm_2c
 
       Integer rtdb              ! [input] database handle
-      Integer geom, ao_basis       ! handles
-      Integer ipol
-      Logical converged
+      Integer geom, ao_basis,cd_basis       ! handles
+      Integer ipol,nbases
+      Logical converged,CDFIT
       Logical status, print_debug
       Character*255 title
       Double precision charge
+      integer bases(3)
 c
       Character*255 movecs_in, movecs_out
       Data print_debug /.false./
@@ -89,7 +92,7 @@ c
       if (.not. context_push('dftgrad'))
      $     call errquit('grad_dft: context_push failed', 0)
 c**** debug
-      status = rtdb_print(rtdb,.true.)
+C      status = rtdb_print(rtdb,.true.)
 c
 c
       status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 
@@ -100,12 +103,11 @@ c
      &     0)
       endif 
 
-      if (.not. rtdb_get(rtdb, 'dft:ipol', MT_INT, 1, ipol ))
-     $     call errquit('grad_dft: dft:ipol get failed', 0)
 c
 c     Extract high level info from the data-base setting defaults
 c
 c     
+      nbases=1
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. geom_create(geom, 'geometry'))
@@ -114,13 +116,27 @@ c
      $     call errquit('grad_dft: no geometry ', 0)
       if (.not. bas_create(ao_basis, 'AO_basis'))
      $     call errquit('grad_dft: bas_create?', 0)
+        bases(1)=ao_basis
       if (.not. bas_rtdb_load(rtdb, geom, ao_basis, 'AO_basis'))
      $     call errquit('grad_dft: no AO_basis ', 0)
       if(.not. int_normalize(ao_basis))
      $     call errquit('grad_dft: normalization failed',911)
-c****
-c**** might need the DFT fitting bases here...
-c****
+C
+C     initialize CD basis (if exists)
+
+      if (.not. bas_create(cd_basis, 'CD_basis'))
+     &     call errquit('grad_dft: bas_create?',102)
+      CDFIT=bas_rtdb_load(rtdb, geom, cd_basis, 'CD_basis')
+      if(CDFIT) then
+        nbases=nbases+1
+        bases(nbases)=cd_basis
+        if (.not. int_norm_2c(cd_basis))
+     &       call errquit('grad_dft: int_norm_2c failed', 208)
+        else
+        if (.not. bas_destroy(cd_basis))
+     &       call errquit('dft_grad:not able to destroy CD_bas:',86)
+        cd_basis=-99999
+      endif
 c
 c     Figure output input/output MO vectors ... all this should be
 c     context sensitive but that design is incomplete.
@@ -174,11 +190,16 @@ c
          call util_flush(6)
       endif
 c
+c initialize NWints
+c
+      call intd_init(rtdb,nbases,bases)
+c
 c initialize for schwarz screening
-      call intd_init(rtdb,1,ao_basis)
+c
       call schwarz_init (geom, ao_basis)
 c
-      call force_dft(rtdb,ao_basis,geom,movecs_out,ipol)
+      call force_dft(rtdb,ao_basis,cd_basis,geom, 
+     &     CDFIT,movecs_out)
 c
       call schwarz_tidy ()
 c
