@@ -20,13 +20,13 @@ OBJ =          $(OBJDIR)\nwchem.obj \
 
 COMPILATION_DATE = (unknown)
 CODE_BRANCH = (unknown)
+!IFDEF PYTHONHOME
+WITHPYTHON = -DWITHPYTHON
+!ENDIF
 LIB_DEFINES = -DCOMPILATION_DATE="'$(COMPILATION_DATE)'" \
               -DCOMPILATION_DIR="'$(TOPDIR)'" \
-              -DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
+              -DNWCHEM_BRANCH="'$(CODE_BRANCH)'" $(WITHPYTHON)
 
-!IFDEF PYTHONHOME
-LIB_DEFINES += -DWITHPYTHON
-!ENDIF
 
 WIN32_EXE_NAME = nw32
 WIN32_EXE = $(BINDIR)\$(WIN32_EXE_NAME).exe
@@ -52,8 +52,9 @@ link: $(BINDIR) $(OBJDIR) $(OBJ)
 	$(FC) /Fe"$(WIN32_EXE)" $(OBJ) /link \
         /stack:2000000 \
 	/debug:full /debugtype:cv /pdb:none /libpath:"$(LIB_DISTRIB)" \
-	/libpath:"$(SRCDIR)\tools\lib\win32" /libpath:"$(MPI_LIB)" $(LIBS) \
-	$(PYTHON_SYSLIB) 
+	/libpath:"$(SRCDIR)\tools\lib\win32" /libpath:"$(MPI_LIB)" \
+        $(LIBS) $(PYTHON_SYSLIB)
+
 	@echo $(WIN32_EXE) is built
 
 VS_wrappers:
