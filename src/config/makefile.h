@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.314 2000-04-20 18:08:10 edo Exp $
+# $Id: makefile.h,v 1.315 2000-04-25 20:10:00 windus Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -314,7 +314,7 @@ ifeq ($(TARGET),SOLARIS)
 # -xvector requires -mvec library
   FOPTIMIZE = -O5 -fsimple=2 -depend -xtarget=native
 ifeq ($(NWCHEM_TARGET_CPU), ULTRA)
-  FOPTIMIZE += -xarch=v8plusa -xsafe=mem -xvector=yes 
+  FOPTIMIZE += -xarch=v8plusa -xvector=yes 
 endif
 # 
 # This for ultra-2 
