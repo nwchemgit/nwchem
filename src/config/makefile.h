@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.444 2004-01-31 00:48:33 edo Exp $
+# $Id: makefile.h,v 1.445 2004-02-07 05:27:37 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1433,24 +1433,34 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
        _IFCV8= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|awk ' /8.0/  {print "Y"}')
        ifeq ($(_IFCV8),Y)
          DEFINES+= -DIFCV8
+         FOPTIONS += -quiet
        endif	
         ITANIUMNO = $(shell   cat /proc/cpuinfo | egrep family | head -1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
-        FOPTIONS   +=   -auto -align  -w  -ftz  $(ITANIUMNO)
+        FOPTIONS   += -auto -w -ftz $(ITANIUMNO)
         ifdef  USE_GPROF
           FOPTIONS += -qp
         endif
+       ifeq ($(_IFCV8),Y)
+         FOPTIONS+= -check nobounds -align dcommons -fpe1
+         FOPTIONS+= -warn truncated_source
+       else
+         FOPTIONS+= -align
+       endif	
         FDEBUG = -g -O2
         DEFINES  +=   -DIFCLINUX
-#        FVECTORIZE =  -O2 -hlo -pad -mP2OPT_hlo_level=2 
         FVECTORIZE =  -noalign -O3 -pad  -mP2OPT_hlo_level=2  -tpp1
-        FOPTIMIZE =  -O3  -pad   -mP2OPT_hlo_level=2  -tpp2  #-mP2OPT_align_array_to_cache_line=TRUE 
-        ifeq ($(_IFCV8),Y)
-         FOPTIMIZE += -ansi_alias-
-         FOPTIONS += -ansi_alias-
-        endif
+        FOPTIMIZE =  -O3 -pad -mP2OPT_hlo_level=2  #-mP2OPT_align_array_to_cache_line=TRUE 
         LDOPTIONS =   -Qoption,link,--relax # -Qoption,link,-Bstatic  
         LINK.f = efc   -Qoption,link,-v  $(LDFLAGS)  
-        EXTRA_LIBS +=     -Vaxlib 
+        ifeq ($(_IFCV8),Y)
+         FOPTIMIZE += -ip
+         EXTRA_LIBS += -quiet
+        else
+         EXTRA_LIBS += -Vaxlib 
+        endif
+        ifdef  USE_GPROF
+          EXTRA_LIBS += -qp
+        endif
       endif
       ifeq ($(FC),g77)
         FOPTIONS  += -Wno-globals
@@ -1459,7 +1469,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
         LDOPTIONS =   -Wl,--relax  -Wl,-Bstatic  
       endif
       ifeq ($(CC),ecc)
-        COPTIONS   =   -ftz 
+        COPTIONS   =   -ftz
         COPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  
       endif
       ifeq ($(CC),gcc)
