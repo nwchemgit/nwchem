@@ -50,6 +50,7 @@ Basis Sets:
 Geometry: 
 
   o Inclusion of a finite Gaussian nuclear charge distribution.
+  o Inclusion of velocities for QMD and PSPW.
 
 DFT: 
 
