@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Asym_I -- Antisymmetrize IJ integral batch in memory
 C     
 C REVISION
-C     $Id: asym_i.F,v 1.1 1998-07-06 21:09:25 bernhold Exp $
+C     $Id: asym_i.F,v 1.2 1998-10-06 18:36:28 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Asym_I(TopSpin, SameSpin, ILo, IHi, NVirI,
@@ -48,6 +48,7 @@ C INCLUDED FILES
 #include "global.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "stdio.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer I, J, JTop, NI, NJ, LT1, LT2, Type
@@ -127,8 +128,10 @@ C
       EndIf
       Call GA_Sync
 C     
-      If ( Util_Print('asym 4c ints', Print_Debug) )
-     $   Call GA_Print( G_Int )
+      If ( Util_Print('asym 4c ints', Print_Debug) ) then
+         Write (LuOut, *) 'After RIMP2_Asym_I...'
+         Call GA_Print( G_Int )
+      EndIf
       Return
       End
 

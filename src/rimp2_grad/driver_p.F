@@ -3,12 +3,12 @@ C NAME
 C     RIMP2_Driver_P -- Master routine for RI-MP2 density evaluation
 C
 C REVISION
-C     $Id: driver_p.F,v 1.1 1998-10-06 17:19:14 bernhold Exp $
+C     $Id: driver_p.F,v 1.2 1998-10-06 18:36:32 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_P(RTDB, Geom, AOBas, NAO,
      $     MaxSpin, TopSpin, NMO, NFrzO, NAct, NVir, FitBas,
-     $     FN_Int, FN_Gam, BraKetSame, g_P2, Eig, LDEig, g_AOXF,
+     $     FN_Int, FN_Gam, BraKetSame, g_P2, g_W2, Eig, LDEig, g_AOXF,
      $     Tol2e_Fock, JobTitle)
       Implicit NONE
 C
@@ -27,6 +27,7 @@ C
       Character*(*) FN_Gam(TopSpin) ![in]
       Logical BraKetSame    ![in]
       Integer g_P2(TopSpin) ![in]
+      Integer g_W2(TopSpin) ![in]
       Integer LDEig ![in]
       Double Precision Eig(LDEig, TopSpin) ![in]
       Integer g_AOXF(TopSpin) ![in]
@@ -55,7 +56,7 @@ C
 C
 C LOCAL VARIABLES
       Integer ISpin, NFit, Length, C, A, V
-      Integer g_L(MyMaxspin), g_W2(MyMaxSpin), g_RHS
+      Integer g_L(MyMaxspin), g_RHS
       Logical PrInfo, PrPrgRpt
       Character*256 String1, FN_CPHF_RHS, FN_CPHF_Sol
       Integer D_Int(MyMaxSpin, 2, 2), D_Gam(MyMaxSpin)

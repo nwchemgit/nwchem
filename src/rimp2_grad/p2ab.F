@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_P2ab -- Form P^{(2)}_{ab} for batch in memory
 C
 C REVISION
-C     $Id: p2ab.F,v 1.1 1998-07-06 21:10:12 bernhold Exp $
+C     $Id: p2ab.F,v 1.2 1998-10-06 18:36:40 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_P2AB(IJSym, IJTri, ILo, IHi, NVirI, JLo, JHi,
@@ -48,6 +48,7 @@ C INCLUDED FILES
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "stdio.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer Me, Owner
@@ -141,8 +142,11 @@ C
       If ( .NOT. MA_Pop_Stack(H_Block) ) Call ErrQuit(
      $   'RIMP2_P2ab: can''t free local temp', H_Block)
 C        
-      If (Util_Print('partial p2', Print_Debug) ) Call GA_Print(G_P2)
-
+      If (Util_Print('partial p2', Print_Debug) ) then
+         Write (LuOut, *) 'After RIMP2_P2ab...'
+         Call GA_Print(G_P2)
+      EndIf
+C
       Return
       End
 

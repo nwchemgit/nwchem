@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_L -- Form Lagrangian terms & their contributions elsewhere
 C
 C REVISION
-C     $Id: mk_l.F,v 1.6 1998-10-06 17:19:23 bernhold Exp $
+C     $Id: mk_l.F,v 1.7 1998-10-06 18:36:36 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
@@ -139,9 +139,9 @@ C
             Call GA_Copy_Patch('T', g_L1(ISpin), 1,   C,   1, A,
      $                              g_P2(ISpin), C+1, C+A, 1, C)
             Call GA_Scale_Patch(g_P2(ISpin), C+1, C+A, 1, C, 0.5d0 )
-C
-            If ( Util_Print('partial p2', Print_Debug) )
-     $           Call GA_Print( g_P2(ISpin) )
+c$$$C
+c$$$            If ( Util_Print('partial p2', Print_Debug) )
+c$$$     $           Call GA_Print( g_P2(ISpin) )
 C
 C           Find out what portion of matrix we hold
 C

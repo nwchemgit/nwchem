@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_W2 -- Complete formation of W2
 C
 C REVISION
-C     $Id: mk_w2.F,v 1.2 1998-10-06 17:19:26 bernhold Exp $
+C     $Id: mk_w2.F,v 1.3 1998-10-06 18:36:38 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_W2(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
@@ -59,13 +59,6 @@ C
      $     MaxSpin)
 C
       Me = GA_NodeID()
-C
-      If ( Util_Print('partial w2', Print_Debug) ) then
-         Write (LuOut, *) 'W(2) at start of RIMP2_Mk_W2'
-         Do ISpin = 1, TopSpin
-            Call GA_Print( g_W2(ISpin) )
-         EndDo
-      EndIf
 C
 C     *****************************************
 C     * W2(ij) is computed using a Fock build *
@@ -185,7 +178,7 @@ C
 C        Print results if requested
 C
          If ( Util_Print('partial w2', Print_Debug) ) then
-            Write (LuOut, *) 'W(2) at end of RIMP2_Mk_W2'
+            Write (LuOut, *) 'After RIMP2_Mk_W2...'
             Call GA_Print( g_W2(ISpin) )
          EndIf
 C

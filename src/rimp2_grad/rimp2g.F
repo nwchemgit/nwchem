@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.12 1998-10-06 17:19:30 bernhold Exp $
+C$Id: rimp2g.F,v 1.13 1998-10-06 18:36:46 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -59,7 +59,7 @@ C LOCAL VARIABLES
       Character*255 String1
       Logical Status, KeepFrz
       Character*(1) Mem_Opt
-      Integer G_P2(MaxSpin)
+      Integer G_P2(MaxSpin), g_W2(MaxSpin)
 C
       Double precision Tol2e_Fock
 C
@@ -472,7 +472,7 @@ C
          Call RIMP2_Driver_P(RTDB, Geom, AOBas, NAOBF,
      $        MaxSpin, TopSpin, NMO, 
      $        NFrzO, NAct, NVir,
-     $        FitBas, FN_Int, FN_Gam, BraKetSame, g_P2,
+     $        FitBas, FN_Int, FN_Gam, BraKetSame, g_P2, g_W2,
      $        Dbl_MB(I_Eval), MxNCorBF, g_AOXF, Tol2e_Fock,
      $        JobTitle(:Inp_StrLen(JobTitle)) )
       EndIf
@@ -485,21 +485,30 @@ C
          Call RIMP2_Driver_G(RTDB, Geom, AOBas, NAOBF,
      $        MaxSpin, TopSpin, NMO, 
      $        NFrzO, NAct, NVir,
-     $        FitBas, FN_Int, FN_Gam, BraKetSame, g_P2,
+     $        FitBas, FN_Int, FN_Gam, BraKetSame, g_P2, g_W2,
      $        Dbl_MB(I_Eval), MxNCorBF, g_AOXF, Tol2e_Fock,
      $        JobTitle(:Inp_StrLen(JobTitle)) )
-C
-C        Some clean up only required if doing gradients
-C
-         Do I = TopSpin, 1, -1
-            If ( .NOT. GA_Destroy( G_AOXF(I)) ) Call ErrQuit(
-     $           'RIMP2G: can''t destroy AO transformation matrix', I)
-         EndDo
       EndIf
 C
 C     ***********
 C     * Cleanup *
 C     ***********
+C
+      If ( DoDens .OR. DoGrad ) then
+         Do I = TopSpin, 1, -1
+            If ( .NOT. GA_Destroy( G_AOXF(I)) ) Call ErrQuit(
+     $           'RIMP2G: can''t free AO transformation matrix', I)
+            If ( .NOT. GA_Destroy( G_P2(I)) ) Call ErrQuit(
+     $           'RIMP2G: can''t free P(2)', I)
+            If ( .NOT. GA_Destroy( G_W2(I)) ) Call ErrQuit(
+     $           'RIMP2G: can''t free W(2)', I)
+         EndDo
+      EndIf
+C
+      If ( DoGrad ) then
+         Do I = TopSpin, 1, -1
+         EndDo
+      EndIf
 C
       If ( DRA_Terminate() .ne. 0) Call ErrQuit(
      $   'RIMP2G: DRA_Terminate failed', 0)

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Gamma3 -- Form 3-index Gamma from 3e2c and 4-index Gamma
 C
 C REVISION
-C     $Id: gamma3.F,v 1.2 1998-07-13 02:38:09 bernhold Exp $
+C     $Id: gamma3.F,v 1.3 1998-10-06 18:36:34 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Gamma3(IJSym, IJTri, ILo, IHi, NVirI, JLo, JHi,
@@ -50,6 +50,7 @@ C INCLUDED FILES
 #include "global.fh"
 #include "dra.fh"
 #include "util.fh"
+#include "stdio.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer LT1, NI, NJ, Type, NFit, Req
@@ -104,8 +105,10 @@ C
      $     D_Gam3, 1+NVirI*(ILo-1), NVirI*IHi, 1, NFit, Req) .ne. 0)
      $   Call ErrQuit( 'RIMP2_Gamma3: DRA_Write_Section error.', ILo)
 C
-      If ( Util_Print('partial gamma3', Print_Debug))
-     $     Call GA_Print(g_Gam3)
+      If ( Util_Print('partial gamma3', Print_Debug)) then
+         Write (LuOut, *) 'After RIMP2_Gamma3...'
+         Call GA_Print(g_Gam3)
+      EndIf
 C
       If ( DRA_Wait(Req) .ne. 0) Call ErrQuit(
      $     'RIMP2_Gamma3: Error from DRA_Wait', ILo)

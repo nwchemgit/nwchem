@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_P2ij -- Form P^{(2)}_{ij} for batch in memory
 C
 C REVISION
-C     $Id: p2ij.F,v 1.1 1998-07-06 21:10:17 bernhold Exp $
+C     $Id: p2ij.F,v 1.2 1998-10-06 18:36:44 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_P2ij(IJSym, IJTri, ILo, IHi, NVirI, JLo, JHi,
@@ -55,6 +55,7 @@ C ROUTINES
 C
 C INCLUDED FILES
 #include "util.fh"
+#include "stdio.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer I, J, JTop, LT1, LT2, NI, NJ, Type, TrueI, TrueJ, K
@@ -118,7 +119,10 @@ C
       EndIf
       Call GA_Sync
 C
-      If ( Util_Print('partial p2', Print_Debug)) Call GA_Print(g_P2)
+      If ( Util_Print('partial p2', Print_Debug)) then
+         Write (LuOut, *) 'After RIMP2_P2ij...'
+         Call GA_Print(g_P2)
+      EndIf
 C
       Return
       End

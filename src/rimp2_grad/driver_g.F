@@ -3,12 +3,12 @@ C NAME
 C     RIMP2_Driver_G -- Master routine for RI-MP2 gradient evaluation
 C
 C REVISION
-C     $Id: driver_g.F,v 1.8 1998-10-06 17:19:11 bernhold Exp $
+C     $Id: driver_g.F,v 1.9 1998-10-06 18:36:30 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_G(RTDB, Geom, AOBas, NAO,
      $     MaxSpin, TopSpin, NMO, NFrzO, NAct, NVir, FitBas,
-     $     FN_Int, FN_Gam, BraKetSame, g_P2, Eig, LDEig, g_AOXF,
+     $     FN_Int, FN_Gam, BraKetSame, g_P2, g_W2, Eig, LDEig, g_AOXF,
      $     Tol2e_Fock, JobTitle)
       Implicit NONE
 C
@@ -27,6 +27,7 @@ C
       Character*(*) FN_Gam(TopSpin) ![in]
       Logical BraKetSame    ![in]
       Integer g_P2(TopSpin) ![in]
+      Integer g_W2(TopSpin) ![in]
       Integer LDEig ![in]
       Double Precision Eig(LDEig, TopSpin) ![in]
       Integer g_AOXF(TopSpin) ![in]
@@ -55,7 +56,7 @@ C
 C
 C LOCAL VARIABLES
       Integer ISpin, NFit, Length, C, A, V
-      Integer g_L(MyMaxspin), g_W2(MyMaxSpin), g_RHS
+      Integer g_L(MyMaxspin), g_RHS
       Logical PrInfo, PrPrgRpt
       Character*256 String1, FN_CPHF_RHS, FN_CPHF_Sol
       Integer D_Int(MyMaxSpin, 2, 2), D_Gam(MyMaxSpin)
@@ -120,83 +121,6 @@ c$$$     $        DRA_R, D_Gam(ISpin) ) .ne. 0) Call ErrQuit(
 c$$$     $        'RIMP2_Driver_G:  can''t open gamma file for spin ',
 c$$$     $        ISpin)
 c$$$      EndDo                     ! ISpin
-c$$$C
-c$$$C     ****************************
-c$$$C     * Compute Lagrangian terms *
-c$$$C     ****************************
-c$$$C
-c$$$      Do ISpin = 1, TopSpin
-c$$$C
-c$$$C        Create L(a,m)
-c$$$C
-c$$$         String1 = 'L spin ' // SpinItoA(ISpin)
-c$$$         If ( .NOT. GA_Create(MT_Dbl,
-c$$$     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
-c$$$     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
-c$$$     $        String1(:Inp_StrLen(String1)), MinChunk,
-c$$$     $        MinChunk, g_L(ISpin) ) ) Call ErrQuit(
-c$$$     $        'RIMP2_Driver_G: can''t allocate L', ISpin)
-c$$$C
-c$$$C        Create W2(p,q) (initial contributions come from L)
-c$$$C
-c$$$         String1 = 'W2 spin ' // SpinItoA(ISpin)
-c$$$         If ( .NOT. GA_Create(MT_Dbl,
-c$$$     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
-c$$$     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
-c$$$     $        String1(:Inp_StrLen(String1)), MinChunk,
-c$$$     $        MinChunk, g_W2(ISpin) ) ) Call ErrQuit(
-c$$$     $        'RIMP2_Driver_G: can''t allocate W2', ISpin)
-c$$$      EndDo ! ISpin
-c$$$C
-c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-c$$$     $     '    Computing Lagrangian (incl. Fock build)')
-c$$$C
-c$$$      Call RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct, NVir,
-c$$$     $     NFit, D_Int(1, 1, 1), D_Int(1, 1, 2), D_Gam, g_L, g_P2,
-c$$$     $     g_W2, Eig, LDEig, g_AOXF, Tol2e_Fock)
-c$$$C
-c$$$C     ************************
-c$$$C     * Solve CPHF Equations *
-c$$$C     ************************
-c$$$C     Produce the relaxed part of the density
-c$$$C
-c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-c$$$     $     '    Computing P2(a,m) (CPHF equations)')
-c$$$C
-c$$$      Call RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
-c$$$C
-c$$$C     Now we can clean up the Lagrangian
-c$$$C
-c$$$      Do ISpin = 1, TopSpin
-c$$$         If ( .NOT. GA_Destroy( G_L(ISpin) ) ) Call ErrQuit(
-c$$$     $        'RIMP2_Driver_G: can''t free L', ISpin)
-c$$$      EndDo
-c$$$C
-c$$$C     *************************
-c$$$C     * Save correlated 1-PDM *
-c$$$C     *************************
-c$$$C     Correlated one-particle density is now complete, so let's
-c$$$C     save it, and do some other things with it before going on
-c$$$C     to complete the gradient.
-c$$$C
-c$$$      If ( TopSpin .eq. 2) then
-c$$$         String1 = 'UHF'
-c$$$      ElseIf ( TopSpin .eq. 1) then
-c$$$         String1 = 'RHF'
-c$$$      Else
-c$$$         Call ErrQuit( 'RIMP2_Driver_G: TopSpin out of range', TopSpin)
-c$$$      EndIf
-c$$$C
-c$$$      Call MP2_Make_Dip_Mom(RTDB, AOBas, NAO,
-c$$$     $     Max(NMO(1), NMO(TopSpin)), NFrzO(1)+NAct(1),
-c$$$     $     NFrzO(TopSpin)+NAct(TopSpin), g_P2(1), g_P2(TopSpin),
-c$$$     $     g_AOXF(1), g_AOXF(TopSpin) )
-c$$$C
-c$$$      Call MP2_Make_NOs(RTDB, AOBas, NAO, Max(NMO(1), NMO(TopSpin)),
-c$$$     $     NFrzO(1)+NAct(1), NFrzO(TopSpin)+NAct(TopSpin),
-c$$$     $     g_P2(1), g_P2(TopSpin), g_AOXF(1), g_AOXF(TopSpin),
-c$$$     $     String1, Max(NFrzO(1), NFrzO(TopSpin)),
-c$$$     $     JobTitle(:Inp_StrLen(JobTitle) ) )
 C
 C     ***************
 C     * Complete W2 *
