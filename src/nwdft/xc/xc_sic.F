@@ -4,7 +4,7 @@
      &                  cntobfr, cetobfr, natoms,
      &                  g_movecs, noc, k_eval, totsic, i_degen)
 c
-C$Id: xc_sic.F,v 1.5 1999-11-15 17:35:50 jolguin Exp $
+C$Id: xc_sic.F,v 1.6 2000-01-31 23:24:37 jolguin Exp $
 c
       implicit none
 c      
@@ -312,7 +312,8 @@ c
         totsic = tot_sic_xc + tot_sic_coul
         sic_orb_occ = 0
         if (me.eq.0.and.oprint_sic) write(LuOut,*) 
-     &                                         ' tot_sic=',totsic
+     &    ' tot_sic_coul, tot_sic_xc, tot_sic: ',tot_sic_coul,
+     &                               tot_sic_xc, totsic
 c
         if (.not. ga_destroy(g_vxc_orb(1))) call errquit
      &       ('xc_sic: could not destroy g_vxc_orb(1)', 0)
