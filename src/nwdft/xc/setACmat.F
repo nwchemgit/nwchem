@@ -1,7 +1,7 @@
       Subroutine setACmat(Amat,Cmat,qwght,
      &                    ipol,nq,GRAD)
 
-C$Id: setACmat.F,v 1.4 1995-12-19 20:18:11 og845 Exp $
+C$Id: setACmat.F,v 1.5 1996-10-18 00:53:21 d3h449 Exp $
       implicit none
 
       integer ipol,nq
@@ -19,30 +19,23 @@ c
       integer ii,jj
 c
       if( GRAD )then
-      do ii=1,ipol
-
-        do jj=1,nq
-          
-          Amat(ii,jj)=Amat(ii,jj)*qwght(jj)
-          Cmat(ii,1,jj)=Cmat(ii,1,jj)*qwght(jj)
-          Cmat(ii,2,jj)=Cmat(ii,2,jj)*qwght(jj)
-          Cmat(ii,3,jj)=Cmat(ii,3,jj)*qwght(jj)
-        
+        do ii=1,ipol
+          do jj=1,nq
+            Amat(ii,jj)=Amat(ii,jj)*qwght(jj)
+            Cmat(ii,1,jj)=Cmat(ii,1,jj)*qwght(jj)
+            Cmat(ii,2,jj)=Cmat(ii,2,jj)*qwght(jj)
+            Cmat(ii,3,jj)=Cmat(ii,3,jj)*qwght(jj)
+          enddo
         enddo
-      
-      enddo
+c
       else
-      do ii=1,ipol
-
-        do jj=1,nq
-          
-          Amat(ii,jj)=Amat(ii,jj)*qwght(jj)
-        
+c
+        do ii=1,ipol
+          do jj=1,nq
+            Amat(ii,jj)=Amat(ii,jj)*qwght(jj)
+          enddo
         enddo
-      
-      enddo
       end if
-      
       return
       end
 

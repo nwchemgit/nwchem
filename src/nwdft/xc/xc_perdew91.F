@@ -1,21 +1,27 @@
-      Subroutine xc_perdew91(tol_rho,fac,
+      Subroutine xc_perdew91(tol_rho,cfac,lcfac,nlcfac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.15 1996-10-15 01:21:45 d3h449 Exp $
+C     $Id: xc_perdew91.F,v 1.16 1996-10-18 00:53:29 d3h449 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
       double precision alpha,beta,pgamma,delta,beta10
       double precision zzz,fff,CINF
       double precision CX37,aa
-
+      double precision dummy(1)
       double precision ONE,ONE3,THREE
       double precision FOURTHIRDS,SEV6
       double precision FIVE3,TWO3,FIVE6
       double precision pi
+      double precision eps
 c
-      integer lnq, lipol
-      double precision lfac, lqwght
+      double precision cfac(10)
+      logical lcfac(10), nlcfac(10)
+      logical lfac, nlfac, lfacl, nlfacl
+      double precision fac, facl
+c
+      integer lnq
+      double precision lqwght
 c
       Parameter (TOLL=1.D-40,EXPTOL=40.d0)
       Parameter (alpha=0.023266D0,beta = 7.389D-6,
@@ -29,6 +35,7 @@ c
       Parameter (FOURTHIRDS=4.D0/3.D0,SEV6=7.d0/6.d0)
       parameter (FIVE3=5.d0/3.d0,TWO3=2.d0/3.d0,FIVE6=5.d0/6.d0)
       parameter (pi=3.1415926535897932385d0)
+      parameter (eps=1.e-8)
 
       integer ipol,nq
 
@@ -37,7 +44,7 @@ c
 c     logical grad_corr true if only GCA part needed
 c
 c
-      double precision fac,tol_rho
+      double precision tol_rho
 
 c     Correlation energy
       double precision Ec
@@ -74,7 +81,7 @@ C
       double precision anum,aden,CC,CCPRIME
       double precision egas,degasda,degasdb
       double precision g,g2,g3
-      double precision gzeta,gzprime,x
+      double precision gzeta,gzprime,gzprime_1,gzprime_m1,x
       double precision dgzetadag,dgzetadbg,gggr,ggg
       double precision akf,aks,dksdrho,dkfdrho
       double precision t,t2,t3,t4,dtdrhoa,dtdrhob
@@ -87,17 +94,22 @@ C
 c***************************************************************************
       gzeta(x)=0.5d0*((ONE+x)**TWO3+(ONE-x)**TWO3)
       gzprime(x)=0.5d0*TWO3*((ONE+x)**(-ONE3)-(ONE-x)**(-ONE3))
+      gzprime_1 = 0.5d0*TWO3*(2.0d0**(-ONE3))
+      gzprime_m1 = -0.5d0*TWO3*(2.0d0**(-ONE3))
+c      write(*,*)' gzprime(x), gzprime_1: ',gzprime(1.0d0), gzprime_1 
       TPP=(3.d0*pi*pi)**ONE3
       nu=(16.d0/pi)*TPP
       bb=nu*CINF
       twoab=(aa+aa)/bb
       twoab2=twoab/bb
       atwob2=1.d0/twoab2
-      grad_corr=.false.
-      if(abs(fac-1.d0).gt.1.e-8) grad_corr=.true.
-c      write(*,*)' grad_corr = ',grad_corr
-        rsfact=(0.75d0/pi)**ONE3
-        if( ipol.eq.1 )then
+      fac = cfac(5)
+      lfac = lcfac(5)
+      nlfac = nlcfac(5)
+c      grad_corr=.false.
+c      if(abs(fac-1.d0).gt.1.e-8) grad_corr=.true.
+      rsfact=(0.75d0/pi)**ONE3
+      if( ipol.eq.1 )then
 
 c       ======> SPIN-RESTRICTED <======
 
@@ -129,15 +141,42 @@ C
 C
 C         call for LDA bit
 C
-C          call xc_pw91lda(1.d0,rhoval,dp81drho,1,1,egas,1.d0)
           lnq = 1
           lqwght = 1.0d0
-          lfac = 1.0d0
-          lipol = 1
-          call xc_p81(lfac,rhoval,dp81drho,lnq,lipol,egas,lqwght)
-c          call xc_p81(1.d0,rhoval,dp81drho,1,1,egas,1.d0)
-C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
-
+c
+          if(abs(cfac(1)).gt.eps) then
+              facl = cfac(1)
+             lfacl = lcfac(1)
+            nlfacl = nlcfac(1)
+            call xc_vwn(facl,lfacl,nlfacl,rhoval,dp81drho,
+     &                  lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
+          if(abs(cfac(3)).gt.eps) then
+              facl = cfac(3)
+             lfacl = lcfac(3)
+            nlfacl = nlcfac(3)
+            call xc_p81(facl,lfacl,nlfacl,rhoval,dp81drho,
+     &                  lnq,ipol,egas,lqwght)
+          endif
+c
+          if(abs(cfac(6)).gt.eps.or.lfac) then
+              facl = cfac(6)
+              if(abs(facl).lt.eps)facl = 1.0d0
+             lfacl = lcfac(6)
+            nlfacl = nlcfac(6)
+            call xc_pw91lda(facl,lfacl,nlfacl,rhoval,dp81drho,
+     &                      lnq,ipol,egas,lqwght)
+          endif
+c
+          if(abs(cfac(7)).gt.eps) then
+              facl = cfac(7)
+             lfacl = lcfac(7)
+            nlfacl = nlcfac(7)
+            call xc_vwnrpa(facl,lfacl,nlfacl,rhoval,dp81drho,
+     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
           degasda=arho*(dp81drho(1) - egas*arho)
           
           akf=TPP*rho13
@@ -179,9 +218,15 @@ C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
 c
           func=H0+H1
 c
-          if(.not.grad_corr) then
-            Ec = Ec + (egas+func*rhoval)*qwght(n)*fac
-          else
+c          if(.not.grad_corr) then
+c            Ec = Ec + (egas+func*rhoval)*qwght(n)*fac
+c          else
+c            Ec = Ec + (func*rhoval)*qwght(n)*fac
+c          endif
+          if(lfac) then
+            Ec = Ec + egas*qwght(n)*fac
+          endif
+          if(nlfac)then
             Ec = Ec + (func*rhoval)*qwght(n)*fac
           endif
 c
@@ -200,10 +245,17 @@ c
      (         2.d0*t*dtdrhoa + dAdrhoa*t4/A1p2At2 -
      -         alognd*(2.d0*A*t*dtdrhoa +
      +         dAdrhoa*t2))/(ONE+twoab*alognd)
-          if(.not.grad_corr) then
-            Amat(1,n) = Amat(1,n) +  (dp81drho(1) + func +
-     +           rhoval*(dH0drhoa+dH1drhoa))*fac
-          else
+c          if(.not.grad_corr) then
+c            Amat(1,n) = Amat(1,n) +  (dp81drho(1) + func +
+c     +           rhoval*(dH0drhoa+dH1drhoa))*fac
+c          else
+c            Amat(1,n) = Amat(1,n) +  (func +
+c     +           rhoval*(dH0drhoa+dH1drhoa))*fac
+c          endif
+          if(lfac) then
+            Amat(1,n) = Amat(1,n) +  dp81drho(1)*fac
+          endif
+          if(nlfac)then
             Amat(1,n) = Amat(1,n) +  (func +
      +           rhoval*(dH0drhoa+dH1drhoa))*fac
           endif
@@ -270,15 +322,42 @@ C
 C
 C         call for LDA bit
 C
-C          call xc_pw91lda(1.d0,rho(1,n),dp81drho,1,2,egas,1.d0)
           lnq = 1
           lqwght = 1.0d0
-          lfac = 1.0d0
-          lipol = 2
-          call xc_p81(lfac,rho(1,n),dp81drho,lnq,lipol,egas,lqwght)
-c          call xc_p81(1.d0,rho(1,n),dp81drho,1,2,egas,1.d0)
-C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
-
+c
+          if(abs(cfac(1)).gt.eps) then
+              facl = cfac(1)
+             lfacl = lcfac(1)
+            nlfacl = nlcfac(1)
+            call xc_vwn(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+     &                  lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
+          if(abs(cfac(3)).gt.eps) then
+              facl = cfac(3)
+             lfacl = lcfac(3)
+            nlfacl = nlcfac(3)
+            call xc_p81(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+     &                  lnq,ipol,egas,lqwght)
+          endif
+c
+          if(abs(cfac(6)).gt.eps.or.lfac) then
+              facl = cfac(6)
+              if(abs(facl).lt.eps)facl = 1.0d0
+             lfacl = lcfac(6)
+            nlfacl = nlcfac(6)
+            call xc_pw91lda(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+     &                      lnq,ipol,egas,lqwght)
+          endif
+c
+          if(abs(cfac(7)).gt.eps) then
+              facl = cfac(7)
+             lfacl = lcfac(7)
+            nlfacl = nlcfac(7)
+            call xc_vwnrpa(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
           degasda=arho*(dp81drho(1) - egas*arho)
           degasdb=arho*(dp81drho(2) - egas*arho)
 
@@ -292,8 +371,10 @@ C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
 
           if(abs(1.d0-zeta).lt.tol_rho) then
             dgzetadag=0.d0
-c            dgzetadbg=-2.d0*(gzprime(0.d0)/g)*arho
-            dgzetadbg=-2.d0*(gzprime(1.d0)/g)*arho
+            dgzetadbg=-2.d0*(gzprime_1/g)*arho
+          elseif(abs(1.d0+zeta).lt.tol_rho) then
+            dgzetadag=0.d0
+            dgzetadbg=-2.d0*(gzprime_m1/g)*arho
           else
             gggr=(gzprime(zeta)/g)*arho
             dgzetadag=(1.d0-zeta)*gggr
@@ -324,9 +405,16 @@ c
 c
           func=H0+H1
 c
-          if(.not.grad_corr) then
-            Ec = Ec + (egas+func*rhoval)*qwght(n)*fac
-          else
+c          if(.not.grad_corr) then
+c            Ec = Ec + (egas+func*rhoval)*qwght(n)*fac
+c          else
+c            Ec = Ec + (func*rhoval)*qwght(n)*fac
+c          endif
+c
+          if(lfac)then
+            Ec = Ec + egas*qwght(n)*fac
+          endif
+          if(nlfac)then
             Ec = Ec + (func*rhoval)*qwght(n)*fac
           endif
 c
@@ -345,11 +433,9 @@ c
      *         dtdrhob/t + dksdrho/aks - dkfdrho/akf))
 
           dAdrhoa = A/(expo1-ONE)*expo1*
-c     *         twoab2/g3*(-THREE*dgzetadag + degasda)
      *         twoab2/g3*(-THREE*egas*arho*dgzetadag + degasda)
 
           dAdrhob = A/(expo1-ONE)*expo1*
-c     *         twoab2/g3*(-THREE*dgzetadbg + degasdb)
      *         twoab2/g3*(-THREE*egas*arho*dgzetadbg + degasdb)
 
           dH0drhoa = Three*H0*dgzetadag +
@@ -363,21 +449,31 @@ c     *         twoab2/g3*(-THREE*dgzetadbg + degasdb)
      (         2.d0*t*dtdrhob*A1p2At2 + dAdrhob*t4 -
      -         alognd*A1p2At2*(2.d0*A*t*dtdrhob +
      +         dAdrhob*t2))/(ONE+twoab*alognd)
-
-          if(.not.grad_corr) then
-            Amat(1,n) = Amat(1,n) +  (dp81drho(1) + func +
-     +           rhoval*(dH0drhoa+dH1drhoa))*fac
-
-            Amat(2,n) = Amat(2,n) +  (dp81drho(2) + func +
-     +           rhoval*(dH0drhob+dH1drhob))*fac
-          else
+c
+c          if(.not.grad_corr) then
+c            Amat(1,n) = Amat(1,n) +  (dp81drho(1) + func +
+c     +           rhoval*(dH0drhoa+dH1drhoa))*fac
+c
+c            Amat(2,n) = Amat(2,n) +  (dp81drho(2) + func +
+c     +           rhoval*(dH0drhob+dH1drhob))*fac
+c          else
+c            Amat(1,n) = Amat(1,n) +  (func +
+c     +           rhoval*(dH0drhoa+dH1drhoa))*fac
+c
+c            Amat(2,n) = Amat(2,n) +  (func +
+c     +           rhoval*(dH0drhob+dH1drhob))*fac
+c          endif
+c
+          if(lfac)then
+            Amat(1,n) = Amat(1,n) +  dp81drho(1)*fac
+            Amat(2,n) = Amat(2,n) +  dp81drho(2)*fac
+          endif
+          if(nlfac)then
             Amat(1,n) = Amat(1,n) +  (func +
      +           rhoval*(dH0drhoa+dH1drhoa))*fac
-
             Amat(2,n) = Amat(2,n) +  (func +
      +           rhoval*(dH0drhob+dH1drhob))*fac
           endif
-          
 c
 C- (func*add)*dzetadb
 c

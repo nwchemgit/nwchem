@@ -1,6 +1,6 @@
       Subroutine dft_mxovl(basis, evals, g_evecs, g_oevecs,g_tmp)
 
-C$Id: dft_mxovl.F,v 1.5 1996-10-05 00:52:22 d3h449 Exp $
+C$Id: dft_mxovl.F,v 1.6 1996-10-18 00:53:15 d3h449 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap       [input] overwritten!
@@ -24,7 +24,7 @@ c      integer nbf,i,j,ix
       integer k_ord,l_ord,k_tmp,l_tmp,k_scr,l_scr
       
       
-      double precision smax,prodmax
+      double precision prodmax
 
       
 

@@ -1,13 +1,15 @@
-      Subroutine xc_lyp88(fac,
-     *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
-
-C$Id: xc_lyp88.F,v 1.4 1996-05-04 21:08:35 og845 Exp $
+      Subroutine xc_lyp88(fac,lfac,nlfac,
+     &           rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
+c
+C$Id: xc_lyp88.F,v 1.5 1996-10-18 00:53:27 d3h449 Exp $
+c
       implicit none 
 
       double precision fac ! [input]
       integer nq
       integer ipol
       double precision Ec
+      logical lfac, nlfac
 c--> Charge Density & Its Cube Root
 
       double precision rho(ipol*(ipol+1)/2,nq)

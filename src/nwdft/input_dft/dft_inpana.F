@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(rtdb)
-C$Id: dft_inpana.F,v 1.11 1996-10-15 01:21:38 d3h449 Exp $
+C$Id: dft_inpana.F,v 1.12 1996-10-18 00:53:08 d3h449 Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
@@ -13,7 +13,7 @@ C$Id: dft_inpana.F,v 1.11 1996-10-15 01:21:38 d3h449 Exp $
       integer me,ichg,nel
       integer noc1
       integer n
-      double precision anucl_charg
+      double precision anucl_charg, ckfac
       double precision EPSILON
       character*9 local_c, nonlocal_c, nineb_c
       Parameter ( EPSILON=1.d-13 )
@@ -181,6 +181,43 @@ c
             write(LuOut,9224) cname(n), cfac(n), nonlocal_c
           endif
         enddo
+c
+c       Check XC coefficients to make sure appropriate components
+c       sum to 1.0
+c        
+        ckfac = 0.0d0
+        do n = 1, 10
+          if(lcfac(n))ckfac = ckfac + cfac(n)
+        enddo
+        if(abs(ckfac-1.0d0).gt.1.d-8)then
+          write(LuOut,*)' WARNING: Sum of local correlation is ',ckfac
+          write(LuOut,*)' Sum of components do not equal unity. '
+        endif
+        ckfac = 0.0d0
+        do n = 1, 10
+          if(nlcfac(n))ckfac = ckfac + cfac(n)
+        enddo
+        if(abs(ckfac-1.0d0).gt.1.d-8.and.abs(ckfac).gt.1.d-8)then
+          write(LuOut,*)' WARNING: Sum of nonlocal correlation is ',
+     &                  ckfac
+          write(LuOut,*)' Sum of components do not equal unity or 0. '
+        endif
+        ckfac = 0.0d0
+        do n = 1, 10
+          if(lxfac(n))ckfac = ckfac + xfac(n)
+        enddo
+        if(abs(ckfac-1.0d0).gt.1.d-8)then
+          write(LuOut,*)' WARNING: Sum of local exchange is ',ckfac
+          write(LuOut,*)' Sum of components do not equal unity. '
+        endif
+        ckfac = 0.0d0
+        do n = 1, 10
+          if(nlxfac(n))ckfac = ckfac + xfac(n)
+        enddo
+        if(abs(ckfac-1.0d0).gt.1.d-8.and.abs(ckfac).gt.1.d-8)then
+          write(LuOut,*)' WARNING: Sum of nonlocal exchange is ',ckfac
+          write(LuOut,*)' Sum of components do not equal unity or 0. '
+        endif
       endif
       return
  9000 format(//,5x,31('-'),/,5x,

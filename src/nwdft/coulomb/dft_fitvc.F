@@ -1,7 +1,7 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
      &     g_vc, Ecoul2, nbf_cd, g_2ceri,IOLGC,itol2e,incore,
      &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
-C     $Id: dft_fitvc.F,v 1.9 1996-08-19 15:19:56 d3g681 Exp $
+C     $Id: dft_fitvc.F,v 1.10 1996-10-18 00:52:58 d3h449 Exp $
       implicit none
       
 c**** 
@@ -25,7 +25,7 @@ c-->  Charge Density Expansion Coefficients
 c      
       double precision CD_coef(nbf_cd)
 
-      Logical LResult,IOLGC
+      Logical IOLGC
       
 #include "bas.fh"
 #include "rtdb.fh"

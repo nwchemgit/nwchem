@@ -1,6 +1,6 @@
       Subroutine dft_getspm(geom,lmax,finest,iga_dens,basis)
 
-C$Id: dft_getspm.F,v 1.8 1996-07-03 20:58:59 d3h449 Exp $
+C$Id: dft_getspm.F,v 1.9 1996-10-18 00:53:00 d3h449 Exp $
       implicit none
       integer lmax               ! max value of ang momentum
       integer iga_dens           ! GA handle for DM
@@ -12,7 +12,6 @@ C     local
 C
       double precision centerl(3),q
       double precision total_nuc_charge
-      Logical LResult
       integer natoms,iatom
       integer max_at_bf,max_at_bf2
       integer lcoord,icoord,lcharge,icharge,itags,ltags
@@ -124,11 +123,11 @@ C     &  dbl_mb(icharge),finest)
       if(.not.ma_pop_stack(lPmat))
      &  call errquit('dft_getspm: cannot pop stack',0)
       if(lmax.gt.0) then
-        LResult = Lresult.and.MA_Pop_Stack(ldipole)
+        if(.not.ma_pop_stack(ldipole))
+     &    call errquit('dft_getspm: cannot pop stack',0)
       endif
-      LResult = Lresult.and.MA_Pop_Stack(lcharge)
-      if(.not.Lresult) call errquit('dft_getspm: cannot pop stack',0)
-
+      if(.not.ma_pop_stack(lcharge))
+     &    call errquit('dft_getspm: cannot pop stack',0)
 c
 c       compute geometrical center for CMM
 c

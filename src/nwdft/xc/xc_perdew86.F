@@ -1,12 +1,14 @@
-      Subroutine xc_perdew86(fac,rho,delrho,Amat,Cmat,
-     *     nq,ipol,Ec,qwght)
-
-C     $Id: xc_perdew86.F,v 1.9 1996-10-15 01:21:44 d3h449 Exp $
+      Subroutine xc_perdew86(fac,lfac,nlfac,rho,delrho,Amat,Cmat,
+     &           nq,ipol,Ec,qwght)
+c
+C     $Id: xc_perdew86.F,v 1.10 1996-10-18 00:53:28 d3h449 Exp $
+c
       implicit none
 
       double precision fac ! [input]
       integer nq,ipol      ! [input]
       double precision Ec  ! [input/output]
+      logical lfac, nlfac
 
 c
 c--   > Charge Density 
@@ -204,13 +206,14 @@ C
 
       end
 
-      Subroutine xc_p81(fac,rho,Amat,nq,ipol,Ec,qwght)
+      Subroutine xc_p81(fac,lfac,nlfac,rho,Amat,nq,ipol,Ec,qwght)
 c
 c     Ceperley Alder LDA from
 c     Perdew Zunger PRB 23, 5048 (1981)
 c
       implicit none
       integer nq,ipol
+      logical lfac, nlfac
       double precision Ec,fac
 c--   > Charge Density 
 

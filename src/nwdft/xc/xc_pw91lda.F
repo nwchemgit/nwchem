@@ -1,4 +1,5 @@
-      subroutine xc_pw91lda(fac,rho,Amat,nq,ipol,Ec,qwght)
+      subroutine xc_pw91lda(fac,lfac,nlfac,rho,Amat,nq,ipol,
+     &           Ec,qwght)
 c  uniform-gas correlation of Perdew and Wang 1991
 c  input: seitz radius (rs), relative spin polarization (zet)
 c  output: correlation energy per electron (ec), up- and down-spin
@@ -8,7 +9,7 @@ c  output: correlation contribution (alfc) to the spin stiffness
       double precision fac ! [input]
       integer nq,ipol      ! [input]
       double precision Ec  ! [input/output]
-
+      logical lfac, nlfac
       double precision rho(ipol*(ipol+1)/2,nq) ! Charge Density 
       double precision qwght(nq)!Quadrature Weights
       double precision Amat(ipol,nq)!Sampling Matrices for XC V & E

@@ -1,11 +1,12 @@
-      Subroutine xc_dirac(fac,rho,Amat,nq,ipol,Ex,qwght,ldew,func)
+      Subroutine xc_dirac(fac,lfac,nlfac,rho,Amat,nq,ipol,
+     &                    Ex,qwght,ldew,func)
 
-C$Id: xc_dirac.F,v 1.3 1995-12-22 22:42:38 og845 Exp $
+C$Id: xc_dirac.F,v 1.4 1996-10-18 00:53:26 d3h449 Exp $
       Implicit none
 
       integer nq,ipol
       double precision fac,Ex
-      logical ldew
+      logical ldew, lfac, nlfac
       double precision func(*)  ! value of the functional [output]
 
 c--> Charge Density

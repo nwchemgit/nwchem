@@ -1,6 +1,6 @@
       Subroutine dft_main0d( rtdb )
 c
-C$Id: dft_main0d.F,v 1.11 1996-10-05 00:52:22 d3h449 Exp $
+C$Id: dft_main0d.F,v 1.12 1996-10-18 00:53:14 d3h449 Exp $
 c
       implicit none
       integer rtdb  ! rtdb handle [input]
@@ -29,7 +29,6 @@ c
       integer me,nproc,info
       double precision Enuc,Etold
       integer iter
-      integer nExc,lshift
       integer iVxc_opt,lmiss,ivcoul_opt
       integer isvals,lsvals,iw,idum,i
       double precision toll_s

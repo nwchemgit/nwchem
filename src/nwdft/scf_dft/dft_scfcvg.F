@@ -1,6 +1,6 @@
       subroutine dft_scfcvg(rms,etold,etnew,Enuc,scfcon,
      &     ipol,igcon,iter,itrscf,idone,converged,rtdb)
-C     $Id: dft_scfcvg.F,v 1.6 1996-10-01 21:31:05 d3h449 Exp $
+C     $Id: dft_scfcvg.F,v 1.7 1996-10-18 00:53:18 d3h449 Exp $
       implicit none
 
       double precision rms(2)   ! [input]
@@ -25,7 +25,7 @@ C     $Id: dft_scfcvg.F,v 1.6 1996-10-01 21:31:05 d3h449 Exp $
 #include "rtdb.fh"
 c     
       logical DENSITY,status,oprint_c,oprint_i
-      integer me,nproc,iswitch
+      integer me,iswitch
       double precision de,abde
 c     
       idone=0

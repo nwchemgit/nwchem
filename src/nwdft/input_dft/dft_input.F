@@ -1,5 +1,5 @@
       subroutine dft_input(rtdb)
-c     $Id: dft_input.F,v 1.5 1996-10-15 01:21:39 d3h449 Exp $
+c     $Id: dft_input.F,v 1.6 1996-10-18 00:53:09 d3h449 Exp $
       implicit none
 #include "rtdb.fh"
 #include "geom.fh"
@@ -626,13 +626,15 @@ c     &            ' dft_input: vwn local descriptor found.'
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: vwn nonlocal descriptor found.'
-                  nlcfac(1) = .true.
+                  write(6,*)' vwn is a local functional;',
+     &                      ' "nonlocal" descriptor is ignored. '                   
+                  nlcfac(1) = .false.
                 else
 c
 c                 assume total wanted
 c
                   lcfac(1) = .true.
-                  nlcfac(1) = .true.
+                  nlcfac(1) = .false.
                   call inp_prev_field()
                 endif
               else
@@ -640,7 +642,7 @@ c
 c               assume total wanted
 c
                 lcfac(1) = .true.
-                nlcfac(1) = .true.
+                nlcfac(1) = .false.
                 call inp_prev_field()
               endif
               if ( .not. inp_f(cfac(1)) ) then
@@ -656,10 +658,18 @@ c
                 if ( inp_compare(.false.,'local', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: lyp local descriptor found.'
-                  lcfac(2) = .true.
+                 write(6,*)' The lyp functional cannot be conveniently',
+     &                      ' split into local and nonlocal pieces; '
+                  write(6,*)' total lyp is assumed desired. '                   
+                   lcfac(2) = .true.
+                  nlcfac(2) = .true.
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: lyp nonlocal descriptor found.'
+                 write(6,*)' The lyp functional cannot be conveniently',
+     &                      ' split into local and nonlocal pieces; '
+                  write(6,*)' total lyp is assumed desired. '                   
+                   lcfac(2) = .true.
                   nlcfac(2) = .true.
                 else
 c
@@ -694,13 +704,15 @@ c     &            ' dft_input: perdew81 local descriptor found.'
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: perdew81 nonlocal descriptor found.'
-                  nlcfac(3) = .true.
+                  write(6,*)' perdew81 is a local functional;',
+     &                      ' "nonlocal" descriptor is ignored. '                   
+                  nlcfac(3) = .false.
                 else
 c
 c                 assume total wanted
 c
                   lcfac(3) = .true.
-                  nlcfac(3) = .true.
+                  nlcfac(3) = .false.
                   call inp_prev_field()
                 endif
               else
@@ -708,7 +720,7 @@ c
 c               assume total wanted
 c
                 lcfac(3) = .true.
-                nlcfac(3) = .true.
+                nlcfac(3) = .false.
                 call inp_prev_field()
               endif
               if ( .not. inp_f(cfac(3)) ) then
@@ -724,20 +736,24 @@ c
                 if ( inp_compare(.false.,'local', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: perdew86 local descriptor found.'
+                  write(6,*)' perdew86 is a nonlocal functional;',
+     &                      ' adding perdew81 local functional. '                   
                   lcfac(3) = .true.
-                  lcfac(4) = .true.
+                  lcfac(4) = .false.
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: perdew86 nonlocal descriptor found.'
-                  nlcfac(3) = .true.
+                  nlcfac(3) = .false.
                   nlcfac(4) = .true.
                 else
 c
 c                 assume total wanted
 c
-                  lcfac(3) = .true.
-                  nlcfac(3) = .true.
-                  lcfac(4) = .true.
+                  write(6,*)' perdew86 is a nonlocal functional;',
+     &                      ' adding perdew81 local functional. '                   
+                   lcfac(3) = .true.
+                  nlcfac(3) = .false.
+                   lcfac(4) = .false.
                   nlcfac(4) = .true.
                   call inp_prev_field()
                 endif
@@ -745,9 +761,11 @@ c
 c
 c               assume total wanted
 c
-                lcfac(3) = .true.
-                nlcfac(3) = .true.
-                lcfac(4) = .true.
+                  write(6,*)' perdew86 is a nonlocal functional;',
+     &                      ' adding perdew81 local functional. '                   
+                 lcfac(3) = .true.
+                nlcfac(3) = .false.
+                 lcfac(4) = .false.
                 nlcfac(4) = .true.
                 call inp_prev_field()
               endif
@@ -755,7 +773,7 @@ c
 c                write(6,*)
 c     &          ' dft_input: perdew86 multiplicative factor not found.'
                 cfac(4) = 1.0d0
-                cfac(3) = cfac(4)
+                if(lcfac(3))cfac(3) = cfac(4)
               endif            
             elseif ( inp_compare(.false., 'perdew91', test)) then
 c             
@@ -765,7 +783,14 @@ c
                 if ( inp_compare(.false.,'local', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: perdew91 local descriptor found.'
-                  lcfac(5) = .true.
+                  write(6,*)' perdew91 is a nonlocal functional;',
+     &                      ' adding pw91lda local functional. '
+c
+c                 This is also done by default inside xc_perdew91.F
+c                 when lcfac(5) is .true.
+c
+                  lcfac(6) = .true.
+                  lcfac(5) = .false.
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: perdew91 nonlocal descriptor found.'
@@ -774,7 +799,7 @@ c     &            ' dft_input: perdew91 nonlocal descriptor found.'
 c
 c                 assume total wanted
 c
-                  lcfac(5) = .true.
+                   lcfac(5) = .true.
                   nlcfac(5) = .true.
                   call inp_prev_field()
                 endif
@@ -782,7 +807,7 @@ c
 c
 c               assume total wanted
 c
-                lcfac(5) = .true.
+                 lcfac(5) = .true.
                 nlcfac(5) = .true.
                 call inp_prev_field()
               endif
@@ -790,6 +815,7 @@ c
 c                write(6,*)
 c     &          ' dft_input: perdew91 multiplicative factor not found.'
                 cfac(5) = 1.0d0
+                if(lcfac(6))cfac(6) = cfac(5)
               endif            
             elseif ( inp_compare(.false., 'pw91lda', test)) then
 c             
@@ -803,13 +829,15 @@ c     &            ' dft_input: p91LDA local descriptor found.'
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: p91LDA nonlocal descriptor found.'
-                  nlcfac(6) = .true.
+                  write(6,*)' pw91lda is a local functional;',
+     &                      ' "nonlocal" descriptor is ignored. '                   
+                  nlcfac(6) = .false.
                 else
 c
 c                 assume total wanted
 c
                   lcfac(6) = .true.
-                  nlcfac(6) = .true.
+                  nlcfac(6) = .false.
                   call inp_prev_field()
                 endif
               else
@@ -817,7 +845,7 @@ c
 c               assume total wanted
 c
                 lcfac(6) = .true.
-                nlcfac(6) = .true.
+                nlcfac(6) = .false.
                 call inp_prev_field()
               endif
               if ( .not. inp_f(cfac(6)) ) then
@@ -837,13 +865,15 @@ c     &            ' dft_input: vwnrpa local descriptor found.'
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: vwnrpa nonlocal descriptor found.'
-                  nlcfac(7) = .true.
+                  write(6,*)' vwnrpa is a local functional;',
+     &                      ' "nonlocal" descriptor is ignored. '                   
+                  nlcfac(7) = .false.
                 else
 c
 c                 assume total wanted
 c
                   lcfac(7) = .true.
-                  nlcfac(7) = .true.
+                  nlcfac(7) = .false.
                   call inp_prev_field()
                 endif
               else
@@ -851,7 +881,7 @@ c
 c               assume total wanted
 c
                 lcfac(7) = .true.
-                nlcfac(7) = .true.
+                nlcfac(7) = .false.
                 call inp_prev_field()
               endif
               if ( .not. inp_f(cfac(7)) ) then
@@ -870,10 +900,20 @@ c
                 if ( inp_compare(.false.,'local', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: hfexch local descriptor found.'
+                  write(6,*)' HF exchange is by nature nonlocal',
+     &                      ' and cannot be conveniently split'
+                  write(6,*)' into local and nonlocal pieces;',
+     &                      ' total HF exchange is assumed desired. '                   
                   lxfac(1) = .true.
+                  nlxfac(1) = .true.
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: hfexch nonlocal descriptor found.'
+                  write(6,*)' HF exchange is by nature nonlocal',
+     &                      ' and cannot be conveniently split'
+                  write(6,*)' into local and nonlocal pieces;',
+     &                      ' total HF exchange is assumed desired. '                   
+                  lxfac(1) = .true.
                   nlxfac(1) = .true.
                 else
 c
@@ -909,12 +949,14 @@ c     &            ' dft_input: slater local descriptor found.'
 c                  write(6,*)
 c     &            ' dft_input: slater nonlocal descriptor found.'
                   nlxfac(2) = .true.
+                  write(6,*)' slater is a local functional;',
+     &                      ' "nonlocal" descriptor is ignored. '                   
                 else
 c
 c                 assume total wanted
 c
                   lxfac(2) = .true.
-                  nlxfac(2) = .true.
+                  nlxfac(2) = .false.
                   call inp_prev_field()
                 endif
               else
@@ -922,7 +964,7 @@ c
 c               assume total wanted
 c
                 lxfac(2) = .true.
-                nlxfac(2) = .true.
+                nlxfac(2) = .false.
                 call inp_prev_field()
               endif
               if ( .not. inp_f(xfac(2)) ) then
@@ -938,7 +980,10 @@ c
                 if ( inp_compare(.false.,'local', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: becke88 local descriptor found.'
-                  lxfac(3) = .true.
+                  write(6,*)' becke88 "local" is equivalent to the',
+     &                      ' slater exchange local functional. '
+                  write(6,*)' Resubmit using slater exchange. '
+                  call errquit(' dft_input - functional description ',0)
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: becke88 nonlocal descriptor found.'

@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.37 1996-10-15 01:21:42 d3h449 Exp $
+C$Id: dft_scf.F,v 1.38 1996-10-18 00:53:16 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -87,7 +87,6 @@ c
       logical keep_damp_on,keep_levl_on,keep_diis_on
       Logical LResult,IOLGC,mulliken,do_gradients,lSPM
       logical converged,wght_GA
-      logical lfocka,lfockb
       logical oprint_parm,oprint_conv,oprint_vecs,
      ,     oprint_eval ,oprint_syma,oprint_time
       integer itol_min,iAOacc_min
@@ -169,31 +168,7 @@ c****   UHF occupations
           dbl_mb(i-1+k_occ) = 1.0d0
         enddo
       endif 
-C     
-C     shift on Fock matrix to change occupancy
-C
-      n_ashift=0
-      n_bshift=0
-      lfocka = RTDB_MA_Get(RTDB, 'dft:alpha empty', Type,
-     $   n_afshift, l_afshift)
-      lfockb = RTDB_MA_Get(RTDB, 'dft:beta empty', Type,
-     $   n_bfshift, l_bfshift)
-      if(lfocka) then
-        if(me.eq.0) write(LuOut,*) ' Fock shifta'
-        If ( Type .ne. MT_Int)  Call ErrQuit(
-     $       'dft_scf: Bad MA type from RTDB_MA_Get', Type)
-        If ( .NOT. MA_Get_Index(l_afshift, i_afshift) ) Call ErrQuit(
-     $       'dft_scf: Bad MA handle from RTDB_MA_Get', l_afshift)
-      endif
-      if(lfockb) then
-        if(me.eq.0) write(LuOut,*) ' Fock shiftb'
-        If ( Type .ne. MT_Int)  Call ErrQuit(
-     $       'dft_scf: Bad MA type from RTDB_MA_Get', Type)
-        If ( .NOT. MA_Get_Index(l_bfshift, i_bfshift) ) Call ErrQuit(
-     $       'dft_scf: Bad MA handle from RTDB_MA_Get', l_bfshift)
-      endif
-
-
+c
       wght_GA=.false.
 c     
 c     Determine whether to fit the electronic charge density.
@@ -598,42 +573,6 @@ c
 #if defined(DFT_TIMER)
         call dft_second(tp3)
 #endif    
-C
-C       Change Fock matrix
-C
-        if(lfocka.and.iter.lt.2.and.ispin.eq.1) then
-          if(me.eq.0) then
-C           
-C           alpha
-C           
-            do ii=0,n_afshift-1
-              ielem= int_mb(i_afshift+ii)
-              call ga_get(g_fock, ielem, ielem,
-     *           ielem, ielem, fock_el, 1)
-              fock_el = fock_el +5.d0
-              write(luerr,*) ' alpha ',ii,fock_el
-              call ga_put(g_fock, ielem, ielem,
-     *           ielem, ielem, fock_el, 1)
-            enddo
-          endif
-        endif
-C       
-C       beta
-C       
-        if(lfockb.and.ispin.eq.2.and.iter.lt.2) then
-          if(me.eq.0) then
-            do ii=0,n_bfshift-1
-              ielem= int_mb(i_bfshift+ii)
-              call ga_get(g_fock, ielem, ielem,
-     *           ielem, ielem, fock_el, 1)
-              fock_el = fock_el +5.d0
-              call ga_put(g_fock, ielem, ielem,
-     *           ielem, ielem, fock_el, 1)
-              write(luerr,*) ' beta ',ii,fock_el
-            enddo
-          endif
-          call ga_sync
-        endif
 c
         if(ispin.eq.1.and.ipol.gt.1) call ga_copy(g_fock,g_fockt)
         if(diis)then
@@ -1137,14 +1076,6 @@ c
         call gadest(g_wght)
         call gadest(g_xyz)
       endif
-      if(lfocka) then
-        If ( .NOT. MA_Free_Heap(l_afshift) ) Call ErrQuit(
-     $       'dft_scf: Unable to free MA handle', l_bfshift)
-        endif
-        if(lfockb) then
-        If ( .NOT. MA_Free_Heap(l_bfshift) ) Call ErrQuit(
-     $       'dft_scf: Unable to free MA handle', l_afshift)
-        endif
 c
         call fock_2e_tidy(rtdb)
 c
