@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd) 
 c 
-C$Id: dft_3cincor.F,v 1.26 2000-10-26 19:34:15 edo Exp $
+C$Id: dft_3cincor.F,v 1.27 2001-04-12 21:56:50 edo Exp $
 c
       implicit none
 c    
@@ -76,6 +76,10 @@ c
 c
          if (eaf_stat(actualname, availkb, fstype) .ne. 0) 
      &      call errquit('dft_3cincor: unable to get disk info',0)
+c
+c     now eaf_stat returns Mb instead of kb
+c
+         availkb=availkb*1024
 c
 c        need global space available check here
 c
