@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal)
-c $Id: cf_init.F,v 1.30 1999-10-08 18:35:17 d3j191 Exp $
+c $Id: cf_init.F,v 1.31 1999-11-27 02:37:10 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1458,7 +1458,7 @@ c
       integer num(mat,3)
       real*8 wgt(mat,6),vdw(mat,mat,map,6)
 c
-      integer i,j
+      integer i,j,k,l
 c
       write(lfnout,1000)
  1000 format(/,' ATOM TYPES',//,t8,'Type',t27,'Atomic number',
@@ -1469,6 +1469,19 @@ c
      + (wgt(i,j),j=1,3)
  1001 format(i5,1x,3(1x,a5),3i5,3f12.6)
     1 continue
+c
+      write(lfnout,1002)
+ 1002 format(/,' VAN DER WAALS PARAMETERS',//,11x,
+     + 3(' Atom types  v. d. Waals v. d. Waals'),/,11x,
+     + 3('                         3rd neighb '),/)
+c
+      do 2 i=1,mat
+      do 3 j=i,mat
+      write(lfnout,1003) i,j,(nam(i,k)(1:5),nam(j,k)(1:5),
+     + (vdw(i,j,l,k),l=1,2),k=1,3),((vdw(i,j,l,k),l=3,4),k=1,3)
+ 1003 format(2i5,1x,3(2(1x,a5),2e12.5),/,11x,3(12x,2e12.5))
+    3 continue
+    2 continue
 c
       return
       end
