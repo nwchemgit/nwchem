@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.123 2001-12-15 04:34:53 d3j191 Exp $
+c $Id: cf_main.F,v 1.124 2002-01-15 23:02:50 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1389,6 +1389,7 @@ c
       lpmfc=lpmfci
       edrs=zero
       epmf=zero
+      ubias=zero
 c
       if(mmult.gt.0) then
       call cf_mlist(nums,xs,fs,isgan,isfrc,isdyn,isct1,
@@ -1520,10 +1521,8 @@ c
       if(me.eq.0) then
       if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
  1000 format(i3,f12.6,e12.5)
-      if(me.eq.0) then
       if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
       epmf=epmf+rv(2)
-      endif
       endif
       do 9 j=1,2
       do 10 k=1,ipmf(i,j+1)
@@ -1558,6 +1557,7 @@ c
      + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
       if(me.eq.0) then
+      if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
       epmf=epmf+rv(2)
       if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
       endif
@@ -1602,6 +1602,7 @@ c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Dih:',rv,(ft(3,j),j=1,3)
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Imp:',rv,(ft(3,j),j=1,3)
       endif
       if(me.eq.0) then
+      if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
       epmf=epmf+rv(2)
       if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
       endif
@@ -2179,7 +2180,8 @@ c
       integer lfnout
 c
       if(numb(2).gt.0) call cf_pr_bonds(lfnout,numb(2),mbt(2),mbp(2),
-     + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)))
+     + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
+     + byte_mb(i_snam))
 c
       if(numh(2).gt.0) call cf_pr_angles(lfnout,numh(2),mht(2),mhp(2),
      + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)))
@@ -2192,7 +2194,7 @@ c
 c
       return
       end
-      subroutine cf_pr_bonds(lfnout,nsb,msb,msp,ibnd,bnd,rbnd)
+      subroutine cf_pr_bonds(lfnout,nsb,msb,msp,ibnd,bnd,rbnd,snam)
 c
       implicit none
 c
@@ -2203,6 +2205,7 @@ c
       integer lfnout,nsb,msb,msp
       integer ibnd(msb,3)
       real*8 bnd(msb,msp,6),rbnd(msb,2)
+      character*16 snam(nsatot)
 c
       integer i,j
 c
@@ -2215,13 +2218,15 @@ c
 c
       do 1 i=1,nsb
       if(ibnd(i,3).eq.0) then
-      write(lfnout,1001) (ibnd(i,j),j=1,2),(bnd(i,j,iset),j=1,2),
-     + (rbnd(i,j),j=1,2)
- 1001 format(2i7,7x,f10.5,e12.5,f10.5,f12.6)
+      write(lfnout,1001) (ibnd(i,j),j=1,2),
+     + (snam(ibnd(i,j))(12:16)//':'//snam(ibnd(i,j))(1:11),j=1,2),
+     + (bnd(i,j,iset),j=1,2),(rbnd(i,j),j=1,2)
+ 1001 format(2i7,2a17,7x,f10.5,e12.5,f10.5,f12.6)
       else
-      write(lfnout,1002) (ibnd(i,j),j=1,2),(bnd(i,j,iset),j=1,2),
-     + rbnd(i,1)
- 1002 format(2i7,' cnstr ',f10.5,e12.5,f10.5,f12.6)
+      write(lfnout,1002) (ibnd(i,j),j=1,2),
+     + (snam(ibnd(i,j))(12:16)//':'//snam(ibnd(i,j))(1:11),j=1,2),
+     + (bnd(i,j,iset),j=1,2),rbnd(i,1)
+ 1002 format(2i7,2a17,' cnstr ',f10.5,e12.5,f10.5,f12.6)
       endif
     1 continue
 c
