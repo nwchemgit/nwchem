@@ -1,4 +1,4 @@
-c $Id: freeze_input.F,v 1.4 2003-10-25 00:07:42 marat Exp $
+c $Id: freeze_input.F,v 1.5 2003-10-25 16:23:19 edo Exp $
       subroutine freeze_input(rtdb, module)
       implicit none
 #include "inp.fh"
@@ -108,7 +108,7 @@ c
       else 
          call inp_prev_field()
 	 if (.not. inp_i(n)) call errquit
-     $      ('freeze_input: looking for nfzc/v',0)
+     $      ('freeze_input: looking for nfzc/v',0,0)
          key = ' '
          write(key, '(a,'':'',a)') module(1:mlen),
      $           space(1:inp_strlen(space))
