@@ -1,8 +1,9 @@
 c
-c $Id: paw_comp_charge_data.fh,v 1.4 2003-01-30 21:12:33 bylaska Exp $
+c $Id: paw_comp_charge_data.fh,v 1.5 2003-02-15 00:29:21 marat Exp $
 c
 
-      integer    q00(4)     ! compensation charge
-      integer    qlm(4)     ! compensation charge
-      common / paw_comp_charge / qlm, q00
+      integer    paw_q00(4)     ! compensation charge
+      integer    i_paw_qlm(4)     ! compensation charge
+      integer    paw_qlm(4)     ! compensation charge
+      common / paw_comp_charge / paw_qlm, paw_q00,i_paw_qlm
 

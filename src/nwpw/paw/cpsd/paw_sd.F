@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.28 2003-02-13 21:43:20 marat Exp $
+* $Id: paw_sd.F,v 1.29 2003-02-15 00:29:21 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -221,6 +221,7 @@
       call paw_proj_init()
       call paw_comp_charge_init()
       call init_paw_pot_hartree()
+      call init_paw_pot_comp()
       !call dealloc_paw_basis_data()
       !call paw_proj_end()
 
@@ -282,7 +283,10 @@
       call paw_ovlp_init(ne)
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
+      call paw_comp_charge_update()
+
       call paw_pot_hartree_solve()
+      call paw_pot_comp_solve()
 
       call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
       !**** Ortho Check ****

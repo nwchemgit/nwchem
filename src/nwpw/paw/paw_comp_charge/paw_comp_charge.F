@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.14 2003-02-13 20:26:42 marat Exp $
+* $Id: paw_comp_charge.F,v 1.15 2003-02-15 00:29:21 marat Exp $
 *
 
 
@@ -26,7 +26,7 @@
       integer nion
       integer nkatm
       integer qlm_size
-      integer ia
+      integer ia,in
         
       double precision q00_tmp
 
@@ -34,25 +34,31 @@
       nion = ion_nion()
         
       !*** get total number of diff kinds of atoms ***
+      nion = ion_nion()
       nkatm = ion_nkatm()
 
       !*** calculate size of comp. charge array ***
+      ok = my_alloc(mt_int,nion,"i_paw_qlm",
+     >                                i_paw_qlm)
+
       qlm_size = 0
-      do ia=1,nkatm
+      do in=1,nion
+         int_mb(i_paw_qlm(1) + in - 1) = qlm_size
+         ia = ion_katm(in)
          qlm_size = qlm_size
      >             + (paw_basis_mult_l(ia) + 1)**2*ion_natm(ia)
       end do
 
       !*** allocate comp. charge arrays ***
       ok = .TRUE.
-      ok = ok .AND. my_alloc(MT_DCPL,qlm_size,"qlm",qlm)
-      ok = ok .AND. my_alloc(MT_DBL,nkatm,"q00",q00)
+      ok = ok .AND. my_alloc(MT_DCPL,qlm_size,"paw_qlm",paw_qlm)
+      ok = ok .AND. my_alloc(MT_DBL,nkatm,"paw_q00",paw_q00)
 
-      !*** set q00 array ***
+      !*** set paw_q00 array ***
       do ia=1,nkatm
         q00_tmp = (paw_basis_core_charge(ia)-paw_basis_ion_charge(ia))
      >            /sqrt(fourpi)    
-        dbl_mb(q00(1)+ia-1)=q00_tmp
+        dbl_mb(paw_q00(1)+ia-1)=q00_tmp
       end do
 
       end
@@ -93,7 +99,7 @@ c       !*** set values for l=0 m=0 elements ***
         nlmi = 0
         do na=1,tot_natom
           ia = ion_katm(na)
-          dcpl_mb(qlm(1)+nlmi) = dbl_mb(q00(1)+ia-1)
+          dcpl_mb(paw_qlm(1)+nlmi) = dbl_mb(paw_q00(1)+ia-1)
           nlmi = nlmi + (paw_basis_mult_l(ia)+1)**2
         end do
  
@@ -129,7 +135,8 @@ c          i_w0 = int_mb(i_paw_ovlp_w(1) + ia - 1)
                    end do
                  end do
                end do
-               dcpl_mb(qlm(1) + nlmi) = dcpl_mb(qlm(1) + nlmi)+ qlm_tmp
+               dcpl_mb(paw_qlm(1) + nlmi) = dcpl_mb(paw_qlm(1) + nlmi)
+     >                                  + qlm_tmp
                nlmi = nlmi+1
              end do
            end do
@@ -143,7 +150,7 @@ c          i_w0 = int_mb(i_paw_ovlp_w(1) + ia - 1)
           do l=0,mult_l  
           do m=-l,l
             write(*,*) l,m
-            write(*,*) dcpl_mb(qlm(1) + nlmi) 
+            write(*,*) dcpl_mb(paw_qlm(1) + nlmi) 
             nlmi = nlmi+1
           end do
           end do
@@ -160,8 +167,8 @@ c          i_w0 = int_mb(i_paw_ovlp_w(1) + ia - 1)
 
       logical ok
 
-      ok =        my_dealloc(qlm)
-      ok = ok.and.my_dealloc(q00)
+      ok =        my_dealloc(paw_qlm)
+      ok = ok.and.my_dealloc(paw_q00)
       if (.not.ok)
      > call errquit("paw_comp_charge_init: error freeing heap",0)
 

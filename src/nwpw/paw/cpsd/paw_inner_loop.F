@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.11 2003-02-13 20:26:42 marat Exp $
+* $Id: paw_inner_loop.F,v 1.12 2003-02-15 00:29:21 marat Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -179,12 +179,13 @@
 *       ***************************
 *       ****generate comp charge***
 *       ***************************
-        call paw_comp_charge_update()
+*        call paw_comp_charge_update()
 
 *       **********************************
 *       ***generate atomic potentials*****
 *       **********************************
-        call paw_pot_hartree_solve()
+*        call paw_pot_hartree_solve()
+*        call paw_pot_comp_solve()
 
 *       *********************
 *       **** generate dn ****
