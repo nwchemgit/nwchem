@@ -40,7 +40,13 @@ c
 c
       integer map(nw_max_nbf_small,1:2) ! Map semi-canonical to sym. blocked
 c
-c     Info about symmetry packed OV pairs.  
+      double precision eps(nw_max_nbf_small,1:2) ! Eigenvalues for each spin
+c
+c     GA handles for hole/particle matrices
+c
+      integer g_part(2), g_hole(2)
+c
+c     Info about symmetry packed OV pairs
 c
 c     lenia = ov_len(symia,spini,spina)
 c     dimension packed(lenia)
@@ -76,6 +82,7 @@ c
       integer oblock_max, vblock_max ! Maximum size of any occ/virt block
       integer e_block_max, m_block_max ! largest no. of virt/occ in any irrep
 c
+c     Integral/amplitude lists for the triples
 c     1 = length of pointer array = #block triplets/quartets
 c     2 = MA index for pointer array
 c     3 = MA handle
@@ -87,8 +94,6 @@ c     .   (note that 1st dimension is unity except for lists 11, 12, 13)
       character*10 listname(23)
 c
       logical ocheck            ! If true check the integral lists
-c
-      double precision eps(nw_max_nbf_small,1:2) ! Eigenvalues for each spin
 c
       integer aoints_file       ! EAF file handle for AO integrals
       logical aoints_file_read, aoints_file_write
@@ -108,6 +113,7 @@ c
      $     aoints_file, aoints_file_read, aoints_file_write, 
      $     ov_len, ov_len_cum, ov_off, 
      $     file_t1_off, file_t2_off, t1_len, t2_len,
+     $     g_part, g_hole,
 c
      $     asuper, bsuper, csuper, 
      $     asuper_spin, csuper_spin,

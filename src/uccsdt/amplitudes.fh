@@ -1,4 +1,5 @@
       logical uccsdt_ampfile_init
+      logical uccsdt_ampfile_tidy
       logical uccsdt_ampfile_open
       logical uccsdt_ampfile_close
       logical uccsdt_ampfile_read_t1
@@ -7,6 +8,7 @@
       logical uccsdt_ampfile_write_t2
 c
       external uccsdt_ampfile_init
+      external uccsdt_ampfile_tidy
       external uccsdt_ampfile_open
       external uccsdt_ampfile_close
       external uccsdt_ampfile_read_t1

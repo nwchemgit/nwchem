@@ -274,6 +274,13 @@ c
       uccsdt_ampfile_init = .true.
 c
       end
+      logical function uccsdt_ampfile_tidy()
+      implicit none
+#include "dra.fh"
+c
+      uccsdt_ampfile_tidy = dra_terminate() .eq. 0
+c
+      end
       logical function uccsdt_ampfile_close(d_amp, okeep)
       implicit none
 #include "dra.fh"

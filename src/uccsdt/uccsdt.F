@@ -352,10 +352,22 @@ c
       if (.not. ma_chop_stack(l_occ_a)) call errquit
      $     ('uccsdt_init: ma corrupted?',0)
 c
-c     Get local copied of the MO coefficients
+c     Get local copies of the MO coefficients
 c
       call ga_get(g_movecs(1), 1, nbf, 1, nmo, dbl_mb(k_movecs(1)), nbf)
       call ga_get(g_movecs(2), 1, nbf, 1, nmo, dbl_mb(k_movecs(2)), nbf)
+c
+c     Allocate the hole/particle matrices
+c
+      if(.not.ga_create(mt_dbl,nbf,nmo,'alpha hole',nbf,0,g_hole(1)))
+     $     call errquit('mp2_energy: ga_create failed',0)
+      if(.not.ga_create(mt_dbl,nbf,nmo,'beta hole',nbf,0, g_hole(2)))
+     $     call errquit('mp2_energy: ga_create failed',0)
+      if(.not.ga_create(mt_dbl,nbf,nmo,'alpha part',nbf,0,g_part(1)))
+     $     call errquit('mp2_energy: ga_create failed',0)
+      if(.not.ga_create(mt_dbl,nbf,nmo,'beta part',nbf,0, g_part(2)))
+     $     call errquit('mp2_energy: ga_create failed',0)
+
 c
 c     Let the user know what's going on
 c
@@ -499,13 +511,23 @@ c
 #include "geom.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "amplitudes.fh"
       integer rtdb
 c
       call schwarz_tidy()
       call int_terminate
+c
       if (.not. ga_destroy(g_movecs(1))) 
      $     call errquit('uccsdt_tidy: ga_destroy?',1)
       if (.not. ga_destroy(g_movecs(2))) 
+     $     call errquit('uccsdt_tidy: ga_destroy?',2)
+      if (.not. ga_destroy(g_hole(1))) 
+     $     call errquit('uccsdt_tidy: ga_destroy?',1)
+      if (.not. ga_destroy(g_hole(2))) 
+     $     call errquit('uccsdt_tidy: ga_destroy?',2)
+      if (.not. ga_destroy(g_part(1))) 
+     $     call errquit('uccsdt_tidy: ga_destroy?',1)
+      if (.not. ga_destroy(g_part(2))) 
      $     call errquit('uccsdt_tidy: ga_destroy?',2)
 c
 *      call ma_summarize_allocated_blocks()
@@ -519,6 +541,9 @@ c
      $     call errquit('uccsdt_tidy: basis?', 0)
       if (.not. geom_destroy(geom))
      $     call errquit('uccsdt_tidy: geom?', 0)
+c
+      if (.not. uccsdt_ampfile_tidy()) 
+     $     call errquit('uccsdt_tidy: ampfile?',0)
 c
       call ma_summarize_allocated_blocks()
       call ga_summarize(0)
@@ -2619,3 +2644,155 @@ c
       calls(i) = calls(i) + 1
 c
       end
+      subroutine uccsdt_lambda(d_amp)
+      implicit none
+#include "cuccsdtP.fh"
+#include "amplitudes.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+c
+      integer d_amp             ! [input] Disk file with amplitudes
+c
+c     Make the particle-hole transformed MO coefficients
+c     putting the results into the pre-allocated global arrays
+c     g_hole(1:2), g_part(1:2)
+c
+      integer l_t1, k_t1, l_p, k_p, l_h, k_h, l_work, k_work, spin
+c
+      if (.not. ma_push_get(mt_dbl, nmo*nmo, 'work',
+     $     l_work, k_work)) call errquit('uccsdt_lambda: ma?',1)
+      if (.not. ma_push_get(mt_dbl, nbf*nmo, 'work',
+     $     l_h, k_h)) call errquit('uccsdt_lambda: ma?',2)
+      if (.not. ma_push_get(mt_dbl, nbf*nmo, 'work',
+     $     l_p, k_p)) call errquit('uccsdt_lambda: ma?',3)
+c
+      do spin = 1, 2
+c     
+c     Get the symmetry unpacked T1 into a local array, transform
+c     and store the results.
+c
+         if (.not. ma_push_get(mt_dbl, no(spin)*nv(spin), 'tmp',
+     $        l_t1, k_t1)) call errquit('uccsdt_lambda: MA?',0)
+         call uccsdt_get_unpacked_t1(d_amp, spin, dbl_mb(k_t1))
+         if (ga_nodeid() .eq. 0) then
+            call uccsdt_do_lambda(nbf, nmo, nc(spin), no(spin),
+     $           nv(spin), dbl_mb(k_t1), dbl_mb(k_movecs(spin)),
+     $           dbl_mb(k_p), dbl_mb(k_h), dbl_mb(k_work))
+            call ga_put(g_hole(spin), 1, nbf, 1, nmo, dbl_mb(k_h), nbf)
+            call ga_put(g_part(spin), 1, nbf, 1, nmo, dbl_mb(k_p), nbf)
+         end if
+         if (.not. ma_pop_stack(l_t1)) call errquit
+     $        ('uccsdt_lambda: ma?', 55)
+         call ga_sync()
+      end do
+      if (.not. ma_pop_stack(l_p)) call errquit
+     $     ('uccsdt_lambda: ma?', 56)
+      if (.not. ma_pop_stack(l_h)) call errquit
+     $     ('uccsdt_lambda: ma?', 57)
+      if (.not. ma_pop_stack(l_work)) call errquit
+     $     ('uccsdt_lambda: ma?', 58)
+c
+      do spin = 1, 2
+         write(6,*) ' HOLE MOs ', spin
+         call ga_print(g_hole(spin))
+         write(6,*) ' PARTICLE MOs ', spin
+         call ga_print(g_part(spin))
+      end do
+c
+      end
+      subroutine uccsdt_do_lambda(nbf, nmo, nc, no, nv, 
+     $        t1, c, p, h, work)
+      implicit none
+c
+      integer nbf, nmo, nc, no, nv
+      double precision t1(nv, no)
+      double precision c(nbf, nmo)
+      double precision p(nbf, nmo)
+      double precision h(nbf, nmo)
+      double precision work(nmo, nmo)
+c
+      integer i, a
+c
+c     Particle transformation
+c
+      call dfill(nmo*nmo, 0.0d0, work, 1)
+      call dfill(nmo, 1.0d0, work, nmo+1)
+      do i = 1, no
+         do a = 1, nv
+            work(i+nc,a+no+nc) = work(i+nc,a+no+nc) - t1(a,i)
+         end do
+      end do
+      call dgemm('n','n',nbf,nmo,nmo,
+     $     1.0d0, c, nbf, work, nmo, 
+     $     0.0d0, p, nmo)
+c
+c     Hole transformation
+c
+      call dfill(nmo*nmo, 0.0d0, work, 1)
+      call dfill(nmo, 1.0d0, work, nmo+1)
+      do i = 1, no
+         do a = 1, nv
+            work(a+nc+no,i+nc) = work(a+nc+no,i+nc) + t1(a,i)
+         end do
+      end do
+      call dgemm('n','n',nbf,nmo,nmo,
+     $     1.0d0, c, nmo, work, nmo, 
+     $     0.0d0, h, nmo)
+c
+      end
+      subroutine uccsdt_get_unpacked_t1(d_amp, spin, t1)
+      implicit none
+#include "cuccsdtP.fh"
+#include "amplitudes.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+      integer d_amp             ! [input]
+      integer spin              ! [input]
+      double precision t1(*)    ! [output]
+c
+c     Convenience routine to read the symmetry packed single
+c     excitation amplitudes from disk and unpack them into
+c     a local array of dimension (nv(spin),no(spin)).
+c
+      integer g_t1, sym, l_tmp, k_tmp, ai
+c
+c     Read the packed amplitudes from disk into a GA and 
+c     fetch into a local array
+c     
+      if (.not. ma_push_get(mt_dbl, t1_len(spin), 'tmp',
+     $     l_tmp, k_tmp)) call errquit('uccsdt_get_t1: MA?',0)
+      if (.not. uccsdt_ampfile_read_t1(d_amp, spin, g_t1, .true.))
+     $     call errquit('uccsdt_get_t1: reading t1 failed', d_amp)
+      if (ga_nodeid() .eq. 0) call ga_get
+     $     (g_t1, 1, t1_len(spin), 1, 1, dbl_mb(k_tmp), 1)
+      call ga_brdcst(1, dbl_mb(k_tmp), 8*t1_len(spin), 0)
+      if (.not. ga_destroy(g_t1)) call errquit
+     $     ('uccsdt_get_t1: GA?',0)
+c
+c     Transpose into the symmetry unpacked output
+c
+      call dfill(no(spin)*nv(spin), 0d0, t1, 1)
+      do sym = 0, 7
+         if (no_sym(sym,spin)*nv_sym(sym,spin) .gt. 0) then
+            ai = 1 + v_sym(1,sym,spin)-v_sym(1,0,spin) + 
+     $           (o_sym(1,sym,spin)-o_sym(1,0,spin))*nv(spin)
+            write(6,*) ' T1 block ', sym
+            call output(dbl_mb(k_tmp), 1, no_sym(sym,spin), 
+     $           1, nv_sym(sym,spin), no_sym(sym,spin), 
+     $           nv_sym(sym,spin), 1)
+            call util_transpose(
+     $           dbl_mb(k_tmp), no_sym(sym,spin), 
+     $           t1(ai), nv(spin),
+     $           no_sym(sym,spin), nv_sym(sym,spin))
+            k_tmp = k_tmp + no_sym(sym,spin)*nv_sym(sym,spin)
+         end if
+      end do
+c
+      write(6,*) ' Full T1'
+      call output(t1, 1, nv(spin), 1, no(spin), nv(spin), no(spin), 1)
+c
+      if (.not. ma_pop_stack(l_tmp)) call errquit
+     $     ('uccsdt_get_t1: MA corrupt?',0)
+c
+      end
+
