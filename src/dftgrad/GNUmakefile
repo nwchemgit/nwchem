@@ -6,7 +6,7 @@
 
    OBJ_OPTIMIZE = dftg_cdfit.o  dftg_quadv0_a.o  dftg_quadv0_b.o  
 
-ifeq ($(NWCHEM_TARGET),SGITFP)
+ifeq ($(TARGET),SGITFP)
    OBJ = dftg_cdfit.o  dft_grad_top.o  dftg_force.o \
          dftg_getxc.o       dftg_grad2.o \
          grad_dft.o      dftg_quadv0.o     \

@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.15 1995-11-26 08:49:14 og845 Exp $
+# $Id: GNUmakefile,v 1.16 1995-11-28 20:43:27 gg502 Exp $
 
-ifeq ($(NWCHEM_TARGET),SGITFP)
+ifeq ($(TARGET),SGITFP)
      OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_get_dens.o \
            grad_dens.o grad2.o
 else

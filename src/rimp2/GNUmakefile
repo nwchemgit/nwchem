@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.27 1995-11-27 02:18:40 d3g681 Exp $
+# $Id: GNUmakefile,v 1.28 1995-11-28 20:43:35 gg502 Exp $
 # Note: To switch on disk arrays, uncomment the DEFINE +=... after the
 # includes.  Do NOT move the DEFINE ahead of the includes or it won't
 # have the desired effect.
@@ -23,7 +23,7 @@ OBJ_OPTIMIZE =      rimp2_denom.o   \
                 sum_pairs.o     xf3ci_step12a.o \
 		xf3ci_step12b.o
 
-ifeq ($(NWCHEM_TARGET),SGITFP)
+ifeq ($(TARGET),SGITFP)
    OBJ += eval_3ci_block.o
 else
    OBJ_OPTIMIZE += eval_3ci_block.o

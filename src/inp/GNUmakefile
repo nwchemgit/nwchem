@@ -1,9 +1,9 @@
-# $Id: GNUmakefile,v 1.15 1995-11-27 02:16:34 d3g681 Exp $
+# $Id: GNUmakefile,v 1.16 1995-11-28 20:43:29 gg502 Exp $
 
       LIBRARY = libutil.a
  OBJ_OPTIMIZE = inp.o inp_irange.o
           OBJ = c_inp.o
-ifeq ($(NWCHEM_TARGET),SGITFP)
+ifeq ($(TARGET),SGITFP)
          OBJ  += inp_ilist.o
 else
  OBJ_OPTIMIZE += inp_ilist.o

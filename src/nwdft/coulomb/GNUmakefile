@@ -1,5 +1,5 @@
-# $Id: GNUmakefile,v 1.10 1995-11-27 02:17:55 d3g681 Exp $
-ifeq ($(NWCHEM_TARGET),SGITFP)
+# $Id: GNUmakefile,v 1.11 1995-11-28 20:43:31 gg502 Exp $
+ifeq ($(TARGET),SGITFP)
       OBJ_OPTIMIZE = dft_getvc.o
       OBJ = \
 	dft_fitcd.o				   dft_fitvc.o	\

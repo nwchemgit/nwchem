@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.36 1995-11-28 01:18:07 hltaylor Exp $
+#$Id: GNUmakefile,v 1.37 1995-11-28 20:43:32 gg502 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
-ifneq ($(NWCHEM_TARGET),SGITFP)
-ifeq ($(NWCHEM_TARGET),CRAY-T3D)
+ifneq ($(TARGET),SGITFP)
+ifeq ($(TARGET),CRAY-T3D)
 	OBJ = ga_chol_seq.o ga_inv_seq.o dft_invio.o
 	OBJ_OPTIMIZE = \
 	int_eval_gbsets.o 	new_eval_gbsets.o \
