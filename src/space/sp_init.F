@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.91 2001-11-09 18:21:47 d3j191 Exp $
+c $Id: sp_init.F,v 1.92 2001-11-09 23:40:18 d3j191 Exp $
 c
       implicit none
 c
@@ -2803,6 +2803,7 @@ c
       bvs(j,2)=vs(i,2)
       bvs(j,3)=vs(i,3)
       endif
+      ibs(j)=isl(i,lsdyn)
       endif
    10 continue
       endif
