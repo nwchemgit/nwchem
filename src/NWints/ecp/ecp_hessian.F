@@ -1,4 +1,4 @@
-C $Id: ecp_hessian.F,v 1.8 2001-06-28 00:17:50 edo Exp $
+C $Id: ecp_hessian.F,v 1.9 2002-06-17 22:30:40 bert Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_hessian (
@@ -95,13 +95,13 @@ C $Id: ecp_hessian.F,v 1.8 2001-06-28 00:17:50 edo Exp $
      &    mem,max_type1,max_type2,l_scr,
      &    n_cart_a,n_cart_b,n_cont_ab,
      &    n_all_a,n_all_b,n_ab,n_abblk,n_ab9blk
-      integer lcsco
+      integer lcsco, i_loc
       logical DryRun,debug_gen,debug_addresses,debug_arrays
       double precision 
      &    xyz_A(3),zeta_A(n_prim_A),coef_A(n_prim_A,n_cont_A),
      &    xyz_B(3),zeta_B(n_prim_B),coef_B(n_prim_B,n_cont_B),
      &    xyz_C(3,n_C),zeta_C(n_zeta_C),coef_C(n_zeta_C),
-     &    scr(lscr),ecp_hess(n_int*n_blk,3,n_cent,3,n_cent)
+     &    scr(lscr),ecp_hess(n_int*n_blk,3,3,n_cent*(n_cent-1)/2+n_cent)
       double precision 
      &    X_AC,Y_AC,Z_AC,R_AC,X_BC,Y_BC,Z_BC,R_BC,
      &    tol
@@ -144,7 +144,8 @@ C $Id: ecp_hessian.F,v 1.8 2001-06-28 00:17:50 edo Exp $
         max_type1 = 0
         max_type2 = 0
       else
-        call dfill (n_int*n_blk*9*n_cent**2,zero,ecp_hess,1)
+        i_loc = n_cent * (n_cent-1) / 2 + n_cent
+        call dfill (n_int*n_blk*9*i_loc,zero,ecp_hess,1)
       end if
 *
 *   Set up pointers to scratch space for coefficients multiplied by 
@@ -225,7 +226,7 @@ C $Id: ecp_hessian.F,v 1.8 2001-06-28 00:17:50 edo Exp $
 *   Loop over ECP centres
 *
       if (debug_arrays) call ecp_matpr (xyz_C,1,3,1,n_C,1,3,1,n_C,
-     &    'coordinate array',81,5)
+     &    'coordinate array','E',81,5)
       if (debug_gen) write (LuOut,*) 'Number of ECP centers =',n_C
       do i = 1,n_C
         l = l_C(i)
@@ -461,14 +462,21 @@ C        end if
             i_s = i_scr
             do j = 1,3
               do k = 1,3
+                i_loc = i_c_B * (i_c_B-1) / 2 + i_c_B
                 call daxpy (n_abblk,one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_B,j,i_c_B),1)
+     &              ecp_hess(1,k,j,i_loc),1)
+                i_loc = i_c_C * (i_c_C-1) / 2 + i_c_C
                 call daxpy (n_abblk,one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_C,j,i_c_C),1)
-                call daxpy (n_abblk,-one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_B,j,i_c_C),1)
-                call daxpy (n_abblk,-one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_C,j,i_c_B),1)
+     &              ecp_hess(1,k,j,i_loc),1)
+                if (i_c_B .lt. i_c_C) then
+                   i_loc = i_c_C * (i_c_C-1) / 2 + i_c_B
+                   call daxpy (n_abblk,-one,scr(i_s),1,
+     &                 ecp_hess(1,k,j,i_loc),1)
+                else
+                   i_loc = i_c_B * (i_c_B-1) / 2 + i_c_C
+                   call daxpy (n_abblk,-one,scr(i_s),1,
+     &                 ecp_hess(1,k,j,i_loc),1)
+                endif
                 i_s = i_s+n_abblk
               end do
             end do
@@ -587,7 +595,7 @@ C        end if
 *         Construct gradient for l_A+1 with coeffs * zeta.
 *
           if (.not.DryRun) then
-            call dcopy (n_intpa*3,zero,0,scr(i_grdp),1)
+            call dfill (n_intpa*3*n_blk,zero,scr(i_grdp),1)
             call ecp_grad_a (l_A+1,n_cartp2_a,n_cartp1_a,n_cart_a,
      &          n_cont_A*n_blk,scr(i_lp),scr(i_lm),scr(i_grdp),n_all_b,
      &          ibug/10)
@@ -650,7 +658,7 @@ C        end if
 *
           if (.not.DryRun) then
             if (l_A .gt. 0) then
-              call dcopy (n_intma*3,zero,0,scr(i_grdm),1)
+              call dfill (n_intma*3*n_blk,zero,scr(i_grdm),1)
               call ecp_grad_a (l_A-1,n_cart_a,n_cartm1_a,n_cartm2_a,
      &            n_cont_A*n_blk,scr(i_lm),scr(i_lp),scr(i_grdm),
      &            n_all_b,ibug/10)
@@ -658,21 +666,28 @@ C        end if
 *
 *         Construct Hessian and add to final array
 *
-            call dcopy (n_ab9blk,zero,0,scr(i_scr),1)
+            call dfill (n_ab9blk,zero,scr(i_scr),1)
             call ecp_grad_a (l_A,n_cartp1_a,n_cart_a,n_cartm1_a,
      &          n_cont_A*3*n_blk,scr(i_grdp),scr(i_grdm),scr(i_scr),
      &          n_all_b,ibug/10)
             i_s = i_scr
             do j = 1,3
               do k = 1,3
+                i_loc = i_c_A * (i_c_A-1) / 2 + i_c_A
                 call daxpy (n_abblk,one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_B,j,i_c_B),1)
+     &              ecp_hess(1,k,j,i_loc),1)
+                i_loc = i_c_C * (i_c_C-1) / 2 + i_c_C
                 call daxpy (n_abblk,one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_A,j,i_c_A),1)
-                call daxpy (n_abblk,-one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_B,j,i_c_A),1)
-                call daxpy (n_abblk,-one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_A,j,i_c_B),1)
+     &              ecp_hess(1,k,j,i_loc),1)
+                if (i_c_A .lt. i_c_C) then
+                   i_loc = i_c_C * (i_c_C-1) / 2 + i_c_A
+                   call daxpy (n_abblk,-one,scr(i_s),1,
+     &                 ecp_hess(1,k,j,i_loc),1)
+                else  
+                   i_loc = i_c_A * (i_c_A-1) / 2 + i_c_C
+                   call daxpy (n_abblk,-one,scr(i_s),1,
+     &                 ecp_hess(1,k,j,i_loc),1)
+                endif
                 i_s = i_s+n_abblk
               end do
             end do
@@ -744,7 +759,7 @@ C        end if
 *         Construct gradient wrt A for l_A, l_B+1.
 *
           if (.not.DryRun) then
-            call dfill (n_intpb*n_blk,zero,scr(i_grdp),1)
+            call dfill (n_intpb*3*n_blk,zero,scr(i_grdp),1)
             call ecp_grad_a (l_A,n_cartp1_A,n_cart_A,n_cartm1_A,
      &          n_cont_A*n_blk,scr(i_lp),scr(i_lm),scr(i_grdp),
      &          n_allp1_B,ibug/10)
@@ -810,7 +825,7 @@ C        end if
 *         Construct gradient wrt A for l_A, l_B-1.
 *
             if (.not.DryRun) then
-              call dfill (n_intmb*n_blk,zero,scr(i_grdm),1)
+              call dfill (n_intmb*3*n_blk,zero,scr(i_grdm),1)
               call ecp_grad_a (l_A,n_cartp1_A,n_cart_A,n_cartm1_A,
      &            n_cont_A*n_blk,scr(i_lp),scr(i_lm),scr(i_grdm),
      &            n_allm1_B,ibug/10)
@@ -827,22 +842,37 @@ C        end if
             i_s = i_scr
             do j = 1,3 ! centre B
               do k = 1,3 ! centre A
+                if (i_c_A .eq. i_c_B) then
+                   i_loc = i_c_B * (i_c_B-1) / 2 + i_c_A
+                   call daxpy (n_abblk,one,scr(i_s),1,
+     &                 ecp_hess(1,k,j,i_loc),1)
+                endif
+                i_loc = i_c_A * (i_c_A-1) / 2 + i_c_B
                 call daxpy (n_abblk,one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_A,j,i_c_B),1)
+     &              ecp_hess(1,j,k,i_loc),1)
+                i_loc = i_c_C * (i_c_C-1) / 2 + i_c_C
                 call daxpy (n_abblk,one,scr(i_s),1,
-     &              ecp_hess(1,j,i_c_B,k,i_c_A),1)
+     &              ecp_hess(1,k,j,i_loc),1)
                 call daxpy (n_abblk,one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_C,j,i_c_C),1)
-                call daxpy (n_abblk,one,scr(i_s),1,
-     &              ecp_hess(1,j,i_c_C,k,i_c_C),1)
-                call daxpy (n_abblk,-one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_A,j,i_c_C),1)
-                call daxpy (n_abblk,-one,scr(i_s),1,
-     &              ecp_hess(1,j,i_c_C,k,i_c_A),1)
-                call daxpy (n_abblk,-one,scr(i_s),1,
-     &              ecp_hess(1,k,i_c_C,j,i_c_B),1)
-                call daxpy (n_abblk,-one,scr(i_s),1,
-     &              ecp_hess(1,j,i_c_B,k,i_c_C),1)
+     &              ecp_hess(1,j,k,i_loc),1)
+                if (i_c_A .lt. i_c_C) then
+                   i_loc = i_c_C * (i_c_C-1) / 2 + i_c_A
+                   call daxpy (n_abblk,-one,scr(i_s),1,
+     &                 ecp_hess(1,k,j,i_loc),1)
+                else
+                   i_loc = i_c_A * (i_c_A-1) / 2 + i_c_C
+                   call daxpy (n_abblk,-one,scr(i_s),1,
+     &                 ecp_hess(1,j,k,i_loc),1)
+                endif
+                if (i_c_C .lt. i_c_B) then
+                   i_loc = i_c_B * (i_c_B-1) / 2 + i_c_C
+                   call daxpy (n_abblk,-one,scr(i_s),1,
+     &                 ecp_hess(1,k,j,i_loc),1)
+                else
+                   i_loc = i_c_C * (i_c_C-1) / 2 + i_c_A
+                   call daxpy (n_abblk,-one,scr(i_s),1,
+     &                 ecp_hess(1,j,k,i_loc),1)
+                endif
                 i_s = i_s+n_abblk
               end do
             end do
@@ -852,14 +882,16 @@ C        end if
       end do
       if (debug_arrays) then
         write (LuOut,*) 'Final ECP hessian'
+        write (LuOut,*) '(Lower triangle of Centres)'
         do i = 1,n_cent
-          do j = 1,n_cent
+          do j = 1,i
             write (LuOut,*) ' Centres',i,j
             do k = 1,3
               printhead(6:9) = dbyd(k)
               do m = 1,3
                 printhead(1:4) = dbyd(m)
-                call ecp_matpr (ecp_hess(1,m,j,k,i),
+                i_loc = i * (i-1) / 2 + j
+                call ecp_matpr (ecp_hess(1,m,k,i_loc),
      &              1,n_all_b,1,n_all_a,1,n_all_b,1,n_all_a,
      &              printhead,'E',78,4)
               end do
