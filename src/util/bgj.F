@@ -4,7 +4,7 @@ c     Some will evolve into generally useful routines
 c
 c     BGJ - 8/98
 c
-c     $Id: bgj.F,v 1.6 2000-09-20 14:10:34 bjohnson Exp $
+c     $Id: bgj.F,v 1.7 2001-11-20 00:20:32 edo Exp $
 c
 
 c
@@ -262,18 +262,6 @@ c
      &                 'bgj_get_scf_dens:beta density')
       endif 
 c
-c     occupation numbers (not used, but necessary for movecs_read)
-c****
-c**** should do k_occ for both spins, in case used at some point...
-c****
-      status = MA_push_get(MT_DBL, nbf_ao, 'occ. numbers',
-     &         l_occ, k_occ)
-      if (.not.status) 
-     &   call errquit('bgj_get_scf_dens: could not allocate l_occ',1)
-      if(.not.ma_push_get(mt_dbl,nbf_ao,'evals',
-     $     l_eval,k_eval))
-     $     call errquit('bgj_get_scf_dens: problem with ma for evals',1)
-c
 c     get MO vectors from file
 c
       if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
@@ -296,6 +284,17 @@ c
          call errquit('bgj_get_scf_dens: could not read mo vectors',911)
       else 
          status = .true.
+c
+c     occupation numbers (not used, but necessary for movecs_read)
+c****
+c**** should do k_occ for both spins, in case used at some point...
+c****
+      if(.not.MA_push_get(MT_DBL, nbf_ao, 'occ. numbers',
+     &         l_occ, k_occ))
+     &   call errquit('bgj_get_scf_dens: could not allocate l_occ',1)
+      if(.not.ma_push_get(mt_dbl,nbf_ao,'evals',
+     $     l_eval,k_eval))
+     $     call errquit('bgj_get_scf_dens: problem with ma for evals',1)
          do ispin = 1, ipol
 c****
 c****       get orbitals (i.e. fock eigenvectors) and fock eigenvalues
@@ -304,6 +303,10 @@ c****
      &               movecs_read(movecs_in, ispin, dbl_mb(k_occ),
      &               dbl_mb(k_eval), g_vecs(ispin))
          enddo 
+      if(.not.ma_pop_stack(l_eval))
+     $     call errquit('bgj_get_scf_dens: problem popping evals',1)
+      if(.not.ma_pop_stack(l_occ))
+     $     call errquit('bgj_get_scf_dens: problem popping occ',1)
       endif
 c
       if (.not.status)then
@@ -311,10 +314,6 @@ c
          call errquit('bgj_get_scf_dens: could not read mo vectors',917)
       endif
 c
-      if(.not.ma_pop_stack(l_eval))
-     $     call errquit('bgj_get_scf_dens: problem popping evals',1)
-      if(.not.ma_pop_stack(l_occ))
-     $     call errquit('bgj_get_scf_dens: problem popping occ',1)
 c      
       if (ipol .eq. 1)then
          rhffact = 2.0d0
