@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.79 2000-11-10 22:47:55 d3j191 Exp $
+c $Id: sp_init.F,v 1.80 2000-11-28 23:37:43 d3j191 Exp $
 c
       implicit none
 c
@@ -2400,7 +2400,7 @@ c
       if(nbxp.ne.nbx) npp=0
       if(nbyp.ne.nby) npp=0
       if(nbzp.ne.nbz) npp=0
-      if(nbxs.gt.0) then
+      if(nbxs.gt.0.and.npp.gt.0) then
       read(lfn,1002) (boxsiz(i,1),i=1,nbxp)
       read(lfn,1002) (boxsiz(i,2),i=1,nbyp)
       read(lfn,1002) (boxsiz(i,3),i=1,nbzp)
