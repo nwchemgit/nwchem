@@ -1,12 +1,13 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq)
 c
-c $Id: qmmm_main.F,v 1.3 2002-02-08 21:07:14 d3j191 Exp $
+c $Id: qmmm_main.F,v 1.4 2002-02-08 21:10:40 d3j191 Exp $
 c
       implicit none
 c
 #include "rtdb.fh"
 #include "geom.fh"
+#include "util.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "qmmm_common.fh"
@@ -53,10 +54,12 @@ c
       if(iwz(i).gt.0) nzatom=nzatom+mwa
     2 continue
 c
+      if(util_print('qmmm',print_high)) then
       write(*,8888) me,(isdt(i),i=1,nsa)
  8888 format(/,' Solute dynamics types',/,1x,i1,':',25i3,/,(3x,25i3))
       write(*,8889) me,(isz(i),i=1,nsa)
  8889 format(/,' Solute zone types',/,1x,i1,'=',25i3,/,(3x,25i3))
+      endif
 c
       call qmmm_offset(me,np,nqatom,nzatom,ioffq,ioffz,nqatomt,nzatomt,
      + int_mb(i_ioff))
