@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.6 2004-08-27 22:26:59 marat Exp $
+c $Id: qmmm_geom.F,v 1.7 2004-08-31 19:45:48 marat Exp $
 c
 c
       subroutine qmmm_create_qm_geom(irtdb)
@@ -21,6 +21,7 @@ c     local variables
       integer i_num
       integer i_q
       integer i_qf
+      character(255) basis_string
 
       nqm   = qmmm_get_nqm()
       i_ind = qmmm_get_i_ai()
@@ -63,6 +64,43 @@ c     -------------
 
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+       
+      basis_string = 'ecp; F library "qmmm_zhang_6-31Gs_ecp"; end'
+      call nw_inp_from_character(irtdb, basis_string)
+
+      end
+
+      subroutine qmmm_sync_qm_geom(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+      integer irtdb
+c     local variables
+      integer nqm
+
+      integer igeom
+      integer i_c
+
+      nqm   = qmmm_get_nqm()
+      i_c   = qmmm_get_i_c()
+
+c    --------------------------------------
+c    get qm coordinates out of geometry
+c    --------------------------------------
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c))) 
+     >    call errquit("qmmm:geom_cart_coords_get",0,0)
 
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
@@ -117,10 +155,10 @@ c     --------------------------------------
 
 c     nothing to do if no bq's
 c     -----------------------
-c      if(nbq.eq.0) then
-c        write(*,*) "qmmm: no bq charges were found"
-c        return
-c      end if
+      if(nbq.eq.0) then
+        write(*,*) "qmmm: no bq charges were found"
+        return
+      end if
 
       i_ind = qmmm_get_i_ai()
       i_num = qmmm_get_i_num()

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.10 2004-08-27 22:26:59 marat Exp $
+c $Id: mm_interface.F,v 1.11 2004-08-31 19:45:48 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -356,9 +356,7 @@ c     local variables
 
 
       ioq = ioff
-      write(*,*) "debug: number of solute atoms,offset",nt,ioff
       do i=1,nsa
-      write(*,*) "isz array",i,isz(i)
       if(isz(i).ne.0 .and. iand(isdt(i),lquant).eq.0 .and.
      >   iand(isdt(i),lqlink).eq.0) then
          ioq=ioq+1
@@ -770,21 +768,19 @@ c     local variables
       integer atn
       integer i,j
       character*16 tag
+      integer i_ndx,h_ndx
+      
 
-      do i=1,nsa
-         islink=iand(isdt(i),lquant).ne.0
-         j=cf_element(isat(i))
-         call cf_num2tag(j,tag)
-         write(*,*) i,tag,xs(i,1),xs(i,2),xs(i,3),isl(i),islink
-      end do
+      if(.not.ma_push_get(mt_int,nt,'ndx',h_ndx,i_ndx))
+     + call errquit('qmmm: Failed to allocate memory for ndx',
+     + 3*nt, MA_ERR)
+      
 
-      write(*,*) "quantum atoms"
       do i=1,nsa
         islink=iand(isdt(i),lqlink).ne.0
         if(iand(isdt(i),lquant).ne.0 .or.
      &   islink) then
             do j=1,nt
-              write(*,*) "j,nt",j,nt
               if(isl(i).eq.ai(j)) then
                  write(*,*) "found match",isl(i),ai(j)
                  write(*,*) "xs=",xs(i,1),xs(i,2),xs(i,3)
@@ -792,6 +788,7 @@ c     local variables
                  c(2,j)=xs(i,2)*cnm2au
                  c(3,j)=xs(i,3)*cnm2au
                  atn=cf_element(isat(i))
+                 int_mb(i_ndx+j-1)=isdt(i)
                  if(islink) then
                    atn = 9
 c                   if(atn.le.85) atn=85
@@ -813,12 +810,19 @@ c                   if(atn.le.1)  atn=1
       call ga_dgop(msg_qmmm_c,c,3*nt,'+')
       call ga_dgop(msg_qmmm_chg,q,nt,'+')
       call ga_igop(msg_qmmm_inum,inum,nt,'+')
+      call ga_igop(msg_qmmm_ndx,int_mb(i_ndx),nt,'+')
 
       do i=1,nt
          call cf_num2tag(inum(i),t(i))
+         if(iand(int_mb(i_ndx+i-1),lqlink).ne.0)
+     &      t(i)=t(i)(1:index(t(i),' ')-1)//'_L'
          if(.not.geom_tag_to_default_mass(t(i),m(i)))
      &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
       end do
+
+      if(.not.ma_pop_stack(h_ndx))
+     + call errquit('qmmm: Failed to deallocate memory for ndx',
+     + 3*nt, MA_ERR)
 
       end
 

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.10 2004-08-27 22:26:59 marat Exp $
+c $Id: qmmm.F,v 1.11 2004-08-31 19:45:48 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -104,6 +104,10 @@ c     external functions
        do_qm=.true.
        do_mm=.false.
       end if
+c
+c     sync qm coordinates with the geometry object
+c     that was potentially modified outside qmmm (e.g.driver)     
+      call qmmm_sync_qm_geom(rtdb)
 
       call qmmm_create_bq_geom(rtdb)
 
@@ -115,7 +119,7 @@ c     QM energy calculation
 c     --------------------
       status = task_energy_doit(rtdb,theory,energy)
       
-c      call qmmm_restore_qm_geom(rtdb)
+      call qmmm_restore_qm_geom(rtdb)
  
 c     update QM coordinates for MM module
 c     very important!!!
@@ -205,6 +209,11 @@ c
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 
 c
+c     sync qm coordinates with the geometry object
+c     that was potentially modified outside qmmm (e.g.driver)     
+      call qmmm_sync_qm_geom(rtdb)
+
+c
 c    first do quantum part
 c    --------------------
       call qmmm_create_bq_geom(rtdb)
@@ -272,7 +281,7 @@ c     ----------------------------------
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
 
-c      call qmmm_restore_qm_geom(rtdb)
+      call qmmm_restore_qm_geom(rtdb)
 
       if(.not.ma_free_heap(h_gmm))
      & call errquit('qmmm g: Failed to deallocate heap',nqm,

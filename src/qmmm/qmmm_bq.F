@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq.F,v 1.4 2004-08-27 22:26:59 marat Exp $
+c $Id: qmmm_bq.F,v 1.5 2004-08-31 19:45:48 marat Exp $
 c
 c
 
@@ -41,7 +41,6 @@ c     ------------------------------------------
 c
 c     exit if no bq's
 c     ---------------
-      write(*,*) "debug: nbq", nbq,nbqs,nbqw
       if(nbq.eq.0) return
 
 c
