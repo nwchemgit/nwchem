@@ -11,7 +11,7 @@ endif
 
 set TMP=tmp.$$
 
-set L2HOPT="-split 3 -bottom_navigation  -show_section_numbers -image_type gif"
+set L2HOPT="-split 3 -bottom_navigation  -show_section_numbers -image_type gif -local_icons"
 
 # works also with a list of files here but not currently
 # used in this fashion
