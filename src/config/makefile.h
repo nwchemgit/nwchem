@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.107 1995-04-11 18:40:28 rg240 Exp $
+# $Id: makefile.h,v 1.108 1995-04-18 18:57:40 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -227,11 +227,11 @@ ifeq ($(TARGET),CRAY-T3D)
              COPTIONS = -Tcray-t3d
             FOPTIMIZE = -O scalar3
             COPTIMIZE = -O
-            LDOPTIONS = 
+            LDOPTIONS = -Drdahead=on
+
               DEFINES = -DCRAY_T3D
 
                LINK.f = /mpp/bin/mppldr $(LDOPTIONS) \
-			-Drdahead=on \
 			-Dbin=NWints/api/int_init.o \
 			-Dbin=NWints/int/defNxyz.o \
 			-Dbin=basis/basis.o \
