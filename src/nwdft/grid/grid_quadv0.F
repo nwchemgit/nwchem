@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.29 2002-05-08 21:37:54 edo Exp $
+C$Id: grid_quadv0.F,v 1.30 2002-05-15 16:43:05 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -20,7 +20,8 @@ c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
       Logical oprint,grad,xc_chkgrad,oprintw
-      external xc_chkgrad
+      external xc_chkgrad,xc_rep_close
+      logical xc_rep_close
       double precision Exc(2)
       double precision rho_n
       integer nmat              ! [input] number of XC matrices to make;
@@ -282,6 +283,8 @@ c
       call ga_sync()
       if (.not. rtdb_get(rtdb, 'bgj:new_bf', mt_log,
      &     1, donewbf)) donewbf = .true.
+      call xc_rep_init(rtdb, nbf_ao,ipol,do_scf.and.(.not.l3d))
+      
       if(grid_written) then
          call grid_quadv0a(g_dens,ncoef_max,nctrs,rho_int,nqtot, 
      &        int_mb(iniz), int_mb(ifin), 
@@ -360,6 +363,9 @@ c
      &        call errquit('gridv0: pop stack failed.',1)
       endif
 c     
+      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc)) call
+     .     errquit(' gridquadv0: xcrepclose failed ',0)
+      
       if (.not.ma_chop_stack(lqxyz))
      &   call errquit('grid_den: cannot pop stack',0)
       call ga_sync()

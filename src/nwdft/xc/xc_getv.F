@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.49 2002-05-15 03:15:35 edo Exp $
+C$Id: xc_getv.F,v 1.50 2002-05-15 16:43:03 edo Exp $
 c
       implicit none
 c      
@@ -60,7 +60,7 @@ c
 c           nTcols = ipol 
 c
       integer me,nTrows,nTcols
-      integer lTmat,iTmat,g_truevxc(2),i
+      integer lTmat,iTmat,g_truevxc(2)
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time, grid_on_file
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
@@ -201,45 +201,8 @@ c
                g_truevxc(1)=g_vxc(1)
                g_truevxc(2)=g_vxc(2)
             endif
-c
-c     go replicated for xc ?
-c
-            if (.not. rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
-     .           xcreplicated))
-     &           xcreplicated=.false.
-            if(xcreplicated) then
-               nbf_ld=nbf_ao
-c
-c     allocate replicated Fock matrix
-c
-            if (.not.ma_push_get(MT_Dbl,nbf_ao*nbf_ao,'xcmat',
-     .              l_repxc(1),k_repxc(1)))
-     /              call errquit('xc_getv: cannot alloc xcmat',0)
-            call dcopy(nbf_ao*nbf_ao,0d0,0,dbl_mb(k_repxc(1)),1)
-            if(ipol.eq.2) then
-            if (.not.ma_push_get(MT_Dbl,nbf_ao*nbf_ao,'xcmat',
-     .              l_repxc(2),k_repxc(2)))
-     /              call errquit('xc_getv: cannot alloc xcmat',1)
-            call dcopy(nbf_ao*nbf_ao,0d0,0,dbl_mb(k_repxc(2)),1)
-            endif
-
-            endif
             call grid_quadv0(rtdb, g_dens, g_truevxc, 
      ,           nexc,rho_n,  Exc, dbl_mb(itmat))
-            if(xcreplicated) then
-               call ga_dgop(374,dbl_mb(k_repxc(1)),nbf_ao*nbf_ao, '+')
-               if(ipol.eq.2)
-     .              call ga_dgop(
-     .              374,dbl_mb(k_repxc(2)),nbf_ao*nbf_ao, '+')
-               if (ga_nodeid() .eq. 0) then
-                  do i = 1, ipol
-                     call ga_put(g_truevxc(i), 1, nbf, 1, nbf, 
-     $                    dbl_mb(k_repxc(i)), nbf)
-                  end do
-               end if
-               if (.not.ma_chop_stack(l_repxc(1)))
-     &              call errquit('xc_getv: cannot chop stack',1)
-            endif
             if(havehfxc.or.(.not.cdfit)) then
                call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
                if (.not. ga_destroy(g_truevxc(1))) call errquit(
