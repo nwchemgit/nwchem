@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.15 1997-12-05 12:33:45 d3e129 Exp $
+*     $Id: stpr_gh_at.F,v 1.16 1998-08-12 22:01:46 d3g681 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -47,7 +47,7 @@ c::   local
       logical ogeom_aliased
       logical last_pass
       double precision time_taskg1, time_taskg2
-      integer time_taskg
+      integer time_taskg, print_level
       double precision xyz(3), chg
       double precision pdipole(3), mdipole(3)
       character*255 tmpname
@@ -63,6 +63,8 @@ c
       o_stepper_debug = util_print('debug_stepper',print_debug)
       o_directions    = util_print('directions', print_medium)
       o_debug_restart = util_print('debug_stepper_restart',print_debug)
+c
+      call util_print_get_level(print_level) ! Save for later
 c
       dipole_okay = .true.
       stpr_gen_hess_at = .false.
@@ -429,10 +431,12 @@ c
      &        ('stpr_gen_hess_at: failed to restore central point',
      &        24)
 c     
+          call util_print_set_level(print_none) ! Minimize output
           time_taskg1 = (-1.0d00)*util_wallsec()
           if (.not. task_gradient(rtdb)) call errquit
      &        ('stpr_gen_hess_at: energy+grad failed',25)
           time_taskg1 = time_taskg1 + util_wallsec()
+          call util_print_set_level(print_level) ! Restore current print
 c     
 *
           if (o_stepper_debug) then
@@ -513,11 +517,13 @@ c
      &        ('stpr_gen_hess_at: failed to restore central point',
      &        35)
 c     
+          call util_print_set_level(print_none) ! Minimize output
           time_taskg2 = (-1.0d00)*util_wallsec()
           if (.not. task_gradient(rtdb))
      &        call errquit('stpr_gen_hess_at: energy+grad failed',
      &        36)
           time_taskg2 = time_taskg2 + util_wallsec()
+          call util_print_set_level(print_level) ! Restore current print
 c     
 *
           if (o_stepper_debug) then
