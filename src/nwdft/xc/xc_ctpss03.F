@@ -15,7 +15,7 @@ c                              tauU - uniform-gas KE density
      
 
 c
-c$Id: xc_ctpss03.F,v 1.2 2004-10-05 18:26:50 pollack Exp $
+c$Id: xc_ctpss03.F,v 1.3 2004-10-06 18:23:45 pollack Exp $
 c
 
 c     References:
@@ -147,7 +147,6 @@ c     derivsssssssssssssssssssssssss
       double precision ddennydna, ddennydnb
       double precision dCCCdna, dCCCdnb, CCC1
       double precision dtwt2dna, dtwt2dnb
-      double precision dtwt3dna, dtwt3dnb
       double precision decggadna, decggadnb, delcnt
       double precision deFSPdna, dsmdn, dsmdna, dsmdnb
       double precision quima(4), quimb(4), drevdna, drevdnb
@@ -164,8 +163,8 @@ c     derivsssssssssssssssssssssssss
       double precision dter3dgab,dgrzdgab,dxidgab,dbaddgab
       double precision ddennydgab, dCCCdgab,dtwt2dgab
       double precision deggadgab,dsmdgab,quimgab(4)
-      double precision drevdgab,dtwt3dgab,psegab(2)
-      double precision dtwt2dt, drevdt, dtwt3dt, pset(2)
+      double precision dtwt3dgab,psegab(2)
+      double precision dtwt2dt, dtwt3dt, pset(2)
 
       parameter ( THRD = 0.33333333333333333333333333333d0 )
       parameter ( FACE = 3.09366772628013593097d0 )
