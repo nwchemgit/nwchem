@@ -230,6 +230,17 @@ c        ncharge   = 8
          WRITE(*,1230)
          WRITE(*,1231) dipole
          WRITE(*,1232) cdx1,cdx1*autoDebye
+
+         ncharge   = 8
+         dipole(1) = -ncharge*cdx3 + 8.0d0*qGX -GX*(8.0d0-ncharge)
+         dipole(2) = -ncharge*cdy3 + 8.0d0*qGY -GY*(8.0d0-ncharge)
+         dipole(3) = -ncharge*cdz3 + 8.0d0*qGZ -GZ*(8.0d0-ncharge)
+         cdx1 = dsqrt(dipole(1)**2 + dipole(2)**2 + dipole(3)**2)
+
+         WRITE(*,1240)
+         WRITE(*,1231) dipole
+         WRITE(*,1232) cdx1,cdx1*autoDebye
+
       end if
 
 *     **** pop stack memory ****
@@ -261,6 +272,7 @@ c        ncharge   = 8
  1230 FORMAT(/'Water Dipole:')
  1231 FORMAT('mu   =  (',F10.4,',',F10.4,',',F10.4,' ) au')
  1232 FORMAT('|mu| = ',F10.4,' au,   ',F10.4,' Debye')
+ 1240 FORMAT(/'Water Dipole,ncharge=8.0:')
       end
 
 
