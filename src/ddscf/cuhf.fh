@@ -1,0 +1,24 @@
+c     
+c     
+c     $id: crohf.fh,v 1.1 1995/03/31 01:35:03 d3g681 exp $
+c     $synopsis "pass info to uhf internal routines"$
+c     
+c     
+c     private common block for uhf internal routines
+c     to facilitate use of generic solvers.
+c     provide only the minimal amount of info for internal routines
+c     to function.
+c     should only be included by the wrapper modules
+c     prefix with "cuhf_" to avoid namespace conflict
+c     
+      logical cuhf_init_flag    ! validity flag for this common block
+      integer cuhf_vlen        ! length of parameter space
+      integer cuhf_g_falpha     ! alpha MO fock matrixd
+      integer cuhf_g_fbeta      ! beta MO fock matrixd
+c
+      common/cuhf/
+     $     cuhf_init_flag,
+     $     cuhf_vlen,
+     $     cuhf_g_falpha,
+     $     cuhf_g_fbeta
+c

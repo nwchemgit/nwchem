@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.1 1995-03-31 01:35:48 d3g681 Exp $
+C$Id: rohf.F,v 1.2 1995-04-05 19:51:41 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -10,9 +10,7 @@ C$Id: rohf.F,v 1.1 1995-03-31 01:35:48 d3g681 Exp $
 #include "crohf.fh"
 #include "cscf.fh"
 c
-c     Compute ROHF wavefunction.  This interface is provided to
-c     facilitate its use internally without having to stuff
-c     arguments into the database.
+c     Compute ROHF wavefunction.k  This interface is provided to
 c
 c     Initial vectors are assumed to be loaded in common/cscf/
 c

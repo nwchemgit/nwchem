@@ -28,10 +28,12 @@ c     nopen      = no. of open shells
 c     nelec      = no. of electrons
 c     nbf        = no. of basis functions
 c     nmo        = no. of linearly indep. MOs (= nbf for now)
+c     nalpha     = no. of alpha spin electrons for UHF only
+c     nbeta      = no. of beta spin electrons for UHF only
 c
 c     l/k_eval   = scf eigen values (local ma handle)
 c     l/k_occ    = scf occupation (local ma handle)
-c     g_movecs   = eigen-vectors  (global ga handle)
+c     g_movecs   = eigen-vectors  (global ga handle) (2x array for UHF)
 c
 c     oskel      = if true use symmetry in fock building
 c
@@ -52,6 +54,7 @@ c
 c     iter = current macro iteration number
 c
       integer geom, basis, nopen, nclosed, nelec, nbf, nmo
+      integer nalpha, nbeta
       double precision gnorm_tol, shifts, nr_gswitch, tol2e
       double precision ls_tol, lshift, precond_tol, charge, eprec
       logical oconjugacy, ododiag, odisable_nr, odisable_conjugacy
@@ -77,7 +80,8 @@ c     Integers
 c
      $     pflg, pflg_prev, maxiter, iter,
      $     geom, basis, nopen, nclosed, nelec, nbf, nmo,
-     $     l_eval, k_eval, l_occ, k_occ, g_movecs
+     $     nalpha, nbeta,
+     $     l_eval, k_eval, l_occ, k_occ, g_movecs(2)
 c
 c     Characters
 c

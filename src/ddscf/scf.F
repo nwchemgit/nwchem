@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.25 1995-03-31 01:36:26 d3g681 Exp $
+C$Id: scf.F,v 1.26 1995-04-05 19:51:44 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -27,8 +27,9 @@ c
       logical oprint
       character*255 name
 c
-      logical rohf
-      external rohf
+      integer natoms
+      logical rohf, uhf
+      external rohf, uhf
 c
 c     Make sure database is parallel, push context down to SCF,
 c     and initialize performance statistics
@@ -61,16 +62,24 @@ c
             write(6,*)
          endif
 c
-         write(6,1) trans(1:inp_strlen(trans)), charge,
-     $        nelec, nclosed, nopen, scftype,
+         if (.not. geom_ncent(geom, natoms)) call errquit
+     $        ('scf: geom_ncent failed', 0)
+c
+         write(6,1) trans(1:inp_strlen(trans)), nbf, natoms,
+     $        nclosed, nopen, nelec, nalpha, nbeta, charge,
+     $        scftype,
      $        movecs_in(1:inp_strlen(movecs_in)),
      $        movecs_out(1:inp_strlen(movecs_out)), oskel
  1       format(/
      $        '  ao basis        = "',a,'"'/
+     $        '  functions       = ', i5/
+     $        '  atoms           = ', i5/
+     $        '  closed shells   = ', i5/
+     $        '  open shells     = ', i5/
+     $        '  total electrons = ', i5/
+     $        '  alpha electrons = ', i5/
+     $        '  beta  electrons = ', i5/
      $        '  charge          = ', f6.2/
-     $        '  electrons       = ', i4/
-     $        '  closed shells   = ', i4/
-     $        '  open shells     = ', i4/
      $        '  wavefunction    = ', a/
      $        '  input vectors   = ', a/
      $        '  output vectors  = ', a/
@@ -117,7 +126,11 @@ c     Here branch to the appropriate wavefunction type ... returns
 c     true if happily converged, false otherwise (e.g., if restart
 c     is needed or problems encountered).
 c
-      converged = rohf(rtdb, energy)
+      if (scftype .eq. 'UHF') then
+         converged = uhf(rtdb, energy)
+      else
+         converged = rohf(rtdb, energy)
+      endif
 c
 c     Store energy and convergence status ... not sure if better to
 c     do this here or have each wavefunction type do it

@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.13 1995-04-03 23:37:55 d3g681 Exp $
+C$Id: vectors.F,v 1.14 1995-04-05 19:51:53 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -67,25 +67,28 @@ c
 c
       return
 c
- 1000 write(6,*) ' movecs_read_header: failed to open ', filename
+ 1000 write(6,*) ' movecs_read_header: failed to open ',
+     $     filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
       goto 10
 c
- 1001 write(6,*) ' movecs_read_header: failing reading from ', filename
+ 1001 write(6,*) ' movecs_read_header: failing reading from ',
+     $     filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
       close(unitno, err=1002)
       goto 10
 c
  2001 write(6,*) ' movecs_read_header:eof: failing reading from '
-     &    , filename
+     &    , filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
       close(unitno, err=1002)
       goto 10
 c
- 1002 write(6,*) ' movecs_read_header: failed to close', filename
+ 1002 write(6,*) ' movecs_read_header: failed to close',
+     $     filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
       goto 10
@@ -116,6 +119,8 @@ c
       integer unitno
       parameter (unitno = 67)
 c     
+      l_vecs = -1               ! An invalid MA handle
+c
       if (oscfps) call pstat_on(ps_vecio)
       ok = 0
       if (ga_nodeid() .eq. 0) then
@@ -151,13 +156,16 @@ c
      $           (dbl_mb(k_vecs+j), j=0,nbf-1)
             call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), 1)
          enddo
-	 if (.not. ma_pop_stack(l_vecs)) call errquit
-     $      ('movecs_read: pop failed', l_vecs)
  9       close(unitno,err=1002)
          ok = 1
       endif
 c
- 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
+ 10   continue
+      if (l_vecs .ne. -1) then
+	 if (.not. ma_pop_stack(l_vecs)) call errquit
+     $      ('movecs_read: pop failed', l_vecs)
+      endif
+      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
       if (ok .eq. 1) then
 	 call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob(1), 0)
 	 call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals, mdtob(nbf), 0)
@@ -165,7 +173,7 @@ c
       endif
 c
       movecs_read = ok .eq. 1
-      if (ga_nodeid() .eq. 0 .and. 
+      if (ga_nodeid() .eq. 0 .and. movecs_read .and.
      $     util_print('vectors i/o', print_default)) then
          write(6,22) filename(1:inp_strlen(filename))
  22      format(/' Read molecular orbitals from ',a/)
@@ -174,18 +182,21 @@ c
       if (oscfps) call pstat_off(ps_vecio)
       return
 c
- 1000 write(6,*) ' movecs_read: failed to open ', filename
+ 1000 write(6,*) ' movecs_read: failed to open ',
+     $     filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
       goto 10
 c
- 1001 write(6,*) ' movecs_read: failing reading from ', filename
+ 1001 write(6,*) ' movecs_read: failing reading from ',
+     $     filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
       close(unitno,err=1002)
       goto 10
 c
- 1002 write(6,*) ' movecs_read: failed to close', filename
+ 1002 write(6,*) ' movecs_read: failed to close',
+     $     filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
       goto 10
@@ -273,18 +284,21 @@ c
       if (oscfps) call pstat_off(ps_vecio)
       return
 c
- 1000 write(6,*) ' movecs_write: failed to open ', filename
+ 1000 write(6,*) ' movecs_write: failed to open ',
+     $     filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
       goto 10
 c
- 1001 write(6,*) ' movecs_write: failing writing to ', filename
+ 1001 write(6,*) ' movecs_write: failing writing to ',
+     $     filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
       close(unitno,err=1002)
       goto 10
 c
- 1002 write(6,*) ' movecs_write: failed to close', filename
+ 1002 write(6,*) ' movecs_write: failed to close',
+     $     filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
       goto 10

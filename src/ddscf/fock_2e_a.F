@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.5 1995-03-31 01:35:09 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.6 1995-04-05 19:51:33 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_chunks/-1/
@@ -15,7 +15,7 @@ c     see scf_init for input of task_chunks
      $     tmp, vg_dens, vg_fock )
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.5 1995-03-31 01:35:09 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.6 1995-04-05 19:51:33 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -203,9 +203,6 @@ c
 c
                         sijkl = schwarz_atom(iat,jat) *
      $                       schwarz_atom(kat,lat)
-c
-                        denmax = 1.0d0
-                        sijkl = 1.0d0
 c
                         if (denmax*sijkl .ge. den_tol) then
 c     

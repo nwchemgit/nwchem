@@ -3,7 +3,7 @@
 #include "cscf.fh"
 c
       data oinitialized /.false./
-      data g_movecs /0/
+      data g_movecs /0,0/
       data k_occ /10000000/
       data k_eval /10000000/
 c
@@ -24,6 +24,7 @@ c
 c     
       double precision nuclear_charge
       character*255 name
+      integer len_occ
 c     
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
@@ -103,8 +104,18 @@ c
             scftype = 'ROHF'
          endif
       endif
-      if (scftype.ne.'ROHF' .and. scftype.ne.'RHF') call errquit
-     $     ('scf: only ROHF and RHF currently supported', 0)
+      call inp_ucase(scftype)
+c
+      if ( scftype.ne.'ROHF' .and. scftype.ne.'RHF' .and.
+     $     scftype.ne.'UHF' ) call errquit
+     $     ('scf: only ROHF, RHF, and UHF currently supported', 0)
+c
+      nalpha = nclosed + nopen
+      nbeta  = nclosed
+c
+c     UHF unrestricts symmetry also so cannot exploit it
+c
+      if (scftype .eq. 'UHF') oskel = .false.
 c
 c     Store the derived info in the database for other wavefunction
 c     modules and/or restart to access
@@ -120,16 +131,25 @@ c
 c     
 c     Allocate persistent local and global arrays
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'scf_init: MOs',
-     $     1, 1, g_movecs)) call errquit('scf_init: MOs', 0)
+      if (scftype .eq. 'UHF') then
+         if (.not. ga_create(MT_DBL, nbf, nbf, 'scf_init: alpha MOs',
+     $        1, 1, g_movecs)) call errquit('scf_init: alpha MOs', 0)
+         if (.not. ga_create(MT_DBL, nbf, nbf, 'scf_init: beta MOs',
+     $        1, 1, g_movecs(2))) call errquit('scf_init: beta MOs', 0)
+      else
+         if (.not. ga_create(MT_DBL, nbf, nbf, 'scf_init: MOs',
+     $        1, 1, g_movecs)) call errquit('scf_init: MOs', 0)
+      endif
 c     
-      if (.not. ma_push_get(mt_dbl, nbf, 'scf_init: mo evals',
+      len_occ = nbf
+      if (scftype .eq. 'UHF') len_occ = nbf * 2
+      if (.not. ma_push_get(mt_dbl, len_occ, 'scf_init: mo evals',
      $     l_eval, k_eval)) call errquit
-     $     ('rihf_init: insufficient memory?',nbf)
+     $     ('rihf_init: insufficient memory?', len_occ)
 c     
-      if (.not. ma_push_get(mt_dbl, nbf, 'scf_init: mo occ',
+      if (.not. ma_push_get(mt_dbl, len_occ, 'scf_init: mo occ',
      $     l_occ, k_occ)) call errquit
-     $     ('rihf_init: insufficient memory?',nbf)
+     $     ('rihf_init: insufficient memory?', len_occ)
 c
 c     Fill in the SCF convergence info
 c     
@@ -140,7 +160,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.2 1995-04-03 23:37:49 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.3 1995-04-05 19:51:46 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -219,6 +239,10 @@ c
      $        ('scf_tidy: failed to free occupation/evals',0)
          if (.not. ga_destroy(g_movecs)) call errquit
      $        ('scf_tidy: failed to free movecs',0)
+         if (scftype .eq. 'UHF') then
+            if (.not. ga_destroy(g_movecs(2))) call errquit
+     $           ('scf_tidy: failed to free beta movecs',0)
+         endif
 c
          oinitialized = .false.
 c
