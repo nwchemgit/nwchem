@@ -1,6 +1,6 @@
-c $Id: bq_data.F,v 1.6 2005-04-04 23:34:21 marat Exp $
+c $Id: bq_data.F,v 1.7 2005-04-06 19:53:06 edo Exp $
       block data initial_bq_data
-C$Id: bq_data.F,v 1.6 2005-04-04 23:34:21 marat Exp $
+C$Id: bq_data.F,v 1.7 2005-04-06 19:53:06 edo Exp $
       implicit none
 #include "bq_data.fh"
 c     
@@ -8,7 +8,7 @@ c
       data bq_active /max_bq*.false./
       data bq_ncent /max_bq*0/
 
-      end block data initial_bq_data
+      end
 
       function bq_create(namespace,handle)
       implicit none
@@ -153,7 +153,7 @@ c      local variables
        integer i
        integer h_c,i_c
        integer h_q,i_q
-       character(32) pname
+       character*(32) pname
 
        pname = "bq_set"
 
@@ -201,7 +201,7 @@ c      local variables
        integer h_q,h_c
        logical bq_pset
 c      local variables
-       character(32) pname
+       character*(32) pname
 
        pname = "bq_pset"
 
@@ -234,7 +234,7 @@ c      local variables
        integer i
        integer h_c,i_c
        integer h_q,i_q
-       character(32) pname
+       character*(32) pname
 
        pname = "bq_get"
 
@@ -284,7 +284,7 @@ c      local variables
        integer n
        logical bq_ncenter
 c      local variables
-       character(32) pname
+       character*(32) pname
 
        pname = "bq_ncenter"
 
@@ -310,7 +310,7 @@ c      local variables
        character*(*) namespace
        logical bq_namespace
 c      local variables
-       character(32) pname
+       character*(32) pname
 
        pname = "bq_namespace"
 
@@ -359,7 +359,7 @@ c      local variables
        integer k
        integer h_c,i_c
        integer h_q,i_q
-       character(32) pname
+       character*(32) pname
        logical status
 
        pname = "bq_print_info"
@@ -413,7 +413,7 @@ c      local variables
 c      local variables
        integer h_c
        integer h_q
-       character(32) pname
+       character*(32) pname
 
        pname = "bq_destroy"
 
@@ -458,7 +458,7 @@ c      local variables
        integer handle
        logical bq_destroy_all
 c      local variables
-       character(32) pname
+       character*(32) pname
         
        logical bq_destroy
        external bq_destroy
@@ -484,7 +484,7 @@ c      local variables
        logical bq_index_coord
 c      local variables
        integer h_c,i_c
-       character(32) pname
+       character*(32) pname
 
        pname = "bq_index_coord"
 
@@ -513,7 +513,7 @@ c      local variables
        logical bq_index_charge
 c      local variables
        integer h_q,i_q
-       character(32) pname
+       character*(32) pname
 
        pname = "bq_index_charge"
 
