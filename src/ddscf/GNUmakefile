@@ -1,9 +1,9 @@
-# $Id: GNUmakefile,v 1.19 1994-12-23 03:28:16 d3g681 Exp $
+# $Id: GNUmakefile,v 1.20 1995-01-30 15:49:09 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
         comp4_insert.o            rhf_energy.o \
-        rhf_canon.o               rhf_fock_2e_a.o \
+        rhf_canon.o \
         rhf_do_canon.o            rhf_get_param.o \
         rhf_fock_2e.o             rhf_fock_2e_b.o \
         ga_create_atom_blocked.o  scf.o \
@@ -15,16 +15,14 @@
         rhf.o                     upd_atom_block.o \
         nxtask.o                  bad.o rhf_nr_solve.o \
         vectors.o \
-	ri_invert_v.o             ga_create_cont_blocked.o \
-        ri_v_fit_cd.o             ri_v_fit_j.o \
-        ri_drive.o \
+	ga_create_cont_blocked.o \
         matrix_exp.o              scf_pstat.o \
         schwarz_max.o             movecs_project.o
 
 
 # rhf_fock_2e_b compiles incorrectly with optimize on the SGITFP
 
-  OBJ_OPTIMIZE =  rhf_fock_2e_c.o dabsmax.o dabssum.o  \
+  OBJ_OPTIMIZE =  rhf_fock_2e_a.o rhf_fock_2e_c.o dabsmax.o dabssum.o  \
                   schwarz_atom.o comp4_extract.o schwarz_shell.o
 
     LIBRARY = libddscf.a

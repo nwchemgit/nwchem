@@ -10,6 +10,7 @@
 #include "pstat.fh"
 #include "cscfps.fh"
 #include "cskeleton.fh"
+#include "sym.fh"
 #include "util.fh"
 c
 c     RHF module.
@@ -63,7 +64,9 @@ c
       if (.not. bas_name(basis, name, trans))
      $     call errquit('scf: bas_name?', 0)
       if (.not.rtdb_get(rtdb, 'scf:skeleton',
-     $     MT_LOG, 1, oskel)) oskel = .true.
+     $     MT_LOG, 1, oskel)) then
+        oskel = sym_number_ops(geom) .gt. 0
+      endif
       if (name .eq. ' ') name = 'mo basis'
 c
 c     Figure output input/output MO vectors ... all this should be
@@ -107,13 +110,14 @@ c
 c
          write(6,1) trans(1:inp_strlen(trans)), charge, 'rhf',
      $        movecs_in(1:inp_strlen(movecs_in)),
-     $        movecs_out(1:inp_strlen(movecs_out))
+     $        movecs_out(1:inp_strlen(movecs_out)), oskel
  1       format(/
      $        '  mo basis        = "',a,'"'/
      $        '  charge          = ', f6.2/
      $        '  wavefunction    = ', a/
      $        '  input vectors   = ', a/
-     $        '  output vectors  = ', a/)
+     $        '  output vectors  = ', a/
+     $        '  use symmetry    = ', l/)
          call util_flush(6)
       endif
 c
