@@ -2,10 +2,10 @@
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
-     + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
+     + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.62 2001-07-31 17:58:19 d3j191 Exp $
+c $Id: cf_init.F,v 1.63 2001-11-06 15:40:17 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -39,6 +39,7 @@ c
 c
       itscal=iitmps
       ipscal=iiprss
+      ipopt=iipopt
       tmpext=rtmpx
       prsext=rprsx
       tmwrlx=rtmpw

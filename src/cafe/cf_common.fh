@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.27 2001-07-31 17:58:18 d3j191 Exp $
+c $Id: cf_common.fh,v 1.28 2001-11-06 15:40:15 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -102,7 +102,7 @@ c
       integer lpww,lpsw,lpss,ngrsw,ngrss,nrwrec
       integer isolvo,npww,npsw,npss,ipme,morder,ngx,ngy,ngz,ngmax
       integer ipolt,niterw,niters,mshitw,mshits,noshak
-      integer itscal,ipscal,islow,mdalgo,ntest,numpmf,npmfa,npgdec
+      integer itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npgdec
       real*8 box(3),boxh(3),vlat(3,3),vlati(3,3),rshrt,rlong,rrest,
      + rqmmm,rshrt2,rlong2,rrest2,rqmmm2,deriv(24,2),ep2(2),ep3(2),
      + dfrdf,ewwl(2),zw(3,3,2),rffww,ewwr(2),drdf,ealpha,ewwq(2),rdfvol,
@@ -129,7 +129,7 @@ c
      + ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,ipme,lpww,lpsw,
      + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,
      + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,noshak,
-     + itscal,ipscal,islow,mdalgo,ntest,numpmf,npmfa,npgdec,
+     + itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npgdec,
      + llww,lsww,llsw,lssw,llss,lsss,
      + llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lanal,
      + ithint,ith,ipert2,ipert3,ip2,ip3

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.111 2001-10-25 19:45:56 d3j191 Exp $
+c $Id: cf_main.F,v 1.112 2001-11-06 15:40:17 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -826,14 +826,18 @@ c
       pscx(1)=pscale
       pscx(2)=pscale
       pscx(3)=pscale
-      if(iabs(ipscal).gt.1) then
+      if(ipscal.ne.0) then
       do 17 i=1,3
       prssc3=facpsc*(three*prx(i,i)-prsext)+one
       if(prssc3.lt.small) prssc3=small
       pscx(i)=prssc3**third
    17 continue
       endif
-      if(ipscal.lt.0) pscx(3)=one
+      if(ipopt.eq.12) then
+      pscx(1)=one
+      pscx(2)=one
+      endif
+      if(ipopt.eq.3) pscx(3)=one
       pscale=pscx(1)*pscx(2)*pscx(3)
 c
       if(np.gt.1) then
