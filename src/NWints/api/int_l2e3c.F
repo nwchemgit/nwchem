@@ -1,7 +1,19 @@
+c $Id: int_l2e3c.F,v 1.11 1996-10-07 16:50:38 d3e129 Exp $
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsubsection{int\_l2e3c}
+c:tex-this routine computes the 3 center 2 electron integrals
+c:tex-with labels and ``zero'' integrals removed: 
+c:tex-\[
+c:tex-({\mu}|{\nu}{\lamda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lamda}(X_{\lamda},r_{2})dr_{1}dr_{2}
+c:tex-\]
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_l2e3c(brain, ish, ketin, jsh, ksh,
      &       zerotol, canket, leri, eri, nint, ilab, jlab, klab,
      &       lscr, scr)
-c $Id: int_l2e3c.F,v 1.10 1996-10-01 18:46:03 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -19,10 +31,23 @@ c::functions
       logical int_chk_sh
       external int_chk_sh
 c::passed
-      integer brain, ish, jsh, ketin, ksh, leri, lscr
-      double precision zerotol, eri(leri), scr(lscr)
-      integer ilab(leri), jlab(leri), klab(leri), nint
-      logical canket
+c:tex-\begin{verbatim}
+      integer brain ! [input] bra basis set handle
+      integer ish   ! [input] shell/contraction index
+      integer ketin ! [input] ket basis set handle
+      integer jsh   ! [input] shell/contraction index
+      integer ksh   ! [input] shell/contraction index
+      integer lscr  ! [input] length of scratch array
+      double precision scr(lscr) ! [scratch] array
+      double precision zerotol   ! [input] zero threshold
+      integer leri  ! [input] length of integral array
+      integer  nint ! [output] number of integrals computed
+      integer ilab(leri) ! [output] i bas fun labels array
+      integer jlab(leri) ! [output] j bas fun labels array
+      integer klab(leri) ! [output] k bas fun labels array
+      double precision eri(leri) ! [output] 2c2e integrals
+      logical canket ! [input] canonicalize ket bas. fun. label pairs
+c:tex-\end{verbatim}
 c::local
       logical shells_ok
       integer i,j,k,bra,ket,icount

@@ -1,34 +1,82 @@
+C $Id: int_acc.F,v 1.8 1996-10-07 16:50:18 d3e129 Exp $
+*
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{int\_acc\_std}
+c:tex-This routine sets the integral threshold for radial cutoffs in all 
+c:tex-integral codes used in the api via a parameter statement.  Other
+c:tex-routines have access via the apiP.fh common blocks and the set/get API.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_acc_std()
-C $Id: int_acc.F,v 1.7 1995-12-20 23:53:34 pg481 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
       double precision val_def
+c:tex-\begin{verbatim}
       parameter(val_def = 1.0d-10)
+c:tex-\end{verbatim}
 c
       val_int_acc = val_def
       call int_sp_acc(val_int_acc)
       call texas_set_accy(val_int_acc)
       end
 c......................................................................
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{int\_acc\_high}
+c:tex-This routine sets the integral threshold to ``high'' accuracy 
+c:tex-for radial cutoffs in all integral codes used in the api via a 
+c:tex-parameter statement.  Other routines have access via the apiP.fh 
+c:tex-common blocks and the set/get API.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_acc_high()
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+c:tex-\begin{verbatim}
       val_int_acc = 1.0d-20
+c:tex-\end{verbatim}
       call int_sp_acc(val_int_acc)
       call texas_set_accy(val_int_acc)
       end
 c......................................................................
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{int\_acc\_get}
+c:tex-This routine returns the current integral threshold 
+c:tex-for radial cutoffs in all integral codes used in the api via a 
+c:tex-parameter statement.  Other routines have access via the apiP.fh 
+c:tex-common blocks and the set/get API.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_acc_get(retval)
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
-      double precision retval
+c:tex-\begin{verbatim}
+      double precision retval ! [output] current threshold
+c:tex-\end{verbatim}
       retval = val_int_acc
       end
 c......................................................................
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{int\_acc\_set}
+c:tex-This routine sets the current integral threshold 
+c:tex-for radial cutoffs in all integral codes used in the api via a 
+c:tex-parameter statement.  Other routines have access via the apiP.fh 
+c:tex-common blocks and the set/get API.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_acc_set(setval)
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
-      double precision setval
+c:tex-\begin{verbatim}
+      double precision setval ! [input] new threshold
+c:tex-\end{verbatim}
       val_int_acc = setval
       call int_sp_acc(val_int_acc)
       call texas_set_accy(val_int_acc)

@@ -1,5 +1,17 @@
+c $Id: int_1cg.F,v 1.6 1996-10-07 16:49:49 d3e129 Exp $
+*
+**********************************************************************
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{int\_1cg}
+c:tex-This routine computes the integral of the one center gaussian.
+c:tex-\[
+c:tex-({\mu} = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})dr_{1}
+c:tex-\]
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_1cg(i_basis,ish,lscr,scr,l1g,G1e)
-c $Id: int_1cg.F,v 1.5 1996-07-18 23:57:32 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 #include "basP.fh"
@@ -21,8 +33,14 @@ c::functions
       external cando_nw_1e
       external cando_nw
 c::passed
-      integer i_basis, ish, lscr, l1g
-      double precision scr(lscr), G1e(l1g)
+c:tex-\begin{verbatim}
+      integer i_basis ! [input] basis set handle
+      integer ish     ! [input] lexical shell/contraction index
+      integer lscr    ! [input] length of scratch array
+      double precision scr(lscr)  ! [scratch] scratch space 
+      integer l1g     ! [input] length of integral buffer array
+      double precision G1e(l1g)   ! [output] one center gaussian integrals
+c:tex-\end{verbatim}
 c::local
       logical shells_ok
       integer i_geom, ibas, ucont

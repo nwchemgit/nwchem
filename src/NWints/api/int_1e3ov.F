@@ -1,9 +1,16 @@
+c $Id: int_1e3ov.F,v 1.8 1996-10-07 16:49:50 d3e129 Exp $
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsubsection{int\_1e3ov}
+c:tex-This routine computes the 3 center overlap integral:
+c:tex-\[
+c:tex-({\mu}{\nu}{\lamda}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})g_{\nu}(X-R,r_{1}g_{\lamda}(X-R,r_{1})dr_{1}
+c:tex-\]
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_1e3ov (i_basis, ish, j_basis, jsh, k_basis, ksh,
      &       lscr, scr, lov3, OV3)
-c
-c routine to calculate the 3 center overlap integrals
-c
-C$Id: int_1e3ov.F,v 1.7 1996-07-18 23:57:34 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -18,6 +25,7 @@ c::functions
       logical int_chk_sh, int_chk_init
       external int_chk_sh, int_chk_init
 c::passed
+c:tex-\begin{verbatim}
       integer i_basis            ! [input] basis set handle for ish
       integer ish                ! [input] i shell/contraction
       integer j_basis            ! [input] basis set handle for jsh
@@ -25,9 +33,10 @@ c::passed
       integer k_basis            ! [input] basis set handle for ksh
       integer ksh                ! [input] k shell/contraction
       integer lscr               ! [input] length of scratch array
-      double precision scr(lscr) ! [input] scratch array
-      integer lov3               ! [input/output] length of 3c overlap integrals array
+      double precision scr(lscr) ! [scratch] scratch array
+      integer lov3               ! [input] length of 3c overlap integrals array
       double precision OV3(lov3) ! [output] 3c overlap integrals
+c:tex-\end{verbatim}
 c::local
       logical shells_ok
       integer ucont

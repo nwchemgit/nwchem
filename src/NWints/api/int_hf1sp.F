@@ -1,24 +1,56 @@
+c $Id: int_hf1sp.F,v 1.8 1996-10-07 16:50:23 d3e129 Exp $
+*
+c:tex-% part of the internal API routines.
+c:tex-\subsubsection{int\_hf1sp}
+c:tex-This is a layer routine that calls the 
+c:tex-McMurchie-Davidson one electron routine.  This layer
+c:tex-routine handles all permutations to compute sp integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_hf1sp(
      &       xyzi,expi,coefi, i_nprim, i_ngen, Li,
      &       xyzj,expj,coefj, j_nprim, j_ngen, Lj,
      &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       dryrun,scr,lscr,msg)
-c $Id: int_hf1sp.F,v 1.7 1996-10-01 18:46:02 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 #include "stdio.fh"
 #include "int_nbf.fh"
 c::passed
-      integer i_nprim, i_ngen, Li
-      integer j_nprim, j_ngen, Lj
-      integer nat, lscr, lstv, nintV
-      double precision xyzi(3),expi(i_nprim),coefi(i_nprim,i_ngen)
-      double precision xyzj(3),expj(j_nprim),coefj(j_nprim,j_ngen)
-      double precision xyz(3,nat),zan(nat),scr(lscr)
-      double precision S(lstv),T(lstv),V(lstv)
-      logical doS, doT, doV, canAB, dryrun
-      character*(*) msg
+c:tex-for an integral $<i|Operator|j>$
+c:tex-\begin{verbatim}
+      integer i_nprim  ! [input] num. prims on function i
+      integer i_ngen   ! [input] num general conts on func. i
+      integer Li       ! [input] angular momentum of func. i  
+      integer j_nprim  ! [input] num. prims on function j     
+      integer j_ngen   ! [input] num general conts on func. j 
+      integer Lj       ! [input] angular momentum of func. j  
+      integer nat      ! [input] number of atoms
+      integer lscr     ! [input] size of scratch array
+      integer lstv     ! [input] size of any integral buffer
+      double precision xyzi(3)  ! [input] position of center i
+      double precision expi(i_nprim) ! [input] exponents on i
+      double precision coefi(i_nprim,i_ngen) ! [input] i coeffs
+      double precision xyzj(3)  ! [input] position of center j
+      double precision expj(j_nprim)  ! [input] exponents on j
+      double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
+      double precision xyz(3,nat)  ! [input] all atom positions
+      double precision zan(nat)  ! [input] charges on all atoms
+      double precision scr(lscr)  ! [scratch] scratch buffers
+      double precision S(lstv)  ! [output] overlap integrals
+      double precision T(lstv)  ! [output] kinetic energy integrals
+      double precision V(lstv)  ! [output] potential integrals
+      logical doS     ! [input] compute overlap (True/False)
+      logical doT     ! [input] compute kinetic (True/False)
+      logical doV     ! [input] compute potential (True/False)
+      logical canAB   ! [input] compute only canonical ints (false only)
+      logical dryrun  ! [input] true means only compute required memory
+      character*(*) msg ![input] identification message
+c:tex-\end{verbatim}
 c::local
+      integer nintV
       integer offset
       integer nintx, nint_xsp
 c
@@ -200,7 +232,30 @@ c
       endif
 c
       end
+c:tex-% part of the internal API routines
+c:tex-\subsubsection{int\_1psp}
+c:tex-This routine transforms integrals from the way they
+c:tex-were computed $(p|s)$, $(p|p)$ to $(p|sp)$.
+c:tex-The transformation is done in place as follows:
+c:tex-~~~~~computed~transformed~\\
+c:tex-~~~~~~order~~~~~order\\
+c:tex-~1.~~(x|s)~~~~~(x|s)~~~~~\\
+c:tex-~2.~~(y|s)~~~~~(x|x)~~~~~2~->~5\\
+c:tex-~3.~~(z|s)~~~~~(x|y)~~~~~3~->~9\\
+c:tex-~4.~~(x|x)~~~~~(x|z)~~~~~4~->~2\\
+c:tex-~5.~~(x|y)~~~~~(y|s)~~~~~5~->~3\\
+c:tex-~6.~~(x|z)~~~~~(y|x)~~~~~6~->~4\\
+c:tex-~7.~~(y|x)~~~~~(y|y)~~~~~7~->~6\\
+c:tex-~8.~~(y|y)~~~~~(y|z)~~~~~8~->~7\\
+c:tex-~9.~~(y|z)~~~~~(z|s)~~~~~9~->~8\\
+c:tex-10.~~(z|x)~~~~~(z|x)~~~~~\\
+c:tex-11.~~(z|y)~~~~~(z|y)~~~~~\\
+c:tex-12.~~(z|z)~~~~~(z|z)~~~~~\\
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_1psp(block,num_blocks)
+c:tex-\end{verbatim}
 c
 c transforms a (p|sp) block to correct order in place
 c integrals in block were calculated (p|s),(p|p).
@@ -220,8 +275,10 @@ c 11.  (z|y)     (z|y)
 c 12.  (z|z)     (z|z)     
 c
       implicit none
-      integer num_blocks
-      double precision block(12,num_blocks)
+c:tex-\begin{verbatim}
+      integer num_blocks  ! [input] num. blocks to transform
+      double precision block(12,num_blocks) ! [input/output] block
+c:tex-\end{verbatim}
 c
       integer ib
       double precision temp1, temp2
@@ -238,7 +295,42 @@ c
         block(5,ib) = temp1        ! temp1 -> 5 or 2 -> 5
 00100 continue
       end
+c:tex-% part of the internal API routines
+c:tex-\subsubsection{int\_1dsp}
+c:tex-This routine transforms integrals from the way they
+c:tex-were computed $(d|s)$, $(d|p)$ to $(d|sp)$.
+c:tex-The transformation is done in place as follows:
+c:tex-~~~~~computed~transformed~\\
+c:tex-~~~~~~order~~~~~order\\
+c:tex-~1.~~(xx|s)~~~~~(xx|s)\\
+c:tex-~2.~~(xy|s)~~~~~(xx|x)~~2~->~5~~~\\
+c:tex-~3.~~(xz|s)~~~~~(xx|y)~~3~->~9~~~\\
+c:tex-~4.~~(yy|s)~~~~~(xx|z)~~4~->~13~~\\
+c:tex-~5.~~(yz|s)~~~~~(xy|s)~~5~->~17~~\\
+c:tex-~6.~~(zz|s)~~~~~(xy|x)~~6~->~21~~\\
+c:tex-~7.~~(xx|x)~~~~~(xy|y)~~7~->~2~~~\\
+c:tex-~8.~~(xx|y)~~~~~(xy|z)~~8~->~3~~~\\
+c:tex-~9.~~(xx|z)~~~~~(xz|s)~~9~->~4~~~\\
+c:tex-10.~~(xy|x)~~~~~(xz|x)~10~->~6~~~\\
+c:tex-11.~~(xy|y)~~~~~(xz|y)~11~->~7~~~\\
+c:tex-12.~~(xy|z)~~~~~(xz|z)~12~->~8~~~\\
+c:tex-13.~~(xz|x)~~~~~(yy|s)~13~->~10~~\\
+c:tex-14.~~(xz|y)~~~~~(yy|x)~14~->~11~~\\
+c:tex-15.~~(xz|z)~~~~~(yy|y)~15~->~12~~\\
+c:tex-16.~~(yy|x)~~~~~(yy|z)~16~->~14~~\\
+c:tex-17.~~(yy|y)~~~~~(yz|s)~17~->~15~~\\
+c:tex-18.~~(yy|z)~~~~~(yz|x)~18~->~16~~\\
+c:tex-19.~~(yz|x)~~~~~(yz|y)~19~->~18~~\\
+c:tex-20.~~(yz|y)~~~~~(yz|z)~20~->~19~~\\
+c:tex-21.~~(yz|z)~~~~~(zz|s)~21~->~20~~\\
+c:tex-22.~~(zz|x)~~~~~(zz|x)\\
+c:tex-23.~~(zz|y)~~~~~(zz|y)\\
+c:tex-24.~~(zz|z)~~~~~(zz|z)\\
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_1dsp(block,num_blocks)
+c:tex-\end{verbatim}
 c
 c transforms a (d|sp) block to correct order in place
 c integrals in block were calculated (d|s),(d|p).
@@ -270,8 +362,10 @@ c 23.  (zz|y)     (zz|y)
 c 24.  (zz|z)     (zz|z)
 c
       implicit none
-      integer num_blocks
-      double precision block(24,num_blocks)
+c:tex-\begin{verbatim}
+      integer num_blocks  ! [input] num. blocks to transform
+      double precision block(24,num_blocks) ! [input/output] block
+c:tex-\end{verbatim}
 c
       double precision temp1, temp2, temp3
       integer ib
@@ -303,7 +397,35 @@ c
         block(21,ib) = temp2          ! temp2 -> 21 or 6 -> 21
 00100 continue
       end
+c:tex-% part of the internal API routines
+c:tex-\subsubsection{int\_1spsp}
+c:tex-This routine transforms integrals from the way they
+c:tex-were computed $(s|s)$, $(s|p)$,, $(p|s)$, $(p|p)$  
+c:tex-to $(sp|sp)$.
+c:tex-The transformation is done in place as follows:
+c:tex-~~~~~computed~transformed~\\
+c:tex-~~~~~~order~~~~~~order\\
+c:tex-~1.~~~(s|s)~~~~~~(s|s)\\
+c:tex-~2.~~~(s|x)~~~~~~(s|x)~~\\
+c:tex-~3.~~~(s|y)~~~~~~(s|y)\\
+c:tex-~4.~~~(s|z)~~~~~~(s|z)\\
+c:tex-~5.~~~(x|s)~~~~~~(x|s)\\
+c:tex-~6.~~~(y|s)~~~~~~(x|x)~~~6~->~9\\
+c:tex-~7.~~~(z|s)~~~~~~(x|y)~~~7~->~13\\
+c:tex-~8.~~~(x|x)~~~~~~(x|z)~~~8~->~6\\
+c:tex-~9.~~~(x|y)~~~~~~(y|s)~~~9~->~7\\
+c:tex-10.~~~(x|z)~~~~~~(y|x)~~10~->~8~\\
+c:tex-11.~~~(y|x)~~~~~~(y|y)~~11~->~10\\
+c:tex-12.~~~(y|y)~~~~~~(y|z)~~12~->~11\\
+c:tex-13.~~~(y|z)~~~~~~(z|s)~~13~->~12\\
+c:tex-14.~~~(z|x)~~~~~~(z|x)\\
+c:tex-15.~~~(z|y)~~~~~~(z|y)\\
+c:tex-16.~~~(z|z)~~~~~~(z|z)\\
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_1spsp(block,num_blocks)
+c:tex-\end{verbatim}
 c
 c transforms a 1 electron integral block holding the 16
 c (sp|sp) integrals calculated from 4 calls:
@@ -328,8 +450,10 @@ c 14.   (z|x)      (z|x)
 c 15.   (z|y)      (z|y)
 c 16.   (z|z)      (z|z)
       implicit none
-      integer num_blocks
-      double precision block(16,num_blocks)
+c:tex-\begin{verbatim}
+      integer num_blocks        ! [input] num. blocks to transform
+      double precision block(16,num_blocks) ! [input/output] block
+c:tex-\end{verbatim}
 c
       double precision temp
       integer ib
@@ -346,18 +470,34 @@ c
         block(9, ib) = temp
 00100 continue
       end
+c:tex-% part of the internal API routines
+c:tex-\subsubsection{int\_1spa}
+c:tex-This routine transforms integrals from the way they
+c:tex-were computed $(s|X)$, $(p|X)$,, to $(sp|X)$.
+c:tex-The transformation is {\bf NOT} done in place:
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_sp1a(sp_block,s_block,p_block,sizeb,num_blocks)
+c:tex-\end{verbatim}
 c
 *..  sp 1 electron transformation routine 
 *.. (ash|bsh) block of integrals where a is an sp shell
 c
       implicit none
 c::passed
-      integer sizeb
-      integer num_blocks
-      double precision sp_block(sizeb,1:4,num_blocks)
+c:tex-\begin{verbatim}
+      integer sizeb  ! [input] size of non sp block
+      integer num_blocks ! [input] num of blocks to transform
+*
+* . . . . . . . . . . . . . . .! [output] (sp|X) transformed integral block
+      double precision sp_block(sizeb,1:4,num_blocks) 
+*
+* . . . . . . . . . . . . . . . . . . . . . .! [input] computed (s|X) block
       double precision s_block(sizeb,num_blocks)
+*
+* . . . . . . . . . . . . . . . . . . . . . .! [input] computed (p|X) block
       double precision p_block(sizeb,2:4,num_blocks)
+c:tex-\end{verbatim}
 c::local
       integer block
       integer ib
@@ -371,18 +511,34 @@ c
 00200   continue
 00100 continue
       end
+c:tex-% part of the internal API routines
+c:tex-\subsubsection{int\_sp1b}
+c:tex-This routine transforms integrals from the way they
+c:tex-were computed $(X|s)$, $(X|p)$,, to $(X|sp)$.
+c:tex-The transformation is {\bf NOT} done in place:
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_sp1b(sp_block,s_block,p_block,sizea,num_blocks)
+c:tex-\end{verbatim}
 c
 *..  sp 1 electron transformation routine 
 *.. (ash|bsh) block of integrals where b is an sp shell
 c
       implicit none
 c::passed
-      integer sizea
-      integer num_blocks
+c:tex-\begin{verbatim}
+      integer sizea ! [input] size of non sp block
+      integer num_blocks ! [input] num of blocks to transform
+*
+* . . . . . . . . . . . . . . .! [output] (X|sp) transformed integral block
       double precision sp_block(1:4,sizea,num_blocks)
+*
+* . . . . . . . . . . . . . . . . . . . . . .! [input] computed (X|s) block
       double precision s_block(sizea,num_blocks)
+*
+* . . . . . . . . . . . . . . . . . . . . . .! [input] computed (X|p) block
       double precision p_block(2:4,sizea,num_blocks)
+c:tex-\end{verbatim}
 c::local
       integer block
       integer ia

@@ -1,13 +1,29 @@
+c $Id: exactd_mem.F,v 1.11 1996-10-07 16:49:47 d3e129 Exp $
+*
+***********************************************************************
+c:tex-% part of the API Internal Routines
+c:tex-\subsubsection{exactd\_mem}
+c:tex-This routine computes the memory required by the 
+c:tex-McMurchie-Davidson integral derivative code developed at PNNL.
+c:tex-This calls specific routines listed below for each integral
+c:tex-derivative type.  The data is stored in a common block (apiP.fh)
+c:tex-for fast retrieval from the int\_mem routines.
+c:tex-
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine exactd_mem(bases,nbas)
-c $Id: exactd_mem.F,v 1.10 1996-07-18 23:57:30 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
 #include "stdio.fh"
 c
 c:: passed
-      integer nbas
-      integer bases(nbas)
+c:tex-\begin{verbatim}
+      integer nbas ! [input] number of basis sets
+      integer bases(nbas) ! [input} array of basis set handles
+c:tex-\end{verbatim}
 c:: local
       integer lmem_2e4c, lmem_1e
       integer lsz_2e4c, lsz_1e
@@ -58,7 +74,15 @@ c
       endif
 c
       end
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{emem\_d1e}
+c:tex-This routine determines the maximum buffer and scratch size for the 
+c:tex-one electron derivative integrals.
+c:tex-This routine should not be called by application code.
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine emem_d1e(brain, ketin, max1e, memsize)
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -69,13 +93,15 @@ c
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
 c::functions
-      integer int_unint
+      integer int_unint 
       external int_unint
 c::passed
+c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
       integer ketin   ! [input] ket basis set handle
       integer max1e   ! [output] max size of 1e integrals buffer
       integer memsize ! [output] max size of scratch space for 1e integral evaluation
+c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc, nint
       integer bra_type, ket_type, memdum, bra_geom, ket_geom
@@ -158,7 +184,16 @@ c
 *     write(6,'(a,i10)')'emem_d1e: max1e   =',max1e
 c
       end
+c:tex-% part of the API Internal Routines
+c:tex-\subsubsection{emem\_d2e4c}
+c:tex-This routine determines the maximum buffer and scratch size for 
+c:tex-the given basis sets to compute 2 electron derivative integrals.  
+c:tex-The logic used is similar to that of the integral routine.  
+c:tex-This routine should not be called by application code.
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine emem_d2e4c(brain, ketin, maxg, memsize)
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -172,10 +207,12 @@ c::functions
       integer int_unint
       external int_unint
 c::passed
+c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
       integer ketin   ! [input] ket basis set handle
       integer maxg    ! [output] max size of 2e integrals buffer
       integer memsize ! [output] max size of scratch space for 2e integral evaluation
+c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc, nint
       integer bra_type, ket_type, memdum

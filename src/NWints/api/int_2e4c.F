@@ -1,6 +1,17 @@
+c $Id: int_2e4c.F,v 1.26 1996-10-07 16:50:17 d3e129 Exp $
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsubsection{int\_2e4c}
+c:tex-this routine computes the 4 center (traditional) 2 electron integrals: 
+c:tex-\[
+c:tex-({\mu}{\rho}|{\nu}{\lamda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lamda}(X_{\lamda},r_{2})dr_{1}dr_{2}
+c:tex-\]
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.25 1996-10-04 18:18:03 d3g681 Exp $
+c:tex-\end{verbatim}
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -33,9 +44,18 @@ c::functions
       external int_chk_init
 #endif
 c:: passed
-      integer brain, ketin, lscr, leri
-      integer ish,jsh,ksh,lsh
-      double precision scr(lscr), eri(leri)
+c:tex-\begin{verbatim}
+      integer brain ! [input] bra basis set handle
+      integer ish   ! [input] shell/contraction index
+      integer jsh   ! [input] shell/contraction index
+      integer ketin ! [input] ket basis set handle
+      integer ksh   ! [input] shell/contraction index
+      integer lsh   ! [input] shell/contraction index
+      integer lscr  ! [input] length of scratch array
+      double precision scr(lscr) ! [scratch] array
+      integer leri  ! [input] length of integral array
+      double precision eri(leri) ! [output] 2c2e integrals
+c:tex-\end{verbatim}
 c:: local
       integer bra, ket 
       integer ab_geom, cd_geom, ucont

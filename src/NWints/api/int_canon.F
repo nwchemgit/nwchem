@@ -1,7 +1,20 @@
-c $Id: int_canon.F,v 1.1 1994-05-05 19:07:41 d3e129 Exp $
+c $Id: int_canon.F,v 1.2 1996-10-07 16:50:19 d3e129 Exp $
+*
+c:tex-% part of the internal API routines
+c:tex-\subsubsection{int\_canon}
+c:tex-This routine canonicalizes integral lables such that:
+c:tex-$i \geq j$, $k \geq l$, and $ij \geq kl$
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_canon(i, j, k, l, ii, jj, kk, ll)
+c:tex-\end{verbatim}
       implicit none
-      integer i,j,k,l,ii,jj,kk,ll,iii,jjj
+c:tex-\begin{verbatim}
+      integer i,j,k,l      ! [input] labels
+      integer ii,jj,kk,ll  ! [output] canonical labels
+c:tex-\end{verbatim}
+      integer iii,jjj
 #if defined(DEBUG)
       logical warn
 #endif

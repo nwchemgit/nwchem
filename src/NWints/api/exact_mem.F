@@ -1,15 +1,16 @@
-c $Id: exact_mem.F,v 1.23 1996-10-01 18:46:01 d3e129 Exp $
-c
+c $Id: exact_mem.F,v 1.24 1996-10-07 16:49:43 d3e129 Exp $
+*
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsubsection{exact\_mem}
 c:tex-This routine computes the memory required by the 
 c:tex-McMurchie-Davidson integral code developed at PNNL.  
 c:tex-This calls specific routines listed below for each 
-c:tex-integral type.  The data is stored in a common block 
+c:tex-integral type.  The data is stored in a common block (apiP.fh)
 c:tex-for fast retrieval.
 c:tex-   
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine exact_mem(bases,nbas)
 c:tex-\end{verbatim}
@@ -123,6 +124,7 @@ c:tex-This routine computes the memory for the 3-center overlap
 c:tex-integrals based on the basis sets used.  
 c:tex-
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine emem_3ov(ibasin,jbasin,kbasin,lsz_buf,memsize)
 c:tex-\end{verbatim}
@@ -253,6 +255,7 @@ c:tex-This routine computes the memory for any type of 1e
 c:tex-integrals based on the basis sets used.  
 c:tex-
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine emem_1e(brain, ketin, max1e, memsize)
 c:tex-\end{verbatim}
@@ -382,6 +385,7 @@ c:tex-\item $(ij|kk)$
 c:tex-\end{itemize}
 c:tex-
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine emem_2e4c(brain, ketin, maxg, memsize)
 c:tex-\end{verbatim}
@@ -555,6 +559,7 @@ c:tex-This routine computes the memory required for the the two electron
 c:tex-three center integrals using the McMurchie-Davidson algorithm. 
 c:tex-
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine emem_2e3c(brain, ketin, maxg, memsize)
 c:tex-\end{verbatim}
@@ -673,6 +678,7 @@ c:tex-This routine computes the memory required for the the two electron
 c:tex-two center integrals using the McMurchie-Davidson algorithm. 
 c:tex-
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine emem_2e2c(brain, ketin, maxg, memsize)
 c:tex-\end{verbatim}
@@ -796,6 +802,7 @@ c:tex-The exact algorithm is an N$^4$ and costly.  This routine is used
 c:tex-primarily as a debugging tool
 c:tex-
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine emem_2e4c_full(brain, ketin, maxg, memsize)
 c:tex-\end{verbatim}
@@ -955,6 +962,7 @@ c:tex-set.  Used in many memory computing routines to deterine maximum
 c:tex-buffer sizes needed for integral computations.
 c:tex-
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_nbf_max(basisin,nbf_max)
 c:tex-\end{verbatim}

@@ -2,7 +2,7 @@
      $     num_q, q4, use_q4, zerotol, canonicalize,
      $     ilab, jlab, klab, llab, eri,
      $     l_erilab, nint, lscr, scr)
-*     $Id: intb_2e4c.F,v 1.13 1996-10-04 18:18:04 d3g681 Exp $
+*     $Id: intb_2e4c.F,v 1.14 1996-10-07 16:50:40 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -25,10 +25,10 @@ c::   passed
       double precision q4(num_q) ! [input] symmetry prefactors for integrals
 *     
       integer l_erilab          ! [input]  length of eri and integral label arrays
-      integer ilab(l_erilab)    ! [output] integral labels for "i" gaussian
-      integer jlab(l_erilab)    ! [output] integral labels for "j" gaussian
-      integer klab(l_erilab)    ! [output] integral labels for "k" gaussian
-      integer llab(l_erilab)    ! [output] integral labels for "l" gaussian
+      integer ilab(l_erilab)    ! [output] integral labels for ``i'' gaussian
+      integer jlab(l_erilab)    ! [output] integral labels for ``j'' gaussian
+      integer klab(l_erilab)    ! [output] integral labels for ``k'' gaussian
+      integer llab(l_erilab)    ! [output] integral labels for ``l'' gaussian
       integer nint              ! [output] number of integrals stored in output arrays
       double precision eri(l_erilab) ! [output] integral values
       integer lscr              ! [input] length of scratch array
@@ -99,7 +99,7 @@ c
      $     num_q, q4, use_q4, zerotol, canonicalize,
      $     ilab, jlab, klab, llab, eri,
      $     l_erilab, nint, lscr, scr)
-*     $Id: intb_2e4c.F,v 1.13 1996-10-04 18:18:04 d3g681 Exp $
+*     $Id: intb_2e4c.F,v 1.14 1996-10-07 16:50:40 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -120,10 +120,10 @@ c::   passed
       double precision q4(num_q) ! [input] symmetry prefactors for integrals
 *     
       integer l_erilab          ! [input]  length of eri and integral label arrays
-      integer ilab(l_erilab)    ! [output] integral labels for "i" gaussian
-      integer jlab(l_erilab)    ! [output] integral labels for "j" gaussian
-      integer klab(l_erilab)    ! [output] integral labels for "k" gaussian
-      integer llab(l_erilab)    ! [output] integral labels for "l" gaussian
+      integer ilab(l_erilab)    ! [output] integral labels for ``i'' gaussian
+      integer jlab(l_erilab)    ! [output] integral labels for ``j'' gaussian
+      integer klab(l_erilab)    ! [output] integral labels for ``k'' gaussian
+      integer llab(l_erilab)    ! [output] integral labels for ``l'' gaussian
       integer nint              ! [output] number of integrals stored in output arrays
       double precision eri(l_erilab) ! [output] integral values
       integer lscr              ! [input] length of scratch array

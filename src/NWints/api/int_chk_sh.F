@@ -1,11 +1,39 @@
+c $Id: int_chk_sh.F,v 1.5 1996-10-07 16:50:21 d3e129 Exp $
+*
+c:tex-% part of the internal API routines
+c:tex-\subsubsection{int\_chk\_sh}
+c:tex-This function checks to see that the given shell is valid
+c:tex-Returns .true. if so else returns .false. if not.
+c:tex-This subroutine call can be replaced by a statement 
+c:tex-function sequence:
+c:tex-\begin{verbatim}
+c:tex-#include "basP.fh"
+c:tex-#include "geobasmapP.fh"
+c:tex-      logical inline_chk_sh
+c:tex-      inline_chk_sh(bra,ish) =
+c:tex-     $     ((ish.gt.0) .and. (ish.le.ncont_tot_gb(bra)))
+c:tex-\end{verbatim}
+c:tex-Where bra is the lexical basis index (not the handle).
+c:tex-or you could use the following with the handle.
+c:tex-\begin{verbatim}
+c:tex-      inline_chk_sh(bra,ish) =
+c:tex-     $     ((ish.gt.0) .and. 
+c:tex-     $(ish.le.ncont_tot_gb(bra+basis_handle_offset)))
+c:tex-\end{verbatim}
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       logical function int_chk_sh(basisin,shell)
-c $Id: int_chk_sh.F,v 1.4 1994-08-19 01:22:30 d3g681 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 c::passed
-      integer basisin, shell
+c:tex-\begin{verbatim}
+      integer basisin ! [input] basis set handle
+      integer shell ! [input] lexical shell index
+c:tex-\end{verbatim}
 c::local
       integer basis
 c

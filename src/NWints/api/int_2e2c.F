@@ -1,6 +1,17 @@
+c $Id: int_2e2c.F,v 1.11 1996-10-07 16:50:13 d3e129 Exp $
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsubsection{int\_2e2c}
+c:tex-this routine computes the 2 center 2 electron integrals: 
+c:tex-\[
+c:tex-({\mu}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2})dr_{1}dr_{2}
+c:tex-\]
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri)
-c $Id: int_2e2c.F,v 1.10 1996-09-19 01:03:46 d3g681 Exp $
+c:tex-\end{verbatim}
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -33,9 +44,16 @@ c::functions
       external cando_txs
 #endif
 c:: passed
-      integer brain, ketin, lscr, leri
-      integer ish,jsh
-      double precision scr(lscr), eri(leri)
+c:tex-\begin{verbatim}
+      integer brain ! [input] bra basis set handle
+      integer ish   ! [input] shell/contraction index
+      integer ketin ! [input] ket basis set handle
+      integer jsh   ! [input] shell/contraction index
+      integer lscr  ! [input] length of scratch array
+      double precision scr(lscr) ! [scratch] array
+      integer leri  ! [input] length of integral array
+      double precision eri(leri) ! [output] 2c2e integrals
+c:tex-\end{verbatim}
 c:: local
       logical shells_ok
       integer bra, ket 

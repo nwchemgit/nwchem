@@ -1,6 +1,26 @@
+c $Id: int_l1eh1.F,v 1.5 1996-10-07 16:50:33 d3e129 Exp $
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsubsection{int\_l1eh1}
+c:tex-This routine computes the 1 electron hamiltonian, ($H1$)
+c:tex-with labels and ``zero'' integrals removed. 
+c:tex-\[
+c:tex-H1 = T + V      
+c:tex-\]
+c:tex-\[
+c:tex-T = ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}\nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
+c:tex-\]
+c:tex-\[
+c:tex-V = ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1} 
+c:tex-\]
+c:tex-If an ecp is defined then the integral contributions are summed 
+c:tex-directly into the $H1$ integrals.  
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_l1eh1(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, lh1, H1, lscr, scr, numgen) 
-c $Id: int_l1eh1.F,v 1.4 1996-07-18 23:58:01 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -13,10 +33,20 @@ c::function
       logical int_chk_sh
       external int_chk_sh
 c::passed
-      integer i_basis, j_basis, ish, jsh, lh1, numgen, lscr
-      integer ilab(lh1),jlab(lh1)
-      double precision zerotol, scr(lscr)
-      double precision H1(lh1)
+c:tex-\begin{verbatim}
+      integer i_basis ! [input] basis set handle for ish
+      integer ish     ! [input] i shell/contraction
+      integer j_basis ! [input] basis set handle for jsh
+      integer jsh     ! [input] j shell/contraction
+      integer lscr    ! [input] length of scratch array
+      double precision zerotol   ! [input] zero threshold 
+      double precision scr(lscr) ! [scratch] scratch array
+      integer lh1                ! [input] length of one electron buffer.
+      integer numgen             ! [output] number of H1 integrals
+      integer ilab(lh1)          ! [output] i bas fun labels array
+      integer jlab(lh1)          ! [output] j bas fun labels array
+      double precision H1(lh1)   ! [output] one electron hamiltonian integrals
+c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, icount, i, j
       logical ijbas

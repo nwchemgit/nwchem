@@ -1,5 +1,5 @@
-c $Id: cando_sp.F,v 1.21 1996-10-01 18:46:01 d3e129 Exp $
-c
+c $Id: cando_sp.F,v 1.22 1996-10-07 16:49:41 d3e129 Exp $
+*
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsubsection{cando\_sp}
@@ -7,6 +7,7 @@ c:tex-This routine returns ``.true.'' to the calling integral API
 c:tex-routine if the two electron integrals over ISH and JSH can be 
 c:tex-computed using the sp-rotated axis code.
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       logical function cando_sp(basisin,ish,jsh)
 c:tex-\end{verbatim}
@@ -81,6 +82,7 @@ c:tex-This routine returns ``.true.'' to the calling integral API
 c:tex-routine if the two electron integrals over ISH and JSH can be 
 c:tex-computed using the McMurchie-Davidson code.
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       logical function cando_nw(basisin,ish,jsh)
 c:tex-\end{verbatim}
@@ -153,6 +155,7 @@ c:tex-This routine returns ``.true.'' to the calling integral API
 c:tex-routine if the two electron integrals over unique shells ISH 
 c:tex-and JSH can be computed using the sp-rotated axis code.
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       logical function cando_sp_u(basisin,ish_u,jsh_u)
 c:tex-\end{verbatim}
@@ -217,6 +220,7 @@ c:tex-This routine returns ``.true.'' to the calling integral API
 c:tex-routine if the two electron integrals over ISH and JSH can be 
 c:tex-computed using the texas integral code.
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       logical function cando_txs(basisin,ish,jsh)
 c:tex-\end{verbatim}
@@ -283,6 +287,7 @@ c:tex-This routine returns ``.true.'' to the calling integral API
 c:tex-routine if the one electron integrals over ISH and JSH can be 
 c:tex-computed using the McMurchie-Davidson code.
 ***********************************************************************
+c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       logical function cando_nw_1e(basisin,ish,jsh)
 c:tex-\end{verbatim}

@@ -1,9 +1,20 @@
+c $Id: int_l1e3ov.F,v 1.9 1996-10-07 16:50:28 d3e129 Exp $
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsubsection{int\_l1e3ov}
+c:tex-This routine computes the 3 center overlap integral 
+c:tex-with labels and removing ``zero'' integrals:
+c:tex-\[
+c:tex-({\mu}{\nu}{\lamda}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})g_{\nu}(X-R,r_{1}g_{\lamda}(X-R,r_{1})dr_{1}
+c:tex-\]
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_l1e3ov(i_basis, ish, j_basis, jsh, k_basis, ksh,
      &       zerotol, lov3, OV3, ilab, jlab, klab, numov3, lscr, scr)
+c:tex-\end{verbatim}
 c
 c routine to calculate labels for 3 center overlap integrals 
 c
-C$Id: int_l1e3ov.F,v 1.8 1996-07-18 23:57:56 d3e129 Exp $
       implicit none 
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -16,6 +27,7 @@ c::function
       logical int_chk_sh
       external int_chk_sh
 c::passed
+c:tex-\begin{verbatim}
       integer i_basis            ! [input] basis set handle for ish
       integer ish                ! [input] i shell/contraction
       integer j_basis            ! [input] basis set handle for jsh
@@ -31,6 +43,7 @@ c::passed
       integer numov3             ! [output] number of integrals and labels generated
       integer lscr               ! [input] length of scratch array
       double precision scr(lscr) ! [input] scratch array
+c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, kbas  ! real basis set array index
       integer i, j, k, icount   ! and do loop variables counters

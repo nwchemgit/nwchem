@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.5 1996-07-18 23:58:36 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.6 1996-10-07 16:50:42 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -56,10 +56,10 @@ c::functions
       external int_nint_cart
 c::passed
       integer i_basis   ! [input] ish basis set handle
-      integer ish       ! [input] "i" contraction index
+      integer ish       ! [input] ``i'' contraction index
       integer j_basis   ! [input] jsh basis set handle
-      integer jsh       ! [input] "j" contraction index
-      integer lscr      ! [input] length of scratch space "scr"
+      integer jsh       ! [input] ``j'' contraction index
+      integer lscr      ! [input] length of scratch space
       integer lH1a      ! [input] number of h1 integral derivatives in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
       double precision scr(lscr) ! [input] scratch array
@@ -99,10 +99,10 @@ c::external subroutines used
 c... errquit
 c::passed
       integer i_basis   ! [input] ish basis set handle
-      integer ish       ! [input] "i" contraction index
+      integer ish       ! [input] ``i'' contraction index
       integer j_basis   ! [input] jsh basis set handle
-      integer jsh       ! [input] "j" contraction index
-      integer lscr      ! [input] length of scratch space "scr"
+      integer jsh       ! [input] ``j'' contraction index
+      integer lscr      ! [input] length of scratch space 
       integer nint      ! [input] number of integrals in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
       double precision scr(lscr) ! [input] scratch array

@@ -1,4 +1,10 @@
-c $Id: apispP.fh,v 1.1 1994-06-07 00:29:48 d3e129 Exp $
+C
+c $Id: apispP.fh,v 1.2 1996-10-07 16:49:39 d3e129 Exp $
+C  This may be obsoleter rak/10/3/96
+c  I do not want to remove it since cvs will not allow
+C  reusing the name and there may be some sp specific code
+c  later on.
+C
       integer hszspa,kszspa
       integer hszspb,kszspb
       integer hszspc,kszspc

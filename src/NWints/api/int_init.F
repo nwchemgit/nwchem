@@ -1,5 +1,17 @@
+c $Id: int_init.F,v 1.28 1996-10-07 16:50:25 d3e129 Exp $
+*
+c:tex-%API Initialization and Termination Routines
+c:tex-\subsubsection{int\_init}
+c:tex-This is the main initialization routine for integrals.
+c:tex-memory requirements, accuracy thresholds, and other 
+c:tex-initializations for all base integral codes are set here. 
+c:tex-This routine will read (from the rtdb)any integral 
+c:tex-settings changed by the user.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.27 1996-10-01 18:46:02 d3e129 Exp $
+c:tex-\end{verbatim}
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -17,9 +29,11 @@ c::functions
       logical int_ecp_init
       external int_ecp_init
 c::passed
-      integer rtdb        ! run time data base handle
-      integer nbas        ! number of basis sets to be used
-      integer bases(nbas) ! basis set handles
+c:tex-\begin{verbatim}
+      integer rtdb        ! [input] run time data base handle
+      integer nbas        ! [input] number of basis sets to be used
+      integer bases(nbas) ! [input] basis set handles
+c:tex-\end{verbatim}
 c::local
       integer txs_mem_min ! memory from texas
       integer ibas, ang2use, angm, type
