@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.45 1999-07-14 00:28:50 d3e129 Exp $
+c $Id: bas_input.F,v 1.46 1999-11-17 18:33:59 bjohnson Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -165,7 +165,7 @@ c
          if (.not. inp_a(ecpname)) goto 10000
          if (oIs_ecp.or.oIs_so) then 
            errmsg = 'bas_input: you are attaching an ecp to '
-           errmsg = errmsg//'an so or ecp basis.  Not possible'
+     $           // 'an so or ecp basis.  Not possible'
            call errquit(errmsg, 911)
          endif
          goto 10
@@ -176,7 +176,7 @@ c
          if (.not. inp_a(soname)) goto 10000
          if (oIs_so.or.oIs_ecp) then 
            errmsg = 'bas_input: you are attaching an so to '
-           errmsg = errmsg//'an so or ecp basis.  Not possible'
+     $           // 'an so or ecp basis.  Not possible'
            call errquit(errmsg, 911)
          endif
          goto 10
