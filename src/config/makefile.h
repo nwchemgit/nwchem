@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.138 1996-01-26 18:18:36 d3e129 Exp $
+# $Id: makefile.h,v 1.139 1996-02-08 08:48:24 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -75,13 +75,13 @@ NW_CORE_SUBDIRS = include basis geom global inp input \
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
-	plane_wave
+	plane_wave selci
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
 # be too hard to come up with.  These should be platform-independent.
 
-KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lmoints -lrimp2 \
+KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmoints -lrimp2 \
                     -lstepper -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lddscf -lguess \
                     -lvib -lutil -lnwints -lideaz -lnwargos
@@ -255,7 +255,7 @@ ifeq ($(TARGET),CRAY-T3D)
 # gpp does not eat elif
 #                 CPP = /usr/lib/gpp -P  -F
 # need jump since with all modules code is too big for branches
-# ieeedivide seems safe and should be faster
+# noieeedivide seems safe and should be faster
              FOPTIONS = -dp -Ccray-t3d 
              COPTIONS = -Tcray-t3d -hjump
 # To make executable smaller use scalar optimization and no -g on all code.
@@ -264,7 +264,7 @@ ifeq ($(TARGET),CRAY-T3D)
 # !! Note that -O option disables any -Wf"-o options" but we need
 # !! jump so cannot use -O.
                FDEBUG = -Wf"-o scalar,jump,noieeedivide"
-# Note sure yet if these are fully safe ... aggress,unroll
+# Not sure yet if these are fully safe ... aggress,unroll
             FOPTIMIZE = -Wf"-o scalar,jump,noieeedivide,aggress,unroll"
                CDEBUG = -O 1
             COPTIMIZE = -O
