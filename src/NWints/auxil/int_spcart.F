@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.31 2000-11-29 19:25:55 edo Exp $
+c $Id: int_spcart.F,v 1.32 2003-01-07 02:36:58 edo Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -687,8 +687,6 @@ c
           do i=1,ndima
             sumg = 0.0d00
             do k = 1,L2s
-*              blockout(i,j,g) = blockout(i,j,g) +
-*     &              blockin(i,k,g)*Dtrans(k,j,Ls)
               sumg = sumg + blockin(i,k,g)*Dtrans(k,j,Ls)
             enddo
             blockout(i,j,g) = sumg
@@ -982,35 +980,27 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
       dt42  = dtrans(4, 2,2)
       do g=1,ngls
         do i=1,ndima
+#ifdef DEBUG
           if (print_info.and.print_debug)
      &        write(6,*)' spcart_a_sd:g,i',g,i
+#endif
           bin1 = blockin(i,1,g)
-          bin2 = blockin(i,2,g)
-          bin3 = blockin(i,3,g)
           bin4 = blockin(i,4,g)
-          bin5 = blockin(i,5,g)
-          bin6 = blockin(i,6,g)
+#ifdef DEBUG
           if (print_info.and.print_debug) then   
             write(6,11111)' spcart_a_sd:cart ints 1 xx',bin1,g,i
             write(6,11111)' spcart_a_sd:cart ints 2 xy',bin2,g,i
             write(6,11111)' spcart_a_sd:cart ints 3 xz',bin3,g,i
             write(6,11111)' spcart_a_sd:cart ints 4 yy',bin4,g,i
-            write(6,11111)' spcart_a_sd:cart ints 5 yz',bin5,g,i
             write(6,11111)' spcart_a_sd:cart ints 6 zz',bin6,g,i
           endif
-          sinm2 = bin2*dt2m2
-          sinm1 = bin5*dt5m1
-          sin0  = bin1*dt10 +
-     &            bin4*dt40 +
-     &            bin6*dt60
-          sinp1 = bin3*dt31
-          sinp2 = bin1*dt12 +
-     &            bin4*dt42
-          blockout(i,-2,g) = sinm2
-          blockout(i,-1,g) = sinm1
-          blockout(i, 0,g) = sin0
-          blockout(i, 1,g) = sinp1
-          blockout(i, 2,g) = sinp2
+#endif
+          blockout(i,-2,g) = blockin(i,2,g)*dt2m2
+          blockout(i,-1,g) = blockin(i,5,g)*dt5m1
+          blockout(i, 0,g) = bin1*dt10+bin4*dt40+blockin(i,6,g)*dt60
+          blockout(i, 1,g) = blockin(i,3,g)*dt31
+          blockout(i, 2,g) = bin1*dt12+bin4*dt42
+#ifdef DEBUG
           if (print_info.and.print_debug) then   
             write(6,11111)' spcart_a_sd:sph ints -2',sinm2,g,i
             write(6,11111)' spcart_a_sd:sph ints -1',sinm1,g,i
@@ -1018,6 +1008,7 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
             write(6,11111)' spcart_a_sd:sph ints +1',sinp1,g,i
             write(6,11111)' spcart_a_sd:sph ints +2',sinp2,g,i
           endif
+#endif
         enddo
       enddo
       if (print_info.and.print_debug)
