@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.19 1997-10-15 20:06:33 d3e129 Exp $
+* $Id: task.F,v 1.20 1998-03-18 18:51:04 d3e129 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -45,7 +45,7 @@ c
       external task_version
       external esp
 c
-      oprint_task_times = util_print('task time',print_high)
+      oprint_task_times = util_print('task time',print_default)
       if (oprint_task_times) then
         task_wall = -util_wallsec()
         task_cpu  = -util_cpusec()
