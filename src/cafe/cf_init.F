@@ -6,7 +6,7 @@
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
      + mropti,incl,ltwn)
-c $Id: cf_init.F,v 1.79 2002-07-17 14:25:21 d3j191 Exp $
+c $Id: cf_init.F,v 1.80 2002-08-09 22:16:13 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -254,7 +254,7 @@ c
       numpmf=itemp(1)
       npmfa=itemp(2)
       if(numpmf.gt.0) then
-      if(.not.ma_push_get(mt_int,7*numpmf,'ipmf',l_ipmf,i_ipmf))
+      if(.not.ma_push_get(mt_int,8*numpmf,'ipmf',l_ipmf,i_ipmf))
      + call errquit('Failed to allocate ipmf',0)
       if(.not.ma_push_get(mt_int,4*numpmf*npmfa,'jpmf',l_jpmf,i_jpmf))
      + call errquit('Failed to allocate jpmf',0)
@@ -266,6 +266,8 @@ c
      + call errquit('Failed to allocate ypmf',0)
       if(.not.ma_push_get(mt_dbl,4*numpmf,'wpmf',l_wpmf,i_wpmf))
      + call errquit('Failed to allocate wpmf',0)
+      if(.not.ma_push_get(mt_dbl,numpmf,'upmf',l_upmf,i_upmf))
+     + call errquit('Failed to allocate upmf',0)
       endif
       call cf_rdpmf(lfntop,int_mb(i_ipmf),int_mb(i_jpmf),dbl_mb(i_rpmf))
       call ga_brdcst(mcf_75,nbias,ma_sizeof(mt_int,1,mt_byte),0)
@@ -361,7 +363,7 @@ c
 #include "msgids.fh"
 c
       integer lfntop
-      integer ipmf(numpmf,7),jpmf(numpmf,4,npmfa)
+      integer ipmf(numpmf,8),jpmf(numpmf,4,npmfa)
       real*8 rpmf(3,6,numpmf)
 c
       integer i,j,k,m,lenint,lendbl,lenlog
@@ -375,8 +377,8 @@ c
       do 1 i=1,numpmf
       read(lfntop,1000) ipmf(i,1),ipmf(i,6),ipmf(i,7),
      + (rpmf(j,1,i),rpmf(j,3,i),j=1,2),
-     + (ipmf(i,j),j=2,5)
- 1000 format(3i5,2f12.6,2e12.5,4i5)
+     + (ipmf(i,j),j=2,5),ipmf(i,8)
+ 1000 format(3i5,2f12.6,2e12.5,5i5)
       if(ipmf(i,6).ne.0) nbias=nbias+1
       do 2 j=1,2
       rpmf(j,2,i)=rpmf(j,1,i)

@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.13 2001-05-23 03:20:03 d3j191 Exp $
+c $Id: cf_finish.F,v 1.14 2002-08-09 22:16:13 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -12,6 +12,8 @@ c
       if(ipme.gt.0) call pme_finish()
 c
       if(numpmf.gt.0) then
+      if(.not.ma_pop_stack(l_upmf))
+     + call errquit('Failed to deallocate upmf',0)
       if(.not.ma_pop_stack(l_wpmf))
      + call errquit('Failed to deallocate wpmf',0)
       if(.not.ma_pop_stack(l_ypmf))

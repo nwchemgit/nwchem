@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.147 2002-06-26 21:02:40 d3j191 Exp $
+c $Id: cf_main.F,v 1.148 2002-08-09 22:16:13 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1416,13 +1416,13 @@ c
       if(lpmf) then
       call cf_plist(nums,xs,fs,isgan,isatt,int_mb(i_ipmf),
      + int_mb(i_jpmf),dbl_mb(i_rpmf),dbl_mb(i_xpmf),dbl_mb(i_wpmf),
-     + lfnpmf,lrec,iprpmf)
+     + dbl_mb(i_upmf),lfnpmf,lrec,iprpmf)
       endif
 c
       return
       end
       subroutine cf_plist(nums,xs,fs,isgan,isatt,
-     + ipmf,jpmf,rpmf,xpmf,wpmf,lfnpmf,lrec,iprpmf)
+     + ipmf,jpmf,rpmf,xpmf,wpmf,upmf,lfnpmf,lrec,iprpmf)
 c
       implicit none
 c
@@ -1437,9 +1437,9 @@ c
       integer nums,lfnpmf,iprpmf
       real*8 xs(msa,3),fs(msa,3)
       integer isgan(msa),isatt(msa)
-      integer ipmf(numpmf,7),jpmf(numpmf,4,npmfa)
+      integer ipmf(numpmf,8),jpmf(numpmf,4,npmfa)
       real*8 rpmf(3,6,numpmf),xpmf(4,3,numpmf),wpmf(4,numpmf)
-      real*8 et(2),ft(4,3)
+      real*8 et(2),ft(4,3),upmf(numpmf)
       integer ip(5)
       real*8 rv(2),chg(2)
       integer it(2),ign(4),iml(4),idt(4),ich(4)
@@ -1462,6 +1462,7 @@ c
       xpmf(j,3,i)=zero
       wpmf(j,i)=zero
     2 continue
+      upmf(i)=zero
       if(ipmf(i,6).eq.2.and.lpmfc) goto 1
 c
       m=0
@@ -1563,6 +1564,7 @@ c
  1000 format(i5,f12.6,e12.5)
       if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
       epmf=epmf+rv(2)
+      upmf(ipmf(i,8))=upmf(ipmf(i,8))+rv(2)
       endif
       do 9 j=1,2
       do 10 k=1,ipmf(i,j+1)
@@ -1599,6 +1601,7 @@ c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
       if(me.eq.0) then
       if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
       epmf=epmf+rv(2)
+      upmf(ipmf(i,8))=upmf(ipmf(i,8))+rv(2)
       if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
       endif
       do 14 j=1,3
@@ -1644,6 +1647,7 @@ c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Imp:',rv,(ft(3,j),j=1,3)
       if(me.eq.0) then
       if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
       epmf=epmf+rv(2)
+      upmf(ipmf(i,8))=upmf(ipmf(i,8))+rv(2)
       if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
       endif
       do 19 j=1,4
@@ -1719,6 +1723,7 @@ c     sum ubias on every processor since this is not done in replicated mode
 c
       ubias=ubias+rv(2)
       epmf=epmf+rv(2)
+      upmf(ipmf(i,8))=upmf(ipmf(i,8))+rv(2)
 c
 c     sum the forces
 c
@@ -2349,6 +2354,9 @@ c
      + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
      + byte_mb(i_snam))
 c
+      if(numpmf.gt.0) call cf_pr_pmf(lfnout,int_mb(i_ipmf),
+     + dbl_mb(i_upmf))
+c
       return
       end
       subroutine cf_pr_bonds(lfnout,nsb,msb,msp,ibnd,bnd,rbnd,snam)
@@ -2486,6 +2494,39 @@ c
  1001 format(4i7,4a17,i7,f5.1,f10.5,e12.5,f10.5,f12.6)
     1 continue
 c
+      return
+      end
+      subroutine cf_pr_pmf(lfnout,ipmf,upmf)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfnout,ipmf(numpmf,8)
+      real*8 upmf(numpmf)
+c
+      integer i,j,nup
+      real*8 up
+c
+      if(me.eq.0) then
+      write(lfnout,1000)
+ 1000 format(/,'Solute potentials of mean force',//,
+     + '     i     U',/)
+      do 1 i=1,numpmf
+      up=zero
+      nup=0
+      do 2 j=1,numpmf
+      if(ipmf(j,8).eq.i) then
+      up=up+upmf(j)
+      nup=nup+1
+      endif
+    2 continue
+      if(nup.eq.0) goto 3
+      write(lfnout,1001) i,up
+ 1001 format(i7,e12.5)
+    1 continue
+    3 continue
+      endif
       return
       end
       subroutine cf_fix(lfnout,lfn,numfix,iwgmn,iwdt,numw,
