@@ -18,5 +18,10 @@ Some of the DFT options are not available in the SODFT. These are \verb+max_ovl+
 \verb+sic+.
 
 Besides using the standard ECP and basis sets, see Section \ref{sec:ecp} for details, one 
-also has to specify a spin-orbit (SO) potential. The input specifiction for the SO potential
-can be found in section \ref{sec:spinorb_ecp}.
+also has to specify a spin-orbit (SO) potential. The input specification for the SO potential
+can be found in section \ref{sec:spinorb_ecp}. At this time we have not included any spin-orbit
+potentials in the basis set library.
+
+Note: One should use a combination of ECP and SO potentials that were designed for the same 
+size core, i.e. don't use a small core ECP potential with a large core SO potentiali (it will
+produce erroneous results).
