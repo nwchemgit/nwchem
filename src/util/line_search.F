@@ -1,6 +1,6 @@
       logical function line_search(nstep, max_nstep, energies,
      $     gradients, steps, eacc, tol, oprint)
-C$Id: line_search.F,v 1.11 1999-06-28 16:07:52 d3g681 Exp $
+C$Id: line_search.F,v 1.12 2000-04-24 18:00:41 bert Exp $
       implicit none
 #include "util.fh"
 c
@@ -178,7 +178,13 @@ c
          nstep = nstep + 1
          steps(nstep) = steps(nstep-1) + ls_step
       else
-         call errquit('line_search: exhausted max steps',max_nstep)
+         if (oprint) then
+            write(6,*) ' !! Warning ... line search did not converge !!'
+            call util_flush(6)
+         endif
+         line_search = .true.
+         return
+*         call errquit('line_search: exhausted max steps',max_nstep)
       endif
       line_search = .false.
 c
