@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.7 1994-06-29 05:50:16 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.8 1994-08-19 01:22:28 d3g681 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -36,30 +36,39 @@ c:: local
       integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
 c
+      integer inline_chk_sh
       integer WarnP
       data WarnP /0/
       save WarnP
+c
+      inline_chk_sh(bra,ish) =
+     $     (ish.gt.0) .and. (ish.le.ncont_tot_gb(bra))
+
 c
 c check initialization
 c
       if (.not.int_chk_init('int_2e4c'))
      &       call errquit('int_2e4c: int_init was not called' ,0)
 c
-c     check input shell ranges
-c
-      shells_ok = int_chk_sh(brain,ish)
-      shells_ok = shells_ok .and. int_chk_sh(brain,jsh)
-      shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
-      shells_ok = shells_ok .and. int_chk_sh(ketin,lsh)
-      if (.not.shells_ok)
-     &       call errquit('int_2e4c: invalid contraction/shell',0)
-c
 c     define center information required 
 c
+      if (.not. bas_check_handle(brain,'int_2e4c:bra')) call errquit
+     $     ('int_2e4c: invalid bra basis handle', brain)
+      if (.not. bas_check_handle(ketin,'int_2e4c:ket')) call errquit
+     $     ('int_2e4c: invalid ket basis handle', ketin)
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
       ab_geom = ibs_geom(bra)
       cd_geom = ibs_geom(ket)
+c
+c     check input shell ranges
+c
+      shells_ok = inline_chk_sh(bra,ish)
+      shells_ok = shells_ok .and. inline_chk_sh(bra,jsh)
+      shells_ok = shells_ok .and. inline_chk_sh(ket,ksh)
+      shells_ok = shells_ok .and. inline_chk_sh(ket,lsh)
+      if (.not.shells_ok)
+     &       call errquit('int_2e4c: invalid contraction/shell',0)
 c
       if (ab_geom.ne.cd_geom.and.WarnP.eq.0) then
         write(6,*)'int_2e4c: WARNING: possible geometry inconsistency'

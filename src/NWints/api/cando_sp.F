@@ -1,6 +1,6 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.6 1994-07-15 18:52:41 d3g681 Exp $
+c $Id: cando_sp.F,v 1.7 1994-08-19 01:22:25 d3g681 Exp $
 c
 c a zero [i|j]sh means ignore this shell
 c this allows one function for all 1e and 2e permutations
@@ -20,11 +20,14 @@ c::passed
 c::local
       integer basis, mytype, mycont
 c
+      cando_sp = .true.
+#ifdef BASIS_DEBUG
       cando_sp = bas_check_handle(basisin,'cando_sp')
       if (.not.cando_sp) then
         write(6,*)' bad basis handle '
         return
       endif
+#endif
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
