@@ -1,10 +1,10 @@
       Subroutine xc_sic_pert(rtdb, nExc, iVxc_opt, g_xcinv,
      &                       g_dens, g_vxc, IOLGC, g_wght, g_xyz, g_nq, 
-     &                       wght_GA, rho_n, rdens_atom, cntoce,
+     &                       wght_GA, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, natoms,
      &                       g_movecs, noc, k_eval, totsic)
 c
-C$Id: xc_sic_pert.F,v 1.6 2000-02-26 14:38:04 jolguin Exp $
+C$Id: xc_sic_pert.F,v 1.7 2000-03-31 18:40:33 jolguin Exp $
 c
       implicit none
 c      
@@ -79,7 +79,7 @@ c
           n_states = noc(isp)
 ccccc   Start loop of total states by spin        
           do ik = 1,n_states
-            if (me.eq.0.and.oprint_sic) write(LuOut,*) ' State ',ik
+            if (me.eq.0.and.oprint_sic) write(LuOut,*) ' Orbital ',ik
             call ga_zero(g_dens_orb(1))
             call ga_zero(g_dens_orb(2))
             call ga_zero(g_orb)

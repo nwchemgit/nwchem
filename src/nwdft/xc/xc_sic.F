@@ -1,10 +1,10 @@
       Subroutine xc_sic(rtdb, nExc, iVxc_opt, g_xcinv,
      &                  g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
-     &                  wght_GA, rho_n, rdens_atom, cntoce,
+     &                  wght_GA, rdens_atom, cntoce,
      &                  cntobfr, cetobfr, natoms,
      &                  g_movecs, noc, k_eval, totsic, i_degen)
 c
-C$Id: xc_sic.F,v 1.6 2000-01-31 23:24:37 jolguin Exp $
+C$Id: xc_sic.F,v 1.7 2000-03-31 18:40:02 jolguin Exp $
 c
       implicit none
 c      
@@ -70,7 +70,7 @@ c
         end if
 c
         if (me.eq.0.and.oprint_sic) write(LuOut,*)
-     &               ' Start Self-interaction correction by orbital..'
+     &               ' Starting SIC by orbital..'
         g_vxc_orb(1) = ga_create_atom_blocked(geom, ao_bas_han,
      &                                      'Vxc_orb_alpha')
         g_vxc_orb(2) = ga_create_atom_blocked(geom, ao_bas_han,
@@ -107,9 +107,11 @@ c
           if (noc(isp).ne.0) then
             do j = 1,noc(isp)
               l_degen = Int_MB(i_degen(isp) + j - 1)
-              if (me.eq.0.and.oprint_sic) write(LuOut,*) l_degen
               if (l_degen.eq.0) then
                 size_mat = size_mat + 1
+              else
+                if (me.eq.0.and.oprint_sic) write(LuOut,*)
+     &            ' HOMO = orbital ',j
               end if
             end do
           end if
@@ -136,7 +138,7 @@ c
 c   Start loop of total states by spin        
 c
           do 100 ik = 1,n_states
-            if (me.eq.0.and.oprint_sic) write(LuOut,*) ' State ',ik
+            if (me.eq.0.and.oprint_sic) write(LuOut,*) ' Orbital ',ik
             aux_ik = Int_MB(i_degen(isp) + ik - 1)
             call ga_zero(g_sic_dens(1))
             call ga_zero(g_sic_dens(2))
@@ -185,7 +187,6 @@ c
             call xc_quadv0(rtdb, nExc, g_vxc_orb, g_sic_dens,
      &                     g_wght, g_xyz, g_nq, wght_GA, Exc_orb,
      &                     rho_n, rdens_atom, cntoce, cntobfr,
-c    &                     cetobfr, natoms, g_dens) 
      &                     cetobfr, natoms)
 c
 c   Exc_orb(1) is the exchange-correlation energy by orbital
