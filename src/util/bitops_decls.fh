@@ -2,7 +2,7 @@ c
 c     Machine dependent defintion of the standard
 c     iand/ior/ieor/rshift/lshift bit operations
 c
-#ifdef LINUX
+#if defined(LINUX) && !defined(USE_G77)
       integer iand, ior, ieor
       integer and, or, xor, rshift, lshift
       intrinsic and, or, xor, rshift, lshift

@@ -5,7 +5,7 @@ c
 c     Since statement functions are defined this
 c     file must be included appropriately
 c
-#ifdef LINUX
+#if defined(LINUX) && !defined(USE_G77)
       iand(iiibit,jjjbit)=and(iiibit,jjjbit)
       ior(iiibit,jjjbit) = or(iiibit,jjjbit)
       ieor(iiibit,jjjbit)=xor(iiibit,jjjbit)
