@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.2 2004-07-23 21:34:46 bert Exp $
+c $Id: hnd_elpmap.F,v 1.3 2004-12-02 16:23:08 bert Exp $
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.
@@ -120,7 +120,7 @@ c
                rr =  sqrt(xn*xn + yn*yn + zn*zn)
                if (rr.lt.1.0d-3) then
                   write(luout,9993) xp,yp,zp,i
-                  go to 210
+                  go to 220
                endif
                elpotn = elpotn + dbl_mb(k_efcz+i-1)/rr
   220       continue
