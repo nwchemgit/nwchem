@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.51 2000-05-03 19:58:44 d3j191 Exp $
+c $Id: pre_input.F,v 1.52 2000-05-03 21:04:40 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       real*8 rfix
       character*1 altloc,chain
       integer ires,jres,kres,i,ignore,igroup,jgroup,kgroup,lgroup
-      integer nxrep,nyrep,nzrep,itran,jtran,j
+      integer nxrep,nyrep,nzrep,itran,jtran,j,nkeepw
       real*8 rrep,rdist,xtran(3)
       real*8 value1,value2
       character*4 scount(mcount)
@@ -1015,20 +1015,21 @@ c
       if(inp_compare(.false.,'write',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: write',9999)
       if(inp_compare(.false.,'solute',item)) then
+      if(.not.inp_i(nkeepw)) nkeepw=-1
       if(.not.inp_a(item)) call errquit('pre_input: write',9999)
       if(inp_compare(.false.,'pdb',item)) then
       if(.not.inp_a(item)) then
-      write(68,6806) ' '
+      write(68,6806) nkeepw,' '
       else
-      write(68,6806) item(1:index(item,' ')-1)
- 6806 format('wr_pdb solute ',a)
+      write(68,6806) nkeepw,item(1:index(item,' ')-1)
+ 6806 format('wr_pdb solute ',i10,a)
       endif
       elseif(inp_compare(.false.,'xyz',item)) then
       if(.not.inp_a(item)) then
-      write(68,6824) ' '
+      write(68,6824) nkeepw,' '
       else
-      write(68,6824) item(1:index(item,' ')-1)
- 6824 format('wr_xyz solute ',a)
+      write(68,6824) nkeepw,item(1:index(item,' ')-1)
+ 6824 format('wr_xyz solute ',i10,a)
       endif
       else
       call errquit('pre_input: write solute',9999)
