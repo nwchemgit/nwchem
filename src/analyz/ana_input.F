@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.18 2000-05-02 18:51:08 d3j191 Exp $
+c $Id: ana_input.F,v 1.19 2000-05-03 21:33:54 d3j191 Exp $
 c
       implicit none
 c
@@ -355,9 +355,7 @@ c
       iesppb=0
       filplt=filchg(1:index(filchg,'.xyzq'))
       if(inp_a(item)) then
-      print*,'item=',item
       if(inp_compare(.false.,'periodic',item)) then
-      print*,'pbc'
       if(.not.inp_i(iesppb)) iesppb=3
       if(.not.inp_a(filplt)) then
       filplt=filchg(1:index(filchg,'.xyzq'))

@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(card)
 c
-c $Id: ana_pltgrd.F,v 1.8 2000-05-02 19:16:51 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.9 2000-05-03 21:33:54 d3j191 Exp $
 c
       implicit none
 c
@@ -35,7 +35,6 @@ c
 c
 c     open the charge file
 c
-      print*,filchg(1:index(filchg,' ')-1)
       open(unit=lfnchg,file=filchg(1:index(filchg,' ')-1),
      + form='formatted',status='old',err=9999)
 c
@@ -124,8 +123,12 @@ c
     1 continue
 c
       do 4 j=1,3
+      if(iesppb.eq.0.or.(iesppb.lt.3.and.j.eq.3)) then
       ngrd(j)=(xmax(j)-xmin(j)+2.0d0*rcut)/spac+1
       xmin(j)=xmin(j)-rcut
+      else
+      ngrd(j)=(xmax(j)-xmin(j))/spac+1
+      endif
     4 continue
 c
       endif
