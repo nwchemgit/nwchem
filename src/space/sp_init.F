@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi)
 c
 c
-c $Id: sp_init.F,v 1.64 2000-04-19 20:38:09 d3j191 Exp $
+c $Id: sp_init.F,v 1.65 2000-05-12 14:55:47 d3j191 Exp $
 c
       implicit none
 c
@@ -72,6 +72,7 @@ c
       mwm=mwmi
       msa=msai
       mbbreq=mbbi
+      mbblp=0
 c
       iguide=iguidi
 c
@@ -1187,14 +1188,13 @@ c
       integer ibx,iby,ibz,ipx,ipy,ipz,ibox,inode
       integer jbx,jby,jbz,kbx,kby,kbz,jpx,jpy,jpz
       integer ilx,ihx,ily,ihy,ilz,ihz
-      integer jbox,jnode,mbblb,mbblp
+      integer jbox,jnode,mbblb
       real*8 dx,dxtmp,dy,dytmp,dz,dztmp,dist2
       character*255 string
 c
 c     determine size of box-box pairlist
 c     ----------------------------------
 c
-      mbblp=mbbl
       mbbl=0
       mbblb=0
       do 1 ibx=0,nbx-1
@@ -1340,11 +1340,12 @@ c
 c
 c     allocate memory for the box-box list
 c
-      if(mbblp.eq.0) then
       if(np.gt.1) call ga_igop(msp_20,mbbl,1,'max')
+      if(mbblp.eq.0) then
       mbbl=max(mbbl,mbbreq)
       if(.not.ma_push_get(mt_int,15*mbbl,'bb',l_bb,i_bb))
      + call errquit('Failed to allocate memory for bb',0)
+      mbblp=mbbl
       else
       if(mbbl.gt.mbblp) then
       write(string,1111) mbblp,mbbl
