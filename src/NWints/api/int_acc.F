@@ -1,9 +1,9 @@
       subroutine int_acc_std()
-C $Id: int_acc.F,v 1.2 1994-08-12 00:36:27 d3e129 Exp $
+C $Id: int_acc.F,v 1.3 1994-09-21 23:39:54 d3g681 Exp $
       implicit none
 #include "apiP.fh"
       double precision val_def
-      parameter(val_def = 1.0d-10)
+      parameter(val_def = 1.0d-12)
 c
       val_int_acc = val_def
       call int_sp_acc(val_int_acc)
