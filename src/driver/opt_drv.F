@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.29 1997-05-29 16:24:48 d3g681 Exp $
+C$Id: opt_drv.F,v 1.30 1997-05-29 22:16:38 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -336,8 +336,6 @@ c     ----- go back to next search direction -----
 c
       go to 100
 c
-***      hnd_optx=.false.  ! cannot be reached with default compilation
-***      return
  9999 format(/,10x,21(1h-),
      1       /,10x,'Geometry Optimization',
      2       /,10x,21(1h-))
@@ -345,10 +343,14 @@ c
      1       /,10x,'Optimization converged',
      2       /,10x,22(1h-))
  9997 format(' in hnd_optx, nzvar,nvar,ncart,ncoord,mcoord = ',5i5)
- 9996 format(' cvgopt = ',f10.6,/,' nptopt = ',i4,/,' linopt = ',i4,
-     1                          /,' inhess = ',i4,/,' modupd = ',i4,
-     2                          /,' modsad = ',i4,/,' moddir = ',i4)
- 9995 format(' maximum number of optimization points reached. stop',
+ 9996 format(' optimization convergence threshold    (cvgopt) = ',f10.6,
+     1     /,' maximum number of energy evaluation   (nptopt) = ',i4,/,
+     2       ' max.num. of points in linear search   (linopt) = ',i4,/,
+     1       ' initial guess option for opt.hessian  (inhess) = ',i4,/,
+     4       ' hessian update selection option       (modupd) = ',i4,/,
+     2       ' optimization to saddle point          (modsad) = ',i4,/,
+     6       ' initial eigen-mode followed to saddle (moddir) = ',i4)
+ 9995 format(' maximum number of energy points reached. stop',
      1       ' currently -nptopt- = ',i5)
  9994 format(/,10x,19(1h-),
      1       /,10x,'Energy Minimization',
@@ -2152,7 +2154,7 @@ C
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA TINY   /1.0D-06/
-      DATA SMALL  /1.0D-04/
+      DATA SMALL  /1.0D-02/
       DATA DAMP1  /5.0D+00/
       DATA DAMP2  /2.0D+00/
       DATA HUNDRD /1.0D+02/
@@ -2184,6 +2186,9 @@ C
             HESST(IJ)=HESS(I,J)
          ENDDO
       ENDDO
+      IF(DBUG) THEN
+         CALL HND_PRTR(HESST,NVAR)
+      ENDIF
       CALL HND_DIAGIV(HESST,HESVEC,HESEIG,IA,NVAR,NVAR,NDIM)
       IF(DBUG) THEN
          WRITE(IW,9997)
@@ -2502,7 +2507,7 @@ c
       data zero   /0.0d+00/       
       data tenm09 /1.0d-09/
 c
-      dbug=.true.   
+      dbug=.false.  
       out =.false.
 c
       do i=1,nx
@@ -2909,6 +2914,7 @@ C
 C     ----- RETURN AFTER SUCCESSFUL SEARCH -----
 C
  1000 CONTINUE
+      ALPHA=ALPH
       IF(DBUG) THEN
          WRITE(IW,9993)
       ENDIF
@@ -3022,17 +3028,12 @@ c
          endif
          call ga_brdcst(111+msgdbl,x(i10),mdtob(ndim*ndim),0)
          if(dbug) then
-         if( ga_nodeid().eq.0) then
-            write(iw,*) 'in hss_update, cartesian hessian = '
-            call hnd_prsq(x(i10),ndimx,ndimx,ndim)
+            if( ga_nodeid().eq.0) then
+               write(iw,*) 'in hss_update, cartesian hessian = '
+               call hnd_prsq(x(i10),ndimx,ndimx,ndim)
+            endif
          endif
          call ga_sync()
-         if( ga_nodeid().eq.1) then
-            write(iw,*) 'in hss_update, cartesian hessian = '
-            call hnd_prsq(x(i10),ndimx,ndimx,ndim)
-         endif
-         call ga_sync()
-         endif
       endif
 c
 c     ----- update hessian matrix -----
@@ -3069,18 +3070,20 @@ c
      $           call errquit('hnd_opt_hss_update: put_hess',ndimq*ndim)
          endif
          if(out) then
-            write(iw,*) 'in hss_update, transformed updated hessian = '
+            write(iw,*) 'in hss_update, ',
+     $                  'back-transformed updated hessian = '
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
          endif
       else
          if( ga_nodeid().eq.0) then
             if (.not. driver_opt_put_hess(x(i10),ndimx,ndim))
      $           call errquit('hnd_opt_hss_update: put_hess',ndimx*ndim)
+            if(dbug) then
+               write(iw,*) 'in hss_update, updated hessian = '
+               call hnd_prsq(x(i10),ndimx,ndimx,ndim)
+            endif
          endif
-         if(dbug) then
-            write(iw,*) 'in hss_update, updated hessian = '
-            call hnd_prsq(x(i10),ndimx,ndimx,ndim)
-         endif
+         call ga_sync()
       endif
 c
 c     ----- release memory -----
