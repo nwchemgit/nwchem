@@ -1,5 +1,4 @@
-      subroutine sp_start(irt,
-     + lfntop,filtop,lfnrst,filrst,lsyn,filsyn,nsyn,
+      subroutine sp_start(lfntop,filtop,lfnrst,filrst,lsyn,filsyn,nsyn,
      + rsht,rlng,rinp,
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
      + npbt,nbxt,boxt,vlatt,lpbc,
@@ -8,7 +7,7 @@
      + ldbg,idbg)
 c
 c
-c $Id: sp_init.F,v 1.49 2000-01-05 03:47:40 d3j191 Exp $
+c $Id: sp_init.F,v 1.50 2000-01-06 21:20:33 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +19,7 @@ c
       logical sp_rdrest,sp_diffbb
       external sp_rdrest,sp_diffbb
 c
-      integer lfntop,lfnrst,lsyn,nsyn,ldbg,idbg,irt
+      integer lfntop,lfnrst,lsyn,nsyn,ldbg,idbg
       character*255 filtop,filrst,filsyn
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
       real*8 temp,tempw,temps,fld
@@ -30,8 +29,6 @@ c
       logical lpol,lfre,ignore,lpbc,lqd
 c
       integer i,j
-c
-      irtdb=irt
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -220,36 +217,6 @@ c
       character*16 tag
 c
       mbbl=0
-c
-      if(lqmd) then
-      npbtyp=0
-      nwm=0
-      nwa=0
-      nsf=1
-      nsm=1
-      nwa=0
-      if(.not.geom_create(igeom,'geometry'))
-     + call errquit('arg_qinput: geom_create failed',0)
-      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
-     + call errquit('arg_qinput: geom_rtdb_load failed',0)
-      if(.not.geom_ncent(igeom,nsa))
-     + call errquit('arg_qinput: geom_ncent failed',0)
-      b=zero
-      do 1 i=1,nsa
-      if(.not.geom_cent_get(igeom,i,tag,c,q))
-     + call errquit('arg_rdqdim: geom_cent_get failed',i)
-      if(abs(c(1)).gt.b) b=abs(c(1))
-      if(abs(c(2)).gt.b) b=abs(c(2))
-      if(abs(c(3)).gt.b) b=abs(c(3))
-    1 continue
-      box(1)=cau2nm*b
-      box(2)=cau2nm*b
-      box(3)=cau2nm*b
-      if(.not.geom_destroy(igeom))
-     + call errquit('arg_rdqdim: geom_destroy failed',0)
-c
-      return
-      endif
 c
       if(me.eq.0) then
 c

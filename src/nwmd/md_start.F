@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.43 2000-01-05 00:25:52 windus Exp $
+c $Id: md_start.F,v 1.44 2000-01-06 21:20:14 d3j191 Exp $
 c
       implicit none
 c
@@ -8,10 +8,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c
-c     input
-c     -----
-c
-      call md_rdinp()
+      if(lqmd) call qmd_start()
 c
 c     print input information
 c     -----------------------
@@ -21,6 +18,7 @@ c
 c     start the spacial decomposition API
 c     -----------------------------------
 c
+      if(.not.lqmd) then
       call sp_start(lfntop,filtop,lfnrst,filrst,lfnsyn,filsyn,
      + nfsync,rshort,rlong,zero,
      + npx,npy,npz,nbx,nby,nbz,
@@ -28,6 +26,7 @@ c
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
      + iguide,lfndbg,idebug)
+      endif
 c
 c     start the analysis API
 c     ----------------------
@@ -37,7 +36,7 @@ c
 c     start the classical forces API
 c     ------------------------------
 c
-      call cf_start(lfntop,filtop,
+      call cf_start(irtdb,lqmd,lfntop,filtop,
      + ndistr,lfndrs,fildrs,npmf,lfnpmf,filpmf,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
@@ -45,7 +44,7 @@ c
      + tstep,tlwsha,mshitw,mshits,noshak,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
-     + issscl,delta,nfanal)
+     + issscl,delta,nfanal,lpbc)
 c
 c     print topology information
 c     --------------------------
@@ -137,10 +136,16 @@ c
 c     retrieve current coordinates for this node
 c     ------------------------------------------
 c
+      if(lqmd) then
+      call qmd_setup(nwmloc,
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_gs),nsaloc,
+     + lpack)
+      else
       call sp_setup(me,int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),
      + dbl_mb(i_vw),dbl_mb(i_gw),nwmloc,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_gs),nsaloc,
      + lpack)
+      endif
 c
 c     fix or unfix
 c     ------------
@@ -151,9 +156,11 @@ c
 c     spacial decomposition
 c     ---------------------
 c
+      if(.not.lqmd) then
       call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
+      endif
 c
 c     calculate mass factors
 c     ----------------------
@@ -171,7 +178,7 @@ c
 c     print decomposition information
 c     -------------------------------
 c
-      call sp_print(lfnout)
+      if(.not.lqmd) call sp_print(lfnout)
 c
       call prp_setup(wbox)
 c

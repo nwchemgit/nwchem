@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.12 1999-12-15 00:44:42 d3j191 Exp $
+c $Id: md_finish.F,v 1.13 2000-01-06 21:20:13 d3j191 Exp $
 c
       implicit none
 c
@@ -82,7 +82,7 @@ c
 c
       call cf_finish()
 c
-      call sp_finish()
+      if(.not.lqmd) call sp_finish()
 c
       call md_timing
 c

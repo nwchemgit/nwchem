@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.51 2000-01-04 21:53:29 d3j191 Exp $
+c $Id: md_main.F,v 1.52 2000-01-06 21:20:14 d3j191 Exp $
 c
       implicit none
 c
@@ -1152,7 +1152,7 @@ c
 c
 c     update decomposition module
 c
-      call sp_update(me,vlat,
+      if(.not.lqmd) call sp_update(me,vlat,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),dbl_mb(i_vw),nwmloc,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),nsaloc)
 c
@@ -1328,6 +1328,8 @@ c
 c
       integer i,j,k
 c
+      if(.not.lqmd) then
+c
       call md_fclass(iwl,isl,xw,xwm,xs,fw,fs)
 c
       call timer_start(2)
@@ -1356,6 +1358,8 @@ c
       fs(i,j,1)=fs(i,j,1)+fs(i,j,2)
     4 continue
     1 continue
+      endif
+c
       endif
 c
       call cf_fnorm(fw,nwmloc,isl(1,lsatt),fs,nsaloc,fnorm,fmax)

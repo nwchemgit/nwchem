@@ -1,6 +1,6 @@
       logical function nwmd(irtdb0)
 c
-c $Id: nwmd.F,v 1.6 1999-12-10 23:52:56 d3j191 Exp $
+c $Id: nwmd.F,v 1.7 2000-01-06 21:20:14 d3j191 Exp $
 c
       implicit none
 c
@@ -22,6 +22,8 @@ c
       endif
 c
       call timer_init()
+c
+      call md_rdinp()
 c
       call md_start()
       call md_main()
