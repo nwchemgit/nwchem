@@ -1,11 +1,13 @@
       program libcheck
-* $Id: libcheck.F,v 1.4 2000-04-10 17:16:08 hvd Exp $
+* $Id: libcheck.F,v 1.5 2001-12-14 19:20:35 bert Exp $
       implicit none
 #include "inp.fh"
 #include "nwc_const.fh"
 #include "stdio.fh"
       character*5 btype
       character*40 name
+      character*255 libfile
+      character*100 file
       character*100 field
       integer pmax, cmax
       parameter (pmax=nw_max_prim,cmax=nw_max_gen_con)
@@ -15,7 +17,13 @@
       logical oecp
       integer ip, ig, nprim, ng, nbasis, nwrong
 c
-      open(unit=7,file='library',status='old',
+      rewind(5)
+00022 file = ' '
+      read(5,'(A)',end=00021) file
+      libfile = 'libraries/'
+      libfile(11:) = file
+      write(LuOut,*) 'Checking library file ',file
+      open(unit=7,file=libfile,status='old',
      &    access='sequential',form='formatted',err=90000)
 c
       call inp_init(7,LuOut)
@@ -117,13 +125,14 @@ c
 70000 continue
       write(LuOut,*)' number of basis sets/ecps checked :',nbasis
       write(LuOut,*)' number that have a problem        :',nwrong
-      stop ' no run errors '
+      goto 00022
+00021 stop ' no run errors '
 80000 continue
 *      call inp_outrec()
       write(LuOut,*)'end of file or error reading'
       stop ' done with error'
 c
-90000 write(LuOut,*)' error opening library '
+90000 write(LuOut,*)' error opening library file'
       stop ' done with error'
       end
       subroutine checkem(nwrong,ng,nprim,rex,ee,ldc,cc,oecp,name,okay)
