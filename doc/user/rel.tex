@@ -90,7 +90,7 @@ set. This basis set must be named {\tt "D-K basis"} (see Chapter
 
 The approximate methods described in this section are all based on Dyall's
 modified Dirac Hamiltonian. This Hamiltonian is entirely equivalent to the
-original Dirac Hamiltonian, and its solutions will have the same properties.
+original Dirac Hamiltonian, and its solutions have the same properties.
 The modification is achieved by a transformation on the small component,
 extracting out $\sigma\cdot{\bf p}/2mc$. This gives the modified small
 component the same symmetry as the large component, and in fact it differs
@@ -106,23 +106,35 @@ Foldy-Wouthuysen (EFW) transformation. The number of components in the wave
 function is thereby effectively reduced from 4 to 2. NESC on its own does
 not provide any advantages, and in fact complicates things because the
 transformation is energy-dependent. The second approximation therefore
-neglects blocks which couple different atoms in the EFW transformation. This
-is equivalent to making an expansion in positive energy atomic spinors only;
-the tests which have been done show that the approximation gives results
-well within chemical accuracy. The third approximation neglects the
-commutator of the EFW transformation with the two-electron Coulomb
-interaction, so that the only corrections that need to be made are in the
-one-electron integrals. This is the equivalent of the Douglas-Kroll
-approximation as it is usually applied.
+performs the elimination on an atom-by-atom basis, which is equivalent to
+neglecting blocks which couple different atoms in the EFW transformation.
+The advantage of this approximation is that all the energy dependence can be
+included in the contraction coefficients of the basis set.  The tests which
+have been done show that this approximation gives results well within
+chemical accuracy. The third approximation neglects the commutator of the
+EFW transformation with the two-electron Coulomb interaction, so that the
+only corrections that need to be made are in the one-electron integrals.
+This is the equivalent of the Douglas-Kroll(-Hess) approximation as it is
+usually applied.
 
-The use of these approximations can be invoked by specifying:
+The use of these approximations can be invoked with the use of the
+\verb+dyall-mod-dirac+ directive in the \verb+relativistic+ directive block.
+The syntax is as follows.
 
 \begin{verbatim}
-  DYALL-MOD-DIRAC [<string (ON||OFF) default ON> ]
+  DYALL-MOD-DIRAC [<string (ON||OFF) default ON> ] 
+                  [<string (NESC1E||NESC2E [<string SS1CENT>]) \
+                    default NESC1E>]
 
 \end{verbatim}
 
-At present, only the one-electron approximation is available. 
+The one-electron approximation is the default, and is available with
+gradients. The two-electron approximation specified by \verb+NESC2E+ has as
+a sub-option the capability to limit the two-electron corrections to those
+in which the small components in any density must be on the same center.
+This reduces the $(LL|SS)$ contributions to at most three-center integrals
+and the $(SS|SS)$ contributions to two centers. For a case with only one
+relativistic atom this option is redundant. 
 
 In addition to the selection of this keyword in the \verb+RELATIVISTIC+
 directive block, it is necessary to supply basis sets in addition to the
@@ -132,7 +144,9 @@ component basis set. The atomic FW basis set should be included in the
 \verb+ao basis+, either directly or by indirection, using \verb+SET+
 directives.  The large and small components should similarly be incorporated
 in basis sets named \verb+large component+ and \verb+small component+,
-respectively.
+respectively. For the two-electron approximation, it is the large component
+which should be included in the verb+ao basis+ and only the small component
+need be specified separately.
 
 There is one further requirement in the specification of the basis sets. In
 the ao basis, it is necessary to add the \verb+rel+ keyword either to the
