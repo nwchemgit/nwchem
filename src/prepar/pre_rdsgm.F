@@ -6,7 +6,7 @@
      + limp,kimp,rimp,mimp,nimp,
      + wcorr,npar,ipardef,itopol)
 c
-c $Id: pre_rdsgm.F,v 1.19 2003-10-19 03:30:59 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.20 2003-12-03 05:00:56 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       real*8 rbnd(nparms,2,mbnd)
       integer mang,nang
       integer lang(5,mang)
-      real*8 rang(nparms,2,mang)
+      real*8 rang(nparms,4,mang)
       integer mdih,ndih
       integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
       real*8 rdih(6,nparms,2,mdih)
@@ -184,8 +184,14 @@ c
       nang=nang+1
       read(lfnsgm,1008) (lang(j,nang),j=1,5)
  1008 format(5x,5i5)
+      if(ffield(1:6).ne.'charmm') then
       read(lfnsgm,1009) (rang(j,1,nang),rang(j,2,nang),j=1,npar)
  1009 format(f10.6,e12.5)
+      else
+      read(lfnsgm,1019) (rang(j,1,nang),rang(j,2,nang),
+     + rang(j,3,nang),rang(j,4,nang),j=1,npar)
+ 1019 format(2(f10.6,e12.5))
+      endif
       lang(1,nang)=lang(1,nang)+na
       lang(2,nang)=lang(2,nang)+na
       lang(3,nang)=lang(3,nang)+na
@@ -193,11 +199,20 @@ c
       do 106 j=npar+1,nparms
       rang(j,1,nbnd)=rang(npar,1,nang)
       rang(j,2,nbnd)=rang(npar,2,nang)
+      if(ffield(1:6).eq.'charmm') then
+      rang(j,3,nbnd)=rang(npar,3,nang)
+      rang(j,4,nbnd)=rang(npar,4,nang)
+      endif
   106 continue
 c
       if(util_print('connectivity',print_debug)) then
       write(lfnout,1008) (lang(j,nang),j=1,5)
+      if(ffield(1:6).ne.'charmm') then
       write(lfnout,1009) (rang(j,1,nang),rang(j,2,nang),j=1,nparms)
+      else
+      write(lfnout,1019) (rang(j,1,nang),rang(j,2,nang),
+     + rang(j,3,nang),rang(j,4,nang),j=1,nparms)
+      endif
       endif
 c
       if(itopol.eq.0.and.ipardef.gt.1) then
@@ -207,6 +222,14 @@ c
       dtemp=rang(1,2,nang)
       rang(1,2,nang)=rang(ipardef,2,nang)
       rang(ipardef,2,nang)=dtemp
+      if(ffield(1:6).eq.'charmm') then
+      dtemp=rang(1,1,nang)
+      rang(1,3,nang)=rang(ipardef,3,nang)
+      rang(ipardef,3,nang)=dtemp
+      dtemp=rang(1,4,nang)
+      rang(1,4,nang)=rang(ipardef,4,nang)
+      rang(ipardef,4,nang)=dtemp
+      endif
       endif
 c
     6 continue

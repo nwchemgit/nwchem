@@ -3,9 +3,11 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,limp,kimp,rimp,mimp,nimp,
      + nparms,mparms)
 c
-c $Id: pre_dummy.F,v 1.4 2003-10-19 03:30:58 d3j191 Exp $
+c $Id: pre_dummy.F,v 1.5 2003-12-03 05:00:55 d3j191 Exp $
 c
       implicit none
+c
+#include "pre_common.fh"
 c
       integer lfnout
       integer matt,natt,nparms,mparms
@@ -20,7 +22,7 @@ c
       real*8 rbnd(nparms,2,mbnd)
       integer mang,nang
       integer lang(5,mang)
-      real*8 rang(nparms,2,mang)
+      real*8 rang(nparms,4,mang)
       integer mdih,ndih
       integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
       real*8 rdih(6,nparms,2,mdih)
@@ -72,6 +74,10 @@ c      if(iand(k,2**(j-1)).eq.0) then
      +   catm(j+1,lang(3,i))(6:6).eq.'D') then
       rang(j,1,i)=rang(kpar,1,i)
       rang(j,2,i)=0.0d0
+      if(ffield(1:6).eq.'charmm') then
+      rang(j,3,i)=rang(kpar,3,i)
+      rang(j,4,i)=0.0d0
+      endif
 c      print*,'Dummy',i,j
 cx      rang(j,2,i)=rang(kpar,2,i)
       k=ior(k,2**(j-1))

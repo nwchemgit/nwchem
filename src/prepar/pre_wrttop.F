@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.48 2003-10-31 17:12:51 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.49 2003-12-03 05:00:56 d3j191 Exp $
 c
       implicit none
 c
@@ -36,7 +36,7 @@ c
       real*8 rbnd(nparms,2,mbnd)
       integer mang,nang
       integer lang(5,mang)
-      real*8 rang(nparms,2,mang)
+      real*8 rang(nparms,4,mang)
       integer mdih,ndih
       integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
       real*8 rdih(6,nparms,2,mdih)
@@ -282,8 +282,14 @@ c
       write(lfntop,1114) lang(1,i)-natm,lang(2,i)-natm,lang(3,i)-natm,
      + lang(5,i),i-nang
  1114 format(5i7)
+      if(ffield(1:6).ne.'charmm') then
       write(lfntop,1115) (rang(j,1,i),rang(j,2,i),j=ipfr,ipto)
  1115 format(0pf10.6,1pe12.5)
+      else
+      write(lfntop,1125) (rang(j,1,i),rang(j,2,i),rang(j,3,i),
+     + rang(j,4,i),j=ipfr,ipto)
+ 1125 format(0pf10.6,1pe12.5,0pf10.6,1pe12.5)
+      endif
    21 continue
       endif
 c
@@ -433,8 +439,14 @@ c
       do 12 i=1,nang
       write(lfntop,1014) lang(1,i),lang(2,i),lang(3,i),lang(5,i),i
  1014 format(5i7)
+      if(ffield(1:6).ne.'charmm') then
       write(lfntop,1015) (rang(j,1,i),rang(j,2,i),j=ipfr,ipto)
  1015 format(0pf10.6,1pe12.5)
+      else
+      write(lfntop,1035) (rang(j,1,i),rang(j,2,i),rang(j,3,i),
+     + rang(j,4,i),j=ipfr,ipto)
+ 1035 format(0pf10.6,1pe12.5,0pf10.6,1pe12.5)
+      endif
    12 continue
 c
       do 13 i=1,ndih

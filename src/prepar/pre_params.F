@@ -6,7 +6,7 @@
      + latt,lats,catt,patt,ratt,matt,natt,mats,nats,
      + lseq,cseq,mseq,nseq)
 c
-c $Id: pre_params.F,v 1.18 2003-10-19 03:30:59 d3j191 Exp $
+c $Id: pre_params.F,v 1.19 2003-12-03 05:00:56 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
       real*8 rbnd(nparms,2,mbnd)
       integer mang,nang
       integer lang(5,mang)
-      real*8 rang(nparms,2,mang)
+      real*8 rang(nparms,4,mang)
       integer mdih,ndih
       integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
       real*8 rdih(6,nparms,2,mdih)

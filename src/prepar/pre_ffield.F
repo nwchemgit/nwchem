@@ -5,7 +5,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,
      + limp,kimp,rimp,mimp,nimp,nparms,mparms)
 c
-c $Id: pre_ffield.F,v 1.23 2003-10-19 03:30:58 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.24 2003-12-03 05:00:55 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       real*8 rbnd(nparms,2,mbnd)
       integer mang,nang
       integer lang(5,mang)
-      real*8 rang(nparms,2,mang)
+      real*8 rang(nparms,4,mang)
       integer mdih,ndih
       integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
       real*8 rdih(6,nparms,2,mdih)
@@ -286,8 +286,12 @@ c
       if(card(1:18).eq.'Improper dihedrals') goto 2
       if(card(1:10).eq.'Atom types') goto 2
       if(card(1:3).eq.'End') goto 999
+      if(ffield(1:6).ne.'charmm') then
       read(card,1006,err=2) atyp1(1:5),atyp2(1:5),atyp3(1:5),p1,p2
- 1006 format(a5,1x,a5,1x,a5,f10.5,e12.5)
+      else
+      read(card,1006,err=2) atyp1(1:5),atyp2(1:5),atyp3(1:5),p1,p2,p3,p4
+      endif
+ 1006 format(a5,1x,a5,1x,a5,2(f10.5,e12.5))
       if(atyp1.eq.'      ') goto 1
       if(atyp2.eq.'      ') goto 1
       if(atyp3.eq.'      ') goto 1
@@ -303,6 +307,10 @@ c      if(lang(4,i).le.0.and.lang(5,i).eq.0) then
      + (atyp3.eq.btyp1.and.atyp1.eq.btyp3))) then
       rang(j,1,i)=p1
       rang(j,2,i)=p2
+      if(ffield(1:6).eq.'charmm') then
+      rang(j,3,i)=p3
+      rang(j,4,i)=p4
+      endif
       lang(4,i)=-(ior(iabs(lang(4,i)),2**(j-1)))
 c      write(*,'(6i5,6a6)') lang(1,i),lang(2,i),lang(3,i),lang(4,i),
 c     + lang(5,i),j,atyp1,atyp2,atyp3,btyp1,btyp2,btyp3

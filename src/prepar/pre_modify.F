@@ -4,7 +4,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,ndiht,limp,kimp,rimp,mimp,nimp,
      + nimpt,lupdat)
 c
-c     $Id: pre_modify.F,v 1.18 2003-10-19 03:30:59 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.19 2003-12-03 05:00:56 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       real*8 rbnd(nparms,2,mbnd)
       integer mang,nang,nangt
       integer lang(5,mang)
-      real*8 rang(nparms,2,mang)
+      real*8 rang(nparms,4,mang)
       integer mdih,ndih,ndiht
       integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
       real*8 rdih(6,nparms,2,mdih)
@@ -303,6 +303,10 @@ c
       do 554 k=1,nparms
       rang(k,1,n)=rang(k,1,i)
       rang(k,2,n)=rang(k,2,i)
+      if(ffield(1:6).eq.'charmm') then
+      rang(k,3,n)=rang(k,3,i)
+      rang(k,4,n)=rang(k,4,i)
+      endif
   554 continue
       if(i.le.nang) m=n
       endif

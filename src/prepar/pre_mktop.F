@@ -3,7 +3,7 @@
      + lfnmod,filmod,lfnmat,lfnhdb,lfnhop,filhop,
      + ignore,slvnam,itopol)
 c
-c $Id: pre_mktop.F,v 1.35 2003-11-21 21:16:51 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.36 2003-12-03 05:00:55 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -236,7 +236,7 @@ c                         2         : force constant set 1
 c
       if(.not.ma_push_get(mt_int,5*mang,'lang',l_lang,i_lang))
      + call md_abort('Memory allocation failed for lang',9999)
-      if(.not.ma_push_get(mt_dbl,2*nparms*mang,'rang',l_rang,i_rang))
+      if(.not.ma_push_get(mt_dbl,4*nparms*mang,'rang',l_rang,i_rang))
      + call md_abort('Memory allocation failed for rang',9999)
 c
 c     integer ldih(1:4,mdih) : torsion indices

@@ -9,7 +9,7 @@
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
      + nval,ival,rval,ndx,itopol)
 c
-c $Id: pre_mklist.F,v 1.31 2003-10-19 03:30:58 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.32 2003-12-03 05:00:55 d3j191 Exp $
 c
       implicit none
 c
@@ -36,7 +36,7 @@ c
       real*8 rbnd(nparms,2,mbnd)
       integer mang,nang
       integer lang(5,mang)
-      real*8 rang(nparms,2,mang)
+      real*8 rang(nparms,4,mang)
       integer mdih,ndih
       integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
       real*8 rdih(6,nparms,2,mdih)
@@ -54,7 +54,7 @@ c
       real*8 rtemp
       character*4 atl1,atl2
       character*255 filsgm,filmat
-      integer in,jn,ln,ir,itmp,nsgmpar,ipdef
+      integer in,jn,ln,ir,itmp,nsgmpar,ipdef,lto
 c
 c     lang(1,i) : atom index i in angle i-j-k
 c     lang(2,i) : atom index j in angle i-j-k
@@ -677,8 +677,10 @@ c
       lang(k,i)=ival(ndx(i))
    52 continue
    50 continue
+      lto=2
+      if(ffield(1:6).eq.'charmm') lto=4
       do 54 k=1,nparms
-      do 554 l=1,2
+      do 554 l=1,lto
       do 55 i=1,nang
       rval(i)=rang(k,l,i)
    55 continue
