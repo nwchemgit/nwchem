@@ -2,7 +2,7 @@
      + mwms,mwa,nwms,nwa,touch,box,iwmr,xw,vw,
      + mwm,nwm,xs,msa,nsa,xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_solvat.F,v 1.5 1999-05-10 22:38:07 d3j191 Exp $
+c $Id: pre_solvat.F,v 1.6 1999-11-02 22:02:06 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
       real*8 xw(3,mwa,mwm),xs(3,nsa),xslv(3,mwa,mwms)
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc)
       real*8 vw(3,mwa,mwm),vslv(3,mwa,mwms)
-      real*8 box(3),boxs(3),touch
+      real*8 box(3),boxs(3),touch,dx,dy,dz
 c
       integer i,j,k,is,ix,iy,iz,nx,ny,nz
       real*8 boxh(3),xc(3),touch2,x,y,z,pbc
@@ -57,13 +57,36 @@ c
 c
       if(ltry) then
       do 10 i=1,nsa
-      if((x-xs(1,i))**2+(y-xs(2,i))**2+(z-xs(3,i))**2.lt.touch2) goto 9
+      dx=x-xs(1,i)
+      dy=y-xs(2,i)
+      dz=z-xs(3,i)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      dx=dx-arg_nint(dx/box(1))*box(1)
+      dy=dy-arg_nint(dy/box(2))*box(2)
+      dz=dz-arg_nint(dz/box(3))*box(3)
+#else
+      dx=dx-nint(dx/box(1))*box(1)
+      dy=dy-nint(dy/box(2))*box(2)
+      dz=dz-nint(dz/box(3))*box(3)
+#endif
+      if(dx*dx+dy*dy+dz*dz.lt.touch2) goto 9
    10 continue
       if(nwmc.gt.0) then
       do 11 i=1,nwmc
       do 12 j=1,nwa
-      if((x-xwc(1,j,i))**2+(y-xwc(2,j,i))**2+(z-xwc(3,j,i))**2
-     + .lt.touch2) goto 9
+      dx=x-xwc(1,j,i)
+      dy=y-xwc(2,j,i)
+      dz=z-xwc(3,j,i)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      dx=dx-arg_nint(dx/box(1))*box(1)
+      dy=dy-arg_nint(dy/box(2))*box(2)
+      dz=dz-arg_nint(dz/box(3))*box(3)
+#else
+      dx=dx-nint(dx/box(1))*box(1)
+      dy=dy-nint(dy/box(2))*box(2)
+      dz=dz-nint(dz/box(3))*box(3)
+#endif
+      if(dx*dx+dy*dy+dz*dz.lt.touch2) goto 9
    12 continue
    11 continue
       endif 
