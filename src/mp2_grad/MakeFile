@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.1 1999-11-13 01:38:04 bjohnson Exp $	
+#	$Id: MakeFile,v 1.2 2000-07-18 18:24:27 edo Exp $	
 #
 
 OBJ_OPTIMIZE = $(OBJDIR)\mp2_back_transform.obj \

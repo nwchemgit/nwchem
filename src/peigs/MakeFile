@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.1 1999-11-13 01:50:33 bjohnson Exp $	
+#	$Id: MakeFile,v 1.2 2000-07-18 18:25:21 edo Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -14,7 +14,7 @@ LIBRARY = peigs.lib
 !IF 0
 
 #
-# $Id: MakeFile,v 1.1 1999-11-13 01:50:33 bjohnson Exp $
+# $Id: MakeFile,v 1.2 2000-07-18 18:25:21 edo Exp $
 #
 
 LIBRARY = libpeigs.a
