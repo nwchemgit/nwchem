@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.9 1999-05-06 17:25:50 windus Exp $
+# $Id: GNUmakefile,v 1.10 2000-06-05 17:38:33 edo Exp $
 
 include ../../config/makefile.h
 
@@ -37,6 +37,6 @@ include ../../config/makefile.h
 
        LIBRARY = libnwints.a
 
-     USES_BLAS = hnd_stvint.F hnd_stvintd.F
+     USES_BLAS = hnd_stvint.F hnd_stvintd.F hnd_stvintdd.F
 include ../../config/makelib.h
 
