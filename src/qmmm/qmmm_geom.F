@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.19 2004-09-28 19:00:55 marat Exp $
+c $Id: qmmm_geom.F,v 1.20 2004-09-28 22:58:57 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -26,8 +26,6 @@ c     local variables
       integer qmmm_geom_heavy_neighbor
       external qmmm_geom_heavy_neighbor
       integer tmp(2)
-      logical old_mode
-      logical ignore
       logical fixlinks
 
       nqm   = qmmm_get_nqm()
@@ -163,7 +161,6 @@ c     local variables
       integer i_c
       integer i_cbq
       integer i_c_all, h_c_all
-      double precision charge
       nbq  = qmmm_get_nbq()
       
       nqm  = qmmm_get_nqm()
@@ -704,22 +701,15 @@ c     ---------------
 c 
       double precision qmmm_geom_distance
       external qmmm_geom_distance
-      integer i1,k,j
+      integer i1,j
       double precision r,rmin
 
       rmin=1000.0d0
       do i1=1,ntot
         if(atn(i1).ne.1) then
            r=qmmm_geom_distance(c(1,i),c(1,i1))
-c          r=0.0d0
-c          do k=1,3
-c            r=r+(c(k,i)-c(k,i1))*(c(k,i)-c(k,i1))
-c          end do
-c          r=sqrt(r)
-          write(*,*) "qmmm nei r",r
           if(r.lt.rmin) then
            if(r.gt. 1.0e-2) then
-             write(*,*) "qmmm nei",r,atn(i1)
              j=i1
              rmin=r
            endif

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.19 2004-09-28 19:00:55 marat Exp $
+c $Id: qmmm.F,v 1.20 2004-09-28 22:58:57 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -70,8 +70,6 @@ c
       logical qmmm_energy
 c     local variables
       logical status
-      logical do_qm, do_mm
-      logical mm_only, qm_only
       character*255 theory
       double precision energy
       double precision mm_energy
@@ -80,44 +78,22 @@ c     external functions
       logical  task_energy_doit
       external task_energy_doit
       
-      do_qm=.true.
-      do_mm=.true.
-
-      if (.not. rtdb_get(rtdb,'qmmm:mm_only',mt_log,1,mm_only)) then
-        mm_only=.false.
-      end if
-      if (.not. rtdb_get(rtdb,'qmmm:qm_only',mt_log,1,qm_only)) then
-        qm_only=.false.
-      end if
-      if(mm_only) then
-       do_mm=.true.
-       do_qm=.false.
-      end if
-      if(qm_only) then
-       do_qm=.true.
-       do_mm=.false.
-      end if
-c
-c     sync qm coordinates with the geometry object
-c     that was potentially modified outside qmmm (e.g.driver)     
-c     ------------------------------------------------------
-      call qmmm_geom_prepare(rtdb)
-
-c     update QM coordinates for MM module
-c     very important!!!
-c     ----------------------------------
-      call qmmm_push_qm_coord_mm(rtdb)
-c     single point MM calculation
-c     ----------------------------------
-       call mm_task_sp()
-
-      qmmm_energy = .false.
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
+
+       if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
+     $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
+
+      call qmmm_get_qm_coord_qm(rtdb)
+      call qmmm_push_qm_coord_mm(rtdb)
+      call mm_task_sp()
+
+      call qmmm_create_bq_geom(rtdb)
 
 c     QM energy calculation
 c     --------------------
       status = task_energy_doit(rtdb,theory,energy)
+      energy = energy+ 0.5d0*eatoms
       call qmmm_geom_finish(rtdb)
  
 
@@ -125,19 +101,7 @@ c     combine QM and MM energies
 c     -------------------------
       if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
      $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
-
-      if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
-     $     call errquit('qmmm: failed getting  ref energy', 0, RTDB_ERR)
-
-      mm_energy = mm_energy/cau2kj + 0.5d0*eatoms
-      if(mm_only) then
-        energy=0.0d0
-      end if
-      if(qm_only) then
-        mm_energy=0.0d0
-      end if
-
-      energy = energy + mm_energy
+      energy = energy + mm_energy/cau2kj
 
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.19 2004-09-28 18:17:27 marat Exp $
+c $Id: mm_interface.F,v 1.20 2004-09-28 22:58:57 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -471,7 +471,6 @@ c
       integer ai(nt)
       double precision c(3,nt)
 c
-      integer i
 
       call mm_get_solute_coord_gen(nt,
      >                       mm_quant_link,
@@ -675,12 +674,11 @@ c     mm local variables
 #include "mm_utils.fh"
 
 
-      integer i,j,k
+      integer i,k
 
 c     mm local variables
       integer msa
       integer nsa
-      integer psl
       integer pxs
 
       call mm_get_msa(msa)
@@ -832,7 +830,6 @@ c     mm local variables
       integer ai(nt)
       double precision c(3,nt)
 
-      integer i,j,k,m,j1
 
 c     mm local variables
       integer mwa
@@ -925,7 +922,6 @@ c     mm local variables
       integer ai(nt)
       double precision c(3,nt)
 
-      integer i,j,k,m,j1
 
 c     mm local variables
       integer mwa
