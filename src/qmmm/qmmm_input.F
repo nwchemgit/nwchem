@@ -95,7 +95,10 @@ c
       if (.not.rtdb_put(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
      + call errquit('qmmm_input: failed to store qmmm:uqmatm',0,
      &       RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'qmmm:linkatm',mt_int,1,linkatm))
+      if (.not.rtdb_put(rtdb,'qmmm:eatoms',mt_dbl,1,eatoms))
+     + call errquit('qmmm_input: failed to store qmmm:eatoms',0,
+     &       RTDB_ERR)
+       if (.not.rtdb_put(rtdb,'qmmm:linkatm',mt_int,1,linkatm))
      + call errquit('qmmm_input: failed to store qmmm:linkatm',linkatm,
      &       RTDB_ERR)
       if (.not.rtdb_put(rtdb,'qmmm:xyz',mt_log,1,xyz))

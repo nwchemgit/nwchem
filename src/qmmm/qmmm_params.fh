@@ -1,0 +1,23 @@
+c
+c $Id: qmmm_params.fh,v 1.1 2004-03-12 23:37:06 marat Exp $
+c
+c
+c     atom type parameters
+c     -------------------
+      integer lquant,lqlink,lqsoft,lqhigh,lqzone
+      parameter(lquant=16)
+      parameter(lqlink=32)
+      parameter(lqsoft=64)
+      parameter(lqhigh=128)
+      parameter(lqzone=64)
+
+c
+c     conversion parameters
+c     -------------------
+      double precision cnm2au,cau2ang,cau2nm,cau2kj
+      parameter(cnm2au=1.88972598786d+01)
+      parameter(cau2ang = 0.529177249d00)
+      parameter(cau2nm=5.29177249d-02)
+      parameter(cau2kj=2.625499962d+03)
+
+

@@ -1,0 +1,23 @@
+c
+c $Id: qmmm.fh,v 1.1 2004-03-12 23:37:05 marat Exp $
+c
+      integer qmmm_get_nat
+      integer qmmm_get_i_ai
+      integer qmmm_get_i_c
+      integer qmmm_get_i_t
+      integer qmmm_get_i_q
+      integer qmmm_get_i_m
+      integer qmmm_get_i_g
+      integer qmmm_get_i_gmm
+      integer qmmm_get_i_num
+
+      external qmmm_get_nat
+      external qmmm_get_i_ai
+      external qmmm_get_i_c
+      external qmmm_get_i_t
+      external qmmm_get_i_q
+      external qmmm_get_i_m
+      external qmmm_get_i_g
+      external qmmm_get_i_gmm
+      external qmmm_get_i_num
+

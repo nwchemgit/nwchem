@@ -1,20 +1,27 @@
 c
-c $Id: qmmm_data.fh,v 1.2 2004-02-12 23:14:33 marat Exp $
+c $Id: qmmm_data.fh,v 1.3 2004-03-12 23:37:05 marat Exp $
 c
-      integer lquant,lqlink,lqsoft,lqhigh,lqzone
-      parameter(lquant=16)
-      parameter(lqlink=32)
-      parameter(lqsoft=64)
-      parameter(lqhigh=128)
-      parameter(lqzone=64)
-      double precision cnm2au,cau2ang
-      parameter(cnm2au=1.88972598786d+01)
-      parameter(cau2ang = 0.529177249d00)
-
       integer tot_nqm
       integer i_ai,h_ai
+      integer i_c,h_c
+      integer i_q,h_q
+      integer i_m,h_m
+      integer i_t,h_t
+      integer i_atn,h_atn
+      integer i_num,h_num
+      integer i_g,h_g
+      integer i_gmm,h_gmm
 
 
-      common/qmmm_data/tot_nqm,i_ai,h_ai
+      common/qmmm_data/tot_nqm,
+     &                 i_ai,h_ai,
+     &                 i_atn,h_atn,
+     &                 i_c,h_c,
+     &                 i_m,h_m,
+     &                 i_t,h_t,
+     &                 i_q,h_q,
+     &                 i_num,h_num,
+     &                 i_g,h_g,
+     &                 i_gmm,h_gmm
 
 
