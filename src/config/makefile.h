@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.68 1994-10-06 00:19:25 d3g681 Exp $
+# $Id: makefile.h,v 1.69 1994-10-07 19:39:42 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -289,16 +289,18 @@ ifeq ($(TARGET),SGITFP)
     INSTALL = @echo nwchem is built
   MAKEFLAGS = -j 4
 
-  FOPTIONS = -d8 -i8 
-  COPTIONS = -fullwarn
- FOPTIMIZE = -O3 -64 -mips4 -OPT:IEEE_arithmetic=2:fold_arith_limit=4000
+  FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
+  COPTIONS = -fullwarn -mips4 
+ FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3
+FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
+
  COPTIMIZE = -O
 
     DEFINES = -DSGITFP -DSGI -DLongInteger
        LIBS = -L$(LIBDIR) $(LIBPATH) \
               -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
 	      -lstepper -lmoints \
-              -lguess -lglobal -lutil -lglobal\
+              -lguess -lutil -lglobal\
 	      -ltcgmsg -llapack -lblas
 
   EXPLICITF = FALSE
