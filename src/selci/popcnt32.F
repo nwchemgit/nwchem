@@ -1,10 +1,30 @@
       integer function selci_popcnt32(i)
 *
-* $Id: popcnt32.F,v 1.7 2000-08-01 19:45:49 d3g681 Exp $
+* $Id: popcnt32.F,v 1.8 2003-04-11 00:29:05 bert Exp $
 *
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
+#if defined(CRAY_T3D) || defined(CRAY_T3E) 
       integer i
       selci_popcnt32 = popcnt(i)
+#elif defined(LINUX64)
+#include "cbits.fh"
+      INTEGER_1 i(8)
+c
+c     pop count of 64 bit word for sun ... the routine inibit must
+c     be called once before popcnt64 or leadz64 is used ... this
+c     computes ipopcb and leadzb
+c
+      ind1 = i(1)
+      ind2 = i(2)
+      ind3 = i(3)
+      ind4 = i(4)
+      ind5 = i(5)
+      ind6 = i(6)
+      ind7 = i(7)
+      ind8 = i(8)
+      selci_popcnt32 = ipopcb(ind1) + ipopcb(ind2) +
+     $     ipopcb(ind3) + ipopcb(ind4) + ipopcb(ind5) +
+     $     ipopcb(ind6) + ipopcb(ind7) + ipopcb(ind8) 
+c
 #else
 #include "cbits.fh"
       INTEGER_1 i(4)
@@ -23,7 +43,7 @@ c
 #endif
       end
       subroutine selci_vpop32(n, input, output)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
+#if defined(CRAY_T3D) || defined(CRAY_T3E) 
       integer n
       integer input(*)
       integer output(*)
@@ -32,6 +52,21 @@ c
       do i = 1,n
         output(i) = popcnt(input(i))
       enddo
+#elif defined (LINUX64)
+      implicit integer(a-z)
+#include "cbits.fh"
+c
+      INTEGER_1 input(*)
+      dimension output(*)
+c
+      i4 = 1
+      do 10 i = 1,n
+         output(i) = ipopcb(input(  i4)) + ipopcb(input(1+i4)) +
+     $               ipopcb(input(2+i4)) + ipopcb(input(3+i4)) +
+     $               ipopcb(input(4+i4)) + ipopcb(input(5+i4)) +
+     $               ipopcb(input(6+i4)) + ipopcb(input(7+i4)) 
+         i4 = i4 + 8
+ 10   continue
 #else
       implicit integer(a-z)
 #include "cbits.fh"
@@ -49,9 +84,93 @@ c
 #endif
       end
       integer function selci_leadz32(i)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
+#if defined(CRAY_T3D) || defined(CRAY_T3E) 
       integer i
       selci_leadz32 = leadz(i)
+#elif defined (LINUX64)
+c     
+#include "cbits.fh"
+c     
+      INTEGER_1 i(8)
+c     
+      integer longw
+      integer*2 shortw(8)
+      equivalence (longw,shortw)
+      logical olittleendian
+c     
+      shortw(1) = 0
+      longw = 1
+      olittleendian = (shortw(1) .eq. 1)
+c     
+c     leading zero bit count for 64 bit word on sun ... must
+c     call inibit once before using
+c     
+      if (olittleendian) then
+         ind = i(8)
+         m = leadzb(ind)
+         if (m.eq.8) then
+            ind = i(7)
+            m = m + leadzb(ind)
+            if (m.eq.16) then
+               ind = i(6)
+               m = m + leadzb(ind)
+               if (m.eq.24) then
+                  ind = i(5)
+                  m = m + leadzb(ind)
+                  if (m.eq.32) then
+                     ind = i(4)
+                     m = m + leadzb(ind)
+                     if (m.eq.40) then
+                        ind = i(3)
+                        m = m + leadzb(ind)
+                        if (m.eq.48) then
+                           ind = i(2)
+                           m = m + leadzb(ind)
+                           if (m.eq.56) then
+                               ind = i(1)
+                               m = m + leadzb(ind)
+                           endif
+                        endif
+                     endif
+                  endif
+               endif
+            endif
+         endif
+         selci_leadz32 = m
+      else
+         ind = i(1)
+         m = leadzb(ind)
+         if (m.eq.8) then
+            ind = i(2)
+            m = m + leadzb(ind)
+            if (m.eq.16) then
+               ind = i(3)
+               m = m + leadzb(ind)
+               if (m.eq.24) then
+                  ind = i(4)
+                  m = m + leadzb(ind)
+                  if (m.eq.32) then
+                     ind = i(5)
+                     m = m + leadzb(ind)
+                     if (m.eq.40) then
+                        ind = i(6)
+                        m = m + leadzb(ind)
+                        if (m.eq.48) then
+                           ind = i(7)
+                           m = m + leadzb(ind)
+                           if (m.eq.56) then
+                               ind = i(8)
+                               m = m + leadzb(ind)
+                           endif
+                        endif
+                     endif
+                  endif
+               endif
+            endif
+         endif
+         selci_leadz32 = m
+      endif
+c     
 #else 
 c     
 #include "cbits.fh"
@@ -107,8 +226,60 @@ c
 #endif
 c     
       end
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
+#if defined(CRAY_T3D) || defined(CRAY_T3E) 
       subroutine inibit
+      end
+#elif defined (LINUX64)
+      subroutine inibit
+#include "cbits.fh"
+      INTEGER_1 ib(8)
+      integer i
+      equivalence (ib, i)
+      integer bytes_per_int
+      logical obigendian
+c
+#include "bitops.fh"
+c
+c     initialise lookup arrays for faster pop-count and leading zero co
+c
+      call util_pack_info(bytes_per_int, obigendian)
+      if (bytes_per_int .ne. 8) call errquit
+     $     ('sorry ... this selected CI piece is ported to 64 bit',0)
+c
+      i = 0
+      do 10 mm = -128,127,1
+         if (obigendian) then
+            ib(1) = mm
+         else
+            ib(8) = mm
+         endif
+c
+c     do pop count using generic 64 bit code
+c
+         mask = 1
+         iset = 0
+         do 20 m = 0,63
+            if (iand(ishft(i,-m), mask) .ne. 0) iset = iset + 1
+ 20      continue
+         ipopcb(mm) = iset
+c
+c     do leadz using generic 64 bit code .... note 0 should give 8 not
+c
+         mask = 1
+         do 30 m = 63,0,-1
+            if (iand(ishft(i,-m),mask).ne.0) goto 40
+ 30      continue
+ 40      leadzb(mm)= 63-m
+c
+ 10   continue
+      leadzb(0) = 8
+c
+c      write(6,*) ' ipopcb '
+c      write(6,1) (i,ipopcb(i),i=-128,127)
+c 1    format(1x,2i8)
+c      write(6,*) ' leadzb '
+c      write(6,1) (i,leadzb(i),i=-128,127)
+c
       end
 #else
       subroutine inibit
@@ -128,8 +299,8 @@ c
 c     initialise lookup arrays for faster pop-count and leading zero co
 c
       call util_pack_info(bytes_per_int, obigendian)
-      if (bytes_per_int .ne. 4) call errquit
-     $     ('sorry ... the selected CI has not been ported to 64 bit',0)
+      if (bytes_per_int .ne. 8) call errquit
+     $     ('sorry ... this selected CI has been ported to 64 bit',0)
 c
       i = 0
       do 10 mm = -128,127,1

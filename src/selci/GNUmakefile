@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.31 2003-04-08 00:46:28 windus Exp $
+# $Id: GNUmakefile,v 1.32 2003-04-11 00:29:05 bert Exp $
 #
 
 
@@ -59,6 +59,10 @@ ifeq ($(TARGET),FUJITSU_VPP)
 LIB_DEFINES = -Wp,-DINTEGER_1=byte
 endif
 
+ifeq ($(TARGET),LINUX64)
+            COPTIONS = -O3
+#            FOPTIMIZE += -save
+endif
 ifeq ($(TARGET),CRAY-T3E)
 # vector 3 breaks code in this directory only
             FOPTIMIZE = -O scalar3,aggress,unroll2,vector2

@@ -1,5 +1,5 @@
 *
-* $Id: cbuff.fh,v 1.3 1997-10-31 23:41:54 d3e129 Exp $
+* $Id: cbuff.fh,v 1.4 2003-04-11 00:29:05 bert Exp $
 *
 c
 c    This for debug with i*2 integers
@@ -16,9 +16,14 @@ c
 c     Next four lines for 4 byte integers ... need if nci > 65532
 c
       parameter (lenrbf=21844, lenibf=21848)
-      parameter (lenbuf=(8*lenrbf+4*lenibf+7)/8)
       parameter (iendf=-1, iendr=-2, imagic=0)
-      integer *4 ibuff
+#if defined (EXT_INT)
+      parameter (lenbuf=(8*lenrbf+8*lenibf+7)/8)
+      integer ibuff
+#else
+      parameter (lenbuf=(8*lenrbf+4*lenibf+7)/8)
+      integer*4 ibuff
+#endif
 c
       common /selci_cbuff/rbuff(lenrbf),ibuff(lenibf),
      $     nrinb,niinb,nrec,nval

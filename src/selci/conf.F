@@ -1,6 +1,6 @@
       subroutine selci_conf(rtdb, q, lword)
 *
-* $Id: conf.F,v 1.11 2002-01-19 02:57:12 zzhang Exp $
+* $Id: conf.F,v 1.12 2003-04-11 00:29:05 bert Exp $
 *
 #include "implicit.fh"
 #include "cconf.fh"
@@ -619,7 +619,11 @@ c
 #include "cconf.fh"
 c
       data nelec/-1/,multi/-1/,norbs/-1/,nsym/-1/,nbpsy/8*0/,nref/-1/,
+#if defined(EXT_INT)
+     $     issss/-1/,ngen/0/,nbitpi/64/,nintpo/-1/,iexcit/0/,
+#else
      $     issss/-1/,ngen/0/,nbitpi/32/,nintpo/-1/,iexcit/0/,
+#endif
      $     inttyp/-1/
 c
       end
