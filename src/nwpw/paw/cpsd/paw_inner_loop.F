@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop.F,v 1.30 2003-03-11 17:57:10 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.31 2003-03-14 01:20:59 marat Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.30  2003/03/11 17:57:10  bylaska
+* updates...EJB
+*
 * Revision 1.29  2003/03/07 20:51:10  bylaska
 * Code cleanup...0.0 changed to 0.0d0 in paw_xc.F
 * Tangent vector now used for SD with Gram-schmidt.
@@ -233,6 +236,7 @@
 *       *******************
         call paw_ovlp_coeff_set(psi1)
         call paw_ovlp_weights_set()
+        call paw_ovlp_weights_write(89)
 
 *       *************************************
 *       ****generate comp charge potential***
@@ -241,7 +245,7 @@
         call paw_pot_comp_solve()
         !call paw_pot_comp_print()
 
-
+       
 *       *********************
 *       **** generate dn ****
 *       *********************
@@ -411,7 +415,13 @@
 *       **** get ion forces and do steepest    ****
 *       **** descent on ions                   ****
 *       *******************************************
-        if (move) then
+
+*       *********************
+*       **** generate force *
+*       *********************
+        call paw_force_solve(psi1) 
+        call paw_force_weights_write(67)
+         if (move) then
 
 *          **** get the ewald force ****
            if (control_version().eq.3) call ewald_f(dbl_mb(fion(1)))

@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.52 2003-03-11 18:09:35 bylaska Exp $
+* $Id: paw_sd.F,v 1.53 2003-03-14 01:20:59 marat Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.52  2003/03/11 18:09:35  bylaska
+* io fixes...EJB
+*
 * Revision 1.51  2003/03/11 17:57:10  bylaska
 * updates...EJB
 *
@@ -331,6 +334,10 @@
       call paw_nonlocal_init(ispin,ne)
       call init_paw_density(0)
       call init_paw_xc(ispin,0)
+
+*     *** intialize paw force ***      
+      call paw_force_init()
+
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
 
