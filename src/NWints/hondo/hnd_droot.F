@@ -1,7 +1,7 @@
       subroutine hnd_droot
 * $id: hess_quad.f,v 1.5 1998/10/01 20:47:26 windus exp $
       implicit none
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
       double precision ff, r, ww, c, s, a, rt, pt5, zero, one, four
       double precision x, wsum, dum, root, poly
 #else
@@ -13,7 +13,7 @@
       common/hnd_rysff/ff(19)
       common/hnd_rysrw/r(9,9),ww(9,9)
       dimension c(10,10),s(10,10),a(10),rt(10)
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
       data pt5,zero,one,four /0.5d+00,0.0d+00,1.0d+00,4.0d+00/
 #else
       data pt5,zero,one,four /0.5q+00,0.0q+00,1.0q+00,4.0q+00/
@@ -77,7 +77,7 @@ c
 c
       subroutine hnd_rysfun(x,n)
       implicit none
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
       double precision ff, pt5, one, two, x
       double precision tol, e, xx, facmin, term 
       double precision a, sum, fac, t, s, tmax
@@ -88,7 +88,7 @@ c
 #endif
       integer n, m
       common/hnd_rysff/ff(19)
-#if defined(LINUX)  || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX)  || defined(CRAY) || defined(WIN32)
       data pt5,one,two /0.5d+00,1.0d+00,2.0d+00/
       tol=1.0d-12
       e=0.5409855304296342219319112d-78
@@ -128,7 +128,7 @@ c
 c
 c     use asymptotic expansion for large arguments.
 c
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
   100 a= sqrt(.7853981633974483096156608d+00/x)
 #else
   100 a= sqrt(.7853981633974483096156608q+00/x)
@@ -154,7 +154,7 @@ c
 c
       subroutine hnd_ryssmt(c,s,n)
       implicit none
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
       double precision c, s, v, y, zero, one
       double precision fac, dot
 #else
@@ -163,7 +163,7 @@ c
 #endif
       integer n, i, j, k, kmax
       dimension c(10,10),s(10,10),v(10),y(10)
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
       data zero,one /0.0d+00,1.0d+00/
 #else
       data zero,one /0.0q+00,1.0q+00/
@@ -200,7 +200,7 @@ c
 c
       subroutine hnd_rysnod(a,rt,k)
       implicit none
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
       double precision a, rt, zero, tol, r1, p1, r2, p2
       double precision prod, r3, p3, r4, p4, r5, p5, r6, p6
       double precision r, dr, delta
@@ -212,7 +212,7 @@ c
 #include "stdio.fh"
       integer k, k1, m, i
       dimension a(10),rt(10)
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
       data zero /0.0d+00/
 #else
       data zero /0.0q+00/
@@ -222,7 +222,7 @@ c     routine returns rt(i) the ith root of a polynomial of order
 c     k whose mth coefficient is stored in a(m+1).  it is assumed that
 c     the initial values in rt bracket the final values.
 c
-#if defined(LINUX)  || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX)  || defined(CRAY) || defined(WIN32)
       tol=1.0d-09
 #else
       tol=1.0q-11
@@ -255,7 +255,7 @@ c
       dr=r4-r3
       delta=dr
       if( abs(delta).lt.tol) go to 90
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
       dr=0.0625d+00*dr
 #else
       dr=0.0625q+00*dr
@@ -273,7 +273,7 @@ c
       if(prod.lt. zero) go to 30
       prod=p3*p5
       if(prod.gt. zero) go to 60
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
       r5=0.25d+00*r3+0.75d+00*r5
 #else
       r5=0.25q+00*r3+0.75q+00*r5
@@ -282,7 +282,7 @@ c
       do 50 i=1,k
    50 p5=p5*r5+a(k1-i)
       go to 45
-#if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(LINUX) || defined(CRAY) || defined(WIN32)
    60 r6=0.25d+00*r4+0.75d+00*r6
 #else
    60 r6=0.25q+00*r4+0.75q+00*r6
