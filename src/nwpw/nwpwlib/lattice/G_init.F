@@ -1,5 +1,5 @@
 c
-c $Id: G_init.F,v 1.3 2001-11-17 01:01:17 bylaska Exp $
+c $Id: G_init.F,v 1.4 2002-08-15 22:16:33 bylaska Exp $
 c
 
       integer function G_indx(i)
@@ -47,7 +47,8 @@ c
 *     **************************
 *     **** gamma point code ****
 *     **************************
-      if (control_code().le.4) then
+      if ((control_code().le.4).or.
+     >    (control_code().eq.6)) then
 
 *       **** allocate G_block common block ****
         call D3dB_nfft3d(1,nfft3d)
