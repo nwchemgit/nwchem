@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.14 1999-12-14 17:30:01 d3j191 Exp $
+c $Id: util_md.F,v 1.15 1999-12-16 03:01:36 d3j191 Exp $
 c
       implicit none
 c
@@ -181,6 +181,40 @@ c
    14 continue
       call ga_dgop(mag_d11,rms1,1,'+')
       rms1=sqrt(rms1/wnorm)
+c
+      return
+      end
+      real*8 function angl(x,y,z)
+c
+      implicit none
+c
+      real*8 x(3),y(3),z(3)
+c
+      real*8 xy(3),zy(3),rxy,rzy,phi
+      integer i
+c
+      rxy=0.0d0
+      rzy=0.0d0
+      do 1 i=1,3
+      xy(i)=x(i)-y(i)
+      zy(i)=z(i)-y(i)
+    1 continue
+      rxy=xy(1)*xy(1)+xy(2)*xy(2)+xy(3)*xy(3)
+      rzy=zy(1)*zy(1)+zy(2)*zy(2)+zy(3)*zy(3)
+      phi=(xy(1)*zy(1)+xy(2)*zy(2)+xy(3)*zy(3))/sqrt(rxy*rzy)
+      if(phi.lt.-1.0d0) phi=-1.0d0
+      if(phi.gt.1.0d0) phi=1.0d0
+      angl=acos(phi)
+c
+      return
+      end
+      real*8 function torsion(a,b,c,d)
+c
+      implicit none
+c
+      real*8 a(3),b(3),c(3),d(3)
+c
+      torsion=0.0d0
 c
       return
       end
