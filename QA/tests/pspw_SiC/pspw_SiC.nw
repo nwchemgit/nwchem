@@ -2,7 +2,6 @@ title "SiC 8 atom cubic cell"
 
 start SiC
 
-memory global 22 mb stack 22 mb heap 25 mb
 #**** define a simulation cell ****
 PSPW
    SIMULATION_CELL
@@ -108,8 +107,6 @@ PSPW
 END
 
 
-
-
 #******* Generate a Formmatted pseudopotential for silicon *****
 PSPW
    PSP_FORMATTER
@@ -151,9 +148,25 @@ task pspw psp_formatter
 PSPW
    WAVEFUNCTION_INITIALIZER
       restricted
-      restricted_electrons: 32
       wavefunction_filename: SiC.small.movecs
       cell_name: small
+      up_filling: 16
+        0  0  0  0
+        0  1  0 -1
+        1  0  0  1
+        0  0  1  1
+        1  0  1 -1
+        1 -1  0 -1
+        0  1  1 -1
+        1  0  1 +1
+        1 -1  0 +1
+        1  1  1 -1
+        1  1 -1 -1
+        1 -1  1 -1
+        1 -1 -1 -1
+        1 -1 -1 +1
+        2  0  0 -1
+        0  2  0 -1
    END 
 END
 task pspw wavefunction_initializer
@@ -187,7 +200,7 @@ PSPW
       output_wavefunction_filename: SiC.small.movecs
       fake_mass: 400000.0d0
       time_step: 15.8d0
-      loop: 15 10
+      loop: 25 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
       #exchange_correlation: pbe96
       ewald_ncut: 8
@@ -195,7 +208,7 @@ PSPW
       wavefunction_cutoff: 18.0d0
    END 
 END
-task cg_pspw energy   #task pspw conjugate_gradient is equivalent
+task pspw conjugate_gradient  #task cg_pspw energy is equivalent
 task pspw steepest_descent
 
 
@@ -221,7 +234,7 @@ PSPW
       output_wavefunction_filename: SiC.movecs
       fake_mass: 400000.0d0
       time_step: 15.8d0
-      loop: 10 10
+      loop: 100 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
       #exchange_correlation: pbe96
       ewald_ncut: 8
@@ -230,6 +243,7 @@ PSPW
    END 
 END
 task pspw steepest_descent
+
 #***** Setup conjugate gradient code ****
 PSPW
    CONJUGATE_GRADIENT
@@ -251,36 +265,4 @@ END
 task cg_pspw energy   #task pspw conjugate_gradient is equivalent
 task pspw steepest_descent
 
-
-#***** do geometry optimization with conjugate gradient ********
-driver
-  clear
-  maxiter 100
-end
-task cg_pspw optimize
-
-#***** do geometry optimization with steepest descent ********
-
-PSPW
-   STEEPEST_DESCENT
-      geometry_optimize
-      cell_name: medium
-      formatted_filename: Si.medium.vpp
-      formatted_filename: C.medium.vpp
-      input_wavefunction_filename:  SiC.movecs
-      output_wavefunction_filename: SiC.movecs
-      fake_mass: 400000.0d0
-      time_step: 5.8d0
-      loop: 10 100
-      tolerances: 1.0d-9 1.0d-9 1.0d-4
-      #exchange_correlation: pbe96
-      ewald_ncut: 8
-      energy_cutoff:       73.0d0
-      wavefunction_cutoff: 18.0d0
-   END 
-END
-task pspw steepest_descent
-
-#***** do finite difference frequency with conjugate gradient ********
-task cg_pspw freq
 
