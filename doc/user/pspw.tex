@@ -194,6 +194,7 @@ PSPW
       [WAVEFUNCTION_CUTOFF: <real wcut>]
       [EWALD_NCUT: <integer ncut>]
       [EWALD_RCUT: <real rcut>]
+      [XYZ_FILENAME: <string xyz_filename default XYZ>]
    END
 ...
 
@@ -241,6 +242,8 @@ sub-block.
 			  part of the Ewald summation.
 	\item $<$rcut$>$ - value for the cutoff radius used
 			  in the Ewald summation.
+	\item $<$xyz\_filename$>$ - name that points to the XYZ motion file
+				generated
 \end{itemize}
 
 
@@ -624,10 +627,14 @@ the total energy for a NaCl molecule.
 
 Before running a steepest\_descent simulation several files and
 RTDB structures must be defined or initialized.  Specifically, the user 
-is required to have defined the {\bf ion positions} and {\bf simulation cell}
- in the RTDB, a {\bf formatted pseudopotential file} for each kind of ion, 
-a {\bf file containing the one-electron orbitals}, and lastly a 
-{\bf steepest\_descent PSPW sub-block}. 
+is required to have defined:
+\begin{enumerate}
+  \item {\bf ion positions} 
+  \item {\bf simulation cell} in the RTDB 
+  \item {\bf formatted pseudopotential file} for each kind of ion 
+  \item {\bf file containing the one-electron orbitals} 
+  \item {\bf steepest\_descent PSPW sub-block} 
+\end{enumerate}
 
 In the following tutorial we show the input needed to find an
 energy for an NaCl molecule.  In this example default Hamann pseudopotentials
