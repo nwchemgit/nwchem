@@ -197,6 +197,17 @@ foreach TEST ($args_2_use)
     set esp_test_run = 1
   endif
 #
+#MV
+# qmmm will be signified by the presence of
+# empty file named "qmmm"
+  set qmmm_test_run = 0
+  if( -f $TESTDIR/qmmm) then
+    set qmmm_test_run = 1
+#   if qmmm run md is off
+    set md_test_run = 0
+  endif
+#MV
+
   
   if (! -f $TESTDIR/$INPUTFILE) then
     echo cannot access $TESTDIR/$INPUTFILE
@@ -229,6 +240,10 @@ foreach TEST ($args_2_use)
     if(-f $TESTDIR/$RDFINPUTFILE) cp $TESTDIR/$RDFINPUTFILE $SCRATCHDIR
     if(-f $TESTDIR/$PDBFILE) cp $TESTDIR/$PDBFILE $SCRATCHDIR
     if(-f $TESTDIR/$MRINPUTFILE) cp $TESTDIR/$MRINPUTFILE $SCRATCHDIR
+  endif
+  if($qmmm_test_run) then
+     cp $TESTDIR/*rst $SCRATCHDIR
+     cp $TESTDIR/*top $SCRATCHDIR
   endif
 #
 # copy the ESP file

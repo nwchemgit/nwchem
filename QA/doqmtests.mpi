@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests.mpi,v 1.7 2004-12-31 00:55:43 edo Exp $
+# $Id: doqmtests.mpi,v 1.8 2005-01-06 01:49:25 edo Exp $
 #
 #---   small tests
 ./runtests.mpi.unix procs $1 auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
@@ -52,6 +52,8 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $1 tce_uhf_uccsd
 ./runtests.mpi.unix procs $1 oniom1
 ./runtests.mpi.unix procs $1 c60_ecp
+# qmmm tests
+/runtests.unix procs $np asa_qmmm
 #---   long  may not run on workstations
 ./runtests.mpi.unix procs $1 aump2 
 ./runtests.mpi.unix procs $1 n2_ccsd 
