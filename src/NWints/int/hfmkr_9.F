@@ -1,6 +1,6 @@
       subroutine hfmkr_9(R,PQ,IJK,NAB,Lr,Lr3)
       implicit none
-c $Id: hfmkr_9.F,v 1.2 1994-09-22 13:35:13 d3e129 Exp $
+c $Id: hfmkr_9.F,v 1.3 1994-12-28 20:11:11 og845 Exp $
 c
       integer NAB, Lr, Lr3
       integer IJK(0:Lr,0:Lr,0:Lr)
@@ -489,7 +489,7 @@ c
      &      +105.0d00*Z*R41
         X_8=X_7 * X
         Y_8=Y_7 * Y
-        Z_8=Z_8 * Z
+        Z_8=Z_7 * Z
         R81=R(m,8,1)
         R(M,0,121)=X_8*R81+28.0d00*X_6*R71+210.0d00*X_4*R61
      &      +420.0d00*X_2*R51+105.0d00*R41
