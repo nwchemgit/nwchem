@@ -2,7 +2,7 @@
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task,scftype)
 *     
-*     $Id: mp2_memory.F,v 1.18 1997-12-08 19:47:43 d3g681 Exp $
+*     $Id: mp2_memory.F,v 1.19 1997-12-09 00:42:11 d3g681 Exp $
 *     
       implicit none
 #include "mafdecls.fh"
@@ -101,6 +101,7 @@ c
       if (task .eq. 'gradient') then
          call intd_init(rtdb,1,basis)
          call intb_mem_2e4c(lengd, lenscrd) ! blocking algorithm
+         lengd = lengd/12
          lengd = max(lengd,15**4)          ! MUST MATCH MP_NONSEP
          call int_terminate
       endif
@@ -196,6 +197,10 @@ c
       ma_7 = ma_1 + ma_6a + shmax*shmax*nbf*batch_size + 
      $     shmax*shmax*nbf + batch_size*nbf + 12*lengd + shmax**4 +
      $     4*lengd/ma_sizeof(mt_dbl,1,mt_int) + lenscrd
+*      if (ga_nodeid().eq.0)
+*     $write(6,*) ma_1 , ma_6a , shmax*shmax*nbf*batch_size , 
+*     $     shmax*shmax*nbf , batch_size*nbf , 12*lengd , shmax**4 ,
+*     $     4*lengd/ma_sizeof(mt_dbl,1,mt_int) , lenscrd
       ga_7 = ga_1
       if (oga_uses_ma) then
          ma_7 = ma_7 + ga_7

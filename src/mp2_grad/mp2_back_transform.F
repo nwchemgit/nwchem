@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.23 1997-12-08 19:47:42 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.24 1997-12-09 00:42:10 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -195,6 +195,7 @@ c
 c
       call intd_init(rtdb, 1, basis)
       call intb_mem_2e4c(leneri, lenscr) ! blocking algorithm
+      leneri = leneri/12
       leneri = max(leneri,15**4) ! 1 G quartet = 39 D quartets ... SEE MP2_MEMORY
       if (.not. ma_push_get(mt_dbl,12*leneri,'deriv buffer',
      $     l_eri,k_eri)) call errquit

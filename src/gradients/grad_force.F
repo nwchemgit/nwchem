@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.26 1997-09-17 23:01:13 d3g681 Exp $
+c     $Id: grad_force.F,v 1.27 1997-12-09 00:41:54 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -353,7 +353,9 @@ C     initialize for integral gradients
       call dfill(lforce, 0.0D0, dbl_mb(k_frc_2el), 1)
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       call intb_mem_2e4c(max2e, mscratch_2e) ! blocking algorithm
-      max2e = 1296*100          ! 100 D quartets 
+      max2e = max2e/12
+      max1e = max1e/12
+      max2e = max(max2e,1296*100)          ! 100 D quartets 
       lbuf = max(max1e, max2e)
       lscratch = max(mscratch_1e, mscratch_2e)
 
