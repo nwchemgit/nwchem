@@ -1,5 +1,5 @@
 c
-C$Id: moints_stats.fh,v 1.4 1995-04-19 00:43:37 rg240 Exp $
+C$Id: moints_stats.fh,v 1.5 1997-08-08 07:15:35 rg240 Exp $
 c
 c
        double precision mi_npass
@@ -21,14 +21,11 @@ c
        double precision mi_minsynch
        double precision mi_aggsynch
        double precision mi_nsynchs
-       double precision mi_maxtaskJ
-       double precision mi_mintaskJ
-       double precision mi_aggtaskJ
-       double precision mi_maxtaskK
-       double precision mi_mintaskK
-       double precision mi_aggtaskK
-       double precision mi_ntasksJ
-       double precision mi_ntasksK
+       double precision mi_maxtask
+       double precision mi_mintask
+       double precision mi_aggtask
+       double precision mi_ntasks
+       double precision mi_tio
 c
 c
 c
@@ -52,14 +49,12 @@ c
      $                     mi_minsynch,
      $                     mi_aggsynch,
      $                     mi_nsynchs,
-     $                     mi_maxtaskJ,
-     $                     mi_mintaskJ,
-     $                     mi_aggtaskJ,
-     $                     mi_maxtaskK,
-     $                     mi_mintaskK,
-     $                     mi_aggtaskK,
-     $                     mi_ntasksJ,
-     $                     mi_ntasksK
+     $                     mi_maxtask,
+     $                     mi_mintask,
+     $                     mi_aggtask,
+     $                     mi_ntasks,
+     $                     mi_tio
+
 c
 c
 c

@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.28 1997-06-12 00:45:06 rg240 Exp $
+c  $Id: moints_2x.F,v 1.29 1997-08-08 07:15:31 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -460,12 +460,10 @@ c
        mi_minsynch = min(mi_minsynch,tsynch)
        mi_aggsynch = mi_aggsynch + tsynch
        mi_nsynchs = mi_nsynchs + 1
-       mi_maxtaskJ = max(mi_maxtaskJ,ttaskmax)
-       mi_mintaskJ = min(mi_mintaskJ,ttaskmin)
-       mi_aggtaskJ = mi_aggtaskJ + ttaskagg
-       mi_ntasksJ = mi_ntasksJ + tottask
-       mi_ntasksK = 1.d0
-       mi_mintaskK = 0.d0
+       mi_maxtask = max(mi_maxtask,ttaskmax)
+       mi_mintask = min(mi_mintask,ttaskmin)
+       mi_aggtask = mi_aggtask + ttaskagg
+       mi_ntasks = mi_ntasks + tottask
 c
 c
 c

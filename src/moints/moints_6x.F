@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.21 1997-06-12 00:45:07 rg240 Exp $
+c  $Id: moints_6x.F,v 1.22 1997-08-08 07:15:32 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -84,10 +84,9 @@ c
        double precision tol2e, scale, scale0, schw_ij, integ_acc
        double precision tz, thalf, tint, t1jidx, t2jidx, t1kidx, t2kidx
        double precision t34kidx, t34jidx, thalf0, ttotal, tsynch
-       double precision ttask, ttaskmaxJ, ttaskminJ, ttaskaggJ
-       double precision ttaskmaxK, ttaskminK, ttaskaggK
+       double precision ttask, ttaskmax, ttaskmin, ttaskagg
        double precision flop1, flop2k, flop2j, q2
-       integer tottaskJ, tottaskK
+       integer tottask
        logical status, st, oprint, osym, odoit
 #include "moints_stats.fh"
 c
@@ -219,14 +218,10 @@ c
        t2kidx = 0.d0
        t34jidx = 0.d0
        t34kidx = 0.d0
-       tottaskJ = 0
-       tottaskK = 0
-       ttaskmaxJ = 0.d0
-       ttaskminJ = 1.d24
-       ttaskaggJ = 0.d0
-       ttaskmaxK = 0.d0
-       ttaskminK = 1.d24
-       ttaskaggK = 0.d0
+       tottask = 0
+       ttaskmax = 0.d0
+       ttaskmin = 1.d24
+       ttaskagg = 0.d0
        thalf0 = util_cpusec()
        ploop = 0
        next = -1
@@ -253,7 +248,7 @@ c
              if (ish.eq.jsh) scale0 = 0.5d0
              if (next.eq.ploop) then
                ttask = util_cpusec()
-               tottaskK = tottaskK + 1
+               tottask = tottask + 1
                call dfill(n_ssni,0.d0,dbl_mb(k_ssni),1)
                do kgr=1,ngrp
                  kshlo = int_mb(k_glo+kgr-1)
@@ -309,9 +304,9 @@ c
                t2kidx = t2kidx + util_cpusec() - tz
                next = moints_nxttask(num_nodes)
                ttask = util_cpusec() - ttask
-               ttaskmaxK = max(ttaskmaxK,ttask)
-               ttaskminK = min(ttaskminK,ttask)
-               ttaskaggK = ttaskaggK + ttask
+               ttaskmax = max(ttaskmax,ttask)
+               ttaskmin = min(ttaskmin,ttask)
+               ttaskagg = ttaskagg + ttask
              endif
              ploop = ploop + 1
            enddo
@@ -349,7 +344,7 @@ c
            if (odoit) then
              if (next.eq.ploop) then
                ttask = util_cpusec()
-               tottaskJ = tottaskJ + 1
+               tottask = tottask + 1
                  n_ijni = ilen*jlen*nbf*nmo1
                  call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
 
@@ -419,9 +414,9 @@ c
                  t2jidx = t2jidx + util_cpusec() - tz
                  next = moints_nxttask(num_nodes)
                  ttask = util_cpusec() - ttask
-                 ttaskmaxJ = max(ttaskmaxJ,ttask)
-                 ttaskminJ = min(ttaskminJ,ttask)
-                 ttaskaggJ = ttaskaggJ + ttask
+                 ttaskmax = max(ttaskmax,ttask)
+                 ttaskmin = min(ttaskmin,ttask)
+                 ttaskagg = ttaskagg + ttask
                endif
                ploop = ploop + 1
              endif
@@ -553,28 +548,10 @@ c
        mi_minsynch = min(mi_minsynch,tsynch)
        mi_aggsynch = mi_aggsynch + tsynch
        mi_nsynchs = mi_nsynchs + 1
-       if (ocoul) then
-         mi_maxtaskJ = max(mi_maxtaskJ,ttaskmaxJ)
-         mi_mintaskJ = min(mi_mintaskJ,ttaskminJ)
-         mi_aggtaskJ = mi_aggtaskJ + ttaskaggJ
-         mi_ntasksJ = mi_ntasksJ + tottaskJ
-       else
-         mi_maxtaskJ = 0.d0
-         mi_mintaskJ = 0.d0
-         mi_aggtaskJ = 0.d0
-         mi_ntasksJ = 1.d0
-       endif
-       if (oexch) then
-         mi_maxtaskK = max(mi_maxtaskK,ttaskmaxK)
-         mi_mintaskK = min(mi_mintaskK,ttaskminK)
-         mi_aggtaskK = mi_aggtaskK + ttaskaggK
-         mi_ntasksK = mi_ntasksK + tottaskK
-       else
-         mi_maxtaskK = 0.d0
-         mi_mintaskK = 0.d0
-         mi_aggtaskK = 0.d0
-         mi_ntasksK = 1.d0
-       endif
+       mi_maxtask = max(mi_maxtask,ttaskmax)
+       mi_mintask = min(mi_mintask,ttaskmin)
+       mi_aggtask = mi_aggtask + ttaskagg
+       mi_ntasks = mi_ntasks + tottask
 
        return
        end

@@ -459,6 +459,7 @@ c
 c
       integer stat
 
+      if (moao_ipass.lt.0) return
       moao_ipass = 0
       if (moao_fd.ge.0) then
         if (util_print('ao disk stats',print_high))

@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.39 1997-06-24 23:26:35 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.40 1997-08-08 07:15:31 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -208,7 +208,7 @@ c
 c Get Block-length
 c
        if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,
-     $                   1,blen)) blen = 16
+     $                   1,blen)) blen = 32
        blen = max(blen,maxbfsh)
        if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,
      $                   1,oblk)) oblk = .true.

@@ -198,7 +198,7 @@ c$$$      end
 
 
 c
-c  $Id: moints_semi.F,v 1.39 1997-08-08 06:29:42 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.40 1997-08-08 07:15:34 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -269,7 +269,6 @@ c
        logical oprint_mem
 *      parameter (junit=10,kunit=11)
 c
-
        integer moints_numgr
        integer moints_lmem
        external moints_numgr
@@ -293,10 +292,15 @@ c
        oprint_mem = util_print('memory',print_high) .and.
      $      ga_nodeid().eq.0
 c
+c  Clear 4-index statistics
+c
+       call moints_stats_clear()
+c
 c     Initial block length is very generous for efficiency.  Reduce it
 c     in while loop (1212) if things do not fit.
 c
        blen = min(nbf,16*maxbfsh) ! Initial generous allocation
+       blen = 32
  1212  continue
 c
 c  Memory arithmetic
@@ -549,8 +553,12 @@ c
 c
        if (oexch) call waclose( kunit, ierr )
        if (ocoul) call waclose( junit, ierr )
+
 c
        call ga_sync()
+       if (util_print('statistics', print_high)) 
+     $   call moints_stats_print( 'semi' )
+
        return
        end
        
@@ -641,8 +649,11 @@ c
        integer num_nodes, ploop, next
        double precision scale, schw_ij
        double precision tpass, tio, ttmp, nwrbytes, iorate
+       double precision t0, t1, ttask
        logical st
 c
+#include "moints_stats.fh"
+c       
        integer gr_len
        external gr_len
 c
@@ -729,8 +740,16 @@ c
 c
 c  Checkpoint for I/O
 c
+               mi_ntasks = mi_ntasks + 1
+               ttask = util_cpusec()
                if (iopass(next).gt.jopass) then
+                 t0 = util_cpusec()
                  call ga_sync()
+                 t1 = util_cpusec() - t0
+                 mi_minsynch = min(mi_minsynch,t1)
+                 mi_maxsynch = max(mi_maxsynch,t1)
+                 mi_aggsynch = mi_aggsynch + t1
+                 mi_nsynchs = mi_nsynchs + 1
                  ttmp = util_cpusec()
                  if (ocoul) then
                    nwrbytes = nwrbytes + nmo1*(pohi-polo+1)*rlen(jopass)
@@ -787,6 +806,7 @@ c
                    lbflo = rbfmap(iz)
                    lbfhi = rbfmap(jz)
                    lblen = lbfhi - lbflo + 1
+                   t0 = util_cpusec()
                    call moints_gblk( basis, ish, jsh,
      $                               kshlo, kshhi, lshlo, lshhi,
      $                               shmap, rbfmap,
@@ -796,13 +816,17 @@ c
      $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               kbflo, kbfhi, lbflo, lbfhi,
      $                               dbl_mb(k_ssbb) )
+                   mi_tint = mi_tint + util_cpusec() - t0
 #endif
+                   mi_flop1 = mi_flop1 + 
+     $                   4.d-6*ilen*jlen*kblen*lblen*(oseghi-oseglo+1)
                    call moints_trf1_new(nbf, qlo, qhi, oseglo, oseghi,
      $                  ilen, jlen, kbflo, kbfhi,
      $                  lbflo, lbfhi,
      $                  dbl_mb(k_ssbb),
      $                  dbl_mb(k_xmo_t),
      $                  dbl_mb(k_ssni), dbl_mb(k_hlp))
+                   mi_t1 = mi_t1 + util_cpusec() - t0
                   enddo
                enddo
 
@@ -815,13 +839,14 @@ c ... is this ever called ?
      $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
      $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
      $                              dbl_mb(k_xmo), g_jbuf )
-               if (oexch)
+               if (oexch) then
+                 t0 = util_cpusec()
      $           call moints_trf2Kynew(nbf, qlo, qhi, oseglo, oseghi, 
      $                              vlo, vhi, ibflo, ibfhi, 
      $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
      $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
-     $                              dbl_mb(k_xmo_t), g_kbuf )
-
+                 mi_t2k = mi_t2k + util_cpusec() - t0
+               endif
 
                next = nxtval(num_nodes)
 c
@@ -830,10 +855,20 @@ c  -----------------
 c
              endif
              ploop = ploop + 1
+             ttask = util_cpusec() - ttask
+             mi_mintask = min(mi_mintask,ttask)
+             mi_maxtask = max(mi_maxtask,ttask)
+             mi_aggtask = mi_aggtask + ttask
            endif
          enddo
        enddo
+       t0 = util_cpusec()
        call ga_sync()
+       t1 = util_cpusec() - t0
+       mi_nsynchs = mi_nsynchs + 1
+       mi_aggsynch = mi_aggsynch + t1
+       mi_minsynch = min(mi_minsynch,t1)
+       mi_maxsynch = max(mi_maxsynch,t1)
        ttmp = util_cpusec()
        if (ocoul) then
          nwrbytes = nwrbytes + nmo1*(pohi-polo+1)*rlen(jopass)
@@ -861,6 +896,7 @@ c
      $          'Agg I/O rate:', f8.1, ' Mb/s')
          call util_flush(6)
        endif
+       mi_tio = mi_tio + tio
 c
 c Clean-up
 c
