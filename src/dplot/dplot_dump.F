@@ -26,12 +26,12 @@ c
       If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
          if(lgaussian) then
             Write(Out_Unit,*)Title
-            Write(Out_Unit,*) ' SCF Total Density'
+            Write(Out_Unit,*) 'Total Density'
          else
-         Write(Out_Unit,*)Title
-         Write(Out_Unit,115)
- 115     format('(1F15.10)')
-      endif
+            Write(Out_Unit,*)Title
+            Write(Out_Unit,115)
+ 115        format('(1F15.10)')
+         endif
       End If
       If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
          if(lgaussian) then

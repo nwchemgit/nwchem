@@ -1,10 +1,11 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.16 2000-10-23 15:51:48 windus Exp $
+* $Id: dplot.F,v 1.17 2001-02-06 19:00:34 windus Exp $
 *
       Implicit None
 *     
 ************************************************************************
+#include "inp.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "stdio.fh"
@@ -102,12 +103,16 @@ c
 *
       If (.not.rtdb_cget(rtdb,'dplot:File_Vec',1,File_Vec))
      &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec',0)
-      tag = 'scf:input vectors'
-      if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) then
-         tag = 'dft:input vectors'
-         if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) 
-     .        File_Vec  = 'movecs'
-      write(0,*) ' FIle vec is ',File_Vec
+      Lth_Vec = Inp_StrLen(File_Vec)
+      Write(LuOut,*)' 1-st set of MOs      : ',File_Vec(1:Lth_Vec)
+      if (inp_compare(.false.,File_Vec,' ')) then
+        tag = 'scf:input vectors'
+        if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) then
+           tag = 'dft:input vectors'
+           if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) 
+     &        File_Vec  = 'movecs'
+           write(0,*) ' File vec is ',File_Vec
+        endif
       endif
       Lth_Vec = Inp_StrLen(File_Vec)
       If (iProc.eq.0) 
