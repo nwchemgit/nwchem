@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.16 2000-10-25 20:32:12 d3j191 Exp $
+c $Id: pme_fft.F,v 1.17 2002-06-05 14:22:20 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -92,7 +92,7 @@ c
 c
       if(.not.ma_verify_allocator_stuff())
      +     call errquit('FFT buffer problems after',me)
-      call ffflush(6)
+c      call ffflush(6)
 c
       if(.not.ma_pop_stack(l_iwrk))
      + call errquit('Failed to deallocate iwork',0)
