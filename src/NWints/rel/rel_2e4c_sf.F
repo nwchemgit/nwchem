@@ -1,4 +1,4 @@
-C $Id: rel_2e4c_sf.F,v 1.1 2000-01-25 19:35:31 mg201 Exp $
+C $Id: rel_2e4c_sf.F,v 1.2 2000-02-04 01:03:14 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_2e4c\_sf}
 c:tex-Wrapper routine for evaluation of the two-electron four-center
@@ -16,7 +16,7 @@ c:tex-\begin{verbatim}
      &    Cxyz,zeta_C,coefL_C,coefS_C,n_prim_C,n_cont_C,l_C,ictr_C,
      &    Dxyz,zeta_D,coefL_D,coefS_D,n_prim_D,n_cont_D,l_D,ictr_D,
      &    eri,leri,canAB,canCD,canPQ,DryRun,scr,lscr,
-     &    AB_rel,CD_rel,SS_one_cent,ibug)
+     &    AB_rel,CD_rel,SS_one_cent,do_SSSS,ibug)
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
@@ -69,6 +69,7 @@ c:tex-\begin{verbatim}
       logical CD_rel  ! [input] relativistic correction for C and D shells
       logical SS_one_cent  ! [input] do relativistic correction only if
                            ! SS density is one-centre.
+      logical do_SSSS ! [input] logical to do SSSS contributions
 c:tex-\end{verbatim}
 c:tex-
 c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
@@ -142,7 +143,7 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
 *
 *  .. and finally the SSSS integrals
 *
-      if (do_AB .and. do_CD) then
+      if (do_AB .and. do_CD .and. do_SSSS) then
         nscr = lscr-neri
         call rel_SSSS (
      &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,
