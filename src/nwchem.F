@@ -25,7 +25,7 @@ c!!! BGJ
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.116 1999-06-28 15:57:18 d3g681 Exp $
+c     $Id: nwchem.F,v 1.117 1999-07-14 00:22:08 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -78,6 +78,7 @@ c
       character*(nw_max_path_len) input_filename, rtdb_name
       double precision total_wall, total_cpu
       logical ostartup, ocontinue, orestart
+      integer limit_global
       logical  input_parse
       external input_parse
 c
@@ -136,23 +137,36 @@ C
 c
 c     Initialize local memory allocator & global array tools
 C
-C     GA allocations come out of MA space, so lump them together
-C     and let MA impose the limits on GA sizes instead of actually
-C     using the global limit.
-C
+      call ga_initialize()
       if ( ga_uses_ma() ) then
-         if (.not. ma_init(mt_dbl, stack, heap+global))
-     $      call errquit('nwchem: ma_init failed', -1)
-         call ga_initialize
-C
-C     GA allocations are separate from MA, so the separate limit
-C     must be enforced.  Note GA only understands bytes.
-C
+        if (.not.ma_init(mt_dbl, stack, heap+global))
+     &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=T)',911)
+        limit_global = stack+heap+global
+        limit_global = ma_sizeof(mt_dbl,limit_global,mt_byte)
+        call ga_set_memory_limit(ma_sizeof(mt_dbl,limit_global,mt_byte))
       else
-         if (.not. ma_init(mt_dbl, stack, heap))
-     $      call errquit('nwchem: ma_init failed', -1)
-         call ga_initialize_ltd(ma_sizeof(mt_dbl, global, mt_byte) )
+        if (.not.ma_init(mt_dbl,stack,heap))
+     &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=F)',911)
       endif
+*old:------------------------------------------------------- START ---------
+*old:C     GA allocations come out of MA space, so lump them together
+*old:C     and let MA impose the limits on GA sizes instead of actually
+*old:C     using the global limit.
+*old:C
+*old:      if ( ga_uses_ma() ) then
+*old:         if (.not. ma_init(mt_dbl, stack, heap+global))
+*old:     $      call errquit('nwchem: ma_init failed', -1)
+*old:         call ga_initialize
+*old:C
+*old:C     GA allocations are separate from MA, so the separate limit
+*old:C     must be enforced.  Note GA only understands bytes.
+*old:C
+*old:      else
+*old:         if (.not. ma_init(mt_dbl, stack, heap))
+*old:     $      call errquit('nwchem: ma_init failed', -1)
+*old:         call ga_initialize_ltd(ma_sizeof(mt_dbl, global, mt_byte) )
+*old:      endif
+*old:------------------------------------------------------- END -----------
 c
 *****      call nxtval_ga_initialize()
 c
