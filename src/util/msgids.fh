@@ -84,6 +84,28 @@ c
       integer mrg_d23
       integer mrg_d24
       integer mrg_d25
+      integer mrg_d26
+      integer mrg_d27
+      integer mrg_d28
+      integer mrg_d29
+      integer mrg_d30
+      integer mrg_d31
+      integer mrg_d32
+      integer mrg_d33
+      integer mrg_d34
+      integer mrg_d35
+      integer mrg_d36
+      integer mrg_d37
+      integer mrg_d38
+      integer mrg_d39
+      integer mrg_d40
+      integer mrg_d41
+      integer mrg_d42
+      integer mrg_d43
+      integer mrg_d44
+      integer mrg_d45
+      integer mrg_d46
+      integer mrg_d47
 c
       integer mrg_i01
       integer mrg_i02
@@ -98,11 +120,9 @@ c
       integer mrg_i11
       integer mrg_i12
       integer mrg_i13
+      integer mrg_i14
+      integer mrg_i15
 c
-      integer mrg_t01
-c
-      integer mrg_xxx
-
       integer msg_hessmin
       integer msg_hessmax
       integer msg_moints_stats_1
@@ -146,6 +166,23 @@ C
 c
       integer msg_qmmm_node, msg_qmmm_nat, msg_qmmm_solute,
      &    msg_qmmm_solvent
+c
+      integer mrp_000
+      integer mrp_d01
+      integer mrp_d02
+      integer mrp_d03
+      integer mrp_d04
+      integer mrp_d05
+c
+      integer mrp_i01
+      integer mrp_i02
+      integer mrp_i03
+      integer mrp_i04
+      integer mrp_i05
+      integer mrp_i06
+      integer mrp_i07
+c
+      integer mrp_999
 
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
@@ -285,50 +322,70 @@ c
       parameter (msg_int2e_stat1= msg_ftn_base - 98) ! ddscf: int2e_file.f
       parameter (msg_int2e_stat2= msg_ftn_base - 99) ! ddscf: int2e_file.f
 c
-      parameter (mrg_000=msg_ftn_base-100) ! nwargos
-      parameter (mrg_d01=msg_ftn_base-101) ! arg_bscale
-      parameter (mrg_d02=msg_ftn_base-102) ! arg_cenmas
-      parameter (mrg_d03=msg_ftn_base-103) ! arg_cenmas
-      parameter (mrg_d04=msg_ftn_base-104) ! arg_cenmas
-      parameter (mrg_d05=msg_ftn_base-105) ! arg_cntrbx
-      parameter (mrg_d06=msg_ftn_base-106) ! arg_cntrbx
-      parameter (mrg_d07=msg_ftn_base-107) ! arg_collct
-      parameter (mrg_d08=msg_ftn_base-108) ! arg_decomp
-      parameter (mrg_d09=msg_ftn_base-109) ! arg_dldbal
-      parameter (mrg_d10=msg_ftn_base-110) ! arg_dldbal
-      parameter (mrg_d11=msg_ftn_base-111) ! arg_dldbal
-      parameter (mrg_d12=msg_ftn_base-112) ! arg_forces
-      parameter (mrg_d13=msg_ftn_base-113) ! arg_induce
-      parameter (mrg_d14=msg_ftn_base-114) ! arg_initti
-      parameter (mrg_d15=msg_ftn_base-115) ! arg_memor1
-      parameter (mrg_d16=msg_ftn_base-116) ! arg_memor1
-      parameter (mrg_d17=msg_ftn_base-117) ! arg_output
-      parameter (mrg_d18=msg_ftn_base-118) ! arg_pscale
-      parameter (mrg_d19=msg_ftn_base-119) ! arg_rdmri
-      parameter (mrg_d20=msg_ftn_base-120) ! arg_setup1
-      parameter (mrg_d21=msg_ftn_base-121) ! arg_setup1
-      parameter (mrg_d22=msg_ftn_base-122) ! arg_setup1
-      parameter (mrg_d23=msg_ftn_base-123) ! arg_stdesc
-      parameter (mrg_d24=msg_ftn_base-124) ! arg_stdesc
-      parameter (mrg_d25=msg_ftn_base-125) ! arg_wrrdf
+      parameter(mrg_000=msg_ftn_base-100) ! nwargos
+      parameter(mrg_d01=msg_ftn_base-101) ! arg_bscale
+      parameter(mrg_d02=msg_ftn_base-102) ! arg_cmbox
+      parameter(mrg_d03=msg_ftn_base-103) ! arg_cmsolu
+      parameter(mrg_d04=msg_ftn_base-104) ! arg_cntrbx
+      parameter(mrg_d05=msg_ftn_base-105) ! arg_cntrbx
+      parameter(mrg_d06=msg_ftn_base-106) ! arg_collct
+      parameter(mrg_d07=msg_ftn_base-107) ! arg_collct
+      parameter(mrg_d08=msg_ftn_base-108) ! arg_congra
+      parameter(mrg_d09=msg_ftn_base-109) ! arg_congra
+      parameter(mrg_d10=msg_ftn_base-110) ! arg_congra
+      parameter(mrg_d11=msg_ftn_base-111) ! arg_congra
+      parameter(mrg_d12=msg_ftn_base-112) ! arg_congra
+      parameter(mrg_d13=msg_ftn_base-113) ! arg_congra
+      parameter(mrg_d14=msg_ftn_base-114) ! arg_decomp
+      parameter(mrg_d15=msg_ftn_base-115) ! arg_dldbal
+      parameter(mrg_d16=msg_ftn_base-116) ! arg_dldbal
+      parameter(mrg_d17=msg_ftn_base-117) ! arg_dldbal
+      parameter(mrg_d18=msg_ftn_base-118) ! arg_fnorm
+      parameter(mrg_d19=msg_ftn_base-119) ! arg_forcec
+      parameter(mrg_d20=msg_ftn_base-120) ! arg_forcep
+      parameter(mrg_d21=msg_ftn_base-121) ! arg_gauss2
+      parameter(mrg_d22=msg_ftn_base-122) ! arg_induce
+      parameter(mrg_d23=msg_ftn_base-123) ! arg_memor1
+      parameter(mrg_d24=msg_ftn_base-124) ! arg_memor1
+      parameter(mrg_d25=msg_ftn_base-125) ! arg_param2
+      parameter(mrg_d26=msg_ftn_base-126) ! arg_param2
+      parameter(mrg_d27=msg_ftn_base-127) ! arg_param2
+      parameter(mrg_d28=msg_ftn_base-128) ! arg_param2
+      parameter(mrg_d29=msg_ftn_base-129) ! arg_rdmri
+      parameter(mrg_d30=msg_ftn_base-130) ! arg_rdmro
+      parameter(mrg_d31=msg_ftn_base-131) ! arg_setup1
+      parameter(mrg_d32=msg_ftn_base-132) ! arg_setup1
+      parameter(mrg_d33=msg_ftn_base-133) ! arg_setup1
+      parameter(mrg_d34=msg_ftn_base-134) ! arg_slowrm
+      parameter(mrg_d35=msg_ftn_base-135) ! arg_slowrm
+      parameter(mrg_d36=msg_ftn_base-136) ! arg_slowrm
+      parameter(mrg_d37=msg_ftn_base-137) ! arg_stdesc
+      parameter(mrg_d38=msg_ftn_base-138) ! arg_wrsben
+      parameter(mrg_d39=msg_ftn_base-139) ! arg_wrsben
+      parameter(mrg_d40=msg_ftn_base-140) ! arg_wrsben
+      parameter(mrg_d41=msg_ftn_base-141) ! arg_wrsben
+      parameter(mrg_d42=msg_ftn_base-142) ! arg_wrsben
+      parameter(mrg_d43=msg_ftn_base-143) ! arg_wrsben
+      parameter(mrg_d44=msg_ftn_base-144) ! arg_wrsben
+      parameter(mrg_d45=msg_ftn_base-145) ! arg_wrsben
+      parameter(mrg_d46=msg_ftn_base-146) ! arg_wrtraj
+      parameter(mrg_d47=msg_ftn_base-147) ! arg_xscale
 c
-      parameter (mrg_i01=msg_ftn_base-141) ! arg_dymcti
-      parameter (mrg_i02=msg_ftn_base-142) ! arg_memor1
-      parameter (mrg_i03=msg_ftn_base-143) ! arg_memor1
-      parameter (mrg_i04=msg_ftn_base-144) ! arg_numbox
-      parameter (mrg_i05=msg_ftn_base-145) ! arg_param2
-      parameter (mrg_i06=msg_ftn_base-146) ! arg_setup1
-      parameter (mrg_i07=msg_ftn_base-147) ! arg_wrtinp
-      parameter (mrg_i08=msg_ftn_base-148) ! arg_timing
-      parameter (mrg_i09=msg_ftn_base-149) ! arg_collct
-      parameter (mrg_i10=msg_ftn_base-150) ! arg_collct
-      parameter (mrg_i11=msg_ftn_base-151) ! arg_param2
-      parameter (mrg_i12=msg_ftn_base-152) ! arg_param2
-      parameter (mrg_i13=msg_ftn_base-153) ! arg_param2
-c
-      parameter (mrg_t01=msg_ftn_base-168) ! arg_diag
-c
-      parameter (mrg_xxx=msg_ftn_base-169) ! arg_record
+      parameter(mrg_i01=msg_ftn_base-150) ! arg_diagtm
+      parameter(mrg_i02=msg_ftn_base-151) ! arg_dymcti
+      parameter(mrg_i03=msg_ftn_base-152) ! arg_memor1
+      parameter(mrg_i04=msg_ftn_base-153) ! arg_memor1
+      parameter(mrg_i05=msg_ftn_base-154) ! arg_numbox
+      parameter(mrg_i06=msg_ftn_base-155) ! arg_param1
+      parameter(mrg_i07=msg_ftn_base-156) ! arg_param2
+      parameter(mrg_i08=msg_ftn_base-157) ! arg_param2
+      parameter(mrg_i09=msg_ftn_base-158) ! arg_param2
+      parameter(mrg_i10=msg_ftn_base-159) ! arg_props
+      parameter(mrg_i11=msg_ftn_base-160) ! arg_props
+      parameter(mrg_i12=msg_ftn_base-161) ! arg_props
+      parameter(mrg_i13=msg_ftn_base-162) ! arg_setup1
+      parameter(mrg_i14=msg_ftn_base-163) ! arg_timing
+      parameter(mrg_i15=msg_ftn_base-164) ! arg_wrtinp
 c
       parameter (msg_hessmin = msg_ftn_base - 170 )         ! MCSCF orbital hessian min
       parameter (msg_hessmax = msg_ftn_base - 171 )         ! MCSCF orbital hessian max
@@ -395,4 +452,26 @@ c
       parameter (msg_qmmm_nat     = msg_ftn_base - 222) ! nwargos/qmmm
       parameter (msg_qmmm_solute  = msg_ftn_base - 223) ! nwargos/qmmm
       parameter (msg_qmmm_solvent = msg_ftn_base - 224) ! nwargos/qmmm
+c
+c     pme
+c
+      parameter(mrp_000=msg_ftn_base-230)
+      parameter(mrp_d01=msg_ftn_base-231) ! pme_chgchk
+      parameter(mrp_d02=msg_ftn_base-232) ! pme_chgchk
+      parameter(mrp_d03=msg_ftn_base-233) ! pme_decomp
+      parameter(mrp_d04=msg_ftn_base-234) ! pme_decomp
+      parameter(mrp_d05=msg_ftn_base-235) ! pme_slbchk
+c
+      parameter(mrp_i01=msg_ftn_base-240) ! pme_decomp
+      parameter(mrp_i02=msg_ftn_base-241) ! pme_excchg
+      parameter(mrp_i03=msg_ftn_base-242) ! pme_excrf1
+      parameter(mrp_i04=msg_ftn_base-243) ! pme_excrf2
+      parameter(mrp_i05=msg_ftn_base-244) ! pme_init
+      parameter(mrp_i06=msg_ftn_base-245) ! pme_init
+      parameter(mrp_i07=msg_ftn_base-246) ! pme_init
+      parameter(mrp_999=msg_ftn_base-259) ! pme
+
+
+
+
 
