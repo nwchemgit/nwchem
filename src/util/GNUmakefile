@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.27 1995-01-08 01:26:42 og845 Exp $
+# $Id: GNUmakefile,v 1.28 1995-01-10 18:58:00 og845 Exp $
 
 include ../config/makefile.h
 
@@ -16,9 +16,6 @@ endif
 
 OBJ_OPTIMIZE=  ga_matpow.o 
 
-ifeq ($(TARGET),CRAY-T3D)
-  OBJ_OPTIMIZE = blas_cray.o ga_matpow.o
-endif
 
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \
