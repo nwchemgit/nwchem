@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.43 2003-10-20 16:46:18 bylaska Exp $
+* $Id: psi.F,v 1.44 2003-10-20 21:21:51 edo Exp $
 *
 
 
@@ -78,7 +78,7 @@
 
       value = MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       if (.not. value) call errquit(
-     >     'psi_sort_f_orb: out of stack memory',0)
+     >     'psi_sort_f_orb: out of stack memory',0,MA_ERR)
 
       do ms=1,ispin
 
@@ -109,7 +109,7 @@
 
       value = MA_pop_stack(r1(2))
       if (.not. value) call errquit(
-     >     'psi_sort_f_orb: popping stack memory',1)
+     >     'psi_sort_f_orb: popping stack memory',1, MA_ERR)
       return
       end
 
@@ -158,7 +158,7 @@
       value = value.and. 
      >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
-     >     'psi_KS_update_f_orb: out of stack memory',0)
+     >     'psi_KS_update_f_orb: out of stack memory',0, MA_ERR)
 
       done = .false.
       error0 = 0.0d0 
@@ -240,7 +240,7 @@
       value = value.and.MA_pop_stack(r1(2))
       value = value.and.MA_pop_stack(t0(2))
       if (.not. value) call errquit(
-     >     'psi_KS_update_f_orb: popping stack memory',1)
+     >     'psi_KS_update_f_orb: popping stack memory',1, MA_ERR)
 
       error_out = dabs(e0-eold)
       e0        = -e0
@@ -287,7 +287,7 @@
      >        MA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
-     >     'psi_linesearch_f_orb: out of stack memory',0)
+     >     'psi_linesearch_f_orb: out of stack memory',0, MA_ERR)
  
 
       call Pack_c_Copy(1,dcpl_mb(psi_ptr+(ii-1)*npack1),
@@ -333,7 +333,7 @@
       value =           MA_pop_stack(g(2))
       value = value.and.MA_pop_stack(orb(2))      
       if (.not. value) call errquit(
-     >     'psi_linesearch_f_orb: popping stack memory',1)
+     >     'psi_linesearch_f_orb: popping stack memory',1,MA_ERR)
 
       return
       end
@@ -601,7 +601,6 @@
      >                             maxerror,perror,ii,
      >                             error_out,e0)
       implicit none
-#include "errquit.fh"
       integer maxiteration
       real*8  maxerror,perror 
       integer ii
@@ -610,6 +609,7 @@
       
 #include "mafdecls.fh"
 #include "psi.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -743,12 +743,11 @@
 *
       subroutine psi_linesearch_virtual(ii,theta,e0,de0,t)
       implicit none
-#include "errquit.fh"
       integer ii
       real*8  theta
       real*8  e0,de0
       complex*16 t(*) !search direction
-      
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "psi.fh"
    
@@ -2457,7 +2456,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
          value = MA_pop_stack(MM(2))
          if (.not. value) 
      >    call errquit(
-     >         'error popping stack memory in psi_1check_Tangent',0)
+     >         'error popping stack memory in psi_1check_Tangent',0,
+     >        MA_ERR)
 
  101     continue
       end do
@@ -2484,6 +2484,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 #include "mafdecls.fh"
 #include "psi.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value
@@ -2496,7 +2497,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
          if (n.eq.0) go to 101  !*** ferromagnetic check ***
          value = MA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
          if (.not. value)
-     >   call errquit('out of stack memory in psi_1check_Tangent',0)
+     >   call errquit('out of stack memory in psi_1check_Tangent',0,
+     >        MA_ERR)
 
          indx = (ms-1)*ne(1)*npack1
 
@@ -2588,7 +2590,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('psi_1get_Tgradient:error popping stack',1)
+     > call errquit('psi_1get_Tgradient:error popping stack',1,
+     >     MA_ERR)
 
       return
       end
@@ -2652,6 +2655,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 #include "mafdecls.fh"
 #include "psi.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value
@@ -2660,7 +2664,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('psi_1gen_Tangent:out of stack memory',0)
+     >   call errquit('psi_1gen_Tangent:out of stack memory',0, MA_ERR)
 
       call electron_gen_psiTangenthml(dcpl_mb(psi1(1)),
      >                                THpsi,
@@ -2735,7 +2739,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     >call errquit('psi_2get_Tgradient:error popping stack',1)
+     >call errquit('psi_2get_Tgradient:error popping stack',1,MA_ERR)
 
       return
       end
@@ -2795,6 +2799,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 #include "mafdecls.fh"
 #include "psi.fh"
+#include "errquit.fh"
 
 *     *** local variables ****
       logical value
@@ -2802,7 +2807,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('psi_2gen_Tangent: out of stack memory',0)
+     >   call errquit('psi_2gen_Tangent: out of stack memory',0,MA_ERR)
 
       call electron_gen_psiTangenthml(dcpl_mb(psi2(1)),
      >                                THpsi,
@@ -3954,7 +3959,8 @@ c    >              dbl_mb(tmp1(1)),ierr)
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit(
-     >    'out of stack memory in psi_diagonalize_hml_assending',0)
+     >    'out of stack memory in psi_diagonalize_hml_assending',0,
+     >     MA_ERR)
 
 
 *     ***** diagonalize the hamiltonian matrix *****
@@ -3975,7 +3981,8 @@ c    >              dbl_mb(tmp1(1)),ierr)
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit(
-     >   'error popping stack in psi_diagonalize_hml_assending',0)
+     >   'error popping stack in psi_diagonalize_hml_assending',0,
+     >     MA_ERR)
 
       return
       end
@@ -4246,16 +4253,16 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
           if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
 
           if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
 
           if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_put failed', 0)
+     >     'wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
 
           write(*,*)
           write(*,*) "Grid is being converted:"
@@ -4456,16 +4463,16 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
           if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
 
           if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
 
           if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_put failed', 0)
+     >     'wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
 
           write(*,*)
           write(*,*) "Grid is being converted:"
