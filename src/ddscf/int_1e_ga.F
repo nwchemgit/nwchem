@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.20 1999-11-03 18:17:03 bert Exp $
+C$Id: int_1e_ga.F,v 1.21 1999-11-19 01:11:15 bert Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -113,6 +113,7 @@ c
 c     
 c     Loop thru shells with static parallel work decomposition
 c     
+      call ga_sync()
       iproc = ga_nodeid()
       nproc = ga_nnodes()
       ijshell = 0
@@ -155,12 +156,11 @@ c
                   call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
      $                 idim, q2)
                end if
-               ijshell = ijshell + 1
-            else if (odoit) then
-               ijshell = ijshell + 1
             endif
+            ijshell = ijshell + 1
          end do
       end do
+      call ga_sync()
 c     
 c     chop stack at first item allocated
 c     
