@@ -5,7 +5,7 @@ c     Makes contribution to J force from block of derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
 c
       implicit none
 c
@@ -59,7 +59,7 @@ c     derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
 c
       implicit none
 c
@@ -150,7 +150,7 @@ c     derivative 2e3c integrals
 c
 c     BGJ - 3/99
 c
-c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
 c
       implicit none
 c
@@ -224,7 +224,7 @@ c     derivative 2e2c integrals
 c
 c     BGJ - 3/99
 c
-c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
 c
       implicit none
 c
@@ -278,7 +278,7 @@ c     integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
 c
       implicit none
 c
@@ -439,7 +439,7 @@ c     3-center integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
 c
       implicit none
 c
@@ -485,6 +485,7 @@ c      write(*,*)'*** d2int_2e3c_block_jhess called: idatom',idatom
                      do ip1 = 1, nf1
                         do ip3 = 1, nf3
                            do ip4 = 1, nf4
+c !!! Is factor of 1/2 right???
                               den2 = 0.5D0 * coef1(ip1) * d_kla(ip3,ip4)
                               d2E = d2E
      &                            + den2 * d2int(indij,ip4,ip3,ip1)
@@ -596,7 +597,7 @@ c     2-center integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
 c
       implicit none
 c
@@ -605,24 +606,65 @@ c
       double precision scale
       double precision hess(3, nat, 3, nat)
       double precision coef1(nf1), coef2(nf2)
-      double precision d2int(21, nf2, nf1)
-      integer idatom(2)
+      double precision d2int(78, nf2, nf1)
+      integer idatom(4)
 c
       integer i, icart, j, jcart, indi, indj, indab, indij
       integer ip1, ip2
       double precision d2E, den2
-      double precision h(3,2,3,2)
+      double precision h(3,4,3,4)
 c !!! Start BGJ temp test !!!
-      double precision ti(3,2,3,2)
-      character abcd(2), xyz(3)
+      character abcd(4), xyz(3)
       abcd(1) = 'A'
       abcd(2) = 'B'
+      abcd(3) = 'C'
+      abcd(4) = 'D'
       xyz(1) = 'x'
       xyz(2) = 'y'
       xyz(3) = 'z'
 c !!! End BGJ temp test !!!
 c
+c !!! Questions:
+c     Should idatom be 4 long?
+c     Will the "real" centers always be 1 and 3?
 c      write(*,*)'*** d2int_2e2c_block_jhess called: idatom',idatom
+      call dfill(144, 0.0d0, h, 1)
+      indab = 0
+      do i = 1, 4
+         do j = i, 4
+            if (idatom(j).ge.1 .and. idatom(i).ge.1) then
+               indij = indab
+               do icart = 1, 3
+                  indi = 3*(i-1) + icart
+                  do 100 jcart = 1, 3
+                     indj = 3*(j-1) + jcart
+                     if (indj .lt. indi) goto 100
+                     indij = indij + 1
+                     d2E = 0.D0
+
+                     do ip1 = 1, nf1
+                        do ip2 = 1, nf2
+c !!! Is factor of 1/2 right???
+                           den2 = 0.5D0 * coef1(ip1) * coef2(ip2)
+                           d2E = d2E + den2 * d2int(indij,ip2,ip1)
+c       write(*,*) abcd(i), xyz(icart), abcd(j), xyz(jcart), indij,
+c     &                                d2int(indij,ip2,ip1)
+                        enddo
+                     enddo
+                     h(icart,i,jcart,j) = h(icart,i,jcart,j)
+     &                    + d2E * scale
+ 100              continue
+               enddo
+            endif
+            if (i.ne.j) then
+               indab = indab + 9
+            else
+               indab = indab + 6
+            endif
+         enddo
+      enddo
+
+#if 0
       call dfill(36, 0.0d0, h, 1)
       indab = 0
       do i = 1, 2
@@ -656,46 +698,12 @@ c     &                                d2int(indij,ip2,ip1)
             endif
          enddo
       enddo
-#if 0
-c     Check TI of integral 2nd derivatives
-      do ip1 = if1, il1
-        do ip2 = if2, il2
-              call dfill(36, 0.0d0, ti, 1)
-              indab = 0
-              do i = 1, 2
-                do j = i, 2
-                  if (idatom(j).ge.1 .and. idatom(i).ge.1) then
-                    indij = indab
-                    do icart = 1, 3
-                      indi = 3*(i-1) + icart
-                      do 200 jcart = 1, 3
-                        indj = 3*(j-1) + jcart
-                        if (indj .lt. indi) goto 200
-                        indij = indij + 1
-c       write(*,*) abcd(i), xyz(icart), abcd(j), xyz(jcart), indij,
-c     &                                d2int(indij,ip2,ip1)
-                        ti(icart,i,jcart,j)=d2int(indij,ip2,ip1)
-                        ti(jcart,j,icart,i)=d2int(indij,ip2,ip1)
-  200                 continue
-                    enddo
-                  endif
-                  if (i.ne.j) then
-                    indab = indab + 9
-                  else
-                    indab = indab + 6
-                  endif
-                enddo
-              enddo
-              write(*,*)'*** 2nd deriv TI check for',ip1,ip2
-              call hessti(ti,2)
-        enddo
-      enddo
 #endif
 c
 c     Scatter the hessian contribution just formed to a full square
 c
-      do i = 1, 2
-         do j = i, 2
+      do i = 1, 4
+         do j = i, 4
             if (idatom(j).ge.1 .and. idatom(i).ge.1) then
                if (i.eq.j) then
                   do icart = 1, 2
@@ -716,8 +724,8 @@ c
 c
 c     Increment the hessian
 c
-      do i = 1, 2
-         do j = 1, 2
+      do i = 1, 4
+         do j = 1, 4
             if (idatom(j).ge.1 .and. idatom(i).ge.1) then
                do icart = 1, 3
                   do jcart = 1, 3
@@ -730,7 +738,7 @@ c
          enddo
       enddo
 c      write(*,*)'*** TI check for hessian block'
-c      call hessti(h,2)
+c      call hessti(h,4)
 c
       return
       end
