@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.160 1996-07-26 16:23:37 d3g681 Exp $
+# $Id: makefile.h,v 1.161 1996-07-26 19:57:49 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -432,6 +432,11 @@ ifeq ($(TARGET),SGITFP)
 # TPS 96/06/27:
 # Added -lutil to core libraries (again!)
 #
+# TPS 96/07/26:
+# Fortran optimization limits: const_copy_limit=20000 
+#                              global_limit=20000
+#                              fprop_limit=2000
+#
   CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
      RANLIB = echo
@@ -441,7 +446,7 @@ ifeq ($(TARGET),SGITFP)
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 
- FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=18500:global_limit=18500:fprop_limit=1750 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+ FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
 FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
 
  COPTIMIZE = -O
