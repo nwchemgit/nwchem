@@ -4,7 +4,7 @@
 #include "mafdecls.fh"
 #include "cscfps.fh"
 c     
-c     Replace the input matrix with a unitary approximation
+c     Replace the input matrix with a NON-unitary approximation
 c     to its exponential.  Current algorithm is
 c     
 c     a) Determine n (a power of two) such that exp(K/n) is
@@ -12,12 +12,7 @@ c     well approximated by a taylor series
 c     
 c     b) Use third order taylor series on K/n
 c     
-c     c) Make the approximation to exp(K/n) unitary with
-c     iterative orthogonalization
-c     
-c     d) Compute (exp(K/n))**n
-c     
-c     e) Reapply iterative orthogonalization
+c     c) Compute (exp(K/n))**n
 c     
       integer g_k, basis
 c     
@@ -45,7 +40,7 @@ c
          knorm = knorm * 0.5d0
          goto 10
       endif
-*      if (ga_nodeid() .eq. 0) write(6,*) ' power ', power
+*      if (ga_nodeid() .eq. 0) write(6,*) ' power ',power,knorm*2**power
       scale = 1.0d0/power
       call ga_dscal(g_k, scale)
 c     
@@ -87,9 +82,9 @@ c
 c     
 c     Now have in g_k an approximation to exp(K/scale)
 c     
-c     Make this unitary and then scale as necessary
-c     
-      call ga_iter_orthog(basis, g_k, .false., .true.)
+*c     Make this unitary and then scale as necessary
+*c     
+*      call ga_iter_orthog(basis, g_k, .false., .true.)
 c     
       if (power .ne. 1) then
          if (.not. ga_create(MT_DBL, nbf, nbf, 'mat_exp:tmp1',
@@ -102,9 +97,9 @@ c
          if (.not. ga_destroy(g_tmp1))
      $        call errquit('mat_exp: ga_destroy failed', 0)
 c     
-c     Make sure the final result is also unitary
-c     
-         call ga_iter_orthog(basis, g_k, .false., .true.)
+*c     Make sure the final result is also unitary
+*c     
+*         call ga_iter_orthog(basis, g_k, .false., .true.)
       endif
 c     
       if (oscfps) call pstat_off(ps_matexp)

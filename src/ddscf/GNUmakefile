@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.17 1994-10-12 22:18:58 d3g681 Exp $
+# $Id: GNUmakefile,v 1.18 1994-12-12 07:18:43 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -11,7 +11,7 @@
         rhf_hessv.o               schwarz_max.o \
         int_1e_ga.o               schwarz_print.o \
         k2cf.o                    \
-                                  schwarz_tidy.o \
+        ga_orthog_mos.o           schwarz_tidy.o \
         rhf.o                     upd_atom_block.o \
         nxtask.o                  bad.o rhf_nr_solve.o \
         vectors.o \
