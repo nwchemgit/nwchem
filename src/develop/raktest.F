@@ -64,7 +64,7 @@ c
 c
 c      write(6,*)' with integrals  printed '
 c      call int_chk_sum(basis,.true.)
-c      write(6,*)' without integrals  printed '
+      write(6,*)' without integrals  printed '
       call int_chk_sum(basis,.false.)
 
 c
