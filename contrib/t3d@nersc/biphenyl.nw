@@ -43,12 +43,10 @@ c library 6-31g
 h library 6-31g 
 end
 
-task scf
-
 scf
   vectors output bip.movecs
 end
 
-enter
+task scf
 
 
