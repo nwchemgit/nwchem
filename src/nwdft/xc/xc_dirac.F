@@ -13,7 +13,7 @@ c     For locations of 2nd derivatives of functionals in array
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
-C$Id: xc_dirac.F,v 1.14 2001-04-12 02:28:26 edo Exp $
+C$Id: xc_dirac.F,v 1.15 2001-04-12 18:00:22 edo Exp $
 c
       Implicit none
 c
@@ -103,8 +103,8 @@ c         write(LuOut,*)'xc_dirac called: unrestricted'
 !     &                        n, nq, rho(n,1), rho(n,2), rho(n,3)
 !                  call errquit(' negative density ',911)
 !               endif
-               rho32=abs(rho(n,2))**one_third
-               rho33=abs(rho(n,3))**one_third
+               rho32=abs(rho(n,2))**one_third*sign(1d0,rho(n,2))
+               rho33=abs(rho(n,3))**one_third*sign(1d0,rho(n,3))
                Amat(n,1) = Amat(n,1) + P3*rho32*fac
                Amat(n,2) = Amat(n,2) + P3*rho33*fac
 #ifdef SECOND_DERIV
