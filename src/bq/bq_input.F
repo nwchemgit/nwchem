@@ -1,4 +1,4 @@
-c $Id: bq_input.F,v 1.3 2005-03-31 03:20:30 marat Exp $
+c $Id: bq_input.F,v 1.4 2005-04-03 07:08:29 marat Exp $
       subroutine bq_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -107,60 +107,15 @@ c     -----------------------------------
      >                0,RTDB_ERR)
       end if
       end if
-c      if(.not.bq_create(namespace,handle))   
-c     &       call errquit('bq_create failed',0,0)
-c
-c      if(.not.bq_set(handle,ncenter,dbl_mb(i_qbq),dbl_mb(i_cbq)))
-c     &       call errquit('bq_set failed',0,0)
-c
-c      call bq_print_info(handle)
-c      
-c      do i=1,ncenter
-c         dbl_mb(i_qbq+i) = 0
-c         dbl_mb(i_cbq+3*i)   = 0
-c         dbl_mb(i_cbq+3*i+1) = 0
-c         dbl_mb(i_cbq+3*i+2) = 0
-c      end do
-c
-c      if(.not.bq_get(handle,ncenter,dbl_mb(i_qbq),dbl_mb(i_cbq)))
-c     &       call errquit('bq_set failed',0,0)
-c
-c      write(*,*) "testing"
-c      do i=0,ncenter-1
-c         write(*,*) dbl_mb(i_qbq+i) 
-c         write(*,*) dbl_mb(i_cbq+3*i)   
-c         write(*,*) dbl_mb(i_cbq+3*i+1) 
-c         write(*,*) dbl_mb(i_cbq+3*i+2) 
-c      end do
-c
-c      ncenter = 0
-c      if(.not.bq_ncenter(handle,ncenter))
-c     &       call errquit('bq_ncenter failed',0,0)
-c      
-c      write(*,*) "bq_ncenter",ncenter
-c      write(*,*) "testing"
-c
-c      if(.not.bq_rtdb_store(rtdb,handle))
-c     &       call errquit('bq_store failed',0,0)
-c
-c      if(.not.rtdb_print(rtdb))
-c     &       call errquit('rtdb print failed',0,0)
-c
-c      if(.not.bq_destroy(handle))
-c     &       call errquit('bq_destroy failed',0,0)
-c
-c      write(*,*) "before load"
-c      call bq_print_info(handle)
-c
-c      if(.not.bq_create(namespace,handle))   
-c     &       call errquit('bq_create failed',0,0)
-c
-c      if(.not.bq_rtdb_load(rtdb,handle))   
-c     &       call errquit('bq_create failed',0,0)
-c
-c      write(*,*) "after load"
-c      call bq_print_info(handle)
-  
+
+      if (.not. ma_pop_stack(h_qbq)) call errquit(
+     &      'failed to free scratch space '//pname,
+     &      max_nbq, MA_ERR)
+
+      if (.not. ma_pop_stack(h_cbq)) call errquit(
+     &      'failed to free scratch space '//pname,
+     &      max_nbq, MA_ERR)
+ 
       return
       end
 c
