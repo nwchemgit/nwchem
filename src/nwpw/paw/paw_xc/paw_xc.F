@@ -1,6 +1,10 @@
-!$Id: paw_xc.F,v 1.1 2003-02-17 05:28:19 marat Exp $
+!$Id: paw_xc.F,v 1.2 2003-02-17 05:43:37 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.1  2003/02/17 05:28:19  marat
+!initial revision
+!MV
+!
 
 **********************************
 *
@@ -53,7 +57,34 @@
      >                               paw_vxc_d_ps) 
 
 
+      write(*,*) "paw_xc initialized"
 
 
       end 
 
+**********************************
+*
+*
+*
+*
+*
+**********************************
+      subroutine paw_xc_end()
+      implicit none
+
+#include "paw_xc_data.fh"
+#include "paw_ma.fh"
+
+      logical ok
+      
+      ok = my_dealloc(paw_vxc_d_ps) 
+      ok = ok .and. my_dealloc(paw_vxc_u_ps) 
+      ok = ok .and. my_dealloc(paw_vxc_d_ae) 
+      ok = ok .and. my_dealloc(paw_vxc_u_ae) 
+      ok = ok .and. my_dealloc(i_paw_vxc)
+
+      if (.not.ok)
+     > call errquit("paw_vxc_end: error freeing heap",0)
+
+
+      end 
