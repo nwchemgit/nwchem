@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.18 2003-04-04 15:26:08 d3j191 Exp $
+c $Id: cf_list.F,v 1.19 2003-04-04 17:59:18 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -604,20 +604,20 @@ c
    37 continue
 c
       if(iqmmm.ne.0) then
-      do 38 isa=isafr+1,isato
-      if(igr(isa).eq.igr(isa-1)) then
-      if(iand(idt(isa),lquant).ne.lquant.and.isz(isa-1).ne.0)
-     + isz(isa)=1
-      if(isz(isa).ne.0.and.iand(idt(isa-1),lquant).ne.lquant)
-     + isz(isa-1)=1
+      do 38 jsa=isafr+1,isato
+      if(igr(jsa).eq.igr(jsa-1)) then
+      if(iand(idt(jsa),lquant).ne.lquant.and.isz(jsa-1).ne.0)
+     + isz(jsa)=1
+      if(isz(jsa).ne.0.and.iand(idt(jsa-1),lquant).ne.lquant)
+     + isz(jsa-1)=1
       endif
    38 continue
-      do 39 isa=isato-1,isafr,-1
-      if(igr(isa).eq.igr(isa+1)) then
-      if(iand(idt(isa),lquant).ne.lquant.and.isz(isa+1).ne.0)
-     + isz(isa)=1
-      if(isz(isa).ne.0.and.iand(idt(isa+1),lquant).ne.lquant)
-     + isz(isa+1)=1
+      do 39 jsa=isato-1,isafr,-1
+      if(igr(jsa).eq.igr(jsa+1)) then
+      if(iand(idt(jsa),lquant).ne.lquant.and.isz(jsa+1).ne.0)
+     + isz(jsa)=1
+      if(isz(jsa).ne.0.and.iand(idt(jsa+1),lquant).ne.lquant)
+     + isz(jsa+1)=1
       endif
    39 continue
       do 40 jsa=jsafr+1,jsato
