@@ -4,7 +4,7 @@
      &                  cetobfr, natoms,
      &                  g_movecs, noc,  totsic, i_degen)
 c
-C$Id: xc_sic.F,v 1.10 2000-04-24 19:37:16 edo Exp $
+C$Id: xc_sic.F,v 1.11 2000-04-24 21:51:56 edo Exp $
 c
       implicit none
 c      
@@ -16,7 +16,7 @@ c    &        g_sic_dens(2),g_orb,g_vxc_orb(4),g_movecs(2),
      &        g_matm, g_vectu,  g_coul_orb, g_vxc_sig(2),
      &        l_vec_aux, i_vec_aux, j, 
      &        l_vec_u, i_vec_u, l_consti, i_consti, l_degen,
-     &        aux_ij, aux_ik, i_degen(2), i_gauxsig, l_gauxsig
+     &        aux_ij,  i_degen(2), i_gauxsig, l_gauxsig
       double precision Exc_orb(2), tot_sic_xc, tot_sic_coul, ecoul_orb,
      &                 u_array, res_int,const_ci, totsic
       integer natoms
