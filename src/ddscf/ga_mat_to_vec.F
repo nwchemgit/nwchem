@@ -1,7 +1,8 @@
+cedo#define  BAD_GACCESS 1
       subroutine ga_mat_to_vec(g_m, ilo, ihi, jlo, jhi, g_v, klo, col,
      $           scale, op)
 *
-* $Id: ga_mat_to_vec.F,v 1.2 1997-11-07 11:35:10 d3e129 Exp $
+* $Id: ga_mat_to_vec.F,v 1.3 2003-07-29 00:12:47 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -30,6 +31,21 @@ c
       integer iplo, iphi, jplo, jphi, k_m   ! local patch of m
       integer ioff, j, numi, numj, k, ld
 c
+#ifdef  BAD_GACCESS
+      if (op .eq. '=') then
+         call ga_copy_patch('n', 
+     $        g_m, ilo, ihi, jlo, jhi, 
+     $        g_v, klo, klo+(ihi-ilo+1)*(jhi-jlo+1)-1, col, col) 
+         
+      else if (op .eq. '+') then
+         call ga_dadd_patch(scale, 
+     $        g_m, ilo, ihi, jlo, jhi, 
+     $        1d0,g_v, klo, klo+(ihi-ilo+1)*(jhi-jlo+1)-1, col, col,
+     $        g_v, klo, klo+(ihi-ilo+1)*(jhi-jlo+1)-1, col, col) 
+      else
+         call errquit('ga_mat_to_vec: bad op', 0)
+      endif
+#else
       call ga_distribution(g_m, ga_nodeid(), iplo, iphi, jplo, jphi)
 c
       call ga_sync()
@@ -53,6 +69,7 @@ c
            call ga_release(g_m,iplo,iphi,jplo,jphi)
          endif
       endif
+#endif
       call ga_sync()
 c
       end
@@ -77,6 +94,11 @@ c
       integer iplo, iphi, jplo, jphi, k_m   ! local patch of m
       integer ioff, j, numi, numj, k, ld
 c
+#ifdef  BAD_GACCESS
+      call ga_copy_patch('n', 
+     $     g_v, klo, klo+(ihi-ilo+1)*(jhi-jlo+1)-1, col, col,
+     $     g_m, ilo, ihi, jlo, jhi)
+#else 
       call ga_distribution(g_m, ga_nodeid(), iplo, iphi, jplo, jphi)
 c
       call ga_sync()
@@ -93,6 +115,7 @@ c
            call ga_release(g_m,iplo,iphi,jplo,jphi)
          endif
       endif
+#endif
       call ga_sync()
 c
       end
