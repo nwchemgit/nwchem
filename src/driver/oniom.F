@@ -75,9 +75,12 @@ c
       integer k_actlist, l_actlist, ma_type, nactive
 c     
       logical task_energy_doit, task_gradient_doit, geom_zmtmak
+      logical usesymmol
       external task_energy_doit, task_gradient_doit, geom_zmtmak
 c     
       status = rtdb_parallel(.true.)
+         if(.not.rtdb_get(rtdb,'geom:symmol',mt_log,1,
+     $        usesymmol)) usesymmol=.false.
       call util_print_push
       call util_print_rtdb_load(rtdb, 'oniom')
       call ecce_print_module_entry('oniom')
@@ -359,7 +362,8 @@ c
      $     call errquit('oniom: geom_cart_get failed', 0)
 c     
       nattest = nat             ! sym_nwc corrupts the input #atoms
-      call sym_nwc(geom, rtdb, nattest, .false., 1.0d0, 1d-4)
+      call sym_nwc(geom, rtdb, nattest, .false., 1.0d0, 1d-4,
+     ,     usesymmol)
       if (.not. geom_ncent(geom,nattest)) call errquit
      $     ('oniom: getting ncent',0)
       if (nat .ne. nattest) call errquit
