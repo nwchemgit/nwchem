@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.95 2004-03-06 03:41:15 d3j191 Exp $
+c $Id: ana_task.F,v 1.96 2005-01-11 15:34:36 d3j191 Exp $
 c
       implicit none
 c
@@ -802,6 +802,15 @@ c
       lsonly=.false.
       endif
 c
+      goto 1
+      endif
+c
+c     clean frames
+c     ------------
+c
+      if(card(1:6).eq.'clean ') then
+      read(card(8:13),'(i6)') nclean
+      lclean=nclean.gt.0
       goto 1
       endif
 c

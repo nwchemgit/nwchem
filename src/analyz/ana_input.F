@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.68 2004-03-06 03:41:15 d3j191 Exp $
+c $Id: ana_input.F,v 1.69 2005-01-11 15:34:36 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       real*8 arota,rrdf
       logical lref,lfil,lsol,lsuper,lselo
-      integer iesppb,lent,idpdb,indx,icent,jcent,nwhb
+      integer iesppb,lent,idpdb,indx,icent,jcent,nwhb,nclean
       character*8 option
 c
       if(ga_nodeid().eq.0) then
@@ -246,6 +246,17 @@ c
       write(lfncmd,1024) rang,filcop(1:index(filcop,' ')-1)
  1024 format('copy   ',f12.6,a)
       endif
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     clean up frames to file
+c     -----------------------
+c
+      if(inp_compare(.false.,'clean',item)) then
+      if(.not.inp_i(nclean)) nclean=0
+      write(lfncmd,1034) nclean
+ 1034 format('clean  ',i6)
       numcmd=numcmd+1
       goto 2
       endif

@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.33 2004-03-06 03:41:15 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.34 2005-01-11 15:34:36 d3j191 Exp $
 c
       implicit none
 c
@@ -37,6 +37,13 @@ c
       if(card(1:5).ne.'frame') goto 1
       read(lfntrj,1001,err=9999,end=9999) timp,temp,pres,datum,tijd
  1001 format(2f12.6,e12.5,2a10)
+      if(lclean.and.timp.lt.timr) then
+      write(*,2221) timp,temp,pres,datum,tijd
+ 2221 format(' skip  ',2f12.6,e12.5,2a10)
+      goto 1
+      endif
+      write(*,2201) timp,temp,pres,datum,tijd
+ 2201 format(' frame ',2f12.6,e12.5,2a10)
       if(timp.lt.timr) timoff=time
       time=timp+timoff
       timr=timp

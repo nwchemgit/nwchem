@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.61 2004-03-06 03:41:15 d3j191 Exp $
+c $Id: ana_common.fh,v 1.62 2005-01-11 15:34:36 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -36,6 +36,7 @@ c
       integer irmsd,lcop,lsup,ifrfr,ifrto,iscof,icopf,isupf,ifrsk
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
       integer ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,jcent,numwhb
+      integer nclean
       integer nbnds,ibnds(mxbnds,2,2)
       integer nangs,iangs(mxangs,3,2)
       integer ntors,itors(mxtors,4,2)
@@ -51,7 +52,7 @@ c
      + irmsd,lcop,lsup,ifrfr,ifrto,ifrsk,
      + iscof,icopf,isupf,mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,
      + ngrd,ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,jcent,numwhb,
-     + nbnds,nangs,ntors,nimps,ibnds,iangs,itors,iimps
+     + nbnds,nangs,ntors,nimps,ibnds,iangs,itors,iimps,nclean
 c
       character*255 filnam,filana,filref,filtrj,filcop,filsup,filpov,
      + filchg,filplt,filxyz,filrms,filprj,filval,filmax,filmin,filepz,
@@ -88,9 +89,10 @@ c
      + nwsel,nwrit,indx,msgm,nsgm,msb,mwb,nselo,ifr,ito
 c
       logical lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,lsonly,
-     + ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf
+     + ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf,lclean
       common/ana_log/lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,
-     + lsonly,ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf
+     + lsonly,ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf,
+     + lclean
 c
       character*24 wtag(100,2)
       character*16 wnam(100)
