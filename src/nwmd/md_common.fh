@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.38 2000-07-14 19:54:03 d3j191 Exp $
+c $Id: md_common.fh,v 1.39 2000-08-07 18:55:12 d3j191 Exp $
 c
 c     parameters
 c
@@ -71,14 +71,14 @@ c     ---------------------------------------------------
 c
       integer
      + lfninp,lfnout,lfntop,lfnrst,lfntrj,lfnprp,lfngib,lfnsur,
-     + lfnrdf,lfnppd,lfndip,lfndef,lfnfld,lfnsfl,
+     + lfnrdf,lfnppd,lfndip,lfndef,lfnfld,lfnsfl,lfncmd,
      + lfnqrs,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
      + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
      + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
      + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6,iport
       common/md_lfn/
      + lfninp,lfnout,lfntop,lfnrst,lfntrj,lfnprp,lfngib,lfnsur,
-     + lfnrdf,lfnppd,lfndip,lfndef,lfnfld,lfnsfl,
+     + lfnrdf,lfnppd,lfndip,lfndef,lfnfld,lfnsfl,lfncmd,
      + lfnqrs,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
      + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
      + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
@@ -95,13 +95,13 @@ c     -------------------
 c
       character*80 filnam,fdarg,fdlog,fsum,server,projct
       character*70 filday,filinp,filrst,filtop,filtrj,filprp,filfld,
-     + filgib,filppd,filhis,filhbo,filsfl,
+     + filgib,filppd,filhis,filhbo,filsfl,filcmd,
      + filmro,filmri,filout,filmem,fildef,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst
       common/md_nam/
      + filnam,filday,filinp,filrst,filtop,filtrj,filprp,filfld,
-     + filgib,filppd,filhis,filhbo,filsfl,
+     + filgib,filppd,filhis,filhbo,filsfl,filcmd,
      + filmro,filmri,filout,filmem,fildef,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
@@ -137,7 +137,7 @@ c
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
-     + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,npmf,
+     + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
      + isload,inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
@@ -165,7 +165,7 @@ c
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
-     + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,npmf,
+     + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,
      + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,
      + isload,inp_ptr
 c

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.26 2000-07-14 19:54:03 d3j191 Exp $
+c $Id: md_input.F,v 1.27 2000-08-07 18:55:12 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,7 @@ c
       integer nfvelo,nfsvel,nfprop,nffree,nfsync,iformt,madbox,loadb
       integer nflong,nfgaus,mropt,nfauto,nfconv,nffet,idebug,mpolit
       integer npatom,nptopw,nptops,npx,npy,npz,nbx,nby,nbz,itrack
-      integer ngx,ngy,ngz,ifix,iunfix,noshak,nfslow,nfefld,nfsfld
+      integer ngx,ngy,ngz,numfix,ifix,noshak,nfslow,nfefld,nfsfld
       integer ngl,isetp1,isetp2,ifield,iapprx,nacfl,npxpct,imfft
       integer ireact,itemp,nscb,idscb(10),memlim,morder,isolvo,lfout6
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
@@ -36,7 +36,9 @@ c
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
       real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide
 c
-      integer i,mtimes,mdold
+      integer i,mtimes,mdold,len
+      character*255 filcmd
+      integer lfncmd,numcmd,ifirst,ilast
 c
 #include "bitops.fh"
 c
@@ -46,6 +48,9 @@ c
       call arg_input(irtdb)
       return
       endif
+c
+      lfncmd=69
+      numcmd=0
 c
       mtimes=250
 c
@@ -128,8 +133,10 @@ c
       ngx=nbx
       ngy=nby
       ngz=nbz
-      ifix=0
-      iunfix=0
+      len=0
+c      ifix=0
+c      iunfix=0
+      numfix=0
       noshak=0
       nscb=1
       idscb(1)=1
@@ -226,7 +233,14 @@ c
     3 continue
 c
       if(inp_compare(.false.,'system',item)) then
+      if(len.gt.0) call errquit('md_input: duplicate system',0)
       if(.not.inp_a(project)) call errquit('md_input: error system',0)
+      len=index(project,' ')-1
+      filcmd=project(1:len)//'.cmd '
+      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
+     + form='formatted',status='unknown',err=1999)
+      rewind(unit=lfncmd)
+      numcmd=0
       goto 2
       endif
 c
@@ -631,63 +645,120 @@ c
 c
 c     fix [solvent] [solute]
 c
-      if(inp_compare(.false.,'fix',item)) then
-  261 continue
-      if(.not.inp_a(item)) goto 1
-  361 continue  
-      if(inp_compare(.false.,'all',item)) then
-      ifix=ior(ifix,1)
-      goto 261
-      endif
+      if(inp_compare(.false.,'fix',item).or.
+     + inp_compare(.false.,'free',item)) then
+      if(.not.inp_a(item)) call errquit('md_input : error fix',13)
+c
+      ifix=1
+      if(inp_compare(.false.,'free',item)) ifix=0
+c
       if(inp_compare(.false.,'solvent',item)) then
-      ifix=ior(ifix,2)
-      goto 261
+      if(.not.inp_i(ifirst)) then
+      ifirst=0
+      ilast=0
+      else
+      if(.not.inp_i(ilast)) ilast=0
       endif
+      write(lfncmd,1001) ifix,ifirst,ilast
+ 1001 format('fix w ',i2,2i10)
+      numfix=numfix+1
+      goto 2
+      endif
+c
       if(inp_compare(.false.,'solute',item)) then
-      ifix=ior(ifix,4)
-      if(.not.inp_a(item)) goto 1
-      if(inp_compare(.false.,'fraction',item)) then
-c      do 5 i=1,msf
-c      lsffix(i)=0
-c    5 continue
-c      do 6 i=1,msf
-c      if(.not.inp_i(n)) goto 261
-c      if(n.gt.0.and.n.le.msf) lsffix(n)=1
-c    6 continue
-      goto 261
+      if(.not.inp_i(ifirst)) then
+      ifirst=0
+      ilast=0
+      else
+      if(.not.inp_i(ilast)) ilast=0
       endif
-      goto 361
+      if(.not.inp_a(item)) then
+      write(lfncmd,1002) ifix,ifirst,ilast
+ 1002 format('fix s ',i2,2i10)
+      numfix=numfix+1
+      goto 2
+      else
+      if(inp_compare(.false.,'heavy',item)) then
+      write(lfncmd,1003) ifix,ifirst,ilast
+ 1003 format('fix x ',i2,2i10)
+      numfix=numfix+1
+      goto 2
+      else
+      write(lfncmd,1004) ifix,ifirst,ilast,item(1:index(item,' ')-1)
+ 1004 format('fix s ',i2,2i10,a)
+      numfix=numfix+1
+      goto 2
       endif
-      if(inp_compare(.false.,'non-H',item)) then
-      ifix=ior(ifix,8)
-      goto 261
       endif
-      goto 3
       endif
+c
+      if(inp_compare(.false.,'permanent',item)) then
+      write(lfncmd,1005)
+ 1005 format('fix p ')
+      numfix=numfix+1
+      goto 2
+      endif
+c
+      call errquit('md_input : unrecognized fix/free command',13)
+      endif
+c
+c      if(inp_compare(.false.,'fix',item)) then
+c  261 continue
+c      if(.not.inp_a(item)) goto 1
+c  361 continue  
+c      if(inp_compare(.false.,'all',item)) then
+c      ifix=ior(ifix,1)
+c      goto 261
+c      endif
+c      if(inp_compare(.false.,'solvent',item)) then
+c      ifix=ior(ifix,2)
+c      goto 261
+c      endif
+c      if(inp_compare(.false.,'solute',item)) then
+c      ifix=ior(ifix,4)
+c      if(.not.inp_a(item)) goto 1
+c      if(inp_compare(.false.,'fraction',item)) then
+cc      do 5 i=1,msf
+cc      lsffix(i)=0
+cc    5 continue
+cc      do 6 i=1,msf
+cc      if(.not.inp_i(n)) goto 261
+cc      if(n.gt.0.and.n.le.msf) lsffix(n)=1
+cc    6 continue
+c      goto 261
+c      endif
+c      goto 361
+c      endif
+c      if(inp_compare(.false.,'non-H',item)) then
+c      ifix=ior(ifix,8)
+c      goto 261
+c      endif
+c      goto 3
+c      endif
 c
 c     fix [solvent] [solute]
 c
-      if(inp_compare(.false.,'unfix',item)) then
-  262 continue
-      if(.not.inp_a(item)) goto 1
-      if(inp_compare(.false.,'all',item)) then
-      iunfix=ior(iunfix,1)
-      goto 262
-      endif
-      if(inp_compare(.false.,'solvent',item)) then
-      iunfix=ior(iunfix,2)
-      goto 262
-      endif
-      if(inp_compare(.false.,'solute',item)) then
-      iunfix=ior(iunfix,4)
-      goto 262
-      endif
-      if(inp_compare(.false.,'non-H',item)) then
-      iunfix=ior(iunfix,8)
-      goto 262
-      endif
-      goto 3
-      endif
+c      if(inp_compare(.false.,'unfix',item)) then
+c  262 continue
+c      if(.not.inp_a(item)) goto 1
+c      if(inp_compare(.false.,'all',item)) then
+c      iunfix=ior(iunfix,1)
+c      goto 262
+c      endif
+c      if(inp_compare(.false.,'solvent',item)) then
+c      iunfix=ior(iunfix,2)
+c      goto 262
+c      endif
+c      if(inp_compare(.false.,'solute',item)) then
+c      iunfix=ior(iunfix,4)
+c      goto 262
+c      endif
+c      if(inp_compare(.false.,'non-H',item)) then
+c      iunfix=ior(iunfix,8)
+c      goto 262
+c      endif
+c      goto 3
+c      endif
 c
 c     noshake [solvent] [solute]
 c
@@ -1159,6 +1230,8 @@ c
       if(nfwcoo.lt.0) nfwcoo=0
       if(nfwvel.lt.0) nfwvel=0
 c
+      numcmd=numfix
+c
 c     put input in rtdb
 c
       if(project(1:1).ne.' ') then
@@ -1314,9 +1387,9 @@ c
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ngz',mt_int,1,ngz))
      + call errquit('md_input: rtdb_put failed',0)
-      if(.not.rtdb_put(irtdb,'md:ifix',mt_int,1,ifix))
-     + call errquit('md_input: rtdb_put failed',0)
-      if(.not.rtdb_put(irtdb,'md:iunfix',mt_int,1,iunfix))
+c      if(.not.rtdb_put(irtdb,'md:ifix',mt_int,1,ifix))
+c     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:numfix',mt_int,1,numfix))
      + call errquit('md_input: rtdb_put failed',0)
 c      if(.not.rtdb_put(irtdb,'md:lsffix',mt_int,msf,lsffix))
 c     + call errquit('md_input: rtdb_put failed',0)
@@ -1385,6 +1458,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nopack',mt_int,1,nopack))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:iprof',mt_int,1,iprof))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:numcmd',mt_int,1,numcmd))
      + call errquit('md_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'md:fguide',mt_dbl,1,fguide))
@@ -1467,5 +1542,13 @@ c
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:uqmatm',mt_dbl,1,eqm))
      + call errquit('md_input: rtdb_put failed',0)
+c
+      close(unit=lfncmd)
+c
+      return
+c
+ 1999 continue
+      call errquit('md_input : unable to open cmd file',13)
+c
       return
       end

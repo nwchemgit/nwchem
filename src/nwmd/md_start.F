@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.75 2000-07-24 17:46:15 d3j191 Exp $
+c $Id: md_start.F,v 1.76 2000-08-07 18:55:12 d3j191 Exp $
 c
       implicit none
 c
@@ -159,11 +159,22 @@ c
 c     fix or unfix
 c     ------------
 c
-      call cf_fix(ifix,iunfix,int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
+      if(numfix.gt.0) then
+      if(me.eq.0) then
+      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
+     + form='formatted',status='old')
+      rewind(lfncmd)
+      endif
+      call cf_fix(lfncmd,numfix,int_mb(i_iw+(lwgmn-1)*mwm),
+     + int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
      + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsdyn-1)*msa),nsaloc)
+      if(me.eq.0) then
+      close(unit=lfncmd)
+      endif
       if(.not.lqmd)
      + call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
+      endif
 c
 c     initialize packing
 c     ------------------
@@ -305,6 +316,7 @@ c
       filfld=filnam(1:ibl)//'.fld'
       filsfl=filnam(1:ibl)//'.sfl'
       filtst=filnam(1:ibl)//'.tst'
+      filcmd=filnam(1:ibl)//'.cmd'
 c
 c     set logical file numbers
 c
@@ -346,6 +358,7 @@ c
       lfnuse=44
       lfnmsg=45
       lfnday=46
+      lfncmd=47
 c
 c     set defaults
 c
@@ -765,10 +778,10 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',69)
       if(.not.rtdb_get(irtdb,'md:ngz',mt_int,1,ngz))
      + call errquit('md_rtdbin: rtdb_get failed',70)
-      if(.not.rtdb_get(irtdb,'md:ifix',mt_int,1,ifix))
+      if(.not.rtdb_get(irtdb,'md:numfix',mt_int,1,numfix))
      + call errquit('md_rtdbin: rtdb_get failed',71)
-      if(.not.rtdb_get(irtdb,'md:iunfix',mt_int,1,iunfix))
-     + call errquit('md_rtdbin: rtdb_get failed',72)
+c      if(.not.rtdb_get(irtdb,'md:iunfix',mt_int,1,iunfix))
+c     + call errquit('md_rtdbin: rtdb_get failed',72)
 c      if(.not.rtdb_get(irtdb,'md:lsffix',mt_int,msf,lsffix))
 c     + call errquit('md_rtdbin: rtdb_get failed',72)
       if(.not.rtdb_get(irtdb,'md:noshak',mt_int,1,noshak))
