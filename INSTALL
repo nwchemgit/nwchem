@@ -1,7 +1,7 @@
 
         Guide to Installing NWChem  
         ==========================
-        $Id: INSTALL,v 1.3 1995-06-29 20:49:07 rg240 Exp $
+        $Id: INSTALL,v 1.4 1996-04-22 18:07:19 gg502 Exp $
 
 
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
@@ -90,3 +90,39 @@
 	$NWCHEM_TOP/bin/PARAGON          (executables)
         $NWCHEM_TOP/lib/PARAGON          (libraries)
 
+NOTE TO MPI USERS:
+
+NWChem can be compiled to use MPI instead of TCGMSG for message
+passing on many systems, though this is still somewhat experimental --
+be on the looking for problems.  The following procedures and remarks
+should be inserted into the procedure above
+
+3.5) Additional environment variables must be set:
+	setenv USE_MPI yes
+	setenv MPI_LIB /usr/local/lib/mpich/rs6000/ch_eui
+	setenv MPI_INCLUDE /usr/local/include
+MPI_LIB and MPI_INCLUDE are paths to the library and include files for
+the MPI implementation you are using (example is appropriate for the
+Cornell Theory Center MPICH installation).  If the MPI libraries and
+includes are in locations already searched by the compiler/linker, it
+is not necessary to set MPI_LIB and MPI_INCLUDE.
+
+7) If you are linking NWChem with the PeIGS eigensolver, the best
+approach seems to be to build PeIGS for TCGMSG message passing, not
+MPI!  The tcgmsg-mpi wrapper library will resolve all message passing
+calls from PeIGS.  The reason for this recommendation is that PeIGS
+currently calls MPI from Fortran, while NWChem calls it only from C.
+The current version of the MPI standard does not guarantee
+mixed-language operation, so it is safer to avoid it.
+
+NOTE TO MPI USERS ON THE IBM SP:
+
+For SP systems running AIX 3.2.5, there are two main MPI
+implementations available (not at all sites).  MPICH from ANL/Missippi
+State, and MPI-F from IBM itself.  Because NWChem uses both MPL and
+MPI on the SP, it is necessary to link against appropriate libraries
+for both packages.  This is easily done using MPICH, but is not easily
+done using MPI-F.  Rather than spending time getting MPI-F to work,
+we've elected to wait for SPs to upgrade to AIX 4, in which a native
+MPI implementation will be available, and is prupported to link (and
+work) okay with MPL.
