@@ -6,7 +6,7 @@
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult)
 c
-c $Id: tddft_init.F,v 1.6 2002-06-21 17:13:41 sohirata Exp $
+c $Id: tddft_init.F,v 1.7 2003-01-17 17:17:01 sohirata Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -237,7 +237,7 @@ c -----------
      1  call errquit('tddft_init: failed to write algorithm',0)
       endif
       if (.not.rtdb_cget(rtdb,'tddft:vector',1,vector)) then
-        vector=''
+        call util_file_name('tddft',.false.,.false.,vector)
         if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
      1  call errquit('tddft_init: failed to write vector',0)
       endif
