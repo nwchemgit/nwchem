@@ -1,7 +1,7 @@
       logical function pre_pdbsiz(iunit,filnam,lfnout,
      + model,natm,nseq,nssb,nlnk,namslv,numslv)
 c
-c $Id: pre_pdbsiz.F,v 1.8 1998-09-11 20:47:36 d3j191 Exp $
+c $Id: pre_pdbsiz.F,v 1.9 1998-09-22 21:35:29 d3j191 Exp $
 c
 c     function to read dimensions from a pdb formatted file
 c
@@ -124,6 +124,7 @@ c
 c     ATOM
 c
       if(card(1:4).eq.'ATOM') then
+      if(card(18:20).eq.namslv) lslvnt=.true.
       if(mdl.eq.model) then
       if(.not.lslvnt) natm=natm+1
       read(card(23:26),1003) i

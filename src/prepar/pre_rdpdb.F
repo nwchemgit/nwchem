@@ -2,7 +2,7 @@
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain)
 c
-c $Id: pre_rdpdb.F,v 1.10 1998-09-11 20:47:36 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.11 1998-09-22 21:35:29 d3j191 Exp $
 c
       implicit none
 c
@@ -96,7 +96,7 @@ c
       if(alocal.ne.' '.and.alocal.ne.altloc.and.altloc.ne.'*') goto 100
       if(achain.ne.' '.and.achain.ne.chain.and.chain.ne.'*') goto 100
 c
-      if(card(1:6).eq.'HETATM'.and.card(18:20).eq.namslv) lsolut=.false.
+      if(card(18:20).eq.namslv) lsolut=.false.
 c
       if(.not.lsolut.or.num.gt.last.or.num.lt.nprv) then
       if(lnames) then

@@ -96,3 +96,4 @@ Sep 17 1998	 Add modify commands for bonded interaction parameters
 		 Corrected missing atom algorithm
 Sep 18 1998	 Make links on pdb files forced
 Sep 22 1998      Fix incorrect format in pre_wrtpdb
+	         Allow solvent on PDB to be written as ATOM cards

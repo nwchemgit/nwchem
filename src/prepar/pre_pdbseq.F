@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.14 1998-09-18 22:59:43 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.15 1998-09-22 21:35:29 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -148,6 +148,7 @@ c
       if(mdl.eq.model) then
       read(card(23:26),1003) i
  1003 format(i4)
+      if(card(18:20).eq.namslv) goto 99
       if(i.ne.isgm) then
       isgm=i
       iseq=iseq+1
