@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.118 1999-06-14 23:07:34 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.119 1999-06-15 00:36:42 d3h449 Exp $
 c     
       implicit none
 c
@@ -35,7 +35,7 @@ c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-      logical oprint
+      logical oprint, grid_on_file
       double precision Exc(2), rms(2), derr(2), n3c_dbl_r, availm_r
       integer noc(2), nmo(2), icall(2)
       integer n3c_dbl, n3c_int, n_batch
@@ -509,7 +509,13 @@ c
 c
 c     compute the integrated density (numerical)
 c
-c      call grid_den(rtdb, g_dens, rho_n)
+      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+     &   grid_on_file))then
+         grid_on_file = .false.
+      endif
+      if (grid_on_file)then
+         call grid_den(rtdb, g_dens, rho_n)
+      endif
 c
 c     Tidy up SCF
 c

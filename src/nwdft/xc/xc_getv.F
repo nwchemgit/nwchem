@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.24 1999-06-14 23:05:47 d3h449 Exp $
+C$Id: xc_getv.F,v 1.25 1999-06-15 00:37:11 d3h449 Exp $
 c
       implicit none
 c      
@@ -60,7 +60,7 @@ c
       integer me,nproc,i,nTrows,nTcols
       integer lTmat,iTmat
       double precision zero,one,onem
-      logical oprint_intermediate_xc, oprint_time
+      logical oprint_intermediate_xc, oprint_time, grid_on_file
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
       double precision tol2e,tot
 c******************************************************************************
@@ -191,10 +191,15 @@ c
 c         
 c           Option A:  Compute via direct numerical quadrature.
 c         
-c
 c           compute the integrated density (numerical)
 c
-c            call grid_den(rtdb, g_dens, rho_n)
+            if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+     &         grid_on_file))then
+               grid_on_file = .false.
+            endif
+            if (grid_on_file)then
+               call grid_den(rtdb, g_dens, rho_n)
+            endif
 c
             if (oprint_time)call dft_tstamp('Before call to xc_quadv0.')
             call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,g_xyz,g_nq, 
