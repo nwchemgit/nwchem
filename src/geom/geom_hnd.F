@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.34 2000-08-04 05:57:32 d3g681 Exp $
+* $Id: geom_hnd.F,v 1.35 2000-08-04 19:10:51 d3g681 Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -2310,7 +2310,9 @@ c
          enddo
       endif
 c     
-      iang=0
+      nuser_specified = numang  ! Don't remove user defined angles
+      numang = 0
+      iang=0                  
  100  iang=iang+1
       if(iang.gt.nang) go to 110
       if(ijkang(1,iang).eq.0) then
@@ -2330,9 +2332,9 @@ c
          rjk  =sqrt(rjksq)                           
          riksq=distsq(ijkang(1,iang),ijkang(3,iang))
          cosb =(rijsq+rjksq-riksq)/(two*rij*rjk)
-         linbnd = sin(acos(min(1d0,abs(cosb)))) .le. tol
+         linbnd = (sin(acos(min(1d0,abs(cosb)))) .le. tol)
          if (linbnd) dolinb = .true.
-         if(.not.linbnd) then
+         if((.not.linbnd) .or. (iang.le.nuser_specified)) then
             if (nizmat+4 .gt. mxizmt) goto 808
             izmat(nizmat+1)=itwo
             izmat(nizmat+2)=ijkang(1,iang)
