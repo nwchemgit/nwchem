@@ -17,7 +17,7 @@ c
       call ecce_print_module_entry('driver')
       if (util_print('brdcst', print_never)) call setdbg(1)
 c
-      dbug=.true.
+      dbug=.false.
       some=.false.
       some=some.or.dbug
       ir=LuIn
@@ -50,21 +50,24 @@ c
 #include "geom.fh"
 #include "util.fh"
       logical       geom_zmt_get_nizmat
+      external      geom_zmt_get_nizmat
       logical       geom_usr_get_nzfrz 
+      external      geom_usr_get_nzfrz 
       logical       geom_usr_get_izfrz 
+      external      geom_usr_get_izfrz 
+      logical       geom_lst_get_coord
+      external      geom_lst_get_coord
       integer       rtdb
       integer       geom
-      integer       idriver
-      logical       hnd_sadx
+      logical       do_gradient
       logical       some
       logical       out
       logical       dbug
       logical       status
-      logical       cvged
-      logical       zcoord
+      logical       done
       logical       rstart
-      logical       excess
-      character*255 opt_hess_fil
+      logical       zcoord
+      character*16  atmlab
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
@@ -74,28 +77,21 @@ c                mxcoor=max(mxcart,mxzmat)
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
-      common/hnd_optrun/npts,nserch,nupdat,cvged
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad,
-     2                  convggm,convgg,convge,maxiter
-      common/hnd_optsad/sadstp
       common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
-      common/hnd_optfun/e,eg(mxcart)
       common/hnd_optvar/zcoord,ncoord,mcoord
-      common/hnd_optfil/opt_hess_fil
-      common/hnd_opttim/energy_time,gradient_time
+      common/hnd_optfun/e,eg(mxcart)
+      common/hnd_lstrun/nptlst,iptlst
+      common/hnd_lsttim/energy_time,gradient_time
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(mxcart),zan(mxatom),nat
-      character*16 atmlab
       common/hnd_mollab/atmlab(mxatom)
-      dimension t0(mxcoor)
       data zero   /0.0d+00/
       data pt5    /0.5d+00/
       data one    /1.0d+00/
-      data alphmn /0.4d+00/
-      data alphmx /2.5d+00/
 c
       hnd_lstx = .false.
+c
+      do_gradient = .false.
 c
       dbug=.false.
       out =.false.
@@ -105,72 +101,38 @@ c
       if (ga_nodeid().eq.0.or.some)  then
          write(iw,9999)
       endif
-c--
-      if(some.or..not.some) then
-         hnd_lstx = .true.  
-         return
-      endif
-c--
 c
-c     ----- parameters for optimization driver -----
+c     ----- get going ... -----
 c
-      if (.not. rtdb_get(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt)) then
-           cvgopt=8.0d-04
-           if(dbug) then
-              write(iw,*) 'using default value of -cvgopt-',cvgopt
-           endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt)) then
-           nptopt=20
-           if(dbug) then
-              write(iw,*) 'using default value of -nptopt-',nptopt
-           endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:inhess',mt_int,1,inhess)) then
-           inhess=0
-           if(dbug) then
-              write(iw,*) 'using default value of -inhess-',inhess
-           endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt)) then
-           linopt=10
-           if(dbug) then
-              write(iw,*) 'using default value of -linopt-',linopt
-           endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd)) then
-           modupd=1
-           if(dbug) then
-              write(iw,*) 'using default value of -modupd-',modupt
-           endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:moddir',mt_int,1,moddir)) then
-           moddir=1
-           if(dbug) then
-              write(iw,*) 'using default value of -moddir-',moddir
-           endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:modsad',mt_int,1,modsad)) then
-           modsad=0
-           if(dbug) then
-              write(iw,*) 'using default value of -modsad-',modsad
-           endif
-      else
-           if(dbug) then
-              write(iw,*) 'using -rtdb-  value of -modsad-',modsad
-           endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:sadstp',mt_dbl,1,sadstp)) then
-           sadstp=0.35d+00
-           if(dbug) then
-              write(iw,*) 'using default value of -sadstp-',sadstp
-           endif
-      endif
+      if (.not. geom_create(geom, 'geometry'))
+     &       call errquit('hnd_lst: geom_create?', 911)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     &       call errquit('hnd_lst: no geometry ', 911)
+      if (.not. geom_cart_get(geom, ncent, atmlab, c, zan))
+     &       call errquit('hnd_lst: geom_get ', 911)
+       nat = ncent
+      if(.not.geom_zmt_get_nizmat(geom,nzmat))
+     &       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
+c
+c     ----- scan -lst- coordinates file -----
+c
+      nptlst=1
+   10 continue
+         status=geom_lst_get_coord(x(1),x(1+nat),x(1+nat),
+     &                             nat,nptlst)
+         if(status) then
+            nptlst=nptlst+1
+            go to 10
+         else
+            nptlst=nptlst-1
+         endif
 c
       if (ga_nodeid().eq.0.or.dbug)  then
-         write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
-     1                                       modsad,moddir,
-     2                                       sadstp
+         write(iw,9996) nptlst
+      endif
+      if(nptlst.eq.0) then
+         write(iw,*) 'no -lst- points found. return and continue ..'
+         return
       endif
 c
       nzfrz=0
@@ -180,29 +142,6 @@ c
       do i=1,mxatom
          iatfrz(i)=0
       enddo
-c
-c     ----- branch to transition state search if demanded -----
-c
-      if(idriver.ne.0.or.modsad.ne.0) then
-         hnd_lstx=hnd_sadx(rtdb,idriver)
-         return
-      else
-         if (ga_nodeid().eq.0.or.some)  then
-            write(iw,9994)
-         endif
-      endif
-c
-c     ----- get going ... -----
-c
-      if (.not. geom_create(geom, 'geometry'))
-     &       call errquit('hnd_opt: geom_create?', 911)
-      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &       call errquit('hnd_opt: no geometry ', 911)
-      if (.not. geom_cart_get(geom, ncent, atmlab, c, zan))
-     &       call errquit('hnd_opt: geom_get ', 911)
-       nat = ncent
-      if(.not.geom_zmt_get_nizmat(geom,nzmat))
-     &       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
 c
 c     ----- frozen coordinates ? if so .... -----
 c
@@ -245,6 +184,7 @@ c
       endif
 c
 c     ----- get ready to start now -----
+c
 c     if internal coordinates ...
 c           nzvar  = # of (redundant) internal coordinates
 c           ncoord = # of independent internal coordinates
@@ -253,8 +193,8 @@ c     if cartesian coordinates ...
 c           ncoord = 3*nat
 c           mcoord = 3*nat
 c
-      rstart=.false.
-      excess=.false.
+      rstart     =.false.
+c
       zcoord=.false.
       zcoord=nzmat.gt.0
       if(dbug)  then
@@ -281,16 +221,6 @@ c
          write(iw,9997) nzvar,nvar,ncart,ncoord,mcoord
       endif
 c
-c
-c     ----- initialize hessian matrix -----
-c
-      call hnd_opt_hss_init(rtdb,geom)
-      if(zcoord) then
-         if(inhess.eq.1) then
-            call hnd_opt_tfhx(rtdb,geom)
-         endif
-      endif
-c
 c     ----- set up ----  
 c
       e     =zero
@@ -305,19 +235,13 @@ c
          eg(i)=zero
          g0(i)=zero
          x0(i)=zero
-         t0(i)=zero
           x(i)=zero
           g(i)=zero
       enddo
-      alpha =zero
-      npts  =0
-      nserch=0
-      nupdat=0
-      cvged =.false.
 c
 c     ----- first point -----  
 c
-      npts=1
+      iptlst=1
       do i=1,ncart
          x(i)=c(i)
       enddo
@@ -325,7 +249,7 @@ c
 c     ----- energy -----
 c
          time_start=util_wallsec()
-      call hnd_opt_energy(rtdb,geom)
+      call hnd_lst_energy(rtdb,geom)
          time_end  =util_wallsec()
          energy_time=time_end-time_start
          if(out) then
@@ -333,157 +257,88 @@ c
          endif
 c
       func=e
+      if(do_gradient) then
 c
 c     ----- gradient -----
 c
-         time_start=util_wallsec()
-      call hnd_opt_gradient(rtdb,geom)
-         time_end  =util_wallsec()
-         gradient_time=time_end-time_start
-         if(out) then
-            write(iw,*) 'gradient_time = ',gradient_time
-         endif
+            time_start=util_wallsec()
+         call hnd_opt_gradient(rtdb,geom)
+            time_end  =util_wallsec()
+            gradient_time=time_end-time_start
+            if(out) then
+               write(iw,*) 'gradient_time = ',gradient_time
+            endif
 c
-      do i=1,ncart
-         g(i)=eg(i)
-      enddo
-      if(zcoord) then
-         call hnd_opt_tfgx(rtdb,geom)
+         do i=1,ncart
+            g(i)=eg(i)
+         enddo
+         if(zcoord) then
+            call hnd_opt_tfgx(rtdb,geom)
+         endif
       endif
-      call hnd_opt_gmax(rtdb)
-      call hnd_opt_converge(rtdb,cvged)
-      call hnd_opt_print(rtdb)
+c
+      call hnd_lst_print(rtdb)
       do i=1,ncart
          x0(i)=x(i)
       enddo
       do i=1,ncoord
          g0(i)=g(i)
-         t0(i)=g(i)
       enddo
 c
-c     ----- exit if converged -----                     
-c
-      if(cvged) then
-         if (ga_nodeid().eq.0.or.dbug)  then
-            write(iw,9998)
-            if (.not. geom_print(geom)) call errquit
-     $           ('hnd_opt_drv: geom_print?',0)
-*rak:            if (util_print('bonds',print_default))
-*rak:     $           call distan(nat,c)
-*rak:            if (util_print('angles',print_default))
-*rak:     $           call angle(nat,c)
-            if (util_print('bonds',print_default)) then
-              if (.not.geom_print_distances(geom)) call errquit(
-     &            'hnd_opt_drv: geom_print_distances failed',911)
-            endif
-            if (util_print('angles',print_default)) then
-              if (.not.geom_print_angles(geom)) call errquit(
-     &            'hnd_opt_drv: geom_print_angles failed',911)
-            endif
+      if (ga_nodeid().eq.0.and.dbug)  then
+         if (.not. geom_print(geom)) call errquit
+     $        ('hnd_lst_drv: geom_print?',0)
+         if (util_print('bonds',print_default)) then
+           if (.not.geom_print_distances(geom)) call errquit(
+     &         'hnd_lst_drv: geom_print_distances failed',911)
          endif
-         call ga_sync()
-         if (.not.geom_destroy(geom))
-     &      call errquit('hnd_opt: geom_destroy?', 911)
-         hnd_lstx=.true.
-         return
+         if (util_print('angles',print_default)) then
+           if (.not.geom_print_angles(geom)) call errquit(
+     &         'hnd_lst_drv: geom_print_angles failed',911)
+         endif
       endif
+      call ga_sync()
+c
+c     ----- lst path -----
 c
   100 continue
+      iptlst=iptlst+1
 c
-c     ----- search direction -----
-c
-      nserch=nserch+1
-      call hnd_opt_search_dir(rtdb)
-      do i=1,ncoord
-         ds(i)=dx(i)
-      enddo
-      if(zcoord) then
-         call hnd_opt_tfds(rtdb,geom)               
-      endif
-c
-c     ----- linear search -----
-c
-      if(alpha.eq.zero) then
-         if(zcoord) then
-            alpha=one
-         else
-            alpha=pt5
-         endif
-      endif
-      call hnd_opt_search_lin(rtdb,geom,rstart,excess)
-      if(excess) then
-         if (ga_nodeid().eq.0.or.dbug)  then
-            write(iw,9995) nptopt
-         endif
-         if (.not.geom_destroy(geom))
-     &      call errquit('hnd_opt: geom_destroy?', 911)
-         call ga_sync()
-         hnd_lstx=.false.
-         return
-      endif
-      do i=1,ncoord
-         dx(i)=dx(i)*alpha
-         ds(i)=ds(i)*alpha
-      enddo
-c
-c     ----- improved point found -----
+      call hnd_lst_path(rtdb,geom,rstart)
 c
       if(zcoord) then
          call hnd_opt_tfgx(rtdb,geom)
       endif
-      nupdat=nupdat+1
-      call hnd_opt_gmax(rtdb)
-      call hnd_opt_converge(rtdb,cvged)
-      call hnd_opt_print(rtdb)
-      if(cvged) then
+      call hnd_lst_print(rtdb)
+c
+      if (ga_nodeid().eq.0.and.dbug)  then
+         if (.not. geom_print(geom)) call errquit
+     $        ('hnd_lst_drv: geom_print?',0)
+         if (util_print('bonds',print_default)) then
+           if (.not.geom_print_distances(geom)) call errquit(
+     &         'hnd_lst_drv: geom_print_distances failed',911)
+         endif
+         if (util_print('angles',print_default)) then
+           if (.not.geom_print_angles(geom)) call errquit(
+     &         'hnd_lst_drv: geom_print_angles failed',911)
+         endif
+      endif
+      call ga_sync()
+c
+c     ----- go back to next -lst- point -----
+c
+      done=iptlst.eq.nptlst
+      if(.not.done) then
+         go to 100
+      else
          if (ga_nodeid().eq.0.or.dbug)  then
             write(iw,9998)
-            if (.not. geom_print(geom)) call errquit
-     $           ('hnd_opt_drv: geom_print?',0)
-*rak:            if (util_print('bonds',print_default))
-*rak:     $           call distan(nat,c)
-*rak:            if (util_print('angles',print_default))
-*rak:     $           call angle(nat,c)
-            if (util_print('bonds',print_default)) then
-              if (.not.geom_print_distances(geom)) call errquit(
-     &            'hnd_opt_drv: geom_print_distances failed',911)
-            endif
-            if (util_print('angles',print_default)) then
-              if (.not.geom_print_angles(geom)) call errquit(
-     &            'hnd_opt_drv: geom_print_angles failed',911)
-            endif
          endif
-         if (.not.geom_destroy(geom))
-     &      call errquit('hnd_opt: geom_destroy?', 911)
          call ga_sync()
-         hnd_lstx=.true.
-         return
-      endif
-c
-c     ----- update hessian matrix -----
-c
-      do i=1,ncoord
-         g0(i)=t0(i)
-         dx(i)=ds(i)
-      enddo
-      call hnd_opt_hss_update(rtdb)
-c
-      alpha=sqrt(abs(alpha))
-      if(alpha.gt.alphmx) alpha=alphmx
-      if(alpha.lt.alphmn) alpha=alphmn
-c
-c     ----- reset pt -0- -----
-c
-      do i=1,ncart
-         x0(i)=x(i)
-      enddo
-      do i=1,ncoord
-         t0(i)=g(i)
-      enddo
-c
-c     ----- go back to next search direction -----
-c
-      go to 100
+         if (.not.geom_destroy(geom))
+     &      call errquit('hnd_lst: geom_destroy?',911)
+         hnd_lstx=.true. 
+      endif       
 c
  9999 format(/,10x,8(1h-),
      1       /,10x,'LST Path',
@@ -492,20 +347,262 @@ c
      1       /,10x,'LST Path completed',
      2       /,10x,18(1h-))
  9997 format(' in hnd_lstx, nzvar,nvar,ncart,ncoord,mcoord = ',5i5)
- 9996 format(' optimization convergence threshold    (cvgopt) = ',f10.6,
-     1     /,' maximum number of energy evaluations  (nptopt) = ',i4,/,
-     2       ' max.num. of points in linear search   (linopt) = ',i4,/,
-     3       ' initial guess option for opt.hessian  (inhess) = ',i4,/,
-     4       ' hessian update selection option       (modupd) = ',i4,/,
-     5       ' optimization to saddle point          (modsad) = ',i4,/,
-     6       ' initial eigen-mode followed to saddle (moddir) = ',i4,/,
-     7       ' maximum step size to saddle           (sadstp) = ',f6.2)
- 9995 format(' maximum number of energy points reached. stop',
-     1       ' currently -nptopt- = ',i5)
- 9994 format(/,10x,19(1h-),
-     1       /,10x,'Energy Minimization',
-     2       /,10x,19(1h-),/)
+ 9996 format(' number of points on -lst- path (nptlst) = ',i4)    
  9993 format(' number of frozen internal coordinates = ',i4)
  9992 format('           frozen internal coordinates = ',12i4)
  9991 format('        no frozen internal coordinates.')
+      end
+      SUBROUTINE HND_LST_PRINT(RTDB)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "global.fh"
+      INTEGER   RTDB
+      PARAMETER (MXATOM=500)
+      PARAMETER (MXCART=3*MXATOM)
+      PARAMETER (MXZMAT=1500)
+      PARAMETER (MXCOOR=1500)
+      LOGICAL      DBUG
+      CHARACTER*16 ATMNAM
+      COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_MOLLAB/ATMNAM(MXATOM)
+      COMMON/HND_MOLNUC/NUC(MXATOM)
+      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
+      COMMON/HND_OPTMIZ/X0(MXCOOR),X(MXCOOR),DX(MXCOOR),
+     1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
+     2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
+      COMMON/HND_LSTRUN/NPTLST,IPTLST
+      COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
+      COMMON/HND_OPTFUN/E,EG(MXCART)
+C
+      DBUG=.FALSE.
+C
+C     ----- PRINT OPTIMIZATION SUMMARY -----
+C
+      IF( GA_NODEID().EQ.0.OR.DBUG) THEN
+         WRITE(IW,9999) NPTLST,IPTLST,FUNC       
+      ENDIF
+      RETURN
+ 9999 FORMAT(1H1,/,1X,
+     1       'nptlst  iptlst      func             ',1X,I5,I8,F17.8)
+      END
+      SUBROUTINE HND_LST_PATH(RTDB,GEOM,RSTART)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+C
+C     ----- ONE DIMENSIONAL SEARCH.  -----
+C
+      PARAMETER (MXATOM=500)
+      PARAMETER (MXCART=3*MXATOM)
+      PARAMETER (MXZMAT=1500)
+      PARAMETER (MXCOOR=1500)
+C
+      INTEGER   RTDB
+      INTEGER   GEOM
+      LOGICAL   STATUS
+      LOGICAL   UTIL_TEST_TIME_REMAINING
+      EXTERNAL  UTIL_TEST_TIME_REMAINING
+      LOGICAL   GEOM_LST_GET_COORD
+      EXTERNAL  GEOM_LST_GET_COORD
+      CHARACTER*16 TAGS_NW
+      DIMENSION COORDS_NW(MXCART)
+      DIMENSION CHARGE_NW(MXATOM)
+      DIMENSION   TAGS_NW(MXATOM)
+C
+      LOGICAL DO_GRADIENT
+      LOGICAL RSTART
+      LOGICAL DBUG
+      LOGICAL OUT
+      COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_MOLXYZ/C(MXCART),ZAN(MXATOM),NAT         
+      COMMON/HND_OPTMIZ/X0(MXCOOR),X(MXCOOR),DX(MXCOOR),
+     1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
+     2                  FUNC,FUNC0,GMAX,GMAX0,DELSQ,ALPHA,GNORM
+      COMMON/HND_LSTRUN/NPTLST,IPTLST
+      COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
+      COMMON/HND_OPTTIM/ENERGY_TIME,GRADIENT_TIME
+      COMMON/HND_OPTFUN/E,EG(MXCART)
+      COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
+      DATA ZERO,TWO,THREE       /0.0D+00,2.0D+00,3.0D+00/
+      DATA ONEPT5               /1.5D+00/
+C
+      DO_GRADIENT=.FALSE.
+C
+      DBUG=.FALSE.
+      OUT =.FALSE.
+      OUT =OUT.OR.DBUG
+      IF(OUT) THEN
+         WRITE(IW,9994)
+      ENDIF
+C
+      NCART =3*NAT
+C
+C     ----- NORMAL SETUP -----
+C
+      FUNC0 = FUNC
+      DO I = 1,NCART 
+         X0(I) = X(I)
+         G0(I) =EG(I)
+         G (I) =EG(I)
+         X (I) =ZERO
+      ENDDO
+C
+C     ----- NEW -LST- POINT -----
+C
+      STATUS=GEOM_LST_GET_COORD(X(1),X(1+NAT),X(1+NAT*2),
+     1                          NAT,IPTLST)
+      DO IAT = 1,NAT
+         C(1+3*(IAT-1)) = X(IAT)
+         C(2+3*(IAT-1)) = X(IAT+NAT)
+         C(3+3*(IAT-1)) = X(IAT+NAT*2)
+      ENDDO
+      DO I = 1,NCART
+         X(I)=ZERO
+         X(I)=C(I)
+      ENDDO
+C
+C     ----- WRITE TO -NWCHEM- -----
+C
+      STATUS=GEOM_CART_GET(GEOM,NAT_NW,TAGS_NW,COORDS_NW,
+     1                                         CHARGE_NW)
+C
+      IF(DBUG) THEN
+         WRITE(IW,9997)
+         WRITE(IW,9998) (       X0(I),I=1,NCART)
+         WRITE(IW,9996)
+         WRITE(IW,9998) (        X(I),I=1,NCART)
+         WRITE(IW,9999)
+         WRITE(IW,9998) (COORDS_NW(I),I=1,NCART)
+      ENDIF
+      DO I = 1,NCART
+         COORDS_NW(I)=X(I)
+      ENDDO
+      STATUS=GEOM_CART_SET(GEOM,NAT_NW,TAGS_NW,COORDS_NW,
+     1                                         CHARGE_NW)
+      STATUS=GEOM_RTDB_STORE(RTDB,GEOM,'geometry')
+C
+      IF(OUT) THEN
+         WRITE(IW,9999)
+         WRITE(IW,9998) (COORDS_NW(I),I=1,NCART)
+      ENDIF
+C
+C
+C     ----- CALL FUNCTION EVALUATION -----
+C
+         STATUS=UTIL_TEST_TIME_REMAINING(RTDB,ENERGY_TIME*ONEPT5)
+         IF(OUT) THEN
+            WRITE(IW,*) 
+     1      'ENOUGH TIME REMAINING FOR ENERGY = ? ',STATUS
+         ENDIF
+         IF(.NOT.STATUS) THEN
+            WRITE(IW,*) 
+     1      'NOT ENOUGH TIME REMAINING, SHUTTING DOWN ... '
+            RETURN
+         ENDIF
+C
+      CALL HND_LST_ENERGY(RTDB,GEOM)
+      FUNC=E
+C
+C     ----- CALCULATE THE GRADIENT FOR THE FINAL POINT -----
+C
+  900 CONTINUE
+      IF(DO_GRADIENT) THEN
+            STATUS=UTIL_TEST_TIME_REMAINING(RTDB,GRADIENT_TIME*ONEPT5)
+            IF(OUT) THEN
+               WRITE(IW,*) 
+     1         'ENOUGH TIME REMAINING FOR GRADIENT = ? ',STATUS
+            ENDIF
+            IF(.NOT.STATUS) THEN
+               WRITE(IW,*) 
+     1         'NOT ENOUGH TIME REMAINING, SHUTTING DOWN ... '
+               RETURN
+            ENDIF
+C
+         CALL HND_OPT_GRADIENT(RTDB,GEOM)
+         DO I=1,NCART 
+            G(I) =EG(I)
+         ENDDO
+      ENDIF
+C
+C     ----- RETURN AFTER SUCCESSFUL POINT -----
+C
+ 1000 CONTINUE
+      IF(DBUG) THEN
+         WRITE(IW,9993)
+      ENDIF
+      RETURN
+ 9999 FORMAT(' IN SEARCH_LIN, COORDS = ')
+ 9998 FORMAT(F12.7)
+ 9997 FORMAT(' IN SEARCH_LIN, X0 = ')
+ 9996 FORMAT(' IN SEARCH_LIN, DX = ')
+ 9995 FORMAT(' IN SEARCH_LIN,  X = ')
+ 9994 FORMAT(' STARTING SEARCH_LIN ')
+ 9993 FORMAT('   ENDING SEARCH_LIN ')
+      END
+      subroutine hnd_lst_energy(rtdb,geom)
+      implicit double precision (a-h,o-z)
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+      integer  rtdb
+      integer  geom
+      logical  task_energy
+      external task_energy
+      logical  status
+      logical  cvged
+      logical  dbug
+      parameter (mxatom=500)
+      parameter (mxcart=3*mxatom)
+      parameter (mxzmat=1500)
+      parameter (mxcoor=1500)
+      common/hnd_iofile/ir,iw
+      common/hnd_lstrun/nptlst,iptlst
+      common/hnd_optfun/e,eg(mxcart)
+      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+      common/hnd_zmtpar/nzmat,nzvar,nvar
+c
+      dbug=.false.
+c
+      if( ga_nodeid().eq.0.or.dbug) then
+         write(iw,9999) nptlst,iptlst
+         if(dbug) then
+            write(iw,9996)
+            do iat=1,nat
+               write(iw,9995) iat,(c(i,iat),i=1,3)
+            enddo
+            write(iw,9997)
+         endif
+         if(.not.geom_print(geom)) 
+     1     call errquit('hnd_lst_energy: print error',911)
+      endif
+c
+      if(nzmat.gt.0) then
+         call hnd_bandbi(geom,nat,c)
+         call hnd_zmtprt(geom)
+         write(iw,9997)
+      endif
+c
+      if (task_energy(rtdb)) then
+         status=rtdb_get(rtdb,'task:energy',MT_DBL,1,e)
+         if(dbug) then
+            write(iw,9998) e
+         endif
+      else
+         call errquit('lst path: energy failed', 0)
+      endif
+c
+      return
+ 9999 format(1h1,' nptlst',i3,//,'  iptlst',I3)
+ 9998 format(' in lst_energy, e = ',f15.10)
+ 9997 format(/)
+ 9996 format(21x,21(1h-),/,
+     1       21x,'cartesian coordinates',/,
+     2       21x,21(1h-))
+ 9995 format(9x,i5,3f15.8) 
       end
