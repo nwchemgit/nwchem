@@ -2,7 +2,7 @@
      &                      xyz,xyzm,ctr_quad, rad_quad,
      &                       zprim,  acc_gauss)
 c
-C$Id: xc_signf.F,v 1.3 1999-03-07 23:25:50 edo Exp $
+C$Id: xc_signf.F,v 1.4 1999-03-09 04:45:57 edo Exp $
 c
       implicit none
 c      
@@ -27,11 +27,18 @@ c
       double precision zmin,r2,x,y,z,r_arg
       integer mcenters_scr
       integer ic1,ic2,dum
+      integer n,l
+      double precision alpha,logeps
+      double precision gaussian_range
+      gaussian_range(n,logeps,alpha) = 
+     $     (n*log(-logeps) - n*log(alpha) - 4.0d0*logeps) /
+     $     sqrt(-16.0d0*alpha*logeps)
 
 c
 c
 c
-      acc_sigf=max(acc_gauss,20d0)
+c      acc_sigf=max(acc_gauss,20d0)
+      acc_sigf=log(1d-10)
       mcenters_scr = 0
 c
       do ictr=1,mcenters
@@ -48,14 +55,15 @@ c
         z = xyz(3,ctr_quad) - xyz(3,ictr)
         r2 = sqrt(x*x + y*y + z*z)
         r_arg=0d0
-        if (rad_quad.lt.r2) r_arg = (r2-rad_quad)**2
+c        if (rad_quad.lt.r2) r_arg = (r2-rad_quad)**2
+        if (rad_quad.lt.r2) r_arg = (r2-rad_quad)
         do icset = ic1,ic2
 c         
 c       get info about current contraction set
 c       
         if (.not. bas_cn2bfr(basis, icset, ifirst, ilast))
      &       call errquit('Exiting in xc_signf.',4)
-            if (.not. bas_continfo(basis, icset,  dum,nprim,
+            if (.not. bas_continfo(basis, icset,  l ,nprim,
      &                             dum, dum))
      &       call errquit('Exiting in xc_signf.',4)
 c       
@@ -76,7 +84,8 @@ c
 c       Only include those basis functions that are "non-zero" for at least 
 c       one  point in the sampling set.
 c       
-        if (zmin*r_arg.lt.acc_sigf) then
+c        if (zmin*r_arg.lt.acc_sigf) then
+        if (r_arg.lt.gaussian_range(l,acc_sigf,zmin)) then
           mcenters_scr=mcenters_scr+1
           iandex(mcenters_scr)=ictr
           goto 2001
