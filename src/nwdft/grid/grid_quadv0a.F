@@ -1,7 +1,7 @@
       Subroutine grid_quadv0a(rtdb, g_dens, ncoef_max, natoms, 
      &                       rho_int, nqtot, 
      &                       iniz, ifin, rho, delrho, 
-     &                       hess, qwght, qxyz, xyz,
+     &                       hess, qwght, qxyz, xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq, rdens_atom, 
      &                       cntobfr, cetobfr, 
@@ -10,7 +10,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r)
 c
-c$Id: grid_quadv0a.F,v 1.18 2000-04-18 16:46:43 edo Exp $
+c$Id: grid_quadv0a.F,v 1.19 2000-04-19 23:50:29 edo Exp $
 c
       implicit none
 c
@@ -67,7 +67,7 @@ c
      .     rtdb, g_dens, ncoef_max, natoms, 
      &                       rho_int, nqtot, 
      &                       iniz, ifin, rho, delrho, 
-     &                       hess,  xyz,
+     &                       hess,  xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq, rdens_atom, 
      &                       cntobfr, cetobfr, 

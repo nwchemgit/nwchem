@@ -3,7 +3,7 @@
      .     rtdb, g_dens, ncoef_max, natoms, 
      &                       rho_int, nqtot, 
      &                       iniz, ifin, rho, delrho, 
-     &                       hess,  xyz,
+     &                       hess,  xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq, rdens_atom, 
      &                       cntobfr, cetobfr, 
@@ -11,7 +11,7 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r)
 c
-c$Id: grid_quadv0b.F,v 1.9 2000-04-11 20:49:40 edo Exp $
+c$Id: grid_quadv0b.F,v 1.10 2000-04-19 23:50:29 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -25,10 +25,9 @@ c
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
       double precision acc_AO_gauss, rad, dummy(1),rho0
-      integer nbf_ao_mxnbf_ce2, mbf_ao, npol, nscr
-      integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao, iscr, lscr
+      integer nbf_ao_mxnbf_ce2, mbf_ao, npol
+      integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
       integer ldmat,idmat,i, grid_nbfm,ntot_cube
-      integer max_elem_ang_scr, max_component
       double precision dabsmax,wmax
       external dabsmax
       external grid_nbfm
@@ -39,21 +38,6 @@ C
       acc_AO_gauss = dble(iAOacc)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(nqpts.eq.0) return
-c
-c     compute variables for scratch space in function evaluation
-c     assumes cartesian; spherical set would only require 2*MXang + 1
-c     
-      max_component = (nbf_ao_mxang+1)*(nbf_ao_mxang+2)/2 
-c     
-c     Allocate scratch space.
-c     
-      if (nbf_ao_mxang .eq. 0)then
-         max_elem_ang_scr = max_component * 3
-      elseif (nbf_ao_mxang .le. 3)then
-         max_elem_ang_scr = max_component * 9
-      else                      ! general case
-         max_elem_ang_scr = max_component * 28
-      endif 
 C     
 c     Evaluate the AO basis set at each of the quad. points.
 c     allocate arrays for exponents and contraction coefficients
@@ -91,24 +75,15 @@ c
       endif
 c     
 c     
-      nscr = 3*nqpts*nbf_ao_mxcont + 
-     &     max(3*nqpts*nbf_ao_mxprim,
-     &     nqpts*max_elem_ang_scr) + 1
-c     
-      if (.not.MA_Push_Get(mt_dbl,nscr,'scrCD',lscr,iscr))
-     &     call errquit('grid_quadv0a: cannot allocate scrCD',12)
-c     
       call qdist(rchi_atom, rq, qxyz, xyz, nqpts, natoms)
       call new_eval_gbsets(ao_bas_han, grad, .false., 
      &     dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
      &     hess, ibf_ao, 0, rchi_atom, 
      &     rq, qxyz, xyz, nqpts, nqpts, 
-     &     mbf_ao, natoms, dbl_mb(iscr), nscr, 
+     &     mbf_ao, natoms, iscr, nscr, 
      &     expo, nbf_ao_mxprim, ccoef, ncoef_max, 
      &     iniz,ifin)
 c     
-      if (.not.ma_pop_stack(lscr))
-     &     call errquit('grid_quadv0a: cannot pop stack',0)
 c     
 c     get reduced Xi(r) and dXi(r) over atoms
 c     

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.41 2000-04-18 19:43:35 zzhang Exp $
+c     $Id: dft_main0d.F,v 1.42 2000-04-19 23:50:30 edo Exp $
 c     
       implicit none
 c
@@ -40,8 +40,8 @@ c
       external dft_scf
       logical dft_scf_so 
       external dft_scf_so 
-      character*80 theory, key, prefix
-     
+      character*80 theory
+c     
 #if defined(DFT_TIMER)
       call t_stat(11,-2)
       call dft_second(tp1)
@@ -138,7 +138,8 @@ c
      &                          nbf_xc, 0, g_oi)) 
      &         call errquit('dft_main0d: error creating g_oi',0)
             call ga_zero(g_oi)
-            call xc_get2oi(XC_bas_han, g_oi)
+            call int_1e_ga(xc_bas_han, XC_bas_han,
+     .           g_oi, 'overlap', oskel)
 #if defined(PARALLEL_DIAG)
             call ga_chol(g_oi, g_xcinv, info)
 #else 
@@ -164,7 +165,6 @@ c
             else
                call dft_invdiag(geom, XC_bas_han, g_oi, g_xcinv, nbf_xc)
             endif
-cedo            call ga_sync
             if (.not. ga_destroy(g_oi)) call errquit
      &         ('dft_main0d: could not destroy g_oi', 0)
             if (me.eq.0.and.IOLGC) then
@@ -174,7 +174,6 @@ cedo            call ga_sync
      &         (' dft_main0d; dft_invio - abnormal write of XC ', 0)
             endif
          endif
-cedo         call ga_sync
          if (IOLGC)then
             if (.not. ga_destroy(g_xcinv)) call errquit
      &         ('dft_main0d: could not destroy g_xcinv', 0)
@@ -183,7 +182,6 @@ cedo         call ga_sync
 c
 c     Done with XC setup stuff
 c
-cedo      call ga_sync
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)

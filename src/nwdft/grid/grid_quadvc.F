@@ -5,14 +5,14 @@
      .     rtdb, g_dens, ncoef_max, natoms, 
      &     rho_int, nqtot, 
      &     iniz, ifin, rho, delrho, 
-     &     hess,  xyz,
+     &     hess,  xyz,iscr,nscr,
      &     expo, ccoef, Bmat, Fmat, 
      &     Pmat, rq, rdens_atom, 
      &     cntobfr, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r)
-C$Id: grid_quadvc.F,v 1.4 2000-04-11 20:49:40 edo Exp $
+C$Id: grid_quadvc.F,v 1.5 2000-04-19 23:50:29 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "cgridfile.fh"
@@ -54,7 +54,7 @@ c
      .        rtdb, g_dens, ncoef_max, natoms, 
      &        rho_int, nqtot, 
      &        iniz, ifin, rho, delrho, 
-     &        hess,  xyz,
+     &        hess,  xyz,iscr,nscr,
      &        expo, ccoef, Bmat, Fmat, 
      &        Pmat, rq,  rdens_atom, 
      &        cntobfr, cetobfr, 

@@ -1,6 +1,6 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc)
 c
-C$Id: grid_quadv0.F,v 1.8 2000-04-11 20:49:40 edo Exp $
+C$Id: grid_quadv0.F,v 1.9 2000-04-19 23:50:29 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -60,6 +60,7 @@ c
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2
       integer len_rho, len_delrho, len_Amat2, len_Cmat2
       logical do_scf, do_cpks_l, do_cpks_r
+      integer max_elem_ang_scr, max_component
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
 #ifdef SOLARIS
@@ -244,6 +245,26 @@ c
       call dfill(irqlen, 0.0d0, dbl_mb(irq), 1)
       if (.not.MA_Push_Get(mt_dbl,irqlen,'bp',lbp,ibp))
      &     call errquit('grid_quadv0a: cannot allocate bp',4)
+c
+c     compute variables for scratch space in function evaluation
+c     assumes cartesian; spherical set would only require 2*MXang + 1
+c     
+      max_component = (nbf_ao_mxang+1)*(nbf_ao_mxang+2)/2 
+c     
+c     Allocate scratch space.
+c     
+      if (nbf_ao_mxang .eq. 0)then
+         max_elem_ang_scr = max_component * 3
+      elseif (nbf_ao_mxang .le. 3)then
+         max_elem_ang_scr = max_component * 9
+      else                      ! general case
+         max_elem_ang_scr = max_component * 28
+      endif 
+      nscr = 3*n_per_rec*nbf_ao_mxcont + 
+     &     max(3*n_per_rec*nbf_ao_mxprim,
+     &     n_per_rec*max_elem_ang_scr) + 1
+      if (.not.MA_Push_Get(mt_dbl,nscr,'func scr',lscr,iscr))
+     &     call errquit('grid_quadv0a: cannot allocate bp',4)
 
       Ex=0d0
       Ec=0d0
@@ -253,6 +274,7 @@ c
      &        int_mb(iniz), int_mb(ifin), 
      &        dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
      &        dbl_mb(iqwght), dbl_mb(iqxyz), dbl_mb(ixyz), 
+     .        dbl_mb(iscr),nscr,
      &        dbl_mb(iexpo), dbl_mb(icoef), 
      &        dbl_mb(iBmat), dbl_mb(iFmat), 
      &        dbl_mb(iPmat), dbl_mb(irq), 
@@ -290,6 +312,7 @@ c
      &        int_mb(iniz), int_mb(ifin), 
      &        dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
      &        dbl_mb(iqwght), dbl_mb(iqxyz), dbl_mb(ixyz), 
+     .        dbl_mb(iscr),nscr,
      &        dbl_mb(iexpo), dbl_mb(icoef), 
      &        dbl_mb(iBmat), dbl_mb(iFmat), 
      &        dbl_mb(iPmat), dbl_mb(irq), 
