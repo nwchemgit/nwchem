@@ -1,29 +1,30 @@
-# $Id: GNUmakefile,v 1.14 1994-09-22 01:31:33 d3g681 Exp $
+# $Id: GNUmakefile,v 1.15 1994-10-07 19:39:56 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
-        comp4_extract.o           rhf_energy.o \
-        comp4_insert.o            rhf_fock_2e_a.o \
-                                  rhf_fock_2e_b.o \
-        dabsmax.o                 \
+        comp4_insert.o            rhf_energy.o \
+                                  rhf_fock_2e_a.o \
         rhf_do_canon.o            rhf_get_param.o \
-        rhf_fock_2e.o             \
+        rhf_fock_2e.o             rhf_fock_2e_b.o \
         ga_create_atom_blocked.o  scf.o \
-                                  schwarz_atom.o \
         get_atom_block.o          schwarz_init.o \
         rhf_hessv.o               schwarz_max.o \
         int_1e_ga.o               schwarz_print.o \
-        k2cf.o                    schwarz_shell.o \
+        k2cf.o                    \
                                   schwarz_tidy.o \
         rhf.o                     upd_atom_block.o \
         nxtask.o                  bad.o rhf_nr_solve.o \
         vectors.o \
 	ri_invert_v.o             ga_create_cont_blocked.o \
         ri_v_fit_cd.o             ri_v_fit_j.o \
-        ri_drive.o                dabssum.o \
-        matrix_exp.o              scf_pstat.o
+        ri_drive.o \
+        matrix_exp.o              scf_pstat.o \
+        schwarz_max.o dabsmax.o dabssum.o   schwarz_atom.o
 
-  OBJ_OPTIMIZE = rhf_fock_2e_c.o
+# rhf_fock_2e_b compiles incorrectly with optimize on the SGITFP
+
+  OBJ_OPTIMIZE =  rhf_fock_2e_c.o comp4_extract.o schwarz_shell.o \
+                  dabsmax.o dabssum.o
 
     LIBRARY = libddscf.a
 
