@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 1998-05-07 18:12:41 d3e129 Exp $
+# $Id: GNUmakefile,v 1.8 1998-05-07 18:13:55 d3e129 Exp $
 #
 
 include makefile.h
@@ -17,6 +17,7 @@ ifeq ($(TARGET),SP1)
 endif
 
 ifeq ($(TARGET),LAPI)
+# LAPI different from SP1 now
 # Must use plain cc not mpcc
   CC = cc
 endif

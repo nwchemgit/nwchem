@@ -1,4 +1,6 @@
-# $Id: makefile.h,v 1.254 1998-05-07 18:12:41 d3e129 Exp $
+#
+# $Id: makefile.h,v 1.255 1998-05-07 18:13:56 d3e129 Exp $
+#
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
