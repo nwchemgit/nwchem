@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.28 2003-10-17 22:55:48 carlfahl Exp $
+c     $Id: dft_scf_so.F,v 1.29 2003-10-28 21:21:58 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -163,6 +163,7 @@ c     !!! BGJ
       character*255 basis_name1  ! Returns name of basis set
       character*255 scftype1     ! Returns the SCF type of the vectors
       integer nbf1               ! Returns no. of functions in basis
+      integer g_oep
 c      integer ijk
 c     
       logical spinor
@@ -880,7 +881,7 @@ c
       call xc_getv
      &     (rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &     g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &     dbl_mb(irdens_atom), int_mb(icetobfr), natoms)
+     &     dbl_mb(irdens_atom), int_mb(icetobfr), natoms,g_oep)
 c      write(*,*)"Ecoul, Exc(1)", Ecoul, Exc(1)
       call ga_sync
       call ga_dadd_patch( 1.d0, g_fockso(1), 1, nbf_ao, 
