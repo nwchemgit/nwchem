@@ -1,4 +1,4 @@
-/*$Id: rtdb.c,v 1.11 1995-03-31 01:43:41 d3g681 Exp $*/
+/*$Id: rtdb.c,v 1.12 1998-06-15 23:23:01 d3g681 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -232,7 +232,7 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
   if (!verify_parallel_access()) return 0;
 
   if (handle < 0 || handle >= MAX_RTDB) {
-    (void) fprintf(stderr, "rtdb_ma_put: handle out of range %d\n", handle);
+    (void) fprintf(stderr, "rtdb_ma_get: handle out of range %d\n", handle);
     (void) fflush(stderr);
     return 0;
   }
