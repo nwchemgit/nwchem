@@ -62,8 +62,8 @@ void r_ritz_(n, d, e, eval, map, evec, scratch, info)
 	everything should be positive definite
       */
       
-      if ( ffabs(eval[i]) > DLAMCHU ) {
-	val =ffabs(val1 - eval[i] )/ffabs(eval[i]);
+      if ( fabs(eval[i]) > DLAMCHU ) {
+	val =fabs(val1 - eval[i] )/fabs(eval[i]);
 	if ( val > 1.e-8 ){
 	  printf(" rayleigh estimates r-ritz i %d eval error val = %20.16f, eval %20.16f rel_error %20.16g \n", i, val1, eval[i], val);
 	*info = -100;
@@ -75,7 +75,7 @@ void r_ritz_(n, d, e, eval, map, evec, scratch, info)
       for ( j = 0; j < i; j++ ){
 	if ( map[j] == me ){
 	  val1 = ddot_(&msize, evec[ptr], &IONE, evec[k], &IONE);
-	  if ( ffabs(val1) > 1.e-13 ){
+	  if ( fabs(val1) > 1.e-13 ){
 	    printf(" r-ritz ortho i %d j %d dot_val = %20.16g \n", i, j, val1);
 	    *info = -100;
 	    return;
