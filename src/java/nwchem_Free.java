@@ -99,17 +99,17 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
             int ndec=0;
             int nsa=0;
 	    while((card=br.readLine()) != null){
-		int nderiv = Integer.parseInt(card.substring(1,7).trim());
-		ndata = Integer.parseInt(card.substring(8,14).trim());
+		int nderiv = Integer.parseInt(card.substring(0,7).trim());
+		ndata = Integer.parseInt(card.substring(7,14).trim());
                 numdat=ndata;
                 if(numdat>mdata){numdat=mdata;};
 		if(first){ 
 		    for(int i=0; i<numdat; i++){cnv[i]=0.0;};
 		};
-		lambda=Double.valueOf(card.substring(15,26)).doubleValue();
-		dlambda=Double.valueOf(card.substring(27,38)).doubleValue();
-                ndec=Integer.parseInt(card.substring(39,46).trim());
-                nsa=Integer.parseInt(card.substring(47,54).trim());
+		lambda=Double.valueOf(card.substring(14,26)).doubleValue();
+		dlambda=Double.valueOf(card.substring(26,38)).doubleValue();
+                ndec=Integer.parseInt(card.substring(38,46).trim());
+                nsa=Integer.parseInt(card.substring(46,54).trim());
 		if(first){
 		    gibPlot.addData(0,lambda,free,!first,true);
 		    gibPlot.addData(1,lambda,freep,!first,true);
@@ -117,18 +117,18 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		first=false;
 		for(int i=0; i<6; i++){
 		    card=br.readLine();
-		    deriv[4*i]=Double.valueOf(card.substring(1,20)).doubleValue();
-		    deriv[4*i+1]=Double.valueOf(card.substring(21,40)).doubleValue();
-		    deriv[4*i+2]=Double.valueOf(card.substring(41,60)).doubleValue();
-		    deriv[4*i+3]=Double.valueOf(card.substring(61,80)).doubleValue();
+		    deriv[4*i]=Double.valueOf(card.substring(0,20)).doubleValue();
+		    deriv[4*i+1]=Double.valueOf(card.substring(20,40)).doubleValue();
+		    deriv[4*i+2]=Double.valueOf(card.substring(40,60)).doubleValue();
+		    deriv[4*i+3]=Double.valueOf(card.substring(60,80)).doubleValue();
 		};
                 j=0;
 		for(int i=0; i<ndata; i=i+4){
 		    card=br.readLine();
-                    if(j<numdat){cnv[j]=cnv[j]+dlambda*Double.valueOf(card.substring(1,20)).doubleValue(); j++;};
-                    if(j<numdat){cnv[j]=cnv[j]+dlambda*Double.valueOf(card.substring(21,40)).doubleValue(); j++;};
-                    if(j<numdat){cnv[j]=cnv[j]+dlambda*Double.valueOf(card.substring(41,60)).doubleValue(); j++;};
-                    if(j<numdat){cnv[j]=cnv[j]+dlambda*Double.valueOf(card.substring(61,80)).doubleValue(); j++;};
+                    if(j<numdat){cnv[j]=cnv[j]+dlambda*Double.valueOf(card.substring(0,20)).doubleValue(); j++;};
+                    if(j<numdat){cnv[j]=cnv[j]+dlambda*Double.valueOf(card.substring(20,40)).doubleValue(); j++;};
+                    if(j<numdat){cnv[j]=cnv[j]+dlambda*Double.valueOf(card.substring(40,60)).doubleValue(); j++;};
+                    if(j<numdat){cnv[j]=cnv[j]+dlambda*Double.valueOf(card.substring(60,80)).doubleValue(); j++;};
 		};
 		dfree=0.0;
 		for(int i=0; i<24; i++){
@@ -139,12 +139,12 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		lambda=lambda+dlambda;
 		gibPlot.addData(0,lambda,free,!first,false);
 		card=br.readLine();
-		tmp=Double.valueOf(card.substring(11,30)).doubleValue();
-		ep2=Double.valueOf(card.substring(31,50)).doubleValue();
-		ep3=Double.valueOf(card.substring(51,70)).doubleValue();
+		tmp=Double.valueOf(card.substring(10,30)).doubleValue();
+		ep2=Double.valueOf(card.substring(30,50)).doubleValue();
+		ep3=Double.valueOf(card.substring(50,70)).doubleValue();
 		freep=freep+0.00831151*tmp*(Math.log(ep2)-Math.log(ep3));
 		gibPlot.addData(1,lambda,freep,!first,false);
-		for(int i=0; i<5*nsa; i=i+4){ card=br.readLine(); };
+		if(ndec>0) {for(int i=0; i<5*nsa; i=i+4){ card=br.readLine(); };};
 	    };
 	    gibPlot.fillPlot();
 	    br.close();
