@@ -3,7 +3,7 @@
      &                       g_tmp, g_svecs, svals, diis, nodiis,
      .     g_diis,keeps,g_s12m,g_s12p,reset)
 c
-C$Id: diis_driver.F,v 1.26 2003-04-02 23:08:25 edo Exp $
+C$Id: diis_driver.F,v 1.27 2003-07-03 01:58:52 edo Exp $
 c
       implicit none
 c      
@@ -29,6 +29,7 @@ c
 #include "global.fh"
 #include "stdio.fh"
 #include "msgids.fh"
+#include "dftps.fh"
 c
 #if defined(DFT_TIMER)
 #include "timer.fh"
@@ -66,6 +67,7 @@ c
          endif
          return
       endif
+      if (odftps) call pstat_on(ps_diis)
       me = ga_nodeid()
       nproc = ga_nnodes()
 c
@@ -105,6 +107,7 @@ c
               diis = .false.
               nodiis = .true.
               if (me.eq.0)write(LuOut,2118)
+              if (odftps) call pstat_off(ps_diis)
               return
            else
               if (me.eq.0)write(LuOut,2119)mxhist
@@ -140,6 +143,7 @@ c     Construct a temporary global array.
 c       
       g_tmp2=ga_create_atom_blocked(geom, AO_bas_han, 'gtmp2')
       g_rr = ga_create_atom_blocked(geom, AO_bas_han, 'grr')
+      if (odftps) call pstat_on(ps_bld12)
       if(.not.keeps) then
          g_s12m=ga_create_atom_blocked(geom, AO_bas_han, 'gs12m')
 c
@@ -151,8 +155,10 @@ c
 c
 c     Mat mult Fock * s-1/2
 c
+      if (odftps) call pstat_on(ps_dgemm)
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_focks(ispin),
      .     g_s12m,zero,g_rr)
+      if (odftps) call pstat_off(ps_dgemm)
       if(.not.keeps) then
          if (.not. ga_destroy(g_s12m)) call errquit
      &        ('diis_driver: could not destroy g_s12m', 0)
@@ -166,11 +172,14 @@ c
          call diis_bld12(toll_s, svals, g_svecs,  g_s12p, 
      .     g_tmp2, 3)
       endif
+      if (odftps) call pstat_off(ps_bld12)
 c
 c     Mat mult S+1/2*P (transp)
 c
+      if (odftps) call pstat_on(ps_dgemm)
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_s12p,g_dens(ispin),
      ,     zero,g_tmp2)
+      if (odftps) call pstat_off(ps_dgemm)
       if(.not.keeps) then
          if (.not. ga_destroy(g_s12p)) call errquit
      &        ('diis_driver: could not destroy g_s12p', 0)
@@ -184,7 +193,9 @@ c
 c
 C     Mat mult (S+*P(transp))*(F*S-)
 c
+      if (odftps) call pstat_on(ps_dgemm)
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_tmp2,g_rr,zero,g_tmp)
+      if (odftps) call pstat_off(ps_dgemm)
       if (.not. ga_destroy(g_rr)) call errquit
      &     ('diis_driver: could not destroy g_rr', 0)
       
@@ -252,5 +263,6 @@ c
  9997 format(10x,a,i6)
 #endif
 c
+      if (odftps) call pstat_off(ps_diis)
       return
       end

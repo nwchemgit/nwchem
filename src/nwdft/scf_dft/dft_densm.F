@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.36 2003-05-28 20:32:59 edo Exp $
+C$Id: dft_densm.F,v 1.37 2003-07-03 01:58:51 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -12,6 +12,7 @@ C$Id: dft_densm.F,v 1.36 2003-05-28 20:32:59 edo Exp $
 #include "stdio.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "dftps.fh"
 
       integer geom
       integer AO_bas_han
@@ -67,12 +68,13 @@ c
                 return
              endif
           endif  
-cedo         if (check_deg.and.ipol.eq.2) then
+          if (odftps) call pstat_on(ps_dgemm)
          do isp=1,ipol
             call ga_dgemm('n', 't', nbf, nbf, 
      $           noc(isp), 2d0/dble(ipol), g_vecs(isp),
      $           g_vecs(isp), zero, g_dens(isp))
          enddo
+         if (odftps) call pstat_off(ps_dgemm)
       else	
          if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &        call errquit('dftdensm: failed to alloc tmpm',nbf)
@@ -129,7 +131,6 @@ c
                ntot(isp)=ntot(isp)+focc(i+ipoint)
             enddo
             call ga_sync()
-!            call ga_dgemm('n', 't', nbf, nmo(isp), noc(isp),1.d0,g_tmp,
             call ga_dgemm('n', 't', nbf, nbf, noc(isp),1.d0,g_tmp,
      $           g_vecs(isp), zero, g_dens(isp))
          enddo                  ! end of loop over spins

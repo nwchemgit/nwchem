@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.57 2003-02-08 01:16:31 edo Exp $
+c     $Id: dft_main0d.F,v 1.58 2003-07-03 01:58:51 edo Exp $
 c     
       implicit none
 c
@@ -18,6 +18,7 @@ c
 #include "tcgmsg.fh"
 #include "schwarz.fh"
 #include "msgids.fh"
+#include "dftps.fh"
 c     
 #if defined(DFT_TIMER)
 #include "timer.fh"
@@ -339,6 +340,7 @@ c
 c 
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0)
+      if (odftps) call pstat_on(ps_scfdft)
       if (theory .eq. 'dft') then
          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
      &        iter, g_dens, g_evecs, g_vxc, g_fock,
@@ -348,6 +350,7 @@ c
      &        iVxc_opt, iter, g_dens, g_evecs, g_vxc, g_fock, 
      &        g_svecs, dbl_mb(isvals), g_xcinv,g_s)
       endif 
+      if (odftps) call pstat_off(ps_scfdft)
 cso 
 c     
 c     Clean up memory usage.

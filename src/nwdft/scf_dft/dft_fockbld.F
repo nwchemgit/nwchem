@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.13 2003-06-12 22:43:02 edo Exp $
+c     $Id: dft_fockbld.F,v 1.14 2003-07-03 01:58:51 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -51,6 +51,7 @@ c
       integer me,nscr,lscr,iscr,lcd_coef,icd_coef
 c
       me=ga_nodeid()
+      if (odftps) call pstat_on(ps_fockb)
 c
 
       Ecoul  = 0d0
@@ -73,6 +74,7 @@ c     Accumulate core hamiltonian into Fock matrix; compute core energy
 c     
       if (oprint_time)
      &     call dft_tstamp(' calling 1-e int ')
+      if (odftps) call pstat_on(ps_onel)
       call ga_zero(g_fock)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'kinetic', oskel)
       if(util_print('kinetic_energy', print_high)) then
@@ -94,6 +96,7 @@ c
       call ga_sync()
 c
       Ecore = ga_ddot(g_dens(1), g_fock)
+      if (odftps) call pstat_off(ps_onel)
 c
 c     Pre-compute reduced total density matrices over atoms
 c 
@@ -235,5 +238,6 @@ c
       call tcllct(t_pgm(1,8),tp4,tp3)
 #endif
 
+      if (odftps) call pstat_off(ps_fockb)
       return
       end

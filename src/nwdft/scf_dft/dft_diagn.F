@@ -4,12 +4,13 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.7 2003-01-09 22:13:37 edo Exp $
+c     $Id: dft_diagn.F,v 1.8 2003-07-03 01:58:51 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "dftps.fh"
       logical levelshifting ! [in]
       integer g_tmp   ! [in]
       integer g_fock   ! [in]
@@ -62,10 +63,12 @@ c
 c
 c     F' = X+ * F * X
 c
+      if (odftps) call pstat_on(ps_dgemm)
       call ga_dgemm('N', 'N', nbf_ao, nmo, nbf_ao, 1d0, 
      &     g_fock, g_xij, 0d0, g_tmp)
       call ga_dgemm('T', 'N', nmo, nmo, nbf_ao, 1d0, 
      &     g_xij, g_tmp, 0d0, g_fockt)
+      if (odftps) call pstat_off(ps_dgemm)
       
 
       if (levelshifting.and.ncanorg.ne.0)then
@@ -97,12 +100,15 @@ c
      . call errquit(' ddftdiagn: ga_create failed ',2)
       if (oprint_time)
      &     call dft_tstamp(' calling diag ')
+
+      if (odftps) call pstat_on(ps_diag)
 #if defined(PARALLEL_DIAG)
       call ga_diag_std(
      .     g_fockt,  g_vecstt, evals)
 #else 
       call ga_diag_std_seq(g_fockt, g_vecstt, evals)
 #endif
+      if (odftps) call pstat_off(ps_diag)
       if (oprint_time)
      &     call dft_tstamp(' called diag ')
 c     
@@ -119,8 +125,10 @@ c
 c     backtransform  C(k) = X * C'(k)
 c
       call ga_zero(g_movecst)
+      if (odftps) call pstat_on(ps_dgemm)
       call ga_dgemm('N', 'N', nbf_ao, nmo, nmo, 1d0, 
      &     g_xij, g_vecstt, 0d0, g_movecst)
+      if (odftps) call pstat_off(ps_dgemm)
       if (.not. ga_destroy(g_vecstt)) call errquit
      &     ('dft_scf: could not destroy g_scr', 0)
 

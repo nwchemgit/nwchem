@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.232 2003-06-12 22:43:02 edo Exp $
+c     $Id: dft_scf.F,v 1.233 2003-07-03 01:58:51 edo Exp $
 c     
       implicit none
 c
@@ -29,6 +29,7 @@ c
 #include "msgids.fh"
 #include "util.fh"
 #include "dft_conv.fh"
+#include "dftps.fh"
 c     
 #if defined(DFT_TIMER)
 #include "timer.fh"
@@ -423,7 +424,8 @@ c
 c
 c     get info for int2e_ and set sleazy tolerance
 c     
-      tol2e_sleazy = 1.d-4
+      if (.not.rtdb_get(rtdb,'dft:tol2e_sleazy',
+     ,     mt_dbl,1,tol2e_sleazy)) tol2e_sleazy = 1.d-4
       call scf_get_fock_param(rtdb, tol2e_sleazy)
 !c
 !c     Force sleazy SCF into "direct" mode.
@@ -434,6 +436,8 @@ c
      ,     vecs_or_dens,
      ,     ipol,nbf_ao,g_movecs,g_gmovecs,
      ,     toll_s,svals)
+
+      if (odftps) call pstat_on(ps_guess)
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 
      &                       movecs_guess, scftype, nclosed, nopen, 
@@ -442,6 +446,7 @@ c
      &                       'dft', title, oskel, oadapt, 
      &                       .true.) 
       call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
+      if (odftps) call pstat_off(ps_guess)
       if(oskel) then
         call ga_symmetrize(g_dens(1))
         if(ipol.eq.2) call ga_symmetrize(g_dens(2))
@@ -488,6 +493,7 @@ c
 #endif
 c
       if (CDFIT)then
+      if (odftps) call pstat_on(ps_incore)
          if(dft_mem3c(
      I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
@@ -500,6 +506,7 @@ c
             if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
             incore=.false.
          endif
+      if (odftps) call pstat_off(ps_incore)
       endif
  3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
      &     'turned off. ')
@@ -1128,6 +1135,7 @@ c
       elseif(cosmo_on) then
          esol      =etnew+enuc
       endif
+      if (odftps) call pstat_on(ps_scfend)
       call ga_sync()
 c
       if (me.eq.0.and.oprint)then
@@ -1388,6 +1396,7 @@ c
      &   ('dft_scf: could not destroy g_tmp', 0)
 c  Qin / end
 c
+      if (odftps) call pstat_off(ps_scfend)
       return
 c     
  21   format(/,10x,' Memory utilization after 1st SCF pass: ')
