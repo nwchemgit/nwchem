@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.130 2001-05-05 05:24:53 edo Exp $
+# $Id: GNUmakefile,v 1.131 2001-05-07 18:09:09 edo Exp $
 
 include ../config/makefile.h
 
@@ -58,11 +58,6 @@ ifeq ($(TARGET),IBM64)
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
 
-ifeq ($(TARGET),IBM64_32)
-  EXTRA_OBJ = ibm_cputime.o 
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
-endif
-
 ifeq ($(TARGET),LAPI64)
   EXTRA_OBJ = ibm_cputime.o 
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
@@ -97,19 +92,11 @@ ifeq ($(TARGET),KSR)
   EXTRA_OBJ = ksr_cputime.o
 endif
 
-ifeq ($(TARGET),DECOSF32)
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
-  EXTRA_OBJ = dec_fpe.o
-endif
 ifeq ($(TARGET),DECOSF)
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
   EXTRA_OBJ = dec_fpe.o
 endif
 ifeq ($(TARGET),LINUX64)
-  EXTRA_OBJ += dec_fpe.o
-endif                                                                           
-
-ifeq ($(TARGET),LINUX64_32)
   EXTRA_OBJ += dec_fpe.o
 endif                                                                           
 

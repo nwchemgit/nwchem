@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.83 2001-05-04 23:57:10 edo Exp $
+# $Id: DEFS,v 1.84 2001-05-07 18:09:09 edo Exp $
 #
 #======================================================================
 #
@@ -319,33 +319,25 @@ peigs_CPU = RS600064
 peigs_COMM =TCGMSG
 peigs_CC  += -D$(peigs_CPU) -DSTD_DBL -DIBM  -O -qinline -qmaxmem=8192
 peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict \
--WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) \
 -qfloat=rsqrt:fltint:hssngl -qinline
+  ifdef USE_INTEGER4
+     peigs_CPP += -DSTD_INT
+     peigs_CC  += -DSTD_INT
+     peigs_FC  += -WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) 
+  else
+     peigs_FC  += -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) 
+  endif
 
 peigs_CPP +=   -DSTD_DBL  -DIBM -I$(peigs_HDIR) -P
+  ifdef USE_INTEGER4
+     peigs_CPP += -DSTD_INT
+     peigs_CC  += -DSTD_INT
+     peigs_FC  += -DSTD_INT
+  endif
 peigs_BLASLIB   = -lblas
 peigs_LAPACKLIB = -llapack
 peigs_PEIGSLIB  = -lpeigs
 endif
-
-ifeq ($(peigs_TARGET),IBM64_32)
-#
-# IBM AIX
-#
-peigs_CODEOBJ = DBLE
-peigs_CPU = RS600064
-peigs_COMM =TCGMSG
-peigs_CC  += -D$(peigs_CPU) -DSTD_INT -DSTD_DBL -DIBM  -O -qinline -qmaxmem=8192
-peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict \
--WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) \
--qfloat=rsqrt:fltint:hssngl -qinline
-
-peigs_CPP +=   -DSTD_DBL -DSTD_INT -DIBM -I$(peigs_HDIR) -P
-peigs_BLASLIB   = -lblas
-peigs_LAPACKLIB = -llapack
-peigs_PEIGSLIB  = -lpeigs
-endif
-
 
 ifeq ($(peigs_TARGET),KSR8)
 #
@@ -458,6 +450,11 @@ peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL -P -DDECOSF
 peigs_CODEOBJ = DBLE
 peigs_CC  += -D${peigs_CPU}  -DSTD_DBL -O3 -DDECOSF -tune host -arch host
 peigs_FC += -O4  -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DDECOSF -tune host -arch host
+  ifdef USE_INTEGER4
+     peigs_CPP += -DSTD_INT
+     peigs_CC  += -DSTD_INT
+     peigs_FC  += -DSTD_INT
+  endif
 endif
 
 ifeq ($(peigs_TARGET),LINUX64)

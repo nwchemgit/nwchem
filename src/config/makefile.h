@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.358 2001-05-04 23:57:09 edo Exp $
+# $Id: makefile.h,v 1.359 2001-05-07 18:09:09 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -907,7 +907,7 @@ ifeq ($(TARGET),IBM64)
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-   FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64 -qintsize=8 
+   FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64
    COPTIONS = -q64
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto
   FVECTORIZE = -O5 -qhot -qfloat=rsqrt:fltint:hssngl -NQ40000 -NT80000  -qarch=auto -qtune=auto 
@@ -915,45 +915,20 @@ ifeq ($(TARGET),IBM64)
 
     DEFINES = -DIBM -DAIX -DEXTNAME -DEXT_INT 
        LIBPATH += -L/usr/lib -L/lib 
+ifdef USE_INTEGER4
+   FOPTIONS += -qintsize=4
+   CORE_LIBS += -lessl -llapack -lblas
+else
+   FOPTIONS += -qintsize=8 
+   CORE_LIBS += -llapack $(BLASOPT) -lblas
+endif
 
-       CORE_LIBS += -llapack $(BLASOPT) -lblas
 
   EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
 
-ifeq ($(TARGET),IBM64_32)
-# 
-# IBM AIX 64-bit for integer*4
-#
-
-    CORE_SUBDIRS_EXTRA = lapack blas
-    #CORE_SUBDIRS_EXTRA = lapack 
-         FC = xlf
-         CC = xlc
-    ARFLAGS = -X 64 urs 
-     RANLIB = echo
-  MAKEFLAGS = -j 3 --no-print-directory
-    INSTALL = @echo $@ is built
-        CPP = /usr/lib/cpp -P
-
-   FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64 -qintsize=4 
-   COPTIONS = -q64
-  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto
-  FVECTORIZE = -O5 -qhot -qfloat=rsqrt:fltint:hssngl -NQ40000 -NT80000  -qarch=auto -qtune=auto 
-   COPTIMIZE = -O -qmaxmem=8192
-
-    DEFINES = -DIBM -DAIX -DEXTNAME 
-       LIBPATH += -L/usr/lib -L/lib 
-
-       #CORE_LIBS += -llapack $(BLASOPT) -lblas
-       CORE_LIBS += -lessl -llapack -lblas
-
-  EXPLICITF = TRUE
-  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-#
-endif
 
 ifeq ($(TARGET),LAPI)
 #
@@ -1113,7 +1088,7 @@ ifeq ($(TARGET),DECOSF)
 # braindead alpha undflows inside texas (c6h6 6-31g)
 
 # assume noaccuracy_sensitive was breaking the code in recent versions (EA)
-              FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow  -warn argument_checking -warn unused -automatic
+              FOPTIONS = -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow  -warn argument_checking -warn unused -automatic
 
              COPTIONS = 
              LDOPTIONS = -O
@@ -1122,8 +1097,15 @@ ifeq ($(TARGET),DECOSF)
              FVECTORIZE = -fast -O5 -tune host -arch host
              COPTIMIZE = -O
 
-               DEFINES = -DDECOSF -DEXT_INT -DPARALLEL_DIAG
+               DEFINES = -DDECOSF -DPARALLEL_DIAG
+ifdef USE_INTEGER4
+              FOPTIONS +=  -i4
+             CORE_LIBS +=   -lcxml_ev6
+else
+               DEFINES +=  -DEXT_INT 
+              FOPTIONS +=  -i8
              CORE_LIBS +=  -llapack $(BLASOPT) -lblas 
+endif
             EXTRA_LIBS = -laio 
 ifeq ($(BUILDING_PYTHON),python)
       EXTRA_LIBS += -lX11
@@ -1137,6 +1119,7 @@ endif
 
 endif
 endif
+
 
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
 #
@@ -1258,15 +1241,27 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
      RANLIB = echo
   FC         = fort
   CC         = ccc      
-# this creates a static executable
-#  LINK.f = fort $(LDFLAGS)   -Wl,-Bstatic
-  LINK.f = fort $(LDFLAGS)  
-  DEFINES   +=   -DEXT_INT -DLINUX -DLINUX64 -DPARALLEL_DIAG
-  FOPTIONS   = -i8 -assume no2underscore -align dcommons -fpe3 -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow  -noautomatic
+  DEFINES   +=   -DLINUX -DLINUX64 -DPARALLEL_DIAG
+  FOPTIONS   = -assume no2underscore -align dcommons -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow  -noautomatic
   EXTRA_LIBS = 
   FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
   FVECTORIZE = -fast -O5 -tune host -arch host
+
+ifdef USE_INTEGER4
+  FOPTIONS += -i4 -fpe0
+# needed: binutils 2.11 for -taso option with some more hacking on bfd/elf.c
+  LINK.f = fort -Wl,-taso $(LDFLAGS)  
+# this creates a static executable
+#  LINK.f = fort $(LDFLAGS) -Wl,-Bstatic  -Wl,-Bstatic
+  CORE_LIBS += -lcxml
+else
+  FOPTIONS += -i8 -fpe3
+  DEFINES  += -DEXT_INT
+  LINK.f = fort $(LDFLAGS)  
+# this creates a static executable
+#  LINK.f = fort $(LDFLAGS)   -Wl,-Bstatic
   CORE_LIBS += -llapack $(BLASOPT) -lblas
+endif
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
    EXTRA_LIBS +=  -ldl
