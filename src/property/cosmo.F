@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.6 2004-07-29 16:27:15 windus Exp $
+* $Id: cosmo.F,v 1.7 2004-07-29 16:50:52 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -32,7 +32,7 @@ c
       lineq    =1
       rsolv    =0.0d+00
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
-     & call errquit('cosmo_input malloc k_rad failed',911)
+     & call errquit('cosmo_input malloc k_rad failed',911,MA_ERR)
       do iat=1,nw_max_atom
          dbl_mb(k_rad+iat-1)=0.0d+00
       enddo
@@ -162,8 +162,8 @@ c
      $       call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
       endif
 c
-      if(.not.ma_pop_stack(l_rad))
-     & call errquit('cosmo_input, ma_pop_stack of l_rad failed',911)
+      if(.not.ma_pop_stack(l_rad)) call
+     &  errquit('cosmo_input, ma_pop_stack of l_rad failed',911,MA_ERR)
 c
       return
       end
@@ -199,6 +199,7 @@ c
 c
       common/hnd_cospar/dielec,screen,rsolv
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       double precision vdwr(103)
       double precision vander(36)
 c
@@ -271,13 +272,13 @@ c
      $    (' cosmo_initialize: geom_ncent    failed.',911, GEOM_ERR)
 c
       if(.not.ma_push_get(mt_dbl,nat,'cosmo rads',l_rad,k_rad))
-     & call errquit('cosmo_initialize malloc k_rad failed',911)
+     & call errquit('cosmo_init malloc k_rad failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_coscoor,k_coscoor))
-     & call errquit('cosmo_initialize malloc k_coscoor failed',911)
-      if(.not.ma_push_get(mt_dbl,nat,'cosmo zan',l_coszan,k_coszan))
-     & call errquit('cosmo_initialize malloc k_coszan failed',911)
-      if(.not.ma_push_get(mt_byte,nat*16,'tags',l_costag,k_costag))
-     & call errquit('cosmo_initialize malloc k_costag failed',911)
+     & call errquit('cosmo_init malloc k_coscoor failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nat,'cosmo z',l_coszan,k_coszan)) call
+     &  errquit('cosmo_init malloc k_coszan failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_byte,nat*16,'tags',l_costag,k_costag)) call
+     &  errquit('cosmo_init malloc k_costag failed',911,MA_ERR)
 c
       if(.not.geom_cart_get(geom,nat,byte_mb(k_costag),
      &   dbl_mb(k_coscoor),dbl_mb(k_coszan))) call errquit
@@ -299,8 +300,8 @@ c
          dbl_mb(k_rad+iat-1)=rad
       enddo
 c
-      if(.not.ma_pop_stack(l_costag))
-     & call errquit('cosmo_initialize,ma_pop_stack of l_tag failed',911)
+      if(.not.ma_pop_stack(l_costag)) call
+     &  errquit('cosmo_init,ma_pop_stack of l_tag failed',911, MA_ERR)
 c
       dielec   =78.4d+00
       iscren   =0
@@ -413,10 +414,10 @@ c
 c
       if(me.eq.0) call util_flush(Luout)
 c
-      if(.not.ma_pop_stack(l_coscoor))
-     & call errquit('cosmo_initialize,ma_pop_stack l_coor failed',911)
-      if(.not.ma_pop_stack(l_rad))
-     & call errquit('cosmo_initialize,ma_pop_stack l_rad failed',911)
+      if(.not.ma_pop_stack(l_coscoor)) call
+     & errquit('cosmo_initialize,ma_pop_stack l_coor failed',911,MA_ERR)
+      if(.not.ma_pop_stack(l_rad)) call
+     & errquit('cosmo_initialize,ma_pop_stack l_rad failed',911,MA_ERR)
 c
       return
  9999 format(/,10x,15(1h-),
@@ -453,7 +454,6 @@ c
 c
       subroutine hnd_cosset(rtdb,nat,c,radius)
       implicit double precision (a-h,o-z)
-#include "errquit.fh"
 c
 c              ----- starting from -icosahedron- -----
 c
@@ -474,6 +474,7 @@ c     pass  napex, nface, error =   4    1026    2048    2728    0.0451
 c     pass  napex, nface, error =   5    4098    8192   10920    0.0116
 c     pass  napex, nface, error =   6   16386   32768   43688    0.0029
 c
+#include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -484,6 +485,10 @@ c
       integer nat
       double precision c(3,nat)
       double precision radius(nat)
+c
+      common/hnd_cospar/dielec,screen,rsolv
+      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
 c
       parameter (mxface=10920)
       parameter (mxapex= 4098)
@@ -512,7 +517,7 @@ c     ----- allocate memory block -----
 c
       if(.not.ma_push_get(mt_dbl,need,'mem init:cosmo:hnd_cosset:1',
      &    i_init,init))
-     & call errquit('hnd_cosset, malloc of init  failed',911)
+     & call errquit('hnd_cosset, malloc of init  failed',911,MA_ERR)
 c
       i10 =init                    ! xyzatm(3,nat)
       i20 =i10 +3*nat              !   ratm(  nat)
@@ -536,8 +541,8 @@ c
 c
 c     ----- release memory block -----
 c
-      if(.not.ma_pop_stack(i_init))
-     & call errquit('hnd_cosset, ma_pop_stack of init failed',911)
+      if(.not.ma_pop_stack(i_init)) call
+     &  errquit('hnd_cosset, ma_pop_stack of init failed',911,MA_ERR)
 c
       return
  9999 format(/,10x,15(1h-),
@@ -579,8 +584,9 @@ c
       logical    more
       logical    dbug
       logical    insseg
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       common/hnd_cospar/dielec,screen,rsolv
+      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
 c
       dbug=.false.
       more=.false.
@@ -670,6 +676,7 @@ c
       logical     dbug
       logical     insseg
       common/hnd_cospar/dielec,screen,rsolv
+      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       dimension xyzatm(3,mxatom)
       dimension   ratm(  mxatom)
@@ -838,15 +845,15 @@ c
 c     Allocate memory for point charges
 c
       if(.not.ma_push_get(mt_dbl,nefc*3,'cosmo efcc',l_efcc,k_efcc))
-     & call errquit('cosmo_cossas malloc k_efcc failed',911)
+     & call errquit('cosmo_cossas malloc k_efcc failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcs',l_efcs,k_efcs))
-     & call errquit('cosmo_cossas malloc k_efcs failed',911)
+     & call errquit('cosmo_cossas malloc k_efcs failed',911,MA_ERR)
       if(.not.ma_push_get(mt_int,nefc,'cosmo efciat',l_efciat,k_efciat))
-     & call errquit('cosmo_cossas malloc k_efciat failed',911)
+     & call errquit('cosmo_cossas malloc k_efciat failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcz',l_efcz,k_efcz))
-     & call errquit('cosmo_cossas malloc k_efcz failed',911)
+     & call errquit('cosmo_cossas malloc k_efcz failed',911,MA_ERR)
       if(.not.ma_push_get(mt_byte,nefc*8,'cosmo tags',l_efclb,k_efclb))
-     & call errquit('cosmo_cossas malloc k_tag failed',911)
+     & call errquit('cosmo_cossas malloc k_tag failed',911,MA_ERR)
 c
 c     ----- save coordinates of surface points -----
 c           save segment surfaces
@@ -930,15 +937,15 @@ c    $   call errquit('hnd_cossas: rtdb put failed for efclab',916,
 c    &       rtdb_err)
 c
       if(.not.ma_pop_stack(l_efclb)) call
-     &   errquit('cosmo_cossas chop stack k_efclb failed',911)
+     &   errquit('cosmo_cossas chop stack k_efclb failed',911,MA_ERR)
       if(.not.ma_pop_stack(l_efcz)) call
-     &   errquit('cosmo_cossas chop stack k_efcz failed',911)
+     &   errquit('cosmo_cossas chop stack k_efcz failed',911,MA_ERR)
       if(.not.ma_pop_stack(l_efciat)) call
-     &   errquit('cosmo_cossas chop stack k_efciat failed',911)
+     &   errquit('cosmo_cossas chop stack k_efciat failed',911,MA_ERR)
       if(.not.ma_pop_stack(l_efcs)) call
-     &   errquit('cosmo_cossas chop stack k_efcs failed',911)
+     &   errquit('cosmo_cossas chop stack k_efcs failed',911,MA_ERR)
       if(.not.ma_pop_stack(l_efcc)) call
-     &   errquit('cosmo_cossas chop stack k_efcc failed',911)
+     &   errquit('cosmo_cossas chop stack k_efcc failed',911,MA_ERR)
 c
       return
  9999 format(/,1x,'solvent accessible surface',/,1x,26(1h-))
@@ -994,6 +1001,7 @@ c
       dimension ijkseg(  *)
       dimension xyzseg(3,*)
 c
+      common/hnd_cospar/dielec,screen,rsolv
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
 c
       parameter (mxpass=    7)
@@ -1662,6 +1670,7 @@ c
 c
       common/hnd_cospar/dielec,screen,rsolv
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
 c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer g_dens(3),ndens,nvirt(2)
@@ -1690,11 +1699,11 @@ c
 c     ----- allocate memory for efc's -----
 c
       if(.not.ma_push_get(mt_dbl,nefc*3,'cosmo efcc',l_efcc,k_efcc))
-     & call errquit('cosmo_cossas malloc k_efcc failed',911)
+     & call errquit('cosmo_cossas malloc k_efcc failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcs',l_efcs,k_efcs))
-     & call errquit('cosmo_cossas malloc k_efcs failed',911)
+     & call errquit('cosmo_cossas malloc k_efcs failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcz',l_efcz,k_efcz))
-     & call errquit('cosmo_cossas malloc k_efcz failed',911)
+     & call errquit('cosmo_cossas malloc k_efcz failed',911,MA_ERR)
 c
       if(.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,dbl_mb(k_efcc)))
      &   call errquit('cosmo_charges: rtdb get failed for efcc  ',912,
@@ -1723,7 +1732,7 @@ c
          nocc=max(nocc,nclosed(2)+nopen(2))
       endif
       if(.not.ma_push_get(mt_dbl,nocc*2,'cosmo occ',l_occ,k_occ))
-     &   call errquit('cosmo_charges malloc k_occ failed',911)
+     &   call errquit('cosmo_charges malloc k_occ failed',911,MA_ERR)
       do i=1,nocc*2
          dbl_mb(k_occ+i-1)=1.0d0
       enddo
@@ -1820,7 +1829,7 @@ c
             if(.not.ma_push_get(mt_dbl,need,
      &         'mem init:cosmo:hnd_coschg:1',i_init,init))
      &         call errquit(
-     &              'hnd_coschg, malloc of init  failed',911)
+     &              'hnd_coschg, malloc of init  failed',911,MA_ERR)
             if(out) then
                write(luout,*) 'use iterative method for -lineq-'
             endif
@@ -1833,7 +1842,7 @@ c
          need=11*nefc
          if(.not.ma_push_get(mt_dbl,need,
      &      'mem init:cosmo:hnd_coschg:2',i_init,init))
-     &    call errquit('hnd_coschg, malloc of init  failed',912)
+     &    call errquit('hnd_coschg, malloc of init  failed',912,MA_ERR)
          lineq=1
          if(out) then
             write(luout,*) 'use iterative method for -lineq-'
@@ -1937,7 +1946,7 @@ c
          else
             write(luout,*)'... should not be here ... all,elec,nucl = ',
      1                                              all,elec,nucl
-            call errquit('hnd_coschg: should not be here...',911)
+            call errquit('hnd_coschg: should not be here...',911,UERR)
          endif
 
          do ief=1,nefc
@@ -2109,8 +2118,8 @@ c
             chgfac=chggss/chgcos
             chgfac=one
          else
-            write(luout,*) 'illegal -ifscrn- ... stop. -ifscrn- = ',ifscrn
-            call errquit('hnd_coschg: illegal -ifscrn-...',911)
+            write(luout,*) 'illegal -ifscrn- ... stop. = ',ifscrn
+            call errquit('hnd_coschg: illegal -ifscrn-...',911,UERR)
          endif
       else
          if(ifscrn.eq.0) then
@@ -2120,8 +2129,8 @@ c
          elseif(ifscrn.eq.2) then
             chgfac=chggss/chgcos
          else
-            write(luout,*) 'illegal -ifscrn- ... stop. -ifscrn- = ',ifscrn
-            call errquit('hnd_coschg: illegal -ifscrn-...',911)
+            write(luout,*) 'illegal -ifscrn- ... stop. = ',ifscrn
+            call errquit('hnd_coschg: illegal -ifscrn-...',911,UERR)
          endif
       endif
 
@@ -2379,8 +2388,8 @@ c
 c
 c     ----- release memory block -----
 c
-      if(.not.ma_chop_stack(i_init))
-     & call errquit('hnd_coschg, ma_pop_stack of init failed',911)
+      if(.not.ma_chop_stack(i_init)) call
+     &  errquit('hnd_coschg, ma_pop_stack of init failed',911,MA_ERR)
 c
       return
  9999 format(/,10x,15(1h-),
@@ -2406,6 +2415,7 @@ c
       subroutine hnd_cosaxd(a,x,ax,n,efcc,efcs)
       implicit real*8 (a-h,o-z)
       parameter (zero=0.0d+00, one=1.0d+00)
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       dimension efcc(3,n), efcs(n)
       dimension a(n),x(n),ax(n)
 c
@@ -2434,6 +2444,7 @@ c
       subroutine hnd_cosxad(a,x,xa,n,efcc,efcs)
       implicit real*8 (a-h,o-z)
       parameter (zero=0.0d+00, one=1.0d+00)
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       dimension efcc(3,n), efcs(n)
       dimension a(n),x(n),xa(n)
 c
@@ -2466,6 +2477,8 @@ c     ----- solve a * x = b , using an iterative procedure       -----
 c
 c     ----- numerical recipes (p.70), cambridge university press -----
 c          w.h.press, b.p.flannery, s.a.teukolsky, w.t.vetterling
+c
+#include "errquit.fh"
 c
       logical     dbug
       double precision efcc(3,n),efcs(n)
@@ -2508,7 +2521,7 @@ c
    13    continue
          if(aden.eq.zero) then
             write(luout,*) 'very singular matrix'
-            call errquit('hnd_cosequ: singular matrix',911)
+            call errquit('hnd_cosequ: singular matrix',911,UERR)
          endif
          anum=anum/aden
          do 14 j=1,n
@@ -2545,7 +2558,7 @@ c
    18    continue
    19 continue
       write(luout,*) 'too many iterations'
-      call errquit('hnd_cosequ: too many iters',911)
+      call errquit('hnd_cosequ: too many iters',911,UERR)
       return
  9999 format(i8,f16.8)
       end
