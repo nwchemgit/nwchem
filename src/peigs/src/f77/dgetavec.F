@@ -568,8 +568,8 @@ C
       INTEGER            idamax
       EXTERNAL           idamax
 c      
-      DOUBLE PRECISION DNRM2
-      EXTERNAL DNRM2, dscal
+      DOUBLE PRECISION dnrm2
+      EXTERNAL dnrm2, dscal
 c      
 *     ..
 *     .. Intrinsic Functions ..
@@ -755,7 +755,7 @@ c
 c      
 c     
       i = bn-b1+1
-      ztz = DNRM2( i, z(b1), 1)
+      ztz = dnrm2( i, z(b1), 1)
       ztz = 1.0e0/ztz
       call dscal(i, ztz, z(b1), 1)
 c     
