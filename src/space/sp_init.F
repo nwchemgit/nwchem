@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.100 2001-11-30 15:19:58 d3j191 Exp $
+c $Id: sp_init.F,v 1.101 2001-12-10 23:32:59 d3j191 Exp $
 c
       implicit none
 c
@@ -1926,7 +1926,7 @@ c
       rewind(lfnrst)
       write(lfnrst,1000)
  1000 format('Restart file',/,' ',/,' ')
-      write(lfnrst,1001) 3.3,rdate,rtime,nhist,lforces
+      write(lfnrst,1001) 4.2,rdate,rtime,nhist,lforces
  1001 format(f12.6,2a10,i5,4x,l1)
       hist(nhist)(1:10)=rdate
       hist(nhist)(11:20)=rtime
