@@ -13,7 +13,8 @@ c     Multiply a set of vectors by the level-shifted UHF hessian.
 c     
 c     Check dimensions
 c     
-      if (cuhf_init_flag.ne.1)
+c      if (cuhf_init_flag.ne.1)
+      if(.not.cuhf_init_flag)
      $     call errquit('uhf_hessv: UHF internal block invalid',0)
       call ga_inquire(g_ax,gtype,vlen,nvec)
       if (vlen.ne.cuhf_vlen)
@@ -137,10 +138,11 @@ c
       parameter (max_nvec=300)
       integer g_dens(4,max_nvec), g_fock(4,max_nvec), g_d, g_j, g_k
       double precision jfac(4,max_nvec), kfac(4,max_nvec)
-      double precision tol2e
+c      double precision tol2e
       double precision itol_floor, itol_ceil
       parameter(itol_floor=1.d-15, itol_ceil=1.d-3)
-      logical ga_create_atom_blocked
+c      logical ga_create_atom_blocked
+      integer ga_create_atom_blocked
       external ga_create_atom_blocked
       double precision zero, one, mone, four
       parameter (zero=0.0d0, one=1.0d0, mone=-1.0d0, four=4.0d0)
