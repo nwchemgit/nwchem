@@ -4,7 +4,7 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.29 2003-10-25 00:56:20 marat Exp $
+* $Id: create_contour.F,v 1.30 2003-10-27 02:34:17 edo Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -91,7 +91,7 @@
 *
       If (.not.Geom_Cart_Get(Geom,nAtom,Byte_mb(k_Tags),
      &   Dbl_mb(k_xyz),Dbl_mb(k_charge)))
-     &   Call ErrQuit('C_C: Geom_Cart_Get failed',0)
+     &   Call ErrQuit('C_C: Geom_Cart_Get failed',0,0)
 *
       If (DeBug . and . me.eq.0) Then
          Write(LuOut,*)' nAtom      = ',nAtom
@@ -112,9 +112,9 @@ c
      &     call errquit('crecon: basis set error:', 86, BASIS_ERR)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       If (.not.Bas_NPrim_CN_Max(AO_Bas_Han,nbf_ao_mxprim))
-     &   Call ErrQuit('C_C: Bas_NPrim_CN_Max failed',0)
+     &   Call ErrQuit('C_C: Bas_NPrim_CN_Max failed',0,0)
       If (.not.Bas_nBF_CN_Max(AO_Bas_Han,nBF_Max))
-     &   Call ErrQuit('C_C: Bas_nBF_CN_Max failed',0)
+     &   Call ErrQuit('C_C: Bas_nBF_CN_Max failed',0,0)
       if(.not.bas_numcont(ao_bas_han,nshells_ao))
      .     call errquit(' stop in basnuc',11,0)
       If (DeBug . and . me.eq.0) Then
@@ -136,7 +136,7 @@ c
       if (.not.MA_Push_Get(mt_log, nshells_ao, 'docset',
      &     ldocset, idocset))
      &     call errquit('grid_quadv0a: cannot allocate docset',
-     .     nshells_ao)
+     .     nshells_ao,0)
       If (DeBug . and . me.eq.0) Write(LuOut,*)' mBF        = ',mBF
 
       if (.not.MA_Push_Get(mt_int, 3*natom, 'bas_cent_info',
@@ -171,7 +171,7 @@ c
      &        1, dbl_mb(k_rdat), 'rms', 
      &        dbl_mb(iscr), nbf_ao_mxnbf_ce)
          if(.not.ma_pop_stack(lscr)) call errquit(
-     .        'CreateCont: Failed to deallocate DENSF',0)
+     .        'CreateCont: Failed to deallocate DENSF',0,0)
 *     
          LResult = MA_Push_Get(MT_dbl,nbf_ao_mxnbf_ce2,'DENSF',
      .        l_FMat,k_FMat)
@@ -198,7 +198,7 @@ c
       LResult = MA_Push_Get(MT_Dbl,ngrpp*natom,'rq', l_rq, k_rq)
       Call ErrMem(LResult,'C_C: Failed to allocate rq',0)
       if(.not.MA_Push_Get(MT_Dbl,lth1,'Scr1',l_Scr1,k_Scr1))
-     .   Call errquit('C_C: Failed to allocate Scr1',lth1)
+     .   Call errquit('C_C: Failed to allocate Scr1',lth1,0)
       lthB = nbf_ao_mxnbf_ce*ngrpp
       LResult = MA_Push_Get(MT_dbl,lthB,'BMat',l_BMat,k_BMat)
       Call ErrMem(LResult,'C_C: Failed to allocate BMat',0)

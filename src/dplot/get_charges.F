@@ -3,7 +3,7 @@
      &                       XYZ,Charge,Tags,AMt,BMt,Dst,
      &                       STD,Tot_Charge)
 *
-* $Id: get_charges.F,v 1.7 2003-10-17 22:54:43 carlfahl Exp $
+* $Id: get_charges.F,v 1.8 2003-10-27 02:34:17 edo Exp $
 *
       Implicit None
 *
@@ -270,9 +270,9 @@
 *     
 *---- Deallocate memory     
       If (.not. MA_Pop_Stack(l_scr))
-     &   Call ErrQuit('Pot_At_Pos: pop failed', 0)
+     &   Call ErrQuit('Pot_At_Pos: pop failed', 0,0)
       if (.not. MA_Pop_Stack(l_buf))
-     &   Call ErrQuit('Pot_At_Pos: pop failed', 0)
+     &   Call ErrQuit('Pot_At_Pos: pop failed', 0,0)
 *     
       call int_terminate
       Return

@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.27 2003-10-25 00:56:20 marat Exp $
+* $Id: dplot.F,v 1.28 2003-10-27 02:34:17 edo Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -220,9 +220,11 @@ c
      &   Call ErrQuit('DPlot: Charges and Orbitals conflict',0,
      &       UNKNOWN_ERR)
       If (What.eq.'CHARGES' . and . Where.ne.'GRID')       ! ***Check***
-     &   Call ErrQuit('DPlot: Charges can be combined with GRID only',0)
+     &   Call ErrQuit('DPlot: Charges can be combined with GRID only',
+     & 0, 0)
       If (What.eq.'CHARGES' . and . File_Vec2.ne.' ')      ! ***Check***
-     &   Call ErrQuit('DPlot: Specify one orb. file for opt. Charges',0)
+     &   Call ErrQuit('DPlot: Specify one orb. file for opt. Charges',
+     & 0, 0)
 *
 *---- Get the total charge of the molecule
       If (.not.rtdb_get(rtdb,'charge',mt_dbl,1,Tot_Charge))
@@ -249,9 +251,9 @@ c
 *
 *---- Get the geometry
       If (.not.Geom_Create(Geom,'geometry'))
-     &     Call ErrQuit('DPlot: Geom_Create failed',0)
+     &     Call ErrQuit('DPlot: Geom_Create failed',0,0)
       If (.not.Geom_RTDB_Load(rtdb,Geom,'geometry'))
-     &     Call ErrQuit('DPlot: Geom_RTDB_Load failed',0)
+     &     Call ErrQuit('DPlot: Geom_RTDB_Load failed',0,0)
 *
       LResult = Geom_Ncent(Geom,nAtom)
       If (Where.eq.'GRID') Then
@@ -267,13 +269,13 @@ c
 *
 *---- Get the basis set
       If (.not.Bas_Create(AO_Bas_Han,'ao basis'))
-     &   Call ErrQuit('DPlot: Bas_Create failed',0)
+     &   Call ErrQuit('DPlot: Bas_Create failed',0,0)
       If (.not.Bas_RTDB_Load(rtdb,Geom,AO_Bas_Han,'ao basis'))
-     &   Call ErrQuit('DPlot: Bas_RTDB_Load failed',0)
+     &   Call ErrQuit('DPlot: Bas_RTDB_Load failed',0,0)
       If (.not.Int_Normalize(rtdb,AO_Bas_Han))
-     &   Call ErrQuit('DPlot: Int_Normalize failed',0)
+     &   Call ErrQuit('DPlot: Int_Normalize failed',0,0)
       If (.not.Bas_NumBF(AO_bas_han,nBF_AO))
-     &   Call ErrQuit('DPlot: Bas_NumBF failed',0)
+     &   Call ErrQuit('DPlot: Bas_NumBF failed',0,0)
       If (Debug . and . iProc.eq.0)
      &   Write(LuOut,*)' nBF_AO     = ',nBF_AO
 *
@@ -287,7 +289,7 @@ c
 *
       If ( .not.Geom_Cart_Get(Geom,nAtom,Byte_mb(k_Tags),
      &   Dbl_mb(k_xyz),Dbl_mb(k_Charge)) )
-     &   Call ErrQuit('C_C: Geom_Cart_Get failed',0)
+     &   Call ErrQuit('C_C: Geom_Cart_Get failed',0,0)
 *
 *---- Allocate memory for grid points and get the grid
       LResult = MA_Push_Get(MT_Dbl,3*nPoint,'Grid',l_Grid,k_Grid)
@@ -311,11 +313,12 @@ c
 *---- Read the info from the first MO file
       If (.not.movecs_read_header(File_Vec,Title_Vec,Basis_Name, 
      &     scftype, nBF,nSet,nMO,2))
-     &   Call ErrQuit('DPlot: movecs_read_header failed',1)
+     &   Call ErrQuit('DPlot: movecs_read_header failed',1,0)
       nSetTri = nSet*(nSet+1)/2
 *---- Check, if the MO Vectors correspond to the specified basis set
       If (nBF.ne.nBF_AO)
-     &   Call ErrQuit('DPlot: Basis set is not consistent with MOVec',0)
+     &   Call ErrQuit('DPlot: Basis set is not consistent with MOVec',
+     &   0,0)
 *
       If (Debug . and . iProc.eq.0) Then
          Write(LuOut,*)
@@ -351,7 +354,7 @@ c
          Do iSet = 1, nSet
             If (.not.movecs_read(File_Vec,iSet,Dbl_mb(k_Occ),
      &         Dbl_mb(k_Ene),g_Vec(iSet)))
-     &         Call ErrQuit('DPlot: movecs_read failed',0)
+     &         Call ErrQuit('DPlot: movecs_read failed',0,0)
          End Do
          LResult = MA_Pop_Stack(l_Occ)
          Call ErrMem(LResult,'DPlot: Failed to deallocate occ. num.',0)
@@ -365,10 +368,10 @@ c
 *------- Read the info from the second orbital file
          If (.not.movecs_read_header(File_Vec2,Title_Vec2,Basis_Name2, 
      &        scftype2, nBF2,nSet2,nMO2,2))
-     &      Call ErrQuit('DPlot: movecs_read_header failed',2)
+     &      Call ErrQuit('DPlot: movecs_read_header failed',2,0)
 *------- Check, if the the orbital files match
          If (nBF2.ne.nBF . or . nSet2.ne.nSet)
-     &      Call ErrQuit('DPlot: Orbital files do not match',0)
+     &      Call ErrQuit('DPlot: Orbital files do not match',0,0)
 *------- Create global array for density matrix
          g_Dns2(1) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dn1')
          If (nSet.eq.2)then
@@ -383,11 +386,11 @@ c
 c         If (nSet.eq.2) Call GADest(g_Dns2(2))
          If (nSet.eq.2)then
             if (.not. ga_destroy(g_Dns(2))) call errquit
-     &         ('dplot: could not destroy g_Dns(2)', 0)
+     &         ('dplot: could not destroy g_Dns(2)', 0,0)
          endif
 c         Call GADest(g_Dns2(1))
          if (.not. ga_destroy(g_Dns(1))) call errquit
-     &      ('dplot: could not destroy g_Dns(1)', 0)
+     &      ('dplot: could not destroy g_Dns(1)', 0,0)
       End If
 *
 *---- Get the values of the density at the grid points
@@ -396,9 +399,6 @@ c         Call GADest(g_Dns2(1))
 *ga:1:0
       if (.not. ga_create(mt_dbl, nPoint, 1, 'Vls', 
      &                    0, 0, g_Vls)) 
-c
-c     
-c
      &   call errquit('dplot: error creating g_Vls',0,0)
       If (What.ne.'CHARGES') Then
          Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
@@ -498,27 +498,27 @@ c
 *---- Destroy global arrays
 c      Call GADest(g_Vls)
       if (.not. ga_destroy(g_Vls)) call errquit
-     &   ('dplot: could not destroy g_Vls', 0)
+     &   ('dplot: could not destroy g_Vls', 0,0)
       If (What.eq.'DENSITY') Then
 c         If (nSet.eq.2) Call GADest(g_Dns(2))
          If (nSet.eq.2)then
             if (.not. ga_destroy(g_Dns(2))) call errquit
-     &         ('dplot: could not destroy g_Dns(2)', 0)
+     &         ('dplot: could not destroy g_Dns(2)', 0,0)
          endif
 c         Call GADest(g_Dns(1))
          if (.not. ga_destroy(g_Dns(1))) call errquit
-     &      ('dplot: could not destroy g_Dns(1)', 0)
+     &      ('dplot: could not destroy g_Dns(1)', 0,0)
       End If
 c      If (nSet.eq.2) Call GADest(g_Vec(2))
       If (nSet.eq.2)then
          if (.not. ga_destroy(g_Vec(2))) call errquit
-     &      ('dplot: could not destroy g_Vec(2)', 0)
+     &      ('dplot: could not destroy g_Vec(2)', 0,0)
       endif
 c      Call GADest(g_Vec(1))
       if (.not. ga_destroy(g_Vec(1))) call errquit
-     &   ('dplot: could not destroy g_Vec(1)', 0)
+     &   ('dplot: could not destroy g_Vec(1)', 0,0)
       If (.not.Geom_destroy(Geom))
-     &     Call ErrQuit('DPlot: Geom_destory failed',0)
+     &     Call ErrQuit('DPlot: Geom_destory failed',0,0)
 *
 *---- Close the output file
       If (iProc.eq.0 . and . Where.ne.'NUCLEI' . and .
@@ -526,16 +526,16 @@ c      Call GADest(g_Vec(1))
 *
 *---- Pop context
       If (.not.context_pop('dplot')) 
-     &     Call ErrQuit('DPlot: context_pop failed',0)
+     &     Call ErrQuit('DPlot: context_pop failed',0,0)
 *
 *---- Normal termination
       DPlot = .TRUE.
 
       If (.not.Bas_destroy(AO_Bas_Han))
-     &   Call ErrQuit('DPlot: Bas_destroy failed',0)
+     &   Call ErrQuit('DPlot: Bas_destroy failed',0,0)
       Return
 *
 *---- Error exit
   111 Continue
-      Call ErrQuit('Create_Contour: Failed to open output file',0)
+      Call ErrQuit('Create_Contour: Failed to open output file',0,0)
       End
