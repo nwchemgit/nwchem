@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.69 2002-02-05 04:18:22 d3j191 Exp $
+c $Id: sp_main.F,v 1.70 2002-02-08 04:47:56 d3j191 Exp $
 c
       implicit none
 c
@@ -101,7 +101,7 @@ c
       misl(j)=max(misl(j),isl(i,j))
     3 continue
     2 continue
-      misl(lsdyn)=15
+      misl(lsdyn)=max(15,misl(lsdyn))
       misl(lsbox)=nbtot
       misl(lsnod)=np
 c
