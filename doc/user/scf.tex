@@ -2,7 +2,7 @@
 
 The NWChem self-consistent field (SCF) module computes closed-shell
 restricted Hartree-Fock (RHF), restricted high-spin open-shell
-Hartree-Fock (ROHF) and spin-unrestricted Hatree-FOck (UHF)
+Hartree-Fock (ROHF) and spin-unrestricted Hartree-Fock (UHF)
 wavefunctions. 
 
 The \verb+SCF+ directive provides input to the SCF module
@@ -45,7 +45,7 @@ and \verb+NOPEN+ allow the user to specify the number of open shells for a
 particular calculation.  \verb+SINGLET+ is the default, and specifies a 
 closed shell; \verb+DOUBLET+ specifies one open shell; \verb+TRIPLET+
 specifies two open shells; and so forth.  If there are more than four
-open shells, the keword \verb+NOPEN+ must be used, with the integer
+open shells, the keyword \verb+NOPEN+ must be used, with the integer
 \verb+nopen+ defining the exact number of open shells.
 
 If the multiplicity is any value other than \verb+SINGLET+, the
@@ -81,8 +81,8 @@ defeating the defaults by specifying the keywords \verb+ADAPT OFF+
 
 The keywords \verb+RHF+ and \verb+ROHF+ are provided in the code for
 completeness. It may be necessary to specify these in order to modify
-the behaviour of a previous calculation (see Section \ref{sec:persist}
-  for restart behaviour).
+the behavior of a previous calculation (see Section \ref{sec:persist}
+  for restart behavior).
 
 \section{{\tt SYM} --- use of symmetry}
 \label{sec:sym}
@@ -117,7 +117,7 @@ contaminated for some problems.  This is especially likely if the
 calculation is started using orbitals from a distorted geometry.
 
 The underlying assumption in the use of symmetry in Fock matrix
-contruction is that the density is totally symmetric.  If the orbitals
+construction is that the density is totally symmetric.  If the orbitals
 are symmetry contaminated, this assumption may not be valid which
 could result in incorrect energies and poor convergence of the
 calculation.  It is thus advisable when specifying \verb+ADAPT OFF+ to
@@ -143,7 +143,7 @@ the energy and Fock-matrices.  This differs from many codes where the
 error in the energy is typically much greater than this threshold.
 
 The default threshold is the minimum of $10^{-7}$ and $0.01$ times the
-requested convergence threshold of the SCF calclation.  This is
+requested convergence threshold of the SCF calculation.  This is
 suitable for nearly all purposes, though a more relaxed value of 
 $10^-6$ might accelerate inaccurate exploratory calculations.
 
@@ -154,14 +154,14 @@ The input to specify the threshold explicitly within the
   tol2e 1e-6
 \end{verbatim}
 
-\section{{\tt LAGRANGIAN} --- orbital lagrangian}
+\section{{\tt LAGRANGIAN} --- orbital Lagrangian}
 
 \begin{verbatim}
   LAGRANGIAN
 \end{verbatim}
 
 This keyword generates and dumps the orbital Lagrangian to disk. The
-lagrangian is required to compute ROHF gradients but under most
+Lagrangian is required to compute ROHF gradients but under most
 circumstances this option is automatically enabled and need not be set
 by the user.
 
@@ -204,7 +204,7 @@ of the input molecular orbital vectors as
   geometry.
 \end{itemize}
  
-The molecular orbitals are saved every iteration and also aat the end
+The molecular orbitals are saved every iteration and also at the end
 of the calculation.  At completion (converged or not), the SCF module
 always canonicalizes the molecular orbitals by {\em separately}
 diagonalizing the closed--closed, open--open and virtual--virtual
@@ -304,9 +304,9 @@ change.
 
 If some atoms are significantly charged, then the default guess of
 superimposing the densities of the neutral atoms may be improved upon
-by modifying the atomic densities.  This is done by adding factional
+by modifying the atomic densities.  This is done by adding fractional
 charges to the occupation of the valence atomic orbitals.  This is
-acomplished by setting parameters used by the atomic SCF program which
+accomplished by setting parameters used by the atomic SCF program which
 does not have its own input block, and therefore the \verb+SET+
 directive (Section \ref{sec:set}) must be used.
 
@@ -450,7 +450,7 @@ The first three parameters determine the extent of the approximation:
   obtained.
 \end{itemize}
 
-The next three paramters determine the computational strategy:
+The next three parameters determine the computational strategy:
 \begin{itemize}
 \item \verb+AUTO+ --- This is the default option which allows the code
   to make its own decision on where to store the 3-center integrals.
@@ -513,7 +513,7 @@ to specify a lower value for \verb+diisbas+, to conserve memory.
 \section{{\tt DIRECT} and {\tt SEMIDIRECT} --- recomputation of integrals}
 \label{sec:semidirect}
 
-The default behaviour of the SCF module is
+The default behavior of the SCF module is
 \begin{itemize}
 \item if there is enough memory available, the integrals are computed
    once and cached in memory.
@@ -540,7 +540,7 @@ restart from integrals on disk, but this capability will not be made
 widely available until a later date.
 
 On the IBM SP or any other computer with fast disks local to each
-processor, semi-direct gives the best behaviour.  It can result in
+processor, semi-direct gives the best behavior.  It can result in
 {\em quadratic speedup} as more processors are added.  On other
 machines, it may be necessary to resort to additional strategies to
 achieve faster performance, such as limiting the use of disk space,
@@ -580,7 +580,7 @@ By default, the integral file is placed into the scratch directory
 (see Section \ref{sec:dirs}). Specifying the keyword \verb+FILENAME+
 overrides this default.  The user-specified name entered in the string
 \verb+filename+ has the process number appended to it, so that each
-process has a distinct file but with a common basename and directory.
+process has a distinct file but with a common base-name and directory.
 Therefore, it is not possible to use this keyword to specify different
 disks for different processes.  The \verb+SCRATCH_DIR+ directive (see
 Section \ref{sec:dirs}) can be used for this purpose.
@@ -604,7 +604,7 @@ usage by each process to 100 MW:
 
 \subsection{Integral File Size and Format for the SCF Module}
 
-The file format is rather complex since it accomodates a variety of
+The file format is rather complex since it accommodates a variety of
 packing and compression options and distribution of data.  This
 section presents some information that may help the user understand
 the output and illustrates how to use the output information to
@@ -757,10 +757,10 @@ If there is reason to suspect a negative eigenvalue, the first course
 is to disable the Newton-Raphson iteration until the solution is
 closer to convergence.  It may be necessary to disable it completely.
 At some point close to convergence, the Hessian will be positive
-definite, so disabling Newton-Raphson should yeild a solution with
+definite, so disabling Newton-Raphson should yield a solution with
 approximately the same convergence rate as DIIS.
 
-If temporarily disabling Newton-Raphson is not sufficient to acheive
+If temporarily disabling Newton-Raphson is not sufficient to achieve
 convergence, it may be necessary to disable it entirely and apply a
 small level-shift to the approximate Hessian.  This should improve the
 convergence rate of the micro-iterations and stabilize the
@@ -833,7 +833,7 @@ to the value specified by input in the real variable \verb+final+.
 
 For the PCG method (as specified using the keyword \verb+pcg+), the
 defaults for this input are 20.0 for \verb+initial+, 0.5 for
-\verb+tol+, and 0.0 for \verb+final+.  This meeans that the
+\verb+tol+, and 0.0 for \verb+final+.  This means that the
 approximate Hessian will be shifted by 20.0 until the maximum element
 of the gradient falls below 0.5, at which point the shift will be set
 to zero.
