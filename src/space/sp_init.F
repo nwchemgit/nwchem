@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.56 2000-01-31 17:50:46 d3j191 Exp $
+c $Id: sp_init.F,v 1.57 2000-02-01 00:56:00 d3j191 Exp $
 c
       implicit none
 c
@@ -2221,7 +2221,7 @@ c
  1002 format(2i7)
       do 6 j=1,ltemp(1,1)
       write(lfn,1003) (ltemp(j+1,k),k=1,mbb2)
- 1003 format(10i7)
+ 1003 format(8i10)
     6 continue
       endif
 c
@@ -2302,7 +2302,7 @@ c
       ltemp(1,2)=nbl
       do 4 j=1,nbl
       read(lfn,1003) (ltemp(j+1,k),k=1,mbb2)
- 1003 format(10i7)
+ 1003 format(8i10)
     4 continue
       endif
 c
