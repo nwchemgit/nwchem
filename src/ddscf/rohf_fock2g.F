@@ -19,7 +19,7 @@ c
       subroutine rohf_fock2grad( nmo, nclosed, nopen,
      $     g_fcv, g_fpv, g_fcp,
      $     g_grad)
-C     $Id: rohf_fock2g.F,v 1.7 1997-04-06 20:55:25 d3g681 Exp $
+C     $Id: rohf_fock2g.F,v 1.8 1998-08-26 16:24:56 d3g681 Exp $
       implicit none
 #include "global.fh"
       integer nmo, nclosed, nopen ! [input] Occupation and number of mos
@@ -68,7 +68,7 @@ c     enforce symmetry (which is expensive in high order groups).
 c     Also, threshold must tend to zero for high convergence.
 c
       call ga_maxelt(g_grad, tol)
-      tol = min(tol*1d-2,1d-12)
+      tol = min(tol*tol,1d-12)
       call ga_screen(g_grad, tol)
 c     
       end

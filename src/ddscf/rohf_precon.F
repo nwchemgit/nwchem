@@ -1,6 +1,6 @@
       subroutine rohf_search_precond(rtdb, g_grad, g_work)
 *
-* $Id: rohf_precon.F,v 1.11 1997-11-07 11:35:17 d3e129 Exp $
+* $Id: rohf_precon.F,v 1.12 1998-08-26 16:24:56 d3g681 Exp $
 *
       implicit none
 #include "crohf.fh"      
@@ -136,7 +136,7 @@ c     enforce symmetry (which is expensive in high order groups)
 c     Also, tol must tend to zero for tight convergence.
 c
       call ga_maxelt(g_work, prodmax)
-      prodmax = min(prodmax*1d-2,1d-12)
+      prodmax = min(prodmax**2,prodmax*1d-2,1d-12)
       call ga_screen(g_work, prodmax)
       if (oscfps) call pstat_off(ps_solve)
 c

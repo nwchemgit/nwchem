@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.32 1998-08-01 02:13:53 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.33 1998-08-26 16:24:56 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -362,6 +362,7 @@ c     Thus now use the default integral accuracy unless set by the
 c     user.  Sigh.
 c     
       if (intacc .eq. 0.0d0) then
+         integ_acc = 1d-15 ! Not used
          continue
 *         integ_acc = min(1d-15,max(0.01d0*dentol,1d-30)) ! Variable
 *         call int_acc_set(integ_acc)
@@ -369,7 +370,8 @@ c
          integ_acc = intacc     ! User controlled
          call int_acc_set(integ_acc)
       end if
-      if (util_print('ao_rep_info', print_debug)) then
+      if (util_print('ao_rep_info', print_debug) .and.
+     $       ga_nodeid().eq.0) then
          write(6,111) tol2e, denmax, dentol, integ_acc, odensityscreen,
      $        oreadfile, owritefile
  111     format(1x,1p,' tol2e=',d8.1,' denmax=',d8.1,

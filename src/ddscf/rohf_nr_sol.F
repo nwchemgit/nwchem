@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.20 1998-07-13 22:52:42 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.21 1998-08-26 16:24:56 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -43,6 +43,7 @@ c
       logical ovariable
 c
       double precision tol2e_save ! Used with variable integral tolerance
+      double precision djunk
       double precision eprec_tol
       double precision tlastwrite,ttest  ! time last wrote the MO vectors
       double precision time_iter_start
@@ -55,12 +56,25 @@ c
       external rohf_hessv, rohf_hessv_precond
 c     
       if (ga_nodeid().eq.0) call util_flush(6)
+c
+c     Determine if using variable precision.  Turn it off if
+c     there is the slightest hint we might have problems
+c
+c     TURN OFF VARIABLE PRECISION FOCK BUILD FOR NOW
+c
+      ovariable = .false. 
+*      if (.not. rtdb_get(rtdb, 'scf:variable', mt_log, 1, ovariable))
+*     $     ovariable = (nmo .eq. nbf)  ! Need high acc. if linear dependence
+*      if (rtdb_get(rtdb,'tolguess',mt_dbl, 1, djunk) .or.
+*     $     rtdb_get(rtdb,'fock:dentolmax',mt_dbl,1,djunk))
+*     $     ovariable = .false.
+*      if (((nmo-nclosed).eq.0) .or. ((nmo-nopen).eq.0))
+*     $     ovariable = .false.
+c
 c     
 c     Allocate global arrays.  Gradient, search direction
 c     and work space for the PCG routine.
 c     
-      if (.not. rtdb_get(rtdb, 'scf:variable', mt_log, 1, ovariable))
-     $     ovariable = (nmo .eq. nbf)  ! Need high acc. if linear dependence
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: grad',
      $     1, 1, g_grad)) call errquit('rohf_nr_solve: ga_cre grad', 0)
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: serch',
@@ -106,16 +120,10 @@ c     Only use low accuracy at outset for startup jobs
 c
       tol2e_save = tol2e
 c
-c     If there are no variables then do full accuracy
-c
-      if (((nmo-nclosed).eq.0) .or. ((nmo-nopen).eq.0))
-     $     ovariable = .false.
-c
       if (ovariable) then
          if (.not. (nelec.eq.1 .or. owritefile .or. 
-     $        movecs_guess.eq.'restart')) then
-            tol2e = max(1d-5,tol2e) ! Initial low accuracy
-         endif
+     $        movecs_guess.eq.'restart')) 
+     $        tol2e = max(1d-7,tol2e) ! Initial low accuracy
       endif
       gnorm = 0.0d0             ! So is not undefined
       eprec_tol = max(1d-7,100.0d0*tol2e)     ! To avoid noise in line search
@@ -151,7 +159,7 @@ c
 c
             call ecce_print1('total energy', mt_dbl, energy, 1)
             call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
-            eprec = max(gnorm*0.01d0, eprec_tol) ! Aovid noise in LS
+            eprec = max(1d-7,gnorm*0.01d0, eprec_tol) ! Aovid noise in LS
 *            write(6,*) ' EPREC ', eprec
 *            call util_flush(6)
             goto 10

@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -93,7 +93,7 @@ c
 #include "util.fh"
 #include "global.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
 c
       integer g_vecs
       double precision energy
@@ -140,7 +140,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -175,7 +175,7 @@ c     Also must ensure that the threshold tends to zero to permit
 c     tight convergence.
 c
 *      call ga_screen(g_ax, acc*0.01d0)
-      call ga_screen(g_ax, min(acc*0.01d0,1d-12))
+      call ga_screen(g_ax, min(acc*acc,acc*0.01d0,1d-12))
 c
       end
 
@@ -184,7 +184,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
 c
       integer g_x
       double precision solveshift

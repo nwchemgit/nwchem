@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.48 1998-07-13 22:53:21 d3g681 Exp $
+C$Id: uhf.F,v 1.49 1998-08-26 16:24:57 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -206,7 +206,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.48 1998-07-13 22:53:21 d3g681 Exp $
+C     $Id: uhf.F,v 1.49 1998-08-26 16:24:57 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -503,7 +503,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.48 1998-07-13 22:53:21 d3g681 Exp $
+C$Id: uhf.F,v 1.49 1998-08-26 16:24:57 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -566,7 +566,7 @@ c     Must also allow value to tend to zero to allow for tight
 c     convergence.
 c
          call ga_maxelt(g_kmat, maxk)
-         call ga_screen(g_kmat, min(maxk*1d-2,1d-12))
+         call ga_screen(g_kmat, min(maxk*maxk,maxk*1d-2,1d-12))
 c
 c     Exponentiate the matrix and apply the rotation
 c
@@ -594,7 +594,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.48 1998-07-13 22:53:21 d3g681 Exp $
+c     $Id: uhf.F,v 1.49 1998-08-26 16:24:57 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1080,7 +1080,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.48 1998-07-13 22:53:21 d3g681 Exp $
+C$Id: uhf.F,v 1.49 1998-08-26 16:24:57 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
