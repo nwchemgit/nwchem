@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.13 1994-05-16 23:25:50 d3e129 Exp $
+c $Id: basis.F,v 1.14 1994-05-19 03:47:28 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -89,6 +89,7 @@ c
 c
       bas_version = .true.
       end
+c......................................................................
       logical function bas_create(basis,name)
 c
 c creates a handle and marks it active in the in-core data structure
@@ -98,12 +99,14 @@ c
 #include "geobasmapP.fh"
 #include "inp.fh"
 #include "basdeclsP.fh"
+#include "util.fh"
+c::functions
+c ifill from util
+c dfill from util
 c::passed
-c:integer  basis [output] returned handle
-c:char*(*) name  [input] name of basis set.  
 c
-      integer basis
-      character*(*)name
+      integer basis       ! [output] returned handle
+      character*(*)name   ! [input] name of basis set.  
 c
       do 00100 basis=1,nbasis_bsmx
         if (.not.bsactive(basis)) goto 01000
@@ -150,6 +153,7 @@ c
       bas_create = .true.
 c
       end
+c......................................................................
       logical function bas_destroy(basisin)
 c
 c destroys information about an active incore basis
@@ -164,8 +168,7 @@ c::bas
       external gbs_map_clear
       external bas_check_handle
 c::passed
-c:integer basisin [input]
-      integer basisin
+      integer basisin ![input] basis set handle to be destroyed
 c::local
       integer basis
 
@@ -185,7 +188,7 @@ c::local
 c
       return
       end
-c
+c......................................................................
       logical function bas_check_handle(basisin,msg)
 c
 c Checks to see if a basis set handle is valid
@@ -193,11 +196,8 @@ c
       implicit none
 #include "basP.fh"
 c:passed
-c:Integer       basisin  [input] handle
-c:Character*(*) msg      [input] error message
-c
-      integer basisin
-      character*(*) msg
+      integer basisin    ! [input] handle
+      character*(*) msg  ! [input] error message
 c::local
       integer basis
 c
@@ -213,7 +213,7 @@ c
       endif
       return
       end
-c
+c......................................................................
       logical function bas_321g_load(rtdb)
       implicit none
 c
@@ -235,9 +235,7 @@ c::function
       external bas_rtdb_do_store
       external bas_destroy
 c:: passed
-c:I rtdb [input] valid rtdb handle
-c.
-      integer rtdb
+      integer rtdb  ! [input] valid rtdb handle
 c:: local
       integer basis,usebas, itag, icont
 c
@@ -407,9 +405,7 @@ c
       bas_321g_load = .true.
       return
       end
-c
-c
-c
+c......................................................................
       logical function bas_print(basisin)
 c
 c routine to print unique basis information that is in core
@@ -424,7 +420,7 @@ c
       logical bas_check_handle
       external bas_check_handle
 c:: passed
-      integer basisin
+      integer basisin  ! [input] basis set handle
 c:: local
       integer mytags, myucont, myprim, mycoef, basis, len_tag, empty
       integer i,j,k,l, ifcont, mygen, mytype, iexptr, icfptr
@@ -527,7 +523,7 @@ c  ... not done yet
 c
       return
       end
-c
+c......................................................................
       logical function bas_rtdb_load(rtdb, geom, basisin, name)
       implicit none
 c
@@ -552,13 +548,15 @@ c:bas
 c
 c
 c:: arguments
-c:I   rtdb    ->  valid rtdb handle      
-c:I   geom    ->  valid geometry handle with info loaded
-c:I   basisin ->  valid basis handle
-c:C** name    ->  basis set name that must exist on the rtdb
+c:I   rtdb    ->  
+c:I   geom    ->  
+c:I   basisin ->  
+c:C** name    ->  
 c:: passed  
-      integer rtdb, geom, basisin
-      character*(*) name
+      integer rtdb        ! [input] rtdb handle      
+      integer geom        ! [input] geometry handle with info loaded
+      integer basisin     ! [input] basis handle
+      character*(*) name  ! [input] basis set name that must be on the rtdb
 c:: local
       integer lentmp, basis
       character*256 tmp
@@ -645,22 +643,6 @@ c
 c..... add diagnostics later
         return
       endif
-c
-c build center to unique center map
-c
-c:fucked      do 00100 i = 1,nat
-c:fucked        if (.not.inp_match(infbs_head(HEAD_NTAGS,basis),.true.,
-c:fucked     &         tags(i,geom),
-c:fucked     &         bs_tags(1,basis),ibs_ce2uce(i,basis))) then
-c:fucked          write(6,*)' geom tag was not found in basis tag list rtdb'
-c:fucked          write(6,*)' geom tag searched for ',tags(i,geom)
-c:fucked          write(6,*)' basis tag list was from basis ',bs_name(basis)
-c:fuckedc....  add further diagnostics later          
-c:fucked        endif
-c:fucked#if defined(BS_DEBUG)
-c:fucked        write(6,*)' ibs_ce2uce(',i,') = ',ibs_ce2uce(i,basis)
-c:fucked#endif
-c:fucked00100 continue
 c
 c build center to unique center map
 c
@@ -760,19 +742,23 @@ c
 00800 continue
       return
       end
+c......................................................................
       logical function bas_rtdb_store(rtdb, name, basisin)
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
+c::passed
       integer rtdb              ! [input] handle to database
       character*(*) name        ! [input] name to use when storing db
       integer basisin           ! [input] handle to basis set
+c::functions
       logical bas_check_handle, bas_rtdb_do_store
       external bas_check_handle, bas_rtdb_do_store
 c
 c     Store basis set (not geometry) related info about specified
 c     basis in into the rtdb with the given name
 c
+c::local
       integer basis               ! Actual index into basis set arrays
 c
       bas_rtdb_store = bas_check_handle(basisin,'bas_rtdb_store')
@@ -788,6 +774,7 @@ c
      $     infbs_head(HEAD_NPRIM,basis)+infbs_head(HEAD_NCOEF,basis))
 c
       end
+c......................................................................
       logical function bas_rtdb_do_store(rtdb, name, tagsin, head_array,
      &       tags_array, ucont_array, excfin, ntagsin, nucontin,
      &       nexcf)
@@ -810,6 +797,8 @@ c:C*16(1:ntagsin)   tagsin       -> name of each tag
 c::: functions
       logical bas_rtdb_in
       logical bas_rtdb_add
+      external bas_rtdb_in
+      external bas_rtdb_add
 c::: passed
       integer rtdb
       integer ntagsin, nucontin, nexcf
@@ -865,6 +854,7 @@ c..... add diagnostics later
       endif
       return
       end
+c......................................................................
       logical function bas_high_angular(basisin,high_angular)
       implicit none
 c
@@ -877,10 +867,8 @@ c::functions
       logical bas_check_handle
       external bas_check_handle
 c:: passed
-c  basis        [input]   ! basis set handle
-c  high_angular [output]  ! high angular momentum of basis
-c
-      integer basisin, high_angular
+      integer basisin       ! [input] basis set handle
+      integer high_angular  ! [output] high angular momentum of basis
 c:local
       integer basis, myucont, i, myang
 c
@@ -909,6 +897,7 @@ c
       bas_high_angular = .true.
       return
       end
+c......................................................................
       logical function gbs_map_clear(basisin)
       implicit none
 #include "basP.fh"
@@ -947,6 +936,7 @@ c
       gbs_map_clear = .true.
       return
       end
+c......................................................................
       logical function gbs_map_print(basisin)
       implicit none
 #include "basP.fh"
@@ -1048,7 +1038,7 @@ c
       gbs_map_print = .true.
       return
       end
-c
+c......................................................................
       logical function bas_rtdb_out(rtdb)
       implicit none
 #include "basP.fh"
@@ -1070,6 +1060,7 @@ c
      &     write(6,*) ' bas_rtdb_out: rtdb is corrupt '
 c     
       end
+c......................................................................
       logical function bas_rtdb_add(rtdb, name)
       implicit none
 #include "basP.fh"
@@ -1115,6 +1106,7 @@ c
       bas_rtdb_add = .true.
 c     
       end
+c......................................................................
       logical function bas_print_all()
       implicit none
 #include "basP.fh"
@@ -1134,6 +1126,7 @@ c
 c
       return
       end
+c......................................................................
       logical function bas_rtdb_in(rtdb)
       implicit none
 #include "basP.fh"
@@ -1164,6 +1157,7 @@ c
 c     
       return
       end
+c......................................................................
       logical function bas_cn2ce(basisin,cont,center)
       implicit none
 #include "basP.fh"
@@ -1191,6 +1185,7 @@ c
 c
       return
       end
+c......................................................................
       logical function bas_cn2bfr(basisin,cont,ifirst,ilast)
       implicit none
 #include "basP.fh"
@@ -1220,6 +1215,7 @@ c
 c
       return
       end
+c......................................................................
       logical function bas_ce2bfr(basis, icent, ibflo, ibfhi)
       implicit none
       integer basis             ! [input] handle
@@ -1239,6 +1235,7 @@ c
       bas_ce2bfr = status
 c
       end
+c......................................................................
       logical function bas_ce2cnr(basisin,center,ifirst,ilast)
       implicit none
 #include "basP.fh"
@@ -1278,7 +1275,7 @@ c
 c
       return
       end
-c
+c......................................................................
       logical function bas_numbf(basisin,nbf)
       implicit none
 #include "basP.fh"
@@ -1300,6 +1297,7 @@ c
       bas_numbf = .true.
       return
       end
+c......................................................................
       logical function bas_name(basisin,basis_name,trans_name)
       implicit none
 #include "basP.fh"      
@@ -1327,6 +1325,7 @@ c
       basis_name(1:lenofit) = bs_trans(basis)(1:lenofit)
 c
       end
+c......................................................................
       logical function bas_get_exponent(basisin,icont,exp)
       implicit none
 #include "basP.fh"
@@ -1367,7 +1366,7 @@ c
 c
       return
       end
-c
+c......................................................................
       logical function bas_continfo(basisin,icont,
      &       type,nprimo,ngeno,sphcart)
       implicit none
@@ -1416,7 +1415,7 @@ c... no spherical yet 3/94 only cart.
       bas_continfo=.true.
       return
       end
-c
+c......................................................................
       logical function bas_numcont(basisin,numcont)
       implicit none
 #include "basP.fh"
@@ -1441,7 +1440,7 @@ c
       bas_numcont = .true.
       return
       end
-c      
+c......................................................................
       logical function bas_get_coeff(basisin,icont,coeff)
       implicit none
 #include "basP.fh"
@@ -1484,6 +1483,7 @@ c
 c
       return
       end
+c......................................................................
       logical function bas_set_exponent(basisin,icont,exp,nexp)
       implicit none
 #include "basP.fh"
@@ -1535,7 +1535,7 @@ c
 c
       return
       end
-c
+c......................................................................
       logical function bas_set_coeff(basisin,icont,coeff,ncoeff)
       implicit none
 #include "basP.fh"

@@ -1,6 +1,6 @@
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
-c $Id: basisP.F,v 1.6 1994-05-05 17:44:42 d3e129 Exp $
+c $Id: basisP.F,v 1.7 1994-05-19 03:47:32 d3e129 Exp $
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -121,6 +121,7 @@ c
 c     Done
 c
       end
+c......................................................................
       logical function bas_add_utag(basisin, tag, itag)
       implicit none
 #include "basdeclsP.fh"
@@ -159,6 +160,7 @@ c
       bs_tags(itag,basis) = tag
 c
       end
+c......................................................................
       subroutine bas_err_info(info)
       implicit none
 #include "basP.fh"
@@ -202,7 +204,7 @@ c
       endif
 c     
       end
-c
+c......................................................................
       logical function bas_getu_coeff(basisin,icont,coeff)
       implicit none
 #include "basP.fh"
@@ -246,8 +248,7 @@ c
 c
       return
       end
-c
-c
+c......................................................................
       logical function bas_getu_exponent(basisin,icont,exp)
       implicit none
 #include "basP.fh"
@@ -290,7 +291,7 @@ c
 c
       return
       end
-c
+c......................................................................
       logical function bas_setu_coeff(basisin,icont,coeff,ncoeff)
       implicit none
 #include "basP.fh"
@@ -344,6 +345,7 @@ c
 c
       return
       end
+c......................................................................
       logical function bas_setu_exponent(basisin,icont,exp,nexp)
       implicit none
 #include "basP.fh"
@@ -395,7 +397,7 @@ c
 c
       return
       end
-c
+c......................................................................
       logical function bas_ucontinfo(basisin,icont,
      &       nprimo,ngeno,sphcart)
       implicit none
@@ -438,7 +440,7 @@ c... no spherical yet 3/94 only cart.
       bas_ucontinfo=.true.
       return
       end
-c
+c......................................................................
       logical function bas_unumcont(basisin,numcont)
       implicit none
 #include "basP.fh"
@@ -463,6 +465,7 @@ c
       bas_unumcont = .true.
       return
       end
+c......................................................................
       block data basis_data
 c
 c Block data structure to initialize the common block variables in the
@@ -477,6 +480,7 @@ c
       data bsversion /1.00d00/
 c     
       end
+c......................................................................
       integer function nbf_from_ucont(ucont,basisin)
 c
 c function that returns the number of basis functions in a contraction
