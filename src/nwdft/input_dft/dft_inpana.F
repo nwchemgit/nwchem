@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.49 2000-04-28 17:56:01 jolguin Exp $
+c     $Id: dft_inpana.F,v 1.50 2000-04-28 21:37:49 edo Exp $
 c
 c*********************************************************************
 c     
@@ -289,6 +289,8 @@ c     Check for no pruning; no_prune
 c
       if (.not. rtdb_get(rtdb, 'dft:no_prune', mt_log, 1,
      &         no_prune))no_prune = .false.
+      if (.not. rtdb_get(rtdb, 'dft:test_sic', mt_int, 1,
+     &     test_sic))test_sic = 0
 c
       if (me.eq.0) then
 c     
@@ -423,8 +425,6 @@ c
             call util_flush(LuOut)
          endif
          if (oprint_sic) then
-           if (.not. rtdb_get(rtdb, 'dft:test_sic', mt_int, 1,
-     &     test_sic))test_sic = 0
            if (test_sic.eq.1) then
              write(LuOut,'(/,14x,"SIC perturbative approximation")')
            else
