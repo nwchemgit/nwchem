@@ -286,7 +286,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.33 2004-03-15 19:50:22 edo Exp $
+C$Id: util_file_name.F,v 1.34 2004-03-15 21:48:04 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -537,12 +537,12 @@ c
             dir=envscr(istart:istart+lencrd)
          else
          if (.not. util_file_parse_dir(scratch_dir, dir, node)) then
-            dir = ' ' ! Final default is blank
+            dir = '. ' ! Final default is blank
          endif
       endif
       else
          if (.not. util_file_parse_dir(permanent_dir, dir, node)) then
-            dir = ' ' ! Final default is blank
+            dir = '. ' ! Final default is blank
          endif
       endif
 c
