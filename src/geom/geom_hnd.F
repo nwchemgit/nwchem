@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.32 2000-07-17 19:58:37 edo Exp $
+* $Id: geom_hnd.F,v 1.33 2000-07-18 17:08:13 edo Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -4272,7 +4272,7 @@ C
 #include "mafdecls.fh"
 #include "global.fh"
       logical status
-      DIMENSION A(1),VEC(NDIM,1),EIG(1),IA(1)
+      DIMENSION A(1),VVEC(NDIM,1),EIG(1),IA(1)
 c
 c     ----- memory -----
 c
