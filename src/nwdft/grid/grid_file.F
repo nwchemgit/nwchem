@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.44 2001-12-23 01:42:41 edo Exp $
+* $Id: grid_file.F,v 1.45 2001-12-27 19:20:07 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -31,7 +31,7 @@ c
       integer availkb, sdlen
       character*20 fstype
       character*(nw_max_path_len) scratchdir
-      integer util_scratch_dir_avail_for_me,me,ioserr,ierr
+      integer util_scratch_dir_avail_for_me,me,ioserr,ierr,ios
       character*80 errmsg
       external util_scratch_dir_avail_for_me
       logical grid_file_rewind
@@ -163,7 +163,8 @@ c
             write(LuOut,*) ' readin enuc from ',grinfo
             call util_flush(LuOut)
          end if
-         read(gr_unit,'(1E20.12)',err=199) enuc
+         read(gr_unit,'(1E20.12)',iostat=ios,err=199) enuc
+         if(ios.ne.0) goto 199
          if(abs(enuc-enuc_in).gt.1d-4) then
 cedo           write(6,*) ' enucs ',enuc,enuc_in
            return
@@ -172,15 +173,19 @@ cedo           write(6,*) ' enucs ',enuc,enuc_in
             write(LuOut,*) ' readin mxfilerec from ',grinfo
             call util_flush(LuOut)
          end if
-         read(gr_unit,99,err=199) max_file_rec
+         read(gr_unit,99,err=199,iostat=ios) max_file_rec
+         if(ios.ne.0) goto 199
  99      format(I72) 
          if (otrace) then
             write(LuOut,*) ' readin mxcacherec from ',grinfo
             call util_flush(LuOut)
          end if
-         read(gr_unit,99,err=199) max_cache_rec
-         read(gr_unit,99,err=199) n_rec_in_file
-         read(gr_unit,'(L1)',err=199) file_opened
+         read(gr_unit,99,err=199,iostat=ios) max_cache_rec
+         if(ios.ne.0) goto 199
+         read(gr_unit,99,err=199,iostat=ios) n_rec_in_file
+         if(ios.ne.0) goto 199
+         read(gr_unit,'(L1)',err=199,iostat=ios) file_opened
+         if(ios.ne.0) goto 199
          rewind(gr_unit)
          if (otrace) then
             write(LuOut,*) ' INFO readin  from ',grinfo

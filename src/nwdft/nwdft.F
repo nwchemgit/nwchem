@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.57 2001-12-21 23:08:17 edo Exp $
+C$Id: nwdft.F,v 1.58 2001-12-27 19:20:05 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -70,7 +70,7 @@ c
       logical dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
       external dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
       logical ocosmo,grid_ok,l1ecache
-      integer necp
+      integer necp,igok
       character*80 theory
 c     
       nwdft = .false.
@@ -142,6 +142,11 @@ c
             else
                grid_ok=grid_reopen(rtdb,geom)
             endif
+            igok=0
+            if(grid_ok) igok=1
+            call ga_igop(999,igok,1,'+')
+            grid_ok=igok.eq.ga_nnodes()
+            if(.not.grid_ok) call grid_cleanup(rtdb,.true.)
             if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in).
      &      and.grid_ok)     then
 c
