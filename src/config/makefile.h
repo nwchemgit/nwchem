@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.473 2004-08-31 16:45:21 edo Exp $
+# $Id: makefile.h,v 1.474 2004-09-01 20:56:58 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1298,7 +1298,8 @@ ifeq ($(LINUXCPU),x86)
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
-    _IFCV8= $(shell ifc -v  2>&1|egrep 8|awk ' /8.0/  {print "Y"}')
+    _IFCV80= $(shell ifc -v  2>&1|egrep 8|awk ' /8.0/  {print "Y"}')
+    _IFCV8= $(shell ifc -v  2>&1|egrep 8|awk ' /8./  {print "Y"}')
     ifeq ($(_IFCV8),Y)
       DEFINES+= -DIFCV8
       ifeq ($(FC),ifc)
@@ -1468,7 +1469,8 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       COPTIMIZE = -O1
 
       ifeq ($(FC),efc)
-       _IFCV8= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|awk ' /8.0/  {print "Y"}')
+       _IFCV81= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|awk ' /8.1/  {print "Y"}')
+       _IFCV8= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|awk ' /8./  {print "Y"}')
        ifeq ($(_IFCV8),Y)
          DEFINES+= -DIFCV8
          FOPTIONS += -quiet
@@ -1487,10 +1489,12 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
         DEFINES  +=   -DIFCLINUX
         FVECTORIZE =  -noalign -O3 -pad  -mP2OPT_hlo_level=2  -tpp1
         FOPTIMIZE =  -O3 -pad -mP2OPT_hlo_level=2  #-mP2OPT_align_array_to_cache_line=TRUE 
+       ifeq ($(_IFCV81),Y)
+         FOPTIMIZE+= -IPF_fp_relaxed
+       endif
         ifeq ($(_IFCV8),Y)
-         FOPTIMIZE += -ip
          EXTRA_LIBS += -quiet
-         FDEBUG = -g -O0
+         FDEBUG = -g -O2
         else
          EXTRA_LIBS += -Vaxlib 
          FDEBUG = -g -O2
