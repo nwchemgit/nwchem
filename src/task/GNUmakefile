@@ -4,10 +4,10 @@
   OBJ = task_energy.o task_gradient.o task_optimize.o task_freq.o \
         task_save_state.o task.o task_input.o task_num_grad.o
 
+USES_BLAS = task_num_grad.F
+
 include ../config/makefile.h
 include ../config/makelib.h
-
-USES_BLAS = task_num_grad.F
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(task_optimize.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
