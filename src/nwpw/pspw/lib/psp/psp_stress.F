@@ -1,9 +1,17 @@
+*
+* $Id: psp_stress.F,v 1.7 2002-08-21 22:02:50 bylaska Exp $
+*
+
+
 #define TCGMSG
 
+*     ***********************************
+*     *					*
+*     *	     psp_stress_init 		*
+*     *					*
+*     ***********************************
+
       subroutine psp_stress_init()      
-*
-* $Id: psp_stress.F,v 1.6 2002-04-29 16:04:11 bylaska Exp $
-*
       implicit none
 
 #include "mafdecls.fh"
@@ -45,6 +53,11 @@
 
 
 
+*     ***********************************
+*     *					*
+*     *	     psp_stress_end 		*
+*     *					*
+*     ***********************************
 
       subroutine psp_stress_end()      
       implicit none
@@ -440,10 +453,6 @@
 
 
 
-
-
-
-
 *     ***********************************
 *     *					*
 *     *	  	psp_stress_read	        *
@@ -455,6 +464,7 @@
      >                       nfft,unita,
      >                       npack0,dvl,
      >                       npack1,lmmax,dvnl,
+     >                       semicore,dncore,
      >                       tmp,tmp2,
      >                       ierr)
       implicit none 
@@ -466,6 +476,8 @@
       real*8 dvl(*)
       integer npack1,lmmax
       real*8 dvnl(npack1,3,lmmax)
+      logical semicore
+      real*8 dncore(*)
       complex*16 tmp(*)
       real*8     tmp2(*)
       integer ierr
@@ -538,6 +550,14 @@
       end do
       end do
 
+*     **** read in semicore density block ****
+      if (semicore) then
+         write(*,*) "reading in semicore block"   !debug
+         call D3dB_t_read(1,5,tmp2,tmp)
+         call Pack_t_pack(0,tmp2)
+         call Pack_t_Copy(0,tmp2,dncore)
+      end if
+
 *     *** close fname binary file ***
       if (taskid.eq.MASTER) then
 c       close(11)
@@ -569,6 +589,11 @@ c       close(11)
       integer lmmax_max,lmax_max
       parameter (lmax_max=4,lmmax_max=16)
       common / psp2_block / dvl,dvnl,npsp
+
+*     **** semicore common block ****
+      integer ncore(2),rcore(2)
+      integer semicore(2)
+      common / ccore / ncore,rcore,semicore
 
 
 *     **** local variables ****
@@ -621,6 +646,7 @@ c       close(11)
          l = index(element,' ') - 1
          fname = element(1:l)//'.vpp2'
          lmmax = psp_lmmax(ia)
+    
 
 *        **** not finished ****
          found = .false.
@@ -632,10 +658,11 @@ c       close(11)
      >                  npack0,
      >                  dbl_mb(dvl(1) + (ia-1)*npack0),
      >                  npack1,lmmax,
-     >                  dbl_mb(dvnl(1)+ (ia-1)*3*npack1*lmmax_max),
+     >                  dbl_mb(dvnl(1) + (ia-1)*3*npack1*lmmax_max),
+     >                  log_mb(semicore(1)+ia),
+     >                  dbl_mb(ncore(1) + npack0 + (ia-1)*5*npack0),
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
      >                  ierr)
-
 
            if (ierr.gt.0) go to 9000
            boundry = control_boundry()

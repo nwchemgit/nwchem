@@ -1,9 +1,16 @@
+*
+* $Id: semicore.F,v 1.2 2002-08-21 22:02:50 bylaska Exp $
+*
+
 #define TCGMSG
 
+*     **********************************
+*     *                                *
+*     *        semicore_init           *
+*     *                                *
+*     **********************************
+
       subroutine semicore_init()      
-*
-* $Id: semicore.F,v 1.1 2002-01-14 21:06:29 bylaska Exp $
-*
       implicit none
 
 #include "mafdecls.fh"
@@ -60,6 +67,11 @@ c     logocal semicore(0:nkatmx)
       return
       end
 
+*     **********************************
+*     *                                *
+*     *        semicore_end            *
+*     *                                *
+*     **********************************
 
       subroutine semicore_end()      
       implicit none
@@ -331,7 +343,7 @@ c     logical semicore(0:nkatmx)
 
 
 *     **********************************
-*     *                         	   *
+*     *                                *
 *     *    semicore_density            *
 *     *                                *
 *     **********************************

@@ -1,5 +1,8 @@
-#define TCGMSG
+*
+* $Id: semicore_force.F,v 1.2 2002-08-21 22:02:50 bylaska Exp $
+*
 
+#define TCGMSG
 
 *     ***************************
 *     *                         *

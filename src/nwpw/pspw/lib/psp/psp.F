@@ -1,8 +1,14 @@
 *
-* $Id: psp.F,v 1.5 2002-06-06 00:15:22 bylaska Exp $
+* $Id: psp.F,v 1.6 2002-08-21 22:02:50 bylaska Exp $
 *
 
 #define TCGMSG
+
+*     ***********************************
+*     *					*
+*     *	 	  psp_init  		*
+*     *					*
+*     ***********************************
 
       subroutine psp_init()      
       implicit none
@@ -87,6 +93,11 @@ c     integer    lmmax(nkatmx)
 
 
 
+*     ***********************************
+*     *					*
+*     *	 	  psp_end  		*
+*     *					*
+*     ***********************************
 
       subroutine psp_end()      
       implicit none
@@ -1560,9 +1571,9 @@ c       close(11)
       end
 
 *     ***********************************
-*     *									*
-*     *	 	  psp_readall  				*
-*     *									*
+*     *					*
+*     *	 	  psp_readall  		*
+*     *					*
 *     ***********************************
 
       subroutine psp_readall()
