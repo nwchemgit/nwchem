@@ -1,7 +1,7 @@
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.13 2003-06-27 06:19:38 edo Exp $
+C$Id: xc_replicated.F,v 1.14 2003-07-08 20:47:07 edo Exp $
 c
       implicit none
 c      
@@ -21,7 +21,10 @@ c
 c
       integer xcrep_glob,ii
       logical xcreplicated_l,oprint
-      integer plist,dims(2),nblock(2),l_map,k_map,procsmp
+      integer plist,dims(2),nblock(2)
+#ifdef GAIRREG
+      integer l_map,k_map,procsmp
+#endif
 c
       oprint = util_print('xcreplicated', print_high)
 c
@@ -75,13 +78,18 @@ c
 #endif
          do ii=1,ipol
 #ifdef GAIRREG
-            if(.not.dograd)
-     .           if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
+            if(dorepxc) then
+            if(.not.dograd) then
+                if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
      .           'replicated xc GA',
      .           int_mb(k_map),nblock,plist,k_repxc(ii))) goto 1984
+            endif
+            endif
+            if(dorepdm) then
             if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
      .           'replicated DM GA',
      .           int_mb(k_map),nblock,plist,g_repdm(ii))) goto 1984
+            endif
 #else 
             nblock(1)=0
             nblock(2)=0
@@ -132,7 +140,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.13 2003-06-27 06:19:38 edo Exp $
+C$Id: xc_replicated.F,v 1.14 2003-07-08 20:47:07 edo Exp $
 c
       implicit none
 c      
