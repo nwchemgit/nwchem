@@ -3,7 +3,7 @@
      2  d_trials,apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      4  target,targetsym,mult,algorithm,l_irs,k_irs)
 c
-c $Id: tddft_analysis.F,v 1.14 2003-01-18 22:10:35 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.15 2003-01-19 06:51:25 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -315,7 +315,7 @@ c ... frozen cores are irrelevant
         s2=na-(na-nb)/2.0d0+((na-nb)/2.0d0)**2
         do j=1,nocc(1)
           do k=1,nocc(2)
-            r=dbl_mb(k_corr+(j-1)*nmo(2)+k-1)
+            r=dbl_mb(k_corr+(k-1)*nmo(1)+j-1)
             s2=s2-r**2
           enddo
         enddo
@@ -412,8 +412,8 @@ c alpha excitation bra
                         xa2=dbl_mb(k_x(1)+la2-1)
                         ya2=0.0d0
                         if (.not.tda) ya2=dbl_mb(k_y(1)+la2-1)
-                        rc1=dbl_mb(k_corr+(ka2-1)*nmo(2)+jb1)
-                        rc2=dbl_mb(k_corr+(ka1-1)*nmo(2)+jb1)
+                        rc1=dbl_mb(k_corr+(jb1-1)*nmo(1)+ka2-1)
+                        rc2=dbl_mb(k_corr+(jb1-1)*nmo(1)+ka1-1)
                         s2=s2-(xa2-ya2)*(xa1+ya1)*rc1*rc2
                       endif
                     enddo
@@ -427,8 +427,8 @@ c beta excitation bra
                         xb2=dbl_mb(k_x(2)+lb2-1)
                         yb2=0.0d0
                         if (.not.tda) yb2=dbl_mb(k_y(2)+lb2-1)
-                        rc1=dbl_mb(k_corr+(ja1-1)*nmo(2)+jb2)
-                        rc2=dbl_mb(k_corr+(ka1-1)*nmo(2)+kb2)
+                        rc1=dbl_mb(k_corr+(jb2-1)*nmo(1)+ja1-1)
+                        rc2=dbl_mb(k_corr+(kb2-1)*nmo(1)+ka1-1)
                         s2=s2-(xb2-yb2)*(xa1+ya1)*rc1*rc2
                       endif
                     enddo
@@ -439,7 +439,7 @@ c i alpha and j beta exchange
                   if (ja3.ne.ja1) then
                     do jb1=nfc(2)+1,nocc(2)
 c same alpha excitation bra
-                      rc1=dbl_mb(k_corr+(ja3-1)*nmo(2)+jb1)
+                      rc1=dbl_mb(k_corr+(jb1-1)*nmo(1)+ja3-1)
                       s2=s2-(xa1-ya1)*(xa1+ya1)*rc1*rc1
                     enddo
                   endif
@@ -469,8 +469,8 @@ c beta excitation bra
                         xb2=dbl_mb(k_x(2)+lb2-1)
                         yb2=0.0d0
                         if (.not.tda) yb2=dbl_mb(k_y(2)+lb2-1)
-                        rc1=dbl_mb(k_corr+(ja1-1)*nmo(2)+kb1)
-                        rc2=dbl_mb(k_corr+(ja1-1)*nmo(2)+kb2)
+                        rc1=dbl_mb(k_corr+(kb1-1)*nmo(1)+ja1-1)
+                        rc2=dbl_mb(k_corr+(kb2-1)*nmo(1)+ja1-1)
                         s2=s2-(xb2-yb2)*(xb1+yb1)*rc1*rc2
                       endif
                     enddo
@@ -484,8 +484,8 @@ c alpha excitation bra
                         xa2=dbl_mb(k_x(1)+la2-1)
                         ya2=0.0d0
                         if (.not.tda) ya2=dbl_mb(k_y(1)+la2-1)
-                        rc1=dbl_mb(k_corr+(ja2-1)*nmo(2)+jb1)
-                        rc2=dbl_mb(k_corr+(ka2-1)*nmo(2)+kb1)
+                        rc1=dbl_mb(k_corr+(jb1-1)*nmo(1)+ja2-1)
+                        rc2=dbl_mb(k_corr+(kb1-1)*nmo(1)+ka2-1)
                         s2=s2-(xa2-ya2)*(xb1+yb1)*rc1*rc2
                       endif
                     enddo
@@ -496,7 +496,7 @@ c i alpha and j beta exchange
                   if (jb3.ne.jb1) then
                     do ja1=nfc(1)+1,nocc(1)
 c same beta excitation bra
-                      rc1=dbl_mb(k_corr+(ja1-1)*nmo(2)+jb3)
+                      rc1=dbl_mb(k_corr+(jb3-1)*nmo(1)+ja1-1)
                       s2=s2-(xb1-yb1)*(xb1+yb1)*rc1*rc1
                     enddo
                   endif
