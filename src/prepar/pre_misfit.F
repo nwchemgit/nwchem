@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.30 2001-10-16 14:42:28 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.31 2001-10-18 18:43:07 d3j191 Exp $
 c
       implicit none
 c
@@ -37,11 +37,11 @@ c
 c     process z-matrices for missing atoms
 c     ------------------------------------
 c
+   32 continue
       dr=0.0d0
       ioff=0
       isg=0
       lmat=.false.
-   32 continue
       fndone=.false.
       do 30 i=1,nsa
       if(isgm(i).ne.isg) then
