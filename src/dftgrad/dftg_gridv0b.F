@@ -14,7 +14,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.5 2000-04-18 00:35:28 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.6 2000-05-01 21:32:09 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -215,7 +215,7 @@ c                  write(*,*)'calling xc_rhogen_nucder'
      &                 dbl_mb(iheschi_ao), ibf_ao, iniz, ifin,
      &                 drhonuc, ddelrhonuc,
      &                 rscr, rchi_atom,
-     &                 rdelchi_atom, rdens_atom, cetobfr)
+     &                 rdelchi_atom, rdens_atom, cetobfr,1d0)
 #endif
                endif
 c
