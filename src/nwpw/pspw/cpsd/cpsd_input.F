@@ -1,6 +1,6 @@
       subroutine cpsd_input(rtdb)
 c
-c $Id: cpsd_input.F,v 1.2 2001-10-26 21:05:08 bylaska Exp $
+c $Id: cpsd_input.F,v 1.3 2001-11-26 21:51:24 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -48,7 +48,7 @@ c
 
 
 *     ***** initializations ****
-      cell_name             = ' '
+      cell_name             = 'cell_default'
 
       call util_file_prefix('movecs',input_wavefunction_filename)
       call util_file_prefix('movecs',output_wavefunction_filename)

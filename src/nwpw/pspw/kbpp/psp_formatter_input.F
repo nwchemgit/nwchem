@@ -1,6 +1,6 @@
       subroutine psp_formatter_input(rtdb)
 c
-c $Id: psp_formatter_input.F,v 1.1 2001-08-30 00:38:59 edo Exp $
+c $Id: psp_formatter_input.F,v 1.2 2001-11-26 21:51:24 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -41,7 +41,7 @@ c
 c
 c
       reset_kbpp_number = .false.
-      cell_name          = ' '
+      cell_name          = 'cell_default'
       psp_filename       = ' '
       formatted_filename = ' '
       formatted_stress_filename = ' '

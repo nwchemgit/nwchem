@@ -1,6 +1,6 @@
       subroutine band_input(rtdb)
 c
-c $Id: band_input.F,v 1.2 2001-11-17 01:01:16 bylaska Exp $
+c $Id: band_input.F,v 1.3 2001-11-26 21:51:23 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 14)
+      parameter (num_dirs = 15)
  
       character*30 dirs(num_dirs)
       character*255 test
@@ -31,9 +31,10 @@ c
      >            'exchange_correlation:',
      >            'mulliken',
      >            'allow_translation',
+     >            'zone_name',
      >            'end'/
 
-       character*30 cell_name
+       character*30 cell_name,zone_name
        character*30 input_wavefunction_filename
        character*30 output_wavefunction_filename
        character*30 exchange_correlation
@@ -64,7 +65,8 @@ c
 
 
 *     ***** other initializations ****
-      cell_name             = ' '
+      cell_name             = 'cell_default'
+      zone_name             = 'zone_default'
       exchange_correlation         = 'vosko'
       mulliken                     = .false.
       allow_translation            = .false.
@@ -92,7 +94,7 @@ c
 
 
       goto ( 100, 200, 300, 400, 500, 600, 700, 800,
-     >       900,1000,1100,1200,1300,
+     >       900,1000,1100,1200,1300,1400,
      >      9999) ind
       call errquit(
      >      'band_input: unimplemented directive', ind)
@@ -203,6 +205,13 @@ c
  1300 allow_translation = .true.
       goto 10
 
+c     
+c  zone_name
+c     
+ 1400 if (.not. inp_a(zone_name))
+     >     call errquit(
+     >          'band_input: failed to read zone_name', 0)
+      goto 10
 
 *     ***** add wavefunction to rtdb ****
  9999 continue
@@ -212,6 +221,9 @@ c
 
       ind = index(cell_name,' ') - 1
       value = rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
+
+      ind = index(zone_name,' ') - 1
+      value = rtdb_cput(rtdb,'band:zone_name',1,zone_name(1:ind))
 
 
       value = rtdb_put(rtdb,'band:mulliken',mt_log,1,

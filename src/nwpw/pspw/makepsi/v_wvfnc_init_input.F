@@ -1,6 +1,6 @@
       subroutine v_wvfnc_init_input(rtdb)
 c
-c $Id: v_wvfnc_init_input.F,v 1.1 2001-08-30 00:39:46 edo Exp $
+c $Id: v_wvfnc_init_input.F,v 1.2 2001-11-26 21:51:24 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -33,7 +33,7 @@ c
 
 
 *     ***** initializations ****
-      cell_name             = ' '
+      cell_name             = 'cell_default'
       call util_file_prefix('vmovecs',v_wavefunction_filename)
 c     v_wavefunction_filename = ' '
 

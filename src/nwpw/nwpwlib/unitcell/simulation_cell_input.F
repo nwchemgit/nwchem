@@ -1,6 +1,6 @@
       subroutine simulation_cell_input(rtdb)
 c
-c $Id: simulation_cell_input.F,v 1.1 2001-08-30 17:17:57 bylaska Exp $
+c $Id: simulation_cell_input.F,v 1.2 2001-11-26 21:51:24 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -59,7 +59,7 @@ c     **** intialize stuff ****
       unita(2,3) =  0.0d0
       unita(3,3) = 20.0d0
       boundry = 'periodic'
-      name    = ' '
+      name    = 'cell_default'
 c
 c
 c
