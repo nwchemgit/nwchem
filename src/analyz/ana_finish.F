@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.19 2001-08-23 20:27:57 d3j191 Exp $
+c $Id: ana_finish.F,v 1.20 2001-11-21 03:29:33 d3j191 Exp $
 c
       implicit none
 c
@@ -113,9 +113,11 @@ c
       if(sgmnam(i)(11:16).ne.sgmnam(i+1)(11:16)) goto 2
       goto 1
     2 continue
+      if(ndata*n.gt.0) then
       write(lfnrms,1002) sgmnam(i)(1:5),sgmnam(i)(11:16),
      + sqrt(arms/dble(ndata*n)),bfact*arms/dble(ndata*n)
  1002 format(a5,a6,2f12.6)
+      endif
       arms=0.0d0
       n=0
     1 continue
