@@ -1,0 +1,8 @@
+*
+*     $Id: pspw_lmbfgs_common.fh,v 1.1 2001-12-21 01:49:30 bylaska Exp $
+*
+
+      real*8 rho(20)
+      integer npack1,neall,nsize,max_m,m
+      common / lmbfgs_common / rho,npack1,neall,nsize,max_m,m
+

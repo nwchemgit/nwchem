@@ -1,0 +1,12 @@
+c
+c     $Id: pspw_Grsm_list_common.fh,v 1.1 2001-12-21 01:49:30 bylaska Exp $
+c
+      integer max_list
+      parameter (max_list=20)
+      integer indx(max_list),nsize,size_list
+      character*20 tag_list(max_list)
+      character*20 tag_list2(max_list)
+      common / pspw_Grsm_block / indx,
+     >                           tag_list,tag_list2,
+     >                           nsize,size_list
+

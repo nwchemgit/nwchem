@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.8 2001-12-20 00:30:51 bylaska Exp $
+* $Id: band_minimizer.F,v 1.9 2001-12-21 01:49:29 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -408,7 +408,7 @@
          write(6,*) '  local pseudopotentials     : ', nwpw_timing(5),
      >                          nwpw_timing(5)/dble(electron_count())
          write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6),
-     >                          nwpw_timing(7)/dble(electron_count())
+     >                          nwpw_timing(6)/dble(electron_count())
          write(6,*) '  hartree potentials         : ', nwpw_timing(7),
      >                          nwpw_timing(7)/dble(electron_count())
          write(6,*) '  structure factors          : ', nwpw_timing(8),

@@ -75,6 +75,31 @@ c         call D3dB_c_Copy(1,A(1,i),C(1,i))
       return
       end
 
+*     ****************************
+*     *                	    	 *
+*     *    	Grsm_gg_daxpy  	     *
+*     *                	     	 *
+*     ****************************
+*
+*     C = C + alpha*A
+*     uses - Pack_cc_Sum
+
+      subroutine Grsm_gg_daxpy(nfft3d,n,alpha,A,C)
+      implicit none
+      integer    nfft3d,n
+      real*8     alpha
+      complex*16 A(nfft3d,n)
+      complex*16 C(nfft3d,n)
+
+*     **** local variables ****
+      integer i
+
+      do i=1,n
+          call Pack_cc_daxpy(1,alpha,A(1,i),C(1,i))
+      end do
+ 
+      return
+      end
 
        
        
