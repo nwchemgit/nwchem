@@ -1,5 +1,5 @@
       subroutine ga_orthog(g_vecs, g_over, ometric)
-C$Id: ga_orthog.F,v 1.10 1995-02-02 18:09:33 d3g681 Exp $
+C$Id: ga_orthog.F,v 1.11 1995-07-25 00:18:10 gg502 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -121,7 +121,7 @@ c
      $           call dgemv('n', nu, (uhi-ulo+1), 1.0d0, o, nu,
      $           vecs(ulo,i), 1, 0.0d0, w, 1)
 
-            call dgop(msg_orthog_1, w, nu, '+') ! Actually only need ulo:hi local
+            call ga_dgop(msg_orthog_1, w, nu, '+') ! Actually only need ulo:hi local
          else
             do u = ulo, uhi
                w(u) = vecs(u,i)
