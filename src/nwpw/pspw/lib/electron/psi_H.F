@@ -3,7 +3,7 @@
      >                 move,fion)
 
 *
-* $Id: psi_H.F,v 1.2 2001-09-29 00:28:07 bylaska Exp $
+* $Id: psi_H.F,v 1.3 2002-01-11 17:55:34 bylaska Exp $
 *
       implicit none
       integer    ispin,ne(2)
@@ -39,25 +39,6 @@ c     complex*16 vpsi(nfft3d)
       external pspw_SIC,pspw_SIC_relaxed
       external lattice_omega
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-*    10 - energy_time
-*    11 - density_time
-*    12 - allocate/deallocate time
-      real*8 times(50),tim1,tim2
-      common / timing / times
-
-
-
-
 
       call Pack_npack(1,npack1)
       
@@ -66,13 +47,12 @@ c     complex*16 vpsi(nfft3d)
       call D3dB_nz(1,nz)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
-      call current_second(tim1)
+      call nwpw_timing_start(12)
       value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value) call errquit('out of stack memory',0)
-      call current_second(tim2)
-      times(12) = times(12) + (tim2-tim1)
+      call nwpw_timing_end(12)
       
 
       scal2 = 1.0d0/lattice_omega()
@@ -156,11 +136,9 @@ c            call mask_C(1,Hpsi_k(1+(n-1)*nfft3d))
          end do
       end do
 
-
-      call current_second(tim1)
+      call nwpw_timing_start(12)
       value = MA_pop_stack(vpsi(2))
       value = MA_pop_stack(vall(2))
-      call current_second(tim2)
-      times(12) = times(12) + (tim2-tim1)
+      call nwpw_timing_end(12)
       return
       end

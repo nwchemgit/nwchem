@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.1 2001-10-01 16:57:02 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.2 2002-01-11 17:55:33 bylaska Exp $
 *
       subroutine coulomb_screened_init(rcut)
       implicit none 
@@ -20,26 +20,14 @@
       logical value
       integer tmp1(2)
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times 
 
 *     **** external functions ****
 *     real*8 G(nfft3d,3)
       integer  G_indx
       external G_indx
 
-      call current_second(tim1)
+      call nwpw_timing_start(7)
+
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
       G(1) = G_indx(1)
@@ -91,8 +79,7 @@
       call Pack_t_Copy(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx))
       value = MA_pop_stack(tmp1(2))
 
-      call current_second(tim2)
-      times(7) = times(7) + (tim2-tim1)
+      call nwpw_timing_end(7)
 
 
       return
@@ -124,24 +111,11 @@
       integer vc_indx,vc_hndl
       common / vc_screened_block / vc_indx,vc_hndl
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times 
-
-      call current_second(tim1)     
+      call nwpw_timing_start(7)
+      
       call Pack_tc_Mul(0,dbl_mb(vc_indx),dng,vc_out)
-      call current_second(tim2)
-      times(7) = times(7) + (tim2-tim1)
+     
+      call nwpw_timing_end(7)
 
       return 
       end
@@ -158,20 +132,6 @@
       integer vc_indx,vc_hndl
       common / vc_screened_block / vc_indx,vc_hndl
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
 
 *     **** local variables ****
       integer npack0
@@ -185,7 +145,9 @@ c     real*8  tmp1(*)
       real*8 lattice_omega
       external lattice_omega
 
-      call current_second(tim1)
+      
+      call nwpw_timing_start(7)
+
       call Pack_npack(0,npack0)
       value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0)
@@ -196,8 +158,8 @@ c     real*8  tmp1(*)
       ec = 0.5d0*ec*lattice_omega()
 
       value = MA_pop_stack(tmp1(2))
-      call current_second(tim2)
-      times(7) = times(7) + (tim2-tim1)
+      
+      call nwpw_timing_end(7)
 
       coulomb_screened_e = ec
       return 

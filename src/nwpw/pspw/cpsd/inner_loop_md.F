@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.4 2001-11-27 00:05:03 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.5 2002-01-11 17:55:32 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -109,32 +109,13 @@ c     real*8     fion(3,natmx)
       external pspw_qmmm_Energy_cav
 
 
-
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-*    10 - energy_time
-*    11 - density_time
-*    12 - allocate/deallocate_time
-      real*8 times(50),tim1,tim2
-      common / timing / times
-
-
-
       call Parallel_np(np)
       call Pack_npack(0,npack0)
 
       n2ft3d = 2*nfft3d
 
 *     **** allocate MA local variables ****
-      call current_second(tim1)
+      call nwpw_timing_start(12)
       value = MA_push_get(mt_dbl,(8*nemax*nemax),
      >                     'tmp_L',tmp_L(2),tmp_L(1))
       value = value.and.
@@ -175,9 +156,7 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       if (.not.value) call errquit('out of stack memory',0)
-
-      call current_second(tim2)
-      times(12) = times(12) + (tim2-tim1)
+      call nwpw_timing_end(12)
      
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -225,7 +204,7 @@ c     real*8     fion(3,natmx)
         call phafac()
 
 
-        call current_second(tim1)
+        call nwpw_timing_start(11)
 *       *******************
 *       **** get psi_r ****
 *       *******************
@@ -275,9 +254,7 @@ c     real*8     fion(3,natmx)
      >                     dcpl_mb(tmp1(1)),
      >                     dbl_mb(dnall(1) +(ms-1)*n2ft3d))
         end do
-        call current_second(tim2)
-        times(11) = times(11) + (tim2-tim1)
-
+        call nwpw_timing_end(11)
 
 
 
@@ -478,7 +455,7 @@ c     real*8     fion(3,natmx)
 *     *************************************
 *     ***** total energy calculation ******
 *     *************************************
-      call current_second(tim1)
+      call nwpw_timing_start(10)
 
 *     *** get orbital energies ****
       n = ne(1)
@@ -605,12 +582,11 @@ c     real*8     fion(3,natmx)
         E(1) = E(2)+E(3)+E(4)
       end if
 
-      call current_second(tim2)
-      times(10) = times(10) + (tim2-tim1)
+      call nwpw_timing_end(10)
 
 *     **** dealocate MA local variables ****
  333  continue
-      call current_second(tim1)
+      call nwpw_timing_start(12)
 
       value = MA_pop_stack(ftest(2))
       value = MA_pop_stack(fion(2))
@@ -627,8 +603,7 @@ c     real*8     fion(3,natmx)
       value = MA_pop_stack(tmp1(2))
       value = MA_pop_stack(tmp_L(2))
 
-      call current_second(tim2)
-      times(12) = times(12) + (tim2-tim1)
+      call nwpw_timing_end(12)
 
       return
       end

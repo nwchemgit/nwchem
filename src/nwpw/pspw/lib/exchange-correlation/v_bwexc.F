@@ -18,20 +18,6 @@
 
 #include "mafdecls.fh"
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
 
 c     **** local variables ****      
       logical value
@@ -49,7 +35,7 @@ c     **** local variables ****
       integer  G_indx
       external G_indx
 
-      call current_second(tim1)      
+      call nwpw_timing_start(4)
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
@@ -534,8 +520,8 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
 
 
       end if
-      call current_second(tim2)
-      times(4) = times(4) + (tim2-tim1)
+      
+      call nwpw_timing_end(4)
         
       return
       end

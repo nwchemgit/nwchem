@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop.F,v 1.7 2001-11-27 00:05:03 bylaska Exp $
+* $Id: inner_loop.F,v 1.8 2002-01-11 17:55:32 bylaska Exp $
 *
 
 *  ************************************************************
@@ -107,33 +107,12 @@ c     real*8     fion(3,natmx)
       external pspw_qmmm_Energy_cav
 
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-*    10 - energy_time
-*    11 - density_time
-*    12 - allocate/deallocate time
-*    13 - Hpsi and update
-      real*8 times(50),tim1,tim2
-      common / timing / times
-
-
-
-
-
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
 
 
-      call current_second(tim1)
+      call nwpw_timing_start(12)
 *     **** allocate MA local variables ****
       value = MA_push_get(mt_dbl,(8*nemax*nemax),
      >                     'tmp_L',tmp_L(2),tmp_L(1))
@@ -176,8 +155,7 @@ c     real*8     fion(3,natmx)
      >        MA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
       if (.not. value) call errquit('out of stack memory',0)
 
-      call current_second(tim2)
-      times(12) = times(12) + (tim2-tim1)
+      call nwpw_timing_end(12)
      
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -215,7 +193,7 @@ c     real*8     fion(3,natmx)
         call phafac()
 
 
-        call current_second(tim1)
+        call nwpw_timing_start(11)
 *       *******************
 *       **** get psi_r ****
 *       *******************
@@ -271,8 +249,8 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >                     dcpl_mb(tmp1(1)),
      >                     dbl_mb(dnall(1) +(ms-1)*n2ft3d))
         end do
-        call current_second(tim2)
-        times(11) = times(11) + (tim2-tim1)
+        
+        call nwpw_timing_end(11)
 
 
 *       *****************************************
@@ -329,7 +307,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >                                      dbl_mb(vlr_l(1)))
         end if
 
-        call current_second(tim1)
+        call nwpw_timing_start(13)
 *       ******************
 *       **** get Hpsi ****
 *       ******************
@@ -356,8 +334,7 @@ c          call mask_C(1,psi2(1,n))
           call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
           call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
         end do
-        call current_second(tim2)
-        times(13) = times(13) + (tim2-tim1)
+        call nwpw_timing_end(13)
 
 *       *******************************************
 *       **** get ewald and semicore forces     ****
@@ -403,7 +380,7 @@ c          call mask_C(1,psi2(1,n))
 *     *************************************
 *     ***** total energy calculation ******
 *     *************************************
-      call current_second(tim1)
+      call nwpw_timing_start(10)
       call Parallel_np(np)
 
 *     *** get orbital energies ****
@@ -609,11 +586,10 @@ c     end do
         end do
       end if
        
-      call current_second(tim2)
-      times(10) = times(10) + (tim2-tim1)
+      call nwpw_timing_end(10)
 
 *     **** dealocate MA local variables ****
-      call current_second(tim1)
+      call nwpw_timing_start(12)
       value = MA_pop_stack(sumi(2))
       value = MA_pop_stack(ftest(2))
       value = MA_pop_stack(fion(2))
@@ -630,8 +606,7 @@ c     end do
       value = MA_pop_stack(tmp1(2))
       value = MA_pop_stack(tmp_L(2))
 
-      call current_second(tim2)
-      times(12) = times(12) + (tim2-tim1)
+      call nwpw_timing_end(12)
 
 
       return

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.10 2001-11-30 00:56:03 bylaska Exp $
+* $Id: cpsdv5.F,v 1.11 2002-01-11 17:55:32 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -26,25 +26,6 @@
       logical value
 
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-*    10 - energy_time
-*    11 - density_time
-*    12 - allocate/deallocate_time
-*    13 - hpsi and update
-      real*8 times(50)
-      common / timing / times
-
-
-      
 *     **** parallel variables ****
       integer  taskid,np
       integer  MASTER
@@ -147,6 +128,8 @@
       external     psp_rcore,psp_ncore,psp_rlocal
       logical      psi_filefind
       external     psi_filefind
+      real*8       nwpw_timing
+      external     nwpw_timing
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -155,7 +138,7 @@
       value = .true.
       pi = 4.0d0*datan(1.0d0)
 
-      call dcopy(50,0.0d0,0,times,1)
+      call nwpw_timing_init()
       call dcopy(10,0.0d0,0,E,1)
 
 
@@ -717,19 +700,19 @@
          write(6,*)
          write(6,*) '-------------------------------'
          write(6,*) 'Time spent doing:'
-         write(6,*) '  FFTs                       : ', times(1)
-         write(6,*) '  dot products               : ', times(2)
-         write(6,*) '  orthonormalization         : ', times(3)
-         write(6,*) '  exchange correlation       : ', times(4)
-         write(6,*) '  local pseudopotentials     : ', times(5)
-         write(6,*) '  non-local pseudopotentials : ', times(6)
-         write(6,*) '  hartree potentials         : ', times(7)
-         write(6,*) '  structure factors          : ', times(8)
-         write(6,*) '  masking and packing        : ', times(9)
-         write(6,*) '  total energy evaluation    : ',times(10)
-         write(6,*) '  density                    : ',times(11)
-         write(6,*) '  allocate and deallocate    : ',times(12)
-         write(6,*) '  Hpsi and update            : ',times(13)
+         write(6,*) '  FFTs                       : ', nwpw_timing(1)
+         write(6,*) '  dot products               : ', nwpw_timing(2)
+         write(6,*) '  orthonormalization         : ', nwpw_timing(3)
+         write(6,*) '  exchange correlation       : ', nwpw_timing(4)
+         write(6,*) '  local pseudopotentials     : ', nwpw_timing(5)
+         write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6)
+         write(6,*) '  hartree potentials         : ', nwpw_timing(7)
+         write(6,*) '  structure factors          : ', nwpw_timing(8)
+         write(6,*) '  masking and packing        : ', nwpw_timing(9)
+         write(6,*) '  total energy evaluation    : ',nwpw_timing(10)
+         write(6,*) '  density                    : ',nwpw_timing(11)
+         write(6,*) '  allocate and deallocate    : ',nwpw_timing(12)
+         write(6,*) '  Hpsi and update            : ',nwpw_timing(13)
          write(6,*)
          CALL MESSAGE(4)
       end if 

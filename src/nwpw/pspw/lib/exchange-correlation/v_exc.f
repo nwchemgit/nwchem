@@ -1,8 +1,8 @@
+*
+* $Id: v_exc.f,v 1.2 2002-01-11 17:55:34 bylaska Exp $
+*
 
       subroutine vxc(n2ft3d,ispin,dn,xcp,xce,x)
-*
-* $Id: v_exc.f,v 1.1 2001-08-30 00:37:57 edo Exp $
-*
       implicit double precision(a-h, o-z)
       implicit integer (i-n)
 
@@ -44,22 +44,8 @@
       parameter (fc  =  1.923661d+00,  fd  =  2.564881d+00)
       parameter (crs =  7.876233d-01)
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
-
-      call current_second(tim1)
+      call nwpw_timing_start(4)
       pi=4.0d0*datan(1.0d0)
 
 *     square root of wigner radius
@@ -117,8 +103,8 @@
   150 continue
 
   200 continue
-      call current_second(tim2)
-      times(4) = times(4) + (tim2-tim1)
+      
+      call nwpw_timing_end(4)
 
       return
       end
