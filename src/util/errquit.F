@@ -1,6 +1,6 @@
       subroutine errquit(string, icode, errcode)
       implicit none
-C$Id: errquit.F,v 1.18 2003-11-21 16:01:09 d3g681 Exp $
+C$Id: errquit.F,v 1.19 2003-12-03 22:21:13 d3g681 Exp $
 #include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
@@ -42,8 +42,8 @@ c
       write(LuOut,1) 
       if (errcode .eq. UNKNOWN_ERR) then
          write(LuOut,*) 'This error has not yet been assigned to a ',
-     &        'catagory'
-         man_sec = 'No section for this catagory'
+     &        'category'
+         man_sec = 'No section for this category'
       endif
 c     
       if (errcode .eq. MEM_ERR) then
