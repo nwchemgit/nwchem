@@ -4,7 +4,7 @@
      $     ksh, lk, ck, ek, ngk, xk,
      $     lsh, ll, cl, el, ngl, xl,
      $     jtype)
-c $Id: sinfo.F,v 1.3 1994-04-28 21:41:02 d3e129 Exp $
+c $Id: sinfo.F,v 1.4 1995-08-22 20:54:14 d3g681 Exp $
       implicit none
 c     
 c     Takes info about centers and shells, precomputes some axis
@@ -56,7 +56,13 @@ c
       data ijshlo, ijato, klshlo, klato /4*0/
       data sixty/60.0d0/
       data dzero/0.0d0/,pt5/0.5d0/,pt7/0.7d0/,pt9/0.9d0/,done/1.0d0/
-      data pt0001/1.0d-04/,tenm12/1.0d-12/
+*
+*rjh pt0001 was 1d-4 but this resulted in discontinuities in the
+*rjh energy of order 1d-6 for displacements of order less than 1d-3 bohr
+*rjh for certain orientations of molecules.  The smaller value pushes
+*rjh the discontinuity to displacements of order 1d-5.
+*
+      data pt0001/1.0d-06/,tenm12/1.0d-12/
 c     
 c     Determine if atom/shell information has changed ... if so save info
 c     
