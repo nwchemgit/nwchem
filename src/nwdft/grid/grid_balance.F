@@ -1,7 +1,7 @@
-      subroutine grid_file_balance
+      logical function grid_file_balance()
 *
-* $Id: grid_balance.F,v 1.2 1999-06-14 22:39:20 d3h449 Exp $
-*
+* $Id: grid_balance.F,v 1.3 2000-03-21 23:11:58 edo Exp $
+*  
       implicit none
 #include "cgridfile.fh"
 #include "eaf.fh"
@@ -14,9 +14,9 @@ c
 c     Eliminate intermediate syncrhonizations, attempt to overlap
 c     big transfers, fuzzy termination.
 c     
-#if !(defined(SP) || defined(SP1) || defined(SOLARIS))
-      return
-#else 
+cedo#if !(defined(SP) || defined(SP1) || defined(SOLARIS))
+cedo      return
+cedo#else 
       integer nrec, me, nproc, him, msglen, from, record
       integer tmp, i, j, p, q, test, nexch, nmoved, npass
       integer his_count, my_count, total, shift
@@ -46,6 +46,7 @@ c
 c
       nexch = 0                 ! Just for printing statistics
       nmoved= 0
+      grid_file_balance=.false.
 c     
 c     Fill in info
 c     
@@ -113,6 +114,7 @@ c     If discrepancy is small enough then quit
 c
       if (info(2,0).le.test .and. info(2,nproc-1).ge.-test) goto 100
       if (npass .gt. ((nproc-1)/2+1)) goto 100
+      grid_file_balance=.true.
 c
 c     Pair processor with largest surplus with one with largest deficit
 c
@@ -144,7 +146,7 @@ c
          cur_rec = n_rec_in_file - his_count + 1
          do record = 1, his_count
             if (.not. grid_packed_buf_read())
-     $         call errquit('grid_file_balance: read failed',0)
+     $         call errquit('grid_file_balance: read failed',1)
             call snd(2, buf, 8*rec_len_in_dbl, him, 1)
          enddo
          n_rec_in_file = n_rec_in_file - his_count
@@ -179,7 +181,7 @@ c
             call util_flush(6)
          endif
          if (eaf_truncate(fd, newfilelen) .ne. 0) call errquit
-     $        ('grid_file_balance: file truncate failed', 0)
+     $        ('grid_file_balance: file truncate failed', 3)
          cur_rec = n_rec_in_file
       endif
 c
@@ -193,7 +195,9 @@ c
 c
       if (.not. grid_file_rewind()) call errquit
      $     ('grid_file_balance: failed rewind integral file', 0)
+      if (odebug) 
+     $     write(6,*) me, ' final n_re_in_file ', n_rec_in_file
       call ga_sync()
 c
-#endif
+cedo#endif
       end

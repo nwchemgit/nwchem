@@ -1,6 +1,6 @@
       logical function grid_insidesp(nx,ny,nz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.6 2000-03-20 21:11:50 edo Exp $
+c$Id: grid_sphere.F,v 1.7 2000-03-21 23:11:59 edo Exp $
 c
       implicit none
       integer nx,ny,nz            ! [in]
@@ -144,7 +144,7 @@ c
       double precision rad
 c
       double precision l_cube
-      parameter(l_cube=4d0)
+      parameter(l_cube=5.5d0)
       integer n
 c
       n=(rad+rad)/l_cube

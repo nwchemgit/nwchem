@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.21 2000-03-20 23:46:18 edo Exp $
+c$Id: grid_tasks.F,v 1.22 2000-03-21 23:12:00 edo Exp $
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
+#include "stdio.fh"
 c
       integer rtdb, qsh, nqlen, npts_per_ang, nq_tot
       integer lrij, irij, lrq, irq, lp, ip, lexpo, iexpo
@@ -203,7 +203,8 @@ c
       n1 = nxtask(-nproc,icount)
       call dft_tstamp(' done atom loop')
 
-      write(0,*) ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
+      write(LuOut,*) ' me ',me,
+     ,     ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
       call grid_buckend()
 !      if(.true.) call errquit(' out ',1948)
 c
@@ -211,10 +212,7 @@ c     Write last buffer of grid pts and close file
 c
       nq = 1
       n_tot_tasks = 0 ! sets nctr to 0; writes last buf and returns #tasks
-      call dft_tstamp(' before last write')
       call grid_file_write(nq, n_tot_tasks, rad, aqbuf,0)
-      call dft_tstamp(' done last write')
-      write(6,*)' n_tot_tasks = ', n_tot_tasks
 c
 c     clean up
 c

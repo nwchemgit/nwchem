@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.23 2000-03-20 22:24:05 edo Exp $
+c$Id: grid_setrad.F,v 1.24 2000-03-21 23:11:59 edo Exp $
 c
       implicit none
 c      
@@ -72,6 +72,8 @@ c
          write(0,*) ' radgrid eq ',radgrid
          call errquit('grid_setrad: unknown radial grid type', 0)
       endif
+      write(0,*) ' radgrid ',radgrid
+      write(0,*) ' wradgrid ',wradgrid,llind
 c
 c     check radial cutoffs
 c

@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.15 2000-03-20 21:11:49 edo Exp $
+* $Id: grid_file.F,v 1.16 2000-03-21 23:11:58 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -748,5 +748,29 @@ c
       implicit none
 #include "cgridfile.fh"
       grid_num_rec=n_rec_in_file
+      return
+      end
+      logical function grid_getnsubb(buf_in)
+      implicit none
+#include "cgridfile.fh"
+c
+      double precision buf_in(4,*)
+      logical grid_file_rewind,grid_file_read
+      external grid_file_rewind,grid_file_read
+      integer nqpts_per_buf,nqpts,ictr_buf,iqsh
+      double precision rad
+c
+      grid_getnsubb=.false.
+      ntot_sub=0
+      if (.not. grid_file_rewind())
+     $   call errquit('grid_getnsub: rewinding gridpts?', 0)
+      do  iqsh = 1, n_rec_in_file
+         if(.not.grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
+     &        rad,buf_in,nsubb))
+     .        call errquit('gridgnsub:fileread failed',1)
+         ntot_sub=ntot_sub+nsubb
+      enddo
+      grid_getnsubb=.true.
+
       return
       end

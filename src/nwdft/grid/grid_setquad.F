@@ -1,6 +1,6 @@
       Subroutine grid_setquad(rtdb)
 c
-c$Id: grid_setquad.F,v 1.7 2000-03-20 21:11:49 edo Exp $
+c$Id: grid_setquad.F,v 1.8 2000-03-21 23:11:59 edo Exp $
 c
       implicit none
       logical oprint, grid_on_file,ogrdebug
@@ -65,7 +65,7 @@ c
          grid_on_file = .false.
       endif
 cedo rchi stuff moved in grid_quadv
-      call grid_rchi0
+      if(grid_on_file) call grid_rchi0
 c
 c     Memory management (as before)
 c

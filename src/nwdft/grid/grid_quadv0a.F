@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.11 2000-03-20 22:24:05 edo Exp $
+c$Id: grid_quadv0a.F,v 1.12 2000-03-21 23:11:59 edo Exp $
 c
       implicit none
 c
@@ -50,12 +50,12 @@ c
      &        lrdelchi_atom, irdelchi_atom
       integer nat_tot,nat_scr
       integer nqpts_per_buf, nqpts, ictr_buf
-      integer lrqbuf, irqbuf,ldmat,idmat,i,iii,
+      integer lrqbuf, irqbuf,ldmat,idmat,i,
      .     grid_nbfm,ncube,istep,ntot_cube
       logical grid_file_rewind
       external grid_file_rewind,grid_nbfm
       Logical GRAD, oprint
-      logical xc_chkgrad,trunc_neigh,firsttime
+      logical xc_chkgrad
       external xc_chkgrad
 c
       oprint = util_print('quadrature', print_high)
@@ -67,7 +67,6 @@ c
       nat_tot=0
       nat_scr=0
       grad=.true.
-      firsttime=.true.
       grad=xc_chkgrad(xfac,cfac)
       me=ga_nodeid()
 c
@@ -108,7 +107,8 @@ c
       endif
 C
       ntot_cube=0
-      do 200 iqsh = 1, n_tot_tasks
+!      do 200 iqsh = 1, n_tot_tasks
+      do 200 iqsh = 1, n_rec_in_file
 c
 c     Define the current range of radial shells and integration center.
 c     
@@ -116,7 +116,6 @@ c
      &        rad,dbl_mb(irqbuf),nsubb)
          if(nqpts.gt.buffer_size) call
      '        errquit(' buffersize exceed by qpts ',nqpts)
-c         write(0,*) ' nq ',nqpts
         if(nqpts.eq.0) goto 200
         istep=0
         do 110 ncube=1,nsubb

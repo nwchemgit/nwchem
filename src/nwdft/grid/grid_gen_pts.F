@@ -1,19 +1,15 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.12 2000-03-17 22:44:43 edo Exp $
+c$Id: grid_gen_pts.F,v 1.13 2000-03-21 23:11:58 edo Exp $
 c
       implicit none
 c      
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
-#include "util.fh"
-#include "stdio.fh"
 #include "cdft.fh"
 #include "geom.fh"
-#include "sym.fh"
+#include "cgridfile.fh"
 c
       integer rtdb
       logical  grid_on_file
@@ -21,6 +17,8 @@ c
       integer mxnrad, nqlen, lqs, iqs
       integer laqbuf, iaqbuf
       integer ang_quad_buf_size, nq_tot
+      logical grid_file_balance,grid_getnsubb
+      external  grid_file_balance,grid_getnsubb
 c
 c     Need coordinates of all atoms.     
 c
@@ -65,26 +63,36 @@ cedoc     hardwire!!
 cedoc
 cedo      ang_quad_buf_size = 5810
 c
-      if (.not.MA_Push_get(MT_dbl, 4*ang_quad_buf_size,
-     &                     'ang quad pts buffer', laqbuf, iaqbuf))
-     &   call errquit('grid_gen: cannot allocate quad pt buffer', 0)
 c
       if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
      &   grid_on_file))then
          grid_on_file = .false.
       endif
       if (grid_on_file)then
+         if (.not.MA_Push_get(MT_dbl, 4*ang_quad_buf_size,
+     &        'ang quad pts buffer', laqbuf, iaqbuf))
+     &        call errquit('grid_gen: cant allocate quad pt', 0)
          call grid_tasks(rtdb, Dbl_MB(icoord), int_mb(iqs), nqlen,
      &                   dbl_mb(iaqbuf), ang_quad_buf_size,
      ,        nq_tot)
+         if (.not. MA_Pop_Stack(laqbuf))
+     &        call errquit('grid_gen_pts: pop stack failed.',0)
 c
 c        try to balance the number of tasks on each node
 c
-cedo         call grid_file_balance()
+         if(grid_file_balance())then
+            if (.not.MA_Push_get(MT_dbl, 4*buffer_size,
+     &           'ang quad pts buffer', laqbuf, iaqbuf))
+     &           call errquit('grid_gen: cant allocate quad pt', 0)
+c     need to recompute nsubb
+            if(.not.grid_getnsubb(dbl_mb(iaqbuf)))
+     &           call errquit('grid_gen_pts: gnsub failed.',1)
+         if (.not. MA_Pop_Stack(laqbuf))
+     &        call errquit('grid_gen_pts: pop stack failed.',0)
+         endif
+         call ga_sync()
 c
       endif
-      if (.not. MA_Pop_Stack(laqbuf))
-     &   call errquit('grid_gen_pts: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lqs))
      &   call errquit('grid_gen_pts: pop stack failed.',0)
       if (.not. MA_Pop_Stack(ltags))

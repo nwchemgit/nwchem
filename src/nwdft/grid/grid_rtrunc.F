@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.28 2000-03-20 22:24:05 edo Exp $
+c$Id: grid_rtrunc.F,v 1.29 2000-03-21 23:11:59 edo Exp $
 c
       implicit none
 c      
@@ -101,6 +101,7 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
       call ga_dgop(msg_igop_tru1,exex,ntypes,'absmax') 
       call ga_igop(msg_igop_tru2,ll,ntypes,'absmax') 
       call ga_dgop(msg_igop_tru3,range_max,1,'absmax') 
+      call ga_dgop(msg_igop_tru4,shiftm,ntypes,'absmax') 
       if(check_s) then 
       call ga_igop(msg_igop_tru5,ldiff,ncenters,'absmax') 
       call ga_dgop(msg_igop_tru6,minexp,ncenters,'absmax') 

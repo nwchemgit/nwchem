@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.12 2000-03-20 22:24:04 edo Exp $
+* $Id: cgridfile.fh,v 1.13 2000-03-21 23:11:58 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -46,13 +46,16 @@ c
 c
 #ifdef CRAY_T3D
 c     save on memory since have only physical memory
-      parameter (buffer_size = 8192/16)
-#else
-cedo      512 should be OK for blas business
-      parameter (buffer_size = 8192/16)
-!      parameter (buffer_size = 32768)
-c      parameter (buffer_size = 100)
+      parameter (buffer_size = 2048)
 #endif
+cedo      512 should be OK for blas business
+#if defined(LAPI) || defined(DECOSF) || defined (IBM) || defined (SOLARIS)
+      parameter (buffer_size = 3072)
+#endif
+#if defined(LINUX) || defined (WIN32) 
+      parameter (buffer_size = 2048)
+#endif
+c      parameter (buffer_size = 100)
       integer mxsub
       parameter(mxsub=30)
 c
