@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.127 2004-05-11 23:39:02 edo Exp $
+C$Id: geom.F,v 1.128 2004-06-29 19:59:41 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2615,6 +2615,24 @@ c
 c
       do i=1,ncent
          uniquecent(i)=unique_cent(i,geom)
+      enddo
+      end
+      logical function geom_uniquecent_set(geom,ncent,uniquecent)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c     
+      integer geom,ncent             ! [input]
+      integer uniquecent(ncent)      ! [output] indicies of unique centers
+      integer i
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_uniquecent_set=geom_check_handle(geom,'geom_uniquecent_set')
+      if (.not. geom_uniquecent_set) return
+c
+      do i=1,ncent
+         unique_cent(i,geom)=uniquecent(i)
       enddo
       end
       logical function geom_get_user_scale(geom, scale)

@@ -5,7 +5,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.33 2004-06-28 19:37:20 edo Exp $
+* $Id: task_num_grad.F,v 1.34 2004-06-29 19:59:31 edo Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -423,12 +423,10 @@ c
       external func
 c
       integer i, natoms3
+      integer  i_array,l_array,uniquecent 
       logical status
-      double precision scale
-      integer sym_number_ops,nops
-      external sym_number_ops
-      logical task_restore_state
-      external task_restore_state
+      logical task_restore_state,geom_uniquecent_set
+      external task_restore_state,geom_uniquecent_set
 c
       fd_step_energy = .false.
       natoms3 = natoms*3
@@ -438,10 +436,32 @@ c
       enddo
       call sym_grad_symmetrize(geom, ncoords) ! Paranoid enforcement
 c
-c      this screws up the list of unique atoms
+c     hack to keep old unique atoms list to avoid getting the C1 list
+c     from geom_cart_set
 c
-!      if (.not. geom_cart_set(geom, natoms, tags, ncoords, q))
-!     $     call errquit('num_grad: bad geom',0, GEOM_ERR)
+        if (.not. geom_ncent_unique(geom,uniquecent))
+     &     call errquit('bas_rtdb_do_load: geom_ncent_unique',211,
+     &       RTDB_ERR)
+      if (.not.MA_push_Get(mt_int,uniquecent, 'iarray',
+     &     l_array, i_array))
+     &     call errquit('tng: cannot allocate ',0, MA_ERR)
+        if (.not. geom_uniquecent_get(geom,uniquecent,
+     ,     int_mb(i_array)))
+     &     call errquit('tng: geom_uniquecent_get',211,
+     &       RTDB_ERR)
+
+      if (.not. geom_cart_set(geom, natoms, tags, ncoords, q))
+     $     call errquit('num_grad: bad geom',0, GEOM_ERR)
+c
+c     restoring old unique atoms list
+c
+        if (.not. geom_uniquecent_set(geom,uniquecent,
+     ,     int_mb(i_array)))
+     &     call errquit('bas_rtdb_do_load: geom_uniquecent_get',211,
+     &       RTDB_ERR)
+      if (.not. ma_pop_stack(l_array)) call errquit(
+     $'tng: ma corrupt',0,  MA_ERR)
+
       if (.not. geom_rtdb_store(rtdb, geom, 'num. grad. geometry')) 
      $     call errquit('num_grad: store of geom failed',0, RTDB_ERR)
       if (.not. rtdb_cput(rtdb, 'geometry', 1, 'num. grad. geometry'))
