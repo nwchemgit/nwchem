@@ -1,0 +1,409 @@
+Documentation for the pseudopotential generation codes "atm" and "kbconv".
+
+This file is currently in ~asmith/troulier/Troullier.doc on euclid.
+
+See also ~asmith/source.G/CP.doc for the CP code that uses the pseudopotentials
+generated here.
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Contents:
+I. Explanation of the purpose of the programs.
+II. Files used
+III. Details on the input and output files.
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+I. Explanation of the purpose of the programs.
+
+In order to do ab initio calculations with manageably small basis sets,
+particularly when a plane-wave basis is used, it is enormously helpful
+to have already solved the quantum problem for the "core" electrons in
+the atoms of the system. That is what a pseudopotential is designed to do.
+The underlying assumption is that the "core" electrons do not change
+their eigenstates between the different environments in which you might
+be using the pseudopotential - this is part of what is termed the
+"transferrability" issue (whether the same pseudopotential is appropriate
+for many different environments).
+
+The "troul51" (or "atm") code here does a calculation of the electronic
+structure of the atom, assuming spherical symmetry of the electron charge
+density. The calculation is currently done in the local density approximation:
+for optimum transferrability the same exchange-correlation approximation
+should be used in the pseudopotential code and in the ab initio code
+which uses that pseudopotential, but currently other xc methods are
+not implemented in this pseudopotential code. Then the code generates
+what are called "semilocal" potentials - basically it starts by
+making a good (norm-conserving, smooth) approximation (the
+pseudo-wavefunctions) to the valence wavefunctions, and then inverts
+the Schrodinger equation to derive a potential appropriate for
+each angular-momentum value.
+
+The "troul46" (or "kbconv") code takes the output from the "atm" code and
+applies the "Kleinman-Bylander" decomposition to it, converting the
+semi-local potentials into one local potential and "separable"
+non-local terms on a radial grid. These are then tested for
+the existence of "ghost states", and printed out in several formats
+including one suitable for input to our ab initio code.
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+II. The files used by the Troullier pseudopotential codes
+
+Input file for "atm":
+		1. atom.dat
+
+Output files from "atm":
+		1. atom.out
+		2. pseudo.dat (empty file)
+		3. pseudo.dat01
+		4. plot.dat (empty file)
+		5. plot.dat01
+
+Input files for "kbconv":
+		1. kb.dat
+		2. kbly.d
+		3. pseudo.dat (usually pseudo.dat01 output from "atm")
+
+Output files for "kbconv":
+		1. kb.out
+		2. kbly.o
+		3. kbplot.dat
+		4. chplot.d
+		5. potfourkb.dat
+		6. pseudokb.dat
+		7. vchden
+		8. wavefunctions
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+III. Details on the input and output files.
+
+==========INPUT FILES FOR TROUL51====================
+
+1. The "atom.dat" file
+	- specifies the chemical species, the orbitals to be treated
+	as valence and core, the type of pseudopotential to generate,
+	and the occupations of the atomic orbitals
+
+Note that the vertical column in which input parameters are given is
+crucial in this and the other input files - always start with a
+working input file and modify it, and don't introduce extra space
+characters etc. See troul3.data for samples for all the elements.
+
+Line 1:
+   pg      Hydrogen
+	- "pg" means generate a pseudopotential (other option: ae = all elec)
+	- "Hydrogen is the name of the element... (actually an ignored comment)
+---------
+Line 2:
+        tm2
+	- The type of pseudopotential (Troullier-Martins type 2)
+---------
+Line 3:
+ n=H  c=ca
+	- Here we specify the element by 1 or 2-character standard name.
+	- ca => Ceperley-Alder exchange-correlation
+		(for heavier elements, this might be car or cas for
+		relativistic or spin-dependent LDA)
+---------
+Line 4:
+       0.0       0.0       0.0       0.0       0.0       0.0
+        - Parameters that control the logarithmic radial grid, and some
+	other stuff. Values of zero mean to use the defaults. See the
+	code for details...
+---------
+Line 5:
+    0    4
+	- First integer is number of core l-values, second is number of
+	  valence l-values to use in the pseudopotential generation.
+	  The second number might as well always be 4 here.
+	  For H and He, the core number is 0. For first row elements
+	  the core row is 1 (for 1s). For second row, 3 (1s, 2s, 2p). Etc.
+---------
+Lines 6-9 (if 4 valence orbitals used):
+    1    0     1.00      0.00
+    2    1     0.00      0.00
+    3    2     0.00      0.00
+    4    3     0.00      0.00
+        First number = "n" value, second number = "l" value for this
+	valence wavefunction (ie. here we have 1s, 2p, 3d, 4f listed)
+	third and fourth numbers are the occupations of "up" and "down"
+	orbitals respectively. Just occupy the "up" orbitals unless you
+	are doing a spin-dependent or relativistic calculation.
+---------
+Line 10:
+   1.25     1.25     1.25     1.25
+	- The "core radius" values to use, for the s, p, d and f valence
+	wavefunctions. These are the distances in Bohr radii beyond which
+	the pseudowavefunction is required to be an exact match to the
+	true (all-electron) wavefunction. The principle requirement
+	is that they MUST be greater than the highest node in the
+	true wavefunction, and they should also be less than or similar
+	to the last peak in the true wavefunction. Also, the larger
+	these values are, the smaller the plane-wave cutoff required.
+	Larger values are better computationally, but generally
+	less transferrable.
+---------
+Line 11:
+
+	- a blank line is required at the end or the code will crash!
+
+==========OUTPUT FILES FOR TROUL51====================
+1. atom.out
+	Contains the output from the all-electron calculation
+	and the pseudopotential generation.
+--- First lines provide confirmation of your input parameters:
+*********************
+
+ H  pseudopotential generation
+ -----------------------------
+
+ correlation = ca   nonspin-polarized
+
+ nuclear charge             =  1.000000
+ number of core orbitals    =  0
+ number of valence orbitals =  4
+ electronic charge          =  1.000000
+ ionic charge               =   .000000
+
+
+ input data for orbitals
+
+  i    n    l    s     j     occ
+
+  1    1    0    .0    .0    1.0000
+  2    2    1    .0    .0     .0000
+  3    3    2    .0    .0     .0000
+  4    4    3    .0    .0     .0000
+*********************
+--- Next section details the iterative solution
+--- Then you get the eigenvalues and energy of the system:
+ nl    s      occ         eigenvalue    kinetic energy      pot energy
+
+ 1s    .0    1.0000       -.46732413        .84966197      -1.84158723
+ 2p    .0     .0000        .00000000        .00147234       -.03199270
+ 3d    .0     .0000        .00000000        .00320315       -.03001591
+ 4f    .0     .0000        .00000000        .00563149       -.02912638
+
+
+ total energies
+ --------------
+
+ sum of eigenvalues        =        -.46732413
+ kinetic energy from ek    =         .84966197
+ el-ion interaction energy =       -1.84158723
+ el-el  interaction energy =         .56556261
+ vxc    correction         =        -.60652381
+ virial correction         =         .04212465
+ exchange + corr energy    =        -.46542402
+ kinetic energy from ev    =         .84966168
+ potential energy          =       -1.74144863
+ ---------------------------------------------
+ total energy              =        -.89178695
+************
+
+and then the pseudopotential generation: check that the
+eigenvalue you get is the same as the all-electron eigenvalue:
+************
+ l    vps(0)    vpsmin      at r
+
+ s    -6.247    -6.247      .000
+ p    -4.366    -4.366      .000
+ d    -3.832    -3.832      .000
+ f    -3.580    -3.580      .000
+
+
+ H  output data for orbitals
+ ----------------------------
+
+ nl    s      occ         eigenvalue    kinetic energy      pot energy
+
+ 1s    .0    1.0000       -.46732382        .82349768      -1.81487869
+ 2p    .0     .0000        .00000000        .00147234       -.03199270
+ 3d    .0     .0000        .00000000        .00320315       -.03001591
+ 4f    .0     .0000        .00000000        .00563149       -.02912638
+ total energies
+ --------------
+
+ sum of eigenvalues        =        -.46732382
+ kinetic energy from ek    =         .82349768
+ el-ion interaction energy =       -1.81487869
+ el-el  interaction energy =         .56444610
+ vxc    correction         =        -.60483320
+ virial correction         =         .04206811
+ exchange + corr energy    =        -.46414193
+ kinetic energy from ev    =         .82349587
+ potential energy          =       -1.71457452
+ ---------------------------------------------
+ total energy              =        -.89107865
+************
+
+=========
+
+2. pseudo.dat (empty file) - ignore this. In fact, you will need
+     to over-write it with the pseudo.dat01 file.
+
+=========
+
+3. pseudo.dat01
+      -- contains the semi-local pseudopotentials in binary format.
+	Don't try editing it unless you know what you're doing!
+
+=========
+
+4. plot.dat (empty file) - ignore this file.
+
+=========
+
+5. plot.dat01
+      -- contains 2-column format "plots" for:
+	True wavefunctions for s, p, d, f (wst, wpt, wdt, wft)
+	Pseudowavefunctions for s, p, d, f (wsp, wpp, wdp, wfp)
+	The semi-local pseudopotentials: vns, vnp, vnd, vnf
+      And some mysterious other data (the fn's)
+The simple c-program plotplot.c will select out of the plot.dat01 file
+one or more of these (and when piped to axis and a UNIX plot filter will
+produce graphics for you right away).
+ 
+     It's a good idea to look at these wavefunctions and potentials
+whenever you run this code. In particular, the maximum change
+in the semi-local potentials and the range over which the valence
+wavefunctions vary rapidly gives you a good picture of the
+size of plane-wave cutoff you may need for this element.
+
+
+==========INPUT FILES FOR TROUL46====================
+1. kb.dat
+	- Control parameters for the K-B code (again, columns matter, so
+		be careful not to add space characters!)
+Line 1:
+local 1    0   0.00000  0.50
+	- first number is which l to treat as the local pseudopotential.
+	Usually, the best choice for this is the highest l you think
+	needs to be treated at all (then all the lower l's require
+	the nonlocal K-B decomposition, but this highest l is treated
+	as local in the code). Here we are choosing to use p as the
+	local potential, which means that s is the only nonlocal l value.
+	Note that both the "p" and "s" semi-local potentials go into
+	this pseudopotential, so it is not at all ignoring the scattering
+	properties needed for p-type wavefunctions. In fact it will treat
+	the p ones best! Effectively, the assumption is that all higher
+	l's have potentials that look essentially the same as the p potential.
+
+Remaining numbers are related to a method for correcting for
+ghost states. Warning: this correction modifies the local potential,
+so you should increase the lmax you print by 1, and use a llocal that
+is also higher by 1 (in the current case, lmax = 2, and llocal = 2).
+---------
+
+Line 2:
+numberqpt-2801q-spaceing0.020
+	- This determines the grid used in Fourier space. Don't change it.
+---------
+
+Line 3-end:
+  l=0
+	- The potentials to treat. (I'm not sure this is even read in now).
+
+=========
+2. kbly.d
+ 0.05  1.0    1   51    0
+
+  First number (0.05) - radial grid spacing for output.
+  Second number (1.0) - ionic charge (determines long-range potential)
+			= Z of element - total core charge.
+  Third number (1) - maximum l value to print
+  Fourth number (51) - number of radial grid points to print
+  Fifth number (0) - if this is 1, print out partial core charges (not
+			implemented for our output data format) for use
+			with the nonlinear xc core correction...
+
+=========
+
+3. pseudo.dat
+	- The semilocal pseudopotential file. Just move the pseudo.dat01 output
+	file from "atm" to this file name.
+
+
+==========OUTPUT FILES FOR TROUL46====================
+1. kb.out
+
+	Main output from the "kbconv" code.
+
+Things to look at:
+  Ghost State Existence Data
+ l     0,node-eigen   1,node-eigen    True-eigen   inorm
+
+ 0      -.367931013      .000000000     -.467323925    -1
+ iorb =  3 iter =  1 ev =   .0000000000E+00 nodes = 0
+ iorb =  3 iter =  1 ev =   .0000000000E+00 nodes = 0
+ 2       .000000000      .000000000      .000000000    -1
+ iorb =  4 iter =  1 ev =   .0000000000E+00 nodes = 0
+ iorb =  4 iter =  1 ev =   .0000000000E+00 nodes = 0
+ 3       .000000000      .000000000      .000000000    -1
+
+--- This one is ok. If there WAS a ghost state present, a warning
+message would have been printed... Then this pseudopotential is
+no good and you'll have to try again with different input parameters...
+First try modifying the cutoff radii you are using. Then try
+using a different "llocal". Then try increasing the maximum l by one,
+and set llocal to the new highest l value. If none of these work, try
+modifying the local potential with those extra input parameters
+in kb.dat.
+
+=========
+2. kbly.o
+	- Pseudopotential file in the format required for Lin Yang's
+	Conjugate-gradient code. We don't use it.
+=========
+3. kbplot.dat - ???
+=========
+4. chplot.d - ???
+=========
+5. potfourkb.dat - ???
+=========
+6. pseudokb.dat - ???
+=========
+
+7. vchden
+	- The atomic valence charge density to be used as an initial
+	atomic charge density in our code, and also for comparisons
+	of final charge density with the atomic charge densities to
+	investigate charge transfer effects etc.
+Line 1:
+      1
+Number of elements described here (when you concatenate several, you
+need to increase this number appropriately, and delete the corresponding
+line from the concatenated files)
+---------
+Line 2:
+    101
+Number of grid points on which the charge density is printed here.
+---------
+Next lines:
+      .05000     .1572E+00
+    Radial distance, and charge density, in atomic units.
+
+---------
+  These get concatenated (for all the elements, in the same sequence they
+appear in the ci.con and parameters files) into the "chden" input file for
+the CP code.
+
+=========
+
+8. wavefunctions
+	- The details of the nonlocal pseudopotential for this element -
+Line 1:
+     51 -.2188080E+01
+First number = Number of points in the radial grid for nonlocal parts
+second-lmax-1'th number = K-B coefficient for the nonlocal potentials
+---------
+Line 2:
+     51
+Number of points in the radial grid for the local potential
+---------
+remaining lines:
+  -- the rest are radial coordinates and potential values, first the local
+piece and then the nonlocal potentials.
+
+---------
+  These get concatenated into the "wavefunctions" input file for the CP code.
+  No editing of the format is required for more than one element (unlike for
+  the chden file).
