@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.22 2001-12-28 20:28:50 edo Exp $
+* $Id: int_ecp.F,v 1.23 2002-01-17 05:24:39 edo Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -334,7 +334,7 @@ c
 *      if (.not.bas_print(ecpidin)) stop 'error'
 *      if (.not.gbs_map_print(ecpidin)) stop ' error'
       oskel=.true.
-      do ictr=1,n_eCp
+      do ictr=1,ncenters
          if (sym_atom(ig, ictr, qfact))  then
             if(.not.(bas_ce2cnr(basis_handle,ictr,ic1,ic2)))
      .           call errquit('intecp:basce2cnr failed',0)
@@ -346,7 +346,7 @@ c
                inp = infbs_cont(cont_nprim,iuc,bas_id)
                ing = infbs_cont(cont_ngen,iuc,bas_id)
                il  = infbs_cont(cont_type,iuc,bas_id) 
-               do jctr=ictr,n_eCp
+               do jctr=ictr,ncenters
                   if (sym_atom(ig, jctr, qfact))  then
                      if(.not.(bas_ce2cnr(basis_handle,jctr,jc1,jc2)))
      .                    call errquit('intecp:basce2cnr failed',0)
@@ -388,7 +388,11 @@ c
                         endif
 c     ! nint block used in api routine int_hf1sp                  
                         lecp_mem = lecp_mem + nV 
+*                        write(6,*)' i_cont ',i_cont
+*                        write(6,*)' j_cont ',j_cont
                         mem_ecp = max(mem_ecp,lecp_mem)
+*                        write(6,*)' lecp_mem from int_ecp_init is ',
+*     &        lecp_mem,mem_ecp
                      enddo
                   endif
                enddo
