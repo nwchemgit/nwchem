@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c
-c$Id: ao_fock_2e.F,v 1.16 2000-04-27 21:34:27 edo Exp $
+c$Id: ao_fock_2e.F,v 1.17 2000-04-28 01:07:12 zzhang Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -197,8 +197,6 @@ c
         call ga_dscal(vg_fock(i), 4.0d0)
         if (.not. oskel .and. .not. asym) 
      &       call ga_symmetrize(vg_fock(i))
-        if (.not. oskel .and. asym) 
-     &       call asym_fock2e(vg_fock(i))
       end do
 c
 c     Reset exchange factors
