@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.81 2000-05-08 19:29:25 d3j191 Exp $
+c $Id: md_main.F,v 1.82 2000-05-16 16:58:12 d3j191 Exp $
 c
       implicit none
 c
@@ -1610,16 +1610,19 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
+      logical sp_local
+      external sp_local
+c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
-      logical lself,local,locali,lpbcs
+      logical lself,local,lpbcs
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer nbbl
       integer itcom1,itforc,itcom2
 c
-      locali=.true.
+      local=.true.
       itcom1=18
       itforc=19
       itcom2=20
@@ -1628,18 +1631,18 @@ c
 c
       do 1 ibbl=1,nbbl
 c
-      call timer_start(itcom1)
-      call sp_getxbl(ibbl,lhandl,local,
-     + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
-     + lself,lpbcs)
-      call timer_stop(itcom1)
-c
-      if(locali.and..not.local) then
+      if(local.and..not.sp_local(ibbl)) then
       itcom1=21
       itforc=22
       itcom2=23
-      locali=.false.
+      local=.false.
       endif
+c
+      call timer_start(itcom1)
+      call sp_getxbl(ibbl,lhandl,
+     + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
+     + lself,lpbcs)
+      call timer_stop(itcom1)
 c
       call timer_start(itforc)
       call cf_comw(xw,xwm,jwfr,jwto)
@@ -1689,7 +1692,7 @@ c
       real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
       real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
 c
-      logical lself,local,lpbcs
+      logical lself,lpbcs
       integer ibbl,nbbl,lhandl
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer i,j,k
@@ -1808,7 +1811,7 @@ c
 c
       do 22 ibbl=1,nbbl
 c
-      call sp_getxpbl(ibbl,lhandl,local,
+      call sp_getxpbl(ibbl,lhandl,
      + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
      + isl,xs,ps,psp,isfr,isto,jsfr,jsto,lself,lpbcs)
 c
@@ -2029,7 +2032,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.81 2000-05-08 19:29:25 d3j191 Exp $
+c $Id: md_main.F,v 1.82 2000-05-16 16:58:12 d3j191 Exp $
 c
       implicit none
 c
