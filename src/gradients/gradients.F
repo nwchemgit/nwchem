@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.21 1997-02-17 20:51:56 d3g681 Exp $
+c$Id: gradients.F,v 1.22 1997-07-25 18:00:06 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -53,7 +53,7 @@ c
 c
       if (ga_nodeid().eq.0) then
          if (util_print('information',print_low)) then
-            call util_print_centered(luout,'NWCHEM GRADIENTS Module',
+            call util_print_centered(luout,'NWChem Gradients Module',
      $           40,.true.)
             write(luout,*)
             call util_flush(luout)
