@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.9 2002-02-27 22:00:46 bylaska Exp $
+c $Id: pspw_charge.F,v 1.10 2002-03-04 02:06:46 bylaska Exp $
 c
   
 ***********************************************************
@@ -503,6 +503,44 @@ c
       if (nion.gt.0) then
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
 
+*     **** point charges ****
+      if (charge_type.eq.1) then
+      do j=1,nion
+         x = dbl_mb(r1(1)+3*(j-1))
+         y = dbl_mb(r1(1)+3*(j-1)+1)
+         z = dbl_mb(r1(1)+3*(j-1)+2)
+         q = -dbl_mb(charge(1)+j-1)
+         fx = 0.0d0
+         fy = 0.0d0
+         fz = 0.0d0
+         do i=1,n2ft3d
+            rx = x - rgrid(1,i)
+            ry = y - rgrid(2,i)
+            rz = z - rgrid(3,i)
+            r  = dsqrt( rx**2 + ry**2 + rz**2)
+
+            if (r .gt. 1.0d-8) then
+              v    = -q/r**3
+            else
+              v = 0.0d0
+            end if
+
+            fx = fx + rho(i)*rx*v
+            fy = fy + rho(i)*ry*v
+            fz = fz + rho(i)*rz*v
+         end do
+
+         call D3dB_SumAll(fx)
+         call D3dB_SumAll(fy)
+         call D3dB_SumAll(fz)
+         fcharge(1,j) = fcharge(1,j) - fx*dv
+         fcharge(2,j) = fcharge(2,j) - fy*dv
+         fcharge(3,j) = fcharge(3,j) - fz*dv
+      end do
+
+
+*     **** switching charge potential **** 
+      else
       do j=1,nion
          x = dbl_mb(r1(1)+3*(j-1))
          y = dbl_mb(r1(1)+3*(j-1)+1)
@@ -553,6 +591,7 @@ c
          fcharge(2,j) = fcharge(2,j) - fy*dv
          fcharge(3,j) = fcharge(3,j) - fz*dv
       end do
+      end if
 
 
       end if
