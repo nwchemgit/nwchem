@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.11 1999-09-08 16:49:34 d3j191 Exp $
+c $Id: prp_common.fh,v 1.12 1999-09-11 03:39:28 d3j191 Exp $
 c
 c
       real*8 zero,tiny,one
@@ -12,17 +12,17 @@ c
 c
       integer me,np,lfnout,lfnprp,lfngib
       integer nsf,msf,mpe,nfoutp,nfstat,nfprop,maxp,mrun
-      integer mda,nda
+      integer mda,nda,nwm
 c
       common/prp_dim/me,np,lfnout,lfnprp,lfngib,
      + nsf,msf,mpe,nfoutp,nfstat,
-     + nfprop,maxp,mda,nda,mrun
+     + nfprop,maxp,mda,nda,mrun,nwm
 c
       integer i_dfr,l_dfr
       common/prp_ptr/i_dfr,l_dfr
 c
-      logical lcafe,lspac,ltwin,lhdr,lfhdr
-      common/prp_log/lcafe,lspac,ltwin,lhdr,lfhdr
+      logical lcafe,lspac,ltwin,lhdr,lfhdr,lpstep,lpener
+      common/prp_log/lcafe,lspac,ltwin,lhdr,lfhdr,lpstep,lpener
 c
       character*50 pronam(250)
       common/prp_txt/pronam

@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.18 1999-09-08 16:49:34 d3j191 Exp $
+c $Id: prp_main.F,v 1.19 1999-09-11 03:39:28 d3j191 Exp $
 c
       implicit none
 c
@@ -65,7 +65,7 @@ c
     4 continue
       endif
 c
-      el=eww(5,1)
+      el=eww(5,1)+eww(7,1)
       eq=eww(6,1)+eww(8,1)
       ep=zero
       ewp=zero
@@ -81,13 +81,12 @@ c
     9 continue
       do 12 j=1,msf
       el=el+esw(j,5,1)
-      eq=eq+esw(j,6,1)+esw(j,8,1)
+      eq=eq+esw(j,6,1)
       do 13 k=1,msf
       el=el+ess(k,j,5,1)
-      eq=eq+ess(k,j,6,1)+ess(k,j,8,1)
+      eq=eq+ess(k,j,6,1)
    13 continue
    12 continue
-      ep=ep+el+eq
 c
       if(me.eq.0) ep=ep+uqmd+uqmmm
 c
@@ -105,6 +104,8 @@ c
 c
       ep=ep+epme(iset)
       eq=eq+epme(iset)
+      ep2=ep2+epme(2)-epme(1)
+      ep3=ep3+epme(3)-epme(1)
       ek=ewk
       do 111 i=1,msf
       ek=ek+esk(i)
@@ -151,15 +152,19 @@ c
       p(36)=ep2
       p(37)=ep3
       if(me.eq.0) p(40)=dfree
-      p(54)=eww(6,1)+eww(8,1)
-      p(55)=eww(5,1)
+      p(52)=eww(6,1)
+      p(53)=eww(5,1)
+      p(54)=eww(8,1)
+      p(55)=eww(7,1)
       p(56)=eww(1,1)
       p(57)=eww(2,1)
       p(58)=eww(3,1)
       p(59)=eww(4,1)
       p(66)=ewp
       p(67)=p(67)+ewp
+      p(76)=epme(iset)
       p(97)=timer_wall(2)
+      p(98)=timer_wall(3)
 c
       maxp=isprop
       if(nsf.gt.0) then
@@ -204,6 +209,8 @@ c
       call ga_dgop(mrg_d42,ess,msf*msf*mpe,'+')
       call ga_dgop(mrg_d43,epme,3,'+')
       endif
+c
+      p(98)=(p(98)-p(97))/p(98)
 c
       p(38)=exp(-p(36)/(rgas*temp))
       p(39)=exp(-p(37)/(rgas*temp))
@@ -251,7 +258,7 @@ c
 c
       integer i,j
       character*10 pdate,ptime
-      real*8 facs,fact,tfacs,tfact
+      real*8 facs,fact,tfacs,tfact,rt
 c
       nsum=nsum+1
       nsumt=nsumt+1
@@ -276,13 +283,37 @@ c
  1000 format(/,' MOLECULAR DYNAMICS TIME STEP INFORMATION',T110,2A10,//,
      + '    Time      Temp    Pres      Volume Tscalw Tscals  Pscal ',
      + '   U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) ',/,
-     + '    ps         K      Pa        nm**3              ',
+     + '     ps         K      Pa        nm**3                      ',
      + '   kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol ',/)
+      if(lpstep) write(lfnout,1010)
+ 1010 format(14X,
+     + '   U(bnd)     U(ang)     U(dih)     U(imp)  ',
+     + '   Ui(ele)    Ui(vdW) ',
+     + '   Uw(ele)    Uw(vdW)    U(kin)     U(pot)     U(tot)',/,14X,
+     + '   kJ/mol     kJ/mol     kJ/mol     kJ/mol  ',
+     + '   kJ/mol     kJ/mol  ',
+     + '   kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol  ',/)
       lhdr=.true.
       endif
       write(lfnout,1001) stime,temp,pres,volume,p(21),p(22),p(15),
      + p(24),p(25),p(26),p(27),p(32)
  1001 format(1x,f10.5,0pf8.2,1pe9.2,0pf10.3,3f7.4,5(1pe11.4),i5,i7)
+      if(lpstep) then
+      rt=one/nwm
+      if(nwm.gt.0) then
+      rt=one/nwm
+      write(lfnout,1011) rt*p(56),rt*p(57),rt*p(58),rt*p(59),rt*p(52),
+     + rt*p(53),rt*p(54),rt*p(55),rt*p(64),rt*p(66),rt*p(67)
+ 1011 format('   solvent  ',11f11.2)
+      endif
+      do 1 i=1,nsf
+      j=isprop+(i-1)*27
+      rt=p(j+7)+p(j+8)+p(j+9)+p(j+10)+p(j+2)+p(j+3)+p(j+5)+p(j+6)
+      write(lfnout,1012) i,p(j+7),p(j+8),p(j+9),p(j+10),
+     + p(j+2),p(j+3),p(j+5),p(j+6),p(j+16),rt,rt+p(j+16)
+ 1012 format('   solute',i3,11f11.2) 
+    1 continue
+      endif
       endif
 c
       if(frequency(mdstep,nfstat)) then
@@ -474,16 +505,16 @@ c
       integer i,j,k,number
       real*8 rlambd,dlambd,ddrft,dsterr,dcerr,ratio
       real*8 freeti,errti,drftti,taver,ep2ave,ep3ave
-      real*8 epr,epf,etp,slambd
+      real*8 epr,epf,etp,slambd,rnum,fterm(24)
 c
       if(me.eq.0) then
 c
-      do 1 k=1,2
+      do 1 k=1,4
 c
       call swatch(pdate,ptime)
       if(k.eq.1) then
       write(lfnout,1000) pdate,ptime
- 1000 format(/' MULTICONFIGURATION THERMODYNAMIC INTEGRATION',
+ 1000 format(//,' MULTICONFIGURATION THERMODYNAMIC INTEGRATION',
      + t110,2a10,//,
      + ' Run Lambda   Size',
      + '  Derivative  Derivative  Derivative Lambda',
@@ -492,9 +523,22 @@ c
      + ' Accumulated       Error       Drift     Ratio',/,18x,
      + '      kJ/mol      kJ/mol   kJ/mol ps       ',
      + '      kJ/mol      kJ/mol   kJ/mol ps',/)
+      elseif(k.eq.2) then
+      write(lfnout,1001)
+ 1001 format(//,' MULTICONFIGURATION THERMODYNAMIC INTEGRATION ',
+     + 'DECOMPOSITION',//,' Solvent contributions in kJ/mol',//,
+     + ' Run Lambda',
+     + '      Mass Solvnt LJ Solute LJ Solvnt el Solute el     Bonds',
+     + '  Constrts    Angles Dihedrals Impropers Slvnt pol Solut pol',/)
+      elseif(k.eq.3) then
+      write(lfnout,1002)
+ 1002 format(//,' Solute contributions in kJ/mol',//,
+     + ' Run Lambda',
+     + '      Mass Solvnt LJ Solute LJ Solvnt el Solute el     Bonds',
+     + '  Constrts    Angles Dihedrals Impropers Slvnt pol Solut pol',/)
       else
-      write(lfnout,1001) pdate,ptime
- 1001 format(/' MULTISTEP THERMODYNAMIC PERTURBATION',
+      write(lfnout,1003) pdate,ptime
+ 1003 format(//' MULTISTEP THERMODYNAMIC PERTURBATION',
      + t110,2a10,//,
      + ' Run Lambda   Size',
      + '     Reverse     Forward    Ensemble Lambda Accumulated ',/,18x,
@@ -508,7 +552,10 @@ c
       drftti=zero
       etp=zero
       slambd=zero
-      do 2 i=1,mrun
+      do 2 i=1,24
+      fterm(i)=zero
+    2 continue
+      do 3 i=1,mrun
       read(lfngib,2000) nderiv,nda,rlambd,dlambd
  2000 format(2i7,2f12.6)
       read(lfngib,2001) deriv
@@ -519,6 +566,11 @@ c
  2003 format(i10,3e20.12)
 c
       slambd=slambd+dlambd
+      rnum=dlambd/dble(nderiv)
+c
+      do 4 j=1,24
+      fterm(j)=fterm(j)+rnum*deriv(j)
+    4 continue
 c
       if(k.eq.1) then
       call error(.true.,.true.,1000,dfr,nda,
@@ -528,19 +580,25 @@ c
       errti=errti+(dcerr*dlambd)**2
       drftti=drftti+ddrft*dlambd
 c
-      write(lfnout,1002) i,rlambd,nderiv,dfree,dcerr,ddrft/tstep,
+      write(lfnout,1004) i,rlambd,nderiv,dfree,dcerr,ddrft/tstep,
      + slambd,freeti,sqrt(errti),drftti/tstep,ratio
- 1002 format(i4,f7.3,i7,f12.3,2f12.6,f7.3,f12.3,2f12.6,f10.5)
+ 1004 format(i4,f7.3,i7,f12.3,2f12.6,f7.3,f12.3,2f12.6,f10.5)
 c
+      elseif(k.eq.2) then
+      write(lfnout,1005) i,slambd,(fterm(j),j=1,12)
+ 1005 format(i4,f7.3,12f10.5)
+      elseif(k.eq.3) then
+      write(lfnout,1006) i,slambd,(fterm(j),j=13,24)
+ 1006 format(i4,f7.3,12f10.5)
       else
       epr=-rgas*taver*log(ep2ave)
       epf=-rgas*taver*log(ep3ave)
       etp=etp-epr+epf
-      write(lfnout,1003) i,rlambd,number,epr,epf,epf-epr,slambd,etp
- 1003 format(i4,f7.3,i7,3f12.3,f7.3,f12.3)
+      write(lfnout,1007) i,rlambd,number,epr,epf,epf-epr,slambd,etp
+ 1007 format(i4,f7.3,i7,3f12.3,f7.3,f12.3)
       endif
 c
-    2 continue
+    3 continue
     1 continue
 c
       close(unit=lfngib)

@@ -1,9 +1,9 @@
       subroutine prp_start(nserie,ntyp,lfn,fil,iout,iprp,igib,
      + nf1,nf2,nf3,
-     + lcf,lsp,ltwn,lpol,lpme,
-     + nwm,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp)
+     + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
+     + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp)
 c
-c $Id: prp_init.F,v 1.14 1999-09-08 16:49:34 d3j191 Exp $
+c $Id: prp_init.F,v 1.15 1999-09-11 03:39:28 d3j191 Exp $
 c
       implicit none
 c
@@ -12,9 +12,9 @@ c
 #include "global.fh"
 c
       integer nserie,ntyp,lfn,iout,iprp,igib
-      integer nwm,msfi,nsfi,mpei,nf1,nf2,nf3
+      integer nwmtot,msfi,nsfi,mpei,nf1,nf2,nf3
       integer mdacq,mrn,ipset,isetp1,isetp2
-      logical lcf,lsp,ltwn,lpol,lpme
+      logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep
       real*8 tstp
       character*255 fil
 c
@@ -32,6 +32,8 @@ c
       lcafe=lcf
       lspac=lsp
       ltwin=ltwn
+      lpener=llpener
+      lpstep=llpstep
       msf=msfi
       nsf=nsfi
       mpe=mpei
@@ -39,6 +41,7 @@ c
       nfstat=nf2
       nfprop=nf3
       mrun=mrn
+      nwm=nwmtot
 c
       iset=ipset
       ipset1=isetp1
@@ -136,7 +139,9 @@ c
       pronam( 50)='Energy solute umbrella potential            kJ/mol'
       pronam( 51)='Free energy solute umbrella potential       kJ/mol'
       pronam( 52)='Energy solvent intra electrostatic          kJ/mol'
+      lp(52)=nwm.gt.0
       pronam( 53)='Energy solvent intra van der Waals          kJ/mol'
+      lp(53)=nwm.gt.0
       pronam( 54)='Energy solvent inter electrostatic          kJ/mol'
       lp(54)=nwm.gt.0
       pronam( 55)='Energy solvent inter van der Waals          kJ/mol'
@@ -167,6 +172,7 @@ c
       pronam( 74)='Energy bias potentials                      kJ/mol'
       pronam( 75)='Energy umbrella potentials                  kJ/mol'
       pronam( 76)='Particle mesh Ewald reciprocal energy       kJ/mol'
+      lp(76)=lpme
       pronam( 77)='Particle mesh Ewald correction energy       kJ/mol'
       pronam( 78)='Virial tensor element (1,1)                 kJ/mol'
       pronam( 79)='Virial tensor element (1,2)                 kJ/mol'
@@ -189,8 +195,10 @@ c
       pronam( 96)='Energy distance restraints                  kJ/mol'
       pronam( 97)='Synchronization time                             s'
       lp(97)=ntype.ge.1
+      pronam( 98)='Efficiency                                        '
+      lp(98)=ntype.ge.1
 c
-      isprop=97
+      isprop=98
       if(nsf.gt.0) then
       do 3 i=1,nsf
       it=isprop+(i-1)*27

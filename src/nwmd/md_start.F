@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.28 1999-08-31 17:24:41 d3j191 Exp $
+c $Id: md_start.F,v 1.29 1999-09-11 03:39:28 d3j191 Exp $
 c
       implicit none
 c
@@ -49,8 +49,9 @@ c     start the property API
 c
       call prp_start(nserie,ntype,lfnrst,filrst,lfnout,lfnprp,
      + lfngib,nfoutp,nfstat,nfprop,
-     + .true.,.true.,ltwin,ipolt.ne.0,
-     + ipme.ne.0,nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep)
+     + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
+     + npstep.ne.0,npener.ne.0,
+     + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -1043,6 +1044,8 @@ c
 c
       lqmd=iquant.ne.0
       lqmmm=iqmmm.ne.0
+      lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))
+      lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
 c
       ltwin=rlong.gt.rshort
 c

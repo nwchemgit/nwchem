@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.4 1999-08-25 18:28:23 d3j191 Exp $
+c $Id: md_input.F,v 1.5 1999-09-11 03:39:27 d3j191 Exp $
 c
       implicit none
 c
@@ -79,7 +79,7 @@ c
       mpolit=10
       mshitw=100
       mshits=100
-      npstep=1
+      npstep=0
       npatom=0
       nptopw=0
       nptops=0

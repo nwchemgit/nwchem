@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.35 1999-09-08 16:49:34 d3j191 Exp $
+c $Id: md_main.F,v 1.36 1999-09-11 03:39:27 d3j191 Exp $
 c
       implicit none
 c
@@ -1241,6 +1241,7 @@ c
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
+#include "global.fh"
 c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
@@ -1256,6 +1257,16 @@ c
       call timer_stop(10)
 c
       if(ipme.gt.0) then
+      if(lpert2) then
+      call pme_energy(2,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
+     + isl(1,lsct1),nsaloc,epme(2))
+      call pme_init()
+      endif
+      if(lpert3) then
+      call pme_energy(3,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
+     + isl(1,lsct1),nsaloc,epme(3))
+      call pme_init()
+      endif
       call pme_chgrid(iset,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
      + isl(1,lsct1),nsaloc,epme(iset))
       endif
