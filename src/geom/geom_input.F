@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.128 2000-01-25 19:33:30 mg201 Exp $
+C     $Id: geom_input.F,v 1.129 2000-03-01 23:35:18 bert Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -23,6 +23,7 @@ c
       logical oautoz
       logical oautosym
       logical ocenter
+      logical found_cart
       logical ofinite, oatomfinite
       logical include_bqbq
       logical oprint_sym
@@ -88,6 +89,7 @@ c
       ozmatrix = .false.        ! Default is cartesian input
       oautoz   = .true.         ! Default is try -autoz-
       oautosym = .false.        ! Default is don't try -autosym-
+      found_cart = .false.      ! Default is no cartesians in zmat
       osymmetry = .false.
       oprint_sym = .false.
       include_bqbq = .false.
@@ -258,7 +260,13 @@ c
             if (oadjust) call errquit
      $           ('geom_input: zmatrix not allowed for adjust',0)
             call geom_zmt_input(geom,coords,tags,charge,mass,ncenter,
-     $           scale,oprint)
+     $           scale,oprint,found_cart)
+c
+c           If we have a mixed cartesian/zmatrix input in the 
+c           zmatrix input we have to do autoz to define the 
+c           correct internals
+c
+            if (found_cart) oautoz = .true.
             goto 20
          else
             if ((ncenter+1) .gt. max_center) call errquit
@@ -972,7 +980,7 @@ c
       end
       subroutine  geom_zmt_input(geom,
      1                           coords,tags,charge,mass,ncenter,
-     2                           units,oprint)
+     2                           units,oprint,found_cart)
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -1012,6 +1020,7 @@ c
       logical      dbug 
       logical      some 
       logical      oprint
+      logical      found_cart
       double precision zmat
       double precision c
       double precision zan
@@ -1040,7 +1049,7 @@ c     ----- call routine to read z-matrix data -----
 c
       call geom_zmt_geo(coords,charge,tags,ncenter,
      1                  nizmat,izmat,nzvar,izfrz,nzfrz,
-     2                  units,zvarname,zvarsign)
+     2                  units,zvarname,zvarsign,found_cart)
 c
 c     -----    set parameters for -nwchem-     -----
 c
@@ -1062,9 +1071,11 @@ c
 *     COORDS passed in below as dummy for values of frozen
 *     variables ... not actually used
 *
+      if (.not. found_cart) then
       if (.not. geom_zmt_put_data(geom, nizmat, izmat,
      $     nzfrz, izfrz, COORDS, nzvar, zvarname, zvarsign, 'user'))
      $     call errquit('geom_zmt_input: bad geom handle',geom)
+      endif
 
       if(dbug) then
          write(iw,9994)
@@ -1733,7 +1744,8 @@ c
       end
       SUBROUTINE GEOM_ZMT_GEO(COORDS,CHARGE,TAGS,NCENTER,
      1                        IZ,IZMAT,NZMOD,ICFRZ,NCFRZ,
-     2                        UNITS,zvarname,zvarsign)
+     2                        UNITS,zvarname,zvarsign,
+     3                        found_cart)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     -----  PARAMETERS DEFINING MAXIMUM VALUES -----
@@ -1774,6 +1786,7 @@ C
       LOGICAL       OUT 
       LOGICAL       LST
       LOGICAL       NEWFIL
+      logical       found_cart
       CHARACTER*255 STRING
       INTEGER       FLGWRD
       INTEGER       FLGZMT
@@ -2264,6 +2277,7 @@ C
             IZ   =0
             NZMOD=0
             NCFRZ=0
+            found_cart = .true.
          ENDIF
       ENDDO
 C
