@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.75 1996-03-16 16:46:32 d3j191 Exp $
+c     $Id: nwchem.F,v 1.76 1996-03-20 22:18:54 mg141 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -285,6 +285,10 @@ c
       external nwdft
       logical nwargos
       external nwargos
+      logical mp2_grad
+      external mp2_grad
+      logical cphf
+      external cphf
       parameter (ntasks = 26)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
@@ -302,7 +306,7 @@ c
      $     'dftgrad',           ! 13
      $     'optdft',            ! 14
      $     'direct_mp2',        ! 15
-     $     'mjdtest',           ! 16
+     $     'cphf',           ! 16
      $     'ccsd',              ! 17
      $     'freqscf',           ! 18
      $     'freqdft',           ! 19
@@ -413,7 +417,7 @@ c
 c     
 c     Miles test 
 c     
- 160     call mjdtest(rtdb)
+ 160     status=cphf(rtdb)
          goto 1000
 c     
 c     CCSD
@@ -459,7 +463,7 @@ c
 c
 c     semi-direct mp2 energy and gradient module
 c     
- 250     call mp2_grad(rtdb)
+ 250     status=mp2_grad(rtdb)
          goto 1000
 c
 c     soon to be generic optimization interface
