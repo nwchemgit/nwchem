@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.135 2000-10-23 22:09:18 d3j191 Exp $
+# $Id: make_nwchem_config,v 1.136 2000-10-24 02:39:42 d3j191 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -19,7 +19,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
         nwargos esp hessian plane_wave selci dplot mp2_grad oimp2 \
         property gapss pspw fft rimp2_grad nbo python analyz nwmd cafe space \
-        drdy vscf uccsdt qmmm
+        drdy vscf uccsdt qmmm qmd
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -30,7 +30,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
                     -lvib -lutil -lrimp2g -lrimp2 -lproperty -lnwints -lideaz \
 		    -lprepar -lnwargos -lnwmd -lpspw -lcafe -lspace -lanalyze\
-                    -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm
+                    -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -61,7 +61,7 @@ MODULES := $(NWCHEM_MODULES)
 # For convenience, we define some shorthand "module" names which are
 # expanded below.
 
-EXPANSIONS = all qm md qmmm argos alldev pnnl pnnldev
+EXPANSIONS = all qm md argos alldev pnnl pnnldev
 
 EXP_all = $(filter-out uccsdt python develop gapss oimp2 ideaz scfaux plane_wave rimp2_grad vscfi nwargos,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python
@@ -73,8 +73,9 @@ EXP_ver2 = prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
 EXP_argos = prepar nwargos analyz
-EXP_md  = prepar nwmd qmmm analyz gradients esp
-EXP_qmmm = $(EXP_md) $(EXP_qm)
+#EXP_md  = prepar nwmd qmmm qmd analyz gradients esp
+EXP_md  = prepar nwmd analyz
+#EXP_qmmm = $(EXP_md) $(EXP_qm)
 
 # Check each expansion
 
@@ -82,7 +83,7 @@ MODULES := $(patsubst all,$(EXP_all),$(MODULES) )
 MODULES := $(patsubst pnnl,$(EXP_pnnl),$(MODULES) )
 MODULES := $(patsubst qm,$(EXP_qm),$(MODULES) )
 MODULES := $(patsubst md,$(EXP_md),$(MODULES))
-MODULES := $(patsubst qmmm,$(EXP_qmmm),$(MODULES))
+#MODULES := $(patsubst qmmm,$(EXP_qmmm),$(MODULES))
 MODULES := $(patsubst argos,$(EXP_argos),$(MODULES))
 MODULES := $(patsubst alldev,$(EXP_alldev),$(MODULES) )
 MODULES := $(patsubst pnnldev,$(EXP_pnnldev),$(MODULES) )
@@ -135,7 +136,7 @@ MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
 MODULES := $(patsubst nwargos,nwargos fft ddscf,$(MODULES) )
 MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
-MODULES := $(patsubst nwmd,nwmd cafe space fft gradients,$(MODULES) )
+MODULES := $(patsubst nwmd,nwmd cafe space fft,$(MODULES) )
 
 MODULES := $(patsubst develop,develop ddscf uccsdt,$(MODULES) )
 MODULES := $(patsubst uccsdt,uccsdt ddscf ccsd,$(MODULES) )
@@ -242,7 +243,8 @@ STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwargos,nwargos arg_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst qmmm,qmmm_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst qmd,qmd_setup qmd_start qmd_wrttrj qmd_forces,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst qmmm,qmmm_input qmmm_forces,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initialize cosmo_charges hnd_nwhnd_tran,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
