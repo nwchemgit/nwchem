@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.44 2000-02-04 01:34:43 mg201 Exp $
+c     $Id: grad_force.F,v 1.45 2000-05-25 16:39:55 edo Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -143,6 +143,11 @@ c
 *     Stuff for DFT
 
       integer ipol, numfunc, noc(2)
+      integer ld_ik5,ld_jl5,ld_il5,ld_jk5,
+     $   ld_ik6,ld_jl6,ld_il6,ld_jk6,
+     $   ld_ik7,ld_jl7,ld_il7,ld_jk7,
+     $   ld_ik8,ld_jl8,ld_il8,ld_jk8
+
       parameter (numfunc = 19)
       logical oskel, omp2, odft, ocdfit, status,frac_occ
       double precision xfac(numfunc), jfac, kfac
@@ -590,6 +595,26 @@ c
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk4', lh_jk4, ld_jk4))
      $        call errquit('grad:could not allocate ld_jk4',lsqa)
       end if
+c
+c     set SO ma handles to zero to keep compiler quier
+c     all this stuff is used on SO only
+c
+      ld_ik5=0
+      ld_jl5=0
+      ld_il5=0
+      ld_jk5=0
+      ld_ik6=0
+      ld_jl6=0
+      ld_il6=0
+      ld_jk6=0
+      ld_ik7=0
+      ld_jl7=0
+      ld_il7=0
+      ld_jk7=0
+      ld_ik8=0
+      ld_jl8=0
+      ld_il8=0
+      ld_jk8=0
 
 C     define threshold for Schwarz screening(same as in SCF)
       if (.not. rtdb_get(rtdb, 'scf:tol2e', mt_dbl, 1, tol2e)) then
@@ -671,6 +696,10 @@ c
      $     dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
      $     dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
      $     dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
+     $   dbl_mb(ld_ik5),dbl_mb(ld_jl5),dbl_mb(ld_il5),dbl_mb(ld_jk5),
+     $   dbl_mb(ld_ik6),dbl_mb(ld_jl6),dbl_mb(ld_il6),dbl_mb(ld_jk6),
+     $   dbl_mb(ld_ik7),dbl_mb(ld_jl7),dbl_mb(ld_il7),dbl_mb(ld_jk7),
+     $   dbl_mb(ld_ik8),dbl_mb(ld_jl8),dbl_mb(ld_il8),dbl_mb(ld_jk8),
      $     dbl_mb(k_frc_2el), g_dens, g_force, blen,
      $     geom, basis, nproc, nat, 
      $     lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf), 
