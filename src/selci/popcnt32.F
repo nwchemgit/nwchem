@@ -1,11 +1,11 @@
       integer function selci_popcnt32(i)
 *
-* $Id: popcnt32.F,v 1.8 2003-04-11 00:29:05 bert Exp $
+* $Id: popcnt32.F,v 1.9 2003-04-16 17:57:46 bert Exp $
 *
 #if defined(CRAY_T3D) || defined(CRAY_T3E) 
       integer i
       selci_popcnt32 = popcnt(i)
-#elif defined(LINUX64)
+#elif defined(EXT_INT)
 #include "cbits.fh"
       INTEGER_1 i(8)
 c
@@ -52,7 +52,7 @@ c
       do i = 1,n
         output(i) = popcnt(input(i))
       enddo
-#elif defined (LINUX64)
+#elif defined (EXT_INT)
       implicit integer(a-z)
 #include "cbits.fh"
 c
@@ -87,7 +87,7 @@ c
 #if defined(CRAY_T3D) || defined(CRAY_T3E) 
       integer i
       selci_leadz32 = leadz(i)
-#elif defined (LINUX64)
+#elif defined (EXT_INT)
 c     
 #include "cbits.fh"
 c     
@@ -229,7 +229,7 @@ c
 #if defined(CRAY_T3D) || defined(CRAY_T3E) 
       subroutine inibit
       end
-#elif defined (LINUX64)
+#elif defined (EXT_INT)
       subroutine inibit
 #include "cbits.fh"
       INTEGER_1 ib(8)
