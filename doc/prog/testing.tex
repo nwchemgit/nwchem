@@ -1,6 +1,85 @@
 \label{sec:testing}
+The Quality Assurance (QA) tests are designed to test most of
+the functionality of NWChem.  As such, it is useful to run at least
+some of the tests when first installing NWChem at a site.  It is
+imperative to run these tests when porting to a new platform.
 
+The directions given below for running the tests are for systems without
+a batch system.  If you have a batch system, check out the contrib
+directory to see if there is an appropriate batch submission script.
+You will then need to run each of the tests seperately and check the
+results (the nwparse.pl script can be used for the quantum (QM) and pspw 
+tests for this purpose).
 
-This Chapter is under construction.
+Here are some steps and notes on running the QA tests:
 
+\begin{enumerate}
+\item Set the environment variable \verb+NWCHEM_EXECUTABLE+ to the executable
+   you want to use, e.g.
+\begin{verbatim}
+   % setenv NWCHEM_EXECUTABLE \
+     $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem
+\end{verbatim}
 
+\item If you compiled without MPI (this is the default way to build NWChem),
+   you will need to:
+\begin{enumerate}
+   \item Set the environment variable \verb+PARALLEL_PATH+ to the 
+      location of the parallel program, e.g.
+   \begin{verbatim}
+   % setenv PARALLEL_PATH \
+     $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/parallel
+   \end{verbatim}
+   \item Run the QM tests sequentially using the doqmtests script.  Note
+      that you may want to comment out the largest tests at the bottom
+      of the doqmtests file on slower machines or machines without much
+      memory.
+   \begin{verbatim}
+   % doqmtests >& doqmtests.log &
+   \end{verbatim}
+   \item Check the doqmtests.log file for potential problems.  While running,
+      the test scripts place files in the \verb+$NWCHEM_TOP+/QA/testoutputs
+      directory.  You may wish to clean out this directory after checking
+      that everything is working.  If a job did not work, the output can
+      be found in the \verb+$NWCHEM_TOP+/QA/testoutputs directory.  If the problem
+      seems significant and/or you are unsure whether NWChem performed the
+      calculation correctly, please send a message to 
+      nwchem-support@emsl.pnl.gov
+      with details about your computer, the environment variables that were
+      set when you compiled NWChem, and the output of the calculation that
+      you are concerned about.
+   \item Run the QM tests in parallel by editing the doqmtests script so that
+      \verb+"procs #"+ is placed after the runtests.unix commands (substituting
+      in the number of processors that you want to use for \verb+#+). E.g.
+   \begin{verbatim}
+   runtests.unix procs 2 h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite
+   \end{verbatim}
+   \item Again check the log for potential problems.
+   \item Run most of the molecular dynamics (MD) tests using the runtest.md
+      script.  Note that this script assumes that you have a /tmp directory
+      and that you want to use 2 processes.  Both of these may be changed.
+   \begin{verbatim}
+   % runtest.md >& runtest.md.log &
+   \end{verbatim}
+   \item Check the log (runtest.md.log) for potential problems.
+   \end{enumerate}
+
+\item If you compiled with MPI, you will need to
+   \begin{enumerate}
+   \item Set the environment variable \verb+MPIRUN_PATH+ to the location of mpirun
+      if it is not in your path, e.g.
+   \begin{verbatim}
+   % setenv MPIRUN_PATH /usr/local/bin/mpirun
+   \end{verbatim}
+   \item If the mpirun processor definition option is not -np, you will need
+      to set the environment varibale \verb+MPIRUN_NPOPT+ to the appropriate
+      flag, e.g.
+   \begin{verbatim}
+   % setenv MPIRUN_NPOPT -n
+   \end{verbatim}
+   \item Run the doqmtests and runtest.md scripts as described above, but first
+      edit those files to substitute "runtests.mpi.unix" for "runtests.unix"
+      and "runtest.unix"
+   \item Check the log for potential problems.
+   \end{enumerate}
+\end{enumerate}
