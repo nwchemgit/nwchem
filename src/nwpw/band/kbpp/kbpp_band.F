@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.6 2003-12-02 19:16:47 bylaska Exp $
+* $Id: kbpp_band.F,v 1.7 2004-11-14 23:31:49 bylaska Exp $
 *
 
 *     **************************************
@@ -258,9 +258,9 @@
      >                    .false.,
      >                    full_filename)
       l = index(full_filename,' ') - 1
-      write(*,*)
+      !write(*,*)
       write(*,*) "Generated formatted_filename: ",full_filename(1:l)
-      write(*,*)
+      !write(*,*)
       call openfile(2,full_filename,l,'w',l)     
          call iwrite(2,version,1)
          call iwrite(2,ngrid,3)

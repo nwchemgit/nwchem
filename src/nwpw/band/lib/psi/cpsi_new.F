@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_new.F,v 1.4 2003-07-30 17:41:32 bylaska Exp $
+* $Id: cpsi_new.F,v 1.5 2004-11-14 23:31:50 bylaska Exp $
 *
 
 *     ***********************************
@@ -103,6 +103,72 @@ c    >                        unita,
 c    >                        ispin,
 c    >                        ne)
 
+      if (.not.success)
+     >   call c_wvfnc_new(filename,
+     >                  version,
+     >                  ngrid,
+     >                  unita,
+     >                  ispin,
+     >                  ne,
+     >                  nbrillioun)
+
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *             			*
+*     *           cpsi_new_ne		*
+*     *             			*
+*     ***********************************
+
+      subroutine cpsi_new_ne(ispin,ne)
+      implicit none 
+      integer ispin,ne(2)
+
+#include "mafdecls.fh"
+
+
+*    *** local variables ***
+      logical success
+      integer nbrillioun
+      integer version
+      integer ngrid(3)
+      real*8  unita(3,3)
+      character*30 filename
+
+
+*     ***** local functions ****
+      character*30 control_input_psi
+      external     control_input_psi
+      double precision control_unita
+      external         control_unita
+      integer  control_ngrid
+      external control_ngrid
+      integer  brillioun_nbrillioun
+      external brillioun_nbrillioun
+
+      filename = control_input_psi()
+      version = 5   !version 5-band structure, version 3- pspw
+      ngrid(1) = control_ngrid(1)
+      ngrid(2) = control_ngrid(2)
+      ngrid(3) = control_ngrid(3)
+      unita(1,1) = control_unita(1,1)
+      unita(2,1) = control_unita(2,1)
+      unita(3,1) = control_unita(3,1)
+      unita(1,2) = control_unita(1,2)
+      unita(2,2) = control_unita(2,2)
+      unita(3,2) = control_unita(3,2)
+      unita(1,3) = control_unita(1,3)
+      unita(2,3) = control_unita(2,3)
+      unita(3,3) = control_unita(3,3)
+
+      nbrillioun = brillioun_nbrillioun()
+
+    
+      success = .false.
       if (.not.success)
      >   call c_wvfnc_new(filename,
      >                  version,

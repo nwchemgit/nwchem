@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.32 2004-11-13 02:33:18 bylaska Exp $
+* $Id: band_minimizer.F,v 1.33 2004-11-14 23:31:50 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -99,8 +99,8 @@
       real*8   c_ewald_rcut,c_ewald_mandelung,c_ewald_e
       external c_ewald_ncut
       external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
-      logical  cpsp_semicore,psi_filefind,cpsi_initialize
-      external cpsp_semicore,psi_filefind,cpsi_initialize
+      logical  cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
+      external cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
       real*8   c_cgsd_energy,c_cgsd_noit_energy
       external c_cgsd_energy,c_cgsd_noit_energy
       integer  cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
@@ -243,7 +243,7 @@
            end if
         end if
       end if
-      value = cpsi_initialize()
+      value = cpsi_initialize(.true.)
 
 
 *     **** electron and geodesic data structures ****
@@ -456,7 +456,7 @@
       call ion_write(rtdb)
 
 *     **** write wavefunctions to file and finalize psi ****
-      call cpsi_finalize()
+      value=cpsi_finalize()
 
 *     **** deallocate heap memory ****
       call c_electron_finalize()

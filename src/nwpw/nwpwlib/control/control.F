@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.59 2004-11-13 02:22:06 bylaska Exp $
+* $Id: control.F,v 1.60 2004-11-14 23:31:51 bylaska Exp $
 *
 
 *     ***********************************
@@ -314,8 +314,7 @@ c
      >     output_wavefunction_filename = ' '
       if (output_wavefunction_filename.eq.' ')then
          if (input_wavefunction_filename.eq.'atomic')then
-            call util_file_name('movecs', .false.,.false.,
-     >                          output_wavefunction_filename)
+           call util_file_prefix('movecs',output_wavefunction_filename)
          else
             output_wavefunction_filename = input_wavefunction_filename
          endif
@@ -500,8 +499,7 @@ c
      >     output_wavefunction_filename = ' '
       if (output_wavefunction_filename.eq.' ')then
          if (input_wavefunction_filename.eq.'atomic')then
-            call util_file_name('movecs', .false.,.false.,
-     >                          output_wavefunction_filename)
+           call util_file_prefix('movecs',output_wavefunction_filename)
          else
             output_wavefunction_filename = input_wavefunction_filename
          endif
@@ -1414,6 +1412,8 @@ c      end
       control_input_psi = input_wavefunction_filename
       return 
       end
+
+
 
 *     ***********************************
 *     *					*
@@ -2456,6 +2456,181 @@ c      end
      >   value = .false.
 
       control_zero_forces = value
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	 control_reset_band_structure	*
+*     *					*
+*     ***********************************
+      subroutine control_reset_band_structure()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "control.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not. rtdb_cget(rtdb, 'pspw:input bvectors',
+     >                    1,input_wavefunction_filename))
+     >  input_wavefunction_filename = 'atomic'
+
+      if (.not. rtdb_cget(rtdb, 'pspw:output bvectors',
+     >                    1,output_wavefunction_filename))
+     >     output_wavefunction_filename = ' '
+      if (output_wavefunction_filename.eq.' ')then
+         if (input_wavefunction_filename.eq.'atomic')then
+           call util_file_prefix('bmovecs',output_wavefunction_filename)
+         else
+            output_wavefunction_filename = input_wavefunction_filename
+         endif
+      endif
+      if (input_wavefunction_filename.eq.'atomic')then
+         input_wavefunction_filename = output_wavefunction_filename
+      end if
+
+     
+      return 
+      end
+
+*     **************************************
+*     *                	 	           *
+*     *  control_num_kvectors_structure    *
+*     *                 	           *
+*     **************************************
+      integer function control_num_kvectors_structure()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     **** local variables ****
+      logical value
+      character*30 zone_name
+      character*30 rtdb_name
+      integer num_kvectors,l
+
+      value = rtdb_cget(rtdb,'band_structure:zone_name',1,zone_name)
+
+      l = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:l)//':number_kvectors'
+      value = value.and.
+     >        rtdb_get(rtdb,rtdb_name,mt_int,1,num_kvectors)
+
+      if (.not. value)
+     >  call errquit('control_num_kvectors_structure: failed', 
+     >               0, RTDB_ERR)
+
+      control_num_kvectors_structure = num_kvectors
+      return
+      end
+  
+
+*     ************************************
+*     *                	 	         *
+*     *      control_ksvector_structure	 *
+*     *                 	         *
+*     ************************************
+      subroutine control_ksvector_structure(i,ks)
+      implicit none
+      integer i
+      real*8 ks(4)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     **** local variables ****
+      logical value
+      character*30 zone_name
+      character*30 rtdb_name
+      integer num_kvectors,l
+      integer kvs(2)
+
+*     **** external functions ****
+      integer  control_num_kvectors_structure
+      external control_num_kvectors_structure
+
+      num_kvectors = control_num_kvectors_structure()
+      value = MA_push_get(mt_dbl,(4*num_kvectors),
+     >        'kvs',kvs(2),kvs(1))
+      if (.not. value)
+     >  call errquit('control_ksvector: failed to get zone name', 0,
+     &       MA_ERR)
+
+      value = value.and.
+     >        rtdb_cget(rtdb,'band_structure:zone_name',1,zone_name)
+      if (.not. value)
+     >  call errquit('control_ksvector: failed to get zone name', 0,
+     &       RTDB_ERR)
+
+      l = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:l)//':kvectors'
+      value = value.and.
+     >        rtdb_get(rtdb,rtdb_name,mt_dbl,
+     >                   (4*num_kvectors),
+     >                    dbl_mb(kvs(1)))
+
+      if (.not. value)
+     >  call errquit('control_ksvector: failed to get kvs', 0,
+     &       RTDB_ERR)
+
+      ks(1) = dbl_mb(kvs(1)+4*(i-1))
+      ks(2) = dbl_mb(kvs(1)+4*(i-1)+1)
+      ks(3) = dbl_mb(kvs(1)+4*(i-1)+2)
+      ks(4) = dbl_mb(kvs(1)+4*(i-1)+3)
+
+      value = value.and.MA_pop_stack(kvs(2))
+
+      if (.not. value)
+     >  call errquit('control_ksvector: failed to free stack', 0,
+     &       MA_ERR)
+      return
+      end
+
+
+*     ************************************
+*     *                	 	         *
+*     *    control_kvector_structure	 *
+*     *                                  * 
+*     ************************************
+      subroutine control_kvector_structure(i,kv)
+      implicit none
+      integer i
+      real*8  kv(3)
+
+*     **** local variables ****
+      real*8 ks(4)
+
+*     **** external functions ****
+      real*8   lattice_unitg
+      external lattice_unitg
+
+      call control_ksvector_structure(i,ks)
+
+      kv(1) = ks(1)*lattice_unitg(1,1)
+     >      + ks(2)*lattice_unitg(1,2)
+     >      + ks(3)*lattice_unitg(1,3)
+      kv(2) = ks(1)*lattice_unitg(2,1)
+     >      + ks(2)*lattice_unitg(2,2)
+     >      + ks(3)*lattice_unitg(2,3)
+      kv(3) = ks(1)*lattice_unitg(3,1)
+     >      + ks(2)*lattice_unitg(3,2)
+     >      + ks(3)*lattice_unitg(3,3)
+
       return
       end
 

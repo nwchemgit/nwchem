@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.5 2003-10-17 22:56:11 carlfahl Exp $
+* $Id: cpsi_write.F,v 1.6 2004-11-14 23:31:50 bylaska Exp $
 *
 
 *     ***************************
@@ -72,6 +72,9 @@ c     complex*16 tmp(*)
      >                                .false.,
      >                       full_filename)
          l = index(full_filename,' ') -1
+         write(*,1210) full_filename(1:l)
+ 1210    FORMAT(/' output psi filename:',A)
+
          call openfile(6,full_filename,l,'w',l)
          call iwrite(6,version,1)
          call iwrite(6,nfft,3)

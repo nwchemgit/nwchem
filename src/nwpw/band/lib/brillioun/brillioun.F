@@ -1,5 +1,5 @@
 *
-* $Id: brillioun.F,v 1.4 2003-10-17 22:56:01 carlfahl Exp $
+* $Id: brillioun.F,v 1.5 2004-11-14 23:31:49 bylaska Exp $
 *
 
 *     ***********************************
@@ -72,6 +72,54 @@
 
       return
       end
+
+
+*     ***********************************
+*     *					*
+*     *	   brillioun_structure_init	*
+*     *					*
+*     ***********************************
+      subroutine brillioun_structure_init(nb)
+      implicit none
+      integer nb
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "brillioun_common.fh"
+
+*     **** local variables ****
+      logical value
+      real*8  kvec(3),ksvec(4)
+
+      nbrillioun = 1
+
+*     **** allocate from MA heap ****
+      value = MA_alloc_get(mt_dbl,(nbrillioun),
+     >                     'weight',weight(2),weight(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(3*nbrillioun),'ks',ks(2),ks(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(3*nbrillioun),'kv',kv(2),kv(1))
+      if (.not. value)
+     > call errquit('brillioun_structure_init:out of heap memory',
+     >              0,MA_ERR)
+
+
+      call control_ksvector_structure(nb,ksvec)
+      call control_kvector_structure(nb,kvec)
+      dbl_mb(kv(1))    = kvec(1)
+      dbl_mb(kv(1)+1)  = kvec(2)
+      dbl_mb(kv(1)+2)  = kvec(3)
+
+      dbl_mb(ks(1))    = ksvec(1)
+      dbl_mb(ks(1)+1)  = ksvec(2)
+      dbl_mb(ks(1)+2)  = ksvec(3)
+      dbl_mb(weight(1))= 1.0d0
+
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*

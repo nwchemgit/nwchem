@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.5 2003-10-17 22:56:11 carlfahl Exp $
+* $Id: cpsi_read.F,v 1.6 2004-11-14 23:31:50 bylaska Exp $
 *
 
 #define TCGMSG
@@ -10,12 +10,12 @@
 *     ***************************
       subroutine cpsi_read(ispin,ne,nbrillioun,psi2)
       implicit none 
-#include "errquit.fh"
       integer ispin,ne(2),nbrillioun
       double complex psi2(*)
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "errquit.fh"
 
 #ifdef TCGMSG
 #include "tcgmsg.fh"
@@ -68,6 +68,9 @@ c     complex*16 tmp(*)
      >                                .false.,
      >                        full_filename)
          l = index(full_filename,' ') -1
+         write(*,1210) full_filename(1:l)
+ 1210    FORMAT(/' input psi filename:',A)
+
          call openfile(5,full_filename,l,'r',l)
          call iread(5,version,1)
          call iread(5,nfft,3)

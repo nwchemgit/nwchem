@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.11 2004-02-22 18:56:28 bylaska Exp $
+c $Id: nwpw_default.F,v 1.12 2004-11-14 23:31:44 bylaska Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 *     ***** local variables *****
       integer ind               
       logical      value
-      character*30 cell_name,zone_name
+      character*30 cell_name,zone_name,structure_name
       character*30 input_wavefunction_filename
       character*30 output_wavefunction_filename
       character*30 input_ewavefunction_filename
@@ -39,6 +39,7 @@ c
 *     ***** initializations ****
       cell_name             = 'cell_default'
       zone_name             = 'zone_default'
+      structure_name        = 'structure_default'
       call util_file_prefix('movecs',input_wavefunction_filename)
       call util_file_prefix('movecs',output_wavefunction_filename)
       call util_file_prefix('emovecs',input_ewavefunction_filename)
@@ -97,6 +98,9 @@ c     value = rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
 
       ind = index(zone_name,' ') - 1
       value = rtdb_cput(rtdb,'band:zone_name',1,zone_name(1:ind))
+      ind = index(structure_name,' ') - 1
+      value = rtdb_cput(rtdb,'band_structure:zone_name',1,
+     >                  structure_name(1:ind))
 
       ind = index(input_wavefunction_filename,' ') - 1
       value = value.and.
@@ -234,6 +238,7 @@ c    >        rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid)
       ny = 1
       nz = 1
       call monkhorst_pack_set(rtdb,zone_name,nx,ny,nz)
+      call monkhorst_pack_set(rtdb,structure_name,nx,ny,nz)
 
       
 

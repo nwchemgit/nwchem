@@ -4,8 +4,9 @@
 *     *             			*
 *     ***********************************
 
-      subroutine c_OrthoCheck(ispin,ne,nbrill,psi1)
+      subroutine c_OrthoCheck(indx,ispin,ne,nbrill,psi1)
       implicit none 
+      integer indx
       integer ispin,ne(2),nbrill
       double complex psi1(*)
 
@@ -20,6 +21,12 @@
       complex*16 w
       character*255 full_filename
 
+
+*     **** external functions ****
+      character*7 bead_index_name
+      external    bead_index_name
+
+
       call Parallel_taskid(taskid)
       call Cram_max_npack(npack1)
 
@@ -30,7 +37,7 @@
       neall = ne(1)+ne(2)
 
 *     **** produce CHECK FILE ****
-      call util_file_name('ORTHOCHECK',
+      call util_file_name('ORTHOCHECK'//bead_index_name(indx),
      >                             .true.,
      >                             .false.,
      >                             full_filename)

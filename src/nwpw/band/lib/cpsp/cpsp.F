@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.17 2004-11-13 02:22:05 bylaska Exp $
+* $Id: cpsp.F,v 1.18 2004-11-14 23:31:49 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1268,6 +1268,7 @@ c       close(11)
      >       ((boundry(1:l).eq.'aperiodic').and.(version.ne.4))) then
               correct_box = .false.
               if (taskid.eq.MASTER) then
+              write(6,*)
               write(6,*) "pseudopotential is not correctly formatted:",
      >                    fname
               end if
@@ -1276,6 +1277,7 @@ c       close(11)
            if (ierr.eq.1)   then
               found = .false.
               if (taskid.eq.MASTER) then
+              write(6,*)
               write(6,*) "pseudopotential is not correctly formatted-",
      >                   "bad brillioun zone:",fname
               end if

@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.16 2004-11-13 02:22:05 bylaska Exp $
+* $Id: cpsi.F,v 1.17 2004-11-14 23:31:50 bylaska Exp $
 *
 
 
@@ -43,9 +43,9 @@
       end
 
 *     ***************************
-*     *		            		*
-*     *		cpsi_check      	*
-*     *				            *
+*     *		            	*
+*     *		cpsi_check     	*
+*     *			        *
 *     ***************************
       subroutine cpsi_check()
       implicit none
@@ -54,7 +54,24 @@
 #include "cpsi_common.fh"
 
 
-      call c_OrthoCheck(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))  
+      call c_OrthoCheck(0,ispin,ne,nbrillioun,dcpl_mb(psi1(1)))  
+      return
+      end
+
+*     ***************************
+*     *		            	*
+*     *	    cpsi_check_indx    	*
+*     *			        *
+*     ***************************
+      subroutine cpsi_check_indx(indx)
+      implicit none
+      integer indx
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+
+      call c_OrthoCheck(indx,ispin,ne,nbrillioun,dcpl_mb(psi1(1)))  
       return
       end
 
@@ -1018,12 +1035,13 @@ c      end
 *     *				*
 *     ***************************
 
-      logical function cpsi_initialize()
+      logical function cpsi_initialize(ortho)
       implicit none 
-#include "errquit.fh"
+      logical ortho
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "errquit.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -1163,8 +1181,10 @@ c      end
 
 
 *     **** Ortho Check ****
+      if (ortho) then
       call Stfl_g_OrthoCheckMake(ispin,ne,npack1,neall,nbrillioun,
      >                        dcpl_mb(psi1(1)))
+      end if
 
       cpsi_initialize = value
       return

@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.4 2004-11-13 02:22:06 bylaska Exp $
+* $Id: band_structure.F,v 1.5 2004-11-14 23:31:50 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -37,7 +37,8 @@
       integer ngrid(3),nwave,nfft3d
 
 *     ***** energy variables ****
-      real*8  E(10)
+      integer vall(2),nn,nb,ispin,ne(2)
+      real*8  E(10),en(2)
       real*8  dipole(3)
       real*8  stress(3,3)
 
@@ -45,7 +46,7 @@
       integer fion(2)
 
 *     **** error variables ****
-      logical value
+      logical value,ortho
       integer ierr
 
 *     **** local variables ****
@@ -54,6 +55,8 @@
       real*8  EV,pi
       integer i,k,ia,nion,vers,nbrillioun,icharge
       integer mapping
+      character*255 full_filename
+
   
 
 
@@ -98,10 +101,10 @@
       real*8   c_ewald_rcut,c_ewald_mandelung,c_ewald_e
       external c_ewald_ncut
       external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
-      logical  cpsp_semicore,psi_filefind,cpsi_initialize
-      external cpsp_semicore,psi_filefind,cpsi_initialize
-      real*8   c_cgsd_noit_energy
-      external c_cgsd_noit_energy
+      logical  cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
+      external cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
+      real*8   c_cgsd_noit_energy,cpsi_1energy,cpsi_eigenvalue
+      external c_cgsd_noit_energy,cpsi_1energy,cpsi_eigenvalue
       integer  cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
       external cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
       real*8   cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
@@ -114,6 +117,8 @@
       external pspw_reformat_c_wvfnc
       integer  control_mapping
       external control_mapping
+      integer  control_num_kvectors_structure,control_excited_ne
+      external control_num_kvectors_structure,control_excited_ne
     
 
 
@@ -235,7 +240,7 @@
            end if
         end if
       end if
-      value = cpsi_initialize()
+      value = cpsi_initialize(.true.)
 
 
 
@@ -344,12 +349,192 @@
 
 
 
+      !**** set the size of the band - include virtual orbitals ****
+      ispin = cpsi_ispin()
+      ne(1) = cpsi_ne(1)+control_excited_ne(1)
+      ne(2) = 0
+      if (ispin.gt.1) ne(2) = cpsi_ne(2)+control_excited_ne(2)
 
 
       if (taskid.eq.MASTER) call current_second(cpu2)
 
+*     **** allocate vall ****
+      value = MA_alloc_get(mt_dcpl,2*nfft3d,'vall',vall(2),vall(1))
+      if (.not. value)
+     >  call errquit('band_structure:out of heap memory',0, MA_ERR)
+
+
+
       EV = c_cgsd_noit_energy()
+      call c_electron_gen_vall()
+      call c_electron_get_vall(dcpl_mb(vall(1)))
+
       if (taskid.eq.MASTER) write(luout,1600) EV
+
+
+
+*     **** deallocate heap memory ****
+      value=cpsi_finalize()
+
+      call c_electron_finalize()
+      call c_geodesic_finalize()
+      call c_ewald_end()
+      call cstrfac_end()
+      call c_coulomb_end()
+      call cke_end()
+      call cpsp_end()
+      call Cram_end()
+      call c_G_end()
+      call brillioun_end()
+
+
+*     **** produce eigenvalue band file(s) ****
+      if (ispin.eq.1) then
+        call util_file_name('restricted_band',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=58,file=full_filename,form='formatted')
+        end if
+      else
+        call util_file_name('alpha_band',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=58,file=full_filename,form='formatted')
+        end if
+        call util_file_name('beta_band',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=59,file=full_filename,form='formatted')
+        end if
+      end if
+
+
+
+      call control_reset_band_structure()
+      do k=1,control_num_kvectors_structure()
+        ortho = .true.
+
+        if (taskid.eq.MASTER) then
+          write(*,1301) k
+        end if
+
+
+*     **** initialize lattice data structure ****
+      call lattice_init()
+      call c_G_init()
+      call brillioun_structure_init(k)
+      call Cram_init()
+
+*     **** allocate psp data structure and read in psedupotentials into it ****
+      call cpsp_init()
+      call cpsp_readall()
+      if (cpsp_semicore(0)) call c_semicore_check()
+
+
+*     **** initialize ke,and coulomb data structures ****
+      call cstrfac_init()
+      call cke_init()
+      call c_coulomb_init()
+      call c_ewald_init()
+
+
+*     **** set up phase factors at the current geometry  ****
+      call cphafac()
+      call cphafac_k()
+
+*     **** read in wavefunctions and initialize psi ****
+      if (.not.psi_filefind()) then
+        call cpsi_new_ne(ispin,ne)
+        newpsi = .true.
+        ortho  = .false.
+
+      else
+        newpsi = .false.
+
+*       **** convert from pspw format to band format ****
+        vers = psi_get_version()
+        if ((vers.eq.3).or.(vers.eq.4)) then
+           nbrillioun = brillioun_nbrillioun()
+           newpsi = .true.
+           if (taskid.eq.MASTER) then
+             value= pspw_reformat_c_wvfnc(1)
+           end if
+        end if
+      end if
+      value = cpsi_initialize(ortho)
+
+*     **** electron and geodesic data structures ****
+      call c_electron_init()
+      call c_geodesic_init()
+      call linesearch_init()
+
+
+
+
+*     **** diagonalize hamiltonian and rotate psi ****
+      call c_electron_set_vall(dcpl_mb(vall(1)))
+      call cpsi_KS_minimize(1,.false.,control_tole())
+      call cpsi_check_indx(k)
+
+
+      if (taskid.eq.MASTER) then
+         NN=cpsi_ne(1)-cpsi_ne(2)
+         EV=27.2116
+         nb=1
+           write(luout,1508) k,
+     >                   brillioun_weight(nb),
+     >                   brillioun_ks(1,nb),
+     >                   brillioun_ks(2,nb),
+     >                   brillioun_ks(3,nb),
+     >                   brillioun_k(1,nb),
+     >                   brillioun_k(2,nb),
+     >                   brillioun_k(3,nb)
+           write(luout,1500)
+           do i=0,NN-1
+             write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
+     >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
+           end do
+           do i=0,cpsi_ne(2)-1
+             write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
+     >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
+     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
+     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
+           end do
+           write(58,'(I3,1000E14.6)') k,
+     >          (cpsi_eigenvalue(nb,1,i),i=1,cpsi_ne(1))
+           if (ispin.eq.2)
+     >      write(59,'(I3,1000E14.6)') k,
+     >          (cpsi_eigenvalue(nb,2,i),i=1,cpsi_ne(2))
+         
+      end if
+
+
+
+*     **** deallocate heap memory ****
+      value = cpsi_finalize()
+
+      call c_electron_finalize()
+      call c_geodesic_finalize()
+      call c_ewald_end()
+      call cstrfac_end()
+      call c_coulomb_end()
+      call cke_end()
+      call cpsp_end()
+      call Cram_end()
+      call c_G_end()
+      call brillioun_end()
+
+      end do
+      if (taskid.eq.MASTER) then
+        close(58)
+        if (ispin.eq.2) close(59)
+      end if
 
 
       if (taskid.eq.MASTER) call current_second(cpu3)
@@ -359,19 +544,9 @@
 *                |***************************|
 
       
-*     **** write wavefunctions to file and finalize psi ****
-      call cpsi_finalize()
 
 *     **** deallocate heap memory ****
-      call c_electron_finalize()
-      call c_geodesic_finalize()
-      call c_ewald_end()
-      call cstrfac_end()
-      call c_coulomb_end()
-      call cpsp_end()
-      call Cram_end()
-      call c_G_end()
-      call brillioun_end()
+      value = MA_free_heap(vall(2))
       call ion_end()
       call C3dB_end(1)
       IF (control_gga().eq.1) THEN
@@ -390,7 +565,6 @@
          T2=CPU3-CPU2
          T3=CPU4-CPU3
          T4=CPU4-CPU1
-         AV=T2/dble(c_electron_count())
          write(luout,*)
          write(luout,*) '-----------------'
          write(luout,*) 'cputime in seconds'
@@ -398,45 +572,31 @@
          write(luout,*) 'main loop   : ',T2
          write(luout,*) 'epilogue    : ',T3
          write(luout,*) 'total       : ',T4
-         write(luout,*) 'cputime/step: ',AV,
-     >              '   (',c_electron_count(),' evalulations, ', 
-     >                     linesearch_count(),' line searches)'
 
          write(luout,*)
          write(luout,*) '-------------------------------'
          write(luout,*) 'Time spent doing:'
          write(luout,*) '  FFTs                       : ', 
-     >                          nwpw_timing(1),
-     >                          nwpw_timing(1)/dble(c_electron_count())
+     >                          nwpw_timing(1)
          write(luout,*) '  dot products               : ', 
-     >                          nwpw_timing(2),
-     >                          nwpw_timing(2)/dble(c_electron_count())
+     >                          nwpw_timing(2)
          write(luout,*) '  geodesic                   : ', 
-     >                          nwpw_timing(10),
-     >                          nwpw_timing(10)/dble(c_electron_count())
+     >                          nwpw_timing(10)
          write(luout,*) '  exchange correlation       : ', 
-     >                          nwpw_timing(4),
-     >                          nwpw_timing(4)/dble(c_electron_count())
+     >                          nwpw_timing(4)
          write(luout,*) '  local pseudopotentials     : ', 
-     >                          nwpw_timing(5),
-     >                          nwpw_timing(5)/dble(c_electron_count())
+     >                          nwpw_timing(5)
          write(luout,*) '  non-local pseudopotentials : ', 
-     >                          nwpw_timing(6),
-     >                          nwpw_timing(6)/dble(c_electron_count())
+     >                          nwpw_timing(6)
          write(luout,*) '  hartree potentials         : ', 
-     >                          nwpw_timing(7),
-     >                          nwpw_timing(7)/dble(c_electron_count())
+     >                          nwpw_timing(7)
          write(luout,*) '  structure factors          : ', 
-     >                          nwpw_timing(8),
-     >                          nwpw_timing(8)/dble(c_electron_count())
+     >                          nwpw_timing(8)
          write(luout,*) '  masking and packing        : ', 
-     >                          nwpw_timing(9),
-     >                          nwpw_timing(9)/dble(c_electron_count())
+     >                          nwpw_timing(9)
          write(luout,*)
          CALL nwpw_MESSAGE(4)
       end if 
-
-
 
       call Parallel_Finalize()
       band_structure = value
@@ -503,6 +663,8 @@
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
  1300 FORMAT(//)
+ 1301 FORMAT(//'== Optimizing Brillouin Zone Point:',I6,' =='/)
+ 1304 FORMAT(/)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
@@ -528,6 +690,10 @@
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
+ 1508 FORMAT(/' Brillouin zone point: ',i2,
+     >       /'    weight=',f10.6,
+     >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
+     >       /'          =<',3f8.3,'>')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1600 FORMAT(/' Total BAND energy   :',E19.10)
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
