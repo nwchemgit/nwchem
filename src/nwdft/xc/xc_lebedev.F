@@ -1,7 +1,7 @@
       subroutine xc_lebedev(iacc,nang,lpri1)
       implicit none
 
-C$Id: xc_lebedev.F,v 1.2 1995-12-19 20:20:58 og845 Exp $
+C$Id: xc_lebedev.F,v 1.3 1996-02-21 09:46:55 d3e129 Exp $
 
 #include "quad.fh"
 #include "stdio.fh"
@@ -18,6 +18,12 @@ C
      * itop(3,3,6),isig(3,8)
       double precision fourpi
       parameter(fourpi=4.d0*3.1415926535897932385d0)
+c
+      integer nop,n48,iv,k,ks,isi,j,ia,nang,iaz,
+     ,     jk,jk1,nvjj,l
+      double precision wtest,fasfj,x0,y0,z0,
+     ,     gjkt1,gjkt2,gjkt3
+c
       data itop/
      *1,0,0,0,1,0,0,0,1, 1,0,0,0,0,1,0,1,0,
      *0,1,0,1,0,0,0,0,1, 0,0,1,0,1,0,1,0,0,
@@ -200,11 +206,6 @@ c
      *     25,26,27,28,29,30,31,32,33,34,35,36,
      *     37,38,39,40,41,42,43,44,45,46,47,48/
       data nridv/38,50,110,194,266,302,434/
-c
-      integer nop,n48,iv,k,ks,isi,j,ia,nang,iaz,
-     ,     jk,jk1,nvjj,l
-      double precision wtest,fasfj,x0,y0,z0,
-     ,     gjkt1,gjkt2,gjkt3
 c
       lpri2=.false.
       nop=0
