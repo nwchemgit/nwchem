@@ -1,0 +1,522 @@
+\documentstyle{article}
+\begin{document}
+
+\title{API for plane-waves in NWChem}
+
+\author{Arthur Smith}
+
+\date{\today}
+\maketitle
+
+\section{General outline}
+There are two general features of plane-wave basis sets which justify
+a substantially different treatment from, for example, Gaussian basis
+sets. First, the basis set is not linked to the actual atomic positions,
+other than to the size of the periodic cell in which the atoms are contained,
+(in fact, for plane waves each individual basis element extends throughout
+this cell). Second, the basis sets tend to be very large while calculations
+involving a single basis element (overlaps for example) are essentially
+trivial, so the computational challenges differ considerably. For plane-wave
+density-functional theory with separable non-local pseudopotentials,
+all calculations can be accomplished in a time linear (or $N \log(N)$) in
+the basis-set size (there are further dependences on the number of atoms
+and orbitals, of course).
+
+Both of these features (independence of atomic positions, and large
+size with mostly trivial overlaps) can also be said to apply to
+other types of basis sets that we may wish to implement in the future: 
+pure real-space grid methods (the plane-wave technique already does
+much of the computation on a real-space grid), multi-grid methods,
+mixed-basis techniques, or even wavelets. I believe the API should
+be designed in such a way that programmers will need to make only minimal
+modifications to a higher-level application code in order to utilize
+a new basis set when/if one becomes available.
+
+\section{Pre-requisites}
+
+Plane-wave basis sets are only directly applicable to periodic systems -
+solids in particular, although other systems can be readily treated
+by super-cell methods. Thus the application must have previously
+specified a periodically repeated cell of some sort.
+
+In addition,
+particularly for relative small periodic cells, a collection of
+special {\bf k}-points must be specified (selected according to the
+cell symmetry) which will be used to approximate the integration of
+quantities over the Brillouin zone of the cell with a weighted sum
+over these {\bf k}-points.
+
+For large systems or for molecules/clusters treated in the supercell
+approximation, it is often appropriate to just use the single point
+{\bf k = 0}. In any case, the code should assume the {\bf k}-points
+have been previously specified.
+
+\section{Handling the basis sets}
+
+There is then a slightly different plane-wave basis set for each
+{\bf k}-point, and another (usually larger one) for the charge density.
+These are specified by the dimensions of the periodic
+cell of the system, and by some sort of cutoff - generally the requirement
+that:
+\begin{equation}
+\hbar^2|{\bf k + G}|^2/2m < E_{cut}
+\end{equation}
+for the wavefunction basis sets and:
+\begin{equation}
+\hbar^2 |{\bf G}|^2/2m < d \cdot E_{cut}
+\end{equation}
+for the charge density, where the parameter $d$ is between 1 and 4 and
+determines the degree to which the charge density completely reproduces 
+all oscillations in the wavefunctions.
+
+The reciprocal lattice vectors {\bf G} are simply integer linear combinations
+\begin{equation}
+{\bf G}^{\alpha} = n^{\alpha}_1 {\bf b}_1 + n^{\alpha}_2 {\bf b}_2 +
+			n^{\alpha}_3 {\bf b}_3
+\end{equation}
+of the fundamental reciprocal lattice vectors ${\bf b}_i$, which satisfy
+\begin{equation}
+{\bf b}_i \cdot {\bf a}_j = 2 \pi \delta_{ij}
+\end{equation}
+and where the ${\bf a}_j$ are the fundamental lattice vectors specifying
+the periodic cell of the system.
+
+The {\bf G} values used (and the corresponding $n^{\alpha}_i$ triplets)
+are specified by spherical (ellipsoidal) regions surrounding the origin for
+the charge density and {\bf k = 0} wavefunctions, or by similar regions
+surrounding points close to the origin for ${\bf k} \neq {\bf 0}$.
+
+In order to apply Fast-Fourier-Transform (FFT) techniques to allow
+transformations between the plane-wave basis set and a real-space grid on
+which charge density and potential calculations are performed,
+the triplets $n^{\alpha}_i$ must be mapped to corresponding points in
+a three-dimensional integer rectangular grid $N_1 \times N_2 \times N_3$.
+Each of the $N_i$ must be greater than twice the largest absolute value
+of all the $n_i$, and for most library FFTs must be a power of two. After
+applying the FFT, the resulting data is associated with a real-space grid
+at the points:
+\begin{equation}
+{\bf r}_{ijk} = {i \over N_1} {\bf a}_1 + {j \over N_2} {\bf a}_2 +
+		{k \over N_3} {\bf a}_3
+\end{equation}
+
+Note that the point i, j, k in the $N_1 \times N_2 \times N_3$ reciprocal
+space array is associated with a triplet $n^{\alpha}_l$ close to the
+origin as follows:
+\begin{equation}
+{\rm if\ \ } i < N_1/2 {\rm\ \  then\ \ } n^{\alpha}_1 = i
+\end{equation}
+\begin{equation}
+{\rm if\ \ } i > N_1/2 {\rm\ \  then\ \ } n^{\alpha}_1 = i - N_1
+\end{equation}
+and similarly for j and k.
+
+
+\subsection{Data distribution}
+Utilizing these FFT methods, the application of the Hamiltonian to
+a wavefunction involves diagonal operators or products of diagonal
+operators (see the section on applying H to $\psi_i$ below). One
+nice aspect of a diagonal operator on a parallel computer is that
+however the vectors involved are distributed on the machine, application
+of the operator involves no communication (as long as the components
+of the operator itself are either distributed in the same way as the
+vectors, or are calculated when needed). In other words, calculation of
+\begin{equation}
+	g_i ({\bf r}) = f({\bf r}) \psi_i({\bf r})
+\end{equation}
+is a local operation, no matter where the components $\psi_i({\bf r})$
+actually reside.
+
+However, communication {\it is}\ required during the FFT operations
+if $\psi_i({\bf r})/\psi_i({\bf G})$ is distributed in {\bf r}/{\bf G},
+and extensive communication
+is also required during orthogonalization and similar inner-product
+operations if $\psi_i({\bf r})/\psi_i({\bf G})$ is distributed in the
+index $i$. In addition, since we are thinking of data-decomposition and not
+task-decomposition here, steps must be taken to ensure that every
+process carries roughly the same number of coefficients $\psi_i({\bf G})$,
+which is best accomplished by some form of interleaving. Note that
+$\psi_i({\bf r})$ will naturally be evenly distributed in {\bf r} under most
+decompositions because the {\bf r} lie on a rectangular grid, while
+the relevant {\bf G} values lie within a sphere, for which block
+decompositions may leave some processors with few or no {\bf G}-vectors.
+
+A further complication in the {\bf k = 0} situation is that the
+coefficients for {\bf G} and {\bf -G} are complex conjugates, and therefore
+nearly a factor of two in memory and speed can be gained by keeping only
+one of the two coefficients. But that means in the data decomposition,
+{\bf G} and {\bf -G} should be covered by the same process, requiring
+a reversed interleaving for negative values of the $n_i$.
+
+\subsection{The initialization API}
+Thus the fundamental information needed to initialize a particular plane-wave
+basis set is:
+\begin{enumerate}
+\item The periodic cell vectors ${\bf a}_i$
+\item The {\bf k}-vectors used.
+\item The energy cutoff $E_{cut}$
+\item The charge density basis parameter $d$.
+\item Some information about number of processes, preferred data
+decomposition, and possibly process communication topology, in order
+to determine the distribution of G and R vectors among nodes.
+\item Preferred values of $N_1, N_2, N_3$ (optional)
+\item The vectors ${\bf b}_i$ (optional - might be useful
+for modularization).
+\end{enumerate}
+
+Returned from the initialization will be:
+\begin{enumerate}
+\item The size of the basis set for each k-point, and for the charge
+density, including total size, and number allocated to this process.
+\item Some form of listing of the G-vectors: at least the $n^{\alpha}_i$,
+preferably also the actual vectors {\bf G} and their (squared?) magnitudes.
+\item The output values of $N_1, N_2, N_3$ for the whole space and
+for the sub-blocks (or other arrangement) allocated to this process.
+\item Optionally, the ${\bf b}_i$ vectors.
+\end{enumerate}
+
+\subsection{The allocation API}
+Typically, we'll be allocating some number $n_{orbitals}$ of
+complex coefficients of the $ng({\bf k})$ plane waves for each of
+the {\bf k}. In addition, there will be several auxiliary arrays
+individually of approximate size $ng$, including arrays to handle
+the charge density and components of the potential. And we also need
+a few complex and real arrays on the $N_1\times N_2 \times N_3$
+real-space grid.
+
+These would presumably be allocated with GA routines or something
+similar - for example in our hybrid decomposition approach, the first
+set of coefficient arrays would be distributed across all the processors. The
+second set, of auxiliary arrays, would be distributed across the processors
+within a group (the spatial decomposition subgroups) but duplicated (sometimes
+with identical data) in all such groups, in order to eliminate all
+communications except during FFT and orthogonalization (and global operation)
+routines.
+
+Inputs then to an allocator would be:
+\begin{enumerate}
+\item A tag specifying the basis set (previously initialized).
+\item The data type of the coefficients (real or complex, or something else?)
+\item The number of ($ng$ arrays) of this type to be
+allocated ($n_{orbitals}$ for example.
+\item Optionally: A flag indicating whether the data should be
+initialized with random values or with zeroes.
+\end{enumerate}
+
+Output would be a tag specifying the coefficient matrix, similar to
+GA matrix allocation, maybe?
+
+\subsection{API for basis set operations}
+
+Once we have the basis set specifications, there are a number of
+operations we'll need to do anything with them:
+\begin{enumerate}
+\item Copy
+\item Scale or AXPY
+\item application of a diagonal operator (GBMV?)
+\item Inner product
+\item Send and receive, or get and put to a different process
+\item Transformation between basis sets
+\item Computation of basis set overlaps for different basis sets
+\end{enumerate}
+
+Most of these are straightforward: probably only the last two
+will require much thought. We'll want to do more complicated
+things with the charge density (at least in calculation of
+the exchange-correlation energy), but that is probably a special
+case that can be dealt with separately.
+
+There are a couple of transformations between basis sets we
+might want to consider implementing initially: within a G-space
+representation, changing form one cutoff energy to a different
+one is trivial in principle (just chop, or zero-pad) but
+not necessarily in practice where reading in a starting configuration
+from an old basis set may misplace coefficients if you are not
+careful (we have not yet successfully implemented this using
+our current code, for example). Transformations between G-space and
+real-space are essential to computation of the charge density and
+evaluation of the real-space potentials, and this can be viewed
+as one kind of general basis-set transformation (implemented
+through fast Fourier transforms).
+
+I think computation of overlaps will not be necessary until
+mixed Gaussian and plane-wave bases are being considered, but
+it might be worth-while thinking about how to do it now.
+
+\section{Applying H to $\psi_i$}
+
+We can use various minimization techniques to isolate the
+lowest $n_{occupied}$ eigenstates of H. Because $ng$ is so much
+larger, we never want to construct the full $ng\times ng$ matrix,
+so most of these techniques start from the residual
+\begin{equation}
+H \psi_i - \epsilon_i \psi_i.
+\end{equation}
+and the most computationally intensive part of the code is
+going to be evaluation of the Hamiltonian-vector product H$\psi_i$.
+
+\subsection{Kinetic energy}
+
+The kinetic energy operator is evaluated in the reciprocal space
+representation:
+\begin{equation}
+T \psi_i({\bf G}) = {\hbar^2|{\bf k + G}|^2 \over 2m} \psi_i({\bf G})
+\end{equation}
+
+The values of $|{\bf k + G}|^2$ should be pre-stored (possibly
+returned from the initialization routine above) and so this is
+a straightforward operation. However, since this is peculiar to
+the plane-wave basis, it might be a good idea to define a kinetic
+energy API (for example, for pure real-space grids, the kinetic energy
+could be evaluated using finite-difference techniques). For such
+an API the input is a basis-set specifier and the coefficient matrix
+(with an integer specifying how many orbitals to work on at once)
+and output is the matrix of result vectors (placed in a work area provided).
+
+\subsection{The real-space potentials}
+
+These are comprised of the local pseudopotential, the Hartree
+(electron-electron Coulomb) potential and  the exchange-correlation potential.
+The potentials themselves are evaluated as follows:
+\begin{equation}
+V_{local}({\bf G}) = \sum_{is} u_{is}({\bf G}) S_{is}({\bf G})
+\end{equation}
+where $is$ is an index counting the atomic species in the system,
+$u_{is}$ is the potential from a single atom of this species, and
+$S_{is}$ is a structure factor for the species:
+\begin{equation}
+S_{is}({\bf G}) = \sum_{ia} \exp(i {\bf G}\cdot {\bf r}_{ia})
+\end{equation}
+where $ia$ runs over all atoms of species $is$. $u_{is}$ and $S_{is}$
+would be distributed in the same fashion as the {\bf G}'s, but with
+all species $is$ together (not distributed), and so duplicated
+in the same fashion as $V_{local}({\bf G})$ itself: among processes with the
+same {\bf G}'s but different collections of orbitals. So this computation
+involves no communication, except for the FFT required in the end
+to produce a real-space potential.
+
+The electron-electron direct Coulomb interaction is easily evaluated:
+\begin{equation}
+V_{Hartree}({\bf G}) = 4\pi \rho(G)/G^2
+\end{equation}
+except for ${\bf G} = {\bf 0}$ where the corresponding term is
+a constant that is added to the constant electrostatic energy of the
+periodic system usually evaluated by Ewald summation. Similarly, the
+only communication required here is the final FFT, although there
+will be duplication if the orbitals are distributed.
+
+Both $V_{local}$ and $V_{Hartree}$ are then FFT'd to real space, and
+can be added to the exchange correlation potential:
+\begin{equation}
+V_{xc}({\bf r}) = V_{xc}(\rho({\bf r}), \nabla \rho({\bf r}), ...)
+\end{equation}
+which requires no communication at all, except in the
+evaluation of the charge density and gradients:
+
+The charge density $\rho({\bf r})$ is calculated as the sum
+\begin{equation}
+\rho({\bf r}) = \sum_{i} |\psi_i({\bf r})|^2
+\end{equation}
+and the gradient is:
+\begin{equation}
+\nabla\rho({\bf r}) = FFT \bigl\{ i {\bf G} \rho({\bf G}) \bigr\}
+\end{equation}
+and similarly for higher derivatives.
+
+The duplication discussed could be eliminated at the expense of
+more communication: we should probably study this at some point. In
+particular since the gradient-dependent exchange correlation potential 
+cannot be done by table-lookup (because it depends on more than one
+parameter, unlike the LDA) the computation involved may be sufficient
+to justify distributing it.
+
+An API for a set of subroutine calls to evaluate these potentials
+seems appropriate - what is needed on input is quite a variety of
+things: for the charge density calculation we probably want to
+pass the basis set information and the G-space coefficient matrix,
+and the output would be either the charge density on the real-space
+grid, or else the fitted charge-density in G-space (or both).
+For the local potential we need to pass in geometry information and
+information about the pseudopotential, as well as the basis set - output
+is the G-space representation of that potential. For the Hartree potential
+we pass in the charge density and basis set info, output is the G-space
+potential. For the gradients calculation pass in the G-space charge
+density, return the real-space charge density and gradients to be
+passed to an exchange-correlation subroutine, or else just return the
+real-space exchange-correlation potential.
+
+We also need an initialization API for the pseudopotential to
+generate the $u_{is}({\bf G})$, and
+for the exchange-correlation potentials (at least to allow
+choices between the possibilities, and also possibly to allow
+setting some of their parameters). More on the pseudopotential below...
+
+\subsection{The non-local pseudopotential}
+Using the Kleinman-Bylander separable decomposition, the non-local
+pseudopotential (for each species $is$!) can be evaluated in
+reciprocal space as follows (from memory, so bear with me if I
+missed a minus sign or something):
+\begin{eqnarray}
+V_{nl}^{lm} \psi_i ({\bf G}) = C^l
+		&\sum_{ia} U_{nl}^l({\bf k+G})Y_{lm}^*({\bf k + G})
+		\exp(i {\bf G}\cdot{\bf r}_{ia}) \cdot \cr
+		&\sum_{{\bf G}'} U_{nl}^l({\bf k + G}')Y_{lm}({\bf k + G}')
+		\exp(-i {\bf G}'\cdot{\bf r}_{ia})
+		\psi_i({\bf G}')\cr
+\end{eqnarray}
+where $ia$ is an index over all the atoms of species $is$, and $l$, $m$ are
+standard angular momentum quantum numbers. The $U_{nl}^l$ and $Y_{lm}$
+can be computed at initialization and are $O(N)$ in size so not too bad.
+This would then be summed over $l$, $m$, and species $is$.
+
+One big potential problem data and
+communication-wise here is the $\exp(i {\bf G}\cdot {\bf r}_{ia})$ matrix,
+which if precomputed and stored is $O(N^2)$ in size, and yet needs to be present
+for {\bf all} the orbitals (note that non-local calculation is an $O(N^3)$
+operation and thus one of the major time-consuming parts of the computation
+for large systems). What we do is evaluate the matrix only for {\bf G}
+vectors along the principal axes ${\bf b}_i$, and then compute the product
+of three complex numbers to get the final value when needed - this means
+we need to only store a matrix $O(N^{4/3})$ in size, but we need to
+ensure the correct sort of data-locality for that matrix.
+
+There are other ways of doing the nonlocal pseudopotentials: real-space only
+evaluations for example, or taking advantage of possible redundancy if a part
+of the system has a shorter periodicity (for example, the bulk portion of
+a surface problem) or other symmetry, or using complicated hybrids like
+the ultra-soft Vanderbilt pseudopotentials, and presumably other methods
+will come along.
+
+So I think two (or possibly three) subroutine calls would be involved
+that could be standardized on: initialization of the pseudopotential
+(calculation of the $U_{nl}({\bf k+ G})$ and local $u({\bf G})$ values)
+and of other needed quantities ($Y_{lm}({\bf k + G})$ and the
+$\exp(i {\bf G}\cdot {\bf r}_{ia})$ matrix); and application of
+the pseudopotential to a set of orbitals (either with an ion force
+calculation, or with forces calculated separately).
+
+\subsection{Dealing with the pseudopotentials}
+
+There may be several types of pseudopotentials we would want to
+handle - for example, it might be worth testing the Gaussian-derived
+ECP's with plane waves (maybe not?) Anyway, we must initially
+read in some representation of the pseudopotentials about each species
+of atom in the system, and the input format we currently use most
+often is a simple radial grid. These then need to be converted to
+the local $u({\bf G})$ and nonlocal $U_{nl}({\bf k+G})$ forms needed in
+the actual application of the pseudopotentials.
+
+Thus there needs to be some specification of the input representation
+of the pseudopotentials, and an initialization routine for converting
+that representation to one appropriate for the basis set. The associated
+API would have as input the input representation and specification
+of the (plane-wave) basis set, and as output the converted pseudopotential
+values.
+
+\section{Achieving self-consistency}
+
+With plane-wave basis sets the central problem of converging to
+a self-consistent charge-density (represented by a collection of
+occupied Kohn-Sham eigenfunctions) is fundamentally the same as for
+density functional theory with other basis sets. However, the principal
+constraint imposed by the large size of the plane-wave basis set is
+that we never know the full matrix $H$, only matrix-vector products
+$H \psi_i$, meaning that direct diagonalization cannot be performed,
+and instead iterative approaches are needed. In addition, of course,
+$H$ itself changes with each iteration because the charge density
+is changing. Among a wide variety of possibilities there are basically
+two iterative schemes that have become adopted in plane-wave basis-set
+methods: Car-Parrinello ``molecular-dynamics'' type iterations, and
+Teter-Payne-Allen preconditioned gradient iterations (often
+misnamed ``conjugate gradient'' iterations because the first implementation
+happened to use a multiple conjugate gradients updating scheme that
+has since proved inefficient compared to just using a single preconditioned
+gradient).
+
+The Car-Parrinello approach is to treat the energy gradient $H\psi$ as
+a force on the coefficients of $\psi$, so that in a ``time-step'' $\tau$,
+\begin{equation}
+\psi_i(t + \tau) = \psi_i(\tau) - {\tau^2 \over 2 m_{eff}} H\psi_i(tau),
+\end{equation}
+after which the new $\psi_i$ are orthogonalized to one another.
+When doing real dynamics a velocity term may also be included - as stated
+this is effectively just a steepest-descents algorithm. As such it
+is simple but rather inefficient for getting self-consistency, but
+on the other hand it is rather robust (always converging to the lowest
+occupied subspace, if you wait long enough) and in fact when coupled
+with atomic dynamics can be competitive with the Born-Oppenheimer
+approach required when using the preconditioned gradient methods.
+
+The preconditioned gradient methods have the following iterative step:
+\begin{enumerate}
+\item Generate residual vectors: $ R_i = (H - \epsilon_i) \psi_i$
+\item Apply a preconditioner: $B_i = P R_i$. As with the
+Davidson method, the preconditioner should be close to an inverse
+of the Hamiltonian.  In practice, a rational function of the kinetic
+energy (approaching 1/K.E. for high energy) works well with a
+plane-wave basis set.
+\item Orthogonalize the $B$'s to one another and to the $\psi's$.
+\item Generate $ H B_i $ and the subspace matrix  $ <V_i|H|V_j>$ where
+$V_i$ is $\psi_i$ for $i < n$ and $B_{i - n}$ for $i >= n$.
+\item Diagonalize within the subspace, and let the new $\psi$ vectors
+be the lowest $n$ eigenvectors.
+\item Generate the new charge density (generally by mixing in some
+of the old, otherwise instabilities arise) and the resulting new
+Hamiltonian, and repeat.
+\end{enumerate}
+These methods (there are variants based on whether you let $n = 1$ and
+have an outer loop over bands, or else let $n =$ all states, or else
+with different preconditioners) tend to be much faster than the
+steepest-descent approach to obtain a self-consistent set of electronic
+states. On the other hand they require more computation per step
+(twice as many Hamiltonian-vector operations, for example) and experience
+shows they tend to be less robust.
+
+Both methods could be implemented with no knowledge of the
+underlying basis sets or data decomposition, as long as the
+following subroutine calls were available:
+\begin{enumerate}
+\item Application of $H$ to $\psi$-type vectors
+\item Application of a preconditioner to $\psi$-type vectors
+\item AXPY operations on $\psi$-type vectors and $\rho$-type vectors
+\item Inner products on $\psi$-type vectors (at least for
+generating the $<V|H|V>$ matrix, possibly also for orthogonalization unless
+that was a separate subroutine call)
+\item Generating $\rho$ from $\psi_i$, and modifying $V_{xc}$ and $V_{Hartree}$
+accordingly, to complete the self-consistent loop.
+\end{enumerate}
+In addition, a diagonalization routine for $2 n\times 2 n$ matrices is
+needed, and probably should be done in parallel in accordance with
+the orbital decomposition of the data.
+
+\section{Energy and forces}
+
+At the highest level, an API that calls on the electronic
+energy minimization to generate the energy and forces for a particular
+configuration of atoms might be workable, and would certainly be
+useful. This would facilitate rapid comparison of different methods
+for a particular problem, in addition to providing a natural interface
+for standard molecular dynamics codes.
+
+Input to such a high level API would include:
+\begin{enumerate}
+\item Geometry - atomic configuration
+\item Basis set, pseudopotential specifications (data decomp?)
+\item (Optionally) Trial set of orbitals
+\item Convergence parameters: iteration method, maximum number of
+iterations, tolerance on the final numbers
+\end{enumerate}
+
+Output would of course be energy and forces, as well as
+(optionally) a final set of orbitals for restarting, and a flag
+specifying whether the convergence tolerance was actually reached.
+
+In addition, I think it would be important to have callable
+routines that estimate (or at least keep track of) memory usage
+and time per iteration, to allow analysis of resource utilization
+by the calling program. To do the estimate means having some kind
+of performance model of the code - we do already have such a thing
+for the memory usage, but have never tried it for timing...
+
+\end{document}
+\bye
