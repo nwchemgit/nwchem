@@ -13,7 +13,7 @@ c
 c
       real*8 rms0,rms1
 c
-      call ana_super(x,ix,nx,msa,xref,wt,xrms,nsa,nsa,.false.,rms0,rms1)
+      call super(x,ix,nx,msa,xref,wt,xrms,nsa,nsa,.false.,rms0,rms1)
 c
       if(me.eq.0) then
       write(lfnana,1000) time,rms0,rms1
