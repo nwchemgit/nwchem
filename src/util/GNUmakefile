@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.114 2000-05-18 02:10:46 edo Exp $
+# $Id: GNUmakefile,v 1.115 2000-06-16 22:56:52 bert Exp $
 
 include ../config/makefile.h
 
@@ -83,7 +83,11 @@ endif
 ifeq ($(TARGET),SGITFP)
        BLAS = dfill.o ifill.o mabyte_fill.o
 else
+  ifeq ($(TARGET),SGI_N32)
+       BLAS = dfill.o ifill.o mabyte_fill.o
+  else
        BLAS = dfill.o ifill.o rsg.o mabyte_fill.o
+  endif
 endif
    LIB_TARGETS = testsolve testecce
 
