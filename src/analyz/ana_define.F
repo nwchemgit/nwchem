@@ -1,6 +1,6 @@
       subroutine ana_define(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_define.F,v 1.1 2000-08-31 16:07:42 d3j191 Exp $
+c $Id: ana_define.F,v 1.2 2000-09-07 15:31:44 d3j191 Exp $
 c
       implicit none
 c
@@ -75,6 +75,9 @@ c
       endif
     3 continue
       endif
+c
+      write(*,1001) id,ldef(id)
+ 1001 format(' Atom group',i5,' contains ',i7,' atoms')
 c
       endif
 c

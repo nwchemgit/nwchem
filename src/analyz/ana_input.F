@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.31 2000-08-31 16:07:42 d3j191 Exp $
+c $Id: ana_input.F,v 1.32 2000-09-07 15:31:45 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel
-      integer itag,iatag,jatag
+      integer itag,iatag,jatag,ipbc
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval
       logical lref,lfil,lsol,lsuper
       integer iesppb,lent,idpdb,indx
@@ -295,8 +295,8 @@ c
       goto 2
       endif
 c
-c     select atoms
-c     ------------
+c     define groups of solute atoms
+c     -----------------------------
 c
       if(inp_compare(.false.,'define',item)) then
       if(.not.inp_i(ksel)) call errquit('ana_input: define',0)
@@ -326,6 +326,26 @@ c
       numcmd=numcmd+1
       if(atom(1:1).eq.' ') goto 2
       if(inp_a(atom)) goto 6
+      goto 2
+      endif
+c
+c     do things with groups of atoms
+c     ------------------------------
+c
+      if(inp_compare(.false.,'groups',item)) then
+      if(.not.inp_i(isel)) call errquit('No igroup specified',0)
+      if(.not.inp_i(jsel)) call errquit('No jgroup specified',0)
+      if(.not.inp_a(item)) call errquit('No group function',0)
+      ipbc=0
+      if(inp_compare(.false.,'pbc',item)) then
+      ipbc=1
+      if(.not.inp_a(item)) call errquit('No group function',0)
+      endif
+      if(.not.inp_f(rsel)) rsel=0.0d0
+      if(.not.inp_f(rval)) rval=0.0d0
+      write(lfncmd,1021) isel,jsel,rsel,rval,ipbc,
+     + item(1:index(item,' ')-1)
+ 1021 format('groups ',2i7,2f12.6,i3,a)
       goto 2
       endif
 c
@@ -504,7 +524,7 @@ c
       if(index(filchg,'.xyzq').le.0)
      + filchg=filchg(1:index(filchg,' ')-1)//'.xyzq '
       if(filplt(1:1).eq.' ')
-     + filplt=filchg(1:index(filchg,'.xyzq'))//'.plt '
+     + filplt=filchg(1:index(filchg,'.xyzq')-1)//'.plt '
       endif
       if(filplt(1:1).ne.' ') then
       if(index(filplt,'.plt').le.0)

@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.33 2000-08-24 18:30:44 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.34 2000-09-07 15:31:45 d3j191 Exp $
 c
       implicit none
 c
@@ -390,6 +390,7 @@ c
       if(fmt.eq.'esp') then
       write(filchg,'(a,i3.3,a)') root(1:index(root,'.')-1),indx,'.xyz '
       write(filplt,'(a,i3.3,a)') root(1:index(root,'.')-1),indx,'.plt '
+      write(filepz,'(a,i3.3,a)') root(1:index(root,'.')-1),indx,'.epz '
       call ana_wrtxyz(lfnchg,filchg,byte_mb(i_snam),int_mb(i_isel),
      + dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
      + .false.,.not.lsonly,int_mb(i_ndxw))

@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(lprint)
 c
-c $Id: ana_pltgrd.F,v 1.12 2000-08-01 17:32:17 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.13 2000-09-07 15:31:45 d3j191 Exp $
 c
       implicit none
 c
@@ -170,7 +170,7 @@ c
       logical lprint
 c
       integer ix,iy,iz,i,j,k,nxfr,nxto
-      real*8 xg,yg,zg
+      real*8 xg,yg,zg,value
       real*8 dx,dy,dz
       real*8 boxh(3)
 c
@@ -276,6 +276,20 @@ c
       if(lprint) write(*,1004) filplt(1:index(filplt,' ')-1)
  1004 format(' Grid data written to ',a)
 c
+      open(unit=lfnepz,file=filepz(1:index(filepz,' ')-1),
+     + form='formatted',status='unknown')
+      rewind(lfnepz)
+      do 8 iz=1,ngz
+      value=0.0d0
+      do 9 iy=1,ngy
+      do 10 ix=1,ngx
+      value=value+g(ix,iy,iz)
+   10 continue
+    9 continue
+      write(lfnepz,1005) xmin(3)+dble(iz)*spac(3),value
+ 1005 format(2f12.6)
+    8 continue
+      close(unit=lfnepz)
       endif
 c
       return

@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.44 2000-08-31 16:08:47 d3j191 Exp $
+c $Id: ana_task.F,v 1.45 2000-09-07 15:31:45 d3j191 Exp $
 c
       implicit none
 c
@@ -52,6 +52,7 @@ c
       lfnmax=90
       lfntop=91
       lfnhis=92
+      lfnepz=93
       lsonly=.false.
       lsuper=.false.
 c
@@ -282,6 +283,15 @@ c
       write(*,3004) ndef
  3004 format(' Defined',i5,' atom groups')
       endif
+      goto 1
+      endif
+c
+c     atom groups directives
+c     ----------------------
+c
+      if(card(1:6).eq.'groups') then
+      call ana_groups(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
+     + dbl_mb(i_xref))
       goto 1
       endif
 c
@@ -915,6 +925,7 @@ c
       i=index(string,' ')
       filchg=string(1:i)
       filplt=string(i+1:80)
+      filepz=filplt(1:index(filplt,'.'))//'epz '
 c
       if(filchg(1:1).ne.' ') call ana_pltgrd(.true.)
 c
