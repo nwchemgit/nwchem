@@ -12,7 +12,7 @@ geometry units au center noautosym noautoz print
     beta  90.0d0
     gamma 90.0d0
   end
-Si    -0.40000d0  -0.50000d0  -0.50000d0
+Si    -0.50000d0  -0.50000d0  -0.50000d0
 Si     0.00000d0   0.00000d0  -0.50000d0
 Si     0.00000d0  -0.50000d0   0.00000d0
 Si    -0.50000d0   0.00000d0   0.00000d0
@@ -34,5 +34,5 @@ set nwpw:minimizer 2
 #set nwpw:lmbfgs_size 1
 #set nwpw:precondition .false.
 
-task cg_pspw optimize
+task cg_pspw energy
 
