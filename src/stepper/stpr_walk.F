@@ -1,5 +1,5 @@
-      logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.12 1995-01-09 23:27:08 d3g681 Exp $
+      logical function stpr_walk(prefix,rtdb)
+c $Id: stpr_walk.F,v 1.13 1995-01-30 21:04:43 og845 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -15,9 +15,10 @@ c
 #include "util.fh"
 c
       integer rtdb    ! [input] run-time-data-base handle
+      character*3 prefix  ! context name
 c
 c parameters read from rtdb
-c scf:energy (later) rohf and uhf
+c prefix:energy (later) rohf and uhf
 c
       integer geom              ! geometry handle
       integer needed            ! core needed
@@ -84,10 +85,11 @@ c
            endif
         endif
 c      
-c     Push context down to SCF later look for wavefunction!!
+c     Push context down to 'prefix' later look for wavefunction!!
 c
-        if (.not. context_push('scf'))
-     &      call errquit('stpr_walk: context_push <scf> failed', 911)
+        if (.not. context_push(prefix))
+     &      call errquit('stpr_walk: context_push <'//
+     &       prefix//'> failed', 911)
 c
         if (.not. context_prefix('converged', name))
      &      call errquit
@@ -105,11 +107,12 @@ c
      &      call errquit
      &      ('stpr_walk: failed to read energy in rtdb', 911)
 c... remove scf context
-        if (.not. context_pop('scf'))
+        if (.not. context_pop(prefix))
      &      call errquit('stpr_walk: context_pop failed',0)
 c
         if (.not. context_push('stepper'))
-     &      call errquit('stpr_walk: context_push <scf> failed', 911)
+     &      call errquit('stpr_walk: context_push <'//
+     &       prefix//'> failed', 911)
 c
         if (.not. geom_create(geom, 'geometry'))
      &      call errquit('stpr_walk: geom_create?', 911)
@@ -145,8 +148,8 @@ c..... space for charge
      &        ('stpr_walk: allocation for geom charge failed?',911)
 c
 c..... read gradients
-        if (.not. rtdb_get(rtdb, 'scf:gradients', MT_DBL, (3*nat),
-     &      dbl_mb(k_grad)))
+        if (.not. rtdb_get(rtdb, prefix//':gradients', MT_DBL, 
+     &       (3*nat),dbl_mb(k_grad)))
      &      call errquit
      &        ('stpr_walk: reading gradients failed',911)
 c
