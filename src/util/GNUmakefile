@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.129 2001-05-05 01:50:44 edo Exp $
+# $Id: GNUmakefile,v 1.130 2001-05-05 05:24:53 edo Exp $
 
 include ../config/makefile.h
 
@@ -106,6 +106,10 @@ ifeq ($(TARGET),DECOSF)
   EXTRA_OBJ = dec_fpe.o
 endif
 ifeq ($(TARGET),LINUX64)
+  EXTRA_OBJ += dec_fpe.o
+endif                                                                           
+
+ifeq ($(TARGET),LINUX64_32)
   EXTRA_OBJ += dec_fpe.o
 endif                                                                           
 
