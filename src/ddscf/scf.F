@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.22 1995-02-02 23:12:07 d3g681 Exp $
+C$Id: scf.F,v 1.23 1995-02-06 22:00:18 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -118,7 +118,7 @@ c
      $        '  wavefunction    = ', a/
      $        '  input vectors   = ', a/
      $        '  output vectors  = ', a/
-     $        '  use symmetry    = ', l/)
+     $        '  use symmetry    = ', l1/)
          call util_flush(6)
       endif
 c
