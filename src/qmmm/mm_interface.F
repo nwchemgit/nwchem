@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.21 2004-09-30 06:46:30 marat Exp $
+c $Id: mm_interface.F,v 1.22 2004-09-30 19:50:03 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1088,8 +1088,6 @@ c     mm local variables
       integer pwl
 
 
-      call dfill(3*nt,0.0d0,g,1)
-
       call mm_get_mwa(mwa)
       call mm_get_mwm(mwm)
       call mm_get_nwmloc(nwm)
@@ -1149,7 +1147,16 @@ c     mm local variables
       integer ai(nt)
       double precision  g(3,nt)
       logical link
-      
+      character*32 pname
+      integer i
+
+      pname = " mm_set_solute_force_quant"
+
+      write(*,*) "in "//pname
+      do i=1,nt
+        write(*,*) g(1,i),g(2,i),g(3,i)
+      end do
+
       if(link) then
       call mm_set_solute_force_gen(nt,mm_quant_link,ai,g)
       else
@@ -1210,8 +1217,10 @@ c     local variables
       integer psdt
       integer psl
       integer pfs
+      character*32 pname
 
-      call dfill(3*nt,0.0d0,g,1)
+      pname = "mm_set_solute_force_gen"
+      write(*,*) "in "//pname
 
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsa)
@@ -1225,6 +1234,7 @@ c     local variables
               if(int_mb(psl+i-1).eq.ai(j)) then
                  do k=1,3
                    dbl_mb(pfs+(i-1)+(k-1)*msa)=-g(k,j)*cau2kj/cau2nm
+                   write(*,*) dbl_mb(pfs+(i-1)+(k-1)*msa),g(k,j)
                  end do
               end if
             end do
@@ -1254,6 +1264,11 @@ c     local variables
       integer psdt
       integer psl
       integer pfs
+      character*32 pname
+
+      pname = "mm_get_solute_force_gen"
+
+      write(*,*) "in "//pname
 
       call dfill(3*nt,0.0d0,g,1)
 
@@ -1269,6 +1284,7 @@ c     local variables
               if(int_mb(psl+i-1).eq.ai(j)) then
                  do k=1,3
                    g(k,j)=-dbl_mb(pfs+(i-1)+(k-1)*msa)*cau2nm/cau2kj
+                   write(*,*) g(k,j)
                  end do
               end if
             end do
