@@ -2,17 +2,16 @@
      .     aqbuf,nq,nq_out,
      ,     ntot_cube,ictr_buf,qxyz, qwght, 
      ,     rad_write,grad,
-     .     rtdb, g_dens, ncoef_max, natoms, 
+     .     g_dens, ncoef_max, natoms, 
      &     rho_int, nqtot, 
      &     iniz, ifin, rho, delrho, 
      &     hess,  xyz,iscr,nscr,
      &     expo, ccoef, Bmat, Fmat, 
-     &     Pmat, rq, rdens_atom, 
-     &     cntobfr, cetobfr, 
+     &     Pmat, rq, rdens_atom, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
-C$Id: grid_quadvc.F,v 1.7 2000-04-21 19:16:47 edo Exp $
+C$Id: grid_quadvc.F,v 1.8 2000-04-25 02:08:42 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "cgridfile.fh"
@@ -49,15 +48,14 @@ c
 !     ,     ' cd ',i1,' bw ',i1) 
          if(nq_out.ne.0) 
      .    call grid_quadv0b(
-     ,        ntot_cube,ictr_buf,qxyz, qwght, nq_out,
+     ,        ictr_buf,qxyz, qwght, nq_out,
      ,        rad_write,grad,
-     .        rtdb, g_dens, ncoef_max, natoms, 
+     .        g_dens, ncoef_max, natoms, 
      &        rho_int, nqtot, 
      &        iniz, ifin, rho, delrho, 
      &        hess,  xyz,iscr,nscr,
      &        expo, ccoef, Bmat, Fmat, 
-     &        Pmat, rq,  rdens_atom, 
-     &        cntobfr, cetobfr, 
+     &        Pmat, rq,  rdens_atom, cetobfr, 
      ,        ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)

@@ -1,6 +1,6 @@
       Subroutine grid_memory(rtdb)
 c
-c$Id: grid_memory.F,v 1.3 2000-03-28 19:52:36 edo Exp $
+c$Id: grid_memory.F,v 1.4 2000-04-25 02:08:41 edo Exp $
 c
       implicit none
 c      
@@ -43,7 +43,7 @@ c
       if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
      &   call errquit('grid_memory: cannot allocate expo',0)
 c
-      call mbf_ao_max(rtdb, dbl_mb(iqxyz), dbl_mb(irq0), 
+      call mbf_ao_max(rtdb,  dbl_mb(irq0), 
      &                dbl_mb(iexpo), dbl_mb(icoord))
 c
       if (.not.ma_pop_stack(lexpo))

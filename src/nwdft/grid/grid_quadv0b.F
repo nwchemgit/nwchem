@@ -1,17 +1,16 @@
       Subroutine grid_quadv0b(
-     ,     ntot_cube,ictr_buf,qxyz, qwght, nqpts,rad,grad,
-     .     rtdb, g_dens, ncoef_max, natoms, 
+     ,     ictr_buf,qxyz, qwght, nqpts,rad,grad,
+     .     g_dens, ncoef_max, natoms, 
      &                       rho_int, nqtot, 
      &                       iniz, ifin, rho, delrho, 
      &                       hess,  xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
-     &                       Pmat, rq, rdens_atom, 
-     &                       cntobfr, cetobfr, 
+     &                       Pmat, rq, rdens_atom,  cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadv0b.F,v 1.11 2000-04-21 00:28:46 edo Exp $
+c$Id: grid_quadv0b.F,v 1.12 2000-04-25 02:08:42 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -27,7 +26,7 @@ c
       double precision acc_AO_gauss, rad, dummy(1),rho0
       integer nbf_ao_mxnbf_ce2, mbf_ao, npol
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
-      integer ldmat,idmat,i, grid_nbfm,ntot_cube
+      integer ldmat,idmat,i, grid_nbfm
       double precision dabsmax,wmax
       external dabsmax
       external grid_nbfm

@@ -1,16 +1,15 @@
-      Subroutine grid_quadv0a(rtdb, g_dens, ncoef_max, natoms, 
+      Subroutine grid_quadv0a(g_dens, ncoef_max, natoms, 
      &                       rho_int, nqtot, 
      &                       iniz, ifin, rho, delrho, 
      &                       hess, qwght, qxyz, xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
-     &                       Pmat, rq, rdens_atom, 
-     &                       cntobfr, cetobfr, 
+     &                       Pmat, rq, rdens_atom, cetobfr, 
      ,     ibf_ao,rqbuf,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadv0a.F,v 1.20 2000-04-21 00:28:46 edo Exp $
+c$Id: grid_quadv0a.F,v 1.21 2000-04-25 02:08:42 edo Exp $
 c
       implicit none
 c
@@ -40,7 +39,7 @@ c
 c     rewind grid pts file
 c
       if (.not. grid_file_rewind())
-     $   call errquit('grid_setspac: rewinding gridpts?', 0)
+     $   call errquit('grid_quadv0a: rewinding gridpts?', 0)
 C
       ntot_cube=0
       do 200 iqsh = 1, n_rec_in_file
@@ -60,20 +59,17 @@ c
          call grid_repack(rqbuf, qxyz, qwght, nqpts,
      ,          rad,istep)
          if(nqpts.ne.0) then
-!      write(6,11) ictr_buf,ntot_cube,nqpts
-! 11   format(' ictr ',i2,' sntc ',i4,' nq_out ',i4) 
             call grid_quadv0b(
-     ,        ntot_cube,ictr_buf,qxyz, qwght, nqpts,rad,grad,
-     .     rtdb, g_dens, ncoef_max, natoms, 
+     ,           ictr_buf,qxyz, qwght, nqpts,rad,grad,
+     .           g_dens, ncoef_max, natoms, 
      &                       rho_int, nqtot, 
      &                       iniz, ifin, rho, delrho, 
      &                       hess,  xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
-     &                       Pmat, rq, rdens_atom, 
-     &                       cntobfr, cetobfr, 
-     ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
-     ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     &                       Pmat, rq, rdens_atom,  cetobfr, 
+     ,           ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
+     ,           Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
+     ,           nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
             ntot_cube=ntot_cube+1
          endif
       enddo

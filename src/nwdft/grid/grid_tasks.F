@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.28 2000-04-18 16:46:43 edo Exp $
+c$Id: grid_tasks.F,v 1.29 2000-04-25 02:08:44 edo Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       integer iqsh, irsh, ictr, iang, npts_iqsh
       integer nq,nproc,me,
      ,     k_qat,l_qat,nqsh_at,iii,i_a,ncu,
-     ,     nx,ny,nz,fnxyz,nxyz,nqtotc,nq_cube,ncubenz,iaia
+     ,     fnxyz,nxyz,nqtotc,nq_cube,ncubenz,iaia
       logical trunc_neigh
       logical grid_file_open
       external grid_file_open
@@ -187,7 +187,7 @@ c
 c     modify the weight to include the spatial weight (and symmetry factor)
 c     
                      if(ncenters.gt.1) then
-                        call grid_setspac(rtdb, xyz, aqbuf,
+                        call grid_setspac( xyz, aqbuf,
      ,                       dbl_mb(irij), 
      &                       dbl_mb(irq), dbl_mb(ip), ictr, nq,
      ,                       dbl_mb(iexpo), rad_sh, trunc_neigh)
@@ -223,7 +223,7 @@ c
             endif
          enddo                  ! end loop over cubes
  111  continue ! endd loop over atoms
-      call grid_sympts2(l_symops,l_gridscr,l_iscr)
+      call grid_sympts2(l_symops,l_gridscr)
       n1 = nxtask(-nproc,icount)
       call dft_tstamp(' done atom loop')
 

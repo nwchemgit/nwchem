@@ -1,7 +1,7 @@
       subroutine grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.7 2000-04-07 23:43:16 edo Exp $
+c$Id: grid_sympts.F,v 1.8 2000-04-25 02:08:44 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -32,15 +32,13 @@ c
      '     '     grid_sympt: mpush get failed',3)
       return
       end
-      subroutine grid_sympts2(l_symops,l_gridscr,l_iscr)
+      subroutine grid_sympts2(l_symops,l_gridscr)
       implicit none
 #include "mafdecls.fh"
       integer l_symops ! [in]  symops handle
-      integer l_gridscr,l_iscr ! [in]  grid handle
+      integer l_gridscr ! [in]  grid handle
 c      
 c     
-!      if (.not.MA_pop_stack(l_iscr)) call errquit(
-!     '     '     grid_sympt: free stack failed',0)
       if (.not.MA_chop_stack(l_gridscr)) call errquit(
      '     '     grid_sympt: free stack failed',1)
       if(l_symops.ne.-999) then
@@ -84,7 +82,7 @@ c     Compute the quadrature points & weights for a given
 c     set of radial shells.
 c     Keep only point belonging to cube
 c
-      integer k, l, ia_ictr,nq_left,k1,h,n_equiv
+      integer k, ia_ictr,nq_left,k1,h,n_equiv
       double precision  tx, ty, tz, xor, yor, zor
       double precision x,y,z,x1,y1,z1,ddd,wsum
 c
@@ -110,33 +108,17 @@ c
             gridscr(2,nq_left) =  yor
             gridscr(3,nq_left) =  zor
             gridscr(4,nq_left) = wa_leb(k,iang)
-!            gridscr(4,nq_left) = wa_leb(k,iang)*rwghts(irsh,ia_ictr)
          enddo
-cedo         write(6,'(4(A,I4))') ' iang ',iang,' initial nq ',nq_left,
-cedo     ,        ' nops ',nops
-cedo         do h=1,nops
-cedo            write(6,*) ' h ',h
-cedo            write(6,'(3f12.6)')
-cedo     .           ops(1,h,1),ops(1,h,2),ops(1,h,3),
-cedo     .           ops(2,h,1),ops(2,h,2),ops(2,h,3),
-cedo     .           ops(3,h,1),ops(3,h,2),ops(3,h,3)
-cedo         enddo
 c
 c     apply symmetry operations
 c
          if(dosympts) then
             do k=1,nq_left
                if(gridscr(4,k).ne.0d0) then
-cedo            write(6,'(" k ",i3,4(F12.6))') k,
-cedo     .           gridscr(1,k),
-cedo     .           gridscr(2,k),
-cedo     .           gridscr(3,k),
-cedo     .           gridscr(4,k)
                   n_equiv=1
                   x=xyz(1) +gridscr(1,k)
                   y=xyz(2) +gridscr(2,k)
                   z=xyz(3) +gridscr(3,k)
-cedo            write(6,'(" k1 ",i3,4(F12.6))') k,x,y,z
                   do h=1,nops
                      x1=ops(1,h,1)*x+ops(1,h,2)*y+ops(1,h,3)*z
                      y1=ops(2,h,1)*x+ops(2,h,2)*y+ops(2,h,3)*z
@@ -204,7 +186,8 @@ cedo         zor=(gridscr(3,k)-xyz(3))*r+xyz(3)
          xor=gridscr(1,k)*r
          yor=gridscr(2,k)*r
          zor=gridscr(3,k)*r
-         if(grid_incube(xor,yor,zor,nx,ny,nz,fnxyz,nxyz2,
+         if(fnxyz.eq.-99.or.
+     .        grid_incube(xor,yor,zor,nx,ny,nz,fnxyz,nxyz2,
      ,        lcube(ia_ictr))) then
             nq=nq+1
             aqbuf(1,nq) = xyz(1) +xor

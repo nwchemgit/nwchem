@@ -1,5 +1,4 @@
 #include "dft2drv.fh"
-      integer rtdb
       logical grad ! [in]
       integer g_dens(2),g_vxc(4)
       integer ncoef_max
@@ -7,8 +6,7 @@
       integer natoms
       double precision Ex, Ec
       double precision Amat(n_per_rec,ipol),Cmat(n_per_rec,ipol)
-      integer cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms)
+      integer cetobfr(2,natoms)
       double precision rdens_atom(ipol*natoms*natoms)
 !      double precision rho(n_per_rec), delrho(3,n_per_rec), hess(1), 
       double precision rho(*), delrho(*), hess(1), 

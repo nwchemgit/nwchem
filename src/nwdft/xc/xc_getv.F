@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.35 2000-04-24 19:37:16 edo Exp $
+C$Id: xc_getv.F,v 1.36 2000-04-25 02:08:48 edo Exp $
 c
       implicit none
 c      
@@ -82,6 +82,8 @@ c
          write(*,*)' Fock XC matrix entering xc_getv: '
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
+         call ga_print(g_dens(1))
+         if(ipol.eq.2)call ga_print(g_dens(2))
       endif
 c
       if (abs(xfac(1)).gt.1e-8 .or. (.not. CDFIT))then

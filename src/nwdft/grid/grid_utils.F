@@ -1,6 +1,6 @@
       subroutine qshell_sort
 c
-c$Id: grid_utils.F,v 1.14 2000-03-20 21:11:50 edo Exp $
+c$Id: grid_utils.F,v 1.15 2000-04-25 02:08:44 edo Exp $
 c
 c
 c     Sort quadrature shells, most work to least, based on radius 
@@ -120,9 +120,9 @@ c
       endif
       return
       end
-      Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
+      Subroutine mbf_ao_max(rtdb,  rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.14 2000-03-20 21:11:50 edo Exp $
+C$Id: grid_utils.F,v 1.15 2000-04-25 02:08:44 edo Exp $
 c
       implicit none
 c      
@@ -139,10 +139,6 @@ c
 c     Cartesian Coordinates of Integration Center
 c
       double precision coord(3,ncenters)
-c
-c     Cartesian Coordinates of Quadrature Points
-c
-      double precision qxyz(3,*)
 c
 c     Compute the quadrature points for a given 
 c     set of radial shells.
@@ -678,7 +674,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq,rad,istep)
 c
-C$Id: grid_utils.F,v 1.14 2000-03-20 21:11:50 edo Exp $
+C$Id: grid_utils.F,v 1.15 2000-04-25 02:08:44 edo Exp $
 c
       implicit none
 c

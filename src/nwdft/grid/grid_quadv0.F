@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.10 2000-04-21 00:28:46 edo Exp $
+C$Id: grid_quadv0.F,v 1.11 2000-04-25 02:08:42 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -63,6 +63,7 @@ c
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2
       integer len_rho, len_delrho, len_Amat2, len_Cmat2
       logical do_scf, do_cpks_l, do_cpks_r
+      logical oldway
       integer max_elem_ang_scr, max_component
       integer nexpo,nibf
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
@@ -78,6 +79,8 @@ c
       grad=xc_chkgrad(xfac,cfac)
 c
       npol = (ipol*(ipol+1))/2
+      if (.not. rtdb_get(rtdb, 'dft:oldway', mt_log, 1, oldway))
+     &     oldway=.false.
 c
 c     Open grid pts file
 c     
@@ -183,18 +186,18 @@ c     Assume this numerical density routine can be called from anywhere.
 c     -compute mapping vectors
 c 
       if (.not.ma_push_get
-     &   (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
-     &   call errquit('grid_den:push_get failed', 13)
-      if (.not.ma_push_get
      &   (mt_int,nctrs*2,'cntoce map',lcetobfr,icetobfr))
      &   call errquit('grid_den:push_get failed', 13)
       if (.not.ma_push_get
      &   (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
      &   call errquit('grid_den:push_get failed', 13)
+      if (.not.ma_push_get
+     &   (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
+     &   call errquit('grid_den:push_get failed', 13)
 c     
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      &                int_mb(icetobfr), nctrs, nshells_ao)
-      if (.not.ma_pop_stack(lcntoce))
+      if (.not.ma_chop_stack(lcntoce))
      &   call errquit('grid_den: cannot pop stack',1)
 c
 c     -compute reduced total density matrices over atoms
@@ -284,7 +287,7 @@ c
       Ec=0d0
       call ga_sync()
       if(grid_written) then
-         call grid_quadv0a(rtdb,g_dens,ncoef_max,nctrs,rho_int,nqtot, 
+         call grid_quadv0a(g_dens,ncoef_max,nctrs,rho_int,nqtot, 
      &        int_mb(iniz), int_mb(ifin), 
      &        dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
      &        dbl_mb(iqwght), dbl_mb(iqxyz), dbl_mb(ixyz), 
@@ -292,8 +295,7 @@ c
      &        dbl_mb(iexpo), dbl_mb(icoef), 
      &        dbl_mb(iBmat), dbl_mb(iFmat), 
      &        dbl_mb(iPmat), dbl_mb(irq), 
-     &        dbl_mb(irdens_atom), 
-     &        int_mb(icntobfr), int_mb(icetobfr),
+     &        dbl_mb(irdens_atom), int_mb(icetobfr),
      ,        int_mb(iibf_ao),dbl_mb(irqbuf),dbl_mb(ibp),
      ,        dbl_mb(irscr),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
@@ -319,6 +321,26 @@ c
      &        call errquit('grid_v0: cannot allocate Rij',0)
          if (.not.MA_Push_get(mt_int,nqshells,'qshat',l_qat,k_qat))
      &        call errquit('gridv0: cannot allocate qat',5)
+         if(oldway) then
+         call grid_quadvold(rtdb,
+     ,     int_mb(iqs),nq_list,dbl_mb(iaqbuf),
+     ,        dbl_mb(irij),int_mb(k_qat),
+     ,     g_dens,ncoef_max,nctrs,rho_int,nqtot, 
+     &        int_mb(iniz), int_mb(ifin), 
+     &        dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
+     &        dbl_mb(iqwght), dbl_mb(iqxyz), dbl_mb(ixyz), 
+     .        dbl_mb(iscr),nscr,
+     &        dbl_mb(iexpo), dbl_mb(icoef), 
+     &        dbl_mb(iBmat), dbl_mb(iFmat), 
+     &        dbl_mb(iPmat), dbl_mb(irq), 
+     &        dbl_mb(irdens_atom), int_mb(icetobfr),
+     ,        int_mb(iibf_ao),dbl_mb(ibp),
+     ,        dbl_mb(irscr),
+     ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
+     ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
+     ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+         else
          call grid_quadvw(rtdb,
      ,     int_mb(iqs),nq_list,dbl_mb(iaqbuf),
      ,        dbl_mb(irij),int_mb(k_qat),
@@ -330,14 +352,14 @@ c
      &        dbl_mb(iexpo), dbl_mb(icoef), 
      &        dbl_mb(iBmat), dbl_mb(iFmat), 
      &        dbl_mb(iPmat), dbl_mb(irq), 
-     &        dbl_mb(irdens_atom), 
-     &        int_mb(icntobfr), int_mb(icetobfr),
+     &        dbl_mb(irdens_atom), int_mb(icetobfr),
      ,        int_mb(iibf_ao),dbl_mb(ibp),
      ,        dbl_mb(irscr),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+         endif
          if (.not. MA_chop_Stack(lqs))
      &        call errquit('gridv0: pop stack failed.',1)
       endif

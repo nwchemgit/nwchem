@@ -1,13 +1,11 @@
-      subroutine grid_setspac(rtdb, xyz, xyzw, Rij, rq, p, ictr, nq,
+      subroutine grid_setspac(xyz, xyzw, Rij, rq, p, ictr, nq,
      ,     expo, rad,trunc_neigh)
 c
-c$Id: grid_setspac.F,v 1.9 2000-03-20 21:11:49 edo Exp $
+c$Id: grid_setspac.F,v 1.10 2000-04-25 02:08:44 edo Exp $
 c
       implicit none
-      integer rtdb
 c
 #include "cdft.fh"
-#include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "cgridfile.fh"
