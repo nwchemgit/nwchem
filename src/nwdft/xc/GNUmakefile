@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.64 2000-10-13 21:42:38 bjohnson Exp $
+# $Id: GNUmakefile,v 1.65 2000-10-20 17:23:07 edo Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o 
 	OBJ_OPTIMIZE = \
@@ -45,7 +45,7 @@ LIB_INCLUDES = -I../include
 
 
    USES_BLAS = xc_fitv.F xc_quadv0_a.F xc_quadv1.F xc_dirac.F xc_tabcd.F xc_rhogen.F xc_beckew.F xc_ssw.F xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
-               ../include/xc_rhogen.fh ../include/xc_tabcd.fh
+xc_eval_basis.F   ../include/xc_rhogen.fh ../include/xc_tabcd.fh
 
 include ../../config/makefile.h
 include ../../config/makelib.h
