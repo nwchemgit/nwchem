@@ -331,8 +331,8 @@ peigs_COMM =TCGMSG
 peigs_CPU = RS6000
 peigs_CODEOBJ = DBLE
 peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 \
--O3 -qstrict -qarch=pwr2 -I$(HDIR) -qfloat=rsqrt:fltint:hssngl \
--qinline -qtune=pwr2 \
+-O3 -qstrict -qarch=pwr2 -qtune=pwr2 -I$(HDIR) -qfloat=rsqrt:fltint:hssngl \
+-qinline \
 -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 -qcache=type=i:level=1:size=32:line=128
 
