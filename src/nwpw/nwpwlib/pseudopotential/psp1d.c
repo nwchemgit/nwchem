@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: psp1d.c,v 1.3 2002-02-13 19:13:56 edo Exp $
+   $Id: psp1d.c,v 1.4 2003-12-02 19:17:09 bylaska Exp $
 */
 
 #include	<stdio.h>
@@ -49,6 +49,7 @@ static  double  *rho_semicore;
 static  double  *drho_semicore;
 static  double  r_semicore;
 static	double	**V_psp;
+static  char    comment[80];
 
 /* extra Vanderbilt parameters */
 static double rlocal,clocal;
@@ -73,7 +74,7 @@ void	init_Psp(char *filename)
    int	  p,p1,p2;
    int	  ltmp;
    double rctmp;
-   char   *w;
+   char   *w,*tc;
    FILE	  *fp;
 
    /* find the psp type */
@@ -90,6 +91,37 @@ void	init_Psp(char *filename)
    }
    fclose(fp);
   
+
+  /* find the comment */
+   if (Solver_Type == Hamann)     strcpy(comment,"Hamann pseudopotential");
+   if (Solver_Type == Troullier)  strcpy(comment,"Troullier-Martins pseudopotential");
+   if (Solver_Type == Vanderbilt) strcpy(comment,"Vanderbilt pseudopotential");
+   fp = fopen(filename,"r+");
+   w = get_word(fp);
+   while ((w!=NIL) && (strcmp("<comment>",w)!=0))
+      w = get_word(fp);
+
+   if(w!=NIL)
+   {
+      w = get_word(fp);
+      p  = 0;
+      tc = comment;
+      while ((w!=NIL)&&(strcmp("<end>",w) != 0))
+      {
+        p = (strlen(w));
+        strcpy(tc, w);
+        for(p1=0;p1<p; ++p1) ++tc;
+        strcpy(tc, " ");
+        ++tc;
+
+        w = get_word(fp);
+      }
+   }
+   fclose(fp);
+
+
+
+
 
    /* set lmax  */
    lmax = lmax_Atom() + 1;
@@ -690,6 +722,8 @@ int	state_Psp(int nt, int lt)
 }
 
 
-
-
+char    *comment_Psp()
+{
+   return comment;
+}
 

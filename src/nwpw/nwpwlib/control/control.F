@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.44 2003-10-17 22:56:34 carlfahl Exp $
+* $Id: control.F,v 1.45 2003-12-02 19:17:08 bylaska Exp $
 *
 
 *     ***********************************
@@ -219,7 +219,7 @@ c
 
 *     **** set ks_alpha ***
       if (.not. rtdb_get(rtdb,'cgsd:ks_alpha',mt_dbl,1,ks_alpha))
-     >   ks_alpha = 0.05d0
+     >   ks_alpha = 0.25d0
 
 *     **** set maxit_orb maxit_orbs ***
       if (.not.rtdb_get(rtdb,
@@ -309,10 +309,11 @@ cc     >                  1,output_wavefunction_filename)
 cc
 c     **** Figure input/output MO vectors ****
 c
-      if (.not. rtdb_cget(rtdb, 'band:input vectors', 
+      if (.not. rtdb_cget(rtdb, 'pspw:input vectors', 
      >                    1,input_wavefunction_filename))
      >  input_wavefunction_filename = 'atomic'
-      if (.not. rtdb_cget(rtdb, 'band:output vectors', 
+
+      if (.not. rtdb_cget(rtdb, 'pspw:output vectors', 
      >                    1,output_wavefunction_filename))
      >     output_wavefunction_filename = ' '
       if (output_wavefunction_filename.eq.' ')then

@@ -1,0 +1,24 @@
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+<atom>
+Ti
+22.0 47.9 5 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  2.0
+4 0  1.73
+4 1  0.27
+<end>
+<solver> pauli                     <end>
+<pseudopotential>       troullier-martins <end>
+<rcut>
+    0 2.40
+    1 2.90
+    2 1.80
+<end>
+<semicore> 1.80 <end>
+

@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.3 2001-11-29 16:51:21 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2003-12-02 19:17:08 bylaska Exp $
 #
-# intf and aux break on IBM SP xlhpf with optimization ... why? 
  OBJ_OPTIMIZE = \
                 psp_generator_input.o \
                 pspsolve.o \
+                hgh_parse.o \
                 get_word.o name.o\
                 loggrid.o pred_cor.o spline.o grids.o atom.o  \
                 schrodin.o \

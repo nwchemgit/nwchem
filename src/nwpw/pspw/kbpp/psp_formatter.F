@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.7 2003-10-17 22:57:16 carlfahl Exp $
+c $Id: psp_formatter.F,v 1.8 2003-12-02 19:17:10 bylaska Exp $
 c
 
 *     ***************************************
@@ -148,17 +148,17 @@ c
 
 *     ***** simulation cell  variables *****
       double precision unita(3,3)
-      integer          ngrid(3),version
+      integer          ngrid(3),version,psp_type
 
 *     ***** external functions *****
       integer      control_version
       integer      control_ngrid
       real*8       control_unita
-      logical      kbppv3, nwpw_filefind
+      logical      kbppv3, nwpw_filefind,hghppv1
       external     control_version
       external     control_ngrid
       external     control_unita
-      external     kbppv3, nwpw_filefind
+      external     kbppv3, nwpw_filefind,hghppv1
 
       value  = .true.
 
@@ -193,10 +193,20 @@ c
          end do
       end do
 
-      value = value.and.
+      call get_psp_type(psp_filename,psp_type)
+      if (psp_type .eq.1) then
+         value = value.and.
+     >     hghppv1(.true.,
+     >            version,psp_filename,formatted_filename,ngrid,unita,
+     >            rlocal)
+      else
+         value = value.and.
      >     kbppv3(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)
+      end if
+
+
 *     *** exit if error found ***
       if(.not. value) call errquit('psp_formatter_auto: error',0,
      &       UNKNOWN_ERR)

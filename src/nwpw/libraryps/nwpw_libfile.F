@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.7 2003-10-17 22:56:19 carlfahl Exp $
+* $Id: nwpw_libfile.F,v 1.8 2003-12-02 19:16:53 bylaska Exp $
 *
 
 *
@@ -7,23 +7,29 @@
 * 1) value of NWCHEM_NWPW_LIBRARY environment variable
 * 2) value of the compiled in library name
 *      
-c the string library1 is appended by default for pspw
-c the string library2 is appended by default for paw
+c the string pspw_default is appended by default for pspw
+c the string paw_default is appended by default for paw
 c
       subroutine nwpw_libfile(flag,filename,element)
       implicit none
-#include "errquit.fh"
+
 #include "inp.fh"
+#include "rtdb.fh"
 #include "stdio.fh"
+#include "errquit.fh"
+
       integer       flag
       character*(*) filename !RESULT
       character*(*) element
 c
-      character*255 libname
+      character*255 libname,rtdb_name,library,library_name
       external util_find_dir
       logical  util_find_dir,lexist
-      integer lgth,l
+      integer lgth,l,ind,rtdb
       logical from_environment
+
+      integer  control_rtdb
+      external control_rtdb
 c
       call util_getenv('NWCHEM_NWPW_LIBRARY',libname)
       lgth=inp_strlen(libname)
@@ -76,12 +82,24 @@ c
 
 *     **** library for pspw and band ****
       else
-        write(luout,*)' library file name is: <',
-     &     libname(1:inp_strlen(libname)),
-     &     'library1/', element, '>'
-        write(luout,*) ' '
 
-        filename=libname(1:inp_strlen(libname))//'/library1/'//element
+        rtdb = control_rtdb()
+        l = index(element,' ')  -1
+        if (l.lt.1) l = 2
+        rtdb_name = element(1:l)//':pspw_library'
+        if (.not.rtdb_cget(rtdb,rtdb_name,1,library_name))
+     >    library_name = 'pspw_default'
+
+        ind = index(library_name,' ')  -1
+        library = library_name(1:ind)//'/'
+        ind = index(library,' ')  -1
+
+        filename=libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
+
+        write(luout,*)
+     >   ' library file name is: ',filename(1:inp_strlen(filename))
+        write(luout,*) 
+
       end if
 
 c

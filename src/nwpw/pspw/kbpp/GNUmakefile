@@ -1,10 +1,14 @@
 #
-# $Id: GNUmakefile,v 1.5 2002-02-11 19:47:33 edo Exp $
+# $Id: GNUmakefile,v 1.6 2003-12-02 19:17:09 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
                 psp_formatter_input.o \
                 psp_formatter.o \
                 psp_stress_formatter.o \
+	      		hghppv1.o \
+			HGH_local.o \
+			HGH_nonlocal.o \
+			Tesseral.o \
 	      		kbppv3.o \
 	      		kbppv3-stress.o \
                 setup_kbpp.o \

@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.19 2003-10-28 01:55:47 edo Exp $
+c $Id: psp_generator_input.F,v 1.20 2003-12-02 19:17:09 bylaska Exp $
 c
 
 *     ***************************************
@@ -535,13 +535,15 @@ c
 
       character*255 dir_name,sdir_name
       character*16 psp_in,psp_out
-      integer h,i,j,k,debug
+      integer h,i,j,k,debug,psp_type
       character ch_tmp
 
 *     **** external functions ****
       integer  nwpw_libglmax,nwpw_libglocp,control_gga
+      integer  nwpw_libgpsp_type
       double precision nwpw_libgrlocal
       external nwpw_libglmax,nwpw_libglocp,control_gga
+      external nwpw_libgpsp_type
       external nwpw_libgrlocal
 c
       call Parallel_taskid(taskid)
@@ -568,39 +570,59 @@ c
       lmax=nwpw_libglmax(atom)
       locp=nwpw_libglocp(atom)
       rlocal=nwpw_libgrlocal(atom)
+
+       
       write(*,*) "Generating 1d pseudopotential for ",atom
 
-*     ***********************************
-c     *** add GGA options to junk.inp ***
-*     ***********************************
-c     *** Vosko ***
-      if (control_gga().eq.0) then
-        write(*,*) "+ generated using Vosko et al."
+      psp_type=nwpw_libgpsp_type(atom)
 
-c     *** PBE96 ***
-      else if (control_gga().eq.1) then
-        write(*,*) "+ generated using PBE96"
-        open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
-        do while(.true.)
-          read(99,*,ERR=30,END=30) ch_tmp
-        end do
-   30   write(99,*) '<exchange>    pbe96 <end>'
-        write(99,*) '<correlation> pbe96 <end>'
-        close(unit=99)
+      write(*,*) "psp_type:",psp_type
+
+      if (psp_type.eq.0) then
+
+
+c        *** add GGA options to junk.inp ***
+*  
+c        *** Vosko ***
+         if (control_gga().eq.0) then
+           write(*,*) "+ generated using Vosko et al."
+
+c        *** PBE96 ***
+         else if (control_gga().eq.1) then
+           write(*,*) "+ generated using PBE96"
+           open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
+           do while(.true.)
+             read(99,*,ERR=30,END=30) ch_tmp
+           end do
+   30      write(99,*) '<exchange>    pbe96 <end>'
+           write(99,*) '<correlation> pbe96 <end>'
+           close(unit=99)
+         end if
+
+         debug = 0
+         call pspsolve(debug,
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k)
+
+      else
+         debug = 1
+         call hgh_parse(debug,    
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k)
       end if
-
-      debug = 0
-      call pspsolve(debug,
-     >     lmax,locp,rlocal,
-     >     sdir_name(1:h),h,
-     >     dir_name(1:i),i,
-     >     psp_in(1:j),j,
-     >     psp_out(1:k),k)
-!      stop
       open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
       close(unit=99,status='delete')
 
-      end if
+
+
+      end if !** taskid.eq.MASTER **
+
       call ga_sync()
 
       msglen = 1

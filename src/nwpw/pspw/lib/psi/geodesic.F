@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.18 2003-10-25 22:11:14 bylaska Exp $
+* $Id: geodesic.F,v 1.19 2003-12-02 19:17:10 bylaska Exp $
 *
 
 *     ***********************************
@@ -486,22 +486,20 @@ c       end do
 
 
 *     **** Orthonormality Check ****     
-c     call Grsm_gg_trace(npack1,nemax,Ynew,Ynew,sum2)
-c 
-c     sum1 = dble(nemax)
-c     if (dabs(sum2-sum1).gt.1.0d-10) then
+      call Grsm_gg_trace(npack1,nemax,Ynew,Ynew,sum2)
+  
+      sum1 = dble(nemax)
+      if (dabs(sum2-sum1).gt.1.0d-10) then
 c        call Parallel_taskid(taskid)
 c         if (taskid.eq.MASTER) 
 c    >      write(*,*) 
 c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
-c        call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
-c        if (psi_ispin().gt.1) then
-c          call Grsm_g_MakeOrtho(npack1,psi_ne(2),
-c    >                           Ynew(1 + psi_ne(1)*npack1))
-c        end if
-c     end if
-
-
+         call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
+         if (psi_ispin().gt.1) then
+           call Grsm_g_MakeOrtho(npack1,psi_ne(2),
+     >                           Ynew(1 + psi_ne(1)*npack1))
+         end if
+      end if
 
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.25 2003-10-17 22:56:16 carlfahl Exp $
+* $Id: band_minimizer.F,v 1.26 2003-12-02 19:16:47 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -358,6 +358,7 @@
       dipole(3) = 0.0d0
 
 *     ****  calculate gradient ***
+      if (flag.gt.0) then
       nion = ion_nion()
       value = MA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
@@ -365,6 +366,7 @@
 
       call c_cgsd_energy_gradient(dbl_mb(fion(1)))
       call dscal(3*nion,(-1.0d0),dbl_mb(fion(1)),1)
+      end if
      
 
 *     **** calculate the stress tensor ****
@@ -379,18 +381,26 @@
       value = value.and.
      >        rtdb_put(rtdb,'band:dipole',mt_dbl,
      >                 3,dipole)
-      value = value.and.
-     >        rtdb_put(rtdb,'band:stress',mt_dbl,
-     >                 9,stress)
-      value = value.and.
-     >        rtdb_put(rtdb,'band:gradient',mt_dbl,
+      if (.not. value) 
+     > call errquit('band_minimizer: error writing rtdb',0, RTDB_ERR)
+
+
+      if (flag.gt.0) then
+      value = rtdb_put(rtdb,'band:gradient',mt_dbl,
      >                 3*nion,dbl_mb(fion(1)))
       if (.not. value) 
      > call errquit('band_minimizer: error writing rtdb',0, RTDB_ERR)
       value = MA_pop_stack(fion(2))
       if (.not. value) call errquit('erroring popping stack memory',0,
      &       MA_ERR)
+      end if
 
+      if (flag.gt.1) then
+      value = rtdb_put(rtdb,'band:stress',mt_dbl,
+     >                 9,stress)
+      if (.not. value) 
+     > call errquit('band_minimizer: error writing rtdb',0, RTDB_ERR)
+      end if
 
 
       if (taskid.eq.MASTER) call current_second(cpu3)
@@ -493,7 +503,7 @@
 *:::::::::::::::::::::::::::  format  :::::::::::::::::::::::::::::::::
  1000 FORMAT(10X,'****************************************************')
  1010 FORMAT(10X,'*                                                  *')
- 1020 FORMAT(10X,'*           NWPW Band Structure Calculation        *')
+ 1020 FORMAT(10X,'*        NWPW Band Minimization Calculation        *')
  1031 FORMAT(10X,'*     [   (Stiefel manifold implementation)   ]    *')
  1040 FORMAT(10X,'*            version #1.00   01/01/02              *')
  1041 FORMAT(10X,'*  Developed by Eric J. Bylaska and Edoardo Apra   *')

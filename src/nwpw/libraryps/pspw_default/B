@@ -1,0 +1,38 @@
+Comment: B pseudopotential parameters taken from
+Comment: R. Kawai and J. H. Weare, J. Chem. Phys., vol. 95(2) pages 1151-1159.
+Comment:
+Comment:
+Comment: 	Molecular constants of B2
+Comment:
+Comment:	State		Method		re(Ang)	De(eV)	we(cm-1)
+Comment		------------------------------------------------
+Comment:	1^Sigma_g	LDA/58Ry
+Comment:	         	LDA/DZVP2
+Comment
+Comment:	3^Sigma_g	LDA/58Ry
+Comment:	         	LDA/DZVP2
+Comment:	         	Experiment	1.60	3.0 	997	
+Comment
+Comment:	5^Sigma_u	LDA/58Ry
+Comment:	         	LDA/DZVP2
+Comment:
+Comment:
+Comment:
+[lmax] -1
+[locp] -1
+[rlocal] 1.0
+<atom>
+B
+5.0 11.0 1 2 
+1  0      2.0
+2  0      2.0
+2  1      1.0
+<end>
+<solver>      pauli <end>
+<pseudopotential> hamann        <end>
+<linear> 501 0.02 <end>
+<rcut> 0 1.100
+       1 0.900
+       2 1.100
+<end>
+

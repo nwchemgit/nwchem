@@ -1,6 +1,9 @@
 *
-* $Id: psi.F,v 1.46 2003-11-07 02:17:45 bylaska Exp $
+* $Id: psi.F,v 1.47 2003-12-02 19:17:10 bylaska Exp $
 *
+
+
+* $Log: not supported by cvs2svn $
 
 
 ************************ f_orb orbitals Part ************************
@@ -1010,7 +1013,7 @@
 *     **** local variables ****
       logical done
       integer i,j,neall,maxit_orb,maxit_orbs
-      real*8 error,error_out,tim1,tim2,tim
+      real*8 error,error_out,tim1,tim2,tim,sum
 
 *     **** external functions ****
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
@@ -1026,6 +1029,24 @@
         !do i=neall,1,-1
         do i=1,neall
           call current_second(tim1)
+
+         !*** orthogonalize to lower orbitals  ****
+         call psi_project_out_f_orb1(
+     >           i,
+     >           dcpl_mb(psi1(1)+(i-1)*npack1))
+
+         !*** normalize ****
+         call Pack_cc_dot(1,
+     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+     >            sum)
+         sum = 1.0d0/dsqrt(sum)
+         call Pack_c_SMul(1,sum,
+     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+     >            dcpl_mb(psi1(1) +(i-1)*npack1))
+
+
+
           call psi_KS_update_orb(psi_number,precondition,maxit_orb,
      >                         maxerror,
      >                         0.1d0,i,error_out)
@@ -1151,6 +1172,7 @@ c    >           .and.(dabs(e0-eold).lt.maxerror)))
 *          *** project out components from other bands in the residual ***
            call psi_project_out_orb(psi_number,i,dcpl_mb(r1(1)))
          end if
+
 
 *        *** determine conjuagate direction ***
          call Pack_cc_dot(1,dcpl_mb(r1(1)),
@@ -1534,17 +1556,6 @@ c     write(*,*)
 *     **** spin up orbital **** 
       if (i.le.ne(1)) then
 
-c       call Pack_ccmn_dot(1,ne(1),1,
-c    >                     dcpl_mb(psi_ptr),
-c    >                     Horb,
-c    >                     dbl_mb(x(1)))
-c       do n=1,(ne(1))
-c          call daxpy(2*npack1,
-c    >               (-dbl_mb(x(1)+n-1)),
-c    >               dcpl_mb(psi_ptr+(n-1)*npack1),1,
-c    >               Horb,1) 
-c       end do     
-
         ii = i
         do n=1,(ii)
            call Pack_cc_dot(1,
@@ -1562,16 +1573,6 @@ c       end do
 *     **** spin down orbital ****      
       else       
 
-c       call Pack_ccmn_dot(1,ne(2),1,
-c    >                     dcpl_mb(psi_ptr+ne(1)*npack1),
-c    >                     Horb,
-c    >                     dbl_mb(x(1)))
-c       do n=(ne(1)+1),(ne(1)+ne(2))
-c          call daxpy(2*npack1,
-c    >               (-dbl_mb(x(1)+n-ne(1)-1)),
-c    >               dcpl_mb(psi_ptr+(n-1)*npack1),1,
-c    >               Horb,1) 
-c       end do     
 
         ii = i - ne(1)
         do n=(ne(1)+1),(ne(1)+ii)

@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3.f,v 1.3 2002-08-21 21:56:12 bylaska Exp $
+* $Id: integrate_kbppv3.f,v 1.4 2003-12-02 19:17:10 bylaska Exp $
 *
 
 
@@ -7,7 +7,8 @@
      >                            nrho,drho,lmax,locp,zv,
      >                            vp,wp,rho,f,cs,sn,
      >                            nfft1,nfft2,nfft3,lmmax,
-     >                            G,vl,vnl,vnlnrm,
+     >                            G,vl,vnl,
+     >                            n_prj,l_prj,m_prj,vnlnrm,
      >                            semicore,rho_sc_r,rho_sc_k,
      >                            ierr)
       implicit none
@@ -29,7 +30,8 @@
       double precision G(nfft1/2+1,nfft2,nfft3,3)
       double precision vl(nfft1/2+1,nfft2,nfft3)
       double precision vnl(nfft1/2+1,nfft2,nfft3,lmmax)
-      double precision vnlnrm(lmmax)
+      integer          n_prj(lmmax),l_prj(lmmax),m_prj(lmmax)
+      double precision vnlnrm(0:lmax)
 
       logical semicore
       double precision rho_sc_r(nrho,2)
@@ -98,10 +100,9 @@ c     parameter (c6=0.00004306380d0)
             f(I)=vp(I,L)*wp(I,L)**2
           end do   
           a=simp(nrho,f,drho)
-          do i=l**2+1,(l+1)**2
-            lcount = lcount + 1
-            vnlnrm(lcount)=a
-          end do
+          vnlnrm(l) = (1.0d0/a)
+        else
+          vnlnrm(l) = 0.0d0
         end if
       end do
 
@@ -312,6 +313,112 @@ c       F(I)=(VP(I,locp)*RHO(I)+ZV*ERF(RHO(I)/RC(locp)))*RHO(I)
          END DO
          VNL(1,1,1,1)=P0*SIMP(NRHO,F,DRHO)
       end if
+
+
+*     ********************************    
+*     **** define n_prj and l_prj ****
+*     ********************************
+      lcount = lmmax+1
+      GO TO (950,940,930,920), lmax+1
+
+        !::::::  f-wave  :::::::
+  920   CONTINUE
+        if (locp.ne.3) then
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = -3
+    
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = -2
+           
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = -1
+     
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = 0
+           
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = 1
+           
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = 2
+     
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = 3
+        end if
+
+
+        !::::  d-wave  ::::
+  930   CONTINUE
+        if (locp.ne.2) then
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 2
+          m_prj(lcount) = -2
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 2
+          m_prj(lcount) = -1
+          
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 2
+          m_prj(lcount) = 0
+          
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 2
+          m_prj(lcount) = 1
+          
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 2
+          m_prj(lcount) = 2
+        end if
+
+
+        !::::  p-wave  ::::
+  940   CONTINUE
+        if (locp.ne.1) then
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 1
+          m_prj(lcount) = -1
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 1
+          m_prj(lcount) = 0
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 1
+          m_prj(lcount) = 1
+        end if
+
+
+        !::::  s-wave  ::::
+  950   CONTINUE
+        if (locp.ne.0) then
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 0
+          m_prj(lcount) = 0
+        end if
 
 
       IERR=0

@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_diis.F,v 1.4 2003-06-30 18:40:02 bylaska Exp $                       
+*     $Id: nwpw_diis.F,v 1.5 2003-12-02 19:17:09 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -86,6 +86,7 @@
       real*8 work(3*max_list)
       real*8 A2(max_list,max_list),eig(max_list)
       integer rr_ptr,gg_ptr,ipiv(max_list),info
+      integer rr1,rr2,rr3
 
 *     **** external functions ****
       real*8   ddot
@@ -96,6 +97,9 @@
       call nwpw_list_ptr(2*m,rr_ptr)
       call daxpy(nsize,(-1.0d0),rho_in,1,dbl_mb(rr_ptr),1)
       call dscal(nsize,(-1.0d0),dbl_mb(rr_ptr),1)
+
+
+*     **** store v_in in rho(2*m-1) ***
       call nwpw_list_store(2*m-1,v_in)
 
 *     **** update B matrix ****
@@ -118,6 +122,7 @@
      >   (B(m,m)     .gt.0.0d0)) then
          call nwpw_diis_swap(m,m-1)
       end if
+
 
 c DEBUG
 c     !*** look at eigenvalues of B*B ***

@@ -1,11 +1,17 @@
-C $Id: nwpw_library.F,v 1.4 2003-10-17 22:56:19 carlfahl Exp $
+
+c
+c $Id: nwpw_library.F,v 1.5 2003-12-02 19:16:53 bylaska Exp $
+c
 	subroutine nwpw_libgeninp(element,filename)
 	implicit none
+	character*(*) element ! [in]
+	character*(*) filename
+
 #include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
-	character*(*) element ! [in]
-	character*(*) filename
+
+
 c
 	character*255 elem_fname
 	integer lef,unitrc
@@ -60,6 +66,15 @@ c
 	nwpw_libglocp= locp_read
 	return
 	end
+
+	integer function nwpw_libgpsp_type(atom)
+	implicit none
+#include "nwpw_inp.fh"
+	character*(*) atom
+	nwpw_libgpsp_type= psp_type
+	return
+	end
+
 	double precision function nwpw_libgrlocal(atom)
 	implicit none
 #include "nwpw_inp.fh"
@@ -67,6 +82,7 @@ c
 	nwpw_libgrlocal = rlocal_read
 	return
 	end
+
 	subroutine nwpw_libparse(u_library,u_psp_inp)
 	implicit none
 #include "errquit.fh"
@@ -86,6 +102,7 @@ c
 	lmax_read=-1
 	locp_read=-1
 	rlocal_read=1.d0
+        psp_type = 0
  1	continue
 	read(u_library,'(A)',end=2001,err=2002) line
 	l_lgth=inp_strlen(line)
@@ -115,6 +132,8 @@ c       lmax
 	      read(line(sqptr_r+1:l_lgth),*) locp_read
 	   elseif(keyread(1:k_lgth).eq.'rlocal') then
 	      read(line(sqptr_r+1:l_lgth),*) rlocal_read
+	   elseif(keyread(1:k_lgth).eq.'psp_type') then
+	      read(line(sqptr_r+1:l_lgth),*) psp_type
 	   else
 	      write(0,*) ' failed keyword recognition for',
      .  keyread(1:k_lgth)

@@ -48,6 +48,7 @@ static  double  *rho;
 static  double  *rho_semicore;
 static  double  r_semicore;
 static	double	**V_psp;
+static  char    comment[80];
 
 /* extra Vanderbilt parameters */
 static double rlocal,clocal;
@@ -75,6 +76,8 @@ void	init_Psp(char *filename)
    char   *w;
    FILE	  *fp;
 
+
+
    /* find the psp type */
    fp = fopen(filename,"r+");
    w = get_word(fp);
@@ -89,6 +92,22 @@ void	init_Psp(char *filename)
    }
    fclose(fp);
   
+
+
+  /* find the comment */
+   if (Solver_Type = Hamann)     comment = "Hamann pseudopotential"
+   if (Solver_Type = Troullier)  comment = "Troullier-Martins pseudopotential"
+   if (Solver_Type = Vanderbilt) comment = "Vanderbilt pseudopotential"
+   fp = fopen(filename,"r+");
+   w = get_word(fp);
+   while ((w!=NIL) && (strcmp("<comment>",w)!=0))
+      w = get_word(fp);
+   if (w!=NIL)
+   {
+      fscanf(fp,"%s",comment);
+   }
+   fclose(fp);
+
 
    /* set lmax  */
    lmax = lmax_Atom() + 1;
@@ -669,5 +688,8 @@ int	state_Psp(int nt, int lt)
 
 
 
-
+char    *comment_Psp()
+{
+   return comment;
+}
 

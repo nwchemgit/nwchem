@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.8 2003-10-20 16:37:48 bylaska Exp $
+ $Id: pspsolve.c,v 1.9 2003-12-02 19:17:09 bylaska Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -220,6 +220,7 @@ Integer	*n2;
          fprintf(fp,"%lf ", rcut_Psp(p));
       fprintf(fp,"\n");
       fprintf(fp,"%d %lf\n",nrl_Linear(),drl_Linear());
+      fprintf(fp,"%s\n",comment_Psp());
 
       printf("  + Appending pseudopotentials:    %s thru %s\n",
 					   spd_Name(0),spd_Name(lmax_Psp()));

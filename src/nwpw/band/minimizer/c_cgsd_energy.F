@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.7 2002-05-08 23:50:25 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.8 2003-12-02 19:16:53 bylaska Exp $                       
 *
 
 *     ***************************
@@ -19,7 +19,7 @@
       parameter (MASTER=0)
 
       logical stalled
-      integer taskid
+      integer taskid,minimizer
       integer i,k,neall,NN,nb
       integer it_in,it_out,icount
       real*8  EV,virial
@@ -32,13 +32,13 @@
 *     **** external functions ****
       logical     cpsp_semicore,control_out_of_time
       character*2 ion_aname
-      integer     control_it_in, control_it_out
+      integer     control_it_in,control_it_out,control_minimizer
       integer     ion_nion,ion_katm,cpsi_ne,cpsi_ispin
       real*8      control_tole,control_tolc
       real*8      ion_rion,cpsi_eigenvalue,ion_amass
       external cpsp_semicore,control_out_of_time
       external ion_aname
-      external control_it_in, control_it_out
+      external control_it_in,control_it_out,control_minimizer
       external ion_nion,ion_katm,cpsi_ne,cpsi_ispin
       external control_tole,control_tolc
       external ion_rion,cpsi_eigenvalue,ion_amass
@@ -49,6 +49,9 @@
 
 
       call Parallel_taskid(taskid)
+
+*     **** set the minimizer ****
+      minimizer = control_minimizer()
 
 
 *     **** generate phaze factors and local psp and core density ****
@@ -64,7 +67,8 @@ c      call cphafac_k()
          write(luout,1301)
          write(luout,1302)
          write(luout,1304)
-         write(luout,1305)
+         if (minimizer.eq.1) write(luout,1305)
+         if (minimizer.eq.5) write(luout,1309)
          call util_flush(luout)
       end if
 
@@ -76,15 +80,30 @@ c      call cphafac_k()
       tole   = control_tole()
       tolc   = control_tolc()
       E(1)=0.0d0
-      if (taskid.eq.MASTER) call nwpw_message(2)
+      if (taskid.eq.MASTER) then
+        if (minimizer.eq.5) then
+          call nwpw_message(7)
+        else
+          call nwpw_message(2)
+        end if
+      end if
       if (taskid.eq.MASTER) call util_flush(luout)
+      if (minimizer.eq.5) it_out = 1
+
       if (newpsi) call c_sdminimize(5)
    2  continue
          icount = icount + 1
          if (stalled) call c_sdminimize(0)
 
          deltae_old = deltae
-         call c_cgminimize(E,deltae,deltac)
+         
+         if (minimizer.eq.1) then
+           call c_cgminimize(E,deltae,deltac)
+         else if (minimizer.eq.5) then
+           write(*,*) "minimizer 5"
+           stop
+           !call c_bybminimize(E,deltae,deltac,.false.,1)
+         end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
      >       (dabs(deltae).gt.1.0d-3)) then
@@ -93,7 +112,7 @@ c      call cphafac_k()
             stalled = .false.
          end if
 
-         if (taskid.eq.MASTER) then 
+         if ((taskid.eq.MASTER).and.(minimizer.ne.5)) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac
            call util_flush(luout)
          end if
@@ -207,7 +226,11 @@ c         write(luout,1210) GX,GY,GZ
  1301 FORMAT(  '= energy calculation =')
  1302 FORMAT(  '======================')
  1304 FORMAT(/)
- 1305 FORMAT(10X,'============ electron iteration ====================')
+ 1305 FORMAT(10X,'====== Grassmann conjugate gradient iteration ======')
+ 1306 FORMAT(10X,'============ Grassmann lmbfgs iteration ============')
+ 1307 FORMAT(10X,'============ Grassmann diis iteration ==============')
+ 1308 FORMAT(10X,'======= Stiefel conjugate gradient iteration =======')
+ 1309 FORMAT(10X,'=========== band by band diis iteration ============')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')

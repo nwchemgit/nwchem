@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.11 2003-10-17 22:55:55 carlfahl Exp $
+c $Id: nwpw_input.F,v 1.12 2003-12-02 19:16:46 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 52)
+      parameter (num_dirs = 54)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -67,6 +67,8 @@ c
      >            'exchange_correlation',
      >            'wannier',
      >            'geometry_optimize',
+     >            'pseudopotential_libraries',
+     >            'pseudopotentials',
      >            'end'/
 
        logical      value,move
@@ -111,7 +113,7 @@ c
      >       2500,2600,2700,2800,2900,3000,3100,3200,
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
-     >       2900,3000,3700,3800,
+     >       2900,3000,3700,3800,3900,3900,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -498,6 +500,16 @@ c
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 3800, RTDB_ERR)
       goto 10
+
+
+c
+c  pseudopotential_library
+c
+ 3900 call nwpw_set_library(rtdb)
+
+      goto 10
+
+
 
 ************************************************************************
 c

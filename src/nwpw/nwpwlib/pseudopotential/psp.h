@@ -41,6 +41,7 @@ extern double   q_Psp();
 extern double   rcut_il_Psp(int,int);
 extern int      Vanderbilt_Psp();
 extern int      NormConserving_Psp();
+extern char     *comment_Psp();
 
 /* used for setting solver parameters */
 extern void	set_Solver_Psp();

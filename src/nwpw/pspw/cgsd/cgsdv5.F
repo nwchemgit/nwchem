@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.33 2003-10-31 22:16:38 bylaska Exp $
+* $Id: cgsdv5.F,v 1.34 2003-12-02 19:17:09 bylaska Exp $
 *
 
 ***********************************************************************
@@ -64,6 +64,7 @@
       real*8      lattice_unitg,ion_amass
       integer     ewald_ncut,ewald_nshl3d,psp_npsp
       integer     psp_lmmax,psp_lmax,psp_locp,ion_nkatm
+      integer     psp_nprj,psp_psp_type
       character*2 psp_atom,ion_aname
       external    psp_zv,psp_rc,ewald_rcut
       external    ewald_mandelung
@@ -71,8 +72,11 @@
       external    lattice_unitg,ion_amass
       external    ewald_ncut,ewald_nshl3d,psp_npsp
       external    psp_lmmax,psp_lmax,psp_locp,ion_nkatm
+      external    psp_nprj,psp_psp_type
       external    psp_atom,ion_aname
 
+      external      psp_comment
+      character*255 psp_comment,comment
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
       external control_tole,control_tolc,control_tolr,ion_rion
@@ -272,13 +276,18 @@ c     value = psi_initialize()
          do ia = 1,psp_npsp()
            write(6,1150) ia,psp_atom(ia),
      >                    psp_zv(ia),psp_lmax(ia)
+           comment = psp_comment(ia)
+           i = LEN_TRIM(comment)
+           write(6,1157) comment(1:i)
+           write(6,1158) psp_psp_type(ia)
            write(6,1152) psp_lmax(ia)
            write(6,1153) psp_locp(ia)
-           write(6,1154) psp_lmmax(ia)
+           write(6,1154) psp_nprj(ia)
            if (control_version().eq.4) write(6,1156) psp_rlocal(ia)
            if (psp_semicore(ia))
      >         write(6,1155) psp_rcore(ia),psp_ncore(ia)
            write(6,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
+           write(6,*)
          end do
 
          icharge = -(psi_ne(1)+psi_ne(psi_ispin()))
@@ -541,14 +550,17 @@ c     end if
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
- 1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I1)
+ 1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I3)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
- 1152 FORMAT(12X,' highest angular component      : ',i2)
- 1153 FORMAT(12X,' local potential used           : ',i2)
- 1154 FORMAT(12X,' number of non-local projections: ',i2)
+ 1152 FORMAT(12X,' highest angular component      : ',i3)
+ 1153 FORMAT(12X,' local potential used           : ',i3)
+ 1154 FORMAT(12X,' number of non-local projections: ',i3)
  1155 FORMAT(12X,' semicore corrections included  : ',
      >       F6.3,' (radius) ',F6.3,' (charge)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
+ 1157 FORMAT(12X,' comment    : ',A)
+ 1158 FORMAT(12X,' pseudpotential type            : ',i3)
+
  1159 FORMAT(/' total charge:',I2)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))

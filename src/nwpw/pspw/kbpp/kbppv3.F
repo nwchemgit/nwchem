@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.8 2003-10-17 22:57:16 carlfahl Exp $
+* $Id: kbppv3.F,v 1.9 2003-12-02 19:17:10 bylaska Exp $
 *
 
 *     **************************************
@@ -33,6 +33,7 @@
 
 *     **** 1d pseudopotential data ****
       character*2 atom
+      character*80 comment
       double precision zv,amass
       integer lmax0,lmmax,lmax1,locp1
       double precision rc(0:9),rlocal1
@@ -46,7 +47,9 @@
       double precision rcore,core_charge
 
       integer f_indx,cs_indx,sn_indx
+      integer n_prj_indx,l_prj_indx,m_prj_indx
       integer f_hndl,cs_hndl,sn_hndl
+      integer n_prj_hndl,l_prj_hndl,m_prj_hndl
 
 *     ***** ngrid data *****
       integer vl_indx,vnl_indx,vnlnrm_indx,G_indx
@@ -54,8 +57,9 @@
 
 *     **** other variables ****
       double precision unitg(3,3)
-      integer nsize,i,l,ierr
+      integer nsize,i,l,ierr,psp_type
       integer nfft1,nfft2,nfft3
+      integer nmax,nprj
 
 *     **** external functions ****
       double precision simp
@@ -78,6 +82,7 @@
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
       read(11,*,ERR=9999,END=9999) nrho,drho
+      read(11,'(A)',ERR=9999,END=9999) comment
       end if
 
       msglen = 1
@@ -153,17 +158,24 @@
 
 *     **** allocate vl,vnl,vnlnrm G ****
       lmmax = (lmax+1)**2 - (2*locp+1)
+      nprj  = lmmax
       nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
       value = MA_alloc_get(mt_dbl,nsize*(lmmax),
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = MA_alloc_get(mt_dbl,lmmax,
+      value = MA_alloc_get(mt_dbl,(lmax+1),
      >                        'vnlnrm', vnlnrm_hndl, vnlnrm_indx)
       value = MA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
       value = MA_alloc_get(mt_dbl,4*nsize,
      >                        'sc_k',sc_k_hndl,sc_k_indx)
+      value = MA_alloc_get(mt_int,nprj,
+     >                        'n_prj', n_prj_hndl, n_prj_indx)
+      value = MA_alloc_get(mt_int,nprj,
+     >                        'l_prj', l_prj_hndl, l_prj_indx)
+      value = MA_alloc_get(mt_int,nprj,
+     >                        'm_prj', m_prj_hndl, m_prj_indx)
 
 
 *     **** preparation of constants ****
@@ -185,6 +197,9 @@
      >                                dbl_mb(G_indx),
      >                                dbl_mb(vl_indx),
      >                                dbl_mb(vnl_indx),
+     >                                int_mb(n_prj_indx),
+     >                                int_mb(l_prj_indx),
+     >                                int_mb(m_prj_indx),
      >                                dbl_mb(vnlnrm_indx),
      >                                semicore,
      >                                dbl_mb(sc_r_indx),
@@ -270,6 +285,10 @@
       write(*,*) "Generated formatted_filename: ",full_filename(1:l)
       write(*,*)
       call openfile(2,full_filename,l,'w',l)     
+
+         call cwrite(2,comment,80)
+         psp_type = 0
+         call iwrite(2,psp_type,1)
          call iwrite(2,version,1)
          call iwrite(2,ngrid,3)
          call dwrite(2,unita,9)
@@ -278,8 +297,19 @@
          call dwrite(2,zv,1)
          call iwrite(2,lmax,1)
          call iwrite(2,locp,1)
+     
+         nmax = 1
+         call iwrite(2,nmax,1)
          call dwrite(2,rc,lmax+1)
-         call dwrite(2,dbl_mb(vnlnrm_indx),lmmax)
+
+         
+         call iwrite(2,nprj,1)
+         call iwrite(2,int_mb(n_prj_indx),nprj)
+         call iwrite(2,int_mb(l_prj_indx),nprj)
+         call iwrite(2,int_mb(m_prj_indx),nprj)
+
+         call dwrite(2,dbl_mb(vnlnrm_indx),(lmax+1))
+
          if (version.eq.4) call dwrite(2,rlocal,1)
          call dwrite(2,rcore,1)
 
@@ -306,6 +336,9 @@
       value = MA_free_heap(vnl_hndl)
       value = MA_free_heap(vnlnrm_hndl)
       value = MA_free_heap(G_hndl)
+      value = MA_free_heap(n_prj_hndl)
+      value = MA_free_heap(l_prj_hndl)
+      value = MA_free_heap(m_prj_hndl)
 
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
@@ -343,7 +376,7 @@ c     read(11,*,ERR=9116,END=9117)(RHO(I),(WP(I,J),J=0,LMAX),I=1,NRHO)
       
       return
 
- 9999 call errquit('Error reading psp_filename',0, DISK_ERR)
+ 9999 call errquit('kbppv3:Error reading psp_filename',0, DISK_ERR)
       end
 
       subroutine read_semicore(unit,isemicore,rcore,nrho,rho_sc)
@@ -376,7 +409,7 @@ c     read(11,*,ERR=9116,END=9117)(RHO(I),(WP(I,J),J=0,LMAX),I=1,NRHO)
       rcore = 0.0d0
       return
 
- 8889 call errquit('Error reading psp_filename, in semicore',0,
+ 8889 call errquit('kbppv3:Error reading psp_filename, in semicore',0,
      &       DISK_ERR)
       end
 

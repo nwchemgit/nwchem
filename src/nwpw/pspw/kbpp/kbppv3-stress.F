@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3-stress.F,v 1.6 2003-10-17 22:57:16 carlfahl Exp $
+* $Id: kbppv3-stress.F,v 1.7 2003-12-02 19:17:10 bylaska Exp $
 *
 
 
@@ -34,6 +34,7 @@
 
 *     **** 1d pseudopotential data ****
       character*2 atom
+      character*80 comment
       double precision zv,amass
       integer lmax0,lmmax,lmax1,locp1
       double precision rc(0:9),rlocal1
@@ -79,6 +80,7 @@
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
       read(11,*,ERR=9999,END=9999) nrho,drho
+      read(11,'(A)',ERR=9999,END=9999) comment
       end if
 
       msglen = 1
