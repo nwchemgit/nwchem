@@ -1,9 +1,9 @@
-# $Id: GNUmakefile,v 1.16 1994-10-11 19:36:14 d3g681 Exp $
+# $Id: GNUmakefile,v 1.17 1994-10-12 22:18:58 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
         comp4_insert.o            rhf_energy.o \
-                                  rhf_fock_2e_a.o \
+        rhf_canon.o               rhf_fock_2e_a.o \
         rhf_do_canon.o            rhf_get_param.o \
         rhf_fock_2e.o             rhf_fock_2e_b.o \
         ga_create_atom_blocked.o  scf.o \
