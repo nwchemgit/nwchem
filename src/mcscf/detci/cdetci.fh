@@ -79,7 +79,7 @@ c
      $           cdetci_atabb(detci_maxtsize),
      $           l_detci_exa, k_detci_exa,
      $           l_detci_exb, k_detci_exb,
-     $           cdetci_ipad(3),
+     $           cdetci_ipad(2),
      $           cdetci_eref,
      $           cdetci_eps(detci_maxorb),
      $           l_detci_h,            k_detci_h,

@@ -1,3 +1,4 @@
+
 c
 c
 c  Sigma vector Alpha - Alpha contribution
@@ -240,6 +241,7 @@ c
       nsblk = (20*numnodes)/(norb*norb)
       nsblk = max(nsblk,1)
       NSBLK = 2
+      if (numnodes.eq.1) nsblk = 1
       sseg = (nekla/nsblk)
       if (mod(nekla,nsblk).ne.0) sseg = sseg + 1
 c

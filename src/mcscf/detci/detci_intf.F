@@ -194,7 +194,6 @@ c
 c  Memory for scratch space should be allocated HERE!
 c
       memuse03 = 2*max(nstra,nstrb)*mseg + 3*nekla + 4*nstrb*nekla
-      
       if (.not.ma_push_get(MT_DBL, (max(nstra,nstrb)*mseg),
      $     'detci: fscr', l_detci_fscr, k_detci_fscr))
      $     call errquit('detci: cannot allocate fscr',0)
@@ -203,7 +202,7 @@ c
      $     'detci: rhsscr', l_detci_rhsscr, k_detci_rhsscr))
      $     call errquit('detci: cannot allocate rhs',0)
 
-      if (.not.ma_push_get(MT_INT, max(nekla,neklb),
+      if (.not.ma_push_get(MT_INT, max(nekla,neklb,nexb,nexa),
      $     'detci: lhsscr', l_detci_lhsscr, k_detci_lhsscr))
      $     call errquit('detci: cannot allocate lhs',0)
 
@@ -534,7 +533,7 @@ c
       integer nekla, neklb
       integer ntij
       integer ijmap(detci_maxorb*detci_maxorb)
-      integer g_ct, g_st, g_snew
+      integer g_ct, g_st
       integer mseg
       DOUBLE PRECISION XX
 c
@@ -627,7 +626,6 @@ c
      $                    g_civec, g_sigma )
       detci_sab_etime = detci_sab_etime + util_cpusec() - tx
       detci_sigma_etime = detci_sigma_etime + util_cpusec() - t0
-
 c
 c
 c$$$      CALL DETCI_CIVEC_PRINT( CDETCI_NORB, CDETCI_NSYM, CDETCI_NELA, CDETCI_NELB,
