@@ -1067,9 +1067,11 @@ c
 c
       ignore = rtdb_delete(rtdb, 'scf:input vectors')
       ignore = rtdb_delete(rtdb, 'dft:input vectors')
+      ignore = rtdb_delete(rtdb, 'pspw:input vectors')
       ignore = rtdb_delete(rtdb, 'mcscf:input vectors')
       ignore = rtdb_delete(rtdb, 'scf:output vectors')
       ignore = rtdb_delete(rtdb, 'dft:output vectors')
+      ignore = rtdb_delete(rtdb, 'pspw:output vectors')
       ignore = rtdb_delete(rtdb, 'mcscf:output vectors')
 c
       end
@@ -1096,6 +1098,9 @@ c
          if (inp_compare(.false.,'dft',theory)) then
             keyin  = 'dft:input vectors'
             keyout = 'dft:output vectors'
+         else if (inp_compare(.false.,'pspw',theory)) then
+            keyin  = 'pspw:input vectors'
+            keyout = 'pspw:output vectors'
          else if (inp_compare(.false.,'mcscf',theory)) then
             keyin  = 'mcscf:input vectors'
             keyout = 'mcscf:output vectors'
