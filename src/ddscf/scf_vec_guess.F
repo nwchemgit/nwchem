@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.30 1999-06-16 00:59:25 edo Exp $
+c     $Id: scf_vec_guess.F,v 1.31 1999-07-06 18:32:44 d3g681 Exp $
 c
       implicit none
 c
@@ -153,7 +153,7 @@ c
 c
 c     hcore or atomic guess
 c
-         if (.not.inp_compare(.false., 'density', vecs_or_dens))then
+         if (.not.inp_compare(.false., 'dft', calling_module))then
             g_dens(1) = 
      &         ga_create_atom_blocked(geom, basis, 'Guess density')
          endif
@@ -185,7 +185,7 @@ c
             call dcopy(nbf,dbl_mb(k_eval),1,dbl_mb(k_eval+nbf),1)
          endif
 c
-         if (.not.inp_compare(.false., 'density', vecs_or_dens))then
+         if (.not.inp_compare(.false., 'dft', calling_module))then
             if (.not. ga_destroy(g_dens(1))) call errquit
      &        ('scf_vectors_guess: destroy of density failed',0)
          endif
