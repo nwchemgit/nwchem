@@ -877,3 +877,65 @@ c
 c
       return
       end
+      subroutine cf_fnorm(fw,numw,isat,fs,nums,fnorm,fmax)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      real*8 fw(mwm,3,mwa),fs(msa,3),fnorm,fmax
+      integer isat(msa),numw,nums
+c
+      call cf_fnrm(dbl_mb(i_mas),int_mb(i_iwa),fw,numw,
+     + isat,fs,nums,fnorm,fmax)
+c
+      return
+      end
+      subroutine cf_fnrm(wgt,iwat,fw,numw,isat,fs,nums,fnorm,fmax)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "msgids.fh"
+#include "global.fh"
+c
+      real*8 wgt(mat,6)
+      real*8 fw(mwm,3,mwa),fs(msa,3),fnorm,fmax
+      integer iwat(mwa),isat(msa),numw,nums
+c
+      integer i,j
+      real*8 fm,factor
+c
+      fnorm=zero
+      fmax=zero
+c
+      if(numw.gt.0) then
+      do 1 j=1,nwa
+      factor=(one/wgt(iwat(j),iset))*(one/wgt(iwat(j),iset))
+      do 2 i=1,numw
+      fm=fw(i,1,j)**2+fw(i,2,j)**2+fw(i,3,j)**2
+      fnorm=fnorm+fm
+      fmax=max(fmax,factor*fm)
+    2 continue
+    1 continue
+      endif
+c
+      if(nums.gt.0) then
+      do 3 i=1,nums
+      fm=fs(i,1)**2+fs(i,2)**2+fs(i,3)**2
+      fnorm=fnorm+fm
+      factor=(one/wgt(isat(i),iset))*(one/wgt(isat(i),iset))
+      fmax=max(fmax,factor*fm)
+    3 continue
+      endif
+c
+      if(np.gt.1) then
+      call ga_dgop(mrg_d46,fnorm,1,'+')
+      call ga_dgop(mrg_d47,fmax,1,'max')
+      endif
+c
+      fnorm=sqrt(fnorm)
+c
+      return
+      end
