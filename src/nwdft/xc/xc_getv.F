@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.42 2001-03-06 19:25:51 bjohnson Exp $
+C$Id: xc_getv.F,v 1.43 2001-03-09 22:11:27 bjohnson Exp $
 c
       implicit none
 c      
@@ -97,7 +97,8 @@ c
 c
 #ifdef BETTIS
       if (CDFIT .and. bettis_screened_x()) then
-         call errquit('Screened HF exchange not implemented with fitted J',0)
+         call errquit(
+     &       'Screened HF exchange not implemented with fitted J',0)
       endif
 #endif
       if (havehfxc .or. (.not. CDFIT))then
