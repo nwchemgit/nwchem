@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.76 2000-05-03 01:15:13 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.77 2000-06-02 17:42:11 zzhang Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -29,6 +29,7 @@ c
      &        lznuc, iznuc
       integer iline
       integer nopen
+      character*32 theory 
       character*40 blank_40c
       Logical lnewtype
       Logical int_normalize
@@ -773,6 +774,12 @@ c
             movecs_out = movecs_in
          endif
       endif
+c
+c     For spin-orbit calculations, turn off oskel 
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('dft_rdinput: failed getting theory',0)
+      if(theory .eq. 'sodft')oskel=.false.
 c
 c     Resolve names of MO files to full paths defaulting to the
 c     permanent directory
