@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.1 1994-10-20 23:51:56 pg511 Exp $
+# $Id: GNUmakefile,v 1.2 1994-10-25 03:19:26 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	addarray.o			const_init.o	\
@@ -6,7 +6,7 @@
 	errquit.o			fndgrp.o	\
 	ga_chol.o				\
 	ga_inverse.o			ga_scac.o	\
-	gacrea.o			gat_lab_mat.o	\
+	gacrea.o	gat_lab_can.o	\
 	gather.o			getarray.o	\
 	getmem.o			header.o	\
 	idbfact.o			ifill.o	\
@@ -16,7 +16,7 @@
 	makechk.o			\
 	mdcopn.o			nxtask.o	\
 	pertbl.o			rdmem.o	\
-	sca_lab_mat.o			scatter.o	\
+	sca_lab_mat.o	sca_lab_can.o		scatter.o	\
 	second.o			simltr.o	\
 	stdio_init.o			strings.o	\
 	svdinv.o			tmpfiles.o	\
@@ -30,7 +30,8 @@
 					int_eval_gbsets.o \
 	bas_ncoef_cn_max.o		ga_chol_seq.o	\
 	ga_inv_seq.o			nmcoef.o	\
-	bas_norm.o                      int_2e2c_can.o
+	bas_norm.o                    \
+	int_2e2c_can.o  int_2e3c_can.o
 #
 #			dpotrf.o	\
 #	dpotri.o   			dpotf2_.o	\
