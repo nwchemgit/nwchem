@@ -1,5 +1,5 @@
       subroutine distan(nat,coord)
-C     $Id: distang.F,v 1.5 1996-08-27 23:05:17 d3g681 Exp $
+C     $Id: distang.F,v 1.6 1997-05-30 19:08:47 d3g681 Exp $
       implicit none
       integer nat,i,j
       double precision dist
@@ -10,7 +10,7 @@ C     $Id: distang.F,v 1.5 1996-08-27 23:05:17 d3g681 Exp $
          write(6,1100)
          do 10 j=i+1,nat 
             rij=dsqrt(dist(i,j,coord))       
-            if (rij.le.5)							
+            if (rij.le.5)
      $           write(6,1200) ' ', i, ' ', j, rij, rij*0.529167d0	
  10      continue
  20   continue
@@ -42,11 +42,11 @@ c
                   djk=dist(j,k,coord)
                   if (max(dij,dik,djk).le.25.0d0) then
                      rjk =sqrt(djk) 
-                     acosarg =  (dij+djk-dik)/(2*rij*rjk)			
-                     acosarg = int(acosarg*1.0d+06)				
-                     acosarg = acosarg*1.0d-6					
-                     thet=(dacos(acosarg))*57.29578d0				
-                     write(6,1200) ' ', i, ' ', j, ' ', k, thet 		
+                     acosarg =  (dij+djk-dik)/(2*rij*rjk)
+                     acosarg = int(acosarg*1.0d+06)
+                     acosarg = acosarg*1.0d-6
+                     thet=(dacos(acosarg))*57.29578d0
+                     write(6,1200) ' ', i, ' ', j, ' ', k, thet 
                   endif
                enddo
             endif
