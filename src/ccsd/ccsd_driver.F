@@ -7,7 +7,6 @@
 #include "geom.fh"
 #include "rtdb.fh"
 #include "schwarz.fh"
-#include "context.fh"
 #include "stdio.fh"
 #include "util.fh"
 #include "msgids.fh"
@@ -401,6 +400,8 @@ C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:mp2 energy', MT_Dbl, 1,
      $   TotEner) ) 
      $   Call ErrQuit('CCSD: Can''t write to RTDB', 2)
+c
+      call ecce_print1('mp2 energy', mt_dbl, totener, 1)
       call ga_sync()
 c
       status = ga_destroy(g_epair)

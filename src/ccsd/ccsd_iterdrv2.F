@@ -3,7 +3,8 @@
      &                        ht1,ht2,scra,scrb,hiu,hia,habe,giu,gabe,
      &                        bbkp,bb,g_t2,g_ht2,
      &                        g_moint,mxvec,eccsd,max2e,mem2,
-     &                        g_ncoul,g_nexch,tklst,offt2,nvp1)
+     &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
+     $     refener)
       implicit none
 c
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,convi,iprt,
@@ -13,7 +14,7 @@ c
        double precision cmo(nbf,nbf),eorb(nbf),t1(*),t2(*),
      &                  ht1(*),ht2(*),scra(*),scrb(*),
      &                  hiu(*),hia(*),habe(*),giu(*),gabe(*),
-     &                  bbkp(*),bb(*),eccsd
+     &                  bbkp(*),bb(*),eccsd, refener
 c
 c$$$      double precision rtc
 c$$$      external rtc
@@ -33,6 +34,7 @@ C
 #include "msgids.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
+#include "mafdecls.fh"
 c
       double precision zip,one,half,two,ten
       data zip/0.0d00/,one/1.0d00/,ten/10.0d00/
@@ -157,6 +159,11 @@ c$$$      rx(2)=rtc()
      &                                       (tx(2)-tx(1))
  1235 format(i4,d24.14,2d12.4,2d12.4)
 c$$$      write(6,*)'Wall clock time',(rx(2)-rx(1))*3.33e-09
+c
+      call ecce_print1('ccsd total energy', mt_dbl, eccsd+refener, 1)
+      call ecce_print1('ccsd delta energy', mt_dbl, deccsd, 1)
+      call ecce_print1('ccsd rms error', mt_dbl, rms, 1)
+c
       endif
       goto 99
  999  continue

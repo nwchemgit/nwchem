@@ -43,7 +43,7 @@ c triples
      &        npass
       integer ga_create_jkblocked
       logical oexch,ocoul,ohalf
-      double precision eccsdt,escf,eccsd,empt(2),tx(3),rx(2)
+      double precision eccsdt,eccsd,empt(2),tx(3),rx(2)
       Integer Nodes, IAm
 C
       double precision zip
@@ -108,7 +108,6 @@ c
 c
       nodes = ga_nnodes()
       iam = ga_nodeid()
-      escf=zip
       stat=bas_numcont(basis,nsh)
       stat=stat.and.bas_nbf_cn_max(basis,maxbfsh)
       if (.not.stat) call errquit('moints: cannot get basis info',0)
@@ -197,7 +196,7 @@ c
      &                  dbl_mb(k_bbkp),dbl_mb(k_bb),
      &                  g_t2,g_ht2,g_objv,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
-     &                  int_mb(k_tk),offt2,nvp1)
+     &                  int_mb(k_tk),offt2,nvp1, refener)
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -314,6 +313,9 @@ c
      $      eccsd
          Write (LuOut, '(1X, A, F30.15)') 'Total CCSD energy: ',
      $      RefEner + eccsd
+         call ecce_print1('ccsd correlation energy', mt_dbl, eccsd, 1)
+         call ecce_print1('ccsd total energy', mt_dbl, refener+eccsd, 1)
+         call ecce_print1('total ccsd energy', mt_dbl, refener+eccsd, 1)
       EndIf
 C
 C     Write our energy out to the database
@@ -423,6 +425,7 @@ C     are certain we have completed the expected task.
 C
       If ( .NOT. ( Inp_Compare(.FALSE., 'ccsd(t)', CC_Theory)
      $   .OR. Inp_Compare(.FALSE., 'ccsd+t(ccsd)', CC_Theory) ) ) then
+         call ecce_print1('total energy', mt_dbl, refener+eccsd, 1)
          If ( .NOT. RTDB_Put( RTDB, 'ccsd:energy', MT_Dbl, 1,
      $      RefEner+eccsd) ) 
      $      Call ErrQuit('CCSD: Can''t write to RTDB', 3)
@@ -540,6 +543,10 @@ c
       stat=stat.and.ga_destroy(g_exch)
 c
       If ( IAm .eq. 0) then
+         call ecce_print1('total ccsd+t(ccsd) energy', 
+     $        mt_dbl, refener+eccsd+empt(1), 1)
+         call ecce_print1('total ccsd(t) energy', 
+     $        mt_dbl, RefEner + eccsd + eccsdt, 1)
          Call Banner(LuOut,
      $      'CCSD(T) Energy', '-',
      $      .TRUE., .TRUE., .FALSE.)
@@ -586,10 +593,14 @@ C     This reports back to task_energy that the requested task has been
 C     completed successfully.
 C
       If ( Inp_Compare(.FALSE., 'ccsd(t)', CC_Theory) ) then
+            call ecce_print1('total energy', mt_dbl, 
+     $        RefEner+eccsd+eccsdt, 1)
          If ( .NOT. RTDB_Put( RTDB, 'ccsd:energy', MT_Dbl, 1,
      $      RefEner+eccsd+eccsdt) ) 
      $      Call ErrQuit('CCSD: Can''t write to RTDB', 14)
       ElseIf ( Inp_Compare(.FALSE., 'ccsd+t(ccsd)', CC_Theory) ) then
+         call ecce_print1('total energy', mt_dbl, 
+     $        RefEner+eccsd+empt(1), 1)
          If ( .NOT. RTDB_Put( RTDB, 'ccsd:energy', MT_Dbl, 1,
      $      RefEner+eccsd+empt(1) ) ) 
      $      Call ErrQuit('CCSD: Can''t write to RTDB', 14)

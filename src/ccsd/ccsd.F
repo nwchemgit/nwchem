@@ -5,7 +5,6 @@
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "util.fh"
 c
 c
@@ -19,11 +18,9 @@ c
        logical moint_driver,ccsd_driver
        logical do_old
 c
-c
-       if (.not. context_push('ccsd'))
-     $      call errquit('ccsd: context_push failed',0)
        Call Util_Print_Push
        Call Util_Print_RTDB_Load(RTDB, 'ccsd')
+       call ecce_print_module_entry('ccsd')
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
@@ -55,16 +52,16 @@ c ------NEW AO CCSD CODE
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('scf: geom_create?', 0)
+     $     call errquit('ccsd: geom_create?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('scf: no geometry ', 0)
+     $     call errquit('ccsd: no geometry ', 0)
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('scf: bas_create?', 0)
+     $     call errquit('ccsd: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $     call errquit('scf: no ao basis ', 0)
-      movecs = 'movecs'
-      if (.not. context_rtdb_match(rtdb, 'input mo vector file',
-     $     movecs_in)) movecs_in = movecs
+     $     call errquit('ccsd: no ao basis ', 0)
+      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in)) 
+     $     call util_file_name('movecs', .false.,.false.,movecs_in)
+c
       status = ccsd_driver( rtdb, geom, basis, movecs_in )
 C
       If ( .NOT. Geom_Destroy(Geom) )
@@ -74,10 +71,8 @@ C
 c
 c
 c
-       if (.not. context_pop('ccsd'))
-     $     call errquit('context_pop failed',0)
-C
        ccsd = .TRUE.
+       call ecce_print_module_exit('ccsd', 'ok')
        Return
        end
 

@@ -18,7 +18,6 @@
 #include "geom.fh"
 #include "rtdb.fh"
 #include "schwarz.fh"
-#include "context.fh"
 #include "ccsd_debug.fh"
 C
       integer l_snsi,k_snsi,l_sisn,k_sisn,l_eri1,k_eri1,
