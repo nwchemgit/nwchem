@@ -57,6 +57,7 @@ c
 #include "symmmul.fh"
 c
 c
+
       do i=1,norb
         trii(i) = (i*(i-1))/2
       enddo
@@ -79,12 +80,12 @@ c
         call dfill(nstrb,0.d0,f,1)
         do iex=1,nexb
           kstr   = exb(1,iex,istr)
-          ksym   = exb(2,iex,istr)
+C          ksym   = exb(2,iex,istr)
           kl     = exb(3,iex,istr)
           kphase = exb(4,iex,istr)
           k      = exb(5,iex,istr)
           l      = exb(6,iex,istr)
-          iksym  = MULX(isym,ksym)
+C          iksym  = MULX(isym,ksym)
 C          if (iksym.eq.1) then
             xx = 0.d0
             do j=1,norb
@@ -97,7 +98,6 @@ C          endif
 c
           do kex=1,nexb
             jstr   = exb(1,kex,kstr)
-            jsym   = exb(2,kex,kstr)
             ij     = exb(3,kex,kstr)
             jphase = exb(4,kex,kstr)*kphase
             f(jstr) = f(jstr) + 0.5d0*jphase*g(ij,kl)
@@ -126,7 +126,7 @@ c
 
 
 
-
+#ifndef NEW_SIGMA_BB
 c
 c
 c  Sigma vector Beta-Beta contribution
@@ -270,7 +270,7 @@ c
       enddo
       return
       end
-
+#endif
 
 
 

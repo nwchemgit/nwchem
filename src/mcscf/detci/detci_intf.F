@@ -1,4 +1,3 @@
-
 #define DETCI_INTFACE
 c
 c  Need this macro to exclude declarations
@@ -462,12 +461,13 @@ c
 c$$$      double precision civec(*)
 c$$$      double precision sigma(*)
 c
-      real tx, ty, tz, t2(2)
+      double precision t0, tx
       integer nexa, nexb
       integer nstra, nstrb
       integer nekla, neklb
       integer ntij
       integer ijmap(detci_maxorb*detci_maxorb)
+      integer g_ct, g_st, g_snew
 c
 c  Check internals
 c
@@ -477,7 +477,7 @@ c
 c
 c
       detci_sigma_calls = detci_sigma_calls + 1
-      tx = util_cpusec()
+      t0 = util_cpusec()
 c     
 c  CI parameters
 c     
@@ -492,6 +492,38 @@ c
 c
 c  Sigma components
 c
+#ifdef NEW_SIGMA_BB
+      tx = util_cpusec()
+      if (.not.ga_create( MT_DBL, nstra, nstrb, 'transp CI',
+     $                    nstra, 1, g_ct ))
+     $   call errquit('detci_sigma: cannot allocate transp ci',0)
+      if (.not.ga_create( MT_DBL, nstra, nstrb, 'transp sig',
+     $                    nstra, 1, g_st ))
+     $   call errquit('detci_sigma: cannot allocate transp sig',0)
+      call ga_transpose( g_civec, g_ct )
+      call ga_zero(g_st)
+
+      call detci_sigmaaa( cdetci_norb, cdetci_nsym, cdetci_nelb,
+     $                    cdetci_nela, nstrb, nstra, nexb, nexa,
+     $                    neklb, nekla, cdetci_osym, 
+     $                    ijmap, int_mb(k_detci_exb),
+     $                    int_mb(k_detci_exa),
+     $                    cdetci_atabb, cdetci_ataba, ntij,
+     $                    dbl_mb(k_detci_h), dbl_mb(k_detci_g),
+     $                    dbl_mb(k_detci_fscr),
+     $                    g_ct, g_st )
+
+      call ga_transpose( g_st, g_sigma )
+      if (.not.ga_destroy(g_ct))
+     $  call errquit('detci_sigma: cannot destroy transp ci',0)
+      if (.not.ga_destroy(g_st))
+     $  call errquit('detci_sigma: cannot destroy transp sig',0)
+      detci_sbb_etime = detci_sbb_etime + util_cpusec() - tx
+#endif
+c
+c
+c
+      tx = util_cpusec()
       call detci_sigmaaa( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                    cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                    nekla, neklb, cdetci_osym, 
@@ -501,10 +533,12 @@ c
      $                    dbl_mb(k_detci_h), dbl_mb(k_detci_g),
      $                    dbl_mb(k_detci_fscr),
      $                    g_civec, g_sigma )
-
-      ty = util_cpusec()
-      detci_saa_etime = detci_saa_etime + ty - tx
-
+      detci_saa_etime = detci_saa_etime + util_cpusec() - tx
+c
+c
+c
+#ifndef NEW_SIGMA_BB
+      tx = util_cpusec()
       call detci_sigmabb( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                    cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                    nekla, neklb, cdetci_osym, 
@@ -514,14 +548,12 @@ c
      $                    dbl_mb(k_detci_h), dbl_mb(k_detci_g),
      $                    dbl_mb(k_detci_fscr),
      $                    g_civec, g_sigma )
-
-C$$$      CALL DETCI_CIVEC_PRINT( CDETCI_NORB, CDETCI_NSYM, CDETCI_NELA, CDETCI_NELB,
-C$$$     $                      NSTRA, NSTRB, CDETCI_OSYM,
-C$$$     $                      CDETCI_ATABA, CDETCI_ATABB, SIGMA, 1.D-5 )
-
-      tz = util_cpusec()
-      detci_sbb_etime = detci_sbb_etime + tz - ty
-
+      detci_sbb_etime = detci_sbb_etime + util_cpusec() - tx
+#endif
+c
+c
+c
+      tx = util_cpusec()
       call detci_sigmaab( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                    cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                    nekla, neklb, cdetci_osym,
@@ -536,6 +568,8 @@ C$$$     $                      CDETCI_ATABA, CDETCI_ATABB, SIGMA, 1.D-5 )
      $                    dbl_mb(k_detci_cprime),
      $                    dbl_mb(k_detci_sprime),
      $                    g_civec, g_sigma )
+      detci_sab_etime = detci_sab_etime + util_cpusec() - tx
+      detci_sigma_etime = detci_sigma_etime + util_cpusec() - t0
 c
 c
 c$$$      CALL DETCI_CIVEC_PRINT( CDETCI_NORB, CDETCI_NSYM, CDETCI_NELA, CDETCI_NELB,
@@ -544,10 +578,6 @@ c$$$     $                      CDETCI_ATABA, CDETCI_ATABB, SIGMA, 1.D-5 )
 c
 c
 c
-      ty = util_cpusec()
-      detci_sab_etime = detci_sab_etime + ty - tz
-      detci_sigma_etime = detci_sigma_etime + ty - tx
-
       return
       end
 
@@ -746,7 +776,6 @@ c
 c
 c
 c
-#ifdef DETCI_DENSAB
       call detci_twopdm_ab( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                      cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                      nekla, neklb, cdetci_osym, cdetci_ixmap,
@@ -758,7 +787,6 @@ c
      $                      dbl_mb(k_detci_cprime),
      $                      dbl_mb(k_detci_sprime),
      $                      g_civec, twopdm )
-#endif
 c
 c
 c
