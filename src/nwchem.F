@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.132 2001-01-22 22:50:22 windus Exp $
+c     $Id: nwchem.F,v 1.133 2001-02-16 21:53:10 windus Exp $
 *------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001     *
 *         Pacific Northwest National Laboratory,                   * 
@@ -339,6 +339,7 @@ c
       logical ostartup
       logical ocontinue
 c
+      double precision dbletomb
       character*80 hostname, compiled, batchid
       character*(nw_max_path_len) executable, srcdir, file_prefix
       character*(nw_max_path_len) branch
@@ -508,12 +509,13 @@ c
 *old:     $     '    total     = ', i10,' doubles'/
 *old:     $     '    verify    = ', a3/
 *old:     $     '    hardfail  = ', a3//)
+      dbletomb = 8.0d00/(1024.0d00*1024.0d00)
       write(LuOut,3)
-     &    heap,((dble(heap)*8.0d-06)),
-     &    stack,((dble(stack)*8.0d-06)),
-     &    global,((dble(global)*8.0d-06)),
+     &    heap,((dble(heap)*dbletomb)),
+     &    stack,((dble(stack)*dbletomb)),
+     &    global,((dble(global)*dbletomb)),
      &    GStatus(1:inp_strlen(gstatus)),
-     &    total,((dble(total)*8.0d-06)),
+     &    total,((dble(total)*dbletomb)),
      &    cstatus,
      &    fstatus
  3    format(/
