@@ -1,5 +1,5 @@
 
-        OBJ = \
+        OBJ = atwtest.o \
               brdcst_vec.o \
 	      ga_create_JKblocked.o \
 	      ga_check_JKblocked.o \
