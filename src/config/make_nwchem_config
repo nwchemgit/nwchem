@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.156 2001-12-18 04:52:35 edo Exp $
+# $Id: make_nwchem_config,v 1.157 2001-12-20 18:54:52 d3k958 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -19,7 +19,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 \
         property gapss nwpw fft rimp2_grad nbo python analyz nwmd cafe space \
-        drdy vscf uccsdt qmmm qmd mcstep
+        drdy vscf uccsdt qmmm qmd mcstep etrans
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -30,7 +30,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -lprepar -lnwmd -lnwpw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze\
-                    -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd -lmcstep
+                    -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd -lmcstep -letrans
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -68,7 +68,7 @@ EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
-          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp 
+          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans
 EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
@@ -136,6 +136,8 @@ MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
+MODULES := $(patsubst etrans, etrans ddscf NWints,$(MODULES) )
+
 MODULES := $(patsubst nwmd,nwmd cafe space fft,$(MODULES) )
 
 MODULES := $(patsubst develop,develop ddscf uccsdt,$(MODULES) )
@@ -191,6 +193,7 @@ MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst plane_wave,-lplnwv,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst prepar,-lprepar,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst esp,-lesp,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst etrans,-letrans,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cafe,-lcafe,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst space,-lspace,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwmd,-lnwmd,$(MOD_LIBS) )
@@ -240,6 +243,7 @@ STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst prepar,prepar pre_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst etrans,etrans etrans_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmd,qmd_setup qmd_start qmd_wrttrj qmd_forces,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmmm,qmmm_input qmmm_forces,$(STUBROUTINES) )
