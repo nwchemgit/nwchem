@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.71 2004-07-23 20:46:35 bert Exp $
+C$Id: nwdft.F,v 1.72 2004-07-27 16:20:04 bert Exp $
       implicit none
 #include "errquit.fh"
 c****
@@ -56,6 +56,7 @@ c
 #include "cdft.fh"
 #include "util.fh"
 #include "cgridfile.fh"
+#include "cosmo.fh"
 c     
 c     local declarations
 c

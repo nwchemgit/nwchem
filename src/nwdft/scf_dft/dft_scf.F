@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.242 2004-07-23 20:34:19 bert Exp $
+c     $Id: dft_scf.F,v 1.243 2004-07-27 16:20:20 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -31,6 +31,7 @@ c
 #include "util.fh"
 #include "dft_conv.fh"
 #include "dftps.fh"
+#include "cosmo.fh"
 c     
       Logical movecs_write, movecs_converged
       External movecs_write, movecs_converged
