@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.59 2005-01-17 20:51:33 edo Exp $
+* $Id: psi.F,v 1.60 2005-02-09 02:39:10 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.59  2005/01/17 20:51:33  edo
+* fixed a  couple of FPEs
+*
 * Revision 1.58.2.1  2005/01/17 20:51:06  edo
 * fixed a couple of FPEs
 *
@@ -3821,7 +3824,7 @@ c    >                            dcpl_mb(dng1(1)))
       common / rhoall_block / rho1_all,rho2_all
 
 *     ***** local variables ****
-      integer u,v
+      integer u,v,gga
       real*8 exc,pxc
       real*8 pi,scal,hm(3,3),tstress(3,3)
 
@@ -3854,8 +3857,9 @@ c    >                            dcpl_mb(dng1(1)))
 
 *     **** PBE96 GGA part ****
 *     **** finished? 11/24/04 - still need to test ***
-      if (control_gga().eq.1) then
-       call v_bwexc_euv(2*nfft3d,ispin,dbl_mb(rho1_all(1)),tstress)
+      gga = control_gga()
+      if ((gga.eq.1).or.(gga.eq.2)) then
+       call v_bwexc_euv(gga,2*nfft3d,ispin,dbl_mb(rho1_all(1)),tstress)
        do v=1,3
        do u=1,3
           stress(u,v) = stress(u,v) + tstress(u,v)
