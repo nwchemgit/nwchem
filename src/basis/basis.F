@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.89 1999-07-14 00:28:51 d3e129 Exp $
+c $Id: basis.F,v 1.90 1999-07-27 17:45:11 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -4412,6 +4412,32 @@ c
         enddo
       enddo
 *      write(luout,*)' largest exponent ',exponent
+      end
+      logical function bas_any_gcorsp(basisin)
+      implicit none
+#include "stdio.fh"
+#include "nwc_const.fh"
+#include "basP.fh"
+c
+c returns true if the basis set has any sp functions or general contraction
+c functions.
+c
+      integer basisin
+c::functions
+      logical  bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin
+c::local
+      integer basis
+      bas_any_gcorsp =
+     &    bas_check_handle(basisin,'bas_any_gcorsp')
+      if (.not.bas_any_gcorsp) then
+        write(luout,*)'invalid/inactive basis handle',basisin
+        call errquit('bas_any_gcorsp: fatal error',911)
+      endif
+      basis = basisin + Basis_Handle_Offset 
+      bas_any_gcorsp = bas_any_gc(basis).or.bas_any_sp_shell(basis)
       end
       logical function bas_cont_large_exponent(basisin,incont,exponent)
       implicit none
