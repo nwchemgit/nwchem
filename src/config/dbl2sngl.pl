@@ -1,5 +1,5 @@
 #
-# $Id: dbl2sngl.pl,v 1.2 1997-03-17 21:00:49 d3e129 Exp $
+# $Id: dbl2sngl.pl,v 1.3 1997-04-18 08:52:21 d3e129 Exp $
 #
 #
 #
@@ -78,26 +78,25 @@ foreach $file (@ARGV){
     open(FILETOFIX,$filebak) || die "Could not open file: $filebak\n";
     open(FIXEDFILE,$file) || die "Could not open file: $file\n";
     while (<FILETOFIX>) {
-	if (/^[ \d]/){
+	if ( /^c/ || /^C/ || /^\*/ || /^\#/ || /^$/){
+	    print FIXEDFILE $_;
+	}
+	else	{
 	    for ($compare = 0; $compare < $num_compare ; $compare++)
 	    {
-		if ($debug) {print "from:$from[$compare]  to:$to[$compare]\n" ;}
-		if ($debug) {print "one  : $_";}
-		s/(\W{1})$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
-		if ($debug) {print "two  : $_";}
+		if (/$from[$compare]/i){
+
+		    if (/^[ ]{5}[^\s]/) {
+			s/([ ]{5}.)$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
+		    }
+		    if (/^[ \d]/){
+			s/(\W{1})$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
+		    }
+		}
 	    }
+	    
+	    print FIXEDFILE $_;
 	}
-	if (/^[ ]{5}[^\s]/) {
-	    for ($compare = 0; $compare < $num_compare ; $compare++)
-	    {
-		if ($debug) {print "three: $_";}
-		s/([ ]{5}.)$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
-		if ($debug) {print "four : $_";}
-	    }
-	}
-	
-	if ($debug) {print $_ ;}
-	print FIXEDFILE $_;
     }
     close(FIXEDFILE);
     close(FILETOFIX);
