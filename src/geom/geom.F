@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.123 2003-10-21 22:44:31 edo Exp $
+C$Id: geom.F,v 1.124 2003-12-13 02:34:18 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1614,6 +1614,32 @@ c
       if (.not. geom_ncent_unique) return
       ncent = ncenter_unique(geom)
 c      
+      end
+      logical function geom_isbq(geom, icent)
+      implicit none
+#include "nwc_const.fh"
+#include "inp.fh"
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      integer icent             ! [input]
+      logical status
+      character*16 tag          
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+c
+      status = geom_check_handle(geom, 'geom_cent_tag')
+      if (.not. status) then
+      call errquit("no geometry handle",0,0)
+      end if
+      status = geom_check_cent(geom, 'geom_cent_tag', icent)
+      if (.not. status) then
+      call errquit("no geometry center",0,0)
+      end if
+c
+      tag = tags(icent,geom)
+      geom_isbq = inp_compare(0,tag,'bq')
+c
       end
       logical function geom_cent_tag(geom, icent, tag)
       implicit none
