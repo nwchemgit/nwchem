@@ -7,7 +7,7 @@
      + ldbg,idbg)
 c
 c
-c $Id: sp_init.F,v 1.45 1999-12-16 15:40:55 d3j191 Exp $
+c $Id: sp_init.F,v 1.46 1999-12-17 22:04:46 d3j191 Exp $
 c
       implicit none
 c
@@ -1618,9 +1618,9 @@ c
      + call errquit('Failed to allocate n',0)
 c
       call sp_wtrst(lfnrst,filrst,lveloc,pres,temp,tempw,temps,
-     + iwl,xw,vw,xwcr,isl,xs,vs,int_mb(i_ipl),
-     + lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),dbl_mb(i_br),
-     + int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv))
+     + iwl,int_mb(i_packw),xw,vw,xwcr,isl,int_mb(i_pack),xs,vs,
+     + int_mb(i_ipl),lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),
+     + dbl_mb(i_br),int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv))
 c
       if(.not.ma_pop_stack(l_n))
      + call errquit('Failed to deallocate n',0)
@@ -1636,7 +1636,7 @@ c
       return
       end
       subroutine sp_wtrst(lfnrst,filrst,lveloc,pres,temp,tempw,temps,
-     + iwl,xw,vw,xwcr,isl,xs,vs,
+     + iwl,iwlp,xw,vw,xwcr,isl,islp,xs,vs,
      + ipl,nb,ibw,bxw,bvw,brw,ibs,bxs,bvs)
 c
       implicit none
@@ -1650,6 +1650,7 @@ c
       logical lveloc
       real*8 pres,temp,tempw,temps
       integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwlp(mwm,npackw),islp(msa,npack)
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3)
       integer ipl(mbox,mip2),ibw(nb),ibs(nb)
@@ -1692,7 +1693,12 @@ c
       nwmn=ipl(1,2)
       if(nwmn.gt.0) then
       call ga_distribution(ga_iw,node,ili,ihi,jli,jhi)
+      if(npackw.eq.0) then
       call ga_get(ga_iw,ili,ili+nwmn-1,jli,jli+lwdyn-1,iwl,mwm)
+      else
+      call ga_get(ga_iw,ili,ili+nwmn-1,jli,jli+npackw-1,iwlp,mwm)
+      call sp_unpackw(nwmn,iwl,iwlp)
+      endif
       call ga_distribution(ga_w,node,ilw,ihw,jlw,jhw)
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw,jlw+3*mwa-1,xw,mwm)
       if(lveloc)
@@ -1743,7 +1749,12 @@ c
       nsan=ipl(2,2)
       if(nsan.gt.0) then
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
+      if(npack.eq.0) then
       call ga_get(ga_is,ili,ili+nsan-1,jli,jli+lsdyn-1,isl,msa)
+      else
+      call ga_get(ga_is,ili,ili+nsan-1,jli,jli+npack-1,islp,msa)
+      call sp_unpack(nsan,isl,islp)
+      endif
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       if(lveloc) call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
@@ -2054,9 +2065,9 @@ c
 c
       call sp_wttrj(lfntrj,lxw,lvw,lxs,lvs,
      + stime,pres,temp,tempw,temps,
-     + iwl,xw,vw,xwcr,isl,xs,vs,int_mb(i_ipl),
-     + lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),dbl_mb(i_br),
-     + int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv))
+     + iwl,int_mb(i_packw),xw,vw,xwcr,isl,int_mb(i_pack),xs,vs,
+     + int_mb(i_ipl),lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),
+     + dbl_mb(i_br),int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv))
 c
       if(.not.ma_pop_stack(l_n))
      + call errquit('Failed to deallocate n',0)
@@ -2072,7 +2083,7 @@ c
       return
       end
       subroutine sp_wttrj(lfntrj,lxw,lvw,lxs,lvs,
-     + stime,pres,temp,tempw,temps,iwl,xw,vw,xwcr,isl,xs,vs,
+     + stime,pres,temp,tempw,temps,iwl,iwlp,xw,vw,xwcr,isl,islp,xs,vs,
      + ipl,nb,ibw,bxw,bvw,brw,ibs,bxs,bvs)
 c
       implicit none
@@ -2085,6 +2096,7 @@ c
       logical lxw,lvw,lxs,lvs
       real*8 stime,pres,temp,tempw,temps
       integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwlp(mwm,npackw),islp(msa,npack)
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3)
       integer ipl(mbox,mip2),ibw(nb),ibs(nb)
@@ -2121,7 +2133,12 @@ c
       nwmn=ipl(1,2)
       if(nwmn.gt.0) then
       call ga_distribution(ga_iw,node,ili,ihi,jli,jhi)
+      if(npackw.eq.0) then
       call ga_get(ga_iw,ili,ili+nwmn-1,jli,jli+lwdyn-1,iwl,mwm)
+      else
+      call ga_get(ga_iw,ili,ili+nwmn-1,jli,jli+npackw-1,iwlp,mwm)
+      call sp_unpackw(nwmn,iwl,iwlp)
+      endif
       call ga_distribution(ga_w,node,ilw,ihw,jlw,jhw)
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw,jlw+3*mwa-1,xw,mwm)
       if(lvw) 
@@ -2171,7 +2188,12 @@ c
       nsan=ipl(2,2)
       if(nsan.gt.0) then
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
+      if(npack.eq.0) then
       call ga_get(ga_is,ili,ili+nsan-1,jli,jli+lsdyn-1,isl,msa)
+      else
+      call ga_get(ga_is,ili,ili+nsan-1,jli,jli+npack-1,islp,msa)
+      call sp_unpack(nsan,isl,islp)
+      endif
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       if(lvs) call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
@@ -2224,12 +2246,13 @@ c
       real*8 xs(msa,3),vs(msa,3)
 c
       call sp_wtmro(lfnmro,stime,pres,temp,tempw,temps,
-     + iwl,xw,vw,xwcr,isl,xs,vs,int_mb(i_ipl))
+     + iwl,int_mb(i_packw),xw,vw,xwcr,isl,int_mb(i_pack),xs,vs,
+     + int_mb(i_ipl))
 c
       return
       end
       subroutine sp_wtmro(lfnmro,stime,pres,temp,tempw,temps,
-     + iwl,xw,vw,xwcr,isl,xs,vs,ipl)
+     + iwl,iwlp,xw,vw,xwcr,isl,islp,xs,vs,ipl)
 c
       implicit none
 c
@@ -2240,6 +2263,7 @@ c
       integer lfnmro
       real*8 stime,pres,temp,tempw,temps
       integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwlp(mwm,npackw),islp(msa,npack)
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3)
       integer ipl(mbox,mip2)
@@ -2257,7 +2281,12 @@ c
       nsan=ipl(2,2)
       if(nwmn.gt.0) then
       call ga_distribution(ga_iw,node,ili,ihi,jli,jhi)
+      if(npackw.eq.0) then
       call ga_get(ga_iw,ili,ili+nwmn-1,jli,jhi,iwl,mwm)
+      else
+      call ga_get(ga_iw,ili,ili+nwmn-1,jli,jli+npackw-1,iwlp,mwm)
+      call sp_unpackw(nwmn,iwl,iwlp)
+      endif
       call ga_distribution(ga_w,node,ilw,ihw,jlw,jhw)
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw,jlw+3*mwa-1,xw,mwm) 
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+3*mwa,jlw+6*mwa-1,vw,mwm)
@@ -2267,7 +2296,12 @@ c
       endif
       if(nsan.gt.0) then
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
+      if(npack.eq.0) then
       call ga_get(ga_is,ili,ili+nsan-1,jli,jhi,isl,msa)
+      else
+      call ga_get(ga_is,ili,ili+nsan-1,jli,jli+npack-1,islp,msa)
+      call sp_unpack(nsan,isl,islp)
+      endif
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
@@ -2295,12 +2329,13 @@ c
       real*8 xs(msa,3),vs(msa,3)
 c
       call sp_rmri(lfnmri,stime,pres,temp,tempw,temps,
-     + iwl,xw,vw,xwcr,isl,xs,vs,int_mb(i_ipl))
+     + iwl,int_mb(i_packw),xw,vw,xwcr,isl,int_mb(i_pack),xs,vs,
+     + int_mb(i_ipl))
 c
       return
       end
       subroutine sp_rmri(lfnmri,stime,pres,temp,tempw,temps,
-     + iwl,xw,vw,xwcr,isl,xs,vs,ipl)
+     + iwl,iwlp,xw,vw,xwcr,isl,islp,xs,vs,ipl)
 c
       implicit none
 c
@@ -2312,6 +2347,7 @@ c
       integer lfnmri
       real*8 stime,pres,temp,tempw,temps
       integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwlp(mwm,npackw),islp(msa,npack)
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3)
       integer ipl(mbox,mip2)
@@ -2334,7 +2370,12 @@ c
       read(lfnmri) (((xw(j,k,l),j=1,nwmn),k=1,3),l=1,nwa)
       read(lfnmri) (((vw(j,k,l),j=1,nwmn),k=1,3),l=1,nwa)
       call ga_distribution(ga_iw,node,ili,ihi,jli,jhi)
+      if(npackw.eq.0) then
       call ga_put(ga_iw,ili,ili+nwmn-1,jli,jhi,iwl,mwm)
+      else
+      call sp_packw(nwmn,iwl,iwlp)
+      call ga_put(ga_iw,ili,ili+nwmn-1,jli,jli+npackw-1,iwlp,mwm)
+      endif
       call ga_distribution(ga_w,node,ilw,ihw,jlw,jhw)
       call ga_put(ga_w,ilw,ilw+nwmn-1,jlw,jlw+3*mwa-1,xw,mwm) 
       call ga_put(ga_w,ilw,ilw+nwmn-1,jlw+3*mwa,jlw+6*mwa-1,vw,mwm)
@@ -2344,7 +2385,12 @@ c
       read(lfnmri) ((xs(j,k),j=1,nsan),k=1,3)
       read(lfnmri) ((vs(j,k),j=1,nsan),k=1,3)
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
+      if(npack.eq.0) then
       call ga_put(ga_is,ili,ili+nsan-1,jli,jhi,isl,msa)
+      else
+      call sp_pack(nsan,isl,islp)
+      call ga_put(ga_is,ili,ili+nsan-1,jli,jli+npack-1,islp,msa)
+      endif
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_put(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       call ga_put(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
@@ -2373,14 +2419,24 @@ c
       nsaloc=ipl(2,2)
       if(nwmloc.gt.0) then
       call ga_distribution(ga_iw,me,ili,ihi,jli,jhi)
+      if(npackw.eq.0) then
       call ga_get(ga_iw,ili,ili+nwmloc-1,jli,jhi,iwl,mwm)
+      else
+      call ga_get(ga_iw,ili,ili+nwmloc-1,jli,jli+npackw-1,iwlp,mwm)
+      call sp_unpackw(nwmn,iwl,iwlp)
+      endif
       call ga_distribution(ga_w,me,ilw,ihw,jlw,jhw)
       call ga_get(ga_w,ilw,ilw+nwmloc-1,jlw,jlw+3*mwa-1,xw,mwm) 
       call ga_get(ga_w,ilw,ilw+nwmloc-1,jlw+3*mwa,jlw+6*mwa-1,vw,mwm)
       endif
       if(nsaloc.gt.0) then
       call ga_distribution(ga_is,me,ili,ihi,jli,jhi)
+      if(npack.eq.0) then
       call ga_get(ga_is,ili,ili+nsaloc-1,jli,jhi,isl,msa)
+      else
+      call ga_get(ga_is,ili,ili+nsaloc-1,jli,jli+npack-1,islp,msa)
+      call sp_unpack(nsan,isl,islp)
+      endif
       call ga_distribution(ga_s,me,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsaloc-1,jls,jls+2,xs,msa)
       call ga_get(ga_s,ils,ils+nsaloc-1,jls+3,jls+5,vs,msa)

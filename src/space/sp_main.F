@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.34 1999-12-16 16:55:22 d3j191 Exp $
+c $Id: sp_main.F,v 1.35 1999-12-17 22:04:46 d3j191 Exp $
 c
       implicit none
 c
@@ -94,6 +94,8 @@ c
       misl(j)=max(misl(j),isl(i,j))
     3 continue
     2 continue
+      misl(lsbox)=mbox
+      misl(lsnod)=np
 c
       call ga_dgop(msp_24,misl,mis2,'max')
 c
@@ -124,7 +126,7 @@ c
     6 continue
 c
       do 7 i=1,mis2
-      misl(i)=2**nbits(i)
+      misl(i)=2**nbits(i)-1
     7 continue
 c
       do 8 i=1,miw2
@@ -136,6 +138,8 @@ c
       miwl(j)=max(miwl(j),iwl(i,j))
    10 continue
     9 continue
+      miwl(lwbox)=mbox
+      miwl(lwnod)=np
 c
       call ga_dgop(msp_25,miwl,miw2,'max')
 c
@@ -166,7 +170,7 @@ c
    13 continue
 c
       do 14 i=1,miw2
-      miwl(i)=2**nbitw(i)
+      miwl(i)=2**nbitw(i)-1
    14 continue
 c
       if(me.eq.0) then
@@ -268,7 +272,7 @@ c
       do 2 k=ipack(j),1,-1
       ipck=ipck-1
       do 3 i=1,numsa
-      isl(i,ipck)=iand(islp(i,j),misl(ipck)-1)
+      isl(i,ipck)=iand(islp(i,j),misl(ipck))
       islp(i,j)=rshift(islp(i,j)-isl(i,ipck),nbits(ipck))
     3 continue
     2 continue
@@ -322,7 +326,7 @@ c
       do 2 k=ipackw(j),1,-1
       ipck=ipck-1
       do 3 i=1,numwm
-      iwl(i,ipck)=iand(iwlp(i,j),miwl(ipck)-1)
+      iwl(i,ipck)=iand(iwlp(i,j),miwl(ipck))
       iwlp(i,j)=rshift(iwlp(i,j)-iwl(i,ipck),nbitw(ipck))
     3 continue
     2 continue
