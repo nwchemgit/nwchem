@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.1 1999-05-06 17:29:34 windus Exp $
+C $Id: hess_anal.F,v 1.2 1999-12-29 23:31:18 windus Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -65,15 +65,18 @@ c
       write(6,*) 'after the onedd_cont call'
       call flush(6)
 c
+c  Get the nuclear contribution to the hessian
+c
+      call nucdd_cont(rtdb)
+      write(6,*) 'The Hessian after nucdd contributions:'
+      call flush(6)
+      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+c
 c  Get the two-electron second derivative contributions
 c
       call twodd_cont(rtdb)
       write(6,*) 'after the twodd_cont call'
       call flush(6)
-c
-c  Get the nuclear contribution to the hessian
-c
-      call nucdd_cont(rtdb)
 c
 c  solve the CPSCF problem
 c

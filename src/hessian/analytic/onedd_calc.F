@@ -1,5 +1,5 @@
 c
-c $Id: onedd_calc.F,v 1.2 1999-12-21 23:52:39 windus Exp $
+c $Id: onedd_calc.F,v 1.3 1999-12-29 23:31:18 windus Exp $
 c
       subroutine onedd_calc(Hxy,nxyz,g_rhs,nrhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,
@@ -114,11 +114,12 @@ c                 at2 = idatom(2)
                       de = 0.D0           ! contract wdensity and integrals
                       do 22 ip1 = if1, il1
                         do 20 ip2 = if2, il2
-                          dE = dE + wdens(ip1,ip2) * Ibuf(ic)
+                          dE = dE - wdens(ip1,ip2) * Ibuf(ic)
                           ic = ic + 1
  20                     continue
  22                   continue
                       dE = dE * qfac
+                      dE = dE + dE
                       Hxy(icart1,at1,icart2,at2) = 
      *                 Hxy(icart1,at1,icart2,at2) + dE
  26                 continue
@@ -153,6 +154,7 @@ c    *        dens(ip1,ip2),Ibuf(ic),ip1,ip2,ic
                           ic = ic + 1
                         enddo
                       enddo
+                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
                       dE = dE * qfac
                       Hxy(icart1,at1,icart2,at1) =
      *                 Hxy(icart1,at1,icart2,at1) + dE
@@ -163,7 +165,6 @@ c
 c    Handle (di|dV|j), (i|dV|dj) which also has the (di|V|dj) and
 c    the (di|T|dj) components
 c
-c               ic=1
                 do 50 attemp1 = 1, 2
                 if (attemp1.eq.1) then
                   at1 = iat1
@@ -182,12 +183,55 @@ c    *        dens(ip1,ip2),Ibuf(ic),ip1,ip2,ic
                         ic = ic + 1
  30                   continue
  31                 continue
-c                   if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
+                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
                     dE = dE * qfac
                     Hxy(icart1,at1,icart2,at2) = 
      *               Hxy(icart1,at1,icart2,at2) + dE
+                    Hxy(icart2,at2,icart1,at1) = 
+     *               Hxy(icart2,at2,icart1,at1) + dE
  40               continue
  50             continue
+c
+c do (di2|V+T|j), (di|V+T|dj), and (i|V+T|dj2)
+c
+                do i = 1, 2
+                do j = 1, i
+                  if (i.eq.1) then
+                    at1 = iat1
+                  else
+                    at1 = iat2
+                  endif
+                  if (j.eq.1) then
+                    at2 = iat1
+                  else
+                    at2 = iat2
+                  endif
+                  do icart2 = 1, 3
+                  do icart1 = 1, 3
+                    dE = 0.D0
+                    do ip1 = if1, il1
+                      do ip2 = if2, il2
+                        dE = dE + dens(ip1,ip2) * Ibuf(ic)
+                        ic = ic + 1
+                      enddo
+                    enddo
+                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE+dE
+                    dE = dE * qfac
+                    if ((at1.eq.at2).and.(i.eq.j).and.
+     *                  (icart1.eq.icart2)) then
+                      Hxy(icart1,at1,icart2,at2) =
+     *                 Hxy(icart1,at1,icart2,at2) + dE
+                    else
+                      Hxy(icart1,at1,icart2,at2) =
+     *                 Hxy(icart1,at1,icart2,at2) + dE
+                      Hxy(icart2,at2,icart1,at1) = 
+     *                 Hxy(icart2,at2,icart1,at1) + dE
+                    endif
+                  enddo
+                  enddo  
+                enddo
+                enddo
+c
                 endif   ! doV and doT
 
  60           continue

@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.1 1999-05-06 17:29:35 windus Exp $
+C $Id: hess_init.F,v 1.2 1999-12-29 23:31:18 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -18,9 +18,9 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "sym.fh"
-c   #include "../nwdft/include/cdft.fh"
 c
-      integer rtdb, mult, g_vecs(2)
+c     integer rtdb, mult, g_vecs(2)
+      integer rtdb, mult
       integer i, j, dftnoc(2)
       logical status
       double precision zero, one, onem
@@ -143,74 +143,17 @@ c
       call flush(6)
 c
 c  Get the density and global fock derivative matrices (Qs or RHS).
-c  Also get g_vecs as temporary space to calculate the density.
-c  At the moment, we assume that we can fit all of these into
-c  memory.  However, this will quickly not be the case.
-c
-c     if (theory.eq.'HF') then
-        if (scftype .eq. 'UHF') then
-          g_dens(1) = ga_create_atom_blocked
-     *            (geom, basis, 'hessian:a dens')
-          g_dens(2) = ga_create_atom_blocked
-     *            (geom, basis, 'hessian:b dens')
-          g_vecs(1) = ga_create_atom_blocked 
-     *            (geom, basis, 'hessian:alpha vectors' )
-          g_vecs(2) = ga_create_atom_blocked 
-     *            (geom, basis, 'hessian:beta vectors' )
-        else
-          g_dens(1) = ga_create_atom_blocked
-     *            (geom, basis, 'hessian:dens')
-          g_vecs(1) = ga_create_atom_blocked 
-     *            (geom, basis, 'hessian:mo vectors' )
-        endif
-      
-c     else
-c      status = bgj_get_scf_dens(g_dens)
-c      write(6,*) 'Bennys get_density'
-c      call ga_print(g_dens(1))
-c      call flush(6)
-c      if (nopen.gt.0) then
-c        write(6,*) 'Bennys beta density'
-c        call ga_print(g_dens(2))
-c        call flush(6)
-c      endif
-c     endif
-      write(6,*) 'before call to get_density'
-      call flush(6)
-      call get_density(g_dens,g_vecs,theory,scftype,nalpha,nbeta,
-     *                 nbf,rtdb)
-       write(6,*) 'my get_density'
-       call ga_print(g_dens(1))
-       call flush(6)
-       if (nopen.gt.0) then
-         write(6,*) 'my beta density'
-         call ga_print(g_dens(2))
-       endif
-c
-c get rid of g_vecs
 c
       if (scftype .eq. 'UHF') then
-        if (.not. ga_destroy(g_vecs(1))) call errquit
-     *     ('hess_init: failed to free g_vecs(1)', 555)
-        if (.not. ga_destroy(g_vecs(2))) call errquit
-     *     ('hess_init: failed to free g_vecs(2)', 555)
+        g_dens(1) = ga_create_atom_blocked
+     *            (geom, basis, 'hessian:a dens')
+        g_dens(2) = ga_create_atom_blocked
+     *            (geom, basis, 'hessian:b dens')
       else
-        if (.not. ga_destroy(g_vecs(1))) call errquit
-     *     ('hess_init: failed to free g_vecs(1)', 555)
+        g_dens(1) = ga_create_atom_blocked
+     *            (geom, basis, 'hessian:dens')
       endif
-c      write(6,*) 'my get_density'
-c      call ga_print(g_dens(1))
-c      if (nopen.gt.0) then
-c        write(6,*) 'my beta density'
-c        call ga_print(g_dens(2))
-c      endif
-c
-c  DFT expects the alpha and beta densities to be added together
-c
-      if (nopen .eq. 1)then
-          call ga_dadd (one,g_dens(1),onem,g_dens(2),g_dens(1))
-      endif
-
+c     
       nopen = nopen + 1
       do i = 1, ncent
 c      if (log_mb(i-1+k_act)) then
