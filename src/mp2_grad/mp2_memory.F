@@ -2,7 +2,7 @@
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task,scftype)
 *     
-*     $Id: mp2_memory.F,v 1.19 1997-12-09 00:42:11 d3g681 Exp $
+*     $Id: mp2_memory.F,v 1.20 2002-02-07 17:45:19 edo Exp $
 *     
       implicit none
 #include "mafdecls.fh"
@@ -211,6 +211,7 @@ c
       max_ma = max(ma_1,ma_2,ma_3,ma_4,ma_5,ma_6,ma_7) * 1.02d0
       max_file = max(k_file_size+t_file_size,t_file_size+p_file_size)
      $     * 1.02d0
+      call ga_igop(542, max_file, 1, 'min')
 c
       if (ga_nodeid().eq.0 .and. 
      $     util_print('mpass debug',print_debug)) then
