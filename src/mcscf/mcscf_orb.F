@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.32 1997-02-27 23:51:13 d3g681 Exp $
+c  $Id: mcscf_orb.F,v 1.33 1997-03-03 23:11:39 rg240 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -111,9 +111,9 @@ c
        if (.not. rtdb_get(rtdb,'mcscf:hessiantype',MT_INT,1,pflg))
      $   pflg = 2
        if (.not. rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
-     $   oe2approx = .true.
+     $   oe2approx = .false.
        if (.not. rtdb_get(rtdb,'mcscf:citol',MT_DBL,1,citol))
-     $      citol = min(1.d-6,citol)
+     $      citol = 1.d-8
        if (.not. rtdb_get(rtdb,'mcscf:line_search_tol',MT_DBL,
      $                    1,lsrch_tol)) lsrch_tol = 1.d-1
        if (.not.geom_nuc_rep_energy( geom, enrep ))
