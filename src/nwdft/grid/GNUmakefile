@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 1999-06-14 22:39:27 d3h449 Exp $
+# $Id: GNUmakefile,v 1.7 1999-06-15 18:24:22 edo Exp $
 
       OBJ = \
 	grid_atom_type_info.o \
@@ -36,7 +36,9 @@
 
 LIB_INCLUDES = -I../include
 
-   USES_BLAS = grid_invariant.F
+   USES_BLAS = grid_invariant.F grid_beckew.F grid_den_2.F grid_file.F grid_setspac.F
+
+
 
 include ../../config/makefile.h
 include ../../config/makelib.h
