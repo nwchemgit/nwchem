@@ -54,10 +54,16 @@ end
 
 task dft gradient
 
-title "XC pbe96 "
+title "XC b3lyp "
 dft
 XC b3lyp
 end
 
 task dft gradient
 
+title "XC ft97 "
+dft
+XC ft97
+end
+
+task dft gradient
