@@ -1,5 +1,7 @@
+OBJ = 
 
-OBJ = ecp_3j_prod.o  \
+OBJ_OPTIMIZE = \
+      ecp_3j_prod.o  \
       ecp_Q2int1.o   \
       ecp_angint.o   \
       ecp_angrad.o   \
