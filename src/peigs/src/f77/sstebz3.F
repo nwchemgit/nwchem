@@ -205,6 +205,18 @@
 *     ..
 *     .. Executable Statements ..
 *
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
       INFO = 0
 c
       if ( range1 .eq. 1 ) range = 'A'
