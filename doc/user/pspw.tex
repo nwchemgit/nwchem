@@ -51,8 +51,10 @@ describes the pseudopotential library included with NWChem.  The
 datafiles used by the PSPW module are described in section
 \ref{sec:pspw_data}.  Car-Parrinello output data files are described
 in section \ref{sec:pspw_cp_data}, and the minimization and
-Car-Parrinello algorithms are described in sections
-\ref{sec:pspw_Minimize}-\ref{sec:pspw_Car-Parrinello}. Examples of how
+Car-Parrinello algorithms are described in 
+% sections \ref{sec:pspw_Minimize}-\ref{sec:pspw_Car-Parrinello}. 
+section \ref{sec:pspw_Car-Parrinello}. 
+Examples of how
 to setup and run a PSPW geometry optimization, a Car-Parrinello
 simulation, a band structure minimization, and a PAW geometry
 optimization are presented in sections \ref{sec:pspw_sd}, \ref{sec:pspw_cp}, and
@@ -383,8 +385,8 @@ set pspw:SIC_orbitals  1 5 6 7 8 15
 
 The following directive turns on self-consistent SIC.
 \begin{verbatim}
-set pspw:SIC_relax 	.false.  # Default - Perturbative SIC calculation
-set pspw:SIC_relax 	.true.   # Self-consistent SIC calculation
+set pspw:SIC_relax      .false.  # Default - Perturbative SIC calculation
+set pspw:SIC_relax      .true.   # Self-consistent SIC calculation
 \end{verbatim}
 
 Two types of solvers can be used and they are specified using the following
@@ -975,8 +977,10 @@ For backwards compatibility, we provide a description of the input to this task.
 The steepest\_descent task is used to optimize the one-electron orbitals
 with respect to the total energy.  In addition it can also be used to optimize
 geometries.   This method is meant to be used for coarse optimization of
-the one-electron orbitals.  A detailed description of the this method
-is described in section \ref{sec:pspw_sd2}
+the one-electron orbitals.
+% ref does not exist
+%  A detailed description of the this method
+%is described in section \ref{sec:pspw_sd2}
 
 Input to the steepest\_descent simulation is contained
 within the steepest\_descent sub-block.
@@ -1624,7 +1628,9 @@ can be analytically found and is
 To find the matrix $\Lambda_{ij,\sigma}$ we impose the orthonormality
 constraint on $\psi_{i,\sigma}^{t+\Delta t}$ to obtain a
 matrix Riccatti equation, and then Riccatti equation is solved by an iterative
-solution (see section ~\ref{sec:pspw_sd2}).
+solution 
+% ref does not exist
+%(see section ~\ref{sec:pspw_sd2}).
 
 
 \subsection{Constant Temperature Simulations: Nose-Hoover Thermostats}

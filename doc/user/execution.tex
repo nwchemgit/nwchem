@@ -224,14 +224,14 @@ files larger than a few MB.
 where \verb+npes+ is the number of processors and \verb+input_file+ is the
 name of your input file.
 
-
-\section{Linux}
-
-If running in parallel across multiple machines you should consider
-applying this patch to your kernel to boost the performance of TCP/IP
-\begin{itemize}
-\item \htmladdnormallink{http://www.icase.edu/coral/LinuxTCP.html}{http://www.icase.edu/coral/LinuxTCP.html}
-\end{itemize}
+% no longer the case with modern kernels
+%\section{Linux}
+%
+%If running in parallel across multiple machines you should consider
+%applying this patch to your kernel to boost the performance of TCP/IP
+%\begin{itemize}
+%\item \htmladdnormallink{http://www.icase.edu/coral/LinuxTCP.html}{http://www.icase.edu/coral/LinuxTCP.html}
+%%\end{itemize}
 
 \section{Alpha systems with Quadrics switch}
 
@@ -250,7 +250,7 @@ name of your input file.
 
 where  and \verb+input_file+ is the
 name of your input file. 
-If you use WMPI, uou must have a file named {\bf \tt nw32.pg} in the
+If you use WMPI, you must have a file named {\bf \tt nw32.pg} in the
 \verb+ $NWCHEM_TOP/bin/win32+ directory; the file must only contains the 
 following single line
 \begin{verbatim}
@@ -262,42 +262,38 @@ following single line
 \section{Tested Platforms and O/S versions}
 
 \begin{itemize}
-\item IBM SP with P2SC nodes,  AIX 4.2.1, and PSSP 2.3
-\item IBM SP with silver nodes (SMP nodes with two 604e processors),
-AIX 4.3.2, and PSSP 3.1.
-\item IBM RS6000 workstation, AIX 3.2 and 4.1.
-\item Cray T3E, 2.0.4.61 UNICOSMK
-\item SGI R8000/10000, IRIX 6.2, 6.5
-\item SGI R4000, IRIX 5.3
-\item SUN workstations, SunOS 4.1.3 and Solaris 5.5, 5.6
-\item Compaq DEC alpha workstion 
-\begin{itemize}
-\item (600 MHz EV6), Digital UNIX V4.0E Rev. 1091, DEC C V5.8-009, Digital Fortran V5.2
-\item (667 MHz EV6), Digital UNIX V4.0F Rev. 1229, DEC C V5.9-005, Digital Fortran V5.2
-\end{itemize}
-\item Linux. Since there are at least 8 popular distributions of the
-Linux operating system and numerous others in existence, including
-downloading everything and building your own Linux OS, it is
-impossible to test all possible versions of Linux with NWChem. NWChem
-Release 3.3 has been tested on Slackware 3.4, 3.5, 4.0, 7.0 RedHat
-5.1, 5.2, and 6.0, 6.1, 6.2 Mandrake based on RedHat 6.0, RedHat 6.0 for
-the Power PC Macintosh, and Black Lab 1.2 or Yellow Dog 1.2 Linux for
-Power PC Macintosh.  These all use the EGCS compilers at different
-levels.  Those distributed from Slackware are somewhat different than
-those distributed from RedHat but the code is configured to run on all
-of them.
-\item Linux on Alpha cpus has been tested with RedHat 6.1 and 6.2.
-    Usage of the Compaq Fortran and C compilers is necessary for compiling.
+\item IBM SP with Power 3 and Power 4 nodes, AIX 5.1
+    and PSSP 3.4; IBM RS6000 workstation, AIX 5.1. Xlf 8.1.0.0 and
+    8.1.0.1 are known to produce bad code.
+\item SGI R12000 IRIX 6.5 
+\item SUN workstations with Solaris 2.6 and 2.8. Fujitsu SPARC systems 
+   (thanks to Herbert Fr\"uchtl) with Parallelnavi compilers.
+\item HP DEC alpha workstation , Tru64 V5.1,
+    Compaq Fortran V5.3, V5.4.2, V5.5.1
+\item Linux with Intel x86 cpus. 
+    NWChem Release 4.5 has been tested on RedHat 6.x and 7.x,
+    Mandrake  7.x.
+    We have tested NWChem on Linux for the Power PC Macintosh with
+    Yellow Dog 2.4.
+    These all use the GCC compiler at different levels. 
+    The Intel Fortran Compiler version 7 is supported.
+    The Portland Group Compiler has been tested in a less robust manner.
+    Automatic generation of SSE2 optimized code is available when the 
+    Intel compiler is used (ifc vs g77 performances gain of 40\% in
+    some benchmarks)
+    A somewhat Athlon optimized code can be generated under the GNU
+    or Intel compilers by typing {\tt make \_CPU=k7}.
+    GCC3 specific options can be turned on by typing {\tt make GCC31=y}
 \item HP 9000/800 workstations with  HPUX B.11.00. f90 must be used for
     compilation.
-%  The Linux Alpha version 5.2 from Red Hat fails to compile
-%.the code as well as the beta release of the Digital Fortran compiler
-%or Linux based Alpha systems.  
-\item FreeBSD.  Just use the Linux target and NWChem will build for FreeBSD
-version 4.0 and the pre-release 5.0 versions of the Operating System.
-\item  Intel x86 with Windows 98 and NT has been tested with Compaq Visual
-Fortran 6.0 and 6.1 with WMPI 1.3 or NT-MPICH. NT-MPICH is available from
+\item Intel x86 with Windows 2000 has been tested with Compaq Visual Fortran
+    6.0 and 6.1 with WMPI 1.3 or NT-Mpich.
+    NT-MPICH is available from
 \htmladdnormallink{http://www-unix.mcs.anl.gov/\~\space ashton/mpich.nt/}{http://www-unix.mcs.anl.gov/~ashton/mpich.nt/}
+
+\item Intel IA64 under Linux (with Intel compilers version 7 and later)
+    and under HPUX.
+\item Fujitsu VPP computers.
 
 
 \end{itemize}
