@@ -1,0 +1,31 @@
+
+*     **** control common block ****
+
+      integer MAXPSP
+      parameter (MAXPSP=50)
+      character*30 output_wavefunction_filename
+      character*30 input_wavefunction_filename
+      character*30 output_v_wavefunction_filename
+      character*30 input_v_wavefunction_filename
+      character*20 pspnames(MAXPSP)
+      character*30 xyz_filename
+      character*12 boundry
+      real*8      unita(3,3),tolerances(3),scaling(2)
+      real*8      time_step,fake_mass,ecut,wcut,rcut
+      integer     loop(2),ngrid(3),npsp,ncut
+      integer     code,gga
+      logical     move,frac_coord
+      common / control_block / output_wavefunction_filename,
+     >                         input_wavefunction_filename,
+     >                         output_v_wavefunction_filename,
+     >                         input_v_wavefunction_filename,
+     >                         pspnames,
+     >                         xyz_filename,
+     >                         boundry,
+     >                         unita,tolerances,scaling,
+     >                         time_step,fake_mass,
+     >                         ecut,wcut,rcut,ncut,gga,
+     >                         loop,ngrid,npsp,
+     >                         code,
+     >                         move,frac_coord
+
