@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.145 2002-07-29 17:39:10 d3j191 Exp $
+c $Id: md_main.F,v 1.146 2002-07-31 18:57:42 d3j191 Exp $
 c
       implicit none
 c
@@ -1162,27 +1162,34 @@ c
       real*8 rdum
       character*256 filrun
 c
-      if(me.eq.0) then
       if(nserie.eq.0) then
       if(mropt.ge.2) then
+      if(me.eq.0) then
       open(unit=lfnmri,file=filmri(1:index(filmri,' ')-1),
      + form='unformatted',status='unknown',err=9999)
       read(lfnmri) npp
       if(npp.ne.np) call errquit('Number of nodes changed',npp)
+      endif
       krun=0
       endif
+      if(me.eq.0) then
       open(unit=lfnmro,file=filmro(1:index(filmro,' ')-1),
      + form='unformatted',status='unknown',err=9999)
       write(lfnmro) np,mrun,mequi,mdacq
+      endif
       else
 c
+      if(me.eq.0) then
       open(unit=lfnmro,file=filmro(1:index(filmro,' ')-1),
      + form='unformatted',status='unknown',err=9999)
       read(lfnmro) npp,mrun,mequi,mdacq
       if(npp.ne.np) call errquit('Number of nodes changed',npp)
+      endif
       krun=0
       do 11 irun=1,mrun
+      if(me.eq.0) then
       read(lfnmro,end=12,err=12) irunp,kequi,kdacq
+      endif
       if(.not.prp_rdmri(lfnmro,ndec)) goto 12
       if(.not.sp_rdmri(lfnmro,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
@@ -1191,6 +1198,7 @@ c
    11 continue
    12 continue
 c
+      if(me.eq.0) then
       open(unit=lfnmri,file=filmri(1:index(filmri,' ')-1),
      + form='unformatted',status='unknown',err=9999)
       read(lfnmri) npp
@@ -1199,9 +1207,12 @@ c
       read(lfnmro) npp,mrun,mequi,mdacq
       if(npp.ne.np) call errquit('Number of nodes changed',npp)
       rewind(lfngib)
+      endif
 c
       do 13 irun=1,mrun
+      if(me.eq.0) then
       read(lfnmri) irunp,kequi,kdacq
+      endif
       if(.not.prp_rdmri(lfnmri,ndec))
      + call errquit('Error in mri file',0)
       if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
@@ -1215,6 +1226,7 @@ c
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))) 
      + call errquit('Error in mro file',0)
+      if(me.eq.0) then
       read(lfngib,2000) ndum
  2000 format(7x,i7)
       read(lfngib,2001) (rdum,i=1,24)
@@ -1227,10 +1239,11 @@ c
       read(lfngib,2003) rdum
  2003 format(e20.12)
       if(ndec.gt.0) read(lfngib,2001) (rdum,i=1,nsa)
+      endif
    13 continue
 c
       endif
-      endif
+c
       call ga_brdcst(mrg_d30,krun,ma_sizeof(mt_int,1,mt_byte),0)
 c
       do 1 irun=krun+1,mrun
@@ -2497,7 +2510,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.145 2002-07-29 17:39:10 d3j191 Exp $
+c $Id: md_main.F,v 1.146 2002-07-31 18:57:42 d3j191 Exp $
 c
       implicit none
 c
