@@ -8,9 +8,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     donewbf,l3d,triplet)
+     ,     l3d,triplet)
 c
-c$Id: grid_quadv0a.F,v 1.33 2003-01-03 23:29:33 edo Exp $
+c$Id: grid_quadv0a.F,v 1.34 2003-01-09 23:16:51 edo Exp $
 c
       implicit none
 c
@@ -40,7 +40,6 @@ c
       external grid_file_rewind
       logical xc_chkgrad
       external xc_chkgrad
-      logical donewbf           !!! !!!! *** temp
       logical l3d
       logical triplet
 c
@@ -55,7 +54,6 @@ c
      $   call errquit('grid_quadv0a: rewinding gridpts?', 0)
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('Exiting in grid_quadv0a',0)
-      if (donewbf) then
 c
 c     Allocate and create info for new basis function evaluator
 c
@@ -82,7 +80,6 @@ c
      .     ncontrset)
       call xc_make_basis_info(xc_bas_han, int_mb(ibas_cent_xinfo),
      &     int_mb(ibas_cset_xinfo), natoms)
-      endif
       endif
       if (.not.MA_Push_Get(mt_int, 6*n_per_rec, 'iscratch',
      &     l_iscratch, i_iscratch))
@@ -123,7 +120,7 @@ c
      ,           log_mb(idocset),rchi_atom,rdelchi_atom,
      ,           Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,           nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,           donewbf,l3d,triplet,
+     ,           l3d,triplet,
      .           int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .           log_mb(idocsetx))
             ntot_cube=ntot_cube+1
@@ -135,10 +132,8 @@ c
      .    call errquit('grid_quadv0a: pop stack failed.',3)
       if (.not.MA_Pop_Stack(l_iscratch)) 
      .    call errquit('grid_quadv0a: pop stack failed.',3)
-      if(donewbf) then
       if (.not.ma_chop_stack(lbas_cent_info))
      &     call errquit('grid_quadv0a: pop stack failed.',1)
-      endif
  100  continue
 c
       call ga_sync

@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.16 2000-04-07 23:43:16 edo Exp $
+c$Id: grid_gen_pts.F,v 1.17 2003-01-09 23:16:51 edo Exp $
 c
       implicit none
 c      
@@ -110,5 +110,39 @@ c     atom centers) - only if points are on file system
 c
 cedo rchi stuff moved in grid_quadv
       if(grid_on_file.and.oldgrid) call grid_rchi0
+      return
+      end
+      subroutine grid_rchi0
+      implicit none
+#include "cgridfile.fh"
+#include "cdft.fh"
+#include "mafdecls.fh"
+c
+      integer n_tsk
+c
+c      n_tsk=ncenters*ntot_sub
+c
+c     HACK?
+c
+!      n_tsk=ncenters*10000
+      n_tsk=ncenters*ncubesmx*(nqmax/buffer_size+5)
+!      write(0,*) ncubesmx*(nqmax/buffer_size+10)
+!      write(0,*) ncubesmx,nqmax,buffer_size
+
+c
+c     allocate rchi
+c
+      if (.not.MA_alloc_Get(MT_Dbl,n_tsk,'rchi_tasks',
+     &     lrchi,irchi))
+     &     call errquit('dft_scf: cannot allocate rchi_tasks',0)
+c fill it with -99 to check later if used
+      call dfill(n_tsk, -99d0, dbl_mb(irchi), 1)
+!      write(0,*) '0irchis ',irchi,irchi+n_tsk-1
+!      call dfill(n_tsk, 999d0, dbl_mb(irchi), 1)
+      
+c
+      if (.not.MA_alloc_Get(MT_Dbl,n_tsk,'rdelchi_tasks',
+     &     lrdelchi,irdelchi))
+     &     call errquit('dft_scf: cannot allocate rdelchi_tasks',0)
       return
       end

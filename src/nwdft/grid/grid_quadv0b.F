@@ -15,10 +15,10 @@
      ,     rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     donewbf,l3d,triplet,
+     ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx)
 c
-c$Id: grid_quadv0b.F,v 1.33 2003-01-03 22:43:14 edo Exp $
+c$Id: grid_quadv0b.F,v 1.34 2003-01-09 23:16:51 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -52,7 +52,6 @@ c !!! temp !!! ***
       logical grid_sicinit,grid_sicend
       external grid_sicinit,grid_sicend
       double precision acc_xc_gauss
-      logical donewbf           !!! !!!! *** temp
       logical l3d
       logical triplet
 C

@@ -10,10 +10,10 @@
      ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      .     l3d,triplet)
 c
-c$Id: grid_quadvw.F,v 1.31 2002-03-22 02:37:37 sohirata Exp $
+c$Id: grid_quadvw.F,v 1.32 2003-01-09 23:16:51 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -65,7 +65,6 @@ c
       double precision grid_lcube,enuc
       external grid_lcube
       logical oprint
-      logical donewbf           !!! !!!! *** temp
       logical l3d
       logical triplet
 C      
@@ -189,7 +188,7 @@ c
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,                    donewbf,l3d,triplet)
+     ,                    l3d,triplet)
 
                   endif
  100           continue ! end loop over angular shells
@@ -208,7 +207,7 @@ c
      &                 Pmat, rq, rdens_atom, cetobfr, 
      ,                 ibf_ao,rchi_atom,rdelchi_atom,
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,l3d,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,l3d,
      ,     triplet)
                   ncubenz=ncubenz+1
                endif

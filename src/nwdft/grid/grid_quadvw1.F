@@ -14,9 +14,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     donewbf,l3d,triplet)
+     ,     l3d,triplet)
 c
-c$Id: grid_quadvw1.F,v 1.12 2002-03-22 02:37:37 sohirata Exp $
+c$Id: grid_quadvw1.F,v 1.13 2003-01-09 23:16:51 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -51,7 +51,6 @@ c
       integer nq_out,nwrbuf
       integer grid_nxyz,nq_in
       external grid_nxyz
-      logical donewbf           !!! !!!! *** temp
       logical l3d
       logical triplet
 c
@@ -109,7 +108,7 @@ c
      ,        ibf_ao,rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,        nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,        donewbf,l3d,triplet)
+     ,        l3d,triplet)
          
 c     
 c     now pack this aqbuf into the write buffer 

@@ -11,8 +11,8 @@
      ,     ibf_ao,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     donewbf,l3d,triplet)
-C$Id: grid_quadvc.F,v 1.17 2003-01-03 23:29:33 edo Exp $
+     ,     l3d,triplet)
+C$Id: grid_quadvc.F,v 1.18 2003-01-09 23:16:51 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "mafdecls.fh"
@@ -39,7 +39,6 @@ c
      &        lbas_cset_xinfo, ibas_cset_xinfo,
      .     ldocsetx, idocsetx
       logical buffwrite
-      logical donewbf           !!! !!!! *** temp
       logical l3d
       logical triplet
 c
@@ -47,7 +46,6 @@ c     Allocate and create info for new basis function evaluator
 c
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('Exiting in grid_quadv0c',0)
-      if(donewbf) then
       if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
      &     call errquit('grid_quadv0c: cannot allocate bas_cent_info',0)
@@ -71,8 +69,6 @@ c
      .     ncontrset)
       call xc_make_basis_info(xc_bas_han, int_mb(ibas_cent_xinfo),
      &     int_mb(ibas_cset_xinfo), natoms)
-      endif
-
       endif
       if (.not.MA_Push_Get(mt_int, 6*n_per_rec, 'iscratch',
      &     l_iscratch, i_iscratch))
@@ -112,7 +108,7 @@ c
      '        log_mb(idocset),rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,        donewbf,l3d,triplet,
+     ,        l3d,triplet,
      .     int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .        log_mb(idocsetx))
          ntot_cube=ntot_cube+1
