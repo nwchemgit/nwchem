@@ -22,15 +22,18 @@ c
 c
       status=rtdb_parallel(.true.)
       call util_print_push
-      call util_print_rtdb_load(rtdb,'mp2_grad')
+      call util_print_rtdb_load(rtdb,'mp2')
 c
 c     Make sure the SCF is being converged accurately enough
 c
       if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,threshscf))
      $     threshscf = 1.0d-4
-      threshscf = min(threshscf, 1.0d-6)
-      if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
-     $     call errquit('mp2_grad: failed setting scf:thresh',0)
+      if (threshscf .gt. 1.0d-6) then
+         threshscf = 1.0d-6
+         if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
+     $        call errquit('mp2_grad: failed setting scf:thresh',0)
+         status = rtdb_delete(rtdb,'scf:converged')
+      endif
 c
       if (.not. scf(rtdb)) then
          semi_dir_mp2 = .false.
@@ -39,8 +42,9 @@ c
 c
       call mp2_pstat_init()
 c
-      if(.not.rtdb_cget(rtdb,'sdmp2:task',1,task))
-     $     call errquit('could not determine task for semi dir mp2',1)
+      if(.not.rtdb_cget(rtdb,'sdmp2:task',1,task)) call errquit
+     $     ('could not determine task for semi-direct mp2',1)
+c      
       if(.not.rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if(.not.geom_create(geom, 'geometry'))
@@ -81,7 +85,7 @@ c
 c
 c     Make sure that we use the same vectors as the SCF
 c
-      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+      if (.not. rtdb_cget(rtdb,'scf:input vectors',1,movecs_in)) 
      $     call errquit('mp2_grad: no SCF MO vectors',0)
 c
       call mp2_energy(rtdb, geom, basis, movecs_in, task)
@@ -97,20 +101,3 @@ c
       semi_dir_mp2 = .true.
 c
       end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

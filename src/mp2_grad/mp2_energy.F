@@ -29,12 +29,12 @@
       character*4 scftype
       character*20 scftypevecs
       integer i,nbf_vecs,nsets,nmos(2),nbf, nmo
-      integer l_eval_a,k_eval_a,l_eval_b,k_eval_b
+      integer l_eval_a,k_eval_a,k_eval_b
       integer noa_frozen,nva_frozen,nob_frozen,nvb_frozen
       integer noa_lo,noa_hi,nob_lo,nob_hi,nva_lo,nva_hi,nvb_lo,nvb_hi
       integer noa_correl,nob_correl
       integer k_irs_a,k_irs_b,l_irs_a,l_irs_b
-      integer k_occ_a,k_occ_b,l_occ_a,l_occ_b
+      integer k_occ_a,k_occ_b,l_occ_a
       integer pass
       integer noa,nob,nva,nvb
       double precision tol2e,escf,e2,e_total,norm
@@ -55,7 +55,7 @@
       integer g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,g_lai_a,g_lai_b
       integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,g_w_ai_a,g_w_ai_b
 c     
-      integer g_rhs
+      integer g_rhs, g_vecs_swap(2)
       integer grad_length
       integer g_p_tot_a,g_p_tot_b
       integer g_w_tot_a,g_w_tot_b
@@ -114,7 +114,7 @@ c
       nva=nmo-noa
       nvb=nmo-nob
 c     
-c     Get the MO vectors and symmetry block them
+c     Get the MO vectors, swap and then symmetry block them
 c     
       if(.not.ga_create(mt_dbl,nbf,nmo,'alpha_vecs',nbf,1,
      $     g_vecs_a))call errquit('mp2_energy: ga_create failed',0)
@@ -124,27 +124,29 @@ c
       if(.not.ma_push_get(mt_dbl,nbf,'occ alpha',
      $     l_occ_a,k_occ_a))      
      $     call errquit('mp2_energy ma problem with alpha occ',1)
+      k_occ_b = k_occ_a + nbf   ! So that are contiguous for swap. Ugh.
 c     
-      if(.not.ma_push_get(mt_dbl,nbf,'occ beta',
-     $     l_occ_b,k_occ_b))
-     $     call errquit('mp2_energy ma problem with beta occ',1)
-c     
-      if(.not.ma_push_get(mt_dbl,nbf,'alpha evals',
+      if(.not.ma_push_get(mt_dbl,2*nbf,'evals',
      $     l_eval_a,k_eval_a))
-     $     call errquit('problem with ma for a evals',1)
-c     
-      if(.not.ma_push_get(mt_dbl,nbf,'beta evals',
-     $     l_eval_b,k_eval_b))
-     $     call errquit('problem with ma for b evals',1)
+     $     call errquit('problem with ma for evals',1)
+      k_eval_b = k_eval_a + nbf ! So that are contiguous for swap. Ugh.
 c     
       if(.not.movecs_read(movecs,1,dbl_mb(k_occ_a),
      $     dbl_mb(k_eval_a),g_vecs_a))
      $     call errquit('could not read alpha vecs',1)
+
       if(scftype.eq.'UHF')then
          if(.not.movecs_read(movecs,2,dbl_mb(k_occ_b),
      $        dbl_mb(k_eval_b),g_vecs_b))
      $        call errquit('could not read beta vecs',1)
-      else 
+      endif
+c
+      g_vecs_swap(1) = g_vecs_a
+      g_vecs_swap(2) = g_vecs_b
+      call movecs_swap(rtdb, 'mp2', scftype, g_vecs_swap, 
+     $     dbl_mb(k_occ_a), dbl_mb(k_eval_a))
+c
+      if (scftype .ne. 'UHF') then
          call ga_copy(g_vecs_a,g_vecs_b) ! RHF just duplicate vectors
          call dcopy(nmo, dbl_mb(k_eval_a), 1, dbl_mb(k_eval_b), 1)
       end if
