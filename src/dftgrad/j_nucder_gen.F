@@ -1,10 +1,11 @@
 c
 c     Driver routines which call generalized dftg_grad2 (dftg_grad2_gen)
-c     to create derivative J matrices and J hessian (without fitting)
+c     to create derivative J matrices and J hessian without fitting, or
+c     dfth_cdfit for J hessian with fitting
 c
 c     BGJ - 9/98
 c
-c     $Id: j_nucder_gen.F,v 1.3 1998-09-29 19:43:56 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.4 1999-02-15 17:00:41 bjohnson Exp $
 c
       subroutine j_hessian(g_dens, oactive, nactive, hess)
 c
@@ -43,7 +44,7 @@ c
       subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
-c     $Id: j_nucder_gen.F,v 1.3 1998-09-29 19:43:56 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.4 1999-02-15 17:00:41 bjohnson Exp $
 c
 c     General routine for J hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -103,6 +104,10 @@ c
       if (do_hess) then
          call dfill(9*natoms*natoms, 0.0d0, hess, 1)
       else if (do_cpks_r) then
+         if (CDFIT) then
+            write(*,*) __FILE__
+            call errquit('do_cpks_r case not ready for fitted J',0)
+         endif
          do i = 1, natoms
             if (oactive(i)) then
                call ga_zero(g_rhs(1,i))
@@ -112,19 +117,38 @@ c
          enddo
       endif
 c
-c     Set up temporary arrays needed by dftg_grad2_gen
+c     Set up temporary arrays needed by dftg_grad2_gen / dfth_cdfit
 c
       call j_nucder_alloc(l_d_ija, k_d_ija, l_d_kla, k_d_kla,
      &                    ldim, l_scr, k_scr, lscr, l_buf, k_buf,
      &                    lbuf, l_s34, k_s34, natoms)
 c
-      nproc = ga_nnodes()
       tol2e = 10.d0**(-itol2e)
-      call dftg_grad2_gen(dbl_mb(k_d_ija), dbl_mb(k_d_kla), 0d0, hess,
-     &                    g_rhs, g_dens, ldim, ao_bas_han, nproc,
-     &                    natoms, dbl_mb(k_scr), lscr, dbl_mb(k_buf),
-     &                    lbuf, tol2e, oactive, nactive, geom,
-     &                    dbl_mb(k_s34), oskel, calc_type)
+c
+      if (CDFIT) then
+c
+c     The d_ija and d_kla arrays are used for the vec and PPP args
+c     of dfth_cdfit (allocation is set up properly in j_nucder_alloc)
+c     The s34 array is used for the fitting coefficients in the
+c     fitted case (allocation is set up properly in j_nucder_alloc)
+c
+         call dfth_cdfit(rtdb, geom, AO_bas_han, CD_bas_han,
+     &                   nbf_ao, nbf_cd, natoms, tol2e, dbl_mb(k_scr),
+     &                   lscr, dbl_mb(k_buf), lbuf, dbl_mb(k_d_ija),
+     &                   dbl_mb(k_d_kla), ldim,
+     &                   g_dens, hess, dbl_mb(k_s34), oskel)
+c 
+      else
+c
+         nproc = ga_nnodes()
+         call dftg_grad2_gen(dbl_mb(k_d_ija), dbl_mb(k_d_kla), 0d0,
+     &                       hess, g_rhs, g_dens, ldim, ao_bas_han,
+     &                       nproc, natoms, dbl_mb(k_scr), lscr,
+     &                       dbl_mb(k_buf), lbuf, tol2e, oactive,
+     &                       nactive, geom, dbl_mb(k_s34), oskel,
+     &                       calc_type)
+c
+      endif
 c
 c     Clean up temporary arrays
 c
@@ -156,7 +180,7 @@ c
 c !!! BGJ test !!!
 c All the code from here to the next !!! BGJ test !!! can be removed once
 c the code is stable
-
+c
       if (bgj_print() .gt. 0) then
          if (do_hess) then
 c
@@ -237,10 +261,12 @@ c
 c
 c     Local variables
 c
-      integer max_at_bf, i, ilo, ihi
-      integer max1e, max2e, mscratch_1e, mscratch_2e
+      integer max_at_bf, i, ilo, ihi, max_sh_bf, ls34
+      integer max1e, max2e, max2e3c, mscratch_1e, mscratch_2e,
+     &        mscratch_2e3c
 c
-c     Some allocations are the same for all calculation types
+c     The d_ija and d_kla arrays serve different purposes in non-fitted
+c     and fitted calculations
 c
       max_at_bf = 0
       do i = 1, nat
@@ -248,7 +274,13 @@ c
      &        call errquit('j_nucder_alloc: bas_ce2bfr failed', i)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
       enddo
-      ldim = max_at_bf
+      if (.not. bas_nbf_cn_max(ao_bas_han, max_sh_bf))
+     &   call errquit('j_nucder_alloc: could not get max_sh_bf',0)
+      if (.not.CDFIT) then
+         ldim = max_at_bf
+      else
+         ldim = max_sh_bf
+      endif
       if (.not. MA_push_get(MT_DBL, ldim*ldim, 'd_ija', l_d_ija,
      &     k_d_ija))
      &     call errquit('j_nucder_alloc: could not alloc d_ija',0)
@@ -256,14 +288,26 @@ c
      &     k_d_kla))
      &     call errquit('j_nucder_alloc: could not alloc d_kla',0)
 c
-      if (.not. MA_push_get(MT_DBL, nat, 's34', l_s34, k_s34))
+c     The s34 array serves different purposes in non-fitted and
+c     fitted calculations
+c
+      if (.not.CDFIT) then
+         ls34 = nat
+      else
+         ls34 = nbf_cd
+      endif
+      if (.not. MA_push_get(MT_DBL, ls34, 's34', l_s34, k_s34))
      &     call errquit('j_nucder_alloc: could not alloc s34',0)
 c
-c     determine memory requirements for integral derivatives
+c     determine memory requirements for integral derivatives (taken from
+c     dftg_force.F)
 c
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
+      call int_mem_2e3c(max2e3c, mscratch_2e3c)
       lbuf = max(max1e, max2e)
+      if (CDFIT) lbuf = max(lbuf, max2e3c) + 500
       lscr = max(mscratch_1e, mscratch_2e)
+      if (CDFIT) lscr = max(lscr, mscratch_2e3c)
       if (.not. MA_push_get(MT_DBL, lbuf, 'deriv buffer', l_buf, k_buf))
      &     call errquit('j_nucder_alloc: could not allocate buffer',1)
       if (.not. MA_push_get(MT_DBL, lscr, 'deriv scratch', l_scr,

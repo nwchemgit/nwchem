@@ -1,10 +1,17 @@
+#ifndef SECOND_DERIV
       Subroutine dftg_cdfit (rtdb, geom, AO_bas_han, CD_bas_han,
      &                       nbf_ao, nbf_cd, nat, tol2e, scr, 
      &                       lscr, buf, lbuf, vec, PPP, max_sh_bf,
      &                       max_sh_bfcd,
      &                       iga_dens, force, CD_coef, oskel)
+#else
+      Subroutine dfth_cdfit (rtdb, geom, AO_bas_han, CD_bas_han,
+     &                       nbf_ao, nbf_cd, nat, tol2e, scr, 
+     &                       lscr, buf, lbuf, vec, PPP, max_sh_bf,
+     &                       iga_dens, hess, CD_coef, oskel)
+#endif
 *
-* $Id: dftg_cdfit.F,v 1.12 1999-02-13 00:19:52 edo Exp $
+* $Id: dftg_cdfit.F,v 1.13 1999-02-15 17:00:40 bjohnson Exp $
 *
       implicit none
 c
@@ -34,10 +41,17 @@ c
 c-->  Charge Density Expansion Coefficients
 c     
       double precision CD_coef(nbf_cd)
+#ifndef SECOND_DERIV
 c     
 c     force vector
 c     
       double precision force(3,nat)
+#else
+c     
+c     hessian matrix
+c     
+      double precision hess(3,nat,3,nat)
+#endif
 c
       double precision tol2e
       logical oskel
@@ -64,7 +78,11 @@ c
          call util_file_name('cdfit', .true., .false., cdfit)
          inquire(file=cdfit,exist=doesit)
          if (.not. doesit)call errquit
+#ifndef SECOND_DERIV
      &        ('dftg_cdfit: file cdfit does not exist',0)
+#else
+     &        ('dfth_cdfit: file cdfit does not exist',0)
+#endif
          open(unit=79,file=cdfit,access='sequential',
      &        form='unformatted',status='old')
          read(79)(CD_coef(i),i=1,nbf_cd)
@@ -76,11 +94,19 @@ c
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c      
       if (.not. bas_numcont(AO_bas_han,nshells_ao))then
-         call errquit('Exiting in grad_cdfit.',2)
+#ifndef SECOND_DERIV
+         call errquit('Exiting in dftg_cdfit.',2)
+#else
+         call errquit('Exiting in dfth_cdfit.',2)
+#endif
       endif
 c      
       if (.not. bas_numcont(CD_bas_han,nshells_cd))then
-         call errquit('Exiting in grad_cdfit.',3)
+#ifndef SECOND_DERIV
+         call errquit('Exiting in dftg_cdfit.',3)
+#else
+         call errquit('Exiting in dfth_cdfit.',3)
+#endif
       endif
 c
 c     2el. 3-c integral derivatives
@@ -98,14 +124,25 @@ c
             next = nxtask(nproc,igran) + 1
 c
             if (.not. bas_cn2bfr(AO_bas_han,ishp,ifirstp,ilastp))
-     &      call errquit('Exiting in grad_cdfit.',6)
+#ifndef SECOND_DERIV
+     &         call errquit('Exiting in dftg_cdfit.',6)
+#else
+     &         call errquit('Exiting in dfth_cdfit.',6)
+#endif
             nshbfp = ilastp - ifirstp + 1
 c          
             do ishq = 1, ishp
                if (.not. bas_cn2bfr(AO_bas_han,ishq,ifirstq,ilastq))
-     &            call errquit('Exiting in grad_cdfit.',7)
+#ifndef SECOND_DERIV
+     &            call errquit('Exiting in dftg_cdfit.',7)
+#else
+     &            call errquit('Exiting in dfth_cdfit.',7)
+#endif
                nshbfq = ilastq - ifirstq + 1
                Nao2 = nshbfp*nshbfq
+c
+               fac = 2d0
+               if (ishp.eq.ishq) fac = 1d0
 c
 c              get shell block of DM
 c
@@ -125,7 +162,11 @@ c
                   do ishd = 1, nshells_cd
                      if (.not. bas_cn2bfr(CD_bas_han, ishd, 
      &                  ifirstd, ilastd))
-     &                  call errquit('Exiting in grad_cdfit.',8)
+#ifndef SECOND_DERIV
+     &                  call errquit('Exiting in dftg_cdfit.',8)
+#else
+     &                  call errquit('Exiting in dfth_cdfit.',8)
+#endif
                      nshbfd = ilastd - ifirstd + 1
                      Nintegrals = nshbfp*nshbfq*nshbfd
 c
@@ -134,19 +175,38 @@ c
                      if (oskel) then
                         q1 = 0.d0
                         if (sym_shell(cd_bas_han, ishd, q1))then
+#ifndef SECOND_DERIV
                            call intd_2e3c(CD_bas_han, ishd, 
      &                                    AO_bas_han, ishp, ishq,
      &                                    lscr, scr, lbuf, buf, idatom)
+#else
+               write(*,*)'Call intdd_2e3c here!'
+               call dfill(lbuf, 0.0d0, buf, 1)
+               call ifill(4, 0, idatom, 1)
+c                           call intdd_2e3c(CD_bas_han, ishd, 
+c     &                                     AO_bas_han, ishp, ishq,
+c     &                                     lscr, scr, lbuf, buf, idatom)
+#endif
                         endif
                      else
                         q1 = 1.0d0
+#ifndef SECOND_DERIV
                         call intd_2e3c(CD_bas_han, ishd, 
      &                                 AO_bas_han, ishp, ishq,
      &                                 lscr, scr, lbuf, buf, idatom)
+#else
+               write(*,*)'Call intdd_2e3c here!'
+               call dfill(lbuf, 0.0d0, buf, 1)
+               call ifill(4, 0, idatom, 1)
+c                        call intdd_2e3c(CD_bas_han, ishd, 
+c     &                                  AO_bas_han, ishp, ishq,
+c     &                                  lscr, scr, lbuf, buf, idatom)
+#endif
 c
                      endif                   
 c
                      if(q1.eq.0.d0)goto 204
+#ifndef SECOND_DERIV
                      icount = 1
                      do iat = 1, 4
 c
@@ -169,16 +229,20 @@ c
                                  icount2 = icount2 + nshbfq
                               enddo
 c
-                              if (ishp.ne.ishq)dE = dE + dE
-c
                               force(icart,idatom(iat)) = 
-     &                        force(icart,idatom(iat)) + dE * q1
+     &                        force(icart,idatom(iat)) + dE * fac * q1
 c
                            enddo
                         else
                            icount = icount + 3*Nintegrals
                         endif
                      enddo
+#else
+                     write(*,*)'Are dimensions right on ints and P?'
+                     call d2int_2e3c_block_jhess(CD_coef(ifirstd), PPP,
+     &                    max_sh_bf, hess, nat, buf, fac*q1, idatom,
+     &                    nshbfd, nshbfp, nshbfq)
+#endif
   204                continue
                   enddo
                endif
@@ -202,19 +266,37 @@ c
             next = nxtask(nproc,igran) + 1
 c
             if (.not. bas_cn2bfr(CD_bas_han,ishp,ifirstp,ilastp))
-     &         call errquit('Exiting in grad_cdfit.',9)
+#ifndef SECOND_DERIV
+     &         call errquit('Exiting in dftg_cdfit.',9)
+#else
+     &         call errquit('Exiting in dfth_cdfit.',9)
+#endif
                nshbfp = ilastp - ifirstp + 1
 c
             do ishq = 1, ishp
 c
                if (.not. bas_cn2bfr(CD_bas_han,ishq,ifirstq,ilastq))
-     &            call errquit('Exiting in grad_cdfit.',10)
+#ifndef SECOND_DERIV
+     &            call errquit('Exiting in dftg_cdfit.',10)
+#else
+     &            call errquit('Exiting in dfth_cdfit.',10)
+#endif
                nshbfq = ilastq - ifirstq + 1
                Nintegrals = nshbfp*nshbfq
 c
-               call intd_2e2c(CD_bas_han, ishp,  CD_bas_han, ishq, 
+#ifndef SECOND_DERIV
+               call intd_2e2c(CD_bas_han, ishp, CD_bas_han, ishq, 
      &              lscr, scr, lbuf, buf, idatom)
+#else
+               write(*,*)'Call intdd_2e2c here!'
+c               call intdd_2e2c(CD_bas_han, ishp, CD_bas_han, ishq, 
+c     &              lscr, scr, lbuf, buf, idatom)
+#endif
 c
+               fac = -1.d0
+               if (ishp.eq.ishq)fac=-.5d0
+c
+#ifndef SECOND_DERIV
                icount = 1
                do iat = 1, 2
                   if (idatom(iat).gt.0)then
@@ -227,8 +309,6 @@ c
                         ist = ist + nshbfq
                         icount = icount + Nintegrals
                      enddo
-                     fac = -1.d0
-                     if (ishp.eq.ishq)fac=-.5d0
                      call dgemv('t', nshbfq, 3,
      &                          fac, vec, nshbfq,
      &                          CD_coef(ifirstq), 1,
@@ -237,6 +317,12 @@ c
                      icount = icount + 3*Nintegrals
                   endif
                enddo
+#else
+               write(*,*)'Are dimensions right on p and q?'
+               call d2int_2e2c_block_jhess(CD_coef(ifirstp),
+     &              CD_coef(ifirstq), hess, nat, buf, fac, idatom,
+     &              nshbfp, nshbfq)
+#endif
             enddo
          endif
   305 continue
@@ -245,3 +331,10 @@ c
 c
       return 
       end 
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "dftg_cdfit.F"
+#endif
