@@ -1,5 +1,5 @@
 *
-* $Id: dspevx2.F,v 1.6 2000-10-24 18:41:40 d3g270 Exp $
+* $Id: dspevx2.F,v 1.7 2002-04-18 20:34:31 d3g270 Exp $
 *
 #include "blas_lapackf.h"
 *======================================================================
@@ -255,11 +255,11 @@
 *
 *     Get machine constants.
 *
-      SAFMIN = dlamch( 'Safe minimum' )
-      EPS = dlamch( 'Precision' )
+c      SAFMIN = dlamch( 'Safe minimum' )
+c      EPS = dlamch( 'Precision' )
 c
-c      SAFMIN = DLAMCHS
-c      EPS = DLAMCHP
+      SAFMIN = DLAMCHS
+      EPS = DLAMCHP
 c
       SMLNUM = SAFMIN / EPS
       BIGNUM = ONE / SMLNUM

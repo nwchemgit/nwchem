@@ -1,5 +1,5 @@
 *
-* $Id: dstebz3.F,v 1.7 2000-03-31 22:58:44 d3g270 Exp $
+* $Id: dstebz3.F,v 1.8 2002-04-18 20:34:31 d3g270 Exp $
 *
       SUBROUTINE DSTEBZ3( RANGE1, ORDER1, N, VL, VU, IL, IU,
      $  ABSTOL, D, E,
@@ -286,8 +286,11 @@ c
 *     NB is the minimum vector length for vector bisection, or 0
 *     if only scalar is to be done.
 *
-      SAFEMN = dlamch( 'S' )
-      ULP = dlamch( 'P' )
+c      SAFEMN = dlamch( 'S' )
+c      ULP = dlamch( 'P' )
+      SAFEMN = DLAMCHS
+      ULP = DLAMCHP
+
       RTOLI = ULP*RELFAC
       NB = ILAENV( 1, 'DSTEBZ', ' ', N, -1, -1, -1 )
       IF( NB.LE.1 )

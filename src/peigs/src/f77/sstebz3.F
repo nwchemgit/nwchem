@@ -1,5 +1,5 @@
 *
-* $Id: sstebz3.F,v 1.8 1999-07-28 00:39:51 d3e129 Exp $
+* $Id: sstebz3.F,v 1.9 2002-04-18 20:34:31 d3g270 Exp $
 *
 #include "blas_lapackf.h"
       SUBROUTINE SSTEBZ3( RANGE1, ORDER1, N, VL, VU, IL, IU,
@@ -296,8 +296,10 @@ c
 *     NB is the minimum vector length for vector bisection, or 0
 *     if only scalar is to be done.
 *
-      SAFEMN = dlamch( 'S' )
-      ULP = dlamch( 'P' )
+c      SAFEMN = dlamch( 'S' )
+c      ULP = dlamch( 'P' )
+      SAFEMN = DLAMCHS
+      ULP = DLAMCHP
       RTOLI = ULP*RELFAC
       NB = ILAENV( 1, 'SSTEBZ3', ' ', N, -1, -1, -1 )
       IF( NB.LE.1 )
