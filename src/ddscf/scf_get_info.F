@@ -288,7 +288,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.54 2003-01-30 01:16:57 bert Exp $
+C$Id: scf_get_info.F,v 1.55 2003-02-05 23:41:04 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -511,10 +511,12 @@ c
 c
 c     ----- cosmo cleanup and reset -----
 c
-      if(cosmo_on) then
-        call cosmo_tidy()
-        cosmo_on = .false.
-        cosmo_phase = 1
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
+         if(cosmo_on) then
+           call cosmo_tidy()
+           cosmo_on = .false.
+           cosmo_phase = 1
+         endif
       endif
       oinitialized = .true.
 c
