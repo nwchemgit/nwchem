@@ -14,7 +14,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.8 2000-07-18 01:13:20 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.9 2000-07-21 17:23:44 bjohnson Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -243,7 +243,7 @@ c
      &                            ibf_ao, iniz, ifin,
      &                            ppp, ff, 
      &                            zzz, hh, iga_dens, force,
-     &                            oactive, nactive)
+     &                            oactive)
 c
                else if (do_hess) then
 c
