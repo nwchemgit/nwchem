@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.49 2000-04-10 17:16:08 hvd Exp $
+c $Id: bas_input.F,v 1.50 2000-10-21 00:28:35 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -1069,6 +1069,7 @@ c
      &      libname(1:inp_strlen(libname)),'>'
         write(luout,*) ' '
       endif
+      close(unit=unitrc,status='keep') ! close file after library name found
       end
       subroutine bas_set_library_name()
       implicit none
