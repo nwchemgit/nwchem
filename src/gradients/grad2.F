@@ -10,7 +10,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi)
-c     $Id: grad2.F,v 1.24 1997-06-24 23:24:54 d3g681 Exp $
+c     $Id: grad2.F,v 1.25 1997-06-25 02:31:46 d3g681 Exp $
       implicit none
 #include "sym.fh"
 #include "global.fh"
@@ -85,7 +85,8 @@ C-------------------------local variables-----------------------------
       integer lblockhi, jshtop, kshtop, lshtop
       integer ishblock, jshblock, kshblock, lshblock
       integer iish, jjsh, kksh, llsh, iiat, iat
-      integer nq, integ, atoms(4), numq
+      integer nq, integ, atoms(4)
+*      integer numq
       double precision q4max, smax, sij, sijkl, block_eff, p
       
       integer ibflo_prev, jbflo_prev, kbflo_prev ! for caching
@@ -103,7 +104,7 @@ c
 
 c     MCSCF is the same as RHF except for the 2pdm piece
 
-      numq = 0
+*      numq = 0
 
       omcscf= (scftype .eq. 'MCSCF')
       ouhf  = (scftype .eq. 'UHF')
@@ -275,7 +276,7 @@ c
  100                    end do  ! next jjsh
                      end do
 
-                     numq = numq + nq
+*                     numq = numq + nq
 
 c     
                      if (.not. intbd_init4c(
@@ -338,7 +339,7 @@ c
       next = nxtask(-nproc,task_size)
       call ga_sync()
 c     
-      write(6,*) ' numq ', numq
+*      write(6,*) ' numq ', numq
 c     
       end
       subroutine grad_mcscf_a

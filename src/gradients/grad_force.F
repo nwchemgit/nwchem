@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.24 1997-06-24 15:56:22 d3g681 Exp $
+c     $Id: grad_force.F,v 1.25 1997-06-25 02:31:48 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -948,4 +948,25 @@ c
  10      format(' shbfhi ', 12(i3,3x))
       endif
 c
+      end
+      subroutine zero_forces ( force, oactive, nat )
+
+      double precision force, zero
+      logical oactive
+      integer nat
+
+      parameter ( zero = 0.D0 )
+
+      dimension force(3,nat)
+      dimension oactive(nat)
+
+      do i=1, nat
+        if ( .not.oactive(i) ) then
+          force(1,i) = zero
+          force(2,i) = zero
+          force(3,i) = zero
+        endif
+      enddo
+
+      return
       end
