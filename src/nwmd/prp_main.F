@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.68 2002-02-07 20:09:36 d3j191 Exp $
+c $Id: prp_main.F,v 1.69 2002-02-16 04:57:16 d3j191 Exp $
 c
       implicit none
 c
@@ -162,7 +162,7 @@ c
       p(36)=ep2
       p(37)=ep3
       if(me.eq.0) p(40)=dfree
-      if(me.eq.0) p(50)=ubias
+      p(50)=ubias
       p(52)=eww(6,1)
       p(53)=eww(5,1)
       p(54)=eww(8,1)
