@@ -1,6 +1,6 @@
       logical function pre_mksgm(lfnout,lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.15 2003-08-01 00:02:37 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.16 2003-08-01 06:40:13 d3j191 Exp $
 c
 c     function to make segment file
 c
@@ -120,7 +120,7 @@ c
       if(.not.pre_frgrd(lfnfrg,filfrg,lfnout,nparms,nparms+1,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_izmat),
-     + dbl_mb(i_zmat),mzmat,nzmat))
+     + dbl_mb(i_zmat),mzmat,nzmat,byte_mb(i_fil)))
      + call errquit('mksgm: pre_frgrd failed',9999)
 c
 c     make the angle list

@@ -1,6 +1,6 @@
       logical function pre_admin(lfncmd,filcmd,lfnout,lfnfrg)
 c
-c $Id: pre_admin.F,v 1.2 2003-08-01 00:02:36 d3j191 Exp $
+c $Id: pre_admin.F,v 1.3 2003-08-01 06:40:12 d3j191 Exp $
 c
       implicit none
 c
@@ -15,10 +15,10 @@ c
       character*255 filcmd,card,string
       character*255 dir,file1,file2
       integer i,length
-      integer natm,nparms,ipardef,nbnd,natm,nzmat,matm,mbnd,mzmat
+      integer natm,nparms,ipardef,nbnd,nzmat,matm,mbnd,mzmat
       integer l_latm,i_latm,l_catm,i_catm,l_qatm,i_qatm
       integer l_bnd,i_bnd,l_fil,i_fil
-      integer i_izmat,l_izmat,i_zmat,l_zmat,i_ndx,l_ndx
+      integer i_izmat,l_izmat,i_zmat,l_zmat,i_ndx,l_ndx,i_ndx2,l_ndx2
 c
       logical ladmin
 c
@@ -75,6 +75,8 @@ c
      + call errquit('mksgm: Memory allocation failed for latm',9999)
       if(.not.ma_push_get(mt_int,matm,'ndx',l_ndx,i_ndx))
      + call errquit('mksgm: Memory allocation failed for ndx',9999)
+      if(.not.ma_push_get(mt_int,matm,'ndx',l_ndx2,i_ndx2))
+     + call errquit('mksgm: Memory allocation failed for ndx2',9999)
 c
 c    char*255 fil
 c
@@ -115,12 +117,9 @@ c
       if(.not.pre_master(lfnfrg,lfnout,nparms,nparms+1,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_izmat),
-     + dbl_mb(i_zmat),mzmat,nzmat,dir,byte_mb(i_fil),int_mb(i_ndx)))
+     + dbl_mb(i_zmat),mzmat,nzmat,dir,byte_mb(i_fil),
+     + int_mb(i_ndx),int_mb(i_ndx2)))
      + call errquit('mksgm: pre_master failed',9999)
-      
-      print*,'natm=',natm
-      print*,'nbnd=',nbnd
-      stop
 c
       if(mzmat.gt.0) then
       if(.not.ma_pop_stack(l_zmat))
@@ -136,6 +135,8 @@ c
      + call errquit('mksgm: Memory deallocation failed for catm',9999)
       if(.not.ma_pop_stack(l_fil))
      + call errquit('mksgm: Memory deallocation failed for fil',9999)
+      if(.not.ma_pop_stack(l_ndx2))
+     + call errquit('mksgm: Memory deallocation failed for ndx',9999)
       if(.not.ma_pop_stack(l_ndx))
      + call errquit('mksgm: Memory deallocation failed for ndx',9999)
       if(.not.ma_pop_stack(l_latm))

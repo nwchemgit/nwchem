@@ -2,7 +2,7 @@
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,izmat,zmat,mzmat,nzmat,
      + fils)
 c
-c $Id: pre_frgrd.F,v 1.8 2003-08-01 00:02:37 d3j191 Exp $
+c $Id: pre_frgrd.F,v 1.9 2003-08-01 06:40:12 d3j191 Exp $
 c
 c     function to read dimensions from a frg file
 c
@@ -62,8 +62,7 @@ c
 c
       do 2 i=1,natm
       read(lfn,1002,end=9999,err=9999) catm(1,i),catm(2,i),
-     + latm(3,i),latm(4,i),latm(1,i),latm(2,i),latm(6,i),
-     + qatm(1,1,i),qatm(1,2,i)
+     + (latm(j,i),j=1,5),qatm(1,1,i),qatm(1,2,i)
  1002 format(5x,2a6,5i5,2f12.6)
       if(nparms.gt.1) then
       do 22 j=2,nparms
