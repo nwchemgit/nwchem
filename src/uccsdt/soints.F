@@ -61,8 +61,7 @@ c     .                    g(ind) = (ij|kl) or <ij|kl>
 c
 c     The block of integrals may be addressed using arrays generated 
 c     by soints_block_info()
-c     (this will only work for indices non-zero by symmetry and
-c     with the same loop restrictions)
+c     (this will only work for indices non-zero by symmetry)
 c     
 c     ijkl = ioff(i) + joff(j,symij) + koff(k,symkl) 
 c     .      + loff(l,symkl)
@@ -714,11 +713,7 @@ c
      $     ilab, jlab, klab, llab, 
      $     eri, leneri, neri, lenscr, scr)
 c     
-c     Map the labels from NWChem order into symmetry natural
-c     order and then into the SO blocked ordering and then put the 
-c     AO integrals temporaily into where the SO integrals will end up.
-c     We are exploiting here that there are as many symmetry related
-c     functions as there are symmetry adapted orbitals.
+c     Map the labels from NWChem order into symmetry natural order
 c     
       do ieri = 1, neri
          ijkl = 1 + 
@@ -733,22 +728,33 @@ c
       if (more) goto 10
 c
       end
-      subroutine soints_sovecs(nbf,nmo,c)
+      subroutine soints_sovecs(nbf,nmo,c,order)
       implicit none
 #include "nwc_const.fh"
 #include "cbassym.fh"
-      integer nbf, nmo
+      integer nbf, nmo, order
       double precision c(nbf,nmo)
 c
 c     On input C() contains a set of molecular orbital coefficients 
 c     in the atomic orbital basis ... transform the AO index into the 
-c     symmetry-adapted orbital basis.  The resulting SOs are blocked
-c     by symmetry (second labelling scheme).
+c     symmetry-adapted orbital basis.  
+c
+c     Order determines the output labelling
+c
+c     if (order == 1) then
+c     .  The SOs are in natural order (not blocked).
+c     else if (order == 2) then
+c     .  The SOs are blocked by symmetry (second labelling scheme).
+c     else
+c     .  Error
+c     endif
 c
 c     Assumes cbassym has been initialized.
 c
       integer i, j, juq, nopuq, iruq, opuq
       double precision t(nw_max_nbf_small), s(8,8), sum
+c
+      if (order.lt.1 .or. order.gt.2) call errquit('what order?',0)
 c
       write(6,*) ' INPUT'
       call output(c,1,nbf,1,nmo,nbf,nmo,1)
@@ -770,13 +776,63 @@ c
                do opuq = 1, nopuq
                   sum = sum + s(iruq,opuq)*t(j+opuq)
                end do
-               c(so_lab1(2,j+iruq),i) = sum
+               if (order .eq. 1) then
+                  c(j+iruq,i) = sum
+               else 
+                  c(so_lab1(2,j+iruq),i) = sum
+               endif
             end do
             j = j + nopuq
          end do
       end do
 c
-      write(6,*) ' OUTPUT'
+      write(6,*) ' OUTPUT in order ', order
       call output(c,1,nbf,1,nmo,nbf,nmo,1)
 c
       end
+      subroutine soints_uqshblock(uqlo, uqhi, maxnbf, blocks, nblocks)
+      implicit none
+#include "nwc_const.fh"
+#include "cbassym.fh"
+      integer uqlo, uqhi        ! [input]
+      integer maxnbf            ! [input]
+      integer blocks(2,*)       ! [output]
+      integer nblocks           ! [output]
+c
+c     Group the given range of symmetry unqiue shells into blocks so
+c     that there are no more than maxnbf functions arising from each
+c     block.
+c
+c     nblocks returns the no. of blocks
+c     blocks(1,*) = first symmetry unique shell in the block
+c     blocks(2,*) = last ...
+c
+      integer ninblock, ishuq, ishuqlo, shdim, iblock
+c
+      ninblock = 0
+      nblocks = 0
+      ishuqlo = uqlo
+      do ishuq = uqlo,uqhi
+         shdim = sh_uq_bf(2,ishuq) - sh_uq_bf(1,ishuq) + 1
+         if (shdim .gt. maxnbf) call errquit
+     $        ('soints_uqshblock: shell block > maxnbf?', shdim)
+         if ((ninblock+shdim .gt. maxnbf) .or. (ishuq.eq.sh_n_uq)) then
+            nblocks = nblocks + 1
+            blocks(1,nblocks) = ishuqlo
+            blocks(1,nblocks) = ishuq - 1
+            if (ishuq .eq. sh_n_uq) blocks(1,nblocks) = ishuq
+            ishuqlo = ishuq
+            ninblock = 0
+         else
+            ninblock = ninblock + shdim
+         end if
+      end do
+c
+      write(6,*) ' UNIQUE shell blocking maxnbf = ', maxnbf
+      do iblock = 1, nblocks
+         write(6,1) iblock, blocks(1,iblock), blocks(2,iblock)
+ 1       format(1x,i5,5x,2i5)
+      end do
+c
+      end
+
