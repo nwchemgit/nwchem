@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.242 1997-10-16 08:37:46 d3e129 Exp $
+# $Id: makefile.h,v 1.243 1997-10-22 17:21:32 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -286,7 +286,7 @@ ifeq ($(TARGET),SOLARIS)
 # but is slow and impairs debug ... use -O1 for speed and debugability
      FDEBUG = -g -O1
    LIBPATH += -L/usr/ucblib
-    DEFINES = -DSOLARIS 
+    DEFINES = -DSOLARIS  -DNOAIO
 
 # -DPARALLEL_DIAG
 
@@ -403,6 +403,7 @@ ifeq ($(TARGET),CRAY-T3E)
              COPTIONS =
                FDEBUG = -O scalar1
             FOPTIMIZE = -O scalar3,aggress,unroll2,vector3
+#,pipeline3
                CDEBUG = -O 1
             COPTIMIZE = -O
 #
