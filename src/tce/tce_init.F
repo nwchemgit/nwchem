@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.1 2002-10-18 23:42:08 sohirata Exp $
+c $Id: tce_init.F,v 1.2 2002-10-21 21:59:11 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -61,6 +61,8 @@ c
       if (.not.rtdb_get(rtdb,'dft:adapt',mt_log,1,oadapt)) then
         oadapt=sym_number_ops(geom).gt.0
       endif
+      if (.not.sym_abelian_group(geom))
+     1  call errquit('tce_init: non-Abelian symmetry not permitted',0)
 c
 c     ---------
 c     Basis set
@@ -154,6 +156,8 @@ c
         ctype='Coupled-cluster doubles (CCD)'
       elseif ((model.eq.'lccd').or.(model.eq.'LCCD')) then
         ctype='Linearized coupled-cluster doubles (LCCD)'
+      elseif ((model.eq.'ccsd').or.(model.eq.'CCSD')) then
+        ctype='Coupled-cluster singles & doubles (CCSD)'
       else
         call errquit('tce_init: specified CC model not implemented',0)
       endif
