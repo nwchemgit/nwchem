@@ -480,11 +480,25 @@ and $dist3$, respectively. Distances are given in nm, force constants
 in kJ mol$^{-1}$ nm$^{-2}$.
 
 \begin{verbatim}
-select <integer isel> { <string atom1> }
+select <integer isel> { <string atoms> }
 \end{verbatim}
 
 Directive \verb+select+ specifies a group of atoms used in the
 definition of potential of mean force potentials.
+
+The selected atoms are specified by the string \verb+atoms+ which
+takes the form
+
+\begin{verbatim}
+[{isgm [ - jsgm ] [,]} [:] [{aname[,]}]
+\end{verbatim}
+
+For example, all carbon and oxygen atoms in segments 3
+and 6 through 12 are selected for group 1 by
+
+\begin{verbatim}
+3,6-12:_C????,_O????
+\end{verbatim}
 
 \begin{verbatim}
 pmf [all] [bias] zalign <integer isel> <real forcon1> <real forcon2> 
