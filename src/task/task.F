@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.39 2000-01-11 19:59:28 d3g681 Exp $
+* $Id: task.F,v 1.40 2000-02-25 00:40:53 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -38,7 +38,7 @@ c
       logical task_energy, task_gradient, task_optimize, task_freq
       logical task_hessian, task_saddle, task_lst,task_dynamics
       logical task_qmmm, task_python, task_nbo,task_thermo
-      logical task_version
+      logical task_version, task_vscf
       logical task_pspw
       logical task_drdy
 c
@@ -49,7 +49,7 @@ c
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian, task_saddle, task_lst,task_dynamics
       external task_version, task_python, task_nbo,task_thermo
-      external kgdtest
+      external kgdtest, task_vscf
       external task_pspw
       external task_drdy
 c
@@ -193,6 +193,8 @@ c     *** task_pspw handles pspw specific "operations" ***
          status=task_dynamics(rtdb)
       else if(inp_compare(.false.,'thermodynamics',operation)) then
          status=task_thermo(rtdb)
+      else if(inp_compare(.false.,'vscf',operation)) then
+         status=task_vscf(rtdb)
       else
          call errquit('task: unknown generic operation',0)
       endif

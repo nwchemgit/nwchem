@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.19 2000-01-06 03:11:13 d3g681 Exp $
+* $Id: task_input.F,v 1.20 2000-02-25 00:40:53 windus Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -59,6 +59,8 @@ c
             numerical = .true.
          else if (inp_compare(.false.,test,'analytic')) then
             analytic  = .true.
+         else if (inp_compare(.false.,test,'vscf')) then
+            operation  = 'vscf'
          else if (inp_compare(.false.,test,'shell')) then
             theory = 'shell'
             call task_shell_input(rtdb)
