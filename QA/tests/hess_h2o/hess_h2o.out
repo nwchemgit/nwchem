@@ -1,0 +1,2362 @@
+copyexe used 0.511 seconds
+ argument  1 = hess_h2o.nw
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 3.0
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                         COPYRIGHT (C) 1994, 1995, 1996, 1997
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+              Job information
+              ---------------
+
+    hostname  = et2715.nwmpp1.emsl.pnl.gov
+    program   = /scratch/nwchem.run
+    date      = Wed Jul  2 17:06:47 1997
+
+    compiled  = Wed Jul  2 17:04:59 PDT 1997
+    source    = /u3/nwchem/nwdev
+    input     = hess_h2o.nw
+    prefix    = h2o.
+    data base = ./h2o.db
+    status    = startup
+    nproc     =    2
+
+
+            Memory information
+            ------------------
+
+    heap      =    8847361 doubles
+    stack     =    2949121 doubles
+    global    =   11796491 doubles (allocated from within heap+stack)      
+    total     =   11796482 doubles
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = /scratch
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+                                      Water
+                                      -----
+ 
+
+          ------
+          AUTO-Z
+          ------
+ ZDONE =    T
+
+                      --------------------
+                      internal coordinates
+                      --------------------
+  no.    type     -i-   -j-   -k-   -l-   -m-       value  
+  ---------------------------------------------------------
+    1  STRETCH     1     2                          1.17762
+    2  STRETCH     1     3                          1.13854
+    3  BEND        2     1     3                  101.83488
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000      .00000000     -.05000000      .27143053
+    2 H                    1.0000      .00000000     1.88042809     -.83572213
+    3 H                    1.0000      .00000000    -1.48042809    -1.33572213
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       7.6074783599
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .0000000000      .0000000000
+ 
+ 
+ 
+                           NWChem Geometry Optimization
+                           ----------------------------
+ 
+ 
+
+          ---------------------
+          Geometry Optimization
+          ---------------------
+ optimization convergence threshold    (cvgopt) =    .000800
+ maximum number of energy evaluations  (nptopt) =   20
+ max.num. of points in linear search   (linopt) =   10
+ initial guess option for opt.hessian  (inhess) =    0
+ hessian update selection option       (modupd) =    1
+ optimization to saddle point          (modsad) =    0
+ initial eigen-mode followed to saddle (moddir) =    1
+
+          -------------------
+          Energy Minimization
+          -------------------
+
+
+
+                      --------------------
+                      internal coordinates
+                      --------------------
+  no.    type     -i-   -j-   -k-   -l-   -m-       value  
+  ---------------------------------------------------------
+    1  STRETCH     1     2                          1.17762
+    2  STRETCH     1     3                          1.13854
+    3  BEND        2     1     3                  101.83488
+
+1 nserch  0
+
+   point  1
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000      .00000000     -.05000000      .27143053
+    2 H                    1.0000      .00000000     1.88042809     -.83572213
+    3 H                    1.0000      .00000000    -1.48042809    -1.33572213
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       7.6074783599
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .0000000000      .0000000000
+ 
+
+                      --------------------
+                      internal coordinates
+                      --------------------
+  no.    type     -i-   -j-   -k-   -l-   -m-       value  
+  ---------------------------------------------------------
+    1  STRETCH     1     2                          1.17762
+    2  STRETCH     1     3                          1.13854
+    3  BEND        2     1     3                  101.83488
+
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                                       Water
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./h2o.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+
+ Forming initial guess at        .4s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:         -74.71095592
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -74.263312
+ 1-e energy   =    -118.883619
+ 2-e energy   =      37.012829
+ HOMO         =       -.223418
+ LUMO         =        .302513
+ 
+
+ Starting SCF solution at        .5s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1      -74.8587825205  7.47D-01  5.83D-01       .5
+                 2      -74.9167054488  1.32D-01  9.64D-02       .7
+                 3      -74.9178122291  4.44D-03  3.82D-03       .9
+                 4      -74.9178152866  1.22D-05  9.11D-06      1.2
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =    -74.917815286615
+      One-electron energy =   -119.426635933916
+      Two-electron energy =     36.901342287438
+ Nuclear repulsion energy =      7.607478359863
+
+        Time for solution =       .7s
+
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1  -20.2743
+    2   -1.1946
+    3    -.5206
+    4    -.4328
+    5    -.3897
+    6     .4348
+    7     .5324
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector    2  Occ=2.000000D+00  E=-1.194559D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2       .904927  1 O  s                  1      -.241834  1 O  s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-5.206162D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4       .598048  1 O  py                 7      -.470583  3 H  s          
+     6       .438819  2 H  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-4.328191D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5       .716028  1 O  pz                 2       .452901  1 O  s          
+     6      -.376858  2 H  s                  7      -.319802  3 H  s          
+     4      -.151382  1 O  py         
+ 
+ Vector    5  Occ=2.000000D+00  E=-3.896732D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      1.000000  1 O  px         
+ 
+ Vector    6  Occ=0.000000D+00  E= 4.348430D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6       .770214  2 H  s                  5       .705105  1 O  pz         
+     2      -.586232  1 O  s                  7       .571890  3 H  s          
+     4      -.249579  1 O  py         
+ 
+ Vector    7  Occ=0.000000D+00  E= 5.324442D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4       .850964  1 O  py                 7       .809336  3 H  s          
+     6      -.582092  2 H  s                  5       .258969  1 O  pz         
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     8.22   2.00  1.89  4.33
+    2 H    1      .90    .90
+    3 H    1      .89    .89
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0       .000000       .000000     10.000000
+ 
+     1   1 0 0       .000000       .000000       .000000
+     1   0 1 0       .081131       .000000       .000000
+     1   0 0 1      -.569909       .000000       .000000
+ 
+     2   2 0 0     -4.644544       .000000       .000000
+     2   1 1 0       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000
+     2   0 2 0     -3.262833       .000000      5.747677
+     2   0 1 1       .103616       .000000       .297353
+     2   0 0 2     -3.961766       .000000      3.071981
+ 
+
+ Parallel integral file used       2 records with       0 large values
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                                       Water
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = ./h2o.movecs
+  output vectors  = ./h2o.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.917815286615
+
+                              NWCHEM GRADIENTS Module
+                              -----------------------
+ 
+ 
+                                       Water
+ 
+
+  wavefunction    =   RHF     
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+
+
+
+                         RHF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O        .000000   -.050000    .271431     .000000   -.037633    .138763
+   2 H        .000000   1.880428   -.835722     .000000    .123874   -.058627
+   3 H        .000000  -1.480428  -1.335722     .000000   -.086241   -.080136
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |        .01   |        .09   |
+                 ----------------------------------------
+                 |  WALL  |        .00   |        .09   |
+                 ----------------------------------------
+          largest component of the gradient =       .1632615 ( cvgopt =       .0008000 ) 
+ previous largest component of the gradient =       .0000000
+1
+ nserch  nupdat   npts       func             gnorm          alpha   cvged
+     0       0      1     -74.91781529      .18044905        .00000   F
+      previous energy        .00000000
+   energy convergence     -74.91781529
+1 nserch  1
+
+   point  2
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000      .00000000      .02104555      .08342013
+    2 H                    1.0000      .00000000     1.41747696     -.79060243
+    3 H                    1.0000      .00000000    -1.08852251    -1.19283143
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       9.9806608551
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .4973188230    -1.3160727961
+ 
+
+                      --------------------
+                      internal coordinates
+                      --------------------
+  no.    type     -i-   -j-   -k-   -l-   -m-       value  
+  ---------------------------------------------------------
+    1  STRETCH     1     2                           .87177
+    2  STRETCH     1     3                           .89491
+    3  BEND        2     1     3                   98.96123
+
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                                       Water
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = ./h2o.movecs
+  output vectors  = ./h2o.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+
+ Forming initial guess at       2.0s
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+ Loading old vectors from job with title :
+
+Water
+
+
+ Starting SCF solution at       2.0s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1      -74.9224416266  4.05D-01  2.71D-01      1.8
+                 2      -74.9331689742  7.77D-02  5.57D-02      2.0
+                 3      -74.9340826879  7.32D-04  4.07D-04      2.2
+                 4      -74.9340827321  1.31D-06  9.21D-07      2.4
+
+
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =    -74.934082732125
+      One-electron energy =   -123.656838210230
+      Two-electron energy =     38.742094622962
+ Nuclear repulsion energy =      9.980660855143
+
+        Time for solution =       .7s
+
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1  -20.2419
+    2   -1.3189
+    3    -.6480
+    4    -.4754
+    5    -.4020
+    6     .6887
+    7     .8210
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector    2  Occ=2.000000D+00  E=-1.318894D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2       .805180  1 O  s                  1      -.229628  1 O  s          
+     6       .165478  2 H  s                  5      -.162068  1 O  pz         
+     7       .156019  3 H  s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-6.480161D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4       .613179  1 O  py                 7      -.445513  3 H  s          
+     6       .442579  2 H  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-4.754457D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5       .768532  1 O  pz                 2       .576012  1 O  s          
+     7      -.259338  3 H  s                  6      -.246561  2 H  s          
+ 
+ Vector    5  Occ=2.000000D+00  E=-4.020220D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      1.000000  1 O  px         
+ 
+ Vector    6  Occ=0.000000D+00  E= 6.886547D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.003932  1 O  s                  7      -.931585  3 H  s          
+     5      -.782842  1 O  pz                 6      -.757357  2 H  s          
+ 
+ Vector    7  Occ=0.000000D+00  E= 8.209929D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.019736  2 H  s                  4     -1.016057  1 O  py         
+     7      -.814049  3 H  s          
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     8.44   2.00  1.82  4.62
+    2 H    1      .78    .78
+    3 H    1      .79    .79
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0       .000000       .000000     10.000000
+ 
+     1   1 0 0       .000000       .000000       .000000
+     1   0 1 0       .112491       .000000       .497319
+     1   0 0 1      -.724371       .000000     -1.316073
+ 
+     2   2 0 0     -4.482584       .000000       .000000
+     2   1 1 0       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000
+     2   0 2 0     -3.392034       .000000      3.197666
+     2   0 1 1       .040420       .000000       .191808
+     2   0 0 2     -3.737476       .000000      2.103570
+ 
+
+ Parallel integral file used       2 records with       0 large values
+
+1 nserch  1
+
+   point  3
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000      .00000000     -.00650766      .15633517
+    2 H                    1.0000      .00000000     1.59702074     -.80810095
+    3 H                    1.0000      .00000000    -1.24051308    -1.24824794
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       8.9024103691
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .3044464141     -.8056675616
+ 
+
+                      --------------------
+                      internal coordinates
+                      --------------------
+  no.    type     -i-   -j-   -k-   -l-   -m-       value  
+  ---------------------------------------------------------
+    1  STRETCH     1     2                           .99020
+    2  STRETCH     1     3                           .98938
+    3  BEND        2     1     3                  100.27648
+
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                                       Water
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = ./h2o.movecs
+  output vectors  = ./h2o.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+
+ Forming initial guess at       3.0s
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+ Loading old vectors from job with title :
+
+Water
+
+
+ Starting SCF solution at       3.0s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1      -74.9629715149  2.05D-01  1.32D-01      2.7
+                 2      -74.9656874968  3.64D-02  2.60D-02      2.9
+                 3      -74.9658973804  6.56D-04  4.21D-04      3.1
+                 4      -74.9658974160  4.51D-06  3.45D-06      3.3
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =    -74.965897415971
+      One-electron energy =   -121.828485118830
+      Two-electron energy =     37.960177333775
+ Nuclear repulsion energy =      8.902410369084
+
+        Time for solution =       .6s
+
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1  -20.2513
+    2   -1.2571
+    3    -.5941
+    4    -.4591
+    5    -.3924
+    6     .5811
+    7     .6929
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector    2  Occ=2.000000D+00  E=-1.257100D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2       .844657  1 O  s                  1      -.233803  1 O  s          
+     7       .155746  3 H  s                  6       .155437  2 H  s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-5.940968D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4       .604923  1 O  py                 7      -.449184  3 H  s          
+     6       .449058  2 H  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-4.591016D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5       .747540  1 O  pz                 2       .537328  1 O  s          
+     6      -.295328  2 H  s                  7      -.294655  3 H  s          
+ 
+ Vector    5  Occ=2.000000D+00  E=-3.924334D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      1.000000  1 O  px         
+ 
+ Vector    6  Occ=0.000000D+00  E= 5.810504D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2       .820099  1 O  s                  6      -.771997  2 H  s          
+     7      -.766465  3 H  s                  5      -.752673  1 O  pz         
+ 
+ Vector    7  Occ=0.000000D+00  E= 6.928997D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4       .948466  1 O  py                 7       .817250  3 H  s          
+     6      -.810850  2 H  s                  5       .150532  1 O  pz         
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     8.33   2.00  1.85  4.48
+    2 H    1      .83    .83
+    3 H    1      .83    .83
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0       .000000       .000000     10.000000
+ 
+     1   1 0 0       .000000       .000000       .000000
+     1   0 1 0       .102990       .000000       .304446
+     1   0 0 1      -.663739       .000000      -.805668
+ 
+     2   2 0 0     -4.554386       .000000       .000000
+     2   1 1 0       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000
+     2   0 2 0     -3.337721       .000000      4.089687
+     2   0 1 1       .068133       .000000       .249775
+     2   0 0 2     -3.845898       .000000      2.406676
+ 
+
+ Parallel integral file used       2 records with       0 large values
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                                       Water
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = ./h2o.movecs
+  output vectors  = ./h2o.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.965897415971
+
+                              NWCHEM GRADIENTS Module
+                              -----------------------
+ 
+ 
+                                       Water
+ 
+
+  wavefunction    =   RHF     
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+
+                         RHF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O        .000000   -.006508    .156335     .000000   -.000757   -.000438
+   2 H        .000000   1.597021   -.808101     .000000    .001352    .000025
+   3 H        .000000  -1.240513  -1.248248     .000000   -.000595    .000413
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |        .00   |        .08   |
+                 ----------------------------------------
+                 |  WALL  |        .01   |        .08   |
+                 ----------------------------------------
+          largest component of the gradient =       .0011109 ( cvgopt =       .0008000 ) 
+ previous largest component of the gradient =       .1632615
+1
+ nserch  nupdat   npts       func             gnorm          alpha   cvged
+     1       1      3     -74.96589742      .00135072        .61218   F
+      previous energy     -74.91781529
+   energy convergence       -.04808213
+
+1 nserch  2
+
+
+   point  4
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000      .00000000     -.00537768      .15678333
+    2 H                    1.0000      .00000000     1.59455285     -.80811932
+    3 H                    1.0000      .00000000    -1.23917517    -1.24867773
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       8.9081657319
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .3123562105     -.8025304004
+ 
+
+                      --------------------
+                      internal coordinates
+                      --------------------
+  no.    type     -i-   -j-   -k-   -l-   -m-       value  
+  ---------------------------------------------------------
+    1  STRETCH     1     2                           .98870
+    2  STRETCH     1     3                           .98966
+    3  BEND        2     1     3                  100.18482
+
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                                       Water
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = ./h2o.movecs
+  output vectors  = ./h2o.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+
+ Forming initial guess at       4.4s
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+ Loading old vectors from job with title :
+
+Water
+
+
+ Starting SCF solution at       4.4s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1      -74.9658993446  1.55D-03  9.88D-04      3.9
+                 2      -74.9658995038  6.35D-06  4.33D-06      4.2
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =    -74.965899503797
+      One-electron energy =   -121.838112235696
+      Two-electron energy =     37.964047000018
+ Nuclear repulsion energy =      8.908165731881
+
+        Time for solution =       .4s
+
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1  -20.2514
+    2   -1.2575
+    3    -.5942
+    4    -.4594
+    5    -.3925
+    6     .5818
+    7     .6934
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector    2  Occ=2.000000D+00  E=-1.257491D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2       .844402  1 O  s                  1      -.233768  1 O  s          
+     6       .155813  2 H  s                  7       .155452  3 H  s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-5.942436D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4       .605287  1 O  py                 6       .449209  2 H  s          
+     7      -.449062  3 H  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-4.593909D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5       .747549  1 O  pz                 2       .537825  1 O  s          
+     7      -.295249  3 H  s                  6      -.294460  2 H  s          
+ 
+ Vector    5  Occ=2.000000D+00  E=-3.925233D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      1.000000  1 O  px         
+ 
+ Vector    6  Occ=0.000000D+00  E= 5.817716D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2       .820875  1 O  s                  7      -.772747  3 H  s          
+     6      -.766292  2 H  s                  5      -.754389  1 O  pz         
+ 
+ Vector    7  Occ=0.000000D+00  E= 6.933506D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4       .949582  1 O  py                 6      -.818391  2 H  s          
+     7       .810926  3 H  s          
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     8.33   2.00  1.85  4.48
+    2 H    1      .83    .83
+    3 H    1      .83    .83
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0       .000000       .000000     10.000000
+ 
+     1   1 0 0       .000000       .000000       .000000
+     1   0 1 0       .103239       .000000       .312356
+     1   0 0 1      -.664253       .000000      -.802530
+ 
+     2   2 0 0     -4.554051       .000000       .000000
+     2   1 1 0       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000
+     2   0 2 0     -3.339911       .000000      4.078385
+     2   0 1 1       .067572       .000000       .251996
+     2   0 0 2     -3.845157       .000000      2.408901
+ 
+
+ Parallel integral file used       2 records with       0 large values
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                                       Water
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = ./h2o.movecs
+  output vectors  = ./h2o.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.965899503797
+
+                              NWCHEM GRADIENTS Module
+                              -----------------------
+ 
+ 
+                                       Water
+ 
+
+  wavefunction    =   RHF     
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+
+                         RHF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O        .000000   -.005378    .156783     .000000    .001072   -.000704
+   2 H        .000000   1.594553   -.808119     .000000   -.000459    .000766
+   3 H        .000000  -1.239175  -1.248678     .000000   -.000613   -.000062
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |        .00   |        .08   |
+                 ----------------------------------------
+                 |  WALL  |        .00   |        .08   |
+                 ----------------------------------------
+
+          largest component of the gradient =       .0008718 ( cvgopt =       .0008000 ) 
+
+ previous largest component of the gradient =       .0011109
+1
+ nserch  nupdat   npts       func             gnorm          alpha   cvged
+     2       2      4     -74.96589950      .00099894        .78242   F
+      previous energy     -74.96589742
+   energy convergence       -.00000209
+1 nserch  3
+
+   point  5
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000      .00000000     -.00619608      .15736431
+    2 H                    1.0000      .00000000     1.59386080     -.80888578
+    3 H                    1.0000      .00000000    -1.23766472    -1.24849226
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       8.9094394864
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .3066274489     -.7984635585
+ 
+
+                      --------------------
+                      internal coordinates
+                      --------------------
+  no.    type     -i-   -j-   -k-   -l-   -m-       value  
+  ---------------------------------------------------------
+    1  STRETCH     1     2                           .98913
+    2  STRETCH     1     3                           .98900
+    3  BEND        2     1     3                  100.08980
+
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                                       Water
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = ./h2o.movecs
+  output vectors  = ./h2o.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+
+ Forming initial guess at       5.5s
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+ Loading old vectors from job with title :
+
+Water
+
+
+ Starting SCF solution at       5.5s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1      -74.9659007058  9.38D-04  6.01D-04      4.8
+                 2      -74.9659008133  5.88D-06  4.38D-06      5.1
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =    -74.965900813335
+      One-electron energy =   -121.839755695801
+      Two-electron energy =     37.964415396081
+ Nuclear repulsion energy =      8.909439486384
+
+        Time for solution =       .4s
+
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1  -20.2515
+    2   -1.2576
+    3    -.5941
+    4    -.4596
+    5    -.3926
+    6     .5820
+    7     .6932
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector    2  Occ=2.000000D+00  E=-1.257648D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2       .844334  1 O  s                  1      -.233755  1 O  s          
+     7       .155655  3 H  s                  6       .155608  2 H  s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-5.941365D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4       .605323  1 O  py                 7      -.449185  3 H  s          
+     6       .449167  2 H  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-4.596270D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5       .747177  1 O  pz                 2       .538133  1 O  s          
+     6      -.294960  2 H  s                  7      -.294858  3 H  s          
+ 
+ Vector    5  Occ=2.000000D+00  E=-3.925926D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      1.000000  1 O  px         
+ 
+ Vector    6  Occ=0.000000D+00  E= 5.820264D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2       .820850  1 O  s                  6      -.769897  2 H  s          
+     7      -.769062  3 H  s                  5      -.754142  1 O  pz         
+ 
+ Vector    7  Occ=0.000000D+00  E= 6.932281D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4       .948724  1 O  py                 7       .815347  3 H  s          
+     6      -.814382  2 H  s          
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     8.33   2.00  1.85  4.48
+    2 H    1      .83    .83
+    3 H    1      .83    .83
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0       .000000       .000000     10.000000
+ 
+     1   1 0 0       .000000       .000000       .000000
+     1   0 1 0       .103175       .000000       .306627
+     1   0 0 1      -.664541       .000000      -.798464
+ 
+     2   2 0 0     -4.554030       .000000       .000000
+     2   1 1 0       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000
+     2   0 2 0     -3.342110       .000000      4.072513
+     2   0 1 1       .067216       .000000       .248163
+     2   0 0 2     -3.844797       .000000      2.411137
+ 
+
+ Parallel integral file used       2 records with       0 large values
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                                       Water
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = ./h2o.movecs
+  output vectors  = ./h2o.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.965900813335
+
+                              NWCHEM GRADIENTS Module
+                              -----------------------
+ 
+ 
+                                       Water
+ 
+
+  wavefunction    =   RHF     
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+
+                         RHF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O        .000000   -.006196    .157364     .000000   -.000014   -.000708
+   2 H        .000000   1.593861   -.808886     .000000   -.000168    .000274
+   3 H        .000000  -1.237665  -1.248492     .000000    .000182    .000433
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |        .01   |        .09   |
+                 ----------------------------------------
+                 |  WALL  |        .00   |        .08   |
+                 ----------------------------------------
+          largest component of the gradient =       .0003809 ( cvgopt =       .0008000 ) 
+ previous largest component of the gradient =       .0008718
+1
+ nserch  nupdat   npts       func             gnorm          alpha   cvged
+     3       3      5     -74.96590081      .00054973        .88454   T
+      previous energy     -74.96589950
+   energy convergence       -.00000131
+
+          ----------------------
+          Optimization converged
+          ----------------------
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000      .00000000     -.00619608      .15736431
+    2 H                    1.0000      .00000000     1.59386080     -.80888578
+    3 H                    1.0000      .00000000    -1.23766472    -1.24849226
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       8.9094394864
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .3066274489     -.7984635585
+ 
+
+
+      internuclear distances      (atomic units)     angstroms
+      ----------------------------------------------------------
+               1 <--->        2   (    1.869177)       .989107  
+               1 <--->        3   (    1.868943)       .988983  
+      ----------------------------------------------------------
+               2 <--->        3   (    2.865448)      1.516300  
+      ----------------------------------------------------------
+
+
+      internuclear angles                              degrees
+      ----------------------------------------------------------
+               1 <--->        2 <--->        3       39.952150  
+      ----------------------------------------------------------
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+ 
+ 
+                  NWChem Analytic Hessian and Frequency Analysis
+                  ----------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                                       Water
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = ./h2o.movecs
+  output vectors  = ./h2o.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.965900813335
+
+                               NWCHEM HESSIAN Module
+                               ---------------------
+ 
+ 
+                                       Water
+ 
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+ Times in 1e_stvdd  cpu:         .2s     wall:         .2s
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+ Times in 2e_jkdd   cpu:         .8s     wall:         .9s
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+ Parallel integral file used       2 records with      13 large values
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+ Parallel integral file used       2 records with      13 large values
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+ Parallel integral file used       2 records with      13 large values
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+ Parallel integral file used       2 records with      13 large values
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+ Parallel integral file used       2 records with      13 large values
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+ Parallel integral file used       2 records with      13 large values
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+ Parallel integral file used       2 records with      13 large values
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+ Parallel integral file used       2 records with      13 large values
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+ Parallel integral file used       2 records with      13 large values
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from ./h2o.movecs
+
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 2.0E-08) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  3.4029E-05  5.3318E-05     .0000     8.1
+                  2    2  1.2070E-16  1.8912E-16     .0000     8.1
+
+ CPHF converged to   1.9D-16 in    2 iters
+
+
+ Parallel integral file used       2 records with       0 large values
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from ./h2o.movecs
+
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 2.2E-08) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  1.3850E-01  2.0049E-01     .0000     8.4
+                  2    2  1.3208E-02  1.9120E-02     .0954     8.4
+                  3    3  2.7681E-03  4.0070E-03     .2096     8.5
+                  4    4  4.7862E-04  6.9284E-04     .1729     8.6
+                  5    5  5.3975E-05  7.8134E-05     .1128     8.7
+                  6    6  8.1284E-07  1.1767E-06     .0151     8.8
+
+ CPHF converged to   1.2D-06 in    6 iters
+
+
+ Parallel integral file used       2 records with       0 large values
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from ./h2o.movecs
+
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 2.4E-08) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  2.2490E-01  3.0061E-01     .0000     9.0
+                  2    2  3.8231E-02  5.1100E-02     .1700     9.1
+                  3    3  4.2250E-03  5.6471E-03     .1105     9.1
+                  4    4  2.2889E-04  3.0593E-04     .0542     9.2
+                  5    5  1.1419E-05  1.5262E-05     .0499     9.3
+                  6    6  8.1673E-07  1.0916E-06     .0715     9.4
+
+ CPHF converged to   1.1D-06 in    6 iters
+
+
+ Parallel integral file used       2 records with       0 large values
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from ./h2o.movecs
+
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 1.5E-08) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  6.0129E-03  1.2429E-02     .0000     9.7
+                  2    2  1.1665E-16  2.4113E-16     .0000     9.7
+
+ CPHF converged to   2.4D-16 in    2 iters
+
+
+ Parallel integral file used       2 records with       0 large values
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from ./h2o.movecs
+
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 1.5E-08) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  8.2706E-02  1.7171E-01     .0000    10.0
+                  2    2  1.6261E-02  3.3761E-02     .1966    10.0
+                  3    3  2.3079E-03  4.7916E-03     .1419    10.1
+                  4    4  3.3304E-04  6.9144E-04     .1443    10.2
+                  5    5  3.2269E-05  6.6996E-05     .0969    10.2
+                  6    6  1.8738E-06  3.8903E-06     .0581    10.3
+
+ CPHF converged to   3.9D-06 in    6 iters
+
+
+ Parallel integral file used       2 records with       0 large values
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from ./h2o.movecs
+
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 1.6E-08) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  1.3296E-01  2.6789E-01     .0000    10.6
+                  2    2  1.9928E-02  4.0151E-02     .1499    10.7
+                  3    3  4.1968E-03  8.4559E-03     .2106    10.7
+                  4    4  4.3664E-04  8.7974E-04     .1040    10.8
+                  5    5  1.8765E-05  3.7808E-05     .0430    10.9
+                  6    6  1.4108E-06  2.8425E-06     .0752    11.0
+
+ CPHF converged to   2.8D-06 in    6 iters
+
+
+ Parallel integral file used       2 records with       0 large values
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from ./h2o.movecs
+
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 1.5E-08) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  6.0169E-03  1.2434E-02     .0000    11.2
+                  2    2  1.3416E-16  2.7724E-16     .0000    11.3
+
+ CPHF converged to   2.8D-16 in    2 iters
+
+
+ Parallel integral file used       2 records with       0 large values
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from ./h2o.movecs
+
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 1.3E-08) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  8.7733E-02  2.0628E-01     .0000    11.5
+                  2    2  1.3070E-02  3.0730E-02     .1490    11.6
+                  3    3  1.4440E-03  3.3951E-03     .1105    11.7
+                  4    4  1.2531E-04  2.9464E-04     .0868    11.7
+                  5    5  1.6071E-05  3.7786E-05     .1282    11.8
+                  6    6  1.4454E-06  3.3984E-06     .0899    11.9
+
+ CPHF converged to   3.4D-06 in    6 iters
+
+
+ Parallel integral file used       2 records with       0 large values
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from ./h2o.movecs
+
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ #quartets = 1.200D+02 #integrals = 2.600D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = /scratch/h2o.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      2        Max. records in file   =   9864
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 1.7E-08) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  1.3855E-01  2.5391E-01     .0000    12.2
+                  2    2  2.4047E-02  4.4070E-02     .1736    12.2
+                  3    3  4.4416E-03  8.1401E-03     .1847    12.3
+                  4    4  4.2747E-04  7.8342E-04     .0962    12.4
+                  5    5  2.8199E-05  5.1680E-05     .0660    12.5
+                  6    6  2.0251E-06  3.7114E-06     .0718    12.5
+
+ CPHF converged to   3.7D-06 in    6 iters
+
+
+ Parallel integral file used       2 records with       0 large values
+
+
+ --- Gradient --- 
+
+
+     Atom       1           2           3
+
+
+     d/dx    .0000000    .0000000    .0000000
+     d/dy   -.0000140   -.0001685    .0001825
+     d/dz   -.0007075    .0002743    .0004332
+          -------------------------------------------------
+          Cartesian force constant matrix (hartree/bohr**2)
+          -------------------------------------------------
+
+
+                                  1                          2                          3
+
+
+                              O                          H                          H         
+
+
+                         X        Y        Z        X        Y        Z        X        Y        Z
+
+
+  1   O            X   -.0006    .0000    .0000    .0002    .0000    .0000    .0003    .0000    .0000
+                   Y    .0000    .8018    .0261    .0000   -.4849    .3117    .0000   -.3169   -.3378
+                   Z    .0000    .0261    .6393    .0000    .1908   -.2355    .0000   -.2169   -.4038
+  2   H            X    .0002    .0000    .0000   -.0002    .0000    .0000   -.0001    .0000    .0000
+                   Y    .0000   -.4849    .1908    .0000    .5204   -.2430    .0000   -.0355    .0523
+                   Z    .0000    .3117   -.2355    .0000   -.2430    .2194    .0000   -.0687    .0161
+  3   H            X    .0003    .0000    .0000   -.0001    .0000    .0000   -.0003    .0000    .0000
+                   Y    .0000   -.3169   -.2169    .0000   -.0355   -.0687    .0000    .3524    .2856
+                   Z    .0000   -.3378   -.4038    .0000    .0523    .0161    .0000    .2856    .3878
+
+ Times in cphfx     cpu:        6.2s     wall:        6.5s
+ 
+ 
+  Vibrational analysis via the FX method 
+ 
+  See chapter 2 in "Molecular Vibrations" by Wilson, Decius and Cross
+ 
+  Vib: Default input used 
+ 
+  Nuclear Hessian passed symmetry test 
+ 
+
+
+ ---------------------------- Atom information ----------------------------
+     atom    #        X              Y              Z            mass
+ --------------------------------------------------------------------------
+    O        1  0.0000000D+00 -6.1960787D-03  1.5736431D-01  1.5994910D+01
+    H        2  0.0000000D+00  1.5938608D+00 -8.0888578D-01  1.0078250D+00
+    H        3  0.0000000D+00 -1.2376647D+00 -1.2484923D+00  1.0078250D+00
+ --------------------------------------------------------------------------
+
+
+
+
+          ----------------------------------------------------
+          MASS-WEIGHTED NUCLEAR HESSIAN (Hartree/Bohr/Bohr/Kg)
+          ----------------------------------------------------
+
+
+              1           2           3           4           5           6           7           8           9
+   ----- ----- ----- ----- -----
+    1  -3.62922D-02
+    2   0.00000D+00 5.01278D+01
+    3   0.00000D+00 1.63389D+00 3.99688D+01
+    4   6.15755D-02 0.00000D+00 0.00000D+00-1.65286D-01
+    5   0.00000D+00-1.20771D+02 4.75112D+01 0.00000D+00 5.16404D+02
+    6   0.00000D+00 7.76321D+01-5.86435D+01 0.00000D+00-2.41122D+02 2.17666D+02
+    7   8.30072D-02 0.00000D+00 0.00000D+00-8.00187D-02 0.00000D+00 0.00000D+00-2.50666D-01
+    8   0.00000D+00-7.89281D+01-5.40203D+01 0.00000D+00-3.52739D+01-6.81492D+01 0.00000D+00 3.49708D+02
+    9   0.00000D+00-8.41412D+01-1.00584D+02 0.00000D+00 5.18470D+01 1.59584D+01 0.00000D+00 2.83355D+02 3.84750D+02
+
+
+
+          -------------------------------------------------
+          NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES
+          -------------------------------------------------
+                 (Freqencies expressed in cm-1)
+
+                    1           2           3           4           5           6
+ 
+ Frequency        -93.98      -73.36      -55.84        -.41         .10         .32
+ 
+           1     -.08170      .00000     -.01794      .00000      .23563      .00000
+           2      .00000     -.05123      .00000      .11501      .00000      .20566
+           3      .00000     -.00794      .00000      .20566      .00000     -.11501
+           4      .49724      .00000      .83034      .00000      .23563      .00000
+           5      .00000      .32161      .00000      .11500      .00000      .20566
+           6      .00000      .60925      .00000      .20565      .00000     -.11501
+           7      .79940      .00000     -.54559      .00000      .23563      .00000
+           8      .00000      .49144      .00000      .11500      .00000      .20566
+           9      .00000     -.48318      .00000      .20567      .00000     -.11500
+
+                    7           8           9
+ 
+ Frequency       2168.84     4143.53     4395.31
+ 
+           1      .00000      .00000      .00000
+           2     -.01014      .00805     -.06484
+           3      .06535     -.05058     -.01023
+           4      .00000      .00000      .00000
+           5     -.34564     -.61438      .57995
+           6     -.58491      .31716     -.35046
+           7      .00000      .00000      .00000
+           8      .50661      .48661      .44918
+           9     -.45230      .48555      .51276
+ 
+ 
+        Vibrational analysis via the FX method 
+  --- with translations and rotations projected out ---
+  --- via the Eckart algorithm                      ---
+ Projected Nuclear Hessian trans-rot subspace norm:1.9561D-31
+                         (should be close to zero!) 
+
+
+From the projected analysis 
+The Zero-Point Energy (Kcal/mol) =          15.31151395
+
+
+
+          -------------------------------------------------
+          NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES
+          -------------------------------------------------
+             (Projected Freqencies expressed in cm-1)
+
+                    1           2           3           4           5           6
+ 
+ P.Frequency         .00         .00         .00         .00         .00         .00
+ 
+           1      .00000      .00000      .25004      .00000      .00000      .00000
+           2     -.04441     -.02426      .00000      .00000      .00000      .23576
+           3     -.11997      .20296      .00000      .00000      .00000      .00002
+           4      .00000      .00000      .00000      .99611      .00000      .00000
+           5      .28277      .15451      .00000      .00000      .00000      .23480
+           6      .42182      .49901      .00000      .00000      .00000     -.00158
+           7      .00000      .00000      .00000      .00000      .99611      .00000
+           8      .43162      .23585      .00000      .00000      .00000      .23436
+           9     -.53695     -.02489      .00000      .00000      .00000      .00125
+
+                    7           8           9
+ 
+ P.Frequency     2168.84     4143.53     4394.98
+ 
+           1      .00000      .00000      .00000
+           2     -.01016      .00805     -.06485
+           3      .06535     -.05058     -.01023
+           4      .00000      .00000      .00000
+           5     -.34554     -.61439      .58000
+           6     -.58477      .31716     -.35036
+           7      .00000      .00000      .00000
+           8      .50675      .48661      .44923
+           9     -.45241      .48555      .51271
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+
+ Summary of allocated global arrays 
+ ----------------------------------
+
+  array 0 => real mo vectors(7,7)
+  
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 1656     1658     4148     2062     2669       34        0        0     
+bytes total:             5.81e+05 2.34e+05 2.27e+05 1.50e+03 0.00e+00 0.00e+00
+bytes remote:            1.51e+04 1.01e+04 7.34e+03 4.00e+02 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 5880 bytes
+Number of requests serviced: 607
+ 
+MA_summarize_allocated_blocks: starting scan ...
+heap block 'mo vectors', handle 49, address 0x20f4f150:
+	type of elements:		double precision
+	number of elements:		49
+	address of client space:	0x20f4f190
+	index for client space:		1116730
+	total number of bytes:		460
+MA_summarize_allocated_blocks: scan completed: 1 heap block, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         1	         0
+	maximum number of blocks	        40	        28
+	current total bytes		       460	         0
+	maximum total bytes		    536076	  15462972
+	maximum total K-bytes		       537	     15463
+	maximum total M-bytes		         1	        16
+
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 2.1" (1997), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:       12.9s     wall:       14.3s
