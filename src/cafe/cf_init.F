@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.35 2000-01-11 23:57:50 d3j191 Exp $
+c $Id: cf_init.F,v 1.36 2000-03-06 20:17:45 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1242,6 +1242,12 @@ c
       zs(j,i,l)=zero
     7 continue
     6 continue
+      vpme(1)=zero
+      vpme(2)=zero
+      vpme(3)=zero
+      vpme(4)=zero
+      vpme(5)=zero
+      vpme(6)=zero
       if(ntype.eq.3) then
       do 9 i=1,24
       deriv(i,l)=zero

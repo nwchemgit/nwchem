@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.30 2000-02-23 18:53:26 d3j191 Exp $
+c $Id: cf_main.F,v 1.31 2000-03-06 20:17:46 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -704,6 +704,7 @@ c
 c
       volume=box(1)*box(2)*box(3)
 c
+      z=z+5.0d-1*(vpme(1)+vpme(4)+vpme(6))
       virial=z
 c
       pres=0.0d0
