@@ -96,8 +96,6 @@ c
      $     call errquit
      $     ('task_freq: scf_hessian failed ',911)
 
-         write(6,*)
-
       else           
 * overide numerical since task gradient knows what to do for theory
         if (numerical) then

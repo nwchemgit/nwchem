@@ -29,7 +29,7 @@ c
       logical  scf,scf_hessian
       external scf,scf_hessian
 c
-      logical status, numerical
+      logical status
       double precision cpu, wall
       character*80 theory, key, prefix
 
