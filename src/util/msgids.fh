@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.118 2000-02-23 02:43:44 edo Exp $
+c     $Id: msgids.fh,v 1.119 2000-02-25 00:36:53 windus Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -434,6 +434,9 @@ C
       integer msg_igop_tru4 ! dft: igop for rad_trunc
       integer msg_igop_tru5 ! dft: igop for rad_trunc
       integer msg_igop_tru6! dft: igop for rad_trunc
+c
+      integer msg_rq, msg_dq, msg_diagv, msg_dmx, msg_dmy, msg_dmz
+      integer msg_coupv, msg_dm2x, msg_dm2y, msg_dm2z
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -993,3 +996,14 @@ c
       parameter(msg_igop_tru4 = msg_ftn_base-710)! dft: igop for trun
       parameter(msg_igop_tru5 = msg_ftn_base-711)! dft: igop for trun
       parameter(msg_igop_tru6 = msg_ftn_base-712)! dft: igop for trun
+c
+      parameter(msg_rq = msg_ftn_base-750)
+      parameter(msg_dq = msg_ftn_base-751)
+      parameter(msg_diagv = msg_ftn_base-752)
+      parameter(msg_dmx = msg_ftn_base-753)
+      parameter(msg_dmy = msg_ftn_base-754)
+      parameter(msg_dmz = msg_ftn_base-755)
+      parameter(msg_coupv = msg_ftn_base-756)
+      parameter(msg_dm2x = msg_ftn_base-757)
+      parameter(msg_dm2y = msg_ftn_base-758)
+      parameter(msg_dm2z = msg_ftn_base-759)
