@@ -1232,6 +1232,43 @@ c
       xlm_potential = energy
 c
       end
+      double precision function xlm_potential_test(ax, ay, az, 
+     $     bx, by, bz, bq, lb, lmax)
+      implicit none
+#include "xlm.fh"
+c
+      integer lb, lmax
+      double precision ax, ay, az, bx, by, bz
+      double precision bq(-lb:lb, 0:lmax)
+c
+c     This version of xlm_potential just to make sure
+c     the formula in the paper is correct!  It is.
+c
+      double precision xx, yy, zz, rsq
+      double precision energy, r12, fourpi, sum
+      integer l, m
+c
+      xx = bx - ax
+      yy = by - ay
+      zz = bz - az
+      rsq = 1.0d0 / (xx*xx + yy*yy + zz*zz)
+      call xlm(lmax, xx, yy, zz, u, maxl2)
+      fourpi = 16.0d0*atan(1.0d0)
+c
+      energy = 0.0d0
+      r12 = dsqrt(rsq)
+      do l = 0, lmax
+         sum = 0.0d0
+         do m = -l, l
+            sum = sum + bq(m,l)*qn(m,l)*qn(m,l)*u(m,l)
+         end do
+         energy = energy + sum*fourpi*r12/dble(l+l+1)
+         r12 = -r12 * rsq
+      end do
+c
+      xlm_potential_test = energy
+c
+      end
       double precision function xlm_local_potential(x, y, z, 
      $     aq, la, lmax)
       implicit none
