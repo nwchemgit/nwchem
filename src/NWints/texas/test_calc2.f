@@ -1,9 +1,8 @@
 c=================================================================
 c Only for test calculations :
-c a set of contracted shell quartets is requested at the time :
 c
-c
-      subroutine test_cent4(num_bas_ij,num_bas_kl,l_blsize)
+cccc  subroutine test_cent4(num_bas_ij,num_bas_kl,l_blsize)
+      subroutine test_cent4(num_bas_ij,num_bas_kl,l_blscr )
       implicit real*8 (a-h,o-z)
       logical more_int
 c-----------------------------------
@@ -11,7 +10,7 @@ c ordinary four center two-electron integrals
 c-----------------------------------
       parameter (leri= 100 000) 
       parameter (nquart=10 000)
-      parameter(l_blscr=1 000 000)
+      parameter(l_blsize=2 100 000)
 c-----------------------------------
       common /multi_basis/ num_bas_1,num_bas_2,num_bas_3,
      *                     ncs_bas_1,ncs_bas_2,ncs_bas_3,
@@ -21,7 +20,7 @@ c-----------------------------------
 c-----------------------------------
       common /check_int/ integ_check
 c-----------------------------------
-      dimension blscr(l_blscr)
+      dimension blscr(l_blsize)
 c-----------------------------------
 c returning integrals and indeces :
       dimension eri(leri) 
@@ -35,7 +34,8 @@ c-------------------------
 c--------------------------------------------------------------
       write(6,*) '-------------------------------'
       write(6,*) '***   ENTERING TEST_CENT4   ***'
-      write(6,*) 'predic. l_blsize=',l_blsize,' used  l_blscr=',l_blscr
+      write(6,*) 'fixed   l_blsize=',l_blsize,' avail.l_blscr=',l_blscr
+      if(l_blscr.gt.l_blsize) stop 'fixed size .lt. needed'    
       write(6,*) '-------------------------------'
 c--------------------------------------------------------------
       call txs_second(tcal1)

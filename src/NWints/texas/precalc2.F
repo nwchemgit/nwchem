@@ -261,7 +261,7 @@ c
 c-----------------------------------------------------------
       common /primij/ iabprim, ijdim ,ijpar1
       common /primkl/ kabprim, kldim ,klpar1
-      common /ilepar/ lpartot,lpareal
+      common /ilepar/ lpar_exe,lpar_num
 c
       common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
 c
@@ -287,8 +287,8 @@ c precalculations for pairs ij
 c
       call precal2x_1(iabprim,ijdim,iapb,i1apb,isab)
 c--------
-      lpartot=lpartot+1
-      lpareal=lpareal+1
+      lpar_exe=lpar_exe+1
+      lpar_num=lpar_num+nij_uniqe
       call precal2a_1(dbl_mb(ibas),dbl_mb(inuc),inx, ibl, nbl2,
      *              bl(iabprim      ),
      *              lcij,bl(iaa),bl(ibb),bl(ieab),bl(icis),bl(icjs),
@@ -311,8 +311,8 @@ c10   endif
 c10   if(npkl.ne.0) then
           call precal2x_1(kabprim,kldim,icpd,i1cpd,iscd)
 c
-          lpartot=lpartot+1
-          lpareal=lpareal+1
+          lpar_exe=lpar_exe+1
+          lpar_num=lpar_num+nkl_uniqe
           call precal2a_1(dbl_mb(ibas),dbl_mb(inuc),inx,kbl,nbl2,
      *                  bl(kabprim      ),
      *                  lckl,bl(icc),bl(idd),bl(iecd),bl(icks),bl(icls),
@@ -1351,7 +1351,7 @@ c============================================================
 c-----------------------------------------------------------
       common /primij/ iabprim, ijdim ,ijpar1
       common /primkl/ kabprim, kldim ,klpar1
-      common /ilepar/ lpartot,lpareal
+      common /ilepar/ lpar_exe,lpar_num
 c
       common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
 c
@@ -1377,8 +1377,8 @@ c precalculations for pairs ij
 c
       call precal2x_2(iabprim,lcij,iapb,i1apb,isab)
 c--------
-      lpartot=lpartot+1
-      lpareal=lpareal+1
+      lpar_exe=lpar_exe+1
+      lpar_num=lpar_num+nij_uniqe
       call precal2a_2(dbl_mb(ibas),dbl_mb(inuc),inx,ibl,nbl2,
      *               bl(iabprim+lcij),bl(iabprim+2*lcij),
      *               lcij,bl(iaa),bl(ibb),bl(ieab),bl(icis),bl(icjs),
@@ -1400,8 +1400,8 @@ c10   endif
 c10   if(npkl.ne.0) then
           call precal2x_2(kabprim,lckl,icpd,i1cpd,iscd)
 c
-          lpartot=lpartot+1
-          lpareal=lpareal+1
+          lpar_exe=lpar_exe+1
+          lpar_num=lpar_num+nkl_uniqe
           call precal2a_2(dbl_mb(ibas),dbl_mb(inuc),inx,kbl,nbl2,
      *                  bl(kabprim+lckl),bl(kabprim+2*lckl),
 c not an error, icc should be twice :

@@ -1,31 +1,37 @@
-      subroutine uniq_pairs_1(ibl,kbl,bl,npar,ijpres2,klpres2, 
+      subroutine uniq_pairs_1(from,ibl,kbl,bl,ijpres2,klpres2, 
      *                        isbl_size,isbl_q,isbl_point)
       implicit real*8 (a-h,o-z)
+      character*8 from
 c this is maximum pairs allowed ; must be: maxpar.le.limpair
       common /max_pairs/ maxpar   
       common /time5/ tcheck,tuniq2,tmap4u
       common /map4uniq/ nij_uniqe, ij_uniqe_p, map_ij,    ! output
      *                  nkl_uniqe, kl_uniqe_p, map_kl     ! output
       dimension bl(*)
-      dimension npar(*)               ! npar(nbl2) 
       dimension ijpres2(*),klpres2(*) ! dim=nqrtpnl
       dimension isbl_q(*) ! dim=nqrtpnl
-ccc   dimension isbl_s(*) ! dimension nbl2*(nbl2+1)/2 num of super-blks
 c----------------------------------------------------------------------
-      call txs_second(timb)
-c----------------------------------------------------------------------
+c This routine is called ONLY :
+c
+c from spec_calcint.f (blockint)    from='blockint'
+c               and 
+c from c texas_hf.F (supblks_split) from='ks_split'
+c
 c for a given super-block ISBL,made out of Ibl & Kbl pair-blocks 
 c find uniqe (present) pairs in pair-blocks
 c----------------------------------------------------------------------
+      call txs_second(timb)
+c----------------------------------------------------------------------
 c memory allocations :
 c
-      nij_pairs=min( npar(ibl),maxpar )
-      nkl_pairs=min( npar(kbl),maxpar )
-c
-cccc  call getmem(nij_pairs, ij_uniqe) 
-cccc  call getmem(nkl_pairs, kl_uniqe) 
-      call memo1_int(nij_pairs, ij_uniqe) 
-      call memo1_int(nkl_pairs, kl_uniqe) 
+      if(from.eq.'blockint') then
+         call memo1_int( maxpar, ij_uniqe)  
+         call memo1_int( maxpar, kl_uniqe) 
+      endif
+      if(from.eq.'ks_split') then
+         call memo1_int(isbl_size, ij_uniqe)  
+         call memo1_int(isbl_size, kl_uniqe) 
+      endif
 c----------------------------------------------------------------------
       ipoint=isbl_point + 1
 c
@@ -94,7 +100,7 @@ c
       integer ij_uniq(*)        ! [output] List of unique ij's
 c
 c     Return the number and list of unique pairs in the current
-c     request.The number of such pairs is bounded by min(nq,npar(ijbl)).
+c     request.The number of such pairs is bounded by min(nq,maxpar).
 c
 c     Use an NlogN sort followed by linear pass.
 c

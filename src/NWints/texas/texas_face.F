@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.38 1997-06-13 22:24:50 pg481 Exp $
+c $Id: texas_face.F,v 1.39 1997-06-19 18:20:31 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -27,7 +27,7 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
       common /pnl000/ xbluse,nbluse
       common /howmany/ ntotal,noijkl,nopres,nospec,nrimtot,nrimret
-      common /ilepar/ lpartot,lpareal
+      common /ilepar/ lpar_exe,lpar_num
 c----------------------------------------------------------------
       common /intgop/ ncache,maxprice,iprint,iblock
 c----------------------------------------------------------------
@@ -59,8 +59,8 @@ c
    18 format(' blocking utilities of Texas used in ',f6.2,' %')
 c----------------------------------------------------------------
       write(8,*)'------------------------------------------------------'
-      write(8,*)'Pre-calculations for pairs of contracted shells have'
-      write(8,*)'been executed ',lpareal,'(out of ',lpartot,') times '
+      write(8,*)'Pre-calculations for contracted shell pairs have been'
+      write(8,*)'executed ',lpar_exe,' times for ',lpar_num,' pairs'
       write(8,*)'------------------------------------------------------'
       write(8,*)'Total number of contracted shell quartets ',ntotal
       write(8,*)'- - - - - - - - - - - - - - - - - - - - - - - - - - - '
@@ -107,9 +107,9 @@ c
 c take only memtot_bl from the call above, rest from 
 c the common /mem_pnl_scr/
 c
-      write(8,*)'-----------------------------------------------'
-      write(8,*)'           LEAVING TEXAS-INTEGRAL PROGRAM'
-      write(8,*)'           Statistics of memory in blscr :'
+      write(8,*)' -------------------------------------------'
+      write(8,*)'       LEAVING TEXAS-INTEGRAL PROGRAM'
+      write(8,*)'       Statistics of memory in blscr:'
       write(8,*)'                                               '
 ctest ??????
 c     write(8,*)' max number of allocations =',nreque_bl
@@ -121,14 +121,13 @@ ctest ??????
       write(8,*)' max number of marks       =',mark_peak
       write(8,*)' max memory used overall   =',mem_peak,' (high water)'
       write(8,*)' total memory available    =',memtot_bl
-      write(8,*)'-----------------------------------------------'
+      write(8,*)' -------------------------------------------'
 c
 00001 continue
 c
-      write(8,*)'-------------------------------------------'
-      write(8,*)'TEXAS INTEGRAL PROGRAM HAS BEEN TERMINATED'
-      write(8,*)'                                          '
-      write(8,*)'-------------------------------------------'
+      write(8,*)' -------------------------------------------'
+      write(8,*)' TEXAS INTEGRAL PROGRAM HAS BEEN TERMINATED'
+      write(8,*)' -------------------------------------------'
 c------------------------------------
       ENDIF     !! end of iprint 
 c----------------------------------------------------------------
@@ -382,7 +381,7 @@ c
 c----------------------------------------------------------------------
 c print out basis sets info (in fort.8 if iprint is >0)
 c
-      call print_texas_init(nbas)
+      call print_texas_nbas(nbas)
 c----------------------------------------------------------------------
 c... map texas memory to memory commons of the PNL/int API
 c
@@ -781,7 +780,7 @@ c------------------------------------
 c------------------------------------
       common /pnl000/ xbluse,nbluse
       common /howmany/ ntotal,noijkl,nopres,nospec,nrimtot,nrimret
-      common /ilepar/ lpartot,lpareal
+      common /ilepar/ lpar_exe,lpar_num
 c------------------------------------
 ccc   common /pnl_nqrt/ ncall_pnl, nqrts_pnl
       common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
@@ -817,8 +816,8 @@ c------------------------------------
       xbluse=0.d0
       nbluse=0
 c
-      lpartot=0
-      lpareal=0
+      lpar_exe=0
+      lpar_num=0
 c
       ntotal=0
       noijkl=0
@@ -1366,7 +1365,8 @@ c 3**4 * (pppp)=> 6561 or 1* ffff => 10000
 c----------------------------------------------------------------------
       common /cpu/ intsize,iacc,icache,memreal
       common /intlim/ limxmem,limblks,limpair
-      common /memmax/ ispblx, maxmem1,iforwhat
+cccc  common /memmax/ ispblx, maxmem1,iforwhat
+      common /mem_max_min/ ispblx,maxmem1,max_111,iforwhat
       common /memor1b/ nbl2
 c transfered from blockin2 only to estimate memory here 
       common /max_pairs/ maxpar   
@@ -1426,6 +1426,11 @@ c
 c
       l_blsize=maxmem_tot
 c
+c minimum memory (1-ij,1-kl,1-ijkl at the time)
+c
+      minmem_scr = max_111+maxme2+maxme3
+      minmem_tot = minmem_scr + maxmem_bl
+c
 c------------------------------------------------
 c Separate memory indepent of the size of the PNL request
 c
@@ -1442,18 +1447,20 @@ c when TEXAS_MEMORY(m_static,nquarts,m_dynam) is called
 c------------------------------------------------
 c
       if(iprint.gt.0) then
-        write(8,*)' ------------------------------------'
-        write(8,*)' PREDICTIONS FOR TEXAS-INTEGRALS    :'
-        write(8,*)'       (in txs_scratch_siz2)         '
-        write(8,*)' ------------------------------------'
+        write(8,*)' -------------------------------------------'
+        write(8,*)' PREDICTIONS FOR TEXAS MEMORY SCRATCH SIZE :'
+        write(8,*)'           (in txs_scratch_siz2)            '
+        write(8,*)' -------------------------------------------'
         write(8,*)' memory perdicted for blockin4 :',maxme1
         write(8,*)' memory perdicted for txs_setup:',maxme2
         write(8,*)' memory perdicted for uniq_pair:',maxme3
         write(8,*)' MEMORY ESTIMATION FOR SCRATCH2:',maxmem_scr
         write(8,*)' '
-        write(8,*)' ------------------------------------'
+        write(8,*)' -------------------------------------------'
         write(8,*)' TOTAL SCRATCH SIZE FOR TEXAS  :',maxmem_tot
-        write(8,*)' ------------------------------------'
+        write(8,*)' minimum scratch size for txs  :',minmem_tot
+        write(8,*)' minimum memory for 1ij,1kl,1q :',max_111   
+        write(8,*)' -------------------------------------------'
 c       write(8,*)' memory static (basis set dep.):',mem_stat
 c       write(8,*)' memory dynamic(request depen.):',mem_dyna
         write(8,*)' '
@@ -1548,11 +1555,6 @@ c------------------------------------------------------------------
      1,nsy(4),nsym,nganz(35),lopt(30)
       dimension datbas(13,*)
 c------------------------------------
-c     write(6,*)
-c     write(6,*)' TEXAS COMBINED BASIS SET INFO :'
-c     write(6,*)
-c    *' nat=',na,' nbf=',nbf,' nsh=',nsh,' ncf=',ncf,' ncs=',ncs
-c------------------------------------
       ncs=ncs+1
       nsh=nsh+1
       nbf=nbf+1
@@ -1560,10 +1562,6 @@ c------------------------------------
 c
       call add_2_inxbas(inx(inxx), nbf,nsh,ncf,ncs, datbas)
 c
-c------------------------------------
-c     write(6,*)' One S-function with zero exponent added : '
-c     write(6,*)
-c    *' nat=',na,' nbf=',nbf,' nsh=',nsh,' ncf=',ncf,' ncs=',ncs
 c------------------------------------
       end
 c==================================================================
@@ -1606,7 +1604,7 @@ c
 c------------------------------------
       end
 c==================================================================
-      subroutine print_texas_init(nbas)
+      subroutine print_texas_nbas(nbas)
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
       common /intgop/ ncache,maxprice,iprint,iblock
@@ -1616,30 +1614,24 @@ c==================================================================
      *                     nat_bas_1,nat_bas_2,nat_bas_3,
      *                     ncf_bas_1,ncf_bas_2,ncf_bas_3 
 c-------------------------------------------------------
-      common /memmax/ ispblx, maxme1,iforwhat
-c-------------------------------------------------------
       if(iprint.eq.0) RETURN
 c-------------------------------------------------------
-      write(8,*)'-------------------------------------------'
-      write(8,*)'TEXAS INTEGRAL PROGRAM HAS BEEN INITIALIZED'
-      if(iforwhat.eq.1) write(8,*)'     for ordinary two-el.  integrals'
-      if(iforwhat.eq.2) write(8,*)'     for first giao/nmr  derivatives'
-      if(iforwhat.eq.3) write(8,*)'     for first  geometry derivatives'
-      if(iforwhat.eq.4) write(8,*)'     for second geometry derivatives'
-      write(8,*)'-------------------------------------------'
-      write(8,*)'    the following basis sets can be used : '
+      write(8,*)' -------------------------------------------'
+      write(8,*)'    The following basis sets can be used : '
       write(8,*)' '
 c-------------------------------------------------------
       do ibasis=1,nbas
         if(ibasis.eq.1) then
            write(8,*)
-           write(8,*)' PNL Basis Set no = 1'
+           write(8,*)' PNL Basis Set no = 1 :'
+           write(8,*)
            write(8,*)' nat=',nat_bas_1,' nsh=',nps_bas_1,
      *               ' ncf=',ncf_bas_1,' ncs=',ncs_bas_1
         endif
         if(ibasis.eq.2) then
            write(8,*)
-           write(8,*)' PNL Basis Set no = 2'
+           write(8,*)' PNL Basis Set no = 2 :'
+           write(8,*)
            write(8,*)' nat=',nat_bas_2 - nat_bas_1,
      *               ' nsh=',nps_bas_2 - nps_bas_1,
      *               ' ncf=',ncf_bas_2 - ncf_bas_1,
@@ -1647,7 +1639,8 @@ c-------------------------------------------------------
         endif
         if(ibasis.eq.3) then
            write(8,*)
-           write(8,*)' PNL Basis Set no = 3'
+           write(8,*)' PNL Basis Set no = 3 :'
+           write(8,*)
            write(8,*)' nat=',nat_bas_3 - nat_bas_2,
      *               ' nsh=',nps_bas_3 - nps_bas_2,
      *               ' ncf=',ncf_bas_3 - ncf_bas_2,
@@ -1656,21 +1649,21 @@ c-------------------------------------------------------
       enddo
 c-------------------------------------------------------
       write(8,*)
-      write(8,*)'     COMBINED TEXAS BASIS SET  '
       write(8,*)'              plus             '
+      write(8,*)
       write(8,*)' one S-function with zero exponent : '
       write(8,*)
+      write(8,*)' COMBINED TEXAS BASIS SET  '
+      write(8,*)
            write(8,*) ' nat=',na,
-     *                ' nbf=',nbf,
+ccc  *                ' nbf=',nbf,
      *                ' nsh=',nsh,
      *                ' ncf=',ncf,
      *                ' ncs=',ncs
 c-------------------------------------------------------
       write(8,*)'                                      '
-      write(8,*)'  END OF TEXAS INITIALIZATION INFORMATION'
-      write(8,*)'-------------------------------------------'
+      write(8,*)' -------------------------------------------'
 c-------------------------------------------------------
-c
       end
 c==================================================================
       subroutine print_inx_nuc_bas(nbas,datnuc,datbas)
@@ -1766,7 +1759,8 @@ c==================================================================
       character*11 scftype
       character*4 where
       common /runtype/ scftype,where
-      common /memmax/ ispblx, maxme1,iforwhat
+cccc  common /memmax/ ispblx, maxme1,iforwhat
+      common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
 c
       where='    '
       iforwhat=0
@@ -1811,8 +1805,11 @@ c==================================================================
       subroutine get_memory2(iprint,iroute,ncs,nbl1,nbl2,nbl4,
      *                       memory2)
       common /cpu/ intsize,iacc,icache,memreal
+      common /intlim/ limxmem,limblks,limpair
+ccc   common /memmax/ ispblx, maxme1,iforwhat
+      common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
 c-------------------------------------------------------------------
-c Memory estimation for prepint2 (blocin2) : 6 memory allocations :
+c Memory estimation for prepint2 (blocin2) : 4 memory allocations :
 c
 c allocated in blkpair :
 c
@@ -1834,6 +1831,21 @@ c
       memory2= mem1+mem2+mem3+mem4
 c-------------------------------------------------------
       if(iprint.gt.0) then
+c 
+      write(8,*)' -------------------------------------------'
+      write(8,*)' TEXAS INTEGRAL PROGRAM HAS BEEN INITIALIZED'
+      if(iforwhat.eq.1) write(8,*)'     for ordinary two-el.  integrals'
+      if(iforwhat.eq.2) write(8,*)'     for first giao/nmr  derivatives'
+      if(iforwhat.eq.3) write(8,*)'     for first  geometry derivatives'
+      if(iforwhat.eq.4) write(8,*)'     for second geometry derivatives'
+      write(8,*)' -------------------------------------------'
+      write(8,*)' Maximum sizes of blocks upon restrictions :'
+      write(8,*)'         cache memory < ',icache
+      write(8,*)'         pairs limit  < ',limpair
+      write(8,*)'         quart limit  < ',limblks
+      write(8,*)'         memory limit < ',limxmem
+      write(8,*)' -------------------------------------------'
+c
         if(iroute.eq.1) then 
           write(8,*)' PREDICTIONS FOR TXS-93 BLOCKING PROCEDURE :'
         else
@@ -1846,7 +1858,8 @@ c
         write(8,*)' number of pair -blocks        :',nbl2 
         write(8,*)' number of quart-blocks        :',nbl4 
         write(8,*)' MEMORY ESTIMATION FOR SCRATCH1:',memory2
-        write(8,*)' '
+        write(8,*)' -------------------------------------------'
+c       write(8,*)' '
       endif
 c-------------------------------------------------------
       end

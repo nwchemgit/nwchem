@@ -1,4 +1,4 @@
-c $Id: prepint.f,v 1.11 1997-06-13 22:24:44 pg481 Exp $
+c $Id: prepint.f,v 1.12 1997-06-19 18:20:24 pg481 Exp $
 cccc  subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
       subroutine prepint2(bl,    inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,maxprice,scftype)
@@ -158,6 +158,7 @@ c
      *       '                                                        '/
      *       '========================================================'/
      *       'time for BLOCKIN=',f10.1/
+     *       '--------------------------------------------------------'/
      *       'time for PRECALC=',f10.1/
      *       '--------------------------------------------------------'/
      *       '                             time for prec4n =',f10.1/   
@@ -171,8 +172,9 @@ c
      *       '                             time for amshif =',f10.1/   
      *       '                             time for transf =',f10.1/   
      *       '                             ---------------------------'/
-     *       'time for ERINTSP=',f10.1/
      *       'time for ERINTEG=',f10.1/
+     *       '--------------------------------------------------------'/
+     *       'time for ERINTSP=',f10.1/
      *       '========================================================'/
      *       'CALCULATION TIME=',f10.1,'   (pure texas calculations)  '/
      *       '========================================================'/
@@ -183,7 +185,7 @@ c
      *       '                             ---------------------------'/
      *       'INTERFACE   TIME=',f10.1,'   (internal interface)       '/
      *       '========================================================'/
-     *       'DELIVERY    TIME=',f10.1/
+     *       'TOTAL TEXAS TIME=',f10.1/
      *       '========================================================')
 c
       endif

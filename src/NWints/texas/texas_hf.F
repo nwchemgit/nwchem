@@ -177,7 +177,8 @@ c=================================================================
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
 c----------------------------------------------------------------
-      common /memmax/ ispblx, maxme1,iforwhat
+cccc  common /memmax/ ispblx, maxme1,iforwhat
+      common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
 c----------------------------------------------------------------
       common /pnl001/ ispec,ijpres2,klpres2, ijblock,klblock,iqorder
       common /pnl002/ ncshell,ncfunct,nblock2,integ_n0
@@ -235,8 +236,7 @@ c find wihch TXS pairs are present in a request (ijpres2,klpres2)
 c find all pair-blocks to which requested shells  belong :
 c
       call txs_setup(bl,inx,ncs,leri,
-     *               nquart,icspnl,jcspnl,kcspnl,lcspnl,labels,
-     *               more_int)
+     *               nquart,icspnl,jcspnl,kcspnl,lcspnl,labels)
 ctest
 c       call texas_terminate()
 c       stop 'stopped by kw after txs_setup'
@@ -391,13 +391,10 @@ c
       end
 c==================================================================
       subroutine txs_setup(bl,inx,ncs,leri,
-     *                     nquart,icspnl,jcspnl,kcspnl,lcspnl,labels,
-     *               more_int)
+     *                     nquart,icspnl,jcspnl,kcspnl,lcspnl,labels)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical labels
-c more_int is needed only to execute (or not) part of supblks_split
-      logical more_int 
 c
       common /bl_txs_add/ ntxs_bl_scr 
 c
@@ -489,7 +486,7 @@ c and available size of integral's buffer (leri):
 c (maximum sizes calculated in blksizer (spec_block.f) )
 c
       call memo1_int(nsupblk,isbl_part)
-      call supblks_split(bl(mxsize),leri,inx, bl(nblock1),nbl2,
+      call supblks_split(bl,bl(mxsize),leri,inx, bl(nblock1),nbl2,
      *        bl(isblqrts),bl(isblpoint),
      *        bl(ijpres2),bl(klpres2),bl(isblsize),bl(isbl_part))
 c---------------------------------------------------------
@@ -936,7 +933,7 @@ c
 c
       end
 c=====================================================================
-      subroutine supblks_split(maxsize,leri,inx, nblock1,nbl2,
+      subroutine supblks_split(bl,maxsize,leri,inx, nblock1,nbl2,
      *                         isbl_q,isbl_point,
      *                         ijpres2,klpres2,isbl_s,isbl_part)
 c--------------------------------------------------------------------
@@ -948,6 +945,11 @@ c this is maximum pairs allowed ; must be: maxpar.le.limpair
       common /max_pairs/ maxpar   
       common /intlim/ limxmem,limblks,limpair
 c
+c output from uniq_pairs_1 call:
+c
+      common /map4uniq/ nij_uniqe, ij_uniqe_p, map_ij,    
+     *                  nkl_uniqe, kl_uniqe_p, map_kl 
+c
       common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
       dimension maxsize(*)
       dimension inx(12,*),nblock1(*)
@@ -955,9 +957,12 @@ c
       dimension ijpres2(*),klpres2(*)  ! dimension nquart
       dimension isbl_part(*)  ! dimension nbl2*(nbl2+1)/2
       dimension isbl_q(*), isbl_point(*)
+c
+      dimension bl(*)
 c---------------------------------------------------------------------
 c for derivatives of all kinds :
-      common /memmax/ ispblx, maxme1,iforwhat
+cccc  common /memmax/ ispblx, maxme1,iforwhat
+      common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
 c---------------------------------------------------------------------
       n_times=1
       if(iforwhat.eq.2) n_times= 6 ! giao Ist derivatives
@@ -974,15 +979,6 @@ c---------------------------------------------------------------------
             isbl_part(isupb)=1
             isbl_size=isbl_s(isupb)
             if(isbl_size.gt.0) then
-c--new
-               ipoint=isbl_point(isupb)
-c
-c find all (different) pairs in Ibl,Kbl : only an estimate
-c
-               call diff_pairs_1(ijpres2,klpres2,
-     *                           isbl_size,isbl_q,ipoint,
-     *                           nij_diff,nkl_diff)
-c--new
                maxm_size=maxsize(isupb)
                call get_ics_jcs(nblock1,kbl,1,kcs1,lcs1)
                icont_kl=(inx(4,kcs1)+1)*(inx(4,lcs1)+1)
@@ -993,58 +989,50 @@ c
                integ=integ1*maxm_size
 c
 c first re-define maximum size according to leri :
+c
                if(integ.gt.leri) then
                   nqrts=leri/integ1
                   if(nqrts.eq.0) nqrts=1
                   maxsize(isupb)=nqrts
                endif
 c
-c split each super-block in parts if its current pnl-size is greater
-c than maximum-size allowed :
+c split each super-block in parts if its current pnl-size is greater 
+c than maximum-size allowed or number of pairs exceeds allowed limit
+c (maxpar)
 c
                maxm_size=maxsize(isupb)
-c----------------------------------------------
-c              if(isbl_size.gt.maxm_size) then
-c                 nparts=isbl_size/maxm_size
-c                 nrem=mod(isbl_size,maxm_size)
-c                 if(nrem.gt.0) nparts=nparts+1
-c                 isbl_part(isupb)=nparts
-c              endif
-c----------------------------------------------
 c
-ctest print
-c              write(6,*)'block=',isupb,' size=',isbl_size,
-c    *                              ' max_size=',maxm_size,
-c    *       ' pairs: limit=',limpair,
-c    *               ' diff=',nij_diff,nkl_diff
+               ipoint=isbl_point(isupb)
 c
-ctest print
+               call uniq_pairs_1('ks_split',ibl,kbl,bl,ijpres2,klpres2, 
+     *                           isbl_size,isbl_q,ipoint)
+               call retmem(2)    ! release allocations in uniq_pairs_1
+c              output nij_uniqe & nkl_uniqe in  common /map4uniq/ 
 c
-               if(isbl_size.gt.maxm_size .or.
-     *            nij_diff .gt.maxpar   .or.
-     *            nkl_diff .gt.maxpar       ) then
-c
-                  npq=isbl_size/maxm_size
-                  np1=nij_diff/maxpar
-                  np2=nkl_diff/maxpar
-                  nrq=mod(isbl_size,maxm_size)
-                  nr1=mod(nij_diff,maxpar)
-                  nr2=mod(nkl_diff,maxpar)
-                  if(nrq.gt.0) npq=npq+1
-                  if(nr1.gt.0) np1=np1+1
-                  if(nr2.gt.0) np2=np2+1
-c
-                  nparts=max(npq,np1,np2)
+               if(nij_uniqe.le.maxpar .and. nkl_uniqe.le.maxpar) then
+                  if(isbl_size.gt.maxm_size) then
+                     nparts=isbl_size/maxm_size
+                     nrem  =mod(isbl_size,maxm_size)
+                     if(nrem.gt.0) nparts=nparts+1
+                     isbl_part(isupb)=nparts
+                     maxsize(isupb)=maxm_size
+                  endif
+               else
+                  maxm_size=min(maxm_size,maxpar)
+                  nparts=isbl_size/maxm_size
+                  nrem  =mod(isbl_size,maxm_size)
+                  if(nrem.gt.0) nparts=nparts+1
                   isbl_part(isupb)=nparts
-c
-                  nqrts=isbl_size/nparts
-                  if(nquarts.le.0) nqrts=1
-                  maxsize(isupb)=nqrts
-c
-ctest
-c                write(6,*)'npq,np1,np2=',npq,np1,np2,' nparts=',nparts
-ctest
+                  maxsize(isupb)=maxm_size
                endif
+ctest
+c              if(isupb.eq.13) then
+c                write(6,*)' block=13;  max-size=',maxm_size
+c                call print_pairs(ijpres2,klpres2,
+c    *                            isbl_size,isbl_q,ipoint)
+c                write(6,*)'nparts=',nparts,' maxsize()=',maxsize(isupb)
+c              endif
+ctest
             endif
    10    continue
 c---------------------------------------------------------
@@ -1054,7 +1042,7 @@ c=====================================================================
      *                         isbl_s,isbl_q, isbl_part,
      *                         isbl_split,isplit)
 c--------------------------------------------------------------------
-c if a given pnl-request is too big then it is devided into parts:
+c if a given pnl-request is too big then it is divided into parts:
 c--------------------------------------------------------------------
       common /pnl003/ nqrtpnl,icstxs,jcstxs,kcstxs,lcstxs
       common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
@@ -1066,7 +1054,8 @@ c--------------------------------------------------------------------
       dimension isbl_split(0:*)
 c---------------------------------------------------------------------
 c for derivatives of all kinds :
-      common /memmax/ ispblx, maxme1,iforwhat
+ccc   common /memmax/ ispblx, maxme1,iforwhat
+      common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
 c---------------------------------------------------------------------
       n_times=1
       if(iforwhat.eq.2) n_times= 6 ! giao Ist derivatives
@@ -1444,7 +1433,8 @@ c=====================================================================
       character*11 scftype
       character*4 where
       common /runtype/ scftype,where
-      common /memmax/ ispblx, maxme1,iforwhat
+cccc  common /memmax/ ispblx, maxme1,iforwhat
+      common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
 c
       if(int_type.eq.'scfd_int') then 
          where='buff'
@@ -1550,3 +1540,33 @@ c
       nkl_diff=kl
 c
       end
+c==================================================================
+      subroutine print_pairs (ijpres2,klpres2,
+     *                       isbl_size,isbl_q,ipoint)
+      dimension ijpres2(*),klpres2(*), isbl_q(*)
+c
+      ij_prev=-1
+      kl_prev=-1
+      ij=0
+      kl=0
+      do iqp=1,isbl_size
+         iq=isbl_q(ipoint+iqp)
+         if(iq.gt.0) then
+            ijcs=ijpres2(iq)
+            if(ijcs.ne.ij_prev) then
+               ij=ij+1
+               ij_prev=ijcs
+            endif
+            klcs=klpres2(iq)
+            if(klcs.ne.kl_prev) then
+               kl=kl+1
+               kl_prev=klcs
+            endif
+            write(6,*)'iqp=',iqp,' ijcs,klcs=',ijcs,klcs
+         endif
+      enddo
+c
+      write(6,*)' nij_diff=',ij,' nkl_diff=',kl
+c
+      end
+c==================================================================
