@@ -1,0 +1,6 @@
+!$Id: paw_energy_kin_atom.fh,v 1.1 2003-02-11 00:48:17 marat Exp $
+!$Log: not supported by cvs2svn $
+!
+!
+      double precision paw_energy_kin_atom
+      external paw_energy_kin_atom

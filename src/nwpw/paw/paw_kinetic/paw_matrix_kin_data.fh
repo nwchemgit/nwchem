@@ -1,0 +1,7 @@
+c
+c $Id: paw_matrix_kin_data.fh,v 1.1 2003-02-11 00:48:17 marat Exp $
+c
+      integer paw_kin_matrix(4)
+      integer i_paw_kin_matrix(4)
+
+      common /paw_kin_matrix/ paw_kin_matrix,i_paw_kin_matrix
