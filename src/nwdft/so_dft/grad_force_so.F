@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.14 2001-06-13 01:46:22 edo Exp $
+c     $Id: grad_force_so.F,v 1.15 2001-11-15 18:39:00 edo Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -434,10 +434,10 @@ c
 c     
 c     call grad_dens_so to get the total (weighted) density
 c     
-      call grad_dens_so(geom, basis, g_dens, g_wdens, g_eigen_diag, 
+      call grad_dens_so(g_dens, g_wdens, g_eigen_diag, 
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
-     $     nopen, nclosed, scftype, movecs_in, omp2, 
-     $     dbl_mb(k_pdm2), dbl_mb(k_coeff))   !! spurious last arg. of .false.
+     $     nopen, nclosed, scftype, movecs_in)
+
 C     free temporary arrays
       if (.not. ga_destroy(g_eigen_diag))
      $     call errquit('grad: could not destroy g_eigen_diag',1)
@@ -501,9 +501,9 @@ c
 c      goto 111 !skip 1-e contribution 
       call grad1_so( dbl_mb(k_buf), lbuf, dbl_mb(k_scr), lscratch,
      $     dbl_mb(k_dens), dbl_mb(k_wdens), dbl_mb(k_frc_nuc),
-     $     dbl_mb(k_frc_kin), dbl_mb(k_frc_wgh), g_force,
+     $     dbl_mb(k_frc_kin), dbl_mb(k_frc_wgh),
      $     g_dens, g_wdens, basis, geom, nproc, nat, max_at_bf,
-     $     rtdb, oskel, 
+     $     oskel, 
      &     dbl_mb(k_frc_so), 
      &     dbl_mb(k_densx), dbl_mb(k_densy), dbl_mb(k_densz)) 
  111  continue
@@ -527,10 +527,9 @@ C     occupation numbers
      $     call errquit('grad: could not allocate l_occ',nbf2)
 c
       if(theory .eq. 'sodft' .and. xfac(1) .ne. 0)
-     &     call grad_dens_so2(geom, basis, g_dens,  
+     &     call grad_dens_so2(g_dens,  
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
-     $     nopen, nclosed, scftype, movecs_in, omp2, 
-     $     dbl_mb(k_pdm2), dbl_mb(k_coeff))
+     $     nopen, nclosed, movecs_in)
 c
       if (.not.ma_pop_stack(l_occ))
      $     call errquit('grad:ma free occ',1)

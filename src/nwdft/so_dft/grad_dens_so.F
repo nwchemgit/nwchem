@@ -1,9 +1,9 @@
       subroutine grad_dens_so
-     $     (geom, basis, g_dens, g_wdens, g_eigen_diag, 
+     $     (g_dens, g_wdens, g_eigen_diag, 
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
-     $     movecs, omp2, pdm2, coeff)
+     $     movecs)
 
-c     $Id: grad_dens_so.F,v 1.5 2000-10-23 15:52:46 windus Exp $
+c     $Id: grad_dens_so.F,v 1.6 2001-11-15 18:39:00 edo Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -15,13 +15,12 @@ C     movecs (and Lagrangian in ROHF case) on disk
 #include "util.fh"
 #include "eaf.fh"
 
-      integer ndens,geom, basis, g_dens(ndens), g_wdens, g_eigen_diag,
+      integer ndens,g_dens(ndens), g_wdens, g_eigen_diag,
      $     nbf, nbf2, nopen, nclosed, g_densso(2)
-      double precision evals(*), occ(*), pdm2(*), coeff(*)
+      double precision evals(*), occ(*)
       character*(*) scftype
       character*(*) movecs
 
-      logical omp2
 
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -126,14 +125,12 @@ C     density matrix
          call ga_dens_so(g_dens(4), g_densso, nbf, 'y')
          call ga_dens_so(g_dens(5), g_densso, nbf, 'x')
 
-         if ( .not. omp2 ) then
 C     D+ and D- (Formalism from Dupuis & King, JCP 68(9), p4000
-            call ga_dadd ( one, g_dens(1),one, g_dens(2),g_dens(1))
-            call ga_scale(g_dens(2),2.0d0)
-            call ga_dadd ( one, g_dens(1),mone,g_dens(2),g_dens(2))
-            call ga_symmetrize(g_dens(1))
-            call ga_symmetrize(g_dens(2))
-         end if                  !  UMP2
+         call ga_dadd ( one, g_dens(1),one, g_dens(2),g_dens(1))
+         call ga_scale(g_dens(2),2.0d0)
+         call ga_dadd ( one, g_dens(1),mone,g_dens(2),g_dens(2))
+         call ga_symmetrize(g_dens(1))
+         call ga_symmetrize(g_dens(2))
 
 c
          call ga_sync()

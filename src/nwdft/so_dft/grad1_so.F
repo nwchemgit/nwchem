@@ -1,10 +1,10 @@
       subroutine grad1_so
      $     ( H, lbuf, scr, lscr, dens, wdens, frc_nuc,
-     $     frc_kin, frc_wgh, g_force,
+     $     frc_kin, frc_wgh, 
      $     g_dens, g_wdens, basis, geom, nproc, nat, 
-     $     max_at_bf, rtdb, oskel, 
+     $     max_at_bf, oskel, 
      &     frc_so, densx, densy, densz)
-c$Id: grad1_so.F,v 1.3 2000-10-23 15:52:46 windus Exp $
+c$Id: grad1_so.F,v 1.4 2001-11-15 18:39:00 edo Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2
@@ -22,8 +22,7 @@ C-------------------------parameters--------------------------------
       integer lbuf, lscr,
      $     g_dens(6),        ! density matrix (summed if ROHF, UHF)
      $     g_wdens,       ! weighted density (Lagrangian)
-     $     g_force,       ! global force array
-     $     basis, geom, nproc, nat, max_at_bf, rtdb
+     $     basis, geom, nproc, nat, max_at_bf
 
       double precision H, ! integral derivatives
      $     scr, 

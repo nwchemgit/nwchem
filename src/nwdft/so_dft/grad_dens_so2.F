@@ -1,9 +1,9 @@
       subroutine grad_dens_so2 
-     $     (geom, basis, g_dens,  
-     $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
-     $     movecs, omp2, pdm2, coeff)
+     $     (g_dens,  
+     $     evals, occ, ndens, nbf, nbf2, nopen, nclosed,
+     $     movecs)
 
-c     $Id: grad_dens_so2.F,v 1.4 2001-06-09 05:14:34 edo Exp $
+c     $Id: grad_dens_so2.F,v 1.5 2001-11-15 18:39:00 edo Exp $
 
 C     get densities for exact-exchange sodft: Im(Daa), Im(Dbb), 
 c     Re(Dab), Im(Dab)
@@ -16,13 +16,11 @@ C
 #include "util.fh"
 #include "eaf.fh"
 
-      integer ndens,geom, basis, g_dens(ndens), 
+      integer ndens, g_dens(ndens), 
      $     nbf, nbf2, nopen, nclosed, g_densso(2)
-      double precision evals(*), occ(*), pdm2(*), coeff(*)
-      character*(*) scftype
+      double precision evals(*), occ(*)
       character*(*) movecs
 
-      logical omp2
 
       integer ga_create_atom_blocked
       external ga_create_atom_blocked

@@ -1,8 +1,8 @@
       Subroutine diis_driver_so(toll_s, derr, icall, MXhist, 
-     &     nbf, geom, AO_bas_han, g_fock, g_dens, 
+     &     nbf, g_fock, g_dens, 
      &     g_svecs, svals, diis, nodiis)
 c
-C$Id: diis_driver_so.F,v 1.4 2001-11-14 17:14:39 edo Exp $
+C$Id: diis_driver_so.F,v 1.5 2001-11-15 18:39:00 edo Exp $
 c
       implicit none
 c      
@@ -17,7 +17,6 @@ cso      integer ipol
       integer g_diis(2)
       double precision svals(*)
       Integer nhist, icall
-      integer geom, AO_bas_han
       double precision derr ! Diis error norm [output]
       double precision toll_s
       integer lpulay, npulay, ipulay

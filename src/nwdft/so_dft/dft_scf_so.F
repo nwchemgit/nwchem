@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.21 2001-11-14 17:14:39 edo Exp $
+c     $Id: dft_scf_so.F,v 1.22 2001-11-15 18:39:00 edo Exp $
 c     
       implicit none
 c     
@@ -123,7 +123,7 @@ c     for the entire convergence sequence.
 c     
       logical diising, damping, levelshifting
       logical keep_damp_on,keep_levl_on, keep_diis_on
-      Logical LResult, IOLGC, mulliken, lSPM
+      Logical  IOLGC, mulliken
       logical converged, wght_GA
 c      logical oconverged 
       logical oprint_parm, oprint_conv, oprint_vecs, 
@@ -164,7 +164,6 @@ c     !!! BGJ
       integer nbf1               ! Returns no. of functions in basis
 c      integer ijk
 c     
-      integer l_gdiis,k_gdiis
       logical spinor
       logical dft_mem3c
       external dft_mem3c
@@ -346,10 +345,6 @@ c
       endif
       if (nodiis) then
          diising = .false.
-      else
-         if (.not.MA_alloc_Get(MT_int,nfock*ipol*2,
-     ,        'ga handle for diis',l_gdiis,k_gdiis))
-     ,        call errquit('dft_scf: cannot allocate g_diis',0)
       endif
       if (ncydp.ne.0)then
          damping = .true. 
@@ -951,7 +946,7 @@ c     DIIS step taken here.
 c     
          if (diising)then
             call diis_driver_so(toll_s, derr, icall, nfock, 
-     &           nbf_mo, geom, ao_bas_han, g_fockso, g_densso, 
+     &           nbf_mo, g_fockso, g_densso, 
      &           g_svecs, svals, diising, nodiis)
             derr(2)=derr(1)
          endif
