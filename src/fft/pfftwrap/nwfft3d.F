@@ -30,7 +30,7 @@ c *** input parameters described
 c
 c  nd1,nd2,nd3: dimension of x1 and x2
 c  isign: 1 => forward fft;  -1 => reverse fft
-c  x1: data to be fft'ed. input(x1) = output(x1), i.e., non-destructive.
+c  x1: data to be fft-ed. input(x1) = output(x1), i.e., non-destructive.
 c  x2: output fft(x1). Note that EMSL uses a destructive interface, while
 c      TYPE: double precsion  => x1(dim), dim  = nd1*nd2*nd3*2 
 c            double complex   => x1(dim), dim  = nd1*nd2*nd3 
@@ -49,29 +49,34 @@ c *** local variables
       integer d1,d2,d3, owner
       double precision scale
       integer blksz, computedMap
-      data computedMap /0/
-      save computedMap
+      integer n123
 #ifdef ESSLFFT
       integer icontext, ip(40) 
       integer initESSL, iESSL
-      data iESSL /0/
-      save iESSL
 #endif
-      integer n123
 #ifdef EMSLFFT
       integer  nwords, nrealscr,ma_nrealscr, ma_nintscr
       logical  bstatus
       integer  dblh,inth, idbl,iint 
       integer  initSCRATCH, mamem 
-      data initSCRATCH,ma_nrealscr,ma_nintscr /0,0,0/
-      save initSCRATCH, ma_nrealscr,ma_nintscr, dblh,inth,idbl,iint
 #endif
         integer isize
 c       parameter (isize=128*128*128)
 c       integer iwork(isize)
 c	double precision work(isize)
        integer nodeid,nnodes,me,nproc
-
+#ifdef ESSLFFT
+      data iESSL /0/
+      save iESSL
+#endif
+#ifdef EMSLFFT
+      data initSCRATCH,ma_nrealscr,ma_nintscr /0,0,0/
+      save initSCRATCH, ma_nrealscr,ma_nintscr, dblh,inth,idbl,iint
+#endif
+*
+      data computedMap /0/
+      save computedMap
+*
       me = nodeid()
       nproc = nnodes()
 
@@ -120,7 +125,7 @@ c     ** fft x1(nd1,nd2,*)
 c The following scratch memory calculation is derived from code in 
 c pfft1.0/comm/chk3d.f. Apparently, a buffer of size 10,000/nbyted 
 c is needed in the communication routines there. (Also see peigs/src/comm.)
-c                v doesn't always work, but gets through chk3d.F
+c                v does not always work, but gets through chk3d.F
 c     nrealscr = MAX(nd2,MAX(nd3,10000) + nproc
       nrealscr = MAX(2*n123/(nproc),10000) + nproc + 20
         
