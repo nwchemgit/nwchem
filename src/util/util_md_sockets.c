@@ -1,5 +1,5 @@
 /*
- $Id: util_md_sockets.c,v 1.6 1999-09-02 22:35:44 d3j191 Exp $
+ $Id: util_md_sockets.c,v 1.7 2000-03-18 04:29:14 d3j191 Exp $
  */
 
 #include <sys/types.h>
@@ -55,13 +55,15 @@ int create_client_socket(char *host, int port)
 {
   int sockfd, len, result;
   struct sockaddr_in address;
+  /*  int size = 10; */
 
   sockfd=socket(AF_INET,SOCK_STREAM,0);
   address.sin_family=AF_INET;
   address.sin_addr.s_addr=inet_addr(host);
   address.sin_port=htons((ushort) port);
   len=sizeof(address);
-  
+  /*  setsockopt(sockfd,SOL_SOCKET,SO_RCVBUF,(char *) &size,sizeof size);
+  setsockopt(sockfd,SOL_SOCKET,SO_SNDBUF,(char *) &size,sizeof size); */
   result=connect(sockfd,(struct sockaddr *)&address,len);
 
   if(result==-1) return -1;
@@ -80,7 +82,9 @@ int create_client_socket_(char *s, int *port)
 
 long client_socket_write_(int *sockfd, char *value, int *vlen)
 {
-  return write(*sockfd,value,*vlen);
+  long nb;
+  nb=write(*sockfd,value,*vlen);
+  return nb;
 }
 
 void close_socket_(int *sockfd)
