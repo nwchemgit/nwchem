@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.119 2004-10-05 18:31:39 pollack Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.120 2005-02-26 00:08:36 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -488,11 +488,16 @@ c
          else
            ncysh = 0
          endif
-         if (.not. rtdb_put(rtdb, 'dft:ncysh',
-     &      mt_int, 1, ncysh))
-     &      call errquit('dft_rdinput: rtdb_put failed', 109, RTDB_ERR)
-      endif
 c
+c     case with multiple tasks and we changed iterations ... (increased)
+c
+      else  if(ncysh.eq.30.and.iterations.gt.30) then
+         ncysh=iterations
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:ncysh',
+     &     mt_int, 1, ncysh))
+     &     call errquit('dft_rdinput: rtdb_put failed', 109, RTDB_ERR)
+c     
       if (.not. rtdb_get(rtdb, 'dft:ncyds', mt_int, 1,
      &   ncyds))then
          if (diis)then
@@ -500,10 +505,15 @@ c
          else
            ncyds = 0
          endif
-         if (.not. rtdb_put(rtdb, 'dft:ncyds',
-     &      mt_int, 1, ncyds))
-     &      call errquit('dft_rdinput: rtdb_put failed', 110, RTDB_ERR)
+c
+c     case with multiple tasks and we changed iterations ... (increased)
+c
+      else  if(ncyds.eq.30.and.iterations.gt.30) then
+         ncyds=iterations
       endif
+      if (.not. rtdb_put(rtdb, 'dft:ncyds',
+     &     mt_int, 1, ncyds))
+     &     call errquit('dft_rdinput: rtdb_put failed', 110, RTDB_ERR)
 c
       if (.not. rtdb_get(rtdb, 'dft:radius', mt_dbl, 1,
      &   radius))then
