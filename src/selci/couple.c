@@ -1,11 +1,14 @@
 /*
- $Id: couple.c,v 1.7 1997-10-31 23:41:58 d3e129 Exp $
+ $Id: couple.c,v 1.8 1999-11-13 03:09:06 bjohnson Exp $
  */
 
 #include <math.h>
 #include <stdio.h>
+#ifndef WIN32
 #include <strings.h>
+#endif
 #include <stdlib.h>
+#include "global.h"
 
 extern int fortchar_to_string();
 
@@ -25,7 +28,7 @@ static void Error(char *string, int integer)
   (void) fprintf(stderr,string);
   (void) fprintf(stderr," %d (%#x).\n",integer,integer);
   exit(1); */
-    ga_error(string, (long) integer);
+  ga_error(string, (long) integer);
 }
 
 
@@ -538,12 +541,10 @@ static void ReadArguments(argc, argv, ns, multi, print)
      */
 #endif
 
-typedef long Integer;		/*  FORTRAN integer */
-
-#if defined(CRAY)
-void SELCI_COUPLE(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
+#if defined(CRAY) || defined(WIN32)
+void FATR SELCI_COUPLE(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
 #else
-void selci_couple_(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
+void FATR selci_couple_(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
 #endif
 /*
   Generate the one particle coupling coefficients between two orbital

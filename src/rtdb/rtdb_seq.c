@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.12 1999-10-14 23:11:15 d3g681 Exp $*/
+/*$Id: rtdb_seq.c,v 1.13 1999-11-13 03:04:57 bjohnson Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -17,10 +17,16 @@
 #define WRAP(data, size, p) *(p) = wrap_DBT(data, size)
 #endif
 
+#ifdef WIN32
+#include <io.h>
+#define R_OK 4
+#define W_OK 2
+#else
 #include <unistd.h>
+#endif
 #include <string.h>
 #include <time.h>
-#ifndef IPSC
+#if !defined(IPSC) && !defined(WIN32)
 #include <sys/time.h>
 #endif
 #include <sys/stat.h>
