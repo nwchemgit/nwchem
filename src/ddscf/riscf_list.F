@@ -1,5 +1,5 @@
       block data riscf_three_eri_list
-C$Id: riscf_list.F,v 1.6 1996-02-07 00:41:28 vg038 Exp $
+C$Id: riscf_list.F,v 1.7 1996-08-22 22:58:31 vg038 Exp $
       implicit none
 #include "riscf.fh"
       data riscf_info / dim*0 /
@@ -145,15 +145,19 @@ C       we did not find it
         do i = 1, maxbases
           if (riscf_info(1,i).gt.0) then
             if ( riscf_info(6,i) .eq. 0 ) then
-              riscf_del_3c_ints = ga_destroy (riscf_info(3,i))
+              status = ga_destroy (riscf_info(3,i))
             else
 #ifdef RISCF_USE_DA
-              riscf_del_3c_ints = ( da_delete (riscf_info(3,i)) .eq. 0 )
+              status = ( da_delete (riscf_info(3,i)) .eq. 0 )
 #endif
             endif
-            status = ga_destroy (riscf_info(3,i))
-            if (.not.status) write(6,*)
+            if (.not. status ) then
+              write(6,*)
      $           'riscf_del_3c_in: could not destroy array'
+              riscf_del_3c_ints = .FALSE.
+            else
+              riscf_del_3c_ints = .TRUE.
+            endif
             riscf_info(1,i) = 0
             riscf_info(2,i) = 0
             riscf_info(3,i) = 0
@@ -162,7 +166,6 @@ C       we did not find it
           endif
         enddo
         nbases = 0
-        riscf_del_3c_ints = .TRUE.
       endif
       return
       end
