@@ -574,9 +574,6 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   i = ( i + sizeof(DoublePrecision) ) % sizeof(DoublePrecision) ;
   *ptr_size = *ptr_size + i;
 
-  printf(" isize %d rsize %d ptr_size %d \n", *isize, *rsize, *ptr_size);
-  fflush(stdout);
-
   
   return;
 }
