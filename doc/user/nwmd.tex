@@ -199,17 +199,19 @@ The source of the data is identified by \verb+$level$+, and can be
 level   & Description                 & Availability \\
 {\bf s} & original published data     & public       \\
 {\bf x} & additional published data   & public       \\
+{\bf q} & contributed data            & public       \\
 {\bf u} & user preferred data         & private      \\
-{\bf t} & user defined temporary data & private    \\
+{\bf t} & user defined temporary data & private      \\
+{\bf c} & current working data        & private      \\
 \hline
 \end{tabular}
 \end{center}
 
-Typically, only the level {\bf s} and {\bf x} databases are publicly 
+Typically, only the level {\bf s}, {\bf x} and {\bf q} databases are publicly 
 available. 
-The user is responsible for the private level {\bf u} and {\bf t}
+The user is responsible for the private level {\bf u}, {\bf t} and {\bf c}
 database files. When the \prepare\ module scans the databases, the priority
-is {\bf t}$>${\bf u}$>${\bf x}$>${\bf s}$>$.
+is {\bf c}$>${\bf t}$>${\bf u}$>${\bf q}$>${\bf x}$>${\bf s}.
 
 The extension \verb+<ext>+ defines the type of database file within each
 database directory. 
@@ -234,15 +236,15 @@ option to select which database files are scanned.
 \label{sec:nwaforcefields}
 Force fields recognized are
 \begin{center}
-\begin{tabular}{ll}
+\begin{tabular}{lll}
 \hline
-Keyword      & Force field   \\
-{\tt amber}  & AMBER95       \\
-{\tt charmm} & CHARMM        \\
-%{\tt cvff}   & CVFF          \\
-%{\tt gromos} & GROMOS87      \\
-%{\tt oplsa}  & OPLS/AMBER3.0 \\
-%{\tt oplsg}  & OPLS/GROMOS87 \\
+Keyword       & Force field   & Status \\
+{\tt amber}   & AMBER99       & AMBER95,GLYCAM also available\\
+{\tt charmm}  & CHARMM        & incomplete \\
+%{\tt cvff}   & CVFF          & \\
+%{\tt gromos} & GROMOS87      & \\
+%{\tt oplsa}  & OPLS/AMBER3.0 & \\
+%{\tt oplsg}  & OPLS/GROMOS87 & \\
 \hline
 \end{tabular}
 \end{center}  
@@ -346,17 +348,44 @@ energy molecular dynamics simulations.
 \end{description}
 
 \section{System specification}
+
 The chemical system for a calculation is specified in the topology
 and restart files. These files should be created using the utilities
 \nwtop\ and \nwrst\ before a simulation can be performed.
-The names of these files are determined from the \nwchem\ \verb+start+ 
+The names of these files are determined from the required \verb+system+ 
 directive.
-There is no default. If the \verb+rtdb+ name is given as {\tt system\_calc},
-the topology file used is {\tt system.top}, while all other files
-are named {\tt system\_calc.ext}.
+
+\begin{verbatim}
+system <string systemid>_<string calcid>
+\end{verbatim}
+
+where the strings \verb+systemid+ and \verb+calcid+ are user defined names
+for the chemical system and the type of calculation to ber performed, 
+respectively. These names are used to derive the filenames used for the
+calculation. The topoly file used will be \verb+systemid.top+, while all
+other files are named \verb+systemid_calcid.ext+.
+
+\section{Restarting and continuing simulations}
+\begin{description}
+\item
+\begin{verbatim}
+finish
+\end{verbatim}
+specifies that the current job will finish a previous, incomplete
+simulation, using the input data that have been recorded by that
+previous run in the restart file. Most of the input in the current
+md input block will be ignored.
+
+\item
+\begin{verbatim}
+resume
+\end{verbatim}
+specifies that the current job will be an extension of a previous
+simulation, using most of the  input data that have been recorded by that
+previous run in the restart file. Typically the input in the current
+md input block defines a larger number of steps than the previous job.
 
 \section{Parameter set}
-\begin{description}
 
 \item
 \begin{verbatim}
@@ -388,17 +417,27 @@ is automatically set to 1.
 
 \item
 \begin{verbatim}
-pmf
+pmf [ equilharm <integer npmfc> | scale <real facpmf>]
 \end{verbatim}
 specifies that any potential of mean force functions defined in the
-topology files are to be used.
+topology files are to be used. If \verb+equilharm+ is specified, the
+first \verb+npmfc+ dynamics steps will use a harmonic potential
+in stead of any pmf constraint. If \verb+scale+ is specified, all
+pmf force constants are scaled by a factor \verb+facpmf+.
 
 \item
 \begin{verbatim}
-distar
+distar [draver [<integer ndaver default 1>]] 
+       [scale <real drsscl>]
+       [after <integer nfdrss>]
 \end{verbatim}
 specifies that any distance restraint functions defined in the
-topology files are to be used.
+topology files are to be used. 
+
+%Optional keywords are \verb+draver+
+%to specify that average distances over \verb+ndaver+ steps should be
+%used, \verb+scale+ to scale the specified force constants, and
+%\verb+after+
 
 
 \end{description}
@@ -531,13 +570,6 @@ where {\tt leapfrog} specifies the default leap frog integration, and
 
 \item
 \begin{verbatim}
-[finish | resume]
-\end{verbatim}
-if specified, directs to finish or extend the simulation for which
-the restart file is read.
-
-\item
-\begin{verbatim}
 guided [<real fguide default 0.2> [<real tguide default 0.2>]]
 \end{verbatim}
 specifies the use of the guided molecular dynamics simulation
@@ -612,15 +644,18 @@ will change from \verb+tmpext+ to \verb+tempext2+ between simulation time
 \item
 \begin{verbatim}
 isobar [<real prsext>] [trelax <real prsrlx> ] \
-       [compres <real compr>] [anisotropic] [xy] [z]
+       [compress <real compr>] [anisotropic] [xy | z | xy-z]
 \end{verbatim}
 specifies a constant pressure ensemble using Berendsen's piston,
 where \verb+<prsext>+ is the external pressure with a default of 1.025~10$^5$ Pa,
 \verb+<prsrlx>+ is the pressure relaxation time in ps with a default of 0.5, and
 \verb+<compr>+ is the system compressibility in m$^2$N$^{-1}$ with a
-default of 4.53E-10. Optional keywords \verb+xy+ and \verb+z+ may be used to
-specify that pressure scaling is to be applied in the x and y or z dimension
-only, respectively.
+default of 4.53E-10. Optional keywords \verb+xy+, \verb+z+ and \verb+xy-z+ 
+may be used to specify that pressure scaling is to be applied in 
+the \verb+x+ and \verb+y+ dimension only, the \verb+z+ dimension only, or, 
+in all three dimensions with identical scaling in the \verb+x+ and \verb+y+ 
+dimension. The last option requires that \verb+anisotropic+ is also specified.
+
 \end{description}
 
 \section{Velocity reassignments}
@@ -629,10 +664,20 @@ Velocities can be periodically reassigned to reflect a certain temperature.
 \item
 \begin{verbatim}
 vreass <integer nfgaus> <real tgauss>
+       [fraction [<real frgaus default 0.5]]
+       [once]
+       [(first | initial)] [(last | final)]
 \end{verbatim}
 specifies that velocities will be reassigned every \verb+<nfgaus>+ molecular
 dynamics steps, reflecting a temperature of \verb+<tgauss>+~K. The default
-is not to reassign velocities, i.e.\ \verb+<nfgaus>+ is 0.
+is not to reassign velocities, i.e.\ \verb+<nfgaus>+ is 0. Keyword 
+\verb+fraction+ allows the specification of the fraction of the new
+velocities are random. Keyword \verb+once+ specifies that velocity
+reassignment only should be done in the first step. Keywords \verb+first+
+or \verb+initial+ and \verb+last+ or \verb+final+ specify that
+velocity reassigment should only be applied in the first and last
+window of multiple run simulations.
+
 \end{description}
 
 \section{Cutoff radii}
@@ -725,7 +770,7 @@ QM/MM simulations.
 \begin{verbatim}
 pme [grid <integer ng>] [alpha <real ealpha>] \
     [order <integer morder>] [fft <integer imfft>]\
-    [procs <integer nprocs>] 
+    [procs <integer nprocs>] [solvent]
 \end{verbatim}
 specifies the use of smooth particle-mesh Ewald long range
 interaction treatment,
@@ -737,6 +782,17 @@ interpolation which must be an even number and at least 4 (default
 value). A platform specific 3D fast Fourier transform is used, if
 available, when \verb+imfft+ is set to 2. \verb+nprocs+ can be used to
 define a subset of processors to be used to do the FFT calculations.
+If \verb+solvent+ is specified, the charge grid will be calculated from
+the solvent charges only.
+
+\item
+\begin{verbatim}
+react [<real dielec default 80.0>]
+\end{verbatim}
+specifies that a simple reaction field correction is used with a
+dielectric constant \verb+dielec+. This is an
+experimental option that has not been well tested.
+
 \end{description}
 
 \section{Fixing coordinates}
@@ -749,6 +805,7 @@ Solvent or solute may be fixed using the following keywords.
             ( within | beyond) <real rfix> <string atomname> ) | \
  solute  ( [<integer idfirst> [<integer idlast>]] [ heavy | {<string atomname>}] |
             ( within | beyond) <real rfix> <string atomname> )
+ [permanent]
 \end{verbatim}
 For solvent the molecule numbers \verb+idfirst+ and \verb+idlast+may be 
 specified to be the first and last molecule to which the directive
@@ -758,7 +815,75 @@ specified to be the first and last segment to which the directive
 applies. If omitted, the directive applies to all segments. In addition,
 the keyword \verb+heavy+ may be specified to apply to all non hydrogen
 atoms in the solute, or a set of atom names may be specified in which
-a wildcard character \verb+?+ may be used.
+a wildcard character \verb+?+ may be used. Keyword \verb+permanent+
+is used to keep the specification on the restart file for subsequent
+simulations.
+\end{description}
+
+\section{Special options}
+\begin{description}
+
+\item 
+\begin{verbatim}
+import [<integer impfr default 1> [<integer impto default impfr> \
+       [<integer nftri default 1>]]]
+\end{verbatim}
+specifies the import of frames \verb+impfr+ to \verb+impto+ with 
+frequency \verb+nftri+ from a trajectory file with extension
+\verb+tri+ for which energies and forces are to be recalculated.
+This option only applied to \verb+task md energy+.
+
+\item 
+\begin{verbatim}
+detail
+\end{verbatim}
+specifies that moments of inertia and radii of gyration will be part of the
+recorded properties.
+
+\item 
+\begin{verbatim}
+profile
+\end{verbatim}
+specifies that execution time profiling data will be part of the
+recorded properties.
+
+\item 
+\begin{verbatim}
+scale <real scaleq>
+\end{verbatim}
+specifies that all charges will be scaled by the factro \verb+scaleq+.
+
+\item 
+\begin{verbatim}
+collapse [<real fcoll default 10.0> [ z | xy ]
+\end{verbatim}
+specifies that additional forces directed to the origin of the
+simulation cell with strength \verb+fcoll+ will be 
+applied to all solute molecules. If \verb+z+ or \verb+xy+ is
+specified, these forces will only apply in the specified dimension(s).
+
+
+\item 
+\begin{verbatim}
+include fixed
+\end{verbatim}
+specifies that energies will be evaluated between fixed atoms.
+Normally these interactions are excluded from the pairlists.
+
+
+\item 
+\begin{verbatim}
+eqm <real eqm>
+\end{verbatim}
+specifies the zero point of energy in QMD simulations.
+
+\item 
+\begin{verbatim}
+atomlist
+\end{verbatim}
+specifies that pairlists will be atom based. Normally pairlist
+are charge group based.
+
 \end{description}
 
 \section{Autocorrelation function}
@@ -789,18 +914,26 @@ Print directives may be combined to a single directive.
 
 \item
 \begin{verbatim}
-print topol [nonbond] [solvent] [solute]
+print [topol [nonbond] [solvent] [solute]]     \
+      [step <integer nfoutp> [extra] [energy]] \
+      [stat <integer nfstat>]                  \
+      [energies [<integer nfener>]]            \
+      [forces [<integer nfforce>]]             \
+      [matrix]                                 \
+      [expect <integer npxpct>]                \
+      [timing]                                 \
+      [pmf [<integer iprpmf>]]                 \
+      [out6]                                   \
+      [dayout]
 \end{verbatim}
-specifies printing the topology information,
+
+Keyword \verb+topol+ specifies printing the topology information,
 where {\tt nonbond} refers to the non-bonded interaction parameters,
 {\tt solvent} to the solvent bonded parameters, and {\tt solute} to the
 solute bonded parameters. If only {\tt topol} is specified, all
 topology information will be printed to the output file.
 
-\item
-\begin{verbatim}
-print step <integer nfoutp> [extra] [energy]
-\end{verbatim}
+Keyword \verb+step+ 
 specifies the frequency \verb+nfoutp+ of printing molecular dynamics step
 information to the output file. If the keyword {\tt extra} is specified
 additional energetic data are printed for solvent and solute separately.
@@ -810,31 +943,36 @@ The default for \verb+nfoutp+ is 0. For molecular dynamics simulations
 this frequency is in time steps, and for multi-configuration thermodynamic
 integration in $\lambda$-steps.
 
-\item
-\begin{verbatim}
-print stat <integer nfstat>
-\end{verbatim}
+Keyword \verb+stat+
 specifies the frequency \verb+<nfstat>+ of printing statistical information
 of properties that are calculated during the simulation. 
 For molecular dynamics simulation
 this frequency is in time steps, for multi-configuration thermodynamic
 integration in $\lambda$-steps.
 
-\item
-\begin{verbatim}
-print energy [<integer nfener>]
-\end{verbatim}
+Keyword \verb+energies+
 specifies the frequency \verb+nfener+ of printing solute bonded energies
 the output file for energy/import calculations. 
 The default for \verb+nfener+ is 0. 
 
-\item
-\begin{verbatim}
-print energy [<integer nfforce>]
-\end{verbatim}
+Keyword \verb+forces+
 specifies the frequency \verb+nfforc+ of printing solute forces
 the output file for energy/import calculations. 
 The default for \verb+nfforc+ is 0. 
+
+Keyword \verb+matrix+ specifies that a solute distance matrix is to
+be printed.
+
+Keyword \verb+expect+ is obsolete.
+
+Keyword \verb+timing+ specifies that timing data is printed.
+
+Keyword \verb+pmf+ specifies that pmf data is printed every \verb+iprpmf+ 
+steps.
+Keyword \verb+out6+ specifies that output is written to standard out in stead
+of the output file with extension \verb+out+.
+
+Keyword \verb+dayout+ is obsolete.
 
 
 \end{description}
@@ -847,8 +985,17 @@ Update directives may be combined to a single directive.
 \begin{description}
 \item
 \begin{verbatim}
-update pairs <integer nfpair>
+update [pairs <integer nfpair default 1>]                  \
+       [long <integer nflong default 1>]                   \
+       [center <integer nfcntr default 0> [zonly | xyonly] \
+               [fraction <integer idscb(1:5)>]             \
+       [motion <integer nfslow default 0>]                 \
+       [analysis <integer nfanal default 0>]               \
+       [rdf <integer nfrdf default 0>                      \
+               [range <real rrdf>] [bins <integer ngl>]    \
 \end{verbatim}
+
+Keyword \verb+pairs+
 specifies the frequency \verb+<nfpair>+ in molecular dynamics steps of 
 updating the pair lists. The default for the frequency is 1.
 In addition, pair lists are also updated after each step in which
@@ -856,10 +1003,7 @@ recording of the restart or trajectory files is performed. Updating
 the pair lists includes the redistribution of atoms that changed
 domain and load balancing, if specified.
 
-\item
-\begin{verbatim}
-update long <integer nflong>
-\end{verbatim}
+Keyword \verb+long+
 specifies the frequency \verb+<nflong>+ in molecular dynamics steps 
 of updating the long range forces. The default frequency is 1.
 The distinction of short range and long range forces is only
@@ -868,10 +1012,7 @@ than the short range cutoff radius. Updating the long range forces
 is also done in every molecular dynamics step in which the
 pair lists are regenerated.
 
-\item
-\begin{verbatim}
-update center <integer nfcntr> [zonly | xyonly] [fraction <integer idscb(1:5)>]
-\end{verbatim}
+Keywrod \verb+center+
 specifies the frequency \verb+<nfcntr>+ in molecular dynamics steps in 
 which the center of geometry of the solute(s) is translated to the
 center of the simulation volume. Optional keyword \verb+zonly+ or
@@ -884,24 +1025,15 @@ This translation is implemented such that it has no effect on any
 aspect of the simulation. The default is not to center, i.e. nfcntr is
 0. The default fraction used to center solute is 1.
 
-\item
-\begin{verbatim}
-update motion <integer nfslow>
-\end{verbatim}
+Keyword \verb+motion+
 specifies the frequency \verb+<nfslow>+ in molecular dynamics steps of
 removing the center of mass motion.
 
-\item
-\begin{verbatim}
-update analysis <integer nfanal>
-\end{verbatim}
+Keyword \verb+analysis+
 specifies the frequency \verb+<nfanal>+ in molecular dynamics steps of
-invoking the analysis module.
+invoking the analysis module. This option is obsolete.
 
-\item
-\begin{verbatim}
-update rdf <integer nfrdf> [range <real rrdf>] [bins <integer ngl>]
-\end{verbatim}
+Keyword \verb+rdf+
 specifies the frequency \verb+<nfrdf>+ in molecular dynamics steps of
 calculating contributions to the radial distribution functions.
 The default is 0. The range of the radial distribution
@@ -909,7 +1041,7 @@ functions is given by \verb+<rrdf>+ in nm, with a default of the short
 range cutoff radius. Note that radial distribution functions are not
 evaluated beyond the short range cutoff radius. The number of
 bins in each radial distribution function is given by \verb+<ngl>+, with
-a default of 1000.
+a default of 1000. This option is no longer supported.
 If radial distribution function are to be
 calculated, a {\bf rdi} files needs to be available in which the
 contributions are specified as follows.
@@ -935,8 +1067,25 @@ Record directives may be combined to a single directive.
 
 \item
 \begin{verbatim}
-record rest <integer nfrest> [keep]
+record [rest <integer nfrest> [keep]]     \
+       [coord <integer nfcoor default 0>] \
+       [wcoor <integer nfwcoo default 0>] \
+       [scoor <integer nfscoo default 0>] \
+       [veloc <integer nfvelo default 0>] \
+       [wvelo <integer nfwvel default 0>] \
+       [svelo <integer nfsvel default 0>] \
+       [force <integer nfvelo default 0>] \
+       [wforc <integer nfwvel default 0>] \
+       [sforc <integer nfsvel default 0>] \
+       [(prop | prop_average) <integer nfprop default 0>]  \
+       [free <integer nffree default 1>]  \
+       [sync <integer nfsync default 0>]  \
+       [times <integer nftime default 0>] \
+       [acf] [cnv] [fet]
+       [binary] [ascii] [ecce] [argos]
 \end{verbatim}
+
+Keyword \verb+rest+
 specifies the frequency \verb+<nfrest>+ in molecular dynamics steps
 of rewriting the restart file, with extension \verb+rst+. 
 For multi-configuration
@@ -946,88 +1095,92 @@ file is used to start or restart simulations. The keyword {\tt keep}
 causes all restart files written to be kept on disk, rather than
 to be overwritten.
 
-\item
-\begin{verbatim}
-record coord <integer nfcoor>
-\end{verbatim}
+Keyword \verb+coord+
 specifies the frequency \verb+<nfcoor>+ in molecular dynamics steps
 of writing coordinates to the trajectory file. This directive redefines
-previous \verb+record coord+, \verb+record wcoor+ and \verb+record scoor+
-directives. 
-The default is not to record.
+previous \verb+coord+, \verb+wcoor+ and \verb+scoor+
+directives. The default is not to record.
 
-\item
-\begin{verbatim}
-record wcoor <integer nfwcoo>
-\end{verbatim}
+Keyword \verb+wcoor+
 specifies the frequency \verb+<nfcoor>+ in molecular dynamics steps
 of writing solvent coordinates to the trajectory file. This keyword
-takes precedent over \verb+record coord+. This directive redefines
-previous \verb+record coord+, \verb+record wcoor+ and \verb+record scoor+
+takes precedent over \verb+coord+. This directive redefines
+previous \verb+coord+, \verb+wcoor+ and \verb+scoor+
 directives. 
 The default is not to record.
 
-\item
-\begin{verbatim}
-record scoor <integer nfscoo>
-\end{verbatim}
+Keyword \verb+scoor+
 specifies the frequency \verb+<nfscoo>+ in molecular dynamics steps
 of writing solute coordinates to the trajectory file. This keyword
-takes precedent over \verb+record coord+. This directive redefines
-previous \verb+record coord+, \verb+record wcoor+ and \verb+record scoor+
+takes precedent over \verb+coord+. This directive redefines
+previous \verb+coord+, \verb+wcoor+ and \verb+scoor+
 directives. 
 The default is not to record.
 
-\item
-\begin{verbatim}
-record veloc <integer nfvelo>
-\end{verbatim}
+Keyword \verb+veloc+
 specifies the frequency \verb+<nfvelo>+ in molecular dynamics steps
-of writing velocitiesto the trajectory file. This directive redefines
-previous \verb+record veloc+, \verb+record wvelo+ and \verb+record svelo+
+of writing velocities to the trajectory file. This directive redefines
+previous \verb+veloc+, \verb+wvelo+ and \verb+svelo+
 directives. 
 The default is not to record.
 
-\item
-\begin{verbatim}
-record wvelo <integer nfwvel>
-\end{verbatim}
+Keyword \verb+wvelo+
 specifies the frequency \verb+<nfvelo>+ in molecular dynamics steps
 of writing solvent velocitiesto the trajectory file. This keyword
-takes precedent over \verb+record veloc+. This directive redefines
-previous \verb+record veloc+, \verb+record wvelo+ and \verb+record svelo+
+takes precedent over \verb+veloc+. This directive redefines
+previous \verb+veloc+, \verb+wvelo+ and \verb+svelo+
 directives. 
 The default is not to record.
 
-\item
-\begin{verbatim}
-record svelo <integer nfsvel>
-\end{verbatim}
+Keyword \verb+svelo+
 specifies the frequency \verb+<nfsvel>+ in molecular dynamics steps
 of writing solute velocities to the trajectory file. This keyword
-takes precedent over \verb+record veloc+. This directive redefines
-previous \verb+record veloc+, \verb+record wvelo+ and \verb+record svelo+
+takes precedent over \verb+veloc+. This directive redefines
+previous \verb+veloc+, \verb+wvelo+ and \verb+svelo+
 directives. 
 The default is not to record.
 
-\item
-\begin{verbatim}
-record prop <integer nfprop>
-\end{verbatim}
+Keyword \verb+force+
+specifies the frequency \verb+<nfvelo>+ in molecular dynamics steps
+of writing forces to the trajectory file. This directive redefines
+previous \verb+vforce+, \verb+wforc+ and \verb+sforc+
+directives. 
+The default is not to record.
+
+Keyword \verb+wforc+
+specifies the frequency \verb+<nfvelo>+ in molecular dynamics steps
+of writing solvent forcesto the trajectory file. This keyword
+takes precedent over \verb+force+. This directive redefines
+previous \verb+vforce+, \verb+wforc+ and \verb+sforc+
+directives. 
+The default is not to record.
+
+Keyword \verb+sforc+
+specifies the frequency \verb+<nfsvel>+ in molecular dynamics steps
+of writing solute forces to the trajectory file. This keyword
+takes precedent over \verb+force+. This directive redefines
+previous \verb+vforce+, \verb+wforc+ and \verb+sforc+
+directives. 
+The default is not to record.
+
+Keyword \verb+prop+
 specifies the frequency \verb+<nfprop>+ in molecular dynamics steps
 of writing information to the property file, with extension
-\verb+prp+. For multi-configuration
-thermodynamic integration simulations the frequency is in
-steps in $\lambda$. The default is not to record.
+\verb+prp+. The default is not to record.
 
-\item
-\begin{verbatim}
-record free <integer nffree>
-\end{verbatim}
+Keyword \verb+prop_average+
+specifies the frequency \verb+<nfprop>+ in molecular dynamics steps
+of writing average information to the property file, with extension
+\verb+prp+. 
+The default is not to record.
+
+Keyword \verb+free+
 specifies the frequency \verb+<nffree>+ in multi-configuration
 thermodynamic integration steps to record data to the
 free energy data file, with extension \verb+gib+.
 The default is 1, i.e.\ to record at every $\lambda$.
+This option is obsolete. All data are required to do the
+final analysis.
 
 %\item
 %\begin{verbatim}
@@ -1051,10 +1204,8 @@ The default is 1, i.e.\ to record at every $\lambda$.
 %that free energy vs.\ time data will be recorded to the free energy
 %data file, with extension \verb+fet+.
 %
-\item
-\begin{verbatim}
-record sync <integer nfsync>
-\end{verbatim}
+
+Keyword \verb+sync+
 specifies the frequency  \verb+<nfsync>+ in molecular dynamics steps
 of writing information to the synchronization file, with extension
 \verb+syn+. 
@@ -1070,10 +1221,7 @@ with the frequency of pair-list updates \verb+<nfpair>+. This directive
 is only needed for analysis of the load balancing performance. For 
 normal use this directive is not used.
 
-\item
-\begin{verbatim}
-record times <integer nftime>
-\end{verbatim}
+Keyword \verb+times+
 specifies the frequency  \verb+<nfsync>+ in molecular dynamics steps
 of writing information to the timings file, with extension
 \verb+tim+. 
@@ -1083,14 +1231,28 @@ processors for the different components in the force evaluation.
 This directive is only needed for analysis of the wall clock time
 distribution. For normal use this directive is not used.
 
+Keywords \verb+acf+, \verb+cnv+ and \verb+fet+ are obsolete.
+
+Keywords \verb+binary+, \verb+ascii+, \verb+ecce+ and \verb+argos+ are obsolete.
+
 \end{description}
 
 \section{Program control options}
 \begin{description}
 \item
 \begin{verbatim}
-load [reset] ( none | size [<real factld>] | pairs |
-     (pairs [<integer ldpair>] size [<real factld>]) )
+load [reset] 
+     ( none | 
+       size [<real factld>] |
+       sizez [<real factld>] | pairs | 
+      (pairs [<integer ldpair>] size [<real factld>]) )
+     [last]
+     [minimum]
+     [average]
+     [combination]
+     [iotime]
+     [experimental]
+
 \end{verbatim}
 determines the type of dynamic load balancing performed,
 where the default is {\tt none}. Load balancing option {\tt size}
@@ -1115,6 +1277,22 @@ pair-list is updated. The default load balancing is equivalent to specifying\\
 \begin{verbatim}
 load pairs 10 size 0.75
 \end{verbatim}
+Keyword \verb+last+ specifies that the load balancing is based on the
+synchronization times of the last step. This is the default.
+Keyword \verb+average+ specifies that the load balancing is based on the
+average synchronization times since the last load balancing step.
+Keyword \verb+minimum+ specifies that the load balancing is based on the
+minimum synchronization times since the last load balancing step.
+Keywords \verb+combination+, \verb+iotime+ and \verb+experimental+ are
+experimental load balancing options that should not be used in
+production runs.
+
+\item
+\begin{verbatim}
+(pack | nopack)
+\end{verbatim}
+specifies if data are communicated in packed or unpacked form. The
+default is \verb+pack+.
 
 \item
 \begin{verbatim}
@@ -1125,7 +1303,7 @@ Cartesian dimensions. The default distribution is chosen such that,
 \verb+<npx>+$*$\verb+<npy>+$*$\verb+<npz>+=\verb+<np>+
 and \verb+<npx>+ $<=$ \verb+<npy>+ $<=$ \verb+<npz>+, 
 where \verb+<npx>+, \verb+<npy>+ and \verb+<npz>+ are the processors in the
-x, y and z dimension respectively, and \verb+<np>+ is the number of processors
+\verb+x+, \verb+y+ and \verb+z+ dimension respectively, and \verb+<np>+ is the number of processors
 allocated for the calculation. Where more than one combination
 of \verb+<npx>+, \verb+<npy>+ and \verb+<npz>+ are possible, the 
 combination is chosen with the minimum value of 
@@ -1138,7 +1316,7 @@ cells <integer nbx> <integer nby> <integer nbz>
 \end{verbatim}
 specifies the distribution of cells,
 where \verb+<nbx>+, \verb+<nby>+ and \verb+<nbz>+ are the number of
-cells in x, y and z direction, respectively.
+cells in \verb+x+, \verb+y+ and \verb+z+ direction, respectively.
 The molecular system is decomposed into cells that form the smallest
 unit for communication of atomic data between nodes. The size of the
 cells is per default set to the short-range cutoff radius. If
@@ -1192,17 +1370,81 @@ small.
 
 \item
 \begin{verbatim}
+boxmin <real rbox>
+\end{verbatim}
+sets the minimum size of a cell. This directive is obsolete. The
+use of mcells is preferred.
+
+\item
+\begin{verbatim}
+segmentsize <real rsgm>
+\end{verbatim}
+sets the maximum size of a segment. This value is used to determine
+which segments at the boundary of the cutoff radius should be considered
+in the generation of the pairlists. This value is also determined by the
+prepare module and written to the restart file. Use of this directive
+is not needed for simulations that use the current prepare module to
+generate the restart file.
+
+\item
+\begin{verbatim}
 memory <integer memlim>
 \end{verbatim}
 sets a limit \verb+<memlim>+ in kB on the allocated amount of memory used by 
 the molecular dynamics module.
 Per default all available memory is allocated. Use of this command
 is required for QM/MM simulations only.
-%\item
-%For development purposes debug information can be written to the debug
-%file with extension {\bf dbg} with
-%\begin{verbatim}
-%debug <i idebug>
-%\end{verbatim}
-%where $idebug$ specifies the type of debug information being written.
+
+\item
+\begin{verbatim}
+expert
+\end{verbatim}
+enables the use of certain combinations of features that are considered
+unsafe. This directive should not be used for production runs.
+
+\item
+\begin{verbatim}
+develop <integer idevel>
+\end{verbatim}
+enables the use of certain development options specified by the
+integer \verb+idevel+. This option is for development purposes only,
+and should not be used for production runs.
+
+\item
+\begin{verbatim}
+control <integer icntrl>
+\end{verbatim}
+enables the use of certain development options specified by the
+integer \verb+icntrl+. This option is for development purposes only,
+and should not be used for production runs.
+
+\item
+\begin{verbatim}
+numerical
+\end{verbatim}
+writes out analytical and finite difference forces for test purposes.
+
+\item
+\begin{verbatim}
+server <string servername> <integer serverport>
+\end{verbatim}
+allows monitoring over a socket connection to the specified port on the
+named server of basic data as a simulation is running.
+
+\item
+For development purposes debug information can be written to the debug
+file with extension {\bf dbg} with
+\begin{verbatim}
+debug <integer idebug>
+\end{verbatim}
+where $idebug$ specifies the type of debug information being written.
+
+\item
+For testing purposes test information can be written to the test
+file with extension {\bf tst} with
+\begin{verbatim}
+test <integer itest>
+\end{verbatim}
+where $itest$ specifies the number of steps test information is written.
+
 \end{description}
