@@ -28,7 +28,6 @@ c
       double precision eold,thre,dabs,tx(4),rx(2),rms,deccsd,
      &                 tstart,tend
       double precision zip,one,half,two,ten
-      data zip/0.0d00/,one/1.0d00/,ten/10.0d00/
       integer ii,jj
       Integer Nodes, IAm
 C
@@ -37,6 +36,8 @@ C
 #include "global.fh"
 #include "ccsd_len.fh"
 c
+* DATA MUST FOLLOW ALL DELCARATIONS 
+      data zip/0.0d00/,one/1.0d00/,ten/10.0d00/
 c
       Nodes = GA_NNodes()
       IAM = GA_NodeID()
