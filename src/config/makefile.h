@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.235 1997-05-27 18:17:08 d3h325 Exp $
+# $Id: makefile.h,v 1.236 1997-05-29 16:01:44 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -19,8 +19,25 @@ error1:
 endif
 
 #
-# Do a setenv for NWCHEM_TARGET to be the machine you wish to build for
-# (one of SUN, DELTA, IBM, KSR, PARAGON, CRAY-T3D, DECOSF)
+# Do a setenv for NWCHEM_TARGET to be the machine and NWCHEM_TARGET_CPU the CPU to build for
+#
+# NWCHEM_TARGET :  CONVEX-SPP
+#                  CRAY-T3D
+#                  CRAY-T3E
+#                  DECOSF
+#                  DELTA
+#                  IBM
+#                  KSR
+#                  LINUX        USE_G77 to use g77 instead of f2c/gcc
+#                  PARAGON
+#                  SGI
+#                  SGI_N32      NWCHEM_TARGET_CPU : R8000 or R10000
+#                  SGITFP       NWCHEM_TARGET_CPU : R8000 or R10000
+#                  SOLARIS
+#                  SP1          NWCHEM_TARGET_CPU : P2SC
+#                  SUN
+#
+# Note that the preprocessor flags for CRAY-T3D and CRAY-T3E are CRAY_T3D and CRAY_T3E respectively
 #
 
 ifndef NWCHEM_TARGET
