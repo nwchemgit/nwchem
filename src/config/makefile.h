@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.413 2003-05-15 02:00:04 edo Exp $
+# $Id: makefile.h,v 1.414 2003-07-01 00:29:45 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1324,6 +1324,14 @@ CORE_LIBS += -llapack $(BLASOPT) -lblas
 endif
 
 ifeq ($(NWCHEM_TARGET),LINUX64)
+       ifdef USE_INTEGER4
+         ifneq ($(FC),g77)
+           FOPTIONS += -i4 
+         endif
+       else
+         FOPTIONS += -i8 
+         DEFINES  += -DEXT_INT  
+       endif
   MAKEFLAGS = -j 1 --no-print-directory
      _CPU = $(shell uname -m  )
      CORE_SUBDIRS_EXTRA = blas lapack
@@ -1333,19 +1341,18 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
 # using COMPAQ/DEC compilers (EA 3/13/2000)
        FC  = fort
        CC  = ccc      
-       FOPTIONS   = -assume no2underscore -align dcommons -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow  -noautomatic
+       FOPTIONS   += -assume no2underscore -align dcommons -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow  -noautomatic
        DEFINES   +=   -DLINUXALPHA
        FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
        FVECTORIZE = -fast -O5 -tune host -arch host
 
        ifdef USE_INTEGER4
-         FOPTIONS += -i4 -fpe0
+         FOPTIONS +=  -fpe0
 # needed: binutils 2.11 for -taso option with some more hacking on bfd/elf.c
          LINK.f = fort -Wl,-taso $(LDFLAGS)  
          CORE_LIBS += -lcxml
        else
-         FOPTIONS += -i8 -fpe3
-         DEFINES  += -DEXT_INT
+         FOPTIONS += -fpe3
          LINK.f = fort $(LDFLAGS)  
 # this creates a static executable
 #  LINK.f = fort $(LDFLAGS)   -Wl,-Bstatic
@@ -1367,8 +1374,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
 
       ifeq ($(FC),efc)
         ITANIUMNO = $(shell   cat /proc/cpuinfo | egrep family | head -1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
-        FOPTIONS   =   -auto -align  -w  -ftz  $(ITANIUMNO)
-#        FOPTIONS   =  -auto   -132   -w  -ftz  -tpp2
+        FOPTIONS   +=   -auto -align  -w  -ftz  $(ITANIUMNO)
         FDEBUG = -g -O2
         DEFINES  +=   -DIFCLINUX
 #        FVECTORIZE =  -O2 -hlo -pad -mP2OPT_hlo_level=2 
@@ -1391,19 +1397,44 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       ifeq ($(CC),gcc)
         COPTIONS   =   -O3 -funroll-loops -ffast-math
       endif
-     ifdef USE_INTEGER4
-       FOPTIONS += -i4
-     else
-       FOPTIONS += -i8 
-       DEFINES  += -DEXT_INT  
-     endif
 
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 endif
+    ifeq ($(_CPU),x86_64)
+      FC=pgf90
+      CC=gcc
+      MAKEFLAGS = -j 2 --no-print-directory
+      COPTIMIZE = -O1
+
+      ifeq ($(FC),pgf90)
+        FOPTIONS   =    -Munixlogical -tp k8-64 -Mrecursive -Mdalign
+        FOPTIMIZE   =   -fastsse  -O3 
+        FDEBUG = -g -O0
+        DEFINES  +=   -DPGLINUX
+        LDOPTIONS =   -g77libs   
+      endif
+      ifeq ($(FC),g77)
+        FOPTIONS  +=  -fno-globals -Wno-globals  -Wunused  -fno-silent
+        FOPTIONS  += -fno-second-underscore  -fno-f90 
+        FOPTIMIZE  += -O3 -ffast-math -mred-zone -fssa 
+#        FOPTIMIZE  += -O3 -ffast-math -mno-red-zone -fssa 
+        FOPTIMIZE  += -funroll-loops -fstrength-reduce -fno-move-all-movables -fno-reduce-all-givs
+        FOPTIMIZE  += -finline-functions -funroll-all-loops
+        FOPTIMIZE  +=  -mfpmath=sse -fstrict-aliasing -fschedule-insns2
+        FDEBUG = -Os -g
+        LDOPTIONS =   -Wl,--relax  
+      endif
+      ifeq ($(CC),gcc)
+        COPTIONS   =   -O3 -funroll-loops -ffast-math -mno-red-zone
+      endif
+     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+endif
+
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
    EXTRA_LIBS +=  -ldl
 endif
+
 endif
 
 
