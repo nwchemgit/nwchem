@@ -2,11 +2,11 @@
      &     zeta,dzeta,d_p,ictr,ncenters,nq,
      &     iandex)
 
-C     $Id: dftg_beckew.F,v 1.2 1997-03-13 01:38:25 d3h449 Exp $
+C     $Id: dftg_beckew.F,v 1.3 1997-03-13 01:46:39 d3h449 Exp $
       implicit none
-c#include "bas_staticP.fh"
+c
 #include "quad.fh"
-      
+c      
       integer ncenters,nq
 
       double precision qxyz(3,nq),xyz(3,*)
