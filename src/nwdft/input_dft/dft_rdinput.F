@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.96 2002-02-15 00:44:22 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.97 2002-03-24 05:39:54 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -245,13 +245,6 @@ c
      &      call errquit('dft_rdinput: rtdb_put failed', 123)
       endif
 c
-      if (.not. rtdb_get(rtdb, 'dft:iAOacc', mt_int, 1,
-     &   iAOacc))then
-         iAOacc=-nint(log(e_conv))
-         if (.not. rtdb_put(rtdb, 'dft:iAOacc',
-     &      mt_int, 1, iAOacc))
-     &      call errquit('dft_rdinput: rtdb_put failed', 124)
-      endif
 c
       if (.not. rtdb_get(rtdb, 'dft:iCDacc', mt_int, 1,
      &   iCDacc))then

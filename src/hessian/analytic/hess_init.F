@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.38 2002-03-23 21:07:50 edo Exp $
+C $Id: hess_init.F,v 1.39 2002-03-24 05:39:55 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -354,7 +354,7 @@ c  these values should be reset after the calculation is done.
 c
        integer rtdb
        integer geomnew, filesize, memsize
-       double precision ithresh,tol_rho,tol_rho_rd
+       double precision ithresh,tol_rho,tol_rho_rd,e_conv
        logical whatever,grid_file_close,xc_got2nd      
        external xc_got2nd
        character*15 gridtype
@@ -443,6 +443,17 @@ c
      $        MT_LOG, 1, .false.)) call errquit(
      $        ' task_hessian: rtdb_put failed',0)
          whatever=grid_file_close(.false.)
+c
+c     set deltaE at least to 1d-7 
+c
+      if (.not.rtdb_get(rtdb,'dft:e_conv',mt_dbl,1,e_conv))then
+        e_conv=1d-7
+      else
+         e_conv=max(e_conv,1d-7)
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))
+     &   call errquit('hess_init: rtdb_put failed', 100)
+
        call dft_inpanae(rtdb)
       endif
 c

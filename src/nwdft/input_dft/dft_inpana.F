@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.59 2002-03-23 21:07:52 edo Exp $
+c     $Id: dft_inpana.F,v 1.60 2002-03-24 05:39:54 edo Exp $
 c
 c*********************************************************************
 c     
@@ -637,6 +637,12 @@ c
       logical oprint_general
 c
       oprint_general = util_print('general information',print_default)
+c
+c     get e_conv from rtdb because hess_init
+c
+      if (.not.rtdb_get(rtdb,'dft:e_conv',mt_dbl,1,e_conv))
+     .     call errquit('dftinpanae: rtdbget econv failed',0)
+c
 c     check integral tolerances to make sure they match 
 c     requested convergence tolerances.
 c
@@ -667,6 +673,13 @@ c
             write(LuOut,*)' convergence criterion.'
          endif
       endif
+      endif
+      if (.not. rtdb_get(rtdb, 'dft:iAOacc', mt_int, 1,
+     &   iAOacc))then
+         iAOacc=-nint(log(e_conv))
+         if (.not. rtdb_put(rtdb, 'dft:iAOacc',
+     &      mt_int, 1, iAOacc))
+     &      call errquit('dft_inpanae: rtdb_put failed', 124)
       endif
       return
       end
