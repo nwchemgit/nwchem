@@ -29,8 +29,9 @@ EC   -OS      0.14250 2.67776E+05             tps000929 Woods et al., JPC 99, 38
 EC   -OG      0.13890 2.67776E+05             tps000929 Woods et al., JPC 99, 3832-3846 (1995)
 EC   -OH      0.13870 2.67776E+05             tps000929 Woods et al., JPC 99, 3832-3846 (1995)
 CT   -OG      0.14350 2.67776E+05             tps000929 Woods et al., JPC 99, 3832-3846 (1995)
-CL   -CT      0.17580 1.94472E+05             ERV000005 Fox & Kollman, JPCB 102, 8070-8079 (1998) 
-CT   -H3      0.11000 2.84512E+05             ERV000005 Fox & Kollman, JPCB 102, 8070-8079 (1998) 
+CL   -CT      0.17580 1.94472E+05             erv001018 Fox and Kollman, JPCB 102, 8070-8079 (1998) 
+CT   -H3      0.11000 2.84512E+05             erv001018 Fox and Kollman, JPCB 102, 8070-8079 (1998) 
+FE   -NB      0.20100 5.02080E+04             tps020326 http://pharmacy.man.ac.uk/amber/cof/frcmod.hemall
 Angles
 AC   -CT   -CT      1.95128 3.34720E+02 tps000929 Woods et al., JPC 99, 3832-3846 (1995)
 AC   -CT   -HC      1.91114 2.92880E+02 tps000929 Woods et al., JPC 99, 3832-3846 (1995)
@@ -75,8 +76,14 @@ OG   -AC   -OS      1.95477 9.26338E+02 tps000929 Woods et al., JPC 99, 3832-384
 OH   -AC   -OS      1.94779 9.26338E+02 tps000929 Woods et al., JPC 99, 3832-3846 (1995)
 OG   -EC   -OS      1.87797 9.26338E+02 tps000929 Woods et al., JPC 99, 3832-3846 (1995)
 OH   -EC   -OS      1.87099 9.26338E+02 tps000929 Woods et al., JPC 99, 3832-3846 (1995)
-H3   -CT   -CL      1.87972 3.18821E+02 ERV000003 Fox & Kollman, JPCB 102, 8070-8079 (1998) 
-CL   -CT   -CL      1.94255 6.50194E+02 ERV000003 Fox & Kollman, JPCB 102, 8070-8079 (1998)
+H3   -CT   -CL      1.87972 3.18821E+02 erv001018 Fox and Kollman, JPCB 102, 8070-8079 (1998)
+CL   -CT   -CL      1.94255 6.50194E+02 erv001018 Fox and Kollman, JPCB 102, 8070-8079 (1998)
+CR   -NB   -FE      1.91986 0.00000E+00 tps020326 http://pharmacy.man.ac.uk/amber/cof/frcmod.hemall
+CV   -NB   -FE      1.91986 0.00000E+00 tps020326 http://pharmacy.man.ac.uk/amber/cof/frcmod.hemall
+C    -CM   -N*      2.04204 5.85760E+02 tps020326 http://pharmacy.man.ac.uk/amber/cof/FADH-.frcfld
+CA   -CB   -N*      2.08043 5.85760E+02 tps020326 http://pharmacy.man.ac.uk/amber/cof/FADH-.frcfld
+N*   -CM   -N*      2.14675 5.85760E+02 tps020326 http://pharmacy.man.ac.uk/amber/cof/FADH-.frcfld
+CB   -N*   -CM      2.00189 5.85760E+02 tps020326 http://pharmacy.man.ac.uk/amber/cof/FADH-.frcfld
 Proper dihedrals
      -CT   -AC   -        0.00000 6.04356E-01    3 tps000929 Woods et al., JPC 99, 3832-3846 (1995)
      -CT   -EC   -        0.00000 6.04356E-01    3 tps000929 Woods et al., JPC 99, 3832-3846 (1995)
