@@ -251,9 +251,11 @@ c
 
 
       tag ="qmmm:interface"
-      if (.not.rtdb_cput(irtdb,tag,1,interface)) 
-     >      call errquit(pname//'failed to store'//tag,0,
-     >       RTDB_ERR)
+      if (.not.rtdb_cget(irtdb,tag,1,interface)) then
+         if (.not.rtdb_cput(irtdb,tag,1,interface)) 
+     >        call errquit(pname//'failed to store'//tag,0,
+     >         RTDB_ERR)
+      end if
       if (master) 
      >  write(6,22) "interface api",tag,interface
 
