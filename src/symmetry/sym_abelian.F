@@ -1,4 +1,7 @@
       logical function sym_abelian_group(geom)
+*
+* $Id: sym_abelian.F,v 1.2 1999-07-27 21:06:58 d3e129 Exp $
+*
       implicit none
       integer geom              ! [input]
 #include "inp.fh"
