@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.28 2002-04-24 16:04:59 bylaska Exp $
+* $Id: task_input.F,v 1.29 2002-10-03 21:47:13 bylaska Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -103,6 +103,9 @@ c
          else if (inp_compare(.false.,test,
      >                        'stress')) then
             operation='stress'
+         else if (inp_compare(.false.,test,
+     >                        'noit_energy')) then
+            operation='noit_energy'
          else if (inp_compare(.false.,test,
      >                        'pspw_dplot')) then
             operation='pspw_dplot'
