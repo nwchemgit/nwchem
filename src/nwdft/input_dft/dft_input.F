@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.32 2002-07-03 15:53:06 edo Exp $
+c     $Id: dft_input.F,v 1.33 2003-04-10 17:48:31 sohirata Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -21,20 +21,22 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 24)
+      parameter (num_dirs = 26)
       character*12 dirs(num_dirs)
       character*255 test
       integer idecomp, mult, iterations, ipol, noio,
      &        idirect, imull
       integer nopen
       logical pseudo, direct, lmaxov, incore
+      logical lb94, cs00
       double precision smear_sigma
+      double precision shift
       integer nel_fon(2),nmo_fon(2),ispin
       data dirs /'convergence', 'decomp', 'dft', 'direct', 'ecp', 
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
-     .           'smear','fon',
+     $           'smear','fon','lb94','cs00',
      &           'end'/
 c
 c     Any DFT input causes calculation to be marked as not converged
@@ -59,7 +61,7 @@ c
 c     
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     $     1900, 2000, 2100, 2200, 2300, 9999) ind
+     $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 9999) ind
       call errquit('dft_input: unimplemented directive', ind)
 c
 c     convergence;
@@ -266,6 +268,26 @@ c
      & .true.)) call errquit('dft_inp: rtdb_put failed', 2300)
       goto 10
 c
+c     lb94; adds van-Leeuwen-Baerends correction to potential
+c             
+ 2400 lb94 = .true.
+      if (.not.rtdb_put(rtdb,'dft:lb94', mt_log, 1, lb94)) 
+     &   call errquit('dft_input: rtdb_put failed', 2400)
+c
+      goto 10
+c
+c     cs00; adds Casida-Salahub correction to potential
+c             
+ 2500 cs00 = .true.
+      if (.not.rtdb_put(rtdb,'dft:cs00', mt_log, 1, cs00)) 
+     &   call errquit('dft_input: rtdb_put failed', 2500)
+      if (.not.inp_f(shift)) then
+         call errquit('dft: provide a shift after cs00 keyword',0)
+      endif
+      if (.not.rtdb_put(rtdb,'dft:delta_ac',mt_dbl,1,shift))
+     &   call errquit('dft_inp: rtdb_put failed', 2500)
+c
+      goto 10
 c             
 c     end;
 c             

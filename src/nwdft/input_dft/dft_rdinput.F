@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.106 2003-02-19 05:36:09 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.107 2003-04-10 17:48:31 sohirata Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -145,6 +145,22 @@ c
      &      mt_log, 1, ldelley))
      &      call errquit('dft_rdinput: rtdb_put failed', 8)
       endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:lb94', mt_log, 1,
+     &   lb94))then
+         lb94 = .false.
+         if (.not. rtdb_put(rtdb, 'dft:lb94',
+     &      mt_log, 1, lb94))
+     &      call errquit('dft_rdinput: rtdb_put failed', 9)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:cs00', mt_log, 1,
+     &   cs00))then
+         cs00 = .false.
+         if (.not. rtdb_put(rtdb, 'dft:cs00',
+     &      mt_log, 1, cs00))
+     &      call errquit('dft_rdinput: rtdb_put failed', 10)
+      endif
 c     
       if (.not. rtdb_get(rtdb, 'dft:iterations', mt_int, 1,
      &   iterations))then
@@ -193,11 +209,11 @@ c
          if (.not. rtdb_put(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))
      &      call errquit('dft_rdinput: rtdb_put failed', 106)
       endif
-      if (.not. rtdb_get(rtdb, 'dft:delta_ac', mt_dbl, 
-     ,     1, delta_ac))then
-         delta_ac=0d0
-         if (.not. rtdb_put(rtdb, 'dft:delta_ac',mt_dbl,1,delta_ac))
-     &      call errquit('dft_rdinput: rtdb_put failed', 1000)
+c
+      if (.not.rtdb_get(rtdb,'dft:delta_ac',mt_dbl,1,delta_ac))then
+         delta_ac = 0.0d0
+         if (.not.rtdb_put(rtdb,'dft:delta_ac',mt_dbl,1,delta_ac))
+     &      call errquit('dft_rdinput: rtdb_put failed', 107)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:nfock', mt_int, 1,

@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.65 2003-02-19 05:36:09 edo Exp $
+c     $Id: dft_inpana.F,v 1.66 2003-04-10 17:48:31 sohirata Exp $
 c
 c*********************************************************************
 c     
@@ -399,6 +399,21 @@ c
                write(LuOut,*)
      &            ' Sum of components do not equal unity or 0. '
             endif
+c
+c           Check if asymptotic correction will be added to potential
+c           If both LB94 and CS00 are .true., it is assumed that the 
+c           user meant to use CS00 (since CS00 uses LB94)
+c
+            if (cs00) then
+               write(LuOut,*)
+               write(LuOut,9227) 
+     &         '  Casida-Salahub correction with a shift    ',
+     &         delta_ac,'au'
+            else if (lb94) then
+               write(LuOut,*)
+               write(LuOut,9226) 
+     &         '         van Leeuwen-Baerends correction    '
+            endif
             call util_flush(LuOut)
          endif
          if (oprint_sic) then
@@ -599,6 +614,8 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
  9223 format(10x,a40)
  9224 format(10x,a40,1x,f6.3,1x,a9)
  9225 format(10x,a40,1x,f8.4)
+ 9226 format(10x,a44)
+ 9227 format(10x,a44,1x,f10.6,1x,a2)
  8150 format(10x,'No. of atoms     :',2x,i4)
  8200 format(10x,'No. of electrons :',2x,i4,/,
      &       10x,' Alpha electrons :',2x,i4,/,
