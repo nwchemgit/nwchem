@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.20 2003-01-30 21:54:08 marat Exp $
+* $Id: paw_proj.F,v 1.21 2003-02-04 01:58:41 marat Exp $
 *
 
 
@@ -561,9 +561,9 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       character*255 full_filename
 
       !*** external functions ***
-      integer  G_indx,paw_basis_i_rgrid
+      integer  G_indx
       real*8   lattice_unita,lattice_omega
-      external G_indx,paw_basis_i_rgrid
+      external G_indx
       external lattice_unita,lattice_omega
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.15 2003-01-31 06:46:57 marat Exp $
+* $Id: paw_ovlp.F,v 1.16 2003-02-04 01:58:41 marat Exp $
 *
 
 !**************************************************
@@ -24,6 +24,7 @@
       integer ii,ia,nlm,nlmii,n,m,mabs
       integer nbasis,i2,i1,isgn,nion
       integer w_size
+      integer neall
 
 *     **** external functions ****
       integer  psi_ne
