@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.26 1995-11-29 02:10:16 d3e129 Exp $
+# $Id: GNUmakefile,v 1.27 1995-12-20 22:44:43 d3e129 Exp $
 
     HEADERS = api/int_tim.fh api/apiP.fh
     LIBRARY = libnwints.a
@@ -11,11 +11,11 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 txs:
-	touch api/cando_sp.F texas/texas_stubs.F
+	@touch api/cando_sp.F texas/texas_stubs.F
 	$(MAKE) "USE_TEXAS=YEP"
 fix:
-	(cd texas; $(MAKE) "USE_TEXAS=YEP" removeobj)
-	touch api/cando_sp.F texas/*.F texas/*.f
+	@(cd texas; $(MAKE) "USE_TEXAS=YEP" removeobj)
+	@touch api/cando_sp.F texas/*.F texas/*.f
 	$(MAKE)
 nolib:
 	rm -i $(LIBRARY_PATH)
