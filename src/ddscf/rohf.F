@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.24 1997-04-25 04:00:54 d3g681 Exp $
+C$Id: rohf.F,v 1.25 1997-05-14 01:26:28 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -30,8 +30,8 @@ c
       double precision rohf_time
 c
       integer ilo, ihi          ! For printing movecs analysis
-      double precision eval_pr_tol
-      parameter (eval_pr_tol = 1.0d0)
+      double precision eval_pr_tol_lo, eval_pr_tol_hi
+      parameter (eval_pr_tol_lo = -1.5d0, eval_pr_tol_hi=0.5)
 C
 *      Integer NAtoms, NShells
 c
@@ -125,10 +125,10 @@ c
 c
       if (util_print('final vectors analysis', print_default)) then
          do ilo = 1,max(1,nclosed-10)
-            if (dbl_mb(k_eval+ilo-1) .ge. -eval_pr_tol) goto 961
+            if (dbl_mb(k_eval+ilo-1) .ge. eval_pr_tol_lo) goto 961
          enddo
  961     do ihi = min(nclosed+nopen+10,nmo),nmo
-            if (dbl_mb(k_eval+ihi-1) .ge. eval_pr_tol) goto 9611
+            if (dbl_mb(k_eval+ihi-1) .ge. eval_pr_tol_hi) goto 9611
          enddo
          ihi = max(ihi-1,1)
  9611    continue

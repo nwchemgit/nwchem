@@ -114,7 +114,7 @@ c
  22         format(1x,2('  Bfn.  Coefficient  Atom+Function  ',5x))
             write(6,23)
  23         format(1x,2(' ----- ------------  ---------------',5x))
-            do klo = 0, n-1, 2
+            do klo = 0, min(n-1,9), 2
                khi = min(klo+1,n-1)
                write(6,2) (
      $              int_mb(k_list+k)+1, 
