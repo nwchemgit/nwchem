@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      ,  nfock, g_dens, g_xc,scftype,l3d)
 c
-c     $Id: fock_xc.F,v 1.18 2002-01-17 02:47:22 edo Exp $
+c     $Id: fock_xc.F,v 1.19 2002-01-17 23:33:07 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -131,8 +131,8 @@ c
          if(ndens.eq.2)  then
             alo(1) = nfock_xc*2+1
             ahi(1) = nfock_xc*3
-            blo(1) = nfock_xc+1
-            bhi(1) = nfock_xc*2
+            blo(1) = nfock_xc+1+1
+            bhi(1) = nfock_xc*2+1
             call nga_add_patch(1d0,g_dens,alo,ahi,
      .           0d0,g_dens_xc,blo,bhi,
      .           g_dens_xc,blo,bhi)      
@@ -157,8 +157,8 @@ c
          call nga_copy_patch('N',g_dens_scf(1),alo,ahi,
      .        g_dens_xc,blo,bhi)
          if(ndens.eq.2) then
-            blo(1) = nfock_xc+2
-            bhi(1) = nfock_xc+2
+            blo(1) = 2*nfock_xc+1+1
+            bhi(1) = 2*nfock_xc+1+1
             call nga_copy_patch('N',g_dens_scf(2),alo,ahi,
      .           g_dens_xc,blo,bhi)
          endif
@@ -195,7 +195,15 @@ c
             write(luout,*) 'g_dens_xc1',g_dens_xc(1)
             call util_flush(luout)
          endif
-         call ga_print(g_dens_xc(1))
+         if(l3d) then
+            do i=1,ndens*(nfock_xc+1)
+               alo(1)=i
+               ahi(1)=i
+               call nga_print_patch(g_dens_xc,alo,ahi,0)
+            enddo
+         else
+            call ga_print(g_dens_xc(1))
+         endif
          if(ndens.eq.2.and.(.not.l3d)) then
             if(ga_nodeid().eq.0) then
                write(luout,*) 'g_dens_xc2',g_dens_xc(2)
@@ -269,13 +277,18 @@ c
          if(ga_nodeid().eq.0)write(luout,*)'XC matrix at end fock_xc:'
          tdum=ga_ddot(g_xc,g_xc)
          if(ga_nodeid().eq.0)write(luout,*)'g_xc dotproduct',tdum
-         do i=1,nfock_xc
-            if(ga_nodeid().eq.0) then
-               write(luout,*) ' matrix no. ',i
-               call util_flush(luout)
-            endif
+         do i=1,nfock
             alo(1)=i
             ahi(1)=i
+            tdum=nga_ddot_patch(g_xc, 'N', alo, ahi, 
+     .           g_xc, 'N', alo, ahi) 
+
+
+            if(ga_nodeid().eq.0) then
+               write(luout,*) ' matrix no. ',i,tdum
+               call util_flush(luout)
+            endif
+            if(abs(tdum).gt.1d-6) then
             if(ga_nodeid().eq.0) then
                call nga_inquire(g_xc, ityp, ndim, dims)
                write(luout,*) ' ndim ',ndim,' dims ',dims
@@ -284,6 +297,7 @@ c
                call util_flush(luout)
             endif
             call nga_print_patch(g_xc,alo,ahi,0)
+            endif
          enddo
       endif
       return
