@@ -27,8 +27,8 @@ PSPW
       mass_number: 28.0                 # mass (a.u.) of carbon atom
       solver_type: pauli                # Pauli or Schrodinger op
       pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
-      exchange_type: pbe96              # dirac and pbe96 options
-      correlation_type: pbe96           # vosko and pbe96 options
+      #exchange_type: pbe96              # dirac and pbe96 options
+      #correlation_type: pbe96           # vosko and pbe96 options
 
       atomic_filling: 3 2   # Ncore and Nvalence states
         1 s 2.0             # core state  1s^2
@@ -49,8 +49,8 @@ PSPW
       mass_number: 12.0                 # mass (a.u.) of carbon atom
       solver_type: pauli                # Pauli or Schrodinger op
       pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
-      exchange_type: pbe96              # dirac and pbe96 options
-      correlation_type: pbe96           # vosko and pbe96 options
+      #exchange_type: pbe96              # dirac and pbe96 options
+      #correlation_type: pbe96           # vosko and pbe96 options
 
       atomic_filling: 1 2   # Ncore and Nvalence states
         1 s 2.0             # core state    1s^2
@@ -138,9 +138,9 @@ PSPW
       output_wavefunction_filename: SiC.movecs
       fake_mass: 400000.0d0
       time_step: 51.8d0
-      loop: 10 10
+      loop: 100 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
-      exchange_correlation: pbe96
+      #exchange_correlation: pbe96
       ewald_ncut: 8
    END 
 END
@@ -156,17 +156,36 @@ PSPW
       output_wavefunction_filename: SiC.movecs
       fake_mass: 400000.0d0
       time_step: 51.8d0
-      loop: 10 100
+      loop: 15 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
-      exchange_correlation: pbe96
+      #exchange_correlation: pbe96
       ewald_ncut: 8
    END 
 END
 task pspw conjugate_gradient
+task pspw conjugate_gradient
+task pspw steepest_descent
+task pspw conjugate_gradient
+task pspw steepest_descent
 
 
 
-#**** Now optimize geometry  and find the frequency *****
-task cg_pspw optimize
-task cg_pspw freq
+#***** do geometry optimization with steepest descent ********
+PSPW
+   STEEPEST_DESCENT
+      geometry_optimize
+      cell_name: small
+      formatted_filename: Si.vpp
+      formatted_filename: C.vpp
+      input_wavefunction_filename:  SiC.movecs
+      output_wavefunction_filename: SiC.movecs
+      fake_mass: 400000.0d0
+      time_step: 5.8d0
+      loop: 10 1000
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      #exchange_correlation: pbe96
+      ewald_ncut: 8
+   END 
+END
+task pspw steepest_descent
 
