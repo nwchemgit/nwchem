@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.63 1994-09-16 20:38:46 d3g681 Exp $
+# $Id: makefile.h,v 1.64 1994-09-18 09:03:03 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -290,7 +290,7 @@ ifeq ($(TARGET),SGITFP)
 
   FOPTIONS = -d8 -i8 
   COPTIONS = 
- FOPTIMIZE = -O3 -64 -mips4 -OPT:IEEE_arithmetic=2
+ FOPTIMIZE = -O3 -64 -mips4 -OPT:IEEE_arithmetic=2:fold_arith_limit=4000
  COPTIMIZE = -O
 
     DEFINES = -DSGITFP -DSGI -DLongInteger $(LIB_DEFINES) 
