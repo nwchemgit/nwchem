@@ -1,6 +1,7 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.40 1996-11-14 22:54:03 mdupuis Exp $
+C     $Id: geom_input.F,v 1.41 1996-12-14 00:47:55 d3e129 Exp $
       implicit none
+#include "stdio.fh"
 #include "inp.fh"
 #include "geom.fh"
 #include "tcgmsg.fh"
@@ -154,7 +155,11 @@ c
         scale = 1.0d0
         status = geom_set_user_units(geom,'a.u.')
       else if (units(1:2) .eq. 'an') then
-        scale  = 1.8897265d0
+        if(.not.geom_get_ang2au(geom,scale)) then
+          scale  = 1.88972598858d0
+          write(luout,*)'geom_input: geom_get_ang2au failed'
+          write(luout,*)'using geom_input default value of ',scale
+        endif
         status = geom_set_user_units(geom,'angstrom')
       else
         call errquit('geom_input: unknown units', 0)
@@ -244,7 +249,7 @@ c
      $    ('geom_input: systype?', 0)
       if (isys.eq.0) then
         if (scale.ne.1.0d0) then
-          write(6,1) name(1:inp_strlen(name)), scale, 1.0d0/scale
+          write(luout,1) name(1:inp_strlen(name)), scale, 1.0d0/scale
  1        format(/' Scaling coordinates for geometry "',a,'" by ',
      $        f11.9,' ( inverse scale = ',f11.9,' ) ',/)
           call dscal(3*ncenter, scale, coords, 1)
@@ -294,12 +299,13 @@ c
         if (.not. geom_print(geom))
      $      call errquit('geom_input: print failed ', 0)
         if (format .eq. 'xyz') then
-          write(6,*)
-          call util_print_centered(6,'XYZ format geometry',20,.true.)
+          write(luout,*)
+          call util_print_centered
+     &        (luout,'XYZ format geometry',20,.true.)
           if (.not. geom_print_xyz(geom,6))
      $        call errquit('geom_input: print xyz?',0)
-          write(6,*)
-          call util_flush(6)
+          write(luout,*)
+          call util_flush(luout)
         endif
         if(dbug) then
           call sym_print_all(geom,.true.,.true.,.true.,.true.,.true.)

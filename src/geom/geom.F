@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.55 1996-10-22 09:28:15 d3g681 Exp $
+C$Id: geom.F,v 1.56 1996-12-14 00:47:52 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -74,8 +74,10 @@ c
      & 'Ih'/
 
 c
-*rak:old:      data angstrom_to_au /1.8897265d0/
-      data angstrom_to_au /1.8897266d0/
+*rak:oldest:      data angstrom_to_au /1.8897265d0/
+*rak:older:      data angstrom_to_au /1.8897266d0/
+*. match inverse of new standard. 0.529177249
+      data angstrom_to_au /1.88972598858d0/
       data isystype / max_geom*0/
 c     
       end
@@ -2181,3 +2183,651 @@ c
       dip(3) = ndipole(3,geom)
 c
       end
+      logical function geom_calc_distance(a,b,ab)
+      implicit none
+c
+* computes distance between two atoms
+c
+      double precision a(3) ! [input] coords of center a
+      double precision b(3) ! [input] coords of center b
+      double precision ab   ! [output] distance between centers a,b
+c
+      ab = (a(1)-b(1))*(a(1)-b(1))
+      ab = (a(2)-b(2))*(a(2)-b(2)) + ab
+      ab = (a(3)-b(3))*(a(3)-b(3)) + ab
+      ab = sqrt(ab)
+      geom_calc_distance = ab.ge.0.0d00
+      end
+c
+      logical function geom_calc_angle(a,b,c,angle)
+      implicit none
+c
+c computes the angle (in degrees) between 3 atoms in order given
+c
+c::-functions
+      logical geom_calc_distance
+      external geom_calc_distance
+c::-passed
+      double precision a(3) ! [input] coordinates of center a
+      double precision b(3) ! [input] coordinates of center b
+      double precision c(3) ! [input] coordinates of center c
+      double precision angle ! [output] the angle (in degrees)
+c::-local
+      double precision ab, bc, ac, xcosine
+      double precision pi
+c
+      pi = 2.0d00*acos(0.0d00)
+      geom_calc_angle = geom_calc_distance(a,b,ab)
+      geom_calc_angle = geom_calc_angle.and.geom_calc_distance(b,c,bc)
+      geom_calc_angle = geom_calc_angle.and.geom_calc_distance(a,c,ac)
+      if (.not.geom_calc_angle) call errquit
+     &    ('geom_calc_angle:error computing a distance',911)
+      
+      xcosine = ab*ab + bc*bc - ac*ac
+      xcosine = xcosine/(2.0d00*ab*bc)
+   
+      if( abs(xcosine) .gt. 1.00d00 ) xcosine = sign(1.0d00,xcosine)
+
+      angle = (180.0d00/pi)*acos(xcosine)
+      
+      end
+      logical function geom_calc_dihedral(a,b,c,d,dihedral)
+      implicit none 
+c
+c computes the dihedral angle for the given 4 atom coordinates
+c
+c::-functions
+      logical geom_calc_distance
+      external geom_calc_distance
+c::-passed      
+      double precision a(3) ! [input] coordinates of center a
+      double precision b(3) ! [input] coordinates of center b
+      double precision c(3) ! [input] coordinates of center c
+      double precision d(3) ! [input] coordinates of center d
+      double precision dihedral ! [output] the dihedral angle (in degrees)
+c::-local
+      double precision ab,pab,qab,rab
+      double precision pac,qac,rac
+      double precision pbd,qbd,rbd
+      double precision dot, aa, xcosine, xsine
+      double precision pi
+c
+      pi = 2.0d00*acos(0.0d00)
+      geom_calc_dihedral = geom_calc_distance(a,b,ab)
+      if (.not.geom_calc_dihedral) call errquit
+     &    ('geom_calc_dihedral: error computing distance',911)
+      
+      pab = (b(1) - a(1))/ab
+      qab = (b(2) - a(2))/ab
+      rab = (b(3) - a(3))/ab
+
+      pac = (c(1) - a(1))
+      qac = (c(2) - a(2))
+      rac = (c(3) - a(3))
+      dot = pac*pab + qac*qab + rac*rab
+      pac = pac - dot*pab
+      qac = qac - dot*qab
+      rac = rac - dot*rab
+      aa  = sqrt((pac*pac+qac*qac+rac*rac))
+      pac = pac/aa
+      qac = qac/aa
+      rac = rac/aa
+
+      pbd = d(1) - b(1)
+      qbd = d(2) - b(2)
+      rbd = d(3) - b(3)
+      dot = pbd*pab + qbd*qab + rbd*rab
+      pbd = pbd - dot*pab
+      qbd = qbd - dot*qab
+      rbd = rbd - dot*rab
+      aa  = sqrt((pbd*pbd+qbd*qbd+rbd*rbd))
+      pbd = pbd/aa
+      qbd = qbd/aa
+      rbd = rbd/aa
+      
+      xcosine = pac*pbd + qac*qbd + rac*rbd
+      xsine   = pab*(qbd*rac - rbd*qac)
+      xsine   = xsine + qab*(rbd*pac - pbd*rac)
+      xsine   = xsine + rab*(pbd*qac - qbd*pac)
+      
+*      dihedral = 360.0d00 - ((180.0d00/pi)*atan2(xsine,xcosine))
+      dihedral = ((180.0d00/pi)*atan2(xsine,xcosine))
+*      if (dihedral.eq.360.0d00)dihedral = 0.0d00
+      end
+      logical function geom_print_distance(geom)
+      implicit none
+c
+c prints arbitrary i>j atom distances
+c
+#include "geom.fh"
+#include "stdio.fh"
+#include "inp.fh"
+c::-functions
+      logical geom_calc_distance
+      external geom_calc_distance
+c::-passed      
+      integer geom ! [input] geometry handle
+c::-local
+      double precision thresh
+      integer nat ! number of atoms
+      integer iat ! ith atom
+      integer jat ! jth atom
+      double precision chg   ! charge (ignored)
+      double precision ci(3) ! coords of atom i
+      character*16 tagi      ! tag of atom i
+      double precision cj(3) ! coords of atom j
+      character*16 tagj      ! tag of atom j
+      integer lmtag
+      double precision dij   ! distance between atoms i and j
+      double precision dist_min
+      double precision dist_ave
+      double precision dist_max
+      double precision dist_cnt 
+      integer num_pos
+      integer num_prt
+
+c
+      thresh = 3.00001d00
+*rak:      thresh = thresh + 0.01d00
+*rak:00001 continue
+*rak:      thresh = thresh - 0.01d00
+      if (.not.geom_ncent(geom,nat)) call errquit
+     &    ('geom_print_distance: ',911)
+
+      num_pos = nat*(nat-1)/2
+      num_prt = 0
+      dist_cnt = 0.0d00
+      dist_min = 4040.0d00
+      dist_max = 0.0d00
+      dist_ave = 0.0d00
+      write(luout,'(1x,a,f10.4)')
+     &    ' geom_print_distance: threshold :',thresh
+      do iat = 1,nat
+        if (.not.geom_cent_get(geom,iat,tagi,ci,chg))call errquit
+     &      ('geom_print_distance: ',911)
+        lmtag = inp_strlen(tagi)
+        do jat = 1,iat
+          if (iat.ne.jat) then
+
+            if (.not.geom_cent_get(geom,jat,tagj,cj,chg))call errquit
+     &          ('geom_print_distance: ',911)
+
+            if (.not.geom_calc_distance(ci,cj,dij)) call errquit
+     &          ('geom_print_distance: ',911)
+
+            dist_min = min(dist_min,dij)
+            dist_max = max(dist_max,dij)
+            dist_ave = dist_ave + dij
+            dist_cnt = dist_cnt + 1.0d00
+            if (dij.lt.thresh) then
+              lmtag = max(lmtag,inp_strlen(tagj))
+              write(luout,10000)
+     &            tagi(1:lmtag),iat,
+     &            tagj(1:lmtag),jat,dij
+              num_prt = num_prt + 1
+            endif
+          endif
+        enddo
+      enddo
+10000 format(1x,'distance(',a,'|',i4,',',a,'|',i4,') =',f12.6)
+      dist_ave = dist_ave/dist_cnt
+      write(luout,'(1x,a,f12.6)')
+     &    ' minimum distance ',dist_min
+      write(luout,'(1x,a,f12.6)')
+     &    ' maximum distance ',dist_max
+      write(luout,'(1x,a,f12.6)')
+     &    ' average distance ',dist_ave
+      write(luout,'(1x,a,i7)')
+     &    'possible pairs to print:',num_pos
+      write(luout,'(1x,a,i7)')
+     &    '          pairs printed:',num_prt
+      geom_print_distance = .true.
+*      write(69,'(1x,f12.6,i10)')thresh,num_prt
+*      if (num_prt.gt.0) goto 00001
+      end
+      logical function geom_print_angles(geom)
+      implicit none
+#include "geom.fh"
+#include "inp.fh"
+#include "stdio.fh"
+c::-functions
+      logical geom_calc_distance
+      external geom_calc_distance
+      logical geom_calc_angle
+      external geom_calc_angle
+c::-passed      
+      integer geom ! [input] geometry handle
+c::-local
+      double precision thresh
+      integer nat ! number of atoms
+      integer iat ! ith atom
+      integer jat ! jth atom
+      integer kat ! kth atom
+      double precision chg   ! charge (ignored)
+      double precision ci(3) ! coords of atom i
+      character*16 tagi      ! tag of atom i
+      double precision cj(3) ! coords of atom j
+      character*16 tagj      ! tag of atom j
+      double precision ck(3) ! coords of atom k
+      character*16 tagk      ! tag of atom k
+      integer lmtag
+      double precision dij   ! distance between atoms i and j
+      double precision djk   ! distance between atoms j and k
+      double precision dik   ! distance between atoms i and k
+      double precision angle ! angle to be printed
+      logical FF, FT         ! fortran true and false
+      integer ngood          ! number of sides under threshold
+      logical dij_okay       ! dij under threshold
+      logical djk_okay       ! djk under threshold
+      logical dik_okay       ! dik under threshold
+      logical print_ijk      ! print angle i, j, k
+      logical print_ikj      ! print angle i, k, j
+      logical print_jik      ! print angle j, i, k
+      logical should_print   ! should something be printed?
+      integer num_pos
+      integer num_prt
+c
+c initialize variables
+      thresh = 3.00001d00
+*      thresh = thresh + 0.01d00
+*00001 continue
+*      thresh = thresh - 0.01d00
+      FF = .false.
+      FT = .true.
+      dij_okay = FF
+      djk_okay = FF
+      dik_okay = FF
+      num_prt = 0
+      
+      if (.not.geom_ncent(geom,nat)) call errquit
+     &    ('geom_print_angles: ',911)
+
+      num_pos = nat*(nat-1)*(nat-2)/6
+
+      if (nat.lt.3) return
+      write(luout,'(1x,a,f10.4)')
+     &    ' geom_print_angles: distance threshold :',thresh
+      do iat = 1,nat
+        if (.not.geom_cent_get(geom,iat,tagi,ci,chg))call errquit
+     &      ('geom_print_angles: ',911)
+        lmtag = inp_strlen(tagi)
+        do jat = 1,iat
+          if (iat.ne.jat) then
+
+            if (.not.geom_cent_get(geom,jat,tagj,cj,chg))call errquit
+     &          ('geom_print_angles: ',911)
+
+            lmtag = max(lmtag,inp_strlen(tagj))
+            if (.not.geom_calc_distance(ci,cj,dij)) call errquit
+     &          ('geom_print_angles: ',911)
+
+            dij_okay = dij.lt.thresh
+            if (dij_okay) then
+              do kat = 1,jat
+                if (kat.ne.jat.and.kat.ne.iat) then
+                  if (.not.geom_cent_get(geom,kat,tagk,ck,chg))
+     &                call errquit
+     &                ('geom_print_angles: ',911)
+                  lmtag = max(lmtag,inp_strlen(tagk))
+                  
+                  if (.not.geom_calc_distance(ci,ck,dik)) call errquit
+     &                ('geom_print_angles: ',911)
+                  if (.not.geom_calc_distance(cj,ck,djk)) call errquit
+     &                ('geom_print_angles: ',911)
+                  dik_okay = dik.lt.thresh
+                  djk_okay = djk.lt.thresh
+                  ngood = 0
+                  if (dij_okay) ngood = ngood + 1
+                  if (dik_okay) ngood = ngood + 1
+                  if (djk_okay) ngood = ngood + 1
+*
+* ngood is 0 or 1 then atoms too far apart to be interesting
+*
+                  print_ijk = FF ! a(ijk) = a(kji)
+                  print_ikj = FF ! a(ikj) = a(jki)
+                  print_jik = FF ! a(jik) = a(kji)
+                  if (ngood.eq.2) then
+* ngood = 2 then only one interesting angle
+                    if     (dij_okay.and.dik_okay) then
+                      print_jik = FT ! then angle should be j, i, k
+                    elseif (dij_okay.and.djk_okay) then
+                      print_ijk = FT ! then angle should be i, j, k
+                    elseif (dik_okay.and.djk_okay) then
+                      print_ikj = FT ! then angle should be i, k, j
+                    else
+                      call errquit(' should not get here 1',911)
+                    endif
+                  elseif (ngood.eq.3) then
+                    
+* if isocoles print angle between equal sides
+                    if (dij.eq.djk) then
+                      print_ijk = FT
+                    else if (dij.eq.dik) then
+                      print_jik = FT
+                    else if (djk.eq.dik) then
+                      print_ikj = FT
+                      
+* print angle with largest value.
+                    else if (dij.gt.djk.and.dij.gt.dik) then
+                      print_ikj = FT
+                    else if (djk.gt.dij.and.djk.gt.dik) then
+                      print_jik = FT
+                    else if (dik.gt.dij.and.dik.gt.djk) then
+                      print_ijk = FT
+                    else
+                      call errquit(' should not get here 2',911)
+                    endif
+                  endif
+                  should_print = (ngood.eq.2.or.ngood.eq.3) .and.
+     &                (print_ijk.or.print_ikj.or.print_jik)
+                  if (print_ijk) then
+                    if (.not.should_print) stop 'error'
+                    if (.not.geom_calc_angle(ci,cj,ck,angle))
+     &                  call errquit
+     &                  (' error ',911)
+                    num_prt =num_prt + 1
+                    write(luout,10000)
+     &                  tagi(1:lmtag),iat,
+     &                  tagj(1:lmtag),jat,
+     &                  tagk(1:lmtag),kat,angle
+                  else if (print_ikj) then
+                    if (.not.should_print) stop 'error'
+                    if (.not.geom_calc_angle(ci,ck,cj,angle))
+     &                  call errquit
+     &                  (' error ',911)
+                    num_prt =num_prt + 1
+                    write(luout,10000)
+     &                  tagi(1:lmtag),iat,
+     &                  tagk(1:lmtag),kat,
+     &                  tagj(1:lmtag),jat,angle
+                  else if (print_jik) then
+                    if (.not.should_print) stop 'error'
+                    if (.not.geom_calc_angle(cj,ci,ck,angle))
+     &                  call errquit
+     &                  (' error ',911)
+                    num_prt =num_prt + 1
+                    write(luout,10000)
+     &                  tagj(1:lmtag),jat,
+     &                  tagi(1:lmtag),iat,
+     &                  tagk(1:lmtag),kat,angle
+                  endif
+                endif
+              enddo
+            endif
+          endif
+        enddo
+      enddo
+10000 format(1x,'angle(',a,'|',i4,',',a,'|',i4,',',a,'|',i4,
+     &    ') =',f9.3)
+      write(luout,'(1x,a,i7)')
+     &    'possible angles to print:',num_pos
+      write(luout,'(1x,a,i7)')
+     &    '         angles  printed:',num_prt
+      geom_print_angles = FT
+*      write(69,'(1x,f12.6,i10)')thresh,num_prt
+*      if (num_prt.gt.0) goto 00001
+      end
+      logical function geom_print_dihedrals(geom)
+      implicit none
+#include "mafdecls.fh"
+#include "geom.fh"
+#include "stdio.fh"
+#include "inp.fh"
+c::-functions
+      logical geom_calc_distance
+      external geom_calc_distance
+      logical geom_calc_dihedral
+      external geom_calc_dihedral
+c::-passed      
+      integer geom ! [input] geometry handle
+c::-local
+      double precision thresh
+      integer nat ! number of atoms
+      integer iat ! ith atom
+      integer jat ! jth atom
+      integer kat ! kth atom
+      integer lat ! lth atom
+      double precision chg   ! charge (ignored)
+      double precision ci(3) ! coords of atom i
+      character*16 tagi      ! tag of atom i
+      double precision cj(3) ! coords of atom j
+      character*16 tagj      ! tag of atom j
+      double precision ck(3) ! coords of atom k
+      character*16 tagk      ! tag of atom k
+      double precision cl(3) ! coords of atom k
+      character*16 tagl      ! tag of atom k
+      integer lmtag
+      double precision dij   ! distance between atoms i and j
+      double precision dik   ! distance between atoms i and k
+      double precision dil   ! distance between atoms i and l
+      double precision djk   ! distance between atoms j and k
+      double precision djl   ! distance between atoms j and l
+      double precision dkl   ! distance between atoms k and l
+      double precision diangle ! dihedral angle to be printed
+      logical FF, FT         ! fortran true and false
+      logical dij_okay       ! dij under threshold
+      logical dik_okay       ! dik under threshold
+      logical dil_okay       ! dil under threshold
+      logical djk_okay       ! djk under threshold
+      logical djl_okay       ! djl under threshold
+      logical dkl_okay       ! dkl under threshold
+      logical should_print   ! should something be printed?
+c
+      integer k_printed      ! ma index to printed dihedral angles
+      integer h_printed      ! ma handle to printed dihedral angles
+      integer dh_printed
+      integer nat_size
+      integer indx
+      integer ip
+      logical will_print
+      integer num_pos
+      integer num_prt
+      logical print4, print8, print12, print16
+c::-statement functions
+      integer si, sj, sk, sl
+      integer isym2m, isym2, isym4mm, isym4m, isym4
+      isym2m(si,sj)=max(si,sj)*((max(si,sj))-1)/2 + min(si,sj)
+      isym2(si,sj) = si*(si-1)/2 + sj
+      isym4mm(si,sj,sk,sl) =
+     &    max(isym2m(si,sj),isym2m(sk,sl)) *
+     &    (max(isym2m(si,sj),isym2m(sk,sl))-1)/2 +
+     &    min(isym2m(si,sj),isym2m(sk,sl))
+      isym4m(si,sj,sk,sl) = 
+     &    max(isym2(si,sj),isym2(sk,sl)) *
+     &    (max(isym2(si,sj),isym2(sk,sl))-1)/2 +
+     &    min(isym2(si,sj),isym2(sk,sl))
+      isym4(si,sj,sk,sl) = 
+     &    isym2(si,sj)*(isym2(si,sj)-1)/2 +
+     &    isym2(sk,sl)
+c
+      
+      if (.not.geom_ncent(geom,nat)) call errquit
+     &    ('geom_print_dihedrals: ',911)
+
+      num_pos = nat*(nat-1)*(nat-2)*(nat-3)/24
+
+      FF = .false.
+      FT = .true.
+
+      if (nat.lt.4) return
+
+      thresh = 4.00001d00
+*      thresh = thresh+0.01d00
+*00001 continue
+*      thresh = thresh-0.01d00
+c initialize variables
+      dij_okay = .false.      ! dij under threshold
+      dik_okay = .false.      ! dik under threshold
+      dil_okay = .false.      ! dil under threshold
+      djk_okay = .false.      ! djk under threshold
+      djl_okay = .false.      ! djl under threshold
+      dkl_okay = .false.      ! dkl under threshold
+      num_prt = 0
+      write(luout,'(1x,a,f10.4)')
+     &    ' geom_print_dihedrals: distance threshold :',thresh
+c
+*.. get ma array for printed dihedrals
+      dh_printed = 0
+*      nat_size = isym4mm(nat,nat,nat,1)
+      nat_size = 1000
+      if (.not.ma_push_get(mt_int,nat_size,'print list for dihedrals',
+     &    h_printed, k_printed)) call errquit
+     &    ('geom_print_dihedrals: not enough stack inc. needed',
+     &    nat_size)
+c
+      lmtag = -1
+      do iat = 1,nat
+        if (.not.geom_cent_get(geom,iat,tagi,ci,chg))call errquit
+     &      ('geom_print_dihedrals: ',911)
+        lmtag = max(lmtag,inp_strlen(tagi))
+      enddo
+      print4  = FF
+      print8  = FF
+      print12 = FF
+      print16 = FF
+      if (lmtag.le.4) then
+        print4 = FT
+      elseif (lmtag.le.8) then
+        print8 = FT
+      elseif (lmtag.le.12) then
+        print12 = FT
+      else
+        print16 = FT
+      endif
+      if (print4)  write(luout,10001)
+      if (print8)  write(luout,10003)
+      if (print12) write(luout,10005)
+      if (print16) write(luout,10007)
+      do iat = 1,nat
+        if (.not.geom_cent_get(geom,iat,tagi,ci,chg))call errquit
+     &      ('geom_print_dihedrals: ',911)
+        do jat = 1,iat
+          if (iat.ne.jat) then
+            
+            dh_printed = 0
+            if (.not.geom_cent_get(geom,jat,tagj,cj,chg))call errquit
+     &          ('geom_print_dihedrals: ',911)
+            
+            if (.not.geom_calc_distance(ci,cj,dij)) call errquit
+     &          ('geom_print_dihedrals: ',911)
+            
+            dij_okay = dij.lt.thresh
+            if (dij_okay) then
+              do kat = 1,jat
+                if (kat.ne.jat.and.kat.ne.iat) then
+                  if (.not.geom_cent_get(geom,kat,tagk,ck,chg))
+     &                call errquit
+     &                ('geom_print_dihedrals: ',911)
+                  
+                  if (.not.geom_calc_distance(ci,ck,dik)) call errquit
+     &                ('geom_print_dihedrals: ',911)
+                  if (.not.geom_calc_distance(cj,ck,djk)) call errquit
+     &                ('geom_print_dihedrals: ',911)
+                  dik_okay = dik.lt.thresh
+                  djk_okay = djk.lt.thresh
+                  if (djk_okay) then
+                    do lat = 1,kat
+                      if(lat.ne.iat.and.lat.ne.jat.and.
+     &                    lat.ne.kat) then
+                        if (.not.geom_cent_get(geom,lat,tagl,cl,chg))
+     &                      call errquit
+     &                      ('geom_print_dihedrals: ',911)
+                        
+                        if (.not.geom_calc_distance(ci,cl,dil))
+     &                      call errquit
+     &                      ('geom_print_dihedrals: ',911)
+                        if (.not.geom_calc_distance(cj,cl,djl))
+     &                      call errquit
+     &                      ('geom_print_dihedrals: ',911)
+                        if (.not.geom_calc_distance(ck,cl,dkl))
+     &                      call errquit
+     &                      ('geom_print_dihedrals: ',911)
+                        dil_okay = dil.lt.thresh
+                        djl_okay = djl.lt.thresh
+                        dkl_okay = dkl.lt.thresh
+                        should_print =
+     &                      dij_okay.and.djk_okay.and.dkl_okay
+*                        should_print = should_print.and.dik_okay
+*                        should_print = should_print.and.djl_okay
+                        if (should_print) then
+                          indx = isym4mm(iat,jat,kat,lat) 
+                          will_print = FT
+                          do ip = 0,(dh_printed-1)
+                            if (indx.eq.int_mb(k_printed+ip))
+     &                          will_print = FF
+                          enddo
+                          if (will_print) then
+                            int_mb(k_printed+dh_printed) = indx
+                            dh_printed = dh_printed + 1
+                            if ((dh_printed+1).gt.nat_size)
+     &                          stop ' error size'
+                            if (.not.geom_calc_dihedral
+     &                          (ci,cj,ck,cl,diangle))
+     &                          call errquit('dih error',911)
+                            num_prt = num_prt + 1
+                            if (print4) write(luout,10002)
+     &                          tagi(1:lmtag),iat,
+     &                          tagj(1:lmtag),jat,
+     &                          tagk(1:lmtag),kat,
+     &                          tagl(1:lmtag),lat,diangle
+                            if (print8) write(luout,10004)
+     &                          tagi(1:lmtag),iat,
+     &                          tagj(1:lmtag),jat,
+     &                          tagk(1:lmtag),kat,
+     &                          tagl(1:lmtag),lat,diangle
+                            if (print12) write(luout,10006)
+     &                          tagi(1:lmtag),iat,
+     &                          tagj(1:lmtag),jat,
+     &                          tagk(1:lmtag),kat,
+     &                          tagl(1:lmtag),lat,diangle
+                            if (print16) write(luout,10008)
+     &                          tagi(1:lmtag),iat,
+     &                          tagj(1:lmtag),jat,
+     &                          tagk(1:lmtag),kat,
+     &                          tagl(1:lmtag),lat,diangle
+*                        write(luout,10000)
+*     &                      tagi(1:lmtag),iat,
+*     &                      tagj(1:lmtag),jat,
+*     &                      tagk(1:lmtag),kat,
+*     &                      tagl(1:lmtag),lat,diangle
+                          endif
+                        endif
+                      endif
+                    enddo
+                  endif
+                endif
+              enddo
+            endif
+          endif
+        enddo
+      enddo
+10000 format(1x,'dihedral angle(',
+     &    a,'|',i5,',',a,'|',i5,',',a,'|',i5,',',a,'|',i5,
+     &    ') =',f9.3)
+10001 format(1x,33('-'),'dihedral angles',32('-'),/,
+     &    2x,4(1x,'tag  number  '),3x,'dihedral angle',/,
+     &    1x,80('-'),/)
+10002 format(2x,4(a4,3x,i4,3x),5x,f9.3)
+10003 format(1x,33('-'),'dihedral angles',32('-'),/,
+*                 123456789012345 
+     &    2x,4(1x,'  tag   number'),3x,' dihedral angle ',/,
+     &    1x,80('-'),/)
+10004 format(2x,4(a8,2x,i4,1x),6x,f9.3)
+10005 format(1x,25('-'),'dihedral angles',25('-'),/,
+     &    4(1x,'atom tag, number'),3x,' dihedral angle ',/,
+     &    80('-'),/)
+10007 format(1x,25('-'),'dihedral angles',25('-'),/,
+     &    4(1x,'atom tag, number'),3x,' dihedral angle ',/,
+     &    80('-'),/)
+10006 format(4(2x,a12,i4),f9.3)
+10008 format(4(2x,a16,i4),f9.3)
+      write(luout,'(1x,a,i10)')
+     &    'possible dihedral angles to print:',num_pos
+      write(luout,'(1x,a,i10)')
+     &    '          dihedral angles printed:',num_prt
+*      write(69,'(1x,f12.6,i10)')thresh,num_prt
+      geom_print_dihedrals = ma_pop_stack(h_printed)
+*      if (num_prt.gt.0) goto 00001
+      end
+      
+
