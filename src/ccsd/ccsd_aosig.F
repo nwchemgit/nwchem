@@ -3,7 +3,7 @@
      &                      mem2,max2e,tol2e,g_nt2,g_nz2,g_nhz2,g_tz1,
      &                      g_tz2)
       implicit none
-C     $Id: ccsd_aosig.F,v 2.4 1997-10-22 16:40:54 d3g681 Exp $
+C     $Id: ccsd_aosig.F,v 2.5 1997-10-23 15:56:41 d3g681 Exp $
       integer nsh,nocc,nvir,nbf,next,icnt,basis,max2e,mem2
       integer ish,jsh,ksh,lsh,ilo,ihi,jlo,jhi,klo,khi,llo,lhi
       integer g_ilo,g_ihi,g_jlo,g_jhi
@@ -16,7 +16,7 @@ C     $Id: ccsd_aosig.F,v 2.4 1997-10-22 16:40:54 d3g681 Exp $
      &                 eri2(max2e),schwarz2
       integer g_nt2,g_nz2,g_nhz2,g_tz1,g_tz2,g_tmp,g_tmp2,g_tmp3,g_tmp4
       integer nxtval
-      external_nxtval
+      external nxtval
 c
 #include "mafdecls.fh"
 #include "global.fh"
