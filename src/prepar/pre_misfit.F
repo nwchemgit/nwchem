@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.31 2001-10-18 18:43:07 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.32 2002-02-15 22:38:23 d3j191 Exp $
 c
       implicit none
 c
@@ -490,16 +490,55 @@ c
  6000 format(' Added counterion with energy ',t40,f12.3,' kJ/mol')
       endif
 c
+c     remove all grid points within gdist from imin from grid
+c
+      d(1)=grid(1,imin)
+      d(2)=grid(2,imin)
+      d(3)=grid(3,imin)
+c
+      imax=ngrid
+      ngrid=0
+      do 21 j=1,imax
+      if(npbtyp.eq.0) then
+      dist2=(grid(1,j)-d(1))**2+(grid(2,j)-d(2))**2+(grid(3,j)-d(3))**2
+      else
+      distx=grid(1,j)-d(1)
+      disty=grid(2,j)-d(2)
+      distz=grid(3,j)-d(3)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      if(abs(distx).gt.boxh(1))
+     + distx=distx-util_nint(distx/box(1))*box(1)
+      if(abs(disty).gt.boxh(2))
+     + disty=disty-util_nint(distx/box(2))*box(2)
+      if(abs(distz).gt.boxh(3))
+     + distz=distz-util_nint(distx/box(3))*box(3)
+#else
+      if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
+      if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
+      if(abs(distz).gt.boxh(3)) distz=distz-nint(distx/box(3))*box(3)
+#endif
+      dist2=distx**2+disty**2+distz**2
+      endif
+      if(dist2.ge.gdist2) then
+      ngrid=ngrid+1
+      grid(1,ngrid)=grid(1,j)
+      grid(2,ngrid)=grid(2,j)
+      grid(3,ngrid)=grid(3,j)
+      endif
+   21 continue
+c
 c     remove grid point from list
 c
-      do 21 j=imin,ngrid
-      do 22 k=1,4
-      grid(k,j)=grid(k,j+1)
-   22 continue
-   21 continue
-      ngrid=ngrid-1
+c      do 21 j=imin,ngrid
+c      do 22 k=1,4
+c      grid(k,j)=grid(k,j+1)
+c   22 continue
+c   21 continue
+c      ngrid=ngrid-1
 c
-      if(ngrid.le.0) call errquit('No grid points',9999)
+      if(ngrid.le.0) call errquit('No grid points left',9999)
+c
+c      if(ngrid.le.0) call errquit('No grid points',9999)
 c
 c     update grid potential
 c
