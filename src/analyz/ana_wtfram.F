@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.27 2000-08-01 17:32:18 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.28 2000-08-10 19:32:19 d3j191 Exp $
 c
       implicit none
 c
@@ -157,7 +157,7 @@ c
       else
       write(iunit,3000) ((1.0d1*(x(i,j)),j=1,3),i=1,nsa)
       endif
-c      write(iunit,3000) (1.0d1*box(j),j=1,3)
+      write(iunit,3000) (1.0d1*box(j),j=1,3)
       endif
 c
       if(fmt.eq.'bam') then
@@ -348,7 +348,7 @@ c
       call ana_wrtxyz(lfnchg,filchg,byte_mb(i_snam),int_mb(i_isel),
      + dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
      + .false.,.not.lsonly,int_mb(i_ndxw))
-      write(filchg,'(a,i3.3,a)')
+      write(filchg,'(a,i5.5,a)')
      + root(1:index(root,'.')-1),nwrit,'.xyzq '
       call ana_pltgrd(.true.)
       endif
