@@ -28,7 +28,6 @@
 
       logical value,found
       integer nion,npsp,k
-      character    dum
       character*30 filename
       character*255 id,full_filename
 
@@ -81,7 +80,7 @@
           open(unit=33, file=full_filename,form='formatted',
      >         status='old')
            do while (found)
-             read(18,*,end=100) dum
+             read(18,*,end=100) 
            end do
   100      continue
 #ifdef FUJITSU_SOLARIS
