@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.8 1999-06-16 00:08:23 d3h449 Exp $
+* $Id: grid_file.F,v 1.9 1999-08-11 00:56:06 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -357,7 +357,7 @@ c
          if (otrace) then
             write(6,1) cur_rec, n_rec_in_file
  1          format(' grid_file: EOF at record',i5,' of ',i5,'?')
-            call util_flush(6)
+cedo            call util_flush(6)
          end if
          return
       end if

@@ -1,21 +1,23 @@
       Subroutine grid_setquad(rtdb)
 c
-c$Id: grid_setquad.F,v 1.5 1999-07-13 01:16:22 edo Exp $
+c$Id: grid_setquad.F,v 1.6 1999-08-11 00:56:07 edo Exp $
 c
       implicit none
-      logical oprint, grid_on_file
+      logical oprint, grid_on_file,ogrdebug
 c      
 #include "rtdb.fh"
 #include "cdft.fh"
 #include "util.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "tcgmsg.fh"
 c
       integer rtdb
 c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
+      ogrdebug = util_print('griddebug', print_high)
 c
 c     Set up needed info by atom type (ntypes info; e.g., nuclear charge,
 c     Bragg-Slater radii, etc)
@@ -54,11 +56,13 @@ c     Generate the complete grid and decompose it into blocks
 c     which can define a computational task size on a file system (if desired).
 c  
       call grid_gen_pts(rtdb)
+      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),'  done genpts'
       call ga_sync()
 c
 c     Update any req'd data in rtdb
 c
       call grid_update_rtdb(rtdb)
+      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),'  done uprt'
       call ga_sync()
 c
 c     Setup reduced matrices (eval gaussian on grid pts and reduce to 
@@ -69,15 +73,20 @@ c
          grid_on_file = .false.
       endif
       if (grid_on_file)then
+      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),' before init_init'
          call int_init(rtdb, 1, AO_bas_han)
-         call grid_rchi(rtdb)
+      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),' before rchi'
+         call grid_rchi
+      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),' done grrchi'
          call int_terminate
       endif
+      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),' done intt'
       call ga_sync()
 c
 c     Memory management (as before)
 c
       call grid_memory(rtdb)
+      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),' done mem'
       call ga_sync()
       return
       end
