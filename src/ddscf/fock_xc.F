@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      ,     nmat, g_dens, g_xc,scftype)
 c
-c     $Id: fock_xc.F,v 1.12 2000-10-27 16:28:12 edo Exp $
+c     $Id: fock_xc.F,v 1.13 2001-06-21 18:52:26 zzhang Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -41,6 +41,8 @@ c
       logical wght_GA_dum,grid_reopen,grid_on_file,xc_gotxc
       external grid_reopen,xc_gotxc
       double precision Exc_dum(2), rho_n_dum,tdum
+      logical cphf_tddft
+      integer ioff, joff
 c
       if(.not.xc_gotxc()) return
       ipol=1
@@ -74,28 +76,37 @@ c
       if (bgj_print() .gt. 0)
      &     write(*,*)'fock_xc: calc_type =',calc_type
 c
-c     Set up local copies of density matrix handles
+c     Set up local copies of density matrix handles. The number of 
+c     density matrices needed is ipol*nvec+2. The last two are scf
+c     (unperturbed) density matrices. nmat is actually 
 c
       if (.not.MA_Push_Get(mt_int,nmat+2,'g_dens_local',
-     &   l_g_dens_local,k_g_dens_local))
-     &   call errquit('fock_xc: cannot allocate g_dens_local',0)
-      do imat = 1, nmat
-         int_mb(k_g_dens_local+imat-1) = g_dens(imat)
-      enddo
+     &     l_g_dens_local,k_g_dens_local))
+     &     call errquit('fock_xc: cannot allocate g_dens_local',0)
+      if(ipol.eq.1)then
+         do imat = 1, nmat
+            int_mb(k_g_dens_local+imat-1) = g_dens(imat)
+         enddo
+      else if(ipol.eq.2)then 
+         do imat = 1, nmat/ipol
+            ioff = k_g_dens_local + 2*(imat-1) - 1
+            joff = 4*(imat-1)
+            int_mb(ioff + 1) = g_dens(joff+1) ! alpha density
+            int_mb(ioff + 2) = g_dens(joff+3) ! beta  density
+         enddo
+      else
+         call errquit("unknown ipol, fock_xc", 0)
+      endif
       if (calc_type .eq. 2) then
-         k_g_dens_scf = k_g_dens_local+nmat
+         if(ipol.eq.1)then
+            k_g_dens_scf = k_g_dens_local+nmat
+         else if(ipol.eq.2)then
+            k_g_dens_scf = k_g_dens_local+nmat/2 
+         endif
          if (.not. bgj_get_scf_dens(int_mb(k_g_dens_scf)))
      &      call errquit('fock_xc: could not get scf density handles',0)
-c         do imat = 1, nmat+ipol
-c            write(*,*)'Density matrix',imat
-c            call ga_print(int_mb(k_g_dens_local+imat-1))
-c         enddo
       else
          k_g_dens_scf = k_g_dens_local
-c         do imat = 1, nmat
-c            write(*,*)'Density matrix',imat
-c            call ga_print(int_mb(k_g_dens_local+imat-1))
-c         enddo
       endif
 #if 0
 c     !!! Comment out initialization so fock_xc will accumulate
@@ -104,8 +115,6 @@ c
 c     Initialize XC matrices
 c
       do imat = 1, nmat
-c         write(*,*)'Density matrix',imat
-c         call ga_print(g_dens(imat))
          call ga_zero(g_xc(imat))
       enddo
 #endif
@@ -117,11 +126,24 @@ c
       g_xyz_dum = -1
       g_nq_dum = -1
       wght_GA_dum = .false.
+      rho_n_dum = 0
+      exc_dum(1) = 0
+      exc_dum(2) = 0
+      tdum = 0
       call xc_init_index(geom,ipol,nbf_ao,ao_bas_han,
      ,     int_mb(k_g_dens_scf), l_cntoce, k_cntoce,
      &                   l_cntobfr, k_cntobfr, l_cetobfr, k_cetobfr,
      &                   l_rdens_atom, k_rdens_atom)
 c
+c     for uhf calculations, nmat is 4*nvec. The nmat passed to _quadv0_gen
+c     should be the number of vectors 
+c
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
+         cphf_tddft = .false.
+      endif
+      if(cphf_tddft .and. scftype.eq.'UHF')nmat=nmat/4
+c     
 c     check if we can get the grid from a file
 c         
       grid_written=grid_reopen(rtdb,geom)
