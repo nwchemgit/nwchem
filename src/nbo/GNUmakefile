@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2004-04-08 01:27:18 edo Exp $
+# $Id: GNUmakefile,v 1.3 2004-04-29 23:01:54 edo Exp $
 #
 
 
@@ -13,5 +13,10 @@ USES_BLAS = nwnbo.F
 
 include ../config/makefile.h
 include ../config/makelib.h
+
+ifeq ($(_IFCV8),Y)
+ FOPTIMIZE += -O0 -g
+ FDEBUG += -O0 -g
+endif
 
 
