@@ -1,5 +1,5 @@
 *
-* $Id: psi_history.F,v 1.5 2002-01-01 11:07:51 bylaska Exp $
+* $Id: psi_history.F,v 1.6 2002-01-02 20:48:59 bylaska Exp $
 *
 
 *     *******************************
@@ -14,19 +14,24 @@
       complex*16 psi(*)
       complex*16 psitmp(*)
 
+#include "mafdecls.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
       parameter(MASTER=0)
 
+      logical value
       character*30 tag1
-      integer      ptr,i,size
-      real*8       coef(5),scal
+      integer      ptr,i,size,nfft3d,neall,mm(2),ms,psi2(2)
+      real*8       coef(15),scal
 
 *     **** external functions ****
       integer  psi_history,psi_history_size,psi_history_pointer_start
       external psi_history,psi_history_size,psi_history_pointer_start
-    
+
+
+      call Pack_npack(1,nfft3d)
+      neall = ne(1)+ne(2)
 
 *     **** write out psi and ion histories ****
       if (psi_history().gt.0) then
@@ -45,34 +50,90 @@
         write(*,*)
         end if
 
+        value = MA_push_get(mt_dbl,(ne(1)*ne(1)),'mm',mm(2),mm(1))
+        value = MA_push_get(mt_dcpl,(neall*nfft3d),
+     >                      'psi2',psi2(2),psi2(1))
+
+
         ptr = psi_history_pointer_start()
         ptr = ptr-1
         if (ptr.le.0) ptr = size
 
-        scal = coef(1)
-        call Pack_cc_daxpy(1,scal,psi,psi)
+        call Grsm_gg_Copy(nfft3d,neall,psi,dcpl_mb(psi2(1)))
+c       scal = coef(1)
+c       call Grsm_gg_daxpy(nfft3d,neall,scal,psi,psi)
+        do ms=1,ispin
+           call Grsm_ggm_dot(nfft3d,ne(ms),
+     >                       dcpl_mb(psi2(1)+(ms-1)*nfft3d*ne(1)),
+     >                       psitmp(1+(ms-1)*nfft3d*ne(1)),
+     >                       dbl_mb(mm(1)))
+           scal = coef(1)
+           call dscal(ne(ms)*ne(ms),scal,dbl_mb(mm(1)),1)
+           call Grsm_gg_Copy(nfft3d,ne(ms),
+     >                       dcpl_mb(psi2(1)+(ms-1)*nfft3d*ne(1)),
+     >                       psitmp(1+(ms-1)*nfft3d*ne(1)))
+           call Grsm_gmg_daxpy(nfft3d,ne(ms),
+     >                       psitmp(1+(ms-1)*nfft3d*ne(1)),
+     >                       dbl_mb(mm(1)),
+     >                       psi(1+(ms-1)*nfft3d*ne(1)))
+        end do
 
         do i=2,(size-1)
           ptr = ptr-1
           if (ptr.le.0) ptr = size
           tag1 = 'nwpw_history_movecs'//CHAR(ICHAR('a')+ptr-1)
           call psi_read_filename(tag1,ispin,ne,psitmp)
-          scal = coef(i)-coef(i-1)
-          call Pack_cc_daxpy(1,scal,psitmp,psi)
+
+c         scal = coef(i)-coef(i-1)
+c         call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
+          do ms=1,ispin
+             call Grsm_ggm_dot(nfft3d,ne(ms),
+     >                         dcpl_mb(psi2(1)+(ms-1)*nfft3d*ne(1)),
+     >                         psitmp(1+(ms-1)*nfft3d*ne(1)),
+     >                         dbl_mb(mm(1)))
+             scal = coef(i)-coef(i-1)
+             call dscal(ne(ms)*ne(ms),scal,dbl_mb(mm(1)),1)
+             call Grsm_gg_Copy(nfft3d,ne(ms),
+     >                         dcpl_mb(psi2(1)+(ms-1)*nfft3d*ne(1)),
+     >                         psitmp(1+(ms-1)*nfft3d*ne(1)))
+             call Grsm_gmg_daxpy(nfft3d,ne(ms),
+     >                         psitmp(1+(ms-1)*nfft3d*ne(1)),
+     >                         dbl_mb(mm(1)),
+     >                         psi(1+(ms-1)*nfft3d*ne(1)))
+          end do
+
         end do
 
         ptr = ptr-1
         if (ptr.le.0) ptr = size
         tag1 = 'nwpw_history_movecs'//CHAR(ICHAR('a')+ptr-1)
         call psi_read_filename(tag1,ispin,ne,psitmp)
-        scal = -coef(size-1)
-        call Pack_cc_daxpy(1,scal,psitmp,psi)
+c       scal = -coef(size-1)
+c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
+        do ms=1,ispin
+           call Grsm_ggm_dot(nfft3d,ne(ms),
+     >                       dcpl_mb(psi2(1)+(ms-1)*nfft3d*ne(1)),
+     >                       psitmp(1+(ms-1)*nfft3d*ne(1)),
+     >                       dbl_mb(mm(1)))
+           scal = -coef(size-1)
+           call dscal(ne(ms)*ne(ms),scal,dbl_mb(mm(1)),1)
+           call Grsm_gg_Copy(nfft3d,ne(ms),
+     >                       dcpl_mb(psi2(1)+(ms-1)*nfft3d*ne(1)),
+     >                       psitmp(1+(ms-1)*nfft3d*ne(1)))
+           call Grsm_gmg_daxpy(nfft3d,ne(ms),
+     >                       psitmp(1+(ms-1)*nfft3d*ne(1)),
+     >                       dbl_mb(mm(1)),
+     >                       psi(1+(ms-1)*nfft3d*ne(1)))
+        end do
 
+        value = MA_pop_stack(psi2(2))
+        value = MA_pop_stack(mm(2))
       end if
       end if
 
       return
       end
+
 
 
 *     *******************************
@@ -93,9 +154,8 @@
 
       logical      value
       character*30 tag2
-      integer      ptr,i,ii,j,size,nion
-      real*8 M(5,5)
-      integer ipiv(5),info
+      integer      ptr,i,ii,j,size,nion,start
+      integer M(2),ipiv(2),info
       integer rion1(2),rion2(2),gion(2)
       real*8 gx,gy,gz
       real*8 g0x,g0y,g0z
@@ -114,6 +174,7 @@
       call Parallel_taskid(taskid)
       size = psi_history_size()
       ptr  = psi_history_pointer_start()
+      start = ptr
       call dcopy((size-1),0.0d0,0,coef,1)
 
       if (taskid.eq.MASTER) then
@@ -124,6 +185,10 @@
      >        MA_push_get(mt_dbl,3*nion,'rion2',rion2(2),rion2(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(3*nion*size),'gion',gion(2),gion(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(size*size),'M',M(2),M(1))
+      value = value.and.
+     >        MA_push_get(mt_int,(size),'ipiv',ipiv(2),ipiv(1))
       if (.not. value) call errquit('psi_history_generate_coef',1)
 
     
@@ -173,7 +238,7 @@
 *     **** generate M ****
       do j=1,size-1
       do i=1,size-1
-         M(i,j) = 0.0d0
+         dbl_mb(M(1)+(i-1)+(j-1)*(size-1))  =0.0d0
          do ii=1,nion
             grx = dbl_mb(gion(1)+3*nion*(i)+ 3*(ii-1))   
             gry = dbl_mb(gion(1)+3*nion*(i)+ 3*(ii-1)+1) 
@@ -182,13 +247,16 @@
             gsy = dbl_mb(gion(1)+3*nion*(j)+ 3*(ii-1)+1) 
             gsz = dbl_mb(gion(1)+3*nion*(j)+ 3*(ii-1)+2) 
 
-            M(i,j) = M(i,j) + grx*gsx + gry*gsy + grz*gsz
+            dbl_mb(M(1)+(i-1)+(j-1)*(size-1)) 
+     >         = dbl_mb(M(1)+(i-1)+(j-1)*(size-1)) 
+     >         + grx*gsx + gry*gsy + grz*gsz
          end do
       end do
       end do
 
 *     **** solve Mx=b ****
-      call dgesv((size-1),1,M,5,ipiv,coef,(size-1),info)
+      call dgesv((size-1),1,dbl_mb(M(1)),(size-1),
+     >           int_mb(ipiv(1)),coef,(size-1),info)
       if (info.ne.0) then
         call dcopy((size-1),0.0d0,0,coef,1)
       end if
@@ -197,7 +265,63 @@
      >    call dcopy((size-1),0.0d0,0,coef,1)
       end do
 
-      value = MA_pop_stack(gion(2))
+
+*     **** write out estimated ion positions ****
+      ptr = start - 1
+      if (ptr.le.0) ptr = size
+      tag2 = 'nwpw_history_ion'//CHAR(ICHAR('a')+ptr-1)
+      call ion_read_filename(tag2,dbl_mb(rion1(1)))
+
+      gx = 0.0d0
+      write(*,*) 'old and new ion positions'
+      do ii=1,nion
+        write(*,1500) ii, 
+     >                dbl_mb(rion1(1)+3*(ii-1)),
+     >                dbl_mb(rion1(1)+3*(ii-1)+1),
+     >                dbl_mb(rion1(1)+3*(ii-1)+2),
+     >                ion_rion(1,ii),
+     >                ion_rion(2,ii),
+     >                ion_rion(3,ii) 
+       gx = gx
+     >    + (dbl_mb(rion1(1)+3*(ii-1))  -ion_rion(1,ii))**2
+     >    + (dbl_mb(rion1(1)+3*(ii-1)+1)-ion_rion(2,ii))**2
+     >    + (dbl_mb(rion1(1)+3*(ii-1)+2)-ion_rion(3,ii))**2
+      end do
+      write(*,*) "diff:",dsqrt(gx)
+
+      do i=1,(size-1)
+      do ii=1,nion
+        dbl_mb(rion1(1)+3*(ii-1))   = dbl_mb(rion1(1)+3*(ii-1))
+     >   + coef(i)*dbl_mb(gion(1) + 3*nion*(i) + 3*(ii-1))
+        dbl_mb(rion1(1)+3*(ii-1)+1) = dbl_mb(rion1(1)+3*(ii-1)+1)
+     >   + coef(i)*dbl_mb(gion(1) + 3*nion*(i) + 3*(ii-1)+1)
+        dbl_mb(rion1(1)+3*(ii-1)+2) = dbl_mb(rion1(1)+3*(ii-1)+2)
+     >   + coef(i)*dbl_mb(gion(1) + 3*nion*(i) + 3*(ii-1)+2)
+      end do
+      end do
+
+      gx = 0.0d0
+      write(*,*) 'estimated and new ion positions'
+      do ii=1,nion
+        write(*,1500) ii, 
+     >                dbl_mb(rion1(1)+3*(ii-1)),
+     >                dbl_mb(rion1(1)+3*(ii-1)+1),
+     >                dbl_mb(rion1(1)+3*(ii-1)+2),
+     >                ion_rion(1,ii),
+     >                ion_rion(2,ii),
+     >                ion_rion(3,ii) 
+       gx = gx
+     >    + (dbl_mb(rion1(1)+3*(ii-1))  -ion_rion(1,ii))**2
+     >    + (dbl_mb(rion1(1)+3*(ii-1)+1)-ion_rion(2,ii))**2
+     >    + (dbl_mb(rion1(1)+3*(ii-1)+2)-ion_rion(3,ii))**2
+      end do
+      write(*,*) "diff:",dsqrt(gx)
+
+ 1500 format(5x,I3, '(', 3F8.3, ') (' ,3F8.3, ')' )
+
+      value = MA_pop_stack(ipiv(2))
+      value = value.and.MA_pop_stack(M(2))
+      value = value.and.MA_pop_stack(gion(2))
       value = value.and.MA_pop_stack(rion2(2))
       value = value.and.MA_pop_stack(rion1(2))
       if (.not. value) call errquit('psi_history_generate_coef',2)
