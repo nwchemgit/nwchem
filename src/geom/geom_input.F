@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.133 2000-05-04 17:32:52 mdupuis Exp $
+C     $Id: geom_input.F,v 1.134 2000-05-04 23:53:50 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -511,11 +511,20 @@ c
       if(.not. geom_verify_coords(geom))
      &     call errquit
      &     ('geom_input: geom_verify_coords failed',911)
+c
+c     almost done
+c
+      if (.not. geom_destroy(geom))
+     $     call errquit('geom_input: geom_destroy failed', 0)
 c     
 c     ----- process -cosmo- input ... check if rtdb is ready -----
 c
       odbug =.false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(odbug) then
+            write(Luout,*) 'in geom_input , ',
+     &                     'cosmo flag is     on -rtdb-'
+         endif
          if(ocosmo) then
             oready=.true.
             if(odbug) then
@@ -528,6 +537,10 @@ c
             endif
          endif
       else
+         if(odbug) then
+            write(Luout,*) 'in geom_input , ',
+     &                     'cosmo flag is not on -rtdb-'
+         endif
          oready=.false.
          if(odbug) then
             write(Luout,*) 'in geom_input , ready is = ',oready
@@ -537,16 +550,11 @@ c
 c     ----- if ready ... initialize -cosmo- -----
 c
       if(oready) then
-         call cosmo_initialize(rtdb)
+         call cosmo_initialize(rtdb,geom)
       else
          if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
      $        call errquit('cosmo_input: rtdb_put failed',0)
       endif
-c
-c     almost done
-c
-      if (.not. geom_destroy(geom))
-     $     call errquit('geom_input: geom_destroy failed', 0)
 c     
 c     done
       
