@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.27 1997-12-09 00:41:54 d3g681 Exp $
+c     $Id: grad_force.F,v 1.28 1998-01-07 18:51:44 d3e129 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -74,7 +74,8 @@ c
 c
       character*255 movecs_in
 c
-      integer nproc, nat, nbf, nsh,max_sh_bf, max_at_bf, nopen, nclosed, 
+      integer nproc, nat, nbf, nsh,max_sh_bf, max_at_bf, nopen,
+     &     nclosed, 
      $     ndens, nbf2, nocc, max1e, max2e, mscratch_1e, mscratch_2e,
      $     lbuf, lscratch, lsqa, lsqatom, i, j, iat
 c
@@ -212,7 +213,7 @@ C     # of eigenvalues and density matrices
          else                   ! ROHF
             nbf2 = nbf
             ndens = 3
-            call errquit('no ROMP2 gradients yet', 110)
+            call errquit('grad;no ROMP2 gradients yet', 110)
          end if
       else                      ! SCF
          if (scftype .eq. 'UHF') then
@@ -240,19 +241,23 @@ C     forces on atoms(3xnat)
 C     local replication(separate for the different pieces)
       lforce = nat * 3
       if (.not. ma_push_get(mt_dbl,lforce,'forces',l_force,k_force))
-     $     call errquit('could not allocate l_force',lforce)
+     $     call errquit('grad:could not allocate l_force',lforce)
       if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_nuc, 
-     $     k_frc_nuc)) call errquit('could not allocate l_force',lforce)
+     $     k_frc_nuc)) call errquit
+     &    ('grad:could not allocate l_force',lforce)
       if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_kin, 
-     $     k_frc_kin)) call errquit('could not allocate l_force',lforce)
+     $     k_frc_kin)) call errquit
+     &    ('grad:could not allocate l_force',lforce)
       if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_wgh, 
-     $     k_frc_wgh)) call errquit('could not allocate l_force',lforce)
+     $     k_frc_wgh)) call errquit
+     &    ('grad:could not allocate l_force',lforce)
       if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_2el, 
-     $     k_frc_2el)) call errquit('could not allocate l_force',lforce)
+     $     k_frc_2el)) call errquit
+     &    ('grad:could not allocate l_force',lforce)
       if (omp2) then
          if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_mp2, 
-     $        k_frc_mp2)) call errquit('could not allocate l_force',
-     $        lforce)
+     $        k_frc_mp2)) call errquit
+     &      ('grad:could not allocate l_force',lforce)
       end if
 
 
@@ -363,21 +368,22 @@ C     one-electron contribution
 C     buffers for one electron integral derivatives
 
       if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,k_buf))
-     $     call errquit('could not allocate buffer',12*lbuf)
+     $     call errquit('grad:could not allocate buffer',12*lbuf)
 *      call ma_summarize_allocated_blocks()
       if (.not. ma_push_get(mt_dbl,lscratch,'deriv scratch', 
      $     l_scr, k_scr))call errquit('grad: scratch alloc failed',
      $     lscratch)
       if (.not. ma_push_get(mt_int,4*lbuf,'labels',l_labels,k_labels))
-     $     call errquit('could not allocate labels',4*lbuf)
+     $     call errquit('grad: could not allocate labels',4*lbuf)
 c     
 C     local density matrix block 
       lsqatom = max_at_bf * max_at_bf
       if (.not. ma_push_get(mt_dbl,lsqatom,'local_density',
      $     l_dens,k_dens))
-     $     call errquit('could not allocate l_dens',lsqatom)
+     $     call errquit('grad:could not allocate l_dens',lsqatom)
       if (.not. ma_push_get(mt_dbl,lsqatom,'local_w_density',l_wdens, 
-     $     k_wdens)) call errquit('could not allocate l_wdens',lsqatom)
+     $     k_wdens)) call errquit
+     &    ('grad;could not allocate l_wdens',lsqatom)
 c     
       cpu_tim(1)  = util_cpusec()
       wall_tim(1) = util_wallsec()
@@ -400,61 +406,61 @@ C     blocks of density matrix:
       lsqa = blen*blen
 
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ij', lh_ij, ld_ij))
-     $     call errquit('could not allocate ld_ij',lsqa)
+     $     call errquit('grad:could not allocate ld_ij',lsqa)
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_kl', lh_kl, ld_kl))
-     $     call errquit('could not allocate ld_kl',lsqa)
+     $     call errquit('grad:could not allocate ld_kl',lsqa)
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik', lh_ik, ld_ik))
-     $     call errquit('could not allocate ld_ik',lsqa)
+     $     call errquit('grad:could not allocate ld_ik',lsqa)
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl', lh_jl, ld_jl))
-     $     call errquit('could not allocate ld_jl',lsqa)
+     $     call errquit('grad:could not allocate ld_jl',lsqa)
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il', lh_il, ld_il))
-     $     call errquit('could not allocate ld_il',lsqa)
+     $     call errquit('grad:could not allocate ld_il',lsqa)
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk', lh_jk, ld_jk))
-     $     call errquit('could not allocate ld_jk',lsqa)
+     $     call errquit('grad:could not allocate ld_jk',lsqa)
 c     
       if (scftype .eq. 'UHF' .or. 
      $     scftype .eq. 'ROHF' .or. omp2) then ! UHF or ROHF or MP2
          if (scftype .eq. 'ROHF' .or. omp2) then
             if (.not. ma_push_get(mt_dbl,lsqa,'ld_ij2',lh_ij2,ld_ij2))
-     $           call errquit('could not allocate ld_ij2',lsqa)
+     $           call errquit('grad:could not allocate ld_ij2',lsqa)
             if (.not. ma_push_get(mt_dbl,lsqa,'ld_kl2',lh_kl2,ld_kl2))
-     $           call errquit('could not allocate ld_kl2',lsqa)
+     $           call errquit('grad:could not allocate ld_kl2',lsqa)
          end if          
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik2', lh_ik2, ld_ik2))
-     $        call errquit('could not allocate ld_ik2',lsqa)
+     $        call errquit('grad:could not allocate ld_ik2',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl2', lh_jl2, ld_jl2))
-     $        call errquit('could not allocate ld_jl2',lsqa)
+     $        call errquit('grad:could not allocate ld_jl2',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il2', lh_il2, ld_il2))
-     $        call errquit('could not allocate ld_il2',lsqa)
+     $        call errquit('grad:could not allocate ld_il2',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk2', lh_jk2, ld_jk2))
-     $        call errquit('could not allocate ld_jk2',lsqa)
+     $        call errquit('grad:could not allocate ld_jk2',lsqa)
       end if
 
       if (scftype .eq. 'UHF' .and. omp2) then
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ij3', lh_ij3, ld_ij3))
-     $        call errquit('could not allocate ld_ij3',lsqa)
+     $        call errquit('grad:could not allocate ld_ij3',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_kl3', lh_kl3, ld_kl3))
-     $        call errquit('could not allocate ld_jl3',lsqa)
+     $        call errquit('grad:could not allocate ld_jl3',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik3', lh_ik3, ld_ik3))
-     $        call errquit('could not allocate ld_ik3',lsqa)
+     $        call errquit('grad:could not allocate ld_ik3',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl3', lh_jl3, ld_jl3))
-     $        call errquit('could not allocate ld_jl3',lsqa)
+     $        call errquit('grad:could not allocate ld_jl3',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il3', lh_il3, ld_il3))
-     $        call errquit('could not allocate ld_il3',lsqa)
+     $        call errquit('grad:could not allocate ld_il3',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk3', lh_jk3, ld_jk3))
-     $        call errquit('could not allocate ld_jk3',lsqa)
+     $        call errquit('grad:could not allocate ld_jk3',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ij4', lh_ij4, ld_ij4))
-     $        call errquit('could not allocate ld_ij4',lsqa)
+     $        call errquit('grad:could not allocate ld_ij4',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_kl4', lh_kl4, ld_kl4))
-     $        call errquit('could not allocate ld_kl4',lsqa)
+     $        call errquit('grad:could not allocate ld_kl4',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik4', lh_ik4, ld_ik4))
-     $        call errquit('could not allocate ld_ik4',lsqa)
+     $        call errquit('grad:could not allocate ld_ik4',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl4', lh_jl4, ld_jl4))
-     $        call errquit('could not allocate ld_jl4',lsqa)
+     $        call errquit('grad:could not allocate ld_jl4',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il4', lh_il4, ld_il4))
-     $        call errquit('could not allocate ld_il4',lsqa)
+     $        call errquit('grad:could not allocate ld_il4',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk4', lh_jk4, ld_jk4))
-     $        call errquit('could not allocate ld_jk4',lsqa)
+     $        call errquit('grad:could not allocate ld_jk4',lsqa)
       end if
 
 C     define threshold for Schwarz screening(same as in SCF)
@@ -464,28 +470,29 @@ c
 c     Block the shells for Texas
 c     
       if (.not. ma_push_get(mt_int, nsh, 'shmap', l_shmap, k_shmap))
-     $     call errquit('could not allocate shmap',nsh)
+     $     call errquit('grad:could not allocate shmap',nsh)
       if (.not. ma_push_get(mt_int, nsh, 'shglo', l_shglo, k_shglo))
-     $     call errquit('could not allocate blo',nsh)
+     $     call errquit('grad:could not allocate blo',nsh)
       if (.not. ma_push_get(mt_int, nsh, 'shghi', l_shghi, k_shghi))
-     $     call errquit('could not allocate bhi',nsh)
+     $     call errquit('grad:could not allocate bhi',nsh)
       if (.not. ma_push_get(mt_int, nsh, 'shbflo', l_shbflo, k_shbflo))
-     $     call errquit('could not allocate bflo',nsh)
+     $     call errquit('grad:could not allocate bflo',nsh)
       if (.not. ma_push_get(mt_int, nsh, 'shbfhi', l_shbfhi, k_shbfhi))
-     $     call errquit('could not allocate bfhi',nsh)
+     $     call errquit('grad:could not allocate bfhi',nsh)
       if (.not. ma_push_get(mt_int, nbf, 'bfglo', l_bfglo, k_bfglo))
-     $     call errquit('could not allocate blo',nbf)
+     $     call errquit('grad:could not allocate blo',nbf)
       if (.not. ma_push_get(mt_int, nbf, 'bfghi', l_bfghi, k_bfghi))
-     $     call errquit('could not allocate bhi',nbf)
+     $     call errquit('grad:could not allocate bhi',nbf)
       if (.not. ma_push_get(mt_int, nbf, 'bfmap', l_bfmap, k_bfmap))
-     $     call errquit('could not allocate bfmap',nbf)
+     $     call errquit('grad:could not allocate bfmap',nbf)
       if (.not. ma_push_get(mt_int, nbf, 'rbfmap', l_rbfmap, k_rbfmap))
-     $     call errquit('could not allocate rbfmap',nbf)
+     $     call errquit('grad:could not allocate rbfmap',nbf)
       if (.not. ma_push_get(mt_int, nbf, 'bftoat', l_bftoat, k_bftoat))
-     $     call errquit('could not allocate bftoat',nbf)
+     $     call errquit('grad:could not allocate bftoat',nbf)
 
       call grad_shorder(basis, nsh, nbf, maxsh, blen,
-     $     nshblocks, int_mb(k_shglo), int_mb(k_shghi), int_mb(k_shmap), 
+     $     nshblocks, int_mb(k_shglo), int_mb(k_shghi),
+     &     int_mb(k_shmap), 
      $     int_mb(k_bfmap), int_mb(k_rbfmap), int_mb(k_bfglo),
      $     int_mb(k_bfghi), int_mb(k_shbflo), int_mb(k_shbfhi))
 
@@ -515,9 +522,9 @@ c
 c
 
       if (.not. ma_push_get(mt_int, 4*maxq, 'list', l_list, k_list))
-     $     call errquit('could not allocate list',4*maxq)
+     $     call errquit('grad:could not allocate list',4*maxq)
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
-     $     call errquit('could not allocate q4',maxq)
+     $     call errquit('grad:could not allocate q4',maxq)
 c
 c     
       cpu_tim(2)  = util_cpusec()
