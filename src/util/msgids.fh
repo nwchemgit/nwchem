@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.121 2000-03-24 04:02:17 d3j191 Exp $
+c     $Id: msgids.fh,v 1.122 2000-04-17 22:37:08 zzhang Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -378,6 +378,7 @@ c
       integer msg_grad_wgh
       integer msg_grad_kin
       integer msg_grad_2el
+      integer msg_grad_so 
       integer msg_gapss_xcijr      
       integer msg_gapss_lat_tran
       integer msg_gapss_pijr_ef
@@ -693,6 +694,7 @@ C
       parameter (msg_grad_wgh = msg_ftn_base - 195 )
       parameter (msg_grad_kin = msg_ftn_base - 196 )
       parameter (msg_grad_2el = msg_ftn_base - 197 )
+      parameter (msg_grad_so = msg_ftn_base - 796  )
 C
       parameter (msg_gapss_xcijr = msg_ftn_base - 198 )    ! gapss: gap_xcijr
       parameter (msg_gapss_lat_tran = msg_ftn_base - 199 ) ! gapss: gap_lat_tran
