@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.13 1999-12-17 00:20:12 edo Exp $
+# $Id: GNUmakefile,v 1.14 1999-12-17 00:39:44 edo Exp $
 
       OBJ_OPTIMIZE = \
 	grid_atom_type_info.o \
@@ -31,6 +31,8 @@
         grid_balance.o \
         grid_gaussq.o \
         grid_roland.o \
+        grid_bucket.o \
+        grid_sphere.o \
 	grid_utils.o
 
      LIBRARY = libnwdft.a
