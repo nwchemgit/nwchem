@@ -1,7 +1,7 @@
 start  h2o
 title 
  Water 
- geometry units au autoz
+geometry units au autoz
   O      0.00000000    0.00000000    0.00000000
   H      0.00000000    1.93042809   -1.10715266
   H      0.00000000   -1.43042809   -1.60715266
@@ -9,10 +9,9 @@ title
   ijbond 1 2 1 3
  end
 end
-basis segment noprint
+basis noprint
   H library sto-3g 
   O library sto-3g
 end
 task scf optimize
 task scf freq 
-eof
