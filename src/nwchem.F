@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.90 1996-09-19 01:02:34 d3g681 Exp $
+c     $Id: nwchem.F,v 1.91 1996-10-01 18:55:51 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -140,7 +140,7 @@ C
          call ga_initialize_ltd(ma_sizeof(mt_dbl, global, mt_byte) )
       endif
 C
-c     Hard fail is good for development but means that we can't
+c     Hard fail is good for development but means that we cannot
 c     respond to allocation problems. Disable by default.
 c
       status = ma_set_auto_verify(overify)
