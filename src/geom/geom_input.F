@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.30 1996-09-27 20:59:11 mdupuis Exp $
+C     $Id: geom_input.F,v 1.31 1996-09-27 21:49:39 mdupuis Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -70,7 +70,7 @@ c
       name  = ' '
       oprint = .true.           ! Default is to print the geometry
       ozmatrix = .false.        ! Default is cartesian input
-      oautoz   = .true.         ! Default is try -autoz-
+      oautoz   = .false.        ! Default is try -autoz-
       osymmetry = .true.
       oprint_sym = .false.
       include_bqbq = .false.
@@ -3807,7 +3807,6 @@ C
       BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.86
 C
       DBUG=.FALSE.
-      DBUG=DBUG.OR.OUT
       OUT =.FALSE. 
       OUT =OUT.OR.DBUG
       SOME=.TRUE.
