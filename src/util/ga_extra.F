@@ -1,5 +1,5 @@
       subroutine ga_scale_lh(g_a,vector)
-c $Id: ga_extra.F,v 1.1 2003-02-19 20:22:49 edo Exp $
+c $Id: ga_extra.F,v 1.2 2003-10-27 23:21:00 marat Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -26,7 +26,7 @@ c
       if (ma_type.ne.mt_dbl) then
          write(0,*) ' ma_type ',ma_type,' mt_dbl ',mt_dbl
         call errquit
-     $     ('ga_trace_diagonal: array is not real', g_a)
+     $     ('ga_trace_diagonal: array is not real', g_a,0)
       endif
       n = dim1
 c
@@ -72,7 +72,7 @@ c
       call ga_sync()
       call ga_inquire(g_a, ma_type, dim1, dim2)
       if (ma_type.ne.mt_dbl .or. dim1.ne.dim2) call errquit
-     $     ('ga_trace_diagonal: array is not square/real', g_a)
+     $     ('ga_trace_diagonal: array is not square/real', g_a,0)
       n = dim1
 c
 c
@@ -119,7 +119,7 @@ c
       call ga_sync()
       call ga_inquire(g_a, ma_type, dim1, dim2)
       if (ma_type.ne.mt_dbl .or. dim1.ne.dim2) call errquit
-     $     ('ga_trace_diagonal: array is not square/real', g_a)
+     $     ('ga_trace_diagonal: array is not square/real', g_a,0)
       n = dim1
 c
 c
@@ -166,7 +166,7 @@ c
       call ga_sync()
       call ga_inquire(g_a, ma_type, dim1, dim2)
       if (ma_type.ne.mt_dbl .or. dim1.ne.dim2) call errquit
-     $     ('ga_trace_diagonal: array is not square/real', g_a)
+     $     ('ga_trace_diagonal: array is not square/real', g_a,0)
       n = dim1
 c
 c
@@ -209,7 +209,7 @@ c
       call ga_sync()
       call ga_inquire(g_a, ma_type, dim1, dim2)
       if (ma_type.ne.mt_dbl .or. dim1.ne.dim2) call errquit
-     $     ('ga_trace_diagonal: array is not square/real', g_a)
+     $     ('ga_trace_diagonal: array is not square/real', g_a,0)
       n = dim1
 c
 c
@@ -251,7 +251,7 @@ c
       call ga_sync()
       call ga_inquire(g_a, ma_type, dim1, dim2)
       if (ma_type.ne.mt_dbl .or. dim1.ne.dim2) call errquit
-     $     ('ga_trace_diagonal: array is not square/real', g_a)
+     $     ('ga_trace_diagonal: array is not square/real', g_a,0)
       n = dim1
 c
 c

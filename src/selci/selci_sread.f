@@ -1,6 +1,6 @@
       subroutine selci_sread(itape,a,n)
 *
-* $Id: selci_sread.f,v 1.1 2003-04-08 00:23:28 windus Exp $
+* $Id: selci_sread.f,v 1.2 2003-10-27 23:24:43 marat Exp $
 *
       real*8 a(n)
       parameter (lenbuf = 512)
@@ -13,7 +13,7 @@ c
         call sselci_sread(itape, a(1 + (ibuf-1)*lenbuf), m)
         left = left - m
 10    continue
-      if (left.ne.0) call errquit('swrite: left .ne. 0',left)
+      if (left.ne.0) call errquit('swrite: left .ne. 0',left,0)
 c
       end
       subroutine sselci_sread(itape,a,n)

@@ -1,4 +1,4 @@
-C $Id: drdy_sort.F,v 1.1 2003-04-08 00:14:27 windus Exp $
+C $Id: drdy_sort.F,v 1.2 2003-10-27 23:09:07 marat Exp $
       Subroutine drdy_sort(lhead,jop,lsad,ns,iflg)
 C
 C Sort RPH interpolation information to give points along MEP in 
@@ -138,7 +138,7 @@ C
          write (fu6,*) ' maximum number of grid points is', nsmax
          write (fu6,*) ' unable to complete sort of data'
          close (fu30)
-         call errquit('drdy_sort: fatal error:1',911)
+         call errquit('drdy_sort: fatal error:1',911,0)
       endif
 100   continue
       close (fu30)
@@ -202,7 +202,7 @@ C Reactants and products
                write (fu30,*) ' '
             elseif (icode(iop).eq.2) then
                write (fu6,6000) iop
-               call errquit('drdy_sort: fatal error:2',911)
+               call errquit('drdy_sort: fatal error:2',911,0)
             else
                nfreq = nf(iop)
                nend = 3*nratom(iop)
@@ -276,7 +276,7 @@ c  write out packed hessian in mass-weighted coordinates
       return
 1000  continue
       write (fu6,*) ' error opening fu30 file'
-      call errquit('drdy_sort: fatal error:3',911)
+      call errquit('drdy_sort: fatal error:3',911,0)
 600   Format (//,' Sort data in file 30 so points along MEP',
      *  ' have the reaction coordinate in ascending order.',/,
      *  ' Also calculate the values of the reaction coordinate',

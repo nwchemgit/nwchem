@@ -1,6 +1,6 @@
       subroutine sym_irrepname(geom,irrep,name)
 c
-c $Id: sym_irrepname.F,v 1.1 2003-01-30 19:34:53 edo Exp $
+c $Id: sym_irrepname.F,v 1.2 2003-10-27 23:18:59 marat Exp $
 c
 c Returns the name of irrep.  If irrep is zero, returns
 c '?' as the name.
@@ -26,7 +26,7 @@ c
       call sym_group_name(geom,zname)
       if (.not.sym_char_table(zname,nop,nir,class_dim,
      1  zir,zclass,chars)) call errquit
-     2  ('sym_irrepname: failed to get character table',0)
+     2  ('sym_irrepname: failed to get character table',0,0)
       if (irrep.eq.0) then
         name='?'
       else

@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier_input.F,v 1.1 2002-10-15 22:22:14 bylaska Exp $
+* $Id: pspw_wannier_input.F,v 1.2 2003-10-27 23:15:49 marat Exp $
 *
 
       subroutine pspw_wannier_input(rtdb)
@@ -31,19 +31,19 @@ c
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'pspw_wannier_input: inp_read failed', 0)
+     >           'pspw_wannier_input: inp_read failed', 0,0)
       if (.not. inp_a(test))
      >     call errquit(
-     >      'pspw_wannier_input: failed to read keyword', 1)
+     >      'pspw_wannier_input: failed to read keyword', 1,0)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'pspw_wannier_input: unknown directive', 2)
+     >           'pspw_wannier_input: unknown directive', 2,0)
 
 
       goto ( 100,  200, 
      >      9999) ind
       call errquit(
-     >   'pspw_wannier_input: unimplemented directive', ind)
+     >   'pspw_wannier_input: unimplemented directive', ind,0)
 
 
 
@@ -52,7 +52,7 @@ c old_wavefunction_filename
 c
  100  if (.not. inp_a(old_wavefunction_filename))
      >     call errquit(
-     >      'pspw_wannier_input: failed to read keyword', 3)
+     >      'pspw_wannier_input: failed to read keyword', 3,0)
       goto 10
 
 
@@ -61,7 +61,7 @@ c new_wavefunction_filename
 c
  200  if (.not. inp_a(new_wavefunction_filename))
      >     call errquit(
-     >      'pspw_wannier_input: failed to read ', 4)
+     >      'pspw_wannier_input: failed to read ', 4,0)
       goto 10
 
  
@@ -70,10 +70,10 @@ c
  9999 continue
       if (old_wavefunction_filename.eq.' ') 
      >  call errquit(
-     >    'pspw_wannier_input: nead a old_wavefunction_filename', 5)
+     >    'pspw_wannier_input: nead a old_wavefunction_filename', 5,0)
       if (new_wavefunction_filename.eq.' ') 
      >  call errquit(
-     >  'pspw_wannier_input: nead a new_wavefunction_filename', 6)
+     >  'pspw_wannier_input: nead a new_wavefunction_filename', 6,0)
 
 
 
@@ -81,14 +81,14 @@ c
       if (.not. rtdb_cput(rtdb,'wannier:input_wavefunction_filename',
      >                    1,old_wavefunction_filename(1:ind)))
      >     call errquit(
-     >     'pspw_wannier_input: rtdb_cput failed', 7)
+     >     'pspw_wannier_input: rtdb_cput failed', 7,0)
 
 
       ind = index(new_wavefunction_filename,' ') - 1
       if (.not. rtdb_cput(rtdb,'wannier:output_wavefunction_filename',
      >                    1,new_wavefunction_filename(1:ind)))
      >     call errquit(
-     >     'pspw_wannier_input: rtdb_cput failed', 8)
+     >     'pspw_wannier_input: rtdb_cput failed', 8,0)
 
 
       return

@@ -55,7 +55,7 @@ c
      &         element, atomicno)) then
                if (symbol .ne. 'bq') call errquit
      &              ('dplotdump: center is neither atom nor bq',
-     &              0)
+     &              0,0)
             endif
             Write(Out_Unit,9499)
      .            atomicno,charge(i),xyz(1,i),xyz(2,i),xyz(3,i)

@@ -9,7 +9,7 @@
       if( n.ge.(-1) .and. n.le.16) then
         double_factorial = n11(n)
       else
-        call errquit("too big parameter in double_factorial",1)
+        call errquit("too big parameter in double_factorial",1,0)
       end if
 
 	end
