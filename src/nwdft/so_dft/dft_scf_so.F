@@ -1,9 +1,9 @@
       logical function dft_scf_so
      &                        (rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
-     &                         g_svecs, isvals, g_xcinv)
+     &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.6 2000-04-25 04:35:51 zzhang Exp $
+c     $Id: dft_scf_so.F,v 1.7 2000-04-26 18:41:42 edo Exp $
 c     
       implicit none
 c     
@@ -27,8 +27,9 @@ c     so
       integer info 
       integer lbuff, ibuff
       integer nbf_mo 
-      logical edo, modiag
+      logical  modiag
       logical numerical 
+      integer g_s
 c
 c     declarations for fractional occupation 
 c
@@ -88,7 +89,7 @@ c
       integer l_occ, k_occ
       integer i, j,  i1
       integer me, nproc
-      integer g_tmp, g_fockt, g_s, g_wght, g_xyz,g_nq
+      integer g_tmp, g_fockt, g_wght, g_xyz,g_nq
 c     so
       integer g_so(3)
 c     so
@@ -198,7 +199,8 @@ c
       oprint_final_vecs = util_print('final vectors', print_high)
       me = ga_nodeid()
       nproc = ga_nnodes()
-c      ispin=1
+      ispin=1
+      call int_1e_uncache_ga()      
 c     !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
@@ -302,8 +304,8 @@ c     2e- integrals.
 c     
 c     - amount needed for all incore:
 c     
-         n3c_dbl_r = dft_n3cdbl(AO_bas_han,CD_bas_han,itol_max)
-         n3c_int = dft_n3cint(AO_bas_han,CD_bas_han,itol_max)
+         n3c_dbl_r = dft_n3cdbl()
+         n3c_int = dft_n3cint()
 c     
 c     find - (minimum)amount local available memory on all nodes
 c     
@@ -734,9 +736,9 @@ c
 c     Call to Mulliken Pop Ananlysis for initial density
 c     
       if (mulliken)then
-         g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
-         call ga_zero(g_s)
-         call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
+!         g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
+!         call ga_zero(g_s)
+!         call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
          if (me.eq.0)call dft_header
      &        (' Total Density - Mulliken Population Analysis')
          call mull_pop(geom,ao_bas_han,g_dens(1),g_s,'total')
@@ -753,8 +755,8 @@ c
          call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
          call ga_dscal(g_dens(2),0.5d0)
       endif
-      if (.not. ga_destroy(g_s)) call errquit
-     &     ('dft_scf: could not destroy g_s', 0)
+!      if (.not. ga_destroy(g_s)) call errquit
+!     &     ('dft_scf: could not destroy g_s', 0)
  
       iter = 1 
  
@@ -826,7 +828,6 @@ cso   <Hsf> = Re(Dsf) dot T+Vsf
       Ecore = ga_ddot(g_dens(1), g_fock)
 c      write(*,*)"Ecore: fock", Ecore 
 c      call ga_summarize(.true.)
-
       call ga_zero(g_so(1))
       call ga_zero(g_so(2))
       call ga_zero(g_so(3))
@@ -834,9 +835,8 @@ cso
 cso   Accumulate s.o. contribution to fock matrix 
 cso   
       noso=Ecore 
-c      call ga_summarize(.true.)
       call int_1e_oldga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
-      call ga_scale(g_so(1),dble(0.5d0))
+       call ga_scale(g_so(1),dble(0.5d0))
       call ga_scale(g_so(2),dble(0.5d0))
       call ga_scale(g_so(3),dble(0.5d0))
       call ga_fock_so(g_so, g_fockso, nbf_ao)
@@ -908,7 +908,7 @@ c
      &        call errquit('dft_scf: cannot allocate cd_coef',0)
          if (oprint_time)
      &        call dft_tstamp(' Before call to FITCD.   ')
-         call dft_fitcd(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, 
+         call dft_fitcd(1,Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, 
      &        g_dens, nTotEl, n_batch, n3c_int,
      &        int_mb(k_3cwhat), n3c_dbl, iwhat_max, 
      &        n_semi_bufs, fd, IOLGC, 
@@ -1490,11 +1490,11 @@ c     Form the total density matrix.
 c     
       call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
       call ga_sync
-      g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
-      call ga_zero(g_s)
-      call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
+!      g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
+!      call ga_zero(g_s)
+!      call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
 c      write(*,*)"electrons", ga_ddot(g_s, g_dens(1))
-      if(.not.ga_destroy(g_s)) stop 
+!      if(.not.ga_destroy(g_s)) stop 
 c     
 c     Check for SCF convergence.
 c     
@@ -1835,9 +1835,9 @@ c
 c     call to Mulliken Pop Ananlysis
 c     
       if (mulliken)then
-         g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
-         call ga_zero(g_s)
-         call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
+!         g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
+!         call ga_zero(g_s)
+!         call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
          if (me.eq.0)
      &      call dft_header
      &      (' Total Density - Mulliken Population Analysis')
@@ -1853,8 +1853,8 @@ c
             call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
             call ga_dscal(g_dens(2),0.5d0)
          endif
-         if (.not. ga_destroy(g_s)) call errquit
-     &      ('dft_scf: could not destroy g_s', 0)
+!         if (.not. ga_destroy(g_s)) call errquit
+!     &      ('dft_scf: could not destroy g_s', 0)
       endif
 c     
 c     end infinite loop for SCF iterations

@@ -1,6 +1,6 @@
-      subroutine diis_bsolve_so(pulay,wght,mxhist,nhist,icall)
+      subroutine diis_bsolve_so(pulay,wght,mxhist,nhist)
 
-C$Id: diis_bsolve_so.F,v 1.1 2000-04-17 21:45:58 zzhang Exp $
+C$Id: diis_bsolve_so.F,v 1.2 2000-04-26 18:41:42 edo Exp $
 
 c     
 c***********************************************************************
@@ -40,7 +40,6 @@ c
 c     
       implicit none
       integer mxhist
-      integer icall
       integer nhist
       double precision wght(mxhist+1),pulay((mxhist+1)*(mxhist+2)/2)
 c     
@@ -66,7 +65,7 @@ c
 c
       ntemp = (nhist+1)*(nhist+2)/2
       LResult = MA_Push_Get(MT_int,nhist+1,'Lapack 5',lipiv,iipiv)
-      LResult = MA_Push_Get(MT_Dbl,nhist+1,'Lapack 4',liwork,iiwork)
+      LResult = MA_Push_Get(MT_int,nhist+1,'Lapack 4',liwork,iiwork)
       LResult = MA_Push_Get(MT_Dbl,3*(nhist+1),'Lapack 3',lwork,iwork)
       LResult = MA_Push_Get(MT_Dbl,nhist+1,'Lapack 2',lcc,icc)
       LResult = MA_Push_Get(MT_Dbl, ntemp,'Lapack 1', lafp,iafp)
