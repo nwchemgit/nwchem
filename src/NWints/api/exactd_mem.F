@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.23 1998-12-10 23:48:05 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.24 1999-05-07 21:10:27 windus Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -97,8 +97,8 @@ c
 c
 c... 2e3c and 2e2c use same scratch space so the maxg is the only thing that changes      
 c
-      isz_2e3c = nbfmax**3
-      isz_2e2c = nbfmax**2
+      isz_2e3c = 2*3*nbfmax**3
+      isz_2e2c = 2*3*nbfmax**2
       mem_2e3c = mem_2e4c
       mem_2e2c = mem_2e4c
 c
