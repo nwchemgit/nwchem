@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.19 2003-01-18 03:58:34 edo Exp $
+c$Id: grid_invariant.F,v 1.20 2003-03-15 02:49:10 edo Exp $
 c
       implicit none
 c      
@@ -117,7 +117,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.19 2003-01-18 03:58:34 edo Exp $
+c$Id: grid_invariant.F,v 1.20 2003-03-15 02:49:10 edo Exp $
 c
       implicit none
 c
@@ -210,8 +210,12 @@ c
             enddo
          enddo
       enddo
-      valratio=abs(qrot(1,2)+qrot(1,3)+qrot(2,3))/
-     /     (qrot(1,1)+qrot(2,2)+qrot(3,3))
+      valratio=(abs(qrot(1,2))+abs(qrot(1,3))+abs(qrot(2,3)))+
+     +     (abs(qrot(1,1))+abs(qrot(2,2))+abs(qrot(3,3)))
+      if(valratio.gt.1d-20) then
+      valratio=(abs(qrot(1,2))+abs(qrot(1,3))+abs(qrot(2,3)))/
+     /     (abs(qrot(1,1))+abs(qrot(2,2))+abs(qrot(3,3)))
+      endif
       if(ga_nodeid().eq.0.and.oprint) then
          write(LuOut,*)' ratio offdiag/diag ',valratio
       endif

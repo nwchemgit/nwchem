@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.34 2003-02-12 17:29:42 edo Exp $
+c$Id: grid_acc_def.F,v 1.35 2003-03-15 02:49:10 edo Exp $
 c
       implicit none
 c      
@@ -335,11 +335,13 @@ c
          iangquad = 8
       else
          if (iangquad.lt.1)then
+           write(LuOut,*)' IANGQUAD =',iangquad
            write(LuOut,*)' IANGQUAD must be in the range: 1-',IAC_MAX,
      *     '; resetting. '
            iangquad = 8
          endif
          if (iangquad.gt.IAC_MAX)then
+           write(LuOut,*)' IANGQUAD =',iangquad
            write(LuOut,*)' IANGQUAD must be in the range: 1-',IAC_MAX,
      *     '; resetting. '
            iangquad = 8
