@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.6 2002-01-04 23:19:59 bylaska Exp $
+* $Id: cpsi.F,v 1.7 2002-01-07 03:04:58 bylaska Exp $
 *
 
 
@@ -990,6 +990,8 @@ c      end
 
 
 *     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
       logical value
       integer neall,n
 
@@ -1004,9 +1006,10 @@ c      end
 
       nbrillioun = brillioun_nbrillioun()
       if (psi_get_version().eq.3) then
-        value= pspw_reformat_c_wvfnc(nbrillioun)
-        if (.not. value) 
-     >    call errquit('cpsi_initialize: error reformatting psi',0)
+        call Parallel_taskid(taskid)
+        if (taskid.eq.MASTER) then
+          value= pspw_reformat_c_wvfnc(nbrillioun)
+        end if
       end if
 
       call C3dB_nfft3d(1,nfft3d)
