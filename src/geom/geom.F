@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.46 1996-01-22 18:44:16 d3g681 Exp $
+C$Id: geom.F,v 1.47 1996-05-14 18:00:47 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -989,6 +989,7 @@ c
       logical geom_check_handle
       external geom_check_handle
 c     
+      geom_print_xyz = .true.
       if (.not. geom_check_handle(geom, 'geom_print_xyz')) then
          geom_print_xyz = .false.
          return
