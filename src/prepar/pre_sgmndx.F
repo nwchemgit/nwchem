@@ -1,7 +1,7 @@
       logical function pre_sgmndx(iunit,dir_s,dir_x,dir_u,dir_t,
-     + lfnout,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm)
+     + lfnout,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,mato)
 c
-c $Id: pre_sgmndx.F,v 1.8 1998-09-11 20:47:37 d3j191 Exp $
+c $Id: pre_sgmndx.F,v 1.9 1999-12-16 00:46:17 d3j191 Exp $
 c
 c     function to scan database directories for segments in sequence
 c
@@ -32,7 +32,7 @@ c
 c
 #include "util.fh"
 c
-      integer iunit,lfnout,mseq,nseq,msgm,nsgm
+      integer iunit,lfnout,mseq,nseq,msgm,nsgm,mato
       integer lseq(4,mseq),lsgm(3,msgm)
       character*5 cseq(2,mseq),csgm(msgm)
       character*255 dir_s,dir_x,dir_u,dir_t,filnam
@@ -64,7 +64,9 @@ c
 c     find all unique segments in sequence csgm(1:nsgm) = segment names
 c     ------------------------------------ lsgm(1,1:nsgm)
 c
+      mato=0
       do 2 i=1,nseq
+      mato=max(mato,lseq(3,i+1)-lseq(3,i))
       csgm(lseq(2,i))=cseq(2,i)
       lsgm(1,lseq(2,i))=lsgm(1,lseq(2,i))+1
       if(lsgm(1,lseq(2,i)).eq.1) then

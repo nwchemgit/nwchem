@@ -1,6 +1,7 @@
-      logical function pre_bnd(xatm,latm,matm,ilo,ihi,lbnd,mbnd,nbnd)
+      logical function pre_bnd(xatm,latm,catm,matm,natm,ilo,ihi,
+     + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf)
 c
-c $Id: pre_bnd.F,v 1.4 1998-06-24 20:06:36 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.5 1999-12-16 00:46:17 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -21,35 +22,164 @@ c
       real*8 pre_atrad
       external pre_atrad
 c
-      integer matm,mbnd
-      integer nbnd
-      real*8 xatm(3,matm)
-      integer latm(5,matm),lbnd(2,mbnd)
+      integer matm,mbnd,mato
+      integer natm,nbnd,nato,maxscf
+      real*8 xatm(3,matm),xato(3,mato)
+      integer latm(5,matm),lato(5,mato),lbnd(2,mbnd)
+      character*6 catm(3,matm),cato(3,mato)
       integer ilo,ihi
-      integer i,j
+      integer i,j,k,nn,nl(10),nadd,ndx
       real*8 dist
 c
       pre_bnd=.false.
 c
-      do 1 i=ilo,ihi-1
+      nato=0
+      do 1 i=ilo,ihi
       if(latm(2,i).gt.0) then
-      do 2 j=i+1,ihi
-      if(latm(2,j).gt.0) then
+      nn=0
+      do 2 j=1,natm
+      if(latm(2,j).gt.0.and.i.ne.j) then
       dist=sqrt((xatm(1,j)-xatm(1,i))*(xatm(1,j)-xatm(1,i))+
      + (xatm(2,j)-xatm(2,i))*(xatm(2,j)-xatm(2,i))+
      + (xatm(3,j)-xatm(3,i))*(xatm(3,j)-xatm(3,i)))
       if(dist.gt.0.05d0.and.
      + dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i))) then
-      if(nbnd.ge.mbnd) return
+      nn=nn+1
+      nl(nn)=j
+      if(j.gt.i.and.j.le.ihi) then
       nbnd=nbnd+1
-      lbnd(1,nbnd)=i
-      lbnd(2,nbnd)=j
+      if(nbnd.gt.mbnd) call errquit('Dimension problem',0)
+      lbnd(1,nbnd)=-(i-ilo+1)
+      lbnd(2,nbnd)=-(j-ilo+1)
+      endif
       endif
       endif
     2 continue
+      nato=nato+1
+      do 3 j=1,5
+      lato(j,nato)=latm(j,i)
+    3 continue
+      do 4 j=1,3
+      cato(j,nato)=catm(j,i)
+      xato(j,nato)=xatm(j,i)
+    4 continue
+c
+c     carbon
+c     ------
+c
+      nadd=0
+      if(latm(2,i).eq.6) then
+      if(nn.eq.0) then
+      nadd=4
+      elseif(nn.eq.1) then
+      nadd=3
+      if(latm(3,nl(1)).eq.3) nadd=2
+      elseif(nn.eq.2) then
+      nadd=2
+      if(latm(3,i).eq.3) nadd=1
+      elseif(nn.eq.3) then
+      if(latm(3,i).eq.4) nadd=1
+      endif
+      endif
+c
+      if(latm(2,i).eq.8) then
+      if(nn.eq.0) then
+      nadd=2
+      elseif(nn.eq.1) then
+      if(latm(3,nl(1)).eq.3) nadd=0
+      if(latm(3,nl(1)).eq.4) nadd=1
+      endif
+      endif
+c
+      lato(1,nato)=nadd
+      if(nadd.gt.0) maxscf=0
+c
       endif
     1 continue 
+c
+c     add hydrogens
+c     -------------
+c
+      ndx=1
+      do 6 i=1,nato
+      do 7 j=1,nbnd
+      if(lbnd(1,j).eq.-i) lbnd(1,j)=ndx
+      if(lbnd(2,j).eq.-i) lbnd(2,j)=ndx
+    7 continue
+      nadd=lato(1,i)
+      lato(1,i)=ndx
+      ndx=ndx+nadd+1
+    6 continue
+c
+      do 8 i=nato,1,-1
+      if(lato(1,i).ne.i) then
+      j=lato(1,i)
+      lato(1,j)=lato(1,i)
+      lato(2,j)=lato(2,i)
+      lato(3,j)=lato(3,i)
+      lato(4,j)=lato(4,i)
+      lato(5,j)=lato(5,i)
+      xato(1,j)=xato(1,i)
+      xato(2,j)=xato(2,i)
+      xato(3,j)=xato(3,i)
+      cato(1,j)=cato(1,i)
+      cato(2,j)=cato(2,i)
+      cato(3,j)=cato(3,i)
+      lato(1,i)=0
+      endif
+    8 continue
+      nato=ndx-1
+c
+      j=1
+      k=1
+      do 9 i=1,nato
+      if(lato(1,i).ne.0) then
+      j=i
+      k=1
+      else
+      k=k+1
+      lato(1,i)=0
+      lato(2,i)=1
+      lato(3,i)=0
+      lato(4,i)=0
+      lato(5,i)=0
+      xato(1,i)=0.0d0
+      xato(2,i)=0.0d0
+      xato(3,i)=0.0d0
+      cato(1,i)=' H'//cato(1,j)(3:5)
+      cato(2,i)=' H'//cato(2,j)(3:5)
+      cato(3,i)='     '
+      write(cato(1,i)(1:1),'(i1)') k
+      write(cato(2,i)(1:1),'(i1)') k
+      nbnd=nbnd+1
+      lbnd(1,nbnd)=j
+      lbnd(2,nbnd)=i
+      endif
+    9 continue
+c
+      do 10 i=1,nbnd
+      if(lbnd(1,i).gt.lbnd(2,i)) then
+      j=lbnd(1,i)
+      lbnd(1,i)=lbnd(2,i)
+      lbnd(2,i)=j
+      endif
+   10 continue
+c
+      do 11 i=1,nbnd-1
+      do 12 j=i+1,nbnd
+      if(lbnd(1,i).gt.lbnd(1,j).or.
+     + (lbnd(1,i).eq.lbnd(1,j).and.lbnd(2,i).gt.lbnd(2,j))) then
+      k=lbnd(1,i)
+      lbnd(1,i)=lbnd(1,j)
+      lbnd(1,j)=k
+      k=lbnd(2,i)
+      lbnd(2,i)=lbnd(2,j)
+      lbnd(2,j)=k
+      endif
+   12 continue
+   11 continue
 c
       pre_bnd=.true.
       return
       end
+

@@ -4,7 +4,7 @@
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + icount,scount)
 c
-c $Id: pre_mkseq.F,v 1.27 1999-11-04 22:53:08 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.28 1999-12-16 00:46:17 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -34,13 +34,14 @@ c
       logical pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
       external pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
 c
-      integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk
+      integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk,mato,nato
       integer natm,nseq,nssb,nsgm,nlnk,maxscf,icyren,model,nxlnk
       integer l_lseq,i_lseq,l_cseq,i_cseq
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
       integer l_latm,i_latm,l_catm,i_catm,l_xatm,i_xatm,l_qatm,i_qatm
       integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp,icount
+      integer l_lato,i_lato,i_cato,l_cato,l_xato,i_xato,l_qato,i_qato
 c
       real*8 qscale
 c
@@ -271,15 +272,31 @@ c     -----------------------------------------------
 c
       if(.not.pre_sgmndx(lfnfrg,dir_s,dir_x,dir_u,dir_t,lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
-     + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm)) then
+     + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,mato)) then
 c
 c     set dimensions for bonds, angles, torsions and out-of-plane
 c     -----------------------------------------------------------
 c
-      mbnd=2*matm
-      mang=2*matm
-      mdih=3*matm
-      mimp=matm
+      mato=4*mato
+      mbnd=2*max(matm,mato)
+      mang=2*max(matm,mato)
+      mdih=3*max(matm,mato)
+      mimp=max(matm,mato)
+c
+c     allocate memory for segment atom lists
+c     --------------------------------------
+c
+      if(.not.ma_push_get(mt_int,5*mato,'lato',l_lato,i_lato))
+     + call errquit('Memory allocation failed for latm',9999)
+c
+      if(.not.ma_push_get(mt_byte,18*mato,'cato',l_cato,i_cato))
+     + call errquit('Memory allocation failed for cato',9999)
+c
+      if(.not.ma_push_get(mt_dbl,3*mato,'xato',l_xato,i_xato))
+     + call errquit('Memory allocation failed for xato',9999)
+c
+      if(.not.ma_push_get(mt_dbl,mato,'qato',l_qato,i_qato))
+     + call errquit('Memory allocation failed for qato',9999)
 c
 c     allocate memory for the bonded lists
 c     ------------------------------------
@@ -311,6 +328,8 @@ c
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_xatm),dbl_mb(i_qatm),matm,natm,
+     + int_mb(i_lato),byte_mb(i_cato),dbl_mb(i_xato),dbl_mb(i_qato),
+     + mato,nato,
      + int_mb(i_bnd),mbnd,int_mb(i_ang),mang,int_mb(i_dih),mdih,
      + int_mb(i_imp),mimp,maxscf,qscale))
      + call errquit('pre_mkfrg failed',9999)
@@ -326,6 +345,14 @@ c
      + call errquit('mkseq: Memory deallocation failed for ang',9999)
       if(.not.ma_pop_stack(l_bnd))
      + call errquit('mkseq: Memory deallocation failed for bnd',9999)
+      if(.not.ma_pop_stack(l_qato))
+     + call errquit('Memory deallocation failed for qato',9999)
+      if(.not.ma_pop_stack(l_xato))
+     + call errquit('Memory deallocation failed for xato',9999)
+      if(.not.ma_pop_stack(l_cato))
+     + call errquit('Memory deallocation failed for cato',9999)
+      if(.not.ma_pop_stack(l_lato))
+     + call errquit('Memory deallocation failed for lato',9999)
       endif
 c
 c     generate segment files

@@ -1,13 +1,12 @@
-      logical function pre_impctr(lfnout,xatm,latm,matm,
+      logical function pre_impctr(lfnout,latm,matm,
      + jlo,ilo,ihi,jhi,lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
      + lring,aring,mring,nring3,nring4,nring5,nring6)
 c
-c $Id: pre_impctr.F,v 1.4 1998-06-08 23:29:31 d3j191 Exp $
+c $Id: pre_impctr.F,v 1.5 1999-12-16 00:46:17 d3j191 Exp $
 c
 c     function to determine the center type
 c
-c     in  : xatm(1:3,matm)  = atomic coordinates
-c           latm(2,matm)    = atomic numbers
+c     in  : latm(2,matm)    = atomic numbers
 c                3          = number of bonds to atom
 c           matm            = dimension of atom arrays
 c           ilo:ihi         = atoms for which center is determined
@@ -36,7 +35,6 @@ c
 c
       integer matm,ilo,ihi,jlo,jhi,mbnd,nbnd,mang,nang,mdih,ndih
       integer lfnout
-      real*8 xatm(3,matm)
       integer latm(5,matm),lbnd(2,mbnd),lang(3,mang),ldih(4,mdih)
 c
       integer mring
@@ -58,6 +56,9 @@ c     ----------------
 c
       nring3=0
       do 29 li=1,nang
+      if(latm(2,lang(1,li)).eq.1) goto 29
+      if(latm(2,lang(2,li)).eq.1) goto 29
+      if(latm(2,lang(3,li)).eq.1) goto 29
       do 30 lj=1,nbnd
       if((lang(1,li).eq.lbnd(1,lj).and.lang(3,li).eq.lbnd(2,lj)).or.
      + (lang(1,li).eq.lbnd(2,lj).and.lang(3,li).eq.lbnd(1,lj))) then
@@ -96,6 +97,9 @@ c     ----------------
 c
       nring4=nring3
       do 35 li=1,nang-1
+      if(latm(2,lang(1,li)).eq.1) goto 35
+      if(latm(2,lang(2,li)).eq.1) goto 35
+      if(latm(2,lang(3,li)).eq.1) goto 35
       do 36 lj=li+1,nang
       if((lang(1,li).eq.lang(1,lj).and.lang(3,li).eq.lang(3,lj)).or.
      + (lang(1,li).eq.lang(3,lj).and.lang(3,li).eq.lang(1,lj))) then
@@ -134,6 +138,10 @@ c     ----------------
 c
       nring5=nring4
       do 4 li=1,ndih
+      if(latm(2,ldih(1,li)).eq.1) goto 4
+      if(latm(2,ldih(2,li)).eq.1) goto 4
+      if(latm(2,ldih(3,li)).eq.1) goto 4
+      if(latm(2,ldih(4,li)).eq.1) goto 4
       do 5 lj=1,nang
       if((ldih(1,li).eq.lang(1,lj).and.ldih(4,li).eq.lang(3,lj)).or.
      + (ldih(1,li).eq.lang(3,lj).and.ldih(4,li).eq.lang(1,lj))) then
@@ -172,6 +180,10 @@ c     ----------------
 c
       nring6=nring5
       do 11 li=1,ndih-1
+      if(latm(2,ldih(1,li)).eq.1) goto 11
+      if(latm(2,ldih(2,li)).eq.1) goto 11
+      if(latm(2,ldih(3,li)).eq.1) goto 11
+      if(latm(2,ldih(4,li)).eq.1) goto 11
       do 12 lj=li+1,ndih
       if((ldih(1,li).eq.ldih(1,lj).and.ldih(4,li).eq.ldih(4,lj)).or.
      + (ldih(1,li).eq.ldih(4,lj).and.ldih(4,li).eq.ldih(1,lj))) then

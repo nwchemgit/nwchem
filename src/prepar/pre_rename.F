@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.9 1999-06-17 15:15:45 d3j191 Exp $
+c $Id: pre_rename.F,v 1.10 1999-12-16 00:46:17 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -136,7 +136,7 @@ c
   999 continue
 c
       if(util_print('connectivity',print_high)) then
-      write(lfnout,1001)
+      if(natm.gt.0) write(lfnout,1001)
  1001 format(
      + '    Atom Sgmnt Sgmnt Sgmnt   Atom   Atom Link   ',
      + '    Atom Sgmnt Sgmnt Sgmnt   Atom   Atom Link',/,
@@ -149,7 +149,7 @@ c
       do 7 i=1,k
       l=i+k
       if(l.le.natm) then
-      write(lfnout,1001) i,latm(1,i),(cseq(j,latm(1,i)),j=1,2),
+      write(lfnout,1002) i,latm(1,i),(cseq(j,latm(1,i)),j=1,2),
      + (catm(j,i),j=1,2),latm(5,i),
      + l,latm(1,l),(cseq(j,latm(1,l)),j=1,2),
      + (catm(j,l),j=1,2),latm(5,l)

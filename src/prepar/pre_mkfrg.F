@@ -2,9 +2,11 @@
      + dir_s,dir_x,dir_u,dir_t,
      + lfnout,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
-     + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
+     + natm,lato,cato,xato,qato,mato,nato,lbnd,mbnd,lang,mang,ldih,mdih,
+     + limp,mimp,
+     + maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.21 1999-07-21 21:13:31 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.22 1999-12-16 00:46:17 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -26,8 +28,8 @@ c
 #include "mafdecls.fh"
 #include "util.fh"
 c
-      logical pre_hnames
-      external pre_hnames
+      logical pre_hnames,pre_hybrid
+      external pre_hnames,pre_hybrid
 c
       integer irtdb
       character*80 source
@@ -44,13 +46,13 @@ c
       external pre_atype,pre_charge
 c
       integer iunit,lfnpar,lfnout
-      integer mseq,msgm,matm
-      integer nseq,nsgm,natm
+      integer mseq,msgm,matm,mato
+      integer nseq,nsgm,natm,nato
       integer mbnd,mang,mdih,mimp
-      integer lseq(4,mseq),lsgm(3,msgm),latm(5,matm)
+      integer lseq(4,mseq),lsgm(3,msgm),latm(5,matm),lato(5,mato)
       character*5 cseq(2,mseq),csgm(msgm)
-      character*6 catm(3,matm)
-      real*8 xatm(3,matm),qatm(matm),qscale
+      character*6 catm(3,matm),cato(3,mato)
+      real*8 xatm(3,matm),qatm(matm),xato(3,mato),qato(mato),qscale
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
       character*255 filpar,filnam
       character*255 dir_s,dir_x,dir_u,dir_t
@@ -74,8 +76,17 @@ c
       len_t=index(dir_t,' ')-1
       ilist=0
 c
+      if(.not.pre_hybrid(xatm,latm,matm,natm))
+     + call errquit('Error in pre_hybrid',0)
+c 
+c
       do 1 i=1,nsgm
       if(lsgm(2,i).eq.0) then
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,2005) csgm(i)
+ 2005 format(/,'Creating fragment for residue ',a5)
+      endif
 c
 c     determine index first segment of this type in sequence list
 c     -----------------------------------------------------------
@@ -127,13 +138,14 @@ c     complete the list of bonds for the fragment
 c     -------------------------------------------
 c
       nbnd=0
-      if(.not.pre_bnd(xatm,latm,matm,jlo,jhi,lbnd,mbnd,nbnd))
+      if(.not.pre_bnd(xatm,latm,catm,matm,natm,ilo,ihi,
+     + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf))
      + call errquit('pre_bnd failed',9999)
 c
 c     redetermine hydrogen names
 c     --------------------------
       if(source(1:3).ne.'pdb') then
-      if(.not.pre_hnames(latm,catm,matm,natm,lbnd,mbnd,nbnd))
+      if(.not.pre_hnames(lato,cato,mato,nato,lbnd,mbnd,nbnd))
      + call errquit('pre_hnames failed',9999)
       endif
 c
@@ -154,12 +166,12 @@ c
 c     count number of bonds for each atom
 c     -----------------------------------
 c
-      do 13 j=1,natm
-      latm(3,j)=0
+      do 13 j=1,nato
+      lato(3,j)=0
    13 continue
       do 14 ibnd=1,nbnd
-      latm(3,lbnd(1,ibnd))=latm(3,lbnd(1,ibnd))+1
-      latm(3,lbnd(2,ibnd))=latm(3,lbnd(2,ibnd))+1
+      lato(3,lbnd(1,ibnd))=lato(3,lbnd(1,ibnd))+1
+      lato(3,lbnd(2,ibnd))=lato(3,lbnd(2,ibnd))+1
    14 continue
 c
       ilist=1
@@ -168,7 +180,7 @@ c
 c     determine center types
 c     ----------------------
 c
-      if(.not.pre_impctr(lfnout,xatm,latm,matm,jlo,ilo,ihi,jhi,
+      if(.not.pre_impctr(lfnout,lato,mato,1,1,nato,nato,
      + lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
      + lring,aring,mring,nring3,nring4,nring5,nring6))
      + call errquit('pre_impctr failed',9999)
@@ -176,7 +188,8 @@ c
 c     memory allocation for work array ltyp
 c     -------------------------------------
 c
-      mtyp=jhi-jlo+1
+c      mtyp=jhi-jlo+1
+      mtyp=nato
       if(.not.ma_push_get(mt_int,15*mtyp,'ltyp',l_ltyp,i_ltyp))
      + call errquit('Memory allocation failed for ltyp',9999)
 c
@@ -184,8 +197,8 @@ c     determine atom types
 c     --------------------
 c
       if(.not.pre_atype(lfnout,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
-     + jlo,ilo,ihi,jhi,int_mb(i_ltyp),mtyp,lring,aring,mring,
+     + dir_s,dir_x,dir_u,dir_t,lato,cato,mato,lbnd,mbnd,nbnd,
+     + 1,1,nato,nato,int_mb(i_ltyp),mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6)) then
       call errquit('pre_atype failed',9999)
       endif
@@ -200,9 +213,9 @@ c     check if all atom types could be determined
 c     -------------------------------------------
 c
       found=.true.
-      do 16 j=ilo,ihi
-      if(latm(2,j).gt.0) then
-      if(catm(3,j)(1:1).eq.' ') found=.false.
+      do 16 j=1,nato
+      if(lato(2,j).gt.0) then
+      if(cato(3,j)(1:1).eq.' ') found=.false.
       endif
    16 continue
 c
@@ -211,11 +224,11 @@ c     --------------------------
 c
       if(found) then
       if(.not.pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
-     + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale))
+     + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,maxscf,qscale))
      + call errquit('pre_charge failed',9999)
       else
       if(.not.pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
-     + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,0,qscale))
+     + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,0,qscale))
      + call errquit('pre_charge failed',9999)
       endif
 c
@@ -265,7 +278,7 @@ c
      + '#')
       length=index(csgm(i),' ')-1
       if(length.le.0) length=5
-      write(iunit,2002) csgm(i)(1:length),ihi-ilo+1
+      write(iunit,2002) csgm(i)(1:length),nato
  2002 format('$',a,/,i5)
       if(util_print('sequence',print_medium)) then
       write(lfnout,3002) csgm(i)(1:length)
@@ -274,26 +287,26 @@ c
      + /)
       endif
       found=.true.
-      do 6 j=ilo,ihi
-      if(latm(2,j).gt.0) then
+      do 6 j=1,nato
+      if(lato(2,j).gt.0) then
 c
       if(util_print('sequence',print_medium)) then
-      write(lfnout,3003) j+1-ilo,catm(2,j),catm(3,j),
-     + latm(5,j),latm(4,j),1,1,qatm(j),0.0
+      write(lfnout,3003) j,cato(2,j),cato(3,j),
+     + lato(5,j),lato(4,j),1,1,qato(j),0.0
  3003 format(i5,1x,a4,2x,a6,4i5,2f12.6)
       endif
-      write(iunit,2003) j+1-ilo,catm(2,j),catm(3,j),
-     + latm(5,j),latm(4,j),1,1,qatm(j),0.0
+      write(iunit,2003) j,cato(2,j),cato(3,j),
+     + lato(5,j),lato(4,j),1,1,qato(j),0.0
  2003 format(i5,a4,2x,a6,4i5,2f12.6)
-      if(catm(3,j)(1:1).eq.' ') found=.false.
+      if(cato(3,j)(1:1).eq.' ') found=.false.
       endif
     6 continue
 c
       nconn=0 
       do 15 ibnd=1,nbnd
-      if(lbnd(1,ibnd).ge.ilo.and.lbnd(1,ibnd).le.ihi.and.
-     + lbnd(2,ibnd).ge.ilo.and.lbnd(2,ibnd).le.ihi) then
-      write(iunit,2004) lbnd(1,ibnd)+1-ilo,lbnd(2,ibnd)+1-ilo
+      if(lbnd(1,ibnd).ge.1.and.lbnd(1,ibnd).le.nato.and.
+     + lbnd(2,ibnd).ge.1.and.lbnd(2,ibnd).le.nato) then
+      write(iunit,2004) lbnd(1,ibnd),lbnd(2,ibnd)
  2004 format(2i5)
       nconn=nconn+1
       endif
@@ -302,9 +315,9 @@ c
       if(nconn.gt.0.and.util_print('sequence',print_medium)) then
       write(lfnout,3004) 
       do 18 ibnd=1,nbnd
-      if(lbnd(1,ibnd).ge.ilo.and.lbnd(1,ibnd).le.ihi.and.
-     + lbnd(2,ibnd).ge.ilo.and.lbnd(2,ibnd).le.ihi)
-     + write(lfnout,3005) lbnd(1,ibnd)+1-ilo,lbnd(2,ibnd)+1-ilo
+      if(lbnd(1,ibnd).ge.1.and.lbnd(1,ibnd).le.nato.and.
+     + lbnd(2,ibnd).ge.1.and.lbnd(2,ibnd).le.nato)
+     + write(lfnout,3005) lbnd(1,ibnd),lbnd(2,ibnd)
    18 continue
  3004 format(/,' Connectivity',/)
  3005 format(5x,i3,'-',i3)
