@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.138 2000-10-27 00:40:16 bert Exp $
+C     $Id: geom_input.F,v 1.139 2000-12-01 03:36:26 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -651,7 +651,12 @@ c
 c
 c--> 2d and 1d systems not active yet
 c
-   30 if(isystype(geom).eq.3) then
+   30   continue
+        if(isystype(geom).ne.0.and.group_number(geom).ne.1) call
+     .     errquit(
+     .       ' space groups 2-230 not available - set group to',1)
+
+      if(isystype(geom).eq.3) then
         call geom_3d(geom,scale)
 c        status = geom_set_user_units(geom,'fractional')
       elseif (isystype(geom).eq.2) then
