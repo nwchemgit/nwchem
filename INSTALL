@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.23 2000-11-07 22:54:00 windus Exp $
+$Id: INSTALL,v 1.24 2000-11-07 23:21:19 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -424,6 +424,11 @@ OPTIMIZATION TIPS:
    and then edit the appropriate options.  Again, please note that
    changes to the makefile are NOT supported and you are on your own
    in this endeavor!
+
+   If you are running on an IBM SP, you might want to consider
+   optimizing the value of -bmaxdata in the makefile.h file.  This
+   option specifies the maximum amount of space to reserve for the
+   program stack segment.
 
 
 POINT OF CONTACT USERS: 
