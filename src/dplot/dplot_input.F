@@ -1,6 +1,6 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.7 2000-10-23 15:51:48 windus Exp $
+* $Id: dplot_input.F,v 1.8 2000-12-30 00:53:32 windus Exp $
 *
       Implicit none
 *
@@ -12,7 +12,7 @@
 *
       Integer rtdb
       Integer ind,indUnits,indWhat,indSpin,indWhere,i,j
-      Integer Lth,jLth,Lth_Tit
+      Integer Lth,Lth_Tit
       Integer No_Of_Spacings(3),ValueI
       Integer nOrb,iOrb,k_Orb,l_Orb
       Double Precision Ext_From_To(3,2),ValueR
@@ -131,19 +131,8 @@ c
   400 Continue
       test = ' '
       Title = ' '
-      If (.not. inp_read())
-     &   Call ErrQuit('DPlot_Input: inp_read failed',0)
-      If (.not.Inp_Line(test))
-     &   Call ErrQuit('DPlot_Input: Title; <title>',0)
-      Lth = Inp_StrLen(test)
-  401 Continue
-      Do jLth = 1, Lth
-         If (test(jLth:jLth).ne.' ') GoTo 402
-      End Do
-      Call ErrQuit('DPlot_Input: Title; <title>',0)
-  402 Continue
-      Lth_Tit = Lth - jLth + 1
-      Title(1:Lth_Tit) = test(jLth:Lth)
+      If (.not.Inp_a(Title))
+     &   Call ErrQuit('DPlot_Input: Title <title>',0)
       GoTo 10
 *
 *---- Read the orbital info
@@ -219,14 +208,14 @@ c
 *---- Write the name of the vector file to rtdb
       If (.not.rtdb_cput(rtdb,'dplot:File_Vec',1,File_Vec))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec',0)
-      write(0,*) ' vec1 and 2',File_vec,File_vec2
+c      write(0,*) ' vec1 and 2',File_vec,File_vec2
       If (.not.rtdb_cput(rtdb,'dplot:File_Vec2',1,File_Vec2))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec2',0)
 *---- Write the name of the output file to rtdb
       If (.not.rtdb_cput(rtdb,'dplot:File_Out',1,File_Out))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Out',0)
 *---- Write the title of the output file to rtdb
-      If (.not.rtdb_cput(rtdb,'dplot:Title',1,Title(1:Lth_Tit)))
+      If (.not.rtdb_cput(rtdb,'dplot:Title',1,Title))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - Title',0)
 *---- Write the orbital info
       Call Inp_UCase(What)
