@@ -1,6 +1,6 @@
       SUBROUTINE vib_PRDATA(ARRAY,VECT,NR,NC,NRP,NCP,PVEC,NPRI
      &    ,first_pass)
-* $Id: vib_prdata.F,v 1.5 2000-02-25 00:36:04 windus Exp $
+* $Id: vib_prdata.F,v 1.6 2000-03-23 22:51:50 edo Exp $
 C*MODULE VIB  *DECK PRDATA
 c
       IMPLICIT NONE ! DOUBLE PRECISION(A-H,O-Z)
@@ -19,7 +19,8 @@ c
 c
       integer i, j, l
       integer ncl, ncu, nloops
-      integer fd, offset
+      integer fd
+      double precision offset
 c
       FREQ = 'Frequency'
       projected = .not.first_pass
