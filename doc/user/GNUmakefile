@@ -9,10 +9,15 @@ all postscript user.ps:	$(SOURCE)
 	latex user.tex
 	latex user.tex
 	latex user.tex
-	dvips -D 300 -o user.ps user.dvi
-
+	dvips -D 300 -N0 -o user.ps user.dvi
+quick:		$(SOURCE)
+	latex user.tex
+	dvips -D 300 -N0 -o user.ps user.dvi
 html:	
 	../htmlize user
+
+view:	user.ps
+	ghostview -bg white -fg black -bd black user.ps
 
 realclean clean:
 	/bin/rm -f *dvi *ps *toc *aux *log *~
