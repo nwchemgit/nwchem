@@ -241,7 +241,8 @@ c
 capr insert oexch
        if (oexch) then
         call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nvir,
-     $                      nbf, g_exch, dbl_mb(k_evals), g_epair )
+     $                      nbf, nbf, g_exch, dbl_mb(k_evals),
+     $                      g_epair )
        endif
 c
 c
