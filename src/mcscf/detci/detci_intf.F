@@ -992,6 +992,7 @@ c
       integer ijsym, ijklsym, nmixed
       double precision TOL
 #include "symmdef.fh"
+#include "bitops.fh"
 #include "symmmul.fh"
       data TOL/1.d-9/
 c      
