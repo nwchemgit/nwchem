@@ -131,7 +131,7 @@ c
          do i = 1, nmo(iset)
             read(unitno, err=1001, end=1001)
      $           (dbl_mb(k_vecs+j), j=0,nbf-1)
-            call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs))
+            call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), 1)
          enddo
 	 if (.not. ma_pop_stack(l_vecs)) call errquit
      $      ('movecs_read: pop failed', l_vecs)
@@ -222,7 +222,7 @@ c
             write(unitno, err=1001) (occ(j,iset),j=1,nbf)
             write(unitno, err=1001) (evals(j,iset),j=1,nbf)
             do i = 1, nmo(iset)
-               call ga_get(g_vecs(iset), 1, nbf, i, i, dbl_mb(k_vecs))
+               call ga_get(g_vecs(iset), 1, nbf, i, i, dbl_mb(k_vecs),1)
                write(unitno, err=1001) (dbl_mb(k_vecs+j), j=0,nbf-1)
             enddo
          enddo
