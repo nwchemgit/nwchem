@@ -1,5 +1,5 @@
 /*
- $Id: util_md_sockets.c,v 1.7 2000-03-18 04:29:14 d3j191 Exp $
+ $Id: util_md_sockets.c,v 1.8 2002-07-25 22:58:57 edo Exp $
  */
 
 #include <sys/types.h>
@@ -24,7 +24,8 @@
 int create_server_socket(char *host, int port)
 {
   int server_sockfd, client_sockfd;
-  int server_len, client_len;
+  int server_len;
+  socklen_t client_len;
   struct sockaddr_in server_address;
   struct sockaddr_in client_address;
 
