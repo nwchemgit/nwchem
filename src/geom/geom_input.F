@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.103 1999-06-09 23:42:06 d3g681 Exp $
+C     $Id: geom_input.F,v 1.104 1999-06-11 18:04:24 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2710,7 +2710,9 @@ C
       LOGICAL     OUT
       LOGICAL     SOME
       LOGICAL     ONLY
+      LOGICAL     WRONG
       LOGICAL     GOTX,GOTY,GOTZ
+      LOGICAL     GOTONE
       LOGICAL     NOSYM
       LOGICAL     PROPER
       LOGICAL     PRPAXS
@@ -2773,10 +2775,12 @@ C
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
+      DATA THREE  /3.0D+00/
       DATA FOUR   /4.0D+00/
       DATA TENM02 /1.0D-02/
       DATA TENM04 /1.0D-04/
       DATA TENM05 /1.0D-05/
+      DATA TENM09 /1.0D-09/
       DATA TEN06  /1.0D+06/
       DATA EPS    /1.01D+00/
 C
@@ -2794,7 +2798,7 @@ C
       OUT =OUT.OR.DBUG
       SOME=.FALSE.
       SOME=SOME.OR.OUT
-      ONLY=.FALSE.
+      ONLY=.TRUE. 
       ONLY=ONLY.OR.SOME
 C
 C     ----- INERTIA AXES AND DATA -----
@@ -2804,6 +2808,13 @@ C
          WRITE(IW,9978) (I,EIG(I),I=1,3)
          CALL HND_PRSQ(AXS,3,3,3)
       ENDIF
+C
+C     ----- WE ARE INTERESTED IN RELATIVE ERROR -----
+C
+      DUM=(EIG(1)+EIG(2)+EIG(3))/THREE
+      EIG(1)=EIG(1)/DUM
+      EIG(2)=EIG(2)/DUM
+      EIG(3)=EIG(3)/DUM
 C
 C     ----- CHECK FOR ATOM OR LINEAR MOLECULE -----
 C
@@ -2924,6 +2935,7 @@ C
             IF(IEQU(IAT).EQ.IAT) THEN
                DO JAT=1,NAT
                   IF(JAT.NE.IAT.AND.IEQU(JAT).EQ.IAT) THEN
+C
                      DO KAT=1,NAT
                         DO I=1,3
                            C2(I,KAT)=C1(I,KAT)
@@ -3051,12 +3063,16 @@ C
                         IF(OUT) THEN
                            WRITE(IW,*) 'TH , OH = ',GRPTH,GRPOH
                         ENDIF
+                        GOTONE=.FALSE.
                         DO IAXIS=1,3
                            IF((GRPTH.AND.
      1                         C2AXS(IAXIS)                 ).OR. 
      2                        (GRPOH.AND.
      3                         C2AXS(IAXIS).AND.C4AXS(IAXIS))) THEN
                               NAXM=NAXM+1
+                              IF(NAXM.EQ.1) THEN
+                                 GOTONE=.TRUE.
+                              ENDIF
                               IF(NAXM.LE.3) THEN
                                  DO I=1,3
                                     AXM(I,NAXM)=AXS(I,IAXIS)
@@ -3076,6 +3092,7 @@ C
                            WRITE(IW,*) 'T , TD , O = ',
      1                                  GRPT,GRPTD,GRPO
                         ENDIF
+                        GOTONE=.FALSE.
                         DO IAXIS=1,3
                            IF((GRPO .AND.
      1                         (C2AXS(IAXIS).AND.C4AXS(IAXIS))).OR.
@@ -3084,6 +3101,9 @@ C
      4                        (GRPT .AND.
      5                         (C2AXS(IAXIS)                 ))) THEN
                               NAXM=NAXM+1
+                              IF(NAXM.EQ.1) THEN
+                                 GOTONE=.TRUE.
+                              ENDIF
                               IF(NAXM.LE.3) THEN
                                  DO I=1,3
                                     AXM(I,NAXM)=AXS(I,IAXIS)
@@ -3095,7 +3115,24 @@ C
                      IF(OUT.AND.NAXM.GT.0) THEN
                         CALL HND_PRSQ(AXM,NAXM,3,3)
                      ENDIF
-                     IF(NAXM.GE.2) GO TO 10
+C
+C     ----- CHECK VALIDITY OF SECOND AXIS -----
+C
+                     IF(NAXM.EQ.2) THEN
+                        DUM =AXM(1,1)*AXM(1,2)+AXM(2,1)*AXM(2,2)+
+     1                       AXM(3,1)*AXM(3,2)
+                        DUMX=AXM(1,2)-DUM*AXM(1,1)
+                        DUMY=AXM(2,2)-DUM*AXM(2,1)
+                        DUMZ=AXM(3,2)-DUM*AXM(3,1)
+                        DUM =DUMX**2+DUMY**2+DUMZ**2
+                        DUM =SQRT(DUM)
+                        IF(DUM.GT.TENM02) THEN
+                           GO TO 10
+                        ELSE
+                           NAXM=1
+                        ENDIF
+                     ENDIF
+C
                   ENDIF
                ENDDO
             ENDIF
@@ -3113,6 +3150,10 @@ C
             WRITE(IW,*) ' NEW FRAME OF CUBIC GROUP '
             CALL HND_PRSQ(AXS,3,3,3)
          ENDIF
+         IF(NAXM.LT.2) THEN
+            WRITE(IW,*) ' AXIS DETECTION FAILED'
+            RETURN
+         ENDIF
       ENDIF
 C
       IF(DEGNR2) THEN
@@ -3127,6 +3168,11 @@ C
          IF(ABS(EIG(2)-EIG(3)).LT.TENM05) KAXIS=1
          IF(OUT) THEN
             WRITE(IW,*) 'KAXIS = ',KAXIS
+         ENDIF
+         IF(KAXIS.NE.1.AND.KAXIS.NE.3) THEN
+            WRITE(IW,*) 'SOMETHING WRONG WITH THRESHOLDS'
+            WRITE(IW,*) 'KAXIS,DENGR2 = ',KAXIS,DEGNR2
+            CALL HND_HNDERR(3,ERRMSG)
          ENDIF
          DO IAT=1,NAT
             DUM=C1(1,IAT)*C1(1,IAT)+C1(2,IAT)*C1(2,IAT)+    
@@ -3240,6 +3286,8 @@ C
          ZMAG(IORDR)=ABS(QZ(IORDR))
          IF(MUCH) THEN
             WRITE(IW,9998) QX(IORDR),QY(IORDR),QZ(IORDR)
+         ENDIF
+         IF(OUT) THEN
             WRITE(IW,9999) IORDR,XMAG(IORDR),YMAG(IORDR),ZMAG(IORDR)
          ENDIF
       ENDDO
@@ -3345,6 +3393,14 @@ C
             WRITE(IW,9981) IAXIS,IMPROP(IAXIS)
          ENDIF
       ENDDO
+C
+      IF((.NOT.PROPER(1)).AND.(.NOT.IMPROP(1)).AND.
+     1   (.NOT.PROPER(2)).AND.(.NOT.IMPROP(2)).AND.
+     2   (.NOT.PROPER(3)).AND.(.NOT.IMPROP(3))     ) THEN
+         WRITE(IW,*) 'AXES ARE NOT -PROPER- NOR -IMPROPER-.'
+         WRITE(IW,*) '-AUTO SYM- WILL STOP, THE CODE WILL CONTINUE.'
+         RETURN
+      ENDIF
 C
 C     ----- ALIGN AXIS OF HIGHEST ORDER ALONG -Z- -----
 C
@@ -3642,7 +3698,8 @@ C
       IF(ONLY) THEN
          WRITE(IW,9977)
          DO IAT=1,NAT
-            WRITE(IW,9989) IAT,(C3(I,IAT),I=1,3)
+            WRITE(IW,9984) IAT,(C(I,IAT),I=1,3),(C1(I,IAT),I=1,3),
+     1                                          (C3(I,IAT),I=1,3)
          ENDDO
       ENDIF
 C
@@ -3690,11 +3747,13 @@ C
       LOGICAL  DBUG
       LOGICAL  SOME
       LOGICAL  PUNCH
+      CHARACTER*8 ERRMSG
       CHARACTER*8 WRDSYM
       CHARACTER*8 WRDEND
       CHARACTER*8 GRPSAV
       CHARACTER*8 GROUP,groupname
       CHARACTER*8 BLANK
+      CHARACTER*1 I2
       CHARACTER*1 B
       CHARACTER*1 C
       CHARACTER*1 S
@@ -3730,7 +3789,10 @@ C
       COMMON/HND_SYMMOL/COMPLX,IGROUP,NAXIS,LINEAR
       COMMON/HND_SYMNAM/GROUP
       DIMENSION TR(3),RT(3,3)
+      DIMENSION ERRMSG(3)
+      DATA ERRMSG /'-PROGRAM ','STOP IN ','-MOLSMB-'/
       DATA BLANK  /'        '/
+      DATA I2     /'2'/
       DATA B      /' '/
       DATA S      /'S'/
       DATA C      /'C'/
@@ -3825,8 +3887,16 @@ C
                      ENDIF
                   ENDIF
                ELSE
-                  GROUP(1:1)=S
-                  GROUP(2:2)=N
+                  IF(((NAXIS/2)*2).EQ.NAXIS) THEN
+                     NAXIS=NAXIS/2
+                     GROUP(1:1)=S
+                     GROUP(2:2)=I2
+                     GROUP(3:3)=N
+                  ELSE
+                     WRITE(IW,*) 'SOMETHING WRONG WITH S2N GROUP'
+                     WRITE(IW,*) '-2N- IS NOT EVEN .... STOP.'
+                     CALL HND_HNDERR(3,ERRMSG)
+                  ENDIF
                ENDIF
             ENDIF
          ELSE
