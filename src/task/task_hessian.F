@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.7 1998-12-28 22:12:04 d3g681 Exp $
+* $Id: task_hessian.F,v 1.8 1999-02-15 15:10:41 d3e129 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -41,6 +41,7 @@ c
       integer ecce_old_print, ecce_junk_print
       logical status, ignore, numerical, analytic
       double precision cpu, wall, delta_pass
+      double precision default_delta
       character*80 theory, prefix
       character*(nw_max_path_len) filehess
 c
@@ -92,11 +93,16 @@ c
           write(6,*)
           write(6,*)
         endif
+c
+c define default delta value
+c
+        default_delta = 0.001d00  ! should it be 0.0025 
+        if (inp_compare(.false.,theory,'dft')) default_delta = 0.01d00
 c     
 c     check for change of finite difference delta
 c     
         if (.not.rtdb_get(rtdb,'stpr_gen:delta',MT_DBL,1,delta_pass))
-     &      delta_pass = 0.001d00
+     &      delta_pass = default_delta
 c
         call ecce_print_control(0, ecce_old_print) ! disable ECCE printing
         status = stpr_gen_hess_at(rtdb,delta_pass)
