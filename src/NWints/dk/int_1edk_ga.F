@@ -1,11 +1,12 @@
       subroutine int_1edk_ga(basis_in, g_in, type, oskel)
-c $Id: int_1edk_ga.F,v 1.4 1999-11-02 22:02:32 bert Exp $
+c $Id: int_1edk_ga.F,v 1.5 1999-11-02 22:17:22 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "inp.fh"
+#include "apiP.fh"
 #include "bas.fh"
 #include "sym.fh"
 #include "basP.fh"
@@ -70,11 +71,6 @@ c
 c     
       c=137.0359895d0
       c2=c*c
-c     
-c     For now we set type to free-particle projection operators
-c
-      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:type',MT_INT,1,
-     $   form_type)) form_type = 1
 c
       call ga_sync()
 c
