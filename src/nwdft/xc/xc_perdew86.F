@@ -1,7 +1,7 @@
       Subroutine xc_perdew86(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                       Amat, Cmat, nq, ipol, Ec, qwght)
 c
-c$Id: xc_perdew86.F,v 1.13 1997-03-28 18:45:49 d3h449 Exp $
+c$Id: xc_perdew86.F,v 1.14 1997-04-02 17:55:07 d3h449 Exp $
 c
       implicit none
 c
@@ -50,12 +50,12 @@ c
       double precision gaa, gab, gbb
       double precision dzeta, dprime
       double precision x
-      dzeta(x) = 2.d0**ONETHIRD*dsqrt(((ONE+x)*.5d0)**FIVE3 + 
-     &                                ((ONE-x)*.5d0)**FIVE3   )
-      dprime(x) = (2.d0**ONETHIRD*FIVE6)*(((ONE+x)*.5d0) *
-     &                               TWO3-((ONE-x)*.5d0)*TWO3 ) /
-     &              dsqrt(((ONE+x)*.5d0)**FIVE3 +
-     &                    ((ONE-x)*.5d0)**FIVE3)
+      dzeta(x) = 2.d0**ONETHIRD*dsqrt(((ONE + x)*.5d0)**FIVE3 + 
+     &                                ((ONE - x)*.5d0)**FIVE3   )
+      dprime(x) = (2.d0**ONETHIRD*FIVE6)*(((ONE + x)*.5d0) *
+     &                               TWO3-((ONE - x)*.5d0)*TWO3 ) /
+     &              dsqrt(((ONE + x)*.5d0)**FIVE3 +
+     &                    ((ONE - x)*.5d0)**FIVE3)
 c
       rsfact = (0.75d0/pi)**ONETHIRD
 c
@@ -113,7 +113,7 @@ c
 c
 c        ======> SPIN-UNRESTRICTED <======
 c
-         do 20 n = 1,nq
+         do 20 n = 1, nq
             rhoval = rho(n,1)
             if (abs(rhoval).lt.tol_rho) goto 20
             arho=1.d0/rhoval
@@ -134,19 +134,19 @@ c
      &                 delrho(n,2,1)*delrho(n,2,2) +
      &                 delrho(n,3,1)*delrho(n,3,2)   )
             dsqgamma = sqrt(gammaval)
-            zeta = (rho(n,2)-rho(n,3))*arho
+            zeta = (rho(n,2) - rho(n,3))*arho
             add = 1.d0/dzeta(zeta)
             adp = dprime(zeta)
-            dzetada =  (1.d0-zeta)*arho*adp
-            dzetadb = -(1.d0+zeta)*arho*adp
+            dzetada =  (1.d0 - zeta)*arho*adp
+            dzetadb = -(1.d0 + zeta)*arho*adp
 c         
 c           C(n)
 c         
-            anum = fff+alpha*rs+beta*rs2
-            aden = 1.d0/(1.d0+pgamma*rs+delta*rs2+beta10*rs3)
-            CC = zzz+(anum*aden)
-            CCPRIME = aden*((alpha+beta*(rs+rs)) -
-     &                (anum*aden)*(pgamma+(rs+rs)*delta + 
+            anum = fff + alpha*rs + beta*rs2
+            aden = 1.d0/(1.d0 + pgamma*rs + delta*rs2 + beta10*rs3)
+            CC = zzz + (anum*aden)
+            CCPRIME = aden*((alpha + beta*(rs + rs)) -
+     &                (anum*aden)*(pgamma+(rs + rs)*delta + 
      &                beta10*rs2*THREE))
             CCPRIME = CCPRIME*drsdrho
 c         

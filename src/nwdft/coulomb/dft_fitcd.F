@@ -16,6 +16,7 @@ c
 #include "msgids.fh"
 #include "eaf.fh"
 #include "sym.fh"
+#include "geom.fh"
 c
       double precision CD_coef(nbf_cd)
       double precision i3c_ERI(n3c_dbl)
@@ -46,13 +47,14 @@ c
      ,     max1e,nscr1e,j,next,i,mscratch_2e3c,
      ,     ifirst,ilast,nshbf,maxg,ish,lmiss
       integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
-     ,     lscr,iscr
-      logical oprint,dowork,oprint_ioinfo
+     ,     lscr,iscr,iqatom,lqatom,iqshell_cd,lqshell_cd,natoms,
+     ,     iqshell_lab,lqshell_lab
+      logical oprint,dowork,oprint_ioinfo,lresult
       integer nlast, ntasks
       integer ishc_be, ishd_be
       integer ndone,ipoint
       character*(nw_max_path_len) cdfit_filename
-      double precision dabsmax
+      double precision dabsmax, val
       integer nxtask
       external dabsmax,nxtask
       
@@ -525,6 +527,29 @@ c
          write(79) (CD_coef(i),i=1,nbf_cd)
          close(79)
       endif
+c
+c     Get mulliken population analysis of charge density fit
+c
+      LResult = geom_ncent(geom, natoms)
+      if (.not.MA_Push_Get(MT_Dbl,natoms,'qatom',lqatom,iqatom))
+     &   call errquit('dft_fitcd: cannot allocate qatom',0)
+      if (.not.MA_Push_Get(MT_Dbl,nshells_cd,'qshell_cd',lqshell_cd,
+     &   iqshell_cd))
+     &   call errquit('dft_fitcd: cannot allocate qshell_cd',0)
+      if (.not.MA_Push_Get(MT_Byte,nshells_cd,'qshell_lab',lqshell_lab,
+     &   iqshell_lab))
+     &   call errquit('dft_fitcd: cannot allocate qshell_cd',0)
+c
+      call mull_pop_fit(CD_bas_han, natoms, nshells_cd, nbf_cd, 
+     &                  dbl_mb(iqatom), dbl_mb(iqshell_cd), cd_coef, 
+     &                  DBL_MB(icgtf), Byte_MB(iqshell_lab))
+      if (.not.ma_pop_stack(lqshell_lab))
+     &   call errquit('dft_fitcd: cannot pop stack',0)
+      if (.not.ma_pop_stack(lqshell_cd))
+     &   call errquit('dft_fitcd: cannot pop stack',0)
+      if (.not.ma_pop_stack(lqatom))
+     &   call errquit('dft_fitcd: cannot pop stack',0)
+c
       call ga_sync
       if(IOLGC) call gadest(g_cdinv)
 c
@@ -595,5 +620,83 @@ c
       
 #endif
 c      call errquit(' temp stop semi-direct ',999)
+      return
+      end
+      Subroutine mull_pop_fit(basis, natoms, nshells, nbf_cd,
+     &     qatom, qshell, cd_coef, cgtf, shell_labels)
+      Implicit none
+      integer basis
+      integer natoms, nshells
+      integer ifirst, ilast, nbf_cd
+      integer ish1, ish2, ish, iat, i, iend
+      integer me, nproc, it, itype, nprim, ncont, icart
+      double precision qatom(natoms), qshell(nshells)
+      double precision cd_coef(nbf_cd), cgtf(nbf_cd)
+      character*1 shell_labels(nshells), ang_mom_label(11)
+      logical oprint_mull_fit
+c
+#include "bas.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "stdio.fh"
+#include "msgids.fh"
+#include "util.fh"
+c     
+      data ang_mom_label /'S', 'P', 'D', 'F', 'G', 'H', 'I', 'J', 
+     &                    'K', 'L', 'X'/
+      oprint_mull_fit = util_print('mulliken of fitted density',
+     &                              print_high)
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+c
+      call dfill(natoms,0.D0,qatom,1)
+      call dfill(nshells,0.D0,qshell,1)
+c
+      do iat = me+1, natoms, nproc
+         if (.not.bas_ce2cnr(basis, iat, ish1, ish2))
+     &      call errquit(' exiting in mull_pop_fit',4)
+         do ish = ish1, ish2
+            if (.not. bas_cn2bfr(basis, ish, ifirst, ilast))
+     &         call errquit(' exiting in mull_pop_fit.',5)
+            if (.not. bas_continfo(basis, ish, itype, nprim,
+     &                             ncont, icart))
+     &         call errquit(' exiting in mull_pop_fit.',5)
+            it = ilast - ifirst + 1
+            if (itype.le.9)then
+               shell_labels(ish) = ang_mom_label(itype+1)
+            else
+               shell_labels(ish) = ang_mom_label(11)
+            endif
+            qshell(ish) = ddot(it,cd_coef(ifirst),1,cgtf(ifirst),1)
+            qatom(iat) = qatom(iat) + qshell(ish)
+         enddo
+      enddo
+      call ga_sync
+      call ga_dgop(Msg_Mull1, qatom, natoms,'+')
+      call ga_dgop(Msg_Mull2, qshell, nshells,'+')
+      if (me.eq.0.and.oprint_mull_fit) then
+         call dft_header(
+     &       'Fitted Density - Mulliken Population Analysis')
+         write(LuOut,10)
+         do iat = 1, natoms
+            if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
+     &         call errquit(' exiting in mull_pop',4)
+            do ish = ish1, ish2, 9
+               iend = min(ish+9,ish2)
+               write(LuOut,20)(shell_labels(i),i=ish,iend)
+               if (ish.eq.ish1)then
+                  write(LuOut,30)iat,qatom(iat),(qshell(i),i=ish,iend)
+               else
+                  write(LuOut,35)(qshell(i),i=ish,iend)
+               endif
+            enddo
+         enddo
+      endif
+      call ga_sync
+   10 format(/' Atom   Charge   Shell Charges')
+   20 format(15x,10(3x,a1,2x))
+   30 format(1x,i4,1x,f8.2,1x,10(f6.2))
+   35 format(15x,10(f6.2))
+c
       return
       end
