@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.28 1998-12-08 18:44:07 bernhold Exp $
+* $Id: task.F,v 1.29 1998-12-08 18:47:10 bernhold Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -89,8 +89,8 @@ c
       if (operation .eq. ' ') then ! Look for specialized routine
          if (inp_compare(.false.,'rjhtest', theory)) then
             status = rjhtest(rtdb)
-c$$$         else if (inp_compare(.false.,'jvltest', theory)) then
-c$$$            status = jvltest(rtdb)
+         else if (inp_compare(.false.,'jvltest', theory)) then
+            status = jvltest(rtdb)
          else if (inp_compare(.false.,'python', theory)) then
             status = task_python(rtdb)
          else if (inp_compare(.false.,'raktest', theory)) then
