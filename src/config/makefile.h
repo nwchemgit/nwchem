@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.388 2002-11-23 22:35:50 edo Exp $
+# $Id: makefile.h,v 1.389 2002-12-04 18:11:14 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -921,7 +921,7 @@ ifeq ($(TARGET),IBM64)
     CORE_SUBDIRS_EXTRA = lapack blas
          FC = xlf
          CC = xlc
-    ARFLAGS = -X 64 urs 
+         AR = ar -X 64
      RANLIB = echo
   MAKEFLAGS = -j 11 --no-print-directory
     INSTALL = @echo $@ is built
