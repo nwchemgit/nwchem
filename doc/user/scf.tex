@@ -209,7 +209,7 @@ source of the input molecular orbital vectors as any of the following:
   though there are some significant restrictions in the use of the
   initial implementation of this method (see Section
   \ref{sec:fragguess}), this is the most powerful initial guess option
-  within the code.  It is particularly indispensible for open shell
+  within the code.  It is particularly indispensable for open shell
   metallic systems.
 \item \verb+ ROTATE input-geometry movecs + --- rotates existing 
    MO vectors  generated at previous geometry ({\tt input-geometry})
@@ -320,7 +320,7 @@ listed in the integer list.  This keyword is particularly useful for calculating
 electron and hole states.
 
 This optional keyword requires a list containing the new atom ordering.
-It is not necessary to provide seperate lists for alpha and 
+It is not necessary to provide separate lists for alpha and 
 beta orbitals. 
 
 An example of use of the \verb+REORDER+ directive:
@@ -467,7 +467,7 @@ The following points are important in using the fragment initial guess:
   full calculation.
 \item The order of atoms in the fragments and the order in which the
   fragment files are specified must be such that when the fragment
-  basis sets are concatentated all the basis functions are in the same
+  basis sets are concatenated all the basis functions are in the same
   order as in the full system.  This is readily accomplished by first
   generating the full geometry with atoms for each fragment
   contiguous, splitting this into numbered fragments and specifying
@@ -477,7 +477,7 @@ The following points are important in using the fragment initial guess:
   from the fragments to the full molecule and the resulting occupation
   must match the requested occupation for the full molecule.  E.g., a
   triplet ROHF calculation must be comprised of fragments that have
-  a total of exactly two open-shell orbtials. 
+  a total of exactly two open-shell orbitals. 
 \item Because of these restrictions, it is not possible to introduce
   additional atoms (or basis functions) into fragments for the purpose
   of cleanly breaking real bonds.  However, it is possible, and highly
@@ -1088,7 +1088,7 @@ molecule.  Possible actions are
 \item Examining an analysis of the initial orbitals (Section
   \ref{sec:scfprint}) and then swapping them to attain the desired
   occupation (Section \ref{sec:vectors}).
-\item Converging the calculation in a minimial basis set, which is
+\item Converging the calculation in a minimal basis set, which is
   usually easier, and then projecting into a larger basis set (Section
   \ref{sec:vectors}).
 \item Using the fragment orbital initial guess (Section
@@ -1229,7 +1229,7 @@ The default options correspond to
   level pcg 20 0.5 0 nr 0 0 0
 \end{verbatim}
 
-\section{Orbtial Localization}
+\section{Orbital Localization}
 \label{orbloc}
 The SCF module includes an {\em experimental} implementation of
 orbital localization, including Foster-Boys and Pipek-Mezey which only
@@ -1297,3 +1297,4 @@ print control, along with the print level for each one.
 
 \input{scfgrad}
 
+% LocalWords:  MO's
