@@ -2,8 +2,8 @@
      $                      iprt,cmo,eorb,t1,hz1,
      $                      scra,scrb,z1,hiu,hia,habe,giu,gabe,
      $                      g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,
-     $                      g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_zvecs.F,v 2.4 1997-05-29 16:42:56 gg502 Exp $
+     $                      g_ncoul,g_nexch,tklst, Tol2E)
+C     $Id: ccsd_zvecs.F,v 2.5 1997-06-05 17:45:41 gg502 Exp $
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,g_ncoul,g_nexch,
@@ -12,6 +12,7 @@ c
       double precision cmo(nbf,nbf),eorb(nbf),t1(*),
      &                 hz1(*),scra(*),scrb(*),z1(*),
      &                 hiu(*),hia(*),habe(*),giu(*),gabe(*)
+      Double Precision Tol2e
 c
 #include "ccsd_len.fh"
 #include "ccsd_debug.fh"
@@ -23,13 +24,8 @@ c
      &        ilo,ihi,jlo,jhi,lhoo,lhoov,maxbfsh
 c
       Integer Nodes, IAm
-      Double Precision Tol2e
       double precision one
       data one/1.0d00/
-C
-C     WARNING!  This really should be a user-accessible input parameter
-C
-      Data Tol2e /1.0d-12/
 c
       Nodes = GA_NNodes()
       IAM = GA_NodeID()

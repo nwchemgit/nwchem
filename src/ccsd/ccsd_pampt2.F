@@ -3,8 +3,8 @@
      $                      scra,scrb,hiu,hia,habe,giu,gabe,
      $                      g_t2,g_ht2,g_nt2,g_nht2,
      $                      eccsd,g_ncoul,g_nexch,
-     &                      tklst)
-C     $Id: ccsd_pampt2.F,v 2.9 1997-05-29 16:42:53 gg502 Exp $
+     &                      tklst, Tol2E)
+C     $Id: ccsd_pampt2.F,v 2.10 1997-06-05 17:45:41 gg502 Exp $
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_t2,g_ht2,g_ncoul,g_nexch,g_nt2,g_nht2,
@@ -14,6 +14,7 @@ c
       double precision cmo(nbf,nbf),eorb(nbf),t1(*),
      &                 ht1(*),scra(*),scrb(*),
      &                 hiu(*),hia(*),habe(*),giu(*),gabe(*)
+      double precision tol2e
 c
       integer nodes,iam
 #include "ccsd_debug.fh"
@@ -28,9 +29,7 @@ c
       double precision eccsd,fac,eccsd1
 c
       double precision zip,one,half,two
-      double precision tol2e
 c
-      data tol2e/1.d-12/
       data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
 c
       Nodes = GA_NNodes()
@@ -42,7 +41,6 @@ c
       lhoov=nvir*nocc*(nocc+1)/2
       lnov=nocc*nvir
       lnvv=nvir*nvir
-      tol2e=1.0d-12
       offt2=(idiis-1)*lhoov
 c
       call ga_get(g_t2,offt2+1,offt2+lnov,nvir+1,nvir+1,

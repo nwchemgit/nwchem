@@ -1,12 +1,13 @@
       subroutine ccsd_get_param(rtdb, maxit,convi,iprt, theory,
-     $   maxdiis)
-C     $Id: ccsd_get_param.F,v 1.5 1997-04-14 06:34:55 gg502 Exp $
+     $   maxdiis, tol2e)
+C     $Id: ccsd_get_param.F,v 1.6 1997-06-05 17:45:39 gg502 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
 c     
-      integer rtdb, maxit, convi, iprt, maxdiis
+      integer rtdb, maxit, iprt, maxdiis
+      Double Precision Convi, Tol2E
       Character*(*) theory
 c
       double precision mone
@@ -16,7 +17,13 @@ c
       if (.not. rtdb_get(rtdb, 'ccsd:maxiter',
      $     MT_INT, 1, maxit)) maxit = 20
       if (.not. rtdb_get(rtdb, 'ccsd:thresh',
-     $     MT_INT, 1, convi)) convi = 6
+     $     MT_Dbl, 1, convi)) convi = 1.0d-6
+C
+C     The default here is set to match the hardwired tol2es used in the
+C     transformations
+C
+      if (.not. rtdb_get(rtdb, 'ccsd:tol2e',
+     $     MT_Dbl, 1, convi)) tol2e = Min(1.0d-12, 0.01 * Convi)
       if (.not. rtdb_get(rtdb, 'ccsd:iprt',
      $     MT_INT, 1, iprt)) iprt = 0
       if (.not. rtdb_get(rtdb, 'ccsd:maxdiis',

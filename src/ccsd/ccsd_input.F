@@ -1,5 +1,5 @@
       subroutine ccsd_input(rtdb)
-C     $Id: ccsd_input.F,v 2.4 1997-04-14 06:34:55 gg502 Exp $
+C     $Id: ccsd_input.F,v 2.5 1997-06-05 17:45:40 gg502 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -17,12 +17,13 @@ c
       parameter (num_dirs = 15)
       character*8 dirs(num_dirs)
       character*255 test
-      integer maxit, convi, iprt, MaxDIIS
+      integer maxit, iprt, MaxDIIS
+      Double Precision convi, tol2e
 C
 C     Length of debugging arrays (LenDbg) is defined in ccsd_debug.fh
 C
       Integer IList(LenDbg), NGiven
-      data dirs /'maxiter','thresh','        ','iprt',
+      data dirs /'maxiter','thresh','tol2e','iprt',
      $   'print','noprint',
      $   'doa', 'dob', 'dog', 'doh', 'dojk', 'dos', 'dod',
      $   'diisbas', 'end'/
@@ -48,15 +49,19 @@ c
 c     
 c     thresh <convergence threshold>
 c     
- 200  if (.not. inp_i(convi)) call errquit
+ 200  if (.not. inp_f(convi)) call errquit
      $     ('ccsd_input: failed reading convergence', 0)
-      if (.not. rtdb_put(rtdb, 'ccsd:thresh', mt_int, 1, convi))
-     $     call errquit('ccsd-input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'ccsd:thresh', mt_dbl, 1, convi))
+     $     call errquit('ccsd_input: rtdb_put failed', 0)
       goto 10
-c
-c     room for more
-c
- 300  goto 10
+c     
+c     tol2e <two-electron integral tolerance>
+c     
+ 300  if (.not. inp_f(tol2e)) call errquit
+     $     ('ccsd_input: failed reading tolerance', 0)
+      if (.not. rtdb_put(rtdb, 'ccsd:tol2e', mt_dbl, 1, tol2e))
+     $     call errquit('ccsd_input: rtdb_put failed', 0)
+      goto 10
 c
 c     iprt is a carry over from the old titan stuff.
 c

@@ -1,16 +1,17 @@
       subroutine ccsd_iterdrv2(basis,nsh,ncor,nocc,nvir,nact,nbf,
-     &                        maxit,convi,iprt,cmo,eorb,t1,
+     &                        maxit,Thre,iprt,cmo,eorb,t1,
      &                        ht1,scra,scrb,hiu,hia,habe,giu,gabe,
      &                        bbkp,bb,g_t2,g_ht2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
-     $     refener)
-C     $Id: ccsd_iterdrv2.F,v 2.10 1997-05-29 16:42:51 gg502 Exp $
+     $     refener, Tol2E)
+C     $Id: ccsd_iterdrv2.F,v 2.11 1997-06-05 17:45:40 gg502 Exp $
       implicit none
 c
-      integer basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,convi,iprt,
+      integer basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
      & g_t2,g_ht2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
      &        tklst(nsh*(nsh+1)/2,2)
+      Double Precision Thre, Tol2E
 c
        double precision cmo(nbf,nbf),eorb(nbf),t1(*),
      &                  ht1(*),scra(*),scrb(*),
@@ -25,7 +26,7 @@ c
       integer iter,idiis,ndiis,bev,jhi,jlo,ihi,ilo,offt2,nvp1,
      &        i,j,a,b,av,lhoo,lhoov,ad1,ad2,ad3,ad4
       integer max2e,mem2
-      double precision eold,thre,dabs,tx(4),rms,deccsd,
+      double precision eold,dabs,tx(4),rms,deccsd,
      &                 tstart,tend
 
       Integer IAm
@@ -76,7 +77,6 @@ c
       ndiis=0
       eccsd=zip
       eold=zip
-      thre=ten**convi
       rms=thre+thre
       deccsd=thre+thre
 c
@@ -145,7 +145,7 @@ c ----------------------------------------------------------
      &                iprt,cmo,eorb,t1,ht1,
      $                scra,scrb,hiu,hia,habe,giu,gabe,
      &                g_t2,g_ht2,g_nt2,g_nht2,eccsd,
-     &                g_ncoul,g_nexch,tklst)
+     &                g_ncoul,g_nexch,tklst, Tol2E)
       call ga_sync()
       tx(2)=tcgtime()
       tstart=tx(2)

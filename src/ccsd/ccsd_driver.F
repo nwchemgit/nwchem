@@ -1,5 +1,5 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in )
-C     $Id: ccsd_driver.F,v 2.17 1997-05-29 16:42:50 gg502 Exp $
+C     $Id: ccsd_driver.F,v 2.18 1997-06-05 17:45:38 gg502 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -48,8 +48,9 @@ C
 capr
 #include "ccsd_len.fh"
 c
-       integer maxit,convi,iprt,ncor,ndel,l_mo,k_mo,g_objv,
+       integer maxit,iprt,ncor,ndel,l_mo,k_mo,g_objv,
      &         l_scr,k_scr
+       Double Precision Convi, Tol2E
 capr
 c
        logical movecs_read_header, movecs_read
@@ -404,7 +405,8 @@ c
 c Start CCSD part here
 c
 c
-      call ccsd_get_param(rtdb,maxit,convi,iprt, CC_Theory, MaxVec)
+      call ccsd_get_param(rtdb,maxit,convi,iprt, CC_Theory, MaxVec,
+     $     Tol2E)
       ncor=occ_frozen
       ndel=vir_frozen
 c
@@ -426,7 +428,7 @@ c
      &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),
      &            blen,g_ncoul,g_nexch, RefEner,
-     $   CC_Theory, RTDB, MaxVec, Geom)
+     $   CC_Theory, RTDB, MaxVec, Geom, Tol2E)
       status = ma_pop_stack(l_mo)
       if (.not.ga_destroy(g_nexch))
      &    call errquit('ga_dest g_nexch fail',0)

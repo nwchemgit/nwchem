@@ -1,14 +1,14 @@
       subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,
      &                  convi,iprt,cmo,eorb,blen,
      &                  g_ncoul, g_nexch, RefEner,
-     $   CC_Theory, rtdb, mxvec, geom)
+     $   CC_Theory, rtdb, mxvec, geom, Tol2e)
       implicit none
-C     $Id: aoccsd2.F,v 2.14 1997-05-30 18:06:31 d3j191 Exp $
+C     $Id: aoccsd2.F,v 2.15 1997-06-05 17:45:38 gg502 Exp $
 c
-      integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,convi,iprt,
+      integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
       double precision cmo(nbf,nbf),eorb(nbf)
-      Double Precision RefEner
+      Double Precision RefEner, Convi, Tol2E
       Character*(*) CC_Theory
       Integer RTDB, geom
 c
@@ -57,7 +57,7 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C     Temporary stuff added to play density matrix games
 C
-      Integer A,J, B, LSab
+      Integer A, J, B, LSab
       Integer L_Sb, K_Sb, L_Sa, K_Sa
       Integer H_DenZ1, I_DenZ1, H_DenT1, I_DenT1
       Integer G_DenT2, G_DenZ2, G_1PDM
@@ -105,7 +105,6 @@ c
      &       'the segmented parallel titan ccsd program:',
      &       i3,' nodes',/,1x,76(1h*),//)
       endif
-      convi=-convi
       if (iam.eq.0)then
       write (*,1318) CC_Theory( :Inp_StrLen(CC_Theory) ),
      $      ncor,nocc,nvir,ndel,nbf,nsh,basis
@@ -120,7 +119,7 @@ c
       write(*,6003) iprt,convi,maxit, mxvec
  6003 format(//,2x,' ***** ccsd parameters *****',
      &        /,2x,' iprt   = ',i5,
-     &        /,2x,' convi  = ',i5,
+     &        /,2x,' convi  = ',e9.3,
      &        /,2x,' maxit  = ',i5,
      $        /,2x,' mxvec  = ',i5)
       endif
@@ -178,7 +177,7 @@ c
      &                  dbl_mb(k_bbkp),dbl_mb(k_bb),
      &                  g_t2,g_ht2,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
-     &                  int_mb(k_tk),offt2,nvp1, refener)
+     &                  int_mb(k_tk),offt2,nvp1, refener, Tol2E)
 c
          if (.not.ga_create(MT_DBL,lnov,lnov,'g_nt2',
      &      nvir,nvir,g_nt2))
@@ -274,7 +273,7 @@ c
      &      dbl_mb(k_bbkp),dbl_mb(k_bb),
      &      g_nt2,g_t2,g_ht2,
      &      mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
-     &      int_mb(k_tk))
+     &      int_mb(k_tk), Tol2E)
       EndIf
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -522,7 +521,7 @@ c
          call moints_trp(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
      &      vir_lo, vir_hi,
      &      g_coul, ocoul, g_exch, oexch,
-     &      blen, cmo, ncor, nocc, nvir)
+     &      blen, cmo, ncor, nocc, nvir, Tol2E)
 c        print *,'call trpdrv ',npass
 c
          tx(2)=tcgtime()

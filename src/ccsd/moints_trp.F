@@ -3,7 +3,7 @@ c
 c
 c
 c
-c  $Id: moints_trp.F,v 2.5 1997-05-15 22:15:42 rg240 Exp $
+c  $Id: moints_trp.F,v 2.6 1997-06-05 17:45:41 gg502 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -29,7 +29,7 @@ c
      $                        mo2_lo, mo2_hi,
      $                        g_coul, ocoul,
      $                        g_exch, oexch,
-     $                        blen, cmo, ncor, nocc, nvir)
+     $                        blen, cmo, ncor, nocc, nvir, Tol2E)
        implicit none
 #include "tcgmsg.fh"
 #include "mafdecls.fh"
@@ -53,6 +53,7 @@ c
        integer blen                           ! Blocking length
        integer ncor, nocc, nvir
        double precision cmo(*)
+       Double Precision Tol2E                 ! Integral tolerance
 c
 c Local variables
 c
@@ -74,7 +75,7 @@ c
        integer num_nodes, ploop, next, nmixed, i, iz, jz, kz
        integer l_sym, k_sym
        integer g_tmp                       
-       double precision tol2e, scale, schw_ij, q2
+       double precision scale, schw_ij, q2
        logical status, osym, odoit, oblk, st
 c
        integer moints_numgr, gr_len
@@ -83,13 +84,6 @@ c
        double precision half
        data half/0.5d00/
        data oblk/.true./    ! toggle whether to use Texas blocking or shell quartet AO ints
-c
-c
-c These are options that should be set
-c by input deck
-c
-c
-       data tol2e/1.d-12/
 c
 c
 c  General basis info
