@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp)
 c
-c $Id: qmmm_main.F,v 1.11 2003-04-04 18:16:35 d3j191 Exp $
+c $Id: qmmm_main.F,v 1.12 2003-04-04 20:10:58 d3j191 Exp $
 c
       implicit none
 c
@@ -62,7 +62,7 @@ c
  8889 format(/,' Solute zone types',/,1x,i1,'=',25i3,/,(3x,25i3))
       endif
 c
-      call qmmm_offset(me,np,nqatom,nzatom,ioffq,ioffz,nqatomt,nzatomt,
+      call qmmm_offset(np,nqatom,nzatom,ioffq,ioffz,nqatomt,nzatomt,
      + int_mb(i_ioff))
 c
       if(.not.ma_pop_stack(l_ioff))
