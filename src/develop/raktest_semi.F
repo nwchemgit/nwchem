@@ -1,10 +1,10 @@
       subroutine raktest_semi(rtdb)
-* $Id: raktest_semi.F,v 1.1 1996-03-18 23:26:23 vg422 Exp $
+* $Id: raktest_semi.F,v 1.2 1996-03-20 00:12:29 d3e129 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-#include "se_defs.fh"
+***************8#include "se_defs.fh"
 c
 c::passed
       integer rtdb ![input] rtdb handle
