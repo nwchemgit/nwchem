@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.12 2000-10-23 15:51:48 windus Exp $
+* $Id: create_contour.F,v 1.13 2001-04-12 01:34:01 edo Exp $
 *
       Implicit None
 *
@@ -94,7 +94,7 @@ cedo      double precision rdens_atom(natom*natom)
       nxyz    = 3*nAtom
       LResult = MA_Push_Get(MT_Dbl,nxyz,'xyz',l_xyz,k_xyz)
       Call ErrMem(LResult,'C_C: Failed to allocate xyz',0)
-      LResult = MA_Push_Get(MT_Byte,nAtom*16,'Tags',l_Tags,k_Tags)
+      LResult = MA_alloc_get(MT_Byte,nAtom*16,'Tags',l_Tags,k_Tags)
       Call ErrMem(LResult,'C_C: Failed to allocate Tags',0)
       LResult = MA_Push_Get(MT_Dbl,nAtom,'Charge',l_Charge,k_Charge)
       Call ErrMem(LResult,'C_C: Failed to allocate Charge',0)
@@ -115,8 +115,8 @@ cedo      double precision rdens_atom(natom*natom)
 *
       LResult = MA_Pop_Stack(l_Charge)
       Call ErrMem(LResult,'C_C: Failed to deallocate Charge',0)
-      LResult = MA_Pop_Stack(l_Tags)
-      Call ErrMem(LResult,'C_C: Failed to deallocate Tags',0)
+!      LResult = MA_Pop_Stack(l_Tags)
+!      Call ErrMem(LResult,'C_C: Failed to deallocate Tags',0)
 *
       LResult = MA_Push_Get(MT_Dbl,nGrPP*nAtom,'rq', l_rq, k_rq)
       Call ErrMem(LResult,'C_C: Failed to allocate rq',0)
@@ -161,7 +161,8 @@ cedo      double precision rdens_atom(natom*natom)
      &                mBF,nAtom,
      &                Int_mb(k_iniz),Int_mb(k_ifin),
      .     int_mb(k_ibf),
-     &                Dbl_mb(k_Expo),nbf_ao_mxprim,Acc_AO_Gauss)
+     &                Dbl_mb(k_Expo),nbf_ao_mxprim,Acc_AO_Gauss,
+     ,byte_mb(k_tags))
       If (What.eq.'VIEW' . and . nBF.ne.mBF)
      &   Call ErrQuit('Create_Contour: nBF.ne.mBF for VIEW',mbf)
       If (DeBug . and . iProc.eq.0) Write(LuOut,*)' mBF        = ',mBF
@@ -275,37 +276,41 @@ cedo      double precision rdens_atom(natom*natom)
      .        call errquit(' stop in basnuc',11)
       if (.not.ma_push_get
      &   (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
-     &   call errquit('dft_scf:push_get failed', 13)
+     &   call errquit('cre_cont:push_get failed', 13)
       if (.not.ma_push_get
      &   (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
-     &   call errquit('dft_scf:push_get failed', 13)
+     &   call errquit('cre_cont:push_get failed', 13)
          call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      &                int_mb(k_cetobfr), natom, nshells_ao)
       call dfill(natom*natom, 0.0d0, dbl_mb(k_rdat), 1)
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &   call errquit('dft_scf: cannot allocate scr',0)
+     &   call errquit('cre_cont: cannot allocate scr',0)
       call util_ga_mat_reduce(nbf, natom, int_mb(k_cetobfr), g_dns, 
      &                        1, dbl_mb(k_rdat), 'rms', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
       if (.not.ma_pop_stack(lscr))
-     &   call errquit('dft_scf: cannot pop stack',0)
+     &   call errquit('cre_cont: cannot pop stack',0)
             if (.not.MA_Push_Get(MT_Dbl,natom,'rchi_atom',
      &         lrchi_atom,irchi_atom))
-     &         call errquit('dft_scf: cannot allocate rchi_atom',0)
+     &         call errquit('cre_cont: cannot allocate rchi_atom',0)
             call dfill(natom, 0.0d0, dbl_mb(irchi_atom), 1)
 c
             if (.not.MA_Push_Get(MT_Dbl,natom,'rdelchi_atom',
      &         lrdelchi_atom,irdelchi_atom))call errquit
-     &         ('dft_scf: cannot allocate rdelchi_atom',0)
+     &         ('cre_cont: cannot allocate rdelchi_atom',0)
             call dfill(natom, 0.0d0, dbl_mb(irdelchi_atom), 1)
             call util_rmsatbf(ngrpp, natom,
      .           int_mb(k_iniz),int_mb(k_ifin),
      ,           dbl_mb(k_scr1),dbl_mb(irchi_atom))
+!            call dplot_nobq(natom,byte_mb(k_tags),
+!     .           int_mb(k_iniz),int_mb(k_ifin),
+!     ,           dbl_mb(irchi_atom),dbl_mb(k_rdat))
+            if(.not.ma_free_heap(l_tags)) call errquit(' cc: heap',0)
 *
             if (.not.MA_Push_Get(MT_Dbl,ngrpp,'rscr',
      &         lrscr,irscr))call errquit
-     &         ('dft_scf: cannot allocate rdelchi_atom',0)
+     &         ('cre_cont: cannot allocate rscr',0)
 
          call xc_rhogen(TOLL,AO_Bas_Han,g_Dns,
      &                  nbf_ao_mxnbf_ce,nAtom,1,nGrPP,nBF,mBF,
@@ -319,32 +324,8 @@ c
      &              dbl_mb(irchi_atom), dbl_mb(irdelchi_atom),
      &              dbl_mb(k_rdat), int_mb(k_cetobfr),1d0)
 *------- Deallocate Scratch memory needed by xc_rhogen
-         if(.not.MA_Pop_Stack(lrscr))
-     .        call Errquit('C_C: Failed to deallocate rdelc',110)
-         if(.not.MA_Pop_Stack(lrdelchi_atom))
-     .        call Errquit('C_C: Failed to deallocate rdelc',111)
-         if(.not.MA_Pop_Stack(lrchi_atom))
-     .        Call Errquit('C_C: Failed to deallocate rchi',111)
-         LResult = MA_Pop_Stack(lcntobfr)
-         Call ErrMem(LResult,'C_C: Failed to deallocate cnt',111)
-         LResult = MA_Pop_Stack(lcntoce)
-         Call ErrMem(LResult,'C_C: Failed to deallocate bp',111)
-         LResult = MA_Pop_Stack(l_rdat)
-         Call ErrMem(LResult,'C_C: Failed to deallocate bp',22)
-         LResult = MA_Pop_Stack(l_cetofbr)
-         Call ErrMem(LResult,'C_C: Failed to deallocate bp',11)
-         LResult = MA_Pop_Stack(l_bp)
-         Call ErrMem(LResult,'C_C: Failed to deallocate bp',0)
-         LResult = MA_Pop_Stack(l_gamma)
-         Call ErrMem(LResult,'C_C: Failed to deallocate gamma',0)
-         LResult = MA_Pop_Stack(l_DelRho)
-         Call ErrMem(LResult,'C_C: Failed to deallocate DelRho',0)
-         LResult = MA_Pop_Stack(l_BMat)
-         Call ErrMem(LResult,'C_C: Failed to deallocate BMat',0)
-         LResult = MA_Pop_Stack(l_PMat)
-         Call ErrMem(LResult,'C_C: Failed to deallocate DENS',0)
-         LResult = MA_Pop_Stack(l_FMat)
-         Call ErrMem(LResult,'C_C: Failed to deallocate DENSF',0)
+         if(.not.ma_chop_stack(l_FMat)) call errquit(
+     .        'CreateCont: Failed to deallocate DENSF',0)
       Else
 *------- Get the values of the orbital at the grid points
          LResult = MA_Push_Get(MT_Dbl,nBF,'MOVec',l_MOVec,k_MOVec)
@@ -447,7 +428,7 @@ c
       Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
      &                      iniz, ifin, ibf, zprim, nzprim, acc_gauss)
 c
-C$Id: create_contour.F,v 1.12 2000-10-23 15:51:48 windus Exp $
+C$Id: create_contour.F,v 1.13 2001-04-12 01:34:01 edo Exp $
 c
       implicit none
 c      
@@ -544,6 +525,38 @@ c
   400 continue
 c
       mbf = n1
+      return 
+      end
 c
+      subroutine dplot_nobq(mcenters,tags,iniz,ifin,rchi)
+      implicit none
+#include "inp.fh"
+      integer mcenters
+      integer  iniz(mcenters),ifin(mcenters)
+      double precision rchi(*)
+      
+c
+c     get rid of  bqs in iniz/ifin
+c         
+      character*16 tags(*),tag
+      integer iptr,nleft,i,j
+      iptr=1
+      nleft=mcenters
+      do i=1,mcenters
+         tag=tags(i)
+         if (inp_compare(.true.,tag(1:2),'bq')) then
+            
+            do j=iptr+1,nleft
+               rchi(j-1)=rchi(j)
+               iniz(j-1)=iniz(j)
+               ifin(j-1)=ifin(j)
+            enddo
+            nleft=nleft-1
+         else
+            iptr=iptr+1
+         endif
+      enddo
+      mcenters=nleft
+
       return
       end

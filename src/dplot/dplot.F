@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.19 2001-02-08 23:45:14 windus Exp $
+* $Id: dplot.F,v 1.20 2001-04-12 01:34:02 edo Exp $
 *
       Implicit None
 *     
@@ -509,6 +509,8 @@ c      If (nSet.eq.2) Call GADest(g_Vec(2))
 c      Call GADest(g_Vec(1))
       if (.not. ga_destroy(g_Vec(1))) call errquit
      &   ('dplot: could not destroy g_Vec(1)', 0)
+      If (.not.Geom_destroy(Geom))
+     &     Call ErrQuit('DPlot: Geom_destory failed',0)
 *
 *---- Close the output file
       If (iProc.eq.0 . and . Where.ne.'NUCLEI' . and .

@@ -1,6 +1,6 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.8 2000-12-30 00:53:32 windus Exp $
+* $Id: dplot_input.F,v 1.9 2001-04-12 01:34:02 edo Exp $
 *
       Implicit none
 *
@@ -18,7 +18,7 @@
       Double Precision Ext_From_To(3,2),ValueR
 *
       Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
-      Parameter (Num_Dirs  = 10)
+      Parameter (Num_Dirs  = 11)
       Parameter (Num_Units = 3)
       Parameter (Num_What  = 2)
       Parameter (Num_Spin  = 4)
@@ -35,7 +35,8 @@
       logical lgaussian
 *
       Data Dirs / 'LimitXYZ','Vectors','Output','Title','Orbitals',
-     &            'Spin','Where','Charges','Gaussian','End' /
+     &            'Spin','Where','Charges','Gaussian','print',
+     .     'End' /
       Data Allowed_Units / 'angstrom','au','bohr' /
       Data Allowed_What  / 'density','view' /
       Data Allowed_Spin  / 'total','spindens','alpha','beta' /
@@ -83,7 +84,8 @@ c
 *
       If (.not.inp_match(Num_Dirs,.false.,test,Dirs,ind))
      &   Call ErrQuit('DPlot_Input: unknown directive',0)
-      GoTo (100, 200, 300, 400, 500, 600, 700, 800, 900, 9999) ind
+      GoTo (100, 200, 300, 400, 500, 600, 700, 800, 900, 964, 
+     .     9999) ind
       Call ErrQuit('DPlot_Input: unimplemented directive',ind)
 *
 *---- Read the information about the limits of the grid
@@ -190,6 +192,9 @@ c
  900  continue
       lgaussian=.true.
       goto 10
+ 964  continue
+      goto 10
+      call util_print_input(rtdb, 'dft')
  9999 Continue
 *
       If (Charges.eq.'yes') What = 'charges'
