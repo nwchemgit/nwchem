@@ -1,4 +1,4 @@
-c $Id: int_chk_sum.F,v 1.20 1997-02-20 10:51:05 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.21 1997-02-21 00:16:47 d3e129 Exp $
 *
 *rak:      subroutine int_chk_sum(rtdb,basisin,print_ints)
 *rak:      implicit none
@@ -1448,7 +1448,7 @@ c
      &            int_mb(i_ilab),
      &            int_mb(i_jlab),
      &            int_mb(i_klab),
-     &            numleft,mems,dbl_mb(imems),)
+     &            numleft,mems,dbl_mb(imems))
               call stsum3c(numleft,numtot,
      &            dbl_mb(imemb),
      &            int_mb(i_ilab),
@@ -1816,7 +1816,7 @@ c
      &            int_mb(i_ilab),
      &            int_mb(i_jlab),
      &            int_mb(i_klab),
-     &            mems,dbl_mb(imems),)
+     &            mems,dbl_mb(imems))
               call stsum3c(numleft,numtot,
      &            dbl_mb(imemb),
      &            int_mb(i_ilab),
@@ -2001,7 +2001,7 @@ c
      &          numleft,
      &          int_mb(i_ilab),
      &          int_mb(i_jlab),
-     &          mems,dbl_mb(imems),)
+     &          mems,dbl_mb(imems))
             call stsum1(numleft,numtot,
      &          dbl_mb(imemb),
      &          int_mb(i_ilab),
