@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.6 2000-05-15 22:57:12 edo Exp $
+C     $Id: get_inp_file.F,v 1.7 2000-05-16 20:43:02 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -24,14 +24,15 @@ c
       integer l
       external iargc
 #if defined(HPUX64)
-      firstarg=2
-#else
-      firstarg=1
+C
+C    this hack allows to get the f77 external getarg out of libU77
+C    insted of the f90 intrinsic
+C
+      external getarg
 #endif
-
 c     
       nargs = iargc()
-      do arg = firstarg, nargs
+      do arg = 1, nargs
 #if defined(CRAY)
          call pxfgetarg(arg,test,ilen,ierror)
 #else 

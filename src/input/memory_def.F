@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.13 1999-11-13 02:23:32 bjohnson Exp $
+C     $Id: memory_def.F,v 1.14 2000-05-16 20:43:02 edo Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -61,7 +61,7 @@ C
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB  (linux)
       Parameter ( Total_Dflt = 8388608)  ! 64 MB  (linux)
 *     Parameter ( Total_Dflt = 4194304)  ! 32 MB  (linux)
-#elif defined(SUN) || defined(SOLARIS)
+#elif defined(SUN) || defined(SOLARIS) || defined(HPUX)
       Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sun or solaris)
 #elif defined(CRAY_T3E)
 C
