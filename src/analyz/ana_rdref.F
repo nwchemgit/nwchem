@@ -1,6 +1,6 @@
       subroutine ana_rdref(x)
 c
-c $Id: ana_rdref.F,v 1.2 1999-09-20 20:15:39 d3j191 Exp $
+c $Id: ana_rdref.F,v 1.3 1999-09-20 20:36:09 d3j191 Exp $
 c
       implicit none
 c
@@ -10,7 +10,7 @@ c
 c
       real*8 x(nsa,3)
       character*1 cdum
-      integer i,j,nwm,nwa,nsai,msai,npprev,nbxp,nbyp,nbzp
+      integer i,j,nsai,msai,npprev,nbxp,nbyp,nbzp
       real*8 rdum
       integer nbxt,npbt,nsm
 c

@@ -1,6 +1,6 @@
       subroutine ana_sizref(nsai,msai)
 c
-c $Id: ana_sizref.F,v 1.2 1999-09-20 20:15:40 d3j191 Exp $
+c $Id: ana_sizref.F,v 1.3 1999-09-20 20:37:20 d3j191 Exp $
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 #include "msgids.fh"
 c
       character*1 cdum
-      integer i,nwm,nwa,nsai,msai,nsm
+      integer i,nsai,msai,nsm
 c
       integer ibroad(10)
 c
