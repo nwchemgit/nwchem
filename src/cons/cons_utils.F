@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.12 2004-04-20 18:07:21 marat Exp $
+c $Id: cons_utils.F,v 1.13 2004-04-21 06:31:00 marat Exp $
       function cons_print()
       implicit none
 #include "global.fh"
@@ -258,8 +258,6 @@ c
         if(.not.status) call errquit(
      >     'cons_add_fixed_atoms: unable to get prior harm bonds',
      >      n, MA_ERR)
-       write(*,*) "cons_add_fixed_atoms",namespace
-       write(*,*) "cons_add_fixed_atoms",(int_mb(i_tmp_id+i-1),i=1,n)
 
       if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
      &    'cons_add_fixed_atoms: unable to free h_tmp_id',
@@ -408,7 +406,6 @@ c
      &    'cons_info_fixed_atoms: unable to free h_tmp_id',
      &    0, MA_ERR)
 
-       write(*,*) "cons_get_active_atoms",nactive,(oactive(i),i=1,nat)
 
       end
 

@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.9 2004-04-06 00:09:39 marat Exp $
+c $Id: cons_input.F,v 1.10 2004-04-21 06:31:00 marat Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -64,11 +64,12 @@ c
 c
 c     reset/clear
 c     ----------------------------
-c      else if (inp_compare(.false.,'clear', test)) then
-c         nfp=0
-c
-c      goto 100
-c
+      else if (inp_compare(.false.,'clear', test)) then
+         call cons_delete_hbonds(namespace,rtdb)
+         call cons_delete_fixed_atoms(namespace,rtdb)
+
+      goto 100
+
 c      enable
 c     ----------------------------
       else if (inp_compare(.false.,'enable', test)) then

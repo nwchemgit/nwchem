@@ -25,17 +25,20 @@ c
       character(255) tag_n
       character(255) namespace
       logical oprint
+      logical ocons
 c
-      call util_print_push()
-      call util_print_rtdb_load(rtdb,'cons')
-      oprint = util_print('information', print_debug)
-      oprint = oprint .and. cons_print()
-
-      if(oprint) 
-     >    write(*,*) "entered cons_init"
+c     set default namespace if none specified
+c     ---------------------------------------
       if(.not. rtdb_cget(rtdb,"constraints" , 1, namespace)) then
          namespace=cons_default
       end if
+c
+c     exit if no constraints exist
+c     ----------------------------
+      if(.not.cons_inquire(namespace,rtdb)) then
+        status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .false.)
+        return
+      end if 
 
       if(.not.cons_activate(namespace,rtdb)) then
         status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .false.)
@@ -48,8 +51,22 @@ c
         return
       end if
 c
+      call util_print_push()
+      call util_print_rtdb_load(rtdb,'cons')
+      oprint = util_print('information', print_debug)
+      oprint = oprint .and. cons_print()
+
+      if(oprint) 
+     >    write(*,*) "entered cons_init"
+c
+      ocons = .false.
+c
 c     initialize harmonic bobds
+      if(cons_hbonds(namespace,rtdb)) then
+      ocons = .true.
       call cons_set_hbond_nhb(0)
+      call cons_load_hbonds(namespace,rtdb)
+      end if
 c
 c     load geometry 
 c     -------------
@@ -156,6 +173,8 @@ c
 #include "global.fh"
       integer rtdb
 c
+      call cons_print_summary(rtdb)
+      call cons_unload_hbonds()
       call cons_unload_fixed_atoms(rtdb)
       return
       end
@@ -342,8 +361,7 @@ c
 c
       logical ignore
 
-      if(.not. rtdb_delete(rtdb,"geometry:actlist"))
-     >     call errquit("unable to delete actlist",0,0)
+      ignore= rtdb_delete(rtdb,"geometry:actlist")
 
       end
 c
@@ -483,23 +501,27 @@ c
       status = status .and. rtdb_delete(rtdb,tag_id)
       status = status .and. rtdb_delete(rtdb,tag_k)
       status = status .and. rtdb_delete(rtdb,tag_r)
-      if(.not.status) call errquit(
-     >     'input_set: unable to delete prior harm bonds',
-     >      0, MA_ERR)
+
       end
 c
-      subroutine cons_delete_fixed_atoms(rtdb)
+      subroutine cons_delete_fixed_atoms(namespace,rtdb)
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
 c     
+      character*(*) namespace
       integer rtdb
 c
-      logical status
-      status = rtdb_delete(rtdb,"cons:fpos_i")
-      if(.not.status) call errquit(
-     >     'input_set: unable to delete prior fixed atoms',
-     >      0, MA_ERR)
+      logical ignore
+      character(255) tag_id
+      character(255) tag_n
+c
+      call cons_fxd_atoms_id_tag(namespace,tag_id)
+      call cons_fxd_atoms_n_tag(namespace,tag_n)
+c
+      ignore = rtdb_delete(rtdb,tag_n)
+      ignore = rtdb_delete(rtdb,tag_id)
+c
       end
 c
       subroutine cons_add_egrad(rtdb,energy,gx)
@@ -509,6 +531,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "cons.fh"
 c     
       integer rtdb
       double precision energy
@@ -517,19 +540,12 @@ c
       integer nhb
       character(255) namespace
 c
-      if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
-        return
-      else if (.not.status) then
-        return
-      end if
+      call cons_get_namespace(namespace)
+      if(.not.cons_hbonds(namespace,rtdb)) return
 c
       call cons_load_geom(rtdb)
-      call cons_get_namespace(namespace)
-      call cons_load_hbonds(namespace,rtdb)
-      call cons_get_hbond_nhb(nhb)
-      if(nhb .gt. 0 ) then
-         call cons_add_hbond_egrad(rtdb,energy,gx)
-      end if
+c
+      call cons_add_hbond_egrad(rtdb,energy,gx)
 c
       call cons_unload_geom()
 c
@@ -542,6 +558,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "cons.fh"
 c     
       integer rtdb
       double precision energy
@@ -549,19 +566,12 @@ c
       integer nhb
       character(255) namespace
 c
-      if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
-        return
-      else if (.not.status) then
-        return
-      end if
-
-      call cons_load_geom(rtdb)
       call cons_get_namespace(namespace)
-      call cons_load_hbonds(namespace,rtdb)
-      call cons_get_hbond_nhb(nhb)
-      if(nhb .gt. 0 ) then
-           call cons_add_hbond_energy(rtdb,energy)
-      end if
+      if(.not.cons_hbonds(namespace,rtdb)) return
+c
+      call cons_load_geom(rtdb)
+c
+      call cons_add_hbond_energy(rtdb,energy)
 c
       call cons_unload_geom()
       return
@@ -747,7 +757,6 @@ c
 c
       call cons_load_geom(rtdb)
       call cons_get_namespace(namespace)
-      call cons_load_hbonds(namespace,rtdb)
 c
       call cons_get_hbond_nhb(nhb)
       
@@ -792,7 +801,6 @@ c
       write(6,*)" Total energy without constraints  :",energy-etot
       write(6,*)" -----------------------------------"
       end if
-      call cons_unload_hbonds(rtdb)
       call cons_unload_geom()
 
       return
