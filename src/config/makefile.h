@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.325 2000-05-11 00:10:43 edo Exp $
+# $Id: makefile.h,v 1.326 2000-05-11 16:42:43 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -838,29 +838,31 @@ endif
 
 ifeq ($(TARGET),HPUX)
 #
-# HPUX 10.1
+# HPUX 11.0
 #
 
   CORE_SUBDIRS_EXTRA = blas lapack
+  MAKEFLAGS = -j 1 --no-print-directory
   CPP = /lib/cpp -P
 # CC = gcc
   CC = cc
   FC = f77
-  LDOPTIONS = -g -L/usr/lib
+  LDOPTIONS = -Wl,+vnocompatwarnings -g -L/usr/lib 
   LINK.f = fort77   $(LDFLAGS)
-  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -ltcgmsg -llapack -lblas -lU77 -lM -lm
+  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas -lU77  -lm
+#  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas  -lm
   CDEBUG =
   FDEBUG = -g
   FOPTIONS =  +ppu
 # COPTIONS =
   COPTIONS = -Aa -D_HPUX_SOURCE +e
-  FOPTIMIZE = -g
+  FOPTIMIZE = +O2
   FVECTORIZE = -O +Oaggressive
 # COPTIMIZE = -fthread-jumps -fdefer-pop -fdelayed-branch -fomit-frame-pointer -finline-functions -ffast-math
   COPTIMIZE = -O
   RANLIB = echo
 
-  DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG
+ DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG
 
 endif
 
