@@ -925,6 +925,10 @@ usage by each process to 100 megawords (MW):
   semidirect memsize 0 filesize 100000000
 \end{verbatim}
 
+The integral records are typically 32769 words long and any non-zero
+value for \verb+filesize+ or \verb+memsize+ should be enough to hold
+at least one record.
+
 
 \subsection{Integral File Size and Format for the SCF Module}
 
