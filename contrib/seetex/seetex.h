@@ -1,5 +1,5 @@
 /*---------------------------------------------------------*\
-$Id: seetex.h,v 1.1 1996-07-02 18:41:05 d3e129 Exp $
+$Id: seetex.h,v 1.2 1996-07-02 19:43:45 d3e129 Exp $
 
  seetex.h  include file for seetex
 
@@ -7,7 +7,7 @@ $Id: seetex.h,v 1.1 1996-07-02 18:41:05 d3e129 Exp $
 \*---------------------------------------------------------*/
 #define TRUE  1
 #define FALSE 0
-#define DEBUG_MODE TRUE
+#define DEBUG_MODE FALSE
 #define MAX_LINE_LEN 132
 
 /* function declarations */

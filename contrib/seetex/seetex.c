@@ -1,30 +1,41 @@
 /*---------------------------------------------------------*\
-$Id: seetex.c,v 1.1 1996-07-02 18:41:05 d3e129 Exp $
+$Id: seetex.c,v 1.2 1996-07-02 19:43:43 d3e129 Exp $
 \*---------------------------------------------------------*/
 
 /*------------------------------------------------------------*\
   s e e t e x
 
   code to parse tex directives from specific comment lines in
-  NWChem fortran source code and include files.  
+  NWChem fortran source code, fortran include files, and latex source with
+  seetex block begin and end statements.  
 
   Target syntax for FORTRAN Latex comments
-  *:tex-         means print this line (stripping *:tex)
+  *:tex-         means print this line (stripping *:tex-)
   *:tex-\begin   means print this line and all that follow until the 
-                termination delimeter is found.  strip all *:tex
+                 termination delimeter is found.  strip all *:tex
   *:tex-\end     terminate tex block of information. print this line
-                stripping all *:tex strings
+                 stripping all *:tex strings
+  these are for allowing tex files to 
+  *:tex-begin    means print lines after this one until *:tex-end
+                 is found
+  *:tex-end      terminates *:tex-end
   c:tex- is equivalent to *:tex in all cases
   !:tex- is equivalent to *:tex but it applies to only single line 
          Latex strings.
 
   Assumptions:
-  1) files have the appropriate suffix ".F", ".f", ".fh"
+  1) files have the appropriate suffix ".F", ".f", ".fh", and ".th"
+     ".th" -> seetex-ed tex include file with blocked begin and ends:
+     *:tex-begin
+     %normal latex source
+     *:tex-end
   2) output file has the appropriate ".tex" suffix
   3) output file will be appended to if it exists and created if not
   4) performance of seetex is not critical
   5) files are parsed in command line order.
 
+  Future Enhancements:
+  1) add c code?? (hard)
   Usage: seetex file1.F [file2.f file3.fh ....] file.tex
 
   Designed and Written by:
@@ -80,22 +91,22 @@ int main (int argc, char *argv[])
       file_source = argv[i];
       if (is_fortran_file(file_source) && (!access(file_source,R_OK)))
 	{
-	  if (DEBUG_MODE >= 10) (void) printf("fortran file %s is readable\n",file_source);
+	  if (DEBUG_MODE >= 10) (void) printf("fortran or seetex include file %s is readable\n",file_source);
 	  srcid = fopen(file_source,"r");
 	}
       else
 	(void) seetex_error
-	  (" fortran source file does not exist or \n              does not have the proper '.F', '.f', '.fh' suffix",-2);
+	  (" fortran source or seetex include file does not exist or \n              does not have the proper '.F', '.f', '.fh' suffix",-2);
       if (DEBUG_MODE >= 10)
 	{
 	  if (is_fortran_file(file_source))
-	    (void) printf("%s is a fortran file\n",file_source);
+	    (void) printf("%s is a fortran or seetex include file\n",file_source);
 	  else
-	    (void) printf("%s is NOT a fortran file\n",file_source);
+	    (void) printf("%s is NOT a fortran or seetex include file\n",file_source);
 	}
       (void) printf(" tex output from <%s> written to <<%s>>\n",file_source,file_tex);
       if (! seetex_process(srcid,texid))
-	(void) seetex_error(" error processing fortran source file\n",1);
+	(void) seetex_error(" error processing fortran source or seetex include file\n",1);
       (void) fflush(texid);
       (void) fclose(srcid);
     }
@@ -143,6 +154,10 @@ int seetex_end(char *line)
     return TRUE;
   if (! strncmp(line,"c:tex-\\end",(size_t) 10)) 
     return TRUE;
+  if (! strncmp(line,"*:tex-end",(size_t) 9)) 
+    return TRUE;
+  if (! strncmp(line,"c:tex-end",(size_t) 9)) 
+    return TRUE;
   return FALSE;
 }
 int seetex_begin(char *line)
@@ -151,6 +166,10 @@ int seetex_begin(char *line)
     return TRUE;
   if (! strncmp(line,"c:tex-\\begin",(size_t) 12)) 
     return TRUE;
+  if (! strncmp(line,"*:tex-begin",(size_t) 11)) 
+    return TRUE;
+  if (! strncmp(line,"c:tex-begin",(size_t) 11)) 
+    return TRUE;
   return FALSE;
 }
 void put_line_strip(char *line,FILE *id)
@@ -158,6 +177,10 @@ void put_line_strip(char *line,FILE *id)
   char *ptmp;
 
   ptmp = line;
+  if (!strncmp(ptmp,"c:tex-begin",(size_t) 11)) return;
+  if (!strncmp(ptmp,"c:tex-end",(size_t) 9)) return;
+  if (!strncmp(ptmp,"*:tex-begin",(size_t) 11)) return;
+  if (!strncmp(ptmp,"*:tex-end",(size_t) 9)) return;
   if (!strncmp(ptmp,"*:tex-",(size_t) 6)) ptmp += 6;
   if (!strncmp(ptmp,"c:tex-",(size_t) 6)) ptmp += 6;
   (void) fprintf(id,"%s\n",ptmp);
@@ -171,16 +194,24 @@ void put_line_strip_check(char *line,FILE *id)
   int print_it=0;
 
   ptmp = line;
-  length = strlen(ptmp);
 
+  if (!strncmp(ptmp,"c:tex-begin",(size_t) 11)) return;
+  if (!strncmp(ptmp,"c:tex-end",(size_t) 9)) return;
+  if (!strncmp(ptmp,"*:tex-begin",(size_t) 11)) return;
+  if (!strncmp(ptmp,"*:tex-end",(size_t) 9)) return;
+  if (!strncmp(ptmp,"*:tex-",(size_t) 6)) 
+      {ptmp += 6;print_it++;}
+  if (!strncmp(ptmp,"c:tex-",(size_t) 6))
+      {ptmp += 6;print_it++;}
+  if (print_it) 
+      {
+	  (void) fprintf(id,"%s\n",ptmp);
+	  (void) fflush(id);
+	  return;
+      }
+  length = strlen(ptmp);
   for (i=0;i<length;i++)
     {
-      if (!strncmp(ptmp,"*:tex-",(size_t) 6)) 
-	{ptmp += 6;print_it++;
-	 break;}
-      if (!strncmp(ptmp,"c:tex-",(size_t) 6))
-	{ptmp += 6;print_it++;
-	 break;}
       if (!strncmp(ptmp,"!:tex-",(size_t) 6))
 	{ptmp += 6;print_it++;
 	 break;}
@@ -241,6 +272,7 @@ int is_fortran_file(char *filename)
   int stat_F;
   int stat_f;
   int stat_fh;
+  int stat_th;
   int return_value;
 
   length = strlen(filename);
@@ -257,8 +289,9 @@ int is_fortran_file(char *filename)
   stat_F  = ! strcmp(ptr,".F");
   stat_f  = ! strcmp(ptr,".f");
   stat_fh = ! strcmp(ptr,".fh");
+  stat_th = ! strcmp(ptr,".th");
 
-  if (stat_F || stat_f || stat_fh) 
+  if (stat_F || stat_f || stat_fh || stat_th) 
     return_value = TRUE;
   else
     return_value = FALSE;
@@ -296,22 +329,22 @@ int seetex_process(FILE *srcid, FILE *texid)
       if (DEBUG_MODE >= 10)
 	(void) printf("seetex_process: read line %d \n",line_count);
       if (seetex_end(pline)) 
-	if (in_seetex_block == 1)
+	if (in_seetex_block > 0)
 	  in_seetex_block--;
 	else
 	  {
-	    (void) printf("Found *:tex-\end when not in a tex block\n");
+	    (void) printf("Found *:tex-{\\}end when not in a tex block\n");
 	    return FALSE;
 	  }
       
       if (seetex_begin(pline)) 
-	if (in_seetex_block == 0)
+/*	if (in_seetex_block == 0)*/
 	  in_seetex_block++;
-	else
+/*	else
 	  {
-	    (void) printf("Found *:tex-\begin while in a tex block\n");
+	    (void) printf("Found *:tex-{\\}begin while in a tex block\n");
 	    return FALSE;
-	  }
+	  }*/
 
       if (in_seetex_block)
 	(void) put_line_strip(pline,texid);
