@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.64 2004-01-20 19:08:43 edo Exp $
+#$Id: GNUmakefile,v 1.65 2004-01-20 20:59:40 edo Exp $
 
 	OBJ=	ga_chol.o ga_inverse.o ga_chol_seq.o ga_inv_seq.o dft_invio.o
 
@@ -8,7 +8,6 @@
 	dft_header.o \
 	dft_mpole.o \
 	dft_scatter.o \
-	dft_second.o \
 	dft_tstamp.o \
 	get_col.o \
 	movecs_log.o \
