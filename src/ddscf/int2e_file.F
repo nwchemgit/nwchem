@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.52 2000-10-12 22:07:41 d3g681 Exp $
+* $Id: int2e_file.F,v 1.53 2001-04-12 22:00:11 edo Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -115,6 +115,10 @@ c
      $           call errquit
      $           ('int2e_file_open:unable to stat available disk',0)
             write(6,*) ' non-SCRATCH ', availkb
+c
+c     now eaf_stat returns Mb instead of kb
+c
+            availkb=availkb*1024
          endif
 c
          max_file_rec = nint((0.95*1024.0d0*availkb) / 

@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.18 2000-12-14 22:58:15 edo Exp $
+C$Id: util_file_name.F,v 1.19 2001-04-12 22:00:13 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -567,6 +567,10 @@ c
       nproc = ga_nnodes()
       call util_file_name('junk',.true.,.true.,mine)
       ierr = eaf_stat(mine, avail, fstype)
+c
+c     now eaf_stat returns Mb instead of kb
+c
+      avail=avail*1024
       if (ierr .ne. 0) call errquit('util_scratch_avail: eaf_stat',ierr)
 c
 c     Now get the name of my scratch directory
