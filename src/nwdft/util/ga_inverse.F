@@ -196,9 +196,6 @@ c
          status = ma_pop_stack(hma) 
       endif
 c
-C#ifdef DATA_SERVER
-C      FIX ME NOW
-C#endif
       call ga_sync()
 c
       end

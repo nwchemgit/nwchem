@@ -76,7 +76,7 @@ c****
         call dpotri( 'L', n, Dbl_MB(i_a_in), n, info )
         if ( info .ne. 0) then
           write (6,*)
-     &       'WARNING:  ga_inv_seq: LAPACK routine spotri returns ',
+     &       'WARNING:  ga_inv_seq: LAPACK routine dpotri returns ',
      &       info
         endif 
 c****        write (6,*) "ga_inv_seq: output matrix"
