@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.178 2005-02-09 00:46:03 edo Exp $
+C     $Id: geom_input.F,v 1.179 2005-02-21 19:03:16 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -3235,7 +3235,11 @@ c     DATA TENM02 /1.0D-02/
       DATA TENM05 /1.0D-05/
       DATA EPS    /1.01D+00/
       sameatm(JAT,IAT)=ATMLAB(JAT).EQ.ATMLAB(IAT)
+#ifdef  CRAY
+      big=1d-11
+#else
       big=dlamch('o')**(0.125d0)
+#endif
       QZERO=cmplx(ZERO,ZERO)
          PI=    FOUR*ATAN(ONE)
       TWOPI=TWO*FOUR*ATAN(ONE)
