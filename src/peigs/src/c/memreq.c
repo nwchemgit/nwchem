@@ -1,5 +1,5 @@
 /*
- $Id: memreq.c,v 1.16 1999-07-28 00:39:26 d3e129 Exp $
+ $Id: memreq.c,v 1.17 1999-10-12 23:25:40 nwchem Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -178,7 +178,7 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
      for ( indx = 0; indx < *n; indx++ ) {
        if ( (iptr++ ) == NULL ) {
          linfo = -4;
-         fprintf(stderr, " me = %d error in mapB in memreq.c \n");
+         fprintf(stderr, " me = %d error in mapB in memreq.c \n",me);
          l_exit_(&linfo,msg);
          return;
        }
@@ -194,7 +194,7 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
    for ( indx = 0; indx < *n; indx++ ) {
      if ( (iptr++ ) == NULL ) {
        linfo = -5;
-       fprintf(stderr, " me = %d error in mapZ in memreq.c \n");
+       fprintf(stderr, " me = %d error in mapZ in memreq.c \n",me);
        l_exit_(&linfo,msg);
        return;
      }
