@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_expander_input.F,v 1.3 2002-10-15 21:24:01 bylaska Exp $
+* $Id: wvfnc_expander_input.F,v 1.4 2003-08-04 02:15:24 bylaska Exp $
 *
 
       subroutine wvfnc_expander_input(rtdb)
@@ -20,8 +20,8 @@ c
       character*30 dirs(num_dirs)
       character*255 test
 
-      character*25 new_wavefunction_filename
-      character*25 old_wavefunction_filename
+      character*30 new_wavefunction_filename
+      character*30 old_wavefunction_filename
       integer ngrid(3)
       data dirs / 'old_wavefunction_filename:',
      >            'new_wavefunction_filename:',
