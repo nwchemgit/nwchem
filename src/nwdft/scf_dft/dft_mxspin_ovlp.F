@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis,noc,g_alpha,g_beta,g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.14 2002-01-18 04:25:18 edo Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.15 2002-01-19 01:00:09 edo Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -178,7 +178,6 @@ c
 c
       call ga_sync()
 c
-      write(0,*) ' ga ',g_alpha,nct,int_mb(k_non)
       call movecs_print_anal(basis,int_mb(k_non),int_mb(k_non)
      & ,0.15d0,g_alpha,'Alpha Orbitals without Beta Partners',
      &   .false., 0.0 ,.false., 0 , .false., 0 )
