@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.174 2004-09-30 00:37:16 edo Exp $
+C     $Id: geom_input.F,v 1.175 2004-12-30 00:00:49 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -3314,7 +3314,7 @@ C
                         C2(I,JAT)=C1(I,JAT)*EPS
                      ENDDO
                      CALL geom_momint0(geom,C2,NAT,CM,AM,.false.,
-     .                    .true.)
+     .                    .true.,.true.)
                      DO KAT=1,NAT
                         DO I=1,3
                            C3(I,KAT)=C2(I,KAT)-CM(I) 
@@ -3973,7 +3973,10 @@ c
      1    (axordr(newaxs(3)).gt.1)) then
         fulltheta = TWOPI/DBLE(AXORDR(newaxs(3)))
         step = 0.5d+0 * (twopi / 360.d+0)
-        do theta=0.d+0,fulltheta,step
+        nsteps=fulltheta/step 
+!        do theta=0.d+0,fulltheta,step
+        do istep=0,nsteps
+         theta=istep*step
           if ((.not.symc2x).and.(.not.symc2y)) then
             do jat = 1, nat
               do iat = 1, 3
