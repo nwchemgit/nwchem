@@ -1,9 +1,8 @@
       logical function dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
-     &                         g_svecs, isvals, g_cdinv, g_xcinv, 
-     &                         g_2ceri)
+     &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.116 1999-05-08 13:17:28 bjohnson Exp $
+c     $Id: dft_scf.F,v 1.117 1999-05-10 22:45:26 edo Exp $
 c     
       implicit none
 c
@@ -14,7 +13,7 @@ c
       integer iter
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &        g_fock, g_svecs, isvals, 
-     &        g_cdinv, g_xcinv, g_2ceri, g_scr
+     &        g_xcinv,g_scr
       double precision rho_n, toll_s
 c     
 #include "bas.fh"
@@ -662,13 +661,13 @@ c
      &        call errquit('dft_scf: cannot allocate cd_coef',0)
          if (oprint_time)
      &        call dft_tstamp(' Before call to FITCD.   ')
-         call dft_fitcd(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, rtdb,
-     &                  g_cdinv, g_dens, nTotEl, n_batch, n3c_int,
+         call dft_fitcd(1,Dbl_MB(icd_coef),dbl_mb(k_3cERI),Ecoul,rtdb,
+     &                  g_dens, nTotEl, n_batch, n3c_int,
      &                  int_mb(k_3cwhat), n3c_dbl, iwhat_max, 
      &                  n_semi_bufs, fd, IOLGC, 
      &                  dbl_mb(irdens_atom), int_mb(icntoce), 
      &                  int_mb(icntobfr), int_mb(icetobfr), natoms,
-     &                  .false., 1, 0d0, .false.)
+     &                  .false., 0d0, .false.)
       endif
 c     
 #if defined(DFT_TIMER)
@@ -680,7 +679,7 @@ c
       if (oprint_time)
      &     call dft_tstamp(' Before call to GETVCOUL.')
       call dft_getvc(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, rtdb,
-     &               g_tmp, iVcoul_opt, g_2ceri, g_dens, n_batch, 
+     &               g_tmp, iVcoul_opt, g_dens, n_batch, 
      &               n3c_int, int_mb(k_3cwhat), n3c_dbl, iwhat_max,
      &               n_semi_bufs, fd, IOLGC,
      &               dbl_mb(irdens_atom), int_mb(icntoce), 
