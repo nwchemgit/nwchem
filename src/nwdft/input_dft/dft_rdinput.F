@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.57 1998-10-17 00:42:05 og845 Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.58 1999-01-04 19:59:39 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -496,6 +496,7 @@ c
       cname(9)='           VWN II Correlation Functional'
       cname(10)='          VWN III Correlation Functional'
       cname(11)='           VWN IV Correlation Functional'
+      cname(12)=' PerdewBurkeErnz. Correlation Functional'
 c
 c     Exchange functional name defaults.
 c
@@ -503,6 +504,7 @@ c
       xname(2)='              Slater Exchange Functional'
       xname(3)='          Becke 1988 Exchange Functional'
       xname(4)='          HCTH  Exchange-Corr Functional'
+      xname(7)='PerdewBurkeErnzerhof Exchange Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
 c
