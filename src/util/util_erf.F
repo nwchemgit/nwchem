@@ -1,4 +1,4 @@
-#if defined(IFCLINUX) || defined(HPUX64)
+#if defined(IFCLINUX) || defined(HPUX)
       double precision function derfc(x)
       implicit none
       double precision x,util_erfc,derfc
