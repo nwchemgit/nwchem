@@ -93,7 +93,7 @@ COSMO:
 Driver: 
 
   o BUG FIX: fraction coordinates optimizer
-  o NEB (Nudged Elastice Band) method added (still under development)
+  o NEB (Nudged Elastic Band) method added (still under development)
   o ONIOM calculations can be performed with the PSPW module
   o BUG FIX: fractional	coordinate optimizer
 
@@ -112,8 +112,7 @@ Hessian and Frequencies:
 
   o BUG FIX: improved detection of conditions when analytic hessian
     cannot be performed (e.g. opens shell DFT, fitted-coulomb DFT)
-  o analytic hessian calculation with ECP basis sets can now pe performed
-  o 
+  o analytic hessian calculation with ECP basis sets can now performed
 
 NBO:
   o static memory allocation increased 6x to allow run on larger systems
@@ -129,7 +128,15 @@ Vib:
 
 PSPW:
 
-  o 
+  o CIF output changed
+  o new elements added to PS library: Au Cu Fe Ge Pb Dr Ti
+  o SIC (Self-Interaction Correction)
+  o band by band minimizer added
+  o Wannier functions
+  o Car-Parrinello: added simulated annealing strategy
+  o added Becke's ELF
+  o added calculation of stress forces
+
 
 MD: 
 
@@ -139,8 +146,8 @@ Integrals:
 
   o Default value for integral internal screening threshold has been
     raised from 1E-15 to 1E-12 (set int:acc_std).
-  o ECP: acvtivated 2nd derivative code
-  o BUG FIX: nuerical problems in some CRENBS ecps
+  o ECP: activated 2nd derivative code
+  o BUG FIX: numerical problems in some CRENBS ecps
   o performance improvements in Texas integrals (especially for 2nd
     derivatives) 
 
@@ -148,7 +155,7 @@ DPLOT:
 
   o rewrite of the code to reduce memory requirements
 
-General Utilitiles:
+General Utilities:
 
   o BUG FIX: determination of how many processes are simultaneously
     using the scratch directory
@@ -181,14 +188,19 @@ The current tested platforms and O/S versions are:
     Yellow Dog 2.4.
     These all use the GCC compiler at different levels. 
     The Intel Fortran Compiler version 7 is supported.
-    However, the Portland Group Compiler has 
-    been tested in a less robust manner.
+    The Portland Group Compiler has been tested in a less robust manner.
+    Automatic generation of SSE2 optimized code is available when the 
+    Intel compiler is used (ifc vs g77 performances gain of 40% in
+    some benchmarks)
+    A somewhat Athlon optimized code can be generated under the GNU
+    or Intel compilers by typing "make _CPU=k7".
+    GCC3 specific options can be turned on by typing "make GCC31=y"
   o HP 9000/800 workstations with  HPUX B.11.00. f90 must be used for
     compilation.
   o Intel x86 with Windows 2000 has been tested with Compaq Visual Fortran
     6.0 and 6.1 with WMPI 1.3 or NT-Mpich.
   o Intel IA64 under Linux (with Intel compilers) and under HPUX.
- 
+  o Fujitsu VPP computers.
 
 A general FAQ is available at 
 http://www.emsl.pnl.gov:2080/docs/nwchem/support/NWChem_FAQ.html
