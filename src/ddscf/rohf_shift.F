@@ -8,6 +8,9 @@ c
 c     Return minimum shift necessary for diagonal approximation
 c     to 1-e Hessian to be positive definite
 c
+c     Now modified to exclude symmetry forbidden rotations if
+c     symmetry adaption is enabled
+c
       double precision shift
 c
       integer l_diag, k_diag
@@ -24,15 +27,15 @@ c
       shift_cp = 0.0d0
 c
       call rohf_make_shift_2(crohf_g_fcv, dbl_mb(k_diag),
-     $     1, nclosed, nclosed+nopen+1, nmo,
-     $     4.0d0, shift_cv)
+     $     1, nclosed, nclosed+nopen+1, nmo, 
+     $     oadapt, int_mb(k_irs), 4.0d0, shift_cv)
       if (nopen .gt. 0) then
          call rohf_make_shift_2(crohf_g_fpv, dbl_mb(k_diag),
      $        nclosed+1, nclosed+nopen, nclosed+nopen+1, nmo, 
-     $        2.0d0, shift_pv)
+     $        oadapt, int_mb(k_irs), 2.0d0, shift_pv)
          call rohf_make_shift_2(crohf_g_fcv, dbl_mb(k_diag),
      $        1, nclosed, nclosed+1, nclosed+nopen, 
-     $        2.0d0, shift_cp)
+     $        oadapt, int_mb(k_irs), 2.0d0, shift_cp)
       endif
 c
       shift = max(shift_cv, shift_pv, shift_cp)
@@ -41,30 +44,38 @@ c
 c
       end
       subroutine rohf_make_shift_2(g_fock, diag,
-     $     ilo, ihi, alo, ahi, scale, shift)
+     $     ilo, ihi, alo, ahi, oadapt, irs, scale, shift)
       implicit none
 c
 c     return scale * min(i,a) (F(a) - F(i))
-c     for i/a in given ranges
+c     for i/a in given ranges and of same symmetry
 c
       integer g_fock
       integer ilo, ihi, alo, ahi
+      logical oadapt
+      integer irs(*)
       double precision diag(*), scale, shift
 c
-      double precision minocc, minvirt
       integer i, a
 c
       call ga_get_diagonal(g_fock, diag)
 c
-      minocc = -diag(ilo)
-      do i = ilo, ihi
-         minocc = min(-diag(i),minocc)
-      enddo
-      minvirt = diag(alo)
-      do a = alo, ahi
-         minvirt = min(diag(a),minvirt)
-      enddo
+      shift = 0.0d0
+      if (oadapt) then
+        do i = ilo, ihi
+            do a = alo, ahi
+                if (irs(i).eq.irs(a))
+     $             shift = min(shift, diag(a)-diag(i))
+            enddo
+        enddo
+      else
+        do i = ilo, ihi
+            do a = alo, ahi
+                shift = min(shift, diag(a)-diag(i))
+            enddo
+        enddo
+      endif
 c
-      shift = scale * abs(min(0.0d0,minocc + minvirt))
+      shift = - scale * shift
 c
       end

@@ -1,5 +1,5 @@
       subroutine scf_movecs_sym_adapt(basis, g_movecs, oprint,
-     $     nprint, name)
+     $     nprint, name, oirs, irs)
       implicit none
 #include "bas.fh"
 #include "inp.fh"
@@ -12,6 +12,10 @@
       logical oprint
       integer nprint
       character*(*) name
+      logical oirs
+      integer irs(*)
+c
+c     if (oirs) return the irreps of each mo in irs()
 c
       integer l_irs, k_irs
       integer type, nbf, nvec, i, ilo, ihi, nmixed
@@ -37,8 +41,8 @@ c
       endif
 c
       call ga_inquire(g_movecs, type, nbf, nvec)
-      if (.not. ma_push_get(mt_int, nbf, 'irs', l_irs, k_irs))
-     $     call errquit('scf_movecs_sym_adapt: memory?', nbf)
+      if (.not. ma_push_get(mt_int, nvec, 'irs', l_irs, k_irs))
+     $     call errquit('scf_movecs_sym_adapt: memory?', nvec)
 c
 c     What should the threshold be for reporting contamination?  
 c     Probably should be settable from the input or determined
@@ -57,7 +61,11 @@ c
 c
 c     Make any near zeros exact zeroes
 c
-      call ga_screen(g_movecs, 1d-12)
+      call ga_screen(g_movecs, 1d-13)
+c
+c     Must reorthog if mixing was present
+c
+      if (nmixed .gt. 0) call ga_orthog_mos(basis, g_movecs)
 c
       if (oprint .and. ga_nodeid() .eq. 0) then
          if (.not. bas_geom(basis, geom)) 
@@ -86,10 +94,13 @@ c
          call util_flush(6)
       endif
 c
+      if (oirs) then
+	 do i = 1, nvec
+	    irs(i) = int_mb(k_irs+i-1)
+         enddo
+      endif
+c
       if (.not. ma_pop_stack(l_irs)) call errquit
      $     ('scf_m_s_a: memory corrupt?', 0)
 c
       end
-
-
-

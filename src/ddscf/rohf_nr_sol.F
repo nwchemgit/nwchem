@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_nr_sol.F,v 1.4 1996-06-27 22:42:45 d3g681 Exp $
+C     $Id: rohf_nr_sol.F,v 1.5 1996-08-06 05:33:02 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -191,7 +191,10 @@ c
 c     
 c     *ALWAYS* return canonical MOs ... don't do aufbau
 c     
-      call rohf_canon(.false., oprint_eval)
+      call rohf_canon(.false., oprint_eval) ! Messes up symmetry of orbitals
+      if (oadapt) call scf_movecs_sym_adapt(basis, g_movecs, .false.,
+     $        0, 'after canon', .true., int_mb(k_irs))
+c
       call movecs_fix_phase(g_movecs)
       if (olock) call scf_movecs_lock
       call scf_movecs_write

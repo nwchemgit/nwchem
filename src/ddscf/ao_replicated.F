@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.7 1996-08-02 02:00:04 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.8 1996-08-06 05:32:55 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -213,7 +213,7 @@ c
       integer natom_unique
       integer nshpair, nsh
       integer tdim
-      parameter (tdim=1024)
+      parameter (tdim=10240)
       integer pinfo(2,tdim)     ! Start and end of each pair type
       integer ntype             ! No. of pair types
       integer max_p             ! Max pairs per block
@@ -485,7 +485,7 @@ c
       integer l_eri, k_eri, l_lab, k_lab, l_scr, k_scr
       integer k_i, k_j, k_k, k_l
 c     
-      integer neri
+      integer neri, ntries
       double precision block_eff
       logical more
 c
@@ -507,7 +507,6 @@ c     in which case int_mem_2e4c is used, otherwise the user input
 c     is taken.
 c
       if (maxscr .eq. 0) then
-*1 quartet         call int_mem_2e4c(maxg, lenscr)
          call intb_mem_2e4c(maxg, lenscr) ! blocking algorithm
       else
          lenscr = maxscr
@@ -520,16 +519,37 @@ c
  11      format(' nq=',i6,', lenscr=',i8,', leneri=',i8)
          call util_flush(6)
       end if
-c 
-c     Could make this more intelligent so that if run out
-c     of space request a smaller amount
 c
-      if (.not. ma_push_get(mt_dbl, leneri, 'eri', l_eri, k_eri))
-     $     call errquit('fock_rep_txs: no room for eri',leneri)
-      if (.not. ma_push_get(mt_dbl, lenscr, 'scr', l_scr, k_scr))
-     $     call errquit('fock_rep_txs: no room for scr',lenscr)
-      if (.not. ma_push_get(mt_int, lenlab, 'lab', l_lab, k_lab))
-     $     call errquit('fock_rep_txs: no room for lab',lenlab)
+c     Allow two goes at reducing memory before fail completely
+c
+      ntries = 1                ! No. of tries at allocating memory
+ 12   if (ntries.eq.1) then
+         continue
+      else if (ntries.le.3) then
+         lenscr = lenscr/2
+         leneri = leneri/2
+         lenlab = 4*leneri
+      else
+         call errquit('fock_rep_txs: insufficient memory ',
+     $        lenscr+leneri+lenlab)
+      endif
+      ntries = ntries + 1
+c 
+      if (.not. ma_push_get(mt_dbl, leneri, 'eri', l_eri, k_eri)) then
+         goto 12
+      endif
+      if (.not. ma_push_get(mt_dbl, lenscr, 'scr', l_scr, k_scr)) then
+         if (.not. ma_pop_stack(l_eri))
+     $        call errquit('fock_rep_txs: ma corrupt',0)
+         goto 12
+      endif
+      if (.not. ma_push_get(mt_int, lenlab, 'lab', l_lab, k_lab)) then
+         if (.not. ma_pop_stack(l_scr))
+     $        call errquit('fock_rep_txs: ma corrupt',0)
+         if (.not. ma_pop_stack(l_eri))
+     $        call errquit('fock_rep_txs: ma corrupt',0)
+         goto 12
+      endif
 c     
       k_i = k_lab
       k_j = k_i   + leneri

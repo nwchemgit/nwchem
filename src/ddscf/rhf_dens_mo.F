@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.6 1996-06-27 22:42:39 d3g681 Exp $
+C     $Id: rhf_dens_mo.F,v 1.7 1996-08-06 05:33:00 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -21,7 +21,7 @@ c     in g_mocf, return an orthonormal set of
 c     mo vectors in g_mocf by doing an approximate Fock build
 c     and a diagonalization
 c     
-      logical oprint, osplit, oskel
+      logical oprint, oskel
       integer g_fock, g_over, g_hcore, g_tmp, g_mofock, g_u
       integer nocc
       double precision escf, eone, etwo, enrep, dens_norm
@@ -127,17 +127,13 @@ c
       if (.not. ga_destroy(g_mofock)) call errquit('rhf_d_m: ga?',0)
       if (.not. ga_destroy(g_tmp)) call errquit('rhf_d_m: ga?',0)
 c     
-c     Check for splitting ... not yet functional but it MUST be eventually
-c     
       nocc = (nelec+1)/2
-c$$$  osplit = abs(evals(nocc)-evals(nocc+1)).lt.1.0e-3
-      osplit = .false.
-      if (ga_nodeid().eq.0 .and. (oprint .or. osplit)) then
+      if (ga_nodeid().eq.0 .and. oprint) then
          write(6,*)
          call util_print_centered(6, 'Non-variational initial energy',
      $        20, .true.)
          write(6,901) escf, eone, etwo, evals(nocc)
-         if (nmo.ne.1)  write(6,9011) evals(nocc+1)
+         if (nmo.ne.nocc)  write(6,9011) evals(nocc+1)
          write(6,*)
  901     format(/
      $        ' Total energy = ',f14.6/
@@ -146,18 +142,6 @@ c$$$  osplit = abs(evals(nocc)-evals(nocc+1)).lt.1.0e-3
      $        ' HOMO         = ',f14.6)
  9011    format(' LUMO         = ',f14.6)
 c     
-c$$$  if (osplit) then
-c$$$  write(6,902)
-c$$$  902        format(' !! WARNING: occupation is splitting degenerate',
-c$$$  $           ' orbitals'/)
-c$$$  if (oskel) write(6,903)
-c$$$  903        format(' !! Cannot use symmetry with ',
-c$$$  $           'non-symmetric occupation ... swap orbitals or '/
-c$$$  $           ' !! must disable skeleton Fock build'/)
-c$$$  write(6,*) ' Eigenvalues '
-c$$$  write(6,*)
-c$$$  call output(evals, 1, nmo, 1, 1, nmo, 1, 1)
-c$$$  endif
          call util_flush(6)
       endif
 c     

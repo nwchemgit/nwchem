@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.22 1996-07-10 20:21:42 d3g681 Exp $
+C$Id: uhf.F,v 1.23 1996-08-06 05:33:10 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -117,9 +117,9 @@ C
          oprint_sym = util_print('final vector symmetries',
      $        print_default)
          call scf_movecs_sym_adapt(basis, g_movecs, oprint_sym,
-     $        nprint, '- alpha')
+     $        nprint, '- alpha', .true., int_mb(k_irs))
          call scf_movecs_sym_adapt(basis, g_movecs(2), oprint_sym,
-     $        nprint, '- beta')
+     $        nprint, '- beta', .true., int_mb(k_irs+nmo))
       endif
       if (util_print('final vectors', print_debug)) then
          call ga_print(g_movecs)
@@ -171,7 +171,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.22 1996-07-10 20:21:42 d3g681 Exp $
+C     $Id: uhf.F,v 1.23 1996-08-06 05:33:10 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -323,6 +323,12 @@ c
 c     *ALWAYS* return canonical MOs ... do not do aufbau
 c     
       call uhf_canon(.false., oprint_eval)
+      if (oadapt) then
+        call scf_movecs_sym_adapt(basis, g_movecs, .false.,
+     $        0, 'after canon', .true., int_mb(k_irs))
+        call scf_movecs_sym_adapt(basis, g_movecs(2), .false.,
+     $        0, 'after canon', .true., int_mb(k_irs+nmo))
+      endif
       call movecs_fix_phase(g_movecs)
       call movecs_fix_phase(g_movecs(2))
       call scf_movecs_write
@@ -439,7 +445,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.22 1996-07-10 20:21:42 d3g681 Exp $
+C$Id: uhf.F,v 1.23 1996-08-06 05:33:10 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -530,7 +536,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.22 1996-07-10 20:21:42 d3g681 Exp $
+c     $Id: uhf.F,v 1.23 1996-08-06 05:33:10 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -742,9 +748,12 @@ c
       implicit none
 #include "cscf.fh"
 #include "cuhf.fh"
+#include "mafdecls.fh"
       integer g_grad
 c
       integer ioff
+      integer nvir, ivoff
+      double precision maxelt
 c
       call ga_copy_patch('n',
      $     cuhf_g_falpha, nalpha+1, nmo, 1, nalpha,
@@ -756,6 +765,16 @@ c
      $     g_grad, ioff+1, ioff+(nmo-nbeta)*nbeta, 1, 1)
 c
       call ga_dscal(g_grad, 2.0d0)
+c
+      if(oadapt) then
+        nvir = nmo - nalpha
+        call scf_sym_screen(nalpha, 0, nvir, int_mb(k_irs),
+     $       g_grad, 0, .true., maxelt)
+        nvir = nmo - nbeta
+        ivoff = nalpha*(nmo-nalpha)
+        call scf_sym_screen(nbeta, 0, nvir, int_mb(k_irs+nmo),
+     $       g_grad, ivoff, .true., maxelt)
+      endif
 c
       end
       subroutine uhf_search_precond(rtdb, g_grad, g_work)
@@ -787,6 +806,9 @@ c
 c
       double precision precond_acc ! Accuracy attained by solver
       integer precond_iter       ! No. of iterations used by solver
+c
+      integer nvir, ivoff
+      double precision maxelt
 c
       external uhf_precond, uhf_hessv
       logical ga_iter_lsolve
@@ -821,6 +843,12 @@ c     diagonally dominant
 c
       if (ododiag) then
          call uhf_canon(.false., oprint_eval)
+         if (oadapt) then
+           call scf_movecs_sym_adapt(basis, g_movecs, .false.,
+     $           0, 'after canon', .true., int_mb(k_irs))
+           call scf_movecs_sym_adapt(basis, g_movecs(2), .false.,
+     $           0, 'after canon', .true., int_mb(k_irs+nmo))
+         endif
          call uhf_get_grad(g_grad)
          call uhf_make_shift(min_shift) ! Recompute
       end if
@@ -884,6 +912,16 @@ c
             endif
             goto 20
          endif
+      endif
+c
+      if(oadapt) then
+        nvir = nmo - nalpha
+        call scf_sym_screen(nalpha, 0, nvir, int_mb(k_irs),
+     $       g_work, 0, .true., maxelt)
+        nvir = nmo - nbeta
+        ivoff = nalpha*(nmo-nalpha)
+        call scf_sym_screen(nbeta, 0, nvir, int_mb(k_irs+nmo),
+     $       g_work, ivoff, .true., maxelt)
       endif
 c
       end
@@ -970,10 +1008,10 @@ c
       shift_b = 0.0d0
 c
       call rohf_make_shift_2(cuhf_g_falpha, dbl_mb(k_diag),
-     $     1, nalpha, nalpha+1, nmo,
+     $     1, nalpha, nalpha+1, nmo, oadapt, int_mb(k_irs),
      $     2.0d0, shift_a)
       call rohf_make_shift_2(cuhf_g_fbeta, dbl_mb(k_diag),
-     $     1, nbeta, nbeta+1, nmo,
+     $     1, nbeta, nbeta+1, nmo, oadapt, int_mb(k_irs+nmo),
      $     2.0d0, shift_b)
 c
       shift = max(shift_a, shift_b)
@@ -982,7 +1020,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.22 1996-07-10 20:21:42 d3g681 Exp $
+C$Id: uhf.F,v 1.23 1996-08-06 05:33:10 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

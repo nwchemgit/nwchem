@@ -697,8 +697,9 @@ c
          if (l_cache .eq. -1) then
             if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
      $           'int2e', l_cache, k_cache)) then
-               write(6,*) ' Failed to allocate cache ... disabling'
-               max_cache_rec = 0
+               write(6,*) ' int2e_file: Failed to allocate cache '//
+     $              '... halving'
+               max_cache_rec = max_cache_rec/2
                goto 10          ! Dirty ... go back and try again
             end if
          end if

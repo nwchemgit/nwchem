@@ -22,6 +22,8 @@ c
       double precision precond_acc ! Accuracy attained by solver
       integer precond_iter       ! No. of iterations used by solver
       double precision prodmax
+      integer nvir
+      double precision maxelt
       logical oprint_conv, oprint_eval, oprint_debug,
      $  oprint_solve
       logical ga_iter_lsolve
@@ -57,6 +59,8 @@ c     diagonally dominant
 c
       if (ododiag) then
          call rohf_canon(.false., oprint_eval)
+         if (oadapt) call scf_movecs_sym_adapt(basis,g_movecs,.false.,
+     $       0, 'after canon',.true.,int_mb(k_irs))
          call rohf_get_grad(g_grad)
          call rohf_make_shift(min_shift) ! Recompute
       endif
@@ -114,6 +118,12 @@ c
             goto 20
          endif
       endif
+c
+c     Screen out symmetry junk
+c
+      nvir = nmo - nclosed - nopen
+      if(oadapt) call scf_sym_screen(nclosed, nopen, nvir,int_mb(k_irs),
+     $  g_work, 0, .true., maxelt)
 c
 c     Screen small rotations to keep out noise.
 c     Cannot screen with a large number (greater than accuracy in integrals) 

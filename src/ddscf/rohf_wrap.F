@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -91,7 +91,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
 c
       integer g_vecs
       double precision energy
@@ -113,9 +113,10 @@ c
      $     eone, etwo,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp, oskel )
 c
-      call rohf_fock2grad( nmo, nclosed, nopen,
-     $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
-     $     g_grad)
+*      call rohf_fock2grad( nmo, nclosed, nopen,
+*     $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
+*     $     g_grad)
+       call rohf_get_grad(g_grad)
 c
       if (.not. geom_nuc_rep_energy(geom, enrep))
      $     call errquit('rohf_energy: no repulsion energy?', 0)
@@ -127,7 +128,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -171,7 +172,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
 c
       integer g_x
       double precision solveshift

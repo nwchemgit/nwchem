@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.7 1996-06-27 22:42:54 d3g681 Exp $
+C     $Id: scf_vec_guess.F,v 1.8 1996-08-06 05:33:09 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -199,30 +199,34 @@ c
             if (util_print('all vector symmetries', print_high))
      $           nprint = nmo
             call scf_movecs_sym_adapt(basis, g_movecs, oprint,
-     $           nprint, '- initial alpha')
+     $           nprint, '- initial alpha',.true.,int_mb(k_irs))
             call scf_movecs_sym_adapt(basis, g_movecs(2), oprint,
-     $           nprint, '- initial beta')
+     $           nprint, '- initial beta', .true.,int_mb(k_irs+nmo))
          else
             nprint = min(nclosed+nopen+10,nmo)
             if (util_print('all vector symmetries', print_high))
      $           nprint = nmo
             call scf_movecs_sym_adapt(basis, g_movecs, oprint,
-     $           nprint, '- initial ')
+     $           nprint, '- initial ', .true.,int_mb(k_irs))
          endif
       endif
 c
 c     Orthogonalize all input/guess vectors ... do not mix the occupied
 c     with the virtuals.  For the hcore/atomic guess we will have done a
 c     diagonalization so there is no need to orthog. again.
+c     (also if the symmetry projection found mixing an orthog is done)
 c
 c     Also record if this is a restart or a startup.
 c
-      if (.not. (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore')) then
+      if ((movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore')) then
+         movecs_guess = 'start'
+      else
          movecs_guess = 'restart'
+      endif
+c
+      if (movecs_guess.eq.'restart') then
          call ga_orthog_mos(basis, g_movecs)
          if (scftype .eq. 'UHF') call ga_orthog_mos(basis, g_movecs(2))
-      else
-         movecs_guess = 'start'
       endif
 c
 c     Generate correct occupation numbers
@@ -276,4 +280,3 @@ c
       movecs_in = movecs_out
 c
       end
-

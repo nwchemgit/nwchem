@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.13 1996-07-12 01:55:54 d3g681 Exp $
+C$Id: rohf.F,v 1.14 1996-08-06 05:33:00 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -87,6 +87,16 @@ C
          call schwarz_print(natoms, nshells)
       endif
 C
+      if (oadapt) then
+         nprint = min(nclosed+nopen+10,nmo)
+         if (util_print('all vector symmetries', print_high))
+     $        nprint = nmo
+         oprint_sym = util_print('final vector symmetries',
+     $        print_default)
+         call scf_movecs_sym_adapt(basis, g_movecs, oprint_sym,
+     $        nprint, '- final', .true., int_mb(k_irs))
+      endif
+c
       if (ga_nodeid() .eq. 0) then
          if (util_print('final evals', print_default)) then
             call util_print_centered(6,'Final eigenvalues',20,.true.)
@@ -103,16 +113,6 @@ C
             write(6,*)
             call util_flush(6)
          endif
-      endif
-c
-      if (oadapt) then
-         nprint = min(nclosed+nopen+10,nmo)
-         if (util_print('all vector symmetries', print_high))
-     $        nprint = nmo
-         oprint_sym = util_print('final vector symmetries',
-     $        print_default)
-         call scf_movecs_sym_adapt(basis, g_movecs, oprint_sym,
-     $        nprint, '- final')
       endif
 c
       if (util_print('mulliken', print_default)) then

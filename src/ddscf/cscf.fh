@@ -33,6 +33,7 @@ c     nbeta      = no. of beta spin electrons for UHF only
 c
 c     l/k_eval   = scf eigen values (local ma handle)
 c     l/k_occ    = scf occupation (local ma handle)
+c     l/k_irs    = MO symmetries (2*nmo for UHF)
 c     g_movecs   = eigen-vectors  (global ga handle) (2x array for UHF)
 c
 c     oskel      = if true use symmetry in fock building
@@ -78,7 +79,7 @@ c
       character*255 movecs_in, movecs_out, title, trans
       character*8 movecs_guess
       character*4 scftype
-      integer l_eval, k_eval, l_occ, k_occ
+      integer l_eval, k_eval, l_occ, k_occ, l_irs, k_irs
       integer nriscf, riscf_basis
 c
       common /cscf/
@@ -97,7 +98,7 @@ c     Integers
 c
      $     pflg, pflg_prev, maxiter, iter,
      $     geom, basis, nopen, nclosed, nelec, nbf, nmo,
-     $     nalpha, nbeta,
+     $     nalpha, nbeta, l_irs, k_irs,
      $     l_eval, k_eval, l_occ, k_occ, g_movecs(2),
      $     nriscf, riscf_basis
 c

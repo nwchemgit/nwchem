@@ -1,6 +1,6 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s)
 
-C$Id: mull_pop.F,v 1.4 1996-08-02 02:00:28 d3g681 Exp $
+C$Id: mull_pop.F,v 1.5 1996-08-06 05:32:59 d3g681 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -118,16 +118,16 @@ c
       call ga_dgop(Msg_Mull2,qshell,nshells,'+')
       if(me.eq.0) then
         write(LuOut,1)
-    1   format(/' Atom     Charge    Shell Charges')
+    1   format(/' Atom   Charge   Shell Charges')
         write(luout,11)
- 11     format( ' ----     ------    -------------------------------',
+ 11     format( ' ----   ------   -------------------------------',
      $       '---------------------------')
         do iat=1,natoms
           if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
      &         call errquit(' exiting in mull_pop',4)
           write(LuOut,2) iat,qatom(iat),
      &         (qshell(ish),ish=ish1,ish2)
-    2     format(i4,2x,f10.2,2x,25(f6.2))
+    2     format(1x,i4,1x,f8.2,1x,25(f6.2))
         enddo
       endif
       call ga_sync

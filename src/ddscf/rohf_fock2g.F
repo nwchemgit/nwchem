@@ -2,14 +2,24 @@
       implicit none
 #include "cscf.fh"
 #include "crohf.fh"
+#include "mafdecls.fh"
       integer g_grad
+c
+      integer nvir
+      double precision maxelt
+c
       call rohf_fock2grad(nmo, nclosed, nopen, crohf_g_fcv, 
      $     crohf_g_fpv, crohf_g_fcp, g_grad)
+c
+      nvir = nmo - nclosed - nopen
+      if(oadapt) call scf_sym_screen(nclosed, nopen, nvir,int_mb(k_irs),
+     $  g_grad, 0, .true., maxelt)
+c
       end
       subroutine rohf_fock2grad( nmo, nclosed, nopen,
      $     g_fcv, g_fpv, g_fcp,
      $     g_grad)
-C     $Id: rohf_fock2g.F,v 1.5 1996-06-27 22:42:40 d3g681 Exp $
+C     $Id: rohf_fock2g.F,v 1.6 1996-08-06 05:33:01 d3g681 Exp $
       implicit none
 #include "global.fh"
       integer nmo, nclosed, nopen ! [input] Occupation and number of mos

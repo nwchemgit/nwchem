@@ -190,11 +190,15 @@ c
       if (scftype .eq. 'UHF') len_occ = nbf * 2
       if (.not. ma_push_get(mt_dbl, len_occ, 'scf_init: mo evals',
      $     l_eval, k_eval)) call errquit
-     $     ('rihf_init: insufficient memory?', len_occ)
+     $     ('scf_init: insufficient memory?', len_occ)
 c     
       if (.not. ma_push_get(mt_dbl, len_occ, 'scf_init: mo occ',
      $     l_occ, k_occ)) call errquit
-     $     ('rihf_init: insufficient memory?', len_occ)
+     $     ('scf_init: insufficient memory?', len_occ)
+c
+      if (.not. ma_push_get(mt_int, len_occ, 'scf_init: mo irs',
+     $     l_irs, k_irs)) call errquit
+     $     ('scf_init: insufficient memory?', len_occ)
 c
 c     Fill in the SCF convergence info
 c     
@@ -205,7 +209,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.29 1996-07-26 16:24:30 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.30 1996-08-06 05:33:05 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -364,10 +368,11 @@ c
      $        ('scf_tidy: geom destroy failed', 0)
          if (.not. bas_destroy(basis)) call errquit
      $        ('scf_tidy: basis destroy failed',0)
-         status = ma_pop_stack(l_occ)
+         status = ma_pop_stack(l_irs)
+         status = ma_pop_stack(l_occ) .and. status
          status = ma_pop_stack(l_eval) .and. status
          if (.not. status) call errquit
-     $        ('scf_tidy: failed to free occupation/evals',0)
+     $        ('scf_tidy: failed to free irs/occupation/evals',0)
          if (.not. ga_destroy(g_movecs)) call errquit
      $        ('scf_tidy: failed to free movecs',0)
          if (scftype .eq. 'UHF') then
