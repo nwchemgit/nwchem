@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.9 2002-12-04 19:36:15 d3k958 Exp $
+C     $Id: vectors_inp.F,v 1.10 2002-12-04 22:07:50 d3k958 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -167,7 +167,7 @@ c
  650  if (.not. inp_a(rotate(1))) goto 10000
       if (.not. inp_a(rotate(2))) goto 10000
       vectors_in = 'rotate'
-      print *,rotate(1), rotate(2)
+c      print *,rotate(1), rotate(2)
       if (.not. rtdb_cput(rtdb, 'vectors:rotate', 2, rotate))
      $     call errquit('vectors_input: failed to store rotate',0)
       goto 10
