@@ -1,0 +1,27 @@
+echo
+start h2o
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+
+geometry noautoz noautosym nocenter units au
+ O                     0.00000000     0.00000000     0.00000000
+ H                     0.23701217     0.50006465    -0.66134565
+ H                     0.08518191    -0.91769081    -0.30894068
+end
+
+
+cons
+harm bond 1 2 5.0 1.3 
+harm bond 1 3 5.0 1.3 
+end
+
+driver
+clear
+end
+
+task dft optimize
