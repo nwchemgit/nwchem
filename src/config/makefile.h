@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.196 1997-01-15 18:55:53 twclark Exp $
+# $Id: makefile.h,v 1.197 1997-01-29 17:02:54 bmeng Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -79,15 +79,15 @@ endif
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
-	plane_wave selci dplot mp2_grad nwaprep oimp2 property gapss
+	hessian plane_wave selci dplot mp2_grad nwaprep oimp2 property gapss
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
 # be too hard to come up with.  These should be platform-independent.
 
-KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints  \
+KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
-                    -lcphf -lscfaux -lgapss -lddscf -lguess \
+                    -lcphf -lscfaux -lgapss -lddscf -lguess -lhessian \
                     -lvib -lutil -lrimp2 -lnwints -lideaz -lnwaprep -lnwargos \
                     -ldplot -loimp2 -lproperty 
 
@@ -235,14 +235,15 @@ ifeq ($(TARGET),SOLARIS)
 # Sun runningS olaris 2.4 or later
 # if you want to use purecoverage tool you must
 #
-# PURECOV = 1
+# setenv PURECOV 1
 # FLINT = 1
+  FLINT = 1
 #
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = echo $@ is built
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on the stack which seems a good thing
@@ -273,10 +274,10 @@ ifdef PURECOV
 #
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
-         CC = purecov -cache-dir=/scratch/d3g270 -always-use-cache-dir gcc -g
-         FC = purecov -cache-dir=/scratch/d3g270 -always-use-cache-dir f77 -g
+         CC = purecov gcc
+         FC = purecov f77
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = echo $@ is built
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on t
@@ -288,8 +289,7 @@ ifdef PURECOV
 # Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
 # -fsimple=2 enables more rearranging of floating point expressions
 # -depend enables more loop restructuring
-#  FOPTIMIZE = -O3 -fsimple=2 -depend 
-  FOPTIMIZE = -fsimple=2 -depend 
+  FOPTIMIZE = -O3 -fsimple=2 -depend 
 # Under Solaris -g no longer disables optimization ... -O2 seems solid
 # but is slow and impairs debug ... use -O1 for speed and debugability
      FDEBUG = -g -O1
@@ -298,6 +298,7 @@ ifdef PURECOV
    LIBPATH += -L/afs/msrc/sun4m_54/apps/purecov
    DEFINES = -DSOLARIS -DHAVE_LOC
    OPTIONS = -xildoff -Bstatic
+   CORE_LIBS = -lutil -lglobal -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
 	   EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lintl -lc -lc -lpurecov_stubs
 
@@ -356,7 +357,6 @@ ifeq ($(TARGET),CRAY-T3D)
      EXPLICITF = TRUE
              FCONVERT = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
 endif
-
 
 
 ifeq ($(TARGET),CRAY-T3E)
@@ -972,11 +972,7 @@ endif
 ifeq ($(TARGET),CRAY-T3D)
 	$(FC) -c $(FFLAGS) $<
 else
-ifeq ($(TARGET),CRAY-T3E)
-	$(FC) -c $(FFLAGS) $<
-else
 	$(FC) -c $(FFLAGS) -o $% $<
-endif
 endif
 endif
 
@@ -989,16 +985,10 @@ endif
 
 
 ifdef FLINT
-AR = echo
-RANLIB = echo
-MAKEFLAGS = -j 1 --no-print-directory
-CPPFLAGS += -p -w -u -O207,276,76,261 -Ttrim -x -f -g -s -t -B/scratch/d3g270/nwchem.fdb
 
-export AR
-export RANLIB
+.F.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
 
-.F.o:; flint $(CPPFLAGS) -m -P SUN -P SGI -P CRAY $<
-.f.o:; flint $(CPPFLAGS) -m -P SUN -P SGI -P CRAY $<
+.f.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
 
 endif
 
