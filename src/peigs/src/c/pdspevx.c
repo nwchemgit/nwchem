@@ -287,6 +287,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     DoublePrecision **buff_ptr, **vecQ, res, syncco[1];
     DoublePrecision smlnum, bignum, eps, rmin, rmax, anrm, sigma;
     Integer iscale;
+    extern void dscal_();
 
 #ifdef TIMING
     extern DoublePrecision mxclock_();
@@ -313,10 +314,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
     extern Integer  tred2();
     extern void     pstebz_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
-	extern void synch_();
-
-
-
+    extern void synch_(), gmax00();
+    
 /*
  *  ---------------------------------------------------------------
  *                      Executable Statements
@@ -342,7 +341,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
     FILE *file;
     char filename[40];
-
 
     me    = mxmynd_();
     nproc = mxnprc_();
@@ -718,12 +716,19 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    for ( iii = 0; iii < msize; iii++){
      if ( mapA[iii] == me ) {
        for ( ii = 0; ii < msize-iii; ii++)
-	 anrm = max(fabs(vecQ[k][ii]), anrm);
+	 anrm = max(fabs(vecA[k][ii]), anrm);
        k++;
      }
    }
+
+   
+   syncco[0] = anrm;
+   gmax00( (char *) &syncco[0], 1, 5, 10, proclist[0], nn_proc, proclist, d_scrat);
+   anrm = syncco[0];
+   
    iscale = 0;
-   if ( anrm > 0.0 && anrm < rmin) {
+   sigma = 0.;
+   if (( anrm > 0.0 ) && ( anrm < rmin)) {
      iscale = 1;
      sigma = rmin/anrm;
    }
@@ -733,20 +738,23 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
        sigma = rmax/anrm;
      }
 
-
-   isize = msize;
-   if ( iscale == 1 ){
-     if ( me == 0 )
-       printf(" sigma = %f \n", sigma);
+   /*
+   printf("********* after me = %d iscale %d sigma %g anrm %g rmax %g  \n", me, iscale, sigma, anrm, rmax);
+   fflush(stdout);
+   */
+   
+   if ( iscale == 1 && sigma > 0.0 ){
+     printf(" me= %d sigma = %f \n", me, sigma);
      k = 0;
      for ( iii = 0; iii < msize; iii++){
        if ( mapA[iii] == me ) {
 	 isize = msize - iii;
-	 dscal_(&isize, &sigma, vecQ[k], IONE );
+	 dscal_(&isize, &sigma, vecA[k], IONE );
 	 k++;
        }
      }
    }
+   
    
    tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
 
@@ -756,7 +764,9 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      fprintf(file, "info = %d \n", linfo);
      fprintf(file, "%d \n", msize);
      for ( iii = 0; iii < msize; iii++)
-       fprintf(file, "%d %20.16f %20.16f \n", iii, dd[iii], ee[iii]);
+
+
+      fprintf(file, "%d %20.16f %20.16f \n", iii, dd[iii], ee[iii]);
      fflush(file);
      fclose(file);
    }
@@ -1121,7 +1131,6 @@ END:
       
     }
 */
-
 
     if ( iscale == 1 ){
       sigma = 1.0/sigma;
