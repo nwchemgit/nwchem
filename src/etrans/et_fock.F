@@ -31,6 +31,14 @@ c
       integer itype
       character*3 theory
 c
+ 9993 format(1x,'Two-electron integral screening (tol2e) : ',1Pd8.2)
+      if(ga_nodeid().eq.0) then
+       write(LuOut,*) 
+       write(LuOut,*) 'Beginning calculation of 2e contribution'
+       write(LuOut,9993) tol2e
+       write(LuOut,*)
+      endif
+
 c ----------------------------------
 c Initialize fock builder parameters
 c ----------------------------------

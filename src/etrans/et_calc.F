@@ -3,7 +3,7 @@
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.18 2003-02-14 22:49:53 d3k958 Exp $
+* $Id: et_calc.F,v 1.19 2003-02-20 17:35:50 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -595,14 +595,6 @@ c
       if (.not. rtdb_get(rtdb, 'et:tol2e', MT_DBL, 1, tol2e)) then
        tol2e    =  min(1.0d-7,dabs(Sba)*1.0d-7)
        tol2e    =  max(1.0d-12,tol2e)
-      endif
-
- 9993 format(1x,'Two-electron integral screening (tol2e) : ',1Pd8.2)
-      if(me.eq.0) then
-       write(LuOut,*) 
-       write(LuOut,*) 'Beginning calculation of 2e contribution'
-       write(LuOut,9993) tol2e
-       write(LuOut,*)
       endif
 
 c ------------------------------------------------------------------------

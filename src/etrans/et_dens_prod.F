@@ -1,5 +1,9 @@
        subroutine dens_prod(nbf,ilo,ihi,jlo,jhi,klo,khi,llo,lhi,
-     &                   ish,jsh,ksh,lsh,pa,pb,norm,GG,ng)
+     &                     ish,jsh,ksh,lsh, norm,GG,ng,blen,
+     &                     pa_ij,pa_kl,pa_ji,pa_lk,pa_il,pa_kj,
+     &                     pa_jl,pa_ki,pa_ik,pa_lj,pa_jk,pa_li, 
+     &                     pb_ij,pb_kl,pb_ji,pb_lk,pb_il,pb_kj,
+     &                     pb_jl,pb_ki,pb_ik,pb_lj,pb_jk,pb_li) 
        implicit none
 c
 c  this routine multiplies the densities and forms the array GG
@@ -22,19 +26,65 @@ c
 #include "geom.fh"
 c
        integer nbf,ng
-       integer i,j,k,l
+       integer i,j,k,l, ii,jj,kk,ll
        integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi 
-       integer ish, jsh, ksh, lsh
-       integer maxj, maxk, maxl
-       double precision pa(nbf,nbf)
-       double precision pb(nbf,nbf)
+       integer ish, jsh, ksh, lsh, g_pa, g_pb
+       integer maxj, maxk, maxl, blen
+c       double precision pa(nbf,nbf)
+c       double precision pb(nbf,nbf)
        double precision Gijkl,Gjikl,Gijlk,Gjilk
        double precision Gilkj,Giklj,Gjlki,Gjkli
        double precision GGijkl,GGilkj
        double precision dij,dkl,dijkl
        double precision delta
        double precision GG(10000), dabsmax, norm
+       double precision pa_ij(blen,blen),pa_kl(blen,blen)
+       double precision pa_ji(blen,blen),pa_lk(blen,blen)
+       double precision pa_il(blen,blen),pa_kj(blen,blen)
+       double precision pa_jl(blen,blen),pa_ki(blen,blen)
+       double precision pa_ik(blen,blen),pa_lj(blen,blen)
+       double precision pa_jk(blen,blen),pa_li(blen,blen)
+       double precision pb_ij(blen,blen),pb_kl(blen,blen) 
+       double precision pb_ji(blen,blen),pb_lk(blen,blen)
+       double precision pb_il(blen,blen),pb_kj(blen,blen)
+       double precision pb_jl(blen,blen),pb_ki(blen,blen)
+       double precision pb_ik(blen,blen),pb_lj(blen,blen)
+       double precision pb_jk(blen,blen),pb_li(blen,blen)
        external dabsmax
+c
+c       call dfill(blen*blen, 0.0d0, pa_ij, 1)
+c       call ga_get(g_pa, ilo,ihi, jlo,jhi, ld_ij, blen)
+c       call ga_get(g_pa, klo,khi, llo,lhi, pa_kl, blen)
+c       call ga_get(g_pa, jlo,jhi, ilo,ihi, pa_ji, blen)
+c       call ga_get(g_pa, llo,lhi, klo,khi, pa_lk, blen)
+c       call ga_get(g_pa, ilo,ihi, llo,lhi, pa_il, blen)
+c       call ga_get(g_pa, klo,khi, jlo,jhi, pa_kj, blen)
+c       call ga_get(g_pa, jlo,jhi, llo,lhi, pa_jl, blen)
+c       call ga_get(g_pa, klo,khi, ilo,ihi, pa_ki, blen)
+c       call ga_get(g_pa, ilo,ihi, klo,khi, pa_ik, blen)
+c       call ga_get(g_pa, llo,lhi, jlo,jhi, pa_lj, blen)
+c       call ga_get(g_pa, jlo,jhi, klo,khi, pa_jk, blen)
+c       call ga_get(g_pa, llo,lhi, ilo,ihi, pa_li, blen)
+cc
+c       call ga_get(g_pb, ilo,ihi, jlo,jhi, pb_ij, blen)
+c       call ga_get(g_pb, klo,khi, llo,lhi, pb_kl, blen)
+c       call ga_get(g_pb, jlo,jhi, ilo,ihi, pb_ji, blen)
+c       call ga_get(g_pb, llo,lhi, klo,khi, pb_lk, blen)
+c       call ga_get(g_pb, ilo,ihi, llo,lhi, pb_il, blen)
+c       call ga_get(g_pb, klo,khi, jlo,jhi, pb_kj, blen)
+c       call ga_get(g_pb, jlo,jhi, llo,lhi, pb_jl, blen)
+c       call ga_get(g_pb, klo,khi, ilo,ihi, pb_ki, blen)
+c       call ga_get(g_pb, ilo,ihi, klo,khi, pb_ik, blen)
+c       call ga_get(g_pb, llo,lhi, jlo,jhi, pb_lj, blen)
+c       call ga_get(g_pb, jlo,jhi, klo,khi, pb_jk, blen)
+c       call ga_get(g_pb, llo,lhi, ilo,ihi, pb_li, blen)
+c
+c       do i = ilo,ihi
+c       do j = jlo,jhi
+c         print *,i,j,pa_ij(i-ilo+1,j-jlo+1)
+c       enddo
+c       enddo
+c       print *
 c
 c  initialize ng
 c  =============
@@ -59,37 +109,42 @@ c
               if(ish.eq.ksh.AND.jsh.eq.lsh.AND.k.eq.i) maxl=j
               do l = llo, maxl
 c
-                Gijkl =   pa(i,j)*pa(k,l) 
-     &                  + pa(i,j)*pb(k,l)
-     &                  + pb(i,j)*pa(k,l)
-     &                  + pb(i,j)*pb(k,l)
+              ii = i - ilo+1
+              jj = j - jlo+1
+              kk = k - klo+1
+              ll = l - llo+1
 c
-                Gjikl =   pa(j,i)*pa(k,l) 
-     &                  + pa(j,i)*pb(k,l)
-     &                  + pb(j,i)*pa(k,l)
-     &                  + pb(j,i)*pb(k,l)
+                Gijkl =   pa_ij(ii,jj)*pa_kl(kk,ll)
+     &                  + pa_ij(ii,jj)*pb_kl(kk,ll)
+     &                  + pb_ij(ii,jj)*pa_kl(kk,ll)
+     &                  + pb_ij(ii,jj)*pb_kl(kk,ll)
 c
-                Gijlk =   pa(i,j)*pa(l,k) 
-     &                  + pa(i,j)*pb(l,k)
-     &                  + pb(i,j)*pa(l,k)
-     &                  + pb(i,j)*pb(l,k)
+                Gjikl =   pa_ji(jj,ii)*pa_kl(kk,ll)
+     &                  + pa_ji(jj,ii)*pb_kl(kk,ll)
+     &                  + pb_ji(jj,ii)*pa_kl(kk,ll)
+     &                  + pb_ji(jj,ii)*pb_kl(kk,ll)
 c
-                Gjilk =   pa(j,i)*pa(l,k) 
-     &                  + pa(j,i)*pb(l,k)
-     &                  + pb(j,i)*pa(l,k)
-     &                  + pb(j,i)*pb(l,k)
+                Gijlk =   pa_ij(ii,jj)*pa_lk(ll,kk)
+     &                  + pa_ij(ii,jj)*pb_lk(ll,kk)
+     &                  + pb_ij(ii,jj)*pa_lk(ll,kk)
+     &                  + pb_ij(ii,jj)*pb_lk(ll,kk)
 c
-                Gilkj = - pa(i,l)*pa(k,j) 
-     &                  - pb(i,l)*pb(k,j)
+                Gjilk =   pa_ji(jj,ii)*pa_lk(ll,kk)
+     &                  + pa_ji(jj,ii)*pb_lk(ll,kk)
+     &                  + pb_ji(jj,ii)*pa_lk(ll,kk)
+     &                  + pb_ji(jj,ii)*pb_lk(ll,kk)
 c
-                Gjlki = - pa(j,l)*pa(k,i) 
-     &                  - pb(j,l)*pb(k,i)
+                Gilkj = - pa_il(ii,ll)*pa_kj(kk,jj)
+     &                  - pb_il(ii,ll)*pb_kj(kk,jj)
 c
-                Giklj = - pa(i,k)*pa(l,j) 
-     &                  - pb(i,k)*pb(l,j)
+                Gjlki = - pa_jl(jj,ll)*pa_ki(kk,ii)
+     &                  - pb_jl(jj,ll)*pb_ki(kk,ii)
 c
-                Gjkli = - pa(j,k)*pa(l,i) 
-     &                  - pb(j,k)*pb(l,i)
+                Giklj = - pa_ik(ii,kk)*pa_lj(ll,jj)
+     &                  - pb_ik(ii,kk)*pb_lj(ll,jj)
+c
+                Gjkli = - pa_jk(jj,kk)*pa_li(ll,ii)
+     &                  - pb_jk(jj,kk)*pb_li(ll,ii)
 c
                 dij = 0.0d0 
                 if (i.eq.j) dij = 1.0d0

@@ -1,4 +1,4 @@
-c     $Id: et_2e.F,v 1.12 2003-01-10 18:25:59 d3k958 Exp $
+c     $Id: et_2e.F,v 1.13 2003-02-20 17:35:50 d3k958 Exp $
       subroutine et_2e(rtdb,nbf,basis,geom,max2e,mem2,tol2e,
      &                 g_pa,g_pb,omega2)
       implicit none
@@ -22,70 +22,75 @@ c
 #include "msgids.fh"   
 #include "stdio.fh"   
 c
+      integer lpa_ij, kpa_ij, lpa_kl, kpa_kl, lpa_ji, kpa_ji
+      integer lpa_lk, kpa_lk, lpa_il, kpa_il, lpa_kj, kpa_kj
+      integer lpa_jl, kpa_jl, lpa_ki, kpa_ki, lpa_ik, kpa_ik
+      integer lpa_lj, kpa_lj, lpa_jk, kpa_jk, lpa_li, kpa_li
+      integer lpb_ij, kpb_ij, lpb_kl, kpb_kl, lpb_ji, kpb_ji
+      integer lpb_lk, kpb_lk, lpb_il, kpb_il, lpb_kj, kpb_kj
+      integer lpb_jl, kpb_jl, lpb_ki, kpb_ki, lpb_ik, kpb_ik
+      integer lpb_lj, kpb_lj, lpb_jk, kpb_jk, lpb_li, kpb_li
       integer rtdb
       integer g_pa,g_pb
       integer nbf, geom, basis,max2e, mem2
-      integer l_gJ, k_gJ, l_scr, k_scr
+      integer l_gJ, k_gJ, l_scr, k_scr, l_den, k_den
       integer ish, jsh, ksh, lsh, nsh
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
-      integer i,j,nproc, num
-      integer maxlsh, shellnum, ng
+      integer i,j,nproc, num, blen, max_sh_bf
+      integer maxlsh, shellnum, ng, numi, numj, iproc
       double precision omega2, omega2_val
       integer nxtask, next
       external nxtask
-      double precision start_cpu, end_cpu, elapsed
       double precision smax, sij, skl
       double precision pa(nbf,nbf), pb(nbf,nbf)
       double precision density(nbf*nbf)
       double precision norm, G(10000), dij
       double precision tol2e, maxPa, maxPb
-      double precision density_shell, dabsmax, denmax
-      external  density_shell
-c     
-c     get densities and keep in memory
-c     ================================
+      double precision density_shell, dabsmax, adenmax,bdenmax
+      external  density_shell, dabsmax
+c     -------------------------------------------     
+c     find the maximum value of the alpha density
+c     -------------------------------------------     
 c
+      call ga_distribution(g_pa,ga_nodeid(),ilo,ihi,jlo,jhi)   
+      numi=ihi-ilo+1
+      numj=jhi-jlo+1
 c
-      do i = 1,nbf
-      do j = 1,nbf
-        call ga_get(g_pa, i, i, j, j, pa(i,j),1)
-        call ga_get(g_pb, i, i, j, j, pb(i,j),1)
-      enddo
-      enddo
+        if (.not.ma_push_get(MT_DBL,numi*numj,'temp dens',l_den,k_den))
+     $  call errquit('et_2e:ma_push_get failed for temp dens',k_den)
+        call dfill(numi*numj, 0.0d0, dbl_mb(k_den), 1)
 c
-      call ga_sync()
+        call ga_get(g_pa, ilo, ihi, jlo, jhi, dbl_mb(k_den),1)
+        adenmax = dabsmax(numi*numj,dbl_mb(k_den))
 c
-c     get the maximum value of the alpha and beta densities
-c     ====================================================
+        call ga_sync()
 c
-c      num = 1 
-c      do i = 1,nbf
-c      do j = 1,nbf
-c        density(num) = pa(i,j)
-c        num=num+1
-c      enddo
-c      enddo
-cc
-c      maxPa = dabsmax(nbf*nbf,density)
-cc
-c      num = 1 
-c      do i = 1,nbf
-c      do j = 1,nbf
-c        density(num) = pb(i,j)
-c        num=num+1
-c      enddo
-c      enddo
-cc
-c      maxPb = dabsmax(nbf*nbf,density)
-cc
-c      denmax = max(maxPa,maxPb)
-c      denmax = denmax*denmax
+        call ga_dgop(msg_et_adens,adenmax,1,'max')
 c
+c     -------------------------------------------     
+c     find the maximum value of the beta density
+c     -------------------------------------------     
+c
+      call ga_distribution(g_pb,ga_nodeid(),ilo,ihi,jlo,jhi)   
+      numi=ihi-ilo+1
+      numj=jhi-jlo+1
+c
+        call dfill(numi*numj, 0.0d0, dbl_mb(k_den), 1)
+c
+        call ga_get(g_pb, ilo, ihi, jlo, jhi, dbl_mb(k_den),1)
+        bdenmax = dabsmax(numi*numj,dbl_mb(k_den))
+c
+        if (.not. ma_pop_stack(l_den)) call errquit('et_2e: pop',1)
+c
+        call ga_sync()
+c
+        call ga_dgop(msg_et_bdens,bdenmax,1,'max')
+c
+c     -------------------------------------------------
 c     initialize omega2 and establish 2e and scr arrays
-c     ================================================
+c     -------------------------------------------------
 c     
       omega2 = 0.0d0
-      elapsed = 0.0d0
 c     
       if (.not.ma_push_get(MT_DBL, max2e, '2e buffer', l_gJ, k_gJ))
      $     call errquit('et_2e:ma_push_get failed for 2e J buffer',k_gJ)
@@ -93,31 +98,93 @@ c
       if (.not.ma_push_get(MT_DBL, mem2, '2e scr', l_scr, k_scr))
      $     call errquit('et_2e:ma_push_get failed for 2e scratch',k_scr)
 c     
-c     get nsh, the number of shells
-c     =============================
+c     ------------------
+c     get basis set info
+c     ------------------
 c     
       if (.not. bas_numcont(basis, nsh)) call errquit
      $     ('et_2e: bas_numcont failed', basis)
 c     
-c     read or set screening parameters
-c     ================================
+      if (.not. bas_nbf_cn_max(basis,max_sh_bf))
+     $     call errquit('et_2e: could not get max_sh_bf',0)
+
+      blen = min(nbf,36,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
+c
+c     ----------------------------------
+c     set and print screening parameters
+c     ----------------------------------
 c
       call schwarz_init(geom, basis)
       smax = schwarz_max() 
+      dij = max(adenmax*adenmax,bdenmax*bdenmax)
 c
- 1212 format (2x,a30,1x,a1,1pE14.4)
+ 1212 format (1x,a30,1x,a1,1pE14.4)
       if (ga_nodeid().eq.0) then
       write(LuOut,*)
       write(LuOut,*)'Start two-electron contribution,  H2(RP)...'
-c      write(LuOut,1212)'Density screening tolerance   ',':',tol2e
-c      write(LuOut,1212)'Largest value of alpha density',':',maxPa
-c      write(LuOut,1212)'Largest value of beta density ',':',maxPb
-c      write(LuOut,1212)'Largest two-electron integral ',':',smax
-c      write(LuOut,*)
+      write(LuOut,1212)'Density screening tolerance   ',':',dij
+      write(LuOut,1212)'Largest two-electron integral ',':',smax
+      write(LuOut,1212)'Integral screening threshold  ',':',tol2e
+      write(LuOut,*)
       endif
-c     
+c
+c     ---------------------------------
+c     allocate temporary density arrays
+c     ---------------------------------
+c
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_ij', lpa_ij, kpa_ij))
+     $     call errquit('et_2e:could not allocate lpa_ij',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_kl', lpa_kl, kpa_kl))
+     $     call errquit('et_2e:could not allocate lpa_kl',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_ji', lpa_ji, kpa_ji))
+     $     call errquit('et_2e:could not allocate lpa_ji',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_lk', lpa_lk, kpa_lk))
+     $     call errquit('et_2e:could not allocate lpa_lk',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_il', lpa_il, kpa_il))
+     $     call errquit('et_2e:could not allocate lpa_il',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_kj', lpa_kj, kpa_kj))
+     $     call errquit('et_2e:could not allocate lpa_kj',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_jl', lpa_jl, kpa_jl))
+     $     call errquit('et_2e:could not allocate lpa_jl',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_ki', lpa_ki, kpa_ki))
+     $     call errquit('et_2e:could not allocate lpa_ki',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_ik', lpa_ik, kpa_ik))
+     $     call errquit('et_2e:could not allocate lpa_ik',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_lj', lpa_lj, kpa_lj))
+     $     call errquit('et_2e:could not allocate lpa_lj',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_jk', lpa_jk, kpa_jk))
+     $     call errquit('et_2e:could not allocate lpa_jk',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_li', lpa_li, kpa_li))
+     $     call errquit('et_2e:could not allocate lpa_li',0)
+c
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_ij', lpb_ij, kpb_ij))
+     $     call errquit('et_2e:could not allocate lpb_ij',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_kl', lpb_kl, kpb_kl))
+     $     call errquit('et_2e:could not allocate lpb_kl',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_ji', lpb_ji, kpb_ji))
+     $     call errquit('et_2e:could not allocate lpb_ji',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_lk', lpb_lk, kpb_lk))
+     $     call errquit('et_2e:could not allocate lpb_lk',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_il', lpb_il, kpb_il))
+     $     call errquit('et_2e:could not allocate lpb_il',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_kj', lpb_kj, kpb_kj))
+     $     call errquit('et_2e:could not allocate lpb_kj',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_jl', lpb_jl, kpb_jl))
+     $     call errquit('et_2e:could not allocate lpb_jl',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_ki', lpb_ki, kpb_ki))
+     $     call errquit('et_2e:could not allocate lpb_ki',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_ik', lpb_ik, kpb_ik))
+     $     call errquit('et_2e:could not allocate lpb_ik',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_lj', lpb_lj, kpb_lj))
+     $     call errquit('et_2e:could not allocate lpb_lj',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_jk', lpb_jk, kpb_jk))
+     $     call errquit('et_2e:could not allocate lpb_jk',0)
+      if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_li', lpb_li, kpb_li))
+     $     call errquit('et_2e:could not allocate lpb_li',0)
+c
+c     ----------------------     
 c     begin loop over shells
-c     ======================
+c     ----------------------     
 c     
       call ga_sync()
       shellnum = 0
@@ -131,8 +198,6 @@ c
          do jsh = ish, 1, -1
             if (.not. bas_cn2bfr(basis, jsh, jlo, jhi))
      $           call errquit('et_2e: bas_cn2bfr', jsh)
-c
-             dij =  density_shell(ilo,ihi,jlo,jhi,ish,jsh,pa,pb,nbf) 
 c
               sij = schwarz_shell(ish,jsh)
                 if (sij*smax*dij .gt. tol2e) then
@@ -149,11 +214,44 @@ c
 c
                    if (shellnum.eq.next) then
 c
-                        skl = schwarz_shell(ksh,lsh)      
+                     skl = schwarz_shell(ksh,lsh)      
+c
+                   call ga_get(g_pa,ilo,ihi,jlo,jhi,dbl_mb(kpa_ij),blen)
+                   call ga_get(g_pa,klo,khi,llo,lhi,dbl_mb(kpa_kl),blen)
+                   call ga_get(g_pa,jlo,jhi,ilo,ihi,dbl_mb(kpa_ji),blen)
+                   call ga_get(g_pa,llo,lhi,klo,khi,dbl_mb(kpa_lk),blen)
+                   call ga_get(g_pa,ilo,ihi,llo,lhi,dbl_mb(kpa_il),blen)
+                   call ga_get(g_pa,klo,khi,jlo,jhi,dbl_mb(kpa_kj),blen)
+                   call ga_get(g_pa,jlo,jhi,llo,lhi,dbl_mb(kpa_jl),blen)
+                   call ga_get(g_pa,klo,khi,ilo,ihi,dbl_mb(kpa_ki),blen)
+                   call ga_get(g_pa,ilo,ihi,klo,khi,dbl_mb(kpa_ik),blen)
+                   call ga_get(g_pa,llo,lhi,jlo,jhi,dbl_mb(kpa_lj),blen)
+                   call ga_get(g_pa,jlo,jhi,klo,khi,dbl_mb(kpa_jk),blen)
+                   call ga_get(g_pa,llo,lhi,ilo,ihi,dbl_mb(kpa_li),blen)
+                   call ga_get(g_pb,ilo,ihi,jlo,jhi,dbl_mb(kpb_ij),blen)
+                   call ga_get(g_pb,klo,khi,llo,lhi,dbl_mb(kpb_kl),blen)
+                   call ga_get(g_pb,jlo,jhi,ilo,ihi,dbl_mb(kpb_ji),blen)
+                   call ga_get(g_pb,llo,lhi,klo,khi,dbl_mb(kpb_lk),blen)
+                   call ga_get(g_pb,ilo,ihi,llo,lhi,dbl_mb(kpb_il),blen)
+                   call ga_get(g_pb,klo,khi,jlo,jhi,dbl_mb(kpb_kj),blen)
+                   call ga_get(g_pb,jlo,jhi,llo,lhi,dbl_mb(kpb_jl),blen)
+                   call ga_get(g_pb,klo,khi,ilo,ihi,dbl_mb(kpb_ki),blen)
+                   call ga_get(g_pb,ilo,ihi,klo,khi,dbl_mb(kpb_ik),blen)
+                   call ga_get(g_pb,llo,lhi,jlo,jhi,dbl_mb(kpb_lj),blen)
+                   call ga_get(g_pb,jlo,jhi,klo,khi,dbl_mb(kpb_jk),blen)
+                   call ga_get(g_pb,llo,lhi,ilo,ihi,dbl_mb(kpb_li),blen)
 c
                         call dens_prod(nbf,
      $                    ilo,ihi,jlo,jhi,klo,khi,llo,lhi, 
-     $                    ish,jsh,ksh,lsh, pa,pb, norm,G,ng) 
+     $                    ish,jsh,ksh,lsh, norm,G,ng,blen,
+     $                    dbl_mb(kpa_ij),dbl_mb(kpa_kl),dbl_mb(kpa_ji),
+     $                    dbl_mb(kpa_lk),dbl_mb(kpa_il),dbl_mb(kpa_kj),
+     $                    dbl_mb(kpa_jl),dbl_mb(kpa_ki),dbl_mb(kpa_ik),
+     $                    dbl_mb(kpa_lj),dbl_mb(kpa_jk),dbl_mb(kpa_li),
+     $                    dbl_mb(kpb_ij),dbl_mb(kpb_kl),dbl_mb(kpb_ji),
+     $                    dbl_mb(kpb_lk),dbl_mb(kpb_il),dbl_mb(kpb_kj),
+     $                    dbl_mb(kpb_jl),dbl_mb(kpb_ki),dbl_mb(kpb_ik),
+     $                    dbl_mb(kpb_lj),dbl_mb(kpb_jk),dbl_mb(kpb_li))
 c
                         if (sij*skl*smax*norm.gt.tol2e) then
 c
@@ -187,8 +285,32 @@ c     destroy arrays
 c     ==============
       call schwarz_tidy()
 c     
-      if (.not. ma_pop_stack(l_scr)) call errquit('et_2e: pop',0)
-      if (.not. ma_pop_stack(l_gJ))  call errquit('et_2e: pop',1)
+      if (.not. ma_pop_stack(lpb_li)) call errquit('et_2e: pop',13)
+      if (.not. ma_pop_stack(lpb_jk)) call errquit('et_2e: pop',12)
+      if (.not. ma_pop_stack(lpb_lj)) call errquit('et_2e: pop',11)
+      if (.not. ma_pop_stack(lpb_ik)) call errquit('et_2e: pop',10)
+      if (.not. ma_pop_stack(lpb_ki)) call errquit('et_2e: pop',9)
+      if (.not. ma_pop_stack(lpb_jl)) call errquit('et_2e: pop',8)
+      if (.not. ma_pop_stack(lpb_kj)) call errquit('et_2e: pop',7)
+      if (.not. ma_pop_stack(lpb_il)) call errquit('et_2e: pop',6)
+      if (.not. ma_pop_stack(lpb_lk)) call errquit('et_2e: pop',5)
+      if (.not. ma_pop_stack(lpb_ji)) call errquit('et_2e: pop',4)
+      if (.not. ma_pop_stack(lpb_kl)) call errquit('et_2e: pop',3)
+      if (.not. ma_pop_stack(lpb_ij)) call errquit('et_2e: pop',2)
+      if (.not. ma_pop_stack(lpa_li)) call errquit('et_2e: pop',13)
+      if (.not. ma_pop_stack(lpa_jk)) call errquit('et_2e: pop',12)
+      if (.not. ma_pop_stack(lpa_lj)) call errquit('et_2e: pop',11)
+      if (.not. ma_pop_stack(lpa_ik)) call errquit('et_2e: pop',10)
+      if (.not. ma_pop_stack(lpa_ki)) call errquit('et_2e: pop',9)
+      if (.not. ma_pop_stack(lpa_jl)) call errquit('et_2e: pop',8)
+      if (.not. ma_pop_stack(lpa_kj)) call errquit('et_2e: pop',7)
+      if (.not. ma_pop_stack(lpa_il)) call errquit('et_2e: pop',6)
+      if (.not. ma_pop_stack(lpa_lk)) call errquit('et_2e: pop',5)
+      if (.not. ma_pop_stack(lpa_ji)) call errquit('et_2e: pop',4)
+      if (.not. ma_pop_stack(lpa_kl)) call errquit('et_2e: pop',3)
+      if (.not. ma_pop_stack(lpa_ij)) call errquit('et_2e: pop',2)
+      if (.not. ma_pop_stack(l_scr)) call errquit('et_2e: pop',26)
+      if (.not. ma_pop_stack(l_gJ))  call errquit('et_2e: pop',27)
 c
 c
       return
