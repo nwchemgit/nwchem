@@ -76,7 +76,7 @@ c
       if (hasprint.ne.0) iprint = 0
       hasprint = hasprint + 1
       if (.not.rtdb_get(rtdb,'mcscf:cimaxiter',MT_INT,1,maxiter))
-     $  maxiter = 30
+     $  maxiter = 100
 c
 c   Retrieve spin-related info from database
 c

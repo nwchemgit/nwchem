@@ -68,7 +68,7 @@ c
      $    call errquit('mcscf_precond: failed to allocate',0)
        if (.not.ga_create(MT_DBL,vlen,1,'prod vector',1,1,g_axv))
      $    call errquit('mcscf_precond: failed to allocate',0)
-       nbas = 0
+1010       nbas = 0
        if ((oprcndprint).and.(ga_nodeid().eq.0)) write(6,937) 
  937   format(/,20x,'Iter',7x,'RNorm',8x,'Accuracy',5x,'DeltaSoln',2x,
      $        'Convg Rate',/,20x,59('-'))
@@ -212,7 +212,22 @@ c
        if (ga_nodeid().eq.0) write(6,961) pconvg, acc
  961   format(5x,'--- Warning: Precondition failed to converge:',
      $        'Residue: current=',d8.1,' required=',d8.1,'---')
-       goto 120
+
+       if (abs(pconvg/acc) .lt. 2.0d0) goto 120  ! Close enuf
+
+c
+c      Increase the level shift and try again.
+c      Failure is not acceptable since otherwise the line search
+c      will get lost.  C.f. Sean Connery ... "Only losers whine
+c      about their best; winners go home and **** the prom queen."
+
+      lshift = lshift*2.0d0 + 0.5
+
+      if (ga_nodeid() .eq. 0) then
+        write(6,'(a,f8.2)') ' Increase level shift to ', lshift
+        call util_flush(6)
+      endif
+      goto 1010
 c
 c
 c

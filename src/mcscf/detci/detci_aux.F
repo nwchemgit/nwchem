@@ -853,6 +853,8 @@ c
       integer i, isym, jsym, istr, jstr, ici
       double precision xx
 c
+      if (ga_nodeid() .gt. 0) return
+c
 c
 c Loop over pairs of alpha,beta strings = CI index
 c

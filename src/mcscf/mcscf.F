@@ -69,7 +69,7 @@ c
        if (.not.geom_nuc_rep_energy( geom, enrep ))
      $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
        if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
-     $      tol2e = 1.d-12                                                   ! Redundant recovered later
+     $      tol2e = 1.d-10                                                   ! Redundant recovered later
 c
 c  Get electron and spin multiplicity (NB: for info only)
 c  Active elec and multiplicity must be set --- no defaults
@@ -197,6 +197,7 @@ c
      $                        int_mb(k_sym), nmixed )
        if (nmixed .ne. 0) call errquit(
      $   'mcscf: symmetry contamination in starting MOs', nmixed)
+       call ga_orthog_mos(basis, g_movecs)
 c
 c  Print orbital info
 c
@@ -269,6 +270,7 @@ c
        do iter=1,maxiter
          if (oprinfo) write(6,996) iter
  996     format(///,10x,'%%%%% MacroIteration ',i3,' %%%%%',/)
+         if (mod(iter,5) .eq. 0) call ga_orthog_mos(basis, g_movecs)
 c
 c  CI logic
 c

@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.25 1996-09-03 01:12:38 d3g681 Exp $
+c  $Id: mcscf_orb.F,v 1.26 1996-09-19 01:17:15 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -101,7 +101,7 @@ c
        vlen = (nclosed+nact)*(nbf-nclosed-nact) + nclosed*nact
        if (.not. rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e)) then
          if (.not. rtdb_get(rtdb,'scf:tol2e',MT_DBL,1,tol2e))
-     $     tol2e = 1.d-12
+     $     tol2e = 1.d-10
        endif
        if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0)) then
          if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
@@ -112,7 +112,7 @@ c
        if (.not. rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
      $   oe2approx = .true.
        if (.not. rtdb_get(rtdb,'mcscf:citol',MT_DBL,1,citol))
-     $   citol = 1.d-5
+     $   citol = 1.d-6
        if (.not. rtdb_get(rtdb,'mcscf:line_search_tol',MT_DBL,
      $                    1,lsrch_tol)) lsrch_tol = 1.d-1
        if (.not.geom_nuc_rep_energy( geom, enrep ))
@@ -246,7 +246,7 @@ c
 c
 c  Info print
 c
-       olsrchprint = .false.
+       olsrchprint = oinfoprint
        ociprint = util_print('microci',print_high)
        ocivecprint = util_print('civec',print_debug).and.ociprint
        if ((ga_nodeid().eq.0).and.
@@ -260,9 +260,9 @@ c
 c  Begin line search...
 c
 c$$$       CALL GA_ROWPRINT('step vector',G_KVEC)
-       if (oinfoprint) write(6,973)
- 973   format(/,10x,'step',8x,'energy',9x,'p.grad',6x,'ratio',
-     $          10x,'time',/,7x,63('-'))
+*       if (oinfoprint) write(6,973)
+* 973   format(/,10x,'step',8x,'energy',9x,'p.grad',6x,'ratio',
+*     $          10x,'time',/,7x,63('-'))
        alpha = 1.0d0
        eev(0) = energy
        gsv(0) = ga_ddot(g_grad, g_srch)
@@ -274,30 +274,30 @@ c     in the energy/gradient, or the conjugacy is messed up.
 c     Ideally want to redo the preconditioning with a larger level shift
 c     and also reset conjugacy.  Eventually we'll end up on the right track.
 c     While we're at it we could also disable the seocnd order algorithm since
-c     things are obviously messed up but not now.
+c     things are obviously messed up but this is not done now.
 c
           lshift = 2.0d0*lshift + 0.5d0
           ocjrst = .true.
-          if (ga_nodeid() .gt. 0) then
+          if (ga_nodeid() .eq. 0) then
              write(6,'(a,f8.2)') 
-     $            ' !! Positive gradient along search direction',
-     $            ' - Increasing lshift to ',  lshift
+     $            ' !! warning - +ve gradient along search '//
+     $            'direction - Increasing shift ',  lshift
              call util_flush(6)
           endif
           goto 1010
        endif
 c
        av(0) = 0.d0
-       eprec = max(gnorm0*0.01d0, tol2e*100.0d0)
-       micro_citol = gnorm0*0.1d0*lsrch_tol
+*       micro_citol = gnorm0*0.1d0*lsrch_tol
        micro_citol = min(citol, (gnorm*0.05d0))
+       eprec = max(gnorm0*0.01d0, tol2e*100.0d0,micro_citol*10.0d0)
        do iter=1,maxlinsrch
          iter1 = iter - 1
          nstep = iter
-         if (oinfoprint) write(6,974) av(iter1), eev(iter1), gsv(iter1),
-     $                                abs(gsv(iter1)/gsv(0)),
-     $                                util_cpusec()
- 974     format(5x,f10.4,2x,f15.10,2x,d10.2,2x,f10.4,2x,f10.1)
+*         if (oinfoprint) write(6,974) av(iter1), eev(iter1), gsv(iter1),
+*     $                                abs(gsv(iter1)/gsv(0)),
+*     $                                util_cpusec()
+* 974     format(5x,f10.4,2x,f15.10,2x,d10.2,2x,f10.4,2x,f10.1)
          if (line_search( nstep, maxlinsrch, eev, gsv, av, eprec,
      $                    lsrch_tol, olsrchprint )) goto 100
          alpha = av(nstep-1)
