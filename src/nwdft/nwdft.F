@@ -2,8 +2,8 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.19 1995-10-25 20:38:01 og845 Exp $
-      implicit real*8 (a-h,o-z)
+C$Id: nwdft.F,v 1.20 1995-11-03 00:09:33 og845 Exp $
+      implicit none
       logical LResult
       logical CDFIT,XCFIT
 c****
@@ -29,6 +29,9 @@ c
 #include "context.fh"
 #include "cdft.fh"
 c     
+c     local declarations
+c
+      integer iproc,itype,ncent,ickcon,lckcon
 c>>>  
 c     
 
