@@ -1,7 +1,7 @@
       Subroutine xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz, wght_GA)
 c
-C$Id: xc_getv.F,v 1.10 1997-03-28 18:45:48 d3h449 Exp $
+C$Id: xc_getv.F,v 1.11 1997-04-11 23:42:24 d3h449 Exp $
 c
       implicit none
 c      
@@ -120,13 +120,13 @@ c            f(3) = g_b_coul
 c
 c        Symmetrize Vxc?
 c
-         if (oskel)then
-            call sym_symmetrize(geom, AO_bas_han, .false., g_vxc(1))
-            if (ipol.gt.1)then
-               call sym_symmetrize(geom, AO_bas_han, .false., 
-     &              g_vxc(2))
-            endif
-         endif
+c         if (oskel)then
+c            call sym_symmetrize(geom, AO_bas_han, .false., g_vxc(1))
+c            if (ipol.gt.1)then
+c               call sym_symmetrize(geom, AO_bas_han, .false., 
+c     &              g_vxc(2))
+c            endif
+c         endif
 c       
 c        Compute the exact exchange energy.
 c       
@@ -155,13 +155,13 @@ c
 c
 c           Symmetrize Vxc?
 c
-            if (oskel)then
-               call sym_symmetrize(geom, AO_bas_han, .false., g_vxc(1))
-               if (ipol.gt.1)then
-                  call sym_symmetrize(geom, AO_bas_han, .false., 
-     &                 g_vxc(2))
-               endif
-            endif
+c            if (oskel)then
+c               call sym_symmetrize(geom, AO_bas_han, .false., g_vxc(1))
+c               if (ipol.gt.1)then
+c                  call sym_symmetrize(geom, AO_bas_han, .false., 
+c     &                 g_vxc(2))
+c               endif
+c            endif
 c
          elseif (iVxc_opt.eq.1 )then
 c         
@@ -199,13 +199,13 @@ c
 c
 c           Symmetrize Vxc?
 c
-            if (oskel)then
-               call sym_symmetrize(geom, AO_bas_han, .false., g_vxc(1))
-               if (ipol.gt.1)then
-                  call sym_symmetrize(geom, AO_bas_han, .false., 
-     &                 g_vxc(2))
-               endif
-            endif
+c            if (oskel)then
+c               call sym_symmetrize(geom, AO_bas_han, .false., g_vxc(1))
+c               if (ipol.gt.1)then
+c                  call sym_symmetrize(geom, AO_bas_han, .false., 
+c     &                 g_vxc(2))
+c               endif
+c            endif
 c
             if (.not.ma_pop_stack(lTmat))
      &         call errquit('xc_getv: cannot pop stack',0)

@@ -297,7 +297,7 @@ c
  1900 if (.not. inp_f(hl_tol)) then
          write(6,*)' conv_inp: hl_tol value not found; defaulting',
      &             ' to 0.1 Hartree'
-         hl_tol = 0.2d0
+         hl_tol = 0.05d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:hl_tol', mt_dbl, 1, hl_tol))
      &   call errquit('conv_inp: rtdb_put failed', 1900)

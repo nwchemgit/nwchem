@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.40 1997-03-31 23:46:44 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.41 1997-04-11 23:42:12 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -293,7 +293,7 @@ c
 c     
       if (.not. rtdb_get(rtdb, 'dft:hl_tol', mt_dbl, 1,
      &   hl_tol))then
-         hl_tol = 0.2d0
+         hl_tol = 0.05d0
          if (.not. rtdb_put(rtdb, 'dft:hl_tol',
      &      mt_dbl, 1, hl_tol))
      &      call errquit('dft_input: rtdb_put failed', 201)

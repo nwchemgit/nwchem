@@ -1,6 +1,6 @@
-      Subroutine dft_invdiag(geom,basis,g_A,g_cdinv,n)
+      Subroutine dft_invdiag(geom, basis, g_A, g_cdinv, n)
 
-C$Id: dft_invdiag.F,v 1.6 1996-11-24 05:11:49 gutowski Exp $
+C$Id: dft_invdiag.F,v 1.7 1997-04-11 23:42:16 d3h449 Exp $
       implicit none
 c      
       integer geom,basis
@@ -11,6 +11,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "stdio.fh"
 c
       integer me,nproc,i,j,g_tmp2
       integer lev,iev,ltmp,itmp
@@ -39,8 +40,8 @@ C     check on eigenvalues
 
       do i=0,n-1
         if(abs(DBl_MB(iev+i)).lt.toll) then
-          if(me.eq.0) write(0,*) ' GAFACT - singular eigenvalue',i
-          call flush(0)
+          if(me.eq.0) write(LuOut,*) ' GAFACT - singular eigenvalue',i
+          call flush(LuOut)
           DBl_MB(iev+i)=0.d0
         else
           DBl_MB(iev+i)=1.d0/DBl_MB(iev+i)

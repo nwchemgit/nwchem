@@ -3,7 +3,7 @@
      &                     n_bmax, iwhat, n3c_dbl, iwhat_max, 
      &                     n_semi_bufs, fd, IOLGC)
 
-C$Id: dft_getvc.F,v 1.10 1997-03-05 07:34:06 d3h449 Exp $
+C$Id: dft_getvc.F,v 1.11 1997-04-11 23:42:06 d3h449 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -55,8 +55,8 @@ c
 c
 c       Symmetrize Vcoul?
 c
-        if (oskel)
-     &     call sym_symmetrize(geom, AO_bas_han, .false., g_vc)
+c        if (oskel)
+c     &     call sym_symmetrize(geom, AO_bas_han, .false., g_vc)
 c
 c       Compute the Coulomb energy.
 c
@@ -70,8 +70,8 @@ c       Compute the Coulomb potential via a LSQ fitting procedure.
 c
 c       Symmetrize Vcoul?
 c
-        if (oskel)
-     &     call sym_symmetrize(geom, AO_bas_han, .false., g_vc)
+c        if (oskel)
+c     &     call sym_symmetrize(geom, AO_bas_han, .false., g_vc)
 c
 c       Compute the Coulomb energy.
 c

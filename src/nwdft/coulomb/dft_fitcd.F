@@ -502,6 +502,9 @@ c
       alpha = (Q - F(1))/F(2)
       call ga_sync
 c
+c     Qfrac = (Q - F(1))/Q
+c
+c
 c     Multiply: S**(-1) * (alpha*N + T)
 c      
       do i=1,nbf_cd
