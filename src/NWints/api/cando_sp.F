@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.27 1997-06-06 21:07:28 pg481 Exp $
+c $Id: cando_sp.F,v 1.28 1997-12-01 22:57:15 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -369,7 +369,7 @@ c:tex-\end{verbatim}
 c
       logical user_status
 c
-      if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,user_status)) then
+      if (rtdb_get(rtdb,'int:cando_txs',MT_LOG,1,user_status)) then
         app_stored_txs = user_status
       else
         app_stored_txs = .true.
@@ -439,3 +439,68 @@ c
 *_old_code:      def_cando_txs  = oldvalue_def
 *_old_code:c
 *_old_code:      end
+***********************************************************************
+c:tex-% part of API application interface
+c:tex-\subsection{int\_app\_set\_no\_spint}
+c:tex-This routine stores any current user setting for the spint 
+c:tex-integral code and then sets the cando_sp flag on the RTDB to
+c:tex-false.  This is for applications that have problems using the
+c:tex-sp integrals.  This routine should be called right before the 
+c:tex-call to ``int_init''
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine int_app_set_no_spint(rtdb)
+c:tex-\end{verbatim}
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "candoP.fh"
+c:tex-\begin{verbatim}
+      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+c:tex-\end{verbatim}
+c
+      logical user_status
+c
+      if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,user_status)) then
+        app_stored_spint = user_status
+      else
+        app_stored_spint = .true.
+      endif
+      if (.not.rtdb_put(rtdb,'int:cando_sp',mt_log,1,.false.))
+     &    call errquit('int_app_set_no_spint:rtdb_put failed',911)
+      rtdbIused = rtdb
+      end
+***********************************************************************
+c:tex-% part of API application interface
+c:tex-\subsection{int\_app\_unset\_no\_spint}
+c:tex-This routine resets the current user setting for the sp
+c:tex-integral code and that was stored by int\_app\_set\_no\_spint by 
+c:tex-setting the cando_sp flag on the RTDB to the state prior to 
+c:tex-turning sp integrals off.  This is for applications that have 
+c:tex-problems using the sp integrals.  
+c:tex-Note: This routine should be called right after the call to 
+c:tex-``int_terminate''
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine int_app_unset_no_spint(rtdb)
+c:tex-\end{verbatim}
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "candoP.fh"
+c:tex-\begin{verbatim}
+      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+c:tex-\end{verbatim}
+c
+      if (app_stored_spint) then
+        if(.not.rtdb_delete(rtdb,'int:cando_sp')) 
+     &      call errquit
+     &      ('int_app_unset_no_spint:rtdb_delete failed',911)
+      else
+        if (.not.rtdb_put(rtdb,'int:cando_txs',
+     &      mt_log,1,app_stored_spint))
+     &      call errquit('int_app_unset_no_spint:rtdb_put failed',911)
+      endif
+      end
