@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.41 1998-06-16 19:48:16 d3g681 Exp $
+c $Id: bas_input.F,v 1.42 1998-07-06 18:45:03 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -861,10 +861,12 @@ c
       character*256 file_nwchemrc, userhome
       character*128 test
       integer length
+      integer unitrc
       logical from_environment
       logical from_nwchemrc
       logical from_compile
       logical does_it_exist
+      logical is_it_open
       logical debug
       logical foundit
       integer calls
@@ -928,12 +930,23 @@ c
         if (does_it_exist) then
           call inp_save_state() ! save state of any inp unit
 *
-          open (unit=69,  file=file_nwchemrc,
+          unitrc = 68
+00001     continue
+          unitrc = unitrc + 1
+          if (unitrc.gt.80) then
+            write(luout,*)' could not find a free unit 69->80'
+            call errquit('bas_input: no free units for library',911)
+          endif
+          is_it_open = .false.
+          inquire(unit=unitrc,opened=is_it_open)
+          if (is_it_open) goto 00001
+* found unitrc
+          open (unit=unitrc,  file=file_nwchemrc,
      &        status='old', err=99998,
      &        form='formatted',
      &        access='sequential')
-          call inp_init(69,6)
-00001     continue
+          call inp_init(unitrc,6)
+00002     continue
           if (.not.inp_read()) then
             if (inp_eof()) then
               goto 99998
@@ -946,6 +959,7 @@ c
           if (foundit) then
             if (.not.inp_a(test)) call errquit('inp_a error 2',911)
             libname = test
+            close(unit=unitrc,status='keep')  ! close file after library name found
             does_it_exist = .false.
             inquire(file=libname,exist=does_it_exist)
             if (does_it_exist)then
@@ -961,7 +975,7 @@ c
             endif
             goto 99998
           else
-            goto 00001
+            goto 00002
           endif
 *
 99998     continue
