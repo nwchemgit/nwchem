@@ -56,9 +56,10 @@ c
      &             CD_bas_han, XC_bas_han, Int_MB(ickcon), 200)
 c     
 c--> determine system type (molecule, polymer,surface,crystal)
-c     
+c    if no system type exists in db --> default = molecular case     
+c
       if(.not. geom_systype_get(geom,itype))
-     &    call errquit('nwdft: no system type',0)
+     &    itype = 0
 c
       if(itype.eq.0) then
         call scfdriver(rtdb,  geom, AO_bas_han, 
@@ -78,10 +79,6 @@ c
 c--> Flush ouput buffer.
 c
       call flush(lwr)
-c
-c--> Print memory usage summary.
-c
-      if( iproc.eq.0 ) call MA_Summarize_Allocated_Blocks()
 
       nwdft = .true.
       return
