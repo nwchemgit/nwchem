@@ -1,6 +1,7 @@
       logical function int_normalize(basisin)
-c $Id: int_norm.F,v 1.5 1999-07-14 00:28:45 d3e129 Exp $
+c $Id: int_norm.F,v 1.6 1999-10-26 21:41:18 mg201 Exp $
       implicit none
+#include "apiP.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -10,6 +11,7 @@ c $Id: int_norm.F,v 1.5 1999-07-14 00:28:45 d3e129 Exp $
 #include "stdio.fh"
       integer basisin             ! [input] basis handle
       integer basis, nucont, iucont, type, nprim, ngen, ept, cpt, igen
+      integer norm_typ
       logical norm_ok
 c
 #include "bas_exndcf_sfn.fh"
@@ -22,7 +24,15 @@ c
       if (.not. int_normalize) return
 c
       basis = basisin + BASIS_HANDLE_OFFSET
-
+c
+c if this is a relativistic basis set, we need the primitive normalization
+c but not the general contractions.
+c     
+      if (basis_is_rel(basisin)) then
+        norm_typ = 3
+      else
+        norm_typ = 1
+      end if
 c
 c check and set basis normalization
 c
@@ -48,24 +58,24 @@ c
             do igen = 0,ngen-1
                call nmcoef(dbl_mb(mb_exndcf(ept, basis)),
      $              dbl_mb(mb_exndcf(cpt+igen*nprim,basis)),
-     &              type, nprim, 1)
+     &              type, nprim, norm_typ)
             enddo
 c....... sp
          else if (type .eq. -1) then
            call nmcoef(dbl_mb(mb_exndcf(ept, basis)),
-     &           dbl_mb(mb_exndcf(cpt, basis)),0, nprim, 1) 
+     &           dbl_mb(mb_exndcf(cpt, basis)),0, nprim, norm_typ) 
            call nmcoef(dbl_mb(mb_exndcf(ept, basis)),
-     &           dbl_mb(mb_exndcf(cpt+nprim,basis)), 1, nprim, 1)
+     &           dbl_mb(mb_exndcf(cpt+nprim,basis)), 1, nprim, norm_typ)
          else if (type .eq. -2) then
 c........ spd
            call nmcoef(dbl_mb(mb_exndcf(ept, basis)),
-     &           dbl_mb(mb_exndcf(cpt, basis)), 0, nprim, 1) 
+     &           dbl_mb(mb_exndcf(cpt, basis)), 0, nprim, norm_typ) 
             call nmcoef(dbl_mb(mb_exndcf(ept, basis)),
      &           dbl_mb(mb_exndcf(cpt+nprim,basis)),
-     $           1, nprim, 1)
+     $           1, nprim, norm_typ)
             call nmcoef(dbl_mb(mb_exndcf(ept, basis)),
      &            dbl_mb(mb_exndcf(cpt+2*nprim,basis)),
-     $           2, nprim, 1)
+     $           2, nprim, norm_typ)
          else
             call errquit('int_normalize: invalid contraction type', 0)
          endif
