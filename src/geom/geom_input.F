@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.93 1999-05-25 17:11:00 d3e129 Exp $
+C     $Id: geom_input.F,v 1.94 1999-05-25 22:06:58 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -83,7 +83,7 @@ c
       name  = ' '
       oprint = .true.           ! Default is to print the geometry
       ozmatrix = .false.        ! Default is cartesian input
-      oautoz   = .false.        ! Default is don't try -autoz-
+      oautoz   = .true.         ! Default is try -autoz-
       oautosym = .false.        ! Default is don't try -autosym-
       osymmetry = .true.
       oprint_sym = .false.
@@ -223,6 +223,7 @@ c
      $           inp_compare(.false.,'zmatri', field).or.
      $           inp_compare(.false.,'zmatrix', field)) then
             ozmatrix=.true.   
+            oautoz = .false.
             call geom_zmt_input(geom,coords,tags,charge,mass,ncenter,
      $           nzinput,scale,oprint)
             oautoz=.true.
@@ -407,6 +408,9 @@ c
       if(.not. geom_verify_coords(geom))
      &     call errquit
      &     ('geom_input: geom_verify_coords failed',911)
+c
+c
+c
 c     
       if (.not. geom_destroy(geom))
      $     call errquit('geom_input: geom_destroy failed', 0)
@@ -1610,7 +1614,9 @@ c
       if (oprint) 
      $     call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
 c
-      if (.not. zdone) call errquit('autoz failed',0)
+      if (.not. zdone) call errquit
+     $     ('geom_input: autoz failed ... adjust AUTOZ options'//
+     $     ' or use NOAUTOZ',0)
 c
       return
  9999 format(' in -geom_zmt_autoz- ')
@@ -1759,7 +1765,6 @@ C
 #include "tcgmsg.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
-      logical      status
       integer      rtdb
       integer      geom
       integer      mxizmt
@@ -1823,31 +1828,41 @@ c
          izmat(i)=0
       enddo
 c
-      status = rtdb_parallel(.false.)
-      if(ga_nodeid().eq.0) then
+*      status = rtdb_parallel(.false.)
+*      if(ga_nodeid().eq.0) then
          if(.not.geom_zmt_get_nizmat(geom,nizmat))
      1   call errquit('geom_input: geom_zmt_get_nizmat failed',0)
          if(.not.geom_zmt_get_izmat(geom,izmat,nizmat))
      1   call errquit('geom_input: geom_zmt_get_izmat failed',0)
-         call ga_brdcst(18,nizmat,mitob(1     ),0)
-         call ga_brdcst(19,izmat ,mitob(mxizmt),0)
-      else
-         call ga_brdcst(18,nizmat,mitob(1     ),0)
-         call ga_brdcst(19,izmat ,mitob(mxizmt),0)
-      endif
+*      endif
+*      call ga_brdcst(18,nizmat,mitob(1     ),0)
+*      call ga_brdcst(19,izmat ,mitob(mxizmt),0)
+
       if(dbug) then
          write(iw,9998)
          write(iw,9997)
          write(iw,9996) (izmat(i),i=1,nizmat)
          write(iw,9995)
       endif
-      call ga_sync()
-      status = rtdb_parallel(.true.)
+*      call ga_sync()
+*      status = rtdb_parallel(.true.)
 c
 c     ----- call -icoord- -----
 c
       ifzmat=1
-      call hnd_icoord(rtdb,geom)
+      call hnd_icoord(geom)
+c
+c     RJH.  Since AUTOZ does not presently handle linear
+c     bends it might not have generated a complete set
+c     of coordinates.  Check that the no. of linearly independent
+c     variables (NVAR) is at least NCART-6.  
+c
+c     When this fails and what else this breaks I don't yet know
+c
+**      write(6,*) ' NVAR NAT ', nvar, nat
+      if (nvar .lt. 3*nat-6) call errquit('geom_zmt_icoord:'//
+     $     ' insufficient linearly independent internals ...'//
+     $     ' adjust AUTOZ options or use NOAUTOZ', nvar)
       return
  9999 format(' in -geom_zmt_icoord ')
  9998 format(' reading -izmat- via -geom_zmt_get_izmat- ')

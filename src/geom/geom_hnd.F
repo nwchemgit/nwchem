@@ -1,9 +1,8 @@
-      SUBROUTINE HND_ICOORD(RTDB,GEOM)
+      SUBROUTINE HND_ICOORD(GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "util.fh"
 c
       logical status
-      integer rtdb
       integer geom
       logical  geom_zmt_opn_fil
 C
@@ -2799,7 +2798,7 @@ C
       BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.103
 C
       DBUG1=.FALSE.
-      DBUG =.FALSE.
+      DBUG =.TRUE.
       OUT  =.FALSE.
       OUT  =OUT.OR.DBUG
       SOME =.TRUE.
@@ -3581,36 +3580,47 @@ C
          WRITE(IW,9993) NZVAR
       ENDIF
 C
-      DOOOPA=.FALSE.
-      IF(DOOOPA) THEN
-C
-C     ----- OUT-OF-PLANE BENDS -----
-C
-         CALL HND_ZMTYP4(NZVAR,NIZMAT,IZMAT,
-     1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLOP,NUMOOP)
-         IF(DBUG) THEN
-            WRITE(IW,9998)
-            WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-            WRITE(IW,9996)
-            WRITE(IW,9992) NZVAR
-         ENDIF
-      ENDIF
-C
-C     ----- LINEAR BENDS -----
-C
-      IF(DOLINB) THEN
-         CALL HND_ZMTYP5(NZVAR,NIZMAT,IZMAT,C,
-     1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
-     2                   IJKLNB,NUMLNB,XYZLNB,IJKANG,NUMANG)
-         IF(DBUG) THEN
-            WRITE(IW,9998)
-            WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-            WRITE(IW,9996)
-            WRITE(IW,9991) NZVAR
-         ENDIF
-         ZDONE=.FALSE.
-         RETURN
-      ENDIF
+c     RJH.  Michel says OOP were working, but generated far
+c     .     too many degrees of freedom to be useful.
+c
+c     .     The linear bends are not working but a fix 
+c     .     could be to include a point(s) at some distance
+c     .     and just use the regular bends.
+c
+c     .     In the meantime just punt after the torsions
+c     .     and then analyze the generated coordinates to
+c     .     make sure that we have at least (3n-6) coordinates.
+c
+c$$$      DOOOPA=.FALSE.
+c$$$      IF(DOOOPA) THEN
+c$$$C
+c$$$C     ----- OUT-OF-PLANE BENDS -----
+c$$$C
+c$$$         CALL HND_ZMTYP4(NZVAR,NIZMAT,IZMAT,
+c$$$     1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLOP,NUMOOP)
+c$$$         IF(DBUG) THEN
+c$$$            WRITE(IW,9998)
+c$$$            WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
+c$$$            WRITE(IW,9996)
+c$$$            WRITE(IW,9992) NZVAR
+c$$$         ENDIF
+c$$$      ENDIF
+c$$$C
+c$$$C     ----- LINEAR BENDS -----
+c$$$C
+c$$$      IF(DOLINB) THEN
+c$$$         CALL HND_ZMTYP5(NZVAR,NIZMAT,IZMAT,C,
+c$$$     1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
+c$$$     2                   IJKLNB,NUMLNB,XYZLNB,IJKANG,NUMANG)
+c$$$         IF(DBUG) THEN
+c$$$            WRITE(IW,9998)
+c$$$            WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
+c$$$            WRITE(IW,9996)
+c$$$            WRITE(IW,9991) NZVAR
+c$$$         ENDIF
+c$$$         ZDONE=.FALSE.
+c$$$         RETURN
+c$$$      ENDIF
 C
 C     ----- DONE -----
 C
@@ -4010,11 +4020,18 @@ C
      2                                       MXTORS
                                  CALL HND_HNDERR(3,ERRMSG)
                               ENDIF
-                              NTOR=NTOR+1
-                              IJKLTO(1,NTOR)=IAT
-                              IJKLTO(2,NTOR)=JAT
-                              IJKLTO(3,NTOR)=KAT
-                              IJKLTO(4,NTOR)=LAT
+                              if ( iat.ne.jat .and. ! RJH from (h2o)5 test
+     $                             iat.ne.kat .and. 
+     $                             iat.ne.lat .and.
+     $                             jat.ne.kat .and.
+     $                             jat.ne.lat .and.
+     $                             kat.ne.lat) then
+                                 NTOR=NTOR+1
+                                 IJKLTO(1,NTOR)=IAT
+                                 IJKLTO(2,NTOR)=JAT
+                                 IJKLTO(3,NTOR)=KAT
+                                 IJKLTO(4,NTOR)=LAT
+                              endif
                            ENDIF
                         ENDDO
                      ENDIF
