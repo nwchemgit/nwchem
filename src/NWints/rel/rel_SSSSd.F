@@ -1,4 +1,4 @@
-C $Id: rel_SSSSd.F,v 1.2 2000-05-27 20:41:02 mg201 Exp $
+C $Id: rel_SSSSd.F,v 1.3 2000-06-02 20:34:22 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSSSd}
 c:tex-This routine generates the SSSS-type two-electron derivative integrals
@@ -194,14 +194,14 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
           do i = 1,NPA
             scr(k+i) = zeta_A(i)*coef_A(i,j)
           end do
-          k = k+NCA
+          k = k+NPA
         end do
         k = i_xcb-1
         do j = 1,NCB
           do i = 1,NPB
             scr(k+i) = zeta_B(i)*coef_B(i,j)
           end do
-          k = k+NCB
+          k = k+NPB
         end do
       end if
 *

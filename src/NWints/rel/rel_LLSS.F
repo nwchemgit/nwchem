@@ -1,4 +1,4 @@
-C $Id: rel_LLSS.F,v 1.6 2000-05-27 18:07:46 mg201 Exp $
+C $Id: rel_LLSS.F,v 1.7 2000-06-02 20:34:22 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_LLSS}
 c:tex-This routine generates the LLSS-type two-electron integrals for
@@ -189,14 +189,14 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
           do i = 1,NPC
             scr(k+i) = zeta_C(i)*coef_C(i,j)
           end do
-          k = k+NCC
+          k = k+NPC
         end do
         k = i_xcd-1
         do j = 1,NCD
           do i = 1,NPD
             scr(k+i) = zeta_D(i)*coef_D(i,j)
           end do
-          k = k+NCD
+          k = k+NPD
         end do
       end if
 *

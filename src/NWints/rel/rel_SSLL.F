@@ -1,4 +1,4 @@
-C $Id: rel_SSLL.F,v 1.5 2000-05-27 18:36:52 mg201 Exp $
+C $Id: rel_SSLL.F,v 1.6 2000-06-02 20:34:22 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSLL}
 c:tex-This routine generates the SSLL-type two-electron integrals for
@@ -188,14 +188,14 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
           do i = 1,NPA
             scr(k+i) = zeta_A(i)*coef_A(i,j)
           end do
-          k = k+NCA
+          k = k+NPA
         end do
         k = i_xcb-1
         do j = 1,NCB
           do i = 1,NPB
             scr(k+i) = zeta_B(i)*coef_B(i,j)
           end do
-          k = k+NCB
+          k = k+NPB
         end do
       end if
 *

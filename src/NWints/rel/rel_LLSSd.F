@@ -1,4 +1,4 @@
-C $Id: rel_LLSSd.F,v 1.1 2000-02-03 19:38:32 mg201 Exp $
+C $Id: rel_LLSSd.F,v 1.2 2000-06-02 20:34:22 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_LLSSd}
 c:tex-This routine generates the LLSS-type two-electron derivative integrals
@@ -194,14 +194,14 @@ c:tex-{\it Subroutines called:} hf2d, rel\_pot, daxpy
           do i = 1,NPC
             scr(k+i) = zeta_C(i)*coef_C(i,j)
           end do
-          k = k+NCC
+          k = k+NPC
         end do
         k = i_xcd-1
         do j = 1,NCD
           do i = 1,NPD
             scr(k+i) = zeta_D(i)*coef_D(i,j)
           end do
-          k = k+NCD
+          k = k+NPD
         end do
       end if
 *

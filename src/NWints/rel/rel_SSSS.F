@@ -1,4 +1,4 @@
-C $Id: rel_SSSS.F,v 1.8 2000-06-01 20:02:05 mg201 Exp $
+C $Id: rel_SSSS.F,v 1.9 2000-06-02 20:34:22 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSSS}
 c:tex-This routine generates the SSSS-type two-electron integrals for
@@ -190,14 +190,14 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
           do i = 1,NPA
             scr(k+i) = zeta_A(i)*coef_A(i,j)
           end do
-          k = k+NCA
+          k = k+NPA
         end do
         k = i_xcb-1
         do j = 1,NCB
           do i = 1,NPB
             scr(k+i) = zeta_B(i)*coef_B(i,j)
           end do
-          k = k+NCB
+          k = k+NPB
         end do
       end if
 *
