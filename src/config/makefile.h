@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.90 1995-01-10 19:07:41 og845 Exp $
+# $Id: makefile.h,v 1.91 1995-01-10 19:09:44 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -22,7 +22,7 @@ endif
 
 #
 # Do a setenv for NWCHEM_TARGET to be the machine you wish to build for
-# (one of SUN, DELTA, IBM, KSR, PARAGON)
+# (one of SUN, DELTA, IBM, KSR, PARAGON, CRAY-T3D)
 #
 
 ifndef NWCHEM_TARGET
@@ -30,7 +30,7 @@ error2:
 	@echo You must define NWCHEM_TARGET in your environment to be the name
 	@echo of the machine you wish to build for ... for example
 	@echo     setenv NWCHEM_TARGET SUN
-	@echo Known targets are SUN, DELTA, KSR, PARAGON, IBM
+	@echo Known targets are SUN, DELTA, KSR, PARAGON, IBM, CRAY-T3D
 	@exit 1
 endif
 
