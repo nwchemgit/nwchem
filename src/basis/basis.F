@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.97 2000-01-14 20:00:59 d3g681 Exp $
+c $Id: basis.F,v 1.98 2000-01-25 19:23:45 mg201 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1983,6 +1983,7 @@ c
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "stdio.fh"
 c::functions
       logical bas_check_handle
       external bas_check_handle
@@ -1995,7 +1996,7 @@ c:local
 c
       bas_high_angular = bas_check_handle(basisin,'bas_high_angular')
       if (.not. bas_high_angular ) then
-        write(6,*) 'bas_high_angular: basis handle not valid '
+        write(luout,*) 'bas_high_angular: basis handle not valid '
         return
       endif
 c
@@ -4660,5 +4661,45 @@ c
         isum = isum+infbs_cont(CONT_RELLS,i,ibas)
       end do
       bas_any_rel_shells = isum .ne. 0
+      return
+      end
+*.....................................................................
+      logical function bas_rel_high_ang(basisin,high_angular)
+      implicit none
+c
+c  calculate and return highest angular momentem
+c  for relativistic shells in given basis. 
+c
+#include "stdio.fh"
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+c::functions
+      logical bas_check_handle
+      external bas_check_handle
+c:: passed
+      integer basisin       ! [input] basis set handle
+      integer high_angular  ! [output] highest angular momentum of basis
+c:local
+      integer basis, i, myang
+      integer ucont
+c
+      bas_rel_high_ang = bas_check_handle(basisin,'bas_high_angular')
+      if (.not. bas_rel_high_ang ) then
+        write(LuOut,*) 'bas_rel_high_ang: basis handle not valid '
+        return
+      endif
+c
+      basis = basisin + Basis_Handle_Offset
+      ucont =  infbs_head(head_ncont,basis)
+      high_angular = -565
+      do i = 1,ucont
+        if (infbs_cont(cont_rells,i,basis) .ne. 0) then
+          myang = abs(infbs_cont(cont_type,i,basis))
+          high_angular = max(high_angular,myang)
+        end if
+      enddo
+c
+      bas_rel_high_ang = .true.
       return
       end
