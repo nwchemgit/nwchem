@@ -87,7 +87,7 @@ completeness. It may be necessary to specify these in order to modify
 the behavior of a previous calculation (see Section \ref{sec:persist}
 for restart behavior).
 
-\section{{\tt SYM} --- use of symmetry}
+\section{SYM --- use of symmetry}
 \label{sec:sym}
 
  \begin{verbatim}
@@ -106,7 +106,7 @@ For example, to disable use of symmetry in Fock matrix construction:
   sym off
 \end{verbatim}
 
-\section{{\tt ADAPT} -- symmetry adaptation of MOs}
+\section{ADAPT -- symmetry adaptation of MOs}
 \label{sec:adapt}
 
 \begin{verbatim}
@@ -127,7 +127,7 @@ could result in incorrect energies and poor convergence of the
 calculation.  It is thus advisable when specifying \verb+ADAPT OFF+ to
 also specify \verb+SYM OFF+ (Section \ref{sec:sym}).
 
-\section{{\tt TOL2E} --- integral screening threshold}
+\section{TOL2E --- integral screening threshold}
 \label{sec:tol2e}
 
 \begin{verbatim}
@@ -159,7 +159,7 @@ For very diffuse basis sets, or for high-accuracy calculations it
 might be necessary to set this parameter.  A value of $10^{-12}$ is
 sufficient for nearly all such purposes.
 
-\section{{\tt VECTORS} --- input/output of MO vectors}
+\section{VECTORS --- input/output of MO vectors}
 \label{sec:vectors}
 
 
@@ -257,8 +257,8 @@ Example 3:
   vectors input project "small basis" small.movecs
 \end{verbatim}
 This directive will cause the calculation to start from vectors in the
-file \verb+"small.movecs"+ which are in a basis named \verb+"small
-basis"+.  The output vectors will be written to the default file
+file \verb+"small.movecs"+ which are in a basis named \verb+"small basis"+.
+The output vectors will be written to the default file
 \verb+"<file_prefix.movecs>"+.
  
 Once starting vectors have been obtained using any of the possible
@@ -282,7 +282,7 @@ The swapping of orbitals occurs as a sequential process in the order
 elementary transposition it is possible to construct arbitrary
 permutations of the orbitals.  For instance, to apply the permutation
 $(6 7 8 9)$\footnote{The cyclic permutation $(6 7 8 9)$ maps the
-  ordered list \verb+6 7 8 9+ into \verb+9 6 7 8+.} we note that this
+  ordered list {\tt 6 7 8 9} into {\tt 9 6 7 8}.} we note that this
 permutation is equal to $(6 7)(7 8)(8 9)$, and thus may be specified
 as
 \begin{verbatim}
@@ -677,7 +677,7 @@ the SCF input block) and before the {\tt TASK} directive.
   set tolguess 1e-7
 \end{verbatim}
 
-\section{{\tt THRESH} --- convergence threshold}
+\section{THRESH --- convergence threshold}
 \label{sec:thresh}
 
 \begin{verbatim}
@@ -709,7 +709,7 @@ high accuracy or very weak interactions.  A threshold of $10^{-10}$
 should be regarded as the best that can be attained in most
 circumstances.
 
-\section{{\tt MAXITER} --- iteration limit}
+\section{MAXITER --- iteration limit}
 \label{sec:max}
 
 \begin{verbatim}
@@ -740,7 +740,7 @@ The following sets the maximum number of SCF iterations to 50:
   maxiter 50
 \end{verbatim}
 
-\section{{\tt RI-SCF} --- resolution of the identity approximation}
+\section{RI-SCF --- resolution of the identity approximation}
 \label{sec:riscf}
 
 The resolution of the identity (RI) approximation (using the
@@ -798,7 +798,7 @@ The next three parameters determine the computational strategy:
   be stored on disk.  Otherwise, an error results.
 \end{itemize}
 
-\section{{\tt PROFILE} --- performance profile}
+\section{PROFILE --- performance profile}
 
 This directive allows the user to obtain timing and parallel
 execution information about the SCF module.  It is specified by the
@@ -813,7 +813,7 @@ performance of an SCF calculation.  However,
 it can introduce a significant overhead 
 on machines that have expensive timing routines, such as the SUN.
 
-\section{{\tt DIIS} --- DIIS convergence}
+\section{DIIS --- DIIS convergence}
 
 This directive allows the user to specify DIIS convergence rather than
 second-order convergence for the SCF calculation.  The form of the
@@ -839,7 +839,7 @@ The default of 5 should be adequate for most applications, but may be
 increased if convergence is poor.  On large systems, it may be necessary
 to specify a lower value for \verb+diisbas+, to conserve memory.
 
-\section{{\tt DIRECT} and {\tt SEMIDIRECT} --- recomputation of integrals}
+\section{DIRECT and SEMIDIRECT --- recomputation of integrals}
 \label{sec:semidirect}
 
 In the context of SCF calculations direct means that all integrals are
@@ -1126,7 +1126,7 @@ time than it would with the unshifted Hessian.
 The following sections describe the directives needed to disable the
 Newton-Raphson iteration and specify level-shifting.
 
-\section{{\tt NR} --- controlling the Newton-Raphson}
+\section{NR --- controlling the Newton-Raphson}
 \label{sec:nrswitch}
 
 \begin{verbatim}
@@ -1145,7 +1145,7 @@ this is as follows:
   nr 0
 \end{verbatim}
 
-\section{{\tt LEVEL} --- level-shifting the orbital Hessian}
+\section{LEVEL --- level-shifting the orbital Hessian}
 \label{sec:level}
 
 This directive allows the user to specify level-shifting to obtain a

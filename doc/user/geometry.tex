@@ -450,15 +450,22 @@ and angles.
 
 \begin{figure}[htbp]
 \centering
-\psfig{figure=zmat1.eps,angle=270,width=6in}
-
+\ifpdf
+\includegraphics[angle=0,width=6in]{zmat1.pdf}
+\else
+\includegraphics[angle=270,width=6in]{zmat1.eps}
+\fi
 \caption{\label{fig:zmat1} Relationships between the centers, bond angle
 and dihedral angle in Z-matrix input.}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\psfig{figure=zmat2.eps,angle=270,width=6in}
+\ifpdf
+\includegraphics[angle=270,width=6in]{zmat2.pdf}
+\else
+\includegraphics[angle=270,width=6in]{zmat2.eps}
+\fi
 
 \caption{\label{fig:zmat2} Relationships between the centers and two
   bond angles in Z-matrix input with optional parameter specified as $+1$.}
@@ -466,7 +473,11 @@ and dihedral angle in Z-matrix input.}
 
 \begin{figure}[htbp]
 \centering
-\psfig{figure=zmat3.eps,angle=270,width=6in}
+\ifpdf
+\includegraphics[angle=270,width=6in]{zmat3.pdf}
+\else
+\includegraphics[angle=270,width=6in]{zmat3.eps}
+\fi
 
 \caption{\label{fig:zmat3} Relationships between the centers and two
   bond angles in Z-matrix input with optional parameter specified as $-1$.}
@@ -633,7 +644,7 @@ internal coordinates.  These are arranged as follows:
 \item The third center is placed in the z-x plane.
 \end{itemize}
 
-\section{{\tt ZCOORD} --- Forcing internal coordinates}
+\section{ZCOORD --- Forcing internal coordinates}
 \label{sec:zcoord}
 
 By default redundant internal coordinates are generated for use in

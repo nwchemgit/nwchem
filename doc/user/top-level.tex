@@ -794,8 +794,8 @@ can also specify which process(es) will execute this command by
 entering values for \verb+process+ on the directive.  The default is
 for only process zero to execute the command.  A range of processes
 may be specified, using Fortran triplet notation\footnote{The notation
-  \verb+lo:hi:inc+ denotes the integers \verb+lo+, \verb=lo+inc=,
-  \verb=lo+2*inc=, \ldots, \verb+hi+}.  Alternatively, all
+{\tt lo:hi:inc} denotes the integers {\tt lo}, {\tt lo+inc},
+{\tt lo+2*inc}, \ldots, {\tt hi}}.  Alternatively, all
 processes can be specified simply by entering the keyword \verb+all+.
 The input entered for \verb+command+ must form a single string, and
 must consist of valid UNIX command(s).  If the string includes white space,
@@ -839,8 +839,8 @@ it has the following form;
 \end{verbatim}
 
 The string \verb+<theory>+ specifies the QM theory to be used in the
-QM/MM simulation\footnote{If theory is ``\verb+md+'' this is not a QM/MM
-  simulation and will result in an appropriate error}.  The level of
+QM/MM simulation\footnote{If theory is ``{\tt md}'' this is not a QM/MM
+simulation and will result in an appropriate error}.  The level of
 theory may be any QM method that can compute gradients but those
 algorithms in NWChem that do not support analytic gradients should be
 avoided (c.f., Section \ref{sec:functionality}).  
@@ -890,9 +890,9 @@ the total charge of the system.  The form of the directive is as follows:
 The default charge\footnote{The charge directive, in conjunction with
   the charges of atomic nuclei (which can be changed via the geometry
   input, cf. Section \ref{sec:cart}), determines the total number of
-  electrons in the chemical system.  Therefore, a \verb+charge n+
+  electrons in the chemical system.  Therefore, a {\tt charge n}
   specification removes "n" electrons from the chemical system.
-  Similarly, \verb+charge -n+ adds "n" electrons.} is zero
+  Similarly, {\tt charge -n} adds "n" electrons.} is zero
 if this directive is omitted.  An example of a case where the
 directive would be needed is for a calculation on a doubly charged
 cation.  In such a case, the directive is simply,

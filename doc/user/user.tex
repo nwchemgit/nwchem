@@ -1,6 +1,24 @@
-% $Id: user.tex,v 1.38 2000-01-25 20:51:49 mg201 Exp $
+% $Id: user.tex,v 1.39 2000-02-04 02:38:04 edo Exp $
 
-\documentstyle[fullpage,12pt,fleqn]{book}
+%\documentstyle[dvilj,ge,12pt,fleqn]{book}
+\documentclass[12pt,fleqn]{book}
+\usepackage{html}
+\usepackage{fullpage}
+\newif\ifpdf
+\ifx\pdfoutput\undefined
+\else
+ \pdfoutput=1
+  \pdftrue
+\fi
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\usepackage[pdftex]{hyperref}
+%\usepackage[T1]{fontenc}
+\usepackage{times,latexsym,mathptm}
+\else
+\usepackage[dvips]{graphicx}
+\fi
+
 \setlength{\parskip}{6pt}
 
 % Set the version and year of release globally
@@ -9,10 +27,9 @@
 
 \newcommand{\angstroms}{Angstr{\o}ms}
 
-\input{psfig}
-
+%\pdfcompresslevel=8
 \begin{document}
-
+%\DeclareGraphicsExtensions{.pdf}
 \input{titlepage}
 
 \chapter*{\center DISCLAIMER}
@@ -134,4 +151,8 @@
 \chapter{Running NWChem}
 \input{execution}
 
+%\pdfcatalog{            % Catalog dictionary of PDF output. 
+%    /PageMode /UseOutlines
+%%%%    /URI (http://www.fi.muni.cz/)
+%} openaction goto page 1 {/Fit}
 \end{document}

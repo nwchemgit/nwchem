@@ -1,7 +1,9 @@
 A more complete description should be available at 
-\begin{verbatim}
-   http://emsl.pnl.gov:2080/docs/nwchem/nwchem.html
-\end{verbatim}
+%\begin{verbatim}
+%   http://emsl.pnl.gov:2080/docs/nwchem/nwchem.html
+\htmladdnormallink{http://www.emsl.pnl.gov:2080/docs/nwchem/nwchem.html}
+{http://www.emsl.pnl.gov:2080/docs/nwchem/nwchem.html}
+%\end{verbatim}
 
 The command required to invoke NWChem is machine dependent, whereas
 most of the NWChem input is machine independent\footnote{Machine
@@ -99,7 +101,6 @@ file now just needs to refer to processes running NWChem.
 All of these machines require use of different commands in order to
 gain exclusive access to computational resources.
 
-
 \section{IBM SP}
 
 If using POE (IBM's Parallel Operating Environment) interactively,
@@ -168,7 +169,6 @@ disks are wiped clean at the beginning of each job and therefore
 persistent files should be stored elsewhere.  PIOFS is recommended for
 files larger than a few MB.
 
-
 \section{Cray T3E}
 
 \begin{verbatim}
@@ -183,7 +183,7 @@ name of your input file.
 If running in parallel across multiple machines you should consider
 applying this patch to your kernel to boost the performance of TCP/IP
 \begin{itemize}
-\item \verb+http://www.icase.edu/coral/LinuxTCP.html+
+\item \htmladdnormallink{http://www.icase.edu/coral/LinuxTCP.html}{http://www.icase.edu/coral/LinuxTCP.html}
 \end{itemize}
 
 \section{Tested Platforms and O/S versions}

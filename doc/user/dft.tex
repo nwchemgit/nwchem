@@ -137,7 +137,7 @@ The charge density fitting basis set must have the name {\tt "cd basis"}.
 This can be the actual name of a basis set, or a basis set can be 
 assigned this name using the \verb+SET+ directive, as described in
 Section \ref{sec:set}.  If this basis set is not defined by input,
-the $O(N^4)$ exact Coulomb contribution is computed.
+the $O(N^4)$y exact Coulomb contribution is computed.
 
 The user also has the option of specifying a third basis set for the 
 evaluation of the exchange-correlation potential.  This basis set must
@@ -158,7 +158,7 @@ optional, and usually not recommended
 \end{itemize}
 
 
-\section{{\tt VECTORS} and {\tt MAX\_OVL} --- KS-MO Vectors}
+\section{VECTORS and MAX\_OVL --- KS-MO Vectors}
 
 The \verb+VECTORS+ directive is the same as that in the SCF module
 (Section \ref{sec:vectors}).  Currently, the \verb+LOCK+ keyword
@@ -168,7 +168,7 @@ is not supported by the DFT module, however the directive
 \end{verbatim}
 has the same effect.
 
-\section{{\tt XC} and {\tt DECOMP} --- Exchange-Correlation Potentials}
+\section{XC and DECOMP --- Exchange-Correlation Potentials}
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] \
      [becke97]  [becke97-1] [hcth] \
@@ -474,7 +474,7 @@ functional derived by Hamprecht-Cohen-Tozer-Handy
 
 
 
-\section{{\tt ITERATIONS} --- Number of SCF iterations}
+\section{ITERATIONS --- Number of SCF iterations}
 
 \begin{verbatim}
   ITERATIONS <integer iterations default 30>
@@ -492,7 +492,7 @@ is \verb+ITERATIONS+, and has the following general form,
 The optimization procedure will stop when the specified number of
 iterations is reached or convergence is met.
 
-\section{{\tt CONVERGENCE} --- SCF Convergence Control}
+\section{CONVERGENCE --- SCF Convergence Control}
 
 \begin{verbatim}
   CONVERGENCE [energy <real energy default 1e-6>] \
@@ -629,7 +629,7 @@ procedures deemed undesirable with the obvious keywords,
 \end{verbatim}
 
 
-\section{{\tt GRID} --- Numerical Integration of the XC Potential}
+\section{GRID --- Numerical Integration of the XC Potential}
 
 \begin{verbatim}
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
@@ -856,7 +856,7 @@ grid lebedev 80 5 H 70 4 12 O 90 5 15
 %  GRID [(becke||delley) default becke]
 %\end{verbatim}
 
-\section{{\tt TOLERANCES} --- Screening tolerances}
+\section{TOLERANCES --- Screening tolerances}
 
 \begin{verbatim}
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-10>] \
@@ -964,7 +964,7 @@ This option sets all tolerances to their
 default/user specified values at the very first iteration.
 
 
-\section{{\tt DIRECT} and {\tt NOIO} --- Hardware Resource Control}
+\section{DIRECT and NOIO --- Hardware Resource Control}
 \begin{verbatim}
   DIRECT||INCORE
   NOIO
@@ -990,7 +990,7 @@ are computed ``on-the-fly''.
 
 \fussy
 
-\section{{\tt DFT}, {\tt ODFT} and {\tt MULT} --- Open shell systems}
+\section{DFT,  ODFT and  MULT --- Open shell systems}
 \begin{verbatim}
   DFT||ODFT
   MULT <integer mult default 1>
@@ -1012,7 +1012,7 @@ closed or open shell and are really unnecessary except in the context
 of forcing a closed-shell system to be computed as an open shell
 system (i.e., using a spin-unrestricted wavefunction).
 
-\section{{\tt MULLIKEN} --- Mulliken analysis}
+\section{MULLIKEN --- Mulliken analysis}
 \begin{verbatim}
   MULLIKEN
 \end{verbatim}
