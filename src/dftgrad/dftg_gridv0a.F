@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.17 2001-05-05 05:20:31 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.18 2003-01-09 23:35:03 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -94,14 +94,11 @@ c
      &        ldocset, idocset
       logical grid_file_rewind,grid_file_read
       external grid_file_rewind,grid_file_read
-      logical donewbf           !!! !!!! *** temp
 c
 c     
       me = ga_nodeid()
       Ec = 0.d0
       Ex = 0.d0
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 'bgj:new_bf', mt_log,
-     &     1, donewbf)) donewbf = .true.
       if (bgj_print() .gt. 0)
      &    write(*,*)'*** dftg_gridv0a: logicals ',
      &    do_force,do_hess,do_cpks_r
@@ -156,7 +153,6 @@ c
      &     ldocset, idocset))
      &     call errquit('dftg_gridv0a: cannot allocate docset',
      ,     ncontrset)
-      if(donewbf) then
       if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
      &     call errquit('dftg_gridv0a: cannot allocate bas_cent_info',0)
@@ -165,7 +161,6 @@ c
      &     call errquit('dftg_gridv0a: cannot allocate bas_cset_info',0)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
-      endif
 c     
 c     rewind grid pts file
 c
@@ -210,7 +205,7 @@ c
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
-     &                         cetobfr,donewbf)
+     &                         cetobfr)
 
  110      ntot_cube=ntot_cube+1
   200 continue  ! bottom of shell loop
@@ -218,14 +213,10 @@ c
       if (.not.ma_pop_stack(lrqbuf))
      &     call errquit('dftg_gridv0a: cannot pop stack', 0)
 c
-      if(donewbf) then
-!         if (.not.MA_Pop_Stack(ibas_cset_info))
-!     &        call errquit('dftg_gridv0a: pop stack failed.',1)
          if (.not.MA_Pop_Stack(lbas_cset_info))
      &        call errquit('dftg_gridv0a: pop stack failed.',2)
          if (.not.MA_Pop_Stack(lbas_cent_info))
      &        call errquit('dftg_gridv0a: pop stack failed.',3)
-      endif
       if (.not.MA_Pop_Stack(ldocset))
      &     call errquit('dftg_gridv0a: pop stack failed.',4)
 c

@@ -13,9 +13,9 @@
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
-     &                         cetobfr,donewbf)
+     &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.19 2003-01-03 22:44:16 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.20 2003-01-09 23:35:03 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -102,7 +102,6 @@ c
       integer natoms_l ! atoms left after xc_sig
 c
       integer ncuratoms
-      logical donewbf           !!! !!!! *** temp
       integer l_Acof2, k_Acof2, l_Ccof2, k_Ccof2
 c     
 c           Evaluate the AO basis set at each of the quad. points.
