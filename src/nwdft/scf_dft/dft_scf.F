@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.13 1995-11-03 00:07:04 og845 Exp $
+C$Id: dft_scf.F,v 1.14 1995-11-28 01:17:01 hltaylor Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -80,12 +80,14 @@ C$Id: dft_scf.F,v 1.13 1995-11-03 00:07:04 og845 Exp $
       logical converged,XCFIT,wght_GA
       logical lfrac,lfocka,lfockb
       integer itol_min,iAOacc_min,iscfcon
-      double precision scfcon
+      integer n_homo, n_lumo            ! # of HOMOs, LUMOs to output to stdout
+      double precision scfcon, homo_lumo_gap
       double precision zero,onem,one
       parameter(zero=0.d0,one=1.d0,onem=-one)
       parameter(itol_min=6,iAOacc_min=15)
       double precision dft_dencvg,dabssum
       external dft_dencvg,dabssum
+      logical movecs_to_logfile
       
 c-----------------------------------------------------------------------
 c     
@@ -908,6 +910,8 @@ c****     logical function movecs_write(filename, title, basis_name,
 c****     $     nbf_ao, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
 c****     occ is an occupation vector (not used here)
 c****     
+c****     Should distinguish occupied and virtual here...
+c****     
           if (.not.
      &         movecs_write(movecs_out, 'Kohn-Sham orbitals',
      &         'Unknown',
@@ -916,20 +920,46 @@ c****
      &         call errquit('rhf: movec_write failed', 0)
           call ga_sync()
           if(me.eq.0) then
-            write (LuOut,*) 'Alpha Eigenvalues: '
+            homo_lumo_gap = min( dbl_mb( ISbn2(1)+noc(1)),
+     &                           dbl_mb( ISbn2(2)+noc(2) ) )
+     &           - max( dbl_mb( ISbn2(1)+noc(1)-1),
+     &           dbl_mb( ISbn2(2)+noc(2)-1 ) )
+
+            write (LuOut,*) 
+            write (LuOut,'(a,e14.4)')
+     &           'HOMO/LUMO Gap (Hartrees): ', homo_lumo_gap
+            write (LuOut,*) 
+            write (LuOut,*) 'Alpha-Occupied Eigenvalues: '
             write (LuOut,'(5x,4(e14.4))')
-     &           (dbl_mb(ISbn2(1)+ii),ii=0,nbf_ao-1)
+     &           (dbl_mb(ISbn2(1)+ii),ii=0,noc(1)-1)
+            write (LuOut,*) 
+            write (LuOut,*) 'Alpha-Virtual Eigenvalues: '
+            write (LuOut,'(5x,4(e14.4))')
+     &           (dbl_mb(ISbn2(1)+ii),ii=noc(1),nbf_ao-1)
             write (LuOut,*) 
             if ( ipol.eq.2 ) then
-              write (LuOut,*) 'Beta Eigenvalues: '
+              write (LuOut,*) 'Beta-Occupied Eigenvalues: '
               write (LuOut,'(5x,4(e14.4))')
-     &             (dbl_mb(ISbn2(2)+ii),ii=0,nbf_ao-1)
+     &             (dbl_mb(ISbn2(2)+ii),ii=0,noc(2)-1)
               write (LuOut,*) 
-          endif 
+              write (LuOut,*) 'Beta-Virtual Eigenvalues: '
+              write (LuOut,'(5x,4(e14.4))')
+     &             (dbl_mb(ISbn2(2)+ii),ii=noc(2),nbf_ao-1)
+              write (LuOut,*) 
+            endif 
           endif
 
         endif 
 c-----------------------------------------------------------------------
+#define SC95
+#ifdef SC95
+          if (.not.
+     &         movecs_to_logfile( rtdb, 
+     &         nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
+     &         dbl_mb(ISbn2(1)), nbf_ao, g_evecs))
+     &         call errquit('rhf: movecs_to_logfile failed', 2)
+#endif
+
 c****   
 c****   eval deallocation moved here from inside iteration loop
 c****   
