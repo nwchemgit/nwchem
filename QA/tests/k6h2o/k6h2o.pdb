@@ -1,0 +1,23 @@
+HEADER    Potassium Ion Hexaquo
+COMPND    Potassium Ion aqueous
+AUTHOR    Erich Vorpagel edited this file to work with NWChem
+ATOM      1  K   K       1      -0.006  -0.001   0.011  1.00  0.00 
+ATOM      2  OW  wat     2       0.149  -0.451  -2.468  1.00  0.00 
+ATOM      3 2HW  wat     2       0.524  -1.275  -2.851  1.00  0.00 
+ATOM      4 3HW  wat     2       0.445   0.228  -3.115  1.00  0.00 
+ATOM      5  OW  wat     3      -0.531   2.418  -0.413  1.00  0.00 
+ATOM      6 2HW  wat     3      -1.062   2.774  -1.160  1.00  0.00 
+ATOM      7 3HW  wat     3       0.038   3.184  -0.178  1.00  0.00 
+ATOM      8  OW  wat     4       2.473   0.422   0.030  1.00  0.00 
+ATOM      9 2HW  wat     4       3.149  -0.282  -0.092  1.00  0.00 
+ATOM     10 3HW  wat     4       2.921   1.207  -0.354  1.00  0.00 
+ATOM     11  OW  wat     5      -0.287   0.513   2.440  1.00  0.00 
+ATOM     12 2HW  wat     5       0.112   0.027   3.195  1.00  0.00 
+ATOM     13 3HW  wat     5      -0.465   1.398   2.830  1.00  0.00 
+ATOM     14  OW  wat     6      -2.458  -0.526   0.018  1.00  0.00 
+ATOM     15 2HW  wat     6      -2.855  -1.397  -0.205  1.00  0.00 
+ATOM     16 3HW  wat     6      -3.168   0.099  -0.242  1.00  0.00 
+ATOM     17  OW  wat     7       0.469  -2.374   0.679  1.00  0.00 
+ATOM     18 2HW  wat     7      -0.089  -2.895   1.297  1.00  0.00 
+ATOM     19 3HW  wat     7       0.902  -3.077   0.145  1.00  0.00 
+END
