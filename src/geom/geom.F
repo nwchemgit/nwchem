@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.63 1997-04-11 20:24:20 d3g681 Exp $
+C$Id: geom.F,v 1.64 1997-04-29 09:56:34 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1467,6 +1467,7 @@ c
 c
       logical function geom_verify_coords(geom)
       implicit none
+#include "stdio.fh"
 c
 c::functions      
       logical geom_ncent
@@ -1484,16 +1485,19 @@ c::local
       double precision chg(num2compare)
       double precision dist_min
       double precision dist_thresh
+      double precision dist_my
       parameter (dist_thresh = 1.0d-03)
       double precision dist2
 c
-      dist2(i,j) = (xyz(1,i)-xyz(1,j))**2 +
-     &    (xyz(2,i)-xyz(2,j))**2 +
-     &    (xyz(3,i)-xyz(3,j))**2
+      dist2(i,j) =
+     &    (xyz(1,i)-xyz(1,j))*(xyz(1,i)-xyz(1,j)) +
+     &    (xyz(2,i)-xyz(2,j))*(xyz(2,i)-xyz(2,j)) +
+     &    (xyz(3,i)-xyz(3,j))*(xyz(3,i)-xyz(3,j))
 c
       if(.not.geom_ncent(geom, nat))
      &    call errquit('geom_verify_coords: geom_ncent failed',911)
 c
+      
       atomi = 1
       atomj = 2
       dist_min = 56565.89d00
@@ -1508,7 +1512,15 @@ c
      &          (geom,jat,name(atomj),xyz(1,atomj),chg(atomj)))
      &          call errquit
      &          ('geom_verify_coords: geom_cent_get<2> failed',911)
-            dist_min = min(dist_min, dist2(atomi,atomj))
+            dist_my = dist2(atomi,atomj)
+            if (dist_my.lt.dist_thresh) then
+              write(luout,*)' atoms ',iat,' and ',jat,' are similar'
+              write(luout,*)' atom ',iat,' coordinates',
+     &            xyz(1,atomi),xyz(2,atomi),xyz(3,atomi)
+              write(luout,*)' atom ',jat,' coordinates',
+     &            xyz(1,atomj),xyz(2,atomj),xyz(3,atomj)
+            endif
+            dist_min = min(dist_min, dist_my)
           end if
 00200   continue
 00100 continue
@@ -1518,8 +1530,11 @@ c
 *     &    dist_min, geom_verify_coords
 c
       if (geom_verify_coords) return
-      write(6,*)' ************ WARNING ******************' 
-      write(6,*)' at least two atoms are at the same physical location'
+      write(luout,*)'minimum distance ',dist_min
+      write(luout,*)
+     &    ' ************ WARNING ******************' 
+      write(luout,*)
+     &    ' at least two atoms are at the same physical location'
       end
 c
 c
