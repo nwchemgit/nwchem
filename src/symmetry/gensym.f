@@ -93,8 +93,8 @@ c----------------------------------------------------------------------
       if (oprint) then
          write(*,27)
          write(*,29) ngen
- 27      format(/,16x,'---------------',' GROUP GENERATORS ','---------',
-     $        '------')
+ 27      format(/,16x,'---------------',' GROUP GENERATORS ','---------'
+     $        ,'------')
  28      format(/,23x,'GROUP NUMBER AND NAME: ',a12)
  29      format(/,22x,i1,' GENERATORS USED TO FORM THE GROUP')
       endif
