@@ -2,7 +2,7 @@
      &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
      &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC)
 *
-* $Id: dft_fitcd.F,v 1.19 1997-04-18 07:27:25 d3e129 Exp $
+* $Id: dft_fitcd.F,v 1.20 1997-04-21 23:43:01 d3h449 Exp $
 *
       implicit none
 c
@@ -465,9 +465,12 @@ c
 c
 c     Compute the Lagrange Multiplier, alpha.
 c     
-      if(IOLGC) then
-        call gacrea(geom,CD_bas_han,
-     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
+      if (IOLGC)then
+c         call gacrea(geom,CD_bas_han,
+c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
+         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
+     &                       nbf_cd, 1, g_cdinv)) 
+     &      call errquit('dft_fitcd: error creating g_cdinv',0)
         if (me.eq.0)then
            lmiss = 0
            call dft_invio('CDI',g_cdinv,nbf_cd,'READ',lmiss)
@@ -558,7 +561,11 @@ c
      &   call errquit('dft_fitcd: cannot pop stack',0)
 c
       call ga_sync
-      if(IOLGC) call gadest(g_cdinv)
+c      if(IOLGC) call gadest(g_cdinv)
+      if (IOLGC)then
+         if (.not. ga_destroy(g_cdinv)) call errquit
+     &      ('dft_fitcd: could not destroy g_cdinv', 0)
+      endif         
 c
 c     calculation of Ecoul1
 c

@@ -1,7 +1,7 @@
       Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc, 
      &                     g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC)
-c     $Id: dft_fitvc.F,v 1.17 1997-04-18 07:27:26 d3e129 Exp $
+c     $Id: dft_fitvc.F,v 1.18 1997-04-21 23:43:02 d3h449 Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -118,9 +118,12 @@ c
         Dbl_MB((icd_shell-1)+ishp) = shmax
         CD_coef_max = max(shmax, CD_coef_max)
     5 continue
-      if(IOLGC) then
-        call gacrea(geom,CD_bas_han,
-     &       nbf_cd,nbf_cd,'CD 2cERI',g_2ceri,'row')
+      if (IOLGC)then
+c         call gacrea(geom,CD_bas_han,
+c     &               nbf_cd,nbf_cd,'CD 2cERI',g_2ceri,'row')
+         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
+     &                       nbf_cd, 1, g_2ceri)) 
+     &      call errquit('dft_fitvc: error creating g_2ceri',0)
         if (me.eq.0)then
            lmiss = 0
            call dft_invio('CD',g_2ceri,nbf_cd,'READ',lmiss)
@@ -470,7 +473,11 @@ c
       next=nxtval(-nproc)
       
       Ecoul2=Ecoul2*0.5D0
-      if(IOLGC) call gadest(g_2ceri)
+c      if(IOLGC) call gadest(g_2ceri)
+      if (IOLGC)then
+         if (.not. ga_destroy(g_2ceri)) call errquit
+     &   ('dft_fitvc: could not destroy g_2ceri', 0)
+      endif         
       call ga_dgop(Msg_Ecoul2,Ecoul2,1,'+')
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitvc: cannot pop stack',0)

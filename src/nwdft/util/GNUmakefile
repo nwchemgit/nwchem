@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.52 1997-03-26 00:50:04 d3e129 Exp $
+#$Id: GNUmakefile,v 1.53 1997-04-21 23:43:12 d3h449 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(TARGET),SGITFP)
 ifeq ($(TARGET),CRAY-T3D)
@@ -8,7 +8,6 @@ ifeq ($(TARGET),CRAY-T3D)
 	dzero.o		\
 	ga_chol.o	\
 	ga_inverse.o		\
-	gacrea.o		\
 	dft_gather.o	dft_scatter.o \
 	get_col.o	\
 	dft_header.o	\
@@ -23,7 +22,6 @@ else
 	dzero.o		\
 	ga_chol.o	\
 	ga_inverse.o		\
-	gacrea.o		\
 	get_col.o	\
 	dft_header.o	\
 	dft_invio.o		\
@@ -71,7 +69,6 @@ else
 	ga_chol_seq.o \
 	ga_inv_seq.o \
 	ga_inverse.o \
-	gacrea.o \
 	get_col.o \
 	movecs_log.o \
 	nbf_to_mbf.o \

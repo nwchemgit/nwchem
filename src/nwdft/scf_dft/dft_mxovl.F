@@ -1,6 +1,6 @@
       Subroutine dft_mxovl(basis, evals, g_evecs, g_oevecs,g_tmp)
 
-C$Id: dft_mxovl.F,v 1.6 1996-10-18 00:53:15 d3h449 Exp $
+C$Id: dft_mxovl.F,v 1.7 1997-04-21 23:43:06 d3h449 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap       [input] overwritten!
@@ -22,21 +22,20 @@ c
 c      integer nbf,i,j,ix
       integer i,j,ix
       integer k_ord,l_ord,k_tmp,l_tmp,k_scr,l_scr
-      
-      
+c     
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
       double precision prodmax
-
-      
-
-c*****************************************************************************
-
+c
       me=ga_nodeid()
       nproc=ga_nnodes()
 c     
       if ( .not. bas_numbf(basis,nbf) ) 
      &     call errquit(' exiting in max_ovl',1)
 c
-      call gacrea(geom,basis,nbf,nbf,'ovl ',g_s,'atom')
+c      call gacrea(geom,basis,nbf,nbf,'ovl ',g_s,'atom')
+      g_s = ga_create_atom_blocked(geom, basis, 'AO ovl')
 c
       if(.not.MA_Push_Get(MT_Dbl,nbf,'tmpm',l_tmp, k_tmp))
      &     call errquit('dft_mxovl: cannot allocate tmpm',0)
@@ -94,7 +93,9 @@ c
         call put_col(g_evecs,nbf,i,DBL_MB(k_scr))
       enddo
 c
-      call gadest(g_s)
+c      call gadest(g_s)
+      if (.not. ga_destroy(g_s)) call errquit
+     &   ('dft_mxovl: could not destroy g_s', 0)
 c
       if(.not.MA_Pop_Stack(l_ord))
      & call errquit('dft_mxovl: cannot pop stack',0)

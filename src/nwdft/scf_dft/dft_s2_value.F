@@ -1,6 +1,6 @@
       subroutine dft_s2_value(geom,basis,symmetry,na,nb,
      &     nbf,ga_densa,ga_densb)
-C     $Id: dft_s2_value.F,v 1.3 1996-07-03 21:47:36 d3h449 Exp $
+C     $Id: dft_s2_value.F,v 1.4 1997-04-21 23:43:07 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -9,7 +9,10 @@ C     $Id: dft_s2_value.F,v 1.3 1996-07-03 21:47:36 d3h449 Exp $
       integer geom,basis
       logical symmetry
       integer nbf,ga_densa,ga_densb,na,nb
-c     
+c
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
       integer iga_s,iga_tmp,iga_tmp2
       double precision ana,anb
       double precision s2,s2_exact
@@ -18,11 +21,14 @@ c
 c     
 c     prod S*Pb*S*Pa
 c     
-      call gacrea(geom,basis,nbf,nbf,'ovl ',iga_s,'atom')
+c      call gacrea(geom,basis,nbf,nbf,'ovl ',iga_s,'atom')
+      iga_s = ga_create_atom_blocked(geom, basis, 'S2 temp 1')
 
-      call gacrea(geom,basis,nbf,nbf,'ovl ',iga_tmp,'atom')
+c      call gacrea(geom,basis,nbf,nbf,'ovl ',iga_tmp,'atom')
+      iga_tmp = ga_create_atom_blocked(geom, basis, 'S2 temp 2')
 
-      call gacrea(geom,basis,nbf,nbf,'ovl ',iga_tmp2,'atom')
+c      call gacrea(geom,basis,nbf,nbf,'ovl ',iga_tmp2,'atom')
+      iga_tmp2 = ga_create_atom_blocked(geom, basis, 'S2 temp 3')
 
       call ga_zero(iga_s)
       call int_1e_ga(basis,basis,iga_s,'overlap',symmetry)
@@ -37,10 +43,16 @@ c
       s2= 0.25d0*(ana-anb)**two+0.5d0*(ana+anb) - 
      &     ga_ddot(iga_tmp2,ga_densa)
 
-      call gadest(iga_s)
-      call gadest(iga_tmp)
-      call gadest(iga_tmp2)
-
+c      call gadest(iga_s)
+      if (.not. ga_destroy(iga_s)) call errquit
+     &   ('dft_s2_value: could not destroy iga_s', 0)
+c      call gadest(iga_tmp)
+      if (.not. ga_destroy(iga_tmp)) call errquit
+     &   ('dft_s2_value: could not destroy iga_tmp', 0)
+c      call gadest(iga_tmp2)
+      if (.not. ga_destroy(iga_tmp2)) call errquit
+     &   ('dft_s2_value: could not destroy iga_tmp2', 0)
+c
       if(ga_nodeid().eq.0) then
         call dft_header('Expectation value of S2:  ')
         write (LuOut,12) s2,s2_exact

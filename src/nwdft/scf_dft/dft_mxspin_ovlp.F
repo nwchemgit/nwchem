@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis, g_alpha, g_beta, g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.3 1997-02-22 19:35:05 gutowski Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.4 1997-04-21 23:43:06 d3h449 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -22,10 +22,11 @@ c
 c
       integer i,j,jbig,n,m,mend,ichunks,nbe,nend
       integer k_tmpr1, l_tmpr1, k_tmpr2, l_tmpr2, k_tmpi1, l_tmpi1
-c      
-      double precision prodbig, prodtmp
+c     
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
-c*****************************************************************************
+      double precision prodbig, prodtmp
 c
       me=ga_nodeid()
       nproc=ga_nnodes()
@@ -33,7 +34,8 @@ c
       if ( .not. bas_numbf(basis,nbf) ) 
      &     call errquit(' exiting in max_ovl',1)
 c
-      call gacrea(geom,basis,nbf,nbf,'ovl ',g_s,'atom')
+c      call gacrea(geom,basis,nbf,nbf,'ovl ',g_s,'atom')
+      g_s = ga_create_atom_blocked(geom, basis, 'AO ovl')
 c
       if(.not.MA_Push_Get(MT_Dbl,nbf,'real_tmp1',l_tmpr1, k_tmpr1))
      &     call errquit('dft_mxspin_ovlp: cannot allocate real_tmp1',0)
@@ -88,7 +90,9 @@ c
  9998 format(  1x,'   beta ',10(1x,i5,1x))
  9999 format(  1x,'overlap ',10(f7.3),/)
 c
-      call gadest(g_s)
+c      call gadest(g_s)
+      if (.not. ga_destroy(g_s)) call errquit
+     &   ('dft_mxspin_ovlp: could not destroy g_s', 0)
 c
       if(.not.MA_Pop_Stack(l_tmpi1))
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)

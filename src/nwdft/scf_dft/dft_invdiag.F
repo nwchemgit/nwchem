@@ -1,6 +1,6 @@
       Subroutine dft_invdiag(geom, basis, g_A, g_cdinv, n)
 
-C$Id: dft_invdiag.F,v 1.7 1997-04-11 23:42:16 d3h449 Exp $
+C$Id: dft_invdiag.F,v 1.8 1997-04-21 23:43:04 d3h449 Exp $
       implicit none
 c      
       integer geom,basis
@@ -21,8 +21,10 @@ c
       me=ga_nodeid()
       nproc=ga_nnodes()
       call ga_sync
-      call gacrea(geom,basis,n,n,'ga temp2',g_tmp2,'row')
-
+c      call gacrea(geom,basis,n,n,'ga temp2',g_tmp2,'row')
+      if (.not. ga_create(mt_dbl, n, n, 'ga_temp2', n, 1, g_tmp2)) 
+     &   call errquit('dft_main0d: error creating g_xcinv',0)
+c
       if(.not.MA_Push_Get(MT_Dbl,n,'evals',lev,iev))
      &  call errquit('dft_invdiag: cannot allocate evals',0)
       if(.not.MA_Push_Get(MT_Dbl,n,'itmp',ltmp,itmp))
@@ -69,6 +71,8 @@ C     (U * sigma^-1) * U(transp)
       if(.not.ma_pop_stack(lev))
      &  call errquit('dft_invdiag: cannot pop stack',0)
       call ga_SYNC
-      call gadest(g_tmp2)
+c      call gadest(g_tmp2)
+      if (.not. ga_destroy(g_tmp2)) call errquit
+     &   ('dft_invdiag: could not destroy g_tmp2', 0)
       return
       end

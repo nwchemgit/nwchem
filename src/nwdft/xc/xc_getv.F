@@ -1,7 +1,7 @@
       Subroutine xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz, wght_GA)
 c
-C$Id: xc_getv.F,v 1.11 1997-04-11 23:42:24 d3h449 Exp $
+C$Id: xc_getv.F,v 1.12 1997-04-21 23:43:14 d3h449 Exp $
 c
       implicit none
 c      
@@ -22,6 +22,9 @@ c
 c
       double precision jfac(4),kfac(4)
       integer d(4),f(4)
+c     
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
 c--> XC Energy
 c
@@ -91,8 +94,10 @@ c
 c
 c           bogus Ga
 c
-            call gacrea(geom, AO_bas_han, nbf_ao, nbf_ao, 
-     &                  'ga scratch', g_scr, 'atom')
+c            call gacrea(geom, AO_bas_han, nbf_ao, nbf_ao, 
+c     &                  'ga scratch', g_scr, 'atom')
+            g_scr = ga_create_atom_blocked(geom, AO_bas_han, 
+     &                                     'ga scratch')
             call ga_zero(g_scr)
             jfac(1)=0.d0
             jfac(2)=0.d0
@@ -114,7 +119,9 @@ c            f(3) = g_b_coul
             f(4) = g_vxc(2)
             call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &                   tol2e, oskel, d, f)
-            call gadest(g_scr)
+c            call gadest(g_scr)
+            if (.not. ga_destroy(g_scr)) call errquit
+     &         ('xc_getv: could not destroy g_scr', 0)
          endif
          call ga_sync
 c

@@ -1,6 +1,6 @@
       Subroutine xc_fitv(Tmat, nTrows, nTcols, g_vxc, g_xcinv, IOLGC)
 c
-C$Id: xc_fitv.F,v 1.9 1997-03-06 20:01:40 d3h449 Exp $
+C$Id: xc_fitv.F,v 1.10 1997-04-21 23:43:13 d3h449 Exp $
 c
       implicit none
 c
@@ -109,8 +109,13 @@ c
       if(.not.MA_Push_Get(MT_Dbl,nbf_xc,'scratchinv',lscr,iscr))
      &  call errquit('xc_fitv: cannot allocate scratchinv',0)
 c
-      if (IOLGC)call gacrea(geom, XC_bas_han, nbf_xc, nbf_xc, 
-     &                     'XCinv', g_xcinv, 'row')
+c      if (IOLGC)call gacrea(geom, XC_bas_han, nbf_xc, nbf_xc, 
+c     &                     'XCinv', g_xcinv, 'row')
+      if (IOLGC)then
+        if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
+     &                      nbf_xc, 1, g_xcinv)) 
+     &     call errquit('xc_fitv: error creating g_xcinv',0)
+      endif
 c
       if(me.eq.0.and.IOLGC) then
         call dft_invio('XC',g_xcinv,nbf_xc,'READ',lmiss)
@@ -147,7 +152,11 @@ c
 c
       call ga_dgop(Msg_XC_Coef, DBL_MB(ixc_coef), ndbl, '+')
 c
-      if (IOLGC)call gadest(g_xcinv)
+c      if (IOLGC)call gadest(g_xcinv)
+      if (IOLGC)then
+         if (.not. ga_destroy(g_xcinv)) call errquit
+     &      ('xc_fitv: could not destroy g_xcinv', 0)
+      endif
 c
 #if defined(DFT_TIMER)
       call dft_second(ts2)

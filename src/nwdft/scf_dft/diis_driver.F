@@ -2,7 +2,7 @@
      &     MXhist,nbf,geom,AO_bas_han,
      &     g_fock,g_dens,g_tmp,g_svecs,isvals,diis,nodiis)
 
-C$Id: diis_driver.F,v 1.8 1996-12-04 00:56:11 d3h449 Exp $
+C$Id: diis_driver.F,v 1.9 1997-04-21 23:43:09 d3h449 Exp $
       implicit none
       
       integer ispin
@@ -33,6 +33,10 @@ c
 c
       integer g_fsm12,g_s12p,me,nproc,iw,lenp
       integer lfwght,ifwght,lrow,irow,lcol,icol
+c     
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
       logical diis, nodiis
       double precision avail, dw_agg_avail
       integer n_n2_objs
@@ -43,12 +47,14 @@ c
 c     Use the DIIS scheme to accelerate convergence.
 c     
 c*****************************************************************************
-      if( icall(ispin).lt.0 )then
-        if(.not.MA_Free_Heap(lpulay))
-     &    call errquit('diis_driver: cannot free heap',0)
-        call gadest(g_diis)
-        return
-      end if
+      if (icall(ispin).lt.0 )then
+         if (.not.MA_Free_Heap(lpulay))
+     &      call errquit('diis_driver: cannot free heap',0)
+c         call gadest(g_diis)
+         if (.not. ga_destroy(g_diis)) call errquit
+     &      ('diis_driver: could not destroy g_diis', 0)
+         return
+      endif
       me=ga_nodeid()
       nproc=ga_nnodes()
 c
@@ -93,9 +99,12 @@ c
             if(me.eq.0)write(LuOut,2119)mxhist
           endif
         endif
-        call gacrea(geom,AO_bas_han,
-     &    nbf,nbf*(2*mxhist*ipol),
-     &    'diis bufs',g_diis,'row')
+c        call gacrea(geom,AO_bas_han,
+c     &    nbf,nbf*(2*mxhist*ipol),
+c     &    'diis bufs',g_diis,'row')
+      if (.not. ga_create(mt_dbl, nbf, nbf*(2*mxhist*ipol), 
+     &                    'diis bufs', nbf, 1, g_diis)) 
+     &   call errquit('diis_driver: error creating g_diis',0)
 c        if(me.eq.0)write(LuOut,*)'avail,dw_agg_avail,n_n2_objs,mxhist:',
 c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
       end if
@@ -117,17 +126,19 @@ c
 c       
 c     Construct a temporary global array.
 c       
-      call gacrea(geom,AO_bas_han,
-     &     nbf,nbf,'ga temp2',g_fsm12,'atom')
+c      call gacrea(geom,AO_bas_han,
+c     &     nbf,nbf,'ga temp2',g_fsm12,'atom')
+      g_fsm12 = ga_create_atom_blocked(geom, AO_bas_han, 'ga temp2')
 c
-C     Mat mult Fock * s-1/2
+c     Mat mult Fock * s-1/2
 c
       iw=2
       call diis_bld12(dbl_mb(isvals),g_svecs,g_tmp,g_fsm12,nbf,iw)
       call ga_dgemm('N','N',nbf,nbf,nbf,
      *     one,g_fock,g_tmp,zero,g_fsm12)
-      call gacrea(geom,AO_bas_han,
-     &     nbf,nbf,'ga temp3',g_s12p,'atom')
+c      call gacrea(geom,AO_bas_han,
+c     &     nbf,nbf,'ga temp3',g_s12p,'atom')
+      g_s12p = ga_create_atom_blocked(geom, AO_bas_han, 'ga temp3')
       iw=3
       call diis_bld12(dbl_mb(isvals),g_svecs,g_tmp,g_s12p,nbf,iw)
 #if defined(DFT_TIMER)
@@ -155,9 +166,13 @@ c
 c
 c     Destroy temp globals.
 c
-      call gadest(g_s12p)
-      call gadest(g_fsm12)
-
+c      call gadest(g_s12p)
+      if (.not. ga_destroy(g_s12p)) call errquit
+     &   ('diis_driver: could not destroy g_s12p', 0)
+c      call gadest(g_fsm12)
+      if (.not. ga_destroy(g_fsm12)) call errquit
+     &   ('diis_driver: could not destroy g_fsm12', 0)
+c
       if(.not.MA_Push_Get(MT_Dbl,nbf,'row',lrow,irow))
      &  call errquit('diis_driver: cannot allocate row',0)
       if(.not.MA_Push_Get(MT_Dbl,nbf,'column',lcol,icol))
