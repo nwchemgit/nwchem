@@ -112,9 +112,9 @@ Other relevant routines are
 \section{{\tt util\_print}}
 \sloppy
 \begin{verbatim}
-  logical function util_print(level, name)
-  integer level        [input]
+  logical function util_print(name, level)
   character*(*) name   [input]
+  integer level        [input]
 \end{verbatim}
 If \verb+level+ is less than or equal to the current print level
 (which is set by either \verb+util_print_rtdb_load+, or
