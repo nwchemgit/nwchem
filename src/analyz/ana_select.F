@@ -1,6 +1,6 @@
       subroutine ana_select(sgmnam)
 c
-c $Id: ana_select.F,v 1.1 1999-01-05 23:46:39 d3j191 Exp $
+c $Id: ana_select.F,v 1.2 1999-01-29 18:10:42 d3j191 Exp $
 c
       implicit none
 c
@@ -19,6 +19,7 @@ c
 c
 #include "ana_common.fh"
 #include "global.fh"
+#include "mafdecls.fh"
 #include "msgids.fh"
 #include "rtdb.fh"
 c
@@ -31,7 +32,9 @@ c
       integer is,js,it
       character*5 cs,ct
 c
-c     select
+c     do selection on node 0
+c
+      if(me.eq.0) then
 c
       do 1 i=1,nsa
       isel(i)=1
@@ -69,6 +72,15 @@ c
       do 5 i=1,nsa
       if(isel(i).eq.0) wt(i)=0.0d0
     5 continue
-      write(*,'(100i1)') (isel(i),i=1,nsa)
+c
+      endif
+c
+c     broadcast to all nodes
+c
+      if(np.gt.1) then
+      call ga_brdcst(mag_d06,isel,nsa*ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(mag_d07,wt,nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
+      endif
+c
       return
       end

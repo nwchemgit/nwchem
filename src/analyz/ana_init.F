@@ -1,6 +1,6 @@
-      subroutine ana_init(nsai,msai)
+      subroutine ana_init(nsai,msai,ltask)
 c
-c $Id: ana_init.F,v 1.2 1999-01-05 21:46:09 d3j191 Exp $
+c $Id: ana_init.F,v 1.3 1999-01-29 18:10:40 d3j191 Exp $
 c
       implicit none
 c
@@ -10,11 +10,27 @@ c
 #include "rtdb.fh"
 c
       integer nsai,msai,indx
+      logical ltask
+c
+c     determine me and np
+c     this is needed here for on-the-fly analysis since then there
+c     is no call to the analysis main task routine
+c
+c     input: nsai : total number of solute atoms
+c            msai : dimension arrays for solute atoms on this node
 c
       me=ga_nodeid()
       np=ga_nnodes()
 c
-c     get filename from rtdb
+      nsa=nsai
+      msa=msai
+c
+c     read rtdb if on-the-fly
+c     for analysis task calls this has already been done
+c
+      if(.not.ltask) call ana_rtdbin()
+c
+c     get filename from rtdb: only node 0 is doing i/o
 c
       if(me.eq.0) then
       if(.not.rtdb_cget(irtdb,'ana:project',1,filnam)) then
@@ -25,37 +41,44 @@ c
       endif
       endif
       endif
-      lfnana=75
       filana=filnam(1:index(filnam,' ')-1)//'.ana'
       open(unit=lfnana,file=filana,form='formatted',status='unknown')
       endif
 c
-      nsa=nsai
-      msa=msai
-c
-      if(me.eq.0) then
-      write(*,'(a,i5)') 'Number of solute atoms',nsa
-      write(*,'(a,i5)') 'Dimension solyte array',msa
-      endif
-c
-      call ana_rtdbin()
-c
-      if(me.eq.0) then
-      write(*,'(a,i5)') 'Input option irmsd    ',irmsd
-      endif
+c     allocate memory
 c
       if(.not.ma_push_get(mt_int,nsa,'isel',l_isel,i_isel))
      + call errquit('Failed to allocate memory for isel',me)
 c
-      if(irmsd.gt.0) then
       if(.not.ma_push_get(mt_dbl,3*nsa,'xref',l_xref,i_xref))
      + call errquit('Failed to allocate memory for xref',me)
       if(.not.ma_push_get(mt_dbl,nsa,'xrms',l_xrms,i_xrms))
      + call errquit('Failed to allocate memory for xrms',me)
       if(.not.ma_push_get(mt_dbl,nsa,'wt',l_wt,i_wt))
      + call errquit('Failed to allocate memory for wt',me)
+c
+c     initialize rms and wt arrays
+c
       call ana_inirms(dbl_mb(i_xref),dbl_mb(i_xrms),dbl_mb(i_wt))
+c
+c     for task calls memory needs to be set aside for atom names,
+c     coordinates and global atom numbers
+c     for on-the-fly analyses these come directly from the md
+c     module where these arrays are distributed.
+c     for task analyses these arrays are replicated over all
+c     nodes
+c     currently only solute coordinates are analyzed
+c
+      if(ltask) then
+      if(.not.ma_push_get(mt_byte,16*nsa,'sgmnam',l_snam,i_snam))
+     + call errquit('Failed to allocate memory for sgmnam',me)
+      if(.not.ma_push_get(mt_dbl,3*nsa,'xdat',l_xdat,i_xdat))
+     + call errquit('Failed to allocate memory for xdat',me)
+      if(.not.ma_push_get(mt_int,nsa,'idat',l_idat,i_idat))
+     + call errquit('Failed to allocate memory for idat',me)
       endif
+c
+c     set the number of analyzed frames to zero
 c
       ndata=0
 c

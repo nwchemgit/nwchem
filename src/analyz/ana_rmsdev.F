@@ -1,4 +1,4 @@
-      subroutine ana_rmsdev(ix,x,nx,xref,wt,xrms)
+      subroutine ana_rmsdev(x,ix,nx,xref,wt,xrms)
 c
       implicit none
 c

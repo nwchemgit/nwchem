@@ -5,6 +5,7 @@ c
       implicit none
 c
 #include "msgids.fh"
+#include "global.fh"
 c
       real*8 zero
       parameter(zero=0.0d0)
@@ -28,7 +29,7 @@ c
       xt(j)=xt(j)+w(ix(k))*x(k,j)
     3 continue
     2 continue
-      call ga_dgop(mag_d04,xt,3,'+')
+      call ga_dgop(mag_d08,xt,3,'+')
       do 4 k=1,ny
       wnorm=wnorm+w(k)
       do 5 j=1,3
@@ -44,7 +45,7 @@ c
       rms0=rms0+w(ix(k))*(x(k,j)-xt(j)-y(ix(k),j)+yt(j))**2
     7 continue
     6 continue
-      call ga_dgop(mag_d05,rms0,1,'+')
+      call ga_dgop(mag_d09,rms0,1,'+')
       rms0=sqrt(rms0/wnorm)
 c
       do 8 i=1,3
@@ -55,7 +56,7 @@ c
    10 continue
     9 continue
     8 continue
-      call ga_dgop(mag_d06,u,9,'+')
+      call ga_dgop(mag_d10,u,9,'+')
 c
       c(1,1)=u(1,1)+u(2,2)+u(3,3)
       c(1,2)=u(3,2)-u(2,3)
@@ -100,17 +101,18 @@ c
    15 continue
       if(mod) then
       do 17 i=1,3
-      x(k,i)=q(i)+xt(i)
+      x(k,i)=q(i)+yt(i)
    17 continue
       endif
+      sd=0.0d0
       do 18 j=1,3
-      sd=(q(j)-y(ix(k),j)+yt(j))**2
+      sd=sd+(q(j)-y(ix(k),j)+yt(j))**2
    18 continue
       sd=w(ix(k))*sd
       sdev(ix(k))=sdev(ix(k))+sd
       rms1=rms1+sd
    14 continue
-      call ga_dgop(mag_d07,rms1,1,'+')
+      call ga_dgop(mag_d11,rms1,1,'+')
       rms1=sqrt(rms1/wnorm)
 c
       return

@@ -1,2 +1,13 @@
 Dec 29 1998	Initial analysis routines (rms dev only)
 Jan 05 1999	Atom selection added
+Jan 29 1999	Module can be used as separate task operating on trajectory files, or
+		as on-the fly analysis during an MD simulation
+		Added task options to copy and super-copy trajectory files
+		Added task option to read and write multiple files
+		Added task option to write trajectories in following formats:
+		sco (NWChem default format)
+		amb (AMBER formatted trajectory file)
+		bam (AMBER binary trajectory file)
+		eci (ecce import format)
+		Added task option to generate XYZ and PLT files from chg files created
+		by the ESP module, for use with gOpenMol

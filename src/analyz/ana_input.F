@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.2 1999-01-05 21:46:09 d3j191 Exp $
+c $Id: ana_input.F,v 1.3 1999-01-29 18:10:40 d3j191 Exp $
 c
       implicit none
 c
@@ -10,13 +10,35 @@ c
 #include "mafdecls.fh"
 c
       integer irtdb
-      character*255 item,rmsfil,select,fpref
+      character*255 item,select,fpref,project
+      character*255 filref,filsco,filcop,filsup
+      integer lcop,lsup,lrms
+      character*3 fmtcop,fmtsup
 c
       integer irmsd
       integer isel,jsel,numsel
       character*255 atom
+      real*8 timoff
+      integer ifrfr,ifrto,mcopf,msupf,ifrst,ilast
+c
+      real*8 rcut,spac
+      integer lplt
+      character*255 filchg,filplt,filxyz
 c
       irmsd=0
+      lcop=0
+      lsup=0
+      ifrfr=1
+      ifrto=0
+      mcopf=0
+      msupf=0
+      ifrst=0
+      ilast=0
+      timoff=0.0d0
+c
+      lplt=0
+      rcut=0.3d0
+      spac=0.05d0
 c
       if(ga_nodeid().eq.0) then
       call util_print_centered(6,'Analysis Input Module',40,.true.)
@@ -24,7 +46,35 @@ c
 c
       if(.not.rtdb_cget(irtdb,'file_prefix',1,fpref))
      + call errquit('rtdb_cget failed on file_prefix',9999)
+c
       select=fpref(1:index(fpref,' ')-1)//'.sel '
+c
+c     default reference taken from ${file_prefix}.rst
+c
+      filref=fpref(1:index(fpref,' ')-1)//'.rst '
+c
+c     default trajectory taken from ${file_prefix}.sco
+c
+      filsco=fpref(1:index(fpref,' ')-1)//'.sco '
+c
+c     default esp charges take from ${file_prefix}.q
+c
+      filchg=fpref(1:index(fpref,' ')-1)//'.q '
+c
+c     default plt data to  ${file_prefix}.plt
+c
+      filplt=fpref(1:index(fpref,' ')-1)//'.plt '
+c
+c     default xyz data to  ${file_prefix}.plt
+c
+      filxyz=fpref(1:index(fpref,' ')-1)//'.xyz '
+c
+      filcop=' '
+      fmtcop='sco'
+c
+      filsup=' '
+      fmtsup='sco'
+c
       open(unit=69,file=select(1:index(select,' ')-1),
      + form='formatted',status='unknown',err=9999)
       rewind(unit=69)
@@ -40,18 +90,92 @@ c
 c
     3 continue
 c
+      if(inp_compare(.false.,'system',item)) then
+      if(.not.inp_a(project)) call errquit('ana_input: error system',0)
+      goto 2
+      endif
+c
 c     solute root mean square devation
 c
       if(inp_compare(.false.,'rmsdev',item)) then
       irmsd=1
-      if(.not.inp_a(item)) goto 1
-      if(inp_compare(.false.,'initial',item)) then
-      irmsd=2
-      elseif(inp_compare(.false.,'average',item)) then
-      irmsd=3
-      else
-      rmsfil=item
+      goto 2
       endif
+c
+      if(inp_compare(.false.,'reference',item)) then
+      if(.not.inp_a(filref))
+     + call errquit('ana_input: reference failed',0)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'file',item)) then
+      if(.not.inp_a(filsco)) call errquit('ana_input: file failed',0)
+      if(.not.inp_i(ifrst)) ifrst=0
+      if(.not.inp_i(ilast)) ilast=0
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'super',item)) then
+      if(.not.inp_i(lsup)) lsup=1
+      if(.not.inp_i(msupf)) msupf=0
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'arc',item)) then
+      fmtsup='arc'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'bam',item)) then
+      fmtsup='bam'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'amb',item)) then
+      fmtsup='amb'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'mdm',item)) then
+      fmtsup='mdm'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'xyz',item)) then
+      fmtsup='xyz'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'eci',item)) then
+      fmtsup='eci'
+      if(.not.inp_a(item)) goto 1
+      endif
+      filsup=item
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'copy',item)) then
+      if(.not.inp_i(lcop)) lcop=1
+      if(.not.inp_i(mcopf)) mcopf=0
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'arc',item)) then
+      fmtcop='arc'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'bam',item)) then
+      fmtcop='bam'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'amb',item)) then
+      fmtcop='amb'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'mdm',item)) then
+      fmtcop='mdm'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'xyz',item)) then
+      fmtcop='xyz'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'eci',item)) then
+      fmtcop='eci'
+      if(.not.inp_a(item)) goto 1
+      endif
+      filcop=item
       goto 2
       endif
 c
@@ -71,18 +195,139 @@ c
       goto 2
       endif
 c
+      if(inp_compare(.false.,'time',item)) then
+      if(.not.inp_f(timoff)) call errquit('ana_input: time failed',0)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'frames',item)) then
+      if(.not.inp_i(ifrfr)) call errquit('ana_input: maxfrm failed',0)
+      if(.not.inp_i(ifrto)) then
+      ifrto=ifrfr
+      ifrfr=1
+      endif
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'charges',item)) then
+      if(.not.inp_a(filchg)) call errquit('ana_input: filchg failed',0)
+      goto 2
+      endif
+      if(inp_compare(.false.,'plt',item)) then
+      if(.not.inp_a(filplt)) call errquit('ana_input: filplt failed',0)
+      goto 2
+      endif
+      if(inp_compare(.false.,'xyz',item)) then
+      if(.not.inp_a(filxyz)) call errquit('ana_input: filxyz failed',0)
+      goto 2
+      endif
+      if(inp_compare(.false.,'espgrid',item)) then
+      if(.not.inp_i(lplt)) lplt=1
+    5 continue
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'spacing',item)) then
+      if(.not.inp_f(spac)) call errquit('ana_input: spac failed',0)
+      goto 5
+      endif
+      if(inp_compare(.false.,'range',item)) then
+      if(.not.inp_f(rcut)) call errquit('ana_input: rcut failed',0)
+      goto 5
+      endif
+      goto 3
+      endif
+c
       if(.not.inp_compare(.false.,'end',item)) then
       write(6,1999) item
  1999 format('ana_input: unknown field ',a)
       call errquit('ana_input: error reading input file',0)
       endif
 c
-      if(.not.rtdb_put(irtdb,'ana:irmsd',mt_int,1,irmsd))
-     + call errquit('ana_input: rtdb_put irmsdfailed',0)
-      if(irmsd.eq.1) then
-      if(.not.rtdb_cput(irtdb,'ana:rmsfil',1,rmsfil))
+      fpref=filsco
+      if(index(filsco,'.coo').gt.0) then
+      fpref=filsco(1:index(filsco,'.coo')-1)
+      elseif(index(filsco,'.sco').gt.0) then
+      fpref=filsco(1:index(filsco,'.sco')-1)
+      else
+      filsco=fpref(1:index(fpref,' ')-1)//'.sco'
+      endif
+c
+      if(filcop(1:1).eq.' ') then
+      filcop=fpref(1:index(fpref,' ')-1)//'-copy.sco'
+      endif
+c
+      if(filsup(1:1).eq.' ') then
+      filsup=fpref(1:index(fpref,' ')-1)//'-super.sco'
+      endif
+c
+c     put input in rtdb
+c
+      if(project(1:1).ne.' ') then
+      if(.not.rtdb_cput(irtdb,'ana:project',1,project))
      + call errquit('ana_input: rtdb_put failed',0)
       endif
+c
+c     root mean square deviation
+c
+      if(.not.rtdb_put(irtdb,'ana:irmsd',mt_int,1,irmsd))
+     + call errquit('ana_input: rtdb_put irmsdfailed',0)
+c
+c     reference input file
+c
+      if(.not.rtdb_cput(irtdb,'ana:filref',1,filref))
+     + call errquit('ana_input: rtdb_put failed',0)
+c
+c     trajectory input file
+c
+      if(.not.rtdb_cput(irtdb,'ana:filsco',1,filsco))
+     + call errquit('ana_input: rtdb_put failed',0)
+c
+c     copy trajectory
+c
+      if(.not.rtdb_cput(irtdb,'ana:filcop',1,filcop))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_cput(irtdb,'ana:fmtcop',1,fmtcop))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'ana:lcop',mt_int,1,lcop))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'ana:mcopf',mt_int,1,mcopf))
+     + call errquit('ana_input: rtdb_put failed',0)
+c
+c     superimpose trajectory
+c
+      if(.not.rtdb_cput(irtdb,'ana:filsup',1,filsup))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_cput(irtdb,'ana:fmtsup',1,fmtsup))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'ana:lsup',mt_int,1,lsup))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'ana:msupf',mt_int,1,msupf))
+     + call errquit('ana_input: rtdb_put failed',0)
+c
+      if(.not.rtdb_put(irtdb,'ana:timoff',mt_dbl,1,timoff))
+     + call errquit('ana_input: rtdb_put failed',0)
+c
+      if(.not.rtdb_put(irtdb,'ana:ifrfr',mt_int,1,ifrfr))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'ana:ifrto',mt_int,1,ifrto))
+     + call errquit('ana_input: rtdb_put failed',0)
+c
+      if(.not.rtdb_put(irtdb,'ana:ifrst',mt_int,1,ifrst))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'ana:ilast',mt_int,1,ilast))
+     + call errquit('ana_input: rtdb_put failed',0)
+c
+      if(.not.rtdb_put(irtdb,'ana:lplt',mt_int,1,lplt))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'ana:spac',mt_dbl,1,spac))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'ana:rcut',mt_dbl,1,rcut))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_cput(irtdb,'ana:filchg',1,filchg))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_cput(irtdb,'ana:filplt',1,filplt))
+     + call errquit('ana_input: rtdb_put failed',0)
+      if(.not.rtdb_cput(irtdb,'ana:filxyz',1,filxyz))
+     + call errquit('ana_input: rtdb_put failed',0)
 c
       if(numsel.gt.0) then
       close(unit=69)

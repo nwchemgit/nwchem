@@ -1,6 +1,6 @@
       logical function analyz(irtdb0)
 c
-c $Id: analyz.F,v 1.1 1998-12-29 18:01:04 d3j191 Exp $
+c $Id: analyz.F,v 1.2 1999-01-29 18:10:44 d3j191 Exp $
 c
       implicit none
 c
@@ -37,6 +37,8 @@ c
       endif
 c
       irtdb=irtdb0
+c
+      call ana_task()
 c
       analyz=.true.
 c
