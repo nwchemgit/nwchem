@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.71 1997-04-21 23:43:08 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.72 1997-04-23 21:19:02 d3h449 Exp $
 c     
       implicit none
 c
@@ -127,21 +127,21 @@ c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c     (from NWdft data structures, not the nwchem objects)
 c     
       if (.not. bas_numbf(ao_bas_han,nbf_ao))then
-         call errquit('Exiting from dft',1)
+         call errquit('Exiting from dft_scf',1)
       endif 
       if (.not. geom_ncent(geom, natoms))
      &   call errquit('dft_scf: geom_ncent failed',73)     
       if (.not. geom_nuc_charge(geom, anucl_charg))
-     &   call errquit('scf: geom_nuc_charge failed', 0)
+     &   call errquit('dft_scf: geom_nuc_charge failed', 0)
 c     
       anel = int(anucl_charg) - rcharge
 c     
 c     determine pattern of orbitals' occupancy
 c     
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('dftscf: rtdb_put of noc failed', 0)
+     &   call errquit('dft_scf: rtdb_put of noc failed', 0)
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ))
-     &   call errquit('dft: failed to alloc',999)
+     &   call errquit('dft_scf: failed to alloc',999)
 c      
       if (ipol.eq.1)then
 c     
@@ -186,7 +186,7 @@ c
       if (iVcoul_opt.eq.1)CDFIT = .TRUE.
       if (CDFIT)then
          if (.not. bas_numbf(CD_bas_han,nbf_cd))then
-            call errquit('Exiting from dft',1)
+            call errquit('Exiting from dft_scf',1)
          endif 
       endif
       XCFIT = .FALSE.
@@ -264,7 +264,7 @@ c
 c     
          if (.not.MA_Push_Get
      &      (MT_int,n3c_int,'3c what space',l_3cwhat,k_3cwhat))
-     &      call errquit('dftscf:push_get failed', 13)
+     &      call errquit('dft_scf:push_get failed', 13)
 c     
          if (incore)then
             if (me.eq.0 .and. oprint_3c2e)
@@ -392,7 +392,8 @@ c
       if (iguess .eq. 999)then ! If MO starting guess 
          if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in))then
             if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, energy))
-     &           call errquit('dft: failed getting converged energy',0)
+     &         call errquit('dft_scf: failed getting converged energy',
+     &         0)
             if (ga_nodeid().eq.0 .and. oprint)then
                write(6,1011)energy
  1011          format(/'  The DFT is already converged '//,
@@ -438,7 +439,7 @@ c
      &        finest = 4
          if (oprint_time)call dft_tstamp(' Before call to CMM.   ')
          call dft_getspm(geom,lmax,finest,g_dens,ao_bas_han)
-         call errquit(' end of CMM ',1234)
+         call errquit('dft_scf: end of CMM ',1234)
       endif
 
 #if defined(DFT_TIMER)
@@ -542,9 +543,9 @@ c
          endif
          goto 2000
       endif
-      call ga_sync
-c     
+c
       delta = abs(etold-etnew)
+c
       call ga_sync
       rms(1) = 0.d0
       rms(2) = 0.d0
@@ -649,7 +650,6 @@ c
          else
             rlshift = 0.0
          endif
-         call ga_sync
 c     
 c        Solve for the eigenvalues and eigenvectors of the Hamiltonian.
 c     
@@ -694,7 +694,6 @@ c
 c         call gadest(g_scr)
          if (.not. ga_destroy(g_scr)) call errquit
      &      ('dft_scf: could not destroy g_scr', 0)
-         call ga_sync
 c     
 c        Keep orbital ordering according to principle
 c        of maximum overlap with previous iteration.
@@ -1039,9 +1038,9 @@ c     Store energy and convergence status ... must store before
 c     write movecs since date of insertion is used.
 c     
       if (.not. rtdb_put(rtdb, 'dft:energy', MT_DBL, 1, (Etold+Enuc)))
-     &   call errquit('dft: failed to store energy in rtdb', 0)
+     &   call errquit('dft_scf: failed to store energy in rtdb', 0)
       if (.not. rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged))
-     &   call errquit('dft: failed to store converged in rtdb', 0)
+     &   call errquit('dft_scf: failed to store converged in rtdb', 0)
 c
 c     (if gradients to be calculated) output energies and eigenvectors
 c     to disk
@@ -1061,7 +1060,8 @@ c
       if (.not.movecs_write(rtdb, ao_bas_han, movecs_out, 'dft', title,
      &                      nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
-     &                      call errquit('rhf: movec_write failed', 0)
+     &                      call errquit('dft_scf: movec_write failed',
+     &                      0)
          call ga_sync()
       endif 
 c     
@@ -1122,7 +1122,7 @@ c
       if (util_print('schwarz',print_high).and.(.not.CDFIT))then
          if (.NOT. bas_numcont(AO_bas_han, nshells))
      &      Call ErrQuit
-     &      ('dft: problem with call to bas_numcont', AO_bas_han)
+     &      ('dft_scf: problem with call to bas_numcont', AO_bas_han)
          call schwarz_print(natoms, nshells)
       endif
 c     
@@ -1191,7 +1191,7 @@ c     allocate array for irreps
 c
          status = ma_push_get (mt_dbl, nbf_ao,'dft:irreps', l_ir, k_ir)
          if (.not. status)
-     &      call errquit ('dft:error allocating ir array', 110)
+     &      call errquit ('dft_scf:error allocating ir array', 110)
          if (oadapt)then
             call scf_movecs_sym_adapt(ao_bas_han, g_movecs(1),
      &                                .false., nbf_ao, '- alpha',

@@ -3,7 +3,7 @@
      &                    max_at_bf2, GRAD, basis, natoms, iniz, ifin, 
      &                    g_vxc, ibf)
 c
-C$Id: xc_tabcd.F,v 1.6 1997-03-28 18:45:56 d3h449 Exp $
+C$Id: xc_tabcd.F,v 1.7 1997-04-23 21:19:21 d3h449 Exp $
 c
       implicit none
 c
@@ -111,6 +111,9 @@ c
      &                             ibf(inizja))
                      call upd_atom_block(g_vxc(ii), basis, iat, jat, 
      &                                   TTmat)
+c
+c                    check to see if can skip and use ga_symmetrize
+c
                      if (iat.ne.jat) then
                         call transp_mat(TTmat,Tmat,nbfia,nbfja)
                         call upd_atom_block(g_vxc(ii), basis,

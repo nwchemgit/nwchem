@@ -3,7 +3,7 @@
      &                     F, Pmat, ff, chi, delchi, ibf, iniz, ifin, 
      &                     rho, delrho, rhoat, scr)
 c
-c$Id: xc_rhogen.F,v 1.11 1997-03-28 18:45:55 d3h449 Exp $
+c$Id: xc_rhogen.F,v 1.12 1997-04-23 21:19:20 d3h449 Exp $
 c
       implicit none
 c
@@ -40,7 +40,7 @@ c
       integer iat, inizia, ifirst, ilast, nbfia, nnia, idim
       integer ifinia, icount
       integer jat, inizja, jfirst, jlast, nbfja, nnja, jdim
-      double precision FUNC_MAX, FUNC_MAXI, FUNC_MAX2, P_MAX
+      double precision FUNC_MAX, FUNC_MAXI, FUNC_MAXJ, P_MAX
       double precision aaa
       double precision dabsmax
       external dabsmax
@@ -69,7 +69,7 @@ c
             nnia = ifinia-inizia+1
 c
             FUNC_MAXI = dabsmax(nnia*nq,chi(1,inizia))
-            FUNC_MAX2 = FUNC_MAXI*FUNC_MAX
+            if (FUNC_MAXI*FUNC_MAX.lt.rho_tol0) goto 217
 c
             do jat = 1, iat
                if (iniz(jat).ne.0)then
@@ -78,14 +78,16 @@ c
      &               call errquit('Exiting in rho_gen',14)
                   nbfja = jlast-jfirst+1
                   nnja = ifin(jat)-inizja+1
+                  FUNC_MAXJ = dabsmax(nnja*nq,chi(1,inizja))
 c
+                  if (FUNC_MAXI*FUNC_MAXJ.lt.rho_tol0) goto 216
                   do 215 ii = 1, ipol
 
                      call get_atom_block(g_dens(ii), basis,
      &                                   iat, jat, Pmat, idim, jdim)
                 
                      P_MAX = dabsmax(idim*jdim,Pmat)
-                     if ((P_MAX*FUNC_MAX2).lt.rho_tol0) goto 215
+                     if ((P_MAX*FUNC_MAXI*FUNC_MAXJ).lt.tol_rho)goto 215
 
                      call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja,
      &                            ifirst, jfirst, ibf(inizia), 
@@ -154,8 +156,10 @@ c                          dir$ UNROLL 3
                         enddo
                      endif
   215             continue
+  216             continue
                endif
             enddo
+  217       continue
          endif
   230 continue
       if (ipol.eq.2)then
