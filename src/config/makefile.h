@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.307 2000-02-17 00:04:44 edo Exp $
+# $Id: makefile.h,v 1.308 2000-02-17 00:46:04 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1203,14 +1203,14 @@ else
 # defaults are for X86 platforms
          FC  = g77
   FOPTIONS   = -fno-second-underscore 
-  FOPTIMIZE  = -g -O2 
+  FOPTIMIZE  = -g -O2 -Wuninitialized 
   COPTIONS   = -Wall -m486 -malign-double
   COPTIMIZE  = -g -O2
 # Most Linux distributions are using EGCS
 #
   EGCS = YES
 ifdef EGCS
-  FOPTIONS  += -Wuninitialized -Wno-globals
+  FOPTIONS  += -Wno-globals
   FOPTIONS  += -fno-globals -Wunused -fno-silent -m486 -malign-double
   FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
   FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs -fno-rerun-loop-opt 
