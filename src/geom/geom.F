@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.114 2002-05-04 20:04:21 d3g681 Exp $
+C$Id: geom.F,v 1.115 2002-05-06 22:35:36 d3g681 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2382,22 +2382,22 @@ c
 c     Update the amatrix inverse
 c
       call dfill(9,0.0d0,c,1)
-      c(1,1) = amat(2,2)*amat(3,3) - amat(2,3)*amat(3,2)
-      c(2,1) = -(amat(2,1)*amat(3,3) - amat(2,3)*amat(3,1))
-      c(3,1) = amat(2,1)*amat(3,2) - amat(2,2)*amat(3,1)
-
-      c(1,2) = amat(3,2)*amat(1,3) - amat(3,3)*amat(1,2)
-      c(2,2) = -(amat(3,1)*amat(1,3) - amat(3,3)*amat(1,1))
-      c(3,2) = amat(3,1)*amat(1,2) - amat(3,2)*amat(1,1)
-
-      c(1,3) = amat(1,2)*amat(3,3) - amat(1,3)*amat(3,2)
-      c(2,3) = -(amat(1,1)*amat(3,3) - amat(1,3)*amat(3,1))
-      c(3,3) = amat(1,1)*amat(3,2) - amat(1,2)*amat(3,1)
-
-      vol = c(1,1)*amat(1,1) + c(2,1)*amat(1,2) + c(3,1)*amat(1,3)
+      c(1,1) = amat(2,2)*amat(3,3) - amat(3,2)*amat(2,3)
+      c(2,1) = amat(3,2)*amat(1,3) - amat(1,2)*amat(3,3)
+      c(3,1) = amat(1,2)*amat(2,3) - amat(2,2)*amat(1,3)
+      c(1,2) = amat(2,3)*amat(3,1) - amat(3,3)*amat(2,1)
+      c(2,2) = amat(3,3)*amat(1,1) - amat(1,3)*amat(3,1)
+      c(3,2) = amat(1,3)*amat(2,1) - amat(2,3)*amat(1,1)
+      c(1,3) = amat(2,1)*amat(3,2) - amat(3,1)*amat(2,2)
+      c(2,3) = amat(3,1)*amat(1,2) - amat(1,1)*amat(3,2)
+      c(3,3) = amat(1,1)*amat(2,2) - amat(2,1)*amat(1,2)
+      vol = amat(1,1)*c(1,1)
+     >       + amat(2,1)*c(2,1)
+     >       + amat(3,1)*c(3,1)
 
       call dscal(9,1.0d0/vol,c,1)
 
+      write(6,*) ' AMATRIX SET'
       call output(amat,1,3,1,3,3,3,1)
       call output(c,1,3,1,3,3,3,1)
 
