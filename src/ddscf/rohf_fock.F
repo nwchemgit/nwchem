@@ -3,7 +3,7 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel, iter)
 *
-* $Id: rohf_fock.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
+* $Id: rohf_fock.F,v 1.21 2004-07-23 20:34:44 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -136,8 +136,8 @@ c
       osome=osome.and.ga_nodeid().eq.0
       if(cosmo_on.and.cosmo_phase.eq.2) then
         itype_wfn=1
-        call cosmo_charges(rtdb,basis,geom,ecosmo,iter,osome,
-     $                     itype_wfn,g_vecs)
+        call cosmo_charges(rtdb,basis,geom,ecosmo,osome,
+     $                     itype_wfn,g_vecs,nclosed,nopen,nbf,nmo)
         call int_1e_ga(basis,basis,g_hcore   ,'cos_chg_pot',
      $                                                  .false.)
       endif

@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.241 2004-06-24 23:59:26 edo Exp $
+c     $Id: dft_scf.F,v 1.242 2004-07-23 20:34:19 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -661,8 +661,9 @@ c
       Exc(2) = ZERO
       rms(1) = 0.d0
       rms(2) = 0.d0
-      if (cosmo_on.and.cosmo_phase.eq.2) call cosmo_charges
-     .   (rtdb,ao_bas_han,geom,ecosmo,iter,odbug,2,g_movecs)
+      if (cosmo_on.and.cosmo_phase.eq.2) call cosmo_charges(rtdb,
+     $   ao_bas_han,geom,ecosmo,odbug,ipol,g_movecs,nclosed,nopen,
+     $   nbf_ao, nmo)
 c
 c     Determine HOMO energy (for Zhan-Nichols-Dixon AC)
 c
