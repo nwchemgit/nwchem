@@ -1,15 +1,15 @@
 c
-c $Id: nwpw_input.F,v 1.14 2004-01-31 01:46:30 bylaska Exp $
+c $Id: nwpw_input.F,v 1.15 2004-02-02 19:16:09 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
-#include "errquit.fh"
+      integer rtdb
 
+c 
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-c 
-      integer rtdb
+#include "errquit.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
