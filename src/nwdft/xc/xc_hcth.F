@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.14 1999-07-08 19:10:59 d3e129 Exp $
+c$Id: xc_hcth.F,v 1.15 1999-11-02 02:38:09 edo Exp $
 c
       Implicit none
 c
@@ -191,7 +191,7 @@ c
 c     variables passed to hcderiv
 c
       integer numfunc,nofunc,max_pow_u
-      parameter(numfunc=4)
+      parameter(numfunc=7)
       double precision sol((limpow+1)*3), F((limpow+1)*3,4), 
 C     &          FF((limpow+1)*3,5,4),
      &          F_xc((limpow+1)*3)
@@ -229,55 +229,70 @@ Cfah below.
       double precision coeffs(3*(limpow+1),numfunc)
       character*4 funcnam(numfunc)
       integer maxpow(numfunc)
-      data maxpow  /     2,     2,    4,      4/
-      data funcnam/'b970','b971','hcth','hcta'/
-C               B97         B97-1          HCTH        HCTH-A
+      data maxpow  /     2,   2 ,      2,    4,      4,    4,     4/
+      data funcnam/'b970','b980','b971','hcth','hcta','h120','h147'/
+C               B97        B98   B97-1          HCTH        HCTH-A
 C m max          2,            2,            4,           4,
 Cc X s,0
-      data (coeffs(1,n),n=1,4)/
-     /     +0.80940d+00,+0.789518d+00,+0.109320d+01,+0.109878d+01/
+      data (coeffs(1,n),n=1,7)/
+     /     +0.80940d+00,0.790194d0, +0.789518d+00,+0.109320d+01,
+     ,     +0.109878d+01,1.09163d0,  1.09025d0/
 c C ss,0 
-      data (coeffs(2,n),n=1,4)/
-     ,     +0.17370d+00,+0.820011d-01,+0.222601d+00,+0.136823d-01/
+      data (coeffs(2,n),n=1,7)/
+     ,     +0.17370d+00,-0.120163d0,+0.820011d-01,+0.222601d+00,
+     ,     +0.136823d-01, 0.48951d0,  0.56258d0/
 c C ab,0 
-      data (coeffs(3,n),n=1,4)/
-     ,     +0.94540d+00,+0.955689d+00,+0.729974d+00,+0.836897d+00/
+      data (coeffs(3,n),n=1,7)/
+     ,     +0.94540d+00,0.934715d0,+0.955689d+00,+0.729974d+00,
+     ,     +0.836897d+00,0.51473d0,  0.54235d0/
 c X s,1 
-      data (coeffs(4,n),n=1,4)/
-     ,     +0.50730d+00,+0.573805d+00,-0.744056d+00,-0.251173d+01/
+      data (coeffs(4,n),n=1,7)/
+     ,     +0.50730d+00,0.400271d0,+0.573805d+00,-0.744056d+00,
+     ,     -0.251173d+01,-0.74720d0, -0.79920d0 /
 c C ss,1 
-      data (coeffs(5,n),n=1,4)/
-     ,     +0.23487d+01,+0.271681d+01,-0.338622d-01,+0.268920d+00/
+      data (coeffs(5,n),n=1,7)/
+     ,     +0.23487d+01,2.82332d0,+0.271681d+01,-0.338622d-01,
+     ,     +0.268920d+00,-0.26070d0, -0.01710d0 /
 c C ab,1 
-      data (coeffs(6,n),n=1,4)/
-     ,     +0.74710d+00,+0.788552d+00,+0.335287d+01,+0.172051d+01/
+      data (coeffs(6,n),n=1,7)/
+     ,     +0.74710d+00,1.14105d0,+0.788552d+00,+0.335287d+01,
+     ,     +0.172051d+01,6.92980d0,  7.01460d0/
 c X s,2 
-      data (coeffs(7,n),n=1,4)/
-     ,     +0.74810d+00,+0.660975d+00,+0.559920d+01,+0.156233d-01/
+      data (coeffs(7,n),n=1,7)/
+     ,     +0.74810d+00,0.832857d0,+0.660975d+00,+0.559920d+01,
+     ,     +0.156233d-01,5.07830d0,  5.57210d0/
 c C ss,2
-      data (coeffs(8,n),n=1,4)/
-     ,     -0.24868d+01,-0.287103d+01,-0.125170d-01,-0.550769d+00/
+      data (coeffs(8,n),n=1,7)/
+     ,     -0.24868d+01,-2.59412d0,-0.287103d+01,-0.125170d-01,
+     ,     -0.550769d+00,0.43290d0, -1.30640d0/
 c C ab,2
-      data (coeffs(9,n),n=1,4)/
-     ,     -0.45961d+01,-0.547869d+01,-0.115430d+02,-0.278498d+01/
+      data (coeffs(9,n),n=1,7)/
+     ,     -0.45961d+01,-5.33398d0,-0.547869d+01,-0.115430d+02,
+     ,     -0.278498d+01,-24.7070d0, -28.3820d0/
 c X s,3 
-      data (coeffs(10,n),n=1,4)/
-     ,      0.0000000d0, 0.00000000d0,-0.678549d+01, 0.00000000d0/
+      data (coeffs(10,n),n=1,7)/
+     ,      0.0000000d0,0.0d000000, 0.00000000d0,-0.678549d+01,
+     ,     0.00000000d0,-4.10750d0, -5.86760d0 /
 c C ss,3
-      data (coeffs(11,n),n=1,4)/
-     ,      0.0000000d0, 0.00000000d0,-0.802496d+00,+0.103947d+01/
+      data (coeffs(11,n),n=1,7)/
+     ,      0.0000000d0,0.0d000000, 0.00000000d0,-0.802496d+00,
+     ,     +0.103947d+01,-1.99250d0,  1.05750d0/
 c C ab,3
-      data (coeffs(12,n),n=1,4)/
-     ,      0.0000000d0, 0.00000000d0,+0.808564d+01,-0.457504d+01/
+      data (coeffs(12,n),n=1,7)/
+     ,      0.0000000d0,0.0d000000, 0.00000000d0,+0.808564d+01,
+     ,     -0.457504d+01, 23.1100d0,  35.0330d0/
 c X s,4 
-      data (coeffs(13,n),n=1,4)/
-     ,      0.0000000d0, 0.00000000d0,+0.449357d+01, 0.00000000d0/
+      data (coeffs(13,n),n=1,7)/
+     ,      0.0000000d0,0.0d000000, 0.00000000d0,+0.449357d+01,
+     ,     0.00000000d0, 1.17170d0,  3.04540d0/
 c C ss,4
-      data (coeffs(14,n),n=1,4)/
-     ,      0.0000000d0, 0.00000000d0,+0.155396d+01, 0.00000000d0/
+      data (coeffs(14,n),n=1,7)/
+     ,      0.0000000d0,0.0d000000, 0.00000000d0,+0.155396d+01,
+     ,     0.00000000d0, 2.48530d0,  0.88540d0/
 c C ab,4
-      data (coeffs(15,n),n=1,4)/
-     ,      0.0000000d0, 0.00000000d0,-0.447857d+01, 0.00000000d0/
+      data (coeffs(15,n),n=1,7)/
+     ,      0.0000000d0,0.0d000000, 0.00000000d0,-0.447857d+01,
+     ,     0.00000000d0,-11.3230d0, -20.4280d0/
 c
 c X +0.1! coeffs for HF exchange
 c
@@ -586,12 +601,59 @@ Cfah with the various powers of u.
       rsa32 = rsa**(3.D0/2.D0)
       rsa21 = rsa**2.D0
 
-      rsb = ((3.d0/Pi)**(1.D0/3.D0)*
-     -    (1.d0/rhob)**(1.D0/3.D0))/
-     -  2**(2.D0/3.D0)
-      rsb12 = rsb**(1.D0/2.D0)
-      rsb32 = rsb**(3.D0/2.D0)
-      rsb21 = rsb**2.D0
+      if(rhob.gt.0d0) then
+         rsb = ((3.d0/Pi)**(1.D0/3.D0)*
+     -        (1.d0/rhob)**(1.D0/3.D0))/
+     -        2**(2.D0/3.D0)
+         rsb12 = rsb**(1.D0/2.D0)
+         rsb32 = rsb**(3.D0/2.D0)
+         rsb21 = rsb**2.D0
+C     
+C     pw91 LDA Ecorr
+C
+         e_crsb1 = e_crs1(rsb12,rsb,rsb32,rsb21)
+         de_crsb1_by_drsb =  decrsdrs(rsb,rsb12,rsb21,rsb32)
+         du_cbb_by_drhob = (-1.6D0*zb**2*rhob**(5.D0/3.D0))/
+     -        (3.d0*(0.2D0*zb**2 + 
+     -        rhob**(8.D0/3.D0))**2)
+         du_cbb_by_dzb = (2*0.2D0*zb*rhob**(8.D0/3.D0))/
+     -        (0.2D0*zb**2 + rhob**(8.D0/3.D0))**2
+         du_cab_by_drhoa = (-16*0.006D0*za*za*rhoa**(5.D0/3.D0)*
+     -        rhob**(16.D0/3.D0))/
+     -        (3.d0*(0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
+     -        0.006D0*za*za*rhob**(8.D0/3.D0) + 
+     -        2.d0*rhoa**(8.D0/3.D0)*
+     -        rhob**(8.D0/3.D0))**2) 
+         du_cab_by_drhob = (-16*0.006D0*zb**2*rhob**(5.D0/3.D0)*
+     -        rhoa**(16.D0/3.D0))/
+     -        (3.d0*(0.006D0*za*za*rhob**(8.D0/3.D0) + 
+     -        0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
+     -        2.d0*rhob**(8.D0/3.D0)*
+     -        rhoa**(8.D0/3.D0))**2) 
+         du_cab_by_dza = (4*0.006D0*za*rhoa**(8.D0/3.D0)*
+     -        rhob**(16.D0/3.D0))/
+     -        (0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
+     -        0.006D0*za*za*rhob**(8.D0/3.D0) + 
+     -        2.d0*rhoa**(8.D0/3.D0)*
+     -        rhob**(8.D0/3.D0))**2
+         du_cab_by_dzb = (4*0.006D0*zb*rhoa**(16.D0/3.D0)*
+     -        rhob**(8.D0/3.D0))/
+     -        (0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
+     -        0.006D0*za*za*rhob**(8.D0/3.D0) + 
+     -        2.d0*rhoa**(8.D0/3.D0)*
+     -        rhob**(8.D0/3.D0))**2
+         drsb_by_drhob = drsbydrh(rhob)
+      else
+         e_crsb1 = 0d0
+         de_crsb1_by_drsb = 0d0
+         du_cbb_by_drhob = 0d0
+         du_cbb_by_dzb = 0d0
+         du_cab_by_drhoa = 0d0
+         du_cab_by_drhob = 0d0
+         du_cab_by_dza = 0d0
+         du_cab_by_dzb = 0d0
+         drsb_by_drhob = 0d0
+      endif
 
       rsab = ((3.d0/Pi)**(1.D0/3.D0)*
      -    (1.d0/rho)**(1.D0/3.D0))/
@@ -611,7 +673,6 @@ C
 C     pw91 LDA Ecorr
 C
       e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
-      e_crsb1 = e_crs1(rsb12,rsb,rsb32,rsb21)
       e_crsab1 = e_crs1(rsab12,rsab,rsab32,rsab21)
       e_crsab0 = -0.062182d0*dlog(1.d0 +
      -    16.0818243221511d0/
@@ -642,36 +703,7 @@ C
       du_caa_by_dza = (2*0.2D0*za*rhoa**(8.D0/3.D0))/
      -  (0.2D0*za*za + rhoa**(8.D0/3.D0))**2
 
-      du_cbb_by_drhob = (-1.6D0*zb**2*rhob**(5.D0/3.D0))/
-     -  (3.d0*(0.2D0*zb**2 + 
-     -       rhob**(8.D0/3.D0))**2)
-      du_cbb_by_dzb = (2*0.2D0*zb*rhob**(8.D0/3.D0))/
-     -  (0.2D0*zb**2 + rhob**(8.D0/3.D0))**2
 
-      du_cab_by_drhoa = (-16*0.006D0*za*za*rhoa**(5.D0/3.D0)*
-     -    rhob**(16.D0/3.D0))/
-     -  (3.d0*(0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
-     -       0.006D0*za*za*rhob**(8.D0/3.D0) + 
-     -       2.d0*rhoa**(8.D0/3.D0)*
-     -        rhob**(8.D0/3.D0))**2) 
-      du_cab_by_drhob = (-16*0.006D0*zb**2*rhob**(5.D0/3.D0)*
-     -    rhoa**(16.D0/3.D0))/
-     -  (3.d0*(0.006D0*za*za*rhob**(8.D0/3.D0) + 
-     -       0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
-     -       2.d0*rhob**(8.D0/3.D0)*
-     -        rhoa**(8.D0/3.D0))**2) 
-      du_cab_by_dza = (4*0.006D0*za*rhoa**(8.D0/3.D0)*
-     -    rhob**(16.D0/3.D0))/
-     -  (0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
-     -     0.006D0*za*za*rhob**(8.D0/3.D0) + 
-     -     2.d0*rhoa**(8.D0/3.D0)*
-     -      rhob**(8.D0/3.D0))**2
-      du_cab_by_dzb = (4*0.006D0*zb*rhoa**(16.D0/3.D0)*
-     -    rhob**(8.D0/3.D0))/
-     -  (0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
-     -     0.006D0*za*za*rhob**(8.D0/3.D0) + 
-     -     2.d0*rhoa**(8.D0/3.D0)*
-     -      rhob**(8.D0/3.D0))**2
 
 Cfah Second derivatives are not required by cadpac. 
 Cfah   du_caa_by_drhoa_dza = (16*0.2D0*za*rhoa**(5.D0/3.D0)*
@@ -755,7 +787,6 @@ Cfah -     2*rhoa**(8.D0/3.D0)*
 Cfah -      rhob**(8.D0/3.D0))**3 
 
       drsa_by_drhoa = drsbydrh(rhoa)
-      drsb_by_drhob = drsbydrh(rhob)
       drsab_by_drhoa = drsbydrh(rho) 
       drsab_by_drhob = drsab_by_drhoa 
 
@@ -799,7 +830,6 @@ Cfah -      rhob**(8.D0/3.D0))**3
      -        0.49294d0*rsab21 + 1.6382d0*rsab32))
       de_crsa1_by_drsa = decrsdrs(rsa,rsa12,rsa21,rsa32)
       de_crsab1_by_drsab = decrsdrs(rsab,rsab12,rsab21,rsab32)
-      de_crsb1_by_drsb =  decrsdrs(rsb,rsb12,rsb21,rsb32)
 
 
       de_crsabzeta_by_drsab = 1.124999956683108D0*(1.d0 - zeta**4)*

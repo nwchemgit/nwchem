@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.12 1999-06-25 01:59:35 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.13 1999-11-02 02:38:09 edo Exp $
 c
       implicit none
 c
@@ -73,6 +73,16 @@ C
          dohcth=.true.
          nx=4
          nc=13
+      elseif (abs(xfac(10)).gt.eps.or.abs(cfac(16)).gt.eps)then
+         whichf='h120'
+         dohcth=.true.
+         nx=10
+         nc=16
+      elseif (abs(xfac(11)).gt.eps.or.abs(cfac(17)).gt.eps)then
+         whichf='h147'
+         dohcth=.true.
+         nx=11
+         nc=17
       elseif (abs(xfac(5)).gt.eps.or.abs(cfac(14)).gt.eps)then
          whichf='b970'
          dohcth=.true.
@@ -83,6 +93,11 @@ C
          dohcth=.true.
          nx=6
          nc=15
+      elseif (abs(xfac(12)).gt.eps.or.abs(cfac(18)).gt.eps)then
+         whichf='b980'
+         dohcth=.true.
+         nx=12
+         nc=18
       endif
        if(dohcth) then  
          if (.not. do_2nd) then
