@@ -1,6 +1,6 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.8 1998-12-10 23:48:20 d3e129 Exp $
+c $Id: intd_1eov.F,v 1.9 1999-01-07 20:24:37 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 c::functions
@@ -231,8 +231,8 @@ c
      &          .false.)
           enddo
         enddo
-      else if (bas_spherical(ibas)) then
-*.. transform on i component
+      else if (bas_spherical(jbas)) then
+*.. transform on j component
         i_nbf_x = int_nbf_x(Itype)
         i_nbf_s = i_nbf_x
         j_nbf_x = int_nbf_x(Jtype)

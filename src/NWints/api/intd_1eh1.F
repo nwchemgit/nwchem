@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.11 1998-12-10 23:48:19 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.12 1999-01-07 20:24:36 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "basP.fh"
@@ -263,8 +263,8 @@ c
      &          .false.)
           enddo
         enddo
-      else if (bas_spherical(ibas)) then
-*.. transform on i component
+      else if (bas_spherical(jbas)) then
+*.. transform on j component
         i_nbf_x = int_nbf_x(Itype)
         i_nbf_s = i_nbf_x
         j_nbf_x = int_nbf_x(Jtype)
