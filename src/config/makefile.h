@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.52 1994-08-22 03:04:27 d3g681 Exp $
+# $Id: makefile.h,v 1.53 1994-08-22 04:20:53 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -109,10 +109,9 @@ ifeq ($(TARGET),SUN)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lrimp2 -lgradients -lddscf -lnwints -lstepper -lmoints \
-              -linput -lguess -lgeom -lbasis -lutil -lglobal -lrtdb -ldb \
-              -linp -lpstat \
-	      -lutil -lma -ltcgmsg -llapack -lblas
+              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+              -lguess -lglobal -lutil \
+	      -ltcgmsg -llapack -lblas
 
   EXPLICITF = FALSE
 endif
@@ -146,10 +145,8 @@ ifeq ($(TARGET),KSR)
 
        LIBS = -L$(LIBDIR) $(LIBPATH) -L/home/d3g681/TCGMSG_DISTRIB \
               -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
-              -lguess -lglobal -lpeigs \
-	      -lutil \
-	      -lksrlapk -lksrblas -llapack2 -lblas2 \
-              -ltcgmsg -para -lrpc
+              -lguess -lglobal -lutil \
+	      -lpeigs -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
 
   EXPLICITF = FALSE
 endif
@@ -194,10 +191,8 @@ ifeq ($(TARGET),PARAGON)
 # search path -- contrary to usual unix usage!!!!!
        LIBS = -L/home/delilah11/gifann/lib $(LIBPATH) -L$(LIBDIR)\
               -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
-              -linput -lguess -lgeom -lbasis -lutil \
-              -lglobal -llapack -lpeigs_paragon \
-              -lrtdb -ldb -linp -lpstat \
-	      -lutil -lma -ltcgmsg -llapack -lkmath
+              -lguess -lglobal -lutil \
+	      -lpeigs_paragon -ltcgmsg -llapack -lkmath
 #-lrpc -llapack -lblas 
 
   EXPLICITF = FALSE
@@ -229,11 +224,9 @@ ifeq ($(TARGET),DELTA)
     CLDOPT = $(COPT) -node
    ARFLAGS = rcv
       LIBS = -L/home/delilah11/gifann/lib $(LIBPATH) -L$(LIBDIR)\
-             -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
-             -linput -lguess -lgeom -lbasis -lutil \
-             -lglobal -llapack -lpeigs \
-             -lrtdb -ldb -linp -lpstat \
-             -lutil -lma -ltcgmsg -llapack -lkmath
+              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+              -linput -lguess -lgeom -lbasis -lglobal -lutil \
+              -lglobal -lpeigs -ltcgmsg -llapack -lkmath
 # -llapack -lblas 
 
  EXPLICITF = FALSE
@@ -270,9 +263,9 @@ ifeq ($(TARGET),IBM)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lrimp2 -lgradients -lddscf -lmoints -lnwints -lstepper\
-              -linput -lguess -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
-	      -lpstat -lutil -lma -ltcgmsg -llapack -lblas
+              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+              -linput -lguess -lgeom -lbasis -lglobal -lutil \
+	      -ltcgmsg -llapack -lblas
 
  EXPLICITF = TRUE
 #
