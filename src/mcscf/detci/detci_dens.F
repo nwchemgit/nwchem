@@ -98,6 +98,7 @@ c
      $                       g_civec, twopdm )
       implicit none
 #include "global.fh"
+#include "mafdecls.fh"
 #include "detci.fh"
       integer norb                                    ! [input] Orbitals
       integer nsym                                    ! [input] Irreps
@@ -119,6 +120,9 @@ c
       integer ia, ib, ja, jb, ka, kb
       integer iex, jex, ij, kl, i, j, l, k
       double precision xx, yy, zz, p1, p2
+      integer l_t, k_t, l_s, k_s
+      double precision ddot
+      external ddot
 c
 c
 c
@@ -126,8 +130,13 @@ c   a  a
 c  E  E      contribution
 c   ij kl
 c
+      if (.not.ma_push_get(MT_DBL,nstrb,'dens:tmp1',l_t,k_t))
+     $     call errquit('cannot allocate temp',0)
+      if (.not.ma_push_get(MT_DBL,nstrb,'dens:tmp2',l_s,k_s))
+     $     call errquit('cannot allocate temp',0)
       call dfill((norb*norb*norb*norb),0.d0,twopdm,1)
       do ia=1,nstra
+        call ga_get(g_civec,1,nstrb,ia,ia,dbl_mb(k_t),1)
         do iex=1,nexa
           ja = exa(1,iex,ia)
           ij = exa(3,iex,ia)
@@ -141,29 +150,34 @@ c
             l  = exa(5,jex,ja)
             k  = exa(6,jex,ja)
             xx = 0.d0
-            do ib=1,nstrb
-              call ga_get(g_civec,ib,ib,ka,ka,yy,1)
-              call ga_get(g_civec,ib,ib,ia,ia,zz,1)
-              xx = xx + yy*zz
+            call ga_get(g_civec,1,nstrb,ka,ka,dbl_mb(k_s),1)
+            xx = ddot(nstrb,dbl_mb(k_s),1,dbl_mb(k_t),1) * p2
+c$$$            do ib=1,nstrb
+c$$$              call ga_get(g_civec,ib,ib,ka,ka,yy,1)
+c$$$              call ga_get(g_civec,ib,ib,ia,ia,zz,1)
+c$$$              xx = xx + yy*zz
 c$$$              xx = xx + civec(ib,ka)*civec(ib,ia)
-c$$$              IF ((I.EQ.J).AND.(K.EQ.L).AND.(I.EQ.K))
-c$$$     $          PRINT*,':: aa',I,I,K,K,' IstrA, JstrA, IstrB, JstrB ',
-c$$$     $                 ia, ka, ib, ib, ' C1 C2 ',yy,zz
-            enddo
-            xx = xx * p2
+c$$$            enddo
+c$$$            xx = xx * p2
             twopdm(i,j,k,l) = twopdm(i,j,k,l) + xx
-c$$$            IF ((I.EQ.4).AND.(J.EQ.1).AND.(K.EQ.3).AND.(L.EQ.1))
-c$$$     $        WRITE(6,833) 'AA',I,J,K,L,XX,TWOPDM(I,J,K,L)
           enddo
         enddo
       enddo
- 833  FORMAT(A2,5X,4I5,2E20.10)
+      if (.not.ma_pop_stack(l_s))
+     $   call errquit('cannot pop stack',0)
+      if (.not.ma_pop_stack(l_t))
+     $   call errquit('cannot pop stack',0)
 c
 c   b  b
 c  E  E      contribution
 c   ij kl
 c
+      if (.not.ma_push_get(MT_DBL,nstra,'dens:tmp1',l_t,k_t))
+     $     call errquit('cannot allocate temp',0)
+      if (.not.ma_push_get(MT_DBL,nstra,'dens:tmp2',l_s,k_s))
+     $     call errquit('cannot allocate temp',0)
       do ib=1,nstrb
+        call ga_get(g_civec,ib,ib,1,nstra,dbl_mb(k_t),1)
         do iex=1,nexb
           jb = exb(1,iex,ib)
           ij = exb(3,iex,ib)
@@ -177,29 +191,30 @@ c
             l  = exb(5,jex,jb)
             k  = exb(6,jex,jb)
             xx = 0.d0
-            do ia=1,nstra
-              call ga_get(g_civec,ib,ib,ia,ia,yy,1)
-              call ga_get(g_civec,kb,kb,ia,ia,zz,1)
-              xx = xx + yy*zz
+            call ga_get(g_civec,kb,kb,1,nstra,dbl_mb(k_s),1)
+            xx = ddot(nstra,dbl_mb(k_s),1,dbl_mb(k_t),1) * p2
+c$$$            do ia=1,nstra
+c$$$              call ga_get(g_civec,ib,ib,ia,ia,yy,1)
+c$$$              call ga_get(g_civec,kb,kb,ia,ia,zz,1)
+c$$$              xx = xx + yy*zz
 c$$$              xx = xx + civec(ib,ia)*civec(kb,ia)
-c$$$              IF ((I.EQ.J).AND.(K.EQ.L).AND.(I.EQ.K))
-c$$$     $          PRINT*,':: bb',I,I,K,K,' IstrA, JstrA, IstrB, JstrB ',
-c$$$     $                 ia, ia, ib, kb, ' C1 C2 ',yy,zz
-            enddo
-            xx = xx * p2
+c$$$            enddo
+c$$$            xx = xx * p2
             twopdm(i,j,k,l) = twopdm(i,j,k,l) + xx
-c$$$            IF ((I.EQ.J).AND.(K.EQ.L).AND.(I.EQ.K))
-c$$$     $        PRINT*,'>> bb',I,I,K,K,XX,TWOPDM(I,J,K,L)
-c$$$            IF ((I.EQ.4).AND.(J.EQ.1).AND.(K.EQ.3).AND.(L.EQ.1))
-c$$$     $        WRITE(6,833) 'BB',I,J,K,L,XX,TWOPDM(I,J,K,L)
           enddo
         enddo
       enddo
+      if (.not.ma_pop_stack(l_s))
+     $   call errquit('cannot pop stack',0)
+      if (.not.ma_pop_stack(l_t))
+     $   call errquit('cannot pop stack',0)
 c
 c   a  b
 c  E  E      contribution
 c   ij kl
 c
+      if (.not.ma_push_get(MT_DBL,nstrb,'dens:tmp1',l_t,k_t))
+     $     call errquit('cannot allocate temp',0)
       do ia=1,nstra
         do ib=1,nstrb
           call ga_get(g_civec,ib,ib,ia,ia,yy,1)
@@ -210,61 +225,59 @@ c$$$          yy = civec(ib,ia)
             p1 = exa(4,iex,ia)
             j  = exa(5,iex,ia)
             i  = exa(6,iex,ia)
+            call ga_get(g_civec,1,nstrb,ja,ja,dbl_mb(k_t),1)
             do jex=1,nexb
               jb = exb(1,jex,ib)
-              kl = exb(3,jex,ib)
               p2 = exb(4,jex,ib) * p1 * 0.5d0
               l  = exb(5,jex,ib)
               k  = exb(6,jex,ib)
-              call ga_get(g_civec,jb,jb,ja,ja,zz,1)
-              xx = zz*yy*p2
-c$$$              IF ((I.EQ.J).AND.(K.EQ.L).AND.(I.EQ.K))
-c$$$     $          PRINT*,':: ab',I,I,K,K,' IstrA, JstrA, IstrB, JstrB ',
-c$$$     $                 ia, ja, ib, jb, ' C1 C2 ',yy,zz
+              xx = p2 * yy * dbl_mb(k_t+jb-1)
+c$$$              call ga_get(g_civec,jb,jb,ja,ja,zz,1)
+c$$$              xx = zz*yy*p2
 c$$$              xx = civec(jb,ja)*yy*p2
               twopdm(i,j,k,l) = twopdm(i,j,k,l) + xx
-c$$$              IF ((I.EQ.J).AND.(K.EQ.L).AND.(I.EQ.K))
-c$$$     $             PRINT*,'>> ab',I,I,K,K,XX,TWOPDM(I,J,K,L)
-c$$$            IF ((I.EQ.4).AND.(J.EQ.1).AND.(K.EQ.3).AND.(L.EQ.1))
-c$$$     $        WRITE(6,833) 'AB',I,J,K,L,XX,TWOPDM(I,J,K,L)
+              twopdm(l,k,j,i) = twopdm(l,k,j,i) + xx
             enddo
           enddo
         enddo
       enddo
+      if (.not.ma_pop_stack(l_t))
+     $   call errquit('cannot pop stack',0)
+c
+c
+c  This contribution already taken care of above
 c
 c   b  a
 c  E  E      contribution
 c   ij kl
 c
-      do ia=1,nstra
-        do ib=1,nstrb
-          call ga_get(g_civec,ib,ib,ia,ia,yy,1)
-          do jex=1,nexb
-            jb = exb(1,jex,ib)
-            ij = exb(3,jex,ib)
-            p1 = exb(4,jex,ib)
-            i  = exb(5,jex,ib)
-            j  = exb(6,jex,ib)
-            do iex=1,nexa
-              ja = exa(1,iex,ia)
-              kl = exa(3,iex,ia)
-              p2 = exa(4,iex,ia) * p1 * 0.5d0
-              k  = exa(5,iex,ia)
-              l  = exa(6,iex,ia)
-              call ga_get(g_civec,jb,jb,ja,ja,zz,1)
-              xx = zz*yy*p2
-c$$$              IF ((I.EQ.J).AND.(K.EQ.L).AND.(I.EQ.K))
-c$$$     $          PRINT*,':: ba',I,I,K,K,' IstrA, JstrA, IstrB, JstrB ',
-c$$$     $                 ia, ja, ib, jb, ' C1 C2 ',yy,zz
-              twopdm(i,j,k,l) = twopdm(i,j,k,l) + xx
-c$$$            IF ((I.EQ.J).AND.(K.EQ.L).AND.(I.EQ.K))
-c$$$     $        PRINT*,'>> ba',I,I,K,K,XX,TWOPDM(I,J,K,L)
-c$$$            IF ((I.EQ.4).AND.(J.EQ.1).AND.(K.EQ.3).AND.(L.EQ.1))
-c$$$     $        WRITE(6,833) 'BA',I,J,K,L,XX,TWOPDM(I,J,K,L)
-            enddo
-          enddo
-        enddo
-      enddo
+c$$$      if (.not.ma_push_get(MT_DBL,nstrb,'dens:tmp1',l_t,k_t))
+c$$$     $     call errquit('cannot allocate temp',0)
+c$$$      do ia=1,nstra
+c$$$        do ib=1,nstrb
+c$$$          call ga_get(g_civec,ib,ib,ia,ia,yy,1)
+c$$$          do iex=1,nexa
+c$$$            ja = exa(1,iex,ia)
+c$$$            kl = exa(3,iex,ia)
+c$$$            p1 = exa(4,iex,ia)
+c$$$            k  = exa(5,iex,ia)
+c$$$            l  = exa(6,iex,ia)
+c$$$            call ga_get(g_civec,1,nstrb,ja,ja,dbl_mb(k_t),1)
+c$$$            do jex=1,nexb
+c$$$              jb = exb(1,jex,ib)
+c$$$              p2 = exb(4,jex,ib) * p1 * 0.5d0
+c$$$              i  = exb(5,jex,ib)
+c$$$              j  = exb(6,jex,ib)
+c$$$              xx = p2 * yy * dbl_mb(k_t+jb-1)
+c$$$c$$$              call ga_get(g_civec,jb,jb,ja,ja,zz,1)
+c$$$c$$$              xx = zz*yy*p2
+c$$$              twopdm(i,j,k,l) = twopdm(i,j,k,l) + xx
+c$$$            enddo
+c$$$          enddo
+c$$$        enddo
+c$$$      enddo
+c$$$      if (.not.ma_pop_stack(l_t))
+c$$$     $   call errquit('cannot pop stack',0)
 c
 c
 c   a  
@@ -284,13 +297,9 @@ c
             call ga_get(g_civec,ib,ib,ja,ja,zz,1)
             xx = xx + yy*zz
 c$$$            xx = xx + civec(ib,ia)*civec(ib,ja)
-c$$$            IF ((I.EQ.4).AND.(L.EQ.3))
-c$$$     $        WRITE(6,832) 'A ',I,L,IA,IB,JA,IB,YY,ZZ,XX
           enddo
           p2 = -0.5d0*xx*p1
           do j=1,norb
-c$$$            IF ((I.EQ.4).AND.(J.EQ.1).AND.(L.EQ.3))
-c$$$     $        WRITE(6,834) 'A ',I,J,J,L,P1,P2,TWOPDM(I,J,J,L)
             twopdm(i,j,j,l) = twopdm(i,j,j,l) + p2
           enddo
         enddo
@@ -313,13 +322,9 @@ c
             call ga_get(g_civec,ib,ib,ia,ia,zz,1)
             xx = xx + yy*zz
 c$$$            xx = xx + civec(jb,ia)*civec(ib,ia)
-c$$$            IF ((I.EQ.4).AND.(L.EQ.3))
-c$$$     $        WRITE(6,832) 'B ',I,L,IA,IB,IA,JB,YY,ZZ,XX
           enddo
           p2 = -0.5d0*xx*p1
           do j=1,norb
-c$$$            IF ((I.EQ.4).AND.(J.EQ.1).AND.(L.EQ.3))
-c$$$     $        WRITE(6,834) 'B ',I,J,J,L,P1,P2,TWOPDM(I,J,J,L)
             twopdm(i,j,j,l) = twopdm(i,j,j,l) + p2
           enddo
         enddo
@@ -328,27 +333,6 @@ c$$$     $        WRITE(6,834) 'B ',I,J,J,L,P1,P2,TWOPDM(I,J,J,L)
  834  FORMAT(A2,5X,4I5,F5.1,2E20.10)
  832  FORMAT(A2,20X,2I5,5X,2I2,'<->',2I2,2X,3E20.10)
 
-c$$$      WRITE(6,*)
-c$$$      WRITE(6,'(A)') '*** TWO-PDM AFTER AB ***'
-c$$$      DO I=1,NORB
-c$$$        DO J=1,NORB
-c$$$          WRITE(6,'(4I5,F12.6)') I,J,J,I,TWOPDM(I,J,J,I)
-c$$$        ENDDO
-c$$$      ENDDO
-c$$$      WRITE(6,*)
-
-c$$$      WRITE(6,*)
-c$$$      WRITE(6,'(A)') '*** TWO-PDM ***'
-c$$$      DO I=1,NORB
-c$$$        DO J=1,NORB
-c$$$          DO K=1,NORB
-c$$$            DO L=1,NORB
-c$$$              WRITE(6,'(4I5,F12.6)') I,J,K,L,TWOPDM(I,J,K,L)
-c$$$            ENDDO
-c$$$          ENDDO
-c$$$        ENDDO
-c$$$      ENDDO
-c$$$      WRITE(6,*)
           
       return
       end
