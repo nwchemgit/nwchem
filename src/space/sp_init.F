@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
 c
 c
-c $Id: sp_init.F,v 1.111 2002-11-11 14:26:47 d3j191 Exp $
+c $Id: sp_init.F,v 1.112 2002-11-12 22:06:56 d3j191 Exp $
 c
       implicit none
 c
@@ -96,7 +96,8 @@ c
 c
       call sp_alloc()
 c
-      call sp_decomp(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_buren))
+      call sp_decomp(int_mb(i_iown),dbl_mb(i_boxs),
+     + int_mb(i_buren),int_mb(i_bindex))
 c
       call sp_initip(int_mb(i_iown),int_mb(i_ipl))
 c
@@ -416,6 +417,8 @@ c
 c
       integer isize
 c
+      if(.not.ma_push_get(mt_int,np,'bindex',l_bindex,i_bindex))
+     + call errquit('Failed to allocate bindex',0)
       if(.not.ma_push_get(mt_int,54*np,'buren',l_buren,i_buren))
      + call errquit('Failed to allocate buren',0)
       if(.not.ma_push_get(mt_int,3*maxbox,'owner',l_iown,i_iown))
@@ -494,6 +497,8 @@ c
      + call errquit('Failed to deallocate iown',0)
       if(.not.ma_pop_stack(l_buren))
      + call errquit('Failed to deallocate buren',0)
+      if(.not.ma_pop_stack(l_bindex))
+     + call errquit('Failed to deallocate bindex',0)
 c
       return
       end
@@ -1012,7 +1017,7 @@ c
 c
       return
       end
-      subroutine sp_decomp(ibownr,boxsiz,iburen)
+      subroutine sp_decomp(ibownr,boxsiz,iburen,ibindx)
 c
       implicit none
 c
@@ -1023,6 +1028,7 @@ c
       integer ibownr(maxbox,3)
       real*8 boxsiz(maxbox,3)
       integer iburen(np,27,2)
+      integer ibindx(np)
 c
       integer ibx,iby,ibz,i,j,ix,jx,iy,jy,iz,jz,jnode,nrnod,nbiown
 c
@@ -1118,10 +1124,15 @@ c
       iburen(i,j,2)=0
    12 continue
    11 continue
-      do 13 j=1,27
+      do 13 i=1,np
+      ibindx(i)=0
+   13 continue
+      do 14 j=1,27
       iburen(me+1,j,1)=neighb(j,1)
       iburen(me+1,j,2)=neighb(j,2)
-   13 continue
+      if(neighb(j,1).ge.0) ibindx(neighb(j,1)+1)=j
+   14 continue
+c
       call ga_igop(msp_27,iburen,np*54,'+')
 c
 c     broadcast the maximum number of sub-boxes per node to all nodes
