@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.34 1997-11-07 12:47:11 d3e129 Exp $
+c $Id: int_init.F,v 1.35 1997-11-07 12:56:59 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -155,6 +155,12 @@ c
      &         call errquit('int_init: angm error',angm)
         ang2use = max(ang2use,angm)
 00300 continue
+*
+* test for higher than h functions  0123456
+      if (ang2use.ge.6) call errquit
+     &    ('only basis sets with s through h functions are allowed',
+     &    911)
+*
       call defNxyz(ang2use)
 c
 c initialize spcart stuff 
