@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.273 1999-01-28 00:30:01 d3e129 Exp $
+# $Id: makefile.h,v 1.274 1999-02-09 22:29:59 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1114,7 +1114,11 @@ endif
     DEFINES = -DLINUX
 
   LDOPTIONS = -g
+ifdef EGCS
+     LINK.f = g77 $(LDFLAGS)
+else
      LINK.f = gcc $(LDFLAGS)
+endif
   CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
  EXTRA_LIBS = -lf2c -lm
 
