@@ -5,7 +5,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: pre_mkrst.F,v 1.93 2003-10-19 03:30:58 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.94 2003-10-20 22:27:29 d3j191 Exp $
 c
       implicit none
 c
@@ -367,7 +367,7 @@ c
       if(.not.pre_his(int_mb(i_num),mat,
      + byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
      + int_mb(i_sfr),dbl_mb(i_xs),msa,nsa))
-     +  call errquit('Error in pre_his',0)
+     +  call md_abort('Error in pre_his',0)
       if(mdold.gt.0) then
       if(.not.pre_wtrst(lfnout,lfnrst,filrst,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
