@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.11 1998-03-19 14:21:40 d3e129 Exp $
+# $Id: GNUmakefile,v 1.12 1998-09-08 22:52:57 d3e129 Exp $
 
  SOURCE = ack.tex execution.tex mcscf.tex sample.tex symex.tex \
           basis.tex fourindex.tex scf.tex  top-level.tex \
@@ -35,10 +35,14 @@ html:
 	@../htmlize user
 	@../update_www user
 
+html_only:
+	@../htmlize user
+
 view:	user.ps
 	ghostview -bg white -fg black -bd black user.001.ps
 
-realclean clean:
+clean:
 	/bin/rm -f *.dvi *.ps *.toc *.aux *.log *~
 	/bin/rm -rf user
-
+realclean:
+	$(MAKE) clean

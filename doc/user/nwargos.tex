@@ -158,45 +158,50 @@ would use the same topology file {\tt crown.top}.
 
 The extensions \verb+<ext>+ identify the kind of information on a file,
 and are pre-determined. 
-The complete list of extensions is
-\begin{tabbing}
-xxxxxxx\=\kill
-{\bf acf} \> free energy correlation data file\\
-{\bf cnv} \> free energy convergence file\\
-{\bf coo} \> coordinate trajectory file\\
-{\bf day} \> dayfile\\
-{\bf dbg} \> debug file\\
-{\bf dre} \> distance restraints file\\
-{\bf emt} \> minimization trajectory file\\
-{\bf fet} \> free energy step contribution file\\
-{\bf frg} \> fragment file\\
-{\bf gib} \> free energy data file\\
-{\bf mri} \> free energy multiple run input file\\
-{\bf mro} \> free energy multiple run output file\\
-{\bf nw}  \> \nwchem\ input file\\
-{\bf nwout}  \> \nwchem\ output file\\
-{\bf out} \> molecular dynamics output file\\
-{\bf pdb} \> PDB formatted coordinate file\\
-{\bf prp} \> property file\\
-{\bf qrs} \> quenched restart file, resulting from an energy minimization\\
-{\bf rdf} \> radial distribution function output file\\
-{\bf rdi} \> radial distribution function input file\\
-{\bf rst} \> restart file, used to start, restart or continue a simulation \\
-{\bf seq} \> sequence file, describing the system in segments\\
-{\bf sco} \> solute coordinate trajectory file\\
-{\bf sgm} \> segment file, describing segments\\
-{\bf slv} \> solvent coordinate file\\
-{\bf svl} \> solute velocity trajectory file\\
-{\bf syn} \> synchronization time file\\
-{\bf tst} \> test file\\
-{\bf tim} \> timing analysis file\\
-{\bf top} \> topology file, contains the static description of a system\\
-{\bf vel} \> velocity trajectory file\\
-\end{tabbing}
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ll}
+{\bf acf} & free energy correlation data file\\
+{\bf cnv} & free energy convergence file\\
+{\bf coo} & coordinate trajectory file\\
+{\bf day} & dayfile\\
+{\bf dbg} & debug file\\
+{\bf dre} & distance restraints file\\
+{\bf emt} & minimization trajectory file\\
+{\bf fet} & free energy step contribution file\\
+{\bf frg} & fragment file\\
+{\bf gib} & free energy data file\\
+{\bf mri} & free energy multiple run input file\\
+{\bf mro} & free energy multiple run output file\\
+{\bf nw}  & \nwchem\ input file\\
+{\bf nwout}  & \nwchem\ output file\\
+{\bf out} & molecular dynamics output file\\
+{\bf pdb} & PDB formatted coordinate file\\
+{\bf prp} & property file\\
+{\bf qrs} & quenched restart file, resulting from an energy minimization\\
+{\bf rdf} & radial distribution function output file\\
+{\bf rdi} & radial distribution function input file\\
+{\bf rst} & restart file, used to start, restart or continue a simulation \\
+{\bf seq} & sequence file, describing the system in segments\\
+{\bf sco} & solute coordinate trajectory file\\
+{\bf sgm} & segment file, describing segments\\
+{\bf slv} & solvent coordinate file\\
+{\bf svl} & solute velocity trajectory file\\
+{\bf syn} & synchronization time file\\
+{\bf tst} & test file\\
+{\bf tim} & timing analysis file\\
+{\bf top} & topology file, contains the static description of a system\\
+{\bf vel} & velocity trajectory file\\
+\end{tabular}
+\end{center}
+\caption{List of file extensions for nwchem chemical system files.}
+\end{table}
+
 
 \subsection{Databases}
-Database file used by the \prepare\ module are found in directories with name
-\verb+$ffield$_$level$, where \verb+$ffield$+ is any of the
+Database file used by the \prepare\ module are found in directories 
+with name \verb+$ffield$_$level$, \\
+where \verb+$ffield$+ is any of the
 supported force fields (Section \ref{sec:nwaforcefields}). 
 The source of the data is identified by \verb+$level$+, and can be 
 \begin{center}
@@ -218,16 +223,21 @@ database files. When the \prepare\ module scans the databases, the priority
 is {\bf t}$>${\bf u}$>${\bf x}$>${\bf s}$>$.
 
 The extension \verb+<ext>+ defines the type of database file within each
-database directory. The complete list of extensions is
-\begin{tabbing}
-xxxxx\=\kill
-{\bf frg} \> fragments\\
-{\bf par} \> parameters\\
-{\bf seq} \> sequences\\
-{\bf sgm} \> segments\\
-\end{tabbing} 
+database directory. 
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ll}
+{\bf frg} & fragments\\
+{\bf par} & parameters\\
+{\bf seq} & sequences\\
+{\bf sgm} & segments\\
+\end{tabular}
+\end{center}
+\caption{List of database file extensions.}
+\end{table}
 
-The paths of the different database directoriess should be defined in a file 
+
+The paths of the different database directories should be defined in a file 
 {\tt .nwchemrc} in a user's home directory, and provides the user the
 option to select which database files are scanned.
 

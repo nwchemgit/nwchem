@@ -70,16 +70,18 @@ are as follows:
  
 %  Currently only some print control is available.
 
-\begin{tabbing}
-  Very\_long\_descriptive\_name \= Print level space \= \kill
-  Name                   \> Print Level \> Description \\
-                         \>        \> \\
-        'information'   \>        low  \> calculation info\\
-        'geometry'    \>          high \> \\
-        'basis'        \>         high \> \\
-        'forces'   \>             low \> \\
-        'timing'   \>             default \> 
-\end{tabbing}
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{lcc}
+  {\bf Name}       & {\bf Print Level} & {\bf Description} \\
+ ``information''   &       low         & calculation info\\
+ ``geometry''      &      high         & geometry information\\
+ ``basis''         &      high         & basis set(s) used\\
+ ``forces''        &       low         & details of force components\\
+ ``timing''        &     default       & timing for each phase\\
+\end{tabular}
+\end{center}
+\caption{Gradient Print Control Specifications}
+\end{table}
 
-%RJH: Need to complete the descriptions in this table.--fmr.
 

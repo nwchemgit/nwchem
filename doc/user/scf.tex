@@ -1264,6 +1264,7 @@ In the next release, this functionality will be extended to included all
 wavefunctions using molecular orbitals.
 
 
+\newpage
 \section{Printing Information from the SCF Module}
 \label{sec:scfprint}
 
@@ -1272,33 +1273,36 @@ directive described in Section \ref{sec:printcontrol}.  The following
 list describes the items from SCF that are currently under direct 
 print control, along with the print level for each one.
 
-\begin{tabbing}
-  Very\_long\_descriptive\_name \= Print level space \= \kill
-  Name                    \> Print Level \> Description \\
-                          \>        \> \\
- ``atomic guess density'' \> debug  \> guess density matrix \\
- ``atomic scf''           \> debug  \> details of atomic SCF \\
- ``mo guess''             \> default\> brief info from mo guess \\
- ``information''          \> low    \> results  \\
- ``initial vectors''      \> debug  \> \\
- ``intermediate vectors'' \> debug  \> \\
- ``final vectors''        \> debug  \> \\
- ``final vectors analysis''        \> default  \> \\
- ``initial vectors analysis''        \> never  \> \\
- ``intermediate evals''   \> debug  \> \\
- ``final evals''          \> default\> \\
- ``schwarz''              \> high   \> integral screening info \&
-  stats at completion\\
- ``screening statistics'' \> debug  \> display stats after every Fock build \\
- ``geometry''             \> high   \> \\
- ``symmetry''             \> debug  \> detailed symmetry info \\
- ``basis''                \> high   \> \\
- ``geombas''              \> debug  \> detailed basis map info \\
- ``vectors i/o''          \> default\> report vectors I/O \\
- ``parameters''           \> default\> convergence parameters \\
- ``convergence''          \> default\> info each iteration
-\end{tabbing}
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{lcc}
+  {\bf Name}          & {\bf Print Level} & {\bf Description} \\
+ ``atomic guess density''     & debug     & guess density matrix \\
+ ``atomic scf''               & debug     & details of atomic SCF \\
+ ``mo guess''                 & default   & brief info from mo guess \\
+ ``information''              & low       & results  \\
+ ``initial vectors''          & debug     & \\
+ ``intermediate vectors''     & debug     & \\
+ ``final vectors''            & debug     & \\
+ ``final vectors analysis''   & default   & \\
+ ``initial vectors analysis'' & never     & \\
+ ``intermediate evals''       & debug     & \\
+ ``final evals''              & default   & \\
+ ``schwarz''                  & high      & integral screening info \& stats at completion\\
+ ``screening statistics''     & debug     & display stats after every Fock build \\
+ ``geometry''                 & high      & \\
+ ``symmetry''                 & debug     & detailed symmetry info \\
+ ``basis''                    & high      & \\
+ ``geombas''                  & debug     & detailed basis map info \\
+ ``vectors i/o''              & default   & report vectors I/O \\
+ ``parameters''               & default   & convergence parameters \\
+ ``convergence''              & default   & info each iteration
+\end{tabular}
+\end{center}
+\caption{SCF Print Control Specifications}
+\end{table}
 
+\newpage
 \section{Hartree-Fock or SCF, MCSCF and MP2 Gradients}
 
 \input{scfgrad}
