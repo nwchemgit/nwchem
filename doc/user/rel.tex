@@ -75,10 +75,10 @@ H\"{a}berlen and R\"{o}sch\footnote{O.D.~H\"{a}berlen, N.~R\"{o}sch,
 Chem.~Phys.~Lett.~{\bf 199}, 491 (1992)}).
 
 The contracted basis sets used in the calculations should reflect the relativistic
-effects. I.e. one should use contracted basis sets which were generated using the 
+effects, i.e. one should use contracted basis sets which were generated using the 
 Douglas-Kroll Hamiltonian. Basis sets that were contracted using the 
-non-relativistic (Sch\"{o}dinger Hamiltonian WILL PRODUCE ERRONEOUS RESULTS for
-elements beyond the first row. See chapter \ref{sec:knownbasis} for available
+non-relativistic (Sch\"{o}dinger) Hamiltonian WILL PRODUCE ERRONEOUS RESULTS for
+elements beyond the first row. See appendix \ref{sec:knownbasis} for available
 basis sets and their naming convention.
 
 NOTE: we suggest that spherical basis sets are used in the calculation. The use of 
@@ -165,9 +165,13 @@ component basis set. The atomic FW basis set should be included in the
 \verb+ao basis+, either directly or by indirection, using \verb+SET+
 directives.  The large and small components should similarly be incorporated
 in basis sets named \verb+large component+ and \verb+small component+,
-respectively. For the two-electron approximation, it is the large component
-which should be included in the verb+ao basis+ and only the small component
-need be specified separately.
+respectively. For the two-electron approximation, only two basis sets are
+needed. These are the large component and the small component. The large component
+should be included in the verb+ao basis+ and the small component
+is specified separately as \verb+small component+, as for the one-electron
+approximation. This means that the two approximations can {\it not} be run
+correctly without changing the \verb+ao basis+, and it is up to the user to
+ensure that the basis sets are correctly specified.
 
 There is one further requirement in the specification of the basis sets. In
 the ao basis, it is necessary to add the \verb+rel+ keyword either to the
@@ -192,24 +196,44 @@ Some examples follow. The first example sets up the data for a relativistic
 calculation on water, using the library basis sets.
 
 \begin{verbatim}
-  basis "ao basis" rel
+  basis "fw" rel
     oxygen library cc-pvdz_pt_sf_fw
     hydrogen library cc-pvdz_pt_sf_fw
   end
 
-  basis "large component"
+  basis "large"
     oxygen library cc-pvdz_pt_sf_lc
     hydrogen library cc-pvdz_pt_sf_lc
   end
 
-  basis "small component"
+  basis "small"
     oxygen library cc-pvdz_pt_sf_sc
     hydrogen library cc-pvdz_pt_sf_sc
   end
 
+  set "ao basis" fw
+  set "large component" large
+  set "small component" small
+
   relativistic
     dyall-mod-dirac
   end
+
+  task scf
+
+  set "ao basis" large
+  unset "large component"
+  set "small component" small
+
+  relativistic
+    dyall-mod-dirac nesc2e
+  end
+
+  task scf
+
+
+
+
 \end{verbatim}
 
 The second example has oxygen as a relativistic atom and hydrogen nonrelativistic.
