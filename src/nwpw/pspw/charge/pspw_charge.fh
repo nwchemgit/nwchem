@@ -1,0 +1,31 @@
+c
+c $Id: pspw_charge.fh,v 1.1 2001-11-29 02:18:05 bylaska Exp $
+c
+
+*     ***** pspw_qmmm common block ************************************
+      real*8 ekw,ekw_total
+      integer r2(2),r1(2),r0(2),mass(2)
+      integer katm(2)
+      integer natm(2)
+      integer atom(2)
+      integer frag_from_indx(2)
+      integer indx_from_frag(2),dsqm_frag(2)
+      integer size_frag(2),shake_frag(2)
+      integer ekw_count
+      integer nion,nkatm,nfrag,max_frag_length
+      integer qmmm_type,geom
+      common / pspw_charge / ekw,ekw_total,r2,r1,r0,mass,
+     >                     katm,              ! katm list
+     >                     natm,              ! natm list
+     >                     atom,              ! atom list
+     >                     frag_from_indx,
+     >                     indx_from_frag,dsqm_frag,
+     >                     size_frag,shake_frag,
+     >                     ekw_count,
+     >                     nion,              ! number QM/MM ions
+     >                     nkatm,             ! number of kind of QM/MM ions
+     >                     nfrag,             ! number of fragments
+     >                     max_frag_length,   ! maximum fragment size
+     >                     qmmm_type,         ! 1-model potential, 2-model charge
+     >                     geom
+*     ******************************************************************
