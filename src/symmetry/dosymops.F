@@ -25,7 +25,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &     tags_new,coords_new,nareal,nat,cdist,cang,iasym_order,
      $     charge, charge_new, mass, mass_new, 
      $     invnucexp, invnucexp_new, threquiv)
-C$Id: dosymops.F,v 1.5 2002-10-25 19:08:36 nwchem Exp $
+C$Id: dosymops.F,v 1.6 2003-01-27 18:12:32 edo Exp $
 *rak typed everyting
       implicit none
 #include "util.fh"
@@ -122,7 +122,7 @@ c
             dx=dabs(coords(1,i)-coords_new(1,l))
             dy=dabs(coords(2,i)-coords_new(2,l))
             dz=dabs(coords(3,i)-coords_new(3,l))
-            if(dx+dy+dz.le.tol) then
+            if(dx+dy+dz.le.3*tol) then
                if (oprint)write(6,*) ' ATOM ',i,' is already present '
                goto 300
             endif
