@@ -1,5 +1,5 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.13 1997-12-18 19:29:01 d3e129 Exp $
+C$Id: input_set.F,v 1.14 1999-10-15 23:25:40 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -17,6 +17,7 @@ C$Id: input_set.F,v 1.13 1997-12-18 19:29:01 d3e129 Exp $
       integer itest
       double precision dtest
       integer i, nvalues, max_values, H_Values, I_Values, Space_Avail
+      logical input_is_ilist
       parameter (max_values = 100)
       character*64     cvals(max_values)
       character*8 test
@@ -64,7 +65,7 @@ c
 c     No type was specified.  Attempt to infer the type
 c     from reading the first datum.
 c
-c     Examine in sequence integer, real, logical, string.
+c     Examine in sequence integer, real, logical, integerlist, string.
 c
          if (inp_i(itest)) then
             type = types(3)
@@ -78,6 +79,8 @@ c
      $           inp_compare(.false.,field,'.false.') .or.
      $           inp_compare(.false.,field,'f')) then
                type = types(4)
+            else if (input_is_ilist(field)) then
+               type = types(3)
             else
                type = types(1)
             endif
@@ -225,3 +228,27 @@ c
       endif
 c     
       end
+      logical function input_is_ilist(a)
+      implicit none
+#include "inp.fh"
+      character*(*) a
+c
+      integer lena, i, j
+      character*1 ok(11)
+      data ok/'0','1','2','3','4','5','6','7','8','9',':'/
+c
+      lena = inp_strlen(a)
+      do i = 1, lena
+         do j = 1, 11
+            if (a(i:i).eq.ok(j)) goto 10
+         enddo
+         input_is_ilist = .false.
+         return
+ 10      continue
+      enddo
+c
+      input_is_ilist = .true.
+c
+      end
+         
+         
