@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.32 2003-01-14 16:31:09 d3j191 Exp $
+c $Id: md_finish.F,v 1.33 2003-07-23 20:37:32 d3j191 Exp $
 c
       implicit none
 c
@@ -142,13 +142,13 @@ c
  1000 format(/,' TIMING ANALYSIS',//,t20,' Number of calls',
      + t44,' Average times per call',
      + //,t40,'        Wall',t55,'         CPU',/)
-      write(lfnout,1001) timer_calls(1),timer_wall_average(1),
-     + timer_cpu_average(1)
+      write(lfnout,1001) timer_calls(201),timer_wall_average(201),
+     + timer_cpu_average(201)
  1001 format(' MD step',t20,i10,t40,f12.3,t55,f12.3)
 c
-      if(timer_calls(5).gt.0) then
-      write(lfnout,2001) timer_calls(5),timer_wall_average(5),
-     + timer_cpu_average(5)
+      if(timer_calls(205).gt.0) then
+      write(lfnout,2001) timer_calls(205),timer_wall_average(205),
+     + timer_cpu_average(205)
  2001 format(' FFT',t20,i10,t40,f12.3,t55,f12.3)
       endif
       close(unit=lfnout,status='keep')

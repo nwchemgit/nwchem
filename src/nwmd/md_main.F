@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.163 2003-07-23 18:34:12 d3j191 Exp $
+c $Id: md_main.F,v 1.164 2003-07-23 20:37:32 d3j191 Exp $
 c
       implicit none
 c
@@ -400,7 +400,7 @@ c
       mdstep=0
 c
     1 continue
-      call timer_start(1)
+      call timer_start(201)
 c
       dxf=dx/fmax
 c
@@ -488,7 +488,7 @@ c
      + dbl_mb(i_vs),nsaloc)
 c
       dx=half*dx
-      call timer_stop(1)
+      call timer_stop(201)
       goto 1
       endif
 c
@@ -536,7 +536,7 @@ c
 c
       dx=min(1.2d0*dx,dxmsd)
 c
-      call timer_stop(1)
+      call timer_stop(201)
       if(.not.ldone) goto 1
 
       return
@@ -581,7 +581,7 @@ c
       lpair=.true.
       lhop=.false.
 c
-      call timer_start(1)
+      call timer_start(201)
 c
 c     atomic forces and potential energies
 c
@@ -686,7 +686,7 @@ c
       ecg2=ecgnew
       icgit=0
 c
-      call timer_stop(1)
+      call timer_stop(201)
 c
 c     outer loop
 c
@@ -736,7 +736,7 @@ c
 c     inner loop
 c
   200 continue
-      call timer_start(1)
+      call timer_start(201)
 c
       inner=inner+1
 c
@@ -838,7 +838,7 @@ c
       epcgs=epots
       ecgdif=ecg2-ecgold
       edt=ecg2-ecg0
-      call timer_stop(1)
+      call timer_stop(201)
 c
 c     check if interval is appropriate
 c
@@ -849,7 +849,7 @@ c
       beta2=two*beta2
       goto 200
       endif
-      call timer_start(1)
+      call timer_start(201)
 c
 c     find interpolation in interval
 c
@@ -1042,7 +1042,7 @@ c
 c
       if(itest.gt.0) call md_test()
 c
-      call timer_stop(1)
+      call timer_stop(201)
       if(.not.ldone) goto 100
 c
       ecgdif=edt
@@ -1079,14 +1079,14 @@ c
       lprpmf=.false.
       do 1 iequi=kequi+1,mequi
       lpmfc=npmf.gt.1.and.iequi.gt.npmf
-      call timer_start(1)
+      call timer_start(201)
       call md_newton()
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
       call md_server
-      call timer_stop(1)
+      call timer_stop(201)
     1 continue
       lpmfc=.true.
 c
@@ -1100,12 +1100,12 @@ c
 c
       call md_timer_init()
 c
-      call timer_start(1)
+      call timer_start(201)
 c
       call md_newton()
 c
 c
-      call timer_start(15)
+      call timer_start(6)
 c
       if(lfw.or.lfs) then
       call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
@@ -1124,9 +1124,9 @@ c
      + dbl_mb(i_fs))
       endif
       endif
-      call timer_stop(15)
+      call timer_stop(6)
 c
-      call timer_start(64)
+      call timer_start(55)
       mdt=' '
       if(iguide.gt.0) mdt='g'
       write(projct,4000) nserie,mdt,mequi,idacq,tmpext,prsext,
@@ -1135,7 +1135,7 @@ c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
 c
-      call timer_stop(64)
+      call timer_stop(55)
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
@@ -1153,7 +1153,7 @@ c
       lfs=frequency(mdstep,nfsfor)
       lesp=frequency(mdstep,nfesp)
 c
-      call timer_stop(1)
+      call timer_stop(201)
     2 continue
 c
       return
@@ -1353,9 +1353,9 @@ c
       iprpmf=0
       do 2 iequi=kequi+1,mequi
       lpmfc=npmf.gt.1.and.iequi.gt.npmf
-      call timer_start(1)
+      call timer_start(201)
       call md_newton()
-      call timer_stop(1)
+      call timer_stop(201)
       jequi=iequi
     2 continue
       lpmfc=.true.
@@ -1376,7 +1376,7 @@ c
 c
       call md_timer_init()
 c
-      call timer_start(1)
+      call timer_start(201)
 c
       call md_newton()
 c
@@ -1425,7 +1425,7 @@ c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
 c
-      call timer_stop(1)
+      call timer_stop(201)
 c
       jdacq=idacq
       if(idacq.gt.ldacq.and.done) goto 4
@@ -1496,7 +1496,7 @@ c
 c
 c     start timer
 c
-      call timer_start(10)
+      call timer_start(1)
 c
       mdstep=mdstep+1
       stime=stime+tstep
@@ -1518,25 +1518,25 @@ c
       endif
       endif
 c
-      wallt=timer_wall(3)
+      wallt=timer_wall(203)
 c
 c     dynamic load balancing data
 c
       if(itload.eq.0) then
-      wallt=timer_wall(3)
-      syntim=timer_wall(4)
+      wallt=timer_wall(203)
+      syntim=timer_wall(204)
       elseif(itload.eq.1) then
-      wallt=timer_wall_minimum(3)
-      syntim=timer_wall_minimum(4)
+      wallt=timer_wall_minimum(203)
+      syntim=timer_wall_minimum(204)
       elseif(itload.eq.2) then
-      wallt=timer_wall_average(3)
-      syntim=timer_wall_average(4)
+      wallt=timer_wall_average(203)
+      syntim=timer_wall_average(204)
       else
-      wallt=timer_wall_average(3)
-      syntim=timer_wall_average(4)
+      wallt=timer_wall_average(203)
+      syntim=timer_wall_average(204)
       if(me.eq.0) then
-      wallt=timer_wall_minimum(3)
-      syntim=timer_wall_minimum(4)
+      wallt=timer_wall_minimum(203)
+      syntim=timer_wall_minimum(204)
       endif
       endif
 c
@@ -1548,8 +1548,8 @@ c
       endif
       endif
 c
-      if(lpair) call timer_reset(3)
-      call timer_start(3)
+      if(lpair) call timer_reset(203)
+      call timer_start(203)
 c
 c     reassign velocities
 c
@@ -1563,11 +1563,11 @@ c
       lhop=frequency(mdstep,nfhop)
       llong=(lfirst.or.frequency(mdstep,nflong).or.lpair).and.ltwin
 c
-      call timer_stop(10)
+      call timer_stop(1)
 c
       if(lpair) then
 c
-      call timer_start(11)
+      call timer_start(2)
 c
 c     center of mass coordinates
 c
@@ -1580,11 +1580,11 @@ c
       call md_fold(int_mb(i_iw),int_mb(i_is),
      + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
-      call timer_stop(11)
+      call timer_stop(2)
 c
       if(.not.lqmd) then
 c
-      call timer_start(12)
+      call timer_start(3)
 c
       if(me.eq.0.and.ioload.eq.2) then
       if(corrio.ge.syntim.and.
@@ -1597,10 +1597,10 @@ c
       endif
 c
       call sp_balanc(stime,syntim,wallt,frequency(mdstep,nfsync))
-      call timer_reset(4)
+      call timer_reset(204)
 c
-      call timer_stop(12)
-      call timer_start(13)
+      call timer_stop(3)
+      call timer_start(4)
 c
 c     atom redistribution
 c
@@ -1608,13 +1608,13 @@ c
      + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
-      call timer_stop(13)
+      call timer_stop(4)
 c
       endif
 c
       endif
 c
-      call timer_start(14)
+      call timer_start(5)
 c
 c     center of mass coordinates
 c
@@ -1627,8 +1627,8 @@ c
       call md_addref(.false.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
      + dbl_mb(i_xsm),dbl_mb(i_xscr),dbl_mb(i_dsr))
 c
-      call timer_stop(14)
-      call timer_start(15)
+      call timer_stop(5)
+      call timer_start(6)
 c
       if(lfw.or.lfs) then
       call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
@@ -1639,7 +1639,7 @@ c
      + dbl_mb(i_fs))
       endif
 c
-      call timer_stop(15)
+      call timer_stop(6)
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
@@ -1648,7 +1648,7 @@ c
       corrio=costio
       if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
 c
-      call timer_start(15)
+      call timer_start(6)
 c
       if(lqmd) then
       call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
@@ -1664,10 +1664,10 @@ c
      + dbl_mb(i_fs))
       endif
       endif
-      call timer_stop(15)
+      call timer_stop(6)
 c
-      costio=max(costio,timer_wall(15))
-      corrio=costio-timer_wall(15)
+      costio=max(costio,timer_wall(6))
+      corrio=costio-timer_wall(6)
 c
       endif
 c
@@ -1679,29 +1679,29 @@ c
 c     self-guided forces
 c
       if(iguide.gt.0) then
-      call timer_start(57)
+      call timer_start(48)
       call md_guided(dbl_mb(i_fw),dbl_mb(i_fs),
      + dbl_mb(i_gw),dbl_mb(i_gs))
-      call timer_stop(57)
+      call timer_stop(48)
       endif
 c
 c     time step
 c
-      call timer_start(58)
+      call timer_start(49)
       call cf_mdstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
      + dbl_mb(i_yw),dbl_mb(i_vw),dbl_mb(i_vwt),dbl_mb(i_fw),nwmloc,
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
      + dbl_mb(i_fs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm),
      + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lssgm-1)*msa),tmpext)
-      call timer_stop(58)
+      call timer_stop(49)
 c
 c     shake
 c
-      call timer_start(59)
+      call timer_start(50)
       call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
      + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
-      call timer_stop(59)
+      call timer_stop(50)
 c
 c     recalculate velocities
 c
@@ -1720,7 +1720,7 @@ c
 c
 c     coordinate scaling
 c
-      call timer_start(60)
+      call timer_start(51)
       call cf_final(dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_yw),
      + dbl_mb(i_vw),dbl_mb(i_vwt),nwmloc,
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_ys),dbl_mb(i_vs),
@@ -1728,11 +1728,11 @@ c
      + int_mb(i_is+(lsmol-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
      + int_mb(i_is+(lsfrc-1)*msa),dbl_mb(i_zs),
      + dbl_mb(i_esk),nsaloc,box,vlat,pres,temp,tempw,temps)
-      call timer_stop(60)
+      call timer_stop(51)
 c
 c     center of mass coordinates
 c
-      call timer_start(61)
+      call timer_start(52)
 c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
@@ -1756,8 +1756,8 @@ c
       call cf_slow(dbl_mb(i_vw),nwmloc,dbl_mb(i_vs),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
       endif
-      call timer_stop(61)
-      call timer_start(62)
+      call timer_stop(52)
+      call timer_start(53)
 c
 c     update decomposition module
 c
@@ -1769,8 +1769,8 @@ c
 c
       lfirst=.false.
 c
-      call timer_stop(62)
-      call timer_stop(3)
+      call timer_stop(53)
+      call timer_stop(203)
 c
       return
       end
@@ -1899,7 +1899,7 @@ c
 c
       integer i
 c
-      call timer_start(16)
+      call timer_start(7)
 c
       do 1 i=1,nsm
       xsmp(i,1)=xsm(i,1)
@@ -1914,46 +1914,46 @@ c
 c
       if(lpair) call md_zinit(int_mb(i_iwz),int_mb(i_isz))
 c
-      call timer_stop(16)
+      call timer_stop(7)
 c
       if(lqmd) then
-      call timer_start(17)
+      call timer_start(8)
       call qmd_forces(irtdb,int_mb(i_is+(lsgan-1)*msa),
      + int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_fs),msa,
      + nsaloc,uqmd,lesp)
       uqmd=uqmd-uqmatm
-      call timer_stop(17)
+      call timer_stop(8)
       return
       endif
 c
-      call timer_start(18)
+      call timer_start(9)
       call ga_sync()
-      call timer_stop(18)
+      call timer_stop(9)
 c
-      call timer_start(19)
+      call timer_start(10)
 c
       call sp_initf(fw,fs,llong,int_mb(i_iwz),int_mb(i_isz),lpair)
 c
       call sp_putix(me,iwl,xw,nwmloc,isl,xs,nsaloc)
 c
-      call timer_stop(19)
+      call timer_stop(10)
 c
-      call timer_start(20)
+      call timer_start(11)
       call ga_sync()
-      call timer_stop(20)
+      call timer_stop(11)
 c
       if(ncoll.gt.0) then
-      call timer_start(21)
+      call timer_start(12)
       call cf_collapse(ncoll,fcoll,nsaloc,nwmloc,isl(1,lsmol),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_fs),
      + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_fw))
-      call timer_stop(21)
+      call timer_stop(12)
       endif
       if(ifield.gt.0) then
-      call timer_start(22)
+      call timer_start(13)
       call cf_extern(stime,nsaloc,dbl_mb(i_fs),
      + isl(1,lsct1),nwmloc,dbl_mb(i_fw))
-      call timer_stop(22)
+      call timer_stop(13)
       endif
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
      + isl(1,lsatt),isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),
@@ -1961,26 +1961,26 @@ c
      + npmf.eq.1.or.lpmfc)
 c
       if(ipolt.gt.0) then
-      call timer_start(32)
+      call timer_start(23)
       call md_induce(iwl,isl,xw,xwm,xs,dbl_mb(i_pw),
      + dbl_mb(i_pwp),dbl_mb(i_ps),dbl_mb(i_psp))
-      call timer_stop(32)
+      call timer_stop(23)
       endif
 c
       if(lpme.and.llong) then
       if(lpert2) then
       call pme_energy(2,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
      + isl(1,lsct1),nsaloc,epme(2))
-      call timer_start(33)
+      call timer_start(24)
       call pme_init()
-      call timer_stop(33)
+      call timer_stop(24)
       endif
       if(lpert3) then
       call pme_energy(3,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
      + isl(1,lsct1),nsaloc,epme(3))
-      call timer_start(33)
+      call timer_start(24)
       call pme_init()
-      call timer_stop(33)
+      call timer_stop(24)
       endif
       call pme_chgrid(iset,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
      + isl(1,lsct1),nsaloc,epme(iset))
@@ -2006,26 +2006,26 @@ c
 c
       call md_fclass(iwl,isl,xw,xwm,xs,fw,fs)
 c
-      call timer_start(53)
-      call timer_start(2)
-      call timer_start(4)
+      call timer_start(44)
+      call timer_start(202)
+      call timer_start(204)
       call ga_sync()
-      call timer_stop(4)
-      call timer_stop(2)
-      call timer_stop(53)
+      call timer_stop(204)
+      call timer_stop(202)
+      call timer_stop(44)
 c
-      call timer_start(54)
+      call timer_start(45)
       call sp_final(fw,fs,lpair,int_mb(i_iwz),int_mb(i_isz))
-      call timer_stop(54)
+      call timer_stop(45)
 c
       if(lqmmm) then
-      call timer_start(55)
+      call timer_start(46)
       call qmmm_forces(irtdb,mwm,nwmloc,mwa,nwa,int_mb(i_iwz),xw,fw,
      + msa,nsaloc,int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
      + int_mb(i_is+(lsct1-1)*msa),int_mb(i_isz),xs,fs,uqmmm,
      + linkatm,nobq,lesp)
       uqmmm=uqmmm-uqmatm
-      call timer_stop(55)
+      call timer_stop(46)
       endif
 c
       if(ltwin) then
@@ -2043,10 +2043,10 @@ c
 c
       endif
 c
-      call timer_start(56)
+      call timer_start(47)
       call cf_fnorm(iwl(1,lwdyn),fw,nwmloc,
      + isl(1,lsatt),isl(1,lsdyn),fs,nsaloc,fnorm,fmax)
-      call timer_stop(56)
+      call timer_stop(47)
 c
       return
       end
@@ -2127,9 +2127,9 @@ c
       logical lforce,ldone
 c
       local=.true.
-      itcom1=42
-      itforc=43
-      itcom2=44
+      itcom1=33
+      itforc=34
+      itcom2=35
 c
       call sp_nbbl(nbbl)
 c
@@ -2146,9 +2146,9 @@ c
       do 1 ibbl=1,nbbl
 c
       if(local.and..not.sp_local(ibbl)) then
-      itcom1=45
-      itforc=46
-      itcom2=47
+      itcom1=36
+      itforc=37
+      itcom2=38
       local=.false.
       endif
 c
@@ -2547,7 +2547,7 @@ c
 c
       integer i
 c
-      do 1 i=10,64
+      do 1 i=1,55
       call timer_reset(i)
     1 continue
 c
@@ -2574,7 +2574,7 @@ c
     1 continue
 c
       do 3 i=1,55
-      tim(i,me+1)=timer_wall_total(i+9)
+      tim(i,me+1)=timer_wall_total(i)
       tim(56,me+1)=tim(56,me+1)+tim(i,me+1)
     3 continue
 c
@@ -2593,7 +2593,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.163 2003-07-23 18:34:12 d3j191 Exp $
+c $Id: md_main.F,v 1.164 2003-07-23 20:37:32 d3j191 Exp $
 c
       implicit none
 c

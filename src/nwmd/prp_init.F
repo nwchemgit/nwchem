@@ -5,7 +5,7 @@
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
      + nodpme,nipmf,lguide,lqmmm,lqmd)
 c
-c $Id: prp_init.F,v 1.62 2003-07-23 18:34:12 d3j191 Exp $
+c $Id: prp_init.F,v 1.63 2003-07-23 20:37:32 d3j191 Exp $
 c
       implicit none
 c
@@ -573,10 +573,10 @@ c
       lp(it)=lpme
       it=it+1
       pronam(it)='Prof: Node Synchronization                       s'
-      lp(it)=lpme
+      lp(it)=.false.
       it=it+1
       pronam(it)='Prof: PME Flag                                   s'
-      lp(it)=lpme
+      lp(it)=.false.
       it=it+1
       pronam(it)='Prof: Synchronization                            s'
       lp(it)=.true.

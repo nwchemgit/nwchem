@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.93 2003-07-23 18:34:12 d3j191 Exp $
+c $Id: prp_main.F,v 1.94 2003-07-23 20:37:32 d3j191 Exp $
 c
       implicit none
 c
@@ -55,7 +55,7 @@ c
 c
       integer i,j,k,it
 c
-      call timer_start(63)
+      call timer_start(54)
 c
       if(ltwin) then
       do 1 i=1,mpe
@@ -213,9 +213,9 @@ c
       p(80)=epme(2)+epmec2-p(79)
       p(81)=epme(3)+epmec3-p(79)
       endif
-      p(83)=timer_wall(2)
-      p(84)=timer_wall(3)
-      if(me.eq.0) p(85)=timer_wall(3)
+      p(83)=timer_wall(202)
+      p(84)=timer_wall(203)
+      if(me.eq.0) p(85)=timer_wall(203)
       if(me.eq.0) then
       p(86)=virt(1,1)
       p(87)=virt(1,2)
@@ -335,12 +335,12 @@ c
   356 continue
       endif
 c
-      call timer_stop(63)
+      call timer_stop(54)
 c
       if(iprof.eq.1) then
       do 56 i=1,55
       it=it+1
-      p(it)=timer_wall_total(i+9)
+      p(it)=timer_wall_total(i)
    56 continue
       endif
 c

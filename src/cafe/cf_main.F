@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.156 2003-07-17 19:44:24 d3j191 Exp $
+c $Id: cf_main.F,v 1.157 2003-07-23 20:37:31 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1466,7 +1466,7 @@ c
 c
       integer lseq(2),isgm(2)
 c
-      call timer_start(29)
+      call timer_start(20)
       epmf=zero
       skip=.true.
 c
@@ -1509,16 +1509,16 @@ c
     4 continue
     3 continue
     1 continue
-      call timer_stop(29)
+      call timer_stop(20)
 c
       if(skip) return
 c
-      call timer_start(30)
+      call timer_start(21)
       call ga_dgop(mcf_59,wpmf,4*numpmf,'+')
       call ga_dgop(mcf_73,xpmf,12*numpmf,'+')
-      call timer_stop(30)
+      call timer_stop(21)
 c
-      call timer_start(31)
+      call timer_start(22)
       do 6 i=1,numpmf
       if(ipmf(i,6).eq.2.and.lpmfc) goto 6
 c
@@ -1763,7 +1763,7 @@ c
       endif
 c
     6 continue
-      call timer_stop(31)
+      call timer_stop(22)
 c
       return
       end
@@ -1785,7 +1785,7 @@ c
       integer i,j,k
       real*8 d,di,dd,dn,dx(3),dfor,df(3),en
 c
-      call timer_start(26)
+      call timer_start(17)
       edrs=zero
 c
       do 1 i=1,ndrs
@@ -1805,13 +1805,13 @@ c
       endif
     3 continue
     1 continue
-      call timer_stop(26)
+      call timer_stop(17)
 c
-      call timer_start(27)
+      call timer_start(18)
       call ga_dgop(mcf_59,xdrs,6*ndrs,'+')
-      call timer_stop(27)
+      call timer_stop(18)
 c
-      call timer_start(28)
+      call timer_start(19)
       do 4 i=1,ndrs
       dx(1)=xdrs(i,1)-xdrs(i,4)
       dx(2)=xdrs(i,2)-xdrs(i,5)
@@ -1864,7 +1864,7 @@ c      endif
       endif
     5 continue
     4 continue
-      call timer_stop(28)
+      call timer_stop(19)
 c
       return
       end
@@ -1888,7 +1888,7 @@ c
 c
       integer i,j,ix
 c
-      call timer_start(23)
+      call timer_start(14)
       do 1 i=1,nmul
       fmul(i,1)=zero
       fmul(i,2)=zero
@@ -1911,14 +1911,14 @@ c
     2 continue
       if(me.gt.0) imul(i,1)=0
     1 continue
-      call timer_stop(23)
+      call timer_stop(14)
 c
-      call timer_start(24)
+      call timer_start(15)
       call ga_dgop(mcf_46,xmul,3*mmult,'+')
       call ga_igop(mcf_47,imul,4*mmult,'+')
-      call timer_stop(24)
+      call timer_stop(15)
 c
-      call timer_start(25)
+      call timer_start(16)
       if(me.eq.0) then
       if(nmult(1).gt.0) then
       ix=1
@@ -1952,13 +1952,13 @@ c
      + xmul,fmul,ess,.true.,.true.,me.eq.0,me.eq.0,dbl_mb(i_sti))
       endif
       endif
-      call timer_stop(25)
+      call timer_stop(16)
 c
-      call timer_start(24)
+      call timer_start(15)
       call ga_brdcst(mcf_74,fmul,3*mmult*ma_sizeof(mt_dbl,1,mt_byte),0)
-      call timer_stop(24)
+      call timer_stop(15)
 c
-      call timer_start(25)
+      call timer_start(16)
       do 3 i=1,nmul
       do 4 j=1,nums
       if(isgan(j).eq.imul(i,1)) then
@@ -1968,7 +1968,7 @@ c
       endif
     4 continue
     3 continue
-      call timer_stop(25)
+      call timer_stop(16)
 c
       return
       end

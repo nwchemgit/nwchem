@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.29 2002-11-10 12:25:42 d3j191 Exp $
+c $Id: pme_grid.F,v 1.30 2003-07-23 20:37:32 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -9,7 +9,7 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3),epme
       integer isq(msa)
 c
-      call timer_start(33)
+      call timer_start(24)
 c
       call pme_init()
 c
@@ -17,7 +17,7 @@ c
       call cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr(ipset))
       lcorr(ipset)=.true.
       endif
-      call timer_stop(33)
+      call timer_stop(24)
 c
       call pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
@@ -28,59 +28,59 @@ c
 c
       if(lpnode) then
 c
-      call timer_start(37)
+      call timer_start(26)
 c
       call pme_fft(ngx,ngy,ngz,-2,dbl_mb(i_grd2),dbl_mb(i_grd1),
      + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
 c
-      call timer_stop(37)
-      call timer_start(38)
+      call timer_stop(26)
+      call timer_start(27)
 c
       call cf_epme(int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + dbl_mb(i_bmod),dbl_mb(i_grd1),mgz,epme)
 c
       epme=epme+ecorr(ipset)
 c
-      call timer_stop(38)
-      call timer_start(39)
+      call timer_stop(27)
+      call timer_start(28)
 c
       call pme_sync(nodpme,int_mb(i_nodp))
 c
-      call timer_stop(39)
-      call timer_start(40)
+      call timer_stop(28)
+      call timer_start(31)
 c
       call pme_fft(ngx,ngy,ngz,1,dbl_mb(i_grd1),dbl_mb(i_grd2),
      + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
 c
-      call timer_stop(40)
-      call timer_start(41)
+      call timer_stop(31)
+      call timer_start(32)
 c
       call pme_putgrd(dbl_mb(i_grd2),dbl_mb(i_grd))
 c
-      call timer_stop(41)
+      call timer_stop(32)
 c
 c     synchronize pme nodes
 c
-      call timer_start(42)
+      call timer_start(33)
 c
       call pme_sync(nodpme,int_mb(i_nodp))
 c
-      call timer_stop(42)
+      call timer_stop(33)
 c
 c     set flag on all nodes to indicate that potential
 c     grid calculation has completed
 c
-      call timer_start(43)
+      call timer_start(34)
 c
       if(me.eq.int_mb(i_nodp)) call pme_flag(0,1,-1)
 c
-      call timer_stop(43)
+      call timer_stop(34)
       endif
 c
-      call timer_start(43)
+      call timer_start(34)
       if(icntrl.eq.1) call ga_sync()
 c
-      call timer_stop(43)
+      call timer_stop(34)
 c
       return
       end
@@ -95,14 +95,14 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3),epme
       integer isq(msa)
 c
-      call timer_start(33)
+      call timer_start(24)
       call pme_init()
 c
       if(.not.lcorr(ipset)) then
       call cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr(ipset))
       lcorr(ipset)=.true.
       endif
-      call timer_stop(33)
+      call timer_stop(24)
 c
       call pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
@@ -111,22 +111,23 @@ c
 c
       epme=ecorr(ipset)
 c
+      print*,'lpnode=',lpnode
       if(.not.lpnode) return
 c
-      call timer_start(37)
+      call timer_start(28)
 c
       call pme_fft(ngx,ngy,ngz,-2,dbl_mb(i_grd2),dbl_mb(i_grd1),
      + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
 c
-      call timer_stop(37)
-      call timer_start(38)
+      call timer_stop(28)
+      call timer_start(29)
 c
       call cf_epme(int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + dbl_mb(i_bmod),dbl_mb(i_grd1),mgz,epme)
 c
       epme=epme+ecorr(ipset)
 c
-      call timer_stop(38)
+      call timer_stop(29)
 c
       return
       end
@@ -153,7 +154,7 @@ c
       integer ilsl,ihsl,jlsl,jhsl
       logical lset,lgrid
 c
-      call timer_start(34)
+      call timer_start(25)
 c
       lset=.true.
 c
@@ -178,8 +179,8 @@ c
       if(lgrid) then
       lnode(node+1)=1
 c
-      call timer_stop(34)
-      call timer_start(35)
+      call timer_stop(25)
+      call timer_start(26)
 c
       do 21 k=1,ngznon
       if(lsldo(node+1,k)) then
@@ -197,8 +198,8 @@ c
       maxsl(4,node+1,k)=0
       endif
    21 continue
-      call timer_stop(35)
-      call timer_start(34)
+      call timer_stop(26)
+      call timer_start(25)
 c
       endif
 c
@@ -206,8 +207,8 @@ c
 c
 c     pmenodes should wait until all nodes have finished contributions to the grid
 c
-      call timer_stop(34)
-      call timer_start(36)
+      call timer_stop(25)
+      call timer_start(27)
 c
 c     the following pme_flag/pme_wait/pme_flag combination may be
 c     replaced by a ga_sync() at loss of performance
@@ -217,8 +218,8 @@ c
 c
 c     retrieve local slab from global array space
 c
-      call timer_stop(36)
-      call timer_start(35)
+      call timer_stop(27)
+      call timer_start(26)
       if(ngzloc.gt.0) then
       do 23 k=ngzloc,1,-1
       call ga_distribution(lslab(k),me,ilsl,ihsl,jlsl,jhsl)
@@ -246,7 +247,7 @@ c
    24 continue
    23 continue
       endif
-      call timer_stop(35)
+      call timer_stop(26)
 c
       return
       end
@@ -350,10 +351,10 @@ c
 c
 c     wait until potential grid is available
 c
-      call timer_start(50)
+      call timer_start(39)
       call pme_wait(0,1)
-      call timer_stop(50)
-      call timer_start(51)
+      call timer_stop(39)
+      call timer_start(40)
 c
       do 1 inode=1,np
       node=me+inode
@@ -370,19 +371,19 @@ c
       if(kto(node+1).gt.0) ngznon=kto(node+1)-kfrom(node+1)+1
       if(ngznon.eq.0) goto 1
 c
-      call timer_stop(51)
-      call timer_start(52)
+      call timer_stop(40)
+      call timer_start(41)
       call pme_getgrd(node,ngznon,log_mb(i_lsld),int_mb(i_slmax),
      + dbl_mb(i_grd))
-      call timer_stop(52)
-      call timer_start(51)
+      call timer_stop(41)
+      call timer_start(40)
 c
       call cf_fpme(fw,nwmloc,fs,isq,nsaloc,dbl_mb(i_grd),mgz,
      + int_mb(i_knod),int_mb(i_kfr),log_mb(i_lsld),node)
 c
     1 continue
 c
-      call timer_stop(51)
+      call timer_stop(40)
 c
       return
       end
