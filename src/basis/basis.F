@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.25 1994-08-20 01:42:37 d3g681 Exp $
+c $Id: basis.F,v 1.26 1994-09-08 22:33:43 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1446,7 +1446,7 @@ c::passed
       character*(*) trans_name ! [output] basis set name in context when loaded
 c::local
       integer basis   ! actual offset into basis arrays
-      integer lenofit ! length of name
+*      integer lenofit ! length of name
 c
       bas_name = bas_check_handle(basisin,'bas_name')
       if (.not. bas_name) return
