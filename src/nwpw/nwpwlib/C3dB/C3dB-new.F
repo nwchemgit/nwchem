@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.12 2002-01-14 21:18:59 bylaska Exp $
+* $Id: C3dB-new.F,v 1.13 2003-02-12 19:32:54 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -203,6 +203,37 @@ c     p = p_map(k)
       p = int_mb(p_map(1,nb)+k-1)
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *         C3dB_ijk_to_srqp        *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_ijk_to_srqp(nb,i,j,k, s,r,q,p)
+      implicit none
+      integer nb
+      integer i,j,k
+      integer s,r,q,p
+
+#include "mafdecls.fh"
+
+c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
+      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
+      common /C3dB_mapping / q_map,p_map,k_map
+
+c     q = q_map(k)
+c     p = p_map(k)
+
+      s = i
+      r = j
+      q = int_mb(q_map(1,nb)+k-1)
+      p = int_mb(p_map(1,nb)+k-1)
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*
