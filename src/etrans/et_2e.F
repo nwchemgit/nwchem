@@ -1,4 +1,4 @@
-c     $Id: et_2e.F,v 1.4 2002-02-19 21:38:23 d3k958 Exp $
+c     $Id: et_2e.F,v 1.5 2002-02-20 23:44:22 d3k958 Exp $
       subroutine et_2e(nbf,basis,geom,max2e,mem2,g_pa,g_pb,omega2)
       implicit none
 c
@@ -34,13 +34,18 @@ c
       double precision pa(nbf,nbf), pb(nbf,nbf)
       double precision pt2(nbf,nbf)
       double precision norm, G(10000), dij, dkl
-      double precision density_shell
+      double precision density_shell, acc
       external  density_shell
 c     
 
 c     get densities and keep in memory
 c     ================================
 c
+c      call ga_get(g_pa, 1, nbf, 1, nbf, pa, 1)
+c      call ga_get(g_pb, 1, nbf, 1, nbf, pb, 1)
+c
+c      call int_acc_get(acc)
+c      write(6,*)'integral accuracy',acc
       do i = 1,nbf
       do j = 1,nbf
         call ga_get(g_pa, i, i, j, j, pa(i,j),1)
@@ -67,7 +72,6 @@ c     =============================
 c     
       if (.not. bas_numcont(basis, nsh)) call errquit
      $     ('et_2e: bas_numcont failed', basis)
-c      write(6,*)'nsh',nsh
 c     
 c     begin loop over shells
 c     ======================
@@ -75,42 +79,43 @@ c
       smax = schwarz_max() 
       shellnum = 0
       nproc = ga_nnodes()
-      next = nxtask(nproc,100)
+      next = nxtask(nproc,1)
 c     
       tol = 1.0d-9
 c     
-      do ish = 1, nsh
+      do ish = nsh, 1, -1
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
      $        call errquit('et_2e: bas_cn2bfr', ish)
 c     
-         do jsh = 1, ish
+         do jsh = ish, 1, -1
             if (.not. bas_cn2bfr(basis, jsh, jlo, jhi))
      $           call errquit('et_2e: bas_cn2bfr', jsh)
 c
               sij = schwarz_shell(ish,jsh)
-              dij = density_shell(ilo,ihi,jlo,jhi,pa,pb,nbf)
                 if (sij*smax .gt. tol) then
 c     
-               do ksh = 1, ish
+               do ksh = ish, 1, -1
                   if (.not. bas_cn2bfr(basis, ksh, klo, khi))
      $                 call errquit('et_2e: bas_cn2bfr', ksh)
 c     
                   maxlsh = ksh
                   if (ksh.EQ.ish) maxlsh = jsh
-                  do lsh = 1, maxlsh
+                  do lsh = maxlsh, 1, -1
+c
+                   if (shellnum.eq.next) then
+c
                      if (.not. bas_cn2bfr(basis, lsh, llo, lhi))
      $                 call errquit('et_2e: bas_cn2bfr', lsh)
 c
-                     call dens_prod(nbf,
-     $                  ilo,ihi,jlo,jhi,klo,khi,llo,lhi, 
-     $                  ish,jsh,ksh,lsh, pa,pb, norm,G,ng) 
+                       call dens_prod(nbf,
+     $                    ilo,ihi,jlo,jhi,klo,khi,llo,lhi, 
+     $                    ish,jsh,ksh,lsh, pa,pb, norm,G,ng) 
 c
                         skl = schwarz_shell(ksh,lsh)      
-                        dkl = density_shell(klo,khi,llo,lhi,pa,pb,nbf)
 c
                         if (norm*sij*skl.gt. tol) then
 c
-                        if (shellnum.eq.next) then
+c                        if (shellnum.eq.next) then
 c     
                            call int_2e4c(basis, ish, jsh, basis, 
      $                          ksh, lsh, mem2, dbl_mb(k_scr), max2e, 
@@ -121,13 +126,12 @@ c
      &                          ish,jsh,ksh,lsh,
      &                          G,ng,dbl_mb(k_gJ),omega2_val)
 c
-c                           write(6,1113) ish,jsh,ksh,lsh,dij,omega2_val
                            omega2 = omega2 + omega2_val
 c     
-                           next = nxtask(nproc,100)
-                        endif
-                        shellnum = shellnum + 1
                      endif
+                   next = nxtask(nproc,1)
+                   endif
+                   shellnum = shellnum + 1
                   enddo
                enddo
             endif
@@ -136,7 +140,6 @@ c
 c     
       next = nxtask(-nproc,1)
       call ga_sync()
-c      write(6,*)'et_2e time: ',ga_nodeid(),elapsed
 c     
       call ga_dgop(msg_et_2e,omega2,1,'+')
 c     
@@ -145,10 +148,6 @@ c     ==============
 c     
       if (.not. ma_pop_stack(l_scr)) call errquit('et_2e: pop',0)
       if (.not. ma_pop_stack(l_gJ))  call errquit('et_2e: pop',1)
-c     
- 1111 format(a18,1x,i4,1x,i4,1x,i4,1x,i4,3(1x,F24.12))
- 1113 format(4i3,1x,2(F20.16),a10)
- 1112 format (a31,1x,4F16.12)
 c     
       return
       end

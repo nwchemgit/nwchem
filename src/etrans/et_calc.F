@@ -1,10 +1,10 @@
-c $Id: et_calc.F,v 1.6 2002-02-19 21:38:23 d3k958 Exp $
+c $Id: et_calc.F,v 1.7 2002-02-20 23:44:22 d3k958 Exp $
       logical function et_calc(rtdb,Vba)
       implicit none
 c
 c     This function actually calculates Vba
 *
-* $Id: et_calc.F,v 1.6 2002-02-19 21:38:23 d3k958 Exp $
+* $Id: et_calc.F,v 1.7 2002-02-20 23:44:22 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -52,7 +52,7 @@ c
       double precision prod(2)
       double precision Sba,pa_val,pb_val,omega1,h1_val
       double precision detu(2),detv(2),detprod,omega2
-      double precision Haa,Hbb,Hba,val, enrep, dum
+      double precision Haa,Hbb,Hba,val, dum
 c for use with fock builder:
 c      character*3 theory
 c      double precision jfac, kfac
@@ -89,9 +89,9 @@ c     load the basis set and get info about it
 c     ----------------------------------------
 c
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('scf_init: bas_create?', 0)
+     $     call errquit('et_calc: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $        call errquit('scf_init: no ao basis set', 0)
+     $        call errquit('et_calc: no ao basis set', 0)
 c
 c     get nbf
 c     -------
@@ -104,7 +104,8 @@ c     ------------------
 c
       call int_init(rtdb, 1, basis)
       call schwarz_init(geom, basis)  
-      call int_acc_std()
+      call int_acc_set(1.0d-09)
+c      call int_acc_std()
 c
 c     normalize the basis
 c     -------------------
@@ -638,8 +639,7 @@ c
 c     Read converged scf or dft energy from movecs file
 c     vectors, occupation vector, eigenvalues will be re-written,
 c     but they are no longer needed at this point.
-c     Filename and Haa or Hbb need to be correct.
-c     -------------------------------------------------
+c     ==========================================================
 c
       if(.not.et_movecs_read(a_file(1:lena),3
      $   ,dbl_mb(k_occ),dbl_mb(k_eval),g_bvecsa, Haa)) 
@@ -649,14 +649,6 @@ c
      $   ,dbl_mb(k_occ),dbl_mb(k_eval),g_bvecsa, Hbb)) 
      $   call errquit('et_movecs_read failed for Hbb',0)
 c
-c     get the nuclear repulsion energy. It needs to be subtracted
-c     from the total energy to get the electronic energy.
-c     -----------------------------------------------------------
-      if (.not. geom_nuc_rep_energy(geom, enrep))
-     $  call errquit('unable to get nuclear rep energy',geom)
-c
-c      Haa = Haa - enrep
-c      Hbb = Hbb - enrep
 c
        Hba = omega1+omega2
        Vba =  Hba - Sba*(Haa+Hbb)*0.5d0
@@ -714,3 +706,5 @@ c
 c
       return
       end
+
+

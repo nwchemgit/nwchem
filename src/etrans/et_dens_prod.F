@@ -106,12 +106,8 @@ c
                 GGijkl = Gijkl + Gjikl + Gijlk + Gjilk
                 GGilkj = Gjlki + Gilkj + Gjkli + Giklj
 c
-                GGijkl = GGijkl/delta
-                GGilkj = GGilkj/delta
-c
                 ng = ng + 1
-                GG(ng)  =          2.0d0*GGijkl/(1.0d0+dijkl)
-                GG(ng) = GG(ng) +  2.0d0*GGilkj/(1.0d0+dijkl)
+                GG(ng)  = 2.0d0*((GGijkl + GGilkj)/delta)/(1.0d0+dijkl)
 c
                enddo
             enddo
