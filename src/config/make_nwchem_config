@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.26 1996-02-08 08:48:36 d3g681 Exp $
+# $Id: make_nwchem_config,v 1.27 1996-02-13 18:32:54 pborowsk Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -83,6 +83,8 @@ MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
 MODULES := $(patsubst ddscf,ddscf atomscf NWints,$(MODULES) )
 MODULES := $(patsubst NWints,NWints symmetry,$(MODULES) )
 
+MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
+
 # Now we've got a list of modules, but there may be duplicates
 # so let's get rid of them.
 
@@ -114,6 +116,7 @@ MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst plane_wave,-lplnwv,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwargos,-lnwargos,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
@@ -141,6 +144,7 @@ STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vib,vib_vib,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwargos,nwargos,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
 
