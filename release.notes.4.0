@@ -20,6 +20,9 @@ Additional major additions to the capabilities include:
   o The Douglas-Kroll(-Hess) approach is implemented. It can be used at all levels 
     of theory. Gradients have been implementing allowing for Douglas-Kroll including 
     geometry optimizations and frequencies
+  o Inclusion of code to evaluate relativistic integrals based on Dyall's modified Dirac
+    (DmD) equation. This provides a one-electron approximation very similar to the
+    Douglas-Kroll-Hess approach. Gradients are also available for this method.
 
 Again, for each of these capabilities, the user is referred to the User Manual for
 more information. 
@@ -30,7 +33,7 @@ information is generally available in the User Manual.
 
 Task level directives: 
 
-  o 
+  o Addition of RELATIVISTIC directive to control evaluation of relativistic integrals.
 
 Initial orbital Guess: 
 
@@ -41,11 +44,12 @@ Basis Sets:
   o Basis set library has been updated to include all new basis sets at the EMSL
     Gaussian Basis Set Order Form page of David Feller 
     (http://www.emsl.pnl.gov:2080/forms/basisform.html)
+  o Relativistic contractions of the cc-pvnz, n = 2--5, basis sets for the DmD 
+    approximations.
 
 Geometry: 
 
   o Inclusion of a finite Gaussian nuclear charge distribution.
-  o 
 
 DFT: 
 
@@ -90,6 +94,7 @@ MD:
 Integral changes: 
 
   o Douglas-Kroll(-Hess) integral routines have been added.
+  o Relativistic one-electron integral routines for the DmD approach have been added.
 
 Tests, manuals and misc script changes: 
 
