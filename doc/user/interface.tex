@@ -1,4 +1,4 @@
-% $Id: interface.tex,v 1.14 2004-05-17 20:19:29 edo Exp $
+% $Id: interface.tex,v 1.15 2004-10-29 21:35:21 edo Exp $
 \label{sec:interface}
 
 NWChem has interfaces to several different packages which are listed below.
@@ -7,61 +7,6 @@ to make sure that the interface works.  However, any problems with the
 interface should be reported to the
 {\tt nwchem-users@emsl.pnl.gov} e-mail list.
 
-\section{{\tt NBO} --- Natural Bond Orbital Analysis}
-\label{sec:nbo}
-\begin{verbatim}
-  NBO
-    ...
-  END
-\end{verbatim}
-
-This directive is used to run the NBO package within NWChem.  (To only print
-out an input file for NBO, see Section \ref{sec:Nbofile}.)  The current
-version of NBO in NWChem is version 5.0.
-
-Inside the NBO block are the typical commands that would be needed for NBO
-(Please see an NBO user's manual for more information.).  The following
-directive is needed to execute NBO.
-\begin{verbatim}
-task nbo
-\end{verbatim}
-As an example:
-
-\begin{verbatim}
-title "Methylamine...rhf/3-21g//Pople-Gordon standard geometry"
-
-start methylamine
-
-echo
-
-memory 8 mw
-
-basis
- C library 3-21g
- N library 3-21g
- H library 3-21g
-end
-
-geometry
- C            .052902     .711852     .000000
- N            .052902    -.758148     .000000
- H           -.974760    1.075185     .000000
- H            .566733    1.075185     .889981
- H            .566733    1.075185    -.889981
- H           -.423217   -1.094815     .824662
- H           -.423217   -1.094815    -.824662
- symmetry c1
-end
-
-task SCF energy
-
-nbo
- $nbo cmo $end
-end
-
-task nbo 
-
-\end{verbatim}
 
 \section{{\tt DIRDYVTST} --- DIRect Dynamics for Variational Transition State Theory}
 \label{sec:dirdyvtst}
