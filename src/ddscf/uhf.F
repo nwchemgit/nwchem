@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.50 1999-06-16 00:10:14 d3e129 Exp $
+C$Id: uhf.F,v 1.51 1999-07-20 01:53:36 edo Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -206,7 +206,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.50 1999-06-16 00:10:14 d3e129 Exp $
+C     $Id: uhf.F,v 1.51 1999-07-20 01:53:36 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -263,7 +263,7 @@ c     and work space for the PCG routine.
 c     
 *ga:1:0
       if (.not. ga_create(MT_DBL, cuhf_vlen, 1, 'uhf_nr_solve: grad',
-     $     0, 0, g_grad)) call errquit('uhf_nr_solve: ga_cre grad', 0)
+     $     0, 1, g_grad)) call errquit('uhf_nr_solve: ga_cre grad', 0)
 *ga:1:0
       if (.not. ga_create(MT_DBL, cuhf_vlen, 1, 'uhf_nr_solve: serch',
      $     0, 0, g_search)) call errquit('uhf_nr_solve: ga_cre grad',0)
@@ -506,7 +506,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.50 1999-06-16 00:10:14 d3e129 Exp $
+C$Id: uhf.F,v 1.51 1999-07-20 01:53:36 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -597,7 +597,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.50 1999-06-16 00:10:14 d3e129 Exp $
+c     $Id: uhf.F,v 1.51 1999-07-20 01:53:36 edo Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1083,7 +1083,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.50 1999-06-16 00:10:14 d3e129 Exp $
+C$Id: uhf.F,v 1.51 1999-07-20 01:53:36 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
