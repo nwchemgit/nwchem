@@ -1,10 +1,10 @@
       logical function pre_wrtpdb(lfnout,lfnpdb,filpdb,iopt,box,
      + num,amass,mat,
-     + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
+     + csa,isat,isgm,xs,vs,msa,nsa,cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist)
 c
-c $Id: pre_wrtpdb.F,v 1.21 2000-06-13 22:31:01 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.22 2000-06-27 18:07:44 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
 c
       integer lfnout,lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
       character*255 filpdb
-      integer num(mat),isat(msa),isgm(msa)
+      integer num(mat),isat(msa),isgm(msa),iwat(mwa)
       character*16 cwa(mwa),csa(msa)
       character*3 slvnam
       real*8 amass(mat),xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
@@ -187,13 +187,19 @@ c
       do 3 j=1,nwa
       nats=nats+1
       if(i.le.nwmc) then
+      temp=4.009103873d1*amass(iwat(j))*(vwc(1,j,i)*vwc(1,j,i)+
+     + vwc(2,j,i)*vwc(2,j,i)+vwc(3,j,i)*vwc(3,j,i))
+      if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
-     + i+nums,(1.0d1*xwc(k,j,i),k=1,3)
+     + i+nums,(1.0d1*xwc(k,j,i),k=1,3),temp,pre_atnam(num(iwat(j)))
       else
+      temp=4.009103873d1*amass(iwat(j))*(vw(1,j,i-nwmc)*vw(1,j,i-nwmc)+
+     + vw(2,j,i-nwmc)*vw(2,j,i-nwmc)+vw(3,j,i-nwmc)*vw(3,j,i-nwmc))
+      if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
-     + i+nums,(1.0d1*xw(k,j,i-nwmc),k=1,3)
+     + i+nums,(1.0d1*xw(k,j,i-nwmc),k=1,3),temp,pre_atnam(num(iwat(j)))
       endif
- 1003 format('ATOM',i7,1x,a4,1x,a3,i6,4x,3f8.3)
+ 1003 format('ATOM',i7,1x,a4,1x,a3,i6,4x,3f8.3,6x,f6.2,4x,a2)
     3 continue
     2 continue
 c
@@ -217,34 +223,52 @@ c
       nats=nats+1
       if(nzrep.gt.0) then
       if(i.le.nwmc) then
+      temp=4.009103873d1*amass(iwat(j))*(vwc(1,j,i)*vwc(1,j,i)+
+     + vwc(2,j,i)*vwc(2,j,i)+vwc(3,j,i)*vwc(3,j,i))
+      if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
      + i+nums,1.0d1*(xwc(1,j,i)+dbx),1.0d1*(xwc(2,j,i)+dby),
-     + 1.0d1*(xwc(3,j,i)+dbz)
+     + 1.0d1*(xwc(3,j,i)+dbz),temp,pre_atnam(num(iwat(j)))
       else
+      temp=4.009103873d1*amass(iwat(j))*(vw(1,j,i-nwmc)*vw(1,j,i-nwmc)+
+     + vw(2,j,i-nwmc)*vw(2,j,i-nwmc)+vw(3,j,i-nwmc)*vw(3,j,i-nwmc))
+      if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
      + i+nums,1.0d1*(xw(1,j,i-nwmc)+dbx),1.0d1*(xw(2,j,i-nwmc)+dby),
-     + 1.0d1*(xw(3,j,i-nwmc)+dbz)
+     + 1.0d1*(xw(3,j,i-nwmc)+dbz),temp,pre_atnam(num(iwat(j)))
       endif
       else
       if(izrep.eq.1) then
       if(i.le.nwmc) then
+      temp=4.009103873d1*amass(iwat(j))*(vwc(1,j,i)*vwc(1,j,i)+
+     + vwc(2,j,i)*vwc(2,j,i)+vwc(3,j,i)*vwc(3,j,i))
+      if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
      + i+nums,1.0d1*(xwc(1,j,i)+dbx),1.0d1*(xwc(2,j,i)+dby),
-     + 1.0d1*(xwc(3,j,i)-dbz)
+     + 1.0d1*(xwc(3,j,i)-dbz),temp,pre_atnam(num(iwat(j)))
       else
+      temp=4.009103873d1*amass(iwat(j))*(vw(1,j,i-nwmc)*vw(1,j,i-nwmc)+
+     + vw(2,j,i-nwmc)*vw(2,j,i-nwmc)+vw(3,j,i-nwmc)*vw(3,j,i-nwmc))
+      if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
      + i+nums,1.0d1*(xw(1,j,i-nwmc)+dbx),1.0d1*(xw(2,j,i-nwmc)+dby),
-     + 1.0d1*(xw(3,j,i-nwmc)-dbz)
+     + 1.0d1*(xw(3,j,i-nwmc)-dbz),temp,pre_atnam(num(iwat(j)))
       endif
       else
       if(i.le.nwmc) then
+      temp=4.009103873d1*amass(iwat(j))*(vwc(1,j,i)*vwc(1,j,i)+
+     + vwc(2,j,i)*vwc(2,j,i)+vwc(3,j,i)*vwc(3,j,i))
+      if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
      + i+nums,1.0d1*(xwc(1,j,i)+dbx),1.0d1*(xwc(2,j,i)+dby),
-     + 1.0d1*(xwc(3,j,i)-dbz)
+     + 1.0d1*(xwc(3,j,i)-dbz),temp,pre_atnam(num(iwat(j)))
       else
+      temp=4.009103873d1*amass(iwat(j))*(vw(1,j,i-nwmc)*vw(1,j,i-nwmc)+
+     + vw(2,j,i-nwmc)*vw(2,j,i-nwmc)+vw(3,j,i-nwmc)*vw(3,j,i-nwmc))
+      if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
      + i+nums,-1.0d1*(xw(1,j,i-nwmc)+dbx),-1.0d1*(xw(2,j,i-nwmc)+dby),
-     + -1.0d1*(xw(3,j,i-nwmc)-dbz)
+     + -1.0d1*(xw(3,j,i-nwmc)-dbz),temp,pre_atnam(num(iwat(j)))
       endif
       endif
       endif

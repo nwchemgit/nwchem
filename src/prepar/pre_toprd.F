@@ -1,15 +1,16 @@
       logical function pre_toprd(lfntop,filtop,lfnout,
-     + num,amass,mat,cwa,qwa,mwa,nwa,isat,isgm,isml,
+     + num,amass,mat,cwa,qwa,mwa,nwa,iwat,isat,isgm,isml,
      + csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb,qu,nqu)
 c
-c $Id: pre_toprd.F,v 1.14 2000-04-24 14:40:44 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.15 2000-06-27 18:07:44 d3j191 Exp $
 c
       implicit none
 c
       integer lfntop,lfnout,mwa,nwa,msa,nsa,nsm,msb,nsb,mat
       character*16 cwa(mwa),csa(msa)
       integer num(mat),isat(msa),isgm(msa),isml(msa),idsb(2,msb)
+      integer iwat(mwa)
       real*8 amass(mat),qsa(msa),cdsb(msb),qwa(mwa)
       character*255 filtop
       character*10 slvnam
@@ -50,8 +51,8 @@ c
       read(lfntop,1003) nsa,nsb,nsh,nsd,nso,nst,nsx
  1003 format(7i7)
       do 5 i=1,nwa
-      read(lfntop,1336) cwa(i),idummy
- 1336 format(a16,30x,i5)
+      read(lfntop,1336) cwa(i),iwat(i),idummy
+ 1336 format(a16,25x,2i5)
       qwa(i)=qu(idummy)
 c      read(lfntop,1004) cwa(i)
 c 1004 format(35x,a16)
