@@ -40,7 +40,8 @@ c
       integer accqrad
       data dirs / 'delley', 'becke', 'gausleg', 'lebedev', 'xcoarse', 
      &            'coarse', 'medium', 'fine', 'xfine', 'user', 
-     .            'euler','mura','treutler','lindh',
+C     .            'euler','mura','treutler','lindh',
+     .            'euler','mura','treutler','xxxx',
      .            'ssf','erf1','erf2',
      &            'store_wght', 'nquad_task', 'rm',
      .     'old','new'/
@@ -279,6 +280,7 @@ c
 c     Roland Lindh radial grid
 c
  2300 continue
+      call errquit(' wrong keyword ',999)
       radgrid='rlindh'
 
  2301 if (.not. rtdb_cput(rtdb,'dft:radgrid', 1,radgrid)) 

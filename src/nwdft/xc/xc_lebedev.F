@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.26 2000-06-15 21:35:19 edo Exp $
+C$Id: xc_lebedev.F,v 1.27 2000-10-26 19:34:43 edo Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -4117,7 +4117,7 @@ C                  if (oprint)write(LuOut,207)
                      wtest = wtest + wa_leb(l_ang,ia)
 c                     if (oprint)write(LuOut,209)wa_leb(l_ang,iaz),
 c     &                  (za_leb(i,l_ang,iaz),i = 1,3)
-C			write(0,*) ' wtest ', wtest/fourpi
+C			write(LuOut,*) ' wtest ', wtest/fourpi
                   enddo
    20       continue
             if (oprint)write(LuOut,410)l_ang, wtest/fourpi
