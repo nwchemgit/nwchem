@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.24 2003-01-25 00:46:48 bylaska Exp $
+* $Id: psi.F,v 1.25 2003-03-19 00:34:22 bylaska Exp $
 *
 
 
@@ -26,15 +26,15 @@
       real*8 error,error_out
 
       neall = ne(1)+ne(2)
-      maxit_orb  = 3
-      maxit_orbs = 2
+      maxit_orb  = 3   !*** should be read from rtdb ***
+      maxit_orbs = 2   !*** should be read from rtdb ***
       j = 0
  2    j = j+1
         error = 0.0d0
         do i=neall,1,-1
           call psi_KS_update_orb(psi_number,precondition,maxit_orb,
      >                         maxerror,
-     >                         0.2d0,i,error_out)
+     >                         0.1d0,i,error_out)
           error = error+error_out
         end do
         error = error/dble(neall)
@@ -87,17 +87,13 @@
 
       call Parallel_taskid(taskid)
 
-      value = MA_push_get(mt_dcpl,npack1,'t0',
-     >                       t0(2),t0(1))
+      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'r1',
-     >                       r1(2),r1(1))
+     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',
-     >                       g(2),g(1))
+     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'t',
-     >                       t(2),t(1))
+     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
      >     'psi_KS_update_orb: out of stack memory',0)
 
@@ -125,13 +121,11 @@
          else
            percent_error = dabs(e0-eold)/error0
          end if
-c         if (taskid.eq.MASTER) 
-c     >    write(*,'(A,I3,I3,3E11.3)') 
-c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
 
-         done = (    (it.gt.maxiteration)
-     >           .or.(percent_error.lt.perror)
-     >           .or.(dabs(e0-eold).lt.maxerror))
+         done = ((it.gt.maxiteration) 
+     >           .or.
+     >           ((percent_error.lt.perror)
+     >           .and.(dabs(e0-eold).lt.maxerror)))
          if (done) go to 4
 
          call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
@@ -146,7 +140,7 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
      >                     dcpl_mb(r1(1)))
        
 *          *** project out components from other bands in the residual ***
-c???       call psi_project_out_orb(psi_number,i,dcpl_mb(r1(1)))
+           call psi_project_out_orb(psi_number,i,dcpl_mb(r1(1)))
          end if
 
 *        *** determine conjuagate direction ***
@@ -688,6 +682,33 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***************************
 *     *				*
+*     *		rho_1to2	*
+*     *				*
+*     ***************************
+      subroutine rho_1to2()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+      call dcopy(4*nfft3d,
+     >           dbl_mb(rho1(1)),1,
+     >           dbl_mb(rho2(1)),1)
+
+      call dcopy(4*nfft3d,
+     >           dbl_mb(rho1_all(1)),1,
+     >           dbl_mb(rho2_all(1)),1)
+
+      return
+      end
+
+*     ***************************
+*     *				*
 *     *		dng_2to1	*
 *     *				*
 *     ***************************
@@ -1195,6 +1216,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       logical value
       integer ms,n,indx,i,j
       integer MM(2)
+      real*8 sum
 
       do ms=1,ispin      
          n = ne(ms)
@@ -1212,11 +1234,13 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                     dbl_mb(MM(1)))
 
 *        **** write out MM matrix  ****
+         sum = 0.0d0
          do j=1,n
          do i=1,n
-            indx = i+(j-1)*n
+            sum = sum + dbl_mb(MM(1)+(i-1)+(j-1)*n)
          end do
          end do
+         write(*,*) "psi_1check_Tangent:",sum
             
 
 
@@ -2023,9 +2047,9 @@ c    >                            dcpl_mb(dng1(1)))
          stress(u,v) = (exc-pxc)*hm(u,v)
       end do
       end do
-      write(*,*) "hm(1,1):",hm(1,1),1.0d0/hm(1,1)
-      write(*,*) "exc:",exc,pxc
-      write(*,*) "D:",stress(1,1)
+      !write(*,*) "hm(1,1):",hm(1,1),1.0d0/hm(1,1)
+      !write(*,*) "exc:",exc,pxc
+      !write(*,*) "D:",stress(1,1)
 
 *     **** GGA part ****
 *     **** not finished ****
