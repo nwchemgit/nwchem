@@ -2,7 +2,7 @@
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_wrtsgm.F,v 1.9 1998-09-15 00:01:31 d3j191 Exp $
+c $Id: pre_wrtsgm.F,v 1.10 1999-06-17 20:14:37 d3j191 Exp $
 c
       implicit none
 c
@@ -65,7 +65,7 @@ c
 c
       if(util_print('sequence',print_medium)) then
       write(lfnout,1000) filsgm(1:length)
- 1000 format(' Created segment',t40,a,/)
+ 1000 format(' Created segment',t40,a)
       endif
 c
       pre_wrtsgm=.true.
