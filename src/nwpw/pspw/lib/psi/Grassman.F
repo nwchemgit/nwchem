@@ -1,6 +1,8 @@
 *
-* $Id: Grassman.F,v 1.7 2002-06-25 19:51:26 bylaska Exp $
+* $Id: Grassman.F,v 1.8 2003-03-09 00:09:12 bylaska Exp $
 *
+
+* $Log: not supported by cvs2svn $
 
 *     ***********************************************************
 *     *								*
@@ -489,6 +491,41 @@ c        call D3dB_c_SMul(1,scale,A(1,k),C(1,k))
 
       return
       end
+
+
+*     ****************************
+*     *                          *
+*     *     Grsm_ggm_sym_dot     *
+*     *                          *
+*     ****************************
+*
+      subroutine Grsm_ggm_sym_dot(nfft3d,n,A,B,MM)
+      implicit none
+      integer nfft3d,n
+      complex*16 A(nfft3d,n)
+      complex*16 B(nfft3d,n)
+      real*8     MM(n,n)
+
+*     **** local variables ****
+      integer j,k,np
+      real*8 sum
+
+      call Parallel_np(np)
+      call dcopy(n*n,0.0d0,0,MM,1)
+      do k=1,n
+         call Pack_cc_idot(1,A(1,k),B(1,k),sum)
+         MM(k,k) = sum
+        do j=k+1,n
+         call Pack_cc_idot(1,A(1,j),B(1,k),sum)
+         MM(j,k) = sum
+         MM(k,j) = sum
+        end do
+      end do
+      if (np.gt.1) call D3dB_Vector_Sumall(n*n,MM)
+
+      return
+      end
+
 
 *     ****************************
 *     *                		 *
