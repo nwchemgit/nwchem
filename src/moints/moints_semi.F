@@ -1,203 +1,6 @@
-c==========================================================
-c  This stupid section is to try an localize the
-c  interface differences between CRAY and the rest
-c  on word-addressable I/O.
-c
-c  JN: the current version uses WAIO on top of EAF
-c==========================================================
-c  Put at the beginning for possible inlining
-c
-c
-      subroutine waopen( unit, fname, nblk, istat, ierr )
-      implicit none
-#include "eaf.fh"
-#include "tcgmsg.fh"
-      integer unit, nblk, istat, ierr
-      character*(*) fname
-      ierr = EAF_Open(fname,EAF_RW, unit)
-      if(ierr.ne.0)call errquit('waopen: failed to open file ',ierr)
-      end
-
-
-c$$$      subroutine waopen0( unit, fname, nblk, istat, ierr )
-c$$$      implicit none
-c$$$#include "global.fh"
-c$$$      integer unit, nblk, istat, ierr
-c$$$      character*(*) fname
-c$$$      integer inp_strlen
-c$$$      external inp_strlen
-c$$$      integer flen
-c$$$#ifndef CRAY_T3D
-c$$$      flen = inp_strlen(fname)
-c$$$      call wopen( unit, fname, flen, nblk, istat, ierr )
-c$$$#else
-c$$$#ifdef __F90__
-c$$$      integer(kind=8) fdummy
-c$$$      character*8 dunits
-c$$$#else
-c$$$      double precision fdummy
-c$$$      double precision dunits
-c$$$#endif
-c$$$      integer ii, i, iput,iget
-c$$$      character*8 aunit
-c$$$      equivalence (fdummy,aunit)
-c$$$      common/crayunits/dunits(100),iput,iget
-c$$$
-c$$$      flen = inp_strlen(fname)
-c$$$      do i=8,1,-1
-c$$$        ii = flen - 8 + i
-c$$$        aunit(i:i) = fname(ii:ii)
-c$$$      enddo
-c$$$      call wopen( fdummy, nblk, istat, ierr )
-c$$$#ifdef __F90__
-c$$$      dunits(unit) = aunit
-c$$$      iput = 0
-c$$$      iget = 0
-c$$$#else
-c$$$      dunits(unit) = fdummy
-c$$$#endif
-c$$$#endif
-c$$$      if(ierr.ne.0)call errquit('waopen failed',unit)
-c$$$      return
-c$$$      end
-
-
-      subroutine waclose( unit, ierr )
-      implicit none
-#include "eaf.fh"
-#include "tcgmsg.fh"
-      integer ierr,unit
-      ierr = EAF_Close(unit)
-      if(ierr.ne.0)call errquit('waclose: failed to close file ',ierr)
-      end
-
-
-c$$$      subroutine waclose0( unit, ierr )
-c$$$      implicit none
-c$$$      integer unit, ierr
-c$$$#ifndef CRAY_T3D
-c$$$      call wclose(unit,ierr)
-c$$$#else
-c$$$#ifdef __F90__
-c$$$      character*8 dunits
-c$$$      integer (kind=8) xu
-c$$$      integer iput, iget
-c$$$      character*8 fname
-c$$$      equivalence (fname,xu)
-c$$$      common/crayunits/dunits(100),iput, iget
-c$$$
-c$$$      fname = dunits(unit)
-c$$$      call wclose(xu,ierr)
-c$$$#else
-c$$$      double precision dunits
-c$$$      double precision xu
-c$$$      common/crayunits/dunits(100)
-c$$$
-c$$$      xu = dunits(unit)
-c$$$      call wclose(xu,ierr)
-c$$$#endif
-c$$$#endif
-c$$$      return
-c$$$      end
-
-
-c     WAIO on top of EAF
-      subroutine waput( unit, v, addr, len, ierr )
-      implicit none
-#include "eaf.fh"
-#include "tcgmsg.fh"
-      integer unit, addr, len, ierr
-      double precision v(*)
-      ierr = EAF_Write(unit, dble(mdtob(addr-1)), v,  mdtob(len))
-      if(ierr.ne.0)call errquit('waput failed',ierr)
-      return
-      end
-
-
-
-c$$$      subroutine waput0( unit, v, addr, len, ierr )
-c$$$      implicit none
-c$$$      integer unit, addr, len, ierr
-c$$$      double precision v(*)
-c$$$
-c$$$#ifndef CRAY_T3D
-c$$$      call putwa( unit, v, addr, len, ierr )
-c$$$#else
-c$$$#ifdef __F90__
-c$$$      character*8 dunits
-c$$$      integer iput, iget
-c$$$      integer (kind=8) xu
-c$$$      character*8 fname
-c$$$      equivalence (fname,xu)
-c$$$      common/crayunits/dunits(100),iput, iget
-c$$$      
-c$$$      iput = iput + 1
-c$$$      fname = dunits(unit)
-c$$$      call putwa( xu, v, addr, len, ierr )
-c$$$#else
-c$$$      double precision dunits
-c$$$      double precision xu
-c$$$      common/crayunits/dunits(100)
-c$$$
-c$$$      xu = dunits(unit)
-c$$$      call putwa( xu, v, addr, len, ierr )
-c$$$#endif
-c$$$#endif
-c$$$      if(ierr.ne.0)call errquit('waput failed',unit)
-c$$$      return
-c$$$      end
-
-
-c     WAIO on top of EAF
-      subroutine waget( unit, v, addr, len, ierr )
-      implicit none
-#include "eaf.fh"
-#include "tcgmsg.fh"
-      integer unit, addr, len, ierr
-      double precision v(*)
-      ierr = EAF_Read(unit, dble(mdtob(addr-1)), v, mdtob(len))
-      if(ierr.ne.0)call errquit('waget failed',ierr)
-      return
-      end
-
-
-
-
-c$$$      subroutine waget0( unit, v, addr, len, ierr )
-c$$$      implicit none
-c$$$      integer unit, addr, len, ierr
-c$$$      double precision v(*)
-c$$$
-c$$$#ifndef CRAY_T3D
-c$$$      call getwa( unit, v, addr, len, ierr )
-c$$$#else
-c$$$#ifdef __F90__
-c$$$      integer iput, iget
-c$$$      character*8 dunits
-c$$$      integer (kind=8) xu
-c$$$      character*8 fname
-c$$$      equivalence (fname,xu)
-c$$$      common/crayunits/dunits(100),iput,iget
-c$$$
-c$$$      iget = iget + 1
-c$$$      fname = dunits(unit)
-c$$$      call getwa( xu, v, addr, len, ierr )
-c$$$#else
-c$$$      double precision dunits
-c$$$      double precision xu
-c$$$      common/crayunits/dunits(100)
-c$$$
-c$$$      xu = dunits(unit)
-c$$$      call getwa( xu, v, addr, len, ierr )
-c$$$#endif
-c$$$#endif
-c$$$      if (ierr.ne.0) call errquit('waget failed',unit)
-c$$$      return
-c$$$      end
-
 
 c
-c  $Id: moints_semi.F,v 1.44 1997-08-13 16:55:45 rg240 Exp $
+c  $Id: moints_semi.F,v 1.45 1997-08-13 19:18:39 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -230,6 +33,7 @@ c
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "eaf.fh"
 #include "util.fh"
 #include "sym.fh"
 #include "bas.fh"
@@ -254,10 +58,11 @@ c
        integer pvlo, pvhi
        integer polo, pohi
        integer myid, numnodes, rlo, rhi, clo, chi
-       integer itmp, ierr, vtmp(100), mxrlen
+       integer itmp, vtmp(10), mxrlen
        integer lmemreq
        double precision gmem
-       integer g_jbuf, g_kbuf
+       double precision iotmpptr
+       integer g_kbuf
        logical status
        logical osym
        character*256 fnameK
@@ -338,10 +143,10 @@ c
      $      min(nbf*nbf,10*maxbfsh*maxbfsh*numnodes))
 c
        if (oprint_mem) then
-          write(6,720) mxrlen, nseg, itmp, nbf, maxbfsh, numnodes
+          write(6,720) mxrlen, nseg, nvir, nbf, maxbfsh, numnodes
  720      format( '   Maximum record length  ', i8/
      $            '   No. of segments        ', i8/
-     $            '   J/K orb. dimension     ', i8/
+     $            '   Virtuals dimension     ', i8/
      $            '   No. of functions       ', i8/
      $            '   Max. functions/shell   ', i8/
      $            '   Number of nodes        ', i8/)
@@ -353,7 +158,7 @@ c
        if (mxrlen .lt. min(nbf*nbf,maxbfsh*maxbfsh*numnodes)) then
           if (blen .le. maxbfsh) call errquit
      $         ('moints_semi: insufficient GA available',
-     $         mxrlen*nseg*itmp)
+     $         mxrlen*nseg*nvir)
           blen = max(maxbfsh,blen/2) ! Reduce blocksize and try again
           goto 1212
        endif
@@ -430,23 +235,28 @@ c
      $                     int_mb(k_rlen))
 c
 c  Open local file and write initial info
-c  Note complications to do with writing ints in units of double
 c
        call ifill(10, 0, vtmp, 1 )
-       itmp = nnbf+mod(nnbf,2)
-       vtmp(1) = ma_sizeof(MT_INT,12,MT_DBL) + 
-     $      ma_sizeof(MT_INT,nnbf+mod(nnbf,2),MT_DBL)
-*       vtmp(1) = ma_sizeof(MT_INT,(10 + itmp),MT_DBL) + 1
+       vtmp(1) = ma_sizeof(MT_INT,10+nnbf,MT_BYTE)
        vtmp(2) = nnbf
-       call util_file_name('kh', .true.,.true., fnamek)
-       call waopen( kunit, fnamek, 10, 0, ierr )
        vtmp(3) = pvlo
        vtmp(4) = pvhi
-       call waput( kunit, vtmp, 1,
-     $             ma_sizeof(MT_INT, 10, MT_DBL), ierr )
-       call waput( kunit, int_mb(k_rloc),
-     $             ma_sizeof(MT_INT, 12, MT_DBL),
-     $             ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
+       call util_file_name('kh', .true.,.true., fnamek)
+       if (eaf_open( fnamek, EAF_RW, kunit).ne.0)
+     $   call errquit('moints_semi: failed to open half int file',0)
+       if (eaf_write(kunit, 0.d0, vtmp,
+     $               ma_sizeof(MT_INT,10,MT_BYTE)).ne.0)
+     $   call errquit('moints_semi: failed to write header info',0)
+       iotmpptr = ma_sizeof(MT_INT,10,MT_BYTE)
+       if (eaf_write(kunit, iotmpptr, int_mb(k_rloc),
+     $               ma_sizeof(MT_INT,nnbf,MT_BYTE)).ne.0)
+     $   call errquit('moints_semi: failed to write header info',0)
+C       call waopen( kunit, fnamek, 10, 0, ierr )
+c       call waput( kunit, vtmp, 1,
+c     $             ma_sizeof(MT_INT, 10, MT_DBL), ierr )
+c       call waput( kunit, int_mb(k_rloc),
+c     $             ma_sizeof(MT_INT, 12, MT_DBL),
+c     $             ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
        if (.not. ma_pop_stack(l_rloc))
      $     call errquit('moints: failed to pop', l_rloc)
 c
@@ -460,8 +270,7 @@ c
      $                   int_mb(k_bfmap), int_mb(k_rbfmap),
      $                   blen, int_mb(k_gmap), int_mb(k_gloc), 
      $                   nnbf, int_mb(k_iopass),
-     $                   int_mb(k_rlen), g_movecs, g_jbuf,
-     $                   g_kbuf )
+     $                   int_mb(k_rlen), g_movecs, g_kbuf )
 c
 c  Clean up
 c
@@ -486,8 +295,8 @@ c
        if (.not. ga_destroy(g_kbuf))
      $      call errquit('moints: failed to destroy g_kbuf',g_kbuf)
 c
-       call waclose( kunit, ierr )
-
+       if (eaf_close(kunit).ne.0)
+     $   call errquit('moints_semi: failed to close file',kunit)
 c
        call ga_sync()
        if (util_print('statistics', print_high)) 
@@ -516,7 +325,7 @@ c
      $                           kunit, shmap, 
      $                           ngrp, glo, ghi, bfmap, rbfmap,
      $                           blen, gmap, gloc, nnbf, iopass,
-     $                           rlen, g_movecs, g_jbuf, g_kbuf )
+     $                           rlen, g_movecs, g_kbuf )
        implicit none
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -557,7 +366,6 @@ c
        integer iopass(0:*)                    ! [input] IO pass for each task
        integer rlen(*)                        ! [input] Record lengths for IO writes
        integer g_movecs                       ! [input] MO coefficients
-       integer g_jbuf                         ! [scratch] Buffer for half-trans Coulomb
        integer g_kbuf                         ! [scratch] Buffer for half-trans exchange
 c
 c   Local variables
@@ -578,7 +386,8 @@ c
        integer l_mo, k_mo, l_xmo, k_xmo, l_xmo_t, k_xmo_t
        integer n_ssbb, n_ssbb1, n_ssni, n_hlp, n_hlp2
        integer iz, jz, kz, bsize
-       integer mem2, max2e, jopass, iocnt
+       integer mem2, max2e, jopass
+       double precision iocnt
        integer num_nodes, ploop, next
        double precision schw_ij
        double precision tpass, tio, ttmp, nwrbytes, iorate
@@ -651,8 +460,7 @@ c Initialize
 c
        ploop = 0
        jopass = 1
-       iocnt = ma_sizeof(MT_INT,12,MT_DBL) + 
-     $         ma_sizeof(MT_INT,nnbf+mod(nnbf,2),MT_DBL)
+       iocnt = ma_sizeof(MT_INT,10+nnbf,MT_BYTE)
        next = nxtval(num_nodes)
        tio = 0.d0
        nwrbytes = 0.d0
@@ -696,7 +504,7 @@ c
                  call ga_zero(g_kbuf)
                  tio = tio + util_cpusec() - ttmp
                  tpass = util_cpusec() - tpass
-                 iocnt = iocnt + rlen(jopass)
+                 iocnt = iocnt + ma_sizeof(MT_DBL,rlen(jopass),MT_BYTE)
                  jopass = jopass + 1
                  tpass = util_cpusec()
                endif
@@ -1052,14 +860,16 @@ C$$$             CALL MOINTS_MATPRINT(NVIR,NOCC,H1)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "eaf.fh"
       integer munit                       ! I/O unit
       integer oseglo, oseghi              ! Segment range
       integer alo                         ! Lowest index to compute GA index
       integer plo, phi                    ! Index range for this processor
-      integer nnbf, iocnt, rlen            
+      integer nnbf, rlen            
+      double precision iocnt              ! file header offset
       integer g_buf
 c
-      integer faddr, ierr
+      double precision faddr
       integer o, p, po, nocc, np
       integer myid, rlo, rhi, clo, chi, k_local, ld
 c
@@ -1070,17 +880,19 @@ c
       do o=oseglo,oseghi
         do p=plo,phi
           po = (p-alo)*nocc + o - oseglo + 1
-          faddr = ((o-oseglo)*np + p - plo)*nnbf +  iocnt
+          faddr = iocnt + 
+     $            ma_sizeof(MT_DBL,((o-oseglo)*np+p-plo)*nnbf,MT_BYTE)
           if ((po.ge.clo).and.(po.le.chi)) then
             call ga_access(g_buf, rlo, rhi, po, po, k_local, ld )
-            call waput( munit, dbl_mb(k_local), faddr, rlen, ierr )
+            if (eaf_write(munit, faddr, dbl_mb(k_local), 
+     $                    ma_sizeof(MT_DBL,rlen,MT_BYTE)).ne.0)
+     $        call errquit('moints_wrbuf: failed on write',0)
+C            call waput( munit, dbl_mb(k_local), faddr, rlen, ierr )
             call ga_release(g_buf, rlo, rhi, po, po )
-c$$$            WRITE(6,901) O,P,FADDR
-c$$$ 901        FORMAT(' [O,P]:',2I4,5X,'ADDR:',I6)
+c$$$            WRITE(6,901) O,P,FADDR,FADDR+MA_SIZEOF(MT_DBL,RLEN,MT_BYTE)
+c$$$ 901        FORMAT(' [O,P]:',2I4,5X,'ADDR:',F10.0,'  EOR:',F10.0)
           else
-            call errquit
-     $            ('moints_semi: Unexpected distribution for GA buffer',
-     $            0)
+            call errquit('moints_semi: wrong distrib for GA buffer',0)
           endif
         enddo
       enddo
@@ -1098,6 +910,7 @@ c$$$ 901        FORMAT(' [O,P]:',2I4,5X,'ADDR:',I6)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "eaf.fh"
 #include "util.fh"
       integer MSG_SEMIMP2_SUM
       parameter(MSG_SEMIMP2_SUM=10241)
@@ -1116,7 +929,6 @@ c
       double precision tmp2
       character*256 fname
       integer kunit
-*     parameter (kunit=11)
       double precision xx, denom, e2
       logical status
       double precision moints_epair_eval
@@ -1124,7 +936,8 @@ c
 
       tmp2 = util_cpusec()
       call util_file_name('kh',.true.,.true.,fname)
-      call waopen(kunit, fname, 10, 0, itmp )
+      if (eaf_open(fname, EAF_RW, kunit).ne.0)
+     $  call errquit('moints_readintK: cannot open half int file',0)
       myid = ga_nodeid()
       e2 = 0.d0
       nocc = ohi - olo + 1
@@ -1229,7 +1042,8 @@ c
       if (.not. ma_pop_stack(l_v))
      $  call errquit('moints_readint: failed to pop', l_v)
 c
-      call waclose(kunit, itmp )
+      if (eaf_close(kunit).ne.0)
+     $  call errquit('moints_readintK: failed to close file',kunit)
 c
       call ga_sync()
       
@@ -1242,18 +1056,29 @@ c
 
 c
 c  Read half-integrals from local file
-c  using word-addressable I/O
 c
       subroutine moints_rdhfint( munit, plo, phi, o, p, nnbf, ioff, t )
       implicit none
+#include "mafdecls.fh"
+#include "eaf.fh"
       integer munit
-      integer plo, phi, o, p, nnbf, ioff
+      integer plo, phi, o, p, nnbf
+      integer ioff                       ! header offset in bytes
       double precision t(nnbf)
-      integer faddr, np, ierr
+      integer np, rlen, recnum
+      double precision faddr
 
       np = phi - plo + 1
-      faddr = ((o-1)*np + p - plo)*nnbf + ioff
-      call waget( munit, t, faddr, nnbf, ierr )
+      recnum = (o-1)*np + p - plo
+      rlen = ma_sizeof(MT_DBL,nnbf,MT_BYTE)
+      faddr = ioff + recnum*rlen
+      if (eaf_read(munit, faddr, t, rlen).ne.0)
+     $  call errquit('moints_rdhfint:cannot read integral record',0)
+
+c$$$      WRITE(6,771) RECNUM, FADDR
+c$$$ 771  FORMAT(' READ RECORD#:',I8,' @ ',F10.0)
+
+c      call waget( munit, t, faddr, nnbf, ierr )
       
       return
       end
@@ -1271,20 +1096,22 @@ c
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "eaf.fh"
       integer munit
       integer plo, phi, nnbf, ioff
-      integer vtmp(10), ierr
-C      INTEGER I
+      integer vtmp(10)
+c$$$      INTEGER I
 
-      call waget( munit, vtmp, 1,
-     $            ma_sizeof(MT_INT, 10, MT_DBL), ierr )
+      if (eaf_read(munit, 0.d0, vtmp, 
+     $             ma_sizeof(MT_INT,10,MT_BYTE)).ne.0)
+     $  call errquit('moints_vrange: cannot read header info',0)
+C      call waget( munit, vtmp, 1,
+C     $            ma_sizeof(MT_INT, 10, MT_DBL), ierr )
       ioff = vtmp(1)
       nnbf = vtmp(2)
       plo = vtmp(3)
       phi = vtmp(4)
 
-c$$$      PRINT*,'ME: ',GA_NODEID(),' ERROR:',IERR
-c$$$      CALL UTIL_FLUSH(6)
 c$$$      IF (GA_NODEID().EQ.0) THEN
 c$$$        PRINT*,'READ BACK INITIAL PARAMETERS'
 c$$$        WRITE(6,771) (VTMP(I),I=1,10)
@@ -1306,17 +1133,24 @@ c
       subroutine moints_getscattv( munit, nnbf, v )
       implicit none
 #include "mafdecls.fh"
+#include "eaf.fh"
       integer munit
       integer nnbf, v(*)
-      integer itmp, ierr
-C      INTEGER I
+      integer itmp
+      double precision ioptr
+c$$$      INTEGER I
       
       itmp = nnbf+mod(nnbf,2)
-      call waget( munit, v,
-     $            ma_sizeof(MT_INT, 12, MT_DBL),
-     $            ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
 
-c$$$      call waget(munit, v, 6, itmp, ierr )
+      ioptr = ma_sizeof(MT_INT,10,MT_BYTE)
+      if (eaf_read(munit, ioptr, v, 
+     $             ma_sizeof(MT_INT,nnbf,MT_BYTE)).ne.0)
+     $  call errquit('moints_getscattv: cannot read scatter v',0)
+
+C      call waget( munit, v,
+C     $            ma_sizeof(MT_INT, 12, MT_DBL),
+C     $            ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
+
 c$$$      PRINT*,'READ BACK SCATTER ARRAY'
 c$$$      WRITE(6,771) (V(I),I=1,NNBF)
 c$$$ 771  FORMAT(16I4)

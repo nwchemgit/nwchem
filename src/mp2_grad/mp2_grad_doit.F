@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.35 1997-08-13 16:57:33 rg240 Exp $
+* $Id: mp2_grad_doit.F,v 1.36 1997-08-13 19:18:30 rg240 Exp $
 *
       implicit none
 #include "global.fh"
@@ -57,7 +57,7 @@
       integer k_v,l_v
       integer k_temp,l_temp
       integer k_jb_ia,l_jb_ia
-      integer itmp,kunit
+      integer kunit
       integer nnbf,ioff
       character*256 fnamek
       character*256 fnameta,fnametb
@@ -237,8 +237,8 @@ c
          call ga_brdcst(134, dbl_mb(k_bmos), nbf*nmo*8, 0)
 c     
          call util_file_name('kh',.true.,.true.,fnamek)
-         call waopen(kunit,fnamek,1,0,itmp)
-         if(itmp.ne.0)call errquit('mp2_grad_doit waopen?',1)
+         if (eaf_open(fnamek, EAF_RW, kunit).ne.0)
+     $     call errquit('mp2_grad_doit: cannot open half int file',1)
          call moints_vrange(kunit,nva_lo_local,nva_hi_local,nnbf,ioff)
 c     
          if(.not.ma_push_get(mt_int,(nnbf+mod(nnbf,2)),'scatter',
@@ -392,7 +392,8 @@ c
      $           call errquit(
      $           'mp2_grad_doit: failed chopping t_a_in',0)
 c     
-            call waclose(kunit,ierr)
+            if (eaf_close(kunit).ne.0)
+     $        call errquit('mp2_grad_doit: close half int file',0)
             if(ierr.ne.0)call errquit
      $           ('mp2_grad: problem closing kunit', ierr)
             call util_file_unlink(fnamek)
@@ -433,9 +434,8 @@ c
       end do
 c     
       if (task .ne. 'gradient') then
-         call waclose(kunit,ierr)
-         if(ierr.ne.0)call errquit
-     $        ('mp2_grad: problem closing kunit', ierr)
+        if (eaf_close(kunit).ne.0)
+     $    call errquit('mp2_grad: problem closing kunit',0)
          call util_file_unlink(fnamek)
       end if
 c     

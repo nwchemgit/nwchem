@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.61 1997-08-13 16:56:54 rg240 Exp $
+C$Id: mointdriver.F,v 1.62 1997-08-13 19:18:38 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -175,7 +175,7 @@ c
      $      1, blen)) blen = 16
        blen = max(blen,maxbfsh)
        if (.not.rtdb_get(rtdb,'fourindex:aoblock', MT_LOG,
-     $      1, oblk)) oblk = .false.
+     $      1, oblk)) oblk = .true.
 c
 c Initialise integrals and screening
 c
@@ -272,7 +272,7 @@ c
          write(6,*)
          call util_flush(6)
        endif
-C       goto 333    ! skip direct MP2 section
+       goto 333    ! skip direct MP2 section
 c
 c  Initialize aodisk
 c
@@ -382,7 +382,7 @@ c
  333   continue
        if (ocoul) status = ga_destroy(g_coul)
        if (oexch) status = ga_destroy(g_exch)
-       goto 444          !skip semi-direct code
+C       goto 444          !skip semi-direct code
 c
 c ---------------------------
 c  Test semi-direct routine
