@@ -1,19 +1,16 @@
 /*
- $Id: nw_inp_from_string.c,v 1.5 1999-07-27 21:21:20 d3e129 Exp $
+ $Id: nw_inp_from_string.c,v 1.6 1999-10-25 15:58:04 d3g681 Exp $
 */
 #include "global.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#if defined(CRAY_T3E) || defined(CRAY_T3D)
-#define NWC_NW_INP_FROM_FILE NW_INP_FROM_FILE
-#else
-#define NWC_NW_INP_FROM_FILE nw_inp_from_file_
+#if defined(CRAY_T3E) || defined(CRAY_T3D) || defined(CRAY)
+#define nw_inp_from_file_ NW_INP_FROM_FILE
 #endif
-extern int NWC_NW_INP_FROM_FILE(int *, char *, int);
+extern int nw_inp_from_file_(int *, char *, int);
 extern int string_to_fortchar(char *, int, char *);
-
 
 int nw_inp_from_string(int rtdb, const char *input)
 {
@@ -41,7 +38,7 @@ int nw_inp_from_string(int rtdb, const char *input)
       ga_error("nw_inp_from_string: fstring is too small",0);
     }
 
-    status = NWC_NW_INP_FROM_FILE(&rtdb, fstring, sizeof fstring);
+    status = nw_inp_from_file_(&rtdb, fstring, sizeof fstring);
 
     if (ga_nodeid_() == 0) (void) unlink(filename);
 

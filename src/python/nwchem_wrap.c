@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.7 1999-07-27 21:21:20 d3e129 Exp $
+ $Id: nwchem_wrap.c,v 1.8 1999-10-25 15:58:04 d3g681 Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,30 +13,27 @@
 #include "macdecls.h"
 #include "global.h"
 
-#if defined(CRAY_T3E) || defined(CRAY_T3E)
-#define NWC_TASK_GRADIENT TASK_GRADIENT
-#define NWC_TASK_ENERGY   TASK_ENERGY
-#else
-#define NWC_TASK_GRADIENT task_gradient_
-#define NWC_TASK_ENERGY   task_energy_
-#endif
-
 
 static PyObject *NwchemError;
 
 static int rtdb_handle;            /* handle to the rtdb */
 
-#ifdef CRAY
+#if defined(CRAY) || defined(CRAY_T3E)
 #define task_energy_ TASK_ENERGY
 #define task_gradient_ TASK_GRADIENT
 #define task_optimize_ TASK_OPTIMIZE
 #endif
 
+extern int nw_inp_from_string(int, const char *);
+
+extern int task_energy_(const int *);
+extern int task_gradient_(const int *);
+extern int task_optimize_(const int *);
+
 static PyObject *
 wrap_rtdb_open(PyObject *self, PyObject *args)
 {
    const char *filename, *mode;
-   int  handle;
 
    if (PyArg_Parse(args, "(ss)", &filename, &mode)) {
        if (!rtdb_open(filename, mode, &rtdb_handle)) {
@@ -55,7 +52,7 @@ wrap_rtdb_open(PyObject *self, PyObject *args)
 static PyObject *wrap_rtdb_close(PyObject *self, PyObject *args)
 {
    const char *mode;
-   int  handle, result;
+   int  result;
 
    if (PyArg_Parse(args, "s", &mode)) {
        if (!(result = rtdb_close(rtdb_handle, mode))) {
@@ -83,7 +80,7 @@ static PyObject *wrap_pass_handle(PyObject *self, PyObject *args)
 
 static PyObject *wrap_rtdb_print(PyObject *self, PyObject *args)
 {
-   int handle, flag;
+   int flag;
 
    if (PyArg_Parse(args, "i", &flag)) {
       if (!rtdb_print(rtdb_handle, flag)) 
@@ -100,12 +97,12 @@ static PyObject *wrap_rtdb_print(PyObject *self, PyObject *args)
 
 static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
 {
-    int handle, i, list, list_len;
+    int i, list, list_len;
     int ma_type = -1;
     char *name;
     int* int_array;
     double *dbl_array;
-    char *char_array, *pchar;
+    char *char_array;
     void *array = 0;
     PyObject *obj, *option_obj;
 
@@ -211,14 +208,11 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
 
 PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
 {
-   int i, result;
+   int i;
    int nelem, ma_type;
-   int *int_array;
-   double *dbl_array;
-   char *char_array, *pchar;
    char *name;
-   char *format_str=0, date[26], format_char;
-   PyObject *returnObj;
+   char *format_str=0, format_char;
+   PyObject *returnObj = 0;
    void *array=0;
    int ma_handle, ind;
 
@@ -287,9 +281,68 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
    return returnObj;
 }
 
+PyObject *wrap_rtdb_get_info(PyObject *self, PyObject *args)
+{
+   int nelem, ma_type;
+   char *name;
+   char *format_str="[iis]";
+   PyObject *returnObj = 0;
+   char date[26];
+
+   if (PyArg_Parse(args, "s", &name)) {
+       if (!rtdb_get_info(rtdb_handle, name, &ma_type, &nelem, date)) {
+	   PyErr_SetString(NwchemError, "rtdb_get_info failed");
+	   return NULL;
+       }
+       if (!(returnObj = PyTuple_New(3))) {
+	   PyErr_SetString(NwchemError, "rtdb_get_info failed with pyobj");
+	   return NULL;
+       }
+       PyTuple_SET_ITEM(returnObj, 0, PyInt_FromLong((long) ma_type)); 
+       PyTuple_SET_ITEM(returnObj, 1, PyInt_FromLong((long) nelem)); 
+       PyTuple_SET_ITEM(returnObj, 2, PyString_FromString(date)); 
+   }
+   else {
+       PyErr_SetString(PyExc_TypeError, "Usage: value = rtdb_get_info(name)");
+       if (format_str) free(format_str);
+       return NULL;
+   }
+   return returnObj;
+}
+
+
+PyObject *wrap_rtdb_first(PyObject *self, PyObject *args)
+{
+   char name[256];
+   PyObject *returnObj;
+
+   if (rtdb_first(rtdb_handle, sizeof(name), name)) {
+     returnObj = PyString_FromString(name); /*Py_BuildValue("s#", name, 1); */
+   }
+   else {
+       PyErr_SetString(PyExc_TypeError, "rtdb_first: failed");
+       return NULL;
+   }
+   return returnObj;
+}
+
+PyObject *wrap_rtdb_next(PyObject *self, PyObject *args)
+{
+   char name[256];
+   PyObject *returnObj;
+
+   if (rtdb_next(rtdb_handle, sizeof(name), name)) {
+     returnObj = PyString_FromString(name); /*Py_BuildValue("s#", name, 1); */
+   }
+   else {
+       PyErr_SetString(PyExc_TypeError, "rtdb_next: failed");
+       return NULL;
+   }
+   return returnObj;
+}
+
 static PyObject *wrap_task_energy(PyObject *self, PyObject *args)
 {
-    char *filename, *mode;
     char *theory;
     double energy;
     
@@ -299,7 +352,7 @@ static PyObject *wrap_task_energy(PyObject *self, PyObject *args)
 	    PyErr_SetString(NwchemError, "task_energy: putting theory failed");
 	    return NULL;
 	}
-	if (!NWC_TASK_ENERGY(&rtdb_handle)) {
+	if (!task_energy_(&rtdb_handle)) {
 	    PyErr_SetString(NwchemError, "task_energy: failed");
 	    return NULL;
 	}
@@ -318,11 +371,10 @@ static PyObject *wrap_task_energy(PyObject *self, PyObject *args)
 
 static PyObject *wrap_task_gradient(PyObject *self, PyObject *args)
 {
-    char *filename, *mode;
     char *theory;
     double energy, *gradient;
     int ma_type, nelem, ma_handle, ind, i;
-    char date[26], *format_str;
+    char *format_str;
     PyObject *returnObj, *eObj, *gradObj;
     
     if (PyArg_Parse(args, "s", &theory)) {
@@ -331,7 +383,7 @@ static PyObject *wrap_task_gradient(PyObject *self, PyObject *args)
 	    PyErr_SetString(NwchemError, "task_gradient: putting theory failed");
 	    return NULL;
 	}
-	if (!NWC_TASK_GRADIENT(&rtdb_handle)) {
+	if (!task_gradient_(&rtdb_handle)) {
 	    PyErr_SetString(NwchemError, "task_gradient: failed");
 	    return NULL;
 	}
@@ -381,11 +433,10 @@ static PyObject *wrap_task_gradient(PyObject *self, PyObject *args)
 
 static PyObject *wrap_task_optimize(PyObject *self, PyObject *args)
 {
-    char *filename, *mode;
     char *theory;
     double energy, *gradient;
     int ma_type, nelem, ma_handle, ind, i;
-    char date[26], *format_str;
+    char *format_str;
     PyObject *returnObj, *eObj, *gradObj;
     
     if (PyArg_Parse(args, "s", &theory)) {
@@ -486,6 +537,9 @@ static struct PyMethodDef nwchem_methods[] = {
    {"rtdb_print",      wrap_rtdb_print, 0}, 
    {"rtdb_put",        wrap_rtdb_put, 0}, 
    {"rtdb_get",        wrap_rtdb_get, 0}, 
+   {"rtdb_get_info",   wrap_rtdb_get_info, 0}, 
+   {"rtdb_first",      wrap_rtdb_first, 0}, 
+   {"rtdb_next",       wrap_rtdb_next, 0}, 
    {"task_energy",     wrap_task_energy, 0}, 
    {"task_gradient",   wrap_task_gradient, 0}, 
    {"task_optimize",   wrap_task_optimize, 0}, 

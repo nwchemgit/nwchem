@@ -1,5 +1,5 @@
 /*
- $Id: task_python.c,v 1.6 1999-07-27 21:21:21 d3e129 Exp $
+ $Id: task_python.c,v 1.7 1999-10-25 15:58:04 d3g681 Exp $
 */
 #include "macdecls.h"
 #include "global.h"
@@ -10,6 +10,9 @@
 #include <pythonrun.h>
 #include <stdlib.h>
 
+extern void initnwchem();
+extern void util_file_parallel_copy(const char *, const char *);
+
 
 #if defined(CRAY_T3E) || defined(CRAY_T3D)
 int TASK_PYTHON(int *rtdb_ptr)
@@ -18,7 +21,6 @@ int task_python_(int *rtdb_ptr)
 #endif
 {
    FILE *F;
-   PyObject *phndl, *pmod, *pdict;
    char buf[20], *pbuf;
    char filename[256];
    int ret;
