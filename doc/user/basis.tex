@@ -104,7 +104,7 @@ Basis sets are associated with centers by using the tag of a center in
 a geometry that has either been input by the user (Section
 \ref{sec:geom}) or is available elsewhere.  Each atom or center with
 the same \verb+tag+ will have the same basis set.  All atoms must have
-basis functions assigned to them --- only dummy centers may have no
+basis functions assigned to them --- only dummy centers (X or Bq) may have no
 basis functions.  To facilitate the specification of the geometry and
 the basis set for any chemical system, the matching process of a basis
 set tag to a geometry tag first looks for an exact match.  If no match
@@ -121,7 +121,8 @@ A special set of tags, ``*'' and tags ending with a ``*'' (E.g. ``H*'')
 can be used in combination with the keyword \verb+library+ (see section
 below). These tags facilitate the definition of a certain type of basis 
 set of all atoms, or a group of atoms, in a geometry using only a single 
-or very few basis set entries.
+or very few basis set entries. The ``*'' tag will not place basis sets 
+on dummy atoms, Bq* can be used for that if necessary.
 
 Examined next is how to reference standard basis sets in the basis set
 library, and finally, how to define a basis set using exponents and
@@ -173,7 +174,7 @@ than look for them in the default libraries. When a directory is defined
 the code will search for the basis set in a file with the name {\tt 6-31g}.
 
 The ``*'' tag can be used to efficiently define basis set input directives 
-for large numbers of atoms. For example,
+for large numbers of atoms. An example is:
 \begin{verbatim}
   basis
     *  library 3-21g
