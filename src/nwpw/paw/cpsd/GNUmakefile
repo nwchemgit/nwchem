@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.6 2003-09-25 23:46:23 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2004-05-14 15:45:29 edo Exp $
 #
  OBJ_OPTIMIZE = \
 		paw_sd.o \
@@ -16,7 +16,7 @@
 
       LIBRARY = libpaw.a
 
-    USES_BLAS = paw_sd.F paw_cpmsd.F paw_inner_loop.F
+    USES_BLAS = paw_sd.F paw_cpmsd.F paw_inner_loop.F paw_cpmd.F
                 
 
   LIB_DEFINES =
