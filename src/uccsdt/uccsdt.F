@@ -578,14 +578,14 @@ c     $     int_acjk(5000),
 c     $     int_bcik(5000),
 c     $     int_acik(5000)
 c     
-c      double precision int_buf(5000), t_buf(5000), w(100000)
-      double precision tmpr(50*20*20)
-      double precision tmpx(20*20*20*20)
       integer btop, ctop, ktop, vlo, vhi, olo, ohi,
      $        vlo_ck, vhi_ck, olo_ck, ohi_ck
+      integer z_block_max
       integer lentbuf, l_tbuf, k_tbuf
       integer lenibuf, l_ibuf, k_ibuf
       integer lenwbuf, l_wbuf, k_wbuf
+      integer lenrbuf, l_rbuf, k_rbuf
+      integer lenxbuf, l_xbuf, k_xbuf
       integer len9ibuf, l_ibuf_abij, k_ibuf_abij,
      $                  l_ibuf_abjk, k_ibuf_abjk,
      $                  l_ibuf_abik, k_ibuf_abik,
@@ -647,6 +647,14 @@ c
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_acik',l_ibuf_acik,
      $   k_ibuf_acik))call errquit('uccsdt: ibuf_acik?',len9ibuf)
 c
+      z_block_max = max(e_block_max,m_block_max)
+      lenrbuf = z_block_max*vblock_max**2
+      if (.not.ma_push_get(mt_dbl,lenrbuf,'rbuf',l_rbuf,k_rbuf))
+     $   call errquit('uccsdt: rbuf?',lenrbuf)
+      lenxbuf = oblock_max*vblock_max**3
+      if (.not.ma_push_get(mt_dbl,lenxbuf,'xbuf',l_xbuf,k_xbuf))
+     $   call errquit('uccsdt: xbuf?',lenxbuf)
+c
       write(6,*)' e_block_max, m_block_max, oblock_max, vblock_max: ',
      &            e_block_max, m_block_max, oblock_max, vblock_max
 
@@ -659,11 +667,6 @@ c
       nproc = ga_nnodes()
       next = nxtval(nproc)
       count = 0
-c
-c     temp dfill
-c
-c      call dfill(50*20*20, 1.0d0, tmpr, 1)
-c      call dfill(20*20*20*20, 1.0d0, tmpx, 1)
 c     
       if (oprint) write(6,*)'TSB:spin, spinck: ', spin, spinck
       do ablk = nablock, 1, -1
@@ -744,9 +747,9 @@ c     need to test on esym.eq.test_sym below
 c
                               spine = spin
                               esym = sym3(symc,symj,symi)
-                              test_sym  = sym3(symk,syma,symb)
+c                              test_sym  = sym3(symk,syma,symb)
                               if ( spin.eq.spinck .and.
-     $                             esym.eq.test_sym .and. 
+c     $                             esym.eq.test_sym .and. 
      $                             nv_sym(esym,spine).gt.0 ) then
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
@@ -762,14 +765,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                elo, ehi, 
-     $                                spin, spinck, tmpr, tmpx, 1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), 1.0d0)
                               endif
 c     
                               spine = spin
                               esym = sym3(symc,symj,symk)
-                              test_sym  = sym3(symi,syma,symb)
-                              if ( esym.eq.test_sym .and. 
-     $                             nv_sym(esym,spine).gt.0 ) then
+c                              test_sym  = sym3(symi,syma,symb)
+c                              if ( esym.eq.test_sym .and. 
+c     $                             nv_sym(esym,spine).gt.0 ) then
+                              if ( nv_sym(esym,spine).gt.0 ) then
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(14, 1,
@@ -784,14 +789,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                elo, ehi, 
-     $                                spin, spinck, tmpr, tmpx, -1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), -1.0d0)
                               end if
 c     
                               spine = spin
                               esym = sym3(symc,symi,symk)
-                              test_sym  = sym3(symj,syma,symb)
-                              if ( esym.eq.test_sym .and. 
-     $                             nv_sym(esym,spine).gt.0 ) then
+c                              test_sym  = sym3(symj,syma,symb)
+c                              if ( esym.eq.test_sym .and. 
+c     $                             nv_sym(esym,spine).gt.0 ) then
+                              if ( nv_sym(esym,spine).gt.0 ) then
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(14, 1,
@@ -806,14 +813,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                elo, ehi, 
-     $                                spin, spinck, tmpr, tmpx, 1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), 1.0d0)
                               end if
 c     
                               spine = spin
                               esym = sym3(syma,symj,symi)
-                              test_sym  = sym3(symk,symb,symc)
-                              if ( esym.eq.test_sym .and. 
-     $                             nv_sym(esym,spine).gt.0 ) then
+c                              test_sym  = sym3(symk,symb,symc)
+c                              if ( esym.eq.test_sym .and. 
+c     $                             nv_sym(esym,spine).gt.0 ) then
+                              if ( nv_sym(esym,spine).gt.0 ) then
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(15, 1,
@@ -828,14 +837,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                elo, ehi, 
-     $                                spin, spinck, tmpr, tmpx, 1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), 1.0d0)
                               end if
 c     
                               spine = spin
                               esym = sym3(symb,symj,symi)
-                              test_sym  = sym3(symk,syma,symc)
-                              if ( esym.eq.test_sym .and. 
-     $                             nv_sym(esym,spine).gt.0 ) then
+c                              test_sym  = sym3(symk,syma,symc)
+c                              if ( esym.eq.test_sym .and. 
+c     $                             nv_sym(esym,spine).gt.0 ) then
+                              if ( nv_sym(esym,spine).gt.0 ) then
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(16, 1,
@@ -850,14 +861,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                elo, ehi, 
-     $                                spin, spinck, tmpr, tmpx, -1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), -1.0d0)
                               end if
 c     
                               spine = spinck
                               esym = sym3(syma,symk,symj)
-                              test_sym  = sym3(symi,symc,symb)
-                              if ( esym.eq.test_sym .and. 
-     $                             nv_sym(esym,spine).gt.0 ) then
+c                              test_sym  = sym3(symi,symc,symb)
+c                              if ( esym.eq.test_sym .and. 
+c     $                             nv_sym(esym,spine).gt.0 ) then
+                              if ( nv_sym(esym,spine).gt.0 ) then
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(17, 1,
@@ -872,14 +885,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                elo, ehi, 
-     $                                spin, spinck, tmpr, tmpx, -1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), -1.0d0)
                               end if
 c     
                               spine = spinck
                               esym = sym3(symb,symk,symj)
-                              test_sym  = sym3(symi,symc,syma)
-                              if ( esym.eq.test_sym .and. 
-     $                             nv_sym(esym,spine).gt.0 ) then
+c                              test_sym  = sym3(symi,symc,syma)
+c                              if ( esym.eq.test_sym .and. 
+c     $                             nv_sym(esym,spine).gt.0 ) then
+                              if ( nv_sym(esym,spine).gt.0 ) then
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(18, 1,
@@ -894,14 +909,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                elo, ehi, 
-     $                                spin, spinck, tmpr, tmpx, 1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), 1.0d0)
                               end if
 c     
                               spine = spinck
                               esym = sym3(syma,symk,symi)
-                              test_sym  = sym3(symj,symc,symb)
-                              if ( esym.eq.test_sym .and. 
-     $                             nv_sym(esym,spine).gt.0 ) then
+c                              test_sym  = sym3(symj,symc,symb)
+c                              if ( esym.eq.test_sym .and. 
+c     $                             nv_sym(esym,spine).gt.0 ) then
+                              if ( nv_sym(esym,spine).gt.0 ) then
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(17, 1,
@@ -916,14 +933,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                elo, ehi, 
-     $                                spin, spinck, tmpr, tmpx, 1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), 1.0d0)
                               end if
 c     
                               spine = spinck
                               esym = sym3(symb,symk,symi)
-                              test_sym  = sym3(symj,symc,syma)
-                              if ( esym.eq.test_sym .and. 
-     $                             nv_sym(esym,spine).gt.0 ) then
+c                              test_sym  = sym3(symj,symc,syma)
+c                              if ( esym.eq.test_sym .and. 
+c     $                             nv_sym(esym,spine).gt.0 ) then
+                              if ( nv_sym(esym,spine).gt.0 ) then
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(18, 1,
@@ -938,14 +957,15 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                elo, ehi, 
-     $                                spin, spinck, tmpr, tmpx, -1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), -1.0d0)
                               end if
 c     
                               spinm = spin
                               msym = sym3(symk,syma,symb)
-                              test_sym  = sym3(symc,symj,symi)
+c                              test_sym  = sym3(symc,symj,symi)
                               if ( spin.eq.spinck .and.
-     $                             msym.eq.test_sym .and. 
+c     $                             msym.eq.test_sym .and. 
      $                             no_sym(msym,spinm).gt.0 ) then
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
@@ -961,14 +981,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                mlo, mhi, 
-     $                                spin, spinck, tmpr, tmpx, -1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), -1.0d0)
                               end if
 c     
                               spinm = spin
                               msym = sym3(symi,syma,symb)
-                              test_sym  = sym3(symc,symj,symk)
-                              if ( msym.eq.test_sym .and. 
-     $                             no_sym(msym,spinm).gt.0 ) then
+c                              test_sym  = sym3(symc,symj,symk)
+c                              if ( msym.eq.test_sym .and. 
+c     $                             no_sym(msym,spinm).gt.0 ) then
+                              if ( no_sym(msym,spinm).gt.0 ) then
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(19, 1,
@@ -983,14 +1005,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                mlo, mhi, 
-     $                                spin, spinck, tmpr, tmpx, 1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), 1.0d0)
                               end if
 c     
                               spinm = spin
                               msym = sym3(symj,syma,symb)
-                              test_sym  = sym3(symc,symi,symk)
-                              if ( msym.eq.test_sym .and. 
-     $                             no_sym(msym,spinm).gt.0 ) then
+c                              test_sym  = sym3(symc,symi,symk)
+c                              if ( msym.eq.test_sym .and. 
+c     $                             no_sym(msym,spinm).gt.0 ) then
+                              if ( no_sym(msym,spinm).gt.0 ) then
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(19, 1,
@@ -1005,14 +1029,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                mlo, mhi, 
-     $                                spin, spinck, tmpr, tmpx, -1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), -1.0d0)
                               end if
 c     
                               spinm = spin
                               msym = sym3(symk,symb,symc)
-                              test_sym  = sym3(syma,symj,symi)
-                              if ( msym.eq.test_sym .and. 
-     $                             no_sym(msym,spinm).gt.0 ) then
+c                              test_sym  = sym3(syma,symj,symi)
+c                              if ( msym.eq.test_sym .and. 
+c     $                             no_sym(msym,spinm).gt.0 ) then
+                              if ( no_sym(msym,spinm).gt.0 ) then
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(21, 1,
@@ -1027,14 +1053,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                mlo, mhi, 
-     $                                spin, spinck, tmpr, tmpx, -1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), -1.0d0)
                               end if
 c     
                               spinm = spin
                               msym = sym3(symk,syma,symc)
-                              test_sym  = sym3(symb,symj,symi)
-                              if ( msym.eq.test_sym .and. 
-     $                             no_sym(msym,spinm).gt.0 ) then
+c                              test_sym  = sym3(symb,symj,symi)
+c                              if ( msym.eq.test_sym .and. 
+c     $                             no_sym(msym,spinm).gt.0 ) then
+                              if ( no_sym(msym,spinm).gt.0 ) then
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(20, 1,
@@ -1049,14 +1077,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                mlo, mhi, 
-     $                                spin, spinck, tmpr, tmpx, 1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), 1.0d0)
                               end if
 c     
                               spinm = spinck
                               msym = sym3(symi,symc,symb)
-                              test_sym  = sym3(syma,symk,symj)
-                              if ( msym.eq.test_sym .and. 
-     $                             no_sym(msym,spinm).gt.0 ) then
+c                              test_sym  = sym3(syma,symk,symj)
+c                              if ( msym.eq.test_sym .and. 
+c     $                             no_sym(msym,spinm).gt.0 ) then
+                              if ( no_sym(msym,spinm).gt.0 ) then
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(23, 1,
@@ -1071,14 +1101,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                mlo, mhi, 
-     $                                spin, spinck, tmpr, tmpx, 1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), 1.0d0)
                               end if
 c     
                               spinm = spinck
                               msym = sym3(symi,symc,syma)
-                              test_sym  = sym3(symb,symk,symj)
-                              if ( msym.eq.test_sym .and. 
-     $                             no_sym(msym,spinm).gt.0 ) then
+c                              test_sym  = sym3(symb,symk,symj)
+c                              if ( msym.eq.test_sym .and. 
+c     $                             no_sym(msym,spinm).gt.0 ) then
+                              if ( no_sym(msym,spinm).gt.0 ) then
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(22, 1,
@@ -1093,14 +1125,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                mlo, mhi, 
-     $                                spin, spinck, tmpr, tmpx, -1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), -1.0d0)
                               end if
 c     
                               spinm = spinck
                               msym = sym3(symj,symc,symb)
-                              test_sym  = sym3(syma,symk,symi)
-                              if ( msym.eq.test_sym .and. 
-     $                             no_sym(msym,spinm).gt.0 ) then
+c                              test_sym  = sym3(syma,symk,symi)
+c                              if ( msym.eq.test_sym .and. 
+c     $                             no_sym(msym,spinm).gt.0 ) then
+                              if ( no_sym(msym,spinm).gt.0 ) then
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(23, 1,
@@ -1115,14 +1149,16 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                mlo, mhi, 
-     $                                spin, spinck, tmpr, tmpx, -1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), -1.0d0)
                               end if
 c     
                               spinm = spinck
                               msym = sym3(symj,symc,syma)
-                              test_sym  = sym3(symb,symk,symi)
-                              if ( msym.eq.test_sym .and. 
-     $                             no_sym(msym,spinm).gt.0 ) then
+c                              test_sym  = sym3(symb,symk,symi)
+c                              if ( msym.eq.test_sym .and. 
+c     $                             no_sym(msym,spinm).gt.0 ) then
+                              if ( no_sym(msym,spinm).gt.0 ) then
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(22, 1,
@@ -1137,7 +1173,8 @@ c
      $                                alo, ahi, blo, bhi, clo, chi,
      $                                ilo, ihi, jlo, jhi, klo, khi, 
      $                                mlo, mhi, 
-     $                                spin, spinck, tmpr, tmpx, 1.0d0)
+     $                                spin, spinck, dbl_mb(k_rbuf), 
+     $                                dbl_mb(k_xbuf), 1.0d0)
                               end if
 c     
                               int_sym = sym4(syma, symb, symi, symj)
