@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.134 2004-04-20 15:26:15 d3j191 Exp $
+c $Id: sp_init.F,v 1.135 2004-04-20 15:33:21 d3j191 Exp $
 c
       implicit none
 c
@@ -327,7 +327,7 @@ c
       write(lfnout,2002) rshort,rsgm,rlong,rbox,box,bsize
  2002 format(' Short range cutoff',t35,f12.6,/,
      + ' Segment size',t35,f12.6,/,' Long range cutoff',t35,f12.6,/,
-     + ' Box size rbox',t35,//,' Box dimension',t35,3f12.6,//,
+     + ' Box size rbox',t35,f12.6,//,' Box dimension',t35,3f12.6,//,
      + ' Initial cell size',t35,f12.6,/)
       endif
 c
