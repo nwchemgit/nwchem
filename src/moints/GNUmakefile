@@ -13,7 +13,6 @@
   USES_BLAS = moints.F
 
  LIB_DEFINES =  -DDEBUG_PRINT 
-
 #              -DMOINTS_INTS_DUMMY
 #              -DDEBUG_PRINT
 #	       -DPERMUT_SYMM

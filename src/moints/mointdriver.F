@@ -21,7 +21,7 @@ c
        double precision nuclear_charge, charge
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer l_epair, k_epair
-       integer i, nbf, nelec, nact, nocc, nopen, nbf_vecs
+       integer i, nbf, nsh, nelec, nact, nocc, nopen, nbf_vecs
        integer mo_indx_lo, mo_indx_hi, nsets, nmo
        integer mo_indx2_lo, mo_indx2_hi, nmo2
        integer noper, nvir
@@ -46,6 +46,7 @@ c
 c
        status = geom_nuc_charge(geom, nuclear_charge)
        status = status.and.bas_numbf(basis, nbf)
+       status = status.and.bas_numcont(basis,nsh)
        if (.not. status)
      $   call errquit('moint_driver: failed to get info', 0)
 c
@@ -114,9 +115,10 @@ c
          write(6,*)
          call util_print_centered(6,'Four-Index Transformation',
      $                            30,.true.)
-         write(6,966) nbf,nocc,mo_indx_lo,mo_indx_hi,
+         write(6,966) nbf,nsh,nocc,mo_indx_lo,mo_indx_hi,
      $                mo_indx2_lo,mo_indx2_hi
  966     format(10x,'Number of basis functions:',10x,i5,/,
+     $        10x,'Number of shells:',19x,i5,/,
      $        10x,'Number of occupied orbitals:',8x,i5,/,
      $        10x,'Superscript MO index range:',6x,i3,1x,'-',i3,/,
      $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3)
