@@ -194,15 +194,34 @@ c
 c
 c   check COSMO solvent ... if .true. then force diis
 c
+      odbug=.false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(odbug) then
+            write(*,*) '-cosmo- ... found in scf_init ... ',
+     $                 ocosmo,ga_nodeid()
+         endif
          if(ocosmo) then
             odiis=.true.
-            odbug=.false.
+            if(.not. rtdb_put(rtdb,'scf:diis', MT_LOG, 1, odiis))
+     $         call errquit('scf_init: rtdb_put of diis failed',0)
+            if (.not.rtdb_get(rtdb, 'scf:diis',MT_LOG, 1, odiis))
+     $          odiis = .false.
             if(odbug) then
-               write(*,*) 'force -diis- because of cosmo'
+               write(*,*) 'force -diis- because of cosmo',
+     $                    ga_nodeid()
+            endif
+         else
+            if(odbug) then
+               write(*,*) '-cosmo- ... found but .false. ',
+     $                    ocosmo,ga_nodeid()
             endif
          endif
+      else
+         if(odbug) then
+            write(*,*) '-cosmo- not found in scf_init ... '
+         endif
       endif
+      call ga_sync()
 
 c
 c     For now set NMO = NBF, however this may change later when the 
@@ -268,7 +287,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.47 2000-05-23 06:10:52 mdupuis Exp $
+C$Id: scf_get_info.F,v 1.48 2000-05-25 06:59:39 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

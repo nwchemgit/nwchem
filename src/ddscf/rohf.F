@@ -1,11 +1,12 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.36 2000-05-23 06:10:52 mdupuis Exp $
+C$Id: rohf.F,v 1.37 2000-05-25 06:59:38 mdupuis Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "tcgmsg.fh"
 #include "crohf.fh"
 #include "cscf.fh"
@@ -45,7 +46,6 @@ c
       logical odbug
       logical ocosmo
       logical osome
-      logical omode
 c
       oprint = util_print('information',print_low)
 c
@@ -55,23 +55,40 @@ c
 c
 c     ----- cosmo cavity -----
 c
-      if(ga_nodeid().eq.0) then
-         omode=rtdb_parallel(.false.)
-         if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-            if(ocosmo) then
-               odbug=.false.
-               if(odbug) then
-                  osome=.true.
-               else
-                  osome=.false.
-               endif
-               call cosmo_initialize(rtdb,osome)
+      odbug=.false.
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(odbug) then
+            write(luout,*) '-cosmo- ... found in -rohf-',
+     $                     ocosmo,ga_nodeid()
+         endif
+         if(ocosmo) then
+            if(odbug) then
+               osome=.true.
+            else
+               osome=.false.
+            endif
+            call cosmo_initialize(rtdb,osome)
+            if(odbug) then
+               write(luout,*) 'done with cosmo_initialize',
+     $                        ga_nodeid()
+            endif
+         else
+            if(odbug) then
+               write(luout,*) '-cosmo- ... found but .false.',
+     $                        ocosmo,ga_nodeid()
             endif
          endif
-         omode=rtdb_parallel(.true.)
+      else
+         if(odbug) then
+            write(luout,*) '-cosmo- not found in -rohf-'
+         endif
       endif
 c
       call ga_sync()
+c
+      if(odbug) then
+         write(luout,*) 'ready to solve ...',ga_nodeid()
+      endif
 c
 c     Start timer
 c
@@ -97,12 +114,12 @@ c     Print out results
 c
       if (ga_nodeid().eq.0 .and. (oprint .or. .not.converged)) then
          if (.not. converged) then
-            write(6,*)
-            call util_print_centered(6,
+            write(luout,*)
+            call util_print_centered(luout,
      $           'Calculation failed to converge', 20, .true.)
-            write(6,*)
+            write(luout,*)
          endif
-         write(6,2) scftype, energy, eone, etwo, enrep, rohf_time
+         write(luout,2) scftype, energy, eone, etwo, enrep, rohf_time
  2       format(//
      $        '       Final ',a4,' results '/
      $        '       ------------------ '//
@@ -145,7 +162,8 @@ c
          if (util_print('final evals', print_default)) then
             nprint = min(nclosed+nopen+10,nmo)
             if (util_print('final evals', print_high)) nprint = nmo
-            call util_print_centered(6,'Final eigenvalues',20,.true.)
+            call util_print_centered(luout,'Final eigenvalues',20,
+     $                               .true.)
             call output(dbl_mb(k_eval),
      $           1, nprint,
      $           1, 1, nmo, 1, 1)
@@ -176,9 +194,10 @@ c
 c
       if (ga_nodeid() .eq. 0) then
          if (util_print('final vectors', print_debug)) then
-            write(6,*)
-            call util_print_centered(6,'Final MO vectors',40,.true.)
-            write(6,*)
+            write(luout,*)
+            call util_print_centered(luout,'Final MO vectors',40,
+     $                               .true.)
+            write(luout,*)
             call util_flush(6)
          endif
       endif
@@ -201,6 +220,7 @@ c
 #include "global.fh"
 #include "util.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
       integer rtdb
@@ -247,16 +267,16 @@ c
 c     
       if (oprintmulliken) then
          if (ga_nodeid() .eq. 0) then
-            write(6,*)
-            call util_print_centered(6,
+            write(luout,*)
+            call util_print_centered(luout,
      $           'Mulliken analysis of the total density', 20,.true.)
          endif
          call mull_pop(geom, basis, g_cdens, g_over, 'total')
 c     
          if (nopen .gt. 0) then
             if (ga_nodeid() .eq. 0) then
-               write(6,*)
-               call util_print_centered(6,
+               write(luout,*)
+               call util_print_centered(luout,
      $              'Mulliken analysis of the open-shell density', 
      $              20,.true.)
             endif
@@ -280,14 +300,14 @@ c
       enddo
 c     
       if (oprintmultipole .and. ga_nodeid().eq.0) then
-         write(6,*)
-         call util_print_centered(6,
+         write(luout,*)
+         call util_print_centered(luout,
      $     'Multipole analysis of the density wrt the origin', 
      $      30, .true.)
-         write(6,*)
-         write(6,*) '    L   x y z        total         open',
+         write(luout,*)
+         write(luout,*) '    L   x y z        total         open',
      $                 '         nuclear'
-         write(6,*) '    -   - - -        -----         ----',
+         write(luout,*) '    -   - - -        -----         ----',
      $        '         -------'
          ind = 0
          do ltotal = 0, lmax
@@ -295,12 +315,12 @@ c
                do l = ltotal-k, 0, -1
                   m = ltotal - k - l
                   ind = ind + 1
-                  write(6,12) ltotal, k, l, m, totalmoments(ind),
+                  write(luout,12) ltotal, k, l, m, totalmoments(ind),
      $                 openmoments(ind), nuclmoments(ind)
  12               format(4x,i2,2x,3i2,3f14.6)
                enddo
             enddo
-            write(6,*)
+            write(luout,*)
          enddo
       endif
       call ecce_print1('total dipole', mt_dbl, totalmoments(2), 3)

@@ -3,7 +3,7 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel)
 *
-* $Id: rohf_fock.F,v 1.13 2000-05-23 06:10:52 mdupuis Exp $
+* $Id: rohf_fock.F,v 1.14 2000-05-25 06:59:39 mdupuis Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -127,45 +127,42 @@ c
 c
 c     ----- cosmo potential -----
 c
+      odbug=.false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-           if(ocosmo) then
+         if(ocosmo) then
 c
-              odbug=.false.
-              if(odbug) then
-                 osome=.true.
-              else
-                 osome=.false.
-              endif
-              odbug=odbug.and.ga_nodeid().eq.0
-              osome=osome.and.ga_nodeid().eq.0
+            if(odbug) then
+               osome=.true.
+            else
+               osome=.false.
+            endif
+            odbug=odbug.and.ga_nodeid().eq.0
+            osome=osome.and.ga_nodeid().eq.0
 c
-              g_cos1e(1)  = ga_create_atom_blocked(geom, basis,
-     $                                         'rohf_diis_solve:cos1e')
-              if(odbug) then
-                 write(6,*) 'rohf_fock ... g-cos1e'
-              endif
-              if(odbug) then
-                 call ga_zero(g_cos1e(1))
-                 call int_1e_ga(basis,basis,g_cos1e(1),'cos_chg_pot',
-     $                                                       .false.)
-              endif
-              if(odbug) then
-                 call ga_print(g_cos1e(1))
-                 call ga_print(g_hcore)
-              endif
+            g_cos1e(1)  = ga_create_atom_blocked(geom, basis,
+     $                                       'rohf_diis_solve:cos1e')
+            if(odbug) then
+               write(6,*) 'rohf_fock ... g-cos1e'
+               call ga_zero(g_cos1e(1))
+               call int_1e_ga(basis,basis,g_cos1e(1),'cos_chg_pot',
+     $                                                     .false.)
+               call ga_print(g_cos1e(1))
+            endif
 c
-              call int_1e_ga(basis,basis,g_hcore   ,'cos_chg_pot',
-     $                                                    .false.)
+            if(odbug) then
+               call ga_print(g_hcore)
+            endif
 c
-              if(odbug) then
-                 call ga_print(g_hcore)
-              endif
-              odbug=.false.
-              osome=.false.
+            call int_1e_ga(basis,basis,g_hcore   ,'cos_chg_pot',
+     $                                                  .false.)
 c
-              if (.not. ga_destroy(g_cos1e)) call errquit
-     $           ('rohf_diis_solve: ga_destroy cos1e', 0)
-           endif
+            if(odbug) then
+               call ga_print(g_hcore)
+            endif
+c
+            if (.not. ga_destroy(g_cos1e)) call errquit
+     $         ('rohf_diis_solve: ga_destroy cos1e', 0)
+         endif
       endif
       call ga_sync()
 c
