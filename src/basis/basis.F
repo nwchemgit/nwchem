@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.103 2000-08-22 19:06:49 d3e129 Exp $
+c $Id: basis.F,v 1.104 2000-11-08 00:36:51 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3585,7 +3585,8 @@ c
      &      ('ecp_set_parent_handle: basis_handle invalid',911)
       if (.not.ecp_check_handle(ecp_handle,'ecp_set_parent_handle'))
      &      call errquit
-     &      ('ecp_set_parent_handle: ecp_handle invalid',911)
+     &      ('ecp_set_parent_handle: not an ECP ...'//
+     $     ' check for name conflict between basis and ECP',911)
       parent_assoc(1,(ecp_handle+Basis_Handle_Offset)) =
      &      basis_handle
       bas_nassoc(basis_handle+Basis_Handle_Offset) =
