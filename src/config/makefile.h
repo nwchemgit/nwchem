@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.360 2001-05-07 20:02:32 edo Exp $
+# $Id: makefile.h,v 1.361 2001-05-07 23:53:13 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -715,20 +715,21 @@ ifeq ($(TARGET),HPUX)
 # HPUX 11.0
 #
 
-  CORE_SUBDIRS_EXTRA = blas lapack
+#  CORE_SUBDIRS_EXTRA = blas lapack
   MAKEFLAGS = -j 1 --no-print-directory
   CPP = /lib/cpp -P
   CC = cc
-#  FC = f77
   FC = f90
-  LDOPTIONS = -Wl,+vallcompatwarnings -g -L/usr/lib +U77
-#  LINK.f = fort77   $(LDFLAGS) 
+  LDOPTIONS =  -Wl,+vallcompatwarnings  -L/usr/lib +U77  #-Wl,+FPD
+  LDOPTIONS +=  +DA2.0 +DS2.0 +O2
   LINK.f = f90   $(LDFLAGS) 
-  CORE_LIBS +=   -llapack $(BLASOPT) -lblas   -lm
+  CORE_LIBS +=   -llapack $(BLASOPT) -lveclib   -lm
   FDEBUG = -g
-  FOPTIONS =  +ppu
-  COPTIONS = -Aa -D_HPUX_SOURCE +e
-  FOPTIMIZE = +O2
+  FOPTIONS =  +ppu -Wl,-a,archive
+  COPTIONS = -Aa -D_HPUX_SOURCE +e 
+  FOPTIMIZE = +O2 +Onolimit
+  FOPTIMIZE += +DA2.0 +DS2.0a  +Odataprefetch  +Onofltacc +Onoinitcheck
+  FOPTIMIZE += +Oprocelim +Oentrysched +Ofastaccess
   FVECTORIZE = +Oall +Onofltacc
   COPTIMIZE = -O
   RANLIB = echo
@@ -746,24 +747,28 @@ ifeq ($(TARGET),HPUX64)
 # HPUX 11.0
 #
 
-  CORE_SUBDIRS_EXTRA = blas lapack
+#  CORE_SUBDIRS_EXTRA = blas lapack
   MAKEFLAGS = -j 1 --no-print-directory
   CPP = /lib/cpp -P
   CC = cc
   FC = f90
-  LDOPTIONS = -Wl,+vallcompatwarnings
-  CORE_LIBS +=  -llapack $(BLASOPT) -lblas -lm
+  LDOPTIONS = -Wl,+vallcompatwarnings 
+  CORE_LIBS +=  -llapack $(BLASOPT)  -lm
   CDEBUG =
   FDEBUG = -g
-  FOPTIONS =  +ppu +i8 +DA2.0W +U77  
+  FOPTIONS =  +ppu  +DA2.0W +U77  
   COPTIONS = -Aa -D_HPUX_SOURCE +e +DA2.0W 
   FOPTIMIZE = +O2
   FVECTORIZE = +Oall +Onofltacc
   COPTIMIZE = -O
   RANLIB = echo
 
- DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG -DHPUX64 -DEXT_INT
-# DEFINES = -DHPUX -DEXTNAME -DEXT_INT
+ DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG -DHPUX64 
+ ifdef USE_INTEGER4
+ else
+ DEFINES +=  -DEXT_INT
+ FOPTIONS +=  +i8 
+ endif
 
 endif
 
