@@ -1,10 +1,9 @@
-#$Id: GNUmakefile,v 1.4 2002-06-21 17:13:40 sohirata Exp $
+#$Id: GNUmakefile,v 1.5 2003-01-30 19:33:35 edo Exp $
 
 OBJ = tddft_energy.o tddft_input.o tddft_init.o tddft_memory.o tddft_iguess.o \
 tddft_dump.o tddft_davidson.o tddft_transfm.o tddft_contract.o tddft_epsilon.o \
 tddft_subspace.o tddft_diagon.o tddft_residual.o tddft_analysis.o tddft_dftinit.o \
-tddft_finalize.o tddft_sort.o tddft_schmidt.o tddft_dgeev.o \
-ma_print.o sym_irrepname.o
+tddft_finalize.o tddft_sort.o tddft_schmidt.o tddft_dgeev.o 
 
 OBJ_OPTIMIZE = 
 
