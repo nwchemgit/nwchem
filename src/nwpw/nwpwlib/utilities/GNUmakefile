@@ -1,11 +1,12 @@
 #
-# $Id: GNUmakefile,v 1.15 2002-12-11 18:14:01 bylaska Exp $
+# $Id: GNUmakefile,v 1.16 2003-01-24 02:07:38 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
 		nwpw_filefind.o \
 		nwpw_scratch.o \
 		nwpw_list.o \
+		nwpw_diis.o \
 		cpmd_properties.o \
 		pair_dist.o \
 		auto_corr.o \
@@ -22,7 +23,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F  matrix.f
+    USES_BLAS = auto_corr.F  matrix.f nwpw_diis.F
 
   LIB_DEFINES = 
 
