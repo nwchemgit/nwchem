@@ -108,7 +108,7 @@ The steepest\_descent task is used to optimize the one-electron orbitals
 with respect to the total energy.  In addition it can also be used to optimize
 geometries.   This method is meant to be used for coarse optimization of
 the one-electron orbitals.  A detailed description of the this method
-is described in section \ref{sec:pspw_sd}
+is described in section \ref{sec:pspw_sd2}
 
 Input to the steepest\_descent simulation is contained
 within the steepest\_descent sub-block.
@@ -178,14 +178,22 @@ sub-block.
 	\item $<$tolc$>$ - one-electron orbital tolerance requested.
 	\item $<$tolr$>$ - ion position tolerance requested.
 	\item $<$ecut$>$ - value for the cutoff energy used
-                           to define the density.
+                           to define the density.  Default is set
+                           to be the maximum value that will fit
+                           within the simulation\_cell $<$cell\_name$>$.
 	\item $<$wcut$>$ - value for the cutoff energy used
- 			   to define the one-electron orbitals.
+ 			   to define the one-electron orbitals. Default is set
+                           to be the maximum value that will fit
+                           within the simulation\_cell $<$cell\_name$>$.
 	\item $<$ncut$>$ - value for the number of unit cells
  			  to sum over (in each direction) for the real space
-			  part of the Ewald summation.
+			  part of the Ewald summation.  Note Ewald summation
+                          is only used if the simulation\_cell is periodic.
 	\item $<$rcut$>$ - value for the cutoff radius used
-			  in the Ewald summation.
+			  in the Ewald summation.  Note Ewald summation
+                          is only used if the simulation\_cell is periodic. \\
+                          Default set to be
+		          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
         \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
                                and Erzherhoff GGA functional.
@@ -274,14 +282,22 @@ sub-block.
 	\item $<$tolc$>$ - one-electron orbital tolerance requested.
 	\item $<$tolr$>$ - ion position tolerance requested.
 	\item $<$ecut$>$ - value for the cutoff energy used
-                           to define the density.
+                           to define the density. Default is set
+                           to be the maximum value that will fit
+                           within the simulation\_cell $<$cell\_name$>$.
 	\item $<$wcut$>$ - value for the cutoff energy used
  			   to define the one-electron orbitals.
+                           Default is set to be the maximum value that 
+                           will fix within the simulation\_cell $<$cell\_name$>$.
 	\item $<$ncut$>$ - value for the number of unit cells
  			  to sum over (in each direction) for the real space
-			  part of the Ewald summation.
+			  part of the Ewald summation. Note Ewald summation
+                          is only used if the simulation\_cell is periodic.
 	\item $<$rcut$>$ - value for the cutoff radius used
-			  in the Ewald summation.
+			  in the Ewald summation. Note Ewald summation
+                          is only used if the simulation\_cell is periodic. \\
+                           Default set to be
+		          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
         \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
                                and Erzherhoff GGA functional.
@@ -388,14 +404,22 @@ sub-block.
 	\item $<$scale\_r$>$ - value for the initial velocity
 			      scaling of the ion velocities.
 	\item $<$ecut$>$ - value for the cutoff energy used
-                           to define the density.
+                           to define the density.  Default is set
+                           to be the maximum value that will fit
+                           within the simulation\_cell $<$cell\_name$>$.
 	\item $<$wcut$>$ - value for the cutoff energy used
- 			   to define the one-electron orbitals.
+ 			   to define the one-electron orbitals.  Default is set
+                           to be the maximum value that will fit
+                           within the simulation\_cell $<$cell\_name$>$.
 	\item $<$ncut$>$ - value for the number of unit cells
  			  to sum over (in each direction) for the real space
-			  part of the Ewald summation.
+			  part of the Ewald summation. Note Ewald summation
+                          is only used if the simulation\_cell is periodic.
 	\item $<$rcut$>$ - value for the cutoff radius used
-			  in the Ewald summation.
+			  in the Ewald summation.  Note Ewald summation
+                          is only used if the simulation\_cell is periodic. \\
+                          Default set to be
+		          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
         \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
                                and Erzherhoff GGA functional.
@@ -406,11 +430,11 @@ sub-block.
                          See section \ref{sec:pspw_nose} for a description of the parameters.
                          \begin{itemize}
                              \item $<$Period\_electron$>$ $\equiv$ $P_{electron}$ 
-                                    - estimated period for electron motion
+                                    - estimated period for fictacious electron thermostat.
                              \item $<$Temperature\_electron$>$ $\equiv$ $T_{electron}$ 
-                                    - temperature for electron motion
+                                    - temperature for fictacious electron motion
                              \item $<$Period\_ion$>$ $\equiv$ $P_{ion}$ 
-                                    - estimated period for ion motion
+                                    - estimated period for ionic thermostat
                              \item $<$Temperature\_ion$>$ $\equiv$ $T_{ion}$ 
                                     - temperature for ion motion
                          \end{itemize}
@@ -422,17 +446,21 @@ sub-block.
         \item $<$hmotion\_filename$>$ - name that points to the hmotion motion file
 				generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
-        \item $<$omotion\_filename$>$ - name that points to the omotion motion file
-				generated. See section \ref{sec:pspw_cp_data} for a 
-                                description of the datafile.
         \item $<$eigmotion\_filename$>$ - name that points to the eigmotion motion file
 				generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
         \item $<$ion\_motion\_filename$>$ - name that points to the ion\_motion motion file
 				generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
+       \item MULLIKEN - optional keyword which if specified
+                         causes an omotion motion file to be created.  For this option
+	                 to work angular momentum weights for each kind
+                         of atom have to be entered into the RTDB using
+                         the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}.
+        \item $<$omotion\_filename$>$ - name that points to the omotion motion file
+				generated. See section \ref{sec:pspw_cp_data} for a 
+                                description of the datafile.
 \end{itemize}
-
 
 
 
@@ -481,10 +509,11 @@ sub-block.
               to a one-dimensional pseudopotential datafile.
 	\item $<$formatted\_name$>$ -  
  	      name that points to a formatted\_pseudopotential datafile.
-  	\item LOCP (s$||$p$||$d$||$f$||$g) - used to specify which angular potential
-	      is to used as the local potential.
         \item LMAX (s$||$p$||$d$||$f$||$g) - used to specify the maximum number
-              of angular potentials to use.
+              of angular potentials to use. The default is set to the maximum
+              angular momentum in $<$psp\_name$>$.
+        \item LOCP (s$||$p$||$d$||$f$||$g) - used to specify which angular potential
+	      is to used as the local potential.  The default is is set to LMAX.
 \end{itemize}
 
 
@@ -757,8 +786,8 @@ input in detail.
 \subsection{Analysis: Mulliken RTDB data}
 \label{sec:pspw_analysis}
 
-To perform Mulliken analysis information is needed from the one-dimensional
-pseudopotential file.  In-order to facilitate the transfer of this information
+To perform Mulliken analysis information is needed from one-dimensional
+pseudopotential files.  In-order to facilitate the transfer of this information
 to the simulation the ANALYSIS sub-block is used to exract the necessary information
 and put it into the RTDB.
 \begin{verbatim}
@@ -988,7 +1017,7 @@ source tree in the file: nwchem/examples/pspw/NaCl.nw
                down_filling: 4
                   0 0 0   0
                   1 0 0  -1
-                  0 1 0  -1
+                  0 1 0   1
                   0 0 1  -1
                wavefunction_filename: NaCl.small.00.elc
             END
@@ -1021,10 +1050,12 @@ source tree in the file: nwchem/examples/pspw/NaCl.nw
       \end{verbatim}
 \normalsize
 \item Do a finer optimization of the one-electron orbitals with respect to energy using
-      conjugate gradient.
+      conjugate gradient, and perform a Mulliken analysis. Note that an analysis
+      block must be defined. 
    \tiny \begin{verbatim}
          ...
          PSPW
+           
             CONJUGATE_GRADIENT
                cell_name: small
                formatted_filename: Na.vpp
@@ -1035,7 +1066,12 @@ source tree in the file: nwchem/examples/pspw/NaCl.nw
                tolerances: 1.0d-9 1.0d-9 
                energy_cutoff:       21.0d0
                wavefunction_cutoff: 21.0d0
+               Mulliken
             END 
+            ANALYSIS
+                psp_name: Na.psp
+                psp_name: Cl.psp
+            END
          END
          task PSPW CONJUGATE_GRADIENT
          ...
@@ -1118,18 +1154,18 @@ the file: nwchem/examples/pspw/NaCl-md.nw
 \label{sec:pspw_Minimize}
 
 In this section the algorithms for steepest\_descent and conjugate\_gradient 
-methods that are used to minimize the DFT energy functional 
-(Eqs.~\ref{eqn:lda1}-\ref{eqn:lda2}) are presented.
+methods that are used to minimize the DFT energy functional are presented.
 First is the the steepest descent method without line minimization.   
 This method is slow, but doesn't require line minimization.  
 Second is the recent method developed by Edelman, Arias, and Smith.
 These researchers have developed methods for performing line minimizations
 on the constrained space used in the DFT energy functional
-\cite{Edelman-Smith:97}.
+(A. Edelman, T. Arias, and S.T. Smith, Siam J. Matrix Anal. Appl., 
+\textbf{20},303, (1998)).
 
 
 \subsection{Steepest Descent Equations}
-\label{sec:pspw_sd}
+\label{sec:pspw_sd2}
 
 To minimize the DFT energy functional with respect to $\{\psi_{i,\sigma}\}$
 we define the the auxiliary functional, $F$, which takes into account
@@ -1286,7 +1322,7 @@ C_{ij,\sigma} &=& \int d\vec{r}
 
 \noindent
 To solve the Riccatti equation an iterative solution is setup by rewriting
-Eq.~\ref{eq:sd4} in the following form\cite{Car-Parrinello:88}.
+Eq.~\ref{eq:sd4} in the following form.
 \begin{equation}
 \alpha^2 XCX^{\dag} + \alpha X(B-I) + \alpha (B^{\dag}-I)X^{\dag} 
  + \alpha(X + X^{\dag}) = I-A
@@ -1324,17 +1360,20 @@ X_{(3)} &\leftarrow& X_{(0)} + O(\alpha) X_{(2)}
 
 Minimizing the DFT energy functional with a non-linear conjugate 
 gradient algorithm requires an algorithm for minimizing along a 
-search direction or line.  However, the equation for a line (or search direction)
-in the LSDA minimization problem is complicated by the fact that the
-energy functional is subject to orthonormality constraints of Eq.~\ref{eq:lda4}. 
+search direction or line.  However, the equation for a line 
+(or search direction) in the DFT minimization problem is complicated 
+by the fact that the energy functional is subject to orthonormality 
+constraints. 
 Furthermore, the orthonormality constraints complicate the
 conjugate gradient's algorithm for generating the current search 
 direction by using a linear combination of the current gradient and 
-the previous search direction.
+the previous search direction, since the previous search direction
+must be parallel transported to the current search point.
 
-These two pesky orthonormality constraint problems
+These orthonormality constraint problems
 have been investigated and solved for by Edelman {\it et al} 
-\cite{Edelman-Smith:97}.  
+(A. Edelman, T. Arias, and S.T. Smith, Siam J. Matrix Anal. Appl., 
+\textbf{20},303, (1998))..  
 They recognized that the orthonormal Kohn-Sham
 orbitals $\{\psi_{i,\sigma}\}$ 
 belong to a quotient space called a Grassmann manifold. 
@@ -1424,18 +1463,19 @@ group $O(N_{\sigma})$).  The constrained surface that each $Y_{\sigma}$ spans
 is known as the Grassmann manifold (i.e. $Y_{\sigma}$ is a group element
 of the quotient space group 
 $\frac{\left(\frac{O(N_{basis})}{O(N_{basis}-N_{\sigma})}\right)}{O(N_{\sigma})}$
-\footnote{See reference on Lie Groups, e.g. reference\cite{Olver:95}, 
-          for a definition of a quotient space and a definition of the 
+\footnote{See reference on Lie Groups, e.g. reference (P.J. Olver, 
+\textit{Equivalence, Invariants, and Symmetry}, 1st ed. Cambridge University Press,
+New York, 1995), for a definition of a quotient space and a definition of the 
           orthogonal group $O(n)$.
          }
 ).
 
 In this work Algorithm~\ref{algorithm:grassmann} (see below) is the 
 conjugate gradient
-algorithm that is used to minimize the LSDA energy functional
+algorithm that is used to minimize the DFT energy functional
 $E=E\left( Y_{\uparrow},Y_{\downarrow} \right)$.  What makes this
 algorithm different from a standard 
-Polak-Ribi\`{e}re conjugate gradient algorithm\cite{Shewchuk:94}
+Polak-Ribi\`{e}re conjugate gradient algorithm
 is that a line search on a Euclidean space 
 \[ Y_{\sigma}(t) = Y_{\sigma}^{(0)} + t*H_{\sigma}^{(0)} \]
 is replaced by Eq.~\ref{grass:1}, 
@@ -1520,8 +1560,8 @@ are replaced by Eqs.~\ref{grass:2}-\ref{grass:3}.
 
 Car and Parrinello developed a unified scheme for doing {\it ab initio}
 molecular dynamics by combining the motion of the ion cores and a fictacious
-motion for the Kohn-Sham orbitals of density-functional theory
-\cite{Car-Parrinello:85,Remler-Madden:90}.  
+motion for the Kohn-Sham orbitals of density-functional theory 
+(R. Car and M. Parrinello, Phys. Rev. Lett. \textbf{55}, 2471, (1985)).  
 At the heart of this method they introduced a fictacious kinetic energy 
 functional for the Kohn-Sham orbitals.
 
@@ -1709,7 +1749,7 @@ C_{ij,\sigma} &=& \int d\vec{r}
 
 \noindent
 To solve the Riccatti equation an iterative solution is setup by rewriting
-Eq.~\ref{eq:b9} in the following form\cite{Car-Parrinello:88}.
+Eq.~\ref{eq:b9} in the following form.
 \begin{equation}
 \alpha^2 XCX^{\dag} + \alpha X(B-I) + \alpha (B^{\dag}-I)X^{\dag} 
  + \alpha(X + X^{\dag}) = I-A
@@ -1748,16 +1788,38 @@ Nose-Hoover Thermostats for the electrons and ions can also be added to the
 Car-Parrinello simulation.  In this type of simulation thermostats variables $x_e$ and $x_R$ 
 are added to the simulation by adding the auxillary energy functionals to the total energy.
 \begin{eqnarray}
+ION\_THERMOSTAT(x_R)      &=&  \frac{1}{2} Q_R \dot{x_R} + E_{R0}x_R \\ 
 ELECTRON\_THERMOSTAT(x_e) &=&  \frac{1}{2} Q_e \dot{x_e} + E_{e0}x_e 
 \end{eqnarray}
+
+In these equations, the average kinetic energy for the ions is
 \begin{eqnarray}
-ION\_THERMOSTAT(x_R)      &=&  \frac{1}{2} Q_R \dot{x_R} + E_{R0}x_R 
+E_{R0} = \frac{1}{2} f k_B T
 \end{eqnarray}
+where $f$ is the number of atomic degrees of freedom, $k_B$ is 
+Boltzmans constant, and T is the desired temperature.  Defining
+the average fictacious kinetic energy of the electrons is not as straighforward.
+Bl\"{o}chl and Parrinello 
+(P.E. Bl\"{o}chl and M. Parrinello, Phys. Rev. B, \textbf{45}, 9413, (1992)) 
+have suggested the following formula for determining
+the average fictacious kinetic energy
+\begin{eqnarray}
+E_{e0} = 4 k_B T \frac{\mu}{M} \sum_i <\psi_i|-\frac{1}{2} \nabla^2 |\psi_i>
+\end{eqnarray}
+where $\mu$ is the fictacious electronic mass, $M$ is average mass of one atom,
+and $sum_i <\psi_i|-\frac{1}{2} \nabla^2 |\psi_i>$ is the kinetic energy of the
+electrons.
 
-
-A description of the parameters $Q_e$, $E_{e0}$, $Q_R$, and $E_{R0}$ and their relationship
-to the input parameters, $P_{electron}$, $T_{electron}$, $P_{ion}$, and $T_{ion}$, is given 
-in section.  
+Bl\"{o}chl and Parrinello suggested that the choice of mass parameters, 
+$Q_e$, and $Q_R$ should be made such that the period of oscillating thermostats 
+should be chosen larger than the typical time scale for the dynamical events of 
+interest but shorter than the simulation time.  
+\begin{eqnarray}
+P_R &=& 2\pi \sqrt{\frac{Q_R}{4E_{R0}}}\\
+P_e &=& 2\pi \sqrt{\frac{Q_e}{4E_{e0}}}
+\end{eqnarray}
+where $P_R$ and $P_e$ are the periods of oscillation for the ionic and ficatious
+electronic thermostats.  
 
 
 \section{PSPW Capabilities and Limitations}
