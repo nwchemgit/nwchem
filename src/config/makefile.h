@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.286 1999-06-22 19:13:25 bylaska Exp $
+# $Id: makefile.h,v 1.287 1999-06-26 00:10:12 d3g270 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1155,7 +1155,12 @@ ifdef EGCS
 endif
 endif
 
+
    COPTIONS = -Wall -m486 -malign-double
+ifeq ($(NWCHEM_TARGET_CPU),604)
+   COPTIONS = -Wall
+endif
+
   FOPTIMIZE = -g -O2
   COPTIMIZE = -g -O2
 
@@ -1232,6 +1237,9 @@ ifeq ($(TARGET),PGLINUX)
 #         FC = sleep 2;pghpf -Mf90
 
    COPTIONS =  -Wall -m486 -malign-double
+ifeq ($(NWCHEM_TARGET_CPU),604)
+   COPTIONS =  -Wall
+endif
   FOPTIMIZE = -O2
   COPTIMIZE = -g -02
 
