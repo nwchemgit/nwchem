@@ -1,5 +1,5 @@
 /*
- $Id: cputm.c,v 1.5 1999-11-13 03:09:57 bjohnson Exp $
+ $Id: cputm.c,v 1.6 1999-12-16 22:19:50 edo Exp $
  */
 
 #include <sys/types.h>
@@ -9,7 +9,11 @@
 #include <sys/time.h>
 #endif
 
+
 #if defined(CRAY) || defined(WIN32)
+#ifndef WIN32
+#define FATR
+#endif
 void FATR CPUTM(ai)
 #else
 void cputm_(ai)
