@@ -1,0 +1,87 @@
+
+  integer tot_ntype
+  integer tot_nbasis
+  integer tot_ngrid
+  integer tot_ngridbasis
+
+  integer nbasis(4)
+  integer i_cut(4)
+  integer ngrid(4)
+  integer mult_l(4)
+  integer r1(4)
+  integer rmax(4)
+  integer log_amesh(4)
+  integer sigma(4)
+  integer ion_charge(4) 
+  integer core_kin_energy(4)
+
+  integer pr_n(4)
+  integer pr_n_ps(4)
+  integer eig(4)
+  integer orb_l(4)
+
+  integer phi_ae(4)
+  integer phi_ps(4)
+  integer phi_ae_prime(4)
+  integer phi_ps_prime(4)
+  integer prj_ps(4)
+  integer core_density(4)
+  integer ps_core_density(4)
+  integer v_ps(4)
+  integer prj_ps0(4)
+  integer rgrid(4)
+
+
+  integer i_pr_n(4)
+  integer i_pr_n_ps(4)
+  integer i_eig(4)
+  integer i_orb_l(4)
+  integer i_phi_ae(4)
+  integer i_phi_ps(4)
+  integer i_phi_ae_prime(4)
+  integer i_phi_ps_prime(4)
+  integer i_prj_ps(4)
+  integer i_core_density(4)
+  integer i_ps_core_density(4)
+  integer i_v_ps(4)
+  integer i_prj_ps0(4)
+  integer i_rgrid(4)
+  integer i_nb(4)
+  integer i_ng(4)
+  integer i_ngb(4)
+
+
+  COMMON /paw_basis_data/   tot_ntype,&
+                            tot_ngrid,&
+                            tot_nbasis,&
+                            tot_ngridbasis,&
+                            nbasis,&
+                            i_cut, &
+                            ngrid,&
+                            mult_l,&
+                            log_amesh,&
+                            ion_charge,&
+                            core_kin_energy,&
+                            sigma,&
+                            r1,&
+                            rmax,&
+                            pr_n, &
+                            pr_n_ps,&
+                            eig,&
+                            orb_l,&
+                            phi_ae,&
+                            phi_ps,&
+                            phi_ae_prime,&
+                            phi_ps_prime,&
+                            prj_ps,&
+                            core_density,&
+                            ps_core_density,&
+                            v_ps,&
+                            prj_ps0,&
+                            rgrid
+
+  COMMON /paw_basis_data_pointers/  i_nb,&
+                                    i_ng,&
+                                    i_ngb
+                                    
+

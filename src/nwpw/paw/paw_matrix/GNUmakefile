@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.2 2002-07-12 21:17:23 marat Exp $
+# $Id: GNUmakefile,v 1.1 2002-07-12 21:15:32 marat Exp $
 #
 
-          OBJ = paw_basis.o paw_basis_data.o
+          OBJ = paw_kin_matrix.o paw_ion_matrix.o
 
 
       LIBRARY =	libpaw.a
