@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.44 2000-05-31 05:34:17 d3j191 Exp $
+c $Id: prp_main.F,v 1.45 2000-05-31 05:55:06 d3j191 Exp $
 c
       implicit none
 c
@@ -750,16 +750,7 @@ c
 c
       close(unit=lfngib)
 c
-      if(ndec.gt.0) then
-      write(lfnout,1008)
- 1008 format(//,' SOLUTE ATOM DECOMPOSITION THERMODYNAMIC INTEGRATION',
-     + //,'    Atom     Solvent     Solvent      Solute      Solute',/,
-     + '            v.d.Waals   electrost   v.d.Waals   electrost',/)
-      do 5 i=1,nsa
-      write(lfnout,1009) i,(dec(j,i),j=1,5)
- 1009 format(i8,5f12.3)
-    5 continue
-      endif
+      if(ndec.gt.0) call cf_print_deco(lfnout,dec)
 c
       endif
 c

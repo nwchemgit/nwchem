@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.57 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_main.F,v 1.58 2000-05-31 05:55:19 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2413,11 +2413,11 @@ c
 c
       integer lfnout,number
 c
-      call cf_print_der(lfnout,number,dbl_mb(i_sti))
+      call cf_print_der(lfnout,number,byte_mb(i_snam),dbl_mb(i_sti))
 c
       return
       end
-      subroutine cf_print_der(lfnout,number,dera)
+      subroutine cf_print_der(lfnout,number,snam,dera)
 c
       implicit none
 c
@@ -2427,6 +2427,7 @@ c
 c
       integer lfnout,number
       real*8 dera(5,nsatot)
+      character*16 snam(nsatot)
 c
       integer i,j
 c
@@ -2436,11 +2437,11 @@ c
 c
       write(lfnout,1000) number
  1000 format(//,' Solute MCTI derivatives from last',i8,' steps',//,
-     + '    Atom     Solvent     Solvent      Solute      Solute',/,
-     + '            v.d.Waals   electrost   v.d.Waals   electrost',/)
+     + '    Atom',13x,'Solvent     Solvent      Solute      Solute',/,
+     + 20x,'v.d.Waals   electrost   v.d.Waals   electrost',/)
 c
       do 1 i=1,nsatot
-      write(lfnout,1001) i,(dera(j,i)/dble(number),j=1,5)
+      write(lfnout,1001) snam(i),(dera(j,i)/dble(number),j=1,5)
  1001 format(i8,5f12.3)
     1 continue
 c
@@ -2607,6 +2608,45 @@ c
     4 continue
     3 continue
       endif
+c
+      return
+      end
+      subroutine cf_print_deco(lfnout,dec)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfnout
+      real*8 dec(5,nsatot)
+c
+      call cf_print_d(lfnout,byte_mb(i_snam),dec)
+c
+      return
+      end
+      subroutine cf_print_d(lfnout,snam,dec)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer lfnout
+      real*8 dec(5,nsatot)
+      character*16 snam(nsatot)
+c
+      integer i,j
+c
+      write(lfnout,1001)
+ 1001 format(//,' SOLUTE DECOMPOSITION THERMODYNAMIC INTEGRATION',//,
+     + '    Atom',13x,'Solvent     Solvent      Solute      Solute',/,
+     + 20x,'v.d.Waals   electrost   v.d.Waals   electrost',/)
+      do 1 i=1,nsatot
+      write(lfnout,1009) snam(i),(dec(j,i),j=1,5)
+ 1009 format(a16,5f12.3)
+    1 continue
 c
       return
       end
