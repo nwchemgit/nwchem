@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.29 1995-11-13 06:39:40 d3g681 Exp $
+# $Id: GNUmakefile,v 1.30 1995-11-16 16:24:20 d3g681 Exp $
 
 include config/makefile.h
 
@@ -54,7 +54,7 @@ clean:
 		$(MAKE)	-C $$dir clean || exit 1 ;  \
 	done
 
-realclean:	cleanF
+realclean:	
 	-$(RM) nwchem core *.o *.a *.trace makefile.bak
 	-$(RM) *~ \#*\#
 	for dir in $(SUBDIRS) ../tests; do \
