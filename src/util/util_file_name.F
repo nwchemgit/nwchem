@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.30 2003-02-14 00:36:31 edo Exp $
+C$Id: util_file_name.F,v 1.31 2003-06-24 21:37:34 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -564,7 +564,8 @@ c
       integer avail0,avail1
       integer fd
       character*8 fstype
-      integer l1megabyte,i_k,l_k,nuse_fail,nattpt
+      integer l1megabyte,i_k,l_k,nuse_fail,nattpt,
+     ,     availmin
       character*255 dirscr
       parameter(l1megabyte=2*1000000)
       logical util_file_parse_dir,oprint
@@ -618,13 +619,18 @@ c
           goto 1025
         endif
       endif
+c
+c     get min disk space (if you have thin & fat nodes)
+c
+      availmin=avail0/nuse
+      call ga_igop(msg_utscr2,availmin,1,'min')
       if(oprint) then
          call util_directory_name(dirscr, .true., ga_nodeid())
          write(luout,11) ga_nodeid(),nuse,(avail0-avail1)/16d0,
-     .     avail0/nuse,
+     .     availmin,avail0/nuse,
      .     dirscr(1:inp_strlen(dirscr))
- 11      format(i4,': nuse =',i4,f8.2,' available disk =',i10,'Mb on ',
-     .     A)
+ 11      format(i4,': nuse=',i4,'(',f6.1,') avail=',i9,'Mb (out of',
+     .   i9,'Mb) on ',A)
       endif
 c
 c     now eaf_stat returns Mb instead of kb
@@ -632,7 +638,7 @@ c
 !      avail=avail0*1024
 
 c     
-      util_scratch_dir_avail_for_me = 1024d0*dble(avail0) /dble(nuse)
+      util_scratch_dir_avail_for_me = 1024d0*dble(availmin)
 c
       end
       subroutine util_file_name_resolve(filename, oscratch)
