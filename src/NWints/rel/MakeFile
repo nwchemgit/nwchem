@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.1 1999-11-13 01:29:32 bjohnson Exp $	
+#	$Id: MakeFile,v 1.2 1999-11-14 02:59:23 d3g681 Exp $	
 #
 
 OBJ_ENERGY =   $(OBJDIR)\rel_onel.obj \
@@ -8,7 +8,10 @@ OBJ_ENERGY =   $(OBJDIR)\rel_onel.obj \
                $(OBJDIR)\rel_LLSS.obj \
                $(OBJDIR)\rel_SSLL.obj \
                $(OBJDIR)\rel_SSSS.obj \
-               $(OBJDIR)\rel_init_con.obj
+               $(OBJDIR)\rel_init_con.obj \
+               $(OBJDIR)\rel_oneld.obj \
+               $(OBJDIR)\rel_pvp.obj \
+               $(OBJDIR)\int_rel_init.obj
 
 !IFDEF NWCHEM_DEBUG
 OBJ = $(OBJ_ENERGY)

@@ -1,10 +1,10 @@
 #
-#	$Id: MakeFile,v 1.1 1999-11-13 01:29:48 bjohnson Exp $	
+#	$Id: MakeFile,v 1.2 1999-11-14 02:59:22 d3g681 Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
 
-SUBDIRS = api int auxil ints_sp deriv texas ecp hondo
+SUBDIRS = api int auxil ints_sp deriv texas ecp hondo dk rel
 
 OBJ =          $(OBJDIR)\int_input.obj
 

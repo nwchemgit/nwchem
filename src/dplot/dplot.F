@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.11 1999-11-11 03:22:58 edo Exp $
+* $Id: dplot.F,v 1.12 1999-11-14 02:59:24 d3g681 Exp $
 *
       Implicit None
 *     
@@ -539,7 +539,7 @@ c      Call GADest(g_Vec(1))
 *---- Normal termination
       DPlot = .TRUE.
 
-      If (.not.Bas_destroy(AO_Bas_Han,'ao basis'))
+      If (.not.Bas_destroy(AO_Bas_Han))
      &   Call ErrQuit('DPlot: Bas_destroy failed',0)
       Return
 *

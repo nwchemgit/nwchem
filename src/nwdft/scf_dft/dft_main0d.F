@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.30 1999-11-02 02:39:55 edo Exp $
+c     $Id: dft_main0d.F,v 1.31 1999-11-14 02:59:24 d3g681 Exp $
 c     
       implicit none
 c
@@ -429,7 +429,7 @@ c
      &   ('dft_main0d: could not destroy g_dens(1)', 0)
       if (.not. ga_destroy(g_svecs)) call errquit
      &   ('dft_main0d: could not destroy g_svecs', 0)
-      if(l1ecache) call int_1e_uncache_ga(AO_bas_han, oskel)
+      if(l1ecache) call int_1e_uncache_ga()
       call schwarz_tidy
       call ga_sync
 c     

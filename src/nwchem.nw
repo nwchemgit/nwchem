@@ -1,5 +1,5 @@
 #
-# $Id: nwchem.nw,v 1.7 1999-07-26 23:52:29 d3e129 Exp $
+# $Id: nwchem.nw,v 1.8 1999-11-14 02:59:21 d3g681 Exp $
 #
 
 title; Water in 6-31g basis set
@@ -34,7 +34,8 @@ basis "test mo basis" nosegment noprint
             0.183192    1.000000
 end
 
-scf; print high; end
+scf; print low; end
 
-task scf
+task mp2 optimize
+
 

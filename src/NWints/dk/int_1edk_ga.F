@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.10 1999-11-11 00:41:17 bert Exp $
+c $Id: int_1edk_ga.F,v 1.11 1999-11-14 02:59:22 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -131,7 +131,12 @@ c
       call int_1e_oldga(usebasis,usebasis,tempg_a,'overlap',oskel)
       if (.not. ma_push_get(MT_DBL,nbf,'psquared',p2m_a,p2Im_a))
      $     call errquit('int_1edk_ga: ma_push_get failed psquared',0)
+#ifdef PARALLEL_DIAG
       call ga_diag(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
+#else
+      call ga_diag_seq(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
+#endif
+
       if (.not. ga_destroy(Tg_a)) 
      $     call errquit('int_1edk_ga: ga_destroy Tg_a',0)
       call dscal(nbf,2.0d0,dbl_mb(p2Im_a),1)
