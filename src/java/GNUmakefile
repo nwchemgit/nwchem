@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 1999-08-10 14:34:41 d3j191 Exp $
+# $Id: GNUmakefile,v 1.2 1999-08-10 23:05:15 d3j191 Exp $
 #
 
 OBJ_CLASS = nwmd.class GUI_Nwchem.class RUN_Nwchem.class Graph.class
@@ -22,7 +22,6 @@ CLASSDIR = $(TOPDIR)/lib/classes
 
 classes:
 	-test -d $(CLASSDIR) || $(MKDIR) -p $(CLASSDIR) 
-	-cp ptplot.zip $(CLASSDIR)
 	$(MAKE) $(OBJ_CLASS)
 	-mv *.class $(CLASSDIR)
 
