@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.200 2001-11-29 22:37:26 bert Exp $
+c     $Id: dft_scf.F,v 1.201 2001-12-02 01:18:11 edo Exp $
 c     
       implicit none
 c
@@ -156,7 +156,7 @@ c
 c     slow switching of annealing
 c
       double precision s_rabuck,ss,smear_in
-      integer nn,nss
+      integer nn,nss,n_dep
       integer n_rabuck
       logical rabuck_act
       external dft_cosmoe,dft_cosmoadde
@@ -263,10 +263,10 @@ c
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ))
      &   call errquit('dft_scf: failed to alloc',999)
 c
-c     get/set orbital overlap tolerance
-c
-      if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
-     .     call errquit('dftscf: lost toll_s ',0)
+c     get/set orbital overlap tolerancec
+
+      call util_tolls(rtdb,oprint_conv_details,toll_s,n_dep,
+     .     svals,nbf_ao)
       nmo(1)=nbf_ao
       if (ipol.eq.1)then
 c     

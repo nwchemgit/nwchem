@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.5 2001-11-02 19:08:13 edo Exp $
+c     $Id: dft_canorg.F,v 1.6 2001-12-02 01:18:11 edo Exp $
 c     
       implicit none
 c
@@ -159,3 +159,56 @@ c
       endif
       return
       end
+      subroutine util_tolls(rtdb,oprint,toll_s,n_dep,svals,nbf)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+      integer rtdb
+      integer nbf
+      double precision svals(*)
+      logical oprint
+c
+      integer n_dep
+      double precision toll_s
+c
+c     Get user input parameters ... only one allowed
+c
+c     lindep:n_dep  ... force number of linearly dep vectors vectors
+c     lindep:toll_s    ... tolerance 
+c
+      toll_s=1d-5
+       if (rtdb_get(rtdb, 'lindep:tol', mt_dbl, 1, toll_s).or.
+     .    rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s)) then
+          if (oprint) then
+             write(luout, 3) toll_s
+ 3           format(/' Setting tolerance for linear dependence to',
+     $            1p,d9.2)
+             call util_flush(luout)
+          endif
+       endif
+       if (rtdb_get(rtdb, 'lindep:n_dep', mt_int, 1, n_dep)) then
+          if (oprint) then
+             write(luout, 2) n_dep
+ 2           format(/' Forcing the number of linearly dependent ',
+     $            'vectors to be', i3)
+             call util_flush(luout)
+          endif
+       else
+          n_dep = -1
+       endif
+       if(n_dep.ne.-1) then
+          if(n_dep.eq.0) then
+             toll_s=-1.d9
+          else
+             toll_s=svals(n_dep+1)
+          endif
+       endif
+       if(oprint) then
+          write(luout,*) ' lindep tolerance = ',toll_s
+       endif
+c
+!       if ((toll_s.ne.-1.0d0) .and. (n_dep.ne.-1)) call errquit
+!     $      ('scf_lindep: only one of n_dep and tol permitted',0)
+       return
+       end
