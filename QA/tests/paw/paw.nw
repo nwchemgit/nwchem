@@ -68,10 +68,13 @@ task paw steepest_descent
 
 driver
    clear
+   maxiter 1
+end
+nwpw
+   tolerances 1.0d-9 1.0d-9
 end
 
 ### driver testing ###
-task paw optimize
-
+task paw optimize ignore
 
 
