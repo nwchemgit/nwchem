@@ -23,7 +23,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_prob.F,v 1.4 2003-08-18 16:40:53 d3j191 Exp $
+c $Id: qhop_prob.F,v 1.5 2003-08-18 17:38:53 d3j191 Exp $
 c
 c     
 c     The hopping probability prob is calculated given the difference in 
@@ -82,9 +82,9 @@ c
      + lshift(ihv(2),shbit(1))+pra
 c
       ipar=1
-      print 1026,ipar,index,ptpar(ipar),iseq(1),ihv(1),prd,iseq(2),
-     + ihv(2),pra
- 1026 format('prob ',9i5)
+c      print 1026,ipar,index,ptpar(ipar),iseq(1),ihv(1),prd,iseq(2),
+c     + ihv(2),pra
+c 1026 format('prob ',9i5)
       do while(index.ne.ptpar(ipar))
       ipar=ipar+1 
       if(ipar.gt.maxpar)then
