@@ -3,7 +3,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff)
 
-c     $Id: grad_dens_so.F,v 1.1 2000-04-17 21:46:02 zzhang Exp $
+c     $Id: grad_dens_so.F,v 1.2 2000-06-13 23:34:32 zzhang Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -74,11 +74,11 @@ C     get MO vectors from file (taken from Roberts scf_movecs_read)
      $     call errquit('grad_dens_so: could not read mo vectors', 110)
 c
       if (scftype .eq. 'UHF') then
-
+         
 C     energy-weighted density
-
+         
 C     create eigenvalue diagonal matrix
-cso         nocc = nclosed + nopen ! == nalpha
+cso   nocc = nclosed + nopen ! == nalpha
          nocc = 2*nclosed + nopen 
          if (ga_nodeid() .eq. 0) then
             status = MA_alloc_get(MT_INT, nocc, 'indices', l_ind, k_ind)
@@ -137,11 +137,6 @@ C     D+ and D- (Formalism from Dupuis & King, JCP 68(9), p4000
          end if                  !  UMP2
 
 c
-         call ga_sync()
-c
-         call ga_brdcst(33,pdm2, 8*nopen**4,0)
-         call ga_brdcst(34,coeff,8*nopen*nbf,0)
-
          call ga_sync()
 c
          call ga_symmetrize(g_wdens)
