@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.16 2001-04-11 16:30:14 edo Exp $
+C $Id: onedd_cont.F,v 1.17 2001-04-11 18:01:09 edo Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -158,7 +158,7 @@ c
      *  doS,doT,doV,g_wdens,g_dens,geom,basis,ncent,ndens,
      *  dbl_mb(k_dens),dbl_mb(k_wdens),matb)
 c
-      call sym_hess_symmetrize(geom,dbl_mb(k_exy))
+      if(skelsym)call sym_hess_symmetrize(geom,dbl_mb(k_exy))
       if (oneprint.and.(ga_nodeid().eq.0)) then
         write(LuOut,*)
         call util_flush(LuOut)

@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.17 2001-04-11 16:30:14 edo Exp $
+C $Id: twodd_cont.F,v 1.18 2001-04-11 18:01:09 edo Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -99,6 +99,11 @@ c
         write(LuOut,*)
         write(LuOut,*) 'The Hessian dft contribution'
         call hess_hssout(dbl_mb(k_hess_xc),ncent*3,ncent*3,ncent*3)
+        if(skelsym) then
+           call sym_hess_symmetrize(geom,dbl_mb(k_hess_xc))  
+        write(LuOut,*) 'The Hessian dft contribution symmetrized'
+        call hess_hssout(dbl_mb(k_hess_xc),ncent*3,ncent*3,ncent*3)
+        endif
         write(LuOut,*)
         write(LuOut,*) 'The g_rhs dft contribution'
         endif
@@ -106,6 +111,11 @@ c
           if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
           call ga_print(g_rhs_xc(i))
           if(ga_nodeid().eq.0)write(LuOut,*)
+          if(skelsym) then
+          if(ga_nodeid().eq.0)write(LuOut,*) 'symmetrized'
+             call  sym_symmetrize(geom,basis,.false.,g_rhs_xc(i))
+             call ga_print(g_rhs_xc(i))
+          endif
         enddo
       endif
 c
