@@ -1,6 +1,6 @@
       Subroutine xc_fitv(Tmat, nTrows, nTcols, g_vxc, g_xcinv, IOLGC)
 c
-C$Id: xc_fitv.F,v 1.15 2000-10-11 22:06:05 edo Exp $
+C$Id: xc_fitv.F,v 1.16 2002-08-16 00:39:54 edo Exp $
 c
       implicit none
 c
@@ -244,7 +244,7 @@ c
                            enddo
                         enddo
                      else
-                        call dzero(Dbl_MB(i3OI), Nintegrals)
+                        call dcopy(nintegrals,0d0,0,Dbl_MB(i3OI), 1)
                      endif
                   else
                      call int_1e3ov(XC_bas_han, isha, AO_bas_han, ishb,

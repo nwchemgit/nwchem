@@ -1,5 +1,5 @@
 *
-* $Id: xc_erftab.fh,v 1.10 2002-07-31 01:38:04 edo Exp $
+* $Id: xc_erftab.fh,v 1.11 2002-08-16 00:39:53 edo Exp $
 *
       double precision ass_erf1,ass_erf2,ass_ssf
       double precision alpha_erf1,alpha_erf2,eps
@@ -16,7 +16,7 @@ c
      ,     alpha_erf1=1d0/0.30d0,
      ,     alpha_erf2=1d0/0.28d0,
      ,     eps=0.002d0)	
-      double precision erf1,erf2,taux,erfcc,erf1c,erf2c
+      double precision erf1,erf2,taux,erfcc,erfcco,erf1c,erf2c
 #if defined(SGI)|| defined (DECOSF) ||defined (WIN32)|| defined(LINUX)
       erf1(x)=0.5d0*derfc((x/(1d0-x*x))*alpha_erf1)
       erf2(x)=0.5d0*derfc((x/(1d0-x*x)**2)*alpha_erf2)
@@ -26,6 +26,13 @@ c
 #endif
       taux(x)=1d0/(1d0+0.5d0*abs(x))
       erfcc(x)=taux(x)*
+     .     exp(-x*x-1.26551223d0+
+     *     1.00002368d0*taux(x)+
+     .     .37409196d0*taux(x)**2 +.09678418d0*taux(x)**3
+     *     -.18628806d0*taux(x)**4+.27886807d0*taux(x)**5
+     .     -1.13520398d0*taux(x)**6+1.48851587d0*taux(x)**7
+     .     -.82215223d0*taux(x)**8+.17087277d0*taux(x)**9)
+      erfcco(x)=taux(x)*
      .     exp(-x*x-1.26551223d0+taux(x)*
      *     (1.00002368d0+taux(x)*(.37409196d0+
      *     taux(x)*(.09678418d0+taux(x)*

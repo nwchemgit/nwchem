@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.15 2001-04-03 01:20:49 edo Exp $
+c$Id: grid_invariant.F,v 1.16 2002-08-16 00:39:53 edo Exp $
 c
       implicit none
 c      
@@ -118,7 +118,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.15 2001-04-03 01:20:49 edo Exp $
+c$Id: grid_invariant.F,v 1.16 2002-08-16 00:39:53 edo Exp $
 c
       implicit none
 c
@@ -145,8 +145,8 @@ c
       logical oprint
 c
       oprint=util_print('griddebug', print_high)
-      call dzero(qrot, 9)
-      call dzero(tvec, 3)
+      call dcopy(9,0d0,0,qrot, 1)
+      call dcopy(3,0d0,0,tvec, 1)
 c
 c     atomic case 
 c
@@ -184,7 +184,7 @@ c
 c
 c        Form R_a - T
 c
-         call dzero(ramt, 3)
+         call dcopy(3,0d0,0,ramt, 1)
          lramt = 0.d0
          do icart = 1, 3
             ramt(icart) = coord(icart,ictr) - tvec(icart)
@@ -214,8 +214,8 @@ c
 c     diagonalize M
 c
       call dcopy(9,qrot,1,qin,1)
-      call dzero(eigs, 3)
-      call dzero(work, 12)
+      call dcopy(12,0d0,0,work, 1)
+      call dcopy(3,0d0,0,eigs, 1)
       call dsyev('V', 'L', 3, qrot, 3, eigs, work, 12, info)
       ddiag=abs(eigs(1)-qin(1,1))+abs(eigs(2)-qin(2,2))+
      +     abs(eigs(3)-qin(3,3))

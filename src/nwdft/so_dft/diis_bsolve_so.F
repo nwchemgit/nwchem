@@ -1,6 +1,6 @@
       subroutine diis_bsolve_so(pulay,wght,mxhist,nhist)
 
-C$Id: diis_bsolve_so.F,v 1.2 2000-04-26 18:41:42 edo Exp $
+C$Id: diis_bsolve_so.F,v 1.3 2002-08-16 00:39:53 edo Exp $
 
 c     
 c***********************************************************************
@@ -72,7 +72,7 @@ c
 c
 c     Define the c array.
 c
-      call dzero(Dbl_MB(icc),nhist+1)
+      call dcopy(nhist+1,0d0,0,Dbl_MB(icc), 1)
       Dbl_MB(icc) = -1.0d0
 c      if(ga_nodeid().eq.0)then
 c        write(6,*)' pulay matrix '

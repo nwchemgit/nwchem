@@ -1,6 +1,6 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.8 2001-11-16 22:12:17 edo Exp $
+c$Id: grid_atom_type_info.F,v 1.9 2002-08-16 00:39:53 edo Exp $
 c
       implicit none
 c      
@@ -87,7 +87,7 @@ c     Get ncenter tags, coordinates, and charges from the geometry object.
 c     
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))
-     &     call errquit('grid_atom_type_info: geom_cart_get failed',74)
+     &     call errquit('gridatom_type_info: geom_cart_get failed',geom)
 c
 c     generate number of atom types and atom type array iatype(icenter) 
 c
