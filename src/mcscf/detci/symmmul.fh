@@ -1,6 +1,5 @@
 c
 c  Irrep direct product using EOR
 c
-      integer MULX, imul, jmul
       MULX(imul,jmul) = ieor((imul-1),(jmul-1)) + 1
 
