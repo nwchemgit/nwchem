@@ -1222,17 +1222,9 @@ c
 c
 c     Determine amount of memory available
 c
-      avail_ma = ma_inquire_avail(mt_dbl)
-      if (ga_uses_ma() .and. ga_memory_limited()) 
-     $     avail_ma = avail_ma - ga_memory_avail()
-      if(ga_memory_limited())then
-         avail_ga=ga_memory_avail()
-      else
-         avail_ga=0
-      end if
+      call util_ma_ga_avail(avail_ma, avail_ga)
       call ga_dgop(11,avail_ma,1,'min')
-      call ga_dgop(12,avail_ga,1,'min')
-      avail_ga = avail_ga * ga_nnodes()
+      call ga_dgop(12,avail_ga,1,'+') ! Sum available GA across all nodes
       if (oprint) then
          write(6,2) spina, spinc, ga_uses_ma(), ga_memory_limited(), 
      $        avail_ga, avail_ma
@@ -1377,18 +1369,9 @@ c
             end do
 c
 c     Does it fit in memory?
-c
-            if (ga_uses_ma().and..not.ga_memory_limited()) then
-               ok = (ma_max + (ga_max/ga_nnodes())) .le. avail_ma
-            else if (ga_memory_limited())then
-               ok = (ma_max .le. avail_ma) .and.
-     $              (ga_max .le. avail_ga)
-            else 
-               ok = (ma_max .le. avail_ma)
-            end if
-c     
 c     If it fits & uses the fewest integral passes then record it
-c     
+c
+            call util_ma_ga_test(ma_max, ga_max/ga_nnodes(), ok)
             if (ok .and. npass.lt.npass_best) then
                npass_best = npass
                numasuper_best = numasuper

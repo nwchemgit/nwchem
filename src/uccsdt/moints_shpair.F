@@ -547,7 +547,7 @@ c     up in the common cuccsdtP.fh including the final global
 c     arrays for block-sorted results.
 c
       integer ushlo, ushhi, ush, vsh, ushblocksize, junk, list
-      integer ublocklo, ublockhi, ublockdim
+      integer ublocklo, ublockhi, ublockdim, ublk
       parameter (ushblocksize=50) ! FOR DEBUG
       integer g_ai, g_bi, g_ck
       integer spini, spink, spine, spinm
@@ -556,7 +556,10 @@ c
       integer l_wivu, l_wkvu, l_work, l_buf, l_tmp, l_res
       integer k_wivu, k_wkvu, k_work, k_buf, k_tmp, k_res
       integer lenwork, lenbuf, dummy(3)
-      integer me, next, nproc, count
+      integer me, next, nproc, count, maxdim, maxsh, shmaxbf
+      integer shlist(2,nw_max_shells), nshblock, need
+      double precision ga_need, ma_need
+      logical ok
       integer nxtval
       external nxtval
       double precision q2, tol
@@ -588,12 +591,40 @@ c
       idim = no(spini)
       kdim = no(spink)
 c
-c     Need a more intelligent blocking of ush based upon
-c     available memory, required parallelism, load-balance, ...
-c     We want as large a block size as possible.
+c     Determine the blocking for ush 
+c     ... large blocks increase parallelism and minimize communication
+c     ... need to leave enough memory for efficient integral evaluation
 c
-      do ushlo = 1, nsh, ushblocksize
-         ushhi = min(ushlo+ushblocksize-1,nsh)
+c     ublockdim = max. no. of basis functions in a shell block
+c     maxsh  = max. no. of shells in a shell block
+c     shmaxbf= max. no of functions in a shell
+c
+      if (.not. bas_nbf_cn_max(basis, shmaxbf)) call errquit
+     $     ('uccsdt: bas_nbf_cn_max?', 0)
+      do maxdim = nbf, 1, -1
+         call moints_shell_block(basis, maxdim, shlist, nshblock)         
+         maxsh = 0
+         do ublk = 1, nshblock
+            maxsh = max(maxsh, shlist(2,ublk)-shlist(1,ublk)+1)
+         end do
+c
+c     Leave room for a minimum AO shell blocking of 20 shells
+c     ... could be more intelligent about this.
+c
+         call moints_aoblock_memory(1, 1, 20, 20, need)
+         ma_need = need + shmaxbf*shmaxbf*
+     $        (maxdim*maxdim + nbf*(idim+kdim))
+         ga_need = dble(adim*idim + bdim*idim + cdim*kdim)*
+     $        dble(maxdim*nbf)
+         call util_ma_ga_test(ma_need, ga_need, ok)
+         if (ok) goto 10
+      end do
+      call errquit('moints_shpair_one_index: insufficient memory',0)
+ 10   continue
+c
+      do ublk = 1, nshblock
+         ushlo = shlist(1,ublk)
+         ushhi = shlist(2,ublk)
          if (.not. bas_cn2bfr(basis, ushlo, ublocklo, junk))
      $        call errquit('moints_shpair: basis?', 0)
          if (.not. bas_cn2bfr(basis, ushhi, junk, ublockhi))
@@ -1438,6 +1469,7 @@ c
 #include "bas.fh"
 #include "schwarz.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
       integer basis             ! [input]
       integer ush, ulo, uhi     ! [input] shell & bf range
       integer vsh, vlo, vhi     ! [input] shell & bf range
@@ -1473,12 +1505,12 @@ c     Could add the use of symmetry but in initial application the
 c     symmetry is being handled by using unique ush.
 c
       integer idim1, idim2, udim, vdim
-      integer nsh, nsh_block
+      integer nsh, nbf
       integer wshlo, wshhi, lshlo, lshhi
       integer wlo, whi, llo, lhi, junk, l_work, k_work, lenwork
+      integer avail_ma, need, wblk, lblk
 c
-      if (.not. bas_numcont(basis,nsh))
-     $     call errquit('sym_abelian_bas_info: basis?', basis)
+      integer shlist(2,nw_max_shells), nshblock, maxdim, maxsh
 c
       if (nset.lt.1 .or. nset.gt.2) call errquit
      $     ('moints_shpair_one_index: bad nset', nset)
@@ -1492,6 +1524,36 @@ c
       end if
       if (schwarz_shell(ush,vsh)*schwarz_max() .lt. tol) return
 c
+      if (.not. bas_numcont(basis,nsh))
+     $     call errquit('moints_shpair_one_index: basis?', basis)
+      if (.not. bas_numbf(basis,nbf))
+     $     call errquit('moints_shpair_one_index: basis?', basis)
+c
+c     Figure out how big we can make the shell blocks
+c
+c     maxdim is the maximum no. of basis functions in each shell block
+c     maxsh  is the maximum no. of shells in each block
+c
+      avail_ma = ma_inquire_avail(mt_dbl)
+      avail_ma = nint(dble(avail_ma) * 0.95d0)
+      do maxdim = nbf, 1, -1
+         call moints_shell_block(basis, maxdim, shlist, nshblock)         
+         maxsh = 0
+         do wblk = 1, nshblock
+            maxsh = max(maxsh, shlist(2,wblk)-shlist(1,wblk)+1)
+         end do
+         call moints_aoblock_memory(1, 1, maxsh, maxsh, need)
+         need = need + udim*vdim*maxdim*maxdim
+         if (avail_ma .gt. need) goto 10
+      end do
+      call errquit('moints_shpair_one_index: insufficient memory',0)
+ 10   continue
+c
+      lenwork = udim*vdim*maxdim*maxdim
+      if (.not. ma_push_get(mt_dbl, lenwork, 'work', 
+     $     l_work, k_work)) 
+     $     call errquit('moints_shpair: memory estimate?',lenwork)
+c
 c     Loop over blocks of shells wsh & lsh in order to control memory
 c     ... smaller blocks = less memory but less efficient integral
 c     evaluation.  
@@ -1499,24 +1561,20 @@ c
 c     Consider switching to texas 93 since this will give larger
 c     blocks than 95.
 c
-      nsh_block = 30
-      do wshlo = 1, nsh, nsh_block
-         wshhi = min(wshlo+nsh_block-1,nsh)
+      do wblk = 1, nshblock
+         wshlo = shlist(1,wblk)
+         wshhi = shlist(2,wblk)
          if (.not. bas_cn2bfr(basis, wshlo, wlo, junk))
      $        call errquit('moints_shpair: basis?', 0)
          if (.not. bas_cn2bfr(basis, wshhi, junk, whi))
      $        call errquit('moints_shpair: basis?', 0)
-         do lshlo = 1, wshlo, nsh_block
-            lshhi = min(lshlo+nsh_block-1,nsh)
+         do lblk = 1, wblk
+            lshlo = shlist(1,lblk)
+            lshhi = shlist(2,lblk)
             if (.not. bas_cn2bfr(basis, lshlo, llo, junk))
      $           call errquit('moints_shpair: basis?', 0)
             if (.not. bas_cn2bfr(basis, lshhi, junk, lhi))
      $           call errquit('moints_shpair: basis?', 0)
-c
-            lenwork = (lhi-llo+1)*(whi-wlo+1)*udim*vdim
-            if (.not. ma_push_get(mt_dbl, lenwork, 'work', 
-     $           l_work, k_work)) 
-     $           call errquit('moints_shpair: ma?',lenwork)
             call moints_shpair_block(
      $           basis,
      $           lshlo, lshhi, llo, lhi,
@@ -1530,10 +1588,10 @@ c
      $           c1, c2,
      $           g1, g2,
      $           dbl_mb(k_work))
-            if (.not. ma_pop_stack(l_work)) 
-     $           call errquit('moints_shpair: ma corrupt?',0)
          end do
       end do
+      if (.not. ma_pop_stack(l_work)) 
+     $     call errquit('moints_shpair: ma corrupt?',0)
 c
       end
       subroutine moints_shpair_block(
@@ -1610,6 +1668,25 @@ c
             end if
          end do
       end do
+c
+      end
+      subroutine moints_aoblock_memory(nish, njsh, nksh, nlsh, memory)
+      implicit none
+#include "mafdecls.fh"
+      integer nish, njsh, nksh, nlsh ! [input]
+      integer memory            ! [output]
+c
+c     Return the amount of memory in doubles that will be internally 
+c     allocated by moints_aoblock for the given no. of shells.
+c
+      integer maxq, leneri, lenscr
+c
+      maxq = nish * njsh * nksh * nlsh
+      call intb_mem_2e4c(leneri, lenscr)
+      leneri = max(leneri,100*(6**4)) ! Room for 100 (dd|dd)
+c
+      memory = maxq + leneri + lenscr + 
+     $     ma_sizeof(mt_int, 4*maxq + 4*leneri, mt_dbl)
 c
       end
       subroutine moints_aoblock(
@@ -1823,5 +1900,128 @@ c
 c$$$      write(6,*) ' BLOCKING ', lo, hi
 c$$$      write(6,1) nblock, (blocks(1,i),blocks(2,i),i=1,nblock)
 c$$$ 1    format(i5,2x,100(2i3,3x))
+c
+      end
+      subroutine moints_shell_block(basis, maxdim, list, nblock)
+      implicit none
+#include "bas.fh"
+      integer basis             ! [input]
+      integer maxdim            ! [input]
+      integer list(2,*)         ! [output]
+      integer nblock            ! [output]
+c
+c     Block the shells so that there are no more than maxdim
+c     functions in any block.   
+c
+c     list(1,block) = first shell in block
+c     list(2,block) = last shell in block
+c
+      integer nsh, ish, count, ilo, ihi, idim
+c
+      if (.not. bas_numcont(basis, nsh)) call errquit
+     $     ('moints_shell_block: bad basis?',0)
+c
+      count = 0                 ! No. of functions in current block
+      nblock = 1
+      list(1,1) = 1
+c
+      do ish = 1, nsh
+         if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
+     $        call errquit('moints_shell_block: cn2bfr?', ish)
+         idim = ihi - ilo + 1
+         if (maxdim .lt. idim) call errquit
+     $        ('moints_shell_block: maxdim < idim', maxdim)
+c
+         if ((count+idim).gt.maxdim) then
+            list(2,nblock) = ish-1
+            count = 0
+            nblock = nblock + 1
+            list(1,nblock) = ish
+         end if
+         count = count + idim
+      end do
+      if (count .ne. 0) then
+         list(2,nblock) = ish-1
+         nblock = nblock + 1
+      end if
+c
+      nblock = nblock - 1
+c
+c$$$      write(6,*) '  shell blocking ', maxdim, nblock
+c$$$      write(6,1) (list(1,ish),list(2,ish),ish=1,nblock)
+c$$$ 1    format(20(2i3,3x))
+c
+      end
+      subroutine util_ma_ga_avail(avail_ma, avail_ga)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+      double precision avail_ma, avail_ga ! [output]
+c
+c     Returns the available MA and GA on the calling node taking into 
+c     account the various interactions of memory
+c
+c     Units are doubles.
+c
+c     Within NWChem 
+c     
+c     if (ga_uses_ma()) then
+c     .   GA is initialized unlimited so that can freely switch
+c     .   memory between MA and GA
+c     else
+c     .   GA is initialized limited
+c     end if
+c
+c     but the logic below should take care of the general
+c     homgenous case
+c
+      avail_ma = ma_inquire_avail(mt_dbl)
+      if (ga_uses_ma() .and. ga_memory_limited()) 
+     $     avail_ma = avail_ma - ga_memory_avail()
+      if(ga_memory_limited())then
+         avail_ga=ga_memory_avail() / 8.0d0 ! into doubles
+      else
+         avail_ga=0
+      end if
+c
+      end
+      subroutine util_ma_ga_test(need_ma, need_ga, ok)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+      double precision need_ma, need_ga ! [input]
+      logical ok                ! [output]
+c
+c     COLLECTIVE
+c
+c     Given the maximum simultaneous usage of MA and GA **PER NODE**
+c     determine if enough memory is available
+c
+c     Units are doubles.
+c
+      double precision avail_ma, avail_ga
+      integer iok
+c
+      call util_ma_ga_avail(avail_ma, avail_ga)
+      avail_ma = avail_ma * 0.98
+      avail_ma = avail_ma * 0.98
+c
+      if (ga_uses_ma() .and. (.not.ga_memory_limited())) then
+         ok = (need_ma + need_ga) .le. avail_ma
+      else if (ga_memory_limited())then
+         ok = (need_ma .le. avail_ma) .and.
+     $        (need_ga .le. avail_ga)
+      else 
+         ok = (need_ma .le. avail_ma)
+      end if
+c
+      if (ok) then
+         iok = 0
+      else
+         iok = 1
+      end if
+c
+      call igop(33, iok, 1, '+')
+      ok = iok .eq. 0
 c
       end
