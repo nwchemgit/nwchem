@@ -47,8 +47,8 @@ c     **** local variables  ****
       integer index1
 
 c     **** external functions ****
-      real*8   lattice_unita
-      external lattice_unita
+      real*8   lattice_unita,util_erf
+      external lattice_unita,util_erf
 
       call D3dB_nfft3d(2,nfft3d)
       call D3dB_n2ft3d(2,n2ft3d)
@@ -180,14 +180,15 @@ c    >           + k1*dunita(3,3)/dble(nz)
                temp = dsqrt(x*x + y*y + z*z)
                if (temp .gt. 1.0d-15) then
 
-                  xerf=EPSILON*temp
-                  yerf = (1.0d0
-     >                 + xerf*(c1 + xerf*(c2
-     >                 + xerf*(c3 + xerf*(c4
-     >                 + xerf*(c5 + xerf*c6))))))**4
-                  yerf = (1.0d0 - 1.0d0/yerf**4)
-                  temp = yerf/temp
-c                 temp = erf(EPSILON*temp)/temp
+c                 xerf=EPSILON*temp
+c                 yerf = (1.0d0
+c    >                 + xerf*(c1 + xerf*(c2
+c    >                 + xerf*(c3 + xerf*(c4
+c    >                 + xerf*(c5 + xerf*c6))))))**4
+c                 yerf = (1.0d0 - 1.0d0/yerf**4)
+c                 temp = yerf/temp
+
+                  temp = util_erf(EPSILON*temp)/temp
                else
                   temp = 2.0d0*EPSILON/dsqrt(PI)
                end if
