@@ -2,7 +2,7 @@
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.15 2003-07-08 21:26:34 edo Exp $
+C$Id: xc_replicated.F,v 1.16 2003-07-08 21:42:48 edo Exp $
 c
       implicit none
 c      
@@ -21,11 +21,10 @@ c
       integer g_dens(*)
 c
       integer xcrep_glob,ii
-      logical xcreplicated_l,oprint
+      logical xcreplicated_l,oprint,xcrepirrg
       integer plist,dims(2),nblock(2)
-#ifdef GAIRREG
       integer l_map,k_map,procsmp
-#endif
+      integer gnblock(2)
 c
       oprint = util_print('xcreplicated', print_high)
 c
@@ -48,6 +47,8 @@ c
       if (.not. rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
      .     xcreplicated_l))
      &     xcreplicated_l=.false.
+      if (.not. rtdb_get(rtdb, 'dft:xcrepirrg', mt_log, 1, 
+     .     xcrepirrg)) xcrepirrg=.false.
       if(.not.xcreplicated_l) then
          xcreplicated=.false.
          return
@@ -59,63 +60,58 @@ c
          plist=ga_mirror_config()
          dims(1)=nbf_ao
          dims(2)=nbf_ao
-#ifdef GAIRREG
-         procsmp=ga_cluster_nprocs(ga_cluster_nodeid())
-         if(.not.ma_push_get(MT_int,procsmp*2,
-     .        'ga block maps',l_map,k_map)) then
-            call errquit('xcrepl: not enough local mem',
-     .           procsmp*2)
-         endif
-         call util_atom_blocked(procsmp,
+         if(xcrepirrg) then
+            procsmp=ga_cluster_nprocs(ga_cluster_nodeid())
+            if(.not.ma_push_get(MT_int,procsmp*2,
+     .           'ga block maps',l_map,k_map)) then
+               call errquit('xcrepl: not enough local mem',
+     .              procsmp*2)
+            endif
+            call util_atom_blocked(procsmp,
      .        geom, basis, int_mb(k_map), nblock)
-         
-c
+            
+c     
 c     compress map array
 c     
-         do ii=0,nblock(2)-1
-            int_mb(k_map+nblock(1)+ii)=
-     =           int_mb(k_map+procsmp+ii)
-         enddo
-#endif
+            do ii=0,nblock(2)-1
+               int_mb(k_map+nblock(1)+ii)=
+     =              int_mb(k_map+procsmp+ii)
+            enddo
+         endif
          do ii=1,ipol
-#ifdef GAIRREG
+            gnblock(1)=0
+            gnblock(2)=0
             if(dorepxc) then
                if(.not.dograd) then
-                  if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
-     .                 'replicated xc GA',int_mb(k_map),nblock,plist,
+                  if(xcrepirrg) then
+                     if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
+     .                    'replicatedxcGA',int_mb(k_map),nblock,plist,
      .                 k_repxc(ii))) goto 1984
-                  call ga_zero(k_repxc(ii))
-               endif
-            endif
-            if(dorepdm) then
-               if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
-     .              'replicated DM GA',int_mb(k_map),nblock,plist,
-     .              g_repdm(ii))) goto 1984
-               call ga_copy(g_dens(ii),g_repdm(ii))
-            endif
-#else 
-            nblock(1)=0
-            nblock(2)=0
-            if(dorepxc) then
-               if(.not.dograd) then
+                  else
                   if(.not.nga_create_config(MT_DBL, 2, dims,
      .                 'replicated xc GA',
-     .                 nblock,plist, k_repxc(ii))) goto 1984
+     .                 gnblock,plist, k_repxc(ii))) goto 1984
+                  endif
                   call ga_zero(k_repxc(ii))
                endif
             endif
             if(dorepdm) then
-               if(.not.nga_create_config(MT_DBL, 2, dims,
-     .              'replicated DM GA',
-     .              nblock,plist, g_repdm(ii))) goto 1984
+               if(xcrepirrg) then
+                  if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
+     .                 'replicated DM GA',int_mb(k_map),nblock,plist,
+     .                 g_repdm(ii))) goto 1984
+               else
+                  if(.not.nga_create_config(MT_DBL, 2, dims,
+     .                 'replicated DM GA',
+     .                 gnblock,plist, g_repdm(ii))) goto 1984
+               endif
                call ga_copy(g_dens(ii),g_repdm(ii))
             endif
-#endif
-            enddo
-#ifdef GAIRREG
+         enddo
+         if(xcrepirrg) then
             if (.not.ma_pop_stack(l_map))
      &           call errquit('xc_rep_init: cannot pop stack',11)
-#endif
+         endif
             
          
       xcreplicated_l=.true.
@@ -143,7 +139,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.15 2003-07-08 21:26:34 edo Exp $
+C$Id: xc_replicated.F,v 1.16 2003-07-08 21:42:48 edo Exp $
 c
       implicit none
 c      
