@@ -1,6 +1,6 @@
       subroutine band_input(rtdb)
 c
-c $Id: band_input.F,v 1.5 2001-12-20 00:30:50 bylaska Exp $
+c $Id: band_input.F,v 1.6 2002-01-14 18:02:31 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -13,25 +13,37 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 20)
+      parameter (num_dirs = 32)
  
       character*30 dirs(num_dirs)
       character*255 test
 
       data dirs / 'cell_name:',
+     >            'cell_name',
      >            'vectors',
      >            'fake_mass:',
+     >            'fake_mass',
      >            'time_step:',
+     >            'time_step',
      >            'loop:',
+     >            'loop',
      >            'tolerances:',
+     >            'tolerances',
      >            'energy_cutoff:',
+     >            'energy_cutoff',
      >            'wavefunction_cutoff:',
+     >            'wavefunction_cutoff',
      >            'ewald_rcut:',
+     >            'ewald_rcut',
      >            'ewald_ncut:',
+     >            'ewald_ncut',
      >            'exchange_correlation:',
+     >            'exchange_correlation',
+     >            'xc',
      >            'mulliken',
      >            'allow_translation',
      >            'zone_name:',
+     >            'zone_name',
      >            'mult',
      >            'dft',
      >            'odft',
@@ -101,8 +113,9 @@ c
      >           'band_input: unknown directive', 0)
 
 
-      goto ( 100, 200, 300, 400, 500, 600, 700, 800,
-     >       900,1000,1100,1200,1300,1400,
+      goto ( 100,100, 200, 300,300, 400,400, 500,500, 600,600, 
+     >       700,700, 800,800, 900,900, 1000,1000, 1100,1100,1100,
+     >       1200,1300, 1400,1400,
      >       1500,1600,1700,1600,1700,
      >      9999) ind
       call errquit(
