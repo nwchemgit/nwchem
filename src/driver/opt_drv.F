@@ -290,7 +290,7 @@ c
       double precision hscale, ascale, bscale, tscale
 c
       integer l_hess, k_hess, l_zmat, k_zmat, l_izmat, k_izmat, i, j
-      integer l_c, k_c, l_t, k_t, nactive
+      integer l_c, k_c, l_t, k_t, nactive, iat
       logical old_hessian, oactive(mxatom)
       character*16 atom_tags(mxatom)
 c
@@ -420,13 +420,15 @@ c     Since there is no redundancy or coupling we just need
 c     to make sure that the initial Hessian does not couple
 c     frozen with unfrozen variables and we are OK.
 c
-         do i = 1, nat
-            if (.not. oactive(i)) then
-               do j = 1, nvar
-                  dbl_mb(k_hess+j-1+(i-1)*nvar) = 0d0
-                  dbl_mb(k_hess+i-1+(j-1)*nvar) = 0d0
+         do iat = 1, nat
+            if (.not. oactive(iat)) then
+               do i = 1+(iat-1)*3, iat*3
+                  do j = 1, nvar
+                     dbl_mb(k_hess+j-1+(i-1)*nvar) = 0d0
+                     dbl_mb(k_hess+i-1+(j-1)*nvar) = 0d0
+                  enddo
+                  dbl_mb(k_hess+i-1+(i-1)*nvar) = 1d0
                enddo
-               dbl_mb(k_hess+i-1+(i-1)*nvar) = 1d0
             endif
          enddo
       endif
