@@ -1,5 +1,5 @@
 *
-* $Id: paw_mult.F,v 1.4 2003-02-17 22:29:10 bylaska Exp $
+* $Id: paw_mult.F,v 1.5 2003-02-18 02:15:40 bylaska Exp $
 *
 
 
@@ -220,6 +220,8 @@
      >  'paw_mult_dn_cmp_get: out of stack memory',0)
 
 
+      call dcopy(2*npack0,0.0d0,0,dn_cmp_smooth,1)
+      call dcopy(2*npack0,0.0d0,0,dn_cmp_diff,1)
       sum = 0.0d0
       nion = ion_nion()
       do ii=1,nion
