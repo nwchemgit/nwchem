@@ -104,6 +104,19 @@ core orbitals are not the lowest lying, then correct results will not
 be obtained.  From limited experience, it seems that special attention
 should be paid to systems including third- and higher- period atoms.
 
+The user may also specify the number of orbitals to be frozen by atom.
+Following the $Si(OH)_2$ example, the user could specify
+\begin{verbatim}
+freeze atomic O 1 Si 3
+\end{verbatim}
+In this case only the lowest four orbitals would be frozen.  If the user does
+not specify the orbitals by atom, the rules default to Table \ref{tbl:freeze-by-atoms}.
+
+{\em Caution:\/} The system does not check for a valid number of orbitals per
+atom.  If the user specifies to freeze more orbitals then are available for 
+the atom, the system will not catch the error.  The user must specify a logical
+number of orbitals to be frozen for the atom. 
+
 The \verb+FREEZE+ directive may also be used to specify the number of 
 core orbitals to freeze.  For instance, to freeze the first 10 orbitals
 \begin{verbatim}
