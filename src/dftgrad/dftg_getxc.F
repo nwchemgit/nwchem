@@ -1,18 +1,16 @@
-      Subroutine dftg_getxc(rtdb, geom, AO_bas_han, ipol, natom, 
-     &                      iga_dens, force, oactive, nactive,
-     &                      s34, oskel)
+      Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
+     &                      nactive, s34)
 c
       implicit none
 c      
 c     compute XC component of energy gradient.  
 c
-      integer rtdb, geom, AO_bas_han
-      integer ipol
+      integer rtdb
       integer natom
       integer iga_dens(2)
       double precision force(3*natom), s34(natom)
       integer nactive
-      logical oactive(natom), oskel
+      logical oactive(natom)
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -20,38 +18,34 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "sym.fh"
+#include "cdft.fh"
 c     
       double precision zero, one, onem
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
       logical status
-      double precision xfac(15), cfac(15)
 c
-      integer nproc, nbf_ao, itol2e, max_at_bf, lbuf, max1e, max2e,
+      integer nproc, max_at_bf, lbuf, max1e, max2e,
      &        lscratch, mscratch_1e, mscratch_2e, i, lsqa
       integer l_buf, k_buf, l_scr, k_scr, l_ik, i_ik, l_il, i_il,
-     &        l_jk, i_jk, l_jl, i_jl
+     &        l_jk, i_jk, l_jl, i_jl, ilo, ihi
       double precision tol2e, tot
 c
       nproc = ga_nnodes()
-c
-      if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 15, cfac))
-     &   call errquit('xc_getv: rtdb_put failed', 0)
-      if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, 15, xfac))
-     &   call errquit('xc_getv:rtdb_put failed', 0)
-      if (.not. bas_numbf(AO_bas_han,nbf_ao))then
-         call errquit('Exiting in getdexc.',1)
-      endif
 c
       if (abs(xfac(1)).gt.1e-8)then
 c       
 c        Compute the exact exchange potential (as in Hartree-Fock 
 c        calculations).
 c       
-         if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
-     &      call errquit('fitcd: rtdb_get failed', 0)
          tol2e=10.d0**(-itol2e)
 c
-         status = bas_nbf_ce_max(AO_bas_han, max_at_bf)
+         max_at_bf = 0
+         do i = 1, natom
+            if (.not. bas_ce2bfr(ao_bas_han, i, ilo, ihi))
+     &         call errquit('dftg_getxc: bas_ce2bfr failed', i)
+            max_at_bf = max(max_at_bf, ihi-ilo+1)
+         enddo
+c
          call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
          lbuf = max(max1e, max2e)
          lscratch = max(mscratch_1e, mscratch_2e)
@@ -118,8 +112,8 @@ c
 c     
 c        Compute via direct numerical quadrature.
 c     
-         call dftg_quadv0(rtdb, geom, AO_bas_han, ipol, iga_dens, 
-     &                    force, natom, oactive, nactive, oskel) 
+         call dftg_quadv0(rtdb, iga_dens, force, natom, oactive, 
+     &                    nactive) 
       endif
 c
       return

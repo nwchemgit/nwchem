@@ -2,11 +2,11 @@
      &                       zeta, dzeta, d_p, ictr, bcenters, nq,
      &                       iandex)
 c
-C     $Id: dftg_beckew.F,v 1.4 1997-03-15 17:25:58 d3h449 Exp $
+C     $Id: dftg_beckew.F,v 1.5 1997-03-18 01:19:27 d3h449 Exp $
 c
       implicit none
 c
-#include "quad.fh"
+#include "cdft.fh"
 c      
       integer bcenters, nq
       double precision qxyz(3,nq), xyz(3,*)
