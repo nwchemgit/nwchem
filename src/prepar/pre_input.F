@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.78 2001-01-04 19:28:27 d3j191 Exp $
+c $Id: pre_input.F,v 1.79 2001-01-04 19:39:21 d3j191 Exp $
 c
       implicit none
 c
@@ -142,8 +142,6 @@ c
       if(inp_compare(.false.,'end',item)) then
       goto 9
       endif
-c
-      lwrcoo=.false.
 c
 c     print & noprint
 c     ---------------
@@ -1175,6 +1173,8 @@ c
       elseif(inp_compare(.false.,'pdb',item)) then
       if(.not.inp_a(item)) then
       write(68,6807) ' '
+      lwrcoo=.true.
+      numcmd=numcmd+1
       else
       write(68,6807) item(1:index(item,' ')-1)
  6807 format('wr_pdb ',a)
@@ -1210,15 +1210,25 @@ c
       endif
       elseif(index(item,'.pdb').gt.0) then
       write(68,6807) item(1:index(item,' ')-1)
+      lwrcoo=.true.
+      numcmd=numcmd+1
       elseif(index(item,'.rst').gt.0) then
       write(68,6808) item(1:index(item,' ')-1)
+      lwrcoo=.true.
+      numcmd=numcmd+1
       elseif(index(item,'.rst_old').gt.0) then
       write(68,6848) item(1:index(item,'.rst_old')+3)
+      lwrcoo=.true.
+      numcmd=numcmd+1
       elseif(index(item,'.xyz').gt.0) then
       write(68,6823) item(1:index(item,' ')-1)
+      lwrcoo=.true.
+      numcmd=numcmd+1
       elseif(index(item,'.pov').gt.0) then
       write(68,6826) item(1:index(item,' ')-1)
  6826 format('wr_pov ',a)
+      lwrcoo=.true.
+      numcmd=numcmd+1
       else
       call errquit('Problem with write file',0)
       endif
@@ -1471,6 +1481,7 @@ c
       endif
 c
       if(numcmd.gt.0) then
+      print*,'lwrcoo=',lwrcoo
       if(.not.lwrcoo) then
       write(68,7809)
  7809 format('wr_rst')
