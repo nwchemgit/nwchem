@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.50 1997-02-27 09:12:39 d3e129 Exp $
+C     $Id: geom_input.F,v 1.51 1997-02-27 20:10:49 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -4533,7 +4533,7 @@ c
       DIMENSION IATSEG(MXATOM,MXSEG)
       DIMENSION NAMSEG(       MXSEG)
       DIMENSION LENSEG(       MXSEG)
-      DIMENSION RCOV(86)
+      DIMENSION RCOV(103)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTMAK-'/
       DATA ZERO   /0.0D+00/
@@ -4567,11 +4567,16 @@ C
      4   1.56D+00,1.44D+00,1.34D+00,1.30D+00,1.28D+00,
      5   1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
      6   1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
+      DATA (RCOV(I),i=87,103) 
+     1  /3.24d00,2.68d00,2.25d00,2.16d00,1.93d00,
+     2   1.66d00,1.57d00,1.81d00,2.21d00,1.43d00,
+     3   1.42d00,1.40d00,1.39d00,1.38d00,1.37d00,
+     4   1.36d00,1.34d00/
 C
       DIST(IAT,JAT)=SQRT((C(1,IAT)-C(1,JAT))**2+
      1                   (C(2,IAT)-C(2,JAT))**2+
      2                   (C(3,IAT)-C(3,JAT))**2) * TOANGS
-      BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.86
+      BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.103
 C
       DBUG=.FALSE.
       OUT =.FALSE. 
