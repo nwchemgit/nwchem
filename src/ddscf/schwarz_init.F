@@ -61,7 +61,8 @@ c
 c
 c     make sure that the integrals are being evaluated to sufficient precision
 c
-      call int_sp_acc(1.0d-22)
+      call int_acc_high()
+*     call int_sp_acc(1.0d-22)
 c     
       sch_max = 0.0d0
       ijat  = 0
@@ -162,6 +163,7 @@ c
 c
 c     Restore normal accuracy for integral evaluation
 c
-      call int_sp_acc(1.0d-11)
+      call int_acc_std()
+*      call int_sp_acc(1.0d-11)
 c
       end
