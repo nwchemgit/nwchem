@@ -93,6 +93,8 @@ c
       integer mrg_i06
       integer mrg_i07
       integer mrg_i08
+      integer mrg_i09
+      integer mrg_i10
 c
       integer mrg_t01
 c
