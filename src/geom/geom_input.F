@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.56 1997-03-06 00:25:31 gutowski Exp $
+C     $Id: geom_input.F,v 1.57 1997-03-11 22:40:54 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1140,6 +1140,154 @@ c
       geom_zmt_get_zmat=.true.
       return
       end
+      logical function geom_zmt_opn_fil(
+     1                 opn_bmat,opn_binv,
+     2                 opn_zsym,opn_zind)
+      implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "geomP.fh"
+c
+      character*255 zmt_bmat_fil
+      character*255 zmt_binv_fil
+      character*255 zmt_zsym_fil
+      character*255 zmt_zind_fil
+      common/hnd_zmt_fil/zmt_bmat_fil,zmt_binv_fil,
+     1                   zmt_zsym_fil,zmt_zind_fil
+c
+      character*8 errmsg
+      integer     ir
+      integer     iw
+      logical     dbug
+      common/hnd_iofile/ir,iw
+      dimension errmsg(3)
+      data errmsg /'program ','stop in ','zmt_opn '/
+c
+      logical opn_bmat
+      logical opn_binv
+      logical opn_zsym
+      logical opn_zind
+      integer ift2
+      integer ift3
+      integer ift4
+      integer ift5
+      data    ift2 /32/
+      data    ift3 /33/
+      data    ift4 /34/
+      data    ift5 /35/
+c
+      dbug=.false.
+c
+      if(opn_bmat) then
+         call util_file_name('zmt.bmat',.false.,.false.,zmt_bmat_fil)
+         open(unit=ift2,file=zmt_bmat_fil,form='unformatted',
+     1        access='sequential',status='unknown',err=911)
+         if(dbug) then
+            write(iw,*) 'zmt_bmat_fil = ',zmt_bmat_fil
+         endif
+      endif
+      if(opn_binv) then
+         call util_file_name('zmt.binv',.false.,.false.,zmt_binv_fil)
+         open(unit=ift3,file=zmt_binv_fil,form='unformatted',
+     1        access='sequential',status='unknown',err=911)
+         if(dbug) then
+            write(iw,*) 'zmt_binv_fil = ',zmt_binv_fil
+         endif
+      endif
+      if(opn_zind) then
+         call util_file_name('zmt.zind',.false.,.false.,zmt_zind_fil)
+         open(unit=ift4,file=zmt_zind_fil,form='unformatted',
+     1        access='sequential',status='unknown',err=911)
+         if(dbug) then
+            write(iw,*) 'zmt_zind_fil = ',zmt_zind_fil
+         endif
+      endif
+      if(opn_zsym) then
+         call util_file_name('zmt.zsym',.false.,.false.,zmt_zsym_fil)
+         open(unit=ift5,file=zmt_zsym_fil,form='unformatted',
+     1        access='sequential',status='unknown',err=911)
+         if(dbug) then
+            write(iw,*) 'zmt_zsym_fil = ',zmt_zsym_fil
+         endif
+      endif
+         geom_zmt_opn_fil=.true.
+      return
+c
+  911 continue
+      if(dbug) then
+         write(iw,*) 'zmt_bmat_fil = ',zmt_bmat_fil
+         write(iw,*) 'zmt_binv_fil = ',zmt_binv_fil
+         write(iw,*) 'zmt_zsym_fil = ',zmt_zsym_fil
+         write(iw,*) 'zmt_zind_fil = ',zmt_zind_fil
+      endif
+      call hnd_hnderr(3,errmsg)
+      geom_zmt_opn_fil=.false.
+      return
+      end
+      logical function geom_zmt_cls_fil(
+     1                 opn_bmat,opn_binv,
+     2                 opn_zsym,opn_zind)
+      implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "geomP.fh"
+c
+      character*255 zmt_bmat_fil
+      character*255 zmt_binv_fil
+      character*255 zmt_zsym_fil
+      character*255 zmt_zind_fil
+      common/hnd_zmt_fil/zmt_bmat_fil,zmt_binv_fil,
+     1                   zmt_zsym_fil,zmt_zind_fil
+c
+      character*8 errmsg
+      integer     ir
+      integer     iw
+      logical     dbug
+      common/hnd_iofile/ir,iw
+      dimension errmsg(3)
+      data errmsg /'program ','stop in ','zmt_cls '/
+c
+      logical opn_bmat
+      logical opn_binv
+      logical opn_zind
+      logical opn_zsym
+      integer ift2
+      integer ift3
+      integer ift4
+      integer ift5
+      data    ift2 /32/
+      data    ift3 /33/
+      data    ift4 /34/
+      data    ift5 /35/
+c
+      dbug=.false.
+c
+      close(unit=ift2,status='keep',err=911)
+      close(unit=ift3,status='keep',err=911)
+      close(unit=ift4,status='keep',err=911)
+      close(unit=ift5,status='keep',err=911)
+      geom_zmt_cls_fil=.true.
+      return
+c
+  911 continue
+      if(dbug) then
+         write(iw,*) 'zmt_bmat_fil = ',zmt_bmat_fil
+         write(iw,*) 'zmt_binv_fil = ',zmt_binv_fil
+         write(iw,*) 'zmt_zsym_fil = ',zmt_zsym_fil
+         write(iw,*) 'zmt_zind_fil = ',zmt_zind_fil
+      endif
+      call hnd_hnderr(3,errmsg)
+      geom_zmt_cls_fil=.false.
+      return
+      end
       logical function geom_zmt_put_bmat(bmat,ncart,nzvar,mcart)
       implicit none
 #include "mafdecls.fh"
@@ -1150,10 +1298,8 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      integer ga_zmt_bmat
-      integer ga_zmt_binv
-      integer ga_zmt_zsym
-      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
+      integer ift2
+      data    ift2 /32/
 c
       integer      mxzmat
       integer      mxatom
@@ -1170,14 +1316,20 @@ c                   mxcoor=max(mxcart,mxzmat)
       integer ir
       integer iw
       logical dbug
+      logical out
       common/hnd_iofile/ir,iw
-      double precision bmat(mcart,*)
+      double precision bmat(mcart,nzvar)
 c
       dbug=.false.
+      out =.false.
+      out =out.or.dbug
 c
-      if(dbug) then
-         write(iw,*) ' _put_bmat '
-         call hnd_prsq(bmat,nzvar,ncart,mcart)
+      if(out) then
+         write(iw,*) ' _put_bmat ,ncart,nzvar = ',ncart,nzvar
+         if(dbug) then
+            write(iw,*) ' _put_bmat '
+            call hnd_prsq(bmat,nzvar,ncart,mcart)
+         endif
       endif
       if(mcart.gt.mxcart) then
          write(iw,*) ' in geom_zmt_put_bmat, mcart.gt.mxcart. stop '
@@ -1188,7 +1340,8 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      call ga_put(ga_zmt_bmat,1,ncart,1,nzvar,bmat,mcart)
+      rewind ift2
+      write(ift2) bmat
 c
       geom_zmt_put_bmat=.true.
       return
@@ -1203,10 +1356,8 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      integer ga_zmt_bmat
-      integer ga_zmt_binv
-      integer ga_zmt_zsym
-      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
+      integer ift2
+      data    ift2 /32/
 c     
       integer      mxzmat
       integer      mxatom
@@ -1223,10 +1374,16 @@ c                   mxcoor=max(mxcart,mxzmat)
       integer ir
       integer iw
       logical dbug
+      logical out
       common/hnd_iofile/ir,iw
-      double precision bmat(mcart,*)
+      double precision bmat(mcart,nzvar)
 c
       dbug=.false.
+      out =.false.
+      out =out.or.dbug
+      if(out) then
+         write(iw,*) ' _get_bmat ,ncart,nzvar = ',ncart,nzvar
+      endif
 c
       if(mcart.gt.mxcart) then
          write(iw,*) ' in geom_zmt_get_bmat, mcart.gt.mxcart. stop '
@@ -1237,7 +1394,8 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      call ga_get(ga_zmt_bmat,1,ncart,1,nzvar,bmat,mcart)
+      rewind ift2
+      read(ift2) bmat
 c
       if(dbug) then
          write(iw,*) ' _get_bmat '
@@ -1257,10 +1415,8 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      integer ga_zmt_bmat
-      integer ga_zmt_binv
-      integer ga_zmt_zsym
-      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
+      integer ift5
+      data    ift5 /35/
 c
       integer      mxzmat
       integer      mxatom
@@ -1276,14 +1432,20 @@ c                   mxcoor=max(mxcart,mxzmat)
       integer ir
       integer iw
       logical dbug
+      logical out
       common/hnd_iofile/ir,iw
-      double precision zsym(mzvar,*)
+      double precision zsym(mzvar,mzvar)
 c
       dbug=.false.
+      out =.false.
+      out =out.or.dbug
 c
-      if(dbug) then
-         write(iw,*) ' _put_zsym '
-         call hnd_prsq(zsym,nzvar,nzvar,mzvar)
+      if(out) then
+         write(iw,*) ' _put_zsym ,mzvar,nzvar = ',mzvar,nzvar
+         if(dbug) then
+            write(iw,*) ' _put_zsym '
+            call hnd_prsq(zsym,nzvar,nzvar,mzvar)
+         endif
       endif
 c
       if(mzvar.gt.mxzmat) then
@@ -1295,7 +1457,8 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      call ga_put(ga_zmt_zsym,1,nzvar,1,nzvar,zsym,mzvar)
+      rewind ift5
+      write(ift5) zsym
 c
       geom_zmt_put_zsym=.true.
       return
@@ -1310,10 +1473,8 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      integer ga_zmt_bmat
-      integer ga_zmt_binv
-      integer ga_zmt_zsym
-      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
+      integer ift5
+      data    ift5 /35/
 c     
       integer      mxzmat
       integer      mxatom
@@ -1329,10 +1490,16 @@ c                   mxcoor=max(mxcart,mxzmat)
       integer ir
       integer iw
       logical dbug
+      logical out 
       common/hnd_iofile/ir,iw
-      double precision zsym(mzvar,*)
+      double precision zsym(mzvar,mzvar)
 c
       dbug=.false.
+      out =.false.
+      out =out.or.dbug
+      if(out) then
+         write(iw,*) ' _get_zsym ,mzvar,nzvar = ',mzvar,nzvar
+      endif
 c
       if(mzvar.gt.mxzmat) then
          write(iw,*) ' in geom_zmt_put_zsym, mzvar.gt.mxzmat. stop '
@@ -1343,7 +1510,8 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      call ga_get(ga_zmt_zsym,1,nzvar,1,nzvar,zsym,mzvar)
+      rewind ift5
+      read(ift5) zsym
 c
       if(dbug) then
          write(iw,*) ' _get_zsym'
@@ -1351,6 +1519,122 @@ c
       endif
 c
       geom_zmt_get_zsym=.true.
+      return
+      end
+      logical function geom_zmt_put_zind(zind,nzvar,mzvar)
+      implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "geomP.fh"
+c
+      integer ift4
+      data    ift4 /34/
+c
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
+      integer nzvar
+      integer mzvar
+      integer ir
+      integer iw
+      logical dbug
+      logical out
+      common/hnd_iofile/ir,iw
+      double precision zind(mzvar,mzvar)
+c
+      dbug=.false.
+      out =.false.
+      out =out.or.dbug
+c
+      if(out) then
+         write(iw,*) ' _put_zind ,mzvar,nzvar = ',mzvar,nzvar
+         if(dbug) then
+            write(iw,*) ' _put_zind '
+            call hnd_prsq(zind,nzvar,nzvar,mzvar)
+         endif
+      endif
+c
+      if(mzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_zind, mzvar.gt.mxzmat. stop '
+         call errquit('geom_input: mzvar too big',0)
+      endif
+      if(nzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_zind, nzvar.gt.mxzmat. stop '
+         call errquit('geom_input: nzvar too big',0)
+      endif
+c
+      rewind ift4
+      write(ift4) zind
+c
+      geom_zmt_put_zind=.true.
+      return
+      end
+      logical function geom_zmt_get_zind(zind,nzvar,mzvar)
+      implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "geomP.fh"
+c
+      integer ift4
+      data    ift4 /34/
+c     
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
+      integer nzvar
+      integer mzvar
+      integer ir
+      integer iw
+      logical dbug
+      logical out 
+      common/hnd_iofile/ir,iw
+      double precision zind(mzvar,mzvar)
+c
+      dbug=.false.
+      out =.false.
+      out =out.or.dbug
+      if(out) then
+         write(iw,*) ' _get_zind ,mzvar,nzvar = ',mzvar,nzvar
+      endif
+c
+      if(mzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_zind, mzvar.gt.mxzmat. stop '
+         call errquit('geom_input: mzvar too big',0)
+      endif
+      if(nzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_zind, nzvar.gt.mxzmat. stop '
+         call errquit('geom_input: nzvar too big',0)
+      endif
+c
+      rewind ift4
+      read(ift4) zind
+c
+      if(dbug) then
+         write(iw,*) ' _get_zind'
+         call hnd_prsq(zind,nzvar,nzvar,mzvar)
+      endif
+c
+      geom_zmt_get_zind=.true.
       return
       end
       logical function geom_zmt_put_binv(binv,ncart,nzvar,mcart)
@@ -1363,10 +1647,8 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      integer ga_zmt_bmat
-      integer ga_zmt_binv
-      integer ga_zmt_zsym
-      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
+      integer ift3
+      data    ift3 /33/
 c     
       integer      mxzmat
       integer      mxatom
@@ -1383,14 +1665,20 @@ c                   mxcoor=max(mxcart,mxzmat)
       integer ir
       integer iw
       logical dbug
+      logical out
       common/hnd_iofile/ir,iw
-      double precision binv(mcart,*)
+      double precision binv(mcart,nzvar)
 c
       dbug=.false.
+      out =.false.
+      out =out.or.dbug
 c
-      if(dbug) then
-         write(iw,*) ' _put_binv '
-         call hnd_prsq(binv,nzvar,ncart,mcart)
+      if(out) then
+         write(iw,*) ' _get_zind ,ncart,nzvar = ',ncart,nzvar
+         if(dbug) then
+            write(iw,*) ' _put_binv '
+            call hnd_prsq(binv,nzvar,ncart,mcart)
+         endif
       endif
 c
       if(mcart.gt.mxcart) then
@@ -1402,7 +1690,8 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      call ga_put(ga_zmt_binv,1,ncart,1,nzvar,binv,mcart)
+      rewind ift3
+      write(ift3) binv
 c
       geom_zmt_put_binv=.true.
       return
@@ -1417,10 +1706,8 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      integer ga_zmt_bmat
-      integer ga_zmt_binv
-      integer ga_zmt_zsym
-      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
+      integer ift3
+      data    ift3 /33/
 c     
       integer      mxzmat
       integer      mxatom
@@ -1437,10 +1724,16 @@ c                   mxcoor=max(mxcart,mxzmat)
       integer ir
       integer iw
       logical dbug
+      logical out
       common/hnd_iofile/ir,iw
-      double precision binv(mcart,*)
+      double precision binv(mcart,nzvar)
 c
       dbug=.false.
+      out =.false.
+      out =out.or.dbug
+      if(out) then
+         write(iw,*) ' _get_binv ,ncart,nzvar = ',ncart,nzvar
+      endif
 c
       if(mcart.gt.mxcart) then
          write(iw,*) ' in geom_zmt_put_binv, mcart.gt.mxcart. stop '
@@ -1451,7 +1744,8 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      call ga_get(ga_zmt_binv,1,ncart,1,nzvar,binv,mcart)
+      rewind ift3
+      read(ift3) binv
 c
       if(dbug) then
          write(iw,*) ' _get_binv '
@@ -1906,10 +2200,7 @@ c
 c
       logical status
       integer rtdb
-      integer ga_zmt_bmat
-      integer ga_zmt_binv
-      integer ga_zmt_zsym
-      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
+      logical  geom_zmt_opn_fil
 C
 C     ---                 CONSTRUCT -Z- MATRIX                     ---
 C     ---             CALCULATE ATOM-ATOM DISTANCES                ---
@@ -1966,17 +2257,9 @@ C
 C     -----    THERE IS A -Z- MATRIX    -----
 C     ----- CALCULATE -B- AND -B**(-1)- -----
 C
-         STATUS=
-     1   GA_CREATE(MT_DBL,3*NAT,NZVAR,'ZMATRIX:BMAT',1,1,
-     2   GA_ZMT_BMAT)
+         STATUS=GEOM_ZMT_OPN_FIL(.TRUE.,.TRUE.,.FALSE.,.FALSE.)
          IF(.NOT.STATUS) THEN
-            CALL ERRQUIT('ZMATRIX:BMAT :GA_CREATE?',911)
-         ENDIF
-         STATUS=
-     1   GA_CREATE(MT_DBL,3*NAT,NZVAR,'ZMATRIX:BINV',1,1,
-     2   GA_ZMT_BINV)
-         IF(.NOT.STATUS) THEN
-            CALL ERRQUIT('ZMATRIX:BINV :GA_CREATE?',911)
+            CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
          ENDIF
          CALL HND_BANDBI(NAT,C)
          CALL HND_ZMTPRT
@@ -1988,17 +2271,9 @@ C     -----    CALCULATE -B- AND -B**(-1)-   -----
 C
          CALL HND_ZMTMAK(ZDONE,RTDB)
          IF(ZDONE) THEN
-            STATUS=
-     1      GA_CREATE(MT_DBL,3*NAT,NZVAR,'ZMATRIX:BMAT',1,1,
-     2      GA_ZMT_BMAT)
+            STATUS=GEOM_ZMT_OPN_FIL(.TRUE.,.TRUE.,.FALSE.,.FALSE.)
             IF(.NOT.STATUS) THEN
-               CALL ERRQUIT('ZMATRIX:BMAT :GA_CREATE?',911)
-            ENDIF
-            STATUS=
-     1      GA_CREATE(MT_DBL,3*NAT,NZVAR,'ZMATRIX:BINV',1,1,
-     2      GA_ZMT_BINV)
-            IF(.NOT.STATUS) THEN
-               CALL ERRQUIT('ZMATRIX:BINV :GA_CREATE?',911)
+               CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
             ENDIF
             CALL HND_BANDBI(NAT,C)
             CALL HND_ZMTPRT
@@ -2513,11 +2788,8 @@ C
 #include "geomP.fh"
 c
       logical status
-      integer ga_zmt_bmat
-      integer ga_zmt_binv
-      integer ga_zmt_zsym
-      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
       logical geom_zmt_put_zsym
+      logical geom_zmt_opn_fil
 C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
@@ -2553,9 +2825,11 @@ C
          WRITE(IW,*) 'IN HND_ZMTLIN'
       ENDIF
 C
+      NDIM=MAX(3*NAT,NZVAR)
+C
 C     ----- MEMORY POINTERS -----
 C
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NZVAR*NZVAR,'MEM I10 ',I_I10,I10))
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NDIM *NDIM ,'MEM I10 ',I_I10,I10))
      & CALL ERRQUIT('HND_ZMTLIN, MALLOC OF I10  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I20 ',I_I20,I20))
      & CALL ERRQUIT('HND_ZMTLIN, MALLOC OF I20  FAILED',911)
@@ -2564,11 +2838,11 @@ C
          DBL_MB(IJ+I10-1)=ZERO
       ENDDO
       DO I=1,NZVAR        
-         II=I+NZVAR*(I-1)
+         II=I+NDIM*(I-1)
          DBL_MB(II+I10-1)=ONE
       ENDDO
       IF(DBUG) THEN
-         CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NZVAR)
+         CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NDIM)
       ENDIF
 C
 C     ----- CHECK TO SEE IF WE HAVE A -LIN- MATRIX -----
@@ -2586,7 +2860,7 @@ C
    40    CONTINUE
          NIJS=NIJS+1
          DO K=1,NZVAR
-            KJ=K+NZVAR*(J-1)
+            KJ=K+NDIM*(J-1)
             DBL_MB(KJ+I10-1)=ZERO
          ENDDO
          SYM=.TRUE.
@@ -2601,7 +2875,7 @@ C
             I=IJS(1,N)
             J=IJS(2,N)
             S=SIJ(  N)
-            IJ=I+NZVAR*(J-1)
+            IJ=I+NDIM*(J-1)
             DBL_MB(IJ+I10-1)=S
             IF(J.GT.MAXJ) THEN
                MAXJ=J
@@ -2610,7 +2884,7 @@ C
       ENDIF
       IF(DBUG) THEN
          WRITE(IW,9993)
-         CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NZVAR)
+         CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NDIM)
       ENDIF
 C
       IF(.NOT.SYM) THEN
@@ -2618,7 +2892,7 @@ C
 C     ----- NO SYMMETRY COORDINATES GIVEN -----
 C
          DO I=1,NZVAR
-            II=I+NZVAR*(I-1)
+            II=I+NDIM*(I-1)
             DBL_MB(II+I10-1)=ONE
          ENDDO
       ELSE
@@ -2631,7 +2905,7 @@ C     -----           NORMALIZE            -----
 C
             DUM=ZERO
             DO K=1,NZVAR
-               KJ=K+NZVAR*(J-1)
+               KJ=K+NDIM*(J-1)
                DUM=DUM+DBL_MB(KJ+I10-1)**2
             ENDDO
             IF(DUM.LT.TOL) THEN
@@ -2640,7 +2914,7 @@ C
             ENDIF
             DUM=ONE/ SQRT(DUM)
             DO K=1,NZVAR
-               KJ=K+NZVAR*(J-1)
+               KJ=K+NDIM*(J-1)
                DBL_MB(KJ+I10-1)=DBL_MB(KJ+I10-1)*DUM
             ENDDO
 C
@@ -2650,13 +2924,13 @@ C
                DO I=J+1,NZVAR
                   DUM=ZERO
                   DO K=1,NZVAR
-                     KI=K+NZVAR*(I-1)
-                     KJ=K+NZVAR*(J-1)
+                     KI=K+NDIM*(I-1)
+                     KJ=K+NDIM*(J-1)
                      DUM=DUM+DBL_MB(KJ+I10-1)*DBL_MB(KI+I10-1)
                   ENDDO
                   DO K=1,NZVAR
-                     KI=K+NZVAR*(I-1)
-                     KJ=K+NZVAR*(J-1)
+                     KI=K+NDIM*(I-1)
+                     KJ=K+NDIM*(J-1)
                      DBL_MB(KI+I10-1)=DBL_MB(KI+I10-1)
      &                               -DBL_MB(KJ+I10-1)*DUM
                   ENDDO
@@ -2665,7 +2939,7 @@ C
          ENDDO
          IF(DBUG) THEN
             WRITE(IW,9993)
-            CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NZVAR)
+            CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NDIM)
          ENDIF
 C
 C     -----    COMPLETE THE -LIN- MATRIX   -----
@@ -2679,10 +2953,10 @@ C
                   CALL HND_HNDERR(3,ERRMSG)
                ENDIF
                DO K=1,NZVAR
-                  KJ=K+(J-1)*NZVAR
+                  KJ=K+(J-1)*NDIM 
                   DBL_MB(KJ+I10-1)=ZERO
                ENDDO
-               IJ=I+(J-1)*NZVAR
+               IJ=I+(J-1)*NDIM
                DBL_MB(IJ+I10-1)=ONE 
 C
 C     -----         ORTHOGONALIZE        -----
@@ -2690,13 +2964,13 @@ C
                DO L=1,J-1
                   DUM=ZERO
                   DO K=1,NZVAR
-                     KJ=K+(J-1)*NZVAR
-                     KL=K+(L-1)*NZVAR
+                     KJ=K+(J-1)*NDIM 
+                     KL=K+(L-1)*NDIM 
                      DUM=DUM+DBL_MB(KL+I10-1)*DBL_MB(KJ+I10-1)
                   ENDDO
                   DO K=1,NZVAR
-                     KJ=K+(J-1)*NZVAR
-                     KL=K+(L-1)*NZVAR
+                     KJ=K+(J-1)*NDIM 
+                     KL=K+(L-1)*NDIM 
                      DBL_MB(KJ+I10-1)=DBL_MB(KJ+I10-1)
      &                               -DBL_MB(KL+I10-1)*DUM
                   ENDDO
@@ -2706,13 +2980,13 @@ C     -----            NORMALIZE         -----
 C
                DUM=ZERO
                DO K=1,NZVAR
-                  KJ=K+(J-1)*NZVAR
+                  KJ=K+(J-1)*NDIM 
                   DUM=DUM+DBL_MB(KJ+I10-1)*DBL_MB(KJ+I10-1)
                ENDDO
                IF(DUM.GT.TOL) THEN
                   DUM=ONE/SQRT(DUM)
                   DO K=1,NZVAR
-                     KJ=K+(J-1)*NZVAR
+                     KJ=K+(J-1)*NDIM 
                      DBL_MB(KJ+I10-1)=DBL_MB(KJ+I10-1)*DUM            
                   ENDDO
                ELSE
@@ -2723,7 +2997,7 @@ C
          IF(OUT) THEN
             WRITE(IW,9993)
             IF(DBUG) THEN
-               CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NZVAR)
+               CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NDIM)
             ENDIF
          ENDIF
 C
@@ -2735,7 +3009,7 @@ C
                NBUF=1
                N=0
                DO I=1,NZVAR
-                  IJ=I+NZVAR*(J-1)
+                  IJ=I+NDIM*(J-1)
                   DUM=DBL_MB(IJ+I10-1)
                   IF( ABS(DUM).GE.TENM1) THEN
                      N=N+1
@@ -2771,16 +3045,14 @@ C
 C     ----- SAVE SYMMETRY MATRIX -----
 C           -S-       AT  -92-
 C
-      STATUS=
-     1 GA_CREATE(MT_DBL,NZVAR,NZVAR,'ZMATRIX:ZSYM',1,1,
-     2 GA_ZMT_ZSYM)
+      STATUS=GEOM_ZMT_OPN_FIL(.FALSE.,.FALSE.,.TRUE.,.TRUE.)
       IF(.NOT.STATUS) THEN
-         CALL ERRQUIT('ZMATRIX:ZSYM :GA_CREATE?',911)
+         CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
       ENDIF
       STATUS=RTDB_PARALLEL(.FALSE.)
       IF( GA_NODEID().EQ.0) THEN
-         IF(.NOT.GEOM_ZMT_PUT_ZSYM(DBL_MB(I10),NZVAR,NZVAR))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZSYM FAILED',0)
+         IF(.NOT.GEOM_ZMT_PUT_ZSYM(DBL_MB(I10),NZVAR,NDIM))
+     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZIND FAILED',0)
       ENDIF
       CALL GA_SYNC
       STATUS=RTDB_PARALLEL(.TRUE.)
@@ -3147,7 +3419,8 @@ C
       LOGICAL     INDEP
       LOGICAL     GEOM_ZMT_PUT_BINV 
       LOGICAL     GEOM_ZMT_GET_BMAT
-      LOGICAL     GEOM_ZMT_PUT_ZSYM
+      LOGICAL     GEOM_ZMT_PUT_ZIND
+      LOGICAL     GEOM_ZMT_GET_ZIND
       LOGICAL     GEOM_ZMT_GET_ZSYM
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -3339,8 +3612,8 @@ C
                S(I,J)=T(J)
             ENDDO
          ENDDO
-         IF(.NOT.GEOM_ZMT_PUT_ZSYM(S,NZVAR,NDIM))            
-     1      CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZSYM FAILED',0)
+         IF(.NOT.GEOM_ZMT_PUT_ZIND(S,NZVAR,NDIM))            
+     1      CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZIND FAILED',0)
          IF(OUT) THEN
             WRITE(IW,9980)
             IF(DBUG) THEN
@@ -3521,7 +3794,7 @@ C
  9983 FORMAT(/,' CHECK OF ( Bi * B = K * K(T) )')
  9982 FORMAT(/,' -Bi(T) = B * ( G**(-1) )(T)')
  9981 FORMAT(/,' K * K(T) PROJECTOR ')         
- 9980 FORMAT(/,' -ZSYM- FROM NATURAL TO (INDEP+DEP) COORDINATES')
+ 9980 FORMAT(/,' -ZIND- FROM NATURAL TO (INDEP+DEP) COORDINATES')
       END
       SUBROUTINE HND_BANDZ(NAT,C,Z)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
