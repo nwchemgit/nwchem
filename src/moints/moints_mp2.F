@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.15 1995-02-02 23:18:49 d3g681 Exp $
+C$Id: moints_mp2.F,v 1.16 1995-06-22 08:54:27 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -54,7 +54,7 @@ c
          ndim = nvir
          vstart = 0
        else if (ihi.ne.-1) then
-         call errquit('moints_mp2_eval: odd exchange matrix size',0)
+         call errquit('moints_mp2_eval: odd exchange matrix size',ihi)
        endif
 c
 c Loop over occupied orbital pairs
@@ -103,8 +103,12 @@ C 902     format(4(f13.8,1x,'(',2i3,')',2x))
 
 
 
+
+
+
+
        subroutine moints_e2pair( nocc, ostart, occ_lo, occ_hi,
-     $                           nvir, g_k, orbe, g_epair )
+     $                           nvir, nbf, g_k, orbe, g_epair )
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -117,13 +121,12 @@ C 902     format(4(f13.8,1x,'(',2i3,')',2x))
        integer ooff
        double precision xx,denom
        double precision moint_epair_eval
-c$$$       DOUBLE PRECISION CRAP(1000)
-c$$$       INTEGER III,JJJ
-
+c
+c
+c
        ofroz = ostart - 1
        ooff = ((occ_lo-ofroz)*(occ_lo-ofroz-1))/2
        nnt = ((occ_hi-ofroz)*(occ_hi-ofroz+1))/2 - ooff
-       nbf = nocc + nvir
        my_id = ga_nodeid()
        call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
 
@@ -142,7 +145,7 @@ c
          ndim = nvir
          vstart = 0
        else if (ihi.ne.-1) then
-         call errquit('moints_mp2_eval: odd exchange matrix size',0)
+         call errquit('moints_mp2_eval: odd exchange matrix size',ihi)
        endif
 c
 c Loop over occupied orbital pairs
