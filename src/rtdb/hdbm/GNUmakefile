@@ -21,6 +21,4 @@ words:	words.o hdbm.o
 test.o word.o hdbm.o:	hdbm.h
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(hdbm.o):	 ./hdbm.h 
-$(LIBRARY_PATH)(test.o):	 ./hdbm.h 
-$(LIBRARY_PATH)(words.o):	 ./hdbm.h 
+$(LIBRARY_PATH)(words.o):	./hdbm.h 

@@ -1,8 +1,9 @@
-# $Id: GNUmakefile,v 1.16 1996-05-01 23:53:18 og845 Exp $
+# $Id: GNUmakefile,v 1.17 1996-07-26 16:33:57 d3g681 Exp $
 
       OBJ = \
 	dft_inpana.o \
-	dft_rdinput.o			   \
+	dft_rdinput.o \
+        dft_input.o \
 	xc_setquad.o
 
      LIBRARY = libnwdft.a
@@ -15,6 +16,7 @@ include ../../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+$(LIBRARY_PATH)(dft_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas_staticP.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(dft_rdinput.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh ../include/cdft.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(xc_setquad.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh 
 $(LIBRARY_PATH)(dft_inpana.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
-$(LIBRARY_PATH)(dft_rdinput.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh ../include/cdft.fh $(INCDIR)/bas.fh 
