@@ -14,7 +14,7 @@ c     forbidden rotations.  Zero them and return the largest.
 c
 c     Vector is assumed to hold (nclosed+nopen)*nvir + nclosed*nopen
 c
-      integer i, j, a, ioff
+      integer i, a, ioff
       double precision test
       double precision buf(10000)  ! temporary while debugging
       double precision tmp(2)

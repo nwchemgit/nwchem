@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_nr_sol.F,v 1.5 1996-08-06 05:33:02 d3g681 Exp $
+C     $Id: rohf_nr_sol.F,v 1.6 1996-09-19 01:09:28 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -40,6 +40,7 @@ c
       logical converged
       logical oprint_parm, oprint_conv, oprint_eval, oprint_vecs
       logical oprint_ls
+      logical ovariable
 c
       double precision tol2e_save ! Used with variable integral tolerance
       double precision eprec_tol
@@ -56,6 +57,8 @@ c
 c     Allocate global arrays.  Gradient, search direction
 c     and work space for the PCG routine.
 c     
+      if (.not. rtdb_get(rtdb, 'scf:variable', mt_log, 1, ovariable))
+     $     ovariable = .true.
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: grad',
      $     1, 1, g_grad)) call errquit('rohf_nr_solve: ga_cre grad', 0)
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: serch',
@@ -92,12 +95,14 @@ c
          call util_flush(6)
       endif
 c
-c     Only use low accuracy for startup jobs
+c     Only use low accuracy at outset for startup jobs
 c
       tol2e_save = tol2e
-      if (.not. (nelec.eq.1 .or. owritefile .or. 
-     $     movecs_guess.eq.'restart')) then
-         tol2e = max(1d-6,tol2e) ! Initial low accuracy
+      if (ovariable) then
+         if (.not. (nelec.eq.1 .or. owritefile .or. 
+     $        movecs_guess.eq.'restart')) then
+            tol2e = max(1d-5,tol2e) ! Initial low accuracy
+         endif
       endif
       gnorm = 0.0d0             ! So is not undefined
       eprec_tol = 100.0d0*tol2e     ! To avoid noise in line search
@@ -143,23 +148,25 @@ c
 c
 c     Switch of variable screening will happen in the middle of a line
 c     search so must ensure that we have sufficient precision in the
-c     energy so that the line
-c     search does not fail.  Also must allow for quadratic convergence.
+c     energy so that the line search does not fail.  Also must allow for 
+c     quadratic convergence.
 c     
-               converged = .false. ! Only converge with high precision
-               if (gnorm .le. max(10.0d0*sqrt(gnorm_tol),1.5d-2)) then
+               if (pflg .eq. 2) then
                   tol2e = tol2e_save
-                  if (util_print('parameters', print_high) .and.
-     $                 ga_nodeid() .eq. 0) then
-                     write(6,2310)
- 2310                format(/' Partial convergence attained - ',
-     $                    'enabling accurate Fock-build'/)
-                     call util_flush(6)
-                  endif
+               else
+                  tol2e = tol2e*0.1d0
+                  if (tol2e .lt. 2.0d0*tol2e_save) tol2e = tol2e_save
+               endif
+               converged = .false. ! Only converge with full precision
+               if (util_print('parameters', print_high) .and.
+     $              ga_nodeid() .eq. 0) then
+                  write(6,2310) tol2e
+ 2310             format(/' Increasing Fock-build accuracy to ',1p,d9.2)
+                  call util_flush(6)
                endif
             else
-c    Reset eprec AFTER we have got a new start at the accurate tolerance
-               eprec_tol = 100.0d0*tol2e     ! To avoid noise in line search
+c     Reset eprec AFTER we have got a new start at the revised tolerance
+               eprec_tol = 100.0d0*tol2e ! To avoid noise in line search
             endif
             if ((iter.le.maxiter).and.(.not. converged)) then
                if (mod(iter,5).eq.0) 

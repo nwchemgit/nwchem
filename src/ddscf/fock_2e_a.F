@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.24 1996-07-08 23:41:42 rg240 Exp $
+c$Id: fock_2e_a.F,v 1.25 1996-09-19 01:09:17 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -8,6 +8,8 @@ c
       data memsize  /0/         ! Max size of integral file in memory
       data oreadfile /.false./  ! If reading integrals from file
       data owritefile/.false./  ! If writing integrals to file
+      data dentolmax/1d-5/
+      data odensityscreen/.true./
 
 c     see scf_init for input of task_chunks etc.
 
@@ -20,7 +22,7 @@ c     see scf_init for input of task_chunks etc.
      $     blocks, nblock)
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.24 1996-07-08 23:41:42 rg240 Exp $
+c     $Id: fock_2e_a.F,v 1.25 1996-09-19 01:09:17 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -80,22 +82,16 @@ c
          call ga_maxelt(vg_dens(i), temp)
          denmax = max(temp, denmax)
       enddo
-      dentol = min(1d-3,tol2e/(10.0d0*denmax)) ! Thresh to screen integs only
-*      write(6,*) ' dentol ', dentol
+      dentol = min(dentolmax,tol2e/(10.0d0*denmax)) ! For screen integs only
 c
-c     There is a BIG speed gain from agressive reduction of accuracy
-c     in the actual computation of the integrals. However, the screening
-c     on primitive integrals is done on radial prefactors not using
-c     the Schwarz inequality, hence the extra factor of 0.1d0
-c     (also tried 0.01 on C12H14 but was more expensive with no gain)
+c     SEE AO_REPLICATED.F to make the next parameters consistent
 c     
       if (intacc .eq. 0.0d0) then
-         integ_acc = min(1d-6,max(0.1d0*dentol,1d-15)) ! Variable
+         integ_acc = min(1d-9,max(0.01d0*dentol,1d-17)) ! Variable
       else
          integ_acc = intacc     ! User controlled
       endif
       call int_acc_set(integ_acc)
-*      write(6,*) ' integ_acc ', integ_acc
 c
 c     How many atoms are there?
 c     

@@ -6,8 +6,9 @@
       implicit none
 #include "util.fh"
 #include "cscfps.fh"
+#include "cfock.fh"
 c
-c     $Id: fock_2e_file.F,v 1.6 1996-08-19 15:18:05 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.7 1996-09-19 01:09:20 d3g681 Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -82,7 +83,7 @@ c
      $        ihi, jhi, khi, lhi,
      $        dij, dik, dli, djk, dlj, dlk, denmax)
 c
-         dtol2e = min(1d-7, den_tol/max(1d-10,denmax))
+         dtol2e = min(dentolmax, den_tol/max(1d-10,denmax))
 c     
          call int2e_file_fock_block(nfock, dtol2e,
      $           dij, dik, dli, djk, dlj, dlk,
@@ -122,6 +123,7 @@ c
       implicit none
 #include "util.fh"
 #include "cscfps.fh"
+#include "cfock.fh"
       integer geom, basis
       integer nfock, nbf
       double precision jfac(nfock), kfac(nfock)
@@ -143,9 +145,8 @@ c
          j = idamax(nbf*nbf, dens(i,1), nfock)
          denmax = max(denmax, abs(dens(i,j)))
       end do
-      denmax = denmax*5.0       ! Reproduce atomic screening for water!
-      den_tol = min(1d-5,tol2e/denmax) ! Threshold to screen integs only
-*      den_tol = min(1d-7,tol2e*0.01)
+      denmax = denmax*100.0d0 
+      den_tol = min(dentolmax,tol2e/denmax) ! Threshold to screen integs only
 c
       call fock_init_cmul(nbf,nbf,nbf) ! lookup table for f build
 c

@@ -209,7 +209,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.31 1996-08-19 15:18:10 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.32 1996-09-19 01:09:30 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -230,15 +230,14 @@ c
             maxiter = 20        ! UHF not yet QC
          endif
       endif
-      if (.not.rtdb_get(rtdb, 'scf:thresh',
-     $     MT_DBL, 1, gnorm_tol)) gnorm_tol = 1.d-4
+      if (.not.rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, gnorm_tol)) 
+     $     gnorm_tol = 1.d-4
 c
 c     Ensure that the default integral selection is sufficient
 c     for the request accuracy of the SCF.  However, allow user override.
 c
-      if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) then
-	 tol2e = min(1.0d-7,gnorm_tol*1d-2)
-      endif
+      if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) 
+     $     tol2e = min(1.0d-7,gnorm_tol*1d-2)
 c
       if (rtdb_get(rtdb, 'scf:level shift info', MT_DBL, 6,shifts))then
          ouser_changed_conv = .true.
@@ -272,17 +271,37 @@ c
       integer rtdb
       double precision tol2e
 c
-      integer chunktmp
       logical orestart
       logical int2e_file_open
       external int2e_file_open
 c
 c     Load balancing information
 c
-      if (rtdb_get(rtdb, 'scf:task_bf',
-     $     MT_INT, 1, chunktmp)) then
-         task_bf = chunktmp
-      endif
+      if (.not. rtdb_get(rtdb, 'fock:task_bf', MT_INT, 1, task_bf))
+     $     task_bf = -1
+c
+c     Dentolmax constrains dentol=tol2e/denmax which is used
+c     to screen integrals before screening integrals*density
+c     against tol2e.  Making dentolmax smaller will, up to a
+c     point, make the hessian-vector products more stable,
+c     though slower.  In strongly convergent cases dentolmax
+c     could be increased to perhaps 1d-3 with some speed gain.
+c     Dentolmax is still used even if density
+c     screening is turned off since otherwise the hessian 
+c     vector products would be disastrously expensive.
+c
+c     C4H10 shows worse convergence with dentolmax > 1d-5
+c     C60 shows worsse convergence with dentolmax > 1d-6
+c
+      if (.not. rtdb_get(rtdb, 'fock:dentolmax', mt_dbl, 1, dentolmax))
+     $     dentolmax = 1d-6
+c
+c     odensityscreen enables/disables density screening inside
+c     the fock build.  Turning it off can increase stability but will
+c     slow things down.
+c
+      if (.not. rtdb_get(rtdb, 'fock:densityscreen', mt_log, 1, 
+     $     odensityscreen)) odensityscreen = .true.
 c
 c     Integral caching/file information
 c
@@ -337,14 +356,17 @@ c
      $                    oerilabel)) oerilabel = .true.
 c
       if (ga_nodeid().eq.0 .and.
-     $     util_print('information',print_high)) then
-         write(6,2) task_bf, maxquartet, maxeri, maxscr, intacc
+     $     util_print('fock param',print_high)) then
+         write(6,2) task_bf, maxquartet, maxeri, maxscr, intacc,
+     $        odensityscreen, dentolmax
  2       format(/
      $        ' Setting fock-build task_bf   :', i8/
      $        '                    maxquartet:', i8/
      $        '                    maxeri    :', i8/
      $        '                    maxscr    :', i8/
-     $        '                    intacc    :', 1p,d8.1/)
+     $        '                    intacc    :', 1p,d8.1/
+     $        '                    denscreen : ',l/
+     $        '                    dentol    :', d8.1/)
          call util_flush(6)
       endif
 c
@@ -361,9 +383,6 @@ c
       integer rtdb
 c
       logical status
-      logical int2e_file_close
-      external int2e_file_close
-      logical okeep
 c
       if (oinitialized) then
          if (.not. geom_destroy(geom)) call errquit
@@ -381,10 +400,22 @@ c
             if (.not. ga_destroy(g_movecs(2))) call errquit
      $           ('scf_tidy: failed to free beta movecs',0)
          endif
-c
          oinitialized = .false.
-c
       endif
+c
+      call fock_2e_tidy(rtdb)
+c
+      end
+      subroutine fock_2e_tidy(rtdb)
+      implicit none
+#include "cfock.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
+c
+      logical int2e_file_close
+      external int2e_file_close
+      logical okeep
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
         if (.not. rtdb_get(rtdb, 'int2e:keep',

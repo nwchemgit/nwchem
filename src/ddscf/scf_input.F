@@ -1,5 +1,5 @@
       subroutine scf_input(rtdb)
-C $Id: scf_input.F,v 1.3 1996-08-29 17:17:07 d3g681 Exp $
+C $Id: scf_input.F,v 1.4 1996-09-19 01:09:30 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -179,7 +179,7 @@ c
      $     ('scf_input: chunk <integer chunk_size>', 0)
       if (task_chunks.lt.1 .or. task_chunks.gt.1024) call errquit
      $     ('scf_input: task_chunks has invalid value',task_chunks)
-      if (.not. rtdb_put(rtdb,'scf:task_chunks',MT_INT,1,task_chunks))
+      if (.not. rtdb_put(rtdb,'fock:task_chunks',MT_INT,1,task_chunks))
      $     call errquit('scf_input: rtdb_put of task_chunks failed',0)
       goto 10
 c
@@ -242,7 +242,7 @@ c
      $     ('scf_input: taskbf <integer taskbf>', 0)
       if (task_bf.lt.1 .or. task_bf.gt.1024) call errquit
      $     ('scf_input: taskbf has invalid value',task_bf)
-      if (.not. rtdb_put(rtdb,'scf:task_bf',MT_INT,1,task_bf))
+      if (.not. rtdb_put(rtdb,'fock:task_bf',MT_INT,1,task_bf))
      $     call errquit('scf_input: rtdb_put of task_bf failed',0)
       goto 10
 c

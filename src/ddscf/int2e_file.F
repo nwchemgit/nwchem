@@ -41,7 +41,7 @@ c
       n_rec_in_file = 1
       rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
       call int2e_buf_clear()
-      call dfill(rec_len_in_dbl, 0.0d0, values, 1)
+      call dfill(buffer_size, 0.0d0, values, 1)
 c
 c     work out dynamic ranges and scaling for integral compression
 c
@@ -60,20 +60,26 @@ c
       nint_per_dbl = ma_sizeof(mt_dbl, 1, mt_int)
       call int2e_packing_info()
 c
-c     Figure out sizes
+c     Figure out sizes.  The -1 is to leave room for the end record
+c     which for semidirect may be written out after EOF has been reported.
 c
       if (cachesize .gt. 0) then
-         max_cache_rec = cachesize/rec_len_in_dbl
+         max_cache_rec = cachesize/rec_len_in_dbl 
       else
          max_cache_rec = 0
       end if
       if (filesize .gt. 0) then
          max_file_rec = filesize/rec_len_in_dbl
       else if (filesize .eq. 0) then
-         max_file_rec = 2048    ! Default max size 
+         max_file_rec = (2**30)/(8*rec_len_in_dbl) ! Default max size of 1 Gb
       else 
          max_file_rec = 0
       end if
+      if (max_file_rec .gt. 0) then
+         max_file_rec = max_file_rec - 1
+      else if (max_cache_rec .gt. 0) then
+         max_cache_rec = max_cache_rec - 1
+      endif
 c
 c     Figure out the size of an existing file
 c
@@ -250,7 +256,7 @@ c     3-4 The lo bits of the range
 c     5-5 The count of values in this range
 c
       if (next_value .gt. (n_per_rec-5)) then
-         int2e_set_bf_range = int2e_buf_write()
+         int2e_set_bf_range = int2e_buf_write(.false.)
          if (.not. int2e_set_bf_range) return
       end if
       if (lab_pack_len .eq. 8) then
@@ -436,7 +442,7 @@ c
             if (.not. int2e_file_write) return
          else
             if (n_in_rec .eq. n_per_rec) then
-               int2e_file_write = int2e_buf_write()
+               int2e_file_write = int2e_buf_write(.false.)
                if (.not. int2e_file_write) return
             end if
 c     
@@ -479,7 +485,7 @@ c
          nlarge = nlarge + 1
 c         
          if (n_in_rec .eq. n_per_rec) then
-            int2e_file_write_big = int2e_buf_write()
+            int2e_file_write_big = int2e_buf_write(.false.)
             if (.not. int2e_file_write_big) return
          end if
 c     
@@ -658,14 +664,39 @@ c
  1000 continue
 c
       end
-      logical function int2e_buf_write()
+      logical function int2e_buf_write(oend)
       implicit none
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "cint2esave.fh"
+      logical oend           ! [input]
+c
+c     Write the integral buffer to disk.  For all but the
+c     end record it is called with oend=.false. meaning
+c     that size constraints should be enforced leaving
+c     room for the end record.  The last record is output with
+c     oend=.true. meaning just write it.
+c
+c     This is done to simplify the logic for semidirect ...
+c     we can test for a full file without having to worry
+c     about the partial buffer that might be left.
 c
       integer nbitv             ! For pretty output
+      integer maxrec
+c
+c     test for overflowing the file and memory cache
+c
+      maxrec = max_cache_rec + max_file_rec
+      if ((.not. oend) .and. (cur_rec .gt. maxrec)) then
+         int2e_buf_write = .false.
+         if (otrace) then
+            write(6,12) cur_rec
+ 12         format(' int2e_file: file full at record ',i8)
+            call util_flush(6)
+         end if
+         return
+      endif
 c
 c     Opening of file, allocation of buffer and writing of
 c     info message are all now deferred until the first
@@ -690,14 +721,11 @@ c
          end if
       end if
 c
-c     should test here for overflowing the file/memory cache
-c
       call int2e_buf_cntr_pack()
       call int2e_buf_pack()
 c
  10   continue
       if (cur_rec .le. max_cache_rec) then
-c
          if (l_cache .eq. -1) then
             if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
      $           'int2e', l_cache, k_cache)) then
@@ -717,13 +745,16 @@ c
      $           form='unformatted')
             file_opened = .true.
          end if
+c
+c     Should really detect failures in writing and return false
+c
          call swrite(unitno, buf, rec_len_in_dbl)
       end if
 c
       if (otrace) then
          write(6,2) n_in_rec, cur_rec, n_rec_in_file+1
- 2       format(' int2e_file: wrote ',i4,' integrals in record',i4
-     $        ,' of ',i4,'.')
+ 2       format(' int2e_file: wrote ',i6,' integrals in record',i5
+     $        ,' of ',i5,'.')
          call util_flush(6)
       end if
 c
@@ -744,7 +775,7 @@ c
          int2e_buf_read = .false.
          if (otrace) then
             write(6,1) cur_rec, n_rec_in_file
- 1          format(' int2e_file: EOF at record',i4,' of ',i4,'?')
+ 1          format(' int2e_file: EOF at record',i5,' of ',i5,'?')
             call util_flush(6)
          end if
          return
@@ -771,9 +802,9 @@ c
       end if
 c     
       if (otrace) then
-            write(6,2) n_in_rec, cur_rec, n_rec_in_file
- 2          format(' int2e_file: read ',i4,' integrals in record',i4
-     $           ,' of ',i4,'.')
+            write(6,2) n_in_rec, cur_rec-1, n_rec_in_file
+ 2          format(' int2e_file: read ',i6,' integrals in record',i6
+     $           ,' of ',i6,'.')
          call util_flush(6)
       end if
 c
@@ -783,8 +814,8 @@ c
 #include "cint2efile.fh"
 #include "cint2esave.fh"
 c
-c     empty the integral buffer ... only the null count of integrals
-c     in the currnt range in the buffer is present and it is zero
+c     empty the integral buffer ... only the count of integrals
+c     in the current range in the buffer is present and it is zero
 c
       n_in_rec = 1
       cntr_ptr = 1
@@ -794,6 +825,93 @@ c
       labels(3,1) = 0
       labels(4,1) = 0
       next_value = 2
+c
+      end
+      subroutine int2e_file_record_position()
+      implicit none
+#include "cint2efile.fh"
+c
+c     Save enuf info so that the file can be repositioned
+c     and TRUNCATED at the current location if a subsequent
+c     write operations fails.
+c
+      posinfo(1)  = n_in_rec
+      posinfo(2)  = next_value
+      posinfo(3)  = cur_rec
+      posinfo(4)  = cntr_ptr
+      posinfo(5)  = labels(1,cntr_ptr)
+      posinfo(6)  = nleft_in_range
+      posinfo(7)  = n_rec_in_file
+      posinfo(8)  = range(1,1)
+      posinfo(9)  = range(2,1)
+      posinfo(10) = range(3,1)
+      posinfo(11) = range(4,1)
+      posinfo(12) = range(1,2)
+      posinfo(13) = range(2,2)
+      posinfo(14) = range(3,2)
+      posinfo(15) = range(4,2)
+      posinfo(16) = nlarge
+c
+      if (otrace) then
+         write(6,*) ' int2e_file: recorded position at ', cur_rec
+         call util_flush(6)
+      endif
+c
+      end
+      subroutine int2e_file_reposition_truncate
+      implicit none
+#include "cint2efile.fh"
+c
+c     Truncate file at the saved position.
+c
+      integer target_rec
+      logical int2e_buf_read
+      external int2e_buf_read
+c
+c     First load the desired record
+c     
+*  target_rec =  101 101
+*int2e_file: repositioned from   100 to   101
+
+      target_rec = posinfo(3)
+      write(6,*) ' target_rec = ', target_rec, cur_rec
+      if (target_rec.lt.1 .or. target_rec.gt. cur_rec) 
+     $     call errquit('int2e_reposition : bad target', target_rec)
+c
+      if (target_rec .ne. cur_rec) then
+ 10     if (target_rec .ne. cur_rec) then
+           if (cur_rec .gt. max_cache_rec) backspace unitno
+           cur_rec = cur_rec - 1
+           goto 10
+        endif
+        if (.not. int2e_buf_read()) call errquit
+     $         ('int2e_reposition: failed reading record ', cur_rec)
+        if (cur_rec .gt. max_cache_rec) backspace unitno
+      endif
+c
+      if (otrace) then
+         write(6,1) n_rec_in_file, target_rec
+ 1       format('int2e_file: repositioned from ',i5,' to ',i5)
+      endif
+c
+c     target record is now in the buffer. reset everything.
+c
+      n_in_rec            =  posinfo(1) 
+      next_value          =  posinfo(2) 
+      cur_rec             =  posinfo(3) 
+      cntr_ptr            =  posinfo(4) 
+      labels(1,cntr_ptr)  =  posinfo(5) 
+      nleft_in_range      =  posinfo(6) 
+      n_rec_in_file       =  posinfo(7) 
+      range(1,1)          =  posinfo(8) 
+      range(2,1)          =  posinfo(9) 
+      range(3,1)          =  posinfo(10)
+      range(4,1)          =  posinfo(11)
+      range(1,2)          =  posinfo(12)
+      range(2,2)          =  posinfo(13)
+      range(3,2)          =  posinfo(14)
+      range(4,2)          =  posinfo(15)
+      nlarge              =  posinfo(16)
 c
       end
       subroutine int2e_buf_unpack()
@@ -977,7 +1095,8 @@ c     and for 50,000 of misc. junk.
 c
       avail = MA_inquire_avail(mt_dbl)
 *      write(6,*) ' avail 1 ', avail
-      if (ga_uses_ma()) avail = avail - ga_memory_avail()
+      if (ga_uses_ma() .and. ga_memory_limited()) 
+     $   avail = avail - ga_memory_avail()
 *      write(6,*) ' avail 2 ', avail
       call intb_mem_2e4c(max2e, mem2)
 *      write(6,*) ' avail 3 ', avail
@@ -1008,8 +1127,8 @@ c
 *      write(6,*) ' nq 1 ', nq
 c
       if (nq .lt. avail) then
-         memsize = int(nq)      ! Set these so that scf_tidy cleans up
-         filesize = nq*0.3 + 2*(buffer_size+1) ! Allow for small overflow
+         memsize = max(2*buffer_size,int(nq))  ! Set these so that scf_tidy cleans up
+         filesize = -1  ! semidirect should work now
          if (.not. int2e_file_open(int2efilename, memsize, filesize, 
      $        tol2e, .false.))
      $        call errquit('int2e_test_mem: int2e_file_open failed',0)

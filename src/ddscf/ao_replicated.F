@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.9 1996-08-19 15:18:04 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.10 1996-09-19 01:09:14 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -38,8 +38,8 @@ c
       integer l_q4, k_q4, k_ijkl, l_ijkl
       integer l_plist, k_plist, l_ps, k_ps
       logical status
-      logical int2e_test_mem
-      external int2e_test_mem
+      logical int2e_test_mem, int2e_buf_write
+      external int2e_test_mem, int2e_buf_write
       double precision tol2e_local
 c
       if (.not. geom_ncent(geom, natom)) call errquit
@@ -57,9 +57,24 @@ c
       tol2e_local = tol2e
       if (.not. (oreadfile .or. owritefile)) then
          owritefile = int2e_test_mem(geom, basis,
-     $     min(tol2e*0.1d0,1d-8))
+     $     min(tol2e*0.1d0,1d-9))
          if (owritefile) tol2e_local = min(tol2e,1d-8)
       end if
+c
+c     If this is the first call for a potential semi-direct
+c     calculation then we must save the tol2e since 
+c     1) the definition of the tasks depends on the tolerance
+c     and we must have the same task definitions, and
+c     2) it's important to have the disk resident and recomputed
+c     integrals computed with consistent tolerances
+c
+      if (owritefile) semi_direct_tol2e = tol2e_local
+c
+c     If this is a subsequent call for semi-direct we must use
+c     the original tolerance
+c
+      if (oreadfile .and. incmax.ne.-1)
+     $     tol2e_local=semi_direct_tol2e
 c     
 c     If reading/writing to/from cache/file then rewind
 c     
@@ -108,13 +123,35 @@ c
       call ga_sync()
       call dfill(nbf*nbf*nfock, 0.0d0, dbl_mb(k_fock), 1)
 c     
+      if (util_print('semi_direct',print_debug) .and.
+     $     ga_nodeid().eq.0) then
+         write(6,*) ' oread, owrite, incmax, incmin, incomplete ',
+     $        oreadfile, owritefile, incmax, incmin, incomplete
+         call util_flush(6)
+      endif
+c
       if (oreadfile) then
+         if (util_print('semi_direct',print_debug) .and.
+     $        ga_nodeid().eq.0) then
+            write(6,*) ' Building from file ', tol2e_local
+            call util_flush(6)
+         endif
          call fock_2e_rep_from_file(geom, basis, nfock, nbf,
      $        jfac, kfac, tol2e_local, oskel,
      $        dbl_mb(k_dens), dbl_mb(k_fock))
-      else
-c     
+      endif
+c
+c     If (fully_direct .OR. writing_to_disk .OR. semi_direct)
+c     need to do a (partial) direct fock build
+c
+      if ((.not. (oreadfile .or. owritefile)) .or. 
+     $    (owritefile) .or. (incmax.gt.-1)) then
          iscreen(6) = iscreen(6) + 1 ! Counts direct fock builds
+         if (util_print('semi_direct',print_debug) .and.
+     $        ga_nodeid().eq.0) then
+            write(6,*) ' Building direct ', tol2e_local
+            call util_flush(6)
+         endif
 c     
 *         open(66,file='/scratch1/ints',form='formatted',
 *     $        status='unknown')
@@ -176,8 +213,8 @@ c
       if (owritefile) then
          oreadfile = .true.
          owritefile = .false.
-         call int2e_buf_write
-c     insert munge of incomplete blocks here.
+         if (.not. int2e_buf_write(.true.)) 
+     $        call errquit('ao_replicated: failed writing last block',0)
       end if
 c     
       end
@@ -218,8 +255,6 @@ c
       integer ntype             ! No. of pair types
       integer max_p             ! Max pairs per block
 c     
-      integer nq                ! No. of quartets generated
-c     
       integer ijklt, ijt, klt, ij, kl, ish, jsh, ksh, lsh
       integer  iat, jat, kat, lat, imat
       double precision q2, qq4, qjunk, sijkl, denmax, dijkl
@@ -228,18 +263,24 @@ c
 c
       integer l_ijtype, k_ijtype
 c
+      integer nq                ! No. of quartets generated
+c
       integer ntreq
-      double precision nqdone, nidone
-      common/fred/nqdone, nidone, ntreq
+      double precision neri_direct, neri_cached
+      double precision nqdone, neri_done
+      common/fred/nqdone, neri_done, neri_direct, neri_cached, ntreq
 c
       integer cnmax, cemax
       parameter (cnmax=1024, cemax=1024) ! Max no. of shells and centers
       integer cntoce(cnmax)     ! Map from contractions to centers
       integer cetobfr(2,cemax)  ! Map from centers to bf range
 c
-      integer next, current, nproc
+      integer nops              ! No. of group operators = max value of q4
+      double precision dnops
 c
-      logical oprint
+      integer next, current, nproc, incomplete_top
+c
+      logical oprint, osavewritefile, odotask
 c     
       logical int2e_set_bf_range
       external int2e_set_bf_range
@@ -250,11 +291,17 @@ c
 c
       oprint = util_print('ao_replicated',print_never)
 c
+      nops = sym_number_ops(geom) + 1
+      dnops = nops
+c
       call fock_init_rep_cmul(nbf) ! lookup table for f build
+c
+      osavewritefile = owritefile
       if (owritefile) then
          if (.not. int2e_set_bf_range(
      $        1,nbf,1,nbf,1,nbf,1,nbf)) call errquit
      $        ('fock_2e_rep: set range failed',0)
+         incomplete = -1
       end if
       if (.not. geom_ncent_unique(geom, natom_unique)) call errquit
      $     ('fock_2e_rep: bad geom handle?',0)
@@ -289,16 +336,22 @@ c
       end do
       if (owritefile) denmax = max(denmax,10.0d0)
 c
-      dentol = min(1d-3,tol2e/denmax) ! Threshold to screen integs only
+      dentol = min(dentolmax,tol2e/denmax) ! Threshold to screen integs only
 c     
 c     There is a BIG speed gain from agressive reduction of accuracy
 c     in the actual computation of the integrals. However, the screening
 c     on primitive integrals is done on radial prefactors not using
-c     the Schwarz inequality, hence the extra factor of 0.1d0
-c     (also tried 0.01 on C12H14 but was more expensive with no gain)
+c     the Schwarz inequality, hence the extra factor of 0.01d0.
+c     (note that we also have at least another 1/10 from tol2e->dentol)
+c
+c     Michel uses a factor of 1d-6 in HONDO (compared to our 10^-3) ->
+c     more experiments are needed.
+c
+c     C60 has trouble with max value for integ_acc less than 1d-9
+c     (using texas integrals, don't know about nwchem)
 c     
       if (intacc .eq. 0.0d0) then
-         integ_acc = min(1d-6,max(0.1d0*dentol,1d-15)) ! Variable
+         integ_acc = min(1d-9,max(0.01d0*dentol,1d-17)) ! Variable
       else
          integ_acc = intacc     ! User controlled
       end if
@@ -311,14 +364,14 @@ c     no. of pairs per pair block dividing quartets between processors
 c     and allowing for the max no. of quartets to be processed per block
 c     
       nshpair = nsh*(nsh+1)/2
-      max_p   = sqrt(
-     $     dfloat(nshpair)**2*dfloat(natom_unique)) / 
-     $     dfloat(natom)
       if (ga_nnodes() .gt. 1) then
+         max_p = int(dfloat(nshpair)*dsqrt(dnops))
          max_p = max_p/sqrt(10.0d0*ga_nnodes()) ! 10 tasks per processor
+         max_p = min(nint(sqrt(dfloat(nops*qdim))),max_p)
+*         max_p = max(10,max_p)
+      else
+         max_p = int(sqrt(dfloat(nops*qdim)))
       end if
-      max_p   = min(nint(sqrt(dfloat(qdim))),max_p)
-      max_p   = max(10,max_p)
 c     
 c     generate info about the pairs
 c     
@@ -326,7 +379,8 @@ c
      $     l_ijtype, k_ijtype)) call errquit
      $     ('fock_2e_rep: ma failed', nsh*(nsh+1)/2)
  10   call fock_pairs(basis, max_p, .true., 1, natom, 1, natom, 
-     $     dentol, plist, ps, pinfo, tdim, ntype, int_mb(k_ijtype))
+     $     dentol/dnops, plist, ps, pinfo, tdim, ntype,
+     $     int_mb(k_ijtype))
 c
 c     Figure out no. of tasks to do on each request to the
 c     shared counter.  Memory permitting we want this to be 
@@ -336,12 +390,13 @@ c     I worry about an infinite loop here ... is there always a
 c     solution to these constraints?  Should we limit the no. of passes?
 c
       task_bf = max(ntype*ntype/(10*ga_nnodes()),1)
-      if (max_p .lt. nint(sqrt(dfloat(qdim))) .and.
+      if (max_p .lt. nint(sqrt(dfloat(nops*qdim))) .and.
      $     task_bf .ge. 4) then
-         max_p = min(nint(sqrt(dfloat(qdim))),2*max_p)
+         max_p = min(nint(sqrt(dfloat(nops*qdim))),2*max_p)
          goto 10
       end if
-      if (oprint .and. ga_nodeid().eq.0) then
+      if ((oprint  .or. util_print('semi_direct',print_debug))
+     $     .and. ga_nodeid().eq.0) then
          write(6,*) ' max_p ', max_p, ' ntype ', ntype,
      $     ' task_bf ',task_bf
          call util_flush(6)
@@ -357,19 +412,43 @@ c     We could constrain the pair loops to run over a wierd unique
 c     list of quartets, but we need the conventional 'canonical'
 c     unique list to use petite-list symmetry.
 c     
+      if (oreadfile .and. incomplete.eq.-1) 
+     $     goto 12321           ! Semidirect ... I have none to compute
+c
       nproc = ga_nnodes()
-      next = nxtask(nproc, task_bf)
+      if (oreadfile) then
+c     
+c     Semi-direct.  This process filled up the file at task incomplete
+c     but task chunking means it did other tasks that
+c     would not have been assigned to another process.  This process
+c     must do tasks in the range incomplete...incomplete_top
+c
+         incomplete_top = min(incmax,
+     $        (incomplete/task_bf)*task_bf + task_bf - 1)
+      else
+         next = nxtask(nproc, task_bf)
+      endif
       current = 0
       nq = 0
 c
       nqdone = 0
-      nidone = 0
+      neri_done = 0
       ntreq  = 1
+      neri_direct = 0
+      neri_cached = 0
 c
       do ijklt = 2*ntype, 2, -1
          do ijt = min(ntype,ijklt-1), max(1,ijklt-ntype), -1
-            if (next .eq. current) then
-               klt = ijklt - ijt
+            klt = ijklt - ijt
+            if (oreadfile .and. current.le.incmax) then
+               odotask = (current.ge.incomplete) .and. 
+     $              (current.le.incomplete_top)
+            else  
+               odotask = next.eq.current
+            endif
+            if (odotask) then
+c
+               if (owritefile) call int2e_file_record_position()
                do ij = pinfo(1,ijt), pinfo(2,ijt)
                   ish = plist(1,ij)
                   jsh = plist(2,ij)
@@ -383,9 +462,6 @@ c
                      lsh = plist(2,kl)
                      kat = cntoce(ksh)
                      lat = cntoce(lsh)
-c     schwarz screening
-                     sijkl = ps(ij)*ps(kl)
-                     if (sijkl .lt. dentol) goto 200 ! Next kl
 c     enforce canonical indices
                      if (ish.lt.ksh) then
                         goto 200 ! Next kl
@@ -396,6 +472,11 @@ c     enforce canonical indices
                            qq4 = qq4 * 0.5d0 ! i==k && j==l diagonal
                         end if
                      end if
+c     kl diagonal
+                     if (ksh.eq.lsh) qq4 = qq4*0.5d0
+c     schwarz screening
+                     sijkl = ps(ij)*ps(kl)
+                     if (sijkl*dnops*qq4 .lt. dentol) goto 200 ! Next kl
 c     symmetry test
                      if (oskel) then
                         if (.not. sym_atom_quartet(geom,iat,jat,kat,lat,
@@ -403,25 +484,27 @@ c     symmetry test
                         qq4 = qq4*qjunk
                      end if
 c     density screening
-                     if (.not. owritefile) then
+                     if (odensityscreen .and. (.not. owritefile)) then
                         dijkl = max(
      $                       rdens(iat,jat),rdens(kat,lat),
      $                       rdens(iat,kat),rdens(iat,lat), 
      $                       rdens(jat,kat),rdens(jat,lat))
-                        if (sijkl*dijkl .lt. tol2e) goto 200 ! Next kl
+                        if (qq4*sijkl*dijkl .lt. tol2e) goto 200 ! Next kl
                      end if
-c     kl diagonal
-                     if (ksh.eq.lsh) qq4 = qq4*0.5d0
 c     save it for later
-                     if (nq .lt. qdim) then
-                        nq = nq + 1
-                        ijkl(nq,1) = ish
-                        ijkl(nq,2) = jsh
-                        ijkl(nq,3) = ksh
-                        ijkl(nq,4) = lsh
-                        q4(nq)     = qq4
-                     else
-                        call errquit('ao_replicated: qdim/max_p?',nq)
+                     nq = nq + 1
+                     ijkl(nq,1) = ish
+                     ijkl(nq,2) = jsh
+                     ijkl(nq,3) = ksh
+                     ijkl(nq,4) = lsh
+                     q4(nq)     = qq4
+                     if (nq .eq. qdim) then
+                        nqdone = nqdone + nq
+                        call fock_rep_txs(basis, nfock, nbf,
+     $                       jfac, kfac, dentol, dens, fock, 
+     $                       nq, ijkl(1,1), ijkl(1,2), ijkl(1,3),
+     $                       ijkl(1,4), q4, current)
+                        nq = 0
                      end if
  200              end do        ! Next KL pair
  100           end do           ! Next IJ pair
@@ -433,15 +516,41 @@ c
                   call fock_rep_txs(basis, nfock, nbf,
      $                 jfac, kfac, dentol, dens, fock, 
      $                 nq, ijkl(1,1), ijkl(1,2), ijkl(1,3),
-     $                 ijkl(1,4), q4)
+     $                 ijkl(1,4), q4, current)
                   nq = 0
                end if
-               next = nxtask(nproc,task_bf)
-               ntreq = ntreq + 1
+c
+c     Get next task ... messy because of semidirect
+c
+               if (oreadfile) then ! Semi-direct
+                  if (current .ge. incomplete_top) then
+                     if (incmin.eq.-1) then
+                        goto 12321 ! Did my only task
+                     endif
+                     next = nxtask(nproc,task_bf)+incmax+1
+                     ntreq = ntreq + 1
+                  endif
+               else
+                  next = nxtask(nproc,task_bf)
+                  ntreq = ntreq + 1
+               endif
             end if
             current = current + 1
          end do                 ! Next IJ type
       end do                    ! Next IJKL type
+c
+12321 owritefile = osavewritefile
+      if (owritefile) then
+         if (incomplete.eq.-1) call ga_sync ! Since did not in fock_rep_txs
+         incmax = incomplete
+         incmin = incomplete
+         call ga_igop(123, incmax, 1, 'max')
+         call ga_igop(321, incmin, 1, 'min')
+c
+c     If semi-direct need to preserve dentol for consistency
+c
+         if (incmin .ne. -1) dentolmax = dentol
+      endif
 c     
       if (oscfps) call pstat_off(ps_fock_2e)
       next = nxtask(-nproc,1)
@@ -449,12 +558,24 @@ c
       if (oprint) then
          call begin_seq_output
          buff = ' '
-         write(buff,99) ga_nodeid(), ntreq, nqdone, nidone
+         write(buff,99) ga_nodeid(), ntreq, nqdone, neri_done
  99      format(i4,': tasks=',i4,1p,': nqdone=',d9.1,': neri=',d9.1)
          call write_seq(6,buff)
          call end_seq_output
       end if
 c     
+      call ga_dgop(11,nqdone,4,'+')
+      neri_direct = neri_done - neri_cached
+      if (owritefile .and. util_print('ao_replicated',print_default)
+     $     .and. ga_nodeid().eq.0) then
+         neri_direct = 100.0*neri_direct/neri_done
+         neri_cached = 100.0*neri_cached/neri_done
+         write(6,109) nqdone, neri_done, neri_direct, neri_cached
+ 109     format(/1p,' #quartets =',d8.1, '  #integrals =',d8.1,
+     $        0p,'  direct =',f5.1,'%  cached =',f5.1,'%'/)
+         call util_flush(6)
+      endif
+c
 c     done
 c     
       call int_acc_std()
@@ -462,7 +583,7 @@ c
       end
       subroutine fock_rep_txs(basis, nfock, nbf,
      $     jfac, kfac, tol2e, dens, fock, 
-     $     nq, iq, jq, kq, lq, q4)
+     $     nq, iq, jq, kq, lq, q4, current)
       implicit none
 #include "mafdecls.fh"
 #include "cfock.fh"
@@ -476,6 +597,7 @@ c
       integer nq
       integer iq(nq), jq(nq), kq(nq), lq(nq)
       double precision q4(nq)
+      integer current           ! Current task number for semi-direct
 c     
 c     Given a list of integral quartets, notionally all of the
 c     same type, compute the integrals and add them into the
@@ -492,8 +614,9 @@ c
       integer maxg
 c
       integer ntreq
-      double precision nqdone, nidone
-      common/fred/nqdone, nidone, ntreq
+      double precision neri_direct, neri_cached
+      double precision nqdone, neri_done
+      common/fred/nqdone, neri_done, neri_direct, neri_cached,ntreq
 c     
       logical int2e_file_write, intb_2e4c, intb_init4c
       external int2e_file_write, intb_2e4c, intb_init4c
@@ -560,31 +683,41 @@ c
      $     nq, lenscr, dbl_mb(k_scr), leneri, block_eff))
      $     call errquit('intb_init?',nq)
 c     
- 50   more = intb_2e4c(basis, iq, jq, basis, kq, lq,
+ 50   continue
+c
+      more = intb_2e4c(basis, iq, jq, basis, kq, lq,
      $     nq, q4, .true., tol2e, .false.,
      $     int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
      $     dbl_mb(k_eri), leneri, neri, lenscr, dbl_mb(k_scr))
 c     
-      if (neri .eq. 0) goto 100 ! Free memory before going home
+      if (neri .gt. 0) then
 c
-      nidone = nidone + neri
+         neri_done = neri_done + neri
 c     
 c     Cache integrals if desired
 c     
-      if (owritefile) then
-         if (.not. int2e_file_write(neri,
-     $        int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
-     $        dbl_mb(k_eri))) call errquit('Arrgggghh',0)
-      end if
+         if (owritefile) then
+            if (.not. int2e_file_write(neri,
+     $           int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
+     $           dbl_mb(k_eri))) then
+               call int2e_file_reposition_truncate()
+               owritefile = .false.
+               incomplete = current
+               call ga_sync()
+            else
+               neri_cached = neri_done
+            endif
+         end if
 c     
-*      call print_integ_list(neri,
+*     call print_integ_list(neri,
 *     $     int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
 *     $     dbl_mb(k_eri))
 c     
-      call fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e, neri,
-     $     int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
-     $     dbl_mb(k_eri), dens, fock)
-c
+         call fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e, neri,
+     $        int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
+     $        dbl_mb(k_eri), dens, fock)
+      endif
+c     
       if (more) then
          if (util_print('fock_rep_txs', print_never)) then
             write(6,*) ' Texas has split the request '
@@ -616,7 +749,7 @@ c
       double precision sij(*)
       integer ijtype(*)
 c     
-      integer junk, iat, jat
+      integer junk, iat, jat, iatsh, jatsh, shlo, shhi
       integer nij, ij, ijt, i, j, jtop, prev, spch
       integer jlo, jhi, jnprim, jngen, jt, jtype
       integer ilo, ihi, inprim, ingen, it, itype
@@ -626,10 +759,15 @@ c
 c
       integer thetype
 #include "itri.fh"
-c     Below relies on #unique atoms<10, angmax<10, ngen<10.
-      thetype(iuat,itype,inprim,ingen) = 
-     $     iuat + 10*(itype+1 + 10*(ingen + 10*inprim))
-c     
+c     Below relies on #shperat<20, #uatoms<20, angmax<20, ngen<20.
+      thetype(iuat,iatsh,itype,inprim,ingen) = 
+     $     iuat + 20*(iatsh + 20*(itype+1 + 20*(ingen + 20*inprim)))
+c
+c     It would suffice to sort on different types of shells (iatsh) on
+c     unique atoms (iuat), however, we want to arrange for the
+c     most expensive integrals to be computed first so we need
+c     to worry about nprim, ngen and type
+c
 c     Fun and games here to handle centers with no functions
 c
       do iat = iatlo, iathi
@@ -663,6 +801,11 @@ c
      $        call errquit('fock_pairs: basis corrupt ',0)
          if (.not. bas_cn2uce(basis,i,iuat))
      $        call errquit('fock_pairs: basis corrupt ',0)
+         if (.not. bas_cn2ce(basis,i,iat))
+     $        call errquit('fock_pairs: basis corrupt ',0)
+         if (.not. bas_ce2cnr(basis,iat,shlo,shhi))
+     $        call errquit('fock_pairs: basis corrupt ',0)
+         iatsh = i-shlo+1
 c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
          if (itype.eq.-1) then
             itype = 1
@@ -671,7 +814,7 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
          else if (itype.eq.1) then
             itype = 0
          end if
-         it = thetype(iuat,itype,inprim,ingen)
+         it = thetype(iuat,iatsh,itype,inprim,ingen)
          jtop = jhi
          if (oij) jtop = i
          do j = jlo, jtop
@@ -681,6 +824,11 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
      $              call errquit('fock_pairs: basis corrupt ',0)
                if (.not. bas_cn2uce(basis,j,juat))
      $              call errquit('fock_pairs: basis corrupt ',0)
+               if (.not. bas_cn2ce(basis,j,jat))
+     $              call errquit('fock_pairs: basis corrupt ',0)
+               if (.not. bas_ce2cnr(basis,jat,shlo,shhi))
+     $              call errquit('fock_pairs: basis corrupt ',0)
+               jatsh = j-shlo+1
 c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
                if (jtype.eq.-1) then
                   jtype = 1
@@ -689,7 +837,7 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
                else if (jtype.eq.1) then
                   jtype = 0
                end if
-               jt = thetype(juat,jtype,jnprim,jngen)
+               jt = thetype(juat,jatsh,jtype,jnprim,jngen)
                nij           = nij + 1
                ijlist(1,nij) = i
                ijlist(2,nij) = j

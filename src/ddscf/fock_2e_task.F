@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.23 1996-08-27 22:59:11 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.24 1996-09-19 01:09:22 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -345,7 +345,7 @@ c     sparsity test
                   sijkl = sij(ij)*skl(kl)
                   if (sijkl .lt. dentol) goto 300 ! Next kl
 c     density screening
-                  if (.not. owritefile) then
+                  if (odensityscreen .and. (.not. owritefile)) then
                      sijkl=sijkl*max(
      $                    rdij(iat,jat),rdik(iat,kat),rdli(lat,iat),
      $                    rdjk(jat,kat),rdlj(lat,jat),rdlk(lat,kat))
@@ -451,24 +451,25 @@ c
      $     int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
      $     dbl_mb(k_eri), leneri, neri, lenscr, dbl_mb(k_scr))
 c
-      if (neri .eq. 0) goto 100 ! Free memory before going home
+      if (neri .gt. 0) then
 c
-      ncomputed = ncomputed + neri
-c
-c     Cache integrals if desired
-c
-      if (owritefile) then
-         if (.not. int2e_file_write(neri,
-     $        int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
-     $        dbl_mb(k_eri))) call errquit('Arrgggghh',0)
-      end if
+         ncomputed = ncomputed + neri
 c     
-      call fock_2e_label(nfock, tol2e, neri,
-     $     int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
-     $     dbl_mb(k_eri),
-     $     ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
-     $     dij, dik, dli, djk, dlj, dlk,
-     $     fij, fik, fli, fjk, flj, flk )
+c     Cache integrals if desired
+c     
+         if (owritefile) then
+            if (.not. int2e_file_write(neri,
+     $           int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
+     $           dbl_mb(k_eri))) call errquit('Arrgggghh',0)
+         end if
+c     
+         call fock_2e_label(nfock, tol2e, neri,
+     $        int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
+     $        dbl_mb(k_eri),
+     $        ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
+     $        dij, dik, dli, djk, dlj, dlk,
+     $        fij, fik, fli, fjk, flj, flk )
+      endif
 c     
       if (more) goto 50
 c

@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.11 1996-06-27 22:42:17 d3g681 Exp $
+c$Id: ao_fock_2e.F,v 1.12 1996-09-19 01:09:10 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -39,8 +39,8 @@ c
       integer l_atmp, k_atmp
       integer l_block, k_block, nblock, maxblock
       logical status
-      logical int2e_test_mem
-      external int2e_test_mem
+      logical int2e_test_mem, int2e_buf_write
+      external int2e_test_mem, int2e_buf_write
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('ao_replicated: bas_numbf failed', 0)
@@ -51,9 +51,11 @@ c     Default is replicated data.  This can be overridden by setting
 c     'fock:replicated' as false.  It is also overriden here when the
 c     replicated data algorithm would exceed memory requirements
 c
-      call int_mem_2e4c(maxg, lenscr)
-      mem_rep = nbf*nbf*(2*nfock + 2) + maxeri*5 + lenscr
+      call intb_mem_2e4c(maxg, lenscr)
+      mem_rep = nbf*nbf*(2*nfock + 2)
       if (owritefile) mem_rep = mem_rep + max(0,memsize)
+      if (owritefile .or. (.not. (owritefile .or. oreadfile)))
+     $      mem_rep = mem_rep + maxeri*5 + lenscr
       if (oreplicated) then
          oreplicated = (mem_rep .lt. ma_inquire_avail(mt_dbl))
       endif
@@ -200,8 +202,8 @@ c
       if (owritefile) then
          oreadfile = .true.
          owritefile = .false.
-         call int2e_buf_write
-c     insert munge of incomplete blocks here.
+         if (.not. int2e_buf_write(.true.))
+     $        call errquit('ao_fock_2e: write of last record failed',0)
       endif
 c     
       end

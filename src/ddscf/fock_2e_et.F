@@ -16,8 +16,6 @@ c     For load imbalance to be about 1% we need about 100 tasks per
 c     processor.  Many more than this is unecessary and may bottleneck
 c     the shared counter.  Cut back to 20 tasks for experiment.
 c
-c     task_size controls parallelization of the nested ijk.  
-c     The available parallelism is thus of order natoms**3.
 c     The default values of -1 is used to check for user input
 c     
       integer nat, iat, jat
@@ -91,13 +89,13 @@ c     atom quartets ... this is the task size in atom quartets
 c     necessary to get about 100 tasks per process, taking into
 c     account sparsity and symmetry.  Constrain this so that
 c     a block is not larger than 128 so that we do not use 
-c     too much memory.  Have a profound problem if there is
+c     too much memory.  Have a profound problem if there are
 c     more than 255 functions on a single atom.
 c
 c     Also have the limit of 10 atoms per block.
 c
       task_bf = min(task_bf,128,nbf)
-      if (task_bf.eq.-1 .or. task_bf.gt.nbf) then
+      if (task_bf.eq.-1) then
          call fock_2e_est_task(geom, oskel, tol2e, task_size)
          task_bf = max(1,nint(nbf*sqrt(sqrt(dble(task_size)))/nat))
          task_bf = min(task_bf, 128)

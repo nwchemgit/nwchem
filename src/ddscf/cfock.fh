@@ -1,6 +1,9 @@
 c
-c$Id: cfock.fh,v 1.16 1996-06-27 22:42:22 d3g681 Exp $
+c$Id: cfock.fh,v 1.17 1996-09-19 01:09:15 d3g681 Exp $
 c
+      logical odensityscreen  ! If true use density screening
+      double precision dentolmax ! Upper bound for dentol
+      double precision semi_direct_tol2e ! Tol2e from when integrals cached
       integer task_bf         ! Chunking parameter for density matrix
       integer filesize        ! Max integral file size in doubles
       integer memsize         ! Max integral cache size in doubles
@@ -11,8 +14,8 @@ c
       logical dovecs          ! use of MO vectors for ri fock build
       integer g_vecs          ! MO vectors for ri
       logical rifock          ! in case of mixed method: ri or directfock build
-      integer first_atoms(4)    ! Atoms that semidirect code starts at
-      integer incomplete_atoms(4) ! Atom quartet that semidirect truncated
+      integer incomplete        ! Incomplete integral task for semidirect
+      integer incmax, incmin    ! Global min/max of incomplete
       logical oerilabel       ! True if using labels with ERI's
       character*255 int2efilename    ! Stub for integral file name
 c
@@ -24,6 +27,9 @@ c
 c
       common/cfock/
      $     intacc,
+     $     dentolmax,
+     $     semi_direct_tol2e,
+     $     odensityscreen,
      $     task_bf,
      $     filesize,
      $     memsize,
@@ -32,7 +38,7 @@ c
      $     rifock,
      $     dovecs,
      $     g_vecs,
-     $     first_atoms, incomplete_atoms,
+     $     incomplete, incmax, incmin,
      $     maxquartet, maxpair, maxeri, maxscr,
      $     oerilabel, oreplicated, onoblock
       common/ccfock/int2efilename

@@ -37,7 +37,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -143,7 +143,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -215,7 +215,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -295,7 +295,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -381,7 +381,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -481,7 +481,7 @@ c!!
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -568,7 +568,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -628,7 +628,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -696,7 +696,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -770,7 +770,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -848,7 +848,7 @@ c
       subroutine fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -871,6 +871,11 @@ c
       integer i, j, k, l, ind, v
       integer ij, lk, ik, li, lj, jk
       double precision g, gk, gj
+c
+*      write(6,*) ' f2el ', neri, nfock
+*      write(6,1) (eri(i),ilab(i),jlab(i),klab(i),llab(i),
+*     $     i=1,min(neri,9))
+*1     format(d16.8,4i5)
 c
       if (nfock .eq. 1) then
          call fock_2e_rep_1_label(nfock, nbf, jfac, kfac, tol2e,
@@ -927,7 +932,7 @@ c
       subroutine fock_2e_rep_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1011,7 +1016,7 @@ c
       subroutine fock_2e_rep_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1074,7 +1079,7 @@ c
       subroutine fock_2e_rep_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1146,7 +1151,7 @@ c
       subroutine fock_2e_rep_4_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1227,7 +1232,7 @@ c
       subroutine fock_2e_rep_mod_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1309,7 +1314,7 @@ c
       subroutine fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1389,7 +1394,7 @@ c
       subroutine fock_2e_rep_mod_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1445,7 +1450,7 @@ c
       subroutine fock_2e_rep_mod_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1510,7 +1515,7 @@ c
       subroutine fock_2e_rep_mod_4_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"

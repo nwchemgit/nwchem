@@ -2,7 +2,6 @@ c
 c     Internal common for int2e routines
 c     
 c     want to dynamically allocate most of this soon
-c     and also allow for data compression
 c     
       integer labels            ! Buffer for integral labels
       integer labels4(1)        ! 1-d array equiv. to labels
@@ -35,11 +34,14 @@ c
       double precision maxvalue ! Max value of compressed integral
       integer nlarge            ! Counts no. of large integrals
 c
+      integer posinfo           ! Used to record current position
+c
       double precision buf      ! Compressed buffer for IO only
       integer ibuf(1)           ! Equivalenced integer array
       integer n_in_buf          ! n_in_rec info for this buf
       integer pad               ! Padding for 32 bit machines
 c
+*      parameter (buffer_size = 16) ! About the minimum
 *      parameter (buffer_size = 8192)
       parameter (buffer_size = 32768)
       parameter (unitno = 98)
@@ -74,7 +76,8 @@ c
      $     nlarge,
      $     lab_pack_len,
      $     laboff,
-     $     nint_per_dbl
+     $     nint_per_dbl,
+     $     posinfo(16)
 c
       common/ccintinfo/
      $     actualname
