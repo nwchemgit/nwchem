@@ -1,4 +1,4 @@
-c $Id: basP.fh,v 1.7 1996-07-18 23:59:15 d3e129 Exp $
+c $Id: basP.fh,v 1.8 1996-10-01 18:49:49 d3e129 Exp $
 c:basP.fh
 c
 c basis set object/api  
@@ -90,7 +90,7 @@ c  Integer icoeffpt(num_cont)        ! pointer into linearized real*8
 c                                    ! array for first coefficient of 
 c                                    ! each cont. on each tag
 c  Integer itag(num_cont)            ! tag identifier for contraction
-c  Real*8 exndcf(*)                  ! linearized real*8 array of 
+c  Real*8 exndcf(3)                  ! linearized real*8 array of 
 c                                    ! exponents and coefficients
 c                                    ! allocated on heap; exndcf now
 c                                    ! integer pointer array (3)
@@ -113,20 +113,22 @@ c
 c The more appropriate "basis" data structure is as follows:
 c  Character*256 bs_name             ! as "mo basis" 
 c  Character*16 tags(num_tags)       ! character string of tags 
-c  Integer infbs_head(6)             ! header information
+c  Integer infbs_head(7)             ! header information
 c           ! 1 = num_tags           ! num of tags in basis
 c           ! 2 = num_cont_total     ! num of conts in basis
 c           ! 3 = num_prim_total     ! num of prims(ex) in basis
 c           ! 4 = num_coeff_total    ! num of coeffs in basis
 c           ! 5 = ex_off             ! next ptr in exndcf array
 c           ! 6 = shpherical         ! yes/no  1/o
-c  Integer infbs_tags(5,num_tags)      
+c           ! 7 = ECP_basis            ! yes/no  1/0
+c  Integer infbs_tags(6,num_tags)      
 c           ! 1 = num_cont   ! Num of conts on tag
 c           ! 2 = nprim_tag  ! Num of prim exponents on tag
 c           ! 3 = ncoeff_tag ! Num of prim coeffs on tag
 c           ! 4 = first cont ! first contaction on tag
 c           ! 5 = last cont  ! last contaction on tag
-c  Integer infbs_cont(6,num_cont) 
+c           ! 6 = nelec      ! number of elecs removed by ECP
+c  Integer infbs_cont(7,num_cont) 
 c           ! 1 = itype    ! type of contraction 0=s,1=p,2=d...
 c                          ! later -1=sp,-2=spd etc.
 c           ! 2 = nprim    ! num of prims in each cont. on tag
@@ -140,7 +142,8 @@ c           ! 5 = icoeffpt ! pointer into linearized real*8
 c                          ! array for first coefficient of 
 c                          ! each cont. on each tag
 c           ! 6 = itag     ! cunique tag number
-c  Real*8 exndcf(*)        ! linearized real*8 array of 
+c           ! 7 = irexp      ! pointer to R exponents for ECP functions
+c  Real*8 exndcf(3)        ! linearized real*8 array of 
 c                          ! exponents and coefficients
 c                          ! allocated on heap; exndcf now
 c                          ! integer pointer array (3)
@@ -154,20 +157,22 @@ c The above data structure now must handle multiple basis sets.
 c The "multiple basis set" data structure is as follows:
 c  Character*256 bs_name(nbasis)       ! as "mo basis" 
 c  Character*16 tags(num_tags,nbasis)  ! character string of tags 
-c  Integer infbs_head(6,nbasis)
+c  Integer infbs_head(7,nbasis)
 c           ! 1 = num_tags             ! num of tags in basis
 c           ! 2 = num_cont_total       ! num of conts in basis
 c           ! 3 = num_prim_total       ! num of prims(ex) in basis
 c           ! 4 = num_coeff_total      ! num of coeffs in basis
 c           ! 5 = ex_off               ! next ptr in exndcf array
 c           ! 6 = spherical            ! yes/no  1/0 
-c  Integer infbs_tags(5,num_tags,nbasis)      
+c           ! 7 = ECP_basis            ! yes/no  1/0
+c  Integer infbs_tags(6,num_tags,nbasis)      
 c           ! 1 = num_cont_tag         ! Num of conts on tag
 c           ! 2 = nprim_tag            ! Num of prim exponents on tag
 c           ! 3 = ncoeff_tag           ! Num of prim coeffs on tag
 c           ! 4 = first cont           ! first contraction on tag
 c           ! 5 = last cont            ! last contraction on tag
-c  Integer infbs_cont(6,num_cont_total,nbasis) 
+c           ! 6 = nelec                ! number of elecs removed by ECP
+c  Integer infbs_cont(7,num_cont_total,nbasis) 
 c           ! 1 = itype      ! type of contraction 0=s,1=p,2=d...
 c                            ! later -1=sp,-2=spd etc.
 c           ! 2 = nprim      ! num of prims in each cont. on tag
@@ -181,7 +186,8 @@ c           ! 5 = icoeffpt   ! pointer into linearized real*8
 c                            ! array for first coefficient of 
 c                            ! each cont. on each tag
 c           ! 6 = tag number ! unique center lexical index
-c  Real*8 exndcf(*,nbasis)   ! linearized real*8 array of 
+c           ! 7 = irexp      ! pointer to R exponents for ECP functions
+c  Real*8 exndcf(3,nbasis)   ! linearized real*8 array of 
 c                            ! exponents and coefficients
 c                            ! allocated on heap; exndcf now
 c                            ! integer pointer array (3)
@@ -204,7 +210,7 @@ c.. static dimension information for common blocks
 c
 c leading dimensions of compressed arrays
       integer ndbs_tags, ndbs_ucont, ndbs_head
-      parameter(ndbs_tags=5, ndbs_ucont=6, ndbs_head=6)
+      parameter(ndbs_tags=6, ndbs_ucont=7, ndbs_head=7)
 c.. stored structures
       character*256 bs_name
       character*16  bs_tags
@@ -212,9 +218,10 @@ c.. stored structures
       integer infbs_head,infbs_tags,infbs_cont
 c.. incore sturctures
       real*8 bsversion
-      character*256 bs_trans,bs_names_rtdb
+      character*256 bs_trans,bs_names_rtdb, ecp_name_assoc
       integer len_bs_name, len_bs_trans, len_bs_rtdb, nbasis_rtdb
       integer angular_bs, nbfmax_bs,  bas_norm_id
+      integer ecp_handle_assoc, ecp_parent_assoc
       logical bsactive 
       logical bas_spherical
 c
@@ -223,7 +230,8 @@ c
      &       bs_tags(ntags_bsmx,nbasis_bsmx),
 c......... above for each basis is stored ... below is in-core
      &       bs_trans(nbasis_bsmx),
-     &       bs_names_rtdb(nbasis_rtdb_mx)
+     &       bs_names_rtdb(nbasis_rtdb_mx),
+     &       ecp_name_assoc(nbasis_bsmx)
      
       common /cbsdata/
      &       bsversion,exndcf(3,nbasis_bsmx),
@@ -239,6 +247,8 @@ c......... above for each basis is stored ... below is in-core
      &       bas_norm_id(nbasis_bsmx),
      &       angular_bs(nbasis_bsmx),
      &       nbfmax_bs(nbasis_bsmx),
+     &       ecp_handle_assoc(nbasis_bsmx),
+     &       ecp_parent_assoc(nbasis_bsmx),
      &       nbasis_rtdb
 c
 

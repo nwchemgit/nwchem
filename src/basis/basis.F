@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.44 1996-08-27 22:22:40 d3g681 Exp $
+c $Id: basis.F,v 1.45 1996-10-01 18:49:51 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -90,7 +90,7 @@ c
 c
       bas_version = .true.
       end
-*......................................................................
+*.....................................................................
       logical function bas_create(basis,name)
 c
 c creates a handle and marks it active in the in-core data structure
@@ -109,6 +109,8 @@ c::passed
 c
       integer basis             ! [output] returned handle
       character*(*)name         ! [input] name of basis set.  
+c
+*debug:      integer iiii
 c
       external basis_data  ! This for the T3D linker
 c
@@ -141,6 +143,8 @@ c
      $      infbs_tags(1,1,basis), 1)
       call ifill(ndbs_ucont*nucont_bsmx, 0,
      $      infbs_cont(1,1,basis), 1)
+      ecp_name_assoc(basis) = '                                     '
+      ecp_handle_assoc(basis) = 0
 c
 c Initialize geo-basis info to empty
 c
@@ -160,10 +164,38 @@ c
       bsactive(basis) = .true.
       basis = basis - BASIS_HANDLE_OFFSET 
       bas_create = .true.
+*debug:c
+*debug:c debug print all basis sets that are active
+*debug:c
+*debug:      do iiii = 1,nbasis_bsmx
+*debug:        if (bsactive(iiii)) then
+*debug:          write(6,*)'bas_create:',bs_name(iiii),' ',iiii
+*debug:        endif
+*debug:      enddo
 c
       end
-*......................................................................
+*.....................................................................
       logical function bas_destroy(basisin)
+      implicit none
+c::functions
+      logical bas_get_ecp_handle, ecp_check_handle, bas_do_destroy
+      external bas_get_ecp_handle, ecp_check_handle, bas_do_destroy
+c::passed
+      integer basisin
+c::local
+      logical ignore
+      integer ecpid
+c
+      ignore = bas_get_ecp_handle(basisin,ecpid)
+      if (ecp_check_handle(ecpid,'bas_destroy')) then
+        bas_destroy = bas_do_destroy(ecpid)
+      else
+        bas_destroy = .true.
+      endif
+      bas_destroy = bas_destroy .and. bas_do_destroy(basisin)
+      end
+*.....................................................................
+      logical function bas_do_destroy(basisin)
 c
 c destroys information about an active incore basis
 c and the associated mapping arrays.
@@ -179,21 +211,21 @@ c::bas
       external gbs_map_clear
       external bas_check_handle
 c::passed
-      integer basisin           ![input] basis set handle to be destroyed
+      integer basisin ![input] basis set handle to be destroyed
 c::local
       integer basis
       integer h_tmp
 c
 #include "bas_exndcf_sfn.fh"
 c
-      bas_destroy = bas_check_handle(basisin,'bas_destroy')
-      if (.not. bas_destroy) return
+      bas_do_destroy = bas_check_handle(basisin,'bas_do_destroy')
+      if (.not. bas_do_destroy) return
 
       basis = basisin + BASIS_HANDLE_OFFSET 
 
       if(.not.gbs_map_clear(basisin)) then
         write(6,*)' error clearing map '
-        bas_destroy = .false.
+        bas_do_destroy = .false.
         return
       endif
 
@@ -206,16 +238,16 @@ c
       if (exndcf(SZ_exndcf,basis).gt.0) then
         h_tmp = exndcf(H_exndcf,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('bas_destroy: error freeing heap',911)
+     &        ('bas_do_destroy: error freeing heap',911)
       endif
       exndcf(H_exndcf ,basis) = 0
       exndcf(K_exndcf ,basis) = 0
       exndcf(SZ_exndcf,basis) = 0
-      bas_destroy = .true.
+      bas_do_destroy = .true.
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_check_handle(basisin,msg)
 c
 c Checks to see if a basis set handle is valid
@@ -233,14 +265,43 @@ c
       if (bas_check_handle)
      &      bas_check_handle = bas_check_handle .and. bsactive(basis)
 c
-      if (.not. bas_check_handle) then
-        write(6,*)msg,': basis handle is invalid '
-        write(6,*)'basis_check_handle: lexical handle ',basis
-        write(6,*)'basis_check_handle:         handle ',basisin
-      endif
+* user's responsibility to deal with status
+*      if (.not. bas_check_handle) then
+*        write(6,*)msg,': basis handle is invalid '
+*        write(6,*)'basis_check_handle: lexical handle ',basis
+*        write(6,*)'basis_check_handle:         handle ',basisin
+*      endif
       return
       end
-*......................................................................
+*.....................................................................
+      logical function ecp_check_handle(ecpidin,msg)
+c
+c Checks to see if a basis set handle is valid
+c
+      implicit none
+#include "basdeclsP.fh"
+#include "basP.fh"
+#include "ecp_decP.fh"
+#include "inp.fh"
+c:functions
+      logical bas_check_handle
+      external bas_check_handle
+c:passed
+      integer ecpidin           ! [input] handle
+      character*(*) msg         ! [input] error message
+c::local
+      character*255 newmsg    
+c
+#include "ecp_sfnP.fh"
+c
+      newmsg(1:17) = 'ecp_check_handle:'
+      newmsg(18:) = msg 
+      ecp_check_handle = bas_check_handle(ecpidin,newmsg)
+      ecp_check_handle = ecp_check_handle .and.
+     &    Is_ECP_in(ecpidin)
+      return
+      end
+*.....................................................................
       logical function bas_321g_load(rtdb)
       implicit none
 c
@@ -543,7 +604,7 @@ c add p now
      &       bs_name(usebas), bs_tags(1,usebas), 
      &       infbs_head(1,usebas), infbs_tags(1,1,usebas),
      &       infbs_cont(1,1,usebas),
-     &      dbl_mb(mb_exndcf(1,usebas)),3,9,30)
+     &      dbl_mb(mb_exndcf(1,usebas)),3,9,30,' ')
 c
       write(6,*)' inside 321g load '
       write(6,*)' inside 321g load '
@@ -560,7 +621,7 @@ c
       bas_321g_load = .true.
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_print(basisin)
 c
 c routine to print unique basis information that is in core
@@ -571,11 +632,12 @@ c
 #include "basdeclsP.fh"
 #include "inp.fh"
 #include "geom.fh"
+#include "ecp_decP.fh"
 c
 c function declarations
 c      
-      logical bas_check_handle
-      external bas_check_handle
+      logical bas_check_handle, ecp_print
+      external bas_check_handle, ecp_print
 c:: passed
       integer basisin  ! [input] basis set handle
 c:: local
@@ -586,10 +648,17 @@ c:: local
       character*16 element
       character*3 ctype(0:6),cltype(2)
       character*3 shell_type
-      character*35 buffer  ! Room for tag+space+(+element+) = 16+1+1+16+1
+*. . . . . . . . . . . ! Room for tag+space+(+element+) = 16+1+1+16+1
+      character*35 buffer  
       character*12 polynomial
 c
 #include "bas_exndcf.fh"
+#include "ecp_sfnP.fh"
+c
+      if (Is_ECP_in(basisin)) then
+        bas_print = ecp_print(basisin)
+        return
+      endif
 c
       ctype(0)='S'
       ctype(1)='P'
@@ -663,24 +732,74 @@ c
           iexptr = infbs_cont(CONT_IEXP,ifcont,basis) - 1
           icfptr = infbs_cont(CONT_ICFP,ifcont,basis) - 1
           do 00300 k=1,myprim
-            write(6,7) j, shell_type(1:2), sf_exndcf((iexptr+k),basis),
-     &             (sf_exndcf((icfptr+k+(l-1)*myprim),basis),l=1,mygen)
+            write(6,7) j, shell_type(1:2),
+     &          sf_exndcf((iexptr+k),basis),
+     &          (sf_exndcf((icfptr+k+(l-1)*myprim),basis),l=1,mygen)
  7           format(1x,i2,1x,a2,1x,f14.6,20f10.6)
 00300     continue
           write(6,*)
           ifcont = ifcont + 1
 00200   continue
 00100 continue
+*debug:      write(6,*)' associated ecp ',ecp_name_assoc(basis)
 c
-c  If geom is set print out the info about total basis info associated with
-c  the geometry also
+c  If geom is set print out the info about total basis info 
+c  associated with the geometry also
 c
 c  ... not done yet
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_rtdb_load(rtdb, geom, basisin, name)
+      implicit none
+#include "inp.fh"
+c::functions
+      logical  bas_rtdb_do_load, bas_get_ecp_name, bas_set_ecp_name
+      logical  bas_create, bas_do_destroy, bas_set_ecp_handle
+      logical  ecp_set_parent_handle
+      logical  bas_name_exist_rtdb
+      external bas_rtdb_do_load, bas_get_ecp_name, bas_set_ecp_name
+      external bas_create, bas_do_destroy, bas_set_ecp_handle
+      external ecp_set_parent_handle
+      external bas_name_exist_rtdb
+c::passed
+      integer rtdb
+      integer geom
+      integer basisin
+      character*(*) name
+c
+      character*256 ecp_name
+      integer ecpid
+c
+      bas_rtdb_load =
+     &    bas_rtdb_do_load(rtdb, geom, basisin, name)
+      if (.not.inp_compare(.false.,'ao basis',name(1:8)))
+     &    return
+      if (.not.bas_get_ecp_name(basisin,ecp_name)) call errquit
+     &    ('bas_rtdb_load: bas_get_ecp_name failed',911)
+      if (ecp_name .eq. '  ') then
+        ecp_name = 'ecp basis'
+        if (.not.bas_set_ecp_name(basisin,ecp_name)) call errquit
+     &    ('bas_rtdb_load: bas_set_ecp_name failed',911)
+      endif
+      if (bas_name_exist_rtdb(rtdb,ecp_name)) then
+*
+* ecp_name is on rtdb so load it
+*
+        if (.not.bas_create(ecpid,ecp_name)) call errquit
+     &      ('bas_rtdb_load: bas_create failed for ecpid',911)
+        if (.not.bas_rtdb_do_load(rtdb,geom,ecpid,ecp_name))
+     &      call errquit
+     &      ('bas_rtdb_load: bas_rtdb_do_load failed for ecpid',911)
+        if (.not.bas_set_ecp_handle(basisin,ecpid)) call errquit
+     &        ('bas_rtdb_load: bas_set_ecp_handle failed',911)
+        if (.not.ecp_set_parent_handle(ecpid,basisin)) call errquit
+     &        ('bas_rtdb_load: ecp_set_parent_handle failed',911)
+      endif
+      end
+*.....................................................................
+      logical function bas_rtdb_do_load(rtdb, geom, basisin, name)
       implicit none
 c
 c routine that loads a basis set from the rtdb and using the 
@@ -710,7 +829,8 @@ c:: passed
       integer rtdb        ! [input] rtdb handle      
       integer geom        ! [input] geometry handle with info loaded
       integer basisin     ! [input] basis handle
-      character*(*) name  ! [input] basis set name that must be on the rtdb
+      character*(*) name  ! [input] basis set name that must be on 
+*. . . . . . . . . . . . .          the rtdb
 c:: local
       character*25 nameex
       integer lentmp, basis, nexcf
@@ -726,10 +846,10 @@ c
 c
 c check geom and basis handles returns false if either is invalid
 c
-      bas_rtdb_load = geom_check_handle(geom,'bas_rtdb_load')
-      if (.not.bas_rtdb_load) return
-      bas_rtdb_load = bas_check_handle(basisin,'bas_rtdb_load')
-      if (.not.bas_rtdb_load) return
+      bas_rtdb_do_load = geom_check_handle(geom,'bas_rtdb_do_load')
+      if (.not.bas_rtdb_do_load) return
+      bas_rtdb_do_load = bas_check_handle(basisin,'bas_rtdb_do_load')
+      if (.not.bas_rtdb_do_load) return
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
@@ -754,6 +874,10 @@ c
       rtdb_status = rtdb_status .and.
      &       rtdb_cget(rtdb, tmp, ntags_bsmx, bs_tags(1,basis))
 c
+      tmp(lentmp:) = ':assoc ecp name'
+      rtdb_status = rtdb_status .and.
+     &       rtdb_cget(rtdb, tmp, 1, ecp_name_assoc(basis))
+c
       nexcf = 0
       tmp(lentmp:) = ':number of exps and coeffs'
       rtdb_status = rtdb_status .and.
@@ -763,7 +887,7 @@ c
 c
       if (exndcf(H_exndcf,basis) .ne. 0) then
          if (.not. ma_free_heap(exndcf(H_exndcf,basis)))
-     $        call errquit('bas_rtdb_load: ma is corrupted',
+     $        call errquit('bas_rtdb_do_load: ma is corrupted',
      $        exndcf(H_exndcf,basis))
       endif
 
@@ -771,7 +895,8 @@ c
      &    h_tmp, k_tmp)) then
         write(6,*)' not enough memory'
         call errquit
-     &      (' bas_rtdb_load: error allocating space for exndcf',911)
+     &      (' bas_rtdb_do_load: error allocating space'//
+     &      ' for exndcf',911)
       else
         exndcf(H_exndcf,basis) = h_tmp
         exndcf(K_exndcf,basis) = k_tmp
@@ -805,19 +930,21 @@ c
       if (.not.rtdb_status) then
          if(ga_nodeid().eq.0) then
             write(6,*)
-            write(6,*) ' bas_rtdb_load: basis not present "',
-     $           bs_name(basis)(1:inp_strlen(bs_name(basis))), '" -> "',
-     $           bs_trans(basis)(1:inp_strlen(bs_trans(basis))), '"'
+            write(6,*) ' bas_rtdb_do_load: basis not present "',
+     $           bs_name(basis)(1:inp_strlen(bs_name(basis))),
+     &          '" -> "',
+     $           bs_trans(basis)(1:inp_strlen(bs_trans(basis))),
+     &          '"'
             write(6,*)
          endif
-         bas_rtdb_load = .false.
+         bas_rtdb_do_load = .false.
 c.....add diagnostics later
          return
       endif
 c
 c compute internal information and geobas maps
 c
-      bas_rtdb_load = bas_geobas_build(basisin)
+      bas_rtdb_do_load = bas_geobas_build(basisin)
 c
 c Add zero exponent S function for sp code, incore only
 c
@@ -834,7 +961,7 @@ c
       dbl_mb(mb_exndcf(k_tmp,basis)) = 1.0d00
       infbs_head(HEAD_EXCFPTR,basis) = k_tmp
       end
-*......................................................................
+*.....................................................................
       logical function bas_geobas_build(basisin)
       implicit none
 #include "mafdecls.fh"
@@ -848,6 +975,8 @@ c
 #include "inp.fh"
 #include "global.fh"
 #include "bas_ibs_dec.fh"
+#include "ecp_decP.fh"
+#include "stdio.fh"
 c::passed
       integer basisin
 c::local
@@ -863,14 +992,18 @@ c::local
       character*2  symbol
       logical status
       logical foundit
-      integer int_dummy
+      integer int_dummy, num_elec
       integer h_tmp, k_tmp
       character*15 name_tmp
+      double precision erep_save
 c::functions
       integer nbf_from_ucont
       external nbf_from_ucont
+      logical ecp_get_num_elec
+      external ecp_get_num_elec
 c
 #include "bas_ibs_sfn.fh"
+#include "ecp_sfnP.fh"
 c
       basis = basisin + BASIS_HANDLE_OFFSET
       geom  = ibs_geom(basis)
@@ -903,7 +1036,8 @@ c... clear old ibs_ce2uce if it exists
 c                                 123456789101
       write(name_tmp,'(a11,i4)') ' ibs_ce2uce ',basis
       if (.not.ma_alloc_get(mt_int,nat,name_tmp,h_tmp,k_tmp)) then
-        call errquit('bas_geobas_build: error ma_alloc ibs_ce2uce',911)
+        call errquit
+     &      ('bas_geobas_build: error ma_alloc ibs_ce2uce',911)
       else
         ibs_ce2uce(H_ibs,basis)  = h_tmp
         ibs_ce2uce(K_ibs,basis)  = k_tmp
@@ -926,13 +1060,15 @@ c
             goto 00102
           endif
 00101   continue
-        if (.not. foundit .and. ga_nodeid().eq.0) then
+        if (.not. foundit .and. ga_nodeid().eq.0 .and.
+     &      .not. Is_ECP(basis)) then
            if (geom_tag_to_element(tags(i,geom), symbol, element,
      $          atn)) then
               write(6,10) tags(i,geom)(1:inp_strlen(tags(i,geom))),
      $             element(1:inp_strlen(element)),
      $             bs_name(basis)(1:inp_strlen(bs_name(basis)))
- 10           format(/' ERROR: geometry tag ',a,' (',a,') is an atom ',
+ 10           format(/' ERROR: geometry tag ',a,' (',a,
+     &            ') is an atom ',
      $             'but has no functions in basis "',a,'"'/
      $             ' ERROR: only bq* centers can have no functions')
               call util_flush(6)
@@ -975,7 +1111,8 @@ c                                 123456789101
       write(name_tmp,'(a11,i4)') ' ibs_ce2cnr ',basis
       if (.not.ma_alloc_get(mt_int,(2*nat),
      &      name_tmp,h_tmp,k_tmp)) then
-        call errquit('bas_geobas_build: error ma_alloc ibs_ce2cnr',911)
+        call errquit
+     &      ('bas_geobas_build: error ma_alloc ibs_ce2cnr',911)
       else
         ibs_ce2cnr(H_ibs,basis)  = h_tmp
         ibs_ce2cnr(K_ibs,basis)  = k_tmp
@@ -993,7 +1130,8 @@ c
             int_mb(mb_ibs_ce2cnr(2,i,basis)) = int_dummy + idum_cont
             int_dummy = idum_cont + int_dummy
          else
-            int_mb(mb_ibs_ce2cnr(1,i,basis)) = 0 ! No functions on this center
+*. . . . . . . . . . . . . . . . . . . . ! No functions on this center
+            int_mb(mb_ibs_ce2cnr(1,i,basis)) = 0 
             int_mb(mb_ibs_ce2cnr(2,i,basis)) = -1
          endif
 00200 continue
@@ -1060,7 +1198,8 @@ c                                 123456789101
       write(name_tmp,'(a11,i4)') ' ibs_cn2ucn ',basis
       if (.not.ma_alloc_get(mt_int,(1+ncont_tot_gb(basis)),
      &      name_tmp,h_tmp,k_tmp)) then
-        call errquit('bas_geobas_build: error ma_alloc ibs_cn2ucn',911)
+        call errquit
+     &      ('bas_geobas_build: error ma_alloc ibs_cn2ucn',911)
       else
         ibs_cn2ucn(H_ibs,basis)  = h_tmp
         ibs_cn2ucn(K_ibs,basis)  = k_tmp
@@ -1118,7 +1257,8 @@ c                                 123456789101
       write(name_tmp,'(a11,i4)') ' ibs_cn2bfr ',basis
       if (.not.ma_alloc_get(mt_int,(2*(1+ncont_tot_gb(basis))),
      &      name_tmp,h_tmp,k_tmp)) then
-        call errquit('bas_geobas_build: error ma_alloc ibs_cn2bfr',911)
+        call errquit
+     &      ('bas_geobas_build: error ma_alloc ibs_cn2bfr',911)
       else
         ibs_cn2bfr(H_ibs,basis)  = h_tmp
         ibs_cn2bfr(K_ibs,basis)  = k_tmp
@@ -1157,10 +1297,26 @@ c
         myang   = abs(infbs_cont(CONT_TYPE,i,basis))
         angular_bs(basis) = max(angular_bs(basis),myang)
 00800 continue
+      if (Is_ECP(basis)) then
+* if ECP basis must modify geometry data appropriately
+        do i = 1,nat
+          if (ecp_get_num_elec(basisin,tags(i,geom),num_elec)) then
+            oecpcent(i,geom) = .true.
+            charge(i,geom) = charge(i,geom) - num_elec
+          endif
+        enddo
+        erep_save = erep(geom)
+        call geom_compute_values(geom)
+        write(luout,*)
+     &      ' nuclear repulsion energy without ECP: ',erep_save
+        write(luout,*)
+     &      ' nuclear repulsion energy with    ECP: ',erep(geom)
+      endif
+*
       bas_geobas_build = .true.
-      return
+*
       end
-*......................................................................
+*.....................................................................
       logical function bas_rtdb_store(rtdb, name, basisin)
       implicit none
 c
@@ -1169,6 +1325,7 @@ c
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
 #include "basP.fh"
+#include "ecp_decP.fh"
 c::passed
       integer rtdb              ! [input] handle to database
       character*(*) name        ! [input] name to use when storing db
@@ -1182,13 +1339,22 @@ c     basis in into the rtdb with the given name
 c
 c::local
       integer basis               ! Actual index into basis set arrays
+      integer size_ex
 c:: statement functions
 #include "bas_exndcf.fh"      
+#include "ecp_sfnP.fh"
 c
       bas_rtdb_store = bas_check_handle(basisin,'bas_rtdb_store')
       if (.not. bas_rtdb_store) return
       basis = basisin + BASIS_HANDLE_OFFSET
 c
+      if (Is_ECP(basis)) then
+        size_ex = (2*infbs_head(HEAD_NPRIM,basis))+
+     &      infbs_head(HEAD_NCOEF,basis)
+      else
+        size_ex = infbs_head(HEAD_NPRIM,basis)+
+     &      infbs_head(HEAD_NCOEF,basis)
+      endif
       bas_rtdb_store = bas_rtdb_do_store(rtdb, name, 
      $    bs_tags(1,basis), infbs_head(1,basis),
      $    infbs_tags(1,1,basis),
@@ -1196,13 +1362,13 @@ c
      &    dbl_mb(mb_exndcf(1,basis)),
      $    infbs_head(HEAD_NTAGS,basis),
      $    infbs_head(HEAD_NCONT,basis), 
-     $    infbs_head(HEAD_NPRIM,basis)+infbs_head(HEAD_NCOEF,basis))
+     $    size_ex, ecp_name_assoc(basis))
 c
       end
-*......................................................................
-      logical function bas_rtdb_do_store(rtdb, name, tagsin, head_array,
-     &       tags_array, ucont_array, excfin, ntagsin, nucontin,
-     &       nexcf)
+*.....................................................................
+      logical function bas_rtdb_do_store(rtdb, name, tagsin, 
+     &       head_array, tags_array, ucont_array, excfin, ntagsin, 
+     &       nucontin, nexcf, ecp_name)
       implicit none
 c
 c stores from argument data structures the basis set information to
@@ -1214,11 +1380,11 @@ c
 #include "inp.fh"
 #include "rtdb.fh"
 c
-c     This routine stores the basis set information in the appropriate 
-c     data structure on the run-time-data-base (rtdb).  
+c    This routine stores the basis set information in the appropriate 
+c    data structure on the run-time-data-base (rtdb).  
 c
-c     This is a private routine called by the user level routine 
-c     bas_rtdb_store(rtdb, name, basis)
+c    This is a private routine called by the user level routine 
+c    bas_rtdb_store(rtdb, name, basis)
 c
 c::: functions
       logical bas_rtdb_in
@@ -1226,17 +1392,21 @@ c::: functions
       external bas_rtdb_in
       external bas_rtdb_add
 c::: passed
-      integer rtdb                              ! [input] rtdb handle
-      character*(*) name                        ! [input] name of basis set
-      integer ntagsin                           ! [input] number of tags
-      integer nucontin                          ! [input] number of unique contractions
-      integer nexcf                             ! [input] number of exponents and 
-      character*16 tagsin(ntagsin)              ! [input] name of tags
-      integer head_array(ndbs_head)             ! [input] head data
-      integer tags_array(ndbs_tags,ntagsin)     ! [input] tag data
-      integer ucont_array(ndbs_ucont,nucontin)  ! [input] unique contraction data
-      double precision excfin(nexcf)            ! [input] exponents and contraction coeffs
-c                                               !         contractions coeffs.
+      integer rtdb ! [input] rtdb handle
+      character*(*) name ! [input] name of basis set
+      integer ntagsin ! [input] number of tags
+      integer nucontin ! [input] number of unique contractions
+      integer nexcf ! [input] number of exponents and 
+      character*16 tagsin(ntagsin) ! [input] name of tags
+      integer head_array(ndbs_head) ! [input] head data
+      integer tags_array(ndbs_tags,ntagsin) ! [input] tag data
+      integer ucont_array(ndbs_ucont,nucontin) ! [input] unique 
+*. . . . . . . . . . . . . . . . . . . . . . .   contraction data
+      character*(*) ecp_name                   ! [input] ecp 
+*. . . . . . . . . . . . . . . . . . . . . . .   associated with 
+*. . . . . . . . . . . . . . . . . . . . . . .   normal basis
+      double precision excfin(nexcf) ! [input] exponents 
+c. . . . . . . . . . . . . . . . . . .         contractions coeffs.
 c::: local
       character*256 tmp
       integer len_name, lentmp
@@ -1257,6 +1427,9 @@ c
       tmp(lentmp:) = ':bs_tags'
       status = status .and. rtdb_cput(rtdb,tmp,ntagsin,tagsin)
       
+      tmp(lentmp:) = ':assoc ecp name'
+      status = status .and. rtdb_cput(rtdb,tmp,1,ecp_name)
+c
       tmp(lentmp:) = ':number of exps and coeffs'
       status = status .and. rtdb_put(rtdb,tmp,mt_int,1,nexcf)
 
@@ -1286,7 +1459,7 @@ c..... add diagnostics later
       endif
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_high_angular(basisin,high_angular)
       implicit none
 c
@@ -1329,7 +1502,7 @@ c
       bas_high_angular = .true.
       return
       end
-*......................................................................
+*.....................................................................
       logical function gbs_map_clear(basisin)
       implicit none
 #include "mafdecls.fh"
@@ -1417,7 +1590,7 @@ c
       gbs_map_clear = .true.
       return
       end
-*......................................................................
+*.....................................................................
       logical function gbs_map_print(basisin)
       implicit none
 c
@@ -1435,7 +1608,8 @@ c::function
 c::passed
       integer basisin  ! [input] basis set handle
 c::local
-      integer nat, basis, i, myfirst, mylast, mysize, mycenter, myucont
+      integer nat, basis, i
+      integer myfirst, mylast, mysize, mycenter, myucont
       integer mygeom
       logical status
 c
@@ -1527,7 +1701,7 @@ c
       gbs_map_print = .true.
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_rtdb_out(rtdb)
 c     
 c     output to rtdb info about known basis sets
@@ -1550,7 +1724,7 @@ c
      &     write(6,*) ' bas_rtdb_out: rtdb is corrupt '
 c     
       end
-*......................................................................
+*.....................................................................
       logical function bas_rtdb_add(rtdb, name)
       implicit none
 c
@@ -1600,7 +1774,7 @@ c
       bas_rtdb_add = .true.
 c     
       end
-*......................................................................
+*.....................................................................
       logical function bas_print_all()
 c
 c routine to print active all basis set(s) information
@@ -1623,7 +1797,7 @@ c
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_rtdb_in(rtdb)
 c     
 c     load in info about known basis sets ... this is more
@@ -1654,7 +1828,7 @@ c
 c     
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_cn2ce(basisin,cont,center)
       implicit none
 c
@@ -1690,7 +1864,7 @@ c
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_cn2uce(basisin,cont,ucenter)
       implicit none
 c
@@ -1727,7 +1901,7 @@ c
       ucenter = sf_ibs_ce2uce(ucenter,basis)
 c
       end
-*......................................................................
+*.....................................................................
       logical function bas_cn2bfr(basisin,cont,ifirst,ilast)
 c
 c returns the first basis function index of a mapped contraction 
@@ -1771,15 +1945,15 @@ c
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_ce2bfr(basis, icent, ibflo, ibfhi)
 c
 c  returns the basis function range for a given center
 c
       implicit none
-      integer basis             ! [input] handle
-      integer icent             ! [input] no. of center
-      integer ibflo, ibfhi      ! [output] range of functions on center
+      integer basis ! [input] handle
+      integer icent ! [input] no. of center
+      integer ibflo, ibfhi ! [output] range of functions on center
 c
       integer cnlo, cnhi, tmp
       logical status
@@ -1799,7 +1973,7 @@ c
       bas_ce2bfr = status
 c
       end
-*......................................................................
+*.....................................................................
       logical function bas_ce2cnr(basisin,center,ifirst,ilast)
 c
 c returns the mapped contraction range on a given center
@@ -1852,7 +2026,7 @@ c
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_bf2ce(basisin,testbf,center)
 c
 c routine to return the center of a given basis function 
@@ -1901,7 +2075,7 @@ c
 00100 continue
 c
       end
-*......................................................................
+*.....................................................................
       logical function bas_bf2cn(basisin,testbf,cont)
 c
 c returns the mapped contraction index that contains the given 
@@ -1950,7 +2124,7 @@ c... linear search through contractions
 00100 continue
 c
       end
-*......................................................................
+*.....................................................................
       logical function bas_numbf(basisin,nbf)
 c
 c returns the total number of basis functions of the mapped basis set.
@@ -1976,7 +2150,7 @@ c
       bas_numbf = .true.
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_name(basisin,basis_name,trans_name)
 c
 c returns the name and translated name of the basis set
@@ -1989,9 +2163,9 @@ c inp_strlen() from inp
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer       basisin    ! [input] basis set handle
+      integer       basisin ! [input] basis set handle
       character*(*) basis_name ! [output] basis set name when loaded
-      character*(*) trans_name ! [output] basis set name in context when loaded
+      character*(*) trans_name ! [output] basis set name in context 
 c::local
       integer basis   ! actual offset into basis arrays
 *      integer lenofit ! length of name
@@ -2009,7 +2183,7 @@ c
       trans_name = bs_trans(basis)
 c
       end
-*......................................................................
+*.....................................................................
       logical function bas_get_exponent(basisin,icont,exp)
 c
 c  returns the exponents of a given mapped contraction 
@@ -2060,7 +2234,7 @@ c
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_continfo(basisin,icont,
      &       type,nprimo,ngeno,sphcart)
 c
@@ -2120,7 +2294,7 @@ c...
       bas_continfo=.true.
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_numcont(basisin,numcont)
 c
 c returns the total number of mapped contractions/shells for the 
@@ -2150,7 +2324,7 @@ c
       bas_numcont = .true.
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_get_coeff(basisin,icont,coeff)
 c
 c returns the coefficients for the given mapped contraction
@@ -2204,7 +2378,7 @@ c
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_set_exponent(basisin,icont,exp,nexp)
 c
 c sets the exponents to the input array for a given mapped contraction
@@ -2222,10 +2396,11 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer basisin             ! [input] basis set handle        
-      integer icont               ! [input] mapped contraction index
-      integer nexp                ! [input] number of exponents for contraction
-      double precision exp(nexp)  ! [input] "new" exponents for contraction    
+      integer basisin ! [input] basis set handle        
+      integer icont ! [input] mapped contraction index
+      integer nexp ! [input] number of exponents for contraction
+      double precision exp(nexp) ! [input] "new" exponents for 
+*. . . . . . . . . . . . . . . .            contraction    
 c::local
       integer basis, myucont, icontmax
       integer myprim,myexptr
@@ -2267,7 +2442,7 @@ c
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_set_coeff(basisin,icont,coeff,ncoeff)
 c
 c sets the coefficients of the given mapped contraction
@@ -2285,10 +2460,11 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer basisin                 ! [input] basis set handle                   
-      integer icont                   ! [input] mapped contraction index           
-      integer ncoeff                  ! [input] number of coeffs. for contraction
-      double precision coeff(ncoeff)  ! [input] "new" coeffs. for contraction    
+      integer basisin ! [input] basis set handle                   
+      integer icont ! [input] mapped contraction index           
+      integer ncoeff ! [input] number of coeffs. for contraction
+      double precision coeff(ncoeff) ! [input] "new" coeffs. 
+*. . . . . . . . . . . . . . . . . .            for contraction    
 c::local
       integer basis, myucont, icontmax
       integer mycoeffptr, myprim, mygen
@@ -2332,7 +2508,7 @@ c
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_nbf_cn_max(basisin,nbf_max)
       implicit none
 c
@@ -2347,9 +2523,9 @@ c::functions
       integer nbf_from_ucont
       external nbf_from_ucont
 c:: passed
-      integer basisin       ! [input] basis set handle
-      integer nbf_max       ! [output] largest basis function block on any 
-c                           !          shell in the given basis set.
+      integer basisin ! [input] basis set handle
+      integer nbf_max ! [output] largest basis function block on any 
+*. . . . . . . . . . .           shell in the given basis set.
 c:local
       integer basis, myucont, i, mynbf
 c
@@ -2378,7 +2554,7 @@ c
       bas_nbf_cn_max = .true.
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_nbf_ce_max(basisin,nbf_max)
       implicit none
 c
@@ -2429,7 +2605,7 @@ c
 c
       return
       end
-*......................................................................
+*.....................................................................
       logical function bas_geom(basisin,geom)	
       implicit none 
 #include "basP.fh"
@@ -2451,7 +2627,7 @@ c
       geom = ibs_geom(basis)
       bas_geom = .true.
       end
-*......................................................................
+*.....................................................................
       logical function bas_ncoef_cn_max(basisin, ncoef_max)
       implicit none
 #include "basP.fh"
@@ -2474,13 +2650,14 @@ c
 00100 continue
       bas_ncoef_cn_max = .true.
       end
-*......................................................................
+*.....................................................................
       logical function bas_nprim_cn_max(basisin, nprim_max)
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
       integer basisin   ! [input] basis set handle
-      integer nprim_max ! [output] maximum number of prims in any contraction
+      integer nprim_max ! [output] maximum number of prims in any 
+*. . . . . . . . . . . .           contraction
 c
       integer basis
       integer nu_cont, iu_cont, my_prim
@@ -2496,7 +2673,7 @@ c
 00100 continue
       bas_nprim_cn_max = .true.
       end
-*......................................................................
+*.....................................................................
       logical function bas_norm_get(basisin,norm_id)
       implicit none
 #include "basP.fh"
@@ -2511,7 +2688,7 @@ c
       norm_id = bas_norm_id(basis)
       bas_norm_get = norm_id.ge.BasNorm_lo.and.norm_id.le.BasNorm_hi
       end
-*......................................................................
+*.....................................................................
       logical function bas_norm_set(basisin,norm_id)
       implicit none
 #include "basP.fh"
@@ -2531,7 +2708,7 @@ c
         bas_norm_set = .false.
       endif
       end
-*......................................................................
+*.....................................................................
       logical function bas_norm_print(basisin)
       implicit none
 #include "basP.fh"
@@ -2558,5 +2735,325 @@ c
         write(luout,*)' does not match a known normalization mode'
         bas_norm_print = .false.
       endif
-*......................................................................
+      end
+*.....................................................................
+      logical function ecp_get_rexponent(ecpin,icont,exp)
+c
+c returns the r-exponents of a given mapped contraction
+c
+      implicit none
+#include "basP.fh"
+#include "mafdecls.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
+c::function
+      logical ecp_check_handle
+      external ecp_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer ecpin         ! [input] ecp set handle
+      integer icont           ! [input] mapped contraction index
+      double precision exp(*) ! [output] exponents
+c::local
+      integer ecp, myucont, icontmax
+      integer myprim,myexptr
+c:: statement functions
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+      ecp_get_rexponent = ecp_check_handle(ecpin,'ecp_get_rexponent')
+      if (.not.ecp_get_rexponent) return
+
+      ecp = ecpin + BASIS_HANDLE_OFFSET 
+      icontmax = ncont_tot_gb(ecp)
+      myucont = sf_ibs_cn2ucn(icont,ecp)
+      ecp_get_rexponent = icont.ge.0.and.icont.le.icontmax
+      if (.not.(ecp_get_rexponent)) then
+        write(6,*)' ecp_get_rexponent: ERROR '
+        write(6,*)' contraction range for ecp is 0:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      myexptr = infbs_cont(CONT_IREXP,myucont,ecp)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,ecp)
+      call dcopy(myprim,dbl_mb(mb_exndcf(myexptr,ecp)),1,exp,1)
+c
+      ecp_get_rexponent = .true.
+c
+      return
+      end
+      
+*.....................................................................
+      logical function ecp_set_rexponent(ecpin,icont,exp,nexp)
+c
+c sets the exponents to the input array for a given mapped contraction
+c
+      implicit none
+#include "mafdecls.fh"
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+#include "bas_ibs_dec.fh"
+#include "bas_exndcf_dec.fh"
+c::function
+      logical ecp_check_handle
+      external ecp_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer ecpin ! [input] ecp set handle        
+      integer icont ! [input] mapped contraction index
+      integer nexp ! [input] number of exponents for contraction
+      double precision exp(nexp) ! [input] "new" r-exponents 
+*. . . . . . . . . . . . . . . .            for contraction    
+c::local
+      integer ecp, myucont, icontmax
+      integer myprim,myexptr
+c:: statement functions
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+      ecp_set_rexponent = ecp_check_handle(ecpin,'ecp_set_rexponent')
+      if (.not.ecp_set_rexponent) return
+
+      ecp = ecpin + BASIS_HANDLE_OFFSET 
+
+      icontmax = ncont_tot_gb(ecp)
+      myucont = sf_ibs_cn2ucn(icont,ecp)
+
+      ecp_set_rexponent = icont.ge.0.and.icont.le.icontmax
+      if (.not.(ecp_set_rexponent)) then
+        write(6,*)' ecp_set_rexponent: ERROR '
+        write(6,*)' contraction range for ecp is 0:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      myexptr = infbs_cont(CONT_IEXP,myucont,ecp)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,ecp)
+      ecp_set_rexponent = myprim.eq.nexp
+      if (.not.ecp_set_rexponent) then
+        write(6,*)' ecp_set_rexponent: ERROR '
+        write(6,*)' input and stored number of exponents ',
+     &         '(nprim) differ '
+        write(6,*)' input  nprim: ',nexp
+        write(6,*)' stored nprim: ',myprim
+        return
+      endif
+      call dcopy(nexp,exp,1,dbl_mb(mb_exndcf(myexptr,ecp)),1)
+c
+      ecp_set_rexponent = .true.
+c
+      return
+      end
+      logical function ecp_print(ecpidin)
+c
+c routine to print unique ecpid information that is in core
+c
+      implicit none
+#include "mafdecls.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "inp.fh"
+#include "geom.fh"
+c
+c function declarations
+c      
+      logical ecp_check_handle
+      external ecp_check_handle
+c:: passed
+      integer ecpidin ! [input] basis set handle
+c:: local
+      integer mytags, myucont, myprim, mycoef, ecpid
+      integer i,j,k,l, ifcont, mygen, mytype, irexptr, iexptr, icfptr
+      integer atn, len_tag, len_ele
+      character*2 symbol
+      character*16 element
+      character*3 ctype(-1:6)
+      character*3 shell_type
+      character*60 buffer 
+c
+#include "bas_exndcf.fh"
+c
+      ctype(-1)='U L'
+      ctype(0) ='U-s'
+      ctype(1) ='U-p'
+      ctype(2) ='U-d'
+      ctype(3) ='U-f'
+      ctype(4) ='U-g'
+      ctype(5) ='U-h'
+      ctype(6) ='U-i'
+      ecp_print = .true.
+      ecpid = ecpidin + BASIS_HANDLE_OFFSET
+c
+      ecp_print = ecp_check_handle(ecpidin,'ecp_print')
+      if (.not. ecp_print) return
+c
+c print basis set information
+c      
+      write(6,1)bs_name(ecpid)(1:inp_strlen(bs_name(ecpid))), 
+     $    bs_trans(ecpid)(1:inp_strlen(bs_trans(ecpid)))
+ 1    format('                 ECP Basis "',a,'" -> "',a,'"'/
+     $    '                      -----')
+      if (bas_spherical(ecpid)) write(6,2)
+ 2    format('    ECP Basis is spherical, 5d, 7f, 9g ... ')
+      mytags  = infbs_head(HEAD_NTAGS,ecpid)
+      if (mytags.le.0) then
+        write(6,*)' Empty ECP Basis set '
+        write(6,*)
+        return
+      endif
+c
+      myucont = infbs_head(HEAD_NCONT,ecpid)
+      myprim  = infbs_head(HEAD_NPRIM,ecpid)
+      mycoef  = infbs_head(HEAD_NCOEF,ecpid)
+c
+      do 00100 i=1,mytags
+        
+        if (geom_tag_to_element(bs_tags(i,ecpid), symbol, element,
+     $      atn)) then
+          len_tag = inp_strlen(bs_tags(i,ecpid))
+          len_ele = inp_strlen(element)
+          write (buffer,
+     &        '(a,'' ('',a,'') Replaces '',i5,'' electrons'' )')
+     &        bs_tags(i,ecpid)(1:len_tag), element(1:len_ele),
+     &        infbs_tags(Tag_Nelec,i,ecpid)
+        else
+          buffer = bs_tags(i,ecpid)
+        endif
+        len_tag = inp_strlen(buffer)
+        call util_print_centered(6, buffer, len_tag/2 + 1, .true.)
+        
+        myucont = infbs_tags(TAG_NCONT,i,ecpid)
+c        
+        ifcont = infbs_tags(TAG_FCONT,i,ecpid)
+c     
+        write(6,6)
+ 6      format(
+     $      '            R-exponent  Exponent  Coefficients '/
+     $      '       -------------- ',60('-'))
+        do 00200 j=1,myucont
+          myprim = infbs_cont(CONT_NPRIM,ifcont,ecpid)
+          mygen  = infbs_cont(CONT_NGEN,ifcont,ecpid)
+          
+          mytype = infbs_cont(CONT_TYPE, ifcont, ecpid)
+          shell_type = ctype(mytype)
+          iexptr  = infbs_cont(CONT_IEXP, ifcont,ecpid) - 1
+          icfptr  = infbs_cont(CONT_ICFP, ifcont,ecpid) - 1
+          irexptr = infbs_cont(CONT_IREXP,ifcont,ecpid) - 1
+          do 00300 k=1,myprim
+            write(6,7) j, shell_type,
+     &          sf_exndcf((irexptr+k),ecpid),
+     &          sf_exndcf((iexptr+k),ecpid),
+     &          (sf_exndcf((icfptr+k+(l-1)*myprim),ecpid),l=1,mygen)
+00300     continue
+          write(6,*)
+          ifcont = ifcont + 1
+00200   continue
+00100 continue
+c
+c  If geom is set print out the info about total basis info 
+c  associated with the geometry also
+c
+c  ... not done yet
+c
+      return
+ 7          format(1x,i2,1x,a3,1x,f9.2,2x,f14.6,20f10.6)
+      end
+*.....................................................................
+      logical function bas_set_ecp_name(basisin,ecp_name)
+      implicit none
+#include "basP.fh"
+      integer basisin
+      character*(*) ecp_name
+c
+      ecp_name_assoc((basisin+basis_handle_offset)) =
+     &    ecp_name
+      bas_set_ecp_name = .true.
+      end
+*.....................................................................
+      logical function bas_get_ecp_name(basisin,ecp_name)
+      implicit none
+#include "basP.fh"
+      integer basisin
+      character*(*) ecp_name
+c
+      ecp_name =
+     &    ecp_name_assoc((basisin+basis_handle_offset)) 
+      bas_get_ecp_name = .true.
+      end
+*.....................................................................
+      logical function bas_set_ecp_handle(basisin,ecp_handle)
+      implicit none
+#include "basP.fh"
+      integer basisin
+      integer ecp_handle
+c
+      ecp_handle_assoc((basisin+basis_handle_offset)) =
+     &    ecp_handle
+      bas_set_ecp_handle = .true.
+      end
+*.....................................................................
+      logical function bas_get_ecp_handle(basisin,ecp_handle)
+      implicit none
+#include "basP.fh"
+      integer basisin
+      integer ecp_handle
+c
+      ecp_handle =
+     &    ecp_handle_assoc((basisin+basis_handle_offset)) 
+      if (ecp_handle.ne.0) then
+        bas_get_ecp_handle = .true.
+      else
+        bas_get_ecp_handle = .false.
+      endif
+      end
+*.....................................................................
+      logical function ecp_set_parent_handle(ecp_handle,basis_handle)
+      implicit none
+#include "basP.fh"
+      integer ecp_handle
+      integer basis_handle
+c
+      logical bas_check_handle, ecp_check_handle
+      external bas_check_handle, ecp_check_handle
+c      
+      if (.not.bas_check_handle(basis_handle,'ecp_set_parent_handle'))
+     &      call errquit
+     &      ('ecp_set_parent_handle: basis_handle invalid',911)
+      if (.not.ecp_check_handle(ecp_handle,'ecp_set_parent_handle'))
+     &      call errquit
+     &      ('ecp_set_parent_handle: ecp_handle invalid',911)
+      ecp_parent_assoc(ecp_handle+basis_handle_offset) =
+     &      basis_handle
+      ecp_set_parent_handle = .true.
+      end
+*.....................................................................
+      logical function ecp_get_parent_handle(ecp_handle,basis_handle)
+      implicit none
+#include "basP.fh"
+      integer ecp_handle
+      integer basis_handle
+c
+      logical bas_check_handle, ecp_check_handle
+      external bas_check_handle, ecp_check_handle
+c      
+      if (.not.ecp_check_handle(ecp_handle,'ecp_get_parent_handle'))
+     &      call errquit
+     &      ('ecp_get_parent_handle: ecp_handle invalid',911)
+      basis_handle = ecp_parent_assoc(ecp_handle+basis_handle_offset)
+      if (basis_handle.ne.0) then
+        ecp_get_parent_handle = .true.
+      else
+        ecp_get_parent_handle = .false.
+      endif
+      if (.not.bas_check_handle(basis_handle,'ecp_get_parent_handle'))
+     &      call errquit
+     &      ('ecp_get_parent_handle: stored basis_handle invalid',911)
       end

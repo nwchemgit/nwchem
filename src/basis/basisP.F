@@ -1,6 +1,6 @@
       subroutine print_exndcf(msg)
       implicit none
-c $Id: basisP.F,v 1.15 1996-02-05 23:19:38 d3e129 Exp $
+c $Id: basisP.F,v 1.16 1996-10-01 18:49:52 d3e129 Exp $
 #include "basP.fh"
       character *(*) msg
       integer i,j
@@ -12,7 +12,7 @@ c $Id: basisP.F,v 1.15 1996-02-05 23:19:38 d3e129 Exp $
      &       '         ', ' index  :',i10,/
      &       '         ', ' size   :',i10/)
       end
-c......................................................................
+*.....................................................................
       logical function bas_add_ucnt_init(basisin)
       implicit none
 #include "mafdecls.fh"
@@ -37,7 +37,7 @@ c
      &    ('bas_add_unct_init: error allocating input heap space',911)
       exndcf(SZ_exndcf,basis) = input_size
       end
-c......................................................................
+*.....................................................................
       logical function bas_add_ucnt_tidy(basisin)
       implicit none
 #include "mafdecls.fh"
@@ -61,25 +61,123 @@ c
       exndcf(SZ_exndcf,basis) = 0
       bas_add_ucnt_tidy = .true.
       end
-c......................................................................
+*.....................................................................
+      logical function bas_set_ecp_basis(basis)
+      implicit none
+#include "basdeclsP.fh"
+#include "basP.fh"
+      logical bas_check_handle
+      external bas_check_handle
+c      
+      integer basis
+c
+      integer bas
+c
+      bas_set_ecp_basis = bas_check_handle(basis,'bas_set_ecp_basis')
+      if (.not. bas_set_ecp_basis) return
+      bas = basis + BASIS_HANDLE_OFFSET
+c
+      infbs_head(Head_ECP,bas) = 1
+      end
+*.....................................................................
+      logical function ecp_set_num_elec(ecpid,tag,num_elec)
+      implicit none
+#include "basdeclsP.fh"
+#include "basP.fh"
+*functions::
+      logical ecp_check_handle
+      logical bas_add_utag
+      external ecp_check_handle
+      external bas_add_utag
+*passed::
+      integer ecpid      ! [input] basis set handle
+      character*16 tag   ! [input] tag to set number of electrons for
+      integer num_elec   ! [input] number of electrons ecp replaces
+c
+*local::
+      integer ecp_indx
+      integer itag
+c
+c     sets the number of electrons replaced by the ecp on the 
+c     specified tag.  If the tag is not present it will also add 
+c     that by calling bas_add_utag
+c      
+      ecp_set_num_elec = ecp_check_handle(ecpid,'ecp_set_num_elec')
+      if (.not. ecp_set_num_elec) return
+      ecp_indx = ecpid + BASIS_HANDLE_OFFSET
+c
+c     Make sure that the tag is in the list
+c
+      ecp_set_num_elec = bas_add_utag(ecpid, tag, itag)
+      if (.not. ecp_set_num_elec) return
+      infbs_tags(Tag_Nelec,itag,ecp_indx) = num_elec
+c
+      end
+*.....................................................................
+      logical function ecp_get_num_elec(ecpid,tag,num_elec)
+      implicit none
+#include "basdeclsP.fh"
+#include "basP.fh"
+#include "stdio.fh"
+*functions::
+      logical ecp_check_handle, ecp_print
+      logical bas_add_utag
+      external ecp_check_handle, ecp_print
+      external bas_add_utag
+*passed::
+      integer ecpid      ! [input] basis set handle
+      character*16 tag   ! [input] tag to set number of electrons for
+      integer num_elec   ! [input] number of electrons ecp replaces
+c
+*local::
+      integer ecp_indx
+      integer itag, ntag
+c
+c     gets the number of electrons replaced by the ecp on the 
+c     specified tag.  If the tag is not present it will error
+*
+c
+      ecp_get_num_elec = ecp_check_handle(ecpid,'ecp_get_num_elec')
+      if (.not.ecp_get_num_elec) return
+      ecp_indx = ecpid + BASIS_HANDLE_OFFSET
+c
+      ntag = infbs_head(Head_Ntags,ecp_indx)
+      do itag = 1,ntag
+        if (tag.eq.bs_tags(itag,ecp_indx)) then
+          num_elec = infbs_tags(Tag_Nelec,itag,ecp_indx)
+          ecp_get_num_elec = .true.
+          return
+        endif
+      enddo
+c
+      num_elec = 0
+      ecp_get_num_elec = .false.
+c
+      end
+*.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
-     $     expnt, coeffs, ldc)
+     $     rex, expnt, coeffs, ldc, Is_ecp)
       implicit none
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
 #include "basP.fh"
 #include "bas_exndcf_dec.fh"
-      integer basis             ! [input] basis handle
-      character*(*) tag         ! [input] tag on which to contraction
-      integer l_value           ! [input] type of contraction (s, p, ..., sp)
-      integer ngen              ! [input] no. of contractions
-      integer nprim             ! [input] no. of primitives
-      integer ldc               ! [input] leading dimension of coeffs
+      integer basis ! [input] basis handle
+      character*(*) tag ! [input] tag on which to add contraction
+      integer l_value ! [input] type of contraction (s, p, ..., sp)
+      integer ngen ! [input] no. of contractions
+      integer nprim ! [input] no. of primitives
+      integer ldc ! [input] leading dimension of coeffs
       double precision expnt(nprim) ! [input] exponents
       double precision coeffs(ldc, 1:*) ! [input] coefficients
+      double precision rex(nprim) ! [input] gaussian R exponents 
+*. . . . . . . . . . . . . . . . .          (offset by 2)
+      logical Is_ecp ! [input] flag saying if this is ecp
 c
-      integer ind               ! Index into basis function structures
-      integer free              ! Free space pointer
+      integer size_add ! amount to be added to exndcf array
+      integer ind ! Index into basis function structures
+      integer free ! Free space pointer
+c
       integer i, itag, jtag, iu_cont, ntags ! Locals
       integer s_old, s_new, k_old, k_new, h_old, h_new
 c
@@ -102,16 +200,18 @@ c
       bas_add_ucnt = bas_add_utag(basis, tag, itag)
       if (.not. bas_add_ucnt) return
 c
-c     Update header information about all unique contractions on all tags
-c     Free points to next free word in the exndcf
+c     Update header information about all unique contractions on all 
+c     tags.  Free points to next free word in the exndcf
 c
-*old      free = infbs_head(HEAD_NPRIM,ind)+infbs_head(HEAD_NCOEF,ind)+1
+*old: free = infbs_head(HEAD_NPRIM,ind)+infbs_head(HEAD_NCOEF,ind)+1
       free = infbs_head(HEAD_EXCFPTR,ind) + 1
       s_old = exndcf(SZ_exndcf,ind)
-      if ((free+nprim*ngen+nprim-1) .gt. s_old) then
+      size_add = nprim*ngen + nprim
+      if (Is_ecp) size_add = size_add + nprim
+      if ((free+size_add-1) .gt. s_old) then
         h_old = exndcf(H_exndcf,ind)
         k_old = exndcf(K_exndcf,ind)
-        s_new = free+nprim*ngen+nprim-1
+        s_new = free+size_add-1
         if (.not.ma_alloc_get(
      &      mt_dbl,s_new,' input for basis heap ',
      &      h_new, k_new)) then
@@ -119,7 +219,7 @@ c
           write(6,*)' allocated size for input is :',
      &        exndcf(SZ_exndcf,ind)
           write(6,*)' size requested here         :',
-     &        (free+nprim*ngen+nprim-1)
+     &        (free+size_add-1)
           bas_add_ucnt = .false.
           return
         endif
@@ -136,12 +236,17 @@ c
          return
       endif
 c         
+      if (Is_ecp) then
+        infbs_head(Head_Ecp,ind) = 1
+      else
+        infbs_head(Head_Ecp,ind) = 0
+      endif
       infbs_head(HEAD_NCONT,ind) = infbs_head(HEAD_NCONT,ind) + 1
       infbs_head(HEAD_NPRIM,ind) = infbs_head(HEAD_NPRIM,ind) + nprim
       infbs_head(HEAD_NCOEF,ind) = infbs_head(HEAD_NCOEF,ind) +
      $     ngen*nprim
       infbs_head(HEAD_EXCFPTR,ind) =  infbs_head(HEAD_EXCFPTR,ind) +
-     &      nprim+ngen*nprim
+     &      size_add
 c
       ntags = infbs_head(HEAD_NTAGS,ind)
       if (itag .ne. ntags) then
@@ -180,11 +285,12 @@ c
          infbs_tags(TAG_FCONT,itag,ind) = infbs_head(HEAD_NCONT,ind)
          infbs_tags(TAG_LCONT,itag,ind) = infbs_head(HEAD_NCONT,ind)
       else
-         infbs_tags(TAG_LCONT,itag,ind) = infbs_tags(TAG_LCONT,itag,ind)
-     $        + 1
+         infbs_tags(TAG_LCONT,itag,ind) =
+     &      infbs_tags(TAG_LCONT,itag,ind) + 1
       endif
 c
-      iu_cont = infbs_tags(TAG_LCONT,itag,ind) ! Index of new contraction
+*. . . . . . . . . . . . . . . . . . . . . ! Index of new contraction
+      iu_cont = infbs_tags(TAG_LCONT,itag,ind) 
 c
       infbs_cont(CONT_TYPE, iu_cont,ind) = l_value
       infbs_cont(CONT_NPRIM,iu_cont,ind) = nprim
@@ -192,6 +298,13 @@ c
       infbs_cont(CONT_TYPE, iu_cont,ind) = l_value
       infbs_cont(CONT_IEXP, iu_cont,ind) = free
       infbs_cont(CONT_ICFP, iu_cont,ind) = free + nprim
+      if (Is_ecp) then
+        infbs_cont(Cont_Irexp, iu_cont, ind) =
+     &      free + nprim + nprim*ngen
+      else
+*. . . . . . . . . . . . . . . . . . ! point to exponents for saftey?
+        infbs_cont(Cont_Irexp, iu_cont,ind) = free 
+      endif
 c
 c     Copy real data over
 c
@@ -202,15 +315,13 @@ c
      &      (nprim, coeffs(1,i), 1, dbl_mb(mb_exndcf(free,ind)), 1)
          free = free + nprim
       enddo
-*      write(6,*) ' expnt input ', nprim
-*      call output(expnt, 1, nprim, 1, 1, nprim, 1, 1)
-*      write(6,*) ' coeffs input ', nprim, ngen, ldc
-*      call output(coeffs, 1, nprim, 1, ngen, ldc, ngen, 1)
+      if (Is_ecp)
+     &    call dcopy(nprim, rex, 1, dbl_mb(mb_exndcf(free,ind)), 1)
 c
 c     Done
 c
       end
-c......................................................................
+*.....................................................................
       logical function bas_add_utag(basisin, tag, itag)
       implicit none
 #include "basdeclsP.fh"
@@ -249,7 +360,7 @@ c
       bs_tags(itag,basis) = tag
 c
       end
-c......................................................................
+*.....................................................................
       subroutine bas_err_info(info)
       implicit none
 #include "basP.fh"
@@ -293,7 +404,7 @@ c
       endif
 c     
       end
-c......................................................................
+*.....................................................................
       logical function bas_getu_coeff(basisin,icont,coeff)
       implicit none
 #include "mafdecls.fh"
@@ -342,7 +453,7 @@ c
 c
       return
       end
-c......................................................................
+*.....................................................................
       logical function bas_getu_exponent(basisin,icont,exp)
       implicit none
 #include "mafdecls.fh"
@@ -364,7 +475,9 @@ c::local
 c
 #include "bas_exndcf_sfn.fh"
 c
-      bas_getu_exponent = bas_check_handle(basisin,'bas_getu_exponent')
+      bas_getu_exponent =
+     &    bas_check_handle(basisin,'bas_getu_exponent')
+
       if (.not.bas_getu_exponent) return
 
       basis = basisin + BASIS_HANDLE_OFFSET 
@@ -389,7 +502,7 @@ c
 c
       return
       end
-c......................................................................
+*.....................................................................
       logical function bas_setu_coeff(basisin,icont,coeff,ncoeff)
       implicit none
 #include "mafdecls.fh"
@@ -448,7 +561,7 @@ c
 c
       return
       end
-c......................................................................
+*.....................................................................
       logical function bas_setu_exponent(basisin,icont,exp,nexp)
       implicit none
 #include "basP.fh"
@@ -470,7 +583,9 @@ c::local
 c
 #include "bas_exndcf_sfn.fh"
 c
-      bas_setu_exponent = bas_check_handle(basisin,'bas_setu_exponent')
+      bas_setu_exponent =
+     &    bas_check_handle(basisin,'bas_setu_exponent')
+
       if (.not.bas_setu_exponent) return
 
       basis = basisin + BASIS_HANDLE_OFFSET 
@@ -505,7 +620,7 @@ c
 c
       return
       end
-c......................................................................
+*.....................................................................
       logical function bas_ucontinfo(basisin,icont,itype,
      &       nprimo,ngeno,sphcart)
       implicit none
@@ -552,7 +667,7 @@ c
       bas_ucontinfo=.true.
       return
       end
-c......................................................................
+*.....................................................................
       logical function bas_unumcont(basisin,numcont)
       implicit none
 #include "basP.fh"
@@ -577,7 +692,7 @@ c
       bas_unumcont = .true.
       return
       end
-c......................................................................
+*.....................................................................
       block data basis_data
 c
 c Block data structure to initialize the common block variables in the
@@ -595,7 +710,7 @@ c
       data bsversion /3.01d00/
 c     
       end
-c......................................................................
+*.....................................................................
       integer function nbf_from_ucont(ucont,basisin)
 c
 c function that returns the number of basis functions in a contraction
@@ -641,7 +756,7 @@ c
         call errquit('nbf_from_ucont: bad cont type',type)
       endif
       end
-c......................................................................
+*.....................................................................
       logical function bas_set_spherical(basisin, ospherical)
       implicit none
 #include "basP.fh"
@@ -664,7 +779,7 @@ c
       endif
       bas_set_spherical = .true.
       end
-c......................................................................
+*.....................................................................
       logical function bas_get_spherical(basisin, is_spherical)
       implicit none
 #include "basP.fh"
@@ -684,4 +799,44 @@ c
         is_spherical = .false.
       endif
       bas_get_spherical = .true.
+      end
+*.....................................................................
+      logical function bas_name_exist_rtdb(rtdb,name)
+      implicit none
+*
+* function to determin if "name" has been stored on the 
+* current rtdb in actual or translated by a set directive.
+*
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "inp.fh"      
+#include "basP.fh"      
+c::functions
+      logical  bas_rtdb_in
+      external bas_rtdb_in
+c::passed 
+      integer rtdb ! [input] run time data base handle
+      character*(*) name ! [input] test name
+c::local
+      integer index
+      character*256 trans_name
+c
+      bas_name_exist_rtdb = bas_rtdb_in(rtdb)
+      if (.not.bas_name_exist_rtdb) call errquit
+     &    ('bas_name_exist_rtdb: bas_rtdb_in failed',911)
+c
+      bas_name_exist_rtdb = .false.
+      if (inp_match
+     &    (nbasis_rtdb,.false.,name,bs_names_rtdb,index)) then
+        bas_name_exist_rtdb = .true.
+        return
+      endif
+      if (context_rtdb_match(rtdb,name,trans_name)) then
+        if (inp_match
+     &      (nbasis_rtdb,.false.,trans_name,bs_names_rtdb,index)) then
+          bas_name_exist_rtdb = .true.
+          return
+        endif
+      endif
       end

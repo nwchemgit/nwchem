@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.12 1996-05-14 17:54:26 d3g681 Exp $
+c $Id: bas.fh,v 1.13 1996-10-01 18:49:49 d3e129 Exp $
 c:bas.fh
 c
       logical bas_version        
@@ -43,6 +43,20 @@ c
       logical bas_norm_set
       logical bas_norm_print
 c
+      logical ecp_check_handle
+      logical ecp_get_rexponent
+      logical ecp_set_rexponent
+      logical ecp_print
+      logical bas_set_ecp_name
+      logical bas_get_ecp_name
+      logical bas_set_ecp_handle
+      logical bas_get_ecp_handle
+      logical bas_set_ecp_basis
+      logical ecp_set_num_elec
+      logical ecp_get_num_elec
+      logical ecp_set_parent_handle
+      logical ecp_get_parent_handle
+c
       external bas_version        
       external bas_create         
       external bas_destroy        
@@ -84,4 +98,18 @@ c
       external bas_norm_get
       external bas_norm_set
       external bas_norm_print
+c
+      external ecp_check_handle
+      external ecp_get_rexponent
+      external ecp_set_rexponent
+      external ecp_print
+      external bas_set_ecp_name
+      external bas_get_ecp_name
+      external bas_set_ecp_handle
+      external bas_get_ecp_handle
+      external bas_set_ecp_basis
+      external ecp_set_num_elec
+      external ecp_get_num_elec
+      external ecp_set_parent_handle
+      external ecp_get_parent_handle
 c
