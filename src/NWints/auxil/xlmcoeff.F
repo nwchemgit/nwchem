@@ -1,5 +1,5 @@
       subroutine xlmcoeff(lmax, d, normalize)
-* $Id: xlmcoeff.F,v 1.2 1995-10-17 18:53:52 d3e129 Exp $
+* $Id: xlmcoeff.F,v 1.3 1995-12-20 22:50:27 d3e129 Exp $
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as
@@ -14,6 +14,8 @@
 *        x(m,l) = sum(i) cartesian(i) * d(i, m, l)
 *
       implicit none
+#include "mafdecls.fh"
+#include "stdio.fh"
 c
 *:functions
       double precision ddot
@@ -24,11 +26,17 @@ c
       logical normalize
 *:local
       integer i, j, k, l, m, lp1, ijk
-      double precision twolp1, norm
+      double precision twolp1
+
+#if defined (REALLY_BAD_NORMALIZATION)
+      double precision norm
+#endif
 c
 c     compute the coefficients of cartesian polynomials for the
 c     unnormalized real solid spherical harmonics up to order lmax
 c
+c::local
+      integer h_xlm_e, k_xlm_e, h_xlm_qn, k_xlm_qn
 *statement functions:
       integer itri
       integer ind
@@ -122,17 +130,18 @@ c
 c
 #if defined(DEBUG)
       do lp1 = 0,lmax
+        write(luout,*)' d matrix xmlcoeff'
         do m = -lp1,lp1
           do ijk = 1,(((lp1+1)*(lp1+2))/2)
 *             if (d(ijk,m,lp1) .ne. 0.0d0)
 *     $
-            write(6,1) lp1, m, ijk, d(ijk,m,lp1)
+            write(luout,1) lp1, m, ijk, d(ijk,m,lp1)
  1          format(1x,2i3,3x,i3,3x,f20.10)
           enddo
         enddo
       enddo
 #endif
-*
+#if defined (REALLY_BAD_NORMALIZATION)
 * normalize transformation coefficients (start with d functions)
 *
       if (.not.normalize) return
@@ -144,12 +153,37 @@ c
         enddo
       enddo
 *
+#endif
+      if (.not.normalize) then
+        write(luout,*)' un-normalized transformation '
+        return
+      endif
+
+c... allocate space for e
+      if (.not.ma_push_get(mt_dbl,(2*lmax+1),
+     &      ' tmp e buf xlm ',
+     &      h_xlm_e, k_xlm_e)) call errquit
+     &      ('xlmcoeff: error allocating e bug ',911)
+      
+c... allocate space for qn
+      if (.not.ma_push_get(mt_dbl,((2*lmax+1)*(lmax+1)),
+     &      ' tmp qn buf xlm ',
+     &      h_xlm_qn, k_xlm_qn)) call errquit
+     &      ('xlmcoeff: error allocating qn bug ',911)
+
+      call xlm_norm(dbl_mb(k_xlm_qn),dbl_mb(k_xlm_e),d,lmax)
+c... free tmp space
+      if (.not.MA_pop_stack(h_xlm_qn)) call errquit
+     &      ('xlmcoeff: error poping qn bug ',911)
+      if (.not.MA_pop_stack(h_xlm_e)) call errquit
+     &      ('xlmcoeff: error poping e bug ',911)
+c
 #if defined(DEBUG)
-      write(6,*)' normalized coefficients '
+      write(luout,*)' normalized coefficients '
       do lp1 = 0,lmax
         do m = -lp1,lp1
           do ijk = 1,(((lp1+1)*(lp1+2))/2)
-            write(6,1) lp1, m, ijk, d(ijk,m,lp1)
+            write(luout,1) lp1, m, ijk, d(ijk,m,lp1)
           enddo
         enddo
       enddo

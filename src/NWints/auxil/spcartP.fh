@@ -1,11 +1,25 @@
 *
-* $Id: spcartP.fh,v 1.1 1995-07-29 23:15:04 d3e129 Exp $
+* $Id: spcartP.fh,v 1.2 1995-12-20 22:50:24 d3e129 Exp $
 *
-      integer h_sp2c              ! ma handle for array
-      integer k_sp2c              ! ma index in dbl_mb for array
-      integer lmax_init           ! lmax value used for initialization
-      integer sphcart_init        ! 1731 -> initialzed
-      integer sphcart_init_value  ! 1731 
-      parameter (sphcart_init_value = 1731)
+      integer h_sp2c               ! ma handle for array for recursion
+      integer k_sp2c               ! ma index in dbl_mb for array for recursion
+      integer h_sp2c_cmp           ! ma handle for array for use/compressed
+      integer k_sp2c_cmp           ! ma index in dbl_mb for array for use/compressed
+      integer lmax_init            ! lmax value used for initialization
+      integer sph_cart_init        ! 1731 -> initialzed
+      integer sph_cart_init_value  ! 1731 
+      integer h_sp2c_lindx         ! ma handle for array of pointers to transformation matricies
+      integer k_sp2c_lindx         ! ma index for array of pointers 
+      logical sph_cart_allsph      ! use all spherical components 3s from d, 5p from f etc.
+      logical active_sp2c          ! active ma array sp2c ?
+      logical active_sp2c_cmp      ! active ma array sp2c_cmp ?
+      logical active_sp2c_lindx    ! active ma array sp2c_lindx ?
 *
-      common /cspcart/ sphcart_init, lmax_init, h_sp2c, k_sp2c
+      parameter (sph_cart_init_value = 1731)
+*
+      common /cspcart/ sph_cart_init, lmax_init, h_sp2c, k_sp2c,
+     &    h_sp2c_cmp, k_sp2c_cmp,
+     &    h_sp2c_lindx, k_sp2c_lindx,
+     &    sph_cart_allsph,
+     &    active_sp2c, active_sp2c_cmp, active_sp2c_lindx
+
