@@ -1,4 +1,8 @@
-#!/bin/csh
+#!/bin/sh
+
+#
+#	$Id: lockfile,v 1.5 1999-11-13 02:14:29 bjohnson Exp $
+#
 
 #
 # lockfile [-steal] filename
@@ -17,55 +21,65 @@
 # SECS is the time in seconds to sleep between tries to get the lock
 # TIMEOUT*SECS is the time in seconds before waiting is abandonned.
 #
+# BGJ - rewritten in Bourne shell for Cygnus NT port
+#
 
-set TIMEOUT = 12
-set SECS = 5
-set STEAL = 0
+TIMEOUT=12
+SECS=2
 
-if ($#argv == 2) then
-  if ("$1" == "-steal") then
-    set STEAL = 1
+unset STEAL
+unset USAGE
+
+if [ $# -eq 2 ] ; then
+  if [ "$1" = "-steal" ] ; then
+    STEAL=1
     shift
   else
-    goto usage
-  endif
-else if ($#argv != 1) then
-  goto usage
-endif
+    USAGE=1
+  fi
+elif [ $# -ne 1 -o "$1" = "-steal" ] ; then
+  USAGE=1
+fi
 
-set file = $1
+if [ $USAGE ] ; then
+  echo 'usage: lockfile [-steal] filename'
+  exit 1
+fi
 
-set nspin = 0
+file=$1
 
-wait:
-while (-e $file)
-  if ($nspin >= $TIMEOUT) then
-    if ($STEAL) then
-      echo lockfile: stealing $file
-      /bin/rm -f $file
+DOWAIT=1
+nspin=0
+
+while [ $DOWAIT ] ; do
+
+  while [ -f $file ] ; do
+    if [ $nspin -ge $TIMEOUT ] ; then
+      if [ $STEAL ] ; then
+        echo lockfile: stealing $file
+        /bin/rm -f $file
+      else
+        echo lockfile: timeout waiting for $file ... delete it\!
+        exit 1
+      fi
     else
-      echo lockfile: timout waiting for $file ... delete it\!
-      exit 1
-    endif
+      nspin=`expr $nspin + 1`
+      echo lockfile: waiting for $file
+      sleep $SECS
+    fi
+  done
+
+  echo $$ " " > $file
+  id="`cat $file`"
+
+  if [ $id -ne $$ ] ; then
+    echo lockfile: not fast enough on $file
   else
-    @ nspin ++
-    echo lockfile: waiting for $file
-    sleep 2
-  endif
-end
+    unset DOWAIT
+  fi
 
-echo $$ " " > $file
-set id = "`cat $file`"
-
-if ($id[1] != $$) then
-  echo lockfile: not fast enough on $file
-  goto wait
-endif
+done
 
 echo Got lock on $file
 
 exit 0
-
-usage:
-  echo usage: lockfile filename
-  exit 1
