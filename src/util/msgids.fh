@@ -13,9 +13,10 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.123 2000-05-02 21:59:35 bert Exp $
+c     $Id: msgids.fh,v 1.124 2000-08-10 00:23:17 windus Exp $
       parameter (msg_ftn_base = 25000)
 c     
+      integer msg_hess_exy
       integer msg_vec_type
       integer msg_prsum
       integer msg_mxelt, Msg_NormF
@@ -1043,3 +1044,5 @@ c
       parameter (mag_d22=msg_ftn_base-795) ! analysis module
 c
       parameter (msg_vec_type = msg_ftn_base - 796) ! movecs_read_header
+c
+      parameter (msg_hess_exy = msg_ftn_base - 797) ! hessian summation
