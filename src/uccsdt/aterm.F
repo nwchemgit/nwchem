@@ -1,6 +1,6 @@
       subroutine uccsdt_aterm_init(x_lists)
 c
-c$Id: aterm.F,v 1.8 2002-10-29 01:09:24 bert Exp $
+c$Id: aterm.F,v 1.9 2002-10-30 01:33:34 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -63,11 +63,6 @@ c
             x_nr = 3
             if (nspin .eq. mspin) x_nr = nspin
             list_nr = i_list(x_nr)
-               endif
-            else
-               list_nr = 6
-               x_nr = 3
-            endif 
             do symnf = 0, nir-1 
                symme = symnf
                symmi = symnf 
@@ -203,7 +198,10 @@ C
                dimme = ov_len(symme,mspin,espin)
                dimnf = ov_len(symnf,nspin,fspin)
 c              prefactor*t(ie,jf)*X(nj,mi) -> r(me,nf)
-c              need only occupied f's
+c              need only occupied f's (mi,nj)*(ie,jf)
+               (i,j)mn * (i,j)ef -> mnef
+               Get for mn the whole ij block from X 
+                   loop 
                flo = 
                fhi =
                call uccsdt_ampfile_read_t2(D_AMP,ispin,espin,jspin,

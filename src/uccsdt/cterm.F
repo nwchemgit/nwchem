@@ -1,6 +1,6 @@
       subroutine uccsdt_cterm(urange,vrange,qO_handles,qV_handles)
 c
-c$Id: cterm.F,v 1.7 2002-10-08 00:17:47 bert Exp $
+c$Id: cterm.F,v 1.8 2002-10-30 01:33:35 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -304,6 +304,10 @@ c
      &       errquit('cterm: dealloc g_t2_jbnf_pure failed',0)
          if (.not. ga_destroy(g_z7)) call
      &       errquit('cterm: dealloc g_z1 failed',0)
+         if (.not. ga_destroy(list(symiu,2))) call 
+     &       errquit('cterm: dealloc list 2 failed',0)
+         if (.not. ga_destroy(list(symiu,10))) call 
+     &       errquit('cterm: dealloc list 10 failed',0)
       end do
 c
 c
@@ -325,9 +329,10 @@ C
 c
 c        do blocks nf n=f=beta
 c
-         allocate R(me,nf)
+c        allocate R(me,nf)
 c
 c     C4 : I DON'T THINK WE NEED THIS TERM, REARRANGEMENT REMOVED THIS ONE
+c     Another piece of C5 using list 9
 c     R(me,nf) += t(iu,nf)*[<ie||um> + Z2(iu,me)] 
 c            I think we have the term inside [] in Z2, only multiply with T
 c     .      e=m=i=u=alpha n=f=beta  (use modified list 9)
@@ -400,7 +405,7 @@ c
          end do
       end do
 c
-      free list 14
+      destroy list(symnf,14)
 c
 c     Make Z8
 c
@@ -427,11 +432,13 @@ c        do sum_i C_hole(ua) Z8(iu,if) and store in q_8_O(a,f) -> qO_handles(8)
 c        do sum_u C_hole(ua) Z8(iu,ma) and store in q_8_V(i,m) -> qV_handles(8)
          call make_qO(qO_handles(0,8),g_z8,symjf,0,1)
          call make_qV(qV_handles(0,8),g_z8,symjf,0,1)
+         destroy list(symnf,3)
       end do
 c
 c   C3 += -t(ie,na)*[(if|ma) - Z8]
 c
 
+         destroy list(symnf,13)
       end
  
       subroutine get_T(g_t2,symjb,spini,spina,spinj,spinb,urange)
