@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.30 2003-08-03 18:20:50 bylaska Exp $
+* $Id: cpmdv5.F,v 1.31 2003-08-29 17:53:23 fruechtl Exp $
 *
 
 ***********************************************************************
@@ -522,6 +522,9 @@
            icount_shift = icount_shift + 1
            end do
   100      continue
+#ifdef FUJITSU_SOLARIS
+           backspace 31
+#endif
          else
            open(unit=31,file=full_filename,form='formatted',
      >          status='new')
