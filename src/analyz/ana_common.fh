@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.12 2000-03-18 04:29:47 d3j191 Exp $
+c $Id: ana_common.fh,v 1.13 2000-03-20 18:14:02 nwchem Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -14,7 +14,8 @@ c
 c
       real*8 time,timr,timoff,box(3),spac,rcut,xmax(3),xmin(3)
       real*8 temp,pres
-      integer irmsd,lcop,lsup,lrms,ifrfr,ifrto,iscof,icopf,isupf
+      logical lrms
+      integer irmsd,lcop,lsup,ifrfr,ifrto,iscof,icopf,isupf
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
       integer ngx,ngy,ngz
       integer nbnds,ibnds(mxbnds,2)
