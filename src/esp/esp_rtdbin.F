@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.1 1997-10-06 23:00:37 d3j191 Exp $
+c $Id: esp_rtdbin.F,v 1.2 1997-10-07 18:09:56 d3j191 Exp $
 c
       implicit none
 c
@@ -182,6 +182,7 @@ c
      + call errquit('Error reading toler from rtdb',irest)
       endif
       endif
+      if(.not.rtdb_get(irtdb,'esp:dump',mt_int,1,idump)) idump=0
 c
 c     convert rcut and spac from nm to au
 c

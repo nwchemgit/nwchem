@@ -1,5 +1,6 @@
       subroutine esp_matinv(a,n,is,iad1,iad2,d,mdm)
       implicit real*8 (a-h,o-z)
+#include "esp_params.fh"
 c
 c     inversion of square matrix a by means of the gauss-jordan
 c     algorithm
@@ -8,8 +9,6 @@ c     april 72/rs9b
 c
       real*8 a(mdm,mdm),d(mdm)
       integer is(2,mdm),iad1(mdm),iad2(mdm)
-c
-      data zero/0.0d0/, one/1.0d0/, small/1.0d-20/
 c
  2000 format(' warning from inv: matrix is singular')
 c
@@ -35,7 +34,7 @@ c
 c
 c     pivot
 c
-      if(dabs(b).lt. small) goto 20
+      if(dabs(b).lt.tiny) goto 20
       a(i,k)=one/b
       do 6 l=1,n
       if(l.eq.k) goto 6

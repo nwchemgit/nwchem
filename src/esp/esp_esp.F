@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,pot,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.1 1997-10-06 23:00:32 d3j191 Exp $
+c $Id: esp_esp.F,v 1.2 1997-10-07 18:09:47 d3j191 Exp $
 c
       implicit none
 c
@@ -32,7 +32,7 @@ c
 c
 c     read orbital occupations and energies
 c
-      movfil='movecs'
+      call util_file_name('movecs',.false.,.false.,movfil)
       if(.not.movecs_read_header(movfil,title,basnam,scftyp,nbf,nset,
      + nmo,2)) call errquit('esp: movecs_read_header failed',me)
       if(.not.movecs_read(movfil,1,occ,ene,lg_v))
@@ -40,9 +40,9 @@ c
 c
       nocc=0
       do 1 i=0,nbf-1
-      if(occ(i).gt.1.0d-08) nocc=nocc+1
+      if(occ(i).gt.small) nocc=nocc+1
     1 continue
-      charge=chgnuc-2.0d0*nocc
+      charge=chgnuc-two*nocc
 c
 c     get AO density matrix
 c
@@ -85,7 +85,7 @@ c
      + call errquit('esp: bas_cn2bfr failed',me)
       if(.not.bas_cn2bfr(ibasis,jsh,jlo,jhi))
      + call errquit('esp: bas_cn2bfr failed',me)
-      call int_1er(grid(1,i),1,1.0d0,ibasis,jsh,ibasis,ish,mem1,
+      call int_1er(grid(1,i),1,one,ibasis,jsh,ibasis,ish,mem1,
      + dbl_mb(istptr),max1e,dbl_mb(ibtptr))
       ifr=ibtptr
       do 5 jx=jlo,jhi
@@ -121,12 +121,12 @@ c
       if(np.gt.1) then
       if(ngfr.gt.1) then
       do 10 i=1,ngfr-1
-      val(i)=0.0d0
+      val(i)=zero
    10 continue
       endif
       if(ngto.lt.ngrid) then
       do 11 i=ngto+1,ngrid
-      val(i)=0.0d0
+      val(i)=zero
    11 continue
       endif
       call ga_dgop(mre_003,val,ngrid,'+')

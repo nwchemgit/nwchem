@@ -1,6 +1,6 @@
       subroutine esp_fit(g,v,x,q,a,b,c,akeep,qkeep,n)
 c
-c $Id: esp_fit.F,v 1.1 1997-10-06 23:00:33 d3j191 Exp $
+c $Id: esp_fit.F,v 1.2 1997-10-07 18:09:49 d3j191 Exp $
 c
       implicit none
 c
@@ -24,9 +24,9 @@ c     set up matrix of linear coefficients
 c
       do 1 i=1,natoms
       do 2 j=i,natoms
-      sum=0.0d0
+      sum=zero
       do 3 k=1,ngrid
-      sum=sum+1.0d0/dsqrt( ( (x(1,i)-g(1,k))*(x(1,i)-g(1,k))+
+      sum=sum+one/dsqrt( ( (x(1,i)-g(1,k))*(x(1,i)-g(1,k))+
      +                       (x(2,i)-g(2,k))*(x(2,i)-g(2,k))+
      +                       (x(3,i)-g(3,k))*(x(3,i)-g(3,k)) )*
      +                     ( (x(1,j)-g(1,k))*(x(1,j)-g(1,k))+
@@ -36,27 +36,27 @@ c
       a(i,j)=sum
       a(j,i)=sum
     2 continue
-      a(i,natoms+1)=1.0d0
+      a(i,natoms+1)=one
       do 12 j=2,nconst
-      a(i,natoms+j)=0.0d0
+      a(i,natoms+j)=zero
    12 continue
     1 continue
       do 4 j=1,natoms
-      a(natoms+1,j)=1.0d0
+      a(natoms+1,j)=one
       do 14 i=2,nconst
-      a(natoms+i,j)=0.0d0
+      a(natoms+i,j)=zero
    14 continue
     4 continue
       do 15 i=1,nconst
       do 16 j=1,nconst
-      a(natoms+i,natoms+j)=0.0d0
+      a(natoms+i,natoms+j)=zero
    16 continue
    15 continue
 c
 c     construct column vector c
 c
       do 5 i=1,natoms
-      sum=0.0d0
+      sum=zero
       do 6 k=1,ngrid
       sum=sum+v(k)/dsqrt((x(1,i)-g(1,k))*(x(1,i)-g(1,k))+
      +                   (x(2,i)-g(2,k))*(x(2,i)-g(2,k))+
@@ -75,11 +75,11 @@ c
       jcon=jcon+1
       k=icon(jcon)
       if(k.gt.0) then
-      a(natoms+i,k)=1.0d0
-      a(k,natoms+i)=1.0d0
+      a(natoms+i,k)=one
+      a(k,natoms+i)=one
       else
-      a(natoms+i,-k)=-1.0d0
-      a(-k,natoms+i)=-1.0d0
+      a(natoms+i,-k)=-one
+      a(-k,natoms+i)=-one
       endif
    18 continue
    17 continue
@@ -108,7 +108,7 @@ c
    32 continue
    31 continue
       do 33 i=1,natoms
-      q(i)=0.0d0
+      q(i)=zero
    33 continue
       if(me.eq.0) write(6,600)
   600 format(' Iter    Converg.     Charges',/) 
@@ -139,7 +139,7 @@ c
 c     matrix multiplication b = A_inv * c
 c
       do 7 i=1,ndim
-      sum=0.0d0
+      sum=zero
       do 8 j=1,ndim
       sum=sum+a(i,j)*c(j)
     8 continue
@@ -147,7 +147,7 @@ c
     7 continue
 c
       if(irest.eq.2) then
-      difm=0.0d0
+      difm=zero
       do 51 i=1,natoms
       dif=(q(i)-qkeep(i))*(q(i)-qkeep(i))
       if(difm.lt.dif) difm=dif

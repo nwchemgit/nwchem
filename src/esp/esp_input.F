@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.1 1997-10-06 23:00:34 d3j191 Exp $
+c $Id: esp_input.F,v 1.2 1997-10-07 18:09:51 d3j191 Exp $
 c
       implicit none
 c
@@ -12,6 +12,7 @@ c
       integer irtdb
       character*255 item
       integer i,me,np,icon(2500),ncon,nconst,jcon,irest,maxit,ihfree
+      integer idump
       real*8 rcut,spac,radius(107),rcon(500),resa,resb
       real*8 toler
 c
@@ -32,6 +33,7 @@ c
       nconst=0
       irest=0
       ihfree=0
+      idump=0
       toler=1.0d-4
       maxit=25
       resa=0.0d0
@@ -224,6 +226,15 @@ c
       goto 3
       endif
 c
+      if(inp_compare(.false.,'dump',item)) then
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'grid',item)) then
+      idump=1
+      goto 2
+      endif
+      goto 3
+      endif
+c
       if(.not.inp_compare(.false.,'end',item)) then
       if(me.eq.0) write(6,9999) item
  9999 format('arg_input: unknown field ',a)
@@ -261,6 +272,9 @@ c
      + call errquit('esp: rtdb_put maxit failed',0)
       if(.not.rtdb_put(irtdb,'esp:toler',mt_dbl,1,toler))
      + call errquit('esp: rtdb_put toler failed',0)
+c
+      if(.not.rtdb_put(irtdb,'esp:dump',mt_int,1,idump))
+     + call errquit('esp: rtdb_put dump failed',0)
 c
       return
       end
