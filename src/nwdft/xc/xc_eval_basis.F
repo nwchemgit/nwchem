@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.10 2003-02-08 01:34:34 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.11 2003-09-05 16:05:06 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -1208,9 +1208,7 @@ c
 c
 c     Nothing to do if s functions or no derivatives
 c
-      if (iabeg .eq. 1 .or. max_der_component .eq. dzero) then
-         return
-      endif
+      if (iabeg .eq. 1 .or. max_der_component .eq. dzero) return
 c
       if (iabeg .eq. 2) then
 

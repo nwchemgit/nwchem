@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.32 2003-04-11 00:29:05 bert Exp $
+# $Id: GNUmakefile,v 1.33 2003-09-05 16:05:06 edo Exp $
 #
 
 
@@ -45,19 +45,6 @@ USES_BLAS = davids.F fcidim.F makeh.F makehs.F makhdb.F tester.F
 include ../config/makefile.h
 include ../config/makelib.h
 
-LIB_DEFINES = -DINTEGER_1=byte
-ifeq ($(TARGET),SOLARIS)
-#change to 'integer*1' for f90
-LIB_DEFINES = -DINTEGER_1=byte
-endif
-ifeq ($(TARGET),SOLARIS64)
-#change to 'integer*1' for f90
-LIB_DEFINES = -DINTEGER_1=byte
-endif
-ifeq ($(TARGET),FUJITSU_VPP)
-#change to 'integer*1' for f90
-LIB_DEFINES = -Wp,-DINTEGER_1=byte
-endif
 
 ifeq ($(TARGET),LINUX64)
             COPTIONS = -O3

@@ -1,7 +1,12 @@
       integer function selci_popcnt32(i)
 *
-* $Id: popcnt32.F,v 1.10 2003-04-16 23:08:03 bert Exp $
+* $Id: popcnt32.F,v 1.11 2003-09-05 16:05:06 edo Exp $
 *
+#if defined(LINUX) || defined(LINUX64)
+#define INTEGER_1 integer*1
+#else
+#define INTEGER_1 byte
+#endif
 #if defined(CRAY_T3D) || defined(CRAY_T3E) 
       integer i
       selci_popcnt32 = popcnt(i)

@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.11 2003-04-08 00:46:28 windus Exp $	
+#	$Id: MakeFile,v 1.12 2003-09-05 16:05:06 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -102,7 +102,6 @@ OBJ_OPTIMIZE = $(UOBJ) \
                $(BLAS)
 
 LIBRARY = selci.lib
-LIB_DEFINES = -DINTEGER_1=byte
 
 LIB_TARGETS = conf htoa
 
