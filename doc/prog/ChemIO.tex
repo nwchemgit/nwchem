@@ -5,22 +5,23 @@
 % that is to appear in Int. J. supercom. Apps. High Perf. Comp. 1998
 % (special issue on I/O in parallel applications)
 % plus EAFguide.doc and DRA.doc from ~/src/global/doc
+% and eaf.doc from ~/src/chemio/eaf
 %                                   -- Judith M. Cuta (9/28/98)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ChemIO is a high-performanc parallel I/O abstract programming interface for
-computaional chemistry applications\footnote{The ChemIO project is a joint effort of
-Argonne National Laboratory and Pacific Northwest National Laboratoyr, in affiliation
+computational chemistry applications\footnote{The ChemIO project is a joint effort of
+Argonne National Laboratory and Pacific Northwest National Laboratory, in affiliation
 with a DOE Grand Challenge project developing Massively Parallel Methods for
 Computational Chemistry, with the multi-agency Scalable I/O Project, and with
-the EMSL.}
+the EMSL.}.
 The development of out-of-core methods for 
 computational chemistry requires efficient and portable implementation of often complex 
 I/O patterns.  The ChemIO interface addresses this problem by providing high
 performance implementations on multiple platforms that hides some of the
 complexity of the underlying I/O patterns from the programmer through the use of
 high-level libraries.  The interface is tailored to the requirements of
-large-scale computational chemistry problems, and supports thee distinct
+large-scale computational chemistry problems and supports three distinct
 I/O models.  These are
 
 \begin{enumerate}
@@ -53,7 +54,7 @@ ELIO itself is not exposed to applications.
 
 The ELIO library implements a set of elementary I/O primitives including blocking and
 non-blocking versions of read and write operations, as well as wait and probe operations to
-control status of non-blocing read/writes.  It also implements file operations such
+control status of non-blocking read/writes.  It also implements file operations such
 as open, close, delete, truncate, end-of-file detection, and an inquiry function
 for the file/filesystem that returns the amount of available space and the filesystem
 type.  Most of these operations are commonly seen in various flavors of the UNIX
@@ -65,7 +66,7 @@ filesystem.  ELIO provides an abstract portable interface to such functionality.
 
 The computational chemistry parallel algorithms in NWChem have been implemented in terms
 of the Global Arrays shared memory programming model.  The GA library (see Section 
-\ref{sec:ga}) library uses a shared memory programming model in which data locality
+\ref{sec:ga}) uses a shared memory programming model in which data locality
 is managed explicitly by the programmer.  This management is achieved by explicit
 calls to functions that transfer data between a global address space (a distributed
 array) and local storage.  The GA library allows each process in a MIMD parallel
@@ -643,3 +644,88 @@ Shared files can be used to build other I/O abstractions.  In many cases, this p
 requires adding an additional consistency control layer.  A single file pointer view,
 for example, can be implemented by adding an automatically modifiable pointer 
 variable located in shared memory by using the GA toolkit, or some other means.
+
+The shared files model consists of the following elements:
+
+\begin{itemize}
+\item  Shared files are non-persistent (temporary)
+\item  Shared files resemble one-dimensional arrays in main memory
+\item  Each process can independently read/write to any location in the file
+\item  The file size has a hard limit specified when it is created
+\item  User can also specify (or use "don't know" flag) the estimated approximate
+  file size -- might be exceeded at run-time (a hint)
+\item  {\tt sf\_flush} flushes the buffers so that previously written data goes to the disk
+  before the routine returns.
+\item  All routines return an error code: "0" means success.
+\item  {\tt sf\_create} and {\tt sf\_destroy} are collective
+\item  file, request sizes, and offset (all in bytes) are DOUBLE PRECISION arguments,
+  all the other arguments are INTEGERS
+\item  read/writes are asynchronous
+\end{itemize}
+
+
+List of SF Functions:
+
+\begin{verbatim}
+integer sf_create(fname, size_hard_limit, size_soft_limit, req_size, handle)
+        fname            -- meta-file name
+        size_hard_limit  -- max file size in bytes not to be exceeded (a hint)
+        size_soft_limit  -- estimated file size (a hint)
+        req_size         -- size of  a typical request (a hint)
+        handle           -- returned handle to the created file
+\end{verbatim}
+
+Creates shared file using name and path specified in fname as a template.
+Function {\tt req\_size} specifies size of a typical request (-1 = "don't know").
+
+
+\begin{verbatim}
+integer sf_write(handle, offset, bytes, buffer, request_id)
+        handle           -- file handle returned from sf_create   [in]
+        offset           -- location in file (from the beginning)
+                            where data should be written to       [in]
+        buffer           -- local array to put the data           [in]
+        bytes            -- number of bytes to read               [in]
+        request_id       -- id identifying asynchronous operation [out]
+\end{verbatim}
+
+asynchronous write operation
+
+
+\begin{verbatim}
+integer sf_read(handle, offset, bytes, buffer, request_it)
+        handle           -- file handle returned from sf_create   [in]
+        offset           -- location in file (from the beginning)
+                            where data should be read from        [in]
+        buffer           -- local array to put the data           [in]
+        bytes            -- number of bytes to read               [in]
+        request_id       -- id identifying asynchronous operation [out]
+\end{verbatim}
+
+asynchronous read operation
+
+
+\begin{verbatim}
+integer sf_wait(request_id)
+        request_id       -- id identifying asynchronous operation [in/out]
+\end{verbatim}
+
+blocks calling process until I/O operation associated with id completed,
+invalidates {\tt request\_id}
+
+
+\begin{verbatim}
+integer sf_waitall(list, num)
+        list(num)        -- array of ids for asynchronous operations [in/o]
+        num              -- number of entries in list                [in]
+\end{verbatim}
+
+blocks calling process until all "num" I/O operations associated with ids
+specified in list completed, invalidates ids on the list
+
+
+\begin{verbatim}
+integer sf_destroy(handle)
+        handle           -- file handle returned from sf_create      [in]
+\end{verbatim}
+
