@@ -1,4 +1,4 @@
-C $Id: ecp_hessian.F,v 1.6 1998-04-03 01:54:24 mg201 Exp $
+C $Id: ecp_hessian.F,v 1.7 1999-03-09 21:29:51 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_hessian (
@@ -91,8 +91,8 @@ C $Id: ecp_hessian.F,v 1.6 1998-04-03 01:54:24 mg201 Exp $
      &    n_intpa,n_intpb,n_intma,n_intmb,
      &    n_intpaa,n_intmaa,n_intpbb,n_intmbb,
      &    n_intppab,n_intpmab,n_intmpab,n_intmmab
-      integer i_scr,i_s,i_zeta,i_zeta0,i_zeta1,n_prim0,n_prim1,
-     &    mem,max_loc,max_type1,max_type2,l_scr,
+      integer i_scr,i_s,i_zeta,i_coef,
+     &    mem,max_type1,max_type2,l_scr,
      &    n_cart_a,n_cart_b,n_cont_ab,
      &    n_all_a,n_all_b,n_ab,n_abblk,n_ab9blk
       integer lcsco
@@ -142,7 +142,6 @@ C $Id: ecp_hessian.F,v 1.6 1998-04-03 01:54:24 mg201 Exp $
       if (DryRun) then
         max_type1 = 0
         max_type2 = 0
-        max_loc = 0
       else
         call dfill (n_int*n_blk*9*n_cent**2,zero,ecp_hess,1)
       end if
@@ -254,11 +253,8 @@ C $Id: ecp_hessian.F,v 1.6 1998-04-03 01:54:24 mg201 Exp $
 *
 *     Pointers for local part
 *
-        i_zeta = ind_C(-1,i)
-        n_prim0 = n_prim_C(2,-1,i)
-        n_prim1 = n_prim_C(1,-1,i)
-        i_zeta1 = i_zeta+n_prim_C(0,-1,i)
-        i_zeta0 = i_zeta1+n_prim1
+        i_zeta = ind_z(-1,i)
+        i_coef = ind_c(-1,i)
 *
 C        if (debug_arrays) then
 C          write (LuOut,*) 'Parameters of ECP'
@@ -278,25 +274,30 @@ C        end if
 *       =================================================
 *
         if (i_c_C .ne. i_c_B) then
+          if (.not.DryRun) then
+            call dfill (n_intpbb*n_blk,zero,scr(i_lp),1)
+            call dfill (n_ab*n_blk,zero,scr(i_lm),1)
+          end if
 *
 *         Calculate integrals for l_B+2 with coeffs * zeta**2
 *
-          if (n_blk .ne. 3) call ecp_local (mem,DryRun,
-     &        xyz_A,zeta_A,coef_A,
-     &        n_prim_A,n_cont_A,n_cart_A,l_A,
-     &        xyz_B,zeta_B,scr(i_xxcb),
-     &        n_prim_B,n_cont_B,n_cartp2_B,l_B+2,
-     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &        scr(i_lp),scr(i_scr),l_scr,
-     &        ibug)
-          if (DryRun) max_loc = max(mem,max_loc)
           if (i_c_C .eq. i_c_A) then
+            if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B+2,
+     &          n_prim_B,n_cont_B,scr(i_xxcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,coef_A,zeta_A,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lp),n_intpbb,.false.,ibug/10)
+            if (DryRun) max_type1 = max(mem,max_type1)
             call ecp_int1 (mem,DryRun,
-     &          R_BC,X_BC,Y_BC,Z_BC,l_B+2,n_prim_B,n_cont_B,
-     &          scr(i_xxcb),zeta_B,
-     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
-     &          coef_A,zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B+2,
+     &          n_prim_B,n_cont_B,scr(i_xxcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
      &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
@@ -304,14 +305,25 @@ C        end if
      &          scr(i_lp),n_intpbb,n_blk,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
           else
+            if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B+2,
+     &          n_prim_B,n_cont_B,scr(i_xxcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,coef_A,zeta_A,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lp),n_intpbb,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
             call ecp_int2 (mem,DryRun,
-     &          R_BC,X_BC,Y_BC,Z_BC,l_B+2,n_prim_B,n_cont_B,
-     &          scr(i_xxcb),zeta_B,
-     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
-     &          coef_A,zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B+2,
+     &          n_prim_B,n_cont_B,scr(i_xxcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpbb,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -319,22 +331,23 @@ C        end if
 *
 *         Calculate integrals for l_B with coeffs * zeta
 *
-          if (n_blk .ne. 3) call ecp_local (mem,DryRun,
-     &        xyz_A,zeta_A,coef_A,
-     &        n_prim_A,n_cont_A,n_cart_A,l_A,
-     &        xyz_B,zeta_B,scr(i_xcb),
-     &        n_prim_B,n_cont_B,n_cart_B,l_B,
-     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &        scr(i_lm),scr(i_scr),l_scr,
-     &        ibug)
-          if (DryRun) max_loc = max(mem,max_loc)
           if (i_c_C .eq. i_c_A) then
+            if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,coef_A,zeta_A,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lm),n_ab,.false.,ibug/10)
+            if (DryRun) max_type1 = max(mem,max_type1)
             call ecp_int1 (mem,DryRun,
-     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
-     &          scr(i_xcb),zeta_B,
-     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
-     &          coef_A,zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
      &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
@@ -342,14 +355,25 @@ C        end if
      &          scr(i_lm),n_ab,n_blk,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
           else
+            if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,coef_A,zeta_A,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lm),n_ab,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
             call ecp_int2 (mem,DryRun,
-     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
-     &          scr(i_xcb),zeta_B,
-     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
-     &          coef_A,zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -362,27 +386,29 @@ C        end if
             call ecp_grad_b (l_B+1,n_cartp2_b,n_cartp1_b,n_cart_b,
      &          n_cont_B,scr(i_lp),scr(i_lm),scr(i_grdp),n_all_a*n_blk,
      &          ibug/10)
+            call dfill (n_intmbb*n_blk,zero,scr(i_lp),1)
           end if
 *
 *         Calculate integrals for l_B-2
 *
           if (l_B .gt. 1) then
-            if (n_blk .ne. 3) call ecp_local (mem,DryRun,
-     &          xyz_A,zeta_A,coef_A,
-     &          n_prim_A,n_cont_A,n_cart_A,l_A,
-     &          xyz_B,zeta_B,coef_B,
-     &          n_prim_B,n_cont_B,n_cartm2_B,l_B-2,
-     &          xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &          zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &          scr(i_lp),scr(i_scr),l_scr,
-     &          ibug)
-            if (DryRun) max_loc = max(mem,max_loc)
             if (i_c_C .eq. i_c_A) then
+              if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B-2,
+     &            n_prim_B,n_cont_B,coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &            n_prim_A,n_cont_A,coef_A,zeta_A,
+     &            n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &            zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &            tol,0,scr(i_scr),l_scr,
+     &            csco,lcsco,
+     &            scr(i_lp),n_intmbb,.false.,ibug/10)
+              if (DryRun) max_type1 = max(mem,max_type1)
               call ecp_int1 (mem,DryRun,
-     &            R_BC,X_BC,Y_BC,Z_BC,l_B-2,n_prim_B,n_cont_B,
-     &            coef_B,zeta_B,
-     &            R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
-     &            coef_A,zeta_A,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B-2,
+     &            n_prim_B,n_cont_B,coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
      &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
@@ -390,14 +416,25 @@ C        end if
      &            scr(i_lp),n_intmbb,n_blk,.false.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
             else
+              if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B-2,
+     &            n_prim_B,n_cont_B,coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &            n_prim_A,n_cont_A,coef_A,zeta_A,
+     &            n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &            zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &            tol,0,scr(i_scr),l_scr,
+     &            csco,lcsco,
+     &            scr(i_lp),n_intmbb,ibug/10)
+              if (DryRun) max_type2 = max(mem,max_type2)
               call ecp_int2 (mem,DryRun,
-     &            R_BC,X_BC,Y_BC,Z_BC,l_B-2,n_prim_B,n_cont_B,
-     &            coef_B,zeta_B,
-     &            R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
-     &            coef_A,zeta_A,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B-2,
+     &            n_prim_B,n_cont_B,coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &            zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
+     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmbb,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
@@ -441,25 +478,30 @@ C        end if
 *       =================================================
 *
         if (i_c_C .ne. i_c_A) then
+          if (.not.DryRun) then
+            call dfill (n_intpaa*n_blk,zero,scr(i_lp),1)
+            call dfill (n_ab*n_blk,zero,scr(i_lm),1)
+          end if
 *
 *         Calculate integrals for l_A+2 with coeffs * zeta**2
 *
-          if (n_blk .ne. 3) call ecp_local (mem,DryRun,
-     &        xyz_A,zeta_A,scr(i_xxca),
-     &        n_prim_A,n_cont_A,n_cartp2_A,l_A+2,
-     &        xyz_B,zeta_B,coef_B,
-     &        n_prim_B,n_cont_B,n_cart_B,l_B,
-     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &        scr(i_lp),scr(i_scr),l_scr,
-     &        ibug)
-          if (DryRun) max_loc = max(mem,max_loc)
           if (i_c_C .eq. i_c_B) then
+            if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A+2,
+     &          n_prim_A,n_cont_A,scr(i_xxca),zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lp),n_intpaa,.true.,ibug/10)
+            if (DryRun) max_type1 = max(mem,max_type1)
             call ecp_int1 (mem,DryRun,
-     &          R_AC,X_AC,Y_AC,Z_AC,l_A+2,n_prim_A,n_cont_A,
-     &          scr(i_xxca),zeta_A,
-     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
-     &          coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A+2,
+     &          n_prim_A,n_cont_A,scr(i_xxca),zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,coef_B,zeta_B,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
      &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
@@ -467,14 +509,25 @@ C        end if
      &          scr(i_lp),n_intpaa,n_blk,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
           else
+            if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A+2,
+     &          n_prim_A,n_cont_A,scr(i_xxca),zeta_A,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lp),n_intpaa,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
             call ecp_int2 (mem,DryRun,
-     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
-     &          coef_B,zeta_B,
-     &          R_AC,X_AC,Y_AC,Z_AC,l_A+2,n_prim_A,n_cont_A,
-     &          scr(i_xxca),zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A+2,
+     &          n_prim_A,n_cont_A,scr(i_xxca),zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpaa,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -482,22 +535,23 @@ C        end if
 *
 *         Calculate integrals for l_A with coeffs * zeta
 *
-          if (n_blk .ne. 3) call ecp_local (mem,DryRun,
-     &        xyz_A,zeta_A,scr(i_xca),
-     &        n_prim_A,n_cont_A,n_cart_A,l_A,
-     &        xyz_B,zeta_B,coef_B,
-     &        n_prim_B,n_cont_B,n_cart_B,l_B,
-     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &        scr(i_lm),scr(i_scr),l_scr,
-     &        ibug)
-          if (DryRun) max_loc = max(mem,max_loc)
           if (i_c_C .eq. i_c_B) then
+            if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lm),n_ab,.true.,ibug/10)
+            if (DryRun) max_type1 = max(mem,max_type1)
             call ecp_int1 (mem,DryRun,
-     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
-     &          scr(i_xca),zeta_A,
-     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
-     &          coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,coef_B,zeta_B,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
      &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
@@ -505,14 +559,25 @@ C        end if
      &          scr(i_lm),n_ab,n_blk,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
           else
+            if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lm),n_ab,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
             call ecp_int2 (mem,DryRun,
-     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
-     &          coef_B,zeta_B,
-     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
-     &          scr(i_xca),zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &          n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,
+     &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -525,27 +590,29 @@ C        end if
             call ecp_grad_a (l_A+1,n_cartp2_a,n_cartp1_a,n_cart_a,
      &          n_cont_A*n_blk,scr(i_lp),scr(i_lm),scr(i_grdp),n_all_b,
      &          ibug/10)
+            call dfill (n_intmaa*n_blk,zero,scr(i_lp),1)
           end if
 *
 *         Calculate integrals for l_A-2
 *
           if (l_A .gt. 1) then
-            if (n_blk .ne. 3) call ecp_local (mem,DryRun,
-     &          xyz_A,zeta_A,coef_A,
-     &          n_prim_A,n_cont_A,n_cartm2_A,l_A-2,
-     &          xyz_B,zeta_B,coef_B,
-     &          n_prim_B,n_cont_B,n_cart_B,l_B,
-     &          xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &          zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &          scr(i_lp),scr(i_scr),l_scr,
-     &          ibug)
-            if (DryRun) max_loc = max(mem,max_loc)
             if (i_c_C .eq. i_c_B) then
+              if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A-2,
+     &            n_prim_A,n_cont_A,coef_A,zeta_A,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &            n_prim_B,n_cont_B,coef_B,zeta_B,
+     &            n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &            zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &            tol,0,scr(i_scr),l_scr,
+     &            csco,lcsco,
+     &            scr(i_lp),n_intmaa,.true.,ibug/10)
+              if (DryRun) max_type1 = max(mem,max_type1)
               call ecp_int1 (mem,DryRun,
-     &            R_AC,X_AC,Y_AC,Z_AC,l_A-2,n_prim_A,n_cont_A,
-     &            coef_A,zeta_A,
-     &            R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
-     &            coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A-2,
+     &            n_prim_A,n_cont_A,coef_A,zeta_A,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &            n_prim_B,n_cont_B,coef_B,zeta_B,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
      &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
@@ -553,14 +620,25 @@ C        end if
      &            scr(i_lp),n_intmaa,n_blk,.true.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
             else
+              if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &            n_prim_B,n_cont_B,coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A-2,
+     &            n_prim_A,n_cont_A,coef_A,zeta_A,
+     &            n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &            zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &            tol,0,scr(i_scr),l_scr,
+     &            csco,lcsco,
+     &            scr(i_lp),n_intmaa,ibug/10)
+              if (DryRun) max_type2 = max(mem,max_type2)
               call ecp_int2 (mem,DryRun,
-     &            R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
-     &            coef_B,zeta_B,
-     &            R_AC,X_AC,Y_AC,Z_AC,l_A-2,n_prim_A,n_cont_A,
-     &            coef_A,zeta_A,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B,
+     &            n_prim_B,n_cont_B,coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A-2,
+     &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &            zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
+     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmaa,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
@@ -608,49 +686,55 @@ C        end if
 *
 *         Calculate integrals for l_A+1, l_B+1
 *
-          if (n_blk .ne. 3) call ecp_local (mem,DryRun,
-     &        xyz_A,zeta_A,scr(i_xca),
-     &        n_prim_A,n_cont_A,n_cartp1_A,l_A+1,
-     &        xyz_B,zeta_B,scr(i_xcb),
-     &        n_prim_B,n_cont_B,n_cartp1_B,l_B+1,
-     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &        scr(i_lp),scr(i_scr),l_scr,
-     &        ibug)
-          if (DryRun) max_loc = max(mem,max_loc)
+          if (.not.DryRun) 
+     &        call dfill (n_intppab*n_blk,zero,scr(i_lp),1)
+          if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
+     &        R_BC,X_BC,Y_BC,Z_BC,l_B+1,
+     &        n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
+     &        R_AC,X_AC,Y_AC,Z_AC,l_A+1,
+     &        n_prim_A,n_cont_A,scr(i_xca),zeta_A,
+     &        n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &        zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &        tol,0,scr(i_scr),l_scr,
+     &        csco,lcsco,
+     &        scr(i_lp),n_intppab,ibug/10)
+          if (DryRun) max_type2 = max(mem,max_type2)
           call ecp_int2 (mem,DryRun,
-     &        R_BC,X_BC,Y_BC,Z_BC,l_B+1,n_prim_B,n_cont_B,
-     &        scr(i_xcb),zeta_B,
-     &        R_AC,X_AC,Y_AC,Z_AC,l_A+1,n_prim_A,n_cont_A,
-     &        scr(i_xca),zeta_A,
+     &        R_BC,X_BC,Y_BC,Z_BC,l_B+1,
+     &        n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
+     &        R_AC,X_AC,Y_AC,Z_AC,l_A+1,
+     &        n_prim_A,n_cont_A,scr(i_xca),zeta_A,
      &        l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &        zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
+     &        zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &        csco,lcsco,
      &        scr(i_lp),n_intppab,n_blk,ibug/10)
           if (DryRun) max_type2 = max(mem,max_type2)
 *
 *         Calculate integrals for l_A-1, l_B+1
 *
+          if (.not.DryRun) 
+     &        call dfill (n_intmpab*n_blk,zero,scr(i_lm),1)
           if (l_A .gt. 0) then
-            if (n_blk .ne. 3) call ecp_local (mem,DryRun,
-     &          xyz_A,zeta_A,coef_A,
-     &          n_prim_A,n_cont_A,n_cartm1_A,l_A-1,
-     &          xyz_B,zeta_B,scr(i_xcb),
-     &          n_prim_B,n_cont_B,n_cartp1_B,l_B+1,
-     &          xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &          zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &          scr(i_lm),scr(i_scr),l_scr,
-     &          ibug)
-            if (DryRun) max_loc = max(mem,max_loc)
             call ecp_int2 (mem,DryRun,
-     &          R_BC,X_BC,Y_BC,Z_BC,l_B+1,n_prim_B,n_cont_B,
-     &          scr(i_xcb),zeta_B,
-     &          R_AC,X_AC,Y_AC,Z_AC,l_A-1,n_prim_A,n_cont_A,
-     &          coef_A,zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B+1,
+     &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A-1,
+     &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lm),n_intmpab,n_blk,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
+            call ecp_int2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B+1,
+     &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A-1,
+     &          n_prim_A,n_cont_A,coef_A,zeta_A,
+     &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_intmpab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -668,49 +752,55 @@ C        end if
 *         Calculate integrals for l_A+1, l_B-1
 *
           if (l_B .gt. 0) then
-            if (n_blk .ne. 3) call ecp_local (mem,DryRun,
-     &          xyz_A,zeta_A,scr(i_xca),
-     &          n_prim_A,n_cont_A,n_cartp1_A,l_A+1,
-     &          xyz_B,zeta_B,coef_B,
-     &          n_prim_B,n_cont_B,n_cartm1_B,l_B-1,
-     &          xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &          zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &          scr(i_lp),scr(i_scr),l_scr,
-     &          ibug)
-            if (DryRun) max_loc = max(mem,max_loc)
+            if (.not.DryRun) 
+     &          call dfill (n_intpmab*n_blk,zero,scr(i_lp),1)
+            if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B-1,
+     &          n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A+1,
+     &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lp),n_intpmab,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
             call ecp_int2 (mem,DryRun,
-     &          R_BC,X_BC,Y_BC,Z_BC,l_B-1,n_prim_B,n_cont_B,
-     &          coef_B,zeta_B,
-     &          R_AC,X_AC,Y_AC,Z_AC,l_A+1,n_prim_A,n_cont_A,
-     &          scr(i_xca),zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B-1,
+     &          n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A+1,
+     &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpmab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
 *
 *         Calculate integrals for l_A-1, l_B-1
 *
+            if (.not.DryRun) 
+     &          call dfill (n_intmmab*n_blk,zero,scr(i_lm),1)
             if (l_A .gt. 0) then
-              if (n_blk .ne. 3) call ecp_local (mem,DryRun,
-     &            xyz_A,zeta_A,coef_A,
-     &            n_prim_A,n_cont_A,n_cartm1_A,l_A-1,
-     &            xyz_B,zeta_B,coef_B,
-     &            n_prim_B,n_cont_B,n_cartm1_B,l_B-1,
-     &            xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &            zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &            scr(i_lm),scr(i_scr),l_scr,
-     &            ibug)
-              if (DryRun) max_loc = max(mem,max_loc)
+              if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B-1,
+     &            n_prim_B,n_cont_B,coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A-1,
+     &            n_prim_A,n_cont_A,coef_A,zeta_A,
+     &            n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &            zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &            tol,0,scr(i_scr),l_scr,
+     &            csco,lcsco,
+     &            scr(i_lm),n_intmmab,ibug/10)
+              if (DryRun) max_type2 = max(mem,max_type2)
               call ecp_int2 (mem,DryRun,
-     &            R_BC,X_BC,Y_BC,Z_BC,l_B-1,n_prim_B,n_cont_B,
-     &            coef_B,zeta_B,
-     &            R_AC,X_AC,Y_AC,Z_AC,l_A-1,n_prim_A,n_cont_A,
-     &            coef_A,zeta_A,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B-1,
+     &            n_prim_B,n_cont_B,coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A-1,
+     &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &            zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
+     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lm),n_intmmab,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
@@ -777,7 +867,7 @@ C        end if
         end do
       end if
       if (DryRun) lscr = i_scr-1
-     &    +max(max_loc,max_type1,max_type2,n_ab9blk)
+     &    +max(max_type1,max_type2,n_ab9blk)
       if (debug_gen) write (LuOut,*) 'Exiting ecp_hessian'
 *
       return
