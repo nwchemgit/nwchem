@@ -864,13 +864,13 @@ c
       return
       end
       subroutine cf_proper(vol,tmp,tmpw,tmps,prs,tsw,tss,psc,
-     + ewkin,nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs)
+     + ewkin,nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs,ept2,ept3)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
-      real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin
+      real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin,ept2,ept3
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs
 c
       integer i
@@ -895,6 +895,9 @@ c
 c
       nshw=niterw
       nshs=niters
+c
+      ept2=ep2(1)
+      ept3=ep3(1)
 c
       return
       end

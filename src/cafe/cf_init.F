@@ -3,7 +3,7 @@
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
-     + iislow,tempi,tempwi,tempsi,compr,ntyp)
+     + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2)
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       real*8 spmet,step,tols,bx(3)
       integer mdalg,npbt,nbxt,iiqmmm,iipolt
       real*8 rcs,rcl,rqm,compr
-      integer iitmps,iiprss,iislow,nodpme,ntyp
+      integer iitmps,iiprss,iislow,nodpme,ntyp,idset,ipset1,ipset2
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
 c
       integer i
@@ -92,7 +92,7 @@ c
       ngrsw=0
       ngrss=0
       ireact=0
-      iset=1
+      iset=idset
       npener=0
       issscl=0
       nrwrec=0
@@ -138,8 +138,8 @@ c
       wbox=zero
 c
       ithint=ntype.eq.3
-      ipert2=.false.
-      ipert3=.false.
+      ipert2=ithint.or.(iset.eq.1.and.(ipset1.eq.2.or.ipset2.eq.2))
+      ipert3=ithint.or.(iset.eq.1.and.(ipset1.eq.2.or.ipset2.eq.2))
       do 2 i=1,24
       ith(i)=.false.
       ip2(i)=.false.
@@ -262,9 +262,9 @@ c
       call cf_copya(ia,nam,wgt,num,byte_mb(i_nam),
      + dbl_mb(i_mas),int_mb(i_num))
 c
-      if(abs(wgt(1)-wgt(2)).gt.tiny) ip2((ia-1)*12+1)=.true.
-      if(abs(wgt(1)-wgt(3)).gt.tiny) ip3((ia-1)*12+1)=.true.
-      if(abs(wgt(2)-wgt(3)).gt.tiny) ith((ia-1)*12+1)=.true.
+      if(abs(wgt(1)-wgt(2)).gt.tiny) ip2(13)=.true.
+      if(abs(wgt(1)-wgt(3)).gt.tiny) ip3(13)=.true.
+      if(abs(wgt(2)-wgt(3)).gt.tiny) ith(13)=.true.
 c
       return
       end
@@ -330,10 +330,10 @@ c
 c
       call cf_copyq(ia,chgi,dbl_mb(i_chg))
 c
-      if(abs(chgi(1)-chgi(2)).gt.tiny) ip2((ia-1)*12+4)=.true.
-      if(abs(chgi(1)-chgi(3)).gt.tiny) ip3((ia-1)*12+4)=.true.
-      if(abs(chgi(2)-chgi(3)).gt.tiny) ith((ia-1)*12+4)=.true.
-c
+      if(abs(chgi(1)-chgi(2)).gt.tiny) ip2(16)=.true.
+      if(abs(chgi(1)-chgi(3)).gt.tiny) ip3(16)=.true.
+      if(abs(chgi(2)-chgi(3)).gt.tiny) ith(16)=.true.
+cc
       return
       end
       subroutine cf_copyq(ia,chgi,chg)
@@ -529,20 +529,29 @@ c
       integer id,ia,iq
 c
       if(id.lt.1.or.id.gt.mwa) call errquit('Error in parwiq',0)
-      call cf_copwiq(id,ia,iq,int_mb(i_iwa),int_mb(i_iwq))
+      call cf_copwiq(id,ia,iq,int_mb(i_iwa),int_mb(i_iwq),
+     + dbl_mb(i_mas),dbl_mb(i_chg))
 c
       return
       end
-      subroutine cf_copwiq(id,ia,iq,iwa,iwq)
+      subroutine cf_copwiq(id,ia,iq,iwa,iwq,wgt,chg)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
       integer id,ia,iq,iwa(mwa),iwq(mwa)
+      real*8 wgt(mat,6),chg(mqt,mqp,6)
 c
       iwa(id)=ia
       iwq(id)=iq
+c
+      if(abs(wgt(ia,1)-wgt(ia,2)).gt.tiny) ip2(1)=.true.
+      if(abs(wgt(ia,1)-wgt(ia,3)).gt.tiny) ip3(1)=.true.
+      if(abs(wgt(ia,2)-wgt(ia,3)).gt.tiny) ith(1)=.true.
+      if(abs(chg(iq,1,1)-chg(iq,1,2)).gt.tiny) ip2(4)=.true.
+      if(abs(chg(iq,1,1)-chg(iq,1,3)).gt.tiny) ip3(4)=.true.
+      if(abs(chg(iq,1,2)-chg(iq,1,3)).gt.tiny) ith(4)=.true.
 c
       return
       end
