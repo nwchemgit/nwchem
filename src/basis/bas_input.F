@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.21 1996-04-11 17:08:52 d3e129 Exp $
+c $Id: bas_input.F,v 1.22 1996-05-10 15:52:54 gg502 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -255,7 +255,8 @@ c     Line with tag on has been parsed ... either a standard set
 c     or explicit input
 c
       if (standard .ne. ' ') then
-         call bas_tag_lib(basis,osegment,tag_in_lib,standard,filename)
+         call bas_tag_lib(basis, osegment, tag, tag_in_lib, standard,
+     $        filename)
          goto 10
       endif
 c
@@ -410,7 +411,8 @@ c
       call errquit('bas_input_body: format error in the input', 0)
 c
       end
-      subroutine bas_tag_lib(basis, osegment, tag, standard, filename)
+      subroutine bas_tag_lib(basis, osegment, tag, tag_in_lib, standard,
+     $     filename)
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -418,6 +420,7 @@ c
       integer basis             ! [input] basis handle
       logical osegment          ! [input] segment if true
       character*16 tag          ! [input] tag
+      character*16 tag_in_lib   ! [input] tag to lookup in library
       character*(*) standard    ! [input] name of standard basis set
       character*(*) filename    ! [input] name of library file
 c
@@ -450,7 +453,7 @@ c
 c     Translate tag to symbol of atom and assemble a search string of
 c     the form 'basis <symbol>_<basis name>'
 c
-      if (.not. geom_tag_to_element(tag, symbol, element, atn))
+      if (.not. geom_tag_to_element(tag_in_lib, symbol, element, atn))
      $     call errquit('bas_tag_lib: tag does not refer to an atom', 0)
       string = symbol
       lenn = inp_strlen(string)
@@ -515,7 +518,8 @@ c
       call inp_restore_state    ! Restore state for unit 5
       return
 c
- 1000 write(6,*) ' bas_tag_lib: looking for ', tag, standard, filename
+ 1000 write(6,*) ' bas_tag_lib: looking for ', tag_in_lib, standard,
+     $     filename
       call errquit('bas_tag_lib: failed to open basis library', 0)
 c
 10000 call errquit('bas_tag_lib: problem with library format?', 0)
