@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.47 2003-12-13 21:07:40 bylaska Exp $
+* $Id: control.F,v 1.48 2004-01-28 01:29:37 bylaska Exp $
 *
 
 *     ***********************************
@@ -28,6 +28,9 @@
       integer trtdb
       common / control_rtdb1 / trtdb
 
+*     **** control_print common block ****
+      integer print_level
+      common / control_print1 / print_level
 
       character*30 cell_name
       character*30 rtdb_unita,rtdb_ngrid,rtdb_boundry
@@ -37,6 +40,10 @@
       value = rtdb_parallel(.true.)
       code = code_in
       trtdb = rtdb
+
+      call util_print_get_level(print_level)
+      !write(*,*) "Print level is ",print_level
+
 
 *     **** cpsd: stuff ****
 
@@ -2083,3 +2090,33 @@ c      end
       control_DOS = dos
       return
       end
+
+
+
+*     *****************************
+*     *                           *
+*     *    control_print          *
+*     *                           *
+*     *****************************
+      logical function control_print(level)
+      implicit none
+      integer level
+
+
+*     **** control_print common block ****
+      integer print_level
+      common / control_print1 / print_level
+
+
+      logical value
+
+      if (level.le.print_level) then
+         value = .true.
+      else
+         value = .false.
+      end if
+
+      control_print = value
+      return
+      end
+

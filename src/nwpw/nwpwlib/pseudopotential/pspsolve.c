@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.9 2003-12-02 19:17:09 bylaska Exp $
+ $Id: pspsolve.c,v 1.10 2004-01-28 01:29:38 bylaska Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -23,7 +23,8 @@
 
 void FATR pspsolve_
 #if defined(USE_FCD)
-                   (Integer *debug_ptr,
+                   (Integer *print_ptr,
+                    Integer *debug_ptr,
                     Integer *lmax_ptr,
                     Integer *locp_ptr,
                     double  *rlocal_ptr,
@@ -42,8 +43,9 @@ void FATR pspsolve_
   char *out_filename = _fcdtocp(fcd_out_filename);
 
 #else
-             (debug_ptr,lmax_ptr,locp_ptr,rlocal_ptr,
+             (print_ptr,debug_ptr,lmax_ptr,locp_ptr,rlocal_ptr,
 			  sdir_name,n9,dir_name,n0,in_filename,n1,out_filename,n2)
+Integer	*print_ptr;
 Integer	*debug_ptr;
 Integer	*lmax_ptr;
 Integer	*locp_ptr;
@@ -61,7 +63,7 @@ Integer	*n2;
 #endif
 
    int		i,j,k,l,p,Nlinear,Nvalence;
-   int      debug;
+   int      debug,print;
    double	*rl, 
 			*rhol,
 			**psil,
@@ -86,6 +88,7 @@ Integer	*n2;
    char *full_filename = (char *) malloc(m9+25+5);
    
    
+   print = *print_ptr;
    debug = *debug_ptr;
    lmax_out   = *lmax_ptr;
    locp_out   = *locp_ptr;
@@ -211,7 +214,10 @@ Integer	*n2;
 
 
       /* output datafile to be used for Kleinman-Bylander input, argv[1].dat */
+      if (print)
+      {
       printf(" Creating datafile for Kleinman-Bylander input: %s\n",outfile);
+      }
       fp = fopen(outfile,"w+");
       fprintf(fp,"%s\n",name_Atom());
       fprintf(fp,"%lf %lf %d   %d %d %lf\n",Zion_Psp(),Amass_Atom(),lmax_Psp(),
@@ -222,8 +228,11 @@ Integer	*n2;
       fprintf(fp,"%d %lf\n",nrl_Linear(),drl_Linear());
       fprintf(fp,"%s\n",comment_Psp());
 
+      if (print)
+      {
       printf("  + Appending pseudopotentials:    %s thru %s\n",
 					   spd_Name(0),spd_Name(lmax_Psp()));
+      }
       for (k=0; k<Nlinear; ++k)
       {
          fprintf(fp,"%12.8lf", rl[k]);
@@ -231,8 +240,11 @@ Integer	*n2;
             fprintf(fp," %12.8lf", pspl[p][k]);
          fprintf(fp,"\n");
       }
+      if (print)
+      {
       printf("  + Appending pseudowavefunctions: %s thru %s\n",
 					   spd_Name(0),spd_Name(lmax_Psp()));
+      }
       for (k=0; k<Nlinear; ++k)
       {
          fprintf(fp,"%12.8lf", rl[k]);
@@ -244,14 +256,20 @@ Integer	*n2;
 	  /* append semicore corrections */
 	  if (r_semicore_Psp() != 0.0)
 	  {
+        if (print)
+        {
         printf("  + Appending semicore density\n");
+        }
 	     Log_to_Linear(rho_semicore_Psp(),rl,rhol);
 	     fprintf(fp,"%lf\n",r_semicore_Psp());
 	     for (k=0; k<Nlinear; ++k)
 	         fprintf(fp,"%12.8lf %12.8lf\n", rl[k],
 	                              fabs(rhol[k]*over_fourpi));
 
+        if (print)
+        {
          printf("  + Appending semicore density gradient\n");
+        }
 	     Log_to_Linear(drho_semicore_Psp(),rl,rhol);
 	     for (k=0; k<Nlinear; ++k)
 	         fprintf(fp,"%12.8lf %12.8lf\n", rl[k],

@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.21 2003-12-03 21:56:54 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.22 2004-01-28 01:29:38 bylaska Exp $
 c
 
 *     ***************************************
@@ -53,7 +53,7 @@ c
       real*8  rlocal00
 
       character lmax,locp
-      integer h,i,j,k,debug
+      integer h,i,j,k,debug,print
       data dirs / 'element:',
      >            'charge:',
      >            'mass_number:',
@@ -468,6 +468,7 @@ c
       k = index(pseudopotential_filename,' ') -1
 
       debug = 1
+      print = 1
       lmax00   = -1
       if (lmax.eq.'s') lmax00 = 0
       if (lmax.eq.'p') lmax00 = 1
@@ -503,7 +504,7 @@ c
       if (locp.eq.'4') locp00 = 4
 
       !rlocal00 = 1.0d0 ! 
-      call pspsolve(debug,
+      call pspsolve(print,debug,
      >              lmax00,locp00,rlocal00,
      >              sdir_name(1:h),   h,
      >              dir_name(1:i),    i,
@@ -527,6 +528,7 @@ c
 #include "msgtypesf.h"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "util.fh"
 
       character*2 atom
       double precision rlocal
@@ -535,21 +537,24 @@ c
       integer MASTER,taskid,msglen
       parameter (MASTER=0)
 
-      logical value
+      logical value,hprint
       character*255 dir_name,sdir_name
       character*16 psp_in,psp_out
-      integer h,i,j,k,debug,psp_type
+      integer h,i,j,k,debug,psp_type,print
       character ch_tmp
 
 *     **** external functions ****
+      logical  control_print
       integer  nwpw_libglmax,nwpw_libglocp,control_gga
       integer  nwpw_libgpsp_type
       double precision nwpw_libgrlocal
+      external control_print
       external nwpw_libglmax,nwpw_libglocp,control_gga
       external nwpw_libgpsp_type
       external nwpw_libgrlocal
 c
       call Parallel_taskid(taskid)
+      hprint = (taskid.eq.MASTER).and.control_print(print_high)
 
       value = rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
@@ -576,8 +581,10 @@ c
       rlocal=nwpw_libgrlocal(atom)
       psp_type=nwpw_libgpsp_type(atom)
        
+      if (hprint) then
       write(*,*) "Generating 1d pseudopotential for ",atom
       write(*,*) "psp_type:",psp_type
+      end if
 
       if (psp_type.eq.0) then
 
@@ -586,11 +593,11 @@ c        *** add GGA options to junk.inp ***
 *  
 c        *** Vosko ***
          if (control_gga().eq.0) then
-           write(*,*) "+ generated using Vosko et al."
+           if (hprint) write(*,*) "+ generated using Vosko et al."
 
 c        *** PBE96 ***
          else if (control_gga().eq.1) then
-           write(*,*) "+ generated using PBE96"
+           if (hprint) write(*,*) "+ generated using PBE96"
            open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
            do while(.true.)
              read(99,*,ERR=30,END=30) ch_tmp
@@ -601,7 +608,10 @@ c        *** PBE96 ***
          end if
 
          debug = 0
-         call pspsolve(debug,
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call pspsolve(print,debug,
      >        lmax,locp,rlocal,
      >        sdir_name(1:h),h,
      >        dir_name(1:i),i,
@@ -609,7 +619,10 @@ c        *** PBE96 ***
      >        psp_out(1:k),k)
 
       else
-         debug = 1
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
          call hgh_parse(debug,    
      >        lmax,locp,rlocal,
      >        sdir_name(1:h),h,
