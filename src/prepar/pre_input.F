@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.73 2000-10-20 20:26:51 edo Exp $
+c $Id: pre_input.F,v 1.74 2000-10-23 21:01:54 d3j191 Exp $
 c
       implicit none
 c
@@ -883,6 +883,28 @@ c
       if(inp_compare(.false.,'center',item)) then
       write(68,6818)
  6818 format('center ',/,'boxsiz')
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     centerz
+c     -------
+c
+      if(inp_compare(.false.,'centerx',item)) then
+      write(68,6827)
+ 6827 format('centrx ',/,'boxsiz')
+      numcmd=numcmd+1
+      goto 2
+      endif
+      if(inp_compare(.false.,'centery',item)) then
+      write(68,6828)
+ 6828 format('centry ',/,'boxsiz')
+      numcmd=numcmd+1
+      goto 2
+      endif
+      if(inp_compare(.false.,'centerz',item)) then
+      write(68,6829)
+ 6829 format('centrz ',/,'boxsiz')
       numcmd=numcmd+1
       goto 2
       endif

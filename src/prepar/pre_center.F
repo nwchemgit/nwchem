@@ -1,20 +1,27 @@
       logical function pre_center(xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
-     + xs,msa,nsa)
+     + xs,msa,nsa,iopt)
 c
-c $Id: pre_center.F,v 1.10 2000-08-31 00:07:00 d3j191 Exp $
+c $Id: pre_center.F,v 1.11 2000-10-23 21:01:54 d3j191 Exp $
 c
       implicit none
 c
-      integer mwa,mwm,nwa,nwm,msa,nsa,mwmc,nwmc
+      integer mwa,mwm,nwa,nwm,msa,nsa,mwmc,nwmc,iopt
       real*8 xw(3,mwa,mwm),xwc(3,mwa,mwmc),xs(3,msa)
 c
-      integer i,j,k,imax,imin
+      integer i,j,k,imax,imin,kfr,kto
       real*8 s,smin,smax
 c
       write(*,1000)
  1000 format(/,' Centering solute')
 c
-      do 1 k=1,3
+      kfr=1
+      kto=3
+      if(iopt.ne.0) then
+      kfr=iopt
+      kto=iopt
+      endif
+c
+      do 1 k=kfr,kto
       smin=xs(k,1)
       smax=xs(k,1)
       imin=1

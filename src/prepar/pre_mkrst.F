@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat)
 c
-c $Id: pre_mkrst.F,v 1.63 2000-09-22 17:55:32 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.64 2000-10-23 21:01:54 d3j191 Exp $
 c
       implicit none
 c
@@ -292,7 +292,7 @@ c     center the solute
 c     -----------------
 c
       if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
-     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
+     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa,0))
      + call errquit('pre_center failed',9999)
 c
 c     orient the solute
@@ -837,7 +837,25 @@ c     -------------
 c
       if(card(1:6).eq.'center') then
       if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
-     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
+     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa,0))
+     + call errquit('pre_center failed',9999)
+      endif
+c
+      if(card(1:6).eq.'centrx') then
+      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa,1))
+     + call errquit('pre_center failed',9999)
+      endif
+c
+      if(card(1:6).eq.'centry') then
+      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa,2))
+     + call errquit('pre_center failed',9999)
+      endif
+c
+      if(card(1:6).eq.'centrz') then
+      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa,3))
      + call errquit('pre_center failed',9999)
       endif
 c
