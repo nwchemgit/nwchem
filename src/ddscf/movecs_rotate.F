@@ -1,6 +1,6 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs,
      .     evals, foccs)
-C$Id: movecs_rotate.F,v 1.8 2002-12-17 02:39:29 edo Exp $
+C$Id: movecs_rotate.F,v 1.9 2002-12-18 01:33:48 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -185,36 +185,12 @@ c
         c(3,4) = xyyz + xzyy
         c(4,4) = xzyz - xxyx - xyyy
       endif   ! ga_nodeid().eq.0
-      call ga_sync()
 c
-      if (.not. ga_create(mt_dbl, 4,4, 'c',1,1,g_c))
-     $     call errquit('movecs_rotate: could not create g_c',0)
-c 
-      if (.not. ga_create(mt_dbl, 4,4, 'v',1,1,g_v))
-     $     call errquit('movecs_rotate: could not create g_v',0)
-c 
-      call ga_zero(g_c)
-      call ga_zero(g_v)
+c     diagonalize the quadratic form matrix
 c
-      if (ga_nodeid().eq.0) then
-        do i = 1,4
-        do j = 1,4
-          call ga_put(g_c,i,i,j,j,c(i,j),1)
-        enddo
-        enddo
-      endif
-      call ga_sync()
-c
-      call ga_symmetrize(g_c)
-      call ga_diag_std(g_c, g_v, d)
-c
-      if (ga_nodeid().eq.0) then
-        do i = 1,4
-        do j = 1,4
-          call ga_get(g_v,i,i,j,j,v(i,j),1)
-        enddo
-        enddo
-c
+      call dcopy(16,c,1,v,1)
+      call util_jacobi (4,v,4,d)
+
         q(1) = v(1,4)
         q(2) = v(2,4)
         q(3) = v(3,4)
@@ -232,8 +208,6 @@ c
         rot(2,3) = 2.0d0 * (q(4) * q(3) + q(1) * q(2))
         rot(3,3) = q(1)**2.0d0 - q(2)**2.0d0 - q(3)**2.0d0 + q(4)**2.0d0
 c
-      endif  ! ga_nodeid().eq.0
-      call ga_sync()
 c
    4  format(3F12.6)
       if (oprint_info)   then
@@ -262,12 +236,6 @@ c     $       ,z2(i)/1.889725989d0
 c      end do
 c      endif
 c      call ga_sync()
-c
-      if (.not.ga_destroy(g_c)) 
-     $    call errquit('movecs_rotate: could not destroy g_c',0)
-c
-      if (.not.ga_destroy(g_v)) 
-     $    call errquit('movecs_rotate: could not destroy g_v',0)
 c
 c     ---------------------------------------------
 c     Read in vectors calculated at the old geometry.
@@ -342,7 +310,7 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.8 2002-12-17 02:39:29 edo Exp $
+C$Id: movecs_rotate.F,v 1.9 2002-12-18 01:33:48 edo Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -471,7 +439,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.8 2002-12-17 02:39:29 edo Exp $
+C$Id: movecs_rotate.F,v 1.9 2002-12-18 01:33:48 edo Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
