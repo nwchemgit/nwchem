@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.483 2004-10-02 05:19:47 edo Exp $
+# $Id: makefile.h,v 1.484 2004-10-10 01:42:50 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1219,6 +1219,7 @@ ifeq ($(LINUXCPU),x86)
 
     ifeq ($(_CPU),i686)
      _GOTSSE2= $(shell cat /proc/cpuinfo | egrep sse2 | tail -1 | awk ' /sse2/  {print "Y"}')
+     _PENTIUM_M= $(shell cat /proc/cpuinfo | egrep " M processor" | tail -1 | awk ' /M/  {print "Y"}')
       ifeq ($(_GOTSSE2),Y) 
         _CPU=i786
       endif
@@ -1317,7 +1318,15 @@ ifeq ($(LINUXCPU),x86)
       FOPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
     endif
     ifeq ($(_CPU),i786)
-      FOPTIMIZE +=  -tpp7 -xW    # this are for PentiumIV
+      ifeq ($(_PENTIUM_M),Y)
+        ifeq ($(_IFCV8),Y)
+          FOPTIMIZE +=  -tpp7 -xB    # this are for Pentium M (aka Centrino)
+        else
+          FOPTIMIZE +=  -tpp7 -xW    # this are for PentiumIV
+        endif
+      else
+        FOPTIMIZE +=  -tpp7 -xW    # this are for PentiumIV
+      endif
     endif
     DEFINES   += -DIFCLINUX
     ifeq ($(_IFCV8),Y)
