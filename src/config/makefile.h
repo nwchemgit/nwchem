@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.11 1994-04-22 02:08:25 d3g681 Exp $
+# $Id: makefile.h,v 1.12 1994-04-26 07:16:36 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -51,8 +51,15 @@ endif
 # The include directory should be first so that the include
 # files are all present and correct before any compilation
 #
+# SUBDIRS_EXTRA are those machine specific libraries required 
+#
+    SUBDIRS_EXTRA = 
+ifeq ($(TARGET),SUN)
+    SUBDIRS_EXTRA = blas 
+endif
+
     SUBDIRS = include develop global db NWints rtdb basis inp util \
-              geom input ma tcgmsg
+              geom input ma tcgmsg $(SUBDIRS_EXTRA)
 #
 # Define LIBPATH to be paths for libraries that you are linking in
 # from precompiled sources and are not building now. These libraries
@@ -82,6 +89,7 @@ ifeq ($(TARGET),SUN)
 #
 # Sun running SunOS
 #
+
          FC = f77
          CC = gcc
          AR = ar
@@ -107,7 +115,7 @@ ifeq ($(TARGET),SUN)
        LIBS = -L$(LIBDIR) $(LIBPATH) \
               -ltest -lnwints \
               -linput -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
-	      -lutil -lma -ltcgmsg
+	      -lutil -lblas -lma -ltcgmsg
 
   EXPLICITF = FALSE
 endif
