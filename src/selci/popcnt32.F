@@ -58,6 +58,10 @@ c
       byte ib(4)
       integer i
       equivalence (ib, i)
+#ifdef SOLARIS
+c     needed with -stackvar option
+      save ib, i
+#endif
 c
 #include "bitops.fh"
 c

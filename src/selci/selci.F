@@ -1,4 +1,4 @@
-      subroutine selci(rtdb)
+      logical function selci(rtdb)
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -25,17 +25,17 @@ c     4) if an moints file does not exist or if the moints
 c        directive is given with no filename then do the
 c        transformation
 c
-      logical status, oprint, oexist, oforce
+      logical status, oprint, oexist, oforce, oupdate
       integer ma_type
       character*26 date
       integer l_mem, k_mem, lword, i
       character*20 mode
       character*255 ctmp
-      integer max_thresh, nthresh
-      parameter (max_thresh = 50)
+      integer max_thresh, nthresh, max_roots
+      parameter (max_thresh = 50, max_roots = 50)
       double precision stols(max_thresh)
       integer nroot, iwpt
-      double precision diag_tol
+      double precision diag_tol, roots(max_roots), rootspt(max_roots)
 c
       call ga_sync()
 c
@@ -81,6 +81,8 @@ c
      $     mt_int, 1, nroot)) nroot = 1
       if (.not. rtdb_get(rtdb, 'selci:diag tol',
      $     mt_dbl, 1, diag_tol)) diag_tol = 1d-6
+      if (.not. rtdb_get(rtdb, 'selci:update', mt_log, 1, oupdate))
+     $     oupdate = .true.
 c
 c     These files only opened by process 0
 c
@@ -114,7 +116,7 @@ c
 c      
       if (mode .eq. 'ci+davids') then
          call selci_ci(dbl_mb(k_mem), lword)
-         call selci_davids(dbl_mb(k_mem), lword, nroot, diag_tol)
+         call selci_davids(dbl_mb(k_mem), lword, nroot, diag_tol, roots)
       else if (mode .eq. 'select') then
          if (.not. rtdb_get_info(rtdb, 'selci:selection thresholds', 
      $        ma_type, nthresh, date)) call errquit
@@ -129,8 +131,9 @@ c
          
          do i = 1, nthresh
             call selci_ci(dbl_mb(k_mem), lword)
-            call selci_davids(dbl_mb(k_mem),lword,nroot,diag_tol)
-            call selci_select(dbl_mb(k_mem),lword,nroot,iwpt,stols(i))
+            call selci_davids(dbl_mb(k_mem),lword,nroot,diag_tol,roots)
+            call selci_select(dbl_mb(k_mem),lword,nroot,iwpt,stols(i),
+     $           oupdate,rootspt)
 c     
             if (i .ne. nthresh) then
                if (.not. rtdb_put(rtdb, 'selci:selection thresholds', 
@@ -141,9 +144,18 @@ c
      $              call errquit('selci: failed deleting thresholds',0)
             endif
          enddo
+         if (.not. rtdb_put(rtdb, 'selcipt:roots',mt_dbl,nroot,rootspt))
+     $        call errquit('selci: failed to store CI+PT roots',nroot)
+         if (.not. rtdb_put(rtdb, 'selcipt:energy',mt_dbl,1,
+     $        rootspt(nroot)))
+     $        call errquit('selci: failed to store CI+PT energy',nroot)
       else
          call errquit('selci: unknown mode', 0)
       endif
+      if (.not. rtdb_put(rtdb, 'selci:roots', mt_dbl, nroot, roots))
+     $     call errquit('selci: failed to store CI roots',nroot)
+      if (.not. rtdb_put(rtdb, 'selci:energy', mt_dbl, 1, roots(nroot)))
+     $     call errquit('selci: failed to store CI energy',nroot)
 c
 c     What files need deleting?
 c
@@ -151,7 +163,12 @@ c     That's it!
 c
       if (.not. ma_pop_stack(l_mem)) 
      $     call errquit('selci: ma corrupted', 0)
+      call util_print_pop
 c
       call ga_sync()
+c
+c     If anything went wrong a hard fail would have resulted
+c
+      selci = .true.
 c
       end

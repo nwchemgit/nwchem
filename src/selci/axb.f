@@ -82,11 +82,5 @@ c
          endif
 c     
       enddo
-*     *mdc*endif
-*     c
-*     call selci_mxma(a,1,mrowa,b,mrowb,1,c,1,mrowc,ncol,nlink,nrow)
-*     
-*     call dgemm( 'n', 't', ncol, nrow, nlink, 1.0d0, a, mrowa,
-*     *     b, mrowb, zero, c, mrowc )
-c     
+c
       end

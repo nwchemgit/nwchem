@@ -186,9 +186,6 @@ c
                   call selci_pkcon(norbs,iocc,irefo(ipt),nintpo,nbitpi)
                endif
             endif
-            write(6,*) ' nref ', nref
-            call selci_prtcon(6,norbs,irefo((nref-1)*nintpo+1),
-     $           nintpo,nbitpi)
             goto 10
          endif
       else

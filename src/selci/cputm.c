@@ -1,7 +1,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
-cputm_(ai)
+void cputm_(ai)
 int *ai;
 {
 struct timeval tp;

@@ -1,4 +1,4 @@
-      subroutine selci_davids(q, lword, nroot, thresh)
+      subroutine selci_davids(q, lword, nroot, thresh, roots)
 #include "implicit.fh"
 #include "cbuff.fh"
 #include "mptr.fh"
@@ -7,6 +7,7 @@
       parameter (iflham = 1, iflhdg=2, iflcon=3, iflciv=4, maxvec = 5)
 c
       dimension q(lword)
+      dimension roots(*)        ! Return eigenvalues to calling code
 c
       dimension nbpsy(8), isym(255), nsneed(3)
 **      character*10 carg
@@ -86,6 +87,8 @@ c
       call selci_ddavid(q(iwork), q(iroots), q(ihd),q(ialpha),q(iredh),
      $     q(iconv), q(ide), q(ici), q(isi), q(indxci), q(ioconf),
      $     nroot, nci, noconf, nintpo, norbs, nbitpi, thresh)
+c
+      call dcopy(nroot, q(iroots), 1, roots, 1) ! Return eigenvalues
 c
       close(iflham,status='keep')
       if (ga_nodeid() .eq. 0) then
