@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.45 1996-10-01 18:49:51 d3e129 Exp $
+c $Id: basis.F,v 1.46 1996-10-08 07:30:40 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -806,8 +806,8 @@ c routine that loads a basis set from the rtdb and using the
 c geometry information builds the mapping arrays to contractions/
 c shells, basis functions, and centers.
 c
-#include "mafdecls.fh"
 #include "rtdb.fh"
+#include "mafdecls.fh"
 #include "geomP.fh"
 #include "geom.fh"
 #include "context.fh"
@@ -964,6 +964,7 @@ c
 *.....................................................................
       logical function bas_geobas_build(basisin)
       implicit none
+c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geomP.fh"
@@ -2742,8 +2743,8 @@ c
 c returns the r-exponents of a given mapped contraction
 c
       implicit none
-#include "basP.fh"
 #include "mafdecls.fh"
+#include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
 #include "bas_exndcf_dec.fh"
