@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.23 2003-07-11 21:06:34 bylaska Exp $
+* $Id: electron.F,v 1.24 2003-07-19 20:47:09 bylaska Exp $
 *
 
 
@@ -1392,6 +1392,49 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       return
       end
+
+*     ***********************************
+*     *			 		*
+*     *     electron_add_oep_to_vall	*
+*     *					*
+*     ***********************************
+
+      subroutine electron_add_oep_to_vall(dn)
+      implicit none
+      real*8 dn(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+      logical value
+      integer ms,n2ft3d,v_oep(2)
+
+      call D3dB_n2ft3d(1,n2ft3d)
+      value = MA_push_get(mt_dbl,(2*n2ft3d),'V_OEP',v_oep(2),v_oep(1))
+      if (.not. value)
+     >  call errquit('electron_add_oep_to_vall:out of stack memory',0)
+      
+
+      call pspw_potential_SIC_OEP(ispin,ne,
+     >                            dn,
+     >                            dbl_mb(psi_r(1)),
+     >                            dbl_mb(v_oep(1)))
+
+*     **** add v_oep to vall ****
+      do ms=1,ispin
+        call D3dB_rr_Sum(1,dbl_mb( vall(1)+(ms-1)*n2ft3d),
+     >                     dbl_mb(v_oep(1)+(ms-1)*n2ft3d),
+     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
+        call D3dB_r_Zero_Ends(1,dbl_mb(vall(1)+(ms-1)*n2ft3d))
+      end do
+
+      value = MA_pop_stack(v_oep(2))
+      if (.not. value)
+     >  call errquit('electron_add_oep_to_vall:popping stack memory',1)
+
+      return
+      end
+
 
 
 *     ***********************************

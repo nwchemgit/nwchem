@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.9 2003-07-11 21:06:34 bylaska Exp $
+* $Id: psi_H.F,v 1.10 2003-07-19 20:47:09 bylaska Exp $
 *
 
 *     *************************************
@@ -260,9 +260,9 @@ c     complex*16 vpsi(nfft3d)
 *     ***************************
 *     **** SIC corrections?? ****
 *     ***************************
-      if (pspw_SIC().and.pspw_SIC_relaxed()) then
-         call pspw_potential_SIC(ispin,psi_r,Hpsi_k)
-      end if
+c     if (pspw_SIC().and.pspw_SIC_relaxed()) then
+c        call pspw_potential_SIC(ispin,psi_r,Hpsi_k)
+c     end if
 
 
 *     **************************************************
