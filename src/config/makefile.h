@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.257 1998-06-15 23:17:17 d3g681 Exp $
+# $Id: makefile.h,v 1.258 1998-07-09 02:58:59 d3g270 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -837,22 +837,27 @@ endif
 ifeq ($(TARGET),SP1)
 #
     CORE_SUBDIRS_EXTRA = lapack blas
-         FC = mpxlf
+         FC = mpxlf -qnohpf
 # -F/u/d3g681/xlhpf.cfg:rjhxlf
          CC = mpcc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 7 --no-print-directory
+  MAKEFLAGS = -j 4 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-  LDOPTIONS = -lc -lxlf90 -lxlf -lm -qEXTNAME -qnosave -g -bloadmap:nwchem_map -L$(LIBDIR) 
-   LINK.f   = mpcc   $(LDOPTIONS)
+  LDOPTIONS = -lm -qEXTNAME -qnosave -g -bloadmap:nwchem_map -L$(LIBDIR) 
+   LINK.f   = mpxlf -qnohpf $(LDOPTIONS)
    FOPTIONS = -qEXTNAME -qnosave
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
   COPTIMIZE = -O
+ifeq ($(NWCHEM_TARGET_CPU),604)
+  FOPTIMIZE += -qarch=604
+  COPTIMIZE += -qarch=ppc
+endif
+
 ifeq ($(NWCHEM_TARGET_CPU),P2SC)
 # These from George from Kent Winchell
   FOPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
@@ -875,7 +880,12 @@ endif
 ifdef USE_ESSL
    DEFINES += -DESSL
 # renames not needed for 4.1.  Still are for 3.2.
- CORE_LIBS += -lpesslp2 -lblacsp2 -lesslp2
+ifeq ($(NWCHEM_TARGET_CPU),P2SC)
+ CORE_LIBS += -lesslp2 -lpesslp2 -lblacsp2
+else
+CORE_LIBS += -lessl -lpessl -lblacs
+endif
+
 #	      -brename:.daxpy_,.daxpy \
 #	      -brename:.dgesv_,.dgesv \
 #	      -brename:.dcopy_,.dcopy \
@@ -927,17 +937,23 @@ endif
 ifeq ($(TARGET),LAPI)
 #
     CORE_SUBDIRS_EXTRA = lapack blas
-         FC = mpxlf_r
+         FC = mpxlf_r -qnohpf
 # -F/u/d3g681/xlhpf.cfg:rjhxlf
          CC = mpcc_r
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 7 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-  LDOPTIONS = -lc_r -lxlf90_r -lxlf -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR) 
+ifeq ($(NWCHEM_TARGET_CPU),604)
+  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR) 
+   LINK.f   = mpxlf_r   $(LDOPTIONS)
+else
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L
+$(LIBDIR)
    LINK.f   = mpcc_r   $(LDOPTIONS)
+endif
    FOPTIONS = -qEXTNAME -qnosave
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
@@ -950,6 +966,11 @@ ifeq ($(NWCHEM_TARGET_CPU),P2SC)
   COPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
         -qcache=type=i:level=1:size=32:line=128
 endif
+ifeq ($(NWCHEM_TARGET_CPU),604)
+	FC += -qarch=604 -qtune=604 -qthreaded
+	CC += -qarch=ppc -qtune=604
+endif
+
 
     DEFINES = -DLAPI -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
 #
@@ -965,7 +986,12 @@ endif
 ifdef USE_ESSL
    DEFINES += -DESSL
 # renames not needed for 4.1.  Still are for 3.2.
+ifeq ($(NWCHEM_TARGET_CPU),P2SC)
  CORE_LIBS += -lpesslp2_t -lblacsp2_t -lesslp2_r
+else
+ CORE_LIBS += -lpesslsmp -lblacssmp -lxlsmp -lesslsmp
+endif
+
 #	      -brename:.daxpy_,.daxpy \
 #	      -brename:.dgesv_,.dgesv \
 #	      -brename:.dcopy_,.dcopy \
@@ -1012,7 +1038,6 @@ endif
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
-
 
 ifeq ($(TARGET),DECOSF)
 #
