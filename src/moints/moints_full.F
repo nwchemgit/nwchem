@@ -1,5 +1,5 @@
       subroutine moints_full(rtdb)
-C     $Id: moints_full.F,v 1.3 1996-02-01 01:33:55 d3g681 Exp $
+C     $Id: moints_full.F,v 1.4 1996-02-02 06:20:33 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -581,12 +581,5 @@ c
       enddo
 c
       if (.not. ga_destroy(g_tmp)) call errquit('moints: GA destroy?',0)
-c
-      write(6,*) ' nsym ', nsym
-      write(6,*) '   lo ', sym_lo
-      write(6,*) '   hi ', sym_hi
-c
-      call ga_print(g_vecs)
-
 c
       end

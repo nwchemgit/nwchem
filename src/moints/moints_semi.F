@@ -93,7 +93,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.15 1996-02-02 01:59:55 rg240 Exp $
+c  $Id: moints_semi.F,v 1.16 1996-02-02 06:20:35 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -156,7 +156,7 @@ c
        integer g_jbuf, g_kbuf
        logical status
        logical osym
-       character*256 fnameK, fnameJ
+       character*256 fnameK, fnameJ, tmpname
        integer junit, kunit
        parameter (junit=10,kunit=11)
 c
@@ -284,8 +284,9 @@ c
 *       vtmp(1) = ma_sizeof(MT_INT,(10 + itmp),MT_DBL) + 1
        vtmp(2) = nnbf
        if (oexch) then
-         Call Util_PName('KHalf', fnameK)
-         call waopen( kunit, fnameK, 1, 0, ierr )
+         call util_file_prefix('khalf', tmpname)
+         call util_pname(tmpname, fnamek)
+         call waopen( kunit, fnamek, 1, 0, ierr )
          vtmp(3) = pvlo
          vtmp(4) = pvhi
          call putwa( kunit, vtmp, 1,
@@ -295,7 +296,8 @@ c
      $               ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
        endif
        if (ocoul) then
-         Call Util_PName('JHalf', fnameJ)
+         call util_file_prefix('jhalf', tmpname)
+         call util_pname(tmpname, fnamej)
          call waopen(junit, fnameJ, 1, 0, ierr )
          vtmp(3) = polo
          vtmp(4) = pohi
@@ -810,11 +812,12 @@ c
       integer pohi, polo, itmp, len
       integer l_v, k_v, l_t, k_t, l_x, k_x
       logical status
-      character*256 fname
+      character*256 fname, tmpname
       integer junit
       parameter(junit=10)
 
-      Call Util_PName('JHalf', fname)
+      call util_file_prefix('jhalf', tmpname)
+      call util_pname(tmpname, fname)
       call waopen(junit, fname, 1, 0, itmp )
       nocc = ohi - olo + 1
       call moints_vrange( junit, polo, pohi, nnbf, ioff )
@@ -889,7 +892,7 @@ c
       integer rlo, rhi, clo, chi, len
       integer g_exch
       double precision tmp2
-      character*256 fname
+      character*256 fname, tmpname
       integer kunit
       parameter (kunit=11)
       double precision xx, denom, e2
@@ -899,7 +902,8 @@ c
        integer i
 
       tmp2 = tcgtime()
-      Call Util_PName('KHalf', fname)
+      call util_file_prefix('khalf',tmpname)
+      call util_pname(tmpname, fname)
       call waopen(kunit, fname, 1, 0, itmp )
       myid = ga_nodeid()
       e2 = 0.d0
@@ -1048,14 +1052,15 @@ c
       integer j, jj, vv, vvlo, vvhi, k_local, ld, myid, nnvo
       integer rlo, rhi, clo, chi
       integer g_exch
-      character*256 fname
+      character*256 fname, tmpname
       double precision xx, denom, e2, sp1fact, sp2fact
       logical status
       double precision moints_epair_eval
       external moints_epair_eval
       data sp1fact,sp2fact/4.d0,-2.d0/
       
-      Call Util_PName('KHalf', fname)
+      call util_file_prefix('khalf', tmpname)
+      call util_pname(tmpname, fname)
       call waopen(kunit, fname, 1, 0, itmp )
       e2 = 0.d0
       nocc = oseghi - oseglo + 1
