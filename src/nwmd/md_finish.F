@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.15 2000-02-04 17:18:00 d3j191 Exp $
+c $Id: md_finish.F,v 1.16 2000-04-11 15:20:40 d3j191 Exp $
 c
       implicit none
 c
@@ -11,6 +11,7 @@ c     deallocate memory for coordinates, velocities, etc.
 c     ---------------------------------------------------
 c
 c      call ma_summarize_allocated_blocks()
+      call sp_pack_finish()
       if(ipolt.gt.0) then
       if(lpert2.or.lpert3) then
       if(.not.ma_pop_stack(l_psp))
@@ -23,7 +24,6 @@ c      call ma_summarize_allocated_blocks()
       if(.not.ma_pop_stack(l_pw))
      + call errquit('Failed to deallocate memory for pw',0)
       endif
-      call sp_pack_finish()
       if(iguide.gt.0) then
       if(.not.ma_pop_stack(l_gs))
      + call errquit('Failed to deallocate memory for gs',0)

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.69 2000-04-04 18:45:19 d3j191 Exp $
+c $Id: md_main.F,v 1.70 2000-04-11 15:20:40 d3j191 Exp $
 c
       implicit none
 c
@@ -206,6 +206,8 @@ c
       ys(i,3)=xs(i,3)
     3 continue
       endif
+c
+      lpair=.true.
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
@@ -1616,16 +1618,18 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "msgids.fh"
 c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
       real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
       real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
 c
-      logical lself,local
+      logical lself,local,lpbcs
       integer npolit,ibbl,nbbl,lhandl
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer i,j,k
+      real*8 pmax
 c
 c     initialize induced fields to zero for first order polarization
 c
@@ -1741,11 +1745,11 @@ c
 c
       call sp_getxpbl(ibbl,lhandl,local,
      + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
-     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,lself)
+     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,lself,lpbcs)
 c
       call cf_comw(xw,xwm,jwfr,jwto)
 c
-      call induce(lself,xw,xwm,pw,pwp,iwl(1,lwdyn),int_mb(i_iwz),
+      call induce(lself,lpbcs,xw,xwm,pw,pwp,iwl(1,lwdyn),int_mb(i_iwz),
      + iwfr,iwto,jwfr,jwto,xs,dbl_mb(i_xsm),ps,psp,
      + isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),isl(1,lsgrp),isl(1,lsfrc),
      + isl(1,lsmol),isl(1,lssss),isl(1,lsct1),isl(1,lsct2),isl(1,lsct3),
@@ -1755,6 +1759,21 @@ c
      + lpair,int_mb(i_iwz),int_mb(i_isz))
 c
    22 continue
+c
+      pmax=0.0d0
+      do 23 k=1,nwa
+      do 24 j=1,3
+      do 25 i=1,nwmloc
+      pmax=max(pmax,abs(pw(i,j,k,2)-pw(i,j,k,1)))
+   25 continue
+   24 continue
+   23 continue
+c
+      if(np.gt.0) call ga_dgop(mrg_d06,pmax,1,'max')
+c
+      write(*,'(7f12.6)') pmax,(pw(1,j,1,1),j=1,3),(pw(1,j,1,2),j=1,3)
+c
+      if(pmax.gt.ptol) goto 11
 c
 c     if not converged goto 11
 c
@@ -1899,7 +1918,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.69 2000-04-04 18:45:19 d3j191 Exp $
+c $Id: md_main.F,v 1.70 2000-04-11 15:20:40 d3j191 Exp $
 c
       implicit none
 c
