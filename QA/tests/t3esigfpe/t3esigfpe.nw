@@ -1,0 +1,56 @@
+# This example produces a SIGFPE inside texas (abcd_1)
+# during the computation of the integral file
+# due to aaa() appearing to be NaN.  If SIGFPE is turned
+# off it generates correct results.
+
+title; zeolite with GaH2                                        
+
+start GaH2               
+
+geometry noautoz
+ Si                       0.98560163     2.15029057     2.11074441
+ Si                       2.84217763    -1.24516043    -0.09374259
+ Si                      -2.22357337    -2.23593443     1.70171441
+ Si                      -2.37437437     1.47606957    -0.60681359
+ H                       -3.43628437    -1.84692043     0.94055341
+ H                        0.31199863     3.28119257     1.42613341
+ H                        3.60283663    -1.06447243    -1.35474059
+ H                        0.94121763     2.26197857     3.58957141
+ H                        2.79930963    -2.65781743     0.35785941
+ H                       -2.08174837     2.84919457    -0.12695559
+ H                       -2.30542737    -1.69553543     3.08108141
+ H                        3.50256263    -0.49009543     0.99947841
+ H                       -3.37419537     0.92057757     0.33825441
+ H                       -2.03666637    -3.70777443     1.69091041
+ H                        2.42783063     2.10029657     1.76600741
+ H                       -2.93345137     1.64921157    -1.97019859
+ Al                      -0.09955786    -0.31804162     0.54324299
+ O                       -0.96967511     0.56408159    -0.78873277
+ O                        1.33444377    -0.60824742    -0.50558117
+ O                        0.21717453     0.74470255     1.82335535
+ O                       -0.87570457    -1.76429064     0.92024894
+ Ga                       0.51130630     0.27534034    -2.17235636
+ H                        0.04819989    -0.85636208    -3.11289809
+ H                        1.23396601     1.62524193    -2.37693886
+end
+
+dft
+  iterations 100
+  xc b3lyp             
+  grid lebedev 75 7
+  convergence energy 1d-7 density 1d-6 gradient 1d-4
+  mult 1
+  mulliken
+end
+
+set geometry:actlist integer 17:24
+
+basis "ao basis"  print segment
+  H  library "DZVP2 (DFT Orbital)"
+  Ga library "DZVP (DFT Orbital)"    
+  O  library "DZVP2 (DFT Orbital)"    
+  Si library "DZVP2 (DFT Orbital)"    
+  Al library "DZVP2 (DFT Orbital)"    
+end
+
+task dft gradient  #optimize 
