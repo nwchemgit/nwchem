@@ -235,11 +235,11 @@ c     Handys OPTX 2001
 c     
  3300  continue
        if (.not. inp_f(xfac(16))) then
-          xfac(16) = 2.3201d0
+          xfac(16) = 1.43169d0
        endif
        nlxfac(16)=.true.
        lxfac(2)=.true.
-       xfac(2)=1.0564d0
+       xfac(2)=1.05151d0
        goto 10
 c     
 c     HCTH for exchange & correlation

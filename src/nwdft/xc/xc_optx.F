@@ -1,5 +1,5 @@
 c
-C$Id: xc_optx.F,v 1.2 2001-03-24 01:31:30 edo Exp $
+C$Id: xc_optx.F,v 1.3 2001-07-03 21:45:35 edo Exp $
 c
       subroutine xc_optx(tol_rho, fac, p,  rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)
@@ -35,6 +35,7 @@ c References:
 c
 c    Becke,  (1986)
 c    Handy NC, Cohen AJ, Mol Phys 99 (5): 403-412 MAR 2001
+c    idem, Mol Phys 99 (7); 607-615 2001
 c
 c***************************************************************************
 c
@@ -42,7 +43,7 @@ c
       double precision rho13, rho43, gamma, x, g,  dg,
      &     t
       double precision gamma86
-      Parameter (gamma86=0.004d0)
+      Parameter (gamma86=0.006d0)
       double precision ux,uxp,gx
       ux(x,gx)=gx*x*x/(1d0+gx*x*x)
       uxp(x,gx)=gx*x*2d0/(1d0+gx*x*x)**2
