@@ -34,8 +34,8 @@
 PROCTYPE  = TCGPROCS
 #PROCTYPE = MPIPROCS
 
-FFTTYPE   = EMSLFFT
-#FFTTYPE  = ESSLFFT
+#FFTTYPE   = EMSLFFT
+FFTTYPE  = ESSLFFT
 #-------------------------------------------
 
 ifeq ($(PROCTYPE),TCGPROCS)
@@ -54,12 +54,15 @@ else
   OBJ = testfft3.o o mympi.o mympic.o  
 endif
 
-OBJ += $(NWCHEM_TOP)/src/stubs.o 
 
-ifeq ($(TARGET),SP1)
+DO_ESSL = YES
+ifeq ($(NWCHEM_TARGET),SP1)
   LIB_INC = -I$(NWCHEM_TOP)/src/include -I/usr/lpp/ppe.poe/include
   LIBDIRS = -L/usr/lpp/ppe.poe/lib -L/usr/lib -L$(HOME)/pfft1.0/lib  \
           -L$(NWCHEM_TOP)/nwchem/lib/SP1
+  ifeq ($(FFTTYPE),EMSLFFT)
+     DO_ESSL = NO
+  endif
 else
   LIB_INC = -I$(NWCHEM_TOP)/src/include 
   LIBDIRS = -L$(NWCHEM_TOP)/lib/$(TARGET)
@@ -68,7 +71,14 @@ endif
 
 include $(NWCHEM_TOP)/src/config/makefile.h
 
+WRAP = $(NWCHEM_TOP)/src/fft/pfftwrap
 
 test:	$(OBJ) 
+	touch $(WRAP)/nwfft3d.F
+	touch $(WRAP)/iessl.F
+	(cd $(WRAP); $(MAKE) USE_ESSL='$(DO_ESSL)';)
+	touch testfft3.F
+	$(MAKE) testfft3.o
 	$(LINK.f) -o testfft3 $(OBJ) -ltask $(LIBS)	
+
 
