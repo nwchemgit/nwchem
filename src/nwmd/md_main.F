@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.90 2000-06-02 02:48:27 d3j191 Exp $
+c $Id: md_main.F,v 1.91 2000-06-12 20:08:20 d3j191 Exp $
 c
       implicit none
 c
@@ -380,7 +380,7 @@ c
       if(lxw.or.lxs) then
       if(lqmd) then
       call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
-     + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
+     + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
       call sp_wrttrj(lfntrj,lxw,.false.,lxs,.false.,
@@ -877,7 +877,7 @@ c
       if(lxw.or.lxs) then
       if(lqmd) then
       call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
-     + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
+     + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
       call sp_wrttrj(lfntrj,lxw,.false.,lxs,.false.,
@@ -972,7 +972,7 @@ c
       if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
       if(lqmd) then
       call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
-     + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
+     + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
       call sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
@@ -1102,7 +1102,7 @@ c
       if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
       if(lqmd) then
       call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
-     + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
+     + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
       call sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
@@ -1263,7 +1263,8 @@ c
 c
       if(lqmd) then
       call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
-     + .true.,.false.,.true.,.false.,stime-tstep,pres,temp,tempw,temps,
+     + .true.,.false.,.true.,.false.,box,stime-tstep,pres,temp,tempw,
+     + temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
       call sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
@@ -2067,7 +2068,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.90 2000-06-02 02:48:27 d3j191 Exp $
+c $Id: md_main.F,v 1.91 2000-06-12 20:08:20 d3j191 Exp $
 c
       implicit none
 c
