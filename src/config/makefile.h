@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.42 1994-08-04 17:43:52 d3g681 Exp $
+# $Id: makefile.h,v 1.43 1994-08-04 20:18:39 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -221,7 +221,7 @@ ifeq ($(TARGET),DELTA)
      SHELL = /bin/sh
    INSTALL = rcp $@ delta1:
 #-Mrecursive -Mnosave to force all locals onto the stack to avoid BSS exploding
-      FOPT = -O1 -Knoieee -Mquad -Mrecursive -Mnosave -node -Minline=100
+      FOPT = -O1 -Knoieee -Mquad -node -Minline=100
   FOPT_REN = -O1 -Knoieee -Mquad -Mreentrant -Mrecursive -Mnosave -node
       COPT = -g -Knoieee -Mreentrant -node
   INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
