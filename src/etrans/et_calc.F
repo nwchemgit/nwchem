@@ -1,9 +1,10 @@
+c $Id: et_calc.F,v 1.4 2001-12-31 17:50:28 windus Exp $
       logical function et_calc(rtdb,Vba)
       implicit none
 c
 c     This function actually calculates Vba
 *
-* $Id: et_calc.F,v 1.3 2001-12-28 20:25:57 d3k958 Exp $
+* $Id: et_calc.F,v 1.4 2001-12-31 17:50:28 windus Exp $
 c
 *
 #include "rtdb.fh"
@@ -38,8 +39,8 @@ c
       integer g_av,g_bu,g_t,g_h1
       integer g_avecsa,g_avecsb,g_bvecsa,g_bvecsb
 c
-      logical et_movecs_read
-      external et_movecs_read
+c     logical et_movecs_read
+c     external et_movecs_read
       logical ga_copy
       external ga_copy
       integer ga_create_atom_blocked
@@ -136,9 +137,9 @@ c     -------------------------------------------------------
 
 c     read occ, evals, mo coefficients for alpha orbitals from movecsa.mo
 c     ------------------------------------------------------------------
-      if(.not.et_movecs_read('movecsa.mo',1,dbl_mb(k_occ),dbl_mb(k_eval)
-     $   ,g_avecsa,dum))
-     $ call errquit('et_movecs_read failed for alpha mos',0)
+c     if(.not.et_movecs_read('movecsa.mo',1,dbl_mb(k_occ),dbl_mb(k_eval)
+c    $   ,g_avecsa,dum))
+c    $ call errquit('et_movecs_read failed for alpha mos',0)
 c
 c     get nocc(1): # of occupied alpha mo's
 c     -------------------------------------
@@ -156,9 +157,9 @@ c
 c
 c     read occ, evals, mo coefficients for beta orbitals from movecsa.mo
 c     ------------------------------------------------------------------
-      if(.not.et_movecs_read('movecsa.mo',2,dbl_mb(k_occ),dbl_mb(k_eval)
-     $     ,g_avecsb, dum))
-     $ call errquit('et_movecs_read failed for beta mos',0)
+c     if(.not.et_movecs_read('movecsa.mo',2,dbl_mb(k_occ),dbl_mb(k_eval)
+c    $     ,g_avecsb, dum))
+c    $ call errquit('et_movecs_read failed for beta mos',0)
 c
 c     get nocc(2): # of occupied alpha mo's
 c     -------------------------------------
@@ -185,13 +186,13 @@ c     -------------------------------------------------------
 c
 c     read occ, evals, mo coefficients from movecsb.mo
 c     ------------------------------------------------
-      if(.not.et_movecs_read('movecsb.mo',1,dbl_mb(k_occ),dbl_mb(k_eval)
-     $   ,g_bvecsa, dum))
-     $   call errquit('et_movecs_read failed for alpha mos',0)
+c     if(.not.et_movecs_read('movecsb.mo',1,dbl_mb(k_occ),dbl_mb(k_eval)
+c    $   ,g_bvecsa, dum))
+c    $   call errquit('et_movecs_read failed for alpha mos',0)
 c
-      if(.not.et_movecs_read('movecsb.mo',2,dbl_mb(k_occ),dbl_mb(k_eval)
-     $  ,g_bvecsb, dum))
-     $   call errquit('et_movecs_read failed for beta mos',0)
+c     if(.not.et_movecs_read('movecsb.mo',2,dbl_mb(k_occ),dbl_mb(k_eval)
+c    $  ,g_bvecsb, dum))
+c    $   call errquit('et_movecs_read failed for beta mos',0)
 c
       if (util_print("et",print_high)) then
        call ga_print(g_bvecsa)
@@ -542,13 +543,13 @@ c     vectors, occupation vector, eigenvalues will be re-written,
 c     but they are no longer needed at this point.
 c     Filename and Haa or Hbb need to be correct.
 c     -------------------------------------------------
-      if(.not.et_movecs_read('movecsa.mo',3,dbl_mb(k_occ),dbl_mb(k_eval)
-     $   ,g_bvecsa, Haa))
-     $   call errquit('et_movecs_read failed for Haa',0)
+c     if(.not.et_movecs_read('movecsa.mo',3,dbl_mb(k_occ),dbl_mb(k_eval)
+c    $   ,g_bvecsa, Haa))
+c    $   call errquit('et_movecs_read failed for Haa',0)
 c
-      if(.not.et_movecs_read('movecsb.mo',3,dbl_mb(k_occ),dbl_mb(k_eval)
-     $   ,g_bvecsa, Hbb))
-     $   call errquit('et_movecs_read failed for Hbb',0)
+c     if(.not.et_movecs_read('movecsb.mo',3,dbl_mb(k_occ),dbl_mb(k_eval)
+c    $   ,g_bvecsa, Hbb))
+c    $   call errquit('et_movecs_read failed for Hbb',0)
 c
 c
 c     get the nuclear repulsion energy. It needs to be subtracted

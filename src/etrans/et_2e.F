@@ -1,3 +1,4 @@
+c $Id: et_2e.F,v 1.3 2001-12-31 17:50:28 windus Exp $
        subroutine et_2e(g_pa,g_pb,omega2)
 c
 c      calculates the two-electron contribution to Vba

@@ -1,3 +1,4 @@
+c $Id: et_input.F,v 1.3 2001-12-31 17:50:28 windus Exp $
       subroutine et_input(rtdb)
       implicit none
 c

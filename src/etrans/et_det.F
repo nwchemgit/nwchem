@@ -1,3 +1,4 @@
+c $Id: et_det.F,v 1.2 2001-12-31 17:50:28 windus Exp $
       subroutine et_det(op,handle,n,detval)
 #include "rtdb.fh"
 #include "mafdecls.fh"

@@ -1,3 +1,4 @@
+c $Id: et_dgefa.F,v 1.2 2001-12-31 17:50:28 windus Exp $
       subroutine dgedi(a,lda,n,ipvt,det,work,job)
       integer lda,n,ipvt(1),job
       double precision a(lda,1),det(2),work(1)
