@@ -11,7 +11,7 @@ isotherm 298.15 trelax 0.1
 isobar 1.025e5 trelax 0.1
 print step 1 stat 1 topol
 record rest 0 cnv fet free 1
-test 10
+test 10      #This is for testing only, not for general users.
 end
 
 task md thermodynamics
