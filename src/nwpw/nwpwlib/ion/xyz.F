@@ -6,7 +6,7 @@
 *     ***************************
       subroutine xyz_init()
 *
-* $Id: xyz.F,v 1.7 2004-05-16 05:38:04 edo Exp $
+* $Id: xyz.F,v 1.8 2004-12-31 00:46:13 edo Exp $
 *
       implicit none 
 
@@ -103,7 +103,7 @@
       call Parallel_taskid(taskid)
     
       if (taskid.eq.MASTER) then
-#if defined(PSCALE)
+#if defined(PSCALE) || defined(__crayx1)
        write(18,110,IOSTAT=ierr) (ion_nion()+pspw_qmmm_nion())
        if(ierr.ne.0)  backspace 18
 #else
