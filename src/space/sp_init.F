@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.89 2001-11-05 15:42:39 d3j191 Exp $
+c $Id: sp_init.F,v 1.90 2001-11-09 16:12:09 d3j191 Exp $
 c
       implicit none
 c
@@ -534,7 +534,7 @@ c
       real*8 temp,tempw,temps
 c
       character*1 cdum
-      real*8 rdum,cgx,cgy,cgz,xt(3)
+      real*8 rdum,cgx,cgy,cgz
       integer i,j,k,idum,jdum,kdum,number,ncyc,numw,nums
       integer icyc,ibx,iby,ibz,ipx,ipy,ipz,node,new,nold
       integer ilw,ihw,jlw,jhw,ils,ihs,jls,jhs
@@ -543,6 +543,9 @@ c
       integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,ipp,ips,ix,nsmr
       real*8 boxi(3)
       logical lforces
+c
+      integer l,m,ib(3),nbox,nb(3),joff
+      real*8 xtmin,xtmax,xtx,xt(3)
 c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       real*8 util_nint
@@ -794,23 +797,27 @@ c
       endif
 c
       if(nsa.gt.0) then
-      ipp=-1
-      ips=-1
-      number=0
-      ncyc=nsa/ns+1
-      nums=ns
-      do 13 i=1,ncyc
-      if(nsa-number.lt.nums) nums=nsa-number
-      do 113 k=1,nums
+      nb(1)=nbx
+      nb(2)=nby
+      nb(3)=nbz
+      nbox=0
+      k=1
+      joff=0
+      do 13 i=1,nsa
+      if(k.gt.ns) call errquit('Increase memory for sp_rdrst buffer',0)
       read(lfnrst,1011,end=9997,err=9998)
      + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3)
  1011 format(i1,1x,6f13.8)
-      if(lforces) read(lfnrst,1111,end=9997,err=9998) (bfs(k,j),j=1,3)
+      if(lforces) then
+      read(lfnrst,1111,end=9997,err=9998) (bfs(k,j),j=1,3)
  1111 format(2x,6e13.6)
+      else
+      bfs(k,1)=zero
+      bfs(k,2)=zero
+      bfs(k,3)=zero
+      endif
       read(lfntop,2009,end=9897,err=9898) (ibs(k,j),j=1,10)
  2009 format(16x,10i5)
-  113 continue
-      do 14 k=1,nums
       if(nsmr.lt.ibs(k,2)) nsmr=ibs(k,2)
       if(nserie.eq.0) then
       if(nsf.lt.ibs(k,1)) nsf=ibs(k,1)
@@ -818,98 +825,108 @@ c
       if(nsf.lt.ibs(k,1))
      + call errquit('Error in number of solute fractions',nsf)
       endif
-      if(.not.lforces) then
-      bfs(k,1)=zero
-      bfs(k,2)=zero
-      bfs(k,3)=zero
+c
+c     if segment of this atom is different from the segment of previous atom 
+c     then distribute all previous atoms in the list
+c
+      if(k.gt.1) then
+      if(ibs(k,3).ne.ibs(k-1,3)) then
+      new=k-1
+      goto 14
       endif
-      ibx=0
-      iby=0
-      ibz=0
-      do 15 ix=1,3
-      xt(ix)=bxs(k,ix)
+      endif
+c
+c     if this is the last atom distribute
+c
+      if(i.eq.nsa) then
+      new=k
+      goto 14
+      endif
+c
+c     read next atom
+c
+      k=k+1
+      goto 13
+c
+c     distribute atoms 1 through new
+c
+   14 continue
+c
+c     determine the center of geometry
+c
+      do 15 l=1,3
+      xtmax=bxs(1,l)
+      xtmin=bxs(1,l)
+      do 16 j=1,new
+      xtmax=max(xtmax,bxs(j,l))
+      xtmin=min(xtmax,bxs(j,l))
+   16 continue
+      xtx=0.5d0*(xtmax+xtmin)
       if(npbtyp.ne.0) then
-      if(abs(xt(ix)).gt.boxh(ix)) then
+      if(abs(xtx).gt.boxh(l)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xt(ix)=xt(ix)-util_nint(xt(ix)*boxi(ix))*box(ix)
+      xtx=xtx-util_nint(xtx*boxi(l))*box(l)
 #else
-      xt(ix)=xt(ix)-nint(xt(ix)*boxi(ix))*box(ix)
+      xtx=xtx-nint(xtx*boxi(l))*box(l)
 #endif
       endif
       endif
-   15 continue
-      do 16 j=1,nbx-1
-      if(xt(1)+boxh(1).gt.boxsiz(j,1)) ibx=j
-   16 continue
-      do 17 j=1,nby-1
-      if(xt(2)+boxh(2).gt.boxsiz(j,2)) iby=j
+      ib(l)=0
+      do 17 m=1,nb(l)-1
+      if(xtx+boxh(l).gt.boxsiz(m,l)) ib(l)=m
    17 continue
-      do 18 j=1,nbz-1
-      if(xt(3)+boxh(3).gt.boxsiz(j,3)) ibz=j
-   18 continue
+   15 continue
+c
+c     periodic boundaries
 c
       if(npbtyp.gt.0) then
-      if(ibx.ge.nbx) ibx=ibx-nbx
-      if(iby.ge.nby) iby=iby-nby
-      if(ibx.lt.0) ibx=ibx+nbx
-      if(iby.lt.0) iby=iby+nby
-      if(npbtyp.eq.1) then
-      if(ibz.ge.nbz) ibz=ibz-nbz
-      if(ibz.lt.0) ibz=ibz+nbz
-      else
-      if(ibz.ge.nbz) ibz=nbz-1
-      if(ibz.lt.0) ibz=0
+      m=2
+      if(npbtyp.eq.1) m=3
+      do 18 l=1,m
+      if(ib(l).ge.nb(l)) ib(l)=ib(l)-nb(l)
+      if(ib(l).lt.0) ib(l)=ib(l)+nb(l)
+   18 continue
+      if(npbtyp.gt.1) then
+      if(ib(3).ge.nb(3)) ib(3)=nb(3)-1
+      if(ib(3).lt.0) ib(3)=0
       endif
       else
-      if(ibx.ge.nbx) ibx=nbx-1
-      if(iby.ge.nby) iby=nby-1
-      if(ibz.ge.nbz) ibz=nbz-1
-      if(ibx.lt.0) ibx=0
-      if(iby.lt.0) iby=0
-      if(ibz.lt.0) ibz=0
+      do 19 l=1,3
+      if(ib(l).ge.nb(l)) ib(l)=nb(l)-1
+      if(ib(l).lt.0) ib(l)=0
+   19 continue
       endif
-      ipx=ibownr(ibx+1,1)
-      ipy=ibownr(iby+1,2)
-      ipz=ibownr(ibz+1,3)
-      if(ibs(k,3).ne.ips) then
-      ips=ibs(k,3)
-      ipp=(ibz*nby+iby)*nbx+ibx
-      endif
-      ndx(k)=ipp
-      if(lnode0) ndx(k)=0
-   14 continue
-      do 19 node=0,np-1
-      new=0
-      do 20 k=1,nums
-      if(sp_btop(ndx(k),ibownr).eq.node) then
-      new=new+1
-      isl(new,lsgan)=number+k
-      isl(new,lsfrc)=ibs(k,1)
-      isl(new,lsmol)=ibs(k,2)
-      isl(new,lssgm)=ibs(k,3)
-      isl(new,lsgrp)=ibs(k,4)
-      isl(new,lspgr)=ibs(k,5)
-      isl(new,lsatt)=ibs(k,6)
-      isl(new,lsct1)=ibs(k,7)
-      isl(new,lsct2)=ibs(k,8)
-      isl(new,lsct3)=ibs(k,9)
-      isl(new,lssss)=ibs(k,10)
-      isl(new,lsdyn)=5*ibs(k,11)
-      isl(new,lsbox)=ndx(k)
-      isl(new,lsnod)=node
-      xs(new,1)=bxs(k,1)
-      xs(new,2)=bxs(k,2)
-      xs(new,3)=bxs(k,3)
-      vs(new,1)=bvs(k,1)
-      vs(new,2)=bvs(k,2)
-      vs(new,3)=bvs(k,3)
-      fs(new,1)=bfs(k,1)
-      fs(new,2)=bfs(k,2)
-      fs(new,3)=bfs(k,3)
-      endif
-   20 continue
 c
-      if(new.gt.0) then
+c     determine owning node
+c
+      if(.not.lnode0) nbox=(ib(3)*nb(2)+ib(2))*nb(1)+ib(1)
+      node=sp_btop(nbox,ibownr)
+c
+      do 120 j=1,new
+      isl(j,lsgan)=joff+j
+      isl(j,lsfrc)=ibs(j,1)
+      isl(j,lsmol)=ibs(j,2)
+      isl(j,lssgm)=ibs(j,3)
+      isl(j,lsgrp)=ibs(j,4)
+      isl(j,lspgr)=ibs(j,5)
+      isl(j,lsatt)=ibs(j,6)
+      isl(j,lsct1)=ibs(j,7)
+      isl(j,lsct2)=ibs(j,8)
+      isl(j,lsct3)=ibs(j,9)
+      isl(j,lssss)=ibs(j,10)
+      isl(j,lsdyn)=ibs(j,11)
+      isl(j,lsbox)=nbox
+      isl(j,lsnod)=node
+      do 121 l=1,3
+      xs(j,l)=bxs(j,l)
+      vs(j,l)=bvs(j,l)
+      fs(j,l)=bfs(j,l)
+  121 continue
+  120 continue
+      joff=joff+new
+c
+c     communicate data to node
+c
       call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
       call ga_get(ga_ip,ilp,ilp+1,jlp,jhp,ipl,mbox)
       nold=ipl(2,2)
@@ -927,13 +944,27 @@ c
       call ga_put(ga_s,ils,ihs,jls,jls+2,xs(1,1),msa)
       call ga_put(ga_s,ils,ihs,jls+3,jls+5,vs(1,1),msa)
       call ga_put(ga_s,ils,ihs,jls+9,jls+11,fs(1,1),msa)
+c
+c     make first atom of next segment first in the list
+c
+      if(k.gt.new) then
+      do 122 j=1,11
+      ibs(1,j)=ibs(k,j)
+  122 continue
+      do 123 j=1,3
+      bxs(1,j)=bxs(k,j)
+      bvs(1,j)=bvs(k,j)
+      bfs(1,j)=bfs(k,j)
+  123 continue
+      k=2
+      if(i.eq.nsa) then
+      new=1
+      k=1
+      goto 14
+      endif
       endif
 c
-   19 continue
-      number=number+nums
    13 continue
-      if(nsm.ne.nsmr)
-     + call errquit('Error in number of solute molecules',nsm)
       endif
 c
       if(nsm.gt.0) then
