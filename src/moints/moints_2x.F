@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.37 2003-10-17 22:55:26 carlfahl Exp $
+c  $Id: moints_2x.F,v 1.38 2005-01-05 01:28:34 edo Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -667,6 +667,9 @@ c
 c
       integer nvir, clo, chi, rlo, rhi, my_id
       integer ofroz, a1, a2, aa1, aa2, aa, aoff, k_local, ld
+#ifdef BAD_GACCESS
+      integer l_local
+#endif
 c
       ofroz = ostart - 1
       nvir = vhi - vlo + 1
@@ -679,13 +682,27 @@ c
           aa2 = a2 - ofroz
           aa = (aa1*(aa1-1))/2 + aa2 - aoff
           if ((aa.ge.clo).and.(aa.le.chi)) then
+#ifdef BAD_GACCESS
+      ld=rhi-rlo+1
+      if(.not.ma_push_get(MT_DBL,ld,
+     $  'scratch buff2x', l_local, k_local)) call
+     $  errquit('moints2x: pushget failed',0,0)
+            call ga_get(g_exch,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
+#else
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
+#endif
             call dgemm('t', 't', nvir, nvir, nbf, 1.d0, c(1,vlo), nbf,
      $                  dbl_mb(k_local), nvir, 0.d0, tmp, nvir )
             if (osym) call moints_sym_zero( nbf, vlo, vhi, syms,
      $                                      a1, a2, tmp)
             call dcopy((nvir*nvir),tmp,1,dbl_mb(k_local),1)
+#ifdef BAD_GACCESS
+        call ga_put(g_exch,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
+      if(.not.ma_pop_stack(l_local)) call 
+     $  errquit('moints2x: popstack failed',0,0)
+#else
             call ga_release(g_exch,rlo,rhi,aa,aa)
+#endif
           endif
         enddo
       enddo

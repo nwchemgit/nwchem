@@ -5,7 +5,7 @@ c     is incorrect.  What else in this file is dead?
 c
 c
 c$$$       subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-c$$$C$Id: moints_mp2.F,v 1.29 2003-10-17 22:55:26 carlfahl Exp $
+c$$$C$Id: moints_mp2.F,v 1.30 2005-01-05 01:28:34 edo Exp $
 c$$$       implicit none
 c$$$#include "errquit.fh"
 c$$$#include "global.fh"
@@ -146,6 +146,9 @@ c
        double precision xx,denom
        double precision moints_epair_eval
        external moints_epair_eval
+#ifdef BAD_GACCESS
+      integer l_local
+#endif
 c$$$       INTEGER III,JJJ
 c$$$       DOUBLE PRECISION CRAP(1000)
 c
@@ -178,11 +181,24 @@ c
            ij = ij0 - ooff
            if ((ij.ge.jlo).and.(ij.le.jhi)) then
              denom = orbe(i) + orbe(j)
+#ifdef BAD_GACCESS
+             ld_exch=ihi
+             if(.not.ma_push_get(MT_DBL,ld_exch,
+     $            'scratch buffmp2', l_local, k_exch)) call
+     $            errquit('mointsmp2: pushget failed',0,0)
+             call ga_get(g_k,1,ihi,ij,ij,dbl_mb(k_exch),ld_exch)
+#else
              call ga_access(g_k,1,ihi,ij,ij,k_exch,ld_exch)
+#endif
              xx = moints_epair_eval( vlo, vhi, mo2_lo, mo2_hi, 
      $                                 dbl_mb(k_exch), orbe(nocc+1), 
      $                                 denom)
+#ifdef BAD_GACCESS
+      if(.not.ma_pop_stack(l_local)) call 
+     $  errquit('mointsmp2: popstack failed',0,0)
+#else
              call ga_release(g_k,1,ihi,ij,ij)
+#endif
              if (i.eq.j) xx = xx/2.d0
              call ga_put(g_epair,1,1,ij0,ij0,xx,1)
            endif
