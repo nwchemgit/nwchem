@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.12 2000-05-01 20:28:47 edo Exp $
+C$Id: grid_quadv0.F,v 1.13 2000-05-31 00:09:11 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -376,6 +376,7 @@ c
 c
       call ga_igop(Msg_nqtot,nqtot,1,'+')
       call ga_dgop(Msg_Excrho,dummy,3,'+')
+      if(xcfit) call ga_dgop(Msg_Tmat,Tmat,nbf_xc*ipol,'+')
       if (nExc.eq.1)then
          Exc(1) = Exc(1) + Ec + Ex
       else
