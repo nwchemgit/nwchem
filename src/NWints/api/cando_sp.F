@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.29 1998-04-08 17:58:44 d3e129 Exp $
+c $Id: cando_sp.F,v 1.30 1998-07-29 00:36:41 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -277,11 +277,13 @@ c check for spherical false until spherical debuged in texas
 *      cando_txs = cando_txs .and. (.not.bas_spherical(basis))
       if (ish.gt.0) then
         mytype = infbs_cont(CONT_TYPE,sf_ibs_cn2ucn(ish,basis),basis)
-        cando_txs = cando_txs.and. (mytype.ge.-1) .and. (mytype.lt.4)
+        cando_txs = cando_txs.and. (mytype.ge.-1)
+*not needed anymore .and. (mytype.lt.4)
       endif
       if (jsh.gt.0) then
         mytype = infbs_cont(CONT_TYPE,sf_ibs_cn2ucn(jsh,basis),basis)
-        cando_txs = cando_txs.and. (mytype.ge.-1) .and. (mytype.lt.4)
+        cando_txs = cando_txs.and. (mytype.ge.-1) 
+*not needed anymore .and. (mytype.lt.4)
       endif
 #else
       cando_txs = .false.
