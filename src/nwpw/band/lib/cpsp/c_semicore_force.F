@@ -15,13 +15,7 @@
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
-
-*     **** semicore common block ****
-c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
-c     logocal semicore(0:nkatmx)
-      integer ncore(2),rcore(2)
-      integer semicore(2)
-      common / c_ccore / ncore,rcore,semicore
+#include "c_semicore_common.fh"
 
 *     **** local variables ****
       logical value

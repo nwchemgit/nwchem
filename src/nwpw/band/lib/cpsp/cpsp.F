@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.8 2002-01-12 02:18:05 bylaska Exp $
+* $Id: cpsp.F,v 1.9 2002-01-14 19:03:36 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1007,14 +1007,8 @@ c       close(11)
       
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
+#include "c_semicore_common.fh"
 
-
-*     **** semicore common block ****
-c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
-c     logocal semicore(0:nkatmx)
-      integer ncore(2),rcore(2)
-      integer semicore(2)
-      common / c_ccore / ncore,rcore,semicore
 
 
 *     **** local variables ****

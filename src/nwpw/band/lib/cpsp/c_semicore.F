@@ -1,5 +1,5 @@
 *
-* $Id: c_semicore.F,v 1.1 2001-12-13 03:53:31 bylaska Exp $
+* $Id: c_semicore.F,v 1.2 2002-01-14 19:03:35 bylaska Exp $
 *
 
 #define TCGMSG
@@ -8,21 +8,7 @@
       implicit none
 
 #include "mafdecls.fh"
-
-*     **** semicore common block ****
-c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
-c     logocal semicore(0:nkatmx)
-      integer ncore(2),rcore(2)
-      integer semicore(2)
-      common / c_ccore / ncore,rcore,semicore
-
-*     **** semicore2 common block ****
-      integer ncore_sum(2)
-      common / c_ccore2 / ncore_sum
-
-*     **** semicore3 common block ****
-      integer dncore(2)
-      common / c_ccore3 / dncore
+#include "c_semicore_common.fh"
 
 *     *** local variables ****
       integer npack0,npsp,nfft3d
@@ -66,21 +52,8 @@ c     logocal semicore(0:nkatmx)
       implicit none
 
 #include "mafdecls.fh"
+#include "c_semicore_common.fh"
 
-*     **** semicore common block ****
-c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
-c     logocal semicore(0:nkatmx)
-      integer ncore(2),rcore(2)
-      integer semicore(2)
-      common / c_ccore / ncore,rcore,semicore
-
-*     **** semicore2 common block ****
-      integer ncore_sum(2)
-      common / c_ccore2 / ncore_sum
-
-*     **** semicore3 common block ****
-      integer dncore(2)
-      common / c_ccore3 / dncore
 
       logical value
 
@@ -105,11 +78,7 @@ c     logocal semicore(0:nkatmx)
       integer ia
 
 #include "mafdecls.fh"
-
-*     **** semicore common block ****
-      integer ncore(2),rcore(2)
-      integer semicore(2)
-      common / c_ccore / ncore,rcore,semicore
+#include "c_semicore_common.fh"
 
 
       cpsp_semicore = log_mb(semicore(1)+ia)
@@ -127,14 +96,7 @@ c     logocal semicore(0:nkatmx)
       integer ia
 
 #include "mafdecls.fh"
-
-*     **** semicore common block ****
-c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
-c     logocal semicore(0:nkatmx)
-      integer ncore(2),rcore(2)
-      integer semicore(2)
-      common / c_ccore / ncore,rcore,semicore
-
+#include "c_semicore_common.fh"
 
       cpsp_rcore = dbl_mb(rcore(1)+ia-1)
       return
@@ -151,11 +113,7 @@ c     logocal semicore(0:nkatmx)
       integer ia
 
 #include "mafdecls.fh"
-
-*     **** semicore2 common block ****
-      integer ncore_sum(2)
-      common / c_ccore2 / ncore_sum
-
+#include "c_semicore_common.fh"
 
       cpsp_ncore = dbl_mb(ncore_sum(1)+ia-1)
       return
@@ -173,17 +131,7 @@ c     logocal semicore(0:nkatmx)
 
 
 #include "mafdecls.fh"
-
-*     **** semicore common block ****
-c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
-c     logocal semicore(0:nkatmx)
-      integer ncore(2),rcore(2)
-      integer semicore(2)
-      common / c_ccore / ncore,rcore,semicore
-
-*     **** semicore3 common block ****
-      integer dncore(2)
-      common / c_ccore3 / dncore
+#include "c_semicore_common.fh"
 
 *     *** local variables ***
       logical value
@@ -256,17 +204,7 @@ c          call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       implicit none
 
 #include "mafdecls.fh"
-
-*     **** semicore common block ****
-c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
-c     logical semicore(0:nkatmx)
-      integer ncore(2),rcore(2)
-      integer semicore(2)
-      common / c_ccore / ncore,rcore,semicore
-
-*     **** semicore2 common block ****
-      integer ncore_sum(2)
-      common / c_ccore2 / ncore_sum
+#include "c_semicore_common.fh"
 
 *     *** local variables ***
       logical value
@@ -339,10 +277,7 @@ c     logical semicore(0:nkatmx)
 
 
 #include "mafdecls.fh"
-
-*     **** semicore3 common block ****
-      integer dncore(2)
-      common / c_ccore3 / dncore
+#include "c_semicore_common.fh"
 
 *     **** local variables ****
       integer nfft3d
