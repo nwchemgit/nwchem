@@ -843,7 +843,8 @@ c
 c
       return
       end
-      subroutine cf_cgstp3(iwat,xw,yw,fw,numw,isat,xs,ys,fs,nums,
+      subroutine cf_cgstp3(iwat,xw,yw,vw,fw,pw,numw,
+     + isat,xs,ys,vs,fs,ps,nums,
      + wgt,beta1,beta2,fnorm)
 c
       implicit none
