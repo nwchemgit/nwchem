@@ -22,6 +22,7 @@
 \def\amber{{\bf AMBER}}
 \def\charmm{{\bf CHARMM}}
 \def\discover{{\bf DISCOVER}}
+\def\povray{{\bf povray}}
 \def\ecce{{\bf ecce}}
 
 The \analysis\ module is used to analyze molecular trajectories generated
@@ -236,16 +237,17 @@ The format of the new file is determined from the extension, which
 can be one of
 
 \begin{tabular}{rl}
-trj & \nwchem\ trajectory file\\
-frm & \ecce\ frames file\\
 amb & \amber\ formatted trajectory file\\
-bam & \amber\ unformatted trajectory file\\
 arc & \discover\ archive file\\
+bam & \amber\ unformatted trajectory file\\
+frm & \ecce\ frames file\\
+pov & \povray\ input files\\
+trj & \nwchem\ trajectory file\\
 \end{tabular}
 
 If no extension is specified, a {\rm trj} formatted file will be written.
 
-A special tag can be added to {\rm frm} formatted files  using
+A special tag can be added to {\rm frm} and {\rm pov} formatted files  using
 
 \begin{verbatim}
 label <integer itag> <string tag>  [ <real rtag default 0.0> ] \\
