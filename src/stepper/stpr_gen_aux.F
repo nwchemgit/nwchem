@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.9 1997-10-22 20:37:00 d3e129 Exp $
+* $Id: stpr_gen_aux.F,v 1.10 1997-10-23 16:49:35 d3g681 Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -227,31 +227,41 @@ c
      &      int_restart)
       endif
       end
-      subroutine stpr_get_genat_restart(rank_in,hess,grad0,get_grad0)
+      subroutine stpr_get_genat_restart(rank_in,hess,grad0,get_grad0,
+     &    dipole_okay,ddipole)
       implicit none
 #include "global.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "cstprfiles.fh"
       integer rank_in
       double precision hess(rank_in,rank_in)
       double precision grad0(rank_in)
+      double precision ddipole(3*rank_in)
       logical get_grad0
+      logical dipole_okay
 c
       logical does_it_exist
       integer ijunk1, ijunk2, rank, iflag_grad0
+      integer dipole_there
 c
       if (ga_nodeid().ne.0) then
         write(luout,*)' non-master node called me ',ga_nodeid()
         call errquit('stpr_get_genat_restart: error ',911)
       endif
 c
-      inquire(file='gen_at_restart',exist=does_it_exist)
+      inquire(file=FILEATR,exist=does_it_exist)
       if (does_it_exist) then
         open(unit=69,file=FILEATR,
      &      form='unformatted',
      &      access='sequential',
      &      status='old')
-        read(69)ijunk1,ijunk2,rank,iflag_grad0
+        read(69)ijunk1,ijunk2,rank,iflag_grad0,dipole_there
+        if (dipole_there) then
+          dipole_okay = .true.
+        else
+          dipole_okay = .false.
+        endif
         if (rank.ne.rank_in) then
           write(luout,*)'rank not the same as rank_in '
           write(luout,*)' rank    :',rank
@@ -269,30 +279,51 @@ c
         endif
         if (get_grad0) read(69) grad0
         read(69) hess
+        if (dipole_okay) read(69) ddipole
+        if (util_print('debug_stepper_restart',print_debug)
+     &      .or.
+     &      util_print('debug_stepper',print_debug)) then
+          write(6,*)'hessian read from restart file '
+          call output(hess,1,rank,1,rank,rank,rank,1)
+          call stpr_print_ddipole(ddipole,
+     &        'dipole derivative read from restart file',
+     &        (rank/3),
+     &        1.0d-07)
+        endif
+      else
+        write(6,*)' no finite difference hessian restart ',
+     &      'information read '
       endif
       end
       subroutine stpr_put_genat_restart(rank,hess,grad0,
-     &    iatom_in,ixyz_in,nat,put_grad0)
+     &    iatom_in,ixyz_in,nat,put_grad0,
+     &    dipole_okay,ddipole)
       implicit none
 #include "global.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "cstprfiles.fh"
       integer rank
       integer iatom_in, ixyz_in, nat
       double precision hess(rank,rank)
       double precision grad0(rank)
+      double precision ddipole(3*rank)
       logical put_grad0
+      logical dipole_okay
 c
       integer iatom_start, ixyz_start
       integer iflag_grad0
+      integer dipole_there
 c
       if (ga_nodeid().ne.0) then
         write(luout,*)' non-master node called me ',ga_nodeid()
         call errquit('stpr_put_genat_restart: error ',911)
       endif
 c
-      call util_file_unlink(fileatr)
-      if(iatom_in.eq.nat.and.ixyz_in.eq.3) return
+      if(iatom_in.eq.nat.and.ixyz_in.eq.3) then
+        call util_file_unlink(fileatr)
+        return
+      endif
       iatom_start = iatom_in
       ixyz_start  = ixyz_in + 1
       if(ixyz_in.eq.3) then
@@ -300,19 +331,34 @@ c
         ixyz_start  = 1
       endif
 c
+      dipole_there = 0
+      if (dipole_okay) dipole_there = 1
+c
       if (put_grad0) then
         iflag_grad0 = 1
       else
         iflag_grad0 = 0
       endif
+      call util_file_unlink(fileatr)
       open(unit=69,file=FILEATR,
      &    form='unformatted',
      &    access='sequential',
      &    status='new')
-      write(69)iatom_start,ixyz_start,rank,iflag_grad0
+      write(69)iatom_start,ixyz_start,rank,iflag_grad0,dipole_there
       if (put_grad0) write(69)grad0
       write(69)hess
+      if (dipole_okay)write(69) ddipole
       close(unit=69,status='keep')
+      if (util_print('debug_stepper_restart',print_debug)
+     &    .or.
+     &    util_print('debug_stepper',print_debug)) then
+        write(6,*)'hessian put to restart file '
+        call output(hess,1,rank,1,rank,rank,rank,1)
+        call stpr_print_ddipole(ddipole,
+     &      'dipole derivative put to restart file',
+     &      (rank/3),
+     &      1.0d-07)
+      endif
       end
       subroutine stpr_gen_hess_foldave(hess,rank_hess)
 *! averages off diaginal contributions
@@ -398,12 +444,13 @@ c
      &    rank_hess,rank_hess,1)
 #endif
       end
-      subroutine stpr_print_ddipole(ddipole,msg,nat)
+      subroutine stpr_print_ddipole(ddipole,msg,nat,thresh)
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
       integer nat
       double precision ddipole(3,3,nat)
+      double precision thresh
       character*(*) msg
       character*1 cname(3)
       character*1 kapname
@@ -444,9 +491,11 @@ c
 *
               val = val*2.5417478d00
               val = val/0.529177249d00  ! bohr->angstrom matches current geom data
-              write(luout,10002)
-     &            cname(moment),atom,cname(xyz),
-     &            ddipole(moment,xyz,atom),val
+              if (abs(val).gt.thresh) then
+                write(luout,10002)
+     &              cname(moment),atom,cname(xyz),
+     &              ddipole(moment,xyz,atom),val
+              endif
             else
               write(luout,10000)moment
               call errquit('stpr_print_ddipole: fatal error',911)
