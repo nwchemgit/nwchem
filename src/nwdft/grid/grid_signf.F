@@ -1,17 +1,17 @@
-      subroutine grid_signf(basis, nbf, mcenters, 
+      subroutine grid_signf(basis,  mcenters, 
      &                      xyz,xyzm,ctr_quad, rad_quad,
      &                       zprim, iandex,iatype_pt_chg)
 c
-C$Id: grid_signf.F,v 1.3 1999-05-10 22:44:27 edo Exp $
+C$Id: grid_signf.F,v 1.4 2000-07-10 23:00:19 edo Exp $
 c
       implicit none
 c      
       integer basis
+      integer ctr_quad ! atom where the grid is centered [input]
       integer mcenters ! [input]
       double precision xyz(3,*) ! [input]
       double precision xyzm(3,*) ! [input/output]
       double precision rad_quad ! [input]
-      integer nbf  ! [input/output]
       logical iatype_pt_chg(*) ! [input]
       integer iandex(*) ! [scratch]
     
@@ -21,11 +21,10 @@ c
 c     Distance Squared between Sampling Points and Centers
 c
       double precision zprim(*),acc_sigf
-      integer ctr_quad ! atom where the grid is centered [input]
       integer icset, ictr, 
      &        ifirst, ilast, nprim,  iprimo
       double precision zmin,r2,x,y,z,r_arg
-      integer mcenters_scr
+      integer mcenters_scr,ctr_out
       integer ic1,ic2,dum
       integer n,l
       double precision alpha,logeps
@@ -108,8 +107,9 @@ c        if (zmin*r_arg.lt.acc_sigf) then
         xyzm(1,ictr) = xyzm(1,ic1)
         xyzm(2,ictr) = xyzm(2,ic1)
         xyzm(3,ictr) = xyzm(3,ic1)
-        if(ic1.eq.ctr_quad) ctr_quad=ictr
+        if(ic1.eq.ctr_quad) ctr_out=ictr
       enddo
       mcenters=mcenters_scr
+      ctr_quad=ctr_out
       return
       end

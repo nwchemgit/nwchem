@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.31 2000-06-08 02:06:28 edo Exp $
+c$Id: grid_tasks.F,v 1.32 2000-07-10 23:00:19 edo Exp $
 c
       implicit none
 c
@@ -29,7 +29,6 @@ c
       integer nq,nproc,me,
      ,     k_qat,l_qat,nqsh_at,iii,i_a,ncu,
      ,     fnxyz,nxyz,nqtotc,nq_cube,ncubenz,iaia
-      logical trunc_neigh
       logical grid_file_open
       external grid_file_open
       logical grid_file_close
@@ -108,8 +107,6 @@ c
       nproc=ga_nnodes()
       me=ga_nodeid()
 c
-      if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
-     &   trunc_neigh))trunc_neigh=.true.
       call dft_tstamp(' Before buckinit.')
 
       call grid_buckinit(rtdb)

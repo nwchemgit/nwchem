@@ -1,5 +1,5 @@
       Subroutine grid_quadvw1(ncu,nq_out,iqsh,irsh,rad_sh,dosympts,
-     ,     fnxyz,nxyz,nops,trunc_neigh,grad,
+     ,     fnxyz,nxyz,nops,grad,
      ,     nq_cube,nqtotc,rad_write,symfact,
      ,     iang_done,nwrbuf,
      ,     gridscr,iscr_loc,symops,
@@ -15,7 +15,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw1.F,v 1.3 2000-04-26 23:29:09 edo Exp $
+c$Id: grid_quadvw1.F,v 1.4 2000-07-10 23:00:19 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -39,7 +39,6 @@ c
       integer nops              ! [in]
       integer iang_done ![in/out]
       double precision symfact ![in]
-      logical trunc_neigh
       double precision rij ! [scr] for ssw
       integer nqtotc,nq_cube ! [in/out]
       double precision rad_write ! [in]

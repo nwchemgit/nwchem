@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.16 2000-06-09 17:08:04 edo Exp $
+c$Id: grid_quadvw.F,v 1.17 2000-07-10 23:00:19 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -41,7 +41,7 @@ c
       external xc_chkgrad
       logical grid_file_open,grid_file_close
       external grid_file_open,grid_file_close
-      logical grid_test_mem,trunc_neigh,cube_done
+      logical grid_test_mem,cube_done
       external grid_test_mem
       integer nxtask,n1,n2,icount
       external nxtask
@@ -104,11 +104,10 @@ c
 c
 c     get partitioning function
 c
+      if(lssw) do_interp = xc_interp(whichssw)
 
       ntot_cube=0
 c
-      if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
-     &   trunc_neigh))trunc_neigh=.true.
       call grid_buckinit(rtdb)
       nqtotc=0
       ncubenz=0
@@ -168,7 +167,7 @@ c
                   if(rad_sh.ge.rmin.and.rad_sh.le.rmax) then
                      call grid_quadvw1(ncu,nq_out,iqsh,irsh,rad_sh,
      ,                    dosympts,
-     ,                    fnxyz,nxyz,nops,trunc_neigh,grad,
+     ,                    fnxyz,nxyz,nops,grad,
      ,                    nq_cube,nqtotc,rad_write,symfact,
      ,                    iang_done,nwrbuf,
      ,                    dbl_mb(k_gridscr),

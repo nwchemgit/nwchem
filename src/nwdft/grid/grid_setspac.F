@@ -1,7 +1,7 @@
       subroutine grid_setspac(xyz, xyzw, Rij, rq, p, ictr, nq,
-     ,     expo, rad,trunc_neigh)
+     ,     expo, rad)
 c
-c$Id: grid_setspac.F,v 1.10 2000-04-25 02:08:44 edo Exp $
+c$Id: grid_setspac.F,v 1.11 2000-07-10 23:00:19 edo Exp $
 c
       implicit none
 c
@@ -18,7 +18,6 @@ c
       double precision p(nq,ncenters)
       double precision rad
       double precision expo(*)
-      logical trunc_neigh
 c
       integer iscr,lscr,lgth_scr,ixyzm,lxyzm
       integer ncenters_scr ! no. of centers after screening
@@ -57,7 +56,7 @@ c
 c     call to ssw routine
 c
          if(trunc_neigh)
-     .        call grid_signf(AO_bas_han,  nbf_ao, ncenters_scr, 
+     .        call grid_signf(AO_bas_han,  ncenters_scr, 
      &        xyz,dbl_mb(ixyzm),ictr_scr,
      &        rad, expo, int_mb(iscr),iatype_pt_chg)
          call grid_ssw(xyzw, dbl_mb(ixyzm), rij,rq, 
