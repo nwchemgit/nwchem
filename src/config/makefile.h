@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.30 1994-06-25 00:50:35 d3g681 Exp $
+# $Id: makefile.h,v 1.31 1994-06-25 00:51:34 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -14,7 +14,7 @@
 # ... it is preferable to do the setenv then this file is indep of
 # who is using it.
 #
-  NWCHEM_TOP = /home5/vg038/nwchem
+#  NWCHEM_TOP = /home5/vg038/nwchem
 
 ifndef NWCHEM_TOP
 # This variable must be defined ... the next line will cause an error
