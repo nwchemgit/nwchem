@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.30 2000-07-29 01:53:15 edo Exp $
+* $Id: grid_file.F,v 1.31 2000-08-01 00:39:22 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -76,16 +76,22 @@ c
       oasyncio = .true.
 #endif
 c
+c     defer allocation of memory until the first write otherwise
+c     this memory is sitting around during the initial guess routines
+c
+      call util_file_name('grinfo',.true.,.true.,grinfo)
+      if(.not.oreopen) then
+c
 c     Figure out sizes.  The -1 is to leave room for the end record
 c     which for semidirect may be written out after EOF has been reported.
 c
-      if (cachesize .gt. 0) then
-         max_cache_rec = cachesize/rec_len_in_dbl 
-      else
-         max_cache_rec = 0
-      end if
-      if (filesize .ge. 0) then
-c
+         if (cachesize .gt. 0) then
+            max_cache_rec = cachesize/rec_len_in_dbl 
+         else
+            max_cache_rec = 0
+         end if
+         if (filesize .ge. 0) then
+c     
 c     Filesize=0 means use default. 
 c     Filesize>0 means user has specified value but need to use
 c     min of this value and actual available space.
@@ -94,46 +100,39 @@ c     If the file is in the scratch directory then use the piece
 c     of it available for this process, otherwise use all that
 c     is available from eaf_stat.
 c
-         call util_directory_name(scratchdir, .true., ga_nodeid())
-         sdlen = inp_strlen(scratchdir)
-         if (scratchdir(1:sdlen) .eq. actualname(1:sdlen)) then
-            availkb = util_scratch_dir_avail_for_me()
-         else
-            if (eaf_stat(actualname, availkb, fstype) .ne. 0)
-     $           call errquit
-     $           ('grid_file_open:unable to stat available disk',0)
-         endif
-C            write(LuOut,*) ' non-SCRATCH ', availkb
-c
-         max_file_rec = nint((0.95*1024.0d0*availkb) / 
-     $        (8.0d0*rec_len_in_dbl))
-         max_file_rec = max(0,max_file_rec)
-c
-         if (filesize.gt.0)
-     $        max_file_rec = min(max_file_rec,filesize/rec_len_in_dbl)
-      else 
-c
+            call util_directory_name(scratchdir, .true., ga_nodeid())
+            sdlen = inp_strlen(scratchdir)
+            if (scratchdir(1:sdlen) .eq. actualname(1:sdlen)) then
+               availkb = util_scratch_dir_avail_for_me()
+            else
+               if (eaf_stat(actualname, availkb, fstype) .ne. 0)
+     $              call errquit
+     $              ('grid_file_open:unable to stat available disk',0)
+            endif
+C     write(LuOut,*) ' non-SCRATCH ', availkb
+c     
+            max_file_rec = nint((0.95*1024.0d0*availkb) / 
+     $           (8.0d0*rec_len_in_dbl))
+            max_file_rec = max(0,max_file_rec)
+c     
+            if (filesize.gt.0) max_file_rec = 
+     =           min(max_file_rec,filesize/rec_len_in_dbl)
+         else 
+c     
 c     Filesize < 0 means user forced no filespace at all.
 c
-         max_file_rec = 0
-      end if
-      if (max_file_rec .gt. 0) then ! For the semidirect logic
-         max_file_rec = max_file_rec - 1
-      else if (max_cache_rec .gt. 0) then
-         max_cache_rec = max_cache_rec - 1
-      endif
-c
-      if (max_file_rec.eq.0 .and. max_cache_rec.eq.0) then
-         grid_file_open = .false.
-         return
-      endif
-c
-c     defer allocation of memory until the first write otherwise
-c     this memory is sitting around during the initial guess routines
-c
-      call util_file_name('grinfo',.true.,.true.,grinfo)
-
-      if(.not.oreopen) then
+            max_file_rec = 0
+         end if
+         if (max_file_rec .gt. 0) then ! For the semidirect logic
+            max_file_rec = max_file_rec - 1
+         else if (max_cache_rec .gt. 0) then
+            max_cache_rec = max_cache_rec - 1
+         endif
+c     
+         if (max_file_rec.eq.0 .and. max_cache_rec.eq.0) then
+            grid_file_open = .false.
+            return
+         endif
          l_cache = -1
          k_cache = -1
          n_rec_in_file = 0
@@ -148,7 +147,10 @@ c
      ,        err=199)
          filedump_opened=.true.
          read(gr_unit,'(1E20.12)',err=199) enuc
-         if(abs(enuc-enuc_in).gt.1d-4) return
+         if(abs(enuc-enuc_in).gt.1d-4) then
+           write(6,*) ' enucs ',enuc,enuc_in
+           return
+	 endif
          read(gr_unit,99,err=199) max_file_rec
  99      format(I72) 
          read(gr_unit,99,err=199) max_cache_rec
@@ -165,7 +167,7 @@ c
          file_opened = .true.
       endif
       return
- 199  continue
+ 199  write(6,*) ga_nodeid(),' grinfo reading failed',ioserr
       return
 c
 c
