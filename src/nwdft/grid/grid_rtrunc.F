@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.26 2000-03-07 20:03:11 edo Exp $
+c$Id: grid_rtrunc.F,v 1.27 2000-03-10 02:03:16 edo Exp $
 c
       implicit none
 c      
@@ -133,12 +133,13 @@ c
 c
 c     recheck iangquad
 c
-         
-         maxangg=0
-         do itype=1,ntypes
-            maxangg=max(maxangg,nang(itype))
-         enddo
-         iangquad=xc_leb_nrd2acc(maxangg)
+         if(leb) then
+            maxangg=0
+            do itype=1,ntypes
+               maxangg=max(maxangg,nang(itype))
+            enddo
+            iangquad=xc_leb_nrd2acc(maxangg)
+         endif
       endif
       
 c

@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.21 2000-02-16 01:29:49 edo Exp $
+c$Id: grid_setrad.F,v 1.22 2000-03-10 02:03:16 edo Exp $
 c
       implicit none
 c      
@@ -59,6 +59,7 @@ c
          wradgrid=3
       elseif(radgrid.eq.'gaussleg') then
          wradgrid=4
+         tol_reset=.true.
       elseif(radgrid.eq.'gcinterv') then
          wradgrid=5
          tol_reset=.true.

@@ -1,6 +1,6 @@
       subroutine grid_buckinit(g_buck,g_buckind)
 c
-c$Id: grid_bucket.F,v 1.2 2000-02-23 01:37:56 edo Exp $
+c$Id: grid_bucket.F,v 1.3 2000-03-10 02:03:15 edo Exp $
 c
       implicit none
       integer g_buck,g_buckind
@@ -21,7 +21,7 @@ c
 c
 c     get ncubes
 c
-      ncubes=0
+      ncubes=1
       do i=1,ntypes
          ncubes_type(i)=grid_ncubes(dble(rad_cutoff(1,i)),
      ,        .false.,dum)
@@ -29,8 +29,8 @@ c
       enddo
       write(6,*) ' NCUBES ',ncubes
       if (.not.MA_alloc_Get(MT_int,ntypes*ncubes,'howmany cubes',
-     , l_nxyz,k_nxyz))
-     , call errquit('grid_buckinit: cannot allocate nxyz',0)
+     ,     l_nxyz,k_nxyz))
+     ,     call errquit('grid_buckinit: cannot allocate nxyz',0)
       do i=1,ntypes
          ipts=k_nxyz+(i-1)*ncubes
          dum=grid_ncubes(dble(rad_cutoff(1,i)),.true.,int_mb(ipts))
@@ -51,10 +51,10 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
-#include "cgridfile.fh"
+#include "cdft.fh"
 c
-       if (.not. MA_free_heap(l_nxyz))
-     . call errquit(' grid_buckend:cannot popstack',0)
+      if (.not. MA_free_heap(l_nxyz))
+     .     call errquit(' grid_buckend:cannot popstack',0)
 
       if(.not. ga_destroy(g_buck))
      . call errquit(' gridb_buck: ga_destroy failed',0)

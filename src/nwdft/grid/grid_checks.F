@@ -1,7 +1,7 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.11 2000-03-08 23:38:03 edo Exp $
+c$Id: grid_checks.F,v 1.12 2000-03-10 02:03:15 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -56,8 +56,12 @@ c
 c
 c     preliminary call to lebedev
 c      
-      iag_old=iangquad
-      iangquad=mxnangpp
+      if(leb) then
+         iag_old=iangquad
+         iangquad=mxnangpp
+      else
+         iangquad=mxnangpp
+      endif
       call xc_lebedev(dum,.false.)
       iangquad=iag_old
       
@@ -71,8 +75,13 @@ c
 c
 c     ang
 c
-      lsafe=grid_nangl(itype,mxangpp,nanga)
-      lsafe=grid_nangl(jtype,mxangpp,nangb)
+      if(leb) then
+         lsafe=grid_nangl(itype,mxangpp,nanga)
+         lsafe=grid_nangl(jtype,mxangpp,nangb)
+      else
+         nanga=1202
+         nangb=1202
+      endif
 c
 c     range
 c
@@ -136,8 +145,10 @@ c
       rad_cutoff(1,jtype)=range_b
       nrad(itype)=nrada
       nrad(jtype)=nradb
-      nang(itype)=nanga
-      nang(jtype)=nangb
+      if(leb) then
+         nang(itype)=nanga
+         nang(jtype)=nangb
+      endif
       if (.not. ma_chop_stack(l_pts)) call errquit
      $     ('grchks: ma pop?', 0)                 
       return
@@ -562,11 +573,15 @@ cedo      write(0,*) ' ffl ',grid_ffact
       integer mxangpp
 c     return false if we exceeded mxang
       grid_nangl=.true.
-      nang_out=nang(itype)
-      if(nang_out.gt.mxangpp) then
-cedo         write(0,*) ' testing angular grid up to ',mxangpp,' pts'
-         grid_nangl=.false.
-         nang_out=mxangpp
+      if(leb) then
+         nang_out=nang(itype)
+         if(nang_out.gt.mxangpp) then
+c     edo         write(0,*) ' testing angular grid up to ',mxangpp,' pts'
+            grid_nangl=.false.
+            nang_out=mxangpp
+         endif
+      else
+         nang_out=1202
       endif
       return
       end
