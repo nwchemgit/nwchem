@@ -1,11 +1,11 @@
-C $Id: ecp_int0.F,v 1.6 1997-10-03 01:47:27 mg201 Exp $
+C $Id: ecp_int0.F,v 1.7 1998-04-01 02:27:49 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int0 (mem_max,DryRun,
      &    l_a,n_prim_a,n_cont_a,coef_a,zeta_a,n_na,
      &    l_b,n_prim_b,n_cont_b,coef_b,zeta_b,n_nb,
-     &    l_ecp_max,n_prim_c,n_coef_c,
-     &    ind_z,ind_c,n_z_tot,n_c_tot,n_cent,
+     &    l_ecp,n_prim_c,n_coef_c,
+     &    ind_z,ind_c,n_z_tot,n_c_tot,l_ecp_max,n_cent,
      &    zeta_c,coef_c,p_min,p_max,tol,sphcart,tmp,l_tmp,
      &    csco,lcsco,
      &    ecp_ints,n_blk,ibug)
@@ -28,7 +28,7 @@ C $Id: ecp_int0.F,v 1.6 1997-10-03 01:47:27 mg201 Exp $
 *   coef_b (inp) - centre B contraction coefficients                   *
 *   zeta_b (inp) - centre B exponents                                  *
 *   n_nb (inp) - number of cartesian components for centre B           *
-*   l_ecp_max (inp) - maximum angular momentum of ECP projector        *
+*   l_ecp (inp) - maximum angular momentum of ECP projectors           *
 *   n_prim_c (inp) - number of primitive functions for each power of r *
 *                    in ECP expansion                                  *
 *   n_coef_c (inp) - array of number of coefficients/exponents for     *
@@ -37,6 +37,7 @@ C $Id: ecp_int0.F,v 1.6 1997-10-03 01:47:27 mg201 Exp $
 *   ind_c (inp) - array of addresses of first coefficient for each l   *
 *   n_z_tot (inp) - total number of ECP exponents                      *
 *   n_c_tot (inp) - total number of ECP coefficients                   *
+*   l_ecp_max (inp) - maximum angular momentum of any ECP projector    *
 *   n_cent (inp) - number of ECP centres                               *
 *   zeta_c - ECP exponents                                             *
 *   coef_c - ECP contraction coefficients                              *
@@ -66,8 +67,8 @@ C $Id: ecp_int0.F,v 1.6 1997-10-03 01:47:27 mg201 Exp $
 #include "stdio.fh"
 #include "ecp_consts.fh"
       integer l_a,n_prim_a,n_cont_a,n_na,l_b,n_prim_b,n_cont_b,n_nb,
-     &    l_ecp_max,n_z_tot,n_c_tot,n_cent,l_tmp,p_min,p_max,sphcart,
-     &    mem_max,n_blk,ibug
+     &    l_ecp,l_ecp_max,n_z_tot,n_c_tot,n_cent,l_tmp,p_min,p_max,
+     &    sphcart,mem_max,n_blk,ibug
       integer n_coef_c(-1:l_ecp_max,n_cent,2),
      &    n_prim_c(p_min:p_max,-1:l_ecp_max,n_cent,2),
      &    ind_z(-1:l_ecp_max,n_cent,2),ind_c(-1:l_ecp_max,n_cent,2)
@@ -93,7 +94,7 @@ C $Id: ecp_int0.F,v 1.6 1997-10-03 01:47:27 mg201 Exp $
       if (debug_addresses) then
         write (LuOut,*) 'n_prim_a,n_prim_b,n_cont_a,n_cont_b',
      &      n_prim_a,n_prim_b,n_cont_a,n_cont_b
-        write (LuOut,*) 'n_c_tot',n_c_tot
+        write (LuOut,*) 'n_cent,n_c_tot',n_cent,n_c_tot
       end if
       n_ab = n_prim_a*n_prim_b
       nc_ab = n_prim_a*n_cont_b
@@ -111,16 +112,18 @@ C $Id: ecp_int0.F,v 1.6 1997-10-03 01:47:27 mg201 Exp $
       if (sphcart .eq. 0) then
         if (mod(l_a+l_b,2) .ne. 0) return
         l_c_min = mod(l_b,2)
-        l_c_max = min(l_a,l_b,l_ecp_max)
+        l_c_max = min(l_a,l_b,l_ecp)
       else
         if (l_a .ne. l_b) return
-        if (l_a .gt. l_ecp_max) return
+        if (l_a .gt. l_ecp) return
         l_c_min = l_a
         l_c_max = l_a
       end if
 *
 *   Loop over ECP angular momentum projectors (l values)
 *
+      if (debug_addresses) write (LuOut,*) 'l_c_min,l_c_max,l_ecp',
+     &    l_c_min,l_c_max,l_ecp
       do l_c = l_c_min,l_c_max,2
 *
 *     Define parameters for the different integral class cases
@@ -128,6 +131,7 @@ C $Id: ecp_int0.F,v 1.6 1997-10-03 01:47:27 mg201 Exp $
         call ecp_ind_var (l_c,n_blk,n_coef_c(l_c,1,1),n_coef_c(l_c,1,2),
      &      ind_c(l_c,1,1),ind_c(l_c,1,2),ind_z(l_c,1,1),ind_z(l_c,1,2),
      &      n_x,n_co_tot,n_co_max,i_off,n_pass,i_cont_c,n_cont_c,skip)
+        if (debug_addresses) write (LuOut,*) 'l_c,n_x,skip',l_c,n_x,skip
         if (skip) go to 10
 *
 *     Set up pointers for radial integral evaluation
@@ -177,7 +181,8 @@ C $Id: ecp_int0.F,v 1.6 1997-10-03 01:47:27 mg201 Exp $
 *
           wa = n_l
           wb = (pi+pi)/wa
-          if (debug_addresses) write (LuOut,*) 'n_l,n_na',n_l,n_na
+          if (debug_addresses) write (LuOut,*) 'n_l,n_na,n_x',
+     &        n_l,n_na,n_x
           i_ang = i_tmp+n_l*n_na
           n_ang = n_l**2
           i_scr = i_ang+n_ang*n_x
