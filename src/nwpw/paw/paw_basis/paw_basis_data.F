@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.15 2003-02-16 22:45:27 marat Exp $
+! $Id: paw_basis_data.F,v 1.16 2003-02-18 01:08:11 marat Exp $
 
 !**************************************************
 !
@@ -419,6 +419,25 @@
 #include "paw_basis_data.fh"
 
       paw_basis_i_sigma = sigma(1) +  it-1
+      return
+      END 
+
+!**************************************************
+!
+!	Name: paw_basis_log_amesh
+!
+!	Purpose 
+!
+!	Created:	7/9/2002
+!**************************************************
+      double precision FUNCTION  paw_basis_log_amesh(it)
+      implicit none
+      integer it
+    
+#include "paw_basis_data.fh"
+#include "mafdecls.fh"
+
+      paw_basis_log_amesh = dbl_mb(log_amesh(1)+it-1)
       return
       END 
 
