@@ -4,7 +4,7 @@
      &       ATMASS, CMASS, TENIN, ENERGY,
      &       CONVGE, CONVGG, CONVGGM,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.9 2000-10-25 22:50:16 windus Exp $
+c $Id: stpr_partit.F,v 1.10 2000-10-30 22:40:00 d3e129 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK, BCKSTP, RPATH, TROUB
@@ -25,6 +25,7 @@ c
      &          CMASS(3), TENIN(3,3)
       DIMENSION UNIVEC(3), SQMAS(3)
       character*26 date
+      integer rtdb
 C
 C     Internal hessian/gradient symmetry tolerance.
 C
