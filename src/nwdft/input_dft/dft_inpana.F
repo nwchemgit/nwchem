@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(geom,rtdb,zan,c,iconst,nconst,nat)
-C$Id: dft_inpana.F,v 1.4 1995-10-17 08:54:47 d3g681 Exp $
+C$Id: dft_inpana.F,v 1.5 1995-11-15 01:24:27 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       logical even
       dimension zan(nat), c(3,nat), iconst(nconst)
@@ -14,8 +14,8 @@ C$Id: dft_inpana.F,v 1.4 1995-10-17 08:54:47 d3g681 Exp $
       integer geom
       Parameter ( EPSILON=1.d-13 )
 #include "stdio.fh"
-#include "rtdb.fh"     ! for rtdb_get
-#include "mafdecls.fh"  ! for mt_int
+#include "rtdb.fh"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
 c
