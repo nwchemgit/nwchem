@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.181 2001-05-11 20:44:53 d3g681 Exp $
+c     $Id: dft_scf.F,v 1.182 2001-05-17 00:50:43 edo Exp $
 c     
       implicit none
 c
@@ -926,6 +926,13 @@ c
          etnew=etnew+tdots
 c
       delta = abs(etold-etnew)
+c
+c     check for symmetry breaking
+c
+      if(oskel.and.ipol.eq.2) then
+          call dft_symbr(geom,ao_bas_han,
+     .     g_dens(1),g_dens(2), g_tmp)
+       endif
 c
 
       do ispin = 1, ipol

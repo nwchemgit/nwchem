@@ -1086,6 +1086,7 @@ c
      &       /,' [hcth147] ',
      &       /,' [hcth407] ',
      &       /,' [hcthp14]',
+     &       /,' [optx]',
      &       /,' [becke97gga1]')
       call util_flush(LuOut)
       call errquit('xc_input: invalid format', 0)
