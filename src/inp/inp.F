@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.44 2003-12-31 16:54:43 nwchem Exp $
+C$Id: inp.F,v 1.45 2004-04-28 00:14:59 edo Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -15,7 +15,7 @@ c
       data errmsg  /' '/
       data input_line /0/
       data xblnk /' '/
-#if defined(DECOSF) || defined(SGITFP) || defined(SGI_N32) || defined(CRAY_T3E) || defined(HPUX) || defined(WIN32)
+#if defined(DECOSF) || defined(SGITFP) || defined(SGI_N32) || defined(CRAY_T3E) || defined(HPUX) || defined(WIN32) || defined(PSCALE)
       data xtab  /'	'/      ! Tab ... no backslash necessary
 #elif (defined(LINUX) || defined(MACX)) && !defined(PGLINUX) && !defined(XLFLINUX)
       data xtab  /9/            ! Tab ... g77 has trouble with escape sequence
