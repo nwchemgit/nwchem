@@ -825,8 +825,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	*/
       
 
-      fprintf(stderr, "me = %d pdspevx 11 \n", me );
-      fflush(stderr);
+      /*      fprintf(stderr, "me = %d pdspevx 11 \n", me );
+      fflush(stderr);*/
 
 
       pstein5 ( &msize, dd, ee, dplus, lplus, ld, lld,
@@ -937,7 +937,12 @@ END:
     
     for ( iii = 0; iii < neigval; iii++){
       eval[iii] += psgn*psigma;
-      printf("me = %d eval %d %g \n", me, iii, eval[iii]);
+      /*      
+too much printing
+
+printf("me = %d eval %d %g \n", me, iii, eval[iii]);
+
+*/
     }
     
     sorteig( &msize, &neigval, vecZ, mapZ, eval, iscratch, scratch );
