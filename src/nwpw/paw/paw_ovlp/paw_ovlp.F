@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.43 2003-03-10 05:43:27 marat Exp $
+* $Id: paw_ovlp.F,v 1.44 2003-03-11 00:55:29 marat Exp $
 *
 
 !**************************************************
@@ -614,6 +614,72 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       ptr = coeff(1)
       return
       end 
+**************************************************
+!
+!	Name: 
+!
+!	Purpose: 
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_ovlp_indx2_ptr(ptr)
+      implicit none
+      integer ptr(4)
+
+#include "paw_ovlp_data.fh"
+      integer i
+
+      do i=1,4
+      ptr(i) = indx2(i)
+      end do
+      return
+      end 
+
+**************************************************
+!
+!	Name: 
+!
+!	Purpose: 
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_ovlp_sgn_ptr(ptr)
+      implicit none
+      integer ptr(4)
+
+#include "paw_ovlp_data.fh"
+
+      integer i
+
+      do i=1,4
+      ptr(i) = sgn(i)
+      end do
+      return
+      end 
+
+**************************************************
+!
+!	Name: 
+!
+!	Purpose: 
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_ovlp_c_ptr(ptr)
+      implicit none
+      integer ptr(4)
+
+#include "paw_ovlp_data.fh"
+
+      integer i
+
+      do i=1,4
+      ptr(i) = coeff(i)
+      end do
+      return
+      end 
+
+
 
 **************************************************
 !
@@ -649,6 +715,78 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 #include "paw_ovlp_data.fh"
 
       paw_ovlp_weight_size=paw_ovlp_w(3)
+      return
+      end 
+**************************************************
+!
+!	Name: 
+!
+!	Purpose: 
+!
+!	Created:
+!**************************************************
+      function paw_ne_total()
+      implicit none
+       
+      integer paw_ne_total
+
+#include "paw_ovlp_data.fh"
+
+      paw_ne_total=neall
+      return
+      end 
+**************************************************
+!
+!	Name: 
+!
+!	Purpose: 
+!
+!	Created:
+!**************************************************
+      function paw_ne_up()
+      implicit none
+       
+      integer paw_ne_up
+
+#include "paw_ovlp_data.fh"
+
+      paw_ne_up=ne_u
+      return
+      end 
+**************************************************
+!
+!	Name: 
+!
+!	Purpose: 
+!
+!	Created:
+!**************************************************
+      function paw_ne_down()
+      implicit none
+       
+      integer paw_ne_down
+
+#include "paw_ovlp_data.fh"
+
+      paw_ne_down=ne_d
+      return
+      end 
+**************************************************
+!
+!	Name: 
+!
+!	Purpose: 
+!
+!	Created:
+!**************************************************
+      function paw_ispin()
+      implicit none
+       
+      integer paw_ispin
+
+#include "paw_ovlp_data.fh"
+
+      paw_ispin = ispin
       return
       end 
 
