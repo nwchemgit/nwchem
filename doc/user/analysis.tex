@@ -146,6 +146,23 @@ select solvent <real range>
 After solvent selection, the solute atom selection is reset to being all
 selected.
 
+\par
+
+Some analysis are performed on groups of atoms. These groups of atoms
+are define by
+
+\begin{verbatim}
+define <integer igroup> { <string atom> }
+\end{verbatim}
+
+The atom string in this definitions takes the form
+
+\begin{verbatim}
+[<integer segment>:]<string atomname>
+\end{verbatim}
+
+In the atomname a question mark may be used as a wildcard character.
+
 \section{Coordinate analysis}
 
 To analyze the root mean square deviation from the specified reference
@@ -177,7 +194,6 @@ torsion <integer itorsion> <string atomi> <string atomj> \
 The atom string in these definitions takes the form
 
 \begin{verbatim}
-
 <integer segment>:<string atomname> | w<integer molecule>:<string atomname>
 \end{verbatim}
 
@@ -188,6 +204,26 @@ To define charge distribution in z-direction:
 \begin{verbatim}
 charge_distribution <integer bins>
 \end{verbatim}
+
+Analyses on pairs of atoms in predefined groups are specified by
+
+\begin{verbatim}
+groups [<integer igroup> [<integer jgroup>]] [periodic [<integer ipbc default 3>]] \ 
+       <string function> [<real value1> [<real value2>]] [<string filename>]
+\end{verbatim}
+
+where $igroup$ and $jgroup$ are groups of atoms defined with a
+\verb+define+ directive. Keyword \verb+periodic+ specifies that
+periodic boundary conditions need to be applied in $ipbc$ dimensions.
+The type of analysis is define by $function$, $value1$ and $value2$.
+If $filename$ is specified, the analysis is applied to the reference
+coordinates and written to the specified file. If no filename is
+given, the analysis is applied to the specified trajectory and 
+performed as part of the \verb+scan+ directive.
+Implemented analyses defined by 
+\verb+<string function> [<real value1> [<real value2>]]+ include
+\verb+distances+ to calculate all atomic distances between atoms
+in the specified groups that lie between $value1$ and $value2$.
 
 To perform the coordinate analysis:
 
@@ -270,20 +306,46 @@ If no extension is specified, a {\rm trj} formatted file will be written.
 A special tag can be added to {\rm frm} and {\rm pov} formatted files  using
 
 \begin{verbatim}
-label <integer itag> <string tag>  [ <real rtag default 0.0> ] \\
-      <integer iatag> [ <integer jatag default iatag> ] [ <string anam> ]
+label <integer itag> <string tag>  [ <real rval default 1.0> ] \\
+    [ <integer iatag> [ <integer jatag default iatag> ] [ <real rtag default 0.0> ] ]
+    [ <string anam> ]
 \end{verbatim}
 
 where tag number $itag$ is set to the string $tag$ for all atoms
 anam within a distance $rtag$ from segments $iatag$ through $jatag$.
 A question mark can be used in anam as a wild card character.
 \par
+
+Atom rendering is specified using
+
+\begin{verbatim}
+render ( cpk | stick )  [ <real rval default 1.0> ] \\
+    [ <integer iatag> [ <integer jatag default iatag> ] [ <real rtag default 0.0> ] ]
+    [ <string anam> ]
+\end{verbatim}
+
+for all atoms anam within a distance $rtag$ from segments $iatag$ through $jatag$,
+and a scaling factor of $rval$. A question mark can be used in anam as a wild card 
+character.
+\par
+
+Atom color is specified using
+
+\begin{verbatim}
+color ( <string color> | atom ) \\
+    [ <integer iatag> [ <integer jatag default iatag> ] [ <real rtag default 0.0> ] ]
+    [ <string anam> ]
+\end{verbatim}
+
+for all atoms anam within a distance $rtag$ from segments $iatag$ through $jatag$.
+A question mark can be used in anam as a wild card character.
+\par
 For example, to display all carbon atoms in segments 34 through 45 
 in green and rendered cpk in povray files can be specified with
 
 \begin{verbatim}
-label 1 cpk 34 45 _C??
-label 2 green 34 45 _C??
+render cpk 34 45 _C??
+color green 34 45 _C??
 \end{verbatim}
 
 Coordinates written to a pov file can be scaled using
@@ -294,12 +356,25 @@ scale <real factor>
 
 A zero or negative scaling factor will scale the coordinates to
 lie within [-1,1] in all dimensions.
+\par
+The cpk rendering in povray files can be scaled by
+
+\begin{verbatim}
+cpk <real factor default 1.0>
+\end{verbatim}
+\par
+
+The stick rendering in povray files can be scaled by
+
+\begin{verbatim}
+stick <real factor default 1.0>
+\end{verbatim}
+
+The initial sequence number of esp related files is defined by
 
 \begin{verbatim}
 index <integer index default 1>
 \end{verbatim}
-
-This directive sets the initial sequence number of esp related files.
 
 \section{Electrostatic potentials}
 
