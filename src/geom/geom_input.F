@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.85 1998-08-03 16:50:17 d3e129 Exp $
+C     $Id: geom_input.F,v 1.86 1998-08-21 20:43:28 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -282,7 +282,9 @@ c
      $     ('geom_input: systype?', 0)
       if (isys.eq.0) then
          if (scale.ne.1.0d0) then
-            write(luout,1) name(1:inp_strlen(name)), scale, 1.0d0/scale
+            if (oprint)
+     $           write(luout,1) name(1:inp_strlen(name)), scale, 
+     $           1.0d0/scale
  1          format(/' Scaling coordinates for geometry "',a,'" by ',
      $           f12.9/' (inverse scale = ',f12.9,')',/)
             call dscal(3*ncenter, scale, coords, 1)
