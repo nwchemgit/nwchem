@@ -9,7 +9,7 @@
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
      + nval,ival,rval,ndx,itopol)
 c
-c $Id: pre_mklist.F,v 1.29 2003-08-07 21:47:55 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.30 2003-08-29 15:32:24 d3j191 Exp $
 c
       implicit none
 c
@@ -609,7 +609,7 @@ c
 c     sort the angle lists
 c     --------------------
 c
-      if(nang.gt.0) then
+      if(nang.gt.1) then
       do 45 i=1,nang
       if(lang(1,i).gt.lang(3,i)) then
       ltemp=lang(1,i)
@@ -697,7 +697,7 @@ c
 c     sort dihedral list
 c     ------------------
 c
-      if(ndih.gt.0) then
+      if(ndih.gt.1) then
       do 57 i=1,ndih
       if(ldih(2,i).gt.ldih(3,i)) then
       ltemp=ldih(2,i)
@@ -814,7 +814,7 @@ c
 c     sort improper list
 c     ------------------
 c
-      if(nimp.gt.0) then
+      if(nimp.gt.1) then
       do 72 i=1,nimp-1
       do 73 j=i+1,nimp
       if(limp(1,i).gt.limp(1,j).or.

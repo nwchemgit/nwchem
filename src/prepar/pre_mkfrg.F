@@ -5,7 +5,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.41 2003-07-31 04:09:31 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.42 2003-08-29 15:32:24 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -69,6 +69,7 @@ c
       integer i,j,natoms,ilo,ihi,iseq,jlo,jhi,ilist
       integer ibnd,nbnd,nang,ndih,nconn,linkid
       logical found
+      character*10 date,time
 c
       integer i_wrk,l_wrk
 c  
@@ -271,15 +272,25 @@ c
       open(unit=iunit,file=filnam(1:len_f),form='formatted',
      + status='unknown',err=9999)
 c
-      write(iunit,2001)
+      call swatch(date,time)
+c
+      write(iunit,2001) date,time
  2001 format('# This is an automatically generated fragment file',/,
      + '# Atom types and connectivity were derived from coordinates',/,
-     + '# Atomic partial charges are crude guestimations',/,
-     + '#')
+     + '# Atomic partial charges are crude estimates',/,
+     + '# ',2a10,/,'#')
       length=index(csgm(i),' ')-1
       if(length.le.0) length=5
-      write(iunit,2002) csgm(i)(1:length),nato,1,1
- 2002 format('$',a,/,3i5)
+c
+c     write: csgm(i) : fragment name preceded by $
+c            nato    : number of atoms
+c            1       : number of parameter sets / protonation states
+c            1       : default protonation state
+c            0       : number of Z-matrix definitions
+c            csgm(i) : file name
+c
+      write(iunit,2002) csgm(i)(1:length),nato,1,1,0,csgm(i)(1:length)
+ 2002 format('$',a,/,4i5,/,a)
       if(util_print('sequence',print_medium)) then
       write(lfnout,3002) csgm(i)(1:length)
  3002 format(/,' Fragment ',t40,a,//,
@@ -293,19 +304,19 @@ c
 c
       if(util_print('sequence',print_medium)) then
       write(lfnout,3003) j,cato(2,j),cato(3,j),
-     + lato(5,j),lato(4,j),1,1,qato(j),0.0
- 3003 format(i5,1x,a4,2x,a6,4i5,2f12.6)
+     + lato(5,j),lato(4,j),0,1,1,qato(j),0.0
+ 3003 format(i5,1x,a4,2x,a6,5i5,2f12.6)
       qsum=qsum+qato(j)
       endif
       write(iunit,2003) j,cato(2,j),cato(3,j),
-     + 1,1,lato(5,j),lato(4,j),1,qato(j),0.0,0
+     + lato(5,j),lato(4,j),0,1,1,qato(j),0.0
  2003 format(i5,a4,2x,a6,5i5,2f12.6)
       if(cato(3,j)(1:1).eq.' ') found=.false.
       endif
     6 continue
       if(util_print('sequence',print_medium)) then
       write(lfnout,3009) qsum
- 3009 format(38x,'------------',/,25x,'total charge ',f12.6)
+ 3009 format(43x,'------------',/,25x,'total charge ',f12.6)
       endif
 c
       nconn=0 

@@ -2,7 +2,7 @@
      + source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.27 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_charge.F,v 1.28 2003-08-29 15:32:24 d3j191 Exp $
 c
       implicit none
 c
@@ -189,6 +189,7 @@ c
 c
       if(.not.rtdb_put(irtdb,'esp:newgrd',mt_int,1,newgrd))
      + call errquit('pre_charge: rtdb_put newgrd failed',0)
+      if(rtdb_get(irtdb,'esp:nconst',mt_int,1,nconst)) goto 101
       nconst=0
       if(nout.gt.ihi-ilo+1) then
       ncon=ihi-ilo+1
@@ -232,6 +233,7 @@ c
      + call errquit('pre_charge: rtdb_put toler failed',0)
       if(.not.rtdb_put(irtdb,'esp:dump',mt_int,1,idump))
      + call errquit('pre_charge: rtdb_put dump failed',0)
+  101 continue
 c
       itask=1
       if(.not.pre_task(irtdb,itask,lfnout))
