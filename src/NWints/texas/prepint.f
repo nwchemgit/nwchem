@@ -1,7 +1,9 @@
-c $Id: prepint.f,v 1.3 1995-12-21 00:50:25 pg481 Exp $
+c $Id: prepint.f,v 1.4 1995-12-21 18:56:58 pg481 Exp $
       subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,nsym,maxprice,scftype)
-c
+c---------------------------------------------------------------
+c EPS is not used here, threshold is now set by calling 
+c texas_set_accy before texas_init is called.
 c---------------------------------------------------------------
 c dimensions for logical matrices in commons logicd,logic1-11 :
 c
@@ -58,33 +60,11 @@ cpnl: common /memor1a/ npard,ncost,nsupb, mxsize
 c
       common /memors/ nsymx,ijshp,isymm
       common /symmet/ rnsym
-c
-      common /neglect/ epsx,eps1,epsr
-c
-c----------------------------------------------------------------
-c Estimator1=16/(pi)**1/2 * Sab*Scd * 1/(a+b+c+d)**1/2
-c
-c  where Sab=(a+b)**-1 * (a*b)**+3/4 *exp(-ab/(a+b) * Rab**2 )
-c
-c
-c    Estimator1 > eps    do integrals .
-c
-c It is done in a quadratic form by  Es1*Es1> eps**2
-c
-c    Sab**2  *  Scd**2 > pi/256 * eps**2  * (a+b+c+d)
-c
-c  epsr= pi/256 * eps**2
-c
-c  epsx=eps -original thresh. for integrals,
-c  eps1=1/eps  used to rescale integr. in precalc2a subroutine
-c  epsr=pi/256 *eps**2-used in prec4neg and precspec subroutines.
 c----------------------------------------------------------------
 c
       dimension bl(*)
       dimension inx(12,*)
 c
-c----------------------------------------------------------
-      data r1273239 /0.785398163d0/
 c----------------------------------------------------------
 c
       call txs_second(tim1)
@@ -92,11 +72,8 @@ c
 c----------------------------------------------------------
 c set up integral threshold :
 c
-c      call setup_thres(eps)   now done in texas_set_accy
-c
-c     epsx=eps
-c     eps1=one/eps
-c     epsr=(pi/256.d0)*eps*eps
+c      call setup_thres(eps) 
+c now done in texas_set_accy which calls setup_thresh() routine 
 c----------------------------------------------------------
 c zero out timings
 c
@@ -252,6 +229,7 @@ c
 c================================================================
       subroutine setup_thresh(thres)
       implicit real*8 (a-h,o-z)
+c----------------------------------------------------------------
 c Set up the integral threshold :
 c----------------------------------------------------------------
 c Estimator1=16/(pi)**1/2 * Sab*Scd * 1/(a+b+c+d)**1/2
@@ -267,7 +245,7 @@ c    Sab**2  *  Scd**2 > pi/256 * eps**2  * (a+b+c+d)
 c
 c  epsr= pi/256 * eps**2
 c
-c  epsx=eps -original thresh. for integrals,
+c  eps =eps -original thresh. for integrals,
 c  eps1=1/eps  used to rescale integr. in precalc2a subroutine
 c  epsr=pi/256 *eps**2-used in prec4neg and precspec subroutines.
 c----------------------------------------------------------------
