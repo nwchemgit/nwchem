@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.32 1995-05-22 07:18:31 d3g681 Exp $
+# $Id: GNUmakefile,v 1.33 1995-05-22 07:39:39 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -45,8 +45,8 @@
                 fock_density_screen.o \
 		schwarz_atom.o \
 		comp4_extract.o \
-                int2e_file.o
-		schwarz_shell.o
+                int2e_file.o \
+                schwarz_shell.o
 
       LIBRARY =	libddscf.a
 
