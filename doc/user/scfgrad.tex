@@ -39,3 +39,20 @@
         'forces'   \>             low \> \\
         'timing'   \>             default \> 
 \end{tabbing}
+
+\subsection{frozen atoms}
+\label{sec:activeatoms}
+
+Currently the only mechanism for freezing atoms is to enter a list of
+active atoms via the \verb+set+ directive.
+
+\begin{verbatim}
+  set geometry:actlist integer <at1> <at2> <at3> ...
+\end{verbatim}
+defines atoms number \verb+<at1>+ \ldots as 'active', and only forces
+on those are calculated. All other atoms remain frozen at their
+starting coordinates during a geometry optimization.
+% I have no idea how this works with symmetry.
+% But in the new release there will be frozen atoms and variables
+% anyway.
+
