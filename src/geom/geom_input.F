@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.117 1999-06-29 01:41:16 d3g681 Exp $
+C     $Id: geom_input.F,v 1.118 1999-06-29 01:43:27 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -4086,7 +4086,7 @@ C
       COMMON/HND_SYMNAM/GROUP
       DIMENSION TR(3),RT(3,3)
       DIMENSION ERRMSG(3)
-      DATA ERRMSG /'-PROGRAM ','STOP IN ','-MOLSMB-'/
+      DATA ERRMSG /'-PROGRM ','STOP IN ','-MOLSMB-'/
       DATA BLANK  /'        '/
       DATA I2     /'2'/
       DATA B      /' '/
