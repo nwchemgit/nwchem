@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.368 2001-08-16 21:15:14 edo Exp $
+# $Id: makefile.h,v 1.369 2001-08-22 23:18:55 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1155,6 +1155,9 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
   MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
 
+         LINUXCPU = $(shell uname -m |\
+                 awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc/ { print "ppc"} ' )
+
 ifeq ($(BUILDING_PYTHON),python)
    EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
@@ -1164,89 +1167,90 @@ ifeq ($(BUILDING_PYTHON),python)
 endif
 
   DEFINES = -DLINUX -DPARALLEL_DIAG
-ifeq ($(TARGET),CYGNUS)
-    DEFINES += -DCYGNUS
-endif
-         _CPU = $(shell uname -m  )
 
-ifeq ($(FC),pgf77)
-  DEFINES   += -DPGLINUX
-# added -Kieee to get dlamc1 to work on pgf77 3.1-3 EA Jun 8th 2000
-  FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Minfo=loop -Munixlogical -Kieee
-ifeq ($(_CPU),i586)
-  FOPTIONS  += -tp p5  
-endif
-ifeq ($(_CPU),i686)
- FOPTIONS  += -tp p6 -Mvect=prefetch
-endif
-ifeq ($(_CPU),i786)
- FOPTIONS  += -tp piv -Mvect=sse -Mcache_align  -Mvect=prefetch
-endif
-  FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll -Mnoframe
-  COPTIONS   = -Wall -m486 -malign-double
-  COPTIMIZE  = -g -O2
-  MAKEFLAGS += FC=pgf77
-else
- ifeq ($(FC),ifc)
-  FOPTIONS   =  -align  -132  -mp1 -w -g -vec_report3
-FOPTIMIZE = -O3 -prefetch  -unroll 
-#FOPTIMIZE = -O3 -prefetch -rcd -unroll  # -rcd breaks in texas
-ifeq ($(_CPU),i586)
-  FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
-endif
-ifeq ($(_CPU),k7)
-#  FOPTIMIZE +=  -tpp6 -axK -prefetch-  # this are for Athlon
-  FOPTIMIZE +=  -xM  # this are for Athlon
-endif
-ifeq ($(_CPU),i686)
-  FOPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
-endif
-ifeq ($(_CPU),i786)
-  FOPTIMIZE +=  -tpp7 -xW -mP3OPT_pcg_ftz   # this are for PentiumIV
-endif
-  DEFINES   += -DIFCLINUX
- else
-# defaults are for X86 platforms
-         FC  = g77
+ifeq ($(LINUXCPU),x86) 
+  ifeq ($(TARGET),CYGNUS)
+      DEFINES += -DCYGNUS
+  endif
+  
+  _CPU = $(shell uname -m  )
+
+# FC  = g77
   FOPTIONS   = -fno-second-underscore 
   FOPTIMIZE  =  -O2  -malign-double -finline-functions 
   FOPTIMIZE  +=  -march=$(_CPU)
   COPTIONS   = -Wall -march=$(_CPU) -malign-double 
-#  FOPTIMIZE  +=  -m486
-#  COPTIONS   = -Wall -m486 -malign-double 
+# FOPTIMIZE  +=  -m486
+# COPTIONS   = -Wall -m486 -malign-double 
   COPTIMIZE  = -g -O2
 # Most Linux distributions are using EGCS
-#
   EGCS = YES
-ifdef EGCS
-  FOPTIONS  += -Wno-globals
-  FOPTIONS  += -fno-globals -Wunused -fno-silent  -malign-double
-  FOPTIONS  +=  -Wunused -fno-silent  -malign-double
-  FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
-  FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs -fno-rerun-loop-opt 
-  FOPTIMIZE += -fforce-mem -fforce-addr #-ffloat-store
-endif
- ifeq ($(CC),icc)
-  COPTIONS   =   -mp1 -w -g -vec_report3
-COPTIMIZE = -O3 -prefetch  -unroll 
-ifeq ($(_CPU),i586)
-  COPTIMIZE +=  -tpp5 -xi # this are for PentiumII
-endif
-ifeq ($(_CPU),i686)
-  COPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
-endif
-ifeq ($(_CPU),i786)
-  COPTIMIZE +=  -tpp7 -xW -mP3OPT_pcg_ftz   # this are for PentiumIV
-endif
+  ifdef EGCS
+    FOPTIONS  += -Wno-globals
+    FOPTIONS  += -fno-globals -Wunused -fno-silent  -malign-double
+    FOPTIONS  +=  -Wunused -fno-silent  -malign-double
+    FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
+    FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs 
+    FOPTIMIZE += -fno-rerun-loop-opt -fforce-mem -fforce-addr #-ffloat-store
+  endif
+
+  ifeq ($(FC),pgf77)
+    DEFINES   += -DPGLINUX
+# added -Kieee to get dlamc1 to work on pgf77 3.1-3 EA Jun 8th 2000
+    FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Minfo=loop -Munixlogical -Kieee
+    ifeq ($(_CPU),i586)
+      FOPTIONS  += -tp p5  
+    endif
+    ifeq ($(_CPU),i686)
+      FOPTIONS  += -tp p6 -Mvect=prefetch
+    endif
+    ifeq ($(_CPU),i786)
+      FOPTIONS  += -tp piv -Mvect=sse -Mcache_align  -Mvect=prefetch
+    endif
+    FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll -Mnoframe
+    COPTIONS   = -Wall -m486 -malign-double
+    COPTIMIZE  = -g -O2
+    MAKEFLAGS += FC=pgf77
+  endif
+  ifeq ($(FC),ifc)
+    FOPTIONS   =  -align  -132  -mp1 -w -g -vec_report3
+    FOPTIMIZE = -O3 -prefetch  -unroll 
+    ifeq ($(_CPU),i586)
+      FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
+    endif
+    ifeq ($(_CPU),k7)
+      FOPTIMIZE +=  -xM  # this are for Athlon
+    endif
+    ifeq ($(_CPU),i686)
+      FOPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
+    endif
+    ifeq ($(_CPU),i786)
+      FOPTIMIZE +=  -tpp7 -xW -mP3OPT_pcg_ftz   # this are for PentiumIV
+    endif
+    DEFINES   += -DIFCLINUX
+  endif
+
+  ifeq ($(CC),icc)
+    COPTIONS   =   -mp1 -w -g -vec_report3
+    COPTIMIZE = -O3 -prefetch  -unroll 
+    ifeq ($(_CPU),i586)
+      COPTIMIZE +=  -tpp5 -xi # this are for PentiumII
+    endif
+    ifeq ($(_CPU),i686)
+      COPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
+    endif
+    ifeq ($(_CPU),i786)
+      COPTIMIZE +=  -tpp7 -xW -mP3OPT_pcg_ftz   # this are for PentiumIV
+    endif
+  endif
 endif
 
-ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
+ifeq ($(_CPU),ppc)
+# this are for PowerPC
   FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
   FOPTIMIZE  = -g -O2
   COPTIONS   = -Wall
   COPTIMIZE  = -g -O2
-endif
-endif
 endif
 
 
@@ -1281,74 +1285,66 @@ CORE_LIBS += -llapack $(BLASOPT) -lblas
 # end of Linux, Cygnus
 endif
 
-ifeq ($(NWCHEM_TARGET),LINUXIA64)
+ifeq ($(NWCHEM_TARGET),LINUX64)
+     _CPU = $(shell uname -m  )
+     CORE_SUBDIRS_EXTRA = blas lapack
+     RANLIB = echo
+     DEFINES   +=   -DLINUX -DLINUX64 -DPARALLEL_DIAG
+     ifeq ($(_CPU),alpha)
+# using COMPAQ/DEC compilers (EA 3/13/2000)
+       FC  = fort
+       CC  = ccc      
+       FOPTIONS   = -assume no2underscore -align dcommons -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow  -noautomatic
+       DEFINES   +=   -DLINUXALPHA
+       FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
+       FVECTORIZE = -fast -O5 -tune host -arch host
+
+       ifdef USE_INTEGER4
+         FOPTIONS += -i4 -fpe0
+# needed: binutils 2.11 for -taso option with some more hacking on bfd/elf.c
+         LINK.f = fort -Wl,-taso $(LDFLAGS)  
+         CORE_LIBS += -lcxml
+       else
+         FOPTIONS += -i8 -fpe3
+         DEFINES  += -DEXT_INT
+         LINK.f = fort $(LDFLAGS)  
+# this creates a static executable
+#  LINK.f = fort $(LDFLAGS)   -Wl,-Bstatic
+         CORE_LIBS += -llapack $(BLASOPT) -lblas
+       endif
+     endif
+
+    ifeq ($(_CPU),ia64)
 # Itanium cross compiled on i386 with Intel Compilers 
 # i4 not working 
 #
-    FC=efc
-    CC=ecc
-    CORE_SUBDIRS_EXTRA = blas lapack
-     RANLIB = echo
-  DEFINES   +=   -DLINUX -DLINUXIA64 -DPARALLEL_DIAG
-  CDEBUG=
-  EXTRA_LIBS = 
-  COPTIMIZE = -O1
+      FC=efc
+      CC=ecc
+      DEFINES   +=   -DLINUXIA64 
+      COPTIMIZE = -O1
 
-ifeq ($(FC),efc)
-  FOPTIONS   =  -align  -132   -w  -vec_report3 -ftz
-  DEFINES  +=   -DIFCLINUX
-  FVECTORIZE = -O3 -hlo -pad
-  FOPTIMIZE =  -O3 -hlo -unroll
-endif
-ifeq ($(FC),ecc)
-  COPTIONS   =   -vec_report3 -ftz
-endif
-  FOPTIONS += -i8 
-  DEFINES  += -DEXT_INT  
+      ifeq ($(FC),efc)
+        FOPTIONS   =  -align  -132   -w  -vec_report3 -ftz
+        DEFINES  +=   -DIFCLINUX
+        FVECTORIZE = -O3 -hlo -pad
+        FOPTIMIZE =  -O3 -hlo -unroll
+        LINK.f = efc  -O -Qoption,link,-v  $(LDFLAGS)  
+        EXTRA_LIBS +=  -ml   -Vaxlib 
+      endif
+      ifeq ($(FC),ecc)
+        COPTIONS   =   -vec_report3 -ftz
+      endif
+     FOPTIONS += -i8 
+     DEFINES  += -DEXT_INT  
 
-  CORE_LIBS += -llapack $(BLASOPT) -lblas
-ifeq ($(BUILDING_PYTHON),python)
-#   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
-   EXTRA_LIBS +=  -ldl
-endif
-ifeq ($(FC),efc)
-  LINK.f = efc  -O -Qoption,link,-v  $(LDFLAGS)  
-   EXTRA_LIBS +=  -ml   -Vaxlib 
-endif
-endif
-
-ifeq ($(NWCHEM_TARGET),LINUX64)
-# using COMPAQ/DEC compilers (EA 3/13/2000)
-    CORE_SUBDIRS_EXTRA = blas lapack
-     RANLIB = echo
-  FC         = fort
-  CC         = ccc      
-  DEFINES   +=   -DLINUX -DLINUX64 -DPARALLEL_DIAG
-  FOPTIONS   = -assume no2underscore -align dcommons -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow  -noautomatic
-  EXTRA_LIBS = 
-  FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
-  FVECTORIZE = -fast -O5 -tune host -arch host
-
-ifdef USE_INTEGER4
-  FOPTIONS += -i4 -fpe0
-# needed: binutils 2.11 for -taso option with some more hacking on bfd/elf.c
-  LINK.f = fort -Wl,-taso $(LDFLAGS)  
-# this creates a static executable
-#  LINK.f = fort $(LDFLAGS) -Wl,-Bstatic  -Wl,-Bstatic
-  CORE_LIBS += -lcxml
-else
-  FOPTIONS += -i8 -fpe3
-  DEFINES  += -DEXT_INT
-  LINK.f = fort $(LDFLAGS)  
-# this creates a static executable
-#  LINK.f = fort $(LDFLAGS)   -Wl,-Bstatic
-  CORE_LIBS += -llapack $(BLASOPT) -lblas
+     CORE_LIBS += -llapack $(BLASOPT) -lblas
 endif
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
    EXTRA_LIBS +=  -ldl
 endif
 endif
+
 
 ifeq ($(TARGET),FUJITSU_VPP)
 #
