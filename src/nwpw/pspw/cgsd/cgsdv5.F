@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.26 2002-04-26 20:37:41 bylaska Exp $
+* $Id: cgsdv5.F,v 1.27 2002-06-25 19:51:25 bylaska Exp $
 *
 
 ***********************************************************************
@@ -111,6 +111,8 @@
       external  psi_filefind
       logical   pspw_charge_found,ion_q_FixIon
       external  pspw_charge_found,ion_q_FixIon
+      integer  control_minimizer
+      external control_minimizer
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -222,14 +224,19 @@ c     value = psi_initialize()
 
 *     **** electron and geodesic data structures ****
       call electron_init()
-      call geodesic_init()
-
-
+      if (control_minimizer().eq.4) then  !debug
+        call geodesic2_init()
+      else
+         call geodesic_init()
+      end if
 
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
+
+*     **** initialize SIC ****
+      call pspw_init_SIC(rtdb)
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
@@ -245,11 +252,7 @@ c     value = psi_initialize()
       if (taskid.eq.MASTER) then
          write(6,1111) np
          write(6,1115)
-c         IF(control_move()) THEN
-c           write(6,1120) 'yes'
-c         ELSE
-c           write(6,1120) 'no'
-c         ENDIF
+
          write(6,1121) control_boundry(),control_version()
          if (psi_ispin().eq.1) write(6,1130) "restricted"
          if (psi_ispin().eq.2) write(6,1130) "unrestricted"
@@ -262,6 +265,7 @@ c         ENDIF
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0)
          END IF
+         call pspw_print_SIC(6)
          write(6,1140)
          do ia = 1,psp_npsp()
            write(6,1150) ia,psp_atom(ia),
@@ -432,7 +436,11 @@ c     end if
 
 *     **** deallocate heap memory ****
       call electron_finalize()
-      call geodesic_finalize()
+      if (control_minimizer().eq.4) then
+        call geodesic2_finalize()
+      else
+        call geodesic_finalize()
+      end if
       if (control_version().eq.3) call ewald_end()
       call strfac_end()
       if (control_version().eq.3) call coulomb_end()
@@ -441,6 +449,7 @@ c     end if
       call mask_end()
       call Pack_end()
       call G_end()
+      call pspw_end_SIC()
       call pspw_end_APC()
       call pspw_charge_end()
       call pspw_qmmm_end()
@@ -507,9 +516,9 @@ c     end if
  1000 FORMAT(10X,'****************************************************')
  1010 FORMAT(10X,'*                                                  *')
  1020 FORMAT(10X,'*               NWPW PSPW Calculation              *')
- 1030 FORMAT(10X,'*     [   (Grassman manifold implementation)  ]    *')
+ 1030 FORMAT(10X,'*  [ (Grassman/Stiefel manifold implementation) ]  *')
  1035 FORMAT(10x,'*      [ NorthWest Chemistry implementation ]      *')
- 1040 FORMAT(10X,'*            version #5.00   06/01/00              *')
+ 1040 FORMAT(10X,'*            version #5.10   06/12/02              *')
  1041 FORMAT(10X,'*    This code was developed by Eric J. Bylaska,   *')
  1042 FORMAT(10X,'*    and was based upon algorithms and code        *')
  1043 FORMAT(10X,'*    developed by the group of Prof. John H. Weare *')

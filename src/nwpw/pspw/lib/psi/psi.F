@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.18 2002-06-06 00:15:22 bylaska Exp $
+* $Id: psi.F,v 1.19 2002-06-25 19:51:26 bylaska Exp $
 *
 
 *     ***************************
@@ -11,21 +11,7 @@
       implicit none
 
 #include "mafdecls.fh"
-
-
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
-
+#include "psi.fh"
    
       call zcopy(npack1*(ne(1)+ne(2)),
      >           dcpl_mb(psi1(1)),1,
@@ -33,7 +19,6 @@
 
       return
       end
-
 
 
 *     ***************************
@@ -45,18 +30,8 @@
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
+
  
       call zcopy(npack1*(ne(1)+ne(2)),
      >           dcpl_mb(psi2(1)),1,
@@ -75,18 +50,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
  
 
       call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))  
@@ -104,18 +68,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -142,18 +95,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
  
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
  
       call zcopy(npack0,
      >           dcpl_mb(dng2(1)),1,
@@ -174,18 +116,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -209,18 +140,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -252,18 +172,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -297,18 +206,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** external functions ****
       real*8   electron_eorbit
@@ -329,18 +227,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** local variables ***
       real*8 ave
@@ -365,18 +252,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 
 *     **** external functions ****
@@ -397,18 +273,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 
 *     **** external functions ****
@@ -421,27 +286,16 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     *******************************
-*     *								*
-*     *		psi_1v_field 			*
-*     *								*
+*     *				    *
+*     *		psi_1v_field 	    *
+*     *				    *
 *     *******************************
       real*8 function psi_1v_field()
       implicit none
 
 #include "mafdecls.fh"
+#include "psi.fh"
 
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
 
 
 *     **** external functions ****
@@ -456,9 +310,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *									*
-*     *		rho_1_Fion_Fmm				*
-*     *									*
+*     *	                                *
+*     *		rho_1_Fion_Fmm	        *
+*     *					*
 *     ***********************************
       subroutine rho_1_Fion_Fmm(fion,fmm)
       implicit none
@@ -466,18 +320,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 fmm(*)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** local variables ****
       logical value
@@ -533,27 +376,16 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***********************************
-*     *									*
-*     *		rho_1Fcharge				*
-*     *									*
+*     *					*
+*     *		rho_1Fcharge		*
+*     *					*
 *     ***********************************
       subroutine rho_1Fcharge(Fcharge)
       implicit none
       real*8 Fcharge(*)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** local variables ****
       logical value
@@ -617,18 +449,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -652,18 +473,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** external functions ****
       real*8   electron_pxc
@@ -683,18 +493,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** external functions ****
       integer  control_version
@@ -727,18 +526,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -770,19 +558,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       complex*16 H(*)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** local variables ****
       logical value
@@ -830,25 +606,16 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     *		psi_1get_Tgradient	*
 *     *					*
 *     ***********************************
+
+*     THpsi = Hpsi - Y*Y^t*Hpsi ! used by Grassman minimizers
+*
       subroutine psi_1get_Tgradient(THpsi,Eout)
       implicit none
       complex*16 THpsi(*)
       real*8 Eout
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -908,18 +675,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8     Eout
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -967,6 +723,130 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************
 *     *					*
+*     *		psi_1get_TSgradient	*
+*     *					*
+*     ***********************************
+
+*     THpsi = Hpsi - Y*Hpsi^t*Y ! used by Stiefel minimizers
+*
+      subroutine psi_1get_TSgradient(THpsi,Eout)
+      implicit none
+      complex*16 THpsi(*)
+      real*8 Eout
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** local variables ****
+      logical value
+      integer tmp1(2)
+ 
+*     **** external functions ****
+      real*8   electron_energy
+      external electron_energy
+
+
+      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) 
+     >   call errquit('psi_1get_TSradient:pushing stack',0)
+
+
+      call electron_run(dcpl_mb(psi1(1)),
+     >                   dbl_mb(rho1(1)),
+     >                  dcpl_mb(dng1(1)),
+     >                   dbl_mb(rho1_all(1)))
+
+      Eout =  electron_energy(dcpl_mb(psi1(1)),
+     >                        dbl_mb(rho1(1)),
+     >                        dcpl_mb(dng1(1)),
+     >                        dbl_mb(rho1_all(1)))
+
+
+      call electron_gen_hmlt(dcpl_mb(psi1(1)),
+     >                       dbl_mb(tmp1(1)))
+      call electron_get_Tgradient(dcpl_mb(psi1(1)),
+     >                             dbl_mb(tmp1(1)),
+     >                            THpsi)
+      
+
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value) 
+     > call errquit('psi_1get_TSgradient:popping stack',1)
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *		psi_2get_TSgradient	*
+*     *					*
+*     ***********************************
+
+*     THpsi = Hpsi - Y*Hpsi^t*Y ! used by Stiefel minimizers
+*
+      subroutine psi_2get_TSgradient(option,THpsi,Eout)
+      implicit none
+      integer    option
+      complex*16 THpsi(*)
+      real*8     Eout
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     *** local variables ****
+      logical value
+      integer tmp1(2)
+
+*     **** external functions ****
+      real*8   electron_energy
+      external electron_energy
+
+
+      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) 
+     >   call errquit('psi_2get_TSgradient:pushing stack',0)
+
+      if (option.le.1) then
+        call electron_run(dcpl_mb(psi2(1)),
+     >                     dbl_mb(rho2(1)),
+     >                    dcpl_mb(dng2(1)),
+     >                     dbl_mb(rho2_all(1)))
+      end if
+
+      Eout =  electron_energy(dcpl_mb(psi2(1)),
+     >                        dbl_mb(rho2(1)),
+     >                        dcpl_mb(dng2(1)),
+     >                        dbl_mb(rho2_all(1)))
+
+      call electron_gen_hmlt(dcpl_mb(psi2(1)),
+     >                       dbl_mb(tmp1(1)))
+      call electron_get_Tgradient(dcpl_mb(psi2(1)),
+     >                             dbl_mb(tmp1(1)),
+     >                             THpsi)
+      
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value) 
+     > call errquit('psi_2get_TSgradient:popping stack',1)
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *					*
 *     *		psi_1get_TMgradient	*
 *     *					*
 *     ***********************************
@@ -976,19 +856,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8     Eout
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -1030,18 +898,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8     Eout
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -1080,18 +937,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       complex*16 Hpsi(*)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** local variables ****
       integer neall
@@ -1116,18 +962,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       complex*16 H0(*)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 
       call geodesic_transport(t,dcpl_mb(psi1(1)),H0)
@@ -1147,18 +982,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       complex*16 G0(*)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       call geodesic_Gtransport(t,dcpl_mb(psi1(1)),G0)
 
@@ -1177,18 +1001,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 t
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -1227,18 +1040,7 @@ c      write(*,*) "psi_geodesic_energy:",t,e_new
       real*8 t
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** external functions ****
       real*8   electron_eorbit
@@ -1262,18 +1064,7 @@ c      write(*,*) "psi_geodesic_energy:",t,e_new
       real*8 t
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       integer taskid,MASTER
       parameter (MASTER=0)
@@ -1282,51 +1073,156 @@ c     real*8 sum1,sum2
       call Parallel_taskid(taskid)
 
       call geodesic_get(t,dcpl_mb(psi1(1)),
-     >                    dcpl_mb(psi2(1)))
+     >                    dcpl_mb(psi2(1)))          
+      return
+      end
 
-c*     **** Ortho Check ****     
-c      call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
-c     >                        dcpl_mb(psi2(1)),
-c     >                        dcpl_mb(psi2(1)),
-c     >                        sum2)
-c  
-c      sum1 = dble(ne(1) + ne(2))
-c      if (dabs(sum2-sum1).gt.1.0d-10) then
-c         if (taskid.eq.MASTER) 
-c     >      write(*,*) "Warning: Gram-Schmidt being performed on psi2"
-c         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi2(1)))
-c         if (ispin.gt.1) then
-c           call Grsm_g_MakeOrtho(npack1,ne(2),
-c     >                           dcpl_mb(psi2(1) + ne(1)*npack1))
-c         end if
-c      end if
-          
+
+
+*     ***********************************
+*     *					*
+*     *	    psi_1geodesic2_start	*
+*     *					*
+*     ***********************************
+      subroutine psi_1geodesic2_start(H0,max_sigma,dE0)
+      implicit none
+      complex*16 H0(*)
+      real*8 max_sigma
+      real*8 dE0
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      call geodesic2_start(dcpl_mb(psi1(1)),H0,max_sigma,dE0)
+
       return
       end
 
 *     ***********************************
-*     *									*
-*     *			psito2_sd_update	 	*
-*     *									*
+*     *					*
+*     *	    psi_1geodesic2_transport	*
+*     *					*
+*     ***********************************
+      subroutine psi_1geodesic2_transport(t,Hnew)
+      implicit none
+      real*8 t
+      complex*16 Hnew(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      call geodesic2_transport(t,dcpl_mb(psi1(1)),Hnew)
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *		psi_geodesic2_energy 	*
+*     *					*
+*     ***********************************
+      real*8 function psi_geodesic2_energy(t)
+      implicit none
+      real*8 t
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+      real*8 e_new
+
+*     **** external functions ****
+      real*8   electron_energy
+      external electron_energy
+
+     
+      call geodesic2_get(t,dcpl_mb(psi1(1)),
+     >                    dcpl_mb(psi2(1)))
+
+*     **** check Orthogonality of psi2 **** !debug
+*      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1))) !debug
+
+
+      call electron_run(dcpl_mb(psi2(1)),
+     >                   dbl_mb(rho2(1)),
+     >                  dcpl_mb(dng2(1)),
+     >                   dbl_mb(rho2_all(1)))
+      e_new =  electron_energy(dcpl_mb(psi2(1)),
+     >                        dbl_mb(rho2(1)),
+     >                        dcpl_mb(dng2(1)),
+     >                        dbl_mb(rho2_all(1)))
+
+      psi_geodesic2_energy = e_new
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		psi_geodesic2_denergy 	*
+*     *					*
+*     ***********************************
+      real*8 function psi_geodesic2_denergy(t)
+      implicit none
+      real*8 t
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** external functions ****
+      real*8   electron_eorbit
+      external electron_eorbit
+
+
+      call geodesic2_transport(t,dcpl_mb(psi1(1)),
+     >                          dcpl_mb(psi2(1)))
+      psi_geodesic2_denergy =  2.0d0*electron_eorbit(dcpl_mb(psi2(1)))
+
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		psi_geodesic2_final 	*
+*     *					*
+*     ***********************************
+      subroutine psi_geodesic2_final(t)
+      implicit none
+      real*8 t
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      integer taskid,MASTER
+      parameter (MASTER=0)
+c     real*8 sum1,sum2
+     
+      call Parallel_taskid(taskid)
+
+      call geodesic2_get(t,dcpl_mb(psi1(1)),
+     >                    dcpl_mb(psi2(1)))
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *		psito2_sd_update	*
+*     *					*
 *     ***********************************
       subroutine psi1to2_sd_update(dte)
       implicit none
       real*8 dte
 
 #include "mafdecls.fh"
+#include "psi.fh"
 
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -1382,18 +1278,7 @@ c      end if
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** local variables ****
       logical value
@@ -1440,63 +1325,41 @@ c    >                            dcpl_mb(dng1(1)))
 
 
 *     ***********************************
-*     *									*
-*     *		psi_1ke_stress              *
-*     *									*
+*     *					*
+*     *		psi_1ke_stress          *
+*     *					*
 *     ***********************************
       subroutine psi_1ke_stress(stress)
       implicit none
       real*8 stress(3,3)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       call ke_euv(ispin,ne,dcpl_mb(psi1(1)),stress)
       return
       end
 
 *     ***********************************
-*     *									*
-*     *		psi_1coulomb_stress         *
-*     *									*
+*     *					*
+*     *		psi_1coulomb_stress     *
+*     *					*
 *     ***********************************
       subroutine psi_1coulomb_stress(stress)
       implicit none
       real*8 stress(3,3)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       call coulomb_euv(dcpl_mb(dng1(1)),stress)
       return
       end
 
 *     ***********************************
-*     *									*
-*     *		rho_1exc_stress 	        *
-*     *									*
+*     *					*
+*     *		rho_1exc_stress 	*
+*     *					*
 *     ***********************************
       subroutine rho_1exc_stress(stress)
       implicit none
@@ -1540,9 +1403,9 @@ c    >                            dcpl_mb(dng1(1)))
       end
 
 *     ***********************************
-*     *									*
-*     *		dng_1vlocal_stress          *
-*     *									*
+*     *					*
+*     *		dng_1vlocal_stress      *
+*     *					*
 *     ***********************************
 
       subroutine dng_1vlocal_stress(stress)
@@ -1551,18 +1414,7 @@ c    >                            dcpl_mb(dng1(1)))
 
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       call v_local_euv(dcpl_mb(dng1(1)),stress)
 
@@ -1570,28 +1422,17 @@ c    >                            dcpl_mb(dng1(1)))
       end
 
 *     ***********************************
-*     *									*
-*     *		psi_1vnonlocal_stress       *
-*     *									*
+*     *					*
+*     *		psi_1vnonlocal_stress   *
+*     *					*
 *     ***********************************
       subroutine psi_1vnonlocal_stress(stress)
       implicit none
       real*8 stress(3,3)
 
 #include "mafdecls.fh"
+#include "psi.fh"
 
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
 
 
 *     ***** local variables ****
@@ -1633,18 +1474,7 @@ c    >                            dcpl_mb(dng1(1)))
       integer iunit
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       return
@@ -1661,18 +1491,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 
       call electron_gen_hml(dcpl_mb(psi1(1)),dbl_mb(hml(1)))
@@ -1691,18 +1510,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       integer i
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       psi_eigenvalue = dbl_mb(eig(1) + (i-1) + (ms-1)*ne(1))
 
@@ -1720,18 +1528,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       integer i,j
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       psi_hml = dbl_mb(hml(1)-1 + i 
      >                          + (j-1)*ne(ms) 
@@ -1751,18 +1548,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       real*8 en(2)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     **** local variables ****
       integer ms,nx,ny,nz,n2ft3d
@@ -1798,18 +1584,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       real*8 Sab
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       call Calculate_psi_spin2(ispin,ne,npack1,dcpl_mb(psi1(1)),Sab)
            
@@ -1831,18 +1606,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** local variables *****
       integer ms,index,i,j,shift1,shift2
@@ -1879,18 +1643,7 @@ c     >                           dcpl_mb(psi2(1)+(j-1+shift1)*nfft3d))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 
 *     ***** local variables ****
@@ -1935,18 +1688,7 @@ c     >                           dcpl_mb(psi2(1)+(j-1+shift1)*nfft3d))
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** local variables ****
       logical value
@@ -1991,18 +1733,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** local variables ****
       logical value
@@ -2063,18 +1794,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       real*8 dipole(3)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       call Calculate_Dipole(ispin,ne,2*nfft3d,dbl_mb(rho1(1)),dipole)
       return
@@ -2090,18 +1810,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       psi_ispin = ispin
       return
@@ -2118,18 +1827,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       integer ms
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
       psi_ne = ne(ms)
       return
@@ -2145,18 +1843,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none 
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -2260,18 +1947,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none 
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "psi.fh"
 
 *     ***** rhoall common block ****
       integer rho1_all(2)
@@ -2304,9 +1980,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 
 *     ***********************
-*     *						*
-*     *		psi_Mulliken	*
-*     *						*
+*     *			    *
+*     *	    psi_Mulliken    *
+*     *			    *
 *     ***********************
 
       subroutine psi_Mulliken(rtdb)
@@ -2314,19 +1990,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       integer rtdb
 
 #include "mafdecls.fh"
+#include "psi.fh"
 
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
 
 *     **** Lubin Water Analysis ***
       call pspw_Lubin_water_analysis(rtdb,ispin,ne,2*nfft3d,

@@ -1,5 +1,5 @@
 *
-* $Id: Grassman.F,v 1.6 2002-02-16 01:02:01 bylaska Exp $
+* $Id: Grassman.F,v 1.7 2002-06-25 19:51:26 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -616,6 +616,46 @@ c            call D3dB_cc_idot(1,Y(1,i),Z(1,j),sum)
       end
 
 
+*     **************************************
+*     *                                    *
+*     *              Grsm_g_QR             *
+*     *                                    *
+*     **************************************
+
+*     This routine calculates the QR decomposition
+* 
+*       A-->QR
+*
+*     Entry - npack,ne,Q
+*     Exit  - Q,R
+
+      subroutine Grsm_g_QR(npack,ne,Q,R)
+      implicit none
+      integer npack,ne
+      complex*16 Q(npack,ne)
+      real*8     R(ne,ne)
+
+*     **** local variables ****
+      integer j,k
+      real*8  w
+
+      call dcopy(ne*ne,0.0d0,0,R,1)
+      do k=1,ne
+         call Pack_cc_dot(1,Q(1,k),Q(1,k),w)
+         R(k,k) = dsqrt(w)
+         w = 1.0d0/R(k,k)
+         call Pack_c_SMul(1,w,Q(1,k),Q(1,k))
+
+         do j=k+1,ne
+            call Pack_cc_dot(1,Q(1,k),Q(1,j),w)
+            R(k,j) = w
+            w = -w
+            call Pack_cc_daxpy(1,w,Q(1,k),Q(1,j))
+         end do
+      end do
+
+      return
+      end 
 
 
 

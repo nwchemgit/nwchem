@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.18 2002-05-16 00:07:42 bylaska Exp $
+* $Id: cpsdv5.F,v 1.19 2002-06-25 19:51:25 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -290,7 +290,7 @@
       call ion_init_FixIon(rtdb)
 
 *     **** initialize SIC ****
-      call pspw_init_SIC(ne,rtdb)
+      call pspw_init_SIC(rtdb)
 
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)

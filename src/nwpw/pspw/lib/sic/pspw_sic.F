@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.12 2002-05-24 00:27:45 bylaska Exp $
+* $Id: pspw_sic.F,v 1.13 2002-06-25 19:51:27 bylaska Exp $
 *
 
 *     *************************
@@ -7,9 +7,8 @@
 *     *     pspw_init_SIC     *
 *     *                       *
 *     *************************
-      subroutine pspw_init_SIC(ne,rtdb)
+      subroutine pspw_init_SIC(rtdb)
       implicit none
-      integer ne(2)
       integer rtdb
 
 #include "mafdecls.fh"

@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.9 2002-06-06 00:15:21 bylaska Exp $
+* $Id: electron.F,v 1.10 2002-06-25 19:51:25 bylaska Exp $
 *
 
 
@@ -616,9 +616,9 @@ c     >                       sum)
 
 
 *     ***********************************
-*     *									*
+*     *					*
 *     *	    electron_get_TMgradient 	*
-*     *									*
+*     *					*
 *     ***********************************
 
       subroutine electron_get_TMgradient(psi_k,THpsi_k)
@@ -726,6 +726,45 @@ c     >                       sum)
 
       return
       end
+
+*     ***********************************
+*     *				        *
+*     *	    electron_gen_hmlt     	*
+*     *				        *
+*     ***********************************
+
+      subroutine electron_gen_hmlt(psi_k,hmlt)
+      implicit none
+      complex*16 psi_k(*)
+      real*8     hmlt(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+*     **** local variables ****
+      integer ms,n,n1(2),shift
+     
+
+      n1(1) = 1
+      n1(2) = ne(1) + 1
+
+
+      do ms=1,ispin
+         shift = (ms-1)*ne(1)*ne(1)
+         n     = ne(ms)
+         call Grsm_ggm_dot(npack1,n,
+     >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
+     >                     psi_k(1+(ms-1)*ne(1)*npack1),
+     >                     hmlt(shift+1))
+      end do
+
+
+      return
+      end
+
+
+
 
 
 

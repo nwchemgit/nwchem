@@ -1,16 +1,17 @@
 #
-# $Id: GNUmakefile,v 1.8 2002-04-25 00:34:38 bylaska Exp $
+# $Id: GNUmakefile,v 1.9 2002-06-25 19:51:25 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 		cgsd_input.o \
-        	pspw_noit_energy.o \
-        	pspw_energy.o \
- 		pspw_gradient.o \
- 		pspw_stress.o \
+		pspw_noit_energy.o \
+		pspw_energy.o \
+		pspw_gradient.o \
+		pspw_stress.o \
 		cgsdv5.o \
 		cgsd_noit_energy.o \
 		cgsd_energy.o \
                 cgminimize.o \
+		cgminimize2.o \
                 bfgsminimize.o \
                 sdminimize.o \
 		nominimize.o
@@ -23,7 +24,6 @@
       LIBRARY = libpspw.a
 
     USES_BLAS = cgsdv5.F cgsd_energy.F
-                
 
   LIB_DEFINES = 
   LIB_INCLUDES = -I../../nwpwlib/include

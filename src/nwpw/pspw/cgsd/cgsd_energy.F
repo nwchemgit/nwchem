@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.26 2002-05-10 01:45:10 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.27 2002-06-25 19:51:25 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -22,7 +22,7 @@ c#include "rtdb.fh"
       logical stalled,value
       integer taskid
       integer minimizer
-      integer i,neall,NN
+      integer i,j,ms,neall,NN
       integer it_in,it_out,icount,bfgscount
       real*8  EV,virial
       real*8  tole,tolc,deltae,deltac,deltae_old
@@ -34,19 +34,19 @@ c#include "rtdb.fh"
 
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
-      logical     control_out_of_time
+      logical     control_out_of_time,pspw_SIC
       character*2 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       real*8      control_tole,control_tolc
-      real*8      ion_rion,psi_eigenvalue,ion_amass
+      real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
       external psp_semicore,pspw_qmmm_found,pspw_charge_found
-      external control_out_of_time
+      external control_out_of_time,pspw_SIC
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       external control_tole,control_tolc
-      external ion_rion,psi_eigenvalue,ion_amass
+      external ion_rion,psi_eigenvalue,psi_hml,ion_amass
 
 
       call Parallel_taskid(taskid)
@@ -69,6 +69,7 @@ c#include "rtdb.fh"
          if (minimizer.eq.1) write(luout,1305)
          if (minimizer.eq.2) write(luout,1306)
          if (minimizer.eq.3) write(luout,1307)
+         if (minimizer.eq.4) write(luout,1308)
          call util_flush(luout)
       end if
 
@@ -102,6 +103,9 @@ c#include "rtdb.fh"
          else if (minimizer.eq.3) then
            bfgscount = bfgscount + 1
            call bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
+         else if (minimizer.eq.4) then
+           bfgscount = bfgscount + 1
+           call cgminimize2(E,deltae,deltac,bfgscount)
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
@@ -144,13 +148,17 @@ c#include "rtdb.fh"
       if (taskid.eq.MASTER) CALL NWPW_MESSAGE(3)
 
 
-*     **** diagonalize hamiltonian and rotate psi ****
+*     **** diagonalize hamiltonian and rotate psi  ****
+*     **** but skip if doing an SIC calculations   ****
       call psi_spin_density(en)
       call psi_1gen_hml()
-      call psi_diagonalize_hml()
 
-      call psi_1rotate2()
-      call psi_2to1()
+      if (.not.pspw_SIC()) then
+       call psi_diagonalize_hml()
+
+       call psi_1rotate2()
+       call psi_2to1()
+      end if
 
 *     **** geometrical center and center of mass of the cluster ****
       call center_geom(cx,cy,cz)
@@ -161,17 +169,6 @@ c#include "rtdb.fh"
          neall = (psi_ne(1)+psi_ne(2))
          write(luout,1304)
          write(luout,1410)
-
-c        write(luout,1420)
-c        write(luout,1190)(i,ion_aname(I),
-c    >                 (ion_rion(K,I),K=1,3),
-c    >                 ion_amass(i)/1822.89d0,
-c    >                I=1,ion_nion())
-c        write(luout,1200) CX,CY,CZ
-c        write(luout,1210) GX,GY,GZ
-c
-c        call pspw_qmmm_Print(6)
-c        call pspw_charge_Print(6)
 
          write(luout,*)
          write(luout,1320) en(1),en(psi_ispin()),' (real space)'
@@ -219,7 +216,7 @@ c        call pspw_charge_Print(6)
 
             write(luout,1703) E(14)+E(15)
             write(luout,1710) E(14)
-            write(luout,1711) E(15)
+            write (luout,1711) E(15)
 
             write(luout,1704) E(16)
             write(luout,1705) E(17)
@@ -234,20 +231,33 @@ c        call pspw_charge_Print(6)
             write(luout,1804) E(21)
         end if
 
+*        **** write out <psi|H|psi> matrix ****
+         if (pspw_SIC()) then
+           write(luout,1331)
+           do ms=1,psi_ispin()
+             do i=1,psi_ne(ms)
+             do j=1,psi_ne(ms)
+               write(luout,1341) ms,i,j,psi_hml(ms,i,j)
+             end do
+             end do
+           end do
 
-         write(luout,1500)
-         NN=psi_ne(1)-psi_ne(2)
-         EV=27.2116
-         DO I=1,NN
-           write(luout,1510) psi_eigenvalue(1,I),
-     >                   psi_eigenvalue(1,I)*EV
-         end do
-         DO I=1,psi_ne(2)
-           write(luout,1510)  psi_eigenvalue(1,I+NN),
-     >                    psi_eigenvalue(1,I+NN)*EV,
-     >                    psi_eigenvalue(2,I),
-     >                    psi_eigenvalue(2,I)*EV
-         end do
+*        **** write out KS eigenvalues ****
+         else
+           write(luout,1500)
+           NN=psi_ne(1)-psi_ne(2)
+           EV=27.2116
+           do I=1,NN
+             write(luout,1510) psi_eigenvalue(1,I),
+     >                         psi_eigenvalue(1,I)*EV
+           end do
+           do I=1,psi_ne(2)
+             write(luout,1510)  psi_eigenvalue(1,I+NN),
+     >                          psi_eigenvalue(1,I+NN)*EV,
+     >                          psi_eigenvalue(2,I),
+     >                          psi_eigenvalue(2,I)*EV
+           end do
+         end if
 
       end if
 
@@ -274,13 +284,16 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1301 FORMAT(  '= energy calculation =')
  1302 FORMAT(  '======================')
  1304 FORMAT(/)
- 1305 FORMAT(10X,'========== conjugate gradient iteration ============')
- 1306 FORMAT(10X,'================ lmbfgs iteration ==================')
- 1307 FORMAT(10X,'================= diis iteration ===================')
+ 1305 FORMAT(10X,'====== Grassmann conjugate gradient iteration ======')
+ 1306 FORMAT(10X,'============ Grassmann lmbfgs iteration ============')
+ 1307 FORMAT(10X,'============ Grassmann diis iteration ==============')
+ 1308 FORMAT(10X,'======= Stiefel conjugate gradient iteration =======')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
+ 1331 FORMAT(/' Hamiltonian matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
+ 1341 FORMAT(I3,2I3,' H=',E16.6)
  1350 FORMAT(/' orthonormality')
  1360 FORMAT(I3,2I3,E18.7)
  1370 FORMAT(I3)

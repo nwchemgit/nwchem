@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.23 2002-05-10 01:45:10 bylaska Exp $
+* $Id: control.F,v 1.24 2002-06-25 19:51:24 bylaska Exp $
 *
 
 *     ***********************************
@@ -1367,7 +1367,7 @@ c      end
       integer minimizer
 
       if (.not.rtdb_get(rtdb,'nwpw:minimizer',mt_int,1,minimizer)) then
-         minimizer = 1   ! make the default cg
+         minimizer = 1   ! make the default Grassmann cg
       end if
 
       control_minimizer = minimizer
@@ -1375,9 +1375,9 @@ c      end
       end
 
 *     *****************************
-*     *                	 		  *
-*     *    	control_lmbfgs_size   *
-*     *                 	 	  *
+*     *                	          *
+*     *    control_lmbfgs_size    *
+*     *                           *
 *     *****************************
       integer function control_lmbfgs_size()
       implicit none
