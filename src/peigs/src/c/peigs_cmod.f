@@ -31,7 +31,7 @@
       integer function peigs_cmod ( x, y )
       integer x, y
 c     
-      Integer mod
+c      Integer mod
       intrinsic mod
 c     
       peigs_cmod = mod(x,y)
