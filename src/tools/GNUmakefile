@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 1999-08-03 23:11:29 d3e129 Exp $
+# $Id: GNUmakefile,v 1.12 2004-06-25 18:16:32 d3h325 Exp $
 #
 # This makefile has to be processed by GNU make
 #
@@ -59,7 +59,6 @@ tools:  $(STAMP) lib/$(TARGET) include
         endif
 	@echo '>>> making Linear Algebra utility libraries <<< '
 	(cd ./LinAlg/lapack+blas; $(MAKE))
-	(cd ./LinAlg/summa; $(MAKE))
 ifndef  OLD_GA
 ifdef   USE_ARMCI
 		@echo '>>> making ARMCI remote memory copy library <<< '
