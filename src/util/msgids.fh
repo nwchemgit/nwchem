@@ -137,7 +137,7 @@ c
       integer msg_riscf_free
 c
       integer msg_grad_xc
-      integer msg_max_3c_incore, msg_min_stack_avail
+      integer msg_max_3c_incore, msg_min_stack_avail, msg_min_ga_avail
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -364,5 +364,6 @@ c
       parameter (msg_riscf_free=msg_ftn_base-203) !  dftgrad: dftg_force
 c     
       parameter (msg_max_3c_incore = msg_ftn_base - 204) ! dft: igop on iwhat_max
-      parameter (msg_min_stack_avail = msg_ftn_base - 205) ! dft: igop on avail
+      parameter (msg_min_stack_avail = msg_ftn_base - 205) ! dft: igop on stack avail
+      parameter (msg_min_ga_avail = msg_ftn_base - 206) ! dft: igop on ga avail
 c     
