@@ -197,7 +197,7 @@ c     WAIO on top of EAF
 
 
 c
-c  $Id: moints_semi.F,v 1.33 1997-04-11 23:08:34 d3h325 Exp $
+c  $Id: moints_semi.F,v 1.34 1997-04-25 23:16:11 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -257,8 +257,9 @@ c
        integer pvlo, pvhi
        integer polo, pohi
        integer myid, numnodes, rlo, rhi, clo, chi
-       integer mxrlen, itmp, ierr, vtmp(100)
-       integer lmemreq, gmem, g_dummy
+       integer itmp, ierr, vtmp(100), mxrlen
+       integer lmemreq, g_dummy
+       double precision gmem
        integer g_jbuf, g_kbuf
        logical status
        logical osym
@@ -295,7 +296,7 @@ c
      $   call errquit('moints_semi: cannot determine memory limit',0)
 c
        gmem = ga_memory_avail() / 8 ! Want amount in doubles
-       call ga_igop(313, gmem, 1, 'min')
+       call ga_dgop(313, gmem, 1, 'min')
        if (ga_uses_ma()) gmem = gmem - lmemreq
        gmem = gmem*numnodes
 c
@@ -305,14 +306,16 @@ c
        if (ocoul) itmp = nocc
        if (oexch) itmp = itmp + nvir
 c
-       mxrlen = gmem/(nseg*itmp)
-       mxrlen = min(mxrlen, min(nbf*nbf,10*maxbfsh*maxbfsh*numnodes))
+       mxrlen = int(gmem/(nseg*itmp))
+       mxrlen = min(
+     $      mxrlen, 
+     $      min(nbf*nbf,10*maxbfsh*maxbfsh*numnodes))
        if (mxrlen .lt. min(nbf*nbf,maxbfsh*maxbfsh*numnodes))
      $      call errquit('moints_semi: insufficient GA available',
      $      mxrlen*nseg*itmp)
 c
       if (util_print('memory',print_high) .and. ga_nodeid().eq.0) 
-     $      write(6,900) lmemreq, gmem/numnodes, mxrlen
+     $      write(6,900) lmemreq, nint(gmem/numnodes), mxrlen
 900   format(/,'Semi-direct integral transformation',
      $     /,' Local Memory required:   ',i10,' words '
      $     /,' Global Memory remaining: ',i10,' words per node',
