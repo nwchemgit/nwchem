@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.9 2005-01-31 16:38:45 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.10 2005-02-09 02:38:57 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.9  2005/01/31 16:38:45  bylaska
+* ...EJB
+*
 * Revision 1.8  2005/01/31 03:58:32  bylaska
 * aperiodic bug fixes in PAW-CPMD ... EJB
 *
@@ -124,7 +127,7 @@
       integer xcp(2),xce(2),dnall(2)
       integer natmx,fion(2),ftest(2)
       integer sumi(2)
-      integer npack0
+      integer npack0,gga
 
 *     ***** external functions ****
       logical  control_move,control_gram_schmidt
@@ -180,6 +183,7 @@
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
+      gga = control_gga()
 
       field_exist = pspw_qmmm_found().or.pspw_charge_found()
 c      allow_translation = control_allow_translation()
@@ -457,13 +461,13 @@ c      allow_translation = control_allow_translation()
         !call paw_xc_print()
         
 *       *** plane wave ***
-        if (control_gga().eq.0) then
+        if (gga.eq.0) then
           call vxc(n2ft3d,ispin,dn,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dcpl_mb(tmp1(1)))
         else
-          call v_bwexc(n2ft3d,ispin,dn,
+          call v_bwexc(gga,n2ft3d,ispin,dn,
      >                      1.0d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))

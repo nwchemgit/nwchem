@@ -1,7 +1,12 @@
 *
-* $Id: paw_sd.F,v 1.73 2004-09-04 17:56:21 bylaska Exp $
+* $Id: paw_sd.F,v 1.74 2005-02-09 02:38:57 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.73  2004/09/04 17:56:21  bylaska
+* Added local potential to the projector file (.jpp).
+* More updates to constraint force.
+* ...EJB
+*
 * Revision 1.72  2004/08/01 02:02:45  bylaska
 * updates...EJB
 *
@@ -585,6 +590,9 @@ c      call paw_vloc_init()
          ELSE IF (control_gga().eq.1) THEN
             write(6,1131) 
      >      'PBE96 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.2) THEN
+            write(6,1131) 
+     >      'BLYP (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)

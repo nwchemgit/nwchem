@@ -1,8 +1,14 @@
 *
-* $Id: paw_inner_loop.F,v 1.40 2004-11-08 23:37:41 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.41 2005-02-09 02:38:57 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.40  2004/11/08 23:37:41  bylaska
+* Bug fix in pspw_hfx found by M. Hackler.
+* PBE0 has been implemented.
+*
+*  ........EJB
+*
 * Revision 1.39  2004/08/12 18:39:41  bylaska
 * A prototype of a Grassmann CG paw minimizer (i.e. nwpw:minimizer 1) has been added.
 * The code is similar to the CG minimizer in pspw, but differences exist
@@ -157,7 +163,7 @@
       integer xcp(2),xce(2),dnall(2)
       integer natmx,fion(2),ftest(2)
       integer sumi(2)
-      integer npack0
+      integer npack0,gga
 
 *     ***** external functions ****
       logical  control_move,control_gram_schmidt
@@ -184,6 +190,7 @@
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
+      gga = control_gga()
 
 
       call nwpw_timing_start(12)
@@ -423,13 +430,13 @@
         !call paw_xc_print()
         
 *       *** plane wave ***
-        if (control_gga().eq.0) then
+        if (gga.eq.0) then
           call vxc(n2ft3d,ispin,dn,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dcpl_mb(tmp1(1)))
         else
-          call v_bwexc(n2ft3d,ispin,dn,
+          call v_bwexc(gga,n2ft3d,ispin,dn,
      >                      1.0d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))

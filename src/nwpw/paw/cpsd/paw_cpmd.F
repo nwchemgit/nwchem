@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.15 2005-01-31 23:15:16 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.16 2005-02-09 02:38:57 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.15  2005/01/31 23:15:16  bylaska
+* ...EJB
+*
 * Revision 1.14  2005/01/31 16:38:45  bylaska
 * ...EJB
 *
@@ -562,6 +565,9 @@ c      call paw_vloc_init()
          ELSE IF (control_gga().eq.1) THEN
             write(6,1131) 
      >      'PBE96 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.2) THEN
+            write(6,1131) 
+     >      'BLYP (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0,0)
