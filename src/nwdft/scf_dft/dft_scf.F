@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.246 2004-10-30 00:55:12 edo Exp $
+c     $Id: dft_scf.F,v 1.247 2004-11-12 01:24:47 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -146,7 +146,7 @@ c
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
       logical gotsmear,quickguess,diisreset
-      logical llldb,llldb_out,util_statldb
+      logical llldb,llldb_out,util_statldb,staticguess
       external util_statldb
       integer ndisrst
       gotsmear(ss)=abs(ss).gt.1d-9
@@ -448,7 +448,9 @@ c
 c
 c     better have static ldb at high node counts
 c
-      llldb=util_statldb(.true.)
+      if (.not.rtdb_get(rtdb,'dft:staticguess',
+     ,     mt_log,1,staticguess)) staticguess=.false.
+      if(staticguess) llldb=util_statldb(.true.)
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 
      &                       movecs_guess, scftype, nclosed, nopen, 
@@ -456,7 +458,7 @@ c
      &                       k_ir, g_gmovecs, g_dens, vecs_or_dens, 
      &                       'dft', title, oskel, oadapt, 
      &                       .true.) 
-      llldb_out=util_statldb(llldb)
+      if(staticguess) llldb_out=util_statldb(llldb)
       call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
       if (me.eq.0.and.oprint)
      &     write(LuOut,'(2x," Time after variat. SCF: ",f8.1)')
