@@ -23,7 +23,7 @@ c     itype        : 0=standard 3d-fft, 1=specific 3d-fft if available
 c
       integer i,ndim,jstat,isgn
       real*8 scale
-      integer liwrk,lrwrk,i_rwrk,l_rwrk,i_iwrk,l_iwrk
+      integer liwrk,lrwrk,i_rwrk,l_rwrk,i_iwrk,l_iwrk,icntxt
 c
 c     IBM-SP2 specific
 c

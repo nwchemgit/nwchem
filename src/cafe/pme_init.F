@@ -173,7 +173,7 @@ c
 c
       real*8 value,target(np)
       integer nodep(nodpme),knode(ngz),kfrom(np),kto(np),map(np)
-      integer lcntxt,lfftok
+      integer icntxt,lfftok
 c
       integer i,j,k,npls,nlnd,number,npr,npc,myr,myc
 c
