@@ -6,33 +6,19 @@
 #include "stdio.fh"
       integer geom
 c     
+c     New version of bandbi
+c
 c     For the geometry referred to by the geometry handle form the
-c     B, BI, ZSYM, ZMAT and ZIND matrices and store them using the
-c     geom_hnd_{put,get}_data routines.
-c     
-c     Zsym is written out as (ndim,ndim) ndim=max(ncart,nzvar)
-c     si = qj zsym(j,i) for i=1,nvar, j=1,nzvar
-c     .    and the linearly dependent complement for i=nvar+1,nzvar
-c     where si = indep. variables, qj = redundant (natural) coords
-c     The Zsym are formed by diagonalizing BT.B.
+c     B, Binv=(G^-1)B, P=(G^-1)G
 c
-c     B is written out as (ncart,nzvar)
-c     dqj/dxk = B(k,j)
-c
-c     Binv is written out as (ncart,nzvar)
-c     dxj = Binv(j,i) dsi
-c     gsi = gxj Binv(j,i)
+c     B and Binv are stored as (ncart,nzvar)
+c     P is stored as (nzvar,nzvar)
 c     
-      integer nzmat, nzvar, nvar
-      integer nat
+      integer nzmat, nzvar, nvar, nat, ndim, ncart
       logical status
-      integer i10, i20, i30, i40, i11, i21, i31, i41, i51, i61,
-     $     i71, i81, i91, i01
-      integer i_i10, i_i20, i_i30, i_i40, i_i11, i_i21, i_i31, i_i41, 
-     $     i_i51, i_i61, i_i71, i_i81, i_i91, i_i01
-      integer k_c, l_c
+      integer k_x, k_y, k_z, k_c, k_e
+      integer l_x, l_y, l_z, l_c, l_e
 c     
-      integer ncart, nx1, nq1, nd1, nz1, natzmt
       logical geom_hnd_check_data, geom_zmt_get_nzvar,
      $     geom_zmt_get_nizmat
       external geom_hnd_check_data, geom_zmt_get_nzvar,
@@ -48,32 +34,6 @@ c     ----- return if no internal coordinates -----
 c     
       if(nzmat.eq.0) return
 c
-c     Tricky bit here
-c
-c     The geometry optimization that is probably calling this
-c     code will probably want to keep the definition of the
-c     symmetric/independent variables constant so that the
-c     Hessian can be reliably formed, etc. Hence, ...
-c
-c     if ('zsym' already exists)
-c     .  reuse this definition of the symmetric/indep variables
-c     else
-c     .  generate new indep variables.  next time in they
-c     .  will be reused unless 'zsym' is deleted
-c     endif
-c
-      NCART=3*NAT
-      NX1  =NCART
-      NQ1  =NZVAR
-      ND1  =MAX(NX1,NQ1)
-      NZ1  =NZMAT
-c
-      if (geom_hnd_check_data('zsym',nd1**2)) then
-         natzmt = 1             ! Reuse old ZSYM
-      else
-         natzmt = 2             ! Generate new ZSYM
-      endif
-c
       if (nat .eq. 1) then
          nvar = 0
       else if (nat .eq. 2) then
@@ -81,60 +41,40 @@ c
       else
          nvar = 3*nat - 6       ! Linear molecules not done here
       endif
+c
+      ncart = 3*nat
+      ndim = max(ncart,nzvar)
 c     
-C     ----- MEMORY POINTERS -----
-C     
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NX1*NQ1    ,'MEM I10 ',I_I10,I10))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I10  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NQ1        ,'MEM I20 ',I_I20,I20))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I20  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ABS(NZ1)   ,'MEM I30 ',I_I30,I30))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I30  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I40 ',I_I40,I40))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I40  FAILED',911)
-C     
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NX1*NQ1    ,'MEM I11 ',I_I11,I11))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I11  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NX1*NQ1    ,'MEM I21 ',I_I21,I21))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I21  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ND1*ND1    ,'MEM I31 ',I_I31,I31))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I31  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ND1*ND1    ,'MEM I41 ',I_I41,I41))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I41  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ND1        ,'MEM I51 ',I_I51,I51))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I51  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ND1*ND1    ,'MEM I61 ',I_I61,I61))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I61  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ND1*ND1    ,'MEM I71 ',I_I71,I71))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I71  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ND1        ,'MEM I81 ',I_I81,I81))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I81  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ND1        ,'MEM I91 ',I_I91,I91))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I91  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I01 ',I_I01,I01))
-     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I01  FAILED',911)
+c     Allocate 3 matrices all (ndim,ndim)
 c     
+      if(.not.ma_push_get(mt_dbl,ndim**2    ,'mem x ',l_x,k_x))
+     &     call errquit('hnd_bandbi, malloc of x  failed',911)
+      if(.not.ma_push_get(mt_dbl,ndim**2        ,'mem y ',l_y,k_y))
+     &     call errquit('hnd_bandbi, malloc of y  failed',911)
+      if(.not.ma_push_get(mt_dbl,ndim**2   ,'mem z ',l_z,k_z))
+     &     call errquit('hnd_bandbi, malloc of z  failed',911)
       if(.not.ma_push_get(mt_dbl,ncart ,'c',l_c,k_c))
      &     call errquit('hnd_bandbi, malloc of c  failed',ncart)
-C     
-C     ----- CALCULATE -B- MATRIX -----
-C     
-      CALL HND_BMAT(GEOM,NZVAR,NCART,
-     1     DBL_MB(I10),DBL_MB(I20),DBL_MB(I30),
-     2     NZMAT,dbl_mb(k_c))
-C     
-C     ----- CALCULATE THE B INVERSE MATRIX -----
-C     
-      CALL HND_BINVR(NVAR,NZVAR,NCART,DBL_MB(I11),DBL_MB(I21),
-     1     DBL_MB(I31),DBL_MB(I41),DBL_MB(I51),DBL_MB(I61),
-     2     DBL_MB(I71),DBL_MB(I81),DBL_MB(I91),ND1, natzmt)
-C     
-C     ----- RELEASE MEMORY POINTERS -----
-C     
-      IF(.NOT.MA_CHOP_STACK(I_I10))
-     &     CALL ERRQUIT('GEOM_BANDBI, MA_CHOP_STACK OF I01  FAILED',911)
-C     
-      END
+      if(.not.ma_push_get(mt_dbl,ndim ,'e',l_e,k_e))
+     &     call errquit('hnd_bandbi, malloc of e  failed',nzvar)
+c     
+c     ----- calculate -b- matrix -----
+c     
+      call hnd_bmat(geom,nzvar,ncart,
+     1     dbl_mb(k_x),dbl_mb(k_y),dbl_mb(k_z),
+     2     nzmat,dbl_mb(k_c))
+c     
+c     compute b^-1, p
+c     
+      call geom_binvr(nvar,nzvar,ncart,ndim,
+     $     dbl_mb(k_x),dbl_mb(k_y),dbl_mb(k_z),dbl_mb(k_e))
+c     
+c     ----- release memory pointers -----
+c     
+      if(.not.ma_chop_stack(l_x))
+     &     call errquit('geom_bandbi, ma_chop_stack of i01  failed',911)
+c     
+      end
       SUBROUTINE HND_BMAT(GEOM,NZVAR,NCART,B,ZMAT,IZMAT,NZMAT,C)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
@@ -289,7 +229,7 @@ C
 C     ----- STORE FOR -NWCHEM- -----
 C     
       call geom_hnd_put_data('zmat',zmat,nzvar)
-      call geom_hnd_put_data('bmat',b,ncart*nzvar)
+      call geom_hnd_put_data('b',b,ncart*nzvar)
 C     
       RETURN
  9999 FORMAT(' IN -BMAT- IZVAR,IADD,ITYPE,NZMAT,NZVAR,NCART = ',
@@ -300,450 +240,103 @@ C
  9996 FORMAT(12I5)
  9995 FORMAT(' ERROR IN -BMAT- , IZVAR,IADD,ITYPE = ',3I5)
       END
-      SUBROUTINE HND_BINVR(NVAR,NZVAR,NCART,B,BINV,
-     1                 G,V,E,H,S,T,IA,NDIM,NATZMT)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      subroutine geom_binvr(nvar,nzvar,ncart,ndim,
+     $     x, y, z, e)
+      implicit none
 #include "util.fh"
 #include "global.fh"
-C
-C     ----- CONSTRUCT THE INVERSE OF THE -B- MATRIX -----
-C
-C     B            NCART *NZVAR
-C     BINV         NCART *NZVAR
-C     G            NZVAR *NZVAR
-C     V            NZVAR *NZVAR
-C     E            NZVAR
-C     H       MAX( NZVAR *NZVAR , NCART*NCART )
-C     S            NZVAR *NZVAR
-C     T            NZVAR
-C     IA      MAX( NZVAR        , NCART       )
-C
-      LOGICAL     OUT
-      LOGICAL     DBUG
-      LOGICAL     NATURL
-      LOGICAL     SYMTRC
-      LOGICAL     INDEP
-      CHARACTER*8 ERRMSG
-      DIMENSION B(NCART,*),BINV(NCART,*)
-      DIMENSION G(*),V(NDIM,*),E(*),IA(*)
-      DIMENSION      S(NDIM,*),T(*)
-      DIMENSION      H(NDIM,*)     
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','- BINVR-'/
-      DATA ZERO   /0.0D+00/
-      DATA ONE    /1.0D+00/
-      DATA TM08   /1.0D-08/
-C
-      IW = 6
-      DBUG=.FALSE.
-      OUT =util_print('binvr',print_never)
-      OUT =OUT.OR.DBUG
-C
-      DO I=1,NDIM           
-         IA(I)=(I*(I-1))/2
-      ENDDO
-C
-C     --- NATURL .. FINAL BASIS = NATURAL   INTERNAL        COORD. ---
-C     --- SYMTRC .. FINAL BASIS = SYMMETRIC INTERNAL        COORD. ---
-C     --- INDEP  .. FINAL BASIS = (NON-REDUNDANT+REDUNDANT) COORD. ---
 c
-c     symtrc ... not working inside NWChem ????
-C
-      NATURL=NATZMT.EQ.0
-      SYMTRC=NATZMT.EQ.1
-      INDEP =NATZMT.EQ.2              
+      integer nvar              ! [input] Expected #indep variables
+      integer nzvar             ! [input] No. of (redundant) internals
+      integer ncart             ! [input] Number of cartesians
+      integer ndim              ! [input] max(ncart,nzvar)
+      double precision x(ndim*ndim) ! [scratch]
+      double precision y(ndim*ndim) ! [scratch]
+      double precision z(ndim*ndim) ! [scratch]
+      double precision e(ndim)  ! [scratch]
 c
-      if (indep) then
+      integer info, i, j, ioff, nindep
+      logical odebug
 c
-c     We used to initialize zsym to unit matrix inside zmtlin
-c     but this is no longer called, so just do it here.
-c     
-         call dfill(ndim*ndim, 0.0d0, s, 1)
-         call dfill(nzvar, 1.0d0, s, ndim+1)
-         call geom_hnd_put_data('zsym',s,ndim*ndim)
+c     Form generalized inverse of the B matrix
+c
+      odebug = (ga_nodeid().eq.0) .and. 
+     $     util_print('geom_binvr',print_never)
+      call geom_hnd_get_data('b', x, ncart*nzvar) ! B -> x
+      if (odebug) then
+         write(6,*) ' B matrix '
+         call output(x, 1, ncart, 1, nzvar, ncart, nzvar, 1)
       endif
-C
-      IF(OUT) THEN
-         WRITE(IW,9984) NZVAR,NVAR,NCART,NDIM
-         WRITE(IW,9999) NATURL,SYMTRC,INDEP,NATZMT
-         IF(NATURL) WRITE(IW,9998)
-         IF(SYMTRC) WRITE(IW,9997)
-         IF(INDEP ) WRITE(IW,9996)
-      ENDIF
-C
-C     ----- READ -B- MATRIX FOR NATURAL INTERNAL   COORDINATES -----
-C     -----  AND -S- MATRIX FOR                                -----
-C     -----  TRANSFORMATION  TO SYMMETRIC INTERNAL COORDINATES -----
-C
-      call geom_hnd_get_data('bmat',b,ncart*nzvar)
-      IF(OUT) THEN
-         WRITE(IW,9995)
-         IF(DBUG) THEN
-            CALL HND_PRSQ(B,NZVAR,NCART,NCART)
-         ENDIF
-      ENDIF
-C
-C     -----   TRANSFORM -B- TO BASIS OF    -----
-C     ----- SYMMETRIC INTERNAL COORDINATES -----
-C
-      IF(SYMTRC.OR.INDEP) THEN
-         call geom_hnd_get_data('zsym',s,ndim*ndim)
-         DO I=1,NCART
-            DO J=1,NZVAR
-               DUM=ZERO
-               DO K=1,NZVAR
-                  DUM=DUM+B(I,K)*S(K,J)
-               ENDDO
-               T(J)=DUM
-            ENDDO
-            DO J=1,NZVAR
-               B(I,J)=T(J)
-            ENDDO
-         ENDDO
-         IF(OUT) THEN
-            WRITE(IW,9994)
-            WRITE(IW,9993)
-            IF(DBUG) THEN
-               CALL HND_PRSQ(B,NZVAR,NCART,NCART)
-            ENDIF
-         ENDIF
-      ENDIF
-C
-C          -A-                                 AT -90-
-C          -B-  (maybe ... B tilde = B * S )   AT -91-
-C          -S-  (pristine)                     AT -92-
-C          -BINV(T)= B * ( B(T)*B )**(-1) )(T) AT -93-
-C                                              AT -94-
-C          -ZMAT-                              AT -95-
-C          -IZMAT-                             AT -96-
-C         NOTE THAT AT THIS POINT WE MAY BE WORKING WITH 
-C           B(tilde) WHICH IS THE -S- TRANSFORMED OF B
-C                      B(tilde) = B * S
-C
-C     -----      CONSTRUCT THE -G- MATRIX       -----
-C                      G = B(T) * B
-C             ACTUALLY WORK WITH ( - B(T) * B )
-C           ( EASY WAY TO RE-ORDER THE VECTORS )
-C
-      DO I=1,NZVAR
-         DO J=1,I
-            IJ=IA(I)+J
-            DUM=ZERO
-            DO K=1,NCART
-               DUM=DUM+B(K,I)*B(K,J)
-            ENDDO
-            G(IJ)=-DUM
-         ENDDO
-      ENDDO
-      IF(DBUG) THEN
-         WRITE(IW,9992)
-         CALL HND_PRTR(G,NZVAR)
-      ENDIF
-C
-C     ----- GET THE ( NON-REDUNDANT + REDUNDANT ) COORDINATES -----
-C
-      CALL HND_DIAGIV(G,V,E,IA,NZVAR,NZVAR,NDIM) 
-C
-C     -----  WE WORKED WITH ( - B(T) * B ) TO GET THE CORRECT ORDER  -----
-C           FOR THE VECTORS. WE NEED TO CHANGE THE SIGN OF THE E's
-C
-      DO I=1,NZVAR
-         E(I)=-E(I)
-      ENDDO
-      if (util_print('gevals',print_never) .and. ga_nodeid().eq.0) then
-         write(6,*) ' Eigen values of G '
-         call doutput(e,1,nzvar,1,1,nzvar,1,1)
+      call dgemm('t', 'n', nzvar, nzvar, ncart, 1d0,  
+     $     x, ncart, x, ncart, 0d0, y, nzvar) ! BT.B -> y ... should symmetrize
+      call dsyev('v', 'u', nzvar, y, nzvar, e, z, ndim**2, info)
+      if (info .ne. 0) call errquit('geom_binvr: dsyev failed', info)
+      if (odebug) then
+         write(6,*) ' Eigenvalues of G '
+         call doutput(e, 1, nzvar, 1, 1, nzvar, 1, 1)
+         write(6,*) ' Eigenvectors of G'
+         call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
-C
-C     -----    IF WE ARE TO WORK IN THE SPACE OF     -----
-C     -----  (NON-REDUNDANT+REDUNDANT) COORDINATES   -----
-C     -----   WE MUST MAINTAIN A PHASE CONSISTENCY   -----
-C     -----   ... IF NOT ... WE ARE IN TROUBLES ...  -----
-C     -----  SOME (PATHOLOGICAL) CASES WILL NOT WORK -----
-C
-c     rjh ... a better tatic here would be to do max overlap
-c     with the zsym vectors
 c
-      DO J=1,NZVAR 
-         IMAX=0
-         VMAX=ZERO
-         DO I=1,NZVAR
-            IF(ABS(V(I,J)).GT.VMAX) THEN
-               VMAX=ABS(V(I,J))
-               IMAX=I
-            ENDIF
-         ENDDO
-         IF(V(IMAX,J).LT.ZERO) THEN
-            DO I=1,NZVAR
-               V(I,J)=-V(I,J)
-            ENDDO
-         ENDIF
-      ENDDO
+c     Now have B in x, evecs of G=BT.B in y, evals in e
 c
-      IF(OUT) THEN
-         WRITE(IW,9991)
-         WRITE(IW,9990)
-         CALL HND_PREV(V,E,NZVAR,NZVAR,NDIM) 
-      ENDIF
-C
-C     ----- CHECK FOR SINGULARITY -----
-C
-      NINDEP=0
-      NREDUN=0
-      DO I=1,NZVAR
-*     IF( ABS(E(I)).LE.TM08) THEN
-         IF( ABS(E(I)).LE.1d-3) THEN ! RJH. 1d-8 failed 1-torsion for acetone
-            E(I)  =ZERO
-            NREDUN=NREDUN+1
-         ELSE
-            E(I)  =ONE/E(I)
-            NINDEP=NINDEP+1
-         ENDIF
-      ENDDO
-      IF(OUT) THEN
-         WRITE(IW,9989) NINDEP,NREDUN,NZVAR,NVAR
-      ENDIF
-C
-C     IF NREDUN.EQ.0 , WE CAN WORK WITH NATURAL COORDINATES -----
-C
-      IF(NREDUN.EQ.0) THEN
-         NATZMT=0
-         NATURL=NATZMT.EQ.0
-         SYMTRC=NATZMT.EQ.1
-         INDEP =NATZMT.EQ.2              
-         IF(OUT) THEN
-            WRITE(IW,9979)
-         ENDIF
-      ENDIF
-C
-      IF(NATURL.OR.SYMTRC) THEN
-         DO J=1,NZVAR
-            DO I=1,NZVAR
-               S(I,J)=ZERO
-            ENDDO
-            S(J,J)=ONE
-         ENDDO
-         call geom_hnd_put_data('zind',s,ndim*ndim)
-      ENDIF
-C
-C     ----- IF WORKING BASIS IS (NON-REDUNDANT+REDUNDANT) -----
-C     -----         TRANSFORM -B- TO THAT BASIS           -----
-C
-      IF(INDEP) THEN
-         call geom_hnd_get_data('zsym',h,ndim*ndim)
-         call dgemm('n','n',nzvar,nzvar,nzvar,1d0,h,ndim,
-     $        v,ndim,0d0,s,ndim)
-c$$$         DO I=1,NZVAR
-c$$$            DO J=1,NZVAR
-c$$$               DUM=ZERO
-c$$$               DO K=1,NZVAR
-c$$$                  DUM=DUM+S(I,K)*V(K,J)
-c$$$               ENDDO
-c$$$               T(J)=DUM
-c$$$            ENDDO
-c$$$            DO J=1,NZVAR
-c$$$               S(I,J)=T(J)
-c$$$            ENDDO
-c$$$         ENDDO
+c     Count the significant eigenvalues to make sure we have enough,
+c     take the reciprocal of the eigenvalue, zero out small ones.
 c
-c     zsym takes natural q -> indep s
+      nindep = 0
+      do i = 1, nzvar
+         if (abs(e(i)) .gt. 1d-3) then
+            nindep = nindep + 1
+            e(i) = 1d0 / e(i)
+         else
+            e(i) = 0.0d0
+         endif
+      enddo
+      if (nindep .ne. nvar) call errquit
+     $     ('geom_binvr: #indep variables incorrect',100000*nindep+nvar)
 c
-         call geom_hnd_put_data('zsym',s,ndim*ndim)
+c     Form G- = VT (e^-1) V
 c
-         IF(OUT) THEN
-            WRITE(IW,9980)
-            IF(DBUG) THEN
-               CALL HND_PRSQ(S,NZVAR,NZVAR,NDIM)
-            ENDIF
-         ENDIF
-C
-         DO J=NINDEP+1,NZVAR
-            DO I=1,NZVAR
-               V(I,J)=ZERO
-            ENDDO
-         ENDDO
-C
-         DO I=1,NCART
-            DO J=1,NZVAR
-               DUM=ZERO
-               DO K=1,NZVAR
-                  DUM=DUM+B(I,K)*V(K,J)
-               ENDDO
-               T(J)=DUM
-            ENDDO
-            DO J=1,NZVAR
-               B(I,J)=T(J)
-            ENDDO
-         ENDDO
-
-         IF(OUT) THEN
-            WRITE(IW,9985)
-            IF(DBUG) THEN
-               CALL HND_PRSQ(B,NZVAR,NCART,NCART)
-            ENDIF
-         ENDIF
-C
-         DO J=1,NINDEP
-            DO I=1,NZVAR
-               V(I,J)=ZERO
-            ENDDO
-            V(J,J)=ONE 
-         ENDDO
-      ENDIF
-C
-C     ----- CALCULATE  K * K(T) PROJECTOR -----
-c     rjh ... not used
-C
-c$$$      DO I=1,NZVAR
-c$$$         DO J=1,NZVAR
-c$$$            DUM=ZERO
-c$$$            DO K=1,NINDEP
-c$$$               DUM=DUM+V(I,K)*V(J,K)
-c$$$            ENDDO
-c$$$            H(I,J)=DUM
-c$$$         ENDDO
-c$$$      ENDDO
-c$$$      NDUM=NDIM*NDIM  
-c$$$      IF(OUT) THEN
-c$$$         IF(DBUG) THEN
-c$$$            WRITE(IW,9981)
-c$$$            CALL HND_PRSQ(H,NZVAR,NZVAR,NDIM) 
-c$$$         ENDIF
-c$$$      ENDIF
-C
-C     ----- SET  ... NVAR = NZVAR ... IF WE WORK -----
-C           WITH THE SYMMETRIC INTERNAL SPACE OR
-C           WITH THE NATURAL   INTERNAL SPACE
-C
-      IF(NATURL.OR.SYMTRC) THEN
-         NVAR=NZVAR
-      ELSE
-         IF(NINDEP.NE.NVAR) THEN
-            WRITE(IW,9988) NZVAR,NINDEP,NREDUN,NVAR
-            call errquit
-     $           ('hnd_binvr: insufficient independent variables',
-     $           nindep)
-         ENDIF
-         IF(NREDUN.NE.NZVAR-NVAR) THEN
-            WRITE(IW,9988) NZVAR,NINDEP,NREDUN,NVAR
-            call errquit
-     $           ('hnd_binvr: inconsistent independent variables',
-     $           nindep)
-         ENDIF
-      ENDIF
-C
-C     ----- GENERALIZED INVERSE OF -G- IN THE BASIS OF -----
-C     ----- NATURAL/SYMMETRIC INTERNAL COORDINATES  OR -----
-C     ----- (NON-REDUNDANT+REDUNDANT)  COORDINATES     -----
-C
-      DO I=1,NZVAR
-         DO J=1,NZVAR
-            DUM=ZERO
-            DO K=1,NZVAR
-               DUM=DUM+V(I,K)*E(K)*V(J,K)
-            ENDDO
-            H(I,J)=DUM
-         ENDDO
-      ENDDO
-      IF(DBUG) THEN
-         WRITE(IW,9987)
-         CALL HND_PRSQ(H,NZVAR,NZVAR,NDIM) 
-      ENDIF
-C
-C     -----   BINV(T) = B * ( ( B(T)*B ) **(-1) )(T)  -----
-C
-      DO I=1,NCART
-         DO J=1,NZVAR
-            DUM=ZERO
-            DO K=1,NZVAR
-               DUM=DUM+B(I,K)*H(K,J)
-            ENDDO
-            BINV(I,J)=DUM
-         ENDDO
-      ENDDO
-      IF(OUT) THEN
-         WRITE(IW,9982)
-         WRITE(IW,9986)
-         IF(DBUG) THEN
-            CALL HND_PRSQ(BINV,NZVAR,NCART,NCART)
-         ENDIF
-      ENDIF
-      NDUM=NCART*NVAR
-C
-C     ----- STORE FOR -NWCHEM- -----
-C
-      call geom_hnd_put_data('binv',binv,nzvar*ncart)
-C
-C     -----        DEBUG CHECK OF INVERSE             -----
-C     -----         H = Bi * B = K * K(T)             -----
-C     -----         WHERE K IS THE MATRIX             -----
-C     -----    OF (NON-REDUNDANT) COORDINATES         -----
-C     -----          H IS NOT EQUAL TO   1            -----
-C     ----- UNLESS THERE ARE NO REDUNDANT COORDINATES -----
-C
-c     Won't work right now since rjh stomped on B
+      do i = 1, nzvar
+         ioff = (i-1)*nzvar
+         do j = 1, nzvar
+            z(j+ioff) = y(j+ioff) * e(i)
+         enddo
+      enddo
+      call dgemm('n', 't', nzvar, nzvar, nzvar, 1d0, 
+     $     z, nzvar, y, nzvar, 0d0, x, nzvar)
 c
-c$$$      IF(DBUG) THEN
-c$$$         NDUM= NCART*NZVAR
-c$$$         DO I=1,NZVAR
-c$$$            DO J=1,NZVAR
-c$$$               DUM=ZERO
-c$$$               DO K=1,NCART
-c$$$                  DUM=DUM+BINV(K,I)*B(K,J)
-c$$$               ENDDO
-c$$$               H(I,J)=DUM
-c$$$            ENDDO
-c$$$         ENDDO
-c$$$         WRITE(IW,9983)
-c$$$         CALL HND_PRSQ(H,NZVAR,NZVAR,NDIM) 
-c$$$      ENDIF
-C
-C     ----- NEXT TIME AROUND WE WILL WORK WITH -----
-C           WHAT ARE NOW SYM.INTERN.COORD.
-C
-*     NATZMT=1 ! now decided outside of this routine
-C
-C          -A-                                 AT -90-
-C          -B-  (B tilde)                      AT -91-
-C          -S-  (pristine)                     AT -92-
-C          -BINV(T)= B * ( B(T)*B )**(-1) )(T) AT -93-
-C          -P = K * K(T) PROJECTOR             AT -94-
-C          -ZMAT-                              AT -95-
-C          -IZMAT-                             AT -96-
-C     -NZMAT-   = N.OF. -IZMAT- ELEMENTS GIVEN IN -$ZMAT-
-C     -NZVAR-   = N.OF. INTERNAL COORDINATES DEFINED IN -IZMAT-
-C     -NVAR-    = (3N-6), OR (3N-5), OR -NZMOD- , .LE. NZVAR
-C
-      RETURN
- 9999 FORMAT(/,' IN -BINVR- -NATURL-, -SYMTRC- , -INDEP- , -NATZMT- = ',
-     1       3L5,I4)
- 9998 FORMAT(/,' FINAL BASIS WILL BE =    NATURAL   INTERNAL    ')
- 9997 FORMAT(/,' FINAL BASIS WILL BE =    SYMMETRIC INTERNAL    ')
- 9996 FORMAT(/,' FINAL BASIS WILL BE = (NON-REDUNDANT+REDUNDANT)')
- 9995 FORMAT(/,' -B - IN NATURAL   INTERNAL        COORDINATES ')
- 9994 FORMAT(/,' -B - IN NATURAL   INTERNAL        COORDINATES ',
-     1                                             'TRANSFORMED',
-     2          '     TO SYMMETRIC INTERNAL        COORDINATES ')
- 9993 FORMAT(/,' -B - IN SYMMETRIC INTERNAL        COORDINATES ')
- 9992 FORMAT(/,' -G - IN SYMMETRIC INTERNAL        COORDINATES ')
- 9991 FORMAT(/,'         (NON-REDUNDANT+REDUNDANT) COORDINATES = ',
-     1            'EIGENVECTORS OF -G- ')
- 9990 FORMAT(/,' -V - OF (NON-REDUNDANT+REDUNDANT) COORDINATES ')
- 9989 FORMAT(/,' NUM. OF LIN.INDEP. COORD. (NINDEP) = ',I5,
-     1       /,' NUM. OF REDUNDANT  COORD. (NREDUN) = ',I5,
-     2       /,'                            -NZVAR- = ',i5,
-     3       /,'                            -NVAR-  = ',I5)
- 9988 FORMAT(/,' -NINDEP- SHOULD BE EQUAL TO -NVAR-, BUT IT IS NOT.',
-     1         ' STOP. NZVAR,NINDEP,NREDUN,NVAR = ',4I5)
- 9987 FORMAT(/,' - G**(-1) - ') 
- 9986 FORMAT(/,' -Bi- IN ..... CHOSEN .....        COORDINATES ')
- 9985 FORMAT(/,' -B - IN (NON-REDUNDANT+REDUNDANT) COORDINATES ')
- 9984 FORMAT(/,' IN -BINVR- NZVAR,NVAR,NCART,NDIM = ',4I5)
- 9983 FORMAT(/,' CHECK OF ( Bi * B = K * K(T) )')
- 9982 FORMAT(/,' -Bi(T) = B * ( G**(-1) )(T)')
- 9981 FORMAT(/,' K * K(T) PROJECTOR ')         
- 9980 FORMAT(/,' -ZIND- FROM NATURAL TO (INDEP+DEP) COORDINATES')
- 9979 FORMAT(/,' COORDINATE BASIS CHANGED BACK TO -NATURAL-')
+c     Now have G^-1 in x.  Form G again and then P = (G^-1)G.
+c
+      call geom_hnd_get_data('b', y, ncart*nzvar) ! B -> y
+      call dgemm('t', 'n', nzvar, nzvar, ncart, 1d0,  
+     $     y, ncart, y, ncart, 0d0, z, nzvar) ! G = BT.B -> z
+      call dgemm('n', 'n', nzvar, nzvar, nzvar, 1d0, 
+     $     z, nzvar, x, nzvar, 0d0, y, nzvar) ! P = (G^-1)G -> y
+      call geom_hnd_put_data('p', y, nzvar*nzvar)
+      if (odebug) then
+         write(6,*) ' Projector P'
+         call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
+      endif
+c
+c     Finally B^-1 = G^-1 B
+c
+      call geom_hnd_get_data('b', y, ncart*nzvar) ! B -> y
+      call dgemm('n', 'n', ncart, nzvar, nzvar, 1d0, 
+     $     y, ncart, x, nzvar, 0d0, z, ncart) ! B^-1 = B.(G^-1) -> z
+      call geom_hnd_put_data('b^-1', z, ncart*nzvar)
+      if (odebug) then
+         write(6,*) ' B inverse'
+         call output(z, 1, ncart, 1, nzvar, ncart, nzvar, 1)
+c
+c     Verify inverse property
+c
+         call dgemm('n', 't', ncart, ncart, nzvar, 1d0, 
+     $        y, ncart, z, ncart, 0d0, x, ncart) ! B*B^-1
+         write(6,*) ' B*B^-1 '
+         call output(x, 1, ncart, 1, ncart, ncart, ncart, 1)
+      endif
+c
       END
       SUBROUTINE HND_BSTR(EQVAL,NOINT,I,J,C,B,NCART,BOHR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -2547,7 +2140,7 @@ c
 c     
 c     Jump here if have too many of something
  808  if (oprint) write(6,*)' autoz: too many angles'
-      ofail = .true.
+      zdone = .true.
       return
 c     
  9999 format(' in -zmtyp2- ',/,' ----------- ')

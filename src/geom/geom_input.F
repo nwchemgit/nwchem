@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.102 1999-06-08 01:12:07 d3e129 Exp $
+C     $Id: geom_input.F,v 1.103 1999-06-09 23:42:06 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1150,7 +1150,7 @@ c
  7    format(1x,i4,a1,'Bend(2)     ',a1,a8,4(i5,1x), 6x,2f11.5)
 c
       end
-      subroutine geom_zmat_to_cart(s,nzvar,c)
+      subroutine geom_zmat_to_cart(s, nzvar, c)
       implicit none
 #include "global.fh"
       integer nzvar
