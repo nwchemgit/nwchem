@@ -429,6 +429,11 @@ The following points are important in using the fragment initial guess:
   the same fragment MO vector file multiple times in the
   \verb+VECTORS+ directive, it is usually much better to do a separate
   calculation for each fragment.
+\item Linear dependencies which were present in a fragment calculation
+  may be magnified in the full calculation.  When this occurs, 
+  some of the fragment's highest virtual orbitals will not be copied to the
+  full system, and a warning will be printed.
+  
 \end{enumerate}
 
 A more involved example is now presented.  We wish to model the sextet
