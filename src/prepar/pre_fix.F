@@ -2,7 +2,7 @@
      + iwmr,xw,mwm,mwa,nwm,nwa,iwmrc,xwc,mwmc,nwmc,
      + isar,isgm,csa,xs,msa,nsa)
 c
-c $Id: pre_fix.F,v 1.3 1998-09-24 21:56:03 d3j191 Exp $
+c $Id: pre_fix.F,v 1.4 1998-10-30 15:33:51 d3j191 Exp $
 c
       implicit none
 c
@@ -79,7 +79,7 @@ c
       if(ifix.eq.1) then
       if(d2.ge.rfix2) iwmr(i)=2
       else
-      if(d2.lt.rfix2) iwmr(i)=2
+      if(d2.le.rfix2) iwmr(i)=2
       endif
     4 continue
     3 continue
@@ -92,7 +92,7 @@ c
       if(ifix.eq.1) then
       if(d2.ge.rfix2) iwmrc(i)=2
       else
-      if(d2.lt.rfix2) iwmrc(i)=2
+      if(d2.le.rfix2) iwmrc(i)=2
       endif
     6 continue
     5 continue
@@ -109,7 +109,7 @@ c
       if(ifix.eq.1) then
       if(d2.ge.rfix2) isar(i)=2
       else
-      if(d2.lt.rfix2) isar(i)=2
+      if(d2.le.rfix2) isar(i)=2
       endif
     7 continue
       else
@@ -132,7 +132,7 @@ c
       dy=abs(xs(2,j)-xs(2,iatom))
       dz=abs(xs(3,j)-xs(3,iatom))
       d2=dx*dx+dy*dy+dz*dz
-      if(d2.lt.rfix2) lsin=.true.
+      if(d2.le.rfix2) lsin=.true.
     9 continue
       if((lsin.and.ifix.eq.-1).or.(.not.lsin.and.ifix.eq.1)) then
       do 10 j=jfrst,i
