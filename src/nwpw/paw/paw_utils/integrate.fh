@@ -1,0 +1,2 @@
+      real*8   def_integr
+      external def_integr
