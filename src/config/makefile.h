@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.399 2003-02-18 18:56:18 edo Exp $
+# $Id: makefile.h,v 1.400 2003-02-19 15:49:00 fruechtl Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1400,9 +1400,8 @@ endif
 
 ifeq ($(TARGET),FUJITSU_VPP)
 #
-# FUJITSU VX/VPP
+# FUJITSU VPP5000 32-bit
 #
-# HAF Sept. 97
 
          FC = frt
       CPP = /lib/cpp -P -C
@@ -1433,19 +1432,69 @@ ifeq ($(TARGET),FUJITSU_VPP)
     FOPTIONS = -w -Sw -KA32 $(FDEFINES)
     COPTIONS = -KA32
      FDEBUG = -Ob -g
-  FOPTIMIZE = -Kfast -Wv,-s8
+  FOPTIMIZE = -Kfast
   COPTIMIZE = -K4
 
 # removed global, ma, tcgmsg-mpi, as they are part of the native GA
  NW_CORE_SUBDIRS = include basis geom inp input  \
        pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
 
-        CORE_LIBS = -lnwcutil -lpeigs \
-                    -L$(GA_LIBDIR) -lglobal -lpario -lma \
+        CORE_LIBS = -lnwcutil \
+                    -L$(GA_LIBDIR) -lglobal -lpario -lma -lpeigs \
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib32 -lmpi -lmp
        EXTRA_LIBS = -llapackvp -lblasvp -lsocket -Wl,-J,-P,-t,-dy
 #end of FUJITSU_VPP 
 endif
+
+ifeq ($(TARGET),FUJITSU_VPP64)
+#
+# FUJITSU VX/VPP 64-bit
+#
+
+         FC = frt
+      CPP = /lib/cpp -P -C
+     RANLIB = echo
+  MAKEFLAGS = 
+    INSTALL = @echo $@ is built
+                        
+    DEFINES = -DFUJITSU_VPP -DEXT_INT
+    USE_MPI = TRUE
+     CORE_SUBDIRS_EXTRA = blas lapack
+
+ #search include files for tools directories that are not built
+   LIB_INCLUDES += -I$(NWCHEM_TOP)/src/tools/include \
+                   -I$(NWCHEM_TOP)/src/tools/ma \
+                   -I$(NWCHEM_TOP)/src/tools/tcgmsg-mpi \
+                   -I$(NWCHEM_TOP)/src/tools/global/src \
+                   -I$(NWCHEM_TOP)/src/tools/pario/eaf \
+                   -I$(NWCHEM_TOP)/src/tools/pario/elio \
+                   -I$(NWCHEM_TOP)/src/tools/pario/sf \
+                   -I$(NWCHEM_TOP)/src/tools/pario/dra
+
+ #change DEFINES and LIB_DEFINES so that frt understands them and add them
+ #to FOPTIONS
+     comma:= ,
+     end:=
+     space:= $(end) $(end)
+   FDEFINES_1:= $(DEFINES) $(LIB_DEFINES)
+   FDEFINES:= -Wp,$(subst $(space),$(comma),$(strip $(FDEFINES_1)))
+    FOPTIONS = -w -Sw -KA64 -CcdII8 -CcdLL8 $(FDEFINES)
+    COPTIONS = -KA64
+     FDEBUG = -Ob -g
+  FOPTIMIZE = -Kfast
+  COPTIMIZE = -K4
+
+# removed global, ma, tcgmsg-mpi, as they are part of the native GA
+ NW_CORE_SUBDIRS = include basis geom inp input  \
+       pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
+
+        CORE_LIBS = -lnwcutil \
+                    -L$(GA_LIBDIR) -lglobal -lpeigs -lpario -lma \
+                    -ltcgmsg-mpi -L/usr/lang/mpi2/lib64 -lmpi -lmp
+       EXTRA_LIBS = -llapack -lblas -lsocket -Wl,-J,-P,-t,-dy
+#end of FUJITSU_VPP64
+endif
+
 
 #-do not use# ifeq ($(TARGET),PGLINUX)
 #-do not use# #

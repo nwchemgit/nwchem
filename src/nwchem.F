@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.138 2002-09-24 16:45:43 windus Exp $
+c     $Id: nwchem.F,v 1.139 2003-02-19 15:48:58 fruechtl Exp $
 *---------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002  *
 *              Pacific Northwest National Laboratory,                 * 
@@ -107,7 +107,7 @@ c
 10001    continue
 c
       else
-#if !(defined(KSR) || defined(IBM) || defined(FUJITSU_SOLARIS))
+#if !(defined(KSR) || defined(IBM) || defined(FUJITSU_SOLARIS) ||defined(FUJITSU_VPP) ||defined(FUJITSU_VPP64))
          close(LuIn)
 #endif
       endif
