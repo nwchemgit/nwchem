@@ -1,6 +1,6 @@
       subroutine uhf_hessv(acc, g_x, g_ax)
 *
-* $Id: uhf_hessv.F,v 1.7 2001-06-21 19:06:44 zzhang Exp $
+* $Id: uhf_hessv.F,v 1.8 2001-06-27 21:14:00 edo Exp $
 *
       implicit none
 #include "cuhf.fh"
@@ -374,14 +374,17 @@ c
      $             g_vecs_diff, vbase_diff, nmo, 1, nbf,
      $             g_tmp3, 1, nbf, 1, nocc_diff,
      $             g_tmp4, 1, nvir_diff, 1, nocc_diff)
-c              call ga_dadd_patch(
-c     $             four, g_tmp4, 1, nvir_diff, 1, nocc_diff,
-c     $             one, g_ax, istart_diff, iend_diff, ivec, ivec,
-c     $                  g_ax, istart_diff, iend_diff, ivec, ivec)
+              if(cphf_tddft) then
               call ga_dadd_patch(
      $             one, g_tmp4, 1, nvir_diff, 1, nocc_diff,
      $             one, g_ax, istart_diff, iend_diff, ivec, ivec,
      $             g_ax, istart_diff, iend_diff, ivec, ivec)
+           else
+              call ga_dadd_patch(
+     $             four, g_tmp4, 1, nvir_diff, 1, nocc_diff,
+     $             one, g_ax, istart_diff, iend_diff, ivec, ivec,
+     $                  g_ax, istart_diff, iend_diff, ivec, ivec)
+           endif
 c              write(*,*)"g_ax: differet spin, iset = ", iset
 c              call ga_print(g_ax)
            endif
