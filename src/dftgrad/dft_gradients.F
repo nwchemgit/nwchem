@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.8 1999-07-28 00:42:31 d3e129 Exp $
+* $Id: dft_gradients.F,v 1.9 2000-03-22 03:02:15 edo Exp $
 *
       implicit none
 c      
@@ -42,9 +42,9 @@ c
 #include "geom.fh"
 #include "stdio.fh"
 #include "msgids.fh"
-#include "util.fh"
 #include "sym.fh"
 #include "cdft.fh"
+#include "util.fh"
 c
 c!!! BGJ test !!!
 #include "bgj.fh"
@@ -83,9 +83,11 @@ c
       double precision charge, charge_nuc, rhffact, tol2e, onem,
      , toll
       parameter(toll=1.d-9)
+      logical  oprint_force_comps
 c     
       nproc = ga_nnodes()
       me=ga_nodeid()
+      oprint_force_comps = util_print('force components', print_debug)
 c     
 c     Print options
 c     
@@ -447,6 +449,13 @@ c
      $        ('dft_gradient: failed storing cd+xc gradient',0)
 c     
          status = rtdb_parallel (.true.)
+      endif
+      if(oprint_force_comps.and.me.eq.0)then
+         do 31 i = 1, nat
+            write (luout,2000) i, 
+     &                         (dbl_mb(k_frc_xc+3*(i-1)+j),j=0,2)
+ 2000       format (1X,I3,3(1X,F10.6))
+   31    continue
       endif
 c     
       call ga_sync()

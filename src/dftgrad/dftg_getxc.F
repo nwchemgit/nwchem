@@ -2,7 +2,7 @@
      &                      nactive, s34, rdens_atom, cntoce,
      &                      cntobfr, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.17 1999-06-17 18:25:10 edo Exp $
+* $Id: dftg_getxc.F,v 1.18 2000-03-22 03:02:16 edo Exp $
 *
       implicit none
 c      
@@ -36,84 +36,16 @@ c
       double precision rdens_atom(ipol*natom*natom)    
       double precision zero, one, onem
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
-      logical status
+      logical status,grid_on_file
 c
-      integer nproc, max_at_bf, lbuf, max1e, max2e,
-     &        lscratch, mscratch_1e, mscratch_2e, i, lsqa
-      integer l_buf, k_buf, l_scr, k_scr, l_ik, i_ik, l_il, i_il,
-     &        l_jk, i_jk, l_jl, i_jl, ilo, ihi
-      integer ispin
-      double precision tol2e, tot
+      integer nproc,i
+      double precision  tot
 c
       nproc = ga_nnodes()
-c
-
 c
 c     Exact exchange is now computed by grad_force
 c
 
-c$$$      if (abs(xfac(1)).gt.1e-8)then
-c$$$c       
-c$$$c        Compute the exact exchange potential (as in Hartree-Fock 
-c$$$c        calculations).
-c$$$c       
-c$$$         tol2e=10.d0**(-itol2e)
-c$$$c
-c$$$         max_at_bf = 0
-c$$$         do i = 1, natom
-c$$$            if (.not. bas_ce2bfr(ao_bas_han, i, ilo, ihi))
-c$$$     &         call errquit('dftg_getxc: bas_ce2bfr failed', i)
-c$$$            max_at_bf = max(max_at_bf, ihi-ilo+1)
-c$$$         enddo
-c$$$c
-c$$$         call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
-c$$$         lbuf = max(max1e, max2e)
-c$$$         lscratch = max(mscratch_1e, mscratch_2e)
-c$$$         status = MA_Push_get(MT_DBL, lbuf, 'deriv buffer', l_buf,
-c$$$     &            k_buf)
-c$$$         if (.not.status)call errquit('could not allocate buffer',1)
-c$$$         status = MA_Push_get(MT_DBL, lscratch, 'deriv scratch', 
-c$$$     &            l_scr, k_scr)
-c$$$         if (.not.status)call errquit('could not allocate deriv buf',1)
-c$$$c
-c$$$c        allocate local density matrix block
-c$$$c
-c$$$         lsqa = max_at_bf * max_at_bf
-c$$$c
-c$$$         status = status.and.MA_Push_get(MT_DBL,lsqa,
-c$$$     &                       'local_w_density', l_ik, i_ik)
-c$$$         status = status.and.MA_Push_get(MT_DBL,lsqa,
-c$$$     &                       'local_w_density', l_il, i_il)
-c$$$         status = status.and.MA_Push_get(MT_DBL,lsqa,
-c$$$     &                       'local_w_density', l_jk, i_jk)
-c$$$         status = status.and.MA_Push_get(MT_DBL,lsqa,
-c$$$     &                       'local_w_density', l_jl, i_jl)
-c$$$         if (.not.status) 
-c$$$     &      call errquit('force_dft: could not allocate scratch',1)
-c$$$c
-c$$$         do ispin=1,ipol
-c$$$         call dftg_hf_x(xfac(1), dbl_mb(i_ik), dbl_mb(i_jl),
-c$$$     &                  dbl_mb(i_il), dbl_mb(i_jk), force, 
-c$$$     &        iga_dens(ispin),
-c$$$     &                  max_at_bf, AO_bas_han, nproc, natom, 
-c$$$     &                  dbl_mb(k_scr), lscratch, dbl_mb(k_buf), lbuf, 
-c$$$     &                  tol2e, oactive, nactive, geom, s34, oskel,
-c$$$     &          ipol)
-c$$$         enddo
-c$$$c
-c$$$         status = MA_Pop_Stack (l_jl)
-c$$$         status = MA_Pop_Stack (l_jk)
-c$$$         status = MA_Pop_Stack (l_il)
-c$$$         status = MA_Pop_Stack (l_ik)
-c$$$         status = MA_Pop_Stack (l_scr)
-c$$$         status = MA_Pop_Stack (l_buf)
-c$$$         if (.not.status) 
-c$$$     &      call errquit('force_dft: could not pop stack',1)
-c$$$c 
-c$$$         if (.not.status) 
-c$$$     &      call errquit(' dftg_getcx: failed to deallocate',11)
-c$$$c
-c$$$      endif
       call ga_sync
       tot = -xfac(1)
       do i = 1, numfunc
@@ -124,9 +56,19 @@ c
 c     
 c        Compute via direct numerical quadrature.
 c     
+      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+     &     grid_on_file))then
+         grid_on_file = .false.
+      endif
+      if(grid_on_file) then
+         call dftg_gridv0(rtdb, iga_dens, force, natom, oactive, 
+     &                    nactive, rdens_atom, cntoce,
+     &                    cntobfr, cetobfr)
+      else
          call dftg_quadv0(rtdb, iga_dens, force, natom, oactive, 
      &                    nactive, rdens_atom, cntoce,
      &                    cntobfr, cetobfr)
+      endif
 
 c!!! BGJ test !!!
 c
