@@ -1,5 +1,5 @@
 c
-c  $Id: mcscf_orb.F,v 1.19 1996-07-02 01:21:02 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.20 1996-07-03 23:54:46 rg240 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -14,7 +14,7 @@ c
      $                           nact, oskel, gnorm_tol, orbsym,
      $                           dm1, dm2, g_coul, g_exch, oconj,
      $                           ocjrst, ocanon, ocirelax, g_conj,
-     $                           g_gradold, g_hcore, eone, etwo,
+     $                           g_gradold, g_hcore, eone, etwo, ecore,
      $                           gnorm, orbe, g_movecs, oconverged )
        implicit none
 #include "mafdecls.fh"
@@ -45,6 +45,7 @@ c
        integer g_hcore                                 ! [input] 1e hamiltonian
        double precision eone                           ! [output] 1e-energy
        double precision etwo                           ! [output] 2e-energy
+       double precision ecore                          ! [output] clsoed-shell core energy
        double precision gnorm                          ! [output] gradient norm
        double precision orbe(nbf)                      ! [output] MCSCF orbital energies
        integer g_movecs                                ! [input/output] MO vectors
@@ -79,7 +80,7 @@ c
        logical ocivecprint, oprcndprint
        double precision micro_citol, citol
        double precision lshift, bshift
-       double precision e0, ecore, eci
+       double precision e0, eci
        save lshift
        double precision mone
        DOUBLE PRECISION XTMP(10000),YTMP(10000)

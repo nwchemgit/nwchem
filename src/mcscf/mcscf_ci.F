@@ -149,7 +149,6 @@ c
         if (.not.(file_read_ga(civec_in,g_civec)))
      $    call errquit('mcscf_ci: cannot read CI vector',0)
       else
-        PRINT*,'      Guessing new CI vector     '
         if (rtdb_get(rtdb,'mcscf:guess',MT_INT,(nela+nelb),itmp)) then
           do i=1,(nela+nelb)
             guess_cfg(i) = itmp(i)
@@ -207,10 +206,10 @@ c
         call detci_symmproj( g_civec, mxcnt, .false. )
         if (mxcnt.gt.1.d-14) then
           if (ga_nodeid().eq.0) write(6,881) mxcnt
- 881      format('Warning - CI symmetry contamination:',e12.3)
-        else if (ociprint) then
-          if (ga_nodeid().eq.0) write(6,882) mxcnt
- 882      format(//,10x,'CI Symmetry contamination:',e12.3)
+ 881      format(/,'Warning - CI symmetry contamination:',e12.3)
+c$$$        else if (ociprint) then
+c$$$          if (ga_nodeid().eq.0) write(6,882) mxcnt
+c$$$ 882      format(//,10x,'CI Symmetry contamination:',e12.3)
         endif
       endif
 c
