@@ -1,5 +1,5 @@
 *
-* $Id: psi_get_ne.F,v 1.2 2002-01-25 17:29:31 bylaska Exp $
+* $Id: psi_get_ne.F,v 1.3 2002-01-25 17:36:09 bylaska Exp $
 *
 
 #define TCGMSG
@@ -114,7 +114,8 @@ c     **** send header to all nodes ****
      >     (unita(3,3).ne.control_unita(3,3)) ) then
          if (taskid.eq.MASTER) then
           write(6,*) "Error reading psi - bad unitcell"
-          write(6,*) " - Ignored if nwpw:psi_nolattice is set to true"
+          write(6,*) " - Ignored if the following  parameter is set"
+          write(6,*) " - set nwpw:psi_nolattice .true."
          end if
 
       end if
