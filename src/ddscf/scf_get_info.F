@@ -130,7 +130,16 @@ c
             scftype = 'ROHF'
          endif
       endif
+c
       call inp_ucase(scftype)
+c
+c     Take care of holes in the input routines
+c
+      if (scftype.eq.'RHF' .and. nopen.gt.0) then
+         scftype = 'ROHF'
+      else if (scftype.eq.'ROHF' .and. nopen.eq.0) then
+         scftype = 'RHF'
+      endif
 c
       if ( scftype.ne.'ROHF' .and. scftype.ne.'RHF' .and.
      $     scftype.ne.'UHF' ) call errquit
@@ -139,8 +148,8 @@ c
       nalpha = nclosed + nopen
       nbeta  = nclosed
 c
-c     For now set NMO = NBF, however this may change later just
-c     when the dependency analysis is done just before the starting guess
+c     For now set NMO = NBF, however this may change later when the 
+c     linear dependency analysis is done just before the starting guess
 c
       nmo = nbf
 c
@@ -196,7 +205,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.28 1996-07-17 16:29:32 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.29 1996-07-26 16:24:30 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
