@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.90 2001-10-18 03:33:27 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.91 2001-11-09 02:14:12 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -219,12 +219,12 @@ c
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:damp', mt_log, 1, damp))then
-         damp = .true.
+         damp = .false.
          if (.not. rtdb_put(rtdb, 'dft:damp', mt_log, 1, damp))
      &      call errquit('dft_rdinput: rtdb_put failed', 2)
       endif
       if (.not. rtdb_get(rtdb, 'dft:ndamp', mt_int, 1, ndamp))then
-         ndamp = 70
+         ndamp = 0
          if (.not. rtdb_put(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
      &      call errquit('dft_rdinput: rtdb_put failed', 113)
       endif
@@ -756,8 +756,6 @@ c
           if (.not.rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
      .         call errquit(' dft_rdinput: put of leb failed',0)
        endif
-cedo       if (.not. rtdb_cget(rtdb,'dft:radgrid', 1,radgrid)) 
-cedo     &   radgrid='eumac'
       if (.not. rtdb_cget(rtdb,'dft:radgrid', 1,radgrid)) then
          if(leb) then
              radgrid='murakn'

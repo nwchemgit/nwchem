@@ -338,13 +338,6 @@ c
  2010 levelshift = .true.
       if (.not. rtdb_put(rtdb, 'dft:levelshift', mt_log, 1, levelshift))
      &   call errquit('conv_inp: rtdb_put failed', 2000)
-      damp = .true.             
-      if (.not. rtdb_put(rtdb, 'dft:damp', mt_log, 1, damp))
-     &   call errquit('conv_inp: rtdb_put failed', 2000)
-      ndamp = 70
-      if (.not. rtdb_put(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
-     &   call errquit('conv_inp: rtdb_put failed', 2000)
-      ncydp = 2
       if (.not. rtdb_put(rtdb, 'dft:ncydp', mt_int, 1, ncydp))
      &   call errquit('conv_inp: rtdb_put failed', 2000)
       rlshift=0.5d0
