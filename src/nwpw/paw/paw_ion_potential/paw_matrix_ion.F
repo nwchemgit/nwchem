@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_ion.F,v 1.2 2003-02-14 19:25:23 marat Exp $
+* $Id: paw_matrix_ion.F,v 1.3 2003-02-26 01:10:21 bylaska Exp $
 *
 
 !**************************************************
@@ -84,7 +84,7 @@
       end !subroutine end_paw_ion_matrix
 !*************************************************
 !
-!   name :   find_kinetic_matrix
+!   name :   find_ion_matrix
 !
 !
 !   purpose :
