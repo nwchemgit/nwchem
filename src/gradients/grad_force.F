@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom, movecs )
-c$Id: grad_force.F,v 1.2 1995-11-19 19:41:18 d3g681 Exp $
+c$Id: grad_force.F,v 1.3 1995-12-07 23:03:19 vg038 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -268,9 +268,9 @@ C     local density matrix block
       cpu_tim(1)  = util_cpusec()
       wall_tim(1) = util_wallsec()
       call grad1( dbl_mb(k_buf), lbuf, dbl_mb(k_scr), lscratch,
-     $   dbl_mb(k_dens), dbl_mb(k_wdens), dbl_mb(k_force), 
-     $   g_dens, g_wdens, basis, geom, nproc, nat, max_at_bf,
-     $   rtdb, oskel)
+     $     dbl_mb(k_dens), dbl_mb(k_wdens), dbl_mb(k_force), 
+     $     g_dens, g_wdens, basis, geom, nproc, nat, max_at_bf,
+     $     rtdb, oskel)
       cpu_tim(1)  = util_cpusec() - cpu_tim(1)
       wall_tim(1) = util_wallsec() - wall_tim(1)
 #ifdef OLDTIMERS
@@ -341,7 +341,8 @@ C  define threshold for Schwarz screening (same as in SCF)
      $           dbl_mb(ld_ij2),dbl_mb(ld_kl2),  !    only
      $           dbl_mb(ld_ik2),dbl_mb(ld_jl2),  !    for
      $           dbl_mb(ld_il2),dbl_mb(ld_jk2),  !  UHF,ROHF
-     $           dbl_mb(k_force),g_dens,max_at_bf,basis,nproc,nat,
+     $           dbl_mb(k_force), g_dens, g_force, max_at_bf,
+     $           rtdb, geom, basis, nproc, nat,
      $           dbl_mb(k_scr), lscratch, dbl_mb(k_buf), lbuf, tol2e,
      $           dbl_mb(k_sch), log_mb(k_act), oskel, scftype )
       cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
@@ -358,33 +359,6 @@ C  define threshold for Schwarz screening (same as in SCF)
       tim2 = dclock() - tim2
 #endif
 #endif
-
-C     accumulate local sums to global force array
-      call ga_acc ( g_force, 1, 3, 1, nat, dbl_mb(k_force), 3, 1.D0 )
-
-C     wait for other processes to finish
-      call ga_sync()
-
-C     process zero only gets the forces
-      if (ga_nodeid().eq.0) then
-        call ga_get ( g_force, 1, 3, 1, nat, dbl_mb(k_force), 3 )
-C       symmetrize
-        if (oskel) then
-           call sym_grad_symmetrize(geom, dbl_mb(k_force))
-           call sym_grad_symmetrize(geom, dbl_mb(k_force))
-        endif
-C       zero force contributions on inactive atoms
-        call zero_forces ( dbl_mb(k_force), log_mb(k_act), nat )
-      endif
-
-C     store forces in the database noting that only zero has the info
-      if (ga_nodeid() .eq. 0) then
-         status = rtdb_parallel (.false.)
-         if (.not. rtdb_put ( rtdb, 'scf:gradients', MT_DBL, 3*nat, 
-     $        dbl_mb(k_force)))
-     $        call errquit('could not store gradients',1)
-         status = rtdb_parallel (.true.)
-      endif
 
 C     print forces
       if (ga_nodeid().eq.0 .and.
@@ -454,28 +428,6 @@ C  free memory
       status = ga_destroy ( g_wdens )
       do i=1, ndens
         status = ga_destroy ( g_dens(i) )
-      enddo
-
-      return
-      end
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine zero_forces ( force, oactive, nat )
-
-      double precision force, zero
-      logical oactive
-      integer nat
-
-      parameter ( zero = 0.D0 )
-
-      dimension force(3,nat)
-      dimension oactive(nat)
-
-      do i=1, nat
-        if ( .not.oactive(i) ) then
-          force(1,i) = zero
-          force(2,i) = zero
-          force(3,i) = zero
-        endif
       enddo
 
       return
