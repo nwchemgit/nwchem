@@ -287,7 +287,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.49 2000-08-22 23:26:07 mdupuis Exp $
+C$Id: scf_get_info.F,v 1.50 2000-10-12 19:00:00 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -406,12 +406,17 @@ c
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
          if (.not. int2e_file_open(int2efilename, memsize, filesize,
-     $        tol2e*0.1d0, orestart))
-     $        call errquit('get_fock_param: opening aoints?', 0)
-         if (orestart) then
-            oreadfile = .true.
+     $        tol2e*0.1d0, orestart)) then
+c     Probably memsize/filesize too small to be useful ... just force direct
+            filesize = -1
+            memsize = -1
          else
-            owritefile = .true.
+c     Managed to open a file or memory cache
+            if (orestart) then
+               oreadfile = .true.
+            else
+               owritefile = .true.
+            endif
          endif
       endif
 c
