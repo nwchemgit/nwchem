@@ -1,6 +1,6 @@
        OBJ = gradients.o force.o grad1.o grad2.o scf_gradient.o get_dens.o
 
-   USES_BLAS force.F
+   USES_BLAS = force.F
 
    LIBRARY = libgradients.a
 
