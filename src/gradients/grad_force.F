@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.57 2003-10-17 22:55:09 carlfahl Exp $
+c     $Id: grad_force.F,v 1.58 2003-12-22 20:22:34 marat Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -1032,6 +1032,7 @@ c
 c
       integer ma_type, l_actlist, k_actlist, i
 c
+c**** list of active atoms ****
       if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type, 
      $     nactive, l_actlist)) then
          if (.not. ma_get_index(l_actlist, k_actlist))
@@ -1051,6 +1052,28 @@ C     fill lookup table
      $           ('grad_act_at: invalid active atom', INPUT_ERR,
      $           int_mb(k_actlist+i-1))
             oactive(int_mb(k_actlist+i-1)) = .true.
+         end do
+
+c**** list of inactive atoms ****
+      else if (rtdb_ma_get(rtdb, 'geometry:inactlist', ma_type, 
+     $     nactive, l_actlist)) then
+         if (.not. ma_get_index(l_actlist, k_actlist))
+     $        call errquit('grad_act_at: ma_get_inded failed',l_actlist,
+     &       MA_ERR)
+         if (nactive.le.0 .or. nactive.gt.natoms)
+     $        call errquit
+     $        ('grad_act_at: invalid number of inactive atoms',
+     $        natoms*10000+nactive, INPUT_ERR)
+C     fill lookup table
+         do i=1, natoms
+            oactive(i) = .true.
+         end do
+         do i=1, nactive
+            if (int_mb(k_actlist+i-1).le.0 .or. 
+     $           int_mb(k_actlist+i-1).gt.natoms) call errquit
+     $           ('grad_act_at: invalid active atom', INPUT_ERR,
+     $           int_mb(k_actlist+i-1))
+            oactive(int_mb(k_actlist+i-1)) = .false.
          end do
 c
          if (util_print('active atoms', print_low) .and. 
