@@ -4,7 +4,7 @@ c     to create derivative J matrices and J hessian (without fitting)
 c
 c     BGJ - 9/98
 c
-c     $Id: j_nucder_gen.F,v 1.1 1998-09-23 21:49:53 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.2 1998-09-25 11:46:00 bjohnson Exp $
 c
       subroutine j_hessian(g_dens, oactive, nactive, hess)
 c
@@ -43,7 +43,7 @@ c
       subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
-c     $Id: j_nucder_gen.F,v 1.1 1998-09-23 21:49:53 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.2 1998-09-25 11:46:00 bjohnson Exp $
 c
 c     General routine for J hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -80,6 +80,7 @@ c
      &        lscr, l_buf, k_buf, lbuf, l_s34, k_s34
       integer i, nproc
       double precision tol2e
+      integer g_t
 c !!! BGJ test
       integer l_ti_hess, k_ti_hess, g_ti(3)
       integer j
@@ -135,6 +136,30 @@ c     Clean up temporary arrays
 c
       call j_nucder_dealloc(l_d_ija, l_d_kla, l_scr, l_buf, l_s34)
 c
+c     Symmetrize matrices across the diagonal by adding the transpose;
+c     the lower level routines have set things up so that this will
+c     produce the correct result
+c
+      if (do_cpks_r) then
+c
+         if (.not. ga_duplicate(g_dens, g_t, 'RHS transpose'))
+     &       call errquit('j_deriv_gen: could not create temp GA',0)
+c
+         do i = 1, natoms
+            if (oactive(i)) then
+               do j = 1, 3
+                  call ga_transpose(g_rhs(j,i), g_t)
+                  call ga_add(1.0d0, g_rhs(j,i), 1.0d0, g_t, g_rhs(j,i))
+               enddo
+            endif
+         enddo
+c
+         if (.not. ga_destroy(g_t))
+     &       call errquit('j_deriv_gen: could not destroy temp GA',0)
+c
+      endif
+c
+c !!! BGJ test !!!
       if (bgj_print() .gt. 0) then
          if (do_hess) then
 c
@@ -191,6 +216,7 @@ c
          endif
          write(*,*)'--------Leaving j_deriv_gen-------------'
       endif
+c !!! BGJ test !!!
 c
       return
       end

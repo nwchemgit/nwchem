@@ -5,7 +5,7 @@ c     Makes contribution to J force from block of derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.3 1998-09-24 17:26:02 d3e129 Exp $
+c     $Id: dint_block_j.F,v 1.4 1998-09-25 11:50:13 bjohnson Exp $
 c
       implicit none
 c
@@ -55,20 +55,21 @@ c
 c
 c
       subroutine dint_block_jdmat(d_ija, d_kla, ldim, g_dj, dfij, dfkl,
-     &     dint, scale, idatom, if1, il1, if2, il2, if3, il3, if4, il4)
+     &     dint, q4, diagb, diagk, ijij, idatom, if1, il1, if2, il2,
+     &     if3, il3, if4, il4)
 c
 c     Makes contribution to J derivative matrices from block of
 c     derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.3 1998-09-24 17:26:02 d3e129 Exp $
+c     $Id: dint_block_j.F,v 1.4 1998-09-25 11:50:13 bjohnson Exp $
 c
       implicit none
 c
       integer ldim
       integer if1, il1, if2, il2, if3, il3, if4, il4
-      double precision scale
+      logical diagb, diagk, ijij
       integer g_dj(3, *)
 c !!! Is dimensioning right? !!!
       double precision dfij(if2:il2, if1:il1)
@@ -76,13 +77,37 @@ c !!! Is dimensioning right? !!!
 c !!! Is dimensioning right? !!!
       double precision d_ija(ldim,ldim), d_kla(ldim,ldim)
       double precision dint(if4:il4, if3:il3, if2:il2, if1:il1, 3, 4)
+      double precision q4
       integer idatom(4)
 c
       integer i, icart
       integer ip1, ip2, ip3, ip4
-      double precision g
+      double precision scaleb, scalek, g
 c
 c      write(*,*)'*** dint_block_jdmat called'
+c
+c     Set up bra and ket scale factors; 2's for permutational symmetry,
+c     and 1/2's to fix diagonal J matrix blocks because we fill out
+c     the matrices at the end by adding the transpose
+c
+      scaleb = q4
+      scalek = q4
+      if (diagb) then
+         scalek = scalek * 0.5d0
+      else
+         scaleb = scaleb * 2.0d0
+      endif
+      if (diagk) then
+         scaleb = scaleb * 0.5d0
+      else
+         scalek = scalek * 2.0d0
+      endif
+      if (ijij) then
+c        Scale (ij|ij) type integrals by 0.5 to undo double-counting
+         scaleb = scaleb * 0.5d0
+         scalek = scalek * 0.5d0
+      endif
+c
       do i = 1, 4
          if (idatom(i).ge.1) then
             do icart = 1, 3
@@ -92,20 +117,20 @@ c      write(*,*)'*** dint_block_jdmat called'
                   do ip2 = if2, il2
                      do ip3 = if3, il3
                         do ip4 = if4, il4
-                           g = dint(ip4,ip3,ip2,ip1,icart,i) * scale
+c                           if (i.eq.1.and.icart.eq.1) then
+c                              write(*,*)'(ij|kl)',ip1,ip2,ip3,ip4,ijij
+c                           endif
+                           g = dint(ip4,ip3,ip2,ip1,icart,i)
                            dfij(ip2,ip1) = dfij(ip2,ip1)
-     &                              + g * d_kla(ip3,ip4)
+     &                         + g * d_kla(ip3-if3+1,ip4-if4+1) * scalek
                            dfkl(ip4,ip3) = dfkl(ip4,ip3)
-     &                              + g * d_ija(ip1,ip2)
+     &                         + g * d_ija(ip1-if1+1,ip2-if2+1) * scaleb
                         enddo
                      enddo
                   enddo
                enddo
 c
 c     Update derivative J matrix blocks in GA's
-c
-c     !!! what about symmetrizing?
-c     !!! what about across-diagonal?
 c
 c     The routine fock_upd_blk takes a temporary array for space
 c     to rearrange blocks before updating.  This array is not used
@@ -135,7 +160,7 @@ c     integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.3 1998-09-24 17:26:02 d3e129 Exp $
+c     $Id: dint_block_j.F,v 1.4 1998-09-25 11:50:13 bjohnson Exp $
 c
       implicit none
 c
