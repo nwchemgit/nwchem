@@ -1,9 +1,9 @@
-# $Id: GNUmakefile,v 1.5 2003-04-07 20:53:11 windus Exp $
+# $Id: GNUmakefile,v 1.6 2003-04-08 00:15:18 windus Exp $
        HEADERS = 
   OBJ_OPTIMIZE = 
            OBJ = atsym.o drdy.o drdy_input.o Input_for_drdy.o drdy_synch.o \
                  read_drdy_rtdb.o rgener.o ratoms.o rstat.o rpath.o \
-                 rgeom.o rgsad.o rphwrt.o sort.o react.o potset_nwchem.o \
+                 rgeom.o rgsad.o rphwrt.o drdy_sort.o react.o potset_nwchem.o \
                  trans.o tranf.o drdy_center.o rotx.o moiten.o pot2.o \
                  rotmat.o rotg.o rotf.o restor.o drdy_nwc_get.o react2.o \
                  saddle.o setpth.o diagf.o pmlqsp.o mxlneq.o pmclqa.o \
