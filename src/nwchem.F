@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.89 1996-09-17 02:21:52 d3g681 Exp $
+c     $Id: nwchem.F,v 1.90 1996-09-19 01:02:34 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -220,8 +220,11 @@ c
          endif
          if (util_print('ma summary', print_default))
      $        call ma_summarize_allocated_blocks()
-         if (util_print('ma stats', print_high))
-     $        call ma_print_stats()
+         if (util_print('ma stats', print_high)) then
+            call ma_print_stats(.true.)
+         else if (util_print('ma stats', print_default)) then
+            call ma_print_stats(.false.)
+         endif
          if (util_print('version', print_debug))
      $        call util_version
          if (util_print('citation', print_low))
