@@ -1,4 +1,4 @@
-c $Id: bq_main.F,v 1.1 2005-04-01 03:10:53 marat Exp $
+c $Id: bq_main.F,v 1.2 2005-04-03 07:38:48 marat Exp $
 
       function bq_init(rtdb)
       implicit none
@@ -39,6 +39,17 @@ c
       end if
 
 
+
+      end
+
+      function bq_end()
+      implicit none
+#include "rtdb.fh"
+#include "bq.fh"
+#include "errquit.fh"
+      logical bq_end
+      
+      bq_end = bq_destroy_all()
 
       end
 

@@ -34,6 +34,9 @@
        logical  bq_rtdb_load
        external bq_rtdb_load
 
+       logical  bq_destroy_all
+       external bq_destroy_all
+
        logical  bq_destroy
        external bq_destroy
 

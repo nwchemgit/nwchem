@@ -1,6 +1,6 @@
-c $Id: bq_data.F,v 1.4 2005-04-01 02:30:30 marat Exp $
+c $Id: bq_data.F,v 1.5 2005-04-03 07:38:48 marat Exp $
       block data initial_bq_data
-C$Id: bq_data.F,v 1.4 2005-04-01 02:30:30 marat Exp $
+C$Id: bq_data.F,v 1.5 2005-04-03 07:38:48 marat Exp $
       implicit none
 #include "bq_data.fh"
 c     
@@ -393,6 +393,8 @@ c      local variables
 
        pname = "bq_destroy"
 
+       bq_destroy = .true.
+
        if(handle .lt.0 .or. handle .gt. max_bq) then
          bq_destroy = .false.
          return
@@ -402,6 +404,7 @@ c      local variables
 
        bq_name(handle)=" "
        bq_active(handle)=.false.
+
        if(bq_ncent(handle).eq.0) return
         
        h_q = bq_charge(handle)
@@ -418,6 +421,32 @@ c      local variables
      &      0, MA_ERR)
 
        bq_ncent(handle) = 0 
+
+       return
+       end
+
+      function bq_destroy_all()
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       logical bq_destroy_all
+c      local variables
+       character(32) pname
+        
+       logical bq_destroy
+       external bq_destroy
+
+       pname = "bq_destroy_all"
+
+       bq_destroy_all = .false.
+
+       do handle=1,max_bq
+         if(.not.bq_destroy(handle)) return
+       end do
+       bq_destroy_all = .true.
 
        return
        end
@@ -484,7 +513,6 @@ c      local variables
       implicit none
 #include "bq_data.fh"
 #include "errquit.fh"
-       integer handle
        logical bq_on
 c      local variables
        integer i
