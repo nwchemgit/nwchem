@@ -1,7 +1,7 @@
       subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, lscr, scr)
-c $Id: int_l2e4c.F,v 1.4 1994-04-08 15:59:44 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.5 1994-04-09 15:46:31 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -84,7 +84,7 @@ c
             do 00400 l = ibs_cn2bfr(1,lsh,ket), ibs_cn2bfr(2,lsh,ket)
               kl = isym2(k,l)
               icount = icount + 1
-              if (abs(scr(icount)).gt.zerotol) then
+              if (abs(scr(icount)).ge.zerotol) then
                 if (i.ge.j.and.k.ge.l.and.
      &                 (ignore_ij_kl.or.(ij.ge.kl)))then
                   nint = nint + 1

@@ -1,6 +1,6 @@
       subroutine int_lgen1e(i_basis, j_basis, ish, jsh, zerotol,
      &       ilab, jlab, l1e, Gen1e, lscr, scr, numgen) 
-c $Id: int_lgen1e.F,v 1.2 1994-04-08 15:59:45 d3e129 Exp $
+c $Id: int_lgen1e.F,v 1.3 1994-04-09 15:46:32 d3e129 Exp $
 #include "basP.fh"
 #include "geobasmapP.fh"
       implicit none
@@ -45,7 +45,7 @@ c
       do 00100 i = ibs_cn2bfr(1,ish,ibas), ibs_cn2bfr(2,ish,ibas)
         do 00200 j = ibs_cn2bfr(1,jsh,jbas), ibs_cn2bfr(2,jsh,jbas)
           icount = icount + 1
-          nonzero = abs(scr(icount)).gt.zerotol
+          nonzero = abs(scr(icount)).ge.zerotol
           if (nonzero) then
             if ((.not.ijbas).or.i.ge.j) then
               numgen = numgen + 1

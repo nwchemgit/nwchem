@@ -1,4 +1,4 @@
-c $Id: api.doc,v 1.5 1994-04-08 15:59:30 d3e129 Exp $
+c $Id: api.doc,v 1.6 1994-04-09 15:46:18 d3e129 Exp $
 c
 critical path
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ critical path
 ... eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh).ket_g(lsh)>
 . int_2e4c (bra_basis, ish, jsh, ket_basis, ksh, lsh, lscr, scr, leri, eri)
 . int_l2e4c(bra_basis, ish, jsh, ket_basis, ksh, lsh, zerotol,
-             canonicalize, leri, eri, nints, ilab, jlab, klab, llab, lscr, scr)
+             canonicalize, leri, eri, nint, ilab, jlab, klab, llab, lscr, scr)
 
 ... one electron integrals 
 . int_1eke (i_basis, j_basis, ish, jsh, lscr, scr, lt, T)
@@ -26,29 +26,29 @@ critical path
 
 next to be done
 --------------------------------------------------------------------------------
- int_mem_2e3c(max3, mscratch_3_2e)
- int_mem_2e2c(max2, mscratch_2_2e)
- int_mem_3ov(max3ov, mscratch_3ov)
+. int_mem_2e3c(max3, mscratch_3_2e)
+. int_mem_2e2c(max2, mscratch_2_2e)
+. int_mem_3ov(max3ov, mscratch_3ov)
 
 
 .   3 center 2e integrals
- eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh)>
- int_2e3c (bra_basis, ish, jsh, ket_basis, ksh, lscr, scr, eri)
- int_l2e3c (bra_basis, ish, jsh ket_basis, ksh, canonical_bra, canonical_both, zerotol, 
-              eri, nints, ilab, jlab, klab, scr, lscr)
+... eri = <bra_g(ish)|ket_g(jsh).ket_g(ksh)>
+. int_2e3c (bra_basis, ish, ket_basis, jsh, ksh, lscr, scr, leri, eri)
+. int_l2e3c (bra_basis, ish, ket_basis, jsh, ksh, zerotol, canket, 
+              leri, eri, nint, ilab, jlab, klab, lscr, scr)
 
 .   2 center 2e integrals 
- eri = <bra_g(ish)|ket_g(jsh)>
- int_2e2c (bra_basis, ish, ket_basis, jsh, lscr, scr, eri)
- int_l2e2c (bra_basis, ish, ket_basis, jsh, canonical_both, zerotol, eri,
-              nints, ilab, jlab, scr, lscr)
+... eri = <bra_g(ish)|ket_g(jsh)>
+. int_2e2c (bra_basis, ish, ket_basis, jsh, lscr, scr, leri, eri)
+. int_l2e2c (bra_basis, ish, ket_basis, jsh, zerotol, leri, eri,
+              nint, ilab, jlab, lscr, scr)
 
 
- one_3c_int = <i_g(ish).j_g(jsh).k_g(ksh)>
+... one_3c_int = <i_g(ish).j_g(jsh).k_g(ksh)>
  int_1e3ov(i_basis, j_basis, k_basis, ish, jsh, ksh, lscr,
-                   scr, OV3)
+                   scr, lov3, OV3)
  int_l1e3ov(i_basis, j_basis, k_basis, ish, jsh, ksh, zerotol,
-               OV3, ilab, jlab, klab, numov3)
+               lov3, OV3, ilab, jlab, klab, numov3, lscr, scr)
 
 
 less critical
@@ -56,6 +56,10 @@ less critical
    int_mpole(i_basis, j_basis, Lvalue, ish, jsh, lscr, scr, MPINTS)
    int_lmpole(i_basis, j_basis, Lvalue, ish, jsh, MPINTS, ilab, jlab, zerotol)
 
+
+
+lots later
+--------------------------------------------------------------------------------
    int_set_eri_timing()
    int_report_eri_timings()
 

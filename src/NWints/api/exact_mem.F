@@ -1,6 +1,7 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.4 1994-04-08 15:59:32 d3e129 Exp $
+c $Id: exact_mem.F,v 1.5 1994-04-09 15:46:21 d3e129 Exp $
       implicit none
+#include "bas.fh"
 #include "apiP.fh"
 c
 c:: passed
@@ -9,15 +10,25 @@ c:: passed
 c:: local
       integer lmem_2e4c, lmem_1e
       integer lsz_2e4c, lsz_1e
-      integer ibas,jbas
+      integer ibas,jbas, kbas
+      integer hang, tang, hang2
+      integer lsz_3ov,lmem_3ov
 c
       mem_2e4c = 0
       isz_2e4c = 0
       mem_1e   = 0
       isz_1e   = 0
 c
+      hang = 0
       do 00100 ibas = 1,nbas
         do 00200 jbas = 1,ibas
+c.... angular momentum for 2e3c and 2e4c
+          if(.not.bas_high_angular(bases(ibas),tang))
+     &           call errquit('exact_mem:ang error ',0)
+          hang = max(hang,tang)
+          if(.not.bas_high_angular(bases(jbas),tang))
+     &           call errquit('exact_mem:ang error ',0)
+          hang = max(hang,tang)
 c.... 2e 4 center
           call emem_2e4c(bases(ibas), bases(jbas), lsz_2e4c, lmem_2e4c)
           mem_2e4c = max(mem_2e4c, lmem_2e4c)
@@ -32,6 +43,107 @@ c
 c.. need extra memory for H1 call externalized by int_mem_h1
 c
       mem_1e_h1 = mem_1e + isz_1e
+c
+c... 2e3c and 2e2c use same scratch space so the maxg is the only thing that changes      
+c
+      hang2 = (hang+1)*(hang+2)/2
+      isz_2e3c = hang2**3
+      isz_2e2c = hang2**2
+      mem_2e3c = mem_2e4c
+      mem_2e2c = mem_2e4c
+c
+c... now do loops for 3 center overlap integrals
+c
+c... add control mechanism for 3ov??
+c
+      isz_3ov = 0
+      mem_3ov = 0
+      do 00300 ibas = 1,nbas
+        do 00400 jbas = 1,ibas
+          do 00500 kbas = 1,jbas
+            call emem_3ov(bases(ibas),bases(jbas),bases(kbas),
+     &             lsz_3ov,lmem_3ov)
+            isz_3ov = max(isz_3ov,lsz_3ov)
+            mem_3ov = max(mem_3ov,lmem_3ov)
+00500     continue
+00400   continue
+00300 continue
+c
+      end
+      subroutine emem_3ov(ibasin,jbasin,kbasin,lsz_buf,memsize)
+      implicit none
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+c::function
+      integer nbf_from_ucont
+      external nbf_from_ucont
+c::passed
+      integer ibasin, jbasin, kbasin, lsz_buf, memsize
+c::local
+      integer ibas, jbas, kbas
+      integer it_ucont, jt_ucont, kt_ucont
+      integer iic, ijc, ikc
+      integer i_type, j_type, k_type
+      integer i_prim, j_prim, k_prim
+      integer memdum, j_lim, k_lim
+      integer nbfimax, nbfjmax, nbfkmax, mynbf
+c
+      memsize = 0
+      nbfimax = 0
+      nbfjmax = 0
+      nbfkmax = 0
+c
+      ibas = ibasin + BASIS_HANDLE_OFFSET
+      jbas = jbasin + BASIS_HANDLE_OFFSET
+      kbas = kbasin + BASIS_HANDLE_OFFSET
+c
+      it_ucont = infbs_head(HEAD_NCONT,ibas)
+      jt_ucont = infbs_head(HEAD_NCONT,jbas)
+      kt_ucont = infbs_head(HEAD_NCONT,kbas)
+c
+      do 00100 iic = 1,it_ucont
+        mynbf = nbf_from_ucont(iic,ibasin)
+        nbfimax = max(nbfimax,mynbf)
+        i_type = infbs_cont(CONT_TYPE,iic,ibas)
+        i_prim = infbs_cont(CONT_NPRIM,iic,ibas)
+c
+c... currently hf3ois does not allow for general contractions
+c... so *_prim is not needed
+c        i_gen  = infbs_cont(CONT_NGEN,iic,ibas)
+c
+        j_lim = jt_ucont
+        if (ibas.eq.jbas) j_lim = iic
+c
+        do 00200 ijc = 1, j_lim
+          mynbf = nbf_from_ucont(ijc,jbasin)
+          nbfjmax = max(nbfjmax,mynbf)
+          j_type = infbs_cont(CONT_TYPE,ijc,jbas)
+          j_prim = infbs_cont(CONT_NPRIM,ijc,jbas)
+c**          j_gen  = infbs_cont(CONT_NGEN,ijc,jbas)
+c
+          k_lim = kt_ucont
+          if (kbas.eq.jbas) k_lim = ijc
+          do 00300 ikc = 1, k_lim
+            mynbf = nbf_from_ucont(ikc,kbasin)
+            nbfkmax = max(nbfkmax,mynbf)
+            k_type = infbs_cont(CONT_TYPE,ikc,kbas)
+            k_prim = infbs_cont(CONT_NPRIM,ikc,kbas)
+c**            k_gen  = infbs_cont(CONT_NGEN,ikc,kbas)
+            
+            memdum  = 9 000 000
+            call hf3OIs(
+     &             exndcf,exndcf,exndcf,i_prim,i_type,
+     &             exndcf,exndcf,exndcf,j_prim,j_type,
+     &             exndcf,exndcf,exndcf,k_prim,k_type,
+     &             exndcf,1,.false.,
+     &             .true.,exndcf,memdum)
+            memsize = max(memsize,memdum)
+00300     continue
+00200   continue
+00100 continue
+c
+      lsz_buf = nbfimax*nbfjmax*nbfkmax
       end
       subroutine emem_1e(brain, ketin, max1e, memsize)
       implicit none

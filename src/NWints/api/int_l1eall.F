@@ -1,6 +1,6 @@
       subroutine int_l1eall(i_basis, j_basis, ish, jsh, zerotol,
      &       ilab, jlab, lstv, S, T, V, lscr, scr, numstv) 
-c $Id: int_l1eall.F,v 1.2 1994-04-07 18:56:52 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.3 1994-04-09 15:46:27 d3e129 Exp $
 #include "basP.fh"
 #include "geobasmapP.fh"
       implicit none
@@ -63,9 +63,9 @@ c
       icount = 0
       do 00100 i = ibs_cn2bfr(1,ish,ibas), ibs_cn2bfr(2,ish,ibas)
         do 00200 j = ibs_cn2bfr(1,jsh,jbas), ibs_cn2bfr(2,jsh,jbas)
-          nonzero = abs(scr((icount+iscrS))).gt.zerotol
-          nonzero = nonzero .and.(abs(scr((icount+iscrT))).gt.zerotol)
-          nonzero = nonzero .and.(abs(scr((icount+iscrV))).gt.zerotol)
+          nonzero = abs(scr((icount+iscrS))).ge.zerotol
+          nonzero = nonzero .and.(abs(scr((icount+iscrT))).ge.zerotol)
+          nonzero = nonzero .and.(abs(scr((icount+iscrV))).ge.zerotol)
           if (nonzero) then
             if ((.not.ijbas).or.i.ge.j) then
               numstv = numstv + 1
