@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.47 2003-10-21 19:01:58 d3j191 Exp $
+c $Id: cf_common.fh,v 1.48 2003-11-25 00:07:55 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -121,7 +121,7 @@ c
       real*8 ewkc(3,3),eskc(3,3),ekc(3,3),z(3,3),prx(3,3)
       real*8 edrs,field,fvect(3),ffreq,totchg
       real*8 virial,scaleq,ubias,facpmf,rhop,rhop2,thop,stime
-      integer llww,lsww,llsw,lssw,llss,lsss,includ,nfhop,ipbtyp
+      integer llww,lsww,llsw,lssw,llss,lsss,includ,nfhop,ipbtyp,iffld
       logical llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lpmfcc,lanal
       logical lhop,lqhop,lfree
       logical ithint,ith(24),ipert2,ipert3,ip2(24),ip3(24)
@@ -138,7 +138,7 @@ c
      + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,nbias,mropt,
      + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,noshak,
      + itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npmfi,npgdec,
-     + ngrx,ngry,ngrz,mseq,nseq,nhop,nlda,nldat,nhops,
+     + ngrx,ngry,ngrz,mseq,nseq,nhop,nlda,nldat,nhops,iffld,
      + llww,lsww,llsw,lssw,llss,lsss,includ,
      + llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lpmfcc,lanal,lhop,
      + lqhop,lfree,ithint,ith,ipert2,ipert3,ip2,ip3

@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.32 2003-10-31 17:12:49 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.33 2003-11-25 00:07:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -20,6 +20,7 @@ c
       character*6 cdata(24)
       integer i,ia,iq,j,k,l,m,m2,m3,m4,itemp(24),i_i,i_j,l_i,l_j
       integer naw,nbw,nhw,ndw,now,ntw,nnw
+      integer nhp
       integer nas,nbt,nhs,nds,nos,nts,nxs
       integer numbl,numbi,numbd,iqfr,iqto,nsad
       character*10 string
@@ -50,6 +51,8 @@ c
  1001 format(a80)
       read(lfntop,1002,end=9997,err=9998) topdat,toptim,ffield
  1002 format(12x,3a10)
+      nhp=2
+      if(ffield(1:6).eq.'charmm') nhp=4
       read(lfntop,1003,end=9997,err=9998) nparms
       mset=nparms
       if(lfree) mset=6
@@ -99,10 +102,10 @@ c
  4004 continue
       read(lfntop,1008,end=9997,err=9998) naw,nbw,nhw,ndw,now,ntw,nnw
  1008 format(5i7,2i10)
-      call cf_initb(1,1,nbw,2,nhw,2,ndw,3,now,3,ntw,2,nnw,2,naw)
+      call cf_initb(1,1,nbw,2,nhw,nhp,ndw,3,now,3,ntw,2,nnw,2,naw)
       read(lfntop,1009,end=9997,err=9998) nas,nbt,nhs,nds,nos,nts,nxs
  1009 format(5i7,3i10,2i5)
-      call cf_initb(2,nas,nbt,2,nhs,2,nds,3,nos,3,nts,2,nxs,2,0)
+      call cf_initb(2,nas,nbt,2,nhs,nhp,nds,3,nos,3,nts,2,nxs,2,0)
       do 5 i=1,naw
       read(lfntop,1010,end=9997,err=9998) wnam(i),ia,iq
  1010 format(a16,25x,2i5)
@@ -123,9 +126,10 @@ c
       do 7 i=1,nhw
       read(lfntop,1012,end=9997,err=9998) (idata(j),j=1,3)
  1012 format(3i7)
-      read(lfntop,2012,end=9997,err=9998) 
-     + ((pdata(k,j),k=1,2),j=1,nparms)
- 2012 format(f10.6,e12.5)
+      do 70 j=1,nparms
+      read(lfntop,2012,end=9997,err=9998) (pdata(k,j),k=1,nhp)
+ 2012 format(2(f10.6,e12.5))
+   70 continue
       call cf_parang(1,i,idata,pdata)
     7 continue
       idata(6)=0
@@ -210,9 +214,10 @@ c      if(j.gt.nsm) nsm=j
       do 12 i=1,nhs
       read(lfntop,1019,end=9997,err=9998) (idata(j),j=1,3)
  1019 format(3i7)
-      read(lfntop,2019,end=9997,err=9998) 
-     + ((pdata(k,j),k=1,2),j=1,nparms)
- 2019 format(f10.6,e12.5)
+      do 120 j=1,nparms
+      read(lfntop,2019,end=9997,err=9998) (pdata(k,j),k=1,nhp)
+ 2019 format(2(f10.6,e12.5))
+  120 continue
       call cf_parang(2,i,idata,pdata)
    12 continue
       idata(6)=0
@@ -290,7 +295,8 @@ c
       idata(17)=mset
       idata(18)=nparms
       idata(19)=nhop
-      call ga_brdcst(mcf_01,idata,19*numbi,0)
+      idata(20)=nhp
+      call ga_brdcst(mcf_01,idata,20*numbi,0)
       natyps=idata(1)
       nqtyps=idata(2)
       nbw=idata(3)
@@ -310,13 +316,14 @@ c
       mset=idata(17)
       nparms=idata(18)
       nhop=idata(19)
+      nhp=idata(20)
 c
 c     initialize on nodes other than 0
 c
       if(me.ne.0) then
       call cf_inita(natyps,4,nqtyps,4,nparms)
-      call cf_initb(1,1,nbw,2,nhw,2,ndw,3,now,3,ntw,2,nnw,2,naw)
-      call cf_initb(2,nas,nbt,2,nhs,2,nds,3,nos,3,nts,2,nxs,2,0)
+      call cf_initb(1,1,nbw,2,nhw,nhp,ndw,3,now,3,ntw,2,nnw,2,naw)
+      call cf_initb(2,nas,nbt,2,nhs,nhp,nds,3,nos,3,nts,2,nxs,2,0)
       endif
 c
 c     broadcast force field parameters
@@ -431,19 +438,28 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer iffld,numbi
+      integer numbi
 c
       numbi=ma_sizeof(mt_int,1,mt_byte)
 c
       if(me.eq.0) then
       iffld=1
-      if(ffield(1:6).eq.'gromos') iffld=2
+      if(ffield(1:6).eq.'charmm') iffld=2
+      if(ffield(1:6).eq.'gromos') iffld=3
       endif
       call ga_brdcst(mcf_69,iffld,numbi,0)
 c
+      if(iffld.eq.1) then
+      if(me.eq.0) write(*,1001)
+ 1001 format(' Force field is amber')
+      endif
       if(iffld.eq.2) then
-      if(me.eq.0) write(*,1000)
- 1000 format(' Force field is gromos')
+      if(me.eq.0) write(*,1002)
+ 1002 format(' Force field is charmm')
+      endif
+      if(iffld.eq.3) then
+      if(me.eq.0) write(*,1003)
+ 1003 format(' Force field is gromos')
       endif
 c
       return

@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
+c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
 c
       implicit none
 c
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
+c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
 c
       implicit none
 c
@@ -1889,7 +1889,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
+c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
 c
       implicit none
 c
@@ -3221,7 +3221,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
+c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3531,7 +3531,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
+c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3592,13 +3592,14 @@ c
 c     declaration of local variables
 c     ------------------------------
 c
-      integer i,j,ish,isa,jsa,ksa,isf,jsf,ksf
+      integer i,j,ish,isa,jsa,ksa,isf,jsf,ksf,ibset
       integer ifacu
       real*8 angle,dangle,for,dfor,dfs,phi,cphi,sphi,factu,dercon
       real*8 xsijx,xskjx,xsijy,xskjy,xsijz,xskjz
       real*8 rsij2,rskj2,rsij2i,rskj2i,rsikji,dx(3),eterm
       real*8 qij,xs1,xs2,xs3,rss,rsi,ferfc,fderfc,dfs1,dfs2,dfs3
       real*8 qijp2,qijp3
+      real*8 rb,bond,rss2,rssi,rss2i,dbond
 c
 #include "cf_funcs_dec.fh"
 #include "bitops_decls.fh"
@@ -3812,13 +3813,145 @@ c
 c
     1 continue
 c
+      if(iffld.eq.2) then
+c
+c     Urey-Bradley solute angles
+c     ==========================
+c
+      do 3 i=1,nangls
+c
+c     find index into list of angles
+c     ------------------------------
+c
+      ish=indexl(i)
+c
+c     find local atom numbers involved in this angle
+c     ----------------------------------------------
+c
+      isa=0
+      jsa=0
+      ksa=0
+c
+      do 4 j=1,natoms
+      if(iang(ish,1).eq.igan(j)) isa=j
+      if(iang(ish,2).eq.igan(j)) jsa=j
+      if(iang(ish,3).eq.igan(j)) ksa=j
+    4 continue
+      isf=imol(isa)
+      ksf=imol(ksa)
+c
+      if(nfhop.eq.0) then
+      ibset=iset
+      else
+      ibset=lseq(isgm(isa))
+      endif
+c
+c     find reference bond length and force constant
+c
+      bond=ang(ish,3,ibset)
+      for=ang(ish,4,ibset)
+c
+      if(for.gt.0.0d0) then
+c
+c     determine actual distance between the atoms
+c
+      xs1=xs(isa,1)-xs(ksa,1)
+      xs2=xs(isa,2)-xs(ksa,2)
+      xs3=xs(isa,3)-xs(ksa,3)
+c
+c     periodic boundary conditions
+c
+      if(lpbc.or.lpbcs) then
+      dx(1)=xs1
+      dx(2)=xs2
+      dx(3)=xs3
+      call cf_pbc(1,dx,1,dx,1,0,1,1)
+      xs1=dx(1)
+      xs2=dx(2)
+      xs3=dx(3)
+      endif
+c
+      rss2=xs1**2+xs2**2+xs3**2
+      if(rss2.gt.small) then
+      rss=sqrt(rss2)
+      rssi=one/rss
+      rss2i=rssi*rssi
+      else
+      rss=zero
+      rssi=one
+      rss2i=one
+      endif
+c
+c     determine fraction of energy to be counted
+c     this depends on the atoms being dynamic or fixed
+c
+      factu=zero
+      if(iand(idyn(isa),mdynam).eq.ldynam.and.
+     + iand(idyn(jsa),mdynam).eq.ldynam) factu=one
+      if((iand(idyn(isa),mdynam).eq.ldynam.and.
+     + iand(idyn(jsa),mdynam).ne.ldynam) .or.
+     + (iand(idyn(isa),mdynam).ne.ldynam.and.
+     + iand(idyn(jsa),mdynam).eq.ldynam)) factu=half
+      if(includ.eq.1) factu=one
+c
+      dbond=rss-bond
+c
+c     evaluate energies and forces
+c
+      rb=half*for*dbond*dbond
+      eterm=zero
+      if(lupden) then
+      ess(isf,isf,1,1)=ess(isf,isf,1,1)+half*factu*rb
+      ess(ksf,ksf,1,1)=ess(ksf,ksf,1,1)+half*factu*rb
+      endif
+      eterm=factu*rb
+      dfor=for*dbond*rssi
+      dfs1=dfor*xs1
+      dfs2=dfor*xs2
+      dfs3=dfor*xs3
+      fs(isa,1)=fs(isa,1)-dfs1
+      fs(ksa,1)=fs(ksa,1)+dfs1
+      fs(isa,2)=fs(isa,2)-dfs2
+      fs(ksa,2)=fs(ksa,2)+dfs2
+      fs(isa,3)=fs(isa,3)-dfs3
+      fs(ksa,3)=fs(ksa,3)+dfs3
+c
+      if(lupdti) then
+c
+c     for thermodynamic perturbations evaluate the energies using
+c     the 'perturbed' parameters in set 2 and/or 3
+c
+      if(ip2(18))
+     + ep2(1)=ep2(1)-eterm+factu*half*ang(ish,4,2)*(rss-ang(ish,3,2))**2
+      if(ip3(18))
+     + ep3(1)=ep3(1)-eterm+factu*half*ang(ish,4,3)*(rss-ang(ish,3,3))**2
+c
+c     for thermodynamic integrations evaluate the derivative
+c
+      if(ith(18)) then
+      dercon=dbond*(half*dbond*ang(ish,4,4)-for*ang(ish,3,4))
+      deriv(20,1)=deriv(20,1)+dercon
+      if(npgdec.gt.1) then
+      dera(5,iang(ish,1))=dera(5,iang(ish,1))+half*dercon
+      dera(5,iang(ish,3))=dera(5,iang(ish,3))+half*dercon
+      endif
+      endif
+c
+      endif
+c
+      endif
+c
+    3 continue
+c
+      endif
+c
       return
       end
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
+c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -4162,7 +4295,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
+c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4489,7 +4622,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,isgm,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa,lseq)
 c
-c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
+c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4852,7 +4985,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
+c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
 c
       implicit none
 c
