@@ -1,24 +1,22 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.2 1996-09-26 22:20:20 mdupuis Exp $
+C$Id: opt_drv.F,v 1.3 1996-09-27 21:00:29 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
+#include "stdio.fh"
       integer  rtdb
       logical  hnd_optx
       external hnd_optx
-      integer  iread, iwrite
-      integer  ir, iw, ip
+      integer  ir, iw
       logical  some, dbug
-      common/inp_file/iread,iwrite
       common/hnd_iofile/ir,iw
 c
       dbug=.false.
       some=.false.
       some=some.or.dbug
-      ir=iread
-      iw=iwrite
-      ip=7
+      ir=LuIn
+      iw=LuOut  
       if(some) then
          write(iw,*) ' drv_opt: calling hnd_optx . '
       endif
@@ -68,7 +66,7 @@ c
 c
 c     ----- control parameters -----
 c
-      cvgopt=5.0d-04
+      cvgopt=8.0d-04
       nptopt=20
       linopt=10
       inhess=0
@@ -91,7 +89,7 @@ c
          ncart =3*nat
          ncoord=ncart
       endif
-      if(some) then
+      if(dbug) then
          write(iw,9997) nvar,ncart
       endif
 c
