@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.6 2002-01-16 20:51:14 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.7 2002-01-18 23:23:41 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -19,7 +19,7 @@
      >                      ispin,ne,
      >                      npack1,nfft3d,nemax,
      >                      psi0,psi1,psi2,dn,
-     >                      it_in,E,
+     >                      it_in,it_sum,E,
      >                      hml,lmd,
      >                      Hpsi,psi_r)
       implicit none
@@ -30,7 +30,7 @@
       complex*16 psi1(npack1,nemax)
       complex*16 psi2(npack1,nemax)
       real*8     dn(2*nfft3d,2)
-      integer    it_in
+      integer    it_in,it_sum
       real*8     E(*)
       real*8     hml(2*nemax*nemax),lmd(2*nemax*nemax)
 
@@ -108,6 +108,8 @@ c     real*8     fion(3,natmx)
       external pspw_qmmm_Energy_pol
       external pspw_qmmm_Energy_vib
       external pspw_qmmm_Energy_cav
+      logical  dplot_iteration_check
+      external dplot_iteration_check
 
 
       call Parallel_np(np)
@@ -470,6 +472,15 @@ c     real*8     fion(3,natmx)
               call Nose_Newton_Step(eke,eki)
           end if
         end if
+
+
+*       ********************
+*       **** call dplot ****
+*       ********************
+        if (dplot_iteration_check(it+it_sum)) then
+         call dplot_iteration((it+it_sum),ispin,ne,psi1,dn,psi_r)
+        end if
+
 
       end do
 *     ******************************************************

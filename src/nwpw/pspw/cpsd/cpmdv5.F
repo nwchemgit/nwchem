@@ -13,7 +13,7 @@
 
       logical function cpmdv5(rtdb)
 *
-* $Id: cpmdv5.F,v 1.13 2002-01-16 20:51:14 bylaska Exp $
+* $Id: cpmdv5.F,v 1.14 2002-01-18 23:23:41 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -328,6 +328,8 @@
 *     **** initialize QM/MM ****
       call pspw_qmmm_init(rtdb)
 
+*     **** initialize dplot ****
+      call dplot_iteration_init()
 
 
 
@@ -500,7 +502,7 @@
      >             dcpl_mb(psi1(1)),
      >             dcpl_mb(psi2(1)),
      >             dbl_mb(dn(1)),
-     >             1,E,
+     >             1,0,E,
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
      >             dcpl_mb(Hpsi(1)),dcpl_mb(psir(1)))
 
@@ -526,7 +528,8 @@
      >             dcpl_mb(psi1(1)),
      >             dcpl_mb(psi2(1)),
      >             dbl_mb(dn(1)),
-     >             it_in,E,
+     >             it_in,((icount-1)*it_in),
+     >             E,
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
      >             dcpl_mb(Hpsi(1)), dcpl_mb(psir(1)))
 
@@ -850,6 +853,7 @@
       call psp_end()
       call ion_end_FixIon()
       call pspw_qmmm_end()
+      call dplot_iteration_end()
 
       value = MA_free_heap(psir(2))
       value = MA_free_heap(Hpsi(2))

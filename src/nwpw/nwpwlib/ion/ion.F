@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.12 2002-01-18 01:54:32 bylaska Exp $
+* $Id: ion.F,v 1.13 2002-01-18 23:23:41 bylaska Exp $
 *
 
 *     ***************************
@@ -390,6 +390,53 @@ c     call ion_shift()
       ion_q = q
       return
       end
+
+*     ***********************
+*     *						*
+*     *	     ion_zv			*
+*     *						*
+*     ***********************
+*
+*     Used by dplot routines
+*
+      real*8 function ion_zv(i)
+      implicit none
+      integer i
+
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+
+*     **** local variables ****
+      integer rtdb
+      integer      l
+      real*8       q
+      character*4  element
+      character*20 name
+
+*     **** external functions ****
+      character*2 ion_aname
+      integer     control_rtdb
+      real*8      ion_q
+      external    ion_aname
+      external    control_rtdb
+      external    ion_q
+
+      rtdb   = control_rtdb()
+      element = '    '
+      element = ion_aname(i)
+      l = index(element,' ') - 1
+      name = element(1:l)//':valence_charge'
+      l = index(name,' ') - 1
+
+      if (.not.rtdb_get(rtdb,name(1:l),mt_dbl,1,q))
+     >   q = ion_q(i)
+
+      ion_zv = q
+      return
+      end
+
 
 
 

@@ -1,3 +1,6 @@
+*
+* $Id: pspw_dplot.F,v 1.6 2002-01-18 23:23:41 bylaska Exp $
+*
       logical function pspw_dplot(rtdb)
       implicit none
       integer rtdb
@@ -21,6 +24,7 @@
       integer psi2(2),dn(2),psir(2)
       real*8  cpu1,cpu2
       real*8  position_tolerance
+      character*8 tag
 
 *     **** external functions ****
       logical      control_read,ion_init
@@ -187,7 +191,8 @@
      >                npack1,nfft3d,nemax,
      >                dcpl_mb(psi2(1)),
      >                dbl_mb(dn(1)),
-     >                dcpl_mb(psir(1)))
+     >                dcpl_mb(psir(1)),
+     >                .false.,tag)
 
       value = value.and.rtdb_get(rtdb,'pspw_dplot:count',
      >                            mt_int,1,count)
@@ -338,7 +343,8 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
      >                      npack1,nfft3d,nemax,
      >                      psi,
      >                      dn,
-     >                      psi_r)
+     >                      psi_r,
+     >                      add_tag,tag)
       implicit none
       integer    rtdb
       integer    ispin,ne(2)
@@ -346,6 +352,8 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       complex*16 psi(npack1,nemax)
       real*8     dn(2*nfft3d,2)
       real*8     psi_r(2*nfft3d,nemax)
+      logical add_tag
+      character*8 tag
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -366,7 +374,7 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       character*72 cube_comment
       character*30 name1,name2
       character*30 filename
-      integer name1_len,name2_len,ind
+      integer name1_len,name2_len,ind,ind2
 
 
 *     **** external functions ****
@@ -397,7 +405,6 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 *     **** loop over orbital and density list ****
 *     ********************************************
 
-
       value = value.and.rtdb_get(rtdb,'pspw_dplot:count',
      >                            mt_int,1,count)
       do i=1,count
@@ -412,6 +419,12 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 
         value = rtdb_cget(rtdb,name1(1:name1_len),1,filename)
         ind = index(filename,' ') - 1
+        if (add_tag) then
+          ind2 = index(tag,' ') - 1
+          filename = filename(1:ind)//tag(1:ind2)
+          ind = index(filename,' ') - 1
+        end if
+
         value = value.and.rtdb_get(rtdb,name2(1:name2_len),
      >                           mt_int,1,number)
         if (.not.value)
@@ -431,9 +444,11 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 *          *** total ***
 *          *************
  710       call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho(1)))
+           if (.not.add_tag) then
            if (taskid.eq.MASTER) then
              write(*,*) '   writing total density',
      >                  ' to filename: ',filename(1:ind)
+           end if
            end if
            cube_comment = "SCF Total Density"
            goto 790
@@ -442,9 +457,11 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 *          *** difference ***
 *          ******************
  720       call D3dB_rr_Sub(1,dn(1,1),dn(1,ispin),dbl_mb(rho(1)))
+           if (.not.add_tag) then
            if (taskid.eq.MASTER) then
              write(*,*) '   writing difference density',
      >                  ' to filename: ',filename(1:ind)
+           end if
            end if
            cube_comment = "SCF Spin Density"
            goto 790
@@ -453,9 +470,11 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 *          *** alpha ***
 *          *************
  730       call D3dB_r_Copy(1,dn(1,1),dbl_mb(rho(1)))
+           if (.not.add_tag) then
            if (taskid.eq.MASTER) then
              write(*,*) '   writing alpha density',
      >                  ' to filename: ',filename(1:ind)
+           end if
            end if
            cube_comment = "SCF Alpha Density"
            goto 790
@@ -464,9 +483,11 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 *          *** beta ***
 *          ************
  740       call D3dB_r_Copy(1,dn(1,ispin),dbl_mb(rho(1)))
+           if (.not.add_tag) then
            if (taskid.eq.MASTER) then
              write(*,*) '   writing beta density',
      >                  ' to filename: ',filename(1:ind)
+           end if
            end if
            cube_comment = "SCF Beta Density"
            goto 790
@@ -483,9 +504,11 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
            call ke(1,nn,dbl_mb(rho(1)),dbl_mb(rho(1)))
            call Pack_c_unpack(1,dbl_mb(rho(1)))
            call D3dB_cr_fft3b(1,dbl_mb(rho(1)))
+           if (.not.add_tag) then
            if (taskid.eq.MASTER) then
              write(*,*) '   writing laplacian density',
      >                  ' to filename: ',filename(1:ind)
+           end if
            end if
            cube_comment = "SCF Laplacian Density"
            goto 790
@@ -509,9 +532,11 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
              call coulomb2_v(dbl_mb(rho(1)),dbl_mb(rho(1)))
              call pspw_add_core_pot(1.0d0,dbl_mb(rho(1)))
            end if
+           if (.not.add_tag) then
            if (taskid.eq.MASTER) then
              write(*,*) '   writing electrostatic potential',
      >                  ' to filename: ',filename(1:ind)
+           end if
            end if
            cube_comment = "SCF Electrostatic Potential"
            goto 790
@@ -530,9 +555,11 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
            end if
           
            call D3dB_r_Copy(1,psi_r(1,number),dbl_mb(rho(1)))
+           if (.not.add_tag) then
            if (taskid.eq.MASTER) then
              write(*,*) '   writing orbital ',number, 
      >                  ' to filename: ',filename(1:ind)
+           end if
            end if
           cube_comment = 'SCF Molecular Orbitals'
         end if
