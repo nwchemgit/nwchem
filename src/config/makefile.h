@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.173 1996-09-26 00:25:22 d3g681 Exp $
+# $Id: makefile.h,v 1.174 1996-10-01 19:20:59 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -89,8 +89,8 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints  \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lddscf -lguess \
-                    -lvib -lutil -lrimp2 -lnwints -lideaz -lnwargos \
-                    -ldplot -lnwaprep -loimp2 -lproperty -lgapss
+                    -lvib -lutil -lrimp2 -lnwints -lideaz -lnwaprep -lnwargos \
+                    -ldplot -loimp2 -lproperty -lgapss
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
