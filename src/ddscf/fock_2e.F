@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, facj, fack,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.22 2001-11-29 22:33:52 bert Exp $
+c$Id: fock_2e.F,v 1.23 2002-01-05 01:14:54 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -140,7 +140,6 @@ c      write(*,*)'*** fock_2e: nfock =',nfock
      &   call errquit('fock_2e: dimension error in test',0)
       if (.not. bas_numbf(ao_basis, nbf))
      &   call errquit('fock_2e: basis set error:', 86)
-      write(0,*) ' nfock ',nfock
       dims(1) = nfock
       dims(2) = nbf
       dims(3) = nbf
@@ -158,7 +157,7 @@ cedo         call ga_zero(g_xc(ifock))
 cedo      enddo
 
       call fock_xc(geom1, nbf,ao_basis,
-     ,     nfock, vg_dens, g_xc,scftype)
+     ,     nfock, vg_dens, g_xc,scftype,.false.)
 chack
       if(ga_nodeid().eq.0) then
          if (.not.MA_Push_Get(MT_Dbl,nbf*nbf,'charge',l_buf,k_buf))
@@ -173,7 +172,7 @@ c     since there is no explicit way to pass in an XC scaling factor, yet
 c     the 2nd derivative code uses a scale factor of 8 for the OO part of
 c     the CPSCF RHS that needs to be applied to XC also.
             if (facj(ifock) .ne. 1d0 .and. facj(ifock) .ne. 8d0) then
-               write(*,*)'cant Scale XC matrix',ifock,' by',facj(ifock)
+               write(*,*)'f2ecant Scale XC Mx',ifock,' by',facj(ifock)
                ffac=fack(ifock)
                write(*,*)'*** Scaling XC matrix',ifock,' by',ffac
 !               call errquit('Unexpected XC scale factor in fock_2e',0)
@@ -209,7 +208,7 @@ c     !!! BGJ test !!!
       return
       end
       subroutine dft_3dget(g_fock,buf,imat,nbf)
-C$Id: fock_2e.F,v 1.22 2001-11-29 22:33:52 bert Exp $
+C$Id: fock_2e.F,v 1.23 2002-01-05 01:14:54 edo Exp $
       implicit none
       integer g_fock
       integer imat

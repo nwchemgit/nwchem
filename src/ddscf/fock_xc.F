@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
-     ,     nmat, g_dens, g_xc,scftype)
+     ,     nmat, g_dens, g_xc,scftype,l3d)
 c
-c     $Id: fock_xc.F,v 1.14 2001-11-16 02:08:33 edo Exp $
+c     $Id: fock_xc.F,v 1.15 2002-01-05 01:14:55 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -25,6 +25,7 @@ c
       integer g_dens(nmat)      ! [input] array of handles to densities
       integer g_xc              ! [input] array of handles to XC matrices
       integer calc_type         ! [input] type of XC matrix calculation
+      logical l3d
 c                               !  *** from rtdb
 c                               !  ******* !!! document here !!!
 c
@@ -43,6 +44,8 @@ c
       double precision Exc_dum(2), rho_n_dum,tdum
       logical cphf_tddft
       integer ioff, joff
+      integer dft_npatch
+      external dft_npatch
 c
       if(.not.xc_gotxc()) return
       ipol=1
@@ -85,7 +88,12 @@ c
      &     call errquit('fock_xc: cannot allocate g_dens_local',0)
       if(ipol.eq.1)then
          do imat = 1, nmat
+            if(l3d) then
+            int_mb(k_g_dens_local+imat-1) =
+     =           dft_npatch(g_dens,imat,nbf_ao,geom,ao_bas_han)
+            else
             int_mb(k_g_dens_local+imat-1) = g_dens(imat)
+            endif
          enddo
       else if(ipol.eq.2)then 
          do imat = 1, nmat/ipol
@@ -152,6 +160,16 @@ c
 c
 c     Clean up
 c
+      if(l3d) then
+         if(ipol.eq.1)then
+            do imat = 1, nmat
+               if (.not. ga_destroy(int_mb(k_g_dens_local+imat-1)))
+     &     call errquit('fock_xc: could not destroy scf densit1',imat)
+            enddo
+         else
+            call errquit(' ipol222 fockxc ',0)
+         endif
+      endif
       call xc_exit_index(l_cntoce, l_cntobfr, l_cetobfr, l_rdens_atom)
 c
       if (calc_type .eq. 2) then
@@ -173,5 +191,36 @@ c
          call ga_print(g_xc)
          write(*,*)'--------Leaving fock_xc-------------'
       endif
+      return
+      end
+      integer function dft_npatch(g_dens,imat,nbf,geom,basis)
+      implicit none
+      integer g_dens ! N-D GA
+      integer imat
+      integer g_dens1 ! 2-D GA
+      integer nbf
+      integer geom,basis
+c
+      
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+      integer alo(3), ahi(3), blo(2), bhi(2)
+c
+c     2-d GA dens1 
+c
+      g_dens1 = ga_create_atom_blocked(geom,basis,'gdens1')
+      alo(1) = imat
+      ahi(1) = imat
+      alo(2) = 1
+      ahi(2) = nbf
+      alo(3) = 1
+      ahi(3) = nbf
+      blo(1) = 1
+      bhi(1) = nbf
+      blo(2) = 1
+      bhi(2) = nbf
+
+      call nga_copy_patch('N',g_dens,alo,ahi,g_dens1,blo,bhi)
+      dft_npatch=g_dens1
       return
       end
