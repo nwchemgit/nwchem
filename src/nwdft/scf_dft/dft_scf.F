@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.18 1995-12-18 04:29:16 og845 Exp $
+C$Id: dft_scf.F,v 1.19 1995-12-20 02:16:10 og845 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -826,7 +826,7 @@ c
         
         if (.not.
      &       movecs_write(movecs_out, 'Kohn-Sham orbitals',
-     &       'AO_basis',
+     &       'ao basis',
      &       nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &       dbl_mb(ISbn2(1)), nbf_ao, g_evecs))
      &       call errquit('dft_scf: movec_write failed', 0)
@@ -929,7 +929,7 @@ c****     Should distinguish occupied and virtual here...
 c****     
           if (.not.
      &         movecs_write(movecs_out, 'Kohn-Sham orbitals',
-     &         'Unknown',
+     &         'ao basis',
      &         nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &         dbl_mb(ISbn2(1)), nbf_ao, g_evecs))
      &         call errquit('rhf: movec_write failed', 0)

@@ -24,7 +24,7 @@ c       'geom' -> handle to geometry to use for the calculation
 c                     (no default)
 c
 c       'ao_basis' -> handle to basis set to use for the calculation
-c                     (defaults to 'AO_basis')
+c                     (defaults to 'ao basis')
 c
 c       'scftype' -> name of function to use (rhf,rohf,uhf)
 c                    (defaults to rhf currently)
@@ -114,19 +114,19 @@ c
      $     call errquit('grad_dft: geom_create?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      $     call errquit('grad_dft: no geometry ', 0)
-      if (.not. bas_create(ao_basis, 'AO_basis'))
+      if (.not. bas_create(ao_basis, 'ao basis'))
      $     call errquit('grad_dft: bas_create?', 0)
         bases(1)=ao_basis
-      if (.not. bas_rtdb_load(rtdb, geom, ao_basis, 'AO_basis'))
-     $     call errquit('grad_dft: no AO_basis ', 0)
+      if (.not. bas_rtdb_load(rtdb, geom, ao_basis, 'ao basis'))
+     $     call errquit('grad_dft: no ao basis ', 0)
       if(.not. int_normalize(ao_basis))
      $     call errquit('grad_dft: normalization failed',911)
 C
 C     initialize CD basis (if exists)
 
-      if (.not. bas_create(cd_basis, 'CD_basis'))
+      if (.not. bas_create(cd_basis, 'cd basis'))
      &     call errquit('grad_dft: bas_create?',102)
-      CDFIT=bas_rtdb_load(rtdb, geom, cd_basis, 'CD_basis')
+      CDFIT=bas_rtdb_load(rtdb, geom, cd_basis, 'cd basis')
       if(CDFIT) then
         nbases=nbases+1
         bases(nbases)=cd_basis
