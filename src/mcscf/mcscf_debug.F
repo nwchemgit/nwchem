@@ -236,7 +236,6 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "util.fh"
 #include "sym.fh"
 #include "pstat.fh"

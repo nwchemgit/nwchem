@@ -1,0 +1,177 @@
+      subroutine mcscf_input(rtdb)
+c
+c $Id: mcscf_input.F,v 1.1 1996-07-26 16:31:35 d3g681 Exp $
+c
+      implicit none
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+c
+      integer rtdb
+c
+      integer ind               ! Index of matched directive
+      integer num_dirs          ! No. of known directives
+      integer num_profopt       ! No. of known profiling options
+      parameter (num_dirs = 13)
+      parameter (num_profopt = 1)
+      character*12 dirs(num_dirs)
+      character*12 prof_opt(num_profopt)
+      character*255 test, keyword
+      double precision conv, levelshift, tol2e
+      integer maxiter, nclosed, nact, multip, nel, pflg, statesym
+      data dirs / 'thresh',
+     $            'maxiter',
+     $            'level',
+     $            'tol2e',
+     $            'inactive',
+     $            'active',
+     $            'actelec',
+     $            'multiplicity',
+     $            'vectors',
+     $            'profile',
+     $            'symmetry',
+     $            'hessian',
+     $            'end'/
+      data prof_opt/ 'fock' /
+c
+c
+c
+      call context_push('mcscf')
+c
+c
+c
+ 10   if (.not. inp_read()) call errquit
+     $     ('mcscf_input: inp_read failed', 0)
+      if (.not. inp_a(test))
+     $     call errquit('mcscf_input: failed to read keyword', 0)
+      if (.not. inp_match(num_dirs, .false., test, dirs, ind))
+     $     call errquit('mcscf_input: unknown directive', 0)
+c
+c
+c
+      goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900, 1000,
+     $      1100, 1200,
+     $      9999) ind
+      call errquit('mcscf_input: unimplemented directive', ind)
+c     
+c  thresh <convergence threshold>
+c     
+ 100  if (.not. inp_f(conv)) call errquit
+     $     ('mcscf_input: failed reading convergence', 0)
+      if (.not. rtdb_put(rtdb, 'mcscf:thresh', mt_dbl, 1, conv))
+     $     call errquit('mcscf_input: rtdb_put failed', 0)
+      goto 10
+c
+c  maximum macro-iterations
+c
+ 200  if (.not. inp_i(maxiter)) call errquit
+     $     ('mcscf_input: failed reading maxiter', 0)
+      if (.not. rtdb_put(rtdb, 'mcscf:maxiter', mt_int, 1, maxiter))
+     $     call errquit('mcscf_input: rtdb_put failed', 0)
+      goto 10
+c
+c  level shift 
+c 
+ 300  if (.not. inp_f(levelshift)) call errquit
+     $     ('mcscf_input: level <levelshift>',0)
+      if (.not. rtdb_put(rtdb,'mcscf:lshift', MT_DBL, 1, levelshift))
+     $     call errquit('mcscf_input: rtdb_put of level failed',0)
+      goto 10
+c
+c  tol2e <real tol2e>
+c
+ 400  if (.not. inp_f(tol2e)) call errquit
+     $     ('mcscf_input: tol2e <tolerance>',0)
+      if (.not. rtdb_put(rtdb,'mcscf:tol2e', MT_DBL, 1, tol2e))
+     $     call errquit('mcscf_input: rtdb_put of tol2e failed',0)
+      goto 10
+c
+c  inactive <integer nclosed>
+c
+ 500  if (.not. inp_i(nclosed)) call
+     $  errquit('mcscf_input: inactive <inactive>',0)
+      if (.not. rtdb_put(rtdb,'mcscf:nclosed', MT_INT, 1, nclosed))
+     $     call errquit('mcscf_input: rtdb_put of nclosed failed',0)
+      goto 10
+c
+c  active <integer nact>
+c
+ 600  if (.not. inp_i(nact)) call
+     $  errquit('mcscf_input: active <active>',0)
+      if (.not. rtdb_put(rtdb,'mcscf:nact', MT_INT, 1, nact))
+     $     call errquit('mcscf_input: rtdb_put of nact failed',0)
+      goto 10
+c
+c  active electrons <integer actel>
+c
+ 700  if (.not. inp_i(nel)) call
+     $  errquit('mcscf_input: actelec <activeelec>',0)
+      if (.not. rtdb_put(rtdb,'mcscf:nactelec', MT_INT, 1, nel))
+     $     call errquit('mcscf_input: rtdb_put of nactel failed',0)
+      goto 10
+c
+c  spin multiplicity
+c
+ 800  if (.not. inp_i(multip)) call
+     $  errquit('mcscf_input: multiplicity <multi>',0)
+      if (.not. rtdb_put(rtdb,'mcscf:multiplicity', MT_INT, 1, multip))
+     $     call errquit('mcscf_input: rtdb_put of multip failed',0)
+      goto 10
+c
+c  vectors
+c
+ 900  call vectors_input(rtdb)
+      goto 10
+c
+c  profiling options
+c
+ 1000 if (.not. rtdb_put(rtdb,'mcscf:prof', MT_LOG, 1, .true.))
+     $  call errquit('mcscf_input: rtdb_put of profile failed',0)
+ 1001 continue
+      if (.not.inp_a(keyword)) goto 10
+      if (keyword.eq.'fock') then
+        if (.not.rtdb_put(rtdb,'mcscf:fockprof',MT_LOG,1,.true.))
+     $     call errquit('mcscf_input: rtdb_put of fockprof failed',0)
+      else if (keyword.eq.'ci') then
+        if (.not.rtdb_put(rtdb,'mcscf:ciprof',MT_LOG,1,.true.))
+     $     call errquit('mcscf_input: rtdb_put of ciprof failed',0)
+      else
+        call errquit('mcscf_input: unrecognized profiling option',0)
+      endif
+      goto 1001
+c
+c  state symmetry
+c
+c$$$ 1100 if (.not. inp_a(keyword))
+c$$$     $  call errquit('mcscf_input: symmetry <irrep>',0)
+c$$$      if (.not.rtdb_cput(rtdb, 'mcscf:statesymmlabel', 1, keyword ))
+c$$$     $  call errquit('mcscf_input: rtdb_cput of statesymm failed',0)
+c$$$      goto 1001
+c
+ 1100 if (.not.(inp_i(statesym)))
+     $  call errquit('mcscf_input: symmetry <irrep>',0)
+      if (.not.rtdb_put(rtdb,'mcscf:statesymmetry',MT_INT,1,statesym))
+     $  call errquit('mcscf_input: rtdb_put of statesym failed',0)
+      goto 1001
+c
+c  orbital Hessian exact/approx.
+c
+ 1200 if (.not. inp_a(keyword))
+     $  call errquit('mcscf_input: hessian (type>',0)
+      if (keyword.eq.'exact') then
+        pflg = 2
+      else if (keyword.eq.'onel') then
+        pflg = 1
+      else
+        call errquit('mcscf_input: hessian: unknown type',0)
+      endif
+      if (.not. rtdb_put(rtdb,'mcscf:hessiantype', MT_INT, 1, pflg))
+     $     call errquit('mcscf_input: rtdb_put of pflg failed',0)
+      goto 1001
+c
+c
+c
+ 9999 continue
+       call context_pop('mcscf')
+c     
+      end

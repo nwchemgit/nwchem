@@ -1,11 +1,10 @@
-       subroutine mcscf( rtdb )
+       logical function mcscf( rtdb )
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "util.fh"
 #include "sym.fh"
 #include "pstat.fh"
@@ -51,10 +50,8 @@ c
        data ohalf/.true./
        data blen/25/
 c
+       mcscf = .true.
 c
-c
-       if (.not. context_push('mcscf'))
-     $   call errquit('mcscf: context_push failed', 0)
        call util_print_push
        call util_print_rtdb_load(rtdb, 'mcscf')
        oprinfo = (util_print('information',print_default).and.
@@ -509,8 +506,6 @@ c
 c
 c
        call util_print_pop
-       if (.not. context_pop('mcscf'))
-     $   call errquit('context_pop failed',0)
        return
        end
 
