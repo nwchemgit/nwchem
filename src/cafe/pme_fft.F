@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.13 2000-04-21 17:39:48 d3j191 Exp $
+c $Id: pme_fft.F,v 1.14 2000-07-18 00:10:25 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -65,7 +65,7 @@ c
       map1(i)=knode(i)
       map2(i)=knode(i)
     1 continue
-c     
+c
       if(ngzloc.gt.0) then
       do 2 i=1,nd1*nd2*mgz*2
       x2(i)=x1(i)

@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.12 2000-04-21 21:55:48 d3j191 Exp $
+c $Id: pme_grid.F,v 1.13 2000-07-18 00:10:26 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -63,7 +63,7 @@ c
       return
       end
       subroutine pme_energy(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.12 2000-04-21 21:55:48 d3j191 Exp $
+c $Id: pme_grid.F,v 1.13 2000-07-18 00:10:26 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -168,7 +168,8 @@ c     pmenodes should wait until all nodes have finished contributions to the gr
 c
       call timer_stop(11)
       call timer_start(12)
-      call pme_sync(nodpme,nodep)
+      call ga_sync()
+cx      call pme_sync(nodpme,nodep)
 c
 c     retrieve local slab from global array space
 c
