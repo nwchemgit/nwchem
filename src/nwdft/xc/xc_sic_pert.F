@@ -4,7 +4,7 @@
      &                       cntobfr, cetobfr, natoms,
      &                       g_movecs, noc, k_eval, totsic)
 c
-C$Id: xc_sic_pert.F,v 1.4 1999-08-12 20:29:40 jolguin Exp $
+C$Id: xc_sic_pert.F,v 1.5 2000-02-03 17:55:37 jolguin Exp $
 c
       implicit none
 c      
@@ -49,7 +49,7 @@ c
       nproc=ga_nnodes()
 c
       tot=-xfac(1)
-      do i=1,10
+      do i=1,numfunc
         tot=tot+xfac(i)+cfac(i)
       enddo
 c
@@ -68,8 +68,8 @@ c
      &                                         'Densic')
            g_coul_orb = ga_create_atom_blocked(geom, ao_bas_han,
      &                                         'V_coul_orb')
-           tot_sic_xc=0.d0
-           tot_sic_coul=0.d0
+           tot_sic_xc = 0.d0
+           tot_sic_coul = 0.d0
            if (ipol.eq.2) then
              naux_ipol=2
              sic_orb_occ=1
@@ -144,7 +144,8 @@ c
            sic_orb_occ = 0
 c
            if (me.eq.0.and.oprint_sic) write(LuOut,*) 
-     &                                            ' tot_sic=',totsic
+     &    ' tot_sic_coul, tot_sic_xc, tot_sic: ',tot_sic_coul,
+     &                               tot_sic_xc, totsic
 c
            if (.not. ga_destroy(g_vxc_orb(1))) call errquit
      &      ('xc_sic_pert: could not destroy g_vxc_orb(1)', 0)
