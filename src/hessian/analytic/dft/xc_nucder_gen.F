@@ -1,6 +1,6 @@
       subroutine xc_hessian(g_dens, oactive, nactive, hess)
 c
-c     $Id: xc_nucder_gen.F,v 1.5 2000-05-05 02:03:04 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.6 2000-06-09 19:12:27 edo Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -20,7 +20,7 @@ c
 c
       subroutine xc_cpks_rhs(g_dens, oactive, nactive, g_rhs)
 c
-c     $Id: xc_nucder_gen.F,v 1.5 2000-05-05 02:03:04 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.6 2000-06-09 19:12:27 edo Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -41,7 +41,7 @@ c
       subroutine xc_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.5 2000-05-05 02:03:04 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.6 2000-06-09 19:12:27 edo Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -130,7 +130,6 @@ c
 c
       call dftgh_quadv0(rtdb, g_dens, 0d0, hess, g_rhs, calc_type,
      &                  natoms, oactive, nactive, dbl_mb(k_rdens_atom),
-     &                  int_mb(k_cntoce), int_mb(k_cntobfr),
      &                  int_mb(k_cetobfr))
 c
 c     Clean up indexing arrays
