@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.19 2003-04-22 18:05:11 bylaska Exp $
+* $Id: electron.F,v 1.20 2003-06-07 16:15:59 bylaska Exp $
 *
 
 
@@ -431,7 +431,7 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
-      dv = lattice_omega()/dble(nx*ny*nx)
+      dv = lattice_omega()/dble(nx*ny*nz)
 
       call D3dB_rr_dot(1,dn(1),
      >                   dcpl_mb(vc(1)),
@@ -1158,7 +1158,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
      
 *     **** local variables ****
       integer i
-      integer ms,nx,ny,nz,n2ft3d
+      integer ms,n2ft3d
       integer n,n1(2),n2(2)
       real*8  scal2
       integer tmp1(2)
@@ -1169,6 +1169,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       real*8   lattice_omega
       external psp_semicore
       external lattice_omega
+
 
       n1(1) = 1
       n1(2) = ne(1) + 1
@@ -1398,7 +1399,6 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     ***********************************
 
       subroutine electron_gen_scf_potentials(dn,dng,dnall)
-
       implicit none
       real*8     dn(*)
       complex*16 dng(*)
@@ -1416,6 +1416,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     **** external functions ****
       integer  control_gga,control_version
       external control_gga,control_version
+
      
       n2ft3d = 2*nfft3d
 
