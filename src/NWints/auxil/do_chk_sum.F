@@ -1,5 +1,5 @@
       logical function task_check_sum(rtdb)
-C$Id: do_chk_sum.F,v 1.6 1997-06-16 18:42:40 d3e129 Exp $
+C$Id: do_chk_sum.F,v 1.7 1997-06-28 08:16:56 d3e129 Exp $
       implicit none
       integer rtdb
 c
@@ -67,6 +67,8 @@ c
       if (.not. bas_create(ribasis, fit_basis_name))
      &     call errquit('do_int_chk_sum: basis create failed', 0)
       if (.not.bas_rtdb_load(rtdb, geom, ribasis, fit_basis_name)) then
+        if (.not.bas_destroy(ribasis)) call errquit
+     &      ('do_int_chk_sum:failed to destroy ribasis handle',911)
         ribasis = -1 
         ribasis_exist = .false.
       else
