@@ -17,6 +17,7 @@
       logical geom_get_efield
       logical geom_print
       logical geom_tag_to_element
+      logical geom_charge_center
 c
       external geom_check_handle
       external geom_check_cent
@@ -37,3 +38,4 @@ c
       external geom_get_efield
       external geom_print
       external geom_tag_to_element
+      external geom_charge_center

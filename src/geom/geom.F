@@ -748,6 +748,18 @@ c
       write(6,41) erep(geom)
  41   format(/' Effective nuclear repulsion energy (au) ', f18.10/)
 c
+         write(6,91)
+ 91      format('             Nuclear Dipole moment (au) ')
+         write(6,101)
+ 101     format('             --------------------------')
+         write(6,111)
+ 111     format('        X                 Y               Z'/
+     $        ' ---------------- ---------------- ----------------')
+         write(6,121) (ndipole(i,geom), i=1,3)
+ 121     format(' ',3f17.10)
+         write(6,*)
+c
+c
       if (operiodic(geom)) then
          write(6,5)
  5       format('         Periodic lattice vectors (au) ')
@@ -860,5 +872,40 @@ c
       element = ' '
       atn = 0
       return
+c
+      end
+      logical function geom_charge_center(geom)
+      implicit none
+#include "geomP.fh"
+      integer geom              ! [input]
+      integer i, k
+      double precision qsum, shift(3)
+      logical geom_check_handle
+      external geom_check_handle
+c
+c     Adjust the cartesian coordinates so that the nuclear
+c     dipole moment is zero ... i.e., the origin of the 
+c     coordinate system is at the center of charge
+c
+      geom_charge_center = geom_check_handle(geom,'geom_charge_center')
+      if (.not. geom_charge_center) return
+      call geom_compute_values(geom)
+      qsum = 0.0d0
+      do i = 1, ncenter(geom)
+         qsum = qsum + charge(i,geom)
+      enddo
+c
+      if (qsum .eq. 0.0d0) return ! System is charge neutral
+c
+      do k = 1, 3
+         shift(k) = ndipole(k,geom)/qsum
+      enddo
+      do i = 1, ncenter(geom)
+         do k = 1, 3
+            coords(k,i,geom) = coords(k,i,geom) - shift(k)
+         enddo
+      enddo
+c     
+      call geom_compute_values(geom)
 c
       end

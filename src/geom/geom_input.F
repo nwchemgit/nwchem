@@ -59,6 +59,7 @@ c
          goto 10
       endif
 c
+      if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
      $     ('geom_input: geom_create failed !', 0)
 c     
@@ -89,12 +90,14 @@ c
  30   if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
      $     call errquit('geom_input: geom_cart_set failed', 0)
 c
+      if (.not. geom_charge_center(geom)) call errquit
+     $     ('geom_input: geom_charge_center failed', 0)
+c
       if (oprint) then
          if (.not. geom_print(geom))
      $        call errquit('geom_input: print failed ', 0)
       endif
 c
-      if (name .eq. ' ') name = 'geometry'
       if (.not. geom_rtdb_store(rtdb, geom, name))
      $     call errquit('geom_input: geom_rtdb_store failed', 0)
 c
