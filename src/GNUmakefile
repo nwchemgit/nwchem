@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.56 1997-04-25 01:33:50 d3e129 Exp $
+# $Id: GNUmakefile,v 1.57 1997-04-28 22:53:05 d3e129 Exp $
 
 include config/makefile.h
 
@@ -118,6 +118,7 @@ cleanF:
         done
 
 sngl_to_dbl dbl_to_sngl:
+	@$(MAKE) directories
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
