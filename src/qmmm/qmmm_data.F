@@ -17,16 +17,16 @@ c
       character*32 interface
       character*32 link_ecp
       real*8 eatoms,qatoms
-      logical xyz,xyzq,fixlinks,fixqm
+      logical xyz,xyzq,fixqm
       integer linkatm,bq_exclude
       character*30 operation
 
       pname = "qmmm_data_init: "
 
       master = ga_nodeid().eq.0
+      fixlinks = .false.
 
       eatoms = 0.0d0
-      fixlinks = .false.
       linkatm=qmmm_halogen
       bq_exclude=qmmm_hydrogen
       optimization = "qm"
@@ -410,6 +410,17 @@ c     -------------------
       logical qmmm_master
 
       qmmm_master = master
+
+      end 
+
+      function qmmm_fixlinks()
+      implicit none
+#include "qmmm_data.fh"
+#include "qmmm_params.fh"
+
+      logical qmmm_fixlinks
+
+      qmmm_fixlinks = fixlinks
 
       end 
 

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.24 2004-10-15 18:35:32 marat Exp $
+c $Id: qmmm_geom.F,v 1.25 2004-10-18 23:55:38 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -29,7 +29,6 @@ c     local variables
       integer qmmm_geom_heavy_neighbor
       external qmmm_geom_heavy_neighbor
       integer tmp(2)
-      logical fixlinks
       integer nb
 
       nqm   = qmmm_get_nqm()
@@ -104,11 +103,7 @@ c
         end if
       end if
 
-      if (.not.rtdb_get(irtdb,'qmmm:fixlinks',mt_log,1,fixlinks))
-     + call errquit('qmmm_geom: failed to get qmmm:fixlinks',
-     &       0,RTDB_ERR)
-        
-      if(fixlinks .and. nlink.gt.0) then
+      if(qmmm_fixlinks() .and. nlink.gt.0) then
 
         namespace = "qmmm-cons"
         if(.not. rtdb_cput(irtdb,"constraints" , 1, namespace)) then

@@ -66,6 +66,7 @@ c
         goto 2 
 
       end if
+c
       if (token.eq.'fix') then
         if(.not.inp_a(token)) call errquit(' no fix option',0,
      &         INPUT_ERR)
@@ -90,6 +91,7 @@ c
         endif
        goto 2 
       end if
+c
       if (token.eq.'xyzq') then
         xyzq = .true.
         tag="qmmm:xyz"
@@ -149,7 +151,7 @@ c
      >       RTDB_ERR)
           goto 2
       endif
-cc
+c
       if(token.eq.'interface') then
         if(.not.inp_a(token)) then
          write(*,*) "please provide an option for interface"
@@ -174,7 +176,7 @@ cc
           call errquit('qmmm_input: invalid option',0, INPUT_ERR)
         endif
       endif
-cc
+c
       if(token.eq.'bq_exclude') then
       tag="qmmm:bq_exclude"
       if(.not.inp_a(token)) call errquit('qmmm_input:  bq_exclude ',0,
