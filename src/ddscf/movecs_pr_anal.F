@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.8 1998-06-12 21:40:36 d3h449 Exp $
+* $Id: movecs_pr_anal.F,v 1.9 1998-07-02 20:29:37 ng972 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -27,7 +27,7 @@ c
 c     Print a summary of the MO vectors in the specified range.
 c
       integer l_vecs, k_vecs, i, j, k_tags, l_tags, k_list, l_list
-      integer n, k, m, klo, khi, nbf, ibuf
+      integer n, k, m, klo, khi, ibuf
       character buf*80
       double precision cur_thresh
 c  
