@@ -1,0 +1,20 @@
+#!/bin/csh 
+#
+# $Id: cvs-tools,v 1.1 2000-09-08 15:00:01 gg502 Exp $
+#
+# The subdirectories of tools come from a separate repository, and the
+# presence of the CVS directory here will make cvs look at only the
+# files here from the NWChem repository and not recurse.  So to do cvs
+# operations on the subdirectories, we temporarily move CVS away, and
+# move it back when we're done.  Trapping interrupts means that we
+# should always be leaving things in a consistent state even if the
+# user interrupts the cvs command.
+
+onintr restore
+
+mv CVS CVS0
+
+cvs $*
+
+restore:
+mv CVS0 CVS

@@ -1,7 +1,10 @@
 #
-# $Id: README,v 1.2 1999-07-27 21:04:57 d3e129 Exp $
+# $Id: README,v 1.3 2000-09-08 15:00:01 gg502 Exp $
 #
 
-Tools libraries reside under /msrc/proj/hpctools AFS volume.
-Use get-tools script to checkout the files for the first time.
-Use get-tools-remote for remote checkouts 
+Tools libraries reside under /msrc/proj/hpctools AFS volume.  Use
+get-tools script to checkout the files for the first time.  get-tools
+tries to figure out if you have local access to the repository, and if
+not looks at the EMSL_USER environment variable to setup a reasonable
+CVSROOT.  For more complex situations, you may need to modify the
+script.

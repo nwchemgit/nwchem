@@ -1,32 +1,41 @@
 #!/bin/csh
 #
-# $Id: get-tools,v 1.5 1999-07-29 18:09:35 d3h325 Exp $
+# $Id: get-tools,v 1.6 2000-09-08 15:00:01 gg502 Exp $
 #
 # We need to rename CVS associated with nwchem repository while
 # checking out tools for the first time
 
-# get-tools [version]
+# get-tools [arguments to cvs co]
 
-if ($#argv == 0) then
-   set version = ' '
-else if ($#argv == 1) then
-   set version = $1
+set repos = /msrc/proj/hpctools
+
+# Try to be smart about setting CVSROOT
+
+if ( -d $repos ) then
+    setenv CVSROOT $repos
 else
-   echo ' Usage:  get-tools [version] '
-   exit 1
+    if ( $?EMSL_USER ) then
+	setenv CVSROOT :ext:${EMSL_USER}@fermi.emsl.pnl.gov:${repos}
+    else
+	echo "${0}: I can't figure out how to set CVSROOT for you."
+	echo "${0}: Try setting the EMSL_USER environment variable"
+	echo "${0}: or modify this script with a specific value."
+	exit 1
+    endif
 endif
 
+# If all else fails, try commenting out the above and setting
+# something explicitly here.
+# setenv CVSROOT :ext:gg502@fermi.emsl.pnl.gov:${repos}
+
+
+echo "${0}: using CVSROOT=$CVSROOT"
+
+onintr restore
+
 mv CVS CVS0
-setenv CVSROOT /msrc/proj/hpctools
-set subdirs = "config global armci LinAlg pario ma tcgmsg tcgmsg-mpi server"
-foreach d ( $subdirs )
-   if ("$version" == " ") then
-     echo "cvs co $d"
-     cvs co $d
-   else
-     echo "cvs co -r $version $d"
-     cvs co -r $version $d
-   endif
-end
-# restore the nwchem CVS directory 
+
+cvs co $* nwchem-tools
+
+restore:
 mv CVS0 CVS
