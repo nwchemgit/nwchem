@@ -43,7 +43,7 @@ c******************************************************************************
 #if defined(DFT_TIMER)
       call ga_sync
       call t_stat(10,-1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
       nproc  = ga_nnodes()
       me = ga_nodeid()
@@ -150,10 +150,10 @@ c
   240 continue
 c
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(1)='  Tvec    '
       call tcllct(t_sub(1,1),ts2,ts1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
 c
       LResult = MA_Pop_Stack(lscr)
@@ -163,10 +163,10 @@ c
       n1 = nxtask(-nproc,icount)
       call ga_dgop(Msg_gop_Tvec,Dbl_MB(iTvec),nbf_cd,'+')
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(2)='  DGOP    '
       call tcllct(t_sub(1,2),ts2,ts1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
 c      
 c     Compute the CD expansion coefficients.
@@ -201,10 +201,10 @@ c
       call ga_sync
       
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(3)='  Int_cgtf'
       call tcllct(t_sub(1,3),ts2,ts1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
 c
 c     Compute the Lagrange Multiplier, alpha.
@@ -213,14 +213,14 @@ c
         call gacrea(geom,CD_bas_han,
      &       nbf_cd,nbf_cd,'CD 2cERInv',iga_cdinv,'row')
         if(me.eq.0)
-     &       call invio('CDI',iga_cdinv,nbf_cd,'READ',lmiss)
+     &       call dft_invio('CDI',iga_cdinv,nbf_cd,'READ',lmiss)
         call ga_sync
       endif
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(4)='  RD CDinv'
       call tcllct(t_sub(1,4),ts2,ts1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
       call ga_sync
       
@@ -289,7 +289,7 @@ c
       LResult = MA_Pop_Stack(lTvec)
       
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(5)='  cd_coef '
       call tcllct(t_sub(1,5),ts2,ts1)
 #endif

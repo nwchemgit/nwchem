@@ -2,7 +2,7 @@
      &                   Tmat,nTrows,nTcols,
      &                   idirect,iga_vxc,iga_xcinv,IOLGC)
 
-C$Id: xc_fitv.F,v 1.2 1995-04-26 18:12:40 og845 Exp $
+C$Id: xc_fitv.F,v 1.3 1995-04-27 03:16:56 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -97,7 +97,7 @@ c
 c     Compute the XC fitting coefficients.
 c
 #if defined(DFT_TIMER)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
 c
       ndbl = nbf_xc*nTcols
@@ -110,15 +110,15 @@ c
      &     call gacrea(
      &     geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',iga_xcinv,'row')
       if(me.eq.0.and.IOLGC) then
-        call invio('XC',iga_xcinv,nbf_xc,'READ',lmiss)
+        call dft_invio('XC',iga_xcinv,nbf_xc,'READ',lmiss)
       endif
       call ga_sync
 c
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(1)='  XC READ '
       call tcllct(t_sub(1,1),ts2,ts1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
 c
       next=nxtval(nproc)+1
@@ -142,10 +142,10 @@ c     *         1,nbf_xc,k,k,Dbl_MB(iscr),1)
       if(IOLGC)  call gadest(iga_xcinv)
 c
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(2)='  xc_coef '
       call tcllct(t_sub(1,2),ts2,ts1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
 c
 c     Compute the fitted Vxc.
@@ -232,10 +232,10 @@ c
         call ga_sync
 c
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(3)='  Vxc     '
       call tcllct(t_sub(1,3),ts2,ts1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
 c
       LResult = MA_Pop_Stack(lscr2)
@@ -247,7 +247,7 @@ c
       n1 = nxtval(-nproc)
 c
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(4)='  DGOP    '
       call tcllct(t_sub(1,4),ts2,ts1)
 #endif

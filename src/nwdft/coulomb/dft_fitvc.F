@@ -1,6 +1,6 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
      &     iga_vc, Ecoul2, nbf_cd, iga_2ceri,IOLGC,itol2e)
-C$Id: dft_fitvc.F,v 1.1 1995-04-26 03:43:36 og845 Exp $
+C$Id: dft_fitvc.F,v 1.2 1995-04-27 03:16:02 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       
@@ -36,7 +36,7 @@ c
 #if defined(DFT_TIMER)
       call ga_sync
       call t_stat(10,-1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
       THRESHOLD=10.d0**(-itol2e)
 c      
@@ -90,7 +90,7 @@ c
         call gacrea(geom,CD_bas_han,
      &       nbf_cd,nbf_cd,'CD 2cERI',iga_2ceri,'row')
         if(me.eq.0)
-     &       call invio('CD',iga_2ceri,nbf_cd,'READ',lmiss)
+     &       call dft_invio('CD',iga_2ceri,nbf_cd,'READ',lmiss)
         call ga_sync
       endif
 c      
@@ -122,10 +122,10 @@ c
       n2 = 0
 c
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(1)='  Pre-fit '
       call tcllct(t_sub(1,1),ts2,ts1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
 c      
       do 240 ishc = 1,nshells_ao
@@ -211,10 +211,10 @@ c
       LResult = MA_Pop_Stack(lsvec)
 c
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(2)='  Vcoul   '
       call tcllct(t_sub(1,2),ts2,ts1)
-      call second(ts1)
+      call dft_second(ts1)
 #endif
 c
       n1 = nxtask(-nproc,icount)
@@ -246,7 +246,7 @@ c
       LResult = MA_Pop_Stack(lscr)
 c      
 #if defined(DFT_TIMER)
-      call second(ts2)
+      call dft_second(ts2)
       subsect(3)='  Ecoul2  '
       call tcllct(t_sub(1,3),ts2,ts1)
 #endif

@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.16 1995-04-26 18:09:36 og845 Exp $
+C$Id: nwdft.F,v 1.17 1995-04-27 03:15:55 og845 Exp $
       implicit real*8 (a-h,o-z)
       logical LResult
       logical CDFIT,XCFIT
@@ -46,7 +46,7 @@ c
 c-->  Gather input from all available resources e.g. input unit,
 c     old checkpoint files, etc.
 c
-      call rdinput(rtdb, geom, AO_bas_han, 
+      call dft_rdinput(rtdb, geom, AO_bas_han, 
      &             CD_bas_han, XC_bas_han, Int_MB(ickcon), 200)
 c     
 c--> determine system type (molecule, polymer,surface,crystal)
@@ -56,12 +56,12 @@ c
      &    itype = 0
 c
       if(itype.eq.0) then
-        call scfdriver(rtdb,  geom, AO_bas_han, 
+        call dft_main0d(rtdb,  geom, AO_bas_han, 
      &       CD_bas_han, XC_bas_han, Int_MB(ickcon), 200)
       elseif(itype.eq.3) then
         if(.not. geom_ncent(geom,ncent))
      &     call errquit('nwdft: ncent get failed',0)
-        call main3d(geom,rtdt,ncent,AO_bas_han,CD_bas_han,XC_bas_han)
+        call main3d(geom,rtdb,ncent,AO_bas_han,CD_bas_han,XC_bas_han)
       else
         call errquit('nwdft: problem with system type',0)
       endif

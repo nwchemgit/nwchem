@@ -1,9 +1,9 @@
-# $Id: GNUmakefile,v 1.6 1994-11-27 10:25:37 og845 Exp $
+# $Id: GNUmakefile,v 1.7 1995-04-27 03:16:09 og845 Exp $
 
       OBJ = \
-	inpana.o \
-	rdinput.o			   \
-	setquad.o
+	dft_inpana.o \
+	dft_rdinput.o			   \
+	xc_setquad.o dft_banner.o
 
      LIBRARY = libnwdft.a
 
