@@ -1,5 +1,5 @@
       subroutine input_parse(rtdb)
-C     $Id: input_parse.F,v 1.19 1995-10-24 19:56:26 rg240 Exp $
+C     $Id: input_parse.F,v 1.20 1995-11-07 09:20:21 apsmith Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -13,7 +13,7 @@ c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       logical status, echo
-      parameter (num_dirs = 24)
+      parameter (num_dirs = 50)
       character*8 dirs(num_dirs)
       character*255 test
       data dirs /
@@ -21,7 +21,12 @@ c
      $     'task',     'time',     'set'     , 'enter',    'stop',
      $     'title',    'start',    'restart' , 'stepper',  'echo',
      $     'charge',   'dft',      'md',       'gradient', 'ccsd',
-     $     'print',    'noprint',  'unset',    'mcscf'/
+     $     'print',    'noprint',  'unset',    'mcscf',    'plnwv',
+     $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
+     $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
+     $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
+     $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
+     $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv' /
       data echo /.false./
 c     
 c     Only process 0 is involved here
@@ -52,7 +57,7 @@ c
          call inp_prev_field
          goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
      $        1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
-     $        2000, 2100, 2200, 2300, 2400) ind
+     $        2000, 2100, 2200, 2300, 2400, 2500) ind
          call errquit('input_parse: unimplemented directive', ind)
 c     
 c     Memory ... already handled by input_mem_size() but will soon
@@ -167,6 +172,12 @@ c     MCSCF
 c
  2400    call mcscf_input(rtdb)
          goto 10
+c
+c     PLNWV
+c
+ 2500    call plnwv_input(rtdb)
+         goto 10
+c     
 c     
       endif
 c     
