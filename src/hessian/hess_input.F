@@ -1,6 +1,6 @@
       subroutine hess_input(rtdb)
 *
-* $Id: hess_input.F,v 1.1 2001-04-05 22:25:04 windus Exp $
+* $Id: hess_input.F,v 1.2 2001-12-19 22:55:34 windus Exp $
 *
       implicit none
 #include "inp.fh"
@@ -9,6 +9,7 @@
 #include "mafdecls.fh"
 c
       integer rtdb
+      double precision conv
       character*255 field
 c
 c     ----- read values from input -----
@@ -29,6 +30,11 @@ c
          if (.not. rtdb_put(rtdb,'hess:pstat', MT_LOG, 1, .true.))
      $      call errquit('hess_input:rtdb_put of pstat failed', 0)
 c
+      else if (inp_compare(.false.,'thresh',field)) then
+         if (.not. inp_f(conv)) call errquit
+     $        ('hess_input: failed reading convergence', 0)
+         if (.not. rtdb_put(rtdb, 'hessian:thresh', mt_dbl, 1, conv))
+     $        call errquit('scf-input: rtdb_put failed', 0)
       else
          call errquit('hess_input: unknown directive',0)
       endif
