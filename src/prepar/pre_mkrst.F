@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain)
 c
-c $Id: pre_mkrst.F,v 1.24 1998-11-06 19:12:07 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.25 1998-11-18 01:19:57 d3j191 Exp $
 c
       implicit none
 c
@@ -29,8 +29,8 @@ c
       character*80 source,card,cfix
       character*1 altloc,chain
 c
-      integer nsa,nwa,nwm,nmis,npbtyp,noe,nwms,nwas,mwmc,nwmc,mat
-      integer msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
+      integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
+      integer mat,msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
       integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix
 c
@@ -73,6 +73,7 @@ c
       xmax(2)=0.0d0
       xmax(3)=0.0d0
       rshell=1.2d0
+      nbxtyp=0
 c
 c     allocate memory
 c     ---------------
@@ -295,7 +296,7 @@ c
 c     write the restart file
 c     ----------------------
 c
-      if(.not.pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,box,
+      if(.not.pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
@@ -467,7 +468,7 @@ c
       if(.not.ma_alloc_get(mt_int,mwmc,'wcmr',l_wcmr,i_wcmr))
      + call errquit('ma_alloc_get failed for wcmr',9999)
       lcryst=.true.
-      if(.not.pre_rdrst(lfnout,lfnrst,filnam,npbtyp,box,
+      if(.not.pre_rdrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
@@ -601,7 +602,7 @@ c
       filnam=card(8:80)
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filrst
-      if(.not.pre_wrtrst(lfnout,lfnrst,filnam,npbtyp,box,
+      if(.not.pre_wrtrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
@@ -636,6 +637,7 @@ c     determine type of solvation box
 c     -------------------------------
 c
       islv=0
+      nbxtyp=0
       if(card(8:11).eq.'cube') then
       if(card(17:17).eq.' ') then
       box(1)=box(1)+rshell
@@ -675,6 +677,21 @@ c
       box(2)=edge
       box(3)=edge
       islv=2
+      endif
+      if(card(8:12).eq.'troct') then
+      if(card(18:18).eq.' ') then
+      box(1)=box(1)+rshell
+      box(2)=box(2)+rshell
+      box(3)=box(3)+rshell
+      edge=max(box(1),box(2),box(3))
+      else
+      read(card(13:24),'(f12.6)',err=9999) edge
+      endif
+      box(1)=edge
+      box(2)=edge
+      box(3)=edge
+      islv=3
+      nbxtyp=2
       endif
       if(islv.eq.0) call errquit('Illegal solvation type',9999)
       if(util_print('where',print_debug)) then

@@ -1,15 +1,16 @@
-      logical function pre_rdrst(lfnout,lfnrst,filrst,npbtyp,box,
+      logical function pre_rdrst(lfnout,lfnrst,filrst,
+     + npbtyp,nbxtyp,box,
      + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.4 1998-08-26 23:20:30 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.5 1998-11-18 01:19:57 d3j191 Exp $
 c
       implicit none
 c
       integer lfnrst,lfnout
       integer mwm,mwa,nwm,nwa,msa,nsa,mnoe,noe,msm,nsm,mwmc,nwmc
-      integer npbtyp
+      integer npbtyp,nbxtyp
       character*255 filrst
       real*8 xw(3,mwa,mwm),xs(3,msa),vw(3,mwa,mwm),vs(3,msa),box(3)
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),dnoe(5,mnoe)
@@ -33,8 +34,8 @@ c
 c
       read(lfnrst,1001) rdummy,rstdat,rsttim
  1001 format(///,f12.6,2a10)
-      read(lfnrst,1002) npbtyp,box
- 1002 format(i5,3f12.6)
+      read(lfnrst,1002) npbtyp,box,nbxtyp
+ 1002 format(i5,3f12.6,7x,i5)
       read(lfnrst,1003) kinsep
  1003 format(40x,i5)
       read(lfnrst,1004) rdummy,rdummy,rdummy

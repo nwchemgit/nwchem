@@ -2,7 +2,7 @@
      + mwms,mwa,nwms,nwa,touch,box,iwmr,xw,vw,
      + mwm,nwm,xs,msa,nsa,xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_solvat.F,v 1.3 1998-07-14 15:47:30 d3j191 Exp $
+c $Id: pre_solvat.F,v 1.4 1998-11-18 01:19:58 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       real*8 box(3),boxs(3),touch
 c
       integer i,j,k,is,ix,iy,iz,nx,ny,nz
-      real*8 boxh(3),xc(3),touch2,x,y,z
+      real*8 boxh(3),xc(3),touch2,x,y,z,pbc
       logical ltry
 c
       if(islv.eq.0.or.nwms.le.0) goto 9999
@@ -49,7 +49,7 @@ c
       z=xc(3)+dble(iz)*boxs(3)
 c
       ltry=.false.
-      if(islv.eq.1) then
+      if(islv.eq.1.or.islv.eq.3) then
       ltry=abs(x).lt.boxh(1).and.abs(y).lt.boxh(2).and.abs(z).lt.boxh(3)
       elseif(islv.eq.2) then
       ltry=(x*x+y*y+z*z).le.boxh(1)*boxh(1)
@@ -66,8 +66,13 @@ c
      + .lt.touch2) goto 9
    12 continue
    11 continue
+      endif 
+      if(islv.eq.3) then
+      pbc=aint(4.0d0*
+     + (abs(x)/box(1)+abs(y)/box(2)+abs(z)/box(3))/3.0d0)
+      if(pbc.ne.0.0d0) goto 9
       endif
-      if(nwm.ge.mwm) call errquit('pre_solvat: increase mwm',9999) 
+      if(nwm.ge.mwm) call errquit('pre_solvat: increase mwm',9999)
       nwm=nwm+1
       do 13 j=1,nwa
       xw(1,j,nwm)=xslv(1,j,is)+dble(ix)*boxs(1)

@@ -1,9 +1,10 @@
-      logical function pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,box,
+      logical function pre_wrtrst(lfnout,lfnrst,filrst,
+     + npbtyp,nbxtyp,box,
      + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_wrtrst.F,v 1.5 1998-06-15 22:38:16 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.6 1998-11-18 01:19:58 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +12,7 @@ c
 c
       integer lfnout,lfnrst
       integer mwm,mwa,nwm,nwa,msa,nsa,mnoe,noe,msm,nsm,mwmc,nwmc
-      integer npbtyp
+      integer npbtyp,nbxtyp
       character*255 filrst
       real*8 xw(3,mwa,mwm),xs(3,msa),vw(3,mwa,mwm),vs(3,msa),box(3)
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),dnoe(5,mnoe)
@@ -32,8 +33,8 @@ c
       write(lfnrst,1001) 3.4,rstdat,rsttim
  1001 format('This is an automatically generated restart file',/,
      + ' ',/,' ',/,f12.6,2a10)
-      write(lfnrst,1002) npbtyp,box
- 1002 format(i5,3f12.6)
+      write(lfnrst,1002) npbtyp,box,nbxtyp
+ 1002 format(i5,3f12.6,7x,i5)
       write(lfnrst,1003) 0.0d0
  1003 format(e12.5)
       write(lfnrst,1004) 0.0d0,0.0d0,0.0d0

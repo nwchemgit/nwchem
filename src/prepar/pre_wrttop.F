@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.17 1998-11-06 21:18:10 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.18 1998-11-18 01:19:58 d3j191 Exp $
 c
       implicit none
 c
@@ -287,9 +287,9 @@ c      endif
       qsum(2)=0.0d0
       qsum(3)=0.0d0
       endif
-      qsum(1)=qsum(1)+qatm(1,i)
-      qsum(2)=qsum(2)+qatm(3,i)
-      qsum(3)=qsum(3)+qatm(5,i)
+      qsum(1)=qsum(1)+qatm(1,iql(1))
+      qsum(2)=qsum(2)+qatm(3,iql(2))
+      qsum(3)=qsum(3)+qatm(5,iql(3))
    10 continue
       if(util_print('files',print_default)) then
       write(lfnout,2001) lseq(1,latm(5,natm)),cseq(latm(5,natm)),qsum

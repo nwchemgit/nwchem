@@ -1,6 +1,6 @@
       logical function pre_slvnum(islv,boxs,nwms,box,nwm)
 c
-c $Id: pre_slvnum.F,v 1.2 1998-04-29 18:35:26 d3j191 Exp $
+c $Id: pre_slvnum.F,v 1.3 1998-11-18 01:19:57 d3j191 Exp $
 c
       implicit none
 c
@@ -13,6 +13,9 @@ c
      + (boxs(1)*boxs(2)*boxs(3)))
       elseif(islv.eq.2) then
       nwm=int(dble(nwms)*0.5d0*(box(1)*box(2)*box(3))/
+     + (boxs(1)*boxs(2)*boxs(3)))
+      elseif(islv.eq.3) then
+      nwm=2*int(dble(nwms)*(box(1)*box(2)*box(3))/
      + (boxs(1)*boxs(2)*boxs(3)))
       endif
 c

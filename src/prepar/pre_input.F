@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.21 1998-09-24 17:04:41 d3j191 Exp $
+c $Id: pre_input.F,v 1.22 1998-11-18 01:19:56 d3j191 Exp $
 c
       implicit none
 c
@@ -622,6 +622,16 @@ c
       if(.not.inp_f(edges(2))) edges(3)=edges(2)
       write(68,6814) edges
  6814 format('period',/,'solvat box',3f12.6)
+      write(68,7807) xpndw
+      endif
+      elseif(inp_compare(.false.,'troct',item)) then
+      if(.not.inp_f(edge)) then
+      write(68,6821)
+ 6821 format('period',/,'solvat troct')
+      write(68,7807) xpndw
+      else
+      write(68,6822) edge
+ 6822 format('period',/,'solvat troct',f12.6)
       write(68,7807) xpndw
       endif
       elseif(inp_compare(.false.,'sphere',item)) then
