@@ -33,15 +33,15 @@ c
        parameter(nsets=6)
        integer iv_dens(nsets), iv_fock(nsets)
        double precision jfac(nsets),kfac(nsets)
-       data jfac/6*1.d0/
-       data kfac/6*-0.5d0/
        double precision tol2e
-       data tol2e/1.d-12/
 c
 c
        integer ga_create_atom_blocked
        external ga_create_atom_blocked
 c
+       data jfac/6*1.d0/
+       data kfac/6*-0.5d0/
+       data tol2e/1.d-12/
 c
 c
        if (omcscfprof) call pstat_on(ps_hv2eao)

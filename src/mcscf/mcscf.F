@@ -823,9 +823,9 @@ c
        integer g_coul, g_exch
        double precision tmp(1000)
        logical oskel
-       data oskel/.false./
        integer ga_create_JKblocked
        external ga_create_JKblocked
+       data oskel/.false./
 
        mo_lo = 1
        mo_hi = (nclosed+nact)
