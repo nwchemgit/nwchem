@@ -52,7 +52,7 @@
 
 *     **** local variables ****
       integer j,k
-      real*8  w
+      real*8  w,error
 
       error = 0.0d0
       do k=1,ne

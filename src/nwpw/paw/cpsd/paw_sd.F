@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.22 2003-02-08 23:12:04 bylaska Exp $
+* $Id: paw_sd.F,v 1.23 2003-02-11 23:43:15 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -122,8 +122,8 @@
       external     control_Mulliken
       logical      psi_filefind
       external     psi_filefind
-      real*8       nwpw_timing
-      external     nwpw_timing
+      real*8       nwpw_timing,paw_psi_CheckOrtho
+      external     nwpw_timing,paw_psi_CheckOrtho
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -214,7 +214,7 @@
       call init_paw_ion_matrix()
       call init_paw_vloc_matrix()
       call init_paw_core_matrix()
-      call init_paw_hartree_matrix()
+      !call init_paw_hartree_matrix()
       call init_paw_overlap_matrix()
       call init_paw_comp_charge_matrix()
       call init_paw_comp_pot_matrix()
@@ -244,7 +244,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'psi1',psi1(2),psi1(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('paw_sd:out of heap memory',0)
 
 
 *     *****  read psi2 wavefunctions ****
@@ -256,22 +256,6 @@
       n2(2) = ne(1)+ne(2)
       nemax = ne(1)+ne(2)
 
-*     **** Ortho Check ****
-      call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
-     >                        dcpl_mb(psi2(1)),
-     >                        dcpl_mb(psi2(1)),
-     >                        sum2)
-
-      sum1 = dble(ne(1) + ne(2))
-      if (dabs(sum2-sum1).gt.1.0d-10) then
-         if (taskid.eq.MASTER)
-     >      write(*,*) "Warning: Gram-Schmidt being performed on psi2"
-         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi2(1)))
-         if (ispin.gt.1) then
-           call Grsm_g_MakeOrtho(npack1,ne(2),
-     >                           dcpl_mb(psi2(1) + ne(1)*npack1))
-         end if
-      end if
 
 *     **** allocate other variables *****
       value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
@@ -290,7 +274,7 @@
      >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
      >                     'psir',psir(2),psir(1))
 
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('paw_sd: out of heap memory',1)
 
       !**** intialize overlap coefficient data structure ***
       call phafac()
@@ -298,6 +282,34 @@
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
       call paw_comp_charge_update()
+
+      !**** Ortho Check ****
+      do ms=1,ispin
+        deltae=paw_psi_CheckOrtho(npack1,ne(ms),
+     >                   dcpl_mb(psi2(1)+(ms-1)*ne(1)*npack1))
+        if (deltae.gt.1.0d-10) then
+          call paw_psi_MakeOrtho(npack1,ne(ms),
+     >                   dcpl_mb(psi2(1)+(ms-1)*ne(1)*npack1))
+          deltac=paw_psi_CheckOrtho(npack1,ne(ms),
+     >                   dcpl_mb(psi2(1)+(ms-1)*ne(1)*npack1))
+          if (taskid.eq.MASTER) then
+            if (ms.eq.1) then
+              write(*,*) "Warning: ",
+     >                   "Gram-Schmidt performed on up spin of psi2 "
+              write(*,*) "       : (old error=",deltae,
+     >                   " new error=",deltac,")"
+            end if
+            if (ms.eq.2) then
+              write(*,*) "Warning: ",
+     >                   "Gram-Schmidt performed on down spin of psi2 "
+              write(*,*) "       : (old error=",deltae,
+     >                   " new error=",deltac,")"
+            end if
+
+          end if
+        end if
+     
+      end do
 
 *                |**************************|
 ******************   summary of input data  **********************
@@ -552,7 +564,7 @@
       call end_paw_vloc_matrix()
       call end_paw_ion_matrix()
       call end_paw_overlap_matrix()
-      call end_paw_hartree_matrix()
+      !call end_paw_hartree_matrix()
       call end_paw_core_matrix()
       call end_paw_comp_pot_matrix()
       call end_paw_comp_charge_matrix()
