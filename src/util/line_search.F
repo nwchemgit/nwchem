@@ -1,6 +1,6 @@
       logical function line_search(nstep, max_nstep, energies,
      $     gradients, steps, eacc, tol, oprint)
-C$Id: line_search.F,v 1.7 1995-10-10 06:19:43 d3g681 Exp $
+C$Id: line_search.F,v 1.8 1996-10-04 21:50:25 d3g681 Exp $
       implicit none
 #include "util.fh"
 c
@@ -34,7 +34,7 @@ c
             write(6,2)
  2          format(1x,
      $           '       step       energy         lsg     num-lsg ',
-     $           '  num-lsh   lsrat   time'/1x,
+     $           '  num-lsh   lsrat    time'/1x,
      $           '     ------- ---------------- --------- ---------',
      $           ' --------- ------- -------')
             write(6,3) steps(1), energies(1), gradients(1), 
@@ -79,7 +79,7 @@ c
       if (oprint) then
          write(6,3) step1, e1, gs1,
      $        ls_grad, ls_hessian, ls_ratio, util_cpusec()
- 3       format(5x,f8.4,f17.8,1p,3d10.2,d8.1,0p,f8.1)
+ 3       format(5x,f8.4,f17.8,1p,3d10.2,d8.1,0p,f9.1)
          call util_flush(6)
       endif
 c     

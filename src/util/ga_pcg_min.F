@@ -1,7 +1,7 @@
       subroutine ga_pcg_minim(n, iter, e, g_grad, g_work, g_s, step,
      $     ls_tol, ls_max, eacc, conjugacy, oprint, oprint_ls,
      $     iwork, dwork, mode)
-C$Id: ga_pcg_min.F,v 1.1 1995-12-13 01:37:33 d3g681 Exp $
+C$Id: ga_pcg_min.F,v 1.2 1996-10-04 21:50:23 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -162,11 +162,11 @@ c
                if (ls_print .or. iter.eq.1) write(6,1)
  1             format(/,
      $              13x,' iter       energy          gnorm     gmax   ',
-     $              '   time'/
+     $              '    time'/
      $              13x,'----- ------------------- --------- ---------',
-     $              ' -------')
+     $              ' --------')
                write(6,2) iter, e, gnorm, gmax, util_cpusec()
- 2             format(13x,i5,f20.10,1p,2d10.2,0p,f8.1)
+ 2             format(13x,i5,f20.10,1p,2d10.2,0p,f9.1)
                call util_flush(6)
             endif
          endif
