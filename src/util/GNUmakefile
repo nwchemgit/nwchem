@@ -1,11 +1,13 @@
-# $Id: GNUmakefile,v 1.14 1994-09-21 23:44:32 d3g681 Exp $
+# $Id: GNUmakefile,v 1.15 1994-10-08 01:36:46 d3g681 Exp $
 
 include ../config/makefile.h
 
 ifeq ($(TARGET),SUN)
   EXTRA_OBJ = ieeetrap.o
-else
-  EXTRA_OBJ = 
+endif
+
+ifeq ($(TARGET),IBM)
+  EXTRA_OBJ = ibm_cputime.o
 endif
 
        BLAS = dfill.o ifill.o rsg.o
