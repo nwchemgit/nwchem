@@ -20,6 +20,7 @@ c
 #include "mafdecls.h"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "io.fh"
 c     
 c>>>  includes added on addition of NWdft to nwchem
 c     
@@ -32,6 +33,10 @@ c>>>
 c     
 
       iproc  = ga_nodeid()
+C
+C	assign stdout to unit 6
+C
+      lwr=6
 c
 c     Push context down to DFT (copied from scf.F)
 c
