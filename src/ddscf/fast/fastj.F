@@ -1133,6 +1133,9 @@ c
       integer i, ilo
       double precision value
 c
+      double precision erfc
+      external erfc
+c
       ilo = mod(k,2)
 c
       if (ilo .eq. 0) then

@@ -1,5 +1,5 @@
       subroutine potential_from_shell_pair(basis, ish, jsh,
-     $     den, ld, tol, d, dinv, lmaxd, npts, xyz, pot)
+     $     den, ld, tol, d, dinv, lmaxd, npts, xyz, pot, fact)
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -13,6 +13,7 @@
      $     dinv(*)              ! [input] xlm_coeff_inv(lmaxd,d,dinv)
       double precision xyz(3,npts) ! [input] Coordinates
       double precision pot(npts) ! [output] Potential at points
+      double precision fact
 c
 c     Compute the potential due to the charge distribution
 c
@@ -142,6 +143,8 @@ c
 c     Screen
 c
             if (abs(prefac*dmax) .gt. tol) then
+c
+      prefac=fact*prefac
 c
 c     Translate density to product center and reform as spherical
 c

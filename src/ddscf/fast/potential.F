@@ -121,7 +121,7 @@ c
             call ga_get(g_dens,ilo,ihi,jlo,jhi,dbl_mb(k_scr),idim)
             call potential_from_shell_pair(basis, ishell, jshell,
      $           dbl_mb(k_scr), idim, tol, d, dinv, lmax2, 
-     $           npts, r, potential)
+     $           npts, r, potential, 1.0d0)
 c
          enddo
       enddo
