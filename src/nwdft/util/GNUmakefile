@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 1994-10-25 03:19:26 og845 Exp $
+# $Id: GNUmakefile,v 1.3 1994-10-26 09:24:46 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	addarray.o			const_init.o	\
@@ -30,7 +30,6 @@
 					int_eval_gbsets.o \
 	bas_ncoef_cn_max.o		ga_chol_seq.o	\
 	ga_inv_seq.o			nmcoef.o	\
-	bas_norm.o                    \
 	int_2e2c_can.o  int_2e3c_can.o
 #
 #			dpotrf.o	\
