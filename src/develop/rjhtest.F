@@ -37,37 +37,47 @@ c
      $     call errquit('print_integs: geom_create failed?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, geom_name))
      $     call errquit('print_integs: geom_load failed', 0)
-      if (.not. geom_print(geom))
-     $     call errquit('print_integs: geom_print failed', 0)
+      If ( GA_NodeID() .eq. 0) then
+         if (.not. geom_print(geom))
+     $      call errquit('print_integs: geom_print failed', 0)
+      EndIf
       if (.not. bas_create(basis, basis_name))
      $     call errquit('print_integs: basis create failed', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
      $     call errquit('print_integs: basis load failed', 0)
-      write(6,*) ' basis before normalization '
-      if (.not. bas_print(basis))
-     $     call errquit('print_integs: basis print failed', 0)
+      If ( GA_NodeID() .eq. 0) then
+         write(6,*) ' basis before normalization '
+         if (.not. bas_print(basis))
+     $      call errquit('print_integs: basis print failed', 0)
+      EndIf
       if (.not. int_normalize(basis))
      $     call errquit('print_integs: normalize failed', 0)
-      write(6,*) ' basis after normalization '
-      if (.not. bas_print(basis))
-     $     call errquit('print_integs: basis print failed', 0)
-      if (.not. gbs_map_print(basis))
-     $     call errquit('print_integs: gbs_map_print failed', 0)
+      If ( GA_NodeID() .eq. 0) then
+         write(6,*) ' basis after normalization '
+         if (.not. bas_print(basis))
+     $      call errquit('print_integs: basis print failed', 0)
+         if (.not. gbs_map_print(basis))
+     $      call errquit('print_integs: gbs_map_print failed', 0)
+      EndIf
 c
 c... open ri basis set
       if (.not.bas_create(ri_basis, 'ri-scf basis'))
      &    call errquit('rjhtest: bas_create failed',911)
       if (.not.bas_rtdb_load(rtdb,geom,ri_basis,'ri-scf basis'))
      &    call errquit('rjhtest: bas_rtdb_load failed',911)
-      if (.not. bas_print(ri_basis))
-     $     call errquit('print_integs: ri_basis print failed', 0)
+      If ( GA_NodeID() .eq. 0) then
+         if (.not. bas_print(ri_basis))
+     $      call errquit('print_integs: ri_basis print failed', 0)
+      EndIf
       if (.not. int_normalize(ri_basis))
      $     call errquit('print_integs: normalize failed', 0)
-      write(6,*) ' ri_basis after normalization '
-      if (.not. bas_print(ri_basis))
-     $     call errquit('print_integs: ri_basis print failed', 0)
-      if (.not. gbs_map_print(ri_basis))
-     $     call errquit('print_integs: gbs_map_print failed', 0)
+      If ( GA_NodeID() .eq. 0) then
+         write(6,*) ' ri_basis after normalization '
+         if (.not. bas_print(ri_basis))
+     $      call errquit('print_integs: ri_basis print failed', 0)
+         if (.not. gbs_map_print(ri_basis))
+     $      call errquit('print_integs: gbs_map_print failed', 0)
+      EndIf
       bases(1) = basis
       bases(2) = ri_basis
       call int_init(2,bases)
@@ -78,28 +88,29 @@ c... open ri basis set
       call ga_zero(g_j)
       call schwarz_init(geom, basis)
       call guess_dens(geom,basis,g_dens_dumm)
-      write(6,*)' density matrix'
-      call ga_print(g_dens_dumm)
+c$$$      write(6,*)' density matrix'
+c$$$      call ga_print(g_dens_dumm)
       call ri_invert_v(rtdb,ri_basis,geom,g_vinv)
-      write(6,*)' inverse v '
-      call ga_print(g_vinv)
+c$$$      write(6,*)' inverse v '
+c$$$      call ga_print(g_vinv)
 c
       call ri_drive(rtdb,basis,ri_basis,geom,1.0d00,
      &       g_dens_dumm,g_vinv,g_j)
-      write(6,*)' from ri coulomb matrix'
-      call ga_print(g_j)
+c$$$      write(6,*)' from ri coulomb matrix'
+c$$$      call ga_print(g_j)
 c
 c get real coulomb energy 
 c
       call ga_zero(g_j_real)
       call rhf_fock_2e(geom,basis,g_dens_dumm,g_j_real,
      &       1.0d-09,.true.,.false.)
-      write(6,*)' real coulomb matrix'
-      call ga_print(g_j_real)
+c$$$      write(6,*)' real coulomb matrix'
+c$$$      call ga_print(g_j_real)
       call ga_dadd(1.0d00,g_j,-1.0d00,g_j_real, g_j_real)
-      write(6,*)'ddot of diff',ga_ddot(g_j_real,g_j_real)
-      write(6,*)' difference!!!! '
-      call ga_print(g_j_real)
+      If ( GA_NodeID() .eq. 0 )
+     $   write(6,*)'ddot of diff',ga_ddot(g_j_real,g_j_real)
+c$$$      write(6,*)' difference!!!! '
+c$$$      call ga_print(g_j_real)
       return
       write(6,2) geom_name(1:inp_strlen(geom_name)),
      $     basis_name(1:inp_strlen(basis_name))
