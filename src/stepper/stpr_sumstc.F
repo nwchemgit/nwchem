@@ -1,9 +1,7 @@
       SUBROUTINE stpr_sumstc(STEP,COORD,ATMASS,CMASS,TENIN,CNVGRD)
-c $Id: stpr_sumstc.F,v 1.1 1994-06-24 20:42:47 d3e129 Exp $
+c $Id: stpr_sumstc.F,v 1.2 1994-10-26 23:16:09 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL CNVGRD
-      COMMON / STAPES / ITAP05, ITAP06, ITAP41,
-     &                  ITAP44, ITAP45
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
 #include "chow.fh"
