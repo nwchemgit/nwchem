@@ -1,3 +1,69 @@
+coulumb interaction via RI
+
+(1) compute and store (disk/memory??) V inverse
+
+    V(i,j) = (i|j)
+    V(i,j)**(-1) store in global array
+
+ga_zero (v)
+a. open expansion basis set "riscf basis"
+b. ga_create_atom_block(basis,geom,handle)
+c. do ish = 1,nsh
+     do jsh = 1,nsh
+........................ parallelize here
+	call int_2e2c 
+	ga_dadd / ga_update_shell_block
+     enddo
+   enddo
+
+create identity array (dimension nbfe*nbfe)
+call ga_lsolve(  V * V**(-1) = I)  => Ax=B  x is V**(-1)   
+
+(2)  compute intermediate contraction of integrals and density for form Wu
+
+Wu = sum(u)  (u|kl)*D(kl)
+
+
+do ksh = 1,nsh
+  do lsh = 1, ksh
+	If schwarz okay
+	   ....................  parallelize here
+	   get_shell_block D(kl)
+	   do ush = 1,nshe
+              int_2e3c
+	       dgemv or loops to contract
+           enddo
+        endif
+  enddo
+enddo
+global sum Wu (replicated data)
+
+
+(3) contract Wu against V**(-1)  P[t]  = sum(u)  V**(-1)[t,u] * W[u]
+ use ga_dgemm 
+
+(4) contract P[t] against 3center eris
+
+do ish = 1,nsh
+  do jsh = 1, ish
+	If schwarz okay
+	   ....................  parallelize here
+	   do tsh = 1,nshe
+              int_2e3c
+	       dgemv or loops to contract P[t] with (ij|t) 
+           enddo
+	ga_put elements into distributed J[i,j]
+	ga_update_shell_block
+        endif
+  enddo
+enddo
+
+
+(5) fold J  ie J[i,j] = J[j,i] = (J[i,j] + J[j,i])   (1/2????)
+
+use ga_symmetrize and ga_dscal (factor of 2)
+
+
 
 Exchange interaction via RI
 
