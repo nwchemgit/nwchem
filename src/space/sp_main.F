@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.74 2002-04-17 23:43:15 d3j191 Exp $
+c $Id: sp_main.F,v 1.75 2002-06-04 20:28:33 d3j191 Exp $
 c
       implicit none
 c
@@ -2625,7 +2625,7 @@ c
      + call errquit('Failed to allocate lst',me)
       if(.not.ma_push_get(mt_int,mbbl*np,'nen',l_nen,i_nen))
      + call errquit('Failed to allocate nen',me)
-      if(.not.ma_push_get(mt_dbl,np,'dlb',l_dlb,i_dlb))
+      if(.not.ma_push_get(mt_dbl,np+1,'dlb',l_dlb,i_dlb))
      + call errquit('Failed to allocate dlb',me)
       if(.not.ma_verify_allocator_stuff())
      + call errquit('Problems in sp_balanc at 2',me)
@@ -2664,168 +2664,186 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
+      integer sp_btop
+      external sp_btop
+c
       integer nod(np),nlst(np,2),nen(np,mbbl)
       integer lbbl(mbbl,mbb2)
-      real*8 stime,syntim,synsum,waltim,dlb(np),factor,facx,facy,facz
+      real*8 stime,syntim,synsum,waltim,dlb(*),factor,facx,facy,facz
       logical lpsyn
+      logical lbsize
 c
-      integer i,j,k,n,ibusy
+      integer i,j,k,n,ibusy,least,iproc,icell,jcell,itemp,jtemp
+c
+c     no load balancing needed if run on sigle processor
 c
       if(np.eq.1) return
 c
-c     broad cast times
+c     collect and broadcast synchronization times
 c
       do 1 i=1,np
       dlb(i)=0.0d0
       nod(i)=i-1
     1 continue
+      dlb(np+1)=syntim
       dlb(me+1)=syntim
-      synsum=syntim
 c
-      call ga_dgop(msp_14,dlb,np,'+')
-      call ga_dgop(msp_15,synsum,1,'+')
+c     make synchronization time for current processor negative if 
+c     there are only local box-box pairs
+c
+      if(nbbloc.eq.nbbl) dlb(me+1)=-syntim
+c
+      call ga_dgop(msp_14,dlb,np+1,'+')
+c
+      synsum=dlb(np+1)
+c
+c     if the accumulated synchronization time is less than 0.0001 sec
+c     no load balancing is needed
 c
       if(synsum.lt.1.0d-5) return
 c
-      facx=1.0d0
-      facy=1.0d0
-      facz=1.0d0
-c
-c     count load balancing steps with increasing synsum
-c
-      if(nldup.lt.0) then
-      nldup=0
-      tsyncp=synsum
-      elseif(tsyncp.lt.synsum) then
-      nldup=nldup+1
-      else
-      nldup=0
-      tsyncp=synsum
-      endif
-c
-c     find busiest node
+c     determine the busiest processor
+c     if the busiest processor has no off-processor box-box pairs
+c     load balancing will be done by resizing
 c
       ibusy=1
       do 2 i=2,np
-      if(dlb(i).lt.dlb(ibusy)) ibusy=i
+      if(abs(dlb(i)).lt.abs(dlb(ibusy))) ibusy=i
     2 continue
+c
+      lbsize=dlb(ibusy).lt.zero
+c
+      do 3 i=1,np
+      dlb(i)=abs(dlb(i))
+    3 continue
 c
 c     order node list
 c
-      do 3 i=1,np-1
-      do 4 j=i+1,np
+      do 4 i=1,np-1
+      do 5 j=i+1,np
       if(dlb(nod(i)+1).gt.dlb(nod(j)+1)) then
       n=nod(i)
       nod(i)=nod(j)
       nod(j)=n
       endif
+    5 continue
     4 continue
-    3 continue
 c
-c     resize boxes
-c     ------------
+c     load balancing based on cell resizing
 c
-      if(loadb.eq.1.or.(loadb.eq.3.and.(nldup.gt.lbpair.or.lpipo))) then
+c     1  if specified as only method in input
+c     2. if busiest processor has no off-processor cell-cell pairs (lbsize is true), or
+c     3. if busiest processor is playing ping-pong with another processor (lpipo is true)
+c
+      if(loadb.eq.1.or.(loadb.eq.3.and.(lbsize.or.lpipo))) then
       factor=(1.0d0-factld*(synsum/dble(np)-dlb(ibusy))/synsum)**third
+      facx=1.0d0
+      facy=1.0d0
+      facz=1.0d0
       call sp_resize(ibusy-1,int_mb(i_iown),dbl_mb(i_boxs),factor,
      + facx,facy,facz)
       if(me.eq.0.and.lpsyn) then
       write(lfnsyn,3000) 1,stime,synsum,waltim,ibusy-1,
-     + factor,facx,facy,facz,nldup,lpipo
- 3000 format('synchronization',/,i5,3f12.6,/,i5,4f12.6,i3,1x,l1)
-      do 16 i=1,np
+     + factor,facx,facy,facz,lpipo
+ 3000 format('synchronization',/,i5,3f12.6,/,i5,4f12.6,4x,l1)
+      do 6 i=1,np
       write(lfnsyn,3001) nod(i),dlb(nod(i)+1)
  3001 format(i5,f12.6)
-   16 continue
+    6 continue
       call sp_wrtbxsz(lfnsyn,dbl_mb(i_boxs))
       endif
       ipairf=-3
       ipairt=-4
       lpipo=.false.
-      nldup=0
       tsyncp=synsum
       return
       endif
 c
-c     get active neighbors
+c     cascade implementation
 c
-      n=0
-      do 5 i=1,np
-      do 6 j=1,mbbl
-      nen(i,j)=0
-    6 continue
-      nlst(i,1)=0
-      nlst(i,2)=0
-    5 continue
+c
+c     find least busy neighbor in lbbl
+c
+      least=-1
+c
       do 7 i=1,nbbl
-      if(lbbl(i,1).eq.me) goto 7
-      nlst(me+1,2)=nlst(me+1,2)+1
-      do 8 j=1,n
-      if(lbbl(i,1)+1.eq.nen(me+1,j)) goto 7
-    8 continue
-      n=n+1
-      nen(me+1,n)=lbbl(i,1)+1
-    7 continue
-      nlst(me+1,1)=nbbl
-c
-      call ga_igop(msp_16,nen,mbbl*np,'+')
-      call ga_igop(msp_17,nlst,2*np,'+')
-c
-c      if(me.eq.0) then
-c      do 3031 i=1,np
-c      write(lfnsyn,3030) i-1,nlst(i,1),nlst(i,2),
-c     + dlb(i),(nen(i,j)-1,j=1,16)
-c 3030 format(i3,2i5,f12.6,20i3)
-c 3031 continue
-c      endif
-c
-c     determine the least busy neighbor of each node
-c
-      do 9 i=1,np
-      nlst(i,1)=-1
-    9 continue
-      do 10 i=1,np-1
-      do 11 j=np,i+1,-1
-      do 12 k=1,np
-      if(nlst(k,1).eq.nod(j)) goto 11
-   12 continue
-      do 13 k=1,mbbl
-      if(nod(j)+1.eq.nen(nod(i)+1,k)) then
-      nlst(i,1)=nod(j)
-      goto 10
+      iproc=lbbl(i,1)
+      if(iproc.ne.me.and.iproc.ne.least.and.
+     + dlb(iproc+1).gt.dlb(me+1)) then
+      if(least.ge.0) then
+      if(dlb(iproc+1).gt.dlb(least+1)) least=iproc
+      else
+      least=iproc
       endif
-   13 continue
+      endif
+    7 continue
+c
+c     initialize transfer list
+c
+c     the list contains the box-box pairs to be moved as follows:
+c
+c        nen(i,1) = ibox+1
+c        nen(1,2) = jbox+1
+c
+c     the pair will move from iproc to jproc
+c
+      do 8 i=1,np
+      nen(i,1)=0
+      nen(i,2)=0
+    8 continue
+c
+c     copy cell number to be transfered
+c
+      if(least.ge.0) then
+      icell=-1
+      jcell=-1
+      do 9 i=1,nbbl
+      if(lbbl(i,1).eq.least) then
+      icell=lbbl(i,3)
+      jcell=lbbl(i,2)
+      endif
+    9 continue
+      if(icell.ge.0) then
+      nen(me+1,1)=icell+1
+      nen(me+1,2)=jcell+1
+      endif
+      endif
+c
+c     global sum of transfer list
+c
+      call ga_igop(msp_16,nen,2*np,'+')
+c
+c     order the list according to processor synchronization time
+c
+      do 10 i=1,np-1
+      do 11 j=i+1,np
+      icell=nen(i,1)-1
+      jcell=nen(j,1)-1
+      if(icell.ge.0.and.jcell.ge.0) then
+      if(dlb(sp_btop(icell,int_mb(i_iown))+1).gt.
+     + dlb(sp_btop(jcell,int_mb(i_iown))+1)) then
+      itemp=nen(i,1)
+      jtemp=nen(i,2)
+      nen(i,1)=nen(j,1)
+      nen(i,2)=nen(j,2)
+      nen(j,1)=itemp
+      nen(j,2)=jtemp
+      endif
+      endif
    11 continue
    10 continue
 c
-c     setup transfer list
+c     cascading
 c
-      do 14 i=1,np
-      nen(nod(i)+1,1)=nlst(i,1)
-   14 continue
+      call sp_cascad(nen,int_mb(i_bb))
 c
       if(me.eq.0.and.lpsyn) then
       write(lfnsyn,3002) 2,stime,synsum,waltim
  3002 format('synchronization',/,i5,3f12.6)
-      do 15 i=1,np
-      write(lfnsyn,3003) nod(i),dlb(nod(i)+1),nlst(nod(i)+1,2),
-     + nen(nod(i)+1,1)
+      do 12 i=1,np
+      write(lfnsyn,3003) nod(i),dlb(nod(i)+1)
  3003 format(i5,f12.6,i7,i5)
-   15 continue
-      endif
-c
-      call ga_brdcst(msp_18,nen,np*ma_sizeof(mt_int,1,mt_byte),0)
-c
-c     cascade box-box pairs
-c
-      if(loadb.ge.2) then
-c
-      lpipo=(nod(1).eq.ipairt.and.nen(nod(1)+1,1).eq.ipairf).or.
-     + (nen(nod(1)+1,1).eq.-1)
-      ipairf=nod(1)
-      ipairt=nen(nod(1)+1,1)
-c
-      call sp_cascad(nen,int_mb(i_bb))
+   12 continue
       endif
 c
       return
@@ -2932,86 +2950,6 @@ c
 c
       call ga_brdcst
      + (msp_19,boxsiz,ma_sizeof(mt_dbl,3*maxbox,mt_byte),0)
-c
-      return
-      end
-      subroutine sp_cascad(ltran,lbbl)
-c
-      implicit none
-c
-#include "sp_common.fh"
-#include "global.fh"
-#include "mafdecls.fh"
-#include "msgids.fh"
-c
-      integer ltran(np,3),lbbl(mbbl,mbb2)
-c
-      integer i,j,ltemp,ntargt
-c
-c     load balancing based on cascade box-list redistribution
-c     -------------------------------------------------------
-c
-      do 1 i=1,np
-      ltran(i,2)=0
-      ltran(i,3)=0
-    1 continue
-c
-      ntargt=ltran(me+1,1)
-      ltran(me+1,2)=-1
-      ltran(me+1,3)=-1
-c
-      if(ntargt.ge.0) then
-      do 2 i=1,nbbl
-      if(lbbl(i,1).eq.ntargt) then
-      ltran(me+1,2)=lbbl(i,2)
-      ltran(me+1,3)=lbbl(i,3)
-      do 3 j=i,nbbl
-      lbbl(j,1)=lbbl(j+1,1)
-      lbbl(j,2)=lbbl(j+1,2)
-      lbbl(j,3)=lbbl(j+1,3)
-    3 continue
-      nbbl=nbbl-1
-      goto 4
-      endif
-    2 continue
-      endif
-c
-    4 continue
-      call ga_igop(msp_22,ltran(1,2),2*np,'+')
-c
-      do 5 i=1,np
-      if(ltran(i,1).eq.me.and.ltran(i,2).ge.0) then
-      nbbl=nbbl+1
-      lbbl(nbbl,1)=i-1
-      lbbl(nbbl,2)=ltran(i,3)
-      lbbl(nbbl,3)=ltran(i,2)
-      goto 7
-      endif
-    5 continue
-    7 continue
-c
-      nbbloc=0
-      do 8 i=1,nbbl-1
-      do 9 j=i+1,nbbl
-      if((lbbl(i,1).ne.me.and.lbbl(j,1).eq.me).or.
-     + (lbbl(i,1).gt.lbbl(j,1).and.lbbl(i,1).ne.me).or.
-     + (lbbl(i,1).eq.lbbl(j,1).and.lbbl(i,2).gt.lbbl(j,2)).or.
-     + (lbbl(i,1).eq.lbbl(j,1).and.lbbl(i,2).eq.lbbl(j,2).and.
-     + lbbl(i,3).gt.lbbl(j,3))) then
-      ltemp=lbbl(i,1)
-      lbbl(i,1)=lbbl(j,1)
-      lbbl(j,1)=ltemp
-      ltemp=lbbl(i,2)
-      lbbl(i,2)=lbbl(j,2)
-      lbbl(j,2)=ltemp
-      ltemp=lbbl(i,3)
-      lbbl(i,3)=lbbl(j,3)
-      lbbl(j,3)=ltemp
-      endif
-    9 continue
-      if(lbbl(i,1).eq.me) nbbloc=i
-    8 continue
-      if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
 c
       return
       end
@@ -3159,6 +3097,124 @@ c
    14 continue
 c
       sp_diffbb=nbbdif.ne.0
+c
+      return
+      end
+      subroutine sp_cascad(ltran,lbbl)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer sp_btop
+      external sp_btop
+c
+      integer ltran(np,3),lbbl(mbbl,mbb2)
+c
+      integer i,j,k,ltemp
+      integer icell,jcell,iproc,jproc
+      logical lfirst
+c
+c     load balancing based on cascade box-list redistribution
+c     -------------------------------------------------------
+c
+      do 1 i=1,np
+      ltran(i,1)=ltran(i,1)-1
+      ltran(i,2)=ltran(i,2)-1
+      ltran(i,3)=-1
+      if(ltran(i,2).ge.0) ltran(i,3)=sp_btop(ltran(i,2),int_mb(i_iown))
+    1 continue
+c
+c     remove transfers involving double processors
+c
+      do 2 i=2,np
+      if(ltran(i,1).ge.0) then
+      iproc=sp_btop(ltran(i,1),int_mb(i_iown))
+      jproc=sp_btop(ltran(i,2),int_mb(i_iown))
+      do 3 j=1,i-1
+      if(sp_btop(ltran(j,1),int_mb(i_iown)).eq.jproc.or.
+     + sp_btop(ltran(j,2),int_mb(i_iown)).eq.jproc) then
+      ltran(i,1)=-1
+      ltran(i,2)=-1
+      goto 2
+      endif
+    3 continue
+      endif
+    2 continue
+c
+c     process the transfer list
+c
+      lfirst=.true.
+      do 4 i=1,np
+c
+      iproc=-1
+      jproc=-1
+      icell=ltran(i,1)
+      jcell=ltran(i,2)
+      if(icell.ge.0) then
+      iproc=sp_btop(icell,int_mb(i_iown))
+      jproc=sp_btop(jcell,int_mb(i_iown))
+      if(lfirst) then
+      lpipo=(iproc.eq.ipairt).and.(jproc.eq.ipairf)
+      ipairf=iproc
+      ipairt=jproc
+      lfirst=.false.
+      endif
+c
+c     remove pair
+c
+      if(iproc.eq.me) then
+      k=0
+      do 5 j=1,nbbl
+      if(lbbl(j,2).ne.jcell.or.lbbl(j,3).ne.icell) then
+      k=k+1
+      lbbl(k,1)=lbbl(j,1)
+      lbbl(k,2)=lbbl(j,2)
+      lbbl(k,3)=lbbl(j,3)
+      endif
+    5 continue
+      nbbl=k
+      endif
+c
+c     add pair
+c
+      if(jproc.eq.me) then
+      nbbl=nbbl+1
+      lbbl(nbbl,1)=iproc
+      lbbl(nbbl,2)=icell
+      lbbl(nbbl,3)=jcell
+      endif
+c
+      endif
+    4 continue
+c
+c     order the new box-box list
+c
+      nbbloc=0
+      do 6 i=1,nbbl-1
+      do 7 j=i+1,nbbl
+      if((lbbl(i,1).ne.me.and.lbbl(j,1).eq.me).or.
+     + (lbbl(i,1).gt.lbbl(j,1).and.lbbl(i,1).ne.me).or.
+     + (lbbl(i,1).eq.lbbl(j,1).and.lbbl(i,2).gt.lbbl(j,2)).or.
+     + (lbbl(i,1).eq.lbbl(j,1).and.lbbl(i,2).eq.lbbl(j,2).and.
+     + lbbl(i,3).gt.lbbl(j,3))) then
+      ltemp=lbbl(i,1)
+      lbbl(i,1)=lbbl(j,1)
+      lbbl(j,1)=ltemp
+      ltemp=lbbl(i,2)
+      lbbl(i,2)=lbbl(j,2)
+      lbbl(j,2)=ltemp
+      ltemp=lbbl(i,3)
+      lbbl(i,3)=lbbl(j,3)
+      lbbl(j,3)=ltemp
+      endif
+    7 continue
+      if(lbbl(i,1).eq.me) nbbloc=i
+    6 continue
+      if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
 c
       return
       end

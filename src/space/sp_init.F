@@ -5,10 +5,10 @@
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
-     + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
+     + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
 c
 c
-c $Id: sp_init.F,v 1.105 2002-05-14 19:01:47 d3j191 Exp $
+c $Id: sp_init.F,v 1.106 2002-06-04 20:28:32 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       integer itemp(2)
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi,isld,irset
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri
+      integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri,ictrl
       logical lpol,lfre,ignore,lpbc,lqd
       character*80 prjct
 c
@@ -40,6 +40,7 @@ c
 c
       idebug=idbg
       lfndbg=ldbg
+      icntrl=ictrl
 c
       lfnsyn=lsyn
       nfsync=nsyn
