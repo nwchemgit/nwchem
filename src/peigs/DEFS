@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.64 1999-11-13 02:41:20 bjohnson Exp $
+# $Id: DEFS,v 1.65 1999-12-29 18:28:54 d3g270 Exp $
 #
 #======================================================================
 #
@@ -265,10 +265,10 @@ peigs_CODEOBJ = DBLE
 peigs_CPU = RS6000
 # -qarch=pwr (for peril) com (for any) , pwr2  or ppc
 peigs_COMM =TCGMSG
-peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O -qinline
+peigs_CC  += -qarch=auto -qtune=auto -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O -qinline
 # -O3 -qstrict -qinline -qfloat=rsqrt:fltint:hssngl -qinline
 
-peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict \
+peigs_FC  += -qarch=auto -qtune=auto -d -I$(peigs_HDIR) -O3 -qstrict \
 -WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
 -qfloat=rsqrt:fltint:hssngl -qinline
 
