@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,lmat,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.16 1998-09-17 06:04:57 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.17 1998-09-17 06:45:50 d3j191 Exp $
 c
       implicit none
 c
@@ -143,11 +143,18 @@ c
 c
 c     test if this appears to be a chain link already present
 c
-      if((link1.eq.2.and.link2.eq.1.and.isgm.eq.jsgm-1).or.
-     + (link1.eq.1.and.link2.eq.2.and.jsgm.eq.isgm-1)) then
+      if((latm(3,link1).eq.2.and.latm(3,link2).eq.1.and.
+     + isgm.eq.jsgm-1).or.
+     + (latm(3,link1).eq.1.and.latm(3,link2).eq.2.and.
+     + jsgm.eq.isgm-1)) then
       do 9 j=nb+1,nbnd
-      if(lbnd(1,j).eq.link1.and.lbnd(2,j).eq.link2) goto 5
-      if(lbnd(1,j).eq.link2.and.lbnd(2,j).eq.link1) goto 5
+      if((lbnd(1,j).eq.link1.and.lbnd(2,j).eq.link2).or.
+     + (lbnd(1,j).eq.link2.and.lbnd(2,j).eq.link1)) then
+c
+c     explicit link appears to duplicate automatic chain link
+c
+      goto 5
+      endif
     9 continue
       endif
 c
