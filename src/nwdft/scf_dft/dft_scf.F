@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.97 1997-12-08 23:48:47 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.98 1997-12-09 04:42:12 d3h449 Exp $
 c     
       implicit none
 c
@@ -72,6 +72,7 @@ c
       double precision start_wall, current_wall, elapsed_wall,
      &                 save_wall, current_cpu, start_cpu,
      &                 wall_time_reqd
+      integer int_wall_time_reqd
       double precision ecoul, ecore
       double precision pp, delta
       double precision anucl_charg, anel
@@ -1188,7 +1189,8 @@ c        required for previous iteration (multiply by 1.2 to be on the safe side
 c
          wall_time_reqd = elapsed_wall*1.2d0
       endif
-      if (.not.util_test_time_remaining(rtdb, wall_time_reqd))then
+      int_wall_time_reqd = wall_time_reqd
+      if (.not.util_test_time_remaining(rtdb, int_wall_time_reqd))then
          if (me.eq.0)then
             write(LuOut,*)
             call util_print_centered(LuOut,
