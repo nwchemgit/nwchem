@@ -72,11 +72,11 @@
            Job information
            ---------------
 
-    hostname      = fermi2
+    hostname      = clipper
     program       = nwchem
-    date          = Tue Dec 21 13:23:39 1999
+    date          = Mon May  8 14:11:27 2000
 
-    compiled      = Tue Dec 21 12:26:08 PST 1999
+    compiled      = Mon May  8 12:31:41 PDT 2000
     source        = /msrc/home/bert/nwchem
     nwchem branch = Development
     input         = h2o_dk.nw
@@ -200,35 +200,35 @@
   ----------
             Exponent  Coefficients 
        -------------- ---------------------------------------------------------
-  1 S     7816.540000  0.002031
-  1 S     1175.820000  0.015436
-  1 S      273.188000  0.073771
-  1 S       81.169600  0.247606
-  1 S       27.183600  0.611832
-  1 S        3.413600  0.241205
+  1 S  7.81654000E+03  0.002031
+  1 S  1.17582000E+03  0.015436
+  1 S  2.73188000E+02  0.073771
+  1 S  8.11696000E+01  0.247606
+  1 S  2.71836000E+01  0.611832
+  1 S  3.41360000E+00  0.241205
  
-  2 S        9.532200  1.000000
+  2 S  9.53220000E+00  1.000000
  
-  3 S        0.939800  1.000000
+  3 S  9.39800000E-01  1.000000
  
-  4 S        0.284600  1.000000
+  4 S  2.84600000E-01  1.000000
  
-  5 P       35.183200  0.019580
-  5 P        7.904000  0.124189
-  5 P        2.305100  0.394727
-  5 P        0.717100  0.627375
+  5 P  3.51832000E+01  0.019580
+  5 P  7.90400000E+00  0.124189
+  5 P  2.30510000E+00  0.394727
+  5 P  7.17100000E-01  0.627375
  
-  6 P        0.213700  1.000000
+  6 P  2.13700000E-01  1.000000
  
   H (Hydrogen)
   ------------
             Exponent  Coefficients 
        -------------- ---------------------------------------------------------
-  1 S       19.240600  0.032828
-  1 S        2.899200  0.231208
-  1 S        0.653400  0.817238
+  1 S  1.92406000E+01  0.032828
+  1 S  2.89920000E+00  0.231208
+  1 S  6.53400000E-01  0.817238
  
-  2 S        0.177600  1.000000
+  2 S  1.77600000E-01  1.000000
  
 
 
@@ -284,7 +284,7 @@ The speed of light used in the relativistic calculations is   137.0360000000au.
         b2          2
  
 
- Forming initial guess at       3.1s
+ Forming initial guess at       2.6s
 
  
       Superposition of Atomic Density Guess
@@ -316,7 +316,7 @@ The speed of light used in the relativistic calculations is   137.0360000000au.
     11 a1         12 b1         13 a1         14 a1      
  
 
- Starting SCF solution at       5.6s
+ Starting SCF solution at       5.1s
 
 
 
@@ -340,12 +340,12 @@ The speed of light used in the relativistic calculations is   137.0360000000au.
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -76.0250215608  7.72D-01  4.26D-01      5.3
-                 2      -76.0563744486  1.88D-01  1.07D-01      7.9
-                 3      -76.0590662326  2.35D-02  1.38D-02      9.2
-                 4      -76.0591332023  2.56D-04  1.04D-04     10.6
-                 5      -76.0591332061  1.52D-08  9.26D-09     12.1
-                 6      -76.0591332061  3.05D-10  1.32D-10     13.5
+                 1      -76.0250215608  7.72D-01  4.26D-01      4.0
+                 2      -76.0563744486  1.88D-01  1.07D-01      6.0
+                 3      -76.0590662326  2.35D-02  1.38D-02      6.9
+                 4      -76.0591332023  2.56D-04  1.04D-04      7.9
+                 5      -76.0591332061  1.52D-08  9.26D-09      9.0
+                 6      -76.0591332061  3.05D-10  1.32D-10     10.0
 
 
        Final RHF  results 
@@ -356,7 +356,7 @@ The speed of light used in the relativistic calculations is   137.0360000000au.
       Two-electron energy =     37.687383188209
  Nuclear repulsion energy =      9.009361130096
 
-        Time for solution =      9.9s
+        Time for solution =      7.2s
 
 
  
@@ -525,7 +525,7 @@ The speed of light used in the relativistic calculations is   137.0360000000au.
  Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:       13.1s     wall:       19.1s
+ Task  times  cpu:        9.7s     wall:       11.3s
  
  
                                 NWChem Input Module
@@ -629,12 +629,12 @@ The speed of light used in the relativistic calculations is   137.0360000000au.
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       5.88   |       0.74   |
+                 |  CPU   |       4.45   |       0.74   |
                  ----------------------------------------
-                 |  WALL  |       9.00   |       1.10   |
+                 |  WALL  |       4.60   |       0.75   |
                  ----------------------------------------
 
- Task  times  cpu:        6.9s     wall:       10.4s
+ Task  times  cpu:        5.4s     wall:        5.6s
  
  
                                 NWChem Input Module
@@ -682,7 +682,7 @@ including cross-product terms will be computed.
         b2          2
  
 
- Forming initial guess at      33.6s
+ Forming initial guess at      19.8s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -707,7 +707,7 @@ including cross-product terms will be computed.
     11 a1         12 b1         13 a1         14 a1      
  
 
- Starting SCF solution at      33.7s
+ Starting SCF solution at      19.9s
 
 
 
@@ -731,8 +731,8 @@ including cross-product terms will be computed.
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -76.0591316390  2.40D-06  1.42D-06     24.6
-                 2      -76.0591316390  4.10D-10  2.41D-10     26.7
+                 1      -76.0591316390  2.40D-06  1.42D-06     18.6
+                 2      -76.0591316390  4.10D-10  2.41D-10     20.1
 
 
        Final RHF  results 
@@ -743,7 +743,7 @@ including cross-product terms will be computed.
       Two-electron energy =     37.687379473038
  Nuclear repulsion energy =      9.009361130096
 
-        Time for solution =      4.2s
+        Time for solution =      3.1s
 
 
  
@@ -912,7 +912,7 @@ including cross-product terms will be computed.
  Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:        6.3s     wall:        9.3s
+ Task  times  cpu:        4.6s     wall:        4.9s
  
  
                                 NWChem Input Module
@@ -954,7 +954,7 @@ including cross-product terms will be computed.
         b2          2
  
 
- Forming initial guess at      40.2s
+ Forming initial guess at      23.3s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -979,7 +979,7 @@ including cross-product terms will be computed.
     11 a1         12 b1         13 a1         14 a1      
  
 
- Starting SCF solution at      40.3s
+ Starting SCF solution at      23.4s
 
 
 
@@ -1003,10 +1003,10 @@ including cross-product terms will be computed.
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -76.0093441213  4.85D-01  4.67D-01     27.3
-                 2      -76.0098351403  1.01D-02  7.98D-03     27.4
-                 3      -76.0098376560  6.11D-05  4.10D-05     27.5
-                 4      -76.0098376568  1.13D-09  5.47D-10     27.7
+                 1      -76.0093441213  4.85D-01  4.67D-01     20.6
+                 2      -76.0098351403  1.01D-02  7.98D-03     20.7
+                 3      -76.0098376560  6.11D-05  4.10D-05     20.8
+                 4      -76.0098376568  1.13D-09  5.47D-10     20.9
 
 
        Final RHF  results 
@@ -1017,7 +1017,7 @@ including cross-product terms will be computed.
       Two-electron energy =     37.665668000925
  Nuclear repulsion energy =      9.009361130096
 
-        Time for solution =      0.8s
+        Time for solution =      0.6s
 
 
  
@@ -1186,7 +1186,7 @@ including cross-product terms will be computed.
  Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:        1.0s     wall:        1.6s
+ Task  times  cpu:        0.8s     wall:        1.0s
  
  
                                 NWChem Input Module
@@ -1195,12 +1195,7 @@ including cross-product terms will be computed.
  
  Summary of allocated global arrays
 -----------------------------------
-  array 0 => double precision Vmatrix(32,32),  handle: -992 
-  array 1 => double precision Vdmatrix(32,32),  handle: -991 
-  array 2 => double precision Vmatrix(32,32),  handle: -982 
-  array 3 => double precision Vdmatrix(32,32),  handle: -981 
-  array 4 => double precision Vmatrix(32,32),  handle: -980 
-  array 5 => double precision Vdmatrix(32,32),  handle: -979 
+  No active global arrays
 
 
 
@@ -1208,113 +1203,23 @@ including cross-product terms will be computed.
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1218     1212     8.25e+05 8.21e+05 8.52e+04    1        0        0     
+calls: 1218     1218     8.25e+05 8.21e+05 8.52e+04    1        0        0     
 bytes total:             1.70e+07 9.91e+06 6.02e+06 4.00e+01 0.00e+00 0.00e+00
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 4.00e+01 -4.00e+01 0.00e+00
-Max memory consumed for GA by this process: 121688 bytes
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 72536 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
-heap block 'Vdmatrix', handle 5, address 0x2a6e0cc:
-	type of elements:		double precision
-	number of elements:		1025
-	address of client space:	0x2a6e108
-	index for client space:		3783148
-	total number of bytes:		8264
-heap block 'Vmatrix', handle 102, address 0x2a6c084:
-	type of elements:		double precision
-	number of elements:		1025
-	address of client space:	0x2a6c0c0
-	index for client space:		3782115
-	total number of bytes:		8264
-heap block 'Vdmatrix', handle 3, address 0x2969ffc:
-	type of elements:		double precision
-	number of elements:		1025
-	address of client space:	0x296a038
-	index for client space:		3650002
-	total number of bytes:		8264
-heap block 'Vmatrix', handle 103, address 0x2967fb4:
-	type of elements:		double precision
-	number of elements:		1025
-	address of client space:	0x2967ff0
-	index for client space:		3648969
-	total number of bytes:		8264
-heap block 'Vdmatrix', handle 24, address 0x2961edc:
-	type of elements:		double precision
-	number of elements:		1025
-	address of client space:	0x2961f18
-	index for client space:		3645870
-	total number of bytes:		8264
-heap block 'Vmatrix', handle 4, address 0x295fe94:
-	type of elements:		double precision
-	number of elements:		1025
-	address of client space:	0x295fed0
-	index for client space:		3644837
-	total number of bytes:		8264
-heap block ' basis exps and coeffs  2', handle 9, address 0x29532fc:
-	type of elements:		double precision
-	number of elements:		2
-	address of client space:	0x2953338
-	index for client space:		3638322
-	total number of bytes:		80
-heap block ' basis exps and coeffs  2', handle 55, address 0x29532ac:
-	type of elements:		double precision
-	number of elements:		2
-	address of client space:	0x29532e8
-	index for client space:		3638312
-	total number of bytes:		80
-heap block ' basis exps and coeffs  3', handle 45, address 0x2953924:
-	type of elements:		double precision
-	number of elements:		2
-	address of client space:	0x2953960
-	index for client space:		3638519
-	total number of bytes:		80
-heap block ' basis exps and coeffs  3', handle 126, address 0x29538d4:
-	type of elements:		double precision
-	number of elements:		2
-	address of client space:	0x2953910
-	index for client space:		3638509
-	total number of bytes:		80
-heap block ' basis exps and coeffs  3', handle 115, address 0x2953884:
-	type of elements:		double precision
-	number of elements:		2
-	address of client space:	0x29538c0
-	index for client space:		3638499
-	total number of bytes:		80
-heap block ' basis exps and coeffs  3', handle 8, address 0x2953834:
-	type of elements:		double precision
-	number of elements:		2
-	address of client space:	0x2953870
-	index for client space:		3638489
-	total number of bytes:		80
-heap block ' basis exps and coeffs  2', handle 46, address 0x295325c:
-	type of elements:		double precision
-	number of elements:		2
-	address of client space:	0x2953298
-	index for client space:		3638302
-	total number of bytes:		80
-heap block ' basis exps and coeffs  2', handle 2, address 0x295320c:
-	type of elements:		double precision
-	number of elements:		2
-	address of client space:	0x2953248
-	index for client space:		3638292
-	total number of bytes:		80
-heap block ' basis exps and coeffs  2', handle 18, address 0x29537e4:
-	type of elements:		double precision
-	number of elements:		2
-	address of client space:	0x2953820
-	index for client space:		3638479
-	total number of bytes:		80
-MA_summarize_allocated_blocks: scan completed: 15 heap blocks, 0 stack blocks
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
 
 	allocation statistics:
 					      heap	     stack
 					      ----	     -----
-	current number of blocks	        15	         0
-	maximum number of blocks	        58	        29
-	current total bytes		     50304	         0
-	maximum total bytes		   1186020	  30941852
-	maximum total K-bytes		      1187	     30942
+	current number of blocks	         0	         0
+	maximum number of blocks	        43	        29
+	current total bytes		         0	         0
+	maximum total bytes		   1135668	  30941852
+	maximum total K-bytes		      1136	     30942
 	maximum total M-bytes		         2	        31
 
 
@@ -1338,7 +1243,7 @@ MA usage statistics:
             obtained with NWChem:
 
             Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; Bylaska, E.; 
-            Clark, T.; Clerc, D.; Dachsel, H.; de Jong, W.; Deegan, M.; 
+            Clark, T.; Clerc, D.; Dachsel, H.; de Jong, W.A.; Deegan, M.; 
             Dupuis, M.; Dyall, K.; Elwood, D.; Fann, G.; Fruchtl, H.; 
             Glendenning, E.; Gutowski, M.; Harrison, R.; Hess, A.; 
             Jaffe, J.; Johnson, B.; Ju, J.; Kendall, R.; Kobayashi, R.; 
@@ -1367,4 +1272,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:       28.1s     wall:       42.4s
+ Total times  cpu:       21.3s     wall:       24.7s
