@@ -1,6 +1,6 @@
       subroutine errquit(string, icode, errcode)
       implicit none
-C$Id: errquit.F,v 1.15 2003-10-21 23:16:05 edo Exp $
+C$Id: errquit.F,v 1.16 2003-10-22 16:48:45 edo Exp $
 #include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
@@ -99,7 +99,7 @@ c
 c
         if (errcode .eq. CAPMIS_ERR) then
           write(LuOut,*) 'A feature requested has not yet been ',
-     &                   'implimented'
+     &                   'implemented'
           write(LuOut,*) 
         endif
 c
