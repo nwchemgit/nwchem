@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.87 2000-10-24 18:01:31 d3j191 Exp $
+c $Id: cf_main.F,v 1.88 2000-12-13 00:28:39 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1270,9 +1270,9 @@ c
       real*8 xs(msa,3),fs(msa,3)
       integer isgan(msa)
       integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
-      real*8 rpmf(2,6,numpmf),xpmf(4,3,numpmf)
+      real*8 rpmf(3,6,numpmf),xpmf(4,3,numpmf)
       real*8 et(2),ft(4,3)
-      integer ip(4)
+      integer ip(5)
       real*8 rv(2),chg(2)
       integer it(2),ign(4),iml(4),idt(4),ich(4)
 c
@@ -1288,8 +1288,12 @@ c
       xpmf(j,2,i)=zero
       xpmf(j,3,i)=zero
     2 continue
-      m=ipmf(i,1)
-      if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
+      m=0
+      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
+      if(ipmf(i,1).eq.2) m=3
+      if(ipmf(i,1).eq.3) m=4
+      if(ipmf(i,1).eq.4) m=4
+      if(m.eq.0) call errquit('Error in pmf xx',ipmf(i,1))
       do 3 j=1,m
       do 4 k=1,ipmf(i,j+1)
       do 5 l=1,nums
@@ -1315,7 +1319,7 @@ c
 c
       do 6 i=1,numpmf
 c
-      if(ipmf(i,1).eq.2.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) then
+      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) then
       do 7 j=1,2
       ign(j)=j
       iml(j)=1
@@ -1329,7 +1333,7 @@ c
       ip(1)=1
       ip(2)=2
       ip(3)=0
-      call cf_fsb(1,it,1,2,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
+      call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
      + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Bond: ',rv,(ft(3,j),j=1,3)
       if(me.eq.0) epmf=epmf+rv(2)
@@ -1346,7 +1350,7 @@ c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Bond: ',rv,(ft(3,j),j=1,3)
     9 continue
       endif
 c
-      if(ipmf(i,1).eq.3) then
+      if(ipmf(i,1).eq.2) then
       do 12 j=1,3
       ign(j)=j
       iml(j)=1
@@ -1378,9 +1382,46 @@ c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
    14 continue
       endif
 c
-      if(ipmf(i,1).eq.4) then
-      call errquit('Torsion pmf not implemented',0)
+      if(ipmf(i,1).eq.3.or.ipmf(i,1).eq.4) then
+      do 17 j=1,4
+      ign(j)=j
+      iml(j)=1
+      idt(j)=0
+      ich(j)=1
+      do 18 k=1,3
+      ft(j,k)=zero
+   18 continue
+   17 continue
+      it(1)=1
+      ip(1)=1
+      ip(2)=2
+      ip(3)=3
+      ip(4)=4
+      ip(5)=0
+      if(ipmf(i,1).eq.3) then
+      call cf_fsd(1,it,1,3,ip,rpmf(1,1,i),rv,4,4,ign,iml,idt,
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
+c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Dih:',rv,(ft(3,j),j=1,3)
       endif
+      if(ipmf(i,1).eq.4) then
+      call cf_fso(1,it,1,3,ip,rpmf(1,1,i),rv,4,4,ign,iml,idt,
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
+c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Imp:',rv,(ft(3,j),j=1,3)
+      endif
+      if(me.eq.0) epmf=epmf+rv(2)
+      do 19 j=1,4
+      do 20 k=1,ipmf(i,j+1)
+      do 21 l=1,nums
+      if(isgan(l).eq.jpmf(i,j,k)) then
+      fs(l,1)=fs(l,1)+ft(j,1)
+      fs(l,2)=fs(l,2)+ft(j,2)
+      fs(l,3)=fs(l,3)+ft(j,3)
+      endif
+   21 continue
+   20 continue
+   19 continue
+      endif
+c
     6 continue
 c
       return

@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.56 2000-09-18 18:36:46 d3j191 Exp $
+c $Id: cf_init.F,v 1.57 2000-12-13 00:28:39 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -260,7 +260,7 @@ c
      + call errquit('Failed to allocate ipmf',0)
       if(.not.ma_push_get(mt_int,4*numpmf*npmfa,'jpmf',l_jpmf,i_jpmf))
      + call errquit('Failed to allocate jpmf',0)
-      if(.not.ma_push_get(mt_dbl,12*numpmf,'rpmf',l_rpmf,i_rpmf))
+      if(.not.ma_push_get(mt_dbl,18*numpmf,'rpmf',l_rpmf,i_rpmf))
      + call errquit('Failed to allocate rpmf',0)
       if(.not.ma_push_get(mt_dbl,16*numpmf,'xpmf',l_xpmf,i_xpmf))
      + call errquit('Failed to allocate xpmf',0)
@@ -352,7 +352,7 @@ c
 c
       integer lfntop
       integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
-      real*8 rpmf(2,6,numpmf)
+      real*8 rpmf(3,6,numpmf)
 c
       integer i,j,k,m,lenint,lendbl
 c
@@ -370,19 +370,36 @@ c
       rpmf(j,5,i)=rpmf(j,2,i)
       rpmf(j,6,i)=rpmf(j,3,i)
     2 continue
-      m=ipmf(i,1)
+      m=0
       if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
+      if(ipmf(i,1).eq.1) m=2
+      if(ipmf(i,1).eq.2) m=3
+      if(ipmf(i,1).eq.3) m=4
+      if(ipmf(i,1).eq.4) m=4
+      if(m.eq.0) call errquit('Error in pmf from top',m)
       do 3 j=1,m
       read(lfntop,1001) (jpmf(i,j,k),k=1,ipmf(i,j+1))
  1001 format(10i7)
     3 continue
+      if(ipmf(i,1).eq.3.or.ipmf(i,1).eq.4) then
+      do 4 k=1,6
+      do 5 j=2,1,-1
+      rpmf(j+1,k,i)=rpmf(j,k,i)
+      rpmf(j,k,i)=one
+    5 continue
+    4 continue
+      else
+      do 6 k=1,6
+      rpmf(3,k,i)=zero
+    6 continue
+      endif
     1 continue
       endif
 c
       call ga_sync()
       call ga_brdcst(mcf_60,ipmf,5*numpmf*lenint,0)
       call ga_brdcst(mcf_61,jpmf,4*numpmf*npmfa*lenint,0)
-      call ga_brdcst(mcf_62,rpmf,12*numpmf*lendbl,0)
+      call ga_brdcst(mcf_62,rpmf,18*numpmf*lendbl,0)
 c
       return
       end
@@ -1826,12 +1843,12 @@ c
 c
 #include "cf_common.fh"
 c
-      real*8 rlam(3),slam(3),rpmf(2,6,numpmf)
+      real*8 rlam(3),slam(3),rpmf(3,6,numpmf)
 c
       integer i,j,k
 c
       do 1 i=1,numpmf
-      do 2 j=1,2
+      do 2 j=1,3
       do 3 k=1,3
       rpmf(j,k,i)=rlam(k)*rpmf(j,6,i)+slam(k)*rpmf(j,5,i)
     3 continue
