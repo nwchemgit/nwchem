@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.15 2000-11-04 03:21:41 d3g681 Exp $
+# $Id: GNUmakefile,v 1.16 2000-11-22 19:25:52 edo Exp $
 #
 
 LIBRARY = libdriver.a
@@ -8,7 +8,7 @@ OBJ_OPTIMIZE = opt_drv.o driver_input.o
 
 OBJ = oniom.o
 
-USES_BLAS = opt_drv.F
+USES_BLAS = opt_drv.F oniom.F
 
 include ../config/makefile.h
 include ../config/makelib.h
