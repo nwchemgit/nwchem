@@ -1,25 +1,16 @@
 
-# $Id: GNUmakefile,v 1.1 2001-10-21 14:42:41 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-10-31 17:33:35 bylaska Exp $
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
  OBJ_OPTIMIZE = \
-                water_pseudopotential_input.o \
-				waterpsp.o \
-				LJparam_Ion.o \
-				LJ_Ion.o \
-				BLCJ_SR.o \
-				BLCJ_LR.o \
-				BLCJ_Coulomb.o \
-				BLCJ_Polarization.o \
-				BLCJ_Intra.o \
-				BLCJ_Inter.o
+                model_potential.o 
 
 	  OBJ = 
 
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = waterpsp.F
+    USES_BLAS = model_potential.F
                 
   LIB_DEFINES =
 

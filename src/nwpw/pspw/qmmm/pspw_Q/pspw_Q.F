@@ -173,6 +173,24 @@
       return
       end
 
+*     ***************************
+*     *							*
+*     *    pspw_Q_zv_MM 	*
+*     *							*
+*     ***************************
+      real*8 function pspw_Q_zv_MM(ia)
+      implicit none
+      integer ia
+
+#include "mafdecls.fh"
+
+***** LJparam common block ****
+#include "pspw_Q.fh"
+
+      pspw_Q_zv_MM =  dbl_mb(q_mm(1) + ia-1)
+      return
+      end
+
 
       
 *     ***************************

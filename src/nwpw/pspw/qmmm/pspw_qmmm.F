@@ -175,6 +175,7 @@
 *       ***** initialize Model, LJ, Pol, VIB, and CAV ****
         call pspw_LJ_init(rtdb)
         call pspw_Q_init(rtdb)
+        if (qmmm_type.eq.1) call Model_Potential_init(rtdb)
       end if
 
       return
@@ -568,7 +569,7 @@
         value = value.and.MA_free_heap(katm(2))
         if (.not.value) call errquit('cannot free heap memory',0)
 
-c       if (qmmm_type.eq.1) call Model_Potential_end()
+        if (qmmm_type.eq.1) call Model_Potential_end()
         call pspw_LJ_end()
         call pspw_Q_end()
       end if
@@ -841,10 +842,9 @@ c       if (qmmm_type.eq.1) call Model_Potential_end()
       if (nion.gt.0) then
 
 *         **** Model Potential ****
-c         if (qmmm_type.eq.1)
-c    >      call Model_Potential_Generate_V(nion,dbl_mb(r1(1)),
-c    >                                      n2ft3d,rgrid,Vqm)
-c
+          if (qmmm_type.eq.1)
+     >      call Model_Potential_Generate_V(n2ft3d,rgrid,Vqm)
+ 
 *         **** Model Charge ****
 c          if (qmmm_type.eq.2)
 c     >      call Model_Charge_Generate_V(nion,dbl_mb(r1(1)),

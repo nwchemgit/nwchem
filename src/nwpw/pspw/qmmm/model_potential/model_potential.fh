@@ -1,0 +1,8 @@
+*     **** Model_Potential common block ******************************
+      integer c(2),g(2),coeff(2)
+      integer lr_cutoff(2)
+      integer iatom(2)
+      integer Nbasis
+      common / Model_Potential_blck / c,g,coeff,lr_cutoff,iatom,Nbasis
+*     *****************************************************************
+
