@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.147 2001-12-18 21:14:16 edo Exp $
+C     $Id: geom_input.F,v 1.148 2001-12-20 23:04:29 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -3102,7 +3102,9 @@ C
       DIMENSION C4AXS(3)
       DIMENSION S4AXS(3)
       DIMENSION ERRMSG(3)
-      double precision big
+      double precision big,deter3
+      external deter3
+      logical sameatm,ngotax(3)
       EQUIVALENCE (DEGNR3,CUBIC)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-MOLOPS-'/
       DATA ZERO   /0.0D+00/
@@ -3115,7 +3117,6 @@ c     DATA TENM02 /1.0D-02/
       DATA TENM04 /1.0D-04/
       DATA TENM05 /1.0D-05/
       DATA EPS    /1.01D+00/
-      logical sameatm,ngotax(3)
       sameatm(JAT,IAT)=ATMLAB(JAT).EQ.ATMLAB(IAT)
       big=dlamch('o')**(0.125d0)
       QZERO=cmplx(ZERO,ZERO)
@@ -3494,7 +3495,12 @@ C
          AXS(1,3)=AXS(2,1)*AXS(3,2)-AXS(2,2)*AXS(3,1)
          AXS(2,3)=AXS(3,1)*AXS(1,2)-AXS(3,2)*AXS(1,1)
          AXS(3,3)=AXS(1,1)*AXS(2,2)-AXS(1,2)*AXS(2,1)
-         IF(SOME) THEN
+         if(deter3(AXS).le.0.99d0.or.deter3(AXS).gt.1.1d0) then
+            groupname='C1'
+            write(IW,*) ' WARNING: autosym failed! '
+            return
+         endif
+        IF(SOME) THEN
             WRITE(IW,*) ' NEW FRAME OF CUBIC GROUP '
             CALL HND_PRSQ(AXS,3,3,3)
          ENDIF
