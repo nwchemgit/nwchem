@@ -4,7 +4,7 @@ start SiC2-MD
 
 memory global 12 mb stack 12 mb heap 15 mb
 
-geometry units au
+geometry units au noautosym
 Si 0.000000000 2.00000000  0.00000000
 C 1.2400000000 0.00000000  0.00000000
 C -1.2400000000 0.00000000 0.00000000
