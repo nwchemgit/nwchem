@@ -1,6 +1,6 @@
       logical function line_search(nstep, max_nstep, energies,
      $     gradients, steps, eacc, tol, oprint)
-C$Id: line_search.F,v 1.5 1995-02-02 18:09:41 d3g681 Exp $
+C$Id: line_search.F,v 1.6 1995-02-13 00:47:20 d3g681 Exp $
       implicit none
 c
       integer nstep             ! Current no. of steps ... initially 1
@@ -49,9 +49,9 @@ c
          line_search = .false.
          return
       endif
-c
+c     
 c     determine current lowest energy and step
-c
+c     
       e_low    = energies(1)
       step_low = steps(1)
       g_low    = gradients(1)
@@ -62,9 +62,9 @@ c
             g_low    = gradients(i)
          endif
       enddo
-c
+c     
 c     numerical estimates of hessian and gradient
-c
+c     
       gs1 = gradients(nstep)
       gs0 = gradients(nstep-1)
       step1 = steps(nstep)
@@ -76,25 +76,25 @@ c
       ls_grad = (e1 - e0) / (step1 - step0) +
      $     0.5d0*ls_hessian*(step1 - step0)
       ls_ratio = abs(gs1 / gradients(1))
-c
+c     
       if (oprint) then
          write(6,3) step1, e1, gs1,
      $        ls_grad, ls_hessian, ls_ratio, tcgtime()
  3       format(5x,f8.4,f17.8,1p,3d10.2,d8.1,0p,f8.1)
          call util_flush(6)
       endif
-c
+c     
 c     Test for convergence of the line search
-c
+c     
       if ( (ls_ratio .lt. tol) .and.
      $     (ediff .lt. eacc) .and.
      $     (e1-e_low) .lt. eacc) then
          line_search = .true.
          return
       endif
-c
+c     
 c     Now determine where we are going next
-c
+c     
       if (((e1-e_low).gt.eacc)) then
 *     .and. abs(step1-step_low).gt.0.1d0) then
 c     
@@ -116,11 +116,11 @@ c
             endif
          endif
       else
-c
+c     
 c     Newton Raphson predicted step
-c
+c     
          ls_step = (gs1*step0 - gs0*step1)/(gs1 - gs0) - step1
-c
+c     
 c     if the hessian is positive and the numerical gradient agrees
 c     well with the computed gradient (indicating that anharmonic
 c     terms may be small) then can take a bigger step.
@@ -129,12 +129,12 @@ c
          if (abs((ls_grad-gs1)/gs1) .lt. 0.01) then
             ls_step_max = 4.0d0*ls_step_max
          endif
-c
+c     
          if (ls_hessian .lt. 0.0d0) then
 c     
 c     If have negative curvature simply step a small amount forward
 c     following the gradient downhill
-c
+c     
             if (oprint) then
                write(6,912) ls_hessian
                call util_flush(6)
@@ -142,18 +142,18 @@ c
             endif
             ls_step = sign(0.5d0,-gs1)
          else if ((ls_step+step1) .lt. 0.0) then
-c
+c     
 c     overall step cannot be negative since we have followed the gradient
-c
+c     
             if (oprint) then
                write(6,*) ' restricting step sign ', ls_step
                call util_flush(6)
             endif
             ls_step = -0.1d0*step1
          else if (abs(ls_step).gt.ls_step_max) then
-c
+c     
 c     Enforce maximum step
-c
+c     
             if (oprint) then
                write(6,*) ' restricting step size ', ls_step
                call util_flush(6)
@@ -161,9 +161,13 @@ c
             ls_step = sign(ls_step_max,ls_step)
          endif
       endif
-c
-      nstep = nstep + 1
-      steps(nstep) = steps(nstep-1) + ls_step
+c     
+      if (nstep .lt. max_nstep) then
+         nstep = nstep + 1
+         steps(nstep) = steps(nstep-1) + ls_step
+      else
+         call errquit('line_search: exhausted max steps',max_nstep)
+      endif
       line_search = .false.
 c
       end
