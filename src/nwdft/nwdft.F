@@ -4,7 +4,7 @@ c>>>  driver
 c     
       implicit real*8 (a-h,o-z)
       logical LResult
-      logical ok,valo
+      logical ok
       logical status
 c****
 c**** nwchem handles
@@ -43,11 +43,6 @@ c
      $     call errquit('dft: context_push failed', 0)
 c
 c**** status = rtdb_parallel(.true.) ! Broadcast reads to all processes
-c
-c-->  Read input deck to determine if there are any flags requiring
-c     the checkpoint file to be opened as old.
-c
-      if( iproc.eq.0 ) call makechk
 c
 c-->  Allocate memory for checkpoint file constants.
 c
