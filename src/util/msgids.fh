@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.105 1998-12-23 18:47:37 d3j191 Exp $
+c     $Id: msgids.fh,v 1.106 1998-12-29 00:08:40 d3j191 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -57,6 +57,18 @@ c
       integer msg_riscf_put_2
       integer msg_int2e_stat1
       integer msg_int2e_stat2
+c
+      integer mag_d00
+      integer mag_d01
+      integer mag_d02
+      integer mag_d03
+      integer mag_d04
+      integer mag_d05
+      integer mag_d06
+      integer mag_d07
+      integer mag_d08
+      integer mag_d09
+      integer mag_d10
 c
       integer mrg_000
       integer mrg_d01
@@ -649,3 +661,15 @@ c
       parameter (msg_gapss_pulay2=msg_ftn_base-458)  ! gapss: gap_pulay2
       parameter (msg_gapss_pulay3=msg_ftn_base-459)  ! gapss: gap_pulay3
       parameter (msg_gapss_doseig=msg_ftn_base-460)  ! gapss: gap_dos_eig
+c
+      parameter (mag_d00=msg_ftn_base-500) ! analysis module
+      parameter (mag_d01=msg_ftn_base-501) ! analysis module
+      parameter (mag_d02=msg_ftn_base-502) ! analysis module
+      parameter (mag_d03=msg_ftn_base-503) ! analysis module
+      parameter (mag_d04=msg_ftn_base-504) ! analysis module
+      parameter (mag_d05=msg_ftn_base-505) ! analysis module
+      parameter (mag_d06=msg_ftn_base-506) ! analysis module
+      parameter (mag_d07=msg_ftn_base-507) ! analysis module
+      parameter (mag_d08=msg_ftn_base-508) ! analysis module
+      parameter (mag_d09=msg_ftn_base-509) ! analysis module
+      parameter (mag_d10=msg_ftn_base-510) ! analysis module
