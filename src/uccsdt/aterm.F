@@ -1,6 +1,6 @@
       subroutine uccsdt_aterm(urange,vrange)
 c
-c$Id: aterm.F,v 1.5 2002-10-10 01:09:40 bert Exp $
+c$Id: aterm.F,v 1.6 2002-10-10 01:24:25 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -21,15 +21,23 @@ c
 C
 C     GENERATION OF PART OF A-TERM, STORED IN X(1-3) ARRAYS
 C
-c  R(me,nf) aa = 0.5* t(ie,jf)[<ij|mn>+0.5*X1(ij,mn) i=j=m=n=e=f=alpha
-c  R(me,nf) bb = 0.5* t(ie,jf)[<ij|mn>+0.5*X2(ij,mn) i=j=m=n=e=f=beta
-c  R(me,nf) ab =      t(ie,jf)[<ij|mn>+    X3(ij,mn) m=e=i=alpha n=f=j=beta
+c  R(me,nf) aa = 0.5* t(ie,jf)[<ij|mn>+0.5*X1(ij,mn)] i=j=m=n=e=f=alpha
+c  R(me,nf) bb = 0.5* t(ie,jf)[<ij|mn>+0.5*X2(ij,mn)] i=j=m=n=e=f=beta
+c  R(me,nf) ab =      t(ie,jf)[<ij|mn>+    X3(ij,mn)] m=e=i=alpha n=f=j=beta
 c
 c  X1(ij,mn) = <ij||ab>*t(ma,nb) -> can be generated from class 1 ??? i=j=a=b=m=n=alpha
 c  X2(ij,mn) = <ij||ab>*t(ma,nb) -> can be generated from class 4 ??? i=j=a=b=m=n=beta
 c  X3(ij,mn) = <ij||ab>*t(ma,nb) -> can be generated from class 2 ??? i=m=a=alpha j=n=b=beta
 c
-c
+c  So will have X-terms in 3 GA's of format (m,i,symi,n,j,symj,nj) for all nj's and I'll use those. 
+c  Need to get the offsets from So's Xterm code.
+c     Scale X1 and X2
+c     Add <ij|mn> integrals in correct places
+c     Get complete t(ie,jf) spin-block. How to matmul those? Probably like: 
+c        collect (i,j)_mn from X
+c        collect (i,j)_ef from T2
+c        matmul blocks into R(
+c     
 c  We can do them by order of R or by order of X, by R is less memory (only one X memory)
 c
       do nspin = 1, 2
@@ -50,12 +58,8 @@ c
                espin = mspin
                jspin = nspin
                fspin = nspin
-               dimmi = OO_len(symmi,mspin,ispin) !!! DOES NOT EXIST
-               dimni = OO_len(symmi,mspin,ispin) !!! DOES NOT EXIST
                dimme = ov_len(symme,mspin,espin)
                dimnf = ov_len(symnf,nspin,fspin)
-               if (.not. ga_create(MT_DBL,dimmi,dimnj,'X_temp',0,0,
-     &             g_x) call errquit('aterm: g_x alloc failed',0)
 c
 c     Generate X1, X2 and X3 from classes 1,2,4 -> probbaly cannot be done as those 
 c     classes are <uv||ij> and we need <ij||uv> !!!!!
@@ -66,15 +70,12 @@ c     So has already made the X-terms in his B-term routines. Maybe I should do 
 c     A term here while so does the other part coming from the X-term, read them in from 
 c     GA or disk
 c
-               call uccsdt_ampfile_read_t2(SO_GX,mspin,ispin,nspin,
-     &                                     jspin,symnj,jlo_a,jhi_a,
-     &                                     g_x,.true.,'block')
-               call ga_scale(g_x,prefactor)
+               call ga_scale(g_x(list_offset),prefactor)
 c
 c     Add <ij|mn> integrals from classes 5,6,8
 c
 c     here use list_offset+4
-               list_offset = list_offset + 4
+               list_nr = list_offset + 4
                do symj = 0, nir-1
                   symv = symj
                   symn = ieor(symnj, symj)
@@ -132,7 +133,7 @@ c     here use list_offset+4
      &                      errquit('aterm: k_upart dealloc failed',0)
                         if (.not. ma_pop_stack(l_vpart)) call 
      &                      errquit('aterm: k_vpart dealloc failed',0)
-                        call ga_put(g_x,n_address,dimi,dimm,
+                        call ga_put(g_x(list_offset),n_address,dimi,dimm,
      &                      m_address,dimj,dimn,dbl(k_ijlist),dimi,
      &                      1.0d0)
                         if (.not. ma_pop_stack(l_vulist)) call 
