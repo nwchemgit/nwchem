@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.47 2002-12-30 21:39:20 d3k958 Exp $
+C$Id: vectors.F,v 1.48 2003-06-19 01:36:16 edo Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -22,6 +22,7 @@ c
 c
       integer unitno            ! Unit no. for reading
       parameter (unitno = 67)   ! These need to be managed !!!
+
       integer lentit
       integer lenbas
       integer ok, i
@@ -858,6 +859,9 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "inp.fh"
+#include "eaf.fh"
+#include "stdio.fh"
+#include "mafdecls.fh"
 c
       character*(*) fname
       character*(*) title
@@ -866,17 +870,50 @@ c
 c     Read the header info from the dumb file_ga file
 c
       integer unitno                 ! Unit no. for writing
-      parameter (unitno = 86)
       integer len1, ok
+      integer ierr
+      double precision offset
+      integer lgth
+      character*255 errmsg
 c
       ok = 1
       if (ga_nodeid() .eq. 0) then
-         open(unitno, status='old', form='unformatted',
-     $        file=fname, err=1000)
-         read(unitno, err=1001) len1
-         read(unitno, err=1001) title(1:len1)
-         read(unitno, err=1001) nrow, ncol
-         close(unitno,err=1002)
+         offset=0d0
+         ierr=eaf_open(fname(1:inp_strlen(fname)),
+     ,        eaf_rw, unitno)
+        if (ierr .ne. 0) then
+           call eaf_errmsg(ierr,errmsg)
+           write(LuOut,*) ga_nodeid(),errmsg
+           call errquit('vectors: eaf_open failed', ierr)
+        endif
+        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        ierr = eaf_read(unitno, offset, len1,lgth)
+        offset=offset+lgth
+        lgth=len1
+        ierr = eaf_read(unitno, offset, title(1:len1),lgth)
+        offset=offset+lgth
+        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        ierr = eaf_read(unitno, offset, nrow,lgth)
+        offset=offset+lgth
+        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        ierr = eaf_read(unitno, offset, ncol,lgth)
+        if (ierr .ne. 0) then
+           call eaf_errmsg(ierr, errmsg)
+           write(LuOut,*) ' IO offset ', offset
+           write(LuOut,*) ' IO error message ',
+     $          errmsg(1:inp_strlen(errmsg))
+           goto 1001
+        endif
+        ierr=eaf_close(unitno)
+        if (ierr .ne. 0) then
+           write(luout,*) ga_nodeid(),' closing FD =',unitno,
+     ,          fname
+            call eaf_errmsg(ierr, errmsg)
+            write(LuOut,*) ' IO error message ',
+     $           errmsg(1:inp_strlen(errmsg))
+            call util_flush(luout)
+            goto 1002
+         endif
          goto 10
 c
  1000    write(6,*) ' file_read_ga_info: failed to open ',
@@ -889,7 +926,16 @@ c
      $        fname(1:inp_strlen(fname))
          call util_flush(6)
          ok = 0
-         close(unitno,err=1002)
+        ierr=eaf_close(unitno)
+        if (ierr .ne. 0) then
+           write(luout,*) ga_nodeid(),' closing FD =',unitno,
+     ,          fname
+            call eaf_errmsg(ierr, errmsg)
+            write(LuOut,*) ' IO error message ',
+     $           errmsg(1:inp_strlen(errmsg))
+            call util_flush(luout)
+            goto 1002
+         endif
          goto 10
 c     
  1002    write(6,*) ' file_read_ga_info: failed to close',
@@ -918,6 +964,8 @@ c
 #include "inp.fh"
 #include "msgids.fh"
 #include "util.fh"
+#include "eaf.fh"
+#include "stdio.fh"
 c
 c     Generic routine for sequential write 
 c     of global array to file
@@ -927,11 +975,14 @@ c
       integer ilo, ihi, jlo, jhi     ! [input] Patch to write
 c
       integer unitno                 ! Unit no. for writing
-      parameter (unitno = 86)
       character*255 gtitle
       integer l_tmp, k_tmp
       integer len1, nrow, ncol
       integer ok, j
+      integer ierr
+      double precision offset
+      integer lgth
+      character*255 errmsg
 c
       call ga_sync
 c
@@ -941,21 +992,62 @@ c
       call ga_inquire_name(g_a, gtitle)
       len1 = inp_strlen(gtitle)
       if (ga_nodeid() .eq. 0) then
-        open(unitno, status='unknown', form='unformatted',
-     $       file=fname, err=1000)
-        write(unitno, err=1001) len1
-        write(unitno, err=1001) gtitle(1:len1)
-        write(unitno, err=1001) nrow, ncol
+         offset=0d0
+         call util_flush(0)
+         ierr=eaf_open(fname(1:inp_strlen(fname)),eaf_rw, unitno)
+        if (ierr .ne. 0) then
+           call eaf_errmsg(ierr,errmsg)
+           write(LuOut,*) ga_nodeid(),errmsg
+           call errquit('vectors: eaf_open failed', ierr)
+        endif
+        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        ierr = eaf_write(unitno, offset, len1,lgth)
+        offset=offset+lgth
+        lgth=len1
+        ierr = eaf_write(unitno, offset, gtitle(1:len1),lgth)
+        offset=offset+lgth
+        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        ierr = eaf_write(unitno, offset, nrow,lgth)
+        offset=offset+lgth
+        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        ierr = eaf_write(unitno, offset, ncol,lgth)
+        if (ierr .ne. 0) then
+           call eaf_errmsg(ierr, errmsg)
+           write(LuOut,*) ' IO offset ', offset
+           write(LuOut,*) ' IO error message ',
+     $          errmsg(1:inp_strlen(errmsg))
+           goto 1001
+        endif
+        offset=offset+lgth
+         
         if (.not. ma_push_get(mt_dbl,nrow,'movecs_write',l_tmp,k_tmp))
      $    call errquit('matrix_fwrite: ma failed', nrow)
+        lgth=8d0*nrow
         do j=jlo,jhi
           call ga_get(g_a, ilo, ihi, j, j, dbl_mb(k_tmp), 1)
-          call swrite(unitno, dbl_mb(k_tmp), nrow)
-****          write(unitno, err=1001) (dbl_mb(k_tmp+i), i=0,nrow-1)
+          ierr = eaf_write(unitno, offset, dbl_mb(k_tmp),lgth)
+          if (ierr .ne. 0) then
+             call eaf_errmsg(ierr, errmsg)
+             write(LuOut,*) ' IO offset ', offset
+             write(LuOut,*) ' IO error message ',
+     $            errmsg(1:inp_strlen(errmsg))
+             goto 1001
+        endif
+        offset=offset+lgth
         enddo
         if (.not. ma_pop_stack(l_tmp))
      $    call errquit('file_write_ga: ma pop failed', l_tmp)
-        close(unitno,err=1002)
+
+      ierr=eaf_close(unitno)
+      if (ierr .ne. 0) then
+         write(luout,*) ga_nodeid(),' closing FD =',unitno,
+     ,        fname
+         call eaf_errmsg(ierr, errmsg)
+         write(LuOut,*) ' IO error message ',
+     $        errmsg(1:inp_strlen(errmsg))
+         call util_flush(luout)
+         goto 1002
+      endif
         ok = 1
       endif
 c
@@ -981,7 +1073,16 @@ c
      $     fname(1:inp_strlen(fname))
       call util_flush(6)
       ok = 0
-      close(unitno,err=1002)
+      ierr=eaf_close(unitno)
+      if (ierr .ne. 0) then
+         write(luout,*) ga_nodeid(),' closing FD =',unitno,
+     ,        fname
+         call eaf_errmsg(ierr, errmsg)
+         write(LuOut,*) ' IO error message ',
+     $        errmsg(1:inp_strlen(errmsg))
+         call util_flush(luout)
+         goto 1002
+      endif
       goto 10
 c
  1002 write(6,*) ' file_write_ga: failed to close',
@@ -1001,6 +1102,8 @@ c
 #include "inp.fh"
 #include "msgids.fh"
 #include "util.fh"
+#include "eaf.fh"
+#include "stdio.fh"
 c
 c     Generic routine for sequential read 
 c     of file to global array
@@ -1010,12 +1113,15 @@ c
       integer ilo, ihi, jlo, jhi     ! [input]
 c
       integer unitno                 ! Unit no. for writing
-      parameter (unitno = 86)
       character*255 gtitle
       integer l_tmp, k_tmp
       integer len1, nrow, ncol
       integer grow, gcol
       integer ok, j
+      integer ierr
+      double precision offset
+      integer lgth
+      character*255 errmsg
 c
       call ga_sync()
 c
@@ -1025,22 +1131,63 @@ c
       call ga_inquire_name(g_a, gtitle)
       len1 = inp_strlen(gtitle)
       if (ga_nodeid() .eq. 0) then
-        open(unitno, status='old', form='unformatted',
-     $       file=fname, err=1000)
-        read(unitno, err=1001) len1
-        read(unitno, err=1001) gtitle(1:len1)
-        read(unitno, err=1001) nrow, ncol
+         offset=0d0
+         ierr=eaf_open(fname(1:inp_strlen(fname)),
+     ,        eaf_rw, unitno)
+         call util_flush(0)
+         if (ierr .ne. 0) then
+           call eaf_errmsg(ierr,errmsg)
+           write(LuOut,*) ga_nodeid(),errmsg
+           call errquit('vectors: eaf_open failed', ierr)
+        endif
+        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        ierr = eaf_read(unitno, offset, len1,lgth)
+        offset=offset+lgth
+        lgth=len1
+        ierr = eaf_read(unitno, offset, gtitle(1:len1),lgth)
+        offset=offset+lgth
+        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        ierr = eaf_read(unitno, offset, nrow,lgth)
+        offset=offset+lgth
+        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        ierr = eaf_read(unitno, offset, ncol,lgth)
+        if (ierr .ne. 0) then
+           call eaf_errmsg(ierr, errmsg)
+           write(LuOut,*) ' IO offset ', offset
+           write(LuOut,*) ' IO error message ',
+     $          errmsg(1:inp_strlen(errmsg))
+           call errquit('vectors read failed',0)
+        endif
+        offset=offset+lgth
         if ((nrow.ne.grow).and.(ncol.ne.gcol)) goto 2000
         if (.not. ma_push_get(mt_dbl,nrow,'movecs_write',l_tmp,k_tmp))
      $    call errquit('matrix_fwrite: ma failed', nrow)
+        lgth=8d0*nrow
         do j=jlo,jhi
-          call sread(unitno, dbl_mb(k_tmp), nrow)
-***          read(unitno, err=1001) (dbl_mb(k_tmp+i), i=0,nrow-1)
-          call ga_put(g_a, ilo, ihi, j, j, dbl_mb(k_tmp), 1)
+          ierr = eaf_read(unitno, offset, dbl_mb(k_tmp),lgth)
+          if (ierr .ne. 0) then
+             call eaf_errmsg(ierr, errmsg)
+             write(LuOut,*) ' IO offset ', offset
+             write(LuOut,*) ' IO error message ',
+     $            errmsg(1:inp_strlen(errmsg))
+             call errquit('vectors read failed',j)
+        endif
+        offset=offset+lgth
+        call ga_put(g_a, ilo, ihi, j, j, dbl_mb(k_tmp), 1)
         enddo
         if (.not. ma_pop_stack(l_tmp))
      $    call errquit('file_read_ga: ma pop failed', l_tmp)
-        close(unitno,err=1002)
+        ierr=eaf_close(unitno)
+        if (ierr .ne. 0) then
+           write(luout,*) ga_nodeid(),' closing FD =',unitno,
+     ,          fname
+            call eaf_errmsg(ierr, errmsg)
+            write(LuOut,*) ' IO error message ',
+     $           errmsg(1:inp_strlen(errmsg))
+            call util_flush(luout)
+            call errquit('vectors: eaf_close failed',0)
+            goto 1002
+         endif
         ok = 1
       endif
 c
@@ -1066,7 +1213,17 @@ c
      $     fname(1:inp_strlen(fname))
       call util_flush(6)
       ok = 0
-      close(unitno,err=1002)
+      ierr=eaf_close(unitno)
+      if (ierr .ne. 0) then
+         write(luout,*) ga_nodeid(),' closing FD =',unitno,
+     ,        fname
+         call eaf_errmsg(ierr, errmsg)
+         write(LuOut,*) ' IO error message ',
+     $        errmsg(1:inp_strlen(errmsg))
+         call util_flush(luout)
+         call errquit('vectors: eaf_close failed',0)
+         goto 1002
+      endif
       goto 10
 c
  1002 write(6,*) ' file_read_ga: failed to close',
