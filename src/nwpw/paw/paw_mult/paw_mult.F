@@ -1,8 +1,11 @@
 *
-* $Id: paw_mult.F,v 1.15 2003-02-24 20:59:58 bylaska Exp $
+* $Id: paw_mult.F,v 1.16 2003-02-25 00:21:00 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.15  2003/02/24 20:59:58  bylaska
+* paw_mult_rcut and paw_mult_ncut functions have been added....EJB
+*
 * Revision 1.14  2003/02/24 20:52:52  bylaska
 * fixed initialization of rcut and ncut.....EJB
 *
@@ -339,7 +342,7 @@
          !**** Define QYlm ****
          mult_l = paw_basis_mult_l(ia)
          jj     = int_mb(i_paw_qlm(1)+ii-1)
-         write(*,*) "Qlm(0):",ii,dcpl_mb(paw_qlm(1)+jj)
+         !write(*,*) "Qlm(0):",ii,dcpl_mb(paw_qlm(1)+jj)
          sum = sum + dble(dcpl_mb(paw_qlm(1)+jj))
          kk     = 0
          call dcopy(2*npack0,0.0d0,0,dcpl_mb(QYlm(1)),1)
@@ -386,9 +389,9 @@
 
       end do !*ii*
 
-      write(*,*) "Qtotal:",sum*dsqrt(16.0d0*datan(1.0d0))
+      !write(*,*) "Qtotal:",sum*dsqrt(16.0d0*datan(1.0d0))
       sum = 2*dbl_mb(paw_q00(1)) + dbl_mb(paw_q00(1)+1)
-      write(*,*) "Qcore :",sum*dsqrt(16.0d0*datan(1.0d0))
+      !write(*,*) "Qcore :",sum*dsqrt(16.0d0*datan(1.0d0))
 
       !**** deallocate stack memory ****
       ok =        MA_pop_stack(QYlm(2))
@@ -498,8 +501,8 @@
 
 
       !**** unscramble multipole coefficients ****
-      write(*,*)
-      write(*,*)
+      !write(*,*)
+      !write(*,*)
       do ii=1,nion
          ia = ion_katm(ii)
          mult_l   = paw_basis_mult_l(ia)
@@ -516,17 +519,17 @@
            dcpl_mb(v_mult(1)+jj) = 0.5d0*(dcpl_mb(t_mult(1)+jj) 
      >                           + isgn*dconjg(dcpl_mb(t_mult(1)+kk)))
 
-           write(*,*) "v_mult 1:",ii,l,m,dcpl_mb(v_mult(1)+jj)
+           !write(*,*) "v_mult 1:",ii,l,m,dcpl_mb(v_mult(1)+jj)
            jj = jj + 1
          end do
          end do
       end do
       call D3dB_Vector_SumAll(2*v_mult(3),dcpl_mb(v_mult(1)))
-      write(*,*)
-      write(*,*)
+c     write(*,*)
+c     write(*,*)
 
-      write(*,*)
-      write(*,*)
+c     write(*,*)
+c     write(*,*)
       lmax  = paw_basis_max_mult_l()
       lmax2 = (lmax+1)**2
       do ii=1,nion
@@ -555,9 +558,9 @@
      >         + dcpl_mb(paw_qlm(1)+jl)
      >           *dcpl_mb(mult_energy_coeff(1)+indx)
 
-       write(*,*) "v_mult 1.5:",ii,ill+1,jj,jll+1,
-     >            dcpl_mb(paw_qlm(1)+jl),
-     >            dcpl_mb(mult_energy_coeff(1)+indx)
+c      write(*,*) "v_mult 1.5:",ii,ill+1,jj,jll+1,
+c    >            dcpl_mb(paw_qlm(1)+jl),
+c    >            dcpl_mb(mult_energy_coeff(1)+indx)
 
                jl  = jl+1
                jll = jll+1
@@ -570,32 +573,32 @@
          end do !*mi*
          end do !*li*
       end do !*ii*
-      write(*,*)
-      write(*,*)
+c     write(*,*)
+c     write(*,*)
 
-      !*** DEBUG ***
-      write(*,*)
-      write(*,*)
-      do ii=1,nion
-         ia = ion_katm(ii)
-         mult_li  = paw_basis_mult_l(ia)
-         il       = int_mb(i_v_mult(1) + ii - 1) 
-         do li=0,mult_li
-         do mi=-li,li
-           write(*,*) "v_mult 2:",ii,li,mi,dcpl_mb(v_mult(1)+il)
-           il = il + 1
-         end do !*mi*
-         end do !*li*
-      end do !*ii*
-      write(*,*)
-      write(*,*)
-      !*** DEBUG ***
+c     !*** DEBUG ***
+c     write(*,*)
+c     write(*,*)
+c     do ii=1,nion
+c        ia = ion_katm(ii)
+c        mult_li  = paw_basis_mult_l(ia)
+c        il       = int_mb(i_v_mult(1) + ii - 1) 
+c        do li=0,mult_li
+c        do mi=-li,li
+c          write(*,*) "v_mult 2:",ii,li,mi,dcpl_mb(v_mult(1)+il)
+c          il = il + 1
+c        end do !*mi*
+c        end do !*li*
+c     end do !*ii*
+c     write(*,*)
+c     write(*,*)
+c     !*** DEBUG ***
 
 
       call find_comp_coeff()
 
-      write(*,*)
-      write(*,*)
+c     write(*,*)
+c     write(*,*)
       do ii=1,nion
          ia = ion_katm(ii)
          mult_li  = paw_basis_mult_l(ia)
@@ -604,10 +607,10 @@
            indx = li + (ia-1)*(lmax+1)
            do mi=-li,li
 
-       write(*,*) "v_mult 2.5:",ii,li,mi,
-     >            dcpl_mb(paw_qlm(1)+il),
-     >            dbl_mb(self_energy_coeff(1)+indx),
-     >            dcpl_mb(comp_coeff(1)+il)
+c      write(*,*) "v_mult 2.5:",ii,li,mi,
+c    >            dcpl_mb(paw_qlm(1)+il),
+c    >            dbl_mb(self_energy_coeff(1)+indx),
+c    >            dcpl_mb(comp_coeff(1)+il)
 
              dcpl_mb(v_mult(1)+il) 
      >         = dcpl_mb(v_mult(1)+il) 
@@ -620,26 +623,26 @@
            end do !*mi*
          end do !*li*
       end do !*ii*
-      write(*,*)
-      write(*,*)
+c     write(*,*)
+c     write(*,*)
 
-      !*** DEBUG ***
-      write(*,*)
-      write(*,*)
-      do ii=1,nion
-         ia = ion_katm(ii)
-         mult_li  = paw_basis_mult_l(ia)
-         il       = int_mb(i_v_mult(1) + ii - 1) 
-         do li=0,mult_li
-         do mi=-li,li
-           write(*,*) "v_mult 3:",ii,li,mi,dcpl_mb(v_mult(1)+il)
-           il = il + 1
-         end do !*mi*
-         end do !*li*
-      end do !*ii*
-      write(*,*)
-      write(*,*)
-      !*** DEBUG ***
+c     !*** DEBUG ***
+c     write(*,*)
+c     write(*,*)
+c     do ii=1,nion
+c        ia = ion_katm(ii)
+c        mult_li  = paw_basis_mult_l(ia)
+c        il       = int_mb(i_v_mult(1) + ii - 1) 
+c        do li=0,mult_li
+c        do mi=-li,li
+c          write(*,*) "v_mult 3:",ii,li,mi,dcpl_mb(v_mult(1)+il)
+c          il = il + 1
+c        end do !*mi*
+c        end do !*li*
+c     end do !*ii*
+c     write(*,*)
+c     write(*,*)
+c     !*** DEBUG ***
 
       !**** deallocate stack memory ****
       ok =        MA_pop_stack(t_mult(2))
