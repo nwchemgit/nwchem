@@ -1,5 +1,5 @@
       Subroutine getNxyz(lambda,ic,Nxyz)
-c $Id: getNxyz.F,v 1.1 1994-09-28 17:56:58 d3e129 Exp $
+c $Id: getNxyz.F,v 1.2 2002-07-31 16:23:11 edo Exp $
       implicit none
 
       integer lambda, ic, Nxyz(3)
@@ -44,18 +44,16 @@ c
 c******************************************************************************
 
 c Define the angular momentum indices for the given shell component.
-
+#ifdef DEBUG
       if( lambda.le.linit )then
+#endif
 
-       l = lambda - 1
-       l3 = ((l+1)*(l+2)*(l+3))/6
-
-       nc = l3 + ic
-
+       nc =  (lambda*(lambda+1)*(lambda+2))/6 + ic
        Nxyz(1) = Ixyz(1,nc)
        Nxyz(2) = Ixyz(2,nc)
        Nxyz(3) = Ixyz(3,nc)
 
+#ifdef DEBUG
       else
 
        write(*,*)
@@ -66,5 +64,6 @@ c Define the angular momentum indices for the given shell component.
        stop
 
       end if
+#endif
 
       end
