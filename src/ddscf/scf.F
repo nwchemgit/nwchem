@@ -170,9 +170,7 @@ c
             write(6,*)
             write(6,*)
          endif
-*     if (.not. geom_print(geom)) call errquit('scf: geom_print ?',0)
-*     if (.not. bas_print(basis)) call errquit('scf: bas_print ?',0)
-         write(6,1) name(1:inp_strlen(name)), charge, 'rhf',
+         write(6,1) trans(1:inp_strlen(trans)), charge, 'rhf',
      $        movecs_in(1:inp_strlen(movecs_in)),
      $        movecs_out(1:inp_strlen(movecs_out))
  1       format(/
