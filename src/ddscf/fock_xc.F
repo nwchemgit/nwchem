@@ -1,6 +1,6 @@
       subroutine fock_xc(nmat, g_dens, g_xc)
 c
-c     $Id: fock_xc.F,v 1.2 1999-03-05 22:09:55 bjohnson Exp $
+c     $Id: fock_xc.F,v 1.3 2000-04-24 19:47:22 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -106,8 +106,8 @@ c
 c
       call xc_quadv0_gen(rtdb, nExc_dum, g_xc, int_mb(k_g_dens_local),
      &     g_wght_dum, g_xyz_dum, g_nq_dum, wght_GA_dum, Exc_dum,
-     &     rho_n_dum, dbl_mb(k_rdens_atom), int_mb(k_cntoce), 
-     &     int_mb(k_cntobfr), int_mb(k_cetobfr), natoms, nmat,
+     &     rho_n_dum, dbl_mb(k_rdens_atom), 
+     &     int_mb(k_cetobfr), natoms, nmat,
      &     calc_type)
 c
 c     Clean up
