@@ -1,8 +1,8 @@
+      subroutine mcscf_occ2int( nbf, occ, nclosed, nact )
 c
 c  Convert occupation vector to 
 c  number of closed and active orbitals
 c
-      subroutine mcscf_occ2int( nbf, occ, nclosed, nact )
       implicit none
       integer nbf
       double precision occ(nbf)
@@ -655,7 +655,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.25 1997-06-24 02:51:31 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.26 1997-07-10 21:37:00 d3e129 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -746,7 +746,6 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.25 1997-06-24 02:51:31 d3g681 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)
