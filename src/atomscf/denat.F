@@ -1,5 +1,5 @@
       subroutine guess_dens(rtdb, geom, basis, g_dens)
-C$Id: denat.F,v 1.9 1996-03-29 04:53:13 d3e129 Exp $
+C$Id: denat.F,v 1.10 1996-03-29 07:34:41 d3e129 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -9,6 +9,8 @@ C$Id: denat.F,v 1.9 1996-03-29 04:53:13 d3e129 Exp $
 #include "util.fh"
 #include "rtdb.fh"
 #include "atomz.fh"
+#include "inp.fh"
+#include "stdio.fh"
       integer rtdb              ! Run Time Data Base Handle
       integer geom, basis       ! Handles
       integer g_dens            ! GA returns superposition of atomic densities
@@ -29,8 +31,8 @@ c..
 c...  start all types after one cycle closed shell in routine denscf
 c
       integer iwrite
-      logical oprint_dens, oprint_scf, oprint_ener
-      integer l2
+      logical oprint_dens, oprint_scf, oprint_ener, oprint_mod_z
+      integer l2, iii, iiilen
       integer ntr, nsq
       integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
       integer ih, idc, idos, idt, idold, iss, ic, icopn, ismin
@@ -40,6 +42,7 @@ c
       oprint_dens = util_print('atomic guess density',print_debug)
       oprint_scf  = util_print('atomic scf', print_debug)
       oprint_ener = util_print('mo guess', print_default)
+      oprint_mod_z = util_print('modified charges', print_default)
 c
       if (ga_nodeid().eq.0 .and. 
      $     (oprint_dens .or. oprint_scf .or. oprint_ener)) then
@@ -61,7 +64,7 @@ c     dynamically allocate memory
 c
       call guess_mem(memq)
       if (.not. ma_push_get(mt_dbl, memq,'atomic guess', l_scr, k_scr))
-     $     call errquit('guess ao dens: ma_push failed', memq)
+     $     call errquit('guess_dens: ma_push failed', memq)
 c
       i10 = k_scr
       ipcap = i10 + l2
@@ -93,12 +96,24 @@ c..
       if (.not.rtdb_get(rtdb,'atomscf:num_z',mt_int,1,num_z))
      &    num_z = 0
       if (num_z .gt. max_num_z)
-     &    call errquit('rick/bob fixit',911)
+     &    call errquit
+     &    ('guess_dens: max_num_z < num_z  delta =',(max_num_z-num_z))
       if (num_z .gt. 0) then
         if (.not.rtdb_get(rtdb,'atomscf:z',mt_dbl,num_z,z))
-     &      call errquit('denat: read of atomscf:z failed ',911)
+     &      call errquit('guess_dens: read of atomscf:z failed ',911)
         if (.not.rtdb_cget(rtdb,'atomscf:tags_z',num_z,tags_z))
-     &      call errquit('denat: read of atomscf:tag_z failed',911)
+     &      call errquit
+     &      ('guess_dens: read of atomscf:tag_z failed',911)
+        if (oprint_mod_z) then
+          do iii = 1,num_z
+            iiilen = inp_strlen(tags_z(iii))
+            write(luout,'(1x,a,f7.2,a,a)')
+     &          'Atomic density modified by a delta charge of',
+     &          z(iii),' for atom tag ',
+     &          tags_z(iii)(1:iiilen)
+          enddo
+          write(luout,*)' '
+        endif
       endif
 c..
 c..   now loop over the atoms / do atomic scf and gather d-matrix
@@ -119,7 +134,7 @@ c
       endif
 c
       if (.not. ma_pop_stack(l_scr))
-     $     call errquit('guess ao dens: pop_stack failed', 0)
+     $     call errquit('guess_dens: pop_stack failed', 0)
 c
       return
  6020 format (//30x,28('-'),/,30x,'   initial guess density   ',/,30x,
