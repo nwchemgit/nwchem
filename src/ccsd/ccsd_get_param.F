@@ -1,6 +1,6 @@
       subroutine ccsd_get_param(rtdb, maxit,convi,iprt, theory,
      $   maxdiis, tol2e, occd)
-C     $Id: ccsd_get_param.F,v 1.10 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_get_param.F,v 1.11 2004-01-20 20:38:13 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -26,7 +26,7 @@ C     The default here is set to match the hardwired tol2es used in the
 C     transformations
 C
       if (.not. rtdb_get(rtdb, 'ccsd:tol2e',
-     $     MT_Dbl, 1, convi)) tol2e = Min(1.0d-12, 0.01 * Convi)
+     $     MT_Dbl, 1, tol2e)) tol2e = Min(1.0d-12, 0.01 * Convi)
       if (.not. rtdb_get(rtdb, 'ccsd:iprt',
      $     MT_INT, 1, iprt)) iprt = 0
       if (.not. rtdb_get(rtdb, 'ccsd:maxdiis',
