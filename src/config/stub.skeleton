@@ -1,8 +1,9 @@
-* $Id: stub.skeleton,v 1.3 2003-10-17 22:54:27 carlfahl Exp $
+* $Id: stub.skeleton,v 1.4 2003-10-20 23:41:17 edo Exp $
       Subroutine STUBROUTINE(RTDB)
 #include "errquit.fh"
       Integer RTDB
       Call ErrQuit(
-     $   'STUBROUTINE is not in this build of NWChem', 0, CAPMIS_ERR)
+     $   'STUBROUTINE is not in this build of NWChem',
+     $    0, CAPMIS_ERR)
       Return
       End
