@@ -1,6 +1,6 @@
-/*$Id: util_host.c,v 1.5 1999-11-17 18:39:30 bjohnson Exp $*/
+/*$Id: util_host.c,v 1.6 2003-08-13 18:06:11 edo Exp $*/
 #include <stdio.h>
-#ifdef CRAY
+#if defined(CRAY) && !defined(__crayx1)
 #include <fortran.h>
 #define FATR
 #endif
@@ -11,7 +11,7 @@ extern int FATR gethostname(char *, int);
 extern int gethostname(char *, int);
 #endif
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 extern int string_to_fortchar(_fcd, int, const char *);
 void FATR UTIL_HOSTNAME(name)
      _fcd name;

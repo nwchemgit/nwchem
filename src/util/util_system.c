@@ -1,5 +1,5 @@
 /*
- $Id: util_system.c,v 1.8 2001-04-25 22:38:38 windus Exp $
+ $Id: util_system.c,v 1.9 2003-08-13 18:06:11 edo Exp $
  */
 
 #include <stdio.h>
@@ -9,7 +9,7 @@
 
 extern int system(const char *);
 
-#ifdef CRAY
+#if defined(CRAY) && !defined(__crayx1)
 #include <fortran.h>
 #define FATR
 #endif
@@ -24,7 +24,7 @@ extern int system(const char *);
 
 typedef long Integer;		/*  FORTRAN integer */
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 int fortchar_to_string(_fcd, int, char *, const int);
 #else
 int fortchar_to_string(const char *, int, char *, const int);
@@ -32,7 +32,7 @@ int fortchar_to_string(const char *, int, char *, const int);
 
 void ga_error(const char *, long);
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 Integer FATR UTIL_SYSTEM(_fcd input)
 {
     int lin  = _fcdlen(input);

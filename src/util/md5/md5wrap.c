@@ -1,22 +1,22 @@
 #include <stdio.h>
 #include "mdglobal.h"
 #include "md5.h"
-#ifdef CRAY
+#if defined(CRAY)&& !defined(__crayx1)
 #include <fortran.h>
 #endif
 #include "typesf2c.h"
 
 /*
- $Id: md5wrap.c,v 1.6 2001-05-04 20:01:35 edo Exp $
+ $Id: md5wrap.c,v 1.7 2003-08-13 18:06:11 edo Exp $
  */
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 extern int string_to_fortchar(_fcd f, int flen, char *buf);
 #else
 extern int string_to_fortchar(char *f, int flen, char *buf);
 #endif
 
-#if defined(CRAY) || defined(WIN32)
+#if (defined(CRAY) || defined(WIN32))&& !defined(__crayx1)
 #define checksum_simple_ CHECKSUM_SIMPLE
 #define checksum_init_   CHECKSUM_INIT
 #define checksum_update_ CHECKSUM_UPDATE
@@ -106,7 +106,7 @@ void FATR checksum_update_(integer *len, const void *buf)
     checksum_update((int) *len, buf);
 }
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 void FATR checksum_char_update_(_fcd f)
 {
     checksum_update(_fcdlen(f), _fcdtocp(f));
@@ -118,7 +118,7 @@ void FATR checksum_char_update_(const char *buf, int len)
 }
 #endif
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 void FATR checksum_final_(_fcd f)
 {
     int flen = _fcdlen(f);
@@ -136,7 +136,7 @@ void FATR checksum_final_(char *f, int flen)
     }
 }
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 void checksum_simple_(integer *len, const void *buf, _fcd f)
 {
     checksum_init();
@@ -152,7 +152,7 @@ void checksum_simple_(integer *len, const void *buf, char *f, int flen)
 }
 #endif
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 void checksum_char_simple_(_fcd b, _fcd f)
 {
     checksum_init();
@@ -186,21 +186,21 @@ int cmain()
 
 /* Normally defined by NWChem */
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 static int string_to_fortchar(_fcd f, int flen, char *buf)
 #else
 static int string_to_fortchar(char *f, int flen, char *buf)
 #endif
 {
   int len = (int) strlen(buf), i;
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
   flen = _fcdlen(f);
 #endif
 
   if (len > flen) 
     return 0;			/* Won't fit */
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
   for (i=0; i<len; i++)
     _fcdtocp(f)[i] = buf[i];
   for (i=len; i<flen; i++)

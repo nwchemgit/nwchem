@@ -1,6 +1,6 @@
-/*$Id: fortchar.c,v 1.8 2001-11-14 20:26:20 edo Exp $*/
+/*$Id: fortchar.c,v 1.9 2003-08-13 18:06:11 edo Exp $*/
 /* Name munging to handle the various conventions for Fortran-C interfacing */
-#if (defined(CRAY) || defined(ARDENT) || defined(WIN32))
+#if (defined(CRAY) || defined(ARDENT) || defined(WIN32)) && !defined(__crayx1)
 #   define FCSND_  FCSND
 #   define FCRCV_  FCRCV
 #else
@@ -18,7 +18,7 @@
 
 #include "sndrcv.h"
 #include <string.h>
-#ifdef CRAY
+#if defined(CRAY) && !defined(__crayx1)
 #define FATR
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
 #endif /* CRAY */
@@ -35,7 +35,7 @@
  **/
 
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 void FATR FCSND_(type, fcd, node, sync)
      long *type;
      _fcd fcd;
@@ -52,7 +52,7 @@ void FCSND_(type, fstring, node, sync, flength)
 {
     char cstring[FC_MAXLEN];
     long fpos, clength, lenbuf=sizeof cstring;
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
     char	*fstring;	/* FORTRAN string */
     long	flength;	/* length of fstring */
 
@@ -84,7 +84,7 @@ void FCSND_(type, fstring, node, sync, flength)
     }
 }
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 void FATR FCRCV_(type, fcd, flength, nodeselect, nodefrom, sync)
      long *type;
      _fcd fcd;
@@ -105,7 +105,7 @@ void FCRCV_(type, fstring, flength, nodeselect, nodefrom, sync, fsize)
 {
     char cstring[FC_MAXLEN];
     long i, clength, lenbuf=sizeof cstring;
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
     char	*fstring;	/* FORTRAN string */
     long	fsize;	        /* length of fstring */
 

@@ -1,5 +1,5 @@
 /*
- $Id: util_file_unlink.c,v 1.5 1999-11-16 20:51:02 edo Exp $
+ $Id: util_file_unlink.c,v 1.6 2003-08-13 18:06:11 edo Exp $
  */
 
 /*
@@ -16,13 +16,13 @@
 #else
 #include <unistd.h>
 #endif
-#ifdef CRAY
+#if defined(CRAY) && !defined(__crayx1)
 #include <fortran.h>
 #define FATR
 #endif
 #include "eaf.h"
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 int fortchar_to_string(_fcd, int, char *, const int);
 #else
 int fortchar_to_string(const char *, int, char *, const int);
@@ -49,7 +49,7 @@ void util_file_unlink(const char *filename)
     ga_error("util_file_unlink",0);
 }
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 void FATR UTIL_FILE_UNLINK(_fcd input)
 {
     int lin  = _fcdlen(input);

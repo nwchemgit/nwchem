@@ -1,16 +1,16 @@
 /*
- $Id: util_file_copy.c,v 1.11 2000-12-04 18:41:27 edo Exp $
+ $Id: util_file_copy.c,v 1.12 2003-08-13 18:06:11 edo Exp $
  */
 
 #include <stdio.h>
-#ifdef CRAY
+#if defined(CRAY) && !defined(__crayx1)
 #include <fortran.h>
 #define FATR
 #endif
 #include "global.h"
 #include "typesf2c.h"
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 int fortchar_to_string(_fcd, int, char *, const int);
 #else
 Integer fortchar_to_string(const char *, Integer, char *, const Integer);
@@ -110,7 +110,7 @@ void util_file_parallel_copy(const char *input, const char *output)
     if (fout) (void) fclose(fout);
 }
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 void FATR UTIL_FILE_COPY(_fcd input, _fcd output)
 {
     int lin  = _fcdlen(input);

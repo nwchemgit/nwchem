@@ -1,11 +1,11 @@
-/*$Id: util_date.c,v 1.7 1999-11-16 20:51:02 edo Exp $*/
+/*$Id: util_date.c,v 1.8 2003-08-13 18:06:11 edo Exp $*/
 #include <sys/types.h>
 #include <time.h>
 #if !defined(IPSC) && !defined(WIN32)
 #include <sys/time.h>
 #endif
 
-#ifdef CRAY
+#if defined(CRAY) && !defined(__crayx1)
 #define util_date_ UTIL_DATE
 #include <fortran.h>
 #define FATR
@@ -15,7 +15,7 @@
 #include "typesf2c.h"
 #endif
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 int string_to_fortchar(_fcd, int, const char *);
 #else
 int string_to_fortchar(char *, int, const char *);
@@ -30,7 +30,7 @@ int string_to_fortchar(char *, int, const char *);
 */
 
 
-#if defined(CRAY) || defined(USE_FCD)
+#if defined(USE_FCD)
 void FATR util_date_(_fcd date)
 {
   int  nlen = _fcdlen(date);
