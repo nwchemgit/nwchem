@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.275 1999-03-05 23:21:21 d3e129 Exp $
+# $Id: makefile.h,v 1.276 1999-03-13 21:32:01 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1073,7 +1073,9 @@ ifeq ($(TARGET),DECOSF)
 # -fpe2 and call to util/dec_fpe.f from nwchem.F necessary to avoid
 # braindead alpha undflows inside texas (c6h6 6-31g)
 
-              FOPTIONS = -i8 -assume noaccuracy_sensitive -align dcommons -math_library fast -fpe2 -check nounderflow
+#              FOPTIONS = -i8 -assume noaccuracy_sensitive -align dcommons -math_library fast -fpe2 -check nounderflow
+# assume noaccuracy_sensitive was breaking the code in recent versions (EA)
+              FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check nounderflow
               COPTIONS = 
              FOPTIMIZE = -O 
              COPTIMIZE = -O
