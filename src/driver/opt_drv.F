@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.105 2004-02-17 19:29:07 yuri Exp $
+* $Id: opt_drv.F,v 1.106 2004-04-22 20:10:37 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -20,10 +20,13 @@ c
       logical converged, status
       double precision start    ! Tracks time used in last step
       integer required          ! Time required
+      logical ophigh
       logical  driver_converged, task_gradient, 
      $     geom_compute_zmatrix, geom_print_zmatrix
       external driver_converged, task_gradient,
      $     geom_compute_zmatrix, geom_print_zmatrix
+c
+      ophigh = util_print('high', print_high)
 c
 c     Read input, load /coptopt/, get geometry
 c
@@ -67,7 +70,8 @@ c
 c     
 c     Zero the gradient associated with atoms frozen in cartesians
 c     
-       if (ga_nodeid().eq.0) write(6,*) 'Zeroing constrained gradient'
+       if (ga_nodeid().eq.0.and.ophigh) 
+     %        write(luout,*) 'Zeroing constrained gradient'
 
          if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
             do iat = 1, nat_real
@@ -1375,6 +1379,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
+#include "stdio.fh"
       integer geom
 c
 c     This routine for minimization
@@ -1402,11 +1407,13 @@ c
       double precision bohr, deg ! For printing purposes
       double precision trustds  ! Restriction of step in opt. variable
       logical geom_print_zmatrix
+      logical ophigh
 c
 c     Get the Hessian and gradient with appropriate projectors
 c     applied following Peng, Ayala, Schlegel and Frisch so that
 c     redundant internal modes are shifted to high eigenvalues.
 c
+      ophigh = util_print('high', print_high)
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
      $     l_hess, k_hess)) call errquit
      $     ('driver_search_dir: memory for hessian',nvar**2, MA_ERR)
@@ -1533,7 +1540,8 @@ c
 c     Enforce frozen atoms in cartesians
 c
 
-      if (ga_nodeid().eq.0) write(6,*) 'Zeroing constrained gradient'
+      if (ga_nodeid().eq.0.and.ophigh) 
+     $     write(luout,*) 'Zeroing constrained gradient'
 
       if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
          do iat = 1, nat
