@@ -1,6 +1,6 @@
       Subroutine dft_mxovl(basis, evals,g_evecs, g_oevecs,g_s,g_tmp)
 
-C$Id: dft_mxovl.F,v 1.1 1995-12-13 03:08:54 og845 Exp $
+C$Id: dft_mxovl.F,v 1.2 1995-12-18 03:22:45 og845 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap       [input] overwritten!
@@ -42,7 +42,7 @@ c
       if(.not.MA_Push_Get(MT_int,nbf,'ord',
      &     l_ord, k_ord))
      &     call errquit('max_ovl: MA alloc failed ',212)
-        call ifill(nbf, 0.0d0, int_mb(k_ord), 1)
+        call ifill(nbf, 0, int_mb(k_ord), 1)
 
 C
 C     compute matrix mult (V_old)T * S * V_new = S`
