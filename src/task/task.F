@@ -28,10 +28,12 @@ c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
       logical  task_energy, task_gradient, task_optimize, task_freq
+      logical  task_hessian
 c
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       external nwargos, property, dplot, gapss, task_shell, moints_full
       external task_energy, task_gradient, task_optimize, task_freq
+      external task_hessian
 c      
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = ' '
@@ -95,6 +97,8 @@ c
          status = task_energy(rtdb)
       else if (inp_compare(.false., 'gradient', operation)) then
          status = task_gradient(rtdb)
+      else if (inp_compare(.false., 'hessian', operation)) then
+         status = task_hessian(rtdb)
       else if (inp_compare(.false., 'optimize', operation)) then
          status = task_optimize(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
@@ -151,4 +155,6 @@ c
       enddo
 c
       end
+
+
 

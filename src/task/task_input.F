@@ -34,6 +34,8 @@ c
             operation = 'optimize'
          else if (inp_compare(.false.,test,'gradient')) then
             operation = 'gradient'
+         else if (inp_compare(.false.,test,'hessian')) then
+            operation = 'hessian'
          else if (inp_compare(.false.,test,'dynamics')) then
             operation = 'dynamics'
          else if (inp_compare(.false.,test,'thermodynamics')) then
@@ -140,4 +142,8 @@ c
      $     call errquit('task shell: rtdb corrupt',0)
 c
       end
+
+
+
+
 
