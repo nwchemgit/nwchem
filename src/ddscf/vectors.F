@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.33 1997-12-04 22:54:31 d3g681 Exp $
+C$Id: vectors.F,v 1.34 1998-07-17 08:00:20 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -704,10 +704,10 @@ c
       nrow = ihi-ilo+1
       ncol = jhi-jlo+1
       call ga_inquire_name(g_a, gtitle)
+      len1 = inp_strlen(gtitle)
       if (ga_nodeid() .eq. 0) then
         open(unitno, status='unknown', form='unformatted',
      $       file=fname, err=1000)
-        len1 = inp_strlen(gtitle)
         write(unitno, err=1001) len1
         write(unitno, err=1001) gtitle(1:len1)
         write(unitno, err=1001) nrow, ncol
@@ -787,6 +787,8 @@ c
       ok = 0
       grow = ihi-ilo+1
       gcol = jhi-jlo+1
+      call ga_inquire_name(g_a, gtitle)
+      len1 = inp_strlen(gtitle)
       if (ga_nodeid() .eq. 0) then
         open(unitno, status='old', form='unformatted',
      $       file=fname, err=1000)
