@@ -1,11 +1,11 @@
 ! 
-! $Id: paw_proj.fh,v 1.4 2003-01-24 19:35:43 marat Exp $
+! $Id: paw_proj.fh,v 1.5 2003-01-28 02:03:40 marat Exp $
 ! 
 
       integer  paw_proj_nbasis
       external paw_proj_nbasis
-      integer  paw_proj_total_nbasis
-      external   paw_proj_total_nbasis
+c      integer  paw_proj_total_nbasis
+c      external   paw_proj_total_nbasis
 
       integer  paw_proj_m
       external paw_proj_m

@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.10 2003-01-27 06:40:12 marat Exp $
+* $Id: paw_ovlp.F,v 1.11 2003-01-28 02:03:40 marat Exp $
 *
 
 !**************************************************
@@ -36,6 +36,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
          total_nbasis = total_nbasis 
      >                + paw_proj_nbasis(ia)*ion_natm(ia)
       end do
+
 
 c     !*** total number of electron states ***
       neall = (psi_ne(1) + psi_ne(2))
@@ -116,13 +117,13 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
 
 **************************************************
 !
-!	Name: paw_ovlp_set
+!	Name: paw_ovlp_coeff_set
 !
 !	Purpose: sets the paw overlap coefficients
 !
 !	Created:	8/07/2002
 !**************************************************
-      subroutine paw_ovlp_set(psi)
+      subroutine paw_ovlp_coeff_set(psi)
       implicit none
       complex*16 psi(*)
       
@@ -150,7 +151,7 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       !*** allocate temporary space ***
       value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
       value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
-      if (.not.value) call errquit('paw_ovlp_set: push stack',0)
+      if (.not.value) call errquit('paw_ovlp_coeff_set: push stack',0)
 
 
 c      call D3DB_nx(1,nx)
@@ -224,9 +225,22 @@ c             dcpl_mb(toeff(1)+indx_coeff) = dcpl_mb(toeff(1)+indx_coeff)*scal_f
       write(*,*)
       value =           MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) call errquit('paw_ovlp_set: pop stack',1)
+      if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',1)
       
 
       return
       end
  
+      subroutine paw_ovlp_weights_set()
+
+#include "paw_proj.fh"
+#include "paw_ma.fh"
+
+        integer tot_nbasis
+
+c        tot_nbasis = paw_proj_total_nbasis()
+        
+
+
+      end
+     

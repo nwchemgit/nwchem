@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.8 2003-01-24 20:28:01 marat Exp $
+! $Id: paw_basis_data.F,v 1.9 2003-01-28 02:03:38 marat Exp $
 
 !**************************************************
 !
@@ -148,81 +148,81 @@
 
 !**************************************************
 !
-!	Name: get_tot_ntype
+!	Name: paw_basis_tot_ntype
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_tot_ntype()
+      INTEGER FUNCTION  paw_basis_tot_ntype()
       implicit none
 
 #include "paw_basis_data.fh"
 
-      get_tot_ntype = tot_ntype
+      paw_basis_tot_ntype = tot_ntype
       return
       END 
 
 !**************************************************
 !
-!	Name: get_tot_nbasis
+!	Name: paw_basis_tot_nbasis
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_tot_nbasis()
+      INTEGER FUNCTION  paw_basis_tot_nbasis()
       implicit none
 
 #include "paw_basis_data.fh"
 
-      get_tot_nbasis = tot_nbasis
+      paw_basis_tot_nbasis = tot_nbasis
       return
       END 
 
 !**************************************************
 !
-!	Name: get_tot_ngrid
+!	Name: paw_basis_tot_ngrid
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_tot_ngrid()
+      INTEGER FUNCTION  paw_basis_tot_ngrid()
       implicit none
 
 #include "paw_basis_data.fh"
 
-      get_tot_ngrid = tot_ngrid
+      paw_basis_tot_ngrid = tot_ngrid
       return
       END
  
 !**************************************************
 !
-!	Name: get_tot_ngridbasis
+!	Name: paw_basis_tot_ngridbasis
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_tot_ngridbasis()
+      INTEGER FUNCTION  paw_basis_tot_ngridbasis()
       implicit none
 
 #include "paw_basis_data.fh"
  
-      get_tot_ngridbasis = tot_ngridbasis
+      paw_basis_tot_ngridbasis = tot_ngridbasis
       return
       END
  
 !**************************************************
 !
-!	Name: get_i_nbasis
+!	Name: paw_basis_i_nbasis
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_nbasis(it)
+      INTEGER FUNCTION  paw_basis_i_nbasis(it)
       implicit none
       integer it
    
@@ -230,19 +230,19 @@
 #include "paw_basis_data.fh"
 
 
-      get_i_nbasis = nbasis(1) +  it-1
+      paw_basis_i_nbasis = nbasis(1) +  it-1
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_nbasis
+!	Name: paw_basis_i_nbasis
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-        INTEGER FUNCTION  get_nbasis(it)
+        INTEGER FUNCTION  paw_basis_nbasis(it)
         implicit none
         integer it
      
@@ -250,27 +250,27 @@
 #include "paw_basis_data.fh"
   
   
-        get_nbasis = int_mb(nbasis(1) +  it-1)
+        paw_basis_nbasis = int_mb(nbasis(1) +  it-1)
         return
         END 
   
 
 !**************************************************
 !
-!	Name: get_i_ngrid
+!	Name: paw_basis_i_ngrid
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_ngrid(it)
+      INTEGER FUNCTION  paw_basis_i_ngrid(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_ngrid = ngrid(1) +  it-1
+      paw_basis_i_ngrid = ngrid(1) +  it-1
       return
       END
  
@@ -282,7 +282,7 @@
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_mult_l(it)
+      INTEGER FUNCTION  paw_basis_i_mult_l(it)
       implicit none
       integer it
     
@@ -290,7 +290,7 @@
 #include "paw_basis_data.fh"
 
 
-      get_i_mult_l = mult_l(1) +  it-1
+      paw_basis_i_mult_l = mult_l(1) +  it-1
       return
       END 
 
@@ -302,7 +302,7 @@
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_mult_l(it)
+      INTEGER FUNCTION  paw_basis_mult_l(it)
       implicit none
       integer it
     
@@ -310,38 +310,38 @@
 #include "paw_basis_data.fh"
 
 
-      get_mult_l = int_mb(mult_l(1) +  it-1)
+      paw_basis_mult_l = int_mb(mult_l(1) +  it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_r1
+!	Name: paw_basis_i_r1
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_r1(it)
+      INTEGER FUNCTION  paw_basis_i_r1(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_r1 = r1(1) +  it-1
+      paw_basis_i_r1 = r1(1) +  it-1
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_rmax
+!	Name: paw_basis_i_rmax
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_rmax(it)
+      INTEGER FUNCTION  paw_basis_i_rmax(it)
       implicit none
       integer it
     
@@ -349,64 +349,64 @@
 #include "paw_basis_data.fh"
 
 
-      get_i_rmax = rmax(1) +  it-1
+      paw_basis_i_rmax = rmax(1) +  it-1
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_i_cut
+!	Name: paw_basis_i_i_cut
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_i_cut(it)
+      INTEGER FUNCTION  paw_basis_i_i_cut(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_i_cut = i_cut(1) +  it-1
+      paw_basis_i_i_cut = i_cut(1) +  it-1
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_sigma
+!	Name: paw_basis_i_sigma
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_sigma(it)
+      INTEGER FUNCTION  paw_basis_i_sigma(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_sigma = sigma(1) +  it-1
+      paw_basis_i_sigma = sigma(1) +  it-1
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_log_amesh
+!	Name: paw_basis_i_log_amesh
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_log_amesh(it)
+      INTEGER FUNCTION  paw_basis_i_log_amesh(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_log_amesh = log_amesh(1) +  it-1
+      paw_basis_i_log_amesh = log_amesh(1) +  it-1
       return
       END 
 
@@ -432,18 +432,18 @@
       real*8 core,fourpi
 
 c      !*** external functions ***
-c      integer  get_i_core_density,get_i_rgrid
-c      integer  get_i_log_amesh,get_i_ngrid
-c      external get_i_core_density,get_i_rgrid
-c      external get_i_log_amesh,get_i_ngrid
+c      integer  paw_basis_i_core_density,paw_basis_i_rgrid
+c      integer  paw_basis_i_log_amesh,paw_basis_i_ngrid
+c      external paw_basis_i_core_density,paw_basis_i_rgrid
+c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
       fourpi = 16.0d0*datan(1.0d0)
       q = fourpi*def_integr(0,
-     >                         dbl_mb(get_i_core_density(ia)),
+     >                         dbl_mb(paw_basis_i_core_density(ia)),
      >                         2,
-     >                         dbl_mb(get_i_rgrid(ia)),
-     >                         dbl_mb(get_i_log_amesh(ia)),
-     >                         int_mb(get_i_ngrid(ia)))
+     >                         dbl_mb(paw_basis_i_rgrid(ia)),
+     >                         dbl_mb(paw_basis_i_log_amesh(ia)),
+     >                         int_mb(paw_basis_i_ngrid(ia)))
 
 
       return
@@ -451,79 +451,79 @@ c      external get_i_log_amesh,get_i_ngrid
 
 !**************************************************
 !
-!       Name: get_i_core_charge
+!       Name: paw_basis_i_core_charge
 !
 !       Purpose
 !
 !       Created:        7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_core_charge(it)
+      INTEGER FUNCTION  paw_basis_i_core_charge(it)
       implicit none
       integer it
 
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_core_charge = core_charge(1) +  it-1
+      paw_basis_i_core_charge = core_charge(1) +  it-1
       return
       END
 
 !**************************************************
 !
-!       Name: get_core_charge
+!       Name: paw_basis_core_charge
 !
 !       Purpose
 !
 !       Created:        7/9/2002
 !**************************************************
-      DOUBLE PRECISION FUNCTION  get_core_charge(it)
+      DOUBLE PRECISION FUNCTION  paw_basis_core_charge(it)
       implicit none
       integer it
 
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_core_charge = dbl_mb(core_charge(1) +  it-1)
+      paw_basis_core_charge = dbl_mb(core_charge(1) +  it-1)
       return
       END
 
 
 !**************************************************
 !
-!	Name: get_i_ion_charge
+!	Name: paw_basis_i_ion_charge
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_ion_charge(it)
+      INTEGER FUNCTION  paw_basis_i_ion_charge(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_ion_charge = ion_charge(1) +  it-1
+      paw_basis_i_ion_charge = ion_charge(1) +  it-1
       return
       END 
 
       
 !**************************************************
 !
-!	Name: get_ion_charge
+!	Name: paw_basis_ion_charge
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      DOUBLE PRECISION FUNCTION  get_ion_charge(it)
+      DOUBLE PRECISION FUNCTION  paw_basis_ion_charge(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_ion_charge = dbl_mb(ion_charge(1) +  it-1)
+      paw_basis_ion_charge = dbl_mb(ion_charge(1) +  it-1)
       return
       END 
 
@@ -545,11 +545,11 @@ c      external get_i_log_amesh,get_i_ngrid
 
 
       !*** external functions ***
-      integer  get_i_rgrid,get_i_i_cut
-      external get_i_rgrid,get_i_i_cut                                                 
+      integer  paw_basis_i_rgrid,paw_basis_i_i_cut
+      external paw_basis_i_rgrid,paw_basis_i_i_cut                                                 
 
-      paw_basis_sphere_radius = dbl_mb(get_i_rgrid(ia)
-     >                                 +int_mb(get_i_i_cut(ia))-1)
+      paw_basis_sphere_radius = dbl_mb(paw_basis_i_rgrid(ia)
+     >                                 +int_mb(paw_basis_i_i_cut(ia))-1)
       return
       end 
 
@@ -570,33 +570,75 @@ c      external get_i_log_amesh,get_i_ngrid
 #include "paw_basis_data.fh"
 
       !*** external functions ***
-      integer  get_i_sigma
-      external get_i_sigma                                                 
+      integer  paw_basis_i_sigma
+      external paw_basis_i_sigma                                             
 
-      paw_basis_sigma = dbl_mb(get_i_sigma(ia))
+      paw_basis_sigma = dbl_mb(paw_basis_i_sigma(ia))
       return
       end
 
 **************************************************
 !
-!	Name: paw_basis_nbasis
+!	Name: paw_tot_nlm_nbasis
 !
 !	Purpose 
 !
 !	Created:	8/06/2002
 !**************************************************
-      integer function  paw_basis_nbasis(ia)
+      integer function  paw_tot_nlm_nbasis()
+
       implicit none
+
       integer ia
+      integer ii
+      integer l
     
 #include "myma.fh"
-#include "paw_basis_data.fh"
+c#include "paw_basis.fh"
+#include "paw_geom.fh"
 
       !*** external functions ***
-      integer  get_i_nbasis
-      external get_i_nbasis                                                
+      integer  paw_nlm_nbasis
+      external paw_nlm_nbasis
 
-      paw_basis_nbasis = int_mb(get_i_nbasis(ia))
+      paw_tot_nlm_nbasis = 0
+      do ia=1,ion_nion()
+        paw_tot_nlm_nbasis = paw_tot_nlm_nbasis + paw_nlm_nbasis(ia)
+      end do
+
+      return
+      end
+
+
+**************************************************
+!
+!	Name: paw_nlm_nbasis
+!
+!	Purpose 
+!
+!	Created:	8/06/2002
+!**************************************************
+      integer function  paw_nlm_nbasis(ia)
+
+      implicit none
+
+      integer ia
+      integer ii
+      integer l
+    
+#include "myma.fh"
+#include "paw_geom.fh"
+
+      !*** external functions ***
+      integer  paw_basis_i_orb_l,paw_basis_nbasis
+      external paw_basis_i_orb_l,paw_basis_nbasis 
+
+      paw_nlm_nbasis = 0
+      do ii=1,paw_basis_nbasis(ia)
+         l =  int_mb(paw_basis_i_orb_l(ia)+ii-1)
+         paw_nlm_nbasis = paw_nlm_nbasis + 2*l+1
+      end do
+
       return
       end
 
@@ -617,10 +659,10 @@ c      external get_i_log_amesh,get_i_ngrid
 #include "paw_basis_data.fh"
 
       !*** external functions ***
-      integer  get_i_pr_n
-      external get_i_pr_n                                                
+      integer  paw_basis_i_pr_n
+      external paw_basis_i_pr_n                                                
 
-      paw_basis_n = int_mb(get_i_pr_n(ia)+ii-1)
+      paw_basis_n = int_mb(paw_basis_i_pr_n(ia)+ii-1)
       return
       end
      
@@ -640,10 +682,10 @@ c      external get_i_log_amesh,get_i_ngrid
 #include "paw_basis_data.fh"
 
       !*** external functions ***
-      integer  get_i_pr_n_ps
-      external get_i_pr_n_ps                                                
+      integer  paw_basis_i_pr_n_ps
+      external paw_basis_i_pr_n_ps                                                
 
-      paw_basis_n_ps = int_mb(get_i_pr_n_ps(ia)+ii-1)
+      paw_basis_n_ps = int_mb(paw_basis_i_pr_n_ps(ia)+ii-1)
       return
       end
      
@@ -663,10 +705,10 @@ c      external get_i_log_amesh,get_i_ngrid
 #include "paw_basis_data.fh"
 
       !*** external functions ***
-      integer  get_i_orb_l
-      external get_i_orb_l                                
+      integer  paw_basis_i_orb_l
+      external paw_basis_i_orb_l                                
 
-      paw_basis_orb_l = int_mb(get_i_orb_l(ia)+ii-1)
+      paw_basis_orb_l = int_mb(paw_basis_i_orb_l(ia)+ii-1)
       return
       end
      
@@ -687,10 +729,10 @@ c      external get_i_log_amesh,get_i_ngrid
 #include "paw_basis_data.fh"
 
       !*** external functions ***
-      integer  get_i_eig
-      external get_i_eig                                                
+      integer  paw_basis_i_eig
+      external paw_basis_i_eig                                                
 
-      paw_basis_eig = dbl_mb(get_i_eig(ia)+ii-1)
+      paw_basis_eig = dbl_mb(paw_basis_i_eig(ia)+ii-1)
       return
       end
      
@@ -699,289 +741,289 @@ c      external get_i_log_amesh,get_i_ngrid
 
 !**************************************************
 !
-!	Name: get_i_core_kin_energy
+!	Name: paw_basis_i_core_kin_energy
 !y
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_core_kin_energy(it)
+      INTEGER FUNCTION  paw_basis_i_core_kin_energy(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_core_kin_energy = core_kin_energy(1) +  it-1
+      paw_basis_i_core_kin_energy = core_kin_energy(1) +  it-1
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_pr_n
+!	Name: paw_basis_i_pr_n
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_pr_n(it)
+      INTEGER FUNCTION  paw_basis_i_pr_n(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_pr_n = pr_n(1) + int_mb(i_nb(1) + it-1)
+      paw_basis_i_pr_n = pr_n(1) + int_mb(i_nb(1) + it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_pr_n_ps
+!	Name: paw_basis_i_pr_n_ps
 !
 !	Purpose 
 !
 !	Created:	7/9/200
 !**************************************************
-      INTEGER FUNCTION  get_i_pr_n_ps(it)
+      INTEGER FUNCTION  paw_basis_i_pr_n_ps(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_pr_n_ps = pr_n_ps(1) + int_mb(i_nb(1) + it-1)
+      paw_basis_i_pr_n_ps = pr_n_ps(1) + int_mb(i_nb(1) + it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_orb_l
+!	Name: paw_basis_i_orb_l
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_orb_l(it)
+      INTEGER FUNCTION  paw_basis_i_orb_l(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_orb_l = orb_l(1) + int_mb(i_nb(1) + it-1)
+      paw_basis_i_orb_l = orb_l(1) + int_mb(i_nb(1) + it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_eig
+!	Name: paw_basis_i_eig
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_eig(it)
+      INTEGER FUNCTION  paw_basis_i_eig(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_eig = eig(1) + int_mb(i_nb(1) + it-1)
+      paw_basis_i_eig = eig(1) + int_mb(i_nb(1) + it-1)
       return
       END   
   
 !**************************************************
 !
-!	Name: get_i_core_density
+!	Name: paw_basis_i_core_density
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_core_density(it)
+      INTEGER FUNCTION  paw_basis_i_core_density(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_core_density = core_density(1) + int_mb(i_ng(1) + it-1)
+      paw_basis_i_core_density = core_density(1) + int_mb(i_ng(1) + it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_ps_core_density
+!	Name: paw_basis_i_ps_core_density
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_ps_core_density(it)
+      INTEGER FUNCTION  paw_basis_i_ps_core_density(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_ps_core_density = ps_core_density(1) 
+      paw_basis_i_ps_core_density = ps_core_density(1) 
      >                      + int_mb(i_ng(1) + it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_v_ps
+!	Name: paw_basis_i_v_ps
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_v_ps(it)
+      INTEGER FUNCTION  paw_basis_i_v_ps(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_v_ps = v_ps(1) + int_mb(i_ng(1) + it-1)
+      paw_basis_i_v_ps = v_ps(1) + int_mb(i_ng(1) + it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_rgrid
+!	Name: paw_basis_i_rgrid
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_rgrid(it)
+      INTEGER FUNCTION  paw_basis_i_rgrid(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_rgrid = rgrid(1) + int_mb(i_ng(1) + it-1)
+      paw_basis_i_rgrid = rgrid(1) + int_mb(i_ng(1) + it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_phi_ae
+!	Name: paw_basis_i_phi_ae
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_phi_ae(it)
+      INTEGER FUNCTION  paw_basis_i_phi_ae(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_phi_ae = phi_ae(1) + int_mb(i_ngb(1) + it-1)
+      paw_basis_i_phi_ae = phi_ae(1) + int_mb(i_ngb(1) + it-1)
       return
       END 
 
 
 !**************************************************
 !
-!	Name: get_i_phi_ps
+!	Name: paw_basis_i_phi_ps
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_phi_ps(it)
+      INTEGER FUNCTION  paw_basis_i_phi_ps(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_phi_ps = phi_ps(1) + int_mb(i_ngb(1) + it-1)
+      paw_basis_i_phi_ps = phi_ps(1) + int_mb(i_ngb(1) + it-1)
       return
       END 
 
 
 !**************************************************
 !
-!	Name: get_i_phi_ae_prime
+!	Name: paw_basis_i_phi_ae_prime
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_phi_ae_prime(it)
+      INTEGER FUNCTION  paw_basis_i_phi_ae_prime(it)
       implicit none
       integer it
    
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_phi_ae_prime = phi_ae_prime(1) + int_mb(i_ngb(1) + it-1)
+      paw_basis_i_phi_ae_prime = phi_ae_prime(1) + int_mb(i_ngb(1) + it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_phi_ps_prime
+!	Name: paw_basis_i_phi_ps_prime
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_phi_ps_prime(it)
+      INTEGER FUNCTION  paw_basis_i_phi_ps_prime(it)
       implicit none
       integer it
 
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_phi_ps_prime = phi_ps_prime(1) + int_mb(i_ngb(1) + it-1)
+      paw_basis_i_phi_ps_prime = phi_ps_prime(1) + int_mb(i_ngb(1) + it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_prj_ps
+!	Name: paw_basis_i_prj_ps
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_prj_ps(it)
+      INTEGER FUNCTION  paw_basis_i_prj_ps(it)
       implicit none
       integer it
  
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_prj_ps = prj_ps(1) + int_mb(i_ngb(1) + it-1)
+      paw_basis_i_prj_ps = prj_ps(1) + int_mb(i_ngb(1) + it-1)
       return
       END 
 
 !**************************************************
 !
-!	Name: get_i_prj_ps0
+!	Name: paw_basis_i_prj_ps0
 !
 !	Purpose 
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  get_i_prj_ps0(it)
+      INTEGER FUNCTION  paw_basis_i_prj_ps0(it)
       implicit none
       integer it
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      get_i_prj_ps0 = prj_ps0(1) + int_mb(i_ngb(1) + it-1)
+      paw_basis_i_prj_ps0 = prj_ps0(1) + int_mb(i_ngb(1) + it-1)
       return
       END 
 
@@ -996,11 +1038,11 @@ c      external get_i_log_amesh,get_i_ngrid
 
 	end
 
-      integer function get_max_mult_l()
+      integer function paw_basis_max_mult_l()
       implicit none
 	
 #include "paw_basis_data.fh"
 
-        get_max_mult_l= max_mult_l
+        paw_basis_max_mult_l= max_mult_l
 
 	end

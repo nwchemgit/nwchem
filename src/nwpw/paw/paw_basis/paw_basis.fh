@@ -4,77 +4,101 @@
 
 
       integer          paw_basis_orb_l
-      external          paw_basis_orb_l
+      external         paw_basis_orb_l
+
       integer          paw_basis_nbasis
-      external          paw_basis_nbasis
+      external         paw_basis_nbasis
 
-      external         get_tot_ntype
-      external         get_tot_ntype
-      integer          get_tot_nbasis
-      external         get_tot_nbasis
-      integer          get_tot_ngrid
-      external         get_tot_ngrid
-      integer          get_tot_ngridbasis
-      external         get_tot_ngridbasis
-      double precision get_ion_charge
-      external         get_ion_charge
-      double precision get_core_charge
-      external         get_core_charge
-      integer          get_nbasis
-      external         get_nbasis
-      integer          get_mult_l
-      external         get_mult_l
+      integer          paw_nlm_nbasis
+      external         paw_nlm_nbasis
 
-      integer   get_i_pr_n
-      integer   get_i_pr_n_ps
-      integer   get_i_orb_l
-      integer   get_i_eig
-      integer   get_i_core_density
-      integer   get_i_ps_core_density
-      integer   get_i_v_ps
-      integer   get_i_phi_ae
-      integer   get_i_phi_ps
-      integer   get_i_phi_ae_prime
-      integer   get_i_phi_ps_prime
-      integer   get_i_prj_ps
-      integer   get_i_prj_ps0
-      integer   get_i_nbasis
-      integer   get_i_ngrid
-      integer   get_i_mult_l
-      integer   get_i_r1
-      integer   get_i_rmax
-      integer   get_i_i_cut
-      integer   get_i_sigma
-      integer   get_i_log_amesh
-      integer   get_i_ion_charge
-      integer   get_i_core_charge
-      integer   get_i_core_kin_energy
-      integer   get_i_rgrid
-      integer   get_max_mult_l
+      integer          paw_tot_nlm_nbasis
+      external         paw_tot_nlm_nbasis
 
-      external   get_i_pr_n
-      external   get_i_pr_n_ps
-      external   get_i_orb_l
-      external   get_i_eig
-      external   get_i_core_density
-      external   get_i_ps_core_density
-      external   get_i_v_ps
-      external   get_i_phi_ae
-      external   get_i_phi_ps
-      external   get_i_phi_ae_prime
-      external   get_i_phi_ps_prime
-      external   get_i_prj_ps
-      external   get_i_prj_ps0
-      external   get_i_nbasis
-      external   get_i_ngrid
-      external   get_i_mult_l
-      external   get_i_r1
-      external   get_i_rmax
-      external   get_i_i_cut
-      external   get_i_sigma
-      external   get_i_log_amesh
-      external   get_i_ion_charge
-      external   get_i_core_charge
-      external   get_i_core_kin_energy
-      external   get_i_rgrid
-      external   get_max_mult_l
+      integer          paw_basis_tot_ntype
+      external         paw_basis_tot_ntype
+      integer          paw_basis_tot_nbasis
+      external         paw_basis_tot_nbasis
+      integer          paw_basis_tot_ngrid
+      external         paw_basis_tot_ngrid
+      integer          paw_basis_tot_ngridbasis
+      external         paw_basis_tot_ngridbasis
+      double precision paw_basis_ion_charge
+      external         paw_basis_ion_charge
+
+      double precision paw_basis_sigma
+      external paw_basis_sigma
+
+      double precision         paw_basis_sphere_radius
+      external         paw_basis_sphere_radius
+
+      double precision paw_basis_eig
+      external         paw_basis_eig
+
+      double precision paw_basis_core_charge
+      external         paw_basis_core_charge
+
+      integer paw_basis_n_ps
+      external paw_basis_n_ps
+
+      integer paw_basis_n
+      external paw_basis_n
+
+      integer          paw_basis_nbasis
+      external         paw_basis_nbasis
+      integer          paw_basis_mult_l
+      external         paw_basis_mult_l
+
+      integer   paw_basis_i_orb_l
+      external  paw_basis_i_orb_l
+      integer   paw_basis_i_pr_n
+      integer   paw_basis_i_pr_n_ps
+      integer   paw_basis_i_eig
+      integer   paw_basis_i_core_density
+      integer   paw_basis_i_ps_core_density
+      integer   paw_basis_i_v_ps
+      integer   paw_basis_i_phi_ae
+      integer   paw_basis_i_phi_ps
+      integer   paw_basis_i_phi_ae_prime
+      integer   paw_basis_i_phi_ps_prime
+      integer   paw_basis_i_prj_ps
+      integer   paw_basis_i_prj_ps0
+      integer   paw_basis_i_nbasis
+      integer   paw_basis_i_ngrid
+      integer   paw_basis_i_mult_l
+      integer   paw_basis_i_r1
+      integer   paw_basis_i_rmax
+      integer   paw_basis_i_i_cut
+      integer   paw_basis_i_sigma
+      integer   paw_basis_i_log_amesh
+      integer   paw_basis_i_ion_charge
+      integer   paw_basis_i_core_charge
+      integer   paw_basis_i_core_kin_energy
+      integer   paw_basis_i_rgrid
+      integer   paw_basis_max_mult_l
+
+      external   paw_basis_i_pr_n
+      external   paw_basis_i_pr_n_ps
+      external   paw_basis_i_eig
+      external   paw_basis_i_core_density
+      external   paw_basis_i_ps_core_density
+      external   paw_basis_i_v_ps
+      external   paw_basis_i_phi_ae
+      external   paw_basis_i_phi_ps
+      external   paw_basis_i_phi_ae_prime
+      external   paw_basis_i_phi_ps_prime
+      external   paw_basis_i_prj_ps
+      external   paw_basis_i_prj_ps0
+      external   paw_basis_i_nbasis
+      external   paw_basis_i_ngrid
+      external   paw_basis_i_mult_l
+      external   paw_basis_i_r1
+      external   paw_basis_i_rmax
+      external   paw_basis_i_i_cut
+      external   paw_basis_i_sigma
+      external   paw_basis_i_log_amesh
+      external   paw_basis_i_ion_charge
+      external   paw_basis_i_core_charge
+      external   paw_basis_i_core_kin_energy
+      external   paw_basis_i_rgrid
+      external   paw_basis_max_mult_l

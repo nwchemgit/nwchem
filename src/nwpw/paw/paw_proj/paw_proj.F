@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.15 2003-01-24 19:35:43 marat Exp $
+* $Id: paw_proj.F,v 1.16 2003-01-28 02:03:40 marat Exp $
 *
 
 
@@ -55,7 +55,7 @@
       call paw_proj_check_format()
 
 *     *** get the size of prj common block and allocate it ***
-      call paw_proj_get_nbasis(int_mb(nbasis(1)))
+      call paw_proj_paw_basis_nbasis(int_mb(nbasis(1)))
       ntotal = 0
       do ia=1,nkatm
         ntotal = ntotal + int_mb(nbasis(1)+ia-1)
@@ -196,16 +196,16 @@
 !
 !	Created:	7/30/2002
 !**************************************************
-      integer function paw_proj_total_nbasis()
-      implicit none
-      integer ia
+c      integer function paw_proj_total_nbasis()
+c      implicit none
+c      integer ia
       
-#include "mafdecls.fh"
-#include "paw_proj_data.fh"
-
-      paw_proj_total_nbasis = ntotal
-      return
-      end
+c#include "mafdecls.fh"
+c#include "paw_proj_data.fh"
+c
+c      paw_proj_total_nbasis = ntotal
+c      return
+c      end
 
 
 
@@ -303,7 +303,7 @@
       end 
 
 !**************************************************
-!	Name: paw_proj_get_nbasis
+!	Name: paw_proj_paw_basis_nbasis
 !
 !	Purpose: returns the number of basis functions
 !                for each of the formatted projector 
@@ -311,7 +311,7 @@
 !
 !	Created:	7/30/2002
 !**************************************************
-      subroutine paw_proj_get_nbasis(nbasis)
+      subroutine paw_proj_paw_basis_nbasis(nbasis)
       implicit none
       integer nbasis(*)
 
@@ -333,6 +333,41 @@
       return
       end
 
+
+
+!**************************************************
+!	Name: paw_proj_paw_basis_tot_nbasis
+!
+!	Purpose: returns the number of basis functions
+!                for each of the formatted projector 
+!                files.
+!
+!	Created:	7/30/2002
+!**************************************************
+      integer function paw_proj_tot_nbasis()
+      implicit none
+
+#include "paw_proj.fh"
+*     **** local variables ****
+      integer ia,nkatm
+      integer tot_nbasis
+
+*     **** external functions ****
+      integer  ion_nkatm,ion_natm
+      external ion_nkatm,ion_natm
+
+c     !*** calculate total number of (n,l,m) projectors  ***
+      tot_nbasis = 0
+c     !-- loop over diff kinds of atoms --
+      do ia=1,ion_nkatm()
+c        !-- ion_natm(ia) is number of atoms of kind ia --
+         tot_nbasis = tot_nbasis
+     >                + paw_proj_nbasis(ia)*ion_natm(ia)
+      end do
+
+      paw_proj_tot_nbasis = tot_nbasis
+      return
+      end
 
 !**************************************************
 !
@@ -563,16 +598,16 @@
       write(*,*) "atomname,jppname:",atomname,jppname
 
       !*** read in projectors from _basis file ***
-      i_rgrid   = get_i_rgrid(ia)
-      i_prj     = get_i_prj_ps(ia)
-      basis_nbasis    = int_mb(get_i_nbasis(ia))
-      nr        = int_mb(get_i_ngrid(ia))
-      log_amesh = dbl_mb(get_i_log_amesh(ia))
+      i_rgrid   = paw_basis_i_rgrid(ia)
+      i_prj     = paw_basis_i_prj_ps(ia)
+      basis_nbasis    = int_mb(paw_basis_i_nbasis(ia))
+      nr        = int_mb(paw_basis_i_ngrid(ia))
+      log_amesh = dbl_mb(paw_basis_i_log_amesh(ia))
       write(*,*) "basis_nbasis:",basis_nbasis," ngrid:",nr
       
       nbasis = 0
       do ii=1,basis_nbasis
-         l =  int_mb(get_i_orb_l(ia)+ii-1)
+         l =  int_mb(paw_basis_i_orb_l(ia)+ii-1)
          nbasis = nbasis + 2*l+1
       end do
       write(*,*) "nbasis:",nbasis
@@ -632,7 +667,7 @@
       call Pack_t_pack(1,dbl_mb(Gz(1)))
 
       do ii=1,basis_nbasis
-        l =  int_mb(get_i_orb_l(ia)+ii-1)
+        l =  int_mb(paw_basis_i_orb_l(ia)+ii-1)
         write(*,*) "formatting prj ",ii," l:",l
         write(*,*) "nr=",nr
         write(*,*) "log_amesh=",log_amesh

@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.8 2003-01-24 20:28:01 marat Exp $
+* $Id: paw_basis.F,v 1.9 2003-01-28 02:03:38 marat Exp $
 *
 
 !**************************************************
@@ -27,7 +27,7 @@
       double precision log_amesh,amesh
       character*20 fname
 
-      !*** external functions ***
+c      !*** external functions ***
       integer ion_nkatm
       external ion_nkatm
 
@@ -47,53 +47,53 @@
 
       do it = 1,nt 
          call ion_atom_plus_suffix(it,'_basis',fname)
-         call read_paw_basis  ( dbl_mb(get_i_r1(it)),
-     >                         dbl_mb(get_i_rmax(it)),
-     >                         int_mb(get_i_ngrid(it)),
-     >                         int_mb(get_i_nbasis(it)),
-     >                         int_mb(get_i_i_cut(it)),
-     >                         int_mb(get_i_pr_n(it)),
-     >                         int_mb(get_i_pr_n_ps(it)),
-     >                         int_mb(get_i_orb_l(it)),
-     >                         dbl_mb(get_i_sigma(it)),
-     >                         dbl_mb(get_i_ion_charge(it)),
-     >                         dbl_mb(get_i_core_kin_energy(it)),
-     >                         dbl_mb(get_i_eig(it)),
-     >                         dbl_mb(get_i_phi_ae(it)),
-     >                         dbl_mb(get_i_phi_ae_prime(it)),
-     >                         dbl_mb(get_i_phi_ps(it)),
-     >                         dbl_mb(get_i_phi_ps_prime(it)),
-     >                         dbl_mb(get_i_prj_ps(it)),
-     >                         dbl_mb(get_i_prj_ps0(it)),
-     >                         dbl_mb(get_i_core_density(it)),
-     >                         dbl_mb(get_i_ps_core_density(it)),
-     >                         dbl_mb(get_i_v_ps(it)),
+         call read_paw_basis  ( dbl_mb(paw_basis_i_r1(it)),
+     >                         dbl_mb(paw_basis_i_rmax(it)),
+     >                         int_mb(paw_basis_i_ngrid(it)),
+     >                         int_mb(paw_basis_i_nbasis(it)),
+     >                         int_mb(paw_basis_i_i_cut(it)),
+     >                         int_mb(paw_basis_i_pr_n(it)),
+     >                         int_mb(paw_basis_i_pr_n_ps(it)),
+     >                         int_mb(paw_basis_i_orb_l(it)),
+     >                         dbl_mb(paw_basis_i_sigma(it)),
+     >                         dbl_mb(paw_basis_i_ion_charge(it)),
+     >                         dbl_mb(paw_basis_i_core_kin_energy(it)),
+     >                         dbl_mb(paw_basis_i_eig(it)),
+     >                         dbl_mb(paw_basis_i_phi_ae(it)),
+     >                         dbl_mb(paw_basis_i_phi_ae_prime(it)),
+     >                         dbl_mb(paw_basis_i_phi_ps(it)),
+     >                         dbl_mb(paw_basis_i_phi_ps_prime(it)),
+     >                         dbl_mb(paw_basis_i_prj_ps(it)),
+     >                         dbl_mb(paw_basis_i_prj_ps0(it)),
+     >                         dbl_mb(paw_basis_i_core_density(it)),
+     >                         dbl_mb(paw_basis_i_ps_core_density(it)),
+     >                         dbl_mb(paw_basis_i_v_ps(it)),
      >                         fname)
 
   
-         log_amesh = LOG(dbl_mb(get_i_rmax(it))
-     >                  /dbl_mb(get_i_r1(it)))
-     >                 /(int_mb(get_i_ngrid(it))-1)
+         log_amesh = LOG(dbl_mb(paw_basis_i_rmax(it))
+     >                  /dbl_mb(paw_basis_i_r1(it)))
+     >                 /(int_mb(paw_basis_i_ngrid(it))-1)
          amesh     = EXP(log_amesh)
     
-         dbl_mb(get_i_log_amesh(it)) = log_amesh
-         dbl_mb(get_i_rgrid(it)) = dbl_mb(get_i_r1(it))
+         dbl_mb(paw_basis_i_log_amesh(it)) = log_amesh
+         dbl_mb(paw_basis_i_rgrid(it)) = dbl_mb(paw_basis_i_r1(it))
   
-         do ir=1,int_mb(get_i_ngrid(it))-1
-          dbl_mb(get_i_rgrid(it)+ir)= amesh*dbl_mb(get_i_rgrid(it)+ir-1)
+         do ir=1,int_mb(paw_basis_i_ngrid(it))-1
+          dbl_mb(paw_basis_i_rgrid(it)+ir)= amesh*dbl_mb(paw_basis_i_rgrid(it)+ir-1)
          end do
          
-         i_lo =  get_i_orb_l(it)
-	 i_hi =  get_i_orb_l(it) +  int_mb(get_i_nbasis(it)) - 1
-	 int_mb(get_i_mult_l(it)) = 2*maxval(int_mb(i_lo:i_hi))
+         i_lo =  paw_basis_i_orb_l(it)
+	 i_hi =  paw_basis_i_orb_l(it) +  int_mb(paw_basis_i_nbasis(it)) - 1
+	 int_mb(paw_basis_i_mult_l(it)) = 2*maxval(int_mb(i_lo:i_hi))
            
       end do
 
       ok = MA_chop_stack(l_nb)
 
 c     !*****determine max orbital moment     
-      i_lo =  get_i_orb_l(1)
-      i_hi =  get_i_orb_l(1) +  get_tot_nbasis() - 1
+      i_lo =  paw_basis_i_orb_l(1)
+      i_hi =  paw_basis_i_orb_l(1) +  paw_basis_tot_nbasis() - 1
       max_mult_l = maxval(int_mb(i_lo:i_hi))
 
 
@@ -103,7 +103,7 @@ c     !*****enter max orbital moment into paw_basis_data structure
 c     !*** set core charges ***
             
       do it = 1,nt 
-        call calc_paw_basis_core_charge(it,dbl_mb(get_i_core_charge(it)))
+        call calc_paw_basis_core_charge(it,dbl_mb(paw_basis_i_core_charge(it)))
       end do
 
       return

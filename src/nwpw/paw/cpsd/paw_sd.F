@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.17 2003-01-27 06:40:12 marat Exp $
+* $Id: paw_sd.F,v 1.18 2003-01-28 02:03:38 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -18,6 +18,8 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "paw_basis.fh"
+#include "paw_proj.fh"
       
       logical value
 
@@ -83,24 +85,16 @@
 *     **** external functions ****
       real*8      ewald_rcut,ion_amass
       real*8      ewald_mandelung
-      real*8      get_ion_charge,paw_basis_eig
-      real*8      paw_basis_sphere_radius,paw_basis_sigma
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg
       integer     ewald_ncut,ewald_nshl3d
-      integer     paw_basis_nbasis,paw_basis_n,paw_basis_n_ps
-      integer     paw_basis_orb_l
       character   spdf_name
       character*2 ion_aname,ion_atom
       external    ewald_rcut,ion_amass
       external    ewald_mandelung
-      external    get_ion_charge,paw_basis_eig
-      external    paw_basis_sphere_radius,paw_basis_sigma
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
       external    ewald_ncut,ewald_nshl3d
-      external    paw_basis_nbasis,paw_basis_n,paw_basis_n_ps
-      external    paw_basis_orb_l
       external    spdf_name
       external    ion_aname,ion_atom
 
@@ -112,8 +106,6 @@
       logical  control_read,control_move,ion_init,ion_q_FixIon
       external control_read,control_move,ion_init,ion_q_FixIon
 
-#include "paw_proj.fh"
-#include "paw_basis.fh"
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave
@@ -303,7 +295,7 @@
       !**** intialize overlap coefficient data structure ***
       call phafac()
       call paw_ovlp_init()
-      call paw_ovlp_set(dcpl_mb(psi2(1)))
+      call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
 
       call paw_comp_charge_update()
 
@@ -335,8 +327,8 @@
          write(6,1140)
          do ia = 1,ion_nkatm()
             write(6,1141) ia,ion_atom(ia),
-     >                    get_ion_charge(ia),
-     >                    get_core_charge(ia)
+     >                    paw_basis_ion_charge(ia),
+     >                    paw_basis_core_charge(ia)
             write(6,1143) paw_basis_sphere_radius(ia)
             write(6,1144) paw_basis_sigma(ia),paw_basis_sigma(ia)
             write(6,1150) paw_proj_nbasis(ia)
@@ -353,8 +345,8 @@
          icharge = -(ne(1)+ne(ispin))
          do ia=1,ion_nkatm()
            icharge = icharge + ion_natm(ia)*
-     >                        (get_ion_charge(ia)
-     >                        -get_core_charge(ia))
+     >                        (paw_basis_ion_charge(ia)
+     >                        -paw_basis_core_charge(ia))
          end do
          write(6,1159) icharge
 
