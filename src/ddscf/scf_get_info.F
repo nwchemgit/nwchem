@@ -288,7 +288,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.55 2003-02-05 23:41:04 bert Exp $
+C$Id: scf_get_info.F,v 1.56 2003-02-06 00:07:17 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -518,7 +518,6 @@ c
            cosmo_phase = 1
          endif
       endif
-      oinitialized = .true.
 c
       end
       subroutine fock_2e_tidy(rtdb)
