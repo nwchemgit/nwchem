@@ -1090,6 +1090,8 @@ c
       if (.not. bas_numbf(basis, nbf))
      $     call errquit('int2e: bad bas',0)
 c
+      rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
+c
 c     How much memory?  Leave space for GAs, for the integral code,
 c     and for 50,000 of misc. junk. 
 c
@@ -1123,7 +1125,7 @@ c
 *      write(6,*) ' nq 1 ', nq
       nq = nq / ga_nnodes()
 *      write(6,*) ' nq 1 ', nq
-      nq = nq * 1.1d0 + 2*(rec_len_in_dbl+1) ! Fudge factors for safety
+      nq = nq * 1.1d0 + 2*rec_len_in_dbl ! Fudge factors for safety
 *      write(6,*) ' nq 1 ', nq
 c
       if (nq .lt. avail) then
