@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.74 1998-07-29 22:04:44 d3g681 Exp $
+C$Id: geom.F,v 1.75 1998-08-04 23:34:28 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2518,7 +2518,7 @@ c
                 header = .true.
               endif
               num_prt = num_prt + 1
-              write(luout,10001)num_prt,
+              write(luout,10001)
      &            iat,tagi,
      &            jat,tagj,
      &            dij,(dij/usr_scale)
@@ -2526,22 +2526,29 @@ c
           endif
         enddo
       enddo
-      if (header) write(luout,10003)
-10000 format(1x,86('='),/,
-     &    32x,'internuclear distances',/,1x,86('-'),/,
-     &    1x,'count |',
-     &    6x,'center one',6x,'|',
+      if (header) then
+        write(luout,10003)
+        write(luout,10004) num_prt
+        write(luout,10005)
+        write(luout,10006)
+      endif
+10000 format(1x,79('='),/,
+     &    32x,'internuclear distances',/,1x,79('-'),/,
+     &    7x,'center one',6x,'|',
      &    6x,'center two',6x,'|',
      &    ' atomic units |',1x,a10,
-     &    /,1x,86('-'))
-10001 format(1x,i5,1x,'|',
+     &    /,1x,79('-'))
+10001 format(1x,
      &    i4,1x,a16,1x,'|',
      &    i4,1x,a16,1x,'|',
      &    1x,f11.5,2x,'|',1x,f11.5)
 10002 format(1x,'debug:distance(',
      &    a,'|',a2,'|',i4,',',
      &    a,'|',a2,'|',i4,') =',f12.6)
-10003 format(1x,86('='),/,/)
+10003 format(1x,79('-'))
+10004 format(25x,'number of included internuclear distances: ',i10)
+10005 format(1x,79('='))
+10006 format(/,/)
       geom_print_distances = .true.
       end
       logical function geom_print_angles(geom)
@@ -2846,7 +2853,7 @@ c initialize variables
      &                    ('geom_prt_angles:geom_calc_angle failed',
      &                    911)
                       num_prt =num_prt + 1
-                      write(luout,10001)num_prt,
+                      write(luout,10001)
      &                    iat, tagi,
      &                    jat, tagj,
      &                    kat, tagk,angle
@@ -2859,7 +2866,7 @@ c initialize variables
      &                    ('geom_prt_angles:geom_calc_angle failed',
      &                    911)
                       num_prt =num_prt + 1
-                      write(luout,10001)num_prt,
+                      write(luout,10001)
      &                    iat, tagi,
      &                    kat, tagk,
      &                    jat, tagj,angle
@@ -2872,7 +2879,7 @@ c initialize variables
      &                    ('geom_prt_angles:geom_calc_angle failed',
      &                    911)
                       num_prt =num_prt + 1
-                      write(luout,10001)num_prt,
+                      write(luout,10001)
      &                    jat, tagj,
      &                    iat, tagi,
      &                    kat, tagk,angle
@@ -2884,21 +2891,28 @@ c initialize variables
           enddo
         endif
       enddo
-      if (header) write(luout,10002)
-10000 format(1x,86('='),/,
-     &    33x,'internuclear angles',/,1x,86('-'),/,
-     &    1x,'count |',
-     &    7x,'center 1',7x,'|',
+      if (header) then
+        write(luout,10002)
+        write(luout,10003) num_prt
+        write(luout,10004)
+        write(luout,10005)
+      endif
+10000 format(1x,79('='),/,
+     &    33x,'internuclear angles',/,1x,79('-'),/,
+     &    8x,'center 1',7x,'|',
      &    7x,'center 2',7x,'|',
      &    7x,'center 3',7x,'|',
      &    '  degrees',
-     &    /,1x,86('-'))
-10001 format(1x,i5,1x,'|',
+     &    /,1x,79('-'))
+10001 format(1x,
      &    i4,1x,a16,1x,'|',
      &    i4,1x,a16,1x,'|',
      &    i4,1x,a16,1x,'|',
      &    1x,f8.2)
-10002 format(1x,86('='),/,/)
+10002 format(1x,79('-'))
+10003 format(28x,'number of included internuclear angles: ',i10)
+10004 format(1x,79('='))
+10005 format(/,/)
       geom_prt_angles = FT
       end
 *B4-xnet:      logical function geom_print_angles(geom)
@@ -3485,7 +3499,7 @@ c
                         write(luout,10000)
                         header = FT
                       endif ! .not.header
-                      write(luout,10001)num_prt,
+                      write(luout,10001)
      &                    ipat,ptagi,jpat,ptagj,
      &                    kpat,ptagk,lpat,ptagl,
      &                    diangle
@@ -3667,7 +3681,7 @@ c
                         write(luout,10000)
                         header = FT
                       endif ! .not.header
-                      write(luout,10001)num_prt,
+                      write(luout,10001)
      &                    ipat,ptagi,jpat,ptagj,
      &                    kpat,ptagk,lpat,ptagl,
      &                    diangle
@@ -3685,24 +3699,30 @@ c
           endif
         enddo
       enddo
-      if (header) write(luout,10002)
-* old
-10000 format(1x,86('='),/,
-     &    29x,'internuclear dihedral angles',/,1x,86('-'),/,
-     &    1x,'count |',
+      if (header) then
+        write(luout,10002)
+        write(luout,10003)num_prt
+        write(luout,10004)
+        write(luout,10005)
+      endif
+10000 format(1x,79('='),/,
+     &    29x,'internuclear dihedral angles',/,1x,79('-'),/,
      &    3x,'center 1',3x,'|',
      &    3x,'center 2',3x,'|',
      &    3x,'center 3',3x,'|',
      &    3x,'center 4',3x,'|',
      &    '  degrees',
-     &    /,1x,86('-'))
-10001 format(1x,i5,1x,'|',
+     &    /,1x,79('-'))
+10001 format(1x,
      &    i4,1x,a8,1x,'|',
      &    i4,1x,a8,1x,'|',
      &    i4,1x,a8,1x,'|',
      &    i4,1x,a8,1x,'|',
      &    1x,f8.2)
-10002 format(1x,86('='),/,/)
+10002 format(1x,79('-'))
+10003 format(28x,'number of included dihegral angles: ',i10)
+10004 format(1x,79('='))
+10005 format(/,/)
       geom_prt_dihedrals = .true.
       end
 *B4-xnet:      logical function geom_print_dihedrals(geom)
