@@ -1,5 +1,5 @@
       Subroutine igamma(Fj,N,L)
-c $Id: igamma.F,v 1.6 2001-03-06 19:27:50 bjohnson Exp $
+c $Id: igamma.F,v 1.7 2001-08-10 18:46:07 bjohnson Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -22,7 +22,7 @@ c               /0
 c
 c******************************************************************************
 #ifdef BETTIS
-      if (bettis_screened_operator_enabled()) then
+      if (bs_scroperator_enabled()) then
          call errquit('Screened operator on in igamma',0)
       endif
 #endif
