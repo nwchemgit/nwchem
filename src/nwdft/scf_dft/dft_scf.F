@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.205 2001-12-12 18:14:36 edo Exp $
+c     $Id: dft_scf.F,v 1.206 2001-12-13 02:19:01 edo Exp $
 c     
       implicit none
 c
@@ -158,7 +158,7 @@ c
       double precision s_rabuck,ss,smear_in
       integer nn,nss,n_dep
       integer n_rabuck
-      logical rabuck_act
+      logical rabuck_act,spinset
       external dft_cosmoe,dft_cosmoadde
 
 
@@ -211,6 +211,8 @@ c
       delta=1d20
       n_rabuck=0
       rabuck_act=.false.
+      if (.not.rtdb_get(rtdb, 'dft:spinset', mt_log, 1,
+     &   spinset))spinset=.false.
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear))then
       if (rtdb_get(rtdb, 'dft:n_rabuck', mt_int, 1,
@@ -465,7 +467,8 @@ c
      &        geom, AO_bas_han,noc,ntotel,
      &        Dbl_MB(k_eval(1)),dbl_mb(k_occ),
      &        ssmear,tdots,iter,.false.,
-     .        fon, nel_fon,nmo_fon)
+     .        fon, nel_fon,nmo_fon,
+     .        spinset.or.n_rabuck.ne.0)
 c
 c  Jorge Garza/Begin/Exact_pot
 c
@@ -828,12 +831,14 @@ c
      &     geom, AO_bas_han,noc,ntotel,
      &      Dbl_MB(k_eval(1)),dbl_mb(k_occ),
      &     ssmear,tdots,iter,.true.,
-     .        fon, nel_fon,nmo_fon)
+     .        fon, nel_fon,nmo_fon,
+     .        spinset.or.n_rabuck.ne.0)                                         
 
       if (oprint_time)
      &     call dft_tstamp(' called densm ')
       
-      if(ssmear.gt.1d-9.and.ipol.eq.2.and.(noc(2).gt.noc(1))) then
+      if((.not.rabuck_act).and.
+     .ssmear.gt.1d-9.and.ipol.eq.2.and.(noc(2).gt.noc(1))) then
 c
 c     swap alpha and beta
 c
