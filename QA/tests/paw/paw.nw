@@ -7,9 +7,9 @@ charge 0
 
 
 geometry units au nocenter noautoz noautosym
-O      0.00000    0.00000    0.01390
-H     -1.49490    0.00000   -1.18710
-H      1.49490    0.00000   -1.18710
+O      0.00000    0.00000    0.01200
+H     -1.49000    0.00000   -1.18000
+H      1.49000    0.00000   -1.18000
 end
 
 
@@ -45,14 +45,30 @@ nwpw
 end
 task paw Car-Parrinello
 
+
+
+##### reset geometry ######
+geometry units au nocenter noautoz noautosym
+O       0.00000    0.00000    0.01358 
+H      -1.49318    0.00000   -1.17104 
+H       1.49318    0.00000   -1.17104 
+end
+task paw energy
+
+
 ### steepest descent geometry opt ###
 nwpw
    time_step 5.8
    geometry_optimize
    ewald_rcut 1.50
    tolerances 1.0d-7 1.0d-7 1.0d-4
+   #allow_translation
 end
 task paw steepest_descent
+
+driver
+   clear
+end
 
 ### driver testing ###
 task paw optimize
