@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.49 2000-05-02 23:01:01 d3j191 Exp $
+c $Id: pre_input.F,v 1.50 2000-05-03 18:03:57 d3j191 Exp $
 c
       implicit none
 c
@@ -1140,7 +1140,7 @@ c
       endif
       if(nxrep.lt.0) call errquit('pre_input: repeat',9999)
       if(nyrep.lt.0) call errquit('pre_input: repeat',9999)
-      if(nzrep.lt.0) call errquit('pre_input: repeat',9999)
+      if(nzrep.lt.-2) call errquit('pre_input: repeat',9999)
       write(68,6851) nxrep,nyrep,nzrep,rrep
  6851 format('repeat ',3i5,f12.6)
       numcmd=numcmd+1

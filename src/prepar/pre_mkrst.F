@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.51 2000-05-02 23:01:01 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.52 2000-05-03 18:03:58 d3j191 Exp $
 c
       implicit none
 c
@@ -50,7 +50,7 @@ c
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater
       integer nxrep,nyrep,nzrep,itran,jtran,i,j,k
       real*8 xtran(3)
-      real*8 xr(3,2)
+      real*8 rdist,xr(3,2)
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1000)
@@ -427,6 +427,36 @@ c
 c     read the pdb file
 c     -----------------
 c
+      if(.not.pre_pdbsiz(lfnpdb,filnam,lfnout,model,
+     + idum1,idum2,idum3,idum4,slvnam,nwmc,altloc,chain))
+     + call errquit('pre_pdbsiz failed',9999)
+c
+c     allocate memory for crystal solvent
+c     -----------------------------------
+c
+      if(lcryst) then
+      if(.not.ma_free_heap(l_xwc))
+     + call errquit('ma_free_heap failed on l_xwc',9999)
+      if(.not.ma_free_heap(l_vwc))
+     + call errquit('ma_free_heap failed on l_vwc',9999)
+      if(.not.ma_free_heap(l_wfnd))
+     + call errquit('ma_free_heap failed on l_wfnd',9999)
+      if(.not.ma_free_heap(l_wcmr))
+     + call errquit('ma_free_heap failed on l_wcmr',9999)
+      lcryst=.false.
+      endif
+      mwmc=nwmc
+      if(nwmc.eq.0) mwmc=1
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'xwc',l_xwc,i_xwc))
+     + call errquit('ma_alloc_get failed for xwc',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'vwc',l_vwc,i_vwc))
+     + call errquit('ma_alloc_get failed for vwc',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,'wfnd',l_wfnd,i_wfnd))
+     + call errquit('ma_alloc_get failed for wfnd',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,'wcmr',l_wcmr,i_wcmr))
+     + call errquit('ma_alloc_get failed for wcmr',9999)
+      lcryst=.true.
+c
       if(.not.pre_rdpdb(lfnout,filnam,lfnpdb,filtmp,lfntmp,lnames,
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
@@ -596,7 +626,7 @@ c
      + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
      + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
-     + nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb)))
+     + nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist))
      + call errquit('pre_wrtpdb failed',9999)
       endif
 c
@@ -1054,6 +1084,7 @@ c
       read(card(8:12),'(i5)') nxrep
       read(card(13:17),'(i5)') nyrep
       read(card(18:22),'(i5)') nzrep
+      read(card(23:34),'(f12.6)') rdist
       write(*,1019) nxrep,nyrep,nzrep
  1019 format(/,' Repeating ',3i5,/)
       if(.not.pre_repeat(card,drep,box,
