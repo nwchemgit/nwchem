@@ -1,8 +1,11 @@
+#     $Id: GNUmakefile,v 2.9 1997-04-14 06:35:06 gg502 Exp $
 
  OBJ = 		ccden_driver.o \
 		ccden_interm2.o \
 		ccden_1pdm.o \
-		geaxpy.o
+		ccsd_trpdrv.o \
+		geaxpy.o \
+		ccden_interm4.o
 
  OBJ_OPTIMIZE = aoccsd2.o \
 		ccsd_itm.o \
@@ -24,7 +27,6 @@
 		ccsd_sortmo.o \
 		ccsd_rdtrpo.o \
 		ccsd_tengy.o \
-		ccsd_trpdrv.o \
 		moints_trp.o \
 		qstat.o \
 		cputime.o \
@@ -34,6 +36,8 @@
                 ccsd_zvecs.o \
                 ccsd_zitf.o \
 		ccsd_pzamp.o \
+		ccsd_z2pm.o \
+		ccsd_aosig.o \
 		ccsd_zsig1.o \
 		ccsd_zsig2.o \
 		ccsd_tzinta.o \

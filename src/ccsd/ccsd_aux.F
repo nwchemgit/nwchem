@@ -1,4 +1,5 @@
         subroutine mxtrn(mxin,mxout,idim,jdim)
+C     $Id: ccsd_aux.F,v 2.2 1997-04-14 06:34:53 gg502 Exp $
         implicit none
         integer idim,jdim
         double precision mxin(idim,jdim),mxout(jdim,idim)

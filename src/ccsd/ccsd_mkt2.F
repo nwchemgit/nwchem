@@ -1,10 +1,11 @@
       subroutine ccsd_mkt2(ncor,nocc,nvir,eorb,g_t2,
      $                     g_moint,t2,iprt)
+C     $Id: ccsd_mkt2.F,v 2.3 1997-04-14 06:34:58 gg502 Exp $
       implicit none
       integer ncor,nocc,nvir,g_t2,g_moint,iprt
       double precision eorb(*),t2(*)
 c
-      integer nodes,iam
+      integer iam
 c
       integer jlo,jhi,alo,ahi
       integer a,b,i,j,av,icnt
@@ -12,7 +13,6 @@ C
 #include "ccsd_len.fh"
 #include "global.fh"
 C
-      Nodes = GA_NNodes()
       IAm = GA_NodeID()
 
       if (iprt.gt.5)print *,' making starting t2 '

@@ -3,6 +3,7 @@
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
+C     $Id: ccsd_itm.F,v 2.5 1997-04-14 06:34:57 gg502 Exp $
       implicit none
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
      &        g_x,g_c,g_sht2,iprt
@@ -24,7 +25,7 @@ c
       integer g_aitm,g_tmt1,g_tmt2,g_tmt,g_tmp,g_tmp2,
      &        g_jlo,g_jhi,g_ilo,g_ihi,
      &        i,j,k,l,ij,a,b,c,ad1,ad2,ad3,ad4,ad5,ad6,lnoo,lnov,lnvv
-      integer inode,next,aold
+      integer inode,next
       Integer Nodes, IAm
 c
       Nodes = GA_NNodes()
@@ -694,7 +695,6 @@ c
       if (.not.ga_destroy(g_tmt))
      &    call errquit('ga_dest g_tmt fail',0)
 c
-      aold=0
       inode=-1
       next=nxtval(-nodes)
       next=nxtval(nodes)

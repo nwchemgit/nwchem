@@ -1,5 +1,6 @@
       subroutine ccsd_rdtrpo(t1,buf1,buf2,g_objo,g_objv,
      $                       nocc,nvir,iprt)
+C     $Id: ccsd_rdtrpo.F,v 2.5 1997-04-14 06:35:01 gg502 Exp $
       implicit none
 c
 #include "ccsd_len.fh"
@@ -7,7 +8,7 @@ c
       double precision t1(nvir,nocc),buf1(lnobj),buf2(lnobj)
 c
       integer il,ih,jl,jh,i,j,k,a,av,bv,ad1,ad2,
-     &        lbfo,lbfv
+     &        lbfo
       Integer Nodes, IAm
 C
 #include "msgids.fh"
@@ -21,7 +22,6 @@ c - read in objects
 c - [io|ov], [oo|iv], t2(io:vv) / [ao|vo], t2(oo:av), t2(oo,va)
 c
       lbfo=lnovv+lnoov+lnoov
-      lbfv=lnoov+lnoov+lnoov
       call ga_distribution(g_objv,iam,jl,jh,il,ih)
       do av=1,nvir
        if (av.ge.il.and.av.le.ih)then

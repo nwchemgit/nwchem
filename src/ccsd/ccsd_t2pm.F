@@ -1,5 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
+C     $Id: ccsd_t2pm.F,v 2.7 1997-04-14 06:35:01 gg502 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
      &        offsh(nsh,nsh)

@@ -2,7 +2,7 @@ c
 c
 c
 c
-c  $Id: moints_trp.F,v 2.3 1997-03-24 04:01:23 gg502 Exp $
+c  $Id: moints_trp.F,v 2.4 1997-04-14 06:35:06 gg502 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -67,7 +67,6 @@ c
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_hlp2, k_hlp2
        integer l_eri, k_eri, l_iscr,k_iscr
-       integer l_mo,k_mo
        integer l_shmap, k_shmap, l_bfmap, k_bfmap, l_rbfmap, k_rbfmap
        integer l_glo, k_glo, l_ghi, k_ghi
        integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2, n_ijni
@@ -76,7 +75,7 @@ c
        integer l_sym, k_sym
        integer g_tmp                       
        double precision tol2e, scale, schw_ij, q2
-       logical status, oprint, osym, odoit
+       logical status, osym, odoit
 c
        integer moints_numgr, gr_len
        external moints_numgr, gr_len
@@ -90,7 +89,6 @@ c by input deck
 c
 c
        data tol2e/1.d-12/
-       data oprint/.true./
 c
 c
 c  General basis info
@@ -131,12 +129,6 @@ c
  888        format(16i3)
           endif
        endif
-c
-c  Local MO coefficients
-c
-capr       status = status.and.ma_push_get(MT_DBL,(nbf*nbf),
-capr     $                                 'movecs cols',l_mo,k_mo)
-capr       call ga_get(g_movecs,1,nbf,1,nbf,dbl_mb(k_mo),nbf)
 c
 c  Integrals allocation
 c
@@ -323,8 +315,6 @@ c
           if (.not. ma_pop_stack(l_sym))
      $         call errquit('moints_trp: memory corrupt',0)
        endif
-capr       if (.not. ma_pop_stack(l_mo))
-capr     $     call errquit('moints: failed to pop', l_mo)
 c
 c
 c
@@ -354,7 +344,7 @@ c
        integer g_exch,ncor,nocc
 
 c
-       integer aoff,nni,nnij,nnj,ab,ivlo,ivhi,jvlo,jvhi,ofroz
+       integer aoff,nni,nnj,ab,ivlo,ivhi,jvlo,jvhi,ofroz
        integer ssij
        integer aa,bb,a,b,i,j,v
        double precision cc
@@ -362,7 +352,6 @@ c
        ofroz = ostart - 1
        ssij = (ihi - ilo + 1)*(jhi - jlo + 1)
        nni = (ihi - ilo + 1)*nvir
-       nnij = (jhi - jlo + 1)*nni
        ivlo = (ilo-1)*nvir + 1
        ivhi = ihi*nvir
        aoff = ((olo-ofroz)*(olo-ofroz-1))/2
@@ -471,8 +460,11 @@ c$$$            CALL MOINTS_MATPRINT(NVIR,NVIR,DBL_MB(K_LOCAL))
       double precision c(nbf,nbf)
       integer g_coul,ncor,nocc
 c
-      integer nni, ijlo, ijhi, ilen, jlen, ijlen,lenij
-      integer ab, aa, bb, a, b, i, j, aoff, ofroz, jtop
+      integer nni, ijlo, ijhi, ilen, jlen, ijlen
+      integer ab, aa, bb, a, b, i, j, aoff, ofroz
+#ifdef BLOCK_TRANSF
+      integer jtop
+#endif
 c
 c
       ofroz = ostart - 1
@@ -510,9 +502,7 @@ CRK       do i=ilo,ihi
 CRK         ijlo = i*(i-1)/2 + jlo
 CRK         ijhi = i*(i-1)/2 + jhi
 CRK         if (jhi.eq.ihi) ijhi = i*(i-1)/2 + i
-CRK         lenij=ijhi-ijlo+1
 CRK         write(6,*)'ijlo,ijhi',ijlo,ijhi
-CRK         write(6,*)'ab,h2(jlo,i)',ab,jlo,i,(h2(jlo+j,i),j=0,lenij-1)
 CRK         call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(jlo,i),1,1.d0)
 CRK       enddo
           if(jlo.le.ilo)then
@@ -520,7 +510,6 @@ CRK       enddo
             do j=jlo,min(i,jhi)
               ijlo = i*(i-1)/2 + j
               ijhi = i*(i-1)/2 + j
-              lenij=ijhi-ijlo+1
               call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(j,i),1,1.d0)
             enddo
             enddo
@@ -529,7 +518,6 @@ CRK       enddo
             do i=ilo,min(j,ihi)
               ijlo = j*(j-1)/2 + i
               ijhi = j*(j-1)/2 + i
-              lenij=ijhi-ijlo+1
               call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(j,i),1,1.d0)
             enddo
             enddo

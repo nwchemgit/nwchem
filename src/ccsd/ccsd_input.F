@@ -1,4 +1,5 @@
       subroutine ccsd_input(rtdb)
+C     $Id: ccsd_input.F,v 2.4 1997-04-14 06:34:55 gg502 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"

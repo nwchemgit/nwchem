@@ -1,4 +1,5 @@
       subroutine qenter(namein,iprint)
+C     $Id: qstat.F,v 2.3 1997-04-14 06:35:08 gg502 Exp $
       Implicit NONE
       Character*(*) NameIn
       Integer IPrint

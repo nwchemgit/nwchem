@@ -1,4 +1,5 @@
       subroutine fsig2(nocc,nvir,bv,u,t1,ht1,hiu)
+C     $Id: ccsd_fsig2.F,v 2.3 1997-04-14 06:34:54 gg502 Exp $
       implicit none
       integer nocc,nvir,bv,u
       double precision t1(nocc,nvir),

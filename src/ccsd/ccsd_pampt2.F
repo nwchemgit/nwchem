@@ -3,6 +3,7 @@
      $                      scra,scrb,hiu,hia,habe,giu,gabe,
      $                      g_t2,g_ht2,g_moint,
      $                      eccsd,max2e,mem2,g_ncoul,g_nexch,tklst)
+C     $Id: ccsd_pampt2.F,v 2.8 1997-04-14 06:34:59 gg502 Exp $
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_t2,g_ht2,g_moint,g_ncoul,g_nexch,
@@ -21,23 +22,14 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      integer i,j,a,b,av,bv,ad1,ad2,ixyz,offt2,icnt,nvp1,ilo,ihi,
-     &        jlo,jhi,x,y,ish,jsh,inode,next,aold
-      integer l_eri2,k_eri2,l_sc1,k_sc1,l_sc2,k_sc2,lsc1,maxbfsh
-      integer l_offsh,k_offsh
-      integer lssni,l_snsi,k_snsi,l_sisn,k_sisn,l_t1ao,k_t1ao
-      logical stat
-      double precision xdot,eccsd,eccsd1,eccsd2
+      integer i,j,a,b,av,bv,ad1,ad2,offt2,icnt,nvp1,ilo,ihi,
+     &        jlo,jhi,inode
+      double precision eccsd,eccsd1,eccsd2
 c
-      integer ibflo,ibfhi,jbflo,jbfhi
-      integer max2e,mem2,max1e,mem1
-      logical ocoul,oexch
-      double precision zip,one,half,two
-      double precision tol2e
+      integer max2e,mem2
+      double precision zip,one,two
 c
-      data oexch,ocoul/.true.,.true./
-      data tol2e/1.d-12/
-      data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
+      data zip/0.0d00/,one/1.0d00/,two/2.0d00/
 c
       Nodes = GA_NNodes()
       IAm = GA_NodeID()

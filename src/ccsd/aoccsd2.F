@@ -3,8 +3,9 @@
      &                  g_coul,g_exch,g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom)
       implicit none
+C     $Id: aoccsd2.F,v 2.12 1997-04-14 06:34:49 gg502 Exp $
 c
-      integer basis,ncor,nocc,nvir,ndel,nact,nbf,mxov,maxit,convi,iprt,
+      integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,convi,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
       double precision cmo(nbf,nbf),eorb(nbf)
       Double Precision RefEner
@@ -23,6 +24,7 @@ c
 #include "util.fh"
 c
 c ccsd
+      Integer i
       logical stat
       integer nsh,maxbfsh,max2e,mem2
       integer l_t1,l_t2,l_ht1,l_ht2,l_scra,l_scrb,
@@ -39,22 +41,21 @@ c triples
       integer k_f1n,k_f1t,k_f2n,k_f2t,k_f3n,k_f3t,k_f4n,k_f4t,
      &        k_buf1,k_buf2,k_buff,k_bufo,k_bufv,k_tk
       integer g_objo
-      integer nvpass,noper,occ_lo,occ_hi,vir_lo,vir_hi,oseg_lo,oseg_hi,
+      integer nvpass,noper,occ_lo,vir_lo,vir_hi,oseg_lo,oseg_hi,
      &        npass
       integer ga_create_jkblocked
       logical oexch,ocoul,ohalf
-      double precision eccsdt,eccsd,empt(2),tx(3),rx(2)
+      double precision eccsdt,eccsd,empt(2),tx(3)
       Integer Nodes, IAm
 C
       double precision zip
-      integer ii,jj
 C
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C     Temporary stuff added to play density matrix games
 C
-      Integer A, I, Ad1, Ad2, J, B, LSab
+      Integer A, Ad1, Ad2, J, B, LSab
       Integer L_Sb, K_Sb, L_Sa, K_Sa
       Integer H_DenZ1, I_DenZ1, H_DenT1, I_DenT1
       Integer G_DenT2, G_DenZ2, G_1PDM
@@ -74,29 +75,9 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-* DATA MUST FOLLOW ALL DELCARATIONS 
-
       Data Do_Z /.FALSE./
       Data Do_CCDen /.FALSE./
+C
       data oexch,ocoul/.true.,.true./
       data ohalf/.false./
       data zip/0.0d00/
@@ -438,7 +419,6 @@ c ----------------------------
 c
       mem_avail = ma_inquire_avail(MT_DBL)
       if(iam.eq.0)write(6,*)'memory',mem_avail
-c$$$      rx(1)=rtc()
       call qenter('triples',0)
       if (iam.eq.0)write(6,293)
  293  format(//,'*********triples calculation*********',/)
@@ -496,7 +476,6 @@ c
       g_exch = ga_create_JKblocked(noper,nbf,nvir,'X oper')
       npass=0
       occ_lo = ncor+1
-      occ_hi = ncor+nocc
       vir_lo = ncor+nocc+1
       vir_hi = ncor+nocc+nvir
       oseg_hi = vir_lo - 1
@@ -635,9 +614,6 @@ c       call ga_summarize(.false.)
 c      endif
       call ga_sync()
       call qexit('triples',0)
-c$$$      rx(2)=rtc()
-c$$$      if (iam.eq.0)write(6,*)'Wall-clock time for triples ',
-c$$$     $                        (rx(2)-rx(1))*3.33e-09
   999 continue
       call qstat()
       return

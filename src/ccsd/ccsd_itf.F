@@ -2,6 +2,7 @@
      &                    hiu,giu,habe,gabe,hia,ht1,
      &                    idiis,cmo,eorb,iprt,
      &                    g_t2,g_ht2,g_ncoul,g_nexch,tklst)
+C     $Id: ccsd_itf.F,v 2.4 1997-04-14 06:34:56 gg502 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        idiis,iprt,g_t2,g_ht2
@@ -14,18 +15,16 @@
 #include "ccsd_debug.fh"
 c
       integer lnov,g_nt2,g_nht2,offt2,lnoov,iam,g_jlo,g_jhi,
-     &        g_ilo,g_ihi,a,i,j,b,ad1,ad2,lnoo,lnvv,
+     &        g_ilo,g_ihi,a,i,j,b,ad1,ad2,lnoo,
      &        l_t1,k_t1,l_sa,k_sa,l_sb,k_sb,lsab,
-     &        ij,lnof,g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
+     &        g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
       double precision tol2e
       logical stat
 c
       iam=ga_nodeid()
       lnoo=nocc*nocc
       lnov=nocc*nvir
-      lnof=nocc*nbf
       lnoov=nocc*nocc*nvir
-      lnvv=nvir*nvir
       tol2e=1.0d-12
       offt2=(idiis-1)*lnoov
 c
@@ -47,13 +46,6 @@ c ------------------------------------------------------------
       if (.not.ga_create(MT_DBL,lnov,lnov,'nht2',
      &                   nvir,nvir,g_nht2))
      &     call errquit('ga_create g_nht2 failed',0)
-CRK   if (.not.ga_create(MT_DBL,lnof,lnof,'ncoul',
-CRK  &                   nbf,nbf,g_ncoul))
-CRK  &     call errquit('ga_create g_ncoul failed',0)
-CRK   if (.not.ga_create(MT_DBL,lnof,lnof,'nexch',
-CRK  &                   nbf,nbf,g_nexch))
-CRK  &     call errquit('ga_create g_nexch failed',0)
-
 c ------------------------------------------------------------
 c fill new GAs
 c ------------------------------------------------------------
@@ -77,31 +69,6 @@ c ------------------------------------------------------------
       enddo
 c
       call ga_zero(g_nht2)
-c
-CRK   call ga_distribution(g_coul,iam,g_jlo,g_jhi,g_ilo,g_ihi)
-CRK   ij=0
-CRK   do i=1,nocc
-CRK     do j=1,i
-CRK       ij=ij+1
-CRK       if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-CRK         ad1=(i-1)*nbf
-CRK         ad2=(j-1)*nbf
-CRK         call ga_get(g_coul,1,nbf*nbf,ij,ij,dbl_mb(k_sa),nbf*nbf)
-CRK         call ga_put(g_ncoul,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
-CRK  &                  dbl_mb(k_sa),nbf)
-CRK         call mxtrn(dbl_mb(k_sa),dbl_mb(k_sb),nbf,nbf)
-CRK         call ga_put(g_ncoul,ad1+1,ad1+nbf,ad2+1,ad2+nbf,
-CRK  &                  dbl_mb(k_sb),nbf)
-c
-CRK         call ga_get(g_exch,1,nbf*nbf,ij,ij,dbl_mb(k_sa),nbf*nbf)
-CRK         call ga_put(g_nexch,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
-CRK  &                  dbl_mb(k_sa),nbf)
-CRK         call mxtrn(dbl_mb(k_sa),dbl_mb(k_sb),nbf,nbf)
-CRK         call ga_put(g_nexch,ad1+1,ad1+nbf,ad2+1,ad2+nbf,
-CRK  &                  dbl_mb(k_sb),nbf)
-CRK       endif
-CRK     enddo
-CRK   enddo
 c
       call ccsd_pampt3(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                 tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,hia,

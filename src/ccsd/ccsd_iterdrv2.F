@@ -5,6 +5,7 @@
      &                        g_moint,mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener)
+C     $Id: ccsd_iterdrv2.F,v 2.9 1997-04-14 06:34:56 gg502 Exp $
       implicit none
 c
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,convi,iprt,
@@ -23,12 +24,11 @@ c
 c
       integer iter,idiis,ndiis,bev,jhi,jlo,ihi,ilo,offt2,nvp1,
      &        i,av
-      integer max2e,mem2,max1e,mem1
-      double precision eold,thre,dabs,tx(4),rx(2),rms,deccsd,
+      integer max2e,mem2
+      double precision eold,thre,dabs,tx(4),rms,deccsd,
      &                 tstart,tend
 
-      integer ii,jj
-      Integer Nodes, IAm
+      Integer IAm
 
 C
 #include "msgids.fh"
@@ -36,10 +36,9 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 c
-      double precision zip,one,half,two,ten
-      data zip/0.0d00/,one/1.0d00/,ten/10.0d00/
+      double precision zip,ten
+      data zip/0.0d00/,ten/10.0d00/
 c
-      Nodes = GA_NNodes()
       IAm = GA_NodeID()
 C
       call ga_sync()
@@ -51,14 +50,7 @@ c      print *,'basis set handle ',basis
       nvp1=nvir+1
 c - starting vectors
       call dfill(lnov,zip,t1,1)
-capr
-c      print *,'putting some rubbish in t1 to start with'
-c      rms=one
-c      do i=1,lnov
-c       t1(i)=rms
-c       rms=rms+one
-c      enddo
-capr
+c
       if (nvp1.ge.ilo.and.nvp1.le.ihi)then
        call ga_put(g_t2,1,lnov,nvp1,nvp1,t1,1)
       endif
@@ -136,7 +128,6 @@ c ----------------------------------------------------------
       endif
       call ga_sync()
       tx(1)=tcgtime()
-c$$$      rx(1)=rtc()
       call ccsd_pampt2(basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,
      &                iprt,cmo,eorb,t1,t2,t2(lnoov+1),ht1,ht2,
      $                scra,scrb,hiu,hia,habe,giu,gabe,
@@ -144,7 +135,6 @@ c$$$      rx(1)=rtc()
      &                max2e,mem2,g_ncoul,g_nexch,tklst)
       call ga_sync()
       tx(2)=tcgtime()
-c$$$      rx(2)=rtc()
       tstart=tx(2)
       call ccsd_pdiis(nocc,nvir,idiis,ndiis,t1,ht1,scra,scrb,mxvec,
      &                 bbkp,bb,iprt,iter,rms,g_t2,g_ht2)
@@ -158,7 +148,6 @@ c$$$      rx(2)=rtc()
       write(6,1235)iter,eccsd,deccsd,rms,tx(2)-tx(1),tx(4)-tx(3)-
      &                                       (tx(2)-tx(1))
  1235 format(i4,d24.14,2d12.4,2d12.4)
-c$$$      write(6,*)'Wall clock time',(rx(2)-rx(1))*3.33e-09
 c
       call ecce_print1('ccsd total energy', mt_dbl, eccsd+refener, 1)
       call ecce_print1('ccsd delta energy', mt_dbl, deccsd, 1)

@@ -1,4 +1,5 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in )
+C     $Id: ccsd_driver.F,v 2.14 1997-04-14 06:34:53 gg502 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -23,8 +24,7 @@ c
        double precision nuclear_charge, charge
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
-       integer k_epair, l_epair
-       integer npairs
+       integer k_epair
        integer nbf, nsh, nelec, nact, nocc, nopen, nvir, nocc_correl,
      &         nvir_correl, lnof
        integer occ_frozen, occ_lo, occ_hi, nmo_lo
@@ -32,10 +32,9 @@ c
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
        integer noper_core
        integer g_coul, g_exch, g_epair, g_ncoul, g_nexch
-       integer i,j,ij
-       integer ii
-       logical oexch,ocoul,oprint,status,ohalf
-       double precision emp2, e2pair, RefEner, TotEner
+       integer i, ij
+       logical oexch,ocoul,status,ohalf
+       double precision emp2, RefEner, TotEner
        double precision tpass
        character*7 algo
        Integer Me
@@ -49,7 +48,7 @@ C
 capr
 #include "ccsd_len.fh"
 c
-       integer maxit,convi,iprt,irstrt,ncor,ndel,l_mo,k_mo,g_objv,
+       integer maxit,convi,iprt,ncor,ndel,l_mo,k_mo,g_objv,
      &         l_scr,k_scr
 capr
 c
@@ -71,7 +70,6 @@ c
 c
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.true./
-       data oprint/.true./
        data ohalf/.true./
        Data OUseSym /.FALSE./
 capr
@@ -411,7 +409,6 @@ c Start CCSD part here
 c
 c
       call ccsd_get_param(rtdb,maxit,convi,iprt, CC_Theory, MaxVec)
-      irstrt=0
       ncor=occ_frozen
       ndel=vir_frozen
 c

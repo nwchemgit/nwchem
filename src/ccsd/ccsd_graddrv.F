@@ -4,6 +4,7 @@
      &                        giu,gabe,bbkp,bb,g_t2,g_z2,g_hz2,
      &                        g_moint,mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst)
+C     $Id: ccsd_graddrv.F,v 2.3 1997-04-14 06:34:55 gg502 Exp $
       implicit none
 c
       integer msg_cc_z1a
@@ -24,12 +25,11 @@ c
 c
       integer iter,idiis,ndiis,bev,jhi,jlo,ihi,ilo,offt2,nvp1,
      &        i,av
-      integer max2e,mem2,max1e,mem1
-      double precision eold,thre,dabs,tx(4),rx(2),rms,deccsd,
+      integer max2e,mem2
+      double precision eold,thre,dabs,tx(4),rms,
      &                 tstart,tend
-      double precision zip,one,half,two,ten
-      integer ii,jj
-      Integer Nodes, IAm
+      double precision zip,ten
+      Integer IAm
 C
 #include "msgids.fh"
 #include "tcgmsg.fh"
@@ -37,9 +37,8 @@ C
 #include "ccsd_len.fh"
 c
 * DATA MUST FOLLOW ALL DELCARATIONS 
-      data zip/0.0d00/,one/1.0d00/,ten/10.0d00/
+      data zip/0.0d00/,ten/10.0d00/
 c
-      Nodes = GA_NNodes()
       IAM = GA_NodeID()
 C
       call ga_sync()
@@ -70,7 +69,6 @@ c
       eold=zip
       thre=ten**convi
       rms=thre+thre
-      deccsd=thre+thre
 c
 c ----------------------------------------------------------
 c begin iterations
@@ -131,7 +129,6 @@ c ----------------------------------------------------------
       endif
       call ga_sync()
       tx(1)=tcgtime()
-c$$$      rx(1)=rtc()
       call ccsd_zvecs(basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,
      &                iprt,cmo,eorb,t1,hz1,hz2,
      $                scra,scrb,z1,hiu,hia,habe,giu,gabe,
@@ -139,12 +136,10 @@ c$$$      rx(1)=rtc()
      &                max2e,mem2,g_ncoul,g_nexch,tklst)
       call ga_sync()
       tx(2)=tcgtime()
-c$$$      rx(2)=rtc()
       tstart=tx(2)
       call ccsd_pdiis(nocc,nvir,idiis,ndiis,z1,hz1,scra,scrb,mxvec,
      &                 bbkp,bb,iprt,iter,rms,g_z2,g_hz2)
       call ga_sync()
-      deccsd=eccsd-eold
       eold=eccsd
       tx(4)=tcgtime()
       tend=tx(4)
@@ -153,7 +148,6 @@ c$$$      rx(2)=rtc()
       write(6,1235)iter,rms,tx(2)-tx(1),tx(4)-tx(3)-
      &                                       (tx(2)-tx(1))
  1235 format(i4,d12.4,2d12.4)
-c$$$      write(6,*)'Wall clock time',(rx(2)-rx(1))*3.33e-09
       endif
       goto 99
  999  continue

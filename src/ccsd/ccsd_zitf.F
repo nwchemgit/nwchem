@@ -2,6 +2,7 @@
      &                     t1,z1,hiu,giu,habe,gabe,hia,hz1,
      &                    idiis,cmo,eorb,iprt,
      &                    g_t2,g_z2,g_hz2,g_ncoul,g_nexch,tklst)
+C     $Id: ccsd_zitf.F,v 2.3 1997-04-14 06:35:04 gg502 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        idiis,iprt,g_t2,g_z2,g_hz2
@@ -12,22 +13,19 @@
 #include "global.fh"
 #include "ccsd_debug.fh"
 c
-      integer lnov,g_nt2,g_nz2,g_nhz2,offt2,lnoov,iam,g_jlo,g_jhi,
-     &        g_ilo,g_ihi,a,i,j,b,ad1,ad2,lnoo,lnvv,
-     &        l_t1,k_t1,l_sa,k_sa,l_sb,k_sb,lsab,
-     &        ij,lnof,g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
+      integer lnov,g_nt2,g_nz2,g_nhz2,offt2,lnoov,g_jlo,g_jhi,
+     &        g_ilo,g_ihi,a,i,j,b,ad1,ad2,lnoo,
+     &        l_sa,k_sa,l_sb,k_sb,lsab,
+     &        g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
       double precision tol2e
       logical stat
-      Integer Nodes
+      Integer IAm
 c
-      Nodes = GA_NNodes()
       IAM = GA_NodeID()
 C
       lnoo=nocc*nocc
       lnov=nocc*nvir
-      lnof=nocc*nbf
       lnoov=nocc*nocc*nvir
-      lnvv=nvir*nvir
       tol2e=1.0d-12
       offt2=(idiis-1)*lnoov
 c

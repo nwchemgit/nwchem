@@ -2,6 +2,7 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
+C     $Id: ccsd_pampt3.F,v 2.6 1997-04-14 06:34:59 gg502 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,idiis,g_nt2,g_nht2,

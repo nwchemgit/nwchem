@@ -1,4 +1,5 @@
       subroutine ccsd_mktask(basis,nsh,tklst)
+C     $Id: ccsd_mktask.F,v 2.4 1997-04-14 06:34:58 gg502 Exp $
       implicit none
       integer basis,nsh,tklst(nsh*(nsh+1)/2,2)
 #include "bas.fh"

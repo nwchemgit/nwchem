@@ -1,5 +1,6 @@
       subroutine ccsd_get_param(rtdb, maxit,convi,iprt, theory,
      $   maxdiis)
+C     $Id: ccsd_get_param.F,v 1.5 1997-04-14 06:34:55 gg502 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -8,7 +9,6 @@ c
       integer rtdb, maxit, convi, iprt, maxdiis
       Character*(*) theory
 c
-      integer i
       double precision mone
       parameter (mone = -1.0d0)
 #include "ccsd_debug.fh"

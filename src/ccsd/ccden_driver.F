@@ -3,7 +3,7 @@ C NAME
 C     CCDen_Driver -- Top-level routine for coupled cluster density
 C
 C REVISION
-C     $Id: ccden_driver.F,v 2.1 1997-03-24 02:01:47 gg502 Exp $
+C     $Id: ccden_driver.F,v 2.2 1997-04-14 06:34:50 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Driver(NOcc, NVir, T1, LDT1, g_T2, Z1, LDZ1,
@@ -26,6 +26,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer H_SmOmeg1, H_SmOmeg2, H_SmOmeg3, H_SmOmeg4
       Integer I_SmOmeg1, I_SmOmeg2, I_SmOmeg3, I_SmOmeg4
+      Integer g_LgOmeg1, g_LgOmeg2
 C
 C
 C
@@ -82,7 +83,47 @@ C     Print this thing if requested
 C
       If (Util_Print('1pdm', Print_Debug) ) Call GA_Print(G_1PDM)
 C
+C     ********************************
+C     * Create 4-index intermediates *
+C     ********************************
+C     These are the "large omega" quantities of APR & TJL Eq. 60--62
+C
+      If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
+     $     'CCDen LgOmeg1', NVir, NVir, G_LgOmeg1) ) Call ErrQuit(
+     $     'CCDen_Driver: unable to allocate LgOmeg1',
+     $     NVir*NOcc*NVir*NOcc)
+C
+      If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
+     $     'CCDen LgOmeg2', NVir, NVir, G_LgOmeg2) ) Call ErrQuit(
+     $     'CCDen_Driver: unable to allocate LgOmeg2',
+     $     NVir*NOcc*NVir*NOcc)
+C
+      Call CCDen_Interm4( NOcc, NVir, G_T2, g_Z2, g_LgOmeg1, g_LgOmeg2)
+C
+C     Print these things if requested
+C
+      If (Util_Print('density 4-index intermediates',
+     $     Print_Debug) ) then
+         Call GA_Print(g_LgOmeg1)
+         Call GA_Print(g_LgOmeg2)
+      EndIf
+
+
+
+
+
+
+
+
+
+
+C
 C     Get rid of temporary arrays
+C
+      If (.NOT. GA_Destroy(g_LgOmeg2) ) Call ErrQuit(
+     $     'CCDen_Driver: unable to free LgOmeg2', 0)
+      If (.NOT. GA_Destroy(g_LgOmeg1) ) Call ErrQuit(
+     $     'CCDen_Driver: unable to free LgOmeg1', 0)
 C
       If (.NOT. MA_Pop_Stack(H_SmOmeg4) ) Call ErrQuit(
      $   'CCDen_Driver: unable to free SmOmeg4', 0)

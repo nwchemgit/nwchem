@@ -1,6 +1,6 @@
       subroutine rddcom()
+C     $Id: rddcom.F,v 2.4 1997-04-14 06:35:08 gg502 Exp $
       Implicit NONE
-c$$$      implicit integer (a-z)
 C
       Integer I
       Logical NonStd

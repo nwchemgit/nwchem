@@ -11,7 +11,7 @@ c
       integer nocc,nvir,idiis,ndiis,mxvec,iprt,iter,g_t2,g_ht2
 c
       double precision sum(2),xmax,ddot,det
-      integer i,j,av,bv,jlo,jhi,ilo,ihi,idp1,ndp1,ndp2,nvp1,oft2,
+      integer i,j,av,bv,jlo,jhi,ilo,ihi,idp1,ndp1,nvp1,oft2,
      &        oft2p1,it,offbb,ad1
 C
 #include "msgids.fh"
@@ -19,12 +19,11 @@ C
 c
       INTEGER INFO
       INTEGER ITMP(100)
-      Integer Nodes, IAm
+      Integer IAm
 c
-      double precision zip,one,half,two
-      data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
+      double precision zip,one
+      data zip/0.0d00/,one/1.0d00/
 c
-      Nodes = GA_NNodes()
       IAm = GA_NodeID()
       call qenter('pdiis',0)
 c
@@ -36,7 +35,6 @@ c
         print *,'iter,idiis,idp1,ndiis ',iter,idiis,idp1,ndiis
       endif
       ndp1=ndiis+1
-      ndp2=ndiis+2
       nvp1=nvir+1
       sum(1)=zip
       sum(2)=zip

@@ -3,7 +3,7 @@ C NAME
 C     CCDen_Interm2 -- Form two-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm2.F,v 2.1 1997-03-24 02:01:47 gg502 Exp $
+C     $Id: ccden_interm2.F,v 2.2 1997-04-14 06:34:51 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Interm2(NOcc, NVir, T1, LDT1, g_T2,
@@ -45,7 +45,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer T2_ILo, T2_IHi, T2_JLo, T2_JHi
       Integer H_Scr1, I_Scr1, H_Scr2, I_Scr2
-      Integer I, J, M, N, Junk
+      Integer I, J, M, N
 C
       Call DGeWr(NOcc, NVir, T1, LDT1, 0, 0, LUOut,
      $   'T1', 80, 'F20.15')
@@ -70,7 +70,7 @@ C
       If (.NOT. GA_Compare_Distr(g_T2, g_Z2) ) Call ErrQuit(
      $   'CCDen_Interm2: T2 and Z2 must have same dist.', 0)
 C
-      Write (LuOut, *) GA_NodeID(), ': T2 region (',
+      Write (LuOut, *) 'CCDen_Interm2 ', GA_NodeID(), ': T2 region (',
      $   T2_ILo, ':', T2_IHi, ', ', T2_JLo, ':', T2_JHi, ')'
 C
 C     ********************************************
@@ -240,7 +240,7 @@ C
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C REVISION
-C     $Id: ccden_interm2.F,v 2.1 1997-03-24 02:01:47 gg502 Exp $
+C     $Id: ccden_interm2.F,v 2.2 1997-04-14 06:34:51 gg502 Exp $
 C SYNOPSIS
       Subroutine CCSD_T2_MyIJ(NVir, g_T2, ILo, IHi, JLo, JHi)
       Implicit NONE

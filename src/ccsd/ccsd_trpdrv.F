@@ -3,6 +3,7 @@
      &                       eccsdt,g_objo,g_objv,g_coul,g_exch,
      &                       ncor,nocc,nvir,iprt,emp4,emp5,
      &                       oseg_lo,oseg_hi)
+C     $Id: ccsd_trpdrv.F,v 2.5 1997-04-14 06:35:02 gg502 Exp $
       implicit none
       double precision t1(*),buff(*),bufo(*),
      &                 bufv(*),f1n(*),f1t(*),f2n(*),
@@ -11,8 +12,8 @@
       integer lbfo,lbfv,g_objo,g_objv,ncor,nocc,nvir,iprt,g_coul,
      &        g_exch,oseg_lo,oseg_hi
 c
-      double precision gmoint2,eaijk,eccsdt
-      integer a,b,c,i,j,k,aold,av,inode,t2j,eintc,eintx,
+      double precision eaijk,eccsdt
+      integer a,i,j,k,aold,av,inode,t2j,eintc,eintx,
      &        dint,t2x,t2c,fintc,fintx,len,ad1,ad2,ad3,
      &        next,nxtval
 C
@@ -21,8 +22,8 @@ C
 #include "ccsd_len.fh"
 #include "global.fh"
 c
-      double precision zip,one,half,two
-      data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
+      double precision zip
+      data zip/0.0d00/
 c
 capr      call ga_print(g_coul)
 capr      call ga_print(g_exch)
@@ -67,18 +68,7 @@ CRK note change - unsure
           ad1=(a-oseg_lo)*nocc
           call ga_get(g_coul,1,lnvv,ad1+1,ad1+nocc,buff(fintc),lnvv)
           call ga_get(g_exch,1,lnvv,ad1+1,ad1+nocc,buff(fintx),lnvv)
-c          ad1=0
-c          do i=1,nocc
-c           do b=nocc+1,nocc+nvir
-c            do c=nocc+1,nocc+nvir
-c             print *,'coul ',a,i,b,c,buff(fintc+ad1),gmoint2(a,i,b,c)
-c             print *,'exch ',a,i,b,c,buff(fintx+ad1),gmoint2(a,b,i,c)
-c             buff(fintc+ad1)=gmoint2(a,i,b,c)
-c             buff(fintx+ad1)=gmoint2(a,b,i,c)
-c             ad1=ad1+1
-c            enddo
-c           enddo
-c          enddo
+c
           if (iprt.gt.10)then
            print *,'fintc ',a,iam
            write(6,4859)(buff(i),i=fintc,fintc+lnovv-1)
