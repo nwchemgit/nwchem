@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.17 1995-12-01 16:58:09 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.18 1995-12-11 17:24:21 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -20,7 +20,7 @@ c     see scf_init for input of task_chunks etc.
      $     blocks, nblock)
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.17 1995-12-01 16:58:09 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.18 1995-12-11 17:24:21 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -52,12 +52,11 @@ c
 c     
       integer natoms, nproc, ijkl, next
       integer ib, jb, kb, lb, lbhi
-      integer iat, jat, kat, lat, kl
       integer iatlo, jatlo, katlo, latlo
       integer iathi, jathi, kathi, lathi
       integer ijk_prev(3,2)     ! (i/j/k, lo/hi)
       integer blklen
-      double precision sij, smax, skl, sijkl ! schwarz info
+      double precision sij, smax, skl ! schwarz info
       double precision den_tol  ! Density screen tolerance ( tol2e *  factor )
       logical otest, otestij
       double precision schwarz_atom_block

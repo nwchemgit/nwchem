@@ -1,5 +1,5 @@
 c
-c$Id: cfock.fh,v 1.12 1995-12-01 19:22:37 rg240 Exp $
+c$Id: cfock.fh,v 1.13 1995-12-11 17:24:19 d3g681 Exp $
 c
       integer task_bf         ! Chunking parameter for density matrix
       integer filesize        ! Max integral file size in doubles
@@ -10,6 +10,7 @@ c
       integer first_atoms(4)    ! Atoms that semidirect code starts at
       integer incomplete_atoms(4) ! Atom quartet that semidirect truncated
       logical oerilabel       ! True if using labels with ERI's
+      character*255 int2efilename    ! Stub for integral file name
 c
       common/cfock/
      $     task_bf,
@@ -20,4 +21,5 @@ c
      $     rifock,
      $     first_atoms, incomplete_atoms,
      $     oerilabel
+      common/ccfock/int2efilename
 c

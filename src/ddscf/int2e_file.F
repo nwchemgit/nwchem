@@ -745,13 +745,13 @@ c
       nq = 0.125d0 * dble(nbf+1)**4 
       nq = nq / (sym_number_ops(geom)+1)
       nq = nq / ga_nnodes()
-      nq = nq * 1.1d0
-      nq = max(2*(n_per_rec+1),nq)
+      nq = nq * 1.1d0 + 2*(n_per_rec+1) ! Fudge factors for safety
 c
       if (nq .lt. avail) then
          memsize = int(nq)      ! Set these so that scf_tidy cleans up
-         filesize = -1          ! Fits in memory ... file not needed
-         if (.not. int2e_file_open('aoints', memsize, filesize, tol2e))
+         filesize = nq*0.3 + 2*(n_per_rec+1) ! Allow for small overflow
+         if (.not. int2e_file_open(int2efilename, memsize, filesize, 
+     $        tol2e))
      $        call errquit('int2e_test_mem: int2e_file_open failed',0)
          int2e_test_mem = .true.
       else if (oinfo .and. ofirst) then

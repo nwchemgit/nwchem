@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.51 1995-12-01 16:58:10 d3g681 Exp $
+# $Id: GNUmakefile,v 1.52 1995-12-11 17:24:26 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -91,7 +91,7 @@ $(LIBRARY_PATH)(fock_upd_atom_blk.o):	 $(INCDIR)/global.fh $(INCDIR)/bas.fh
 $(LIBRARY_PATH)(ga_create_atom_blocked.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(ga_create_cont_blocked.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(ga_orthog_mos.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(int2e_file.o):	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./cint2efile.fh $(INCDIR)/bitops.fh 
+$(LIBRARY_PATH)(int2e_file.o):	 $(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./cint2efile.fh ./cfock.fh $(INCDIR)/bitops.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(int_1e_ga.o):	 $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./cscfps.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(matrix_exp.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh 
 $(LIBRARY_PATH)(movecs_fix_phase.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 

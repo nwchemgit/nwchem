@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.9 1995-11-28 22:52:11 og845 Exp $
+c     $Id: fock_2e_task.F,v 1.10 1995-12-11 17:24:23 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -41,7 +41,7 @@ c
 c     Given a task which comprises computing the contributions
 c     arising from a quartet of blocks of atoms, do everything necessary
 c
-      double precision denmax, sij, skl, sijkl, q4, q2, smax
+      double precision sij, sijkl, q4, smax
       logical otest, otestij
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
       integer iat, jat, kat, lat, lattop, kattop, jattop
