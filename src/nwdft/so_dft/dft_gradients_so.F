@@ -1,5 +1,5 @@
       subroutine dft_gradients_so(rtdb)
-c     $Id: dft_gradients_so.F,v 1.4 2000-06-09 19:27:00 edo Exp $
+c     $Id: dft_gradients_so.F,v 1.5 2000-07-26 01:59:18 edo Exp $
 c
 c calculate energy gradients with respect to nuclear coordinates
 c modified from scf version for use in DFT gradients
@@ -69,7 +69,7 @@ c
       integer l_force, k_force, l_occ, k_occ, l_act, k_act, 
      $     l_buf, k_buf, l_scr, k_scr, l_wdens, k_wdens, 
      $     l_cdcoef, i_cdcoef, ippp, isvec, lsvec,
-     $     ilo, ihi, i_s34, l_s34, 
+     $     ilo, ihi, 
      $     k_frc_2el, k_frc_xc, 
      $     l_frc_2el, l_frc_xc
       integer lcntoce, icntoce, lcntobfr, icntobfr,
@@ -398,8 +398,8 @@ c
      $        call errquit('dftg_force: could not alloc svec',0)
          ippp=k_wdens
 c     
-         call  dftg_cdfit(rtdb, geom, ao_bas_han, cd_bas_han,
-     $        nbf_ao, nbf_cd, nat, tol2e, dbl_mb(k_scr), 
+         call  dftg_cdfit(ao_bas_han, cd_bas_han,
+     $        nbf_cd, nat, tol2e, dbl_mb(k_scr), 
      $        lscratch, dbl_mb(k_buf), lbuf,
      $        dbl_mb(isvec), dbl_mb(ippp), max_sh_bf,
      $        iga_dens, dbl_mb(k_frc_2el), 
@@ -422,14 +422,11 @@ c     zero force component vector
 c     
       call dfill(lforce, 0.0D0, dbl_mb(k_frc_xc),  1)
 c     
-      if (.not. ma_push_get(mt_dbl, nat, 's34', l_s34, i_s34))
-     $     call errquit('dft_gradient: could not alloc s34',0)
       call dftg_getxc(rtdb, nat, iga_dens, dbl_mb(k_frc_xc), 
-     $     log_mb(k_act), nactive, dbl_mb(i_s34),
+     $     log_mb(k_act), nactive, 
      $     dbl_mb(irdens_atom), int_mb(icetobfr))
       call ga_dgop(msg_grad_xc,  dbl_mb(k_frc_xc),  lforce, '+')
 c     
-      status = ma_pop_stack (l_s34)
 c     
       if (ga_nodeid() .eq. 0)then
          status = rtdb_parallel (.false.)
