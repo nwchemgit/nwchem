@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.172 2000-11-23 00:57:49 edo Exp $
+c     $Id: dft_scf.F,v 1.173 2000-12-19 02:06:38 edo Exp $
 c     
       implicit none
 c
@@ -897,18 +897,18 @@ c
      ,        dbl_mb(k_eval(1)),dbl_mb(k_occ),g_tmp,dbl_mb(k_tmp))
       if (.not.ma_pop_stack(l_tmp))
      &   call errquit('dft_scf: cannot pop stack',33)
-cedo            if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
-cedo            if(diising) then
-cedo            icall(1) = -1
-cedo            nstdis=1
-cedo            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
-cedo     &                       nbf_ao, geom, ao_bas_han, g_fock, 
-cedo     &                       g_dens(1), g_tmp, g_svecs, isvals, 
-cedo     &                       diising, nodiis,int_mb(k_gdiis),
-cedo     ,           lkeeps,g_s12m,g_s12p)
-cedo            icall(1) = 0
-cedo            icall(2) = 0
-cedo            endif
+            if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
+            if(diising) then
+            icall(1) = -1
+            nstdis=1
+            call diis_driver(toll_s, derr,  ipol, icall, nfock, 
+     &                       nbf_ao, geom, ao_bas_han, g_focks, 
+     &                       g_dens, g_tmp, g_svecs, isvals, 
+     &                       diising, nodiis,int_mb(k_gdiis),
+     ,           lkeeps,g_s12m,g_s12p)
+            icall(1) = 0
+            icall(2) = 0
+            endif
       endif
          etnew=etnew+tdots
 c
@@ -1172,6 +1172,12 @@ c
       endif
 c     
  2000 continue
+c
+c     get rid of levelshifting in evals
+c
+         call dft_remshft(levelshifting,ipol,nbf_ao,noc,
+     ,        rlshift,dbl_mb(k_eval(1)))
+      
       Etnew = Ecore + Ecoul + Exc(1) +tdots
 c
 c     ----- cosmo energy term ... -----
@@ -1270,7 +1276,7 @@ c
             nstdis=1
             call diis_driver(toll_s, derr,  ipol, icall, nfock,
      &                       nbf_ao, geom, ao_bas_han, g_focks,
-     &                       g_dens(1), g_tmp, g_svecs, isvals,
+     &                       g_dens, g_tmp, g_svecs, isvals,
      &                       diising, nodiis,int_mb(k_gdiis),
      ,           lkeeps,g_s12m,g_s12p)
             icall(1) = 0
