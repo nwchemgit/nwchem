@@ -1,6 +1,6 @@
       subroutine tce_zero(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.5 2002-12-17 00:03:10 sohirata Exp $
+c $Id: tce_zero.F,v 1.6 2003-05-23 18:31:28 edo Exp $
 c
 c     Zero scratch a file
 c
@@ -25,6 +25,9 @@ c
         write(LuOut,9190) d_sf,size
         write(LuOut,9200) nblocks,blocksize
       endif
+      if(ioalg.eq.2) then
+         call ga_zero(d_sf)
+      else
       if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
      1  l_temp,k_temp))
      2  call errquit('tce_zero: MA problem',0)
@@ -43,6 +46,7 @@ c
       if (.not.ma_pop_stack(l_temp))
      1  call errquit('createfile: MA problem',1)
       call ga_sync()
+      endif
  9190 format(/,1x,'Zero scratch handle:',i10,' size:',i10)
  9200 format(1x,'            nblocks:',i10,' size:',i10)
  9210 format(1x,'             offset:',i10,' size:',i10)

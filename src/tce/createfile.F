@@ -1,6 +1,6 @@
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.11 2003-01-31 04:36:42 sohirata Exp $
+c $Id: createfile.F,v 1.12 2003-05-23 18:31:28 edo Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -105,8 +105,12 @@ c
         if (nodezero.and.util_print('files',print_debug))
      1    write(LuOut,9000) size,filename(1:40)
         if (.not.ga_create(mt_dbl,size,1,filename,
-     1    -1,1,d_sf)) call errquit
-     2    ('createfile: GA problem',0)
+     1       -1,1,d_sf)) then
+           write(6,*) ' available GA memory ',
+     *          ga_memory_avail(),' bytes'
+           call util_flush(6)
+           call errquit ('createfile: failed GAcreate size=',size)
+        endif
         call tce_zero(d_sf,size)
       else if (ioalg.eq.3) then
         if (nodezero.and.util_print('files',print_debug))
