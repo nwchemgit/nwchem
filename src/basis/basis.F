@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.41 1996-07-20 20:38:04 d3e129 Exp $
+c $Id: basis.F,v 1.42 1996-07-26 16:21:31 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -645,7 +645,7 @@ c
         write(6,6)
  6      format(
      $       '            Exponent  Coefficients '/
-     $       '       -------------- ',60('-'))
+     $       '       -------------- ',57('-'))
         do 00200 j=1,myucont
           myprim = infbs_cont(CONT_NPRIM,ifcont,basis)
           mygen  = infbs_cont(CONT_NGEN,ifcont,basis)

@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.23 1996-07-17 16:26:37 d3g681 Exp $
+c $Id: bas_input.F,v 1.24 1996-07-26 16:21:29 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -436,6 +436,8 @@ c
       character*2 sptypes(nsptypes)
       character*255 field
       logical status
+      logical inp_search_fast
+      external inp_search_fast
       integer spvalues(nsptypes)
       integer l_value, ind
       data ltypes /'s','p','d','f','g','h','i'/
@@ -446,9 +448,7 @@ c     Try to read in a standard basis set for the atom type
 c     associated with this tag
 c
 c     Note that this routine temporarily resets the inp package
-c     to read from a different file.  This has the effect of messing
-c     up line counts and discarding the remainder of the current
-c     input line.
+c     to read from a different file.
 c
 c     Translate tag to symbol of atom and assemble a search string of
 c     the form 'basis <symbol>_<basis name>'
@@ -469,7 +469,7 @@ c
       call inp_save_state()     ! Save state for unit 5.
 
       call inp_init(33,6)
- 33   if (inp_search(.false., 'basis', 1)) then
+ 33   if (inp_search_fast('basis')) then
          status = inp_a(field)
          if (inp_a(field)) then
             if (inp_compare(.false., string, field)) goto 34
