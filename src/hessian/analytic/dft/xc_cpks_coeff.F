@@ -4,20 +4,26 @@ c     making multiple XC matrices for CPKS
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_cpks_coeff.F,v 1.6 2000-10-20 16:16:49 bjohnson Exp $
+c     $Id: xc_cpks_coeff.F,v 1.7 2002-03-22 02:29:47 sohirata Exp $
+c
+c     2/02 So Hirata --- added a code for triplet excitation or
+c     instability calculation and the corresponding logical argu-
+c     ment TRIPLET, which must be false for hessian calculation.
 c
       Subroutine xc_cpks_coeff(prho, pdelrho, Amat2, Cmat2, Cmat,
-     &                         delrho, npert, ipol, nq, GRAD)
+     &                         delrho, npert, ipol, nq, GRAD, TRIPLET)
       implicit none
+#include "rtdb.fh"
 #include "dft2drv.fh"
 c !!! BGJ test
 #include "bgj.fh"
 c !!! BGJ test
 c
-      integer npert ! Number CPKS perturbations [input]
-      integer ipol  ! [input]
-      integer nq    ! [input]
-      logical GRAD  ! Whether gradient-corrected [input]
+      integer npert    ! Number CPKS perturbations [input]
+      integer ipol     ! [input]
+      integer nq       ! [input]
+      logical GRAD     ! Whether gradient-corrected [input]
+      logical TRIPLET  ! Whether triplet [input]
 c
 c     Current approximate perturbed spin densities and density gradients
 c     These are overwritten with the XC matrix coefficients to save space
@@ -59,6 +65,9 @@ c
          if (ipol.eq.2) then
 c
 c           Unrestricted case
+c           (DFT analytic hessian)
+c           (TDDFT excitation energies)
+c           (DFT instability check ... NYI)
 c
             if (.not. GRAD) then
 c
@@ -163,9 +172,73 @@ c
 c
             endif
 c
+         else if (TRIPLET) then
+c
+c           Restricted triplet case
+c           (TDDFT triplet excitation energies)
+c           (DFT triplet instability check ... NYI)
+c
+            if (.not. GRAD) then
+c
+               do n = 1, nq
+                  prho(n,1,ipert) =(Amat2(n,D2_RA_RA)-Amat2(n,D2_RA_RB))
+     &                            * prho(n,1,ipert)
+               enddo
+c
+            else
+c
+               do n = 1, nq
+c
+c                 Perturbed functional parameters
+c
+                  pz(1) = prho(n,1,ipert)
+                  pz(3) =(delrho(n,1,1)*pdelrho(n,1,1,ipert)
+     &                  + delrho(n,2,1)*pdelrho(n,2,1,ipert)
+     &                  + delrho(n,3,1)*pdelrho(n,3,1,ipert))*2d0
+c
+c                 Local CPKS coefficient
+c
+                  prho(n,1,ipert) =(Amat2(n,D2_RA_RA)
+     &                            - Amat2(n,D2_RA_RB)) *pz(1)
+     &                            +(Cmat2(n,D2_RA_GAA)
+     &                            - Cmat2(n,D2_RA_GBB))*pz(3)
+c
+c                 GC CPKS coefficients
+c
+                  pdra(1) = pdelrho(n,1,1,ipert)
+                  pdra(2) = pdelrho(n,2,1,ipert)
+                  pdra(3) = pdelrho(n,3,1,ipert)
+c
+c                 Perturbed density gradient contribution
+c
+                  pdelrho(n,1,1,ipert) =(Cmat(n,D1_GAA)*2d0
+     &                                 - Cmat(n,D1_GAB))*pdra(1)
+                  pdelrho(n,2,1,ipert) =(Cmat(n,D1_GAA)*2d0
+     &                                 - Cmat(n,D1_GAB))*pdra(2)
+                  pdelrho(n,3,1,ipert) =(Cmat(n,D1_GAA)*2d0
+     &                                 - Cmat(n,D1_GAB))*pdra(3)
+c
+c                 Perturbed functional argument contribution
+c
+                  t(1) =((Cmat2(n,D2_RA_GAA)
+     &                 -  Cmat2(n,D2_RA_GBB)) *pz(1)
+     &                 + (Cmat2(n,D2_GAA_GAA)
+     &                 -  Cmat2(n,D2_GAA_GBB))*pz(3))*2d0
+                  pdelrho(n,1,1,ipert) = pdelrho(n,1,1,ipert)
+     &                 + delrho(n,1,1)*t(1)
+                  pdelrho(n,2,1,ipert) = pdelrho(n,2,1,ipert)
+     &                 + delrho(n,2,1)*t(1)
+                  pdelrho(n,3,1,ipert) = pdelrho(n,3,1,ipert)
+     &                 + delrho(n,3,1)*t(1)
+               enddo
+            endif
+c
          else
 c
 c           Restricted case
+c           (DFT analytic hessian)
+c           (TDDFT singlet excitation energies)
+c           (DFT singlet instability check ... NYI)
 c
             if (.not. GRAD) then
 c
