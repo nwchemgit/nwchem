@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.18 2001-06-21 19:10:03 zzhang Exp $
+C $Id: hess_init.F,v 1.19 2001-06-28 05:20:20 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -117,6 +117,8 @@ c       nopen = nopen + 1
      *      call errquit('hess_init: failed to get nalpha',555)
           if (.not. rtdb_get(rtdb, 'scf:nbeta', MT_INT, 1, nbeta))
      *      call errquit('hess_init: failed to get nbeta',555)
+          jfac(2) = 1.0d0
+          kfac(2) = 1.0d0
         endif
       elseif (theory .eq. 'dft') then
         if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1,mult))
@@ -149,6 +151,8 @@ c
           nbeta  = dftnoc(2) !Is this in the correct order?
           nclosed = nbeta
           scftype = 'UHF'
+          if (ocdfit) jfac(2) = 0.0d0
+          kfac(2) = xfac(1)  ! should this be xfac(2)?
         endif
 
       endif

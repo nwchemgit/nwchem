@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.7 2001-05-23 17:44:43 windus Exp $
+c $Id: shell_fock_build.F,v 1.8 2001-06-28 05:20:20 windus Exp $
 c
       subroutine shell_fock_build(geom, basis, nder, ndens, nfock, 
      $     jfac, kfac, tol2e, g_dens, g_fock, oactive)
@@ -51,7 +51,7 @@ c
 c
       blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 c
-      lend = blen*blen*nfock
+      lend = blen*blen*ndens
       if (.not. ma_push_get(mt_dbl, lend, 'd_ij', l_d_ij, k_d_ij)) 
      $     call errquit('new_fock: d_ij', lend)
       if (.not. ma_push_get(mt_dbl, lend, 'd_kl', l_d_kl, k_d_kl)) 
@@ -65,7 +65,7 @@ c
       if (.not. ma_push_get(mt_dbl, lend, 'd_jl', l_d_jl, k_d_jl)) 
      $     call errquit('new_fock: d_jl', lend)
 c
-      lend = lend*ndens
+      lend = lend*nfock
       if (.not. ma_push_get(mt_dbl, lend, 'f_ij', l_f_ij, k_f_ij)) 
      $     call errquit('new_fock: f_ij', lend)
       if (.not. ma_push_get(mt_dbl, lend, 'f_kl', l_f_kl, k_f_kl)) 
@@ -126,11 +126,11 @@ c
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
      $     call errquit('new_fock:could not allocate q4',maxq)
 c
-      do j = 1, nfock
+      do j = 1, ndens
          call ga_reorder(g_dens(j), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
-        do i = 1, ndens
-          call ga_reorder(g_fock(i,j), .true., int_mb(k_rbfmap),
+        do i = 1, nfock
+          call ga_reorder(g_fock(j,i), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
         enddo
       end do
@@ -152,13 +152,13 @@ c
      $     oactive,
      $     jfac, kfac)
 c
-      do j = 1, nfock
+      do j = 1, ndens
          call ga_reorder(g_dens(j), .true., int_mb(k_bfmap),
      $        .true., int_mb(k_bfmap))
-         do i = 1, ndens
-           call ga_reorder(g_fock(i,j), .true., int_mb(k_bfmap),
+         do i = 1, nfock
+           call ga_reorder(g_fock(j,i), .true., int_mb(k_bfmap),
      $        .true., int_mb(k_bfmap))
-           call ga_symmetrize(g_fock(i,j))
+           call ga_symmetrize(g_fock(j,i))
          enddo
       end do
 c
@@ -194,13 +194,13 @@ c
       integer g_dens, g_fock
       integer blen              ! [input] max dimension of density block
       double precision          ! [scratch] 6 blocks per possible density
-     $     d_ij(nfock,blen,blen),  d_kl(nfock,blen,blen),  
-     $     d_ik(nfock,blen,blen),  d_jl(nfock,blen,blen),  
-     $     d_il(nfock,blen,blen),  d_jk(nfock,blen,blen)
+     $     d_ij(blen,blen,ndens),  d_kl(blen,blen,ndens),  
+     $     d_ik(blen,blen,ndens),  d_jl(blen,blen,ndens),  
+     $     d_il(blen,blen,ndens),  d_jk(blen,blen,ndens)
       double precision          ! [scratch] 6 blocks per possible fock
-     $     f_ij(ndens,nfock,blen,blen),  f_kl(ndens,nfock,blen,blen),  
-     $     f_ik(ndens,nfock,blen,blen),  f_jl(ndens,nfock,blen,blen),  
-     $     f_il(ndens,nfock,blen,blen),  f_jk(ndens,nfock,blen,blen)
+     $     f_ij(blen,blen,ndens,nfock),  f_kl(blen,blen,ndens,nfock),  
+     $     f_ik(blen,blen,ndens,nfock),  f_jl(blen,blen,ndens,nfock),  
+     $     f_il(blen,blen,ndens,nfock),  f_jk(blen,blen,ndens,nfock)
 c     
       integer lscr              ! [input] Size of scratch for integrals
       double precision scr(lscr) ![scratch] Scratch space for integrals
@@ -242,6 +242,7 @@ c
       integer ishblock, jshblock, kshblock, lshblock
       integer iish, jjsh, kksh, llsh
       integer nq, atoms(4)
+      integer id, jd
       double precision smax, sij, sijkl, block_eff
 c      
       logical oij, okl, oikjl, omore
@@ -295,17 +296,29 @@ c
 c     
 c     Get blocks of the one-particle densities
 c     
-                     call new_get_dens_block(g_dens, nfock, blen, 
+                     call new_get_dens_block(g_dens, ndens, blen, 
      $                    ibflo, ibfhi, jbflo, jbfhi, d_ij, jfac)
-                     call new_get_dens_block(g_dens, nfock, blen, 
+                     write(6,*) 'alpha density'
+                     do id = 1, 1+ ibfhi -ibflo
+                       do jd = 1, 1+ jbfhi -jbflo
+                         write(6,*) id,jd,d_ij(id,jd,1)
+                       enddo
+                     enddo
+                     write(6,*) 'beta density'
+                     do id = 1, 1+ ibfhi -ibflo
+                       do jd = 1, 1+ jbfhi -jbflo
+                         write(6,*) id,jd,d_ij(id,jd,2)
+                       enddo
+                     enddo
+                     call new_get_dens_block(g_dens, ndens, blen, 
      $                    kbflo, kbfhi, lbflo, lbfhi, d_kl, jfac)
-                     call new_get_dens_block(g_dens, nfock, blen, 
+                     call new_get_dens_block(g_dens, ndens, blen, 
      $                    ibflo, ibfhi, kbflo, kbfhi, d_ik, kfac)
-                     call new_get_dens_block(g_dens, nfock, blen, 
+                     call new_get_dens_block(g_dens, ndens, blen, 
      $                    jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac)
-                     call new_get_dens_block(g_dens, nfock, blen, 
+                     call new_get_dens_block(g_dens, ndens, blen, 
      $                    ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
-                     call new_get_dens_block(g_dens, nfock, blen, 
+                     call new_get_dens_block(g_dens, ndens, blen, 
      $                    jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
                      if (.not. ma_verify_allocator_stuff())
      $                    call errquit(' ',0)
@@ -465,6 +478,18 @@ c
 c                                      
                      call new_acc_fock_block(g_fock, ndens, nfock, 
      $                 blen, ibflo, ibfhi, jbflo, jbfhi, f_ij)
+                     write(6,*) 'alpha fock'
+                     do id = 1, 1+ ibfhi -ibflo
+                       do jd = 1, 1+ jbfhi -jbflo
+                         write(6,*) id,jd,f_ij(id,jd,1,1)
+                       enddo
+                     enddo
+                     write(6,*) 'beta fock'
+                     do id = 1, 1+ ibfhi -ibflo
+                       do jd = 1, 1+ jbfhi -jbflo
+                         write(6,*) id,jd,f_ij(id,jd,2,1)
+                       enddo
+                     enddo
                      call new_acc_fock_block(g_fock, ndens, nfock, 
      $                 blen, kbflo, kbfhi, lbflo, lbfhi, f_kl)
                      call new_acc_fock_block(g_fock, ndens, nfock, 
@@ -500,32 +525,22 @@ c
       end
 
       subroutine new_get_dens_block(
-     $     g_dens, nfock, blen, ibflo, ibfhi, jbflo, jbfhi, buf, fac)
+     $     g_dens, ndens, blen, ibflo, ibfhi, jbflo, jbfhi, buf, fac)
       implicit none
-      integer  nfock, g_dens(nfock), blen, ibflo, ibfhi, jbflo, jbfhi
+      integer  ndens, g_dens(ndens), blen, ibflo, ibfhi, jbflo, jbfhi
       integer blen2
-      double precision buf(nfock), fac(nfock)
+      double precision buf(*), fac(ndens)
 c
 c     integer lo(3), hi(3), ld(3)
-      integer ifock
+      integer idens
 c
-c     lo(1) = 1
-c     hi(1) = nfock
-c     ld(1) = nfock
-c     lo(2) = ibflo
-c     hi(2) = ibfhi
-c     ld(2) = blen
-c     lo(3) = jbflo
-c     hi(3) = jbfhi
-c     ld(3) = blen
       blen2 = blen*blen
-      call dfill(nfock*blen*blen,0d0,buf,1)
+      call dfill(ndens*blen*blen,0d0,buf,1)
 ***      call nga_get(g_dens, lo, hi, buf, ld) 
-      do ifock = 1, nfock
-         call ga_get(g_dens(ifock),ibflo,ibfhi,jbflo,jbfhi,
-     *     buf((ifock-1)*blen2+1),blen)
-c        call dscal(blen2, fac(ifock), buf((ifock-1)*blen2+1), nfock)
-         call dscal(blen2, fac(ifock), buf((ifock-1)*blen2+1), 1)
+      do idens = 1, ndens
+         call ga_get(g_dens(idens),ibflo,ibfhi,jbflo,jbfhi,
+     *     buf((idens-1)*blen2+1),blen)
+         call dscal(blen2, fac(idens), buf((idens-1)*blen2+1), 1)
       end do
 c
       end
@@ -540,8 +555,8 @@ c
 c
       blen2 = blen * blen
       index = 1
-      do j = 1, nfock
       do i = 1, ndens
+      do j = 1, nfock
         call ga_acc(g_fock(i,j),ibflo,ibfhi,jbflo,jbfhi,buf(index),
      $              blen,1d0)
         index = index + blen2
@@ -614,9 +629,9 @@ c
       double precision eri(*)
       double precision tol2e
       double precision
-     $     d_ij(nfock,blen,blen), d_kl(nfock,blen,blen), 
-     $     d_ik(nfock,blen,blen), d_jl(nfock,blen,blen), 
-     $     d_il(nfock,blen,blen), d_jk(nfock,blen,blen)
+     $     d_ij(blen,blen,ndens), d_kl(blen,blen,ndens), 
+     $     d_ik(blen,blen,ndens), d_jl(blen,blen,ndens), 
+     $     d_il(blen,blen,ndens), d_jk(blen,blen,ndens)
       double precision
      $     f_ij(blen,blen,ndens,nfock), f_kl(blen,blen,ndens,nfock), 
      $     f_ik(blen,blen,ndens,nfock), f_jl(blen,blen,ndens,nfock), 
@@ -655,17 +670,17 @@ c     write(6,*) ' c ', i,j,k,l
 c     write(6,*) 'contributing to fockder ',xyz
               g = eri(nbuf)
 c     write(6,*) 'integral is ',g, nbuf
-              do v = 1, nfock
+              do v = 1, ndens
 c     write(6,*) 'densities are kl, ij, jl, jk, ik, il,i,j,k,l ',
 c    *  i,j,k,l,
 c    *  d_kl(v,k,l),d_ij(v,i,j),d_jl(v,j,l),d_jk(v,j,k),
 c    *  d_ik(v,i,k),d_il(v,i,l)
-               f_ij(i,j,xyz,v)=f_ij(i,j,xyz,v)+4.0d+00*g*d_kl(v,k,l)
-               f_kl(k,l,xyz,v)=f_kl(k,l,xyz,v)+4.0d+00*g*d_ij(v,i,j)
-               f_ik(i,k,xyz,v)=f_ik(i,k,xyz,v)-g*d_jl(v,j,l)
-               f_il(i,l,xyz,v)=f_il(i,l,xyz,v)-g*d_jk(v,j,k)
-               f_jl(j,l,xyz,v)=f_jl(j,l,xyz,v)-g*d_ik(v,i,k)
-               f_jk(j,k,xyz,v)=f_jk(j,k,xyz,v)-g*d_il(v,i,l)
+               f_ij(i,j,v,xyz)=f_ij(i,j,v,xyz)+4.0d+00*g*d_kl(k,l,v)
+               f_kl(k,l,v,xyz)=f_kl(k,l,v,xyz)+4.0d+00*g*d_ij(i,j,v)
+               f_ik(i,k,v,xyz)=f_ik(i,k,v,xyz)-g*d_jl(j,l,v)
+               f_il(i,l,v,xyz)=f_il(i,l,v,xyz)-g*d_jk(j,k,v)
+               f_jl(j,l,v,xyz)=f_jl(j,l,v,xyz)-g*d_ik(i,k,v)
+               f_jk(j,k,v,xyz)=f_jk(j,k,v,xyz)-g*d_il(i,l,v)
               end do
               nbuf = nbuf + 1
               end do

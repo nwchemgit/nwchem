@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.20 2001-05-23 17:44:43 windus Exp $
+C $Id: twodd_cont.F,v 1.21 2001-06-28 05:20:20 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -186,7 +186,11 @@ c    $     call errquit('twodd_cont: could not allocate l_act',ncent)
 c
 c  Take care of the first derivative contributions to the rhs
 c
-      call shell_fock_build (geom, basis, 1, n3xyz, ndens, jfac, kfac,
+      do i = 1, ndens
+        call ga_print(g_dens(i))
+        write(luout,*) 'jfac, kfac, dens ',jfac(i),kfac(i),i
+      enddo
+      call shell_fock_build (geom, basis, 1, ndens, n3xyz, jfac, kfac,
      *   tol2e, g_dens, g_rhs, log_mb(k_act))
       if (otwoprint) then
          if(ga_nodeid().eq.0) then
@@ -196,6 +200,9 @@ c
         endif
         do i = 1, ndens*n3xyz
           call ga_print(g_rhs(i))
+        enddo
+        do i = 1, ndens
+          call ga_print(g_dens(i))
         enddo
       endif
 c
@@ -373,7 +380,7 @@ c
 c  Actually do the deed
 c
       if (oprint.and.(ga_nodeid().eq.0)) 
-     .     write(LuOut,*) 'HESS: before twodd_coul_ex call'
+     $     write(LuOut,*) 'HESS: before twodd_coul_ex call'
       if (jfac(1).ne.0.0d0 .or. kfac(1).ne.0.0d0) call twodd_coul_ex(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk),
