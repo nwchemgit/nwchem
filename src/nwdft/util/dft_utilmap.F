@@ -1,7 +1,7 @@
       subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
      &                      nshells)
 *
-* $Id: dft_utilmap.F,v 1.9 2002-02-21 21:29:56 edo Exp $
+* $Id: dft_utilmap.F,v 1.10 2002-02-21 22:18:40 edo Exp $
 *
       implicit none
       integer basis, natoms, nshells
@@ -50,13 +50,13 @@ c     R(i,j) <= R(i,j) op A(map(1,i):map(2,i),map(1,j):map(2,j))
 c     
 c     where op is one of 'abssum', 'absmax', 'rms' (extend as necessary)
 c     
-      integer ir, jr, i, j, k, ielems, jelems
+      integer ir, jr, k, ielems, jelems
       double precision sum
       integer me,nproc,itask
       double precision util_matops
       external util_matops
       integer ityp, ndim, dims(3)
-      integer lo(3),hi(3),ld(2),ld12
+      integer lo(3),hi(3),ld(2),ld12,offs
       logical l3d
 c     
       call nga_inquire(g_a, ityp, ndim, dims)
@@ -64,13 +64,18 @@ c
       if(ndim.gt.2) then
 #ifdef DEBUG
          write(6,*) ' matreduce: ndim gt 2!, =',ndim
+         write(6,*) ' na ',n_a, ' dims1 ',dims(1),dims(1)/n_a
+         write(6,*) '  dims ',dims
 #endif
          l3d=.true.
+         offs=dims(1)/n_a
       endif
       me=ga_nodeid()
       nproc=ga_nnodes()
       itask=0
       call dfill(n_a*nr*nr, 0.0d0, r, 1)
+
+      call util_flush(6)
       do k = 1, n_a
 c
 c         write(6,*) ' util_mat_reduce: input matrix '
@@ -85,16 +90,16 @@ cedo            do ir = 1, nr
                   jelems = map(2,jr) - map(1,jr) + 1
                   if (ielems.gt.0 .and. jelems.gt.0) then
                      if(l3d) then
-                        ielems=ielems*dims(1)
-                        lo(1)=1
-                        hi(1)=dims(1)
+                        ielems=ielems*offs
+                        lo(1)=1+(k-1)*offs
+                        hi(1)=lo(1)+offs-1
                         lo(2)=map(1,ir)
                         hi(2)=map(2,ir)
                         lo(3)=map(1,jr)
                         hi(3)=map(2,jr)
-                        ld(1)=dims(1)
+                        ld(1)=offs
                         ld(2)=mxmap
-                        call nga_get(g_a(k), lo,hi,
+                        call nga_get(g_a, lo,hi,
      .                       scr, ld)
                         ld12=ld(1)*ld(2)
                      else
