@@ -1,5 +1,99 @@
 c
-c  $Id: moints_semi.F,v 1.7 1995-12-01 16:58:35 d3g681 Exp $
+c==========================================================
+c  This stupid section is to try an localize the
+c  interface differences between CRAY and the rest
+c  on word-addressable I/O.
+c==========================================================
+c  Put at the beginning for possible inlining
+c
+c
+      subroutine waopen( unit, fname, nblk, istat, ierr )
+      implicit none
+      integer unit, nblk, istat, ierr
+      character*(*) fname
+#ifndef CRAY-T3D
+      integer len
+      integer inp_strlen
+      external inp_strlen
+
+      len = inp_strlen(fname)
+      call wopen( unit, fname, len, nblk, istat, ierr )
+#else
+      double precision fdummy
+      character*8 aunit
+      equivalence (fdummy,aunit)
+c
+      double precision dunits
+      common/crayunits/dunits(100)
+      
+      do i=1,8
+        aunit(i:i) = fname
+      enddo
+      call wopen( fdummy, nblk, istat, ierr )
+      dunits(unit) = fdummy
+#endif
+      return
+      end
+
+
+      subroutine waclose( unit, ierr )
+      implicit none
+      integer unit, ierr
+#ifndef CRAY-T3D
+      call wclose(unit,ierr)
+#else
+      double precision dunits
+      common/crayunits/dunits(100)
+      double precision xu
+      call wclose(xu,ierr)
+#endif
+      return
+      end
+
+
+
+      subroutine waput( unit, v, addr, len, ierr )
+      implicit none
+      integer unit, addr, len, ierr
+      double precision v(*)
+
+#ifndef CRAY-T3D
+      call putwa( unit, v, addr, len, ierr )
+#else
+      double precision dunits
+      common/crayunits/dunits(100)
+      double precision xu
+
+      xu = dunits(unit)
+      call putwa( xu, v, addr, len, ierr )
+#endif
+      return
+      end
+
+
+
+
+      subroutine waget( unit, v, addr, len, ierr )
+      implicit none
+      integer unit, addr, len, ierr
+      double precision v(*)
+
+#ifndef CRAY-T3D
+      call getwa( unit, v, addr, len, ierr )
+#else
+      double precision dunits
+      common/crayunits/dunits(100)
+      double precision xu
+
+      xu = dunits(unit)
+      call getwa( xu, v, addr, rlen, ierr )
+#endif
+      return
+      end
+
+
+c
+c  $Id: moints_semi.F,v 1.8 1995-12-12 22:14:37 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -244,8 +338,8 @@ c
      $     call errquit('moints: failed to destroy g_kbuf',g_kbuf)
        endif
 c
-       if (oexch) call wclose( kunit, ierr )
-       if (ocoul) call wclose( junit, ierr )
+       if (oexch) call waclose( kunit, ierr )
+       if (ocoul) call waclose( junit, ierr )
 c
        call ga_sync()
        return
@@ -743,7 +837,7 @@ c
       if (.not. ma_pop_stack(l_v))
      $  call errquit('moints_readint: failed to pop', l_v)
 c
-      call wclose(junit, itmp )
+      call waclose(junit, itmp )
       return
       end
 
@@ -896,7 +990,7 @@ c
       if (.not. ma_pop_stack(l_v))
      $  call errquit('moints_readint: failed to pop', l_v)
 c
-      call wclose(kunit, itmp )
+      call waclose(kunit, itmp )
 c
       call ga_sync()
       
@@ -1014,10 +1108,10 @@ c
       if (.not. ma_pop_stack(l_v))
      $  call errquit('moints_readint: failed to pop', l_v)
 c
-      call wclose(kunit, itmp )
+      call waclose(kunit, itmp )
       return
       end
-#endif      /* UNUSED */
+#endif      
 
 
 
@@ -1173,39 +1267,3 @@ c
        return
        end
 
-
-
-
-
-
-
-      subroutine waopen( unit, fname, nblk, istat, ierr )
-      implicit none
-      integer unit, nblk, istat, ierr
-      character*(*) fname
-#ifndef CRAY-T3D
-      integer len
-      integer inp_strlen
-      external inp_strlen
-
-      len = inp_strlen(fname)
-      call wopen( unit, fname, len, nblk, istat, ierr )
-#else
-      double precision fdummy
-      character*8 aunit
-      equivalence (fdummy,aunit)
-c
-      integer i
-      double precision dunits
-      integer nunits
-      integer i2dmap
-      integer i
-      common/crayunits/nunits,dunits(10),i2dmap(10)
-      
-      do i=1,8
-        aunit(i:i) = fname
-      enddo
-      call wopen( fdummy, nblk, istat, ierr )
-#endif
-      return
-      end
