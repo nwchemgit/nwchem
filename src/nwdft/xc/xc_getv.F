@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms, g_oep)   ! Qin
 c
-C$Id: xc_getv.F,v 1.54 2004-03-25 00:39:44 edo Exp $
+C$Id: xc_getv.F,v 1.55 2005-03-28 22:06:58 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -69,6 +69,7 @@ c
       integer me,nTrows,nTcols
       integer lTmat,iTmat,g_truevxc(2)
       double precision zero,one,onem
+      double precision vdw,dum
       logical oprint_intermediate_xc, oprint_time, 
      ,     oprint_oep
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
@@ -319,6 +320,12 @@ c
          endif
       endif
 c     
+c     vdW bit
+c
+      if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, vdw))
+     &   vdw=0d0
+      if(vdw.ne.0d0) call xc_vdw(rtdb,geom,exc,dum,'energy',vdw)
+
       if (oprint_intermediate_xc)then
          write(*,*)' Fock XC matrix leaving xc_getv: '
          call ga_print(g_vxc(1))
