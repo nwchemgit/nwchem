@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg)
-c $Id: cf_init.F,v 1.53 2000-08-28 17:00:22 d3j191 Exp $
+c $Id: cf_init.F,v 1.54 2000-08-29 15:45:04 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1657,10 +1657,13 @@ c
       integer imul(mmult,4)
       integer i
 c
-      if(nmult(1)+nmult(2)+nmult(3)+nmult(4).le.0) return
-c
       write(lfnout,1000)
  1000 format(/,' SOLUTE',//)
+c
+      write(lfnout,1002) totchg
+ 1002 format(' Total solute charge is ',f20.10,/)
+c
+      if(nmult(1)+nmult(2)+nmult(3)+nmult(4).le.0) return
 c
       write(lfnout,1001) (imul(i,1),i=1,nmul)
  1001 format(' Atom involved in multi-node bonded interaction',i5)

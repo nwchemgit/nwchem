@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.20 2000-07-13 19:08:19 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.21 2000-08-29 15:45:04 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -18,10 +18,13 @@ c
       real*8 rdata(9),vadata(6),vrdata(6)
       integer idata(16)
       character*6 cdata(3)
-      integer i,ia,iq,j,k,l,itemp(4),i_i,i_j,l_i,l_j
+      integer i,ia,iq,j,k,l,m,itemp(4),i_i,i_j,l_i,l_j
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbt,nhs,nds,nos,nts,nxs
       integer numbl,numbi,numbd
+c
+      real*8 cf_charge
+      external cf_charge
 c
       if(me.eq.0) then
 c
@@ -34,6 +37,7 @@ c
       nmult(2)=0
       nmult(3)=0
       nmult(4)=0
+      totchg=0.0d0
 c
  1000 format(a)
       read(lfntop,1001,end=9997,err=9998) title
@@ -138,12 +142,13 @@ c
       read(lfntop,1024,end=9997,err=9998) ewc
  1024 format(10x,3f12.6)
       do 10 i=1,nas
-      read(lfntop,1017,end=9997,err=9998) stemp,j,k,l
- 1017 format(a16,3i5)
+      read(lfntop,1017,end=9997,err=9998) stemp,j,k,l,m
+ 1017 format(a16,3i5,15x,i5)
       write(snam(i),'(a5,a5,i6)') stemp(1:5),stemp(11:15),l
 c      snam(i)=stemp
       if(j.gt.nsf) nsf=j
 c      if(j.gt.nsm) nsm=j
+      totchg=totchg+cf_charge(m)
    10 continue
       idata(4)=0
       do 11 i=1,nbt
