@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.87 1999-04-08 19:21:35 d3g681 Exp $
+C     $Id: geom_input.F,v 1.88 1999-04-08 22:58:39 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -4975,7 +4975,7 @@ C
      1  /0.30D+00,1.22D+00/
       DATA (RCOV(NUCZ),NUCZ=3,10)
      1  /1.23D+00,0.89D+00,0.88D+00,0.77D+00,
-     2   0.70D+00,0.66D+00,0.58D+00,1.60D+00/
+     2   0.70D+00,0.66D+00,0.71D+00,1.60D+00/
       DATA (RCOV(NUCZ),NUCZ=11,18)
      1  /1.66D+00,1.36D+00,1.25D+00,1.17D+00,
      2   1.10D+00,1.04D+00,0.99D+00,1.91D+00/
