@@ -2,8 +2,7 @@ start biphenyl
 
 memory 32 mb
 
-title
- biphenyl, Dupont, r=bohrs
+title "biphenyl, Dupont, r=bohrs"
 
 geometry
 c -1.17635862 -0.82846750 0.47881327 
