@@ -1,6 +1,6 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s, string)
 
-C$Id: mull_pop.F,v 1.12 1997-05-19 19:10:52 d3g681 Exp $
+C$Id: mull_pop.F,v 1.13 1998-04-03 20:54:42 windus Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -158,6 +158,15 @@ c
       write(buf,'(a,a)') string(1:inp_strlen(string)), 
      $     ' mulliken atomic charges'
       lbuf = inp_strlen(buf)
+c
+c     Calculate total atomic charges for ecce
+c
+      do iat=1,natoms
+        if (.not. geom_cent_get(geom, iat, tag, coord, qnuc))
+     $       call errquit('mull_pop: geom_cent_tag failed',0)
+        qatom(iat) = qatom(iat) - qnuc
+      enddo
+c
       call ecce_print1(buf(1:lbuf), mt_dbl, qatom, natoms)
       buf = ' '
       write(buf,'(a,a)') string(1:inp_strlen(string)), 
