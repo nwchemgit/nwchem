@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.12 1994-06-11 00:41:56 d3e129 Exp $
+# $Id: GNUmakefile,v 1.13 1994-07-28 15:26:20 d3e129 Exp $
 
 LIBRARY = libnwints.a
 
@@ -41,9 +41,11 @@ DERIV_OBJ  = ./deriv/hf1PRtoAB.o ./deriv/hf1d.o   ./deriv/hf2PRtoAB.o \
 
 AUX_OBJ = ./aux/int_normalize.o ./aux/nmcoef.o ./aux/int_chk_sum.o
 
-OBJ = $(API_OBJ)  $(INT_OBJ) $(INTSP_OBJ)	$(DERIV_OBJ) $(AUX_OBJ)
+TEXAS_OBJ = 
 
-INT_SUBDIRS = api int aux ints_sp deriv
+OBJ = $(API_OBJ)  $(INT_OBJ) $(INTSP_OBJ)	$(DERIV_OBJ) $(AUX_OBJ) $(TEXAS_OBJ)
+
+INT_SUBDIRS = api int aux ints_sp deriv texas
 
 $(LIBRARY):	$(OBJ)
 	/bin/rm -f $@
