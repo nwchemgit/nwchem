@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.113 2002-02-07 18:42:27 d3j191 Exp $
+c $Id: md_start.F,v 1.114 2002-02-08 20:34:47 d3j191 Exp $
 c
       implicit none
 c
@@ -984,6 +984,10 @@ c
       if(iqmmm.eq.1) then
       if(.not.rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,uqmatm))
      + uqmatm=0.0d0
+      if(.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,linkatm))
+     + linkatm=0
+      if(.not.rtdb_get(irtdb,'qmmm:nobq',mt_int,1,nobq))
+     + nobq=1
       uqmatm=cau2kj*uqmatm
       iquant=0
       else

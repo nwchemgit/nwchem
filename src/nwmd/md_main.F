@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.119 2002-02-07 18:42:26 d3j191 Exp $
+c $Id: md_main.F,v 1.120 2002-02-08 20:34:47 d3j191 Exp $
 c
       implicit none
 c
@@ -1705,7 +1705,8 @@ c
       if(lqmmm) then
       call qmmm_forces(irtdb,mwm,nwmloc,mwa,nwa,int_mb(i_iwz),xw,fw,
      + msa,nsaloc,int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
-     + int_mb(i_is+(lsct1-1)*msa),int_mb(i_isz),xs,fs,uqmmm)
+     + int_mb(i_is+(lsct1-1)*msa),int_mb(i_isz),xs,fs,uqmmm,
+     + linkatm,nobq)
       uqmmm=uqmmm-uqmatm
       endif
       call timer_stop(53)
@@ -2240,7 +2241,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.119 2002-02-07 18:42:26 d3j191 Exp $
+c $Id: md_main.F,v 1.120 2002-02-08 20:34:47 d3j191 Exp $
 c
       implicit none
 c
