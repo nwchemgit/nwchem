@@ -16,6 +16,6 @@ c
       integer iro,iocc,ispin,isym(maxorb*2,3)
       integer socc,svirt,s_occ_virt(9,2,2)
       integer lenij,lenbk,lenab,lenxy(8,2,2,2:4)
-      common/factor/fac(maxorb*2)
+      common/cb_cct_factor/fac(maxorb*2)
       double precision fac
 c
