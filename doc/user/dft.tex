@@ -716,18 +716,19 @@ procedures deemed undesirable with the obvious keywords,
                  <integer nagrid default 10>) ||\ 
         (lebedev <integer radpts> 
                  <integer iangquad>)] \ 
-       [lebmed||lebfine||lebxfine)
-       [becke||erf1||erf2||ssf] \
-       [euler||mura||treutler||lindh] \
+       [(old||new) default new ] \
+       [(becke||erf1||erf2||ssf) default erf1] \
+       [(euler||mura||treutler||lindh) default mura] \
        [rm <real rm default 2.0>]
 \end{verbatim}
 
 A numerical integration is necessary for the evaluation of the
 exchange-correlation contribution to the density functional.  The
 default quadrature used for the numerical integration is an
-Euler-MacLaurin scheme for the radial components and a Gauss-Legendre
-scheme for the angular components (see C.W.~Murray, N.C.~Handy, and
-G.L.Laming, Mol.~Phys.~78, 997-1014, (1993)).  Within this numerical
+Euler-MacLaurin scheme for the radial components (with a modified
+Mura-Knowles transformation)
+and a Lebedev
+scheme for the angular components.  Within this numerical
 integration procedure various levels of accuracy have been defined and
 are available to the user.  The user can specify the level of accuracy
 with the keywords; xcoarse, coarse, medium, fine, and xfine.  The
@@ -772,28 +773,28 @@ accuracy.  Note, differing atom types in a given molecular system will
 most likely have differing associated numerical grids.  The intent is
 to generate the desired energy accuracy (with utter disregard for speed).
 
-{\bf Important note to users.}  We clearly understand that the default
-(Euler-MacLaurin/Gauss-Legendre) grids are large and result in slow
-construction of the numerical components of the Kohn-Sham equations.
-Alternatively, we have provided access to two-dimensional Lebedev
-angular quadratures which can be used in many cases to substantially
-reduce the number of grid points per atom while keeping good accuracy.
-We have not yet had the opportunity to benchmark the Lebedev angular
-quadratures to the same extent that we have for the Gauss-Legendre.
-We therefore do not have default Lebedev quadratures for specific
-target accuracy for all elements of the periodic table.  If the user
-wants to significantly decrease CPU time to solution it is suggested
-that a few prototype benchmark calculations be done using various
-Lebedev quadratures (which we describe below) while monitoring the
-numerically integrated density and total energies for the molecular
-systems of interest.  For many examples we have observed speed-ups of
-two or more for the same numerical accuracy when using Lebedev rather
-than the default Gauss-Legendre quadrature.  In addition, we have
-observed that with Lebedev angular quadratures a reduction in the
-number of radial shells (perhaps by as much as 30\%) might be possible
-while continuing to provide the same level of accuracy.
-% g94/Sg-1 grid lebedev 50 4
-% g98/fine              75 5
+%{\bf Important note to users.}  We clearly understand that the default
+%(Euler-MacLaurin/Gauss-Legendre) grids are large and result in slow
+%%construction of the numerical components of the Kohn-Sham equations.
+%%Alternatively, we have provided access to two-dimensional Lebedev
+%%angular quadratures which can be used in many cases to substantially
+%%reduce the number of grid points per atom while keeping good accuracy.
+%%We have not yet had the opportunity to benchmark the Lebedev angular
+%%quadratures to the same extent that we have for the Gauss-Legendre.
+%%We therefore do not have default Lebedev quadratures for specific
+%%target accuracy for all elements of the periodic table.  If the user
+%%wants to significantly decrease CPU time to solution it is suggested
+%%that a few prototype benchmark calculations be done using various
+%%Lebedev quadratures (which we describe below) while monitoring the
+%%numerically integrated density and total energies for the molecular
+%%systems of interest.  For many examples we have observed speed-ups of
+%%two or more for the same numerical accuracy when using Lebedev rather
+%%than the default Gauss-Legendre quadrature.  In addition, we have
+%%observed that with Lebedev angular quadratures a reduction in the
+%%number of radial shells (perhaps by as much as 30\%) might be possible
+%%while continuing to provide the same level of accuracy.
+%%% g94/Sg-1 grid lebedev 50 4
+%%% g98/fine              75 5
 
 
 \begin{table}[h]
@@ -958,15 +959,6 @@ As an example, here is a grid input line for the water molecule
 \begin{verbatim}
 grid lebedev 80 11 H 70 8 12 O 90 11 15 
 \end{verbatim}
-Work is in progress to define pre-computed Lebedev quadrature of given accuracy
-\begin{center}
-\begin{tabular}[right]{|c|c|} \hline
-Keyword & {\tt Total Energy Target Accuracy} \\ \hline
-{\tt lebmed}  & $1x10^{-6}$ \\ \hline
-{\tt lebfine}    & $1x10^{-7}$ \\ \hline
-{\tt lebxfine}   & $1x10^{-8}$ \\ \hline
-\end{tabular} \\
-\end{center}
 
 %       [store_wght] [nquad_task <integer nquad_task default 1>] \
 %{\bf JEFF: store\_weight and nquad\_task need explaining}
@@ -983,7 +975,7 @@ Keyword & {\tt Total Energy Target Accuracy} \\ \hline
 \subsection{Partitioning functions}
 
 \begin{verbatim}
-  GRID [(becke||erf1||erf2||ssf) default becke]
+  GRID [(becke||erf1||erf2||ssf) default erf1]
 \end{verbatim}
 
 
@@ -995,19 +987,52 @@ Chem. Phys. Lett. {\bf 257}, 213 (1996).
 \item[\tt erf2] modified ssf
 \end{description}
 
+Erf$n$ partionioning functions
+
+\begin{eqnarray*}
+ w_A(r) & = & \prod_{B\neq A}\frac{1}{2} \left[1 \ - \
+erf(\mu^\prime_{AB})\right] \\
+ \mu^\prime_{AB} & = & \frac{1}{\alpha} \ \frac{\mu_{AB}}{(1-\mu_{AB}^2)^n}\\
+ \mu_{AB} & = & \frac{{\mathbf r}_A - {\mathbf r}_B}
+{\left|{\mathbf r}_A - {\mathbf r}_B \right|}
+\end{eqnarray*}
+
+
+
+
 \subsection{Radial grids}
 
 \begin{verbatim}
-  GRID [[euler||mura||treutler||lindh]  default euler]
+  GRID [[euler||mura||treutler||lindh]  default mura]
 \end{verbatim}
 
 \begin{description}
-\item[\tt euler] Murray Handy Laming, Euler-McLaurin \\
-\item[\tt mura] M.E.Mura and P.J.Knowles, J Chem Phys {\bf 104}, 9848
-(1996).\\
-\item[\tt treutler] O.Treutler and R.Alrhichs, J.Chem.Phys {\bf 102}, 346 (1995).\\
+\item[\tt euler] Euler-McLaurin quadrature wih the transformation
+  devised by
+C.W. Murray, N.C. Handy, and G.L. Laming,
+Mol. Phys.{\bf 78}, 997 (1993).
+ \\
+\item[\tt mura] Modification of the Murray-Handy-Laming scheme by 
+M.E.Mura and P.J.Knowles, J Chem Phys {\bf 104}, 9848
+(1996) (we are not using the scaling factors proposed
+in this paper).\\
+\item[\tt treutler] Gauss-Chebyshev using the transformation suggested
+  by O.Treutler and R.Alrhichs, J.Chem.Phys {\bf 102}, 346 (1995).\\
 \item[\tt lindh] R.Lindh (1999)
 \end{description}
+
+\subsection{Grid Scheme}
+
+\begin{verbatim}
+  GRID [[old||new]  default new]
+\end{verbatim}
+
+In Nwchem 4.0 the XC integration code has been re-written using a
+space decomposiition scheme similar to the one proposed in R.E.Stratmann, G.Scuseria and  M.J.Frisch,
+Chem. Phys. Lett. {\bf 257}, 213 (1996) (keyword
+{\bf \tt new}. To use the XC integration routines available in
+older version of NWChem, use the keyword {\bf \tt old}.
+
 
 \section{TOLERANCES --- Screening tolerances}
 
