@@ -1,5 +1,5 @@
       subroutine ga_ran_fill(g_a, ilo, ihi, jlo, jhi)
-C$Id: ga_ran_fill.F,v 1.3 1995-02-02 18:09:36 d3g681 Exp $
+C$Id: ga_ran_fill.F,v 1.4 2002-01-30 01:10:38 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -9,8 +9,8 @@ C$Id: ga_ran_fill.F,v 1.3 1995-02-02 18:09:36 d3g681 Exp $
        parameter(bufsiz = 1024)
        double precision buf(bufsiz)
        integer ibot, itop, icount, me, nproc
-       double precision drand
-       external drand
+       double precision util_random
+       external util_random
 c
 c     Fill patch of global array with random numbers
 c
@@ -25,7 +25,7 @@ c
              if (mod(icount,nproc) .eq.  me) then
                 itop = min(ihi, ibot+bufsiz-1)
                 do i = 1, itop-ibot+1
-                   buf(i) = drand(0)
+                   buf(i) = util_random(0)
                 enddo
                 call ga_put(g_a, ibot, itop, j, j, buf, bufsiz)
              endif

@@ -9,7 +9,7 @@ c
      $                         osym, ataba, atabb, nexa, nexb,
      $                         exa, exb, g_civec, g_pvec )
 *
-* $Id: detci_spin.F,v 1.7 1997-11-04 09:59:52 d3e129 Exp $
+* $Id: detci_spin.F,v 1.8 2002-01-30 01:11:34 windus Exp $
 *
       implicit none
 #include "global.fh"
@@ -317,14 +317,14 @@ c
       integer g_a
       double precision xx, yy
       integer type, nrow, ncol, i, j
-      double precision drand
-      external drand
+      double precision util_random
+      external util_random
 
       xx = sqrt(ga_ddot(g_a,g_a))*0.001d0
       call ga_inquire(g_a,type,nrow,ncol)
       do i=1,nrow
         do j=1,ncol
-          yy = drand(0)*xx
+          yy = util_random(0)*xx
           call ga_acc(g_a,i,i,j,j,yy,1,1.d0)
         enddo
       enddo

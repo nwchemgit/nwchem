@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, geom, basis, g_vecs,iset)
-C$Id: movecs_proj.F,v 1.11 2000-07-19 18:34:39 edo Exp $
+C$Id: movecs_proj.F,v 1.12 2002-01-30 01:11:56 windus Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -42,8 +42,6 @@ c
       character*20 old_scftype
       logical oprint, oprint_info
 
-      double precision drand
-      external drand
       logical movecs_read_header, movecs_read
       external movecs_read_header, movecs_read
       integer ga_create_atom_blocked
@@ -214,12 +212,12 @@ c
       if (.not. ma_push_get(mt_dbl, nbf, 'ran #',
      $     l_ran, k_ran)) call errquit
      $     ('movecs_project: ma ran #', nbf)
-      temp = drand(ga_nodeid()*314159+1)
+      temp = util_random(ga_nodeid()*314159+1)
       do i = old_nbf+1+ga_nodeid(), nbf, ga_nnodes()
 *         write(6,*) ' Randomizing ', i
 *         call util_flush(6)
          do j = 1, nbf
-            dbl_mb(k_ran+j-1) = (drand(0) - 0.5d0)
+            dbl_mb(k_ran+j-1) = (util_random(0) - 0.5d0)
          end do
          call ga_put(g_vecs(iset), 1, nbf, i, i, dbl_mb(k_ran), 1)
       end do
