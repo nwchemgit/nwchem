@@ -1,7 +1,7 @@
       subroutine dft_genspm(lmax,iga_dens,basis,
      &     natoms,centerl,Pmat,max_at_bf,
-     &     charge,dipole)
-C$Id: dft_genspm.F,v 1.4 1995-10-17 08:54:42 d3g681 Exp $
+     &     charge,dipole,coord)
+C$Id: dft_genspm.F,v 1.5 1995-11-03 00:05:26 og845 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -20,6 +20,7 @@ C$Id: dft_genspm.F,v 1.4 1995-10-17 08:54:42 d3g681 Exp $
 
       double precision charge(natoms)
       double precision dipole(3,natoms)
+      double precision coord(3,natoms)
       integer lscr,iscr,iMP,lMP
       integer lmpint              
 
@@ -154,11 +155,13 @@ c
       write(LuOut,*) ' SPM '
       write(LuOut,*) 
       if(lmax.gt.0) then
-        write(LuOut,*) ' atom  charge        dipole'
+        write(LuOut,*) ' atom    x         y          z',
+     * '         charge    dipole'
         do iat=1,natoms
           
-          write(LuOut,20) iat,charge(iat),(dipole(ish,iat),ish=1,3)
-   20     format(i5,f12.6,2x,3f12.6)
+          write(LuOut,20) iat,(coord(ish,iat),ish=1,3),
+     *         charge(iat),(dipole(ish,iat),ish=1,3)
+   20     format(i5,3f10.4,1x,f10.4,1x,3f10.4)
         enddo
       else
         write(LuOut,*) ' atom  charge '

@@ -1,6 +1,6 @@
       Subroutine dft_getspm(geom,lmax,finest,iga_dens,basis)
 
-C$Id: dft_getspm.F,v 1.5 1995-10-25 23:45:56 og845 Exp $
+C$Id: dft_getspm.F,v 1.6 1995-11-03 00:05:40 og845 Exp $
       implicit none
       integer lmax               ! max value of ang momentum
       integer iga_dens           ! GA handle for DM
@@ -88,7 +88,7 @@ c****
 
         call dft_genspm(lmax,iga_dens,basis,
      &       natoms,centerl,dbl_MB(iPmat),max_at_bf,
-     &       DBL_MB(icharge),DBL_MB(idipole))
+     &       DBL_MB(icharge),DBL_MB(idipole),dbl_mb(icoord))
 c
 c       move the coordinates form coord(3,nat) to x y z arrays
 c
@@ -115,8 +115,8 @@ c
 c
 c       call to CMM code
 c
-C        call cmm_cmm(natoms,dbl_mb(ixcrd),dbl_mb(iycrd),dbl_mb(izcrd),
-C     &       dbl_mb(icharge),finest)
+        call cmm_cmm(natoms,dbl_mb(ixcrd),dbl_mb(iycrd),dbl_mb(izcrd),
+     &       dbl_mb(icharge),finest)
 
         LResult = MA_Pop_Stack(lzcrd)
         LResult = MA_Pop_Stack(lycrd)
