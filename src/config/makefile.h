@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.159 1996-07-17 16:28:53 d3g681 Exp $
+# $Id: makefile.h,v 1.160 1996-07-26 16:23:37 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -68,10 +68,10 @@ endif
 
 ifdef USE_MPI
 NW_CORE_SUBDIRS = include basis geom global inp input \
-	ma pstat rtdb tcgmsg-mpi symmetry util $(CORE_SUBDIRS_EXTRA)
+	ma pstat rtdb tcgmsg-mpi task symmetry util $(CORE_SUBDIRS_EXTRA)
 else
 NW_CORE_SUBDIRS = include basis geom global inp input \
-	ma pstat rtdb tcgmsg symmetry util $(CORE_SUBDIRS_EXTRA)
+	ma pstat rtdb tcgmsg task symmetry util $(CORE_SUBDIRS_EXTRA)
 endif
 
 # These are the directories required to build the various high-level
@@ -161,7 +161,7 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #
 #    DEFINES = C preprocessor defines for both C and Fortran
 #
-#       CORE_LIBS = List of libraries and paths for libraries in addition 
+#  CORE_LIBS = List of libraries and paths for libraries in addition 
 #              to the LIBDIR and LIBPATH options.
 #
 # CORE_SUBDIRS_EXTRA = List of additional directories (e.g., BLAS) that
@@ -586,8 +586,9 @@ endif
               -brename:.ztrmm_,.ztrmm \
               -brename:.ztrmv_,.ztrmv \
               -brename:.ztrsm_,.ztrsm \
-              -brename:.ztrsv_,.ztrsv \
-              -brename:.times_,.times
+              -brename:.ztrsv_,.ztrsv 
+# times should no longer ever be needed
+#              -brename:.times_,.times
 #comment out from dtrmm_ inclusive
 ifdef USE_ESSL
        CORE_LIBS += -lessl

@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.34 1996-05-10 21:58:26 d3g681 Exp $
+# $Id: makelib.h,v 1.35 1996-07-26 16:23:38 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -263,7 +263,7 @@ endif
 	-$(RM) -f *.o *.a *core *stamp *trace mputil.mp* *events* $(LIB_TARGETS)
 	if [ -f $(LIBRARY_PATH) ] ; then \
   		$(AR) d $(LIBRARY_PATH) $(OBJ) $(OBJ_OPTIMIZE) ; \
-		if [ `$(AR) t $(LIBRARY_PATH) | wc | awk ' {print $$1;}'` ] ; then \
+		if [ `$(AR) t $(LIBRARY_PATH) | wc | awk ' {print $$1;}'` -eq 0 ] ; then \
 			$(RM) -f $(LIBRARY_PATH) ; \
 		fi ; \
 	fi ;
