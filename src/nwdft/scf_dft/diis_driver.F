@@ -1,9 +1,9 @@
-      Subroutine diis_driver(toll_s, derr, ispin, ipol, icall, MXhist, 
-     &                       nbf, geom, AO_bas_han, g_fock, g_dens, 
+      Subroutine diis_driver(toll_s, derr, ipol, icall, MXhist, 
+     &                       nbf, geom, AO_bas_han, g_focks, g_dens, 
      &                       g_tmp, g_svecs, isvals, diis, nodiis,
      .     g_diis,keeps,g_s12m,g_s12p)
 c
-C$Id: diis_driver.F,v 1.20 2000-07-12 23:00:18 edo Exp $
+C$Id: diis_driver.F,v 1.21 2000-11-14 19:06:53 edo Exp $
 c
       implicit none
 c      
@@ -11,15 +11,15 @@ c
       integer ipol
       integer MXhist
       integer nbf
-      integer g_fock
-      integer g_dens
+      integer g_focks(2)
+      integer g_dens(2)
       integer g_tmp
       integer g_svecs
       integer g_diis(mxhist)
       integer isvals
       Integer nhist(2), icall(2)
       integer geom, AO_bas_han
-      double precision derr ! Diis error norm [output]
+      double precision derr(2) ! Diis error norm [output]
       double precision toll_s
       integer lpulay, npulay, ipulay
       Save lpulay, npulay, ipulay, nhist
@@ -33,7 +33,7 @@ c
 #include "timer.fh"
 #endif
 c
-      integer g_s12m, g_s12p, me, nproc, lenp,g_tmp2,g_rr
+      integer g_s12m, g_s12p, me, nproc, g_tmp2,g_rr
       integer lfwght, ifwght
 c     
       integer  ga_create_atom_blocked
@@ -45,9 +45,10 @@ c
       double precision one, zero
       parameter (one = 1.d0, zero = 0.d0)
 c
+c
 c     Use the DIIS scheme to accelerate convergence.
 c     
-      if (icall(ispin).lt.0 )then
+      if (icall(1).lt.0 )then
          if (.not.MA_Free_Heap(lpulay))
      &      call errquit('diis_driver: cannot free heap',0)
          do i=1,2*mxhist*ipol
@@ -70,7 +71,7 @@ c
 c
 c       Create necessary DIIS arrays.
 c
-        npulay  = ipol*(MXhist+1)*(MXhist+2)/2
+        npulay  = (MXhist+1)*(MXhist+2)/2
         if (.not.MA_Alloc_Get(MT_Dbl,npulay,'Pulay',lpulay,ipulay))
      &     call errquit('diis_driver: cannot allocate Pulay',0)
         call dfill(npulay, 0.0d0, dbl_mb(ipulay), 1)
@@ -115,6 +116,7 @@ c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
      &       /,10x,'stored and used in the extrapolation.')
       if (.not.MA_Push_Get(MT_Dbl,MXhist+1,'Fock wghts',lfwght,ifwght))
      &   call errquit('diis_driver: cannot allocate Fock wghts',0)
+      do ispin=1,ipol
       call dfill(MXhist+1, 0.0d0, dbl_mb(ifwght), 1)
 c
 c     Increment call counter.
@@ -140,7 +142,8 @@ c
 c
 c     Mat mult Fock * s-1/2
 c
-      call ga_dgemm('N','N',nbf,nbf,nbf,one,g_fock,g_s12m,zero,g_rr)
+      call ga_dgemm('N','N',nbf,nbf,nbf,one,g_focks(ispin),
+     .     g_s12m,zero,g_rr)
       if(.not.keeps) then
          if (.not. ga_destroy(g_s12m)) call errquit
      &        ('diis_driver: could not destroy g_s12m', 0)
@@ -157,7 +160,8 @@ c
 c
 c     Mat mult S+1/2*P (transp)
 c
-      call ga_dgemm('N','N',nbf,nbf,nbf,one,g_s12p,g_dens,zero,g_tmp2)
+      call ga_dgemm('N','N',nbf,nbf,nbf,one,g_s12p,g_dens(ispin),
+     ,     zero,g_tmp2)
       if(.not.keeps) then
          if (.not. ga_destroy(g_s12p)) call errquit
      &        ('diis_driver: could not destroy g_s12p', 0)
@@ -192,15 +196,16 @@ c
 c
 c     Compute Pulays B matrix.
 c
-      call diis_core(derr, Dbl_MB(ipulay), MXhist, nhist, icall, 
+      call diis_core(derr(ispin), Dbl_MB(ipulay), MXhist, nhist,
+     .     icall(ispin), 
      &               ispin, ipol, g_diis, g_tmp)
 c
-      lenp = (mxhist+1)*(mxhist+2)/2
+      enddo
 c
 c     Solve DIIS equation for Hamiltonian weights.
 c
-      call diis_bsolve(Dbl_MB(ipulay+lenp*(ispin-1)), Dbl_MB(ifwght),
-     &                 MXhist, nhist(ispin))
+      call diis_bsolve(Dbl_MB(ipulay), Dbl_MB(ifwght),
+     &                 MXhist, nhist(1))
 c
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -212,7 +217,7 @@ c
 c     Compute an extrapolated Hamiltonian using the weights.
 c
       call diis_hamwgt(Dbl_MB(ifwght), MXhist, nhist, nbf,icall, 
-     &                 ispin,  g_fock, g_diis, g_tmp)
+     &                 ipol,  g_focks, g_diis, g_tmp)
 c
 #if defined(DFT_TIMER)
       call dft_second(tp2)

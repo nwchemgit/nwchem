@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.170 2000-07-28 15:35:05 edo Exp $
+c     $Id: dft_scf.F,v 1.171 2000-11-14 19:06:52 edo Exp $
 c     
       implicit none
 c
@@ -148,7 +148,7 @@ c
       double precision esol
       double precision ecosmo
 
-      integer itype_wfn
+      integer itype_wfn,g_focks(2)
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
@@ -322,8 +322,11 @@ c
 c     SCF energy convergence criterion. 
 c     
       g_tmp = ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp')
+      g_focks(1)=g_fock
       if (ipol.gt.1)then
          g_fockt = ga_create_atom_blocked(geom, AO_bas_han, 'fock tr')
+        if(.not.ga_duplicate(g_fock, g_focks(2), ' beta fock'))
+     .       call errquit(' dftscf:failed duplicate ',g_fock)
       endif
 c     
 c     Set up local convergence parameters
@@ -771,28 +774,32 @@ c
          goto 2000
       endif
       homo_lumo_gap = 200.0d0
+      if (ipol.gt.1) then
+        call ga_copy(g_fock, g_fockt)
+      endif
       do ispin = 1, ipol
 c     
 c        Add V xc to Fock Matrix
 c     
-         if (ispin.eq.2) 
-     &        call ga_copy(g_fockt, g_fock)
-         if (ispin.eq.2)then
-            call ga_dadd(one, g_vxc(ispin), one, g_fock, g_fock)
+         if (ispin.eq.2) then
+            call ga_copy(g_fockt, g_focks(ispin))
+            call ga_dadd(one, g_vxc(ispin), one, g_focks(ispin), 
+     .           g_focks(ispin))
          endif
 c     
 #if defined(DFT_TIMER)
          call dft_second(tp3)
 #endif
 c     
-         if (ispin.eq.1.and.ipol.gt.1)call ga_copy(g_fock, g_fockt)
 c
 c        Symmetrize the Fock matrix
 c
          if (oskel)
-     &      call sym_symmetrize(geom, AO_bas_han, .false., g_fock)
+     &      call sym_symmetrize(geom, AO_bas_han, .false., 
+     .        g_focks(ispin))
 c
-         call ga_symmetrize(g_fock)
+         call ga_symmetrize(g_focks(ispin))
+      enddo
          if (diising)then
 c     
 c           DIIS step taken here.
@@ -800,9 +807,9 @@ c
             if (oprint_time)
      &           call dft_tstamp(' calling diis driver ')
             nstdis=nstdis+1
-            call diis_driver(toll_s, derr(ispin), ispin, ipol, 
+            call diis_driver(toll_s, derr,  ipol, 
      &           icall, nfock, nbf_ao, geom, 
-     &           ao_bas_han, g_fock, g_dens(ispin), 
+     &           ao_bas_han, g_focks, g_dens, 
      &           g_tmp, g_svecs, isvals, diising, 
      &           nodiis,int_mb(k_gdiis),lkeeps,
      .           g_s12m,g_s12p)
@@ -816,11 +823,12 @@ c
          call tcllct(t_pgm(1,9),tp4,tp3)
 #endif
 c     
+      do ispin = 1, ipol
 #if defined(DFT_TIMER)
          call dft_second(tp3)
 #endif
          call dft_diag(levelshifting,
-     ,        g_fock,g_s,g_movecs(ispin),g_tmp,g_svecs,
+     ,        g_focks(ispin),g_s,g_movecs(ispin),g_tmp,g_svecs,
      ,        dbl_mb(k_eval(ispin)),dbl_mb(isvals),noc(ispin),
      ,        homo,lumo,toll_s,
      ,        oprint_intermediate_fock,oprint_time,
@@ -889,18 +897,18 @@ c
      ,        dbl_mb(k_eval(1)),dbl_mb(k_occ),g_tmp,dbl_mb(k_tmp))
       if (.not.ma_pop_stack(l_tmp))
      &   call errquit('dft_scf: cannot pop stack',33)
-            if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
-            if(diising) then
-            icall(1) = -1
-            nstdis=1
-            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
-     &                       nbf_ao, geom, ao_bas_han, g_fock, 
-     &                       g_dens(1), g_tmp, g_svecs, isvals, 
-     &                       diising, nodiis,int_mb(k_gdiis),
-     ,           lkeeps,g_s12m,g_s12p)
-            icall(1) = 0
-            icall(2) = 0
-            endif
+cedo            if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
+cedo            if(diising) then
+cedo            icall(1) = -1
+cedo            nstdis=1
+cedo            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
+cedo     &                       nbf_ao, geom, ao_bas_han, g_fock, 
+cedo     &                       g_dens(1), g_tmp, g_svecs, isvals, 
+cedo     &                       diising, nodiis,int_mb(k_gdiis),
+cedo     ,           lkeeps,g_s12m,g_s12p)
+cedo            icall(1) = 0
+cedo            icall(2) = 0
+cedo            endif
       endif
          etnew=etnew+tdots
 c
@@ -1035,18 +1043,18 @@ c
       endif
 c     
       iter = iter + 1
-      if(ssmear.gt.1d-9.and.mod(nstdis,30).eq.0) then
-            if(me.eq.0) write(LuOut,*) ' resetting Diis',nstdis
-            icall(1) = -1
-            nstdis=1
-            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
-     &                       nbf_ao, geom, ao_bas_han, g_fock, 
-     &                       g_dens(1), g_tmp, g_svecs, isvals, 
-     &                       diising, nodiis,int_mb(k_gdiis),
-     ,           lkeeps,g_s12m,g_s12p)
-            icall(1) = 0
-            icall(2) = 0
-         endif
+cedo      if(ssmear.gt.1d-9.and.mod(nstdis,30).eq.0) then
+cedo            if(me.eq.0) write(LuOut,*) ' resetting Diis',nstdis
+cedo            icall(1) = -1
+cedo            nstdis=1
+cedo            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
+cedo     &                       nbf_ao, geom, ao_bas_han, g_fock, 
+cedo     &                       g_dens(1), g_tmp, g_svecs, isvals, 
+cedo     &                       diising, nodiis,int_mb(k_gdiis),
+cedo     ,           lkeeps,g_s12m,g_s12p)
+cedo            icall(1) = 0
+cedo            icall(2) = 0
+cedo         endif
 c     
 c     Check convergence parameters.
 c     
@@ -1205,6 +1213,8 @@ c
       if(ipol.eq.2) then
           if (.not. ga_destroy(g_denso(2))) call errquit
      &     ('dft_scf: could not destroy g_denso', 0)
+          if (.not. ga_destroy(g_focks(2))) call errquit
+     &     ('dft_scf: could not destroy g_focks2', 0)
       end if
 c
       if (exact_pot.eq.1) then
@@ -1258,8 +1268,8 @@ c
          if(diising) then
             icall(1) = -1
             nstdis=1
-            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock,
-     &                       nbf_ao, geom, ao_bas_han, g_fock,
+            call diis_driver(toll_s, derr,  ipol, icall, nfock,
+     &                       nbf_ao, geom, ao_bas_han, g_focks,
      &                       g_dens(1), g_tmp, g_svecs, isvals,
      &                       diising, nodiis,int_mb(k_gdiis),
      ,           lkeeps,g_s12m,g_s12p)
@@ -1378,8 +1388,8 @@ c     Shut down DIIS.
 c     
       if (icall(1).gt.0)then
          icall(1) = -1
-         call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
-     &                    nbf_ao, geom, ao_bas_han, g_fock, g_dens(1), 
+         call diis_driver(toll_s, derr(1),  ipol, icall, nfock, 
+     &                 nbf_ao, geom, ao_bas_han, g_focks, g_dens(1), 
      &                    g_tmp, g_svecs, isvals, diising, nodiis,
      .        int_mb(k_gdiis),lkeeps,g_s12m,g_s12p)
          if (.not. MA_free_heap(l_gdiis))
