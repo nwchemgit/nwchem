@@ -90,12 +90,19 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	    no = Integer.parseInt(card.substring(31,40).trim());
             number=nb+nh+nd+no+1;
 	    
-	    data = new double[number][250000];
+	    data = new double[number][25000];
 	    numdat=0;
 	    
+	    number--;
+
+	    for(int i=0; i<number; i++){
+		card=br.readLine();
+		propList.addElement(card);
+	    };
+
 	    while((card=br.readLine()) != null){
 		int k=1;
-		for(int l=0; l<number; l=l+1){
+		for(int l=0; l<number+1; l=l+1){
 		    if(k==61){card=br.readLine(); k=1;};
 		    data[l][numdat]=Double.valueOf(card.substring(k,k+11)).doubleValue();
 		    k=k+12;
@@ -140,7 +147,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	doneButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
-
+	/*
         number=0;
 	for(int i=0; i<nb; i++){
 	    propList.addElement("Distance "+(i+1));
@@ -161,7 +168,8 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	    number++;
 	    propList.addElement("Improper "+(i+1));
 	};
-	
+	*/
+
 	setLocation(25,225);	
 	setSize(900,700);
 	setVisible(true);
