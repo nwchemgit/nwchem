@@ -1,7 +1,12 @@
 *
-* $Id: paw_proj.F,v 1.30 2004-09-04 17:56:21 bylaska Exp $
+* $Id: paw_proj.F,v 1.31 2004-10-14 21:53:29 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.30  2004/09/04 17:56:21  bylaska
+* Added local potential to the projector file (.jpp).
+* More updates to constraint force.
+* ...EJB
+*
 * Revision 1.29  2003/10/28 19:50:51  edo
 * errquizzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
 *
@@ -779,8 +784,8 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       if (taskid.eq.MASTER) then 
          call closefile(6)
          write(6,*)
-         write(6,*) " Generated formatted filename:"
-         write(6,*) full_filename
+         l = index(full_filename,' ') - 1
+         write(6,*) " Generated formatted filename:",full_filename(1:l)
       end if
 
       value =           MA_pop_stack(f(2))
