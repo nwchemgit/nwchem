@@ -3,15 +3,15 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.2 1994-06-16 22:44:52 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.3 1994-07-14 21:37:38 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO, NOcc, NVir,
-     $   NFit, FitBas, Eig, Contrib, E2)
+     $   NFit, FitBas, Eig, Contrib, E2, IBlock, JBlock)
       Implicit NONE
 C
       Character*(*) FNInt
-      Integer TopSpin, NMO, NFit, FitBas
+      Integer TopSpin, NMO, NFit, FitBas, IBlock, JBlock
       Integer NOcc(TopSpin), NVir(TopSpin)
       Double precision Eig(NMO, TopSpin), Contrib(TopSpin, TopSpin), E2
 C
@@ -65,6 +65,7 @@ C INCLUDE FILES
 #include "mafdecls.h"
 #include "numerical_constants.fh"
 #include "stdio.fh"
+#include "rimp2_timers.fh"
 C
 C EXTERNAL ROUTINES
       Logical Open_3ci_File, Get_3cInts, Close_3cI_File,
@@ -82,12 +83,16 @@ C
       Parameter (LuInt = 10)
 C
 C LOCAL VARIBLES
-      Integer I, J, ISpin, JSpin, G_I, G_J, JHi
+      Integer I, J, ISpin, JSpin, G_J, JTop, JTop2
       Integer A, B, Alo, Ahi, Blo, BHi, G_A, G_B, H_B, LDB, AB
       Integer Proc
       Double Precision DenIJ, Den, Fact, EPair
       Logical Status, PermSym
       Integer Junk
+      Integer G_bigI, ILo, IHi, NI, G_bigJ, JLo, JHi, NJ, G_bigA
+C
+      Call GA_Sync
+      Call PStat_On(PS_Energy)
 C
 C     ************************
 C     * Check inputs & setup *
@@ -159,19 +164,22 @@ C
 C
 C        Create the global array for the I block
 C
-         Status = GA_Create_One_By_Shells( MT_Dbl, NVir(ISpin), FitBas,
-     $      'Integral matrix 1', G_I)
+         Call PStat_On( PS_Create)
+         Status = GA_Create_One_By_Shells( MT_Dbl,
+     $      Min( NOcc(ISpin), IBlock) * NVir(ISpin), FitBas,
+     $      'Integral matrix 1', G_bigI)
 C
          If ( .NOT. Status ) then
-            Write (LuErr, *) ' Unable to allocate for I block'
+            Write (LuErr, *) ' Unable to allocate for big I block'
             RIMP2_V_E2 = .FALSE.
             Return
          EndIf
+         Call PStat_Off( PS_Create)
 C
 C        Open integral file
 C
          Status = Open_3ci_file(LUInt+ISpin-1, FNInt, ISpin,
-     $      NVir(ISpin), NOcc(ISpin), G_I)
+     $      NVir(ISpin), NOcc(ISpin), G_bigI)
          If ( .NOT. Status ) then
             Write (LuErr, *) 'RIMP2_v_E2:  Problems opening ',
      $         'integral file for spin ', ISpin, '!'
@@ -179,17 +187,21 @@ C
             Return
          EndIf
 C
-         Do I = 1, NOcc(ISpin)
+         Do ILo = 1, NOcc(ISpin), IBlock
+            IHi = Min( NOcc(ISpin), ILo + IBlock - 1)
+            NI = IHi - ILo + 1
 C
 C           Get integrals (ia|s') for this I
 C
-            If ( .NOT. Get_3cInts(LUInt+ISpin-1, G_I, NVir(ISpin), I, I)
-     $         ) then
+            Call PStat_On( PS_Rd_3ci)
+            If ( .NOT. Get_3cInts(LUInt+ISpin-1, G_bigI, NVir(ISpin),
+     $         ILo, IHi) ) then
                Write( LuErr, *) ' Unable to get integral block ',
      $            I, ISpin
                RIMP2_V_E2 = .FALSE.
                Return
             EndIf
+            Call PStat_Off( PS_Rd_3ci)
 C
 C           *************************
 C           * Second occupied index *
@@ -201,30 +213,16 @@ C           contribution is left.
 C
             Do JSpin = ISpin, TopSpin
 C
-C              Space for a block of integrals -- size varies
-C              with spin case
-C
-               If ( .NOT. GA_Create( MT_Dbl, NVir(ISpin),
-     $            NVir(JSpin), 'Temporary matrix A', MinChunk,
-     $            MinChunk, G_A) ) then
-                  Write (LuErr, *) ' Unable to allocate A'
-                  RIMP2_V_E2 = .FALSE.
-                  Return
-               EndIf
-               Call GA_Distribution( G_A, Proc, Alo, Ahi, Blo, Bhi)
-c$$$               Write (LuOut, *) 'A distribution ', Proc, Alo, AHi,
-c$$$     $            Blo, BHi
-C
 C              Open integral file if JSpin != ISpin
 C              NOTE: This routine gets the distribution of the fitting
 C              basis from the GA that's passed in.  We don't create the
 C              real target array for these guys until a little later,
-C              but we can use G_I here because the fitting basis will
+C              but we can use G_bigI here because the fitting basis will
 C              not change with the spin case.
 C
                If ( JSpin .ne. ISpin) then
                   Status = Open_3ci_file(LUInt+JSpin-1, FNInt, JSpin,
-     $               NVir(JSpin), NOcc(JSpin), G_I)
+     $               NVir(JSpin), NOcc(JSpin), G_bigI)
                   If ( .NOT. Status ) then
                      Write (LuErr, *) 'RIMP2_v_E2:  Problems opening ',
      $                  'integral file for spin ', JSpin, ' !'
@@ -236,23 +234,23 @@ C
 C              Use permutational symmetry if possible
 C
                If ( ISpin .eq. JSpin) then
-                  JHi = I
+                  JTop = IHi
                   PermSym = .TRUE.
                Else
-                  JHi = NOcc(JSpin)
+                  JTop = NOcc(JSpin)
                   PermSym = .FALSE.
                EndIf
-C
-               Do J = 1, JHi
-C
-C                 Form half of the denominator
-C
-                  DenIJ = Eig(I, ISpin) + Eig(J, JSpin)
+C              
+               Do JLo = 1, JTop, JBlock
+                  JHi = Min( JTop, JLo + JBlock - 1)
+                  NJ = JHi - JLo + 1
 C
 C                 Create the global array for the J block
 C
-                  Status = GA_Create_One_By_Shells( MT_Dbl, NVir(JSpin),
-     $               FitBas, 'Integral matrix 2', G_J)
+                  Call PStat_On( PS_Create)
+                  Status = GA_Create_One_By_Shells( MT_Dbl,
+     $               NJ * NVir(JSpin), FitBas,
+     $               'Integral matrix 2', G_bigJ)
 C
                   If ( .NOT. Status ) then
                      Write (LuErr, *) ' Unable to allocate integral ',
@@ -260,16 +258,26 @@ C
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
-C
-C                 Find the integrals (jb|s') for this J
-C
-                  If ( .NOT. Get_3cInts(LUInt+JSpin-1, G_J, NVir(JSpin),
-     $               J, J) ) then
-                     Write( LuErr, *) ' Unable to get integral block ',
-     $                  J, JSpin
+                  If ( .NOT. GA_Create( MT_Dbl, NI*NVir(ISpin),
+     $               NJ*NVir(JSpin), 'Temporary matrix big A', MinChunk,
+     $               MinChunk, G_bigA) ) then
+                     Write (LuErr, *) ' Unable to allocate big A'
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
+                  Call PStat_Off( PS_Create)
+C
+C                 Find the integrals (jb|s') for this J
+C
+                  Call PStat_On( PS_Rd_3ci)
+                  If ( .NOT. Get_3cInts(LUInt+JSpin-1, G_bigJ,
+     $               NVir(JSpin), JLo, JHi) ) then
+                     Write( LuErr, *) ' Unable to get integral block ',
+     $                  JLo, JSpin
+                     RIMP2_V_E2 = .FALSE.
+                     Return
+                  EndIf
+                  Call PStat_Off( PS_Rd_3ci)
 C
 C                 ******************************************************
 C                 * Form a block of four-center two-electron integrals *
@@ -279,22 +287,20 @@ C                    (ia|jb) = (ia|s')(s'|jb)
 C                 where the |s') = V^{-1/2} |s) has been done
 C                 as part of the transformation.
 C
-                  Call GA_DGEMM('N', 'T', NVir(ISpin), NVir(JSpin),
-     $               NFit, FP_One, G_I, G_J, FP_Zero, G_A)
-c$$$C
-c$$$                  Call GA_Print(G_I)
-c$$$                  Call GA_Print(G_J)
-c$$$                  Call GA_Print(G_A)
+                  Call PStat_On( PS_form_4ci)
+                  Call GA_DGEMM('N', 'T',
+     $               NI*NVir(ISpin), NJ* NVir(JSpin), NFit,
+     $               FP_One, G_bigI, G_bigJ, FP_Zero, G_bigA)
+                  Call PStat_Off( PS_form_4ci)
 C
 C                 The J integral block is no longer needed and can
 C                 now be freed.  This alows us to reuse the space
 C                 to hold the temporary matrix B for the other
 C                 half of this iteration.
 C
-c$$$                  Write (LuOut, *) 'About to destroy J'
-                  If ( .NOT. GA_Destroy( G_J) ) then
+                  If ( .NOT. GA_Destroy( G_bigJ) ) then
                      Write (LuErr, *) ' Unable to free integral block ',
-     $                  J, JSpin
+     $                  JLo, JSpin
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
@@ -307,6 +313,14 @@ C                 with a linear combination of the matrix and its
 C                 transpose. Make the necessary workspace and initialize
 C                 it with a copy of A.
 C
+                  Call PStat_On( PS_Create)
+                  If ( .NOT. GA_Create( MT_Dbl, NVir(ISpin),
+     $               NVir(JSpin), 'Temporary matrix A', MinChunk,
+     $               MinChunk, G_A) ) then
+                     Write (LuErr, *) ' Unable to allocate A'
+                     RIMP2_V_E2 = .FALSE.
+                     Return
+                  EndIf
                   If ( .NOT. GA_Create( MT_Dbl, NVir(ISpin),
      $               NVir(JSpin), 'Temporary matrix B', MinChunk,
      $               MinChunk, G_B) ) then
@@ -314,139 +328,160 @@ C
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
-               Call GA_Distribution( G_B, Proc, Alo, Ahi, Blo, Bhi)
-c$$$               Write (LuOut, *) 'B distribution ', Proc, Alo, AHi,
-c$$$     $            Blo, BHi
+                  Call PStat_Off( PS_Create)
 C
-                  Call GA_Copy( G_A, G_B)
 C
-C                 *************************************************
-C                 * Make B into what is needed by pure spin cases *
-C                 *************************************************
-C                 For mixed spin UHF B = A, but for others we need
-C                 to do some more manipulation.
+                  Do I = ILo, IHi
 C
-                  If ( ISpin .eq. JSpin) then
+C                    Use permutational symmetry if possible
+C                    
+                     If ( ISpin .eq. JSpin .AND. ILo .eq. JLo
+     $                  .AND. IHi .eq. JHi) then
+                        JTop2 = I
+                     Else
+                        JTop2 = JHi
+                     EndIf
 C
-C                    B <-- 0.5 ( A + A')
+                     Do J = JLo, JTop2
 C
-                     Call GA_Symmetrize( G_B)
-c$$$C
-c$$$                  Call GA_Print(G_A)
-c$$$                  Call GA_Print(G_B)
+                        Call PStat_On( PS_form_ab)
+                        Call GA_Copy_Patch('N', G_bigA,
+     $                     (I-ILo)*NVir(ISpin)+1, (I-ILo+1)*NVir(ISpin),
+     $                     (J-JLo)*NVir(JSpin)+1, (J-JLo+1)*NVir(JSpin),
+     $                     G_A, 1, NVir(ISpin), 1, NVir(JSpin))
 C
-C                    UHF: B <-- 2 A - 2 B = 2 A - (A + A') =   A - A'
-C                    RHF: B <-- 3 A - 2 B = 3 A - (A + A') = 2 A - A'
+                        Call GA_Copy( G_A, G_B)
 C
-                     Fact = Dble( 4 - TopSpin )
-                     Call GA_DAdd( Fact, G_A, -FP_Two, G_B, G_B)
-                  EndIf
-c$$$C
-c$$$                  Call GA_Print(G_A)
-c$$$                  Call GA_Print(G_B)
+C                       *************************************************
+C                       * Make B into what is needed by pure spin cases *
+C                       *************************************************
+C                       For mixed spin UHF B = A, but for others we need
+C                       to do some more manipulation.
 C
-C                 So now we have the following for a particular IJ:
-C                 Term          A                  B
-C                 RHF        (IA|JB)     2 (IA|JB) - (IB|JA)
-C                 UHF AA     (IA|JB)       (IA|JB) - (IB|JA)
-C                 UHF Ab     (IA|jb)       (IA|kb) 
-C                 UHF bb     (ia|jb)       (ia|jb) - (ib|ja)
+                        If ( ISpin .eq. JSpin) then
 C
-C                 ***************************
-C                 * Apply denominators to B *
-C                 ***************************
-C                 Each processor does this on the panel of B it owns.
+C                          B <-- 0.5 ( A + A')
 C
-                  Call GA_Distribution( G_B, Proc, Alo, Ahi, Blo, Bhi)
+                           Call GA_Symmetrize( G_B)
 C
-C                 GA_Access doesn't like it if we request a bogus
-C                 patch (as might be returned if this node has no data
-C                 on it).
+C                          UHF: B <-- 2 A - 2 B = 2 A - (A + A') =   A - A'
+C                          RHF: B <-- 3 A - 2 B = 3 A - (A + A') = 2 A - A'
 C
-                  If ( (Ahi-Alo+1) * (BHi-BLo+1) .ne. 0) then
-                     Call GA_Access( G_B, Alo, Ahi, Blo, Bhi, H_B, LDB)
-c$$$C
-c$$$                  Call GA_Print(G_B)
-c$$$                  Write (LuOut, *) 'DenIJ = ', DenIJ, I, J
+                           Fact = Dble( 4 - TopSpin )
+                           Call GA_DAdd( Fact, G_A, -FP_Two, G_B, G_B)
+                        EndIf
+                        Call PStat_Off( PS_form_ab)
 C
-                     AB = -1
-                     Do B = Blo, Bhi
-                        Do A = Alo, Ahi
-                           AB = AB + 1
+C                       So now we have the following for a particular IJ:
+C                       Term          A                  B
+C                       RHF        (IA|JB)     2 (IA|JB) - (IB|JA)
+C                       UHF AA     (IA|JB)       (IA|JB) - (IB|JA)
+C                       UHF Ab     (IA|jb)       (IA|kb) 
+C                       UHF bb     (ia|jb)       (ia|jb) - (ib|ja)
 C
-                           Den = DenIJ - Eig( NOcc(ISpin) + A, ISpin)
-     $                        - Eig( NOcc(JSpin) + B, JSpin)
+C                       ***************************
+C                       * Apply denominators to B *
+C                       ***************************
+C                       Each processor does this on the panel of B it owns.
 C
-c$$$                        Write (LuOut, *) 'Den ', Den, I, J, A, B
-                           Dbl_MB( H_B + AB )
-     $                        =  Dbl_MB( H_B + AB ) / Den
+                        Call PStat_On( PS_denom)
+                        Call GA_Distribution( G_B, Proc, Alo, Ahi,
+     $                     Blo, Bhi)
 C
-                        EndDo
-                        AB = AB + LDB - (Ahi - Alo + 1)
-                     EndDo
+C                       GA_Access doesn't like it if we request a bogus
+C                       patch (as might be returned if this node has no data
+C                       on it).
 C
-                     Call GA_Release_Update( G_B, Alo, Ahi, Blo, Bhi)
-                  EndIf
-c$$$C
-c$$$                  Call GA_Print(G_A)
-c$$$                  Call GA_Print(G_B)
+                        If ( (Ahi-Alo+1) * (BHi-BLo+1) .ne. 0) then
 C
-C                 ***********************
-C                 * Form IJ pair energy *
-C                 ***********************
-C                 Contract the integrals in A with the denominatorified 
-C                 integrals in B. Put it into the matrix of 
-C                 contributions by spin case because that breakdown is 
-C                 sometimes interesting to people. 
+C                          Form half of the denominator
 C
-                  EPair = GA_DDot( G_A, G_B)
-                  If ( PermSym .AND. I .ne. J) then
-                     Contrib( ISpin, JSpin)
-     $                  = Contrib( ISpin, JSpin) + FP_Two * EPair
-                  Else
-                     Contrib( ISpin, JSpin)
-     $                  = Contrib( ISpin, JSpin) + EPair
-                  EndIf
+                           DenIJ = Eig(I, ISpin) + Eig(J, JSpin)
 C
-                  If ( Proc .eq. 0 )
-     $               Write (LuOut, 9000) I, J, ISpin, JSpin, EPair
- 9000             Format( 1X, 'Pair (', I3, ',', I3, ') spin (',
-     $               I2, ',', I2, ') ', F30.15)
+                           Call GA_Access( G_B, Alo, Ahi, Blo, Bhi,
+     $                        H_B, LDB)
 C
-C                 Free up the B matrix -- the space can be used by
-C                 a J 3ci block before we need another B.
+                           AB = -1
+                           Do B = Blo, Bhi
+                              Do A = Alo, Ahi
+                                 AB = AB + 1
+C                          
+                                 Den = DenIJ
+     $                              - Eig( NOcc(ISpin) + A, ISpin)
+     $                              - Eig( NOcc(JSpin) + B, JSpin)
 C
-c$$$                  Write ( LuOut,*) 'About to destroy B'
+                                 Dbl_MB( H_B + AB )
+     $                              =  Dbl_MB( H_B + AB ) / Den
+C
+                              EndDo
+                              AB = AB + LDB - (Ahi - Alo + 1)
+                           EndDo
+C
+                           Call GA_Release_Update( G_B, Alo, Ahi,
+     $                        Blo, Bhi)
+                        EndIf
+                        Call PStat_Off( PS_denom)
+C
+C                       ***********************
+C                       * Form IJ pair energy *
+C                       ***********************
+C                       Contract the integrals in A with the denominatorified 
+C                       integrals in B. Put it into the matrix of 
+C                       contributions by spin case because that breakdown is 
+C                       sometimes interesting to people. 
+C
+                        Call PStat_On(PS_PrEn)
+                        EPair = GA_DDot( G_A, G_B)
+                        Call PStat_Off(PS_PrEn)
+                        If ( PermSym .AND. I .ne. J) then
+                           Contrib( ISpin, JSpin)
+     $                        = Contrib( ISpin, JSpin) + FP_Two * EPair
+                        Else
+                           Contrib( ISpin, JSpin)
+     $                        = Contrib( ISpin, JSpin) + EPair
+                        EndIf
+C
+                        If ( Proc .eq. 0 )
+     $                     Write (LuOut, 9000) I, J, ISpin, JSpin, EPair
+ 9000                   Format( 1X, 'Pair (', I3, ',', I3, ') spin (',
+     $                     I2, ',', I2, ') ', F30.15)
+C                       
+                     EndDo      ! J
+                  EndDo         ! I
+C
+C                 Free up these matrices -- the space can be reused for
+C                 the J integral matrix, and their sizes may change when
+C                 the spin cases change.
+C                 
                   If ( .NOT. GA_Destroy( G_B) ) then
                      Write (LuErr, *) ' Unable to free B'
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
+                  If ( .NOT. GA_Destroy( G_A) ) then
+                     Write (LuErr, *) ' Unable to free A'
+                     RIMP2_V_E2 = .FALSE.
+                     Return
+                  EndIf
+                  If ( .NOT. GA_Destroy( G_bigA) ) then
+                     Write (LuErr, *) ' Unable to free big A'
+                     RIMP2_V_E2 = .FALSE.
+                     Return
+                  EndIf
 C
-               EndDo   ! J
-C
-C              This may change size for the next spin case
-C
-c$$$                  Write ( LuOut,*) 'About to destroy A'
-               If ( .NOT. GA_Destroy( G_A) ) then
-                  Write (LuErr, *) ' Unable to free A'
-                  RIMP2_V_E2 = .FALSE.
-                  Return
-               EndIf
-C
-            EndDo      ! JSpin
-         EndDo         ! I
+               EndDo            ! J (blocks)
+            EndDo               ! JSpin
+         EndDo                  ! I (blocks)
 C
 C        This may change size with the next spin case
 C
-c$$$                  Write ( LuOut,*) 'About to destroy I'
-         If ( .NOT. GA_Destroy( G_I) ) then
-            Write (LuErr, *) ' Unable to free I integral block'
+         If ( .NOT. GA_Destroy( G_bigI) ) then
+            Write (LuErr, *) ' Unable to free big I integral block'
             RIMP2_V_E2 = .FALSE.
             Return
          EndIf
-C
-      EndDo            ! ISpin
+C        
+      EndDo                     ! ISpin
 C
 C     *****************************************************
 C     * For UHF case, pure spin components must be scaled *
@@ -483,6 +518,9 @@ C
          RIMP2_V_E2 = .FALSE.
          Return
       EndIf
+C
+      Call GA_Sync
+      Call PStat_Off(PS_Energy)
 C
       RIMP2_V_E2 = .TRUE.
       Return
