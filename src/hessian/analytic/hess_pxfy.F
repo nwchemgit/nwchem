@@ -1,5 +1,5 @@
 C
-C $Id: hess_pxfy.F,v 1.1 2000-05-11 11:16:08 bjohnson Exp $
+C $Id: hess_pxfy.F,v 1.2 2000-08-22 17:10:08 windus Exp $
 C
       subroutine hess_pxfy(hess, g_sol, g_rhs, oactive, ncent, ipert,
      &     restr)
@@ -38,12 +38,16 @@ c
             do jdir = 1, 3
                jpert = jpert + 1
                deltah = ga_ddot(g_sol, g_rhs(jpert))
-               if (restr) then
-                  deltah = deltah * 2.d0
-               endif
-               hess(ipert,jpert) = hess(ipert,jpert) + deltah
+c              write(6,*) 'deltah for i,j ',deltah,ipert,jpert
+c              if (restr) then
+c                 deltah = deltah * 2.d0
+c              endif
                if (ipert .ne. jpert) then
-                  hess(jpert,ipert) = hess(jpert,ipert) + deltah
+                  deltah = deltah * 0.5d+00
+                  hess(ipert,jpert) = hess(ipert,jpert) - deltah
+                  hess(jpert,ipert) = hess(jpert,ipert) - deltah
+               else
+                  hess(ipert,jpert) = hess(ipert,jpert) - deltah
                endif
             enddo
          endif
