@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.6 1995-12-10 00:27:53 d3g681 Exp $
+c$Id: ao_fock_2e.F,v 1.7 1995-12-16 06:19:44 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -116,8 +116,7 @@ c
      $        dbl_mb(k_djk), dbl_mb(k_dlj), dbl_mb(k_dlk), 
      $        dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
      $        dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk),
-     $        dbl_mb(k_atmp), vg_dens, vg_fock,
-     $        int_mb(k_block), nblock)
+     $        dbl_mb(k_atmp), vg_dens, vg_fock)
       else
 c
 c        tell the screening statistics we're starting another fock build

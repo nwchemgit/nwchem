@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.15 1995-11-19 19:29:08 d3g681 Exp $
+C$Id: uhf.F,v 1.16 1995-12-16 06:19:48 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -152,20 +152,22 @@ c
 c
       end
       subroutine uhf_tidy(rtdb)
+      implicit none
 #include "cuhf.fh"
 #include "cscf.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+      integer rtdb
 c
       if (.not. ga_destroy(cuhf_g_falpha)) call errquit
-     $     ('cuhf_tidy: failed to destroy fock matrix',0)
+     $     ('uhf_tidy: failed to destroy fock matrix',0)
       if (.not. ga_destroy(cuhf_g_fbeta)) call errquit
-     $     ('cuhf_tidy: failed to destroy fock matrix',0)
+     $     ('uhf_tidy: failed to destroy fock matrix',0)
       cuhf_init_flag = .false.
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.15 1995-11-19 19:29:08 d3g681 Exp $
+C     $Id: uhf.F,v 1.16 1995-12-16 06:19:48 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -432,7 +434,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.15 1995-11-19 19:29:08 d3g681 Exp $
+C$Id: uhf.F,v 1.16 1995-12-16 06:19:48 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -524,7 +526,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.15 1995-11-19 19:29:08 d3g681 Exp $
+c     $Id: uhf.F,v 1.16 1995-12-16 06:19:48 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -897,7 +899,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.15 1995-11-19 19:29:08 d3g681 Exp $
+C$Id: uhf.F,v 1.16 1995-12-16 06:19:48 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
