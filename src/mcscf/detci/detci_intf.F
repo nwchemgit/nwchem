@@ -89,7 +89,7 @@ c  Toggle spin-adaption
 c  Need some way of automatically turning this on and off 
 c  depending requested spin-state
 c
-      cdetci_spinadapt = .true.
+      cdetci_spinadapt = .false.
       cdetci_squant = (nela - nelb)/2.d0
 c     
 c  Info print
@@ -514,15 +514,11 @@ c
 #include "detci.fh"
 #include "cdetci.fh"
 c
-c$$$      double precision civec(*)
-c$$$      double precision workvec(*)
       integer g_civec
       integer g_workvec
       integer nstra, nstrb
 c
-      DOUBLE PRECISION XX, YY
-      DOUBLE PRECISION dnrm2
-      EXTERNAL dnrm2
+      double precision xx, yy
 c
 c  Check internals
 c
@@ -537,15 +533,12 @@ c
 c  First spin-adapt the vector
 c
       if (cdetci_spinadapt) then
-C        call detci_random_error( g_civec )       ! introduce contamination to debug
+C        CALL DETCI_RANDOM_ERROR( G_CIVEC )       ! INTRODUCE CONTAMINATION TO DEBUG
         xx = sqrt( ga_ddot( g_civec, g_civec ) )
         call detci_spinadapt( g_civec, g_workvec )
         yy = sqrt( ga_ddot( g_civec, g_civec ) )
-c$$$        XX = DNRM2( (NSTRA*NSTRB), CIVEC, 1 )
-c$$$        call detci_spinadapt( civec, workvec )
-c$$$        YY = DNRM2( (NSTRA*NSTRB), CIVEC, 1 )
-        WRITE(6,988) (1.d0 - YY/XX)
- 988    FORMAT('Spin contamination:',E12.3)
+c$$$        WRITE(6,988) (1.d0 - YY/XX)
+c$$$ 988    FORMAT('Spin contamination:',E12.3)
       endif
 c
 c  Apply preconditioning using orbital 

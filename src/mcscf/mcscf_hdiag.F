@@ -291,16 +291,17 @@ c
        myid = ga_nodeid()
        numnodes = ga_nnodes()
 c
-c
+c  Hessian diag is precomputed in g_hdiag
 c
        do i=myid+1,vlen,numnodes
          call ga_get(g_x,i,i,1,1,xx,1)
          call ga_get(g_hdiag,i,i,1,1,yy,1)
-C         if (abs(yy).lt.1.d-8) yy=1.d-8
-         xx = xx/(yy + lshift)
+         yy = yy + lshift
+         if (abs(yy).lt.0.05d0) yy = 0.05d0
+         xx = xx/yy
          call ga_put(g_x,i,i,1,1,xx,1)
        enddo
-       goto 1000                !  Hessian diag is stored
+       goto 1000
 c
 c
 c

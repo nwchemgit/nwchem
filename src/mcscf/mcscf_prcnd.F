@@ -1,6 +1,6 @@
        subroutine mcscf_precond( geom, basis, nclosed, nact,
-     $                           oskel, tol2e, pflg, lshift,
-     $                           maxiter, dm1, dm2,
+     $                           oskel, orbsym, tol2e, pflg,
+     $                           lshift, maxiter, dm1, dm2,
      $                           g_coul, g_exch, g_movecs,
      $                           g_ifock, g_afock, g_gfock,
      $                           g_hdiag, g_rhs, g_soln, acc )
@@ -15,7 +15,8 @@ c
        integer geom, basis                              ! [input] Handles
        integer nclosed, nact                            ! [input] Parameters
        logical oskel                                    ! [input] Symmetry toggle
-       double precision tol2e                           ! [input] Hessian accuracy 
+       integer orbsym(*)                                ! [input] Orbital irreps
+       double precision tol2e                           ! [input] Hessian accuracy
        integer pflg                                     ! [input] Hessian-type selection
        double precision lshift                          ! [input] Level-shift
        integer maxiter                                  ! [input] Maximum iterations
@@ -42,6 +43,7 @@ c
        integer itemp(maxbas)
        double precision rnorm, bnorm, proj, scale, deltasoln
        double precision rnorm_old, ratio
+       double precision maxx
        DOUBLE PRECISION XX
        integer info
 c
@@ -90,6 +92,8 @@ c
      $                     oskel, pflg, lshift, dm1, dm2,
      $                     g_movecs, g_ifock, g_afock, g_gfock,
      $                     g_coul, g_exch, g_xv, g_axv )
+         call mcscf_vsymm_chk( nbf, nclosed, nact, orbsym,
+     $                         g_axv, .false., .false., maxx )
 C         CALL GA_ROWPRINT( 'HESSIAN VECTOR PRODUCT', G_AXV )
 
          call ga_copy_patch('n',g_axv,1,vlen,1,1,

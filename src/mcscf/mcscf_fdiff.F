@@ -165,9 +165,8 @@ c
        integer i, j, ij, ji, ipt, jpt
        integer vlo, vhi
        integer l_v, k_v
-       double precision eone, e2ii, e2ia, e2aa, h
+       double precision eone, etwo, h
        double precision del(4), ee(4,4)
-       double precision ee2ii(4,4), ee2ia(4,4), ee2aa(4,4)
        data osym/.false./
        data del/0.001d0,-0.001d0,0.01d0,-0.01d0/
 c
@@ -217,12 +216,8 @@ c
      $                               g_exch, .false., 16 )
                call mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                            oskel, tol2e, dm1, dm2,
-     $                            g_tmp2, g_coul, eone, e2ii,
-     $                            e2ia, e2aa )
-               ee(ipt,jpt) = eone + e2ii + e2ia + e2aa
-               ee2ii(ipt,jpt) = e2ii
-               ee2ia(ipt,jpt) = e2ia
-               ee2aa(ipt,jpt) = e2aa
+     $                            g_tmp2, g_coul, eone, etwo )
+               ee(ipt,jpt) = eone + etwo
              enddo
            enddo
            h = (ee(1,1)-ee(1,2)-ee(2,1)+ee(2,2))/(4.d0*del(1)*del(1))

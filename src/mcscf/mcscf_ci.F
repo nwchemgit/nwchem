@@ -2,7 +2,8 @@ c
 c   MCSCF Secular solution front-end
 c
       subroutine mcscf_cisolve( rtdb, geom, basis, nbf, nclosed,
-     $                          nact, eps, g_h, g_coul, dm1, dm2 )
+     $                          nact, eps, g_h, g_coul, dm1, dm2,
+     $                          oprint, ociprint )
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -22,11 +23,13 @@ c
       double precision eps(nbf)
       double precision dm1(nact,nact)
       double precision dm2(nact,nact,nact,nact)
+      logical oprint
+      logical ociprint
 c
 c
 c
       integer mxworkvec
-      parameter(mxworkvec=16)
+      parameter(mxworkvec=24)
       integer nela, nelb, nsym, nactel, multip
       integer osym(detci_maxorb)
       integer guess_cfg(12)
@@ -34,7 +37,7 @@ c
       double precision ciener, citol
       integer maxiter
       integer mul(detci_maxsy*detci_maxsy)
-      integer ijmap(detci_maxsy*detci_maxsy)
+      integer ijmap(detci_maxorb*detci_maxorb)
       integer i, iprint, hasprint
       integer ntij, n2
       integer l_h1, k_h1
@@ -52,39 +55,13 @@ c
       data hasprint/0/
       data citol/1.e-6/
       data maxiter/10/
-      data guess_coeff/
-     $                  -0.99989647,
-     $                   0.01150348,
-     $                   0.00646795,
-     $                   0.00313414,
-     $                  -0.00339526,
-     $                   0.00339526/
-      data guess_cfg/
-     $            1, 1,
-     $            2, 2,
-     $            3, 3,
-     $            4, 4,
-     $            3, 4,
-     $            4, 3/
 c
 c
       iprint = 1
       if (hasprint.ne.0) iprint = 0
       hasprint = hasprint + 1
 c
-c  Allocate local space for 1e and 2e MO integrals
-c
-      n2 = nact*nact
-      if (.not.ma_push_get(MT_DBL,n2,'1e hamil',l_h1,k_h1))
-     $  call errquit('mcscf_cisolve: cannot allocate',0)
-      if (.not.ma_push_get(MT_DBL,(n2*n2),'eri',l_eri,k_eri))
-     $  call errquit('mcscf_cisolve: cannot allocate',0)
-c$$$      WRITE(6,990) 
-c$$$ 990  FORMAT(/,'Orbital energies')
-c$$$      WRITE(6,991) (EPS(I),I=1,NBF)
-c$$$ 991  FORMAT(10F12.6)
-c
-c  Retrieve spin-related info from database
+c   Retrieve spin-related info from database
 c
       if (.not.rtdb_get(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
      $  multip = 0
@@ -96,8 +73,8 @@ c
      $    (nela.lt.0).or.(nelb.lt.0))
      $    call errquit('detci: incompatible elec and spin',0)
 c
-c  Retrieve symmetry stuff
-c  Nothing yet
+c   Retrieve symmetry stuff
+c   Nothing yet
 c
       nsym = 1
       mul(1) = 1
@@ -106,22 +83,25 @@ c
       enddo
       call detci_ijmap( nact, nsym, osym, mul, ntij, ijmap )
 c
-c  Push global MO integrals into local space
+c   Allocate local space for 1e and 2e MO integrals
+c   Push global MO integrals into local space
 c
+      n2 = nact*nact
+      if (.not.ma_push_get(MT_DBL,n2,'1e hamil',l_h1,k_h1))
+     $  call errquit('mcscf_cisolve: cannot allocate',0)
+      if (.not.ma_push_get(MT_DBL,(n2*n2),'eri',l_eri,k_eri))
+     $  call errquit('mcscf_cisolve: cannot allocate',0)
       call mcscf_getmolocal( nclosed, nact, nbf, g_h, g_coul,
      $                       ntij, ijmap, dbl_mb(k_h1),
      $                       dbl_mb(k_eri) )
-
-c$$$      PRINT*
-c$$$      CALL MOPRINTS(NACT,NTIJ,DBL_MB(K_H1),DBL_MB(K_ERI))
 c
-c  Initialize DetCI internals
+c   Initialize DetCI internals
 c
       call detci_init( nact, nela, nelb, nsym, mul, osym,
      $                 iprint, eps(nclosed+1),
      $                 dbl_mb(k_h1), dbl_mb(k_eri) )
 c
-c  Create CI-vectors
+c   Create CI-vectors
 c
       if (.not.ga_civec_create('CI vector',g_civec))
      $   call errquit('detci: cannot create CI vector',0)
@@ -132,7 +112,7 @@ c
         call ga_zero(g_wvec(i))
       enddo
 c
-c  Try some crappy guess
+c   Try some crappy guess
 c
       do i=1,nela
         guess_cfg(i) = i
@@ -144,29 +124,24 @@ c
       call detci_guess( 1, guess_cfg, guess_coeff, g_civec )
 c$$$      CALL DETCI_GUESS( 6, GUESS_CFG, GUESS_COEFF, G_CIVEC )
 c
-c  Davidson diag
+c   Davidson diag
 c
 c$$$      call detci_dvddiag( 1, detci_sigma, detci_ciprecon, maxiter,
 c$$$     $                    citol, g_civec, g_wvec(1), g_wvec(2),
 c$$$     $                    g_wvec(3), g_wvec(4), g_wvec(5), ciener )
 c
-c
-c
       call detci_dvddiag0( detci_sigma, detci_ciprecon, mxworkvec,
-     $                     1.d-10, ciener, g_wvec, g_civec )
+     $                     1.d-12, ciener, g_wvec, g_civec, oprint )
 c
+c   Print out converged ground state CI vector
 c
+      if (ociprint) call detci_print( g_civec, 1.d-2 )
 c
-c$$$      PRINT*,'CI solution'
-c$$$      call detci_print( g_civec, 1.d-4 )
-c
-c  Compute MO densities
+c   Compute MO densities
 c
       call detci_density( g_civec, dm1, dm2 )
-c$$$      PRINT*,'<<<<<<< density matrix >>>>>>>>>'
-c$$$      CALL MAT_PRINT( NACT, NACT, DM1 )
 c
-c  Release CI vectors
+c   Release CI vectors
 c
       if (.not.ga_destroy(g_civec))
      $   call errquit('mcscf_cisolve: cannot destroy CI vector',0)
@@ -175,11 +150,11 @@ c
      $    call errquit('mcscf_cisolve: cannot destroy CI vector',0)
       enddo
 c
-c  Release DetCI internals
+c   Release DetCI internals
 c
       call detci_free()
 c
-c  Clean up
+c   Clean up
 c
       if (.not.ma_pop_stack(l_eri))
      $  call errquit('mcscf_cisolve: cannot pop stack',0)
@@ -247,8 +222,6 @@ c
           h1(ij) = xx
         enddo
       enddo
-
-c$$$      CALL MOPRINTS(NACT,NTIJ,H1,ERI)
 
       if (.not.ma_pop_stack(l_t))
      $  call errquit('mcscf_getmolocal: cannot pop stack',0)

@@ -397,17 +397,9 @@ c
                call util_flush(6)
             endif
          endif
+         call movecs_swap(rtdb,'rohf',g_movecs,occ,evals)
          if (.not. status) call errquit('rhf: failed to load vectors',0)
       endif
-c
-c     Orthogonalize all input/guess vectors ... don't mix the occupied
-c     with the virtuals.
-c
-      call ga_orthog_mos(basis, g_movecs)
-c
-c     Apply phase conventions
-c
-      call movecs_fix_phase(g_movecs)
 c
 c     Optional MO vector phase adjustment (for getting exactly the same vectors
 c                                          as a previous calculation)
@@ -455,6 +447,16 @@ c
      $     call errquit('mcscf_getmovecs: failed pop stack',0)
        endif
 c
+c     Orthogonalize all input/guess vectors ... don't mix the occupied
+c     with the virtuals.
+c
+      call ga_orthog_mos(basis, g_movecs)
+c
+c     Apply phase conventions
+c
+      call movecs_fix_phase(g_movecs)
+c
+c
 c
       if (util_print('initial vectors', print_high)) then
          if (ga_nodeid() .eq. 0) then
@@ -474,7 +476,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.3 1995-12-12 21:58:18 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.4 1996-02-13 23:00:29 rg240 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -565,7 +567,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.3 1995-12-12 21:58:18 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.4 1996-02-13 23:00:29 rg240 Exp $
 c
 c Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c partially occupied orbitals (trivially)
@@ -701,6 +703,140 @@ c
        
        return
        end
+
+
+
+
+
+
+
+c
+c   Check and zero symmetry forbidden rotations
+c
+      subroutine mcscf_vsymm_chk( nbf, nclosed, nact, orbsym,
+     $                            g_v, oscreen, oprint, maxelt )
+      implicit none
+#include "global.fh"
+      integer nbf, nclosed, nact
+      integer orbsym(nbf)
+      integer g_v
+      logical oprint, oscreen
+      double precision maxelt
+c
+      integer nvir, vlen, voff, aoff
+      integer ii, i, a, t, aa, tt
+      double precision xx, zero
+c
+      nvir = nbf - nclosed - nact
+      vlen = (nact+nclosed)*nvir + nact*nclosed
+      aoff = nclosed*nvir
+      voff = (nact+nclosed)*nvir
+      maxelt = 0.d0
+      zero = 0.d0
+      do i=1,nclosed
+        do a=1,nvir
+          aa = nclosed + nact + a
+          if (orbsym(i).ne.orbsym(aa)) then
+            ii = (i-1)*nvir + a
+            call ga_get(g_v,ii,ii,1,1,xx,1)
+            maxelt = max(maxelt,abs(xx))
+            if (oprint) write(6,881) ii,i,aa,abs(xx)
+ 881        format(5x,i5,5x,2i3,5x,e20.8)
+            if (oscreen) call ga_put(g_v,ii,ii,1,1,zero,1)
+          endif
+        enddo
+      enddo
+      do t=1,nact
+        tt = nclosed + t
+        do a=1,nvir
+          aa = nclosed + nact + a
+          if (orbsym(tt).ne.orbsym(aa)) then
+            ii = aoff + (t-1)*nvir + a
+            call ga_get(g_v,ii,ii,1,1,xx,1)
+            maxelt = max(maxelt,abs(xx))
+            if (oprint) write(6,881) ii,tt,aa,abs(xx)
+            if (oscreen) call ga_put(g_v,ii,ii,1,1,zero,1)
+          endif
+        enddo
+      enddo
+      do i=1,nclosed
+        do t=1,nact
+          tt = nclosed + t
+          if (orbsym(i).ne.orbsym(tt)) then
+            ii = voff + (i-1)*nact + t
+            call ga_get(g_v,ii,ii,1,1,xx,1)
+            maxelt = max(maxelt,abs(xx))
+            if (oprint) write(6,881) ii,i,tt,abs(xx)
+            if (oscreen) call ga_put(g_v,ii,ii,1,1,zero,1)
+          endif
+        enddo
+      enddo
+      return
+      end
+
+
+
+
+
+c
+c  Convert active orbitals to natural orbitals
+c  by diagonalizing 1-pdm
+c
+      subroutine mcscf_naturalorb( nbf, nclosed, nact, dm1, occ,
+     $                             g_movecs )
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+      integer nbf
+      integer nclosed
+      integer nact
+      double precision dm1(nact,nact)
+      double precision occ(nbf)
+      integer g_movecs
+c
+      integer l_tmp, k_tmp
+      integer g_v
+      integer tsize, info, i, j, ii, jj
+c
+c
+c
+      tsize = 4*nact
+      if (.not.ma_push_get(MT_DBL, (tsize+nact), 'tmp', l_tmp, k_tmp))
+     $  call errquit('mcscf_naturalorb: cannot allocate',0)
+      call dsyev( 'V', 'L', nact, dm1, nact, dbl_mb(k_tmp),
+     $             dbl_mb(k_tmp+nact), tsize, info )
+      do i=1,nclosed                    
+        occ(i) = 2.d0                     ! Trivial inactive occupation
+      enddo
+      do i=1,nact
+        occ(nclosed+i) = dbl_mb(k_tmp+nact-i)
+      enddo
+      if (.not.ma_pop_stack(l_tmp))
+     $   call errquit('mcscf_naturalorb: cannot pop stack',0)
+c
+c
+c
+      if (.not.ga_create(MT_DBL,nbf,nact,'gtmp',nbf,1,g_v))
+     $   call errquit('mcscf_naturalorb: cannot allocate',0)
+      call ga_zero(g_v)
+      do i=nact,1,-1
+        ii = nact - i + 1
+        do j=1,nact
+          jj = nclosed + j
+          call ga_dadd_patch( dm1(j,i), g_movecs, 1, nbf, jj, jj,
+     $                        1.d0,     g_v,      1, nbf, ii, ii,
+     $                                  g_v,      1, nbf, ii, ii )
+        enddo
+      enddo
+      call ga_copy_patch( 'n', g_v, 1, nbf, 1, nact,
+     $             g_movecs, 1, nbf, (nclosed+1), (nclosed+nact) )
+      if (.not.ga_destroy(g_v))
+     $   call errquit('mcscf_naturalorb: cannot destroy',0)
+      return
+      end
+
+      
+
 
 
 

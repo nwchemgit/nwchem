@@ -228,7 +228,8 @@ c
 c
 c Simple single root Davidson diag
 c
-      subroutine detci_dvddiag0( mxv, precon, nw, tol, eval, g_w, g_x)
+      subroutine detci_dvddiag0( mxv, precon, nw, tol, eval, g_w,
+     $                           g_x, oprint )
       implicit none
 #include "global.fh"
 #include "util.fh"
@@ -239,6 +240,7 @@ c
       double precision eval                   ! [output] solution eigenvalue
       integer g_w(nw)                         ! [scratch] workspace
       integer g_x                             ! [input/output] starting guess/soln. vector
+      logical oprint                          ! [input] Print out option
 c$$$      double precision w(n,nw)                ! [scratch] workspace
 c$$$      double precision x(n)                   ! [input/output] starting guess/soln. vector
 c
@@ -303,7 +305,7 @@ c
       rnorm = sqrt(ga_ddot(g_x,g_x))
 c$$$      rnorm = dnrm2(n,x,1)
       rnormscal = rnorm/sqrt(abs(e(1)))
-      if (ga_nodeid().eq.0) then
+      if ((ga_nodeid().eq.0).and.(oprint)) then
         write(6,881) iter,e(1),(e(1)-eold),rnorm,rnormscal,abs(b(ibas))
  881    format(i3,f20.10,4e12.2)
       endif
