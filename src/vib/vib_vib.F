@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.15 2001-07-27 21:34:01 windus Exp $
+* $Id: vib_vib.F,v 1.16 2002-03-26 07:01:13 edo Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -44,7 +44,7 @@ c
       integer i_core, h_core, iii, ioldlabs, ivc, itot
       integer nels, npri, ihess, icoord, ihesst, ihesstcp,
      &    ihessp, iegval, iegvec, iddpol, iddpolq, intense
-      integer imass, iscr, i10, i20, i30, i40
+      integer imass, iscr, i10, i20, i30, i40,i_w1,l_w1,i_w2,l_w2
       double precision dbl_tmp
       logical first_pass
       character*255 dipole_file
@@ -202,8 +202,16 @@ C              and atom lables (real 2*nat words)
      &    dbl_mb(i10),nels,projec,zerope,hesout,intern,
      &    rtdb,first_pass)
       if (projec) then
+      if (.not.ma_push_get
+     &    (MT_DBL,nat3*nat3,' w1 ',l_w1, i_w1))
+     &    call errquit('vib_vib: ma_push_get failed ',911)
+      if (.not.ma_push_get
+     &    (MT_DBL,nat3*nat3,' w2 ',l_w2, i_w2))
+     &    call errquit('vib_vib: ma_push_get failed ',911)
         call vib_eckart( dbl_mb(ihess), dbl_mb(ihessp), dbl_mb(ihesst),
-     &      dbl_mb(icoord),  dbl_mb(ivc) )
+     &      dbl_mb(icoord),  dbl_mb(ivc), dbl_mb(i_w1),dbl_mb(i_w2))
+        if(.not.ma_chop_stack(l_w1)) call errquit(
+     '       ' vib_vib: machopstack failed',1)  
       end if
 * rak dfill
       CALL Dfill(NAT3,0.0d00,DBL_MB(ISCR),1) ! zero scratch used

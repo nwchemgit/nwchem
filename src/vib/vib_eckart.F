@@ -1,5 +1,6 @@
-      SUBROUTINE vib_eckart( HESS, HESSP, HESST, COORD, VC )
-* $Id: vib_eckart.F,v 1.6 2002-02-23 02:39:14 edo Exp $
+      SUBROUTINE vib_eckart( HESS, HESSP, HESST, COORD, VC ,
+     ,     w1,w2)
+* $Id: vib_eckart.F,v 1.7 2002-03-26 07:01:13 edo Exp $
       IMPLICIT none ! REAL*8 (A-H,O-Z)
 c
 #include "util.fh"
@@ -16,6 +17,7 @@ c
       double precision HESST(NAT3*(NAT3+1)/2)
       double precision COORD(3,NAT)
       double precision VC(NAT3,6)
+      double precision w1(nat3,*),w2(nat3,*)
 c
       DOUBLE PRECISION UNIVEC(3), TEST(6,6), VNORM, temp, dotval, rnorm
       double precision test_norm
@@ -76,24 +78,36 @@ C****
 C****
 C**** remove rotations and translations from the Hessian matrix
 C****
-      DO 130 M=1,NAT3
-        DO 140 N=1,M
-          HESSP(M,N) = HESS(M,N)
-          DO 150 MU=1,6
-            DO 160 J=1,NAT3
-              HESSP(M,N) = HESSP(M,N) - VC(M,MU)*VC(J,MU)*HESS(J,N)
-     &                               - HESS(M,J)*VC(J,MU)*VC(N,MU)
-              DO 170 NU=1,6
-                DO 180 K=1,NAT3
-                  HESSP(M,N) = HESSP(M,N) +
-     &                VC(M,MU)*VC(J,MU)*HESS(J,K)*VC(K,NU)*VC(N,NU)
-  180           CONTINUE
-  170         CONTINUE
-  160       CONTINUE
-  150     CONTINUE
-          if(M.ne.M) HESSP(N,M) = HESSP(M,N)
-  140   CONTINUE
-  130 CONTINUE
+!      DO 130 M=1,NAT3
+!        DO 140 N=1,M
+!          HESSP(M,N) = HESS(M,N)
+!          DO 150 MU=1,6
+!            DO 160 J=1,NAT3
+!              HESSP(M,N) = HESSP(M,N) !- VC(M,MU)*VC(J,MU)*HESS(J,N)
+!     &                               !- HESS(M,J)*VC(J,MU)*VC(N,MU)
+!              DO 170 NU=1,6
+!                DO 180 K=1,NAT3
+!                  HESSP(M,N) = HESSP(M,N) +
+!     &                VC(M,MU)*VC(J,MU)*HESS(J,K)*VC(K,NU)*VC(N,NU)
+!  180           CONTINUE
+!  170         CONTINUE
+!  160       CONTINUE
+!  150     CONTINUE
+!          if(M.ne.N) HESSP(N,M) = HESSP(M,N)
+!  140   CONTINUE
+!  130 CONTINUE
+      call dcopy(nat3*nat3,hess,1,hessp,1)
+
+      call dgemm('n','t',nat3,nat3,6,1d0,vc,nat3,vc,nat3,
+     .     0d0,w1,nat3)
+      call dgemm('n','n',nat3,nat3,nat3,1d0,w1,nat3,hess,nat3,
+     .     0d0,w2,nat3)
+      call dgemm('n','n',nat3,nat3,nat3,1d0,w2,nat3,w1,nat3,
+     .     1d0,hessp,nat3)
+      call dgemm('n','n',nat3,nat3,nat3,-1d0,w1,nat3,hess,nat3,
+     .     1d0,hessp,nat3)
+      call dgemm('n','n',nat3,nat3,nat3,-1d0,hess,nat3,w1,nat3,
+     .     1d0,hessp,nat3)
 C****
 C**** update triangular hessian to agree with HESS
 C****
