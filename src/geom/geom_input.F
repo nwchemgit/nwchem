@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.91 1999-05-13 16:22:58 d3g681 Exp $
+C     $Id: geom_input.F,v 1.92 1999-05-24 23:39:55 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -215,7 +215,7 @@ c
             call geom_sys_input(geom,scale)
             goto 20
          else if (inp_compare(.false.,'zcoord', field)) then
-            call geom_autoz_input(rtdb)
+            call geom_autoz_input(geom)
             goto 20
          else if (inp_compare(.false.,'zmt', field).or.
      $           inp_compare(.false.,'zmat', field).or.
@@ -363,12 +363,6 @@ c     Force exact symetry on the coordinates
 c     
       call sym_geom_project(geom, threquiv)
 c     
-c     geom_compute_values is called in the very end of 
-c     sym_geom_project. Current call of geom_compute_values 
-c     is commented out. 
-c
-c     call geom_compute_values(geom)
-c     
       if(oautoz) then
          if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
      $        call errquit('geom_input: geom_cart_get failed', 0)
@@ -418,7 +412,6 @@ c
      $     call errquit('geom_input: geom_destroy failed', 0)
 c     
 c     done
-c     
 
 c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 
@@ -563,88 +556,88 @@ c
       end if
 c     
       end
-      subroutine geom_autoz_input(rtdb)
-      implicit double precision (a-h,o-z)
-#include "rtdb.fh"
-#include "global.fh"
-#include "mafdecls.fh"
-#include "stdio.fh"
-      integer  rtdb
-      logical  status
-      logical  zcoord_input
+      logical function geom_autoz_info_get(geom,
+     $     xcvr_scaling, xijbond, xijkang, xijklto, xijklop, 
+     $     xijklnb)
+      implicit none
+#include "geomP.fh"
+      integer geom
+      integer xijbond(2,max_zcoord) 
+      integer xijkang(3,max_zcoord)
+      integer xijklto(4,max_zcoord)
+      integer xijklop(4,max_zcoord)
+      integer xijklnb(4,max_zcoord)
+      double precision xcvr_scaling
 c
-      parameter (max_zcoord=16)
-      integer ir
-      integer iw
-      common/hnd_iofile/ir,iw
-      dimension ijbond(2,max_zcoord)
-      dimension ijkang(3,max_zcoord)
-      dimension ijklto(4,max_zcoord)
-      dimension ijklop(4,max_zcoord)
-      dimension ijklnb(4,max_zcoord)
+      logical geom_check_handle
+      external geom_check_handle
+      integer i
 c
-      ir=LuIn
-      iw=LuOUT
+      geom_autoz_info_get = geom_check_handle(geom,
+     $     'geom_autoz_info_get')
+      if (.not. geom_autoz_info_get) return
 c
-      if(ga_nodeid().eq.0) then
-c
-         call hnd_autoz_input(ijbond,ijkang,ijklto,
-     1                        ijklop,ijklnb,max_zcoord,
-     2                        cvr_scaling)
-c
-         zcoord_input=.true.
-         status=rtdb_put(rtdb,'autoz:zcoord',mt_log,1,zcoord_input)
-         status=status.or.
-     1          rtdb_put(rtdb,'autoz:cvr_scaling',mt_dbl,1,  
-     2                                                 cvr_scaling)
-         status=status.or.
-     1          rtdb_put(rtdb,'autoz:ijbond',mt_int,2*max_zcoord,  
-     2                                                    ijbond)
-         status=status.or.
-     1          rtdb_put(rtdb,'autoz:ijkang',mt_int,3*max_zcoord,  
-     2                                                    ijkang)
-         status=status.or.
-     1          rtdb_put(rtdb,'autoz:ijklto',mt_int,4*max_zcoord,  
-     2                                                    ijklto)
-         status=status.or.
-     1          rtdb_put(rtdb,'autoz:ijklop',mt_int,4*max_zcoord,  
-     2                                                    ijklop)
-         status=status.or.
-     1          rtdb_put(rtdb,'autoz:ijklnb',mt_int,4*max_zcoord,  
-     2                                                    ijklnb)
-         if(.not.status) then
-            call errquit('zcoord_input : rtdb_put failed',911)
-         endif
+***      write(6,*) '  cvr_scaling(geom) ', cvr_scaling(geom)
+      if (cvr_scaling(geom) .eq. 0d0) then
+         geom_autoz_info_get = .false.
+         return
       endif
 c
+      xcvr_scaling = cvr_scaling(geom)
+      do i = 1, max_zcoord
+         xijbond(1,i) = ijbond(1,i,geom)
+         xijbond(2,i) = ijbond(2,i,geom)
+         xijkang(1,i) = ijkang(1,i,geom)
+         xijkang(2,i) = ijkang(2,i,geom)
+         xijkang(3,i) = ijkang(3,i,geom)
+         xijklto(1,i) = ijklto(1,i,geom)
+         xijklto(2,i) = ijklto(2,i,geom)
+         xijklto(3,i) = ijklto(3,i,geom)
+         xijklto(4,i) = ijklto(4,i,geom)
+         xijklop(1,i) = ijklop(1,i,geom)
+         xijklop(2,i) = ijklop(2,i,geom)
+         xijklop(3,i) = ijklop(3,i,geom)
+         xijklop(4,i) = ijklop(4,i,geom)
+         xijklnb(1,i) = ijklnb(1,i,geom)
+         xijklnb(2,i) = ijklnb(2,i,geom)
+         xijklnb(3,i) = ijklnb(3,i,geom)
+         xijklnb(4,i) = ijklnb(4,i,geom)
+      enddo
+c     
+      end
+      subroutine geom_autoz_input(geom)
+      implicit double precision (a-h,o-z)
+#include "geomP.fh"
+      integer geom
+c
+      call hnd_autoz_input(
+     $     ijbond(1,1,geom),
+     $     ijkang(1,1,geom),
+     $     ijklto(1,1,geom),
+     1     ijklop(1,1,geom),
+     $     ijklnb(1,1,geom),
+     $     max_zcoord,
+     2     cvr_scaling(geom))
+c     
       return
       end
       subroutine hnd_autoz_input(ijbond,ijkang,ijklto,
      1                           ijklop,ijklnb,max_zcoord,
      2                           cvr_scaling)
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "inp.fh"
 c
-      parameter (mxatom=500)
-      parameter (mxcart=3*mxatom)
-      parameter (mxzmat=1500)
-      parameter (mxcoor=1500)
-c                mxcoor=max(mxcart,mxzmat)
+      double precision cvr_scaling
+      double precision cvr_factor
       parameter (cvr_factor=1.20d+00)
-      character*255 field
-      logical       ready
-      logical       dbug
-      logical       out 
-      common/hnd_iofile/ir,iw
-      dimension ijbond(2,*)
-      dimension ijkang(3,*)
-      dimension ijklto(4,*)
-      dimension ijklop(4,*)
-      dimension ijklnb(4,*)
+      character*30 field
+      integer ijbond(2,*), max_zcoord
+      integer ijkang(3,*)
+      integer ijklto(4,*)
+      integer ijklop(4,*)
+      integer ijklnb(4,*)
 c
-      dbug=.false.
-      out =.false.
-      out =out.or.dbug
+      integer nbond, nangl, ntors, nopla, nlinb, i
 c
       cvr_scaling=cvr_factor
       nbond=0
@@ -674,313 +667,74 @@ c
 c
 c     ----- read values from input -----
 c
-      call inp_set_field(0)
-      ifield=inp_cur_field()
-      if(dbug) then
-         write(iw,*) 'in hnd_autoz_input, ifield = ',ifield
-      endif
-      ready=.false.
+ 10   if(.not.inp_read()) 
+     $     call errquit('hnd_autoz_input: unexpected eof',911)
+
+      if (.not.inp_a(field)) 
+     $     call errquit('hnd_autoz_input: read of field failed',911)
 c
-   10 continue
-      if(.not.inp_a(field)) then
-c
-         if(.not.inp_read()) then
-            write(iw,*)  'unexpected eof while reading ',
-     1                   'hnd_autoz_input data'
-            call errquit('hnd_autoz_input: unexpected eof',911)
-         else
-            if(dbug) then
-               write(iw,*) 'new line read in hnd_autoz_input'
-            endif
-            go to 10
-         endif
-c
+      if (inp_compare(.false.,'zend',field).or.   
+     1     inp_compare(.false.,'end',field)) then
+         return
+      else if(inp_compare(.false.,'cvr_scaling',field)) then
+         if(.not. inp_f(cvr_scaling)) call errquit
+     1        ('hnd_autoz_input:  reading cvr_scaling',911)
+      else if (inp_compare(.false.,'ijbond',field)) then
+         nbond = nbond + 1
+         if(.not. inp_i(ijbond(1,nbond))) call errquit
+     $        ('hnd_autoz_input: reading ijbond',1)
+         if(.not. inp_i(ijbond(2,nbond))) call errquit
+     $        ('hnd_autoz_input: reading ijbond',2)
+      else if(inp_compare(.false.,'ijkang',field)) then
+         nangl = nangl + 1
+         if(.not. inp_i(ijkang(1,nangl))) call errquit
+     $        ('hnd_autoz_input: reading ijkang',1)
+         if(.not. inp_i(ijkang(2,nangl))) call errquit
+     $        ('hnd_autoz_input: reading ijkang',2)
+         if(.not. inp_i(ijkang(3,nangl))) call errquit
+     $        ('hnd_autoz_input: reading ijkang',3)
+      else if(inp_compare(.false.,'ijklto',field)) then
+         ntors=ntors+1
+         if(.not. inp_i(ijklto(1,ntors))) call errquit
+     $        ('hnd_autoz_input: reading ijklto',1)
+         if(.not. inp_i(ijklto(2,ntors))) call errquit
+     $        ('hnd_autoz_input: reading ijklto',2)
+         if(.not. inp_i(ijklto(3,ntors))) call errquit
+     $        ('hnd_autoz_input: reading ijklto',3)
+         if(.not. inp_i(ijklto(4,ntors))) call errquit
+     $        ('hnd_autoz_input: reading ijklto',4)
+      else if(inp_compare(.false.,'ijklop',field)) then
+         nopla=nopla+1
+         if(.not. inp_i(ijklop(1,nopla))) call errquit
+     $        ('hnd_autoz_input: reading ijklop',1)
+         if(.not. inp_i(ijklop(2,nopla))) call errquit
+     $        ('hnd_autoz_input: reading ijklop',2)
+         if(.not. inp_i(ijklop(3,nopla))) call errquit
+     $        ('hnd_autoz_input: reading ijklop',3)
+         if(.not. inp_i(ijklop(4,nopla))) call errquit
+     $        ('hnd_autoz_input: reading ijklop',4)
+      else if(inp_compare(.false.,'ijklnb',field)) then
+         nlinb=nlinb+1
+         if(.not. inp_i(ijklnb(1,nlinb))) call errquit
+     $        ('hnd_autoz_input: reading ijklnb',1)
+         if(.not. inp_i(ijklnb(2,nlinb))) call errquit
+     $        ('hnd_autoz_input: reading ijklnb',2)
+         if(.not. inp_i(ijklnb(3,nlinb))) call errquit
+     $        ('hnd_autoz_input: reading ijklnb',3)
+         if(.not. inp_i(ijklnb(4,nlinb))) call errquit
+     $        ('hnd_autoz_input: reading ijklnb',4)
       else
-         if(dbug) then
-            write(iw,*) 'in hnd_autoz_input, field = ',field
-         endif
-         if(.not.ready) then
-            if(inp_compare(.false.,'zcoord',field)) then
-               ready=.true.
-               go to 10
-            else
-               write(iw,*) 'un-expected value of field'
-               call errquit('hnd_autoz_input: misposition',911)
-            endif
-         endif
-c
-         if(inp_compare(.false.,'zend',field).or.   
-     1      inp_compare(.false.,'end',field)     ) then
-            go to 100
-         else
-            if(inp_compare(.false.,'cvr_scaling',field)) then
-   20          continue
-               if(inp_f(dum)) then
-                  cvr_scaling=dum
-                  go to 10
-               else
-                  if(.not.inp_read()) then
-                     write(iw,*)  'unexpected eof while reading ',
-     1                            'cvr_scaling input'
-                     call errquit
-     1                    ('hnd_autoz_input: unexpected eof',911)
-                  else
-                     go to 20
-                  endif
-               endif
-            elseif(inp_compare(.false.,'ijbond',field)) then
-   30          continue
-               if(inp_i(idum)) then
-   40             continue
-                  if(inp_i(jdum)) then
-                     nbond=nbond+1
-                     ijbond(1,nbond)=idum
-                     ijbond(2,nbond)=jdum
-                     go to 30
-                  else
-                     if(.not.inp_read()) then
-                        write(iw,*)  'unexpected eof while reading ',
-     1                               'ijbond data'
-                        call errquit
-     1                       ('hnd_autoz_input: unexpected eof',911)
-                     else
-                        go to 40
-                     endif
-                  endif
-               else
-                  go to 10
-               endif
-            elseif(inp_compare(.false.,'ijkang',field)) then
-  130          continue
-               if(inp_i(idum)) then
-  140             continue
-                  if(inp_i(jdum)) then
-  150                continue
-                     if(inp_i(kdum)) then
-                        nangl=nangl+1
-                        ijkang(1,nangl)=idum
-                        ijkang(2,nangl)=jdum
-                        ijkang(3,nangl)=kdum
-                        go to 130
-                     else
-                        if(.not.inp_read()) then
-                           write(iw,*)  'unexpected eof while reading ',
-     1                                  'ijkang data'
-                           call errquit
-     1                          ('hnd_autoz_input: unexpected eof',911)
-                        else
-                           go to 150
-                        endif
-                     endif
-                  else
-                     if(.not.inp_read()) then
-                        write(iw,*)  'unexpected eof while reading ',
-     1                               'ijkang data'
-                        call errquit
-     1                       ('hnd_autoz_input: unexpected eof',911)
-                     else
-                        go to 140
-                     endif
-                  endif
-               else 
-                  go to 10
-               endif
-            elseif(inp_compare(.false.,'ijklto',field)) then
-  230          continue
-               if(inp_i(idum)) then
-  240             continue
-                  if(inp_i(jdum)) then
-  250                continue
-                     if(inp_i(kdum)) then
-  260                   continue
-                        if(inp_i(ldum)) then
-                           ntors=ntors+1
-                           ijklto(1,ntors)=idum
-                           ijklto(2,ntors)=jdum
-                           ijklto(3,ntors)=kdum
-                           ijklto(4,ntors)=ldum
-                           go to 230
-                        else
-                           if(.not.inp_read()) then
-                           write(iw,*)  'unexpected eof while reading ',
-     1                                  'ijklto data'
-                           call errquit
-     1                          ('hnd_autoz_input: unexpected eof',911)
-                           else
-                              go to 260
-                           endif
-                        endif
-                     else
-                        if(.not.inp_read()) then
-                           write(iw,*)  'unexpected eof while reading ',
-     1                                  'ijklto data'
-                           call errquit
-     1                          ('hnd_autoz_input: unexpected eof',911)
-                        else
-                           go to 250
-                        endif
-                     endif
-                  else
-                     if(.not.inp_read()) then
-                        write(iw,*)  'unexpected eof while reading ',
-     1                               'ijklto data'
-                        call errquit
-     1                       ('hnd_autoz_input: unexpected eof',911)
-                     else
-                        go to 240
-                     endif
-                  endif
-               else
-                  go to 10
-               endif
-            elseif(inp_compare(.false.,'ijklop',field)) then
-  330          continue
-               if(inp_i(idum)) then
-  340             continue
-                  if(inp_i(jdum)) then
-  350                continue
-                     if(inp_i(kdum)) then
-  360                   continue
-                        if(inp_i(ldum)) then
-                           nopla=nopla+1
-                           ijklop(1,nopla)=idum
-                           ijklop(2,nopla)=jdum
-                           ijklop(3,nopla)=kdum
-                           ijklop(4,nopla)=ldum
-                           go to 330
-                        else
-                           if(.not.inp_read()) then
-                           write(iw,*)  'unexpected eof while reading ',
-     1                                  'ijklop data'
-                           call errquit
-     1                          ('hnd_autoz_input: unexpected eof',911)
-                           else
-                              go to 360
-                           endif
-                        endif
-                     else
-                        if(.not.inp_read()) then
-                           write(iw,*)  'unexpected eof while reading ',
-     1                                  'ijklop data'
-                           call errquit
-     1                          ('hnd_autoz_input: unexpected eof',911)
-                        else
-                           go to 350
-                        endif
-                     endif
-                  else
-                     if(.not.inp_read()) then
-                        write(iw,*)  'unexpected eof while reading ',
-     1                               'ijklop data'
-                        call errquit
-     1                       ('hnd_autoz_input: unexpected eof',911)
-                     else
-                        go to 340
-                     endif
-                  endif
-               else
-                  go to 10
-               endif
-            elseif(inp_compare(.false.,'ijklnb',field)) then
-  430          continue
-               if(inp_i(idum)) then
-  440             continue
-                  if(inp_i(jdum)) then
-  450                continue
-                     if(inp_i(kdum)) then
-  460                   continue
-                        if(inp_i(ldum)) then
-                           nlinb=nlinb+1
-                           ijklnb(1,nlinb)=idum
-                           ijklnb(2,nlinb)=jdum
-                           ijklnb(3,nlinb)=kdum
-                           ijklnb(4,nlinb)=ldum
-                           go to 430
-                        else
-                           if(.not.inp_read()) then
-                           write(iw,*)  'unexpected eof while reading ',
-     1                                  'ijklnb data'
-                           call errquit
-     1                          ('hnd_autoz_input: unexpected eof',911)
-                           else
-                              go to 460
-                           endif
-                        endif
-                     else
-                        if(.not.inp_read()) then
-                           write(iw,*)  'unexpected eof while reading ',
-     1                                  'ijklnb data'
-                           call errquit
-     1                          ('hnd_autoz_input: unexpected eof',911)
-                        else
-                           go to 450
-                        endif
-                     endif
-                  else
-                     if(.not.inp_read()) then
-                        write(iw,*)  'unexpected eof while reading ',
-     1                               'ijklnb data'
-                        call errquit
-     1                       ('hnd_autoz_input: unexpected eof',911)
-                     else
-                        go to 440
-                     endif
-                  endif
-               else
-                  go to 10
-               endif
-            endif
-         endif
-c
+         call errquit('hnd_autoz_input: unkown directive',0)
       endif
+      goto 10                   ! Read next line
 c
-  100 continue
-      if(out) then
-         write(iw,*) 'zcoord input :'
-         write(iw,*) 'cvr_scaling', cvr_scaling
-         if(nbond.gt.0) then
-            do mbond=1,nbond
-               write(iw,*) 'ijbond',
-     1                      ijbond(1,mbond),ijbond(2,mbond) 
-            enddo
-         endif
-         if(nangl.gt.0) then
-            do mangl=1,nangl
-               write(iw,*) 'ijkang',
-     1                      ijkang(1,mangl),ijkang(2,mangl), 
-     2                      ijkang(3,mangl)
-            enddo
-         endif
-         if(ntors.gt.0) then
-            do mtors=1,ntors
-               write(iw,*) 'ijklto',
-     1                      ijklto(1,mtors),ijklto(2,mtors), 
-     2                      ijklto(3,mtors),ijklto(4,mtors)
-            enddo
-         endif
-         if(nopla.gt.0) then
-            do mopla=1,nopla
-               write(iw,*) 'ijklop',
-     1                      ijklop(1,mopla),ijklop(2,mopla), 
-     2                      ijklop(3,mopla),ijklop(4,mopla)
-            enddo
-         endif
-         if(nlinb.gt.0) then
-            do mlinb=1,nlinb
-               write(iw,*) 'ijklnb',
-     1                      ijklnb(1,mlinb),ijklnb(2,mlinb), 
-     2                      ijklnb(3,mlinb),ijklnb(4,mlinb)
-            enddo
-         endif
-      endif
-c
-      return
       end
       subroutine  geom_zmt_input(geom,
      1                           coords,tags,charge,mass,ncenter,
      2                           nzinput,units,oprint)
       implicit none
 #include "stdio.fh"
+#include "geom.fh"
       integer      mxizmt
       integer      mxzmat
       integer      mxatom
@@ -991,6 +745,10 @@ c
       parameter    (mxatom=500)
       parameter    (mxcart=3*mxatom)
       parameter    (mxcoor=1500)
+
+      character*8 zvarname(mxcoor)
+      double precision zvarsign(mxcoor)
+
       integer      i
       integer      nzinput
       integer      nizmat
@@ -1013,14 +771,6 @@ c
       character*2  symbol
       logical      is_atom
       integer      geom
-      logical      geom_tag_to_element
-      logical      geom_atn_to_default_mass
-      logical      geom_zmt_put_izmat          
-      logical      geom_zmt_put_nizmat          
-      logical      geom_usr_put_izmat          
-      logical      geom_usr_put_nizmat          
-      logical      geom_usr_put_izfrz          
-      logical      geom_usr_put_nzfrz           
       logical      dbug 
       logical      some 
       logical      oprint
@@ -1039,12 +789,6 @@ c
       double precision charge(*)
       double precision   mass(*)
       dimension tags(*)
-      external     geom_tag_to_element
-      external     geom_atn_to_default_mass
-      external     geom_zmt_put_izmat          
-      external     geom_zmt_put_nizmat          
-      external     geom_usr_put_izmat          
-      external     geom_usr_put_nizmat          
 c
       dbug=.false.
       some=.true.
@@ -1060,7 +804,7 @@ c     ----- call routine to read z-matrix data -----
 c
       call geom_zmt_geo(coords,charge,tags,ncenter,
      1                  nizmat,izmat,nzvar,izfrz,nzfrz,
-     2                  units)
+     2                  units,zvarname,zvarsign)
 c
 c     -----    set parameters for -nwchem-     -----
 c
@@ -1076,20 +820,12 @@ c
          endif
       enddo
 c
-c     ----- store -izmat- for -nwchem- -----
+c     ----- store all zmatrix data for nwchem -----
 c
-      if(.not.geom_zmt_put_nizmat(geom,nizmat))
-     1   call errquit('geom_input: geom_zmt_put_nizmat failed', 0)
-      if(.not.geom_zmt_put_izmat(geom,izmat,nizmat))
-     1   call errquit('geom_input: geom_zmt_put_izmat failed', 0)
-      if(.not.geom_usr_put_nizmat(geom,nizmat))
-     1   call errquit('geom_input: geom_usr_put_nizmat failed', 0)
-      if(.not.geom_usr_put_izmat(geom,izmat,nizmat))
-     1   call errquit('geom_input: geom_usr_put_izmat failed', 0)
-      if(.not.geom_usr_put_nzfrz(geom,nzfrz))
-     1   call errquit('geom_input: geom_usr_put_nzfrz failed', 0)
-      if(.not.geom_usr_put_izfrz(geom,izfrz,nzfrz))
-     1   call errquit('geom_input: geom_usr_put_izfrz failed', 0)
+      if (.not. geom_zmt_put_data(geom, nizmat, izmat,
+     $     nzfrz, izfrz, nzvar, zvarname, zvarsign))
+     $     call errquit('geom_zmt_input: bad geom handle',geom)
+
       if(dbug) then
          write(iw,9994)
          write(iw,9997)
@@ -1795,31 +1531,29 @@ c
       integer      nuc
       integer      nat
       integer      geom
-      logical      geom_zmt_put_izmat          
-      logical      geom_zmt_put_nizmat          
       logical      oforce_autoz
       logical      zdone
       logical      dbug 
       logical      some 
       logical     oprint
-      double precision coords
-      double precision charge
+      double precision coords(3,*)
+      double precision charge(*)
       double precision zmat  
       double precision c
       double precision zan
-      character*16 tags
+      character*16 tags(*)
       character*16 atmlab
-      character*8  errmsg
+      character*8  errmsg(3)
       common/hnd_iofile/ir,iw
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_mollab/atmlab(mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
-      dimension coords(3,*)
-      dimension charge(  *)
-      dimension   tags(  *)
-      dimension errmsg(3)
+      character*1 zvarname(mxcoor)
+      double precision zvarsign(mxcoor)
+      logical geom_zmt_put_data
+      external geom_zmt_put_data
       data errmsg /'program ','stop in ','-auto_z-'/
 c
       if(.not.oforce_autoz) then
@@ -1854,7 +1588,7 @@ c
          enddo
       endif
 c
-      call hnd_zmtmak(zdone,rtdb,oprint)
+      call hnd_zmtmak(zdone,geom,oprint)
 c
       if(.not.zdone) then
          write(iw,9997)
@@ -1863,21 +1597,20 @@ c
 c
 c     ----- save -izmat- and -zmat- -----
 c
-      if(.not.geom_zmt_put_nizmat(geom,nizmat))
-     1   call errquit('geom_input: geom_zmt_put_nizmat failed', 0)
-      if(.not.geom_zmt_put_izmat(geom,izmat,nizmat))
-     1   call errquit('geom_input: geom_zmt_put_izmat failed', 0)
-      if(dbug) then
-         write(iw,9993)
-         write(iw,9996)
-         write(iw,9995) (izmat(i),i=1,nizmat)
-         write(iw,9994)
-      endif
+      do i = 1, nzvar
+         zvarname(i) = ' '
+         zvarsign(i) = 1d0
+      enddo
+      if (.not. geom_zmt_put_data(geom, nizmat, izmat,
+     $     0, 0, nzvar, zvarname, zvarsign))
+     $     call errquit('geom_zmt_input: bad geom handle',geom)
 c
 c     ----- print -zmat- data -----
 c
       if (oprint) 
      $     call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
+c
+      if (.not. zdone) call errquit('autoz failed',0)
 c
       return
  9999 format(' in -geom_zmt_autoz- ')
@@ -1955,7 +1688,7 @@ C
      1             C,B,NCART,BOHR)
          ZMAT(II) = EQVAL
          IADD = IADD + 3
-      ELSEIF(ITYPE.EQ.2) THEN
+      ELSEIF(ITYPE.EQ.2 .or. itype.eq.7) THEN
 C
 C     ----- ANGLE BEND -----
 C
@@ -1964,6 +1697,7 @@ C
      2             C,B,NCART,RTOD,BOHR)
          ZMAT(II) = EQVAL
          IADD = IADD + 4
+         if (itype .eq. 7) iadd = iadd + 1 ! Additional orientation
       ELSEIF(ITYPE.EQ.3) THEN
 C
 C     ----- TORSION -----
@@ -2121,9 +1855,348 @@ c
  9996 format(12(i5,','))
  9995 format(' $end ')
       end
+      subroutine geom_zmat_to_cart(s,nzvar,c)
+      implicit none
+#include "global.fh"
+      integer nzvar
+      double precision s(nzvar), c(3,*)
+c
+c     Return the cartesians corresponding to the given internals.
+c
+c     The internals are in units of angstrom and degrees.
+c     The cartesians will be returned in units of bohr.
+c     
+      double precision zmat
+      integer izmat, nat
+      integer mxcoor, mxizmt, nizmat
+      integer mxatom
+      double precision cc, zan
+      parameter (mxatom=500)
+      parameter (mxcoor = 1500)
+      parameter (mxizmt=6000)
+      common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
+      common/hnd_molxyz/cc(3,mxatom),zan(mxatom),nat
+c
+      integer iadd, itype, izvar, i, j, k, l, ind, iat, orient
+      double precision rij, aijk, aijkl, angs_to_au, pi, deg_to_rad
+      double precision ekj(3), ekl(3), ejkl(3), alpha, beta, gamma
+      double precision dkj, dkl, djk, djl, dklkj, aijl, djkl
+      double precision ejk(3), ejl(3), d
+      double precision ddot
+      external ddot
+c
+      angs_to_au = 1d0/0.52917715D+00
+      pi  = 4d0*atan(1d0)
+      deg_to_rad = pi/180d0
+c     
+      iadd=1
+      izvar = 1
+c
+      c(1,1) = 0d0
+      c(2,1) = 0d0
+      c(3,1) = 0d0
+      if (nat .ge. 2) then
+         itype = izmat(iadd)
+         i = izmat(iadd+1)
+         j = izmat(iadd+2)
+**         write(6,*) izvar, itype, i, j, s(izvar)
+         c(1,2) = 0d0
+         c(2,2) = 0d0
+         c(3,2) = s(izvar)*angs_to_au
+         izvar = izvar + 1
+         iadd  = iadd + 3
+      endif
+      if (nat .ge. 3) then
+         itype = izmat(iadd)
+         i = izmat(iadd+1)
+         j = izmat(iadd+2)
+**         write(6,*) izvar, itype, i, j, s(izvar)
+         rij = s(izvar)*angs_to_au
+         iadd = iadd + 3
+         izvar = izvar + 1
+c
+         itype = izmat(iadd)
+         k = izmat(iadd+3)
+**         write(6,*) izvar, itype, i, j, k, s(izvar)
+         if (s(izvar).lt.0d0 .or. s(izvar).gt.180d0) goto 1000
+         aijk = s(izvar)*deg_to_rad
+         iadd = iadd + 4
+         izvar = izvar + 1
+c         
+         c(1,3) = rij*sin(pi-aijk)
+         c(2,3) = 0d0 
+         c(3,3) = c(3,j) + sign(1d0,c(3,j)-c(3,k))*rij*cos(pi-aijk)
+      endif
+c
+      do iat = 4, nat
+         itype = izmat(iadd)
+         i = izmat(iadd+1)
+         j = izmat(iadd+2)
+**         write(6,*) izvar, itype, i, j, s(izvar)
+         rij = s(izvar)*angs_to_au
+         iadd = iadd + 3
+         izvar = izvar + 1
+c
+         itype = izmat(iadd)
+         k = izmat(iadd+3)
+**         write(6,*) izvar, itype, i, j, k, s(izvar)
+         if (s(izvar).lt.0d0 .or. s(izvar).gt.180d0) goto 1000
+         aijk = s(izvar)*deg_to_rad
+         iadd = iadd + 4
+         izvar = izvar + 1
+c
+         itype = izmat(iadd)
+         if (itype.eq.3) then
+            l = izmat(iadd+4)
+**         write(6,*) izvar, itype, i, j, k, l, s(izvar)
+            aijkl = s(izvar)*deg_to_rad
+         else if (itype.eq.7) then
+            l = izmat(iadd+3)
+            orient= izmat(iadd+4)
+            aijl  = s(izvar)*deg_to_rad
+**            write(6,*) izvar, itype, i, j, k, l, orient, s(izvar)
+         else
+            call errquit('geom_zmat_to_cart: unknown 3rd type',itype)
+         endif
+         iadd = iadd + 5
+         izvar = izvar + 1
+c
+         if (itype .eq. 3) then
+c     
+c     Form orthogonal left-handed coord system
+c     ekj = (k->j)
+c     ekl = (k->l) orthoged to ekj
+c     ejkl= (ekj ^ ekl)
+c     
+            do ind = 1, 3
+               ekj(ind) = c(ind,j) - c(ind,k)
+               ekl(ind) = c(ind,l) - c(ind,k)
+            enddo
+            dkj = 1d0/sqrt(ddot(3, ekj, 1, ekj, 1))
+            call dscal(3, dkj, ekj, 1)
+            dklkj = ddot(3, ekl, 1, ekj, 1)
+            do ind = 1, 3
+               ekl(ind) = ekl(ind) - dklkj*ekj(ind)
+            enddo
+            dkl = 1d0/sqrt(ddot(3, ekl, 1, ekl, 1))
+            call dscal(3, dkl, ekl, 1)
+            call cross_product(ekj, ekl, ejkl)
+c     
+c     Unit vector from j to i is then written
+c     eji = alpha*ekj + beta*ekl + gamma*ejkl
+c     alpha = cos(180-aijk) = -cos(aijk)
+c     beta  = cos(aijkl)*|sin(180-aijk)| = cos(aijkl)*|sin(aijk)|
+c     |gamma| = from condition alpha**2 + beta**2 + gamma**2 = 1
+c     with sign(gamma) = sign(aijkl) if -180<=aijkl<=180.
+c     
+            alpha = -cos(aijk)
+            beta = cos(aijkl)*abs(sin(aijk))
+            gamma = sqrt(max(0d0,1d0 - alpha**2 - beta**2))
+            gamma = sign(gamma,aijkl)
+c     
+            do ind = 1, 3
+               c(ind,i) = c(ind,j) + rij*(
+     $              alpha*ekj(ind) + beta*ekl(ind) + gamma*ejkl(ind))
+            enddo
+         else if (itype .eq. 7) then
+c     
+c     Form unit vectors in the non-orthogonal directions
+c     ejl = (j->l)
+c     ejk = (j->k)
+c     ejkl= (ejk^ejl)
+c            
+            do ind = 1, 3
+               ejk(ind) = c(ind,k) - c(ind,j)
+               ejl(ind) = c(ind,l) - c(ind,j)
+            enddo
+            call cross_product(ejk, ejl, ejkl)
+            djk  = 1d0/sqrt(ddot(3, ejk, 1, ejk, 1))
+            djl  = 1d0/sqrt(ddot(3, ejl, 1, ejl, 1))
+            djkl = 1d0/sqrt(ddot(3, ejkl,1, ejkl,1))
+            call dscal(3, djk, ejk, 1)
+            call dscal(3, djl, ejl, 1)
+            call dscal(3, djkl,ejkl,1)
+c
+c     unit vector from j to i is then
+c     eji = alpha*ejl + beta*ejk + gamma*ejkl
+c     cos(aijl) = alpha + beta*(ejk.ejl) = alpha   + beta*d
+c     cos(aijk) = alpha*(ejk.ekl) + beta = alpha*d + beta
+c
+c     alpha = (cos(aijl) - d*cos(aijk)) / (1-d*d)
+c     beta  = (cos(aijk) - d*cos(aijl)) / (1-d*d)
+c     |gamma| = from condition |eji|=1d0
+c     with sign of gamma from orientation
+c
+            d = ddot(3, ejk, 1, ejl, 1)
+            alpha = (cos(aijl) - d*cos(aijk)) / (1d0-d*d)
+            beta  = (cos(aijk) - d*cos(aijl)) / (1d0-d*d)
+            gamma = sqrt(max(0d0,1d0 - alpha**2 - beta**2
+     $           - 2d0*d*alpha*beta))
+            if (orient .lt. 0) gamma = -gamma
+c
+            do ind = 1, 3
+               c(ind,i) = c(ind,j) + rij*(
+     $              alpha*ejl(ind) + beta*ejk(ind) + gamma*ejkl(ind))
+            enddo
+         endif
+      enddo
+         
+c$$$
+c$$$
+c$$$         itype=izmat(iadd)
+c$$$         if(itype.eq.1) then
+c$$$c     
+c$$$c     ----- bond stretch -----
+c$$$c     
+c$$$            i = izmat(iadd+1)
+c$$$            j = izmat(iadd+2)
+c$$$            write(6,*) izvar, ' bond ', i, j
+c$$$            rij = 
+c$$$            iadd = iadd + 3
+c$$$         elseif(itype.eq.2) then
+c$$$c     
+c$$$c     ----- angle bend -----
+c$$$c     
+c$$$            i = izmat(iadd+1)
+c$$$            j = izmat(iadd+2)   ! Central atom
+c$$$            k = izmat(iadd+3)
+c$$$            write(6,*) izvar
+c$$$            iadd = iadd + 4
+c$$$         elseif(itype.eq.3) then
+c$$$c     
+c$$$c     ----- torsion -----
+c$$$c     
+c$$$            i = izmat(iadd+1)
+c$$$            j = izmat(iadd+2)
+c$$$            k = izmat(iadd+3)
+c$$$            l = izmat(iadd+4)
+c$$$            iadd = iadd + 5
+c$$$         elseif(itype.eq.4) then
+c$$$c     
+c$$$c     ----- out of plane angle bend -----
+c$$$c     
+c$$$            call errquit('ztoc: opla',0)
+c$$$            iadd = iadd + 5
+c$$$         elseif(itype.eq.5) then
+c$$$c     
+c$$$c     ----- linear angle bend -----
+c$$$c     
+c$$$            call errquit('ztoc: libe',0)
+c$$$            iadd=iadd+5
+c$$$         elseif(itype.eq.6) then
+c$$$c     
+c$$$c     ----- dihedral angle between two planes sharing one atom -----
+c$$$c     
+c$$$            call errquit('ztoc:twop',0)
+c$$$            iadd=iadd+6
+c$$$c     
+c$$$         else
+c$$$            call errquit('geom_zmat_to cart: ??', itype)
+c$$$         endif    
+c$$$c
+c$$$      enddo
+c
+      return
+c
+c     Jump here if an angle is out of range ... try to help the user
+c
+ 1000 if (ga_nodeid() .eq. 0) then
+         write(6,3) izvar, s(izvar)
+ 3       format(//' Error ... internal coordinate number',i5,' is out',
+     $        ' of range.'/
+     $        ' Bond-angle = ',f12.6,' but we require 0<angle<180.'//
+     $        ' You have several options: ',/
+     $        ' 1. Disable use of internals for taking the step '/
+     $        '    (they will still be used to generate the step)'//
+     $        '    driver; noqstep; end'//
+     $        '    and restart at the current geometry.  However, '/
+     $        '    constants will not be exactly enforced, and',/
+     $        '    constraints will not work at all.',
+     $        ' 2. Manually adjust the current internal coordinates',
+     $        ' to give '/
+     $        '    a better guess that won''t step thru a linear bond.'/
+     $        ' 3. Respecify the internal coordinates so that linear'/
+     $        '    bond angles will be avoided.  Note that the range',/
+     $        '    of dihedral angles is not restricted.'/)
+         call util_flush(6)
+      endif
+      call ga_sync()
+      call errquit('geom_zmat_to_cart: invalid bond angle',0)
+c     
+      end
+      subroutine geom_zmat_ico_scale(s,nzvar,bscale,ascale)
+      implicit none
+c
+      integer nzvar
+      double precision s(nzvar)
+      double precision bscale, ascale
+c     
+c     Scale the internal coordinates in s 
+c     
+      double precision zmat
+      integer izmat
+      integer mxcoor, mxizmt, nizmat
+      parameter (mxcoor = 1500)
+      parameter (mxizmt=6000)
+      common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
+c
+      integer iadd, itype, izvar
+c     
+      iadd=1
+c
+*      write(6,*) ' ICO SCALE ', nzvar, bscale, ascale
+c
+      do izvar=1,nzvar
+         itype=izmat(iadd)
+*         write(6,*) izvar, ' is ', itype
+         if(itype.eq.1) then
+c     
+c     ----- bond stretch -----
+c     
+            iadd = iadd + 3
+         elseif(itype.eq.2 .or. itype.eq.7) then
+c     
+c     ----- angle bend -----
+c     
+            iadd = iadd + 4
+            if (itype .eq. 7) iadd = iadd + 1
+         elseif(itype.eq.3) then
+c     
+c     ----- torsion -----
+c     
+            iadd = iadd + 5
+         elseif(itype.eq.4) then
+c     
+c     ----- out of plane angle bend -----
+c     
+            iadd = iadd + 5
+         elseif(itype.eq.5) then
+c     
+c     ----- linear angle bend -----
+c     
+            iadd=iadd+5
+         elseif(itype.eq.6) then
+c     
+c     ----- dihedral angle between two planes sharing one atom -----
+c     
+            iadd=iadd+6
+c     
+         else
+            call errquit('geom_zmat_ico_scale: ??', itype)
+         endif    
+c
+         if (itype .eq. 1) then
+            s(izvar) = s(izvar) * bscale
+         else
+            s(izvar) = s(izvar) * ascale
+         endif
+c     
+      enddo
+c     
+      end
       SUBROUTINE GEOM_ZMT_GEO(COORDS,CHARGE,TAGS,NCENTER,
      1                        IZ,IZMAT,NZMOD,ICFRZ,NCFRZ,
-     2                        UNITS)
+     2                        UNITS,zvarname,zvarsign)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     -----  PARAMETERS DEFINING MAXIMUM VALUES -----
@@ -2244,6 +2317,8 @@ C
       DIMENSION PRSVAR(MAXWRD,MAXVAR)
       DIMENSION FLGVAR(MAXWRD,MAXVAR)
       DIMENSION VARCHR(MAXWRD,MAXVAR)
+      character*8 zvarname(*) ! Name of Z matrix variables
+      double precision zvarsign(*) ! Attached signs
       DIMENSION ATLBL1(105),ATLBL2(105),ATLBL3(105),ATLBL4(105)
       DIMENSION BLK(80)
       DIMENSION GH(4)
@@ -2628,8 +2703,10 @@ C
          CALL HND_ZDAT(IAT,NAT,NVAR,ZVAL,ZLST,
      1             ZMT,NUMZMT,PRSZMT,FLGZMT,ZMTCHR,
      2             NUMVAR,PRSVAR,VARCHR,FRZVAR,FRZVAL,LST,
-     3             IZMAT,IZ,IZFRZ,MXIZMT,NZMOD,DBUG)
+     3             IZMAT,IZ,IZFRZ,MXIZMT,NZMOD,DBUG,
+     $        zvarname, zvarsign)
       ENDDO
+c
       NCFRZ=0
       IF(NZMOD.GT.0) THEN
          DO IZMOD=1,NZMOD

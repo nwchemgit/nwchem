@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.27 1999-04-08 19:21:34 d3g681 Exp $
+C$Id: geom.fh,v 1.28 1999-05-24 23:39:55 d3g681 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -9,6 +9,8 @@ C$Id: geom.fh,v 1.27 1999-04-08 19:21:34 d3g681 Exp $
       logical geom_group_set
       logical geom_cart_set
       logical geom_cart_get
+      logical geom_cart_coords_set
+      logical geom_cart_coords_get
       logical geom_vel_set
       logical geom_vel_get
       logical geom_cent_get
@@ -73,7 +75,9 @@ c
       logical geom_print_distances
       logical geom_print_angles
       logical geom_print_dihedrals
+      logical geom_zmt_put_data
 c
+      external geom_zmt_put_data
       external geom_check_handle
       external geom_check_cent
       external geom_rtdb_load
@@ -84,6 +88,8 @@ c
       external geom_group_set
       external geom_cart_set
       external geom_cart_get
+      external geom_cart_coords_set
+      external geom_cart_coords_get
       external geom_vel_set
       external geom_vel_get
       external geom_cent_get

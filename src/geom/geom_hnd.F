@@ -74,7 +74,7 @@ C     -----       THERE IS NO -Z- MATRIX     -----
 C     ----- TRY TO CREAT ONE ; IF SUCCESSFUL -----
 C     -----    CALCULATE -B- AND -B**(-1)-   -----
 C
-         CALL HND_ZMTMAK(ZDONE,RTDB,
+         CALL HND_ZMTMAK(ZDONE,geom,
      $        util_print('zmat','print_default'))
          IF(ZDONE) THEN
             STATUS=GEOM_ZMT_OPN_FIL(.TRUE.,.TRUE.,.FALSE.,.FALSE.)
@@ -477,7 +477,7 @@ C      5 ..... LINEAR BEND
 C      6 ..... DIHEDRAL ANGLE BETWEEN PLANES HAVING ONE ATOM
 C              IN COMMON
 C
-      IF (IZMAT(ICOUNT) .LE. 0 .OR. IZMAT(ICOUNT) .GE. 7) THEN
+      IF (IZMAT(ICOUNT) .LE. 0 .OR. IZMAT(ICOUNT) .GE. 8) THEN
          WRITE (IW,9008)
          WRITE (IW,9068) IZMAT(ICOUNT)
          CALL HND_HNDERR(3,ERRMSG)
@@ -488,6 +488,8 @@ C
       IF (IZMAT(ICOUNT) .EQ. 4) INC = 4
       IF (IZMAT(ICOUNT) .EQ. 5) INC = 4
       IF (IZMAT(ICOUNT) .EQ. 6) INC = 5
+      IF (IZMAT(ICOUNT) .EQ. 6) INC = 5
+      IF (IZMAT(ICOUNT) .EQ. 7) INC = 4 ! Bond angle + orientation
 C
 C     ----- MAKE SURE THE ATOM NUMBERS ARE VALID -----
 C
@@ -1097,7 +1099,7 @@ C
      1             C,B,NCART,BOHR)
          ZMAT(I) = EQVAL
          IADD = IADD + 3
-      ELSEIF(ITYPE.EQ.2) THEN
+      ELSEIF(ITYPE.EQ.2 .or. itype.eq.7) THEN
 C
 C     ----- ANGLE BEND -----
 C
@@ -1106,6 +1108,7 @@ C
      2             C,B,NCART,RTOD,BOHR)
          ZMAT(I) = EQVAL
          IADD = IADD + 4
+         if (itype .eq. 7) iadd = iadd + 1 ! Additional orientation
       ELSEIF(ITYPE.EQ.3) THEN
 C
 C     ----- TORSION -----
@@ -1763,7 +1766,7 @@ C
      1             C,B,NCART,BOHR)
          ZMAT(I) = EQVAL
          IADD = IADD + 3
-      ELSEIF(ITYPE.EQ.2) THEN
+      ELSEIF(ITYPE.EQ.2 .or. itype.eq.7) THEN
 C
 C     ----- ANGLE BEND -----
 C
@@ -1772,6 +1775,7 @@ C
      2             C,B,NCART,RTOD,BOHR)
          ZMAT(I) = EQVAL
          IADD = IADD + 4
+         if (itype .eq. 7) iadd = iadd + 1 ! Additional orientation
       ELSEIF(ITYPE.EQ.3) THEN
 C
 C     ----- TORSION -----
@@ -1984,9 +1988,9 @@ C
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
       DIMENSION IZMAT(1),ZMAT(1),ZGRAD(1)
-      DIMENSION RTYPE(6)
+      DIMENSION RTYPE(7)
       DATA RTYPE/'STRETCH ','BEND    ','TORSION ','PLA.BEND',
-     1           'LIN.BEND','DIH.PLA '/
+     1           'LIN.BEND','DIH.PLA ','BEND(2) '/
       IF (IPRGRD.EQ.0) WRITE (IW,9008)
       IF (IPRGRD.EQ.1) WRITE (IW,9028)
       IADD = 1
@@ -1994,7 +1998,7 @@ C
    80 I = I + 1
       IF(I.GT.NZVAR) GO TO 220
       ITYPE = IZMAT(IADD)
-      GO TO (100,120,140,160,180,190),ITYPE
+      GO TO (100,120,140,160,180,190,121),ITYPE
 C
 C     ----- BOND STRETCH -----
 C
@@ -2014,6 +2018,16 @@ C
       IF (IPRGRD.EQ.1) WRITE (IW,9068) I,RTYPE(ITYPE),IZMAT(IADD+1),
      1    IZMAT(IADD+2),IZMAT(IADD+3),ZMAT(I),ZGRAD(I)
       IADD = IADD + 4
+      GO TO 200
+C
+C     ----- ANGLE BEND ----- + orientation (type 7)
+C
+ 121  CONTINUE
+      IF (IPRGRD.EQ.0) WRITE (IW,9069) I,RTYPE(ITYPE),IZMAT(IADD+1),
+     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),ZMAT(I)
+      IF (IPRGRD.EQ.1) WRITE (IW,9069) I,RTYPE(ITYPE),IZMAT(IADD+1),
+     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),ZMAT(I),ZGRAD(I)
+      IADD = IADD + 5
       GO TO 200
 C
 C     ----- TORSION -----
@@ -2080,6 +2094,7 @@ C
      4       /,2X,69(1H-))
  9048 FORMAT(1X,I4,2X,A8,2X,2(I3,3X),18X,F12.5,F12.7)
  9068 FORMAT(1X,I4,2X,A8,2X,3(I3,3X),12X,F12.5,F12.7)
+ 9069 FORMAT(1X,I4,2X,A8,2X,3(I3,3X),6X,i3,3x,F12.5,F12.7)
  9088 FORMAT(1X,I4,2X,A8,2X,4(I3,3X), 6X,F12.5,F12.7)
  9108 FORMAT(1X,I4,2X,A8,2X,5(I3,3X),    F12.5,F12.7)
  9128 FORMAT(7X,'                  gradients are for natural ',
@@ -2144,7 +2159,8 @@ C
       EJK(M) = RJK(M)/DJK
   120 DOTJ = DOTJ+EJI(M)*EJK(M)
       IF (ONE- ABS(DOTJ)) 200,200,140
-  140 SINJ = SQRT(ONE-DOTJ*DOTJ)
+  140 continue
+      SINJ = SQRT(ONE-DOTJ*DOTJ)
       DJI=DJI*BOHR
       DJK=DJK*BOHR
       DO 160 M = 1,3
@@ -2236,7 +2252,8 @@ C
   220 CONTINUE
       IF (ONE- ABS(DOTPJ)) 320,340,240
   240 IF (ONE- ABS(DOTPK)) 360,380,260
-  260 SINPJ =  SQRT(ONE-DOTPJ*DOTPJ)
+  260 continue
+      SINPJ =  SQRT(ONE-DOTPJ*DOTPJ)
       SINPK =  SQRT(ONE-DOTPK*DOTPK)
 C
 C     ----- CALCULATING THE B MATRIX ELEMENTS.
@@ -2673,16 +2690,13 @@ C
   950 FORMAT(1X,'THIS MESSAGE COMES TO YOU FROM -DIHPLA-, WHERE ',
      1          'INTERNAL COORDINATE',I4,' USES ATOMS',5I4)
       END
-      SUBROUTINE HND_ZMTMAK(ZDONE,RTDB,oprint)
+      SUBROUTINE HND_ZMTMAK(ZDONE,geom,oprint)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "util.fh"
-      integer  rtdb
-      logical  status
-      logical  zcoord_input
+      integer  geom
       logical  oprint
       parameter (max_zcoord=16)
 c
@@ -2715,6 +2729,8 @@ c
       LOGICAL  DONE
       LOGICAL IDONE
       LOGICAL ZDONE
+      logical geom_autoz_info_get
+      external geom_autoz_info_get
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLNUC/NUC(MXATOM)  
@@ -2846,37 +2862,11 @@ C
 c           read in zcoord data from -rtdb-
 c    CVR_SCALING,IJBOND,IJKANG,IJKLTO,IJKLOP,IJKLNB
 c
-      status=rtdb_get(rtdb,'autoz:zcoord',mt_log,1,zcoord_input)
-      status=status.or.        
-     1       rtdb_get(rtdb,'autoz:cvr_scaling',mt_dbl,1,  
-     2                                              cvr_scaling)
-      status=status.or.        
-     1       rtdb_get(rtdb,'autoz:ijbond',mt_int,2*max_zcoord,  
-     2                                                 ijbond)
-      status=status.or.
-     1       rtdb_get(rtdb,'autoz:ijkang',mt_int,3*max_zcoord,  
-     2                                                 ijkang)
-      status=status.or.
-     1       rtdb_get(rtdb,'autoz:ijklto',mt_int,4*max_zcoord,  
-     2                                                 ijklto)
-      status=status.or.
-     1       rtdb_get(rtdb,'autoz:ijklop',mt_int,4*max_zcoord,  
-     2                                                 ijklop)
-      status=status.or.
-     1       rtdb_get(rtdb,'autoz:ijklnb',mt_int,4*max_zcoord,  
-     2                                                 ijklnb)
-      if(status) then
-         if(dbug) then
-            write(iw,*) 'zcoord data read from rtdb'
-         endif
-      else
-         if(dbug) then
-            write(iw,*) 'no zcoord data found on rtdb'
-         endif
-      endif
-      if(dbug) then
-         write(iw,*) 'in hnd-zmtmak, cvr_scaling value = ',
-     1                cvr_scaling
+c
+      if(.not. geom_autoz_info_get(geom,
+     $     cvr_scaling, ijbond, ijkang, ijklto, ijklop, 
+     $     ijklnb)) then
+         continue               ! No zcoord data input
       endif
 c
       CVFAC=CVR_SCALING
@@ -4610,7 +4600,8 @@ C
       SUBROUTINE HND_ZDAT(IAT,NAT,NVAR,ZVAL,ZLST,
      1                ZMT,NUMZMT,PRSZMT,FLGZMT,ZMTCHR,
      2                NUMVAR,PRSVAR,VARCHR,FRZVAR,FRZVAL,LST,
-     3                IZMAT,IZ,IZFRZ,MXIZMT,NZMOD,DBUG)
+     3                IZMAT,IZ,IZFRZ,MXIZMT,NZMOD,DBUG,
+     $     zvarname, zvarsign)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     THIS ROUTINE TAKES THE CHARACTER STRING VALUES FOR THE
@@ -4639,6 +4630,10 @@ C
 C     OUTPUT PARAMETERS:
 C        ZVAL    - REAL*8       -  ARRAY OF -Z- MATRIX VALUES
 C        ZMT     - INTEGER    -  ARRAY OF -Z- MATRIX INDICES
+c        zvarname- char*8     -  array of -z- matrix variable names
+c     .                          or blank if numeric value given.
+c     .  zvarsign- real*8     -  array of -z-matrix variables signs
+c     .                          (+1 or -1 as input, 1 if numeric given)
 C
 C     S. CHIN: 11/08/90 - IBM KINGSTON, NY
 C
@@ -4679,12 +4674,21 @@ C
       DIMENSION       ZLST(     3,MAXGEO)
       DIMENSION      IZMAT(MXIZMT)
       DIMENSION      IZFRZ(MXIZMT)
+
+      character*(*) zvarname(*)
+      double precision zvarsign(*)
+
       DATA ERRMSG /'PROGRAM ','STOP IN ','- ZDAT -'/
       DATA ZERO   /0.0D+00/
       DATA TWO    /2.0D+00/
       DATA PIDEG  /180.0D+00/
       DATA PLUS   /'+'/
       DATA MINUS  /'-'/
+c
+      do i = nzmod+1,nzmod+3
+         zvarname(i) = ' '       ! Default for numeric parameter
+         zvarsign(i) = 1d0       ! Default for numeric parameter
+      end do
 C
 C     ---- THIS ATOM IS BEING INPUTED WITH CARTESIAN COORDINATES ----
 C
@@ -4779,6 +4783,7 @@ c        READ (PRSZMT(3,IAT),*) ZVAL(1,IAT)
             IF((ZMTCHR(3, IAT).EQ.VARCHR(1,JVAR)).AND.
      1         (PRSZMT(3, IAT) (1:ZMTCHR(3, IAT)).EQ.
      2          PRSVAR(1,JVAR) (1:VARCHR(1,JVAR)))   ) THEN
+               zvarname(nzmod+1) = PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)-1)
 c              READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(1,iat)  )
                                        ZLST(1,IAT)=ZVAL(1,IAT)
@@ -4791,6 +4796,7 @@ c                 READ (PRSVAR(3,JVAR),*) ZLST(1,IAT)
             ELSEIF((ZMTCHR(3, IAT).EQ.VARCHR(1,JVAR)+1).AND.
      1             (PRSZMT(3, IAT) (3:ZMTCHR(3, IAT)).EQ.
      2              PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)))   ) THEN
+               zvarname(nzmod+1) = PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)-1)
                IF(PRSZMT(3, IAT) (2:2).EQ.PLUS) THEN
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(1,iat)  )
@@ -4802,6 +4808,7 @@ c                    READ (PRSVAR(3,JVAR),*) ZLST(1,IAT)
          call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(1,iat)  )
                   ENDIF
                ELSEIF(PRSZMT(3, IAT) (2:2).EQ.MINUS) THEN
+                  zvarsign(nzmod+1) = -1d0
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(1,iat)  )
                                           ZLST(1,IAT)=ZVAL(1,IAT)
@@ -4859,6 +4866,7 @@ c        READ (PRSZMT(5,IAT),*) ZVAL(2,IAT)
             IF((ZMTCHR(5, IAT).EQ.VARCHR(1,JVAR)).AND.
      1         (PRSZMT(5, IAT) (1:ZMTCHR(5, IAT)).EQ.
      2          PRSVAR(1,JVAR) (1:VARCHR(1,JVAR)))    ) THEN
+               zvarname(nzmod+2) = PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)-1)
 c              READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(2,iat)  )
                                        ZLST(2,IAT)=ZVAL(2,IAT)
@@ -4871,6 +4879,7 @@ c                 READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
             ELSEIF((ZMTCHR(5, IAT).EQ.VARCHR(1,JVAR)+1).AND.
      1             (PRSZMT(5, IAT) (3:ZMTCHR(5, IAT)).EQ.
      2              PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)))    ) THEN
+               zvarname(nzmod+2) = PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)-1)
                IF(PRSZMT(5, IAT) (2:2).EQ.PLUS) THEN
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(2,iat)  )
@@ -4882,6 +4891,7 @@ c                    READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
          call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(2,iat)  )
                   ENDIF
                ELSEIF(PRSZMT(5, IAT) (2:2).EQ.MINUS) THEN
+                  zvarsign(nzmod+2) = -1d0
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(2,iat)  )
                                           ZLST(2,IAT)=ZVAL(2,IAT)
@@ -4945,6 +4955,7 @@ c        READ (PRSZMT(7,IAT),*) ZVAL(3,IAT)
      1         (PRSZMT(7, IAT) (1:ZMTCHR(7, IAT)).EQ.
      2          PRSVAR(1,JVAR) (1:VARCHR(1,JVAR)))    ) THEN
 c              READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
+               zvarname(nzmod+3) = PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)-1)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(3,iat)  )
                                        ZLST(3,IAT)=ZVAL(3,IAT)
                FRZVAL(3,IAT)=FRZVAR(JVAR)
@@ -4956,6 +4967,7 @@ c                 READ (PRSVAR(3,JVAR),*) ZLST(3,IAT)
             ELSEIF((ZMTCHR(7, IAT).EQ.VARCHR(1,JVAR)+1).AND.
      1             (PRSZMT(7, IAT) (3:ZMTCHR(7, IAT)).EQ.
      2              PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)))    ) THEN
+               zvarname(nzmod+3) = PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)-1)
                IF(PRSZMT(7, IAT) (2:2).EQ.PLUS) THEN
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(3,iat)  )
@@ -4967,6 +4979,7 @@ c                    READ (PRSVAR(3,JVAR),*) ZLST(3,IAT)
          call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(3,iat)  )
                   ENDIF
                ELSEIF(PRSZMT(7, IAT) (2:2).EQ.MINUS) THEN
+                  zvarsign(nzmod+3) = -1d0
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(3,iat)  )
                                           ZLST(3,IAT)=ZVAL(3,IAT)
@@ -5091,13 +5104,15 @@ C
                ELSE
                   NZMOD=NZMOD+1
                   IZ=IZ+1
-                  IZMAT(IZ)=2
+                  IZMAT(IZ)=7   ! RJH was 2 but discarded zmt(5,iat)
                   IZ=IZ+1
                   IZMAT(IZ)=ZMT(1,IAT)
                   IZ=IZ+1
                   IZMAT(IZ)=ZMT(2,IAT)
                   IZ=IZ+1
                   IZMAT(IZ)=ZMT(4,IAT)
+                  IZ=IZ+1
+                  IZMAT(IZ)=ZMT(5,IAT)
                   IZFRZ(NZMOD)=FRZVAL(3,IAT)
                ENDIF
             ENDIF

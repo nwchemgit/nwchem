@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.80 1999-04-19 22:13:30 d3e129 Exp $
+C$Id: geom.F,v 1.81 1999-05-24 23:39:54 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -248,7 +248,6 @@ c
       implicit none
 #include "rtdb.fh"
 #include "geomP.fh"
-*****#include "context.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -263,13 +262,13 @@ c
       double precision scale
       character*256 tmp
       integer k, nelem, ma_type
-      logical status
+      logical s
       logical geom_check_handle, geom_rtdb_in, geom_get_user_scale
       external geom_check_handle, geom_rtdb_in, geom_get_user_scale
 c     
       geom_rtdb_load = geom_check_handle(geom, 'geom_rtdb_load')
       if (.not. geom_rtdb_load) return
-      status = geom_rtdb_in(rtdb)
+      s = geom_rtdb_in(rtdb)
 c     
 c     translate the provided name
 c     
@@ -286,99 +285,107 @@ c     now get the info from the data base
 c     
       tmp = 'geometry:'//trans(geom)(1:lent(geom))
       k = inp_strlen(tmp)+1
-      status = .true.
+      s = .true.
 c
       tmp(k:) = ':ncenter'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_int, 1, ncenter(geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, ncenter(geom))
       tmp(k:) = ':coords'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, max_cent*3, coords(1,1,geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent*3, 
+     $     coords(1,1,geom))
       tmp(k:) = ':vel'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, max_cent*3, velocities(1,1,geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent*3, 
+     $     velocities(1,1,geom))
       tmp(k:) = ':charges'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, max_cent, charge(1,geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent, charge(1,geom))
       tmp(k:) = ':masses'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, max_cent, geom_mass(1,geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent, 
+     $     geom_mass(1,geom))
       tmp(k:) = ':efield'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, 3, efield(1,geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, efield(1,geom))
       tmp(k:) = ':lattice vectors'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, 3, lattice_vectors(1,geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
+     $     lattice_vectors(1,geom))
       tmp(k:) = ':lattice angles'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, 3, lattice_angles(1,geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
+     $     lattice_angles(1,geom))
       tmp(k:) = ':system type'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_int, 1, isystype(geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, isystype(geom))
       tmp(k:) = ':no. unique centers'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_int, 1, ncenter_unique(geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, ncenter_unique(geom))
       tmp(k:) = ':group number'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_int, 1, group_number(geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, group_number(geom))
       tmp(k:) = ':group name'
-      status = status .and.
-     $     rtdb_cget(rtdb, tmp, 1, group_name(geom))
+      s = s .and. rtdb_cget(rtdb, tmp, 1, group_name(geom))
       tmp(k:) = ':user units'
-      status = status .and.
-     $     rtdb_cget(rtdb, tmp, 1, user_units(geom))
+      s = s .and. rtdb_cget(rtdb, tmp, 1, user_units(geom))
       tmp(k:) = ':angstrom_to_au'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, 1, angstrom_to_au)
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 1, angstrom_to_au)
       tmp(k:) = ':setting number'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_int, 1, setting_number(geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, setting_number(geom))
       tmp(k:) = ':recip vectors'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, 3, recip_lat_vectors(1,geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
+     $     recip_lat_vectors(1,geom))
       tmp(k:) = ':recip angles'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, 3, recip_lat_angles(1,geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
+     $     recip_lat_angles(1,geom))
       tmp(k:) = ':direct volume'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, 1, volume_direct(geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 1, volume_direct(geom))
       tmp(k:) = ':unique centers'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_int, ncenter_unique(geom), 
+      s = s .and. rtdb_get(rtdb, tmp, mt_int, ncenter_unique(geom), 
      $     unique_cent(1,geom))
       tmp(k:) = ':tags'
-      status = status .and. 
-     $     rtdb_cget(rtdb, tmp, max_cent, tags(1,geom))
+      s = s .and. rtdb_cget(rtdb, tmp, max_cent, tags(1,geom))
       tmp(k:) = ':include_bqbq'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_log, 1, include_bqbq(geom))
+      s = s .and. rtdb_get(rtdb, tmp, mt_log, 1, include_bqbq(geom))
+c
+c     Zmatrix info
+c
       tmp(k:) = ':zmt_nizmat'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_int, 1, zmt_nizmat(geom))
-      tmp(k:) = ':usr_nizmat'
-      status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_int, 1, usr_nizmat(geom))
-      if (zmt_nizmat(geom) .gt. 0) then
-        tmp(k:) = ':zmt_izmat'
-        status = status .and. 
-     $       rtdb_get(rtdb, tmp, mt_int, zmt_nizmat(geom), 
-     $       zmt_izmat(1,geom))
-      endif
-      if (usr_nizmat(geom) .gt. 0) then
-        tmp(k:) = ':usr_izmat'
-        status = status .and. 
-     $       rtdb_get(rtdb, tmp, mt_int, usr_nizmat(geom), 
-     $       usr_izmat(1,geom))
+      if (rtdb_get(rtdb, tmp, mt_int, 1, zmt_nizmat(geom))) then
+         tmp(k:) = ':zmt_izmat'
+         s = s .and. rtdb_get(rtdb, tmp, mt_int, zmt_nizmat(geom), 
+     $        zmt_izmat(1,geom))
+         tmp(k:) = ':zmt_nzfrz'
+         if (rtdb_get(rtdb, tmp, mt_int, 1, zmt_nzfrz(geom))) then
+            tmp(k:) = ':zmt_izfrz'
+            s = s .and. rtdb_get(rtdb, tmp, mt_int, zmt_nzfrz(geom), 
+     $           zmt_izfrz(1,geom))
+         endif
+         tmp(k:) = ':zmt_nzvar'
+         s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, zmt_nzvar(geom))
+         tmp(k:) = ':zmt_varsign'
+         s = s .and. rtdb_get(rtdb, tmp, mt_dbl, zmt_nzvar(geom), 
+     $        zmt_varsign(1,geom))
+         tmp(k:) = ':zmt_varname'
+         s = s .and. rtdb_cget(rtdb, tmp, zmt_nzvar(geom), 
+     $        zmt_varname(1,geom))
+         tmp(k:) = ':ijbond'
+         s = s .and. rtdb_get(rtdb, tmp, mt_int, 2*max_zcoord, 
+     $        ijbond(1,1,geom))
+         tmp(k:) = ':ijkang'
+         s = s .and. rtdb_get(rtdb, tmp, mt_int, 3*max_zcoord, 
+     $        ijkang(1,1,geom))
+         tmp(k:) = ':ijklto'
+         s = s .and. rtdb_get(rtdb, tmp, mt_int, 4*max_zcoord, 
+     $        ijklto(1,1,geom))
+         tmp(k:) = ':ijklop'
+         s = s .and. rtdb_get(rtdb, tmp, mt_int, 4*max_zcoord, 
+     $        ijklop(1,1,geom))
+         tmp(k:) = ':ijklnb'
+         s = s .and. rtdb_get(rtdb, tmp, mt_int, 4*max_zcoord, 
+     $        ijklnb(1,1,geom))
+         tmp(k:) = ':cvr_scaling'
+         s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 1, cvr_scaling(geom))
       endif
 c
 c--> get symmetry operators, number of operators and operator/atom
 c    map from rtdb
 c
       tmp(k:) = ':num_operators'
-      status = status .and. 
+      s = s .and. 
      $     rtdb_get(rtdb, tmp, mt_int, 1, sym_num_ops(geom))
       tmp(k:) = ':operators'
-      status = status .and. 
+      s = s .and. 
      $     rtdb_get(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
      $     sym_ops(1,1,geom))
       if (sym_num_ops(geom) .gt. 0) then
@@ -391,7 +398,7 @@ c
          end if
 c
          tmp(k:) = ':map_atoms'
-         status = status .and. 
+         s = s .and. 
      $        rtdb_ma_get(rtdb, tmp, ma_type, nelem,
      $        sym_center_map_handle(geom))
          if (nelem .ne. sym_num_ops(geom)*ncenter(geom)) call errquit
@@ -405,7 +412,7 @@ c
          sym_center_map_index(geom) = 1 ! Not used but address is created
       endif
 c     
-      if (.not. status) then
+      if (.not. s) then
          write(6,*) ' geom_rtdb_load: not found or rtdb corrupt: ',
      $        names(geom)(1:lenn(geom)), ' -> ',
      $        trans(geom)(1:lent(geom))
@@ -568,7 +575,7 @@ c
       integer geom              ! [input]
       logical geom_check_handle, geom_rtdb_add
       external geom_check_handle, geom_rtdb_add
-      logical status
+      logical s
       character*256 tmp
       integer k
 c     
@@ -592,108 +599,114 @@ c     now put the info into the data base
 c     
       tmp = 'geometry:'//trans(geom)(1:lent(geom))
       k = inp_strlen(tmp)+1
-      status = .true.
+      s = .true.
 c
       tmp(k:) = ':ncenter'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_int, 1, ncenter(geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, ncenter(geom))
       tmp(k:) = ':coords'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom)*3,
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom)*3,
      $     coords(1,1,geom))
       tmp(k:) = ':vel'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom)*3,
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom)*3,
      $     velocities(1,1,geom))
       tmp(k:) = ':charges'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
      $     charge(1,geom))
       tmp(k:) = ':masses'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
      $     geom_mass(1,geom))
       tmp(k:) = ':efield'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, 3, efield(1,geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, efield(1,geom))
       tmp(k:) = ':lattice vectors'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, 3, lattice_vectors(1,geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, 
+     $     lattice_vectors(1,geom))
       tmp(k:) = ':lattice angles'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, 3, lattice_angles(1,geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, lattice_angles(1,geom))
       tmp(k:) = ':system type'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_int, 1, isystype(geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, isystype(geom))
       tmp(k:) = ':no. unique centers'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_int, 1, ncenter_unique(geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, ncenter_unique(geom))
       tmp(k:) = ':group number'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_int, 1, group_number(geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, group_number(geom))
       tmp(k:) = ':group name'
-      status = status .and.
-     $     rtdb_cput(rtdb, tmp, 1, group_name(geom))
+      s = s .and. rtdb_cput(rtdb, tmp, 1, group_name(geom))
       tmp(k:) = ':user units'
-      status = status .and.
-     $     rtdb_cput(rtdb, tmp, 1, user_units(geom))
+      s = s .and. rtdb_cput(rtdb, tmp, 1, user_units(geom))
       tmp(k:) = ':angstrom_to_au'
-      status = status .and.
-     &     rtdb_put(rtdb, tmp, mt_dbl, 1, angstrom_to_au)
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 1, angstrom_to_au)
       tmp(k:) = ':setting number'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_int, 1, setting_number(geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, setting_number(geom))
       tmp(k:) = ':recip vectors'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, 3, recip_lat_vectors(1,geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, 
+     $     recip_lat_vectors(1,geom))
       tmp(k:) = ':recip angles'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, 3, recip_lat_angles(1,geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, 
+     $     recip_lat_angles(1,geom))
       tmp(k:) = ':direct volume'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, 1, volume_direct(geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 1, volume_direct(geom))
       tmp(k:) = ':unique centers'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_int, ncenter_unique(geom), 
+      s = s .and. rtdb_put(rtdb, tmp, mt_int, ncenter_unique(geom), 
      $     unique_cent(1,geom))
       tmp(k:) = ':tags'
-      status = status .and. 
-     $     rtdb_cput(rtdb, tmp, ncenter(geom), tags(1,geom))
+      s = s .and. rtdb_cput(rtdb, tmp, ncenter(geom), tags(1,geom))
       tmp(k:) = ':include_bqbq'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_log, 1, include_bqbq(geom))
-      tmp(k:) = ':zmt_nizmat'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_int, 1, zmt_nizmat(geom))
-      tmp(k:) = ':usr_nizmat'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_int, 1, usr_nizmat(geom))
+      s = s .and. rtdb_put(rtdb, tmp, mt_log, 1, include_bqbq(geom))
+c
+c     Zmatrix info
+c
       if (zmt_nizmat(geom) .gt. 0) then
-        tmp(k:) = ':zmt_izmat'
-        status = status .and. 
-     $       rtdb_put(rtdb, tmp, mt_int, zmt_nizmat(geom), 
-     $       zmt_izmat(1,geom))
-      endif
-      if (usr_nizmat(geom) .gt. 0) then
-        tmp(k:) = ':usr_izmat'
-        status = status .and. 
-     $       rtdb_put(rtdb, tmp, mt_int, usr_nizmat(geom), 
-     $       usr_izmat(1,geom))
+         tmp(k:) = ':zmt_nizmat'
+         s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_nizmat(geom))
+         tmp(k:) = ':zmt_izmat'
+         s = s .and. rtdb_put(rtdb, tmp, mt_int, zmt_nizmat(geom), 
+     $        zmt_izmat(1,geom))
+         if (zmt_nzfrz(geom) .gt. 0) then
+            tmp(k:) = ':zmt_nzfrz'
+            s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_nzfrz(geom))
+            tmp(k:) = ':zmt_izfrz'
+            s = s .and. rtdb_put(rtdb, tmp, mt_int, zmt_nzfrz(geom), 
+     $           zmt_izfrz(1,geom))
+         endif
+         tmp(k:) = ':zmt_nzvar'
+         s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_nzvar(geom))
+         tmp(k:) = ':zmt_varsign'
+         s = s .and. rtdb_put(rtdb, tmp, mt_dbl, zmt_nzvar(geom), 
+     $        zmt_varsign(1,geom))
+         tmp(k:) = ':zmt_varname'
+         s = s .and. rtdb_cput(rtdb, tmp, zmt_nzvar(geom), 
+     $        zmt_varname(1,geom))
+         tmp(k:) = ':ijbond'
+         s = s .and. rtdb_put(rtdb, tmp, mt_int, 2*max_zcoord, 
+     $        ijbond(1,1,geom))
+         tmp(k:) = ':ijkang'
+         s = s .and. rtdb_put(rtdb, tmp, mt_int, 3*max_zcoord, 
+     $        ijkang(1,1,geom))
+         tmp(k:) = ':ijklto'
+         s = s .and. rtdb_put(rtdb, tmp, mt_int, 4*max_zcoord, 
+     $        ijklto(1,1,geom))
+         tmp(k:) = ':ijklop'
+         s = s .and. rtdb_put(rtdb, tmp, mt_int, 4*max_zcoord, 
+     $        ijklop(1,1,geom))
+         tmp(k:) = ':ijklnb'
+         s = s .and. rtdb_put(rtdb, tmp, mt_int, 4*max_zcoord, 
+     $        ijklnb(1,1,geom))
+         tmp(k:) = ':cvr_scaling'
+         s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 1, cvr_scaling(geom))
       endif
 c
 c--> put symmetry operators, number of operators and operator/atom
 c    map out to rtdb
 c
       tmp(k:) = ':num_operators'
-      status = status .and. 
+      s = s .and. 
      $     rtdb_put(rtdb, tmp, mt_int, 1, sym_num_ops(geom))
       tmp(k:) = ':operators'
-      status = status .and. 
+      s = s .and. 
      $     rtdb_put(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
      $     sym_ops(1,1,geom))
       if (sym_num_ops(geom) .gt. 0) then
          tmp(k:) = ':map_atoms'
-         status = status .and. 
+         s = s .and. 
      $        rtdb_put(rtdb, tmp, mt_int,
      $        ncenter(geom)*sym_num_ops(geom),
      $        int_mb(sym_center_map_index(geom)))
@@ -701,11 +714,11 @@ c
 c
 c     insert translated name into list of known geometries
 c
-      status = status .and. geom_rtdb_add(rtdb, name)
+      s = s .and. geom_rtdb_add(rtdb, name)
 c
 c     check that all rtdb operations were successful
 c
-      if (.not. status) then
+      if (.not. s) then
          write(6,*) ' geom_rtdb_store: write to rtdb failed',
      $        names(geom)(1:lenn(geom)), ' -> ',
      $        trans(geom)(1:lent(geom))
@@ -907,7 +920,6 @@ c
       double precision vel(3, *) ! [input]
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
-      integer i
 c
       geom_vel_set = geom_check_handle(geom, 'geom_vel_set')
       if (.not. geom_vel_set) return
@@ -923,7 +935,6 @@ c
       double precision vel(3, *) ! [input]
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
-      integer i
 c
       geom_vel_get = geom_check_handle(geom, 'geom_vel_get')
       if (.not. geom_vel_get) return
@@ -966,12 +977,6 @@ c
          unique_cent(i,geom) = i
       end do
 c
-c
-c     compute effective nuclear repulsion energy, dipole and
-c     interaction with external fields
-c
-      call geom_compute_values(geom)
-c
       end
       logical function geom_cart_get(geom, ncent, t, c, q)
       implicit none
@@ -996,6 +1001,50 @@ c
          c(1,i) = coords(1,i,geom)
          c(2,i) = coords(2,i,geom)
          c(3,i) = coords(3,i,geom)
+      end do
+c
+      end
+      logical function geom_cart_coords_get(geom, c)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      double precision c(3, *) ! [output]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i, ncent
+c
+      geom_cart_coords_get = 
+     $     geom_check_handle(geom, 'geom_cart_coords_get')
+      if (.not. geom_cart_coords_get) return
+c
+      ncent = ncenter(geom)
+      do i = 1, ncent
+         c(1,i) = coords(1,i,geom)
+         c(2,i) = coords(2,i,geom)
+         c(3,i) = coords(3,i,geom)
+      end do
+c
+      end
+      logical function geom_cart_coords_set(geom, c)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      double precision c(3, *) ! [output]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i, ncent
+c
+      geom_cart_coords_set = 
+     $     geom_check_handle(geom, 'geom_cart_coords_set')
+      if (.not. geom_cart_coords_set) return
+c
+      ncent = ncenter(geom)
+      do i = 1, ncent
+         coords(1,i,geom) = c(1,i)
+         coords(2,i,geom) = c(2,i)
+         coords(3,i,geom) = c(3,i)
       end do
 c
       end
@@ -4155,8 +4204,11 @@ c
       sym_num_ops(geom) = 0
       user_units(geom) = 'angstroms'
       include_bqbq(geom) = .false.
+c
       zmt_nizmat(geom) = 0
-      usr_nizmat(geom) = 0
+      zmt_nzvar(geom) = 0
+      zmt_nzfrz(geom) = 0
+      cvr_scaling(geom) = 0d0   ! Indicates no user zcoord input
 c
       do i = 1, 3
         lattice_vectors(i,geom) = 0
