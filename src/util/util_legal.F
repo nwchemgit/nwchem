@@ -1,12 +1,12 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.11 1998-09-03 23:57:36 d3e129 Exp $
-*------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
-*         Pacific Northwest National Laboratory, * 
-*         Battelle Memorial Institute.           *
-*------------------------------------------------*
-*------------> All Rights Reserved <-------------*
-*------------------------------------------------*
+* $Id: util_legal.F,v 1.12 1999-07-27 00:45:52 windus Exp $
+*------------------------------------------------------*
+* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999     *
+*         Pacific Northwest National Laboratory,       * 
+*         Battelle Memorial Institute.                 *
+*------------------------------------------------------*
+*------------> All Rights Reserved <-------------------*
+*------------------------------------------------------*
 c
 c routine to print legal disclaimer to stdout
 c
@@ -22,7 +22,7 @@ c
       center_pt = 40
 c
       call util_print_centered(luout,
-     &    ' COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     ',
+     &    ' COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 ',
      &    center_pt+1, FF)
       call util_print_centered(luout,
      &    '    Pacific Northwest National Laboratory, ',
@@ -151,7 +151,7 @@ c
      &    /,12x,
      &    'Computational Chemistry Package for Parallel Computers, ',
      &    /,12x,
-     &    'Version 3.2.1" (1998), ',
+     &    'Version 3.3" (1999), ',
      &    'Pacific Northwest National Laboratory,',
      &    /,12x,
      &    'Richland, Washington 99352-0999, USA.'
@@ -163,24 +163,27 @@ c
      &    'obtained with NWChem:'
      &    /,/,12x,
      &    'Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; ',
-     &    'Clark, T.; ',
-     &    /,12x,'Clerc, D.; Dachsel, H.; Deegan, M.; Dupuis, M.;',
-     &    'Dyall, K.; ',
-     &    /,12x,'Fann, G.; Fruchtl, H.; Gutowski, M.; ',
-     &    'Harrison, R.; Hess, A.;',
-     &    /,12x,'Jaffe, J.; Kendall, R.; Kobayashi, R.; Kutteh, ',
-     &    'R.; Lin, Z.; ',
+     &    'Bylaska, E.; ',
+     &    /,12x,'Clark, T.; Clerc, D.; Dachsel, H.; de Jong, B.; ',
+     &    'Deegan, M.; ',
+     &    /,12x,'Dupuis, M.; Dyall, K.; Elwood, D.; Fann, G.; ',
+     &    'Fruchtl, H.; ',
+     &    /,12x,'Glendenning, E.; Gutowski, M.; Harrison, R.; ',
+     &    'Hess, A.; ',
+     &    /,12x,'Jaffe, J.; Johnson, B.; Ju, J.; Kendall, R.; ',
+     &    'Kobayashi, R.; ',
+     &    /,12x,'Kutteh, R.; Lin, Z.; Littlefield, R.; Long, X.; ',
+     &    'Meng, B.; ',
+     &    /,12x,'Nichols, J.; Nieplocha, J.; Rendall, A.; Rosing, M.;',
+     &    'Sandrone, G; ',
+     &    /,12x,'Stave, M.; Straatsma, T.;Taylor, H.; ',
+     &    'Thomas, G.; van Lenthe, J.; ',
      &    /,12x,
-     &    'Littlefield, R.; Long, X.; Meng, B.; Nichols, J.; ',
-     &    'Nieplocha, J.; ',
+     &    'Windus, T; Wolinski, K.; Wong, A.; Zhang, Z.; "NWChem, A ',
+     &    /,12x,'Computational Chemistry Package for Parallel ',
+     &    'Computers, ',
      &    /,12x,
-     &    'Rendall, A.; Stave, M.; Straatsma, T.;Taylor, H.; ',
-     &    'Thomas, G.; ',
-     &    /,12x,
-     &    'Wolinski, K.; Wong, A.; "NWChem, A Computational ',
-     &    'Chemistry ',
-     &    /,12x,
-     &    'Package for Parallel Computers, Version 3.2.1" (1998),',
+     &    'Version 3.3" (1999),',
      &    /,22x,'Pacific Northwest National Laboratory,',
      &    /,22x,'Richland, Washington 99352-0999, USA.'
      &    /,/)
