@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.18 2004-09-28 18:21:15 marat Exp $
+c $Id: qmmm_geom.F,v 1.19 2004-09-28 19:00:55 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -773,4 +773,57 @@ c
       end do
 
       end
+
+      subroutine qmmm_push_qm_coord_mm(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+      integer irtdb
+c     local variables
+      logical link
+      integer nqm
+      integer i_ai
+      integer i_c
+
+      link = .not.qmmm_h_link()
+
+      nqm  = qmmm_get_nqm()
+      i_ai = qmmm_get_i_ai()
+      i_c = qmmm_get_i_c()
+
+      call mm_set_solute_coord_quant(nqm,
+     &                   link,
+     &                   int_mb(i_ai),
+     &                   dbl_mb(i_c))
+
+      end
+
+      subroutine qmmm_get_qm_coord_mm(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+      integer irtdb
+c     local variables
+      logical link
+      integer nqm
+      integer i_ai
+      integer i_c
+
+      link = .not.qmmm_h_link()
+
+      nqm  = qmmm_get_nqm()
+      i_ai = qmmm_get_i_ai()
+      i_c = qmmm_get_i_c()
+
+      call mm_set_solute_coord_quant(nqm,
+     &                   link,
+     &                   int_mb(i_ai),
+     &                   dbl_mb(i_c))
+
+      end
+
 

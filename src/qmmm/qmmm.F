@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.18 2004-09-14 17:17:36 marat Exp $
+c $Id: qmmm.F,v 1.19 2004-09-28 19:00:55 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -32,6 +32,9 @@ c     initialize bq settings
 c     create initial qm geometry
 c     --------------------------
       call qmmm_geom_init(irtdb)
+
+      if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
+     $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
 
       return
       end
@@ -100,6 +103,14 @@ c     that was potentially modified outside qmmm (e.g.driver)
 c     ------------------------------------------------------
       call qmmm_geom_prepare(rtdb)
 
+c     update QM coordinates for MM module
+c     very important!!!
+c     ----------------------------------
+      call qmmm_push_qm_coord_mm(rtdb)
+c     single point MM calculation
+c     ----------------------------------
+       call mm_task_sp()
+
       qmmm_energy = .false.
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
@@ -109,13 +120,6 @@ c     --------------------
       status = task_energy_doit(rtdb,theory,energy)
       call qmmm_geom_finish(rtdb)
  
-c     update QM coordinates for MM module
-c     very important!!!
-c     ----------------------------------
-      call qmmm_update_mm_coord(rtdb)
-c     single point MM calculation
-c     ----------------------------------
-       call mm_task_sp()
 
 c     combine QM and MM energies
 c     -------------------------
@@ -141,7 +145,7 @@ c     -------------------------
       qmmm_energy=status
 
       end
-c
+
       function qmmm_gradient(rtdb)
       implicit none
 c
@@ -159,8 +163,6 @@ c
       logical qmmm_gradient
       logical status
       logical task_gradient_doit
-      logical do_qm, do_mm
-      logical mm_only, qm_only
       external task_gradient_doit
       character*255 theory
       double precision energy
@@ -172,40 +174,28 @@ c
       integer nqm,nbq
       logical link
       integer ntot
-c
-      do_qm=.true.
-      do_mm=.true.
-      link = .not.qmmm_h_link()
 
-      if (.not. rtdb_get(rtdb,'qmmm:mm_only',mt_log,1,mm_only)) then
-        mm_only=.false.
-      end if
-      if (.not. rtdb_get(rtdb,'qmmm:qm_only',mt_log,1,qm_only)) then
-        qm_only=.false.
-      end if
-      if(mm_only) then
-       do_mm=.true.
-       do_qm=.false.
-      end if
-      if(qm_only) then
-       do_qm=.true.
-       do_mm=.false.
-      end if
+
+      link = .not.qmmm_h_link()
 
 
       status = .true.
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 
-c
-c     sync qm coordinates with the geometry object
-c     that was potentially modified outside qmmm (e.g.driver)     
-c     ------------------------------------------------------
-      call qmmm_geom_prepare(rtdb)
+       if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
+     $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
+
+      call qmmm_get_qm_coord_qm(rtdb)
+      call qmmm_push_qm_coord_mm(rtdb)
+      call mm_task_sp()
+
+      call qmmm_create_bq_geom(rtdb)
 
       nqm  = qmmm_get_nqm()
       nbq  = qmmm_get_nbq()
       ntot = nqm+nbq
+      i_ai = qmmm_get_i_ai()
 
       if(.not.ma_alloc_get(MT_DBL, 3*ntot, 'qmmm grad array',
      &      h_g, i_g) ) call errquit(
@@ -218,59 +208,29 @@ c     ------------------------------------------------------
      &      'qmmm_data_alloc: unable to allocate heap space',
      &      nqm, MA_ERR)
       call dfill(3*nqm,0,dbl_mb(i_gmm),1)
- 
 
       status = task_gradient_doit(rtdb,theory,energy,dbl_mb(i_g))
-
-c
-c     now do mm part
-c     ----------------------------------
-      call qmmm_geom_finish(rtdb)
-      call qmmm_update_mm_coord(rtdb)
-      call mm_task_sp()
-      i_ai = qmmm_get_i_ai()
+      energy = energy+ 0.5d0*eatoms
 
       call mm_get_solute_force_quant(nqm,
-     &                   link,
-     &                   int_mb(i_ai),
-     &                   dbl_mb(i_gmm))
+     &                     link,
+     &                     int_mb(i_ai),
+     &                     dbl_mb(i_gmm))
  
 c
-      if(mm_only) then
-        call dfill(3*nqm,0,dbl_mb(i_g),1)
-      end if
-      if(qm_only) then
-        call dfill(3*nqm,0,dbl_mb(i_gmm),1)
-      end if
-
-
       call daxpy(3*nqm,1.0d0,dbl_mb(i_gmm),1,dbl_mb(i_g),1)
 
-
       if(.not.rtdb_put(rtdb,'qmmm:gradient',mt_dbl,3*nqm,dbl_mb(i_g)))
-     + call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)
+     +   call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)
 
       if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
-     $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
+     $     call errquit('qmmm: failed getting  md energy',0,RTDB_ERR)
 
-      if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
-     $     call errquit('qmmm: failed getting  ref energy', 0, RTDB_ERR)
-
-      mm_energy = mm_energy/cau2kj + 0.5d0*eatoms
-      if(mm_only) then
-        energy=0.0d0
-      end if
-      if(qm_only) then
-        mm_energy=0.0d0
-      end if
-
-      energy = energy + mm_energy
-
+      energy = energy + mm_energy/cau2kj
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
 
-
-      if(.not.ma_free_heap(h_gmm))
+       if(.not.ma_free_heap(h_gmm))
      & call errquit('qmmm g: Failed to deallocate heap',nqm,
      &       MA_ERR)
       if(.not.ma_free_heap(h_g))
@@ -278,34 +238,8 @@ c
      &       MA_ERR)
  
       qmmm_gradient=status
+      call qmmm_geom_finish(rtdb)
 
       end
-c
-      subroutine qmmm_update_mm_coord(irtdb)
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "geom.fh"
-#include "qmmm.fh"
-      integer irtdb
-c     local variables
-      logical link
-      integer nqm
-      integer i_ai
-      integer i_c
-
-      link = .not.qmmm_h_link()
-
-      nqm  = qmmm_get_nqm()
-      i_ai = qmmm_get_i_ai()
-      i_c = qmmm_get_i_c()
-
-      call mm_set_solute_coord_quant(nqm,
-     &                   link,
-     &                   int_mb(i_ai),
-     &                   dbl_mb(i_c))
-
-      end
-
 
 
