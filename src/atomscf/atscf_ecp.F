@@ -1,25 +1,28 @@
-* $Id: atscf_ecp.F,v 1.1 1996-12-13 22:30:14 d3e129 Exp $
+* $Id: atscf_ecp.F,v 1.2 1996-12-14 01:28:49 d3e129 Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
+*
+*.... computes the ecp contribution to the atomic scf potential
+*
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "stdio.fh"
-*****************************************#include "ecp_nwc.fh"
-*
-*.... computes the ecp contribution to the atomic scf
-*
+c
+c::-passed
       integer geom  ! [input] geometry handle
       integer basis ! [input] basis set handle
       character*16  tag ! [input] tag for atom
-      double precision hatom(*) ! [atom] ecp contribution to the potential
-      integer nbas(4)
-      integer nz
-      double precision zeta(nz)
-      double precision cont(nz)
-      double precision ucont(nz)
-c
+      double precision hatom(*) ! [output] ecp contribution to the V
+      integer nbas(4) ! [input] atomic scf internal structure of 
+*                               number of basis functions per sym
+*                               or shell type s, p, d, f
+      integer nz      ! [input] number of exponents and coefs
+      double precision zeta(nz) ! [input] exponents
+      double precision cont(nz) ! [input] scaled atomic scf coefs
+      double precision ucont(nz)! [input] unscaled coefs (from bas)
+c::-local
       integer bgeom ! geometry handle that basis was loaded with
       integer nat   ! number of atoms
       integer icent ! center index
@@ -27,21 +30,21 @@ c
       character*16 btag ! dummy basis tag
       integer clo   ! first non-uniuqe contraction on atom
       integer chi   ! last non-uniuqe contraction on atom
-      integer i,j
-      integer sz_hatom
-      integer ecpis
+      integer i,j   ! dummy index
+      integer sz_hatom ! size of hatom array
+      integer ecpis    ! ecp basis handle
 c
       gtag = ' '
       btag = ' '
 c
-c compare geometry handles
+c compare geometry handles input vs. what bas used to read basis info
 c
       if (.not.bas_geom(basis,bgeom)) call errquit
      &    ('atscf_ecp: bas_geom failed ',911)
       if (geom.ne.bgeom) call errquit
      &    ('atscf_ecp: geom .ne. bgeom Fatal mismatch error',911)
 c
-c determine the center index
+c determine the center index in the global picture
 c
       if (.not.geom_ncent(geom,nat)) call errquit
      &    ('atscf_ecp: geom_ncent failed ',911)
@@ -54,7 +57,7 @@ c
 00001 continue
 *debug:      write(6,*)'tags 1', tag, gtag
 c
-c determine size of hatom
+c determine size of hatom (primitive triangles in s,p,d,f)
 c
       sz_hatom = 0
       do i = 1,4
@@ -64,7 +67,7 @@ c
 *debug:  write(6,*)' atscf_ecp: size of hatom is ',sz_hatom
       call dfill(sz_hatom,0.0d00,hatom,1)
 c
-c check if tag is an ecp center ?
+c check if tag is an ecp center ?  If not do not compute anything
 c
       if (.not.geom_ecp_get(geom,icent)) return
 c
@@ -92,39 +95,46 @@ c get tag from contraction
       subroutine atscf_ecp_setup_hatom(geom,basis,ecpis,
      &    hatom,sz_hatom,nbas,zeta,cont,ucont,nz,icent)
       implicit none
+*
+* routine that sets up pointers for atomic ecp computation
+*
 #include "mafdecls.fh"
 #include "bas.fh"
 c::-passed
-      integer geom
-      integer basis
-      integer ecpis
-      integer nbas(4)
-      integer nz
-      double precision zeta(nz)
-      double precision cont(nz)
-      double precision ucont(nz)
-      integer sz_hatom
-      double precision hatom(sz_hatom)
-      integer icent
+      integer geom  ! [input] geometry handle
+      integer basis ! [input] basis set handle
+      integer ecpis ! [input] ecp basis set handle
+      integer nbas(4) ! [input] atomic scf internal structure of 
+*                               number of basis functions per sym
+*                               or shell type s, p, d, f
+      integer nz      ! [input] number of exponents and coefs
+      double precision zeta(nz) ! [input] exponents
+      double precision cont(nz) ! [input] scaled atomic scf coefs
+      double precision ucont(nz)! [input] unscaled coefs (from bas)
+      integer sz_hatom ! [input] size of hatom array
+      double precision hatom(sz_hatom) ! [output] ecp part of V
+      integer icent ! [input] lexical index of center
 c::-local
-      integer sz_zeta
-      integer lmaxbs
-      integer lmax_all_ecp
-      integer lscr, lbuf
-      integer h_zetac,  k_zetac
-      integer h_coefc,  k_coefc
-      integer h_nprimc, k_nprimc
-      integer h_ncoefc, k_ncoefc
-      integer h_indc,   k_indc
-      integer h_scr,    k_scr
-      integer h_buf,    k_buf
+      integer sz_zeta ! size of exponent and coef arrays for ecp info
+      integer lmaxbs  ! high angular momentum in basis set
+      integer lmax_all_ecp ! high angular momentum in ecp basis
+      integer lscr, lbuf   ! size of scratch and buffer arrays
+      integer h_zetac,  k_zetac  ! MA handle and pointer ecp exponents
+      integer h_coefc,  k_coefc  ! MA handle and pointer ecp coefs
+      integer h_nprimc, k_nprimc ! MA handle and pointer ecp n_prim_c
+      integer h_ncoefc, k_ncoefc ! MA handle and pointer ecp n_coef_c
+      integer h_indc,   k_indc   ! MA handle and pointer ecp ind_c
+      integer h_scr,    k_scr    ! MA handle and pointer scratch
+      integer h_buf,    k_buf    ! MA handle and pointer buffer
 c
 c...  allocate space for info on ecp functions
 c.. n_zeta_c number of exponents, need a max
 c.1. zeta_c = exponents of ecp      (flat for all ecp info)
 c.2. coef_c = contraction coeefs    (flat for all ecp info)
-c.3. n_prim_c = info about primitives rval, type and center (0:2,-1:lmax,necp=1)
-c.4. n_coef_c = info about prims summed over rval just type and center (-1:lmax,necp=1)
+c.3. n_prim_c = info about primitives rval, type and center 
+*               (0:2,-1:lmax,necp=1)
+c.4. n_coef_c = info about prims summed over rval just type 
+*               and center (-1:lmax,necp=1)
 c.5. ind_c    = first coeff/exponent for each type (-1:lmax,necp=1)
 c.. n_tot_C  = number of coeffs for each ecp center (necp = 1)
 c.. n_zeta_C = total number ecp exponents summed over centers
@@ -132,8 +142,9 @@ c.. l_C      = max projector on center C (necp=1)
 c.. n_c      = number of ecp centers necp=1=n_c
 c.. l_ecp_max = max l val of projector on any center (lmax)
 c
-c.. only need 5 arrays use arbitrary length for zeta_c and coef_c with max for test
-c.. get lmax in ecp basis and use this.  consistent array demension may hose it.
+c.. only need 5 arrays use arbitrary length for zeta_c and coef_c 
+*   with max for test
+c.. get lmax in ecp basis and use this.  
 c.. 
 c get ecp primitive exponents in ma
 c
@@ -145,34 +156,44 @@ c..   allocate memory for exponents
      &    'atscf ecp exponents',
      &    h_zetac,k_zetac)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+
 c..   allocate memory for coeffs
       if (.not.
      &    ma_alloc_get(mt_dbl,sz_zeta,
      &    'atscf ecp coeffs',
      &    h_coefc,k_coefc)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+
 c.. get lmax for all ecps
       if (.not.bas_high_angular(ecpis,lmax_all_ecp)) call errquit
      &    ('atscf_ecp_setup_hatom: bas_high_angular failed',911)
+
 c.. get lmax for all basis set
       if (.not.bas_high_angular(basis,lmaxbs)) call errquit
      &    ('atscf_ecp_setup_hatom: bas_high_angular failed',911)
+
+c.. allocate memory for n_prim_c array (see ecp_integral for def)
       if (.not.
      &    ma_alloc_get(mt_int,(3*(lmax_all_ecp+2)),
      &    'atscf ecp nprimc',
      &    h_nprimc,k_nprimc)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+
+c.. allocate memory for n_coef_c array (see ecp_integral for def)
       if (.not.
      &    ma_alloc_get(mt_int,(lmax_all_ecp+2),
-     &    'atscf ecp nprimc',
+     &    'atscf ecp ncoefc',
      &    h_ncoefc,k_ncoefc)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+
+c.. allocate memory for ind_c array (see ecp_integral for def)
       if (.not.
      &    ma_alloc_get(mt_int,(lmax_all_ecp+2),
-     &    'atscf ecp nprimc',
+     &    'atscf ecp nindc',
      &    h_indc,k_indc)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
-c..   allocate memory for scratch
+
+c..   allocate memory for ecp integral buffer array
       lbuf = (lmaxbs+1)*(lmaxbs+2)/2
       lbuf = lbuf*lbuf
       if (.not.
@@ -180,14 +201,16 @@ c..   allocate memory for scratch
      &    'atscf ecp integrals',
      &    h_buf,k_buf)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
-c..   allocate memory for scratch
+
+c..   allocate memory for scratch array used by ecp code
       lscr = max(lbuf*10,20000)
       if (.not.
      &    ma_alloc_get(mt_dbl,lscr,
      &    'atscf ecp scr',
      &    h_scr,k_scr)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
-c
+
+c.. call routine that does computation
       call atscf_ecp_build_hatom(geom,basis,ecpis,
      &    hatom,sz_hatom,nbas,zeta,cont,ucont,nz,icent,
      &    sz_zeta,dbl_mb(k_zetac),dbl_mb(k_coefc),
@@ -195,6 +218,7 @@ c
      &    int_mb(k_nprimc),int_mb(k_ncoefc),int_mb(k_indc),
      &    dbl_mb(k_scr),lscr,dbl_mb(k_buf),lbuf)
 
+c.. free allocated memory
       if (.not.ma_free_heap(h_zetac)) call errquit
      &    ('atscf_ecp: ma_free_heap failed for h_zetac',911)
       if (.not.ma_free_heap(h_coefc)) call errquit
@@ -215,6 +239,10 @@ c
      &    sz_zetac,zeta_c,coef_c,lmax_all,n_prim_c,
      &    n_coef_c, ind_c, scr,lscr, ecp_ints, l_ecp_ints)
       implicit none
+*
+* this routine fills pointer and coeff arrays with appropriate
+* ecp information and then generates the ecp integrals
+*
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -226,56 +254,73 @@ c
 #include "ecp_nwc.fh"
 c
 c::-passed
-      integer geom
-      integer basis
-      integer ecpis
-      integer sz_hatom
-      double precision hatom(sz_hatom)
-      integer nbas(4)
-      integer nz
-      double precision zeta(nz)
-      double precision cont(nz)
-      double precision ucont(nz)
-      integer icent
-      integer sz_zetac
-      double precision zeta_c(sz_zetac)
-      double precision coef_c(sz_zetac)
-      integer lmax_all
-      integer n_prim_c(0:2,-1:lmax_all)
-      integer n_coef_c(-1:lmax_all)
-      integer ind_c(-1:lmax_all)
-      integer lscr
-      double precision scr(lscr)
-      integer l_ecp_ints
-      double precision ecp_ints(l_ecp_ints)
+      integer geom  ! [input] geometry handle
+      integer basis ! [input] basis set handle
+      integer ecpis ! [input] ecp basis set handle
+      integer nbas(4) ! [input] atomic scf internal structure of 
+*                               number of basis functions per sym
+*                               or shell type s, p, d, f
+      integer nz      ! [input] number of exponents and coefs
+      double precision zeta(nz) ! [input] exponents
+      double precision cont(nz) ! [input] scaled atomic scf coefs
+      double precision ucont(nz)! [input] unscaled coefs (from bas)
+      integer sz_hatom ! [input] size of hatom array
+      double precision hatom(sz_hatom) ! [output] ecp part of V
+      integer icent ! [input] lexical index of center
+      integer sz_zetac ! [input] size of ecp exp/coef arrays
+* [s] == [scratch] used/filled locally and down tree but not 
+*                  important above
+* [i] == [input]
+      double precision zeta_c(sz_zetac) ! [s] ecp exponent array
+      double precision coef_c(sz_zetac) ! [s] ecp coefs array
+      integer lmax_all                  ! [i] ecp max angular momentum
+      integer n_prim_c(0:2,-1:lmax_all) ! [s] ecp code pointer array
+      integer n_coef_c(-1:lmax_all)     ! [s] ecp code pointer array
+      integer ind_c(-1:lmax_all)        ! [s] ecp code pointer array
+      integer lscr     ! [input] length of scratch buffer
+      double precision scr(lscr) ! [s] scratch buffer for ecp code
+      integer l_ecp_ints         ! [input] size of ecp int buffer
+      double precision ecp_ints(l_ecp_ints) ! [s] ecp int buffer
 c::-local
-      double precision C(3)
-      integer type
-      integer ncoef
-      integer nprim
-      integer ucent
-      integer nn, f_cont, l_cont, nn_off
-      integer ecp
-      integer atscf_n_zetac
-      integer n0, n1, n2
-      integer iexp,icfp,irexp
-      integer n_tot_c
-      integer l_c
-      integer i, j, k, lj, lk, ljkoff
-      double precision expa, coefa, expb, coefb
-      integer sz_ints, nbf_s, nbf_x
-      integer lscr_guess
-      integer cnt_hatom
+      double precision C(3)  ! coordinates
+      integer type           ! function type
+      integer ncoef          ! number of coefs in contraction
+      integer nprim          ! number of prims in contraction
+      integer ucent          ! unique basis center
+      integer nn             ! dummy contraction index
+      integer nn_off         ! pointer offset for building ecp arrays
+      integer f_cont         ! first contraction on center
+      integer l_cont         ! last contraction on center 
+      integer ecp            ! lexical basis set index for ecpis
+      integer atscf_n_zetac  ! size of n_zeta_c in reality
+      integer n0, n1, n2     ! dummy r exponent indecies
+      integer iexp,icfp,irexp ! private basis set pointer info
+      integer n_tot_c        ! total number of prims on ecp center
+      integer l_c            ! max ang on ecp center
+      integer i, j, k,       ! loop indices 
+     &    lj, lk, ljkoff     ! pointer offsets
+      double precision
+     &    expa, coefa, expb, coefb  ! prim exp and coefs
+      integer sz_ints        ! size of ints block
+      integer nbf_s          ! nbf of shell in spherical d=5
+      integer nbf_x          ! nbf of shell in cart.     d=6
+      integer lscr_guess     ! dummy arg to check memory in ecp code
+      integer cnt_hatom      ! counter in hatom array
 c::-statement functions
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
+c..  get lexical basis set index for ecp basis set handle
       ecp = ecpis + Basis_handle_offset
+
+c..  get unique center index.
       ucent = sf_ibs_ce2uce(icent,ecp)
 *debug:      write(6,*)' icent/ucent ',icent,'/',ucent
 c      
-c.. get number of contractions/primitives on tag
+c.. get number of contractions/primitives on ecp tag
       atscf_n_zetac = infbs_tags(Tag_Nprim,ucent,ecp)
+
+c.. check to make sure ecp arrays are big enough
       if (atscf_n_zetac.gt.sz_zetac) then
         write(luout,*)' nprimc/ncoefc array too small '
         write(luout,*)'atscf_n_zetac  = ',atscf_n_zetac
@@ -284,20 +329,26 @@ c.. get number of contractions/primitives on tag
         call errquit
      &      ('atscf_ecp_build_hatom: fatal error: ',911)
       endif
+
+c.. get first/last contraction on ecp tag
       f_cont = infbs_tags(Tag_Fcont,ucent,ecp)
       l_cont = infbs_tags(Tag_Lcont,ucent,ecp)
 *debug:      write(6,*)' f/l cont',f_cont,'/',l_cont
 c
+c.. intialize some variables
       l_c = -1000
       n_tot_c = 0
       nn_off = 1
+
+c.. loop over contractions
       do nn = f_cont,l_cont
 c
         type = infbs_cont(Cont_Type,nn,ecp)
         nprim = infbs_cont(Cont_Nprim,nn,ecp)
         ncoef = nprim*infbs_cont(Cont_Ngen,nn,ecp)
         if (nprim.ne.ncoef) then
-          write(luout,*)'general contraction ecp basis are invalid now'
+          write(luout,*)
+     &        'general contraction ecp basis are invalid now'
           call errquit('atscf_ecp_build_hatom: error',911)
         endif
         iexp  = infbs_cont(Cont_Iexp,nn,ecp)
@@ -325,28 +376,35 @@ c
 *debug:      write(6,*)' contraction list for ecp '
 *debug:      call output(coef_c,1,atscf_n_zetac,1,1,atscf_n_zetac,1,1)
 c      
+c atom centered at origin
       call dfill(3,0.0d00,C,1)
 *debug:      write(6,*)'nbas',nbas
 *debug:      write(6,*)'zeta',zeta
 *debug:      write(6,*)'ucont',ucont
       ljkoff = 0
       cnt_hatom = 0
+c.. loop over shell types or atomic scf symmetries
       do i = 1,4
-        type = i-1
+        type = i-1   ! type in NWChem terms
         sz_ints = (type+1)*(type+2)/2
-        sz_ints = sz_ints*sz_ints
+        sz_ints = sz_ints*sz_ints  ! size of integral block
         lj = ljkoff
+
+c.. loop over primitives for <bra|
         do j = 1,nbas(i)
           lj = lj + 1
           expa = zeta(lj)
           coefa = ucont(lj)
           lk = ljkoff
+c.. loop over primitives for |ket>
           do k = 1,j
             lk=lk+1
             expb = zeta(lk)
             coefb = ucont(lk)
             lscr_guess = lscr
 *debug:            write(6,*)' lscr ',lscr
+
+c..  do dryrun to check memory for scratch array
             call ecp_integral(
      &          C,expa,coefa,1,1,type,
      &          C,expb,coefb,1,1,type,
@@ -359,12 +417,15 @@ c
      &          .true.,
      &          scr,lscr_guess,
      &          0)            
+
+c.. make sure scratch array is big enough
             if (lscr_guess.gt.lscr) then
               write(luout,*)' lscr_guess =',lscr_guess
               write(luout,*)' lscr       =',lscr
               write(luout,*)' contact nwchem-support@emsl.pnl.gov'
               call errquit('atscf_ecp_build_hatom: fatal error',911)
             else
+c.. compute ecp integrals <bra|ecp|ket>
               call ecp_integral(
      &            C,expa,coefa,1,1,type,
      &            C,expb,coefb,1,1,type,
@@ -381,6 +442,11 @@ c
 *              call output(ecp_ints,1,sz_ints,1,1,sz_ints,1,1)
               nbf_x = (type+1)*(type+2)/2
               nbf_s = 2*type+1
+              
+c.. transform cartesian block to spherical since the atomic scf 
+*             is a spherical code.  This makes the integral block
+*             diagonal with the same values for all 2*l+1 components.
+
               call spcart_tran1e(ecp_ints,scr,
      &            nbf_x,nbf_x,type,1,
      &            nbf_s,nbf_s,type,1,
@@ -389,12 +455,18 @@ c
 *              call output(ecp_ints,1,(nbf_s*nbf_s),
 *     &            1,1,(nbf_s*nbf_s),1,1)
             endif
+
+c.. compute index into hatom array
             cnt_hatom = cnt_hatom + 1
-c...  use the zero component of the square spherical integral block
-            nbf_x = (nbf_s*nbf_s - 1)/2 + 1 ! index into odd rank square matrix
+c...  use the zero component of the (-l:l) square spherical integral 
+*     block.  nbf_x is now the index into odd rank square matrix 
+*             (e.g., find the center element)
+            nbf_x = (nbf_s*nbf_s - 1)/2 + 1 
             hatom(cnt_hatom) = ecp_ints(nbf_x)
           enddo
         enddo
+
+c.. compute offset into scalar atomic scf zeta and ucont arrays
         ljkoff = ljkoff + nbas(i)
       enddo
       end
