@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis,noc,g_alpha,g_beta,g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.18 2002-02-15 00:34:49 edo Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.19 2002-04-30 23:00:36 d3k958 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -120,7 +120,7 @@ c
       do i = 1,noc(1)
         call ga_get(g_s,i,i,j,j,ovl,1)
         absovl = dabs(ovl)
-        if (absovl.ge.ovlmax) then
+        if (absovl.gt.ovlmax) then
           ovlmax = absovl
           int_mb(k_part+j-1) = i
         endif
