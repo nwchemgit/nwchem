@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.133 2001-02-16 21:53:10 windus Exp $
+c     $Id: nwchem.F,v 1.134 2001-08-22 23:09:28 edo Exp $
 *------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001     *
 *         Pacific Northwest National Laboratory,                   * 
@@ -167,7 +167,7 @@ c
 c     Trap SIGFPE after GA to override handler
 c
 *****      call ieeetrap()
-#ifdef DECOSF
+#if defined(DECOSF) || defined(LINUXALPHA)
       call dec_fpe  ! To avoid underflow problems on Alpha in Texas
 #endif
 #ifdef CRAY_T3D
