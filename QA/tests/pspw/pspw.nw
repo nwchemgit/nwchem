@@ -145,7 +145,7 @@ PSPW
       Mulliken
    END 
 END
-task cg_pspw energy
+task pspw energy
 task pspw steepest_descent
 
 #***** expand the wavefunction to larger grid *****
@@ -171,7 +171,7 @@ PSPW
 END
 
 #**** Find energy ****
-task cg_pspw energy
+task pspw energy
 
 
 #***** re-setup conjugate gradient code  to use aperiodic convoultion ****
@@ -187,5 +187,5 @@ PSPW
 END
 
 #**** Find energy ****
-task cg_pspw energy
+task pspw energy
 
