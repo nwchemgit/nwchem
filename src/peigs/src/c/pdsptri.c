@@ -1,5 +1,5 @@
 /*
- $Id: pdsptri.c,v 1.5 1999-07-28 00:39:31 d3e129 Exp $
+ $Id: pdsptri.c,v 1.6 2000-10-24 18:25:52 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -229,7 +229,6 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  * Local variables
  * ---------------
  */
-    static Integer      IONE = 1;
 
     Integer             k, me, nn_proc, indx, msize, nsplit, neigval,
                         nproc, itmp, isize, nZ2, mapZ_0, nvecsZ, nvecsZ2,

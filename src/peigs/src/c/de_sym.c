@@ -1,5 +1,5 @@
 /*
- $Id: de_sym.c,v 1.5 2000-02-28 21:41:44 d3g270 Exp $
+ $Id: de_sym.c,v 1.6 2000-10-24 18:25:48 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -88,16 +88,14 @@ void de_sym(n, msgtype, buffer, matrix, map, matrix2, iwork, buf_ptr )
     
     */
   
-  static Integer IONE = 1;
-  
   Integer nvecs, *iscrat, ip, ig, lenb, i, me_indx, idest;
-  Integer me, nprocs, ngroup, osync=1, nvecs_out;
+  Integer me, nprocs, ngroup, nvecs_out;
   Integer *mapvec, *map_out, *proclist;
   Integer load_up(), un_load(), un_load_size();
   DoublePrecision *read_buffer, *write_buffer;
   
   extern Integer mxnprc_ (), mxmynd_ ();
-  extern Integer mxread_ (), mxwrit();
+  extern void mxread_ (), mxwrit_();
   
   extern void pairup_ ();
   extern Integer fil_mapvec_ ();
@@ -250,7 +248,7 @@ Integer un_load(nvecs, mapvec, nvecs_in, map_in, matrix, buffer)
      DoublePrecision **matrix, *buffer;
 {
   Integer indx, jndx, j, k, icount;
-  DoublePrecision *dptr, *column_ptr;
+  DoublePrecision *dptr;
   
   dptr = buffer;
   icount = 0;

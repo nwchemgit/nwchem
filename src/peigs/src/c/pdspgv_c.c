@@ -1,5 +1,5 @@
 /*
- $Id: pdspgv_c.c,v 1.5 1999-07-28 00:39:30 d3e129 Exp $
+ $Id: pdspgv_c.c,v 1.6 2000-10-24 18:25:51 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -245,12 +245,12 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
     extern Integer      mxmynd_(), mxnprc_();
 
     extern Integer  mapchk_(), count_list();
-    extern void     reduce_maps_();
+    extern void     reduce_maps();
     extern void     pdiff(), pgexit();
     extern void     mapdif_();
     extern void     memreq_();
     extern void     pdspgvx();
-    extern void     mxinit_();
+    extern void     mxinit_(), xstop_();
 
 
 /*

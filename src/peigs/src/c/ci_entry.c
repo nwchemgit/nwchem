@@ -1,5 +1,5 @@
 /*
- $Id: ci_entry.c,v 1.4 1999-07-28 00:39:20 d3e129 Exp $
+ $Id: ci_entry.c,v 1.5 2000-10-24 18:25:47 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -142,7 +142,7 @@ Integer ci_entry (me, n, i, j, map)
   }
   
   if ( *i < *j ) {
-    printf("PeIGS: ci_entry_ :node %d : i < j \n", me);
+    printf("PeIGS: ci_entry_ :node %d : i < j \n", *me);
     indx = -4;
     xerbla_("ci_entry\n", &indx);
   }
@@ -251,7 +251,7 @@ Integer ci_entry_(me, n, i, j, map)
   }
   
   if ( *i < *j ) {
-    printf( "PeIGS: ci_entry_ :node %d : i < j \n", me);
+    printf( "PeIGS: ci_entry_ :node %d : i < j \n", *me);
     indx = -4;
     xerbla_("ci_entry\n", &indx);
   }

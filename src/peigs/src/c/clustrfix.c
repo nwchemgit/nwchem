@@ -1,5 +1,5 @@
 /*
- $Id: clustrfix.c,v 1.9 2000-02-28 21:41:43 d3g270 Exp $
+ $Id: clustrfix.c,v 1.10 2000-10-24 18:25:47 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -25,7 +25,7 @@
  *
  *======================================================================
  *
- *  -- PEIGS  routine (version 2.1) --
+ *  -- PEIGS  routine (version 3.0) --
  *     Pacific Northwest Laboratory
  *     July 28, 1995
  *
@@ -93,7 +93,6 @@ static DoublePrecision relgap(l1, l2)
   return(beta);
 }
 
-
 Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_info )
      Integer n, m, *iblock, nsplit, *isplit, *num_clustr, *clustr_info;
      DoublePrecision *d, *e, *w;
@@ -126,21 +125,19 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
        */
 {
   Integer jblk, nblk;
-  Integer i, j, num_cls, num_all_cls;
+  Integer j, num_cls, num_all_cls;
   Integer b1, num_eig;
   Integer max_clustr_size;
   Integer beg_of_block, end_of_block;
   Integer bn;
-  Integer clustrptr, blksiz, c1=-1, c2=-1, cn, ptr;
+  Integer blksiz, c1=-1, c2=-1, ptr;
   Integer me;
   Integer *c_ptr;
-  Integer iflag, k, imax, tail;
-  Integer ii, nn_proc, clustr_size=-1, iii, jjj;
+  Integer tail;
+  Integer clustr_size=-1, iii, jjj;
   
-  DoublePrecision tmp, *eval, sep, eps, xj1, xj2, xj3;
-  DoublePrecision onenrm, pertol;
-  DoublePrecision xjm, eps1;
-  DoublePrecision ortol, xj, relgap(), delta1, delta2;
+  DoublePrecision eps, xj1, xj2;
+  DoublePrecision xj, relgap(), delta1, delta2;
   
   Integer clustr_check();
   extern Integer count_list();

@@ -1,5 +1,5 @@
 /*
- $Id: choleski9.c,v 1.6 2000-02-28 21:41:43 d3g270 Exp $
+ $Id: choleski9.c,v 1.7 2000-10-24 18:25:46 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -125,7 +125,7 @@ void choleski( n, vecA, mapA, iscratch, scratch, info )
 
   char            msg[30];
   Integer             linfo,k, i;
-  Integer             me, nprocs, mk, nvecsA;
+  Integer             me, nprocs, nvecsA;
   Integer            *myvecsA, *iwork;
  
   

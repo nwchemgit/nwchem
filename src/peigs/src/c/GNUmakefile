@@ -1,11 +1,10 @@
-## $Id: GNUmakefile,v 1.25 2000-03-02 01:00:19 edo Exp $
+## $Id: GNUmakefile,v 1.26 2000-10-24 18:25:46 d3g270 Exp $
 
 include ../../../config/makefile.h
 include ../../DEFS
 
 COBJ  = \
 	clustrfix.o \
-	pdcomplex.o \
 	mgscs.o \
 	pscale.o \
 	clustrxx5.o \
@@ -87,21 +86,20 @@ COBJ  = \
 #	inv_it6.o
 #      	 pstebz10.o
 #	 clustr31.o
+#	pdcomplex.o \
 
 
 all:		$(COBJ)
 		$(peigs_AR) $(peigs_LIB) $?
 
 .EXPORT_ALL_VARIABLES:
-
-.PHONY :	clean
-
+.PHONY:	clean
 clean:		
-		-rm -f *.o maxx.f F*.f
-		-rm -f *.c.*
+	-rm -f *.o maxx.f F*.f
+	-rm -f *.c.*
 
 realclean:	
-		clean
+	clean
 
 maxx.o :	maxx.cpp
 		-rm -f maxx.f
@@ -267,7 +265,6 @@ clustrxx5.o:	clustrxx5.c
 
 clustrxx4.o:	clustrxx4.c
 		$(peigs_CC) -c clustrxx4.c
-
 
 .c.o:;	$(peigs_CC) $(OPTC) -c $<
 .f.o:;	$(peigs_FC) $(OPT) -c $<

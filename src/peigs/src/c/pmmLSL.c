@@ -1,5 +1,5 @@
 /*
- $Id: pmmLSL.c,v 1.3 2000-02-28 21:41:47 d3g270 Exp $
+ $Id: pmmLSL.c,v 1.4 2000-10-24 18:25:52 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -87,8 +87,7 @@ void pmmLSL(n, mapA, mapvecA, vecA, mapB, mapvecB, vecB,
    * ---------------
    */
   
-  static Integer      ONE = 1, MINUSONE = -1, IZERO = 0;
-  static DoublePrecision RZERO = 0.0e0;
+  static Integer      ONE = 1, MINUSONE = -1;
   
   Integer             i, k, me, isize, indx, i_A, i_B, nvecsA, nvecsB;
   Integer             num_procs;

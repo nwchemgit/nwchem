@@ -1,5 +1,5 @@
 /*
- $Id: mxm25.c,v 1.4 2000-02-28 21:41:46 d3g270 Exp $
+ $Id: mxm25.c,v 1.5 2000-10-24 18:25:50 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -128,16 +128,16 @@ void mxm25 ( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
                         length ( maximum ( n1 + m, (nvecsW + 2 * nvecsQ_max) * n2 )
 */
 {
-  static Integer ONE = 1, MSGTYP = 51;
-  Integer ll, jj, k, i, nvecsQ, nvecsW, l, l1, l2;
+  static Integer ONE = 1;
+  Integer jj, i, nvecsQ, nvecsW, l1, l2;
   Integer *mapvecQ, *mapvecW;
-  Integer isize, indx, jndx, kndx, ndx, msglen, me, num_row, numprocs;
+  Integer isize, indx, jndx, me;
   Integer *proclist, nprocs, *mapvec_in, last_proc, next_proc;
   Integer *iscrat, me_indx;
   Integer maxsz, rsize, osize;
   Integer *ijunk, idummy;
   
-  DoublePrecision t, *ptr, scl, *buf_ptr;
+  DoublePrecision *ptr;
   DoublePrecision *buffer, *in_buffer, *out_buffer;
   DoublePrecision *dd_ptr, *dd_ptr2;
   

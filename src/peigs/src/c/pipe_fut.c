@@ -1,5 +1,5 @@
 /*
- $Id: pipe_fut.c,v 1.2 1999-07-28 00:39:33 d3e129 Exp $
+ $Id: pipe_fut.c,v 1.3 2000-10-24 18:25:52 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -81,9 +81,8 @@ void pipe_bcst_fut_col(n, buf, len, type, root, c_indx, map, scratch)
        
        */
 {
-  Integer indx, k_indx;
   Integer num_indx, me;
-  Integer *junk, *ptr, i, k, isize;
+  Integer *junk, *ptr, k, isize;
   extern Integer mxmynd_();
   extern Integer mxwrit_();
   extern Integer mxread_();

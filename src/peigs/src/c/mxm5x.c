@@ -1,5 +1,5 @@
 /*
- $Id: mxm5x.c,v 1.3 1999-07-28 00:39:28 d3e129 Exp $
+ $Id: mxm5x.c,v 1.4 2000-10-24 18:25:50 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -116,8 +116,8 @@ void mxm5x( n, rowU, mapU, m, colF, mapF, iscratch, scratch)
 */
   static Integer ONE = 1;
   Integer jndx;
-  Integer i, k, me, isize, *iptr, indx, indxx;
-  Integer i_L, iU, nvecsU, nvecsF, ii;
+  Integer i, k, me, isize, *iptr, indx;
+  Integer nvecsU, nvecsF, ii;
   Integer j, linfo, ll, mm, nproc;
   Integer osize, rsize, idummy;		/* */
   

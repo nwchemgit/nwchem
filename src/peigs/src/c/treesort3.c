@@ -1,5 +1,5 @@
 /*
- $Id: treesort3.c,v 1.2 1999-07-28 00:39:37 d3e129 Exp $
+ $Id: treesort3.c,v 1.3 2000-10-24 18:25:55 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -106,7 +106,7 @@ Integer reduce_list3( num_list, list, scratch )
     
     */
   
-  Integer *junk, k, num_indx, i;
+  Integer *junk, k, num_indx;
   Integer root, gtree(), *iscrat;
 
   peigs_malloc_adr = 0;
@@ -163,7 +163,7 @@ Integer reduce_list33( num_list, list, scratch, node )
 
     */
 
-  Integer *junk, k, num_indx, i;
+  Integer *junk, k, num_indx;
   Integer root, gtree();
 
   if ( num_list == 0 )
@@ -221,8 +221,8 @@ Integer reduce_list2( num_list, list, scratch )
     
     */
   
-  Integer *junk, k, num_indx, i, last_num;
-  Integer root, gtree(), *iscrat;
+  Integer k, i, last_num;
+  Integer gtree();
 
   if ( num_list == 0 )
     return(0);
@@ -302,8 +302,8 @@ Integer reduce_list22( num_list, list, scratch, node )
      
      */
 
-  Integer *junk, k, num_indx, i, last_num;
-  Integer root, gtree();
+  Integer k, i, last_num;
+  Integer gtree();
   
   if ( num_list == 0 )
     return(0);

@@ -1,5 +1,5 @@
 /*
- $Id: pscale.c,v 1.6 1999-07-28 00:39:34 d3e129 Exp $
+ $Id: pscale.c,v 1.7 2000-10-24 18:25:53 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -25,7 +25,7 @@
  *
  *======================================================================
  *
- *  -- PEIGS  routine (version 2.1) --
+ *  -- PEIGS  routine (version 3.0) --
  *     Pacific Northwest Laboratory
  *     July 28, 1995
  *
@@ -216,20 +216,26 @@ void pscale_( job, n, lb, ub, jjjlb, jjjub, abstol,
     *  Local Variables
     */
 
+  /*
    static Integer      INT = 10, INT2 = 20, DOUBLE = 200, IONE=1;   
-   char msg[35], *cptr;
+  */
+
+   char msg[35];
+
+   /*
    char msg2[35];
    Integer range, order;
+   */
    
-   Integer         indx, il, iu, ifakeme, msgli, msglr, itype,
-     nhigh, numeig, irem, isize, ival, linfo, isize1,
-     iii, m, nlow, me, ncol, ii, junk, k, nn_procs,
-     nproc, msize, maxinfo, *iptr, *proclist, ncols;
-   Integer j, i, i1split, jsplit, jjj, blksz, idummy;
-   DoublePrecision *dptr, *lptr;
+   Integer         il, linfo, me,
+     nproc, msize, maxinfo; 
+   Integer i, idummy;
+   DoublePrecision onenrm;
    
+   /*
    DoublePrecision         lstmax, emax, emin, ulp, safemn, onenrm;
    DoublePrecision         peigs_leig, peigs_reig;
+   */
    
    /*
     *  External Procedures
@@ -244,7 +250,7 @@ void pscale_( job, n, lb, ub, jjjlb, jjjub, abstol,
    extern Integer  neblw2_();
    extern Integer  mapchk_();
    extern void     xstop_(), pdiff(), pgexit();
-   DoublePrecision leig, reig, eps, shift, tmp1, dummy, tmp; 
+   DoublePrecision dummy, tmp; 
    extern void dlasq1_();
    extern DoublePrecision dlamch_();
    

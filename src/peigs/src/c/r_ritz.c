@@ -33,8 +33,7 @@ void r_ritz_(n, d, e, eval, map, evec, scratch, info)
   extern DoublePrecision ddot_();
   void peigs_tri_mult();
   Integer msize, me;
-  Integer **dptr11, *dptr1;
-  unInteger i, j, k, ptr, ptr1;
+  Integer i, j, k, ptr;
   
   *info = 0;
   me = mxmynd_();

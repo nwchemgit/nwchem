@@ -111,21 +111,21 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
     returns the number of eigenvector that this processor holds
     */
   
-  static Integer three = 3, IONE = 1, IZERO=0, it_count;
+  static Integer IONE = 1;
   Integer indx, i, j, iseed[4], bb1, bn;
   Integer jjj;
   Integer blksiz, clustr_ptr, cn;
   Integer me, naproc, Zvec;
   Integer *cl_ptr;
   Integer c1, csiz, xc1, xcsiz, xblksiz;
-  Integer cl_num, r_error, v_error;
+  Integer cl_num;
   Integer itime, msize;
   Integer send_num, send_cl, send_to,
           recv_num, recv_cl, recv_from,
           myindx, ime, itype, nvecs, isize, ival, first, ibad, itmp;
   
   DoublePrecision stpcrt, onenrm, eps;
-  DoublePrecision tmp, *dscrat, *first_buf, *dptr1, *dptr11, *dptr12;
+  DoublePrecision tmp, *dscrat, *first_buf;
   
   
   extern void xerbla_();
@@ -134,6 +134,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
   extern void dlagtf_(), dlarnv_();
   extern void printff_(), mgs_3();
   extern void mgspnl_(), dscal_(), dlagts_();
+  extern Integer mxread_(), mxwrit_();
   extern void dcopy_(), daxpy_();
   extern Integer count_list ();
   extern Integer inv_it3(), inverm_();
@@ -463,17 +464,6 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 	&onenrm, iscratch, dscrat);
 */
 
-/*
-  dcopy_(&msize, d, &IONE, dscrat, &IONE);
-      dptr11 = dscrat + 11*msize/8 + 12;
-      dcopy_(&msize, e, &IONE, dptr11 , &IONE);
-      dptr12 = dptr11+ 11*msize/8 + 12;
-      
-      it_count = 3;
-      inverm_( dscrat, dptr11, dptr12, dptr12 + msize + msize + 12 , &eval[c1],
-      &r_error, &v_error, &eps, &vecZ[Zvec][0], &msize, &it_count, &IZERO);
-      dcopy_(&n, dptr12 + msize + msize + 12, &IONE, vecZ[Zvec], &IONE);
-*/
     }
     else {
       /*

@@ -1,5 +1,5 @@
 /*
- $Id: mxm88.c,v 1.2 1999-07-28 00:39:28 d3e129 Exp $
+ $Id: mxm88.c,v 1.3 2000-10-24 18:25:50 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -117,11 +117,11 @@ void mxm88 ( n, colQ, mapQ, m, colW, mapW, iwork, work, iptr)
   
   static Integer IONE = 1, MSGTYP = 51;
   
-  Integer ll, k, i, jj, *iscrat;
-  Integer isize, indx, jndx, kndx, ndx, msglen, me, num_row, numprocs;
+  Integer ll, k, i, *iscrat;
+  Integer isize, me;
   Integer nvecsW, nvecsQ, j, iQ;
   Integer *mapvecQ, *mapvecW, *proclist, nprocs, npro, nele;
-  Integer linfo, ii;
+  Integer linfo;
   
   DoublePrecision t;
   DoublePrecision *buffer, scl;

@@ -1,5 +1,5 @@
 /*
- $Id: pdspevx.c,v 1.40 2000-07-20 17:00:40 d3g270 Exp $
+ $Id: pdspevx.c,v 1.41 2000-10-24 18:25:51 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -25,7 +25,7 @@
  *
  *======================================================================
  *
- *  -- PEIGS  routine (version 2.1) --
+ *  -- PEIGS  routine (version 2.9) --
  *     Pacific Northwest Laboratory
  *     July 28, 1995
  *
@@ -261,23 +261,21 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
  * Local variables
  * ---------------
  */
-    static Integer  IONE = 1;
-    static Integer  ITWO = 2;
 
-    Integer         iii, k, me, jndx, nn_proc, indx, msize, nsplit, neigval,
-                    nproc, itmp,
-                    isize, nZ2,
-                    mapZ_0, nvecsQ, nvecsA, nvecsZ, nvecsZ2,
-                    linfo, maxinfo, i, j, bb1, bn ;
+    Integer         iii, k, me, nn_proc, indx, msize, nsplit, neigval,
+      nproc, itmp,
+      isize, nZ2,
+      mapZ_0, nvecsQ, nvecsA, nvecsZ, nvecsZ2,
+      linfo, maxinfo, i, j;
 
-    Integer         *i_scrat, *mapQ, *iblock,ii, *isplit;
+    Integer         *i_scrat, *mapQ, *iblock,*isplit;
 
     char            msg[ 35 ];
     char            msg2[ 256]; 
 
-    Integer         **iptr, num_procs, *proclist, *clustr_info, jjj;
+    Integer         **iptr, num_procs, *proclist, *clustr_info; 
     
-    DoublePrecision vec[2], fnormA, fnormT, ulp;
+    DoublePrecision fnormA;
     DoublePrecision *d_scrat, *ld, *lld, dummy, dummy1,
       *dd,                    /* diagonal of tridiagonal */
       *ee,                    /* lower diagonal of tridiagonal */
@@ -286,8 +284,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       *lplus,                 /* lower diagonal from bidiagonal */
       *dptr;
     
-    DoublePrecision **buff_ptr, **vecQ, res, syncco[1], *perturbeval;
-    DoublePrecision smlnum, bignum, eps, rmin, rmax, anrm, sigma;
+    DoublePrecision **buff_ptr, **vecQ, syncco[1], *perturbeval;
+    DoublePrecision smlnum, bignum, eps, rmin, rmax, anrm;
     Integer iscale;
     extern void dscal_();
 
@@ -307,7 +305,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
     extern Integer  mapchk_(), count_list();
     extern void     memreq_();
-    extern void     pdiff(), xstop_(), pgexit(), mapdif_(), reduce_maps_();
+    extern void     pdiff(), xstop_(), pgexit(), mapdif_(), reduce_maps();
     extern void     mdiff1_(), mdiff2_(), bbcast00();
     extern void     mem_cpy();
     extern void     dshellsort_(), sorteig();
@@ -315,7 +313,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     extern DoublePrecision dnrm2_();
 
     extern Integer  tred2();
-    extern void     pstebz_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
+    extern void     pstebz10_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
     extern void synch_(), gmax00();
     extern void r_ritz_(), tresidd();
     
@@ -342,7 +340,12 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     test_timing.pdspgvx  = 0.0e0;
 #endif
 
+    /*
     FILE *file;
+    DoublePrecision sigma, res, ulp, fnorm, vec[2];
+    Integer jjj, ii, bn, bb1
+    */
+
     char filename[40];
     me    = mxmynd_();
     nproc = mxnprc_();

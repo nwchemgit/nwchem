@@ -66,17 +66,15 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
        
        */
 {
-  static Integer IONE = 1, IMINUSONE = -1;
-  Integer j, blksz, i_1, niter;
-  Integer nrmchk, indrv1, indrv2, indrv3, indrv4, indrv5;
-  Integer jmax, k, lsiz, me;
-  DoublePrecision xj, xjm, sep, nrm, scl;
-  DoublePrecision tol, *ptr;
-  Integer info, mxmynd();
+  static Integer IONE = 1;
+  Integer j, blksz, i_1;
+  Integer k, lsiz, me;
+  DoublePrecision xj, sep;
+  Integer mxmynd();
   Integer csiz, ibad;
-  Integer indx22, i, lll;
-  DoublePrecision delta = 0., dummy, *p, *gamma, *dminus, *lplus, *t, *uminus, *dplus, *z;
-  DoublePrecision ztz=0., *workk, *dptr, *wwork1;
+  DoublePrecision delta = 0., *p, *gamma, *dminus, *lplus, *t,
+    *uminus, *dplus;
+  DoublePrecision ztz=0.;
   Integer zbegin1, kk, zend, bb1 = *b1+1, bbn = *bn+1, *iwork1;
   
   extern void dscal_(), dlagtf_(), dlagts_(), dcopy_(), dscal_();

@@ -1,9 +1,10 @@
 /*
- $Id: peigs_dlasq1.c,v 1.7 1999-07-28 00:39:31 d3e129 Exp $
+ $Id: peigs_dlasq1.c,v 1.8 2000-10-24 18:25:52 d3g270 Exp $
 */
 
 #include <stdio.h>
 #include <math.h>
+#include <unistd.h>
 #include "globalp.c.h"
 
 void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, DoublePrecision *eval, DoublePrecision *work, Integer *info)
@@ -13,6 +14,7 @@ void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, Do
   extern void dlasq1_();
   FILE *file;
   char filename[40];
+  extern int close();
   
   me    = mxmynd_();
   nproc = mxnprc_();

@@ -1,5 +1,5 @@
 /*
- $Id: exit.c,v 1.5 1999-07-28 00:39:23 d3e129 Exp $
+ $Id: exit.c,v 1.6 2000-10-24 18:25:48 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -124,7 +124,7 @@ void g_exit_( n, array, procmap, len, iwork, work )
     */
   
   static Integer TYPE = 10;
-  Integer isize, nprocs, me, maxprocs;
+  Integer nprocs, me, maxprocs;
   Integer *iscrat, *proclist;
   
   extern Integer reduce_list2();

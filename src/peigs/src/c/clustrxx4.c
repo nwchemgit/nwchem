@@ -69,20 +69,20 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     returns the number of eigenvector that this processor holds
     */
   
+  /*
   static Integer three = 3, IONE = 1;
-  Integer indx, i, j, iseed[4], bb1, bn, jjj, iii, ii;
-  Integer blksiz, clustr_ptr, cn;
+  */
+
+  Integer bb1, bn, iii, ii;
+  Integer clustr_ptr, cn;
   Integer me, naproc, Zvec;
   Integer *cl_ptr;
-  Integer c1, csiz, xc1, xcsiz, xblksiz;
+  Integer c1, csiz;
   Integer cl_num;
-  Integer itime;
-  Integer send_num, send_cl, send_to,
-          recv_num, recv_cl, recv_from,
-          myindx, ime, itype, nvecs, isize, ival, first, ibad, itmp;
+  Integer ibad;
   
-  DoublePrecision stpcrt, onenrm, eps;
-  DoublePrecision tmp, *dscrat, *first_buf;
+  DoublePrecision eps;
+  DoublePrecision *dscrat;
   
   extern void xerbla_();
   extern Integer idamax_(), mclock_(), succ_(), mxmynd_(), mxnprc_();
@@ -92,7 +92,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   extern void mgspnl_(), dscal_(), dlagts_();
   extern void dcopy_(), daxpy_();
   extern Integer count_list ();
-  extern void mgs (), msgcs();
+  extern void mgs (), mgscs();
   extern void fil_dbl_lst ();
   
   /*

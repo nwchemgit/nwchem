@@ -1,5 +1,5 @@
 /*
- $Id: pdspev_c.c,v 1.8 1999-07-28 00:39:29 d3e129 Exp $
+ $Id: pdspev_c.c,v 1.9 2000-10-24 18:25:51 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -205,7 +205,7 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
   Integer             k, me, nn_proc, msize, irange, ivector, meigval, ilb,
                       iub, nproc, isize, nvecsA, nvecsZ, linfo, maxinfo,
                       i, j, itmp;
-  Integer             *i_scrat, *proclist, lll, jjj;
+  Integer             *i_scrat, *proclist;
 
   DoublePrecision     lb, ub, abstol;
 
@@ -222,7 +222,7 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
 
   extern Integer  mapchk_(), count_list();
   extern void     memreq_();
-  extern void     pdiff(), xstop_(), pgexit(), mapdif_(), reduce_maps_();
+  extern void     pdiff(), xstop_(), pgexit(), mapdif_(), reduce_maps();
 
   extern void     pdspevx();
   

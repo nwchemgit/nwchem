@@ -1,5 +1,5 @@
 /*
- $Id: mxm_ll1.c,v 1.2 1999-07-28 00:39:28 d3e129 Exp $
+ $Id: mxm_ll1.c,v 1.3 2000-10-24 18:25:50 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -87,8 +87,8 @@ void mxm_llx( n, colL, mapL, m, colF, mapF, iscratch, scratch)
   
   static Integer IONE = 1;
   Integer jndx;
-  Integer i, k, me, isize, *iptr, indx, indxx;
-  Integer i_L, iU, nvecsL, nvecsF, ii;
+  Integer i, k, me, isize, *iptr, indx;
+  Integer nvecsL, nvecsF, ii;
   Integer j, linfo, ll, mm, fff ;
   Integer nproc;
   Integer osize, rsize;		/* */

@@ -1,5 +1,5 @@
 /*
- $Id: soluf.c,v 1.3 1999-07-28 00:39:36 d3e129 Exp $
+ $Id: soluf.c,v 1.4 2000-10-24 18:25:54 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -75,17 +75,16 @@ void upperUF_ ( n, rowU, mapU, nW, colW, mapW, iwork, work)
     
     */
   
-  static Integer IONE = 1, MINUSONE = -1;
+  static Integer IONE = 1;
   
-  Integer i, iii, k, me, isize, *iptr, indx, j;
-  Integer indx1, itype; Integer iL, iZ, nvecsU, nvecsW;
+  Integer i, iii, k, me, isize;
+  Integer nvecsU, nvecsW;
   Integer count_list(), i_U;
   Integer nprocs;
   Integer *mapvecU, *mapvecW;
   Integer *iscrat;
   Integer *proclist;
 
-  DoublePrecision *msg_in;
   DoublePrecision *ptr;
   DoublePrecision t, *buffer;
   DoublePrecision dummy;

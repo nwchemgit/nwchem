@@ -1,5 +1,5 @@
 /*
- $Id: gmax.c,v 1.2 1999-07-28 00:39:23 d3e129 Exp $
+ $Id: gmax.c,v 1.3 2000-10-24 18:25:48 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -60,6 +60,7 @@ void gmax00(buf, items, datatype, msgtype, root, snumprocs, plist, work)
 {
   Integer isize;
   extern Integer maxdv_();
+  extern void mxcombv1_();
   
   isize = sizeof(DoublePrecision);
   mxcombv1_ ( buf, maxdv_, &isize, &items, &snumprocs, plist, &msgtype, (char *)work);

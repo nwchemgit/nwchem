@@ -1,5 +1,5 @@
 /*
- $Id: sort.c,v 1.2 1999-07-28 00:39:36 d3e129 Exp $
+ $Id: sort.c,v 1.3 2000-10-24 18:25:55 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -77,9 +77,8 @@ void sort_(m, n, nsplit, isplit, iblock, iwork, eval, work)
   
   Integer i, indx, indx2, indx3, indx4;
   DoublePrecision *dummy;
-  Integer *endptr, G_count(), indx5;
+  Integer *endptr, indx5;
   extern void heapsort_ ();
-  Integer G_index();
   
   /*
     special case: all the blocks are of size 1 and *n = *m.

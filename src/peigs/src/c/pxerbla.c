@@ -1,5 +1,5 @@
 /*
- $Id: pxerbla.c,v 1.2 1999-07-28 00:39:35 d3e129 Exp $
+ $Id: pxerbla.c,v 1.3 2000-10-24 18:25:54 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -90,9 +90,8 @@ void pxerbla_( n, array, procmap, len, iwork, info )
     */
   
   static Integer TYPE = 10;
-  static Integer IONE = 1;
   Integer isize, nprocs, me, me_indx, maxprocs;
-  Integer last_proc, next_proc, indx, ifakeme;
+  Integer last_proc, next_proc, indx;
   
   Integer *iscrat, *proclist, *map_in;
   

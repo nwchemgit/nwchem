@@ -1,5 +1,5 @@
 /*
- $Id: ortho.c,v 1.4 1999-07-28 00:39:28 d3e129 Exp $
+ $Id: ortho.c,v 1.5 2000-10-24 18:25:51 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -125,7 +125,7 @@ void ortho( n, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   Integer me;
   Integer nprocs, *proclist;
   
-  DoublePrecision t, ulp;
+  DoublePrecision ulp;
   DoublePrecision *ptr, *scrat;
   DoublePrecision **vecZ1; /* copies of the vecZ matrix */
   

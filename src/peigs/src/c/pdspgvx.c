@@ -1,5 +1,5 @@
 /*
- $Id: pdspgvx.c,v 1.8 2000-02-28 21:41:46 d3g270 Exp $
+ $Id: pdspgvx.c,v 1.9 2000-10-24 18:25:52 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -295,13 +295,13 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
 
   static Integer G_TYPE = 1111;
   
-  Integer             k, isize, iii, indx, msize, mapZ0, me, nproc,
+  Integer             k, isize, msize, mapZ0, me, nproc,
                       nn_proc, neigval, nvecsA, nvecsB, nvecsZ,
                       linfo, maxinfo, kinverse, i, j, itype;
   
-  Integer            *proclist, *mapvA, *mapvB, *mapvZ, *i_scrat;
+  Integer            *proclist, *mapvA, *mapvB, *i_scrat;
 
-  Integer            *g_proclist, *iiptr, n_glob_proc, num_procs;
+  Integer            *g_proclist, n_glob_proc, num_procs;
 
   
   
@@ -319,7 +319,7 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
   extern Integer  mxmynd_(), mxnprc_();
   extern Integer  mapchk_(), count_list(), fil_mapvec_(), reduce_list2();
 
-  extern void     reduce_maps_();
+  extern void     reduce_maps();
   extern void     xstop_(), pdiff();
   extern void     pgexit();
   extern void     mapdif_();

@@ -1,5 +1,5 @@
 /*
- $Id: mgscs.c,v 1.10 2000-02-28 21:41:46 d3g270 Exp $
+ $Id: mgscs.c,v 1.11 2000-10-24 18:25:49 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -62,7 +62,6 @@ extern void daxpy_(), dscal_();
 #define clock0 prs1clock0
 #define who0   prs1who0
 
-#define MAXPROCS 1024
 extern DoublePrecision clock0();
 
 /* ----- FORTRAN interface ---------- */
@@ -90,17 +89,15 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
    */
   
   static Integer IONE = 1;
-  DoublePrecision DZERO = (DoublePrecision) 0.0e0, DONE = (DoublePrecision) 1.0e0;
   
   Integer i, j, k, ii;               /* counters */
   Integer column_indx, linfo;
   Integer msize;
-  Integer n_procs, *mapvecA, *mapvecQ;
-  Integer *iscrat, *proclist, blksiz;
+  Integer n_procs, *mapvecA;
+  Integer *iscrat, *proclist;
 
   DoublePrecision   onenorm;
   
-  DoublePrecision w, temp_factor;     /* temp vars */
   DoublePrecision t, *ptr, syncco[1];
 
   Integer me;                    /* my node number */
@@ -129,7 +126,7 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   extern void bbcast00();
 
   
-  Integer csize, ncolumnsA, ncolumnsQ;
+  Integer csize, ncolumnsA;
   
   Integer iii;
 

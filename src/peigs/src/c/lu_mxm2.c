@@ -1,5 +1,5 @@
 /*
- $Id: lu_mxm2.c,v 1.2 1999-07-28 00:39:25 d3e129 Exp $
+ $Id: lu_mxm2.c,v 1.3 2000-10-24 18:25:49 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -86,16 +86,16 @@ void lu_mxm2( n, Lmatrix, mapL, m, colU, mapU, iscratch, scratch)
   
   static Integer IONE = 1;
   Integer jndx;
-  Integer i, k, me, isize, *iptr, indx, indxx;
-  Integer i_L, iU, nvecsL, nvecsU, ii;
-  Integer j, linfo, ll, mm, fff ;
+  Integer i, k, me, isize, *iptr, indx;
+  Integer nvecsL, nvecsU;
+  Integer j, linfo, ll, mm;
   Integer osize, rsize;		/* */
   Integer nproc, me_indx, last_proc , next_proc ;
   Integer *mapvecU, *mapvecL;
   Integer *iscrat, *proclist, i_dummy, iii;
   Integer *mapvec_in, maxsz;
 
-  DoublePrecision *buffer, *d_ptr, *dptr, *in_buffer, *out_buffer;
+  DoublePrecision *buffer, *dptr, *in_buffer, *out_buffer;
   DoublePrecision *Uvec, *Lvec, t;
   
   /*

@@ -1,5 +1,5 @@
 /*
- $Id: conjug22.c,v 1.4 1999-07-28 00:39:23 d3e129 Exp $
+ $Id: conjug22.c,v 1.5 2000-10-24 18:25:48 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -91,12 +91,11 @@ void lsl_conjugation2 ( n, vecA, mapA, vecB, mapB, iwork, work, buff_ptr )
        */
      
 {
-  Integer i, j, me, nvecsA, nvecsB, linfo, id;
+  Integer i, me, nvecsA, nvecsB, linfo, id;
   Integer *iscrat, *mapvecA, *mapvecB, *iptr;
   DoublePrecision *dscrat, **bufptr;
   extern Integer mxmynd_();
   extern Integer fil_mapvec_ ();
-  long JUNK = 1999;
 
   extern void pmmlsl2();
   extern void lu_mxm();

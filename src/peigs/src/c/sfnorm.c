@@ -1,5 +1,5 @@
 /*
- $Id: sfnorm.c,v 1.5 1999-07-28 00:39:36 d3e129 Exp $
+ $Id: sfnorm.c,v 1.6 2000-10-24 18:25:54 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -72,11 +72,8 @@ void sfnorm( n, colA, mapA, norm, iwork, work, info)
     
     */
   
-  static Integer IONE = 1;
-  static Integer ITWO = 2;
-  
   Integer ll, nprocs, i, me, nvecsA, *mapvecA, kk;
-  Integer *proclist, jj, k, ii;
+  Integer *proclist, jj, ii;
   Integer *iscrat;
   
   DoublePrecision root2, normvec[1], dummy_vec;

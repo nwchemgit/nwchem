@@ -1,5 +1,5 @@
 /*
- $Id: pstebz10.c,v 1.28 2000-03-21 23:22:21 d3g270 Exp $
+ $Id: pstebz10.c,v 1.29 2000-10-24 18:25:53 d3g270 Exp $
  *======================================================================dstebz
  *
  * DISCLAIMER
@@ -214,20 +214,18 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
     *  Local Variables
     */
 
-  static Integer      INT = 10, INT2 = 20;
-  
-  char msg[35], *cptr;
+  char msg[35];
   char msg2[35];
   Integer range, order;
   
-  Integer         indx, il, iu, ifakeme, msgli, msglr, itype,
-    nhigh, numeig, irem, isize, ival, linfo, isize1,
-    iii, m, nlow, me, ncol, ii, junk, k, nn_procs,
-    nproc, msize, maxinfo, *iptr, *i_work, *proclist, ncols;
-  Integer j, i, i1split, jsplit, jjj, blksz;
+  Integer         il, iu, ifakeme, itype,
+    nhigh, numeig, isize, linfo,
+    iii, m, nlow, me, nn_procs,
+    nproc, msize, maxinfo, *i_work, *proclist;
+  Integer j, i, i1split, jsplit, blksz;
   DoublePrecision *dptr, *lptr;
   
-  DoublePrecision         lstmax, emax, emin, ulp, safemn, onenrm;
+  DoublePrecision ulp, safemn, onenrm;
   
    /*
     *  External Procedures
@@ -236,14 +234,16 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    extern Integer      mxmynd_(), mxnprc_(), mxwrit_(), mxread_(), mxbrod_();
 
    extern void     sort_();
-   extern void     dstebz_();
+   extern void     dstebz3_();
 
    extern Integer  menode_();
    extern Integer  neblw2_();
    extern Integer  mapchk_();
    extern void     xstop_(), pdiff(), pgexit();
-   DoublePrecision leig, reig, eps, shift, tmp1, dummy, tmp; 
+   DoublePrecision eps, tmp;
    extern void dlasq1_();
+   extern void dsterf_();
+   extern void peigs_tldlfact();
    extern DoublePrecision dlamch_();
 
    FILE *file;

@@ -1,5 +1,5 @@
 /*
- $Id: inverse.c,v 1.3 1999-07-28 00:39:25 d3e129 Exp $
+ $Id: inverse.c,v 1.4 2000-10-24 18:25:49 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -221,7 +221,7 @@ void inverseL ( msize, col, map, iwork, buffer, info)
   Integer prev_column();
   Integer num_procs;
   extern Integer reduce_list(), reduce_list2();
-  long length, root;
+  Integer length;
 
 /*
   extern void iCC_work_init(), iCC_bcast();

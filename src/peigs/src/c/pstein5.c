@@ -1,5 +1,5 @@
 /*
- $Id: pstein5.c,v 1.14 2000-02-28 21:41:47 d3g270 Exp $
+ $Id: pstein5.c,v 1.15 2000-10-24 18:25:54 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -25,7 +25,7 @@
  *
  *======================================================================
  *
- *  -- PEIGS  routine (version 2.1) --
+ *  -- PEIGS  routine (version 2.3) --
  *     Pacific Northwest Laboratory
  *     July 28, 1995
  *
@@ -132,12 +132,8 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    *                  In particular, INFO = N + (Integer) log10( res )
    */
   
-  static Integer      IONE = 1;
-  static DoublePrecision   ZERO = 0.0e0;
-  
-  Integer              k, ii, i, isize, me, iii, jjj,
-    indx, msize,
-                   numclstr, nproc, nn_proc, neigval, nvecsZ,
+  Integer              k, ii, isize, me, msize,
+                   nproc, nn_proc, neigval, nvecsZ,
                    ibad, linfo, maxinfo, imin, nacluster;
   
    Integer            *iwork, *proclist,
@@ -149,15 +145,15 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 
    Integer           **piwork, max_sz, sync_proc;
 
-   DoublePrecision         *dwork, *ptbeval, *d_scrat, dbad, res;
+   DoublePrecision         *dwork, *ptbeval, *d_scrat, dbad;
    extern DoublePrecision tcgtime_();
 
 
    extern Integer      mxnprc_(), mxmynd_();
-   extern void     reduce_maps_();
-   extern Integer clustrf_();
+   extern void     reduce_maps();
+   extern Integer clustrf5_();
    
-   extern Integer      reduce_list2(), count_list(), clustrinv_();
+   extern Integer      reduce_list2(), count_list(), clustrinv5_();
    extern Integer      indxL ();
    extern void     xstop_();
    extern void     pgexit();

@@ -1,5 +1,5 @@
 /*
- $Id: b_ortho.c,v 1.5 1999-07-28 00:39:20 d3e129 Exp $
+ $Id: b_ortho.c,v 1.6 2000-10-24 18:25:46 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -136,13 +136,13 @@ void b_ortho ( n, colB, mapB, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   
   static Integer IONE = 1;
   
-  Integer ll, i, j, *iscrat, *mapvecA, *mapvecB, *mapvecZ;
+  Integer ll, i, j, *iscrat, *mapvecB, *mapvecZ;
   Integer nvecsB, nvecsZ;
   Integer me, nprocs;
   
-  DoublePrecision t, derror, ulp;
+  DoublePrecision ulp;
   DoublePrecision *ptr, *scrat;
-  DoublePrecision **vecZ1, **vecZ2, anorm; /* copies of the vecZ matrix */
+  DoublePrecision **vecZ1, **vecZ2; /* copies of the vecZ matrix */
   
   /*
     blas call

@@ -1,5 +1,5 @@
 /*
- $Id: pmmlsl2.c,v 1.2 1999-07-28 00:39:34 d3e129 Exp $
+ $Id: pmmlsl2.c,v 1.3 2000-10-24 18:25:53 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -85,12 +85,10 @@ void pmmlsl2(n, mapA, mapvecA, vecA, mapB, mapvecB, vecB,
    * ---------------
    */
 
-  static Integer      ONE = 1, MINUSONE = -1, IZERO = 0;
-  static DoublePrecision RZERO = 0.0e0;
+  static Integer      ONE = 1;
 
-  Integer             i, k, me, isize, indx, i_A, i_B, nvecsA, nvecsB;
-
-  DoublePrecision         *d_ptr, *t_ptr, *scratch, *buff, **b_ptr, **matrix2;
+  Integer             me, isize, indx, nvecsA, nvecsB;
+  DoublePrecision *d_ptr, *scratch, *buff, **b_ptr, **matrix2;
 
   /*
    * External procedures

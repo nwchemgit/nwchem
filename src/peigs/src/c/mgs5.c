@@ -1,5 +1,5 @@
 /*
- $Id: mgs5.c,v 1.11 2000-02-28 21:41:46 d3g270 Exp $
+ $Id: mgs5.c,v 1.12 2000-10-24 18:25:49 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -25,7 +25,7 @@
  *
  *======================================================================
  *
- *  -- PEIGS  routine (version 2.1) --
+ *  -- PEIGS  routine (version 2.2) --
  *     Pacific Northwest Laboratory
  *     July 28, 1995
  *
@@ -72,8 +72,8 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
   Integer jndx, vec_len;
   Integer i, k, me, isize, indx;
   Integer nvecs_in, nvecs, iii;
-  Integer j, bb, nproc;
-  Integer rsize, miter, mvecs, kk, itype, iter;
+  Integer bb, nproc;
+  Integer rsize, mvecs, kk, iter;
   
   Integer *nleft;
   Integer *iscrat, *proclist, naproc;
