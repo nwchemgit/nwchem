@@ -29,7 +29,7 @@ c
        logical oexch,ocoul
        double precision emp2
        data g_coul,g_exch/-1,-1/
-       data oexch,ocoul/.true.,.true./
+       data oexch,ocoul/.false.,.true./
 c
 c
 c
@@ -127,8 +127,10 @@ c
 c
 c
 c
-       g_coul = ga_create_moblocked(noper,nmo2,'Coulomb operator')
-       g_exch = ga_create_moblocked(noper,nmo2,'exchange operator')
+       if (ocoul)
+     $      g_coul = ga_create_moblocked(noper,nmo2,'Coulomb operator')
+       if (oexch)
+     $      g_exch = ga_create_moblocked(noper,nmo2,'exchange operator')
 c
 c
 c       
@@ -152,8 +154,8 @@ c
 c
 c
        call schwarz_tidy()
-       status = ga_destroy(g_coul)
-       status = ga_destroy(g_exch)
+       if (ocoul) status = ga_destroy(g_coul)
+       if (oexch) status = ga_destroy(g_exch)
        status = ma_pop_stack(l_evals)
        status = status.and.ma_pop_stack(l_occ)
        if (.not.status) call errquit('moints: cannot pop stack?',0)

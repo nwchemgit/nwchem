@@ -94,7 +94,7 @@ c
          write(6,901) emp2
  901     format(/,15x,'MP2 correction:',f15.10,/)
          write(6,902) ((epair((i*(i-1))/2+j),i,j,j=1,i),i=1,nocc)
- 902     format(4(f10.5,1x,'(',2i3,')',2x))
+ 902     format(4(f12.7,1x,'(',2i3,')',2x))
        endif
          
        return
