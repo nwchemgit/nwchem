@@ -1,5 +1,5 @@
 *
-* $Id: c_geodesic.F,v 1.3 2001-12-28 19:04:24 bylaska Exp $
+* $Id: c_geodesic.F,v 1.4 2002-02-13 00:53:45 edo Exp $
 *
 
 
@@ -280,7 +280,7 @@
 *        call Parallel_taskid(taskid)
 *         if (taskid.eq.MASTER) 
 *    >      write(*,*) 
-*    >      "Waring: Gram-Schmidt being performed in geodesic_get"
+*    >      "Warning: Gram-Schmidt being performed in geodesic_get"
 *        call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
 *        if (psi_ispin().gt.1) then
 *          call Grsm_g_MakeOrtho(npack1,psi_ne(2),

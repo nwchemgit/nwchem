@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.14 2002-01-16 20:51:14 bylaska Exp $
+* $Id: cpsdv5.F,v 1.15 2002-02-13 00:53:48 edo Exp $
 *
       implicit none
       integer rtdb
@@ -258,7 +258,7 @@
       sum1 = dble(ne(1) + ne(2))
       if (dabs(sum2-sum1).gt.1.0d-10) then
          if (taskid.eq.MASTER)
-     >      write(*,*) "Waring: Gram-Schmidt being performed on psi2"
+     >      write(*,*) "Warning: Gram-Schmidt being performed on psi2"
          call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi2(1)))
          if (ispin.gt.1) then
            call Grsm_g_MakeOrtho(npack1,ne(2),

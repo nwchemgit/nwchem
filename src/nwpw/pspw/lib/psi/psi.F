@@ -1139,7 +1139,7 @@ c
 c      sum1 = dble(ne(1) + ne(2))
 c      if (dabs(sum2-sum1).gt.1.0d-10) then
 c         if (taskid.eq.MASTER) 
-c     >      write(*,*) "Waring: Gram-Schmidt being performed on psi2"
+c     >      write(*,*) "Warning: Gram-Schmidt being performed on psi2"
 c         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi2(1)))
 c         if (ispin.gt.1) then
 c           call Grsm_g_MakeOrtho(npack1,ne(2),
@@ -2079,7 +2079,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
      >                        dcpl_mb(psi1(1)),
      >                        sum2)
          if (taskid.eq.MASTER)
-     >    write(*,*) "Waring - Gram-Schmidt being performed on psi:",
+     >    write(*,*) "Warning - Gram-Schmidt being performed on psi:",
      >               dabs(sum2-sum1)
 
 

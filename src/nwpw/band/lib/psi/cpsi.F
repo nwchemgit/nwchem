@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.10 2002-01-20 23:49:22 bylaska Exp $
+* $Id: cpsi.F,v 1.11 2002-02-13 00:53:45 edo Exp $
 *
 
 
@@ -576,7 +576,7 @@ c
 c      sum1 = dble(ne(1) + ne(2))
 c      if (dabs(sum2-sum1).gt.1.0d-10) then
 c         if (taskid.eq.MASTER) 
-c     >      write(*,*) "Waring: Gram-Schmidt being performed on psi2"
+c     >      write(*,*) "Warning: Gram-Schmidt being performed on psi2"
 c         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi2(1)))
 c         if (ispin.gt.1) then
 c           call Grsm_g_MakeOrtho(npack1,ne(2),

@@ -457,7 +457,7 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
          call Parallel_taskid(taskid)
 c         if (taskid.eq.MASTER) 
 c    >      write(*,*) 
-c    >      "Waring: Gram-Schmidt being performed in geodesic_get"
+c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
          call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
          if (psi_ispin().gt.1) then
            call Grsm_g_MakeOrtho(npack1,psi_ne(2),
