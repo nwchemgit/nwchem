@@ -9,13 +9,13 @@
 c     
       data depth /1/, print_level(1)/print_default/ ! In common
       data n_print(1) /0/, n_no_print(1) /0/
-      data oprint_print /.false./
+      data oprint_print(1) /.false./
 c     
       if (n_print(depth) .gt. 0) then
          if (inp_match(n_print(depth), .false., name, 
      $        print_names(1,depth), ind)) then
             util_print = .true.
-            if (oprint_print) then
+            if (oprint_print(depth)) then
                write(6,*) ' up: explicit on for: ', name
             endif
             goto 10
@@ -29,7 +29,7 @@ c
          if (inp_match(n_no_print(depth), .false., name, 
      $        no_ print_names(1,depth), ind)) then
             util_print = .false.
-            if (oprint_print) then
+            if (oprint_print(depth)) then
                write(6,*) ' up: explicit off for: ', name
             endif
             goto 10
@@ -39,13 +39,13 @@ c
          endif
       endif
 c     
-      if (oprint_print) then
+      if (oprint_print(depth)) then
          write(6,*) ' up: general rule for: ', name
       endif
       util_print = level .le. print_level(depth)
 
  10   continue
-      if (oprint_print) then
+      if (oprint_print(depth)) then
          write(6,*) ' up: ', name, ' ', level, print_level(depth), 
      $        util_print
       endif
@@ -71,6 +71,7 @@ c
          print_level(depth) = print_default
          n_print(depth) = 0
          n_no_print(depth) = 0
+         oprint_print(depth) = .false.
       endif
 c
       end
@@ -97,12 +98,12 @@ c
      $        n_print(depth))
       else
          if (name(1:5) .eq. 'print') then
-            oprint_print = .true.
+            oprint_print(depth) = .true.
          else
             n_print(depth) = n_print(depth) + 1
             print_names(n_print(depth), depth) = name
          endif
-         if (oprint_print) then
+         if (oprint_print(depth)) then
             write(6,*) ' up: enabling: ', name
          endif
       endif
@@ -120,26 +121,34 @@ c
       else
          n_no_print(depth) = n_no_print(depth) + 1
          no_print_names(n_no_print(depth), depth) = name
-         if (oprint_print) then
+         if (oprint_print(depth)) then
             write(6,*) ' up: disabling: ', name
          endif
       endif
 c
       end
-      logical function util_print_rtdb_load(rtdb, printentry, 
-     $     noprintentry)
+      logical function util_print_rtdb_load(rtdb, prefix)
       implicit none
 #include "printcommon.fh"
 #include "printlevels.fh"
 #include "inp.fh"
 #include "rtdb.fh"
       integer rtdb
-      character*(*) printentry, noprintentry
+      character*(*) prefix
 c     
+      character*80 printentry, noprintentry
       integer maxnames1
       parameter (maxnames1 = maxnames + 1)
       character*32 buf(maxnames1)
       integer i
+c
+      printentry = ' '
+      noprintentry = ' '
+      write(printentry,1) prefix(1:inp_strlen(prefix)),
+     $     ':print'
+      write(noprintentry,1) prefix(1:inp_strlen(prefix)),
+     $     ':noprint'
+ 1    format(a,a)
 c     
       call util_print_set_level(print_default)
       do i = 1, maxnames1

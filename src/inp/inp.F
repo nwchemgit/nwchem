@@ -160,8 +160,8 @@ c
       do i=1, jwidth
  91      if (ja(i:i) .eq. xcomm .and. xprev.ne.xback) then
             lenja = inp_strlen(ja)
-            write(iwrite,90) ja(i+1:lenja)
- 90         format(/' comment :-',1x,a)
+*            write(iwrite,90) ja(i+1:lenja)
+* 90         format(/' comment :-',1x,a)
             ja(i:max_width) = xblnk
             goto 80
          else if (ja(i:i) .eq. xcomm .and. xprev.eq.xback) then

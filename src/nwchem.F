@@ -145,7 +145,7 @@ c
 c
 c     Extract any high level print options
 c
-      call util_print_rtdb_load(rtdb,'print','noprint')
+      call util_print_rtdb_load(rtdb,' ')
 c
 c     Done
 c

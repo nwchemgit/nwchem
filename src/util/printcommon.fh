@@ -5,6 +5,7 @@
       character*32 print_names, no_print_names
 c
       common /printcommon/ depth, print_level(maxdepth),
-     $     n_print(maxdepth), n_no_print(maxdepth), oprint_print
+     $     n_print(maxdepth), n_no_print(maxdepth),
+     $     oprint_print(maxdepth)
       common /cprintcommon/print_names(maxnames,maxdepth),
      $     no_print_names(maxnames,maxdepth)

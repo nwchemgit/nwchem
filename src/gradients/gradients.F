@@ -35,8 +35,7 @@ c
       if (.not. context_push('gradients'))
      $     call errquit('gradients: context_push failed', 0)
       call util_print_push
-      call util_print_rtdb_load(rtdb,'gradients:print',
-     $     'gradients:noprint')
+      call util_print_rtdb_load(rtdb,'gradients')
 c
       status = rtdb_get(rtdb, 'scf:converged', MT_LOG, 1, converged) 
       if ( .not.( status .and. converged )) call errquit

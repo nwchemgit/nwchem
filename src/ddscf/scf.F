@@ -47,7 +47,7 @@ c
 c     Extract high level info from the data-base setting defaults
 c
       call util_print_push
-      call util_print_rtdb_load(rtdb, 'scf:print', 'scf:noprint')
+      call util_print_rtdb_load(rtdb, 'scf')
       oprint = util_print('information',print_low)
 c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))

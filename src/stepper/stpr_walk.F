@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.11 1995-01-05 18:31:10 d3g681 Exp $
+c $Id: stpr_walk.F,v 1.12 1995-01-09 23:27:08 d3g681 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -45,7 +45,7 @@ c
 c     push context down to stepper
 c
       call util_print_push
-      call util_print_rtdb_load(rtdb,'stepper:print','stepper:noprint')
+      call util_print_rtdb_load(rtdb,'stepper')
 c
       if (first_call.eq.0) then
         first_call = 1

@@ -1,0 +1,130 @@
+
+Print control
+-------------
+
+All modules should use the same print control mechanism to provide
+both uniformity and flexibility.  Here are the routines currently in
+use in the SCF and Gradient modules.  These are offered here as a
+starting point for discussion.
+
+A) All modules understand the print levels
+
+   none
+   low
+   medium = default
+   high
+   debug
+
+   "None" is defined to mean literally no output except for
+catastrophic errors (e.g., inconsistent data, failure to converge).
+
+B) Printing of specific quantities may be directly enabled or
+   disabled from the input.
+
+C) Modules operate independently and printing will eventually be
+   controllable via context
+
+This is how it currently works.
+
+You might input (in the current absence of better input)
+
+  set scf:print low basis "final eigenvectors"
+  set scf:noprint "title"
+
+This sets the overall printlevel to low, forces printing of the final
+eigenvectors and basis, and disables printing of the title.
+
+------------
+
+The implementation is very simple.  Each module defines one or two
+entries in the database which enable/disable printing
+
+  <module>:print ... list of names to enable print
+  <module>:noprint ... list of names to disable print
+
+The special values (none, low, ...) are recognized in the list of
+print keywords and are used to adjust the print level.
+The parsing of this list is encapsulated in the routine
+util_print_rtdb_load().  To support multiple modules a stack of print
+options is maintained ... this will eventually be combined with the
+context.
+
+The code necessary for each module is then simply
+
+  At the beginning of a module
+
+     call util_print_push 
+     call util_print_rtdb_load(rtdb, "module_name")
+
+     Util_print_push() sets the default printlevel for a new module.
+
+  To control printing within a module
+
+     #include "util.fh"
+
+     if (util_print("name", level)) then
+       write out data associated with "name"
+     endif
+
+     Level is one of the prespecified print levels 
+     (print_none, print_low, ...) or some module specific value
+     (see util/printlevels.fh for actual values).  
+
+     If (  (the level is below the current printlevel and printing of
+            "name" has not been explicitly disabled)
+           or
+           (the printing of name has been explicitly enabled) )
+
+        util_print returns .true.
+     endif
+         
+  At the end of a module
+
+     call util_print_pop
+
+  E.g.
+
+      #include "util.fh"
+
+      call util_print_push
+      call util_print_rtdb_load('scf')
+
+      if (util_print('information', print_low)) then
+         write(6,*) ...
+      endif
+
+      ...
+
+      call util_print_pop
+
+If an application wants more direct control over printing there are
+routines to explicitly control the print level and to enable/disable
+printing of named items.
+
+util.fh has been modified to define the integers
+
+    print_none     = 0 (use of this will force printing even if none
+                        is asked for!)
+    print_low      = 10
+    print_medium   = 20
+    print_high     = 30
+    print_debug    = 100
+    print_never    = 1,000,000
+    print_default  = print_medium
+
+and the routine
+
+    logical function util_print(name, level)
+    character*(*) name
+    integer level   
+
+Other relevant routines are
+
+    subroutine util_print_push
+    subroutine util_print_pop
+    subroutine util_print_rtdb_load(rtdb, prefix)
+    subroutine util_print_set_level(level)
+    subroutine util_print_enable(name)
+    subroutine util_print_disable(name)
+
+
