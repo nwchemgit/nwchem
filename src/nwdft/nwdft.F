@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.29 1997-02-13 01:07:32 d3g681 Exp $
+C$Id: nwdft.F,v 1.30 1997-02-20 10:03:14 d3e129 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -93,6 +93,7 @@ c
 c     terminate integrals 
 c     
       call int_terminate
+      call int_app_unset_no_texas(rtdb)
 c     
 c     destroy BS handles and geom object
 c
