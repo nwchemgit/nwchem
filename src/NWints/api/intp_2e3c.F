@@ -1,0 +1,127 @@
+      subroutine intp_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
+     &       lscr, scr, leri, eri)
+c $Id: intp_2e3c.F,v 1.1 1995-03-14 09:46:44 d3e129 Exp $
+      implicit none
+c
+c basic api routine to generate a block of 3 center two electron integrals
+c
+c eri = <bra_g(ish)|ket_g(jsh).ket_g(ksh)>
+c
+#include "apiP.fh"
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
+c
+c::external subroutines used
+c errquit
+c::functions
+      logical cando_nw
+      logical int_chk_sh
+      logical int_chk_init
+      external cando_nw
+      external int_chk_sh
+      external int_chk_init
+c:: passed
+      integer brain, ketin, lscr, leri
+      integer ish,jsh,ksh
+      double precision scr(lscr), eri(leri)
+      double precision Ri(3)  ! translation vector for ish center (fractional coordinates)
+      double precision Rj(3)  ! translation vector for jsh center (fractional coordinates)
+c:: local
+      logical shells_ok
+      integer bra, ket 
+      integer p_geom, cd_geom, ucont
+      integer Lp, p_prim, p_gen, p_iexp, p_icfp, p_cent
+      integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
+      integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
+      double precision xyz_new_i(3)  ! new coordinates for ish function center
+      double precision xyz_new_j(3)  ! new coordinates for jsh function center
+c
+      integer WarnP
+      save WarnP
+      data WarnP /0/
+c
+c check initialization
+c
+      if (.not.int_chk_init('intp_2e3c'))
+     &       call errquit('intp_2e3c: int_init was not called' ,0)
+c
+c     check input shell ranges
+c
+      shells_ok = int_chk_sh(brain,ish)
+      shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
+      shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
+      if (.not.shells_ok)
+     &       call errquit('intp_2e3c: invalid contraction/shell',0)
+c
+c     define center information required 
+c
+      bra = brain + BASIS_HANDLE_OFFSET
+      ket = ketin + BASIS_HANDLE_OFFSET
+      p_geom  = ibs_geom(bra)
+      cd_geom = ibs_geom(ket)
+c
+      if (p_geom.ne.cd_geom.and.WarnP.eq.0) then
+        write(6,*)'intp_2e3c: WARNING: possible geometry inconsistency'
+        write(6,*)'bra geometry handle:',p_geom
+        write(6,*)'ket geometry handle:',cd_geom
+        WarnP = 1
+      endif
+c
+      p_cent  = ibs_cn2ce(ish,bra)
+      c_cent  = ibs_cn2ce(jsh,ket)
+      d_cent  = ibs_cn2ce(ksh,ket)
+c.. translate ish center coordinates based on Ri
+      call intp_txyz(p_cent,p_geom,Ri,xyz_new_i)
+c.. translate jsh center coordinates based on Rj
+      call intp_txyz(c_cent,cd_geom,Rj,xyz_new_j)
+c
+      if(cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh)) then
+c
+        ucont   = ibs_cn2ucn(ish,bra)
+        Lp      = infbs_cont(CONT_TYPE ,ucont,bra)
+        p_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
+        p_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
+        p_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
+        p_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
+c
+        ucont   = ibs_cn2ucn(jsh,ket)
+        Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
+        c_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
+        c_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
+        c_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
+        c_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
+c
+        ucont   = ibs_cn2ucn(ksh,ket)
+        Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
+        d_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
+        d_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
+        d_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
+        d_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
+c      
+        call hf2(
+     &         xyz_new_i, exndcf(p_iexp,bra),
+     &         exndcf(p_icfp,bra), p_prim, p_gen, Lp,
+     &         xyz_new_i, DCexp,
+     &         DCcoeff           ,      1,     1, 0,
+     &         xyz_new_j, exndcf(c_iexp,ket),
+     &         exndcf(c_icfp,ket), c_prim, c_gen, Lc,
+     &         coords(1,d_cent,cd_geom), exndcf(d_iexp,ket),
+     &         exndcf(d_icfp,ket), d_prim,d_gen,Ld,
+c......................... canAB    canCD    canPQ
+     &         eri, leri, .false., .false., .false.,
+c............ dryrun
+     &         .false., scr, lscr)
+c
+      else
+        write(6,*)'intp_2e3c: could not do nw integrals'
+        write(6,*)' brain :',brain
+        write(6,*)' ketin :',ketin
+        write(6,*)' ish   :',ish
+        write(6,*)' jsh   :',jsh
+        write(6,*)' ksh   :',ksh
+        call errquit('intp_2e3c: fatal error ',0)
+      endif
+      end

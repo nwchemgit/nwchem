@@ -1,6 +1,6 @@
       subroutine intp_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
      &    lscr,scr,lpe,Pe)
-c $Id: intp_1epe.F,v 1.1 1995-01-09 08:48:43 d3e129 Exp $
+c $Id: intp_1epe.F,v 1.2 1995-03-14 09:46:45 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -21,7 +21,7 @@ c::passed
       integer i_basis, j_basis, ish, jsh, lscr, lpe
       double precision scr(lscr), Pe(lpe)
       double precision Ri(3)  ! translation vector for ish center (fractional coordinates)
-      double precision Rj(3)  ! translation vector for ish center (fractional coordinates)
+      double precision Rj(3)  ! translation vector for jsh center (fractional coordinates)
 c::local
       logical shells_ok
       integer i_geom, j_geom, ibas, jbas, ucont

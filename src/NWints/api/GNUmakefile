@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.23 1995-01-15 07:50:22 d3e129 Exp $
+# $Id: GNUmakefile,v 1.24 1995-03-14 09:46:42 d3e129 Exp $
 
     OBJ = int_init.o exact_mem.o int_mem.o \
           int_terminate.o int_chk_sh.o int_2e4c.o \
@@ -14,7 +14,8 @@
           int_1cg.o intd_2e2c.o intd_2e3c.o \
           int_mpole.o int_projpole.o \
           intp_1eov.o intp_1eke.o intp_txyz.o \
-          intp_1epe.o intp_mpole.o
+          intp_1epe.o intp_mpole.o intp_2e2c.o \
+          intp_2e3c.o
 
    LIBRARY = libnwints.a
 
