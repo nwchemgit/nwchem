@@ -1,5 +1,5 @@
 *
-* $Id: psi_read.F,v 1.8 2003-07-12 02:13:52 bylaska Exp $
+* $Id: psi_read.F,v 1.9 2003-07-29 22:27:43 bylaska Exp $
 *
 
 #define TCGMSG
@@ -301,7 +301,7 @@ c     **** send header to all nodes ****
       rtdb = control_rtdb()
       if (.not.rtdb_get(rtdb,'nwpw:psi_nolattice',
      >                  mt_log,1,psi_nolattice))
-     >   psi_nolattice = .false.
+     >   psi_nolattice = .true.
   
       if (.not.psi_nolattice) then
       if ( (unita(1,1).ne.control_unita(1,1)) .or.
