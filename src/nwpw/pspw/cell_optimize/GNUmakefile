@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.6 2002-05-10 12:35:33 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2002-07-17 16:52:46 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 		cell_optimize_input.o \
@@ -16,7 +16,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS =update_unitcell.F
+    USES_BLAS = update_unitcell.F stress_fd.F
                 
   LIB_DEFINES =
 
