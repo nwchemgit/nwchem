@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.40 1994-07-29 23:50:15 vg038 Exp $
+# $Id: makefile.h,v 1.41 1994-08-03 06:40:49 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -27,7 +27,7 @@ endif
 
 #
 # Do a setenv for NWCHEM_TARGET to be the machine you wish to build for
-# (one of SUN, IPSC, IBM, KSR, PARAGON)
+# (one of SUN, DELTA, IBM, KSR, PARAGON)
 #
 
 ifndef NWCHEM_TARGET
@@ -201,46 +201,40 @@ ifeq ($(TARGET),PARAGON)
   EXPLICITF = FALSE
 endif
 
-ifeq ($(TARGET),IPSC)
+ifeq ($(TARGET),DELTA)
 #
 # DELTA/IPSC running NX
 #
+    SUBDIRS_EXTRA = lapack
+
         FC = if77
         CC = icc
        CPP = /usr/lib/cpp
         AR = ar860
-
     RANLIB = echo
      SHELL = /bin/sh
-   INSTALL = rcp $@ delta2:
-      FOPT = -O2 -Knoieee -Mquad -node -Minline=100
-  FOPT_REN = -O2 -Knoieee -Mquad -Mreentrant -Mrecursive -node
-      COPT = -O2 -Knoieee -Mreentrant -node
-  INCLUDES =  -I. -I$(SRCDIR)/rtdb -I$(SRCDIR)/global -I$(SRCDIR)/tcgmsg -I$(SRCDIR)/NWints \
-              -I$(SRCDIR)/util -I$(SRCDIR)/ma -I$(SRCDIR)/db -I$(SRCDIR)/tcgmsg/ipcv4.0
+   INSTALL = rcp $@ delta1:
+#-Mrecursive -Mnosave to force all locals onto the stack to avoid BSS exploding
+      FOPT = -O1 -Knoieee -Mquad -Mrecursive -Mnosave -node -Minline=100
+  FOPT_REN = -O1 -Knoieee -Mquad -Mreentrant -Mrecursive -Mnosave -node
+      COPT = -g -Knoieee -Mreentrant -node
+  INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
    DEFINES = -DNX -DIPSC -DNO_BCOPY  $(LIB_DEFINES)
-#  -DGA_TRACE
-    FFLAGS = $(FOPT)
+    FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
     CFLAGS = $(COPT) $(INCLUDES) $(DEFINES)
  MAKEFLAGS = -j 2
     FLDOPT = $(FOPT) -node
     CLDOPT = $(COPT) -node
    ARFLAGS = rcv
-      LIBS = $(SRCDIR)/input/libinput.a \
-             $(SRCDIR)/ddscf/libddscf.a \
-             $(SRCDIR)/NWints/libnwints.a  \
-             $(SRCDIR)/rtdb/librtdb.a \
-             $(SRCDIR)/db/libdb.a \
-             $(SRCDIR)/global/libglobal.a \
-             $(SRCDIR)/trace/libtrace.a \
-             $(SRCDIR)/tcgmsg/ipcv4.0/libtcgmsg.a \
-             $(SRCDIR)/util/libutil.a \
-             $(SRCDIR)/ma/libma.a \
-             $(SRCDIR)/peigs1.0/libpeigs.a \
-             $(SRCDIR)/peigs1.0/liblapack.a \
-             -lkmath 
+      LIBS = -L/home/delilah11/gifann/lib $(LIBPATH) -L$(LIBDIR)\
+             -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+             -linput -lguess -lgeom -lbasis -lutil \
+             -lglobal -llapack -lpeigs \
+             -lrtdb -ldb -linp -lpstat \
+             -lutil -lma -ltcgmsg -llapack -lkmath
+# -llapack -lblas 
 
- EXPLICITF = TRUE
+ EXPLICITF = FALSE
 endif
 
 
