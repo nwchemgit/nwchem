@@ -43,7 +43,7 @@ depend:
 source:
 	@echo Nothing to be done for $@
 
-lib:
+lib:	
 	(cd ./src/c; $(MAKE))
 	(cd ./src/f77; $(MAKE))
 	(cd ./comm; $(MAKE))
@@ -52,7 +52,7 @@ lib:
 	$(peigs_AR) libpeigs.a comm/*.o ctof/*.o src/c/*.o src/f77/*.o
 	$(peigs_RANLIB) libpeigs.a
 	mv libpeigs.a $(LIBDIR)
-#	($(MAKE) clean)
+	($(MAKE) clean)
 
 examples:
 	( cd example; $(MAKE) all )

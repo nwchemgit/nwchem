@@ -320,124 +320,119 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
 	max_clustr_size = MAX( 2, max_clustr_size);
       }
     }
-/* blocksize > 2 */    /*
-    else 
+    /* blocksize > 2 */
+    /*
+      else 
       if ( ffabs(w[j1] - w[jn])
-	     > max(fabs(w[j1]), fabs(w[jn])*max(100.e0, (DoublePrecision) msize)*eps)){
-	  *(c_ptr++) = j1;
-	  *(c_ptr++) = jn;
-	  *(c_ptr++) = b1;
-	  *(c_ptr++) = bn;
-	  num_cls++;
-	  max_clustr_size = MAX( 2, max_clustr_size);
-	}
-	else {
-	  *(c_ptr++) = j1;
-	  *(c_ptr++) = j1;
-	  *(c_ptr++) = b1;
-	  *(c_ptr++) = bn;
-	  num_cls++;
-	  *(c_ptr++) = jn;
-	  *(c_ptr++) = jn;
-	  *(c_ptr++) = b1;
-	  *(c_ptr++) = bn;
-	  num_cls++;
-	  max_clustr_size = MAX( 1, max_clustr_size);
-	}
-	*/
+      > max(fabs(w[j1]), fabs(w[jn])*max(100.e0, (DoublePrecision) msize)*eps)){
+      *(c_ptr++) = j1;
+      *(c_ptr++) = jn;
+      *(c_ptr++) = b1;
+      *(c_ptr++) = bn;
+      num_cls++;
+      max_clustr_size = MAX( 2, max_clustr_size);
+      }
+      else {
+      *(c_ptr++) = j1;
+      *(c_ptr++) = j1;
+      *(c_ptr++) = b1;
+      *(c_ptr++) = bn;
+      num_cls++;
+      *(c_ptr++) = jn;
+      *(c_ptr++) = jn;
+      *(c_ptr++) = b1;
+      *(c_ptr++) = bn;
+      num_cls++;
+      max_clustr_size = MAX( 1, max_clustr_size);
+      }
+      */
   }
-    
-    if ( blksiz > 2 ) {
-      /*
-       *  This is how one would compute ortol if the eigenvalues of block i
+  
+  if ( blksiz > 2 ) {
+    /*
+     *  This is how one would compute ortol if the eigenvalues of block i
        *  of T, Ti, were accurate relative to norm(Ti).
        */
-      
-      for (j = beg_of_block; j < ( end_of_block + 1) ; ++j) {
-	xj = w[j];
-	xj1 = w[j+1];
-	xj2 = w[j+2];
-	if ( 
-	    }
-	/*
-	  eval[j] = xj;
-	  */
-	
-#ifdef DEBUG1
-	fprintf(stderr, " got here 3 me = %d \n", me );
-#endif
-	
-	if (jblk == 1)
-	  clustrptr = j;
-	
-	/*
-	  tight cluster
-	  */
-	
-	if ( jblk > 1 )  {            /* jblk > 1 */
-	  sep = ffabs(xj - xjm);
-	  if ( sep >= MAX(ffabs(xj),ffabs(xjm))* (DoublePrecision) 1.e-3*onenrm) {
-	    /*
-	      if ( sep >= (DoublePrecision) 1.e-3*onenrm) {
-	      */
-#ifdef DEBUG1
-	    fprintf(stderr, " got here 4 me = %d \n", me );
-#endif
-	    if ( clustr_check(clustrptr, j-1, imin, imax) == 1 ) {
-	      *(c_ptr++) = clustrptr;
-	      *(c_ptr++) = j-1;
-	      *(c_ptr++) = b1;
-	      *(c_ptr++) = bn;
-	      num_cls++;
-	      max_clustr_size = MAX( j - clustrptr, max_clustr_size);
-	    }
-	    clustrptr = j;
-	    jblk = 1;
-	    
-            icsplit[ num_all_cls ] = j-1;
-            num_all_cls++;
-            *nacluster = num_all_cls;
-	    
-	    
-#ifdef DEBUG1
-	    fprintf(stderr, " out of 4 me = %d \n", me );
-#endif
-	    
+    
+    for (j = beg_of_block; j < ( end_of_block + 1) ; ++j) {
+      xj = w[j];
+      xj1 = w[j+1];
+      xj2 = w[j+2];
+      if ( 
 	  }
-	}
-	
-	/* 
-	   assume that xj - xjm < ortol but we're at the end of the blk 
+      /*
+	eval[j] = xj;
 	*/
-	
-	if ( j == end_of_block ) {
-	  if ( clustr_check(clustrptr, end_of_block, imin, imax) == 1 ) {
+      
 #ifdef DEBUG1
-	    fprintf(stderr, " got here 5 me = %d \n", me );
+      fprintf(stderr, " got here 3 me = %d \n", me );
 #endif
+      
+      if (jblk == 1)
+	clustrptr = j;
+      
+      /*
+	tight cluster
+	*/
+      
+      if ( jblk > 1 )  {            /* jblk > 1 */
+	sep = ffabs(xj - xjm);
+	if ( sep >= MAX(ffabs(xj),ffabs(xjm))* (DoublePrecision) 1.e-3*onenrm) {
+	  if ( clustr_check(clustrptr, j-1, imin, imax) == 1 ) {
 	    *(c_ptr++) = clustrptr;
-	    *(c_ptr++) = end_of_block;
+	    *(c_ptr++) = j-1;
 	    *(c_ptr++) = b1;
 	    *(c_ptr++) = bn;
 	    num_cls++;
-	    max_clustr_size = MAX( (end_of_block -clustrptr + 1), max_clustr_size);
-#ifdef DEBUG1
-	    fprintf(stderr, " out of 5 me = %d cbeg %d cend %d b1 %d bn %d \n",me,
-		    clustrptr, end_of_block, b1, bn );
-#endif
+	    max_clustr_size = MAX( j - clustrptr, max_clustr_size);
 	  }
+	  clustrptr = j;
+	  jblk = 1;
 	  
-          icsplit[ num_all_cls ] = end_of_block;
-          num_all_cls++;
-          *nacluster = num_all_cls;
-
+	  icsplit[ num_all_cls ] = j-1;
+	  num_all_cls++;
+	  *nacluster = num_all_cls;
+	    
+	  
+#ifdef DEBUG1
+	  fprintf(stderr, " out of 4 me = %d \n", me );
+#endif
+	  
+	}
+      }
+      
+      /* 
+	 assume that xj - xjm < ortol but we're at the end of the blk 
+	 */
+      
+      if ( j == end_of_block ) {
+	if ( clustr_check(clustrptr, end_of_block, imin, imax) == 1 ) {
+#ifdef DEBUG1
+	  fprintf(stderr, " got here 5 me = %d \n", me );
+#endif
+	  *(c_ptr++) = clustrptr;
+	  *(c_ptr++) = end_of_block;
+	  *(c_ptr++) = b1;
+	  *(c_ptr++) = bn;
+	  num_cls++;
+	  max_clustr_size = MAX( (end_of_block -clustrptr + 1), max_clustr_size);
+#ifdef DEBUG1
+	  fprintf(stderr, " out of 5 me = %d cbeg %d cend %d b1 %d bn %d \n",me,
+		  clustrptr, end_of_block, b1, bn );
+#endif
 	}
 	
-	xjm = xj;
+	icsplit[ num_all_cls ] = end_of_block;
+	num_all_cls++;
+	*nacluster = num_all_cls;
+	
       }
-    }
+	
+      xjm = xj;
+      }
   }
-  
+}
+
   /*
      ime = -1;
      for ( ii = 0; ii < *n; ii++ ){

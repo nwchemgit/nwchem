@@ -1,0 +1,461 @@
+#======================================================================
+#
+# DISCLAIMER
+#
+# This material was prepared as an account of work sponsored by an
+# agency of the United States Government.  Neither the United States
+# Government nor the United States Department of Energy, nor Battelle,
+# nor any of their employees, MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR
+# ASSUMES ANY LEGAL LIABILITY OR RESPONSIBILITY FOR THE ACCURACY,
+# COMPLETENESS, OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+# SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE WOULD NOT
+# INFRINGE PRIVATELY OWNED RIGHTS.
+#
+# ACKNOWLEDGMENT
+#
+# This software and its documentation were produced with Government
+# support under Contract Number DE-AC06-76RLO-1830 awarded by the United
+# States Department of Energy.  The Government retains a paid-up
+# non-exclusive, irrevocable worldwide license to reproduce, prepare
+# derivative works, perform publicly and display publicly by or for the
+# Government, including the right to distribute to other Government
+# contractors.
+#
+#======================================================================
+#
+#  -- PEIGS  routine (version 2.1) --
+#     Pacific Northwest Laboratory
+#     July 28, 1995
+#
+#======================================================================
+#
+# set the path to the "peigs" directory
+
+peigs_SRC		= $(TOPDIR)/src
+peigs_TARGET		= $(NWCHEM_TARGET)
+peigs_CPU_TYPE          = $(NWCHEM_TARGET_CPU)
+
+peigs_DIR	= $(peigs_SRC)/peigs
+peigs_LIB	= $(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a
+
+SHELL		= /bin/sh
+
+peigs_OBJDIR	 = $(peigs_DIR)/o
+peigs_HDIR	 = $(peigs_DIR)/h
+peigs_CSRC	 = $(peigs_DIR)/src/c
+peigs_F77SRC	 = $(peigs_DIR)/src/f77
+peigs_COMMDIR	 = $(peigs_DIR)/comm
+peigs_FTOC	 = $(peigs_DIR)/ctof
+peigs_EXAMPLE_LIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) $(CORE_LIBS) $(EXTRA_LIBS) $(LIBS)
+
+#==================================================
+#  Machine specific definitions.
+#==================================================
+#
+# generic definitions from nwchem makefile.h
+#
+
+peigs_AR = $(AR) $(ARFLAGS)
+peigs_RANLIB = $(RANLIB)
+peigs_FC = $(FC) $(FOPTIONS) -I$(peigs_HDIR)
+#
+# this is needed because -DCRAY-T3E cannot be a macro definition it should be -DCRAY_T3E
+#
+peigs_TARGET_definition = $(peigs_TARGET)
+peigs_CC = $(CC) $(COPTIONS) -I$(peigs_HDIR) -D$(peigs_TARGET_definition) -D$(peigs_CPU)
+peigs_LINK = $(FC) $(FOPTIONS) -I$(peigs_HDIR)
+peigs_COMM = TCGMSG
+peigs_CPP  = $(CPP) -I$(peigs_HDIR) -D$(peigs_CPU) -D$(peigs_COMM) -D$(peigs_TARGET_definition) -P
+
+#ifdef EXPLICITF
+peigs_FCONVERT = $(FCONVERT) -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} -D${peigs_TARGET_definition}
+#endif
+
+# The following are customizations for each machine
+
+ifeq ($(peigs_TARGET),CRAY-T3D)
+#
+# cray t3d at nersc
+#
+peigs_CPU = ALPHA
+#
+# 64 bit is single precision
+#
+peigs_TARGET_definition = CRAY_T3D
+peigs_CODEOBJ = SINGLE
+peigs_CC +=  -DSTD_DBL -DCRAY_T3D
+peigs_NODE = uniproc
+peigs_COMM = TCGMSG
+peigs_CPP += -P
+peigs_FC +=  -D$(peigs_COMM)
+endif
+
+ifeq ($(peigs_TARGET),CRAY-T3E) #
+# cray t3e at nersc
+#
+peigs_CPU = ALPHA
+#
+# 64 bit is single precision
+#
+peigs_TARGET_definition = CRAY_T3E
+peigs_CODEOBJ = SINGLE
+peigs_CC +=  -DSTD_DBL -DCRAY_T3D -O3
+peigs_NODE = uniproc
+peigs_COMM = TCGMSG
+peigs_FC += -DCRAY_T3D -DCRAY_T3E -D$(peigs_COMM) -D$(peigs_CPU) -e 0
+peigs_FOPT += 
+peigs_CPP += -DCRAY_T3E -DCRAY_T3D -P
+endif
+
+ifeq ($(peigs_TARGET),DELTA)
+peigs_CPU	= i860
+#
+# Delta machine, compiled on sun3 (intelisc) or delilah
+# 
+peigs_CODEOBJ = DBLE
+peigs_FC += -Mquad -Mr8  -D$(peigs_COMM)
+peigs_CC += -Mquad -Mvect
+peigs_FOPT =  -O3 -Minline=100
+peigs_COPT =  -O3 -Mvect
+#
+# one has a choice of native ipsc or tcgmsg for message passing
+#
+# peigs_COMM = iPSC_NATIVE
+#
+peigs_CPU	= i860
+peigs_CPP  += -P
+peigs_CTOFLIB =  -l/usr/local/delta/LAPACK -llapack -lf -kmath -lm
+endif
+
+ifeq ($(peigs_TARGET),PARAGON)
+#
+# -Mvect at your own risk
+peigs_CPU	= i860
+peigs_FOPT	= -O3 -Knoieee -Mquad -Mr8 -Minline=100
+peigs_COPT	= -O2 -Knoieee -Mquad -Minline=100
+OPTC2	= -O3 -Knoieee -Mquad
+peigs_FC +=  -D$(peigs_COMM)
+peigs_CC = -DSTD_DBL -DSTD_INT
+peigs_LINK += -nx
+peigs_CODEOBJ = DBLE
+peigs_CPP += -P
+endif
+
+
+ifeq ($(peigs_TARGET),iPSC_860)
+#
+peigs_CPU = i860
+# peigs_COMM = iPSC_NATIVE
+peigs_COMM = TCGMSG
+peigs_COPT =-O3 -Knoieee -Mquad -Minline=100
+peigs_CODEOBJ = DBLE
+peigs_FOPT = -O4 -Knoieee -Mquad -Mr8 -Minline=100
+peigs_FC += ${peigs_FOPT}  -D$(peigs_COMM)
+peigs_CC +=  -DSTD_DBL -DSTD_INT -DIntel
+endif
+
+ifeq ($(peigs_TARGET),SUN)
+# sun using
+# SUN/TCGMSG
+peigs_CC += -DSTD_DBL -DSTD_INT
+peigs_FC += -Bstatic -O1 -dalign  -D$(peigs_COMM)
+peigs_CODEOBJ   = DBLE
+peigs_CPU = SPARC
+peigs_COMM = TCGMSG
+#
+#	this is the worst to find for any machine
+#	for the SUN we have c calling fortran library
+#
+peigs_CTOFLIB		=  /msrc/apps/lib/gcc-lib/sparc-sun-sunos4.1.3/2.4.3/libgcc.a -lF77 -lV77 -L/msrc/apps/f771.4/SC1.0
+#
+endif	
+
+ifeq ($(peigs_TARGET),SOLARIS)
+# sun using
+#SUN/TCGMSG
+peigs_CPU = SPARC
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CC += -DSTD_DBL -DSTD_INT -O
+peigs_FC += -DSTD_INT -DSTD_DBL -dalign -D$(peigs_CPU) -O4  -D$(peigs_COMM)
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+#
+#	this is the worst to find for any machine
+#	for the SUN we have c calling fortran library
+#
+#local to pnnl
+peigs_CTOFLIB = /msrc/apps/lib/gcc-lib/sparc-sun-sunos4.1.3/2.4.3/libgcc.a -lF77 -lV77 -L/msrc/apps/f771.4/SC1.0 -llapack -lblas -llapack -lm
+#
+#replace if you are on a machine with assembly BLAS library
+#
+endif	
+
+ifeq ($(peigs_TARGET),SGI)
+#SGI/TCGMSG usually r4000
+
+peigs_CPU = MIPS
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CC += -DSTD_DBL -DSTD_INT
+peigs_FC += -align64 -DSTD_INT -DSTD_DBL -D$(peigs_COMM) -D$(peigs_CPU)
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
+endif  
+
+ifeq ($(peigs_TARGET),SGI_N32)
+peigs_CPU = MIPS
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CC += -DSTD_DBL -DSTD_INT
+peigs_FC += -align64  -D$(peigs_COMM) -DSTD_INT -DSTD_DBL -D$(peigs_CPU)
+peigs_CPP += -DSTD_INT -DSTD_DBL -D$(peigs_CPU) -P
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
+endif  
+
+
+ifeq ($(peigs_TARGET),SGITFP)
+#SGI/TCGMSG, r10000 cpu 7.x compilers
+peigs_CPU = MIPS
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CC += -DSTD_DBL -64
+peigs_FC += -align64  -64 -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU)
+peigs_CPP += -DSTD_DBL -P
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
+peigs_FOPT = -O3 
+peigs_COPT = -O3
+peigs_COMM  = TCGMSG
+peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
+endif
+
+ifeq ($(peigs_TARGET),CONVEX-SPP)
+#
+# Convex SPP-1200 running SPP-UX 3.2
+#
+peigs_CODEOBJ = DBLE
+peigs_COMM = TCGMSG
+peigs_CPU = HPPA
+peigs_CC += -DSTD_DBL -DSTD_INT
+peigs_FC += -DSTD_DBL -DSTD_INT  -D$(peigs_COMM)
+endif
+
+ifeq ($(peigs_TARGET),HPUX)
+#
+# try for HP running HPUX10.20
+#
+peigs_CODEOBJ = DBLE
+peigs_COMM = TCGMSG
+peigs_CPU = HPPA
+peigs_CC += -DSTD_DBL -DSTD_INT
+peigs_FC += -DSTD_DBL -DSTD_INT  -D$(peigs_COMM)
+endif
+
+ifeq ($(peigs_TARGET),IBM)
+#
+# IBM AIX
+#
+peigs_CODEOBJ = DBLE
+peigs_CPU = RS6000
+# -qarch=pwr (for peril) com (for any) , pwr2  or ppc
+peigs_COMM =TCGMSG
+peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -qinline \
+	-O3 -qstrict -qinline -qfloat=rsqrt:fltint:hssngl  -g
+
+peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict \
+-WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
+-qfloat=rsqrt:fltint:hssngl -qinline -g
+
+peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
+peigs_BLASLIB   = -lblas
+peigs_LAPACKLIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -llapack
+peigs_PEIGSLIB  = -lpeigs
+peigs_COMMLIB = -ltcgmsg -brename:.xerbla_,.xerbla \
+-brename:.dasum_,.dasum \
+-brename:.dnrm2_,.dnrm2 \
+-brename:.dscal_,.dscal \
+-brename:.dcopy_,.dcopy \
+-brename:.ddot_,.ddot \
+-brename:.daxpy_,.daxpy \
+-brename:.lsame_,.lsame \
+-brename:.idamax_,.idamax
+
+
+
+endif
+
+
+ifeq ($(peigs_TARGET),KSR8)
+#
+# real*8 and integer*8 VERSION FOR KSR
+# using the crummy optimized ksrlapk.a ksrblas.a
+#
+# -xfpu3 generate suspect answers for choleski
+#
+# KSR/TCGMSG
+peigs_CC += -DSTD_DBL -DKSR8
+peigs_CODEOBJ = DBLE
+peigs_CPP += -P
+peigs_CPU =KSR
+peigs_COMM =TCGMSG
+#
+# peigs_BLASLIB         = -lksrblas
+# peigs_LAPACKLIB       = -lksrlapk
+endif
+
+ifeq ($(peigs_TARGET),KSR)
+#
+# "real*8" version of lapack and blas
+# KSR/TCGMSG
+#
+# -xfpu3 generate suspect answers for choleski
+#
+peigs_CODEOBJ	= DBLE
+peigs_CC += -DSTD_DBL -O2
+peigs_COPT = -O2
+peigs_FC += -O2 -DSTD_DBL  -D$(peigs_COMM)
+peigs_CPP  += -P
+peigs_CPU  =KSR
+peigs_COMM =TCGMSG
+#
+#peigs_BLASLIB         = -lblas
+#peigs_LAPACKLIB       = -llapack
+endif
+
+ifeq ($(peigs_TARGET),SP1)
+## IBM SP-1, sp-2 or cluster of rs6000 wt tcgmsg ( using xlf instead of mpxlf )
+peigs_COMM =TCGMSG
+peigs_CPU = RS6000
+peigs_CODEOBJ=DBLE
+peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
+-I$(HDIR) -qfloat=rsqrt:fltint:hssngl 
+
+peigs_FC  += -I$(peigs_HDIR) -O3 -qstrict \
+-WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
+-qfloat=rsqrt:fltint:hssngl -qinline -NQ40000 -NT80000
+
+peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
+
+ifeq ($(NWCHEM_TARGET_CPU),P2SC)
+peigs_FC += -qarch=pwr2 -qtune=pwr2
+
+# -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
+# -qcache=type=i:level=1:size=32:line=128 \
+
+
+peigs_CC += -qarch=pwr2 -qtune=pwr2
+endif
+
+ifeq ($(NWCHEM_TARGET_CPU),604)
+peigs_FC += -qarch=604 -qtune=604
+peigs_CC += -qarch=ppc -qtune=604
+endif
+endif
+
+ifeq ($(peigs_TARGET),LAPI)
+## IBM SP-1, sp-2 or cluster of rs6000 wt tcgmsg ( using xlf instead of mpxlf )
+peigs_COMM =TCGMSG
+peigs_CPU = RS6000
+peigs_CODEOBJ=DBLE
+peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
+-I$(HDIR) -qfloat=rsqrt:fltint:hssngl  -qinline
+
+peigs_FC  += -qthreaded -I$(peigs_HDIR) -O3 -qstrict \
+-WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
+-qfloat=rsqrt:fltint:hssngl  -NQ40000 -NT80000 -qinline
+
+peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
+peigs_COMMLIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_BLASLIB = -lesslp2_r
+peigs_LAPACKLIB = -lpeigs -lesslp2_r -llapack -lglobal -lutil
+
+ifeq ($(NWCHEM_TARGET_CPU),P2SC)
+peigs_FC += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
+-qcache=type=i:level=1:size=32:line=128 \
+-qarch=pwr2 -qtune=pwr2
+
+peigs_CC += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
+-qcache=type=i:level=1:size=32:line=128 \
+-qarch=pwr2 -qtune=pwr2
+endif
+
+ifeq ($(NWCHEM_TARGET_CPU),604)
+peigs_FC += -qarch=604 -qtune=604
+peigs_CC += -qarch=ppc -qtune=604
+endif
+
+endif
+
+ifeq ($(peigs_TARGET),DECOSF)
+#alpha with /tcgmsg
+peigs_CPU  = ALPHA
+peigs_COMM = TCGMSG
+peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL -P -DDECOSF
+peigs_CODEOBJ = DBLE
+peigs_CC  += -D${CPU} -DSTD_DBL -D_fastmath -O3 -DDECOSF
+peigs_FC += -O3 -D${CPU} -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM)
+endif
+
+ifeq ($(peigs_TARGET),LINUX)
+#
+# Linux running on an x86 using f77 on f2c
+#
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CPU = PENTIUM
+peigs_CC += -DSTD_DBL -DSTD_INT
+peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+#
+# on the hpcc? laptops add /usr/lib/gcc-lib/i486-linux/2.7.0 to your path
+# or make link from /usr/bin
+#
+# temporary slackware hack until george gets cpp/fconvert in the builds
+#
+peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
+-D${peigs_TARGET_definition}
+peigs_BLASLIB   = -lblas
+peigs_LAPACKLIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -llapack
+peigs_PEIGSLIB  = -lpeigs
+peigs_COMMLIB = -ltcgmsg
+endif
+
+ifeq ($(peigs_TARGET),PGLINUX)
+#
+# Linux running on an x86 using pgf77 and gcc
+#
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CPU = PENTIUM
+peigs_CC += -DSTD_DBL -DSTD_INT
+peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+#
+# on the hpcc? laptops add /usr/lib/gcc-lib/i486-linux/2.7.0 to your path
+# or make link from /usr/bin
+#
+# temporary slackware hack until george gets cpp/fconvert in the builds
+#
+peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
+-D${peigs_TARGET_definition}
+endif
+
+ifeq ($(peigs_TARGET),FUJITSU_VPP)
+peigs_CPU = VPP
+endif
+
+export peigs_COMM
+export peigs_CC
+export peigs_FC
+export peigs_CODEOBJ
+export peigs_FCONVERT
+export peigs_TARGET
+export peigs_NODE
+export peigs_COMM
+export peigs_CPP
+
