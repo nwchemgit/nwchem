@@ -176,8 +176,8 @@ c
 c
 c Initialise integrals and screening
 c
-       call int_init(rtdb,1, basis)
        call int_normalize(basis)
+       call int_init(rtdb,1, basis)
        call schwarz_init(geom,basis)
 c
 c Maximum number of operator matrices we can allocate
