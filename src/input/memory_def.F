@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.2 1996-01-26 18:18:42 d3e129 Exp $
+C     $Id: memory_def.F,v 1.3 1996-07-01 16:27:26 d3g681 Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -43,20 +43,24 @@ C
 C     Allow the default to be specified as a compiler option
 C     at build time.  If it is not specified, we have sensible
 C     platform-specific defaults below.
+c
+c     RJH: adjusted defaults to provide more local memory in 
+c          light of new integrals, caching and replicated data
 C
 #ifdef DFLT_TOT_MEM
       Parameter (Total_Dflt = DFLT_TOT_MEM )
-#elif defined(SUN) || defined(LINUX) || defined(SOLARIS)
-C     This is primarily for debugging, so do not be too greedy
-C
-      Parameter ( Total_Dflt = 2097152 ) ! 16 MB
+#elif defined(LINUX)
+c     Our lap tops have 24 MB of pyshical memory
+      paramter (total_dflt = 2097152 ) ! 16 MB
+#elif defined(SUN) || defined(SOLARIS)
+      Parameter ( Total_Dflt = 6291456 ) ! 48 MB
 #elif defined(CRAY_T3D)
 C     Note this is a minimum memory configuration for a T3D
 C     Code seems to be very large on T3D (~10-15 MB)
 C
       Parameter ( Total_Dflt = 5242880 ) ! 40 MB on a 64 MB node
 #elif defined(KSR)
-      Parameter ( Total_Dflt = 3145728 ) ! 24 MB on a 32 MB node
+      Parameter ( Total_Dflt = 2621440 ) ! 20 MB on a 32 MB node
 #elif defined(__PARAGON__)
 C     The OS Version 1.3 release notes give the following table
 C     for memory usage by the OS based on physical memory on the
@@ -78,19 +82,19 @@ C
 #elif defined(SGITFP)
 C     This is an arbitrary guess at the moment
 C
-      Parameter ( Total_Dflt = 3145728 ) ! 24 MB
+      Parameter ( Total_Dflt = 6291456 ) ! 48 MB
 #elif defined(DECOSF)
 C
-      Parameter ( Total_Dflt = 2621440 ) ! 2o MB
+      Parameter ( Total_Dflt = 2621440 ) ! 20 MB
 #elif defined(SGI) && ! defined(SGITFP)
 C     This is an arbitrary guess at the moment
 C
-      Parameter ( Total_Dflt = 3145728 ) ! 24 MB
+      Parameter ( Total_Dflt =  6291456 ) ! 48 MB
 #elif defined(IBM) || defined(SP1)
 C     This is probably a minimum configuration for most IBM
 C     platforms, but many will have more.
 C
-      Parameter ( Total_Dflt = 7340032 ) ! 56 MB on a 64 MB node
+      Parameter ( Total_Dflt = 13107200) ! 100 MB on 128 MB node
 #endif
 C
 C     Fraction of total memory which goes into each memory category
@@ -98,7 +102,7 @@ C     by default.  This is (should be) an empirical estimate of what
 C     distribution of memory will serve most applications.
 C
       Double Precision Heap_Frc, Stack_Frc, Global_Frc
-      Parameter (Heap_Frc = 0.10, Stack_Frc = 0.10, Global_Frc = 0.80 )
+      Parameter (Heap_Frc = 0.25, Stack_Frc = 0.25, Global_Frc = 0.50 )
 C
 C LOCAL VARIABLES
       Integer NSet, Missing, Borrow

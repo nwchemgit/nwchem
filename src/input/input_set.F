@@ -1,5 +1,5 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.8 1996-02-08 08:45:51 d3g681 Exp $
+C$Id: input_set.F,v 1.9 1996-07-01 16:27:24 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -102,10 +102,12 @@ c              real
 c              logical
                status = inp_a(test)
                if (inp_compare(.false.,test,'true') .or.
-     $            inp_compare(.false.,test,'.true.')) then
+     $            inp_compare(.false.,test,'.true.') .or.
+     $            inp_compare(.false.,test,'t')) then
                   Log_MB( I_Values + i - 1) = .true.
                else if (inp_compare(.false.,test,'false') .or.
-     $               inp_compare(.false.,test,'.false.')) then
+     $               inp_compare(.false.,test,'.false.') .or.
+     $               inp_compare(.false.,test,'f')) then
                   Log_MB( I_Values + i - 1) = .false.
                else
                   call errquit('input_set: error parsing logical', i)
