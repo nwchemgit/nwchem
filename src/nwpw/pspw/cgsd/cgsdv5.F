@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.56 2004-12-18 20:01:52 bylaska Exp $
+* $Id: cgsdv5.F,v 1.57 2004-12-22 23:09:40 bylaska Exp $
 *
 
 ***********************************************************************
@@ -55,7 +55,7 @@
       integer ierr
 
 *     **** local variables ****
-      logical oprint,lprint,hprint
+      logical oprint,lprint,hprint,qmmm
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       real*8  icharge
@@ -193,6 +193,7 @@
       nwave = 0
       minimizer = control_minimizer()
       mapping   = control_mapping()
+      qmmm      = control_qmmm()
 
 
 *     **** initialize D3dB data structure ****
@@ -288,7 +289,7 @@ c     value = psi_initialize()
          write(6,1121) control_boundry(),control_version()
          if (psi_ispin().eq.1) write(6,1130) "restricted"
          if (psi_ispin().eq.2) write(6,1130) "unrestricted"
-         if (control_qmmm()) write(6,1122)
+         if (qmmm) write(6,1122)
          IF (control_gga().eq.-1) THEN
             write(6,1131) 'off'
          ELSE IF (control_gga().eq.0) THEN
