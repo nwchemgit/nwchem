@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.47 2001-11-15 04:31:42 d3j191 Exp $
+c $Id: md_input.F,v 1.48 2001-11-21 03:31:04 d3j191 Exp $
 c
       implicit none
 c
@@ -276,6 +276,13 @@ c
       endif
 c
       if(inp_compare(.false.,'boxes',item)) then
+      if(.not.inp_i(nbx)) call errquit('md_input: error nbx',0)
+      if(.not.inp_i(nby)) call errquit('md_input: error nby',0)
+      if(.not.inp_i(nbz)) call errquit('md_input: error nbz',0)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'cells',item)) then
       if(.not.inp_i(nbx)) call errquit('md_input: error nbx',0)
       if(.not.inp_i(nby)) call errquit('md_input: error nby',0)
       if(.not.inp_i(nbz)) call errquit('md_input: error nbz',0)
