@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.17 2003-01-24 20:17:07 edo Exp $	
+#	$Id: MakeFile,v 1.18 2003-01-25 02:08:16 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -64,6 +64,7 @@ OBJ =          $(OBJDIR)\output.obj \
                $(OBJDIR)\mk_fit_xf.obj \
                $(OBJDIR)\int_2c_ga.obj \
                $(OBJDIR)\ga_local_mdot.obj \
+               $(OBJDIR)\ga_antisymmetr.obj \
                $(OBJDIR)\util_cpusec.obj \
                $(OBJDIR)\util_wallsec.obj \
                $(OBJDIR)\gather.obj \
@@ -101,6 +102,7 @@ OBJ =          $(OBJDIR)\output.obj \
                $(OBJDIR)\win32_cpu.obj \
                $(OBJDIR)\util_debug.obj \
                $(OBJDIR)\util_erf.obj \
+               $(OBJDIR)\bead_list.obj \
                $(EXTRA_OBJ)
 
 HEADERS =      util.fh \
