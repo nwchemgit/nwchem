@@ -65,7 +65,7 @@ c
       external file_write_ga,file_read_ga
       character*(nw_max_path_len) cphf_sol
       integer natoms, l_grad, k_grad
-c
+c     
       otrace = util_print('matrix trace',print_debug)
       omatrix = util_print('matrix debug', print_debug)
 c     
@@ -79,9 +79,9 @@ c
 c     
       if(.not.rtdb_get(rtdb,'fourindex:aoblock',mt_log,oblk,1))
      $     oblk=.false.
-c
+c     
 c     Get no. of MOs ... nmo != nbf if linear dependence present
-c
+c     
       if (.not. bas_numbf(basis,nbf))
      $     call errquit('mp2_grad: could not get nbf',0)
       if(.not.movecs_read_header(movecs,title_vecs,basis_vecs,
@@ -89,7 +89,7 @@ c
      $     call errquit('mp2_grad: problem with movecs_read_header',1)
       if(nbf.ne.nbf_vecs)call errquit('mp2: MO vectors mismatch?',0)
       nmo = nmos(1)
-c
+c     
       noa_frozen = 0            ! No freezing yet
       nva_frozen = 0
       nob_frozen = 0
@@ -102,13 +102,14 @@ c
      $        call errquit('no alphas',1)
          if(.not.rtdb_get(rtdb,'scf:nbeta',mt_int,1,nob))
      $        call errquit('no betas',1)
-      endif
-      if(scftype.eq.'RHF')then
+      else if(scftype.eq.'RHF')then
          if(.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nocc))
      $        call errquit('no occ',1)
          noa=nocc
          nob=nocc
-      endif
+      else
+         call errquit('mp2_grad: unknown SCFTYPE ', 0)
+      end if
       nva=nmo-noa
       nvb=nmo-nob
 c     
@@ -118,23 +119,23 @@ c
      $     g_vecs_a))call errquit('mp2_energy: ga_create failed',0)
       if(.not.ga_create(mt_dbl,nbf,nmo,'beta_vecs',nbf,1,g_vecs_b))
      $     call errquit('mp2_energy: ga_create failed',0)
-c
+c     
       if(.not.ma_push_get(mt_dbl,nbf,'occ alpha',
      $     l_occ_a,k_occ_a))      
      $     call errquit('mp2_energy ma problem with alpha occ',1)
-c
+c     
       if(.not.ma_push_get(mt_dbl,nbf,'occ beta',
      $     l_occ_b,k_occ_b))
      $     call errquit('mp2_energy ma problem with beta occ',1)
-c
+c     
       if(.not.ma_push_get(mt_dbl,nbf,'alpha evals',
      $     l_eval_a,k_eval_a))
      $     call errquit('problem with ma for a evals',1)
-c
+c     
       if(.not.ma_push_get(mt_dbl,nbf,'beta evals',
      $     l_eval_b,k_eval_b))
      $     call errquit('problem with ma for b evals',1)
-c
+c     
       if(.not.movecs_read(movecs,1,dbl_mb(k_occ_a),
      $     dbl_mb(k_eval_a),g_vecs_a))
      $     call errquit('could not read alpha vecs',1)
@@ -145,11 +146,11 @@ c
       else 
          call ga_copy(g_vecs_a,g_vecs_b) ! RHF just duplicate vectors
          call dcopy(nmo, dbl_mb(k_eval_a), 1, dbl_mb(k_eval_b), 1)
-      endif
+      end if
 c     
       if(.not.ma_push_get(mt_int,nmo,'irs_a',l_irs_a,k_irs_a))
      $     call errquit('scf_movecs_sym_adapt: memory?',nmo)
-c
+c     
       if(.not.ma_push_get(mt_int,nmo,'irs_b',l_irs_b,k_irs_b))
      $     call errquit('scf_movecs_sym_adapt: memory?',nmo)
 c     
@@ -157,9 +158,14 @@ c
 c     
       call sym_movecs_adapt(basis,1d-8,g_vecs_a,int_mb(k_irs_a),
      $     nmixed)
-c
+c     
       call sym_movecs_adapt(basis,1d-8,g_vecs_b,int_mb(k_irs_b),
      $     nmixed)      
+c
+      if (omatrix) then
+         call ga_print(g_vecs_a)
+         call ga_print(g_vecs_b)
+      endif
 c     
       call int_terminate()
 c     
@@ -168,14 +174,14 @@ c
       do i=1,nmo
          int_mb(k_irs_a+i-1)=int_mb(k_irs_a+i-1)-1
          int_mb(k_irs_b+i-1)=int_mb(k_irs_b+i-1)-1
-      enddo
+      end do
 c     
       noa_lo=noa_frozen+1
       noa_hi=noa
       noa_correl=noa_hi-noa_lo+1
       nva_lo=noa+1
       nva_hi=nmo-nva_frozen
-c
+c     
       nob_lo=nob_frozen+1
       nob_hi=nob
       nob_correl=nob_hi-noa_lo+1
@@ -183,7 +189,7 @@ c
       nvb_hi=nmo-nvb_frozen
 c     
 c     map_a/b hold reordering vector from MO file to symmetry blocked
-c
+c     
       if(.not.ma_push_get(mt_int,nmo,'map_a',l_map_a,k_map_a))
      $     call errquit('could not alloc map_a',1)
       if(.not.ma_push_get(mt_int,nmo,'map_b',l_map_b,k_map_b))
@@ -203,24 +209,29 @@ c
       call moints_vecs_sym_sort(g_vecs_b,nbf,nvb_lo,nvb_hi,
      $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_vb_sym,
      $     sym_lo_vb,sym_hi_vb)
+c
+      if (omatrix) then
+         call ga_print(g_vecs_a)
+         call ga_print(g_vecs_b)
+      endif
 c     
 c     Also reorder the evals
-c
+c     
       call dcopy(nbf,dbl_mb(k_eval_a),1,dbl_mb(k_work),1)
       do i=noa_lo,nva_hi
          dbl_mb(k_eval_a-1+int_mb(k_map_a+i-1))=dbl_mb(k_work+i-1)
-      enddo
-c
+      end do
+c     
       call dcopy(nmo,dbl_mb(k_eval_b),1,dbl_mb(k_work),1)
       do i=nob_lo,nvb_hi
          dbl_mb(k_eval_b-1+int_mb(k_map_b+i-1))=dbl_mb(k_work+i-1)
-      enddo
+      end do
 c     
 c     These look as if should only be done for RHF ... now copy
 c     the apha evals over above so don't need it here?
-c$$$      call dfill(nbf,0.0d0,dbl_mb(k_eval_b),1)
-c$$$      call dcopy(nbf,dbl_mb(k_eval_a),1,dbl_mb(k_eval_b),1)
-c
+c$$$  call dfill(nbf,0.0d0,dbl_mb(k_eval_b),1)
+c$$$  call dcopy(nbf,dbl_mb(k_eval_a),1,dbl_mb(k_eval_b),1)
+c     
       if (.not. ma_pop_stack(l_work)) call errquit
      $     ('mp2_grad: ma failed popping workspace(1)', 0)
 c     
@@ -282,7 +293,7 @@ c
          call ga_zero(g_w_ai_b)
          call ga_zero(g_lai_a)
          call ga_zero(g_lai_b)
-      endif
+      end if
 c     
       pass=1
       call mp2_grad_uhf(rtdb,g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
@@ -311,13 +322,13 @@ c
      $        g_w_ai_b,g_w_ai_a,g_lai_b,g_lai_a,
      $        dbl_mb(k_grad),scftype)
       else
-c
+c     
 c     For RHF basically just need to add the mixed and pure
 c     spin pieces together and then set alpha=beta.  The
 c     energy and non-separable gradient need doubling.
-c
+c     
          e2 = e2 * 2.0d0
-c
+c     
          if (task .eq. 'gradient') then
             call dscal(3*natoms, 2.0d0, dbl_mb(k_grad), 1)
             call ga_dadd(1.0d0, g_p_ij_a, 1.0d0, g_p_ij_b, g_p_ij_a)
@@ -332,9 +343,9 @@ c
             call ga_copy(g_w_ai_a, g_w_ai_b)
             call ga_dadd(1.0d0, g_lai_a, 1.0d0, g_lai_b, g_lai_a)
             call ga_copy(g_lai_a, g_lai_b)
-         endif
-      endif
-c
+         end if
+      end if
+c     
       if(.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,escf))
      $     call errquit('could not get scf energy',1)
       e_total = escf + e2
@@ -346,12 +357,12 @@ c
      $        /,10x,'Total MP2 energy   ',f24.12,
      $        /,10x,43('-'),/)
          call util_flush(6)
-      endif
+      end if
       if(.not. rtdb_put(rtdb,'mp2:correlation energy',mt_dbl,1,e2))
      $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
       if(.not. rtdb_put(rtdb,'mp2:energy',mt_dbl,1,e_total))
      $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
-c
+c     
       if (omatrix) then
          call ga_print(g_p_ab_a)
          call ga_print(g_p_ij_a)
@@ -365,7 +376,7 @@ c
          call ga_print(g_w_ij_b)
          call ga_print(g_w_ai_b)
          call ga_print(g_lai_b)
-      endif
+      end if
       if (otrace) then
          call mp2_print_trace_norm(g_w_ij_a,'w_ij_a',noa)
          call mp2_print_trace_norm(g_w_ab_a,'w_ab_a',nva)
@@ -381,25 +392,31 @@ c
          if (ga_nodeid().eq.0) write(6,771) 'Norm of w_ai_b', norm
  771     format(1x,a,1x,f20.12)
          if (ga_nodeid().eq.0) call util_flush(6)
-      endif
+      end if
       call ga_sync()
-c
+c     
       if(task.eq.'gradient') then
          call pstat_on(ps_laifock)
          call mp2_lai_fock_uhf(geom,basis,
      $        g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,g_vecs_a,g_vecs_b,
      $        noa,nob,nva,nvb,g_lai_a,g_lai_b,rtdb,tol2e)
          call pstat_off(ps_laifock)
-         transform=.false.
 c
+         if (omatrix) then
+            call ga_print(g_lai_a)
+            call ga_print(g_lai_b)
+         endif
+c
+         transform=.false.
+c     
          if (scftype .eq. 'UHF') then
             grad_length=(noa*nva)+(nob*nvb)
          else
             grad_length=noa*nva
-         endif
-c
-         if(.not.ga_create(mt_dbl,grad_length,1,'uhf_nr_solve: grad',
-     $        1,1,g_rhs))call errquit('mp2: ga_grad',0)
+         end if
+c     
+         if(.not.ga_create(mt_dbl,grad_length,1,'mp2g: rhs',
+     $        1,1,g_rhs))call errquit('mp2: ga_rhs',0)
 c     
          call mp2_make_cphf_rhs(scftype, transform,basis,nmo,nbf,
      $        noa,nva,nob,nvb,int_mb(k_irs_a),int_mb(k_irs_b),
@@ -408,28 +425,28 @@ c
      $        sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
      $        sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $        g_vecs_a,g_vecs_b,g_lai_a,g_lai_b,g_rhs)
-c
+c     
          if (omatrix) call ga_print(g_rhs)
          if (otrace) then
             norm = sqrt(ga_ddot(g_rhs,g_rhs))
             if (ga_nodeid().eq.0) write(6,771) 'Norm of RHS', norm
-         endif
+         end if
 c     
          call pstat_on(ps_cphf)
          if(.not.cphf(rtdb))call errquit('could not do cphf',1)
          call pstat_off(ps_cphf)
 c     
 c...  the g_rhs now holds the solution         
-c
+c     
          call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
          if(.not.file_read_ga(cphf_sol,g_rhs))
      $        call errquit('could not read cphf_rhs',1)
-c
+c     
          if (omatrix) call ga_print(g_rhs)
          if (otrace) then
             norm = sqrt(ga_ddot(g_rhs,g_rhs))
             if (ga_nodeid().eq.0) write(6,771) 'Norm of soln', norm
-         endif
+         end if
 c     
          if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha dens',nmo,1,
      $        g_p_tot_a))call errquit(
@@ -437,12 +454,21 @@ c
          if(.not.ga_create(mt_dbl,nmo,nmo,'tot beta dens',nmo,1,
      $        g_p_tot_b))call errquit(
      $        'mp2_energy: ga_create failed',0)
-c
+c     
          call mp2_make_tot_dens(g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $        g_rhs,g_p_tot_a,g_p_tot_b,noa,nva,nob,nvb,nbf,nmo,
      $        int_mb(k_map_a), int_mb(k_map_b),
      $        g_vecs_a,g_vecs_b,basis,scftype)
 c
+         if (otrace) then
+            call mp2_print_trace_norm(g_p_tot_a,'g_p_tot_a',nmo)
+            call mp2_print_trace_norm(g_p_tot_b,'g_p_tot_b',nmo)
+         endif
+         if (omatrix) then
+            call ga_print(g_p_tot_a)
+            call ga_print(g_p_tot_b)
+         endif
+c     
          if (util_print('dipole',print_low))
      $        call mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
      $        g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
@@ -452,15 +478,15 @@ c
      $        g_p_tot_a,g_p_tot_b,noa,nob,g_vecs_a,g_vecs_b,
      $        g_w_ij_a,g_w_ij_b)
          call pstat_off(ps_wijfock)
-c
+c     
          if (omatrix) then
             call ga_print(g_w_ij_a)
             call ga_print(g_w_ij_b)
-         endif
+         end if
          if (otrace) then
             call mp2_print_trace_norm(g_w_ij_a,'w_ij_a',noa)
             call mp2_print_trace_norm(g_w_ij_b,'w_ij_b',nob)
-         endif
+         end if
 c     
          if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha wdens',nmo,1,
      $        g_w_tot_a))call errquit(
@@ -473,11 +499,11 @@ c
      $        noa,nva,nob,nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $        dbl_mb(k_eval_a),dbl_mb(k_eval_b),
      $        g_p_tot_a,g_p_tot_b,scftype)
-c
+c     
          call ga_dgop(1,dbl_mb(k_grad),3*natoms,'+')
-c
+c     
          if(ga_nodeid().eq.0)then
-           if (util_print('nonsepgrad',print_high)) then
+            if (util_print('nonsepgrad',print_high)) then
                write(6,*)
                write(6,*) ' Non-separable gradient'
                write(6,*)
@@ -485,17 +511,17 @@ c
                write (luout,1000) (dbl_mb(k_grad+i),i=0,3*natoms-1)
  1000          format (1000(3(F14.8,1X)/))
                call util_flush(6)
-           endif
-           do i=1, 3*natoms
-             dbl_mb(k_grad+i-1) = -dbl_mb(k_grad+i-1)
-           enddo
-           status=rtdb_parallel(.false.)
-           if(.not.rtdb_put(rtdb,'mp2:nonseparable gradient',mt_dbl,
-     $          3*natoms,dbl_mb(k_grad)))
-     $          call errquit(
-     $          'semi_dir_mp2:failed to store gradient in rtdb',0)
-           status=rtdb_parallel(.true.)
-         endif
+            end if
+            do i=1, 3*natoms
+               dbl_mb(k_grad+i-1) = -dbl_mb(k_grad+i-1)
+            end do
+            status=rtdb_parallel(.false.)
+            if(.not.rtdb_put(rtdb,'mp2:nonseparable gradient',mt_dbl,
+     $           3*natoms,dbl_mb(k_grad)))
+     $           call errquit(
+     $           'semi_dir_mp2:failed to store gradient in rtdb',0)
+            status=rtdb_parallel(.true.)
+         end if
 c...  
 c...  call to Herbert's stuff
 c...  
@@ -537,7 +563,7 @@ c
      $        'could not destroy lai_b handle',1)
          if(.not.ga_destroy(g_lai_a))call errquit(
      $        'could not destroy lai_a handle',1)
-      endif
+      end if
 c     
       if(.not.ma_chop_stack(l_grad))call errquit(
      $     'could not chop stack in mp2_energy',1)
@@ -547,7 +573,7 @@ c
      $     call errquit('could not destroy g_vecs_b',1)
 c     
       call ga_sync
-c
+c     
       end
       subroutine mp2_print_trace_norm(g, text, n)
       implicit none
@@ -555,20 +581,20 @@ c
       integer g                 ! [input] GA handle
       character*(*) text        ! [input] info to print
       integer n                 ! [input] dimension of ga
-c
+c     
       double precision sum, xx, norm
       integer i
-c
+c     
       norm = sqrt(ga_ddot(g,g))
       if (ga_nodeid() .eq. 0) then
          sum = 0.0d0
          do i = 1, n
             call ga_get(g,i,i,i,i,xx,1)
             sum = sum + xx
-         enddo
+         end do
          write(6,1) text,sum,norm
  1       format(1x,a,' trace=',f20.12,' norm=',f20.12)
          call util_flush(6)
-      endif
-c
+      end if
+c     
       end

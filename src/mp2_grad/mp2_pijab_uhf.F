@@ -38,37 +38,37 @@
       double precision eval_a(*),eval_b(*)
       integer tcounta,tcountb
       integer pijacnt,pijbcnt,pabacnt,pabbcnt
-c
+c     
       integer k_p_ij_a,k_p_ij_b
       integer l_p_ij_a,l_p_ij_b
       integer k_p_ab_a,k_p_ab_b
       integer l_p_ab_a,l_p_ab_b
-c
+c     
 c     inline functions to compute offset to diagonal symmetry
 c     blocks in square arrays of dimension occupied and virtual
-c
+c     
       integer off_oa, off_va, off_ob, off_vb
       off_oa(symj) = sym_lo_oa(symj)-noa_lo+(sym_lo_oa(symj)-noa_lo)*noa
       off_ob(symj) = sym_lo_ob(symj)-nob_lo+(sym_lo_ob(symj)-noa_lo)*nob
       off_va(symb) = sym_lo_va(symb)-nva_lo+(sym_lo_va(symb)-nva_lo)*nva
       off_vb(symb) = sym_lo_vb(symb)-nvb_lo+(sym_lo_vb(symb)-nvb_lo)*nvb
-c
+c     
       noa=noa_hi-noa_lo+1
       nva=nva_hi-nva_lo+1
       nob=nob_hi-nob_lo+1
       nvb=nvb_hi-nvb_lo+1
-c
-c$$$      do symj = 0, nir-1
-c$$$         write(6,*) symj, ' occa ', sym_lo_oa(symj), sym_hi_oa(symj)
-c$$$         write(6,*) symj, ' occb ', sym_lo_ob(symj), sym_hi_ob(symj)
-c$$$         write(6,*) symj, ' vira ', sym_lo_va(symj), sym_hi_va(symj)
-c$$$         write(6,*) symj, ' virb ', sym_lo_vb(symj), sym_hi_vb(symj)
-c$$$         write(6,*) symj, ' oa ', off_oa(symj)
-c$$$         write(6,*) symj, ' ob ', off_ob(symj)
-c$$$         write(6,*) symj, ' va ', off_va(symj)
-c$$$         write(6,*) symj, ' vb ', off_vb(symj)
-c$$$      enddo
-c
+c     
+c$$$  do symj = 0, nir-1
+c$$$  write(6,*) symj, ' occa ', sym_lo_oa(symj), sym_hi_oa(symj)
+c$$$  write(6,*) symj, ' occb ', sym_lo_ob(symj), sym_hi_ob(symj)
+c$$$  write(6,*) symj, ' vira ', sym_lo_va(symj), sym_hi_va(symj)
+c$$$  write(6,*) symj, ' virb ', sym_lo_vb(symj), sym_hi_vb(symj)
+c$$$  write(6,*) symj, ' oa ', off_oa(symj)
+c$$$  write(6,*) symj, ' ob ', off_ob(symj)
+c$$$  write(6,*) symj, ' va ', off_va(symj)
+c$$$  write(6,*) symj, ' vb ', off_vb(symj)
+c$$$  end do
+c     
       if(.not.ma_push_get(mt_dbl,noa*noa,'p_ij_a',l_p_ij_a,k_p_ij_a))
      $     call errquit('could not alloc p_ij_a',noa*noa)
       if(.not.ma_push_get(mt_dbl,nva*nva,'p_ab_a',l_p_ab_a,k_p_ab_a))
@@ -94,16 +94,16 @@ c
          do a_a=nva_lo_local,nva_hi_local 
             syma=irs_a(a_a)
             symia=ieor(syma,symi)
-c
+c     
             call mp2_read_tijab(nva_lo, nva_hi, irs_a, symia,
      $           num_oa, sym_hi_oa, sym_lo_oa, tunita, tunitptra, t_a)
-c
+c     
             call mp2_read_tijab(nvb_lo, nvb_hi, irs_b, symia,
      $           num_ob, sym_hi_ob, sym_lo_ob, tunitb, tunitptrb, t_b)
-c
+c     
             tcounta=1
             tcountb=1
-c
+c     
             do symb=0,nir-1
                symj=ieor(symia,symb)
                if(num_oa(symj).gt.0 .and. num_va(symb).gt.0) then
@@ -120,7 +120,7 @@ c
      $                 t_a(tcounta),num_oa(symj),
      $                 one,dbl_mb(pabacnt),nva)
                   tcounta=tcounta+num_oa(symj)*num_va(symb)
-               endif
+               end if
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
                   pijbcnt = off_ob(symj)+k_p_ij_b
                   call dgemm('n','t',num_ob(symj),
@@ -135,11 +135,11 @@ c
      $                 t_b(tcountb),num_ob(symj),
      $                 one,dbl_mb(pabbcnt),nvb)
                   tcountb=tcountb+num_ob(symj)*num_vb(symb)
-               endif
-            enddo
-         enddo
-      enddo
-c
+               end if
+            end do
+         end do
+      end do
+c     
       call ga_dgop(msg_p_ij_a_sum,dbl_mb(k_p_ij_a),noa*noa,'+')
       call ga_dgop(msg_p_ab_a_sum,dbl_mb(k_p_ab_a),nva*nva,'+')
       call ga_dgop(msg_p_ij_b_sum,dbl_mb(k_p_ij_b),nob*nob,'+')
@@ -150,11 +150,11 @@ c
          call ga_acc(g_p_ij_b,1,nob,1,nob,dbl_mb(k_p_ij_b),nob,one)
          call ga_acc(g_p_ab_a,1,nva,1,nva,dbl_mb(k_p_ab_a),nva,one)
          call ga_acc(g_p_ab_b,1,nvb,1,nvb,dbl_mb(k_p_ab_b),nvb,one)
-      endif
-c
+      end if
+c     
       if (.not. ma_chop_stack(l_p_ij_a)) call errquit
      $     ('mp2_pijab_uhf: cannot chop stack',0)
-c
+c     
       end
       
       

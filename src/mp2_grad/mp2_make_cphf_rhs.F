@@ -24,7 +24,7 @@
       logical file_write_ga
       external file_write_ga
       integer g_lai_a_tr,g_lai_b_tr
-c
+c     
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
       if(.not.ga_create(mt_dbl,nva,noa,'temp',1,1,g_lai_a_tr))
      $     call errquit('could not alloc tran array',1)
@@ -42,7 +42,7 @@ c
       if(.not.ga_destroy(g_lai_b_tr))call errquit(
      $     'could not destroy lai_b_tr handle',1)
       end
-c
+c     
       subroutine cphf_rhs_reshape(scftype,g_rhs,g_lai_a,g_lai_b,noa,
      $     nva,nob,nvb,nmo,map_a,map_b)
       implicit none
@@ -52,13 +52,13 @@ c
       integer noa,nva,nob,nvb,nmo
       integer ioff
       integer map_a(*), map_b(*)
-c
+c     
       integer i, a, ii, aa, ia
       double precision xx
-c
-*      write(6,*) ' map_a ', (map_a(i),i=1,noa+nva)
-*      write(6,*) ' map_b ', (map_b(i),i=1,nob+nvb)
-c
+c     
+*     write(6,*) ' map_a ', (map_a(i),i=1,noa+nva)
+*     write(6,*) ' map_b ', (map_b(i),i=1,nob+nvb)
+c     
       ioff = 0
       do i = 1+ga_nodeid(),noa,ga_nnodes() ! Loop thru SCF order
          do a = 1,nva
@@ -67,11 +67,11 @@ c
             call ga_get(g_lai_a,aa,aa,ii,ii,xx,1)
             ia = ioff+a+(i-1)*nva
             call ga_put(g_rhs,ia,ia,1,1,xx,1)
-         enddo
-      enddo
-c
-c$$$      call ga_copy_patch('n',g_lai_a,1,nva,1,noa,
-c$$$     $     g_rhs,1,nva*noa,1,1)
+         end do
+      end do
+c     
+c$$$  call ga_copy_patch('n',g_lai_a,1,nva,1,noa,
+c$$$  $     g_rhs,1,nva*noa,1,1)
       if (scftype .eq. 'UHF') then
          ioff=nva*noa
          do i = 1+ga_nodeid(),nob,ga_nnodes() ! Loop thru SCF order
@@ -81,12 +81,12 @@ c$$$     $     g_rhs,1,nva*noa,1,1)
                call ga_get(g_lai_b,aa,aa,ii,ii,xx,1)
                ia = ioff+a+(i-1)*nvb
                call ga_put(g_rhs,ia,ia,1,1,xx,1)
-            enddo
-         enddo
-c$$$         call ga_copy_patch('n',g_lai_b,1,nvb,1,nob,
-c$$$     $        g_rhs,ioff+1,ioff+(nvb*nob),1,1)
+            end do
+         end do
+c$$$  call ga_copy_patch('n',g_lai_b,1,nvb,1,nob,
+c$$$  $        g_rhs,ioff+1,ioff+(nvb*nob),1,1)
       else
          call ga_dscal(g_rhs, 2.0d0)
-      endif
-c
+      end if
+c     
       end

@@ -8,7 +8,7 @@
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "bas.fh"
-      integer geom, basis        ! [input] 
+      integer geom, basis       ! [input] 
       integer rtdb
       double precision tol2e
       integer g_pab_a, g_pab_b, g_pij_a, g_pij_b ! [input] GA densities
@@ -19,28 +19,28 @@
       external ga_create_atom_blocked
 
 c     g_lai += J[Paa] - K[Paa] + J[Pbb]
-c
+c     
       integer g_dens(4), g_fock(4), nfock, nmo, nbf, gtype
       integer g_tmp1, g_tmp2, i
       double precision jfac(4), kfac(4), one, zero, mone
       logical oskel
-c
+c     
       data nfock /4/
       data jfac / 1.0d0, 1.0d0, 1.0d0, 1.0d0/
       data kfac /-1.0d0, 0.0d0,-1.0d0, 0.0d0/
       data oskel /.false./
-c
-c
+c     
+c     
       one = 1.0d0
       zero= 0.0d0
       mone = -1.0d0
-c
+c     
 c     Allocate space for AO fock and density matrices
-c
+c     
       g_dens(1)=ga_create_atom_blocked(geom,basis,'mp2_grad:da')
       g_dens(2)=g_dens(1)
       g_dens(3)=ga_create_atom_blocked(geom,basis,'mp2_grad:db')
-      g_dens(4)=g_dens(2)
+      g_dens(4)=g_dens(3)
       g_fock(1)=ga_create_atom_blocked(geom,basis,'mp2_grad:fa')
       g_fock(2)=ga_create_atom_blocked(geom,basis,'mp2_grad:fb')
       g_fock(3)=ga_create_atom_blocked(geom,basis,'mp2_grad:fb')
@@ -48,22 +48,22 @@ c
       do i = 1, 4
          call ga_zero(g_dens(i))
          call ga_zero(g_fock(i))
-      enddo
+      end do
       call scf_get_fock_param(rtdb,tol2e)
-c
+c     
 c     Workspace
-c
+c     
       call ga_inquire(g_vecs_a, gtype, nbf, nmo)
       if (no_a+nv_a.ne.nmo .or. no_b+nv_b.ne.nmo)
      $     call errquit('mp2_grad: weird nmo?',0)
-c      
+c     
       if (.not. ga_create(mt_dbl, nmo, nmo, 'mp2_grad: tmp1',
      $     1, 1, g_tmp1)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
       if (.not. ga_create(mt_dbl, nbf, nmo, 'mp2_grad: tmp2',
      $     1, 1, g_tmp2)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
-c
+c     
 c     Copy OO and VV patches into N*N array, transform and symmetrize
-c
+c     
       call ga_zero(g_tmp1)
       call ga_copy_patch('n',
      $     g_pij_a, 1, no_a, 1, no_a, g_tmp1, 1, no_a, 1, no_a)
@@ -75,7 +75,7 @@ c
      $     g_vecs_a, zero, g_dens(1))
       call ga_symmetrize(g_dens(1))
       call ga_dscal(g_dens(1),mone)
-c
+c     
       call ga_zero(g_tmp1)
       call ga_copy_patch('n',
      $     g_pij_b, 1, no_b, 1, no_b, g_tmp1, 1, no_b, 1, no_b)
@@ -87,18 +87,18 @@ c
      $     g_vecs_b, zero, g_dens(3))
       call ga_symmetrize(g_dens(3))
       call ga_dscal(g_dens(3),mone)
-c
+c     
       if (.not. ga_destroy(g_tmp1)) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_tmp2)) call errquit('mp2_lfu: ga?',0)
-c
+c     
 c     Make the fock matrices
-c
+c     
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
 
       call fock_2e(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, g_dens, g_fock)
-c
+c     
       call int_terminate()
       call schwarz_tidy()
       call fock_2e_tidy(rtdb)
@@ -107,11 +107,11 @@ c
       call ga_dadd(one, g_fock(3), one, g_fock(2), g_fock(3))
       call ga_symmetrize(g_fock(1))
       call ga_symmetrize(g_fock(3))
-c
+c     
 c     Transform back
-c
+c     
       g_tmp1 = g_dens(1)
-c
+c     
       call ga_zero(g_tmp1)
       call ga_matmul_patch('n','n',one, zero, 
      $     g_fock(1), 1, nbf, 1, nbf,
@@ -121,7 +121,7 @@ c
      $     g_vecs_a, 1, no_a, 1, nbf,
      $     g_tmp1, 1, nbf, 1, nv_a,
      $     g_lai_a, 1, no_a, 1, nv_a)
-c
+c     
       call ga_zero(g_tmp1)
       call ga_matmul_patch('n','n',one, zero, 
      $     g_fock(3), 1, nbf, 1, nbf,
@@ -131,14 +131,14 @@ c
      $     g_vecs_b, 1, no_b, 1, nbf,
      $     g_tmp1, 1, nbf, 1, nv_b,
      $     g_lai_b, 1, no_b, 1, nv_b)
-c
+c     
       if (.not. ga_destroy(g_dens(1))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_dens(3))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(1))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(3))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(4))) call errquit('mp2_lfu: ga?',0)
-c
+c     
       end
       subroutine mp2_wij_fock_uhf(rtdb, geom, basis, tol2e,
      $     g_ppq_a, g_ppq_b, 
@@ -156,29 +156,29 @@ c
       integer g_wij_a, g_wij_b  ! [output] Accumulate results into
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-c
+c     
 c     w_ij += J[Paa] - K[Paa] + J[Pbb]
-c
+c     
       integer g_dens(4), g_fock(4), nfock, nmo, nbf, gtype
       integer g_tmp1, g_tmp2, i
       double precision jfac(4), kfac(4), one, zero, mone
       logical oskel
-c
+c     
       data nfock /4/
       data jfac / 1.0d0, 1.0d0, 1.0d0, 1.0d0/
       data kfac /-1.0d0, 0.0d0,-1.0d0, 0.0d0/
       data oskel /.false./
-c
+c     
       one = 1.0d0
       zero= 0.0d0
       mone = -1.0d0
-c
+c     
 c     Allocate space for AO fock and density matrices
-c
+c     
       g_dens(1)=ga_create_atom_blocked(geom,basis,'mp2_grad:da')
       g_dens(2)=g_dens(1)
       g_dens(3)=ga_create_atom_blocked(geom,basis,'mp2_grad:db')
-      g_dens(4)=g_dens(2)
+      g_dens(4)=g_dens(3)
       g_fock(1)=ga_create_atom_blocked(geom,basis,'mp2_grad:fa')
       g_fock(2)=ga_create_atom_blocked(geom,basis,'mp2_grad:fb')
       g_fock(3)=ga_create_atom_blocked(geom,basis,'mp2_grad:fb')
@@ -186,40 +186,40 @@ c
       do i = 1, 4
          call ga_zero(g_dens(i))
          call ga_zero(g_fock(i))
-      enddo
+      end do
       call scf_get_fock_param(rtdb,tol2e)
-c
+c     
 c     Workspace
-c
+c     
       call ga_inquire(g_vecs_a, gtype, nbf, nmo)
-c      
+c     
       if (.not. ga_create(mt_dbl, nbf, nmo, 'mp2_grad: tmp2',
      $     1, 1, g_tmp2)) call errquit('mp2_wij_fock_uhf: GA', nmo*nmo)
-c
+c     
 c     Transform the densities and symmetrize
-c
+c     
       call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_vecs_a,
      $     g_ppq_a, zero, g_tmp2)
       call ga_dgemm('n', 't', nbf, nbf, nmo, mone, g_tmp2,
      $     g_vecs_a, zero, g_dens(1))
       call ga_symmetrize(g_dens(1))
-c
+c     
       call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_vecs_b,
      $     g_ppq_b, zero, g_tmp2)
       call ga_dgemm('n', 't', nbf, nbf, nmo, mone, g_tmp2,
      $     g_vecs_b, zero, g_dens(3))
       call ga_symmetrize(g_dens(3))
-c
+c     
       if (.not. ga_destroy(g_tmp2)) call errquit('mp2_lfu: ga?',0)
-c
+c     
 c     Make the fock matrices
-c
+c     
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
 
       call fock_2e(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, g_dens, g_fock)
-c
+c     
       call int_terminate()
       call schwarz_tidy()
       call fock_2e_tidy(rtdb)
@@ -228,11 +228,11 @@ c
       call ga_dadd(one, g_fock(3), one, g_fock(2), g_fock(3))
       call ga_symmetrize(g_fock(1))
       call ga_symmetrize(g_fock(3))
-c
+c     
 c     Transform back ... just want wij
-c
+c     
       g_tmp1 = g_dens(1)
-c
+c     
       call ga_matmul_patch('n','n',one, zero, 
      $     g_fock(1), 1, nbf, 1, nbf,
      $     g_vecs_a, 1, nbf, 1, no_a,
@@ -241,7 +241,7 @@ c
      $     g_vecs_a, 1, no_a, 1, nbf,
      $     g_tmp1, 1, nbf, 1, no_a,
      $     g_wij_a, 1, no_a, 1, no_a)
-c
+c     
       call ga_matmul_patch('n','n',one, zero, 
      $     g_fock(3), 1, nbf, 1, nbf,
      $     g_vecs_b, 1, nbf, 1, no_b,
@@ -250,13 +250,13 @@ c
      $     g_vecs_b, 1, no_b, 1, nbf,
      $     g_tmp1, 1, nbf, 1, no_b,
      $     g_wij_b, 1, no_b, 1, no_b)
-c
+c     
       if (.not. ga_destroy(g_dens(1))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_dens(3))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(1))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(3))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(4))) call errquit('mp2_lfu: ga?',0)
-c
+c     
       end
 

@@ -87,7 +87,7 @@ c
      $        6x,' ----------- ----------- -----------')
  2       format(1x,a1,3x,3f12.6)
          call util_flush(6)
-      endif
+      end if
 c
       end
 

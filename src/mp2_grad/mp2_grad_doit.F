@@ -68,7 +68,7 @@
       integer g_wai_a,g_wai_b
       integer k_vvvo,l_vvvo
       integer k_vooo,l_vooo
-c
+c     
       integer g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b
       integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b
       double precision grad(3,*)
@@ -84,16 +84,16 @@ c
          ocoul=.false.
       else
          ocoul=.false.
-      endif
+      end if
       oexch=.true.
-c
+c     
       if (scftype .eq. 'RHF') then
          info = ' for RHF alpha+beta'
       else if (passab .eq. 1) then
          info = ' for UHF alpha'
       else
          info = ' for UHF beta'
-      endif
+      end if
 c     
       noa=noa_hi-noa_lo+1
       nva=nva_hi-nva_lo+1
@@ -116,16 +116,16 @@ c
          avail_ga=ga_memory_avail()
       else
          avail_ga=0
-      endif
+      end if
       call ga_igop(11,avail_ma,1,'min')
       call ga_igop(12,avail_ga,1,'min')
       call ga_igop(13,avail_file,1,'min')
-c
+c     
       oprint_mem = util_print('multipass',print_default) .and. 
      $     ga_nodeid().eq.0
       oprint_where = util_print('where',print_high) .and. 
      $     ga_nodeid().eq.0
-c      
+c     
       if (oprint_mem) then
          write(6,201) ga_uses_ma(), ga_memory_limited()
  201     format(/' GA uses MA = ',l1,'    GA memory limited = ',l1)
@@ -133,8 +133,8 @@ c
  21      format(/' Available: local mem=',i10,' global mem=',i10,
      $        ' local disk=',i10)
          call util_flush(6)
-      endif
-c
+      end if
+c     
       do npasses = 1, noa_hi-noa_lo+1
          num_i_perseg = (noa_hi-noa_lo)/npasses + 1
          call mp2_memory(basis,rtdb,tol2e,nbf,noa,nva,nob,nvb,
@@ -142,10 +142,10 @@ c
          if(oprint_mem) then
             write(6,22) npasses, num_i_perseg, max_ma, max_ga, max_file
  22         format(1x,i3,' passes of',i4,':  ',
-     $        ' ',i10,'            ',i10,
-     $        '            ',i10)
+     $           ' ',i10,'            ',i10,
+     $           '            ',i10)
             call util_flush(6)
-         endif
+         end if
          if(ga_uses_ma().and..not.ga_memory_limited())then
             if(max_ma+max_ga.le.avail_ma.and.max_file.le.
      $           avail_file) goto 999
@@ -154,18 +154,18 @@ c
      $           and.max_ga.le.avail_ga) goto 999
          elseif(max_ma.le.avail_ma.and.max_file.le.avail_file)then
             if(ga_nodeid().eq.0) goto 999
-         endif
-      enddo
+         end if
+      end do
       call errquit('mp2_grad:insufficient resources',1)
  999  continue
       if (oprint_mem) then
          write(6,*)
          call util_flush(6)
-      endif
-c
+      end if
+c     
       if (npasses .gt. 100) call errquit
      $     ('mp2_grad: too many passes',npasses)
-c
+c     
       npass=0
       do oseg_lo=noa_lo,noa_hi,num_i_perseg
          npass=npass+1
@@ -174,7 +174,7 @@ c
             write(6,1101) npass, npasses,info
  1101       format(' Semi-direct pass number', i4, ' of',i4,1x,a)
             call util_flush(6)
-         endif
+         end if
          oseg_hi=min((oseg_lo+num_i_perseg-1),noa_hi)
 c     
 c     Generate the part transformed integrals on disk (ia|uv)
@@ -189,14 +189,14 @@ c
          call int_terminate()
          call schwarz_tidy()
          call pstat_off(ps_moints)
-c
+c     
          if (oprint_where) then
             write(6,*) ' Done moints_semi'
             call util_flush(6)
-         endif
+         end if
 c     
 c     make t-pure-spin in tunita, t-mixed-spin in tunitb
-c
+c     
          if(.not.ma_push_get(mt_dbl,nbf*nmo,'amos',l_amos,k_amos))
      $        call errquit('mp2_grad_doit: error with ma',1)
          if(.not.ma_push_get(mt_dbl,nbf*nmo,'bmos',l_bmos,k_bmos))
@@ -226,7 +226,7 @@ c
      $           call errquit('mp2_grad: eaf open of ta failed',0)
             if (eaf_open(fnametb,eaf_rw,tunitb) .ne. 0)
      $           call errquit('mp2_grad: eaf open of tb failed',0)
-         endif
+         end if
          call pstat_on(ps_maket)
          call mp2_make_tuhf(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
      $        sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,num_va,
@@ -238,11 +238,11 @@ c
      $        int_mb(k_v),nva_lo_local,nva_hi_local,
      $        e2,task,tunita,tunitb,kunit)
          call pstat_off(ps_maket)
-c
+c     
          if (oprint_where) then
             write(6,*) ' Done maket'
             call util_flush(6)
-         endif
+         end if
 c     
          if(task.eq.'gradient')then
             if(.not.ma_push_get(mt_dbl,noa*nva,
@@ -269,12 +269,12 @@ c
      $           eval_a,eval_b,g_p_ij_a,g_p_ij_b,
      $           g_p_ab_a,g_p_ab_b)
             call pstat_off(ps_pijab)
-c
+c     
             if (oprint_where) then
                write(6,*) ' Done pijab'
                call util_flush(6)
-            endif
-c               
+            end if
+c     
             call pstat_on(ps_wijab)
             call mp2_wijab_uhf(nir,nva_lo,nva_hi,
      $           sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,sym_lo_vb,
@@ -287,17 +287,17 @@ c
      $           tunita,tunitb,eval_a, eval_b,
      $           g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
             call pstat_off(ps_wijab)
-c
+c     
             if (oprint_where) then
                write(6,*) ' Done wijab'
                call util_flush(6)
-            endif
-c
+            end if
+c     
             if(.not.ma_pop_stack(l_t_eps_b))
      $           call errquit('could not pop stack',1)
             if(.not.ma_pop_stack(l_t_eps_a))
      $           call errquit('could not pop stack',1)
-c
+c     
 c...  Form the terms in the Lagrangian which are not Fock builds:
 c     
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'vvvo',l_vvvo,k_vvvo))
@@ -320,7 +320,7 @@ c
      $           call errquit('mp2_grad: could not alloc jb_ia',1)
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'temp',l_temp,k_temp))
      $           call errquit('mp2_grad: could not alloc temp',1)
-c
+c     
             call pstat_on(ps_lai)
             call mp2_lai_uhf(nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
      $           sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
@@ -336,12 +336,12 @@ c
      $           dbl_mb(k_lai1_a),dbl_mb(k_lai1_b),
      $           g_lai_a,g_lai_b,g_wai_a,g_wai_b,kunit)
             call pstat_off(ps_lai)
-c
+c     
             if (oprint_where) then
                write(6,*) ' Done lai'
                call util_flush(6)
-            endif
-c
+            end if
+c     
             if(.not. ma_chop_stack(l_t_a_in))
      $           call errquit(
      $           'mp2_grad_doit: failed chopping t_a_in',0)
@@ -364,31 +364,39 @@ c
      $           dbl_mb(k_amos), dbl_mb(k_bmos), 
      $           nva_lo_local, nva_hi_local, 
      $           tunita, tunitb, grad)
-c
+c     
             if (oprint_where) then
                write(6,*) ' Done nonsep'
                call util_flush(6)
-            endif
+            end if
 c     
             if (util_print('iostats', print_high) .and. 
      $           ga_nodeid().eq.0) then
                call eaf_print_stats(tunita)
                call eaf_print_stats(tunitb)
-            endif
+            end if
             if (eaf_close(tunita) .ne. 0) call errquit
      $           ('mp2_grad: error closing ta',0)
             if (eaf_close(tunitb) .ne. 0) call errquit
      $           ('mp2_grad: error closing tb',0)
             call util_file_unlink(fnameta)
             call util_file_unlink(fnametb)
-         endif
+         end if
          if(.not.ma_chop_stack(l_amos))call errquit(
      $        'mp2_grad: could not chop stack at amos',1)
-      enddo
-c
+      end do
+c     
+      if (task .ne. 'gradient') then
+         call waclose(kunit,ierr)
+         if(ierr.ne.0)call errquit
+     $        ('mp2_grad: problem closing kunit', ierr)
+         call util_file_unlink(fnamek)
+      end if
+c     
+c     
       if (oprint_where) then
          write(6,*) ' Done multipass loop'
          call util_flush(6)
-      endif
-c
+      end if
+c     
       end
