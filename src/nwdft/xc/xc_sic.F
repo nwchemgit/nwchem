@@ -1,14 +1,14 @@
-      Subroutine xc_sic(rtdb, nExc, iVxc_opt, g_xcinv,
+      Subroutine xc_sic(rtdb, nExc, iVxc_opt, 
      &                  g_dens, g_vxc,  g_wght, g_xyz,g_nq, 
      &                  wght_GA, rdens_atom, 
      &                  cetobfr, natoms,
      &                  g_movecs, noc,  totsic, i_degen, n_levels)
 c
-C$Id: xc_sic.F,v 1.14 2000-06-09 22:17:30 edo Exp $
+C$Id: xc_sic.F,v 1.15 2001-05-11 02:12:17 edo Exp $
 c
       implicit none
 c      
-      integer iVxc_opt, nExc, g_xcinv, g_dens(*), g_vxc(4), g_wght,
+      integer iVxc_opt, nExc, g_dens(*), g_vxc(4), g_wght,
      &        g_xyz,g_nq
       integer ik, ij, noc(2), isp, n_states, naux_ipol, size_mat, 
 c    &        g_sic_dens(2),g_orb,g_vxc_orb(4),g_movecs(2),

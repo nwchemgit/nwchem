@@ -1,8 +1,8 @@
       subroutine dft_densm(g_dens,g_vecs,nbf,ipol,
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
-     ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.23 2001-01-13 02:36:59 edo Exp $
+     ,     iter,search0,check_deg)
+C$Id: dft_densm.F,v 1.24 2001-05-11 02:12:17 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -24,7 +24,7 @@ C$Id: dft_densm.F,v 1.23 2001-01-13 02:36:59 edo Exp $
       double precision ssmear       ! smearing sigma
       double precision tdots       ! total energy
       logical search0,check_deg
-      integer mult
+
 c
       integer i,isp,g_tmp
       integer me, nproc

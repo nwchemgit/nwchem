@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.8 2000-06-28 22:01:09 mdupuis Exp $
+c     $Id: dft_fockbld.F,v 1.9 2001-05-11 02:12:17 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -221,7 +221,7 @@ c
           if (test_sic.eq.4) then
             call localize_sic(g_movecs, noc, evals)
           end if
-          call xc_sic(rtdb, nExc,iVxc_opt,g_xcinv, g_dens, 
+          call xc_sic(rtdb, nExc,iVxc_opt, g_dens, 
      &                g_vxc,  g_wght, g_xyz, g_nq, wght_GA,
      &                rdens_atom, cetobfr, natoms,
      &                g_movecs, noc, totsic, i_degen, n_levels)

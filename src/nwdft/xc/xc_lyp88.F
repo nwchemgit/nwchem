@@ -1,13 +1,13 @@
 #ifndef SECOND_DERIV
-      Subroutine xc_lyp88(tol_rho, fac, lfac, nlfac, rho, delrho, 
+      Subroutine xc_lyp88(tol_rho, fac,  rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ec, qwght, ldew, func)
 #else
-      Subroutine xc_lyp88_d2(tol_rho, fac, lfac, nlfac, rho, delrho, 
+      Subroutine xc_lyp88_d2(tol_rho, fac,  rho, delrho, 
      &                       Amat, Amat2, Cmat, Cmat2, nq, ipol, Ec,
      &                       qwght, ldew, func)
 #endif
 c
-C$Id: xc_lyp88.F,v 1.16 2001-05-11 01:53:56 edo Exp $
+C$Id: xc_lyp88.F,v 1.17 2001-05-11 02:12:17 edo Exp $
 c
       implicit none 
 c
@@ -17,7 +17,7 @@ c
       integer nq
       integer ipol
       double precision Ec
-      logical lfac, nlfac, ldew
+      logical ldew
       double precision func(*)  ! value of the functional [output]
 c
 c     Charge Density & Its Cube Root

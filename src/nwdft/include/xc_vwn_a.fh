@@ -3,7 +3,7 @@ c     General implementation of VWN functionals
 c
 c     BGJ (4/00)
 *
-* $Id: xc_vwn_a.fh,v 1.2 2001-05-11 01:53:56 edo Exp $
+* $Id: xc_vwn_a.fh,v 1.3 2001-05-11 02:12:17 edo Exp $
 *
 c     Meanings of macros used in constructing different VWN parameterizations
 c     The determining macro FNL_VWN_xxx is set in the .F file
@@ -63,20 +63,20 @@ c     Set which parameters to use for epsilon difference in beta(rs)
 #endif
 
 #ifndef SECOND_DERIV
-      Subroutine VWN_NAME(tol_rho, fac, lfac, nlfac, rho, Amat, nq,
+      Subroutine VWN_NAME(tol_rho, fac,  rho, Amat, nq,
      &                    ipol, Ec, qwght, ldew, func)
 #else
 #include "dft2drv.fh"
 c     Couldn't get concatenation operator to work with g77 preprocessor -
 c     hopefully all Fortran compilers will eat the following space
-      Subroutine VWN_NAME _d2(tol_rho, fac, lfac, nlfac, rho,
+      Subroutine VWN_NAME _d2(tol_rho, fac,  rho,
      &     Amat, Amat2, nq, ipol, Ec, qwght, ldew, func)
 #endif
       implicit none
 c
       integer nq, ipol
       double precision fac, Ec, tol_rho
-      logical ldew, lfac, nlfac
+      logical ldew
       double precision func(*)  ! value of the functional [output]
 c
 c     Charge Density

@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.22 2001-03-21 23:22:43 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.23 2001-05-11 02:12:17 edo Exp $
 c
       implicit none
 c
@@ -144,11 +144,11 @@ c     compute partial derivatives of the correlation energy functional.
 c     
       if (abs(cfac(1)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_vwn_5(tol_rho, cfac(1), lcfac(1), nlcfac(1), rho, 
+            call xc_vwn_5(tol_rho, cfac(1), rho, 
      &           Amat, nq, ipol, Ec, qwght, 
      &           ldew, func)
          else
-            call xc_vwn_5_d2(tol_rho, cfac(1), lcfac(1), nlcfac(1), rho, 
+            call xc_vwn_5_d2(tol_rho, cfac(1),  rho, 
      &           Amat, Amat2, nq, ipol, Ec, qwght, 
      &           ldew, func)
          endif
@@ -156,11 +156,11 @@ c
 c     
       if (abs(cfac(7)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_vwn_1_rpa(tol_rho, cfac(7), lcfac(7), nlcfac(7), 
+            call xc_vwn_1_rpa(tol_rho, cfac(7),  
      &           rho, Amat, nq, ipol, Ec, 
      &           qwght, ldew, func)
          else
-            call xc_vwn_1_rpa_d2(tol_rho, cfac(7), lcfac(7), nlcfac(7), 
+            call xc_vwn_1_rpa_d2(tol_rho, cfac(7), 
      &           rho, Amat, Amat2, nq, ipol, Ec, 
      &           qwght, ldew, func)
          endif
@@ -168,11 +168,11 @@ c
 c     
       if (abs(cfac(8)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_vwn_1(tol_rho, cfac(8), lcfac(8), nlcfac(8), rho, 
+            call xc_vwn_1(tol_rho, cfac(8), rho, 
      &           Amat, nq, ipol, Ec, qwght, 
      &           ldew, func)
          else
-            call xc_vwn_1_d2(tol_rho, cfac(8), lcfac(8), nlcfac(8), rho, 
+            call xc_vwn_1_d2(tol_rho, cfac(8),  rho, 
      &           Amat, Amat2, nq, ipol, Ec, qwght, 
      &           ldew, func)
          endif
@@ -180,11 +180,11 @@ c
 c     
       if (abs(cfac(9)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_vwn_2(tol_rho, cfac(9), lcfac(9), nlcfac(9), rho, 
+            call xc_vwn_2(tol_rho, cfac(9),  rho, 
      &           Amat, nq, ipol, Ec, qwght, 
      &           ldew, func)
          else
-            call xc_vwn_2_d2(tol_rho, cfac(9), lcfac(9), nlcfac(9), rho, 
+            call xc_vwn_2_d2(tol_rho, cfac(9),  rho, 
      &           Amat, Amat2, nq, ipol, Ec, qwght, 
      &           ldew, func)
          endif
@@ -192,11 +192,11 @@ c
 c     
       if (abs(cfac(10)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_vwn_3(tol_rho, cfac(10), lcfac(10), nlcfac(10), 
+            call xc_vwn_3(tol_rho, cfac(10), 
      &           rho, Amat, nq, ipol, Ec, qwght, 
      &           ldew, func)
          else
-            call xc_vwn_3_d2(tol_rho, cfac(10), lcfac(10), nlcfac(10), 
+            call xc_vwn_3_d2(tol_rho, cfac(10), 
      &           rho, Amat, Amat2, nq, ipol, Ec, qwght, 
      &           ldew, func)
          endif
@@ -204,11 +204,11 @@ c
 c     
       if (abs(cfac(11)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_vwn_4(tol_rho, cfac(11), lcfac(11), nlcfac(11),
+            call xc_vwn_4(tol_rho, cfac(11), 
      &           rho, Amat, nq, ipol, Ec, qwght, 
      &           ldew, func)
          else
-            call xc_vwn_4_d2(tol_rho, cfac(11), lcfac(11), nlcfac(11),
+            call xc_vwn_4_d2(tol_rho, cfac(11), 
      &           rho, Amat, Amat2, nq, ipol, Ec, qwght, 
      &           ldew, func)
          endif
@@ -241,11 +241,11 @@ c        Hijack this functional to mean screened LDA exchange for Bettis
 c     
       if (abs(cfac(2)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_lyp88(tol_rho, cfac(2), lcfac(2), nlcfac(2), 
+            call xc_lyp88(tol_rho, cfac(2), 
      &           rho, delrho, Amat, Cmat, nq, ipol, Ec, 
      &           qwght, ldew, func)
          else
-            call xc_lyp88_d2(tol_rho, cfac(2), lcfac(2), nlcfac(2), 
+            call xc_lyp88_d2(tol_rho, cfac(2), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, Ec, 
      &           qwght, ldew, func)
          endif

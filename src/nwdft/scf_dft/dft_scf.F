@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.179 2001-04-17 00:50:54 edo Exp $
+c     $Id: dft_scf.F,v 1.180 2001-05-11 02:12:17 edo Exp $
 c     
       implicit none
 c
@@ -129,7 +129,7 @@ c
       character*255 basis_name, basis_trans,blob
 
       integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,nstdis,
-     .     mult_loc,l_gdiis,k_gdiis,ipolmod
+     .     l_gdiis,k_gdiis,ipolmod
       logical dft_mem3c
       external dft_mem3c
 c !!! BGJ
@@ -189,8 +189,6 @@ c     check if smearing is on
 c
       ssmear=0.d0
       nstdis=1
-      if (.not.rtdb_get(rtdb, 'dft:newmult', mt_int, 1,
-     &     mult_loc)) mult_loc=mult
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear))then
       endif
@@ -434,7 +432,7 @@ c
      &        nbf_ao, ipol, 
      &        geom, AO_bas_han,noc,ntotel,
      &        Dbl_MB(k_eval(1)),dbl_mb(k_occ),
-     &        ssmear,tdots,iter,.false.,mult_loc,check_deg)
+     &        ssmear,tdots,iter,.false.,check_deg)
 c
 c  Jorge Garza/Begin/Exact_pot
 c
@@ -898,7 +896,7 @@ c
      &     nbf_ao, ipol, 
      &     geom, AO_bas_han,noc,ntotel,
      &      Dbl_MB(k_eval(1)),dbl_mb(k_occ),
-     &     ssmear,tdots,iter,.true.,mult_loc,check_deg)
+     &     ssmear,tdots,iter,.true.,check_deg)
       if (oprint_time)
      &     call dft_tstamp(' called densm ')
       
