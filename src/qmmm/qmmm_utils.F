@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.1 2004-12-17 02:21:49 marat Exp $
+c $Id: qmmm_utils.F,v 1.2 2005-01-10 19:53:21 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -74,7 +74,6 @@ c     local variables:
       im = 0
       do ir=1,nr
         do i=1,n
-          write(*,*) a(i),ar(ir)
           if(a(i).eq.ar(ir)) then
             map(i)=ir
             im = im + 1 

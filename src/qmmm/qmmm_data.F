@@ -280,7 +280,6 @@ c
       if(master)
      > write(6,21) "dynamical bq update",tag,bq_dynamical
 
-
       if (master) 
      >  write(6,23) 
        

@@ -332,19 +332,10 @@ c
 
       pname = "qmmm_check_forces"
 c
-      if (ga_nodeid() .eq. 0) then
-         write(6,*) 
-         write(6,*) '@ Checking gradient for quantum atoms'
-         write(6,*)
-         call util_flush(6)
-      end if
-c
        call md_sp()
        if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,e0))
      $      call errquit('qmmm: failed put energy', 0, RTDB_ERR)
           e0 = e0/cau2kj
-c
-      write(*,*) pname,"e0=",e0
 c
       if (ga_nodeid() .eq. 0) then
          write(6,*) 
@@ -424,7 +415,6 @@ c     -------------------
      >                       mm_quant,
      >                       int_mb(i_ai),
      >                       dbl_mb(i_c))
-          write(*,*) "debug coord link0",(dbl_mb(i_c+i1-1),i1=1,3*ntot)
           call md_sp()
           if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,ep))
      $      call errquit('qmmm: failed put energy', 0, RTDB_ERR)
@@ -447,7 +437,6 @@ c     -------------------
      >                       mm_quant,
      >                       int_mb(i_ai),
      >                       dbl_mb(i_c))
-          write(*,*) "debug coord link0",(dbl_mb(i_c+i1-1),i1=1,3*ntot)
 c
             call md_sp()
           if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,em))
@@ -593,7 +582,6 @@ c     -------------------
      >                       mm_link,
      >                       int_mb(i_ai),
      >                       dbl_mb(i_c))
-          write(*,*) "debug coord link0",(dbl_mb(i_c+i1-1),i1=1,3*ntot)
           call md_sp()
           if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,ep))
      $      call errquit('qmmm: failed put energy', 0, RTDB_ERR)
@@ -616,7 +604,6 @@ c     -------------------
      >                       mm_link,
      >                       int_mb(i_ai),
      >                       dbl_mb(i_c))
-          write(*,*) "debug coord link0",(dbl_mb(i_c+i1-1),i1=1,3*ntot)
 c
             call md_sp()
           if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,em))

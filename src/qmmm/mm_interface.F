@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.41 2005-01-07 19:31:31 marat Exp $
+c $Id: mm_interface.F,v 1.42 2005-01-10 19:53:21 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1856,7 +1856,6 @@ c     local variables:
                 nl = nl+1
                 int_mb(i_link+2*(nl-1))=ind_qm
                 int_mb(i_link+2*nl-1)=ind_l
-                write(*,*) pname,ind_qm,ind_l
               end if
             end do
           end if 

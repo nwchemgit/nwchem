@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.47 2005-01-07 19:31:31 marat Exp $
+c $Id: qmmm_geom.F,v 1.48 2005-01-10 19:53:21 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none

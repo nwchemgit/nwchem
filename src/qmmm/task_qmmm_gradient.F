@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.11 2005-01-07 19:31:31 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.12 2005-01-10 19:53:21 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
