@@ -1,16 +1,20 @@
 *
-* $Id: pspw_sic.fh,v 1.8 2003-02-04 03:40:36 bylaska Exp $
+* $Id: pspw_sic.fh,v 1.9 2003-02-05 03:18:52 bylaska Exp $
 *
 
 *     **** PSPW_SIC common block ****
-      logical relaxed
+      logical relaxed,orb_contribution
       real*8  rcut,pp,e_sic,p_sic
       real*8  eh_sic,ph_sic
       real*8  ex_sic,px_sic,xc_parameter,h_parameter
       integer solver_type
       integer norbs
       integer orbital_list(2)
+      integer eh_orb(2),xc_orb(2)
       common / PSPW_SIC_Block / e_sic,p_sic,rcut,pp,
      >                          eh_sic,ph_sic,ex_sic,px_sic,
      >                          xc_parameter,h_parameter,
-     >                          orbital_list,norbs,solver_type,relaxed
+     >                          orbital_list,
+     >                          eh_orb,xc_orb,
+     >                          norbs,solver_type,
+     >                          relaxed,orb_contribution

@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.15 2003-02-04 03:40:36 bylaska Exp $
+* $Id: pspw_sic.F,v 1.16 2003-02-05 03:18:52 bylaska Exp $
 *
 
 *     *************************
@@ -16,6 +16,7 @@
 #include "pspw_sic.fh"
 
 *     **** local variables ****
+      logical value
       integer ma_type
       integer n1,n2,n3
 
@@ -63,6 +64,10 @@
      >                      'pspw:SIC_h_parameter',
      >                       mt_dbl,1,h_parameter))
      >       h_parameter = 1.0d0
+         if (.not. rtdb_get(rtdb,
+     >                      'pspw:SIC_print_orbital_contribution',
+     >                       mt_log,1,orb_contribution))
+     >       orb_contribution = .false.
  
 
 
@@ -81,6 +86,18 @@
             end if
 
          end if
+
+*        **** initialize orb_contribution ****
+         if (orb_contribution) then
+           value = MA_alloc_get(mt_dbl,norbs,
+     >                'eh_orb',eh_orb(2),eh_orb(1))
+           value = value.and.
+     >             MA_alloc_get(mt_dbl,norbs,
+     >                'xc_orb',xc_orb(2),xc_orb(1))
+           if (.not. value)   
+     >       call errquit('pspw_init_SIC: out of heap memory',1)
+         end if
+
       else
          norbs = 0
       end if
@@ -102,14 +119,47 @@
 #include "pspw_sic.fh"
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter(MASTER=0)
       logical value
+      integer i
 
 *     **** external functions ****
       integer  control_version
       external control_version
 
       if (norbs.gt.0) then
+
+
+*       **** print out orbital contributions ****
+        if (orb_contribution) then
+           call Parallel_taskid(taskid)
+           if (taskid.eq.MASTER) then
+              write(6,487)
+              write(6,488)
+              do i=1,norbs
+                write(6,489) 
+     >            int_mb(orbital_list(1)+i-1),
+     >            (dbl_mb(eh_orb(1)+i-1)+dbl_mb(xc_orb(1)+i-1)),
+     >            dbl_mb(eh_orb(1)+i-1),
+     >            dbl_mb(xc_orb(1)+i-1)
+              end do
+           end if
+  487   format(//,'== Orbital Contributions to SIC ==')
+  488   format(/1x,'orbital',15x,
+     >         'Total',11x, 'Hartree',10x,'exc-corr') 	
+  489   format(1x,i7,2x,e18.6,e18.6,e18.6)
+        end if
+
+
+
+*       **** deallocate memory ****
         value =  MA_free_heap(orbital_list(2)) 
+        if (orb_contribution) then
+          value = value.and.MA_free_heap(eh_orb(2))
+          value = value.and.MA_free_heap(xc_orb(2))
+        end if
+
         if (.not. value)
      >  call errquit('pspw_end_SIC:error freeing heap memory',0)
 
@@ -345,6 +395,12 @@ c     >                            dbl_mb(dn(1)))
      >                        dbl_mb(tmp1(1)),
      >                        Hpsi_k(index2))
 
+*          **** keep track of orbital contributions ****
+           if (orb_contribution) then
+             dbl_mb(eh_orb(1)+i-1) = -eh
+             dbl_mb(xc_orb(1)+i-1) = -exc
+
+           end if
         end do
 
         value = MA_pop_stack(tmp1(2))
@@ -482,6 +538,12 @@ c     >                            dbl_mb(dn(1)))
 
            ehsic = ehsic - eh
            phsic = phsic - ph
+
+*          **** keep track of orbital contributions ****
+           if (orb_contribution) then
+             dbl_mb(eh_orb(1)+i-1) = -eh
+             dbl_mb(xc_orb(1)+i-1) = -exc
+           end if
 
           end do
 
