@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.40 2000-04-12 20:41:41 d3j191 Exp $
+c $Id: cf_main.F,v 1.41 2000-04-20 15:39:18 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -669,6 +669,7 @@ c
 c
       integer i,j,k
       real*8 z(3,3),prssc3,rdata(4),xwcd,xscd,eskin,ekc(3),ekinc
+      real*8 prx(3),pscx(3)
 c
       call cf_vw(xw,yw,vw,vwt,numw,int_mb(i_iwa),dbl_mb(i_mas))
       call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_mas))
@@ -722,7 +723,15 @@ c
       ekinc=ekc(1)+ekc(2)+ekc(3)
 c
       pres=0.0d0
-      if(lpress) pres=(two*ekinc-virial)/(three*volume*avoga)
+      prx(1)=0.0d0
+      prx(2)=0.0d0
+      prx(3)=0.0d0
+      if(lpress) then
+      pres=(two*ekinc-virial)/(three*volume*avoga)
+      prx(1)=(two*ekc(1)-z(1,1))/(three*volume*avoga)
+      prx(2)=(two*ekc(2)-z(2,2))/(three*volume*avoga)
+      prx(3)=(two*ekc(3)-z(3,3))/(three*volume*avoga)
+      endif
 c
       pscale=one
       if(ipscal.gt.0) then
@@ -730,37 +739,47 @@ c
       prssc3=facpsc*(pres-prsext)+one
       if(prssc3.lt.small) prssc3=small
       pscale=prssc3**third
-c
-c     scale the box dimensions
-c
-      box(1)=pscale*box(1)
-      box(2)=pscale*box(2)
-      box(3)=pscale*box(3)
+      pscx(1)=pscale
+      pscx(2)=pscale
+      pscx(3)=pscale
+      if(ipscal.gt.1) then
+      do 17 i=1,3
+      prssc3=facpsc*(three*prx(i)-prsext)+one
+      if(prssc3.lt.small) prssc3=small
+      pscx(i)=prssc3**third
+   17 continue
+      pscale=pscx(1)*pscx(2)*pscx(3)
+      endif
 c
       if(np.gt.1) then
-      rdata(1)=box(1)
-      rdata(2)=box(2)
-      rdata(3)=box(3)
+      rdata(1)=pscx(1)
+      rdata(2)=pscx(2)
+      rdata(3)=pscx(3)
       rdata(4)=pscale
       call ga_brdcst(mcf_39,rdata,ma_sizeof(mt_dbl,4,mt_byte),0)
-      box(1)=rdata(1)
-      box(2)=rdata(2)
-      box(3)=rdata(3)
+      pscx(1)=rdata(1)
+      pscx(2)=rdata(2)
+      pscx(3)=rdata(3)
       pscale=rdata(4)
       endif
 c
+c     scale the box dimensions
+c
+      box(1)=pscx(1)*box(1)
+      box(2)=pscx(2)*box(2)
+      box(3)=pscx(3)*box(3)
+c
       do 6 i=1,3
       do 7 j=1,3
-      vlat(i,j)=pscale*vlat(i,j)
+      vlat(i,j)=sqrt(pscx(i)*pscx(j))*vlat(i,j)
     7 continue
     6 continue
 c
       call cf_volume()
 c
-      pscalm=pscale-one
-c
       if(numw.gt.0) then
       do 8 j=1,3
+      pscalm=pscx(j)-one
       do 9 i=1,numw
       xwcd=pscalm*xwm(i,j)
       xwm(i,j)=xwm(i,j)+xwcd
@@ -773,6 +792,7 @@ c
 c
       if(nums.gt.0) then
       do 11 j=1,3
+      pscalm=pscx(j)-one
       do 12 k=1,nsm
       xscd=pscalm*xsm(k,j)
       xsm(k,j)=xsm(k,j)+xscd
