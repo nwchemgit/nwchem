@@ -81,6 +81,7 @@ c
     5 continue
       lwwjpt(iwm-iwmfr+1,1)=npairs+1
       npairs=npairs+nlist
+      lsww=lsww+nlist
       lwwin(iwm-iwmfr+1,1)=nlist
 c
 c     long range pairs
@@ -100,6 +101,7 @@ c
    13 continue
       lwwjpt(iwm-iwmfr+1,2)=npairs+1
       npairs=npairs+nlist
+      llww=llww+nlist
       lwwin(iwm-iwmfr+1,2)=nlist
       endif
     1 continue
@@ -186,6 +188,7 @@ c
     5 continue
       lswjpt(isa-isafr+1,1)=npairs+1
       npairs=npairs+nlist
+      lssw=lssw+nlist
       lswin(isa-isafr+1,1)=nlist
 c
 c     long range pairlist
@@ -205,6 +208,7 @@ c
  8005 continue
       lswjpt(isa-isafr+1,2)=npairs+1
       npairs=npairs+nlist
+      llsw=llsw+nlist
       lswin(isa-isafr+1,2)=nlist
       endif
     1 continue
@@ -306,6 +310,7 @@ c
       lswj(npairs+ilist)=list(ilist,1)
    19 continue
       npairs=npairs+nlist
+      lssw=lssw+nlist
 c
 c     long range pairlist
 c
@@ -327,6 +332,7 @@ c
       lswj(npairs+ilist)=list(ilist,2)
  8019 continue
       npairs=npairs+nlist
+      llsw=llsw+nlist
       endif
 c
       isa=isa+1
@@ -461,6 +467,7 @@ c
    11 continue
       lssjpt(isa-isafr+1,1)=npairs+1
       npairs=npairs+nlist1
+      lsss=lsss+nlist
       lssin(isa-isafr+1,1)=nlist1
       if(npss.eq.2) then
       do 12 ilist=1,nlist2
@@ -468,6 +475,7 @@ c
    12 continue
       lssjpt(isa-isafr+1,2)=npairs+1
       npairs=npairs+nlist2
+      llss=llss+nlist
       lssin(isa-isafr+1,2)=nlist2
       endif
     1 continue
@@ -749,6 +757,11 @@ c
    61 continue
       lssjpt(iisa-isfr+1,ipss)=npairs+1
       npairs=npairs+nlist
+      if(ipss.eq.1) then
+      lsss=lsss+nlist
+      else
+      llss=llss+nlist
+      endif
       else
       lssjpt(iisa-isfr+1,ipss)=lssjpt(iisa-isfr,ipss)
       endif

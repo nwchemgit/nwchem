@@ -801,6 +801,10 @@ c
      + call errquit('Failed to allocate scratch array smr6',0)
 c
       if(ipme.gt.0) then
+      if(.not.ma_alloc_get(mt_dbl,3*msa,'pmes',l_pmes,i_pmes))
+     + call errquit('Failed to allocate scratch array pmes',0)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,'pmew',l_pmew,i_pmew))
+     + call errquit('Failed to allocate scratch array pmew',0)
       lenscr=3*morder*(mwa*mwm+msa)
       if(.not.ma_alloc_get(mt_dbl,lenscr,'theta',l_theta,i_theta))
      + call errquit('Failed to allocate scratch array theta',0)
@@ -826,6 +830,10 @@ c
      + call errquit('Failed to free scratch array dtheta',0)
       if(.not.ma_free_heap(l_theta))
      + call errquit('Failed to free scratch array theta',0)
+      if(.not.ma_free_heap(l_pmew))
+     + call errquit('Failed to free scratch array pmew',0)
+      if(.not.ma_free_heap(l_pmes))
+     + call errquit('Failed to free scratch array pmes',0)
       endif
 c
       if(.not.ma_free_heap(l_smr6))
@@ -998,6 +1006,15 @@ c
       lpww=2
       lpsw=2
       lpss=2
+      endif
+c
+      if(lpair) then
+      llww=0
+      lsww=0
+      llsw=0
+      lssw=0
+      llss=0
+      lsss=0
       endif
 c
       if(.not.llist) lpair=.true.

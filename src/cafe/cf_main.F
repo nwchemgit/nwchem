@@ -255,7 +255,7 @@ c
       return
       end
       subroutine cf_mdstep(iwdt,xw,yw,vw,vwt,fw,numw,
-     + isdt,isat,xs,ys,vs,vst,fs,nums)
+     + isdt,isat,xs,ys,vs,vst,fs,nums,iwgmn)
 c
       implicit none
 c
@@ -263,7 +263,7 @@ c
 #include "mafdecls.fh"
 c
       integer numw,nums
-      integer iwdt(mwm),isdt(msa),isat(msa)
+      integer iwdt(mwm),isdt(msa),isat(msa),iwgmn(mwm)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),fs(msa,3)
@@ -273,7 +273,7 @@ c
       if(mdalgo.eq.1) then
       call cf_lpfrog(iwdt,xw,yw,vw,vwt,fw,numw,
      + isdt,isat,xs,ys,vs,vst,fs,nums,int_mb(i_iwa),
-     + dbl_mb(i_mas))
+     + dbl_mb(i_mas),iwgmn)
       elseif(mdalgo.eq.2) then
       else
       call errquit('Unknown integration algorithm',mdalgo)
@@ -292,7 +292,7 @@ c
       if(itscal.eq.1) then
       if(temp.gt.small) scalew=sqrt(one+(tmpext/temp-one)*tstep/tmwrlx)
       scales=scalew
-      else
+      elseif(itscal.gt.1) then
       if(tempw.gt.small)
      + scalew=sqrt(one+(tmpext/tempw-one)*tstep/tmwrlx)
       if(temps.gt.small)
@@ -302,7 +302,7 @@ c
       return
       end
       subroutine cf_lpfrog(iwdt,xw,yw,vw,vwt,fw,numw,
-     + isdt,isat,xs,ys,vs,vst,fs,nums,iwat,wgt)
+     + isdt,isat,xs,ys,vs,vst,fs,nums,iwat,wgt,iwgmn)
 c
       implicit none
 c
@@ -310,14 +310,14 @@ c
 #include "mafdecls.fh"
 c
       integer numw,nums
-      integer iwdt(mwm),isdt(msa),isat(msa)
+      integer iwdt(mwm),isdt(msa),isat(msa),iwgmn(mwm)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),fs(msa,3)
       integer iwat(mwa)
       real*8 wgt(mat,6)
 c
-      integer iwa,iwm,isa
+      integer iwa,iwm,isa,ix
       real*8 factor
 c
       if(numw.gt.0) then
@@ -463,8 +463,7 @@ c
       return
       end
       subroutine cf_final(xw,xwm,yw,vw,vwt,numw,
-     + xs,xsm,ys,vs,vst,isat,ismol,isdyn,zs,nums,
-     + bx,prs,prsscl,tmp)
+     + xs,xsm,ys,vs,vst,isat,ismol,isdyn,zs,nums,bx)
 c
       implicit none
 c
@@ -473,7 +472,7 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      real*8 prs,prsscl,pscalm
+      real*8 pscalm
       real*8 xw(mwm,3,mwa),xwm(mwm,3),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa)
       real*8 xs(msa,3),xsm(msm,3),ys(msa,3),vs(msa,3),vst(msa,3)
@@ -505,36 +504,35 @@ c
       volume=box(1)*box(2)*box(3)
 c
       pres=(two*(ewkc+eskc)-z)/(three*volume*avoga)
-      prs=pres
 c
-      prsscl=one
+      pscale=one
       if(ipscal.gt.0) then
 c
       prssc3=facpsc*(pres-prsext)+one
       if(prssc3.lt.small) prssc3=small
-      prsscl=prssc3**third
+      pscale=prssc3**third
 c
 c     scale the box dimensions
 c
-      box(1)=prsscl*box(1)
-      box(2)=prsscl*box(2)
-      box(3)=prsscl*box(3)
+      box(1)=pscale*box(1)
+      box(2)=pscale*box(2)
+      box(3)=pscale*box(3)
 c
       if(np.gt.1) then
       rdata(1)=box(1)
       rdata(2)=box(2)
       rdata(3)=box(3)
-      rdata(4)=prsscl
+      rdata(4)=pscale
       call ga_brdcst(mcf_30,rdata,ma_sizeof(mt_dbl,4,mt_byte),0)
       box(1)=rdata(1)
       box(2)=rdata(2)
       box(3)=rdata(3)
-      prsscl=rdata(4)
+      pscale=rdata(4)
       endif
 c
       call cf_volume()
 c
-      pscalm=prsscl-one
+      pscalm=pscale-one
 c
       if(numw.gt.0) then
       do 2 j=1,3
@@ -712,6 +710,41 @@ c
       if(np.gt.1) call ga_dgop(mcf_34,vv,4,'+')
       eskc=eskc+half*vv(4)*(vv(1)*vv(1)+vv(2)*vv(2)+vv(3)*vv(3))
     4 continue
+c
+      return
+      end
+      subroutine cf_proper(vol,tmp,tmpw,tmps,prs,tsw,tss,psc,
+     + ewkin,eskin,
+     + nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin,eskin
+      integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs,nshw,nshs
+c
+      vol=volume
+      tmp=temp
+      tmpw=tempw
+      tmps=temps
+      prs=pres
+      tsw=scalew
+      tss=scales
+      psc=pscale
+c
+      ewkin=ewk
+      eskin=esk
+c
+      nwwl=llww
+      nwws=lsww
+      nswl=llsw
+      nsws=lssw
+      nssl=llss
+      nsss=lsss
+c
+      nshw=niterw
+      nshs=niters
 c
       return
       end

@@ -281,9 +281,15 @@ c      nsm=itemp(2)
       nsc=itemp(4)
       endif
 c
-      factmw=two/(rgas*dble(nwm*(3*nwa-nwc)-3*islow))
-      factms=two/(rgas*dble(3*nsa-nsc-3*islow))
-      factmp=two/(rgas*dble(nwm*(3*nwa-nwc)+3*nsa-nsc-3*islow))
+      factmw=zero
+      factms=zero
+      factmp=zero
+      if(nwm*(3*nwa-nwc)-3*islow.gt.0)
+     + factmw=two/(rgas*dble(nwm*(3*nwa-nwc)-3*islow))
+      if(3*nsa-nsc-3*islow.gt.0)
+     + factms=two/(rgas*dble(3*nsa-nsc-3*islow))
+      if(nwm*(3*nwa-nwc)+3*nsa-nsc-3*islow.gt.0)
+     + factmp=two/(rgas*dble(nwm*(3*nwa-nwc)+3*nsa-nsc-3*islow))
 c
       return
 c

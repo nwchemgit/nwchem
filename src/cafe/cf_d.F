@@ -1,7 +1,7 @@
       subroutine cf_dww(xw,xwm,pw,pwp,iwfrom,nlocw,lpbc,chg,iwq,
      + lwwndx,lwwjpt,lwwin,lwwj,rwc,xi,xj,rwx,pl,pj,fi,fj)
 c
-c $Id: cf_d.F,v 1.1 1999-02-19 22:32:41 d3j191 Exp $
+c $Id: cf_d.F,v 1.2 1999-03-29 17:22:07 d3j191 Exp $
 c
       implicit none
 c
@@ -26,8 +26,6 @@ c
       real*8 rx,ry,rz,ri2,ri3,rmi,rmj,pix,piy,piz,pjx,pjy,pjz
 c
       real*8 qfaci
-c
-      print*,'cf_d'
 c
       qfaci=one/qfac
 c
@@ -298,7 +296,7 @@ c
      + xw,xwm,pw,pwp,iwq,lpbc,chg,lswndx,lswjpt,lswin,lswj,
      + rwc,xi,xj,rwx,pl,pj,fi,fj,isal)
 c
-c $Id: cf_d.F,v 1.1 1999-02-19 22:32:41 d3j191 Exp $
+c $Id: cf_d.F,v 1.2 1999-03-29 17:22:07 d3j191 Exp $
 c
       implicit none
 c
@@ -683,7 +681,7 @@ c
      + lpbc,chg,lssndx,lssjpt,lssin,lssj,xi,xj,rwx,rwi1,rwi2,rwi6,
      + rwc,rw,f,fi,fj,isal,jsal,jmal,jfal,pl,pj)
 c
-c $Id: cf_d.F,v 1.1 1999-02-19 22:32:41 d3j191 Exp $
+c $Id: cf_d.F,v 1.2 1999-03-29 17:22:07 d3j191 Exp $
 c
       implicit none
 c

@@ -48,8 +48,6 @@ c
       integer lptr,lptrn
       integer nconst
 c
-c      print*,'CAFE pairs with lpbc=',lpbc
-c
       if(lself) then
       jwfr=iwfr
       jwto=iwto

@@ -63,9 +63,7 @@ c
       if(.not.ma_push_get(mt_int,np,'nodep',l_nodp,i_nodp))
      + call errquit('Failed to allocate nodep',0)
 c
-      write(*,'(2i10)') ngz,mgz
-c
-      if(.not.ma_push_get(mt_int,mgz,'knode',l_knod,i_knod))
+      if(.not.ma_push_get(mt_int,ngz,'knode',l_knod,i_knod))
      + call errquit('Failed to allocate knode',0)
 c
       if(.not.ma_push_get(mt_log,mgz*np,'lsldo',l_lsld,i_lsld))

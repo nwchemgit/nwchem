@@ -60,13 +60,13 @@ c
 c
       if(lset.or..not.lscr) then
       if(.not.lscr) call cf_salloc
-      call cf_pmeset(xw,dbl_mb(i_smr1),nwmloc,xs,dbl_mb(i_s3r1),
+      call cf_pmeset(xw,dbl_mb(i_pmew),nwmloc,xs,dbl_mb(i_pmes),
      + nsaloc,dbl_mb(i_theta),dbl_mb(i_dtheta))
       lset=.false.
       endif
 c
-      call cf_grid(xw,dbl_mb(i_smr1),int_mb(i_iwq),nwmloc,
-     + xs,dbl_mb(i_s3r1),isq,nsaloc,
+      call cf_grid(xw,dbl_mb(i_pmew),int_mb(i_iwq),nwmloc,
+     + xs,dbl_mb(i_pmes),isq,nsaloc,
      + dbl_mb(i_chg),dbl_mb(i_theta),dbl_mb(i_dtheta),
      + grid,mgz,lgrid,knode,kfrom,lsldo,node,mnx,mxx,mny,mxy,mnz,mxz)
 c
@@ -119,13 +119,13 @@ c
       do 4 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
-      if(knode(k)+1.eq.node) then
+      if(knode(k).eq.node) then
       lgrid=.true.
-      k=k-kfrom(node)+1
+      k=k-kfrom(node+1)+1
       j0=int(yw(iwm,2,iwa))-morder
       if(k.lt.minz) minz=k
       if(k.gt.maxz) maxz=k
-      lsldo(node,k)=.true.
+      lsldo(node+1,k)=.true.
       do 5 ith2=1,morder
       j0=j0+1
       j=j0+1+(ngy-isign(ngy,j0))/2
@@ -153,13 +153,13 @@ c
       do 8 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
-      if(knode(k)+1.eq.node) then
+      if(knode(k).eq.node) then
       lgrid=.true.
-      k=k-kfrom(node)+1
+      k=k-kfrom(node+1)+1
       j0=int(ys(isa,2))-morder
       if(k.lt.minz) minz=k
       if(k.gt.maxz) maxz=k
-      lsldo(node,k)=.true.
+      lsldo(node+1,k)=.true.
       do 9 ith2=1,morder
       j0=j0+1
       j=j0+1+(ngy-isign(ngy,j0))/2
@@ -227,7 +227,7 @@ c
       w=xw(iwm,1,iwa)*recip(1,ix)+xw(iwm,2,iwa)*recip(2,ix)+
      + xw(iwm,3,iwa)*recip(3,ix)
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      yw(iwm,ix,iwa)=dble(ng(ix))*(w-arg_anint(w)+half)
+      yw(iwm,ix,iwa)=dble(ng(ix))*(w-cf_anint(w)+half)
 #else
       yw(iwm,ix,iwa)=dble(ng(ix))*(w-anint(w)+half)
 #endif
@@ -240,7 +240,7 @@ c
       w=xs(isa,1)*recip(1,ix)+xs(isa,2)*recip(2,ix)+
      + xs(isa,3)*recip(3,ix)
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      ys(isa,ix)=dble(ng(ix))*(w-arg_anint(w)+half)
+      ys(isa,ix)=dble(ng(ix))*(w-cf_anint(w)+half)
 #else
       ys(isa,ix)=dble(ng(ix))*(w-anint(w)+half)
 #endif
@@ -409,8 +409,8 @@ c
       logical lsldo(*)
       real*8 grid(2,ngx,ngy,mgz)
 c
-      call cf_forpme(dbl_mb(i_smr1),fw,int_mb(i_iwq),nwmloc,
-     + dbl_mb(i_s3r1),fs,isq,nsaloc,
+      call cf_forpme(dbl_mb(i_pmew),fw,int_mb(i_iwq),nwmloc,
+     + dbl_mb(i_pmes),fs,isq,nsaloc,
      + dbl_mb(i_chg),dbl_mb(i_theta),dbl_mb(i_dtheta),
      + grid,mgz,knode,kfrom,lsldo,node)
 c
@@ -448,8 +448,8 @@ c
       do 4 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
-      if(knode(k)+1.eq.node) then
-      k=k-kfrom(node)+1
+      if(knode(k).eq.node) then
+      k=k-kfrom(node+1)+1
       j0=int(yw(iwm,2,iwa))-morder
       do 5 ith2=1,morder
       j0=j0+1
@@ -487,8 +487,8 @@ c
       do 8 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
-      if(knode(k)+1.eq.node) then
-      k=k-kfrom(node)+1
+      if(knode(k).eq.node) then
+      k=k-kfrom(node+1)+1
       j0=int(ys(isa,2))-morder
       do 9 ith2=1,morder
       j0=j0+1
@@ -560,7 +560,6 @@ c
     2 continue
       endif
 c
-      write(*,'(3e12.5)') ealpha,ecorr,pi
       ecorr=ealpha*ecorr/sqrt(pi)
 c
       return
