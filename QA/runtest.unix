@@ -133,6 +133,7 @@ foreach TEST ($args_2_use)
 #
   if(! -d $TESTDIR) then
     echo could not find job in $TEST
+    echo ignoring this failure
     continue
   endif
 
