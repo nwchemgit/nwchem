@@ -242,6 +242,8 @@ If not specified, the system name will be taken from a specification
 in a previous \md\ input block, or derived from the run time database
 name.
 
+\section{Source specification}
+
 \begin{verbatim}
 source ( pdb | rtdb )
 \end{verbatim}
@@ -250,6 +252,36 @@ The source of the coordinates can be explicitly specified to be from
 a PDB formatted file \verb+calc+.pdb, or from a geometry object in the run
 time database. If not specified, a pdb file will be used when it exists
 in the current directory or the rtdb geometry otherwise.
+
+\begin{verbatim}
+model <integer modpdb default 0>
+\end{verbatim}
+
+If a PDB formatted source file contains different MODELs, the \verb+model+
+keyword can be used to specify which MODEL will be used to generate the
+topology and restart file. If not specified, the first MODEL found on the
+PDB file will be read.
+
+\begin{verbatim}
+altloc <character locpdb default ' '>
+\end{verbatim}
+
+The \verb+altloc+ keyword may be used to specify the use of alternate
+location coordinates on a PDB file.
+
+\begin{verbatim}
+chain <character chnpdb default ' '>
+\end{verbatim}
+
+The \verb+chain+ keyword may be used to specify the chain identifier
+for coordinates on a PDB file.
+
+\begin{verbatim}
+sscyx
+\end{verbatim}
+
+Keyword \verb+sscyx+ may be used to rename cysteine residues that form
+sulphur bridges to CYX.
 
 \section{Partial charges}
 
@@ -349,6 +381,13 @@ or \verb+mset+ are not defined the modification will be applied to
 all multiplicities and sets, respectively, for the identified bonded
 interaction.
 
+After modifying atoms to quantum atoms the bonded interactions in which
+only quantum atoms are involved are removed from the bonded lists using
+
+\begin{verbatim}
+update lists
+\end{verbatim}
+
 \section{Generating a restart file}
 
 The directives in this section control the manipulation of restart
@@ -446,6 +485,12 @@ noe <integer isgm1> <string atom1> <integer isgm2> <string atom3> \\
 
 This directive specifies a distance restraint.
 
+\begin{verbatim}
+fix ( atoms | segments ) ( beyond | within ) <real rfix> <string atmfix>
+\end{verbatim}
+
+The \verb+fix+ keyword may be used to specify that the identified
+atoms should remain fixed during any operation.
 
 
 
