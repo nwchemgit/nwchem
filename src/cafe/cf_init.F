@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.57 2000-12-13 00:28:39 d3j191 Exp $
+c $Id: cf_init.F,v 1.58 2001-02-12 21:52:39 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -199,13 +199,7 @@ c
       call cf_rdgeom(byte_mb(i_snam))
       else
       call cf_rdtop(lfntop,filtop,byte_mb(i_snam))
-      endif
-c
-      if(ithint) then
-      do 3 i=1,24
-      ip2(i)=ith(i)
-      ip3(i)=ith(i)
-    3 continue
+      call cf_topol_init()
       endif
 c
 c     distance restraints
@@ -271,6 +265,13 @@ c
       if(me.eq.0) then
       close(unit=lfntop)
       endif
+      endif
+c
+      if(ithint) then
+      do 3 i=1,24
+      ip2(i)=ith(i)
+      ip3(i)=ith(i)
+    3 continue
       endif
 c
 c     particle-mesh Ewald initialization
@@ -354,10 +355,11 @@ c
       integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
       real*8 rpmf(3,6,numpmf)
 c
-      integer i,j,k,m,lenint,lendbl
+      integer i,j,k,m,lenint,lendbl,lenlog
 c
       lenint=ma_sizeof(mt_int,1,mt_byte)
       lendbl=ma_sizeof(mt_dbl,1,mt_byte)
+      lenlog=ma_sizeof(mt_log,1,mt_byte)
 c
       if(me.eq.0) then
       do 1 i=1,numpmf
@@ -376,6 +378,12 @@ c
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
       if(ipmf(i,1).eq.4) m=4
+      if(ithint) then
+      if(m.eq.2) ith(18)=.true.
+      if(m.eq.3) ith(20)=.true.
+      if(ipmf(i,1).eq.3) ith(21)=.true.
+      if(ipmf(i,1).eq.3) ith(22)=.true.
+      endif
       if(m.eq.0) call errquit('Error in pmf from top',m)
       do 3 j=1,m
       read(lfntop,1001) (jpmf(i,j,k),k=1,ipmf(i,j+1))
@@ -400,6 +408,7 @@ c
       call ga_brdcst(mcf_60,ipmf,5*numpmf*lenint,0)
       call ga_brdcst(mcf_61,jpmf,4*numpmf*npmfa*lenint,0)
       call ga_brdcst(mcf_62,rpmf,18*numpmf*lendbl,0)
+      if(ithint) call ga_brdcst(mcf_30,ith,24*lenlog,0)
 c
       return
       end

@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.24 2000-09-18 18:36:45 d3j191 Exp $
+c $Id: cf_common.fh,v 1.25 2001-02-12 21:52:39 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -131,5 +131,6 @@ c
      + llww,lsww,llsw,lssw,llss,lsss,
      + llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lanal,
      + ithint,ith,ipert2,ipert3,ip2,ip3
+      character*10 ffield
       character*16 wnam(100)
-      common/cf_chr/wnam
+      common/cf_chr/ffield,wnam

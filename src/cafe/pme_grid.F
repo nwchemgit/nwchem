@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.20 2000-09-20 22:41:18 d3j191 Exp $
+c $Id: pme_grid.F,v 1.21 2001-02-12 21:52:39 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -160,6 +160,8 @@ c
       if(lgrid) then
       lnode(node+1)=1
 c
+      call timer_stop(11)
+      call timer_start(27)
       do 21 k=1,ngznon
       if(lsldo(node+1,k)) then
       call ga_distribution(lslab(k),node,ilsl,ihsl,jlsl,jhsl)
@@ -167,6 +169,8 @@ c
      + jlsl+maxy-1,gridr(minx,miny,k),mgx,one)
       endif
    21 continue
+      call timer_stop(27)
+      call timer_start(11)
 c
       endif
 c
@@ -293,7 +297,11 @@ c
       if(kto(node+1).gt.0) ngznon=kto(node+1)-kfrom(node+1)+1
       if(ngznon.eq.0) goto 1
 c
+      call timer_stop(25)
+      call timer_start(28)
       call pme_getgrd(node,ngznon,dbl_mb(i_grd1))
+      call timer_stop(28)
+      call timer_start(25)
 c
       call cf_fpme(fw,nwmloc,fs,isq,nsaloc,dbl_mb(i_grd1),mgz,
      + int_mb(i_knod),int_mb(i_kfr),log_mb(i_lsld),node)

@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.21 2000-08-29 15:45:04 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.22 2001-02-12 21:52:39 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -11,7 +11,7 @@ c
       character*(*) filtop
 c
       character*80 title(3)
-      character*10 topdat,toptim,ffield
+      character*10 topdat,toptim
       real*8 releps
       character*16 stemp,snam(nsatot)
       integer natyps,nqtyps
@@ -269,7 +269,7 @@ c     broadcast force field parameters
 c
 c      call ga_brdcst(mcf_02,byte_mb(i_nam),16*mat,0)
 c
-      call ga_brdcst(mcf_02,int_mb(i_typ),3*mat,0)
+      call ga_brdcst(mcf_02,int_mb(i_typ),3*mat*numbi,0)
       call ga_brdcst(mcf_03,dbl_mb(i_mas),6*mat*numbd,0)
       call ga_brdcst(mcf_04,int_mb(i_num),3*mat*numbi,0)
       call ga_brdcst(mcf_05,dbl_mb(i_vdw),6*mat*mat*map*numbd,0)
@@ -353,5 +353,30 @@ c
       call errquit('Error reading topology file',0)
  9999 continue
       call errquit('Failed to open topology file',0)
+      return
+      end
+      subroutine cf_topol_init()
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer iffld,numbi
+c
+      numbi=ma_sizeof(mt_int,1,mt_byte)
+c
+      if(me.eq.0) then
+      iffld=1
+      if(ffield(1:6).eq.'gromos') iffld=2
+      endif
+      call ga_brdcst(mcf_69,iffld,numbi,0)
+c
+      if(iffld.eq.2) then
+      if(me.eq.0) write(*,1000)
+ 1000 format(' Force field is gromos')
+      endif
+c
       return
       end
