@@ -1,6 +1,6 @@
       subroutine uccsdt_fterm(urange,vrange,lists)
 c
-c$Id: fterm.F,v 1.2 2002-09-23 22:11:40 bert Exp $
+c$Id: fterm.F,v 1.3 2002-09-25 21:54:34 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -22,124 +22,27 @@ c
       integer leniu_a,leniu_b,lennv_a,lennv_b,iu_len
       integer g_r_array,g_r
       integer dim_mx,list_nr,lists(0:7,14),mnpairs,mn
-c
-c     i,j = particle-transformed occupied orbitals
-c     m,n = hole-transformed occupied orbitals
-c     a,b,e,f = holes
-c     u,v = symmetry-adapted occupied orbitals
-c
-c     u - the SOs arising from the unique AO shells in the
-c     .   range ushuqlo, ushuqhi
-c     All other indices span the complete range.
-c
-c     IN CCTRANS:
-c     #  Integral        Spins           Storage  Used for
-c     -- --------------- --------------- -------- --------------
-c     1. (ui|vj)-(uj|vi) i=alpha j=alpha I(jv,iu) Z1,Z6
-c     2. (ui|vj)         i=alpha j=beta           Z2,Z7
-c     3. (ui|vj)         i=beta  j=alpha          Z5,Z8
-c     4. (ui|vj)-(uj|vi) i=beta  j=beta           Z3,Z4
-c
-c     IN CTERM:
-c     Lists 1,2,3,4 are stored as the amplitudes but as if u (SO)
-c     were a virtual orbital in a reduced space.  And each symmetry
-c     block of jb needs to be in a distinct GA (or copied there when
-c     used).
-c     
-c     (note v->b must be done before fn loop)
-c
-c     1. (iu|jb) i=a=alpha j=b=alpha   antisymmetrized
-c     2. (iu|jb) i=a=alpha j=b=beta    
-c     3. (iu|jb) i=a=beta  j=b=alpha
-c     4. (iu|jb) i=a=beta  j=b=beta    antisymmetrized
-c
-c
-c     IN CCTRANS:
-c     5. (um|vn)-(un|vm) m=alpha n=alpha I(nv,mu) aaA and F
-c     6. (um|vn)         m=alpha n=beta           abA and F
-c    *7. (um|vn)         m=beta  n=alpha          *Not used
-c     8. (um|vn)-(un|vm) m=beta  n=beta           bbA and F
-c
-c     IN CTERM:
-c     Lists 5,6,7,8 stored as <uv|mn> distributed over mn.
-c
-c     5. (mu|nf) m=alpha n=alpha       antisymmetrized
-c     6. (mu|nf) m=alpha n=beta
-c     7. (mu|nf) m=beta  n=alpha ... NOT NEEDED?
-c     8. (mu|nf) m=beta  n=beta        antisymmetrized
-c
-c
-c     IN CCTRANS:
-c     9. (ui|vn)-(uv|in) i=alpha n=alpha I(nv,iu) aaC1,abC4
-c     10.(ui|vn)         i=alpha n=beta           abC1,bbC2
-c     11.(ui|vn)         i=beta  n=alpha          abC5,aaC2
-c     12.(ui|vn)-(uv|in) i=beta  n=beta           abC1,abC2
-c
-c     13.(uv|in)         i=alpha n=alpha I(nv,iu) abC3
-c     14.(uv|in)         i=beta  n=beta           abC5
-c
-c     IN CTERM:
-c     Lists 9,10,11,12,13,14 also stored as the amplitudes.
-c     The antisymmetrization must take place before the
-c     final index transformation of lists 13 and 14.
-c
-c     9. I(iu,nf) = <if||un> = (iu|nf) - (in|uf) i=n=alpha n=f=alpha 
-c     10.I(iu|nf) = <if|un>  = (iu|nf) i=u=alpha n=f=beta 
-c     11.I(iu|nf) = <if|un>  = (iu|nf) i=u=beta  n=f=alpha 
-c     12.I(iu,nf) = <if||un> = (iu|nf) - (in|uf) i=beta  n=beta      
-c     13.(in|uv) i=n=alpha 
-c     14.I(iu,nf) = <fi|un> = (in|uf) i=n=beta f=u=alpha
-c
-c     IN CCTRANS:
-c     The occ-SO pairs are stored as follows
-c
-c     fill oso_off with -99999999
-c     ind = 0
-c     do symiu
-c     .  do u in natural order
-c     .     -> symu and symi
-c     .     oso_off(u,symiu) = ind
-c     .     do i of symi
-c     .        pair(1+ind) = T(i,u)
-c     .        ind = ind + 1
-c    
-c     Can also address pairs as
-c     pair(1 + i-o_sym(1,symi,spini) + oso_off(u,symiu)) = T(i,u)
-c
-c     The lists will be used in large matrix multiplications
-c     as follows:
-c
-c     Z(iu,nw) = <ij|uv>*T(jv,nw)
-c     do sym(iu) -> sym(jv) -> sym(nw)
-c     .   Read T, allocate Z
-c     .   Z(iu,nw) <- I(jv,iu)*T(jv,nw)
-c     end do
-c
-c     For best performance we need the symmetry sub-blocks distributed
-c     across the whole machine as separate dense arrays.  Thus, each
-c     list is stored with a separate GA for each pair symmetry.
-c
-
-c
-c     STORED LIKE T(nv,mu) -> (um||vn) -> <uv||mn>
-c     Have lists 5-8 <uv|mn> distributed over mn ... transform
-c     uv to ef, and accumlate <ef|mn> to disk.
-c     <ef||mn> -> R(me,nf)
-c
-
 C
 C     GENERATION OF F-TERM
 C
+C     COMPUTING F(me,nf) = <ef||^ mn> for each spin-block
+C
+C     <uv|mn> stored as (nv,mu) to be transformed to (nf,me)
+C     On each processor
+C        Get an mn pair
+C        For each mn pair, get whole (u,v)_mn block and transform to (e,f)_mn
+c            (v,u)*c(u,e)->(v,e)->(v,e)^t*(v,f)->(e,f)->(me,nf)
+C        Put (e,f)_mn block back into F(me,nf)
+C
       do nspin = 1, 2
          do mspin = 1, nspin
-c           cases do aa (list 5), bb (list 8) and ab (list 6)
+            espin = mspin
+            fspin = nspin
             list_nr = 4 + nspin + (mspin-1)*2
             do symnf = 0, nir-1 
                symnv = symnf
                symme = symnf 
                symmu = symme
-c              create a temp result vector for R(me,nf) (aa,aa)
-c              menf = aaaa, aabb or bbbb, hence mspin=espin, nspin=fspin
                dimme = ov_len(symme,mspin,mspin)
                dimnf = ov_len(symnf,nspin,nspin)
                if (.not. ga_create(MT_DBL,dimme,dimnf,'R_temp',0,0,
@@ -148,58 +51,27 @@ c              menf = aaaa, aabb or bbbb, hence mspin=espin, nspin=fspin
                do symf = 0, nir-1
                   symv = symf
                   symn = ieor(symnf, symf)
-c                 -> sym(n) -> sym(m)
-c     want to transform <uv|mn> to <ef|mn>=R(me,nf) -> R<fe|nm> = R<ef|mn>
-c
-c     Assume for now that can hold all amplitudes for
-c     given symmetry subblock????????
-c
-c     symv = symf and symu = syme
-c
-c                 do blocks of f (hold R(me,nf) in memory)
-c                  do f = flo(symf,iset), fhi(symf,iset), f_block_size
-c                  NO BLOCKS, we have all of T and R in memory
-c                  R(m,e,syme,n,f,symf,symnf=symme)
-c                  better R(n,f,symf,m,e,syme,symme=symnf)
-c
-c                    allocate R 
-c                    zero or get R, get because ublock gives only part of e ????
-c
-c                    do mu in parallel mu for given sym(u) and sym(m)
-c                       symmu = symme = symnf = symnv
-c                       do symu = 0, nir-1
-c                          -> symm = ieor(symme, symu)
-c
-c                    integrals stored as I(nv,mu) -> I(nf,me)
-c nv, mu -> n and m holes
-c  
                   do syme = 0, nir-1
                      symu = syme
                      symm = ieor (symme, syme)
+                     dime = nv_sym(syme,espin)
+                     dimf = nv_sym(symf,fspin)
+                     dimm = nv_sym(symm,mspin)
+                     dimn = nv_sym(symn,nspin)
+                     lennv_a = iso_len(symnv,0)
+                     lennv_b = iso_len(symnv,1)
+                     leniu_a = iu_len(symiu,0)
+                     leniu_b = iu_len(symiu,1)
+                     ulo = urange(1,symu)
+                     uhi = urange(2,symu)
+                     vlo = vrange(1,symv)
+                     vhi = vrange(2,symv)
+                     dimv = vhi - vlo + 1
+                     dimu = uhi - ulo + 1
                      mnpairs = no_sym(symm,mspin)*no_sym(symn,nspin)
                      do mn = 1, mnpairs, ga_nodeid()+1 
                         m = (mnpairs / (no_sym(symn,nspin)+1)) + 1
                         n = mnpairs - (no_sym(symm,mspin) * (m-1))
-                        dimv = vrange(2,symv)-vrange(1,symv)+1
-                        dimu = urange(2,symu)-urange(1,symu)+1
-c                       spin cases e (a in aaaa case and abab case, b in bbbb case)
-c                                  f (a in aaaa case, b in abab case and bbbb case)
-c                                  e has same spin as m, f has same spin as n
-                        espin = mspin
-                        fspin = nspin
-                        dime = nv_sym(syme,espin)
-                        dimf = nv_sym(symf,fspin)
-                        dimm = nv_sym(symm,mspin)
-                        dimn = nv_sym(symn,nspin)
-                        lennv_a = iso_len(symnv,0)
-                        lennv_b = iso_len(symnv,1)
-                        leniu_a = iu_len(symiu,0)
-                        leniu_b = iu_len(symiu,1)
-                        ulo = urange(1,syme)
-                        uhi = urange(2,syme)
-                        vlo = vrange(1,symv)
-                        vhi = vrange(2,symv)
-c                       allocate ma with correct dimensions
                         if (.not. ma_push_get(mt_dbl,dimv*dimu,
      &                      'vu list',l_vulist,k_vulist)) call
      &                      errquit('fterm: vu list alloc failed',0)
@@ -207,7 +79,6 @@ c                       allocate ma with correct dimensions
                         if (.not. ma_push_get(mt_dbl,dim_mx*dim_mx,
      &                      'ef list',l_eflist, k_eflist)) call
      &                      errquit('fterm: ef list alloc failed',0)
-c                       get address (n,1,m,u) for all v -> (v,u)
                         n_address = 1+n-v_sym(1,symn,nspin)
      &                              +oso_off(v,symnv,nspin)
                         m_address = 1+m-v_sym(1,symm,mspin)
@@ -216,16 +87,6 @@ c                       get address (n,1,m,u) for all v -> (v,u)
      &                             n_address,dimv,dimn,
      &                             m_address,dimu,dimm,
      &                             dbl_mb(k_vulist))
-c                    (n,v,m,u) -> (n,f,m,e)
-c                    (v,u)*c(u,e)->(v,e)->(v,e)^t*(v,f)->(e,f)->(me,nf)
-c                    now you have all uv local for one nm
-c                    transform uv to ef and put it into R
-c                    
-c                    get data from g_hole into MA and do a dgemm
-c                    first urange,all_e
-c                    second vrange, all_f
-c                    same for next operation for <ij||mn>
-
                         if (.not. ma_push_get(mt_dbl,dimu*dime,
      &                      'c hole ue',l_uhole,k_uhole)) call
      &                      errquit('fterm: ue hole alloc failed',0)
@@ -252,7 +113,6 @@ c                    same for next operation for <ij||mn>
      &                      errquit('fterm: vf hole dealloc failed',0)
                         if (.not. ma_pop_stack(l_uhole)) call 
      &                      errquit('fterm: ue hole dealloc failed',0)
-c                    I(me,nf)(symnf) -> R_temp(me,nf)(symnf) -> ga_copy_patch
                         call ga_put_strided(g_r_array,
      &                             m_address,dime,dimm,
      &                             n_address,dimf,dimn,
@@ -261,17 +121,9 @@ c                    I(me,nf)(symnf) -> R_temp(me,nf)(symnf) -> ga_copy_patch
      &                      errquit('fterm: ef list dealloc failed',0)
                         if (.not. ma_pop_stack(l_vulist)) call 
      &                      errquit('fterm: vu list dealloc failed',0)
-c                    integral ga we want is lists(symmn,spin block)
-c                    how is <ef|mn> stored symmetry wise
-c                    STORED LIKE I(nv,mu) x for each irrep(mu) -> (um||vn) -> <uv||mn> 
-c                    HENCE  LIKE I(nf,me) x for each irrep(me)
                      end do
                   end do
                enddo
-c           How is R stored on disk?  It is stored as the amplitudes
-c           are in the triples. as R(m,e,symm,n,f,symf,symnf)
-c           want to transform <uv|mn> to <ef|mn>=R(me,nf) -> R<fe|nm>
-c           accumulate R to disk
                offset_me = file_t2_off(mspin,espin,nspin,fspin,symnf)+
      &                     ov_off(1,symme,mspin,espin)
                offset_nf = file_t2_off(mspin,espin,nspin,fspin,symnf)+
@@ -294,19 +146,29 @@ c
 c
       integer ga_in,ilo,ilength,istride,jlo,jlength,jstride
       integer nelem,ilist,jlist,ihi,jhi
+      integer k_i,l_i,k_j,l_j
       double precision array_out(*)
 c
-      nelem = 0
       ihi = ilo + (ilength-1) * istride
       jhi = jlo + (jlength-1) * jstride
-      do ilist = ilo, ihi, istride
-         do jlist = jlo, jhi, jstride
+      nelem = ilength*jlength
+      if (.not. ma_push_get(mt_dbl,nelem,'i list',l_i,k_i)) call
+     &    errquit('ga_get_strided: i list alloc failed',0)
+      if (.not. ma_push_get(mt_dbl,nelem,'j list',l_j,k_j)) call
+     &    errquit('ga_get_strided: j list alloc failed',0)
+      nelem = 0
+      do jlist = jlo, jhi, jstride
+         do ilist = ilo, ihi, istride
+            int_mb(k_i+nelem) = ilist 
+            int_mb(k_j+nelem) = jlist 
             nelem = nelem + 1
-            i(nelem) = ilist 
-            j(nelem) = jlist 
          enddo
       enddo
       call ga_gather(ga_in,array_out,int_mb(k_i),int_mb(k_j),nelem)
+      if (.not. ma_pop_stack(l_i)) call 
+     &   errquit('ga_put_strided: i list dealloc failed',0)
+      if (.not. ma_pop_stack(l_j)) call 
+     &   errquit('ga_put_strided: j list dealloc failed',0)
 c
       end
 c
@@ -318,18 +180,28 @@ c
 c
       integer ga_out,ilo,ilength,istride,jlo,jlength,jstride
       integer nelem,ilist,jlist,ihi,jhi
+      integer k_i,l_i,k_j,l_j
       double precision array_in(*)
 c
-      nelem = 0
       ihi = ilo + (ilength-1) * istride
       jhi = jlo + (jlength-1) * jstride
-      do ilist = ilo, ihi, istride
-         do jlist = jlo, jhi, jstride
+      nelem = ilength*jlength
+      if (.not. ma_push_get(mt_dbl,nelem,'i list',l_i,k_i)) call
+     &    errquit('ga_put_strided: i list alloc failed',0)
+      if (.not. ma_push_get(mt_dbl,nelem,'j list',l_j,k_j)) call
+     &    errquit('ga_put_strided: j list alloc failed',0)
+      nelem = 0
+      do jlist = jlo, jhi, jstride
+         do ilist = ilo, ihi, istride
             nelem = nelem + 1
-            i(nelem) = ilist 
-            j(nelem) = jlist 
+            int_mb(k_i+nelem) = ilist 
+            int_mb(k_j+nelem) = jlist 
          enddo
       enddo
-      call ga_scatter(ga_in,array_out,int_mb(k_i),int_mb(k_j),nelem)
+      call ga_scatter(ga_out,array_in,int_mb(k_i),int_mb(k_j),nelem)
+      if (.not. ma_pop_stack(l_i)) call 
+     &   errquit('ga_put_strided: i list dealloc failed',0)
+      if (.not. ma_pop_stack(l_j)) call 
+     &   errquit('ga_put_strided: j list dealloc failed',0)
 c
       end

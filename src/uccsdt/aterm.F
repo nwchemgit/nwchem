@@ -1,6 +1,6 @@
       subroutine uccsdt_aterm(urange,vrange)
 c
-c$Id: aterm.F,v 1.2 2002-09-23 22:11:41 bert Exp $
+c$Id: aterm.F,v 1.3 2002-09-25 21:54:33 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -9,14 +9,21 @@ c
 #include "cuccsdtP.fh"
 c
       integer urange(2,0:7), vrange(2,0:7)
+      integer nspin,mspin,ispin,jspin
+      integer symnj,symnv,symmi,symmu,symj,symv,symn,symi,symu,symm
+      integer dimmi,dimnj,dimi,dimj,dimu,dimv,dimm,dimn
+      integer lennv_a,lennv_b,leniu_a,leniu_b,ulo,vlo
+      integer list_offset,mnpairs,m,n
+      integer n_address,m_address
+      integer g_t2_iejf, g_x
+      integer l_vulist,k_vulist,l_upart,k_upart,l_vpart,k_vpart
+      double precision prefactor
 C
 C     GENERATION OF PART OF A-TERM, STORED IN X(1-3) ARRAYS
 C
-
-c
 c  R(me,nf) aa = 0.5* t(ie,jf)[<ij|mn>+0.5*X1(ij,mn) i=j=m=n=e=f=alpha
 c  R(me,nf) bb = 0.5* t(ie,jf)[<ij|mn>+0.5*X2(ij,mn) i=j=m=n=e=f=beta
-c  R(me,nf) ab =      t(ie,jf)[<ij|mn>+0.5*X3(ij,mn) m=e=i=alpha n=f=j=beta
+c  R(me,nf) ab =      t(ie,jf)[<ij|mn>+    X3(ij,mn) m=e=i=alpha n=f=j=beta
 c
 c  X1(ij,mn) = <ij||ab>*t(ma,nb) -> can be generated from class 1 ??? i=j=a=b=m=n=alpha
 c  X2(ij,mn) = <ij||ab>*t(ma,nb) -> can be generated from class 4 ??? i=j=a=b=m=n=beta
@@ -47,7 +54,10 @@ c     Generate X1, X2 and X3 from classes 1,2,4 -> probbaly cannot be done as th
 c     classes are <uv||ij> and we need <ij||uv> !!!!!
 c
 c     here use list_offset
-
+c
+c     So has already made the X-terms in his B-term routines. Maybe I should do a partial
+c     A term here while so does the other part coming from the X-term
+c
                call ga_scale(g_x,prefactor)
 c
 c     Add <ij|mn> integrals from classes 5,6,8
@@ -118,10 +128,11 @@ c     here use list_offset+4
      &                      errquit()
                         if (.not. ma_pop_stack(l_ijlist)) call 
      &                      errquit()
+                     end do
                   end do
                end do
-               call get_T(g_t2_iejf_mix,symnj,ispin,espin,jspin,fspin)
-c              t(ie,jf)*x(ij,mn) -> r(me,nf)
+               call get_T(g_t2_iejf,symnj,ispin,espin,jspin,fspin)
+c              prefactor*t(ie,jf)*x(ij,mn) -> r(me,nf)
             end do
          end do
       enddo

@@ -1,6 +1,6 @@
       subroutine uccsdt_eterm(qO_handles,qV_handles)
 c
-c$Id: eterm.F,v 1.3 2002-08-29 17:00:29 bert Exp $
+c$Id: eterm.F,v 1.4 2002-09-25 21:54:34 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -8,7 +8,7 @@ c
 #include "global.fh"
 #include "cuccsdtP.fh"
 c
-      integer qO_handles(8,0:7), qV_handles(8,0:7) 
+      integer qO_handles(0:7,8), qV_handles(0:7,8) 
       integer fO_handles(2,0:7), fV_handles(2,0:7)
 C
 C     GENERATION OF E-TERM
@@ -50,30 +50,31 @@ c
       do symnf = 0, nir-1
          symme = symnf
          symna = symnf
-         call get_T(g_t2_mena_pure,symnf,1,1,1,1,x)   #note, no backtransform needed
+         call get_T(g_t2_mena_pure,symnf,0,0,0,0,x)   #note, no backtransform needed
          do symf = 0, nir-1
             syma = symf
             symn = ieor(symf,symnf)
             do loop over a
                matmul(g_t2_mena_pure,qO(2,symf)) into R(E1) aa   #(1)
             end do
-            do loop over a
+            do loop over i
                matmul(g_t2_mena_pure,qV(2,symn)) into R(E2) aa   #(3)
             end do
          end do 
          if (.not. ga_destroy(g_t2_mena_pure)) call errquit()
+         call get_T(g_t2_mena_pure,symnf,1,1,1,1,x)   #note, no backtransform needed
          do symf = 0, nir-1
             syma = symf
             symn = ieor(symf,symnf)
             do loop over a
                matmul(g_t2_mena_pure,qO(5,symf)) into R(E1) bb   #(2)
             end do
-            do loop over a
+            do loop over i
                matmul(g_t2_mena_pure,qV(5,symn)) into R(E2) bb   #(4)
             end do
          end do
-         if (.not. ga_destroy(g_t2_mena_mix)) call errquit()
-         call get_T(g_t2_mena_pure,symnf,0,0,1,1,x)   #note, no backtransform needed
+         if (.not. ga_destroy(g_t2_mena_pure)) call errquit()
+         call get_T(g_t2_mena_mix,symnf,0,0,1,1,x)   #note, no backtransform needed
          do symf = 0, nir-1
             syma = symf
             symn = ieor(symf,symnf)
@@ -83,13 +84,14 @@ c
             do loop over a
                matmul(g_t2_mena_mix,qV(2,symn)) into R(E4) ab   #(3)
             end do
-            do loop over a
+            do loop over i
                matmul(g_t2_mena_mix,qV(5,symn)) into R(E3) ab   #(4)
             end do
-            do loop over a
+            do loop over i
                matmul(g_t2_mena_mix,qV(8,symn)) into R(E2) ab   #(5)
             end do
          end do
+         if (.not. ga_destroy(g_t2_mena_mix)) call errquit()
       end do
 
       do symf = 0, nir-1

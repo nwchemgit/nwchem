@@ -1,6 +1,6 @@
       subroutine uccsdt_cterm(urange,vrange,qO_handles,qV_handles)
 c
-c$Id: cterm.F,v 1.4 2002-08-29 17:01:04 bert Exp $
+c$Id: cterm.F,v 1.5 2002-09-25 21:54:34 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -9,7 +9,7 @@ c
 #include "cuccsdtP.fh"
 c
       integer urange(2,0:7), vrange(2,0:7)
-      integer qO_handles(8,0:7), qV_handles(8,0:7)
+      integer qO_handles(0:7,8), qV_handles(0:7,8)
 c
 c     i,j = particle-transformed occupied orbitals
 c     m,n = hole-transformed occupied orbitals
@@ -153,8 +153,8 @@ c           do sum over i first to get u,f and then do dgemm with c_hole
 c        do sum_u C_hole(ua) Z2(iu,ma) and store in q_2_V(i,m) -> qV_handles(2)
 c           need to do dgemm with c_hole first and then do sum
 c            do both of them local on a node with get's puts and local sums
-         call make_qO(qO_handles(2,0),g_z2,symnf,0,0)
-         call make_qV(qV_handles(2,0),g_z2,symnf,0,0)
+         call make_qO(qO_handles(0,2),g_z2,symnf,0,0)
+         call make_qV(qV_handles(0,2),g_z2,symnf,0,0)
 c        add Z2 to integral list 9, But list 9 is (nv,iu) !!!!!
 c        transform v index in list 9 and transpose matrix
 c        add Z2 to new transformed and transposed list 9
@@ -215,8 +215,8 @@ c           do sum over i first to get u,f and then do dgemm with c_hole
 c        do sum_u C_hole(ua) Z1(iu,ma) and store in q_1_V(i,m) -> qV_handles(1)
 c           need to do dgemm with c_hole first and then do sum
 c            do both of them local on a node with get's puts and local sums
-         call make_qO(qO_handles(1,0),g_z1,symnf,0,0)
-         call make_qV(qV_handles(1,0),g_z1,symnf,0,0)
+         call make_qO(qO_handles(0,1),g_z1,symnf,0,0)
+         call make_qV(qV_handles(0,1),g_z1,symnf,0,0)
 c        scale Z1 by 0.5
          call ga_scale(g_z1,0.5d0)
 c        add Z2 to Z1
@@ -255,10 +255,10 @@ c     Z5(iu,nf) = <ij|ub>*T(jb,nf) i=u=beta j=b=alpha (integral list 3)
      &         blocknf,g_z5) call errquit()
             call ga_dgemm('t','n',dimiu,dimnf,dimjb,1.0d0,
      &         list(symiu,3),g_t2_jbnf_mix,1.0d0,g_z5)
-c        do sum_i C_hole(ua) Z1(iu,if) and store in q_1_O(a,f) -> qO_handles(5)
-c        do sum_u C_hole(ua) Z1(iu,ma) and store in q_1_V(i,m) -> qV_handles(5)
-         call make_qO(qO_handles(5,0),g_z1,symnf,1,1)
-         call make_qV(qV_handles(5,0),g_z1,symnf,1,1)
+c        do sum_i C_hole(ua) Z5(iu,if) and store in q_5_O(a,f) -> qO_handles(5)
+c        do sum_u C_hole(ua) Z5(iu,ma) and store in q_5_V(i,m) -> qV_handles(5)
+         call make_qO(qO_handles(0,5),g_z5,symnf,1,1)
+         call make_qV(qV_handles(0,5),g_z5,symnf,1,1)
 c
 c     <if||un> += Z5(iu,nf) (modified list 12)
             call ga_add(1.0d0,g_z5,1.0,list(symiu,12),list(symiu,12)) 
@@ -283,8 +283,8 @@ c     Z4(iu,nf) = <ij||ub>*T(jb,nf) i=j=u=b=n=f=beta (integral list 4)
      &         list(symiu,4),g_t2_jbnf_pure,1.0d0,g_z4)
 c        do sum_i C_hole(ua) Z4(iu,if) and store in q_4_O(a,f) -> qO_handles(4)
 c        do sum_u C_hole(ua) Z4(iu,ma) and store in q_4_V(i,m) -> qV_handles(4)
-         call make_qO(qO_handles(4,0),g_z1,symnf,1,1)
-         call make_qV(qV_handles(4,0),g_z1,symnf,1,1)
+         call make_qO(qO_handles(0,4),g_z4,symnf,1,1)
+         call make_qV(qV_handles(0,4),g_z4,symnf,1,1)
 c
 c     <if||un> += (1/2)*Z4(iu,nf) (modified list 12 again)
             call ga_add(0.5d0,g_z4,1.0,list(symiu,12),list(symiu,12)) 
@@ -413,8 +413,8 @@ c
          end do
 c        do sum_i C_hole(ua) Z8(iu,if) and store in q_8_O(a,f) -> qO_handles(8)
 c        do sum_u C_hole(ua) Z8(iu,ma) and store in q_8_V(i,m) -> qV_handles(8)
-         call make_qO(qO_handles(8,0),g_z1,symjf,0,1)
-         call make_qV(qV_handles(8,0),g_z1,symjf,0,1)
+         call make_qO(qO_handles(0,8),g_z8,symjf,0,1)
+         call make_qV(qV_handles(0,8),g_z8,symjf,0,1)
       end do
 c
 c   C3 += -t(ie,na)*[(if|ma) - Z8]

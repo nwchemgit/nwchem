@@ -1,6 +1,6 @@
       subroutine uccsdt_acefterms()
 c
-c$Id: acefterms.F,v 1.4 2002-09-23 22:11:41 bert Exp $
+c$Id: acefterms.F,v 1.5 2002-09-25 21:54:33 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -9,7 +9,7 @@ c
 #include "cuccsdtP.fh"
 c
       integer urange(2,0:7), vrange(2,0:7)
-      integer qO_handles(8,0:7), qV_handles(8,0:7)
+      integer qO_handles(0:7,8), qV_handles(0:7,8)
       integer lists(0:7,14)
       integer symiu, list_nr
       integer u_sh, u_block_size, u_sh_hi
@@ -51,8 +51,10 @@ c
 #include "global.fh"
 #include "cuccsdtP.fh"
 
-      integer qO_handles(8,0:7), qV_handles(8,0:7)
-      integer symiu
+      integer qO_handles(0:7,8), qV_handles(0:7,8)
+      integer symiui, handles, ih
+      integer nr_handle(5)
+      data nr_handle /1,2,4,5,8/
 c
 c     do 2 * 8 * nir allocations of fock matrices of appropriate sizes
 c     hence for each symmetry block:
@@ -62,36 +64,15 @@ c        qV is dimension virt*virt
 c        store handle in array
 c
       do symiu = 0, nir-1
-         if (.not. ga_create(MT_DBL,no_sym(symiu,1)*no_sym(symiu,1),
-     &      'qO 1',0,0,qO_handles(1,symiu))) call 
-     &      errquit('uccsd: failed to allocate qO 1', 0)
-         if (.not. ga_create(MT_DBL,no_sym(symiu,1)*no_sym(symiu,1),
-     &      'qO 2',0,0,qO_handles(2,symiu))) call 
-     &      errquit('uccsd: failed to allocate qO 2', 0)
-         if (.not. ga_create(MT_DBL,no_sym(symiu,2)*no_sym(symiu,2),
-     &      'qO 4',0,0,qO_handles(4,symiu))) call 
-     &      errquit('uccsd: failed to allocate qO 4', 0)
-         if (.not. ga_create(MT_DBL,no_sym(symiu,2)*no_sym(symiu,2),
-     &      'qO 5',0,0,qO_handles(5,symiu))) call 
-     &      errquit('uccsd: failed to allocate qO 5', 0)
-         if (.not. ga_create(MT_DBL,no_sym(symiu,2)*no_sym(symiu,2),
-     &      'qO 8',0,0,qO_handles(8,symiu))) call 
-     &      errquit('uccsd: failed to allocate qO 8', 0)
-         if (.not. ga_create(MT_DBL,nv_sym(symiu,1)*nv_sym(symiu,1),
-     &      'qV 1',0,0,qV_handles(1,symiu))) call 
-     &      errquit('uccsd: failed to allocate qV 1', 0)
-         if (.not. ga_create(MT_DBL,nv_sym(symiu,1)*nv_sym(symiu,1),
-     &      'qV 2',0,0,qV_handles(2,symiu))) call 
-     &      errquit('uccsd: failed to allocate qV 2', 0)
-         if (.not. ga_create(MT_DBL,nv_sym(symiu,2)*nv_sym(symiu,2),
-     &      'qV 4',0,0,qV_handles(4,symiu))) call 
-     &      errquit('uccsd: failed to allocate qV 4', 0)
-         if (.not. ga_create(MT_DBL,nv_sym(symiu,2)*nv_sym(symiu,2),
-     &      'qV 5',0,0,qV_handles(5,symiu))) call 
-     &      errquit('uccsd: failed to allocate qV 5', 0)
-         if (.not. ga_create(MT_DBL,nv_sym(symiu,2)*nv_sym(symiu,2),
-     &      'qV 8',0,0,qV_handles(8,symiu))) call 
-     &      errquit('uccsd: failed to allocate qV 8', 0)
+         do handles = 1, 5
+           ih = nr_handle(handles)
+           if (.not. ga_create(MT_DBL,no_sym(symiu,ih)*no_sym(symiu,ih),
+     &        'qO',0,0,qO_handles(symiu,ih))) call 
+     &        errquit('uccsd: failed to allocate qO', ih)
+           if (.not. ga_create(MT_DBL,nv_sym(symiu,ih)*nv_sym(symiu,ih),
+     &        'qV',0,0,qV_handles(symiu,ih))) call 
+     &        errquit('uccsd: failed to allocate qV', ih)
+         enddo
       enddo
 c
       end
