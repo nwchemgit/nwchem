@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.35 1997-12-03 11:06:02 d3e129 Exp $
+c $Id: bas_input.F,v 1.36 1997-12-05 00:04:13 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -677,9 +677,9 @@ c
 c     Start parsing current line
 c     
  20   call inp_set_field(0)
-      if (.not. inp_a(field)) goto 10000
-c     
+      if (.not. inp_a(field)) goto 10000 ! tag
       if (inp_compare(.false., 'end', field)) goto 9000 ! End
+      if (.not. inp_a(field)) goto 10000 ! cont_type or 'nelec'
       if (inp_compare(.false.,'nelec', field)) then
          if (.not.inp_i(num_elec)) goto 10000
          if (.not.ecp_set_num_elec(basis,tag,num_elec,'unknown'))
@@ -689,8 +689,11 @@ c
      &       call errquit
      &       ('bas_tag_lib: premature end of input in library',911)
          goto 20
+      else
+         call inp_prev_field()
+         if (.not. inp_a(cont_type)) goto 10000
       endif
-      if (.not. inp_a(cont_type)) goto 10000
+c
       if (inp_match(nltypes, .false., cont_type, ltypes, ind)) then
 c     
 c     The contraction is a simple shell
