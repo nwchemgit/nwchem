@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.310 2000-03-08 21:06:12 d3e129 Exp $
+# $Id: makefile.h,v 1.311 2000-03-09 20:45:26 d3j191 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -94,8 +94,13 @@ endif
 #	echo NWCHEM_TOP=$(NWCHEM_TOP) RELEASE=$(RELEASE) TOPDIR=$(TOPDIR)
 
      SRCDIR := $(TOPDIR)/src
-     LIBDIR := $(TOPDIR)/lib/$(TARGET)
-     BINDIR := $(TOPDIR)/bin/$(TARGET)
+ifndef NWCHEM_TARGET_CPU
+     LIBDIR := $(TOPDIR)/lib/$(NWCHEM_TARGET)
+     BINDIR := $(TOPDIR)/bin/$(NWCHEM_TARGET)
+else
+     LIBDIR := $(TOPDIR)/lib/$(NWCHEM_TARGET)_$(NWCHEM_TARGET_CPU)
+     BINDIR := $(TOPDIR)/bin/$(NWCHEM_TARGET)_$(NWCHEM_TARGET_CPU)
+endif
      INCDIR := $(TOPDIR)/src/include
      CNFDIR := $(TOPDIR)/src/config
 
