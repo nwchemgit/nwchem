@@ -1,0 +1,1028 @@
+ argument  1 = pspw_polarizability.nw
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 4.0
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                                         
+                                         
+
+
+            COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+
+                            >>> All Rights Reserved <<<
+
+
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = wv02696.emsl.pnl.gov
+    program       = nwchem
+    date          = Wed Jan 16 17:52:11 2002
+
+    compiled      = Wed Jan 16 17:38:25 PST 2002
+    source        = /home/bylaska/nwchem/nwchem
+    nwchem branch = Development
+    input         = pspw_polarizability.nw
+    prefix        = Be.
+    data base     = ./Be.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =    8847354 doubles =     67.5 Mbytes
+    stack     =    2949107 doubles =     22.5 Mbytes
+    global    =   11796484 doubles =     90.0 Mbytes (within heap+stack)
+    total     =   11796461 doubles =     90.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                                                                                                        Be polarizability
+                                                                                                                        -----------------
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Be                   4.0000     0.00000000     0.00000000     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      Be                 9.012180
+
+
+ Effective nuclear repulsion energy (a.u.)       0.0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+          ****************************************************
+          *                                                  *
+          *     Car-Parrinello microcluster calculation      *
+          *                                                  *
+          *     [     conjugate gradient minimization   ]    *
+          *     [   (Grassman manifold implementation)  ]    *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.00   06/01/00              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Wed Jan 16 17:52:11 2002  <<<
+          ================ input data ========================
+  library name resolved from: compiled reference
+  library file name is: </home/bylaska/nwchem/nwchem/src/nwpw/libraryps/>
+  
+ Generating 1d pseudopotential for Be
+ Creating datafile for Kleinman-Bylander input: ./Be.psp
+  + Appending pseudopotentials:    s thru p
+  + Appending pseudowavefunctions: s thru p
+
+ Generated formatted_filename: ./Be.vpp
+
+
+ Generated formatted atomic orbitals, filename: ./Be.aorb
+
+ lcao guess, initial psi:Be.movecs                     
+ -   spin, nalpha, nbeta: 1 1 0
+
+ number of processors used:  1
+
+ options:
+      boundary conditions   = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: Be  core charge: 2.0  lmax=1
+             highest angular component      :  1
+             local potential used           :  1
+             number of non-local projections:  1
+             cutoff =   1.219   1.219
+
+ total charge: 0
+
+ atomic composition:
+     Be:  1
+
+ position of ions (au):
+        1 Be (    0.00000    0.00000    0.00000 ) - atomic mass=   9.012 
+       G.C.  (    0.00000    0.00000    0.00000 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+
+ number of active electrons: spin up=  1  spin down=  1 (fourier space)
+
+ supercell:
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      volume :     8000.0
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      ewald summation: cut radius=    6.37  and  1
+                        mandelung= 1.76011888
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-11 (energy)   0.100E-11 (density)   0.000E+00 (ion)
+
+
+
+
+
+======================
+= energy calculation =
+======================
+
+
+          ================ lmbfgs iteration ==================
+     >>>  ITERATION STARTED AT Wed Jan 16 17:52:30 2002  <<<
+     -   5 steepest descent iterations performed
+      10   -0.9935803466E+00   -0.11977E-05    0.40981E-07
+      20   -0.9935824180E+00   -0.95308E-08    0.18778E-08
+      30   -0.9935824285E+00   -0.12050E-10    0.39492E-09
+      40   -0.9935824285E+00   -0.52474E-12    0.23832E-13
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Wed Jan 16 17:53:01 2002  <<<
+
+
+          =============  summary of results  =================
+
+ number of electrons: spin up=    1.00000  down=    1.00000 (real space)
+
+ total     energy    :  -0.9935824285E+00 (   -0.99358E+00/ion)
+ total orbital energy:  -0.4031692641E+00 (   -0.40317E+00/electron)
+ hartree   energy    :   0.4176945752E+00 (    0.41769E+00/electron)
+ exc-corr  energy    :  -0.3682155916E+00 (   -0.36822E+00/electron)
+ ion-ion   energy    :  -0.2837297479E+00 (   -0.28373E+00/ion)
+
+ K.S. kinetic energy :   0.3024734728E+00 (    0.30247E+00/electron)
+ K.S. V_l  energy    :  -0.1354931344E+01 (   -0.13549E+01/electron)
+ K.S. V_nl energy    :   0.2931262074E+00 (    0.29313E+00/electron)
+ K.S. V_Hart energy  :   0.8353891504E+00 (    0.83539E+00/electron)
+ K.S. V_xc energy    :  -0.4792267503E+00 (   -0.47923E+00/electron)
+ Virial Coefficient  :  -0.2332907843E+01
+
+ orbital energies:
+    -0.2015846E+00 (  -5.485eV)
+
+ Total PSPW energy   :  -0.9935824285E+00
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =   0.
+ <S^2>      =   0.
+
+
+
+== Center of Charge ==
+
+spin up     (   -0.0001,   -0.0001,   -0.0001 )
+spin down   (   -0.0001,   -0.0001,   -0.0001 )
+     total  (   -0.0001,   -0.0001,   -0.0001 )
+ionic       (    0.0000,    0.0000,    0.0000 )
+
+
+== Molecular Dipole ==
+
+mu   =  (    0.0002,    0.0002,    0.0002 ) au
+|mu| =     0.0004 au,       0.0010 Debye
+
+
+========================
+= Gradient calculation =
+========================
+
+
+Translation force removed: (    0.00000    0.00000    0.00000)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 Be (    0.00000    0.00000    0.00000 )
+ Ion Forces:
+        1 Be (    0.00000    0.00000    0.00000 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.0000000000E+00
+
+
+
+ -----------------
+ cputime in seconds
+ prologue    :   19.152304
+ main loop   :   30.787372
+ epilogue    :   0.022672
+ total       :   49.962348
+ cputime/step:   0.366516333   ( 84 evalulations,  35 line searches)
+
+ -------------------------------
+ Time spent doing:
+   FFTs                       :   13.645678  0.162448548
+   dot products               :   0.632676  0.00753185714
+   geodesic                   :   0.  0.
+   exchange correlation       :   10.591982  0.126095024
+   local pseudopotentials     :   0.069828  0.000831285714
+   non-local pseudopotentials :   2.107154  0.0250851667
+   hartree potentials         :   0.36908  0.00439380952
+   structure factors          :   0.56905  0.00677440476
+   masking and packing        :   3.117566  0.037113881
+
+     >>>  JOB COMPLETED     AT Wed Jan 16 17:53:01 2002  <<<
+
+ Task  times  cpu:       46.5s     wall:       50.0s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+
+                         Geometry "geometry" -> "        "
+                         ---------------------------------
+
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Be                   4.0000     0.00000000     0.00000000     0.00000000
+    2 bq1                 50.0000     0.00000000     0.00000000   100.00000000
+    3 bq2                -50.0000     0.00000000     0.00000000  -100.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      Be                 9.012180
+
+
+ Effective nuclear repulsion energy (a.u.)       0.0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+          ****************************************************
+          *                                                  *
+          *     Car-Parrinello microcluster calculation      *
+          *                                                  *
+          *     [     conjugate gradient minimization   ]    *
+          *     [   (Grassman manifold implementation)  ]    *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.00   06/01/00              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Wed Jan 16 17:53:01 2002  <<<
+          ================ input data ========================
+
+ number of processors used:  1
+
+ options:
+      boundary conditions   = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: Be  core charge: 2.0  lmax=1
+             highest angular component      :  1
+             local potential used           :  1
+             number of non-local projections:  1
+             cutoff =   1.219   1.219
+
+ total charge: 0
+
+ atomic composition:
+     Be:  1
+
+ position of ions (au):
+        1 Be (    0.00000    0.00000    0.00000 ) - atomic mass=   9.012 
+       G.C.  (    0.00000    0.00000    0.00000 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+
+ position of point charges (au): 
+        1 bq (    0.00000    0.00000  100.00000 ) - charge =     50.000
+        2 bq (    0.00000    0.00000 -100.00000 ) - charge =    -50.000
+
+ number of active electrons: spin up=  1  spin down=  1 (fourier space)
+
+ supercell:
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      volume :     8000.0
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      ewald summation: cut radius=    6.37  and  1
+                        mandelung= 1.76011888
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-11 (energy)   0.100E-11 (density)   0.000E+00 (ion)
+
+
+
+
+
+======================
+= energy calculation =
+======================
+
+
+          ================ lmbfgs iteration ==================
+     >>>  ITERATION STARTED AT Wed Jan 16 17:53:05 2002  <<<
+      10   -0.9958383688E+00   -0.44227E-05    0.16386E-03
+      20   -0.9958458455E+00   -0.68784E-07    0.93126E-07
+      30   -0.9958459133E+00   -0.49963E-09    0.40155E-09
+      40   -0.9958459140E+00   -0.35750E-11    0.27525E-11
+      50   -0.9958459140E+00   -0.76839E-12    0.19256E-13
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Wed Jan 16 17:53:41 2002  <<<
+
+
+          =============  summary of results  =================
+
+ number of electrons: spin up=    1.00000  down=    1.00000 (real space)
+
+ total     energy    :  -0.9958459140E+00 (   -0.99585E+00/ion)
+ total orbital energy:  -0.4071479715E+00 (   -0.40715E+00/electron)
+ hartree   energy    :   0.4156511080E+00 (    0.41565E+00/electron)
+ exc-corr  energy    :  -0.3671363990E+00 (   -0.36714E+00/electron)
+ ion-ion   energy    :  -0.2837297479E+00 (   -0.28373E+00/ion)
+
+ K.S. kinetic energy :   0.3009130626E+00 (    0.30091E+00/electron)
+ K.S. V_l  energy    :  -0.1352390949E+01 (   -0.13524E+01/electron)
+ K.S. V_nl energy    :   0.2908470116E+00 (    0.29085E+00/electron)
+ K.S. V_Hart energy  :   0.8313022160E+00 (    0.83130E+00/electron)
+ K.S. V_xc energy    :  -0.4778193123E+00 (   -0.47782E+00/electron)
+ Virial Coefficient  :  -0.2353041865E+01
+
+ Charge Field Energies
+ ---------------------
+ Charge Field/Electron  :  -0.4574581601E-02
+ Charge Field/Ion       :   0.0000000000E+00
+
+ orbital energies:
+    -0.2035740E+00 (  -5.540eV)
+
+ Total PSPW energy   :  -0.9958459140E+00
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =   0.
+ <S^2>      =   0.
+
+
+
+== Center of Charge ==
+
+spin up     (   -0.0001,   -0.0001,    0.2287 )
+spin down   (   -0.0001,   -0.0001,    0.2287 )
+     total  (   -0.0001,   -0.0001,    0.2287 )
+ionic       (    0.0000,    0.0000,    0.0000 )
+
+
+== Molecular Dipole ==
+
+mu   =  (    0.0003,    0.0003,   -0.4575 ) au
+|mu| =     0.4575 au,       1.1627 Debye
+
+
+========================
+= Gradient calculation =
+========================
+
+
+Translation force removed: (    0.00000    0.00000    0.01998)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 Be (    0.00000    0.00000    0.00000 )
+ Ion Forces:
+        1 Be (    0.00000    0.00000    0.00000 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.0000000000E+00
+
+
+
+ -----------------
+ cputime in seconds
+ prologue    :   4.041386
+ main loop   :   36.152346
+ epilogue    :   0.02567
+ total       :   40.219402
+ cputime/step:   0.36152346   ( 100 evalulations,  43 line searches)
+
+ -------------------------------
+ Time spent doing:
+   FFTs                       :   13.346356  0.13346356
+   dot products               :   0.73979  0.0073979
+   geodesic                   :   0.  0.
+   exchange correlation       :   11.339928  0.11339928
+   local pseudopotentials     :   0.045108  0.00045108
+   non-local pseudopotentials :   2.507672  0.02507672
+   hartree potentials         :   0.424648  0.00424648
+   structure factors          :   0.469606  0.00469606
+   masking and packing        :   3.260924  0.03260924
+
+     >>>  JOB COMPLETED     AT Wed Jan 16 17:53:41 2002  <<<
+
+ Task  times  cpu:       37.0s     wall:       40.2s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+
+                         Geometry "geometry" -> "        "
+                         ---------------------------------
+
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Be                   4.0000     0.00000000     0.00000000     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      Be                 9.012180
+
+
+ Effective nuclear repulsion energy (a.u.)       0.0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+          ****************************************************
+          *                                                  *
+          *     Car-Parrinello microcluster calculation      *
+          *                                                  *
+          *     [     conjugate gradient minimization   ]    *
+          *     [   (Grassman manifold implementation)  ]    *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.00   06/01/00              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Wed Jan 16 17:53:41 2002  <<<
+          ================ input data ========================
+ pseudopotential is not correctly formatted:Be.vpp              
+
+ Generated formatted_filename: ./Be.vpp
+
+
+ number of processors used:  1
+
+ options:
+      boundary conditions   = aperiodic   (version4)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: Be  core charge: 2.0  lmax=1
+             highest angular component      :  1
+             local potential used           :  1
+             number of non-local projections:  1
+             aperiodic cutoff radius        :  1.000
+             cutoff =   1.219   1.219
+
+ total charge: 0
+
+ atomic composition:
+     Be:  1
+
+ position of ions (au):
+        1 Be (    0.00000    0.00000    0.00000 ) - atomic mass=   9.012 
+       G.C.  (    0.00000    0.00000    0.00000 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+
+ number of active electrons: spin up=  1  spin down=  1 (fourier space)
+
+ supercell:
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      volume :     8000.0
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-11 (energy)   0.100E-11 (density)   0.000E+00 (ion)
+
+
+
+
+
+======================
+= energy calculation =
+======================
+
+
+          ================ lmbfgs iteration ==================
+     >>>  ITERATION STARTED AT Wed Jan 16 17:54:56 2002  <<<
+      10   -0.9935795018E+00   -0.28026E-05    0.16532E-03
+      20   -0.9935832129E+00   -0.13898E-07    0.11020E-06
+      30   -0.9935832262E+00   -0.33507E-10    0.12869E-09
+      40   -0.9935832263E+00   -0.81146E-12    0.13688E-12
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Wed Jan 16 17:56:21 2002  <<<
+
+
+          =============  summary of results  =================
+
+ number of electrons: spin up=    1.00000  down=    1.00000 (real space)
+
+ total     energy    :  -0.9935832263E+00 (   -0.99358E+00/ion)
+ total orbital energy:  -0.4118350748E+00 (   -0.41184E+00/electron)
+ hartree   energy    :   0.6927593256E+00 (    0.69276E+00/electron)
+ exc-corr  energy    :  -0.3682156387E+00 (   -0.36822E+00/electron)
+ ion-ion   energy    :   0.0000000000E+00 (    0.00000E+00/ion)
+
+ K.S. kinetic energy :   0.3024743672E+00 (    0.30247E+00/electron)
+ K.S. V_l  energy    :  -0.1913726585E+01 (   -0.19137E+01/electron)
+ K.S. V_nl energy    :   0.2931253048E+00 (    0.29313E+00/electron)
+ K.S. V_Hart energy  :   0.1385518651E+01 (    0.13855E+01/electron)
+ K.S. V_xc energy    :  -0.4792268128E+00 (   -0.47923E+00/electron)
+ Virial Coefficient  :  -0.2361553637E+01
+
+ orbital energies:
+    -0.2059175E+00 (  -5.603eV)
+
+ Total PSPW energy   :  -0.9935832263E+00
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =   0.
+ <S^2>      =   0.
+
+
+
+== Center of Charge ==
+
+spin up     (   -0.0001,   -0.0001,   -0.0001 )
+spin down   (   -0.0001,   -0.0001,   -0.0001 )
+     total  (   -0.0001,   -0.0001,   -0.0001 )
+ionic       (    0.0000,    0.0000,    0.0000 )
+
+
+== Molecular Dipole ==
+
+mu   =  (    0.0002,    0.0002,    0.0002 ) au
+|mu| =     0.0004 au,       0.0009 Debye
+
+
+========================
+= Gradient calculation =
+========================
+
+
+Translation force removed: (    0.00000    0.00000    0.00000)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 Be (    0.00000    0.00000    0.00000 )
+ Ion Forces:
+        1 Be (    0.00000    0.00000    0.00000 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.6617444900E-23
+
+
+
+ -----------------
+ cputime in seconds
+ prologue    :   75.175618
+ main loop   :   85.0904
+ epilogue    :   0.022474
+ total       :   160.288492
+ cputime/step:   0.989423256   ( 86 evalulations,  37 line searches)
+
+ -------------------------------
+ Time spent doing:
+   FFTs                       :   59.76593  0.694952674
+   dot products               :   0.905124  0.0105246977
+   geodesic                   :   0.  0.
+   exchange correlation       :   9.218686  0.107194023
+   local pseudopotentials     :   0.04459  0.000518488372
+   non-local pseudopotentials :   2.459674  0.0286008605
+   hartree potentials         :   0.  0.
+   structure factors          :   0.577864  0.00671934884
+   masking and packing        :   3.118816  0.0362653023
+
+     >>>  JOB COMPLETED     AT Wed Jan 16 17:56:21 2002  <<<
+
+ Task  times  cpu:      150.8s     wall:      160.3s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+
+                         Geometry "geometry" -> "        "
+                         ---------------------------------
+
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Be                   4.0000     0.00000000     0.00000000     0.00000000
+    2 bq1                 50.0000     0.00000000     0.00000000   100.00000000
+    3 bq2                -50.0000     0.00000000     0.00000000  -100.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      Be                 9.012180
+
+
+ Effective nuclear repulsion energy (a.u.)       0.0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+          ****************************************************
+          *                                                  *
+          *     Car-Parrinello microcluster calculation      *
+          *                                                  *
+          *     [     conjugate gradient minimization   ]    *
+          *     [   (Grassman manifold implementation)  ]    *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.00   06/01/00              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Wed Jan 16 17:56:21 2002  <<<
+          ================ input data ========================
+
+ number of processors used:  1
+
+ options:
+      boundary conditions   = aperiodic   (version4)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: Be  core charge: 2.0  lmax=1
+             highest angular component      :  1
+             local potential used           :  1
+             number of non-local projections:  1
+             aperiodic cutoff radius        :  1.000
+             cutoff =   1.219   1.219
+
+ total charge: 0
+
+ atomic composition:
+     Be:  1
+
+ position of ions (au):
+        1 Be (    0.00000    0.00000    0.00000 ) - atomic mass=   9.012 
+       G.C.  (    0.00000    0.00000    0.00000 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+
+ position of point charges (au): 
+        1 bq (    0.00000    0.00000  100.00000 ) - charge =     50.000
+        2 bq (    0.00000    0.00000 -100.00000 ) - charge =    -50.000
+
+ number of active electrons: spin up=  1  spin down=  1 (fourier space)
+
+ supercell:
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      volume :     8000.0
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-11 (energy)   0.100E-11 (density)   0.000E+00 (ion)
+
+
+
+
+
+======================
+= energy calculation =
+======================
+
+
+          ================ lmbfgs iteration ==================
+     >>>  ITERATION STARTED AT Wed Jan 16 17:56:22 2002  <<<
+      10   -0.9957863091E+00   -0.41386E-05    0.15639E-03
+      20   -0.9957932667E+00   -0.64466E-07    0.90234E-07
+      30   -0.9957933301E+00   -0.45811E-09    0.37213E-09
+      40   -0.9957933307E+00   -0.32779E-11    0.24939E-11
+      50   -0.9957933307E+00   -0.71228E-12    0.18352E-13
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Wed Jan 16 17:57:58 2002  <<<
+
+
+          =============  summary of results  =================
+
+ number of electrons: spin up=    1.00000  down=    1.00000 (real space)
+
+ total     energy    :  -0.9957933307E+00 (   -0.99579E+00/ion)
+ total orbital energy:  -0.4157735437E+00 (   -0.41577E+00/electron)
+ hartree   energy    :   0.6907185739E+00 (    0.69072E+00/electron)
+ exc-corr  energy    :  -0.3671885774E+00 (   -0.36719E+00/electron)
+ ion-ion   energy    :   0.0000000000E+00 (    0.00000E+00/ion)
+
+ K.S. kinetic energy :   0.3009877518E+00 (    0.30099E+00/electron)
+ K.S. V_l  energy    :  -0.1911264125E+01 (   -0.19113E+01/electron)
+ K.S. V_nl energy    :   0.2909530461E+00 (    0.29095E+00/electron)
+ K.S. V_Hart energy  :   0.1381437148E+01 (    0.13814E+01/electron)
+ K.S. V_xc energy    :  -0.4778873643E+00 (   -0.47789E+00/electron)
+ Virial Coefficient  :  -0.2381363664E+01
+
+ Charge Field Energies
+ ---------------------
+ Charge Field/Electron  :  -0.4463298091E-02
+ Charge Field/Ion       :   0.0000000000E+00
+
+ orbital energies:
+    -0.2078868E+00 (  -5.657eV)
+
+ Total PSPW energy   :  -0.9957933307E+00
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =   0.
+ <S^2>      =   0.
+
+
+
+== Center of Charge ==
+
+spin up     (   -0.0001,   -0.0001,    0.2232 )
+spin down   (   -0.0001,   -0.0001,    0.2232 )
+     total  (   -0.0001,   -0.0001,    0.2232 )
+ionic       (    0.0000,    0.0000,    0.0000 )
+
+
+== Molecular Dipole ==
+
+mu   =  (    0.0003,    0.0003,   -0.4463 ) au
+|mu| =     0.4463 au,       1.1344 Debye
+
+
+========================
+= Gradient calculation =
+========================
+
+
+Translation force removed: (    0.00000    0.00000    0.01998)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 Be (    0.00000    0.00000    0.00000 )
+ Ion Forces:
+        1 Be (    0.00000    0.00000    0.00000 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.0000000000E+00
+
+
+
+ -----------------
+ cputime in seconds
+ prologue    :   0.78702
+ main loop   :   96.584636
+ epilogue    :   0.026612
+ total       :   97.398268
+ cputime/step:   0.928698423   ( 104 evalulations,  43 line searches)
+
+ -------------------------------
+ Time spent doing:
+   FFTs                       :   68.380172  0.657501654
+   dot products               :   0.684128  0.00657815385
+   geodesic                   :   0.  0.
+   exchange correlation       :   11.10258  0.106755577
+   local pseudopotentials     :   0.044218  0.000425173077
+   non-local pseudopotentials :   2.57557  0.0247650962
+   hartree potentials         :   0.  0.
+   structure factors          :   0.525052  0.00504857692
+   masking and packing        :   2.913848  0.0280177692
+
+     >>>  JOB COMPLETED     AT Wed Jan 16 17:57:59 2002  <<<
+
+ Task  times  cpu:       95.3s     wall:       97.4s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:    8        8       31       10        0        0        0        0     
+bytes total:             2.48e+02 8.00e+01 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 64 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        98	        14
+	current total bytes		         0	         0
+	maximum total bytes		  10631676	   9203420
+	maximum total K-bytes		     10632	      9204
+	maximum total M-bytes		        11	        10
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 4.0.1" (2001), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis, E. J. Bylaska,
+            G. I. Fann, T. L. Windus, E. Apra, J. Anchell, D. Bernholdt, P. Borowski,
+            T. Clark, D. Clerc, H. Dachsel, B. de Jong, M. Deegan, K. Dyall, D. Elwood,
+            H. Fruchtl, E. Glendenning, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
+            R. Kendall, R. Kobayashi, R, Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor, G. Thomas,
+            J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
+            "NWChem, A Computational Chemistry Package for Parallel Computers, 
+            Version 4.0.1" (2001),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+                                    REFERENCES
+                                    ----------
+
+            Where appropriate, please cite the following reference(s) 
+            when publishing results obtained with NWChem:
+
+
+     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
+        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
+        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
+        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
+        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
+
+
+
+ Total times  cpu:      329.8s     wall:      348.1s

@@ -1,0 +1,94 @@
+#
+# Compute the polarizability of a Be atom using a finite field.
+#
+#    Formulae:
+#
+#    E(F) ~= E(0) - 0.5*alpha*F**2
+#
+#    Polarizability = alpha ~= 2*(E(0)-E(F))/F**2
+#
+#
+#                       PSPW Results
+#------------------------------------------------------
+#                        LDA/25 Ry            LDA/25 Ry			
+#		         Periodic Boundary   Aperiodic Boundary		
+#------------------------------------------------------
+# E(F=0.01)          -0.9958459140        -0.9957933307
+# E(F=0.00)          -0.9935824285        -0.9935832263
+#
+# Polarizability     45.3                 44.2
+#
+#
+#
+#                          DFT and HF Results
+#------------------------------------------------------------------
+#                    LDA/DZVP2    LDA/aug-cc-pvdz    HF/aug-cc-pvdz
+#------------------------------------------------------------------
+# E(F=0.01)         -14.447260         -14.445806        -14.574633
+# E(F=0.00)         -14.446093         -14.443634        -14.572379
+#
+# Polarizability     23.3               43.4              45.1
+#
+
+
+title "Be polarizability using PSPW"
+
+start Be
+
+set nwpw:minimizer 2
+
+#**** Get polarizability using a periodic cell ****
+PSPW
+   SIMULATION_CELL
+      lattice_vectors
+         20.0   0.0   0.0
+          0.0  20.0   0.0
+          0.0   0.0  20.0
+      ngrid 32 32 32
+   END
+   loop 10 10
+   tolerances 1.0d-12 1.0d-12
+END
+
+geometry units au noautosym
+Be  0.0 0.0 0.0
+end
+task pspw energy
+
+geometry units au noautosym noautoz
+Be    0.0 0.0    0.0
+bq1   0.0 0.0  100.0   charge  50.0
+bq2   0.0 0.0 -100.0   charge -50.0
+end
+task pspw energy
+
+
+
+#**** Get polarizability using a aperiodic cell ****
+PSPW
+   SIMULATION_CELL
+      lattice_vectors
+         20.0   0.0   0.0
+          0.0  20.0   0.0
+          0.0   0.0  20.0
+      boundary_conditions aperiodic
+      ngrid 32 32 32
+   END
+   loop 10 10
+   tolerances 1.0d-12 1.0d-12
+END
+
+geometry units au noautosym
+Be  0.0 0.0 0.0
+end
+task pspw energy
+
+geometry units au noautosym noautoz
+Be    0.0 0.0    0.0
+bq1   0.0 0.0  100.0   charge  50.0
+bq2   0.0 0.0 -100.0   charge -50.0
+end
+task pspw energy
+
+
+
