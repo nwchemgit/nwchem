@@ -166,6 +166,7 @@ c
       character*16 tag
       double precision coord(3), q
       integer ncenter, icent, ltotal, k, l, m, ind
+      double precision xk, xl, xm
 c     
       if (.not. geom_ncent(geom, ncenter)) 
      $     call errquit('geom_nuc_mpole: bad geometry',0)
@@ -180,18 +181,29 @@ c     x^k y^l z^m, k+l+m=ltotal
 c     
          ind = 0
          do ltotal = 0, lmax
-            do k = ltotal, 0, -1
-               do l = ltotal-k, 0, - 1
+           do k = ltotal, 0, -1
+               do l = (ltotal-k), 0, -1
                   m = ltotal - k - l
+#if defined(CRAY)
+                  xk = real(k)
+                  xl = real(l)
+                  xm = real(m)
+#else
+                  xk = dble(k)
+                  xl = dble(l)
+                  xm = dble(m)
+#endif
                   ind = ind + 1
                   moments(ind) = moments(ind) + q*(
-     $                 (coord(1)-center(1))**k *
-     $                 (coord(2)-center(2))**l * 
-     $                 (coord(3)-center(3))**m)
+     $                 (coord(1)-center(1))**xk *
+     $                 (coord(2)-center(2))**xl * 
+     $                 (coord(3)-center(3))**xm)
                end do
             end do
          end do
       end do
+c
+      geom_nuc_mpole = .true.
 c     
       end 
 
