@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.56 2001-06-07 20:36:23 d3j191 Exp $
+c $Id: sp_main.F,v 1.57 2001-06-07 21:03:27 d3j191 Exp $
 c
       implicit none
 c
@@ -2850,7 +2850,7 @@ c
 c
       return
       end
-      subroutine sp_prtbxsz(lfn,boxsiz)
+      subroutine sp_wrtbxsz(lfn,boxsiz)
 c
       implicit none
 c
