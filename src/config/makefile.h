@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.21 1994-05-04 00:40:23 d3g681 Exp $
+# $Id: makefile.h,v 1.22 1994-05-06 22:48:32 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -218,7 +218,7 @@ ifeq ($(TARGET),IBM)
   INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
    WARNINGS = 
     DEFINES = -DIBM -DEXTNAME $(LIB_DEFINES) 
-     FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
+     FFLAGS = $(FOPT) $(INCLUDES) 
      CFLAGS = $(COPT) $(INCLUDES) $(DEFINES) $(WARNINGS)
     ARFLAGS = rcv
 
