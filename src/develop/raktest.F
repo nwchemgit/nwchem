@@ -1,6 +1,575 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.28 1994-09-28 00:15:41 d3e129 Exp $
+c $Id: raktest.F,v 1.29 1994-11-06 12:49:33 d3e129 Exp $
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "context.fh"
+c::passed
+      integer rtdb          ! rtdb handle
+c::local
+      integer raktask, rak_tmp
+c
+      raktask = 0
+      if (rtdb_get(rtdb,'raktask',MT_INT,1,rak_tmp))
+     &    raktask = rak_tmp
+c
+      goto (00100) raktask
+c
+      write(6,*)' default raktest task '
+      call raktest0(rtdb)
+      goto 00001
+c
+00100 write(6,*)' raktest task 1 '
+      call raktest1(rtdb)
+      goto 00001
+c
+00001 continue
+      end
+      subroutine raktest1(rtdb)
+      implicit none
+      integer rtdb
+      call deriv2c(rtdb)
+      call deriv3c(rtdb)
+      end
+      subroutine deriv3c(rtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "geom.fh"
+#include "bas.fh"
+c
+      double precision ddot
+      external ddot
+c
+      integer rtdb
+c
+      character*100 mo_basis, geom_name
+      integer basis, geom
+      integer nbf, nshells, nat
+      integer size2e, size2e_d
+      integer h2e3d,i2e3d, h2e3d_fd,i2e3d_fd, h2e3d_diff,i2e3d_diff
+      integer hxyz,ixyz,nbuf,nscr,hscr,iscr,hbuf,ibuf
+      logical status
+c
+      if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
+     &    mo_basis = 'mo basis'
+      if (.not.context_rtdb_match(rtdb,'geometry',geom_name))
+     &    geom_name = 'geometry'
+c
+      if(.not.geom_create(geom,geom_name))call errquit
+     &    ('deriv3c: geom create error',911)
+      if(.not.bas_create(basis,mo_basis))call errquit
+     &    ('deriv3c: basis create error',911)
+c
+      if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
+     &    ('deriv3c: geom load ',911)
+      if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
+     &    ('deriv3c: basis load ',911)
+c
+      if(.not.bas_numbf(basis,nbf)) call errquit
+     &    ('deriv3c: bas_numbf failed',911)
+      if(.not.bas_numcont(basis,nshells)) call errquit
+     &       ('deriv3c:bas_numcont failed',911)
+      if(.not.geom_ncent(geom,nat)) call errquit
+     &       ('deriv3c:geom_ncent failed',911)
+c
+      size2e   = nbf*nbf*nbf
+      size2e_d = size2e*3*nat
+c
+      call intd_init(rtdb,1,basis)
+*      call int_normalize(basis)
+      call int_norm_2c(basis)
+c
+      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d real',
+     &    h2e3d,i2e3d))
+     &    call errquit('deriv3c: ma fail 1',911)
+      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d fd',
+     &    h2e3d_fd,i2e3d_fd))
+     &    call errquit('deriv3c: ma fail 2',911)
+      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d diff',
+     &    h2e3d_diff,i2e3d_diff))
+     &    call errquit('deriv3c: ma fail 3',911)
+      if (.not.ma_push_get(mt_dbl,(3*nat),'xyzbuf',
+     &    hxyz,ixyz))
+     &    call errquit('deriv3c: ma fail 4',911)
+      call int_mem_2e4c(nbuf,nscr)
+      if (.not.ma_push_get(mt_dbl,nscr,'scratch',
+     &    hscr,iscr))
+     &    call errquit('deriv3c: ma fail 5',911)
+      if (.not.ma_push_get(mt_dbl,(2*nbuf),'buffer scratch',
+     &    hbuf,ibuf))
+     &    call errquit('deriv3c: ma fail 6',911)
+c
+      call dfill(size2e_d, 0.0d00,dbl_mb(i2e3d)     ,1)
+      call dfill(size2e_d, 0.0d00,dbl_mb(i2e3d_fd)  ,1)
+      call dfill(size2e_d, 0.0d00,dbl_mb(i2e3d_diff),1)
+      call dfill(nscr,     0.0d00,dbl_mb(iscr)      ,1)
+      call dfill(2*nbuf,   0.0d00,dbl_mb(ibuf)      ,1)
+      call dfill((3*nat),  0.0d00,dbl_mb(ixyz)      ,1)
+c      
+c      
+      call build_3ed(dbl_mb(i2e3d),nat,size2e,nbf,nshells,
+     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,basis,geom)
+      call dfill(nscr,      0.0d00,dbl_mb(iscr)      ,1)
+      call dfill(2*nbuf,    0.0d00,dbl_mb(ibuf)      ,1)
+      call build_3edfd(dbl_mb(i2e3d_fd),nat,size2e,nbf,
+     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,dbl_mb(ixyz),
+     &    1.0d-05,basis,geom,nshells)
+      call dcopy(size2e_d,dbl_mb(i2e3d_fd),1,dbl_mb(i2e3d_diff),1)
+      call daxpy(size2e_d,-1.0d00,dbl_mb(i2e3d),1,dbl_mb(i2e3d_diff),1)
+c
+      call print_2d3c(dbl_mb(i2e3d),dbl_mb(i2e3d_fd),
+     &    dbl_mb(i2e3d_diff),nbf,nat)
+c
+      write(6,*)
+      write(6,*)' 2e3c deriv diff norm ',
+     &    ddot(size2e_d,dbl_mb(i2e3d_diff),1,dbl_mb(i2e3d_diff),1)
+c
+      call intd_terminate()
+      status = ma_pop_stack(hbuf)
+      status = status.and.ma_pop_stack(hscr)
+      status = status.and.ma_pop_stack(hxyz)
+      status = status.and.ma_pop_stack(h2e3d_diff)
+      status = status.and.ma_pop_stack(h2e3d_fd)
+      status = status.and.ma_pop_stack(h2e3d)
+      if (.not.status) call errquit('pop failed',911)
+      status = bas_destroy(basis)
+      status = status.and.geom_destroy(geom)
+      if (.not.status) call errquit('b/g destroy failed',911)
+      end
+      subroutine build_3edfd(x2e3dfd,nat,size2e,nbf,scr,nscr,
+     &    buf,nbuf,xyz,delta,basis,geom,nshells)
+      implicit none
+#include "bas.fh"
+#include "geom.fh"
+#include "geomP.fh"
+      integer nat, size2e, nbf, nscr, nbuf, basis, geom, nshells
+      double precision x2e3dfd(nbf,nbf,nbf,3,nat)
+      double precision scr(nscr)
+      double precision buf(nbuf,2)
+      double precision xyz(3,nat)
+      double precision delta
+c
+      double precision scale
+      integer ish, ibflo, ibfhi, ibf
+      integer jsh, jbflo, jbfhi, jbf
+      integer ksh, kbflo, kbfhi, kbf
+      integer datom, dxyz
+      integer nint, icount
+      integer int_nint
+      external int_nint
+c
+c.. store original coords in xyz
+      call dcopy((3*nat),coords(1,1,geom),1,xyz,1)
+      scale = 1.0d00/(2.0d00*delta)
+c
+      do 00100 ish = 1,nshells
+        if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+     &      call errquit('cn2bfr error',ish)
+        do 00200 jsh = 1,ish
+          if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+     &        call errquit('cn2bfr error',jsh)
+          do 00300 ksh = 1,jsh
+            if (.not.bas_cn2bfr(basis,ksh,kbflo,kbfhi))
+     &          call errquit('cn2bfr error',ksh)
+            nint = int_nint(basis,ish,basis,jsh,basis,ksh,basis,0)
+            do 00400 datom = 1,nat
+              do 00500 dxyz = 1,3
+c... copy original coords in to coords array
+                call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+c... add delta to coordinate
+                coords(dxyz,datom,geom)=coords(dxyz,datom,geom)+delta
+                call int_2e3c(basis,ish,basis,jsh,ksh,
+     &              nscr,scr,nint,buf(1,1))
+c... copy original coords in to coords array
+                call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+c... subtract delta to coordinate
+                coords(dxyz,datom,geom)=coords(dxyz,datom,geom)-delta
+                call int_2e3c(basis,ish,basis,jsh,ksh,
+     &              nscr,scr,nint,buf(1,2))
+                call daxpy(nint,-1.0d00,buf(1,2),1,buf(1,1),1)
+                call dscal(nint,scale,buf(1,1),1)
+                icount = 0
+                do 00600 ibf = ibflo,ibfhi
+                  do 00700 jbf = jbflo,jbfhi
+                    do 00800 kbf = kbflo, kbfhi
+                      icount = icount + 1
+                      x2e3dfd(ibf,jbf,kbf,dxyz,datom) =
+     &                    buf(icount,1)
+00800               continue
+00700             continue
+00600           continue
+00500         continue
+00400       continue
+00300     continue
+00200   continue
+00100 continue
+c      
+c... copy original coords in to coords array
+      call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+c
+      end
+      subroutine build_3ed(x2e3d,nat,size2e,nbf,nshells,
+     &    scr,nscr,buf,nbuf,basis,geom)
+      implicit none
+#include "bas.fh"
+      integer nat, size2e, nbf, nshells, nscr, nbuf, basis, geom
+      double precision x2e3d(nbf,nbf,nbf,3,nat)
+      double precision scr(nscr)
+      double precision buf(nbuf)
+c
+      integer idatom(4)
+      integer ish, ibflo, ibfhi, num_ibf, ibf
+      integer jsh, jbflo, jbfhi, num_jbf, jbf
+      integer ksh, kbflo, kbfhi, num_kbf, kbf
+      integer nint, icount, id, dxyz
+c
+      integer int_nint
+      external int_nint
+c
+      do 00100 ish = 1,nshells
+        if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+     &      call errquit('cn2bfr error',ish)
+        num_ibf = ibfhi-ibflo+1
+        do 00200 jsh = 1,ish
+          if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+     &        call errquit('cn2bfr error',jsh)
+          num_jbf = jbfhi-jbflo+1
+          do 00300 ksh = 1,jsh
+            if (.not.bas_cn2bfr(basis,ksh,kbflo,kbfhi))
+     &          call errquit('cn2bfr error',ksh)
+            num_kbf = kbfhi-kbflo+1
+            nint = int_nint(basis,ish,basis,jsh,basis,ksh,basis,0)
+            call intd_2e3c(basis,ish,basis,jsh,ksh,nscr,scr,(nint*3*4),
+     &          buf,idatom)
+            write(6,*)' idatom 2e3c',idatom
+            icount = 0
+            do 00400 id = 1,4
+              if (idatom(id).gt.0) then
+                do 00500 dxyz = 1,3
+                  do 00600 ibf = ibflo,ibfhi
+                    do 00700 jbf = jbflo,jbfhi
+                      do 00800 kbf = kbflo,kbfhi
+                        icount = icount + 1
+                        x2e3d(ibf,jbf,kbf,dxyz,idatom(id))=buf(icount)
+00800                 continue
+00700               continue
+00600             continue
+00500           continue
+              else
+                icount = icount + 3*num_ibf*num_jbf*num_kbf
+              endif
+00400       continue
+00300     continue
+00200   continue
+00100 continue
+c
+      end
+      subroutine deriv2c(rtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "geom.fh"
+#include "bas.fh"
+c
+      double precision ddot
+      external ddot
+c
+      integer rtdb
+c
+      character*100 mo_basis, geom_name
+      integer basis, geom
+      integer nbf, nshells, nat
+      integer size2e, size2e_d
+      integer h2e2d,i2e2d, h2e2d_fd,i2e2d_fd, h2e2d_diff,i2e2d_diff
+      integer hxyz,ixyz,nbuf,nscr,hscr,iscr,hbuf,ibuf
+      logical status
+c
+      if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
+     &    mo_basis = 'mo basis'
+      if (.not.context_rtdb_match(rtdb,'geometry',geom_name))
+     &    geom_name = 'geometry'
+c
+      if(.not.geom_create(geom,geom_name))call errquit
+     &    ('deriv2c: geom create error',911)
+      if(.not.bas_create(basis,mo_basis))call errquit
+     &    ('deriv2c: basis create error',911)
+c
+      if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
+     &    ('deriv2c: geom load ',911)
+      if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
+     &    ('deriv2c: basis load ',911)
+c
+      if(.not.bas_numbf(basis,nbf)) call errquit
+     &    ('deriv2c: bas_numbf failed',911)
+      if(.not.bas_numcont(basis,nshells)) call errquit
+     &       ('deriv2c:bas_numcont failed',911)
+      if(.not.geom_ncent(geom,nat)) call errquit
+     &       ('deriv2c:geom_ncent failed',911)
+c
+      size2e   = nbf*(nbf+1)/2
+      size2e_d = size2e*3*nat
+c
+      call intd_init(rtdb,1,basis)
+*      call int_normalize(basis)
+      call int_norm_2c(basis)
+c
+      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d real',
+     &    h2e2d,i2e2d))
+     &    call errquit('deriv2c: ma fail 1',911)
+      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d fd',
+     &    h2e2d_fd,i2e2d_fd))
+     &    call errquit('deriv2c: ma fail 2',911)
+      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d diff',
+     &    h2e2d_diff,i2e2d_diff))
+     &    call errquit('deriv2c: ma fail 3',911)
+      if (.not.ma_push_get(mt_dbl,(3*nat),'xyzbuf',
+     &    hxyz,ixyz))
+     &    call errquit('deriv2c: ma fail 4',911)
+      call int_mem_2e4c(nbuf,nscr)
+      if (.not.ma_push_get(mt_dbl,nscr,'scratch',
+     &    hscr,iscr))
+     &    call errquit('deriv2c: ma fail 5',911)
+      if (.not.ma_push_get(mt_dbl,(2*nbuf),'buffer scratch',
+     &    hbuf,ibuf))
+     &    call errquit('deriv2c: ma fail 6',911)
+c
+      call dfill(size2e_d, 0.0d00,dbl_mb(i2e2d)     ,1)
+      call dfill(size2e_d, 0.0d00,dbl_mb(i2e2d_fd)  ,1)
+      call dfill(size2e_d, 0.0d00,dbl_mb(i2e2d_diff),1)
+      call dfill(nscr,     0.0d00,dbl_mb(iscr)      ,1)
+      call dfill(2*nbuf,   0.0d00,dbl_mb(ibuf)      ,1)
+      call dfill((3*nat),  0.0d00,dbl_mb(ixyz)      ,1)
+c      
+      call build_2ed(dbl_mb(i2e2d),nat,size2e,nbf,nshells,
+     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,basis,geom)
+      call dfill(nscr,      0.0d00,dbl_mb(iscr)      ,1)
+      call dfill(2*nbuf,    0.0d00,dbl_mb(ibuf)      ,1)
+      call build_2edfd(dbl_mb(i2e2d_fd),nat,size2e,nbf,
+     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,dbl_mb(ixyz),
+     &    1.0d-05,basis,geom,nshells)
+      call dcopy(size2e_d,dbl_mb(i2e2d_fd),1,dbl_mb(i2e2d_diff),1)
+      call daxpy(size2e_d,-1.0d00,dbl_mb(i2e2d),1,dbl_mb(i2e2d_diff),1)
+c
+      call print_2d2c(dbl_mb(i2e2d),dbl_mb(i2e2d_fd),
+     &    dbl_mb(i2e2d_diff),size2e,nat)
+c
+      write(6,*)
+      write(6,*)' 2e2c deriv diff norm ',
+     &    ddot(size2e_d,dbl_mb(i2e2d_diff),1,dbl_mb(i2e2d_diff),1)
+c
+      call intd_terminate()
+      status = ma_pop_stack(hbuf)
+      status = status.and.ma_pop_stack(hscr)
+      status = status.and.ma_pop_stack(hxyz)
+      status = status.and.ma_pop_stack(h2e2d_diff)
+      status = status.and.ma_pop_stack(h2e2d_fd)
+      status = status.and.ma_pop_stack(h2e2d)
+      if (.not.status) call errquit('pop failed',911)
+      status = bas_destroy(basis)
+      status = status.and.geom_destroy(geom)
+      if (.not.status) call errquit('b/g destroy failed',911)
+      end
+      subroutine build_2ed(x2e2d,nat,size2e,nbf,nshells,
+     &    scr,nscr,buf,nbuf, basis, geom)
+      implicit none
+#include "bas.fh"
+      integer basis, geom
+      integer nat
+      integer size2e
+      integer nbf
+      integer nshells
+      double precision x2e2d(size2e,3,nat)
+      integer nscr, nbuf, idatom(2), id, dxyz, index
+      double precision scr(nscr),buf(nbuf)      
+c
+      integer ish, ibflo, ibfhi, num_ibf, ibf
+      integer jsh, jbflo, jbfhi, num_jbf, jbf
+      integer nint, icount
+      integer int_nint
+      external int_nint
+      integer min, max
+      intrinsic min,max
+      integer i,j,isym2
+      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
+c
+      do 00100 ish=1,nshells
+        do 00200 jsh=1,ish
+          nint = int_nint(basis,ish,basis,jsh,basis,0,basis,0)
+          call intd_2e2c(basis,ish,basis,jsh,nscr,scr,(nint*3*4),
+     &        buf,idatom)
+          write(6,*)' idatom 2e2c', idatom
+          if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+     &        call errquit('cn2bfr error',ish)
+          num_ibf = ibfhi-ibflo+1
+          if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+     &        call errquit('cn2bfr error',ish)
+          num_jbf = jbfhi-jbflo+1
+          icount = 0
+          do 00300 id = 1,2
+            if (idatom(id).gt.0) then
+              do 00400 dxyz = 1,3
+                do 00500 ibf = ibflo,ibfhi
+                  do 00600 jbf = jbflo, jbfhi
+                    icount = icount + 1
+                    index = isym2(ibf,jbf)
+                    x2e2d(index,dxyz,idatom(id)) = buf(icount)
+00600             continue
+00500           continue
+00400         continue
+            else
+              icount = icount + 3*num_ibf*num_jbf
+            endif
+00300     continue
+00200   continue
+00100 continue
+      end
+      subroutine build_2edfd(x2e2d_fd,nat,size2e,nbf,
+     &    scr,nscr,buf,nbuf,xyz,delta,basis,geom,nshells)
+      implicit none
+#include "bas.fh"
+#include "geom.fh"
+#include "geomP.fh"
+c
+      integer nat,size2e,nbf, nscr, nbuf, basis, geom, nshells
+      double precision x2e2d_fd(size2e,3,nat)
+      double precision scr(nscr)
+      double precision buf(nbuf,2)
+      double precision xyz(3,nat)
+      double precision delta, scale
+      integer ish, ibf, ibflo, ibfhi
+      integer jsh, jbf, jbflo, jbfhi
+      integer nint, icount, index, datom, dxyz
+      integer int_nint
+      external int_nint
+      integer min, max
+      intrinsic min,max
+      integer i,j,isym2
+      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
+c
+c
+c.. store original coords in xyz
+      call dcopy((3*nat),coords(1,1,geom),1,xyz,1)
+      scale = 1.0d00/(2.0d00*delta)
+c
+      do 00100 ish = 1,nshells
+        do 00200 jsh = 1,ish
+          nint = int_nint(basis,ish,basis,jsh,basis,0,basis,0)
+          do 00300 datom = 1,nat
+            do 00400 dxyz = 1,3
+c... copy original coords in to coords array
+              call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+c... add delta to coordinate
+              coords(dxyz,datom,geom) = coords(dxyz,datom,geom) + delta
+              call int_2e2c(basis,ish,basis,jsh,nscr,scr,nint,buf(1,1))
+c... copy original coords in to coords array
+              call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+c... subtract delta to coordinate
+              coords(dxyz,datom,geom) = coords(dxyz,datom,geom) - delta
+              call int_2e2c(basis,ish,basis,jsh,nscr,scr,nint,buf(1,2))
+              call daxpy(nint,-1.0d00,buf(1,2),1,buf(1,1),1)
+              call dscal(nint,scale,buf(1,1),1)
+              icount = 0
+              if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+     &            call errquit('cn2bfr error',ish)
+              if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+     &            call errquit('cn2bfr error',ish)
+              do 00500 ibf = ibflo, ibfhi
+                do 00600 jbf = jbflo, jbfhi
+                  icount = icount+1
+                  index  = isym2(ibf,jbf)
+                  x2e2d_fd(index,dxyz,datom) = buf(icount,1)
+00600           continue
+00500         continue
+00400       continue
+00300     continue
+00200   continue
+00100 continue
+c      
+c... copy original coords in to coords array
+      call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+      end
+      subroutine print_2d3c(x2e3d,x2e3dfd,diff,nbf,nat)
+      implicit none
+      integer nbf,nat
+      double precision x2e3d(nbf,nbf,nbf,3,nat)
+      double precision x2e3dfd(nbf,nbf,nbf,3,nat)
+      double precision diff(nbf,nbf,nbf,3,nat)
+c
+      double precision thresh
+      integer datom,dxyz, ibf,jbf,kbf
+      logical printit
+c
+      thresh = 1.0d-08
+c
+      do 00100 datom = 1, nat
+        do 00200 dxyz = 1,3
+          write(6,*)
+          write(6,*)' atom = ',datom,' xyz = ',dxyz
+          write(6,*)'--------------------------------------------------'
+          do 00300 ibf = 1,nbf
+            do 00400 jbf = 1,nbf
+              do 00500 kbf = 1,nbf
+                printit = abs(x2e3d(ibf,jbf,kbf,dxyz,datom)).gt.thresh
+                printit = printit .or.
+     &              abs(x2e3dfd(ibf,jbf,kbf,dxyz,datom)).gt.thresh
+                if (printit) then
+                  write(6,10000)ibf,jbf,kbf,datom,dxyz,
+     &                x2e3d(ibf,jbf,kbf,dxyz,datom),
+     &                x2e3dfd(ibf,jbf,kbf,dxyz,datom),
+     &                diff(ibf,jbf,kbf,dxyz,datom)
+                endif
+00500         continue
+00400       continue
+00300     continue
+00200   continue
+00100 continue
+c
+10000 format('d2e2c <',i3,',',i3,',',i3,'|',i3,'|',i3,' > val =',
+     &    d20.10,' fd =',d20.10,' diff =',d20.10)
+c
+      end
+      subroutine print_2d2c(x2e2d,x2e2d_fd,diff,size2e,nat)
+      implicit none
+      integer size2e,nat
+      double precision x2e2d(size2e,3,nat)
+      double precision x2e2d_fd(size2e,3,nat)
+      double precision diff(size2e,3,nat)
+c
+      double precision thresh
+      integer datom,dxyz, index
+      logical printit
+c
+      thresh = 1.0d-08
+c
+      do 00100 datom = 1, nat
+        do 00200 dxyz = 1,3
+          write(6,*)
+          write(6,*)' atom = ',datom,' xyz = ',dxyz
+          write(6,*)'--------------------------------------------------'
+          do 00300 index = 1,size2e
+            printit = abs(x2e2d(index,dxyz,datom)).gt.thresh
+            printit = printit .or.
+     &          abs(x2e2d_fd(index,dxyz,datom)).gt.thresh
+            if (printit) then
+              write(6,10000)index,datom,dxyz,
+     &            x2e2d(index,dxyz,datom),
+     &            x2e2d_fd(index,dxyz,datom),
+     &            diff(index,dxyz,datom)
+            endif
+00300     continue
+00200   continue
+00100 continue
+c
+10000 format('d2e2c <',i5,'|',i3,'|',i3,' > val =',d20.10,
+     &    ' fd =',d20.10,' diff =',d20.10)
+c
+      end
+      subroutine raktest0(rtdb)
+      implicit none
+c test0 "default raktest"
 #include "global.fh"
       integer rtdb
 c::functions
