@@ -1,7 +1,7 @@
       subroutine scf_movecs_sym_adapt(basis, g_movecs, oprint,
      $     nprint, name, oirs, irs)
 *
-* $Id: scf_sym_adap.F,v 1.4 1997-11-07 11:35:19 d3e129 Exp $
+* $Id: scf_sym_adap.F,v 1.5 1997-11-13 23:48:22 d3g681 Exp $
 *
       implicit none
 #include "bas.fh"
@@ -20,7 +20,7 @@
 c
 c     if (oirs) return the irreps of each mo in irs()
 c
-      integer l_irs, k_irs
+      integer l_irs, k_irs, g_tmp, try
       integer type, nbf, nvec, i, ilo, ihi, nmixed
       integer geom
 c
@@ -51,6 +51,19 @@ c     What should the threshold be for reporting contamination?
 c     Probably should be settable from the input or determined
 c     from the convergence of the SCF.
 c
+c
+c     Nasty little workaround for the naive algorithm for the
+c     symmetry projection in the presence of large contamination
+c     that can result in large mixing.  If get contamination
+c     mix in some of the old vectors, orthog and do it all again.
+c     Fail if the second try screws up.
+c     
+      if (.not. ga_duplicate(g_movecs, g_tmp, 'scfmsa')) 
+     $     call errquit('scf_movecs_sym_adapt: ga duplicate?',0)
+      call ga_copy(g_movecs, g_tmp)
+      try = 0
+c
+ 1101 try = try + 1
       if (oscfps) call pstat_on(ps_sym_ad)
       call sym_movecs_adapt(basis, 1d-8, g_movecs, int_mb(k_irs),
      $     nmixed)
@@ -72,7 +85,15 @@ c
 *         write(6,*) ' after sym, before ortho '
 *         call util_flush(6)
 *         call ga_print(g_movecs)
+c
+c     This is the nasty bit
+c
+         if (try .eq. 1) then
+            if (ga_nodeid().eq.0) write(6,*) ' Symmetry fudging'
+            call ga_add(0.99d0,g_movecs,0.01d0,g_tmp,g_movecs)
+         endif
          call ga_orthog_mos(basis, g_movecs)
+         if (try .eq. 1) goto 1101
 *         write(6,*) ' after sym, after ortho '
 *         call util_flush(6)
 *         call ga_print(g_movecs)
@@ -113,5 +134,7 @@ c
 c
       if (.not. ma_pop_stack(l_irs)) call errquit
      $     ('scf_m_s_a: memory corrupt?', 0)
+      if (.not. ga_destroy(g_tmp)) call errquit
+     $     ('scf_m_s_a: ga corrupt?',0)
 c
       end

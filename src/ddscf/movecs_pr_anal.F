@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.5 1997-11-07 11:35:14 d3e129 Exp $
+* $Id: movecs_pr_anal.F,v 1.6 1997-11-13 23:48:20 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -28,6 +28,7 @@ c
       integer l_vecs, k_vecs, i, j, k_tags, l_tags, k_list, l_list
       integer n, k, m, klo, khi, nbf, ibuf
       character buf*80
+      double precision cur_thresh
 c  
       integer maxop, maxireps, geom
       parameter (maxop = 120, maxireps=20)
@@ -75,12 +76,17 @@ c
 c     Identify significant coefficients and sort by size
 c
             n = 0
-            do j = 0, nbf-1
-               if (abs(dbl_mb(k_vecs+j)).ge.thresh) then
+            cur_thresh = thresh
+ 111        do j = 0, nbf-1
+               if (abs(dbl_mb(k_vecs+j)).ge.cur_thresh) then
                   int_mb(k_list + n) = j
                   n = n + 1
                endif
             enddo
+            if (n.eq.0 .and. cur_thresh.le.64*thresh) then
+               cur_thresh = cur_thresh*2
+               goto 111         ! Go back if found nothing to print
+            endif
             do j = 0, n-1
                do k = 0, j
                   if (abs(dbl_mb(k_vecs+int_mb(k_list+k))).lt.
