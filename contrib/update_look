@@ -1,0 +1,43 @@
+#!/bin/csh 
+# this script does and cvs update check and puts the output 
+# into update.ls
+#
+# rak pnl/94
+#
+if (! $?CVSROOT) then
+  echo " CVSROOT not set "
+  exit 1
+endif
+
+echo " removing old update.ls info "
+find . -name update.ls -print -exec rm -f "{}" ";"
+find . -name .tmp.update.ls -exec rm -f "{}" ";"
+echo " making update.ls "
+cvs -n update -d >& .tmp.update.ls 
+grep 'M ' .tmp.update.ls >  update.ls
+grep 'C ' .tmp.update.ls >> update.ls
+grep 'U ' .tmp.update.ls >> update.ls
+grep 'A ' .tmp.update.ls >> update.ls
+grep 'R ' .tmp.update.ls >> update.ls
+grep "? " .tmp.update.ls | egrep "\.fh|\.f|\.F|\.c|\.h|\.th" >> update.ls
+grep "ignored" .tmp.update.ls >> update.ls
+grep "pertinent" .tmp.update.ls | grep longer >> update.ls
+# remove .fh files in include directory
+mv update.ls .tmp.update.ls
+cat .tmp.update.ls | grep -v "include/" > update.ls
+# sort makefile info to top of file
+mv update.ls .tmp.update.ls
+echo " **** makefile specific changes ****" > update.ls
+cat .tmp.update.ls | grep -i makefile >> update.ls
+echo " " >> update.ls
+echo " **** source specific changes ****" >> update.ls
+cat .tmp.update.ls | grep -iv makefile >> update.ls
+/bin/rm -f .tmp.update.ls
+if (`hostname` == "cagle") then
+   bell;clear;bell
+   cat update.ls
+   bell
+else
+   clear; cat update.ls
+endif
+exit 0
