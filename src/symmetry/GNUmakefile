@@ -1,10 +1,10 @@
-#$Id: GNUmakefile,v 1.39 2003-01-30 19:35:46 edo Exp $
+#$Id: GNUmakefile,v 1.40 2004-05-14 15:39:42 edo Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libnwcutil.a
 
 USES_BLAS = sym_bs_irrep.F sym_g_sym.F    sym_geom_prj.F sym_mo_adapt.F sym_op_clsfy.F \
-            sym_op_mtab.F  sym_put_geom.F dosymops.F
+            sym_op_mtab.F  sym_put_geom.F dosymops.F sym_abelian.F
 
 HEADERS = sym.fh ../NWints/auxil/spcartP.fh
 
