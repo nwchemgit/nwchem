@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.42 2002-06-17 22:34:10 bert Exp $
+C $Id: hess_init.F,v 1.43 2002-08-05 17:57:12 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -517,6 +517,8 @@ c
 c  Check for UHF in DFT
 c
       if (theory.eq.'dft') then
+        if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
+     $    nopen = 1
         if (.not. rtdb_get(rtdb, 'dft:ipol', MT_INT, 1, ipol))
      $    ipol = 1
         if (ipol.gt.1) then
@@ -527,16 +529,19 @@ c
 c
 c  Check for CD fit
 c
-      if (.not. geom_create(geom1, 'geometry'))
-     $  call errquit('hess_check: geom_create problem', 555)
-      if (.not. geom_rtdb_load(rtdb, geom1, 'geometry'))
-     $  call errquit('hess_check: no geometry ', 555)
       if (theory.eq.'dft') then
-        if (.not. bas_create(basis1, 'cd basis'))
-     $     call errquit('hess_check: bas_create?',102)
-        cdfit=bas_rtdb_load(rtdb, geom1, basis1, 'cd basis')
-        if (.not. bas_destroy(basis1))
-     $     call errquit('hess_check:not able to destroy CD_bas:',
+         if (.not. geom_create(geom1, 'geometry'))
+     $        call errquit('hess_check: geom_create problem', 555)
+         if (.not. geom_rtdb_load(rtdb, geom1, 'geometry'))
+     $        call errquit('hess_check: no geometry ', 555)
+         if (.not. bas_create(basis1, 'cd basis'))
+     $        call errquit('hess_check: bas_create?',102)
+         cdfit=bas_rtdb_load(rtdb, geom1, basis1, 'cd basis')
+         if (.not. geom_destroy(geom1))
+     $        call errquit('hess_check:not able to destroy geometry:',
+     $        geom1)
+         if (.not. bas_destroy(basis1))
+     $        call errquit('hess_check:not able to destroy CD_bas:',
      $                   basis1)
       endif
 c
