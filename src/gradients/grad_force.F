@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom, movecs )
-c$Id: grad_force.F,v 1.5 1996-08-19 15:22:25 d3g681 Exp $
+c$Id: grad_force.F,v 1.6 1996-08-29 01:36:40 vg038 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -126,6 +126,15 @@ C     get information about type of calculation
       endif
       call inp_ucase(scftype)
 
+      if ( ga_nodeid() .eq. 0 ) then
+        if (util_print('information',print_medium)) then
+          write(6,1) charge, scftype
+ 1        format(/
+     $         '  charge          = ', f6.2/
+     $         '  wavefunction    =   ', a/)
+          call util_flush(6)
+        endif
+      endif
 C     # of eigenvalues and density matrices
       if ( scftype .eq. 'UHF' ) then
         nbf2 = 2 * nbf

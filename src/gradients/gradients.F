@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.15 1996-07-26 16:28:31 d3g681 Exp $
+c$Id: gradients.F,v 1.16 1996-08-29 01:36:42 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -73,16 +73,14 @@ c
             call util_print_centered(6,'NWCHEM GRADIENTS Module',
      $           40,.true.)
             write(6,*)
+            call util_flush(6)
+          endif
+          if (util_print('information',print_medium)) then
             write(6,*)
             if (title .ne. ' ') then
                call util_print_centered(6, title, 40, .false.)
                write(6,*)
-               write(6,*)
             endif
-            write(6,1) charge, 'rhf'
- 1          format(/
-     $           '  charge          = ', f6.2/
-     $           '  wavefunction    = ', a/)
             call util_flush(6)
          endif
          if (util_print('geometry',print_high)) then
