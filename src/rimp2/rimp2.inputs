@@ -7,7 +7,7 @@ Module:		debtest (invokes SCF then RI-MP2)
                 rimp2 (invokes RI-MP2 only. Must be provided with SCF
                         eigenvectors (movecs). Should be run as a
                         restart from the SCF rtdb to get SCF energy.)
-Context:        mp2
+Context:        mp2, xf3ci
 
 INPUTS
 ------
@@ -15,27 +15,26 @@ INPUTS
 "scf:energy"
         Result of SCF calculation
 
-"geometry"	no default
-"mo basis"	no default
+"mp2:geometry"	no default
+"mp2:mo basis"	no default
         Same as used by SCF & friends.
 
-"ri-mp2 basis"	no default
+"mp2:ri-mp2 basis"	no default
         The fitting or "ri" basis
 
-"input mo vector file"	default "movecs"
-        As written by SCF.  Default should always be the same as what
-	the SCF writes out.
+"mp2:input vectors"	default: contents of "scf:output vectors" or "movecs"
+        File containing MO eigenvalues/vectors.
 
-"mo 3-center integral file"	default "mo3cint"
+"mp2:mo 3-center integral file"	default "mo3cint"
         Base file name to be used for transformed three-center
         integrals.  Actual file names will have spin case ("a" or "b") and
         node number appended to make a unique name for each node.
 
-"integral threshold"	default 1.0d-12
+"mp2:thresh"	default: contents of scf:thresh or  1.0d-12
         Sets threshold for neglect of integral blocks in Schwarz
         screening procedure.
 
-"transformation batch size"	default 10
+"mp2:transformation batch size"	default 10
         Maximum number of occupied orbitals constituting a batch in
         the direct 3-center transformation This determines the size of
 	the two large global arrays used in these two steps.  The GAs hold
@@ -44,7 +43,7 @@ INPUTS
 	is really a workaround for the fact that we don't yet have a good way
 	to control and inquire about memory usage by GA routines.
 
-"energy batch size"	default 10
+"mp2:energy batch size"	default 10
         Maximum number of occupied orbitals constituting a batch in
         RI-MP2 energy evaluation. This determines the size of the two large
 	global arrays used in these two steps.  The GAs hold integrals (ai|s)
@@ -53,20 +52,20 @@ INPUTS
 	for the fact that we don't yet have a good way to control and inquire
 	about memory usage by GA routines.
 
-"ri approximation"      default "V"
+"mp2:ri approximation"      default "V"
         Selects the RI integral approximation to be used.  Currently
         understood are "V" and "SVS".
 
-"freeze orbitals"       no default
+"mp2:freeze orbitals"       no default
         List of molecular orbitals from the SCF reference to be frozen
         or dropped from the correlated calculation.  Order is
         irrelevant. the "set" input routine presently has an internal
         limit of 100 elements in arrays.  This is easily changed with
         recomilation, if necessary.
 
-"AO 1 batch size"
-"AO 2 batch size"
-"fit batch size"        no default
+"xf3ci:AO 1 batch size"
+"xf3ci:AO 2 batch size"
+"xf3ci:fit batch size"        no default
         Limits local memory allocated to three-center integral
         transformation for performance improvement.  They are listed
         here in order of their impact on performance.  The minimum
@@ -78,9 +77,9 @@ INPUTS
 
 OUTPUTS
 -------
-"correlation energy"
+"mp2: ri correlation energy"
         The RI-MP2 contribution to the correlation energy.
-"total energy"
+"mp2: ri total energy"
         SCF + RI-MP2 energy.
 
 

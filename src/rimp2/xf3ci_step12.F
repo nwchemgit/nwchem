@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.10 1994-10-31 17:26:08 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.11 1994-10-31 21:25:08 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(RTDB, Geom, IntTyp,
@@ -174,12 +174,12 @@ C
 C     Note that Q is the first index transformed, and most important to
 c     performance, therefore is it labeled as "AO 1".
 C
-      If ( .NOT. RTDB_Get( RTDB, 'AO 1 batch size', MT_Int, 1, QMax) )
-     $   QMax = NAOBF
-      If ( .NOT. RTDB_Get( RTDB, 'AO 2 batch size', MT_Int, 1, PMax) )
-     $   PMax = NAOBF
-      If ( .NOT. RTDB_Get( RTDB, 'fit batch size',  MT_Int, 1, SMax) )
-     $   SMax = NF
+      If ( .NOT. RTDB_Get( RTDB, 'xf3ci:AO 1 batch size',
+     $   MT_Int, 1, QMax) ) QMax = NAOBF
+      If ( .NOT. RTDB_Get( RTDB, 'xf3ci:AO 2 batch size',
+     $   MT_Int, 1, PMax) ) PMax = NAOBF
+      If ( .NOT. RTDB_Get( RTDB, 'xf3ci:fit batch size',
+     $   MT_Int, 1, SMax) ) SMax = NF
 C
       PMax = Min( PMax, NAOBF)
       QMax = Min( QMax, NAOBF)

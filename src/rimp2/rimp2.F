@@ -111,8 +111,8 @@ C
 C
 C     Figure out file names
 C
-      if (.not. context_rtdb_match(rtdb, 'mo 3-center integral file',
-     $     FNInt)) FNInt = Def_Int
+      if (.not. RTDB_Get(rtdb, 'mp2:mo 3-center integral file',
+     $     MT_Int, 1, FNInt)) FNInt = Def_Int
 C
 C     Get some info about the basis sets for later use
 C
@@ -124,9 +124,14 @@ C
 C     ****************************
 C     * Get/create SCF reference *
 C     ****************************
+C     If the user hasn't specified a set of vectors, then default
+C     to the SCF output vectors.  
 C
-      if (.not. context_rtdb_match(rtdb, 'input mo vector file',
-     $     FNVec)) FNVec = Def_movec
+      if (.not. RTDB_CGet(rtdb, 'mp2:input vectors',
+     $     1, FNVec)) then
+         if (.not. RTDB_CGet(rtdb, 'scf:output vectors',
+     $      1, FNVec)) FNVec = Def_movec
+      EndIf
 C
 C     Check MOVecs file for number of spin cases
 C
