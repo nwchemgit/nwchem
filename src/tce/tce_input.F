@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.17 2004-02-01 22:08:58 sohirata Exp $
+c $Id: tce_input.F,v 1.18 2004-12-10 18:00:00 edo Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -24,6 +24,7 @@ c        [TARGETSYM <character targetsym default 'none'>]
 c        [SYMMETRY]
 c        [DIPOLE]
 c        [TILESIZE <no default (automatically adjusted)>]
+c        [(NO)FOCK <logical recompf default .true.>]
 c        [FRAGMENT <default -1 (off)>]
 c     END
 c
@@ -46,6 +47,7 @@ c        [TARGETSYM <character targetsym default 'none'>]
 c        [SYMMETRY]
 c        [DIPOLE]
 c        [TILESIZE <no default (automatically adjusted)>]
+c        [(NO)FOCK <logical recompf default .true.>]
 c        [FRAGMENT <default -1 (off)>]
 c     END
 c
@@ -77,6 +79,7 @@ c
       logical symmetry
       logical left
       character*10 perturbative
+      logical recompf
 c
 c -------------------------------------
 c What input block are we dealing with?
@@ -176,6 +179,13 @@ c     FRAGMENT (fragment MO calculations)
 c
       fragment=-1
       if (.not.rtdb_put(rtdb,'tce:fragment',mt_int,1,fragment))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+c     (NO)FOCK (recompute fock for, e.g., DFT, ROHF refs)
+c
+      recompf=.true.
+      if (.not.rtdb_put(rtdb,'tce:recompf',mt_log,1,recompf))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -514,7 +524,7 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
-c     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
+c     DIPOLE (dipole moments & dipole transition moments)
 c
       else if (inp_compare(.false.,test,'dipole')) then
         left=.true.
@@ -540,6 +550,19 @@ c
           fragment=0
         endif
         if (.not.rtdb_put(rtdb,'tce:fragment',mt_int,1,fragment))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     (NO)FOCK (recompute fock for, e.g., DFT, ROHF refs)
+c
+      else if (inp_compare(.false.,test,'fock')) then
+        recompf=.true.
+        if (.not.rtdb_put(rtdb,'tce:recompf',mt_log,1,recompf))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'nofock')) then
+        recompf=.false.
+        if (.not.rtdb_put(rtdb,'tce:recompf',mt_log,1,recompf))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
