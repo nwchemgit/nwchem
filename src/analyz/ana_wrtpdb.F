@@ -1,6 +1,6 @@
       subroutine ana_wrtpdb(lfnpdb,filpdb,sgmnam,isel,xs)
 c
-c $Id: ana_wrtpdb.F,v 1.1 2000-03-24 17:44:02 d3j191 Exp $
+c $Id: ana_wrtpdb.F,v 1.2 2000-05-04 06:26:37 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
       real*8 xs(msa,3)
       character*255 filpdb
 c
-      integer i,j,k,length
+      integer i,k,length
 c
       if(me.eq.0) then
 c
