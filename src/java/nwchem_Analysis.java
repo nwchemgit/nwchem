@@ -105,7 +105,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 			plot_ana(e.getActionCommand()); }});
 	    ix++; if(ix>11){ix=0; iy++;};
 	};
-	iy++;
+	iy++; ix=0;
 
 	for(int i=0; i<nh; i++){
 	    number++;
@@ -117,7 +117,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 			plot_ana(e.getActionCommand()); }});
 	    ix++; if(ix>11){ix=0; iy++;};
 	};
-	iy++;
+	iy++; ix=0;
 
 	for(int i=0; i<nd; i++){
 	    number++;
@@ -129,7 +129,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 			plot_ana(e.getActionCommand()); }});
 	    ix++; if(ix>11){ix=0; iy++;};
 	};
-	iy++;
+	iy++; ix=0;
 
 	for(int i=0; i<no; i++){
 	    number++;
