@@ -10,7 +10,7 @@ c
       if (.not. movecs_read(movecs_in, 1,
      $     dbl_mb(k_occ), dbl_mb(k_eval),
      $     g_movecs))
-     $     call errquit('scf_movecs_read failed',0)
+     $     call errquit('scf_movecs_read failed ',0)
 c
       if (scftype .eq. 'UHF') then
          if (.not. movecs_read(movecs_in, 2,
