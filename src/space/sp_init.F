@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.55 2000-01-25 19:52:31 d3j191 Exp $
+c $Id: sp_init.F,v 1.56 2000-01-31 17:50:46 d3j191 Exp $
 c
       implicit none
 c
@@ -1656,7 +1656,7 @@ c
       return
       end
       subroutine sp_wrtrst(lfnrst,filrst,lveloc,
-     + pres,temp,tempw,temps,iwl,xw,vw,fw,xwcr,isl,xs,vs,fs)
+     + pres,temp,tempw,temps,iwl,xw,vw,fw,xwcr,isl,xs,vs,fs,prjct)
 c
       implicit none
 c
@@ -1672,8 +1672,11 @@ c
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3),fs(msa,3)
       character*10 hdate,htime
+      character*80 prjct
 c
       integer lenscr
+c
+      project=prjct
 c
       lenscr=ma_inquire_avail(mt_byte)/
      + ((9*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
