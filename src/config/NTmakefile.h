@@ -5,7 +5,7 @@
 ##############################################################################
 
 #
-#	$Id: NTmakefile.h,v 1.2 1999-11-17 18:36:48 bjohnson Exp $
+#	$Id: NTmakefile.h,v 1.3 2000-07-27 15:50:25 bjohnson Exp $
 #
 
 #
@@ -33,7 +33,7 @@ LIBDIR = $(TOPDIR)\lib\win32
 LIB_DISTRIB = $(LIBDIR)
 #BINDIR = $(TOPDIR)\bin\win32
 INCDIR = $(TOPDIR)\src\include
-#CNFDIR = $(TOPDIR)\src\config
+CNFDIR = $(TOPDIR)\src\config
 OBJDIR = .\obj
 
 !IFNDEF SCRATCH_DEF_DIR
