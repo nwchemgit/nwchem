@@ -1,0 +1,14 @@
+c
+c $Id: spgeom.fh,v 1.1 1995-12-15 21:53:04 d3g681 Exp $
+c     ax, ... = coords of a, b, c, d
+c     rab, ... = distances
+c     p/q = rotation matrix elements
+c
+      double precision ax,ay,az,bx,by,bz,cx,cy,cz,dx,dy,dz,rab,rabsq,rcd
+      double precision rcdsq,p11,p12,p13,p21,p22,p23,p31,p32,p33
+      double precision q11,q12,q13
+      double precision q21,q22,q23,q31,q32,q33
+      common /geom/ ax,ay,az,bx,by,bz,cx,cy,cz,dx,dy,dz,rab,rabsq,rcd,
+     +          rcdsq,p11,p12,p13,p21,p22,p23,p31,p32,p33,q11,q12,q13,
+     +          q21,q22,q23,q31,q32,q33
+c

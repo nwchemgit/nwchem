@@ -4,7 +4,7 @@
      $     ksh, lk, ck, ek, ngk, xk,
      $     lsh, ll, cl, el, ngl, xl,
      $     jtype)
-c $Id: sinfo.F,v 1.4 1995-08-22 20:54:14 d3g681 Exp $
+c $Id: sinfo.F,v 1.5 1995-12-15 21:52:16 d3g681 Exp $
       implicit none
 c     
 c     Takes info about centers and shells, precomputes some axis
@@ -33,7 +33,7 @@ c
 #include "maxc.fh"
 #include "miscg.fh"
 #include "shllfo.fh"
-#include "geom.fh"
+#include "spgeom.fh"
 #include "qgeom.fh"
 #include "const.fh"
 #include "pgeom.fh"

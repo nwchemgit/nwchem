@@ -1,5 +1,5 @@
       subroutine sp0011(gout)
-c $Id: sp0011.F,v 1.2 1994-04-28 21:41:05 d3e129 Exp $
+c $Id: sp0011.F,v 1.3 1995-12-15 21:52:42 d3g681 Exp $
 c        *****  special fast routine for -p- loop for 0011 *****
       implicit none
       double precision gout(*)
@@ -9,7 +9,7 @@ c
 #include "ginf.fh"
 #include "pgeom.fh"
 #include "shllfo.fh"
-#include "geom.fh"
+#include "spgeom.fh"
 #include "qgeom.fh"
 #include "maxc.fh"
 c

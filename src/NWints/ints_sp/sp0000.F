@@ -1,5 +1,5 @@
       subroutine sp0000(gout)
-c $Id: sp0000.F,v 1.3 1995-11-03 20:41:19 d3g681 Exp $
+c $Id: sp0000.F,v 1.4 1995-12-15 21:52:24 d3g681 Exp $
 c     *****  special fast routine for -p- loop for 0000 ****
       implicit none
 c     
@@ -12,7 +12,7 @@ c
 #include "ginf.fh"
 #include "pgeom.fh"
 #include "shllfo.fh"
-#include "geom.fh"
+#include "spgeom.fh"
 #include "qgeom.fh"
 #include "maxc.fh"
 c     

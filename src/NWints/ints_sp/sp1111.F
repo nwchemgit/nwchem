@@ -1,5 +1,5 @@
       subroutine sp1111(gout)
-c $Id: sp1111.F,v 1.3 1995-11-03 20:41:20 d3g681 Exp $
+c $Id: sp1111.F,v 1.4 1995-12-15 21:52:59 d3g681 Exp $
       implicit none
       double precision g(256),h(256)
       double precision dzero, done
@@ -24,7 +24,7 @@ c
 #include "ginf.fh"
 #include "pgeom.fh"
 #include "shllfo.fh"
-#include "geom.fh"
+#include "spgeom.fh"
 #include "qgeom.fh"
 #include "maxc.fh"
 c
