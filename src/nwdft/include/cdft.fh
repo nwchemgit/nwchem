@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.20 1997-12-08 23:48:33 d3h449 Exp $
+C$Id: cdft.fh,v 1.21 1998-10-06 00:20:04 og845 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -104,7 +104,7 @@ c
 c
       integer MX_l_ang, IAC_MAX, MAX_CHUNK
 c
-      parameter(MX_l_ang = 434, IAC_MAX = 7, MAX_CHUNK = 20)
+      parameter(MX_l_ang = 770, IAC_MAX = 9, MAX_CHUNK = 20)
 c
 c     The following parameters must match those in geomP.fh and 
 c     bas_staticP.fh e.g., dft_max_cent = max_cent, and 
