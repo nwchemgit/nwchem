@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.15 2003-10-17 22:55:44 carlfahl Exp $
+c     $Id: dft_fockbld.F,v 1.16 2004-01-16 00:49:40 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -21,7 +21,7 @@ c
 #include "util.fh"
 #include "dftps.fh"
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
-      integer g_xcinv, g_oep(nbf_xc)  !! Qin /add g_oep
+      integer g_xcinv, g_oep(*)  !! Qin /add g_oep
       integer g_tmp,g_nq,g_wght,g_xyz
       integer g_rho_exact,g_tmp_exact, g_addit_exact
       integer rtdb ! [in]

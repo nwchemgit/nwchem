@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms, g_oep)   ! Qin
 c
-C$Id: xc_getv.F,v 1.52 2003-10-17 22:55:53 carlfahl Exp $
+C$Id: xc_getv.F,v 1.53 2004-01-16 00:49:41 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -35,9 +35,9 @@ c
 c     
       integer  ga_create_atom_blocked
       integer  noc(2)                         ! Qin
-      integer g_oep(nbf_xc)       ! Qin
+      integer g_oep(*)       ! Qin
       double precision nel              ! Qin
-      double precision fixvc(nbf_ao, nbf_ao)       ! Qin
+      integer l_fixvc,k_fixvc ! Qin
       logical xc_gotxc
       external ga_create_atom_blocked,xc_gotxc
 c
@@ -142,10 +142,14 @@ c
 c
 cQin
               if (ioep.eq.1 .or. (ioep.eq.3.and.xcfit)) then
+                 if (.not.ma_alloc_get(MT_Dbl,nbf_ao*nbf_ao,
+     &                'fixvc',l_fixvc,k_fixvc)) call
+     &                errquit('xcgetv: cannot allocate fixvc',0,MA_ERR)
                  if (.not. rtdb_get(rtdb, 'dft:fixvc', mt_dbl,
-     $               nbf_ao*nbf_ao, fixvc)) call errquit(
+     $               nbf_ao*nbf_ao, dbl_mb(k_fixvc))) call errquit(
      $                'fixvc : rtdb_get failed', 911, RTDB_ERR)
-                 call ga_put(g_vxc(2),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
+                 call ga_put(g_vxc(2),1,nbf_ao,1,nbf_ao,
+     $                dbl_mb(k_fixvc),nbf_ao)
               else
 c
 cc !! The following call is in original code.
@@ -161,9 +165,10 @@ c
 cQin
               if (ioep .eq. 3 .and. .not.xcfit) then
                  call ga_dscal(g_vxc(2), (nel-1d0)/nel)
-                 call ga_get(g_vxc(2),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
+                 call ga_get(g_vxc(2),1,nbf_ao,1,nbf_ao,
+     $                dbl_mb(k_fixvc),nbf_ao)
                  if (.not. rtdb_put(rtdb, 'dft:fixvc',mt_dbl,
-     $                nbf_ao*nbf_ao,fixvc)) call errquit(
+     $                nbf_ao*nbf_ao,dbl_mb(k_fixvc))) call errquit(
      $                'fixvc : rtdb_put failed', 911, RTDB_ERR)
               end if
 c end Qin
@@ -220,18 +225,22 @@ c Qin / for oep
 c
                if (ioep.eq.3 .and. .not.xcfit) then
                   call ga_dscal(g_jk(1), (nel-1d0)/nel)
-                  call ga_get(g_jk(1),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
+                  call ga_get(g_jk(1),1,nbf_ao,1,nbf_ao,
+     $                 dbl_mb(k_fixvc),nbf_ao)
                   if (.not. rtdb_put(rtdb, 'dft:fixvc',mt_dbl,
-     $                 nbf_ao*nbf_ao,fixvc)) call errquit(
+     $                 nbf_ao*nbf_ao,dbl_mb(k_fixvc))) call errquit(
      $                 'fixvc : rtdb_put failed', 912, RTDB_ERR)
 c                  call ga_print(g_jk(1))
                end if
                if (ioep.eq.1 .or. (ioep.eq.3.and.xcfit)) then
                   if (.not. rtdb_get(rtdb, 'dft:fixvc', mt_dbl,
-     $               nbf_ao*nbf_ao, fixvc)) call errquit(
+     $               nbf_ao*nbf_ao, dbl_mb(k_fixvc))) call errquit(
      $                'fixvc : rtdb_get failed', 912, RTDB_ERR)
-                  call ga_put(g_jk(1),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
+                  call ga_put(g_jk(1),1,nbf_ao,1,nbf_ao,
+     $                 dbl_mb(k_fixvc),nbf_ao)
 c                  call ga_print(g_jk(1))
+                  if (.not.ma_free_heap(l_fixvc))
+     &           call errquit('xc_getv: cannot free heap',1, MA_ERR)
                end if
 c
 c Qin /end

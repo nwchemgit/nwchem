@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.235 2003-10-17 22:55:44 carlfahl Exp $
+c     $Id: dft_scf.F,v 1.236 2004-01-16 00:49:40 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -44,7 +44,7 @@ c
       external ga_create_atom_blocked
 c
 c Qin
-      integer g_oep(nbf_xc)
+      integer k_goep,l_goep
 c Qin / end
 c
       integer g_s ! [in]
@@ -606,9 +606,13 @@ c
            iVxc_opt = 0
            XCFIT = .false.
         endif
+        if (.not.MA_alloc_Get(MT_int,nbf_xc,
+     ,       'ga handle for goep',l_goep,k_goep))
+     ,       call errquit('dft_scf: cannot allocate g_oep',0, MA_ERR)
         do i = 1, nbf_xc
-            g_oep(i) = ga_create_atom_blocked(geom,ao_bas_han,'oep')
-            call ga_zero(g_oep(i))
+            int_mb(k_goep+i-1) =
+     =          ga_create_atom_blocked(geom,ao_bas_han,'oep')
+            call ga_zero(int_mb(k_goep+i-1))
         enddo
       ENDIF
 c
@@ -681,7 +685,8 @@ c
 c     build DFT Fock matrix
 c
       call dft_fockbld(rtdb,natoms,ntotel,
-     ,     g_fock,g_dens,g_vxc,g_movecs,g_xcinv, g_oep,   !! Qin /add g_oep
+     ,     g_fock,g_dens,g_vxc,g_movecs,g_xcinv, 
+     ,     int_mb(k_goep),                    !! Qin /add g_oep
      ,     g_tmp,g_nq,g_wght,g_xyz,
      ,     iwhat_max,ivcoul_Opt,nexc,ivxc_opt,wght_GA,
      ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
@@ -1404,13 +1409,16 @@ c  Qin ----- for oep ----
          call oep_driver(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
      &                         iter, g_dens, g_movecs, g_vxc, g_fock,
      &                         g_svecs, svals, g_xcinv, g_s,
-     &                         g_oep, g_tmp)
+     &                         int_mb(k_goep), g_tmp)
 c
 c  Deallocate g_oep
       do i = 1, nbf_xc
-         if (.not. ga_destroy(g_oep(i))) call errquit
+         if (.not. ga_destroy(int_mb(k_goep+i-1))) call errquit
      &   ('dft_scf: could not destroy g_oep', 0, GA_ERR)
       enddo
+         if (.not. MA_free_heap(l_goep))
+     .        call errquit(' dft_scf:cannot freeheap',11, MA_ERR)
+
       ENDIF
 c
       if (.not. ga_destroy(g_tmp)) call errquit
