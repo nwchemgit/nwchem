@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.10 2001-12-27 18:31:21 edo Exp $
+c     $Id: dft_canorg.F,v 1.11 2002-04-24 19:25:29 edo Exp $
 c     
       implicit none
 c
@@ -264,7 +264,7 @@ c
       endif
 c     
       if ((abs(delta).lt.levlon.and.abs(delta).gt.levloff).or.
-     &    (iter.le.ncysh).or.levelshifting)then
+     &    (iter.le.ncysh))then
          if (homo_lumo_gap.lt.hl_tol.and.(.not.gotsmear(ssmear)))then
             levelshifting = .true.
             rlshift = rlshift_input
