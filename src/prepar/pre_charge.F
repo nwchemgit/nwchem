@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_u,dir_t,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.24 2000-02-22 21:38:32 d3j191 Exp $
+c $Id: pre_charge.F,v 1.25 2000-06-15 19:58:46 d3j191 Exp $
 c
       implicit none
 c
@@ -137,8 +137,8 @@ c
      + call errquit('pre_charge: geom_set_user_units failed',9999)
       nout=0
       do 12 i=1,nbnd
-      ia=lbnd(1,i)
-      ja=lbnd(2,i)
+      ia=ilo-1+lbnd(1,i)
+      ja=ilo-1+lbnd(2,i)
       ka=0
       if((ia.lt.ilo.or.ia.gt.ihi).and.ja.ge.ilo.and.ja.le.ihi) ka=ja
       if((ja.lt.ilo.or.ja.gt.ihi).and.ia.ge.ilo.and.ia.le.ihi) ka=ia
@@ -147,7 +147,7 @@ c
       nout=nout+ihi-ilo+1
       if(.not.geom_cart_set(igeom2,nout,tag,xatm,xatm))
      + call errquit('pre_charge: geom_cart_set failed',9999)
-      do 10 i=ilo,ihi
+      do 10 i=1,ihi-ilo+1
       tag='                '
       if(latm(2,i).eq.1) then
       tag(1:1)='H'
@@ -162,13 +162,13 @@ c
       coord(1)=cnm2au*xatm(1,i)
       coord(2)=cnm2au*xatm(2,i)
       coord(3)=cnm2au*xatm(3,i)
-      if(.not.geom_cent_set(igeom2,i-ilo+1,tag,coord,chrge))
+      if(.not.geom_cent_set(igeom2,i,tag,coord,chrge))
      + call errquit('pre_charge: geom_cent_set failed',9999)
    10 continue
       nout=ihi-ilo+1
       do 11 i=1,nbnd
-      ia=lbnd(1,i)
-      ja=lbnd(2,i)
+      ia=ilo-1+lbnd(1,i)
+      ja=ilo-1+lbnd(2,i)
       ka=0
       if((ia.lt.ilo.or.ia.gt.ihi).and.ja.ge.ilo.and.ja.le.ihi) ka=ia
       if((ja.lt.ilo.or.ja.gt.ihi).and.ia.ge.ilo.and.ia.le.ihi) ka=ja
@@ -253,14 +253,14 @@ c
       do 9 i=1,ihi-ilo+1
       if(.not.geom_cent_get(igeom2,i,tag,coord,chrge))
      + call errquit('pre_charge: geom_cent_get failed',i)
-      qatm(ilo+i-1)=chrge
+      qatm(i)=chrge
       qsum=qsum+chrge
     9 continue
       if(.not.geom_destroy(igeom2))
      + call errquit('pre_charge: geom_destroy failed',9999)
       if(abs(qsum).lt.1.0d-5) then
       do 14 i=1,ihi-ilo+1
-      qatm(ilo+i-1)=qscale*qatm(ilo+i-1)
+      qatm(i)=qscale*qatm(i)
    14 continue
       endif
       pre_charge=.true.

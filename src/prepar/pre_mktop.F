@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,ignore)
 c
-c $Id: pre_mktop.F,v 1.19 2000-06-15 06:48:16 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.20 2000-06-15 19:58:46 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -301,7 +301,7 @@ c
       ndih=0
       nimp=0
 c
-      nval=max(mbnd,mang,mdih,mimp)
+      nval=max(mbnd,mang,mdih,mimp,1)
       if(.not.ma_push_get(mt_int,nval,'ival',l_ival,i_ival))
      + call errquit('Memory allocation failed for ival',9999)
       if(.not.ma_push_get(mt_int,nval,'ndx',l_ndx,i_ndx))
@@ -395,7 +395,7 @@ c
       n3rd=0
       if(.not.ma_push_get(mt_int,2*m3rd,'l3rd',l_l3rd,i_l3rd))
      + call errquit('Memory allocation failed for l3rd',9999)
-      nval=m3rd
+      nval=max(m3rd,1)
       if(.not.ma_push_get(mt_int,nval,'ival',l_ival,i_ival))
      + call errquit('Memory allocation failed for ival',9999)
       if(.not.ma_push_get(mt_int,nval,'ndx',l_ndx,i_ndx))
@@ -437,7 +437,7 @@ c
 c     construct excluded pair list
 c     ----------------------------
 c
-      nval=mexc
+      nval=max(mexc,1)
       if(.not.ma_push_get(mt_int,nval,'ival',l_ival,i_ival))
      + call errquit('Memory allocation failed for ival',9999)
       if(.not.ma_push_get(mt_int,nval,'ndx',l_ndx,i_ndx))
