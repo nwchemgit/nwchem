@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,
      *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.3 1995-05-02 04:14:17 og845 Exp $
+C     $Id: xc_perdew91.F,v 1.4 1995-05-13 02:30:28 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -41,8 +41,8 @@ c--   > Sampling Matrices for the XC Potential & Energy
 
       dimension dp81drho(2)
 c     
-c     
-c     Perdew, Fiolhais, Vosko, ..
+c     J.P.Perdew, J.A.Chevary, S.H.Vosko, K.A.Jackson, M.R.Pederson, 
+c     D.J.~Singh and C.~Fiolhais,  Phys. Rev. B  46, 6671 (1992).     
 c     
 c***************************************************************************
       gzeta(x)=0.5d0*((ONE+x)**TWO3+(ONE-x)**TWO3)
@@ -87,7 +87,7 @@ C
 C
 C         call for LDA bit
 C
-          call xc_p81(rhoval,dp81drho,1,ipol,egas,1.d0)
+          call xc_p81(rhoval,dp81drho,1,1,egas,1.d0)
 
           degasda=arho*(dp81drho(1) - egas)
           
@@ -104,7 +104,7 @@ C
           dtdrhoa=-t*(dksdrho/aks+arho)
           dtdgamma=0.5d0*t/gammaval
 
-          dexpo1=twoab2*(egas*arho)
+          dexp1=twoab2*(egas*arho)
           dexpo2=(10.d0*(aks/akf)*t)**2
           expo1=0.d0
           if(dexpo1.lt.EXPTOL) expo1=exp(-dexpo1)
@@ -179,9 +179,10 @@ c       ======> SPIN-UNRESTRICTED <======
           rs3=rs2*rs
           drsdrho = -ONE3*rs*arho
           gammaval=gamma(1,n)+gamma(2,n)+2.d0*gamma(3,n)
-          dsqgamma=dsqrt(gammaval)
+          dsqgamma=max(dsqrt(gammaval),tol_rho)
           drho=rho(2,n)-rho(3,n)
           zeta=drho*arho
+
 C         
 C         C(n)
 C         
@@ -198,12 +199,12 @@ C
 C
 C         call for LDA bit
 C
-          call xc_p81(rhoval,dp81drho,1,ipol,egas,1.d0)
+          call xc_p81(rho(1,n),dp81drho,1,2,egas,1.d0)
 
           degasda=arho*(dp81drho(1) - egas)
           degasdb=arho*(dp81drho(2) - egas)
 
-          g=gzeta(zeta)
+          g=max(tol_rho,gzeta(zeta))
           g2=g*g
           g3=g2*g
           akf=TPP*rho13
@@ -211,16 +212,21 @@ C
           dksdrho=aks*arho/6.d0
           dkfdrho=akf*arho*ONE3
 
-          adg=gzprime(zeta)
-          dgzetada=(1.d0-zeta)*arho*adg
-          dgzetadb=-(1.d0+zeta)*arho*adg
+          if(abs(1.d0-zeta).lt.tol_rho) then
+            dgzetadag=0.d0
+            dgzetadbg=-2.d0*(gzprime(0.d0)/g)*arho
+          else
+            gggr=(gzprime(zeta)/g)*arho
+            dgzetadag=(1.d0-zeta)*ggg
+            dgzetadbg=-(1.d0+zeta)*ggg
+          endif
 
           t=0.5*dsqgamma*arho/(g*aks)
           t2=t*t
           t3=t2*t
           t4=t3*t
-          dtdrhoa=-t*(dgzetada/g+dksdrho/aks+arho)
-          dtdrhob=-t*(dgzetadb/g+dksdrho/aks+arho)
+          dtdrhoa=-t*(dgzetadag+dksdrho/aks+arho)
+          dtdrhob=-t*(dgzetadbg+dksdrho/aks+arho)
           dtdgamma=0.5d0*t/gammaval
 
           dexpo1=twoab2*(egas*arho)/g3
@@ -246,29 +252,29 @@ c         df/drho = func + rhoval*dfunc/drho
 c
           dH1drhoa = H1*(
      *         CCPRIME/(CC-CINF-CX37) +
-     *         THREE*dgzetada/g + 2.d0*dtdrhoa/t -
-     *         2.d0*dexpo2*(2.d0*dgzetada/g +
+     *         THREE*dgzetadag + 2.d0*dtdrhoa/t -
+     *         2.d0*dexpo2*(2.d0*dgzetadag +
      *         dtdrhoa/t + dksdrho/aks - dkfdrho/akf))
 
           dH1drhob = H1*(
      *         CCPRIME/(CC-CINF-CX37) +
-     *         THREE*dgzetadb/g + 2.d0*dtdrhob/t -
-     *         2.d0*dexpo2*(2.d0*dgzetadb/g +
+     *         THREE*dgzetadbg + 2.d0*dtdrhob/t -
+     *         2.d0*dexpo2*(2.d0*dgzetadbg +
      *         dtdrhob/t + dksdrho/aks - dkfdrho/akf))
 
           dAdrhoa = A/(expo1-ONE)*
-     *         twoab2/g3*(-THREE*dgzetada/g + degasda)
+     *         twoab2/g3*(-THREE*dgzetadag + degasda)
 
           dAdrhob = A/(expo1-ONE)*
-     *         twoab2/g3*(-THREE*dgzetadb/g + degasdb)
+     *         twoab2/g3*(-THREE*dgzetadbg + degasdb)
 
-          dH0drhoa = Three*H0*dgzetada/g +
-     +         g3*bb*aden1/(ONE+twoab*alognd)*(
+          dH0drhoa = Three*H0*dgzetadag +
+     +         g3*bb*aden1*(
      (         2.d0*t*dtdrhoa*A1p2At2 + dAdrhoa*t4 -
      -         alognd*A1p2At2*(2.d0*A*t*dtdrhoa +
-     +         dAdrhoa*t2))
+     +         dAdrhoa*t2))/(ONE+twoab*alognd)
 
-          dH0drhob = Three*H0*dgzetadb/g +
+          dH0drhob = Three*H0*dgzetadbg +
      +         g3*bb*aden1/(ONE+twoab*alognd)*(
      (         2.d0*t*dtdrhob*A1p2At2 + dAdrhob*t4 -
      -         alognd*A1p2At2*(2.d0*A*t*dtdrhob +
@@ -279,7 +285,6 @@ c
 
           Amat(2,n) = Amat(2,n) +  dp81drho(2) + func +
      +         rhoval*(dH0drhob+dH1drhob)
-
           
 c
 C- (func*add)*dzetadb
