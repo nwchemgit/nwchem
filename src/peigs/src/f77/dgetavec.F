@@ -598,11 +598,12 @@ c
 c this is for an occasionally breakage on cray mpp
 c can''t tell if it is the compiler or what
 c
-      if ( abs(gamma(k)) .lt. DLAMCHS) then
-         Z( K ) = DLAMCHS
-      else	
-         Z( K ) = gamma(k)* ONE
-      endif
+c      if ( abs(gamma(k)) .lt. DLAMCHS) then
+c         Z( K ) = DLAMCHS
+c      else	
+c         Z( K ) = gamma(k)* ONE
+c      endif
+	z(k) = ONE
 c     
 c     DO I = B1, bn
 c     write(*,*) ' gamma ', i, gamma(i), k
