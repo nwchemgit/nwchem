@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.22 2002-07-20 03:14:48 edo Exp $
+c $Id: hf2.F,v 1.23 2003-08-03 04:58:36 edo Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -157,7 +157,8 @@ c Zero out integral block. Return if NPR = 0, i.e. no integrals
 
       NPR = NPP*NPQ
       if (NPR .eq. 0) then 
-      if (.not.DryRun) call dfill(Nints,0.0d00,beri,1)
+!     if (.not.DryRun) call dfill(Nints,0.0d00,beri,1)
+      if (.not.DryRun) call dcopy(Nints,0d0,0,beri,1) 
          go to 99
       endif
 
