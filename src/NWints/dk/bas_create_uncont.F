@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.1 1999-11-02 19:53:24 bert Exp $
+c $Id: bas_create_uncont.F,v 1.2 1999-11-24 23:08:03 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -7,10 +7,13 @@ c $Id: bas_create_uncont.F,v 1.1 1999-11-02 19:53:24 bert Exp $
 #include "inp.fh"
 #include "bas.fh"
 #include "sym.fh"
+#include "apiP.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "geomP.fh"
 #include "bgj.fh"
+#include "util.fh"
+#include "stdio.fh"
 c
 c     Given a contracted basis, create a new uncontracted basis on rtdb
 c
@@ -46,6 +49,11 @@ c
       integer icenter(nw_max_atom)
       character*16 usetag
       logical new, spheri
+c
+      integer Pmnm_a,PmnIm_a         ! Following indices are used for generating 
+      integer Pmxm_a,PmxIm_a         ! a fitting basis set based on exponents and
+      integer l_max,nprim,loctag     ! angular momenta
+      double precision maxprim,minprim,alpha
 c
 c     Get geometry and rtdb handles for basis_in
 c
@@ -108,7 +116,7 @@ c
      $     call errquit('bas_create_uncont: ma_push_get L array',0)
       if (.not. ma_push_get(MT_INT,ipr_mx,'shells',Sm_a,SIm_a))
      $     call errquit('bas_create_uncont: ma_push_get Exp array',0)
-      if (.not. ma_push_get(MT_INT,ipr_mx,'shells',Am_a,AIm_a))
+      if (.not. ma_push_get(MT_INT,ipr_mx,'atoms',Am_a,AIm_a))
      $     call errquit('bas_create_uncont: ma_push_get Exp array',0)
 c
 c     Extract exponents and data from basis_in for all unique atoms 
@@ -137,15 +145,124 @@ c   Find unique exponents and store exponents and data into basis_out
 c
       call bas_unique_sort(dbl_mb(ExpIm_a),int_mb(LIm_a),int_mb(SIm_a),
      $                 int_mb(AIm_a),ipr_mx,nuniqprim)
-      do 4 iprim = 1, nuniqprim
-         if (.not. bas_cont_tag(basis_in,int_mb(SIm_a+iprim-1),
-     $                          usetag)) 
-     $      call errquit ('bas_create_uncont: bas_cont_tag failed',0)
-         if (.not. bas_add_ucnt(basis_out,usetag,int_mb(LIm_a+iprim-1),
-     $                          1,1,0.0d0,dbl_mb(ExpIm_a+iprim-1),
-     $                          1.0d0,1,name))
-     $      call errquit ('bas_create_uncont: bas_add_ucnt',0)
-    4 continue
+c
+c   If the option to use a more extensive, flexible fitting basis set
+c   setup data to handle even tempered basis set construction
+c
+      if (dk_even_bas) then
+         if ((ga_nodeid() .eq. 0) .and. 
+     $       util_print('douglas-kroll', print_low)) write(luout,30)
+   30    format(/12x, 
+     $   'Extended even tempered basis constructed for Douglas-Kroll'/)
+
+c
+c        Check if sp or spd combined basis is used, they cannot be handled
+c        in the flexible basis set construction code
+c
+         do 9 iprim = 1, nuniqprim
+            if (int_mb(LIm_a+iprim-1) .lt.0) call errquit(
+     $       'Cannot use sp or spd to create flexi fitting basis DK',0)
+    9    continue
+c
+c        Get highest angular momentum for array definitions and create arrays
+c
+         if (.not. bas_high_angular(basis_in,l_max))
+     $      call errquit('bas_create_uncont: bas_high_angular failed',0)
+         ipr_mx = l_max + 1
+         if (.not. ma_push_get(MT_DBL,ipr_mx,'maxprim',Pmxm_a,PmxIm_a))
+     $      call errquit('bas_create_uncont: ma_push_get Pmx array',0)
+         if (.not. ma_push_get(MT_DBL,ipr_mx,'minprim',Pmnm_a,PmnIm_a))
+     $      call errquit('bas_create_uncont: ma_push_get Pmn array',0)
+c
+c        Loop over each unique center
+c
+         do 17 iatom = 1, nuniqatom
+c
+c        Get l-values and l_max and tag for this center
+c
+            do 16 iprim = 0, ipr_mx - 1
+               dbl_mb(PmxIm_a+iprim) = 0.0d0
+               dbl_mb(PmnIm_a+iprim) = 1.0d20
+   16       continue
+            l_max = 0
+            loctag = 0
+            do 18 iprim = 1, nuniqprim
+               if (int_mb(AIm_a+iprim-1) .eq. icenter(iatom)) then
+                  if (l_max .lt. int_mb(LIm_a+iprim-1))
+     $               l_max = int_mb(LIm_a+iprim-1)
+               counter = int_mb(LIm_a+iprim-1)
+               if (dbl_mb(PmxIm_a+counter) .lt. dbl_mb(ExpIm_a+iprim-1)) 
+     $             dbl_mb(PmxIm_a+counter) = dbl_mb(ExpIm_a+iprim-1)
+               if (dbl_mb(PmnIm_a+counter) .gt. dbl_mb(ExpIm_a+iprim-1)) 
+     $             dbl_mb(PmnIm_a+counter) = dbl_mb(ExpIm_a+iprim-1)
+               loctag = int_mb(SIm_a+iprim-1)
+               endif
+   18       continue
+c
+c        Get max and min exponent for each l-value, based on ratio get 
+c        number of exponents (compute adjusted ratio based on integer
+c        number of exponents) using the following extra rules:
+c        s space has to incorporate p space
+c        p space has to incorporate s and d space
+c        d space has to incorporate p and f space, etc
+c
+c        When max and min primitive are set, compute the number of primitive
+c        functions, expansion ratio for number of primitive and store in basis
+c
+            do 20 l_type = 0, l_max + 1
+               if (l_type .eq. 0) then
+                  if (l_max .gt. 0) then
+                     maxprim = max(dbl_mb(PmxIm_a),
+     $                             dbl_mb(PmxIm_a+1))
+                     minprim = min(dbl_mb(PmnIm_a),
+     $                             dbl_mb(PmnIm_a+1))
+                  else
+                     maxprim = dbl_mb(PmxIm_a)
+                     minprim = dbl_mb(PmnIm_a)
+                  endif
+               elseif (l_type .eq. (l_max + 1)) then
+                  maxprim = dbl_mb(PmxIm_a+l_type-1)
+                  minprim = dbl_mb(PmnIm_a+l_type-1)
+               elseif (l_type .eq. l_max) then
+                  maxprim = max(dbl_mb(PmxIm_a+l_type),
+     $                          dbl_mb(PmxIm_a+l_type-1))
+                  minprim = min(dbl_mb(PmnIm_a+l_type),
+     $                          dbl_mb(PmnIm_a+l_type-1))
+               else
+                  maxprim = max(dbl_mb(PmxIm_a+l_type),
+     $                          dbl_mb(PmxIm_a+l_type-1),
+     $                          dbl_mb(PmxIm_a+l_type+1))
+                  minprim = min(dbl_mb(PmnIm_a+l_type),
+     $                          dbl_mb(PmxIm_a+l_type-1),
+     $                          dbl_mb(PmnIm_a+l_type+1))
+               endif
+               nprim = log(maxprim/minprim)/log(dk_ratio) + 1
+               alpha = (maxprim/minprim)**(1.0d0/dble(nprim-1))
+               if (.not. bas_cont_tag(basis_in,loctag, usetag))
+     $          call errquit('bas_create_uncont: bas_cont_tag failed',0)
+               do 21 iprim = 1, nprim
+                  if (.not. bas_add_ucnt(basis_out,usetag,l_type,1,1,
+     $                0.0d0,maxprim,1.0d0,1,name)) call errquit 
+     $                ('bas_create_uncont: bas_add_ucnt',0)
+                  maxprim = maxprim / alpha
+   21          continue
+   20       continue
+   17    continue
+         if (.not. ma_pop_stack(Pmnm_a))
+     $     call errquit('bas_create_uncont: ma__pop_stack Pmn array',0)
+         if (.not. ma_pop_stack(Pmxm_a))
+     $     call errquit('bas_create_uncont: ma__pop_stack Pmx array',0)
+      else
+         do 15 iprim = 1, nuniqprim
+            if (.not. bas_cont_tag(basis_in,int_mb(SIm_a+iprim-1),
+     $                             usetag)) 
+     $         call errquit ('bas_create_uncont: bas_cont_tag failed',0)
+            if (.not. bas_add_ucnt(basis_out,usetag,
+     $                            int_mb(LIm_a+iprim-1),1,1,0.0d0,
+     $                            dbl_mb(ExpIm_a+iprim-1),1.0d0,1,name))
+     $         call errquit ('bas_create_uncont: bas_add_ucnt',0)
+   15    continue
+      endif
 c
       spheri = .false.
       if (cartsph.eq.1) spheri = .true.
