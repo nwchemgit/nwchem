@@ -1,5 +1,5 @@
 c     
-c     $Id: crohf.fh,v 1.2 1995-04-05 19:51:27 d3g681 Exp $
+c     $Id: crohf.fh,v 1.3 2004-07-21 16:35:24 bert Exp $
 c     $Synopsis "Pass info to ROHF internal routines"$
 c     
 c     Private COMMON block for ROHF internal routines
@@ -17,10 +17,15 @@ c
       integer crohf_g_fpv       ! Partial-virtual Fock matrix handle
       integer crohf_g_fcp       ! Closed-partial Fock matrix handle
 c
+      logical noskew            ! to facilitate generic solvers wiith
+                                ! imaginary components (i.e. NMR
+                                ! shielding) default is .true. but
+                                ! needs to be .false. for NMR
       common/crohf/
      $     crohf_init_flag,
      $     crohf_vlen,
      $     crohf_g_fcv,
      $     crohf_g_fpv,
-     $     crohf_g_fcp
+     $     crohf_g_fcp,
+     $     noskew
 c

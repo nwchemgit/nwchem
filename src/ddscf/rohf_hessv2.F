@@ -6,7 +6,7 @@
 #include "stdio.fh"
 #include "util.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.12 2003-10-17 22:54:33 carlfahl Exp $
+c     $Id: rohf_hessv2.F,v 1.13 2004-07-21 16:35:24 bert Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -36,7 +36,7 @@ c     Call internal routine
 c     
       call rohf_hessv_xx2( basis, geom, nbf, nmo,
      $     nclosed, nopen,
-     $     pflg, g_movecs, oskel, 
+     $     pflg, g_movecs, oskel, noskew,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
      $     acc, lshift, g_x, g_ax )
 c
@@ -52,9 +52,9 @@ c
       end
       subroutine rohf_hessv_xx2( basis, geom, nbf, nmo, nclosed, nopen, 
      $     pflg,
-     $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
+     $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.12 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id: rohf_hessv2.F,v 1.13 2004-07-21 16:35:24 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -66,7 +66,7 @@ c
       integer nbf, nmo, nclosed, nopen
       integer pflg
       integer g_movecs
-      logical oskel
+      logical oskel, noskew
       integer g_fcv, g_fpv, g_fcp
       double precision acc
       double precision lshift
@@ -85,15 +85,15 @@ c
  200  continue
       if (pflg .gt. 1) then
          call rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
-     $        g_movecs, oskel, g_x, acc, ! was min(1d-6,acc)
+     $        g_movecs, oskel, noskew, g_x, acc, ! was min(1d-6,acc)
      $        g_ax )
       endif
 c
 c     
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
-     $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.12 2003-10-17 22:54:33 carlfahl Exp $
+     $     g_movec, oskel, noskew, g_x, acc, g_ax )
+C     $Id: rohf_hessv2.F,v 1.13 2004-07-21 16:35:24 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -131,16 +131,17 @@ c
       double precision tol2e
       logical odebug
       logical oprint
+      logical noskew
 c
       integer dims(3), chunk(3), alo(3), ahi(3), blo(2), bhi(2)
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-      double precision one, zero, mone, four, half, mhalf, two
+      double precision one, zero, mone, four, half, mhalf, two, mtwo
       double precision itol_floor, itol_ceil
       double precision xc_xfac1
       parameter(itol_floor=1.d-15, itol_ceil=1.d-3)
       parameter (one=1.0d0, mone=-1.0d0, zero=0.0d0, four=4.0d0)
-      parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0)
+      parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0, mtwo=-2.0d0)
       oprint= util_print('rohf_hessv2',print_debug)
       xc_xfac1=bgj_kfac()
 c     
@@ -211,7 +212,11 @@ c
       nfock = 0
       do ivec = 1, nvec
          nfock          = nfock + 1
-         dbl_mb(k_jfac+nfock-1)    =  1.0d0   ! CV
+         if (noskew) then
+            dbl_mb(k_jfac+nfock-1)    =  1.0d0   ! CV
+         else
+            dbl_mb(k_jfac+nfock-1)    =  0.0d0   ! CV
+         endif
          dbl_mb(k_kfac+nfock-1)    = -0.5d0*xc_xfac1   ! CV
 c        jfac(nfock)    =  1.0d0   ! CV
 c        kfac(nfock)    = 1.0d0   ! CV
@@ -219,7 +224,11 @@ c        jfac(nfock)    =  4.0d0   ! CV
 c        kfac(nfock)    = -1.0d0   ! CV
          if (nopen .gt. 0) then
             nfock          = nfock + 1
-            dbl_mb(k_jfac+nfock-1)    =  1.0d0 ! CP
+            if (noskew) then
+               dbl_mb(k_jfac+nfock-1)    =  1.0d0   ! CP
+            else
+               dbl_mb(k_jfac+nfock-1)    =  0.0d0   ! CP
+            endif
             dbl_mb(k_kfac+nfock-1)    = -0.5d0*xc_xfac1 ! CP
             nfock          = nfock + 1
             dbl_mb(k_jfac+nfock-1) =  0.0d0 ! PV
@@ -292,10 +301,20 @@ c
             call ga_copy(g_tmp2, g_dpv)
          endif
 c
-         call ga_symmetrize(g_dcv)
+         
+         if (noskew) then
+            call ga_symmetrize(g_dcv)
+         else
+            call ga_antisymmetrize(g_dcv)
+         endif
          if (nopen .gt. 0) then
-            call ga_symmetrize(g_dpv)
-            call ga_symmetrize(g_dcp)
+            if (noskew) then
+               call ga_symmetrize(g_dpv)
+               call ga_symmetrize(g_dcp)
+            else
+               call ga_antisymmetrize(g_dpv)
+               call ga_antisymmetrize(g_dcp)
+            endif
          endif
 c
          alo(1) = ivec
@@ -334,9 +353,11 @@ c
      &       GA_ERR)
       call ga_zero(g_fock)
 c
+c     noskew is true, except for nmr perturbations (skew symmetric)
+c
       call shell_fock_build(geom, basis, 0, nfock, 
      $     dbl_mb(k_jfac), dbl_mb(k_kfac),
-     $     tol2e, g_dens, g_fock,.true.)
+     $     tol2e, g_dens, g_fock, noskew)
 c     
       if (oskel) 
      $   call errquit('rohf_h2e2: no way',0, UNKNOWN_ERR)

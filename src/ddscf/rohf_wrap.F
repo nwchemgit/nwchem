@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
+c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
 c     
 c     Invalidate data
 c     
@@ -9,7 +9,8 @@ c
      $     crohf_vlen/-1/
      $     crohf_g_fcv/-1/,
      $     crohf_g_fpv/-1/,
-     $     crohf_g_fcp/-1/
+     $     crohf_g_fcp/-1/,
+     $     noskew/.true./
       end
       subroutine rohf_init( rtdb)
       implicit none
@@ -20,7 +21,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
+c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -69,7 +70,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
+c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -103,7 +104,7 @@ c
 #include "rtdb.fh"
 #include "cosmo.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
+c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
 c
       integer rtdb
 
@@ -208,7 +209,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
+c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -257,7 +258,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
+c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
 c
       integer g_x
       double precision solveshift
