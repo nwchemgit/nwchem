@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.58 2001-04-17 00:50:16 edo Exp $
+C$Id: uhf.F,v 1.59 2001-06-21 19:03:55 zzhang Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -210,7 +210,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.58 2001-04-17 00:50:16 edo Exp $
+C     $Id: uhf.F,v 1.59 2001-06-21 19:03:55 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -260,6 +260,7 @@ c
       external ga_create_atom_blocked
 C      external uhf_hessv, uhf_hessv_precond
 c     
+      
       if (ga_nodeid().eq.0) call util_flush(6)
 c     
 c     Allocate global arrays.  Gradient, search direction
@@ -510,7 +511,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.58 2001-04-17 00:50:16 edo Exp $
+C$Id: uhf.F,v 1.59 2001-06-21 19:03:55 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -601,7 +602,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.58 2001-04-17 00:50:16 edo Exp $
+c     $Id: uhf.F,v 1.59 2001-06-21 19:03:55 zzhang Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -609,13 +610,14 @@ c
 c     
       double precision eone, etwo, enrep
       integer gtype, grow, gcol
-      integer d(4), f(4)
-      integer g_a_dens, g_a_coul, g_a_exch
-      integer g_b_dens, g_b_coul, g_b_exch
+      integer d(4), f(6)
+      integer g_a_dens, g_a_coul, g_a_exch, g_a_xc
+      integer g_b_dens, g_b_coul, g_b_exch, g_b_xc
       integer g_hcore
       double precision jfac(4), kfac(4), one, zero, mone
       parameter (one=1.0d0, zero=0.0d0, mone=-1.0d0)
-      double precision e_a_coul, e_a_exch, e_b_coul, e_b_exch
+      double precision e_a_coul, e_a_exch, e_b_coul, e_b_exch,
+     &     e_a_xc, e_b_xc
       double precision errmaxa, errmaxb
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -640,6 +642,8 @@ c
       g_b_coul = ga_create_atom_blocked(geom, basis, 'uhf:b coul')
       g_a_exch = ga_create_atom_blocked(geom, basis, 'uhf:a exch')
       g_b_exch = ga_create_atom_blocked(geom, basis, 'uhf:b exch')
+      g_a_xc   = ga_create_atom_blocked(geom, basis, 'uhf:a xc')
+      g_b_xc   = ga_create_atom_blocked(geom, basis, 'uhf:b xc')
       g_a_dens = ga_create_atom_blocked(geom, basis, 'uhf:a dens')
       g_b_dens = ga_create_atom_blocked(geom, basis, 'uhf:b dens')
       call ga_zero(g_a_dens)
@@ -700,6 +704,8 @@ c
       call ga_zero(g_b_coul)
       call ga_zero(g_a_exch)
       call ga_zero(g_b_exch)
+      call ga_zero(g_a_xc)
+      call ga_zero(g_b_xc)
       d(1) = g_a_dens
       d(2) = g_a_dens
       d(3) = g_b_dens
@@ -708,9 +714,14 @@ c
       f(2) = g_a_exch
       f(3) = g_b_coul
       f(4) = g_b_exch
+      f(5) = g_a_xc
+      f(6) = g_b_xc
+c
+czz   two extra ga's are passed to fock_2e to get the xc matrix
+c
 c
       call do_riscf (.false.)
-      call fock_2e(geom, basis, 4, jfac, kfac, tol2e,
+      call fock_2e(geom, basis, 6, jfac, kfac, tol2e,
      $     oskel, d, f, .false.)
       call do_riscf (.true.)
 c
@@ -718,9 +729,12 @@ c
      $     (ga_ddot(g_a_dens,g_a_coul) + ga_ddot(g_a_dens,g_b_coul))
       e_b_coul = 0.5d0*
      $     (ga_ddot(g_b_dens,g_a_coul) + ga_ddot(g_b_dens,g_b_coul))
+      e_a_xc = ga_ddot(g_a_dens,g_a_xc)
+      e_b_xc = ga_ddot(g_b_dens,g_b_xc)
       e_a_exch = 0.5d0*ga_ddot(g_a_dens,g_a_exch)
       e_b_exch = 0.5d0*ga_ddot(g_b_dens,g_b_exch)
-      etwo = e_a_coul + e_b_coul - e_a_exch - e_b_exch
+      etwo = e_a_coul + e_b_coul - e_a_exch - e_b_exch + 
+     &     e_a_xc + e_b_xc
 c
       if (odebug .and. ga_nodeid().eq.0) then
          write(6,*) ' coulomb energies', e_a_coul, e_b_coul
@@ -746,6 +760,8 @@ c
       call ga_copy(g_a_coul, g_b_coul)
       call ga_dadd(one, g_a_coul, mone, g_a_exch, g_a_coul)
       call ga_dadd(one, g_b_coul, mone, g_b_exch, g_b_coul)
+      call ga_dadd(one, g_a_coul, one, g_a_xc, g_a_coul)
+      call ga_dadd(one, g_b_coul, one, g_b_xc, g_b_coul)
 c
 c     reuse g_a_exch to hold the 1-e integrals
 c
@@ -803,10 +819,10 @@ c
      $     call errquit('uhf_energy: no repulsion energy?', 0)
       energy = eone + etwo + enrep
 c
-      if (odebug .and. ga_nodeid().eq.0) then
+c      if (odebug .and. ga_nodeid().eq.0) then
          write(6,*) ' eone, etwo, enrep, energy ',
      $        eone, etwo, enrep, energy
-      endif
+c      endif
 c
       end
       subroutine uhf_get_grad(g_grad)
@@ -1087,7 +1103,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.58 2001-04-17 00:50:16 edo Exp $
+C$Id: uhf.F,v 1.59 2001-06-21 19:03:55 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1429,6 +1445,100 @@ c
 c     
       end
 
+      subroutine tddft_precond(g_x, solveshift)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "cscf.fh"
+#include "cuhf.fh"
+      integer g_x
+      integer maxdim
+      parameter (maxdim = 100)   ! Maximum size of iterative subspace
+      double precision solveshift(maxdim)
+c      
+      integer nvir, nocc(2), iset
+      integer i, j, ioff, ibase
+      integer l_diag, k_diag, l_x, k_x
+      integer g_f(2), ivec, nvec, gtype, vlen, g_a, g_tmp, g_xtmp
+      double precision diag, denominator, shift(maxdim)
+      double precision ei, ea, eia
+      diag(i) = dbl_mb(k_diag + i - 1)
+c     
+      if(scftype.eq.'UHF')then
+         nocc(1) = nalpha
+         nocc(2) = nbeta
+      endif
+c
+      call ga_sync()
+      call ga_inquire(g_x, gtype, vlen, nvec)
+      if (.not.ma_push_get(MT_DBL,vlen,'uhf: tmp',l_diag,k_diag))
+     $     call errquit('uhf_precond: cannot allocate',0)
+      do i = 1, nvec 
+         shift(i) = lshift - solveshift(i)
+      enddo
+      if (.not. ga_create(MT_DBL, vlen, vlen, 'tddft_precond: diag',
+     $     1, 0, g_a)) call errquit('diag', 0)
+      if (.not. ga_create(MT_DBL, vlen, 1, 'tddft_precond: tmp',
+     $     1, 0, g_tmp)) call errquit('diag', 0)
+      if (.not. ga_create(MT_DBL, vlen, 1, 'tddft_precond: xtmp',
+     $     1, 0, g_xtmp)) call errquit('diag', 0)
+      do ivec = 1, nvec 
+         call dfill(vlen, 0.0d0, dbl_mb(k_diag), 1)
+         if(scftype.eq.'UHF')then
+            ibase = 1
+            do i = 1, nalpha
+               ei = dbl_mb(k_eval+(i-1))
+               do j = 1, nbf-nalpha
+                  ea = dbl_mb(k_eval+(nalpha+j-1))
+                  eia = ea - ei 
+                  dbl_mb(k_diag + ((i-1)*(nbf-nalpha)+j-1)) =
+     &                 1.d0/(eia - shift(ivec))
+               enddo
+            enddo
+            ioff = nalpha*(nmo-nalpha)
+            do i = 1, nbeta
+               ei = dbl_mb(k_eval+nbf+(i-1))
+               do j = 1, nbf-nbeta
+                  ea = dbl_mb(k_eval+nbf+(nbeta+j-1))
+                  eia = ea - ei
+                  dbl_mb(k_diag + ioff + ((i-1)*(nbf-nbeta)+j-1))=
+     &                 1.d0 /(eia - shift(ivec))
+               enddo
+            enddo
+         else if(scftype.eq.'RHF')then
+            ibase = 1
+            do i = 1, nclosed
+               ei = dbl_mb(k_eval+(i-1))
+               do j = 1, nbf-nclosed
+                  ea = dbl_mb(k_eval+(nalpha+j-1))
+                  eia = ea - ei 
+                  dbl_mb(k_diag + ((i-1)*(nbf-nalpha)+j-1)) =
+     &                 1.d0/(eia - shift(ivec))
+               enddo
+            enddo
+         else
+            call errquit("precond: unknown scftype?",0)
+         endif
+         
+         call ga_zero(g_a)
+         call ga_zero(g_tmp)
+         call ga_zero(g_xtmp)
+         call ga_copy_todiag(g_a,dbl_mb(k_diag))
+         call ga_copy_patch('n', g_x, 1,vlen, ivec, ivec, 
+     &        g_tmp, 1, vlen, 1, 1)
+         call ga_dgemm('n', 'n', vlen, 1, vlen, 1.0d0, g_a, g_tmp, 
+     &        0.0d0, g_xtmp) 
+         call ga_copy_patch('n', g_xtmp, 1, vlen, 1, 1, 
+     &        g_x, 1, vlen, ivec, ivec)
+      enddo
+      
+      if (.not. ga_destroy(g_a)) call errquit('uhf_mull: ga?',0)
+      if (.not. ga_destroy(g_tmp)) call errquit('uhf_mull: ga?',0)
+      if (.not. ga_destroy(g_xtmp)) call errquit('uhf_mull: ga?',0)
+      if (.not. ma_pop_stack(l_diag)) call errquit('uhf:pop ',0)
+      call ga_sync()
+c
+      end
 
 
 
