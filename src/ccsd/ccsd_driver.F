@@ -23,9 +23,10 @@ c
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer k_epair, l_epair
        integer npairs
-       integer nbf, nsh, nelec, nact, nocc, nopen, nvir, nocc_correl
-       integer occ_frozen, occ_lo, occ_hi
-       integer vir_frozen, vir_lo, vir_hi, nmo, nmo2
+       integer nbf, nsh, nelec, nact, nocc, nopen, nvir, nocc_correl,
+     &         nvir_correl
+       integer occ_frozen, occ_lo, occ_hi, nmo_lo
+       integer vir_frozen, vir_lo, vir_hi, nmo_hi, nmo, nmo2
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
        integer noper_core
        integer g_coul, g_exch, g_int1t, g_epair
@@ -36,8 +37,8 @@ c
        double precision tpass
        character*7 algo
 capr
-      integer lnoo,lnov,lnvv,lnoov,lnooo,ndima,lnobj,lnovv
-      common/len/lnoo,lnov,lnvv,lnoov,lnooo,ndima,lnobj,lnovv
+      integer lnoo,lnov,lnvv,lnoov,lnooo,ndima,lnobj,lnovv,n_ssnn
+      common/len/lnoo,lnov,lnvv,lnoov,lnooo,ndima,lnobj,lnovv,n_ssnn
 c
        integer maxit,convi,iprt,irstrt,ncor,ndel,l_mo,k_mo,g_objv,
      &         l_aint,k_aint,l_scr,k_scr
@@ -142,15 +143,19 @@ c
 c
 c Set index ranges
 c
-       occ_lo = occ_frozen + 1
-       occ_hi = nocc
-       nocc_correl = occ_hi - occ_lo + 1
 c$$$       vir_lo = nocc + 1
 c$$$       vir_hi = nbf - vir_frozen
-       vir_lo = 1
-       vir_hi = nbf
+       occ_lo = occ_frozen + 1
+       occ_hi = nocc
+       write(6,*)'occ_lo,occ_hi',occ_lo,occ_hi
+       nocc_correl = occ_hi - occ_lo + 1
+       vir_lo = nocc + 1
+       vir_hi = nbf - vir_frozen
+       nvir_correl = vir_hi - vir_lo + 1
        nvir = nbf - nocc
-       nmo2 = vir_hi - vir_lo + 1
+       nmo_lo = occ_frozen + 1
+       nmo_hi = nbf - vir_frozen
+       nmo2 = nmo_hi - nmo_lo + 1
        noper = occ_hi - occ_lo + 1
 c
 c Get Block-length
@@ -187,17 +192,12 @@ capr
        noper_core = noper
        if ((ocoul).and.(oexch)) noper_core = noper*2
 capr
-      lnoo=nocc*nocc
-      lnov=nocc*nvir
-      lnvv=nvir*nvir
-      lnoov=lnoo*nvir
-      lnooo=lnoo*nocc
-      lnovv=nocc*lnvv
-      ndima=lnoo*nocc*(nocc+1)/2
-      lnobj=max(lnoov+lnoov+lnoov,nbf*lnoo)
-      lnobj=max(lnoov+lnoov+lnooo,lnobj)
-      if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',lnobj,1,g_objv))
-     &     call errquit('ga_create g_objv failed',0)
+      lnoo=nocc_correl*nocc_correl
+      lnov=nocc_correl*nvir_correl
+      lnvv=nvir_correl*nvir_correl
+      lnoov=lnoo*nvir_correl
+      lnooo=lnoo*nocc_correl
+      lnovv=lnvv*nocc_correl
 capr
 c
 c Allocate operator matrices
@@ -232,7 +232,7 @@ c
          call util_print_centered(6,'Four-Index Transformation',
      $                            30,.true.)
          write(6,966) nbf,nsh,nocc,nocc_correl,blen,occ_lo,occ_hi,
-     $                vir_lo,vir_hi,movecs_in, noper_core
+     $                nmo_lo,nmo_hi,movecs_in, noper_core
  966     format(10x,'Number of basis functions:',10x,i5,/,
      $        10x,'Number of shells:',19x,i5,/,
      $        10x,'Number of occupied orbitals:',8x,i5,/,
@@ -272,12 +272,12 @@ c  J & K build routines
 c
        if (algo.eq.'sixfold') then
          call moints_build_6x(basis,  occ_lo, oseg_lo, oseg_hi,
-     $                        vir_lo, vir_hi, g_vecs,
+     $                        nmo_lo, nmo_hi, g_vecs,
      $                        g_coul, ocoul, g_exch, oexch,
      $                        blen )
        else
          call moints_build_2xz( basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
-     $                          vir_lo, vir_hi, g_vecs,
+     $                          nmo_lo, nmo_hi, g_vecs,
      $                          g_coul, ocoul, g_exch, oexch, g_int1t,
      $                          blen )
        endif
@@ -340,28 +340,42 @@ c
 c
       status = ga_destroy(g_epair)
 capr
-      iprt=0
+c
+c Start CCSD part here
+c
+c
+      ndima=lnoo*nocc_correl*(nocc_correl+1)/2
+      lnobj=max(lnoov+lnoov+lnoov,nmo2*lnoo)
+      lnobj=max(lnoov+lnoov+lnooo,lnobj)
+
+      lnobj=max(lnobj,nbf*nocc)
+      if (.not.ga_create(MT_DBL,lnobj,nvir_correl+1,'objv',lnobj,1,
+     &                   g_objv))
+     &     call errquit('ga_create g_objv failed',0)
+c
+      write(6,*)'maxit,convi',maxit,convi,iprt
+      call ccsd_get_param(rtdb,maxit,convi,iprt)
+      write(6,*)'maxit,convi',maxit,convi,iprt
+      irstrt=0
+      ncor=occ_frozen
+      ndel=vir_frozen
+c
       status=status.and.ma_push_get(MT_DBL,ndima,'aint',l_aint,k_aint)
       status=status.and.ma_push_get(MT_DBL,lnobj,'scr',l_scr,k_scr)
       if (.not.status)call errquit('error before ccsd_sortmo',0)
-      call ccsd_sortmo(nocc,nvir,nbf,dbl_mb(k_aint),ndima,
-     $                 dbl_mb(k_scr),lnobj,g_objv,g_coul,
-     $                 g_exch,iprt)
+      call ccsd_sortmo(nocc_correl,nvir_correl,nbf,dbl_mb(k_aint),
+     $                 ndima,dbl_mb(k_scr),lnobj,g_objv,g_coul,
+     $                 g_exch,iprt,ncor)
       status=status.and.ga_destroy(g_coul)
       status=status.and.ga_destroy(g_exch)
       status=status.and.ma_pop_stack(l_scr)
       if (.not.status) call errquit('error after ccsd_sortmo',0)
-c
-      maxit=20
-      convi=5
-      irstrt=0
-      ncor=0
-      ndel=0
       call rddcom()
       status=ma_push_get(MT_DBL,(nbf*nbf),'movecs',l_mo,k_mo)
       if (.not.status)call errquit('movecs: failed to alloc', l_mo)
       call ga_get(g_vecs,1,nbf,1,nbf,dbl_mb(k_mo),nbf)
-      call aoccsd(basis,ncor,nocc,nvir,ndel,nbf,maxit,convi,iprt,
+      call aoccsd(basis,ncor,nocc_correl,nvir_correl,ndel,nbf,nmo2,
+     &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),dbl_mb(k_aint),
      &            blen,g_objv,g_int1t)
       status = ma_pop_stack(l_mo)

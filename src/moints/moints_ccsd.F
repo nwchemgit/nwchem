@@ -374,21 +374,21 @@ c
 
 
       subroutine moints_Ktrf34z( g_exch, g_int1t, otrp, ostart, olo,
-     $                           ohi, vlo, vhi, nbf, c, tmp )
+     $                           ohi, alo, ahi, nbf, c, tmp )
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
       integer g_exch, g_int1t
       logical otrp
-      integer nbf, ostart, olo, ohi, vlo, vhi
+      integer nbf, ostart, olo, ohi, alo, ahi
       double precision c(nbf,nbf)
       double precision tmp(nbf,nbf)
 
-      integer nvir, clo, chi, rlo, rhi, my_id
+      integer nact, clo, chi, rlo, rhi, my_id
       integer ofroz, a1, a2, aa1, aa2, aa, ab, ba, aoff, k_local, ld
 
       ofroz = ostart - 1
-      nvir = vhi - vlo + 1
+      nact = ahi - alo + 1
       my_id = ga_nodeid()
       call ga_distribution(g_exch, my_id, rlo, rhi, clo, chi )
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
@@ -398,12 +398,12 @@ c
           aa2 = a2 - ofroz
           aa = (aa1*(aa1-1))/2 + aa2 - aoff
 crk note aoff may not yet work for core for ab and ba
-          ab = (a1-1)*(ohi-olo+1) + a2 - aoff
-          ba = (a2-1)*(ohi-olo+1) + a1 - aoff
+          ab = (aa1-1)*(ohi-olo+1) + aa2
+          ba = (aa2-1)*(ohi-olo+1) + aa1
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
-            call moints_Ktrf34az(g_int1t,otrp,nbf,c,dbl_mb(k_local),tmp,
-     &                          ab,ba)
+            call moints_Ktrf34az(g_int1t,nbf,nact,ostart,c,
+     &                           dbl_mb(k_local),tmp,ab,ba)
             call ga_release(g_exch,rlo,rhi,aa,aa)
           endif
         enddo
@@ -420,35 +420,28 @@ c
 c Note: May require transpose the half-transformed matrix
 c       to conform to convention for storage
 c
-      subroutine moints_Ktrf34az(g_int1t,otrp,nbf,c,x,tmp,ab,ba)
+      subroutine moints_Ktrf34az(g_int1t,nbf,nact,ostart,c,x,tmp,ab,ba)
       implicit none
       integer g_int1t
       integer a,b,ab,ba
-      logical otrp
-      integer nbf
+      integer nbf,nact,ostart
       double precision c(nbf,nbf)
       double precision x(nbf,nbf)
       double precision tmp(nbf,nbf)
-      character*1 ttt
-      
-      ttt = 'n'
-      if (otrp) ttt = 't'
-      call dgemm('t',ttt,nbf,nbf,nbf,1.d0,c,nbf,x,nbf,
-     $           0.d0,tmp,nbf)
 c
 c     pause here to push out one ao index integrals to global array
 c
       call dgemm('t','n',nbf,nbf,nbf,1.d0,c,nbf,x,nbf,
      $           0.d0,tmp,nbf)
       do a=1,nbf
-         call ga_put(g_int1t,(ba-1)*nbf+1,(ba-1)*nbf+nbf,a,a,tmp(1,a),
-     &               nbf)
+        call ga_put(g_int1t,(ba-1)*nact+1,(ba-1)*nact+nact,a,a,
+     &              tmp(ostart,a),nact)
       enddo
       call dgemm('t','t',nbf,nbf,nbf,1.d0,c,nbf,x,nbf,
      $           0.d0,tmp,nbf)
       do a=1,nbf
-         call ga_put(g_int1t,(ab-1)*nbf+1,(ab-1)*nbf+nbf,a,a,tmp(1,a),
-     &               nbf)
+        call ga_put(g_int1t,(ab-1)*nact+1,(ab-1)*nact+nact,a,a,
+     &              tmp(ostart,a),nact)
       enddo
 c
       call dgemm('n','n',nbf,nbf,nbf,1.d0,tmp,nbf,c,nbf,

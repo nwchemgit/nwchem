@@ -9,10 +9,10 @@ c
       itsk=0
       do ish=1,nsh
        if (.not. bas_cn2bfr(basis,ish,ibflo,ibfhi))
-     &      call errquit('mo_ints: bas_cn2bfr',ish)
+     &      call errquit('mktask: bas_cn2bfr',ish)
        do jsh=1,ish
         if (.not. bas_cn2bfr(basis,jsh,jbflo,jbfhi))
-     &       call errquit('mo_ints: bas_cn2bfr',jsh)
+     &       call errquit('mktask: bas_cn2bfr',jsh)
         itsk=itsk+1
         tklst(itsk,1)=(ibfhi-ibflo+1)*(jbfhi-jbflo+1)
         tklst(itsk,2)=(ish-1)*nsh+jsh

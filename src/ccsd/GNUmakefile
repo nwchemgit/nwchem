@@ -6,6 +6,7 @@
 		ccsd_fsig1.o \
 		ccsd_fsig1ao.o \
 		ccsd_fsig2.o \
+		ccsd_get_param.o \
 		ccsd_intmeda.o \
 		ccsd_intmedb.o \
 		ccsd_iterdrv.o \

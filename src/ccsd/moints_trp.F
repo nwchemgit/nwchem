@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_trp.F,v 1.2 1995-05-18 07:46:58 mg650 Exp $
+c  $Id: moints_trp.F,v 1.3 1995-07-27 17:39:01 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -26,7 +26,7 @@ c
      $                            mo2_lo, mo2_hi,
      $                            g_coul, ocoul,
      $                            g_exch, oexch,
-     $                            blen, cmo, nocc, nvir)
+     $                            blen, cmo, ncor, ndel, nocc, nvir)
        implicit none
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -47,7 +47,7 @@ capr       integer g_movecs                       ! MO coefficients
        integer g_exch                         ! Exchange operator
        logical ocoul,oexch                    ! Type selection
        integer blen                           ! Blocking length
-       integer nocc, nvir
+       integer ncor, ndel, nocc, nvir
        double precision cmo(*)
 c
 c Local variables
@@ -239,16 +239,16 @@ c
      $                                  jbflo, jbfhi, scale,
      $                                  dbl_mb(k_ssni),dbl_mb(k_hlp2),
      $                                  dbl_mb(k_hlp), dbl_mb(k_hlp),
-     $                                  cmo, g_exch, nocc)
+     $                                  cmo, g_exch, ncor, nocc)
                    t3kidx = t3kidx + tcgtime() - tz
                endif
                if (ocoul) then
                  tz = tcgtime()
-                 call mo_trp_trf2J( nbf, occ_start, mo1_lo, mo1_hi,
+                 call mo_trp_trf2J( nbf, occ_start, mo2_lo, mo2_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
      $                              dbl_mb(k_ssni), dbl_mb(k_hlp),
      $                              dbl_mb(k_ssbb), cmo,
-     $                              g_coul, nocc)
+     $                              g_coul, ncor, nocc)
                  t2jidx = t2jidx + tcgtime() - tz
                endif
                next = nxtval(num_nodes)
@@ -297,7 +297,7 @@ c
          tz = tcgtime()
            call mo_trp_Ktrf4( g_exch, occ_start, mo1_lo, mo1_hi,
      $                           mo2_lo, mo2_hi, nbf, cmo,
-     $                           dbl_mb(k_hlp), nocc)
+     $                           dbl_mb(k_hlp), ncor, nocc)
            t4kidx = t4kidx + tcgtime() - tz
        endif
 c
@@ -307,7 +307,7 @@ c
          tz = tcgtime()
          call mo_trp_Jtrf34( g_coul, occ_start, mo1_lo, mo1_hi,
      $                       mo2_lo, mo2_hi, nbf, cmo,
-     $                       dbl_mb(k_hlp), nocc, nvir)
+     $                       dbl_mb(k_hlp), ncor, nocc, nvir)
 c$$$         call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
 c$$$     $                            nmo2, g_coul)
          t34jidx = tcgtime() - tz
@@ -360,13 +360,12 @@ c
        mi_ntasksK = 1.d0
        mi_mintaskK = 0.d0
 #endif
-
        return
        end
        subroutine mo_trp_trf23K( nbf, ostart, olo, ohi, nvir,
      $                              vlo, vhi, ilo, ihi, jlo, jhi,
      $                              scale, ssni, ssv, h1, h2, c,
-     $                              g_exch, nocc )
+     $                              g_exch, ncor, nocc )
        implicit none
        integer nbf, ostart, ohi, olo, nvir, vlo, vhi
        integer ilo, ihi, jlo, jhi
@@ -375,14 +374,14 @@ c
        double precision ssv(nvir,jlo:jhi,ilo:ihi)
        double precision h1(nvir,ilo:ihi), h2(nvir,jlo:jhi)
        double precision c(nbf,nbf)
-       integer g_exch,nocc
+       integer g_exch,ncor,nocc
 
 c
        integer aoff,nni,nnij,nnj,ab,ivlo,ivhi,jvlo,jvhi,ofroz
        integer ssij
        integer aa,bb,a,b,i,j,v
        double precision cc
-c     
+c
        ofroz = ostart - 1
        ssij = (ihi - ilo + 1)*(jhi - jlo + 1)
        nni = (ihi - ilo + 1)*nvir
@@ -442,12 +441,12 @@ c
        return
        end
       subroutine mo_trp_Ktrf4( g_exch, ostart, olo, ohi,
-     $                           vlo, vhi, nbf, c, tmp ,nocc)
+     $                           vlo, vhi, nbf, c, tmp ,ncor, nocc)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
       integer g_exch
-      integer nbf, ostart, olo, ohi, vlo, vhi,nocc
+      integer nbf, ostart, olo, ohi, vlo, vhi,ncor,nocc
       double precision c(nbf,nbf)
       double precision tmp(nbf,nbf)
 
@@ -479,17 +478,18 @@ capr          aa = (aa1*(aa1-1))/2 + aa2 - aoff
       end
       subroutine mo_trp_trf2J( nbf, ostart, olo, ohi, ilo, ihi,
      $                         jlo, jhi, ssni, h1, h2, c, g_coul,
-     &                         nocc )
+     &                         ncor, nocc )
       implicit none
       integer nbf, ostart, olo, ohi, ilo, ihi, jlo, jhi
       double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
       double precision h1(nbf,ilo:ihi)
       double precision h2(jlo:jhi,ilo:ihi)
       double precision c(nbf,nbf)
-      integer g_coul,nocc
+      integer g_coul,ncor,nocc
 c
-      integer nni, ijlo, ijhi, ilen, jlen, ijlen
-      integer ab, aa, bb, a, b, i, aoff, ofroz
+      integer nni, ijlo, ijhi, ilen, jlen, ijlen,lenij
+      integer ab, aa, bb, a, b, i, j, aoff, ofroz, jtop
+c
 c
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
@@ -522,12 +522,44 @@ capr          ab = (aa*(aa-1))/2 + bb - aoff
           enddo
           call ga_acc(g_coul,ijlo,ijhi,ab,ab,h1,nni,1.d0)
 #else
-          do i=ilo,ihi
-            ijlo = (i-1)*nbf + jlo
-            ijhi = (i-1)*nbf + jhi
-            if (jhi.eq.ihi) ijhi = (i-1)*nbf + i
-            call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(jlo,i),1,1.d0)
-          enddo
+CRK       do i=ilo,ihi
+CRK         ijlo = i*(i-1)/2 + jlo
+CRK         ijhi = i*(i-1)/2 + jhi
+CRK         if (jhi.eq.ihi) ijhi = i*(i-1)/2 + i
+CRK         lenij=ijhi-ijlo+1
+CRK         write(6,*)'ijlo,ijhi',ijlo,ijhi
+CRK         write(6,*)'ab,h2(jlo,i)',ab,jlo,i,(h2(jlo+j,i),j=0,lenij-1)
+CRK         call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(jlo,i),1,1.d0)
+CRK       enddo
+          if(jlo.le.ilo)then
+            do i=ilo,ihi
+            do j=jlo,min(i,jhi)
+              ijlo = i*(i-1)/2 + j
+              ijhi = i*(i-1)/2 + j
+              lenij=ijhi-ijlo+1
+              call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(j,i),1,1.d0)
+            enddo
+            enddo
+          else
+            do j=jlo,jhi
+            do i=ilo,min(j,ihi)
+              ijlo = j*(j-1)/2 + i
+              ijhi = j*(j-1)/2 + i
+              lenij=ijhi-ijlo+1
+              call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(j,i),1,1.d0)
+            enddo
+            enddo
+          endif
+
+CRK2      do i=ilo,ihi
+CRK2      do j=jlo,min(i,jhi)
+CRK2        ijlo = (i-1)*nbf + jlo
+CRK2        ijhi = (i-1)*nbf + jhi
+CRK2        if (jhi.eq.ihi) ijhi = (i-1)*nbf + i
+CRK2        write(6,*)'ab,h2(j,i)',ab,j,i,h2(j,i)
+CRK2        call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(j,i),1,1.d0)
+CRK2      enddo
+CRK2      enddo
 #endif
 #endif
         enddo
@@ -535,12 +567,12 @@ capr          ab = (aa*(aa-1))/2 + bb - aoff
       return
       end
       subroutine mo_trp_Jtrf34( g_coul, ostart, olo, ohi, vlo, vhi,
-     $                          nbf, c, tmp, nocc, nvir)
+     $                          nbf, c, tmp, ncor, nocc, nvir)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
       integer g_coul
-      integer ostart, olo, ohi, vlo, vhi, nbf, nocc, nvir
+      integer ostart, olo, ohi, vlo, vhi, nbf, ncor, nocc, nvir
       double precision c(nbf,nbf)
       double precision tmp(nbf,nbf)
 
@@ -560,33 +592,42 @@ capr          aa = (aa1*(aa1-1))/2 + aa2 - aoff
           aa = (a1-olo)*nocc+a2-ostart+1
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_coul,rlo,rhi,aa,aa,k_local,ld)
+CRK         do aa1=0,nbf*(nbf+1)/2-1
+CRK            write(6,*)'read x',aa,dbl_mb(k_local+aa1)
+CRK         enddo
             call mo_trp_Jtrf34a( nbf, c, dbl_mb(k_local), tmp, 
-     &                           nocc,nvir)
+     &                           ncor,nocc,nvir)
+CRK         do aa1=0,nvir*nvir-1
+CRK            write(6,*)'x',dbl_mb(k_local+aa1)
+CRK         enddo
             call ga_release(g_coul,rlo,rhi,aa,aa)
           endif
         enddo
       enddo
       return
       end
-      subroutine mo_trp_Jtrf34a( nbf, c, x, tmp, nocc, nvir)
+      subroutine mo_trp_Jtrf34a( nbf, c, x, tmp, ncor, nocc, nvir)
       implicit none
-      integer nbf,nocc,nvir
+      integer nbf,ncor,nocc,nvir
       double precision c(nbf,nbf)
-      double precision x(nbf,nbf)
+      double precision x(nbf*nbf)
       double precision tmp(nbf,nbf)
 
-      integer i, j
+      integer i, j, icnt
 
+      icnt=0
       do i=1,nbf
         do j=1,i
-          tmp(j,i) = x(j,i)
-          tmp(i,j) = x(j,i)
+          icnt=icnt+1
+          tmp(j,i) = x(icnt)
+          tmp(i,j) = x(icnt)
+CRK       write(6,*)'tmp',tmp(i,j)
         enddo
       enddo
 
-      call dgemm('t','n',nvir,nbf,nbf,1.d0,c(1,nocc+1),nbf,tmp,nbf,
+      call dgemm('t','n',nvir,nbf,nbf,1.d0,c(1,ncor+nocc+1),nbf,tmp,nbf,
      $           0.d0,x,nvir)
-      call dgemm('n','n',nvir,nvir,nbf,1.d0,x,nvir,c(1,nocc+1),nbf,
+      call dgemm('n','n',nvir,nvir,nbf,1.d0,x,nvir,c(1,ncor+nocc+1),nbf,
      $           0.d0,tmp,nvir)
 
       call dcopy(nvir*nvir,tmp,1,x,1)
