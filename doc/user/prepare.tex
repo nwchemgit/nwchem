@@ -1,0 +1,394 @@
+\label{sec:prepare}
+\def\bmu{\mbox{\boldmath $\mu$}}
+\def\bE{\mbox{\bf E}}
+\def\br{\mbox{\bf r}}
+\def\tT{\tilde{T}}
+\def\t{\tilde{1}}
+\def\ip{i\prime}
+\def\jp{j\prime}
+\def\ipp{i\prime\prime}
+\def\jpp{j\prime\prime}
+\def\etal{{\sl et al.}}
+\def\nwchem{{\bf NWChem}}
+\def\nwargos{{\bf nwargos}}
+\def\nwtop{{\bf nwtop}}
+\def\nwrst{{\bf nwrst}}
+\def\nwsgm{{\bf nwsgm}}
+\def\esp{{\bf esp}}
+\def\md{{\bf md}}
+\def\prepare{{\bf prepare}}
+\def\argos{{\bf ARGOS}}
+\def\amber{{\bf AMBER}}
+\def\charmm{{\bf CHARMM}}
+
+The \prepare\ module is used to set up the necessary files for a molecular
+dynamics simulation with \nwchem. User supplied coordinates can be used to
+generate topology and restart files. The topology file contains all static
+information about a molecular system, such as lists of atoms, bonded
+interactions and force field parameters. The restart file contains all
+dynamic information about a molecular system, such as coordinates, velocities
+and properties.
+
+Without any input, the prepare module checks the existence of a topology
+and restart file for the molecular systems. If these files exist, the module
+returns to the main task level without action. The module will generate these 
+files when they do not exist. Without any input to the module, the generated 
+system will be for a non-solvated isolated solute system.
+
+To update existing files, including solvation, the module requires input
+directives read from an input deck,
+
+\begin{verbatim}
+prepare
+ ...
+end
+\end{verbatim}
+
+The prepare module performs three sub-tasks:
+\begin{itemize}
+\item[{\bf *}]
+{\bf sequence generation}\\
+This sub-task analyzes the supplied coordinates from a PDB-formatted file
+or from the input geometry, and generates a sequence file, containing the
+description of the system in terms of basic building blocks found as
+fragment or segment files in the database directories for the force field 
+used. If these files do not exist, they are generated based on the supplied
+coordinates. This process constists of generating a fragment file with the
+list of atoms with their force field dependent atom types, partial atomic
+charges calculated from a Hartree Fock calculation for the fragment, followed
+by a restrained electrostatic potential fit, and a connectivity list. From
+the information on this fragment file the lists of all bonded interactions
+are generated, and the complete lists are written to a segment file.
+\item[{\bf *}]
+{\bf topology generation}\\
+Based on the generated or user-supplied sequence file and the force field
+specific segment database files, this sub-task compiles the lists of atoms,
+bonded interactions, excluded pairs, and substitutes the force field
+parameters. Special commands may be given to specify interaction parameters
+that will be changing in a free energy evaluation.
+\item[{\bf *}]
+{\bf restart generation}\\
+Using the user supplied coordinates and the topology file for the chemical
+system, this sub-task generates a restart file for the system with coordinates,
+velocities and other dynamic information. This step may include solvation
+of the chemical system and specifying periodic boundary conditions.
+\end{itemize}
+
+Files involved in the preparation phase exist in the following hierarchy:
+\begin{itemize}
+\item[{\bf *}]
+{\bf standards}\\
+The standard database files contain the original force field information.
+These files are to reside in a directory that is specified in the file 
+\$HOME/.nwchemrc. There will be such a directory for each supported force 
+field. These directories contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par).
+\item[{\bf *}]
+{\bf extensions}\\
+These database files contain generally accepted extensions to the original
+force field and are to reside in a separate directory that is specified in 
+the file \$HOME/.nwchemrc. There will be such a directory for each supported 
+force field. These directories contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par).
+\item[{\bf *}]
+{\bf user preferences}\\
+These database files contain user preferred extensions to the original
+force field and are to reside in a separate directory that is specified in 
+the file \$HOME/.nwchemrc. Separate directories of this type  should be 
+defined for each supported force field. 
+These directories may contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par).
+\item[{\bf *}]
+{\bf temporary files}\\
+Temporary database files contain user preferred extensions to the original
+force field and are to reside in a separate directory that is specified in 
+the file \$HOME/.nwchemrc. There  be such a directory for each supported 
+force field. These directories may contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par). If not specified, temporary
+files will be taken from the current directory.
+\end{itemize}
+
+Data is taken from the database files searched in the above order. If data
+is specified more than once, the last found values are used. For example,
+if some standard segment is redefined in a temporary file, the latter one
+will be used. This allows the user to redefine standards or extensions 
+without having to modify those database files, which may reside in a
+generally available, non-modifyable directory.
+
+\section{Selecting database directories}
+
+The file \$HOME/.nwchemrc may contain the following entries that determine
+which files are used by the prepare module.
+
+\begin{verbatim}
+ffield <string ffname>
+\end{verbatim}
+
+This entry specifies the default force field. Database files supplied with
+\nwchem\ currently support values for \verb+ffname+ of {\bf amber}, referring 
+to AMBER95, and {\bf charmm}, referring to the academic CHARMM22 force field.
+
+\begin{verbatim}
+<string ffname>_(s || x || u || t) <string ffdir>
+\end{verbatim}
+
+Entries of this type specify the directory \verb+ffdir+ in which force field 
+database files can be found. 
+The prepare module will only use files in directories
+specified here. One exception is that files in the current work directory
+will be used if no directory with temporary files is specified.
+
+\begin{verbatim}
+<string solvnam> <string solvfil>
+\end{verbatim}
+
+This entry may be used to identify a pure solvent restart file \verb+solvfil+
+by a name \verb+solvnam+
+
+An example file \$HOME/.nwchemrc is:
+
+\begin{verbatim}
+ffield amber
+amber_s /msrc/proj/nwchem/share/amber/amber_s/
+amber_x /msrc/proj/nwchem/share/amber/amber_x/
+amber_u /usr/people/d3j191/data/amber/amber_u/
+spce /msrc/proj/nwchem/share/solvents/spce.rst
+charmm_s /msrc/proj/nwchem/share/charmm/charmm_s/
+charmm_x /msrc/proj/nwchem/share/charmm/charmm_x/
+\end{verbatim}
+
+\section{Updating existing files}
+
+\begin{verbatim}
+new_top [ new_seq ]
+\end{verbatim}
+
+Keyword \verb+new_top+ is used to force the generation of a new topology 
+file. An existing topology file for the system in the current directory
+will be overwritten. If keyword \verb+new_seq+ is also specified, an
+existing sequence file will also be overwritten with a newly generated
+file.
+
+\begin{verbatim}
+new_rst
+\end{verbatim}
+
+Keyword \verb+restart+ will cause an existing restart file to be
+overwritten with a new file.
+
+\section{Specifying the force field}
+
+\begin{verbatim}
+amber
+\end{verbatim}
+
+The prepare module generates force field specific fragment, segment and 
+topology files. The force field may be explicitly specified in the prepare 
+input block by specifying its name.
+Currently \amber\ and \charmm\ are the supported force fields.
+A default force field may be specified in the file \$HOME/.nwchemrc. 
+
+\section{Specifying database directories}
+
+\begin{verbatim}
+standard <string dir_s>
+extensions <string dir_x>
+user <string dir_u>
+temporary <string dir_t>
+\end{verbatim}
+
+The user can explicitly specify the directories where force field
+specific databases can be found. These include force field standards,
+extensions, user preferences and temporary database files.\\
+Defaults for the directories where database files reside may be specified 
+in the file \$HOME/.nwchemrc for each of the supported force fields. 
+Fragment, segment and sequence files generated by the \prepare\ module are 
+written in the temporary directory. When not specified, the current 
+directory will be used. 
+Topology and restart files are always created in the current directory.
+
+\section{System specification}
+
+\begin{verbatim}
+system <string sys_calc>
+\end{verbatim}
+
+The system name can be explicitly specified for the \prepare\ module.
+If not specified, the system name will be taken from a specification
+in a previous \md\ input block, or derived from the run time database
+name.
+
+\begin{verbatim}
+source ( pdb | rtdb )
+\end{verbatim}
+
+The source of the coordinates can be explicitly specified to be from
+a PDB formatted file \verb+calc+.pdb, or from a geometry object in the run
+time database. If not specified, a pdb file will be used when it exists
+in the current directory or the rtdb geometry otherwise.
+
+\section{Partial charges}
+
+\begin{verbatim}
+maxscf <integer maxscf default 20>
+\end{verbatim}
+
+Variable maxscf specifies the maximum number of atoms in a segment for
+which partial atomic charges will be determined from an SCF calculation
+followed by RESP charge fitting. For larger segments a crude partial
+charge guestimation will be done.
+
+\begin{verbatim}
+qscale <real qscale default 1.2>
+\end{verbatim}
+
+Variable qscale specifies the factor with which SCF/RESP determined
+charges will be multiplied.
+
+\section{Modifying a topology file}
+
+The directives in this section control the modification of a
+topology file. These directives are executed in the order in which 
+they appear in the \prepare\ input deck.
+
+\begin{verbatim}
+modify atom <string atomname> [set <integer mset>] type <string atomtyp>
+modify atom <string atomname> [set <integer mset>] charge <real atomcharge>
+modify atom <string atomname> [set <integer mset>] polar <real atompolar>
+modify atom <string atomname> [set <integer mset>] dummy
+modify atom <string atomname> [set <integer mset>] self
+modify atom <string atomname> [set <integer mset>] quantum
+\end{verbatim}
+
+These \verb+modify+ commands change the atom type, partial atomic charge,
+atomic polarizability, specify a dummy, self-interaction and quantum atom,
+respectively. If \verb+mset+ is specified, the modification will only
+apply to the specified set, which has to be 1, 2 or 3. If not specified,
+the modification will be applied to all three sets. The \verb+atomnam+
+should be specified as \verb+<integer isgm>:<string name>+, where
+\verb+isgm+ is the segment number, and \verb+name+ is the atom name. A
+leading blank in an atom name should be substituted with an underscore.
+The modify commands may be combined. For example, the following directive
+changes for the specified atom the charge and atom type in set 2 and 
+specifies the atom to be a dummy in set 3.
+
+\begin{verbatim}
+modify atom 12:_C1 set 2 charge 0.12 type CA set 3 dummy
+\end{verbatim}
+
+Wiht the following directives modifications can be made for entire
+segments.
+
+\begin{verbatim}
+modify segment <integer isgm> [set <integer mset>] dummy
+modify segment <integer isgm> [set <integer mset>] self
+modify segment <integer isgm> [set <integer mset>] quantum
+\end{verbatim}
+
+\section{Generating a restart file}
+
+The directives in this section control the manipulation of restart
+files. These directives are executed in the order in which they
+appear in the \prepare\ input deck.
+
+\begin{verbatim}
+solvent name <string*3 slvnam default ``HOH''> \\
+        model <string slvmdl default ``spce''>
+\end{verbatim}
+
+The solvent keyword can be used to specify the three letter solvent name 
+as expected on the PDB formatted file, and the name of the solvent model
+for which solvent coordinates will be used.
+
+
+\begin{verbatim}
+solvate ( [ cube <real edge> ] |  \\
+          [ box <real xedge> [ <real xedge> [ <real xedge> ]]] | \\
+          [ sphere <real radius> ] )
+\end{verbatim}
+
+Solvation can be specified to be in a cubic box with specified edge,
+rectangular box with specified edges, or in a sphere with specified
+radius. Solvation in a cube or rectangular box will automatically also
+set periodic boundary conditions. Solvation in a sphere will only allow
+simulations without periodic boundary conditions. The size of the cubic
+and rectangular boxes will be expanded by a length specified by the
+expand variable. If no shape is specified, solvation will be done for
+a cubic box with an edge that leaves 1.0 nm between any solute atom and
+the wall after the solute has been centered. An explicit \verb+write+
+is not needed to write the restart file. The \verb+solvate+ will
+write out a file \verb+sys_calc+.rst.
+
+\begin{verbatim}
+touch <real touch default 0.23>
+\end{verbatim}
+
+The variable \verb+touch+ specifies the minimum distance between a solvent 
+and solute atom for which a solvent molecule will be accepted for solvation.
+
+\begin{verbatim}
+expand <real xpndw default 0.1>
+\end{verbatim}
+
+The variable \verb+xpndw+ specifies the size in nm with which the simulation
+volume will be increased after solvation.
+
+\begin{verbatim}
+read (rst | pdb) <string filename>
+write (rst | [solute] pdb) <string filename>
+\end{verbatim}
+
+These directives read and write the file \verb+filename+ in the specified
+format. The \verb+solute+ option instructs to write out solute coordinates
+only.
+
+\begin{verbatim}
+center
+\end{verbatim}
+
+This directive centers the solute center of geometry at the origin.
+
+\begin{verbatim}
+orient
+\end{verbatim}
+
+This directive orients the solute principal axes.
+
+\begin{verbatim}
+periodic
+\end{verbatim}
+
+This directive enables periodic boundary conditions.
+
+\begin{verbatim}
+vacuo
+\end{verbatim}
+
+This directive disables periodic boundary conditions.
+
+\begin{verbatim}
+grid <integer mgrid default 24> <real rgrid default 0.2>
+\end{verbatim}
+
+This directive specifies the grid size of trial counter-ion positions and 
+minimum distance between an atom in the system and a counter-ion. 
+
+\begin{verbatim}
+noe <integer isgm1> <string atom1> <integer isgm2> <string atom3> \\
+  <real dist1> <real dist2> <real forc1> <real forc2> <real forc3>
+\end{verbatim}
+
+This directive specifies a distance restraint.
+
+
+
+
+
+
+
+
+
