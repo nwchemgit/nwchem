@@ -42,11 +42,13 @@ Additional major additions to the capabilities include:
     previously calculated hessian - see VIB description.
   o Input files to standard graphics packages such as RasMol or XMol can 
     be generated to animate vibrational modes - see VIB description.
+  o Several new DFT functionals have been added:
+    o Exchange-Correlation PBE0, HCTH402 and Becke1997GGA-1 functionals
 
 Again, for each of these capabilities, the user is referred to the User Manual 
 for more information. 
 
-Bugs in version 3.3.1 that have been fixed in version 4.0:
+A major bug in version 3.3.1 that has been fixed in version 4.0:
 
   o A bug was found in the distribution of multidimensional Global Array's. 
     This bug created uneven distributions of array elements (i.e. some nodes 
@@ -145,9 +147,55 @@ Hessian and Frequencies:
 
   o New VIB input group to allow for hessian reuse.
 
+Prepare:
+
+  o PREPARE module can not be used on WIN32 platforms because of problems with
+    the Global Array tools.
+  o Change in parameter file format. Do not use new files with previous 
+    versions of NWChem.
+  o Z-matrix rules to assign coordinates of missing atoms.
+  o Charge separation data from parameter files.
+  o Improved performance for large systems.
+  o Optional hydrogen build.
+  o User defined default HIS protonation state defined in .nwchemrc.
+  o Enhanced options for solute alignment, centering, translation, repeat,
+    solvent removal, pmf definitions.
+  o Automatic counter ion positioning.
+  o Option to read old format restart files.
+  o Option to write xyz and pov formats.
+
 MD: 
 
+  o Redesigned MD module.
+  o Load balancing takes the cost of I/O into account.
+  o New, single trajectory format.
+  o Potential of mean force calculations.
+  o Improved communication by data packing.
+  o Calculation history on restart file.
+  o Single point energy calculation prints out solute non-bonded energies, 
+    analytic and numerical forces.
+  o Positional atom constraints.
+  o Profiling information.
+  o Anisotropic pressure scaling implemented.
+  o Browne-Clark leap frog integration implemented (guided MD).
+  o Option to center in selected dimension only.
+  o Option to exclude pressure scaling in z-dimension.
+  o On-the-fly analysis removed.
+  o BUG FIX: Modified sub-box redistribution to prevent 'lbbl increase' errors.
   o BUG FIX: The .nwchemrc file now allows for extraneous white spaces.
+  o KNOWN BUG: Free energy calculations can not be performed with 
+    polarizable force fields.
+
+Analysis:
+
+  o Essential dynamics analysis.
+  o Structural analysis: internal degrees of freedom, RMS deviations, atom 
+    and charge distributions, atomic distances.
+  o Protein structural analysis: Ramachandran and back-bone hydrogen bonds.
+  o Electrostatic potential trajectory generation, including periodic 
+    boundary conditions.
+  o Output trajectories in pov format with rendering and color options.
+  o Option to read old format trajectory files.
 
 Integral changes: 
 
@@ -187,7 +235,7 @@ The current tested platforms and O/S versions are:
     and PSSP 3.1
   o IBM RS6000 workstation, AIX 4.1 and 4.3 
   o Cray T3E, 2.0.4.61 UNICOSMK 
-  o SGI R8000/10000 IRIX 6.5 
+  o SGI R8000/10000/12000 IRIX 6.5 
   o SUN workstations Solaris 5.6 
   o Compaq DEC alpha workstion (600 MHz EV6), Tru64 V4.0 and V5.0,
     DEC C V5.8-009, Digital Fortran V5.2 
