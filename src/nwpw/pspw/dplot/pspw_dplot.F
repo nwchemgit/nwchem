@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.12 2003-10-24 18:56:59 marat Exp $
+* $Id: pspw_dplot.F,v 1.13 2003-11-06 17:01:28 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -404,7 +404,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 #include "rtdb.fh"
 
 *     **** local variables ****
-      logical value
+      logical value,grid3d
       integer taskid
       integer MASTER
       parameter (MASTER=0)
@@ -429,6 +429,10 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       external lattice_omega
 
       
+      grid3d = .false.
+      if (rtdb_get(rtdb,'pspw_dplot:3d_grid:nx',mt_int,1,i))
+     >  grid3d = .true.
+
       call Parallel_taskid(taskid)
       n2ft3d = 2*nfft3d
       value = MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
@@ -444,6 +448,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       call D3dB_nz(1,nz)
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
+
 
 
 *     ********************************************
@@ -635,8 +640,13 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
           cube_comment = 'SCF Molecular Orbitals'
         end if
 
-        call dplot_gcube_write(rtdb,filename,
+        if (grid3d) then
+          call dplot_gcube_write3d(rtdb,filename,
      >                         number,cube_comment,dbl_mb(rho(1)))
+        else
+          call dplot_gcube_write(rtdb,filename,
+     >                         number,cube_comment,dbl_mb(rho(1)))
+        endif
 
       end do
 
@@ -1200,3 +1210,373 @@ c     if (.not. value) call errquit('closing geometry',0)
       if (.not. value) call errquit('psi_translate:pop stack',1,0)
       return
       end
+
+
+
+*
+
+      subroutine dplot_gcube_write3d(rtdb,filename,
+     >                             number,cube_comment,rho)
+      implicit none
+      integer rtdb
+      character*30 filename
+      integer      number
+      character*72 cube_comment
+      real*8 rho(*)
+     
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer unit_id
+      parameter (unit_id = 72)
+
+      integer taskid
+      integer MASTER
+      parameter (MASTER=0)
+
+
+*     **** geometry variables ****
+c     integer geom1
+c     character*16 t
+      integer nion,nion2
+      real*8 q,rxyz(3),p(3)
+      real*8 position_tolerance
+
+*     **** lattice variables ****
+      integer np1,np2,np3
+      real*8 ua(3,3),r0(3)
+
+      integer nx,ny,nz
+      integer nxh,nyh,nzh
+      real*8 sx,sy,sz,xy,xz,yz,scal1
+      real*8 dx,dy,dz,w
+      real*8  sizex(2),sizey(2),sizez(2)
+      real*8 xaxis(3),yaxis(3),zaxis(3),qq(3)
+    
+
+      integer l,orb_flag,i,j,k,ii,jj,kk,indx
+      character*255 full_filename
+      integer nfft3d,tmp1(2),tmp2(2),tmp3(2)
+      integer Gx,Gy,Gz
+
+*     **** external functions ****
+      integer  ion_nion      
+      real*8   lattice_unita,ion_rion,ion_q
+      external ion_nion
+      external lattice_unita,ion_rion,ion_q
+
+      integer  G_indx
+      external G_indx
+
+
+      call parallel_taskid(taskid)
+
+      
+*     **** OPEN cube FILE ****
+      if (taskid.eq.MASTER) then
+         call util_file_name_noprefix(filename,.false.,
+     >                                .false.,
+     >                       full_filename)
+         l = index(full_filename,' ') -1
+         OPEN(unit_id,file=full_filename(1:l),form='formatted')
+         WRITE(unit_id,*) 'molecule'
+         WRITE(unit_id,*)  cube_comment
+      end if
+
+*     **** open geom ****
+      nion = ion_nion()
+c     value = geom_create(geom1,'geometry')
+c     value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
+c     value = value.and.geom_ncent(geom1,nion)
+c     if (.not. value) call errquit('opening geometry',0)
+
+*     **** read the origin ***
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:o',
+     >               mt_dbl,3,r0)) then
+        r0(1) = 0.0
+        r0(2) = 0.0
+        r0(3) = 0.0
+      end if
+
+*     **** read the x-axis,y-axis,z-axis ****
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:x',
+     >               mt_dbl,3,xaxis)) then
+        xaxis(1) = 1.0
+        xaxis(2) = 0.0
+        xaxis(3) = 0.0
+      end if
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:y',
+     >               mt_dbl,3,yaxis)) then
+        yaxis(1) = 0.0
+        yaxis(2) = 1.0
+        yaxis(3) = 0.0
+      end if
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:z',
+     >               mt_dbl,3,zaxis)) then
+        zaxis(1) = 0.0
+        zaxis(2) = 0.0
+        zaxis(3) = 1.0
+      end if
+
+*     ** normalization of x **
+      sx = dsqrt(xaxis(1)**2+xaxis(2)**2+xaxis(3)**2)
+      do i=1,3
+        xaxis(i) = xaxis(i) / sx
+      end do
+
+*     ** orthogonalization of y wrt x **
+      xy = xaxis(1)*yaxis(1)+xaxis(2)*yaxis(2)+xaxis(3)*yaxis(3)
+      do i=1,3
+        yaxis(i) = yaxis(i) - xy*xaxis(i)
+      end do
+
+*     ** normalization of y **
+      sy = dsqrt(yaxis(1)**2+yaxis(2)**2+yaxis(3)**2)
+      do i=1,3
+        yaxis(i) = yaxis(i) / sy
+      end do
+
+*     ** orthogonalization of z wrt x **
+      xz = xaxis(1)*zaxis(1)+xaxis(2)*zaxis(2)+xaxis(3)*zaxis(3)
+      do i=1,3
+        zaxis(i) = zaxis(i) - xz*xaxis(i)
+      end do
+
+*     ** orthogonalization of z wrt y **
+      yz = yaxis(1)*zaxis(1)+yaxis(2)*zaxis(2)+yaxis(3)*zaxis(3)
+      do i=1,3
+        zaxis(i) = zaxis(i) - yz*yaxis(i)
+      end do
+
+*     ** normalization of z **
+      sz = dsqrt(zaxis(1)**2+zaxis(2)**2+zaxis(3)**2)
+      do i=1,3
+        zaxis(i) = zaxis(i) / sz
+      end do
+
+
+
+*     **** read nx,ny,and nz ****
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:nx',
+     >               mt_int,1,nx))
+     >  nx = 32
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:ny',
+     >               mt_int,1,ny))
+     >  ny = 32
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:nz',
+     >               mt_int,1,nz))
+     >  nz = 32
+       nxh = nx/2
+       nyh = ny/2
+       nzh = nz/2
+
+*     **** read sizex,sizey,sizez ****
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:sizex',
+     >               mt_dbl,2,sizex)) then
+        sizex(1) = 0.0
+        sizex(2) = 10.0
+      end if
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:sizey',
+     >               mt_dbl,2,sizey)) then
+        sizey(1) = 0.0
+        sizey(2) = 10.0
+      end if
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:sizez',
+     >               mt_dbl,2,sizez)) then
+        sizez(1) = 0.0
+        sizez(2) = 10.0
+      end if
+
+      if (taskid.eq.MASTER) then
+         write(*,*)
+         write(*,1240) 
+         write(*,1241) r0
+         write(*,1242) xaxis,sizex,nx
+         write(*,1243) yaxis,sizey,ny
+         write(*,1244) zaxis,sizez,nz
+         write(*,*)
+         write(*,*)
+      end if
+ 1240 FORMAT(5x,'    3d-Grid Generation')
+ 1241 FORMAT(5x,'    origin=<',3f8.3,' >')
+ 1242 FORMAT(5x,'    x-axis=<',3f8.3,' >   xmin,xmax=',2F8.3,' nx=',I3)
+ 1243 FORMAT(5x,'    y-axis=<',3f8.3,' >   ymin,ymax=',2F8.3,' ny=',I3)
+ 1244 FORMAT(5x,'    z-axis=<',3f8.3,' >   zmin,zmax=',2F8.3,' nz=',I3)
+
+
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+
+      dx = (sizex(2)-sizex(1))/dble(nx)
+      dy = (sizey(2)-sizey(1))/dble(ny)
+      dz = (sizez(2)-sizez(1))/dble(nz)
+      do i=1,3
+         ua(i,1) = dx*xaxis(i)
+         ua(i,2) = dy*yaxis(i)
+         ua(i,3) = dz*zaxis(i)
+      end do
+
+*     ** shift origin **
+      qq(1) = r0(1) + 0.5d0*(sizex(1)+sizex(2))
+     >       - 0.5d0*(lattice_unita(1,1)
+     >               +lattice_unita(1,2)
+     >               +lattice_unita(1,3))
+      qq(2) = r0(2) + 0.5d0*(sizey(1)+sizey(2))
+     >       - 0.5d0*(lattice_unita(2,1)
+     >               +lattice_unita(2,2)
+     >               +lattice_unita(2,3))
+      qq(3) = r0(3) + 0.5d0*(sizez(1)+sizez(2))
+     >       - 0.5d0*(lattice_unita(3,1)
+     >               +lattice_unita(3,2)
+     >               +lattice_unita(3,3))
+
+      r0(1) = r0(1) + sizex(1)
+      r0(2) = r0(2) + sizey(1)
+      r0(3) = r0(3) + sizez(1)
+
+
+
+
+*     **** get position_tolerance and nion2 = nion+special_positions ****
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:position_tolerance',
+     >               mt_dbl,1,position_tolerance))
+     >      position_tolerance = 0.0d0
+
+      nion2 = nion
+      do i=1,nion
+c        value = geom_cent_get(geom1,i,t,rxyz,q)
+c        if (.not. value) call errquit('reading geometry',0)
+         rxyz(1) = ion_rion(1,i)
+         rxyz(2) = ion_rion(2,i)
+         rxyz(3) = ion_rion(3,i)
+         call special_position_count(position_tolerance,
+     >                                   rxyz,nion2)
+      end do
+
+
+      if (taskid.eq.MASTER) then
+         orb_flag = 1
+         if (number.gt.0) orb_flag = -1
+
+         write(unit_id,'(I5,3F12.6)') orb_flag*nion2,r0
+         write(unit_id,'(I5,3F12.6)') nx,ua(1,1),ua(2,1),ua(3,1)
+         write(unit_id,'(I5,3F12.6)') ny,ua(1,2),ua(2,2),ua(3,2)
+         write(unit_id,'(I5,3F12.6)') nz,ua(1,3),ua(2,3),ua(3,3)
+      end if
+
+
+*     **** write geometry ****
+      do i=1,nion
+c        value = geom_cent_get(geom1,i,t,rxyz,q)
+c        if (.not. value) call errquit('reading geometry',0)
+         rxyz(1) = ion_rion(1,i)
+         rxyz(2) = ion_rion(2,i)
+         rxyz(3) = ion_rion(3,i)
+         q       = ion_q(i)
+         if (taskid.eq.MASTER) then
+           WRITE(unit_id,'(I5,4F12.6)') int(q),q,rxyz
+           call special_position_tolerance(position_tolerance,
+     >                                   unit_id,q,rxyz)
+         end if
+      end do
+
+*     **** write orbital header ****
+      if (number.gt.0) then
+         if (taskid.eq.MASTER) write(unit_id,*) 1,number 
+      end if
+
+*     **** allocate space ****
+      call D3dB_nfft3d(1,nfft3d)
+      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(nx*ny*nz),'tmp3',tmp3(2),tmp3(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+
+*     **** fft density  ****
+      scal1=1.0d0/dble(np1*np2*np3)
+      call D3dB_r_SMul(1,scal1,rho,dcpl_mb(tmp2(1)))
+      call D3dB_r_Zero_Ends(1,dcpl_mb(tmp2(1)))
+      call D3dB_rc_fft3f(1,dcpl_mb(tmp2(1)))
+      call Pack_c_pack(0,dcpl_mb(tmp2(1)))
+
+
+*     **** density at mesh points ****
+      Gx= G_indx(1)
+      Gy= G_indx(2)
+      Gz= G_indx(3)
+      do k=1,nz
+      do j=1,ny
+      do i=1,nx
+        ii = i-1-nxh
+        jj = j-1-nyh
+        kk = k-1-nzh
+        p(1) = ii*ua(1,1) + jj*ua(1,2) + kk*ua(1,3) + qq(1)
+        p(2) = ii*ua(2,1) + jj*ua(2,2) + kk*ua(2,3) + qq(2)
+        p(3) = ii*ua(3,1) + jj*ua(3,2) + kk*ua(3,3) + qq(3)
+        do l=1,nfft3d
+          w = dbl_mb(Gx+l-1)*p(1) 
+     >      + dbl_mb(Gy+l-1)*p(2) 
+     >      + dbl_mb(Gz+l-1)*p(3)
+          dcpl_mb(tmp1(1)+l-1)=dcmplx(dcos(w),-dsin(w))
+        end do
+        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
+        call Pack_cc_dot(0,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)),w)
+        indx = (i-1) + (j-1)*nx + (k-1)*nx*ny
+        dbl_mb(tmp3(1)+indx) = w
+      end do
+      end do
+      end do
+
+*     **** write grid ****
+      do i=1,nx
+      do j=1,ny
+        write(unit_id,'(6e13.5)') 
+     >    (dbl_mb(tmp3(1)+(i-1) 
+     >                   +(j-1)*nx 
+     >                   +(k-1)*nx*ny),k=1,nz)
+      end do
+      end do
+
+*     **** deallocate space ****
+      value = MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('popping stack memory',0, MA_ERR)
+
+   
+
+*     **** close geom ****
+c     value = geom_destroy(geom1)
+c     if (.not. value) call errquit('closing geometry',0)
+
+
+
+*     **** CLOSE cube FILE ****
+      if (taskid.eq.MASTER) then
+         CLOSE(unit_id)     
+      end if
+
+      return
+      end 
+
+
