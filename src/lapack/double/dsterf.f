@@ -1,9 +1,9 @@
       SUBROUTINE DSTERF( N, D, E, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, N
@@ -43,23 +43,25 @@
 *  =====================================================================
 *
 *     .. Parameters ..
-      DOUBLE PRECISION   ZERO, ONE, TWO
-      PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0, TWO = 2.0D0 )
+      DOUBLE PRECISION   ZERO, ONE, TWO, THREE
+      PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0, TWO = 2.0D0,
+     $                   THREE = 3.0D0 )
       INTEGER            MAXIT
       PARAMETER          ( MAXIT = 30 )
 *     ..
 *     .. Local Scalars ..
-      INTEGER            I, II, J, JTOT, K, L, L1, LEND, LENDM1, LENDP1,
-     $                   LM1, M, MM1, NM1, NMAXIT
-      DOUBLE PRECISION   ALPHA, BB, C, EPS, GAMMA, OLDC, OLDGAM, P, R,
-     $                   RT1, RT2, RTE, S, SIGMA, TST
+      INTEGER            I, ISCALE, JTOT, L, L1, LEND, LENDM1, LENDP1,
+     $                   LENDSV, LM1, LSV, M, MM1, NM1, NMAXIT
+      DOUBLE PRECISION   ALPHA, ANORM, BB, C, EPS, EPS2, GAMMA, OLDC,
+     $                   OLDGAM, P, R, RT1, RT2, RTE, S, SAFMAX, SAFMIN,
+     $                   SIGMA, SSFMAX, SSFMIN, TST
 *     ..
 *     .. External Functions ..
-      DOUBLE PRECISION   DLAMCH, DLAPY2
-      EXTERNAL           DLAMCH, DLAPY2
+      DOUBLE PRECISION   DLAMCH, DLANST, DLAPY2
+      EXTERNAL           DLAMCH, DLANST, DLAPY2
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           DLAE2, XERBLA
+      EXTERNAL           DLAE2, DLASCL, DLASRT, XERBLA
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, SIGN, SQRT
@@ -83,12 +85,13 @@
 *     Determine the unit roundoff for this environment.
 *
       EPS = DLAMCH( 'E' )
+      EPS2 = EPS**2
+      SAFMIN = DLAMCH( 'S' )
+      SAFMAX = ONE / SAFMIN
+      SSFMAX = SQRT( SAFMAX ) / THREE
+      SSFMIN = SQRT( SAFMIN ) / EPS2
 *
 *     Compute the eigenvalues of the tridiagonal matrix.
-*
-      DO 10 I = 1, N - 1
-         E( I ) = E( I )**2
-   10 CONTINUE
 *
       NMAXIT = N*MAXIT
       SIGMA = ZERO
@@ -101,28 +104,62 @@
       L1 = 1
       NM1 = N - 1
 *
-   20 CONTINUE
+   10 CONTINUE
       IF( L1.GT.N )
      $   GO TO 170
       IF( L1.GT.1 )
      $   E( L1-1 ) = ZERO
       IF( L1.LE.NM1 ) THEN
-         DO 30 M = L1, NM1
-            TST = SQRT( ABS( E( M ) ) )
-            IF( TST.LE.EPS*( ABS( D( M ) )+ABS( D( M+1 ) ) ) )
-     $         GO TO 40
-   30    CONTINUE
+         DO 20 M = L1, NM1
+            TST = ABS( E( M ) )
+            IF( TST.EQ.ZERO )
+     $         GO TO 30
+            IF( TST.LE.( SQRT( ABS( D( M ) ) )*SQRT( ABS( D( M+
+     $          1 ) ) ) )*EPS ) THEN
+               E( M ) = ZERO
+               GO TO 30
+            END IF
+   20    CONTINUE
       END IF
       M = N
 *
-   40 CONTINUE
+   30 CONTINUE
       L = L1
+      LSV = L
       LEND = M
-      IF( ABS( D( LEND ) ).LT.ABS( D( L ) ) ) THEN
-         L = LEND
-         LEND = L1
-      END IF
+      LENDSV = LEND
       L1 = M + 1
+      IF( LEND.EQ.L )
+     $   GO TO 10
+*
+*     Scale submatrix in rows and columns L to LEND
+*
+      ANORM = DLANST( 'I', LEND-L+1, D( L ), E( L ) )
+      ISCALE = 0
+      IF( ANORM.GT.SSFMAX ) THEN
+         ISCALE = 1
+         CALL DLASCL( 'G', 0, 0, ANORM, SSFMAX, LEND-L+1, 1, D( L ), N,
+     $                INFO )
+         CALL DLASCL( 'G', 0, 0, ANORM, SSFMAX, LEND-L, 1, E( L ), N,
+     $                INFO )
+      ELSE IF( ANORM.LT.SSFMIN ) THEN
+         ISCALE = 2
+         CALL DLASCL( 'G', 0, 0, ANORM, SSFMIN, LEND-L+1, 1, D( L ), N,
+     $                INFO )
+         CALL DLASCL( 'G', 0, 0, ANORM, SSFMIN, LEND-L, 1, E( L ), N,
+     $                INFO )
+      END IF
+*
+      DO 40 I = L, LEND - 1
+         E( I ) = E( I )**2
+   40 CONTINUE
+*
+*     Choose between QL and QR iteration
+*
+      IF( ABS( D( LEND ) ).LT.ABS( D( L ) ) ) THEN
+         LEND = LSV
+         L = LENDSV
+      END IF
 *
       IF( LEND.GE.L ) THEN
 *
@@ -134,8 +171,8 @@
          IF( L.NE.LEND ) THEN
             LENDM1 = LEND - 1
             DO 60 M = L, LENDM1
-               TST = SQRT( ABS( E( M ) ) )
-               IF( TST.LE.EPS*( ABS( D( M ) )+ABS( D( M+1 ) ) ) )
+               TST = ABS( E( M ) )
+               IF( TST.LE.EPS2*ABS( D( M )*D( M+1 ) ) )
      $            GO TO 70
    60       CONTINUE
          END IF
@@ -161,7 +198,7 @@
             L = L + 2
             IF( L.LE.LEND )
      $         GO TO 50
-            GO TO 20
+            GO TO 150
          END IF
 *
          IF( JTOT.EQ.NMAXIT )
@@ -214,7 +251,7 @@
          L = L + 1
          IF( L.LE.LEND )
      $      GO TO 50
-         GO TO 20
+         GO TO 150
 *
       ELSE
 *
@@ -226,8 +263,8 @@
          IF( L.NE.LEND ) THEN
             LENDP1 = LEND + 1
             DO 110 M = L, LENDP1, -1
-               TST = SQRT( ABS( E( M-1 ) ) )
-               IF( TST.LE.EPS*( ABS( D( M ) )+ABS( D( M-1 ) ) ) )
+               TST = ABS( E( M-1 ) )
+               IF( TST.LE.EPS2*ABS( D( M )*D( M-1 ) ) )
      $            GO TO 120
   110       CONTINUE
          END IF
@@ -253,7 +290,7 @@
             L = L - 2
             IF( L.GE.LEND )
      $         GO TO 100
-            GO TO 20
+            GO TO 150
          END IF
 *
          IF( JTOT.EQ.NMAXIT )
@@ -306,38 +343,36 @@
          L = L - 1
          IF( L.GE.LEND )
      $      GO TO 100
-         GO TO 20
+         GO TO 150
 *
       END IF
 *
-*     Set error -- no convergence to an eigenvalue after a total
-*     of N*MAXIT iterations.
+*     Undo scaling if necessary
 *
   150 CONTINUE
-      DO 160 I = 1, N - 1
-         IF( E( I ).NE.ZERO )
-     $      INFO = INFO + 1
-  160 CONTINUE
-      RETURN
+      IF( ISCALE.EQ.1 )
+     $   CALL DLASCL( 'G', 0, 0, SSFMAX, ANORM, LENDSV-LSV+1, 1,
+     $                D( LSV ), N, INFO )
+      IF( ISCALE.EQ.2 )
+     $   CALL DLASCL( 'G', 0, 0, SSFMIN, ANORM, LENDSV-LSV+1, 1,
+     $                D( LSV ), N, INFO )
+*
+*     Check for no convergence to an eigenvalue after a total
+*     of N*MAXIT iterations.
+*
+      IF( JTOT.EQ.NMAXIT ) THEN
+         DO 160 I = 1, N - 1
+            IF( E( I ).NE.ZERO )
+     $         INFO = INFO + 1
+  160    CONTINUE
+         RETURN
+      END IF
+      GO TO 10
 *
 *     Sort eigenvalues in increasing order.
 *
   170 CONTINUE
-      DO 190 II = 2, N
-         I = II - 1
-         K = I
-         P = D( I )
-         DO 180 J = II, N
-            IF( D( J ).LT.P ) THEN
-               K = J
-               P = D( J )
-            END IF
-  180    CONTINUE
-         IF( K.NE.I ) THEN
-            D( K ) = D( I )
-            D( I ) = P
-         END IF
-  190 CONTINUE
+      CALL DLASRT( 'I', N, D, INFO )
 *
       RETURN
 *
