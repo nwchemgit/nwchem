@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.132 2004-10-21 22:41:55 marat Exp $
+C$Id: geom.F,v 1.133 2004-11-29 15:58:50 bylaska Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -430,14 +430,20 @@ C     end
       tmp(k:) = ' ' 
       tmp(k:) = ':efield'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, efield(1,geom))
+
+c     tmp(k:) = ' ' 
+c     tmp(k:) = ':lattice vectors'
+c     s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
+c    $     lattice_vectors(1,geom))
+c     tmp(k:) = ' ' 
+c     tmp(k:) = ':lattice angles'
+c     s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
+c    $     lattice_angles(1,geom))
       tmp(k:) = ' ' 
-      tmp(k:) = ':lattice vectors'
-      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
-     $     lattice_vectors(1,geom))
-      tmp(k:) = ' ' 
-      tmp(k:) = ':lattice angles'
-      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
-     $     lattice_angles(1,geom))
+      tmp(k:) = ':amatrix'
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 9, 
+     $     amatrix(1,1,geom))
+
       tmp(k:) = ' ' 
       tmp(k:) = ':system type'
       s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, isystype(geom))
@@ -683,7 +689,7 @@ c
 c     setup geometry related stuff particular to the dimension of the system
 c     
       if (isystype(geom) .eq. 3) then
-         call geom_3d(geom,scale)
+         call geom_3d_amatrix(geom,scale)
       elseif(isystype(geom).eq.2) then
          call geom_2d(geom,scale)
       elseif(isystype(geom).eq.1) then
@@ -891,13 +897,19 @@ C     end
       tmp(k:) = ' ' 
       tmp(k:) = ':efield'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, efield(1,geom))
+
+c     tmp(k:) = ' ' 
+c     tmp(k:) = ':lattice vectors'
+c     s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, 
+c    $     lattice_vectors(1,geom))
+c     tmp(k:) = ' ' 
+c     tmp(k:) = ':lattice angles'
+c     s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, lattice_angles(1,geom))
       tmp(k:) = ' ' 
-      tmp(k:) = ':lattice vectors'
-      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, 
-     $     lattice_vectors(1,geom))
-      tmp(k:) = ' ' 
-      tmp(k:) = ':lattice angles'
-      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, lattice_angles(1,geom))
+      tmp(k:) = ':amatrix'
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 9, 
+     $     amatrix(1,1,geom))
+
       tmp(k:) = ' ' 
       tmp(k:) = ':system type'
       s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, isystype(geom))
