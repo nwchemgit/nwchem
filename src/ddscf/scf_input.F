@@ -1,5 +1,5 @@
       subroutine scf_input(rtdb)
-C $Id: scf_input.F,v 1.7 1997-02-13 01:14:18 d3g681 Exp $
+C $Id: scf_input.F,v 1.8 1997-02-27 23:48:17 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -10,7 +10,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 35)
+      parameter (num_dirs = 38)
       character*10 dirs(num_dirs)
       character*255 test
       character*5 scftype(1)
@@ -22,6 +22,7 @@ c
      $     'nr', 'profile', 'print', 'noprint', 'tol2e',
      $     'noadapt', 'nopen', 'uhf', 'rohf', 'rhf', 
      $     'singlet', 'doublet', 'triplet', 'quartet', 'quintet',
+     $     'sextet', 'septet', 'octet',
      $     'chunk', 'nosym', 'ri', 'maxsub', 'lagrang', 'taskbf',
      $     'diis', 'diisbas', 'sym', 'adapt', 'lagrangian', 'lock',
      $     'direct', 'semidirect', 'end'/
@@ -40,7 +41,8 @@ c
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
      $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700,
-     $     2800, 2900, 3000, 2500, 3100, 3200, 3300,
+     $     2800, 2900, 3000, 2500, 3100, 3200, 3300, 3400, 3500,
+     $     3600,
      $     9999) ind
       call errquit('scf_input: unimplemented directive', ind)
 c     
@@ -155,7 +157,7 @@ c
      $     call errquit('scf_input: rtdb put of scftype failed',0)
       goto 10
 c
-c     singlet/doublet/triplet/quartet/quintet
+c     singlet/doublet/triplet/quartet/quintet/sextet/septet/octet
 c
  1600 nopen = 0
       goto 2001
@@ -166,6 +168,13 @@ c
  1900 nopen = 3
       goto 2001
  2000 nopen = 4
+      goto 2001
+ 2100 nopen = 5
+      goto 2001
+ 2200 nopen = 6
+      goto 2001
+ 2300 nopen = 7
+      goto 2001
  2001 if (.not. rtdb_put(rtdb,'scf:nopen', MT_INT, 1, nopen))
      $     call errquit('scf_input: rtdb_put of nopen failed',0)
       call inp_lcase(test)
@@ -175,7 +184,7 @@ c
 c
 c     chunk <integer chunksize>
 c
- 2100 if (.not. inp_i(task_chunks)) call errquit
+ 2400 if (.not. inp_i(task_chunks)) call errquit
      $     ('scf_input: chunk <integer chunk_size>', 0)
       if (task_chunks.lt.1 .or. task_chunks.gt.1024) call errquit
      $     ('scf_input: task_chunks has invalid value',task_chunks)
@@ -185,19 +194,19 @@ c
 c
 c     nosym ... OBSOLETE
 c
- 2200 write(6,*) ' NOSYM is superceded by SYM [ON|OFF]'
+ 2500 write(6,*) ' NOSYM is superceded by SYM [ON|OFF]'
       if (.not. rtdb_put(rtdb,'scf:skeleton',MT_LOG, 1, .false.))
      $     call errquit('scf_input: failed to store skeleton',0)
       goto 10
 c
 c     RI-SCF
 c
- 2300 continue
+ 2600 continue
 c     set defaults
       nriscf = 2
       ri_store = 1
       if (inp_n_field().gt.1) then
- 2310   if (inp_a(test)) then
+ 2610   if (inp_a(test)) then
           if (inp_compare(.false., test, 'hessian')) then
             nriscf = 1
           else if (inp_compare(.false., test, 'full')) then
@@ -213,7 +222,7 @@ c     set defaults
           else
             call errquit('scf_input: unknown RI option',0)
           endif
-          goto 2310
+          goto 2610
         endif
       endif
       if (.not. rtdb_put(rtdb,'scf:ri',MT_INT, 1, nriscf))
@@ -225,7 +234,7 @@ c     set defaults
 c
 c     maxsub max_subspace_dimension
 c
- 2400   if (.not. inp_i(maxsub)) call errquit
+ 2700   if (.not. inp_i(maxsub)) call errquit
      $       ('scf_input: maxsub max_subspace_dimension',0)
         if (.not. rtdb_put(rtdb,'scf:maxsub',MT_INT, 1, maxsub))
      $     call errquit('scf_input: failed to store maxsub',0)
@@ -233,13 +242,13 @@ c
 c
 c     lagrang or lagrangian dump lagrangian
 c
- 2500 if (.not. rtdb_put(rtdb,'scf:lagrangian',MT_LOG, 1, .true.))
+ 2800 if (.not. rtdb_put(rtdb,'scf:lagrangian',MT_LOG, 1, .true.))
      $     call errquit('scf_input: failed to store lagrangian',0)
       goto 10
 c
 c     taskbf <integer task_bf>
 c
- 2600 if (.not. inp_i(task_bf)) call errquit
+ 2900 if (.not. inp_i(task_bf)) call errquit
      $     ('scf_input: taskbf <integer taskbf>', 0)
       if (task_bf.lt.1 .or. task_bf.gt.1024) call errquit
      $     ('scf_input: taskbf has invalid value',task_bf)
@@ -249,13 +258,13 @@ c
 c
 c     toggle DIIS convergence
 c
- 2700 if(.not. rtdb_put(rtdb,'scf:diis', MT_LOG, 1, .true.))
+ 3000 if(.not. rtdb_put(rtdb,'scf:diis', MT_LOG, 1, .true.))
      $     call errquit('scf_input: rtdb_put of diis failed',0)
       goto 10
 c
 c     max DIIS basis
 c
- 2800   if (.not. inp_i(maxsub)) call errquit
+ 3100   if (.not. inp_i(maxsub)) call errquit
      $       ('scf_input: diisbas max_diis_basis',0)
         if (.not. rtdb_put(rtdb,'scf:diisbas',MT_INT, 1, maxsub))
      $     call errquit('scf_input: failed to store diisbas',0)
@@ -263,7 +272,7 @@ c
 c
 c     sym [off|on] (defaults to on)
 c
- 2900   if (.not. inp_a(test)) test = 'on'
+ 3200   if (.not. inp_a(test)) test = 'on'
         status = inp_compare(.false.,test,'on')
         if (.not. rtdb_put(rtdb,'scf:skeleton', MT_LOG, 1, status))
      $       call errquit('scf_input: failed to store skeleton',0)
@@ -271,7 +280,7 @@ c
 c
 c     adapt [off|on] (defaults to on)
 c
- 3000   if (.not. inp_a(test)) test = 'on'
+ 3300   if (.not. inp_a(test)) test = 'on'
         status = inp_compare(.false.,test,'on')
         if (.not. rtdb_put(rtdb,'scf:adapt', MT_LOG, 1, status))
      $       call errquit('scf_input: failed to store adapt',0)
@@ -279,7 +288,7 @@ c
 c
 c     lock [off|on] (defaults to on)
 c
- 3100   if (.not. inp_a(test)) test = 'on'
+ 3400   if (.not. inp_a(test)) test = 'on'
         status = inp_compare(.false.,test,'on')
         if (.not. rtdb_put(rtdb,'scf:lock', MT_LOG, 1, status))
      $       call errquit('scf_input: failed to store lock',0)
@@ -287,7 +296,7 @@ c
 c
 c     direct
 c
- 3200   filesize = -1
+ 3500   filesize = -1
         memsize  = -1
         if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, filesize))
      $       call errquit('scf_input: failed to store filesize',0)
@@ -299,21 +308,21 @@ c     semidirect [filesize <integer filesize = disksize>]
 c                [memsize  <integer memsize = available>]
 c                [filename <string filename>]
 c
- 3300   filesize = -33
+ 3600   filesize = -33
         memsize  = -33
- 3301   if (inp_a(test)) then
+ 3601   if (inp_a(test)) then
            if (inp_compare(.false., test, 'filesize')) then
-              if (.not. inp_i(filesize)) goto 3302
+              if (.not. inp_i(filesize)) goto 3602
            else if (inp_compare(.false., test, 'memsize')) then
-              if (.not. inp_i(memsize)) goto 3302
+              if (.not. inp_i(memsize)) goto 3602
            else if (inp_compare(.false., test, 'filename')) then
-              if (.not. inp_a(test)) goto 3302
+              if (.not. inp_a(test)) goto 3602
               if (.not. rtdb_cput(rtdb, 'int2e:filename', 1, test))
      $             call errquit('scf_input: bad rtdb : filename?',0)
            else
-              goto 3302
+              goto 3602
            endif
-           goto 3301
+           goto 3601
         endif
         call inp_clear_err()
 c
@@ -329,7 +338,7 @@ c
      $       call errquit('scf_input: failed to store filesize',0)
         goto 10
 c
- 3302   call errquit('semi-direct [filesize <integer filesize'//
+ 3602   call errquit('semi-direct [filesize <integer filesize'//
      $       ' = disksize>] [memsize <integer memsize = available>]'//
      $       ' [filename <string filename>] ',0)
 c
