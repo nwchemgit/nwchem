@@ -1,6 +1,6 @@
       subroutine diis_bsolve(pulay,wght,mxhist,nhist,icall)
 
-C$Id: diis_bsolve.F,v 1.3 1995-12-28 00:01:17 og845 Exp $
+C$Id: diis_bsolve.F,v 1.4 1996-08-02 18:00:25 d3h449 Exp $
 
 c     
 c***********************************************************************
@@ -101,7 +101,10 @@ c
           enddo 
         enddo 
         nhist=nhist-1
-        icall=icall-1
+c
+c Removed by work of Sherwood/Apra (8/1/96)
+c        icall=icall-1
+c
         goto 1000
       endif 
 c
