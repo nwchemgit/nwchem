@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.88 2001-05-12 00:37:27 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.89 2001-05-16 01:13:46 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -120,7 +120,11 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,
      &   lmaxov))then
-         lmaxov=.false.      
+c
+c     try to see if we see it with vectors lock
+c
+      if (.not. rtdb_get(rtdb, 'dft:movecs lock', mt_log, 1,
+     &   lmaxov))  lmaxov=.false.      
          if (.not. rtdb_put(rtdb, 'dft:max_ovl',
      &      mt_log, 1, lmaxov))
      &      call errquit('dft_rdinput: rtdb_put failed', 6)

@@ -325,7 +325,7 @@ c
       if (.not. rtdb_put(rtdb, 'dft:dampon', mt_dbl, 1, dampon))
      &   call errquit('conv_inp: rtdb_put failed', 400)
       dampoff=1d-4
-      if (.not. rtdb_put(rtdb, 'dft:dampon', mt_dbl, 1, dampoff))
+      if (.not. rtdb_put(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))
      &   call errquit('conv_inp: rtdb_put failed', 400)
       rlshift=0.0d0
       if (.not. rtdb_put(rtdb, 'dft:rlshift', mt_dbl, 1,rlshift))
