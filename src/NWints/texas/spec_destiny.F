@@ -19,7 +19,6 @@ c
       dimension iis(*),jjs(*)
       dimension buf(nbls,lnijkl,ngcd)
       dimension inx(12,*)
-      dimension iix(4)
 c
       dimension buffer(*)
       dimension itxspnl(*)
@@ -178,13 +177,16 @@ c----------------------------------------------------------------
       common /lengt/ ilen,jlen,klen,llen, ilen1,jlen1,klen1,llen1
       common /neglect/ eps,eps1,epsr
       common /pnl002/ ncshell,ncfunct,nblock2,integ_n0
+c----------------------------------------------------------------------
+      double precision savezerotol
+      common /csavezerotol/ savezerotol ! Used in detbul, set in texas_hf
+c----------------------------------------------------------------------
 c     
       dimension icfx(*),jcfx(*),kcfx(*),lcfx(*)
       dimension nblok1(2,*)
       dimension iis(*),jjs(*)
       dimension buf(*)          ! buf(nbls,lnijkl,ngcd)
       dimension inx(12,*)
-      dimension iix(4)
 c     
       dimension buffer(*)
 c     
@@ -192,6 +194,9 @@ c
       dimension ipres(*), iqorder(*)
       dimension indxp(*)
       dimension q4(*)
+c
+      double precision threshold ! For screening output integrals
+c
 c TEST --------------------------
 c
 c      IF( max(ilen,jlen,klen,llen).ge.5) then
@@ -220,6 +225,9 @@ c??
          else
             symfact = 1.0d0
          endif
+c
+         threshold = savezerotol/symfact
+c
 c---------------------------------------
 c     write(6 ,1230)  ijkl,iqreq,iorder
 c     1230 format('quart=',i5,' req-quart=,i5,'  iorder=',i4 )
@@ -260,7 +268,7 @@ c                 do jcf=jcff+1,jcff+jlen
 c                    do kcf=kcff+1,kcff+klen
 c                       do lcf=lcff+1,lcff+llen
 c                          xint0=buf(integ)
-cccccccccccc-----------    if(abs(xint0).gt. eps ) then
+cccccccccccc-----------    if(abs(xint0).gt. threshold ) then
 cccccccccccc-----------       integ_n0=integ_n0+1
 cccccccccccc-----------       buffer(integ_n0)=xint0*symfact
 cccccccccccc-----------    endif
@@ -285,7 +293,7 @@ c
                      do kcf=kcff+1,kcff+klen
                         do lcf=lcff+1,lcff+llen
                            xint0=buf(integ)
-                           if(abs(xint0).gt. eps ) then
+                           if(abs(xint0).gt. threshold ) then
                               integ_n0=integ_n0+1
                               buffer(integ_n0)=xint0*symfact
                               icfx(integ_n0)=icf
@@ -304,7 +312,7 @@ c
                      do kcf=kcff+1,kcff+klen
                         do lcf=lcff+1,lcff+llen
                            xint0=buf(integ)
-                           if(abs(xint0).gt. eps ) then
+                           if(abs(xint0).gt. threshold ) then
                               integ_n0=integ_n0+1
                               buffer(integ_n0)=xint0*symfact
                               icfx(integ_n0)=icf
@@ -323,7 +331,7 @@ c
                      do kcf=kcff+1,kcff+klen
                         do lcf=lcff+1,lcff+llen
                            xint0=buf(integ)
-                           if(abs(xint0).gt. eps ) then
+                           if(abs(xint0).gt. threshold ) then
                               integ_n0=integ_n0+1
                               buffer(integ_n0)=xint0*symfact
                               icfx(integ_n0)=jcf
@@ -342,7 +350,7 @@ c
                      do kcf=kcff+1,kcff+klen
                         do lcf=lcff+1,lcff+llen
                            xint0=buf(integ)
-                           if(abs(xint0).gt. eps ) then
+                           if(abs(xint0).gt. threshold ) then
                               integ_n0=integ_n0+1
                               buffer(integ_n0)=xint0*symfact
                               icfx(integ_n0)=jcf
@@ -361,7 +369,7 @@ c
                      do kcf=kcff+1,kcff+klen
                         do lcf=lcff+1,lcff+llen
                            xint0=buf(integ)
-                           if(abs(xint0).gt. eps ) then
+                           if(abs(xint0).gt. threshold ) then
                               integ_n0=integ_n0+1
                               buffer(integ_n0)=xint0*symfact
                               icfx(integ_n0)=kcf
@@ -380,7 +388,7 @@ c
                      do kcf=kcff+1,kcff+klen
                         do lcf=lcff+1,lcff+llen
                            xint0=buf(integ)
-                           if(abs(xint0).gt. eps ) then
+                           if(abs(xint0).gt. threshold ) then
                               integ_n0=integ_n0+1
                               buffer(integ_n0)=xint0*symfact
                               icfx(integ_n0)=kcf
@@ -399,7 +407,7 @@ c
                      do kcf=kcff+1,kcff+klen
                         do lcf=lcff+1,lcff+llen
                            xint0=buf(integ)
-                           if(abs(xint0).gt. eps ) then
+                           if(abs(xint0).gt. threshold ) then
                               integ_n0=integ_n0+1
                               buffer(integ_n0)=xint0*symfact
                               icfx(integ_n0)=lcf
@@ -418,7 +426,7 @@ c
                      do kcf=kcff+1,kcff+klen
                         do lcf=lcff+1,lcff+llen
                            xint0=buf(integ)
-                           if(abs(xint0).gt. eps ) then
+                           if(abs(xint0).gt. threshold ) then
                               integ_n0=integ_n0+1
                               buffer(integ_n0)=xint0*symfact
                               icfx(integ_n0)=lcf

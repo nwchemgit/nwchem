@@ -1,10 +1,10 @@
-c $Id: texas_hf.F,v 1.15 1996-08-02 22:03:21 d3g681 Exp $
+c $Id: texas_hf.F,v 1.16 1996-09-19 01:04:45 d3g681 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
      *                       ra,rb,rc,rd,use_r,
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
-     *                       more_int,blscr,l_blscr)
+     *                       more_int,blscr,l_blscr,zerotol)
 c--------------------------------------------------------
 c This subroutine delivers two-el.integrals 
 c
@@ -32,6 +32,11 @@ c returning integral's indeces :
       integer leri
       double precision eri(leri)
       double precision ra(3),rb(3),rc(3),rd(3)
+c screening threshold for output integrals
+      double precision zerotol
+c----------------------------------------------------------------------
+      double precision savezerotol
+      common /csavezerotol/ savezerotol ! Used in detbul
 c----------------------------------------------------------------------
       integer ntxs_bl_scr
       common /bl_txs_add/ ntxs_bl_scr 
@@ -55,6 +60,8 @@ c
       integer ish_first,jsh_first,ksh_first,lsh_first
 c----------------------------------------------------------------------
 c... check for consistency the input basis is what was initialized.
+c
+      savezerotol = zerotol
 c
       if(.not.more_int) then
 c     ----------------------------------------------

@@ -135,7 +135,7 @@ CCC  *                     nqrt,q4,use_q4,
      *                     nqrt,q4,.false.,
      *                     ra,rb,rc,rd,.false., eri,leri,
      *                     icf,jcf,kcf,lcf,integ_n0,.true.,
-     *                     more_int,blscr,l_blscr)
+     *                     more_int,blscr,l_blscr,0.0d0)
 c
         call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sums(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
@@ -155,7 +155,7 @@ CCC  *                     nqrt,q4,use_q4,
      *                     nqrt,q4,.false.,
      *                     ra,rb,rc,rd,.false., eri,leri,
      *                     icf,jcf,kcf,lcf,integ_n0,.true.,
-     *                     more_int,blscr,l_blscr)
+     *                     more_int,blscr,l_blscr,0.0d0)
         call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sums(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
                      integrals=integrals+integ_n0
@@ -482,7 +482,7 @@ CCC  *                     nqrt,q4,use_q4,
      *                     nqrt,q4,.false.,
      *                     ra,rb,rc,rd,.false., eri,leri,
      *                     icf,jcf,kcf,lcf,integ_n0,.true.,
-     *                     more_int,blscr,l_blscr)
+     *                     more_int,blscr,l_blscr,0.0d0)
 c
         call print_in2c(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sum2(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
@@ -502,7 +502,7 @@ CCC  *                     nqrt,q4,use_q4,
      *                     nqrt,q4,.false.,
      *                     ra,rb,rc,rd,.false., eri,leri,
      *                     icf,jcf,kcf,lcf,integ_n0,.true.,
-     *                     more_int,blscr,l_blscr)
+     *                     more_int,blscr,l_blscr,0.0d0)
         call print_in2c(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sum2(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
                      integrals=integrals+integ_n0
@@ -736,7 +736,7 @@ CCC  *                     nqrt,q4,use_q4,
      *                     nqrt,q4,.false.,
      *                     ra,rb,rc,rd,.false., eri,leri,
      *                     icf,jcf,kcf,lcf,integ_n0,.true.,
-     *                     more_int,blscr,l_blscr)
+     *                     more_int,blscr,l_blscr,0.0d0)
 c
         call print_i_kl(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sikl(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
@@ -756,7 +756,7 @@ CCC  *                     nqrt,q4,use_q4,
      *                     nqrt,q4,.false.,
      *                     ra,rb,rc,rd,.false., eri,leri,
      *                     icf,jcf,kcf,lcf,integ_n0,.true.,
-     *                     more_int,blscr,l_blscr)
+     *                     more_int,blscr,l_blscr,0.0d0)
         call print_i_kl(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sikl(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
                      integrals=integrals+integ_n0
@@ -986,7 +986,7 @@ CCC  *                     nqrt,q4,use_q4,
      *                     nqrt,q4,.false.,
      *                     ra,rb,rc,rd,.false., eri,leri,
      *                     icf,jcf,kcf,lcf,integ_n0,.true.,
-     *                     more_int,blscr,l_blscr)
+     *                     more_int,blscr,l_blscr,0.0d0)
 c
         call print_ij_k(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sijk(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
@@ -1006,7 +1006,7 @@ CCC  *                     nqrt,q4,use_q4,
      *                     nqrt,q4,.false.,
      *                     ra,rb,rc,rd,.false., eri,leri,
      *                     icf,jcf,kcf,lcf,integ_n0,.true.,
-     *                     more_int,blscr,l_blscr)
+     *                     more_int,blscr,l_blscr,0.0d0)
         call print_ij_k(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sijk(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
                      integrals=integrals+integ_n0
