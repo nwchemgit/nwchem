@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.176 2005-01-03 21:40:17 edo Exp $
+C     $Id: geom_input.F,v 1.177 2005-02-03 16:32:05 bylaska Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -555,18 +555,21 @@ c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 #include "inp.fh"
       integer geom
 c
+      logical read_lattice_vectors
       integer nopt_system, ntokens, ind
 c
       double precision scale
 c
       double precision value
-      parameter (nopt_system=4, ntokens=7)
-      character*10 opt(nopt_system), tokens(ntokens)
-      character*10 test
+      parameter (nopt_system=4, ntokens=8)
+      character*20 opt(nopt_system), tokens(ntokens)
+      character*20 test
       data opt /'molecule', 'polymer', 'surface', 'crystal'/
       data tokens /'lat_a', 'lat_b', 'lat_c', 
-     &     'alpha', 'beta', 'gamma', 'end'/
+     &     'alpha', 'beta', 'gamma', 'lattice_vectors', 'end'/
 c
+      read_lattice_vectors = .false.
+
       if (.not. geom_check_handle(geom,'system_input'))
      $     call errquit('system_input: geom handle invalid', 0,
      &       GEOM_ERR)
@@ -583,34 +586,116 @@ c
 c
 c     Read new line of input
 c
-   20 if (.not. inp_read()) call errquit
+   10 if (.not. inp_read()) call errquit
      $     ('geom_sys_input: premature end of file', 0, INPUT_ERR)
+   20 if (.not. inp_a(test)) goto 10
+
+      if (inp_match(ntokens,.false.,test,tokens,ind)) then
+c         
+          goto (100,200,300,400,500,600,700,800) ind
 c
-   10 if (.not. inp_a(test)) then
-        goto 20
-      else if (inp_match(ntokens,.false.,test,tokens,ind)) then
-        if (ind .lt. 7) then
-          if (.not. inp_f(value)) call errquit
+  100     if (.not. inp_f(value)) call errquit
      $         ('system:input: error reading floating number', 0,
      &       INPUT_ERR)
-c         
-          goto (100,200,300,400,500,600) ind
-c
-  100     lattice_vectors(1,geom) = value
+          lattice_vectors(1,geom) = value
+          goto 20
+
+  200     if (.not. inp_f(value)) call errquit
+     $         ('system:input: error reading floating number', 0,
+     &       INPUT_ERR)
+          lattice_vectors(2,geom) = value
+          goto 20
+
+  300     if (.not. inp_f(value)) call errquit
+     $         ('system:input: error reading floating number', 0,
+     &       INPUT_ERR)
+          lattice_vectors(3,geom) = value
+          goto 20
+
+  400     if (.not. inp_f(value)) call errquit
+     $         ('system:input: error reading floating number', 0,
+     &       INPUT_ERR)
+          lattice_angles(1,geom) = value
+          goto 20
+
+  500     if (.not. inp_f(value)) call errquit
+     $         ('system:input: error reading floating number', 0,
+     &       INPUT_ERR)
+          lattice_angles(2,geom) = value
+          goto 20
+
+  600     if (.not. inp_f(value)) call errquit
+     $         ('system:input: error reading floating number', 0,
+     &       INPUT_ERR)
+          lattice_angles(3,geom) = value
+          goto 20
+
+  700     if (.not. inp_read())
+     >     call errquit(
+     >     'geom_sys_input: inp_read(amatix(*,1)) failed', 0,
+     &       INPUT_ERR)
+          if (.not. inp_f(amatrix(1,1,geom)))
+     >     call errquit(
+     >          'geom_sys_input: failed to read amatrix', 1,
+     &       INPUT_ERR)
+          if (.not. inp_f(amatrix(2,1,geom)))
+     >     call errquit(
+     >          'geom_sys_input: failed to read amatrix', 2,
+     &       INPUT_ERR)
+          if (.not. inp_f(amatrix(3,1,geom)))
+     >     call errquit(
+     >          'geom_sys_input: failed to read amatrix', 3,
+     &       INPUT_ERR)
+
+          if (.not. inp_read())
+     >     call errquit(
+     >     'geom_sys_input: inp_read(amatix(*,2)) failed', 4,
+     &       INPUT_ERR)
+          if (.not. inp_f(amatrix(1,2,geom)))
+     >     call errquit(
+     >          'geom_sys_input: failed to read amatrix', 5,
+     &       INPUT_ERR)
+          if (.not. inp_f(amatrix(2,2,geom)))
+     >     call errquit(
+     >          'geom_sys_input: failed to read amatrix', 6,
+     &       INPUT_ERR)
+          if (.not. inp_f(amatrix(3,2,geom)))
+     >     call errquit(
+     >          'geom_sys_input: failed to read amatrix', 7,
+     &       INPUT_ERR)
+
+          if (.not. inp_read())
+     >     call errquit(
+     >     'geom_sys_input: inp_read(amatix(*,3)) failed', 8,
+     &       INPUT_ERR)
+          if (.not. inp_f(amatrix(1,3,geom)))
+     >     call errquit(
+     >          'geom_sys_input: failed to read amatrix', 9,
+     &       INPUT_ERR)
+          if (.not. inp_f(amatrix(2,3,geom)))
+     >     call errquit(
+     >          'geom_sys_input: failed to read amatrix', 10,
+     &       INPUT_ERR)
+          if (.not. inp_f(amatrix(3,3,geom)))
+     >     call errquit(
+     >          'geom_sys_input: failed to read amatrix', 11,
+     &       INPUT_ERR)
+
+          amatrix(1,1,geom) = amatrix(1,1,geom)*scale
+          amatrix(2,1,geom) = amatrix(2,1,geom)*scale
+          amatrix(3,1,geom) = amatrix(3,1,geom)*scale
+          amatrix(1,2,geom) = amatrix(1,2,geom)*scale
+          amatrix(2,2,geom) = amatrix(2,2,geom)*scale
+          amatrix(3,2,geom) = amatrix(3,2,geom)*scale
+          amatrix(1,3,geom) = amatrix(1,3,geom)*scale
+          amatrix(2,3,geom) = amatrix(2,3,geom)*scale
+          amatrix(3,3,geom) = amatrix(3,3,geom)*scale
+
+          read_lattice_vectors = .true.
           goto 10
-  200     lattice_vectors(2,geom) = value
-          goto 10
-  300     lattice_vectors(3,geom) = value
-          goto 10
-  400     lattice_angles(1,geom) = value
-          goto 10
-  500     lattice_angles(2,geom) = value
-          goto 10
-  600     lattice_angles(3,geom) = value
-          goto 10
-        else if(ind.eq.7) then
-          goto 30
-        end if
+
+  800   goto 30
+
       else
         goto 1000
       end if
@@ -634,7 +719,11 @@ c
      &       GEOM_ERR)
 
       if(isystype(geom).eq.3) then
-        call geom_3d(geom,scale)
+        if (read_lattice_vectors) then
+          call geom_3d_amatrix(geom,scale)
+        else
+          call geom_3d(geom,scale)
+        end if
 c        status = geom_set_user_units(geom,'fractional')
       elseif (isystype(geom).eq.2) then
         call geom_2d(geom,scale)
