@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.19 1995-05-22 23:40:55 vg038 Exp $
+# $Id: GNUmakefile,v 1.20 1995-05-27 20:32:10 gg502 Exp $
 
 LIBRARY =	librimp2.a
 
@@ -10,7 +10,7 @@ OBJ =		rimp2_v_e2.o \
 		get_3cints.o	rimp2.o	\
 		dgezer.o	dgecop.o	lnblnk.o \
 		dgewr.o		atoi.o		indint.o \
-		int_2c_ga.o     max_v_diagonal.o	rimp2_get_param.o \
+		max_v_diagonal.o	rimp2_get_param.o \
 		rimp2_timers.o  \
                 mk_correl_map.o print_correl_map.o      progress_report.o \
 		xf3ci_mem12.o	iamax.o		rimp2_e_mem.o
@@ -21,7 +21,8 @@ OBJ_OPTIMIZE =      rimp2_denom.o   \
 
 
 USES_BLAS =	rimp2_v_e2.F    xf3ci_step12.F  xf3ci_step12a.F \
-		xf3ci_step12b.F
+		xf3ci_step12b.F xform_3cints.F open_3ci_file.F \
+		rimp2.F
 
 include ../config/makefile.h
 include ../config/makelib.h
