@@ -22,7 +22,7 @@
 c     ***** Greens functions common block *****
 c     real*8     gk(ndfft3d)
       integer gk(2)
-      common / vc_block / gk
+      common / vc_block2 / gk
 
 *     **** Error function parameters ****
       real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
@@ -222,7 +222,7 @@ c                 temp = erf(EPSILON*temp)/temp
 
 *     **** common block used for coulomb.f ****
       integer gk(2)
-      common / vc_block / gk
+      common / vc_block2 / gk
 
       logical value
 
@@ -260,7 +260,7 @@ c                 temp = erf(EPSILON*temp)/temp
 
 *     **** common block used for coulomb.f ****
       integer gk(2)
-      common / vc_block / gk
+      common / vc_block2 / gk
 
 *     **** local variables ****
       logical value

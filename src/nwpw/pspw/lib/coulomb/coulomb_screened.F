@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.2 2002-01-11 17:55:33 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.3 2002-02-16 00:53:15 bylaska Exp $
 *
       subroutine coulomb_screened_init(rcut)
       implicit none 
@@ -71,7 +71,7 @@
          if ((pzero.eq.taskid) .and. (i.eq.zero)) then
             dbl_mb(tmp1(1)+i-1) = 0.0d0
          else
-            dbl_mb(tmp1(1)+i-1) = -f*fourpi/gg
+            dbl_mb(tmp1(1)+i-1) = f*fourpi/gg
          end if
         
       end do
