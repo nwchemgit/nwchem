@@ -1,6 +1,6 @@
       subroutine dft_mpole(rtdb, ao_bas_han, ipol, g_adens, g_bdens)
 *
-* $Id: dft_mpole.F,v 1.11 1997-11-01 00:10:02 d3e129 Exp $
+* $Id: dft_mpole.F,v 1.12 2000-04-11 14:50:37 hvd Exp $
 *
       implicit none
 #include "util.fh"
@@ -8,6 +8,7 @@
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "global.fh"
+#include "stdio.fh"
       integer rtdb              ! [input]
       integer ao_bas_han        ! [input]
       integer ipol              ! [input] > 1 for open shell
@@ -66,13 +67,13 @@ c
       enddo
 c
       if (oprintmultipole .and. ga_nodeid().eq.0) then
-         write(6,*)
-         call util_print_centered(6,
+         write(LuOut,*)
+         call util_print_centered(LuOut,
      $        'Multipole analysis of the density', 20, .true.)
-         write(6,*)
-         write(6,*) '    L   x y z        total         alpha',
+         write(LuOut,*)
+         write(LuOut,*) '    L   x y z        total         alpha',
      $                 '         beta         nuclear'
-         write(6,*) '    -   - - -        -----         -----',
+         write(LuOut,*) '    -   - - -        -----         -----',
      $                 '         ----         -------'
          ind = 0
          do ltotal = 0, lmax
@@ -80,13 +81,13 @@ c
                do l = ltotal-k, 0, -1
                   m = ltotal - k - l
                   ind = ind + 1
-                  write(6,12) ltotal, k, l, m, totalmoments(ind),
+                  write(LuOut,12) ltotal, k, l, m, totalmoments(ind),
      $                 alphamoments(ind), betamoments(ind),
      $                 nuclmoments(ind)
  12               format(4x,i2,2x,3i2,4f14.6)
                enddo
             enddo
-            write(6,*)
+            write(LuOut,*)
          enddo
       endif
       call ecce_print1('total dipole', mt_dbl, totalmoments(2), 3)
