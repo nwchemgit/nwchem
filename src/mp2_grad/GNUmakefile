@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.29 1997-05-04 21:56:06 d3g681 Exp $
+#$Id: GNUmakefile,v 1.30 1997-05-20 00:15:20 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -12,7 +12,7 @@ include ../config/makefile.h
 	      mp2_make_dip_mom.o \
               mp2_pstat.o \
 	      mp2_input.o \
-              mp2_make_piy.o
+              mp2_make_piy.o mp2_make_nos.o
 
 OBJ_OPTIMIZE = mp2_back_transform.o \
                mp2_read_tiajb.o \

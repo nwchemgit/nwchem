@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.40 1997-04-25 23:18:01 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.41 1997-05-20 00:15:21 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -604,6 +604,10 @@ c
 c     
          call mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
      $        g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
+c
+         call mp2_make_nos(rtdb, basis, nbf, nmo, noa, nob,
+     $        g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b,
+     $        scftype, noa_frozen, title_vecs)
 c     
          call pstat_on(ps_wijfock)
          call mp2_wij_fock_uhf(rtdb, geom,basis, tol2e,
