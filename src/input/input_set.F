@@ -2,7 +2,7 @@
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
       integer rtdb              ! [input]
       character*255 field       ! input buffer
       character*255 name        ! name of variable being set

@@ -111,19 +111,22 @@ c     Restart ... already digested by input_start_opt
 c
  1300    goto 10
 c
-c stepper input
+c     Stepper
 c
  1400    call stepper_input(rtdb)
          goto 10
 c
+c     Echo
+c
  1500    echo = .true.
          goto 10
       endif
+c
 99999 continue
 c
 c echo input deck if requested
 c
-      call input_echo(5,6)
+      if (echo) call input_echo(5,6)
 c
 c     All input is exhausted.  Now apply defaults for everything that
 c     is missing from the input if is a startup calculation
@@ -139,10 +142,14 @@ c
       status = rtdb_parallel(.true.) ! Restore parallel access to db
 c
       end
-      subroutine input_time
-      end
-      subroutine input_defaults
+      subroutine input_time(rtdb)
       implicit none
+      integer rtdb
+      end
+      subroutine input_defaults(rtdb)
+      implicit none
+      integer rtdb
       end
       subroutine input_verify
+      implicit none
       end

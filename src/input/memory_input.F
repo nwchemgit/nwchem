@@ -1,7 +1,7 @@
       subroutine memory_input(rtdb, ostore, stack_size, heap_size)
       implicit none
 #include "inp.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
       integer rtdb              ! [input]
@@ -14,10 +14,16 @@ c
       integer mem(2)            ! Used to stuff data into the rtdb
       integer nunits
       integer ind
+      integer default
       character*255 name        ! Used to store info in the rtdb
       parameter (nunits = 7)
       character*8 units(nunits)
       data units /'double', 'real', 'integer', 'byte', 'kb', 'mb', 'mw'/
+#ifdef DELTA
+      data default /917504/
+#else
+      data default /2097152/
+#endif
 c
 c     Parse memory directive
 c
@@ -26,7 +32,10 @@ c
 c     input units default to doubles
 c
 c     Return required sizes in units of double precision words
-c     or 1000000 doubles if not specified in the input
+c     or default if not specified in the input
+c
+c     Delta default = 7  Mbytes =   917,504 doubles
+c     Other default = 16 Mbytes = 2,097,152 doubles
 c
 c     If (ostore) store the values in the rtdb using the current context
 c     (so that in the near future each module can control its own memory)
@@ -90,9 +99,18 @@ c
       if (heap_size .le. 0) heap_size = -1
       if (stack_size .le. 0) stack_size = -1
       if (heap_size.eq.-1 .and. stack_size.eq.-1) then
-         heap_size = 500000
-         stack_size= 500000
+         heap_size = default / 2
+         stack_size= heap_size
       endif
+#ifdef DELTA
+c
+c     The RTDB will not function if it cannot malloc some memory
+c     and 7MB is the upper limit of available user memory
+c
+      if ((heap_size+stack_size).gt.default) call errquit
+     $     ('memory_input: delta memory maximum is 7 Mb', 
+     $     heap_size+stack_size)
+#endif
 c
 c     Debug
 c
