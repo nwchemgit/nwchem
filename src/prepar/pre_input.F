@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.71 2000-09-22 03:26:28 d3j191 Exp $
+c $Id: pre_input.F,v 1.72 2000-10-18 21:42:05 d3j191 Exp $
 c
       implicit none
 c
@@ -156,6 +156,7 @@ c
 c     force field
 c     -----------
 c
+    5 continue
       if(inp_compare(.false.,'amber',item)) then
       ffield='amber '
       goto 2
@@ -175,6 +176,10 @@ c
       if(inp_compare(.false.,'oplsg',item)) then
       ffield='oplsg '
       goto 2
+      endif
+      if(inp_compare(.false.,'ffield',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: error ffield',0)
+      goto 5
       endif
 c
 c     directories
