@@ -4,7 +4,7 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     whichfunc,lscreen)
 c
-C$Id: dftg_gridssw.F,v 1.8 2002-08-13 21:15:49 edo Exp $
+C$Id: dftg_gridssw.F,v 1.9 2003-08-13 22:32:04 edo Exp $
 c
       implicit none
       logical grid_written
@@ -245,7 +245,7 @@ c
                            endif
                            if(mu.lt.0d0) sk=1d0-sk
                         else
-#if defined(SGI)|| defined (DECOSF) ||defined (WIN32)||defined(LINUX)
+#if defined(SGI)|| defined (DECOSF) ||defined (WIN32)||defined(LINUX)||defined(CRAY)
                            sk=0.5d0*derfc(mu1)
 #else 
                            sk=0.5d0*erfc(mu1)
