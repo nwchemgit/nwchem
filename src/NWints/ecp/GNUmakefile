@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.23 2000-04-13 20:47:35 mg201 Exp $
+# $Id: GNUmakefile,v 1.24 2000-06-02 09:04:29 d3e129 Exp $
 # 
 
 HEADERS   = ecp_nwc.fh
@@ -58,9 +58,11 @@ OBJ_ENERGY = \
       ecp_local1.o   \
       ecp_local2.o   \
       ecp_locint1.o  \
-      ecp_local.o    \
       ecp_skipint.o  \
       ecp_ind_var.o  
+
+#   ecp_local.o    \
+
 
 OBJ  = ecp_sph_tens.o 
 OBJ +=  int_ecp.o
@@ -79,7 +81,6 @@ USES_BLAS = ecp_bess_pow.f \
       ecp_int1.F     \
       ecp_int2.F     \
       ecp_integral.F \
-      ecp_local.F    \
       ecp_local0.F   \
       ecp_local1.F   \
       ecp_local2.F   \
@@ -96,6 +97,9 @@ USES_BLAS = ecp_bess_pow.f \
       ecp_t2_p1pow.F \
       ecp_skipint.o  \
       int_ecp.F      
+
+#      ecp_local.F    \
+
 
 LIBRARY = libnwints.a
  LIB_TARGETS = test_drive
