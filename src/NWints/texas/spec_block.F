@@ -1,4 +1,4 @@
-* $Id: spec_block.F,v 1.24 1999-07-29 01:05:49 d3e129 Exp $
+* $Id: spec_block.F,v 1.25 2000-05-05 21:11:12 edo Exp $
 c===============================================================
 c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
 c kw 22.05.97 : nasize(*)has been eleminated. 
@@ -1498,6 +1498,9 @@ c---------------------------------------------------------------
 c
       end
 c=======================================================================
+#ifdef SOLARIS64
+C$PRAGMA SUN OPT=2
+#endif
       subroutine get_price1(inx,ics1,jcs1,kcs1,lcs1,nfijkl,nprice)
       common /local_info/ mmax,itype,jtype,ktype,ltype,
      *                         icont,jcont,kcont,lcont
