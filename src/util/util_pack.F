@@ -127,7 +127,8 @@ c
          ind = 1
          do i = 1, nunpacked/4
             ijkl = packed(i)
-            unpacked(ind  ) = iand(ishft(ijkl,-24),255)
+*            unpacked(ind  ) = iand(ishft(ijkl,-24),255)
+            unpacked(ind  ) =      ishft(ijkl,-24)
             unpacked(ind+1) = iand(ishft(ijkl,-16),255)
             unpacked(ind+2) = iand(ishft(ijkl, -8),255)
             unpacked(ind+3) = iand(ijkl,255)

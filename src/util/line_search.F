@@ -1,7 +1,8 @@
       logical function line_search(nstep, max_nstep, energies,
      $     gradients, steps, eacc, tol, oprint)
-C$Id: line_search.F,v 1.6 1995-02-13 00:47:20 d3g681 Exp $
+C$Id: line_search.F,v 1.7 1995-10-10 06:19:43 d3g681 Exp $
       implicit none
+#include "util.fh"
 c
       integer nstep             ! Current no. of steps ... initially 1
       integer max_nstep         ! Max. no. of steps
@@ -16,8 +17,6 @@ c
       double precision ls_hessian, ls_grad, ls_step, ls_step_max
       double precision e_low, step_low, g_low
       integer i
-      double precision tcgtime
-      external tcgtime
 c
 c     Line search with gradients.  Current version only uses the
 c     last two points in the LS but subsequent versions can use
@@ -39,7 +38,7 @@ c
      $           '     ------- ---------------- --------- ---------',
      $           ' --------- ------- -------')
             write(6,3) steps(1), energies(1), gradients(1), 
-     $           0.0, 0.0, 0.0, tcgtime()
+     $           0.0, 0.0, 0.0, util_cpusec()
             call util_flush(6)
          endif
          if (steps(1).ne.0.0d0) call errquit
@@ -79,7 +78,7 @@ c
 c     
       if (oprint) then
          write(6,3) step1, e1, gs1,
-     $        ls_grad, ls_hessian, ls_ratio, tcgtime()
+     $        ls_grad, ls_hessian, ls_ratio, util_cpusec()
  3       format(5x,f8.4,f17.8,1p,3d10.2,d8.1,0p,f8.1)
          call util_flush(6)
       endif

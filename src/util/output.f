@@ -21,7 +21,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: output.f,v 1.4 1995-02-02 18:09:45 d3g681 Exp $
+C$Id: output.f,v 1.5 1995-10-10 06:19:44 d3g681 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
@@ -46,7 +46,8 @@ C$Id: output.f,v 1.4 1995-02-02 18:09:45 d3g681 Exp $
       if (colhi.lt.collow) go to 3
       last = min(colhi,collow+kcol-1)
       do 2 begin = collow,colhi,kcol
-         write (6,1000) (column,i,i = begin,last)
+*         write (6,1000) (column,i,i = begin,last)
+         write (6,1000) (i,i = begin,last)
          do 1 k = rowlow,rowhi
             do 4 i=begin,last
                if (z(k,i).ne.zero) go to 5
@@ -61,6 +62,13 @@ C$Id: output.f,v 1.4 1995-02-02 18:09:45 d3g681 Exp $
 * 1000 format (/1h ,16x,3(a6,i3,2x),(a6,i3))
 * 2000 format (a1,3hrow,i4,2x,4f17.11)
 * kcol = 8
- 1000 format (/1h ,11x,7(a3,i3,3x),(a3,i3))
- 2000 format (a1,'row',i4,1x,8f9.4)
+*
+* if U like having rows and columns labelled with row and col
+* use these
+*
+* 1000 format (/1h ,11x,7(a3,i3,3x),(a3,i3))
+* 2000 format (a1,'row',i4,1x,8f9.4)
+c
+ 1000 format (/1h ,8x,7('   ',i3,3x),(a3,i3))
+ 2000 format (a1,i4,1x,8f9.4)
       end

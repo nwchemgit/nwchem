@@ -1,6 +1,6 @@
       double precision function util_cpusec()
       implicit none
-c $Id: util_cpusec.F,v 1.1 1995-07-10 17:02:20 d3e129 Exp $
+c $Id: util_cpusec.F,v 1.2 1995-10-10 06:19:44 d3g681 Exp $
 *
 * routine to give cpu seconds since start of execution
 *  delta times are handled by all applications
@@ -28,6 +28,13 @@ c
 c
       util_cpusec = dble(etime(tarray))
 c      
+#endif
+#if defined(DELTA)
+#define __UTIL_CPUSEC__
+      double precision dclock
+      external dclock
+c
+      util_cpusec = dclock()
 #endif
 *
 #if !defined(__UTIL_CPUSEC__)
