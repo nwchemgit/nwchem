@@ -1,0 +1,419 @@
+\label{sec:oniom}
+
+ONIOM is the hybrid method of Morokuma and co-workers that enables
+different levels of theory to be applied to different parts of a
+molecule/system and combined to produce a consistent energy
+expression.  The objective is to perform a high-level calculation on
+just a small part of the system and to include the effects of the
+remainder at lower levels of theory, with the end result being of
+similar accuracy to a high-level calculation on the full system.
+
+\begin{enumerate}
+\item M. Svensson, S. Humbel, R.D.J. Froese, T. Mastubara, S. Sieber and
+K. Morokuma, J. Phys. Chem, 100, 1996, p19357.
+\item  S. Dapprich, I. Komaromi, K.S. Byun, K. Morokuma and M.J. Frisch,
+J. Mol. Struct (Theochem), 461-462, 1999, p1-21.
+\item R.D.J. Froese and K. Morokuma in ``Encylopedia of Computational Chemistry,'' volume 2, p1244-1257, (ed. P. von Rague Schleyer, John Wiley and Sons, Chichester, Sussex, 1998).
+\end{enumerate}
+
+The NWChem ONIOM module implements two- and three-layer ONIOM models
+for use in energy, gradient, geometry optimization, and vibrational
+frequency calculations with any of the pure quantum mechanical methods
+within NWChem.  At the present time, it is not possible to perform
+ONIOM calculations with either solvation models or classical force
+fields.  Nor is it yet possible to compute properties except as
+derivatives of the total energy.  
+
+The two-layer model requires a high and low level of theory and a
+real and model molecular geometry.  The energy at the high-level of
+theory for the real geometry is estimated as
+\begin{verbatim}
+      E(High,Real) = E(Low,Real) + [E(High,Model) - E(Low,Model)].
+\end{verbatim}
+The three-layer model requires high, medium and low levels of theory,
+and real, intermediate and model geometries and the corresponding
+energy estimate is
+\begin{verbatim}
+  E(High,Real) = E(Low,Real) + [E(High,Model) - E(Medium,Model)]
+                 +  [E(Medium,Inter) - E(Low,Inter)].
+\end{verbatim}
+
+When does ONIOM work well?  The approximation for a two-layer model
+will be good if
+\begin{itemize}
+\item the model system includes the interactions that dominate the
+   energy difference being computed and the high-level of theory
+   describes these to the required precision, and
+\item the interactions between the model and the rest of the real system
+    (substitution effects) are described to sufficient accuracy at the
+    lower level of theory.
+\end{itemize}
+ONIOM is used to compute energy differences and the absolute energies
+are not all that meaningful even though they are well defined.  Due to
+cancellation of errors, ONIOM actually works better than you might
+expect, but a poorly designed calculation can yield very bad results.
+Please read and heed the caution at the end of the article by Dapprich
+et al.
+
+The input options are as follows
+\begin{verbatim}
+ONIOM
+  HIGH   <string theory> [<string basis default "ao basis">]
+ [MEDIUM <string theory> [<string basis default "ao basis">]]
+  LOW    <string theory> [<string basis default "ao basis">]
+  MODEL <integer natoms> [<integer i1 j1> <real g1> [<string tag1>] ...]
+ [INTER <integer natoms> [<integer i1 j1> <real g1> [<string tag1>] ...]]
+ [VECTORS [low-real <string mofile>] [low-model <string mofile>] \
+          [high-model <string mofile>] [medium-model <string mofile]\
+          [medium-inter <string mofile>] [low-inter <string mofile>]]
+ [PRINT ...]
+ [NOPRINT ...]
+END
+\end{verbatim}
+which are described in detail below.  
+
+{\em  For better validation of user input, the \verb+HIGH+,
+\verb+LOW+ and \verb+MODEL+ directives must always be specified.  If
+the one of the \verb+MEDIUM+ or \verb+INTER+ directives are specified,
+then so must the other.}
+
+\section{Real, model and intermediate geometries}
+
+The geometry of the full or real system should be specified as normal
+using the geometry directive (see Section \ref{sec:geom}).  If
+$N_{model}$ of the atoms are to be included in the model system, then
+these should be specified first in the geometry.  Similarly, in a
+three-layer calculation, if there are $N_{inter}$ atoms to be included
+in the intermediate system, then these should also be arranged
+together at the beginning of the geometry.  The implict assumption is
+that the model system is a subset of the intermediate system which is
+a subset of the real system.  The number of atoms to be included in
+the model and intemediate systems are specified using the \verb+MODEL+
+and \verb+INTER+ directives.  
+
+Example 1.  A two-layer calculation on $K^{+}(H_2O)$ taking the
+potassium ion as the model system.  Note that no bonds are broken so
+no link atoms are introduced.  The geometry would be specified with
+potassium (the model) first.
+\begin{verbatim}
+    geometry autosym
+      K  0    0.00    1.37
+      O  0    0.00   -1.07
+      H  0   -0.76   -1.68
+      H  0    0.76   -1.68
+    end
+\end{verbatim}
+and the following directive in the ONIOM input block indicates that
+one atom (implicitly the first in the geometry) is in the model system
+\begin{verbatim}
+    model 1
+\end{verbatim}
+
+Link atoms for bonds spanning two regions are automatically generated
+from the bond information.  The additional parameters on the
+\verb+MODEL+ and \verb+INTER+ directives describe the broken bonds
+including scale factors for placement of the link atom 
+and, optionally, the type of link atom.  The type of link atom
+defaults to hydrogen, but any type may be specified (actually here you
+are specifying a geometry tag which is used to associate a geometrical
+center with an atom type and basis sets, etc..  See section
+\ref{sec:cart}).
+For each broken bond specify the numbers of the two atoms (i and j),
+the scale factor (g) and optionally the tag of the link atom.  Link
+atoms are placed along the vector connecting the the first to the
+second atom of the bond according to the equation
+\begin{displaymath}
+\underline{R}_{link} = (1-g)\underline{R}_{1} + g*\underline{R}_{2}
+\end{displaymath}
+where $g$ is the scale factor.  If the scale factor is one, then the
+link atom is placed where the second atom was.  More usually, the
+scale factor is less than one, in which case the link atom is placed
+between the original two atoms.  The scale factor should be chosen so
+that the link atom (usually hydrogen) is placed near its equilibrium
+bond length from the model atom.  E.g., when breaking a single
+carbon-carbon bond (typical length 1.528 {\angstroms}) using a hydrogen
+link atom we will want a carbon-hydrogen bond length of about 1.084
+{\angstroms}, so the scale factor should be chosen as $1.084/1.528
+\approx 0.709$.
+
+Example 2.  A calculation on acetaldehyde ($H_3C-CHO$) using aldehyde
+($H-CHO$) as the model system. The covalent bond between the two
+carbon atoms is broken and a link atom must be introduced to replace
+the methyl group.  The link atom is automatically generated --- all
+you need to do is specify the atoms in the model system that are also
+in the real system (here $CHO$) and the broken bonds.  Here is the
+geometry of acetaldehyde with the $CHO$ of aldehyde first
+\begin{verbatim}
+    geometry
+      C    -0.383    0.288    0.021
+      H    -1.425    0.381    0.376
+      O     0.259    1.263   -0.321
+
+      H     0.115   -1.570    1.007
+      H    -0.465   -1.768   -0.642
+      H     1.176   -1.171   -0.352
+      C     0.152   -1.150    0.005
+    end
+\end{verbatim}
+There are three atoms (the first three) of the real geometry included
+in the model geometry, and we are breaking the bond between atoms 1
+and 7, replacing atom 7 with a hydrogen link atom.  This is all
+accomplished by the directive
+\begin{verbatim}
+    model 3   1 7 0.709 H
+\end{verbatim}
+Since the default link atom is hydrogen there is actually no need to
+specify the ``H''.
+
+Example 3.  A three-layer calculation on tetra-dimethyl-amino-ethylene
+(TAME) or (N(Me)2)2-C=C-(N(Me)2)2 using (NH2)2-C=C-(NH2)2 as the
+intermediate system and H2C=CH2 as the model system.  Below is the
+real geometry.  The first two atoms (C, C) are the model system (link
+atoms will be added automatically).  The first six atoms (C, C, N, N,
+N, N) describe the intermediate system (again with link atoms to be
+added automatically).
+\begin{verbatim}
+    geometry 
+      C  0.40337795 -0.17516305 -0.51505208  # 1
+      C -0.40328664  0.17555927  0.51466084  # 2
+      N  1.87154979 -0.17516305 -0.51505208  # 3
+      N -0.18694782 -0.60488524 -1.79258692  # 4
+      N  0.18692927  0.60488318  1.79247594  # 5
+      N -1.87148219  0.17564718  0.51496494  # 6
+      C  2.46636552  1.18039452 -0.51505208  # 7
+      C  2.48067731 -1.10425355  0.46161675  # 8
+      C -2.46642715 -1.17982091  0.51473105  # 9
+      C -2.48054940  1.10495864 -0.46156202  # 10
+      C  0.30027136  0.14582197 -2.97072148  # 11
+      C -0.14245927 -2.07576980 -1.96730852  # 12
+      C -0.29948109 -0.14689874  2.97021079  # 13
+      C  0.14140463  2.07558249  1.96815181  # 14
+      H  0.78955302  2.52533887  1.19760764
+      H -0.86543435  2.50958894  1.88075113
+      ... and 22 other hydrogen atoms on the methyl groups
+    end
+\end{verbatim}
+The atoms have been numbered using comments to make the next input
+easier to generate.  The input describing the number of atoms and the
+bonds broken to form the model and intermediate systems is
+\begin{verbatim}
+    model 2   1 3  0.87   1 4  0.87   2 5  0.87   2 6  0.87
+
+    inter 6   3 7  0.69   3 8  0.69   4 11 0.69   4 12 0.69 \
+	      5 13 0.69   5 14 0.69   6 9  0.69   6 10 0.69
+\end{verbatim}
+To make the model system, four C-N bonds are broken between the
+ethylene fragment and the dimethyl-amino groups and replaced with C-H
+bonds.  To make the intermediate system, eight C-N bonds are broken
+between the nitrogens and the methyl groups and replaced with N-H
+bonds.  The scaling factor could be chosen differently for each of the
+bonds.
+
+\subsection{Numbering of the link atoms}
+
+The link atoms are appended to the atoms of the model or intermediate
+systems in the order that the broken bonds are specified in the input.
+This is of importance only if manually constructing an initial guess.
+
+\section{High, medium and low theories}
+
+The two-layer model requires both the high-level and low-level
+theories be specified.  The three-layer model also requires the
+medium-level theory.  Each of these includes a theory such as SCF,
+MP2, DFT, CCSD, CCSD(T), etc., and an optional basis set name.  Note
+that this is the name of the basis as specified on the basis set
+directive (see Section \ref{sec:basis}) and {\em not} the name of a
+standard basis in the library.  If not specified, the basis set for
+the high-level theory defaults to the standard \verb+"ao basis"+.
+That for the medium level defaults to the high-level basis, and the
+low-level basis defaults to the medium-level basis.  Other
+wavefunction parameters are obtained from the standard wavefunction
+input blocks.
+
+E.g., The following input completes the oniom input for the
+three-layer model of TAME (previous section) using CCSD(T)+aug-cc-pvtz
+for the model region, MP2+aug-cc-pvtz for the intermediate region, and
+MP2+aug-cc-pvdz for everything
+\begin{verbatim}
+    geometry autosym
+      ... see above
+    end
+
+    basis aug-cc-pvtz spherical
+      C library aug-cc-pvtz
+      H library aug-cc-pvtz
+    end
+
+    basis aug-cc-pvdz spherical
+      C library aug-cc-pvtz
+      H library aug-cc-pvtz
+    end
+
+    oniom      
+      model 2   1 3  0.87   1 4  0.87   2 5  0.87   2 6  0.87
+
+      inter 6   3 7  0.69   3 8  0.69   4 11 0.69   4 12 0.69 \
+		5 13 0.69   5 14 0.69   6 9  0.69   6 10 0.69
+      high ccsd(t) aug-cc-pvtz
+      medium mp2 aug-cc-pvtz
+      low mp2 aug-cc-pvdz
+    end
+\end{verbatim}
+
+\section{Use of symmetry}
+
+Symmetry should work just fine as long as the model and intermediate
+regions respect the symmetry --- i.e., symmetry equivalent atoms need
+to be treated equivalently.  If symmetry equivalent atoms must be
+treated in separate regions then the symmetry must be lowered (or
+completely switched off).  
+
+\section{Molecular orbital files}
+
+The \verb+VECTORS+ directive in the ONIOM block is different to that
+elsewhere in NWChem.  For each of the necessary combinations of theory
+and geometry you can specify a different file for the molecular
+orbitals.  By default each combination will store the MO vectors in
+the permanent directory using a file name created by appending to the
+name of the calculation the following string
+\begin{itemize}
+\item low-real  --- \verb+".lrmos"+
+\item low-inter --- \verb+".limos"+
+\item low-model --- \verb+".lmmos"+
+\item medium-inter --- \verb+".mimos"+
+\item medium-model --- \verb+".mmmos"+
+\item high-model --- \verb+".hmmos"+
+\end{itemize}
+Each calculation will utilize the appropriate vectors which is more
+efficient during geometry optimizations and frequency calculations,
+and is also useful for the initial calculation.  In the absence of
+existing MO vectors files, the default atomic guess is used (see
+Section \ref{sec:vectors}).
+
+If special measures must be taken to converge the initial SCF, DFT or
+MCSCF calculation for one or more of the systems, then initial vectors
+may be saved in a file with the default name, or another name may be
+specified using the \verb+VECTORS+ directive.  Note that subsequent
+vectors (e.g., from a geometry optimization) will be written back to
+this file, so take a copy if you wish to preserve it.  
+To generate the initial guess for the model or intermediate systems
+it is necessary to generate the geometries which is most readily
+done, if there are link atoms, by just running NWChem on the
+input for the ONIOM calculation on your workstation.  It will
+print these geometries before starting any calculations which 
+you can then terminate.
+
+E.g., in a calculation on Fe(III) surrounded by some ligands, it is
+hard to converge the full (real) system from the atomic guess so as to
+obtain a $d^5$ configuration for the iron atom since the $d$ orbitals
+are often nominally lower in energy than some of the ligand orbitals.
+The most effective mechanism is to converge the isolated Fe(III) and
+then to use the fragment guess (see Section \ref{sec:fragguess}) as a
+starting guess for the real system.  The resulting converged molecular
+orbitals can be saved either with the default name (as described
+above), in which case no additional input is necessary.  If an
+alternative name is desired, then the \verb+VECTORS+ directive may be
+used as follows
+\begin{verbatim}
+    vectors low-real /u/rjh/jobs/fe_ether_water.mos
+\end{verbatim}
+
+\section{Restarting}
+
+Restart of ONIOM calculations does not currently work as smoothly as
+we would like.  For geometry optimizations that terminated gracefully
+by running out of iterations, the restart will work as normal.
+Otherwise, specify in the input of the restart job the last geometry
+of the optimization.  The Hessian information will be reused and the
+calculation should proceed losing at most the cost of one ONIOM
+gradient evaluation.  For energy or frequency calculations, restart
+may not currently be possible.
+
+\section{Examples}
+
+\subsection{Hydrocarbon bond energy}
+
+This reproduces the two-layer ONIOM (MP2:HF) result from Dapprich et
+al.\ for the reaction $R-CH_3 = R-CH_2 + H$ with $R=CH_3$ using $CH_4$
+as the model .  The geometries of $R-CH_3$ and $R-CH_2$ are optimized
+at the DFT-B3LYP/6-311++G** level of theory, and then ONIOM is used to
+compute the binding energy using UMP2 for the model system and HF for
+the real system.  The results, including MP2 calculations on the full
+system for comparison, are as given in Table \ref{tab:oniom1}
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{lccccc}
+ Theory &   Me-CH2   &   Me-Me   &   H       & De(Hartree)&  De(kcal/mol) \\ \hline
+ B3LYP  &  -79.185062& -79.856575&  -0.502256&  0.169257 &   106.2 \\
+ HF     &  -78.620141& -79.251701&  -0.499817&  0.131741 &    82.7 \\
+ MP2    &  -78.904716& -79.571654&  -0.499817&  0.167120 &   104.9 \\
+ MP2:HF &  -78.755223& -79.422559&  -0.499817&  0.167518 &   105.1 \\ \hline
+\end{tabular}
+\caption{\label{tab:oniom1} Energies for ONIOM example 1, hydrocarbon bond energy using MP2:HF two-layer model.}
+\end{center}
+\end{table}
+
+The following input first performs a calculation on $CH_3-CH_2$, and then
+on $CH_3-CH_3$.  Note that in the second calculation we cannot use the
+full symmetry since we are breaking the C-C bond in forming the model
+system (the non-equivalence of the methyl groups is perhaps more
+apparent if we write $R-CH_3$).
+
+\begin{verbatim}
+    start
+
+    basis spherical
+      H library 6-311++G**; C library 6-311++G**
+    end
+
+    title "ONIOM Me-CH2"
+
+    geometry autosym
+      H    -0.23429328     1.32498565     0.92634814
+      H    -0.23429328     1.32498565    -0.92634814
+      C    -0.13064265     0.77330370     0.00000000
+      H    -1.01618703    -1.19260361     0.00000000
+      H     0.49856072    -1.08196901    -0.88665533
+      H     0.49856072    -1.08196901     0.88665533
+      C    -0.02434414    -0.71063687     0.00000000
+    end
+
+    scf; uhf; doublet; thresh 1e-6; end
+    mp2; freeze atomic; end
+
+    oniom
+      high mp2
+      low  scf
+      model 3   3 7 0.724
+    end
+
+    task oniom
+
+    title "ONIOM Me-Me"
+
+    geometry   # Note cannot use full D3D symmetry here
+      H   -0.72023641     0.72023641    -1.16373235
+      H    0.98386124     0.26362482    -1.16373235
+      H   -0.26362482    -0.98386124    -1.16373235
+      C    0.00000000     0.00000000    -0.76537515
+      H    0.72023641    -0.72023641     1.16373235
+      H   -0.98386124    -0.26362482     1.16373235
+      H    0.26362482     0.98386124     1.16373235
+      C    0.00000000     0.00000000     0.76537515
+    end
+
+    scf; rhf; singlet; end
+
+    oniom
+      high mp2
+      low  scf
+      model 4   4 8 0.724
+    end
+
+    task oniom
+\end{verbatim}
+
+
+
+
