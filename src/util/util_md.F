@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.25 2000-07-27 17:22:48 d3j191 Exp $
+c $Id: util_md.F,v 1.26 2000-07-31 23:27:04 d3j191 Exp $
 c
       implicit none
 c
@@ -65,7 +65,8 @@ c
     2 continue
       return
       end
-      subroutine super(x,ix,nx,mx,y,w,sdev,ny,my,mod,rms0,rms1)
+      subroutine super(x,ix,nx,mx,y,w,sdev,ny,my,mod,rms0,rms1,
+     + xw,mw,nw,ma,na)
 c
 c     superimpose x(1:n,1:3) onto y(1:n,1:3)
 c
@@ -77,12 +78,12 @@ c
       real*8 zero
       parameter(zero=0.0d0)
 c
-      integer nx,mx,ny,my
+      integer nx,mx,ny,my,mw,nw,ma,na
       integer ix(mx)
-      real*8 x(mx,3),y(my,3),w(my),sdev(my),rms0,rms1
+      real*8 x(mx,3),y(my,3),w(my),sdev(my),xw(mw,ma,3),rms0,rms1
       logical mod
 c
-      integer i,j,k,nr
+      integer i,j,k,l,nr
       real*8 u(3,3),c(4,4),q(4),b(4),v(4,4),wnorm
       real*8 xt(3),yt(3),sd
 c
@@ -180,6 +181,22 @@ c
    14 continue
       call ga_dgop(mag_d11,rms1,1,'+')
       rms1=sqrt(rms1/wnorm)
+c
+      if(mod.and.nw.gt.0) then
+      do 19 l=1,nw
+      do 20 k=1,na
+      do 21 i=1,3
+      q(i)=0.0d0
+      do 22 j=1,3
+      q(i)=q(i)+u(i,j)*(xw(l,k,j)-xt(j))
+   22 continue
+   21 continue
+      do 23 i=1,3
+      xw(l,k,i)=q(i)+yt(i)
+   23 continue
+   20 continue
+   19 continue
+      endif
 c
       return
       end

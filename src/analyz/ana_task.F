@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.33 2000-07-31 22:51:51 d3j191 Exp $
+c $Id: ana_task.F,v 1.34 2000-07-31 23:27:20 d3j191 Exp $
 c
       implicit none
 c
@@ -391,7 +391,7 @@ c
       if(nread.lt.ifrfr) goto 222
       if(lsuper) call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
      + num,msa,dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,
-     + .true.,rms0,rms1)
+     + .true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       if(fmt.eq.'pdb') then
       call ana_wrtpdb(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
      + dbl_mb(i_xdat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.not.lsonly,
@@ -488,7 +488,7 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk.and.lsx) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
-     + rms0,rms1)
+     + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       call ana_wtfram(lfnsup,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
      + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),int_mb(i_wsel),
      + int_mb(i_ndxw))
@@ -665,7 +665,7 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
-     + rms0,rms1)
+     + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
       call ana_xaver(dbl_mb(i_xdat+ifr-1),dbl_mb(i_xadat+ifr-1),
      + num,msa,nave)
@@ -712,7 +712,7 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
-     + rms0,rms1)
+     + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)
 c
@@ -815,7 +815,7 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
-     + rms0,rms1)
+     + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)
 c
