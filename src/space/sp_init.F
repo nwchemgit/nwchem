@@ -973,6 +973,8 @@ c
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
+#include "global.fh"
 c
       integer ibownr(maxbox,3)
       real*8 boxsiz(maxbox,3)
