@@ -1,5 +1,5 @@
       subroutine sym_vec_symmetrize(geom, basis, vec)
-C$Id: sym_vec_sym.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
+C$Id: sym_vec_sym.F,v 1.6 2003-10-28 19:51:26 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -147,7 +147,8 @@ c
                else if (itype .eq. -1) then
                   i_nbf_per_sh = 1
                else
-                  call errquit('sym_sym2: invalid shell type', itype)
+                  call errquit('sym_sym2: invalid shell type', 
+     .                 itype, 0)
                end if
 c
 c     Loop thru shells in each general contraction and construct
