@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#if defined(CRAY) || defined(CRAY_T3D)
+#include <fortran.h>
+#endif
 #include "types.f2c.h"
 #include "ecce_print.h"
 #include "macommon.h"
@@ -284,7 +287,7 @@ void ecce_print_control_(Integer *pnew, Integer *pold)
 }
 
 #if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print2_(fcd f, Integer *ma_type, 
+void ecce_print2_(_fcd f, Integer *ma_type, 
 		  const void *data, Integer *ld1, Integer *dim1, Integer *dim2)
 {
     const char *key = _fcdtocp(f);
@@ -308,7 +311,7 @@ void ecce_print2_(const char *key, Integer *ma_type,
 }
 
 #if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print1_(fcd f, Integer *ma_type, const void *data, Integer *dim1)
+void ecce_print1_( _fcd f, Integer *ma_type, const void *data, Integer *dim1)
 {
     const char *key = _fcdtocp(f);
     int keylen = _fcdlen(f);
@@ -378,11 +381,11 @@ void ecce_print_module_exit_(const char *module, const char *status,
 }
 
 #if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print1_char_(fcd f, fcd g, Integer *dim1)
+void ecce_print1_char_( _fcd f, _fcd g, Integer *dim1)
 {
     const char *key = _fcdtocp(f);
+    const char *data = _fcdtocp(g);
     int keylen = _fcdlen(f);
-    const char *data = _fdctocp(g);
     int dlen = _fcdlen(g);
 #else
 void ecce_print1_char_(const char *key, const char *data, Integer *dim1, 
