@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.27 2002-01-14 20:40:51 edo Exp $
+C $Id: hess_init.F,v 1.28 2002-01-15 23:34:42 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -191,8 +191,8 @@ c
           else
             jfac(2) = 1.0d0
           endif
-          kfac(1) = -1.0d0*xfac(1)
-          kfac(2) = -1.0d0*xfac(1)
+          kfac(1) = 1.0d0*xfac(1)
+          kfac(2) = 1.0d0*xfac(1)
         endif
 
       endif
