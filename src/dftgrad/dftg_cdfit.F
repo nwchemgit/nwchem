@@ -47,11 +47,11 @@ C
       integer ifirstq, ilastq, ifirstp, ilastp,nshbfq,nshbfp,Nao2
       integer mu,nu,Nint,ishd,ifirstd,ilastd,nshbfd
       integer iat,icount2,ifp,i,next,nxtask,icart,ist
-      double precision PPP_max,dE,fac,schwarz_shell,ddot
+      double precision PPP_max,dE,fac,schwarz_shell
 c
       character*(nw_max_path_len) cdfit
 c
-      external ddot,nxtask,schwarz_shell
+      external nxtask,schwarz_shell
 c--   >
 
       nproc  = ga_nnodes()
