@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.15 2000-03-08 01:51:26 edo Exp $
+C$Id: dft_densm.F,v 1.16 2000-03-23 20:20:21 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -34,7 +34,7 @@ c
       external ga_create_atom_blocked
       integer ltmpm,itmpm,ipoint
       double precision sqrtpi,kbau,eps,rhfuhf
-#if defined(SGI)
+#if defined(SGI)|| defined (DECOSF) || defined(WIN32)
       double precision derfc
 #else
       double precision erfc
@@ -92,7 +92,7 @@ c
             ipoint=(isp-1)*nbf
             do i = 1, nbf
                x=(evals(ipoint+i)-efermi)/ssmear
-#if defined(SGI)
+#if defined(SGI)|| defined (DECOSF) || defined(WIN32)
               if(search0)
      *             focc(i+ipoint)= derfc(x)*0.5d0*rhfuhf
 #else
@@ -264,7 +264,7 @@ C         endif
 #include "msgids.fh"
 c
       integer i
-#if defined(SGI)
+#if defined(SGI)|| defined (DECOSF) || defined(WIN32)
       double precision derfc
 #else
       double precision erfc
@@ -279,7 +279,7 @@ c
       do i=1,nbf
          x=(evals(i)-efermi)/ssmear
          xb=(evals(i+nbf)-efermi)/ssmear
-#if defined(SGI)
+#if defined(SGI)|| defined (DECOSF) || defined(WIN32)
          na=derfc(x)*0.5d0
 	if(ipol.eq.2) 
      *    nb=derfc(xb)*0.5d0
