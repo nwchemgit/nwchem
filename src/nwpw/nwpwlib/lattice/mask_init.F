@@ -1,5 +1,5 @@
 *
-* $Id: mask_init.F,v 1.5 2003-05-29 19:22:28 edo Exp $
+* $Id: mask_init.F,v 1.6 2003-05-29 21:00:36 edo Exp $
 *
 
       subroutine mask_end()
@@ -35,6 +35,8 @@
       integer nx,ny,nz
       integer nxh,nyh,nzh
       real*8  ggcut,g1,g2,g3,gg
+      double precision eps
+      parameter (eps=1d-12)
       integer taskid
       logical value
 
@@ -103,7 +105,7 @@
                   if (p .eq. taskid) then
                      gg = g1*g1 + g2*g2 + g3*g3
                      gg= gg-ggcut
-                     if (gg.lt.0d0) then
+                     if (gg.lt.-eps) then
                         index = (q-1)*(nxh+1)*ny
      >                        + j*(nxh+1)
      >                        + i+1
