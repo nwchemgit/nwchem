@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.25 1995-11-20 23:28:16 d3g681 Exp $
+# $Id: makelib.h,v 1.26 1995-11-21 19:05:30 mg141 Exp $
 
 #
 # A makefile for a library should
@@ -105,7 +105,7 @@ else
 endif
 
  LIBOBJ := $(patsubst %,$(LIBRARY_PATH)(%),$(OBJ))
-$(LIBRARY_PATH):	include_stamp $(LIBOBJ) $(OPT_TARGET)
+$(LIBRARY_PATH):       dummy include_stamp $(LIBOBJ) $(OPT_TARGET)
 	@$(MAKE) update_archive
 
 ifdef OBJ_OPTIMIZE
@@ -114,6 +114,8 @@ optimized:
 	@$(MAKE) OPTIMIZE=Yes
 endif
 
+dummy:
+	
 else
 
   LIBOBJ := $(patsubst %,$(LIBRARY_PATH)(%),$(OBJ_OPTIMIZE))
