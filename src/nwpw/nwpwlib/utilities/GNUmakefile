@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.12 2002-02-11 18:27:11 edo Exp $
+# $Id: GNUmakefile,v 1.13 2002-02-11 18:46:02 edo Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -20,7 +20,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F izamax.f matrix.f
+    USES_BLAS = auto_corr.F  matrix.f
 
   LIB_DEFINES = 
 
