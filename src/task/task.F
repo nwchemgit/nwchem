@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.41 2000-03-21 21:30:21 d3g681 Exp $
+* $Id: task.F,v 1.42 2000-07-14 00:20:15 edo Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -31,7 +31,7 @@ c
       double precision task_cpu, task_wall
       logical oprint_task_times, odebug
 c
-      logical rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf,
+      logical rjhtest, raktest, atwtest, task_check_sum, cphf,
      $     jantest, uccsdtest
       logical nwargos, property, dplot, gapss, task_shell, moints_full
       logical analyz,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
@@ -43,7 +43,7 @@ c
       logical task_drdy
 c
       external jantest, uccsdtest
-      external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
+      external rjhtest, raktest, atwtest, task_check_sum, cphf
       external nwargos, property, dplot, gapss, task_shell, moints_full
       external analyz,esp,prepar,nwmd
       external task_energy, task_gradient, task_optimize, task_freq
@@ -127,8 +127,6 @@ c
             status = nwargos(rtdb)
          else if (inp_compare(.false.,'md', theory)) then
             status = nwmd(rtdb)
-         else if (inp_compare(.false.,'md_ideaz', theory)) then
-            status = mdmain(rtdb)
          else if (inp_compare(.false.,'cphf', theory)) then
             status = cphf(rtdb)
          else if (inp_compare(.false.,'property', theory)) then
