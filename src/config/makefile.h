@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.328 2000-05-16 20:44:43 edo Exp $
+# $Id: makefile.h,v 1.329 2000-06-02 21:52:52 d3g681 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1200,20 +1200,17 @@ endif
 #
 #  LIBPATH += -L/sphome/harrison/peigs2.0
 
-  CORE_LIBS = -lpario -lglobal -lma -lutil -lpeigs -llapack -lblas
+  CORE_LIBS = -lpario -lglobal -lma -lutil -lpeigs
 
-
-#   USE_ESSL = YES
-#   USE_BLAS = YES
+USE_ESSL = YES
 ifdef USE_ESSL
    DEFINES += -DESSL
-# renames not needed for 4.1.  Still are for 3.2.
 ifeq ($(NWCHEM_TARGET_CPU),P2SC)
  CORE_LIBS += -lpesslp2_t -lblacsp2_t -lesslp2_r
 else
  CORE_LIBS += -lpessl -lblacs -lessl
 endif
-
+# renames not needed for 4.1.  Still are for 3.2.
 #	      -brename:.daxpy_,.daxpy \
 #	      -brename:.dgesv_,.dgesv \
 #	      -brename:.dcopy_,.dcopy \
@@ -1227,15 +1224,12 @@ endif
 #	      -brename:.dpotrf_,.dpotrf \
 #	      -brename:.dpotri_,.dpotri \
 #	      -brename:.idamax_,.idamax 
-ifdef USE_BLAS
- CORE_LIBS += -lblas -brename:.xerbla_,.xerbla -brename:.lsame_,.lsame
 endif
 
-else
-    CORE_SUBDIRS_EXTRA += blas
-             CORE_LIBS += -lblas
-endif
+# Need ESSL before our own BLAS library but still need our
+# own stuff for misc. missing routines
 
+CORE_LIBS +=  -llapack -lblas
 
 # IMPORTANT:  These renames are necessary if you try to link against
 # a copy of PeIGS built for MPI instead of TCGMSG. (Not recommended, 
