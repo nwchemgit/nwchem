@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.130 2004-02-24 15:17:52 d3j191 Exp $
+c $Id: sp_init.F,v 1.131 2004-02-27 20:24:40 d3j191 Exp $
 c
       implicit none
 c
@@ -2080,6 +2080,7 @@ c
 c
       call swatch(rdate,rtime)
       call getlog(user)
+      if(user(18:18).ne.' ') user='                  '
 c
       rewind(lfnrst)
       write(lfnrst,1000)
@@ -3521,6 +3522,7 @@ c
 c
       call swatch(rdate,rtime)
       call getlog(user)
+      if(user(18:18).ne.' ') user='                  '
       hist(nhist)(1:18)=user
       hist(nhist)(19:28)=rdate
       hist(nhist)(29:48)=rtime

@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.49 2003-12-03 05:00:56 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.50 2004-02-27 20:24:42 d3j191 Exp $
 c
       implicit none
 c
@@ -55,6 +55,7 @@ c
 c
       integer i,j,k,kk,l,length,nd,ifrac,imol,iq,isgm,masks,maskd
       character*10 topdat,toptim
+      character*18 user
       real*8 qsum(10),qtot(10),qatom(10,2)
       logical lprt
 c
@@ -169,10 +170,12 @@ c
      + status='new',err=9999)
 c
       call swatch(topdat,toptim)
+      call getlog(user)
+      if(user(18:18).ne.' ') user='                  '
 c
       write(lfntop,1000) (title(1,i),i=1,3),
-     + 4.6,topdat,toptim,ffield(1:10)
- 1000 format(a,/,a,/,a,/,f12.6,3a10)
+     + 4.6,topdat,toptim,ffield(1:10),user
+ 1000 format(a,/,a,/,a,/,f12.6,3a10,a18)
 c     
       write(lfntop,1104) ipnum
       write(lfntop,1104) nats
