@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.27 1996-09-25 22:15:58 mdupuis Exp $
+C     $Id: geom_input.F,v 1.28 1996-09-26 01:00:11 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -281,8 +281,7 @@ c
 c     
       call geom_compute_values(geom)
 c
-      ozmatrix=.false.
-      if(.not.ozmatrix) then
+      if(ozmatrix) then
 c
 c     ----- call auto-z-matrix generation -----
 c
