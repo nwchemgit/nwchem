@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.18 2000-02-20 15:59:25 d3j191 Exp $
+c $Id: cf_f.fh,v 1.19 2000-03-17 17:42:15 d3j191 Exp $
 c
       implicit none
 c
@@ -509,7 +509,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.18 2000-02-20 15:59:25 d3j191 Exp $
+c $Id: cf_f.fh,v 1.19 2000-03-17 17:42:15 d3j191 Exp $
 c
       implicit none
 c
@@ -1188,7 +1188,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.18 2000-02-20 15:59:25 d3j191 Exp $
+c $Id: cf_f.fh,v 1.19 2000-03-17 17:42:15 d3j191 Exp $
 c
       implicit none
 c
@@ -2042,7 +2042,7 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.18 2000-02-20 15:59:25 d3j191 Exp $
+c $Id: cf_f.fh,v 1.19 2000-03-17 17:42:15 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -2116,10 +2116,6 @@ c     find index into list of bonds
 c
       isb=indexl(i)
 c
-c     if bond not constrained or pme
-c
-      if(iand(ibnd(isb,3),icnstr).eq.0.or.ipme.ne.0) then
-c
 c     find local atom numbers involved in this bond
 c
       isa=0
@@ -2163,6 +2159,12 @@ c
       rss2i=one
       endif
 c
+      rbnd(isb,1)=rss
+c
+c     if bond not constrained or pme
+c
+      if(iand(ibnd(isb,3),icnstr).eq.0.or.ipme.ne.0) then
+c
 c     if bond not constrained
 c
       if(iand(ibnd(isb,3),icnstr).eq.0) then
@@ -2182,7 +2184,6 @@ c     find reference bond length and force constant
 c
       bond=bnd(isb,1,iset)
       for=bnd(isb,2,iset)
-      rbnd(isb,1)=rss
       dbond=rss-bond
 c
 c     evaluate energies and forces
@@ -2314,7 +2315,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.18 2000-02-20 15:59:25 d3j191 Exp $
+c $Id: cf_f.fh,v 1.19 2000-03-17 17:42:15 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2573,7 +2574,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.18 2000-02-20 15:59:25 d3j191 Exp $
+c $Id: cf_f.fh,v 1.19 2000-03-17 17:42:15 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2898,7 +2899,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.18 2000-02-20 15:59:25 d3j191 Exp $
+c $Id: cf_f.fh,v 1.19 2000-03-17 17:42:15 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3208,7 +3209,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs)
 c
-c $Id: cf_f.fh,v 1.18 2000-02-20 15:59:25 d3j191 Exp $
+c $Id: cf_f.fh,v 1.19 2000-03-17 17:42:15 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3524,7 +3525,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.18 2000-02-20 15:59:25 d3j191 Exp $
+c $Id: cf_f.fh,v 1.19 2000-03-17 17:42:15 d3j191 Exp $
 c
       implicit none
 c
