@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_vloc_atom.F,v 1.1 2003-02-11 20:46:11 marat Exp $
+* $Id: paw_energy_vloc_atom.F,v 1.2 2003-02-11 21:10:35 marat Exp $
 *
 
 
@@ -28,7 +28,6 @@
       integer nb
       double precision evloc
 
-      write(*,*) " paw vloc matrix"
       evloc = 0.D0
       i_w = 0
       do in=1,ion_nion()
@@ -46,7 +45,6 @@
                   evloc = evloc + dcpl_mb(paw_ovlp_w(1)+i_w)*
      >                          dbl_mb(paw_vloc_matrix(1) + i_mtr - 1) 
                 end if
-                write(*,*) i,j,ia,dbl_mb(paw_vloc_matrix(1) + i_mtr - 1)
                 i_w = i_w +1
                 end do
              end do
