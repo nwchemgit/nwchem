@@ -1,6 +1,6 @@
       subroutine setinp(ir,iw)
 *
-* $Id: input.F,v 1.3 1997-10-31 23:42:06 d3e129 Exp $
+* $Id: input.F,v 1.4 2000-02-15 18:12:44 windus Exp $
 *
       implicit real*8    (a-h,p-w),integer   (i-n),logical    (o)
       implicit character *8 (z),character *1 (x)
@@ -336,14 +336,14 @@ c     in jbuf and transferred to junke
 10    format(///' input line width set to',i4,' characters')
       return
       end
-      function ytrunc(ztext)
+      character*4 function ytrunc(ztext)
       implicit real*8    (a-h,p-w),integer   (i-n),logical    (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
       ytrunc(1:4)=ztext(1:4)
       return
       end
-      function locatc(label,nf,itext)
+      integer function locatc(label,nf,itext)
       implicit real*8    (a-h,p-w),integer   (i-n),logical    (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
