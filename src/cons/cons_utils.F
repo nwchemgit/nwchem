@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.1 2004-03-29 20:34:16 marat Exp $
+c $Id: cons_utils.F,v 1.2 2004-03-29 20:59:13 marat Exp $
       subroutine cons_add_spring(i,j,k,r,rtdb)
       implicit none
 #include "errquit.fh"
@@ -19,6 +19,9 @@ c
       integer h_tmp_id,i_tmp_id 
       integer h_tmp_k,i_tmp_k 
       integer h_tmp_r,i_tmp_r 
+      integer i0,j0
+      double precision k0
+      double precision r0
       
       if(.not.rtdb_get(rtdb,"cons:hbond_n",mt_int,1,nhb0)) then
          nhb0 = 0
@@ -57,10 +60,28 @@ c
      >      0, MA_ERR)
        end if
        
+      status = .true.
+      do i=1,nhb0
+       i0 = int_mb(i_tmp_id+2*(i-1))
+       j0 = int_mb(i_tmp_id+2*(i-1)+1)
+       k0 = dbl_mb(i_tmp_k+i-1)
+       r0 = dbl_mb(i_tmp_r+i-1)
+       if(i0.eq.i .and. j0.eq.j) then
+         write(*,*) "cons_add_spring: replacing existing spring"
+         dbl_mb(i_tmp_k+i-1)=k
+         dbl_mb(i_tmp_r+i-1)=r
+         status = .false.
+       end if
+      end do
+        
+      if(status) then
        int_mb(i_tmp_id + 2*nhb0)     = i
        int_mb(i_tmp_id + 2*nhb0 + 1) = j
        dbl_mb(i_tmp_k + nhb0)=k
        dbl_mb(i_tmp_r + nhb0)=r
+      else
+       nhb=nhb0
+      end if
 
        status = rtdb_put(rtdb,"cons:hbond_n",mt_int,1,nhb)
        status = status . and. rtdb_put(rtdb,"cons:hbond_ij",
