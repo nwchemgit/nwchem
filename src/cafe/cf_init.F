@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.43 2000-04-11 15:19:12 d3j191 Exp $
+c $Id: cf_init.F,v 1.44 2000-05-04 06:21:48 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1593,7 +1593,7 @@ c
 c
       integer lfnout
       integer imul(mmult,4)
-      integer i,m
+      integer i
 c
       if(nmult(1)+nmult(2)+nmult(3)+nmult(4).le.0) return
 c

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.49 2000-05-03 22:55:56 d3j191 Exp $
+c $Id: cf_main.F,v 1.50 2000-05-04 06:21:48 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2182,8 +2182,6 @@ c
       external cf_atotyp
 c
       integer i
-c
-      character*6 at
 c
       cf_quantuma=cf_atotyp(int_mb(i_typ),i).eq.1
 c
