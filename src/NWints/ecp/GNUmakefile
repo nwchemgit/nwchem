@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.26 2002-02-15 19:42:06 edo Exp $
+# $Id: GNUmakefile,v 1.27 2002-06-17 22:29:31 bert Exp $
 # 
 
 HEADERS   = ecp_nwc.fh
@@ -66,7 +66,7 @@ OBJ_ENERGY = \
 
 OBJ  = ecp_sph_tens.o 
 OBJ +=  int_ecp.o
-OBJ_OPTIMIZE = $(OBJ_ENERGY) $(OBJ_GRAD)
+OBJ_OPTIMIZE = $(OBJ_ENERGY) $(OBJ_GRAD) $(OBJ_HESS)
 
 HEADERS = ecp_nwc.fh
 
