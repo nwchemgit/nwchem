@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.35 2000-08-04 19:10:51 d3g681 Exp $
+* $Id: geom_hnd.F,v 1.36 2000-08-26 19:51:54 d3g681 Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -271,7 +271,7 @@ c
       double precision z(ndim*ndim) ! [scratch]
       double precision e(ndim)  ! [scratch]
 c
-      integer info, i, j, ioff, nindep
+      integer info, i, j, ioff, nindep, ij, ji
       logical odebug
 c
 c     Form generalized inverse of the B matrix
@@ -285,6 +285,14 @@ c
       endif
       call dgemm('t', 'n', nzvar, nzvar, ncart, 1d0,  
      $     x, ncart, x, ncart, 0d0, y, nzvar) ! BT.B -> y ... should symmetrize
+      do i = 1, nzvar
+         do j = 1, nzvar
+            ij = i + (j-1)*nzvar
+            ji = j + (i-1)*nzvar
+            y(ij) = 0.5d0*(y(ij) + y(ji))
+            y(ji) = y(ij)
+         end do
+      end do
       call dsyev('v', 'u', nzvar, y, nzvar, e, z, ndim**2, info)
       if (info .ne. 0) call errquit('geom_binvr: dsyev failed', info)
       if (odebug) then
