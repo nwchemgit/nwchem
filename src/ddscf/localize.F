@@ -1,6 +1,6 @@
       subroutine testlocalize(rtdb)
 *
-* $Id: localize.F,v 1.5 2000-09-12 23:27:04 d3g681 Exp $
+* $Id: localize.F,v 1.6 2000-09-13 18:14:23 d3g681 Exp $
 *
       implicit none
 #include "cscf.fh"
@@ -190,8 +190,8 @@ c
 c
       call ga_sync()
 c
-      call moints_screen(basis, ncore+1, nclosed, g_movecs(1), g_mosc)
-      if (.not. ga_destroy(g_mosc)) call errquit('fred did it!',0)
+*      call moints_screen(basis, ncore+1, nclosed, g_movecs(1), g_mosc)
+*      if (.not. ga_destroy(g_mosc)) call errquit('fred did it!',0)
 c
       end
 c
