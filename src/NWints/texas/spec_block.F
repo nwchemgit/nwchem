@@ -1,4 +1,4 @@
-* $Id: spec_block.F,v 1.26 2000-10-25 22:50:06 windus Exp $
+* $Id: spec_block.F,v 1.27 2001-06-25 17:31:05 pg481 Exp $
 c===============================================================
 c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
 c kw 22.05.97 : nasize(*)has been eleminated. 
@@ -664,7 +664,8 @@ c
       n_times=1
       if(ifor.eq.2) n_times= 6 ! giao Ist derivatives
       if(ifor.eq.3) n_times= 9 ! gradient derivatives
-      if(ifor.eq.4) n_times=45 ! hessian  derivatives
+ccc   if(ifor.eq.4) n_times=45 ! hessian  derivatives
+      if(ifor.eq.4) n_times=55 ! hessian  derivatives
 c these above are different than those in texas_hf setup 
 c
       where='    '
@@ -842,7 +843,8 @@ c----------------------------------------------------------------------
       n_times=1
       if(ifor.eq.2) n_times= 6 ! giao Ist derivatives
       if(ifor.eq.3) n_times= 9 ! gradient derivatives
-      if(ifor.eq.4) n_times=45 ! hessian  derivatives
+ccc   if(ifor.eq.4) n_times=45 ! hessian  derivatives
+      if(ifor.eq.4) n_times=55 ! hessian  derivatives
 c these above are different than those in texas_hf setup 
 c
       where='    '
@@ -1243,6 +1245,10 @@ c
         if(where.eq.'forc') then
             mwij=10*mwij
             mxij=10*mxij
+        endif
+        if(where.eq.'hess') then
+            mwij=55*mwij
+            mxij=55*mxij
         endif
 c           ----------------------
             memamsh=mwij+mxij
