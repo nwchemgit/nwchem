@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.70 1997-06-02 17:56:16 d3e129 Exp $
+c $Id: basis.F,v 1.71 1997-07-17 22:21:49 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3231,6 +3231,7 @@ c
       debug = .false.
 c
       bas_match_tags = .false.
+      bsmatch = ' '
 c
       basis = basisin+Basis_Handle_Offset
 c
@@ -3303,6 +3304,7 @@ c
 c... now get symbol and element names for each tag and match those
 c    geometry tag is based on users substring
 c    basis set tag is based on user input to the basis object
+c... bq's with basis functions must match from the above rules!
 c
       status = geom_tag_to_element(gstring,g_sym,g_elem,g_atn)
       if (.not.status)then
@@ -3312,6 +3314,7 @@ c
           call errquit('bas_match_tags: fatal error ',911)
         endif
       endif
+      if (g_sym.eq.'bq') goto 00009   ! bq labes with basis functions must match from above
       do i = 1, nbtgs
         status =
      &      geom_tag_to_element(bs_tags(i,basis),b_sym,b_elem,b_atn)
