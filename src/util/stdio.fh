@@ -1,11 +1,9 @@
-#ifndef _stdio_fh_
-#define _stdio_fh_
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     stdio -- define logical units for standard I/O
 C
 C REVISION
-C     $Id: stdio.fh,v 1.4 1995-04-10 01:40:27 gg502 Exp $
+C     $Id: stdio.fh,v 1.5 1995-04-24 07:03:49 d3e129 Exp $
 C
 C NOTES
 C     Common block must be initialized with stdio_init.fh in the main
@@ -18,4 +16,3 @@ C
 C     This way we don't have to worry about the initialization/termination
 C
       Parameter (LuIn = 5, LuOut = 6, LuErr = 0)
-#endif /* _stdio_fh */
