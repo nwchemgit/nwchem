@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.24 2001-12-17 23:44:37 edo Exp $
+c$Id: xc_hcth.F,v 1.25 2002-01-18 10:29:16 bjohnson Exp $
 c
       Implicit none
 c
@@ -68,11 +68,6 @@ c
             Amat(n,1) = Amat(n,1)+dfdrac*cfac+dfdrax*xfac
             dfdza=(dfdzac*cfac+dfdzax*xfac)*0.5d0 
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza
-#if 0
-            Cmat(n,1,1) = Cmat(n,1,1) + dfdza*delrho(n,1,1)
-            Cmat(n,2,1) = Cmat(n,2,1) + dfdza*delrho(n,2,1)
-            Cmat(n,3,1) = Cmat(n,3,1) + dfdza*delrho(n,3,1)
-#endif
           endif
         enddo
       else
@@ -104,17 +99,78 @@ c
             dfdzb=dfdzbc*cfac+dfdzbx*xfac
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza*0.5d0
             Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dfdzb*0.5d0
-#if 0
-            Cmat(n,1,1) = Cmat(n,1,1) + dfdza*delrho(n,1,1)
-            Cmat(n,2,1) = Cmat(n,2,1) + dfdza*delrho(n,2,1)
-            Cmat(n,3,1) = Cmat(n,3,1) + dfdza*delrho(n,3,1)
-            Cmat(n,1,2) = Cmat(n,1,2) + dfdzb*delrho(n,1,2)
-            Cmat(n,2,2) = Cmat(n,2,2) + dfdzb*delrho(n,2,2)
-            Cmat(n,3,2) = Cmat(n,3,2) + dfdzb*delrho(n,3,2)
-#endif
           endif
         enddo
       endif
+      return
+      end
+
+      Subroutine xc_hcth_d2(tol_rho, xfac, lxfac, nlxfac,
+     &                      cfac, lcfac, nlcfac,rho, delrho,
+     &                      Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &                      Ex, Ec,  qwght, ldew,func,funcname)
+c
+c$Id: xc_hcth.F,v 1.25 2002-01-18 10:29:16 bjohnson Exp $
+c
+      Implicit none
+c
+#include "dft2drv.fh"
+#include "mafdecls.fh"
+c
+      logical ldew ! [input]
+      logical lcfac, nlcfac,  lxfac, nlxfac ! [input]
+      double precision func(*) ![input/output]
+      double precision cfac, xfac ![input]
+      character*4 funcname ! functional name [input]
+c
+      integer ipol  ! no. of spin states [input]
+      integer nq    ! no. of quadrature pts [input]
+      double precision tol_rho! [input]!threshold on density
+      double precision Ec ! Correlation energy [input/output] 
+      double precision Ex ! Exchange    energy [input/output] 
+      double precision rho(nq,ipol*(ipol+1)/2)! Charge Density [input] 
+      double precision delrho(nq,3,ipol) ! Charge Density Gradient[input] 
+      double precision qwght(nq) ! Quadrature Weights [input]
+      double precision Amat(nq,ipol)  !Sampling Matrices for the XC [output]
+      double precision Cmat(nq,*)!Potential & Energy [output]
+      double precision Amat2(nq,NCOL_AMAT2) ! XC functional seconds [output]
+      double precision Cmat2(nq,NCOL_CMAT2) ! XC functional seconds [output]
+c
+c     Local variables
+c
+      integer l_storage, i_prho, i_pdelrho, i_pAmat, i_pCmat, i_pfunc,
+     &     i_qwght_copy, npert
+      double precision ExDum, EcDum
+c
+c     First get the functional and first derivative values
+c
+      call xc_hcth(tol_rho, xfac, lxfac, nlxfac, cfac, lcfac, nlcfac,
+     &     rho, delrho, Amat, Cmat, nq, ipol, Ex, Ec, qwght, ldew, func,
+     &     funcname)
+c
+c     Compute the second derivative values by finite difference
+c
+      call xc_setup_fd(tol_rho, rho, delrho, qwght, nq, ipol, .true.,
+     &     l_storage, i_prho, i_pdelrho, i_pAmat, i_pCmat, i_pfunc,
+     &     i_qwght_copy)
+c
+c     Compute functional first derivatives at perturbed density parameter
+c     values - note that the number of points is nq*2*npert and that the
+c     routine is called as unrestricted
+c
+      npert = 5
+      call xc_hcth(tol_rho, xfac, lxfac, nlxfac, cfac, lcfac, nlcfac,
+     &     dbl_mb(i_prho), dbl_mb(i_pdelrho), dbl_mb(i_pAmat),
+     &     dbl_mb(i_pCmat), nq*2*npert, 2, ExDum, EcDum,
+     &     dbl_mb(i_qwght_copy), ldew, dbl_mb(i_pfunc), funcname)
+      call xc_make_fd(Amat2, Cmat2, nq, .true., dbl_mb(i_pAmat),
+     &     dbl_mb(i_pCmat))
+c
+c     Free temporary storage allocated by xc_setup_fd
+c
+      if (.not.ma_pop_stack(l_storage))
+     &     call errquit('xc_hcth_d2: cannot pop stack',0)
+c
       return
       end
 
