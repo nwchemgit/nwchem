@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.26 1997-05-19 19:10:53 d3g681 Exp $
+C$Id: rohf.F,v 1.27 1997-07-25 23:35:20 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -117,8 +117,8 @@ c
             call output(dbl_mb(k_eval),
      $           1, nprint,
      $           1, 1, nmo, 1, 1)
-            call ecce_print1('orbital energies', mt_dbl, 
-     $           dbl_mb(k_eval), nmo)
+*            call ecce_print1('orbital energies', mt_dbl, 
+*     $           dbl_mb(k_eval), nmo)
             call util_flush(6)
          endif
       endif
