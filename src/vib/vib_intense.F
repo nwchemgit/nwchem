@@ -1,4 +1,4 @@
-* $Id: vib_intense.F,v 1.3 1997-06-13 00:54:36 d3e129 Exp $
+* $Id: vib_intense.F,v 1.4 1998-05-08 19:04:02 d3e129 Exp $
       subroutine vib_intense(eigvec,eigval,nat,ddpolx,ddpolq,
      &    intensity,first_pass)
       implicit none
@@ -10,17 +10,49 @@
       double precision eigval(3,nat)        ! (q)
       double precision ddpolx(3,3,nat)      ! (m,cart)
       double precision ddpolq(3,3,nat)      ! (m,q)
-      double precision intensity(3,nat,3)   ! (q,3)  3->1 = au, 
+      double precision intensity(3,nat,4)   ! (q,3)  3->1 = au, 
 * . . . . . . . . . . . . . . . . . . . . . !           2 = (debye/angs)**2,
-* . . . . . . . . . . . . . . . . . . . . . !           3 = arbitrary units 
+* . . . . . . . . . . . . . . . . . . . . . !           3 = (KM/mole)
+* . . . . . . . . . . . . . . . . . . . . . !           4 = arbitrary units 
 * . . . . . . . . . . . . . . . . . . . . . !               normalized units
       logical first_pass
 c
       integer iq, iqatom, iqxyz, iqm, atom, xyz
       double precision ddq, dint, ave_intensity, factor
+      double precision dpdq1, dpdq2, dpdq3
+      integer ivalx, ivala
+      double precision val
+      logical printit
       logical debug
 c
-      debug = .false.
+      debug = util_print('everything',print_debug)
+c
+c fix phase of eigvec
+c
+      do iqatom = 1,nat
+        do iqxyz = 1,3
+          ivalx = -1
+          ivala = -1
+          val = -1.0d00
+          do atom = 1,nat
+            do xyz = 1,3
+              if (abs(eigvec(xyz,atom,iqxyz,iqatom)).gt.val) then
+                val = eigvec(xyz,atom,iqxyz,iqatom)
+                ivala = atom
+                ivalx = xyz
+              endif
+            enddo
+          enddo
+          if (eigvec(ivalx,ivala,iqxyz,iqatom).lt.0.0d00) then
+            do atom = 1,nat
+              do xyz = 1,3
+                eigvec(xyz,atom,iqxyz,iqatom)=
+     &              -eigvec(xyz,atom,iqxyz,iqatom)
+              enddo
+            enddo
+          endif
+        enddo
+      enddo
 c
 *...  first form ddpolq from ddpolx
 c
@@ -31,7 +63,7 @@ c
             do atom = 1,nat
               do xyz = 1,3
                 ddq = ddq +
-*(cart,q)
+*ddpolx(q,cart)eigvec(cart,q)
      &              ddpolx(iqm,xyz,atom)*eigvec(xyz,atom,iqxyz,iqatom)
               enddo
             enddo
@@ -40,9 +72,36 @@ c
         enddo
       enddo
 c
+c write dipole derivatives in normal modes 
+c
+      printit = util_print('dipole derivatives',print_default)
+      printit = printit.or.debug
+      if (printit) then
+        write(luout,'(//)')
+        write(luout,10000)
+        if (first_pass) then
+          write(luout,10001)
+        else
+          write(luout,10002)
+        endif
+        iq = 0
+        do iqatom = 1,nat
+          do iqxyz = 1,3
+            iq = iq + 1
+            dpdq1 = ddpolq(1,iqxyz,iqatom)*2.5417478d00/0.529177249d00
+            dpdq2 = ddpolq(2,iqxyz,iqatom)*2.5417478d00/0.529177249d00
+            dpdq3 = ddpolq(3,iqxyz,iqatom)*2.5417478d00/0.529177249d00
+            write(luout,10003)
+     &          iq,eigval(iqxyz,iqatom),dpdq1,dpdq2,dpdq3
+          enddo
+        enddo
+        write(luout,10000)
+        write(luout,'(//)')
+      endif
+c
 *... form Intensity vector
 c
-      call dfill ((3*nat*3),0.0d00,intensity,1)
+      call dfill ((3*nat*4),0.0d00,intensity,1)
 c
       ave_intensity = 0.0d00
       do iqatom = 1,nat
@@ -72,7 +131,8 @@ c
           intensity(iqxyz,iqatom,2) =
      &        dint*2.5417478d00/0.529177249d00 ! bohr->angstrom matches current geom data
      &        *2.5417478d00/0.529177249d00
-
+          intensity(iqxyz,iqatom,3) =
+     &        intensity(iqxyz,iqatom,2)*42.2547  ! convert to KM/mol from debye**2/angs**2
         enddo
       enddo
 c
@@ -83,11 +143,12 @@ c
         do iqatom = 1,nat
           do iqxyz = 1,3
             iq = iq + 1
-            write(luout,10000)
+            write(luout,90000)
      &          iq,
      &          eigval(iqxyz,iqatom),
      &          intensity(iqxyz,iqatom,1),
-     &          intensity(iqxyz,iqatom,2)
+     &          intensity(iqxyz,iqatom,2),
+     &          intensity(iqxyz,iqatom,3)
           enddo
         enddo
       endif
@@ -96,45 +157,46 @@ c
 c  10.0 = value*factor
 c
       factor = 10.d00/ave_intensity
-      call dcopy((3*nat),intensity(1,1,1),1,intensity(1,1,3),1)
-      call dscal((3*nat),factor,intensity(1,1,3),1)
+      call dcopy((3*nat),intensity(1,1,1),1,intensity(1,1,4),1)
+      call dscal((3*nat),factor,intensity(1,1,4),1)
 c
       if (debug) then
         iq = 0
         do iqatom = 1,nat
           do iqxyz = 1,3
             iq = iq + 1
-            write(luout,10001)
+            write(luout,90001)
      &          iq,
      &          eigval(iqxyz,iqatom),
-     &          intensity(iqxyz,iqatom,3)
+     &          intensity(iqxyz,iqatom,4)
           enddo
         enddo
       endif
 c
 *... print information out.
 c
-      if (util_print('IR intensities',print_low)) then
+      printit = util_print('IR intensities',print_low)
+      printit = printit.or.debug
+      if (printit) then
         write(luout,*)' '
         write(luout,*)' '
-        write(luout,10002)
+        write(luout,10000)
         if (first_pass) then
-          write(luout,10003)
-        else
           write(luout,10004)
+        else
+          write(luout,10005)
         endif
         iq = 0
         do iqatom = 1,nat
           do iqxyz = 1,3
             iq = iq + 1
-            write(luout,10005)
+            write(luout,10006)
      &          iq,eigval(iqxyz,iqatom),
-     &          (intensity(iqxyz,iqatom,iqm),iqm=1,3)
+     &          (intensity(iqxyz,iqatom,iqm),iqm=1,4)
           enddo
         enddo
-        write(luout,10002)
-        write(luout,*)' '
-        write(luout,*)' '
+        write(luout,10000)
+        write(luout,'(//)')
         call util_flush(luout)
       endif
 c
@@ -145,47 +207,84 @@ c
      &      mt_dbl,intensity(1,1,1),(3*nat))
         call ecce_print1('intensities (debye/ang)2',
      &      mt_dbl,intensity(1,1,2),(3*nat))
+        call ecce_print1('intensities (KM/mol)',
+     &      mt_dbl,intensity(1,1,3),(3*nat))
       else
         call ecce_print1('projected intensities',
      &      mt_dbl,intensity(1,1,1),(3*nat))
         call ecce_print1('projected intensities (debye/ang)2',
      &      mt_dbl,intensity(1,1,2),(3*nat))
+        call ecce_print1('projected intensities (KM/mol)',
+     &      mt_dbl,intensity(1,1,3),(3*nat))
       endif
 c
-10000 format(1x,'Intensity for eigenvalue ',i3,' [',f10.3,
-     &    ' cm**(-1)] is ',
-     &    f10.3,' [atomic units] ',
-     &    f10.3,'[(debey/angs)**2]' )
-10001 format(1x,'Normalized Intensity for eigenvalue ',i3,' [',f10.3,
-     &    ' cm**(-1)] is ',f10.3,' arbitrary units ')
-10002 format(1x,65('-'))
-10003 format(
+10000 format(1x,76('-'))
+10001 format(
      &    1x,'Normal',1x,'Eigenvalue',1x,'||',
-     &    8x,'   Infra Red Intensities',/,
+     &    9x,'Derivative Dipole Moments (debye/angs)',/,
      &    2x,'Mode',
      &    3x,'[cm**-1]',2x,'||',
-     &    1x,'[atomic units]',
-     &    1x,'[(debye/angs)**2]',
-     &    1x,'[arbitrary]',/,
+     &    6x,'[d/dqX]',
+     &   13x,'[d/dqY]',
+     &   11x,'[d/dqZ]',/,
      &    1x,'------',
      &    1x,'----------',1x,'||',
-     &    1x,'--------------',
-     &    1x,'-----------------',
-     &    1x,'-----------')
+     &    1x,'------------------',
+     &    1x,'------------------',
+     &    1x,'-----------------')
+10002 format(
+     &    1x,'Normal',1x,'Eigenvalue',1x,'||',
+     &    4x,'Projected Derivative Dipole Moments (debye/angs)',/,
+     &    2x,'Mode',
+     &    3x,'[cm**-1]',2x,'||',
+     &    6x,'[d/dqX]',
+     &   13x,'[d/dqY]',
+     &   11x,'[d/dqZ]',/,
+     &    1x,'------',
+     &    1x,'----------',1x,'||',
+     &    1x,'------------------',
+     &    1x,'------------------',
+     &    1x,'-----------------')
+10003 format(2x,i3,3x,f10.3,1x,'||',
+     &    2x,f10.3,10x,f10.3,8x,f10.3)
 10004 format(
      &    1x,'Normal',1x,'Eigenvalue',1x,'||',
-     &    8x,'   Projected Intensities',/,
+     &   14x,'   Infra Red Intensities',/,
      &    2x,'Mode',
      &    3x,'[cm**-1]',2x,'||',
      &    1x,'[atomic units]',
      &    1x,'[(debye/angs)**2]',
+     &    1x,'[(KM/mol)]',
      &    1x,'[arbitrary]',/,
      &    1x,'------',
      &    1x,'----------',1x,'||',
      &    1x,'--------------',
      &    1x,'-----------------',
+     &    1x,'----------',
      &    1x,'-----------')
-10005 format(2x,i3,3x,f10.3,1x,'||',
-     &    1x,f11.6,6x,f10.3,4x,f10.3)
+10005 format(
+     &    1x,'Normal',1x,'Eigenvalue',1x,'||',
+     &    8x,'   Projected Infra Red Intensities',/,
+     &    2x,'Mode',
+     &    3x,'[cm**-1]',2x,'||',
+     &    1x,'[atomic units]',
+     &    1x,'[(debye/angs)**2]',
+     &    1x,'[(KM/mol)]',
+     &    1x,'[arbitrary]',/,
+     &    1x,'------',
+     &    1x,'----------',1x,'||',
+     &    1x,'--------------',
+     &    1x,'-----------------',
+     &    1x,'----------',
+     &    1x,'-----------')
+10006 format(2x,i3,3x,f10.3,1x,'||',
+     &    1x,f11.6,6x,f10.3,4x,f10.3,2x,f10.3)
+90000 format(1x,'Intensity for eigenvalue ',i3,' [',f10.3,
+     &    ' cm**(-1)] is ',
+     &    f10.3,' [atomic units] ',
+     &    f10.3,'[(debey/angs)**2]',
+     &    f10.3,'[(KM/mol)]', )
+90001 format(1x,'Normalized Intensity for eigenvalue ',i3,' [',f10.3,
+     &    ' cm**(-1)] is ',f10.3,' arbitrary units ')
 c
       end

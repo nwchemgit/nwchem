@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.8 1997-06-12 22:51:49 d3e129 Exp $
+* $Id: vib_vib.F,v 1.9 1998-05-08 19:04:03 d3e129 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -100,7 +100,7 @@ C
       Iddpol   =  I40    + 8*NAT3    ! derivative dipole in cartesians
       Iddpolq  =  Iddpol + 3*NAT3    ! derivative dipole in normal modes
       Intense  =  Iddpolq+ 3*NAT3    ! intensities
-      ITOT     =  Intense + 3*natom*3
+      ITOT     =  Intense + 3*natom*4
       itot = itot + 2*natom+1 + 6*nat3 ! extra for call to rdinp
 c
       if (.not.ma_push_get
@@ -129,7 +129,7 @@ C
       iddpol   =  ivc + 6*nat3
       iddpolq  =  iddpol + 3*nat3
       intense  =  iddpolq + 3*nat3
-      Itot     =  intense + 3*natom*3
+      Itot     =  intense + 3*natom*4
 c
 c read/load hessian and form triangle/square as needed
 c
