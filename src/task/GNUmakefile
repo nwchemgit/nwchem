@@ -1,11 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.23 2001-12-20 18:51:51 d3k958 Exp $
+# $Id: GNUmakefile,v 1.24 2001-12-22 21:11:34 d3j191 Exp $
 #
 
   LIBRARY = libnwctask.a
   
   OBJ = task_energy.o task_gradient.o task_optimize.o task_freq.o \
-	task_hessian.o task_dynamics.o task_thermo.o\
+	task_hessian.o task_dynamics.o task_thermo.o task_et.o\
         task_save_state.o task.o task_input.o task_num_grad.o \
         task_vscf.o 
 
