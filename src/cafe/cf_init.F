@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal)
-c $Id: cf_init.F,v 1.29 1999-09-20 20:14:53 d3j191 Exp $
+c $Id: cf_init.F,v 1.30 1999-10-08 18:35:17 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -825,6 +825,8 @@ c
       end
       subroutine cf_pcopy(id,ipari,pari,idimi,idimp,ipar,par,idimt,
      + ip2log,ip3log,ithlog)
+c
+#include "cf_common.fh"
 c
       integer id,idimi,idimp,idimt
       integer ipari(idimi),ipar(idimt,idimi)
