@@ -1,13 +1,16 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.4 1994-08-06 09:18:12 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.5 1994-09-08 03:20:45 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
 #include "global.fh"
 #include "geom.fh"
 #include "geomP.fh"
 #include "rtdb.fh"
 #include "context.fh"
+#include "msgids.fh"
 c
       integer rtdb    ! [input] run-time-data-base handle
 c
@@ -26,6 +29,7 @@ c
       integer h_coord, k_coord  ! MA handle/index of coords
       integer h_core, k_core    ! MA handle/index of scratch array for stepper
       integer h_chg, k_chg      ! MA handle/index of charge array
+      integer int_val           ! value to propigate status (stpr_walk value)
       character*16 stpr_tags(max_cent) ! local tags array
       logical status
       double precision convgg, convge
@@ -164,7 +168,13 @@ c
 c... remove stepper context
         if (.not. context_pop('stepper'))
      &      call errquit('stpr_walk: context_pop failed',0)
+c
+        int_val = 0 
+        if (stpr_walk) int_val = 1
       endif
+      call ga_brdcst(Msg_Stpr_Walk+MSGINT, int_val, mitob(1), 0) ! Propagate walker status
+      stpr_walk = .false.
+      if (int_val.eq.1) stpr_walk = .true.
 c
 c.... restore parallel access to rtdb
         status = rtdb_parallel(.true.) 
