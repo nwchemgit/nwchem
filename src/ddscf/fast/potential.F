@@ -90,7 +90,7 @@ c
       double precision fact
 c
       integer lmax2, lencart, lenprod
-      parameter (lmax2 = 2*4) ! Twice max angular momentum
+      parameter (lmax2 = 2*5) ! Twice max angular momentum
       parameter (lencart = ((lmax2+1)*(lmax2+2))/2)
       parameter (lenprod = ((lmax2+1)*(lmax2+2)*(lmax2+3))/6)
       double precision d(lencart,-lmax2:lmax2,0:lmax2),
@@ -125,7 +125,7 @@ c
             if (ishell .ne. jshell) fact = 2.0d0
             call potential_from_shell_pair(basis, ishell, jshell,
      $           dbl_mb(k_scr), idim, tol, d, dinv, lmax2, 
-     $           npts, r, potential, fact)
+     $           npts, r, potential, fact, .false., .true., 1)
 c
          enddo
       enddo

@@ -2,16 +2,19 @@ c
 c     see xlminit in xlm.f for info on contents
 c
       integer maxl, maxl2, maxl4
-      double precision b, rqn, qn, w, u, e, s, c, ee, xlm_max25,
-     $     bcp0, phase, v, fastdiv, ui, ur, twobc, rtwobc
-      parameter (maxl = 25)
+      double precision b, rqn, qn, w, u, e, s, c, ee, fieldmax,
+     $     bcp0, phase, v, fastdiv, ui, ur, twobc, rtwobc,
+     $     rtwobcqnbp, brqnp
+      parameter (maxl = FMM_LMAX)
       parameter (maxl2 = maxl*2, maxl4=maxl*4)
       common/ncomxlm/ 
      $     b(-maxl2:maxl2, 0:maxl2), 
      $     c(-maxl2:maxl2,0:maxl2),
      $     twobc(-maxl:maxl,0:maxl),
      $     rtwobc(-maxl:maxl,0:maxl),
+     $     rtwobcqnbp(-maxl:maxl,0:maxl),
      $     rqn(-maxl:maxl, 0:maxl),
+     $     brqnp(-maxl:maxl, 0:maxl),
      $     qn(-maxl:maxl, 0:maxl),
      $     w(-maxl:maxl, 0:maxl), v(-maxl:maxl, 0:maxl), 
      $     ui(-maxl2:maxl2,0:maxl2),
@@ -21,7 +24,7 @@ c
      $     e(-maxl2:maxl2), s(-maxl2:maxl2),
      $     bcp0(0:maxl,0:maxl),
      $     phase(-maxl4:maxl4), fastdiv(maxl2+1),
-     $     xlm_max25((25+1)**2)
+     $     fieldmax(-maxl:maxl,0:maxl)
 c
 c     This is to support the caching of rotation matrix info
 c

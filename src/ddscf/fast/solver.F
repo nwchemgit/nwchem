@@ -1,115 +1,159 @@
-      subroutine solver(g, nx, ny, nz, poles, depth, lmax, 
-     $     xlo, xhi, ylo, yhi, zlo, zhi, offt1done)
+      subroutine solver(g, nx, ny, nz, tree, depth, lmax, levelbc,
+     $     xlo, xhi, ylo, yhi, zlo, zhi, offt1done, otree)
       implicit none
 #include "mafdecls.fh"
 #include "util.fh"
       integer nx, ny, nz        ! [input] Grid dimension
       integer depth, lmax       ! [input] FMM parameters
+      integer levelbc           ! [input] Level at which to inject bc poles
       double precision g(nx,ny,nz)
-      double precision 
-     $     poles(1:(lmax+1)**2,0:2**depth-1,0:2**depth-1,0:2**depth-1)
+      integer tree(300)
       double precision xlo, xhi, ylo, yhi, zlo, zhi
-      logical offt1done
+      logical offt1done, otree
 c
 c     Given as input a function that is zero at the boundary
 c     tabulated on a grid (zero boundary not included) and
 c     a set of multipole moments in the volume solve the
-c     free space Poisson equation
+c     free space Poisson equation.
+c
+c     If (otree) have an octree of mpoles not just a grid
 c
 c     if (offt1done) then
 c     .  the first sine transform has already been done
 c     endif
+c
+c     if (nx) is zero there is nothing on the grid
 c     
-      integer i, j, k
+      integer i, j, k, wtree(300)
       double precision pi, kx, ky, kz, scale
-      integer lenwork, lenworkfmm, l_work, k_work
-      double precision poles0(-25:25,0:25)
+      integer lenwork, l_work, k_work, lend, k_d, l_d
       real*4 etime, tt(2), start
 c
       pi = 4.0d0*atan(1.0d0)
 
-      if (.not. offt1done) then
+      if (nx .gt. 0) then
+
+         if (.not. offt1done) then
+            start = etime(tt)
+            call vsint3d(nx,ny,nz,g)
+            if (util_print('fastjtime',print_debug))
+     $           write(6,12) etime(tt)-start
+ 12         format(' fastj: First FFT ', f6.2)
+         endif
+         if (.not. ma_verify_allocator_stuff()) call errquit('fred',3)
          start = etime(tt)
-         call vsint3d(nx,ny,nz,g)
-         if (util_print('fastjtime',print_debug))
-     $        write(6,12) etime(tt)-start
- 12      format(' fastj: First FFT ', f6.2)
-      endif
-      if (.not. ma_verify_allocator_stuff()) call errquit('fred',3)
-      start = etime(tt)
 c     
-      scale = 4.0d0*pi*0.125d0/(dble(nx+1)*dble(ny+1)*dble(nz+1))
-c
-      do k = 1, nz
-         kz = k*pi/(zhi-zlo)
-         do j = 1, ny
-            ky = j*pi/(yhi-ylo)
-            do i = 1, nx
-               kx = i*pi/(xhi-xlo)
-               g(i,j,k) = scale*g(i,j,k)/(kx*kx+ky*ky+kz*kz)
+         scale = 4.0d0*pi*0.125d0/(dble(nx+1)*dble(ny+1)*dble(nz+1))
+c     
+         do k = 1, nz
+            kz = k*pi/(zhi-zlo)
+            do j = 1, ny
+               ky = j*pi/(yhi-ylo)
+               do i = 1, nx
+                  kx = i*pi/(xhi-xlo)
+                  g(i,j,k) = scale*g(i,j,k)/(kx*kx+ky*ky+kz*kz)
+               end do
             end do
          end do
-      end do
-      if (.not. ma_verify_allocator_stuff()) call errquit('fred',4)
-c
-      if (util_print('fastjtime',print_debug))
-     $     write(6,13) etime(tt)-start
- 13   format(' fastj: Scaling ', f6.2)
-      start = etime(tt)
-c
-      call vsint3d(nx,ny,nz,g)
-      if (util_print('fastjtime',print_debug))
-     $     write(6,14) etime(tt) - start
- 14   format(' fastj: Second FFT ', f6.2)
-      start = etime(tt)
-      if (.not. ma_verify_allocator_stuff()) call errquit('fred',5)
-c
+         if (.not. ma_verify_allocator_stuff()) call errquit('fred',4)
+c     
+         if (util_print('fastjtime',print_debug))
+     $        write(6,13) etime(tt)-start
+ 13      format(' fastj: Scaling ', f6.2)
+         
+         start = etime(tt)
+c     
+         call vsint3d(nx,ny,nz,g)
+         if (util_print('fastjtime',print_debug))
+     $        write(6,14) etime(tt) - start
+ 14      format(' fastj: Second FFT ', f6.2)
+         start = etime(tt)
+         if (.not. ma_verify_allocator_stuff()) call errquit('fred',5)
+      endif
+c     
       lenwork = (max(nx,ny,nz)+2)**2
-      lenworkfmm = (lmax+1)**2*2*(8**(depth+1)-1)/7
-      lenwork = max(lenwork,lenworkfmm)
       if (.not. ma_push_get(mt_dbl, lenwork, 'solver: work',
      $     l_work, k_work)) call errquit('solver: work ', lenwork)
-c
-      call boundary_layer_multipoles(g,nx,ny,nz,
-     $     xlo,xhi,ylo,yhi,zlo,zhi,poles,lmax,depth,dbl_mb(k_work),
-     $     'poles')
-      if (util_print('fastjtime',print_debug))
-     $     write(6,15) etime(tt) - start
- 15   format(' fastj: Boundary poles ', f6.2)
+      lend = (((lmax+1)*(lmax+2))/2)*(2*lmax+1)*(lmax+1)
+      if (.not. ma_push_get(mt_dbl, lend, 'solver:d',
+     $     l_d, k_d)) call errquit('solver: d ', lend)
+
+      if (nx .gt. 0) then
+         call xlm_init
+         call xlm_coeff(lmax,dbl_mb(k_d))
+c     
+         call boundary_layer_multipoles(g,nx,ny,nz,
+     $        xlo,xhi,ylo,yhi,zlo,zhi,
+     $        tree,lmax,levelbc,dbl_mb(k_work),
+     $        dbl_mb(k_d), 'poles')
+         if (util_print('fastjtime',print_debug))
+     $        write(6,15) etime(tt) - start
+ 15      format(' fastj: Boundary poles ', f6.2)
+
+         write(6,*) ' FMM tree after boundary poles '
+         call fmm_tree_summarize(tree)
+         write(6,*)
+      endif
+
+      call xlm_init
+
       start = etime(tt)
       if (.not. ma_verify_allocator_stuff()) call errquit('fred',6)
 c
-      call fmm(lmax, depth, xhi-xlo, yhi-ylo, zhi-zlo, poles,
-     $     poles0, dbl_mb(k_work), lenwork)
+*      call fmm(depth, lmax, tree, xhi-xlo, yhi-ylo, zhi-zlo)
+c
+      call fmm_tree_create(depth, lmax, wtree)
+c
+c     Upward pass
+c
+      call fmm_pass1(depth, lmax, xhi-xlo, yhi-ylo, zhi-zlo, 
+     $     tree, wtree)
+c
       if (util_print('fastjtime',print_debug))
      $     write(6,16) etime(tt) - start
- 16   format(' fastj: FMM ', f6.2)
+ 16   format(' fastj: FMM pass 1 ', f6.2)
       start = etime(tt)
       if (.not. ma_verify_allocator_stuff()) call errquit('fred',7)
-c
-      call boundary_layer_multipoles(g,nx,ny,nz,
-     $     xlo,xhi,ylo,yhi,zlo,zhi,poles,lmax,depth,dbl_mb(k_work),
-     $     'near')
-      if (util_print('fastjtime',print_debug))
-     $     write(6,17) etime(tt) - start
- 17   format(' fastj: Boundary potentials ', f6.2)
+      if (nx .gt. 0) then
+         call boundary_layer_multipoles(g,nx,ny,nz,
+     $        xlo,xhi,ylo,yhi,zlo,zhi,
+     $        wtree,lmax,levelbc,dbl_mb(k_work),
+     $        dbl_mb(k_d), 'near')
+         if (util_print('fastjtime',print_debug))
+     $        write(6,17) etime(tt) - start
+ 17      format(' fastj: Boundary potentials ', f6.2)
+      endif
       start = etime(tt)
       if (.not. ma_verify_allocator_stuff()) call errquit('fred',8)
+c     Downward pass
+      call fmm_pass2(depth, lmax, xhi-xlo, yhi-ylo, zhi-zlo, 
+     $     tree, wtree)
+      call fmm_tree_destroy(wtree)
+      if (util_print('fastjtime',print_debug))
+     $     write(6,116) etime(tt) - start
+ 116  format(' fastj: FMM pass 2 ', f6.2)
 c
-      if (.not. ma_pop_stack(l_work)) call errquit
+      start = etime(tt)
+      if (.not. ma_verify_allocator_stuff()) call errquit('fred',9)
+c
+      if (.not. ma_pop_stack(l_d)) call errquit
      $     ('solver: ma corrupt?',0)
+      if (.not. ma_pop_stack(l_work)) call errquit
+     $     ('solver: ma corrupt?',1)
 c
       end
       subroutine boundary_layer_multipoles(g,nx,ny,nz,
-     $    xlo, xhi, ylo, yhi, zlo, zhi, poles, lmax, depth, work, task)
+     $    xlo, xhi, ylo, yhi, zlo, zhi, tree, lmax, depth, work, 
+     $     d, task)
       implicit none
       character*(*) task
       integer nx, ny, nz
       double precision g(nx, ny, nz)
       double precision xlo, xhi, ylo, yhi, zlo, zhi
       integer lmax, depth
-      double precision work(0:*),
-     $     poles(1:(lmax+1)**2,0:2**depth-1,0:2**depth-1,0:2**depth-1)
+      double precision work(0:*)
+      integer tree(300)
+      double precision d(((lmax+1)*(lmax+2))/2, -lmax:lmax, 0:lmax)
 c
 c     if (task .eq. 'poles') then
 c     .   In grid is a solution to the Poisson equation for the 
@@ -150,12 +194,12 @@ c
       integer kx, ky, kz        ! FMM box indices
       double precision x, y, z, hx, hy, hz, hx_fmm, hy_fmm, hz_fmm,
      $     fourpi, xi, yj, zk, cartijk, dx, dy, dz
+      integer lmaxeff           ! Actual order used - lmax/2 empirically OK
 c
       logical opoles, onear
       integer maxl
-      parameter (maxl = 25)
+      parameter (maxl = FMM_LMAX)
       double precision q2d(0:maxl,0:maxl), q(-maxl:maxl,0:maxl)
-      double precision d(((maxl+1)*(maxl+2))/2, -maxl:maxl, 0:maxl)
 c
       double precision diff6,diff10,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10
       diff6(f1,f2,f3,f4,f5,f6) = (
@@ -173,8 +217,10 @@ c
       onear = .false.
       opoles= .false.
       if (task .eq. 'poles') then
+         lmaxeff = lmax/2
          opoles = .true.
       else if (task .eq. 'near') then
+         lmaxeff = lmax/2
          onear = .true.
       else
          call errquit('boundary_layer_multipoles: unknown task ', 0)
@@ -196,8 +242,7 @@ c
       hy_fmm = (yhi-ylo)/dble(2**depth)
       hz_fmm = (zhi-zlo)/dble(2**depth)
 c
-      call xlm_init
-      call xlm_coeff(maxl,d)
+      call dfill((maxl+1)*(2*maxl+1),0.0d0,q,1)
 c
 c     For each face the outward normal derivative is computed in work.
 c     Although the input 3-D grid does not include the zero boundary
@@ -230,8 +275,8 @@ c
          do ky = 0,2**depth-1
             y = (ky+0.5d0)*hy_fmm + ylo
             call surface_2d_cart_moments(work,ny1,nz1,hy,hz,
-     $           lmax,ky,kz,hy_fmm,hz_fmm,q2d,maxl)
-            do l = 0, lmax
+     $           lmaxeff,ky,kz,hy_fmm,hz_fmm,q2d,maxl)
+            do l = 0, lmaxeff
                do m = -l,l
                   q(m,l) = 0.0d0
                end do
@@ -251,10 +296,9 @@ c
             end do
 c
             if (opoles) then
-               call xlm_accumulate_to_packed(lmax, poles(1,kx,ky,kz),
-     $              q, maxl)
+               call fmm_tree_add_cell(tree,depth,kx,ky,kz,q,maxl,lmax)
             else
-               call boundary_layer_near(poles,lmax,depth,q,maxl,
+               call boundary_layer_near(tree,lmax,depth,q,maxl,
      $              xlo,xhi,ylo,yhi,zlo,zhi,kx,ky,kz,x,y,z)
             end if
          end do
@@ -286,8 +330,8 @@ c
          do ky = 0,2**depth-1
             y = (ky+0.5d0)*hy_fmm + ylo
             call surface_2d_cart_moments(work,ny1,nz1,hy,hz,
-     $           lmax,ky,kz,hy_fmm,hz_fmm,q2d,maxl)
-            do l = 0, lmax
+     $           lmaxeff,ky,kz,hy_fmm,hz_fmm,q2d,maxl)
+            do l = 0, lmaxeff
                do m = -l,l
                   q(m,l) = 0.0d0
                end do
@@ -307,10 +351,9 @@ c
             end do
 c
             if (opoles) then
-               call xlm_accumulate_to_packed(lmax, poles(1,kx,ky,kz),
-     $           q, maxl)
+               call fmm_tree_add_cell(tree,depth,kx,ky,kz,q,maxl,lmax)
             else
-               call boundary_layer_near(poles,lmax,depth,q,maxl,
+               call boundary_layer_near(tree,lmax,depth,q,maxl,
      $              xlo,xhi,ylo,yhi,zlo,zhi,kx,ky,kz,x,y,z)
             end if
          end do
@@ -342,8 +385,8 @@ c
          do kz = 0,2**depth-1
             z = (kz+0.5d0)*hz_fmm + zlo
             call surface_2d_cart_moments(work,nx1,nz1,hx,hz,
-     $           lmax,kx,kz,hx_fmm,hz_fmm,q2d,maxl)
-            do l = 0, lmax
+     $           lmaxeff,kx,kz,hx_fmm,hz_fmm,q2d,maxl)
+            do l = 0, lmaxeff
                do m = -l,l
                   q(m,l) = 0.0d0
                end do
@@ -363,10 +406,9 @@ c
             end do
 c
             if (opoles) then
-               call xlm_accumulate_to_packed(lmax, poles(1,kx,ky,kz),
-     $              q, maxl)
+               call fmm_tree_add_cell(tree,depth,kx,ky,kz,q,maxl,lmax)
             else
-               call boundary_layer_near(poles,lmax,depth,q,maxl,
+               call boundary_layer_near(tree,lmax,depth,q,maxl,
      $              xlo,xhi,ylo,yhi,zlo,zhi,kx,ky,kz,x,y,z)
             end if
          end do
@@ -398,8 +440,8 @@ c
          do kz = 0,2**depth-1
             z = (kz+0.5d0)*hz_fmm + zlo
             call surface_2d_cart_moments(work,nx1,nz1,hx,hz,
-     $           lmax,kx,kz,hx_fmm,hz_fmm,q2d,maxl)
-            do l = 0, lmax
+     $           lmaxeff,kx,kz,hx_fmm,hz_fmm,q2d,maxl)
+            do l = 0, lmaxeff
                do m = -l,l
                   q(m,l) = 0.0d0
                end do
@@ -419,10 +461,9 @@ c
             end do
 c
             if (opoles) then
-               call xlm_accumulate_to_packed(lmax, poles(1,kx,ky,kz),
-     $              q, maxl)
+               call fmm_tree_add_cell(tree,depth,kx,ky,kz,q,maxl,lmax)
             else
-               call boundary_layer_near(poles,lmax,depth,q,maxl,
+               call boundary_layer_near(tree,lmax,depth,q,maxl,
      $              xlo,xhi,ylo,yhi,zlo,zhi,kx,ky,kz,x,y,z)
             end if
          end do
@@ -454,8 +495,8 @@ c
          do kx = 0,2**depth-1
             x = (kx+0.5d0)*hx_fmm + xlo
             call surface_2d_cart_moments(work,nx1,ny1,hx,hy,
-     $           lmax,kx,ky,hx_fmm,hy_fmm,q2d,maxl)
-            do l = 0, lmax
+     $           lmaxeff,kx,ky,hx_fmm,hy_fmm,q2d,maxl)
+            do l = 0, lmaxeff
                do m = -l,l
                   q(m,l) = 0.0d0
                end do
@@ -475,10 +516,9 @@ c
             end do
 c
             if (opoles) then
-               call xlm_accumulate_to_packed(lmax, poles(1,kx,ky,kz),
-     $              q, maxl)
+               call fmm_tree_add_cell(tree,depth,kx,ky,kz,q,maxl,lmax)
             else
-               call boundary_layer_near(poles,lmax,depth,q,maxl,
+               call boundary_layer_near(tree,lmax,depth,q,maxl,
      $              xlo,xhi,ylo,yhi,zlo,zhi,kx,ky,kz,x,y,z)
             end if
          end do
@@ -510,8 +550,8 @@ c
          do kx = 0,2**depth-1
             x = (kx+0.5d0)*hx_fmm + xlo
             call surface_2d_cart_moments(work,nx1,ny1,hx,hy,
-     $           lmax,kx,ky,hx_fmm,hy_fmm,q2d,maxl)
-            do l = 0, lmax
+     $           lmaxeff,kx,ky,hx_fmm,hy_fmm,q2d,maxl)
+            do l = 0, lmaxeff
                do m = -l,l
                   q(m,l) = 0.0d0
                end do
@@ -531,10 +571,9 @@ c
             end do
 c
             if (opoles) then
-               call xlm_accumulate_to_packed(lmax, poles(1,kx,ky,kz),
-     $              q, maxl)
+               call fmm_tree_add_cell(tree,depth,kx,ky,kz,q,maxl,lmax)
             else
-               call boundary_layer_near(poles,lmax,depth,q,maxl,
+               call boundary_layer_near(tree,lmax,depth,q,maxl,
      $              xlo,xhi,ylo,yhi,zlo,zhi,kx,ky,kz,x,y,z)
             end if
          end do
@@ -653,6 +692,137 @@ c$$$         end do
 c$$$      end do
 c$$$c
 c$$$      end
+#ifdef ESSL
+      subroutine vsint3d(nx,ny,nz,g)
+      implicit none
+      integer nx, ny, nz
+      double precision g(nx,ny,nz)
+c
+c     Destructive 3D sin transform - using ESSL
+c
+c     Note that the input data does not include the zeroes
+c     on the boundary and that the weird ESSL interface not
+c     only requires the zeroes pretends that the transform
+c     is double this length.
+c
+      integer lenx
+      parameter (lenx = 8192)  ! 8192 empirically fastest for 604
+      double precision x(lenx)
+      double precision aux1(50000), aux2(20000), scale
+      integer i, j, k, ilo, ihi, twonp1, np1, n, ncol, ld
+      double precision ddot, util_cpusec, start
+      external ddot
+c
+      if (nx .gt. lenx) call errquit('sint3d: nx>lenx', nx)
+      if (ny .gt. lenx) call errquit('sint3d: ny>lenx', ny)
+      if (nz .gt. lenx) call errquit('sint3d: nz>lenx', nz)
+c
+      n = nx
+      np1 = n+1
+      twonp1 = 2*np1
+      ld = np1
+      if (mod(ld,2) .eq. 0) ld = ld + 1
+      ncol = lenx / ld
+      call dsinf(1, x, 1, 1, x, 1, 1, twonp1, 1, 1.0d0, 
+     $     aux1, 50000, aux2, 20000)
+c
+*      write(6,*) ' before 1 ', ddot(nx*ny*nz,g,1,g,1)
+*      start = util_cpusec()
+      do k = 1, nz
+         do j = 1, ny
+            x(1) = 0.0d0
+            do i = 1, nx
+               x(i+1) = g(i,j,k)
+            enddo
+            call dsinf(0, x, 1, 1, x, 1, 1, twonp1, 1, 1.0d0, 
+     $           aux1, 50000, aux2, 20000)
+            do i = 1, nx
+               g(i,j,k) = x(i+1)
+            enddo
+         enddo
+      end do
+*      write(6,*) ' First ', util_cpusec() - start
+c
+      n = ny
+      np1 = n+1
+      twonp1 = 2*np1
+      ld = np1
+      if (mod(ld,2) .eq. 0) ld = ld + 1
+      ncol = lenx / ld
+      ncol = min(ncol, nx)
+      call dsinf(1, x, 1, ld, x, 1, ld, twonp1, ncol, 1.0d0, 
+     $     aux1, 50000, aux2, 20000)
+c
+*      write(6,*) ' before 2 ', ddot(nx*ny*nz,g,1,g,1) * 4.0d0
+*      start = util_cpusec()
+      do ilo = 1, nx, ncol
+         ihi = min(nx,ilo+ncol-1)
+         if ((ihi-ilo+1) .ne. ncol) 
+     $        call dsinf(1, x, 1, ld, x, 1, ld, twonp1, (ihi-ilo+1), 
+     $        1.0d0, aux1, 50000, aux2, 20000)
+         do k = 1, nz
+            do i = ilo, ihi
+               x(1+(i-ilo)*ld) = 0.0d0
+            end do
+*            do j = 1, ny
+*               do i = ilo, ihi
+*                  x(j+1 + (i-ilo)*ld) = g(i,j,k)
+*               end do
+*            end do
+            call dgetmo(g(ilo,1,k),nx,(ihi-ilo+1),ny,x(2),ld)
+            call dsinf(0, x, 1, ld, x, 1, ld, twonp1, (ihi-ilo+1), 
+     $           1.0d0, aux1, 50000, aux2, 20000)
+*            do j = 1, ny
+*               do i = ilo, ihi
+*                  g(i,j,k) = x(j+1 + (i-ilo)*ld)
+*               end do
+*            end do
+            call dgetmo(x(2),ld,ny,(ihi-ilo+1),g(ilo,1,k),nx)
+         end do
+      end do
+*      write(6,*) ' Second ', util_cpusec() - start
+c
+      n = nz
+      np1 = n+1
+      twonp1 = 2*np1
+      ld = np1
+      if (mod(ld,2) .eq. 0) ld = ld + 1
+      ncol = lenx / ld
+      ncol = min(ncol, nx)
+      call dsinf(1, x, 1, ld, x, 1, ld, twonp1, ncol, 1.0d0, 
+     $     aux1, 50000, aux2, 20000)
+      scale = 8.0d0
+*      write(6,*) ' before 3 ', ddot(nx*ny*nz,g,1,g,1) * 16.0d0
+*      start = util_cpusec()
+      do ilo = 1, nx, ncol
+         ihi = min(nx,ilo+ncol-1)
+         if ((ihi-ilo+1) .ne. ncol) 
+     $        call dsinf(1, x, 1, ld, x, 1, ld, twonp1, (ihi-ilo+1), 
+     $        1.0d0, aux1, 50000, aux2, 20000)
+         do j = 1, ny
+            do i = ilo, ihi
+               x(1+(i-ilo)*ld) = 0.0d0
+            end do
+*            do k = 1, nz
+*               do i = ilo, ihi
+*                  x(k+1 + (i-ilo)*ld) = g(i,j,k)
+*               end do
+*            end do
+            call dgetmo(g(ilo,j,1),nx*ny,(ihi-ilo+1),nz,x(2),ld)
+            call dsinf(0, x, 1, ld, x, 1, ld, twonp1, (ihi-ilo+1), 
+     $           1.0d0, aux1, 50000, aux2, 20000)
+            do k = 1, nz
+               do i = ilo, ihi
+                  g(i,j,k) = x(k+1 + (i-ilo)*ld)*scale
+               end do
+            end do
+         end do
+      end do
+*      write(6,*) ' Third ', util_cpusec() - start
+*      write(6,*) ' before 4 ', ddot(nx*ny*nz,g,1,g,1)
+c
+      end
+#else
       subroutine vsint3d(nx,ny,nz,g)
       implicit none
       integer nx, ny, nz
@@ -669,6 +839,7 @@ c
       if (ny .gt. maxn) call errquit('sint3d: ny>maxn', ny)
       if (nz .gt. maxn) call errquit('sint3d: nz>maxn', nz)
 c
+*      write(6,*) ' before 1 ', ddot(nx*ny*nz,g,1,g,1)
       call sinti(nx,wsave)
       do k = 1, nz
          do j = 1, ny
@@ -676,6 +847,7 @@ c
          enddo
       end do
 c
+*      write(6,*) ' before 2 ', ddot(nx*ny*nz,g,1,g,1)
       call vsinti(ny,wsave)
       do k = 1, nz
          do ilo = 1, nx, ncol
@@ -694,6 +866,8 @@ c
          end do
       end do
 c
+*      write(6,*) ' before 3 ', ddot(nx*ny*nz,g,1,g,1) * 
+*     $     2.0d0*dble(ny+1)
       scale = sqrt(4.0d0*dble(ny+1)*dble(nz+1))
       if (nz .ne. ny) call vsinti(nz,wsave)
       do j = 1, ny
@@ -712,26 +886,10 @@ c
             end do
          end do
       end do
-c$$$      scale = 2.0*dble(nz+1)
-c$$$      call vsinti(nz,wsave)
-c$$$      do j = 1, ny
-c$$$         do ilo = 1, nx, ncol
-c$$$            ihi = min(nx,ilo+ncol-1)
-c$$$            do k = 1, nz
-c$$$               do i = ilo, ihi
-c$$$                  x(i-ilo+1,k) = g(i,j,k)
-c$$$               enddo
-c$$$            end do
-c$$$            call vsint(ihi-ilo+1,nz,x,xt,ncol,wsave)
-c$$$            do k = 1, nz
-c$$$               do i = ilo, ihi
-c$$$                  g(i,j,k) = x(i-ilo+1,k)*scale
-c$$$               enddo
-c$$$            end do
-c$$$         end do
-c$$$      end do
+*      write(6,*) ' before 4 ', ddot(nx*ny*nz,g,1,g,1)
 c
       end
+#endif
       subroutine fill_zero_boundary(work,ny1,nz1)
       implicit none
       integer ny1, nz1
@@ -773,7 +931,7 @@ c
       double precision yy, zz
 c
       integer order, ng, maxnpt, maxng, maxl, npt
-      parameter (maxnpt=65,maxng=16,maxl=25)
+      parameter (maxnpt = 65, maxng = 24, maxl = FMM_LMAX)
       double precision tmp(maxnpt,maxnpt), f(maxng,maxng)
       double precision y(maxng),z(maxng),yw(maxng),zw(maxng)
       double precision yp(maxng,0:maxl),zp(maxng,0:maxl),yf(0:maxl)
@@ -882,28 +1040,30 @@ c
       end do
 c
       end
-      subroutine boundary_layer_near(poles, lmax, depth, q, lq,
+      subroutine boundary_layer_near(tree, lmax, depth, q, lq,
      $     xlo, xhi, ylo, yhi, zlo, zhi, kx, ky, kz, x, y, z)
       implicit none
 #include "fmmP.fh"
       integer lmax, depth, kx, ky, kz, lq
-      double precision xlo, xhi, ylo, yhi, zlo, zhi, q(-lq:lq,0:lq),
-     $     poles(1:(lmax+1)**2,0:2**depth-1,0:2**depth-1,0:2**depth-1)
-c
-      integer dkx, dky, dkz, kxn, kyn, kzn, twod
+      double precision xlo, xhi, ylo, yhi, zlo, zhi, q(-lq:lq,0:lq)
+      integer tree(300)
+c     
+      integer dkx, dky, dkz, kxn, kyn, kzn, twod, luse
       double precision hx_fmm, hy_fmm, hz_fmm, x, y, z, xn, yn, zn
-c
+      double precision thresh, xx, yy, zz, dist
+c     
       integer maxl
-      parameter (maxl = 25)
+      parameter (maxl = FMM_LMAX)
       double precision pot(-maxl:maxl,0:maxl)
-c
+c     
       if (lmax .gt. maxl) call errquit('bln: lmax>maxl',lmax)
-c
+c     
       twod = 2**depth
       hx_fmm = (xhi-xlo)/dble(twod) ! FMM box size
       hy_fmm = (yhi-ylo)/dble(twod)
       hz_fmm = (zhi-zlo)/dble(twod)
-c
+      thresh = 1d-12
+c     
       do dkz = -well_separated, well_separated
          kzn = kz + dkz
          zn = zlo + (kzn+0.5d0)*hz_fmm
@@ -916,23 +1076,29 @@ c
                      kxn = kx + dkx
                      xn = xlo + (kxn+0.5d0)*hx_fmm
                      if (kxn.ge.1 .and. kxn.lt.twod-1) then
-                        call xlm_new_multipole_to_local(lmax,
-     $                       xn, yn, zn, pot, maxl, 
-     $                       x , y , z , q  , lq)
-c
-*                        write(6,*) ' from ', kx, ky, kz, ' to ',
-*     $                       kxn, kyn, kzn
-*                        write(6,*) x, y, z, xn, yn, zn,
-*     $                       sqrt((x-xn)**2+(y-yn)**2+(z-zn)**2)/hx_fmm
-                        call xlm_accumulate_to_packed(lmax, 
-     $                       poles(1,kxn,kyn,kzn),pot, maxl)
+
+                        xx = hx_fmm*dkx
+                        yy = hy_fmm*dky
+                        zz = hz_fmm*dkz
+                        dist = sqrt(xx*xx + yy*yy + zz*zz)-0.9d0*hz_fmm
+
+                        call xlm_thresh(lmax,q,lq,thresh,dist,luse)
+
+                        if (luse .gt. 0) then
+                           call xlm_new_multipole_to_local(luse,
+     $                          xn, yn, zn, pot, maxl, 
+     $                          x , y , z , q  , lq)
+                           call fmm_tree_add_cell(tree,depth,
+     $                          kxn,kyn,kzn,
+     $                          pot,maxl,luse)
+                        endif
                      end if
                   end do
                end if
             end do
          end if
       end do
-c
+c     
       end
       subroutine fft_interp_3d(g, nx, ny, nz, gg, nnx, nny, nnz)
       implicit none

@@ -1,293 +1,3 @@
-      block data xlm_block_data
-      implicit none
-#include "xlm.fh"
-c
-c     xlm_max25(m,l) = absolute maximum value of blm * xlm in a cube
-c     (-1,+1) found by brute force search.  The maximum value is
-c     always realized on the boundary.
-c
-      integer i
-c
-      data xlm_max25(1)/
-c     l = 0
-     $     1.0000d+00/
-      data (xlm_max25(i),i=2,4)/
-c     l = 1
-     $     5.0000d-01, 1.0000d+00, 5.0000d-01/
-      data (xlm_max25(i),i=5,9)/
-c     l = 2
-     $     2.5000d-01, 5.0000d-01, 5.0000d-01, 5.0000d-01, 1.2500d-01/
-      data (xlm_max25(i),i=10,16)/
-c     l = 3
-     $     4.1667d-02, 2.5000d-01, 1.8750d-01, 3.3333d-01, 1.8750d-01,
-     $     1.2500d-01,
-     $     4.1667d-02/
-      data (xlm_max25(i),i=17,25)/
-c     l = 4
-     $     4.0094d-03, 4.1667d-02, 8.3333d-02, 5.8926d-02, 1.4583d-01,
-     $     5.8926d-02,
-     $     5.2083d-02, 4.1667d-02, 1.0417d-02/
-      data (xlm_max25(i),i=26,36)/
-c     l = 5
-     $     1.0417d-03, 4.0094d-03, 1.5886d-02, 1.6038d-02, 3.1250d-02,
-     $     2.1108d-02,
-     $     3.1250d-02, 1.0417d-02, 1.5886d-02, 1.0417d-02, 1.0417d-03/
-      data (xlm_max25(i),i=37,49)/
-c     l = 6
-     $     1.7361d-04, 1.0417d-03, 1.7391d-03, 2.7141d-03, 7.8125d-03,
-     $     6.2500d-03,
-     $     8.9104d-03, 6.2500d-03, 1.3459d-03, 2.7141d-03, 4.1667d-03,
-     $     1.0417d-03,
-     $     6.2618d-05/
-      data (xlm_max25(i),i=50,64)/
-c     l = 7
-     $     1.2401d-05, 1.7361d-04, 4.3489d-04, 4.0764d-04, 7.1615d-04,
-     $     2.2569d-03,
-     $     9.7131d-04, 2.9762d-03, 9.7131d-04, 4.6600d-04, 7.1615d-04,
-     $     6.9444d-04,
-     $     4.3489d-04, 6.2618d-05, 1.2401d-05/
-      data (xlm_max25(i),i=65,81)/
-c     l = 8
-     $     5.4256d-07, 1.2401d-05, 7.4405d-05, 9.0788d-05, 4.9359d-05,
-     $     2.6042d-04,
-     $     2.0488d-04, 3.5962d-04, 3.1603d-04, 3.5962d-04, 1.0353d-04,
-     $     2.6042d-04,
-     $     1.1285d-04, 9.0788d-05, 2.7902d-05, 1.2401d-05, 1.5501d-06/
-      data (xlm_max25(i),i=82,100)/
-c     l = 9
-     $     8.6117d-08, 5.4256d-07, 5.4280d-06, 1.6534d-05, 8.6967d-06,
-     $     7.9191d-06,
-     $     3.6873d-05, 5.7034d-05, 6.6654d-05, 6.3734d-05, 6.6654d-05,
-     $     1.3176d-05,
-     $     3.6873d-05, 4.3403d-05, 8.6967d-06, 7.0573d-06, 5.4280d-06,
-     $     1.5501d-06,
-     $     8.6117d-08/
-      data (xlm_max25(i),i=101,121)/
-c     l = 10
-     $     8.6117d-09, 8.6117d-08, 2.4666d-07, 1.3029d-06, 1.4519d-06,
-     $     2.7459d-06,
-     $     2.2321d-06, 3.9691d-06, 1.5243d-05, 5.0225d-06, 1.7912d-05,
-     $     5.0225d-06,
-     $     1.5765d-06, 3.9691d-06, 8.2672d-06, 2.7459d-06, 1.0330d-06,
-     $     1.3029d-06,
-     $     6.8893d-07, 8.6117d-08, 2.9625d-09/
-      data (xlm_max25(i),i=122,144)/
-c     l = 11
-     $     3.9144d-10, 8.6117d-09, 3.8759d-08, 6.5900d-08, 1.6741d-07,
-     $     3.0426d-07,
-     $     6.8463d-07, 3.1335d-07, 1.1626d-06, 1.4640d-06, 1.3633d-06,
-     $     1.9729d-06,
-     $     1.3633d-06, 3.0222d-07, 1.1626d-06, 5.2268d-07, 6.8463d-07,
-     $     7.4962d-08,
-     $     1.6741d-07, 1.7223d-07, 3.8759d-08, 2.9625d-09, 3.9144d-10/
-      data (xlm_max25(i),i=145,169)/
-c     l = 12
-     $     1.1095d-11, 3.9144d-10, 3.9144d-09, 1.0073d-08, 1.0947d-08,
-     $     1.5285d-08,
-     $     8.8987d-08, 6.9496d-08, 2.4395d-08, 1.7510d-07, 1.6743d-07,
-     $     2.5444d-07,
-     $     1.8335d-07, 2.5444d-07, 3.4102d-08, 1.7510d-07, 1.3095d-07,
-     $     6.9496d-08,
-     $     1.9492d-08, 1.5285d-08, 2.3682d-08, 1.0073d-08, 1.3666d-09,
-     $     3.9144d-10,
-     $     3.2620d-11/
-      data (xlm_max25(i),i=170,196)/
-c     l = 13
-     $     1.2546d-12, 1.1095d-11, 1.7942d-10, 1.0438d-09, 1.5681d-09,
-     $     1.0419d-09,
-     $     4.6647d-09, 1.1482d-08, 6.6611d-09, 4.2914d-09, 1.0560d-08,
-     $     3.9666d-08,
-     $     1.5797d-08, 4.3610d-08, 1.5797d-08, 2.8175d-09, 1.0560d-08,
-     $     2.7629d-08,
-     $     6.6611d-09, 3.7185d-09, 4.6647d-09, 1.4025d-09, 1.5681d-09,
-     $     3.7933d-10,
-     $     1.7942d-10, 3.2620d-11, 1.2546d-12/
-      data (xlm_max25(i),i=197,225)/
-c     l = 14
-     $     8.9615d-14, 1.2546d-12, 5.1743d-12, 4.8980d-11, 1.7125d-10,
-     $     1.2767d-10,
-     $     8.5919d-11, 7.6890d-10, 6.2152d-10, 1.6147d-09, 6.2564d-10,
-     $     2.1018d-09,
-     $     4.2324d-09, 2.4087d-09, 5.1188d-09, 2.4087d-09, 4.7113d-10,
-     $     2.1018d-09,
-     $     2.1529d-09, 1.6147d-09, 3.6558d-10, 7.6890d-10, 4.0324d-10,
-     $     1.2767d-10,
-     $     6.8493d-11, 4.8980d-11, 1.5055d-11, 1.2546d-12, 3.0241d-14/
-      data (xlm_max25(i),i=226,256)/
-c     l = 15
-     $     2.9872d-15, 8.9615d-14, 5.8252d-13, 1.4763d-12, 8.5307d-12,
-     $     1.4679d-11,
-     $     1.5959d-11, 2.1628d-11, 5.6684d-11, 1.4434d-10, 1.8838d-10,
-     $     5.0945d-11,
-     $     3.4659d-10, 2.4343d-10, 4.4319d-10, 2.6267d-10, 4.4319d-10,
-     $     4.6605d-11,
-     $     3.4659d-10, 1.9604d-10, 1.8838d-10, 2.2105d-11, 5.6684d-11,
-     $     8.3880d-11,
-     $     1.5959d-11, 7.8739d-12, 8.5307d-12, 4.1820d-12, 5.8252d-13,
-     $     3.0241d-14,
-     $     2.9872d-15/
-      data (xlm_max25(i),i=257,289)/
-c     l = 16
-     $     6.2632d-17, 2.9872d-15, 4.1820d-14, 1.6437d-13, 2.8208d-13,
-     $     9.0383d-13,
-     $     1.1759d-12, 3.8445d-12, 2.8582d-12, 5.7786d-12, 2.3533d-11,
-     $     9.5102d-12,
-     $     4.0292d-12, 2.0605d-11, 4.8337d-11, 3.0675d-11, 5.1133d-11,
-     $     3.0675d-11,
-     $     3.1937d-12, 2.0605d-11, 3.9552d-11, 9.5102d-12, 4.6078d-12,
-     $     5.7786d-12,
-     $     7.4269d-12, 3.8445d-12, 4.7901d-13, 9.0383d-13, 7.5426d-13,
-     $     1.6437d-13,
-     $     1.4221d-14, 2.9872d-15, 1.8670d-16/
-      data (xlm_max25(i),i=290,324)/
-c     l = 17
-     $     5.4911d-18, 6.2632d-17, 1.4003d-15, 1.1949d-14, 3.0712d-14,
-     $     3.6509d-14,
-     $     4.5191d-14, 2.9872d-13, 4.3441d-13, 2.0103d-13, 1.1504d-12,
-     $     1.3980d-12,
-     $     1.6549d-12, 6.2532d-13, 2.0666d-12, 5.7712d-12, 2.3341d-12,
-     $     6.5798d-12,
-     $     2.3341d-12, 4.1179d-13, 2.0666d-12, 3.7056d-12, 1.6549d-12,
-     $     5.1498d-13,
-     $     1.1504d-12, 4.3174d-13, 4.3441d-13, 6.5488d-14, 4.5191d-14,
-     $     8.5134d-14,
-     $     3.0712d-14, 4.1415d-15, 1.4003d-15, 1.8670d-16, 5.4911d-18/
-      data (xlm_max25(i),i=325,361)/
-c     l = 18
-     $     3.0506d-19, 5.4911d-18, 2.9649d-17, 4.0462d-16, 2.2871d-15,
-     $     3.7971d-15,
-     $     2.9369d-15, 9.8933d-15, 4.1634d-14, 2.3330d-14, 1.4976d-14,
-     $     1.0196d-13,
-     $     1.2401d-13, 2.3076d-13, 5.0792d-14, 3.4427d-13, 2.2079d-13,
-     $     4.0429d-13,
-     $     2.7181d-13, 4.0429d-13, 3.8895d-14, 3.4427d-13, 1.6576d-13,
-     $     2.3076d-13,
-     $     3.1796d-14, 1.0196d-13, 8.9615d-14, 2.3330d-14, 1.2280d-14,
-     $     9.8933d-15,
-     $     4.0921d-15, 3.7971d-15, 8.2386d-16, 4.0462d-16, 8.7858d-17,
-     $     5.4911d-18,
-     $     1.0188d-19/
-      data (xlm_max25(i),i=362,400)/
-c     l = 19
-     $     8.0280d-21, 3.0506d-19, 2.5931d-18, 8.7721d-18, 7.9282d-17,
-     $     2.9561d-16,
-     $     2.7437d-16, 1.3919d-16, 1.7114d-15, 2.4686d-15, 2.9581d-15,
-     $     2.5382d-15,
-     $     4.3652d-15, 2.1470d-14, 1.2176d-14, 2.6276d-15, 2.3757d-14,
-     $     3.3066d-14,
-     $     3.2371d-14, 3.4813d-14, 3.2371d-14, 2.3408d-15, 2.3757d-14,
-     $     2.8558d-14,
-     $     1.2176d-14, 2.7834d-15, 4.3652d-15, 1.0870d-14, 2.9581d-15,
-     $     1.1711d-15,
-     $     1.7114d-15, 6.0867d-16, 2.7437d-16, 1.1529d-16, 7.9282d-17,
-     $     2.5625d-17,
-     $     2.5931d-18, 1.0188d-19, 8.0280d-21/
-      data (xlm_max25(i),i=401,441)/
-c     l = 20
-     $     1.3357d-22, 8.0280d-21, 1.4450d-19, 7.6277d-19, 1.7981d-18,
-     $     1.0783d-17,
-     $     2.2880d-17, 1.7696d-17, 3.0589d-17, 1.3820d-16, 1.8423d-16,
-     $     4.6675d-16,
-     $     2.1894d-16, 7.6255d-16, 1.6803d-15, 1.0010d-15, 3.5723d-16,
-     $     1.2297d-15,
-     $     4.3069d-15, 1.3708d-15, 4.7251d-15, 1.3708d-15, 2.1405d-16,
-     $     1.2297d-15,
-     $     3.1622d-15, 1.0010d-15, 3.5874d-16, 7.6255d-16, 4.7147d-16,
-     $     4.6675d-16,
-     $     5.8691d-17, 1.3820d-16, 1.2252d-16, 1.7696d-17, 1.0977d-17,
-     $     1.0783d-17,
-     $     5.1098d-18, 7.6277d-19, 4.8484d-20, 8.0280d-21, 4.0140d-22/
-      data (xlm_max25(i),i=442,484)/
-c     l = 21
-     $     9.5571d-24, 1.3357d-22, 3.8133d-21, 4.2816d-20, 1.5466d-19,
-     $     2.6574d-19,
-     $     9.6749d-19, 9.7500d-19, 3.8323d-18, 3.9781d-18, 5.4271d-18,
-     $     3.3191d-17,
-     $     3.1525d-17, 1.0318d-17, 8.7052d-17, 6.6373d-17, 1.4819d-16,
-     $     2.9862d-17,
-     $     1.9078d-16, 1.9825d-16, 2.0937d-16, 2.3685d-16, 2.0937d-16,
-     $     2.0565d-17,
-     $     1.9078d-16, 1.1467d-16, 1.4819d-16, 2.3986d-17, 8.7052d-17,
-     $     4.7694d-17,
-     $     3.1525d-17, 6.1368d-18, 5.4271d-18, 1.1885d-17, 3.8323d-18,
-     $     6.0016d-19,
-     $     9.6749d-19, 7.1690d-19, 1.5466d-19, 1.4526d-20, 3.8133d-21,
-     $     4.0140d-22,
-     $     9.5571d-24/
-      data (xlm_max25(i),i=485,529)/
-c     l = 22
-     $     4.3441d-25, 9.5571d-24, 6.3845d-23, 1.1374d-21, 8.7973d-21,
-     $     2.2422d-20,
-     $     2.8150d-20, 4.5643d-20, 2.0809d-19, 4.4906d-19, 2.7905d-19,
-     $     9.7432d-19,
-     $     2.9712d-18, 1.4144d-18, 1.0955d-18, 3.9283d-18, 1.0227d-17,
-     $     9.3680d-18,
-     $     1.5061d-18, 1.5554d-17, 1.4450d-17, 1.9390d-17, 1.5144d-17,
-     $     1.9390d-17,
-     $     1.1581d-18, 1.5554d-17, 1.2610d-17, 9.3680d-18, 1.0615d-18,
-     $     3.9283d-18,
-     $     7.0135d-18, 1.4144d-18, 8.0976d-19, 9.7432d-19, 4.4321d-19,
-     $     4.4906d-19,
-     $     4.7605d-20, 4.5643d-20, 6.7970d-20, 2.2422d-20, 3.0470d-21,
-     $     1.1374d-21,
-     $     1.9114d-22, 9.5571d-24, 1.4413d-25/
-      data (xlm_max25(i),i=530,576)/
-c     l = 23
-     $     9.4438d-27, 4.3441d-25, 4.5614d-24, 1.9324d-23, 2.3665d-22,
-     $     1.3045d-21,
-     $     2.2906d-21, 1.9702d-21, 5.2336d-21, 2.9871d-20, 2.6399d-20,
-     $     9.9482d-21,
-     $     1.1587d-19, 9.3278d-20, 2.2458d-19, 1.1431d-19, 3.0305d-19,
-     $     9.9745d-19,
-     $     3.9380d-19, 1.2462d-19, 4.7541d-19, 1.9182d-18, 5.9511d-19,
-     $     2.0446d-18,
-     $     5.9511d-19, 6.9785d-20, 4.7541d-19, 1.5465d-18, 3.9380d-19,
-     $     1.4462d-19,
-     $     3.0305d-19, 4.4452d-19, 2.2458d-19, 5.4170d-20, 1.1587d-19,
-     $     5.2011d-20,
-     $     2.6399d-20, 8.4540d-21, 5.2336d-21, 3.3259d-21, 2.2906d-21,
-     $     4.6878d-22,
-     $     2.3665d-22, 5.7343d-23, 4.5614d-24, 1.4413d-25, 9.4438d-27/
-      data (xlm_max25(i),i=577,625)/
-c     l = 24
-     $     1.3023d-28, 9.4438d-27, 2.0776d-25, 1.3757d-24, 4.1284d-24,
-     $     3.5907d-23,
-     $     1.3858d-22, 1.4792d-22, 6.7697d-23, 8.8483d-22, 2.0596d-21,
-     $     1.3235d-21,
-     $     1.6382d-21, 6.0169d-21, 1.2072d-20, 2.0276d-20, 6.2653d-21,
-     $     3.9495d-20,
-     $     3.2449d-20, 5.4901d-20, 1.1198d-20, 6.4038d-20, 1.0950d-19,
-     $     6.9376d-20,
-     $     1.2389d-19, 6.9376d-20, 7.1508d-21, 6.4038d-20, 7.2756d-20,
-     $     5.4901d-20,
-     $     1.0512d-20, 3.9495d-20, 1.7108d-20, 2.0276d-20, 1.9322d-21,
-     $     6.0169d-21,
-     $     7.6396d-21, 1.3235d-21, 7.9166d-22, 8.8483d-22, 2.5129d-22,
-     $     1.4792d-22,
-     $     5.3387d-23, 3.5907d-23, 1.2055d-23, 1.3757d-24, 6.9148d-26,
-     $     9.4438d-27,
-     $     3.9349d-28/
-      data (xlm_max25(i),i=626,676)/
-c     l = 25
-     $     7.8698d-30, 1.3023d-28, 4.5252d-27, 6.2958d-26, 2.9206d-25,
-     $     6.5497d-25,
-     $     3.9917d-24, 9.5571d-24, 5.7688d-24, 1.1315d-23, 7.3927d-23,
-     $     6.4324d-23,
-     $     2.1462d-22, 1.6135d-22, 3.0917d-22, 1.4692d-21, 7.6723d-22,
-     $     2.8935d-22,
-     $     2.1781d-21, 3.0885d-21, 4.2552d-21, 5.6434d-22, 6.1233d-21,
-     $     4.2730d-21,
-     $     7.1961d-21, 4.4601d-21, 7.1961d-21, 3.9650d-22, 6.1233d-21,
-     $     3.7682d-21,
-     $     4.2552d-21, 4.4785d-22, 2.1781d-21, 2.4024d-21, 7.6723d-22,
-     $     2.7039d-22,
-     $     3.0917d-22, 5.0830d-22, 2.1462d-22, 4.0779d-23, 7.3927d-23,
-     $     4.6790d-23,
-     $     5.7688d-24, 4.3368d-24, 3.9917d-24, 1.8607d-24, 2.9206d-25,
-     $     2.1107d-26,
-     $     4.5252d-27, 3.9349d-28, 7.8698d-30/
-c
-      end
       subroutine xlm_norm(lmax, q, lq)
       implicit none
 #include "xlm.fh"
@@ -318,23 +28,74 @@ c     For use in the FMM dist should be (ws+0.5)*box.
 c
 c     If all components are negligble luse=-1 is returned.
 c
-      integer l, m, loff
-      double precision scale, test
+      integer l, m
+      double precision scale, test, sum
 c
-      scale = 4.0d0/(2.0d0*dist)**(lmax+1)
+      scale = 1.0d0/dist**(lmax+1)
+      sum = 0.0d0
       do l = lmax,0,-1
-         loff = l*l + l + 1
          test = 0.0d0
          do m = -l, l
-*            test = abs(scale*q(m,l)*c(m,l)*xlm_max25(loff+m))
-*            if (test .gt. thresh) goto 10
-            test = test + abs(q(m,l)*c(m,l)*xlm_max25(loff+m)) 
+            test = test + abs(q(m,l)*fieldmax(m,l))
          enddo
-         test = test*scale
-         if (test .gt. thresh) goto 10
-         scale = scale * dist * 2.0d0
+         sum = sum + test*scale
+         if (sum .gt. thresh) goto 10
+         scale = scale * dist
       enddo
  10   luse = l
+c
+      end
+      subroutine xlm_m2l_thresh(lmax, q, lq, thresh, dist, box, luse)
+      implicit none
+#include "xlm.fh"
+      integer lmax, lq, luse
+      double precision q(-lq:lq,0:lmax), thresh, dist, box
+c
+c     Return in luse the angular momentum required to obtain
+c     the required accuracy in the Taylor series of the potential 
+c     at a distance dist in a box of size box.
+c
+c     For use in the FMM dist should be (ws+0.5)*box.  
+c
+c     If all components are negligble luse=-1 is returned.
+c
+      integer l, m, k
+      double precision scale, test, sum, factorial
+      external factorial
+c
+      scale = 1.0d0/dist**(lmax+1)
+      sum = 0.0d0
+      do l = lmax,0,-1
+         test = 0.0d0
+         do m = -l, l
+            test = test + abs(q(m,l)*fieldmax(m,l))
+         enddo
+         sum = sum + test*scale
+         if (sum .gt. thresh) goto 10
+         scale = scale * dist
+      enddo
+ 10   continue
+c
+c     l is the order of mpole required to get the potential
+c     accurate ... but perhaps the taylor series needs even
+c     higher order?
+c
+      if (l.gt.-1 .and. l.lt.lmax) then
+         k = l+1
+         test = test*(0.87d0*box/dist)**k * factorial(l+k)/
+     $        (factorial(l)*factorial(k))
+         do k = l+1, lmax
+            if (test .lt. thresh) goto 20
+            test = test*(l+k+1)*0.5d0*box/(dist*(k+1))
+         end do
+ 20      k = k - 1
+         if (l .lt. k) then
+            write(6,*) ' Increasing l ', l, k
+            l = k
+         endif
+      endif
+c
+      luse = l
 c
       end
       subroutine xlm_slower(lmax, x, y, z, q, lq)
@@ -702,8 +463,6 @@ c     initialize data for unnormalized solid spherical harmonics
 c
 c     b(m,l) = e(m) / (l + |m|)! , |m| <= l, 0 otherwise
 c     c(m,l) = e(m) * (l - |m|)! , |m| <= l, 0 otherwise
-c     twobc  = 2.0d0*b*c
-c     rtwobc = 1.0d0/twobc
 c     bcp0(m,l) = (b(m,l)*c(-m,l) + b(-m,l)*c(m,l))*phase(l+m) , m > 0
 c     .           b(0,l)*c(0,l)*phase(l), m = 0
 c     e(m) = -1 if m > 0 and m odd
@@ -723,10 +482,15 @@ c     ee(m2,m1) = used to accellerate multipole_to_local
 c     w, v are workspace
 c     fastdiv(l) = 1.0d0/l, l=1,max2l+1
 c
-      integer l, m
-      double precision pi4
-      integer m1, m2, m1m2, m1mm2
-      double precision pe1, pe1m
+      integer l, m, nsample
+      double precision pi4, pi
+      integer m1, m2, m1m2, m1mm2, itheta, iphi
+      double precision pe1, pe1m, theta, phi, x, y, z, test
+      logical initialized
+      data initialized/.false./
+
+      if (initialized) return
+      initialized = .true.
 
       numphi = 0                ! For caching rotation info
       numtheta = 0
@@ -785,13 +549,6 @@ c
          end do
       end do
 c
-      do l = 0, maxl
-         do m = -l,l
-            twobc(m,l) = 2.0d0*b(m,l)*c(m,l)
-            rtwobc(m,l) = 1.0d0/twobc(m,l)
-         enddo
-      enddo
-c
 c     This defintion of the normalization constant is now correct
 c     and agrees with numerical quadrature of the functions.
 c     It also yields unitary rotation matrices.  
@@ -800,7 +557,7 @@ c     ANY changes must be checked for impact everywhere qn is used
 c     since the correct normalization and unitary property 
 c     are relied upon.
 c
-      pi4 = 16.0d0*atan(1.0d0)
+      pi4 = 4.0d0*3.1415926535897932d0
       do l = 0, maxl
          do m = -l, l
             qn( m,l) = sqrt(2.0d0*(2*l+1)*b(m,l)*c(m,l)/pi4)*e(m)
@@ -809,6 +566,22 @@ c
          qn(0,l) = qn(0,l) / sqrt(2.0d0)
          rqn(0,l) = 1.0d0/qn(0,l)
       end do
+c
+      do l = 0, maxl
+         do m = -l,l
+            twobc(m,l) = 2.0d0*b(m,l)*c(m,l)*rqn(m,l)
+            rtwobcqnbp(m,l) = b(m,l)*phase(l+m)/twobc(m,l)
+         enddo
+         rtwobcqnbp(0,l) = rtwobcqnbp(0,l) * 2.0d0
+      enddo
+c
+      do l = 0,maxl
+         brqnp(0,l) = b(0,l)*0.5d0*rqn(0,l)
+         do m = 1, l
+            brqnp( m,l) = b(m,l)*rqn( m,l)
+            brqnp(-m,l) = b(m,l)*rqn(-m,l)*phase(m)
+         enddo
+      enddo
 c
       do m1 = 0, maxl
          pe1 = phase(m1)*e(m1)
@@ -822,6 +595,35 @@ c
             ee(-m2, m1) = (pe1*e(m1mm2)+e(m2)*pe1m*e(-m1mm2))*e(m1)
          end do
       end do
+c
+c     Compute the maximum value taken on by the field terms over
+c     the surface of a unit sphere - used for screening interactions
+c
+      do l = 0, maxl
+         do m = -l, l
+            fieldmax(m,l) = 0.0d0
+         enddo
+      enddo
+      nsample = maxl*2          ! No. of sampling points in pi/2
+      pi = pi4/4.0d0
+      do itheta = 0, 2*nsample  ! Search in +ve octant
+         do iphi = 0, nsample
+            phi = dble(iphi)*0.5d0*pi/dble(nsample)
+            theta = dble(itheta)*0.5d0*pi/dble(2*nsample)
+
+            z = cos(theta)
+            x = sin(theta)*cos(phi)
+            y = sin(theta)*sin(phi)
+
+            call xlm(maxl, x, y, z, w, maxl)
+            do l = 0, maxl
+               do m = -l, l
+                  test = pi4*w(m,l)*qn(m,l)*qn(m,l)/dble(l+l+1)
+                  fieldmax(m,l) = max(abs(test),fieldmax(m,l))
+               enddo
+            enddo
+         enddo
+      enddo
 c
 *      write(6,*) ' b coefficients'
 *      call xlm_print(maxl, b, maxl)
@@ -973,7 +775,7 @@ c
       double precision theta, pi, x, y, z, rx, ry, rz, phi
       double precision a(0:maxl,0:maxl)
 c
-      pi = 4.0d0*atan(1.0d0)
+      pi = 3.1415926535897932d0
 c
       do k = 0, l
          theta = dble(k)*pi/dble(l+1)
@@ -1172,7 +974,6 @@ c
             do lp = 1, min(l,lbig)
                llp = l - lp
                do mp = -lp, lp
-*               do mp = l-lp+m,lp-l+m
                   mmp = m - mp
                   mmpa = abs(mmp)
                   if (mmpa .le. llp) then
@@ -1212,7 +1013,7 @@ c     .   Qml(r-a) <= sum(m'l')Tmlm'l'(-a)Qm'l'(r)
 c     this routine does
 c     .   Qml(r-a) <= sum(m'l')Qm'l'(r)Tm'l'ml(a)
 c
-      integer l, m, mp, mmp, mmpa, mpa, lp, llp
+      integer l, m, mp, mmp, mmpa, mpa, lp, llp, lo, hi
       double precision bfac
 c
       if (lmax .gt. maxl) then
@@ -1233,10 +1034,15 @@ c
          do m = 0, l
             do lp = 0, l
                llp = l - lp
-               do mp = -lp, lp
+*
+               hi = min(lp,max(l-lp+m,lp-l+m))
+               lo = max(-lp,min(l-lp+m,lp-l+m,-lp))
+               do mp = lo, hi
+*
+*               do mp = -lp, lp
                   mmp = m - mp
                   mmpa = abs(mmp)
-                  if (mmpa .le. llp) then
+*                  if (mmpa .le. llp) then
                      bfac = b(mmp,llp)*b(mp,lp)
                      mpa = abs(mp)
 
@@ -1252,7 +1058,7 @@ c
      $                    w(mmpa,llp)*s(mp)*q(-m,l) - 
      $                    w(-mmpa,llp)*s(mmp)*s(mp)*q(m,l))
 
-                  end if
+*                  end if
                end do
             end do
          end do
@@ -1416,7 +1222,7 @@ c
       zz = bz - az
       rsq = 1.0d0 / (xx*xx + yy*yy + zz*zz)
       call xlm(lmax, xx, yy, zz, u, maxl2)
-      fourpi = 16.0d0*atan(1.0d0)
+      fourpi = 4.0d0*3.1415926535897932d0
 c
       energy = 0.0d0
       r12 = dsqrt(rsq)
@@ -1674,9 +1480,8 @@ c
 c     .     sum(lm) Xlm(r-a)AQlm
 c     
       double precision r, r12, r12ww
-      integer l1, l2, m1, m2, l2max, l12, minl1l2
-**      integer flops
-      double precision ww, rsign
+      integer l1, l2, m1, l2max, l12, minl1l2
+      double precision ww
 c
       do l1 = 0, la
          do m1 = -l1,l1
@@ -1684,22 +1489,26 @@ c
          enddo
       enddo
 c
-      do l2 = lmax,0,-1
-         do m2 = -l2,l2
-            if (abs(bq(m2,l2)) .gt. 0.0d0) goto 10
-         enddo
-      enddo
- 10   l2max = l2
-***      l2max = lmax
+c$$$      do l2 = lmax,0,-1
+c$$$         do m2 = -l2,l2
+c$$$            if (abs(bq(m2,l2)) .gt. 0.0d0) goto 10
+c$$$         enddo
+c$$$      enddo
+c$$$ 10   l2max = l2
+      l2max = lmax
 c
-      if (l2max .lt. 0) return
+c$$$      if (l2max .lt. 0) return
 c
-      do l2 = 0, l2max
-         do m2 = -l2, l2
-            w(m2,l2) = bq( m2,l2)*b(m2,l2)*phase(l2+m2)
-         enddo
-**         flops = flops + 2*(2*l2+1)
-      enddo
+c$$$      do l2 = 0, l2max
+c$$$         do m2 = -l2, l2
+c$$$            w(m2,l2) = bq( m2,l2)*b(m2,l2)*phase(l2+m2)
+c$$$         enddo
+c$$$      enddo
+c$$$      do l2 = 0, l2max
+c$$$         do m2 = -l2, l2
+c$$$            w(m2,l2) = bq(m2,l2)
+c$$$         enddo
+c$$$      enddo
 c
       r = 1.0d0/az
       r12 = r
@@ -1707,20 +1516,20 @@ c
 c     l12 = 0 
 c
       ww = 2.0d0
-      aq(0,0) = aq(0,0) + r12*ww*w(0,0)
+      aq(0,0) = aq(0,0) + r12*ww*bq(0,0)
       r12 = r12 * r
-**      flops = flops + 4
 c
 c     l12 = 1
 c
       if (lmax+l2max .ge. 1) then
          ww = -ww
          r12ww = r12*ww
-         aq(0,0) = aq(0,0) + r12ww*w(0,1) ! l1=0, l2=1
-         aq(0,1) = aq(0,1) + r12ww*w(0,0) ! l1=1, l2=0
+         aq(0,0) = aq(0,0) + r12ww*bq(0,1) ! l1=0, l2=1
+         aq(0,1) = aq(0,1) + r12ww*bq(0,0) ! l1=1, l2=0
          r12 = r12 * r
-**         flops = flops + 10
       endif
+c
+c     Can't this be done in L^2 ops?  
 c
       do l12 = 2, lmax+l2max
          ww = -ww * dble(l12) ! (-1)^l * 2 * l!
@@ -1729,26 +1538,20 @@ c
             minl1l2 = min(l1,l2)
             r12ww = r12*ww
             do m1 = -minl1l2, minl1l2
-               aq( m1,l1) = aq( m1,l1) + r12ww*w(m1,l2)
+               aq( m1,l1) = aq( m1,l1) + r12ww*bq(m1,l2)
             end do
-**            flops = flops + 2 + 2*(2*minl1l2 + 1)
          end do
          r12 = r12 * r
-**         flops = flops + 3
       end do
 c
-      rsign = sign(1.0d0,r)
-      do l1 = 0,lmax
-         aq( 0,l1) = aq(0,l1)*b(0,l1)*0.5d0*rsign
-         do m1 = 1, l1
-            aq( m1,l1) = aq( m1,l1)*b(m1,l1)*rsign
-            aq(-m1,l1) = aq(-m1,l1)*b(m1,l1)*rsign*phase(m1)
-         enddo
-**         flops = flops + 3*l1 + 2
-      enddo
-c
-c
-**      write(6,*) ' flops ', lmax, flops
+c$$$      rsign = sign(1.0d0,r)
+c$$$      do l1 = 0,lmax
+c$$$         aq( 0,l1) = aq(0,l1)*b(0,l1)*0.5d0*rsign
+c$$$         do m1 = 1, l1
+c$$$            aq( m1,l1) = aq( m1,l1)*(b(m1,l1)*rsign)
+c$$$            aq(-m1,l1) = aq(-m1,l1)*(b(m1,l1)*rsign)*phase(m1)
+c$$$         enddo
+c$$$      enddo
 c
       end
       subroutine xlm_multipole_to_local_swap(lmax,
@@ -1907,50 +1710,55 @@ c
       implicit none
 #include "xlm.fh"
 c     
+      double precision flops, flopsv, flopst, calls
+      common /xlmflops/flops, flopsv, flopst, calls
+c     
       integer lmax, lq, lp
       double precision xp, yp, zp, xq, yq, zq
       double precision q(-lq:lq,0:lmax), p(-lp:lp,0:lp)
-c
-      double precision theta, phi, r, x, y, z, zz, phisign, qqp, qqm
+c     
+      double precision theta, phi, x, y, z, zz, phisign, qqp, qqm
+      double precision rr, r12, ww, r12ww, pp, pm
       double precision pi, thetasign
       double precision qq(-maxl:maxl,0:maxl), tmp(-maxl:maxl)
       integer l, m, mp, ihash, iphi, itheta, indp, indm
-c
+      integer l1, l2, l12, m1, minl1l2
+c     
 c     From the multipole-potential q() at (xq,yq,zq) compute
 c     the local Taylor series potential at (xp,yp,zp), in p() 
 c     using a rotation-based algorithm.  
-c
+c     
 c     Under the assumption that only a limited no. of angles
 c     will be used, cache rotation matrix info.
-c
+c     
       x = xp - xq
       y = yp - yq
       z = zp - zq
-      r = sqrt(x*x + y*y + z*z)
-c
+      rr = 1.0d0/sqrt(x*x + y*y + z*z)
+c     
 c     Determine the required rotations
-c
-      pi = 4.0d0*atan(1.0d0)
+c     
+      pi = 3.1415926535897932d0
       if (x.eq.0.0d0 .and. y.eq.0.0d0) then
          phi = 0.0d0
          theta = 0.0d0
          if (z .lt. 0.0d0) theta = pi
       else 
-         zz = z/r
+         zz = z*rr
          if (abs(zz) .gt. 1.0d0) zz = sign(1.0d0,zz)
          theta = acos(zz)
          phi = atan2(y,x)
       endif
-c      
+c     
 c     Rotate the source multipoles.  The actual potential
 c     is roughly 2*qml*bml*cml*xml/r^(2l+1), so before we
 c     rotate we must include these additional factors.
-c
+c     
 c     Hash into the list of cached angles to get the rotation info.
 c     The cached phis are all positive so need to track the sign.
 c     The cached thetas are all 0-pi/2, so if phi is pi/2-pi then
 c     must rotate with theta-pi and use negative translation.
-c
+c     
       ihash = int(abs(phi*1000.0d0))
       if (ihash .gt. maxhash) call errquit('xlm_n_m_l: phi hash',ihash)
       if (iphis(ihash) .gt. 0) then
@@ -1963,7 +1771,7 @@ c
       endif
       iphi = iphis(ihash)
       phisign = sign(1.0d0,phi)
-c
+c     
       if (theta .le. 0.5d0*pi) then
          thetasign = 1.0d0
       else
@@ -1982,127 +1790,227 @@ c
          call xlm_cache_theta(theta)
       endif
       itheta = ithetas(ihash)
-c
-      indp = 1
-      indm = 1
-      do l = 0, lmax
-c
-c     Add extra weights
-c
-         do m = -l, l
-            qq(m,l) = q(m,l) * twobc(m,l)
+c     
+c     Add extra weights, apply Z rotation, apply preconditioning
+c     
+      if (phisign .gt. 0.0d0) then
+         do l = 0, lmax
+            do m = 1, l
+               qqp = cosmphi(m,iphi)*q( m,l) + sinmphi(m,iphi)*q(-m,l)
+               qqm = cosmphi(m,iphi)*q(-m,l) - sinmphi(m,iphi)*q( m,l)
+               qq( m,l) = qqp*twobc(m,l)
+               qq(-m,l) = qqm*twobc(-m,l)
+            enddo
+            qq(0,l) = q(0,l)*rqn(0,l)
          enddo
-         qq(0,l) = qq(0,l) * 0.5d0
-c
-c     Apply Z rotation
-c
-         do m = 1, l
-            qqp = cosmphi(m,iphi)*qq(m,l) + 
-     $           phisign*sinmphi(m,iphi)*qq(-m,l)
-            qqm = cosmphi(m,iphi)*qq(-m,l) -
-     $           phisign*sinmphi(m,iphi)*qq(m,l)
-            qq( m,l) = qqp
-            qq(-m,l) = qqm
+      else
+         do l = 0, lmax
+            do m = 1, l
+               qqp = cosmphi(m,iphi)*q( m,l) - sinmphi(m,iphi)*q(-m,l)
+               qqm = cosmphi(m,iphi)*q(-m,l) + sinmphi(m,iphi)*q( m,l)
+               qq( m,l) = qqp*twobc(m,l)
+               qq(-m,l) = qqm*twobc(-m,l)
+            enddo
+            qq(0,l) = q(0,l)*rqn(0,l)
          enddo
-c
+      endif
+*      flops = flops + 1 + 5*lmax + 4*lmax*lmax
+c     
 c     Apply Y rotation
-c
+c     
+      indp = 2
+      indm = 1
+      do l = 1, lmax
          do m = -l, l
-            tmp(m) = qq(m,l)*rqn(m,l) ! Precondition
+            tmp(m) = qq(m,l)
             qq(m,l) = 0.0d0
          enddo
-         if (thetasign .gt. 0.0d0) then
-            do mp = 0, l
-               do m = 0, l
-                  qq(m,l) = qq(m,l) + cdp(indp+m,itheta)*tmp(mp)
-               enddo
-               indp = indp + l + 1
-            enddo
-            do mp = -l,-1
-               indm = indm + l
-               do m = -l,-1
-                  qq(m,l) = qq(m,l) + cdm(indm+m,itheta)*tmp(mp)
-               enddo
-            enddo
-         else
-            do m = 0, l
-               do mp = 0, l
-                  qq(m,l) = qq(m,l) + cdp(indp+mp,itheta)*tmp(mp)
-               enddo
-               indp = indp + l + 1
-            enddo
-            do m = -l,-1
-               indm = indm + l
-               do mp = -l,-1
-                  qq(m,l) = qq(m,l) + cdm(indm+mp,itheta)*tmp(mp)
-               enddo
-            enddo
-         endif
-         do m = -l, l
-            qq(m,l) = qq(m,l)*rtwobc(m,l)*qn(m,l) ! Remove precond & weights
-         enddo
-         qq(0,l) = qq(0,l) * 2.0d0
-      enddo
-c
-c     Translate 0,0,r
-c
-      call xlm_multipole_to_local_z(lmax, thetasign*r, p, lp, qq, maxl)
-c
-c     Rotate the potentials back
 c     
-      indp = 1
-      indm = 1
+*         flopsv = flopsv + l*l*2 + (l+1)*(l+1)*2
+c     
+         if (l .gt. 3) then
+            call xlm_m2l_rot1(l, qq(-l,l), tmp(-l),
+     $           cdp(indp,itheta), cdm(indm,itheta), thetasign)
+            indp = indp + (l+1)*(l+1)
+            indm = indm + l*l
+         else
+            if (thetasign .gt. 0.0d0) then
+               do mp = 0, l
+                  do m = 0, l
+                     qq(m,l) = qq(m,l) + cdp(indp+m,itheta)*tmp(mp)
+                  enddo
+                  indp = indp + l + 1
+               enddo
+               do mp = -l,-1
+                  indm = indm + l
+                  do m = -l,-1
+                     qq(m,l) = qq(m,l) + cdm(indm+m,itheta)*tmp(mp)
+                  enddo
+               enddo
+            else
+               do m = 0, l
+                  do mp = 0, l
+                     qq(m,l) = qq(m,l) + cdp(indp+mp,itheta)*tmp(mp)
+                  enddo
+                  indp = indp + l + 1
+               enddo
+               do m = -l,-1
+                  indm = indm + l
+                  do mp = -l,-1
+                     qq(m,l) = qq(m,l) + cdm(indm+mp,itheta)*tmp(mp)
+                  enddo
+               enddo
+            endif
+         endif
+      enddo
+c     
+c     Remove precond and weights and add extra weights for translate
+c
       do l = 0, lmax
-c
-c     Apply Y rotation
-c
          do m = -l, l
-            tmp(m) = p(m,l)*rqn(m,l) ! Precondition
+            qq(m,l) = qq(m,l)*rtwobcqnbp(m,l)
             p(m,l) = 0.0d0
          enddo
-         if (thetasign .lt. 0.0d0) then
-            do mp = 0, l
-               do m = 0, l
-                  p(m,l) = p(m,l) + cdp(indp+m,itheta)*tmp(mp)
-               enddo
-               indp = indp + l + 1
+      enddo
+*      flops = flops + (lmax+1)*(lmax+1)
+c     
+c     Translate 0,0,r
+c
+      rr = thetasign * rr
+      r12 = rr
+c
+c     l12 = 0 
+c
+      ww = 2.0d0
+      p(0,0) = p(0,0) + r12*ww*qq(0,0)
+      r12 = r12 * rr
+c
+*      flopst = flopst + 3d0
+c
+c     l12 = 1
+c
+      if (lmax .gt. 0) then
+         ww = -ww
+         r12ww = r12*ww
+         p(0,0) = p(0,0) + r12ww*qq(0,1) ! l1=0, l2=1
+         p(0,1) = p(0,1) + r12ww*qq(0,0) ! l1=1, l2=0
+         r12 = r12 * rr
+*         flopst = flopst + 7d0
+      endif
+c
+      do l12 = 2, lmax+lmax
+         ww = -ww * dble(l12) ! (-1)^l * 2 * l12!
+         do l1 = max(0,l12-lmax), min(l12,lmax)
+            l2 = l12 - l1
+            minl1l2 = min(l1,l2)
+            r12ww = r12*ww
+            do m1 = -minl1l2, minl1l2
+               p( m1,l1) = p( m1,l1) + r12ww*qq(m1,l2)
+            end do
+*            flopst = flopst + 4*minl1l2 + 5d0
+         end do
+         r12 = r12 * rr
+*         flopst = flopst + 1
+      end do
+c
+      if (thetasign .gt. 0.0d0) then
+         do l = 0, lmax
+            do m = -l, l
+               p(m,l) = p(m,l) * brqnp(m,l)
             enddo
-            do mp = -l,-1
-               indm = indm + l
-               do m = -l,-1
-                  p(m,l) = p(m,l) + cdm(indm+m,itheta)*tmp(mp)
-               enddo
+         enddo
+      else
+         do l = 0, lmax
+            do m = -l, l
+               p(m,l) = -p(m,l) * brqnp(m,l)
             enddo
-         else
-            do m = 0, l
-               do mp = 0, l
-                  p(m,l) = p(m,l) + cdp(indp+mp,itheta)*tmp(mp)
-               enddo
-               indp = indp + l + 1
-            enddo
-            do m = -l,-1
-               indm = indm + l
-               do mp = -l,-1
-                  p(m,l) = p(m,l) + cdm(indm+mp,itheta)*tmp(mp)
-               enddo
-            enddo
-         endif
+         enddo
+      endif
+*      flops = flops + 2*lmax + 1
+c     
+c     Rotate the potentials back
+c     
+c     Precondition
+c
+      indp = 2
+      indm = 1
+      do l = 1, lmax
+c     
+c     Apply Y rotation
+c     
          do m = -l, l
-            p(m,l) = p(m,l)*qn(m,l) ! Undo preconditioning
+            tmp(m) = p(m,l)
+            p(m,l) = 0.0d0
          enddo
-c
-c     Apply Z rotation
-c
-         do m = 1, l
-            qqp = cosmphi(m,iphi)*p(m,l) - 
-     $           phisign*sinmphi(m,iphi)*p(-m,l)
-            qqm = cosmphi(m,iphi)*p(-m,l) +
-     $           phisign*sinmphi(m,iphi)*p(m,l)
-            p( m,l) = qqp
-            p(-m,l) = qqm
-         enddo
+c     
+*         flopsv = flopsv + l*l*2 + (l+1)*(l+1)*2
+c$$$         if (l .gt. -1) then
+            call xlm_m2l_rot1(l, p(-l,l), tmp(-l),
+     $           cdp(indp,itheta), cdm(indm,itheta), -thetasign)
+            indp = indp + (l+1)*(l+1)
+            indm = indm + l*l
+c$$$         else
+c$$$            if (thetasign .lt. 0.0d0) then
+c$$$               do mp = 0, l
+c$$$                  do m = 0, l
+c$$$                     p(m,l) = p(m,l) + cdp(indp+m,itheta)*tmp(mp)
+c$$$                  enddo
+c$$$                  indp = indp + l + 1
+c$$$               enddo
+c$$$               do mp = -l,-1
+c$$$                  indm = indm + l
+c$$$                  do m = -l,-1
+c$$$                     p(m,l) = p(m,l) + cdm(indm+m,itheta)*tmp(mp)
+c$$$                  enddo
+c$$$               enddo
+c$$$            else
+c$$$               do m = 0, l
+c$$$                  do mp = 0, l
+c$$$                     p(m,l) = p(m,l) + cdp(indp+mp,itheta)*tmp(mp)
+c$$$                  enddo
+c$$$                  indp = indp + l + 1
+c$$$               enddo
+c$$$               do m = -l,-1
+c$$$                  indm = indm + l
+c$$$                  do mp = -l,-1
+c$$$                     p(m,l) = p(m,l) + cdm(indm+mp,itheta)*tmp(mp)
+c$$$                  enddo
+c$$$               enddo
+c$$$            endif
+c$$$         endif
       enddo
 c
+c     Undo preconditioning and apply Z rotation
+c
+      if (phisign .gt. 0.0d0) then
+         do l = 0, lmax
+            p(0,l) = p(0,l) * qn(0,l)
+            do m = 1, l
+               pp = p( m,l)*qn( m,l)
+               pm = p(-m,l)*qn(-m,l)
+               qqp = cosmphi(m,iphi)*pp - sinmphi(m,iphi)*pm
+               qqm = cosmphi(m,iphi)*pm + sinmphi(m,iphi)*pp
+               p( m,l) = qqp
+               p(-m,l) = qqm
+            enddo
+         enddo
+      else
+         do l = 0, lmax
+            p(0,l) = p(0,l) * qn(0,l)
+            do m = 1, l
+               pp = p( m,l)*qn( m,l)
+               pm = p(-m,l)*qn(-m,l)
+               qqp = cosmphi(m,iphi)*pp + sinmphi(m,iphi)*pm
+               qqm = cosmphi(m,iphi)*pm - sinmphi(m,iphi)*pp
+               p( m,l) = qqp
+               p(-m,l) = qqm
+            enddo
+         enddo
+      endif
+*      flops = flops + 1 + 5*lmax + 4*lmax*l
+c     
+*      calls = calls + 1
+c     
       end
       subroutine xlm_cache_phi(phi)
       implicit none
@@ -2154,9 +2062,14 @@ c
 c
       indp = 1
       indm = 1
+c$$$      write(6,*) ' theta ', theta
       do l = 0, maxl
          call xlm_y_rotation_matrix(l, abs(theta),
      $        cdp(indp,numtheta), cdm(indm,numtheta))
+c$$$         if (l .lt. 4) then
+c$$$            write(6,*)  l
+c$$$            call output(cdp(indp,numtheta),1,l+1,1,l+1,l+1,l+1,1)
+c$$$         endif
          indp = indp + (l+1)*(l+1)
          indm = indm + l*l
       end do
@@ -2170,6 +2083,242 @@ c
 *     $     '   ihash=',i5,'   itheta=',i4)
 c
       end
+c$$$      subroutine xlm_m2l_rot1(l,qq,tmp,cdp,cdm,thetasign)
+c$$$      implicit none
+c$$$      integer l, lmax, maxl
+c$$$      double precision qq(-l:l), tmp(-l:l)
+c$$$      double precision cdp(0:l,0:l), cdm(-l:-1,-l:-1)
+c$$$      double precision thetasign
+c$$$c     
+c$$$      integer m, mp
+c$$$c     
+c$$$      if (thetasign .gt. 0.0d0) then
+c$$$         do mp = 0, l
+c$$$            do m = 0, l
+c$$$               qq(m) = qq(m) + cdp(m,mp)*tmp(mp)
+c$$$            enddo
+c$$$         enddo
+c$$$         do mp = -l,-1
+c$$$            do m = -l,-1
+c$$$               qq(m) = qq(m) + cdm(m,mp)*tmp(mp)
+c$$$            enddo
+c$$$         enddo
+c$$$      else
+c$$$         do m = 0, l
+c$$$            do mp = 0, l
+c$$$               qq(m) = qq(m) + cdp(mp,m)*tmp(mp)
+c$$$            enddo
+c$$$         enddo
+c$$$         do m = -l,-1
+c$$$            do mp = -l,-1
+c$$$               qq(m) = qq(m) + cdm(mp,m)*tmp(mp)
+c$$$            enddo
+c$$$         enddo
+c$$$      endif
+c$$$c
+c$$$      end
 
-         
-       
+      
+C****************************************************************
+C   Translated by Pacific-Sierra Research VAST-2          
+C   Version 6.1C1 on  4/ 3/99 at 11:38:11
+C****************************************************************
+C
+      subroutine xlm_m2l_rot1(l,qq,tmp,cdp,cdm,thetasign)
+      implicit none
+      integer l
+      double precision qq(-l:l), tmp(-l:l)
+      double precision cdp(0:l,0:l), cdm(-l:-1,-l:-1)
+      double precision thetasign
+c      
+      integer m, mp
+c      
+      integer j1, j2, j3, j4, mp1, mp2, m1, m2, m3, m4
+      doubleprecision d1, d2, d3, d4, d5, qq1, qq2, qq3, qq4, qq5, d11, 
+     .d12, d13, d14, d15, qq6, qq7, qq8, qq9, qq10, qq61, qq62, qq63, qq
+     .11, qq12, qq13, d27, d28, d29, d30, d31, d32, d33, d34, d35, d36, 
+     .d37, d38, d39, d40, d41, d42
+      if (thetasign .gt. 0.0d0) then
+*      if (l + 1 .gt. 0) then
+         j1 = and(l + 1,3)
+         do mp = 1, j1
+            m4 = iand(max0(l + 1,0),3)
+            do m = 1, m4
+               qq(m-1) = qq(m-1) + cdp(m-1,mp-1)*tmp(mp-1)
+            end do
+            do m = m4 + 1, l + 1, 4
+               d39 = qq(m-1) + cdp(m-1,mp-1)*tmp(mp-1)
+               d40 = qq(m) + cdp(m,mp-1)*tmp(mp-1)
+               d41 = qq(m+1) + cdp(m+1,mp-1)*tmp(mp-1)
+               d42 = qq(m+2) + cdp(m+2,mp-1)*tmp(mp-1)
+               qq(m-1) = d39
+               qq(m) = d40
+               qq(m+1) = d41
+               qq(m+2) = d42
+            end do
+         end do
+         do mp = j1 + 1, l + 1, 4
+            m3 = iand(max0(l + 1,0),3)
+            do m = 1, m3
+               qq(m-1) = qq(m-1) + cdp(m-1,mp-1)*tmp(mp-1) + cdp(m-1,mp)
+     1            *tmp(mp) + cdp(m-1,mp+1)*tmp(mp+1) + cdp(m-1,mp+2)*tmp
+     2            (mp+2)
+            end do
+            do m = m3 + 1, l + 1, 4
+               d35 = qq(m-1) + cdp(m-1,mp-1)*tmp(mp-1) + cdp(m-1,mp)*tmp
+     1            (mp) + cdp(m-1,mp+1)*tmp(mp+1) + cdp(m-1,mp+2)*tmp(mp+
+     2            2)
+               d36 = qq(m) + cdp(m,mp-1)*tmp(mp-1) + cdp(m,mp)*tmp(mp)
+     1             + cdp(m,mp+1)*tmp(mp+1) + cdp(m,mp+2)*tmp(mp+2)
+               d37 = qq(m+1) + cdp(m+1,mp-1)*tmp(mp-1) + cdp(m+1,mp)*tmp
+     1            (mp) + cdp(m+1,mp+1)*tmp(mp+1) + cdp(m+1,mp+2)*tmp(mp+
+     2            2)
+               d38 = qq(m+2) + cdp(m+2,mp-1)*tmp(mp-1) + cdp(m+2,mp)*tmp
+     1            (mp) + cdp(m+2,mp+1)*tmp(mp+1) + cdp(m+2,mp+2)*tmp(mp+
+     2            2)
+               qq(m-1) = d35
+               qq(m) = d36
+               qq(m+1) = d37
+               qq(m+2) = d38
+            end do
+         end do
+*      endif
+*      if (l .gt. 0) then
+         j2 = and(l,3)
+         do mp = 1, j2
+            m2 = iand(max0(l,0),3)
+            do m = 1, m2
+               qq(m-1-l) = qq(m-1-l) + cdm(m-1-l,mp-1-l)*tmp(mp-1-l)
+            end do
+            do m = m2 + 1, l, 4
+               d31 = qq(m-1-l) + cdm(m-1-l,mp-1-l)*tmp(mp-1-l)
+               d32 = qq(m-l) + cdm(m-l,mp-1-l)*tmp(mp-1-l)
+               d33 = qq(m+1-l) + cdm(m+1-l,mp-1-l)*tmp(mp-1-l)
+               d34 = qq(m+2-l) + cdm(m+2-l,mp-1-l)*tmp(mp-1-l)
+               qq(m-1-l) = d31
+               qq(m-l) = d32
+               qq(m+1-l) = d33
+               qq(m+2-l) = d34
+            end do
+         end do
+         do mp = j2 + 1, l, 4
+            m1 = iand(max0(l,0),3)
+            do m = 1, m1
+               qq(m-1-l) = qq(m-1-l) + cdm(m-1-l,mp-1-l)*tmp(mp-1-l) + 
+     1            cdm(m-1-l,mp-l)*tmp(mp-l) + cdm(m-1-l,mp+1-l)*tmp(mp+1
+     2            -l) + cdm(m-1-l,mp+2-l)*tmp(mp+2-l)
+            end do
+            do m = m1 + 1, l, 4
+               d27 = qq(m-1-l) + cdm(m-1-l,mp-1-l)*tmp(mp-1-l) + cdm(m-1
+     1            -l,mp-l)*tmp(mp-l) + cdm(m-1-l,mp+1-l)*tmp(mp+1-l) + 
+     2            cdm(m-1-l,mp+2-l)*tmp(mp+2-l)
+               d28 = qq(m-l) + cdm(m-l,mp-1-l)*tmp(mp-1-l) + cdm(m-l,mp-
+     1            l)*tmp(mp-l) + cdm(m-l,mp+1-l)*tmp(mp+1-l) + cdm(m-l,
+     2            mp+2-l)*tmp(mp+2-l)
+               d29 = qq(m+1-l) + cdm(m+1-l,mp-1-l)*tmp(mp-1-l) + cdm(m+1
+     1            -l,mp-l)*tmp(mp-l) + cdm(m+1-l,mp+1-l)*tmp(mp+1-l) + 
+     2            cdm(m+1-l,mp+2-l)*tmp(mp+2-l)
+               d30 = qq(m+2-l) + cdm(m+2-l,mp-1-l)*tmp(mp-1-l) + cdm(m+2
+     1            -l,mp-l)*tmp(mp-l) + cdm(m+2-l,mp+1-l)*tmp(mp+1-l) + 
+     2            cdm(m+2-l,mp+2-l)*tmp(mp+2-l)
+               qq(m-1-l) = d27
+               qq(m-l) = d28
+               qq(m+1-l) = d29
+               qq(m+2-l) = d30
+            end do
+         end do
+*      endif
+      else
+*      if (l + 1 .gt. 0) then
+         j3 = and(l + 1,3)
+         do m = 1, j3
+            qq1 = qq(m-1)
+            mp2 = iand(max0(l + 1,0),3)
+            do mp = 1, mp2
+               qq1 = qq1 + cdp(mp-1,m-1)*tmp(mp-1)
+            end do
+            qq11 = 0.D0
+            qq12 = 0.D0
+            qq13 = 0.D0
+            do mp = mp2 + 1, l + 1, 4
+               qq1 = qq1 + cdp(mp-1,m-1)*tmp(mp-1)
+               qq11 = qq11 + cdp(mp,m-1)*tmp(mp)
+               qq12 = qq12 + cdp(mp+1,m-1)*tmp(mp+1)
+               qq13 = qq13 + cdp(mp+2,m-1)*tmp(mp+2)
+            end do
+            qq1 = qq1 + qq11 + qq12 + qq13
+            qq(m-1) = qq1
+         end do
+         do m = j3 + 1, l + 1, 4
+            qq2 = qq(m-1)
+            qq3 = qq(m)
+            qq4 = qq(m+1)
+            qq5 = qq(m+2)
+            do mp = 1, l + 1
+               d1 = tmp(mp-1)
+               d1 = tmp(mp-1)
+               d1 = tmp(mp-1)
+               d1 = tmp(mp-1)
+               d2 = qq2 + cdp(mp-1,m-1)*d1
+               d3 = qq3 + cdp(mp-1,m)*d1
+               d4 = qq4 + cdp(mp-1,m+1)*d1
+               d5 = qq5 + cdp(mp-1,m+2)*d1
+               qq2 = d2
+               qq3 = d3
+               qq4 = d4
+               qq5 = d5
+            end do
+            qq(m+2) = qq5
+            qq(m+1) = qq4
+            qq(m) = qq3
+            qq(m-1) = qq2
+         end do
+*      endif
+*      if (l .gt. 0) then
+         j4 = and(l,3)
+         do m = 1, j4
+            qq6 = qq(m-1-l)
+            mp1 = iand(max0(l,0),3)
+            do mp = 1, mp1
+               qq6 = qq6 + cdm(mp-1-l,m-1-l)*tmp(mp-1-l)
+            end do
+            qq61 = 0.D0
+            qq62 = 0.D0
+            qq63 = 0.D0
+            do mp = mp1 + 1, l, 4
+               qq6 = qq6 + cdm(mp-1-l,m-1-l)*tmp(mp-1-l)
+               qq61 = qq61 + cdm(mp-l,m-1-l)*tmp(mp-l)
+               qq62 = qq62 + cdm(mp+1-l,m-1-l)*tmp(mp+1-l)
+               qq63 = qq63 + cdm(mp+2-l,m-1-l)*tmp(mp+2-l)
+            end do
+            qq6 = qq6 + qq61 + qq62 + qq63
+            qq(m-1-l) = qq6
+         end do
+         do m = j4 + 1, l, 4
+            qq7 = qq(m-1-l)
+            qq8 = qq(m-l)
+            qq9 = qq(m+1-l)
+            qq10 = qq(m+2-l)
+            do mp = 1, l
+               d11 = tmp(mp-1-l)
+               d11 = tmp(mp-1-l)
+               d11 = tmp(mp-1-l)
+               d11 = tmp(mp-1-l)
+               d12 = qq7 + cdm(mp-1-l,m-1-l)*d11
+               d13 = qq8 + cdm(mp-1-l,m-l)*d11
+               d14 = qq9 + cdm(mp-1-l,m+1-l)*d11
+               d15 = qq10 + cdm(mp-1-l,m+2-l)*d11
+               qq7 = d12
+               qq8 = d13
+               qq9 = d14
+               qq10 = d15
+            end do
+            qq(m+2-l) = qq10
+            qq(m+1-l) = qq9
+            qq(m-l) = qq8
+            qq(m-1-l) = qq7
+         end do
+*      endif
+      endif
+c      
+      end

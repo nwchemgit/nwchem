@@ -1,3 +1,158 @@
+      program test
+      implicit none
+c
+      double precision total_flops
+      common / totalf / total_flops
+c
+      integer lmax, depth, lwork
+      parameter (lmax=32, depth=3)
+      parameter (lwork=(lmax+1)**2*2*(8**(depth+1)-1)/7)
+      double precision poles((lmax+1)**2,
+     $     0:2**depth-1,0:2**depth-1,0:2**depth-1)
+      double precision work(lwork), poles0(-lmax:lmax,0:lmax)
+      double precision fmm_potential, direct_sum, drand
+      double precision fmm_direct_potential
+      external fmm_potential, fmm_direct_potential, direct_sum, 
+     $     drand
+      double precision x, y, z, dimx, dimy, dimz, time
+      real*4 etime, stuff(2)
+      external etime
+c
+      integer ncharge, i, ntest, j
+      parameter (ncharge = 10, ntest=100)
+      double precision charges(ncharge), coords(3,ncharge)
+      double precision chargesr(ncharge), coordsr(3,ncharge)
+      double precision pot1(ncharge), pot2(ncharge), pot3(ncharge)
+      integer list_next(ncharge), map(ncharge),
+     $     list_info(2,0:2**depth-1,0:2**depth-1,0:2**depth-1)
+c
+      double precision far, near, err, relerr, l2err, l2norm, sum
+c
+      call xlm_init
+      total_flops = 0.0d0
+      write(6,*) ' lwork = ', lwork
+      write(6,*) ' poles = ', (lmax+1)**2 * 8**depth
+c
+      dimx = 1.0d0
+      dimy = 1.0d0
+      dimz = 1.0d0
+      do i = 1, ncharge
+         charges(i) = drand(0)-0.5d0
+         coords(1,i)= drand(0)
+         coords(2,i)= drand(0)
+         coords(3,i)= drand(0)
+*         write(6,77) charges(i), (coords(j,i),j=1,3)
+* 77      format(f12.6,2x,3f12.6)
+      enddo
+c
+      write(6,*) ' Depth ', depth-1, ' lmax ', lmax
+      time = etime(stuff)
+      call fmm_charges_to_poles(lmax, depth-1, dimx, dimy, dimz,
+     $     poles, coords, charges, ncharge, list_info, list_next,
+     $     map)
+      time = etime(stuff) - time
+      write(6,61) ' Time to form multipoles ', time
+ 61   format(1x,a,f12.6)
+      time = etime(stuff)
+      call fmm(lmax, depth-1, dimx, dimy, dimz, poles, .false., poles0, 
+     $     work, lwork)
+      time = etime(stuff) - time
+      write(6,61) ' Time to perform far field summation ', time
+c
+      write(6,*)
+      write(6,*)
+      write(6,*) ' Depth ', depth, ' lmax ', lmax
+c
+      time = etime(stuff)
+      call fmm_charges_to_poles(lmax, depth, dimx, dimy, dimz,
+     $     poles, coords, charges, ncharge, list_info, list_next,
+     $     map)
+c
+      time = etime(stuff) - time
+      write(6,61) ' Time to form multipoles ', time
+c     
+      time = etime(stuff)
+      call fmm(lmax, depth, dimx, dimy, dimz, poles, .false., poles0, 
+     $     work, lwork)
+      time = etime(stuff) - time
+      write(6,61) ' Time to perform far field summation ', time
+c
+      l2err = 0.0d0
+      l2norm = 0.0d0
+      err = 0.0d0
+      relerr = 0.0d0
+      do i = 1, ntest
+         x = drand(0)
+         y = drand(0)
+         z = drand(0)
+         far = fmm_potential(lmax,depth,dimx,dimy,dimz,poles,x,y,z)
+         near = fmm_direct_potential(
+     $        lmax, depth, dimx, dimy, dimz, x, y, z,
+     $        coords, charges, ncharge, list_info, map)
+         sum = direct_sum(coords, charges, ncharge, x, y, z)
+         err = max(err,abs(sum-far-near))
+         relerr = max(relerr, abs(sum-far-near)/sum)
+         l2err = l2err + (sum-far-near)**2
+         l2norm = l2norm + sum**2
+      enddo
+      write(6,62) ' MAX abs err = ', err
+ 62   format(1x,a,1p,d9.2)
+      write(6,62) ' MAX rel err = ', relerr
+      write(6,62) ' L2 err norm = ', sqrt(l2err/l2norm)
+c
+**      write(6,*) ' total flops ', total_flops
+c
+      time = etime(stuff)
+      do j = 1, 1000
+         far = fmm_potential(lmax,depth,dimx,dimy,dimz,poles,x,y,z)
+         near = fmm_direct_potential(lmax, depth,
+     $        dimx, dimy, dimz, x, y, z,
+     $        coords, charges, ncharge, list_info, map)
+      enddo
+      time = etime(stuff)-time
+      write(6,61) ' time per FMM potential eval ', time/1000
+      time = etime(stuff)
+      do j = 1, 1000
+         sum = direct_sum(coords, charges, ncharge, x, y, z)
+      enddo
+      time = etime(stuff)-time
+      write(6,61) ' time per direct potential eval ', time/1000
+c
+      time = etime(stuff)
+      do j = 1, ncharge
+         chargesr(j) = charges(map(j))
+         coordsr(1,j) = coords(1,map(j))
+         coordsr(2,j) = coords(2,map(j))
+         coordsr(3,j) = coords(3,map(j))
+      enddo
+      call fmm_potential_at_charges2(lmax, depth,dimx,dimy,dimz,
+     $     poles, coordsr, chargesr, ncharge, list_info, pot3)
+      do j = 1, ncharge
+         pot1(map(j)) = pot3(j)
+      enddo
+      time = etime(stuff)-time
+      write(6,61) ' Time to evaluate all FMM potentials ', time
+c
+      time = etime(stuff)
+      call direct_sum_at_charges(coords, charges, ncharge, pot2)
+      time = etime(stuff)-time
+      write(6,61) ' Time to evaluate all direct potentials ', time
+c
+      l2err = 0.0d0
+      l2norm = 0.0d0
+      err = 0.0d0
+      do i = 1, ncharge
+         err = max(err,abs(pot1(i)-pot2(i)))
+         l2err = l2err + (pot1(i)-pot2(i))**2
+         l2norm = l2norm + pot1(i)**2
+      enddo
+      write(6,62) ' MAX abs err at charges = ', err
+      write(6,62) ' L2 err norm at charges = ', sqrt(l2err/l2norm)
+c 
+*      write(6,*) ' TOP LEVEL MULTIPOLES '
+*      call xlm_print(lmax,poles0,lmax)
+c
+      end
       double precision function fmm_potential(lmax, depth,
      $     dimx, dimy, dimz, potential, x, y, z)
       implicit none
@@ -154,6 +309,7 @@ c
          xo = (dble(kx)+0.5d0)*hx ! Coords of box center
          yo = (dble(ky)+0.5d0)*hy
          zo = (dble(kz)+0.5d0)*hz
+         write(6,*) x, y, z, kx, ky, kz, depth, twod
          if (kx.lt.0 .or. kx.ge.twod) call errquit('x!',0)
          if (ky.lt.0 .or. ky.ge.twod) call errquit('y!',0)
          if (kz.lt.0 .or. kz.ge.twod) call errquit('z!',0)

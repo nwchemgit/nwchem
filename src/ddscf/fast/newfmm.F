@@ -1,46 +1,50 @@
-      double precision function fmm_potential(lmax, depth,
-     $     dimx, dimy, dimz, potential, x, y, z)
+      double precision function fmm_potential(depth,lmax,tree, 
+     $     dimx, dimy, dimz, x, y, z)
       implicit none
+      integer tree(300)
       integer lmax, depth
       double precision dimx, dimy, dimz, x, y, z
-      double precision potential((lmax+1)**2,
-     $     0:2**depth-1,0:2**depth-1,0:2**depth-1)
 c
 c     Given a potential previously evaluated by the routine fmm
 c     and augmented appropriatly for the near field terms,
 c     evaluate the potential at the point (x,y,z).  The volume
 c     is assumed to be defined on (0:dimx,0:dimy,0:dimz)
 c
-      integer kx, ky, kz
+      integer kx, ky, kz, level
       double precision hx, hy, hz, xo, yo, zo
-      integer lq
+      integer lq, luse
       parameter (lq = FMM_LMAX)
       double precision q(-lq:lq,0:lq)
       double precision xlm_local_potential
       external xlm_local_potential
 c
-      hx = dimx/dble(2**depth)  ! Size of boxes
-      hy = dimy/dble(2**depth)
-      hz = dimz/dble(2**depth)
-      kx = int(x/hx) ! Index of box containing point
-      ky = int(y/hy) ! Index of box containing point
-      kz = int(z/hz) ! Index of box containing point
-      xo = (dble(kx)+0.5d0)*hx   ! Coords of box center
-      yo = (dble(ky)+0.5d0)*hy
-      zo = (dble(kz)+0.5d0)*hz
+      double precision rtwol
 c
-      if (kx.lt.0 .or. kx.ge.2**depth) call errquit('x?',0)
-      if (ky.lt.0 .or. ky.ge.2**depth) call errquit('y?',0)
-      if (kz.lt.0 .or. kz.ge.2**depth) call errquit('z?',0)
-
-*      if (kx.lt.2 .or. kx.ge.2**depth-2) call errquit('x2?',0)
-*      if (ky.lt.2 .or. ky.ge.2**depth-2) call errquit('y2?',0)
-*      if (kz.lt.2 .or. kz.ge.2**depth-2) call errquit('z2?',0)
-
-c
-      call xlm_unpack(lmax, potential(1,kx,ky,kz), q, lq)
-      fmm_potential = xlm_local_potential(x-xo,y-yo,z-zo,
-     $     q,lq,lmax)
+      rtwol = 0.5d0**depth
+      fmm_potential = 0.0d0
+      do level = depth, 2, -1
+         hx = dimx*rtwol
+         hy = dimy*rtwol
+         hz = dimz*rtwol
+         kx = int(x/hx)         ! Index of box containing point
+         ky = int(y/hy)         ! Index of box containing point
+         kz = int(z/hz)         ! Index of box containing point
+         xo = (dble(kx)+0.5d0)*hx ! Coords of box center
+         yo = (dble(ky)+0.5d0)*hy
+         zo = (dble(kz)+0.5d0)*hz
+c     
+*         if (kx.lt.0 .or. kx.ge.2**level) call errquit('x?',0)
+*         if (ky.lt.0 .or. ky.ge.2**level) call errquit('y?',0)
+*         if (kz.lt.0 .or. kz.ge.2**level) call errquit('z?',0)
+c     
+         call fmm_tree_get_cell(tree, level, kx, ky, kz, q, lq, luse)
+         if (luse .ge. 0) then
+            fmm_potential = xlm_local_potential(x-xo,y-yo,z-zo,
+     $           q,lq,luse)
+            return
+         endif
+         rtwol = rtwol + rtwol
+      enddo
 c
       end
       double precision function direct_sum(coords, charges, ncharge,
@@ -96,14 +100,14 @@ c
       end do
 c
       end
-      subroutine fmm_charges_to_poles(lmax, depth, dimx, dimy, dimz, 
-     $     poles, coords, charges, ncharge, list_info, list_next,
+      subroutine fmm_charges_to_poles(depth, lmax, tree, 
+     $     dimx, dimy, dimz, 
+     $     coords, charges, ncharge, list_info, list_next,
      $     map)
       implicit none
+      integer tree(300)
       integer lmax, depth, ncharge
       double precision dimx, dimy, dimz
-      double precision poles((lmax+1)**2,
-     $     0:2**depth-1,0:2**depth-1,0:2**depth-1)
       double precision charges(ncharge), coords(3,ncharge)
       integer list_info(2,0:2**depth-1,0:2**depth-1,0:2**depth-1),
      $     list_next(ncharge), map(ncharge)
@@ -141,7 +145,7 @@ c
       hx = dimx/dble(twod)  ! Size of boxes
       hy = dimy/dble(twod)
       hz = dimz/dble(twod)
-      call dfill((lmax+1)**2*8**depth,0.0d0,poles,1)
+
       call ifill(8**depth * 2, 0, list_info, 1)
 c
       do i = 1, ncharge
@@ -164,9 +168,13 @@ c
                q(m,l) = q(m,l)*charges(i)
             end do
          end do
-*         call xlm_translate(lmax, xo-x, yo-y, zo-z, q, lq)
-         call xlm_accumulate_to_packed
-     $        (lmax,poles(1,kx,ky,kz),q,lq)
+*         write(6,*) ' Before add cell '
+*         call xlm_print(lmax,q,lq)
+         call fmm_tree_add_cell(tree,depth,kx,ky,kz,q,lq,lmax)
+*         call dfill((2*lq+1)*(lq+1),0.0d0,q,1)
+*         call fmm_tree_get_cell(tree,depth,kx,ky,kz,q,lq,luse)
+*         write(6,*) ' After get cell'
+*         call xlm_print(luse,q,lq)
 c
          list_next(i) = list_info(1,kx,ky,kz)
          list_info(1,kx,ky,kz) = i
@@ -204,7 +212,7 @@ c
 c
       if (total .ne. ncharge) then
          write(6,*) ' total, ncharge ', total, ncharge
-         stop 23
+         call errquit('fmm_charges_to_poles: lost something!',0)
       endif
       write(6,1) max_per_box, min_per_box, ncharge/8**depth, 
      $     sqrt(avgsq_per_box/8.0d0**depth - (ncharge/8.0d0**depth)**2)
@@ -484,70 +492,86 @@ c
       fmm_direct_potential = potential
 c
       end
-      subroutine fmm_potential_at_charges2(lmax, depth,dimx,dimy,dimz,
-     $     potential, coords, charges, ncharge, list_info, pot)
+      subroutine fmm_potential_at_charges2(depth,lmax, tree,
+     $     dimx,dimy,dimz,
+     $     coords, charges, ncharge, list_info, pot)
       implicit none
 #include "fmmP.fh"
       integer lmax, depth
       double precision dimx, dimy, dimz
-      double precision potential((lmax+1)**2,
-     $     0:2**depth-1,0:2**depth-1,0:2**depth-1)
-      integer ncharge
+      integer ncharge, tree(300)
       double precision charges(ncharge), coords(3,ncharge), pot(ncharge)
       integer list_info(2,0:2**depth-1,0:2**depth-1,0:2**depth-1)
 c     
 c     Evaluate the near and far field potentials at all charges
 c     returning the result in pot
 c     
-      integer kx, ky, kz, i, l, m, kxn, kyn, kzn, ind
-      integer twod, j, dkyhi, dkxhi
+      integer kx, ky, kz, i, l, m, kxn, kyn, kzn
+      integer twod, j, dkyhi, dkxhi, luse
       integer kxnlo, kynlo, kznlo
       double precision hx, hy, hz, xo, yo, zo, sum, 
      $     x, y, z, xx, yy, zz, rdist
 
-      integer lq
+      integer lq, kxp, kyp, kzp, level
       parameter (lq = FMM_LMAX)
-      double precision w(-lq:lq,0:lq)
+      double precision w(-lq:lq,0:lq),q(-lq:lq,0:lq)
       double precision xlm_local_potential
       external xlm_local_potential
 c     
       if (lmax .gt. lq) call errquit('fmm_pac2: lmax>lq', lmax)
       twod = 2**depth
-      hx = dimx/dble(twod)  ! Size of boxes
-      hy = dimy/dble(twod)
-      hz = dimz/dble(twod)
-c
+c     
       do i = 1, ncharge
          pot(i) = 0.0d0
       enddo
-c
+c     
       do kz = 0, twod-1
          do ky = 0, twod-1
             do kx = 0, twod-1
-               xo = (dble(kx)+0.5d0)*hx ! Coords of box center
-               yo = (dble(ky)+0.5d0)*hy
-               zo = (dble(kz)+0.5d0)*hz
 c     
-c     Compute the far field term
+c     Compute the far field term if there is one
 c     
-               do i = list_info(1,kx,ky,kz),list_info(2,kx,ky,kz)
-                  x = coords(1,i)
-                  y = coords(2,i)
-                  z = coords(3,i)
-                  sum = 0.0d0
-                  call xlm(lmax, x-xo, y-yo, z-zo, w, lq)
-                  ind = 1
-                  do l = 0, lmax
-                     do m = -l,l
-                        sum = sum + w(m,l)*potential(ind,kx,ky,kz)
-                        ind = ind + 1
-                     end do
-                  end do
-                  pot(i) = pot(i) + sum
-               enddo
+               if (list_info(1,kx,ky,kz).le.list_info(2,kx,ky,kz)) then
+                  kxp = kx
+                  kyp = ky
+                  kzp = kz
+                  hx = dimx/dble(twod) ! Size of boxes
+                  hy = dimy/dble(twod)
+                  hz = dimz/dble(twod)
+                  do level = depth, 2, -1
+                     xo = (dble(kxp)+0.5d0)*hx ! Coords of box center
+                     yo = (dble(kyp)+0.5d0)*hy
+                     zo = (dble(kzp)+0.5d0)*hz
+                     call fmm_tree_get_cell(tree, level, kxp, kyp, kzp, 
+     $                    q, lq, luse)
+                     if (luse .ge. 0) goto 11
+                     kxp = kxp /2
+                     kyp = kyp / 2
+                     kzp = kzp / 2
+                     hx = hx + hx
+                     hy = hy + hy
+                     hz = hz + hz
+                  enddo
+ 11               continue
+                  if (luse .ge. 0) then
+                     do i = list_info(1,kx,ky,kz),list_info(2,kx,ky,kz)
+                        x = coords(1,i)
+                        y = coords(2,i)
+                        z = coords(3,i)
+                        sum = 0.0d0
+                        call xlm(lmax, x-xo, y-yo, z-zo, w, lq)
+                        do l = 0, lmax
+                           do m = -l,l
+                              sum = sum + w(m,l)*q(m,l)
+                           end do
+                        end do
+                        pot(i) = pot(i) + sum
+                     enddo
+                  endif
+               endif
 c     
 c     Near field terms
-c
+c     
                do i = list_info(1,kx,ky,kz),list_info(2,kx,ky,kz)
                   x = coords(1,i)
                   y = coords(2,i)
@@ -563,7 +587,7 @@ c
                   enddo
                   pot(i) = pot(i) + sum
                enddo
-c
+c     
                kxnlo = max(0,kx-well_separated)
                kynlo = max(0,ky-well_separated)
                kznlo = max(0,kz-well_separated)
@@ -598,14 +622,13 @@ c
          enddo
       enddo
       end
-      subroutine fmm_potential_at_charges(lmax, depth,dimx,dimy,dimz,
-     $     potential, coords, charges, ncharge, list_info, pot)
+      subroutine fmm_potential_at_charges(depth,lmax,tree,
+     $     dimx,dimy,dimz,
+     $     coords, charges, ncharge, list_info, pot)
       implicit none
 #include "fmmP.fh"
-      integer lmax, depth
+      integer lmax, depth, tree(300)
       double precision dimx, dimy, dimz
-      double precision potential((lmax+1)**2,
-     $     0:2**depth-1,0:2**depth-1,0:2**depth-1)
       integer ncharge
       double precision charges(ncharge), coords(3,ncharge), pot(ncharge)
       integer list_info(2,0:2**depth-1,0:2**depth-1,0:2**depth-1)
@@ -619,9 +642,9 @@ c
       double precision hx, hy, hz, xo, yo, zo, sum, 
      $     x, y, z, xx, yy, zz, rdist
 
-      integer lq
+      integer lq, luse
       parameter (lq = FMM_LMAX)
-      double precision w(-lq:lq,0:lq)
+      double precision w(-lq:lq,0:lq), q(-lq:lq,0:lq)
       double precision xlm_local_potential
       external xlm_local_potential
 c     
@@ -650,14 +673,17 @@ c
 c
 c     Compute the far field term
 c
-         call xlm(lmax, x-xo, y-yo, z-zo, w, lq)
-         ind = 1
-         do l = 0, lmax
-            do m = -l,l
-               sum = sum + w(m,l)*potential(ind,kx,ky,kz)
-               ind = ind + 1
+         call fmm_tree_get_cell(tree, depth, kx, ky, kz, 
+     $        q, lq, luse)
+         if (luse .ge. 0) then
+            call xlm(lmax, x-xo, y-yo, z-zo, w, lq)
+            ind = 1
+            do l = 0, lmax
+               do m = -l,l
+                  sum = sum + w(m,l)*q(m,l)
+               end do
             end do
-         end do
+         endif
 c     
 c     Near field terms ... avoiding current charge
 c
@@ -699,35 +725,29 @@ c
 c
       enddo
       end
-      subroutine fmm(lmax, depth, dimx, dimy, dimz, 
-     $     mpoles, otree, mpoles0, work, lwork)
+      subroutine fmm(depth, lmax, tree, dimx, dimy, dimz)
       implicit none
+#include "fmmP.fh"
       double precision flops, flopsv, flopst, calls
       common /xlmflops/flops, flopsv, flopst, calls
 c
-c     Given a regular power-of-two grid of unnormalized, real
-c     multipoles, sum the far-field interactions using FMM.
-c     Optionally allow multipoles to be defined on coarser grids
-c     going up the octree (otree=.true.).
+c     Given an oct-tree of unnormalized, real multipoles, sum the 
+c     far-field interactions using the FMM.
 c
 c     The FMM results in a local spherical Taylor series associated
 c     with each cell at the finest level from which the far-field 
 c     potential may be computed by calling xlm_local_potenial.
 c     
-c     The direct interaction of each cell with its eight immediate 
+c     The direct interaction of each cell with its immediate 
 c     neighbours and the interactions within a cell are NOT computed 
 c     here and must be formed by other means.
 c
 c     Arguments
 c
-c     lmax  = Maximum order of multipole to use.  The error is
-c     .       proportional to 2**(-lmax).
+c     lmax  = Maximum order of multipole to use.
 c
 c     depth = level of the tree at which multipoles are provided
-c     .       There will be 8**depth boxes.  Depth can be anything
-c     .       greater than zero, but for efficiency should be at
-c     .       least 3 and probably no more than 7.
-c     .       (depth=0 means one box covers the whole domain)
+c     .       (depth=0 is the box that covers the whole domain)
 c
 c     dimx/y/z= The volume of the summation.  Boxes at
 c     .       a given level are labelled k=0,...,2**level-1 for
@@ -738,153 +758,51 @@ c     .       is given by xlo+(k+0.5)*hx where xlo is the coordinate
 c     .       of the bottom-left-front corner of the box in user
 c     .       space.
 c     
-c     mpoles(lenxlm,2**depth,2**depth,2**depth)
-c     .       Inputs the multipoles within each box about the box center.
-c     .       The definition of the multipoles corresponds to the unnormalized
-c     .       real solid spherical harmonics as computed by xlm().  The
-c     .       routine xlm_coeff() can also be use to transform from simple
-c     .       cartesian moments to this basis.  See xlm_pack/unpack
-c     .       for the compressed storage format.
-c     .       lenxlm = sum(l=0,lmax)(2*l+1) = (lmax+1)**2
-c     .
-c     .       Returns the spherical Taylor series expansions.  The potential
-c     .       at a point within a box may be computed from the corresponding
-c     .       series by
-c     .           double precision q(-lq:lq,0:lmax) ! lq>= lmax
-c     .           call xlm_unpack(lmax, mpoles(1,kx,ky,kz), q, lq)
-c     .           u = xlm_local_potential(x,y,z,q,lq,lmax)
-c     .       where x,y,z are the coordinates relative to the center of
-c     .       the box, and kx,ky,kz label the box as described above.
+c     tree = the data structure returned by fmm_tree_create()
+c     .      and containing multipole sources
 c
-c     otree = If false, then mpoles is as described above, which specifies
-c     .       the multipole moments associated with just the finest level.
-c     .
-c     .       If true, then multipoles may be specified at all levels of
-c     .       the octree and mpoles() consists of the concatenated grids
-c     .       starting with the finest and will be of dimension 
-c     .       lenxlm**8^(depth+1)-1)/7.  The effect of otree=false may
-c     .       be emulated with otree=true by just specifying mpoles
-c     .       at the finest level and providing zeroes at the other levels.
-c
-c     mpoles0(-lmax:lmax,0:lmax)
-c     .       Returns the multipole moments at level=0 (the whole domain).
-c
-c     work(lwork)
-c     .       Scratch workspace.  
-c     .       lwork >= lenxlm*2*[sum(k=0,depth)8^k]
-c     .             >= lenxlm*2*(8^(depth+1)-1)/7
-c
-      integer lmax, depth, lwork, mptr
+      integer lmax, depth
       double precision dimx, dimy, dimz
-      double precision mpoles((lmax+1)**2,*)
-      double precision work((lmax+1)**2,*)
-      double precision mpoles0(-lmax:lmax,0:lmax)
-      logical otree
+      integer tree(300)
 c
-      integer lenxlm, poles, parent_poles, level,
-     $     potential, parent_potential
-      
-      integer luse(32768)
-
+      integer level, wtree(300)
+c
+      do level = 0, 9
+         leveloff(level) = (8**level-1)/7
+      enddo
+c
       flops = 0
       flopsv= 0
       flopst= 0
       calls = 0
-
-      call xlm_init
-
-      lenxlm = (lmax+1)**2
-
-      if (lwork/lenxlm .lt. 2*((8**(depth+1)-1)/7)) 
-     $     call errquit('fmm: lwork must be ', 2*((8**(depth+1)-1)/7))
-
-c     In the initial debug implementation copy all data into
-c     workspace and copy results back.  Will do a memory
-c     saving version later.  So for now, work is organized
-c     as follows
-c     level=depth   potential+mpoles
-c     level=depth-1 potential+mpoles
-c     ...
-c     level=0       potential+mpoles
 c
-*****      call dfill(lwork, 0.0d0, work, 1)
-      call dcopy(lenxlm*(8**depth), mpoles, 1, work, 1)
+      call xlm_init
+c
+      call fmm_tree_create(depth, lmax, wtree)
 c
 c     Upward pass
 c
+      call fmm_pass1(depth, lmax, dimx, dimy, dimz, tree, wtree)
 c
-      parent_poles = 1
-      do level = depth, 1, -1
-
-         poles        = parent_poles
-         potential    = poles + (8**level)
-         parent_poles = poles + (8**level)*2
+c     Downward pass
+      call fmm_pass2(depth, lmax, dimx, dimy, dimz, tree, wtree)
 c
-         if ((parent_poles+2*8**(level-1)-1)*lenxlm .gt. lwork) 
-     $        call errquit('xxxxxxx?',0)
-c
-c     Pass multipoles up to the parent and pass short-range potential
-c     to neighbours at the current level.  If we have source terms
-c     on the parent level (otree=true) then copy them, otherwise
-c     zero the parent poles.
-c
-         if (otree) then
-            mptr = (parent_poles-1)/2 + 1
-            call dcopy(lenxlm*(8**(level-1)), mpoles(1,mptr), 1,
-     $           work(1,parent_poles), 1)
-         else
-            call dfill(lenxlm*(8**(level-1)), 0.0d0,
-     $           work(1,parent_poles), 1)
-         endif
-         call dfill(lenxlm*(8**level), 0.0d0, work(1,potential), 1)
-c
-         call fmm_pass1(lmax, level, dimx, dimy, dimz,
-     $        work(1,poles), work(1,potential), work(1,parent_poles),
-     $        luse)
-c
-         if (level .eq. 1) then
-            call xlm_unpack(lmax, work(1,parent_poles),
-     $           mpoles0, lmax)
-         end if
-c
-      end do
-c
-c     Downward pass ... note value of pointer potential is used from above
-c     (the last level at which a local potential was computed was 1
-c     ... this is actually zero since no suitable neighbours exist
-c     until level 2).
-c
-      do level = 2, depth
-         parent_potential = potential
-         potential = parent_potential - 8**(level-1) - 8**level
-
-         call fmm_pass2(lmax, level, 
-     $        dimx, dimy, dimz, 
-     $        work(1,parent_potential), work(1,potential))
-      end do
-c
-      call dcopy(lenxlm*(8**depth), work(1,potential), 1, mpoles, 1)
+      call fmm_tree_destroy(wtree)
 c
 *      write(6,*) ' flops calls ', flops,flopsv,flopst,calls
 c
       end
-      subroutine fmm_pass1(lmax, level, dimx, dimy, dimz,
-     $     poles, potential, parent_poles, luse)
+      subroutine fmm_pass1(depth, lmax, dimx, dimy, dimz, tree, wtree)
       implicit none
 #include "fmmP.fh"
-      integer lmax, level
+#include "mafdecls.fh"
+      integer lmax, depth, level
+      integer tree(300)
       double precision dimx, dimy, dimz
-      double precision poles((lmax+1)**2,
-     $     0:2**level-1,0:2**level-1,0:2**level-1)
-      double precision potential((lmax+1)**2,
-     $     0:2**level-1,0:2**level-1,0:2**level-1)
-      double precision parent_poles((lmax+1)**2,
-     $     0:2**(level-1)-1,0:2**(level-1)-1,0:2**(level-1)-1)
-      integer luse(0:2**level-1,0:2**level-1,0:2**level-1)
 c     
       double precision hx, hy, hz, x, y, z, xn, yn, zn, xp, yp, zp
       double precision xx, yy, zz
-      integer dkx, dky, dkz, l, ln, m
+      integer dkx, dky, dkz, l, ln
       integer kx, ky, kz, kxn, kyn, kzn, kxp, kyp, kzp
       integer lq
       parameter (lq = FMM_LMAX)
@@ -892,140 +810,137 @@ c
       double precision p(-lq:lq,0:lq), pn(-lq:lq,0:lq)
       double precision scale, scale0
       integer lmaxeff, lmaxeffn, hi, lo, twol, ind, indn
-      integer lusemin
-      parameter (lusemin = 6)
-c
+      integer wtree(300)
+c     
 c     If in_all_boxes is true, then the potential is transferred even
 c     to boxes that do not contain charges.  If you only want to compute
 c     the potential at the location of charges, set in_all_boxes false.
-c
+c     
       logical in_all_boxes
       parameter (in_all_boxes = .true.)
-c
+c     
 c     Note that to localize memory references even though
 c     q(), etc., are dimensioned lq>=lmax, we are telling the
 c     subroutines below they are dimensioned lmax, thus the
 c     arrays are NOT easily used in this routine.
-c
+c     
       if (lq .lt. lmax) call errquit('fmm_p_m_u: lq ', lmax)
-c
-      twol = 2**level
 c     
-      hx = dimx/dble(twol)
-      hy = dimy/dble(twol)
-      hz = dimz/dble(twol)
 c     
-      scale0 = (well_separated+1d0)/0.87d0 - 1.0d0
-
-      do kz = 0, twol-1
-         do ky = 0, twol-1
-            do kx = 0, twol-1
-               call xlm_unpack(lmax,poles(1,kx,ky,kz),q,lq)
-               do l = lmax, 0, -1
-                  do m = -l,l
-                     if (abs(q(m,l)).ne.0.0d0) goto 33
-                  enddo
-               enddo
- 33            luse(kx,ky,kz) = l
-            enddo
-         enddo
-      enddo
+      do level = depth, 3, -1
+         twol = 2**level
+         hx = dimx/dble(twol)
+         hy = dimy/dble(twol)
+         hz = dimz/dble(twol)
+         do kz = 0, twol-1
+            do ky = 0, twol-1
+               do kx = 0, twol-1
+                  x = (dble(kx)+0.5d0)*hx ! Coords of current box center
+                  y = (dble(ky)+0.5d0)*hy
+                  z = (dble(kz)+0.5d0)*hz
 c     
-      do kz = 0, twol-1
-         do ky = 0, twol-1
-            do kx = 0, twol-1
-               x = (dble(kx)+0.5d0)*hx ! Coords of current box center
-               y = (dble(ky)+0.5d0)*hy
-               z = (dble(kz)+0.5d0)*hz
-c     
-               l = luse(kx,ky,kz)
-               if (l .ge. 0) then
-                  call xlm_unpack(lmax,poles(1,kx,ky,kz),q,lmax)
-                  kxp = kx/2    ! Parent box indices
-                  kyp = ky/2
-                  kzp = kz/2
-                  xp = (dble(kxp)+0.5d0)*hx*2.0d0 ! Coords of parent box
-                  yp = (dble(kyp)+0.5d0)*hy*2.0d0
-                  zp = (dble(kzp)+0.5d0)*hz*2.0d0
+                  call fmm_tree_get_cell(tree,level,kx,ky,kz,q,lmax,l)
+                  if (l .ge. 0) then
+                     kxp = kx/2 ! Parent box indices
+                     kyp = ky/2
+                     kzp = kz/2
+                     xp = (dble(kxp)+0.5d0)*hx*2.0d0 ! Coords of parent box
+                     yp = (dble(kyp)+0.5d0)*hy*2.0d0
+                     zp = (dble(kzp)+0.5d0)*hz*2.0d0
 c     
 c     Pass multipoles up to parent (note that this destroys q so
 c     must unpack again afterwards)
 c     
-                  call xlm_translate(lmax, xp-x, yp-y, zp-z, q, lmax)
-                  call xlm_accumulate_to_packed
-     $                 (lmax,parent_poles(1,kxp,kyp,kzp),q,lmax)
-               endif
+                     call xlm_translate2(lmax,xp-x,yp-y,zp-z,q,lmax)
+                     call fmm_tree_add_cell(tree,level-1,
+     $                    kxp,kyp,kzp,q,lmax,lmax)
+
+*                     if (.not. ma_verify_allocator_stuff()) 
+*     $                    call errquit('a',0)
+                  endif
+               enddo
+            enddo
+         enddo
+      enddo
+c
+      scale0 = (well_separated+1d0)/0.87d0 - 1.0d0
+c     
+      do level = depth, 2, -1
+         twol = 2**level
+         hx = dimx/dble(twol)
+         hy = dimy/dble(twol)
+         hz = dimz/dble(twol)
+         do kz = 0, twol-1
+            do ky = 0, twol-1
+               do kx = 0, twol-1
+                  x = (dble(kx)+0.5d0)*hx ! Coords of current box center
+                  y = (dble(ky)+0.5d0)*hy
+                  z = (dble(kz)+0.5d0)*hz
+c     
+                  call fmm_tree_get_cell(tree,level,kx,ky,kz,q,lmax,l)
 c     
 c     Propagate local taylor series expansion
 c     
-               ind = kx+twol*(ky+twol*kz)
-               lo = 2*well_separated
-               hi = 2*well_separated + 1
-               if (l .ge. 0) call xlm_unpack
-     $              (lmax,poles(1,kx,ky,kz),q,lmax)
-               do kzn = max(0,int(kz/2)*2-lo),
-     $              min(twol-1,int(kz/2)*2+hi)
-                  dkz = abs(kzn - kz)
-                  do kyn = max(0,int(ky/2)*2-lo),
-     $                 min(twol-1,int(ky/2)*2+hi)
-                     dky = abs(kyn - ky)
-                     do kxn = max(0,int(kx/2)*2-lo),
-     $                    min(twol-1,int(kx/2)*2+hi)
-                        dkx = abs(kxn - kx)
-                        indn = kxn+twol*(kyn+twol*kzn)
-                        if ((dkx.gt.well_separated .or.
-     $                       dky.gt.well_separated .or.
-     $                       dkz.gt.well_separated) .and.
-     $                       indn.gt.ind) then
+                  ind = kx+twol*(ky+twol*kz)
+                  lo = 2*well_separated
+                  hi = 2*well_separated + 1
+                  do kzn = max(0,int(kz/2)*2-lo),
+     $                 min(twol-1,int(kz/2)*2+hi)
+                     dkz = abs(kzn - kz)
+                     do kyn = max(0,int(ky/2)*2-lo),
+     $                    min(twol-1,int(ky/2)*2+hi)
+                        dky = abs(kyn - ky)
+                        do kxn = max(0,int(kx/2)*2-lo),
+     $                       min(twol-1,int(kx/2)*2+hi)
+                           dkx = abs(kxn - kx)
+                           indn = kxn+twol*(kyn+twol*kzn)
+                           if ((dkx.gt.well_separated .or.
+     $                          dky.gt.well_separated .or.
+     $                          dkz.gt.well_separated) .and.
+     $                          indn.gt.ind) then
 c     
 c     Limit precision if possible for distant boxes.  h*sqrt(3)/2 is the
 c     distance of the corner of a cube from its center.
 c     
-                           ln = luse(kxn,kyn,kzn)
-                           lmaxeff  = l
-                           lmaxeffn = ln
-                           if (ln.ge.0 .or. l.ge.0) then
-                              xn = (dble(kxn)+0.5d0)*hx
-                              yn = (dble(kyn)+0.5d0)*hy
-                              zn = (dble(kzn)+0.5d0)*hz
-                              xx = xn - x
-                              yy = yn - y
-                              zz = zn - z
-                              scale = sqrt(xx*xx+yy*yy+zz*zz)
-                              scale = scale / (0.87d0*hx) - 1.0d0
-                              scale = log(scale0)/log(scale)
-*                              scale = 1.0d0
-                           endif
-                           if (ln .ge. 0) then 
-                              call xlm_unpack(lmax,
-     $                             poles(1,kxn,kyn,kzn), qn, lmax)
-                              lmaxeffn = min(ln,max(6,nint(lmax*scale)))
-                           endif
-                           if (l .ge. 0) then 
-                              lmaxeff = min(l,max(6,nint(lmax*scale)))
-                           endif
-c
-                           if (lmaxeff.ge.0 .and. lmaxeffn.ge.0) then
-                              call xlm_new_multipole_to_local(lmaxeff, 
-     $                             xn, yn, zn, pn, lmax,x,y,z,q,lmax)
-                              call xlm_accumulate_to_packed(lmaxeff,
-     $                             potential(1,kxn,kyn,kzn),pn,lmax)
-                              call xlm_new_multipole_to_local(lmaxeffn, 
-     $                             x, y, z, p, lmax, xn, yn, zn,qn,lmax)
-                              call xlm_accumulate_to_packed(lmaxeffn,
-     $                             potential(1,kx,ky,kz),p,lmax)
-                           else if (lmaxeff.ge.0.and.in_all_boxes) then
-                              call xlm_new_multipole_to_local(lmaxeff, 
-     $                             xn, yn, zn, pn, lmax, x,y,z,q,lmax)
-                              call xlm_accumulate_to_packed(lmaxeff,
-     $                             potential(1,kxn,kyn,kzn),pn,lmax)
-                           else if (lmaxeffn.ge.0.and.in_all_boxes) then
-                              call xlm_new_multipole_to_local(lmaxeffn, 
-     $                             x, y, z, p, lmax, xn, yn,zn,qn,lmax)
-                              call xlm_accumulate_to_packed(lmaxeffn,
-     $                             potential(1,kx,ky,kz),p,lmax)
-                           endif
-                        end if
+                              call fmm_tree_get_cell(tree,level,
+     $                             kxn,kyn,kzn,qn,lmax,ln)
+                              lmaxeff  = l
+                              lmaxeffn = ln
+                              if (ln.ge.0 .or. l.ge.0) then
+                                 xn = (dble(kxn)+0.5d0)*hx
+                                 yn = (dble(kyn)+0.5d0)*hy
+                                 zn = (dble(kzn)+0.5d0)*hz
+                                 xx = xn - x
+                                 yy = yn - y
+                                 zz = zn - z
+                                 scale = sqrt(xx*xx+yy*yy+zz*zz)
+                                 scale = scale / (0.87d0*hx) - 1.0d0
+                                 scale = log(scale0)/log(scale)
+                              endif
+                              if (ln .ge. 0) then 
+                                 lmaxeffn = 
+     $                             min(ln,max(6,nint(lmax*scale)))
+                                 call xlm_new_multipole_to_local(
+     $                                lmaxeffn, x, y, z, p, lmax,
+     $                                xn, yn, zn, qn, lmax)
+                                 call fmm_tree_add_cell(wtree, level,
+     $                                kx, ky, kz, p, lmax, lmaxeffn)
+*                     if (.not. ma_verify_allocator_stuff()) 
+*     $                    call errquit('b',0)
+                              endif
+                              if (l .ge. 0) then
+                                 lmaxeff  = 
+     $                                min(l, max(6,nint(lmax*scale)))
+                                 call xlm_new_multipole_to_local(
+     $                                lmaxeff, xn, yn, zn, pn, lmax,
+     $                                x, y, z, q, lmax)
+                                 call fmm_tree_add_cell(wtree, level,
+     $                                kxn, kyn, kzn, pn, lmax, lmaxeff)
+*                     if (.not. ma_verify_allocator_stuff()) 
+*     $                    call errquit('c',0)
+                              endif
+                           end if
+                        end do
                      end do
                   end do
                end do
@@ -1034,114 +949,121 @@ c
       end do
 c
       end
-      subroutine fmm_pass2(lmax, level, 
-     $     dimx, dimy, dimz, parent_potential, potential)
+      subroutine fmm_pass2(depth, lmax, dimx, dimy, dimz, tree, wtree)
       implicit none
-      integer lmax, level
+#include "mafdecls.fh"
+#include "fmmP.fh"
+      integer lmax, depth, level
       double precision dimx, dimy, dimz
-      double precision potential((lmax+1)**2,
-     $     0:2**level-1,0:2**level-1,0:2**level-1)
-      double precision parent_potential((lmax+1)**2,
-     $     0:2**(level-1)-1,0:2**(level-1)-1,0:2**(level-1)-1)
+      integer tree(300), wtree(300)
 c
       double precision hx, hy, hz, x, y, z, xp, yp, zp
-      integer kx, ky, kz, kxp, kyp, kzp
-      integer lq
+      integer kx, ky, kz, kxp, kyp, kzp, ind, indp
+      integer lq, luse, k_probe, l_probe, ncells
+      logical odoit
       parameter (lq = FMM_LMAX)
       double precision q((2*lq+1)*(lq+1))
+      logical fmm_tree_probe_cell
+      external fmm_tree_probe_cell
+      integer cellindex
+      cellindex(level,kx,ky,kz) = k_probe + leveloff(level) + 
+     $     kx + (2**level)*(ky + (2**level)*kz)
 c
-      if (lq .lt. lmax) call errquit('fmm_p_f_a: lq ', lmax)
+      if (lq .lt. lmax) call errquit('fmm_pass2: lq ', lmax)
 c
-      hx = dimx/dble(2**level)
-      hy = dimy/dble(2**level)
-      hz = dimz/dble(2**level)
+      ncells = (8**(depth)-1)/7 ! No. of cells excluding lowest level
+      if (.not. ma_alloc_get(mt_log,ncells,'fmm:probe',
+     $     l_probe,k_probe)) call errquit
+     $     ('fmm_pass2: failed to allocate probe tree',ncells)
+      call ifill(ncells,.false.,log_mb(k_probe),1)
 c
-      do kz = 0, 2**level-1
-         do ky = 0, 2**level-1
-            do kx = 0, 2**level-1
-               x = (dble(kx)+0.5d0)*hx ! Coords of current box center
-               y = (dble(ky)+0.5d0)*hy
-               z = (dble(kz)+0.5d0)*hz
-               kxp = kx/2       ! Parent box indices
-               kyp = ky/2
-               kzp = kz/2
-               xp = (dble(kxp)+0.5d0)*hx*2.0d0 ! Coords of parent box
-               yp = (dble(kyp)+0.5d0)*hy*2.0d0
-               zp = (dble(kzp)+0.5d0)*hz*2.0d0
-               call xlm_unpack(lmax, parent_potential(1,kxp,kyp,kzp), 
-     $              q, lmax)
-               call xlm_local_translate(lmax,x-xp,y-yp,z-zp,q,lmax)
-               call xlm_accumulate_to_packed(lmax,
-     $              potential(1,kx,ky,kz),q,lmax)
+c     Determine which cells have descendents that have potentials
+c     by passing a boolean up the tree.
+c     
+      do level = depth,3,-1
+         do kz = 0, 2**level-1
+            do ky = 0, 2**level-1
+               do kx = 0, 2**level-1
+                  kxp = kx/2    ! Parent box indices
+                  kyp = ky/2
+                  kzp = kz/2
+                  indp = cellindex(level-1,kxp,kyp,kzp)
+                  if (level.ne.depth) then
+                     ind  = cellindex(level,kx,ky,kz)
+                     log_mb(indp) = log_mb(indp) .or. log_mb(ind)
+                  endif
+                  log_mb(indp) = log_mb(indp) .or.
+     $                 fmm_tree_probe_cell(wtree,level,kx,ky,kz)
+               enddo
+            enddo
+         enddo
+      enddo
+c
+      do level = 3, depth
+         hx = dimx/dble(2**level)
+         hy = dimy/dble(2**level)
+         hz = dimz/dble(2**level)
+         do kz = 0, 2**level-1
+            do ky = 0, 2**level-1
+               do kx = 0, 2**level-1
+                  x = (dble(kx)+0.5d0)*hx ! Coords of current box center
+                  y = (dble(ky)+0.5d0)*hy
+                  z = (dble(kz)+0.5d0)*hz
+                  kxp = kx/2    ! Parent box indices
+                  kyp = ky/2
+                  kzp = kz/2
+                  xp = (dble(kxp)+0.5d0)*hx*2.0d0 ! Coords of parent box
+                  yp = (dble(kyp)+0.5d0)*hy*2.0d0
+                  zp = (dble(kzp)+0.5d0)*hz*2.0d0
+c
+c     Only move the parent's potential down if this cell or any of
+c     its decendents already has a non-zero one.
+c     
+                  odoit = fmm_tree_probe_cell(wtree,level,kx,ky,kz)
+                  if (level.ne.depth) odoit = odoit .or. 
+     $                 log_mb(cellindex(level,kx,ky,kz))
+                  if (odoit) then
+                     call fmm_tree_get_cell(wtree,level-1,
+     $                    kxp,kyp,kzp,q,lmax,luse)
+                     if (luse .ge. 0) then
+                        call xlm_local_translate(lmax,x-xp,y-yp,z-zp,
+     $                       q,lmax)
+                        call fmm_tree_add_cell(wtree,level,kx,ky,kz,
+     $                       q,lmax,lmax)
+*     if (.not. ma_verify_allocator_stuff()) 
+*     $                    call errquit('d',0)
+                     endif
+                  endif
+               end do
             end do
          end do
-      end do
+      enddo
 c
+      do level = 0, depth
+         do kz = 0, 2**level-1
+            do ky = 0, 2**level-1
+               do kx = 0, 2**level-1
+                  call fmm_tree_get_cell(wtree,level,kx,ky,kz,q,lmax,
+     $                 luse)
+                  if (luse .ge. 0) then
+                     call fmm_tree_put_cell(tree,level,kx,ky,kz,q,lmax,
+     $                    lmax)
+*                     if (.not. ma_verify_allocator_stuff()) 
+*     $                    call errquit('e',0)
+                  else
+                     call fmm_tree_zero_cell(tree,level,kx,ky,kz)
+*                     if (.not. ma_verify_allocator_stuff()) 
+*     $                    call errquit('f',0)
+                  end if
+               end do
+            end do
+         end do
+      enddo
+c
+      if (.not. ma_free_heap(l_probe)) call errquit
+     $     ('fmm_pass2: free heap failed ', 0)
+c     
       end
-c$$$      subroutine fmm_multipole_to_local_rot(lmax, 
-c$$$     $     xn, yn, zn, pn, lp, x, y, z, q, lq)
-c$$$      implicit none
-c$$$#include "xlm.fh"
-c$$$c     
-c$$$      integer lmax, lq, lp
-c$$$      double precision xn, yn, zn, x, y, z
-c$$$      double precision q(-lq:lq,0:lmax), pn(-lp:lp,0:lp)
-c$$$c
-c$$$      double precision theta, phi, r, pi
-c$$$      double precision qq(-maxl:maxl,0:maxl)
-c$$$      integer l, m
-c$$$c
-c$$$c     Determine the rotation angle
-c$$$c
-c$$$      pi = 4.0d0*atan(1.0d0)
-c$$$      call fmm_xyz_to_phi_theta(xn-x,yn-y,zn-z,phi,theta)
-c$$$*      write(6,*) ' doing it ', xn, yn, zn, x, y, z, 
-c$$$*     $     theta*180.0d0/pi, phi*180.0d0/pi
-c$$$c      
-c$$$c     Rotate the source multipoles
-c$$$c
-c$$$      do l = 0, lmax
-c$$$         do m = -l, l
-c$$$            qq(m,l) = 2.0d0*q(m,l) * (b(m,l)*c(m,l))
-c$$$         enddo
-c$$$         qq(0,l) = qq(0,l) * 0.5d0
-c$$$      enddo
-c$$$c
-c$$$*      write(6,*) ' before phi ', phi
-c$$$*      call xlm_print(lmax,q,lq)
-c$$$      call xlm_apply_z_rotation(lmax,phi,qq,maxl)
-c$$$*      write(6,*) ' after phi ', phi
-c$$$*      call xlm_print(lmax,q,lq)
-c$$$      call xlm_apply_y_rotation(lmax,theta,qq,maxl)
-c$$$c
-c$$$      do l = 0, lmax
-c$$$         do m = -l, l
-c$$$            qq(m,l) = 0.5d0*qq(m,l) / (b(m,l)*c(m,l))
-c$$$         enddo
-c$$$         qq(0,l) = qq(0,l) * 2.0d0
-c$$$      enddo
-c$$$c
-c$$$c     Translate 0,0,r
-c$$$c
-c$$$      r = sqrt((xn-x)**2 + (yn-y)**2 + (zn-z)**2)
-c$$$      call xlm_multipole_to_local_z(lmax, 
-c$$$     $     r, pn, lp, qq, maxl)
-c$$$*      call xlm_multipole_to_local(lmax, 
-c$$$*     $     0.0d0, 0.0d0, r, pn, lp, 0.0d0, 0.0d0, 0.0d0, qq, maxl)
-c$$$c
-c$$$c     Rotate the potentials back
-c$$$c     
-c$$$*      write(6,*) ' before -phi ', -phi
-c$$$*      call xlm_print(lmax,pn,lp)
-c$$$      call xlm_apply_y_rotation(lmax,-theta,pn,lp)
-c$$$*      write(6,*) ' after -phi ', -phi
-c$$$*      call xlm_print(lmax,pn,lp)
-c$$$      call xlm_apply_z_rotation(lmax,-phi,pn,lp)
-c$$$c
-c$$$      end
-
-
-
       subroutine fmm_xyz_to_phi_theta(xx, yy, zz,
      $     phi, theta)
       implicit none
@@ -1169,3 +1091,264 @@ c
       endif
 c
       end
+
+
+#define I_DEPTH 1
+#define I_LMAX  2
+#define I_NCPA  3
+#define I_CURA  4
+#define I_NCIA  5
+#define I_KTREE 6
+#define I_LTREE 7
+#define I_KBUFS 100
+#define I_LBUFS 200
+
+
+      subroutine fmm_tree_create(depth, lmax, tree)
+      implicit none
+#include "mafdecls.fh"
+#include "fmmP.fh"
+      integer depth, lmax, tree(300)
+c     
+      integer n_cells, n_cells_per_alloc, l_tree, k_tree, level
+c
+      n_cells = (8**(depth+1)-1)/7
+      n_cells_per_alloc = max(512,n_cells / 100 + 1)
+      if (.not. ma_alloc_get(mt_int, n_cells, 'fmm tree ptrs',
+     $     l_tree, k_tree)) call errquit
+     $     ('fmm_tree_create: unable to allocate ptrs ', n_cells)
+      call ifill(n_cells, -1, int_mb(k_tree), 1)
+c      
+      tree(I_DEPTH) = depth
+      tree(I_LMAX)  = lmax
+      tree(I_NCPA)  = n_cells_per_alloc
+      tree(I_CURA)  = -1
+      tree(I_NCIA)  = n_cells_per_alloc ! Start full to force alloc
+      tree(I_KTREE) = k_tree
+      tree(I_LTREE) = l_tree
+c
+      do level = 0, 9
+         leveloff(level) = (8**level-1)/7
+      enddo
+c
+      end
+      subroutine fmm_tree_destroy(tree)
+      implicit none
+#include "mafdecls.fh"
+      integer tree(300)
+c
+      integer i
+c
+      do i = 0, tree(I_CURA)
+         if (.not. ma_free_heap(tree(I_LBUFS+I))) call errquit
+     $        ('fmm_tree_destroy: failed freeing cells',i)
+      enddo
+      if (.not. ma_free_heap(tree(I_LTREE))) call errquit
+     $     ('fmm_tree_destroy: failed freeing tree',0)
+c
+      end
+      subroutine fmm_tree_put_cell(tree, level, kx, ky, kz, 
+     $     q, lq, luse)
+      implicit none
+#include "fmmP.fh"
+#include "mafdecls.fh"
+      integer tree(300), level, kx, ky, kz, lq, luse
+      double precision q(-lq:lq,0:*)
+c
+      integer lmax, ind, ptr, n_cells_per_alloc, curalloc, 
+     $     n_cells_in_alloc, l, m
+c
+      integer cellindex
+      cellindex(level,kx,ky,kz) = tree(I_KTREE) + leveloff(level) + 
+     $     kx + (2**level)*(ky + (2**level)*kz)
+c
+      lmax = tree(2)
+      ind = cellindex(level, kx, ky, kz) ! Index of desired cell
+      ptr = int_mb(ind)         ! Pointer to cell poles
+c
+*      write(6,*) ' Putting    ', level, kx, ky, kz, 
+*     $     cellindex(level, kx, ky, kz)-tree(I_KTREE), ptr
+c
+      if (ptr .eq. -1) then
+         n_cells_per_alloc = tree(I_NCPA)
+         curalloc = tree(I_CURA)
+         n_cells_in_alloc = tree(I_NCIA)
+         if (n_cells_in_alloc .ge. n_cells_per_alloc) then
+            curalloc = curalloc + 1
+            n_cells_in_alloc = 0
+            if (.not. ma_alloc_get(mt_dbl, 
+     $           (lmax+1)**2*n_cells_per_alloc, 'fmm tree buf',
+     $           tree(I_LBUFS+curalloc), tree(I_KBUFS+curalloc)))
+     $           call errquit('fmm_tree_put_cell: ma failed ',
+     $           (lmax+1)**2*n_cells_per_alloc)
+            call dfill((lmax+1)**2*n_cells_per_alloc, 0.0d0,
+     $           dbl_mb(tree(I_KBUFS+curalloc)), 1)
+         endif
+         ptr = tree(I_KBUFS+curalloc) + n_cells_in_alloc*(lmax+1)**2
+
+*         write(6,*) ' Allocating ', level, kx, ky, kz, 
+*     $        cellindex(level, kx, ky, kz)-tree(I_KTREE), ptr
+
+         n_cells_in_alloc = n_cells_in_alloc + 1
+c
+         tree(I_CURA) = curalloc
+         tree(I_NCIA) = n_cells_in_alloc
+         int_mb(ind)   = ptr
+      endif
+c
+      do l = 0, luse
+         do m = -l, l
+            dbl_mb(ptr) = q(m,l)
+            ptr = ptr + 1
+         enddo
+      enddo
+      do l = luse+1,lmax
+         do m = -l, l
+            dbl_mb(ptr) = 0.0d0
+            ptr = ptr + 1
+         enddo
+      enddo
+c
+      end
+      subroutine fmm_tree_get_cell(tree, level, kx, ky, kz, 
+     $     q, lq, luse)
+      implicit none
+#include "fmmP.fh"
+#include "mafdecls.fh"
+      integer tree(300), level, kx, ky, kz, lq, luse
+      double precision q(-lq:lq,0:*)
+c
+      integer lmax, l, m, ptr
+c
+      integer cellindex
+      cellindex(level,kx,ky,kz) = tree(I_KTREE) + leveloff(level) + 
+     $     kx + (2**level)*(ky + (2**level)*kz)
+c
+      lmax = tree(I_LMAX)
+      ptr = int_mb(cellindex(level,kx,ky,kz))
+c
+      if (ptr .ne. -1) then
+         do l = 0, lmax
+            do m = -l, l
+               q(m,l) = dbl_mb(ptr)
+               ptr = ptr + 1
+            enddo
+         enddo
+         do l = lmax, 0, -1
+            do m = -l, l
+               if (abs(q(m,l)).ne.0.0d0) goto 10
+            enddo
+         enddo
+ 10      luse = l
+      else
+         luse = -1
+      endif
+c
+      end
+      subroutine fmm_tree_add_cell(tree, level, kx, ky, kz, 
+     $     q, lq, luse)
+      implicit none
+#include "mafdecls.fh"
+#include "fmmP.fh"
+      integer tree(300), level, kx, ky, kz, lq, luse
+      double precision q(-lq:lq,0:*)
+c
+      integer lmax, ptr, l, m
+c
+      integer cellindex
+      cellindex(level,kx,ky,kz) = tree(I_KTREE) + leveloff(level) + 
+     $     kx + (2**level)*(ky + (2**level)*kz)
+c
+      lmax = tree(2)
+      ptr = int_mb(cellindex(level, kx, ky, kz))
+c
+*      write(6,*) ' Adding ', level, kx, ky, kz, 
+*     $     cellindex(level, kx, ky, kz)-tree(I_KTREE), ptr
+      if (ptr .eq. -1) then
+         call fmm_tree_put_cell(tree, level, kx, ky, kz, 
+     $        q, lq, luse)
+      else
+         do l = 0, luse
+            do m = -l, l
+               dbl_mb(ptr) = dbl_mb(ptr) + q(m,l)
+               ptr = ptr + 1
+            enddo
+         enddo
+      endif
+c
+      end
+      subroutine fmm_tree_zero_cell(tree, level, kx, ky, kz)
+      implicit none
+#include "mafdecls.fh"
+#include "fmmP.fh"
+      integer tree(300), level, kx, ky, kz
+c
+      integer lmax, ptr, l, m
+c
+      integer cellindex
+      cellindex(level,kx,ky,kz) = tree(I_KTREE) + leveloff(level) + 
+     $     kx + (2**level)*(ky + (2**level)*kz)
+c
+      lmax = tree(2)
+      ptr = int_mb(cellindex(level, kx, ky, kz))
+      if (ptr .ne. -1) then
+         do l = 0, lmax
+            do m = -l, l
+               dbl_mb(ptr) = 0.0d0
+               ptr = ptr + 1
+            enddo
+         enddo
+      endif
+c
+      end
+      logical function fmm_tree_probe_cell(tree, level, kx, ky, kz)
+      implicit none
+#include "mafdecls.fh"
+#include "fmmP.fh"
+      integer tree(300), level, kx, ky, kz
+c
+      integer lmax, ptr
+c
+      integer cellindex
+      cellindex(level,kx,ky,kz) = tree(I_KTREE) + leveloff(level) + 
+     $     kx + (2**level)*(ky + (2**level)*kz)
+c
+      lmax = tree(2)
+      ptr = int_mb(cellindex(level, kx, ky, kz))
+      fmm_tree_probe_cell = ptr .ne. -1
+c
+      end
+      subroutine fmm_tree_summarize(tree)
+      implicit none
+#include "mafdecls.fh"
+#include "fmmP.fh"
+      integer tree(300), level, kx, ky, kz, depth, lmax
+      integer ncell, curalloc, ncell_per_alloc
+      logical fmm_tree_probe_cell
+      external fmm_tree_probe_cell
+c
+      depth = tree(I_DEPTH)
+      lmax  = tree(I_LMAX)
+      curalloc = tree(I_CURA)
+      ncell_per_alloc = tree(I_NCPA)
+      write(6,1) depth, lmax
+ 1    format(/' Summary of FMM tree:  depth=',i1,'  lmax=',i2)
+      do level = 0, depth
+         ncell = 0
+         do kz = 0, 2**level-1
+            do ky = 0, 2**level-1
+               do kx = 0, 2**level-1
+                  if (fmm_tree_probe_cell(tree,level,kx,ky,kz))
+     $                 ncell = ncell + 1
+               enddo
+            enddo
+         enddo
+         write(6,2) level, ncell, (100.0d0*ncell)/8d0**level
+ 2       format(' Level',i2,': ncells=',i7,' (',f6.2,'%)')
+      enddo
+      write(6,3) dble((curalloc+1)*ncell_per_alloc)*((lmax+1)**2)*8d-6 +
+     $     ((8d0**(depth+1)-1)/7d0)*4d-6
+ 3    format(' Allocated memory ', f6.2,' Mbytes')
+c
+      end
+        

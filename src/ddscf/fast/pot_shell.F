@@ -3,7 +3,8 @@
       data otime /.false./
       end
       subroutine potential_from_shell_pair(basis, ish, jsh,
-     $     den, ld, tol, d, dinv, lmaxd, npts, xyz, pot, fact)
+     $     den, ld, tol, d, dinv, lmaxd, npts, xyz, pot, fact,
+     $     omask, opresent, ldp)
       implicit none
 c
 #include "bas.fh"
@@ -25,7 +26,10 @@ c
      $     dinv(*)              ! [input] xlm_coeff_inv(lmaxd,d,dinv)
       double precision xyz(3,npts) ! [input] Coordinates
       double precision pot(npts) ! [output] Potential at points
-      double precision fact
+      double precision fact     ! [input]
+      integer ldp
+      logical omask             ! [input] If true mask primtive pairs
+      logical opresent(ldp,*)   ! [input] Optional mask for prim. pairs
 c
 c     Compute the potential due to the charge distribution
 c
@@ -41,6 +45,8 @@ c     The efficiency of the routine increases a lot for large npts.
 c
 c     THE RESULT IS JUST ADDED INTO POT WHICH MUST THEREFORE BE 
 c     ZEROED BY THE CALLING ROUTINE IF DESIRED.
+c
+c     If (omask) primtive pairs are only included if (opresent(i,j))
 c
       integer maxprim           ! Max. no. primitives in a contraction
       parameter (maxprim=25)
@@ -64,6 +70,8 @@ c
       double precision expi(maxprim), coeffi(maxprim)
       double precision expj(maxprim), coeffj(maxprim)
       double precision a, b, c, center(3), value
+c
+      logical odoit
 c
       integer itype,inprim,ingen,numi,ibflo,ibfhi,i,iprim,iat
       integer jtype,jnprim,jngen,numj,jbflo,jbfhi,j,jprim,jat
@@ -174,7 +182,8 @@ c
      $     dinv, lmaxd,
      $     tol, 
      $     qn, tmp,
-     $     mpoles, maxl, center, radius, luse, luse2, luse4)
+     $     mpoles, maxl, center, radius, luse, luse2, luse4,
+     $     omask, opresent, ldp)
 c
       if (radius .eq. 0.0d0) goto 99999
       radius_sq = radius*radius
@@ -332,19 +341,26 @@ c
 c
 c     Loop thru primitive distributions
 c
+      odoit = .true.
       do jprim = 1, jnprim
          do iprim = 1, inprim
-            call gaussian_product(
-     $           expi(iprim), ri(1), ri(2), ri(3),
-     $           expj(jprim), rj(1), rj(2), rj(3),
-     $           alpha, a, b, c, prefac)
-c
-            prefac = prefac*coeffi(iprim)*coeffj(jprim)*
-     $           4.0d0*pi / alpha
+            if (omask) odoit = opresent(iprim,jprim)
+            
+            if (odoit) then
+               call gaussian_product(
+     $              expi(iprim), ri(1), ri(2), ri(3),
+     $              expj(jprim), rj(1), rj(2), rj(3),
+     $              alpha, a, b, c, prefac)
+c     
+               prefac = prefac*coeffi(iprim)*coeffj(jprim)*
+     $              4.0d0*pi / alpha
+            else
+               prefac = 0.0d0
+            endif
 c
 c     Screen
 c
-            if (abs(prefac*dmax) .gt. tol*1d-2) then
+            if (odoit .and. (abs(prefac*dmax).gt.tol*1d-2)) then
 c
 c     Translate density to product center and reform as spherical
 c
@@ -463,9 +479,9 @@ c
                      pot(ipt) = pot(ipt) - ppot
                   end do
                end if
-            end if
-         end do
-      end do
+            end if              ! screen and odoit
+         end do                 ! iprim
+      end do                    ! jprim
 c
       if (otime) time_direct = time_direct + util_cpusec() - start
 c
@@ -534,7 +550,6 @@ c
       end if
 c
       end
-
       subroutine pot_shell_pair_multipoles(
      $     dens,
      $     itype, inprim, ingen, expi, coeffi, ri, numi,
@@ -542,7 +557,8 @@ c
      $     dinv, lmaxd,
      $     tol, 
      $     qn, tmp,
-     $     mpoles, maxl, center, radius, luse, luse2, luse4)
+     $     mpoles, maxl, center, radius, luse, luse2, luse4,
+     $     omask, opresent, ldp)
       implicit none
 c
 c     Given a block of the density matrix over a pair of CARTESIAN
@@ -578,6 +594,9 @@ c
       double precision center(3) ! [output] natural center
       double precision radius   ! [output] Radius beyond which mpole valid
       integer luse, luse2, luse4 ! [output] Order of mpole for r=radius*{1,2,4}
+      integer ldp
+      logical omask             ! [input]
+      logical opresent(ldp,*)   ! [input]
 c
 c     Local variables
 c
@@ -588,10 +607,11 @@ c
       double precision df(lmax2+1)
       double precision work(lenprod**2), ndens(lenprod**2) 
 c
+      logical odoit
       integer ijtype
       integer i, j, iprim, jprim
       integer l, m, n, nlm, leff
-      double precision expj_min, expi_min, a, b, c, alpha, prefac, dmax
+      double precision expi_min, expj_min, a, b, c, alpha, prefac, dmax
       double precision factor, tolp, range, pi, rootpi, scale, x, y, z
       double precision distance, q0, radial
 c
@@ -631,12 +651,23 @@ c     the most diffuse exponents.
 c
       expj_min = 1d300
       expi_min = 1d300
-      do jprim = 1, jnprim
-         expj_min = min(expj_min, expj(jprim))
-      end do
-      do iprim = 1, inprim
-         expi_min = min(expi_min, expi(iprim))
-      end do
+      if (omask) then
+         do jprim = 1, jnprim
+            do iprim = 1, inprim
+               if (opresent(iprim,jprim)) then
+                  expj_min = min(expj_min, expj(jprim))
+                  expi_min = min(expi_min, expi(iprim))
+               endif
+            enddo
+         enddo
+      else
+         do jprim = 1, jnprim
+            expj_min = min(expj_min, expj(jprim))
+         end do
+         do iprim = 1, inprim
+            expi_min = min(expi_min, expi(iprim))
+         end do
+      endif
       call gaussian_product(
      $     expi_min, ri(1), ri(2), ri(3),
      $     expj_min, rj(1), rj(2), rj(3),
@@ -646,7 +677,7 @@ c     Don't compute too high an order mpole.  Check for precision later.
 c
 c     THIS NEEDS TO BE MADE TOL DEPENDENT.
 c
-      leff = min(maxl, max(4,2*(ijtype+1)))
+      leff = maxl ! The old stuff is not accurate enuf min(maxl, max(4,2*(ijtype+1)))
 c
       call xlm_norm(leff, qn, maxl)
       do l = 0, leff
@@ -660,18 +691,25 @@ c
 c
 c     Next, form mpoles for primitives and update the radius.
 c
+      odoit = .true.
       do jprim = 1, jnprim
          do iprim = 1, inprim
-            call gaussian_product(
-     $           expi(iprim), ri(1), ri(2), ri(3),
-     $           expj(jprim), rj(1), rj(2), rj(3),
-     $           alpha, a, b, c, prefac)
-c
-            prefac = prefac*coeffi(iprim)*coeffj(jprim)
+            if (omask) odoit = opresent(iprim,jprim)
+            if (odoit) then
+               call gaussian_product(
+     $              expi(iprim), ri(1), ri(2), ri(3),
+     $              expj(jprim), rj(1), rj(2), rj(3),
+     $              alpha, a, b, c, prefac)
+c     
+               prefac = prefac*coeffi(iprim)*coeffj(jprim)
+            else
+               prefac = 0.0d0
+            endif
 c
 c     Screen with the same test as used below.
 c
-            if (abs(prefac*dmax*4d0*pi/alpha) .gt. tol*1d-2) then 
+            if (abs(prefac*dmax*4d0*pi/alpha) .gt. tol*1d-2 
+     $           .and. odoit) then 
                prefac = prefac*rootpi/(4.0d0*alpha*sqrt(alpha))
 c
 c     Translate density to product center and reform as spherical
@@ -771,4 +809,3 @@ c
       endif
 c
       end
-

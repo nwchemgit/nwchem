@@ -1,11 +1,11 @@
       implicit none
 #include "mafdecls.fh"
       integer nx, ny, nz, lmax, depth, lenxlm, nnx, nny, nnz
-      parameter (nx=124, ny=124, nz=124, lmax=16, depth=3)
+      parameter (nx=134, ny=134, nz=134, lmax=16, depth=3)
       parameter (nnx=75, nny=75, nnz=75)
 c     
-      double precision g(nx,ny,nz), ! gg(nnx, nny, nnz), 
-     $     poles(1:(lmax+1)**2,0:2**depth-1,0:2**depth-1,0:2**depth-1)
+      double precision g(nx,ny,nz) ! gg(nnx, nny, nnz)
+      integer tree(300)
 c     
 c     solve Poisson equation subject to potential (and density)
 c     being zero on the boundary (also periodic) ... sine transform.
@@ -22,12 +22,14 @@ c
       parameter (numsample = 2000)
 c     
       integer n, l, m           ! Test function
-      double precision alpha, a, b, c, poti, potfmm
+      integer maxorder
+      parameter (maxorder = 17)
+      double precision alpha, a, b, c, poti, potfmm,
+     $     qfit((maxorder+1)*(maxorder+3))
       integer order, ninterp, ilo, jlo, klo
 c     
       double precision fnlm, vnlm, fmm_potential,
-     $     tn_interp_3d_point, drand, double_factorial, 
-     $     xlm_potential_test
+     $     tn_interp_3d_point, drand
       external fnlm, vnlm, fmm_potential
 c     
       if (.not. ma_init(mt_dbl, 64000000, 64000000)) call errquit
@@ -35,9 +37,9 @@ c
 c     
 *     *      call initfm
       call anl_fit_init
+      call util_print_enable('fastjtime')
 c     
       lenxlm = (lmax+1)**2
-      call dfill(lenxlm*8**depth, 0.0d0, poles, 1)
       call xlm_init
 c
       call xlm(lmax,1.0d0,2.0d0,3.0d0, q, lmax)
@@ -91,13 +93,14 @@ c
          end do
       end do
 c
-      write(6,*) ' slice of g'
-      do i = 1, nx
-         write(6,*) i, g(i,ny/2,nz/2)
-      enddo
+*      write(6,*) ' slice of g'
+*      do i = 1, nx
+*         write(6,*) i, g(i,ny/2,nz/2)
+*      enddo
 c     
-      call solver(g, nx, ny, nz, poles, depth, lmax, 
-     $     xlo, xhi, ylo, yhi, zlo, zhi, .false.)
+      call fmm_tree_create(depth, lmax, tree)
+      call solver(g, nx, ny, nz, tree, depth, lmax, 
+     $     xlo, xhi, ylo, yhi, zlo, zhi, .false., .false.)
 c     
 c     Test points must be located 2 FMM boxes away from the
 c     boundary since we are not computing the direct contribution 
@@ -106,7 +109,8 @@ c
       ii = 0
       jj = 0
       kk = 0
-      do order = 3,13,2
+      do order = 3,maxorder,2
+         call tn_fitting_matrix(order,order+3,qfit)
          errmax = drand(12345)  ! So that always look at the same points
          errmax = 0.0d0
          errrms = 0.0d0
@@ -123,9 +127,9 @@ c
             klo = max(1, int((z-zlo)/hz)-ninterp/2)
             klo = min(klo,nz-ninterp+1)
             poti = tn_interp_3d_point(g,nx,ny,nz,hx,hy,hz,x-xlo,y-ylo,
-     $           z-zlo,ninterp,order)
-            potfmm = fmm_potential(lmax,depth,
-     $           xhi-xlo,yhi-ylo,zhi-zlo,poles,x-xlo,y-ylo,z-zlo)
+     $           z-zlo,ninterp,order,qfit)
+            potfmm = fmm_potential(depth,lmax,tree,
+     $           xhi-xlo,yhi-ylo,zhi-zlo,x-xlo,y-ylo,z-zlo)
 c     
             pot = vnlm(n,l,m,alpha,a,b,c,x,y,z)
 c
@@ -155,34 +159,34 @@ c
       write(6,*) ' actual boundary layer potential ', 
      $     pot - g(nx/2,ny/2,nz/2) ! Assumes even no. points
       write(6,*) '    FMM boundary layer potential ',
-     $     fmm_potential(lmax,depth,
-     $     xhi-xlo,yhi-ylo,zhi-zlo,poles,x-xlo,y-ylo,z-zlo)
+     $     fmm_potential(depth,lmax,tree,
+     $     xhi-xlo,yhi-ylo,zhi-zlo,x-xlo,y-ylo,z-zlo)
       write(6,*) ii, jj, kk
 c
-      write(6,*) ' slice of g'
-      do i = 1, nx
-         write(6,*) i, g(i,ny/2,nz/2)
-      enddo
-c
-c     Test phase of xlm_potential versus vnlm
-c
-      call xlm_norm(lmax, qn, lmax)
-      x = xhi
-      y = yhi + 3.1519
-      z = zhi + 2.71
-      do n = 0, 5
-         do l = n, 0, -2
-            do m = -l, l
-               call dfill((2*lmax+1)*(lmax+1),0.0d0,q,1)
-               q(m,l) = sqrt(pi)*double_factorial(n+l+1) /
-     $              ((2.0d0**((n+l+4)/2))*(alpha**((n+l+3.0d0)/2.0d0))*
-     $              qn(m,l)**2)
-               poti = xlm_potential_test(x,y,z,a,b,c,q,lmax,lmax)
-               pot  = vnlm(n,l,m,alpha,a,b,c,x,y,z)
-               write(6,771) n, l, m, poti, pot, abs(pot-poti)
- 771           format(1x,3i3,2x,2f12.8,2x,1p,d9.2)
-            enddo
-         enddo
-      enddo
+*      write(6,*) ' slice of g'
+*      do i = 1, nx
+*         write(6,*) i, g(i,ny/2,nz/2)
+*      enddo
+c$$$c
+c$$$c     Test phase of xlm_potential versus vnlm
+c$$$c
+c$$$      call xlm_norm(lmax, qn, lmax)
+c$$$      x = xhi
+c$$$      y = yhi + 3.1519
+c$$$      z = zhi + 2.71
+c$$$      do n = 0, 5
+c$$$         do l = n, 0, -2
+c$$$            do m = -l, l
+c$$$               call dfill((2*lmax+1)*(lmax+1),0.0d0,q,1)
+c$$$               q(m,l) = sqrt(pi)*double_factorial(n+l+1) /
+c$$$     $              ((2.0d0**((n+l+4)/2))*(alpha**((n+l+3.0d0)/2.0d0))*
+c$$$     $              qn(m,l)**2)
+c$$$               poti = xlm_potential_test(x,y,z,a,b,c,q,lmax,lmax)
+c$$$               pot  = vnlm(n,l,m,alpha,a,b,c,x,y,z)
+c$$$               write(6,771) n, l, m, poti, pot, abs(pot-poti)
+c$$$ 771           format(1x,3i3,2x,2f12.8,2x,1p,d9.2)
+c$$$            enddo
+c$$$         enddo
+c$$$      enddo
 c     
       end

@@ -9,7 +9,7 @@
       integer basis, g_dens, data(2)
       double precision eps
 c
-c     Initializ the direct sum of the Coulomb potential for
+c     Initialize the direct sum of the Coulomb potential for
 c     the DFT by replicating the density (eventually lower
 c     triangular and prescreening for significant pairs
 c     of shells)
@@ -29,6 +29,8 @@ c
       time_make_poles = 0.0d0
       time_poles = 0.0d0
       time_direct = 0.0d0
+
+      gg_dens = g_dens
 
 c
 c$$$      if (.not. ga_create(mt_dbl, 9*nbf, nbf, 'xlm', 1, 1, 
@@ -116,8 +118,11 @@ c
       integer ilo, ihi, jlo, jhi, nbf
       double precision fact, tols
 c
+      call potential_list(basis, gg_dens, npts, r, potential, tol)
+c
       nq = nq + npts
       ncall = ncall + 1
+      return
 c
       if (.not. bas_numcont(basis, nshell)) call errquit
      $     ('fastj_ds: bas_numcont failed for basis', basis)
@@ -126,7 +131,7 @@ c
 c     
       call dfill(npts, 0.0d0, potential, 1)
       tols = tol / schwarz_max()
-c     
+
       do jshell = 1, nshell
          if (.not. bas_cn2bfr(basis, jshell, jlo, jhi))
      $        call errquit('fastj_ds: bas_cn2bfr ?', basis)
@@ -139,7 +144,7 @@ c
                call potential_from_shell_pair(basis, ishell, jshell,
      $              dens(ilo + (jlo-1)*nbf), nbf,
      $              tol, d, dinv, lmax2, 
-     $              npts, r, potential, fact)
+     $              npts, r, potential, fact, .false., .false., 1)
             endif
          enddo
       enddo

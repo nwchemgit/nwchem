@@ -7,9 +7,9 @@ c
       parameter (lenprod = ((lmax2+1)*(lmax2+2)*(lmax2+3))/6)
       double precision d, dinv 
 c
-      integer nq, ncall
+      integer nq, ncall, gg_dens
 c
       common/fastjdsfudge/
      $     d(lencart,-lmax2:lmax2,0:lmax2),
      $     dinv(lenprod, -lmax2:lmax2,0:lmax2),
-     $     nq, ncall
+     $     nq, ncall, gg_dens

@@ -266,8 +266,13 @@ c
 c
       integer n, l, i, nlcnt, k
       double precision f(0:anl_npt), h, x, value, anl, pi, dfac, 
-     $     anl_fit
+     $     anl_fit, maxerr, maxrelerr, test
+      logical initialized
       external anl, anl_fit
+      data initialized /.false./
+
+      if (initialized) return
+      initialized = .true.
 c
 c     Initialize interpolation tables used for 0..xhi
 c
@@ -282,6 +287,8 @@ c
          enddo
       enddo
 c
+      maxerr = 0.0d0
+      maxrelerr = 0.0d0
       nlcnt = 0
       do n = 0,anl_maxn
          do l = n,0,-2
@@ -308,7 +315,10 @@ c$$$               do k = anl_order,1,-1
 c$$$                  value = anl_table(k,i,nlcnt) + d*value
 c$$$               enddo
                value = anl_fit(n,l,x)
-               if (abs(value-anl(n,l,x)) .gt. 
+               test = anl(n,l,x)
+               maxerr = max(maxerr,abs(value-test))
+               maxrelerr = max(maxrelerr,abs(value-test)/test)
+               if (abs(value-test) .gt. 
      $              max(anl_acc,anl_acc*value)) then
                   write(6,1) n, l, x, value, anl(n,l,x),
      $                 value-anl(n,l,x)
@@ -319,6 +329,8 @@ c$$$               enddo
          enddo
          anl_nlsum(n) = nlcnt
       enddo
+      write(6,*) ' MAXERR ', maxerr
+      write(6,*) ' MAXRELERR ', maxrelerr
 **      write(6,*) ' used ', nlcnt, ' tables out of ', anl_maxnl
 c      
 c     Initialize prefactors for asymptotic form used beyond xhi
