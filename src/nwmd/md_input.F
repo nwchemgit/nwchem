@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.54 2002-02-22 21:28:38 d3j191 Exp $
+c $Id: md_input.F,v 1.55 2002-02-25 03:46:11 d3j191 Exp $
 c
       implicit none
 c
@@ -31,7 +31,7 @@ c
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
-      integer ifidi,ncoll,ipopt
+      integer ifidi,ncoll,ipopt,ivopt
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -77,6 +77,7 @@ c
       ldacq=500
       ipscal=0
       ipopt=0
+      ivopt=0
       itscal=0
       nfgaus=0
       ipolt=0
@@ -910,21 +911,41 @@ c
 c
 c     velocity reassignment
 c
-      if(inp_compare(.false.,'vreass',item)) then
+      if(inp_compare(.false.,'vreass',item).or.
+     + inp_compare(.false.,'reassign',item)) then
       if(.not.inp_i(nfgaus)) call errquit('md_input: error vreass',13)
       if(nfgaus.lt.0) nfgaus=-1
       if(.not.inp_f(tgauss)) call errquit('md_input: error vreass',13)
+  900 continue
       if(.not.inp_a(item)) goto 1
+c
       if(inp_compare(.false.,'fraction',item)) then
       if(.not.inp_f(frgaus)) then
       frgaus=0.5
-      goto 2
+      goto 900
       endif
       if(frgaus.lt.0.0) frgaus=0.0
       if(frgaus.gt.1.0) frgaus=1.0
-      else
-      goto 3
+      goto 900
       endif
+c
+      if(inp_compare(.false.,'once',item)) then
+      ivopt=iand(ivopt,1)
+      goto 900
+      endif
+c
+      if(inp_compare(.false.,'first',item).or.
+     + inp_compare(.false.,'initial',item)) then
+      ivopt=iand(ivopt,2)
+      goto 900
+      endif
+c
+      if(inp_compare(.false.,'last',item).or.
+     + inp_compare(.false.,'final',item)) then
+      ivopt=iand(ivopt,4)
+      goto 900
+      endif
+c
       goto 2
       endif
 c
@@ -1457,6 +1478,8 @@ c
       if(.not.rtdb_put(irtdb,'md:itscal',mt_int,1,itscal))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfgaus',mt_int,1,nfgaus))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:ivopt',mt_int,1,ivopt))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ipolt',mt_int,1,ipolt))
      + call errquit('md_input: rtdb_put failed',0)

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.120 2002-02-08 20:34:47 d3j191 Exp $
+c $Id: md_main.F,v 1.121 2002-02-25 03:46:11 d3j191 Exp $
 c
       implicit none
 c
@@ -1053,6 +1053,9 @@ c
 c
       do 1 irun=krun+1,mrun
 c
+      if(irun.eq.1.and.iand(ivopt,2).eq.2) nfgaus=ivreas
+      if(irun.eq.maxlam.and.iand(ivopt,4).eq.4) nfgaus=ivreas
+c
       lfirst=.true.
 c
 c     initialize parameters
@@ -1239,7 +1242,6 @@ c
       call cf_gauss(tgauss,frgaus,nwmloc,nsaloc,
      + dbl_mb(i_vw),dbl_mb(i_vs),int_mb(i_iw+(lwdyn-1)*mwm),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
-      if(ivreas.lt.0) nfgaus=0
       endif
 c
       lpair=lfirst.or.frequency(mdstep,nfpair)
@@ -1450,7 +1452,7 @@ c
       call cf_vscale(tgauss,nwmloc,nsaloc,
      + dbl_mb(i_vw),dbl_mb(i_vs),int_mb(i_iw+(lwdyn-1)*mwm),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
-      if(ivreas.lt.0) nfgaus=0
+      if(iand(ivopt,1).eq.1) nfgaus=0
       endif
       call timer_stop(59)
       call timer_start(60)
@@ -2241,7 +2243,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.120 2002-02-08 20:34:47 d3j191 Exp $
+c $Id: md_main.F,v 1.121 2002-02-25 03:46:11 d3j191 Exp $
 c
       implicit none
 c

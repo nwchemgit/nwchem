@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.115 2002-02-22 21:28:38 d3j191 Exp $
+c $Id: md_start.F,v 1.116 2002-02-25 03:46:11 d3j191 Exp $
 c
       implicit none
 c
@@ -560,7 +560,7 @@ c
 c     velocity reassignment
 c
       ivreas=0
-      ivropt=0
+      ivopt=0
       tgauss=298.15d0
       iseed=12345
 c
@@ -698,6 +698,8 @@ c
       if(.not.rtdb_get(irtdb,'md:ipscal',mt_int,1,ipscal))
      + call errquit('md_rtdbin: rtdb_get failed',24)
       if(.not.rtdb_get(irtdb,'md:ipopt',mt_int,1,ipopt))
+     + call errquit('md_rtdbin: rtdb_get failed',24)
+      if(.not.rtdb_get(irtdb,'md:ivopt',mt_int,1,ivopt))
      + call errquit('md_rtdbin: rtdb_get failed',24)
       if(.not.rtdb_get(irtdb,'md:itscal',mt_int,1,itscal))
      + call errquit('md_rtdbin: rtdb_get failed',25)
@@ -1647,7 +1649,7 @@ c
       read(lfn,1007) itscal,tmpext1,tmprlx,tmsrlx,tmpext2,
      + tann1,tann2
  1007 format(i5,6f12.6)
-      read(lfn,1008) nfgaus,ivropt,tgauss,iseed
+      read(lfn,1008) nfgaus,ivopt,tgauss,iseed
  1008 format(2i7,f12.6,i12)
       read(lfn,1009) nfoutp,nfstat,nfprop
  1009 format(11i7)
@@ -1711,7 +1713,7 @@ c
      + tann1,tann2
  1007 format(i5,6f12.6)
       tmpext=tmpext1
-      write(lfn,1008) nfgaus,ivropt,tgauss,iseed
+      write(lfn,1008) nfgaus,ivopt,tgauss,iseed
  1008 format(2i7,f12.6,i12)
       write(lfn,1009) nfoutp,nfstat,nfprop
  1009 format(11i7)
