@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.3 2001-12-17 23:31:12 bylaska Exp $
+* $Id: cpsi.F,v 1.4 2001-12-20 00:30:51 bylaska Exp $
 *
 
 
@@ -660,6 +660,7 @@ c      call csp_f_vlocal(dcpl_mb(dng1(1)),fion)
 #include "cpsi_common.fh"
 
       call c_electron_gen_hml(dcpl_mb(psi1(1)),dcpl_mb(hml(1)))
+
       return
       end
 
@@ -973,11 +974,19 @@ c      end
       integer neall,n
 
 *     **** external functions ****
-      integer  brillioun_nbrillioun
-      external brillioun_nbrillioun
+      logical  pspw_reformat_c_wvfnc
+      integer  brillioun_nbrillioun,psi_get_version
+      external pspw_reformat_c_wvfnc
+      external brillioun_nbrillioun,psi_get_version
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne(ispin,ne)
+
+      if (psi_get_version().eq.3) 
+     >  value= pspw_reformat_c_wvfnc()
+      if (.not. value) 
+     >   call errquit('cpsi_initialize: error reformatting psi',0)
+
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
       nbrillioun = brillioun_nbrillioun()

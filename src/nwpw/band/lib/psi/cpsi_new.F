@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_new.F,v 1.1 2001-12-14 20:02:44 bylaska Exp $
+* $Id: cpsi_new.F,v 1.2 2001-12-20 00:30:51 bylaska Exp $
 *
 
 *     ***********************************
@@ -47,7 +47,7 @@ c     external lcao_wvfnc
       external control_rtdb,brillioun_nbrillioun
 
       filename = control_input_psi()
-      version = 3
+      version = 5   !version 5-band structure, version 3- pspw
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)

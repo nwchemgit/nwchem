@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.1 2001-12-14 20:02:43 bylaska Exp $
+* $Id: cpsi_H.F,v 1.2 2001-12-20 00:30:51 bylaska Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -8,7 +8,7 @@
       implicit none
       integer    ispin,ne(2)
       complex*16 psi_k(*)
-      real*8     psi_r(*)
+      complex*16 psi_r(*)
       complex*16 vl(*)
       complex*16 vc(*)
       real*8     xcp(*)
@@ -24,7 +24,7 @@
       real*8  scal1,scal2
 
 *     **** tempory space ****
-      integer nfft3d,nb,neall,indx
+      integer nfft3d,nb,neall,indx,nbrill
       integer vall(2),vpsi(2)
       logical value
 
@@ -73,6 +73,7 @@
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
       neall = ne(1) + ne(2)
+      nbrill = brillioun_nbrillioun()
 
 *     ****************************
 *     **** add kinetic energy ****
@@ -84,6 +85,7 @@
 *     **** add non-local psp ***
 *     **************************
       call cpsp_v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
+
 
 
 *     **********************************************************
@@ -98,11 +100,11 @@
 *     **********************************************
       call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
 
-      do nb=1,brillioun_nbrillioun()   
+      do nb=1,nbrill
       do ms=1,ispin
          do n=n1(ms),n2(ms)
 
-            indx = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*(neall)
+            indx = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*neall
 
 *           *************************************
 *           **** vpsi_r = (vall_r+xcp)*psi_r ****

@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.6 2001-12-15 03:11:02 bylaska Exp $
+* $Id: cram.F,v 1.7 2001-12-20 00:30:52 bylaska Exp $
 *
 
 *     ***********************************
@@ -463,7 +463,7 @@
 
 *     **** local variables ****
       integer n,np
-      integer npack, shift
+      integer nfft3d, shift
 
 *     **** external functions ****
       complex*16 zdotc
@@ -485,10 +485,10 @@
 
       call current_second(tim1)
       call Parallel_np(np)
-      npack=  int_mb(nidb2_list(1)+nb)
+      call C3dB_nfft3d(1,nfft3d)
 
       do n=1,ne
-        shift = (n-1)*npack
+        shift = (n-1)*nfft3d
 
         sum(n) = zdotc(int_mb(nidb2_list(1)+nb),
      >                         A(1+shift),1,
@@ -521,9 +521,6 @@
 #include "cram_common.fh"
 
 
-*     **** local variables ****
-      integer np
-
 *     **** external functions ****
       complex*16 zdotc
       external   zdotc
@@ -544,16 +541,13 @@
 
       call current_second(tim1)
 
-
-      call Parallel_np(np)
-
       sum = zdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
 
       call current_second(tim2)
       times(2) = times(2) + (tim2-tim1)
 
       return
-      end 
+      end
 
 *     *******************************
 *     *								*

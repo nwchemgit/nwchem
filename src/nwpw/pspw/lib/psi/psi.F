@@ -1320,6 +1320,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
      >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
 
+
       call electron_gen_hml(dcpl_mb(psi1(1)),dbl_mb(hml(1)))
 
       return

@@ -1,8 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-12-14 20:02:45 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-12-20 00:30:51 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
-				c_wvfnc_new.o
+				c_wvfnc_new.o \
+				pspw_reformat_c_wvfnc.o
                 
 
     LIBRARY = libband.a

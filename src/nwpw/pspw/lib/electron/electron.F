@@ -880,7 +880,9 @@ c     >                       sum)
      >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** local variables ****
+      logical value
       integer n,nemax,n2ft3d
+
 
       n2ft3d = 2*nfft3d
       nemax = ne(1) + ne(2)
@@ -927,9 +929,10 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
      >                          ne,ispin,nfft3d,npack1,npack0
      
 *     **** local variables ****
-      integer i,ms,nx,ny,nz,n2ft3d
+      integer i,j,k,indx
+      integer ms,nx,ny,nz,n2ft3d
       integer n,n1(2),n2(2)
-      real*8  scal1,scal2
+      real*8  scal1,scal2,sum
       integer tmp1(2)
       logical value
 
@@ -966,6 +969,18 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
          end do
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
       end do
+
+c      write(*,*) "density"
+c      do k=1,nz
+c      do j=1,ny
+c      do i=1,nx
+c        indx = i + (j-1)*(nx+2) + (k-1)*(nx+2)*ny
+c        write(*,*) "i,j,k,dn:",i,j,k,dn(indx)
+c      end do
+c      end do
+c      end do
+
+      
         
 *     **********************
 *     **** generate dng ****
@@ -979,6 +994,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
       call Pack_c_pack(0,dbl_mb(tmp1(1)))
       call Pack_c_Copy(0,dbl_mb(tmp1(1)),dng)
+
 
 
 *       ********************************************************

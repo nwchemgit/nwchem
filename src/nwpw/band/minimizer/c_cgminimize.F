@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.1 2001-12-17 23:31:13 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.2 2001-12-20 00:30:52 bylaska Exp $                       
 *
 
 
@@ -225,7 +225,9 @@ c              scale = sum3/sum0
       end if
 
 c      Eold = cpsi_geodesic_energy(0.0d0)
-c      Eold = cpsi_geodesic_energy(0.0d0)
+c     Eold = cpsi_geodesic_energy(0.0d0)
+c     Enew = Eold
+c     tmin = 0.0d0
       Enew = linesearch(0.0d0,deltat,
      >                        cpsi_geodesic_energy,
      >                        cpsi_geodesic_denergy,

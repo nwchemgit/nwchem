@@ -1,6 +1,6 @@
       subroutine band_input(rtdb)
 c
-c $Id: band_input.F,v 1.4 2001-12-14 20:02:42 bylaska Exp $
+c $Id: band_input.F,v 1.5 2001-12-20 00:30:50 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -31,7 +31,7 @@ c
      >            'exchange_correlation:',
      >            'mulliken',
      >            'allow_translation',
-     >            'zone_name',
+     >            'zone_name:',
      >            'mult',
      >            'dft',
      >            'odft',

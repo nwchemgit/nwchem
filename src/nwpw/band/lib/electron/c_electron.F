@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.3 2001-12-17 23:31:11 bylaska Exp $
+* $Id: c_electron.F,v 1.4 2001-12-20 00:30:51 bylaska Exp $
 *
 
 *     ***********************************
@@ -573,7 +573,8 @@
 *     ******************
 *     **** get Hpsi ****
 *     ******************
-      call cpsi_H(ispin,ne,psi_k,
+      call cpsi_H(ispin,ne,
+     >           psi_k,
      >           dcpl_mb(psi_r(1)),
      >           dcpl_mb(vl(1)),
      >           dcpl_mb(vc(1)),
@@ -607,6 +608,7 @@
       integer neall
 
       neall = ne(1)+ne(2)
+
 
       call Stfl_gg_Copy(ispin,ne,nfft3d,neall,nbrill,
      >                  psi_k,
@@ -658,6 +660,7 @@
 *     *********************
 *     **** generate dn ****
 *     *********************
+c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
       call Stfl_hr_SumSqr(ispin,ne,nfft3d,neall,nbrill,
      >                    dcpl_mb(psi_r(1)),
      >                    dn)
@@ -730,7 +733,7 @@
       external control_gga,control_version
      
 
-      call coulomb_v(dng,dcpl_mb(vc(1)))
+      call c_coulomb_v(dng,dcpl_mb(vc(1)))
 
       if (control_gga().eq.0) then
          value = MA_push_get(mt_dbl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
@@ -846,7 +849,7 @@ c     >                    dbl_mb(xce(1)))
       call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
       elocal = 0.0d0
       do nb=1,nbrill
-         weight = brillioun_weight()
+         weight = brillioun_weight(nb)
          do ms=1,ispin
          do n=n1(ms),n2(ms)
             indx = (n-1)*nfft3d + (nb-1)*nfft3d*neall
@@ -922,7 +925,7 @@ c     >                    dbl_mb(xce(1)))
       nee(2) = 0
       enlocal = 0.0d0
       do nb=1,nbrill
-         weight = brillioun_weight()
+         weight = brillioun_weight(nb)
          do ms=1,ispin
          do n=n1(ms),n2(ms)
             indx = (n-1)*nfft3d + (nb-1)*nfft3d*neall

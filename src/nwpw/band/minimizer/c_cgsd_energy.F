@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgsd_energy.F,v 1.1 2001-12-17 23:31:13 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.2 2001-12-20 00:30:52 bylaska Exp $                       
 *
 
 *     ***************************
@@ -48,7 +48,8 @@
 
 
 *     **** generate phaze factors and local psp and core density ****
-      call cphafac()
+c      call cphafac()
+c      call cphafac_k()
       call c_electron_gen_vl_potential()
       if (cpsp_semicore(0)) call c_semicore_density_update()
 

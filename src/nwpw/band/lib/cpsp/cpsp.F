@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.2 2001-12-14 20:02:43 bylaska Exp $
+* $Id: cpsp.F,v 1.3 2001-12-20 00:30:50 bylaska Exp $
 *
 
 #define TCGMSG
@@ -717,7 +717,7 @@ c     integer    lmmax(nkatmx)
 
 *     *** local variables ***
       integer nfft3d,G(3),npack1
-      integer i,ii,ia,l,n,nn,nb
+      integer i,ii,ia,l,n,nn,nb,neall,nbrill
       real*8  omega,weight
       complex*16 ctmp,cxr
       integer exi(2),tmp4(2),vtmp(2),xtmp(2),zsw1(2),sum(2)
@@ -736,6 +736,8 @@ c     integer    lmmax(nkatmx)
       
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
+      neall = ne(1)+ne(2)
+      nbrill = brillioun_nbrillioun()
       call C3dB_nfft3d(1,nfft3d)
 
       value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
@@ -772,7 +774,7 @@ c     integer    lmmax(nkatmx)
 
         call cstrfac(ii,dcpl_mb(tmp4(1)))
 
-        do nb=1,brillioun_nbrillioun()
+        do nb=1,nbrill
            call Cram_npack(nb,npack1)
            call C3dB_c_Copy(1,dcpl_mb(tmp4(1)),dcpl_mb(exi(1)))
            call Cram_c_pack(nb,dcpl_mb(exi(1)))
@@ -792,14 +794,14 @@ c     integer    lmmax(nkatmx)
            if (is_sORd(l,int_mb(lmax(1)+ia-1),
      >                   int_mb(locp(1)+ia-1))
      >        ) then
-              call Cram_rc_Mul(1,dbl_mb(vnl(1)+(l-1)*nfft3d
+              call Cram_rc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
      >                           +(ia-1)*nfft3d*lmmax_max),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
 
 *          *** current function is p or f ****
            else
-              call Cram_irc_Mul(1,dbl_mb(vnl(1)+(l-1)*nfft3d
+              call Cram_irc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
      >                           +(ia-1)*nfft3d*lmmax_max),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
@@ -807,8 +809,8 @@ c     integer    lmmax(nkatmx)
 
 
 *         **** do kleinman-bylander multiplication ****
-          call Cram_cc_nzdot(1,nn,
-     >                      psi1,
+          call Cram_cc_nzdot(nb,nn,
+     >                      psi1(1+(nb-1)*neall*nfft3d),
      >                      dcpl_mb(vtmp(1)),
      >                      dcpl_mb(zsw1(1)))
 
@@ -817,9 +819,9 @@ c     integer    lmmax(nkatmx)
              dcpl_mb(zsw1(1)+n-1) = dcpl_mb(zsw1(1)+n-1)
      >                      /(omega*dbl_mb(vnlnrm(1)
      >                         +(l-1)+(ia-1)*lmmax_max))
-             call Cram_cc_zaxpy(1,(-dcpl_mb(zsw1(1)+n-1)),
+             call Cram_cc_zaxpy(nb,(-dcpl_mb(zsw1(1)+n-1)),
      >                          dcpl_mb(vtmp(1)),
-     >                          psi2(1+(n-1)*nfft3d)) 
+     >                psi2(1+(n-1)*nfft3d +(nb-1)*neall*nfft3d)) 
 
           end do
 

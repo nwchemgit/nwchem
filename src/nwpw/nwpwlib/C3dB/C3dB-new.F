@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.6 2001-12-15 03:11:02 bylaska Exp $
+* $Id: C3dB-new.F,v 1.7 2001-12-20 00:30:52 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1947,7 +1947,7 @@ c     integer i2_start(NFFT3+1)
       integer i
 
       do i=1,nx(nb)*ny(nb)*nq(nb)
-         C(i) = dcmplx(A(i) + B(i),0.0d0)
+         C(i) = dcmplx((A(i) + B(i)),0.0d0)
       end do
 
       return
@@ -2184,6 +2184,43 @@ c     integer i2_start(NFFT3+1)
 
       return
       end
+
+*     ***********************************
+*     *					*
+*     *	         C3dB_c_dsum  	 	*	
+*     *					*
+*     ***********************************
+
+      subroutine C3dB_c_dsum(nb,A,sumall)     
+      implicit none
+      integer nb 
+      complex*16  A(*)
+      complex*16 sumall
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common	/ C3dB / nq,nx,ny,nz
+
+      integer i,np
+      complex*16 sum
+
+      call Parallel_np(np)
+
+*     **** sum up dot product on this node ****
+      sum = dcmplx(0.0d0,0.0d0)
+      do i=1,nx(nb)*ny(nb)*nq(nb)
+         sum = sum + A(i)
+      end do
+
+*     **** add up sums from other nodes ****
+      if (np.gt.1) then
+        call C3dB_Vector_SumAll(2,sum)
+      end if
+
+      sumall = sum
+
+      return
+      end
+
 
 
 

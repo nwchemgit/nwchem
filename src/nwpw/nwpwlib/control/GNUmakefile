@@ -1,10 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.5 2001-12-14 20:02:46 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2001-12-20 00:30:52 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
             control.o \
 			psi_get_ne.o \
+			psi_get_version.o \
 			psi_get_header.o
 
 

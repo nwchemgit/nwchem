@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.7 2001-12-17 23:31:13 bylaska Exp $
+* $Id: band_minimizer.F,v 1.8 2001-12-20 00:30:51 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -19,21 +19,6 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-
-
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-*    10 - geodesic_time
-      real*8 times(50)
-      common / timing / times
 
 
       
@@ -99,7 +84,11 @@
       real*8   brillioun_weight,brillioun_ks,brillioun_k
       external brillioun_nbrillioun
       external brillioun_weight,brillioun_ks,brillioun_k
+      integer  electron_count,linesearch_count
+      external electron_count,linesearch_count
 
+      real*8   nwpw_timing
+      external nwpw_timing
       integer  Cram_nwave_all,Cram_nwave
       external Cram_nwave_all,Cram_nwave
 
@@ -119,7 +108,7 @@
       value = .true.
       pi = 4.0d0*datan(1.0d0)
 
-      call dcopy(50,0.0d0,0,times,1)
+      call nwpw_timing_init()
       call dcopy(10,0.0d0,0,E,1)
 
 
@@ -171,6 +160,7 @@
 *     **** initialize D3dB data structure ****
       call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3))
       call C3dB_nfft3d(1,nfft3d)
+
 
  
 *     **** initialize lattice data structure ****
@@ -392,7 +382,7 @@
          T2=CPU3-CPU2
          T3=CPU4-CPU3
          T4=CPU4-CPU1
-c        AV=T2/dble(electron_count())
+         AV=T2/dble(electron_count())
          write(6,*)
          write(6,*) '-----------------'
          write(6,*) 'cputime in seconds'
@@ -400,21 +390,31 @@ c        AV=T2/dble(electron_count())
          write(6,*) 'main loop   : ',T2
          write(6,*) 'epilogue    : ',T3
          write(6,*) 'total       : ',T4
-c        write(6,*) 'cputime/step: ',AV,
-c    >              '   (',electron_count(),' evalulations, ', 
-c    >                     linesearch_count(),' line searches)'
+         write(6,*) 'cputime/step: ',AV,
+     >              '   (',electron_count(),' evalulations, ', 
+     >                     linesearch_count(),' line searches)'
+
          write(6,*)
          write(6,*) '-------------------------------'
          write(6,*) 'Time spent doing:'
-         write(6,*) '  FFTs                       : ', times(1)
-         write(6,*) '  dot products               : ', times(2)
-         write(6,*) '  geodesic                   : ', times(10)
-         write(6,*) '  exchange correlation       : ', times(4)
-         write(6,*) '  local pseudopotentials     : ', times(5)
-         write(6,*) '  non-local pseudopotentials : ', times(6)
-         write(6,*) '  hartree potentials         : ', times(7)
-         write(6,*) '  structure factors          : ', times(8)
-         write(6,*) '  masking and packing        : ', times(9)
+         write(6,*) '  FFTs                       : ', nwpw_timing(1),
+     >                          nwpw_timing(1)/dble(electron_count())
+         write(6,*) '  dot products               : ', nwpw_timing(2),
+     >                          nwpw_timing(2)/dble(electron_count())
+         write(6,*) '  geodesic                   : ', nwpw_timing(10),
+     >                          nwpw_timing(10)/dble(electron_count())
+         write(6,*) '  exchange correlation       : ', nwpw_timing(4),
+     >                          nwpw_timing(4)/dble(electron_count())
+         write(6,*) '  local pseudopotentials     : ', nwpw_timing(5),
+     >                          nwpw_timing(5)/dble(electron_count())
+         write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6),
+     >                          nwpw_timing(7)/dble(electron_count())
+         write(6,*) '  hartree potentials         : ', nwpw_timing(7),
+     >                          nwpw_timing(7)/dble(electron_count())
+         write(6,*) '  structure factors          : ', nwpw_timing(8),
+     >                          nwpw_timing(8)/dble(electron_count())
+         write(6,*) '  masking and packing        : ', nwpw_timing(9),
+     >                          nwpw_timing(9)/dble(electron_count())
          write(6,*)
          CALL MESSAGE(4)
       end if 
@@ -521,3 +521,4 @@ c    >                     linesearch_count(),' line searches)'
       band_minimizer = value
       return
       END
+

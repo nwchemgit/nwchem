@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.1 2001-12-14 20:02:44 bylaska Exp $
+* $Id: cpsi_write.F,v 1.2 2001-12-20 00:30:51 bylaska Exp $
 *
 
 *     ***************************
@@ -48,7 +48,7 @@ c     complex*16 tmp(*)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0)
 
-      version = 3
+      version = 5 ! version 5 - band, version 3 - pspw
       nfft(1) = control_ngrid(1)
       nfft(2) = control_ngrid(2)
       nfft(3) = control_ngrid(3)

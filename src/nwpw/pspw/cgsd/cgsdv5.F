@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.10 2001-12-17 23:31:15 bylaska Exp $
+* $Id: cgsdv5.F,v 1.11 2001-12-20 00:30:53 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -443,15 +443,24 @@ c     end if
          write(6,*)
          write(6,*) '-------------------------------'
          write(6,*) 'Time spent doing:'
-         write(6,*) '  FFTs                       : ', nwpw_timing(1)
-         write(6,*) '  dot products               : ', nwpw_timing(2)
-         write(6,*) '  geodesic                   : ', nwpw_timing(10)
-         write(6,*) '  exchange correlation       : ', nwpw_timing(4)
-         write(6,*) '  local pseudopotentials     : ', nwpw_timing(5)
-         write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6)
-         write(6,*) '  hartree potentials         : ', nwpw_timing(7)
-         write(6,*) '  structure factors          : ', nwpw_timing(8)
-         write(6,*) '  masking and packing        : ', nwpw_timing(9)
+         write(6,*) '  FFTs                       : ', nwpw_timing(1),
+     >                          nwpw_timing(1)/dble(electron_count())           
+         write(6,*) '  dot products               : ', nwpw_timing(2),
+     >                          nwpw_timing(2)/dble(electron_count())           
+         write(6,*) '  geodesic                   : ', nwpw_timing(10),
+     >                          nwpw_timing(10)/dble(electron_count())           
+         write(6,*) '  exchange correlation       : ', nwpw_timing(4),
+     >                          nwpw_timing(4)/dble(electron_count())           
+         write(6,*) '  local pseudopotentials     : ', nwpw_timing(5),
+     >                          nwpw_timing(5)/dble(electron_count())           
+         write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6),
+     >                          nwpw_timing(7)/dble(electron_count())           
+         write(6,*) '  hartree potentials         : ', nwpw_timing(7),
+     >                          nwpw_timing(7)/dble(electron_count())           
+         write(6,*) '  structure factors          : ', nwpw_timing(8),
+     >                          nwpw_timing(8)/dble(electron_count())           
+         write(6,*) '  masking and packing        : ', nwpw_timing(9),
+     >                          nwpw_timing(9)/dble(electron_count())           
          write(6,*)
          CALL MESSAGE(4)
       end if 
