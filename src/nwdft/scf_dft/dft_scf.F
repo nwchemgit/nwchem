@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.92 1997-11-15 04:44:34 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.93 1997-11-18 18:21:08 d3h449 Exp $
 c     
       implicit none
 c
@@ -62,7 +62,7 @@ c
       integer iswitc
       integer itol_max, iaoacc_max
       integer nao2_max, batch_max, icount
-      integer idmtot, nprint
+      integer npol, nprint
       integer leneval, lcd_coef, icd_coef
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
@@ -230,7 +230,7 @@ c
 c     
 c     Define various constants.
 c     
-      iDMtot = (ipol*(ipol+1))/2
+      npol = (ipol*(ipol+1))/2
 c     
       itol_max = itol2e
       iaoacc_max = iaoacc
@@ -251,10 +251,9 @@ c
          n3c_dbl_r = dft_n3cdbl(AO_bas_han,CD_bas_han,itol_max)
          n3c_int = dft_n3cint(AO_bas_han,CD_bas_han,itol_max)
 c     
-c        - (minimum)amount available on stack (all nodes):
+c        find - (minimum)amount local available memory on all nodes
 c     
          call ga_sync
-c         avail = MA_inquire_stack(mt_dbl)
          avail = MA_inquire_avail(mt_dbl)
          call ga_igop(msg_min_stack_avail, avail, 1, 'min')
 c     
@@ -263,6 +262,16 @@ c
          availm = avail - ((nfock+4)*nbf_ao*nbf_ao)/nproc
 c
 c        estimate and subtract off amount needed for XC numerical integration
+c        in xc_quadv0
+c
+         availm = availm - (natoms*(natoms+1)/2 + 13*natoms + 
+     &                      nqmax*(7*ipol +  npol + natoms + 
+     &                             nbf_ao_mxnbf_ce + 4) + 
+     &                      nbf_ao_mxcont + nbf_ao_mxprim + 
+     &                      2*nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce)
+c
+c        estimate and subtract off amount needed for XC numerical integration
+c        in xc_quadv0_a
 c     
          max_component = (nbf_ao_mxang+1)*(nbf_ao_mxang+2)/2 
          if (nbf_ao_mxang .eq. 0)then
@@ -276,9 +285,17 @@ c
          nscr = 3*nqmax*nbf_ao_mxcont + 
      &          max(3*nqmax*nbf_ao_mxprim,nqmax*max_elem_ang_scr) + 1
 c
-         availm = availm - ipol*(nbf_ao + nbf_cd + nbf_xc) - nscr
-     &                   - 100000
+         availm = availm - (nqmax*(natoms + 4*nbf_ao + 
+     &                             3*nbf_ao_mxnbf_ce + 1) +
+     &                      nbf_ao + nscr)
 c
+c        Subtract off a few extra bits
+c
+         availm = availm - 100000
+c
+         if(availm.lt.0)then
+           availm = 0
+         endif
          availm_r = dble(availm)
          availm_r = min(availm_r,n3c_dbl_r)
          n3c_dbl = nint(availm_r)
@@ -287,7 +304,6 @@ c
 c     
 c        Loops are parallelized over the products of AO shells
 c        (check for zero ... must be at least 1).
-c     
 c     
          icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
          icount = max(icount,1)
