@@ -3,7 +3,7 @@
      &               Cxyz,zan,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.9 1996-05-20 07:16:36 d3e129 Exp $
+c $Id: hf1.F,v 1.10 1996-05-20 07:39:35 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -172,18 +172,11 @@ c Assign pointers to scratch space.
       end if
 
       if (npp.eq.0) then
-        if(gencon) then
-          write(6,*)' gencon zero '
           nintlocal = (La+1)*(La+2)/2*nca
           nintlocal = nintlocal*(Lb+1)*(Lb+2)/2*ncb
           if (O2I) call dfill(nintlocal,0.0d00,bO2I,1)
           if (KEI) call dfill(nintlocal,0.0d00,bKEI,1)
           if (NAI) call dfill(nintlocal,0.0d00,bNAI,1)
-        else
-          if (O2I) call dfill(Nint,0.0d00,bO2I,1)
-          if (KEI) call dfill(Nint,0.0d00,bKEI,1)
-          if (NAI) call dfill(Nint,0.0d00,bNAI,1)
-        endif
         return
       endif
 c Define the Hermite linear expansion coefficients.
