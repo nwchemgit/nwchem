@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.53 2001-07-17 23:23:46 d3j191 Exp $
+c $Id: ana_input.F,v 1.54 2001-07-17 23:54:08 d3j191 Exp $
 c
       implicit none
 c
@@ -637,21 +637,21 @@ c
       endif
       if(inp_compare(.false.,'x',item)) then
       if(.not.inp_f(arota)) call errquit('Error in rotate',0)
-      write(lfncmd,1587)
+      write(lfncmd,1587) arota
  1587 format('rotatx ',f12.6)
       numcmd=numcmd+1
       goto 2
       endif
       if(inp_compare(.false.,'y',item)) then
       if(.not.inp_f(arota)) call errquit('Error in rotate',0)
-      write(lfncmd,1586)
+      write(lfncmd,1586) arota
  1586 format('rotaty ',f12.6)
       numcmd=numcmd+1
       goto 2
       endif
       if(inp_compare(.false.,'z',item)) then
       if(.not.inp_f(arota)) call errquit('Error in rotate',0)
-      write(lfncmd,1585)
+      write(lfncmd,1585) arota
  1585 format('rotatz ',f12.6)
       numcmd=numcmd+1
       goto 2

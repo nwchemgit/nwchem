@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.23 2001-07-17 21:58:48 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.24 2001-07-17 23:54:08 d3j191 Exp $
 c
       implicit none
 c
@@ -287,10 +287,10 @@ c
       real*8 xs(msa,3),xw(mwm,mwa,3)
       integer nw
 c
-      real*8 rv(3),rw(3),rotang,rx(3),ry(3),twopi
+      real*8 rv(3),rw(3),rotang,rx(3),ry(3),pifac
       integer i,j,k
 c
-      twopi=8.0d0*tan(1.0d0)
+      pifac=tan(1.0d0)/90.0d0
 c
       do 1 k=1,nrot
       rv(1)=0.0d0
@@ -300,7 +300,7 @@ c
       rw(2)=0.0d0
       rw(3)=0.0d0
       rw(irot(k))=1.0d0
-      rotang=arot(k)*twopi/3.6d2
+      rotang=arot(k)*pifac
       do 2 i=1,nsa
       rx(1)=xs(i,1)
       rx(2)=xs(i,2)

@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.50 2001-07-17 23:23:46 d3j191 Exp $
+c $Id: ana_common.fh,v 1.51 2001-07-17 23:54:08 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -106,5 +106,6 @@ c
      + nhis,lhis,ihis,idhis,
      + nord,idord,iord
 c
-      integer nrot,irot(100),arot(100)
+      integer nrot,irot(100)
+      real*8 arot(100)
       common/ana_rot/arot,irot,nrot
