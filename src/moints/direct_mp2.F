@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.16 1995-11-03 20:43:08 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.17 1995-12-01 22:04:50 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -225,9 +225,7 @@ c
 c
 c Print info
 c
-       if ((ga_nodeid().eq.0).and.oprint) then
-         write(6,*)
-         write(6,*)
+       if ((ga_nodeid().eq.0).and.(oprint)) then
          call util_print_centered(6,'Direct MP2', 30, .true. )
          write(6,966) nbf, nsh, blen, occ_lo, occ_hi,
      $                vir_lo, vir_hi, movecs_in, noper,npass
@@ -242,12 +240,11 @@ c
      $        10x,'AO passes required:',17x,i5)
          if (algo.eq.'sixfold') then
            write(6,975) 
- 975       format(10x,'Sixfold algorithm used')
+ 975       format(10x,'Sixfold algorithm used',/)
          else
            write(6,976) 
- 976       format(10x,'Twofold algorithm used')
+ 976       format(10x,'Twofold algorithm used',/)
          endif
-         write(6,*)
          call util_flush(6)
        endif
 c
