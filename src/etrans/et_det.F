@@ -1,4 +1,4 @@
-c $Id: et_det.F,v 1.4 2003-02-22 18:57:39 edo Exp $
+c $Id: et_det.F,v 1.5 2003-02-22 19:02:11 edo Exp $
       subroutine et_det(op,handle,n,detval)
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -16,7 +16,7 @@ c determinant. If op='N', a=a. If op='T', a=a'.
 c
       character*1 op
       integer handle
-      integer n,i,j,ipvt(n),info
+      integer n,i,j,info
       integer l_ipvt,k_ipvt,l_a,k_a,l_work,k_work
       double precision detval,det(2),ten
 c
