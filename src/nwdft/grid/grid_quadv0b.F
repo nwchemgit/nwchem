@@ -17,7 +17,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d)
 c
-c$Id: grid_quadv0b.F,v 1.27 2002-01-16 01:41:05 edo Exp $
+c$Id: grid_quadv0b.F,v 1.28 2002-01-17 02:40:58 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -51,7 +51,6 @@ c !!! temp !!! ***
       double precision acc_xc_gauss
       logical donewbf           !!! !!!! *** temp
       logical l3d
-      integer nmat_tabcd
 C
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -259,14 +258,9 @@ c     delrho
 c
                call xc_cpks_coeff(rho, delrho, Amat2, Cmat2, Cmat,
      &              delrho(iscf_delrho), nmat, ipol, nqpts, GRAD)
-               nmat_tabcd=nmat
-               if(ipol.eq.2) then
-                  nmat_tabcd=nmat/4
-cedo                  write(0,*) ' grv0b nm ',nmat,' to ',nmat_tabcd
-               endif
                call xc_tabcd_cpks_lhs(tol_rho, Fmat, Pmat, rho, Bmat,
      &             delrho, Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
-     &             Dbl_MB(idelchi_ao), nmat_tabcd, ipol, nqpts, mbf_ao,
+     &             Dbl_MB(idelchi_ao), nmat, ipol, nqpts, mbf_ao,
      &             nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, AO_bas_han,
      &             natoms, iniz, ifin, g_vxc, ibf_ao,
      &             rchi_atom, rdelchi_atom,
