@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.36 1994-07-19 00:45:18 d3g681 Exp $
+# $Id: makefile.h,v 1.37 1994-07-20 20:55:07 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -27,7 +27,7 @@ endif
 
 #
 # Do a setenv for NWCHEM_TARGET to be the machine you wish to build for
-# (one of SUN, IPSC, IBM, KSR)
+# (one of SUN, IPSC, IBM, KSR, PARAGON)
 #
 
 ifndef NWCHEM_TARGET
@@ -71,7 +71,7 @@ endif
 #                                                        #
 ##########################################################
 
-# !!!! Only the SUN and KSR versions are up to date !!!!!
+# !!!! Only the SUN, KSR and PARAGON versions are up to date !!!!!
 
 ifeq ($(TARGET),SUN)
 #
@@ -146,6 +146,55 @@ ifeq ($(TARGET),KSR)
               -lrtdb -ldb -linp -lpstat \
 	      -lutil -lma -ltcgmsg -lksrlapk -lksrblas -para -lrpc
 #-llapack -lblas 
+
+  EXPLICITF = FALSE
+endif
+
+ifeq ($(TARGET),PARAGON)
+#
+# Intel Paragon running OSF
+# (native build, or cross-compiled -- the latter is faster in most cases)
+#
+    SUBDIRS_EXTRA = lapack
+
+         FC = if77
+         CC = icc
+         AR = ar860
+     RANLIB = echo
+      SHELL = /bin/sh
+       MAKE = make
+  MAKEFLAGS = -j 4
+    INSTALL = echo $@ is built
+
+     FOPT = -g -Knoieee		# -Mquad is default
+   FOPT_REN = $(FOPT) -Mrecursive -Mreentrant
+       COPT = -g
+     FLDOPT = $(FOPT) -nx
+     CLDOPT = $(COPT) -nx
+  INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
+
+#
+# __PARAGON__ is defined by the PGI cpp, but NOT when it is invoked by
+# the f77 comiler!!!
+#
+# Do NOT define -DNX or -DIPSC for paragon -- they get into some code for
+# real iPSC and Delta that is not applicable to the paragon, which is more
+# unixy since it runs OSF/1.
+#
+    DEFINES = -D__PARAGON__ $(LIB_DEFINES) 
+     FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
+     CFLAGS = $(COPT) $(INCLUDES) $(DEFINES)
+    ARFLAGS = rcv
+
+# CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
+# search path -- contrary to usual unix usage!!!!!
+       LIBS = -L/home/delilah11/gifann/lib $(LIBPATH) -L$(LIBDIR)\
+              -ltest -lddscf -lrimp2 -lnwints -lgradients -lstepper -lmoints \
+              -linput -lguess -lgeom -lbasis -lutil \
+              -lglobal -llapack -lpeigs_paragon \
+              -lrtdb -ldb -linp -lpstat \
+	      -lutil -lma -ltcgmsg -llapack -lkmath
+#-lrpc -llapack -lblas 
 
   EXPLICITF = FALSE
 endif
