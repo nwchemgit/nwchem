@@ -3,7 +3,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff)
 
-c     $Id: grad_dens_so.F,v 1.2 2000-06-13 23:34:32 zzhang Exp $
+c     $Id: grad_dens_so.F,v 1.3 2000-06-15 00:54:17 edo Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -20,10 +20,6 @@ C     movecs (and Lagrangian in ROHF case) on disk
       double precision evals(*), occ(*), pdm2(*), coeff(*)
       character*(*) scftype
       character*(*) movecs
-      double precision offset   ! EAF file offset
-      character*255 pdmfilename ! EAF file name
-      integer pdmfile           ! EAF file handle
-      integer l_buf, k_buf
 
       logical omp2
 
@@ -81,14 +77,20 @@ C     create eigenvalue diagonal matrix
 cso   nocc = nclosed + nopen ! == nalpha
          nocc = 2*nclosed + nopen 
          if (ga_nodeid() .eq. 0) then
-            status = MA_alloc_get(MT_INT, nocc, 'indices', l_ind, k_ind)
-            status = MA_alloc_get(MT_INT, nocc, 'indices',l_ind2,k_ind2)
+            if(.not.MA_push_get(
+     .           MT_INT, nocc, 'indices', l_ind, k_ind)) call errquit(
+     .           ' gradensso: alloc get failed ',1)
+            if(.not.MA_push_get(
+     .           MT_INT, nocc, 'indices',l_ind2,k_ind2)) call errquit(
+     .           ' gradensso: alloc get failed ',2)
             do i=1, nocc
                int_mb( k_ind+i-1 ) = i
                int_mb( k_ind2+i-1 ) = i
             end do
             call ga_scatter ( g_eigen_diag, evals, int_mb(k_ind),
      $           int_mb(k_ind2), nocc )
+            if(.not.MA_chop_stack(int_mb(l_ind2)))
+     .           call errquit(' gradensso: chop stackfailed ',2)
          end if
          status = ga_create(mt_dbl,nbf2,nbf2,'density matrix', 0, 0, 
      &                   g_densso(1))

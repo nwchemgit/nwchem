@@ -7,7 +7,7 @@ c
 c***********************************************************************
 c
       subroutine dft_densm_so(g_dens,g_vecs,nbf,noc)
-C$Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
+C$Id: dft_densmso.F,v 1.6 2000-06-15 00:54:16 edo Exp $
       implicit none
 
       integer g_dens(2)
@@ -35,7 +35,7 @@ cso      call ga_symmetrize(g_dens(2))
       end 
 
       subroutine ga_fock_sf(g_fock, g_fs, nbf)
-C$Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
+C$Id: dft_densmso.F,v 1.6 2000-06-15 00:54:16 edo Exp $
       implicit none
 
       integer g_fock
@@ -54,7 +54,7 @@ c
       end
 
       subroutine ga_fock_so(g_so, g_fs, nbf)
-C$Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
+C$Id: dft_densmso.F,v 1.6 2000-06-15 00:54:16 edo Exp $
       implicit none
 
       integer g_so(3)
@@ -88,7 +88,7 @@ c
 
 
       subroutine ga_dens_so(g_tmp, g_a, nbf, op)
-C$Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
+C$Id: dft_densmso.F,v 1.6 2000-06-15 00:54:16 edo Exp $
       implicit none
 
       integer g_tmp
@@ -137,7 +137,7 @@ c
       end
  
       subroutine ga_dens_sf(g_dens, g_a, nbf)
-C$Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
+C$Id: dft_densmso.F,v 1.6 2000-06-15 00:54:16 edo Exp $
       implicit none
 
       integer g_dens(2)
@@ -146,18 +146,16 @@ C$Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
 c
       npone=nbf+1 
       ntwice=2*nbf
-c
-      call ga_dadd_patch(0.d0, g_dens(1), 1, nbf, 1, nbf, 
-     &                   1.d0, g_a(1), 1, nbf, 1, nbf,
+c    
+      call ga_copy_patch('n',g_a(1), 1, nbf, 1, nbf,
      &                         g_dens(1), 1, nbf, 1, nbf)
-      call ga_dadd_patch(0.d0, g_dens(2), 1, nbf, 1, nbf, 
-     &                   1.d0, g_a(1),npone,ntwice,npone,ntwice, 
+      call ga_copy_patch('n',g_a(1),npone,ntwice,npone,ntwice, 
      &                         g_dens(2), 1, nbf, 1, nbf)
       return
       end
  
       subroutine dft_densm_sowght(g_dens,g_vecs,g_eigen_diag,nbf,noc)
-C$Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
+C$Id: dft_densmso.F,v 1.6 2000-06-15 00:54:16 edo Exp $
       implicit none
 
       integer g_dens(2)
@@ -201,7 +199,7 @@ cso      call ga_symmetrize(g_dens(2))
       end 
 
       subroutine ga_dens_aabbi(g_dens, g_a, nbf)
-C     $Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
+C     $Id: dft_densmso.F,v 1.6 2000-06-15 00:54:16 edo Exp $
       implicit none
       
       integer g_dens(2)
@@ -224,7 +222,7 @@ c
       end
 
       subroutine ga_dens_abbar(g_dens, g_a, nbf)
-C$Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
+C$Id: dft_densmso.F,v 1.6 2000-06-15 00:54:16 edo Exp $
       implicit none
 
       integer g_dens(2)
@@ -247,7 +245,7 @@ c
       end
 
       subroutine ga_dens_abbai(g_dens, g_a, nbf)
-C$Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
+C$Id: dft_densmso.F,v 1.6 2000-06-15 00:54:16 edo Exp $
       implicit none
 
       integer g_dens(2)
@@ -270,7 +268,7 @@ c
       end
 
       subroutine ga_dens_abri(g_dens, g_a, nbf)
-C$Id: dft_densmso.F,v 1.5 2000-05-01 05:34:17 zzhang Exp $
+C$Id: dft_densmso.F,v 1.6 2000-06-15 00:54:16 edo Exp $
       implicit none
 
       integer g_dens(2)
