@@ -1,17 +1,13 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.165 2004-10-27 21:47:26 marat Exp $
+c $Id: md_start.F,v 1.166 2004-11-09 15:29:39 d3j191 Exp $
 c
       implicit none
 c
 #include "md_common.fh"
-#include "constants.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c
-      double precision qmmm_get_bqzone
-      external qmmm_get_bqzone
-
       if(npg.gt.1) call md_partition
 c
       if(lqmd) call qmd_start()
@@ -43,11 +39,6 @@ c
 c     start the classical forces API
 c     ------------------------------
 c
-      if(lqmmm) then
-        rqmmm = qmmm_get_bqzone()
-        rqmmm = rqmmm*cau2nm
-      end if
-
       call cf_start(irtdb,lqmd,lfnout,lfntop,filtop,ndistr,npmf,npmfi,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
