@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.20 2002-12-16 21:13:38 sohirata Exp $
+c $Id: tce_init.F,v 1.21 2002-12-24 06:13:31 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -199,6 +199,16 @@ c
         ioalg = 2
         if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
      1  call errquit('tce_init: failed to write ioalg',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:diis',mt_int,1,diis)) then
+        diis = 5
+        if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
+     1  call errquit('tce_init: failed to write diis',0)
+      endif
+      if (diis .gt. maxdiis) then
+        diis = maxdiis
+        if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
+     1  call errquit('tce_init: failed to write diis',0)
       endif
 c
 c     ----------------------
@@ -444,6 +454,11 @@ c
         write(LuOut,9000) ctype  
         write(LuOut,9130) maxiter
         write(LuOut,9110) thresh
+        if (diis .gt. 0) then
+          write(LuOut,9150) diis,'-th order DIIS'
+        else
+          write(LuOut,9160) 'Jacobi'
+        endif
         if (ioalg.eq.0) then
           write(LuOut,9140) 'Global files (Fortran77 direct access)'
         else if (ioalg.eq.1) then
@@ -457,6 +472,7 @@ c
         else
           call errquit('tce_init: unknown I/O scheme',ioalg)
         endif
+        write(LuOut,9170) ga_nnodes()
       endif
       if (nodezero) call util_flush(LuOut)
  9200 format(3x,'        Number of nodes :',2x,i4)
@@ -481,6 +497,9 @@ c
  9110 format(3x,'     Residual threshold : ',d8.2)
  9130 format(3x,'         Max iterations :',2x,i7)
  9140 format(3x,'             I/O scheme : ',a)
+ 9150 format(3x,'       Amplitude update : ',i2,a)
+ 9160 format(3x,'       Amplitude update : ',a)
+ 9170 format(3x,'   Number of processors :',2x,i7)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
  9500 format(/,2x,

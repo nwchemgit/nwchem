@@ -1,6 +1,6 @@
       subroutine tce_tile
 c
-c $Id: tce_tile.F,v 1.12 2002-11-21 01:11:57 sohirata Exp $
+c $Id: tce_tile.F,v 1.13 2002-12-24 06:13:31 sohirata Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -36,10 +36,10 @@ c
 c
 c     For orbital rotation test
 c
-      integer l_unitary, k_unitary
-      integer l_movecs_rotated, k_movecs_rotated
-      integer n, orb1, orb2
-      double precision angle
+c     integer l_unitary, k_unitary
+c     integer l_movecs_rotated, k_movecs_rotated
+c     integer n, orb1, orb2
+c     double precision angle
 c
 c     ====================
 c     Retrieve Memory Info

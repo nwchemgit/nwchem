@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.10 2002-11-16 06:27:52 sohirata Exp $
+c $Id: tce_input.F,v 1.11 2002-12-24 06:13:31 sohirata Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -17,6 +17,7 @@ c        [THRESH <double thresh default 1e-6>]
 c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
 c        [IO (fortran||c||ga||sf||replicated) default ga]
+c        [DIIS <integer diis 5>]
 c     END
 c     
       implicit none
@@ -32,6 +33,7 @@ c
       character*10 ioalgchar
       integer ioalg
       integer reference
+      integer diis
 c
 c ------------------
 c Set default values
@@ -73,6 +75,12 @@ c                     4 = Replicated C Low-Level I/O)
 c
       ioalg=2
       if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
+     1  call errquit('tce_input: failed writing to rtdb',0)
+c
+c     DIIS (the vector space size in DIIS)
+c
+      diis=5
+      if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
      1  call errquit('tce_input: failed writing to rtdb',0)
 c
 c ----------
@@ -214,6 +222,17 @@ c
           endif
         endif
         if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
+     1    call errquit('tce_input: failed writing to rtdb',0)
+c
+c     DIIS (the vector space size in DIIS)
+c
+      else if (inp_compare(.false.,test,'diis')) then
+        if (.not.inp_i(diis)) then
+          write(LuOut,*) 'tce_input: diis value not found; ',
+     1      'default value of 5 will be used'
+          maxiter=5
+        endif
+        if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
      1    call errquit('tce_input: failed writing to rtdb',0)
 c
 c     PRINT
