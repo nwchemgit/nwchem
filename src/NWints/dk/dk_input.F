@@ -1,6 +1,6 @@
       subroutine dk_input(rtdb)
 *
-* $Id: dk_input.F,v 1.8 1999-12-16 23:45:57 bert Exp $
+* $Id: dk_input.F,v 1.9 1999-12-17 00:54:14 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -27,6 +27,9 @@ c
 c
 c     Read input data beyond douglas-kroll; store in rtdb.
 c     
+      dk_run  = .true.
+      dk_type = 2
+c
   10  if (inp_a(test)) then
          if (inp_compare(.false., 'off', test)) then
             dk_run = .false.
