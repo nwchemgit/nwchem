@@ -1,7 +1,7 @@
-      subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
-     $     tol2e, oskel, vg_dens, vg_fock )
+      subroutine ao_replicated(geom, basis, nfock, jfac, kfac,
+     $     tol2e, oskel, vg_dens, vg_fock)
 c     
-c     $Id: ao_replicated.F,v 1.34 1998-08-27 06:24:51 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.35 1999-05-09 18:31:21 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -63,6 +63,8 @@ c
      $     min(tol2e*0.1d0,1d-9))
          if (owritefile) tol2e_local = min(tol2e,1d-8)
       end if
+c
+*      call ga_print(vg_dens)
 c
 c     If reading/writing to/from cache/file then rewind
 c     
@@ -262,6 +264,7 @@ c
       double precision dentol, integ_acc
       character*80 buff
 c
+      double precision jfacmax, kfacmax
       double precision nqraw, nqsch, nqsym
 c
       integer nq                ! No. of quartets generated
@@ -320,21 +323,30 @@ c
       end do
 c
       call dfill(nsh*nsh,0.0d0,rdens,1)
+      jfacmax = 0.0d0
+      kfacmax = 0.0d0
       do imat = 1, nfock
+         jfacmax = max(jfacmax,abs(jfac(imat)))
+         kfacmax = max(kfacmax,abs(kfac(imat)))
          call util_mat_reduce(nbf, nsh, cntobfr, dens(imat,1), 
      $        nfock, rdens, 'rms')
       end do
-*      write(6,*) ' RDENS'
-*      call doutput(rdens,1,nsh, 1, nsh, nsh, nsh,1)
       denmax = 0.0d0
       do ish = 1, nsh
          do jsh = 1, ish
             denmax = max(denmax,rdens(jsh,ish))
          end do
       end do
-****      if (owritefile) denmax = max(denmax,10.0d0)
+      if (oprint) then
+         write(6,*) ' JFACMAX ', jfacmax
+         write(6,*) ' KFACMAX ', kfacmax
+         write(6,*) '  DENMAX ', denmax
+         write(6,*) '   RDENS'
+         call doutput(rdens,1,nsh, 1, nsh, nsh, nsh,1)
+      endif
+
+*      if (owritefile) denmax = max(denmax,10.0d0) ! If do this not consistent
 c
-*******      dentolmax = 1d-3
       dentol = min(dentolmax,tol2e/denmax,tol2e/denmax**2) ! Threshold to screen integs only
 c
 c     If this is the first call for a potential semi-direct calculation 
@@ -512,9 +524,9 @@ c     symmetry test
                      nqsym = nqsym + 1.0d0
 c     density screening
                      if (odensityscreen .and. (.not. owritefile)) then
-                        dijkl = max(
-     $                       rdens(ish,jsh),rdens(ksh,lsh),
-     $                       rdens(ish,ksh),rdens(ish,lsh), 
+                        dijkl = jfacmax*max(rdens(ish,jsh),
+     $                       rdens(ksh,lsh)) + 
+     $                       kfacmax*max(rdens(ish,ksh),rdens(ish,lsh), 
      $                       rdens(jsh,ksh),rdens(jsh,lsh))
                         dijkl = max(dijkl,dijkl*dijkl)
                         if (qq4*sijkl*dijkl .lt. tol2e) goto 200 ! Next kl
