@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.122 1999-06-25 17:08:02 edo Exp $
+c     $Id: dft_scf.F,v 1.123 1999-06-25 17:15:08 edo Exp $
 c     
       implicit none
 c
@@ -167,9 +167,8 @@ c
      &   ssmear))then
         if(me.eq.0) write(0,*) ' SMEAR = ',ssmear
       endif
-      check_deg=.false.
-      if (rtdb_get(rtdb, 'dft:smear_sigma', mt_log, 1,
-     &   ssmear))check_deg=.true.
+      if (.not.rtdb_get(rtdb, 'dft:check_deg', mt_log, 1,
+     &   check_deg))check_deg=.false.
 c
 c     see if levelshifting monitoring is desired
 c
