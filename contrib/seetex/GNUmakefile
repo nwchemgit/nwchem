@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.3 1997-02-24 20:26:29 d3e129 Exp $
+# $Id: GNUmakefile,v 1.4 1997-05-28 07:07:48 d3e129 Exp $
 
 OBJ = seetex.o
 
@@ -9,6 +9,7 @@ include ../../src/config/makefile.h
 
 target:
 	$(MAKE) seetex
+	rm -f sample.tex
 	seetex sample.th sample.F sample.tex
 
 include ../../src/config/makelib.h

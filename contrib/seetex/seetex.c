@@ -1,5 +1,5 @@
 /*---------------------------------------------------------*\
-$Id: seetex.c,v 1.3 1996-09-25 00:20:25 d3e129 Exp $
+$Id: seetex.c,v 1.4 1997-05-28 07:07:48 d3e129 Exp $
 \*---------------------------------------------------------*/
 
 /*------------------------------------------------------------*\
@@ -19,6 +19,7 @@ $Id: seetex.c,v 1.3 1996-09-25 00:20:25 d3e129 Exp $
   *:tex-begin    means print lines after this one until *:tex-end
                  is found
   *:tex-end      terminates *:tex-end
+  *:tex-cvsid    inserts a latex specific cvs id tag in the output file.
   c:tex- is equivalent to *:tex in all cases
   !:tex- is equivalent to *:tex but it applies to only single line 
          Latex strings.
@@ -198,6 +199,10 @@ void put_line_strip(char *line,FILE *id)
   if (!strncmp(ptmp,"c:tex-end",(size_t) 9)) return;
   if (!strncmp(ptmp,"*:tex-begin",(size_t) 11)) return;
   if (!strncmp(ptmp,"*:tex-end",(size_t) 9)) return;
+  if (!strncmp(ptmp,"*:tex-cvsid",(size_t) 11)) 
+    { (void) fprintf(id,"%%\n%% $Id: seetex.c,v 1.4 1997-05-28 07:07:48 d3e129 Exp $\n%%\n"); return;}
+  if (!strncmp(ptmp,"c:tex-cvsid",(size_t) 11)) 
+    { (void) fprintf(id,"%%\n%% $Id: seetex.c,v 1.4 1997-05-28 07:07:48 d3e129 Exp $\n%%\n"); return;}
   if (!strncmp(ptmp,"*:tex-",(size_t) 6)) ptmp += 6;
   if (!strncmp(ptmp,"c:tex-",(size_t) 6)) ptmp += 6;
   (void) fprintf(id,"%s\n",ptmp);
@@ -216,6 +221,10 @@ void put_line_strip_check(char *line,FILE *id)
   if (!strncmp(ptmp,"c:tex-end",(size_t) 9)) return;
   if (!strncmp(ptmp,"*:tex-begin",(size_t) 11)) return;
   if (!strncmp(ptmp,"*:tex-end",(size_t) 9)) return;
+  if (!strncmp(ptmp,"*:tex-cvsid",(size_t) 11)) 
+    { (void) fprintf(id,"%%\n%% $Id: seetex.c,v 1.4 1997-05-28 07:07:48 d3e129 Exp $\n%%\n"); return;}
+  if (!strncmp(ptmp,"c:tex-cvsid",(size_t) 11)) 
+    { (void) fprintf(id,"%%\n%% $Id: seetex.c,v 1.4 1997-05-28 07:07:48 d3e129 Exp $\n%%\n"); return;}
   if (!strncmp(ptmp,"*:tex-",(size_t) 6)) 
       {ptmp += 6;print_it++;}
   if (!strncmp(ptmp,"c:tex-",(size_t) 6))
@@ -429,4 +438,5 @@ int seetex_process(FILE *srcid, FILE *texid)
       return FALSE;
     }
 }
+
 
