@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.12 2000-11-28 00:25:45 bjohnson Exp $	
+#	$Id: MakeFile,v 1.13 2001-03-06 19:44:17 bjohnson Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -101,6 +101,7 @@ OBJ =          $(OBJDIR)\output.obj \
                $(OBJDIR)\win32_cpu.obj \
                $(OBJDIR)\util_debug.obj \
                $(OBJDIR)\util_erf.obj \
+               $(OBJDIR)\bettis.obj \
                $(EXTRA_OBJ)
 
 HEADERS =      util.fh \
@@ -114,6 +115,7 @@ HEADERS =      util.fh \
                bitops_funcs.fh \
                bgj.fh \
                bgj_common.fh \
+               bettis.fh \
                nwc_const.fh
 
 LIBRARY = util.lib

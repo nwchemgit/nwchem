@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.125 2001-01-18 20:40:10 edo Exp $
+# $Id: GNUmakefile,v 1.126 2001-03-06 19:44:16 bjohnson Exp $
 
 include ../config/makefile.h
 
@@ -141,7 +141,7 @@ endif
 	      dgewr.o atoi.o indint.o util_wall_remain.o \
 		ga_normf.o corr_mk_ref.o \
               nw_inp_from_file.o \
-              bgj.o movecs_ecce.o\
+              bgj.o bettis.o movecs_ecce.o\
               get_density.o moeig_read.o\
               util_debug.o \
               util_erf.o \
@@ -152,7 +152,7 @@ endif
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
               printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh \
-              bgj.fh bgj_common.fh nwc_const.fh
+              bgj.fh bgj_common.fh bettis.fh nwc_const.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F
