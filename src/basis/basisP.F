@@ -1,6 +1,6 @@
       subroutine print_exndcf(msg)
       implicit none
-c $Id: basisP.F,v 1.18 1997-04-02 22:44:19 d3e129 Exp $
+c $Id: basisP.F,v 1.19 1997-04-18 21:54:15 d3e129 Exp $
 #include "basP.fh"
       character *(*) msg
       integer i,j
@@ -35,6 +35,7 @@ c
       exndcf(K_exndcf,basis)= k_tmp
       if (.not. bas_add_ucnt_init) call errquit
      &    ('bas_add_unct_init: error allocating input heap space',911)
+      call dfill(input_size,0.0d00,dbl_mb(k_tmp),1)
       exndcf(SZ_exndcf,basis) = input_size
       end
 *.....................................................................

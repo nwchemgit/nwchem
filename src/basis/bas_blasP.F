@@ -1,7 +1,7 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.1 1997-04-02 00:42:06 d3e129 Exp $
+* $Id: bas_blasP.F,v 1.2 1997-04-18 21:54:09 d3e129 Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
@@ -74,6 +74,7 @@ c
           bas_add_ucnt = .false.
           return
         endif
+        call dfill(s_new,0.0d00,dbl_mb(k_new),1)
         exndcf(H_exndcf,ind) = h_new
         exndcf(K_exndcf,ind) = k_new
         exndcf(SZ_exndcf,ind) = s_new

@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,indx_grad)
-* $Id: int_ecp.F,v 1.5 1996-10-20 06:10:07 d3e129 Exp $
+* $Id: int_ecp.F,v 1.6 1997-04-18 21:54:06 d3e129 Exp $
       implicit none
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
@@ -107,7 +107,7 @@ c allocate and fill an exponent and coeff array for the ecp basis
 c.. this MUST be changed when general contractions for ecp bases are used!!!!!
 c
 *      write(6,*)'inside ecp init'
-      if (.not.ecp_print(ecpidin)) stop ' ecp_print error'
+*      if (.not.ecp_print(ecpidin)) stop ' ecp_print error'
       num_ecp = 0
       n_zeta_c_e = 0
       n_zeta_c_c = 0
@@ -281,9 +281,9 @@ c
 *     &        lecp_mem,mem_ecp
         enddo
       enddo
-      write(6,*)' scr 1e memory without ecp',mem_1e
+*      write(6,*)' scr 1e memory without ecp',mem_1e
       mem_1e = max(mem_1e,mem_ecp)
-      write(6,*)' scr 1e memory with    ecp',mem_1e
+*      write(6,*)' scr 1e memory with    ecp',mem_1e
 *
       int_ecp_init = .true.
 *

@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.64 1997-04-18 03:56:00 d3g681 Exp $
+c $Id: basis.F,v 1.65 1997-04-18 21:54:12 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1090,6 +1090,7 @@ c
      &      (' bas_rtdb_do_load: error allocating space'//
      &      ' for exndcf',911)
       else
+        call dfill((nexcf+2),0.0d00,dbl_mb(k_tmp),1)
         exndcf(H_exndcf,basis) = h_tmp
         exndcf(K_exndcf,basis) = k_tmp
         exndcf(SZ_exndcf,basis) = (nexcf+2)
@@ -1252,10 +1253,10 @@ c                                 123456789012
       else
 *debug:mem        write(6,*)' generating ce2uce data ',ga_nodeid()
 *debug:mem        call util_flush(6)
+        call ifill(nat,0,int_mb(k_tmp),1)
         ibs_ce2uce(H_ibs,basis)  = h_tmp
         ibs_ce2uce(K_ibs,basis)  = k_tmp
         ibs_ce2uce(SZ_ibs,basis) = nat
-*debug:mem        call ifill(nat,0,int_mb(ibs_ce2uce(K_ibs,basis)),1)
 *debug:mem        do inode = 0,(ga_nnodes() - 1)
 *debug:mem          if (inode.eq.ga_nodeid()) call MA_summarize_allocated_blocks()
 *debug:mem          call ga_sync()
@@ -1364,6 +1365,7 @@ c                                 123456789012
       else
 *debug:mem        write(6,*)' generating ce2cnr data ',ga_nodeid()
 *debug:mem        call util_flush(6)
+        call ifill((2*nat),0,int_mb(k_tmp),1)
         ibs_ce2cnr(H_ibs,basis)  = h_tmp
         ibs_ce2cnr(K_ibs,basis)  = k_tmp
         ibs_ce2cnr(SZ_ibs,basis) = 2*nat
@@ -1421,6 +1423,7 @@ c                                 123456789012
       else
 *debug:mem        write(6,*)' generating cn2ce data ',ga_nodeid()
 *debug:mem        call util_flush(6)
+        call ifill((1+ncont_tot_gb(basis)),0,int_mb(k_tmp),1)
         ibs_cn2ce(H_ibs,basis)  = h_tmp
         ibs_cn2ce(K_ibs,basis)  = k_tmp
         ibs_cn2ce(SZ_ibs,basis) = 1+ncont_tot_gb(basis)
@@ -1464,6 +1467,7 @@ c                                 123456789012
       else
 *debug:mem        write(6,*)' generating cn2ucn data ',ga_nodeid()
 *debug:mem        call util_flush(6)
+        call ifill((1+ncont_tot_gb(basis)),0,int_mb(k_tmp),1)
         ibs_cn2ucn(H_ibs,basis)  = h_tmp
         ibs_cn2ucn(K_ibs,basis)  = k_tmp
         ibs_cn2ucn(SZ_ibs,basis) = 1+ncont_tot_gb(basis)
@@ -1527,6 +1531,7 @@ c                                 123456789012
       else
 *debug:mem        write(6,*)' generating cn2bfr data ',ga_nodeid()
 *debug:mem        call util_flush(6)
+        call ifill((2*(1+ncont_tot_gb(basis))),0,int_mb(k_tmp),1)
         ibs_cn2bfr(H_ibs,basis)  = h_tmp
         ibs_cn2bfr(K_ibs,basis)  = k_tmp
         ibs_cn2bfr(SZ_ibs,basis) = 2*(1+ncont_tot_gb(basis))
