@@ -18,7 +18,7 @@ c
      &        ij,lnof,g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
       double precision tol2e
       logical stat
-      Integer Nodes, IAm
+      Integer Nodes
 c
       Nodes = GA_NNodes()
       IAM = GA_NodeID()
