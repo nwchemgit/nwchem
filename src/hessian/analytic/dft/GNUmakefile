@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 1998-09-16 08:09:54 d3e129 Exp $
+# $Id: GNUmakefile,v 1.3 1998-09-16 08:59:09 d3e129 Exp $
 
 OBJ_OPTIMIZE =  xc_cpks_coeff.o \
 		xc_d2expl.o \
@@ -17,7 +17,8 @@ OBJ_OPTIMIZE =  xc_cpks_coeff.o \
 
 LIB_INCLUDES = -I../../../nwdft/include
 
-   USES_BLAS = 	xc_d2expl.F \
+   USES_BLAS = 	xc_cpks_coeff.F \
+                xc_d2expl.F \
 		xc_rhogen_nucder.F \
 		xc_rhogen_pert.F \
 		xc_tabcd_cpks_lhs.F \
