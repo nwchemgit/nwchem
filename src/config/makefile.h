@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.17 1994-04-26 21:33:12 d3e129 Exp $
+# $Id: makefile.h,v 1.18 1994-04-27 01:40:54 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -95,7 +95,7 @@ ifeq ($(TARGET),SUN)
   MAKEFLAGS = -j 1
     INSTALL = echo $@ is built
 
-       FOPT = -g -u -Nl99
+       FOPT = -g -Nl99
    FOPT_REN = $(FOPT)
        COPT = -g
      FLDOPT = $(FOPT)
