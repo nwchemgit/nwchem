@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.9 2002-05-16 00:07:42 bylaska Exp $
+* $Id: pspw_sic.F,v 1.10 2002-05-16 16:58:13 bylaska Exp $
 *
 
 *     *************************
@@ -397,7 +397,6 @@
            exsic = exsic - exc
            pxsic = pxsic - pxc
 
-           write(*,*) "pxc:",i,pxc
 
 *          ***** screened coulomb solver ****
            if (solver_type.eq.1) then
@@ -424,7 +423,6 @@
 
            ehsic = ehsic - eh
            phsic = phsic - ph
-           write(*,*) "ph:",i,ph
 
           end do
 
