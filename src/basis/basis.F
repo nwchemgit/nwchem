@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.43 1996-08-06 05:26:43 d3g681 Exp $
+c $Id: basis.F,v 1.44 1996-08-27 22:22:40 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -731,9 +731,10 @@ c
       bas_rtdb_load = bas_check_handle(basisin,'bas_rtdb_load')
       if (.not.bas_rtdb_load) return
 c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
 c store geom tag with basis map info
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
       ibs_geom(basis) = geom
 c
 c translate "name" to current "context"
@@ -759,6 +760,13 @@ c
      &    rtdb_get(rtdb,tmp,mt_int,1,nexcf)
 c
       write(nameex,'(a23,i2)')' basis exps and coeffs ',basis
+c
+      if (exndcf(H_exndcf,basis) .ne. 0) then
+         if (.not. ma_free_heap(exndcf(H_exndcf,basis)))
+     $        call errquit('bas_rtdb_load: ma is corrupted',
+     $        exndcf(H_exndcf,basis))
+      endif
+
       if (.not.ma_alloc_get(mt_dbl,(nexcf+2),nameex,
      &    h_tmp, k_tmp)) then
         write(6,*)' not enough memory'
