@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.23 1996-08-06 05:33:10 d3g681 Exp $
+C$Id: uhf.F,v 1.24 1996-10-06 20:12:37 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -171,7 +171,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.23 1996-08-06 05:33:10 d3g681 Exp $
+C     $Id: uhf.F,v 1.24 1996-10-06 20:12:37 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -445,7 +445,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.23 1996-08-06 05:33:10 d3g681 Exp $
+C$Id: uhf.F,v 1.24 1996-10-06 20:12:37 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -536,7 +536,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.23 1996-08-06 05:33:10 d3g681 Exp $
+c     $Id: uhf.F,v 1.24 1996-10-06 20:12:37 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -951,6 +951,7 @@ c
       if (.not.ma_push_get(MT_DBL,nmo,'uhf: tmp',l_x,k_x))
      $     call errquit('uhf_hdiag_scale: cannot allocate',0)
 c
+      call ga_sync()
       call ga_inquire(g_x, gtype, vlen, nvec)
 c
       shift = lshift - solveshift
@@ -981,6 +982,7 @@ c
 c
       if (.not. ma_pop_stack(l_x)) call errquit('uhf:pop x',0)
       if (.not. ma_pop_stack(l_diag)) call errquit('uhf:pop ',0)
+      call ga_sync()
 c
       end
       subroutine uhf_make_shift(shift)
@@ -1020,7 +1022,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.23 1996-08-06 05:33:10 d3g681 Exp $
+C$Id: uhf.F,v 1.24 1996-10-06 20:12:37 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

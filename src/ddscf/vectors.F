@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.23 1996-07-11 20:45:54 rg240 Exp $
+C$Id: vectors.F,v 1.24 1996-10-06 20:12:38 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -122,6 +122,7 @@ c
       l_vecs = -1               ! An invalid MA handle
 c
       if (oscfps) call pstat_on(ps_vecio)
+      call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
          open(unitno, status='old', form='unformatted', file=filename,
@@ -165,6 +166,7 @@ c
 	 if (.not. ma_pop_stack(l_vecs)) call errquit
      $      ('movecs_read: pop failed', l_vecs)
       endif
+      call ga_sync()
       call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
       if (ok .eq. 1) then
 	 call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob(1), 0)
@@ -308,6 +310,7 @@ c
       integer ok, iset, i, j
 c
       if (oscfps) call pstat_on(ps_vecio)
+      call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
          if (nsets .gt. 2) then
@@ -353,6 +356,7 @@ c
  22      format(/' Wrote molecular orbitals to ',a/)
          call util_flush(6)
       endif
+      call ga_sync()
       if (oscfps) call pstat_off(ps_vecio)
       return
 c

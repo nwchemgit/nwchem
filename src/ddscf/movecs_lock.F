@@ -70,6 +70,7 @@ c
 c
 c     Verify that all vectors have been used
 c
+      call ga_sync
       call ga_dgop(1, dbl_mb(k_e), nmo, 'max')
       do i = 1, nmo
          if (dbl_mb(k_e+i-1) .ne. 1.0d99) call errquit

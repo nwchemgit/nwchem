@@ -15,7 +15,7 @@ c
       return
 #else 
       integer nrec, me, nproc, him, msglen, from, record
-      integer tmp, i, j, p, q, test, nexch, nmoved
+      integer tmp, i, j, p, q, test, nexch, nmoved, npass
       integer his_count, my_count, total, shift
       double precision newfilelen, used
 c
@@ -27,6 +27,7 @@ c
       logical oprint, odebug
       intrinsic mod
 c     
+      npass = 0                 ! Used for paranoid infinite loop avoidance
       me = ga_nodeid()          ! Not true on workstation clusters
       nproc = ga_nnodes()
       if (nproc.eq.1) return
@@ -58,7 +59,18 @@ c
          info(2,i) = info(2,i) - nrec
       enddo
 c
+c     The logic with shifts is to ensure that have mod(total,nproc)
+c     processes with nrec, with rest with nrec-1 (rather than
+c     nproc-1 with nrec and one with nrec-nproc-1)
+c
+      do i = 0, nproc-1
+         shift = 0
+         if (i.ge.mod(total,nproc)) shift = 1
+         info(2,i) = info(2,i) + shift
+      enddo
+c
  10   continue                  ! While loop
+      npass = npass + 1
 c
 c     Sort nodes by #records suplus/deficit
 c
@@ -93,6 +105,7 @@ c
 c     If discrepancy is small enough then quit
 c
       if (info(2,0).le.test .and. info(2,nproc-1).ge.-test) goto 100
+      if (npass .gt. ((nproc-1)/2+1)) goto 100
 c
 c     Pair processor with largest surplus with one with largest deficit
 c
@@ -102,17 +115,11 @@ c
 c
 c     The case of nproc odd is automatically handled by the logic.
 c
-c     The logic with shift is to ensure that have mod(total,nproc)
-c     processes with nrec, with rest with nrec-1 (rather than
-c     nproc-1 with nrec and 1 with nrec-nproc-1)
-c
-      if (my_count.lt.-1 .and. his_count.gt.1) then
+      if (my_count.lt.0 .and. his_count.gt.0) then
 c     
 c     He will send to me
 c     
-         shift = 0
-         if (me.ge.mod(total,nproc)) shift = 1
-         my_count = min(abs(my_count)-shift, his_count)
+         my_count = min(abs(my_count), his_count)
          if (odebug) then
             write(6,*) me, ' receiving ', my_count, ' from ', him
             call util_flush(6)
@@ -122,17 +129,15 @@ c
             if (.not. int2e_packed_buf_write(.false.))
      $           call errquit('int2e_file_balance:write failed',0)
          enddo
-      else if (my_count.gt.1 .and. his_count.lt.-1) then
+      else if (my_count.gt.0 .and. his_count.lt.0) then
 c     
 c     I'll send to him
 c     
-         shift = 0
-         if (him.ge.mod(total,nproc)) shift = 1
-         his_count = min(my_count, abs(his_count)-shift)
+         his_count = min(my_count, abs(his_count))
          cur_rec = n_rec_in_file - his_count + 1
          do record = 1, his_count
             if (.not. int2e_packed_buf_read())
-     $           call errquit('int2e_file_balance: read failed',0)
+     $         call errquit('int2e_file_balance: read failed',0)
             call snd(2, buf, 8*rec_len_in_dbl, him, 1)
          enddo
          n_rec_in_file = n_rec_in_file - his_count
@@ -149,18 +154,14 @@ c     Adjust everyone's counters by repeating above logic on all nodes
 c
       do p = 0, (nproc-2)/2
          q = nproc-1-p
-         if (info(2,p).lt.-1 .and. info(2,q).gt.1) then
-            shift = 0
-            if (info(1,p).ge.mod(total,nproc)) shift = 1
-            tmp = min(abs(info(2,p))-shift,info(2,q))
+         if (info(2,p).le.0 .and. info(2,q).ge.0) then
+            tmp = min(abs(info(2,p)),info(2,q))
             info(2,p) = info(2,p) + tmp
             info(2,q) = info(2,q) - tmp
             nexch  = nexch + 1
             nmoved = nmoved + tmp
-         else if (info(2,p).gt.1 .and. info(2,q).lt.-1) then
-            shift = 0
-            if (info(1,q).ge.mod(total,nproc)) shift = 1
-            tmp = min(abs(info(2,q))-shift,info(2,p))
+         else if (info(2,p).ge.0 .and. info(2,q).le.0) then
+            tmp = min(abs(info(2,q)),info(2,p))
             info(2,p) = info(2,p) - tmp
             info(2,q) = info(2,q) + tmp
             nexch  = nexch + 1
@@ -171,8 +172,8 @@ c
       goto 10
 c     
  100  call ga_sync()
-      if (n_rec_in_file .ne. (nrec+info(2,i))) call errquit
-     $     ('int2e_file_balance: algorithm failure', n_rec_in_file)
+*      if (n_rec_in_file .ne. (nrec+info(2,i))) call errquit
+*     $     ('int2e_file_balance: algorithm failure', n_rec_in_file)
       if (oprint) then
          used = util_wallsec() - used
          write(6,21) nexch, nmoved, used

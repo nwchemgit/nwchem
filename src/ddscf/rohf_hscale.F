@@ -1,6 +1,6 @@
       subroutine rohf_hdiag_scale( nmo, nclosed, nopen, lshift,
      $     g_fcv, g_fpv, g_fcp, g_x )
-C     $Id: rohf_hscale.F,v 1.4 1996-07-12 01:55:57 d3g681 Exp $
+C     $Id: rohf_hscale.F,v 1.5 1996-10-06 20:12:37 d3g681 Exp $
       implicit none
 c
 #include "global.fh"
@@ -132,6 +132,8 @@ c
             enddo
          endif
       enddo
+c
+      call ga_sync
 c     
       if (nopen .gt. 0) then
          if (.not.ma_pop_stack(l_fpv))

@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.13 1996-10-04 21:48:16 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.14 1996-10-06 20:12:35 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -94,6 +94,7 @@ c
 c     Load the densities into the space for the Fock matrix and then
 c     reorder from (nbf,nbf,nfock) into (nfock,nbf,nbf)
 c     
+      call ga_sync()
       if (ga_nodeid() .eq. 0) then
          do i = 1, nfock
             call ga_get(vg_dens(i), 1, nbf, 1, nbf, 
@@ -199,7 +200,7 @@ c
          owritefile = .false.
          if (.not. int2e_buf_write(.true.)) 
      $        call errquit('ao_replicated: failed writing last block',0)
-         call int2e_file_balance()
+         if (incmax.eq.-1) call int2e_file_balance()
       end if
 c     
       end
@@ -239,6 +240,7 @@ c
       integer pinfo(2,tdim)     ! Start and end of each pair type
       integer ntype             ! No. of pair types
       integer max_p             ! Max pairs per block
+      integer chunk             ! Chunking factor for tasks
 c     
       integer ijklt, ijt, klt, ij, kl, ish, jsh, ksh, lsh
       integer  iat, jat, kat, lat, imat
@@ -355,9 +357,9 @@ c
       nshpair = nsh*(nsh+1)/2
       if (ga_nnodes() .gt. 1) then
          max_p = int(dfloat(nshpair)*dsqrt(dnops))
-         max_p = max_p/sqrt(10.0d0*ga_nnodes()) ! 10 tasks per processor
+         max_p = max_p/sqrt(100.0d0*ga_nnodes()) ! 100 tasks per processor
          max_p = min(nint(sqrt(dfloat(nops*qdim))),max_p)
-*         max_p = max(10,max_p)
+         max_p = max(10,max_p)
       else
          max_p = int(sqrt(dfloat(nops*qdim)))
       end if
@@ -378,19 +380,16 @@ c     Figure out no. of tasks to do on each request to the
 c     shared counter.  Memory permitting we want this to be 
 c     close to 1.
 c
-c     I worry about an infinite loop here ... is there always a 
-c     solution to these constraints?  Should we limit the no. of passes?
-c
-      task_bf = max(ntype*ntype/(10*ga_nnodes()),1)
+      chunk = max(ntype*ntype/(100*ga_nnodes()),1)  ! 100 tasks per proc
       if (max_p .lt. nint(sqrt(dfloat(nops*qdim))) .and.
-     $     task_bf .ge. 4) then
+     $     chunk .ge. 4) then
          max_p = min(nint(sqrt(dfloat(nops*qdim))),2*max_p)
          goto 10
       end if
       if ((oprint  .or. util_print('semi_direct',print_debug))
      $     .and. ga_nodeid().eq.0) then
          write(6,*) ' max_p ', max_p, ' ntype ', ntype,
-     $     ' task_bf ',task_bf
+     $     ' chunk ',chunk
          call util_flush(6)
       end if
 c     
@@ -414,9 +413,9 @@ c     would not have been assigned to another process.  This process
 c     must do tasks in the range incomplete...incomplete_top
 c
          incomplete_top = min(incmax,
-     $        (incomplete/task_bf)*task_bf + task_bf - 1)
+     $        (incomplete/chunk)*chunk + chunk - 1)
       else
-         next = nxtask(nproc, task_bf)
+         next = nxtask(nproc, chunk)
       endif
       current = 0
       nq = 0
@@ -517,11 +516,11 @@ c
                      if (incmin.eq.-1) then
                         goto 12321 ! Did my only task
                      endif
-                     next = nxtask(nproc,task_bf)+incmax+1
+                     next = nxtask(nproc,chunk)+incmax+1
                      ntreq = ntreq + 1
                   endif
                else
-                  next = nxtask(nproc,task_bf)
+                  next = nxtask(nproc,chunk)
                   ntreq = ntreq + 1
                endif
             end if
