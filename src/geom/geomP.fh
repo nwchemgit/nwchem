@@ -32,6 +32,8 @@ c     angstrom_to_au = scale factor between angstom and atomic units
 c
 c--> symmetry information
 c
+c     sym_sgpnames(1:230) = list of known space groups ... must match spgen
+c     sym_mgpnames(1:46)  = list of known molecular groups ... ditto
 c     ncenter_unique(1:max_geom) = no. of symmetry unique centers
 c     unique_cent(1:max_cent,1:max_geom) = list of symmetry unique centers
 c     group_number(max_geom) = Tony's magic group number
@@ -147,6 +149,7 @@ c
       character*16 tags
       character*10 group_name
       character*10 user_units
+      character*10 sym_spgnames,sym_molgnames
       common/ccgeometry/
      $     names(1:max_geom),
      $     trans(1:max_geom),
@@ -155,7 +158,9 @@ c
      $     symbols(nelements),
      $     elements(nelements),
      $     group_name(max_geom),
-     $     user_units(max_geom)          ! Input units of the user
+     $     user_units(max_geom),
+     $     sym_spgnames(230),
+     $     sym_molgnames(46)
 c
 
 

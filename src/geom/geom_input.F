@@ -80,6 +80,10 @@ c
          goto 10
       end if
 c
+      if (name .eq. ' ') name = 'geometry'
+      if (.not. geom_create(geom, name)) call errquit
+     $     ('geom_input: geom_create failed !', 0)
+c
       if (units(1:2) .eq. 'au' .or. units(1:2) .eq. 'bo' .or.
      $     units(1:2) .eq. 'at') then
          scale = 1.0d0
@@ -90,10 +94,6 @@ c
       else
          call errquit('geom_input: unknown units', 0)
       end if
-c
-      if (name .eq. ' ') name = 'geometry'
-      if (.not. geom_create(geom, name)) call errquit
-     $     ('geom_input: geom_create failed !', 0)
 c
 c     system ...
 c     symmetry ...
@@ -295,8 +295,11 @@ c
       character*10 test
       logical oprint_sym
 c     
-      if (.not. geom_check_handle(geom,'system_input'))
-     $     call errquit('system_input: geom handle invalid', 0)
+c     symmetry [[group] (<string group_name>|<integer group_number>)] \
+c              [setting <integer setting>]
+c
+      if (.not. geom_check_handle(geom,'geom_sym_input'))
+     $     call errquit('geom_sym_input: geom handle invalid', 0)
 c     
       group_number(geom) = 1
       setting_number(geom) = 1
@@ -305,14 +308,28 @@ c
  10   if (inp_a(test)) then
          if (inp_compare(.false.,'setting',test)) then
             if (.not. inp_i(setting_number(geom))) call errquit
-     $           ('symmetry_input: bad setting value', 0)
-         else if (inp_compare(.false.,'group',test)) then
-            if (.not. inp_i(group_number(geom))) call errquit
-     $           ('symmetry_input: bad setting value', 0)
+     $           ('geom_sym_input: bad setting value', 0)
+            goto 10
          else if (inp_compare(.false.,'print',test)) then
             oprint_sym = .true.
-         else
-            call errquit('symmetry_input: invalid option', 0)
+            goto 10
+         else if (inp_compare(.false.,'group',test)) then
+            goto 10             ! Just ignore
+         else 
+            call inp_prev_field()
+            if (.not. inp_i(group_number(geom))) then
+               if (inp_a(test)) then
+                  if (.not. inp_match(230,.false.,test,sym_spgnames,
+     $                 group_number(geom))) then
+                     if (.not. inp_match(46,.false.,test,sym_molgnames,
+     $                    group_number(geom))) then
+                        call errquit('geom_sym_input: unknown group '//
+     $                       'name/number', 0)
+                     endif
+                  endif
+               endif
+            endif
+            goto 10
          end if
       end if
 c     
