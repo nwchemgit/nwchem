@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.40 1999-11-13 02:12:50 bjohnson Exp $
+#$Id: GNUmakefile,v 1.41 2000-06-08 21:53:54 bert Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a
@@ -42,6 +42,8 @@ endif
 
 include ../config/makelib.h
 
+compare:	compare.o
+	$(FC) $(FFLAGS) -o $@ compare.o  $(LDFLAGS) $(LIBS) $(TESTLIBS)
 libcheck:	libcheck.o
 	$(FC) $(FFLAGS) -o $@ libcheck.o  $(LDFLAGS) $(LIBS) $(TESTLIBS)
 testbasis:	testbasis.o
