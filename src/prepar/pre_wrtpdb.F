@@ -3,7 +3,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep)
 c
-c $Id: pre_wrtpdb.F,v 1.12 1999-11-30 02:59:19 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.13 2000-02-20 16:05:15 d3j191 Exp $
 c
       implicit none
 c
@@ -49,6 +49,7 @@ c
       if(nxrep.lt.1) nxrep=1
       if(nyrep.lt.1) nyrep=1
       if(nzrep.lt.1) nzrep=1
+      nums=0
 c
       if(nxrep.le.1.and.nyrep.le.1.and.nzrep.le.1) then
       nums=0

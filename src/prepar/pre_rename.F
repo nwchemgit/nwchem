@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.10 1999-12-16 00:46:17 d3j191 Exp $
+c $Id: pre_rename.F,v 1.11 2000-02-20 16:05:14 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -149,12 +149,12 @@ c
       do 7 i=1,k
       l=i+k
       if(l.le.natm) then
-      write(lfnout,1002) i,latm(1,i),(cseq(j,latm(1,i)),j=1,2),
+      write(lfnout,1002) i,lseq(1,latm(1,i)),(cseq(j,latm(1,i)),j=1,2),
      + (catm(j,i),j=1,2),latm(5,i),
-     + l,latm(1,l),(cseq(j,latm(1,l)),j=1,2),
+     + l,lseq(1,latm(1,l)),(cseq(j,latm(1,l)),j=1,2),
      + (catm(j,l),j=1,2),latm(5,l)
       else
-      write(lfnout,1002) i,latm(1,i),(cseq(j,latm(1,i)),j=1,2),
+      write(lfnout,1002) i,lseq(1,latm(1,i)),(cseq(j,latm(1,i)),j=1,2),
      + (catm(j,i),j=1,2),latm(5,i)
       endif
  1002 format(2(i8,i6,2(1x,a5),2(1x,a6),i5,3x))

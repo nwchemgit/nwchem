@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.35 2000-01-28 20:42:16 d3j191 Exp $
+c $Id: pre_input.F,v 1.36 2000-02-20 16:05:14 d3j191 Exp $
 c
       implicit none
 c
@@ -19,11 +19,10 @@ c
       character*255 dir_s,dir_x,dir_u,dir_t,commnd,modify
       integer newtop,newseq,newrst,icount,multip
 c
-      integer len,numcmd,nummod,mgrid,mnoe,inoe(2),maxscf,num,mset
+      integer len,numcmd,nummod,mgrid,mnoe,maxscf,num,mset
       integer isgm,icyren,model,nxlnk
       real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar,value,forcon,forc2,box(3)
-      character*4  cnoe(2)
       character*11 cfix
       real*8 rfix
       character*1 altloc,chain

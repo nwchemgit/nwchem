@@ -2,13 +2,13 @@
      + csa,isat,isgm,xs,vs,msa,nsa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_repeat.F,v 1.6 2000-02-14 18:41:55 d3j191 Exp $
+c $Id: pre_repeat.F,v 1.7 2000-02-20 16:05:14 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
+      integer msa,nsa,mwm,nwm,mwa,nwa,mwmc,nwmc
       integer isat(msa),isgm(msa)
       character*16 csa(msa)
       real*8 xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
@@ -16,7 +16,7 @@ c
       character*80 card
 c
       integer i,j,k,imin(3),jmin(3)
-      real*8 xmax,xmin,dx(3),ds(3),r2min(3),r2(3),dd(3,3)
+      real*8 xmax,xmin,dx(3),ds(3),r2min(3),r2(3)
       real*8 touch,ddx(3)
       logical done
 c
@@ -27,6 +27,7 @@ c
       drep(1)=box(1)
       drep(2)=box(2)
       drep(3)=box(3)
+      pre_repeat=.true.
       return
       endif
 c

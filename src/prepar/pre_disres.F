@@ -1,7 +1,7 @@
       logical function pre_disres(card,card2,isegm,csa,msa,nsa,
      + inoe,dnoe,mnoe,nnoe)
 c
-c $Id: pre_disres.F,v 1.3 1999-09-21 22:01:40 d3j191 Exp $
+c $Id: pre_disres.F,v 1.4 2000-02-20 16:05:13 d3j191 Exp $
 c
       implicit none
 c
@@ -11,10 +11,9 @@ c
       external str_replace
 c
       integer mnoe,nnoe,msa,nsa
-      integer isegm(msa),inoe(2,mnoe),is1,is2
-      real*8 dnoe(5,mnoe),rval(5)
+      integer isegm(msa),inoe(2,mnoe)
+      real*8 dnoe(5,mnoe)
       character*16 csa(msa)
-      character*4 nm1,nm2
       character*80 card,card2
       integer i,ifr,ito
       character*255 target,atomi,atomj

@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.29 2000-01-28 20:42:17 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.30 2000-02-20 16:05:15 d3j191 Exp $
 c
       implicit none
 c
@@ -49,7 +49,7 @@ c
 c
       integer i,j,k,l,length,nd,ifrac,imol,iq,isgm
       character*10 topdat,toptim
-      real*8 qq(3,6),qsum(3),qtot(3),qatom(6)
+      real*8 qsum(3),qtot(3),qatom(6)
       logical lprt
 c
       integer nqu,iql(3)

@@ -2,7 +2,7 @@
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box)
 c
-c $Id: pre_rdpdb.F,v 1.16 1999-11-04 22:53:08 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.17 2000-02-20 16:05:14 d3j191 Exp $
 c
       implicit none
 c
@@ -145,7 +145,7 @@ c
       if(achain.eq.'G') num=num+6000
       if(achain.eq.'H') num=num+7000
       if(achain.eq.'I') num=num+8000
-      if(achain.eq.'J') num=num+9000
+      if(achain.eq.' ') num=num+9000
       endif
       endif
       if(card(18:20).eq.namslv) lsolut=.false.
@@ -225,3 +225,4 @@ c
       pre_rdpdb=.false.
       return
       end
+

@@ -2,7 +2,7 @@
      + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,nlnkf,
      + slvmdl,icount,scount)
 c
-c $Id: pre_wrtseq.F,v 1.8 1999-11-04 22:53:08 d3j191 Exp $
+c $Id: pre_wrtseq.F,v 1.9 2000-02-20 16:05:15 d3j191 Exp $
 c
 c     function to write the sequence file
 c
@@ -22,6 +22,7 @@ c
       open(unit=lfnseq,file=filseq(1:length),form='formatted',
      + status='new',err=9999)
 c
+      ll=0
       mol=0
       do 1 i=1,nseq
       if(i.gt.1.and.lseq(4,i).ne.mol) then

@@ -4,7 +4,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.13 2000-02-11 18:01:45 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.14 2000-02-20 16:05:14 d3j191 Exp $
 c
       implicit none
 c
@@ -179,7 +179,7 @@ c
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.13 2000-02-11 18:01:45 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.14 2000-02-20 16:05:14 d3j191 Exp $
 c
       implicit none
 c
@@ -191,7 +191,7 @@ c
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),dnoe(5,mnoe)
       integer iwmr(mwm),iwmrc(mwmc),isar(msa),inoe(2,mnoe)
 c
-      integer i,j,k,length,kinsep,nprev,nbxp,nbyp,nbzp,nhist
+      integer i,j,k,length,nhist
       character*10 rstdat,rsttim
       real*8 rdummy
       character*1 cdummy

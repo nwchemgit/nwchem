@@ -1,7 +1,7 @@
       logical function pre_select(card,isegm,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup)
 c
-c $Id: pre_select.F,v 1.1 1999-09-21 22:33:39 d3j191 Exp $
+c $Id: pre_select.F,v 1.2 2000-02-20 16:05:15 d3j191 Exp $
 c
       implicit none
 c
@@ -20,8 +20,8 @@ c
 c
 c
       integer i,ifr,ito,igrp
-      character*255 target,atomi,atomj
-      integer ndx,iatom,jatom,isgm,jsgm
+      character*255 target,atomi
+      integer ndx,iatom,isgm
 c
       card=card(7:80)
 c

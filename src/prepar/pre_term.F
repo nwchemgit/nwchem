@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_u,dir_t,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_term.F,v 1.9 1998-09-18 22:59:44 d3j191 Exp $
+c $Id: pre_term.F,v 1.10 2000-02-20 16:05:15 d3j191 Exp $
 c
 c     function to determine the terminal segments
 c
@@ -20,7 +20,7 @@ c
       character*255 dir_s,dir_x,dir_u,dir_t
 c
       character*255 filsgm
-      integer i,isgm,iu,j,jsgm,num,link
+      integer i,isgm,j,jsgm,num,link
 c
 c     process the explicit link list
 c     ------------------------------

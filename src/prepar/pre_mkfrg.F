@@ -6,7 +6,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.24 2000-01-24 23:16:52 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.25 2000-02-20 16:05:14 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -84,7 +84,6 @@ c
 c
       if(.not.pre_hybrid(xatm,latm,matm,natm))
      + call errquit('Error in pre_hybrid',0)
-c 
 c
       do 1 i=1,nsgm
       if(lsgm(2,i).eq.0) then
@@ -176,6 +175,7 @@ c
       do 13 j=1,nato
       lato(1,j)=lato(3,j)
       lato(3,j)=0
+      if(lato(5,j).gt.0) lato(3,j)=1
    13 continue
       do 14 ibnd=1,nbnd
       lato(3,lbnd(1,ibnd))=lato(3,lbnd(1,ibnd))+1

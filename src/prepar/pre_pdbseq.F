@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.20 1999-06-17 16:32:37 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.21 2000-02-20 16:05:14 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -231,7 +231,7 @@ c      if(nchain.eq.1) cseq(1,iseq)(4:5)='_N'
       iatm=iatm+1
       if(lseq(3,iseq).eq.0) lseq(3,iseq)=iatm
       lseq(3,iseq+1)=iatm+1
-      latm(1,iatm)=i
+      latm(1,iatm)=iseq
       catm(1,iatm)(1:4)=card(13:16)
       read(card(31:54),'(3f8.3)') (xatm(j,iatm),j=1,3)
       endif

@@ -1,6 +1,6 @@
       logical function pre_hybrid(xatm,latm,matm,natm)
 c
-c $Id: pre_hybrid.F,v 1.4 1999-12-18 17:23:29 d3j191 Exp $
+c $Id: pre_hybrid.F,v 1.5 2000-02-20 16:05:14 d3j191 Exp $
 c
 c     in  : xatm(3,matm) = atomic coordinates
 c         : latm(2,matm) = atomic numbers
@@ -16,7 +16,7 @@ c
       real*8 xatm(3,matm)
       integer latm(5,matm)
 c
-      integer i,j,k,l,m,nn,nl(10),ia,ib,ic,id,ie,ig
+      integer i,j,k,l,m,nn,nl(100),ia,ib,ic,id,ie,ig
       real*8 dist,angle1,angle2,angle3,angle4,angle5,angle6
 c
       do 1 i=1,natm
@@ -117,8 +117,8 @@ c     sanity checks
 c     -------------
 c
       do 3 i=1,natm
-      if(latm(2,i).gt.0) then
       nn=0
+      if(latm(2,i).gt.0) then
       do 4 j=1,natm
       if(latm(2,j).gt.0.and.i.ne.j) then
       dist=sqrt((xatm(1,j)-xatm(1,i))*(xatm(1,j)-xatm(1,i))+

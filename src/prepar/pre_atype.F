@@ -4,11 +4,12 @@
      + nring3,nring4,nring5,nring6,
      + latmt,matmt,natmt,lbndt,mbndt,nbndt)
 c
-c $Id: pre_atype.F,v 1.13 1999-12-16 23:55:44 d3j191 Exp $
+c $Id: pre_atype.F,v 1.14 2000-02-20 16:05:13 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+#include "mafdecls.fh"
 c
 c     in  : lfnpar            = atom types file number
 c           filtyp            = atom types file name

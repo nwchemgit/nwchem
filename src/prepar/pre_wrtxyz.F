@@ -1,7 +1,7 @@
       logical function pre_wrtxyz(lfnout,lfnxyz,filxyz,lfnqqq,filqqq,
      + num,mat,isat,xs,qsa,msa,nsa)
 c
-c $Id: pre_wrtxyz.F,v 1.2 2000-01-10 19:27:14 d3j191 Exp $
+c $Id: pre_wrtxyz.F,v 1.3 2000-02-20 16:05:15 d3j191 Exp $
 c
       implicit none
 c
@@ -18,8 +18,7 @@ c
 c
       integer length
 c
-      integer i,j,k
-      real*8 temp
+      integer i,k
 c
 c     open XYZ file
 c

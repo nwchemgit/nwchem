@@ -4,7 +4,7 @@
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + icount,scount)
 c
-c $Id: pre_mkseq.F,v 1.29 1999-12-16 23:55:45 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.30 2000-02-20 16:05:14 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -36,7 +36,7 @@ c
 c
       integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk,mato,nato
       integer natm,nseq,nssb,nsgm,nlnk,maxscf,icyren,model,nxlnk
-      integer mfrb,nfrb,i_frb,l_frb
+      integer mfrb,i_frb,l_frb
       integer l_lseq,i_lseq,l_cseq,i_cseq
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
@@ -278,7 +278,7 @@ c
 c     set dimensions for bonds, angles, torsions and out-of-plane
 c     -----------------------------------------------------------
 c
-      mato=4*mato
+      mato=max(4*mato,6)
       mbnd=2*max(matm,mato)
       mang=2*max(matm,mato)
       mdih=3*max(matm,mato)

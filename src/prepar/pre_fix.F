@@ -2,7 +2,7 @@
      + iwmr,xw,mwm,mwa,nwm,nwa,iwmrc,xwc,mwmc,nwmc,
      + isar,isgm,csa,xs,msa,nsa)
 c
-c $Id: pre_fix.F,v 1.5 1999-11-04 22:53:07 d3j191 Exp $
+c $Id: pre_fix.F,v 1.6 2000-02-20 16:05:13 d3j191 Exp $
 c
       implicit none
 c
@@ -19,7 +19,7 @@ c
       character*16 csa(msa)
 c
       integer iatom,isgmnt,jsgmnt,ndx,ndy
-      integer i,j,k,ifrst,ilast,jfrst,jlast
+      integer i,j,ifrst,ilast,jfrst
       character*6 aname
       logical lsin
       real*8 dx,dy,dz,d2,rfix2

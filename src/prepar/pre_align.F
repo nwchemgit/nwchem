@@ -2,20 +2,20 @@
      + csa,isat,isgm,xs,vs,msa,nsa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_align.F,v 1.2 2000-01-10 22:17:28 d3j191 Exp $
+c $Id: pre_align.F,v 1.3 2000-02-20 16:05:13 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
+      integer msa,nsa,mwm,nwm,mwa,nwa,mwmc,nwmc
       integer isat(msa),isgm(msa)
       character*16 csa(msa)
       character*80 card
       real*8 xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc)
 c
-      integer i,j,k,iatom,jatom,katom,iseg,jseg,kseg,len
+      integer i,j,k,iatom,jatom,katom,iseg,jseg,kseg
       real*8 xx,rv(3),o(3),angle
       character*4 atomi,atomj,atomk
 c
