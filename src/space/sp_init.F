@@ -1681,7 +1681,7 @@ c
       write(lfnout,1000)
  1000 format(/,' Initial distribution p:b(w+s)',/)
       write(lfnout,1001) (i-1,(lcnt(i,j),j=1,3),i=1,np)
- 1001 format(4(3x,i4,':',i3,'(',i5,'+',i5,')'))
+ 1001 format(4(3x,i4,':',i3,'(',i7,'+',i7,')'))
       endif
 c
       return
