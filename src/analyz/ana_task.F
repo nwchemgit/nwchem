@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.43 2000-08-31 16:07:42 d3j191 Exp $
+c $Id: ana_task.F,v 1.44 2000-08-31 16:08:47 d3j191 Exp $
 c
       implicit none
 c
@@ -279,8 +279,8 @@ c
       call ana_define(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
      + dbl_mb(i_xref))
       if(me.eq.0) then
-      write(*,3004) nsel,nsa
- 3004 format(' Defined',i5,' out of',i5,' atoms')
+      write(*,3004) ndef
+ 3004 format(' Defined',i5,' atom groups')
       endif
       goto 1
       endif
