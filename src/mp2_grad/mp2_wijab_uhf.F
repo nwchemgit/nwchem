@@ -8,7 +8,7 @@
      $     eval_a,eval_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
 *
-* $Id: mp2_wijab_uhf.F,v 1.13 1997-04-23 01:12:48 d3g681 Exp $
+* $Id: mp2_wijab_uhf.F,v 1.14 1998-12-12 22:48:38 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -188,22 +188,3 @@ c
 c     
       end
 
-      subroutine util_inplace_transpose(n, a)
-      implicit none
-c
-      integer n
-      double precision a(n,n)
-c
-      double precision aij, aji
-c
-      integer i, j
-      do i = 1, n
-         do j = 1, i-1
-            aij = a(i,j)
-            aji = a(j,i)
-            a(i,j) = aji
-            a(j,i) = aij
-         enddo
-      enddo
-c
-      end
