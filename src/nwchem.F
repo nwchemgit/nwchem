@@ -21,7 +21,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.124 1999-10-14 23:11:47 d3g681 Exp $
+c     $Id: nwchem.F,v 1.125 1999-10-15 06:07:04 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -156,7 +156,7 @@ c
 c
 c     Trap SIGFPE after GA to override handler
 c
-      call ieeetrap()
+******      call ieeetrap()
 #ifdef DECOSF
       call dec_fpe  ! To avoid underflow problems on Alpha in Texas
 #endif
