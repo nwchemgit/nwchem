@@ -12,9 +12,7 @@
 #include "pstat.fh"
 #include "util.fh"
 #include "inp.fh"
-c!!! BGJ
 #include "bgj_common.fh"
-c!!! BGJ
       integer rtdb
       integer stack
       integer heap
@@ -25,7 +23,7 @@ c!!! BGJ
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.120 1999-07-14 19:53:57 d3g681 Exp $
+c     $Id: nwchem.F,v 1.121 1999-07-19 18:38:01 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
