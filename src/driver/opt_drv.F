@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.94 2002-05-06 22:36:09 d3g681 Exp $
+* $Id: opt_drv.F,v 1.95 2002-05-07 00:50:49 bylaska Exp $
 *
       implicit none
 #include "global.fh"
@@ -64,7 +64,7 @@ c
 c     Zero the gradient associated with atoms frozen in cartesians
 c     
          if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
-            do iat = 1, nat
+            do iat = 1, nat_real
                if (.not. oactive(iat)) then
                   do i = 1, 3
                      write(6,*) ' Zeroing constrained gradient', 
@@ -1908,6 +1908,7 @@ c     The geom is modified, and xmax/xrms are computed from the
 c     first-order step.
 c
       double precision xold(max_cart), xnew(max_cart), err
+      double precision aaa(3,3)
       integer i, l_bi, k_bi
       logical opt_geom_cart_coords_get
       logical opt_geom_cart_coords_set
@@ -1950,11 +1951,7 @@ c
          do i = 1, ncart
             xnew(i) = alpha*ds(i)
          enddo
-         write(6,*) ' DS', nat, nat_real, ncart
-         call output(ds,1,ncart,1,1,ncart,1,1)
          call sym_grad_symmetrize(geom, xnew)
-         write(6,*) ' xnew'
-         call output(xnew,1,ncart,1,1,ncart,1,1)
          do i = 1, ncart
             xnew(i) = xold(i) + xnew(i)
          enddo
@@ -2931,7 +2928,6 @@ c
      $     call errquit('driver: geom cart?',0)
 c
       if (isystype.ne.0 .and. (.not. zcoord)) then
-         write(6,*) ' CONVERTING CART TO FRAC'
          if (.not. geom_cart_to_frac(geom, coords))
      $           call errquit('driver: frac_to_cart?',0)
       endif
@@ -2959,7 +2955,6 @@ c
       external geom_amatrix_set
 c
       if (isystype.ne.0 .and. (.not. zcoord)) then
-         write(6,*) ' CONVERTING FRAC_TO_CART'
          if (.not. geom_frac_to_cart(geom, coords))
      $           call errquit('driver: frac_to_cart?',0)
       endif
@@ -3002,10 +2997,8 @@ c
       end if
       if (ostress) then
          if (.not. rtdb_get(rtdb, 'pspw:stress', mt_dbl, 9,
-     $        gx(ncart+1))) call errquit
+     $        gx(3*nat_real+1))) call errquit
      $        ('driver: could not get stress',0)
-         write(6,*) ' STRESS GRADIENT'
-         call doutput(gx(ncart+1),1,9,1,1,9,1,1)
       endif
 c
       end
