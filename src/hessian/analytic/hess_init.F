@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.36 2002-03-19 17:58:44 windus Exp $
+C $Id: hess_init.F,v 1.37 2002-03-23 00:28:43 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -387,28 +387,28 @@ c  otherwise check to make sure that the threshold gets set to a
 c  "reasonable" value.
 c
       if (rtdb_get(rtdb, 'hessian:thresh', MT_DBL,1, ithresh)) then
-        if (theory.eq.'scf') then
           if (.not. rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, tthresh))
      $       tthresh = 1.0d-4
           if (.not. rtdb_put(rtdb, 'scf:thresh', MT_DBL, 1, ithresh))
      $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
+        if (theory.eq.'scf') then
         else
           if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
-     $       tthresh = 5.0d-4
+     $       tthresh = 1.0d-4
           if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, ithresh))
      $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
         endif
       else
         ithresh = 1.0d-6
-        if (theory.eq.'scf') then
           if (.not. rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, tthresh))
      $       tthresh = 1.0d-4
           if (tthresh.lt.ithresh) ithresh = tthresh
           if (.not. rtdb_put(rtdb, 'scf:thresh', MT_DBL, 1, ithresh))
      $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
+        if (theory.eq.'scf') then
         else
           if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
-     $       tthresh = 5.0d-4
+     $       tthresh = 1.0d-4
           if (tthresh.lt.ithresh) ithresh = tthresh
           if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, ithresh))
      $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
