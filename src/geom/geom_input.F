@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.28 1996-09-26 01:00:11 d3g681 Exp $
+C     $Id: geom_input.F,v 1.29 1996-09-26 22:19:39 mdupuis Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -502,7 +502,7 @@ c
       logical      dbug 
       logical      some 
       common/inp_file/iread,iwrite
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/IR,IW
       common/hnd_mollab/atmlab(mxatom),bflab(mxbfn) 
       double precision coords(3,*)
       double precision charge(*)
@@ -634,7 +634,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/IR,IW
       double precision bmat(mcart,*)
 c
       dbug=.false.
@@ -674,7 +674,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/IR,IW
       double precision bmat(mcart,*)
 c
       dbug=.false.
@@ -714,7 +714,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/IR,IW
       double precision zsym(mzvar,*)
 c
       dbug=.false.
@@ -754,7 +754,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/IR,IW
       double precision zsym(mzvar,*)
 c
       dbug=.false.
@@ -795,7 +795,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/IR,IW
       double precision binv(mcart,*)
 c
       dbug=.false.
@@ -836,7 +836,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/IR,IW
       double precision binv(mcart,*)
 c
       dbug=.false.
@@ -907,7 +907,7 @@ c
       character*8  bflab 
       character*8  errmsg
       common/inp_file/iread,iwrite
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/IR,IW
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_mollab/atmlab(mxatom),bflab(mxbfn) 
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -1013,7 +1013,7 @@ c
       common/inp_file/iread,iwrite
       common/hnd_output/nprint
       common/hnd_listng/list
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/IR,IW
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
@@ -1073,7 +1073,7 @@ C
       LOGICAL ZDONE
       LOGICAL SOME
       COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
       COMMON/HND_MOLNUC/NUC(MXATOM)
@@ -1217,7 +1217,7 @@ C
       LOGICAL OUT 
       LOGICAL DBUG
       COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
 C
       DBUG=.FALSE.
       DBUG=DBUG.OR.NPRINT.EQ.1
@@ -1411,7 +1411,7 @@ C
       PARAMETER (MXCOOR=MAX(MXCART,MXZMAT))
       LOGICAL OUT
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_MOLNUC/NUC(MXATOM)
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
@@ -1628,7 +1628,7 @@ C
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_ZMTOUT/IPRZMT
       COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLNUC/NUC(MXATOM)
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       DIMENSION IJS(2,1),SIJ(1)
@@ -1898,7 +1898,7 @@ C
 C     ----- CALCULATE -B- AND -BI- MATRICES -----
 C
       LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_ZMTOUT/IPRZMT
@@ -2034,7 +2034,7 @@ C
       LOGICAL     GEOM_ZMT_PUT_ZMAT 
       LOGICAL     GEOM_ZMT_PUT_BMAT 
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_ZMTOUT/IPRZMT
       DIMENSION B(NCART,*)
@@ -2205,7 +2205,7 @@ C
       LOGICAL     GEOM_ZMT_PUT_ZSYM
       LOGICAL     GEOM_ZMT_GET_ZSYM
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_ZMTOUT/IPRZMT
       COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
@@ -2592,7 +2592,7 @@ C
 C     ----- CALCULATE -B- AND -BI- MATRICES -----
 C
       LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_ZMTOUT/IPRZMT
@@ -2668,7 +2668,7 @@ C
       LOGICAL     OUT
       LOGICAL     GEOM_ZMT_GET_IZMAT
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_ZMTOUT/IPRZMT
       DIMENSION B(NCART,*)
@@ -2821,7 +2821,7 @@ C
       LOGICAL GEOM_ZMT_GET_IZMAT
       LOGICAL GEOM_ZMT_GET_ZMAT
       LOGICAL DBUG
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_ZMTOUT/IPRZMT
 c
@@ -2881,7 +2881,7 @@ C
 C
 C     ----- PRINT THE CURRENT Z MATRIX AND IT'S GRADIENT -----
 C
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_ZMTOUT/IPRZMT
       DIMENSION GRAD(1)
@@ -5251,7 +5251,7 @@ C
       CHARACTER*8   WRDIZM
       CHARACTER*8   WRDOPT
       CHARACTER*8   WRDFRZ
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_FREERD/PRSWRD(40),NUMCHR(40),FLGWRD(40),NUMWRD
       COMMON/HND_XYZGEO/XX(MAXGEO),YY(MAXGEO),ZZ(MAXGEO),
      1                  ATNAME(MAXGEO),ATNUM(MAXGEO),CART(MAXGEO)
@@ -6016,7 +6016,7 @@ C
       CHARACTER*1   PLUS
       CHARACTER*1   MINUS
       CHARACTER*8   ERRMSG
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_XYZGEO/XX(MAXGEO),YY(MAXGEO),ZZ(MAXGEO),
      1                  ATNAME(MAXGEO),ATNUM(MAXGEO),CART(MAXGEO)
       DIMENSION     ERRMSG(3)
@@ -6483,7 +6483,7 @@ C
       CHARACTER*8   ATNAME
       INTEGER*4     ZMT
       CHARACTER*8   ERRMSG
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_XYZGEO/XX(MAXGEO),YY(MAXGEO),ZZ(MAXGEO),
      1                  ATNAME(MAXGEO),ATNUM(MAXGEO),CART(MAXGEO)
       DIMENSION   NZMT(5,MAXGEO)
@@ -6782,7 +6782,7 @@ C==================================================================
       INTEGER*4     FLGWRD
       INTEGER*4     HND_WRDTYP
       COMMON/HND_FREERD/PRSWRD(40),NUMCHR(40),FLGWRD(40),NUMWRD
-      COMMON/HND_IOFILE/IN,IW,IP
+      COMMON/HND_IOFILE/IN,IW
       DIMENSION     ISTR(40),IEND(40)
 C
       IERR=0
@@ -7069,7 +7069,7 @@ c
 C
 C     ----- PRINT OUT A SQUARE MATRIX -----
 C
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_LISTNG/LIST
       DIMENSION V(NDIM,1)
       DIMENSION IC(5),C(5)
@@ -7135,7 +7135,7 @@ C
 C
 C     ----- PRINT OUT E AND V-MATRICES
 C
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_LISTNG/LIST
       DIMENSION V(NDIM,1),E(1)
       DIMENSION IC(5),C(5)
@@ -7208,7 +7208,7 @@ C
 C
 C     ----- PRINT OUT A TRIANGULAR MATRIX -----
 C
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_LISTNG/LIST
       DIMENSION D(1),DD(10)
 C
