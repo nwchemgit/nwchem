@@ -182,8 +182,8 @@ c
           ll = llab(ieri)
           ssbb(ll,kk,jj,ii) = eri(ieri)
         enddo
-        if (more) goto 100
       endif
+      if (more) goto 100
 c
 c  Reflect diagonal shell block
 c
@@ -218,7 +218,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.33 1997-09-11 19:53:26 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.34 1997-12-14 20:20:03 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -457,7 +457,6 @@ c
       integer ii, jj, kk, ll, ksh, lsh
       integer ilen, jlen, klen, ltop
       logical more, odoit
-      DOUBLE PRECISION TTOL2E
       logical sym_shell_quartet
       external sym_shell_quartet
 c
@@ -471,7 +470,6 @@ c
 c
 c  Fill out index arrays with interacting quartet labels
 c        
-      TTOL2E = 0.d0         ! this seems necessary for intb_2e4c bug with k12c4
       q4 = 1.d0
       nshq = 0
       do kk=kshlo,kshhi
@@ -507,7 +505,7 @@ c
 c  Loop through batches of integrals until exhausted
 c
  100  more = intb_2e4c( basis, ishv, jshv, basis, kshv, lshv,
-     $                  nshq, qv4, osym, TTOL2E, .false.,
+     $                  nshq, qv4, osym, TOL2E, .false.,
      $                  ilab, jlab, klab, llab,
      $                  eri, erilen, neri, scrlen, iscr )
 c
@@ -525,8 +523,8 @@ c
 *     $         eri(ieri)
 * 7        format(4i5,f12.6)
         enddo
-        if (more) goto 100
       endif
+      if (more) goto 100
 c
 c  Reflect diagonal shell block
 c
@@ -561,7 +559,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.33 1997-09-11 19:53:26 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.34 1997-12-14 20:20:03 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1211,7 +1209,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.33 1997-09-11 19:53:26 rg240 Exp $
+C$Id: moints_aux2.F,v 1.34 1997-12-14 20:20:03 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1255,7 +1253,7 @@ C$Id: moints_aux2.F,v 1.33 1997-09-11 19:53:26 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.33 1997-09-11 19:53:26 rg240 Exp $
+c$$$C$Id: moints_aux2.F,v 1.34 1997-12-14 20:20:03 d3g681 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"

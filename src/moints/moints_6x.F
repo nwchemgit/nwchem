@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.23 1997-12-08 19:47:10 d3g681 Exp $
+c  $Id: moints_6x.F,v 1.24 1997-12-14 20:20:02 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -833,8 +833,8 @@ c
           ll = llab(ieri)
           sbsb(ll,kk,jj,ii) = eri(ieri)
         enddo
-        if (more) goto 100
       endif
+      if (more) goto 100
 c
 c
 c  Second time around   ( I L | J K ) type
@@ -882,8 +882,8 @@ c
           kk = klab(ieri)
           sbsbt(kk,ll,jj,ii) = eri(ieri)
         enddo
-        if (more) goto 200
       endif
+      if (more) goto 200
 c
 c
 c
@@ -1254,8 +1254,8 @@ c
           ll = rbfmap(llab(ieri))
           sbsb(ll,kk,jj,ii) = eri(ieri)
         enddo
-        if (more) goto 100
       endif
+      if (more) goto 100
 c
 c
 c  Second time around   ( I L | J K ) type
@@ -1305,8 +1305,8 @@ c
           kk = rbfmap(klab(ieri))
           sbst(kk,ll,jj,ii) = eri(ieri)
         enddo
-        if (more) goto 200
       endif
+      if (more) goto 200
 c
 c
 c
