@@ -28,7 +28,6 @@ c
       integer cdetci_nela                             ! Alpha electrons
       integer cdetci_nelb                             ! Beta electrons
       integer cdetci_nsym                             ! Irreps
-      integer cdetci_mul                              ! Direct product table
       integer cdetci_symstate                         ! Wavefunction symmetry irrep
       integer cdetci_osym                             ! Orbital symmetries
       integer cdetci_ixmap                            ! Map from external -> internal indices
@@ -72,7 +71,6 @@ c
      $           cdetci_nelb,
      $           cdetci_nsym,
      $           cdetci_symstate,
-     $           cdetci_mul(detci_maxsy*detci_maxsy),
      $           cdetci_osym(detci_maxorb),
      $           cdetci_ixmap(detci_maxorb),
      $           cdetci_irmap(detci_maxorb),
