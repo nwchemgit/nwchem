@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.34 2000-12-04 19:03:17 windus Exp $
+$Id: INSTALL,v 1.35 2000-12-04 23:22:21 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -21,9 +21,12 @@ installation before beginning.  The sections for this guide are
                                   performance
    Point of Contact Users      -  required reading for the site's point of
                                   contact (usually the one doing the build)
-   Using a new version of GA   -  only for people that want to try out the
-                                  latest version of GA
+   GA Related Issues           -  only for people that want to try out the
+                                  latest version of GA or are having problems
+                                  with GA on their platform
    Running on Fujitsu VPP      -  some notes on the Fujitsu system
+   Memory Script               -  information about a script that can help
+                                  you set the default memory for your system
    Troubleshooting             -  if you have build problems
 
 SOURCE CODE PROTECTION:
@@ -91,7 +94,18 @@ BASIC BUILD INSTRUCTIONS:
                                 (for both Fortran and C), e.g.
     setenv LIB_DEFINES -DDFLT_TOT_MEM=16777216
        This sets the dynamic memory available for NWChem to run,
-       where the units are in doubles.
+       where the units are in doubles.  Check out the Section for
+       MEMORY SCRIPT below.
+
+   TCGRSH                       alternate path for rsh, it is intended to
+                                allow usage of ssh in TCGMSG (default
+                                communication protocol for workstation builds).
+    setenv TCGRSH /usr/local/bin/ssh
+
+    IMPORTANT: ssh should not ask for a password.  In order to do that:
+      1) On the master node, run "ssh-keygen"
+      2) For each slave node, slave_node,
+         % scp ~/.ssh/identity.pub username@slave_node:.ssh/authorized_keys
 
    Note: For general installations, it is often useful to add the
    environment variables described in this Guide to your shell script 
@@ -482,11 +496,15 @@ Use of this tool will greatly facilitate any support you may need for
 using NWChem.
 
 
-USING A NEW VERSION OF GA:
+GA RELATED ISSUES:
 --------------------------
 Occasionally, bugs in NWChem are associated with the Global Array tools
-(http://www.emsl.pnl.gov:2080/docs/global/ga.html).  To compile the latest
-version of GA, following these steps:
+(http://www.emsl.pnl.gov:2080/docs/global/ga.html).  Check out the URL
+http://www.emsl.pnl.gov:2080/docs/global/support.html for GA installation
+related issues.  NOTE: some installations do not even work without some of
+the system related issues being resolved that are listed in that URL.
+
+To compile the latest version of GA for NWChem, following these steps:
 
    1) Get a new version of GA at the above URL.
 
@@ -519,6 +537,18 @@ FUJITSU_VPP, and the environment variable GA_LIBDIR should point to the
 directory where the GA libraries are installed. Enquiries about
 installation issues may be directed to Ross Nobes (nobes@fecit.co.uk) or
 Herbert Fruchtl (fruechtl@fecit.co.uk).
+
+
+MEMORY SCRIPT:
+--------------
+In the $NWCHEM_TOP/contrib directory there is a script named "getmem.nwchem".
+This script should be run after you have followed the Basic Build 
+instructions.  This script will try to figure out the amount of
+memory on the machine, the number of processors, make an educated guess on
+the amount of memory that can be used per processor, recompile the appropriate
+files and then relink the executable.  Be sure to watch the values that are
+printed at the beginning of the script to make sure that it has used
+reasonable values.
 
 
 TROUBLESHOOTING:
