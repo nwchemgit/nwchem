@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.9 1994-04-07 18:44:10 d3e129 Exp $
+# $Id: makefile.h,v 1.10 1994-04-08 20:36:34 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -15,6 +15,12 @@
 # who is using it.
 #
 # NWCHEMTOP = /msrc/home/d3g681
+
+ifndef NWCHEMTOP
+# This variable must be defined ... the next line will cause an error
+You must define NWCHEMTOP in your environment
+endif
+
      TOPDIR = $(NWCHEMTOP)
      SRCDIR = $(TOPDIR)/src
      LIBDIR = $(TOPDIR)/lib
@@ -30,6 +36,12 @@
 # ... of who is using it!!!
 #
 # NWCHEM_TARGET = SUN
+
+ifndef NWCHEM_TARGET
+# This variable must be defined ... the next line will cause an error
+You must define NWCHEM_TARGET in your environment
+endif
+
      TARGET = $(NWCHEM_TARGET)
 
 #
@@ -75,7 +87,7 @@ ifeq ($(TARGET),SUN)
      RANLIB = ranlib
       SHELL = /bin/sh
        MAKE = make
-  MAKEFLAGS = -j 2
+  MAKEFLAGS = -j 4
     INSTALL = echo $@ is built
 
        FOPT = -g -u -Nl99
