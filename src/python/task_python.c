@@ -12,16 +12,12 @@ int task_python_(int *rtdb_ptr)
    FILE *F;
    PyObject *phndl, *pmod, *pdict;
    char buf[20], *pbuf;
+   char filename[256];
    int ret;
-
    
    Py_Initialize();		/* set the PYTHONPATH env   */
    initnwchem();
    PyRun_SimpleString("from nwchem import *");
-				/* var to the dir where the */ 
-				/* py_rtdb_wrap.so is, when */
-				/* dynamicaly linking       */
-				/*  */
    pbuf = buf;			/* pass the rtdb_handle to  */
    sprintf(pbuf, "pass_handle(%d)\n", *rtdb_ptr); /* the python warping mod */
    if (PyRun_SimpleString(pbuf)) {
@@ -35,12 +31,20 @@ int task_python_(int *rtdb_ptr)
    sprintf(pbuf, "CHAR    = %d", MT_CHAR);      PyRun_SimpleString(pbuf);
    sprintf(pbuf, "LOGICAL = %d", MT_BASE + 11); PyRun_SimpleString(pbuf);
 
-   if (!(F = fopen("nwchem.py", "r"))) {
-      printf ("\nCannot open file nwchem.py\n"); 
-      exit(0);
+   if (ga_nodeid_())
+       sprintf(filename,"nwchem.py-%d",ga_nodeid_());
+   else
+       strcpy(filename,"nwchem.py");
+
+   util_file_parallel_copy(filename, filename);
+
+   if (!(F = fopen(filename, "r"))) {
+       fprintf(stderr,"task_python: cannot open file %s\n",filename); 
+       return 0;
    }
-   ret = PyRun_SimpleFile(F, "nwchem.py"); 
+   ret = PyRun_SimpleFile(F, filename); 
    fclose(F);
+   /*   unlink(filename); */
 
    return !ret;
 }

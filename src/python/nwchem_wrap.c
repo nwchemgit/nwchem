@@ -298,7 +298,7 @@ static PyObject *wrap_task_energy(PyObject *self, PyObject *args)
 	return NULL;
     }
     
-    return Py_VaBuildValue("d", &energy);
+    return Py_VaBuildValue("d", (void *) &energy);
 }
 
 static PyObject *wrap_ga_nodeid(PyObject *self, PyObject *args)
@@ -309,7 +309,7 @@ static PyObject *wrap_ga_nodeid(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    return Py_VaBuildValue("i", &nodeid);
+    return Py_VaBuildValue("i", (void *) &nodeid);
 }
     
 
