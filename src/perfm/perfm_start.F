@@ -1,27 +1,32 @@
 c
-c     $Id: perfm_start.F,v 1.1 2004-10-11 19:39:05 edo Exp $
+c     $Id: perfm_start.F,v 1.2 2004-10-12 17:30:41 edo Exp $
 c
       subroutine perfm_start()
       implicit none
 #include "perfm.fh"
 #ifdef USE_PAPI
       integer ii
+      integer*4 arg1
       retval = PAPI_VER_CURRENT
       call PAPIf_library_init(retval)
       if ( retval.NE.PAPI_VER_CURRENT) call errquit
      $ (' perfm_start: wrong papi header from ver ',retval,0)
 #ifdef PAPI_FPINS
-      call PAPIf_query_event(PAPI_FP_INS, retval)
-      if (retval .NE. PAPI_OK) call errquit
-     $ (' perfm_start: could not query papi FP_INS event ',retval,0)
+      arg1=PAPI_FP_INS
+      call PAPIf_query_event(arg1, retval)
+      if (retval .NE. PAPI_OK) call 
+     $ perfm_error(retval,
+     $ ' perfm_start: could not query papi FP_INS event ')
 
       call PAPIf_set_debug(PAPI_VERB_ECONT, retval)
-      if (retval .NE. PAPI_OK) call errquit
-     $ (' perfm_start: could not query papi setdebug ',retval,0)
+      if (retval .NE. PAPI_OK) call 
+     $ perfm_error(retval,
+     $ ' perfm_start: could not query papi setdebug ')
 
       call PAPIf_flips( real_time, proc_time, flpins, mflops, retval )
-      if (retval .NE. PAPI_OK) call errquit
-     $ (' perfm_start: could not init papi flpins ',retval,0)
+      if (retval .NE. PAPI_OK) call 
+     $ perfm_error(retval,
+     $ ' perfm_start: could not init papi flpins ')
 #else
       call PAPIf_create_eventset(es, retval)
       if (retval .NE. PAPI_OK) call errquit
