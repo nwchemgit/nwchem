@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.87 2001-08-23 15:54:33 d3j191 Exp $
+c $Id: sp_init.F,v 1.88 2001-10-31 16:56:22 d3j191 Exp $
 c
       implicit none
 c
@@ -1907,6 +1907,16 @@ c
       numw=nb
       do 1 icyc=1,ncyc
       if(nwm-number.lt.numw) numw=nwm-number
+c
+c     begin test code 10/31/2001
+c     initialize ibw to check that all atoms have been received
+c
+      do 1112 i=1,nb
+      ibw(i)=-1
+ 1112 continue
+c
+c     end test code
+c
       do 2 node=np-1,0,-1
       call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
       call ga_get(ga_ip,ilp,ihp,jlp,jhp,ipl,mbox)
@@ -1963,7 +1973,17 @@ c
       idynp=iand(ibw(i),3)
       write(lfnrst,1007) idynp,idyn,(brw(i,k),k=1,3)
  1007 format(2i1,3f13.8)
+c
+c     begin test code 10/31/2001
+c     check if al atoms have been received
+c
+      if(ibw(i).lt.0)
+     + call errquit('Missing solvent in wtrst',i)
+c
+c     end test code
+c
     5 continue
+      number=number+numw
     1 continue
       endif
 c
@@ -1973,6 +1993,16 @@ c
       nums=nb
       do 6 icyc=1,ncyc
       if(nsa-number.lt.nums) nums=nsa-number
+c
+c     begin test code 10/31/2001
+c     initialize ibw to check that all atoms have been received
+c
+      do 1117 i=1,nb
+      ibs(i)=-1
+ 1117 continue
+c
+c     end test code
+c
       do 7 node=np-1,0,-1
       call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
       call ga_get(ga_ip,ilp,ihp,jlp,jhp,ipl,mbox)
@@ -2019,7 +2049,17 @@ c
  1008 format(2i1,6f13.8)
       if(lforces) write(lfnrst,1108) (bfs(i,j),j=1,3)
  1108 format(2x,3e13.6)
+c
+c     begin test code 10/31/2001
+c     check if al atoms have been received
+c
+      if(ibs(i).lt.0)
+     + call errquit('Missing solute atom in wtrst',i)
+c
+c     end test code
+c
     9 continue
+      number=number+nums
     6 continue
       endif
 c
@@ -2611,6 +2651,16 @@ c
       numw=nb
       do 1 icyc=1,ncyc
       if(nwm-number.lt.numw) numw=nwm-number
+c
+c     begin test code 10/31/2001
+c     initialize ibw to check that all atoms have been received
+c
+      do 1112 i=1,nb
+      ibw(i)=-1
+ 1112 continue
+c
+c     end test code
+c
       do 2 node=np-1,0,-1
       call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
       call ga_get(ga_ip,ilp,ihp,jlp,jhp,ipl,mbox)
@@ -2650,13 +2700,32 @@ c
       do 6 i=1,numw
       write(lfntrj,1004) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),k=1,nwa)
  1004 format(6f8.3)
+c
+c     begin test code 10/31/2001
+c     check if al atoms have been received
+c
+      if(ibw(i).lt.0)
+     + call errquit('Missing solvent in wtrst',i)
+c
+c     end test code
+c
     6 continue
       else
       do 7 i=1,numw
       write(lfntrj,1005) ((bxw(i,j,k),j=1,3),k=1,nwa)
  1005 format(3f8.3)
+c
+c     begin test code 10/31/2001
+c     check if al atoms have been received
+c
+      if(ibw(i).lt.0)
+     + call errquit('Missing solvent in wtrst',i)
+c
+c     end test code
+c
     7 continue
       endif
+      number=number+numw
     1 continue
       endif
 c
@@ -2666,6 +2735,16 @@ c
       nums=nb
       do 8 icyc=1,ncyc
       if(nsa-number.lt.nums) nums=nsa-number
+c
+c     begin test code 10/31/2001
+c     initialize ibw to check that all atoms have been received
+c
+      do 1117 i=1,nb
+      ibs(i)=-1
+ 1117 continue
+c
+c     end test code
+c
       do 9 node=np-1,0,-1
       call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
       call ga_get(ga_ip,ilp,ihp,jlp,jhp,ipl,mbox)
@@ -2700,13 +2779,32 @@ c
       do 11 i=1,nums
       write(lfntrj,1006) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
  1006 format(6f8.3)
+c
+c     begin test code 10/31/2001
+c     check if al atoms have been received
+c
+      if(ibs(i).lt.0)
+     + call errquit('Missing solute atom in wtrst',i)
+c
+c     end test code
+c
    11 continue
       else
       do 12 i=1,nums
       write(lfntrj,1007) (bxs(i,j),j=1,3)
  1007 format(3f8.3)
+c
+c     begin test code 10/31/2001
+c     check if al atoms have been received
+c
+      if(ibs(i).lt.0)
+     + call errquit('Missing solute atom in wtrst',i)
+c
+c     end test code
+c
    12 continue
       endif
+      number=number+nums
     8 continue
       endif
 c
