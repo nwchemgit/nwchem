@@ -60,6 +60,9 @@ Properties:
 
   o The user is now allowed to choose the point of expansion for dipole,
     quadrupole, and octupole.  See CENTER directive.
+  o The center for expansion for dipole, quadrupole and octupole has changed
+    from the center of mass to the center of charge.  This behavior can be 
+    changed by using the CENTER directive.
 
 MP2: 
 
