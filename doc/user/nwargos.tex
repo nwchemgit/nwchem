@@ -525,14 +525,8 @@ file format is given in Table \ref{tbl:nwaseq}
 Card & Format & Description \\ \hline
 I-1-1  & a1     & \$ to identify the start of a sequence \\ %$ for emacs
 I-1-2  & a10    & name of the sequence\\
-\multicolumn{3}{l}{Any number of cards in deck II to specify the system} \\
-II-1-1 & i5     & segment number, except\\
-       &        &  0: identifies solvent, last segment, following \verb+-4+\\
-       &        & -1: identifies a break in the chain\\
-       &        & -2: identifies end of a molecule\\
-       &        & -3: identifies end of a molecule fraction\\
-       &        & -4: identifies end of the solute section\\
-       &        & -5: identifies end of the sequence file\\
+\multicolumn{3}{l}{Any number of cards 1 and 2 in deck II to specify the system} \\
+II-1-1 & i5     & segment number\\
 II-1-2 & a10    & segment name, last character will be determined from chain\\
 II-1-3 & i5     & link segment 1, if blank previous segment in chain\\
 II-1-4 & i3     & link atom, if blank link atom 2\\
@@ -554,6 +548,16 @@ II-1-9 & i5     & link segment 9\\
 II-1-0 & i3     & link atom in link segment 9\\
 II-1-1 & i5     & link segment 10\\
 II-1-2 & i3     & link atom in link segment 10\\
+II-2-1 & a      & \verb+break+ to identify a break in the molecule chain\\
+II-2-1 & a      & \verb+molecule+ to identify the end of a solute molecule\\
+II-2-1 & a      & \verb+fraction+ to identify the end of a solute fraction\\
+II-2-1 & a      & \verb+solvent+ to identify solvent definition on next card\\
+II-2-1 & a      & \verb+stop+ to identify the end of the sequence\\
+II-2-1 & a6     & \verb+repeat+ to repeat next $ncard$ cards $ncount$
+times\\
+II-2-2 & i5     & number of cards to repeat ($ncards$)\\
+II-2-3 & i5     & number of times to repeat cards ($ncount$)\\
+\multicolumn{3}{l}{Any number of cards in deck II to specify the system} \\
 \hline\hline
 \end{tabular*}
 \caption{The \nwargos\ sequence file format.\label{tbl:nwaseq}}
