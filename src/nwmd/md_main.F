@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.106 2001-03-23 00:31:51 d3j191 Exp $
+c $Id: md_main.F,v 1.107 2001-05-23 03:22:58 d3j191 Exp $
 c
       implicit none
 c
@@ -1521,7 +1521,8 @@ c
       if(ifield.gt.0) call cf_extern(stime,nsaloc,dbl_mb(i_fs),
      + isl(1,lsct1),nwmloc,dbl_mb(i_fw))
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
-     + isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),dbl_mb(i_ess))
+     + isl(1,lsatt),isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),
+     + dbl_mb(i_ess))
       call timer_stop(10)
 c
       if(ipolt.gt.0) then
@@ -2142,7 +2143,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.106 2001-03-23 00:31:51 d3j191 Exp $
+c $Id: md_main.F,v 1.107 2001-05-23 03:22:58 d3j191 Exp $
 c
       implicit none
 c
