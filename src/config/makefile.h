@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.124 1995-11-07 09:13:45 apsmith Exp $
+# $Id: makefile.h,v 1.125 1995-11-08 21:37:22 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -81,7 +81,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 # specified in an order that will link correctly, but that shouldn't
 # be too hard to come up with.  These should be platform-independent.
 
-KNOWN_MODULE_LIBS = -ltest -lmoints -lrimp2 \
+KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lmoints -lrimp2 \
                     -lstepper -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lddscf -lguess \
                     -lvib -lutil -lnwints -lideaz -lnwargos
