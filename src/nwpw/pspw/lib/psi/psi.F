@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.36 2003-07-19 20:46:51 bylaska Exp $
+* $Id: psi.F,v 1.37 2003-07-20 16:47:01 bylaska Exp $
 *
 
 
@@ -25,7 +25,7 @@
       real*8   control_tole
       external control_tole
 
-      call psi_gen_density_potentials(1)
+      !call psi_gen_density_potentials(1)
       maxit_orb=120
       maxerror = control_tole()
 
@@ -499,7 +499,7 @@
       real*8   control_tole
       external control_tole
 
-      call psi_gen_density_potentials(1)
+      !call psi_gen_density_potentials(1)
       maxit_orb=120
       maxerror = control_tole()
 
@@ -4023,14 +4023,27 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none 
 
 #include "mafdecls.fh"
+#include "rtdb.fh"
 #include "psi.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
-      logical value
+      logical value,psi_nogrid
       integer nemax,ispin0
       real*8 sum1,sum2
+
+      integer hversion,hnfft(3),hispin,hne(2)
+      real*8 hunita(3,3)
+      integer rtdb,ind
+      integer  control_rtdb,control_ngrid
+      external control_rtdb,control_ngrid
+      character*30 filename
+      character*30 control_input_epsi
+      external     control_input_epsi
+      logical  wvfnc_expander
+      external wvfnc_expander
+
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne_excited(ispin0,ne_excited)
@@ -4050,6 +4063,64 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2_excited(1)),1)
       call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi1_excited(1)),1)
       call dcopy(2*nemax,0.0d0,0,dbl_mb(eig_excited(1)),1)
+
+
+*     *****  read initial wavefunctions into psi1  ****
+      rtdb = control_rtdb()
+      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+     >                  mt_log,1,psi_nogrid))
+     >   psi_nogrid = .true.
+
+      if (psi_nogrid) then
+
+        
+        filename =  control_input_epsi()
+        call psi_get_header_filename(filename,
+     >                      hversion,hnfft,hunita,hispin,hne)
+
+        if ( (hnfft(1).ne.control_ngrid(1)) .or.
+     >       (hnfft(2).ne.control_ngrid(2)) .or.
+     >       (hnfft(3).ne.control_ngrid(3)) ) then
+
+        hnfft(1) = control_ngrid(1)
+        hnfft(2) = control_ngrid(2)
+        hnfft(3) = control_ngrid(3)
+        call Parallel_taskid(taskid)
+        value = rtdb_parallel(.false.)
+        if (taskid.eq.MASTER) then
+
+
+          ind = index(filename,' ') - 1
+          if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+
+          if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+
+          if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_put failed', 0)
+
+          write(*,*)
+          write(*,*) "Grid is being converted:"
+          write(*,*) "------------------------"
+          write(*,*)
+          write(*,*) "To turn off automatic grid conversion:"
+          write(*,*)
+          write(*,*) "set nwpw:psi_nogrid .false."
+          write(*,*)
+          value = wvfnc_expander(rtdb)
+
+        end if
+        value = rtdb_parallel(.true.)
+
+      end if
+
+      end if
 
 *     *****  read initial wavefunctions into psi1  ****
       call epsi_read(ispin0,ne_excited,dcpl_mb(psi1_excited(1)))

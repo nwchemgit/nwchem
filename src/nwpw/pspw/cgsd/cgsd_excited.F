@@ -1,4 +1,4 @@
-c     $Id: cgsd_excited.F,v 1.2 2003-07-19 20:47:55 bylaska Exp $                       
+c     $Id: cgsd_excited.F,v 1.3 2003-07-20 16:47:00 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -60,6 +60,7 @@ c#include "rtdb.fh"
       end if
       value = epsi_initialize()
 
+      call psi_gen_density_potentials(1)
       call psi_minimize_virtual()
 
 

@@ -1,4 +1,4 @@
-c     $Id: cgsd_oep_eigenvalues.F,v 1.2 2003-07-19 20:49:57 bylaska Exp $                       
+c     $Id: cgsd_oep_eigenvalues.F,v 1.3 2003-07-20 16:47:00 bylaska Exp $                       
 
 *     ********************************
 *     *		  	  	     *
@@ -54,7 +54,7 @@ c#include "rtdb.fh"
 
       value = epsi_initialize() !*** load in virtual orbitals ***
 
-      call electron_gen_vall()    !*** generate oep ****
+      call psi_gen_density_potentials(1) !**** generate oep ****
       call psi_1add_oep_to_vall()
 
       call psi_1to2() !** store psi1 orbitals temporarilly in psi2 ***
