@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.32 1997-02-13 01:22:27 d3g681 Exp $
+C$Id: rimp2.F,v 1.33 1997-02-14 10:15:02 d3e129 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -139,7 +139,10 @@ C     Figure out file names
 C
       if (.not. RTDB_CGet(rtdb, 'mp2:mo 3-center integral file',
      $     1, FNInt))
-     $   Call Util_File_name(Def_Int, .true.,.false.,FNInt)
+     $ FNInt = Def_Int
+*
+*rak: do not call util_file_name here since this is done in open_3ci.F
+*
 C
 C     Get some info about the basis sets for later use
 C
