@@ -109,14 +109,14 @@ block.  The syntax is:
     [TARGET <integer target default 1>]
     [TARGETSYM <character targetsym default 'none'>]
     [SYMMETRY]
-    [ALGORITHM <integer algorithm default 1>]
-    [VECTOR <character vector default jobname'.tddft']
+    [ALGORITHM <integer algorithm default 0>]
     [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
              [virtual <integer nfzv default 0>]]
     [PRINT (none||low||medium||high||debug)
       <string list_of_names ...>]
   END
 \end{verbatim}
+%   [VECTOR <character vector default jobname'.tddft']
 
 The user can also specify the reference wave function in the DFT input block
 (even when CIS and TDHF calculations are requested).  See the section of Sample
@@ -251,16 +251,16 @@ are contracted with integrals.  The multiple tensor contraction algorithm is
 particularly effective (in terms of speed) for CIS and TDHF, since the number of 
 the direct evaluations of two-electron integrals is diminished substantially.
 
-\subsection{{\tt VECTOR} --- initial guess vectors}
-
-The user may request the module to read the initial guess vectors from a file,
-by specifying the file name following the keyword \verb+VECTOR+.  When no file name
-is supplied for this keyword, the \verb+<file_prefix>+ appended by \verb+.tddft+ is assumed as 
-the file name.  For the file to be compatible, it must be created from the calculation
-with the same wave function type (spin-restricted or unrestricted) and the same trial
-vector lengths, but the exchange-correlation functionals, 
-whether to use the Tamm--Dancoff approximation,
-may be different.
+% \subsection{{\tt VECTOR} --- initial guess vectors}
+% 
+% The user may request the module to read the initial guess vectors from a file,
+% by specifying the file name following the keyword \verb+VECTOR+.  When no file name
+% is supplied for this keyword, the \verb+<file_prefix>+ appended by \verb+.tddft+ is assumed as 
+% the file name.  For the file to be compatible, it must be created from the calculation
+% with the same wave function type (spin-restricted or unrestricted) and the same trial
+% vector lengths, but the exchange-correlation functionals, 
+% whether to use the Tamm--Dancoff approximation,
+% may be different.
 
 \subsection{{\tt FREEZE} --- the frozen core/virtual approximation}
 
