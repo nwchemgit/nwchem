@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintd.F,v 1.5 2004-07-21 16:24:36 bert Exp $
+c $Id: hnd_stvintd.F,v 1.6 2004-12-03 22:36:11 bert Exp $
 c
 c Taken and modified from HONDO
 c
@@ -50,14 +50,14 @@ c
       if(some) write(luout,9999)
 c
       if (doS) then
-        call dfill(nint*3*2,zero,sder,1)
+        call dcopy(nint*3*2,zero,0,sder,1)
         call hnd_sd_ij2(xyzi,expi,coefi,i_nprim,i_ngen, Li,
      1    xyzj,expj,coefj, j_nprim, j_ngen, Lj, sder, sder(nint*3+1),
      2    scr, scr, scr, nder,nint,scr,lscr)
       endif
 c
       if (doV) then
-        call dfill(nint*3*nat,zero,vder,1)
+        call dcopy(nint*3*nat,zero,0,vder,1)
         do i=1,nat
           call hnd_hlf_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1      xyzj,expj,coefj,j_nprim,j_ngen,Lj,i,vder((i-1)*3*nint+1),
@@ -66,7 +66,7 @@ c
       endif
 
       if (doT.or.doV) then
-        if (doT) call dfill(nint*3*2,zero,tder,1)
+        if (doT) call dcopy(nint*3*2,zero,0,tder,1)
         if (doV) then
            call hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1       xyzj,expj,coefj,j_nprim,j_ngen,Lj,xyz,tder,tder(nint*3+1),

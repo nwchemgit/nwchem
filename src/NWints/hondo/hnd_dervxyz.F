@@ -1,5 +1,5 @@
 c
-c $Id: hnd_dervxyz.F,v 1.1 2004-07-21 16:24:34 bert Exp $
+c $Id: hnd_dervxyz.F,v 1.2 2004-12-03 22:36:10 bert Exp $
 c
 c Taken and modified from HONDO
 c
@@ -23,8 +23,8 @@ c
       yint = zero
       zint = zero
       npts = (ni+nj+mder-2)/2+1
-      imin = min(npts)
-      imax = max(npts)
+      imin = hermin(npts)
+      imax = hermax(npts)
       do 11 i = imin,imax
          dum = h(i)*t
          ptx = dum+x0

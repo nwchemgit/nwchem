@@ -2,7 +2,7 @@
      & expj,coefj,j_nprim,j_ngen,Lj,catms,nat,nint,e11,scr,lscr, 
      & para,dia)
 c
-c $Id: hnd_giaoh11.F,v 1.1 2004-07-21 16:24:34 bert Exp $
+c $Id: hnd_giaoh11.F,v 1.2 2004-12-03 22:36:10 bert Exp $
 c
 c     ----- Wrapper routine that sets the sizes of scratch blocks -----
 c
@@ -57,6 +57,10 @@ c
       data pi212  /1.1283791670955d+00/
 c
       tol=rln10*itol
+c
+c     Zero integral array
+c
+      call dcopy(nint*9*nat,0.0d0,0,e11,1)
 c
 c     ----- ishell -----
 c

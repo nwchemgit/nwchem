@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvint.F,v 1.7 2004-07-22 16:31:41 edo Exp $
+c $Id: hnd_stvint.F,v 1.8 2004-12-03 22:36:11 bert Exp $
 c
 c Modified from HONDO
 c
@@ -143,9 +143,9 @@ c
      &       INT_ERR)
       endif
 c
-      if (doS) call dfill(lstv,zero,s,1)
-      if (doT) call dfill(lstv,zero,ti,1)
-      if (doV) call dfill(lstv,zero,vi,1)
+      if (doS) call dcopy(lstv,zero,0,s,1)
+      if (doT) call dcopy(lstv,zero,0,ti,1)
+      if (doV) call dcopy(lstv,zero,0,vi,1)
 c
 c     ----- i primitive -----
 c

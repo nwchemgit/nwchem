@@ -2,7 +2,7 @@
      1  xyzj,expj,coefj,j_nprim,j_ngen,Lj,nder,nint,elfder,scr,lscr,
      2  xyzpt, npt)
 c
-c $Id: hnd_elfder.F,v 1.2 2004-07-22 16:45:25 bert Exp $
+c $Id: hnd_elfder.F,v 1.3 2004-12-03 22:36:10 bert Exp $
 c
       implicit double precision (a-h,o-z)
 #include "hnd_pointers.fh"
@@ -65,7 +65,7 @@ c
 c
 c     Zero integral array
 c
-      call dfill(nint*max(nder*3,1)*npt,0.0d0,elfder,1)
+      call dcopy(nint*max(nder*3,1)*npt,0.0d0,0,elfder,1)
 c
 c     ----- ishell -----
 c
@@ -166,16 +166,16 @@ c
 c        ----- combining the pieces together -----
 c
          ij=0
-         do 290 i=1,maxi
-            call getNxyz(Li,i,Nxyz)
-            ix = Nxyz(1) + 1
-            iy = Nxyz(2) + 1
-            iz = Nxyz(3) + 1
-            do 290 j=1,maxj
-               call getNxyz(Lj,j,Nxyz)
-               jx = Nxyz(1) + 1
-               jy = Nxyz(2) + 1
-               jz = Nxyz(3) + 1
+         do 290 j=1,maxj
+            call getNxyz(Lj,j,Nxyz)
+            jx = Nxyz(1) + 1
+            jy = Nxyz(2) + 1
+            jz = Nxyz(3) + 1
+            do 290 i=1,maxi
+               call getNxyz(Li,i,Nxyz)
+               ix = Nxyz(1) + 1
+               iy = Nxyz(2) + 1
+               iz = Nxyz(3) + 1
                ij=ij+1
                elfder(ij,1,ipt)=elfder(ij,1,ipt)+fac*dij*xv(ix,jx,1)*
      1                          yv(iy,jy,1)*zv(iz,jz,1)
@@ -232,16 +232,16 @@ c
 c        ----- combining the pieces together -----
 c
          ij=0
-         do 450 i=1,maxi
-         call getNxyz(Li,i,Nxyz)
-         ix = Nxyz(1) + 1
-         iy = Nxyz(2) + 1
-         iz = Nxyz(3) + 1
          do 440 j=1,maxj
             call getNxyz(Lj,j,Nxyz)
             jx = Nxyz(1) + 1
             jy = Nxyz(2) + 1
             jz = Nxyz(3) + 1
+            do 450 i=1,maxi
+            call getNxyz(Li,i,Nxyz)
+            ix = Nxyz(1) + 1
+            iy = Nxyz(2) + 1
+            iz = Nxyz(3) + 1
             ij=ij+1
             if (nder.eq.2) then
                dumxx=0.0d0
@@ -296,8 +296,8 @@ c
   432          continue
                elfder(ij,1,ipt) = elfder(ij,1,ipt) + dumx*dij 
             endif
+  450       continue
   440    continue
-  450    continue
 c
   500 continue
 c

@@ -1,4 +1,4 @@
-c $Id: hnd_init.F,v 1.3 2004-07-21 16:24:35 bert Exp $
+c $Id: hnd_init.F,v 1.4 2004-12-03 22:36:10 bert Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : initialization routine
@@ -9,6 +9,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "hnd_tol.fh"
 #include "bas.fh"
 #include "errquit.fh"
+#include "hnd_whermt.fh"
 c
       integer nbas         ! [input] number of basis sets to be used
       integer bases(nbas)  ! [input] basis set handles
@@ -21,6 +22,7 @@ c
 c
 c     set up the HONDO hermit and wermit arrays
 c
+      hermit_done = .false.
       call hnd_whermt
 c
 c     set up memory requirements: get max L first

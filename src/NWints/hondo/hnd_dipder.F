@@ -1,5 +1,5 @@
 c
-c $Id: hnd_dipder.F,v 1.4 2004-07-22 16:31:41 edo Exp $
+c $Id: hnd_dipder.F,v 1.5 2004-12-03 22:36:10 bert Exp $
 c
 c  Modified from the HONDO dipole integral code
 c
@@ -38,7 +38,7 @@ c
 c
 c Zero out the integral 
 c
-      call dfill(nint*18,zero,buf,1)
+      call dcopy(nint*18,zero,0,buf,1)
 c
 c Use scratch for temps in integral calculation
 c Scratch needs are 6*(Li+2)*(Lj+2)+12*(Li+1)*(Lj+1)

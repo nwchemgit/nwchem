@@ -1,5 +1,5 @@
 c
-c $Id: hnd_whermt.F,v 1.2 2004-07-21 16:24:37 bert Exp $
+c $Id: hnd_whermt.F,v 1.3 2004-12-03 22:36:11 bert Exp $
 c
       subroutine hnd_whermt
       implicit none
@@ -8,8 +8,8 @@ c
 c
 c     Pointer setting for the h and w lookup tables
 c
-      data min  /1,2,4, 7,11,16,22,29,37,46,56,67,79, 92,106/
-      data max  /1,3,6,10,15,21,28,36,45,55,66,78,91,105,120/
+      data hermin  /1,2,4, 7,11,16,22,29,37,46,56,67,79, 92,106/
+      data hermax  /1,3,6,10,15,21,28,36,45,55,66,78,91,105,120/
 c
 c     From Numerical Recipes: General formulation of abscissas (in h)
 c     and weights (in w) of Gauss-Hermite quadrature

@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintdd.F,v 1.8 2004-07-21 16:24:36 bert Exp $
+c $Id: hnd_stvintdd.F,v 1.9 2004-12-03 22:36:11 bert Exp $
 c
 c Taken and modified from HONDO
 c
@@ -49,7 +49,7 @@ c
       if(some) write(luout,9999)
 c
       if (doS) then
-        call dfill(nint*3*3*4,zero,sder,1)
+        call dcopy(nint*3*3*4,zero,0,sder,1)
         call hnd_sd_ij2(xyzi,expi,coefi,i_nprim,i_ngen, Li,
      1    xyzj,expj,coefj, j_nprim, j_ngen, Lj, scr, scr, sder, 
      2    sder(nint*3*3+1),sder(nint*3*3*3+1),nder,nint,scr,lscr)
@@ -63,7 +63,7 @@ c     write(luout,*) 'before the call to doV'
 c     call flush(luout)
 c
       if (doV) then
-        call dfill(nint*3*3*nat*3,zero,vder,1)
+        call dcopy(nint*3*3*nat*3,zero,0,vder,1)
 c
 c Do the Helman-Feynman part (i|d2/dxcdxcV|j)
 c The first nat*nint*3*3 holds these terms
@@ -100,9 +100,9 @@ c        enddo
 c     write(luout,*) 'before the doT call'
 c     call flush(luout)
       if (doT.or.doV) then
-        call dfill(nint*3*3*3,zero,tder,1)
+        call dcopy(nint*3*3*3,zero,0,tder,1)
 c note that scr is used as a dummy and tder also holds the vder terms
-c       if (doV) call dfill(nint*3*3,zero,scr,1)
+c       if (doV) call dcopy(nint*3*3,zero,0,scr,1)
         call hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1    xyzj,expj,coefj,j_nprim,j_ngen,Lj,xyz,scr,scr,tder,
      2    tder(nint*3*3+1),tder(nint*3*3*2+1),scr,scr,

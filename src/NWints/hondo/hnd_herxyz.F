@@ -1,28 +1,26 @@
 c
-c $Id: hnd_sxyz.F,v 1.4 2004-12-03 22:36:11 bert Exp $
+c $Id: hnd_herxyz.F,v 1.1 2004-12-03 22:36:10 bert Exp $
 c
-c Taken from the property/prp.F file
-c
-      subroutine hnd_sxyz
+      subroutine hnd_hermxyz
       implicit none
 c
 c     ----- gauss-hermite quadrature using minimum point formula -----
 c
 #include "hnd_whermt.fh"
 c
-      common/hnd_xyzder/xint,yint,zint,t,x0,y0,z0,xi,yi,zi,xj,yj,zj,
-     &                  ni,nj,cx,cy,cz
+      common/hnd_xyzher/xint,yint,zint,t,x0,y0,z0,xi,yi,zi,xj,yj,zj,
+     &                  ni,nj,xc,yc,zc,nc,xd,yd,zd,nd
       double precision xint, yint, zint, t, x0, y0, z0, xi, yi, zi
-      double precision xj, yj, zj, zero, dum, px, py, pz
-      double precision cx, cy, cz
+      double precision xj, yj, zj, zero, dum, px, py, pz, xd, yd, zd
+      double precision cx, cy, cz, dx, dy, dz, xc, yc, zc
       double precision ptx, pty, ptz, ax, ay, az, bx, by, bz
-      integer ni, nj, npts, imin, imax, i, ii, jj
+      integer ni, nj, npts, imin, imax, i, ii, jj, nc, nd, kk, ll
       data zero /0.0d+00/
 c
       xint=zero
       yint=zero
       zint=zero
-      npts=(ni+nj-2)/2+1
+      npts=(ni+nj+nc+nd-4)/2+1
       imin=hermin(npts)
       imax=hermax(npts)
       do 16 i=imin,imax
@@ -40,6 +38,12 @@ c
          bx=ptx-xj
          by=pty-yj
          bz=ptz-zj
+         cx=ptx-xc
+         cy=pty-yc
+         cz=ptz-zc
+         dx=ptx-xd
+         dy=pty-yd
+         dz=ptz-zd
          do ii = 1, ni-1
             px=px*ax
             py=py*ay
@@ -49,6 +53,16 @@ c
             px=px*bx
             py=py*by
             pz=pz*bz
+         enddo
+         do kk = 1, nc-1
+            px=px*cx
+            py=py*cy
+            pz=pz*cz
+         enddo
+         do ll = 1, nd-1
+            px=px*dx
+            py=py*dy
+            pz=pz*dz
          enddo
          xint=xint+px
          yint=yint+py

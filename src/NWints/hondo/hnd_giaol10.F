@@ -1,7 +1,7 @@
       subroutine hnd_giaol10(xyzi,expi,coefi,i_nprim,i_ngen,Li,xyzj,
      & expj,coefj,j_nprim,j_ngen,Lj,nint,l10,scr,lscr)
 c
-c $Id: hnd_giaol10.F,v 1.1 2004-07-21 16:24:34 bert Exp $
+c $Id: hnd_giaol10.F,v 1.2 2004-12-03 22:36:10 bert Exp $
 c
 c     ----- Wrapper routine that sets the sizes of scratch blocks -----
 c
@@ -41,6 +41,10 @@ c
       data rln10 /2.30258d+00/
 c
       tol=rln10*itol
+c
+c     Zero integral array
+c
+      call dcopy(nint*3,0.0d0,0,l10,1)
 c
 c     ----- ishell -----
 c

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.13 2004-07-21 16:24:33 bert Exp $
+# $Id: GNUmakefile,v 1.14 2004-12-03 22:36:10 bert Exp $
 
 include ../../config/makefile.h
 
@@ -46,7 +46,15 @@ include ../../config/makefile.h
                  hnd_giahnd.o \
                  hnd_giaxyz.o \
                  hnd_jkwrys.o \
-                 hnd_spdgia.o 
+                 hnd_spdgia.o \
+                 hnd_pso.o \
+                 hnd_dso.o \
+                 hnd_wleg.o \
+                 hnd_herxyz.o \
+                 hnd_init_1eelec.o \
+                 hnd_init_dso.o \
+                 hnd_init_1emtpl.o \
+                 hnd_init_pso.o
 
   OBJ = hnd_vstat.o \
         
@@ -54,7 +62,8 @@ include ../../config/makefile.h
                  hnd_rys.fh \
                  hnd_tol.fh \
                  hnd_pointers.fh \
-                 hnd_giao.fh
+                 hnd_giao.fh \
+                 hnd_wleg.fh
 
        LIBRARY = libnwints.a
 
