@@ -1,11 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.5 2003-01-24 19:35:44 marat Exp $
+# $Id: GNUmakefile,v 1.6 2003-01-31 02:01:12 bylaska Exp $
 #
 
 
           OBJ = paw_utils.o integrate.o io_utils.o error.o double_factorial.o bessel_transform.o
 
-          HEADERS = bessel_transform.fh integrate.fh myma.fh paw_utils.fh paw_params.fh
+          HEADERS = bessel_transform.fh integrate.fh paw_utils.fh paw_params.fh
 
 
       LIBRARY =	libpaw.a
