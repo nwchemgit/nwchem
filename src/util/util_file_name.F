@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.16 2000-08-02 15:28:59 bjohnson Exp $
+C$Id: util_file_name.F,v 1.17 2000-11-07 19:05:11 bylaska Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -649,3 +649,65 @@ c     accepted.
 #endif
       return
       end
+
+c     **** added by EJB 11/7/00 ****
+      subroutine util_file_name_noprefix(stub, oscratch, 
+     >                                         oparallel, 
+     >                                         name)
+      implicit none
+#include "util.fh"
+#include "inp.fh"      
+#include "cfileprefix.fh"
+#include "global.fh"
+#include "stdio.fh"
+c
+      character*(*) stub      ! [input] stub name for file
+      logical oscratch        ! [input] true=scratch, false=permanent
+      logical oparallel       ! [input] true=append .nodeid
+      character*(*) name      ! [output] full filename
+c
+      character*(nw_max_path_len) dir, tmp
+      integer ltmp, ldir, me
+      logical util_file_parse_dir
+      external util_file_parse_dir
+c
+      me = ga_nodeid()
+c
+      call util_directory_name(dir, oscratch, me)
+c
+*      write(LuOut,*) ' dir = |', dir,'|'
+c
+
+      tmp   = stub
+      ltmp  = inp_strlen(tmp)
+      ldir  = inp_strlen(dir)
+      if (ltmp+ldir+1 .gt. len(name)) then
+         write(LuOut,*) ' util_file_name: stub = ', stub
+         write(LuOut,*) ' util_file_name: ltmp, ldir, lname',
+     $        ltmp, ldir, len(name)
+         call util_flush(LuOut)
+         call errquit('util_file_name: name too small', ltmp+ldir+1)
+      endif
+      if (dir .ne. ' ') then
+         name = dir
+         name(ldir+1:ldir+1) = '/'
+         name(ldir+2:) = tmp
+      else
+         name = tmp
+      endif
+c
+      if (oparallel) then
+         if (inp_strlen(name) .gt. len(tmp)) then
+            write(LuOut,*) ' util_file_name: name = ', name
+            call util_flush(LuOut)
+            call errquit('util_file_name: tmp too small',
+     $           inp_strlen(name))
+         endif
+         tmp = name
+         call util_pname(tmp, name)
+      endif
+c
+      end
+
+
+
