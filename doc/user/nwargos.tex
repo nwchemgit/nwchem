@@ -54,7 +54,7 @@ number of spacially grouped domains.
 The most important aspects of this decomposition
 are the dependence of the domain sizes and communication cost on
 the number of processors and the shape of the domains, the
-frequent reassigment of atoms to domains leading to a fluctuating
+frequent reassignment of atoms to domains leading to a fluctuating
 number of atoms per domain, and the locality of communication
 which is the main reason for the efficiency of this approach for
 very large molecular systems.
@@ -861,7 +861,7 @@ where $ngx$, $ngy$ and $ngz$ are the number of grid points per dimension.
 \end{itemize}
 \subsection{Fixing coordinates}
 The solvent or solute part of a system may be fixed or unfixed using
-the follwing keywords. Fixing part of the system will propagate to
+the following keywords. Fixing part of the system will propagate to
 simulations using restart files written.
 \begin{itemize}
 \item
@@ -881,7 +881,7 @@ autocorrelation function of the derivative of the Hamiltonian with
 respect to the control variable $\lambda$.
 \begin{itemize}
 \item 
-The calculation of the autocorrelation is controled with the keywords
+The calculation of the autocorrelation is controlled with the keywords
 \begin{verbatim}
 auto <i lacf> [fit <i nfit>] [weight <r weight>]
 \end{verbatim}
@@ -933,15 +933,15 @@ Following keywords control periodic events during a molecular
 dynamics or thermodynamic integration simulation.
 \begin{itemize}
 \item
-Updating pairlists
+Updating pair lists
 \begin{verbatim}
 [update [pairs <i nfpair>]]
 \end{verbatim}
 where {\bf nfpair} is the frequency in molecular dynamics steps of 
-updating the pairlists. The default for the frequency is 1.
-In addition, pairlists are also updated after each step in which
+updating the pair lists. The default for the frequency is 1.
+In addition, pair lists are also updated after each step in which
 recording of the restart or trajectory files is performed. Updating
-the pairlists includes the redistribution of atoms that changed
+the pair lists includes the redistribution of atoms that changed
 domain and load balancing, if specified.
 \item
 Updating long range forces
@@ -952,9 +952,9 @@ where {\bf nflong} is the frequency in molecular dynamics steps
 of updating the long range forces. The default frequency is 1.
 The distinction of short range and long range forces is only
 made if the long range cutoff radius was specified to be larger
-than the short range cutof radius. Updating the long range forces
+than the short range cutoff radius. Updating the long range forces
 is also done in every molecular dynamics step in which the
-pairlists are regenerated.
+pair lists are regenerated.
 \item
 Updating the simulation volume center
 \begin{verbatim}
