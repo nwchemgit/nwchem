@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis,noc,g_alpha,g_beta,g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.15 2002-01-19 01:00:09 edo Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.16 2002-02-07 20:06:38 bert Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -103,6 +103,7 @@ c -------------------------------------------------------------
 c Print some useful information
 c about the un-paired alpha orbitals.
 c
+      if(.not.util_print('alpha partner info', print_high)) return
       if(noc(2).eq.0) return
 c
 c Find alpha orbital which best overlaps with each beta
