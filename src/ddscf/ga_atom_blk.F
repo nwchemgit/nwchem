@@ -1,5 +1,5 @@
       integer function ga_create_atom_blocked(geom, basis, name)
-C$Id: ga_atom_blk.F,v 1.6 2003-06-05 22:16:53 edo Exp $
+C$Id: ga_atom_blk.F,v 1.7 2003-06-06 18:38:00 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -26,16 +26,26 @@ c
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('ga_create_atom_blocked: bas_nbf ?', 0)
+#ifdef DEBUG
+      if(ga_nodeid().eq.0) then
+      write(0,*) nblock(1),' m1 ',int_mb(k_map),int_mb(k_map+1)
+      write(0,*) nblock(2),' m2 ',int_mb(k_map+ga_nnodes()),
+     ,     int_mb(k_map+ga_nnodes()+1)
+      do g_a=1,2*ga_nnodes()
+      write(0,*) ' i m ',g_a,int_mb(k_map+g_a-1)
+      enddo
+      endif
+#endif
       status =  ga_create_irreg(MT_DBL, nbf, nbf, name,
      $     int_mb(k_map), nblock(1), 
-     $     int_mb(k_map+ga_nnodes()-1), nblock(2), g_a)
+     $     int_mb(k_map+ga_nnodes()), nblock(2), g_a)
       if (.not. status) then
          if (ga_nodeid() .eq. 0) then
             write(6,*) ' ga_create_atom_blocked: ', name
             call util_flush(6)
          endif
          call ga_sync()
-         call errquit('ga_create_atom_blocked: ga_create_irreg ', 0)
+         call errquit('ga_create_atom_blocked: ga_create_irreg ',nbf)
       endif
 c
       ga_create_atom_blocked = g_a
@@ -86,13 +96,13 @@ c
          if ((ihi-ilo+1) .gt. 0) then
             if (n_in_proc1 .ge. chunk1) then
                nblock(1) = nblock(1) + 1
-               if (nblock(1) .le. max_nproc) map(1,nblock(1)) = ilo
+               if (nblock(1) .le. max_nproc) map(nblock(1),1) = ilo
                n_in_proc1 = 0
             endif
             n_in_proc1 = n_in_proc1 + (ihi-ilo) + 1
             if (n_in_proc2 .ge. chunk2) then
                nblock(2) = nblock(2) + 1
-               if (nblock(2) .le. max_nproc) map(2,nblock(2)) = ilo
+               if (nblock(2) .le. max_nproc) map(nblock(2),2) = ilo
                n_in_proc2 = 0
             endif
             n_in_proc2 = n_in_proc2 + (ihi-ilo) + 1
@@ -109,5 +119,13 @@ c
          endif
          goto 10
       endif
+#ifdef DEBUG
+      if(ga_nodeid().eq.0) then
+      write(0,*) ' nblock1 ',nblock(1)
+      write(0,*) ' map1 ',(map(iat,1),iat=1,nblock(1))
+      write(0,*) ' nblock2 ',nblock(2)
+      write(0,*) ' map2 ',(map(iat,2),iat=1,nblock(2))
+      endif
+#endif
       return
       end
