@@ -1,5 +1,5 @@
 *
-* $Id: paw_vloc.F,v 1.1 2003-02-13 01:56:42 bylaska Exp $
+* $Id: paw_vloc.F,v 1.2 2003-02-25 00:18:08 bylaska Exp $
 *
 
 
@@ -28,7 +28,7 @@
       logical ok
       integer i,ia,npack0,nfft3d,nr,nkatm
       integer ps_ptr,i_rgrid
-      integer Gx(2),Gy(2),Gz(2)
+      integer Gx(2),Gy(2),Gz(2),f(2)
       real*8 log_amesh,gg,fourpi
 
       !*** external functions ****
@@ -54,9 +54,9 @@
       if (.not.ok)
      > call errquit('paw_vloc_init: out of stack memory',0)
 
-      call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(Gx(1)),1)
-      call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(Gy(1)),1)
-      call dcopy(nfft3d,dbl_mb(G_indx(3)),1,dbl_mb(Gz(1)),1)
+      call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))
+      call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dbl_mb(Gy(1)))
+      call D3dB_t_Copy(1,dbl_mb(G_indx(3)),dbl_mb(Gz(1)))
       call Pack_t_pack(0,dbl_mb(Gx(1)))
       call Pack_t_pack(0,dbl_mb(Gy(1)))
       call Pack_t_pack(0,dbl_mb(Gz(1)))  
@@ -69,6 +69,14 @@
         nr              = int_mb(paw_basis_i_ngrid(ia))
         log_amesh       = dbl_mb(paw_basis_i_log_amesh(ia))
 
+        ok = MA_push_get(mt_dbl,nr,'f',f(2),f(1))
+        if (.not.ok)
+     >  call errquit('paw_vloc_init: out of stack memory',1)
+        do i=1,nr
+          dbl_mb(f(1)+i-1) = dbl_mb(i_rgrid+i-1)
+     >                      *dbl_mb(ps_ptr+i-1)
+        end do
+
         do i=1,npack0
           gg  = dsqrt( dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
      >               + dbl_mb(Gy(1)+i-1)*dbl_mb(Gy(1)+i-1)
@@ -80,25 +88,30 @@
      >       = fourpi
      >        *spher_bessel_transform(0,nr,log_amesh,
      >                                dbl_mb(i_rgrid),
-     >                                dbl_mb(ps_ptr),
+     >                                dbl_mb(f(1)),
      >                                gg)
           else
           dbl_mb(vl(1)+(ia-1)*npack0 + i-1)
      >       = fourpi
      >        *spher_bessel0_transform(0,nr,log_amesh,
      >                                dbl_mb(i_rgrid),
-     >                                dbl_mb(ps_ptr))
+     >                                dbl_mb(f(1)))
 
           end if
-        end do
-      end do
+        end do !*i*
+       
+        ok = MA_pop_stack(f(2))
+        if (.not.ok)
+     >  call errquit('paw_vloc_init: error popping stack',2)
+
+      end do !*ia*
 
       !*** deallocate temporary space ***
       ok =        MA_pop_stack(Gz(2))
       ok = ok.and.MA_pop_stack(Gy(2))
       ok = ok.and.MA_pop_stack(Gx(2))
       if (.not.ok)
-     >  call errquit('paw_vloc_init: error popping stack',1)
+     >  call errquit('paw_vloc_init: error popping stack',3)
 
       return
       end
