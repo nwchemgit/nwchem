@@ -1,5 +1,5 @@
       logical function int_normalize(basisin)
-c $Id: int_norm.F,v 1.3 1996-02-05 23:22:02 d3e129 Exp $
+c $Id: int_norm.F,v 1.4 1996-02-06 01:39:57 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -10,8 +10,6 @@ c $Id: int_norm.F,v 1.3 1996-02-05 23:22:02 d3e129 Exp $
       integer basisin             ! [input] basis handle
       integer basis, nucont, iucont, type, nprim, ngen, ept, cpt, igen
       logical norm_ok
-      logical bas_check_handle
-      external bas_check_handle
 c
 #include "bas_exndcf_sfn.fh"
 c
