@@ -1,4 +1,4 @@
-C $Id: rel_LLSS.F,v 1.3 2000-01-03 21:59:04 mg201 Exp $
+C $Id: rel_LLSS.F,v 1.4 2000-01-25 19:39:11 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_LLSS}
 c:tex-This routine generates the LLSS-type two-electron integrals for
@@ -58,7 +58,6 @@ c:tex-\begin{verbatim}
       logical canCD   ! [input] compute only canonical ints (false only)
       logical canPQ   ! [input] compute only canonical ints (false only)
       logical DryRun  ! [input] true means only compute required memory
-      logical AddInts ! [input] true: daxpy LLSS ints to rel_ints, false: dcopy
 c:tex-\end{verbatim}
 c:tex-See rel_pot for a description of the allowed values of ibug and ntyp
 c:tex-Note that in the current version of this routine, the call to rel_pot 
@@ -109,6 +108,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = mod(ibug,10)/2 .eq. 1
       max_mem = 0
+      if (debug_gen) write (LuOut,*) 'Entering rel_LLSS'
 *
       if ((ntyp .ne. 1) .and. (ntyp .ne. 3) .and. (ntyp .ne. 4) .and.
      &    (ntyp .ne. 9))
@@ -176,6 +176,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
         write (LuOut,*) 'i_xcc,i_xcd',i_xcc,i_xcd
         write (LuOut,*) 'i_pp,i_pm,i_mp,i_mm',i_pp,i_pm,i_mp,i_mm
         write (LuOut,*) 'i_scr',i_scr
+        write (LuOut,*) 'memscr,lscr',memscr,lscr
       end if
 *
 *   Set up coefficients multiplied by exponents
@@ -201,6 +202,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
 *         Calculate integrals for l_C+1, l_D+1
 *
+      if (debug_gen) write (LuOut,*) 'calling hf2 ++'
       call hf2(
      &    Axyz,zeta_A,coef_A,NPA,NCA,l_A,
      &    Bxyz,zeta_B,coef_B,NPB,NCB,l_B,
@@ -213,6 +215,8 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *         Calculate integrals for l_C-1, l_D+1
 *
       if (l_C .gt. 0) then
+        memscr = lscr-i_scr+1
+        if (debug_gen) write (LuOut,*) 'calling hf2 -+'
         call hf2(
      &      Axyz,zeta_A,coef_A,NPA,NCA,l_A,
      &      Bxyz,zeta_B,coef_B,NPB,NCB,l_B,
@@ -226,6 +230,8 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *         Calculate integrals for l_C+1, l_D-1
 *
       if (l_D .gt. 0) then
+        memscr = lscr-i_scr+1
+        if (debug_gen) write (LuOut,*) 'calling hf2 +-'
         call hf2(
      &      Axyz,zeta_A,coef_A,NPA,NCA,l_A,
      &      Bxyz,zeta_B,coef_B,NPB,NCB,l_B,
@@ -238,6 +244,8 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *         Calculate integrals for l_C-1, l_D-1
 *
         if (l_C .gt. 0) then
+          memscr = lscr-i_scr+1
+          if (debug_gen) write (LuOut,*) 'calling hf2 --'
           call hf2(
      &        Axyz,zeta_A,coef_A,NPA,NCA,l_A,
      &        Bxyz,zeta_B,coef_B,NPB,NCB,l_B,
@@ -251,6 +259,8 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
 *     Compute the relativistic integrals
 *
+      memscr = lscr-i_scr+1
+      if (debug_gen) write (LuOut,*) 'calling rel_pot'
       call rel_pot (
      &    scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),rel_ints,n_ints,ntyp,
      &    l_C,n_cartp_c,n_cart_c,n_cartm_c,NCC*n_ab,
@@ -260,6 +270,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
         max_mem = max(max_mem,i_scr+memscr-1)
         lscr = max_mem
       end if
+      if (debug_gen) write (LuOut,*) 'Exiting rel_LLSS'
 *
       return
       end
