@@ -1,5 +1,5 @@
 /*
- $Id: pstebz10.c,v 1.29 2000-10-24 18:25:53 d3g270 Exp $
+ $Id: pstebz10.c,v 1.30 2001-10-22 21:49:02 d3g270 Exp $
  *======================================================================dstebz
  *
  * DISCLAIMER
@@ -647,8 +647,8 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      psigma = -fabs(eval[0])-sqrt(sqrt(DLAMCHE));
      */
    
-   if ( eval[0] < sqrt(sqrt(2.2250738585072028E-308)))
-     psigma = -fabs(eval[0])-sqrt(sqrt(2.2250738585072028E-308));
+   if ( eval[0] < sqrt(sqrt(DLAMCHU)))
+     psigma = -fabs(eval[0])-sqrt(sqrt(DLAMCHE));
    
 
 #ifdef DEBUG99   
