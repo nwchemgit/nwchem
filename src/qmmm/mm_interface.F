@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.37 2004-12-17 21:17:45 marat Exp $
+c $Id: mm_interface.F,v 1.38 2004-12-21 02:07:56 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -304,18 +304,6 @@ c
      >      call mm_clear_bqzone(i)
         end do
       end if
-
-c      do i=1,nsaloc
-c         if(mm_lqsoft(i)) then
-c           if((bq_exclude.eq.qmmm_hydrogen).and.(mm_element(i).eq.1))
-c     >     call mm_clear_bqzone(i)
-c           if(bq_exclude.eq.qmmm_all_atoms) then
-c             write(*,*) "clearing bq flag",i
-c             call mm_clear_bqzone(i)
-c           end if
-c         endif
-c      end do
-
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
