@@ -61,3 +61,7 @@ of the basis sets and ECPs for all atoms.  This is not yet finished.
 
 Robert
 
+
+15) make compare in the basis directory and run in the convert directory
+    the code assumes that your new library is called library.new and the
+    previous basis set library is called library 
