@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.10 1994-08-30 23:36:39 d3g681 Exp $
+# $Id: GNUmakefile,v 1.11 1994-09-01 17:34:38 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -18,7 +18,9 @@ endif
 	      nxtseg.o \
               ga_iter_orthog.o ga_iter_lsolve.o ga_iter_diag.o \
               ga_maxelt.o ga_pcg_minimize.o line_search.o \
-              ga_orthog_vec.o ga_ran_fill.o ga_mix.o $(BLAS) $(EXTRA_OBJ) 
+              ga_orthog_vec.o ga_ran_fill.o ga_mix.o \
+              ga_iter_project.o \
+              $(BLAS) $(EXTRA_OBJ) 
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh
 
@@ -30,3 +32,4 @@ include ../config/makelib.h
 testsolve:      testsolve.o $(LIBDIR)/$(LIBRARY)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+ga_iter_project.o:	cproject.fh

@@ -10,7 +10,7 @@ c     Determine the absolute value of the element with largest
 c     absolute magnitude
 c
        integer ilo, ihi, jlo, jhi, idim, jdim, ld
-       integer i, j, ind, ind_max
+       integer j, ind, ind_max
        integer idamax
        external idamax
 c

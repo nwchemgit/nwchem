@@ -76,21 +76,24 @@ c
       integer g_v               ! GA to hold temporary vector
       integer g_w               ! GA to hold temporary product vector
 c
+      double precision test_tol
       double precision shift
       double precision prod_acc
       logical converged
       integer maxdim
-      parameter (maxdim = 50)   ! Maximum size of iterative subspace
+      parameter (maxdim = 105)   ! Maximum size of iterative subspace
       double precision aa(maxdim,maxdim), ss(maxdim,maxdim),
      $     yy(maxdim,maxdim), ee(maxdim), fv1(maxdim), fv2(maxdim),
      $     rnorm(maxdim)
       double precision xnorm
       integer i, j, nsub, info, cur_root, iroot
       logical odebug
-      data odebug /.true./
+      data odebug /.false./
 c     
       if (maxsub .gt. maxdim) call errquit
      $     ('ga_iter_diag: maxsub > maxdim', maxdim)
+      if (maxsub .lt. nroot+2) call errquit
+     $     ('ga_iter_diag: subspace too small', nsub)
 c     
 c     Allocate and zero the temporary global arrays
 c     
@@ -120,8 +123,14 @@ c
          xnorm = sqrt(ga_ddot(g_v, g_v))
          if (xnorm .eq. 0.0d0) then
             call ga_ran_fill(g_v, 1, n, 1, 1)
+            call precond(g_v, eval0)
+            call precond(g_v, eval0)
+            call precond(g_v, eval0)
+            call precond(g_v, eval0)
+            call precond(g_v, eval0)
+            call precond(g_v, eval0)
          endif
-         call ga_orthog_vec(n, i-1, g_evec, g_v)
+         call ga_orthog_vec(n, i-1, g_x, g_v, 1)
          xnorm = sqrt(ga_ddot(g_v, g_v))
          call ga_dscal(g_v, 1.0d0/xnorm)
 c     
@@ -137,11 +146,14 @@ c
      $        e8.1,') -----'/)
          write(6,2) 
  2       format(
-     $        7x, ' iter nsub root    eigenvalue     residual    time'/
-     $        7x, ' ---- ---- ---- --------------- ----------- -------')
+     $        7x, ' iter nsub  cur root   eigenvalue      residual',
+     $        '    time'/
+     $        7x, ' ---- ---- ---- ---- --------------- -----------',
+     $        ' -------')
          call util_flush(6)
       endif
 c     
+      test_tol = 0.1
       cur_root  = 0             ! Current vector being updated
       nsub = nroot              ! No. of vectors within subspace
       do iter = 1, maxiter
@@ -174,7 +186,7 @@ c
          if (info .ne. 0) call errquit
      $        ('ga_iter_diag: rsg failed', info)
          if (odebug .and. ga_nodeid().eq.0) then
-            write(6,*) ' ga_iter_diag: Reduced space eigenroottors'
+            write(6,*) ' ga_iter_diag: Reduced space eigenvectors'
             call output(yy, 1, nsub, 1, nsub, maxdim, nsub, 1)
             write(6,*) ' ga_iter_diag: Reduced space eigenvalues'
             call output(ee, 1, nsub, 1, 1, nsub, 1, 1)
@@ -208,24 +220,33 @@ c     Print
 c     
          if (oprint .and. ga_nodeid().eq.0) then
             do iroot = 1, nroot
-               write(6,3) iter,nsub,iroot,eval(iroot),rnorm(iroot),
-     $              tcgtime()
- 3             format(7x,3i5,1p,e16.9,e12.4,0p,f8.1)
+               write(6,3) iter, nsub, cur_root, iroot, eval(iroot),
+     $              rnorm(iroot), tcgtime()
+ 3             format(7x,4i5,1p,e16.9,e12.4,0p,f8.1)
             enddo
             call util_flush(6)
          endif
 c     
 c     Determine the next vector to update
 c     
-         converged = .true.
+ 20      converged = .true.
+         cur_root = 0           ! Comment this out to cycle
          do iroot = 1, nroot
             cur_root = mod(cur_root,nroot) + 1
-            if (rnorm(iroot) .gt. tol) then
+            if (rnorm(iroot) .gt. test_tol) then
                converged = .false.
                goto 10
             endif
          enddo
- 10      if (converged) goto 1000
+         
+ 10      if (converged) then
+            if (test_tol .le. tol) then
+               goto 1000
+            else
+               test_tol = test_tol * 0.25d0
+               goto 20
+            endif
+         endif
 c     
          if (iter.eq.maxiter) then
             if (ga_nodeid() .eq. 0) then
@@ -249,7 +270,7 @@ c
             shift = eval0
          endif
          call precond(g_v, shift)
-         call ga_orthog_vec(n, nsub, g_x, g_v)
+         call ga_orthog_vec(n, nsub, g_x, g_v, 1)
          xnorm = sqrt(ga_ddot(g_v, g_v))
          call ga_dscal(g_v, 1.0d0/xnorm)
 c     

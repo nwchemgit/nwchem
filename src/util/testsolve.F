@@ -8,8 +8,10 @@ c
       integer dim, n, g_a, g_b, g_soln, g_resid, i, j, iter, g_v
       integer iter_solve
       common /info/ n, g_a
-      parameter (dim = 100)
-      double precision col(dim), acc, tol ,rnorm, bnorm, eval
+      integer nroot
+      parameter (dim = 100, nroot=3)
+      double precision col(dim), acc(nroot), tol, scale
+      double precision eval(nroot)
       double precision evals(dim)
       double precision drandm
       external drandm, ga_iter_lsolve, ga_iter_diag
@@ -22,7 +24,9 @@ c
       status = ma_set_auto_verify(.true.)
       call ga_initialize()
 c
-      call testpcg
+
+*      call testpcg
+
 c     
 c     create the arrays to test the linear equation solver
 c
@@ -31,23 +35,30 @@ c
       status = ga_create(MT_DBL, n, 1, 'test:soln', 1, 1, g_soln)
       status = ga_create(MT_DBL, n, 1, 'test:b', 1, 1, g_b)
       status = ga_create(MT_DBL, n, 1, 'test:resid', 1, 1, g_resid)
-      do i = 1, n
-         do j = 1,n
-            col(j) = 0.4d0*(0.5d0 - drandm(0))
+      do i = ga_nodeid()+1, n, ga_nnodes()
+         if (i .le. 3) then
+            scale = 0.1d0
+         else
+            scale = 10.0d0
+         endif
+         col(i) = (1.0d0+0.4d0*(0.5d0 - drandm(0)))*scale
+         if (i .gt. 3) scale = 1.0d0
+         do j = i+1,n
+            col(j) = 0.4d0*(0.5d0 - drandm(0))*scale
          enddo
-         col(i) = (1.0d0+col(i))*10.0d0
-         call ga_put(g_a, 1, n, i, i, col, 1)
+         call ga_put(g_a, i, n, i, i, col(i), 1)
+         call ga_put(g_a, i, i, i, n, col(i), 1)
       enddo
-      call ga_symmetrize(g_a)
       if (ga_nodeid() .eq. 0) then
          do i = 1, n
             col(i) = 0.5 - drandm(0)
          enddo
          call ga_put(g_b, 1, n, 1, 1, col, 1)
       endif
-      call ga_zero(g_soln)
 c
+      write(6,*) ' Solver WITHOUT projection'
       tol = 0.0001d0
+      call ga_zero(g_soln)
       do iter = 1, 3
          if (ga_iter_lsolve(n, 40, 5, tol, test_precond,
      $        test_product, .true., g_b, g_soln, acc, iter_solve)) then
@@ -58,24 +69,42 @@ c
          tol = tol*0.0001d0
       enddo
 c
+      write(6,*) ' Solver using projection'
+      call ga_init_project(n, 3, 10, 10, 0.05d0, test_precond,
+     $     test_product, .true., 0.1d0)
+      tol = 0.0001d0
+      call ga_zero(g_soln)
+      do iter = 1, 3
+         if (ga_iter_lsolve(n, 40, 5, tol, test_precond,
+     $        test_product, .true., g_b, g_soln, acc, iter_solve)) then
+            if (ga_nodeid() .eq. 0) write(6,*) ' OK'
+         else
+            if (ga_nodeid() .eq. 0) write(6,*) ' not OK'
+         endif
+         tol = tol*0.0001d0
+      enddo
+c
+      call ga_term_project()
+c
       call ga_diag_std_seq(g_a, g_v, evals)
       write(6,*) ' Correct evals'
       call output(evals, 1, n, 1, 1, n, 1, 1)
-      tol = 0.0001d0
-      eval = 0.0d0
+      tol = 0.01d0
 c
       status = ga_destroy(g_soln)
-      status = ga_create(MT_DBL, n, 3, 'test:soln', 1, 1, g_soln)
+      if (.not. ga_create(MT_DBL, n, 3, 'test:soln', 1, 1, g_soln))
+     $     call errquit('gac failed', 0)
+c      
       call ga_zero(g_soln)
       do iter = 1, 3
-         if (ga_iter_diag(n, 3, 40, 10, tol, test_precond,
+         if (ga_iter_diag(n, nroot, 40, 10, tol, test_precond,
      $        test_product, .true., 0.0d0,
      $        g_soln, eval, acc, iter_solve)) then
             if (ga_nodeid() .eq. 0) write(6,*) ' OK'
          else
             if (ga_nodeid() .eq. 0) write(6,*) ' not OK'
          endif
-         tol = tol*0.0001d0
+         tol = tol*0.01d0
       enddo
 c
       status = ga_destroy(g_resid)
@@ -112,7 +141,10 @@ c
       do i = ga_nodeid()+1, n, ga_nnodes()
          call ga_get(g_a, i, i, i, i, denominator, 1)
          call ga_get(g_r, i, i, 1, 1, numerator, 1)
-         x = numerator / (denominator - shift)
+         denominator = denominator - shift
+         if (abs(denominator) .lt. 0.1) denominator =
+     $        sign(0.1, denominator)
+         x = numerator / denominator
          call ga_put(g_r, i, i, 1, 1, x, 1)
       enddo
 c
@@ -149,7 +181,7 @@ c
       parameter (eacc = 1.0d-10)
       character*16 mode
       integer i, iter, j
-      double precision x, e, s, local(n)
+      double precision x, e, local(n)
       double precision drandm
       external drandm
       logical print, conjugacy, status
