@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem  
 ====================================================
-$Id: INSTALL,v 1.19 1999-08-02 21:48:05 d3e129 Exp $
+$Id: INSTALL,v 1.20 1999-08-05 21:29:32 d3e129 Exp $
 ----------------------------------------------------
 
 SOURCE CODE PROTECTION:
@@ -42,19 +42,22 @@ BUILDING NWCHEM:
 
     Symb.Name  Platform       Checked    OS/Version    Precision 
     -------------------------------------------------------------
-    SUN         Sun                      SunOS         double
-    SOLARIS     Sun             ***      Solaris 2.X   double
-    IBM         IBM RS/6000     ***      AIX 3.X 4.X   double
-    DECOSF      DEC AXP         ***      Dig.Unix 4.0  double
-    SGI_N32     SGI 64 bit os   ***      IRIX          double 
-                using 32 ints
-    SGI         SGI 32 bit os    *       IRIX 5.X 6.X  double
-    SGITFP      SGI 64 bit os    *       IRIX          double
-    CRAY-T3D    Cray T3D                 UNICOS        single
-    CRAY-T3E    Cray T3E        ***      UNICOS        single
-    PARAGON     Intel Paragon            OSF/1         double
-    DELTA       Intel Delta              NX            double
-    SP          IBM SP1,SP2     ***      AIX/LAPI      double
+    SUN         Sun                      SunOS          double
+    SOLARIS     Sun             ***      Solaris 2.X    double
+    IBM         IBM RS/6000     ***      AIX 3.X 4.X    double
+    DECOSF      DEC AXP         ***      Dig.Unix 4.0   double
+    SGI_N32     SGI 64 bit os   ***      IRIX           double 
+                using 32 ints			       
+    SGI         SGI 32 bit os    *       IRIX 5.X 6.X   double
+    SGITFP      SGI 64 bit os    *       IRIX           double
+    CRAY-T3D    Cray T3D                 UNICOS         single
+    CRAY-T3E    Cray T3E        ***      UNICOS         single
+    PARAGON     Intel Paragon            OSF/1          double
+    DELTA       Intel Delta              NX             double
+    SP          IBM SP1,SP2     ***      AIX/LAPI       double
+    LINUX       IBM PC          ***      Slackware 4.0  double
+                IBM PC          ***      RedHat 5.2/6.0 double
+                PowerPC         ***      RedHat 6.0     double
     -------------------------------------------------------------
 
    Set the environment variable, NWCHEM_TARGET, to the symbolic name
@@ -75,6 +78,12 @@ BUILDING NWCHEM:
     LINUX          Intel Pentium   DO __NOT__ set NWCHEM_TARGET_CPU
                    Power Mac       POWERPC
                    Alpha           ALPHA  (Build is currently broke)
+    LINUX using the Portland Group Compiler, pgf77, is available.  Simply
+          set your environment as above and use "make FC=pgf77" and the 
+          makefile system will take care of changing options/flags etc.  
+          We have tested with pgf77 Version 1.7 and have found that our
+          automatic z-matrix code hangs but other functionality works. 
+          This has not been robustly tested.
 
    Note: LAPI is now the primary way to use NWChem on an IBM SP system.
          If you don't have it get it from IBM.
