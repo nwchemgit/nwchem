@@ -32,7 +32,7 @@
      $                   RELTOL, PIVMIN, D, E, E2, NVAL, AB, C, MOUT,
      $                   NAB, WORK, IWORK, INFO )
 *
-*     Our version of LAPACK's DLAEBZ. Derived from DLAEBZ.la
+*     Our version of LAPACKs DLAEBZ. Derived from DLAEBZ.la
 *
 *  -- LAPACK auxiliary routine (version 1.1pnl) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
