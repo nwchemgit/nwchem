@@ -1,7 +1,7 @@
       logical function pre_short(xatm,latm,matm,ilo,ihi,jlo,jhi,
      + ishort,jshort,rshort)
 c
-c $Id: pre_short.F,v 1.3 1998-08-07 19:23:14 d3j191 Exp $
+c $Id: pre_short.F,v 1.4 2000-04-13 23:03:37 d3j191 Exp $
 c
 c     function to find atom ishort in [ilo:ihi] and jshort in [jlo,jhi]
 c              with the shortest distance rshort in nm 
@@ -29,35 +29,32 @@ c
       integer ilo,ihi,jlo,jhi,ishort,jshort
       real*8 rshort
 c
-      integer i,j
-      real*8 dist2,short2
+      integer i,j,k
+      real*8 dist,short
 c
       ishort=0
-      short2=0.0d0
+      short=0.0d0
 c
       do 1 i=ilo,ihi
       do 2 j=jlo,jhi
-      if(i.ne.j) then
-      dist2=(xatm(1,i)-xatm(1,j))*(xatm(1,i)-xatm(1,j))+
+      if(i.ne.j.and.latm(2,i).gt.0.and.latm(2,j).gt.0) then
+      dist=sqrt((xatm(1,i)-xatm(1,j))*(xatm(1,i)-xatm(1,j))+
      + (xatm(2,i)-xatm(2,j))*(xatm(2,i)-xatm(2,j))+
-     + (xatm(3,i)-xatm(3,j))*(xatm(3,i)-xatm(3,j))
-      if(ishort.eq.0.or.dist2.lt.short2) then
+     + (xatm(3,i)-xatm(3,j))*(xatm(3,i)-xatm(3,j)))
+      if(dist.lt.pre_atrad(latm(2,i))+pre_atrad(latm(2,j))
+     + .and.(ishort.eq.0.or.dist.lt.short)) then
       ishort=i
       jshort=j
-      short2=dist2
+      short=dist
       endif
       endif
     2 continue
     1 continue
 c
-      pre_short=.false.
+      rshort=short
 c
-      if(ishort.gt.0.and.
-     + latm(2,ishort).gt.0.and.latm(2,jshort).gt.0) then
-      rshort=sqrt(short2)
-      if(rshort.lt.pre_atrad(latm(2,ishort))+pre_atrad(latm(2,jshort)))
-     + pre_short=.true.
-      endif
+      pre_short=.false.
+      if(ishort.gt.0) pre_short=.true.
 c
       return
       end
