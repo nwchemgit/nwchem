@@ -35,14 +35,14 @@ c
       integer num_dirs, ind, mlen
       integer atn
       character*2 symbol
-      parameter (num_dirs = 22)
+      parameter (num_dirs = 23)
       character*10 dirs(num_dirs)
       character*16 test,element
       logical lbecke
       integer accqrad
       data dirs / 'delley', 'becke', 'gausleg', 'lebedev', 'xcoarse', 
      &            'coarse', 'medium', 'fine', 'xfine', 'user', 
-     .            'mura','treutler','lindh',
+     .            'euler','mura','treutler','lindh',
      .            'ssf','erf1','erf2',
      &            'store_wght', 'nquad_task', 'rm',
      .     'lebmed','lebfine','lebxfine'/
@@ -60,7 +60,7 @@ c
       endif
 c     
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 
-     .     2100,2200,2300,1700, 1800,1900,1100, 
+     .     2001,2100,2200,2300,1700, 1800,1900,1100, 
      &      1200, 1300, 1400, 1500, 1600,  1999) ind
       call errquit('grid_inp: unimplemented directive', ind)
 c     
@@ -279,6 +279,12 @@ c
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 1500) 
       goto 10
+c
+c     Euler_McLaurin
+c
+ 2001 continue
+      radgrid='eumac'
+      goto 2301
 c
 c     Mura-Knowles radial grid
 c
