@@ -96,7 +96,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.17 1996-02-15 18:48:42 mg141 Exp $
+c  $Id: moints_semi.F,v 1.18 1996-03-20 18:59:29 mg141 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -201,9 +201,10 @@ c
        itmp = 0
        if (ocoul) itmp = nocc
        if (oexch) itmp = itmp + nvir
-       mxrlen = gmem/(8*nseg*itmp)
-       mxrlen = min(mxrlen,(nbf*nbf))
-       MXRLEN = 512
+c$$$       mxrlen = gmem/(8*nseg*itmp)
+c$$$       mxrlen = min(mxrlen,(nbf*nbf))
+c$$$c       MXRLEN = 512
+       mxrlen=maxbfsh*maxbfsh*ga_nnodes()*10
 c
 c$$$       IF (GA_NODEID().EQ.0) WRITE(6,900) LMEMREQ, GMEM, MXRLEN
 c$$$ 900   FORMAT(/,'Local Memory required:  ',i10,' bytes '
@@ -443,6 +444,8 @@ c
        integer gr_len
        external gr_len
 c
+       if(ocoul)call ga_zero(g_jbuf)
+       if(ocoul)call ga_zero(g_kbuf)
        num_nodes = ga_nnodes()
        nmo1 = oseghi - oseglo + 1
        nmo2 = vhi - vlo + 1
