@@ -1,0 +1,236 @@
+start zn
+title  "Zn -> Zn(+) ET "
+echo
+
+geometry zn
+ Zn 0.0 0.0 0.0
+symmetry c1
+end
+
+geometry zn_r10
+ zn1 0.0 0.0  5.0
+ zn2 0.0 0.0 -5.0
+ symmetry C1
+end
+
+geometry zn_r9
+ zn1 0.0 0.0  4.5
+ zn2 0.0 0.0 -4.5
+ symmetry C1
+end
+
+geometry zn_r8
+ zn1 0.0 0.0  4.0
+ zn2 0.0 0.0 -4.0
+ symmetry C1
+end
+
+geometry zn_r7
+ zn1 0.0 0.0  3.5
+ zn2 0.0 0.0 -3.5
+ symmetry C1
+end
+
+geometry zn_r6
+ zn1 0.0 0.0  3.0
+ zn2 0.0 0.0 -3.0
+ symmetry C1
+end
+
+geometry zn_r5
+ zn1 0.0 0.0  2.5
+ zn2 0.0 0.0 -2.5
+ symmetry C1
+end
+
+basis "ao basis" spherical
+ Zn1   library "ahlrichs vdz"
+ Zn2   library "ahlrichs vdz"
+end
+
+charge 0
+set geometry zn
+scf
+ uhf
+ singlet
+ vectors input atomic output zn.mo
+end
+task scf
+
+charge 1
+scf
+ uhf
+ doublet
+ vectors input atomic output znp.mo
+ print "mulliken ao"
+end
+task scf
+
+#####################################################
+
+set geometry zn_r10
+charge 1
+scf
+ uhf
+ doublet
+ vectors input fragment zn.mo znp.mo output zna.mo
+ print "mulliken ao"
+end
+task scf energy
+
+set geometry zn_r10
+charge 1
+scf
+ uhf
+ doublet
+ vectors input fragment znp.mo zn.mo output znb.mo
+ print "mulliken ao"
+end
+task scf energy
+
+et
+ vectors reactants  zna.mo
+ vectors products   znb.mo
+end
+task scf et
+
+#####################################################
+
+set geometry zn_r9
+charge 1
+scf
+ uhf
+ doublet
+ vectors input zna.mo output zna.mo
+ print "mulliken ao"
+end
+task scf energy
+
+set geometry zn_r9
+charge 1
+scf
+ uhf
+ doublet
+ vectors input znb.mo output znb.mo
+ print "mulliken ao"
+end
+task scf energy
+
+et
+ vectors reactants  zna.mo
+ vectors products   znb.mo
+end
+task scf et
+
+#####################################################
+
+set geometry zn_r8
+charge 1
+scf
+ uhf
+ doublet
+ vectors input zna.mo output zna.mo
+ print "mulliken ao"
+end
+task scf energy
+
+set geometry zn_r8
+charge 1
+scf
+ uhf
+ doublet
+ vectors input znb.mo output znb.mo
+ print "mulliken ao"
+end
+task scf energy
+
+et
+ vectors reactants  zna.mo
+ vectors products   znb.mo
+end
+task scf et
+
+#####################################################
+
+set geometry zn_r7
+charge 1
+scf
+ uhf
+ doublet
+ vectors input zna.mo output zna.mo
+ print "mulliken ao"
+end
+task scf energy
+
+set geometry zn_r7
+charge 1
+scf
+ uhf
+ doublet
+ vectors input znb.mo output znb.mo
+ print "mulliken ao"
+end
+task scf energy
+
+et
+ vectors reactants  zna.mo
+ vectors products   znb.mo
+end
+task scf et
+
+#####################################################
+
+set geometry zn_r6
+charge 1
+scf
+ uhf
+ doublet
+ vectors input zna.mo output zna.mo
+ print "mulliken ao"
+end
+task scf energy
+
+set geometry zn_r6
+charge 1
+scf
+ uhf
+ doublet
+ vectors input znb.mo output znb.mo
+ print "mulliken ao"
+end
+task scf energy
+
+et
+ vectors reactants  zna.mo
+ vectors products   znb.mo
+end
+task scf et
+
+#####################################################
+
+set geometry zn_r5
+charge 1
+scf
+ uhf
+ doublet
+ vectors input zna.mo output zna.mo
+ print "mulliken ao"
+end
+task scf energy
+
+set geometry zn_r5
+charge 1
+scf
+ uhf
+ doublet
+ vectors input znb.mo output znb.mo
+ print "mulliken ao"
+end
+task scf energy
+
+et
+ vectors reactants  zna.mo
+ vectors products   znb.mo
+end
+task scf et
+
