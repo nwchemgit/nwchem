@@ -52,6 +52,7 @@ c
       double precision ddot
       external ddot
 c
+#include "symmdef.fh"
 #include "bitops.fh"
 #include "symmmul.fh"
 c
@@ -179,6 +180,7 @@ c
       double precision xx,yy
       double precision tmp(10000)
 c
+#include "symmdef.fh"
 #include "bitops.fh"
 #include "symmmul.fh"
 c
