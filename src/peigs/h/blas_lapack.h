@@ -1,5 +1,5 @@
 /*
- $Id: blas_lapack.h,v 1.14 1999-07-28 00:39:17 d3e129 Exp $
+ $Id: blas_lapack.h,v 1.15 2000-05-05 23:18:24 edo Exp $
   c defines */
 #define NO_EVEC 0
 
@@ -65,6 +65,28 @@
 
 #endif
 
+#ifdef SPARC64
+/*./teslamch
+ 
+  Double Precision results
+   depsilon      1.1102230246251565E-16
+      dbase      2.0000000000000000E+00
+   dsafeulp      2.2250738585072014-308
+ dlamch(u)       2.2250738585072014-308
+ 
+  Single Precision results
+   depsilon      1.1102230246251565E-16
+      dbase      2.0000000000000000E+00
+   dsafeulp      2.2250738585072014-308
+ slamch(u)       2.2250738585072014-308
+*/
+#define DLAMCHE        (DoublePrecision ) 1.1102230246251565E-16
+#define DLAMCHP        (DoublePrecision ) 1.1102230246251565E-16
+#define DLAMCHB        (DoublePrecision ) 2.E0
+#define DLAMCHS        (DoublePrecision ) 2.2250738585072014-308
+#define DLAMCHU        (DoublePrecision ) 2.2250738585072014-308
+
+#endif
 #ifdef PENTIUM
 /* wild ass guess; same as sparc */
 #define DLAMCHE 2.2204460492503131E-16

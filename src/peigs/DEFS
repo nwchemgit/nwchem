@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.69 2000-05-01 22:41:25 edo Exp $
+# $Id: DEFS,v 1.70 2000-05-05 23:18:24 edo Exp $
 #
 #======================================================================
 #
@@ -186,6 +186,26 @@ peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -DSTD_INT -O
 peigs_FC += -DSTD_INT -DSTD_DBL -dalign -D$(peigs_CPU) -O4  -D$(peigs_COMM)
 peigs_CPP += -DSTD_INT -DSTD_DBL -P
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+#
+#	this is the worst to find for any machine
+#	for the SUN we have c calling fortran library
+#
+#local to pnnl
+peigs_CTOFLIB = /msrc/apps/lib/gcc-lib/sparc-sun-sunos4.1.3/2.4.3/libgcc.a -lF77 -lV77 -L/msrc/apps/f771.4/SC1.0 -llapack -lblas -llapack -lm
+#
+#replace if you are on a machine with assembly BLAS library
+#
+endif	
+ifeq ($(peigs_TARGET),SOLARIS64)
+# sun using
+#SUN/TCGMSG
+peigs_CPU = SPARC64
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CC += -DSTD_DBL -O -D$(peigs_CPU)
+peigs_FC += -DSTD_DBL -dalign -D$(peigs_CPU) -O4  -D$(peigs_COMM)
+peigs_CPP +=  -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 #
 #	this is the worst to find for any machine
