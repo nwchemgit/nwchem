@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.39 2003-11-24 20:56:58 d3g681 Exp $
+C$Id: dft_densm.F,v 1.40 2004-05-24 20:50:59 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -93,13 +93,13 @@ c
            if(spinset.and.ipol.eq.2) then
               nmo(2)=0
               call dft_zero(2,nbf,nmo,noc(1),efermi(1),evals,
-     ,             ssmear,toll)
+     ,             ssmear,toll,.true.)
               call dft_zero(2,nbf,nmo,noc(2),efermi(2),evals(nbf+1),
-     .             ssmear,toll)
+     .             ssmear,toll,.true.)
               nmo(2)=nmo(1)
            else
               call dft_zero(ipol,nbf,nmo,ntotel,efermi(1),evals,ssmear,
-     .             toll)
+     .             toll,spinset)
               efermi(2)=efermi(1)
            endif
          else
@@ -178,7 +178,7 @@ C 1723       format(' Foccs ',(
       return
       end
       subroutine dft_zero(ipol,nbf,nmo,
-     ,     ntotel,efermi,evals,ssmear,toll)
+     ,     ntotel,efermi,evals,ssmear,toll,spinset)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -191,6 +191,7 @@ C 1723       format(' Foccs ',(
       double precision toll
       integer ntotel
       double precision efermi
+      logical spinset
 c
       integer attempts,mx_attem
       double precision emax,emin,fmax,fmin,fmed,step
@@ -211,7 +212,11 @@ c
 c
 c     open shell
 c
-         efermi=0.5d0*(evals(ntotel/2)+evals(nbf+ntotel/2))
+         if(spinset) then
+            efermi=evals(ntotel/2)
+         else
+            efermi=0.5d0*(evals(ntotel/2)+evals(nbf+ntotel/2))
+         endif
       endif
       step=max(2.d0*ssmear,1.d0)
  11   emax=efermi+step
