@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.73 2002-01-30 20:40:50 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.74 2002-01-30 21:08:26 d3j191 Exp $
 c
       implicit none
 c
@@ -663,12 +663,16 @@ c
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filpdb
       len=index(filpdb,' ')-1
-      if(irrand.eq.3) then
+      if(irrand.gt.0) then
       if(.not.pre_boxsiz(dbl_mb(i_xw),dbl_mb(i_xwc),mwm,mwmc,mwa,
      + nwm,nwmc,nwa,dbl_mb(i_xs),msa,nsa,box,irrand))
      +  call errquit('pre_boxsiz failed',9999)
-      if(drep(1).lt.box(1)) drep(1)=box(1)
-      if(drep(2).lt.box(2)) drep(2)=box(2)
+      if((irrand.eq.1.or.irrand.eq.4).and.drep(1).lt.box(1))
+     + drep(1)=box(1)
+      if((irrand.eq.2.or.irrand.eq.4).and.drep(2).lt.box(2))
+     + drep(2)=box(2)
+      if((irrand.eq.3.or.irrand.eq.4).and.drep(3).lt.box(3))
+     + drep(3)=box(3)
       endif
       mlang=nxrep*nyrep*iabs(nzrep)
       if(.not.ma_push_get(mt_int,mlang,'lang',l_lang,i_lang))

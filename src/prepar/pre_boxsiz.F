@@ -1,7 +1,7 @@
       logical function pre_boxsiz(xw,xwc,mwm,mwmc,mwa,nwm,nwmc,nwa,
      + xs,msa,nsa,box,iopt)
 c
-c $Id: pre_boxsiz.F,v 1.5 2002-01-30 20:26:44 d3j191 Exp $
+c $Id: pre_boxsiz.F,v 1.6 2002-01-30 21:08:25 d3j191 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
       box(k)=s+s
     1 continue
 c
-      if(iopt.eq.1) then
+      if(iopt.eq.1.or.iopt.eq.4) then
       s=0.0d0
       do 7 i=1,nsa
       s=max(s,xs(2,i)**2+xs(3,i)**2)
@@ -60,7 +60,7 @@ c
       box(2)=2.0d0*sqrt(s)
       box(3)=2.0d0*sqrt(s)
       endif
-      if(iopt.eq.2) then
+      if(iopt.eq.2.or.iopt.eq.4) then
       s=0.0d0
       do 12 i=1,nsa
       s=max(s,xs(1,i)**2+xs(3,i)**2)
@@ -82,7 +82,7 @@ c
       box(1)=2.0d0*sqrt(s)
       box(3)=2.0d0*sqrt(s)
       endif
-      if(iopt.eq.3) then
+      if(iopt.eq.3.or.iopt.eq.4) then
       s=0.0d0
       do 17 i=1,nsa
       s=max(s,xs(1,i)**2+xs(2,i)**2)

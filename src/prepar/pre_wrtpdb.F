@@ -6,7 +6,7 @@
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
      + irenum,invert)
 c
-c $Id: pre_wrtpdb.F,v 1.36 2002-01-08 18:16:20 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.37 2002-01-30 21:08:26 d3j191 Exp $
 c
       implicit none
 c
@@ -36,7 +36,7 @@ c
       integer i,j,k,l,nats,nums,numslv,isoff,iaoff,natom,isegm,nsegm
       integer ixrep,iyrep,izrep
       real*8 temp,dbx,dby,dbz,dist,dbz0,angle
-      real*8 o(3),p(3),x(3),y(3),v(3)
+      real*8 o(3),px(3),py(3),pz(3),x(3),y(3),v(3)
       character*3 sname
       character*1 charr
       integer icharr,ilang,inum
@@ -52,10 +52,15 @@ c
       o(1)=0.0d0
       o(2)=0.0d0
       o(3)=0.0d0
-      p(1)=0.0d0
-      p(2)=0.0d0
-      p(3)=0.0d0
-      if(irrand.ge.1.and.irrand.le.3) p(irrand)=1.0d0
+      px(1)=1.0d0
+      px(2)=0.0d0
+      px(3)=0.0d0
+      py(1)=0.0d0
+      py(2)=1.0d0
+      py(3)=0.0d0
+      pz(1)=0.0d0
+      pz(2)=0.0d0
+      pz(3)=1.0d0
 c
 c     open PDB file
 c
@@ -228,7 +233,18 @@ c
       y(1)=xs(1,i)
       y(2)=xs(2,i)
       y(3)=xs(3,i)
-      if(irrand.ge.1.and.irrand.le.3) call rotate(o,p,angle,x,y)
+      if(irrand.eq.1.or.irrand.eq.4) call rotate(o,px,angle,x,y)
+      x(1)=y(1)
+      x(2)=y(2)
+      x(3)=y(3)
+      if(irrand.eq.2.or.irrand.eq.4) call rotate(o,py,angle,x,y)
+      x(1)=y(1)
+      x(2)=y(2)
+      x(3)=y(3)
+      if(irrand.eq.3.or.irrand.eq.4) call rotate(o,pz,angle,x,y)
+      x(1)=y(1)
+      x(2)=y(2)
+      x(3)=y(3)
 c
       temp=4.009103873d1*amass(isat(i))*
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
@@ -345,7 +361,18 @@ c
       y(1)=xs(1,i)
       y(2)=xs(2,i)
       y(3)=xs(3,i)
-      if(irrand.ge.1.and.irrand.le.3) call rotate(o,p,angle,x,y)
+      if(irrand.eq.1.or.irrand.eq.4) call rotate(o,px,angle,x,y)
+      x(1)=y(1)
+      x(2)=y(2)
+      x(3)=y(3)
+      if(irrand.eq.2.or.irrand.eq.4) call rotate(o,py,angle,x,y)
+      x(1)=y(1)
+      x(2)=y(2)
+      x(3)=y(3)
+      if(irrand.eq.3.or.irrand.eq.4) call rotate(o,pz,angle,x,y)
+      x(1)=y(1)
+      x(2)=y(2)
+      x(3)=y(3)
 c
       if(iropt.eq.3) then
       if(ifra(i).eq.l) then
@@ -485,7 +512,18 @@ c
       v(2)=vw(2,j,i-nwmc)
       v(3)=vw(3,j,i-nwmc)
       endif
-      if(irrand.ge.1.and.irrand.le.3) call rotate(o,p,angle,x,y)
+      if(irrand.eq.1.or.irrand.eq.4) call rotate(o,px,angle,x,y)
+      x(1)=y(1)
+      x(2)=y(2)
+      x(3)=y(3)
+      if(irrand.eq.2.or.irrand.eq.4) call rotate(o,py,angle,x,y)
+      x(1)=y(1)
+      x(2)=y(2)
+      x(3)=y(3)
+      if(irrand.eq.3.or.irrand.eq.4) call rotate(o,pz,angle,x,y)
+      x(1)=y(1)
+      x(2)=y(2)
+      x(3)=y(3)
 c
       if(nzrep.gt.0) then
       temp=4.009103873d1*amass(iwat(j))*(v(1)*v(1)+

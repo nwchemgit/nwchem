@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.93 2002-01-30 20:40:50 d3j191 Exp $
+c $Id: pre_input.F,v 1.94 2002-01-30 21:08:26 d3j191 Exp $
 c
       implicit none
 c
@@ -1434,7 +1434,7 @@ c
       if(.not.inp_i(nxrep)) then
       if(.not.inp_a(item)) call errquit('pre_input: repeat 1',9999)
       if(inp_compare(.false.,'random',item)) then
-      if(.not.inp_i(irrand)) call errquit('pre_input: repeat 8',9999)
+      irrand=4
       goto 6838
       endif
       if(inp_compare(.false.,'randomx',item)) then
