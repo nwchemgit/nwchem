@@ -59,8 +59,13 @@ OBJ_OPTIMIZE = $(OBJ_ENERGY) $(OBJ_GRAD)
 
 HEADERS = ecp_nwc.fh
 
-USES_BLAS = ecp_cart_xpd.f \
+USES_BLAS = ecp_bess_pow.f \
+      ecp_cart_xpd.f \
       ecp_cstrans.f  \
+      ecp_grad_a.F   \
+      ecp_grad_b.F   \
+      ecp_gradient.F \
+      ecp_hessian.F  \
       ecp_int0.F     \
       ecp_int1.F     \
       ecp_int2.F     \
@@ -70,6 +75,11 @@ USES_BLAS = ecp_cart_xpd.f \
       ecp_radint1.F  \
       ecp_radint2.F  \
       ecp_s2ccoef.f  \
+      ecp_t1_Q0asy.F \
+      ecp_t1_Q0pow.F \
+      ecp_t1_Q1pow.F \
+      ecp_t2_p0pow.F \
+      ecp_t2_p1pow.F \
       int_ecp.F      
 
 LIBRARY = libnwints.a
