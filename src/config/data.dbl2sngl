@@ -1,5 +1,5 @@
 #
-# $Id: data.dbl2sngl,v 1.3 2002-02-11 18:52:47 edo Exp $
+# $Id: data.dbl2sngl,v 1.4 2003-08-14 03:57:13 edo Exp $
 #
 #
 # this file contains the transliterations for both the 
@@ -127,6 +127,7 @@ dormqr    sormqr
 dpotf2    spotf2    
 dpotrf    spotrf    
 dpotri    spotri    
+dposv     sposv     
 dspcon    sspcon    
 dsprfs    ssprfs    
 dspsvx    sspsvx    

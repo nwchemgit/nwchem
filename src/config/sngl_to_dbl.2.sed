@@ -1,5 +1,5 @@
 #
-# $Id: sngl_to_dbl.2.sed,v 1.7 2002-02-11 18:29:04 edo Exp $
+# $Id: sngl_to_dbl.2.sed,v 1.8 2003-08-14 03:57:13 edo Exp $
 #
 s/^\(     .\)[Ss][Aa][Xx][Pp][Yy]\([^A-Za-z0-9_]\)/\1daxpy\2/
 s/^\(     .\)[Ss][Dd][Oo][Tt]\([^A-Za-z0-9_]\)/\1ddot\2/
@@ -22,6 +22,7 @@ s/^\(     .\)[Ss][Ss][Pp][Ss][Vv][Xx]\([^A-Za-z0-9_]\)/\1dspsvx\2/
 s/^\(     .\)[Ss][Gg][Ee][Tt][Rr][Ss]\([^A-Za-z0-9_]\)/\1dgetrs\2/
 s/^\(     .\)[Ss][Pp][Oo][Tt][Rr][fF]\([^A-Za-z0-9_]\)/\1dpotrf\2/
 s/^\(     .\)[Ss][Pp][Oo][Tt][Rr][Ii]\([^A-Za-z0-9_]\)/\1dpotri\2/
+s/^\(     .\)[Ss][Pp][Oo][Ss][Vv]\([^A-Za-z0-9_]\)/\1dposv\2/
 s/^\(     .\)[Ss][Ll][Aa][Ss][Ee][Tt]\([^A-Za-z0-9_]\)/\1dlaset\2/
 s/^\(     .\)[Ss][Ll][Aa][Mm][Cc][Hh]\([^A-Za-z0-9_]\)/\1dlamch\2/
 s/^\(     .\)[Ss][Ss][Yy][Ee][Vv]\([^A-Za-z0-9_]\)/\1dsyev\2/
