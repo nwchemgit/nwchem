@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.135 1996-01-10 16:07:32 d3g681 Exp $
+# $Id: makefile.h,v 1.136 1996-01-14 20:05:33 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -371,6 +371,9 @@ ifeq ($(TARGET),SGITFP)
 # Removed -j 12 from MAKEFLAGS
 # Added -lutil to core libraries
 #
+# TPS 96/01/14:
+# Increased const_copy_limit to 18500
+#
   CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
          CC = cc
@@ -382,7 +385,7 @@ ifeq ($(TARGET),SGITFP)
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 
- FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=18000:global_limit=18000:fprop_limit=1750 -TENV:X=3
+ FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=18500:global_limit=18000:fprop_limit=1750 -TENV:X=3
 FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
 
  COPTIMIZE = -O
