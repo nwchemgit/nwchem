@@ -1,15 +1,15 @@
       Subroutine xc_getv(rtdb, Exc, ecoul,nExc, iVxc_opt, g_xcinv,
-     &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz, 
+     &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.19 1999-02-13 00:24:50 edo Exp $
+C$Id: xc_getv.F,v 1.20 1999-03-03 03:26:06 edo Exp $
 c
       implicit none
 c      
       integer nExc
       integer iVxc_opt
-      integer g_xcinv, g_dens(2), g_vxc(4), g_wght, g_xyz
+      integer g_xcinv, g_dens(2), g_vxc(4), g_wght, g_xyz,g_nq
       integer natoms
       logical IOLGC, wght_GA
       integer rtdb
@@ -192,7 +192,7 @@ c
 c           Option A:  Compute via direct numerical quadrature.
 c         
             if (oprint_time)call dft_tstamp('Before call to xc_quadv0.')
-            call xc_quadv0(rtdb, nExc, g_vxc, g_dens, g_wght, g_xyz, 
+            call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,g_xyz,g_nq, 
      &                     wght_GA, Exc, rho_n, rdens_atom, cntoce,
      &                     cntobfr, cetobfr, natoms)
             if (oprint_time)call dft_tstamp(' After call to xc_quadv0.')
