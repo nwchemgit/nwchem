@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.6 2000-04-28 18:58:35 zzhang Exp $
+C$Id: xc_exso.F,v 1.7 2000-04-28 20:39:30 edo Exp $
 c
       implicit none
 c      
@@ -214,10 +214,10 @@ c
       end
 
       subroutine asym_fock2e(g_fock)
+      implicit none
 c
 #include "global.fh"
 c
-      implicit none
       integer g_fock, g_tmp
 c
       if (.not. ga_duplicate(g_fock, g_tmp, 'tmp'))
