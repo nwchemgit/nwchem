@@ -25,7 +25,9 @@ c
 #include "errquit.fh"
 #include "qmmm_bq_data.fh"
 #include "qmmm.fh"
+#include "global.fh"
       logical link
+      integer i,k
 
       link = qmmm_h_link()
 
@@ -55,6 +57,9 @@ c
      >                       dbl_mb(i_qbq))
 
       end if
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "finshed setting up bq charges"
 c
 c     append solvent bq coord and charges from MM
 c     -------------------------------------------    
@@ -63,6 +68,16 @@ c     -------------------------------------------
         call mm_get_solvent_geom(nbqw,int_mb(i_ibq+nbqs),
      >                       dbl_mb(i_cbq+3*nbqs),
      >                       dbl_mb(i_qbq+nbqs))
+      end if
+
+      if(qmmm_print_debug()) then
+        call util_print_centered(6,"Bq information",
+     >              36, .true.)
+        write(*,'(/,A,T20,A,/)') "global index","coordinates(au)"
+        do i=1,nbqs+nbqw
+         write(*,'(I5,T20,3F12.6)') int_mb(i_ibq+i-1),
+     >              (dbl_mb(i_cbq+3*(i-1)+k-1),k=1,3)
+        end do
       end if
     
       end
