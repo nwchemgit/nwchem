@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.340 2000-11-01 01:05:47 edo Exp $
+# $Id: makefile.h,v 1.341 2000-11-04 02:55:17 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -258,6 +258,7 @@ ifndef PERM_DEF_DIR
  PERM_DEF_DIR   = "'.'"
 endif
 
+       CORE_LIBS =  -lutil -lpario -lglobal -lma -lpeigs 
 #
 # Machine specific stuff
 #
@@ -283,7 +284,7 @@ ifeq ($(TARGET),SUN)
 
     DEFINES = -DSUN
 
-       CORE_LIBS =  -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
+    CORE_LIBS +=   -llapack $(BLASOPT) -lblas
 endif
 
 ifeq ($(TARGET),SOLARIS)
@@ -325,7 +326,7 @@ endif
     DEFINES = -DSOLARIS  -DNOAIO  -DPARALLEL_DIAG
   LDOPTIONS = -xildoff
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
-  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -xlic_lib=sunperf -lmvec
+  CORE_LIBS +=  -xlic_lib=sunperf -lmvec
 #-llapack -lblas
 
       EXTRA_LIBS = -ldl 
@@ -383,7 +384,7 @@ ifeq ($(TARGET),SOLARIS64)
 
   LDOPTIONS = -xs -xildoff
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
-       CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas 
+       CORE_LIBS += -llapack $(BLASOPT)   -lblas 
       EXTRA_LIBS =  -ldl -lfsu
 
 ifdef LARGE_FILES
@@ -426,7 +427,7 @@ ifeq ($(TARGET),PURESOLARIS)
    LIBPATH += -L/usr/ucblib
    LIBPATH += -L/afs/msrc/sun4m_54/apps/purecov
    OPTIONS = -xildoff -Bstatic
-   CORE_LIBS = -lutil -lglobal -lma -lpeigs -llapack -lblas
+   CORE_LIBS +=  -llapack $(BLASOPT) -lblas
 # First four needed for parallel stuff, last for linking with profiling
 	   EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lintl -lc -lc -lpurecov_stubs
 
@@ -476,7 +477,7 @@ ifeq ($(TARGET),CRAY-T3D)
 #               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
                LINK.f = mppldr $(LDFLAGS)
 
-            CORE_LIBS =  -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas 
+            CORE_LIBS += -llapack $(BLASOPT) -lblas 
 
       EXPLICITF     = TRUE
       FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
@@ -509,7 +510,7 @@ ifeq ($(TARGET),CRAY-T3E)
 
                LINK.f = f90 $(LDFLAGS)
 
-            CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
+            CORE_LIBS = -llapack $(BLASOPT) -lblas
 #
 # 
 ifeq ($(BUILDING_PYTHON),python)
@@ -546,8 +547,7 @@ ifeq ($(TARGET),KSR)
 
 #       LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
         LIBPATH += -L/home2/d3g270/peigs1.1.1 -L/home/d3g681/TCGMSG_DISTRIB
-       CORE_LIBS = -lglobal -lma -lutil -lpario -lpeigs \
-                   -lksrlapk -lksrblas -llapack2 -lblas2  
+       CORE_LIBS += -lksrlapk -lksrblas -llapack2 -lblas2  
       EXTRA_LIBS = -para -lrpc
 endif
 
@@ -587,8 +587,7 @@ FVECTORIZE = -O2 -Minline=1000 # -Mvect
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
        LIBPATH  += -L/home/delilah11/gifann/lib
-       CORE_LIBS = -lpario -lglobal -lma -lutil -lpeigs \
-	           -llapack $(LIBDIR)/liblapack.a -lkmath 
+       CORE_LIBS +=  -llapack $(LIBDIR)/liblapack.a -lkmath 
       EXTRA_LIBS = -nx
 endif
 
@@ -615,8 +614,7 @@ FVECTORIZE = -O4 		# -Mvect corrupts lapack for large vectors
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
         LIBPATH += -L/home/delilah11/gifann/lib
-       CORE_LIBS = -lglobal -lma -lutil -lpario -lglobal -lpeigs \
-		   $(LIBDIR)/liblapack.a -llapack -lblas
+       CORE_LIBS += $(LIBDIR)/liblapack.a -llapack -lblas
       EXTRA_LIBS = -node
 endif
 
@@ -724,7 +722,7 @@ endif
   FVECTORIZE += -OPT:roundoff=3:IEEE_arithmetic=3
 
   DEFINES = -DSGI -DSGITFP -DEXT_INT -DPARALLEL_DIAG
-  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
+  CORE_LIBS += -llapack $(BLASOPT) -lblas
 endif
 
 
@@ -755,7 +753,7 @@ ifeq ($(TARGET),SGI)
  FOPTIMIZE = -O2
  COPTIMIZE = -O2
 
-       CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
+       CORE_LIBS = -llapack $(BLASOPT) -lblas
 #     EXTRA_LIBS = -lmalloc 
 endif
 
@@ -827,8 +825,7 @@ ifeq ($(BUILDING_PYTHON),python)
       EXTRA_LIBS += -lX11
 endif
 
-#       CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas -lmalloc_cv
-       CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas 
+       CORE_LIBS += -llapack $(BLASOPT) -lblas 
 endif
 
 ifeq ($(TARGET),HPUX)
@@ -843,7 +840,7 @@ ifeq ($(TARGET),HPUX)
   FC = f77
   LDOPTIONS = -Wl,+vallcompatwarnings -g -L/usr/lib +U77
   LINK.f = fort77   $(LDFLAGS) 
-  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas   -lm
+  CORE_LIBS +=   -llapack $(BLASOPT) -lblas   -lm
   FDEBUG = -g
   FOPTIONS =  +ppu
   COPTIONS = -Aa -D_HPUX_SOURCE +e
@@ -867,7 +864,7 @@ ifeq ($(TARGET),HPUX64)
   FC = f90
   LDOPTIONS = -Wl,+vallcompatwarnings  
   LINK.f = f90   $(LDFLAGS) $(FOPTIONS)
-  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas -lm
+  CORE_LIBS +=  -llapack $(BLASOPT) -lblas -lm
   CDEBUG =
   FDEBUG = -g
   FOPTIONS =  +ppu +i8 +DA2.0W +U77  
@@ -942,7 +939,7 @@ endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
 
-       CORE_LIBS = -lpario -lglobal -lma -lutil -lpeigs -llapack -lblas \
+       CORE_LIBS +=  -llapack $(BLASOPT) -lblas \
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
 	      -brename:.ddot_,.ddot \
@@ -1030,7 +1027,7 @@ ifeq ($(TARGET),IBM64)
     DEFINES = -DIBM -DAIX -DEXTNAME -DEXT_INT -DIBM64
        LIBPATH += -L/usr/lib -L/lib 
 
-       CORE_LIBS = -lpario -lglobal -lma -lutil -lpeigs  -llapack -lblas
+       CORE_LIBS += -llapack $(BLASOPT) -lblas
 
   EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
@@ -1083,7 +1080,7 @@ endif
 #
 #  LIBPATH += -L/sphome/harrison/peigs2.0
 
-  CORE_LIBS = -lpario -lglobal -lma -lutil -lpeigs -llapack -lblas
+  CORE_LIBS += -llapack $(BLASOPT) -lblas
 
 
 #   USE_ESSL = YES
@@ -1195,7 +1192,6 @@ endif
 #
 #  LIBPATH += -L/sphome/harrison/peigs2.0
 
-  CORE_LIBS = -lpario -lglobal -lma -lutil -lpeigs
 
 USE_ESSL = YES
 ifdef USE_ESSL
@@ -1282,8 +1278,7 @@ ifeq ($(TARGET),DECOSF)
              COPTIMIZE = -O
 
                DEFINES = -DDECOSF -DEXT_INT -DPARALLEL_DIAG
-             CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs   -llapack -lblas 
-#             CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lf77blas  -latlas
+             CORE_LIBS +=  -llapack $(BLASOPT) -lblas 
             EXTRA_LIBS = -laio 
 ifeq ($(BUILDING_PYTHON),python)
       EXTRA_LIBS += -lX11
@@ -1313,7 +1308,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
     INSTALL = @echo $@ is built
 
 ifeq ($(BUILDING_PYTHON),python)
-   EXTRA_LIBS += -ltk -ltcl -L/usr/X11/lib -lX11 -ldl
+   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
 #   EXTRA_LIBS += -lpthread
    INCPATH += -I/usr/include/python1.5
@@ -1341,7 +1336,7 @@ else
          FC  = g77
   FOPTIONS   = -fno-second-underscore 
   FOPTIMIZE  = -g -O2 -Wuninitialized 
-  COPTIONS   = -Wall -m486 -malign-double
+  COPTIONS   = -Wall -m486 -malign-double 
   COPTIMIZE  = -g -O2
 # Most Linux distributions are using EGCS
 #
@@ -1376,7 +1371,7 @@ ifndef EGCS
 endif
 endif
 
-  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
+CORE_LIBS += -llapack $(BLASOPT) -lblas
 
         CPP = gcc -E -nostdinc -undef -P
    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
@@ -1398,8 +1393,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
   EXTRA_LIBS = 
   FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
   FVECTORIZE = -fast -O5 -tune host -arch host
-#  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lf77blas -latlas
-  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
+  CORE_LIBS = -llapack $(BLASOPT) -lblas
 endif
 ifeq ($(TARGET),FUJITSU_VPP)
 #
