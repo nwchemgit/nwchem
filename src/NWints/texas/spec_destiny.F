@@ -1,4 +1,4 @@
-* $Id: spec_destiny.F,v 1.14 1999-07-29 01:05:49 d3e129 Exp $
+* $Id: spec_destiny.F,v 1.15 2000-08-10 21:13:09 windus Exp $
 c==============================================================
 c K.Wolinski : May,1997 : the use of 
 c       ics=iis(ijcs)    
@@ -258,6 +258,7 @@ c
       dimension indxp(*)
       dimension q4(*)
       dimension lder(78) ! derivative's order
+      dimension iix(4)
       dimension worker(78)
 c
       double precision threshold ! For screening output integrals
@@ -336,10 +337,15 @@ c
                buffer(lder(m),integ_n0)=worker(m)*symfact
              enddo
 c
-                              icfx(integ_n0)=icf
-                              jcfx(integ_n0)=jcf
-                              kcfx(integ_n0)=kcf
-                              lcfx(integ_n0)=lcf
+                           call lab_req(iorder,icf,jcf,kcf,lcf,iix)
+c                             icfx(integ_n0)=icf
+c                             jcfx(integ_n0)=jcf
+c                             kcfx(integ_n0)=kcf
+c                             lcfx(integ_n0)=lcf
+                              icfx(integ_n0)=iix(1)
+                              jcfx(integ_n0)=iix(2)
+                              kcfx(integ_n0)=iix(3)
+                              lcfx(integ_n0)=iix(4)
                               if(iprint.ge.2) then
                                  call print_der2(ics,jcs,kcs,lcs,inx,
      *                                           buf(1,ijklp,integ,iqu),
