@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.125 1999-08-17 00:56:45 d3e129 Exp $
+C     $Id: geom_input.F,v 1.126 1999-10-26 21:25:19 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -32,6 +32,7 @@ c     .                           and for forcing symmetry
       parameter (max_center = nw_max_atom)
       double precision coords(3,max_center), velocities(3,max_center)
       double precision charge(max_center), mass(max_center)
+      double precision invnucexp(max_center)
       character*16 tags(max_center)
       character*2 symbol
       character*16 element, groupname
@@ -44,6 +45,8 @@ c     .                           and for forcing symmetry
       character*16 format
       logical geom_zmtmak
       external geom_zmtmak
+      logical geom_mass_to_invnucexp
+      external geom_mass_to_invnucexp
       external geom_data        ! What is this?
       external geom_impose_initial_values_on_q
 c     
@@ -97,6 +100,10 @@ c
       found_au2ang_conv = .false.
 c
       call dfill(3*max_center, 0.0d0, velocities, 1)
+c
+c   default inverse of nuclear exponent is zero, i.e. point nucleus.
+c
+      call dfill(max_center, 0.0d0, invnucexp, 1)
 c     
  10   if (inp_a(field)) then
          if (inp_compare(.false.,'bqbq',field)) then
@@ -264,7 +271,7 @@ c
      &           911)
 c     
 c     New style input ... <tag> <x> <y> <z> [vx vvy vz] \
-c                         [charge <q>] [mass <m>]
+c                         [charge <q>] [mass <m>] [finite]
 c     
             call inp_set_field(1)
             status = .true.
@@ -276,7 +283,7 @@ c
                status = status .and. inp_f(velocities(3,ncenter+1))
             endif
             charge(ncenter+1) = atn
-c     
+c
  111        if (inp_a(field)) then
                if (inp_compare(.false., 'mass', field)) then
                   status = status .and. inp_f(mass(ncenter+1))
@@ -284,13 +291,17 @@ c
                else if (inp_compare(.false., 'charge', field)) then
                   status = status .and. inp_f(charge(ncenter+1))
                   goto 111
+               else if (inp_compare(.false., 'finite', field)) then
+                  status = status .and. geom_mass_to_invnucexp 
+     &                (mass(ncenter+1), invnucexp(ncenter+1))
+                  goto 111
                else
                   status = .false.
                endif
             endif
             if (.not. status) call errquit
      $           ('geom_input: <tag> <x> <y> <z> '//
-     $           ' [charge <q>] [mass <m>]', ncenter)
+     $           ' [charge <q>] [mass <m>] [finite]', ncenter+1)
             ncenter = ncenter + 1
 c     
          end if
@@ -337,6 +348,9 @@ c
 c     
          if (.not. geom_masses_set(geom, ncenter, mass))
      &        call errquit('geom_input: geom_masses_set failed', 0)
+c     
+         if (.not. geom_nucexps_set(geom, ncenter, invnucexp))
+     &        call errquit('geom_input: geom_nucexps_set failed', 0)
 c
 c     Check to see if both autosym and symmetry are being used.  If so,
 c     set autosym off.  Note the the threquiv variable is set first by the
