@@ -1,0 +1,4 @@
+      logical ocache
+      integer bas1
+      integer g_cache(3)
+      common / cint1ecache / ocache, bas1, g_cache
