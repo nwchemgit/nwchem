@@ -1,0 +1,5 @@
+c
+c $id$
+c
+      real*8 erfc,derfc,x
+c

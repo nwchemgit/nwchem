@@ -1,0 +1,270 @@
+      subroutine cf_rdtop(lfntop,filtop)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer lfntop
+      character*(*) filtop
+c
+      character*80 title(3)
+      character*10 topdat,toptim,ffield
+      character*1 cdummy
+      real*8 releps
+      integer natyps,nqtyps
+      real*8 rdata(9),vadata(6),vrdata(6)
+      integer idata(16)
+      character*6 cdata(3)
+      integer i,ia,iq,j,k,itemp(3),i_i,i_j,l_i,l_j
+      integer naw,nbw,nhw,ndw,now,ntw,nnw
+      integer nas,nbt,nhs,nds,nos,nts,nxs
+      integer numbi,numbd
+c
+      if(me.eq.0) then
+c
+      open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
+     + form='formatted',status='old',err=9999)
+c
+ 1000 format(a)
+      read(lfntop,1001,end=9997,err=9998) title
+ 1001 format(a80)
+      read(lfntop,1002,end=9997,err=9998) topdat,toptim,ffield
+ 1002 format(12x,2a10,a)
+      read(lfntop,1002,end=9997,err=9998) q14fac,releps
+ 1003 format(2f12.6)
+      if(q14fac.lt.small) q14fac=one
+      if(releps.lt.small) releps=one
+      qfac=sqrt(1.389354428d+02/releps)
+      read(lfntop,1004,end=9997,err=9998) natyps
+      read(lfntop,1004,end=9997,err=9998) nqtyps
+ 1004 format(i5)
+      call cf_inita(natyps,4,nqtyps,4)
+      do 1 i=1,natyps
+      read(lfntop,1005,end=9997,err=9998)
+     + (cdata(j),rdata(j),j=1,3),(idata(j),j=1,3)
+ 1005 format(3(a6,f12.6),3i5)
+      call cf_para(i,cdata,rdata,idata)
+    1 continue
+      do 2 i=1,natyps
+      do 3 j=i,natyps
+      read(lfntop,1006,end=9997,err=9998) (vadata(k),k=1,6)
+      read(lfntop,1006,end=9997,err=9998) (vrdata(k),k=1,6)
+ 1006 format(6e12.5)
+      call cf_parv(i,j,vadata,vrdata)
+    3 continue
+    2 continue
+      do 4 i=1,nqtyps
+      read(lfntop,1007,end=9997,err=9998) (vadata(j),j=1,6)
+ 1007 format(3(f12.6,e12.5))
+      call cf_parq(i,vadata)
+    4 continue
+      read(lfntop,1008,end=9997,err=9998) naw,nbw,nhw,ndw,now,ntw,nnw
+ 1008 format(5i7,2i10)
+      call cf_initb(1,1,nbw,2,nhw,2,ndw,3,now,3,ntw,2,nnw,2,naw)
+      read(lfntop,1009,end=9997,err=9998) nas,nbt,nhs,nds,nos,nts,nxs
+ 1009 format(5i7,3i10,2i5)
+      call cf_initb(2,nas,nbt,2,nhs,2,nds,3,nos,3,nts,2,nxs,2,0)
+      do 5 i=1,naw
+      read(lfntop,1010,end=9997,err=9998) ia,iq
+ 1010 format(41x,2i5)
+      call cf_parwiq(i,ia,iq)
+    5 continue
+      idata(4)=0
+      do 6 i=1,nbw
+      read(lfntop,1011,end=9997,err=9998)
+     + (idata(j),j=1,3),(rdata(j),j=1,6)
+ 1011 format(3i7,/,3(f12.6,e12.5))
+      call cf_parbnd(1,i,idata,rdata)
+    6 continue
+      idata(5)=0
+      do 7 i=1,nhw
+      read(lfntop,1012,end=9997,err=9998)
+     + (idata(j),j=1,3),(rdata(j),j=1,6)
+ 1012 format(3i7,/,3(f10.6,e12.5))
+      call cf_parang(1,i,idata,rdata)
+    7 continue
+      idata(6)=0
+      do 8 i=1,ndw
+      read(lfntop,1013,end=9997,err=9998)
+     + (idata(j),j=1,4),(itemp(j),rdata(3*j-1),rdata(3*j),j=1,3)
+ 1013 format(4i7,/,3(i3,f10.6,e12.5))
+      rdata(1)=dble(itemp(1))
+      rdata(4)=dble(itemp(2))
+      rdata(7)=dble(itemp(3))
+      call cf_pardih(1,i,idata,rdata)
+    8 continue
+      do 9 i=1,now
+      read(lfntop,1014,end=9997,err=9998)
+     + (idata(j),j=1,4),(rdata(3*j-1),rdata(3*j),j=1,3)
+ 1014 format(4i7,/,3(3x,f10.6,e12.5))
+      rdata(1)=0.0d0
+      rdata(4)=0.0d0
+      rdata(7)=0.0d0
+      call cf_parimp(1,i,idata,rdata)
+    9 continue
+      if(.not.ma_push_get(mt_int,max(ntw,nnw,nts,nxs),'i',l_i,i_i))
+     + call errquit('Failed to allocate temp array',0)
+      if(.not.ma_push_get(mt_int,max(ntw,nnw,nts,nxs),'j',l_j,i_j))
+     + call errquit('Failed to allocate temp array',0)
+      if(ntw.gt.0) then
+      read(lfntop,1015,end=9997,err=9998) (int_mb(i_i+i-1),i=1,ntw)
+ 1015 format(11i7)
+      read(lfntop,1015,end=9997,err=9998) (int_mb(i_j+i-1),i=1,ntw)
+      call cf_ndxtrd(1,int_mb(i_i),int_mb(i_j),ntw)
+      endif
+      if(nnw.gt.0) then
+      read(lfntop,1016,end=9997,err=9998) (int_mb(i_i+i-1),i=1,nnw)
+ 1016 format(11i7)
+      read(lfntop,1016,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nnw)
+      call cf_ndxxcl(1,int_mb(i_i),int_mb(i_j),nnw)
+      endif
+      read(lfntop,1000,end=9997,err=9998) cdummy
+      do 10 i=1,nas
+      read(lfntop,1000,end=9997,err=9998) cdummy
+   10 continue
+      idata(4)=0
+      do 11 i=1,nbt
+      read(lfntop,1017,end=9997,err=9998) (idata(j),j=1,3),
+     + (rdata(j),j=1,6)
+ 1017 format(3i7,/,3(f12.6,e12.5))
+      call cf_parbnd(2,i,idata,rdata)
+   11 continue
+      idata(5)=0
+      do 12 i=1,nhs
+      read(lfntop,1018,end=9997,err=9998) (idata(j),j=1,4),
+     + (rdata(j),j=1,6)
+ 1018 format(4i7,/,3(f10.6,e12.5))
+      call cf_parang(2,i,idata,rdata)
+   12 continue
+      idata(6)=0
+      do 13 i=1,nds
+      read(lfntop,1019,end=9997,err=9998) (idata(j),j=1,5),
+     + (itemp(j),rdata(3*j-1),rdata(3*j),j=1,3)
+ 1019 format(5i7,/,3(i3,f10.6,e12.5))
+      rdata(1)=dble(itemp(1))
+      rdata(4)=dble(itemp(2))
+      rdata(7)=dble(itemp(3))
+      call cf_pardih(2,i,idata,rdata)
+   13 continue
+      do 14 i=1,nos
+      read(lfntop,1020,end=9997,err=9998) (idata(j),j=1,4),
+     + (itemp(j),rdata(3*j-1),rdata(3*j),j=1,3)
+ 1020 format(5i7,/,3(i3,f10.6,e12.5))
+      rdata(1)=dble(itemp(1))
+      rdata(4)=dble(itemp(2))
+      rdata(7)=dble(itemp(3))
+      call cf_parimp(2,i,idata,rdata)
+   14 continue
+      if(nts.gt.0) then
+      read(lfntop,1021,end=9997,err=9998) (int_mb(i_i+i-1),i=1,nts)
+ 1021 format(11i7)
+      read(lfntop,1021,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nts)
+      call cf_ndxtrd(2,int_mb(i_i),int_mb(i_j),nts)
+      endif
+      if(nxs.gt.0) then
+      read(lfntop,1022,end=9997,err=9998) (int_mb(i_i+i-1),i=1,nxs)
+ 1022 format(11i7)
+      read(lfntop,1022,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nxs)
+      call cf_ndxxcl(2,int_mb(i_i),int_mb(i_j),nxs)
+      endif
+      if(.not.ma_pop_stack(l_j)) call errquit('Dealloc failed',0)
+      if(.not.ma_pop_stack(l_i)) call errquit('Dealloc failed',0)
+c
+      close(unit=lfntop)
+c
+      endif
+c
+      if(np.gt.1) then
+c
+      numbi=ma_sizeof(mt_int,1,mt_byte)
+      numbd=ma_sizeof(mt_dbl,1,mt_byte)
+c
+c     broadcast dimensions
+c
+      idata(1)=natyps
+      idata(2)=nqtyps
+      idata(3)=nbw
+      idata(4)=nhw
+      idata(5)=ndw
+      idata(6)=now
+      idata(7)=ntw
+      idata(8)=nnw
+      idata(9)=naw
+      idata(10)=nas
+      idata(11)=nbt
+      idata(12)=nhs
+      idata(13)=nds
+      idata(14)=nos
+      idata(15)=nts
+      idata(16)=nxs
+      call ga_brdcst(mcf_01,idata,16*numbi,0)
+      natyps=idata(1)
+      nqtyps=idata(2)
+      nbw=idata(3)
+      nhw=idata(4)
+      ndw=idata(5)
+      now=idata(6)
+      ntw=idata(7)
+      nnw=idata(8)
+      naw=idata(9)
+      nas=idata(10)
+      nbt=idata(11)
+      nhs=idata(12)
+      nds=idata(13)
+      nos=idata(14)
+      nts=idata(15)
+      nxs=idata(16)
+c
+c     initialize on nodes other than 0
+c
+      if(me.ne.0) then
+      call cf_inita(natyps,4,nqtyps,4)
+      call cf_initb(1,1,nbw,2,nhw,2,ndw,3,now,3,ntw,2,nnw,2,naw)
+      call cf_initb(2,nas,nbt,2,nhs,2,nds,3,nos,3,nts,2,nxs,2,0)
+      endif
+c
+c     broadcast force field parameters
+c
+      call ga_brdcst(mcf_02,byte_mb(i_nam),16*mat,0)
+      call ga_brdcst(mcf_03,dbl_mb(i_mas),6*mat*numbd,0)
+      call ga_brdcst(mcf_04,int_mb(i_num),3*mat*numbi,0)
+      call ga_brdcst(mcf_05,dbl_mb(i_vdw),6*mat*mat*map*numbd,0)
+      call ga_brdcst(mcf_06,dbl_mb(i_chg),6*mqt*mqp*numbd,0)
+      call ga_brdcst(mcf_07,int_mb(i_iwa),mwa*numbi,0)
+      call ga_brdcst(mcf_08,int_mb(i_iwq),mwa*numbi,0)
+      call ga_brdcst(mcf_09,int_mb(i_ibnd(1)),4*mbt(1)*numbi,0)
+      call ga_brdcst(mcf_10,int_mb(i_ibnd(2)),4*mbt(2)*numbi,0)
+      call ga_brdcst(mcf_11,dbl_mb(i_bnd(1)),6*mbp(1)*mbt(1)*numbd,0)
+      call ga_brdcst(mcf_12,dbl_mb(i_bnd(2)),6*mbp(2)*mbt(2)*numbd,0)
+      call ga_brdcst(mcf_13,int_mb(i_iang(1)),5*mht(1)*numbi,0)
+      call ga_brdcst(mcf_14,int_mb(i_iang(2)),5*mht(2)*numbi,0)
+      call ga_brdcst(mcf_15,dbl_mb(i_ang(1)),6*mhp(1)*mht(1)*numbd,0)
+      call ga_brdcst(mcf_16,dbl_mb(i_ang(2)),6*mhp(2)*mht(2)*numbd,0)
+      call ga_brdcst(mcf_17,int_mb(i_idih(1)),6*mdt(1)*numbi,0)
+      call ga_brdcst(mcf_18,int_mb(i_idih(2)),6*mdt(2)*numbi,0)
+      call ga_brdcst(mcf_19,dbl_mb(i_dih(1)),6*mdp(1)*mdt(1)*numbd,0)
+      call ga_brdcst(mcf_20,dbl_mb(i_dih(2)),6*mdp(2)*mdt(2)*numbd,0)
+      call ga_brdcst(mcf_21,int_mb(i_iimp(1)),6*mit(1)*numbi,0)
+      call ga_brdcst(mcf_22,int_mb(i_iimp(2)),6*mit(2)*numbi,0)
+      call ga_brdcst(mcf_23,dbl_mb(i_imp(1)),6*mip(1)*mit(1)*numbd,0)
+      call ga_brdcst(mcf_24,dbl_mb(i_imp(2)),6*mip(2)*mit(2)*numbd,0)
+      call ga_brdcst(mcf_25,int_mb(i_itrd(1)),2*(mtt(1)+1)*numbi,0)
+      call ga_brdcst(mcf_26,int_mb(i_itrd(2)),2*(mtt(2)+1)*numbi,0)
+      call ga_brdcst(mcf_27,int_mb(i_ixcl(1)),2*(mxt(1)+1)*numbi,0)
+      call ga_brdcst(mcf_28,int_mb(i_ixcl(2)),2*(mxt(2)+1)*numbi,0)
+c
+      endif
+c
+      return
+c
+ 9997 continue
+      call errquit('EOF reading topology file',0)
+ 9998 continue
+      call errquit('Error reading topology file',0)
+ 9999 continue
+      call errquit('Failed to open topology file',0)
+      return
+      end
