@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.1 2004-01-28 01:30:59 marat Exp $
+c $Id: cons_input.F,v 1.2 2004-01-28 02:53:37 marat Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -69,37 +69,37 @@ c
       integer ncent
       integer h_fixed,i_fixed,n_fixed
       logical status
+cc
+cc     check if we have integers here
+cc     ------------------------------
+c      if(.not.inp_i(itest))
+c     &  call errquit('cons_fixed_input: not an integer field',0,0) 
+c      call inp_prev_field()
+cc
+cc     allocate memory for fixed atom list 
+c      status = inp_ilist_size(ncent)
+c      if (.not. status) call errquit(
+c     &    'cons_fixed_input: failed reading list ', 0, INPUT_ERR)
+c      if ( .not. ma_push_get( MT_INT, ncent, 'input scratch',
+c     &      h_fixed, i_fixed) ) call errquit(
+c     &      'cons_fixed_input: unable to allocate input scratch space',
+c     &      ncent, MA_ERR)
+cc
+cc     read a list of fixed atoms
+cc     --------------------------
+c      status = inp_ilist(ncent, int_mb(i_fixed), n_fixed)
+c      if (.not. status) call errquit(
+c     &    'cons_fixed_input: failed reading list ', 0, INPUT_ERR)
 c
-c     check if we have integers here
-c     ------------------------------
-      if(.not.inp_i(itest))
-     &  call errquit('cons_fixed_input: not an integer field',0,0) 
-      call inp_prev_field()
+c      status = rtdb_put(rtdb, 'cons:fixed_atoms', MT_INT, n_fixed,
+c     &      int_mb(i_fixed))
+c      if (.not. status) call errquit(
+c     &    'cons_fixed_input: failed storing list ', 0, RTDB_ERR)
 c
-c     allocate memory for fixed atom list 
-      status = inp_ilist_size(ncent)
-      if (.not. status) call errquit(
-     &    'cons_fixed_input: failed reading list ', 0, INPUT_ERR)
-      if ( .not. ma_push_get( MT_INT, ncent, 'input scratch',
-     &      h_fixed, i_fixed) ) call errquit(
-     &      'cons_fixed_input: unable to allocate input scratch space',
-     &      ncent, MA_ERR)
+c      if (.not. ma_pop_stack(h_fixed) ) call errquit(
+c     &    'cons_fixed_input: unable to free scratch space',
+c     &    h_fixed, MA_ERR)
 c
-c     read a list of fixed atoms
-c     --------------------------
-      status = inp_ilist(ncent, int_mb(i_fixed), n_fixed)
-      if (.not. status) call errquit(
-     &    'cons_fixed_input: failed reading list ', 0, INPUT_ERR)
-
-      status = rtdb_put(rtdb, 'cons:fixed_atoms', MT_INT, n_fixed,
-     &      int_mb(i_fixed))
-      if (.not. status) call errquit(
-     &    'cons_fixed_input: failed storing list ', 0, RTDB_ERR)
-
-      if (.not. ma_pop_stack(h_fixed) ) call errquit(
-     &    'cons_fixed_input: unable to free scratch space',
-     &    h_fixed, MA_ERR)
-
       return
       end
 c
