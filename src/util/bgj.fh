@@ -1,5 +1,5 @@
 c
-c     $Id: bgj.fh,v 1.4 2000-05-25 17:20:19 bjohnson Exp $
+c     $Id: bgj.fh,v 1.5 2000-09-20 14:10:34 bjohnson Exp $
 c
 c     Information-hiding routines used by BGJ
 c
@@ -29,4 +29,6 @@ c
 c
       external bgj_get_scf_dens
       logical bgj_get_scf_dens
+c
+      external bgj_check_xc_u2d
 c

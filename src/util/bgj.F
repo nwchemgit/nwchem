@@ -4,7 +4,7 @@ c     Some will evolve into generally useful routines
 c
 c     BGJ - 8/98
 c
-c     $Id: bgj.F,v 1.5 2000-08-09 21:52:26 windus Exp $
+c     $Id: bgj.F,v 1.6 2000-09-20 14:10:34 bjohnson Exp $
 c
 
 c
@@ -348,6 +348,44 @@ c      call ga_print(g_dens(1))
 c      if (ipol.eq.2) call ga_print(g_dens(2))
 c
       bgj_get_scf_dens = .true.
+c
+      return
+      end
+
+c
+c     Checks for unrestricted 2nd derivative calculation on equal
+c     number of alpha and beta electrons with functional having a
+c     restricted/unrestricted discontinuity in that case
+c
+      subroutine bgj_check_xc_u2d()
+c
+      implicit none
+#include "bgj_common.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "../nwdft/include/cdft.fh"
+      integer noc(2)
+      double precision c
+c
+      if (ipol .eq. 2) then
+         if (.not. rtdb_get(bgj_rtdb, 'dft:noc', mt_int, 2, noc))
+     $        call errquit('bgj_check_xc_u2d: rtdb_get of noc failed',0) 
+         if (noc(1) .eq. noc(2)) then
+c           Add up coefficents for problematic functionals
+            c = abs(cfac(1)) + abs(cfac(7)) + abs(cfac(8))
+     $        + abs(cfac(9)) + abs(cfac(10)) + abs(cfac(11))
+     $        + abs(cfac(6)) + abs(cfac(3))
+            if (c .gt. 1d-8) then
+      write(*,*)'*** For a closed-shell system the unrestricted version'
+      write(*,*)'*** of this XC functional yields different second'
+      write(*,*)'*** derivative results than the restricted form due to'
+      write(*,*)'*** a non-zero second derivative of the interpolation'
+      write(*,*)'*** function at rhoa = rhob.  You may run this job as'
+      write(*,*)'*** a restricted calculation if you wish.'
+      call errquit('Problem with XC functional 2nd derivative',0)
+            endif
+         endif
+      endif
 c
       return
       end
