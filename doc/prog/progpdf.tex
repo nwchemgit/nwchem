@@ -1,0 +1,21 @@
+% $Id: progpdf.tex,v 1.1 2003-12-12 17:07:09 bert Exp $
+\input{top}
+
+\newif\ifpdf
+\ifx\pdfoutput\undefined
+\else
+ \pdfoutput=1
+  \pdftrue
+\fi
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\usepackage[pdftex]{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage{times,mathptm}
+\pdfcompresslevel=8
+\else
+\usepackage[dvips]{graphicx}
+\fi
+
+\input{prog}
+

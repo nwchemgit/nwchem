@@ -49,6 +49,13 @@ html:
 view:	$(TARG).ps
 	ghostview -bg white -fg black -bd black $(TARG).ps
 
+pdf:    $(SOURCE) .IGNORE
+	pdflatex -interaction=nonstopmode progpdf
+	pdflatex -interaction=nonstopmode progpdf
+	pdflatex -interaction=nonstopmode progpdf
+
+.IGNORE:
+
 clean:
 	/bin/rm -f *.dvi *.toc *.aux *.log 
 realclean:	clean
