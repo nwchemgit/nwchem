@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.14 2002-01-15 21:22:53 bylaska Exp $
+* $Id: band_minimizer.F,v 1.15 2002-01-16 03:56:48 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -105,6 +105,8 @@
       external cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
       character*2 cpsp_atom
       external    cpsp_atom
+      integer  cpsi_ispin,cpsi_ne
+      external cpsi_ispin,cpsi_ne
 
 
 *****************************|  PROLOGUE  |****************************
@@ -205,6 +207,7 @@
         newpsi = .false.
       end if
       value = cpsi_initialize()
+      newpsi = .true.
 
 
 *     **** electron and geodesic data structures ****
@@ -250,6 +253,8 @@
      >                 I=1,ion_nion())
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
+         write(6,1220) cpsi_ne(1),cpsi_ne(cpsi_ispin()),
+     >                 ' (fourier space)'
 
 
          write(6,1230)
