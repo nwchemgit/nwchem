@@ -28,10 +28,8 @@ c
        integer nbf,ng
        integer i,j,k,l, ii,jj,kk,ll
        integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi 
-       integer ish, jsh, ksh, lsh, g_pa, g_pb
+       integer ish, jsh, ksh, lsh
        integer maxj, maxk, maxl, blen
-c       double precision pa(nbf,nbf)
-c       double precision pb(nbf,nbf)
        double precision Gijkl,Gjikl,Gijlk,Gjilk
        double precision Gilkj,Giklj,Gjlki,Gjkli
        double precision GGijkl,GGilkj
@@ -52,39 +50,6 @@ c       double precision pb(nbf,nbf)
        double precision pb_jk(blen,blen),pb_li(blen,blen)
        external dabsmax
 c
-c       call dfill(blen*blen, 0.0d0, pa_ij, 1)
-c       call ga_get(g_pa, ilo,ihi, jlo,jhi, ld_ij, blen)
-c       call ga_get(g_pa, klo,khi, llo,lhi, pa_kl, blen)
-c       call ga_get(g_pa, jlo,jhi, ilo,ihi, pa_ji, blen)
-c       call ga_get(g_pa, llo,lhi, klo,khi, pa_lk, blen)
-c       call ga_get(g_pa, ilo,ihi, llo,lhi, pa_il, blen)
-c       call ga_get(g_pa, klo,khi, jlo,jhi, pa_kj, blen)
-c       call ga_get(g_pa, jlo,jhi, llo,lhi, pa_jl, blen)
-c       call ga_get(g_pa, klo,khi, ilo,ihi, pa_ki, blen)
-c       call ga_get(g_pa, ilo,ihi, klo,khi, pa_ik, blen)
-c       call ga_get(g_pa, llo,lhi, jlo,jhi, pa_lj, blen)
-c       call ga_get(g_pa, jlo,jhi, klo,khi, pa_jk, blen)
-c       call ga_get(g_pa, llo,lhi, ilo,ihi, pa_li, blen)
-cc
-c       call ga_get(g_pb, ilo,ihi, jlo,jhi, pb_ij, blen)
-c       call ga_get(g_pb, klo,khi, llo,lhi, pb_kl, blen)
-c       call ga_get(g_pb, jlo,jhi, ilo,ihi, pb_ji, blen)
-c       call ga_get(g_pb, llo,lhi, klo,khi, pb_lk, blen)
-c       call ga_get(g_pb, ilo,ihi, llo,lhi, pb_il, blen)
-c       call ga_get(g_pb, klo,khi, jlo,jhi, pb_kj, blen)
-c       call ga_get(g_pb, jlo,jhi, llo,lhi, pb_jl, blen)
-c       call ga_get(g_pb, klo,khi, ilo,ihi, pb_ki, blen)
-c       call ga_get(g_pb, ilo,ihi, klo,khi, pb_ik, blen)
-c       call ga_get(g_pb, llo,lhi, jlo,jhi, pb_lj, blen)
-c       call ga_get(g_pb, jlo,jhi, klo,khi, pb_jk, blen)
-c       call ga_get(g_pb, llo,lhi, ilo,ihi, pb_li, blen)
-c
-c       do i = ilo,ihi
-c       do j = jlo,jhi
-c         print *,i,j,pa_ij(i-ilo+1,j-jlo+1)
-c       enddo
-c       enddo
-c       print *
 c
 c  initialize ng
 c  =============
