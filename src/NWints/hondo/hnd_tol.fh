@@ -1,0 +1,2 @@
+      integer normf, normp, itol
+      common/hnd_baspar/normf,normp,itol

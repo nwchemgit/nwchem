@@ -1,10 +1,11 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.20 1998-10-01 20:47:30 windus Exp $
+c $Id: rhf_hessian.F,v 1.21 1998-10-05 21:03:12 windus Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
 c 
+#include "hnd_tol.fh"
       parameter (zero=0.0d+00)
       parameter (mxatom=500)
       parameter (mxprim=2048)
@@ -43,7 +44,6 @@ c     ----- routine initializes HONDO common blocks -----
 c
       common/inp_file/iread,iwrite
       common/hnd_iofile/ir,iw,ip
-      common/hnd_baspar/normf,normp,itol
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_basnum/num
       common/hnd_ijpair/ia(mxnbf)
@@ -2557,6 +2557,7 @@ C
       SUBROUTINE HND_HLF_IJ(II,JJ,KAT,DVIJ,DDVIJ)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_rys.fh"
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -2571,7 +2572,6 @@ C
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),CG(MXPRIM),
      1KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),KNG(MXSHEL),
      2KLOC(MXSHEL),KMIN(MXSHEL),KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                             NI,NJ,CX,CY,CZ
       DIMENSION DVIJ(3,225),DDVIJ(3,3,225)
@@ -2909,6 +2909,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "hnd_rys.fh"
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -2925,7 +2926,6 @@ C
      1KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),KNG(MXSHEL),
      2KLOC(MXSHEL),KMIN(MXSHEL),
      2KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                               NI,NJ
      1                              ,CX,CY,CZ
@@ -3625,6 +3625,7 @@ C
       SUBROUTINE HND_HLFD_IJ(II,JJ,IAT,KAT,DIDVIJ)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_rys.fh"
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -3639,7 +3640,6 @@ C
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),CG(MXPRIM),
      1KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),KNG(MXSHEL),
      2KLOC(MXSHEL),KMIN(MXSHEL),KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                             NI,NJ,CX,CY,CZ
       DIMENSION PIJ(225)
@@ -3948,6 +3948,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "hnd_rys.fh"
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -3964,7 +3965,6 @@ C
      1KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),KNG(MXSHEL),
      2KLOC(MXSHEL),KMIN(MXSHEL),
      2KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                               NI,NJ
      1                              ,CX,CY,CZ
@@ -4786,6 +4786,7 @@ C
      2                      DIVIJ,DIDIVIJ,DIDJVIJ)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_rys.fh"
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -4800,7 +4801,6 @@ C
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),CG(MXPRIM),
      1KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),KNG(MXSHEL),
      2KLOC(MXSHEL),KMIN(MXSHEL),KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                             NI,NJ,CX,CY,CZ
       DIMENSION DITIJ(3,225),DIVIJ(3,225)
@@ -5298,6 +5298,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "hnd_rys.fh"
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -5314,7 +5315,6 @@ C
      1KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),KNG(MXSHEL),
      2KLOC(MXSHEL),KMIN(MXSHEL),
      2KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                               NI,NJ
      1                              ,CX,CY,CZ
@@ -6257,6 +6257,7 @@ C
       END
       SUBROUTINE HND_SD_IJ(II,JJ,IAT,JAT,DISIJ,DIDISIJ,DIDJSIJ)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -6270,7 +6271,6 @@ C
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),CG(MXPRIM),
      1KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),KNG(MXSHEL),
      2KLOC(MXSHEL),KMIN(MXSHEL),KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDER/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                             NI,NJ,CX,CY,CZ
       DIMENSION DIDISIJ(3,3,225),DIDJSIJ(3,3,225),DISIJ(3,225),PIJ(225)
@@ -6544,6 +6544,7 @@ C
       END
       SUBROUTINE HND_SD_OLD(FC,LFC,DS,LDS,DAB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -6559,7 +6560,6 @@ C
      1KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),KNG(MXSHEL),
      2KLOC(MXSHEL),KMIN(MXSHEL),
      2KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDER/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                               NI,NJ
      1                              ,CX,CY,CZ
@@ -10927,6 +10927,7 @@ C
       SUBROUTINE HND_JKDSET(MDER)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -10942,7 +10943,6 @@ C
      1KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),KNG(MXSHEL),
      2KLOC(MXSHEL),KMIN(MXSHEL),
      2KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_SHLTOL/RTOL,DTOL
       COMMON/HND_SHLORD/MODSHL(512),INVSHL(512)
       COMMON/HND_DSHPRT/OUT
@@ -11047,6 +11047,7 @@ C
       SUBROUTINE HND_JKDMEM(MDER,IADDR,LFIX0)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
+#include "hnd_tol.fh"
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       LOGICAL OUT
@@ -11058,7 +11059,6 @@ C
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MACHNV/VECTOR
       COMMON/HND_MEMORY/MAXCOR,MAXSCM
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),

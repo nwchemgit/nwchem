@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 1998-10-02 21:26:11 windus Exp $
+# $Id: GNUmakefile,v 1.3 1998-10-05 21:02:43 windus Exp $
 
 include ../../config/makefile.h
 
@@ -9,7 +9,8 @@ include ../../config/makefile.h
                  hnd_droot.o
 
        HEADERS = hnd_whermt.fh \
-                 hnd_rys.fh
+                 hnd_rys.fh \
+                 hnd_tol.fh
 
        LIBRARY = libnwints.a
 

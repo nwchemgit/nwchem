@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.31 1998-10-01 20:47:52 windus Exp $
+* $Id: prp.F,v 1.32 1998-10-05 21:03:29 windus Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -466,6 +466,7 @@ C
       END
       SUBROUTINE HND_DIPINT(XS,YS,ZS,CM,L1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -481,7 +482,6 @@ C
      2                 KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDIP/XINT,YINT,ZINT,XINTX,YINTY,ZINTZ,T,XC,YC,ZC,
      1              X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,NI,NJ
       COMMON/HND_IJPAIR/IA(1)
@@ -1397,6 +1397,7 @@ C
       END
       SUBROUTINE HND_QDPINT(XXS,YYS,ZZS,XYS,XZS,YZS,CM,L1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -1411,7 +1412,6 @@ C
      2                 KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZQDP/XINT,YINT,ZINT,XINTX,YINTY,ZINTZ,
      1                  XINTXX,YINTYY,ZINTZZ,T,XC,YC,ZC,
      2                  X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,NI,NJ
@@ -2236,6 +2236,7 @@ C
       SUBROUTINE HND_OTPINT(XXXS,YYYS,ZZZS,XXYS,XXZS,YYXS,YYZS,
      1                  ZZXS,ZZYS,XYZS,CM,L1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -2251,7 +2252,6 @@ C
      2                 KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZOTP/XINT,YINT,ZINT,XINTX,YINTY,ZINTZ,
      1              XINTXX,YINTYY,ZINTZZ,XINXXX,YINYYY,ZINZZZ,
      2              T,XC,YC,ZC,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,NI,NJ
@@ -4633,6 +4633,7 @@ C
       SUBROUTINE HND_ELPOTC(NPT,XYZPT,ELPOT,DAB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_rys.fh"
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -4648,7 +4649,6 @@ C
      2                 KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZSTV/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      &                  NI,NJ
       COMMON/HND_IJPAIR/IA(1)
@@ -5174,6 +5174,7 @@ C
       SUBROUTINE HND_ELFLDC(NPT,XYZPT,ELFLD,DAB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_rys.fh"
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -5190,7 +5191,6 @@ C
      2                 KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                  NI,NJ
      1                              ,CX,CY,CZ
@@ -5774,6 +5774,7 @@ C
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
 #include "hnd_rys.fh"
+#include "hnd_tol.fh"
       CHARACTER*8 ERRMSG
       LOGICAL IANDJ
       LOGICAL NORM,DOUBLE
@@ -5787,7 +5788,6 @@ C
      2                 KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                  NI,NJ
      1                              ,CX,CY,CZ
@@ -6621,6 +6621,7 @@ C
       END
       SUBROUTINE HND_ELWFNC(NPT,XYZPT,ELDEN,V)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -6637,7 +6638,6 @@ C     LOGICAL NORM,DOUBLE
      2                 KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZWFN/XWFN,YWFN,ZWFN,X0,Y0,Z0,XI,YI,ZI,NI
       DIMENSION ELDEN(1),XYZPT(3,1),V(1)
       DIMENSION DI(15)
@@ -6802,6 +6802,7 @@ C
       END
       SUBROUTINE HND_ELDENC(NPT,XYZPT,ELDEN,DAB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "hnd_tol.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -6817,7 +6818,6 @@ C
      2                 KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZDEN/XINT,YINT,ZINT,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                  NI,NJ
       COMMON/HND_IJPAIR/IA(1)
@@ -8133,6 +8133,7 @@ c
       END
       SUBROUTINE HND_STNINT(DMAT,DBUG)
       implicit DOUBLE PRECISION (a-h,o-z)
+#include "hnd_tol.fh"
       parameter (nummx=3072)
       parameter (MXATOM=500)
       logical iandj,out,norm,double,dbug
@@ -8148,7 +8149,6 @@ c
      1ex(2048),cs(2048),cp(2048),cd(2048),cf(2048),cg(2048),
      1kstart(512),katom(512),ktype(512),kng(512),kloc(512),kmin(512),
      2kmax(512),nshell
-      COMMON/HND_baspar/normf,normp,itol
       COMMON/HND_stnpnt/pnt(4,256),pnttyp(256),npts
       COMMON/HND_stndma/chg(256),x(256),y(256),z(256),
      1      xx(256), yy(256), zz(256), xy(256), xz(256), yz(256),
@@ -9796,6 +9796,7 @@ C
       END
       SUBROUTINE HND_SPHSET
       IMPLICIT REAL*8 (A-H,O-Z)
+#include "hnd_tol.fh"
       LOGICAL DBUG
 C
 C     -----  THIS ROUTINE DEFINES THE SPHERICAL HARMONICS -----
@@ -9806,7 +9807,6 @@ C
      1                  GSHELL(15,15),
      1              PIHELL(3,3),DIHELL(6,6),FIHELL(10,10),
      1                  GIHELL(15,15)
-      COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_FRAME/U1,U2,U3,V1,V2,V3,W1,W2,W3
       DIMENSION  PSPH(3,3), DSPH(6,6), FSPH(10,10), GSPH(15,15)
       DIMENSION IPSPH(3,3),IDSPH(6,6),IFSPH(10,10),IGSPH(15,15)
@@ -11597,6 +11597,7 @@ c
       subroutine hnd_prp_init(geom,basis)
       implicit double precision (a-h,o-z)
 c 
+#include "hnd_tol.fh"
       parameter (zero=0.0d+00)
       parameter (mxatom=500)
       parameter (mxprim=2048)
@@ -11634,7 +11635,6 @@ c     ----- routine initializes HONDO common blocks -----
 c
       common/inp_file/iread,iwrite
       common/hnd_iofile/ir,iw,ip
-      common/hnd_baspar/normf,normp,itol
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_basnum/num
