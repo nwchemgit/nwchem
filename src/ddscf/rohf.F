@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.9 1996-05-14 18:00:05 d3g681 Exp $
+C$Id: rohf.F,v 1.10 1996-05-15 02:28:41 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -114,12 +114,12 @@ c
      $        nprint, '- final')
       endif
 c
-      if (util_print('final vectors', print_debug)) then
-         call ga_print(g_movecs)
+      if (util_print('mulliken', print_default)) then
+         call rohf_mulliken()
       endif
 c
-      if (util_print('mulliken', print_high)) then
-         call rohf_mulliken()
+      if (util_print('final vectors', print_debug)) then
+         call ga_print(g_movecs)
       endif
 c
 c     Clean up common blocks and allocated data and return
