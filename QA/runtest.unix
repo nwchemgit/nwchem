@@ -203,7 +203,7 @@ foreach TEST ($args_2_use)
 
   if (-f $TESTOUTPUTS/$STUB.out) /bin/rm -f $TESTOUTPUTS/$STUB.out
 
-  echo "     running nwchem"
+  echo "     running nwchem ($NWCHEM)"
 
   set x="%Uu %Ss %E %P (%Xt+%Dds+%Kavg+%Mmax)k %Ii+%Oo %Fpf %Wswaps"
   set time=(1 "$x")
