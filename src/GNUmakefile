@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.18 1994-11-16 22:31:33 gg502 Exp $
+# $Id: GNUmakefile,v 1.19 1994-11-30 18:57:58 vg422 Exp $
 
 include config/makefile.h
 
@@ -77,7 +77,7 @@ ifeq ($(NWCHEM_MODULES),)
 		included in NWChem builds.
 	@$(MAKE) -C config -f make_nwchem_config list-options
 else
-	$(MAKE) -C config -f make_nwchem_config NWCHEM_MODULES=$(NWCHEM_MODULES)
+	$(MAKE) -C config -f make_nwchem_config NWCHEM_MODULES="$(NWCHEM_MODULES)"
 endif
 
 # This is a convenience target that will make sure all subdirectories
