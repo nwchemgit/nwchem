@@ -304,9 +304,11 @@ c
          lxfac(7) = .true.
          nlxfac(7) = .true.
          xfac(7) = .75d0
-         lcfac(12) = .true.
+         lcfac(12) = .false.
          nlcfac(12) = .true.
          cfac(12) = 1.0d0
+         lcfac(6) = .true.
+         cfac(6) = 1.0d0
        goto 10
 c     
 c     HCTH for exchange 
