@@ -3,7 +3,7 @@
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.17 2003-01-10 18:25:59 d3k958 Exp $
+* $Id: et_calc.F,v 1.18 2003-02-14 22:49:53 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -26,7 +26,7 @@ c
       integer g_av,g_bu,g_t,g_h1
       integer g_avecsa,g_avecsb,g_bvecsa,g_bvecsb
       integer mem2, max2e, lena, lenb
-      integer method_2e, anmo, bnmo, nbf_file, nset
+      integer method_2e, anmo(2), bnmo(2), nbf_file, nset
 
       logical et_movecs_read
       external et_movecs_read
