@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.33 1999-12-02 23:06:14 bert Exp $
+c $Id: exactd_mem.F,v 1.34 1999-12-09 01:30:20 bert Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -77,11 +77,6 @@ c.... 2e 4 center
               isz_2e4c = max(isz_2e4c, lsz_2e4c)
 c.... 1e
               call emem_d1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
-              mem_1e = max(mem_1e, lmem_1e)
-              isz_1e = max(isz_1e, lsz_1e)
-c.... p.Vp one-electron ints for Douglas-Kroll
-              if (doug_kroll) call emem_1e_pvp(bases(ibas), 
-     $             bases(jbas), lsz_1e, lmem_1e, 1)
               mem_1e = max(mem_1e, lmem_1e)
               isz_1e = max(isz_1e, lsz_1e)
 *debug:          write(luout,*)' ibas|jbas ', ibas, '|', jbas
