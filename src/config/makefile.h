@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.10 1994-04-08 20:36:34 d3g681 Exp $
+# $Id: makefile.h,v 1.11 1994-04-22 02:08:25 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -10,22 +10,23 @@
 # TOPDIR points to your top-level directory that contains
 # src, lib, config, ... (SRCDIR, etc., are derived from TOPDIR)
 #
-# Either do a setenv for NWCHEMTOP or define NWCHEMTOP here
+# Either do a setenv for NWCHEM_TOP or define NWCHEM_TOP here
 # ... it is preferable to do the setenv then this file is indep of
 # who is using it.
 #
-# NWCHEMTOP = /msrc/home/d3g681
+# NWCHEM_TOP = /msrc/home/d3g681
 
-ifndef NWCHEMTOP
+ifndef NWCHEM_TOP
 # This variable must be defined ... the next line will cause an error
-You must define NWCHEMTOP in your environment
+You must define NWCHEM_TOP in your environment
 endif
 
-     TOPDIR = $(NWCHEMTOP)
+     TOPDIR = $(NWCHEM_TOP)
      SRCDIR = $(TOPDIR)/src
      LIBDIR = $(TOPDIR)/lib
      BINDIR = $(TOPDIR)/bin
      INCDIR = $(TOPDIR)/src/include
+     CNFDIR = $(TOPDIR)/src/config
 
 #
 # Define TARGET to be the machine you wish to build for
@@ -87,7 +88,7 @@ ifeq ($(TARGET),SUN)
      RANLIB = ranlib
       SHELL = /bin/sh
        MAKE = make
-  MAKEFLAGS = -j 4
+  MAKEFLAGS = -j 1
     INSTALL = echo $@ is built
 
        FOPT = -g -u -Nl99
@@ -192,7 +193,7 @@ ifeq ($(EXPLICITF),TRUE)
 	/bin/rm -f $*.f
 
 .F.f:	
-	$(CPP) $(INCLUDES) $(DEFINES) < $*.F | sed '/^#/D' > $*.f
+	$(CPP) $(INCLUDES) $(DEFINES) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
