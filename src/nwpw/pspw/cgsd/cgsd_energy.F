@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.40 2003-10-17 22:57:10 carlfahl Exp $                       
+c     $Id: cgsd_energy.F,v 1.41 2003-10-20 16:40:01 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -72,6 +72,7 @@ c#include "rtdb.fh"
          if (minimizer.eq.3) write(luout,1307)
          if (minimizer.eq.4) write(luout,1308)
          if (minimizer.eq.5) write(luout,1309)
+         if (minimizer.eq.6) write(luout,1311)
          call util_flush(luout)
       end if
 
@@ -93,9 +94,12 @@ c#include "rtdb.fh"
       end if
 
       if (taskid.eq.MASTER) call util_flush(luout)
-      if (newpsi) call sdminimize(15)
       if (minimizer.gt.1) call pspw_Grsm_list_start()
       if (minimizer.eq.5) it_out = 1
+      if (newpsi) then
+        call sdminimize(15)
+        !call bybminimize(E,deltae,deltac,1,.true.,2)
+      end if
    2  continue
          icount = icount + 1
          if (stalled) then
@@ -106,7 +110,7 @@ c#include "rtdb.fh"
          deltae_old = deltae
          if (minimizer.eq.1) then
            bfgscount = bfgscount + 1
-           call cgminimize(E,deltae,deltac,bfgscount)
+           call cgminimize(E,deltae,deltac,bfgscount,it_in)
          else if (minimizer.eq.2) then
            bfgscount = bfgscount + 1
            call bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
@@ -118,7 +122,10 @@ c#include "rtdb.fh"
            call cgminimize2(E,deltae,deltac,bfgscount)
          else if (minimizer.eq.5) then
            bfgscount = bfgscount + 1
-           call bybminimize(E,deltae,deltac,bfgscount)
+           call bybminimize(E,deltae,deltac,bfgscount,.false.,1)
+         else if (minimizer.eq.6) then
+           bfgscount = bfgscount + 1
+           call bfgsminimize3(E,deltae,deltac,bfgscount,minimizer)
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
@@ -318,6 +325,7 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1308 FORMAT(10X,'======= Stiefel conjugate gradient iteration =======')
  1309 FORMAT(10X,'=========== band by band diis iteration ============')
  1310 FORMAT(I8,E20.10,3E15.5)
+ 1311 FORMAT(10X,'======= Projected Grassmann lmbfgs iteration =======')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Diagonal Elements of Hamiltonian matrix')

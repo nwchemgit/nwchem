@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize.F,v 1.17 2003-10-17 22:57:10 carlfahl Exp $                       
+c     $Id: cgminimize.F,v 1.18 2003-10-20 16:40:00 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -11,12 +11,13 @@ c
 *  *                                                          *
 *  ************************************************************
   
-      subroutine cgminimize(E,deltae,deltac,current_iteration)
+      subroutine cgminimize(E,deltae,deltac,current_iteration,it_in)
       implicit none
 #include "errquit.fh"
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
+      integer    it_in
 
 #include "mafdecls.fh"
 
@@ -38,7 +39,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8     Enew,Eold,Estart
       common / cgsd_block / Enew,Eold,Estart
 
-      integer it,it_in
+      integer it
       real*8 tmin,deltat
       real*8 max_sigma
 
@@ -52,7 +53,7 @@ c      complex*16 G1(nfft3d,nemax)
 
 
 *     **** external functions ****
-      integer  control_it_in,psi_ne,control_version
+      integer  psi_ne,control_version
       real*8   control_tole,control_tolc
       real*8   psi_geodesic_energy
       real*8   psi_geodesic_denergy
@@ -67,7 +68,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8   psi_1eorbit
       real*8   linesearch
    
-      external control_it_in,psi_ne,control_version
+      external psi_ne,control_version
       external control_tole,control_tolc
       external psi_geodesic_energy
       external psi_geodesic_denergy
@@ -154,7 +155,7 @@ c     write(*,*) "sum1a,Estart,:",sum1,Estart
 *     **** Start of conjugate gradient loop ****
 *     ****                                  ****
 *     ******************************************
-      it_in = control_it_in()
+      !it_in = control_it_in()
       tole  = control_tole()
       tolc  = control_tolc()
       tmin  = deltat_min

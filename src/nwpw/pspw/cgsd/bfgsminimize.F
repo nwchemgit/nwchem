@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.16 2003-10-17 22:57:10 carlfahl Exp $                       
+c     $Id: bfgsminimize.F,v 1.17 2003-10-20 16:40:00 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -167,6 +167,7 @@ c     dte = 1.0d0
            call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
          end if
       end if
+     
 
 *     ******************************************
 *     ****                                  ****
