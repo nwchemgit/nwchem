@@ -888,16 +888,20 @@ to be overwritten.
 record coord <integer nfcoor>
 \end{verbatim}
 specifies the frequency \verb+<nfcoor>+ in molecular dynamics steps
-of writing coordinates to the trajectory file.
+of writing coordinates to the trajectory file. This directive redefines
+previous \verb+record coord+, \verb+record wcoor+ and \verb+record scoor+
+directives. 
 The default is not to record.
 
 \item
 \begin{verbatim}
-record coord <integer nfwcoo>
+record wcoor <integer nfwcoo>
 \end{verbatim}
 specifies the frequency \verb+<nfcoor>+ in molecular dynamics steps
 of writing solvent coordinates to the trajectory file. This keyword
-takes precedent over \verb+nfcoor+.
+takes precedent over \verb+nfcoor+. This directive redefines
+previous \verb+record coord+, \verb+record wcoor+ and \verb+record scoor+
+directives. 
 The default is not to record.
 
 \item
@@ -906,7 +910,9 @@ record scoor <integer nfscoo>
 \end{verbatim}
 specifies the frequency \verb+<nfscoo>+ in molecular dynamics steps
 of writing solute coordinates to the trajectory file. This keyword
-takes precedent over \verb+nfcoor+.
+takes precedent over \verb+nfcoor+. This directive redefines
+previous \verb+record coord+, \verb+record wcoor+ and \verb+record scoor+
+directives. 
 The default is not to record.
 
 \item
@@ -914,16 +920,20 @@ The default is not to record.
 record veloc <integer nfvelo>
 \end{verbatim}
 specifies the frequency \verb+<nfvelo>+ in molecular dynamics steps
-of writing velocitiesto the trajectory file.
+of writing velocitiesto the trajectory file. This directive redefines
+previous \verb+record veloc+, \verb+record wvelo+ and \verb+record svelo+
+directives. 
 The default is not to record.
 
 \item
 \begin{verbatim}
-record veloc <integer nfwvel>
+record wvelo <integer nfwvel>
 \end{verbatim}
 specifies the frequency \verb+<nfvelo>+ in molecular dynamics steps
 of writing solvent velocitiesto the trajectory file. This keyword
-takes precedent over \verb+nfvelo+.
+takes precedent over \verb+nfvelo+. This directive redefines
+previous \verb+record veloc+, \verb+record wvelo+ and \verb+record svelo+
+directives. 
 The default is not to record.
 
 \item
@@ -932,7 +942,9 @@ record svelo <integer nfsvel>
 \end{verbatim}
 specifies the frequency \verb+<nfsvel>+ in molecular dynamics steps
 of writing solute velocities to the trajectory file. This keyword
-takes precedent over \verb+nfvelo+.
+takes precedent over \verb+nfvelo+. This directive redefines
+previous \verb+record veloc+, \verb+record wvelo+ and \verb+record svelo+
+directives. 
 The default is not to record.
 
 \item
@@ -954,28 +966,28 @@ thermodynamic integration steps to record data to the
 free energy data file, with extension \verb+gib+.
 The default is 1, i.e.\ to record at every $\lambda$.
 
-\item
-\begin{verbatim}
-record cnv
-\end{verbatim}
-specifies that free energy convergence data will be written to the
-free energy convergence file, with extension \verb+cnv+.
-
-\item
-\begin{verbatim}
-record acf
-\end{verbatim}
-specifies that free energy derivative autocorrelation data will be
-written to the free energy autocorrelation file, with extension
-\verb+acf+.
-
-\item
-\begin{verbatim}
-record fet
-\end{verbatim}
-that free energy vs.\ time data will be recorded to the free energy
-data file, with extension \verb+fet+.
-
+%\item
+%\begin{verbatim}
+%record cnv
+%\end{verbatim}
+%specifies that free energy convergence data will be written to the
+%free energy convergence file, with extension \verb+cnv+.
+%
+%\item
+%\begin{verbatim}
+%record acf
+%\end{verbatim}
+%specifies that free energy derivative autocorrelation data will be
+%written to the free energy autocorrelation file, with extension
+%\verb+acf+.
+%
+%\item
+%\begin{verbatim}
+%record fet
+%\end{verbatim}
+%that free energy vs.\ time data will be recorded to the free energy
+%data file, with extension \verb+fet+.
+%
 \item
 \begin{verbatim}
 record sync <integer nfsync>
@@ -991,7 +1003,23 @@ synchronization time and the node on which the largest synchronization
 time was found. The recording of synchronization times is part of the
 load balancing algorithm. Since load balancing is only performed when
 pair-lists are updated, the frequency \verb+<nfsync>+ is correlated
-with the frequency of pair-list updates \verb+<nfpair>+.
+with the frequency of pair-list updates \verb+<nfpair>+. This directive
+is only needed for analysis of the load balancing performance. For 
+normal use this directive is not used.
+
+\item
+\begin{verbatim}
+record times <integer nftime>
+\end{verbatim}
+specifies the frequency  \verb+<nfsync>+ in molecular dynamics steps
+of writing information to the timings file, with extension
+\verb+tim+. 
+The default is not to record.
+The information written is wall clock time used by each of the
+processors for the different components in the force evaluation.
+This directive is only needed for analysis of the wall clock time
+distribution. For normal use this directive is not used.
+
 \end{description}
 
 \section{Program control options}
@@ -1015,12 +1043,16 @@ resized with a factor
 where $T_{sync}$ is the accumulated synchronization time of all nodes,
 $n_p$ is the total number of nodes, $t^{min}_{sync}$ is the synchronization
 time of the busiest node, and $t_{wall}$ is the wall clock time of the
-molecular dynamics step.\\
+molecular dynamics step.
 For the combined load balancing, \verb+ldpair+ is the number of successive pair 
 redistribution load balancing steps in which the accumulated synchronization
-time increases, before a resizing load balancing step will be attempted.\\
+time increases, before a resizing load balancing step will be attempted.
 Load balancing is only performed in molecular dynamics steps in which the
-pair-list is updated.
+pair-list is updated. The default is not to use load balancing. In most
+cases, effective load balancing is obtained with\\
+\begin{verbatim}
+load pairs 10 size 0.75
+\end{verbatim}
 
 \item
 \begin{verbatim}

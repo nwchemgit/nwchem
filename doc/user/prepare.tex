@@ -236,7 +236,7 @@ hbuild
 \end{verbatim}
 
 Keyword \verb+hbuild+ may be used to add hydrogen atoms to the
-unknown segemnts of the structure found on the pdb file.
+unknown segments of the structure found on the pdb file.
 
 
 \section{Sequence file generation}
@@ -318,9 +318,9 @@ specified in this directive.
 counter <integer num> <string ion>
 \end{verbatim}
 
-Directive \verb+counter+ add \verb+num+ counter ions of type
+Directive \verb+counter+ adds \verb+num+ counter ions of type
 \verb+ion+ to the sequence file. Up to 10 \verb+counter+
-directive may appear in the input block.
+directives may appear in the input block.
 
 \section{Topology file generation}
 
@@ -469,7 +469,7 @@ in terms of atom selection.
 new_rst
 \end{verbatim}
 
-Keyword \verb+restart+ will cause an existing restart file to be
+Keyword \verb+new_rst+ will cause an existing restart file to be
 overwritten with a new file.
 
 The follwing directives control the manipulation of restart
@@ -553,10 +553,11 @@ optional value is used to scale the atomic radii. A neagtive value
 of cpk resets the rendering to stick.
 
 \begin{verbatim}
-center
+center | centerx | centery | centerz
 \end{verbatim}
 
-This directive centers the solute center of geometry at the origin.
+These directives center the solute center of geometry at the origin,
+in the y-z plane, in the x-z plane or in the x-y plane, respectively.
 
 \begin{verbatim}
 orient
@@ -570,7 +571,7 @@ translate [atom | segment | molecule] \
 \end{verbatim}
 
 This directive translates solute atoms in the indicated range by xtran,
-without checking for bas contacts in the resulting structure.
+without checking for bad contacts in the resulting structure.
 
 \begin{verbatim}
 remove solvent [inside | outside] [x <real xmin> <real xmax>] \
