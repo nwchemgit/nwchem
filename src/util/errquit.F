@@ -1,5 +1,5 @@
       subroutine errquit(string, icode)
-C$Id: errquit.F,v 1.9 1996-08-19 15:28:56 d3g681 Exp $
+C$Id: errquit.F,v 1.10 1996-09-19 18:35:20 vg038 Exp $
 #include "global.fh"
       character*(*) string
       integer icode
@@ -15,7 +15,7 @@ c
       if (ga_nodeid() .eq. 0) write(6,1)
  1    format(1x,72('-'))
       write(6, 2) string, icode
- 2    format(1x,a,i4)
+ 2    format(1x,a,i9)
       if (ga_nodeid() .eq. 0) then
         write(6,1)
         call inp_errout
