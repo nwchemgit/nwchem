@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.11 2004-02-24 21:22:08 bylaska Exp $
+* $Id: kbppv3.F,v 1.12 2005-01-27 18:43:10 bylaska Exp $
 *
 
 *     **************************************
@@ -310,13 +310,13 @@
          call iwrite(2,nmax,1)
          call dwrite(2,rc,lmax+1)
 
-         
          call iwrite(2,nprj,1)
+         if (nprj.gt.0) then
          call iwrite(2,int_mb(n_prj_indx),nprj)
          call iwrite(2,int_mb(l_prj_indx),nprj)
          call iwrite(2,int_mb(m_prj_indx),nprj)
-
          call dwrite(2,dbl_mb(vnlnrm_indx),(lmax+1))
+         end if
 
          if (version.eq.4) call dwrite(2,rlocal,1)
          call dwrite(2,rcore,1)
