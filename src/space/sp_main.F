@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa)
 c
-c $Id: sp_main.F,v 1.32 1999-12-16 15:41:03 d3j191 Exp $
+c $Id: sp_main.F,v 1.33 1999-12-16 15:52:31 d3j191 Exp $
 c
       implicit none
 c
@@ -208,20 +208,14 @@ c
       if(numsa.gt.0.and.npack.gt.0) then
       call ga_distribution(ga_is,me,il,ih,jl,jh)
       call ga_get(ga_is,il,il+numsa-1,jl,jh,isl,msa)  
-      write(80+me,'(14i5)') ((isl(i,j),j=1,14),i=1,numsa)    
       call sp_pack(numsa,isl,islp)      
-      call sp_unpack(numsa,isl,islp) 
-      write(90+me,'(14i5)') ((isl(i,j),j=1,14),i=1,numsa)
       call ga_put(ga_is,il,il+numsa-1,jl,jl+npack-1,islp,msa)
       endif
 c
       if(numwm.gt.0.and.npackw.gt.0) then
       call ga_distribution(ga_iw,me,il,ih,jl,jh)
       call ga_get(ga_iw,il,il+numwm-1,jl,jh,iwl,mwm)
-      write(82+me,'(5i5)') ((iwl(i,j),j=1,5),i=1,numwm)
       call sp_packw(numwm,iwl,iwlp)
-      call sp_unpackw(numwm,iwl,iwlp)
-      write(92+me,'(5i5)') ((iwl(i,j),j=1,5),i=1,numwm)
       call ga_put(ga_iw,il,il+numwm-1,jl,jl+npackw-1,iwlp,mwm)
       endif
 c
