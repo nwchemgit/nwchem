@@ -136,6 +136,12 @@ c
      $     call errquit('scf_init: put of nclosed failed',0)
       if (.not. rtdb_put(rtdb, 'scf:nelec', MT_INT, 1, nelec))
      $     call errquit('scf_init: put of nelec failed',0)
+      if (scftype .eq. 'UHF') then
+         if (.not. rtdb_put(rtdb, 'scf:nalpha', MT_INT, 1, nalpha))
+     $        call errquit('scf_init: put of nalpha failed',0)
+         if (.not. rtdb_put(rtdb, 'scf:nbeta', MT_INT, 1, nbeta))
+     $        call errquit('scf_init: put of nbeta failed',0)
+      endif
 c     
 c     Allocate persistent local and global arrays
 c
@@ -168,7 +174,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.9 1995-05-29 19:07:57 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.10 1995-10-09 21:38:07 mg141 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
