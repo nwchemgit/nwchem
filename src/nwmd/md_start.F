@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.40 1999-11-26 17:38:00 d3j191 Exp $
+c $Id: md_start.F,v 1.41 1999-11-26 20:12:48 d3j191 Exp $
 c
       implicit none
 c
@@ -1089,6 +1089,8 @@ c
       nbytes=8*nbytes
 #endif
       call ga_brdcst(mrg_d36,ptol,nbytes,0)
+      nbytes=6*ma_sizeof(mt_int,1,mt_byte)
+      call ga_brdcst(mrg_d37,npx,nbytes,0)
       endif
 c
 c     Open debug file if requested
@@ -1096,6 +1098,7 @@ c     ----------------------------
 c
       if(idebug.gt.0) then
       write(fildbg,'(a,i5.5,a)') 'nwchem_',me,'.dbg'
+      lfndbg=34
       open(unit=lfndbg,file=fildbg,form='formatted',status='unknown')
       endif
 c
