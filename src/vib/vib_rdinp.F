@@ -1,8 +1,8 @@
       SUBROUTINE vib_RDINP(
      &    HESS,HESST,COORD,ATMASS,ZAN,OLDLBLAT,IZMAT,NELS,
      &    PROJEC,ZEROPE,HESOUT,INTERN,
-     &    rtdb)
-* $Id: vib_rdinp.F,v 1.4 1996-02-15 22:12:06 d3e129 Exp $
+     &    rtdb,first_pass)
+* $Id: vib_rdinp.F,v 1.5 1997-04-11 09:26:45 d3e129 Exp $
 C
 C This routine reads the user input and the hessian matrix from
 C      the appropriate place.  The default is to use the "default"
@@ -20,6 +20,7 @@ C
       LOGICAL UPDATE,SETMAS,PROJEC,ZEROPE,HESOUT,INTERN
       logical dum_log
       integer natom, nat3, nhess, nhesst
+      logical first_pass
       DOUBLE PRECISION HESS(NAT3,NAT3)  ! Hessian matrix
       DOUBLE PRECISION HESST(NHESST)    ! Lower triangle of hessian matrix
       DOUBLE PRECISION COORD(3,NATOM)   ! Atom x,y,z coordinates
@@ -38,7 +39,7 @@ C
       COMMON /cvib_SETCON/ AMS(36),WAVE,NUMANS     ! setup parameters
 c
       integer h_lblb, i_lblb, geom
-      integer il_cnt, iii, ijunk, idum
+      integer il_cnt, iii, ijunk
 c
       integer rtdb
 *rak:      DATA ITAP11 /11/
@@ -124,7 +125,7 @@ c
 *rak:      CALL WREADW(ITAP10,ZAN,INTOWP(NATOM),IPCHG,IJUNK)  ! read charges
 *rak:      CALL WREADW(ITAP10,OLDLBLAT,2*NATOM,IPLBL,IJUNK)      ! read labels
 *rak:      CALL WREADW(ITAP10,COORD,INTOWP(NAT3),IPC,IJUNK)   ! read coordinates
-      WRITE(luout,*)' Vib: Default input used '
+      if (first_pass) WRITE(luout,*)' Vib: Default input used '
       UPDATE = .FALSE. ! analytic Hessian used
       SETMAS = .TRUE. ! default masses used
       PROJEC = .FALSE.
@@ -140,6 +141,16 @@ c
         write(luout,*)' vib:zero point energy option set to',zerope
       endif
       if (zerope) projec = .true.
+*
+* over ride all input to do normal and projected analysis
+*
+      if (first_pass) then
+        projec = .false.
+        zerope = .false.
+      else
+        projec = .true.
+        zerope = .true.
+      endif
 *.. hessian read in vib_vib hess and hesst set there
 *rak:      IF (UPDATE) THEN  ! read updated Hessian
 *rak:        WRITE(luout,*)' Updated Hessian read from unit 11 '
@@ -169,7 +180,7 @@ c
 *rak:c          CALL PRDATA(HESS,DUM,NAT3,NAT3,NAT3,NAT3,.FALSE.,NPRI)
 *rak:          CALL PRNTPD(HESST,NHESST,NAT3,6)
 *rak: ENDIF
-      call vib_chkhess(hess,nat3)
+      call vib_chkhess(hess,nat3,first_pass)
 * set labels, zan and coords information
 c
       if (.not.ma_push_get(MT_BYTE,(2*natom),' labels for vib',
@@ -218,29 +229,33 @@ c
 C
 C Write out atom information read here
 C
-      WRITE(6,10000)
+      if (first_pass) then
+        WRITE(6,10000)
+C
+        il_cnt = 0
+        DO 00300 III = 1,NATOM
+          WRITE(6,10001)
+     &        byte_mb(il_cnt+i_lblb),
+     &        byte_mb(il_cnt+i_lblb+1),
+     &        III,
+     &        COORD(1,III),COORD(2,III),COORD(3,III),
+     &        ATMASS(III)
+          il_cnt = il_cnt + 2
+00300   CONTINUE
+        WRITE(6,10002)
+      endif
+      if (.not.ma_pop_stack(h_lblb)) call errquit
+     &    ('vib_rdinp ma_pop failed',911)
+      RETURN ! leave routine
+10001 FORMAT(4x,a1,a1,3x,I5,4(1PD15.7))
+10002 FORMAT(1X,74('-')///)
+C
  9000 FORMAT(/,10X,'-----------------------------------',/,10X,
      &             'NUCLEAR HESSIAN (Hartree/Bohr/Bohr)',/,10X,
      &             '-----------------------------------',//)
 10000 FORMAT(//,1X,28('-'),' Atom information ',28('-'),/,
      +5X,'atom',4X,'#',8X,'X',14X,'Y',14X,'Z',12X,'mass',/,
      +1X,74('-'))
-C
-      il_cnt = 0
-      DO 00300 III = 1,NATOM
-*         WRITE(6,10001)OLDLBLAT(1,III),OLDLBLAT(2,III),III,COORD(1,III),
-*     +                 COORD(2,III),COORD(3,III),ATMASS(III)
-         WRITE(6,10001)byte_mb(il_cnt+i_lblb),byte_mb(il_cnt+i_lblb+1),
-     &      III,COORD(1,III),COORD(2,III),COORD(3,III),ATMASS(III)
-	il_cnt = il_cnt + 2
-00300 CONTINUE
-10001 FORMAT(4x,a1,a1,3x,I5,4(1PD15.7))
-      WRITE(6,10002)
-10002 FORMAT(1X,74('-')///)
-C
-      if (.not.ma_pop_stack(h_lblb)) call errquit
-     &    ('vib_rdinp ma_pop failed',911)
-      RETURN ! leave routine
 99900 WRITE(6,*)' ERROR READING MASSES FROM UNIT 5'
       CALL errquit('rdinp error',911)
 99901 WRITE(6,*)' ERROR READING TAPE 11 '

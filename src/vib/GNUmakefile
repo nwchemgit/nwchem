@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 1997-02-17 20:52:45 d3g681 Exp $
+# $Id: GNUmakefile,v 1.9 1997-04-11 09:26:33 d3e129 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = vib_callg.o
            OBJ = vib_bcalc.o \
@@ -33,7 +33,7 @@
        LIBRARY = libvib.a
    LIB_TARGETS = 
 
-     USES_BLAS = vib_hmass.F vib_wrtfreq.F vib_tors.F
+     USES_BLAS = vib_hmass.F vib_wrtfreq.F vib_tors.F vib_vib.F
 
 include ../config/makefile.h
 include ../config/makelib.h

@@ -1,5 +1,5 @@
-      SUBROUTINE vib_CHKHESS(HESS,NAT3)
-* $Id: vib_chkhess.F,v 1.2 1995-10-21 09:16:04 d3e129 Exp $
+      SUBROUTINE vib_CHKHESS(HESS,NAT3,first_pass)
+* $Id: vib_chkhess.F,v 1.3 1997-04-11 09:26:38 d3e129 Exp $
 C
 C  This routine checks to make sure the analytic Hessian is symmetric
 C
@@ -10,13 +10,14 @@ C
       PARAMETER(THRESH = 1.0D-5)
       integer nat3
       double precision HESS(NAT3,NAT3) ! full square Hessian
+      logical first_pass
 c
       double precision xdiff
       integer iii,  jjj, jjjend
 C
+      LSYM = .TRUE.
       DO 00100 III = 2,NAT3  ! loop over size-1
          JJJEND = III-1
-         LSYM = .TRUE.
          DO 00100 JJJ = 1,JJJEND
             XDIFF = HESS(III,JJJ)-HESS(JJJ,III)  ! difference of ij and ji
             XDIFF = ABS(XDIFF)
@@ -30,9 +31,9 @@ C
             ENDIF
 00100 CONTINUE
 C
-      IF (LSYM) THEN
+      IF (LSYM.and.first_pass) THEN
         WRITE(luout,*)
-        WRITE(luout,*)' Analytic Hessian passed symmetry test '
+        WRITE(luout,*)' Nuclear Hessian passed symmetry test '
         WRITE(luout,*)
       END IF
       RETURN

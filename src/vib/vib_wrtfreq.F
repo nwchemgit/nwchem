@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.2 1995-10-21 09:16:37 d3e129 Exp $
+* $Id: vib_wrtfreq.F,v 1.3 1997-04-11 09:26:50 d3e129 Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -7,6 +7,7 @@ C
       IMPLICIT none
 c
 #include "stdio.fh"
+#include "mafdecls.fh"
 c
       integer nat3
       LOGICAL ZEROPE
@@ -67,8 +68,11 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
       IF(ZEROPE)THEN
         ZPE=0.5D00*SUMFREQ*RATE
         WRITE (6,10002)ZPE
+        call ecce_print1('zero point energy',mt_dbl,zpe,1)
       ENDIF
-10002 FORMAT(1X,//,'THE ZERO-POINT ENERGY (KCAL/MOL) = ', D15.8)
+10002 FORMAT(1X,//,
+     &    'The Zero-Point Energy from the projected analysis = ',
+     &    1pd15.8,' Kcal/mol')
 *rak:      IF (NPRI.EQ.0) WRITE (ITAP96,10002)ZPE
 *rak:      GO TO 00096
 *rak:      ELSE

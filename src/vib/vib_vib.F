@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.4 1996-02-15 22:12:07 d3e129 Exp $
+* $Id: vib_vib.F,v 1.5 1997-04-11 09:26:48 d3e129 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -40,15 +40,14 @@ c
       logical status
 c
       integer i_core, h_core, iii, idum, ivc, itot
-      integer nels, npri, ihess, icoord, ihesst, ihessp, iegval, iegvec
+      integer nels, npri, ihess, icoord, ihesst, ihesstcp,
+     &    ihessp, iegval, iegvec
       integer imass, iscr, i10, i20, i30, i40
       double precision dbl_tmp
+      logical first_pass
+
 c
-      WRITE(luout,*)' Vibrational analysis via the FX method '
-      WRITE(luout,*)
-      WRITE(luout,*)' See chapter 2 in "Molecular Vibrations" by ',
-     +          'Wilson, Decius and Cross'
-      WRITE(luout,*)
+      first_pass = .true.
 *... check input logic 
       status =           (in_file.and.(in_ma.or.in_ga))
       status = status.or.(in_ma.and.(in_file.or.in_ga))
@@ -84,7 +83,8 @@ C Calculate pointers
 C
       IHESS    =  1                ! square hessian
       IHESST   =  IHESS  + NHESS   ! lower-tri Hessian
-      ICOORD   =  IHESST + NHESST  ! geometrical coordinates
+      ihesstcp =  IHESST + NHESST  ! copy of lower-tri hessian
+      ICOORD   =  IHESSTcp + NHESST  ! geometrical coordinates
       IMASS    =  ICOORD + NAT3    ! mass of each atom
       IEGVAL   =  IMASS  + NATOM   ! eigenvalues from Hessian matrix
       IEGVEC   =  IEGVAL + NAT3    ! eigenvectors from Hessian matrix
@@ -107,7 +107,8 @@ C Reset pointers for MA array
 C
       IHESS    =  i_core           ! square hessian
       IHESST   =  IHESS  + NHESS   ! lower-tri Hessian
-      ICOORD   =  IHESST + NHESST  ! geometrical coordinates
+      ihesstcp =  IHESST + NHESST  ! copy lower-tri Hessian
+      ICOORD   =  IHESSTcp + NHESST  ! geometrical coordinates
       IMASS    =  ICOORD + NAT3    ! mass of each atom
       IEGVAL   =  IMASS  + NATOM   ! eigenvalues from Hessian matrix
       IEGVEC   =  IEGVAL + NAT3    ! eigenvectors from Hessian matrix
@@ -138,8 +139,37 @@ c
         close(unit=69,status='keep')
         call vib_dsquar(dbl_mb(ihesst),dbl_mb(ihess),nat3,nat3)
       endif
+00001 continue
+      write(luout,*)
+      write(luout,*)
+      if (first_pass) then
+        WRITE(luout,*)' Vibrational analysis via the FX method '
+        WRITE(luout,*)
+        WRITE(luout,*)' See chapter 2 in "Molecular Vibrations" by ',
+     +      'Wilson, Decius and Cross'
+        WRITE(luout,*)
+      else
+        WRITE(luout,*)
+     &      '       Vibrational analysis via the FX method '
+        write(luout,*)
+     &      ' --- with translations and rotations projected out ---'
+        write(luout,*)
+     &      ' --- via the Eckart algorithm                      ---'
+      endif
+      if (first_pass) then
+c
+c save a copy of hesst
+c
+        call dcopy(nhesst,dbl_mb(ihesst),1,dbl_mb(ihesstcp),1)
+      else
+c
+c restore copy of hesst and hess
+c
+        call dcopy(nhesst,dbl_mb(ihesstcp),1,dbl_mb(ihesst),1)
+        call vib_dsquar(dbl_mb(ihesst),dbl_mb(ihess),nat3,nat3)
+      endif
 C
-C Read in user input and tape10 arrays.
+C Read in user input and tape10 arrays.  NO INPUT REQUIRED NOW
 C      Note: ! scratch pointer for atom charges (real NAT words)
 C              and atom lables (real 2*nat words)
       IDUM=ITOT+1
@@ -149,26 +179,15 @@ C              and atom lables (real 2*nat words)
      &    dbl_mb(ihess),dbl_mb(ihesst),dbl_mb(icoord),
      &    dbl_mb(imass),dbl_mb(iscr),  dbl_mb(idum),
      &    dbl_mb(i10),nels,projec,zerope,hesout,intern,
-     &    rtdb)
+     &    rtdb,first_pass)
       if (projec) then
         call vib_eckart( dbl_mb(ihess), dbl_mb(ihessp), dbl_mb(ihesst),
      &      dbl_mb(icoord),  dbl_mb(ivc) )
       end if
-*rak:c****
-*rak:c**** write projected Hessian to tape 10
-*rak:C****
-*rak:      IF (HESOUT) THEN
-*rak:        IPH = IP10(57) ! pointer to hessian
-*rak:C
-*rak:        CALL WWRITW(ITAP10,DBL_MB(IHESS),INTOWP(NAT3*NAT3),
-*rak:     &    IPH,IJUNK) ! Write it
-*rak:        CALL MATOUT(DBL_MB(IHESS),NAT3,NAT3,NAT3)
-*rak:      END IF
-*rak:C
 * rak dfill
       CALL Dfill(NAT3,0.0d00,DBL_MB(ISCR),1) ! zero scratch used
 C
-      CALL vib_hmass(DBL_MB(IHESST),DBL_MB(IMASS))         ! mass weight and scale hessian
+      CALL vib_hmass(DBL_MB(IHESST),DBL_MB(IMASS),first_pass) ! mass weight and scale hessian
 C
 C Diagonalize mass-weighted, scaled hessian matrix
 C     Note: ! scratch pointer for givens (real 5*NAT3 words)
@@ -192,7 +211,8 @@ C
       CALL vib_CLEAN(DBL_MB(IEGVEC),NAT3*NAT3,1.0D-07) ! CLEAN eigenvectors
       WRITE(6,9000)
       CALL vib_PRDATA(DBL_MB(IEGVEC),DBL_MB(IEGVAL),
-     &    NAT3,NAT3,NAT3,NAT3,.TRUE.,NPRI) ! Write eigenvalues and eigenvectors
+     &    NAT3,NAT3,NAT3,NAT3,.TRUE.,NPRI,
+     &    first_pass)     ! Write eigenvalues and eigenvectors
 C
 C----------Call GAMESS subroutines which express the HESSIAN and the normal 
 C----------modes in terms of internal coordinates.
@@ -200,6 +220,11 @@ C
       IF(INTERN)CALL vib_BCALC(DBL_MB(I10),DBL_MB(I20),DBL_MB(I30),
      &    DBL_MB(I40),DBL_MB(ITOT),
      &    DBL_MB(IHESS),DBL_MB(IEGVEC),DBL_MB(IEGVAL))
+c
+      if (first_pass) then
+        first_pass = .false.
+        goto 00001
+      endif
 C
  9000 FORMAT(///,10X,'-------------------------------------------------'
      &        ,/,10X,'NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES'

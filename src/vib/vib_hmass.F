@@ -1,5 +1,5 @@
-      SUBROUTINE vib_HMASS(HESST,ATMASS)
-* $Id: vib_hmass.F,v 1.2 1995-10-21 09:16:10 d3e129 Exp $
+      SUBROUTINE vib_HMASS(HESST,ATMASS,first_pass)
+* $Id: vib_hmass.F,v 1.3 1997-04-11 09:26:40 d3e129 Exp $
 C
 C  This routine mass weights and scales the Hessian matrix
 C       The scaling is done to avoid numerical problems in the
@@ -11,6 +11,7 @@ C
 c
       double precision HESST(NHESST) ! lower triangular Hessian
       double precision ATMASS(NAT) ! mass of the atoms
+      logical first_pass
 c
       double precision fact, scale
       integer ii, jj, jjend, iatii, iatjj, idum
@@ -33,8 +34,10 @@ C
       SCALE = 1.0D03                      ! Hessian scaling factor
 *dscal
       call dscal(nhesst,scale,hesst,1) ! Scale Hessian for diagonaization
-      WRITE(6,9000)
-      CALL vib_PRNTPD(HESST,NHESST,NAT3,6)
+      if (first_pass) then
+        WRITE(6,9000)
+        CALL vib_PRNTPD(HESST,NHESST,NAT3,6)
+      endif
 
  9000 FORMAT(/,10X,'-----------------------------------------------',
      &                                                       '-----',
