@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.165 2003-10-28 19:54:48 edo Exp $
+C     $Id: geom_input.F,v 1.166 2003-12-12 20:04:55 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -2833,10 +2833,15 @@ c
 c
       integer i,j,k, icent, jcent
       logical status
+      logical ischarge,isbq
       double precision diff
 c
       status = .true.
+      ischarge = inp_compare(.false.,identity,'charge')
       do i = 2,ncenter
+        isbq = inp_compare(.false.,tags(i),'bq')
+c**** skip charge comparision with pure Bq atom (mv)***
+        if(ischarge .and. isbq) goto 00011
         do j = 1,(i-1)
           if (tags(i).eq.tags(j))
      &        status = status .and.
@@ -2848,6 +2853,7 @@ c
             goto 00010
           endif
         enddo
+00011   continue
       enddo
       return
 00010 continue
