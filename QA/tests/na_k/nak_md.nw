@@ -4,7 +4,7 @@ start nak
 
 md
  system nak_md
- equil 0 data 100 step 0.002
+ equil 0 data 10 step 0.002
  isotherm
  isobar
  print step 10 stat 100
