@@ -66,6 +66,7 @@ c
 #include "util.fh"
 #include "inp.fh"      
 #include "cfileprefix.fh"
+#include "global.fh"
 c
       character*(*) stub      ! [input] stub name for file
       logical oscratch        ! [input] true=scratch, false=permanent
@@ -73,21 +74,23 @@ c
       character*(*) name      ! [output] full filename
 c
       character*(nw_max_path_len) dir, tmp
-      integer ltmp, ldir
+      integer ltmp, ldir, me
       logical util_file_parse_dir
       external util_file_parse_dir
 c
+      me = ga_nodeid()
+c
       if (oscratch) then
-         if (.not. util_file_parse_dir(scratch_dir, dir)) then
+         if (.not. util_file_parse_dir(scratch_dir, dir, me)) then
             if (.not. util_file_parse_dir(
      $ SCRATCH_DEF_DIR
-     $           , dir)) dir = ' ' ! Final default is blank
+     $           , dir, me)) dir = ' ' ! Final default is blank
          endif
       else
-         if (.not. util_file_parse_dir(permanent_dir, dir)) then
+         if (.not. util_file_parse_dir(permanent_dir, dir, me)) then
             if (.not. util_file_parse_dir(
      $ PERM_DEF_DIR
-     $           , dir)) dir = ' ' ! Final default is blank
+     $           , dir, me)) dir = ' ' ! Final default is blank
          endif
       endif
 c
@@ -140,63 +143,54 @@ c
 c
       prevpdir = ' '
       prevsdir = ' '
-      do node = 0, ga_nnodes()-1
-         if (ga_nodeid() .eq. node) then
-            if (.not. util_file_parse_dir(scratch_dir, sdir)) then
+      if (ga_nodeid().eq.0) then
+         do node = 0, ga_nnodes()-1
+            if (.not. util_file_parse_dir(scratch_dir, sdir, node)) then
                if (.not. util_file_parse_dir(
      $              SCRATCH_DEF_DIR
-     $              , sdir)) sdir = ' ' ! Final default is blank
+     $              , sdir, 0)) sdir = ' ' ! Final default is blank
             endif
-            if (.not. util_file_parse_dir(permanent_dir, pdir)) then
+            if (.not. util_file_parse_dir(permanent_dir,pdir,node)) then
                if (.not. util_file_parse_dir(
      $              PERM_DEF_DIR
-     $              , pdir)) pdir = ' ' ! Final default is blank
+     $              , pdir, 0)) pdir = ' ' ! Final default is blank
             endif
-         endif
 c
-         if (node .ne. 0) then
-            call util_char_ga_brdcst(2*node+1, pdir, node)
-            call util_char_ga_brdcst(2*node+2, sdir, node)
-         endif
-c
-         if ((pdir.ne.prevpdir .or. sdir.ne.prevsdir) .and. 
-     $        ga_nodeid().eq.0) then
-            write(6,1) node, pdir(1:inp_strlen(pdir)), node,
-     $           sdir(1:inp_strlen(sdir))
- 1          format(i3,' permanent = ', a/
-     $             i3,' scratch   = ', a)
-         endif
-         prevpdir = pdir
-         prevsdir = sdir
-      enddo
-c
-      if (ga_nodeid() .eq. 0) then
+            if ((pdir.ne.prevpdir .or. sdir.ne.prevsdir)) then
+               write(6,1) node, pdir(1:inp_strlen(pdir)), node,
+     $              sdir(1:inp_strlen(sdir))
+ 1             format(i3,' permanent = ', a/
+     $              i3,' scratch   = ', a)
+            endif
+            prevpdir = pdir
+            prevsdir = sdir
+         enddo
          write(6,*)
          call util_flush(6)
       endif
 c
       end
-      logical function util_file_parse_dir(dirlist, dir)
+      logical function util_file_parse_dir(dirlist, dir, nodeid)
       implicit none
 #include "inp.fh"
 #include "util.fh"
-#include "global.fh"
       character*(*) dirlist     ! [input] List of dirs (by host/proc)
       character*(*) dir         ! [output] Returns matching dir
 c
 c     Dirlist is the input line from the scratch_dir/permanent_dir
-c     directives ... attempt to find a match
+c     directives ... attempt to find a match for process nodeid.
 c
 c     Return true if a match was found, or false (with dir=' ')
 c
       character*256 hostname
       character*1024 default, specific
       character*1 numbers(10)
+      integer nodeid
 c
       integer istart, iend, i, ind, p, ihostend, def1, spe1, nspe, ndef
       data numbers /'0','1','2','3','4','5','6','7','8','9'/
 c
-*      write(6,*) ga_nodeid(), ' dirlist in ufpd |',dirlist,'|'
+*      write(6,*) nodeid, ' dirlist in ufpd |',dirlist,'|'
 c
       util_file_parse_dir = .true.
       ndef = 0                  ! No. of default dirs found
@@ -240,7 +234,7 @@ c
                p = p*10 + ind - 1
             enddo
 *            write(6,*) ' p ',p
-            if (p .eq. ga_nodeid()) then ! Dir for me and only me
+            if (p .eq. nodeid) then ! Dir for me and only me
                dir = dirlist(ihostend+2:iend)
                return
             endif
@@ -264,7 +258,7 @@ c     Exploit sequential number of processes on a given host.
 c
       if (nspe .gt. 0) then
          istart = 0
-         do i = 0, mod(ga_nodeid(),nspe)
+         do i = 0, mod(nodeid,nspe)
             if (.not. inp_strtok(specific, ' ', istart, iend))
      $           call errquit('util_file_parse_dir: internal err?',0)
          enddo
@@ -273,7 +267,7 @@ c
       endif
       if (ndef .gt. 0) then
          istart = 0
-         do i = 0, mod(ga_nodeid(),ndef)
+         do i = 0, mod(nodeid,ndef)
             if (.not. inp_strtok(default, ' ', istart, iend))
      $           call errquit('util_file_parse_dir: internal err?',1)
          enddo
@@ -289,7 +283,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.8 1997-04-10 02:06:21 d3g681 Exp $
+C$Id: util_file_name.F,v 1.9 1997-05-25 19:12:31 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -458,3 +452,78 @@ c
       endif
 c
       end
+      integer function util_scratch_dir_avail_for_me()
+      implicit none
+#include "global.fh"
+#include "util.fh"
+#include "eaf.fh"
+#include "cfileprefix.fh"
+c
+c     Return the amount of space in Kb available in the scratch
+c     directory for this process.
+c
+c     Eventually this will be hooked up to input control.
+c     Presently, it does the following.
+c
+c     For the IBM SP if the directory is /scratch or the same
+c     as the default scratch directory, then  it assumes that a 
+c     local (non-shared) scratch directory is being used.  
+c     FOR ALL OTHER MACHINES it tries to determine the number of
+c     processes sharing the directory by looping thru all nodes
+c     and seeing if they map to the same directory.  This is valid
+c     for machines with shared filesystems.
+c
+      integer me, nproc, you, ierr
+      character*(nw_max_path_len) mine, yours
+      integer avail, nuse
+      character*8 fstype
+      logical util_file_parse_dir
+      external util_file_parse_dir
+c
+c     Construct a name in the scratch directory of the current 
+c     process and inquire how much space is available
+c
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+      call util_file_name('junk',.true.,.true.,mine)
+      ierr = eaf_stat(mine, avail, fstype)
+      if (ierr .ne. 0) call errquit('util_scratch_avail: eaf_stat',ierr)
+c
+c     Now get the name of my scratch directory
+c
+      if (.not. util_file_parse_dir(scratch_dir, mine, me)) then
+         if (.not. util_file_parse_dir(
+     $ SCRATCH_DEF_DIR
+     $        , mine, me)) mine = ' ' ! Final default is blank
+      endif
+c
+      nuse = 0
+c
+#if defined(SP) || defined(SP1) || defined(SP2)
+      if (inp_compare(.true.,mine,"/scratch") .or.
+     $     inp_compare(.true.,mine,
+     $ SCRATCH_DEF_DIR
+     $     )) then
+         nuse = 1
+      endif
+#endif
+c
+      if (nuse .eq. 0) then
+c     
+c     Count other processes using this directory
+c     
+         do you = 0, nproc-1
+            if (.not. util_file_parse_dir(scratch_dir, yours, you)) then
+               if (.not. util_file_parse_dir(
+     $              SCRATCH_DEF_DIR
+     $              , yours, you)) yours = ' ' ! Final default is blank
+            endif
+            if (yours .eq. mine) nuse = nuse + 1
+         enddo
+      endif
+c     
+      util_scratch_dir_avail_for_me = avail / nuse
+c
+      end
+
+
