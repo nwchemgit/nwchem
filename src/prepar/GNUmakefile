@@ -1,10 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.19 1999-09-21 22:01:40 d3j191 Exp $
+# $Id: GNUmakefile,v 1.20 1999-11-02 18:27:45 d3j191 Exp $
 #
 
 include ../config/makefile.h
 
 OBJ_OPTIMIZE=prepar.o\
+             pre_align.o\
              pre_ang.o\
              pre_atmscn.o\
              pre_atnam.o\
@@ -57,6 +58,7 @@ OBJ_OPTIMIZE=prepar.o\
              pre_rdseq.o\
              pre_rdsgm.o\
              pre_rename.o\
+             pre_repeat.o\
              pre_rotate.o\
              pre_rstsiz.o\
              pre_rtdbin.o\

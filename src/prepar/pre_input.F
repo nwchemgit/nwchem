@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.31 1999-10-13 20:09:24 d3j191 Exp $
+c $Id: pre_input.F,v 1.32 1999-11-02 18:27:46 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,9 @@ c
       character*11 cfix
       real*8 rfix
       character*1 altloc,chain
-      integer ires,jres,i,ignore,igroup,jgroup,kgroup,lgroup
+      integer ires,jres,kres,i,ignore,igroup,jgroup,kgroup,lgroup
+      integer nxrep,nyrep,nzrep
+      real*8 rrep
       real*8 value1,value2
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
@@ -69,9 +71,13 @@ c
       model=0
       nxlnk=0
       ignore=0
+      nxrep=0
+      nyrep=0
+      nzrep=0
+      rrep=0.25d0
 c
-      touch=0.25
-      xpndw=0.20
+      touch=0.25d0
+      xpndw=0.20d0
 c
       ltouch=.false.
       lrdcoo=.false.
@@ -837,6 +843,52 @@ c
       endif
       numcmd=numcmd+1
       goto 2
+      endif
+c
+c     align
+c     -----
+c
+      if(inp_compare(.false.,'align',item)) then
+      if(.not.inp_a(atomi)) call errquit('pre_input: align',9999)
+      if(.not.inp_a(atomj)) call errquit('pre_input: align',9999)
+      if(.not.inp_a(atomk)) call errquit('pre_input: align',9999)
+      i=index(atomi,':')
+      if(i.le.1) call errquit('pre_input: align atom 1',9999)
+      read(atomi(1:i-1),*) ires
+      atomi=atomi(i+1:80)
+      i=index(atomj,':')
+      if(i.le.1) call errquit('pre_input: align atom 2',9999)
+      read(atomj(1:i-1),*) jres
+      atomj=atomj(i+1:80)
+      i=index(atomk,':')
+      if(i.le.1) call errquit('pre_input: align atom 3',9999)
+      read(atomk(1:i-1),*) kres
+      atomk=atomk(i+1:80)
+      if(atomi(1:1).eq.'_') atomi(1:1)=' '
+      if(atomj(1:1).eq.'_') atomj(1:1)=' '
+      if(atomk(1:1).eq.'_') atomk(1:1)=' '
+      write(68,6850) ires,atomi(1:4),jres,atomj(1:4),kres,atomk(1:4)
+ 6850 format('align  ',i5,a4,i5,a4,i5,a4)
+      numcmd=numcmd+1
+      goto 1
+      endif
+c
+c     repeat
+c     ------
+c
+      if(inp_compare(.false.,'repeat',item)) then
+      if(.not.inp_i(nxrep)) call errquit('pre_input: repeat',9999)
+      if(.not.inp_i(nyrep)) call errquit('pre_input: repeat',9999)
+      if(.not.inp_i(nzrep)) call errquit('pre_input: repeat',9999)
+      if(.not.inp_f(rrep)) then
+      endif
+      if(nxrep.lt.0) call errquit('pre_input: repeat',9999)
+      if(nyrep.lt.0) call errquit('pre_input: repeat',9999)
+      if(nzrep.lt.0) call errquit('pre_input: repeat',9999)
+      write(68,6851) nxrep,nyrep,nzrep,rrep
+ 6851 format('repeat ',3i5,f12.6)
+      numcmd=numcmd+1
+      goto 1
       endif
 c
       write(6,1000) item

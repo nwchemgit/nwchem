@@ -2,7 +2,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa)
 c
-c $Id: pre_misfit.F,v 1.10 1999-09-24 15:22:47 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.11 1999-11-02 18:27:46 d3j191 Exp $
 c
       implicit none
 c
@@ -284,6 +284,9 @@ c     if not bound to any atom
 c     ------------------------
 c
       if(nn.eq.0) then
+      if(util_print('coordinates',print_debug)) then
+      write(lfnout,'(a,i7)') 'Setting up grid for atom ',i
+      endif
 c
 c     setup grid
 c
@@ -329,7 +332,6 @@ c
    15 continue
    14 continue
       ngrid=ngrid-1
-      endif
 c
       if(ngrid.le.0) call errquit('No grid points',9999)
 c
@@ -345,6 +347,10 @@ c
       endif
    19 continue
    18 continue
+c
+      endif
+c
+      if(ngrid.le.0) call errquit('No grid points',9999)
 c
 c     find extrema
 c
@@ -377,6 +383,17 @@ c
    22 continue
    21 continue
       ngrid=ngrid-1
+c
+      if(ngrid.le.0) call errquit('No grid points',9999)
+c
+c     update grid potential
+c
+      do 27 k=1,ngrid
+      dist2=dsqrt((grid(1,k)-xs(1,i))**2+
+     + (grid(2,k)-xs(2,i))**2+(grid(3,k)-xs(3,i))**2)
+      grid(4,k)=grid(4,k)+qsa(i)/dist2
+   27 continue
+c
       else
       miss=miss+1
       if(util_print('coordinates',print_none)) then

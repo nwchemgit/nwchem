@@ -1,9 +1,9 @@
       logical function pre_wrtpdb(lfnout,lfnpdb,filpdb,iopt,
      + num,amass,mat,
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
-     + xwc,vwc,mwmc,nwmc,slvnam)
+     + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep)
 c
-c $Id: pre_wrtpdb.F,v 1.9 1999-09-21 22:55:08 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.10 1999-11-02 18:27:46 d3j191 Exp $
 c
       implicit none
 c
@@ -19,11 +19,17 @@ c
       character*3 slvnam
       real*8 amass(mat),xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc)
+      integer nxrep,nyrep,nzrep
+      real*8 drep(3)
 c
       integer length
 c
-      integer i,j,k,nats,nums,numslv
+      integer i,j,k,nats,nums,numslv,isoff,iaoff
+      integer ixrep,iyrep,izrep
       real*8 temp
+c
+      isoff=0
+      iaoff=0
 c
 c     open PDB file
 c
@@ -39,6 +45,9 @@ c
      + 'TITLE    3',/,
      + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996')
 c
+      print*,nxrep,nyrep,nzrep
+c
+      if(nxrep.le.0.and.nyrep.le.0.and.nzrep.le.0) then
       nums=0
       do 1 i=1,nsa
       temp=4.009103873d1*amass(isat(i))*
@@ -49,6 +58,29 @@ c
  1001 format('ATOM',i7,1x,a4,1x,a3,2x,i4,4x,3f8.3,6x,f6.2,4x,a2)
       if(isgm(i).gt.nums) nums=isgm(i)
     1 continue
+      else
+      do 4 izrep=-nzrep,nzrep
+      do 5 iyrep=-nyrep,nyrep
+      do 6 ixrep=-nxrep,nxrep
+      nums=0
+      do 7 i=1,nsa
+      temp=4.009103873d1*amass(isat(i))*
+     + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
+      if(temp.gt.999.0) temp=999.989
+      write(lfnpdb,1001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
+     + isgm(i)+isoff,
+     + 1.0d1*(xs(1,i)+dble(ixrep)*drep(1)),
+     + 1.0d1*(xs(2,i)+dble(iyrep)*drep(2)),
+     + 1.0d1*(xs(3,i)+dble(izrep)*drep(3)),
+     + temp,pre_atnam(num(isat(i)))
+      if(isgm(i).gt.nums) nums=isgm(i)
+    7 continue
+      isoff=isoff+nums
+      iaoff=iaoff+nsa
+    6 continue
+    5 continue
+    4 continue
+      endif
 c
       write(lfnpdb,1002)
  1002 format('TER')

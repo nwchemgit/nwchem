@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.35 1999-09-21 22:55:08 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.36 1999-11-02 18:27:46 d3j191 Exp $
 c
       implicit none
 c
@@ -20,6 +20,8 @@ c
       external pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
       logical util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
       external util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
+      logical pre_align,pre_repeat
+      external pre_align,pre_repeat
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
       integer lfnslv,model,mdold,lfnxyz,lfnqqq
@@ -33,7 +35,7 @@ c
       integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
       integer mat,msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
       integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu
-      real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix
+      real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix,drep(3)
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
       integer l_csa,i_csa,l_sar,i_sar,l_sgm,i_sgm,l_qsa,i_qsa
@@ -46,6 +48,7 @@ c
 c
       logical lslvnt,ldistr,lsolva,lcryst,lnames
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater
+      integer nxrep,nyrep,nzrep
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1000)
@@ -75,6 +78,9 @@ c
       xmax(3)=0.0d0
       rshell=1.2d0
       nbxtyp=0
+      nxrep=0
+      nyrep=0
+      nzrep=0
 c
 c     allocate memory
 c     ---------------
@@ -520,7 +526,8 @@ c
      + int_mb(i_num),dbl_mb(i_mas),
      + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
      + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),dbl_mb(i_xw),dbl_mb(i_vw),
-     + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam))
+     + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
+     + nxrep,nyrep,nzrep,drep))
      + call errquit('pre_wrtpdb failed',9999)
       endif
 c
@@ -909,6 +916,33 @@ c
      + int_mb(i_wcmr),dbl_mb(i_xwc),mwmc,nwmc,
      + int_mb(i_sar),int_mb(i_sgm),byte_mb(i_csa),dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_fix failed',9999)
+      endif
+c
+c     align
+c     =====
+c
+      if(card(1:6).eq.'align ') then
+      if(.not.pre_align(card,
+     + byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
+     + dbl_mb(i_vs),msa,nsa,dbl_mb(i_xw),dbl_mb(i_vw),
+     + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
+     + call errquit('pre_align failed',9999)
+      endif
+c
+c     repeat
+c     ======
+c
+      if(card(1:6).eq.'repeat') then
+      write(*,'(a)') card
+      read(card(8:12),'(i5)') nxrep
+      read(card(13:17),'(i5)') nyrep
+      read(card(18:22),'(i5)') nzrep
+      if(.not.pre_repeat(card,drep,
+     + byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
+     + dbl_mb(i_vs),msa,nsa,dbl_mb(i_xw),dbl_mb(i_vw),
+     + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
+     + call errquit('pre_repeat failed',9999)
+      write(*,'(3f12.6)') drep
       endif
 c
 c     end
