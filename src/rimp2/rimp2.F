@@ -49,8 +49,7 @@ C
       Status = .TRUE.
       Status = Status .AND. Context_Push(My_Ctx)
 C
-      Status = Status .AND. PStat_Init(10, 1, String)
-      Call RIMP2_Timers
+      Call RIMP2_PStat_Init
       Call PStat_On( PS_Overall)
 C
       Me = GA_NodeID()
@@ -225,8 +224,8 @@ C
       Status = Status .AND. Bas_Destroy( AOBas)
 C
       Call PStat_Off( PS_Overall)
-      Call PStat_Print_All
-      Status = Status .AND. PStat_Terminate()
+      Call RIMP2_PStat_Print
+      Call RIMP2_PStat_Term
 C
       Status = Status .AND. Context_Pop(My_Ctx)
 C

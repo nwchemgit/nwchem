@@ -1,4 +1,4 @@
-      Subroutine RIMP2_Timers
+      Subroutine RIMP2_PStat_Init
       Implicit NONE
 C
 #include "pstat.fh"
@@ -47,7 +47,49 @@ C
 
 C
       If (.NOT. Status)
-     $   Call ErrQuit('rimp2_timers: Unable to allocate timers', 0)
+     $   Call ErrQuit('Rimp2_PStat_Init: Unable to allocate timers', 0)
+C
+      Return
+      End
+      Subroutine RIMP2_PStat_Print
+      Implicit NONE
+#include "pstat.fh"
+C
+      Call PStat_Print_All
+C
+      Return
+      End
+C
+      Subroutine RIMP2_PStat_Term
+      Implicit NONE
+C
+#include "pstat.fh"
+#include "rimp2_timers.fh"
+C
+      Logical Status
+C
+      Status = .TRUE.
+      Status = Status .AND. PStat_Free(PS_Overall)
+      Status = Status .AND. PStat_Free(PS_xform)
+      Status = Status .AND. PStat_Free(PS_Energy)
+      Status = Status .AND. PStat_Free(PS_int_gen)
+      Status = Status .AND. PStat_Free(PS_step12)
+      Status = Status .AND. PStat_Free(PS_step3)
+      Status = Status .AND. PStat_Free(PS_wr_3ci)
+      Status = Status .AND. PStat_Free(PS_rd_3ci)
+      Status = Status .AND. PStat_Free(PS_v_gen)
+      Status = Status .AND. PStat_Free(PS_VmHalf)
+      Status = Status .AND. PStat_Free(PS_Schwarz_4c)
+      Status = Status .AND. PStat_Free(PS_Schwarz_2c)
+C
+      Status = Status .AND. PStat_Free(PS_Create)
+      Status = Status .AND. PStat_Free(PS_Form_4ci)
+      Status = Status .AND. PStat_Free(PS_Form_ab)
+      Status = Status .AND. PStat_Free(PS_Denom)
+      Status = Status .AND. PStat_Free(PS_PrEn)
+C
+      If (.NOT. Status)
+     $   Call ErrQuit('RIMP2_PStat_Term: Unable to free timers', 0)
 C
       Return
       End
