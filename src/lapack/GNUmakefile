@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.30 1997-03-18 00:04:35 d3e129 Exp $
+#$Id: GNUmakefile,v 1.31 1998-03-01 06:42:18 d3g270 Exp $
 
 include ../config/makefile.h
 
@@ -90,14 +90,14 @@ ifeq ($(TARGET),CRAY-T3D)
 OBJ_OPTIMIZE = slagtf.o slagts.o lsamen.o slaset.o \
                ssyev.o slansy.o ssteqr.o ssterf.o slae2.o \
                slaev2.o slasr.o slanst.o slascl.o slasrt.o \
-               ssygv.o ssygst.o ssygs2.o
+               ssygv.o ssygst.o ssygs2.o slas2.o
 endif
 
 ifeq ($(TARGET),CRAY-T3E)
 OBJ_OPTIMIZE = slagtf.o slagts.o lsamen.o slaset.o \
                ssyev.o slansy.o ssteqr.o ssterf.o slae2.o \
                slaev2.o slasr.o slanst.o slascl.o slasrt.o \
-               ssygv.o ssygst.o ssygs2.o
+               ssygv.o ssygst.o ssygs2.o slas2.o
 endif
 
 
