@@ -6,7 +6,6 @@ c  or
 c          - quartet at a time
 c  
 c
-c
       subroutine moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
      $                            lshlo, lshhi, schw_ij, tol2e,
      $                            erilen, eri, scrlen, iscr,
@@ -218,7 +217,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.22 1997-03-12 17:35:34 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.23 1997-03-14 17:31:36 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -431,7 +430,7 @@ c
       double precision beffect, q4
       integer nshq,  neri, neritotal, ieri, nblksiz
       integer ii, jj, kk, ll, ksh, lsh
-      integer ilen, jlen, klen
+      integer ilen, jlen, klen, ltop
       logical more, odoit
       logical sym_shell_quartet
       external sym_shell_quartet
@@ -444,19 +443,21 @@ c
      $          (jbfhi-jbflo+1)*(ibfhi-ibflo+1)
       call dfill(nblksiz, 0.d0, ssbb, 1 )
 c
-c  Fill out shell arrays with interacting quartet labels
+c  Fill out index arrays with interacting quartet labels
 c        
       q4 = 1.d0
       nshq = 0
       do kk=kshlo,kshhi
         ksh = shmap(kk)
-        do ll=lshlo,lshhi
+        ltop = lshhi
+        if (kshlo.eq.lshlo) ltop = kk
+        do ll=lshlo,ltop
           lsh = shmap(ll)
           if (schwarz_shell(ksh,lsh)*schw_ij.ge.tol2e) then
             odoit = .true.
             if (osym) odoit = sym_shell_quartet(basis, ish, jsh,
-     $                                          max(ksh,lsh),
-     $                                          min(ksh,lsh), q4)
+     $                                          max(ksh,lsh), 
+     $                                          min(ksh,lsh), q4 )
             if (odoit) then
               nshq = nshq + 1
               kshv(nshq) = ksh
@@ -472,11 +473,11 @@ c
 c  Prepare texas for shell block
 c
       if (.not. intb_init4c( basis, ishv, jshv, basis, kshv, lshv,
-     $     nshq, qv4, osym,
-     $     scrlen, iscr, erilen, beffect ))
+     $                       nshq, qv4, osym, scrlen, iscr, 
+     $                       erilen, beffect ))
      $   call errquit('moints_gblk: intb_init4c failed',0)
 c
-c  Get some batch of integrals
+c  Loop through batches of integrals until exhausted
 c
  100  more = intb_2e4c( basis, ishv, jshv, basis, kshv, lshv,
      $                  nshq, qv4, osym, tol2e, .false.,
@@ -493,6 +494,13 @@ c
           kk = rbfmap(klab(ieri))
           ll = rbfmap(llab(ieri))
           ssbb(ll,kk,jj,ii) = eri(ieri)
+          
+c$$$          II = MAX(ILAB(IERI),JLAB(IERI))
+c$$$          JJ = MIN(ILAB(IERI),JLAB(IERI))
+c$$$          KK = MAX(KLAB(IERI),LLAB(IERI))
+c$$$          LL = MIN(KLAB(IERI),LLAB(IERI))
+c$$$          WRITE(6,988) II,JJ,KK,LL,ERI(IERI)
+c$$$ 988      FORMAT('GGGG',4I5,F20.5)
         enddo
         if (more) goto 100
       endif
@@ -502,8 +510,10 @@ c
       klen = kbhi  - kblo + 1
       ilen = ibfhi - ibflo + 1
       jlen = jbfhi - jbflo + 1
-C      if (kshlo.eq.lshlo) call eriblktr(ilen, jlen, klen, ssbb )
-
+      if (kshlo.eq.lshlo) call eriblktr(ilen, jlen, klen, ssbb )
+c
+c
+c
 c$$$      LL = (LBHI - LBLO + 1)
 c$$$      KK = (KBHI - KBLO + 1)
 c$$$      WRITE(6,881) IBFLO, JBFLO
@@ -528,7 +538,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.22 1997-03-12 17:35:34 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.23 1997-03-14 17:31:36 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -572,13 +582,20 @@ c
      $                                         min(ksh,lsh), q4 )
             if (odoit) then
               status = bas_cn2bfr(basis, lsh, lbflo, lbfhi)
-              call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
-     $                      scrlen, iscr, erilen, eri )
-              call eri2blkx(rbfmap, ilen, jlen,
-     $                      kblo,  kbhi,  lblo,  lbhi,
-     $                      kbflo, kbfhi, lbflo, lbfhi,
-     $                      eri, q4, ssbb )
-
+              call int_2e4c( basis, ish, jsh, basis, 
+     $                       max(ksh,lsh), min(ksh,lsh),
+     $                       scrlen, iscr, erilen, eri )            
+              if (ksh.ge.lsh) then                                  ! workaround for int bug for lsh > ksh
+                call eri2blkx(rbfmap, ilen, jlen,                   ! remove alternant branch when fixed
+     $                        kblo,  kbhi,  lblo,  lbhi,            ! 
+     $                        kbflo, kbfhi, lbflo, lbfhi,
+     $                        eri, q4, ssbb )
+              else
+                call eri2blky(rbfmap, ilen, jlen,
+     $                        kblo,  kbhi,  lblo,  lbhi,
+     $                        kbflo, kbfhi, lbflo, lbfhi,
+     $                        eri, q4, ssbb )
+              endif
             endif
           endif
         enddo
@@ -679,6 +696,45 @@ c
             do l=lbflo,lbfhi
               ll = rbfmap(l)
               blk(ll,kk,j,i) = eri(l,k,j,i)*q4
+            enddo
+          enddo
+        enddo
+      enddo
+      
+      return
+      end
+
+
+
+c
+c  Pack shell quartet ERI into bigger blocks
+c  with remapped K,L indices of a contigious range
+c  Alternant branch for lsh > ksh (workaround for int bug)
+c
+      subroutine eri2blky( rbfmap, ilen, jlen,
+     $                     kblo, kbhi, lblo, lbhi,
+     $                     kbflo, kbfhi, lbflo, lbfhi, 
+     $                     eri, q4, blk )
+      implicit none
+      integer rbfmap(*)                                          ! [input] basis map orig -> new
+      integer ilen, jlen                                         ! [input] ij shell lengths
+      integer kblo, kbhi                                         ! [input] k range in new order
+      integer lblo, lbhi                                         ! [input] l range in new order
+      integer kbflo, kbfhi                                       ! [input] original basis indices
+      integer lbflo, lbfhi                                       ! [input] original basis indices
+      double precision q4                                        ! [input] symmetry scale
+      double precision eri(kbflo:kbfhi,lbflo:lbfhi,jlen,ilen)    ! [input] eri shell quartet
+      double precision blk(lblo:lbhi,kblo:kbhi,jlen,ilen)        ! [output] eri block
+      integer k,l,i,j,kk,ll
+
+
+      do i=1,ilen
+        do j=1,jlen
+          do l=lbflo,lbfhi
+            ll = rbfmap(l)
+            do k=kbflo,kbfhi
+              kk = rbfmap(k)
+              blk(ll,kk,j,i) = eri(k,l,j,i)*q4
             enddo
           enddo
         enddo
@@ -1093,7 +1149,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.22 1997-03-12 17:35:34 rg240 Exp $
+C$Id: moints_aux2.F,v 1.23 1997-03-14 17:31:36 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1137,7 +1193,7 @@ C$Id: moints_aux2.F,v 1.22 1997-03-12 17:35:34 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.22 1997-03-12 17:35:34 rg240 Exp $
+c$$$C$Id: moints_aux2.F,v 1.23 1997-03-14 17:31:36 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
