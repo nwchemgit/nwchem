@@ -42,7 +42,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	super.getContentPane().setFont(defaultFont);
 	super.addWindowListener(this);
 	
-	chooser = new JFileChooser();
+	chooser = new JFileChooser("./");
 	analFilter = new ExtensionFilter(".ana");
 	chooser.setFileFilter(analFilter);
 	dialogFrame = new JFrame();

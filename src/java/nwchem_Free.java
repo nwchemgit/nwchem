@@ -32,7 +32,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 	super.getContentPane().setFont(defaultFont);
 	super.addWindowListener(this);
 	
-	chooser = new JFileChooser();
+	chooser = new JFileChooser("./");
 	gibFilter = new ExtensionFilter(".gib");
 	chooser.setFileFilter(gibFilter);
 	dialogFrame = new JFrame();

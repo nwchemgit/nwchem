@@ -37,7 +37,7 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	super.getContentPane().setFont(defaultFont);
 	super.addWindowListener(this);
 	
-	chooser = new JFileChooser();
+	chooser = new JFileChooser("./");
 	rmsFilter = new ExtensionFilter(".rms");
 	chooser.setFileFilter(rmsFilter);
 	dialogFrame = new JFrame();

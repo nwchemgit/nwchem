@@ -28,7 +28,7 @@ class nwchem_Rasmol extends JFrame implements ActionListener, ChangeListener, Wi
     super.getContentPane().setFont(defaultFont);
     super.addWindowListener(this);
 
-    chooser = new JFileChooser();
+    chooser = new JFileChooser("./");
     pdbFilter = new ExtensionFilter(".pdb");
     chooser.setFileFilter(pdbFilter);
     dialogFrame = new JFrame();

@@ -30,7 +30,7 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
     super.getContentPane().setFont(defaultFont);
     super.addWindowListener(this);
 
-    chooser = new JFileChooser();
+    chooser = new JFileChooser("./");
     synchFilter = new ExtensionFilter(".syn");
     chooser.setFileFilter(synchFilter);
     dialogFrame = new JFrame();

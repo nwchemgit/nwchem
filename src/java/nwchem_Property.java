@@ -56,7 +56,7 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
     super.getContentPane().setFont(defaultFont);
     super.addWindowListener(this);
 
-    chooser = new JFileChooser();
+    chooser = new JFileChooser("./");
     properFilter = new ExtensionFilter(".prp");
     chooser.setFileFilter(properFilter);
     dialogFrame = new JFrame();

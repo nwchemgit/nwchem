@@ -29,7 +29,7 @@ class nwchem_NWChem implements ActionListener, ChangeListener, WindowListener {
     //    super.getContentPane().setFont(defaultFont);
     //    super.addWindowListener(this);
 
-    chooser = new JFileChooser();
+    chooser = new JFileChooser("./");
     pdbFilter = new ExtensionFilter(".nw");
     chooser.setFileFilter(pdbFilter);
     dialogFrame = new JFrame();

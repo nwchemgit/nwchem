@@ -37,7 +37,7 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
     super.getContentPane().setFont(defaultFont);
     super.addWindowListener(this);
 
-    chooser = new JFileChooser();
+    chooser = new JFileChooser("./");
     synchFilter = new ExtensionFilter(".tim");
     chooser.setFileFilter(synchFilter);
     dialogFrame = new JFrame();
