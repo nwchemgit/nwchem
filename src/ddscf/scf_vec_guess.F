@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.13 1997-04-25 00:00:53 d3g681 Exp $
+C     $Id: scf_vec_guess.F,v 1.14 1997-05-08 21:59:01 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -67,6 +67,7 @@ c
      $        call errquit('scf_v_g: ga_destroy?',0)
       endif
 c
+ 3212 continue
       if (movecs_in .eq. 'hcore' .or. movecs_in .eq. 'atomic') then
 c
 c     hcore or atomic guess
@@ -118,6 +119,17 @@ c
          if (scftype .eq. 'UHF') then
             call ga_copy(g_movecs(1),g_movecs(2))
             call dcopy(nbf,dbl_mb(k_eval),1,dbl_mb(k_eval+nbf),1)
+         endif
+c
+      else if (movecs_in .eq. 'fragment') then
+         if (scftype .ne. 'UHF') then
+            call movecs_fragment(rtdb, geom, basis, 'scf', 1,
+     $           nclosed, nopen, g_movecs(1), dbl_mb(k_eval))
+         else
+            call movecs_fragment(rtdb, geom, basis, 'scf', 1,
+     $           0, nalpha, g_movecs(1), dbl_mb(k_eval))
+            call movecs_fragment(rtdb, geom, basis, 'scf', 2,
+     $           0, nbeta, g_movecs(2), dbl_mb(k_eval+nbf))
          endif
       else
 c
@@ -188,7 +200,18 @@ c
                call util_flush(6)
             endif
          endif
-         if (.not. status) call errquit('rhf: failed to load vectors',0)
+         if (.not. status) then
+*     Rather then failing simply force atomic guess
+*     call errquit('rhf: failed to load vectors',0)
+            if (ga_nodeid() .eq. 0 ) then
+               write(6,*) 
+               write(6,*) ' Load of old vectors failed. ',
+     $              '  Forcing atomic density guess'
+               write(6,*) 
+            endif
+            movecs_in = 'atomic'
+            goto 3212
+         endif
       endif
 c
 c     Apply any swaps of orbitals

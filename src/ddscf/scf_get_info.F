@@ -89,7 +89,7 @@ c
      $     movecs_out = ' '
       if (movecs_out.eq.' ') then
          if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
-     $        movecs_in.eq.'project') then
+     $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment') then
             call util_file_name('movecs', .false.,.false.,movecs_out)
          else
             movecs_out = movecs_in
@@ -220,7 +220,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.41 1997-05-04 18:56:18 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.42 1997-05-08 21:59:00 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

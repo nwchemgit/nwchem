@@ -33,9 +33,11 @@ c
          call rohf_make_shift_2(crohf_g_fpv, dbl_mb(k_diag),
      $        nclosed+1, nclosed+nopen, nclosed+nopen+1, nmo, 
      $        oadapt, int_mb(k_irs), 2.0d0, shift_pv)
-         call rohf_make_shift_2(crohf_g_fcv, dbl_mb(k_diag),
-     $        1, nclosed, nclosed+1, nclosed+nopen, 
-     $        oadapt, int_mb(k_irs), 2.0d0, shift_cp)
+*     I think that this is not necessary here and results in
+*     open shell d/f systems being shifted uncessarily
+*         call rohf_make_shift_2(crohf_g_fcv, dbl_mb(k_diag),
+*     $        1, nclosed, nclosed+1, nclosed+nopen, 
+*     $        oadapt, int_mb(k_irs), 2.0d0, shift_cp)
       endif
 c
       shift = max(shift_cv, shift_pv, shift_cp)

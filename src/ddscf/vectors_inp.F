@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.3 1997-03-05 23:14:43 d3g681 Exp $
+C     $Id: vectors_inp.F,v 1.4 1997-05-08 21:59:01 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -26,18 +26,23 @@ c
 c     vectors output filename
 c     
       integer num_dirs, ind
-      parameter (num_dirs = 7)
+      parameter (num_dirs = 8)
       character*8 dirs(num_dirs)
       integer max_swap
       parameter (max_swap = 20)
       integer swap(max_swap), nswap, itest, mlen
       character*255 test, vectors_in, vectors_out
+      integer maxfrag
+      parameter (maxfrag = 40)
+      character*255 fragments(maxfrag)
+      integer nfrag
       character*80 project(2)
       character*20 swapname
       logical olock
       data dirs /'input', 'output', 'atomic', 'hcore', 'swap',
-     $     'project', 'lock'/
+     $     'project', 'lock', 'fragment'/
 c     
+      nfrag = 0  
       vectors_in = ' '
       vectors_out = ' '
       olock = .false.
@@ -55,7 +60,7 @@ c
          goto 10
       endif
 c     
-      goto (100, 200, 300, 400, 500, 600, 700, 999) ind
+      goto (100, 200, 300, 400, 500, 600, 700, 800, 999) ind
       call errquit('scf_input: unimplemented directive', ind)
 c     
 c     input ... quietly ignore this
@@ -136,6 +141,22 @@ c     Force MO locking so output matches ordering of input
 c     
  700  olock = .true.
       goto 10
+c
+c
+c     fragment frag1 frag2 ...
+c
+ 800  continue
+ 801  if (inp_a(test)) then
+         if (inp_match(num_dirs, .false., test, dirs, ind)) then
+            call inp_prev_field()
+         else
+            nfrag = nfrag + 1
+            fragments(nfrag) = test
+            goto 801
+         endif
+      endif
+      if (nfrag .gt. 0) vectors_in = 'fragment'
+      goto 10
 c     
  999  continue
       if (vectors_in .ne. ' ') then
@@ -143,6 +164,16 @@ c
          write(test,'(a,'':'',a)') module(1:mlen), 'input vectors'
          if (.not. rtdb_cput(rtdb, test, 1, vectors_in)) call errquit
      $        ('vectors_input: failed to store vectors_input', 0)
+      endif
+      if (vectors_in .eq. 'fragment') then
+         test = ' '
+         write(test,'(a,'':'',a)') module(1:mlen), 'fragments'
+         if (.not. rtdb_cput(rtdb, test, nfrag, fragments)) call errquit
+     $        ('vectors_input: failed to store fragment info', 0)
+         test = ' '
+         write(test,'(a,'':'',a)') module(1:mlen), 'nfrag'
+         if (.not. rtdb_put(rtdb, test, mt_int, 1, nfrag)) call errquit
+     $        ('vectors_input: failed to store fragment info', 0)
       endif
       if (vectors_out .ne. ' ') then
          test = ' '
