@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.26 1996-09-30 18:59:21 d3e129 Exp $
+# $Id: GNUmakefile,v 1.27 1996-10-01 20:38:23 d3e129 Exp $
 
     OBJ          = hf3PEabc.o hf3mkr.o hf3pot.o 
     OBJ_OPTIMIZE = \
@@ -34,15 +34,21 @@
 include ../../config/makefile.h
 include ../../config/makelib.h
 
+BIN_OTHER =	${BINDIR}/showxyz	${BINDIR}/int_order
+bins:	$(BIN_OTHER)
+
+
 write:
 	f77 -g -Nl99   -c hferi.w.f -o hferi.o
 	$(MAKE)
 	(cd ../..;make link)
 
-showxyz:	showxyz.o
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ showxyz.o $(LIBS)
-int_order:	int_order.o
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ int_order.o $(LIBS) -lutil
+showxyz ${BINDIR}/showxyz:	showxyz.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -o ${BINDIR}/showxyz showxyz.o $(LIBS)
+	rm -f showxyz.o
+int_order ${BINDIR}/int_order:	int_order.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -o ${BINDIR}/int_order int_order.o $(LIBS) -lutil
+	rm -f int_order.o
 int_order.o:	int_order.F	int_order.fh
 
 doc:	3ctrpot.tex
