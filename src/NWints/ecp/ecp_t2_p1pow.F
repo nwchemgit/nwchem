@@ -1,4 +1,4 @@
-C $Id: ecp_t2_p1pow.F,v 1.4 2001-06-28 00:17:51 edo Exp $
+C $Id: ecp_t2_p1pow.F,v 1.5 2003-01-29 20:54:37 bert Exp $ 
 ************************************************************************
 *                                                                      *
       subroutine ecp_t2_p1pow (n,m,k,alpha,beta,gamma,term,test,temp,
@@ -32,6 +32,7 @@ C $Id: ecp_t2_p1pow.F,v 1.4 2001-06-28 00:17:51 edo Exp $
      &    temp(n,9),tol,fac0,fac1,fac2,fac3,fac4,fac5,fac0i,fac1i,fac2i
       double precision vbig
       parameter (vbig=1d30)
+      integer renorm
 *
 *   Set up factors for recursion
 *
@@ -80,7 +81,19 @@ C      write (6,'(5F10.4)') fac1,fac2,fac3,fac4,fac5
         fac1i = one/fac1
         fac2i = one/fac2
         do i = 1,n
-          if (test(i) .gt. tol.and.abs(temp(i,j2)).lt.vbig) then
+          if (test(i) .gt. tol) then
+c       write(6,*) i,j1,j2,j3
+c       write(6,*) temp(i,1),temp(i,2),temp(i,3),temp(i,4),temp(i,5)
+c       write(6,*) term(i),Q(i)
+             if (max(abs(temp(i,1)),abs(temp(i,2)),abs(temp(i,2)))
+     &           .gt.vbig) then
+                renorm = log10(max(abs(temp(i,1)),abs(temp(i,2)),
+     &                             abs(temp(i,3)))) - 29
+                temp(i,1) = temp(i,1) / 10.0**(renorm)
+                temp(i,2) = temp(i,2) / 10.0**(renorm)
+                temp(i,3) = temp(i,3) / 10.0**(renorm)
+                term(i) = term(i) * 10.0**(renorm)
+             endif
             Q(i) = Q(i)+temp(i,j2)*term(i)
             temp(i,j3) = ((fac5+temp(i,5))*temp(i,j2)
      &                 - fac3*fac4*fac0i*temp(i,j1))*fac2i
