@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi)
 c
-c $Id: prp_init.F,v 1.19 2000-02-18 04:52:19 d3j191 Exp $
+c $Id: prp_init.F,v 1.20 2000-03-28 23:15:59 d3j191 Exp $
 c
       implicit none
 c
@@ -201,8 +201,10 @@ c
       lp(97)=ntype.ge.1
       pronam( 98)='Efficiency load balancing                         '
       lp(98)=ntype.ge.1
+      pronam( 99)='Time per step                                    s'
+      lp(99)=ntype.ge.1
 c
-      isprop=98
+      isprop=99
       if(nsf.gt.0) then
       it=0
       do 3 i=1,nsf

@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.30 2000-02-18 04:52:19 d3j191 Exp $
+c $Id: prp_main.F,v 1.31 2000-03-28 23:15:59 d3j191 Exp $
 c
       implicit none
 c
@@ -171,6 +171,7 @@ c
       p(76)=epme(iset)
       p(97)=timer_wall(2)
       p(98)=timer_wall(3)
+      if(me.eq.0) p(99)=timer_wall(3)
 c
       maxp=isprop
       if(nsf.gt.0) then
