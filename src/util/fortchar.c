@@ -1,3 +1,4 @@
+/*$Id: fortchar.c,v 1.3 1995-02-02 17:51:08 d3g681 Exp $*/
 /* Name munging to handle the various conventions for Fortran-C interfacing */
 #if (defined(XMP) || defined(ARDENT))
 #   define FCSND_  FCSND

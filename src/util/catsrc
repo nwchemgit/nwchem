@@ -1,0 +1,16 @@
+#!/bin/csh
+
+cd ..
+
+foreach dir ( $* )
+
+   echo 'module ' $dir
+
+   find $dir \( -name "*.F" -o \
+                -name "*.f" -o \
+                -name "*.c" -o \
+                -name "*.fh" -o \
+                -name "*.h" -o \
+                -name "makefile" \) -exec cat "{}" ";"
+
+end

@@ -1,14 +1,1 @@
-      subroutine util_flush(unit)
-      implicit none
-      integer unit
-c
-c     Flush buffered output for the fortran unit
-c
-#if defined(SUN) || defined(KSR)    || defined(PARAGON) || \
-    defined(SGI) || defined(SGITFP) || defined(IBM)
-      call flush(unit)
-#elif defined(IPSC) || defined(DELTA)
-      call forflush(unit)
-#endif
-c
-      end
+C$Id: util_flush.F,v 1.7 1995-02-02 17:51:46 d3g681 Exp $

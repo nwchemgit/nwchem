@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.29 1995-01-26 05:24:52 rg240 Exp $
+# $Id: GNUmakefile,v 1.30 1995-02-02 17:51:30 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -26,7 +26,7 @@ OBJ_OPTIMIZE=  ga_matpow.o
               ga_orthog_vec.o ga_ran_fill.o ga_mix.o \
               ga_iter_project.o ga_screen.o ga_get_diag.o \
 	      fortchar.o sequential_output.o ga_mat2col.o \
-	      banner.o util_print.o $(BLAS) $(EXTRA_OBJ) 
+	      banner.o util_print.o util_version.o $(BLAS) $(EXTRA_OBJ) 
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
               printlevels.fh
@@ -34,8 +34,11 @@ OBJ_OPTIMIZE=  ga_matpow.o
     USES_BLAS = util.fh ga_iter_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F
 
+
 include ../config/makelib.h
 
+util_version.f:	../config/nwchem_config.h
+		catsrc config nwchem.F $(NW_MODULE_SUBDIRS) | awk -f ids.awk > $@
 
 testsolve:      testsolve.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)

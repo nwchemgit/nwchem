@@ -1,3 +1,4 @@
+/*$Id: util_date.c,v 1.4 1995-02-02 17:51:45 d3g681 Exp $*/
 #include <sys/types.h>
 #include <time.h>
 #ifndef IPSC

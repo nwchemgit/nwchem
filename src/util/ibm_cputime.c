@@ -1,3 +1,4 @@
+/*$Id*/
 #include <time.h>
 
 double ibm_cputime_()

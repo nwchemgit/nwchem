@@ -1,0 +1,64 @@
+#!/bin/csh
+
+# Given a list of files as arguments loop 
+# thru them and determine which do not already
+# have CVS Id lines.  For each file that does not
+# then determine the file type and insert an
+# appropriate comment at the top of the file.
+#
+# Some stupid Fortran compilers are confused by
+# comments outside of a subroutine so we need
+# insert them after the first complete statement
+# including (ugh) comment lines
+
+
+foreach file ($*)
+  grep '$Id' $file >& /dev/null
+
+  set action = $status
+
+  set filetype = `echo $file | awk -f filetype.awk`
+
+  if ($filetype == "Unknown") then
+    continue
+  endif
+
+  if ($action == 0) then
+    echo $filetype $file already contains a CVS Id
+    continue
+  else if ($action == 1) then
+    echo $filetype $file does not contain a CVS Id
+  else
+    echo $filetype $file ... error
+  endif
+
+  cp $file $file.bak
+  if ($status != 0) then
+    echo Failed to backup $file to $file.bak
+    exit 1
+  endif
+
+  if ($filetype == "Fortran" || $filetype == "Fortran-header") then
+    awk -f fortranid.awk < $file > tmp.$$
+    echo 'C$Id: addids,v 1.1 1995-02-02 17:50:55 d3g681 Exp $' > tmp.$$
+  else if ($filetype == "C"  || $filetype == "C-header") then
+    echo '/*$Id: addids,v 1.1 1995-02-02 17:50:55 d3g681 Exp $*/' > tmp.$$
+    cat $file >> tmp.$$
+  else if ($filetype == "Makefile") then
+    echo '#$Id: addids,v 1.1 1995-02-02 17:50:55 d3g681 Exp $' > tmp.$$
+    cat $file >> tmp.$$
+  else
+    echo Don\'t know how to put a comment in a $filetype file
+  endif
+
+  cp tmp.$$ $file
+  /bin/rm -f tmp.$$
+
+endif
+
+  
+
+
+end
+
+
