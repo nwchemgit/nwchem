@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.3 2001-11-29 02:00:40 bylaska Exp $
+ $Id: pspsolve.c,v 1.4 2001-11-29 16:51:21 bylaska Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,6 +11,7 @@
 #include "spline.h"
 #include "atom.h"
 #include "psp.h"
+#include "debug.h"
 
 #if defined(CRAY) || defined(CRAY_T3D)
 #include <fortran.h>
@@ -95,6 +96,7 @@ Integer	*n2;
    over_fourpi = 1.0/(16.0*atan(1.0));
 
 
+   set_debug_print(debug);
    init_Atom(infile);
    solve_Atom();
    if (debug) print_Atom(stdout);

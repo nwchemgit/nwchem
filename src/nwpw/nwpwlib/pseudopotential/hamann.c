@@ -9,6 +9,7 @@
 #include	"dft.h"
 #include	"atom.h"
 #include	"hamann.h"
+#include	"debug.h"
 
 #define	Max(x,y)	((x>y) ? x : y)
 #define	True	1
@@ -227,8 +228,10 @@ double	*pc_psp;
    for (k=0; k<Ngrid; ++k)
      rho_psp[k] = 0.0;
 
- printf("\n\nHamann pseudopotential check\n\n");
- printf("l\trcore     rmatch    E in       E psp      norm test slope test\n");
+   if (debug_print()){
+    printf("\n\nHamann pseudopotential check\n\n");
+    printf("l\trcore     rmatch    E in       E psp      norm test slope test\n");
+   }
    for (p=0; p<num_psp; ++p)
    {
       w1l       = r_psi_psp[p];
@@ -387,10 +390,12 @@ double	*pc_psp;
 
      gamma=fabs(rpsi_match/w2l[match]);
      gpr  =fabs(rpsi_prime_match/w2l_prime[match]);
+	 if (debug_print()){
      printf("%d\t%lf  %lf  %lf  %lf  %lf  %lf\n",l_psp[p],
 						rcut_psp[p],r[match],
 						e_psp[p],e2l,
 						gamma,gpr);
+	 }
 
      /* Extend scattering states to Ngrid */
      if (fill_psp[p] == 0.0)

@@ -14,6 +14,7 @@
 #include	"atom.h"
 #include	"xpansion.h"
 #include	"troullier.h"
+#include	"debug.h"
 
 #define	Max(x,y)	((x>y) ? x : y)
 #define	True	1
@@ -207,8 +208,10 @@ double	*pc_psp;
      rho_psp[k] = 0.0;
 
 
- printf("\n\nTroullier pseudopotential check\n\n");
- printf("l\trcore     rmatch    E in       E psp      norm test slope test\n");
+   if (debug_print()){
+    printf("\n\nTroullier pseudopotential check\n\n");
+    printf("l\trcore     rmatch    E in       E psp      norm test slope test\n");
+   }
 
    for (l=0; l<(num_psp); ++l)
    {
@@ -300,10 +303,12 @@ double	*pc_psp;
      }
      gamma=fabs(ul[match]/wl[match]);
      gpr  =fabs(ul_prime[match]/wl_prime[match]);
+	 if (debug_print()){
      printf("%d\t%lf  %lf  %lf  %lf  %lf  %lf\n",l_psp[l],
 						rcut_psp[l],r[match],
 						e_psp[l],el,
 						gamma,gpr);
+	 }
 
      /* Use the analytic form of pseudopotential */
      el = e_psp[l];
