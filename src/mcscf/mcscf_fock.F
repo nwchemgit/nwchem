@@ -1,6 +1,6 @@
 c
 c  %A%
-c  $Id: mcscf_fock.F,v 1.3 1996-02-15 23:39:54 rg240 Exp $
+c  $Id: mcscf_fock.F,v 1.4 1996-03-13 22:54:31 rg240 Exp $
 c
 c Compute the MCSCF MO-Fock matrices;
 c inactive, active and generalized
@@ -103,6 +103,7 @@ c
        call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
      $               iv_dens, iv_fock )
 c
+c
 c  Symmetrize Fock AO components
 c
        if (oskel) then
@@ -153,10 +154,10 @@ c
        etwo = (e2ii + e2ia + e2ai + e2aa)*0.5d0
 
 c$$$       WRITE(6,881) EONE,(E2II*0.5D0),E2IA,E2AA
- 881   FORMAT(/,'EONE:',F14.9,
-     $        5X,'EII:',1X,F14.9,
-     $        5X,'EIA:',1X,F14.9,
-     $        5X,'EAA:',1X,F14.9)
+c$$$ 881   FORMAT(//,5X,'EONE:',F20.14,
+c$$$     $        /,5X,'EII:',1X,F20.14,
+c$$$     $        /,5X,'EIA:',1X,F20.14,
+c$$$     $        /,5X,'EAA:',1X,F20.14)
 c
 c  Clean up
 c
