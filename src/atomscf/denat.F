@@ -23,20 +23,17 @@ crz   xpsnld: implemented for use of non local pseudo potentials
 c..
 c...  start all types after one cycle closed shell in routine denscf
 c
-      integer iprint
       integer iwrite
-      logical oprinv
+      logical oprint_dens, oprint_scf
       integer l2
       integer no, ntr, nsq
       integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
       integer ih, idc, idos, idt, idold, iss, ic, icopn, ismin
       integer iqmin, itransf, icc, last, memq, l_scr, k_scr
-      data iwrite/6/, iprint/2/
+      data iwrite/6/, oprint_dens/.false./, oprint_scf/.true./
 c..
 c..    core partitioning
 c..
-      oprinv = iprint.eq.2
-c
 c     allow for maximum of 100 bfns on any given atom
 c
       ntr = nb*(nb+1)/2
@@ -76,7 +73,7 @@ c
 c..
 c..   now loop over the atoms / do atomic scf and gather d-matrix
 c..
-      call datoms(geom, basis, dbl_mb(i10),g_dens,oprinv,
+      call datoms(geom, basis, dbl_mb(i10),g_dens,oprint_scf,
      +     dbl_mb(ipcap), dbl_mb(iqcap), dbl_mb(ifc), dbl_mb(ifo), 
      $     dbl_mb(is), dbl_mb(iu), 
      +     dbl_mb(it), dbl_mb(ih), dbl_mb(idc), dbl_mb(idos), 
@@ -86,7 +83,7 @@ c..
 c
 c..   print if requested
 c
-      if (oprinv) then
+      if (oprint_dens) then
         if (ga_nodeid().eq.0) write (iwrite,6020)
         call ga_print(g_dens)
       endif
