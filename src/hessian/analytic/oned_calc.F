@@ -1,5 +1,5 @@
 c
-c $Id: oned_calc.F,v 1.2 2000-04-26 21:49:16 windus Exp $
+c $Id: oned_calc.F,v 1.3 2000-05-02 18:09:11 windus Exp $
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,geom,basis,nat)
@@ -91,18 +91,27 @@ c
      &               lbuf,Ibuf,idatom)
 
                 if ( idatom(1) .ge. 1 ) then
+                write(6,*) 'integral buffer for ',idatom(1),
+     *              idatom(2)
+                do i = 1, nint
+                  write(6,*) 'i = ',i,Ibuf(i)
+                enddo
 c               idatom(1).ge.0 <=> idatom(2).ge.0 (no check necessary)
-                  qfac = qfac*2
-                  call dscal(lbuf,qfac,Ibuf,1)
-                  qfac = qfac/2
+c                 qfac = qfac*2
+c                 call dscal(lbuf,qfac,Ibuf,1)
+c                 qfac = qfac/2
                   ic = 1
+                  do 28 i = 1, 2
                   do 27 icart1 = 1, 3 
-                    call ga_acc(g_rhs(idatom(1)),if1,il1,if2,il2,
-     *               Ibuf(ic),il1-if1+1,1.0)
-                    call ga_acc(g_rhs(idatom(2)),if1,il1,if2,il2,
-     *               Ibuf(ic),il1-if1+1,-1.0)
+                    call ga_acc(g_rhs((idatom(i)-1)*3 + icart1),if1,
+     *               il1,if2,il2,
+     *               Ibuf(ic),il1-if1+1,1.0d0)
+                    ic = ic + nint
+c                   call ga_acc(g_rhs(idatom(2)),if1,il1,if2,il2,
+c    *               Ibuf(ic),il1-if1+1,-1.0d0)
 c put in the ga_acc for idatoms 1 and 2
  27               continue
+ 28               continue
                 endif   ! if idatom
                 endif   ! if doS
 c

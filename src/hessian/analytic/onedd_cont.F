@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.4 2000-04-25 22:17:38 windus Exp $
+C $Id: onedd_cont.F,v 1.5 2000-05-02 18:09:11 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -145,8 +145,30 @@ c
      *  call errquit('onedd_cont: failed to free g_wdens',555)
 c
 c Now handle the Hx and Sx terms for the rhs
+c First handle Sx term
+
+      doS = .true.
+      doV = .false.
+      doT = .false.
+      call oned_calc(ncent*3,g_rhs,dbl_mb(k_buf),
+     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
+     *  doS,doT,doV,geom,basis,ncent)
+c
+      write(6,*) 'g_rhs for Sx term'
+      do i = 1, ncent*3
+        call ga_print(g_rhs(i))
+      enddo
+c
+c write out Sx terms to disk
 c
 
+c
+c Clear g_rhs again
+c
+      do i = 1, ncent*3
+        call ga_zero(g_rhs(i))
+      enddo
+c
       doS = .false.
       doV = .true.
       doT = .true.
