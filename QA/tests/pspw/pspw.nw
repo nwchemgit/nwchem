@@ -167,9 +167,8 @@ PSPW
    END 
 END
 
-#**** Now optimize geometry  and find the frequency *****
-task cg_pspw optimize
-task cg_pspw freq
+#**** Find energy ****
+task cg_pspw energy
 
 
 #***** re-setup conjugate gradient code  to use aperiodic convoultion ****
@@ -184,6 +183,6 @@ PSPW
    END 
 END
 
-#**** Now optimize geometry  and find the frequency *****
-task cg_pspw optimize
-task cg_pspw freq
+#**** Find energy ****
+task cg_pspw energy
+
