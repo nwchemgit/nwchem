@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.14 1997-04-11 00:32:38 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.15 1997-04-18 01:21:50 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -103,6 +103,12 @@ c
 c     Only use low accuracy at outset for startup jobs
 c
       tol2e_save = tol2e
+c
+c     If there are no variables then do full accuracy
+c
+      if (((nmo-nclosed).eq.0) .or. ((nmo-nopen).eq.0))
+     $     ovariable = .false.
+c
       if (ovariable) then
          if (.not. (nelec.eq.1 .or. owritefile .or. 
      $        movecs_guess.eq.'restart')) then
@@ -152,7 +158,7 @@ c     The current fock matrices and energy correspond to the
 c     updated MO coefficients.
 c     
             call rohf_rotate_movecs(step, g_search)
-            converged = gnorm .lt. gnorm_tol
+            converged = (gnorm.lt.gnorm_tol)
 *            write(6,*) ' CONVERGED ', converged
             if (tol2e .ne. tol2e_save) then
 c
