@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.3 2000-05-30 14:47:29 windus Exp $
+C $Id: hess_tidy.F,v 1.4 2000-06-01 23:02:10 windus Exp $
 C
       subroutine hess_tidy()
 c
@@ -46,11 +46,7 @@ c
      *     ('hess_tidy: failed to free g_dens(1)', 555)
       endif
 
-      do j = 1, nopen*3*nactive
-        if (.not.ga_destroy(g_rhs(j))) 
-     *    call errquit('hess_tidy: problem destroying g_rhs',1)
-      enddo
-      do j = 1, nopen*3*nactive
+      do j = 1, ndens*n3xyz
         if (.not.ga_destroy(g_rhs_xc(j))) 
      *    call errquit('hess_tidy: problem destroying g_rhs_xc',1)
       enddo
