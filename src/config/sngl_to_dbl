@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: sngl_to_dbl,v 1.9 1998-07-27 04:04:14 d3e129 Exp $
+# $Id: sngl_to_dbl,v 1.10 1998-09-16 09:15:18 d3e129 Exp $
 #
 
 @ useperl = 1
@@ -32,7 +32,7 @@ endif
 
 set JOB_LIMIT = 4
 if (`hostname` == circus) set JOB_LIMIT = 20
-if (`hostname` == mcurie) set JOB_LIMIT = 2
+if (`hostname` == mcurie) set JOB_LIMIT = 3
 @ njob = 0
 
 foreach file ($argv)
