@@ -217,7 +217,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.23 1997-03-14 17:31:36 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.24 1997-03-18 19:34:15 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -494,13 +494,6 @@ c
           kk = rbfmap(klab(ieri))
           ll = rbfmap(llab(ieri))
           ssbb(ll,kk,jj,ii) = eri(ieri)
-          
-c$$$          II = MAX(ILAB(IERI),JLAB(IERI))
-c$$$          JJ = MIN(ILAB(IERI),JLAB(IERI))
-c$$$          KK = MAX(KLAB(IERI),LLAB(IERI))
-c$$$          LL = MIN(KLAB(IERI),LLAB(IERI))
-c$$$          WRITE(6,988) II,JJ,KK,LL,ERI(IERI)
-c$$$ 988      FORMAT('GGGG',4I5,F20.5)
         enddo
         if (more) goto 100
       endif
@@ -538,7 +531,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.23 1997-03-14 17:31:36 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.24 1997-03-18 19:34:15 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -558,8 +551,6 @@ c
       double precision q4
       logical sym_shell_quartet
       external sym_shell_quartet
-c
-c
 c
       q4 = 1.0d0
       ilen = ibfhi - ibflo + 1
@@ -582,20 +573,12 @@ c
      $                                         min(ksh,lsh), q4 )
             if (odoit) then
               status = bas_cn2bfr(basis, lsh, lbflo, lbfhi)
-              call int_2e4c( basis, ish, jsh, basis, 
-     $                       max(ksh,lsh), min(ksh,lsh),
+              call int_2e4c( basis, ish, jsh, basis, ksh, lsh,
      $                       scrlen, iscr, erilen, eri )            
-              if (ksh.ge.lsh) then                                  ! workaround for int bug for lsh > ksh
-                call eri2blkx(rbfmap, ilen, jlen,                   ! remove alternant branch when fixed
-     $                        kblo,  kbhi,  lblo,  lbhi,            ! 
-     $                        kbflo, kbfhi, lbflo, lbfhi,
-     $                        eri, q4, ssbb )
-              else
-                call eri2blky(rbfmap, ilen, jlen,
-     $                        kblo,  kbhi,  lblo,  lbhi,
-     $                        kbflo, kbfhi, lbflo, lbfhi,
-     $                        eri, q4, ssbb )
-              endif
+              call eri2blkx(rbfmap, ilen, jlen,
+     $                      kblo,  kbhi,  lblo,  lbhi,
+     $                      kbflo, kbfhi, lbflo, lbfhi,
+     $                      eri, q4, ssbb )
             endif
           endif
         enddo
@@ -706,42 +689,6 @@ c
 
 
 
-c
-c  Pack shell quartet ERI into bigger blocks
-c  with remapped K,L indices of a contigious range
-c  Alternant branch for lsh > ksh (workaround for int bug)
-c
-      subroutine eri2blky( rbfmap, ilen, jlen,
-     $                     kblo, kbhi, lblo, lbhi,
-     $                     kbflo, kbfhi, lbflo, lbfhi, 
-     $                     eri, q4, blk )
-      implicit none
-      integer rbfmap(*)                                          ! [input] basis map orig -> new
-      integer ilen, jlen                                         ! [input] ij shell lengths
-      integer kblo, kbhi                                         ! [input] k range in new order
-      integer lblo, lbhi                                         ! [input] l range in new order
-      integer kbflo, kbfhi                                       ! [input] original basis indices
-      integer lbflo, lbfhi                                       ! [input] original basis indices
-      double precision q4                                        ! [input] symmetry scale
-      double precision eri(kbflo:kbfhi,lbflo:lbfhi,jlen,ilen)    ! [input] eri shell quartet
-      double precision blk(lblo:lbhi,kblo:kbhi,jlen,ilen)        ! [output] eri block
-      integer k,l,i,j,kk,ll
-
-
-      do i=1,ilen
-        do j=1,jlen
-          do l=lbflo,lbfhi
-            ll = rbfmap(l)
-            do k=kbflo,kbfhi
-              kk = rbfmap(k)
-              blk(ll,kk,j,i) = eri(k,l,j,i)*q4
-            enddo
-          enddo
-        enddo
-      enddo
-      
-      return
-      end
 
 
 
@@ -1149,7 +1096,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.23 1997-03-14 17:31:36 rg240 Exp $
+C$Id: moints_aux2.F,v 1.24 1997-03-18 19:34:15 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1193,7 +1140,7 @@ C$Id: moints_aux2.F,v 1.23 1997-03-14 17:31:36 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.23 1997-03-14 17:31:36 rg240 Exp $
+c$$$C$Id: moints_aux2.F,v 1.24 1997-03-18 19:34:15 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
