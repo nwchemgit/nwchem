@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.23 2003-11-08 02:07:51 bylaska Exp $
+* $Id: cpsdv5.F,v 1.24 2003-11-09 18:22:28 d3j191 Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -24,9 +24,6 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
       
-      logical value
-
-
 *     **** parallel variables ****
       integer  taskid,np
       integer  MASTER
