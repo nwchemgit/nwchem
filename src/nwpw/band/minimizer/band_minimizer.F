@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.26 2003-12-02 19:16:47 bylaska Exp $
+* $Id: band_minimizer.F,v 1.27 2004-02-01 19:01:43 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -35,6 +35,7 @@
 
 *     **** lattice variables ****
       integer ngrid(3),nwave,nfft3d
+      real*8  a,b,c,alpha,beta,gamma
 
 *     ***** energy variables ****
       real*8  E(10)
@@ -135,11 +136,16 @@
          write(luout,1010)
          write(luout,1020)
          write(luout,1010)
-         write(luout,1031)
+         write(luout,1030)
+         write(luout,1010)
+         write(luout,1035)
+         write(luout,1010)
          write(luout,1040)
          write(luout,1010)
          write(luout,1041)
+         write(luout,1042)
          write(luout,1043)
+         write(luout,1044)
          write(luout,1010)
          write(luout,1000)
          call nwpw_message(1)
@@ -246,6 +252,9 @@
          write(luout,1111) np
          write(luout,1115)
          write(luout,1121) control_boundry(),control_version()
+         if (cpsi_ispin().eq.1) write(luout,1130) "restricted"
+         if (cpsi_ispin().eq.2) write(luout,1130) "unrestricted"
+
          IF (control_gga().eq.0) THEN
             write(luout,1131) 'Vosko et al parameterization'
          ELSE IF (control_gga().eq.1) THEN
@@ -303,6 +312,8 @@
          write(luout,1246) lattice_unitg(1,3),
      >                 lattice_unitg(2,3),
      >                 lattice_unitg(3,3)
+         call lattice_abc_abg(a,b,c,alpha,beta,gamma)
+         write(luout,1232) a,b,c,alpha,beta,gamma
          write(luout,1231) lattice_omega()
          write(luout,1260) c_ewald_rcut(),c_ewald_ncut()
          write(luout,1261) c_ewald_mandelung()
@@ -501,13 +512,26 @@
 
 
 *:::::::::::::::::::::::::::  format  :::::::::::::::::::::::::::::::::
- 1000 FORMAT(10X,'****************************************************')
- 1010 FORMAT(10X,'*                                                  *')
- 1020 FORMAT(10X,'*        NWPW Band Minimization Calculation        *')
- 1031 FORMAT(10X,'*     [   (Stiefel manifold implementation)   ]    *')
- 1040 FORMAT(10X,'*            version #1.00   01/01/02              *')
- 1041 FORMAT(10X,'*  Developed by Eric J. Bylaska and Edoardo Apra   *')
- 1043 FORMAT(10X,'*                                                  *')
+ 1000 FORMAT(10X,
+     > '**********************************************************')
+ 1010 FORMAT(10X,
+     > '*                                                        *')
+ 1020 FORMAT(10X,
+     > '*                   NWPW BAND Calculation                *')
+ 1030 FORMAT(10X,
+     > '*  [(bundled Grassman/Stiefel manifold implementation)]  *')
+ 1035 FORMAT(10x,
+     > '*         [ NorthWest Chemistry implementation ]         *')
+ 1040 FORMAT(10X,
+     > '*                version #1.10   01/31/03                *')
+ 1041 FORMAT(10X,
+     > '*  A pseudopotential plane-wave band structure program   *')
+ 1042 FORMAT(10X,
+     > '*  with Brillouin zone sampling for optimizing crystals, *')
+ 1043 FORMAT(10X,
+     > '*  slabs, and polymers.  Developed by Eric J. Bylaska    *')
+ 1044 FORMAT(10X,
+     > '*  and Edoardo Apra.                                     *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I3)
@@ -535,6 +559,8 @@
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
+ 1232 FORMAT(/5x,' lattice:    a=',f8.3,'    b=',f8.3,'     c=',f8.3,
+     >       /5x,'         alpha=',f8.3,' beta=',f8.3,' gamma=',f8.3)
  1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
  1242 FORMAT(5x,'             a2=<',3f8.3,' >')
  1243 FORMAT(5x,'             a3=<',3f8.3,' >')

@@ -1,0 +1,15 @@
+c
+c     $Id: band_Grsm_list_common.fh,v 1.1 2004-02-01 19:01:42 bylaska Exp $
+c
+      integer max_list
+      parameter (max_list=40)
+      logical ondisk
+      integer grsm_mem(2,max_list)
+      integer indx(max_list),nsize,size_list
+      character*20 tag_list(max_list)
+      character*20 tag_list2(max_list)
+      common / band_Grsm_block / indx,grsm_mem,
+     >                           tag_list,tag_list2,
+     >                           nsize,size_list,
+     >                           ondisk
+

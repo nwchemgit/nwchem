@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.14 2003-10-17 22:56:11 carlfahl Exp $
+* $Id: cpsi.F,v 1.15 2004-02-01 19:01:43 bylaska Exp $
 *
 
 
@@ -404,15 +404,16 @@
 *     *		cpsi_2get_Tgradient	*
 *     *					*
 *     ***********************************
-      subroutine cpsi_2get_Tgradient(THpsi,E0)
+      subroutine cpsi_2get_Tgradient(option,THpsi,E0)
       implicit none
-#include "errquit.fh"
+      integer    option
       complex*16 THpsi(*)
       real*8     E0
 
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
+#include "errquit.fh"
 
 *     *** local variables ****
       logical value
@@ -430,10 +431,12 @@
      &       MA_ERR)
 
 
+      if (option.le.1) then
       call c_electron_run(dcpl_mb(psi2(1)),
      >                   dbl_mb(rho2(1)),
-     >                  dcpl_mb(dng2(1)),
+     >                   dcpl_mb(dng2(1)),
      >                   dbl_mb(rho2_all(1)))
+      end if
 
       E0 = c_electron_energy(dcpl_mb(psi2(1)),
      >                       dbl_mb(rho2(1)),

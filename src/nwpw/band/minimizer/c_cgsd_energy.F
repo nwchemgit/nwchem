@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.8 2003-12-02 19:16:53 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.9 2004-02-01 19:01:44 bylaska Exp $                       
 *
 
 *     ***************************
@@ -21,7 +21,7 @@
       logical stalled
       integer taskid,minimizer
       integer i,k,neall,NN,nb
-      integer it_in,it_out,icount
+      integer it_in,it_out,icount,bfgscount
       real*8  EV,virial
       real*8  tole,tolc,deltae,deltac,deltae_old
       real*8  cx,cy,cz
@@ -68,6 +68,7 @@ c      call cphafac_k()
          write(luout,1302)
          write(luout,1304)
          if (minimizer.eq.1) write(luout,1305)
+         if (minimizer.eq.2) write(luout,1306)
          if (minimizer.eq.5) write(luout,1309)
          call util_flush(luout)
       end if
@@ -75,6 +76,7 @@ c      call cphafac_k()
       stalled = .false.
       deltae  = -1.0d-03
       icount=0
+      bfgscount=0
       it_in  = control_it_in()
       it_out = control_it_out()
       tole   = control_tole()
@@ -88,25 +90,44 @@ c      call cphafac_k()
         end if
       end if
       if (taskid.eq.MASTER) call util_flush(luout)
+      if (minimizer.eq.2) call band_Grsm_list_start()
       if (minimizer.eq.5) it_out = 1
 
       if (newpsi) call c_sdminimize(5)
    2  continue
          icount = icount + 1
-         if (stalled) call c_sdminimize(0)
+         if (stalled) then
+           call c_sdminimize(0)
+           bfgscount = 0
+         end if
 
          deltae_old = deltae
          
          if (minimizer.eq.1) then
-           call c_cgminimize(E,deltae,deltac)
+           bfgscount = bfgscount + 1
+           call c_cgminimize(E,deltae,deltac,bfgscount,it_in)
+         else if (minimizer.eq.2) then
+           bfgscount = bfgscount + 1
+           call c_bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
+         else if (minimizer.eq.3) then
+           bfgscount = bfgscount + 1
+           write(*,*) "Bundled DIIS minimizer not implemented"
+           stop
+         else if (minimizer.eq.4) then
+           bfgscount = bfgscount + 1
+           write(*,*) "Bundled Stiefel minimizer not implemented"
+           stop
+
          else if (minimizer.eq.5) then
+           bfgscount = bfgscount + 1
            write(*,*) "minimizer 5"
            stop
            !call c_bybminimize(E,deltae,deltac,.false.,1)
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
-     >       (dabs(deltae).gt.1.0d-3)) then
+     >       (dabs(deltae).gt.1.0d-2)          .or.
+     >       (deltae.gt.0.0d0)) then
             stalled = .true.
          else
             stalled = .false.
@@ -143,6 +164,7 @@ c      call cphafac_k()
 *     :::::::::::  end of electron iteration loop  :::::::::::::::::::::
 
    3  continue
+      if (minimizer.eq.2) call band_Grsm_list_end()
       if (taskid.eq.MASTER) CALL nwpw_MESSAGE(3)
 
 
@@ -226,10 +248,10 @@ c         write(luout,1210) GX,GY,GZ
  1301 FORMAT(  '= energy calculation =')
  1302 FORMAT(  '======================')
  1304 FORMAT(/)
- 1305 FORMAT(10X,'====== Grassmann conjugate gradient iteration ======')
- 1306 FORMAT(10X,'============ Grassmann lmbfgs iteration ============')
+ 1305 FORMAT(10X,'== bundled Grassmann conjugate gradient iteration ==')
+ 1306 FORMAT(10X,'======== bundled Grassmann lmbfgs iteration ========')
  1307 FORMAT(10X,'============ Grassmann diis iteration ==============')
- 1308 FORMAT(10X,'======= Stiefel conjugate gradient iteration =======')
+ 1308 FORMAT(10X,'=== bundled Stiefel conjugate gradient iteration ===')
  1309 FORMAT(10X,'=========== band by band diis iteration ============')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
