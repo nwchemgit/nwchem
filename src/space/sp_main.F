@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.68 2001-11-19 17:14:43 d3j191 Exp $
+c $Id: sp_main.F,v 1.69 2002-02-05 04:18:22 d3j191 Exp $
 c
       implicit none
 c
@@ -2547,6 +2547,13 @@ c
     8 continue
     7 continue
     9 continue
+c
+      do 10 i=nwmloc+1,mwm
+      iwz(i)=0
+   10 continue
+      do 11 i=nsaloc+1,msa
+      isz(i)=0
+   11 continue
 c
       return
       end
