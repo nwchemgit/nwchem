@@ -38,11 +38,11 @@
         rhosig = vect1(n)
         if (rhosig.gt.tol_rho) then
           relation = occup_i*rho(n,2)/rhosig
-          compx = occup_i*del_rho(n,1,isp)/rhosig -
+          compx = occup_i*del_rho(n,1,1)/rhosig -
      &                     rho(n,2)*delrho_sig(n,1)/(rhosig*rhosig)
-          compy = occup_i*del_rho(n,2,isp)/rhosig -
+          compy = occup_i*del_rho(n,2,1)/rhosig -
      &                     rho(n,2)*delrho_sig(n,2)/(rhosig*rhosig)
-          compz = occup_i*del_rho(n,3,isp)/rhosig -
+          compz = occup_i*del_rho(n,3,1)/rhosig -
      &                     rho(n,2)*delrho_sig(n,3)/(rhosig*rhosig)
         else
           if (aux_ik.eq.1) then
