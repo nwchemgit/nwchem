@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.50 1999-12-14 17:31:10 d3j191 Exp $
+c $Id: md_main.F,v 1.51 2000-01-04 21:53:29 d3j191 Exp $
 c
       implicit none
 c
@@ -75,6 +75,9 @@ c     print energies
 c
       call cf_print_energy(lfnout)
 c
+      call sp_printf(lfnout,filtop,lfntop,
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs))
+c
       return
       end
       subroutine md_em()
@@ -135,6 +138,12 @@ c
 c
       if(.not.ma_pop_stack(l_wws))
      + call errquit('Failed to deallocate memory for wws',me)
+c
+      call cf_print_energy(lfnout)
+c
+      call sp_printf(lfnout,filtop,lfntop,
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs))
+c
       return
       end
       subroutine md_stdesc(iwdt,xw,yw,vw,fw,isdt,xs,ys,vs,fs,ww,ws)
@@ -191,6 +200,7 @@ c
       mdstep=0
 c
     1 continue
+      call timer_start(1)
 c
       dxf=dx/fmax
 c
@@ -275,6 +285,7 @@ c
      + dbl_mb(i_vs),nsaloc)
 c
       dx=half*dx
+      call timer_stop(1)
       goto 1
       endif
 c
@@ -310,6 +321,7 @@ c
 c
       dx=min(1.2d0*dx,dxmsd)
 c
+      call timer_stop(1)
       if(.not.ldone) goto 1
 
       return
@@ -501,6 +513,7 @@ c
 c     inner loop
 c
   200 continue
+      call timer_start(1)
 c
       inner=inner+1
 c
@@ -607,6 +620,7 @@ c
       ecg1=ecg2
       ypa=ypb
       beta2=two*beta2
+      call timer_stop(1)
       goto 200
       endif
 c
@@ -813,11 +827,13 @@ c
 c     equilibration
 c
       do 1 iequi=kequi+1,mequi
+      call timer_start(1)
       call md_newton()
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
       call md_server
+      call timer_stop(1)
     1 continue
 c
 c     data gathering
@@ -919,7 +935,9 @@ c
 c     equilibration
 c
       do 2 iequi=kequi+1,mequi
+      call timer_start(1)
       call md_newton()
+      call timer_stop(1)
     2 continue
 c
 c     data gathering
