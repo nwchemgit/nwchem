@@ -3,10 +3,10 @@
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
-     + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
-     + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
-     + mropti,incl,ltwn)
-c $Id: cf_init.F,v 1.82 2002-08-13 19:00:24 d3j191 Exp $
+     + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
+     + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
+     + nbiasi,mropti,incl,ltwn)
+c $Id: cf_init.F,v 1.83 2002-08-16 16:37:11 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -20,7 +20,7 @@ c
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,nipmf,npgi
       real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq
       integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl,incl
-      real*8 rcs,rcl,rqm,compr,delta
+      real*8 rcs,rcl,rqm,compr,delta,fpmf
       integer iitmps,iiprss,iislow,iipopt
       integer nodpme,ntyp,idset,ipset1,ipset2
       integer issscl,npenrg,nbiasi,mropti
@@ -48,6 +48,7 @@ c
       tmsrlx=rtmps
       prsrlx=rpres
       scaleq=sclq
+      facpmf=fpmf
 c
       ntype=ntyp
       mdalgo=mdalg
@@ -381,6 +382,8 @@ c
      + (rpmf(j,1,i),rpmf(j,3,i),j=1,2),
      + (ipmf(i,j),j=2,5),ipmf(i,8)
  1000 format(3i5,2f12.6,2e12.5,5i5)
+      rpmf(2,1,i)=facpmf*rpmf(2,1,i)
+      rpmf(2,3,i)=facpmf*rpmf(2,3,i)
       if(ipmf(i,8).eq.0) ipmf(i,8)=1
       if(ipmf(i,6).ne.0) nbias=nbias+1
       do 2 j=1,2

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.67 2002-07-11 03:43:19 d3j191 Exp $
+c $Id: md_input.F,v 1.68 2002-08-16 16:37:10 d3j191 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
       real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide,rfix,fcoll
-      real*8 tmpext2,tann1,tann2,scaleq,rsgm
+      real*8 tmpext2,tann1,tann2,scaleq,rsgm,facpmf
       character*12 afix
 c
       integer i,mtimes,len
@@ -646,11 +646,16 @@ c     pmf
 c
       if(inp_compare(.false.,'pmf',item)) then
       npmf=1
+      facpmf=1.0d0
+  288 continue
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'equilharm',item)) then
       if(.not.inp_i(npmf)) call errquit('md_input: error equilharm',0)
       if(npmf.le.1) call errquit('md_input: error equilharm',npmf)
       if(.not.inp_a(item)) goto 1
+      elseif(inp_compare(.false.,'scale',item).or.
+     + inp_compare(.false.,'scale_factor',item)) then
+      if(.not.inp_f(facpmf)) call errquit('md_input: error pmf scale',0)
       endif
       goto 2
       endif
@@ -1720,6 +1725,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ndistr',mt_int,1,ndistr))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:npmf',mt_int,1,npmf))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:facpmf',mt_dbl,1,facpmf))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfdrss',mt_int,1,nfdrss))
      + call errquit('md_input: rtdb_put failed',0)

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.136 2002-08-13 19:00:27 d3j191 Exp $
+c $Id: md_start.F,v 1.137 2002-08-16 16:37:10 d3j191 Exp $
 c
       implicit none
 c
@@ -42,7 +42,7 @@ c
      + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
      + tstep,tlwsha,mshitw,mshits,noshak,
      + iqmmm,ipolt,itscal,ipscal,ipopt,tmpext,prsext,
-     + tmprlx,tmsrlx,prsrlx,scaleq,
+     + tmprlx,tmsrlx,prsrlx,scaleq,facpmf,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl,nbias,mropt,includ,ltwin)
@@ -878,6 +878,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',72)
       if(.not.rtdb_get(irtdb,'md:ndistr',mt_int,1,ndistr))
      + call errquit('md_rtdbin: rtdb_get failed',89)
       if(.not.rtdb_get(irtdb,'md:npmf',mt_int,1,npmf))
+     + call errquit('md_rtdbin: rtdb_get failed',89)
+      if(.not.rtdb_get(irtdb,'md:facpmf',mt_dbl,1,facpmf))
      + call errquit('md_rtdbin: rtdb_get failed',89)
       if(.not.rtdb_get(irtdb,'md:ndaver',mt_int,1,ndaver))
      + call errquit('md_rtdbin: rtdb_get failed',90)
