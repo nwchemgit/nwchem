@@ -16,14 +16,14 @@ c               int(0,inf) exp(x)x**(2-alf)f(x) x**alf exp(-x) dx.
 c          The real weights are thus a(i)*exp(x)*x**(2-alf) where a(i)
 c          are the original Gauss-Laguerre weights.
 c
-C$Id: grid_gaussq.F,v 1.1 1999-08-10 23:07:05 edo Exp $
+C$Id: grid_gaussq.F,v 1.2 1999-08-11 18:09:45 edo Exp $
       implicit none
-      
+#include "cdft.fh"      
       integer nn ! [input]
       double precision x(1),realwt(1)
 C
       integer n
-      double precision a(nn),b(nn),c(nn)
+      double precision a(MXrad),b(MXrad),c(MXrad)
       double precision alf,eps
       double precision csx,tsx,tsa,csa
       parameter(alf=1.5d0,eps=1.d-10)
@@ -209,8 +209,9 @@ c          a(i),i=1,..,nn are the integration weights for the integral
 c               int(-1,1) f(x) dx.
 c
       implicit none
+#include "cdft.fh"      
       integer nn
-      double precision c(nn),x(nn),a(nn)
+      double precision c(MXrad),x(*),a(*)
 c
       integer n
       double precision eps,csx,csa,tsx,tsa
