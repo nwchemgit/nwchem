@@ -5,7 +5,7 @@
 *     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.9 2002-01-04 23:20:00 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.10 2002-01-10 00:28:29 edo Exp $
 c
       implicit none
 #include "inp.fh"
@@ -423,14 +423,17 @@ c
 
       call util_directory_name(sdir_name,.true.,0)
       call util_directory_name(dir_name,.false.,0)
-      
-
+      h = index(sdir_name,' ') - 1
+      i = index(dir_name,' ') - 1
+c      
+c     clean crap
+c
+      open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='unknown')
+      close(unit=99,status='delete')
       psp_in = "junk.inp "
       k = index(atom,' ') - 1
       if (k.lt.0) k = 2
       psp_out = atom(1:k)//".psp "
-      h = index(sdir_name,' ') - 1
-      i = index(dir_name,' ') - 1
       j = index(psp_in,' ')  - 1
       k = index(psp_out,' ') - 1
 
@@ -447,7 +450,7 @@ c
      >     psp_in(1:j),j,
      >     psp_out(1:k),k)
 !      stop
-      open(unit=99,file='junk.inp',status='old')
+      open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
       close(unit=99,status='delete')
 
       end if
