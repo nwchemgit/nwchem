@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.134 2004-02-10 07:58:56 marat Exp $
+c     $Id: msgids.fh,v 1.135 2004-07-21 17:00:14 bert Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_utscr2
@@ -1126,4 +1126,5 @@ c
 c
       parameter(msg_qmmm_c=msg_ftn_base-834) 
       parameter(msg_qmmm_inum=msg_ftn_base-835) 
-
+c
+      parameter(msg_efgs_col=msg_ftn_base-836)
