@@ -82,7 +82,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.34 2004-01-29 18:13:26 edo Exp $
+* $Id: task_energy.F,v 1.35 2004-02-01 22:02:07 sohirata Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -118,8 +118,10 @@ c
       external scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       logical semi_dir_mp2, rimp2g,nwmd,pspw_energy,band_energy
       external semi_dir_mp2, rimp2g,nwmd,pspw_energy,band_energy
-      logical dft_energy, sodft_energy, tddft_energy, tce_energy
-      external dft_energy, sodft_energy, tddft_energy, tce_energy
+      logical dft_energy, sodft_energy, tddft_energy
+      external dft_energy, sodft_energy, tddft_energy
+      logical tce_energy_fragment
+      external tce_energy_fragment
 c
       logical status
       double precision dipole(3)
@@ -150,88 +152,88 @@ c
       else if (theory .eq. 'tddft') then
          status = tddft_energy(rtdb)
       else if (theory .eq. 'tce') then
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'uccd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'ccd'))
      1   call errquit('task_energy: failed writing to rtdb',0,
      &       RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'ulccd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'lccd'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'uccsd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'ccsd'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'ulccsd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'lccsd'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'uqcisd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'qcisd'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'uccsdt') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'ccsdt'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'uccsdtq') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'ccsdtq'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'ucisd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'cisd'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'ucisdt') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'cisdt'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'ucisdtq') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'cisdtq'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'ump2') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt2'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'ump3') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt3'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'ump4') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt4'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'umbpt2') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt2'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'umbpt3') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt3'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'umbpt4') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt4'))
      1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
-         status = tce_energy(rtdb)
+         status = tce_energy_fragment(rtdb)
       else if (theory .eq. 'rimp2') then
          status = rimp2(rtdb)
       else if (theory .eq. 'rimp2_grad') then

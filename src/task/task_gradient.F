@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.36 2004-01-28 17:56:11 marat Exp $
+* $Id: task_gradient.F,v 1.37 2004-02-01 22:02:07 sohirata Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -122,7 +122,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.36 2004-01-28 17:56:11 marat Exp $
+* $Id: task_gradient.F,v 1.37 2004-02-01 22:02:07 sohirata Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -169,8 +169,8 @@ c
       external semi_dir_mp2, rimp2g, pspw_gradient,band_gradient
       logical dft_energy_gradient, sodft_energy_gradient, tddft_energy
       external dft_energy_gradient, sodft_energy_gradient, tddft_energy
-      logical tce_energy
-      external tce_energy
+      logical tce_energy_fragment
+      external tce_energy_fragment
 c
       logical mcscf_gradient, scf_gradient, grad_dft, task_num_grad
       external mcscf_gradient, scf_gradient, grad_dft, task_num_grad
