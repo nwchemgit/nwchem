@@ -5,7 +5,6 @@
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
 c
 c
 c
@@ -16,10 +15,6 @@ c
        character*255 movecs_in, movecs
        external moint_driver
        logical moint_driver,ccsd_driver
-c
-c
-       if (.not. context_push('ccsd'))
-     $      call errquit('ccsd: context_push failed',0)
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
@@ -60,9 +55,10 @@ c ------NEW AO CCSD CODE
      $     call errquit('scf: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('scf: no ao basis ', 0)
-      movecs = 'movecs'
-      if (.not. context_rtdb_match(rtdb, 'input mo vector file',
-     $     movecs_in)) movecs_in = movecs
+      if (.not. rtdb_cget(rtdb, 'cssd:input mo vector file',
+     $     movecs_in)) 
+     $     call util_file_name('movecs',.false.,.false.,movecs)
+c
       status = ccsd_driver( rtdb, geom, basis, movecs_in )
 c
 c  Cleanup
@@ -74,8 +70,4 @@ c
       if (ga_nodeid().eq.0) then
         call MA_summarize_allocated_blocks()
       endif
-      if (.not. context_pop('ccsd'))
-     $     call errquit('context_pop failed',0)
       end
-
-

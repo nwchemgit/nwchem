@@ -7,18 +7,13 @@
 #include "geom.fh"
 #include "rtdb.fh"
 #include "schwarz.fh"
-#include "context.fh"
-c
-c
 c
        integer rtdb                        ! [input] database handle
        integer geom, basis
        character*255 movecs_in
 c
-c
-c
        character*255 title_vecs, basis_vecs
-       double precision nuclear_charge, charge
+       double precision nuclear_charge, charge, energy
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer k_epair, l_epair
@@ -332,7 +327,11 @@ c
       call aoccsd(basis,ncor,nocc_correl,nvir_correl,ndel,nbf,nmo2,
      &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),dbl_mb(k_aint),
-     &            blen,g_objv,g_int1t,g_aint)
+     &            blen,g_objv,g_int1t,g_aint, energy)
+c
+      if (.not. rtdb_put(rtdb,'ccsd:energy', mt_dbl, 1, energy)) 
+     $     call errquit('ccsd: failed storing energy',0)
+c
       status = ma_pop_stack(l_mo)
       status = status.and.ma_pop_stack(l_aint)
       status=status.and.ga_destroy(g_aint)
