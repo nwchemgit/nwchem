@@ -3,7 +3,7 @@
      &                       wght_GA, rdens_atom, cetobfr, natoms,
      &                       g_movecs, noc, totsic)
 c
-C$Id: xc_sic_pert.F,v 1.9 2000-04-26 23:03:13 jolguin Exp $
+C$Id: xc_sic_pert.F,v 1.10 2000-04-27 20:30:06 zzhang Exp $
 c
       implicit none
 c      
@@ -109,7 +109,7 @@ cccc g_dens_orb(1) is the orbital density of orb(ik) states
               jfac(2) = 1.0d0
               kfac(2) = 0d0
               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &                     tol2e, oskel, g_dens_orb(1), g_vxc_orb(1))
+     &             tol2e, oskel, g_dens_orb(1), g_vxc_orb(1),.false.)
               ecoul_orb = 0.0d0
               ecoul_orb = 0.5d0*ga_ddot(g_dens_orb(1), g_vxc_orb(1))
               tot_sic_coul = tot_sic_coul - 

@@ -4,7 +4,7 @@
      &                  cetobfr, natoms,
      &                  g_movecs, noc,  totsic, i_degen)
 c
-C$Id: xc_sic.F,v 1.11 2000-04-24 21:51:56 edo Exp $
+C$Id: xc_sic.F,v 1.12 2000-04-27 20:29:11 zzhang Exp $
 c
       implicit none
 c      
@@ -169,7 +169,7 @@ c
               jfac(2) = 1.0d0
               kfac(2) = 0d0
               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &                     tol2e, oskel, g_sic_dens(1), g_vxc_orb(1))
+     &             tol2e, oskel, g_sic_dens(1), g_vxc_orb(1),.false.)
               ecoul_orb = 0.0d0
               ecoul_orb = 0.5d0*ga_ddot(g_sic_dens(1), g_vxc_orb(1))
 c

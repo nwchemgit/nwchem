@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.36 2000-04-25 02:08:48 edo Exp $
+C$Id: xc_getv.F,v 1.37 2000-04-27 20:28:12 zzhang Exp $
 c
       implicit none
 c      
@@ -102,7 +102,7 @@ c
               g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
               g_dens(2)=g_dens(1)
               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &             tol2e, oskel, g_dens(1), g_vxc(1))
+     &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
               ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 
               call ga_dadd(1d0,g_vxc(1),1d0,g_vxc(2),g_vxc(1))
@@ -110,7 +110,7 @@ c
      $             ('xc_getv: ga corrupt?',0)
             else
               call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &             tol2e, oskel, g_dens(1), g_vxc(1))
+     &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
             Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
             endif
          else
@@ -120,7 +120,7 @@ c
                kfac(1)=-1.0d0*xfac(1)
                kfac(2)=-1.0d0*xfac(1)
                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &              tol2e, oskel, g_dens, g_vxc)
+     &              tol2e, oskel, g_dens, g_vxc, .false.)
                Exc(1) = Exc(1)+0.5d0*(ga_ddot(g_dens(1),g_vxc(1)) +
      &              ga_ddot(g_dens(2),g_vxc(2)))
             else
@@ -143,7 +143,7 @@ c
                g_d(3)  = g_dens(2)
                g_d(4)  = g_dens(2)
                call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
-     &              tol2e, oskel, g_d(1), g_jk(1))
+     &              tol2e, oskel, g_d(1), g_jk(1), .false.)
                ecoul = 0.5d0*( ! Alpha coulomb energy
      $              ga_ddot(g_dens(1),g_jk(1)) + 
      $              ga_ddot(g_dens(1),g_jk(3)))
