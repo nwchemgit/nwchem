@@ -100,14 +100,23 @@ larger the steps that can be taken by STEPPER.  Experience has shown
 that for larger systems (i.e., those with 20 or more atoms), a value
 of 0.5, or greater, usually should be entered for \verb+<radius>+.
 
-\section{{\tt CONVGG} and {\tt CONVGE} --- Convergence criteria}
+\section{{\tt CONVGGM}, {{\tt CONVGG} and {\tt CONVGE} --- Convergence criteria}
 
-Two convergence criteria can be specified explicitly for the 
-STEPPER calculations.  The keyword \verb+CONVGG+ allows the user to
-specify the the convergence tolerance for the gradient norm for
+Three convergence criteria can be specified explicitly for the 
+STEPPER calculations.  The keyword \verb+CONVGGM allows the user to
+specify the convergence tolerance for the largest component of the
+gradient. This is the primary convergence criterion, as per the default
+settings, although all three criteria are in effect. this default setting
+is consistent with the other optimizer module DRIVER. 
+The input line for \verb+CONVGGM has the following form,
+\begin{verbatim}
+   CONVGGM <real convggm default 8.0d-04>
+\end{verbatim}
+The keyword \verb+CONVGG+ allows the user to
+specify the convergence tolerance for the gradient norm for
 all degrees of freedom.  The input line is of the following form,
 \begin{verbatim}
-   CONVGG <real convgg default 1.0d-04>
+   CONVGG <real convgg default 1.0d-02>
 \end{verbatim}
 The entry for the real variable \verb+<convgg>+ should be approximately 
 equal to the square root of the energy convergence tolerance.
@@ -116,7 +125,7 @@ The energy convergence tolerance is the convergence criterion for the
 energy difference in the geometry optimization in STEPPER.  It can be
 specified by input using a line of the following form,
 \begin{verbatim}
-   CONVGE <real convge default 1.0d-08>
+   CONVGE <real convge default 1.0d-04>
 \end{verbatim}
 
 
