@@ -1,3 +1,7 @@
+#
+# $Id: pspw_qmmm_input.F,v 1.3 2001-10-26 04:44:16 bylaska Exp $
+#
+
       subroutine pspw_qmmm_input(rtdb)
       implicit none
       integer rtdb

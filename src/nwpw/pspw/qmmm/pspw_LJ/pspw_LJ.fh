@@ -1,3 +1,7 @@
+#
+# $Id: pspw_LJ.fh,v 1.2 2001-10-26 04:44:17 bylaska Exp $
+#
+
 *     ***** pspw_LJ common block ************************************
       integer sigma_mm(2),epsilon_mm(2)
       integer sigma_ion(2),epsilon_ion(2)
