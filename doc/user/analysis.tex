@@ -165,11 +165,12 @@ A special tag can be added to the \ecce\ frm format using
 
 \begin{verbatim}
 label <integer itag> <string tag>  [ <real rtag default 0.0> ] \\
-      <integer iatag> [ <integer jatag default iatag> ]
+      <integer iatag> [ <integer jatag default iatag> ] [ <string anam> ]
 \end{verbatim}
 
 where tag number $itag$ is set to the string $tag$ for all atoms
-within a distance $rtag$ from atoms $iatag$ through $jatag$
+anam within a distance $rtag$ from segments $iatag$ through $jatag$.
+A question mark can be used in anam as a wild card character.
 
 \section{Partial charges from ESP fitting}
 
@@ -207,3 +208,5 @@ The name of the xyz file can be specified with
 xyz <string filxyz>
 \end{verbatim}
 
+The resulting electrostatic potential grid is in units of
+kJ\ mol$^{-1}$e$^{-1}$.
