@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.57 2001-04-07 01:07:42 edo Exp $
+C$Id: uhf.F,v 1.58 2001-04-17 00:50:16 edo Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -210,7 +210,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.57 2001-04-07 01:07:42 edo Exp $
+C     $Id: uhf.F,v 1.58 2001-04-17 00:50:16 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -510,7 +510,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.57 2001-04-07 01:07:42 edo Exp $
+C$Id: uhf.F,v 1.58 2001-04-17 00:50:16 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -601,7 +601,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.57 2001-04-07 01:07:42 edo Exp $
+c     $Id: uhf.F,v 1.58 2001-04-17 00:50:16 edo Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1087,7 +1087,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.57 2001-04-07 01:07:42 edo Exp $
+C$Id: uhf.F,v 1.58 2001-04-17 00:50:16 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1294,7 +1294,8 @@ c
 c
       oprintmulliken  = util_print('mulliken', print_default)
       oprintmultipole = util_print('multipole', print_default)
-      oprintinertia = util_print('inertia', print_default)
+      oprintinertia = util_print('inertia', print_default).and.
+     . ga_nodeid().eq.0
 c
 c     moments of inertia
 c

@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.40 2001-04-07 01:07:43 edo Exp $
+C$Id: rohf.F,v 1.41 2001-04-17 00:50:16 edo Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -246,7 +246,8 @@ c
 c
       oprintmulliken  = util_print('mulliken', print_default)
       oprintmultipole = util_print('multipole', print_default)
-      oprintinertia = util_print('inertia', print_default)
+      oprintinertia = util_print('inertia', print_default).and.
+     . ga_nodeid().eq.0                                    
 c
 c     moments of inertia
 c
