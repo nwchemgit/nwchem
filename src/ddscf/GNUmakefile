@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.36 1995-05-24 23:51:25 vg038 Exp $
+# $Id: GNUmakefile,v 1.37 1995-05-27 00:53:58 vg038 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -57,8 +57,9 @@
 
       LIBRARY =	libddscf.a
 
-    USES_BLAS =	movecs_fix_phase.F rohf_k2cf.F fock_2e.F k2cf.F \
-                uhf.F scf_movecs.F scf_vectors_guess.F riscf_trans_int int2e_file.F
+    USES_BLAS =	movecs_fix_phase.F rohf_k2cf.F ao_fock_2e.F k2cf.F \
+                uhf.F scf_movecs.F scf_vectors_guess.F riscf_trans_int.F \
+                int2e_file.F fock_2e_shell_to_labels.F
 
 #
  LIB_DEFINES = 
@@ -70,7 +71,7 @@ HEADERS = schwarz.fh cscfps.fh
 include ../config/makefile.h
 include ../config/makelib.h
 
-fock_2e_a.o rhf_fock_2e_a.o rhf_get_param.o rhf_hessv.o scf_get_info.o fock_2e.o:	 cfock.fh
+fock_2e_a.o rhf_fock_2e_a.o rhf_get_param.o rhf_hessv.o scf_get_info.o ao_fock_2e.o do_ri.o:	 cfock.fh
 rhf_hessv.o rhf_nr_solve.o:	 crhf.fh
 rohf.o rohf_make_shift.o rohf_nr_solve.o rohf_search_precond.o rohf_step_energy.o rohf_wrap.o scf_movecs.o:	 crohf.fh
 rohf_make_shift.o rohf_nr_solve.o rohf_rotate_movecs.o rohf_search_precond.o rohf_step_energy.o rohf_wrap.o scf_get_info.o scf_movecs.o scf_vectors_guess.o:	 cscf.fh
