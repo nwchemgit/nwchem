@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.3 2001-12-12 02:42:26 bylaska Exp $
+* $Id: cram.F,v 1.4 2001-12-13 03:49:53 bylaska Exp $
 *
 
 *     ***********************************
@@ -445,9 +445,9 @@
 
 
 *     ***********************************
-*     *					*
-*     *	         Cram_cc_ndot		*	
-*     *					*
+*     *									*
+*     *	         Cram_cc_ndot			*	
+*     *									*
 *     ***********************************
 
       subroutine Cram_cc_ndot(nb,ne,A,B,sum)
@@ -456,7 +456,7 @@
       integer    ne
       complex*16 A(*)
       complex*16 B(*)
-      real*8     sum(*)
+      complex*16 sum(*)
 
 #include "mafdecls.fh"
 #include "cram_common.fh"
@@ -466,8 +466,8 @@
       integer npack, shift
 
 *     **** external functions ****
-      real*8   ddot
-      external ddot
+      real*8   zdotc
+      external zdotc
 
 *     ***** timing variables *****
 *     1 - fft_time
@@ -492,12 +492,12 @@
       do n=1,ne
         shift = (n-1)*npack
 
-        sum(n) = sum(n) + ddot(2*int_mb(nidb2_list(1)+nb),
+        sum(n) = zdotc(int_mb(nidb2_list(1)+nb),
      >                         A(1+shift),1,
      >                         B(1),      1)
       end do
 
-      if (np.gt.1) call C3dB_Vector_SumAll(ne,sum)
+      if (np.gt.1) call C3dB_Vector_SumAll(2*ne,sum)
 
 
       call current_second(tim2)
@@ -617,11 +617,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_tt_idot		*	
+*     *	         Cram_rr_idot		*	
 *     *					*
 *     ***********************************
 
-      subroutine Cram_tt_idot(nb,A,B,sum)
+      subroutine Cram_rr_idot(nb,A,B,sum)
       implicit none
       integer    nb
       real*8  A(*)
@@ -666,11 +666,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_tt_dot		*	
+*     *	         Cram_rr_dot		*	
 *     *					*
 *     ***********************************
 
-      subroutine Cram_tt_dot(nb,A,B,sum)
+      subroutine Cram_rr_dot(nb,A,B,sum)
       implicit none
       integer nb
       real*8  A(*)
@@ -718,11 +718,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_t_dsum		*	
+*     *	         Cram_r_dsum		*	
 *     *					*
 *     ***********************************
 
-      subroutine Cram_t_dsum(nb,A,sum)
+      subroutine Cram_r_dsum(nb,A,sum)
       implicit none
       integer nb
       real*8  A(*)
@@ -790,11 +790,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_t_Copy		*	
+*     *	         Cram_r_Copy		*	
 *     *					*
 *     ***********************************
 
-      subroutine Cram_t_Copy(nb,A,B)
+      subroutine Cram_r_Copy(nb,A,B)
       implicit none
       integer nb
       real*8 A(*)
@@ -857,11 +857,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_tt_Sum		*	
+*     *	         Cram_rr_Sum		*	
 *     *					*
 *     ***********************************
 
-      subroutine Cram_tt_Sum(nb,A,B,C)
+      subroutine Cram_rr_Sum(nb,A,B,C)
       implicit none
       integer  nb
       real*8 A(*)
@@ -911,11 +911,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_tt_Sub		*	
+*     *	         Cram_rr_Sub		*	
 *     *					*
 *     ***********************************
 
-      subroutine Cram_tt_Sub(nb,A,B,C)
+      subroutine Cram_rr_Sub(nb,A,B,C)
       implicit none
       integer    nb
       real*8 A(*)
@@ -937,11 +937,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *									*
-*     *	         Cram_tt_Sqrt			*	
+*     *	         Cram_rr_Sqrt			*	
 *     *									*
 *     ***********************************
 
-      subroutine Cram_tt_Sqrt(nb,A,C)
+      subroutine Cram_rr_Sqrt(nb,A,C)
       implicit none
       integer  nb
       real*8   A(*)
@@ -964,11 +964,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_ct_Sqr		*	
+*     *	         Cram_cr_Sqr		*	
 *     *					*
 *     ***********************************
 
-      subroutine Cram_ct_Sqr(nb,A,C)
+      subroutine Cram_cr_Sqr(nb,A,C)
       implicit none
       integer    nb
       complex*16 A(*)
@@ -1046,11 +1046,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_t_SMul		*	
+*     *	         Cram_r_SMul		*	
 *     *					*
 *     ***********************************
 
-      subroutine Cram_t_SMul(nb,alpha,A,C)
+      subroutine Cram_r_SMul(nb,alpha,A,C)
       implicit none
       integer    nb
       real*8 alpha
@@ -1097,11 +1097,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_tt_daxpy		*	
+*     *	         Cram_rr_daxpy		*	
 *     *					*
 *     ***********************************
 
-      subroutine Cram_tt_daxpy(nb,alpha,A,C)
+      subroutine Cram_rr_daxpy(nb,alpha,A,C)
       implicit none
       integer    nb
       real*8 alpha
@@ -1152,11 +1152,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *									*
-*     *	         Cram_tc_Mul            *
+*     *	         Cram_rc_Mul            *
 *     *									*
 *     ***********************************
 
-      subroutine Cram_tc_Mul(nb,A,B,C)
+      subroutine Cram_rc_Mul(nb,A,B,C)
       implicit none
       integer    nb
       real*8     A(*)
@@ -1178,11 +1178,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *									*
-*     *	         Cram_itc_Mul           *
+*     *	         Cram_irc_Mul           *
 *     *									*
 *     ***********************************
 
-      subroutine Cram_itc_Mul(nb,A,B,C)
+      subroutine Cram_irc_Mul(nb,A,B,C)
       implicit none
       integer    nb
       real*8     A(*)
@@ -1234,10 +1234,10 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *									*
-*     *	         Cram_cct_conjgMul		*	
+*     *	         Cram_ccr_conjgMul		*	
 *     *									*
 *     ***********************************
-      subroutine Cram_cct_conjgMul(nb,A,B,C)
+      subroutine Cram_ccr_conjgMul(nb,A,B,C)
       implicit none
       integer    nb
       complex*16 A(*)
@@ -1289,11 +1289,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_tc_iMul            *
+*     *	         Cram_rc_iMul            *
 *     *					*
 *     ***********************************
 
-      subroutine Cram_tc_iMul(nb,A,B,C)
+      subroutine Cram_rc_iMul(nb,A,B,C)
       implicit none
       integer    nb
       real*8     A(*)
@@ -1317,11 +1317,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_tt_Mul            *
+*     *	         Cram_rr_Mul            *
 *     *					*
 *     ***********************************
 
-      subroutine Cram_tt_Mul(nb,A,B,C)
+      subroutine Cram_rr_Mul(nb,A,B,C)
       implicit none
       integer    nb
       real*8     A(*)

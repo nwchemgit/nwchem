@@ -1,5 +1,5 @@
 *
-* $Id: cstrfac.F,v 1.1 2001-12-12 02:42:26 bylaska Exp $
+* $Id: cstrfac.F,v 1.2 2001-12-13 03:49:53 bylaska Exp $
 *
 
 *     ***********************************
@@ -20,14 +20,18 @@ c     complex*16 ex3(0:nfft3-1,natmx)
       integer ex1(2),ex2(2),ex3(2)
       common / cstrfac_block / ex1,ex2,ex3
 
-      integer nion,nx,ny,nz
+      integer cxr(2)
+      common / cstrfac_k_block / cxr
+
+      integer nion,nx,ny,nz,nbrillioun
       logical value
 
 *     ***** external functions ****
-      integer  ion_nion
-      external ion_nion
+      integer  ion_nion,brillioun_nbrillioun
+      external ion_nion,brillioun_nbrillioun
 
-      nion = ion_nion()
+      nion       = ion_nion()
+      nbrillioun = brillioun_nbrillioun()
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
@@ -38,6 +42,9 @@ c     complex*16 ex3(0:nfft3-1,natmx)
      >        MA_alloc_get(mt_dcpl,(ny*nion),'ex2',ex2(2),ex2(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,(nz*nion),'ex3',ex3(2),ex3(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,(nbrillioun*nion),
+     >                    'cxr',cxr(2),cxr(1))
       if (.not. value) call errquit('out of heap memory',0)
 
       return
@@ -61,11 +68,15 @@ c     complex*16 ex3(0:nfft3-1,natmx)
       integer ex1(2),ex2(2),ex3(2)
       common / cstrfac_block / ex1,ex2,ex3
 
+      integer cxr(2)
+      common / cstrfac_k_block / cxr
+
       logical value
 
       value = MA_free_heap(ex1(2))
       value = MA_free_heap(ex2(2))
       value = MA_free_heap(ex3(2))
+      value = MA_free_heap(cxr(2))
        
       return
       end
@@ -283,4 +294,80 @@ c     complex*16 ex3(0:nfft3-1,natmx)
       end
 
 C ... End STRFAC ....
+
+
+*      **********************************
+*      *								*
+*      *			CSTRFAC_k 			*
+*      *								*
+*      **********************************
+*
+* 	This routine returns the exp(ik.R_I) for
+*  a specified ion I.
+*
+*	Entry - II: the Ion index 
+*	        nb: the band index
+*	Exit  - ck: the structure factor
+*
+*
+      subroutine cstrfac_k(II,nb,ck)
+      implicit none
+      integer    II,nb
+      complex*16 ck
+
+#include "mafdecls.fh"
+
+*     **** local common block ****
+      integer cxr(2)
+      common / strfac_k_block / cxr
+
+      integer  nion
+      integer  ion_nion
+      external ion_nion
+
+      nion = ion_nion()
+      ck = dbl_mb(cxr(1)+ii-1+(nb-1)*nion)
+      return
+      end
+
+*      **********************************
+*      *								*
+*      *			cphafac_k 			*
+*      *								*
+*      **********************************
+      subroutine cphafac_k()
+      implicit none
+
+
+#include "mafdecls.fh"
+
+*     **** local common block ****
+      integer cxr(2)
+      common / strfac_k_block / cxr
+
+
+*     *** local variables
+      integer    i,nb,nion
+
+*     **** external functions ****
+      integer  brillioun_nbrillioun,ion_nion
+      real*8   brillioun_k,ion_rion
+      external brillioun_nbrillioun,ion_nion
+      external brillioun_k,ion_rion
+
+      nion = ion_nion()
+      do nb=1,brillioun_nbrillioun()
+      do i =1,nion
+         dbl_mb(cxr(1)+i-1+(nb-1)*nion) =
+     >        dcmplx(cos( (brillioun_k(1,nb))*ion_rion(1,i)
+     >                  + (brillioun_k(2,nb))*ion_rion(2,i)
+     >                  + (brillioun_k(3,nb))*ion_rion(3,i)),
+     >               sin( (brillioun_k(1,nb))*ion_rion(1,i)
+     >                  + (brillioun_k(2,nb))*ion_rion(2,i)
+     >                  + (brillioun_k(3,nb))*ion_rion(3,i)))
+      end do
+      end do
+
+      return
+      end
 

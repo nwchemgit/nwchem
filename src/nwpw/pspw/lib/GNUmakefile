@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.7 2001-11-29 01:57:03 edo Exp $
+# $Id: GNUmakefile,v 1.8 2001-12-13 03:49:54 bylaska Exp $
 #
- SUBDIRS = psi electron ke coulomb exchange-correlation thermostats sic
+ SUBDIRS = psi electron ke coulomb exchange-correlation thermostats sic ion
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h

@@ -7,7 +7,7 @@
      >                            semicore,rho_sc_r,rho_sc_k,
      >                            ierr)
 *
-* $Id: integrate_kbppv3.f,v 1.1 2001-08-30 00:38:58 edo Exp $
+* $Id: integrate_kbppv3.f,v 1.2 2001-12-13 03:49:54 bylaska Exp $
 *
       implicit none
       integer          version
@@ -317,20 +317,5 @@ c       F(I)=(VP(I,locp)*RHO(I)+ZV*ERF(RHO(I)/RC(locp)))*RHO(I)
       RETURN
       END
 
-      double precision function simp(n,y,h)
-      implicit none
-      integer n
-      double precision y(n)
-      double precision h,s
-      integer ne,no
-      double precision dsum
-      external         dsum
-
-      ne=n/2
-      no=ne+1
-      S=2.0d0*dsum(no,y(1),2) + 4.0d0*dsum(ne,y(2),2)-y(1)-y(n)
-      simp=s*h/3.0d0
-      return
-      end
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.3 2001-12-12 03:17:02 bylaska Exp $
+* $Id: band_minimizer.F,v 1.4 2001-12-13 03:49:52 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -48,7 +48,7 @@
 
 *     **** lattice variables ****
       integer ngrid(3),nwave,nfft3d,n2ft3d
-      real*8 ks(3),kv(3)
+      real*8 ks(4),kv(3)
 
 *     ***** energy variables ****
       real*8  E(10)
@@ -94,8 +94,10 @@
       character*12 control_boundry
       external     control_boundry
 
-      integer  control_num_kvectors
-      external control_num_kvectors
+      integer  brillioun_nbrillioun
+      real*8   brillioun_weight,brillioun_ks,brillioun_k
+      external brillioun_nbrillioun
+      external brillioun_weight,brillioun_ks,brillioun_k
 
       integer  Cram_nwave_all,Cram_nwave
       external Cram_nwave_all,Cram_nwave
@@ -104,6 +106,8 @@
       real*8   c_ewald_rcut,c_ewald_mandelung,c_ewald_e
       external c_ewald_ncut
       external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
+      logical  cpsp_semicore
+      external cpsp_semicore
 
 
 
@@ -132,7 +136,6 @@
          write(6,1040)
          write(6,1010)
          write(6,1041)
-         write(6,1042)
          write(6,1043)
          write(6,1010)
          write(6,1000)
@@ -170,6 +173,7 @@
 *     **** initialize lattice data structure ****
       call lattice_init()
       call G_init()
+      call brillioun_init()
       call Cram_init()
 
 
@@ -180,11 +184,14 @@
       call center_mass(gx,gy,gz)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
-c     call cpsp_init()
-c     call cpsp_readall()
-c     if (cpsp_semicore(0)) call semicore_check()
+      call cpsp_init()
+      call cpsp_readall()
+      if (cpsp_semicore(0)) call c_semicore_check()
 
 *     **** initialize ke,and coulomb data structures ****
+      call cstrfac_init()
+      call cke_init()
+c     call c_coulomb_init()
       call c_ewald_init()
 
 
@@ -193,7 +200,6 @@ c     if (cpsp_semicore(0)) call semicore_check()
 ******************   summary of input data  **********************
 *                |**************************|
 
-      value = rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          write(6,1111) np
          write(6,1115)
@@ -239,13 +245,13 @@ c     if (cpsp_semicore(0)) call semicore_check()
          write(6,1260) c_ewald_rcut(),c_ewald_ncut()
          write(6,1261) c_ewald_mandelung()
 
-         ia = control_num_kvectors()
+         ia = brillioun_nbrillioun()
          write(6,1255)
          write(6,1256) ia
          do i=1,ia
-           call control_ksvector(i,ks)
-           call control_kvector(i,kv)
-           write(6,1257) ks,kv
+           write(6,1257) brillioun_weight(i),
+     >        brillioun_ks(1,i),brillioun_ks(2,i),brillioun_ks(3,i),
+     >        brillioun_k(1,i), brillioun_k(2,i), brillioun_k(3,i)
          end do
 
          write(6,1249)
@@ -263,7 +269,6 @@ c     if (cpsp_semicore(0)) call semicore_check()
          write(6,1300)
          call util_flush(6)
       end if
-      value = rtdb_parallel(.true.)
 
 
 
@@ -341,12 +346,19 @@ c     if (cpsp_semicore(0)) call semicore_check()
       call ion_write(rtdb)
 
 *     **** write wavefunctions to file and finalize psi ****
+c      call c_psi_finalize()
 
 *     **** deallocate heap memory ****
+c     call c_electron_finalize()
+c     call c_geodesic_finalize()
       call c_ewald_end()
-c     call cpsp_end()
+      call cstrfac_end()
+c     call c_coulomb_end()
+      call cke_end()
+      call cpsp_end()
       call Cram_end()
       call G_end()
+      call brillioun_end()
       call ion_end()
       call C3dB_end(1)
 
@@ -399,9 +411,8 @@ c    >                     linesearch_count(),' line searches)'
  1010 FORMAT(10X,'*                                                  *')
  1020 FORMAT(10X,'*           NWPW Band Structure Calculation        *')
  1031 FORMAT(10X,'*     [   (Stiefel manifold implementation)   ]    *')
- 1040 FORMAT(10X,'*            version #1.00   11/16/01              *')
- 1041 FORMAT(10X,'*    This code was developed by Eric J. Bylaska    *')
- 1042 FORMAT(10X,'*    and Edoardo Apra                              *')
+ 1040 FORMAT(10X,'*            version #1.00   01/01/02              *')
+ 1041 FORMAT(10X,'*  Developed by Eric J. Bylaska and Edoardo Apra   *')
  1043 FORMAT(10X,'*                                                  *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
@@ -445,7 +456,7 @@ c    >                     linesearch_count(),' line searches)'
   
  1255 FORMAT(/' brillouin zone:')
  1256 FORMAT(5x,'number of zone points:',I3)
- 1257 FORMAT(5x,'   ks=<',3f8.3,' >, k=<',3f8.3,'>')
+ 1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
 
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   mandelung=',f11.8)

@@ -1,0 +1,10 @@
+*
+* $Id: brillioun_common.fh,v 1.1 2001-12-13 03:49:51 bylaska Exp $
+*
+
+*     **** Brillioun common block ****
+      integer nbrillioun
+      integer weight(2)
+      integer ks(2),kv(2)
+      common / Brillion_common / ks,kv,weight,nbrillioun
+

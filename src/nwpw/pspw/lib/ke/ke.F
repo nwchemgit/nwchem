@@ -1,8 +1,7 @@
-
+*
+* $Id: ke.F,v 1.3 2001-12-13 03:49:54 bylaska Exp $
+*
       subroutine ke_init()
-*
-* $Id: ke.F,v 1.2 2001-09-29 00:28:07 bylaska Exp $
-*
       implicit none 
 
 #include "mafdecls.fh"
@@ -159,7 +158,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.2 2001-09-29 00:28:07 bylaska Exp $
+* $Id: ke.F,v 1.3 2001-12-13 03:49:54 bylaska Exp $
 *
       implicit none 
       integer ispin,ne(2)
