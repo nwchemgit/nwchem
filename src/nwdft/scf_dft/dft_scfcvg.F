@@ -2,7 +2,7 @@
      &                      d_conv, g_conv, ipol, iter, iterations, 
      &                      idone, rtdb, converged, diising)
 c
-c     $Id: dft_scfcvg.F,v 1.12 2001-12-24 02:02:12 edo Exp $
+c     $Id: dft_scfcvg.F,v 1.13 2002-01-19 00:51:09 edo Exp $
 c
       implicit none
 c
@@ -59,8 +59,11 @@ c
       if (DENSITY)then
          if (dsqrt(rms(1)).le.d_conv)d_conv_logical = .true.
          if (ipol.eq.2)then
-           if (dsqrt(rms(2)).le.d_conv)
-     &        d_conv_logical = d_conv_logical.and..true.
+           if (dsqrt(rms(2)).le.d_conv) then
+             d_conv_logical = d_conv_logical.and..true.
+          else
+             d_conv_logical = d_conv_logical.and..false.
+          endif
          endif
       else
          d_conv_logical = .true.
@@ -71,8 +74,11 @@ c
       if (GRADIENT.and.diising)then
          if (derr(1).le.g_conv)g_conv_logical = .true.
          if (ipol.eq.2)then
-           if (derr(2).le.g_conv)
-     &        g_conv_logical = g_conv_logical.and..true.
+           if (derr(2).le.g_conv) then
+              g_conv_logical = g_conv_logical.and..true.
+             else
+                g_conv_logical = g_conv_logical.and..false.
+             endif
          endif
       else
          g_conv_logical = .true.
