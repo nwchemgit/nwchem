@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.24 2000-05-31 03:47:35 d3j191 Exp $
+c $Id: md_input.F,v 1.25 2000-06-09 17:18:17 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,nfanal,iport,iguide
-      integer mbbreq,nfwcoo,nfwvel,ioload,iprof
+      integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -152,6 +152,7 @@ c
       nfdrss=0
       itload=0
       ioload=0
+      isload=0
       iprof=0
       ihess=0
       latom=0
@@ -1105,6 +1106,13 @@ c
       ioload=2
       goto 700
       endif
+      if(inp_compare(.false.,'sizez',item)) then
+      isload=1
+      if(loadb.eq.0) loadb=1
+      if(loadb.eq.2) loadb=3
+      if(inp_f(factld)) goto 700
+      goto 700
+      endif
       if(inp_compare(.false.,'size',item)) then
       if(loadb.eq.0) loadb=1
       if(loadb.eq.2) loadb=3
@@ -1363,6 +1371,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:itload',mt_int,1,itload))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ioload',mt_int,1,ioload))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:isload',mt_int,1,isload))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ihess',mt_int,1,ihess))
      + call errquit('md_input: rtdb_put failed',0)

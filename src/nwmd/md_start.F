@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.69 2000-06-02 02:48:28 d3j191 Exp $
+c $Id: md_start.F,v 1.70 2000-06-09 17:18:17 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
-     + iguide,lfndbg,idebug,projct,mbbreq,nserie)
+     + iguide,lfndbg,idebug,projct,mbbreq,nserie,isload)
       endif
 c
 c     start the analysis API
@@ -61,7 +61,7 @@ c
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
-     + nsa,ddacq,edacq,iprof)
+     + nsa,ddacq,edacq,iprof,npmf)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -813,6 +813,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',92)
      + call errquit('md_rtdbin: rtdb_get failed',94)
       if(.not.rtdb_get(irtdb,'md:ioload',mt_int,1,ioload))
      + call errquit('md_rtdbin: rtdb_get failed',94)
+      if(.not.rtdb_get(irtdb,'md:isload',mt_int,1,isload))
+     + call errquit('md_rtdbin: rtdb_get failed',94)
       if(.not.rtdb_get(irtdb,'md:ihess',mt_int,1,ihess))
      + call errquit('md_rtdbin: rtdb_get failed',95)
       if(.not.rtdb_get(irtdb,'md:latom',mt_int,1,latom))
@@ -1344,6 +1346,8 @@ c
       if(loadb.eq.3) write(lfnout,2004) lbpair,factld
  2004 format(' Redistribution of inter-processor box pairs: retry ',
      + i5,/,' Resizing of processor domains: smallest scaling ',f12.6)
+      if(isload.gt.0) write(lfnout,2104)
+ 2104 format(' Resizing in z-dimension only')
 c
       if(ireset.gt.0) write(lfnout,2005)
  2005 format(/,' Load balancing reset')

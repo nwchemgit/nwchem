@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.46 2000-06-01 19:57:45 d3j191 Exp $
+c $Id: prp_main.F,v 1.47 2000-06-09 17:18:17 d3j191 Exp $
 c
       implicit none
 c
@@ -170,6 +170,7 @@ c
       p(66)=ewp
       p(67)=p(67)+ewp
       p(69)=dwr
+      if(lpmf) p(75)=epmf
       p(76)=epme(iset)
       p(97)=timer_wall(2)
       p(98)=timer_wall(3)
