@@ -1,5 +1,5 @@
 c===============================================================
-      subroutine blockin2(bl,lcore,inx,nbl2,nbloks)
+      subroutine blockin2(bl,lcore,inx,nbl2,nbloks,iret_limit)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -45,9 +45,13 @@ c  and sets up these arrays )
 c
       call blkpair(bl,ncs,inx,bl(iisd),bl(jjsd), bl(ijchd),
      *             nbl2,nsupb,npard,ijbld, mxsize,nasize,lcore,nsym,
-     *             dbl_mb(inuc),dbl_mb(ibas),na)
+     *             dbl_mb(inuc),dbl_mb(ibas),na,iret_limit)
 c
 c  output : arrays : nsupb, npar ijbl mxsize )
+c------------------------------------------------
+c returm in the case when LIMPAIR was changed in the BLKSIZER:
+c
+      if(iret_limit.gt.0) RETURN
 c------------------------------------------------
 c Memory checking in former texas bl() , now repleaced by PNL dbl_mb:
 c
@@ -104,10 +108,10 @@ c------------------------------------------------
 c===============================================================
       subroutine blkpair(bl,ncs,inx,iis,jjs,ijcheck, nbl2,nsupb,npard,
      *                   ijbld,mxsize,nasize,lcore,nsym,
-     *                   datnuc,datbas,natoms)
+     *                   datnuc,datbas,natoms,iret_limit)
       implicit real*8 (a-h,o-z)
 c May96 :to be used in txs_scratch_siz2 routine to estimate memory :
-      common /max_pairs/ maxpar    
+      common /max_pairs/ maxpar
 c save sizes :
       common /memor1_S/ iisd_S,jjsd_S,ijbld_S
       common /memor1a_S/ npard_S,ncost_S,nsupb_S, mxsize_S,nasize_S
@@ -184,8 +188,20 @@ c
       call getmem(nosb,nasize)
 c
       call blksizer(bl(nsupb),nbl2,bl(ijbld),bl(npard), iis,jjs,inx,
-     *              bl(mxsize),bl(nasize),ncs,iroute)
+     *              bl(mxsize),bl(nasize),ncs,iroute,iret_limit)
 c
+c iret_limit shows if everything is OK with LIMXMEM and LIMPAIR:
+c
+c iret_limit=0 OK
+c iret_limitM .NE.0 :
+c                LIMPAIR was to high for the current value of LIMXMEM :
+c                LIMPAIR was decreased to iret_limpit in blksizer.
+c                Whole blocking procedure has to be repeated .
+c                begining from memory allocation for scratch1 
+c                in texas_face.F. This info is sent to texas_face 
+c                through common block /max_pairs/
+c
+      if(iret_limit.gt.0) RETURN
 c------------------------------------------------
 c save sizes:
       nsupb_S=nosb
@@ -564,7 +580,7 @@ c---------------------------------------------------------------
       end
 c===============================================================
       subroutine blksizer(nsupb ,nbl2,ijbl,npar,iis,jjs,inx,
-     *                    mxsize,nasize,ncs,iroute)
+     *                    mxsize,nasize,ncs,iroute,iret_limit)
 c-----------------------------------------------------------
 c This subroutine determines the block-size for two-electron
 c integrals calculations.
@@ -590,6 +606,8 @@ c
       dimension npar(*),ijbl(nbl2,*)
       dimension inx(12,*),iis(*),jjs(*)
 c
+c-----------------------------------------------------
+      iret_limit=0
 c-----------------------------------------------------
 c  iforwhat shows what the Blockin2 routins are called for :
 c  1) for ordinary two-el.integrals (ifor=1)
@@ -726,9 +744,9 @@ c
 c----------------------------------------------
 c put the upper limit on the maxmem :
 c-->  mqrt1=memor2ij+memor2kl+memor4
-c memory for ONE quartet but all pairs :
+c memory for ONE quartet and one pair in block2 :
 c
-      mqrt1=ijpar*memor2ij+klpar*memor2kl+ memor4
+      mqrt1=memor2ij+memor2kl+ memor4
       if(mqrt1.ge.limxmem) then
         write(6,*)'A block with only one quartet needs more memory than'
         write(6,*)'the upper limit for a whole block given in the input'
@@ -736,7 +754,36 @@ c
         write(6,*)'     Change the value of LIMXMEM '
         write(6,*)'program stoped in the Blksizer routine'
         call errquit('texas:blksizer', 0)
-*        stop 'blksizer'
+cccc     stop 'blksizer'
+      endif
+c----------------------------------------------
+c put the upper limit on the maxmem :
+c     mqrt1=ijpar*memor2ij+klpar*memor2kl+ memor4
+c memory for ONE quartet but all pairs :
+c
+      mqrt1=ijpar*memor2ij+klpar*memor2kl+ memor4
+c
+      if(mqrt1.ge.limxmem) then
+        write(6,*)'       For the current value of LIMXMEM             '
+        write(6,*)'            pair-blocks are too big.                '
+c
+c npar_limit=[ sqrt( 4*m2 +4*m4*limxmem) - 2*m2 ]/2*m4
+c 
+        m2=min(memor2ij,memor2kl)
+        m4=memor4
+        npar_lim=sqrt( dble(m2*m2 + m4*limxmem) ) -m2
+        npar_lim=npar_lim/m4
+        if(npar_lim.eq.0) then
+           write(6,*)'program stoped in the Blksizer routine'
+           write(6,*)'LIMPAIR can not be adjusted to LIMXMEM'
+           write(6,*)'     Change the value of LIMXMEM '
+           call errquit('texas:blksizer', 0)
+cccc       stop 'blksizer'
+        endif
+        write(6,*)' LIMPAIR is decreased from ',limpair,' to',npar_lim
+        limpair=npar_lim
+        iret_limit=1
+        RETURN
       endif
 c----------------------------------------------
 c for PNL calculate what SHOULD be maximum size of a block due to the
@@ -1682,9 +1729,10 @@ c
 c-------------------------
 c*
       if(nprint.gt.1) then
+      write(8,*  )' FIRST 1000 BLOCKS '
       write(8,505)
-  505 format(
-     *' Block  MMAX   type   G.contr    nfun/q      Nqrt   Nfunc',2x,
+  505 format(/
+     *' Block  MMAX   type   contrac.   nfun/q      Nqrt   Nfunc',2x,
      * 'Price/i')
       endif
 c
@@ -1888,15 +1936,15 @@ c
 c
 c  end of price
 c
-       if(nprint.gt.1) then
+       if(nprint.gt.1 .and. ikbl.le.1000) then
          if(mmax.ne.maxst) then
 c* for printing purpose only
            write(8,*)'   '
            maxst=mmax
          endif
          write(8,506) ikbl,mmax,itype,jtype,ktype,ltype,
-ctst *                icont,jcont,kcont,lcont,nfijkl,nquart,nfun,
-     *                ngci1,ngcj1,ngck1,ngcl1,nfijkl,nquart,nfun,
+     *                icont,jcont,kcont,lcont,nfijkl,nquart,nfun,
+ccc  *                ngci1,ngcj1,ngck1,ngcl1,nfijkl,nquart,nfun,
      *                nprice
          if(nsupb(ikbl).gt.1) then
             write(8,507) nsupb(ikbl)

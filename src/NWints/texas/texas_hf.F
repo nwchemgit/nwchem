@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.12 1996-06-27 22:33:49 d3g681 Exp $
+c $Id: texas_hf.F,v 1.13 1996-07-12 18:25:49 pg481 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -116,6 +116,8 @@ c
 c----------------------------------------------------------------
       ncall_pnl=ncall_pnl+1
       nqrts_pnl=nqrts_pnl+nquart
+ctest
+c      write(6,*)' call no=',ncall_pnl,' scratch size=',l_blscr
 c----------------------------------------------------------------
 c eri - PNL buffer for returning integrals 
 c----------------------------------------------------------------

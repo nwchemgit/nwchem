@@ -1,6 +1,6 @@
-c $Id: prepint.f,v 1.6 1995-12-22 01:37:52 pg481 Exp $
+c $Id: prepint.f,v 1.7 1996-07-12 18:25:46 pg481 Exp $
       subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
-     *                    lcore,nsym,maxprice,scftype)
+     *                    lcore,nsym,maxprice,scftype,iret_limit)
 c---------------------------------------------------------------
 c EPS is not used here, threshold is now set by calling 
 c texas_set_accy before texas_init is called.
@@ -108,16 +108,21 @@ c***************************
 c* blocking procedure for pairs of contracted shells
 c
        call txs_second(tim3)
-       call blockin2(bl,lcore,inx,nbl2,nbloks)
+       call blockin2(bl,lcore,inx,nbl2,nbloks,iret_limit)
+c
+       if(iret_limit.gt.0) return
+c
        call txs_second(tim4)
        timblok2=tim4-tim3
 c
 c***************************
+C DO NOT DO IT for PNL
+c
 c decide how to run scf :
 c nbloks=nbl2*(nbl2+1)/2
 c
-       nbloks=nbl2*(nbl2+1)/2
-       call howtorun(nbloks,maxprice,bl(ncost),scftype)
+CPNL   nbloks=nbl2*(nbl2+1)/2
+CPNL   call howtorun(nbloks,maxprice,bl(ncost),scftype)
 c
 c  For each super-block :
 c   ncost(ikbl) is now 0 - re-calculate int. from the ikbl block
