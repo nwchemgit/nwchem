@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.62 2001-03-08 18:47:57 d3j191 Exp $
+c $Id: ana_task.F,v 1.63 2001-05-09 18:14:54 d3j191 Exp $
 c
       implicit none
 c
@@ -37,6 +37,7 @@ c
       ignore=rtdb_parallel(.false.)
 c
       lfncmd=69
+      lfnloc=70
       lfnref=76
       lfntrj=77
       lfncop=78
@@ -93,6 +94,7 @@ c
       lana=.false.
       lrama=.false.
       lesd=.false.
+      lloc=.false.
 c
       nave=0
       ndata=0
@@ -119,6 +121,9 @@ c
       hbamax=3.1416d0
 c
       ngroup=0
+      ngroups=0
+      if(.not.ma_push_get(mt_int,maxgrp*mxdef*mxnum,'iwrk',l_wrk,i_wrk))
+     + call errquit('Could not allocate wrk',0)
 c
       if(me.eq.0) then
       if(.not.rtdb_cget(irtdb,'ana:filcmd',1,filcmd))
@@ -347,10 +352,19 @@ c
       goto 1
       endif
 c
+c     atom group analysis
+c     -------------------
+c
+      if(card(1:6).eq.'group ') then
+      call ana_group(card,byte_mb(i_snam),int_mb(i_imol),
+     + int_mb(i_isel),dbl_mb(i_wt),dbl_mb(i_xref),int_mb(i_wrk))
+      goto 1
+      endif
+c
 c     atom groups directives
 c     ----------------------
 c
-      if(card(1:6).eq.'group ') then
+      if(card(1:6).eq.'groups') then
       call ana_groups(card,byte_mb(i_snam),int_mb(i_imol),
      + int_mb(i_isel),dbl_mb(i_wt),dbl_mb(i_xref))
       goto 1
@@ -624,7 +638,7 @@ c     write header
 c
       call ana_rdhdr(byte_mb(i_snam))
       call ana_wthdr(lfncop,fmt,byte_mb(i_snam),byte_mb(i_tag),
-     + int_mb(i_isel),.true.)
+     + int_mb(i_isel),lsonly)
 c
       nread=0
       nwrit=0
@@ -671,7 +685,7 @@ c     write header
 c
       call ana_rdhdr(byte_mb(i_snam))
       call ana_wthdr(lfnsup,fmt,byte_mb(i_snam),byte_mb(i_tag),
-     + int_mb(i_isel),.true.)
+     + int_mb(i_isel),lsonly)
 c
       nread=0
       nwrit=0
@@ -717,7 +731,7 @@ c
       filhis=string(1:index(string,' ')-1)//'.his'
       filgrp=string(1:index(string,' ')-1)//'.grp'
       filord=string(1:index(string,' ')-1)//'.ord'
-c      write(*,'(a,a)') 'filrms=',filrms(1:index(filrms,' ')-1)
+      filloc=string(1:index(string,' ')-1)//'.loc'
       time=0.0d0
 c
 c     read file header
@@ -743,13 +757,18 @@ c
       open(unit=lfnrms,file=filrms(1:index(filrms,' ')-1),
      + form='formatted',status='unknown')
       endif
-      if(ngroup.gt.0) then
+      if(ngroups.gt.0) then
       open(unit=lfngrp,file=filgrp(1:index(filgrp,' ')-1),
      + form='formatted',status='unknown')
       endif
       if(nord.gt.0) then
       open(unit=lfnord,file=filord(1:index(filord,' ')-1),
      + form='formatted',status='unknown')
+      endif
+      if(ngroup.gt.0) then
+      open(unit=lfnloc,file=filloc(1:index(filloc,' ')-1),
+     + form='formatted',status='unknown')
+      call ana_lochdr(byte_mb(i_snam),int_mb(i_imol),int_mb(i_isel))
       endif
       endif
 c
@@ -831,8 +850,16 @@ c
       endif
 c
       if(ngroup.gt.0) then
-      do 3301 i=1,ngroup
-      if(igroup(i,3).eq.1)
+      do 3307 i=1,ngroup
+      if(igroup(i,2).eq.1)
+     + call ana_grploc(byte_mb(i_snam),int_mb(i_imol),int_mb(i_isel),
+     + dbl_mb(i_wt),dbl_mb(i_xdat),i,int_mb(i_wrk))
+ 3307 continue
+      endif
+c
+      if(ngroups.gt.0) then
+      do 3301 i=1,ngroups
+      if(igroups(i,3).eq.1)
      + call ana_grpdis(byte_mb(i_snam),int_mb(i_imol),int_mb(i_isel),
      + dbl_mb(i_wt),dbl_mb(i_xdat),i)
  3301 continue
@@ -876,7 +903,7 @@ c
       write(*,'(/,a,i10,a,a)') ' Scanned ',ndata,' frames to ',
      + filrms(1:index(filrms,' ')-1)
       endif
-      if(ngroup.gt.0) then
+      if(ngroups.gt.0) then
       close(unit=lfngrp)
       write(*,'(a)') ' Closing grp file '
       write(*,'(/,a,i10,a,a)') ' Scanned ',ndata,' frames to ',
@@ -1202,6 +1229,9 @@ c
      + call errquit('Could not deallocate iram',0)
 c
       call ana_finish(byte_mb(i_snam),.true.)
+c
+      if(.not.ma_pop_stack(l_wrk))
+     + call errquit('Could not deallocate iwrk',0)
 c
       ignore=rtdb_parallel(.true.)
 c

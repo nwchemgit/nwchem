@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.46 2001-03-30 00:31:53 d3j191 Exp $
+c $Id: ana_input.F,v 1.47 2001-05-09 18:14:54 d3j191 Exp $
 c
       implicit none
 c
@@ -369,7 +369,7 @@ c
       if(.not.inp_a(item)) item=' '
       write(lfncmd,1022) isel,jsel,ksel,ipbc,rsel,rval,
      + item(1:index(item,' ')-1)
- 1022 format('group  ',2i7,i5,i3,2f12.6,a)
+ 1022 format('groups ',2i7,i5,i3,2f12.6,a)
       numcmd=numcmd+1
       goto 2
       endif
@@ -394,6 +394,30 @@ c
       write(lfncmd,1021) isel,jsel,ksel,ipbc,rsel,rval,
      + item(1:index(item,' ')-1)
  1021 format('histo  ',2i7,i5,i3,2f12.6,a)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     group analysis
+c     --------------
+c
+      if(inp_compare(.false.,'group',item)) then
+      if(.not.inp_i(isel)) call errquit('No group specified',0)
+      if(.not.inp_a(item)) call errquit('No group function',0)
+      ipbc=0
+      if(inp_compare(.false.,'periodic',item)) then
+      if(.not.inp_i(ipbc)) ipbc=3
+      if(.not.inp_a(item)) call errquit('No group function',0)
+      endif
+      ksel=0
+      if(inp_compare(.false.,'local',item)) ksel=1
+      if(.not.inp_f(rsel)) rsel=0.0d0
+      if(.not.inp_f(rval)) rval=rsel
+      if(.not.inp_a(item)) item=' '
+      if(ksel.eq.0) call errquit('Unknown group function specified',0)
+      write(lfncmd,1030) isel,ksel,ipbc,rsel,rval,
+     + item(1:index(item,' ')-1)
+ 1030 format('group  ',i7,i5,i3,2f12.6,a)
       numcmd=numcmd+1
       goto 2
       endif
