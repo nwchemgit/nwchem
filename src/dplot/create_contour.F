@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.17 2002-12-30 21:01:11 edo Exp $
+* $Id: create_contour.F,v 1.18 2003-01-03 22:42:21 edo Exp $
 *
       Implicit None
 *
@@ -54,9 +54,8 @@
      .     iscr,lscr,nscr,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2
             integer lbas_cent_info, ibas_cent_info,
      &        lbas_cset_info, ibas_cset_info,
-     &        ldocset, idocset,ncontrset,i,
-     .     l_ldiff,k_ldiff,l_minexp,k_minexp,k_ptcg,l_ptcg,
-     .     ictr_buf
+     &        ldocset, idocset,ncontrset,i
+
             
 
 cedo      double precision rdens_atom(natom*natom)
@@ -161,9 +160,7 @@ cedo      double precision rdens_atom(natom*natom)
 *
       Call dfill(nbf_ao_mxprim,0.0d0,Dbl_mb(k_Expo),1)
       Call dfill(nCoef_Max,0.0d0,Dbl_mb(k_Coef),1)
-      do ictr_buf=1,natom
       Acc_AO_Gauss = 14d0
-!      If (What.eq.'VIEW') Acc_AO_Gauss = 14d0
       mBF = nBF
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('Exiting in grid_quadv0a',0)
@@ -171,7 +168,6 @@ cedo      double precision rdens_atom(natom*natom)
      &     ldocset, idocset))
      &     call errquit('grid_quadv0a: cannot allocate docset',
      .     ncontrset)
-#ifdef OLD
        do i=1,ncontrset
             log_mb(idocset+i-1)=.true.
          enddo
@@ -180,46 +176,6 @@ cedo      double precision rdens_atom(natom*natom)
      &                Int_mb(k_iniz),Int_mb(k_ifin),
      .     int_mb(k_ibf),
      &                Dbl_mb(k_Expo),nbf_ao_mxprim,Acc_AO_Gauss)
-#else
-      if(natom.gt.1) then
-      if (.not.MA_Push_Get(mt_int, natom, 'ldiff',
-     &     l_ldiff, k_ldiff))
-     &     call errquit('grid_quadv0a: cannot allocate ldiff',0)
-      if (.not.MA_Push_Get(mt_dbl, natom, 'minexp',
-     &     l_minexp, k_minexp))
-     &     call errquit('grid_quadv0a: cannot allocate minexp',0)
-      if (.not.MA_Push_Get(mt_log, natom, 'cptcg',
-     &     l_ptcg, k_ptcg))
-     &     call errquit('grid_quadv0a: cannot allocate minexp',0)
-      do i=1,natom
-         int_mb(k_ldiff+i-1)=5
-         dbl_mb(k_minexp+i-1)=1d+3
-         log_mb(k_ptcg+i-1)=.false.
-      enddo
-         call ifill(mbf, 0, int_mb(k_ibf), 1)
-         mbf=grid_nbfm(AO_bas_han,  natom, 
-     &        ictr_buf,1d9,
-!     &        ictr_buf,rad,
-     ,   Dbl_mb(k_xyz),Grid(1,iOffG),ngrpp,
-!     ,   Grid(1,iOffG),Dbl_mb(k_xyz),ngrpp,
-     &        int_mb(k_ibf), log_mb(idocset),  
-     .        int_mb(k_iniz), int_mb(k_ifin), dbl_mb(k_expo), 
-     &        dbl_mb(k_minexp),int_mb(k_ldiff),
-     .        acc_ao_gauss,log_mb(k_ptcg))
-      if (.not.ma_chop_stack(l_ldiff))
-     &   call errquit('cre_cont: cannot pop stack',11)
-         if (mbf.eq.0) return
-      else
-         int_mb(k_iniz)=1
-         int_mb(k_ifin)=nbf
-        do i=1,ncontrset
-            log_mb(idocset+i-1)=.true.
-         enddo
-         do i=1,nbf
-            int_mb(k_ibf+i-1)=i
-         enddo
-      endif
-#endif
 !      If (What.eq.'VIEW' . and . nBF.ne.mBF)
 !     &   Call ErrQuit('Create_Contour: nBF.ne.mBF for VIEW',mbf)
       If (DeBug . and . iProc.eq.0) Write(LuOut,*)' mBF        = ',mBF
@@ -280,16 +236,6 @@ cedo      double precision rdens_atom(natom*natom)
      ,     Dbl_mb(k_rq), Grid(1,iOffG),Dbl_mb(k_xyz),
      ,      ngrpp, natom, int_mb(k_iniz), log_mb(idocset), 
      .     int_mb(ibas_cent_info), int_mb(ibas_cset_info))
-!      Call New_Eval_GBSets(AO_Bas_Han,GRAD,.false.,
-!     &                     Dbl_mb(k_Scr1),Dbl_mb(k_Scr2),
-!     &                     Dbl_mb(k_Hess),Int_mb(k_ibf),
-!     &                     0,Dbl_mb(k_rq0),Dbl_mb(k_rq),
-!     &                     Grid(1,iOffG),Dbl_mb(k_xyz),
-!     &                     nGrPP,nGrPP,mBF,nAtom,
-!     &                     Dbl_mb(k_Scr4),nScr4,
-!     &                     Dbl_mb(k_Expo),nbf_ao_mxprim,
-!     &                     Dbl_mb(k_Coef),nCoef_Max,
-!     &                     Int_mb(k_iniz),Int_mb(k_ifin))
 
 *---- Matrix Scr1(nGrid,nBF) contains HOPEFULY!!! the values of each
 *     basis function at a given set of points. The value of the density
@@ -410,7 +356,6 @@ c
 *---- Deallocate Scratch memory
       if(.not.MA_chop_Stack(ldocset))
      .  Call errquit('C_C: Failed to deallocate docset',0)
-      enddo ! on ictr_buf
       if(.not.MA_chop_Stack(l_xyz))
      .  Call errquit('C_C: Failed to deallocate xyz',0)
 *
@@ -477,109 +422,6 @@ c
 *---- Normal termination
       Return
       End
-      Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
-     &                      iniz, ifin, ibf, zprim, nzprim, acc_gauss)
-c
-C$Id: create_contour.F,v 1.17 2002-12-30 21:01:11 edo Exp $
-c
-      implicit none
-c      
-      integer basis_hand
-      integer mcenters ! [input]
-      integer nzprim ! [input]
-      double precision acc_gauss ! [input]
-      integer mbf  ! [input/output]
-c
-#include "bas.fh"
-c
-c     Distance Squared between Sampling Points and Centers
-c
-      double precision rq0(mcenters)
-      integer  iniz(mcenters),ifin(mcenters)
-      double precision zprim(nzprim)
-      integer ncontrset, n1, icset, ictr, nprimo, ncontr, 
-     &        isphere, nshbf, l, nang, iprimo
-      integer n,npt,m
-      integer ibf(*) ! [output]
-      double precision zmin
-      double precision alpha,logeps,acc_loc
-      double precision gaussian_range,r_arg
-      gaussian_range(n,logeps,alpha) = 
-     $     (n*log(-logeps) - n*log(alpha) - 4.0d0*logeps) /
-     $     sqrt(-16.0d0*alpha*logeps)
-c
-      acc_loc=-acc_gauss
-      if (.not.bas_numcont(basis_hand, ncontrset))
-     &   call errquit('Exiting in nbf_to_mbf.',1)
-c
-      call ifill(mcenters,0,iniz,1)
-      call ifill(mcenters,0,ifin,1)
-c
-      n1 = 0
-      npt=0
-c
-      do 400 icset = 1,ncontrset
-         if (.not.bas_cn2ce(basis_hand, icset, ictr))
-     &      call errquit('Exiting in nbf_to_mbf.',2)
-c         
-c        get info about current contraction set
-c         
-         if (.not.bas_continfo(basis_hand, icset,
-     &      l, nprimo, ncontr, isphere))
-     &      call errquit('Exiting in nbf_to_mbf.',3)
-c         
-c        angular momentum
-c         
-c         
-c        cartesian/spherical harmonic
-c         
-         if (isphere .eq. 0)then !  cartesian set
-            nang = (l+1)*(l+2)/2
-         elseif (isphere .eq. 1)then !  spherical harmonic
-            nang = 2*l+1
-         else 
-            call errquit('nbf_to_mbf: illegal isphere value', 6)
-         endif 
-c         
-c        get exponents and contraction coefficients for this contraction set
-c         
-         if (.not.bas_get_exponent(basis_hand, icset, zprim))
-     &      call errquit('Exiting in nbf_to_mbf.',7)
-c
-c        Determine the minimum Gaussian exponent.
-c
-         zmin = 1.D+06
-         do 300 iprimo = 1,nprimo
-            zmin = min(zprim(iprimo),zmin)
-  300    continue
-c
-c        Only include those basis functions that are "non-zero" for at least one 
-c        point in the sampling set.
-c
-          if(isphere.eq.1) then
-            nshbf=ncontr*(2*l+1)
-          else
-            nshbf=ncontr*(((l+1)*(l+2))/2)
-          endif
-          r_arg=rq0(ictr)**2
-        if (r_arg.lt.gaussian_range(l,acc_loc,zmin)) then
-
-          do m=1,nshbf
-            ibf(n1+m ) = npt+m
-          enddo
-            if (iniz(ictr).eq.0) iniz(ictr)=n1+1
-            n1 = n1 + nshbf
-         endif
-c
-         ifin(ictr)= n1
-c
-         npt=npt+nshbf
-  400 continue
-c
-      mbf = n1
-      return 
-      end
-c
       subroutine dplot_nobq(mcenters,tags,iniz,ifin,rchi)
       implicit none
 #include "inp.fh"
