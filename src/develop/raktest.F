@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.56 1996-07-26 16:25:31 d3g681 Exp $
+c $Id: raktest.F,v 1.57 1996-09-24 22:30:14 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -2278,6 +2278,11 @@ c... get memory requirements for non-segmented basis
      &      ('raktest_gc: int_normalize seg failed',911)
       if(.not.int_normalize(basisns)) call errquit
      &      ('raktest_gc: int_normalize ns failed',911)
+      write(6,*)' after normalization'
+      status = bas_print(basisseg)
+      status = gbs_map_print(basisseg)
+      status = bas_print(basisns)
+      status = gbs_map_print(basisns)
 c
       call int_mem(mx1e, mxg, mxs1, mxs2)
       write(luout,*)' both: one electron buffer size        :',mx1e
@@ -2543,13 +2548,13 @@ c
 *          write(luout,*)'number of integrals = ',nint
           if (OV) then
             call int_1eov(basis,ish,basis,jsh,
-     &          nscr,scr,nint,buf)
+     &          nscr,scr,nbuf,buf)
           elseif (KE) then
             call int_1eke(basis,ish,basis,jsh,
-     &          nscr,scr,nint,buf)
+     &          nscr,scr,nbuf,buf)
           elseif (PE) then
             call int_1epe(basis,ish,basis,jsh,
-     &          nscr,scr,nint,buf)
+     &          nscr,scr,nbuf,buf)
           else
             write(luout,*)' no integral set defined '
             call dfill ((nbf*nbf),0.0d00,S,1)
