@@ -1,4 +1,4 @@
-% $Id: prog.tex,v 1.1 1996-08-16 17:02:01 d3g681 Exp $
+% $Id: prog.tex,v 1.2 1996-08-27 22:39:26 d3g681 Exp $
 \documentstyle[fullpage,12pt]{article}
 \setlength{\parskip}{6pt}
 
@@ -581,7 +581,7 @@ Not much more than the following is required.  E.g.,
 Or, e.g.,
 \begin{verbatim}
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: prog.tex,v 1.1 1996-08-16 17:02:01 d3g681 Exp $
+C$Id: prog.tex,v 1.2 1996-08-27 22:39:26 d3g681 Exp $
       implicit none
       integer geom, basis  ! [input] Handles
       integer g_a          ! [input] Handle to input/output GA
@@ -2054,7 +2054,7 @@ Set the print level to {\tt level}.  This routine is rarely called
 from applications.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{The Geometry Object --- GEOM}
+\section{The Geometry Object}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   `Geometry', unfortunately, is a bit of a misnomer since the
@@ -2066,7 +2066,7 @@ from applications.
 \item a specification of the external potential (nuclear multipole
   moments, external fields, effective core potentials, \ldots) that
   defines the Hamiltonian for all electronic structure methods
-\item The geometry is home for Hamiltonian related information (and
+\item The geometry is home for most Hamiltonian related information (and
   not wavefunction related information).
 \end{itemize}
 
@@ -2102,10 +2102,10 @@ multiple geometries may be accessible at any instant, though since
 geometries can consume a lot of memory the number of simultaneously
 `open' geometries should be kept to a minimum.
 
-\subsection{GEOM API}
-
 All logical functions return true on sucess, false on failure.  Only
 other actions are discussed below.
+
+\subsection{Creating, destroying, loading and storing geometries}
 
 \subsubsection{{\tt geom\_create}}
 \begin{verbatim}
@@ -2170,6 +2170,62 @@ Delete the named geometry from the data base.  One level of
 translation is attempted.  Nothing happens to in-core copies of any
 geometries.
 
+\subsection{Information about the geometry}
+
+\subsubsection{{\tt geom\_ncent}}
+\begin{verbatim}
+  logical function geom_ncent(geom, ncent)
+  integer geom          [input]
+  integer ncent         [output]
+\end{verbatim}
+Returns in {\tt ncent} the number of centers.
+
+\subsubsection{{\tt geom\_nuc\_charge}}
+\begin{verbatim}
+  logical function geom_nuc_charge(geom, total_charge)
+  integer geom                   [input]
+  double precision total_charge  [output]
+\end{verbatim}
+Return the sum of the nuclear charges.
+
+\subsubsection{{\tt geom\_nuc\_rep\_energy}}
+\begin{verbatim}
+  logical function geom_nuc_rep_energy(geom, energy)
+  integer geom              [input]
+  double precision energy   [output]
+\end{verbatim}
+Return the effective nuclear repulsion energy.  See also
+\verb+geom_incude_bqbq()+ (\ref{sec:incbqbq}) and
+\verb+geom_set_bqbq()+ (\ref{sec:setbqbq}).
+
+\subsubsection{{\tt geom\_include\_bqbq}}
+\label{sec:incbqbq}
+\begin{verbatim}
+  logical function geom_include_bqbq(geom)
+  integer geom          [input]
+\end{verbatim}
+By default the nuclear repulsion energy returned by
+\verb+geom_nuc_rep_energy+ does not include the interactions between
+point-charges (i.e., centers which tag begins with \verb+bq+).  This
+is so that it is easy for QM-MM programs to generate effective
+Hamiltonians based on point charges and avoid double counting of
+contributions.  This routine returns \TRUE or \FALSE
+if the BQ-BQ contributions are or are not being computed.  The default
+(don't include BQ-BQ interactions) thus corresponds to a return value
+of \FALSE.
+
+\subsubsection{{\tt geom\_set\_bqbq}}
+\label{sec:setbqbq}
+\begin{verbatim}
+  logical function geom_set_bqbq(geom, value)
+  integer geom          [input]
+  logical value         [input]
+\end{verbatim}
+Set the logical variable that determines if BQ-BQ interactions are
+included to {\tt value}.
+
+\subsection{Information about centers and coordinates}
+
 \subsubsection{{\tt geom\_cart\_set}}
 \begin{verbatim}
   logical function geom_cart_set(geom, ncent, t, c, q)
@@ -2220,14 +2276,6 @@ Returns tag/coords/charge about the center {\tt icent}.
 Sets values for center {\tt icent} inside the geometry --- opposite of
 \verb+geom_cent_get+.
 
-\subsubsection{{\tt geom\_ncent}}
-\begin{verbatim}
-  logical function geom_ncent(geom, ncent)
-  integer geom          [input]
-  integer ncent         [output]
-\end{verbatim}
-Returns in {\tt ncent} the number of centers.
-
 \subsubsection{{\tt geom\_cent\_tag}}
 \begin{verbatim}
   logical function geom_cent_tag(geom, icent, tag)
@@ -2236,56 +2284,6 @@ Returns in {\tt ncent} the number of centers.
   character*16 tag      [output]
 \end{verbatim}
 Returns just the tag of the center {\tt icent}.
-
-\subsubsection{{\tt geom\_print} and {\tt geom\_print\_xyz}}
-\begin{verbatim}
-  logical function geom_print(geom)
-  integer geom          [input]
-
-  logical function geom_print_xyz(geom, unit)
-  integer geom          [input]
-  integer unit          [input]
-\end{verbatim}
-Print out the geometry to standard output.  The {\tt XYZ} form prints
-the geometry out to the specified Fortran unit in the XYZ format of 
-the molecular viewer {\em Xmol}.
-
-\subsubsection{{\tt geom\_set\_user\_units}}
-\begin{verbatim}
-  logical function geom_set_user_units(geom, units)
-  integer geom          [input]
-  character*(*) units   [input]
-\end{verbatim}
-Set the coordinates that the user expects for input/output.  It
-currently understands either `a.u.' or `angstrom'.  Note that
-geometries are always internally stored as cartesians in atomic units.
-
-\subsubsection{{\tt geom\_tag\_to\_element}}
-\begin{verbatim}
-  logical function geom_tag_to_element(tag, symbol, element, atn)
-  character*16 tag      [input]
-  character*(*) symbol  [output]
-  character*(*) element [output]
-  integer atn           [output]
-\end{verbatim}
-Attempt to interpret a tag as the name of an element.  If successful,
-return the symbol, full name and atomic number.
-
-\subsubsection{{\tt geom\_num\_charge}}
-\begin{verbatim}
-  logical function geom_nuc_charge(geom, total_charge)
-  integer geom                   [input]
-  double precision total_charge  [output]
-\end{verbatim}
-Return the sum of the nuclear charges.
-
-\subsubsection{{\tt geom\_nuc\_rep\_energy}}
-\begin{verbatim}
-  logical function geom_nuc_rep_energy(geom, energy)
-  integer geom              [input]
-  double precision energy   [output]
-\end{verbatim}
-Return the effective nuclear repulsion energy.
 
 \subsubsection{{\tt geom\_check\_cent}}
 \begin{verbatim}
@@ -2298,49 +2296,7 @@ Return \TRUE if center \verb+icent+ is a valid center,
 otherwise return \FALSE and print out the message and other
 information. 
 
-\subsubsection{{\tt geom\_include\_bqbq}}
-\begin{verbatim}
-  logical function geom_include_bqbq(geom)
-  integer geom          [input]
-\end{verbatim}
-By default the nuclear repulsion energy returned by
-\verb+geom_nuc_rep_energy+ does not include the interactions between
-point-charges (i.e., centers which tag begins with \verb+bq+).  This
-is so that it is easy for QM-MM programs to generate effective
-Hamiltonians based on point charges and avoid double counting of
-contributions.  This routine returns \TRUE or \FALSE
-if the BQ-BQ contributions are or are not being computed.  The default
-(don't include BQ-BQ interactions) thus corresponds to a return value
-of \FALSE.
-
-\subsubsection{{\tt geom\_set\_bqbq}}
-\begin{verbatim}
-  logical function geom_set_bqbq(geom, value)
-  integer geom          [input]
-  logical value         [input]
-\end{verbatim}
-Set the logical variable that determines if BQ-BQ interactions are
-included to {\tt value}.
-
-
-\subsubsection{{\tt geom\_charge\_center}}
-\begin{verbatim}
-  logical function geom_charge_center(geom)
-  integer geom          [input]
-\end{verbatim}
-Adjust the cartesian coordinates so that the nuclear dipole moment is
-zero --- i.e., the origin of the coordinate system is at the center of
-charge.
-
-\subsubsection{{\tt geom\_num\_core}}
-\begin{verbatim}
-  logical function geom_num_core(geom, ncore)
-  integer geom          [input]
-  integer ncore         [output]
-\end{verbatim}
-Determines the number of core orbitals in a system based on the
-constituent atoms and the standard general chemistry ideas of core and
-valance.
+\subsection{Support for periodic systems}
 
 \subsubsection{{\tt geom\_systype\_get}}
 \begin{verbatim}
@@ -2412,6 +2368,61 @@ the matrix that transforms fractional coordinates to a Cartesian
 system in atomic units (???).  This matrix is the unit matrix for
 molecular systems.
 
+\subsection{Printing and miscellaneous routines}
+
+\subsubsection{{\tt geom\_print} and {\tt geom\_print\_xyz}}
+\begin{verbatim}
+  logical function geom_print(geom)
+  integer geom          [input]
+
+  logical function geom_print_xyz(geom, unit)
+  integer geom          [input]
+  integer unit          [input]
+\end{verbatim}
+Print out the geometry to standard output.  The {\tt XYZ} form prints
+the geometry out to the specified Fortran unit in the XYZ format of 
+the molecular viewer {\em Xmol}.
+
+\subsubsection{{\tt geom\_set\_user\_units}}
+\begin{verbatim}
+  logical function geom_set_user_units(geom, units)
+  integer geom          [input]
+  character*(*) units   [input]
+\end{verbatim}
+Set the coordinates that the user expects for input/output.  It
+currently understands either `a.u.' or `angstrom'.  Note that
+geometries are always internally stored as cartesians in atomic units.
+
+\subsubsection{{\tt geom\_tag\_to\_element}}
+\begin{verbatim}
+  logical function geom_tag_to_element(tag, symbol, element, atn)
+  character*16 tag      [input]
+  character*(*) symbol  [output]
+  character*(*) element [output]
+  integer atn           [output]
+\end{verbatim}
+Attempt to interpret a tag as the name of an element.  If successful,
+return the symbol, full name and atomic number.
+
+\subsubsection{{\tt geom\_charge\_center}}
+\begin{verbatim}
+  logical function geom_charge_center(geom)
+  integer geom          [input]
+\end{verbatim}
+Adjust the cartesian coordinates so that the nuclear dipole moment is
+zero --- i.e., the origin of the coordinate system is at the center of
+charge.
+
+\subsubsection{{\tt geom\_num\_core}}
+\begin{verbatim}
+  logical function geom_num_core(geom, ncore)
+  integer geom          [input]
+  integer ncore         [output]
+\end{verbatim}
+Determines the number of core orbitals in a system based on the
+constituent atoms and the standard general chemistry ideas of core and
+valance.
+
 \subsection{Bugs}
 
 \begin{itemize}
@@ -2422,18 +2433,15 @@ molecular systems.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{The basis set object -- BAS}
+\section{The basis set object}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-The basis set object and corresponding API was designed to facilitate
-access to all information concerning a basis set from a unique handle.
-In this fashion, multiple distinct basis sets may be manipulated
-simultanously on an equal footing.  In addition, the internal data
-structures store only information for the unique tags in the geometry,
-thereby avoiding the data explosion associated with most previous
-approaches.
-
+The basis set object and corresponding API was provides access to all
+information concerning a basis set from a unique handle.  In this
+fashion, multiple distinct basis sets may be manipulated simultanously
+on an equal footing.  The internal data structures store only
+information for the unique tags in the geometry.
 
 \subsection{Creating, destroying, loading and storing basis sets}
 
@@ -3191,7 +3199,8 @@ it too if you like.
 \section{Context}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-This design is {\em still} incomplete.
+Context is dead.  All context routines will be removed in the near
+future.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3318,7 +3327,8 @@ process number appended to the name.  Routines (should) exist to do
 all of these things individually, but one master routine does it all
 for you --- wow!
 
-\subsection{{\tt util\_file\_name}}
+\subsubsection{{\tt util\_file\_name}}
+
 \begin{verbatim}
   subroutine util_file_name(stub, oscratch, oparallel, name)
   character*(*) stub      ! [input] stub name for file
@@ -3327,7 +3337,10 @@ for you --- wow!
   character*(*) name      ! [output] full filename
 \end{verbatim}
 
-For example,
+This routine prepends the common file prefix (speficied on the {\tt
+  START} or {\tt RESTART} directive) and directory (scratch or
+permanent) and appends the process number for parallel files. For
+example
 \begin{verbatim}
    call util_file_name('movecs', .false., .false., name)
 \end{verbatim}
@@ -3339,7 +3352,7 @@ Another example,
 \begin{verbatim}
    call util_file_name('khalf', .true., .true., name)
 \end{verbatim}
-might yield \verb+/localscratch/h2o.khalf.99+ (i.e., having the name
+might yield \verb+/scratch/h2o.khalf.99+ (i.e., having the name
 of the scratch directory and the file prefix prepended and the process
 number appended).
 
