@@ -98,8 +98,6 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
     JLabel data36Label = new JLabel();
     JLabel data46Label = new JLabel();
 
-    JLabel filler = new JLabel(" ");
-
     JButton selectButton = new JButton("Select Atom");
     boolean atomSelected = false;
     String selectedAtom; 
@@ -120,8 +118,6 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
     header.setForeground(Color.black);
     header.setBackground(Color.lightGray);
     addComponent(super.getContentPane(),header,0,0,2,1,1,1,
-		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(super.getContentPane(),filler,1,1,1,1,2,4,
 		 GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 
     dataPane.setLayout(new GridBagLayout());
@@ -193,7 +189,7 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
     displayEntries();
 
     setLocation(25,225);	
-    setSize(1000,600);
+    setSize(1000,800);
     setVisible(true);
 
   }	
