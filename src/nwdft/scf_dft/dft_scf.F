@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.88 1997-10-21 21:58:00 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.89 1997-10-31 23:20:39 d3h449 Exp $
 c     
       implicit none
 c
@@ -16,7 +16,7 @@ c
      &        g_fock, g_svecs, isvals, 
      &        g_cdinv, g_xcinv, g_2ceri, g_scr
       integer g_scr2, g_scr3, ltmpm, itmpm
-      double precision sum
+      double precision sum, rho_n
 c     
 #include "bas.fh"
 #include "geom.fh"
@@ -393,7 +393,7 @@ c
 c     Begin the SCF cycle.
 c     
 c     allocate eigenvalue array, including second pointer to beta block
-c     
+c
       leneval = nbf_ao * ipol
       if (.not.MA_Push_Get(MT_Dbl,leneval,'eval',l_eval,k_eval(1)))
      &     call errquit('dft_scf: cannot allocate eval',0)
@@ -545,11 +545,11 @@ c
 c     
 c        Fit the electron charge density.
 c     
-         if (oprint_time)
-     &        call dft_tstamp(' Before call to FITCD.   ')
          if (.not.MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',lcd_coef,
      &        icd_coef))
      &        call errquit('dft_scf: cannot allocate cd_coef',0)
+         if (oprint_time)
+     &        call dft_tstamp(' Before call to FITCD.   ')
          call dft_fitcd(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, rtdb,
      &                  g_cdinv, g_dens, nTotEl, n_batch, n3c_int,
      &                  int_mb(k_3cwhat), n3c_dbl, iwhat_max, 
@@ -598,21 +598,18 @@ c     Compute the XC potential and energy.
 c     
       g_vxc(1) = g_tmp
       call ga_zero(g_vxc(1))
+      rho_n = 0.0d0
       if (ipol.eq.2)call ga_zero(g_vxc(2))
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
-      call xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
-     &             g_dens, g_vxc, IOLGC, g_wght, g_xyz, wght_GA)
-      if (oprint_time)call dft_tstamp(' After  call to GETVXC.  ')
+      call xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv, g_dens, 
+     &             g_vxc, IOLGC, g_wght, g_xyz, wght_GA, rho_n)
       call ga_sync
-      if (oprint_time)call dft_tstamp(' After call to ga_sync.  ')
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
-      if (oprint_time)call dft_tstamp(' After call to ga_dadd.  ')
       if (ipol.gt.1)then
 c     
 c     Put (-alpha+beta) in g_vxc(2)
 c     
          call ga_dadd(-1.d0, g_vxc(1), 1.d0, g_vxc(2), g_vxc(2))
-         if (oprint_time)call dft_tstamp(' After call to ga_dadd.  ')
       endif
 c     
       if (oprint_time)
@@ -1061,10 +1058,10 @@ c
       if (oprint_energy_step.and.me.eq.0)then         
          if (nexc.le.1)then
             write(LuOut,222)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
-     &                      util_cpusec()
+     &                      rho_n, util_cpusec()
          else
             write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
-     &                      enuc, util_cpusec()
+     &                      enuc, rho_n, util_cpusec()
          endif
       endif
 c     
@@ -1104,10 +1101,10 @@ c
          dft_time = dft_time+util_cpusec()
          if (nexc.le.1)then
             write(LuOut,222)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
-     &           dft_time
+     &           rho_n, dft_time
          else
             write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
-     &           enuc, dft_time
+     &           enuc, rho_n, dft_time
          endif
  222     format(//
      &        '         Total DFT energy =', f20.12/
@@ -1115,6 +1112,7 @@ c
      &        '           Coulomb energy =', f20.12/
      &        '    Exchange-Corr. energy =', f20.12/
      &        ' Nuclear repulsion energy =', f20.12//
+     &        ' Numeric. integr. density =', f20.12//
      &        '     Total iterative time =', f9.1,'s'//)
  223     format(//
      &        '         Total DFT energy =', f20.12/
@@ -1123,6 +1121,7 @@ c
      &        '          Exchange energy =', f20.12/
      &        '       Correlation energy =', f20.12/
      &        ' Nuclear repulsion energy =', f20.12//
+     &        ' Numeric. integr. density =', f20.12//
      &        '     Total iterative time =', f9.1,'s'//)
          call util_flush(LuOut)
       endif
@@ -1365,11 +1364,12 @@ c
 c     
       end
 
-      subroutine dft_dump_info
+      subroutine dft_dump_info(me)
       implicit none
-      integer i
+      integer i, me
 c      
 #include "cdft.fh"
+      write(*,*)' me = ',me
 c
 c     Logicals
 c
@@ -1400,12 +1400,14 @@ c     Integers
 c
       write(*,*)' INTEGERS '
       write(*,*)' iAOacc = ', iAOacc
+      write(*,*)' iCDacc = ', iXCacc
       write(*,*)' iXCacc = ', iXCacc
       write(*,*)' irqmax = ', irqmax
       write(*,*)' itol2e = ', itol2e
       write(*,*)' imull = ', imull
       write(*,*)' iangquad = ', iangquad
       write(*,*)' iterations = ', iterations
+      write(*,*)' iguess = ', iguess
       write(*,*)' mult = ', mult
       write(*,*)' ipol = ', ipol
       write(*,*)' nfock = ', nfock
@@ -1417,11 +1419,14 @@ c
       write(*,*)' ndamp = ', ndamp
       write(*,*)' idecomp = ', idecomp
       write(*,*)' nagrid = ', nagrid
+      write(*,*)' nquad_task = ', nquad_task
       write(*,*)' nrinc = ', nrinc
       write(*,*)' nrmax = ', nrmax
       write(*,*)' geom = ', geom
       write(*,*)' ncenters = ', ncenters
       write(*,*)' nbf = ', nbf
+      write(*,*)' nradpts = ', nradpts
+      write(*,*)' nang_leb_pts = ', nang_leb_pts
       write(*,*)' nbf_ao = ', nbf_ao
       write(*,*)' nbf_cd = ', nbf_cd
       write(*,*)' nbf_xc = ', nbf_xc
@@ -1441,6 +1446,8 @@ c
       write(*,*)' AO_bas_han = ', AO_bas_han
       write(*,*)' CD_bas_han = ', CD_bas_han
       write(*,*)' XC_bas_han = ', XC_bas_han
+      write(*,*)' nrad: ',(nrad(i), i = 1, dft_ntags_bsmx)
+      write(*,*)' nang: ',(nang(i), i = 1, dft_ntags_bsmx)
 c
 c     Doubles
 c

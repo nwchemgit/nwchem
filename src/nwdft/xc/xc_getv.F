@@ -1,7 +1,8 @@
       Subroutine xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
-     &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz, wght_GA)
+     &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz, 
+     &                   wght_GA, rho_n)
 c
-C$Id: xc_getv.F,v 1.13 1997-06-27 00:42:51 d3h449 Exp $
+C$Id: xc_getv.F,v 1.14 1997-10-31 23:20:41 d3h449 Exp $
 c
       implicit none
 c      
@@ -10,6 +11,7 @@ c
       integer g_xcinv,g_dens(*),g_vxc(*),g_wght,g_xyz
       Logical IOLGC,wght_GA
       integer rtdb
+      double precision rho_n
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -164,7 +166,7 @@ c           Option A:  Compute via direct numerical quadrature.
 c         
             if (oprint_time)call dft_tstamp('Before call to xc_quadv0.')
             call xc_quadv0(rtdb, nExc, g_vxc, g_dens,
-     &                     g_wght, g_xyz, wght_GA, Exc)
+     &                     g_wght, g_xyz, wght_GA, Exc, rho_n)
             if (oprint_time)call dft_tstamp(' After call to xc_quadv0.')
 c
 c           Symmetrize Vxc?
@@ -197,7 +199,8 @@ c
             call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
 c
             if (oprint_time)call dft_tstamp('Before call to xc_quadv1.')
-            call xc_quadv1(rtdb, Dbl_MB(iTmat), nExc, g_dens, Exc)
+            call xc_quadv1(rtdb, Dbl_MB(iTmat), nExc, g_dens, Exc, 
+     &                     rho_n)
             if (oprint_time)call dft_tstamp(' After call to xc_quadv1.')
 c
 c           symmetrize the "T" vector

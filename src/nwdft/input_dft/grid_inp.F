@@ -34,7 +34,6 @@ c
       logical ldelley, lbecke, store_wght
       integer iangquad, nquad_task, nagrid, nradpts
       double precision rm
-c23456789012345678901234567890123456789012345678901234567890123456789012
       data dirs / 'delley', 'becke', 'gausleg', 'lebedev', 'xcoarse', 
      &            'coarse', 'medium', 'fine', 'xfine', 'user', 
      &            'store_wght', 'nquad_task', 'rm'/

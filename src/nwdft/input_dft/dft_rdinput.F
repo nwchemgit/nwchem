@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.48 1997-10-24 23:53:36 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.49 1997-10-31 23:20:36 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -24,10 +24,9 @@ c
 #include "stdio.fh"
 #include "util.fh"
 c
-      integer iproc,itype,
-     &     icenter,jcenter
-      integer lcoord,icoord,lcharge,icharge,ltags,itags,
-     &     lznuc,iznuc,lratom,iratom,lrot,irot
+      integer itype, icenter, jcenter
+      integer lcoord, icoord, lcharge, icharge, ltags, itags,
+     &        lznuc, iznuc, lratom, iratom, lrot, irot
       integer iline, n
       integer three, six, fifteen
       Parameter (three=3, six=6, fifteen=15)
@@ -41,7 +40,6 @@ c
       External int_norm_2c
       External atom_tag_check
 c
-      iproc  = ga_nodeid()
       do iline=1,15
           xfac(iline)=0.d0
           cfac(iline)=0.d0
@@ -627,11 +625,10 @@ c     rotationally invariant. For now, it is hard-wired to
 c     1 (rotationally invariant).
 c     
       iqrot = 1
-      if (.not. rtdb_put(rtdb, 'dft:iqrot',
-     &   mt_int, 1, iqrot))
+      if (.not. rtdb_put(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
      &   call errquit('dft_input: rtdb_put failed', 117)
 c
-c       generate number of atom types and atom type array iatype(icenter) 
+c     generate number of atom types and atom type array iatype(icenter) 
 c
       ntypes = 0
       do icenter = 1, ncenters
@@ -711,12 +708,16 @@ c
 c     Check/set quadrature
 c
       if (.not. Ma_Push_Get(MT_Dbl,ntypes,'ratom',lratom,iratom))
-     &     call errquit('dft_rdinput: failed to alloc ratom',0)
+     &   call errquit('dft_rdinput: failed to alloc ratom',0)
       nqshells = MXqshells
+c
+      call ga_sync
 c
       call xc_setquad(rtdb,Dbl_MB(iznuc),Dbl_MB(iratom),dbl_mb(icoord),
      &                dbl_mb(icharge),dbl_mb(irot),dbl_mb(irot+three),
      &                dbl_mb(irot+six))
+c
+      call ga_sync
 c
 c     Read/set/put the numerical quadrature input parameters.
 c
@@ -740,7 +741,11 @@ c
 c
 c     Check the user supplied input for any inconsistencies.
 c
+      call ga_sync
+c
       call dft_inpana(rtdb, Dbl_MB(iratom))
+c
+      call ga_sync
 c
       if (.not. MA_Pop_Stack(lratom))
      &   call errquit('dft_rdinput: pop stack failed.',0)

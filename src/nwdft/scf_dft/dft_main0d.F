@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.18 1997-07-15 19:58:10 d3h449 Exp $
+c     $Id: dft_main0d.F,v 1.19 1997-10-31 23:20:38 d3h449 Exp $
 c     
       implicit none
 c
@@ -182,6 +182,7 @@ c
          CDFIT      = .TRUE.
       endif
 
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2a'
       if (CDFIT)then
 c     
 c        Determine the characteristics of the CD Gaussian basis set.
@@ -200,6 +201,7 @@ c
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
      &                       nbf_cd, 1, g_cdinv)) 
      &      call errquit('dft_main0d: error creating g_cdinv',0)
+         call ga_zero(g_cdinv)
          lmiss = 1
          if (me.eq.0.and.IOLGC)then
 c
@@ -212,7 +214,13 @@ c
             endif
          endif
          call ga_brdcst(Msg_CD_Ex, lmiss, mitob(1), 0)
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2f'
          if (lmiss.eq.1) then
+            call ga_zero(g_cdinv)
+            info = 0
+c            do i = 0, nproc
+c               if (me.eq.i) call dft_dump_info(me)
+c            enddo
 #if defined(PARALLEL_DIAG)
             call ga_chol(g_2ceri, g_cdinv, info)
 #else 
@@ -224,6 +232,8 @@ c
                   write(LuOut,*)' decomposition of the 2-ctr ERI '
                   write(LuOut,*)' matrix using CD fitting basis. '
                   write(LuOut,*)' Attempting a diag/inverse. '
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2g'
+                  call errquit(' temp stop this should not happen',0)
                endif
             endif
             if (info.eq.0) then
@@ -287,10 +297,11 @@ c
 c     Compute the AO overlap matrix.
 c     
       g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
+      call ga_zero(g_s)
       if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'ovl eig vals', lsvals, 
      &   isvals))
      &   call errquit('dft_main0d: cannot allocate ovl eig vals', 0)
-      call ga_zero(g_s)
+      call dfill(nbf_ao, 0.0d0, dbl_mb(isvals), 1)
       call int_1e_ga(AO_bas_han, AO_bas_han, g_s, 'overlap', oskel)
       if (oskel)call sym_symmetrize(geom, AO_bas_han, .false., g_s)
 c     
@@ -307,6 +318,7 @@ c     Diag Overlap Matrix
 c     
       g_svecs = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                 'AO ovl eig vecs')
+      call ga_zero(g_svecs)
 #if defined(PARALLEL_DIAG)
       call ga_diag_std(g_s, g_svecs, Dbl_MB(isvals))
 #else 
@@ -358,6 +370,7 @@ c
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_SCF. ')
 c
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2'
       dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                     iter, g_dens, g_evecs, g_vxc, g_fock, 
      &                     g_svecs, isvals, g_cdinv, g_xcinv, g_2ceri)

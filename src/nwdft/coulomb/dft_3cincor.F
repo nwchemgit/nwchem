@@ -1,18 +1,17 @@
       Subroutine dft_3cincor(rtdb, n_batch, n_bmax, iwhat, i3c_ERI, 
      &      n3c_dbl, iwhat_max, n_semi_bufs, fd)
-C$Id: dft_3cincor.F,v 1.9 1997-03-29 01:15:50 d3h449 Exp $
+c 
+C$Id: dft_3cincor.F,v 1.10 1997-10-31 23:20:33 d3h449 Exp $
+c
       implicit none
-            
-c****
-c**** nwchem handles
-c****
+c    
       integer rtdb
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches [in]
       integer iwhat(n_bmax) ! what batches have been computed [out]
       integer n3c_dbl ! max no. ints [in]
       double precision i3c_ERI(n3c_dbl) ! int values [out]
-c**** 
+c
 #include "bas.fh"
 #include "inp.fh"
 #include "rtdb.fh"
@@ -30,13 +29,13 @@ c
 c     Compute the 3-center integrals and store as many of them 
 c     as possible in-core.
 c
-      integer MXshbf_ao,nshells_ao,nshells_cd,MXshbf_cd
-      integer me,nproc,ishp,
-     ,     icount,Nao2,nERI,maxg,mscratch_2e3c,nscr,
-     ,     n1,n2,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
-     ,     nshbfd,ifirstp,ilastp,nintegrals,
-     ,     nshbf_cd,ndone
-      integer lscr,iscr, n_semi_bufs
+      integer MXshbf_ao, nshells_ao, nshells_cd, MXshbf_cd
+      integer me, nproc, ishp, icount, Nao2, nERI, maxg, 
+     &        mscratch_2e3c, nscr, n1, n2, ishc, ifirstc,
+     &        ilastc, nshbfc, ishd, ifirstd, ilastd,
+     &        nshbfd, ifirstp, ilastp, nintegrals,
+     &        nshbf_cd, ndone
+      integer lscr, iscr, n_semi_bufs
       integer nlast, ntasks, nxtbuf, nbufs, n_chk
       integer iwhat_max, nao2_max, batch_max, neri_max
 c
@@ -52,8 +51,9 @@ c
       double precision q1
       integer nxtask
       external nxtask
-C      write(0,*) ' in 3CINCO',itol2e
+c      write(0,*) ' in 3CINCO',itol2e
 c
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
       THRESHOLD=10.d0**(-itol2e)
       oprint_semi_file = util_print('semi-direct info', print_default)
       oprint_3c2e = util_print('3c 2e integrals', print_default)
@@ -87,7 +87,8 @@ c        need global space available check here
 c
          call ga_igop(msg_max_3c_incore, availkb, 1, 'min')
 c
-         if (availkb*1024 .gt. (2*n3c_b + other_stuff))then
+c         if (availkb*1024 .gt. (2*n3c_b + other_stuff))then
+         if (availkb .gt. (2*n3c_b + other_stuff)/1024)then
             if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
      &        call errquit('dft_3cincor; eaf_open failed', 0)
             file_opened = .true.
@@ -155,6 +156,7 @@ c
      &  call errquit('dft_3cincor: cannot allocate scr',0)
 c
       call ga_sync
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
 c
       nxtbuf = batch_max
       nbufs = icount
@@ -318,6 +320,7 @@ c     Either all integrals have been computed and are incore or all
 c     local buffers are full. 
 c
       call ga_sync
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
       if (n_semi_bufs.gt.0)then
 c
 c        dump last buffer     
@@ -343,6 +346,7 @@ c     Determine last shell-pair computed.
 c
       iwhat_max = iwhat(n_batch)
       call ga_igop(msg_max_3c_incore, iwhat_max, 1, 'max')
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
 c
 c     Determine total number of shell pairs.
 c
@@ -389,6 +393,7 @@ c
      &  call errquit('dft_3cincor: cannot pop stack',0)
 c
       call nxtask_nleft (-nproc, icount, n1, nbufs)
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
 c
 c      call ga_sync
 c      do n1 = 0, nproc
@@ -431,7 +436,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.9 1997-03-29 01:15:50 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.10 1997-10-31 23:20:33 d3h449 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k

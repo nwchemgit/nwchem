@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.33 1997-07-30 02:06:57 d3g681 Exp $
+C$Id: nwdft.F,v 1.34 1997-10-31 23:20:26 d3h449 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -75,6 +75,7 @@ c     Gather input from all available resources e.g. input unit,
 c     old checkpoint files, etc.
 c
       call dft_rdinput(rtdb)
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 1'
 c
 c     Can we check here to see if system if already converged?
 c

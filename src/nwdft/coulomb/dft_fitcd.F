@@ -2,7 +2,7 @@
      &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
      &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC)
 *
-* $Id: dft_fitcd.F,v 1.20 1997-04-21 23:43:01 d3h449 Exp $
+* $Id: dft_fitcd.F,v 1.21 1997-10-31 23:20:33 d3h449 Exp $
 *
       implicit none
 c
@@ -52,7 +52,7 @@ c
      ,     ifirst,ilast,nshbf,maxg,ish,lmiss
       integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
      ,     lscr,iscr,iqatom,lqatom,iqshell_cd,lqshell_cd,natoms,
-     ,     iqshell_lab,lqshell_lab
+     ,     iqshell_lab,lqshell_lab,lqshtyp_cd,iqshtyp_cd
       logical oprint,dowork,oprint_ioinfo,lresult
       integer nlast, ntasks
       integer ishc_be, ishd_be
@@ -399,6 +399,9 @@ c
   240 continue
   241 continue
 c
+      n1 = nxtask(-nproc,icount)
+      call ga_sync
+c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
       subsect(1)='  Tvec    '
@@ -406,15 +409,18 @@ c
       call dft_second(ts1)
 #endif
 c
+c      call dft_tstamp(' in dft_cdfit after 3c2el')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitcd: cannot pop stack',0)
       if(.not.ma_pop_stack(lERI))
      &  call errquit('dft_fitcd: cannot pop stack',0)
       if(.not.ma_pop_stack(lgvec))
      &  call errquit('dft_fitcd: cannot pop stack',0)
-      
-      n1 = nxtask(-nproc,icount)
+c
       call ga_dgop(Msg_gop_Tvec,Dbl_MB(iTvec),nbf_cd,'+')
+c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
       subsect(2)='  DGOP    '
@@ -429,19 +435,20 @@ c     Compute the CD expansion coefficients.
 c     
 c     Allocate scratch space.
 c      
-
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'cgtf',lcgtf,icgtf))
      &  call errquit('dft_fitcd: cannot allocate cgtf',0)
+c
       call int_mem_1e(max1e,nscr1e) 
       nscr = max(nscr1e, nbf_cd)
-
+c
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_fitcd: cannot allocate scr',0)
-      
 c      
 c     Integrate CD fitting functions in each shell
 c
-
+      call ga_sync
+c      call dft_tstamp(' in dft_cdfit before cgtf')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
       do ish = 1,nshells_cd
         if (.not. bas_cn2bfr( CD_bas_han,ish,
      &                       ifirst,ilast))
@@ -454,6 +461,8 @@ c
 c     Compute the orbital integrated electron density.
 c
       Q = Dble(nTotEl)
+c      call dft_tstamp(' in dft_cdfit before alph')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c      
 #if defined(DFT_TIMER)
       call ga_sync
@@ -490,46 +499,56 @@ c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
       call tcllct(t_sub(1,4),ts2,ts1)
       call dft_second(ts1)
 #endif
-      
+      call ga_sync
+c      call dft_tstamp(' in dft_cdfit before f1f2')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
       F(1)=0.D0
       F(2)=0.D0
       next=nxtval(nproc)+1
       do j=1,nbf_cd
         if (j.eq.next) then
           next=nxtval(nproc)+1
-          call get_col(g_cdinv,
-     *         nbf_cd,j,Dbl_MB(iscr))
+          call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
           AZ=ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
           F(1)=F(1)+AZ*DBL_MB(iTvec+j-1)
           F(2)=F(2)+AZ*DBL_MB(icgtf+j-1)
         endif
       enddo
       next=nxtval(-nproc)
+      call ga_sync
       call ga_dgop(Msg_Lagrange,F,2,'+')
+      call ga_sync
       alpha = (Q - F(1))/F(2)
       call ga_sync
+c      call dft_tstamp(' in dft_cdfit before qfrc')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
 c     Qfrac = (Q - F(1))/Q
 c
-c
 c     Multiply: S**(-1) * (alpha*N + T)
 c      
-      do i=1,nbf_cd
-        CD_coef(i)=0.D0
-      enddo
+c     Initialize the CD_coef vector.
+      
+      call dfill(nbf_cd,0.D0,CD_coef,1)
+c
+      call ga_sync
+c      call dft_tstamp(' in dft_cdfit before cdco')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+c
       next=nxtval(nproc)+1
-      do j=1,nbf_cd
+      do j = 1,nbf_cd
         if (j.eq.next) then
-          next=nxtval(nproc)+1
-          AZ=DBL_MB(iTvec+j-1)+alpha*DBL_MB(icgtf+j-1)
-          call get_col(g_cdinv,
-     *         nbf_cd,j,Dbl_MB(iscr))
+          next = nxtval(nproc) + 1
+          AZ = DBL_MB(iTvec+j-1) + alpha*DBL_MB(icgtf+j-1)
+          call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
           call daxpy(nbf_cd,AZ,DBL_MB(iscr),1,CD_Coef,1)
         endif
       enddo
       next=nxtval(-nproc)
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd,'+')
       call ga_sync 
+c      call dft_tstamp(' in dft_cdfit before writ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
       if(me.eq.0) then
          call util_file_name('cdfit', .true., .false., cdfit_filename)
          open(unit=79,file=cdfit_filename,access='sequential',
@@ -537,23 +556,43 @@ c
          write(79) (CD_coef(i),i=1,nbf_cd)
          close(79)
       endif
+c      
+c     Compute the integrated electron density from the fit.
+c      
+      rho_int = ddot(nbf_cd,CD_coef,1,Dbl_MB(icgtf),1)
+      if (dabs(rho_int-ntotel).gt.0.01d0)then
+         write(*,*)' rho_int 1 = ',rho_int
+         call errquit('dft_fitcd: problem w/fitted density',911)
+c         write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
+c         write(*,*)' CD_coef = ',(CD_coef(i),i=1,nbf_cd)
+      endif
+      call ga_sync
+c      call dft_tstamp(' in dft_cdfit before mull')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
 c     Get mulliken population analysis of charge density fit
 c
-      LResult = geom_ncent(geom, natoms)
+      if (.not. geom_ncent(geom, natoms))
+     &     call errquit('dft_fitcd: geom_ncent failed',73)      
       if (.not.MA_Push_Get(MT_Dbl,natoms,'qatom',lqatom,iqatom))
      &   call errquit('dft_fitcd: cannot allocate qatom',0)
       if (.not.MA_Push_Get(MT_Dbl,nshells_cd,'qshell_cd',lqshell_cd,
      &   iqshell_cd))
      &   call errquit('dft_fitcd: cannot allocate qshell_cd',0)
+      if (.not.MA_Push_Get(MT_Int,nshells_cd*natoms,'qshtyp_cd',
+     &   lqshtyp_cd,iqshtyp_cd))
+     &   call errquit('dft_fitcd: cannot allocate qshtyp_cd',0)
       if (.not.MA_Push_Get(MT_Byte,nshells_cd,'qshell_lab',lqshell_lab,
      &   iqshell_lab))
      &   call errquit('dft_fitcd: cannot allocate qshell_cd',0)
 c
       call mull_pop_fit(CD_bas_han, natoms, nshells_cd, nbf_cd, 
      &                  dbl_mb(iqatom), dbl_mb(iqshell_cd), cd_coef, 
-     &                  DBL_MB(icgtf), Byte_MB(iqshell_lab))
+     &                  DBL_MB(icgtf), int_mb(iqshtyp_cd), 
+     &                  Byte_MB(iqshell_lab))
       if (.not.ma_pop_stack(lqshell_lab))
+     &   call errquit('dft_fitcd: cannot pop stack',0)
+      if (.not.ma_pop_stack(lqshtyp_cd))
      &   call errquit('dft_fitcd: cannot pop stack',0)
       if (.not.ma_pop_stack(lqshell_cd))
      &   call errquit('dft_fitcd: cannot pop stack',0)
@@ -561,6 +600,8 @@ c
      &   call errquit('dft_fitcd: cannot pop stack',0)
 c
       call ga_sync
+c      call dft_tstamp(' in dft_cdfit after  mull')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c      if(IOLGC) call gadest(g_cdinv)
       if (IOLGC)then
          if (.not. ga_destroy(g_cdinv)) call errquit
@@ -574,6 +615,12 @@ c
 c     Compute the integrated electron density from the fit.
 c      
       rho_int = ddot(nbf_cd,CD_coef,1,Dbl_MB(icgtf),1)
+      if (dabs(rho_int-ntotel).gt.0.01d0)then
+         write(*,*)' rho_int 2 = ',rho_int
+         call errquit('dft_fitcd: problem w/fitted density',911)
+c         write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
+c         write(*,*)' CD_coef = ',(CD_coef(i),i=1,nbf_cd)
+      endif
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitcd: cannot pop stack',0)
       if(.not.ma_pop_stack(lcgtf))
@@ -637,10 +684,10 @@ c      call errquit(' temp stop semi-direct ',999)
       return
       end
       Subroutine mull_pop_fit(basis, natoms, nshells, nbf_cd,
-     &     qatom, qshell, cd_coef, cgtf, shell_labels)
+     &     qatom, qshell, cd_coef, cgtf, shell_types, shell_labels)
       Implicit none
       integer basis
-      integer natoms, nshells
+      integer natoms, nshells, shell_types(natoms,nshells)
       integer ifirst, ilast, nbf_cd
       integer ish1, ish2, ish, iat, i, iend
       integer me, nproc, it, itype, nprim, ncont, icart
@@ -650,6 +697,7 @@ c      call errquit(' temp stop semi-direct ',999)
       logical oprint_mull_fit
 c
 #include "bas.fh"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "stdio.fh"
@@ -665,7 +713,11 @@ c
 c
       call dfill(natoms,0.D0,qatom,1)
       call dfill(nshells,0.D0,qshell,1)
+      call ifill(nshells*natoms,0,shell_types,1)
 c
+c      call dft_tstamp(' in dft_mull_fit 1       ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+      call ga_sync
       do iat = me+1, natoms, nproc
          if (.not.bas_ce2cnr(basis, iat, ish1, ish2))
      &      call errquit(' exiting in mull_pop_fit',4)
@@ -676,11 +728,12 @@ c
      &                             ncont, icart))
      &         call errquit(' exiting in mull_pop_fit.',5)
             it = ilast - ifirst + 1
-            if (itype.le.9)then
-               shell_labels(ish) = ang_mom_label(itype+1)
-            else
-               shell_labels(ish) = ang_mom_label(11)
-            endif
+c            if (itype.le.9)then
+c               shell_labels(ish) = ang_mom_label(itype+1)
+c            else
+c               shell_labels(ish) = ang_mom_label(11)
+c            endif
+            shell_types(iat,ish) = itype
             qshell(ish) = ddot(it,cd_coef(ifirst),1,cgtf(ifirst),1)
             qatom(iat) = qatom(iat) + qshell(ish)
          enddo
@@ -688,6 +741,9 @@ c
       call ga_sync
       call ga_dgop(Msg_Mull1, qatom, natoms,'+')
       call ga_dgop(Msg_Mull2, qshell, nshells,'+')
+      call ga_igop(Msg_Mull1, shell_types, nshells*natoms,'+')
+c      call dft_tstamp(' in dft_mull_fit 2       ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
       if (me.eq.0.and.oprint_mull_fit) then
          call dft_header(
      &       'Fitted Density - Mulliken Population Analysis')
@@ -695,7 +751,15 @@ c
          do iat = 1, natoms
             if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
      &         call errquit(' exiting in mull_pop',4)
-            do ish = ish1, ish2, 9
+            do i = 1, nshells
+               itype = shell_types(iat,i)
+               if (itype.le.9)then
+                  shell_labels(i) = ang_mom_label(itype+1)
+               else
+                  shell_labels(i) = ang_mom_label(11)
+               endif
+            enddo
+            do ish = ish1, ish2, 10
                iend = min(ish+9,ish2)
                write(LuOut,20)(shell_labels(i),i=ish,iend)
                if (ish.eq.ish1)then
@@ -707,6 +771,8 @@ c
          enddo
       endif
       call ga_sync
+c      call dft_tstamp(' in dft_mull_fit 3       ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
    10 format(/' Atom   Charge   Shell Charges')
    20 format(15x,10(3x,a1,2x))
    30 format(1x,i4,1x,f8.2,1x,10(f6.2))

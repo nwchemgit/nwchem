@@ -3,7 +3,7 @@
      &                     n_bmax, iwhat, n3c_dbl, iwhat_max, 
      &                     n_semi_bufs, fd, IOLGC)
 
-C$Id: dft_getvc.F,v 1.13 1997-06-27 00:42:29 d3h449 Exp $
+C$Id: dft_getvc.F,v 1.14 1997-10-31 23:20:35 d3h449 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -13,6 +13,7 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "cdft.fh"
+#include "util.fh"
 c
       integer rtdb
       integer g_vc
@@ -42,7 +43,8 @@ c     2) fitting the charge density via Dunlap method and, then, evaluating
 c     the set of 3-ctr ERIs formed from the AO and CD basis sets,
 c     3) solving Poisson's equation via (Delley,Becke,Feibelman,?)'s method. 
 c     
-c******************************************************************************
+      call ga_sync
+c
       if( iVcoul_opt.eq.0 )then
 c
 c       Compute the Coulomb potential via evaluation of the AO set of 4-ctr ERIs.
@@ -64,9 +66,16 @@ c
 c
       else if( iVcoul_opt.eq.1 )then
 c       Compute the Coulomb potential via a LSQ fitting procedure.
+
+c        call dft_tstamp(' Before call to dft_fitvc')
+c        if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
         call dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc,
      &                 g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
      &                 iwhat_max, n_semi_bufs, fd, IOLGC)
+c        call dft_tstamp(' After  call to dft_fitvc')
+c        if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+c
+        call ga_sync
 c
 c       Symmetrize Vcoul?
 c

@@ -1,7 +1,7 @@
       Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc, 
      &                     g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC)
-c     $Id: dft_fitvc.F,v 1.18 1997-04-21 23:43:02 d3h449 Exp $
+c     $Id: dft_fitvc.F,v 1.19 1997-10-31 23:20:34 d3h449 Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -90,6 +90,7 @@ c
       
       me=ga_nodeid()
       nproc  = ga_nnodes()
+      call ga_sync
 c      
 c     Compute the fitted Vcoul.
 c      
@@ -149,6 +150,10 @@ c
       icount = max(icount,1)
       if(nproc.eq.1)icount = 1
 c      
+      call ga_sync
+c      call dft_tstamp(' In dft_fitvc 1          ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+c
       Nao2 = MXshbf_ao**2
       if(.not.MA_Push_Get(MT_Dbl,Nao2,'isvec',lsvec,isvec))
      &  call errquit('dft_fitvc: cannot allocate isvec',0)
@@ -219,6 +224,8 @@ c
       call dft_second(ts1)
 #endif
       call ga_sync
+c      call dft_tstamp(' In dft_fitvc 2          ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c     
       do 24 ishc = 1, nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc))
@@ -328,7 +335,9 @@ c
         ishd_be = 1
       endif
 c
-c      call ga_sync
+      call ga_sync
+c      call dft_tstamp(' In dft_fitvc 3           ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
       n1 = nxtask(nproc,icount)
       n2 = 0
@@ -430,6 +439,9 @@ c
   240 continue
   241 continue
 c
+c      call dft_tstamp(' In dft_fitvc 4          ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitvc: cannot pop stack',0)
       if(.not.ma_pop_stack(lERI))
@@ -459,6 +471,11 @@ c     Obtain the matrix of 2-ctr ERIs.
 c      
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'scr',lscr,iscr))
      &  call errquit('dft_fitvc: cannot allocate scr',0)
+c
+      call ga_sync
+c      call dft_tstamp(' In dft_fitvc 5          ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+c
       Ecoul2=0.D0
       next=nxtval(nproc)+1
       do i=1,nbf_cd
@@ -469,18 +486,29 @@ c
      *         nbf_cd,CD_coef,1,Dbl_MB(iscr),1)*CD_coef(i)
         endif
       enddo
-      
+c     
       next=nxtval(-nproc)
-      
+c     
+      call ga_sync
+c      call dft_tstamp(' In dft_fitvc 6          ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+c
       Ecoul2=Ecoul2*0.5D0
 c      if(IOLGC) call gadest(g_2ceri)
       if (IOLGC)then
          if (.not. ga_destroy(g_2ceri)) call errquit
      &   ('dft_fitvc: could not destroy g_2ceri', 0)
       endif         
+c
+      call ga_sync
       call ga_dgop(Msg_Ecoul2,Ecoul2,1,'+')
+c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitvc: cannot pop stack',0)
+c
+      call ga_sync
+c      call dft_tstamp(' In dft_fitvc 7          ')
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c      
 #if defined(DFT_TIMER)
       call dft_second(ts2)

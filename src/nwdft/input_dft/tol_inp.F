@@ -29,7 +29,7 @@ c
       logical ltight
       integer iAOacc, iCDacc, itol2e, irqmax, iXCacc
       double precision tol_rho, radius
-      data dirs /'tight', 'tol_rho', 'accAOfunc', 'accAOfunc', 
+      data dirs /'tight', 'tol_rho', 'accAOfunc', 'accCDfunc', 
      $           'accCoul', 'accQrad', 'accXCfunc', 'radius'/
 c     
       mlen = inp_strlen(module)
