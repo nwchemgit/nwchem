@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.114 2003-11-11 20:38:13 d3j191 Exp $
+c $Id: pre_input.F,v 1.115 2003-11-13 17:24:28 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
       integer irepeat,nrepeat,iopt,jopt,kopt,irrand,invert,irrep
       integer iskip,jskip,kskip
       integer nrgrid,iogrid(5),rogrid(2,5)
-      integer itopol,ititle,ntitle
+      integer itopol,ititle,ntitle,nmoves
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo,ltitle
 c
@@ -1177,14 +1177,16 @@ c     collapse
 c     --------
 c
       if(inp_compare(.false.,'collapsexy',item)) then
-      write(68,6882)
- 6882 format('collapsexy')
+      if(.not.inp_i(nmoves)) nmoves=-1
+      write(68,6882) nmoves
+ 6882 format('collapsexy',i5)
       numcmd=numcmd+1
       goto 2
       endif
       if(inp_compare(.false.,'collapsez',item)) then
-      write(68,6881)
- 6881 format('collapsez')
+      if(.not.inp_i(nmoves)) nmoves=-1
+      write(68,6881) nmoves
+ 6881 format('collapsez ',i5)
       numcmd=numcmd+1
       goto 2
       endif

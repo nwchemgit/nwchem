@@ -1,15 +1,15 @@
-      subroutine pre_collaps(xs,id,ndx,msa,nsa,touch,mode)
+      subroutine pre_collaps(xs,id,ndx,msa,nsa,touch,mode,nmoves)
 c
       implicit none
 c
-      integer msa,nsa,mode
+      integer msa,nsa,mode,nmoves
       integer id(msa),ndx(msa,2)
       real*8 xs(3,msa)
       real*8 touch
 c
       logical first,found
       integer i,j,k,m
-      integer nmol,large
+      integer nmol,large,nummov
       real*8 rt,rk,dist
       real*8 a,b,c,d,r,r1,r2,root,dt,dtran,tr(3),tran(3),xmax(3),xmin(3)
 c
@@ -61,6 +61,8 @@ c
       endif
       endif
    15 continue
+c
+      nummov=0
 c
     2 continue
 c
@@ -179,7 +181,8 @@ c
    12 continue
       endif
    11 continue
-      if(dtran.gt.touch) goto 2
+      nummov=nummov+1
+      if(dtran.gt.touch.and.nummov.lt.nmoves) goto 2
       endif
 c
       return

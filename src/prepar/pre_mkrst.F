@@ -5,7 +5,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: pre_mkrst.F,v 1.94 2003-10-20 22:27:29 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.95 2003-11-13 17:24:28 d3j191 Exp $
 c
       implicit none
 c
@@ -64,7 +64,7 @@ c
       real*8 xtran(3),xrot(3),arot
       real*8 zdist,xr(3,2),boxmax
 c
-      integer iskip(3,100),nskip
+      integer iskip(3,100),nskip,nmoves
 c
       irrep=0
       lpdbbx=.false.
@@ -1057,18 +1057,20 @@ c     collapse solute
 c     ---------------
 c
       if(card(1:10).eq.'collapsexy') then
+      read(card(11:15),'(i5)') nmoves
       if(.not.ma_push_get(mt_int,2*msa,'ndx',l_ndx,i_ndx))
      + call md_abort('Memory allocation failed for ndx',9999)
       call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),int_mb(i_ndx),
-     + msa,nsa,touch,3)
+     + msa,nsa,touch,3,nmoves)
       if(.not.ma_pop_stack(l_ndx))
      + call md_abort('Memory deallocation failed for ndx',9999)
       endif
       if(card(1:9).eq.'collapsez') then
+      read(card(11:15),'(i5)') nmoves
       if(.not.ma_push_get(mt_int,2*msa,'ndx',l_ndx,i_ndx))
      + call md_abort('Memory allocation failed for ndx',9999)
       call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),int_mb(i_ndx),
-     + msa,nsa,touch,1)
+     + msa,nsa,touch,1,nmoves)
       if(.not.ma_pop_stack(l_ndx))
      + call md_abort('Memory deallocation failed for ndx',9999)
       endif
