@@ -38,7 +38,7 @@ c     cpbe96
 c     xpbe96
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 36,numfunc=20)
+      parameter (num_dirs = 37,numfunc=30)
       character*15 dirs(num_dirs)
       character*255 test
 c
@@ -59,7 +59,7 @@ c
      &           'cpbe96','xpbe96','gill96','xperdew91',
      ,     'xhcth','xbecke97','xbecke97-1',
      ,     'chcth','cbecke97','cbecke97-1','hcth120','hcth147',
-     ,     'becke98','pbe0','becke97gga1','hcth402'/
+     ,     'becke98','pbe0','becke97gga1','hcth402','hcthp14'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -88,7 +88,7 @@ c
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
      ,      2100,2200,2300, 2400, 
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
-     , 3000, 3100,
+     , 3000, 3100,3200,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
@@ -303,6 +303,21 @@ c
          lcfac(20) = .true.
          nlcfac(20) = .true.
          cfac(20) = 1.0d0
+       goto 10
+c     
+c     HCTHP14 by Tozer
+c     
+ 3200  continue
+c
+c        assume total wanted
+c     
+       xccomb(13) = .true.
+         lxfac(15) = .true.
+         nlxfac(15) = .true.
+         xfac(15) = 1.0d0
+         lcfac(21) = .true.
+         nlcfac(21) = .true.
+         cfac(21) = 1.0d0
        goto 10
 c     
 c     becke1998 for exchange & correlation
@@ -1058,6 +1073,7 @@ c
      &       /,' [hcth120] ',
      &       /,' [hcth147] ',
      &       /,' [hcth402] ',
+     &       /,' [hcthp14]',
      &       /,' [becke97gga1]')
       call util_flush(LuOut)
       call errquit('xc_input: invalid format', 0)
