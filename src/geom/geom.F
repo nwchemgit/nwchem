@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.90 1999-06-16 20:00:11 d3e129 Exp $
+C$Id: geom.F,v 1.91 1999-06-28 15:50:57 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -179,6 +179,9 @@ c
       integer ln
       logical geom_rtdb_in, geom_rtdb_out
       external geom_rtdb_in, geom_rtdb_out
+c
+      if (ngeom_rtdb.lt.0 .or. ngeom_rtdb.gt.max_geom_rtdb)
+     $     call errquit('geom_rtdb_add: ngeom_rtdb?',ngeom_rtdb)
 c     
 c     See if name is on the rtdb already
 c     
@@ -351,6 +354,9 @@ c
             tmp(k:) = ':zmt_izfrz'
             s = s .and. rtdb_get(rtdb, tmp, mt_int, zmt_nzfrz(geom), 
      $           zmt_izfrz(1,geom))
+            tmp(k:) = ':zmt_izfrz_val'
+            s = s .and. rtdb_get(rtdb, tmp, mt_dbl, zmt_nzfrz(geom), 
+     $           zmt_izfrz_val(1,geom))
          endif
          tmp(k:) = ':zmt_nzvar'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, zmt_nzvar(geom))
@@ -377,6 +383,55 @@ c
          tmp(k:) = ':zmt_ijklnb'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 4*max_zcoord, 
      $        zmt_ijklnb(1,1,geom))
+*
+         tmp(k:) = ':zmt_ijbond_val'
+         s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_zcoord, 
+     $        zmt_ijbond_val(1,geom))
+         tmp(k:) = ':zmt_ijkang_val'
+         s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_zcoord, 
+     $        zmt_ijkang_val(1,geom))
+         tmp(k:) = ':zmt_ijklto_val'
+         s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_zcoord, 
+     $        zmt_ijklto_val(1,geom))
+         tmp(k:) = ':zmt_ijklop_val'
+         s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_zcoord, 
+     $        zmt_ijklop_val(1,geom))
+         tmp(k:) = ':zmt_ijklnb_val'
+         s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_zcoord, 
+     $        zmt_ijklnb_val(1,geom))
+*
+         tmp(k:) = ':zmt_ijbond_frz'
+         s = s .and. rtdb_get(rtdb, tmp, mt_log, max_zcoord, 
+     $        zmt_ijbond_frz(1,geom))
+         tmp(k:) = ':zmt_ijkang_frz'
+         s = s .and. rtdb_get(rtdb, tmp, mt_log, max_zcoord, 
+     $        zmt_ijkang_frz(1,geom))
+         tmp(k:) = ':zmt_ijklto_frz'
+         s = s .and. rtdb_get(rtdb, tmp, mt_log, max_zcoord, 
+     $        zmt_ijklto_frz(1,geom))
+         tmp(k:) = ':zmt_ijklop_frz'
+         s = s .and. rtdb_get(rtdb, tmp, mt_log, max_zcoord, 
+     $        zmt_ijklop_frz(1,geom))
+         tmp(k:) = ':zmt_ijklnb_frz'
+         s = s .and. rtdb_get(rtdb, tmp, mt_log, max_zcoord, 
+     $        zmt_ijklnb_val(1,geom))
+*
+         tmp(k:) = ':zmt_ijbond_nam'
+         s = s .and. rtdb_cget(rtdb, tmp, max_zcoord, 
+     $        zmt_ijbond_nam(1,geom))
+         tmp(k:) = ':zmt_ijkang_nam'
+         s = s .and. rtdb_cget(rtdb, tmp, max_zcoord, 
+     $        zmt_ijkang_nam(1,geom))
+         tmp(k:) = ':zmt_ijklto_nam'
+         s = s .and. rtdb_cget(rtdb, tmp, max_zcoord, 
+     $        zmt_ijklto_nam(1,geom))
+         tmp(k:) = ':zmt_ijklop_nam'
+         s = s .and. rtdb_cget(rtdb, tmp, max_zcoord, 
+     $        zmt_ijklop_nam(1,geom))
+         tmp(k:) = ':zmt_ijklnb_nam'
+         s = s .and. rtdb_cget(rtdb, tmp, max_zcoord, 
+     $        zmt_ijklnb_nam(1,geom))
+*
          tmp(k:) = ':zmt_cvr_scaling'
          s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 1,
      $        zmt_cvr_scaling(geom))
@@ -577,8 +632,8 @@ c
       integer rtdb              ! [input]
       character*(*) name        ! [input] ... if blank use current name
       integer geom              ! [input]
-      logical geom_check_handle, geom_rtdb_add
-      external geom_check_handle, geom_rtdb_add
+      logical geom_check_handle, geom_rtdb_add, geom_rtdb_delete
+      external geom_check_handle, geom_rtdb_add, geom_rtdb_delete
       logical s
       character*256 tmp
       integer k
@@ -589,6 +644,8 @@ c
          names(geom) = name
          lenn(geom) = inp_strlen(name)
       end if
+c
+      s = geom_rtdb_delete(rtdb, name) ! Delete any old junk
 c
 c     try to translate the name
 c     
@@ -672,6 +729,9 @@ c
             tmp(k:) = ':zmt_izfrz'
             s = s .and. rtdb_put(rtdb, tmp, mt_int, zmt_nzfrz(geom), 
      $           zmt_izfrz(1,geom))
+            tmp(k:) = ':zmt_izfrz_val'
+            s = s .and. rtdb_put(rtdb, tmp, mt_dbl, zmt_nzfrz(geom), 
+     $           zmt_izfrz_val(1,geom))
          endif
          tmp(k:) = ':zmt_nzvar'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_nzvar(geom))
@@ -698,6 +758,55 @@ c
          tmp(k:) = ':zmt_ijklnb'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 4*max_zcoord, 
      $        zmt_ijklnb(1,1,geom))
+*
+         tmp(k:) = ':zmt_ijbond_val'
+         s = s .and. rtdb_put(rtdb, tmp, mt_dbl, max_zcoord, 
+     $        zmt_ijbond_val(1,geom))
+         tmp(k:) = ':zmt_ijkang_val'
+         s = s .and. rtdb_put(rtdb, tmp, mt_dbl, max_zcoord, 
+     $        zmt_ijkang_val(1,geom))
+         tmp(k:) = ':zmt_ijklto_val'
+         s = s .and. rtdb_put(rtdb, tmp, mt_dbl, max_zcoord, 
+     $        zmt_ijklto_val(1,geom))
+         tmp(k:) = ':zmt_ijklop_val'
+         s = s .and. rtdb_put(rtdb, tmp, mt_dbl, max_zcoord, 
+     $        zmt_ijklop_val(1,geom))
+         tmp(k:) = ':zmt_ijklnb_val'
+         s = s .and. rtdb_put(rtdb, tmp, mt_dbl, max_zcoord, 
+     $        zmt_ijklnb_val(1,geom))
+*
+         tmp(k:) = ':zmt_ijbond_frz'
+         s = s .and. rtdb_put(rtdb, tmp, mt_log, max_zcoord, 
+     $        zmt_ijbond_frz(1,geom))
+         tmp(k:) = ':zmt_ijkang_frz'
+         s = s .and. rtdb_put(rtdb, tmp, mt_log, max_zcoord, 
+     $        zmt_ijkang_frz(1,geom))
+         tmp(k:) = ':zmt_ijklto_frz'
+         s = s .and. rtdb_put(rtdb, tmp, mt_log, max_zcoord, 
+     $        zmt_ijklto_frz(1,geom))
+         tmp(k:) = ':zmt_ijklop_frz'
+         s = s .and. rtdb_put(rtdb, tmp, mt_log, max_zcoord, 
+     $        zmt_ijklop_frz(1,geom))
+         tmp(k:) = ':zmt_ijklnb_frz'
+         s = s .and. rtdb_put(rtdb, tmp, mt_log, max_zcoord, 
+     $        zmt_ijklnb_val(1,geom))
+*
+         tmp(k:) = ':zmt_ijbond_nam'
+         s = s .and. rtdb_cput(rtdb, tmp, max_zcoord, 
+     $        zmt_ijbond_nam(1,geom))
+         tmp(k:) = ':zmt_ijkang_nam'
+         s = s .and. rtdb_cput(rtdb, tmp, max_zcoord, 
+     $        zmt_ijkang_nam(1,geom))
+         tmp(k:) = ':zmt_ijklto_nam'
+         s = s .and. rtdb_cput(rtdb, tmp, max_zcoord, 
+     $        zmt_ijklto_nam(1,geom))
+         tmp(k:) = ':zmt_ijklop_nam'
+         s = s .and. rtdb_cput(rtdb, tmp, max_zcoord, 
+     $        zmt_ijklop_nam(1,geom))
+         tmp(k:) = ':zmt_ijklnb_nam'
+         s = s .and. rtdb_cput(rtdb, tmp, max_zcoord, 
+     $        zmt_ijklnb_nam(1,geom))
+*
          tmp(k:) = ':zmt_cvr_scaling'
          s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 1, 
      $        zmt_cvr_scaling(geom))
@@ -742,14 +851,14 @@ c
       implicit none
 #include "geomP.fh"
 #include "rtdb.fh"
-#include "mafdecls.fh"
 #include "inp.fh"
+#include "global.fh"
 c
       integer rtdb              ! [input]
       character*(*) name        ! [input]
-      character*256 translation, tmp
+      character*256 translation, tmp, test
       integer lt, geom, geom2, k
-      logical status
+      logical status, mode
       logical geom_rtdb_in, geom_rtdb_out
       external geom_rtdb_in, geom_rtdb_out
 c
@@ -766,74 +875,35 @@ c
          if (names_rtdb(geom)(1:lenr(geom)) .eq. translation(1:lt))
      $        goto 10
       end do
-      write(6,*) ' geom_rtdb_delete: no such geometry ',
-     $     name(1:inp_strlen(name)),' -> ', translation(1:lt)
- 10   do geom2 = geom+1, ngeom_rtdb
+      goto 11
+ 10   do geom2 = geom+1, ngeom_rtdb ! Matched
          names_rtdb(geom2-1) = names_rtdb(geom2)
       end do
       ngeom_rtdb = ngeom_rtdb - 1
       status = geom_rtdb_out(rtdb)
 c
+c     Delete junk in rtdb even if did not find geometry in
+c     the list just in case things are a little messed up
+c
+ 11   if (ga_nodeid() .eq. 0) then
+         mode = rtdb_parallel(.false.)
+c     
 c     delete each entry assoicated with a geometry in the database
-c
-      tmp = 'geometry:'//translation(1:lt)
-      k = inp_strlen(tmp)+1
-c
-      tmp(k:) = ':ncenter'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':coords'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':charges'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':masses'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':efield'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':tags'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':lattice vectors'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':lattice angles'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':system type'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':no. unique centers'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':group number'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':group name'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':user units'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':angstrom_to_au'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':setting number'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':recip vectors'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':recip angles'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':direct volume'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':unique centers'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':include_bqbq'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':num_operators'
-      status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':operators'
-      if (sym_num_ops(geom) .gt. 0) then
-         tmp(k:) = ':map_atoms'
+c     
+         tmp = 'geometry:'//translation(1:lt)
+         k = inp_strlen(tmp)
+c     
+         status = rtdb_first(rtdb, test)
+ 20      if (status) then
+            if (inp_compare(.true.,tmp(1:k),test(1:k))) then
+               if (.not. rtdb_delete(rtdb,test)) call errquit
+     $              ('geom_rtdb_delete:failed deleting known entry',0)
+            endif
+            status = rtdb_next(rtdb, test)
+            goto 20
+         endif
+         mode = rtdb_parallel(mode) ! Restore previous state
       endif
-c
-c     check status of all rtdb operations
-c
-      if (.not. status) then
-         write(6,*) ' geom_rtdb_delete: rtdb corrupt ',translation(1:lt)
-         call geom_err_info('geom_rtdb_delete')
-         geom_rtdb_delete = .false.
-         return
-      end if
 c
       geom_rtdb_delete = .true.
 c

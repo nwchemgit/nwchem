@@ -9,12 +9,19 @@ c
 c     New version of bandbi
 c
 c     For the geometry referred to by the geometry handle form the
-c     B, Binv=(G^-1)B, P=(G^-1)G
+c     B, Binv=(G^-1)B, P=(G^-1)G, C
 c
 c     B and Binv are stored as (ncart,nzvar)
 c     P is stored as (nzvar,nzvar)
+c     C is stored as (nzvar,nzvar)
+c
+c     C is the matrix that applies constraints/constants to a
+c     step or gradient ... C*dq = constrained gradient.
+c
+c     B and Binv refer to the UNconstrained redundant internal variables
+c     P projects on the the constrained redundant internal variables
 c     
-      integer nzmat, nzvar, nvar, nat, ndim, ncart
+      integer nzmat, nzvar, nvar, nat, ndim, ncart, nconstraint
       logical status
       integer k_x, k_y, k_z, k_c, k_e
       integer l_x, l_y, l_z, l_c, l_e
@@ -44,7 +51,7 @@ c
 c
       ncart = 3*nat
       ndim = max(ncart,nzvar)
-c     
+c
 c     Allocate 3 matrices all (ndim,ndim)
 c     
       if(.not.ma_push_get(mt_dbl,ndim**2    ,'mem x ',l_x,k_x))
@@ -57,13 +64,18 @@ c
      &     call errquit('hnd_bandbi, malloc of c  failed',ncart)
       if(.not.ma_push_get(mt_dbl,ndim ,'e',l_e,k_e))
      &     call errquit('hnd_bandbi, malloc of e  failed',nzvar)
+c
+c     ----- calculate -c- matrix ----
+c
+      call geom_make_constraint_matrix(geom, nzvar, dbl_mb(k_x),
+     $     nconstraint)
 c     
 c     ----- calculate -b- matrix -----
 c     
       call hnd_bmat(geom,nzvar,ncart,
      1     dbl_mb(k_x),dbl_mb(k_y),dbl_mb(k_z),
      2     nzmat,dbl_mb(k_c))
-c     
+c
 c     compute b^-1, p
 c     
       call geom_binvr(nvar,nzvar,ncart,ndim,
@@ -315,7 +327,7 @@ c
      $     z, nzvar, x, nzvar, 0d0, y, nzvar) ! P = (G^-1)G -> y
       call geom_hnd_put_data('p', y, nzvar*nzvar)
       if (odebug) then
-         write(6,*) ' Projector P'
+         write(6,*) ' Projector P without constraints'
          call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
 c
@@ -325,17 +337,97 @@ c
       call dgemm('n', 'n', ncart, nzvar, nzvar, 1d0, 
      $     y, ncart, x, nzvar, 0d0, z, ncart) ! B^-1 = B.(G^-1) -> z
       call geom_hnd_put_data('b^-1', z, ncart*nzvar)
-      if (odebug) then
-         write(6,*) ' B inverse'
-         call output(z, 1, ncart, 1, nzvar, ncart, nzvar, 1)
 c
 c     Verify inverse property
 c
+      if (odebug) then
+         write(6,*) ' B inverse'
+         call output(z, 1, ncart, 1, nzvar, ncart, nzvar, 1)
          call dgemm('n', 't', ncart, ncart, nzvar, 1d0, 
      $        y, ncart, z, ncart, 0d0, x, ncart) ! B*B^-1
          write(6,*) ' B*B^-1 '
          call output(x, 1, ncart, 1, ncart, ncart, ncart, 1)
       endif
+c
+c     Above made P without constraints ... now add constraints
+c
+c     P <- P - PC((CPC)^-1)CP
+c
+c     where C is the projector on to the constraints (note that
+c     the matrix in 'c' projects out the constraints so is the 
+c     complement of what we need here).
+c
+      call geom_hnd_get_data('p', x, nzvar*nzvar) ! P -> x
+      call geom_hnd_get_data('c', y, nzvar*nzvar) ! complement(C) -> y
+      if (odebug) then
+         write(6,*) ' Complement(C)', nzvar
+         call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
+      endif
+      call dscal(nzvar*nzvar, -1d0, y, 1)
+      do i = 1, nzvar
+         y(i + (i-1)*nzvar) = y(i + (i-1)*nzvar) + 1d0
+      enddo
+      if (odebug) then
+         write(6,*) ' C'
+         call output(y, 1, nzvar, 1, nzvar, 1, nzvar, nzvar, 1)
+      endif
+c
+c     Now have P in x, C in y.  Form CPC and then do generalized
+c     inverse.  Both P and C are symmetric.
+c
+      call dgemm('n', 'n', nzvar, nzvar, nzvar, 1d0, 
+     $     y, nzvar, x, nzvar, 0d0, z, nzvar) ! C*P -> z
+      call dgemm('n', 'n', nzvar, nzvar, nzvar, 1d0, 
+     $     z, nzvar, y, nzvar, 0d0, x, nzvar) ! C*P*C -> x
+c
+      call dsyev('v', 'u', nzvar, x, nzvar, e, z, ndim**2, info)
+      if (info .ne. 0) call errquit('geom_binvr: dsyev2 failed', info)
+      if (odebug) then
+         write(6,*) ' Eigenvalues of CPC '
+         call doutput(e, 1, nzvar, 1, 1, nzvar, 1, 1)
+         write(6,*) ' Eigenvectors of CPC'
+         call output(x, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
+      endif
+c
+      nindep = 0
+      do i = 1, nzvar
+         if (e(i) .gt. 1d-12) then
+            nindep = nindep + 1
+            e(i) = 1d0 / sqrt(e(i))
+         else
+            if (e(i) .lt. -1d-12) write(6,*)
+     $           ' warning: negative eval in CPC ', i, e(i)
+            e(i) = 0.0d0
+         endif
+         call dscal(nzvar, e(i), x(1+(i-1)*nzvar), 1)
+      enddo
+      call dgemm('n', 't', nzvar, nzvar, nzvar, 1d0, 
+     $     x, nzvar, x, nzvar, 0d0, z, nzvar) ! (CPC)^-1 -> z
+c
+c     Have (CPC)^-1 in z, C in y.  Transform with C then 
+c     get P back and do it with that.
+c
+      call dgemm('n', 'n', nzvar, nzvar, nzvar, 1d0, 
+     $     y, nzvar, z, nzvar, 0d0, x, nzvar) ! C*(CPC)^-1 -> x
+      call dgemm('n', 'n', nzvar, nzvar, nzvar, 1d0, 
+     $     x, nzvar, y, nzvar, 0d0, z, nzvar) ! C*(CPC)^-1C -> z
+c
+      call geom_hnd_get_data('p', y, nzvar*nzvar) ! P -> y
+      call dgemm('n', 'n', nzvar, nzvar, nzvar, 1d0, 
+     $     y, nzvar, z, nzvar, 0d0, x, nzvar) ! P*C*(CPC)^-1*C -> x
+      call dgemm('n', 'n', nzvar, nzvar, nzvar, 1d0, 
+     $     x, nzvar, y, nzvar, 0d0, z, nzvar) ! P*C*(CPC)^-1*C*P -> z
+c
+      if (odebug) then
+         write(6,*) ' Correction to P from constraints '
+         call output(z, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
+      endif
+      call daxpy(nzvar*nzvar, -1d0, z, 1, y, 1)
+      if (odebug) then
+         write(6,*) ' P corrected for constraints '
+         call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
+      endif
+      call geom_hnd_put_data('p', y, nzvar*nzvar)
 c
       END
       SUBROUTINE HND_BSTR(EQVAL,NOINT,I,J,C,B,NCART,BOHR)
@@ -973,17 +1065,39 @@ c
       double precision c(3,mxatom)
       integer nat
       integer nzmat, nzvar, izmat(mxizmt), nizmat
-
-      dimension xyzlnb(3,mxlnba)
-      dimension ijbond(2,mxbond)
-      dimension ijkang(3,mxangs)
-      dimension ijklto(4,mxtors)
-      dimension ijklop(4,mxoopa)
-      dimension ijklnb(4,mxlinb)
-      dimension ijbnds(2,mxbnds)
-      dimension ijmods(2,mxbnds), ijxtra(2,mxbond)
-      dimension nibond(mxatom),iibond(mxatom)
-      dimension nimods(mxatom),iimods(mxatom)
+      double precision xyzlnb(3,mxlnba)
+*
+      integer ijbond(2,mxbond)
+      integer ijkang(3,mxangs)
+      integer ijklto(4,mxtors)
+      integer ijklop(4,mxoopa)
+      integer ijklnb(4,mxlinb)
+*
+      double precision ijbond_val(mxbond)
+      double precision ijkang_val(mxangs)
+      double precision ijklto_val(mxtors)
+      double precision ijklop_val(mxoopa)
+      double precision ijklnb_val(mxlinb)
+*
+      logical ijbond_frz(mxbond)
+      logical ijkang_frz(mxangs)
+      logical ijklto_frz(mxtors)
+      logical ijklop_frz(mxoopa)
+      logical ijklnb_frz(mxlinb)
+*
+      character*8 ijbond_nam(mxbond)
+      character*8 ijkang_nam(mxangs)
+      character*8 ijklto_nam(mxtors)
+      character*8 ijklop_nam(mxoopa)
+      character*8 ijklnb_nam(mxlinb)
+*
+      integer ijbnds(2,mxbnds)
+      integer ijmods(2,mxbnds), ijxtra(2,mxbond)
+      integer nibond(mxatom),iibond(mxatom)
+      integer nimods(mxatom),iimods(mxatom)
+      integer izfrz(mxcoor), nzfrz
+      double precision izfrz_val(mxcoor)
+*
       dimension endatm(mxatom)
       dimension endmod(mxatom)
       dimension  idone(mxatom)
@@ -991,7 +1105,7 @@ c
       dimension namseg(       mxseg)
       dimension lenseg(       mxseg)
 c
-      character*1 zvarname(mxcoor)
+      character*8 zvarname(mxcoor)
       double precision zvarsign(mxcoor)
 c
       double precision zero
@@ -1072,9 +1186,12 @@ c
 c     read in zcoord data from -rtdb-
 c     cvr_scaling,ijbond,ijkang,ijklto,ijklop,ijklnb
 c     
-      if(.not. geom_autoz_info_get(geom,
-     $     cvr_scaling, ijbond, ijkang, ijklto, ijklop, 
-     $     ijklnb, max_tor_per_bond)) then
+      if (.not. geom_autoz_info_get(geom,
+     $     cvr_scaling, maxtor_per_bond,
+     $     ijbond,ijkang,ijklto,ijklop,ijklnb,
+     $     ijbond_nam,ijkang_nam,ijklto_nam,ijklop_nam,ijklnb_nam,
+     $     ijbond_val,ijkang_val,ijklto_val,ijklop_val,ijklnb_val,
+     $     ijbond_frz,ijkang_frz,ijklto_frz,ijklop_frz,ijklnb_frz))then
          continue               ! no zcoord data input
       endif
 c     
@@ -1413,14 +1530,110 @@ c
 c     
 c     This is the succesful return
 c
+c     Set variable names and signs, mark constants, track values of constants.
+c
 c     ----- save -izmat- and -zmat- -----
 c
          do i = 1, nzvar
             zvarname(i) = ' '
             zvarsign(i) = 1d0
          enddo
+c
+         if (.not.geom_autoz_info_get(geom,
+     $        cvr_scaling, maxtor_per_bond,
+     $        ijbond,ijkang,ijklto,ijklop,ijklnb,
+     $        ijbond_nam,ijkang_nam,ijklto_nam,ijklop_nam,ijklnb_nam,
+     $        ijbond_val,ijkang_val,ijklto_val,ijklop_val,ijklnb_val,
+     $        ijbond_frz,ijkang_frz,ijklto_frz,ijklop_frz,ijklnb_frz))
+     $        then
+            modbnd = .false.
+            modang = .false.
+            modtor = .false.
+            continue            ! no zcoord data input
+         endif
+c
+c     Match generated variables against the user input to propagate
+c     constraint information into the final zmatrix
+c
+         nzfrz = 0
+         if (modbnd .or. modang .or. modtor) then
+            nuser = 0
+            iadd = 1
+            do izvar = 1, nzvar
+               itype = izmat(iadd)
+               i = izmat(iadd+1)
+               j = izmat(iadd+2)
+               k = izmat(iadd+3)
+               l = izmat(iadd+4)
+               if (itype .eq. 1) then
+                  iadd = iadd + 3
+                  do ii = 1, max_zcoord
+                     if ( (i.eq.ijbond(1,ii).and.j.eq.ijbond(2,ii)).or.
+     $                    (j.eq.ijbond(1,ii).and.i.eq.ijbond(2,ii)) )
+     $                    then
+                        if (ijbond_nam(ii)(1:1) .eq. '-') 
+     $                       zvarsign(izvar) = -1d0
+                        if ( (ijbond_nam(ii)(1:1) .eq. '-') .or.
+     $                       (ijbond_nam(ii)(1:1) .eq. '+'))
+     $                       ijbond_nam(ii) = ijbond_nam(ii)(2:)
+                        zvarname(izvar) = ijbond_nam(ii)
+                        nuser = nuser + 1
+                        if (ijbond_frz(ii)) then
+                           nzfrz = nzfrz + 1
+                           izfrz(nzfrz) = izvar
+                           izfrz_val(nzfrz) = ijbond_val(ii)
+                        endif
+                     endif
+                  enddo
+               else if (itype .eq. 2) then
+                  iadd = iadd + 4
+                  do ii = 1, max_zcoord
+                     if (((i.eq.ijkang(1,ii).and.k.eq.ijkang(3,ii)).or.
+     $                    (k.eq.ijkang(1,ii).and.i.eq.ijkang(3,ii)))
+     $                    .and. (j.eq.ijkang(2,ii))) then
+                        if (ijkang_nam(ii)(1:1) .eq. '-') 
+     $                       zvarsign(izvar) = -1d0
+                        if ( (ijkang_nam(ii)(1:1) .eq. '-') .or.
+     $                       (ijkang_nam(ii)(1:1) .eq. '+'))
+     $                       ijkang_nam(ii) = ijkang_nam(ii)(2:)
+                        zvarname(izvar) = ijkang_nam(ii)
+                        nuser = nuser + 1
+                        if (ijkang_frz(ii)) then
+                           nzfrz = nzfrz + 1
+                           izfrz(nzfrz) = izvar
+                           izfrz_val(nzfrz) = ijkang_val(ii)
+                        endif
+                     endif
+                  enddo
+               else if (itype .eq. 3) then
+                  iadd = iadd + 5
+                  do ii = 1, max_zcoord
+                     if( (i.eq.ijklto(1,ii).and.j.eq.ijklto(2,ii).and.
+     $                    k.eq.ijklto(3,ii).and.l.eq.ijklto(4,ii)) .or.
+     $                   (i.eq.ijklto(1,ii).and.j.eq.ijklto(2,ii).and.
+     $                    k.eq.ijklto(3,ii).and.l.eq.ijklto(4,ii)) )then
+                        if (ijklto_nam(ii)(1:1) .eq. '-') 
+     $                       zvarsign(izvar) = -1d0
+                        if ( (ijklto_nam(ii)(1:1) .eq. '-') .or.
+     $                       (ijklto_nam(ii)(1:1) .eq. '+'))
+     $                       ijklto_nam(ii) = ijklto_nam(ii)(2:)
+                        zvarname(izvar) = ijklto_nam(ii)
+                        nuser = nuser + 1
+                        if (ijklto_frz(ii)) then
+                           nzfrz = nzfrz + 1
+                           izfrz(nzfrz) = izvar
+                           izfrz_val(nzfrz) = ijklto_val(ii)
+                        endif
+                     endif
+                  enddo
+               else
+                  call errquit('geom_zmtmak: izmat?',i)
+               endif
+            enddo
+         endif
          if (.not. geom_zmt_put_data(geom, nizmat, izmat,
-     $        0, 0, nzvar, zvarname, zvarsign,'autoz'))
+     $        nzfrz, izfrz, izfrz_val, nzvar, zvarname, zvarsign,
+     $        'autoz'))
      $        call errquit('geom_zmtmak: put data failed',0)
 c
          geom_zmtmak = .true.
@@ -1893,7 +2106,6 @@ c
       logical     zdone
       logical     linbnd
       logical     oprint
-      logical     ofail
       integer iw
       parameter (iw=6)
       dimension c(3,*)
@@ -1938,7 +2150,7 @@ c
       zdone = .true.
       if(nat.le.2) return
 c     
-      nang=0
+      nang=numang
       do iat=1,nat
          do ijbnd=iibond(iat)+1,iibond(iat)+nibond(iat)
             icon=ijbond(1,ijbnd)
@@ -2208,7 +2420,7 @@ c
          nibond(iat)=nibnds(iat)
       enddo
 c     
-      ntor=0
+      ntor=numtor
       if(numatom.le.3) return
 c     
       if (max_tor_per_bond .eq. 0) return
@@ -3186,8 +3398,8 @@ c                 READ (PRSVAR(3,JVAR),*) ZLST(1,IAT)
             ELSEIF((ZMTCHR(3, IAT).EQ.VARCHR(1,JVAR)+1).AND.
      1             (PRSZMT(3, IAT) (3:ZMTCHR(3, IAT)).EQ.
      2              PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)))   ) THEN
-               zvarname(nzmod+1) = PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)-1)
                IF(PRSZMT(3, IAT) (2:2).EQ.PLUS) THEN
+                  zvarname(nzmod+1) = PRSVAR(1,JVAR)(2:VARCHR(1,JVAR)-1)
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(1,iat)  )
                                           ZLST(1,IAT)=ZVAL(1,IAT)
@@ -3198,6 +3410,7 @@ c                    READ (PRSVAR(3,JVAR),*) ZLST(1,IAT)
          call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(1,iat)  )
                   ENDIF
                ELSEIF(PRSZMT(3, IAT) (2:2).EQ.MINUS) THEN
+                  zvarname(nzmod+1) = PRSVAR(1,JVAR)(2:VARCHR(1,JVAR)-1)
                   zvarsign(nzmod+1) = -1d0
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(1,iat)  )
@@ -3268,9 +3481,9 @@ c                 READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
                ENDIF
             ELSEIF((ZMTCHR(5, IAT).EQ.VARCHR(1,JVAR)+1).AND.
      1             (PRSZMT(5, IAT) (3:ZMTCHR(5, IAT)).EQ.
-     2              PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)))    ) THEN
-               zvarname(nzmod+2) = PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)-1)
+     2              PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)))) then
                IF(PRSZMT(5, IAT) (2:2).EQ.PLUS) THEN
+                  zvarname(nzmod+2) = PRSVAR(1,JVAR)(2:VARCHR(1,JVAR)-1)
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(2,iat)  )
                                           ZLST(2,IAT)=ZVAL(2,IAT)
@@ -3281,6 +3494,7 @@ c                    READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
          call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(2,iat)  )
                   ENDIF
                ELSEIF(PRSZMT(5, IAT) (2:2).EQ.MINUS) THEN
+                  zvarname(nzmod+2) = PRSVAR(1,JVAR)(2:VARCHR(1,JVAR)-1)
                   zvarsign(nzmod+2) = -1d0
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(2,iat)  )
@@ -3357,8 +3571,8 @@ c                 READ (PRSVAR(3,JVAR),*) ZLST(3,IAT)
             ELSEIF((ZMTCHR(7, IAT).EQ.VARCHR(1,JVAR)+1).AND.
      1             (PRSZMT(7, IAT) (3:ZMTCHR(7, IAT)).EQ.
      2              PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)))    ) THEN
-               zvarname(nzmod+3) = PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)-1)
                IF(PRSZMT(7, IAT) (2:2).EQ.PLUS) THEN
+                  zvarname(nzmod+3) = PRSVAR(1,JVAR)(2:VARCHR(1,JVAR)-1)
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(3,iat)  )
                                           ZLST(3,IAT)=ZVAL(3,IAT)
@@ -3369,6 +3583,7 @@ c                    READ (PRSVAR(3,JVAR),*) ZLST(3,IAT)
          call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(3,iat)  )
                   ENDIF
                ELSEIF(PRSZMT(7, IAT) (2:2).EQ.MINUS) THEN
+                  zvarname(nzmod+3) = PRSVAR(1,JVAR)(2:VARCHR(1,JVAR)-1)
                   zvarsign(nzmod+3) = -1d0
 c                 READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
          call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(3,iat)  )
@@ -4461,6 +4676,7 @@ c
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "geomhnd.fh"
       character*(*) name
       integer n
 c
@@ -4486,7 +4702,7 @@ c
  10      status = .false.
       endif
 c     
- 20   call ga_brdcst(323, status, mitob(1), 0)
+ 20   if (parallel) call ga_brdcst(323, status, mitob(1), 0)
       geom_hnd_check_data = status
 c     
       end
@@ -4534,6 +4750,7 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "util.fh"
+#include "geomhnd.fh"
 c
       character*(*) name
       integer n
@@ -4559,7 +4776,7 @@ c
          close(32)
          if (odebug) call doutput(a,1,n,1,1,n,1,1)
       endif
-      call ga_brdcst(32, a, mdtob(n), 0)
+      if (parallel) call ga_brdcst(32, a, mdtob(n), 0)
 c
       return
 c
@@ -4570,6 +4787,12 @@ c
  102  write(6,*) ' name = ', name, ' n = ', n, ' m = ', m
       call errquit('geom_hnd_get_data: dimension mismatch',0)
 c
+      end
+      subroutine geom_hnd_parallel(mode)
+      implicit none
+#include "geomhnd.fh"
+      logical mode
+      parallel = mode
       end
       subroutine geom_sort4(iii,jjj,kkk,lll,i1,i2,i3,i4)
       implicit none
@@ -4654,5 +4877,98 @@ c
       endif
 c
  666  return
+c
+      end
+      subroutine geom_make_constraint_matrix(geom, nzvar, cmat,
+     $     nconstraint)
+      implicit none
+      integer geom, nzvar       ! input
+      double precision cmat(nzvar, nzvar) ! scratch
+      integer nconstraint       ! output
+c
+c     Make a matrix that projects a step or gradient onto the 
+c     constrained variables.  Store in file 'cmat'.
+c
+c     Return in nconstraint the number of constraints so that
+c     the number of indep. variables can be reduced.
+c
+c     E.g.,
+c
+c     c(i,i) = 1d0 ... i is an indep. variable
+c     c(i,i) = 0d0 ... i is frozen.
+c     c(i,i) = c(i,j) = c(j,i) = c(j,j) = 1/2 ... i=j constraint
+c
+c     C*g = sum(j) c(i,j)*g(j) = constrained g.
+c
+      integer i, ii, j, k, num
+      double precision sum
+      logical ofrozen
+      logical geom_zmt_get_varinfo, geom_zmt_get_nzfrz, 
+     $     geom_zmt_get_izfrz
+      character*8 test
+c
+      integer mxcoor
+      parameter (mxcoor = 1500)
+      character*8 zvarname(mxcoor)
+      integer nzfrz, izfrz(mxcoor)
+      double precision zvarsign(mxcoor)
+c
+c     Start with identity
+c
+      nconstraint = 0
+      call dfill(nzvar*nzvar, 0d0, cmat, 1)
+      call dfill(nzvar, 1d0, cmat, nzvar+1)
+c
+c     Zero diagonals for constants
+c
+      if(.not.geom_zmt_get_nzfrz(geom,nzfrz))
+     $     call errquit('geom_const: geom_zmt_get_nzfrz failed',0)
+      if(.not.geom_zmt_get_izfrz(geom,izfrz))
+     $     call errquit('geom_const: geom_zmt_get_izfrz  failed',0)
+      do ii = 1, nzfrz
+         i = izfrz(ii)
+         nconstraint = nconstraint + 1
+         cmat(i,i) = 0d0
+      enddo
+c
+c     Apply constraints
+c
+      if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
+     $     call errquit('geom_const: varinfo?',0)
+      do i = 1, nzvar
+         ofrozen = .false.
+         do ii = 1, nzfrz
+            if (i .eq. izfrz(ii)) ofrozen = .true.
+         enddo
+         if (zvarname(i).ne.' ' .and. (.not. ofrozen)) then
+            num = 0
+            test = zvarname(i)
+            do j = 1, nzvar
+               if (zvarname(j).eq.test) then 
+                  num = num + 1
+               endif
+            enddo
+            nconstraint = nconstraint + num - 1
+            if (num .gt. 1) then
+               sum = 1d0 / dble(num)
+               do j = 1, nzvar
+                  if (zvarname(j).eq.test) then 
+                     do k = 1, nzvar
+                        if (zvarname(k).eq.test) 
+     $                       cmat(k,j) = zvarsign(k)*zvarsign(j)*sum
+                     enddo
+                  endif
+               enddo
+               do j = 1, nzvar
+                  if (zvarname(j).eq.test) zvarname(j) = ' '
+               enddo
+            endif
+         endif
+      enddo
+c
+*      write(6,*) ' Constraint matrix ', nzvar, nconstraint
+*      call output(cmat, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
+c
+      call geom_hnd_put_data('c',cmat, nzvar**2)
 c
       end

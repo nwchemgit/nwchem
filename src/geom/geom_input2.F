@@ -32,13 +32,13 @@ c
 c
       end
       logical function geom_zmt_put_data(geom, nizmat, izmat,
-     $     nzfrz, izfrz, nzvar, zvarname, zvarsign, source)
+     $     nzfrz, izfrz, izfrz_val, nzvar, zvarname, zvarsign, source)
       implicit none
 #include "geomP.fh"
 c
       integer geom, nizmat, izmat(*), nzfrz, izfrz(*), nzvar
       character*(*) zvarname(*), source
-      double precision zvarsign(*)
+      double precision zvarsign(*), izfrz_val(*)
 c
       integer i
       logical geom_check_handle
@@ -54,6 +54,7 @@ c
       zmt_nzfrz(geom)  = nzfrz
       do i = 1, nzfrz
          zmt_izfrz(i,geom) = izfrz(i)
+         zmt_izfrz_val(i,geom) = izfrz_val(i)
       enddo
       zmt_nzvar(geom) = nzvar
       do i = 1, nzvar
@@ -114,13 +115,11 @@ c
       end do
 c
       end
-      logical function geom_zmt_get_izfrz(geom,
-     1                                    izfrz,nzfrz)
+      logical function geom_zmt_get_izfrz(geom,izfrz)
       implicit none
 #include "geomP.fh"
 c
       integer geom
-      integer nzfrz
       integer izfrz
       integer i
       dimension izfrz(*)
@@ -130,8 +129,26 @@ c
       geom_zmt_get_izfrz = geom_check_handle(geom, 'geom_us_g_iz')
       if (.not. geom_zmt_get_izfrz) return
 c
-      do i = 1, nzfrz
+      do i = 1, zmt_nzfrz(geom)
          izfrz(i) = zmt_izfrz(i,geom)
+      enddo
+c
+      end
+      logical function geom_zmt_get_izfrz_val(geom,izfrz_val)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom
+      double precision izfrz_val(*)
+      integer i
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_zmt_get_izfrz_val = geom_check_handle(geom, 'geom_us_g_iz')
+      if (.not. geom_zmt_get_izfrz_val) return
+c
+      do i = 1, zmt_nzfrz(geom)
+         izfrz_val(i) = zmt_izfrz_val(i,geom)
       enddo
 c
       end

@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.115 1999-06-22 17:48:40 windus Exp $
+C     $Id: geom_input.F,v 1.116 1999-06-28 15:50:58 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -16,6 +16,7 @@ c
       integer geom              ! handle for geometry
       integer nata              ! num. of unique atoms 
       logical status            ! scratch for return codes
+      logical oadjust
       logical oprint
       logical ozmatrix
       logical oautoz
@@ -43,13 +44,12 @@ c     .                           and for forcing symmetry
       logical geom_zmtmak
       external geom_zmtmak
       external geom_data        ! What is this?
+      external geom_impose_initial_values_on_q
 c     
 c     read a geometry from the input deck and output it
 c     to the rtdb.
 c     
 c     current input line should begin 'geometry ...'
-c     
-c     Cartesians only for now
 c     
       if (nodeid() .ne. 0) return
 c     
@@ -74,6 +74,8 @@ c
 c     symmetry group_number setting_number
 c     
 c     systype must precede symmetry
+c
+c     zcoord
 c     
 c     
       old_format_input = .false.
@@ -86,6 +88,7 @@ c
       osymmetry = .false.
       oprint_sym = .false.
       include_bqbq = .false.
+      oadjust = .false.
       ocenter = .true.
       threquiv = 1d-2
 c     
@@ -120,6 +123,8 @@ c
             ocenter = .true.
          else if (inp_compare(.false.,'nocenter', field)) then
             ocenter = .false.
+         else if (inp_compare(.false.,'adjust', field)) then
+            oadjust = .true.
          else if (inp_compare(.false.,'print', field)) then
             oprint = .true.
 c     
@@ -154,6 +159,17 @@ c
       if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
      $     ('geom_input: geom_create failed !', 0)
+c
+c     Asked to adjust existing geometry ... only zcoord input
+c     is allowed.
+c
+      if (oadjust) then
+         if (.not. geom_rtdb_load(rtdb, geom, name)) call errquit
+     $        ('geom_input: cannot find geometry to adjust',0)
+         if (oprint) write(6,778) name(1:inp_strlen(name))
+ 778     format(/,' Adjusting existing geometry named ',a,/)
+      endif
+c
       if (include_bqbq) status = geom_set_bqbq(geom, .true.)
 c     
       if (found_au2ang_conv.and.found_ang2au_conv) call errquit
@@ -219,6 +235,8 @@ c
      $           inp_compare(.false.,'zmatrix', field)) then
             ozmatrix=.true.   
             oautoz = .false.
+            if (oadjust) call errquit
+     $           ('geom_input: zmatrix not allowed for adjust',0)
             call geom_zmt_input(geom,coords,tags,charge,mass,ncenter,
      $           scale,oprint)
             goto 20
@@ -233,6 +251,9 @@ c
             if ((.not. is_atom) .and. symbol.ne.'bq') 
      $           call errquit
      &           ('geom_input:center is neither atom nor bq',0)
+c
+            if (oadjust) call errquit
+     $           ('geom_input:coordinates not allowed for adjust',0)
 c     
 c..   set default mass
 c     
@@ -280,87 +301,96 @@ c
 c     For molecules, apply requested conversion of units after we have
 c     all of the information
 c     
- 30   if (.not. geom_systype_get(geom, isys)) call errquit
+ 30   continue
+c
+      if (.not. geom_systype_get(geom, isys)) call errquit
      $     ('geom_input: systype?', 0)
-      if (isys.eq.0) then
-         if (scale.ne.1.0d0) then
-            if (oprint)
-     $           write(luout,1) name(1:inp_strlen(name)), scale, 
-     $           1.0d0/scale
- 1          format(/' Scaling coordinates for geometry "',a,'" by ',
-     $           f12.9/' (inverse scale = ',f12.9,')',/)
-            call dscal(3*ncenter, scale, coords, 1)
+c
+      if (oadjust) then
+         if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
+     $        call errquit('geom_input: geom_cart_get failed', 0)
+      else 
+         if (isys.eq.0) then
+            if (scale.ne.1.0d0) then
+               if (oprint)
+     $              write(luout,1) name(1:inp_strlen(name)), scale, 
+     $              1.0d0/scale
+ 1             format(/' Scaling coordinates for geometry "',a,'" by ',
+     $              f12.9/' (inverse scale = ',f12.9,')',/)
+               call dscal(3*ncenter, scale, coords, 1)
+            end if
+         else if (isys .lt. 0) then
+            call errquit('geom_input: invalid system type', 0)
          end if
-      else if (isys .lt. 0) then
-         call errquit('geom_input: invalid system type', 0)
-      end if
 c     
-      call geom_check_input_quants
-     &    (tags,charge,ncenter,1.0d-12,'charge')
-      call geom_check_input_quants
-     &    (tags,mass,ncenter,1.0d-8,'mass')
+         call geom_check_input_quants
+     &        (tags,charge,ncenter,1.0d-12,'charge')
+         call geom_check_input_quants
+     &        (tags,mass,ncenter,1.0d-8,'mass')
 c
-      if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
-     $     call errquit('geom_input: geom_cart_set failed', 0)
+         if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
+     $        call errquit('geom_input: geom_cart_set failed', 0)
 c
-      if (.not. geom_vel_set(geom, velocities))
-     $     call errquit('geom_input: geom_vel_set failed', 0)
+         if (.not. geom_vel_set(geom, velocities))
+     $        call errquit('geom_input: geom_vel_set failed', 0)
 c     
-      if (.not. geom_masses_set(geom, ncenter, mass))
-     &     call errquit('geom_input: geom_masses_set failed', 0)
+         if (.not. geom_masses_set(geom, ncenter, mass))
+     &        call errquit('geom_input: geom_masses_set failed', 0)
 c
 c     Check to see if both autosym and symmetry are being used.  If so,
 c     set autosym off.  Note the the threquiv variable is set first by the
 c     autosym directive and thenreset by the symmetry directive input if 
 c     either of them is given.
-c
-      if (oautosym.and.osymmetry) then
-        oautosym=.false.
-        write(luout,*) 'Turning off AUTOSYM since'
-        write(luout,*) 'SYMMETRY directive was detected!'
-        write(luout,*)
-      endif
-c
-      if(oautosym) then
-c
-c     ----- detect symmetry -----
-c
-         if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
-     $        call errquit('geom_input: geom_cart_get failed', 0)
-         ncenter_before_auto = ncenter
-         call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
-     $        threquiv,groupname)
-         if (geom_group_set(geom,groupname)) then
-            if (.not.geom_cart_set(geom, ncenter, tags, coords, charge))
-     $           call errquit('geom_input: geom_cart_set failed', 0)
-            if (ncenter_before_auto .ne. ncenter) call errquit
-     $        ('geom_input: autosym bug : number of atoms wrong',
-     $          ncenter)
-         else
-            write(6,*) ' autosym detected uknown group ', groupname
-            call errquit('geom_input: autosym: invalid group',0)
+c     
+         if (oautosym.and.osymmetry) then
+            oautosym=.false.
+            write(luout,*) 'Turning off AUTOSYM since'
+            write(luout,*) 'SYMMETRY directive was detected!'
+            write(luout,*)
          endif
-      endif
-c
+c     
+         if(oautosym) then
+c     
+c     ----- detect symmetry -----
+c     
+            if (.not. geom_cart_get(geom,ncenter,tags,coords,charge))
+     $           call errquit('geom_input: geom_cart_get failed', 0)
+            ncenter_before_auto = ncenter
+            call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
+     $           threquiv,groupname)
+            if (geom_group_set(geom,groupname)) then
+               if (.not.geom_cart_set(geom,ncenter,tags,coords,charge))
+     $              call errquit('geom_input: geom_cart_set failed', 0)
+               if (ncenter_before_auto .ne. ncenter) call errquit
+     $              ('geom_input: autosym bug : number of atoms wrong',
+     $              ncenter)
+            else
+               write(6,*) ' autosym detected uknown group ', groupname
+               call errquit('geom_input: autosym: invalid group',0)
+            endif
+         endif
+c     
 c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
 c     
-      nata=ncenter
-      call sym_nwc(geom,rtdb,nata,oprint_sym,scale,threquiv)
-c
+         nata=ncenter
+         call sym_nwc(geom,rtdb,nata,oprint_sym,scale,threquiv)
+c     
 c     Check that if we used autosym that we ended up with the 
 c     same no. of atoms ... if we don't then autosym and nwchemsym
 c     don't agree on the orientation of point group elements
+c     
+         if (oautosym) then
+            if (.not. geom_ncent(geom,ncenter)) call errquit
+     $           ('geom_input: geom_cent?',0)
+            if (ncenter_before_auto .ne. ncenter) call errquit
+     $           ('geom_input: autosym bug : too many atoms',ncenter)
+         endif
+c     
+         if (oprint_sym.and.(isys.eq.0)) call sym_print_all(geom,
+     $        .true.,.true.,.true.,.true.,.true.)
 c
-      if (oautosym) then
-         if (.not. geom_ncent(geom,ncenter)) call errquit
-     $        ('geom_input: geom_cent?',0)
-         if (ncenter_before_auto .ne. ncenter) call errquit
-     $        ('geom_input: autosym bug : too many atoms',ncenter)
-      endif
-c
-      if (oprint_sym.and.(isys.eq.0)) call sym_print_all(geom,
-     $     .true.,.true.,.true.,.true.,.true.)
+      endif                     ! End of else clause for if(oadjust)
 c     
 c     Center origin at the center of charge if requested
 c     
@@ -377,12 +407,26 @@ c
      $     call errquit('geom_input: geom_cart_get failed', 0)
       if (ncenter .eq. 1) oautoz = .false. ! No point for atoms
 c
+c     If doing user zmatrix then remember values of constant variables
+c     so their values can be exactly enforced
+c      
+      if (ozmatrix) call geom_zmt_remember_constants(geom)
+c     
 c     Call auto-z-matrix generation
 c     
       if(oautoz) oautoz =  geom_zmtmak(geom,oprint)
-c
+c     
 c     Note, autoz may have failed and set oautoz=.false.
-c
+c     Impose initial values of redundant internals and 
+c     constraints on the input geometry
+c     
+      if (oautoz) then 
+         call geom_hnd_parallel(.false.)
+         call geom_impose_constraints(geom,
+     $        geom_impose_initial_values_on_q)
+         call geom_hnd_parallel(.true.)
+      endif
+c     
       if (oprint) then
          if (.not. geom_print(geom))
      $        call errquit('geom_input: print failed ', 0)
@@ -396,9 +440,9 @@ c
             call util_flush(luout)
          endif
          if (.not.geom_print_distances(geom))
-     &         call errquit('geom_input: print_distances failed ',911)
+     &        call errquit('geom_input: print_distances failed ',911)
          if (.not.geom_print_angles(geom))
-     &         call errquit('geom_input: print_angles failed ',911)
+     &        call errquit('geom_input: print_angles failed ',911)
       end if
 c     
       if (.not. geom_rtdb_store(rtdb, geom, name))
@@ -407,12 +451,12 @@ c
       if(.not. geom_verify_coords(geom))
      &     call errquit
      &     ('geom_input: geom_verify_coords failed',911)
-c
+c     
       if (.not. geom_destroy(geom))
      $     call errquit('geom_input: geom_destroy failed', 0)
 c     
 c     done
-
+      
 c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 
       end
@@ -561,18 +605,24 @@ c
 c     
       end
       logical function geom_autoz_info_get(geom,
-     $     xcvr_scaling, xijbond, xijkang, xijklto, xijklop, 
-     $     xijklnb,xmaxtor)
+     $     cvr_scaling, maxtor,
+     $     ijbond,ijkang,ijklto,ijklop,ijklnb,
+     $     ijbond_nam,ijkang_nam,ijklto_nam,ijklop_nam,ijklnb_nam,
+     $     ijbond_val,ijkang_val,ijklto_val,ijklop_val,ijklnb_val,
+     $     ijbond_frz,ijkang_frz,ijklto_frz,ijklop_frz,ijklnb_frz)
       implicit none
 #include "geomP.fh"
       integer geom
-      integer xijbond(2,max_zcoord) 
-      integer xijkang(3,max_zcoord)
-      integer xijklto(4,max_zcoord)
-      integer xijklop(4,max_zcoord)
-      integer xijklnb(4,max_zcoord)
-      integer xmaxtor
-      double precision xcvr_scaling
+      integer ijbond(2,*),ijkang(3,*),ijklto(4,*),ijklop(4,*),
+     $     ijklnb(4,*)
+      character*(*) ijbond_nam(*),ijkang_nam(*),ijklto_nam(*),
+     $     ijklop_nam(*),ijklnb_nam(*)
+      double precision ijbond_val(*),ijkang_val(*),ijklto_val(*),
+     $     ijklop_val(*),ijklnb_val(*)
+      logical ijbond_frz(*),ijkang_frz(*),ijklto_frz(*),ijklop_frz(*),
+     $     ijklnb_frz(*)
+      integer maxtor
+      double precision cvr_scaling
 c
       logical geom_check_handle
       external geom_check_handle
@@ -587,26 +637,32 @@ c
          return
       endif
 c
-      xmaxtor = zmt_maxtor(geom)
-      xcvr_scaling = zmt_cvr_scaling(geom)
+      maxtor = zmt_maxtor(geom)
+      cvr_scaling = zmt_cvr_scaling(geom)
+      call icopy(2*max_zcoord,zmt_ijbond(1,1,geom),1,ijbond,1)
+      call icopy(3*max_zcoord,zmt_ijkang(1,1,geom),1,ijkang,1)
+      call icopy(4*max_zcoord,zmt_ijklto(1,1,geom),1,ijklto,1)
+      call icopy(4*max_zcoord,zmt_ijklop(1,1,geom),1,ijklop,1)
+      call icopy(4*max_zcoord,zmt_ijklnb(1,1,geom),1,ijklnb,1)
+*
+      call icopy(max_zcoord,zmt_ijbond_frz(1,geom),1,ijbond_frz,1)
+      call icopy(max_zcoord,zmt_ijkang_frz(1,geom),1,ijkang_frz,1)
+      call icopy(max_zcoord,zmt_ijklto_frz(1,geom),1,ijklto_frz,1)
+      call icopy(max_zcoord,zmt_ijklop_frz(1,geom),1,ijklop_frz,1)
+      call icopy(max_zcoord,zmt_ijklnb_frz(1,geom),1,ijklnb_frz,1)
+*
+      call dcopy(max_zcoord,zmt_ijbond_val(1,geom),1,ijbond_val,1)
+      call dcopy(max_zcoord,zmt_ijkang_val(1,geom),1,ijkang_val,1)
+      call dcopy(max_zcoord,zmt_ijklto_val(1,geom),1,ijklto_val,1)
+      call dcopy(max_zcoord,zmt_ijklop_val(1,geom),1,ijklop_val,1)
+      call dcopy(max_zcoord,zmt_ijklnb_val(1,geom),1,ijklnb_val,1)
+*
       do i = 1, max_zcoord
-         xijbond(1,i) = zmt_ijbond(1,i,geom)
-         xijbond(2,i) = zmt_ijbond(2,i,geom)
-         xijkang(1,i) = zmt_ijkang(1,i,geom)
-         xijkang(2,i) = zmt_ijkang(2,i,geom)
-         xijkang(3,i) = zmt_ijkang(3,i,geom)
-         xijklto(1,i) = zmt_ijklto(1,i,geom)
-         xijklto(2,i) = zmt_ijklto(2,i,geom)
-         xijklto(3,i) = zmt_ijklto(3,i,geom)
-         xijklto(4,i) = zmt_ijklto(4,i,geom)
-         xijklop(1,i) = zmt_ijklop(1,i,geom)
-         xijklop(2,i) = zmt_ijklop(2,i,geom)
-         xijklop(3,i) = zmt_ijklop(3,i,geom)
-         xijklop(4,i) = zmt_ijklop(4,i,geom)
-         xijklnb(1,i) = zmt_ijklnb(1,i,geom)
-         xijklnb(2,i) = zmt_ijklnb(2,i,geom)
-         xijklnb(3,i) = zmt_ijklnb(3,i,geom)
-         xijklnb(4,i) = zmt_ijklnb(4,i,geom)
+         ijbond_nam(i) = zmt_ijbond_nam(i,geom)
+         ijkang_nam(i) = zmt_ijkang_nam(i,geom)
+         ijklto_nam(i) = zmt_ijklto_nam(i,geom)
+         ijklop_nam(i) = zmt_ijklop_nam(i,geom)
+         ijklnb_nam(i) = zmt_ijklnb_nam(i,geom)
       enddo
 c     
       end
@@ -622,14 +678,32 @@ c
      $     zmt_ijklto(1,1,geom),
      $     zmt_ijklop(1,1,geom),
      $     zmt_ijklnb(1,1,geom),
+     $     zmt_ijbond_nam(1,geom),
+     $     zmt_ijkang_nam(1,geom),
+     $     zmt_ijklto_nam(1,geom),
+     $     zmt_ijklop_nam(1,geom),
+     $     zmt_ijklnb_nam(1,geom),
+     $     zmt_ijbond_val(1,geom),
+     $     zmt_ijkang_val(1,geom),
+     $     zmt_ijklto_val(1,geom),
+     $     zmt_ijklop_val(1,geom),
+     $     zmt_ijklnb_val(1,geom),
+     $     zmt_ijbond_frz(1,geom),
+     $     zmt_ijkang_frz(1,geom),
+     $     zmt_ijklto_frz(1,geom),
+     $     zmt_ijklop_frz(1,geom),
+     $     zmt_ijklnb_frz(1,geom),
      $     max_zcoord,
      $     zmt_cvr_scaling(geom),
      $     zmt_maxtor(geom), oprint)
 c     
       end
-      subroutine hnd_autoz_input(ijbond,ijkang,ijklto,
-     1                           ijklop,ijklnb,max_zcoord,
-     2                           cvr_scaling,maxtor,oprint)
+      subroutine hnd_autoz_input(
+     $     ijbond,ijkang,ijklto,ijklop,ijklnb,
+     $     ijbond_nam,ijkang_nam,ijklto_nam,ijklop_nam,ijklnb_nam,
+     $     ijbond_val,ijkang_val,ijklto_val,ijklop_val,ijklnb_val,
+     $     ijbond_frz,ijkang_frz,ijklto_frz,ijklop_frz,ijklnb_frz,
+     $     max_zcoord, cvr_scaling,maxtor,oprint)
       implicit none
 #include "inp.fh"
 c
@@ -637,15 +711,21 @@ c
       double precision cvr_factor
       parameter (cvr_factor=1.2d+00)
       character*30 field
-      integer ijbond(2,*), max_zcoord
-      integer ijkang(3,*)
-      integer ijklto(4,*)
-      integer ijklop(4,*)
-      integer ijklnb(4,*)
+      integer max_zcoord
+      integer ijbond(2,*),ijkang(3,*),ijklto(4,*),ijklop(4,*),
+     $     ijklnb(4,*)
+      character*(*) ijbond_nam(*),ijkang_nam(*),ijklto_nam(*),
+     $     ijklop_nam(*),ijklnb_nam(*)
+      double precision ijbond_val(*),ijkang_val(*),ijklto_val(*),
+     $     ijklop_val(*),ijklnb_val(*)
+      logical ijbond_frz(*),ijkang_frz(*),ijklto_frz(*),ijklop_frz(*),
+     $     ijklnb_frz(*)
+      character*13 fff
+c
       integer maxtor
       logical oprint
 c
-      integer nbond, nangl, ntors, nopla, nlinb, i
+      integer nbond, nangl, ntors, nopla, nlinb, i, nuser
 c
       cvr_scaling=cvr_factor
       nbond=0
@@ -654,28 +734,41 @@ c
       nopla=0
       nlinb=0
       maxtor = 100
+      call ifill(2*max_zcoord, 0, ijbond, 1)
+      call ifill(3*max_zcoord, 0, ijkang, 1)
+      call ifill(4*max_zcoord, 0, ijklto, 1)
+      call ifill(4*max_zcoord, 0, ijklop, 1)
+      call ifill(4*max_zcoord, 0, ijklnb, 1)
+      call dfill(max_zcoord, 555.1212d0, ijbond_val, 1)
+      call dfill(max_zcoord, 555.1212d0, ijkang_val, 1)
+      call dfill(max_zcoord, 555.1212d0, ijklto_val, 1)
+      call dfill(max_zcoord, 555.1212d0, ijklop_val, 1)
+      call dfill(max_zcoord, 555.1212d0, ijklnb_val, 1)
       do i=1,max_zcoord
-         ijbond(1,i)=0
-         ijbond(2,i)=0
-         ijkang(1,i)=0
-         ijkang(2,i)=0
-         ijkang(3,i)=0
-         ijklto(1,i)=0
-         ijklto(2,i)=0
-         ijklto(3,i)=0
-         ijklto(4,i)=0
-         ijklop(1,i)=0
-         ijklop(2,i)=0
-         ijklop(3,i)=0
-         ijklop(4,i)=0
-         ijklnb(1,i)=0
-         ijklnb(2,i)=0
-         ijklnb(3,i)=0
-         ijklnb(4,i)=0
+         ijbond_nam(i) = ' '
+         ijkang_nam(i) = ' '
+         ijklto_nam(i) = ' '
+         ijklop_nam(i) = ' '
+         ijklnb_nam(i) = ' '
+         ijbond_frz(i) = .false.
+         ijkang_frz(i) = .false.
+         ijklto_frz(i) = .false.
+         ijklop_frz(i) = .false.
+         ijklnb_frz(i) = .false.
       enddo
+c
+      if (oprint) write(6,1)
+ 1    format(' User specification of redundant internal variables ',/,
+     $     1x,50('-'),/,/,
+     $     1x,'  i   j   k   l     value       name   frz',/,
+     $     1x,' --- --- --- --- ------------ -------- ---')
+ 2    format(1x,2i4,8x,a13,1x,a8,l4)
+ 3    format(1x,3i4,4x,a13,1x,a8,l4)
+ 4    format(1x,4i4,   a13,1x,a8,l4)
 c
 c     ----- read values from input -----
 c
+      nuser = 0
  10   if(.not.inp_read()) 
      $     call errquit('hnd_autoz_input: unexpected eof',911)
 
@@ -684,33 +777,49 @@ c
 c
       if (inp_compare(.false.,'zend',field).or.   
      $     inp_compare(.false.,'end',field)) then
-         return
+         goto 999
       else if(inp_compare(.false.,'cvr_scaling',field)) then
          if(.not. inp_f(cvr_scaling)) call errquit
      $        ('hnd_autoz_input:  reading cvr_scaling',911)
-         if (oprint) write(6,1) cvr_scaling
- 1       format(' AUTOZ cvr_scaling: ', f6.2)
-      else if (inp_compare(.false.,'ijbond',field)) then
+      else if (inp_compare(.false.,'ijbond',field) .or.
+     $        inp_compare(.false.,'bond',field)) then
          nbond = nbond + 1
+         nuser = nuser + 1
+         if (nbond.gt.max_zcoord) call errquit
+     $        ('too many user specified redundant coords', max_zcoord)
          if(.not. inp_i(ijbond(1,nbond))) call errquit
      $        ('hnd_autoz_input: reading ijbond',1)
          if(.not. inp_i(ijbond(2,nbond))) call errquit
      $        ('hnd_autoz_input: reading ijbond',2)
-         if (oprint) write(6,2) ijbond(1,nbond), ijbond(2,nbond)
- 2       format(' AUTOZ ijbond:      ',2i5)
-      else if(inp_compare(.false.,'ijkang',field)) then
+         if (inp_n_field().gt.3) call geom_autoz_input_varinfo
+     $        (ijbond_val(nbond), ijbond_nam(nbond), ijbond_frz(nbond),
+     $        nuser,fff)
+         if (oprint) write(6,2) ijbond(1,nbond), ijbond(2,nbond),
+     $        fff, ijbond_nam(nbond), ijbond_frz(nbond)
+      else if(inp_compare(.false.,'ijkang',field) .or.
+     $        inp_compare(.false.,'angle',field)) then
          nangl = nangl + 1
+         nuser = nuser + 1
+         if (nangl.gt.max_zcoord) call errquit
+     $        ('too many user specified redundant coords', max_zcoord)
          if(.not. inp_i(ijkang(1,nangl))) call errquit
      $        ('hnd_autoz_input: reading ijkang',1)
          if(.not. inp_i(ijkang(2,nangl))) call errquit
      $        ('hnd_autoz_input: reading ijkang',2)
          if(.not. inp_i(ijkang(3,nangl))) call errquit
      $        ('hnd_autoz_input: reading ijkang',3)
+         if (inp_n_field().gt.3) call geom_autoz_input_varinfo
+     $        (ijkang_val(nangl), ijkang_nam(nangl), ijkang_frz(nangl),
+     $        nuser,fff)
          if (oprint) write(6,3) ijkang(1,nangl), ijkang(2,nangl), 
-     $        ijkang(3,nangl)
- 3       format(' AUTOZ ijkang:      ',3i5)
-      else if(inp_compare(.false.,'ijklto',field)) then
+     $        ijkang(3,nangl),
+     $        fff, ijkang_nam(nangl), ijkang_frz(nangl)
+      else if(inp_compare(.false.,'ijklto',field) .or.
+     $        inp_compare(.false.,'torsion',field)) then
          ntors=ntors+1
+         nuser = nuser + 1
+         if (ntors.gt.max_zcoord) call errquit
+     $        ('too many user specified redundant coords', max_zcoord)
          if(.not. inp_i(ijklto(1,ntors))) call errquit
      $        ('hnd_autoz_input: reading ijklto',1)
          if(.not. inp_i(ijklto(2,ntors))) call errquit
@@ -719,9 +828,12 @@ c
      $        ('hnd_autoz_input: reading ijklto',3)
          if(.not. inp_i(ijklto(4,ntors))) call errquit
      $        ('hnd_autoz_input: reading ijklto',4)
+         if (inp_n_field().gt.3) call geom_autoz_input_varinfo
+     $        (ijklto_val(ntors), ijklto_nam(ntors), ijklto_frz(ntors),
+     $        nuser,fff)
          if (oprint) write(6,4) ijklto(1,ntors), ijklto(2,ntors), 
-     $        ijklto(3,ntors), ijklto(4,ntors)
- 4       format(' AUTOZ ijklto:      ',4i5)
+     $        ijklto(3,ntors), ijklto(4,ntors),
+     $        fff, ijklto_nam(ntors), ijklto_frz(ntors)
 c$$$      else if(inp_compare(.false.,'ijklop',field)) then
 c$$$         nopla=nopla+1
 c$$$         if(.not. inp_i(ijklop(1,nopla))) call errquit
@@ -744,13 +856,55 @@ c$$$         if(.not. inp_i(ijklnb(4,nlinb))) call errquit
 c$$$     $        ('hnd_autoz_input: reading ijklnb',4)
       else if(inp_compare(.false.,'maxtor',field)) then
          if(.not. inp_i(maxtor)) call errquit
-     $        ('hnd_autoz_input: reading maxtor',0)
-         if (oprint) write(6,5) maxtor
- 5       format(' AUTOZ maxtor:      ',i5)
+     $        ('autoz_input: reading maxtor',0)
       else
-         call errquit('hnd_autoz_input: unkown directive',0)
+         call errquit('autoz_input: unkown directive',0)
       endif
       goto 10                   ! Read next line
+c
+ 999  if (cvr_scaling.ne.cvr_factor .and. oprint) 
+     $     write(6,9) cvr_scaling
+ 9    format('  cvr_scaling: ', f6.2)
+      if (maxtor.ne.100 .and. oprint) write(6,5) maxtor
+ 5    format('  maxtor:      ',i5)
+      if (oprint) write(6,*)
+c
+      end
+      subroutine geom_autoz_input_varinfo(val, nam, frz, nuser, fff)
+      implicit none
+#include "inp.fh"
+      double precision val
+      character*(*) nam
+      logical frz
+      integer nuser
+      character*13 fff
+c
+c     Read [value] [name] [<constant>] from the end of a
+c     redundant variable input and set data accordingly
+c
+c     If the name is not given generate a default based on the
+c     order input by the user.
+c
+c     If the value is not set by the user a default of 555.1212
+c     is being  used to indicate this.  To avoid printing this
+c     out, write a value from the user into fff
+c     
+      character*10 field
+      if (.not. inp_f(val)) call inp_clear_err
+      if (.not. inp_a(nam)) call inp_clear_err
+      field = ' '
+      if (.not. inp_a(field)) call inp_clear_err
+      if (inp_compare(.false.,nam,'constant')) then
+         field = 'constant'
+         nam = ' '
+      endif
+      frz = inp_compare(.false.,field,'constant')
+c
+      if (nam .eq. ' ') write(nam,'(a4,i3.3)') 'User',nuser
+c
+      fff = ' '
+      if (abs(val-555.1212d0) .gt. 1d-6)
+     $     write(fff,'(f13.6)') val
 c
       end
       subroutine  geom_zmt_input(geom,
@@ -840,8 +994,12 @@ c
 c
 c     ----- store all zmatrix data for nwchem -----
 c
+*
+*     COORDS passed in below as dummy for values of frozen
+*     variables ... not actually used
+*
       if (.not. geom_zmt_put_data(geom, nizmat, izmat,
-     $     nzfrz, izfrz, nzvar, zvarname, zvarsign, 'user'))
+     $     nzfrz, izfrz, COORDS, nzvar, zvarname, zvarsign, 'user'))
      $     call errquit('geom_zmt_input: bad geom handle',geom)
 
       if(dbug) then
@@ -5090,18 +5248,18 @@ c
       double precision dq(max_nzvar) ! Step in internals
       double precision  x(max_nzvar) ! Cartesian coordinates
       double precision dx(max_nzvar) ! Step in Cartesian coordinates
-      double precision xsave(max_nzvar) ! Save starting coords for recovery
+      double precision xsave(max_nzvar) ! Save first order step for recovery
 c
       integer l_bi, k_bi, i, ipass,nat, ncart, nzvar
-      double precision err1, xmax
-      logical oprint, geom_print_zmatrix
+      double precision err1, xmax, xmax1
+      logical odebug, oprint
       logical geom_zmt_get_nzvar, geom_compute_zmatrix
       double precision bohr, deg
+      external geom_impose_constraints_on_q
 c
-      oprint = (ga_nodeid().eq.0).and.util_print('optitoc',print_never)
-c
-         if (.not. geom_cart_coords_get(geom, xsave))
-     $        call errquit('opt_int_to_cart: geom get/set',0)
+      odebug = (ga_nodeid().eq.0).and.util_print('optitoc',print_never)
+      oprint = (ga_nodeid().eq.0).and.util_print('xupdate',print_high)
+      oprint = oprint .or. odebug
 c
       if (.not. geom_zmt_get_nzvar(geom, nzvar))
      $     call errquit('driver_u_c_f_i: geom?',0)
@@ -5128,7 +5286,11 @@ c
          q(i) = q(i) + dq(i)
       enddo
       call geom_zmat_ico_scale(geom, dq, 1d0/bohr, 1d0/deg)
-      if (oprint) then
+      err = 0.0d0
+      do i = 1, nzvar
+         err = max(err, abs(dq(i)))
+      enddo
+      if (odebug) then
          write(6,*) ' Target internals '
          call output(q,1,nzvar,1,1,nzvar,1,1)
          call util_flush(6)
@@ -5137,7 +5299,7 @@ c
       if (.not. ma_push_get(mt_dbl,ncart*nzvar,'mem bi',l_bi,k_bi))
      $     call errquit('opt_int_to_cart: ma', ncart*nzvar)
 c
-c     In non-redundant set of coordinates the iteration will be 
+c     In a non-redundant set of coordinates the iteration will be 
 c     quadratically convergent once very large steps have been damped 
 c     out ... well this would be true except some torsions and
 c     angles can be very strongly coupled.
@@ -5158,12 +5320,21 @@ c
             xmax = max(xmax, abs(dx(i)))
             x(i) = x(i) + dx(i)
          enddo
+         if (ipass .eq. 1) then
+            call dcopy(ncart, x, 1, xsave, 1)
+            xmax1 = xmax
+         endif
+c
+         if (oprint) write(6,77) ipass, xmax, err
+ 77      format(' Cartesian to internals: iter =',i2,'  dxmax =',
+     $        1p,d8.1,'  dqmax =',d8.1)
+c
          if (.not. geom_cart_coords_set(geom, x))
      $        call errquit('opt_int_to_cart: geom get/set',0)
-         call sym_geom_project(geom, xmax*0.1d0)
+         call sym_geom_project(geom, max(1d-6,xmax*0.1d0))
          if (.not. geom_compute_zmatrix(geom, p))
      $        call errquit('driver_u_c_f_i: geom?',0)
-         if (oprint) then 
+         if (odebug) then 
             write(6,*) ' Current internals '
             call output(p,1,nzvar,1,1,nzvar,1,1)
          endif
@@ -5174,12 +5345,12 @@ c
          do i = 1, nzvar
             dq(i) = q(i) - p(i)
          enddo
-         if (oprint) then 
+         if (odebug) then 
             write(6,*) ' Step in internals before angle restrict'
             call doutput(dq,1,nzvar,1,1,nzvar,1,1)
          endif
          call geom_zmat_sane_step(geom,dq)
-         if (oprint) then 
+         if (odebug) then 
             write(6,*) ' Step in internals after angle restrict'
             call doutput(dq,1,nzvar,1,1,nzvar,1,1)
          endif
@@ -5189,48 +5360,276 @@ c     (Bohr for bonds, and radians for angles)
 c
          call geom_zmat_ico_scale(geom, dq, 1d0/bohr, 1d0/deg)
 c
-c     Compute the error 
+c     Compute the max error in any element
 c
          err = 0.0d0
          do i = 1, nzvar
-            err = err + dq(i)*dq(i)
+            err = max(err, abs(dq(i)))
          enddo
-         err = sqrt(err)
-         if (oprint) write(6,*) ' ERR in internals ', err
+         if (odebug) write(6,*) ' ERR in internals ', err
 c
          if (ipass .eq. 1) err1 = err
 c
-         if (err .lt. 1d-6) goto 100
+         if (err.lt.1d-6 .and. xmax.lt.1d-6) goto 100
+*         if (xmax.lt.1d-6) goto 100
 c
       enddo
 c
-c     Take first order step here if things desparate
+c     Take first order step here if things are not good
 c
       if (err .gt. err1) then
          if (.not. geom_cart_coords_set(geom, xsave))
      $        call errquit('opt_int_to_cart: geom get/set',0)
-         call geom_bandbi(geom)
-         call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nzvar)
-         call dgemv('n', ncart, nzvar, 1d0, dbl_mb(k_bi), ncart,
-     $        ds, 1, 0.0d0, dx, 1)
-         call sym_grad_symmetrize(geom, dx)
-         if (.not. geom_cart_coords_get(geom, x))
-     $        call errquit('opt_int_to_cart: geom get/set',0)
-         xmax = 0d0
-         do i = 1, ncart
-            xmax = max(xmax, abs(dx(i)))
-            x(i) = x(i) + dx(i)
-         enddo
-         if (.not. geom_cart_coords_set(geom, x))
-     $        call errquit('opt_int_to_cart: geom get/set',0)
-         call sym_geom_project(geom, xmax*0.1d0)
+         call sym_geom_project(geom, max(0.1d0*xmax1,1d-6))
+         err = err1
+         if (oprint) write(6,78)
+ 78      format(' Cartesian to internals: did not converge. Taking',
+     $        ' first order step')
       endif
+c
+c     If the iteration did not converge, then repimpose constraints
+c
+      if (err .gt. 1d-6) 
+     $     call geom_impose_constraints(geom,
+     $     geom_impose_constraints_on_q)
 c
  100  if (.not. ma_chop_stack(l_bi))
      $     call errquit('opt_int_to_cart: ma chop', 0)
 c
       call geom_bandbi(geom)
 c
+      end
+      subroutine geom_impose_constraints(geom, impose_constraints)
+      implicit none
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
+      integer geom
+      external impose_constraints
+c     
+c     Impose initial values or constraints in internal coordinates
+c     upon the cartesian coordinates
+c     
+c     impose_constraints() is one of 
+c     .   geom_impose_constraints_on_q(geom,q)
+c     .   geom_impose_initial_values_on_q(geom,q)
+c     which given a set of internals munge them to the desired values.
+c     
+c     Also enforce symmetry.
+c     
+      integer max_cent, max_nzvar
+      parameter (max_cent = 500)
+      parameter (max_nzvar= 3*max_cent)
+      double precision  p(max_nzvar) ! Current internals
+      double precision  q(max_nzvar) ! Target internals
+      double precision dq(max_nzvar) ! Step in internals
+      double precision  x(max_nzvar) ! Cartesian coordinates
+      double precision dx(max_nzvar) ! Step in Cartesian coordinates
+c     
+      integer l_bi, k_bi, i, ipass,nat, ncart, nzvar
+      logical odebug, oprint
+      logical geom_zmt_get_nzvar, geom_compute_zmatrix
+      double precision bohr, deg, err, xmax
+c     
+      odebug = (ga_nodeid().eq.0).and.util_print('optitoc',print_never)
+      oprint = (ga_nodeid().eq.0).and.util_print('xupdate',print_high)
+      oprint = oprint .or. odebug
+c     
+      if (.not. geom_zmt_get_nzvar(geom, nzvar))
+     $     call errquit('driver_u_c_f_i: geom?',0)
+      if (.not. geom_ncent(geom, nat))
+     $     call errquit('driver_u_c_f_i: geom?',0)
+      ncart = nat * 3
+c     
+      bohr = 0.52917715d0
+      deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
+c     
+      if (.not. ma_push_get(mt_dbl,ncart*nzvar,'mem bi',l_bi,k_bi))
+     $     call errquit('opt_int_to_cart: ma', ncart*nzvar)
+c     
+c     In a non-redundant set of coordinates the iteration will be 
+c     quadratically convergent once very large steps have been damped 
+c     out ... well this would be true except some torsions and
+c     angles can be very strongly coupled.
+c     
+      do ipass = 1, 50
+c     
+c     Get current q, impose constraints. Compute dq
+c     
+         if (.not. geom_compute_zmatrix(geom, q))
+     $        call errquit('driver_u_c_f_i: geom?',0)
+         call dcopy(nzvar, q, 1, p, 1)
+         call impose_constraints(geom,q) ! q is the target
+         do i = 1, nzvar
+            dq(i) = q(i) - p(i)
+         enddo
+         call geom_zmat_sane_step(geom,dq)
+         call geom_zmat_ico_scale(geom, dq, 1d0/bohr, 1d0/deg)
+         err = 0.0d0
+         do i = 1, nzvar
+            err = max(err, abs(dq(i)))
+         enddo
+         if (err .gt. 0.25d0) then ! Small steps move coupled angles together?
+            if (oprint) write(6,*) '   restricting step', err
+            call dscal(nzvar, 0.5d0/err, dq, 1)
+         endif
+c     
+c     dq -> dx -> x -> new q
+c     
+         call geom_bandbi(geom)
+         call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nzvar)
+         call dgemv('n', ncart, nzvar, 1d0, dbl_mb(k_bi), ncart,
+     $        dq, 1, 0.0d0, dx, 1)
+         call sym_grad_symmetrize(geom, dx)
+         if (.not. geom_cart_coords_get(geom, x))
+     $        call errquit('opt_int_to_cart: geom get/set',0)
+         xmax = 0d0
+         do i = 1, ncart
+            xmax = max(xmax,abs(dx(i)))
+            x(i) = x(i) + dx(i)
+         enddo
+         if (.not. geom_cart_coords_set(geom, x))
+     $        call errquit('opt_int_to_cart: geom get/set',0)
+         call sym_geom_project(geom, max(1d-6,xmax*0.1d0))
+c     
+         if (oprint) then
+            write(6,33) ipass, err
+ 33         format(' Imposing constraints:   iter =',i2,'  dqmax =',
+     $           1p,d8.1)
+         endif
+         if (err .lt. 1d-6) goto 100
+      enddo
+      if (ga_nodeid() .eq. 0) then
+         write(6,44) err
+ 44      format(/,'!! warning, imposition of constraints did not',
+     $        ' converge.  dqmax=',1p,d8.1)
+      endif
+c     
+ 100  if (.not. ma_chop_stack(l_bi))
+     $     call errquit('opt_int_to_cart: ma chop', 0)
+c     
+      call geom_bandbi(geom)
+c     
+      end
+      subroutine geom_impose_initial_values_on_q(geom,q)
+      implicit none
+#include "geomP.fh"
+      integer geom
+      double precision q(*)
+c     
+c     Munge the zmatrix variables in q so that they
+c     satisfy the users autoz requirements.
+c     
+      integer i, j, k, l, izvar, iadd, itype, ii
+c     
+      iadd = 1
+      do izvar = 1, zmt_nzvar(geom)
+         itype = zmt_izmat(iadd  ,geom)
+         i     = zmt_izmat(iadd+1,geom)
+         j     = zmt_izmat(iadd+2,geom)
+         k     = zmt_izmat(iadd+3,geom)
+         l     = zmt_izmat(iadd+4,geom)
+         if (itype .eq. 1) then
+            iadd = iadd + 3
+            do ii = 1, max_zcoord
+               if ((i.eq.zmt_ijbond(1,ii,geom) .and.
+     $              j.eq.zmt_ijbond(2,ii,geom)).or.
+     $              (j.eq.zmt_ijbond(1,ii,geom) .and.
+     $              i.eq.zmt_ijbond(2,ii,geom))) then
+                  if (abs(zmt_ijbond_val(ii,geom)-555.1212d0)
+     $                 .gt. 1d-6) then
+                     q(izvar) = zmt_ijbond_val(ii,geom)
+                  endif
+               endif
+            enddo
+         else if (itype .eq. 2) then
+            iadd = iadd + 4
+            do ii = 1, max_zcoord
+               if (((i.eq.zmt_ijkang(1,ii,geom) .and.
+     $              k.eq.zmt_ijkang(3,ii,geom)) .or.
+     $              (k.eq.zmt_ijkang(1,ii,geom) .and.
+     $              i.eq.zmt_ijkang(3,ii,geom))).and. 
+     $              (j.eq.zmt_ijkang(2,ii,geom))) then
+                  if (abs(zmt_ijkang_val(ii,geom)-555.1212d0)
+     $                 .gt. 1d-6) then
+                     q(izvar) = zmt_ijkang_val(ii,geom)
+                  endif
+               endif
+            enddo
+         else if (itype .eq. 3) then
+            iadd = iadd + 5
+            do ii = 1, max_zcoord
+               if( (i.eq.zmt_ijklto(1,ii,geom) .and.
+     $              j.eq.zmt_ijklto(2,ii,geom) .and.
+     $              k.eq.zmt_ijklto(3,ii,geom) .and.
+     $              l.eq.zmt_ijklto(4,ii,geom)) .or.
+     $              (i.eq.zmt_ijklto(1,ii,geom).and.
+     $              j.eq.zmt_ijklto(2,ii,geom) .and.
+     $              k.eq.zmt_ijklto(3,ii,geom) .and.
+     $              l.eq.zmt_ijklto(4,ii,geom)) )then
+                  if (abs(zmt_ijklto_val(ii,geom)-555.1212d0)
+     $                 .gt. 1d-6) then
+                     q(izvar) = zmt_ijklto_val(ii,geom)
+                  endif
+               endif
+            enddo
+         else
+            call errquit('geom_impose_init: itype ', itype)
+         endif
+      enddo
+c     
+      call geom_impose_constraints_on_q(geom,q)
+c     
+      end
+      subroutine geom_impose_constraints_on_q(geom,q)
+      implicit none
+#include "geomP.fh"
+      integer geom
+      double precision q(*)
+c     
+c     Munge the zmatrix variables in q so that they
+c     satisfy the input constraints.
+c     
+      double precision sum
+      integer i, j, ii, num
+      character*8 test
+      logical odone(max_nzvar)
+c     
+      do ii = 1, zmt_nzfrz(geom)
+         i = zmt_izfrz(ii,geom)
+         if (abs(zmt_izfrz_val(ii,geom)-555.1212d0).gt.1d-6)
+     $        q(i) = zmt_izfrz_val(ii,geom)
+      enddo
+c     
+      do i = 1, zmt_nzvar(geom)
+         odone(i) = .false.
+      enddo
+c     
+      do i = 1, zmt_nzvar(geom)
+         if (zmt_varname(i,geom).ne.' ' .and. (.not. odone(i))) then
+            sum = 0d0
+            num = 0
+            test = zmt_varname(i,geom)
+            do j = 1, zmt_nzvar(geom)
+               if (zmt_varname(j,geom).eq.test) then 
+                  sum = sum + q(j)*zmt_varsign(j,geom)
+                  num = num + 1
+               endif
+            enddo
+            if (num .gt. 1) then
+               sum = sum / dble(num)
+               do j = 1, zmt_nzvar(geom)
+                  if (zmt_varname(j,geom).eq.test) then 
+                     q(j) = sum*zmt_varsign(j,geom)
+                     odone(j) = .true.
+                  endif
+               enddo
+            endif
+         endif
+         odone(i) = .true.
+      enddo
+c     
       end
       subroutine geom_zmat_sane_step(geom, s)
       implicit none
@@ -5433,4 +5832,25 @@ c
       symc2y = proper(2)
 c
  9982 FORMAT('   PROPER PRINCIPAL AXIS ',I1,' = ',L4)
+      end
+      subroutine geom_zmt_remember_constants(geom)
+      implicit none
+#include "geomP.fh"
+      integer geom
+c
+c     Compute the values of the zmatrix variables and 
+c     save the values of constants
+c
+      integer ii, i
+      double precision q(max_nzvar)
+      logical geom_compute_zmatrix
+c
+      if (.not. geom_compute_zmatrix(geom,q))
+     $     call errquit('geom_zmt_remember_constants?',0)
+c
+      do ii = 1, zmt_nzfrz(geom)
+         i = zmt_izfrz(ii,geom)
+         zmt_izfrz_val(ii,geom) = q(i)
+      enddo
+c
       end

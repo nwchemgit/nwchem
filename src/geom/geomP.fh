@@ -1,5 +1,5 @@
 *
-* $Id: geomP.fh,v 1.27 1999-05-31 23:23:55 d3g681 Exp $
+* $Id: geomP.fh,v 1.28 1999-06-28 15:50:58 d3g681 Exp $
 *
 c
 c     Private fortran include file for the geometry routines
@@ -118,7 +118,10 @@ c
       parameter (max_izmat     = 4*max_nzvar)
       parameter (max_zcoord    = 16) ! For augmenting autoz
 c
-      logical active, operiodic, oefield, include_bqbq, oecpcent
+      logical active, operiodic, oefield, include_bqbq, oecpcent,
+     $     zmt_ijbond_frz, zmt_ijkang_frz, zmt_ijklto_frz,
+     $     zmt_ijklop_frz, zmt_ijklnb_frz
+
       integer ngeom_rtdb, ncenter, lenn, lent, lenr, group_number,
      $     ncenter_unique, isystype, setting_number, unique_cent,
      $     sym_op_inv, sym_num_ops, sym_center_map_handle,
@@ -131,8 +134,12 @@ c
      $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
      $     volume_direct, metric_matrix, recip_lat_vectors, 
      $     recip_lat_angles, sym_ops, angstrom_to_au,
-     $     geom_mass,bmatrix, velocities, zmt_varsign, zmt_cvr_scaling
+     $     geom_mass,bmatrix, velocities, zmt_varsign, zmt_cvr_scaling,
+     $     zmt_ijbond_val, zmt_ijkang_val, zmt_ijklto_val,
+     $     zmt_ijklop_val, zmt_ijklnb_val, zmt_izfrz_val
+
       common/cgeometry/
+*     doubles
      $     coords(3,max_cent,max_geom),
      $     velocities(3,max_cent,max_geom),
      $     charge(max_cent,max_geom),
@@ -140,8 +147,6 @@ c
      $     efield(3, max_geom),
      $     latvec(3,3, max_geom), ! Obsolete ?
      $     erep(max_geom),
-     $     zmt_varsign(max_nzvar,max_geom),
-     $     zmt_cvr_scaling(max_geom),
      $     ndipole(3,max_geom),
      $     lattice_vectors(1:3,1:max_geom),
      $     lattice_angles(1:3,1:max_geom),
@@ -154,6 +159,15 @@ c
      $     metric_matrix(3,3,max_geom),
      $     volume_direct(max_geom),
      $     angstrom_to_au,
+     $     zmt_varsign(max_nzvar,max_geom),
+     $     zmt_cvr_scaling(max_geom),
+     $     zmt_ijbond_val(max_zcoord,max_geom),
+     $     zmt_ijkang_val(max_zcoord,max_geom),
+     $     zmt_ijklto_val(max_zcoord,max_geom),
+     $     zmt_ijklop_val(max_zcoord,max_geom),
+     $     zmt_ijklnb_val(max_zcoord,max_geom),
+     $     zmt_izfrz_val(max_nzvar,max_geom),
+*     integers & logicals
      $     ncenter(max_geom),
      $     active(max_geom),
      $     lenn(max_geom),
@@ -183,14 +197,22 @@ c
      $     zmt_ijkang(3,max_zcoord,max_geom),
      $     zmt_ijklto(4,max_zcoord,max_geom),
      $     zmt_ijklop(4,max_zcoord,max_geom),
-     $     zmt_ijklnb(4,max_zcoord,max_geom)
+     $     zmt_ijklnb(4,max_zcoord,max_geom),
+     $     zmt_ijbond_frz(max_zcoord,max_geom),
+     $     zmt_ijkang_frz(max_zcoord,max_geom),
+     $     zmt_ijklto_frz(max_zcoord,max_geom),
+     $     zmt_ijklop_frz(max_zcoord,max_geom),
+     $     zmt_ijklnb_frz(max_zcoord,max_geom)
 c
       character*256 names, names_rtdb, trans
       character*16 tags
       character*10 group_name
       character*10 user_units
       character*10 sym_spgnames,sym_molgnames
-      character*8 zmt_varname, zmt_source
+      character*8 zmt_varname, zmt_source,
+     $     zmt_ijbond_nam, zmt_ijkang_nam, zmt_ijklto_nam,
+     $     zmt_ijklop_nam, zmt_ijklnb_nam
+
       common/ccgeometry/
      $     names(1:max_geom),
      $     trans(1:max_geom),
@@ -201,7 +223,12 @@ c
      $     sym_spgnames(230),
      $     sym_molgnames(46),
      $     zmt_varname(max_izmat,max_geom),
-     $     zmt_source(max_geom)
+     $     zmt_source(max_geom),
+     $     zmt_ijbond_nam(max_zcoord,max_geom),
+     $     zmt_ijkang_nam(max_zcoord,max_geom),
+     $     zmt_ijklto_nam(max_zcoord,max_geom),
+     $     zmt_ijklop_nam(max_zcoord,max_geom),
+     $     zmt_ijklnb_nam(max_zcoord,max_geom)
 c
 
 

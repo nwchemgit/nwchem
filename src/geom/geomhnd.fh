@@ -1,0 +1,8 @@
+c
+c     parallel -- if true geom_hnd_check/put/get_data broadcast
+c     data to all nodes.  if false runs sequentially
+c
+c     see geom_hnd.F
+c
+      logical parallel
+      common /cgeomhnd/ parallel
