@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.61 2002-05-08 22:51:13 bert Exp $
+c $Id: bas_input.F,v 1.62 2003-02-05 00:40:28 bert Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -1047,7 +1047,7 @@ c
 *passed
       character*(*) libname ! [output] filename for library file
 *local
-      character*128 compiled_name
+      character*256 compiled_name
       character*256 file_nwchemrc, userhome
       character*128 test
       integer length
