@@ -1090,7 +1090,7 @@ c
 00100 continue
       write(6,10000)
       return
-10000 format(80('-'))
+10000 format(100('-'))
 10001 format(1x,'<atom:',i3,'>  <x:',1pd20.10,'>  <y:',1pd20.10,
      &       '>  <z:',1pd20.10,'>')
       end
@@ -1869,9 +1869,10 @@ c do sums
                   if(idatom(iduse).gt.0) then 
                     continue
                   else
-                    ipto   = (abs(idatom(iduse)) -1)*nint + 1
-                    ipfrom = (iduse-1)*nint + 1
-                    call daxpy(nint,1.0d00,gbuf(ipfrom),1,gbuf(ipto),1)
+                    ipto   = (abs(idatom(iduse)) -1)*nint*3 + 1
+                    ipfrom = (iduse-1)*nint*3 + 1
+                    call daxpy(nint*3,1.0d00,
+     &                     gbuf(ipfrom),1,gbuf(ipto),1)
                   endif
 00500           continue
 c
@@ -1879,7 +1880,7 @@ c ... fill integral buffers
                 icount = 0
                 do 00600 iduse = 1,4
                   if (idatom(iduse).lt.1) then
-                    icount = icount + nint
+                    icount = icount + nint*3
                   else
                     id = idatom(iduse)
                     do 00700 ixyz = 1,3
@@ -2137,8 +2138,16 @@ c
           do 00300 index = 1,size2e
             if (abs(diff(index,dxyz,datom)).gt.thresh) then
               call getfromi(index,nbf,ibf,jbf,kbf,lbf)
-              ra2fd = d2e(index,dxyz,datom)/d2efd(index,dxyz,datom)
-              rfd2a = d2efd(index,dxyz,datom)/d2e(index,dxyz,datom)
+              if (abs(d2efd(index,dxyz,datom)).gt.1.0d-05) then
+                ra2fd = d2e(index,dxyz,datom)/d2efd(index,dxyz,datom)
+              else
+                ra2fd = -565.6589d00
+              endif
+              if (abs(d2e(index,dxyz,datom)).gt.1.0d-05) then
+                rfd2a = d2efd(index,dxyz,datom)/d2e(index,dxyz,datom)
+              else
+                rfd2a = -6.0201023d00
+              endif
               write(6,10000)
      &               ibf,jbf,kbf,lbf,
      &               index,dxyz,datom,diff(index,dxyz,datom),
