@@ -1,5 +1,5 @@
 /*
- $Id: pstebz11.c,v 1.5 1999-07-28 00:39:34 d3e129 Exp $
+ $Id: pstebz11.c,v 1.6 2004-10-19 21:55:10 edo Exp $
  *======================================================================
  *
  * DISCLAIMR
@@ -33,6 +33,8 @@
  */
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "globalp.c.h"
 #include "blas_lapack.h"
@@ -41,6 +43,8 @@
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
 #define ZERO  ((DoublePrecision) 0.0e0)
+extern void peigs_tldlfact(), peigs_dlasq1();
+
 
 DoublePrecision psigma, psgn;
 
@@ -214,21 +218,18 @@ void pstebz11_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
     *  Local Variables
     */
 
-   static Integer      INT = 10, INT2 = 20, DOUBLE = 200;
-   
    char msg[35], *cptr;
    char msg2[35];
    Integer range, order;
-   extern DoublePrecision dlamch_();
    
-   Integer         indx, il, iu, ifakeme, msgli, msglr, itype,
-     nhigh, numeig, irem, isize, ival, linfo, isize1,
-     iii, m, nlow, me, ncol, ii, junk, k, nn_procs,
-     nproc, msize, maxinfo, *iptr, *i_work, *proclist, ncols;
+   Integer         indx, il, iu, ifakeme, itype,
+     nhigh, numeig, irem, isize, ival, linfo,
+     iii, m, nlow, me, ncol, k, nn_procs,
+     nproc, msize, maxinfo, *i_work, *proclist;
    Integer j, i, i1split, jsplit, jjj, blksz;
    DoublePrecision *dptr, *lptr;
    
-   DoublePrecision         lstmax, emax, emin, ulp, safemn, onenrm;
+   DoublePrecision ulp, safemn, onenrm;
    
    /*
     *  External Procedures
@@ -236,15 +237,13 @@ void pstebz11_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
 
    extern Integer      mxmynd_(), mxnprc_(), mxwrit_(), mxread_(), mxbrod_();
 
-   extern void     sort_();
-   extern void     dstebz3_();
+   extern void     dstebz3_(), dstebz31_();
 
    extern Integer  menode_();
    extern Integer  neblw2_();
    extern Integer  mapchk_();
    extern void     xstop_(), pdiff(), pgexit();
    DoublePrecision leig, reig, eps, shift, tmp1, dummy, tmp; 
-   extern void dlasq1_();
    
 
 /*
@@ -675,9 +674,11 @@ void pstebz11_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      lptr = &lplus[i1split];
      peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
      
-     /*
-       printf(" i= %d d = %d jsplit %d  blksz %d \n", i, i1split, jsplit, blksz );
-       */
+     
+     //       printf(" i= %d d = %d jsplit %d  blksz %d \n", i, i1split, jsplit, blksz );
+     //     for ( jjj = 0; jjj< blksz; jjj++ )
+     //       printf(" jjj = %d dptr %f lptr %f \n", jjj, dptr[jjj], lptr[jjj]);
+       
      
      peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], work + *n );
      

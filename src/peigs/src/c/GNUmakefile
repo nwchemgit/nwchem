@@ -1,4 +1,4 @@
-## $Id: GNUmakefile,v 1.26 2000-10-24 18:25:46 d3g270 Exp $
+## $Id: GNUmakefile,v 1.27 2004-10-19 21:55:10 edo Exp $
 
 include ../../../config/makefile.h
 include ../../DEFS
@@ -71,6 +71,7 @@ COBJ  = \
          pgexit.o \
          reducemap.o\
 	pstebz10.o \
+	pstebz11.o \
 	 inv_it4.o \
 	 inv_it5.o \
 	inv_it3.o \
@@ -265,6 +266,9 @@ clustrxx5.o:	clustrxx5.c
 
 clustrxx4.o:	clustrxx4.c
 		$(peigs_CC) -c clustrxx4.c
+
+peigs_tldlfact.o:	peigs_tldlfact.c
+		$(peigs_CC) -c peigs_tldlfact.c
 
 .c.o:;	$(peigs_CC) $(OPTC) -c $<
 .f.o:;	$(peigs_FC) $(OPT) -c $<

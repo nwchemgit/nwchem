@@ -1,5 +1,5 @@
 /*
- $Id: pdspevx.c,v 1.41 2000-10-24 18:25:51 d3g270 Exp $
+ $Id: pdspevx.c,v 1.42 2004-10-19 21:55:10 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -313,7 +313,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     extern DoublePrecision dnrm2_();
 
     extern Integer  tred2();
-    extern void     pstebz10_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
+    extern void     pstebz11_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
     extern void synch_(), gmax00();
     extern void r_ritz_(), tresidd();
     
@@ -819,7 +819,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       t1 = mxclock_();
 #endif
 #ifdef DEBUG7
-      printf(" in pdspevx pstebz10 me = %d \n", mxmynd_());
+      printf(" in pdspevx pstebz11 me = %d \n", mxmynd_());
       fflush(stdout);
 #endif
       
@@ -852,7 +852,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       */
 
 	
-      pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
+      pstebz11_( irange, &msize, lb, ub, ilb, iub, abstol,
 		 dd, ee, dplus, lplus, mapZ, &neigval, 
 		 &nsplit, eval, iblock, isplit,
 		 d_scrat, i_scrat, &linfo);
@@ -887,7 +887,7 @@ for ( iii = 0; iii < msize; iii++)
       
       /*      
 	      if ( linfo != 0 ) {
-	printf(" error in peigs...pstebz10 using pstebz9 me = %d \n", me);
+	printf(" error in peigs...pstebz11 using pstebz9 me = %d \n", me);
 	fflush(stdout);
 	linfo = 0;
 	pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
@@ -907,7 +907,7 @@ for ( iii = 0; iii < msize; iii++)
      
    
 #ifdef DEBUG7
-   printf(" out pdspevx pstebz10 me = %d \n", mxmynd_());
+   printf(" out pdspevx pstebz11 me = %d \n", mxmynd_());
 #endif
    
 #ifdef TIMING

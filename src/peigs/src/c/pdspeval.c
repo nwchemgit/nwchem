@@ -1,5 +1,5 @@
 /*
- $Id: pdspeval.c,v 1.3 1999-07-28 00:39:29 d3e129 Exp $
+ $Id: pdspeval.c,v 1.4 2004-10-19 21:55:10 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -692,7 +692,7 @@ void pdspeval ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       t1 = mxclock_();
 #endif
       
-      pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee, dplus, lplus,
+      pstebz11_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee, dplus, lplus,
 		 mapZ, &neigval, &nsplit, eval, iblock, isplit,
 		 d_scrat, i_scrat, info);
       
