@@ -1,8 +1,8 @@
       Subroutine diis_driver_so(toll_s, derr, icall, MXhist, 
      &     nbf, geom, AO_bas_han, g_fock, g_dens, 
-     &     g_svecs, isvals, diis, nodiis)
+     &     g_svecs, svals, diis, nodiis)
 c
-C$Id: diis_driver_so.F,v 1.3 2000-10-23 15:52:46 windus Exp $
+C$Id: diis_driver_so.F,v 1.4 2001-11-14 17:14:39 edo Exp $
 c
       implicit none
 c      
@@ -15,7 +15,7 @@ cso      integer ipol
       integer g_tmp,g_scr,g_scr2
       integer g_svecs
       integer g_diis(2)
-      integer isvals
+      double precision svals(*)
       Integer nhist, icall
       integer geom, AO_bas_han
       double precision derr ! Diis error norm [output]
@@ -149,7 +149,7 @@ c
 c     Mat mult Fock * s-1/2
 c
       iw = 2
-      call diis_bld12_so(toll_s, dbl_mb(isvals), g_svecs, g_scr, g_tmp,
+      call diis_bld12_so(toll_s, svals, g_svecs, g_scr, g_tmp,
      &                nbf12, iw)
       call ga_zero(g_scr2)
       call ga_fock_sf(g_scr, g_scr2, nbf12)
@@ -172,7 +172,7 @@ c
 c     Mat mult S+1/2*P (transp)
 c
       iw = 3
-      call diis_bld12_so(toll_s, dbl_mb(isvals), g_svecs, g_scr, g_tmp, 
+      call diis_bld12_so(toll_s, svals, g_svecs, g_scr, g_tmp, 
      &                nbf12, iw)
       call ga_zero(g_scr2)
       call ga_fock_sf(g_scr, g_scr2, nbf12)

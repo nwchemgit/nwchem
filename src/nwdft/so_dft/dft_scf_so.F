@@ -1,9 +1,9 @@
       logical function dft_scf_so
      &                        (rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
-     &                         g_svecs, isvals, g_xcinv,g_s)
+     &                         g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.20 2001-10-18 20:10:19 edo Exp $
+c     $Id: dft_scf_so.F,v 1.21 2001-11-14 17:14:39 edo Exp $
 c     
       implicit none
 c     
@@ -13,8 +13,9 @@ c
       integer iVxc_opt
       integer iter, swap(20),no_swap, no_det, idet
       integer g_dens(2), g_movecs(2), g_vxc(4), 
-     &     g_fock, g_svecs, isvals, 
+     &     g_fock, g_svecs,
      &     g_xcinv,  g_scr
+      double precision  svals(*)
 c     so
       integer g_densso(2), g_tmp_ri,   
      &     g_moso(2), g_old(2),
@@ -68,8 +69,8 @@ c
       external ga_create_atom_blocked
 c     
       logical oprint, status
-      double precision Exc(2), rms(2), derr
-      integer noc(2), nmo(2), icall
+      double precision Exc(2), rms(2), derr(2)
+      integer noc(2), nmo(2), icall(2)
 c      integer nva
       integer n3c_dbl, n3c_int, n_batch
       integer iwhat_max
@@ -80,8 +81,6 @@ c      integer nva
       external dft_n3cdbl
       Integer l_eval
       integer k_eval(2)
-      integer lmax              ! CMM
-      integer finest            ! CMM
       integer natoms, nTotEl
 
       integer l_occ, k_occ
@@ -137,7 +136,6 @@ c      logical oconverged
       parameter(zero = 0.d0, one = 1.d0, mone=-1.0d0, onem = -one)
 c     
       integer ilo, ihi          ! For printing movecs analysis
-      integer iter_by_5, iter_ck
       double precision eval_pr_tol_lo, eval_pr_tol_hi
       parameter (eval_pr_tol_lo = -1.5d0, eval_pr_tol_hi=0.5)
 C     
@@ -166,15 +164,11 @@ c     !!! BGJ
       integer nbf1               ! Returns no. of functions in basis
 c      integer ijk
 c     
+      integer l_gdiis,k_gdiis
       logical spinor
       logical dft_mem3c
       external dft_mem3c
       call ecce_print_module_entry('dft')
-c     
-c     disabl symmetry
-c
-      oadapt=.false.
-      oskel=.false.
       dft_scf_so = .false.
       nbf_mo = 2*nbf_ao
       lmaxov_sv = lmaxov
@@ -350,7 +344,13 @@ c
          levelshifting = .false.
          rlshift = rlshift_def
       endif
-      if (nodiis)diising = .false.
+      if (nodiis) then
+         diising = .false.
+      else
+         if (.not.MA_alloc_Get(MT_int,nfock*ipol*2,
+     ,        'ga handle for diis',l_gdiis,k_gdiis))
+     ,        call errquit('dft_scf: cannot allocate g_diis',0)
+      endif
       if (ncydp.ne.0)then
          damping = .true. 
          ndamp = ndamp_input
@@ -365,7 +365,8 @@ c
 c     
 c     Initialize DIIS call counter.
 c     
-      icall = 0
+      icall(1) = 0
+      icall(2) = 0
 c     
 c     Begin the SCF cycle.
 c     
@@ -570,16 +571,6 @@ c
          call movecs_swap_so(rtdb,'dft',scftype,g_moso,
      &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
       endif
-c
-c      if (oadapt .and. spinor)then 
-c         call scf_sym_adapt_so(ao_bas_han, g_moso,
-c     &        oprint_syma, 2*nbf_ao, name,
-c     &        .true., 
-c     &        int_mb(k_ir))
-c      endif      
-      
- 1212 continue 
-      
 c     
 c     Form Re and Im of density matrix
 c     
@@ -589,7 +580,6 @@ c
      &    nmo_fon = 0
       if (.not.rtdb_get(rtdb,'sodft:nel_fon',mt_int,1,nel_fon))
      &    nel_fon = 0
-c      write(*,*)"fon=,nmo_fon=,nel_fon=", fon,nmo_fon,nel_fon
       nTotOcc = (nTotEl-nel_fon) + nmo_fon 
       if(fon)then 
          avg_fon = dble(nel_fon)/dble(nmo_fon) 
@@ -795,20 +785,6 @@ cso   <Hx>=Re(Dx) dot Vx
       Ecore = Ecore + ga_ddot(g_tmp, g_so(3))
 !      write(*,*)"Ecore+=so(x)", ecore
       noso = Ecore-noso 
-c     
-c     Perform SPM analysis
-c     
-      LSPM=.true.
-      if (.not. rtdb_get(rtdb, 'dft:cmm', mt_int, 1, lmax))
-     &                   LSPM = .false.
-      if (LSPM)then
-         lresult = geom_charge_center(geom)
-         if (.not. rtdb_get(rtdb, 'dft:finest', mt_int, 1, finest))
-     &        finest = 4
-         if (oprint_time)call dft_tstamp(' Before call to CMM.   ')
-         call dft_getspm(geom,lmax,finest,g_dens,ao_bas_han)
-         call errquit('dft_scf: end of CMM ',1234)
-      endif
 c
 c     Pre-compute reduced total density matrices over atoms
 c 
@@ -936,22 +912,12 @@ c
 c     Calculate the total electronic energy.
 c     
       if (nExc.eq.1)then
-c         write(*,*)"Ecore: ", Ecore, Ecoul, Exc(1)  
          Etnew = Ecore + Ecoul + Exc(1)
          if(det_eng)goto 2001
       else
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
-c         write(*,*)"Ecore: ", Ecore, Ecoul, Exc(1), Exc(2)  
          if(det_eng)goto 2001
       endif
-c      if (rtdb_get(rtdb, 'task:numerical', mt_log, 1, 
-c     $     numerical)) then 
-c         converged = .true. 
-c         goto 2000 
-c      endif
-c     write(6,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2): ',
-c     &           Etnew, Ecore, Ecoul, Exc(1), Exc(2)
-c     
       if (last_time_energy)then
 c     
 c     If open shell put the total density matrix back in 
@@ -986,7 +952,8 @@ c
          if (diising)then
             call diis_driver_so(toll_s, derr, icall, nfock, 
      &           nbf_mo, geom, ao_bas_han, g_fockso, g_densso, 
-     &           g_svecs, isvals, diising, nodiis)
+     &           g_svecs, svals, diising, nodiis)
+            derr(2)=derr(1)
          endif
       endif
 c     
@@ -1004,7 +971,7 @@ c
 c     Put s-1/2 in g_scr.
 c     
       iw = 2
-      call diis_bld12_so(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
+      call diis_bld12_so(toll_s, svals, g_svecs, g_scr, 
      &     g_tmp, nbf_ao, iw)
 c     
 c     map s-1/2 to the nbf_mo by nbf_mo g_scr2 
@@ -1051,7 +1018,7 @@ c
 c        Use S^+1/2 * old movecs (as a transform).
 c     
          iw = 3
-         call diis_bld12_so(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
+         call diis_bld12_so(toll_s, svals, g_svecs, g_scr, 
      &                   g_tmp, nbf_ao, iw)
          call ga_zero(g_scr2)
          call ga_fock_sf(g_scr, g_scr2, nbf_ao)
@@ -1129,7 +1096,6 @@ c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
      $           +cmplx(0d0,dbl_mb(ibuff+j-1))
          enddo 
       enddo
- 61   continue
       call ga_zero(g_moso(1))
       call ga_zero(g_moso(2))
       call ZHEEV( 'V', 'U', nbf_mo, DCpl_mb(ia), nbf_mo, 
@@ -1169,7 +1135,7 @@ c
 c        Put S^-1/2 back in g_scr2 (use g_fock as temp scr).
 c     
          iw = 2
-         call diis_bld12_so(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
+         call diis_bld12_so(toll_s, svals, g_svecs, g_scr, 
      &                   g_fock, nbf_ao, iw)
          call ga_zero(g_scr2)
          call ga_fock_sf(g_scr, g_scr2, nbf_ao)
@@ -1227,14 +1193,6 @@ c
      &        .true., 
      &        int_mb(k_ir))
       endif      
-c
-c     occasionally (every 5 iterations) clean up (by orthogonalizing
-c     away any accumulated noise) the mo vectors.
-c
-      iter_by_5 = iter/5
-      iter_ck = iter - 5*iter_by_5
-cso?      if (iter_ck.eq.0)
-cso?     &   call ga_orthog_mos(ao_bas_han, g_movecs(ispin))
 
 c
 c     save the old density matrix for damping 
@@ -1246,28 +1204,6 @@ c
 c     Form a new density matrix.
 c     
       call ga_sync 
-c      write(*,*)"nTotEl=", nTotEl
-c      if (util_print('final vectors analysis', print_default)) then
-c         do ilo = 1,max(1,nTotEl-10)
-c            if (dbl_mb(k_eval(1)+ilo-1) .ge. eval_pr_tol_lo) 
-c     &           goto 962
-c         enddo
-c 962     do ihi = min(nTotEl+10,nbf_mo), nbf_mo
-c            if (dbl_mb(k_eval(1)+ihi-1) .ge. eval_pr_tol_hi) 
-c     &           goto 9612
-c         enddo
-c         ihi = max(ihi-1,1)
-c 9612    continue
-c         if (util_print('final vectors analysis', print_high)) then
-c            ilo = 1
-c            ihi = nbf_mo
-c         endif
-c         call movecs_anal_so(ao_bas_han, ilo, ihi, 0.15d0, 
-c     &        g_moso, 
-c     &        'DFT Final Molecular Orbital Analysis', 
-c     &        .true., dbl_mb(k_eval(1)), oadapt, 
-c     &        int_mb(k_ir), .true., dbl_mb(k_occ))
-c      endif
       call ga_zero(g_densso(1))
       call ga_zero(g_densso(2)) 
 c     
@@ -1329,8 +1265,8 @@ c
          if (diising)then
             write(LuOut,2)ndamp,rlshift,
      &           iter, Etnew+Enuc,
-     &           -etold+etnew,sqrt(rms(1)),derr,current_cpu
-            if (ipol.eq.2)write(LuOut,3)sqrt(rms(2)),derr
+     &           -etold+etnew,sqrt(rms(1)),derr(1),current_cpu
+            if (ipol.eq.2)write(LuOut,3)sqrt(rms(2)),derr(2)
          else
             write(LuOut,22)ndamp,rlshift,
      &           iter, Etnew+Enuc,
@@ -1797,11 +1733,11 @@ c
 c     
 c     Shut down DIIS.
 c     
-      if (icall.gt.0)then
-         icall = -1
+      if (icall(1).gt.0)then
+         icall(1) = -1
          call diis_driver_so(toll_s, derr, icall, nfock, 
      &        nbf_mo, geom, ao_bas_han, g_fockso, g_densso, 
-     &        g_svecs, isvals, diising, nodiis)
+     &        g_svecs, svals, diising, nodiis)
       endif
 c     
 c     If open shell compute overlap of alpha orbitals with beta orbitals.
