@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.69 1998-03-04 23:17:45 mdupuis Exp $
+C     $Id: geom_input.F,v 1.70 1998-03-05 06:42:15 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -537,7 +537,7 @@ c
          status=rtdb_put(rtdb,'autoz:zcoord',mt_log,1,zcoord_input)
          status=status.or.
      1          rtdb_put(rtdb,'autoz:cvr_scaling',mt_dbl,1,  
-     2                                                   cvr_scaling)
+     2                                                 cvr_scaling)
          status=status.or.
      1          rtdb_put(rtdb,'autoz:ijbond',mt_int,2*max_zcoord,  
      2                                                    ijbond)
@@ -571,7 +571,7 @@ c
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
 c                mxcoor=max(mxcart,mxzmat)
-      parameter (cvr_factor=1.2d+00)
+      parameter (cvr_factor=1.20d+00)
       character*255 field
       logical       ready
       logical       dbug
@@ -5189,7 +5189,6 @@ c
       LOGICAL MODTOR
       LOGICAL MODOOP
       LOGICAL MODLNB
-      LOGICAL DOLINB
       LOGICAL ENDATM
       LOGICAL ENDMOD
       LOGICAL  DONE
@@ -5308,7 +5307,6 @@ C
             IJKLOP(I,MOOPA)=0
          ENDDO
       ENDDO
-      DOLINB=.FALSE.
       DO MLINB=1,MXLINB
          DO I=1,4
             IJKLNB(I,MLINB)=0
@@ -5319,6 +5317,7 @@ C
             XYZLNB(I,MLNBA)=ZERO
          ENDDO
       ENDDO
+      CVR_SCALING=1.20D+00
 C
 C     ----- READ IMPOSED BONDS, ANGLES, TORSIONS -----    
 C     ----- O-O-PLANE, LINEAR BENDS, ... IF ANY  -----
@@ -5329,7 +5328,7 @@ c
       status=rtdb_get(rtdb,'autoz:zcoord',mt_log,1,zcoord_input)
       status=status.or.        
      1       rtdb_get(rtdb,'autoz:cvr_scaling',mt_dbl,1,  
-     2                                                cvr_scaling)
+     2                                              cvr_scaling)
       status=status.or.        
      1       rtdb_get(rtdb,'autoz:ijbond',mt_int,2*max_zcoord,  
      2                                                 ijbond)
@@ -5355,7 +5354,8 @@ c
          endif
       endif
       if(dbug) then
-         write(iw,*) 'in hnd-zmtmak, cvr_scaling value = ',cvr_scaling
+         write(iw,*) 'in hnd-zmtmak, cvr_scaling value = ',
+     1                cvr_scaling
       endif
 c
       CVFAC=CVR_SCALING
@@ -5726,7 +5726,7 @@ C
          CALL HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,C,
      1                   NAT,NBNDS,IJMODS,IIMODS,NIMODS,NUMBND,
      2                   IJKANG,NUMANG,IJKLTO,NUMTOR,
-     3                   IJKLOP,NUMOOP,IJKLNB,NUMLNB,XYZLNB,DOLINB)
+     3                   IJKLOP,NUMOOP,IJKLNB,NUMLNB,XYZLNB)
 C
 C     ----- SAVE -IZMAT(1:NZMAT)-   -----
 C           SAVE -XYZLNB(1:MXLNBA)-
@@ -5949,7 +5949,7 @@ C
  9976 FORMAT(2I5,3F10.6)
  9975 FORMAT(' FORCED BOND INSERTED = ',3I5)
  9974 FORMAT(' BOND REMOVED = ',I5,' EQUIVALENT TO = ',I5)
- 8888 FORMAT(/,10X,6(1H-),/,10X,'AUTO-Z',/,10X,6(1H-))
+ 8888 FORMAT(/,10X,6(1H-),/,10X,'auto-z',/,10X,6(1H-))
  8887 FORMAT(' SOME IMPOSED BONDS           IN -ZMTMAK- ')
  8886 FORMAT('   NO IMPOSED BONDS           IN -ZMTMAK- ')
  8885 FORMAT(' SOME IMPOSED ANGLES          IN -ZMTMAK- ')
@@ -5960,13 +5960,13 @@ C
  8880 FORMAT('   NO IMPOSED O-O-PLANE-BENDS IN -ZMTMAK- ')
  8879 FORMAT(' SOME IMPOSED LINEAR-BENDS    IN -ZMTMAK- ')
  8878 FORMAT('   NO IMPOSED LINEAR-BENDS    IN -ZMTMAK- ')
- 8877 FORMAT(' ZDONE = ',L4)
+ 8877 FORMAT(' zdone = ',L4)
       END
       SUBROUTINE HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,C,
      1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,NUMBND,
      2                      IJKANG,NUMANG,IJKLTO,NUMTOR,
      3                      IJKLOP,NUMOOP,
-     4                      IJKLNB,NUMLNB,XYZLNB,DOLINB)
+     4                      IJKLNB,NUMLNB,XYZLNB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (MXATOM=500)        
       PARAMETER (MXBNDS= 8*MXATOM)
@@ -5998,11 +5998,15 @@ C
          WRITE(IW,9999)
       ENDIF
 C
+      IF(NAT.LE.1) THEN
+         ZDONE=.TRUE.
+         RETURN
+      ENDIF
+C
 C     ----- BONDS -----
 C
       CALL HND_ZMTYP1(NZVAR,NIZMAT,IZMAT,
      1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,NUMBND)
-C
       IF(DBUG) THEN
          WRITE(IW,9998)
          WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
@@ -6010,17 +6014,47 @@ C
          WRITE(IW,9995) NZVAR
       ENDIF
 C
+C     ----- SOME CHECKS FOR DIATOMICS AND TRIATOMICS -----
+C
+      IF(NAT.EQ.2) THEN
+         IF(NZVAR.EQ.1) THEN
+            ZDONE=.TRUE. 
+            RETURN
+         ELSE
+            NZVAR=0
+            ZDONE=.FALSE.
+            RETURN
+         ENDIF
+      ENDIF
+      IF(NAT.EQ.3) THEN
+         IF(NZVAR.NE.2.AND.NZVAR.NE.3) THEN
+            NZVAR=0
+            ZDONE=.FALSE.
+            RETURN
+         ENDIF
+      ENDIF
+C
 C     ----- ANGLES -----
 C
+      DOLINB=.FALSE.
       CALL HND_ZMTYP2(NZVAR,NIZMAT,IZMAT,C,
      1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKANG,NUMANG,
      2                DOLINB)
-C
       IF(DBUG) THEN
          WRITE(IW,9998)
          WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
          WRITE(IW,9996)
          WRITE(IW,9994) NZVAR
+      ENDIF
+C
+C     ----- MORE CHECKS FOR TRIATOMICS -----
+C
+      IF(NAT.EQ.3) THEN
+         IF(DOLINB) THEN
+            NZVAR=0
+            ZDONE=.FALSE.
+            RETURN
+         ENDIF
       ENDIF
 C
 C     ----- TORSIONS -----
@@ -6391,6 +6425,13 @@ C
       DIMENSION NIBNDS(  *)
       DIMENSION ERRMSG(3)        
       DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP3-'/
+C
+      DISTSQ(IAT,JAT)=(C(1,IAT)-C(1,JAT))**2+
+     1                (C(2,IAT)-C(2,JAT))**2+
+     2                (C(3,IAT)-C(3,JAT))**2
+      DOTPRD(IAT,JAT,KAT)=(C(1,IAT)-C(1,JAT))*(C(1,KAT)-C(1,JAT))+
+     1                    (C(2,IAT)-C(2,JAT))*(C(2,KAT)-C(2,JAT))+
+     2                    (C(3,IAT)-C(3,JAT))*(C(3,KAT)-C(3,JAT))
 C
       DBUG=.FALSE.
       IF(DBUG) THEN
