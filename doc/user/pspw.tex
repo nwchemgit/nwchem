@@ -7,20 +7,21 @@
                 \begin{center}
                   {\bf Algorithm} \thealgcounter: #1
                 \end{center}
-               \begin{center}\begin{enumerate} \em}
-               {\end{enumerate}\end{center}}
+               \begin{center}\begin{enumerate} \begin{em}}
+               {\end{em}\end{enumerate}\end{center}}
 
 
 A pseudopotential plane-wave (PSPW) module, which can perform Car-Parrinello
 simulations, is being implemented into the NWChem program package.  
-This module complements the capabilities of NWChem by including code 
-which allows for the calculation of density functional theory total energies 
+This module complements the capabilities of the more traditional Gaussian 
+function based approaches by including code which allows for the calculation 
+of density functional theory total energies 
 and forces with the technology based on plane-wave basis sets and 
 pseudopotentials.  Consistent with NWChem's philosophy this module is able 
 to run on a variety of architectures, including parallel supercomputers.
 
 The advantage of a PSPW method is that it has been shown to have an accuracy 
-close to chemical accuracy for many a  pplications, yet is still fast enough 
+close to chemical accuracy for many applications, yet is still fast enough 
 to treat systems containing hundreds of atoms.  Another significant advantage 
 is its ability to simulate dynamics on a ground state potential surface 
 directly at run-time.  This method's efficiency and accuracy make it a 
@@ -32,8 +33,8 @@ of complex vibrational modes that cannot be described within the harmonic
 approximation.
 
 Section \ref{sec:pspw_tasks} describes the tasks contained within the PSPW module. 
-Then the RTDB entries and datafiles used by the 
-PSPW module are described in section \ref{sec:pspw_data},  Car-Parrinello output 
+The RTDB entries and datafiles used by the 
+PSPW module are described in section \ref{sec:pspw_data}.  Car-Parrinello output 
 data files are described in section \ref{sec:pspw_cp_data}, and the minimization 
 and Car-Parrinello algorithms are described in sections 
 \ref{sec:pspw_Minimize}-\ref{sec:pspw_Car-Parrinello}. Examples of how to setup and run
@@ -120,12 +121,12 @@ PSPW
   ...
 END
 \end{verbatim}
-and to run a steepest\_descent calculation the following directive is used:
+To run a steepest\_descent calculation the following directive is used:
 \begin{verbatim}
 TASK PSPW steepest_descent 
 \end{verbatim}
 The steepest\_descent sub-block contains a great deal
-of input, including pointers to RTDB data, pointers to data, as well as
+of input, including pointers to data, as well as
 parameter input.  Listed below is the format of a STEEPEST\_DESCENT sub-block.
 \begin{verbatim}
 PSPW
@@ -133,7 +134,8 @@ PSPW
    STEEPEST_DESCENT
       CELL_NAME: <string cell_name>
       [GEOMETRY_OPTIMIZE]
-      (FORMATTED_FILENAME: <string formatted_name>)+
+      (FORMATTED_FILENAME: <string formatted_name> \
+       ...)
       INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions  default input_movecs>
       OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions default input_movecs>
       FAKE_MASS: <real fake_mass default 400000.0>
@@ -142,7 +144,7 @@ PSPW
       TOLERANCES: <real tole tolc tolr default 1.0d-9 1.0d-9 1.0d-4>
       ENERGY_CUTOFF:       <real ecut default (see input desciption)>
       WAVEFUNCTION_CUTOFF: <real wcut default (see input description)>
-      EWALD_NCUT: <integer ncut default 1>]
+      EWALD_NCUT: <integer ncut default 1>
       EWALD_RCUT: <real rcut default (see input description)>
       EXCHANGE_CORRELATION: (Vosko || PBE96  default Vosko)
       [MULLIKEN]
@@ -162,7 +164,7 @@ sub-block.
         \item $<$formatted\_name$>$ - name that points
               to a formatted\_pseudopotential file.  A file must
               be specified for each kind of ion in the simulation.
-        \item $<$input\_wavefuncitons$>$ - name that points
+        \item $<$input\_wavefunctions$>$ - name that points
               to a file containing one-electron orbitals
         \item $<$output\_wavefunctions$>$ - name that will
               point to file containing the one-electron orbitals at the
@@ -207,9 +209,9 @@ sub-block.
 
 \subsection{CONJUGATE\_GRADIENT} 
 
-The conjugate\_descent task is used to optimize the one-electron orbitals
+The conjugate\_gradient task is used to optimize the one-electron orbitals
 with respect to the total energy.  This method should be used for finer
-optimization. It is better to the the steepest\_descent task When intitially 
+optimization. It is better to use the steepest\_descent task when intitially 
 optimizing the one-electron orbitals.  A detailed description of the this method
 is described in section \ref{sec:pspw_cgmanifold}.
 
@@ -225,19 +227,20 @@ PSPW
   ...
 END
 \end{verbatim}
-and to run a conjugate\_gradient calculation the following directive is used:
+To run a conjugate\_gradient calculation the following directive is used:
 \begin{verbatim}
 TASK PSPW conjugate_gradient 
 \end{verbatim}
 The conjugate\_gradient sub-block contains a great deal
-of input, including pointers to RTDB data, pointers to data, as well as
+of input, including pointers to data, as well as
 parameter input.  Listed below is the format of a conjugate\_gradient sub-block.
 \begin{verbatim}
 PSPW
 ...
    CONJUGATE_GRADIENT
       CELL_NAME: <string cell_name>
-      {FORMATTED_FILENAME: <string formatted_name>}+
+      (FORMATTED_FILENAME: <string formatted_name> \
+       ...)
       INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions  default input_movecs>
       OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions default input_movecs>
       [FAKE_MASS: <real fake_mass default 400000.0>]
@@ -264,7 +267,7 @@ sub-block.
         \item $<$formatted\_name$>$ - name that points
               to a formatted\_pseudopotential file.  A file must
               be specified for each kind of ion in the simulation.
-        \item $<$input\_wavefuncitons$>$ - name that points
+        \item $<$input\_wavefunctions$>$ - name that points
               to a file containing one-electron orbitals
         \item $<$output\_wavefunctions$>$ - name that will
               point to file containing the one-electron orbitals at the
@@ -315,9 +318,9 @@ sub-block.
 The Car-Parrinello task is used to perform ab initio molecular dynamics
 using the scheme developed by Car and Parrinello.  In this unified ab
 initio molecular dynamics scheme the motion of the ion cores is coupled to
-a fictacious motion for the Kohn-Sham orbitals of density functional
+a fictitious motion for the Kohn-Sham orbitals of density functional
 theory.  Constant energy or constant temperature simulations can be
-performed.  A detailed description of the this method
+performed.  A detailed description of this method
 is described in section \ref{sec:pspw_Car-Parrinello}.
 
 
@@ -332,19 +335,20 @@ PSPW
   ...
 END
 \end{verbatim}
-and to run a Car-Parrinello calculation the following directive is used:
+To run a Car-Parrinello calculation the following directive is used:
 \begin{verbatim}
 TASK PSPW Car-Parrinello 
 \end{verbatim}
 The Car-Parrinello sub-block contains a great deal
-of input, including pointers to RTDB data, pointers to data, as well as
+of input, including pointers to data, as well as
 parameter input.  Listed below is the format of a Car-Parrinello sub-block.
 \begin{verbatim}
 PSPW
 ...
    Car-Parrinello
       CELL_NAME: <string cell_name>
-      {FORMATTED_FILENAME: <string formatted_name>}+
+      (FORMATTED_FILENAME: <string formatted_name> \
+       ...)
       INPUT_WAVEFUNCTION_FILENAME:    <string input_wavefunctions    default input_movecs>
       OUTPUT_WAVEFUNCTION_FILENAME:   <string output_wavefunctions   default input_movecs>
       INPUT_V_WAVEFUNCTION_FILENAME:  <string input_v_wavefunctions  default input_vmovecs>
@@ -428,9 +432,9 @@ sub-block.
                          See section \ref{sec:pspw_nose} for a description of the parameters.
                          \begin{itemize}
                              \item $<$Period\_electron$>$ $\equiv$ $P_{electron}$ 
-                                    - estimated period for fictacious electron thermostat.
+                                    - estimated period for fictitious electron thermostat.
                              \item $<$Temperature\_electron$>$ $\equiv$ $T_{electron}$ 
-                                    - temperature for fictacious electron motion
+                                    - temperature for fictitious electron motion
                              \item $<$Period\_ion$>$ $\equiv$ $P_{ion}$ 
                                     - estimated period for ionic thermostat
                              \item $<$Temperature\_ion$>$ $\equiv$ $T_{ion}$ 
@@ -463,11 +467,11 @@ sub-block.
 
 
 \subsection{PSP\_FORMATTER}
-The psp\_formatter task takes a non-seperable pseudopotential defined in
+The psp\_formatter task takes a non-separable pseudopotential defined in
 one-dimension real-space in a one-dimensional psp datafile and does two 
 things to it.  First it puts it into the semi-local form suggested by 
 Kleinman and Bylander and then it expands in in a periodic Fourier
-series defined by the simulation cell RTDB.  
+series defined by the simulation cell in the RTDB.  
 
 Input to the PSP\_FORMATTER task is contained
 within the PSP\_FORMATTER sub-block.
@@ -480,7 +484,7 @@ PSPW
   ...
 END
 \end{verbatim}
-and to run a PSP\_FORMATTER calculation the following directive is used:
+To run a PSP\_FORMATTER calculation the following directive is used:
 \begin{verbatim}
 TASK PSPW PSP_FORMATTER
 \end{verbatim}
@@ -531,7 +535,7 @@ PSPW
   ...
 END
 \end{verbatim}
-and to run a WAVEFUNCTION\_INITIALIZER calculation the following directive 
+To run a WAVEFUNCTION\_INITIALIZER calculation the following directive 
 is used:
 \begin{verbatim}
 TASK PSPW WAVEFUNCTION_INITIALIZER
@@ -544,22 +548,56 @@ PSPW
      CELL_NAME: <string cell_name>
      WAVEFUNCTION_FILENAME: <string wavefunction_name default input_movecs>
      (RESTRICTED||UNRESTRICTED)
-     if (RESTRICTED)   [RESTRICTED_ELECTRONS: <integer restricted electrons>]
-     if (UNRESTRICTED) [UP_ELECTRONS: <integer up_electrons>]
-                       [DOWN_ELECTRONS: <integer down_electrons>]
-     
-     [UP_FILLING: <integer up_filling>
-        [0 0 0 0   0]
-        {<integer kx ky kz> (-2||-1||1||2)}]
-     [DOWN_FILLING: <integer down_filling>
-        [0 0 0 0   0]
-        {<integer kx ky kz> (-2||-1||1||2)}]
+     if (RESTRICTED)   
+        RESTRICTED_ELECTRONS: <integer restricted electrons>
+     if (UNRESTRICTED) 
+        UP_ELECTRONS: <integer up_electrons>
+        DOWN_ELECTRONS: <integer down_electrons>
    END
 ...
 END
 \end{verbatim}
 The following list describes the input for the WAVEFUNCTION\_INITIALIZER
 sub-block.
+\begin{itemize}
+        \item $<$cell\_name$>$ - name that points 
+                to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
+        \item $<$wavefunction\_name$>$ - name that will point
+              to a wavefunction file.
+        \item RESTRICTED - keyword specifying that the calculation is restricted.
+        \item UNRESTRICTED - keyword specifying that the calculation is unrestricted.
+
+        \item $<$restricted\_electrons$>$ - number of restricted electrons.
+               Not used if an UNRESTRICTED calculation  
+         \item $<$up\_electrons$>$ - number of spin-up electrons.
+               Not used if a RESTRICTED calculation
+        \item $<$down\_electrons$>$ - number of spin-down electrons.
+              Not used if a RESTRICTED calculations
+\end{itemize}
+
+\subsubsection{Old Style Input (version 3.3) to WAVEFUNCTION\_INTITIALIZER}
+
+For backwards compatibility, the input to the WAVEFUNCTION\_INITIALIZER 
+sub-block can also be of the form
+\begin{verbatim}
+PSPW
+... 
+   WAVEFUNCTION_INITIALIZER
+     CELL_NAME: <string cell_name>
+     WAVEFUNCTION_FILENAME: <string wavefunction_name default input_movecs>
+     (RESTRICTED||UNRESTRICTED)
+     
+     [UP_FILLING: <integer up_filling>
+        [0 0 0   0]
+        {<integer kx ky kz> (-2||-1||1||2)}]
+     [DOWN_FILLING: <integer down_filling>
+        [0 0 0   0]
+        {<integer kx ky kz> (-2||-1||1||2)}]
+   END
+...
+END
+\end{verbatim}
+where
 \begin{itemize}
         \item $<$cell\_name$>$ - name that points 
                 to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
@@ -575,6 +613,13 @@ sub-block.
         \item $<$kx ky kz$>$ - specifies which planewave is to be filled. 
 \end{itemize}
 
+The values for the planewave $(-2||-1||1||2)$ are used to represent whether
+the specified planewave is a cosine or a sine function, in addition
+random noise can be added to these base functions. That is $+1$ 
+represents a cosine function, and $-1$ represents a sine function.
+The $+2$ and $-2$ values are used to represent a cosine function with
+random components added and a sine function with random components
+added respectively.  
 
 
 \subsection{V\_WAVEFUNCTION\_INITIALIZER}
@@ -591,7 +636,7 @@ PSPW
   ...
 END
 \end{verbatim}
-and to run a V\_WAVEFUNCTION\_INITIALIZER calculation the following directive 
+To run a V\_WAVEFUNCTION\_INITIALIZER calculation the following directive 
 is used:
 \begin{verbatim}
 TASK PSPW WAVEFUNCTION_INITIALIZER
@@ -630,7 +675,7 @@ sub-block.
 
 \subsection{WAVEFUNCTION\_EXPANDER}
 The v\_wavefunction\_initializer task is used to convert a new wavefunction
-file that span a larger grid space from an old wavefunction file.
+file that spans a larger grid space from an old wavefunction file.
 Input to the WAVEFUNCTION\_EXPANDER task is contained
 within the WAVEFUNCTION\_EXPANDER sub-block.
 \begin{verbatim}
@@ -642,7 +687,7 @@ PSPW
   ...
 END
 \end{verbatim}
-and to run a WAVEFUNCTION\_EXPANDER calculation the following directive 
+To run a WAVEFUNCTION\_EXPANDER calculation the following directive 
 is used:
 \begin{verbatim}
 TASK PSPW WAVEFUNCTION_EXPANDER
@@ -691,7 +736,7 @@ PSPW
   ...
 END
 \end{verbatim}
-and to run a PSP\_GENERATOR calculation the following directive 
+To run a PSP\_GENERATOR calculation the following directive 
 is used:
 \begin{verbatim}
 TASK PSPW PSP_GENERATOR
@@ -706,10 +751,12 @@ PSPW
       CHARGE: <real charge>
       MASS_NUMBER: <real mass_number>
       ATOMIC_FILLING: <integer ncore nvalence>
-       {n=(1||2||...) l=(s||p||d||f) <real filling[n,l]> i=1,(ncore+nvalence)}
+      ( (1||2||...) (s||p||d||f||...) <real filling> \
+         ...)
       
       [CUTOFF: <integer lmax> 
-         {l=(s||p||d||f||g) <real rcut[l]> i=1,lmax}
+         ( (s||p||d||f||g) <real rcut>\
+         ...)
       ]
       PSEUDOPOTENTIAL_TYPE: (TROULLIER-MARTINS || HAMANN default HAMANN)
       SOLVER_TYPE: (PAULI || SCRHODINGER default PAULI)
@@ -732,6 +779,7 @@ sub-block.
         \item $<$ncore$>$ - number of core states
         \item $<$nvalence$>$ - number of valence states.
         \item ATOMIC\_FILLING:.....(see below)
+        \item $<$filling$>$ - occupation of atomic state
         \item CUTOFF:....(see below) 
         \item $<$rcore$>$ - value for the semicore radius (see below) 
 \end{itemize}
@@ -891,7 +939,8 @@ and put it into the RTDB.
 PSPW
 ...
    ANALYSIS
-      {psp_filename: <string psp_name>}+
+      (psp_filename: <string psp_name> \
+       ...)
    END
 ...
 END
@@ -1096,7 +1145,7 @@ is then
 \label{eq:sd2}
 \end{eqnarray}
 where $\alpha =\frac{\Delta t}{\sqrt{\mu}}$ is a positive numerical parameter.
-In this minimization procedure we have to know variational derivative
+In this minimization procedure we have to know the variational derivative
 $\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$ and the matrix 
 $\Lambda_{ij,\sigma}$. 
 The variational derivative $\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$ 
@@ -1237,17 +1286,6 @@ X_{(n)} \leftarrow && \frac{1}{2 \alpha}(I-A) + \nonumber \\
 \label{eq:sd16}
 X_{(0)} \leftarrow && \left(\frac{I-A}{2 \alpha}\right)
 \end{eqnarray}
-The convergence of Eq.~\ref{eq:sd15} is guaranteed for small $\alpha$
-since each successive iteration has the property
-\begin{eqnarray}
-X_{(1)} &\leftarrow& X_{(0)} + O(\alpha)X_{(0)} \nonumber \\
-X_{(2)} &\leftarrow& X_{(0)} + O(\alpha) X_{(1)} 
-        = X_{(0)} + O(\alpha)X_{(0)} + O(\alpha^2)X_{(0)} \nonumber \\
-X_{(3)} &\leftarrow& X_{(0)} + O(\alpha) X_{(2)} 
-        = X_{(0)} + O(\alpha)   X_{(0)} 
-                  + O(\alpha^2) X_{(0)} 
-                  + O(\alpha^3) X_{(0)} \nonumber
-\end{eqnarray}
 
 
 \subsection{Conjugate Gradient with Curvature: Grassmann Manifold}
@@ -1268,7 +1306,7 @@ must be parallel transported to the current search point.
 These orthonormality constraint problems
 have been investigated and solved for by Edelman {\it et al} 
 (A. Edelman, T. Arias, and S.T. Smith, Siam J. Matrix Anal. Appl., 
-\textbf{20},303, (1998))..  
+\textbf{20},303, (1998)).  
 They recognized that the orthonormal Kohn-Sham
 orbitals $\{\psi_{i,\sigma}\}$ 
 belong to a quotient space called a Grassmann manifold. 
@@ -1351,8 +1389,8 @@ E(Y_{\uparrow},Y_{\downarrow}) = \sum_{\sigma}
 \end{equation}
 we are only interested in subspace spanned by $Y_\sigma$.
 This homogeneity property allows us to state that
-$E(Y_{\uparrow},Y_{\downarrow}) = E(Y_{\uparrow}Q_a,Y_{\downarrow}Q_b)$ 
-where $Q_{a/b}$ is any $N_{\sigma}$-by-$N_{\sigma}$
+$E(Y_{\uparrow},Y_{\downarrow}) = E(Y_{\uparrow}Q_{\uparrow},Y_{\downarrow}Q_{\downarrow})$ 
+where $Q_{\sigma}$ is any $N_{\sigma}$-by-$N_{\sigma}$
 orthogonal matrix (i.e. $Q$ is any group element of the orthogonal
 group $O(N_{\sigma})$).  The constrained surface that each $Y_{\sigma}$ spans
 is known as the Grassmann manifold (i.e. $Y_{\sigma}$ is a group element
@@ -1448,9 +1486,9 @@ are replaced by Eqs.~\ref{grass:2}-\ref{grass:3}.
          $H_{\sigma}^{(0)} = H_{\sigma}^{(1)}$
    \item Go to step 2.
 \end{algorithm}
-        
+\normalsize        
 
-\section{Car-Parrinello Scheme for {\it Ab Initio} Molecular Dynamics}
+\section{Car-Parrinello Scheme for Ab Initio Molecular Dynamics}
 \label{sec:pspw_Car-Parrinello}
 
 Car and Parrinello developed a unified scheme for doing {\it ab initio}
@@ -1578,104 +1616,10 @@ can be analytically found and is
                         
 \noindent
 To find the matrix $\Lambda_{ij,\sigma}$ we impose the orthonormality
-constraint on $\psi_{i,\sigma}^{t+\Delta t}$ to obtain the
-matrix Riccatti equation 
-(To simplify the following equations we define the following symbols
-$\bar{\psi}_{i,\sigma}^{t} = 2 \psi_{i,\sigma}^{t} -\psi_{i,\sigma}^{t-\Delta t}
-              + \frac{(\Delta t)^2}{\mu}
-                 \left[ \frac{\delta E}{\delta \psi_{i,\sigma}^{*}} \right]_{t}$
-and $\alpha = \frac{(\Delta t)^2}{\mu}$.
-)
+constraint on $\psi_{i,\sigma}^{t+\Delta t}$ to obtain a
+matrix Riccatti equation, and then Riccatti equation is solved by an iterative
+solution (see section ~\ref{sec:pspw_sd2}).
 
-\begin{eqnarray}
-I &=& <\psi_{i,\sigma}^{t+\Delta t} | \psi_{j,\sigma}^{t+\Delta t}> \nonumber \\
-  &=& 
-   \left( <\bar{\psi}_{i,\sigma}^{t}| 
-          + \alpha  
-            \left[
-                   \sum_{k} \Lambda_{ik,\sigma}^{*} <\psi_{k,\sigma}^{t}|
-            \right]
-   \right)
-   \left( |\bar{\psi}_{j,\sigma}^{t}> 
-          + \alpha  
-            \left[
-                   \sum_{l} |\psi_{l,\sigma}^{t}> \Lambda_{lj,\sigma} 
-            \right]
-   \right) \nonumber \\
-  &=& <\bar{\psi}_{i,\sigma}^{t}| \bar{\psi}_{j,\sigma}^{t}> \nonumber \\
-  &+& \alpha 
-       \left[
-          \sum_{k} \Lambda_{ik,\sigma}^{*} 
-                     <\psi_{k,\sigma}^{t}| \bar{\psi}_{j,\sigma}^{t}> 
-         + \sum_{l} <\bar{\psi}_{i,\sigma}^{t}| \psi_{l,\sigma}^{t}>
-                    \Lambda_{lj,\sigma} 
-       \right] \nonumber \\
-  &+& \alpha^2 
-       \left[
-                \sum_{k} \sum_{l}
-                 \Lambda_{ik,\sigma}^{*} 
-                 <\psi_{k,\sigma}^{t}|\psi_{l,\sigma}^{t}>
-                 \Lambda_{lj,\sigma} 
-       \right] \nonumber \\
-  &=& A + \alpha XB + \alpha B^{\dag}X^{\dag} + \alpha^2 XCX^{\dag} 
-\label{eq:b9}
-\end{eqnarray}
-
-\noindent
-where $X_{ij,\sigma}=\Lambda_{ij,\sigma}^{*}$ and the matrices 
-$A$, $B$, and $C$ are given by
-
-\begin{eqnarray}
-A_{ij,\sigma} &=& \int d\vec{r} 
-             \left[\bar{\psi}_{i,\sigma}^{t}(\vec{r}) 
-             \right]^{*} 
-             \left[\bar{\psi}_{j,\sigma}^{t}(\vec{r}) 
-             \right] \\
-B_{ij,\sigma} &=& \int d\vec{r} 
-             \left[\psi_{i,\sigma}^{t}(\vec{r}) 
-             \right]^{*} 
-             \left[\bar{\psi}_{j,\sigma}^{t}(\vec{r}) 
-             \right] \\
-C_{ij,\sigma} &=& \int d\vec{r} 
-             \left[\psi_{i,\sigma}^{t}(\vec{r}) 
-             \right]^{*} 
-             \left[\psi_{j,\sigma}^{t}(\vec{r}) 
-             \right]
-\end{eqnarray}
-
-\noindent
-To solve the Riccatti equation an iterative solution is setup by rewriting
-Eq.~\ref{eq:b9} in the following form.
-\begin{equation}
-\alpha^2 XCX^{\dag} + \alpha X(B-I) + \alpha (B^{\dag}-I)X^{\dag} 
- + \alpha(X + X^{\dag}) = I-A
-\end{equation}
-Since X is by definition Hermitian, $X=X^{\dag}$, and 
-\begin{eqnarray}
-A  &\approx& I + O(\alpha) \nonumber \\
-B  &\approx& I + O(\alpha)  \\
-\end{eqnarray}
-we can solve for X iteratively.
-\begin{eqnarray}
-\label{eq:b11}
-X_{(n)} \leftarrow && \frac{1}{2 \alpha}(I-A) + \nonumber \\
-                   && \frac{1}{2} \left( X_{(n-1)}(I-B)
-                    + (I-B^{\dag})X_{(n-1)}^{\dag}
-                    - \alpha X_{(n-1)}CX_{(n-1)}^{\dag} \right)  \\
-\label{eq:b12}
-X_{(0)} \leftarrow && \left(\frac{I-A}{2 \alpha}\right)
-\end{eqnarray}
-The convergence of Eq.~\ref{eq:b12} is guaranteed for small $\alpha$
-since each successive iteration has the property
-\begin{eqnarray}
-X_{(1)} &\leftarrow& X_{(0)} + O(\alpha)X_{(0)} \nonumber \\
-X_{(2)} &\leftarrow& X_{(0)} + O(\alpha) X_{(1)} 
-        = X_{(0)} + O(\alpha)X_{(0)} + O(\alpha^2)X_{(0)} \nonumber \\
-X_{(3)} &\leftarrow& X_{(0)} + O(\alpha) X_{(2)} 
-        = X_{(0)} + O(\alpha)   X_{(0)} 
-                  + O(\alpha^2) X_{(0)} 
-                  + O(\alpha^3) X_{(0)} \nonumber
-\end{eqnarray}
 
 \subsection{Constant Temperature Simulations: Nose-Hoover Thermostats}
 \label{sec:pspw_nose}
@@ -1865,16 +1809,8 @@ source tree in the file: nwchem/examples/pspw/NaCl.nw
             WAVEFUNCTION_INITIALIZER
                cell_name: small
                unrestricted
-               up_filling: 4
-                  0 0 0   0 
-                  1 0 0  -1
-                  0 1 0  -1
-                  0 0 1  -1
-               down_filling: 4
-                  0 0 0   0
-                  1 0 0  -1
-                  0 1 0   1
-                  0 0 1  -1
+               up_electrons: 4
+               down_electrons: 4
                wavefunction_filename: NaCl.small.00.elc
             END
          END
