@@ -21,8 +21,6 @@ c
 c
       integer i,j
 c
-      write(*,'(a)') 'SPACE start'
-c
       me=ga_nodeid()
       np=ga_nnodes()
 c
@@ -147,8 +145,6 @@ c
 c
       call ga_sync()
 c
-      print*,'SPACE start completed'
-c
       return
       end
       subroutine sp_dimens(lfnrst,filrst)
@@ -178,20 +174,21 @@ c
       read(lfnrst,1001) cdum
  1001 format(a1)
     1 continue
-      read(lfnrst,1002) npbtyp,box,nbxtyp
- 1002 format(i5,3f12.6,i5)
+      read(lfnrst,1002) npbtyp,nbxtyp
+ 1002 format(2i5)
+      read(lfnrst,1004) ((vlat(i,j),j=1,3),i=1,3)
+ 1004 format(3f12.6)
+      box(1)=vlat(1,1)
+      box(2)=vlat(2,2)
+      box(3)=vlat(3,3)
       read(lfnrst,1003) jdum
  1003 format(40x,i5)
       read(lfnrst,1001) cdum
-      if(nbxtyp.eq.1) then
-      read(lfnrst,1004) ((vlat(i,j),j=1,3),i=1,3)
- 1004 format(3f12.6)
-      endif
       if(jdum.ne.0) then
       read(lfnrst,1001) cdum
       endif
-      read(lfnrst,1005) nwm,nwa,nsm,nsa
- 1005 format(4i10)
+      read(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc
+ 1005 format(5i10)
       close(unit=lfnrst,status='keep')
 c
       bsize=max(rshort,half*rlong,rbox)
@@ -458,25 +455,21 @@ c
  1001 format(a1)
     1 continue
       read(lfnrst,1002,end=9997,err=9998) npbtyp,nbxtyp
- 1002 format(i5,36x,i5)
-      read(lfnrst,1003,end=9997,err=9998) jdum
- 1003 format(40x,i5)
-      read(lfnrst,1004,end=9997,err=9998) temp,tempw,temps
- 1004 format(3f12.6)
-      if(nbxtyp.eq.1) then
-      read(lfnrst,1005,end=9997,err=9998) ((vlat(i,j),j=1,3),i=1,3)
+ 1002 format(i5,i5)
+      read(lfnrst,1003,end=9997,err=9998) ((vlat(i,j),j=1,3),i=1,3)
+ 1003 format(3f12.6)
+      read(lfnrst,1004,end=9997,err=9998) jdum
+ 1004 format(40x,i5)
+      read(lfnrst,1005,end=9997,err=9998) temp,tempw,temps
  1005 format(3f12.6)
       do 2 i=1,3
+      box(i)=vlat(i,i)
+      boxh(i)=half*box(i)
       do 3 j=1,3
       vlati(i,j)=vlat(i,j)
     3 continue
-      boxh(i)=half*box(i)
     2 continue
       call matinv(vlati,3,3)
-      endif
-      do 55 i=1,3
-      boxh(i)=half*box(i)
-   55 continue
       if(jdum.ne.0) then
       read(lfnrst,1001,end=9997,err=9998) cdum
       endif
@@ -702,8 +695,8 @@ c
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       ils=ils+nold
       ihs=ils+new-1
-      jhs=jls+2
-      call ga_put(ga_s,ils,ihs,jls,jhs,xs(1,1),msa)
+      call ga_put(ga_s,ils,ihs,jls,jls+2,xs(1,1),msa)
+      call ga_put(ga_s,ils,ihs,jls+3,jls+5,vs(1,1),msa)
       endif
 c
    19 continue
@@ -1377,7 +1370,8 @@ c
 c
       return
       end
-      subroutine sp_wrtrst(lfnrst,filrst,xw,vw)
+      subroutine sp_wrtrst(lfnrst,filrst,pres,temp,tempw,temps,
+     + iwl,xw,vw,xwcr,isl,xs,vs)
 c
       implicit none
 c
@@ -1387,7 +1381,10 @@ c
 c
       integer lfnrst
       character*255 filrst
-      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa)
+      integer iwl(mwm,miw2),isl(msa,mis2)
+      real*8 pres,temp,tempw,temps
+      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
+      real*8 xs(msa,3),vs(msa,3)
 c
       integer lenscr
 c
@@ -1398,10 +1395,24 @@ c
      + call errquit('Failed to allocate bx',0)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bv',l_bv,i_bv))
      + call errquit('Failed to allocate bv',0)
+      if(.not.ma_push_get(mt_dbl,lenscr*3,'br',l_br,i_br))
+     + call errquit('Failed to allocate br',0)
+      if(.not.ma_push_get(mt_int,lenscr*max(mis2,2),'bi',l_bi,i_bi))
+     + call errquit('Failed to allocate bi',0)
+      if(.not.ma_push_get(mt_int,lenscr,'n',l_n,i_n))
+     + call errquit('Failed to allocate n',0)
 c
-      call sp_wtrst(lfnrst,filrst,xw,vw,
-     + lenscr,dbl_mb(i_bx),dbl_mb(i_bv))
+      call sp_wtrst(lfnrst,filrst,pres,temp,tempw,temps,
+     + iwl,xw,vw,xwcr,isl,xs,vs,int_mb(i_ipl),
+     + lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),dbl_mb(i_br),
+     + int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv))
 c
+      if(.not.ma_pop_stack(l_n))
+     + call errquit('Failed to deallocate n',0)
+      if(.not.ma_pop_stack(l_bi))
+     + call errquit('Failed to deallocate bi',0)
+      if(.not.ma_pop_stack(l_br))
+     + call errquit('Failed to deallocate br',0)
       if(.not.ma_pop_stack(l_bv))
      + call errquit('Failed to deallocate bv',0)
       if(.not.ma_pop_stack(l_bx))
@@ -1409,8 +1420,9 @@ c
 c
       return
       end
-      subroutine sp_wtrst(lfnr,filrst,xw,vw,
-     + nw,bxw,bvw)
+      subroutine sp_wtrst(lfnr,filrst,pres,temp,tempw,temps,
+     + iwl,xw,vw,xwcr,isl,xs,vs,
+     + ipl,nb,ibw,bxw,bvw,brw,ibs,bxs,bvs)
 c
       implicit none
 c
@@ -1418,17 +1430,23 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      integer lfnr,nw
+      integer lfnr,nb
       character*255 filrst
-      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa)
-      real*8 bxw(nw,3,mwa),bvw(nw,3,mwa)
+      real*8 pres,temp,tempw,temps
+      integer iwl(mwm,miw2),isl(msa,mis2)
+      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
+      real*8 xs(msa,3),vs(msa,3)
+      integer ipl(mbox,mip2),ibw(nb),ibs(nb)
+      real*8 bxw(nb,3,mwa),bvw(nb,3,mwa),brw(nb,3)
+      real*8 bxs(nb,3),bvs(nb,3)
 c
       integer lfnrst
+      integer i,j,k,node,ncyc,icyc,numw,nums,number,nwmn,nsan
+      integer ilp,ihp,jlp,jhp,ili,ihi,jli,jhi,ilw,ihw,jlw,jhw
+      integer ils,ihs,jls,jhs
       character*10 rdate,rtime
 c
-      lfnrst=6
-c
-      print*,'buffer size in sp_wtrst for w is ',nw
+      lfnrst=55
 c
       if(me.eq.0) then
 c
@@ -1437,8 +1455,102 @@ c     + status='unknown',err=9999)
 c
       call swatch(rdate,rtime)
 c
-      write(lfnrst,1000) rdate,rtime
- 1000 format('Restart file',/,2a10,/,' ')
+      rewind(lfnrst)
+      write(lfnrst,1000)
+ 1000 format('Restart file',/,' ',/,' ')
+      write(lfnrst,1001) 3.3,rdate,rtime
+ 1001 format(f12.6,2a10)
+      write(lfnrst,1002) npbtyp,nbxtyp,((vlat(i,j),j=1,3),i=1,3)
+ 1002 format(2i5,/,(3f12.6))
+      write(lfnrst,1003) pres
+ 1003 format(1pe12.5)
+      write(lfnrst,1004) temp,tempw,temps
+ 1004 format(3f12.6)
+      write(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc,0,0,0,0
+ 1005 format(7i10,2i5)
+c
+      if(nwm.gt.0) then
+      number=0
+      ncyc=nwm/nb+1
+      numw=nb
+      do 1 icyc=1,ncyc
+      if(nwm-number.lt.numw) numw=nwm-number
+      do 2 node=np-1,0,-1
+      call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
+      call ga_get(ga_ip,ilp,ihp,jlp,jhp,ipl,mbox)
+      nwmn=ipl(1,2)
+      if(nwmn.gt.0) then
+      call ga_distribution(ga_iw,node,ili,ihi,jli,jhi)
+      call ga_get(ga_iw,ili,ili+nwmn-1,jli,jli+lwgmn-1,iwl,mwm)
+      call ga_distribution(ga_w,node,ilw,ihw,jlw,jhw)
+      call ga_get(ga_w,ilw,ilw+nwmn-1,jlw,jlw+3*mwa-1,xw,mwm)
+      call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+3*mwa,jlw+6*mwa-1,vw,mwm)
+      call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+6*mwa,jlw+6*mwa+2,xwcr,mwm)
+      do 3 i=1,nwmn
+      j=iwl(i,lwgmn)-number
+      if(j.gt.0.and.j.le.numw) then
+      do 4 k=1,nwa
+      bxw(j,1,k)=xw(i,1,k)
+      bxw(j,2,k)=xw(i,2,k)
+      bxw(j,3,k)=xw(i,3,k)
+      bvw(j,1,k)=vw(i,1,k)
+      bvw(j,2,k)=vw(i,2,k)
+      bvw(j,3,k)=vw(i,3,k)
+    4 continue
+      brw(j,1)=xwcr(i,1)
+      brw(j,2)=xwcr(i,2)
+      brw(j,3)=xwcr(i,3)
+      ibw(j)=iwl(i,lwdyn)
+      endif
+    3 continue
+      endif
+    2 continue
+      do 5 i=1,numw
+      write(lfnrst,1006) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),k=1,nwa)
+ 1006 format(2x,6f13.8)
+      write(lfnrst,1007) ibw(i),(brw(i,k),k=1,3)
+ 1007 format(i1,1x,3f13.8)
+    5 continue
+    1 continue
+      endif
+c
+      if(nsa.gt.0) then
+      number=0
+      ncyc=nsa/nb+1
+      nums=nb
+      do 6 icyc=1,ncyc
+      if(nsa-number.lt.nums) nums=nsa-number
+      do 7 node=np-1,0,-1
+      call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
+      call ga_get(ga_ip,ilp,ihp,jlp,jhp,ipl,mbox)
+      nsan=ipl(2,2)
+      if(nsan.gt.0) then
+      call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
+      call ga_get(ga_is,ili,ili+nsan-1,jli,jli+lsgan-1,isl,msa)
+      call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
+      call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
+      call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
+      do 8 i=1,nsan
+      j=isl(i,lsgan)-number
+      if(j.gt.0.and.j.le.nums) then
+      bxs(j,1)=xs(i,1)
+      bxs(j,2)=xs(i,2)
+      bxs(j,3)=xs(i,3)
+      bvs(j,1)=vs(i,1)
+      bvs(j,2)=vs(i,2)
+      bvs(j,3)=vs(i,3)
+      ibs(j)=isl(i,lsdyn)
+      endif
+    8 continue
+      endif
+    7 continue
+      do 9 i=1,nums
+      write(lfnrst,1008) ibs(i),(bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
+ 1008 format(i1,1x,6f13.8)
+    9 continue
+    6 continue
+      endif
+c
       endif
 c
       return

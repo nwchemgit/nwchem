@@ -35,7 +35,8 @@ c
 c
       return
       end
-      subroutine sp_putixv(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
+      subroutine sp_update(node,vlatt,
+     + iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
       implicit none
 c
@@ -45,10 +46,18 @@ c
       integer node,numwm,numsa
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
-      real*8 vw(mwm,3,mwa),vs(msa,3)
+      real*8 vw(mwm,3,mwa),vs(msa,3),vlatt(3,3)
+c
+      integer i,j
 c
       call sp_gaputixv(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa,
      + int_mb(i_ipl))
+c
+      do 1 j=1,3
+      do 2 i=1,3
+      vlat(i,j)=vlatt(i,j)
+    2 continue
+    1 continue
 c
       if(me.eq.node) then
       nwmloc=numwm

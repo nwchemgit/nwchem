@@ -37,10 +37,10 @@ c
       integer madbox
       parameter(madbox=6)
 c
-      integer me,np,mex,mey,mez,nwm,nwa,nsm,nsa,mwm,mwa,msa,nsf,
+      integer me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,nsf,
      + npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
      + nwmloc,nsaloc,icbox,jcbox,jcnode
-      common/sd_dim/me,np,mex,mey,mez,nwm,nwa,nsm,nsa,mwm,mwa,msa,
+      common/sd_dim/me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,
      + nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
      + nwmloc,nsaloc,icbox,jcbox,jcnode
 c
