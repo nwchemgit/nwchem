@@ -1,7 +1,7 @@
       Subroutine dft_main0d( rtdb,
      &                      iconst, nconst )
 
-C$Id: dft_main0d.F,v 1.6 1996-01-09 17:52:51 og845 Exp $
+C$Id: dft_main0d.F,v 1.7 1996-05-01 23:52:19 og845 Exp $
       implicit none
       integer rtdb  ! rtdb handle [input]
       integer nconst
@@ -35,9 +35,11 @@ c****
       integer me,nproc,info
       double precision Enuc,Etold
       integer iter,itrscf,iscfcon,ipol,igcon,icvgtyp 
-      integer nfock,nExc,isdiag,lshift,ncysh,ndamp
+      integer nfock,nExc,lshift,ncysh,ndamp
       integer iVxc_opt,lmiss,ivcoul_opt
-      integer isvals,lsvals,iw,idum
+      integer isvals,lsvals,iw,idum,i
+      double precision toll_s
+      parameter(toll_s=1.e-5)
 
 
 c*****************************************************************************
@@ -79,7 +81,6 @@ c
       icvgtyp = iconst(36)
       nfock   = iconst(37)
       nExc    = iconst(39) + 1
-      isdiag  = iconst(46)
       lshift  = iconst(50)
       ncysh   = iconst(52)
       ndamp   = iconst(51)
@@ -269,6 +270,11 @@ c
 #else
       call ga_diag_std_seq(g_s,g_svecs,Dbl_MB(isvals))
 #endif
+        do i=me,nbf_ao-1,nproc
+          if (Dbl_MB(isvals+i).lt.toll_s)  
+     &         write(LuOut,*) ' singular eigenvalue in S matrix ',
+     &         Dbl_MB(isvals+i)
+        enddo
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)

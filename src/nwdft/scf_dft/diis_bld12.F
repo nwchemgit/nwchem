@@ -7,7 +7,7 @@ c     iwhich = 1; build S
 c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.3 1996-04-16 22:09:44 og845 Exp $
+C$Id: diis_bld12.F,v 1.4 1996-05-01 23:52:22 og845 Exp $
       implicit none
       integer isvals    ! MA dbl handle for S evals [input]
       integer iga_svecs ! GA handle for S evecs [input]
@@ -41,7 +41,7 @@ c
         do i=me+1,nbf,nproc
           aaz = Dbl_MB(isvals+i-1)
           if (aaz.lt.toll)  then
-            write(LuOut,*) ' singular eigenvalue in S matrix ',aaz
+C            write(LuOut,*) ' singular eigenvalue in S matrix ',aaz
             aaz=0.d0
           else
             aaz=1.d0/sqrt(aaz)

@@ -1,8 +1,8 @@
-      Subroutine diis_driver(ispin,ipol,icall,
+      Subroutine diis_driver(derr,ispin,ipol,icall,
      &     MXhist,nbf,geom,AO_bas_han,
      &     g_fock,g_dens,g_tmp,g_svecs,g_diis,isvals)
 
-C$Id: diis_driver.F,v 1.3 1995-12-20 03:38:45 og845 Exp $
+C$Id: diis_driver.F,v 1.4 1996-05-01 23:52:23 og845 Exp $
       implicit none
       
       integer ispin
@@ -17,6 +17,7 @@ C$Id: diis_driver.F,v 1.3 1995-12-20 03:38:45 og845 Exp $
       integer isvals
       Integer nhist(2), icall(2)
       integer geom,AO_bas_han
+      double precision derr ! Diis error norm [output]
       
       integer lpulay,npulay,ipulay
       Save lpulay,npulay,ipulay,nhist
@@ -119,7 +120,7 @@ c
 c
 c     Compute Pulays B matrix.
 c
-      call diis_core(Dbl_MB(ipulay),MXhist,nhist,
+      call diis_core(derr,Dbl_MB(ipulay),MXhist,nhist,
      &     icall,nbf,ispin,ipol,
      &     g_diis,g_tmp)
       lenp = (mxhist+1)*(mxhist+2)/2

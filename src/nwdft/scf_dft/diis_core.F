@@ -1,6 +1,6 @@
-      subroutine diis_core(pulay,mxhist,nhist,icall,nbf,ispin,ipol,
-     &     g_diis,g_err)
-C$Id: diis_core.F,v 1.4 1996-01-09 17:52:57 og845 Exp $
+      subroutine diis_core(derr,pulay,
+     &     mxhist,nhist,icall,nbf,ispin,ipol, g_diis,g_err)
+C$Id: diis_core.F,v 1.5 1996-05-01 23:52:23 og845 Exp $
       implicit none
 c
       integer mxhist
@@ -54,7 +54,7 @@ c
 c
       integer irow,ijcanon,i,j
       integer me,nproc,i1,ii,istep,ijm1,ijlast,jj,ij
-      double precision temp
+      double precision derr
       logical oprint
 c
 c
@@ -112,8 +112,8 @@ c
 c     Construct the last row of the B matrix.
 c
 
-      temp=ga_ddot(g_err,g_err)
-      if(me.eq.0.and.oprint)write(LuOut,1111)temp
+      derr=ga_ddot(g_err,g_err)
+C      if(me.eq.0.and.oprint)write(LuOut,1111)temp
       do jj = 1,nhist(ispin)
 c
         ii=(ipol+ispin-1)*mxhist+irow(icall(ispin)-jj+1)
@@ -127,6 +127,6 @@ c
 c        
       enddo
       return
- 1111 format(/,15x,'Diis error vector norm:   ',f20.10,/)
+C 1111 format(/,15x,'Diis error vector norm:   ',f20.10,/)
       end
 
