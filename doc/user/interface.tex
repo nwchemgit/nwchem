@@ -1,4 +1,4 @@
-% $Id: interface.tex,v 1.11 2002-02-08 01:09:39 windus Exp $
+% $Id: interface.tex,v 1.12 2002-02-13 21:14:37 windus Exp $
 \label{sec:interface}
 
 NWChem has interfaces to several different packages which are listed below.
@@ -97,6 +97,10 @@ in addition to the usual NWChem citation from Section \ref{sec:intro}:
 
 \subsection{Introduction}
 
+By using DIRDYVTST, a user can carry out electronic structure calculations
+with NWChem and use the resulting energies, gradients, and Hessians for
+direct dynamics calculations with \htmladdnormallink{POLYRATE}
+{http://comp.chem.umn.edu/polyrate/}.
 This program prepares the file30 input for \htmladdnormallink{POLYRATE}
 {http://comp.chem.umn.edu/polyrate/} from NWChem
 electronic structure calculations of energies, gradients and Hessians at the 
@@ -108,7 +112,12 @@ based on the \htmladdnormallink{DIRDYGAUSS program}
 {http://comp.chem.umn.edu/dirdyg/}
 and is similar to two other programs: \htmladdnormallink{DDUTILITIES}
 {http://comp.chem.umn.edu/ddutil/} and \htmladdnormallink{GAUSSRATE}
-{http://comp.chem.umn.edu/gaussrate/}.
+{http://comp.chem.umn.edu/gaussrate/}.  Users of this module are
+encouraged to read the 
+\htmladdnormallink{POLYRATE}
+{http://comp.chem.umn.edu/polyrate/} manual since they will need to
+create the file fu5 input to run calculations with \htmladdnormallink{POLYRATE}
+{http://comp.chem.umn.edu/polyrate/}.
 
 Notes about the code:
 
@@ -117,7 +126,8 @@ the \verb+POLYRATE+ code.
 
 Output.  There is one default output file for each \verb+DIRDYVTST+ run - .file30.
 
-Integrators.  Currently the Euler and three Page-McIver (PM) methods 
+Integrators for following the reaction path.  
+Currently the Euler and three Page-McIver (PM) methods 
 are implemented.  The PM methods are the local quadratic approximation 
 (LQA), the corrected LQA (CLQA), and the cubic (CUBE) algorithm.
 The PM methods are implemented so that the Hessian can be reused at
@@ -129,6 +139,26 @@ intermediate steps at which only the gradient is updated.
 Test runs are located in directories in \verb+$NWCHEM_TOP/QA/tests+.  Test 
 runs are available for three systems: $H + H_2$, $OH + H_2$, and $OH + C_2H_4$.
 
+There are two $H + H_2$ tests.
+Both use the Euler integration method at the SCF/3-21G level
+of theory to calculate points along the reaction path.
+The first one,  \verb+$NWCHEM_TOP/QA/tests/h3tr1+, calculates a few
+points along the surface.  The second one, \verb+$NWCHEM_TOP/QA/tests/h3tr2+,
+is a restart of the h3tr1 calculation.
+
+The $OH + H_2$ test uses the Page-McIver CUBE algorithm to calculate points
+on the SCF/3-21G surface and does additional single point calculations at
+the SCF/6-31G* level of theory.  This test is located in the
+\verb+$NWCHEM_TOP/QA/tests/oh3tr3+ directory.
+
+The $OH + C_2H_4$ test uses the Page-McIver LQA method to calculate points
+on the SCF/3-21G surface.  This test case is located in the
+\verb+$NWCHEM_TOP/QA/tests/c2h5otr1+ directory.
+
+Note: All of these tests are set up with SCF, however, other levels of
+theory can be used.  The initial hessian calculations at the reactants,
+products and saddle point can cause some problems when numerical hessians
+are required (especially when there is symmetry breaking in the wavefunction).
 
 \subsection{Detailed description of the input}
 
@@ -149,8 +179,8 @@ of the form:
 \subsubsection{Use of symmetry}
 The use of symmetry in the calculation is controlled by the keyword
 \verb+autosym | noautosym+ which is used as described in the geometry
-directive (see Section \ref{sec:geom}).  However, in this case
-\verb+autosym+ is on by default.  A couple words of warning here.
+directive (see Section \ref{sec:geom}).  
+\verb+Autosym+ is on by default.  A couple words of warning here.
 The tolerance related to \verb+autosym+ can cause problems when taking the
 initial step off of the transition state.  If the tolerance is too large and
 the initial step relatively small,
@@ -160,7 +190,10 @@ To check this, the code prints out the symmetry at each geometry along the
 path.  It is up to the user to check the symmetry and make sure that
 it is the required one.  In preverse cases, the user may need to turn
 \verb+autosym+ off (\verb+noautosym+) if changing the tolerance doesn't
-produce the desired results.
+produce the desired results.  In the case that autosym is used, the
+user does not need to worry about the different alignment of the molecule
+between NWChem and POLYRATE, this is taken care of internally in the
+DIRDYVTST module.
 
 \subsubsection{Basis specification}
 The basis name on the theory or sptheory directive is that
@@ -406,9 +439,9 @@ scf
 end
 
 dirdyvtst autosym 0.001
-  theory scf input "scf\; uhf\; doublet\; thresh 1.0e-06\; end"
+  theory scf input "scf; uhf; doublet; thresh 1.0e-06; end"
   sptheory mp2 basis singlepoint input \
-    "scf\; uhf\; doublet\; thresh 1.0e-07\; end"
+    "scf; uhf; doublet; thresh 1.0e-07; end"
 *GENERAL
   TITLE
     Test run: H+H2 reaction, Page-McIver CLQA algorithm, no restart
