@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, facj, fack,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.19 2001-11-16 02:08:33 edo Exp $
+c$Id: fock_2e.F,v 1.20 2001-11-17 01:10:13 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -30,7 +30,7 @@ c     !!! BGJ test !!!
       integer maxfocks
       parameter(maxfocks=1000)
       integer g_xc ! Assume no more than 1000 fock matrices !!!
-      double precision kfac(maxfocks), jfac(maxfocks)
+      double precision kfac(maxfocks), jfac(maxfocks),ffac
       integer ga_create_atom_blocked
       integer vg_fockc
       integer dims(3), chunk(3)
@@ -157,13 +157,18 @@ c     since there is no explicit way to pass in an XC scaling factor, yet
 c     the 2nd derivative code uses a scale factor of 8 for the OO part of
 c     the CPSCF RHS that needs to be applied to XC also.
             if (facj(ifock) .ne. 1d0 .and. facj(ifock) .ne. 8d0) then
-               write(*,*)'*** Scaling XC matrix',ifock,' by',facj(ifock)
-               call errquit('Unexpected XC scale factor in fock_2e',0)
+               write(*,*)'cant Scale XC matrix',ifock,' by',facj(ifock)
+               ffac=fack(ifock)
+               write(*,*)'*** Scaling XC matrix',ifock,' by',ffac
+!               call errquit('Unexpected XC scale factor in fock_2e',0)
+            else
+               ffac=facj(ifock)
             endif
 !            call ga_add(facj(ifock), g_xc(ifock), 1.0d0, vg_fock(ifock),
 !     &           vg_fock(ifock))
             if(ga_nodeid().eq.0) then
                call dft_3dget(g_xc,dbl_mb(k_buf),ifock,nbf)
+               call dscal(nbf, ffac, dbl_mb(k_buf), 1)
               call ga_acc(vg_fock(ifock), 1, nbf, 1, nbf, 
      ,              dbl_mb(k_buf), nbf,1d0)
             endif
@@ -188,7 +193,7 @@ c     !!! BGJ test !!!
       return
       end
       subroutine dft_3dget(g_fock,buf,imat,nbf)
-C$Id: fock_2e.F,v 1.19 2001-11-16 02:08:33 edo Exp $
+C$Id: fock_2e.F,v 1.20 2001-11-17 01:10:13 edo Exp $
       implicit none
       integer g_fock
       integer imat
