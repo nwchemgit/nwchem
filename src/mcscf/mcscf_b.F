@@ -25,7 +25,6 @@ c
       integer g_movecs                                 ! [input] MO vectors
       integer g_ifock                                  ! [input] Inactive Fock
       integer g_afock                                  ! [input] Active Fock
-      integer g_gfock                                  ! [input] General Fock
       integer g_coul                                   ! [input] Coulomb operator
       integer g_exch                                   ! [input] Exchange operator
       integer g_u                                      ! [input] Unitrary transformation

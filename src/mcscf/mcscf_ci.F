@@ -55,7 +55,6 @@ c
       integer l_h1, k_h1
       integer l_eri, k_eri
       integer g_civec, g_wvec(mxworkvec)
-      INTEGER J,II
       character*20 vstr
       character*255 civec_in
       logical civec_saved
@@ -267,7 +266,7 @@ c
       double precision eri(ntij,ntij)
 c
       integer i, j, k, l, gij, ij, kl, ii, jj
-      integer coff, kk, klo, khi, n2
+      integer coff, kk, klo, khi
       integer l_t,k_t
       double precision xx
       integer type, ncol, nrow

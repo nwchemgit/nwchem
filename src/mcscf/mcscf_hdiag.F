@@ -22,7 +22,6 @@ c
        integer l_dg, k_dg
        integer l_tmp, k_tmp
 
-       INTEGER L_TMP2, K_TMP2, VLEN
        double precision di, da, dg
        di(i) = dbl_mb(k_di + i - 1)
        da(i) = dbl_mb(k_da + i - 1)
@@ -273,19 +272,15 @@ c
 c
 c
 c
-       integer nvir, voff, ooff, xoff, vlen
-       integer i, j, ii, jj, ij
-       double precision xxi, xx, denom, yy
-       integer l_di, k_di
-       integer l_da, k_da
-       integer l_dg, k_dg
-       integer l_v, k_v
+       integer nvir, voff, ooff, vlen
+       integer i
+       double precision xx, yy
        integer numnodes, myid
 c
-       double precision di, da, dg
-       di(i) = dbl_mb(k_di + i - 1)
-       da(i) = dbl_mb(k_da + i - 1)
-       dg(i) = dbl_mb(k_dg + i - 1)
+*       double precision di, da, dg
+*       di(i) = dbl_mb(k_di + i - 1)
+*       da(i) = dbl_mb(k_da + i - 1)
+*       dg(i) = dbl_mb(k_dg + i - 1)
 c
 c
        nvir = nbf - nclosed - nact
@@ -309,82 +304,84 @@ c
 c
 c
 c
-       if (.not.ma_push_get(MT_DBL,nbf,'Fi diag',l_di,k_di))
-     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
-       if (.not.ma_push_get(MT_DBL,nbf,'Fa diag',l_da,k_da))
-     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
-       if (.not.ma_push_get(MT_DBL,nbf,'Fg diag',l_dg,k_dg))
-     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
-       if (.not.ma_push_get(MT_DBL,vlen,'Fg diag',l_v,k_v))
-     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
+c     DEAD CODE ?
 c
-c
-c
-       do i=1,nbf
-         call ga_get(g_ifock,i,i,i,i,dbl_mb(k_di+i-1),1)
-         call ga_get(g_afock,i,i,i,i,dbl_mb(k_da+i-1),1)
-         call ga_get(g_gfock,i,i,i,i,dbl_mb(k_dg+i-1),1)
-       enddo
-c
-c
-c
-       do i=1,nclosed
-         xxi = di(i) + da(i)
-         do j=1,nvir
-           jj = voff + j - 1
-           ij = (i-1)*nvir + j
-           call ga_get(g_x,ij,ij,1,1,xx,1)
-           dbl_mb(k_v+ij-1) = 4.d0*(di(jj)+da(jj)-xxi)
-           xx = xx/(4.d0*(di(jj)+da(jj)-xxi)+lshift)
-           call ga_put(g_x,ij,ij,1,1,xx,1)
-         enddo
-       enddo
-
-       write(6,901) (di(voff+j-1),j=1,nvir)
-       xoff = nclosed*nvir
-       do i=1,nact
-         ii = ooff + i - 1
-         do j=1,nvir
-           jj = voff + j - 1
-           ij = xoff + (i-1)*nvir + j
-           call ga_get(g_x,ij,ij,1,1,xx,1)
-           dbl_mb(k_v+ij-1) = 2.d0*(dm1(i,i)*di(jj)-dg(ii))
-           xx = xx/(2.d0*(dm1(i,i)*di(jj)-dg(ii)) + lshift)
-           call ga_put(g_x,ij,ij,1,1,xx,1)
-         enddo
-       enddo
-
-       xoff = xoff + nact*nvir
-       do i=1,nclosed
-         xxi = di(i) + da(i)
-         do j=1,nact
-           jj = ooff + j - 1
-           ij = xoff + (i-1)*nact + j
-           call ga_get(g_x,ij,ij,1,1,xx,1)
-           dbl_mb(k_v+ij-1) = 2.d0*(dm1(j,j)*di(i) - dg(jj) +
-     $                        2.d0*(di(jj)+da(jj)) - 2.d0*xxi)
-           xx = xx/(2.d0*(dm1(j,j)*di(i) - dg(jj) +
-     $             2.d0*(di(jj)+da(jj)) - 2.d0*xxi) + lshift)
-           call ga_put(g_x,ij,ij,1,1,xx,1)
-         enddo
-       enddo
-
-       WRITE(6,900)
- 900   FORMAT('1E HESSIAN DIAGONAL')
-       WRITE(6,901) (DBL_MB(K_V+I-1),I=1,VLEN)
- 901   FORMAT(10F12.6)
-c
-c
-c
-10000  continue
-       if (.not.ma_pop_stack(l_v))
-     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
-       if (.not.ma_pop_stack(l_dg))
-     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
-       if (.not.ma_pop_stack(l_da))
-     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
-       if (.not.ma_pop_stack(l_di))
-     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
+c$$$       if (.not.ma_push_get(MT_DBL,nbf,'Fi diag',l_di,k_di))
+c$$$     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
+c$$$       if (.not.ma_push_get(MT_DBL,nbf,'Fa diag',l_da,k_da))
+c$$$     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
+c$$$       if (.not.ma_push_get(MT_DBL,nbf,'Fg diag',l_dg,k_dg))
+c$$$     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
+c$$$       if (.not.ma_push_get(MT_DBL,vlen,'Fg diag',l_v,k_v))
+c$$$     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
+c$$$c
+c$$$c
+c$$$c
+c$$$       do i=1,nbf
+c$$$         call ga_get(g_ifock,i,i,i,i,dbl_mb(k_di+i-1),1)
+c$$$         call ga_get(g_afock,i,i,i,i,dbl_mb(k_da+i-1),1)
+c$$$         call ga_get(g_gfock,i,i,i,i,dbl_mb(k_dg+i-1),1)
+c$$$       enddo
+c$$$c
+c$$$c
+c$$$c
+c$$$       do i=1,nclosed
+c$$$         xxi = di(i) + da(i)
+c$$$         do j=1,nvir
+c$$$           jj = voff + j - 1
+c$$$           ij = (i-1)*nvir + j
+c$$$           call ga_get(g_x,ij,ij,1,1,xx,1)
+c$$$           dbl_mb(k_v+ij-1) = 4.d0*(di(jj)+da(jj)-xxi)
+c$$$           xx = xx/(4.d0*(di(jj)+da(jj)-xxi)+lshift)
+c$$$           call ga_put(g_x,ij,ij,1,1,xx,1)
+c$$$         enddo
+c$$$       enddo
+c$$$
+c$$$       write(6,901) (di(voff+j-1),j=1,nvir)
+c$$$       xoff = nclosed*nvir
+c$$$       do i=1,nact
+c$$$         ii = ooff + i - 1
+c$$$         do j=1,nvir
+c$$$           jj = voff + j - 1
+c$$$           ij = xoff + (i-1)*nvir + j
+c$$$           call ga_get(g_x,ij,ij,1,1,xx,1)
+c$$$           dbl_mb(k_v+ij-1) = 2.d0*(dm1(i,i)*di(jj)-dg(ii))
+c$$$           xx = xx/(2.d0*(dm1(i,i)*di(jj)-dg(ii)) + lshift)
+c$$$           call ga_put(g_x,ij,ij,1,1,xx,1)
+c$$$         enddo
+c$$$       enddo
+c$$$
+c$$$       xoff = xoff + nact*nvir
+c$$$       do i=1,nclosed
+c$$$         xxi = di(i) + da(i)
+c$$$         do j=1,nact
+c$$$           jj = ooff + j - 1
+c$$$           ij = xoff + (i-1)*nact + j
+c$$$           call ga_get(g_x,ij,ij,1,1,xx,1)
+c$$$           dbl_mb(k_v+ij-1) = 2.d0*(dm1(j,j)*di(i) - dg(jj) +
+c$$$     $                        2.d0*(di(jj)+da(jj)) - 2.d0*xxi)
+c$$$           xx = xx/(2.d0*(dm1(j,j)*di(i) - dg(jj) +
+c$$$     $             2.d0*(di(jj)+da(jj)) - 2.d0*xxi) + lshift)
+c$$$           call ga_put(g_x,ij,ij,1,1,xx,1)
+c$$$         enddo
+c$$$       enddo
+c$$$
+c$$$       WRITE(6,900)
+c$$$ 900   FORMAT('1E HESSIAN DIAGONAL')
+c$$$       WRITE(6,901) (DBL_MB(K_V+I-1),I=1,VLEN)
+c$$$ 901   FORMAT(10F12.6)
+c$$$c
+c$$$c
+c$$$c
+c$$$10000  continue
+c$$$       if (.not.ma_pop_stack(l_v))
+c$$$     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
+c$$$       if (.not.ma_pop_stack(l_dg))
+c$$$     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
+c$$$       if (.not.ma_pop_stack(l_da))
+c$$$     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
+c$$$       if (.not.ma_pop_stack(l_di))
+c$$$     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
 
  1000  continue
 c
@@ -440,18 +437,8 @@ c
 c
 c
        integer nvir, voff, ooff, xoff, vlen, xend
-       integer i, j, ii, jj, ij
-       double precision xxi, xx, denom, yy
-       integer l_di, k_di
-       integer l_da, k_da
-       integer l_dg, k_dg
-       integer l_v, k_v
-c
-       double precision di, da, dg
-       di(i) = dbl_mb(k_di + i - 1)
-       da(i) = dbl_mb(k_da + i - 1)
-       dg(i) = dbl_mb(k_dg + i - 1)
-c
+       integer i
+       double precision xx, yy
 c
        nvir = nbf - nclosed - nact
        voff = nclosed + nact + 1

@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.30 1997-02-13 02:45:07 d3g681 Exp $
+c  $Id: mcscf_orb.F,v 1.31 1997-02-14 18:30:39 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -206,7 +206,8 @@ C       bshift = lshift*0.1d0
 c
 c  Check on vanishing/negative Hessian diagonals
 c
-       call mcscf_chk_hdiag( pflg, vlen, g_hdiag, lshift, hmin, hmax )
+       call mcscf_chk_hdiag( pflg, vlen, g_hdiag, lshift, hmin, hmax,
+     $      oprconv)
 c       CALL GA_ROWPRINT(' Scaled Hessian Diag ', G_HDIAG )
 c
 c  Precondition accuracy (same as rohf code)
@@ -806,7 +807,7 @@ c  positive definite
 c
 
        subroutine mcscf_chk_hdiag( pflg, vlen, g_hdiag, lshift,
-     $                             hmin, hmax )
+     $                             hmin, hmax, oprconv )
        implicit none
 #include "global.fh"
 #include "msgids.fh"
@@ -818,6 +819,8 @@ c
        
        integer i, ismall
        double precision yy
+
+       logical oprconv          ! [input] if true then print
 
        if (pflg.gt.1) then
          hmax = -10.d0
