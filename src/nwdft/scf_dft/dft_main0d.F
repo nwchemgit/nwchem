@@ -1,13 +1,13 @@
       Subroutine dft_main0d( rtdb,
      &                      iconst, nconst )
 
-C$Id: dft_main0d.F,v 1.5 1995-11-03 00:07:03 og845 Exp $
+C$Id: dft_main0d.F,v 1.6 1996-01-09 17:52:51 og845 Exp $
       implicit none
       integer rtdb  ! rtdb handle [input]
       integer nconst
       integer iconst(*)
 
-      Logical LResult,CDFIT,XCFIT,IOLGC
+      Logical LResult,CDFIT,XCFIT,IOLGC,oprint_time
 
 c**** 
 
@@ -19,6 +19,7 @@ c****
 #include "stdio.fh"
 #include "cdft.fh"
 #include "global.fh"
+#include "util.fh"
 #include "tcgmsg.fh"
 #include "schwarz.fh"
 #include "msgids.fh"
@@ -48,6 +49,7 @@ c*****************************************************************************
 
       me = ga_nodeid()
       nproc = ga_nnodes()
+      oprint_time=util_print('dft timings',print_high)
       call schwarz_init(geom,AO_bas_han)
       IOLGC=.TRUE.
       if(iconst(49).eq.1) IOLGC=.FALSE.
@@ -361,12 +363,14 @@ c
       call ga_sync
 c     
 #if defined(DFT_TIMER)
+      if(oprint_time) then
       if(me.eq.0)then
         ltime = LuOut
         write(ltime,*)
       endif  
       pgmname=' SCFDRIVER'
       call t_stat(10,2)
+      endif
 #endif
 c     
 #if defined(DFT_GASTAT)

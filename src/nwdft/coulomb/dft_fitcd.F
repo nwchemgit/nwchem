@@ -29,6 +29,7 @@ c****
 #include "stdio.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "util.fh"
 #include "schwarz.fh"
 #include "msgids.fh"
 
@@ -43,9 +44,10 @@ c****
      ,     ifirst,ilast,nshbf,maxg,ish,lmiss
       integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
      ,     lscr,iscr
-      double precision dabsmax,ddot
+      logical oprint
+      double precision dabsmax
       integer nxtask
-      external dabsmax,ddot,nxtask
+      external dabsmax,nxtask
       
 #if defined(DFT_TIMER)
       integer nsh_blocks,niter,ntasks
@@ -66,6 +68,7 @@ c******************************************************************************
       call t_stat(10,-1)
       call dft_second(ts1)
 #endif
+      oprint = util_print('coulomb fit', print_high)
       nproc  = ga_nnodes()
       me = ga_nodeid()
       
@@ -326,7 +329,7 @@ c
       call tcllct(t_sub(1,5),ts2,ts1)
 #endif
       
-      if( me.eq.0 )then
+      if(oprint.and.me.eq.0 )then
         write(LuOut,*)
         write(LuOut,*) '        LSQ Fit of the Electron Density '
         write(LuOut,'(a,f20.10)')

@@ -1,6 +1,6 @@
       subroutine dft_scfcvg(rms,etold,etnew,Enuc,scfcon,
      &igcon,iter,itrscf,idone,converged,rtdb)
-C$Id: dft_scfcvg.F,v 1.3 1995-12-20 03:27:05 og845 Exp $
+C$Id: dft_scfcvg.F,v 1.4 1996-01-09 17:52:55 og845 Exp $
       implicit none
 
       double precision rms   ! [output]
@@ -18,21 +18,23 @@ C$Id: dft_scfcvg.F,v 1.3 1995-12-20 03:27:05 og845 Exp $
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
 #include "rtdb.fh"
 c
-      logical DENSITY,status
+      logical DENSITY,status,oprint_c,oprint_i
       integer me,nproc,iswitch
       double precision de,abde
 c
       idone=0
       converged = .false.
       me=ga_nodeid()
-      nproc=ga_nnodes()
 c
 c-->  Check to see if convergence on density is required.
 c 
+      oprint_c=util_print('convergence',print_high)
+      oprint_i=util_print('information',print_low)
       DENSITY = igcon.gt.0
 c
 c-->  Evaluate change in energy.
@@ -42,7 +44,7 @@ c
 c
 c-->  Check to see if energy increased.
 c
-      if( me.eq.0 )then
+      if( me.eq.0.and.oprint_c) then
        if(de.gt.0.D0) write(LuOut,9050)
       end if
 c
@@ -50,10 +52,10 @@ c-->  Check to see if energy is converged.
 c
       if((abde.lt.scfcon).and.(.not.DENSITY))then
         idone=1
-        if( me.eq.0 )then
+        if( me.eq.0.and.oprint_i)then
          write(LuOut,9150)
          write(LuOut,9100)etnew,de
-         write(LuOut,9200)Enuc
+C         write(LuOut,9200)Enuc
          write(LuOut,9250)Enuc+etnew
         end if
         converged = .true.
@@ -75,11 +77,11 @@ c
           idone=idone*iswitch
 
           if(idone.eq.1)then
-            if( me.eq.0 )then
+            if( me.eq.0.and.oprint_i)then
              write(LuOut,9350)
              write(LuOut,9100)etnew,de
              write(LuOut,9400)dsqrt(rms)
-             write(LuOut,9200)Enuc
+C             write(LuOut,9200)Enuc
              write(LuOut,9250)Enuc+etnew
             end if
             converged = .true.
@@ -95,14 +97,14 @@ c
  1000  if(iter.lt.1)then
          return
        elseif(iter.lt.itrscf)then
-         if( me.eq.0 )then
+         if( me.eq.0.and.oprint_i )then
            write(LuOut,9100)etnew,de
            write(LuOut,9250)Enuc+etnew
            if(DENSITY)write(LuOut,9400)dsqrt(rms)
          end if
        elseif(iter.eq.itrscf)then
          idone=1
-         if( me.eq.0 )then
+         if( me.eq.0.and.oprint_i)then
            write(LuOut,9300)
            write(LuOut,9100)etnew,de
            write(LuOut,9200)Enuc

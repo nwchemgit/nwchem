@@ -1,6 +1,6 @@
       subroutine diis_core(pulay,mxhist,nhist,icall,nbf,ispin,ipol,
      &     g_diis,g_err)
-C$Id: diis_core.F,v 1.3 1995-12-28 00:01:18 og845 Exp $
+C$Id: diis_core.F,v 1.4 1996-01-09 17:52:57 og845 Exp $
       implicit none
 c
       integer mxhist
@@ -50,14 +50,17 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "util.fh"
 c
       integer irow,ijcanon,i,j
       integer me,nproc,i1,ii,istep,ijm1,ijlast,jj,ij
       double precision temp
+      logical oprint
 c
 c
       irow(j) = mod(j-1,mxhist)+1
       ijcanon(i,j) = i*(i-1)/2 +j
+      oprint = util_print('convergence', print_default)
       me=ga_nodeid()
       nproc=ga_nnodes()
 c
@@ -110,7 +113,7 @@ c     Construct the last row of the B matrix.
 c
 
       temp=ga_ddot(g_err,g_err)
-      if(me.eq.0)write(LuOut,1111)temp
+      if(me.eq.0.and.oprint)write(LuOut,1111)temp
       do jj = 1,nhist(ispin)
 c
         ii=(ipol+ispin-1)*mxhist+irow(icall(ispin)-jj+1)

@@ -1,11 +1,11 @@
       Subroutine dft_scf(rtdb,
      &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
      &     iconst,nconst,iter,
-     &     g_dens,g_evecs,g_olddens,g_vxc,
+     &     g_dens,g_movecs,g_olddens,g_vxc,
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.21 1995-12-27 23:30:04 og845 Exp $
+C$Id: dft_scf.F,v 1.22 1996-01-09 17:52:53 og845 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -13,7 +13,7 @@ C$Id: dft_scf.F,v 1.21 1995-12-27 23:30:04 og845 Exp $
       integer iVcoul_opt
       integer iVxc_opt
       integer iconst(*),nconst,iter
-      integer g_dens(*),g_evecs(*),g_olddens,g_vxc(*),
+      integer g_dens(*),g_movecs(*),g_olddens,g_vxc(*),
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri
       
@@ -26,6 +26,7 @@ c**** patches for SC95,  ECCE' parsing
 #include "context.fh"
 
 #include "mafdecls.fh"
+#include "util.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "cfock.fh"
@@ -39,12 +40,13 @@ c**** patches for SC95,  ECCE' parsing
 #endif
       Logical movecs_write, movecs_read_header, movecs_read
       External movecs_write,movecs_read_header, movecs_read
+      logical oprint,oprint_sym,oadapt
       
       double precision Exc(2)
       integer noc(2),nmo(2),nmo_read(2),icall(2)
 
-      Integer lSbn2,Type
-      integer iSbn2(2)
+      Integer l_eval,Type
+      integer k_eval(2)
       Character*255 movecs_out,movecs_in
       character*255 title_vecs, basis_vecs
       Character*255 name, trans 
@@ -71,7 +73,7 @@ c**** patches for SC95,  ECCE' parsing
       integer l_bfshift,n_bfshift,i_bfshift
       integer icvgtyp,iaoacc,iswitc
       integer itol_max,iaoacc_max
-      integer imull,iguess,idmtot
+      integer imull,iguess,idmtot,nshells,nprint
       integer leneval,lcd_coef,icd_coef
       double precision ecoul,rb,facto,ecore,afact,anps,aaz
       double precision rms,pp,bb,delta
@@ -81,6 +83,8 @@ c**** patches for SC95,  ECCE' parsing
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
       logical converged,XCFIT,wght_GA
       logical lfocka,lfockb,lmaxov
+      logical oprint_parm,oprint_conv,oprint_vecs,
+     ,     oprint_eval ,oprint_syma,oprint_time
       integer itol_min,iAOacc_min,iscfcon
       double precision scfcon
       double precision zero,onem,one
@@ -95,11 +99,23 @@ c**** patches for SC95,  ECCE' parsing
       integer n_homo, n_lumo            ! # of HOMOs, LUMOs to output to stdout
 #endif      
 c-----------------------------------------------------------------------
+      oprint = util_print('information',print_low)
+      oprint_parm = util_print('parameters', print_default)
+      oprint_conv = util_print('convergence', print_default)
+      oprint_vecs = util_print('intermediate vectors', print_high)
+      oprint_eval = util_print('intermediate evals', print_high)
+      oprint_syma = util_print('intermediate vector symmetries',
+     ,     print_high)
+      oprint_time=util_print('dft timings',print_high)
+C
+C     oadapt true to get symm analysis
+C
+      oadapt=.true.
 c     
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c**** (from NWdft data structures, not the nwchem objects)
 c     
-      if ( .not. bas_numbf(AO_bas_han,nbf_ao) ) then
+      if ( .not. bas_numbf(ao_bas_han,nbf_ao) ) then
         call errquit('Exiting from dft',1)
       endif 
       if (.not. geom_ncent(geom, natoms))
@@ -112,25 +128,20 @@ c
 C
 C     determine pattern of orbitals' occupancy
 C
+      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
+     $     call errquit('dftscf: rtdb_put of noc failed', 0) 
       if(.not. MA_Push_Get(
      &     MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ))
      &     call errquit('dft: failed to alloc',999)
       
       if( ipol.eq.1 )then
 c       
-c       noc(1) = No. of electrons
+c       noc(1) = No. of electrons alpha
 c       
-        noc(1) = iconst(15)
-        noc(2) = 0
         nTotEl = 2*noc(1)
         nmo(1)=nbf_ao
       else
 c       
-c       noc(1) = No. of spin alpha electrons
-c       noc(2) = No. of spin beta  electrons
-c       
-        noc(1) = iconst(16)
-        noc(2) = iconst(17)
         nTotEl = noc(1) + noc(2)
         nmo(1)=nbf_ao
         nmo(2)=nbf_ao
@@ -200,13 +211,14 @@ c
       if (.not. rtdb_get(rtdb, 'dft:tight', mt_log, 1, ltight))
      $     ltight=.false.
       if (.not. rtdb_get(rtdb, 'dft:iguess', mt_int, 1, iguess))
-     &     call errquit('dft: rtdb_get failed',1) 
+     &     call errquit('dftscf: rtdb_get failed',1) 
       if (.not. rtdb_get(rtdb, 'dft:imull', mt_int, 1, imull))
-     $     call errquit('dft: rtdb_get failed', 2)
+     $     call errquit('dftscf: rtdb_get failed', 2)
       if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1, itol_max))
-     $     call errquit('fitcd: rtdb_get failed', 0)
+     $     call errquit('dftscf: rtdb_get failed', 0)
       if (.not. rtdb_get(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc_max))
-     $     call errquit('quadvxc0: rtdb_get failed', 0)
+     $     call errquit('dftscf: rtdb_get failed', 0)
+
 c
 c     set initial coulomb acc to 1e-5
 c
@@ -252,13 +264,13 @@ c
 c     SCF energy convergence criterion. 
 c     
       scfcon = 10.D0**(-iscfcon)
-      call gacrea(geom,AO_bas_han,
+      call gacrea(geom,ao_bas_han,
      &     nbf_ao,nbf_ao,'ga temp',g_tmp,'atom')
       if(ipol.gt.1) then
-        call gacrea(geom,AO_bas_han,
+        call gacrea(geom,ao_bas_han,
      &       nbf_ao,nbf_ao,'fock tr',g_fockt,'atom')
         if(icvgtyp.eq.2)
-     &       call gacrea(geom,AO_bas_han,
+     &       call gacrea(geom,ao_bas_han,
      &       nbf_ao,nbf_ao,'fock save',g_jeff,'atom')
       else
         g_fockt=g_fock
@@ -291,9 +303,9 @@ c****
 c**** allocate eigenvalue array, including second pointer to beta block
 c**** 
       leneval = nbf_ao * ipol
-      LResult = MA_Push_Get(MT_Dbl,leneval,'eval',lSbn2,iSbn2(1))
+      LResult = MA_Push_Get(MT_Dbl,leneval,'eval',l_eval,k_eval(1))
       if ( ipol .eq. 2) then  
-        iSbn2(2) = iSbn2(1) + nbf_ao
+        k_eval(2) = k_eval(1) + nbf_ao
       endif 
 
 c
@@ -323,22 +335,22 @@ c****     get orbitals (i.e. fock eigenvectors) and fock eigenvalues
 c****     
           LResult = LResult .and.
      &         movecs_read(movecs_in, ispin, dbl_mb(k_occ),
-     &         dbl_mb(iSbn2(ispin)), g_evecs(ispin))
-          call ga_orthog_mos(AO_bas_han, g_evecs(ispin))
+     &         dbl_mb(k_eval(ispin)), g_movecs(ispin))
+          call ga_orthog_mos(ao_bas_han, g_movecs(ispin))
         enddo 
           if(LResult) then
             if(ipol.eq.2.and.nsets.eq.1) then
-              call ga_copy(g_evecs(1),g_evecs(2))
+              call ga_copy(g_movecs(1),g_movecs(2))
             endif
 c
 c     Apply any swaps of orbitals
 c
             scftype='RHF'
             if(ipol.eq.2) scftype='UHF'
-            call movecs_swap(rtdb, scftype, g_evecs,
-     $           dbl_mb(k_occ), dbl_mb(Isbn2(1)))
+            call movecs_swap(rtdb, scftype, g_movecs,
+     $           dbl_mb(k_occ), dbl_mb(k_eval(1)))
             do ispin=1,ipol
-              call dft_densm(g_dens(ispin),g_evecs(ispin),
+              call dft_densm(g_dens(ispin),g_movecs(ispin),
      &             nbf_ao,ipol,noc(ispin))
             enddo
           endif
@@ -364,18 +376,18 @@ c
 c       call to Mulliken Pop Ananlysis
 c       
         if (mulliken) then
-          call gacrea(geom,AO_bas_han,
+          call gacrea(geom,ao_bas_han,
      &         nbf_ao,nbf_ao,'ovl ',g_s,'atom')
           call ga_zero(g_s)
-          call int_1e_ga(AO_bas_han,AO_bas_han,
+          call int_1e_ga(ao_bas_han,ao_bas_han,
      &         g_s,'overlap',.false.)
           if(me.eq.0) call dft_header(
      &         ' Total Density - Mulliken Population Analysis')
-          call mull_pop(geom,AO_bas_han,g_dens(1),g_s)
+          call mull_pop(geom,ao_bas_han,g_dens(1),g_s)
           if(ipol.eq.2) then
             if(me.eq.0) call dft_header(
      &           ' Beta Density - Mulliken Population Analysis')
-            call mull_pop(geom,AO_bas_han,g_dens(2),g_s)
+            call mull_pop(geom,ao_bas_han,g_dens(2),g_s)
           endif
           call gadest(g_s)
         endif
@@ -396,7 +408,7 @@ C
 C       call to atomscf for initial density matrix
 C
         call ga_zero(g_dens(1))
-        call guess_dens(geom,AO_bas_han,g_dens)
+        call guess_dens(geom,ao_bas_han,g_dens)
         if(ipol.eq.2) then
           call ga_copy(g_dens(1),g_dens(2))
           if((lfocka).or.(lfockb)) then
@@ -416,10 +428,10 @@ C
 c       
 c       check normalization of DM
 c       
-        call gacrea(geom,AO_bas_han,
+        call gacrea(geom,ao_bas_han,
      &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
         call ga_zero(g_s)
-        call int_1e_ga(AO_bas_han,AO_bas_han,
+        call int_1e_ga(ao_bas_han,ao_bas_han,
      &       g_s,'overlap',.false.)
         if(abs(rcharge).gt.0.001) then
           anPS = ga_ddot(g_dens(1),g_s)
@@ -445,18 +457,18 @@ c
 c       call to Mulliken Pop Ananlysis
 c       
         if (mulliken) then
-          call gacrea(geom,AO_bas_han,
+          call gacrea(geom,ao_bas_han,
      &         nbf_ao,nbf_ao,'ovl ',g_s,'atom')
           call ga_zero(g_s)
-          call int_1e_ga(AO_bas_han,AO_bas_han,
+          call int_1e_ga(ao_bas_han,ao_bas_han,
      &         g_s,'overlap',.false.)
           if(me.eq.0) call dft_header(
      &         ' Total Density - Mulliken Population Analysis')
-          call mull_pop(geom,AO_bas_han,g_dens(1),g_s)
+          call mull_pop(geom,ao_bas_han,g_dens(1),g_s)
           if(ipol.eq.2) then
             if(me.eq.0) call dft_header(
      &           ' Beta Density - Mulliken Population Analysis')
-            call mull_pop(geom,AO_bas_han,g_dens(2),g_s)
+            call mull_pop(geom,ao_bas_han,g_dens(2),g_s)
           endif
           call gadest(g_s)
         endif
@@ -467,9 +479,9 @@ C
 C       accumulate core hamiltonian into Fock matrix
 C       compute core energy
 C       
-        call int_1e_ga(AO_bas_han,AO_bas_han,
+        call int_1e_ga(ao_bas_han,ao_bas_han,
      &       g_fock,'kinetic',.false.)
-        call int_1e_ga(AO_bas_han,AO_bas_han,
+        call int_1e_ga(ao_bas_han,ao_bas_han,
      &       g_fock,'potential',.false.)
         Ecore = ga_ddot(g_dens(1),g_fock)
 
@@ -489,8 +501,9 @@ c
 
       if (.not. rtdb_get(rtdb, 'dft:finest', mt_int, 1, finest))
      &     finest=4
-          call dft_tstamp(' Before call to CMM.   ')
-        call dft_getspm(geom,lmax,finest,g_dens,AO_bas_han)
+
+      if(oprint_time) call dft_tstamp(' Before call to CMM.   ')
+        call dft_getspm(geom,lmax,finest,g_dens,ao_bas_han)
         call errquit(' end of CMM ',1234)
 
       endif
@@ -504,11 +517,12 @@ c
 c         
 c         Fit the electron charge density.
 c         
-          call dft_tstamp(' Before call to FITCD.   ')
+          if(oprint_time) 
+     &         call dft_tstamp(' Before call to FITCD.   ')
           LResult = MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',
      &         lcd_coef,icd_coef)
           
-          call dft_fitcd( rtdb,AO_bas_han, CD_bas_han,geom,
+          call dft_fitcd( rtdb,ao_bas_han, CD_bas_han,geom,
      &         Dbl_MB(icd_coef),  nbf_cd,
      &         g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
      &         Ecoul)
@@ -520,8 +534,9 @@ c
         call tcllct(t_pgm(1,6),tp4,tp3)
         call dft_second(tp3)
 #endif  
-        call dft_tstamp(' Before call to GETVCOUL.')
-        call dft_getvc(rtdb,geom,AO_bas_han,CD_bas_han,
+        if (oprint_time)
+     &       call dft_tstamp(' Before call to GETVCOUL.')
+        call dft_getvc(rtdb,geom,ao_bas_han,CD_bas_han,
      &       Dbl_MB(icd_coef),g_tmp,
      &       Ecoul,nbf_cd,iVcoul_opt,
      &       g_2ceri,g_dens,IOLGC,itol2e)
@@ -551,8 +566,9 @@ c
         call ga_zero(g_vxc(1))
         if(ipol.eq.2)
      &       call ga_zero(g_vxc(2))
-        call dft_tstamp(' Before call to GETVXC.  ')
-        call xc_getv(rtdb,geom,AO_bas_han,XC_bas_han,
+        if (oprint_time)
+     &       call dft_tstamp(' Before call to GETVXC.  ')
+        call xc_getv(rtdb,geom,ao_bas_han,XC_bas_han,
      &       Exc,ipol,nExc,
      &       iVxc_opt,g_xcinv,
      &       g_dens,g_vxc,IOLGC,iAOacc,
@@ -567,7 +583,8 @@ c
           call ga_dadd(-1.d0,g_vxc(1),1.d0,g_vxc(2),g_vxc(2))
         endif
 c       
-        call dft_tstamp(' End of parallel region. ')
+        if (oprint_time)
+     &       call dft_tstamp(' End of parallel region. ')
 c       
 #if defined(DFT_TIMER)
         call dft_second(tp4)
@@ -582,7 +599,7 @@ c
         else
           Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
         end if
-        if( me.eq.0 )then
+        if( me.eq.0.and.oprint_conv)then
           if( nExc.eq.1 )then
             write(LuOut,1111) Ecore
             write(LuOut,1112) Ecoul
@@ -615,9 +632,9 @@ C
 C           accumulate core hamiltonian into Fock matrix
 C           compute core energy
 C           
-            call int_1e_ga(AO_bas_han,AO_bas_han,
+            call int_1e_ga(ao_bas_han,ao_bas_han,
      &           g_fock,'kinetic',.false.)
-            call int_1e_ga(AO_bas_han,AO_bas_han,
+            call int_1e_ga(ao_bas_han,ao_bas_han,
      &           g_fock,'potential',.false.)
           endif
           call ga_sync
@@ -650,7 +667,7 @@ c
             icall(2) = -1
             call diis_driver(
      &           1,ipol,icall,
-     &           nfock,nbf_ao,geom,AO_bas_han,
+     &           nfock,nbf_ao,geom,ao_bas_han,
      &           g_fock,g_dens(1),g_tmp,
      &           g_svecs,g_diis,isvals)
             icall(1)=0
@@ -699,7 +716,7 @@ C
             if(ispin.eq.1.and.ipol.gt.1) 
      &           call ga_copy(g_fock,g_jeff)
             call diis_driver(ispin,ipol,icall,
-     &           nfock,nbf_ao,geom,AO_bas_han,
+     &           nfock,nbf_ao,geom,ao_bas_han,
      &           g_fock,g_dens(ispin),g_tmp,
      &           g_svecs,g_diis,isvals)
           endif
@@ -719,9 +736,9 @@ C
         call dft_second(tp3)
 #endif  
         call ga_dgemm('T','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &       g_evecs(ispin),g_fock,zero,g_tmp)
+     &       g_movecs(ispin),g_fock,zero,g_tmp)
         call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &       g_tmp,g_evecs(ispin),zero,g_fockt)
+     &       g_tmp,g_movecs(ispin),zero,g_fockt)
 
         if(lshift.ne.0.and.iter.lt.ncysh) then
           bb=0.1d0*lshift
@@ -735,28 +752,28 @@ C
         endif
         call ga_sync
 #if defined(PARALLEL_DIAG)
-        call ga_diag_std(g_fockt,g_tmp,Dbl_MB(ISbn2(ispin)))
+        call ga_diag_std(g_fockt,g_tmp,Dbl_MB(k_eval(ispin)))
 #else   
-        call ga_diag_std_seq(g_fockt,g_tmp,Dbl_MB(ISbn2(ispin)))
+        call ga_diag_std_seq(g_fockt,g_tmp,Dbl_MB(k_eval(ispin)))
 #endif  
         call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &       g_evecs(ispin),g_tmp,zero,g_fockt)
+     &       g_movecs(ispin),g_tmp,zero,g_fockt)
 C
 C       keep orbital ordering according to principle
 C       of maximum overlap with previous iteration
 C
         if (rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,lmaxov )) then
           
-        call gacrea(geom,AO_bas_han,
+        call gacrea(geom,ao_bas_han,
      &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
         call ga_zero(g_s)
-        call int_1e_ga(AO_bas_han,AO_bas_han,
+        call int_1e_ga(ao_bas_han,ao_bas_han,
      &       g_s,'overlap',.false.)
-        call dft_mxovl(AO_bas_han, dbl_mb(Isbn2(ispin)),
-     ,       g_fockt, g_evecs(ispin),g_s,g_tmp)
+        call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
+     ,       g_fockt, g_movecs(ispin),g_s,g_tmp)
         call gadest(g_s)
         endif
-        call ga_copy(g_fockt,g_evecs(ispin))
+        call ga_copy(g_fockt,g_movecs(ispin))
         call ga_sync
 #if defined(DFT_TIMER)
         call dft_second(tp4)
@@ -779,7 +796,7 @@ c
 c       
 c       Form a new density matrix.
 c       
-        call dft_densm(g_dens(ispin),g_evecs(ispin),
+        call dft_densm(g_dens(ispin),g_movecs(ispin),
      &       nbf_ao,ipol,noc(ispin))
 c       
         call ga_sync
@@ -814,12 +831,49 @@ c
      &       movecs_write(movecs_out, 'Kohn-Sham orbitals',
      &       'ao basis',
      &       nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
-     &       dbl_mb(ISbn2(1)), nbf_ao, g_evecs))
+     &       dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &       call errquit('dft_scf: movec_write failed', 0)
 
         call ga_sync
 
       endif
+      if (me .eq. 0.and.oprint_eval) then
+        if (util_print('intermediate evals', print_default)) then
+          call util_print_centered(LuOut,'alpha eigenvalues',
+     $         20,.true.)
+          call output(dbl_mb(k_eval(1)),
+     $         1, min(noc(1)+10,nbf_ao),
+     $         1, 1, nbf_ao, 1, 1)
+          if(ipol.eq.2) then
+            write(LuOut,*)
+            call util_print_centered(LuOut,'beta eigenvalues',
+     $           20,.true.)
+            call output(dbl_mb(k_eval(2)),
+     $           1, min(noc(1)+10,nbf_ao),
+     $           1, 1, nbf_ao, 1, 1)
+          endif
+          call util_flush(6)
+        endif
+      endif
+      if (oprint_vecs) then
+        if (me .eq. 0) then
+          write(LuOut,*)
+          call util_print_centered(LuOut,
+     $         'Intermediate MO vectors',40,.true.)
+          write(LuOut,*)
+          call util_flush(LuOut)
+        end if
+        call ga_print(g_movecs)
+        if(ipol.eq.2) call ga_print(g_movecs(2))
+      end if
+      if(oprint_syma) then
+        call scf_movecs_sym_adapt(ao_bas_han, g_movecs,
+     $       oprint_syma,nbf_ao, '- alpha')
+        if(ipol.eq.2) 
+     $       call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), 
+     $       oprint_syma, nbf_ao, '- beta')
+      endif
+      
 c     
 c     Form the total density matrix.
 c     
@@ -833,15 +887,15 @@ c
 c     call to Mulliken Pop Ananlysis
 c     
       if(mulliken) then
-        call gacrea(geom,AO_bas_han,
+        call gacrea(geom,ao_bas_han,
      &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
         call ga_zero(g_s)
-        call int_1e_ga(AO_bas_han,AO_bas_han,
+        call int_1e_ga(ao_bas_han,ao_bas_han,
      &       g_s,'overlap',.false.)
         if(me.eq.0)
      &       call dft_header(
      &       ' Total Density - Mulliken Population Analysis')
-        call mull_pop(geom,AO_bas_han,g_dens(1),g_s)
+        call mull_pop(geom,ao_bas_han,g_dens(1),g_s)
         if(ipol.eq.2) then
 c         
 c         analysis of spin density
@@ -849,7 +903,7 @@ c
           if(me.eq.0) call dft_header(
      &         ' Spin Density - Mulliken Population Analysis')
           call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
-          call mull_pop(geom,AO_bas_han,g_dens(2),g_s) 
+          call mull_pop(geom,ao_bas_han,g_dens(2),g_s) 
           call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
           call ga_dscal(g_dens(2),0.5d0)
         endif
@@ -866,7 +920,7 @@ c
 c       Compute the contribution to the total energy from the core Hamiltonian.
 c       
         Ecore = ga_ddot(g_dens(1),g_fock)
-        write(LuOut,1111) Ecore
+        if(oprint_conv.and.me.eq.0) write(LuOut,1111) Ecore
       else
         call ga_sync
         rms = rms/(ipol)
@@ -878,14 +932,6 @@ c
         Etold = Etnew
         if( idone.eq.0.or.
      .   (iswitc.lt.2.and.iter.lt.itrscf)) go to 1000 ! begin new iteration
-C
-C       call for symmetry analysis
-C
-         call scf_movecs_sym_adapt(AO_bas_han, g_evecs(1),.true.,
-     $        nbf_ao, '- alpha')
-         if(ipol.eq.2)
-     $        call scf_movecs_sym_adapt(AO_bas_han, g_evecs(2),
-     $        .true., nbf_ao, '- beta')
 c****   
 c****   end infinite loop for SCF iterations
 c****   
@@ -917,46 +963,35 @@ c****
      &         movecs_write(movecs_out, 'Kohn-Sham orbitals',
      &         'ao basis',
      &         nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
-     &         dbl_mb(ISbn2(1)), nbf_ao, g_evecs))
+     &         dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &         call errquit('rhf: movec_write failed', 0)
           call ga_sync()
           if(me.eq.0) then
 #if defined(SC95)
-            homo_lumo_gap = min( dbl_mb( ISbn2(1)+noc(1)),
-     &                           dbl_mb( ISbn2(2)+noc(2) ) )
-     &           - max( dbl_mb( ISbn2(1)+noc(1)-1),
-     &           dbl_mb( ISbn2(2)+noc(2)-1 ) )
+            homo_lumo_gap = min( dbl_mb( k_eval(1)+noc(1)),
+     &                           dbl_mb( k_eval(2)+noc(2) ) )
+     &           - max( dbl_mb( k_eval(1)+noc(1)-1),
+     &           dbl_mb( k_eval(2)+noc(2)-1 ) )
             write (LuOut,*) 
             write (LuOut,'(a,e14.4)')
      &           'HOMO/LUMO Gap (Hartrees): ', homo_lumo_gap
             write (LuOut,*) 
             write (LuOut,*) 'Alpha-Occupied Eigenvalues: '
             write (LuOut,'(5x,4(e14.4))')
-     &           (dbl_mb(ISbn2(1)+ii),ii=0,noc(1)-1)
+     &           (dbl_mb(k_eval(1)+ii),ii=0,noc(1)-1)
             write (LuOut,*) 
             write (LuOut,*) 'Alpha-Virtual Eigenvalues: '
             write (LuOut,'(5x,4(e14.4))')
-     &           (dbl_mb(ISbn2(1)+ii),ii=noc(1),nbf_ao-1)
+     &           (dbl_mb(k_eval(1)+ii),ii=noc(1),nbf_ao-1)
             write (LuOut,*) 
             if ( ipol.eq.2 ) then
               write (LuOut,*) 'Beta-Occupied Eigenvalues: '
               write (LuOut,'(5x,4(e14.4))')
-     &             (dbl_mb(ISbn2(2)+ii),ii=0,noc(2)-1)
+     &             (dbl_mb(k_eval(2)+ii),ii=0,noc(2)-1)
               write (LuOut,*) 
               write (LuOut,*) 'Beta-Virtual Eigenvalues: '
               write (LuOut,'(5x,4(e14.4))')
-     &             (dbl_mb(ISbn2(2)+ii),ii=noc(2),nbf_ao-1)
-              write (LuOut,*) 
-            endif 
-#else
-            write (LuOut,*) 'Alpha Eigenvalues: '
-            write (LuOut,'(5x,4(e14.4))')
-     &           (dbl_mb(ISbn2(1)+ii),ii=0,nbf_ao-1)
-            write (LuOut,*) 
-            if ( ipol.eq.2 ) then
-              write (LuOut,*) 'Beta Eigenvalues: '
-              write (LuOut,'(5x,4(e14.4))')
-     &             (dbl_mb(ISbn2(2)+ii),ii=0,nbf_ao-1)
+     &             (dbl_mb(k_eval(2)+ii),ii=noc(2),nbf_ao-1)
               write (LuOut,*) 
             endif 
 #endif
@@ -986,17 +1021,12 @@ c****     check values
             if (.not.
      &           movecs_to_logfile( rtdb, n_homo, n_lumo,
      &           nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
-     &           dbl_mb(ISbn2(1)), nbf_ao, g_evecs))
+     &           dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &           call errquit('dft_scf: movecs_to_logfile failed', 2)
           endif 
         endif 
 #endif
 
-c****   
-c****   eval deallocation moved here from inside iteration loop
-c****   
-        LResult = MA_Pop_Stack(lSbn2)
-        LResult = MA_Pop_Stack(l_occ)
 
         if(icvgtyp.eq.2.and.icall(1).gt.0) then
 c         
@@ -1005,7 +1035,7 @@ c
           icall(1) = -1
           call diis_driver(
      &         1,ipol,icall,
-     &         nfock,nbf_ao,geom,AO_bas_han,
+     &         nfock,nbf_ao,geom,ao_bas_han,
      &         g_fock,g_dens(1),g_tmp,
      &         g_svecs,g_diis,isvals)
         end if
@@ -1033,7 +1063,7 @@ c
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
          if (.not. int2e_file_close())
-     $        call errquit('scf_tidy: closing aoints?', 0)
+     $        call errquit('dft_scf: closing aoints?', 0)
       endif
 c
 c-----------------------------------------------------------------------
@@ -1083,6 +1113,70 @@ c
      $     ('dft: context_prefix failed', 0)
       if (.not. rtdb_put(rtdb, name, MT_LOG, 1, converged)) 
      *     call errquit('dft: failed to store converged in rtdb', 0)
+      if (me.eq.0 .and. (oprint .or. .not.converged)) then
+         if (.not. converged) then
+            write(6,*)
+            call util_print_centered(LuOut,
+     $           'Calculation failed to converge', 20, .true.)
+            write(LuOut,*)
+         end if
+       endif
+C
+C     print stolen for uhf.F
+C
+      if (util_print('schwarz',print_high).and.(.not.CDFIT)) then
+        if ( .NOT. bas_numcont(AO_bas_han, nshells) ) 
+     $       Call ErrQuit(
+     (       'dft: problem with call to bas_numcont', AO_bas_han)
+         call schwarz_print(natoms, nshells)
+      endif
+C
+      if (me .eq. 0) then
+        if (util_print('final evals', print_default)) then
+          call util_print_centered(LuOut,'Final alpha eigenvalues',
+     $         20,.true.)
+          call output(dbl_mb(k_eval(1)),
+     $         1, min(noc(1)+10,nbf_ao),
+     $         1, 1, nbf_ao, 1, 1)
+          if(ipol.eq.2) then
+            write(LuOut,*)
+            call util_print_centered(LuOut,'Final beta eigenvalues',
+     $           20,.true.)
+            call output(dbl_mb(k_eval(2)),
+     $           1, min(noc(1)+10,nbf_ao),
+     $           1, 1, nbf_ao, 1, 1)
+          endif
+          call util_flush(6)
+        endif
+        if (util_print('final vectors', print_debug)) then
+          write(LuOut,*)
+          call util_print_centered(
+     (         LuOut,'Final MO vectors',40,.true.)
+          write(LuOut,*)
+          call util_flush(LuOut)
+        end if
+      end if
+      if (oadapt) then
+        nprint = min(noc(1)+10,nbf_ao)
+        if (util_print('all vector symmetries', print_high))
+     $       nprint = nbf_ao
+        oprint_sym = util_print('final vector symmetries',
+     $       print_default)
+        call scf_movecs_sym_adapt(ao_bas_han, g_movecs,
+     $       oprint_sym,nprint, '- alpha')
+        if(ipol.eq.2) 
+     $       call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), 
+     $       oprint_sym, nprint, '- beta')
+      endif
+      if (util_print('final vectors', print_debug)) then
+        call ga_print(g_movecs)
+        if(ipol.eq.2) call ga_print(g_movecs(2))
+      end if
+c****   
+c****   eval deallocation moved here from inside iteration loop
+c****   
+        LResult = MA_Pop_Stack(l_eval)
+        LResult = MA_Pop_Stack(l_occ)
 c     
 c-----------------------------------------------------------------------
 

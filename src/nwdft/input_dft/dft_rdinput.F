@@ -1,7 +1,7 @@
       Subroutine dft_rdinput( rtdb, 
      &                     iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.9 1995-12-20 02:16:48 og845 Exp $
+C$Id: dft_rdinput.F,v 1.10 1996-01-09 17:54:18 og845 Exp $
       implicit none
       
       integer rtdb                               ! [input] database handle
@@ -302,6 +302,9 @@ c****       center icenter is of type itype; assign charge
 
       LResult = MA_Pop_Stack(lratom)
       LResult = MA_Pop_Stack(lznuc)
+      LResult = MA_Pop_Stack(ltags)
+      LResult = MA_Pop_Stack(lcharge)
+      LResult = MA_Pop_Stack(lcoord)
 
 
 c
@@ -334,8 +337,7 @@ c     should be eliminated at least for these Gaussian basis set parameters.)
 
 c     Check the user supplied input for any inconsistencies.
 
-        call dft_inpana(geom,rtdb,Dbl_MB(icharge),Dbl_MB(icoord),
-     &       iconst,nconst,ncenters)
+        call dft_inpana(geom,rtdb,iconst,nconst,ncenters)
 c      if( iproc.eq.0 )then
 c
 c       inpana could have modified ipol
@@ -388,9 +390,6 @@ c
       call ga_sync
 
 
-      LResult = MA_Pop_Stack(ltags)
-      LResult = MA_Pop_Stack(lcharge)
-      LResult = MA_Pop_Stack(lcoord)
 
       call ga_brdcst(Msg_iconst,iconst,mitob(nconst),0)
 
