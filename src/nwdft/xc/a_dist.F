@@ -1,6 +1,6 @@
       Subroutine a_dist(xyz, Rij, ncenter)
 
-C$Id: a_dist.F,v 1.4 1995-02-24 05:15:07 og845 Exp $
+C$Id: a_dist.F,v 1.5 1995-04-26 18:12:38 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -12,7 +12,6 @@ c--> Cartesian Coordinates
 c--> Internuclear Distances
 
       Dimension Rij((ncenter*(ncenter+1))/2)
-      Logical LResult
 c
 c Evaluate the distance between each pair of centers.
 c

@@ -2,7 +2,7 @@
      &                   Tmat,nTrows,nTcols,
      &                   idirect,iga_vxc,iga_xcinv,IOLGC)
 
-C$Id: xc_fitv.F,v 1.1 1995-04-26 03:40:12 og845 Exp $
+C$Id: xc_fitv.F,v 1.2 1995-04-26 18:12:40 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -12,7 +12,7 @@ c****
       integer AO_bas_han, XC_bas_han,geom
 c**** 
 
-      Logical LResult, exist, IOLGC
+      Logical LResult,  IOLGC
 
       Parameter (itmp=98)
 
