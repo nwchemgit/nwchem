@@ -33,11 +33,10 @@ c
       integer atn
       character*2 symbol
       parameter (num_dirs = 13)
-      character*10 dirs(num_dirs), gridtype
+      character*10 dirs(num_dirs)
       character*16 test,element
-      logical ldelley, lbecke, store_wght
-      integer iangquad, nquad_task, nagrid, nradpts,accqrad
-      double precision rm
+      logical lbecke
+      integer accqrad
       data dirs / 'delley', 'becke', 'gausleg', 'lebedev', 'xcoarse', 
      &            'coarse', 'medium', 'fine', 'xfine', 'user', 
      &            'store_wght', 'nquad_task', 'rm'/
