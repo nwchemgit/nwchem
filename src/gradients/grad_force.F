@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.37 1999-11-02 02:44:36 edo Exp $
+c     $Id: grad_force.F,v 1.38 1999-11-18 01:31:05 bert Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -59,6 +59,7 @@ C------------------------------------------------------------------------------
 #include "sym.fh"
 #include "stdio.fh"
 #include "msgids.fh"
+#include "apiP.fh"
 #include "inp.fh"
 
       integer rtdb, basis, geom
@@ -130,6 +131,15 @@ c
       character*8 scftype
       character*32 rtdb_string
 
+c    
+c     Stuff for Douglas-Kroll
+c
+      logical dkdiv_energy, num_grad, file_write_ga  ! Three data blocks needed
+      external dkdiv_energy, num_grad, file_write_ga ! for the possible addition
+      integer l_dkdivfrc, k_dkdivfrc                 ! of Douglas-Kroll contribution
+      character*255 dkdiv_name
+      character*128 mytheory
+c
 *     Stuff for DFT
 
       integer ipol, numfunc, noc(2)
@@ -141,7 +151,6 @@ c
 
       jfac = 1.0d0              ! Only changed for DFT
       kfac = 1.0d0
-
 C     get information about basis set
       if (.not. geom_ncent(geom,nat))
      $     call errquit('grad: could not get natoms',0)
@@ -448,6 +457,54 @@ c
      $     dbl_mb(k_frc_kin), dbl_mb(k_frc_wgh), g_force,
      $     g_dens, g_wdens, basis, geom, nproc, nat, max_at_bf,
      $     rtdb, oskel)
+c
+c     Check if we have to deal with Douglas-Kroll type integrals. If so,
+c     we have to add the numerical derivative of the integral type
+c     (Douglas-Kroll - Non-Relativistic). In this way the non-relativistic
+c     kinetic and potential energy integral derivatives are computed
+c     analytically and only the relativistic "Douglas-Kroll" correction
+c     is done numerically. Numerical errors are reduced in this way and
+c     at the same time the construction of the complex Douglas-Kroll
+c     integral derivatives is avoided.
+c
+      if (doug_kroll) then
+c
+c        Write density to file for use by Douglas-Kroll energy routine
+c
+         call util_file_name('dkdiv_density',.true.,.true.,dkdiv_name)
+         if (.not. file_write_ga(dkdiv_name,g_dens(1)))
+     $       call errquit('grad_force:file_write_ga density failed',0)
+c
+c        Do numerical gradient for (Douglas-Kroll - Non-relativistic)
+c
+         mytheory = 'Douglas-Kroll'
+         if (.not. num_grad(rtdb,dkdiv_energy,'grad_dk:dkdiv_energy',
+     $       'grad_dk:dkdiv_frc', mytheory, .false.))
+     $       call errquit('grad_force: task_num_grad failed',0)
+c
+c        Add total Douglas-Kroll - Non-relativistic contribution to 
+c        array on node 0. There is a global sum later on.
+c
+         if (ga_nodeid() .eq. 0) then
+            if (.not. ma_push_get(mt_dbl, 3*nat, 'dkdiv_frc',
+     $          l_dkdivfrc, k_dkdivfrc)) call errquit
+     $          ('grad_force: ma_push_get dkdiv_frc array failed',0)
+            if (.not. rtdb_get(rtdb, 'grad_dk:dkdiv_frc', mt_dbl,
+     $          3*nat, dbl_mb(k_dkdivfrc))) call errquit
+     $          ('grad_force: could not read grad_dk:dkdiv_frc',0)
+            do i = 0, 3*nat-1
+               dbl_mb(k_frc_kin+i) = dbl_mb(k_frc_kin+i) +
+     $                               dbl_mb(k_dkdivfrc+i)
+            enddo
+            if (.not. ma_pop_stack(l_dkdivfrc))
+     $         call errquit('grad_force: ma_pop_stack failed',0)
+         endif
+         call util_file_unlink(dkdiv_name)
+         call intd_init(rtdb, 1, basis)
+      endif
+c
+      call ga_sync
+c
       cpu_tim(1)  = util_cpusec() - cpu_tim(1)
       wall_tim(1) = util_wallsec() - wall_tim(1)
 c     
