@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.28 2003-02-08 00:56:21 edo Exp $
+C$Id: util_file_name.F,v 1.29 2003-02-10 19:02:43 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -542,6 +542,7 @@ c
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "msgids.fh"
 c
 c     Return the amount of space in Kb available in the scratch
 c     directory for this process.
@@ -600,12 +601,14 @@ c
       nuse=nint((avail0-avail1)/16d0)
       nuse_fail=0
       if (nuse .le. 0) nuse_fail= 1
-      call ga_dgop(1024,nuse_fail,1,'+')
+      call ga_igop(msg_utscr,nuse_fail,1,'+')
       if(nuse_fail.ne.0) then
         if(oprint.and.ga_nodeid().eq.0) write(luout,*) ' negative nuse'
         nattpt=nattpt+1
-        if(nattpt.gt.5) call errquit
-     (    ('utilscravail: too many attempts',nattpt)
+        if(nattpt.gt.5) then
+           write(luout,*)'utilscravail: too many attempts',nattpt
+           call errquit(' ERROR: insufficient scratch_dir space ',0)
+        endif
         goto 1025
       endif
       if(oprint) then
