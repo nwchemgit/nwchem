@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.291 1999-07-08 19:00:11 d3e129 Exp $
+# $Id: makefile.h,v 1.292 1999-07-12 18:11:23 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -44,7 +44,10 @@ endif
 #                  DELTA
 #                  IBM
 #                  KSR
-#                  LINUX        NWCHEM_TARGET_CPU (nothing for X86,ALPHA,POWERPC)
+#                  LINUX        NWCHEM_TARGET_CPU :
+#                                                  nothing for X86 (e.g. do not set this)
+#                                                  ALPHA for AlphaLinux (broke)
+#                                                  POWERPC for MkLinux (broke)
 #                  PARAGON
 #                  SGI
 #                  SGI_N32      NWCHEM_TARGET_CPU : R8000 or R10000
