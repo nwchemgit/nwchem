@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.129 2002-02-15 20:54:09 d3j191 Exp $
+c $Id: cf_main.F,v 1.130 2002-02-19 15:28:11 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -703,9 +703,15 @@ c
       real*8 prssc3,rdata(4),xwcd,xscd,eskin,ekinc
       real*8 pscx(3)
       real*8 pbuff(4,3,3)
+      integer i_vsm,l_vsm
 c
       call cf_vw(xw,yw,vw,vwt,numw,int_mb(i_iwa),dbl_mb(i_mas))
-      call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_mas))
+      if(.not.ma_push_get(mt_dbl,3*msm,'vsm',l_vsm,i_vsm))
+     + call errquit('Failed to allocate scratch array vsm',0)
+      call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_wsm),
+     + dbl_mb(i_mas),dbl_mb(i_vsm))
+      if(.not.ma_pop_stack(l_vsm))
+     + call errquit('Failed to deallocate scratch array vsm',0)
 c
       if(ltwin) then
       do 1 i=1,3
@@ -1020,7 +1026,8 @@ c
 c
       return
       end
-      subroutine cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,wgt)
+      subroutine cf_vs
+     + (xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,wsm,wgt,vsm)
 c
       implicit none
 c
@@ -1030,11 +1037,13 @@ c
 c
       integer nums
       integer isat(msa),ismol(msa),isfrc(msa)
-      real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),wgt(mat,6)
+      real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3)
+      real*8 wgt(mat,6),vsm(msm,3)
+      real*8 wsm(msm)
       real*8 esk(msf)
 c
       integer i,j,k
-      real*8 vv(4)
+      real*8 w,vv(4)
 c
       do 11 i=1,msf
       esk(i)=zero
@@ -1066,40 +1075,37 @@ c
       eskc(1,3)=zero
       eskc(2,3)=zero
       eskc(3,3)=zero
-      do 4 k=1,nsm
-      vv(1)=zero
-      vv(2)=zero
-      vv(3)=zero
-      vv(4)=zero
-      if(nums.gt.0) then
-      do 5 i=1,nums
-      if(ismol(i).eq.k) then
-      vv(4)=vv(4)+wgt(isat(i),iset)
+      do 5 i=1,msm
+      vsm(i,1)=zero
+      vsm(i,2)=zero
+      vsm(i,3)=zero
+    5 continue
+      do 4 i=1,nums
+      k=ismol(i)
+      w=wgt(isat(i),iset)
       if(mdalgo.eq.1) then
       do 6 j=1,3
-      vv(j)=vv(j)+wgt(isat(i),iset)*vst(i,j)
+      vsm(k,j)=vsm(k,j)+w*vst(i,j)
     6 continue
       else
       do 7 j=1,3
-      vv(j)=vv(j)+wgt(isat(i),iset)*vs(i,j)
+      vsm(k,j)=vsm(k,j)+w*vs(i,j)
     7 continue
       endif
-      endif
-    5 continue
-      endif
-      if(np.gt.1) call ga_dgop(mcf_43,vv,4,'+')
-      if(me.eq.0) then
-      eskc(1,1)=eskc(1,1)+half*vv(1)*vv(1)/vv(4)
-      eskc(2,1)=eskc(2,1)+half*vv(2)*vv(1)/vv(4)
-      eskc(3,1)=eskc(3,1)+half*vv(3)*vv(1)/vv(4)
-      eskc(1,2)=eskc(1,2)+half*vv(1)*vv(1)/vv(4)
-      eskc(2,2)=eskc(2,2)+half*vv(2)*vv(2)/vv(4)
-      eskc(3,2)=eskc(3,2)+half*vv(3)*vv(2)/vv(4)
-      eskc(1,3)=eskc(1,3)+half*vv(1)*vv(3)/vv(4)
-      eskc(2,3)=eskc(2,3)+half*vv(2)*vv(3)/vv(4)
-      eskc(3,3)=eskc(3,3)+half*vv(3)*vv(3)/vv(4)
-      endif
     4 continue
+      if(np.gt.1) call ga_dgop(mcf_43,vsm,3*msm,'+')
+      do 8 i=1,nsm
+      w=half/wsm(i) 
+      eskc(1,1)=eskc(1,1)+w*vsm(i,1)*vsm(i,1)
+      eskc(2,1)=eskc(2,1)+w*vsm(i,2)*vsm(i,1)
+      eskc(3,1)=eskc(3,1)+w*vsm(i,3)*vsm(i,1)
+      eskc(1,2)=eskc(1,2)+w*vsm(i,1)*vsm(i,2)
+      eskc(2,2)=eskc(2,2)+w*vsm(i,2)*vsm(i,2)
+      eskc(3,2)=eskc(3,2)+w*vsm(i,3)*vsm(i,2)
+      eskc(1,3)=eskc(1,3)+w*vsm(i,1)*vsm(i,3)
+      eskc(2,3)=eskc(2,3)+w*vsm(i,2)*vsm(i,3)
+      eskc(3,3)=eskc(3,3)+w*vsm(i,3)*vsm(i,3)
+    8 continue
 c
       return
       end
