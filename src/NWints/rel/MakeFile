@@ -1,10 +1,12 @@
 #
-#	$Id: MakeFile,v 1.4 1999-12-16 23:44:49 bert Exp $	
+#	$Id: MakeFile,v 1.5 2000-01-25 19:45:02 mg201 Exp $	
 #
 
 OBJ_ENERGY =   $(OBJDIR)\rel_onel.obj \
+               $(OBJDIR)\rel_mpole.obj \
                $(OBJDIR)\rel_pot.obj \
                $(OBJDIR)\rel_pot2.obj \
+               $(OBJDIR)\rel_2e4c_sf.obj \
                $(OBJDIR)\rel_LLSS.obj \
                $(OBJDIR)\rel_SSLL.obj \
                $(OBJDIR)\rel_SSSS.obj \

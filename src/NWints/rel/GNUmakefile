@@ -1,13 +1,15 @@
-# $Id: GNUmakefile,v 1.5 1999-12-16 23:44:28 bert Exp $
+# $Id: GNUmakefile,v 1.6 2000-01-25 19:44:22 mg201 Exp $
 
 HEADERS = rel_consts.fh \
           rel_nwc.fh
 
 OBJ_ENERGY = \
       rel_onel.o \
+      rel_mpole.o \
       rel_pvp.o  \
       rel_pot.o  \
       rel_pot2.o \
+      rel_2e4c_sf.o \
       rel_LLSS.o \
       rel_SSLL.o \
       rel_SSSS.o \
@@ -32,6 +34,8 @@ endif
 USES_BLAS = \
       rel_onel.F \
       rel_oneld.F \
+      rel_mpole.F \
+      rel_2e4c_sf.F \
       rel_LLSS.F \
       rel_SSLL.F \
       rel_SSSS.F \
