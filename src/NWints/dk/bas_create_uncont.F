@@ -1,5 +1,5 @@
-      subroutine bas_create_uncont(basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.4 1999-12-08 22:05:55 bert Exp $
+      subroutine bas_create_uncont(usertdb,basis_in,name,basis_out)
+c $Id: bas_create_uncont.F,v 1.5 1999-12-09 01:28:35 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -28,6 +28,7 @@ c
 c
 c     arguments
 c
+      integer usertdb                ! Handle of rtdb
       integer basis_in               ! Handle of input contracted basis
       character*(*) name             ! Name of the basis set for rtdb
       integer basis_out              ! Handle new uncontracted basis
@@ -39,7 +40,7 @@ c
       integer Sm_a, SIm_a            ! MA array for storing shells of exponents
       integer Am_a, AIm_a            ! MA array for storing centers of exponents
       integer ipr_mx                 ! Maximum # of primitives in basis
-      integer usegeom, usertdb       ! Handles to geometry and rtdb basis_in
+      integer usegeom                ! Handle to geometry basis_in
       integer nuniqatom, iuniqcent   ! # of unique atoms
       integer nshell
       integer iatom, ishell, iprim
@@ -59,7 +60,6 @@ c     Get geometry and rtdb handles for basis_in
 c
       if (.not. bas_geom(basis_in,usegeom))
      $   call errquit('bas_create_uncont: bas_geom failed',0)
-      usertdb = bgj_get_rtdb_handle()
 c
 c     Create a new fitting basis set
 c
