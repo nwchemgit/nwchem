@@ -5,7 +5,7 @@
      $     g_fock,g_svecs,isvals,
      $     g_cdinv,g_xcinv,g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.57 1997-02-14 06:33:20 gutowski Exp $
+C     $Id: dft_scf.F,v 1.58 1997-02-17 17:59:35 d3g681 Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -47,7 +47,6 @@ c
       Integer l_eval
       integer k_eval(2)
       Character*(nw_max_path_len) movecs_out,movecs_in
-      Double Precision rmoments(3) ! dipole
       integer lmax              ! CMM
       integer finest            ! CMM
       integer natoms,nTotEl
@@ -1180,28 +1179,28 @@ c
 *     endif
 c     
 c-----------------------------------------------------------------------
-c     
-c     computation of dipole moments
-c     
-      
-      if( .not. bas_high_angular(AO_bas_han,NXang) )
-     $     call errquit('exiting in dft_scf.',2)
-      if(natoms.gt.1.and.NXang.gt.1) 
-     $     call dft_mpole( geom, AO_bas_han, AO_bas_han,1, 
-     $     g_dens, ipol, rmoments, 3)
-
+c
+C     Restore alpha and beta densities.
+c
+      if (ipol .gt. 1)
+     $     call ga_dadd(one,g_dens(1),onem,g_dens(2),g_dens(1))
+c-----------------------------------------------------------------------
 C     
 C     computation of <S2> for open shell
 C     
       if(ipol.gt.1)then
 
-C     Restore alpha and beta densities.
-         call ga_dadd(one,g_dens(1),onem,g_dens(2),g_dens(1))
-
          call dft_s2_value(geom,AO_bas_han,.false.,noc(1),noc(2),
      $        nbf_ao,g_dens(1),g_dens(2))
 
       endif
+c-----------------------------------------------------------------------
+c     
+c     computation of moments
+      
+      if (natoms .gt. 1) 
+     $     call dft_mpole(rtdb, ao_bas_han, ipol, g_dens(1), g_dens(2))
+
 C     
 C     print stolen for uhf.F
 C     
