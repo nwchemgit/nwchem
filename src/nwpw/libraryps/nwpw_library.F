@@ -1,4 +1,4 @@
-C $Id: nwpw_library.F,v 1.2 2001-11-03 01:12:50 edo Exp $
+C $Id: nwpw_library.F,v 1.3 2003-02-12 15:24:46 bylaska Exp $
 	subroutine nwpw_libgeninp(element,filename)
 	implicit none
 #include "inp.fh"
@@ -10,7 +10,7 @@ c
 	integer lef,unitrc
 	logical isopen
 c
-	call nwpw_libfile(elem_fname,element)
+	call nwpw_libfile(1,elem_fname,element)
 	lef=inp_strlen(elem_fname)
 c
 c       open the library file

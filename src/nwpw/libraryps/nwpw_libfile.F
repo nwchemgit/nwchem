@@ -1,22 +1,27 @@
 *
+* $Id: nwpw_libfile.F,v 1.4 2003-02-12 15:24:46 bylaska Exp $
+*
+
+*
 * order of precidence for choosing name
 * 1) value of NWCHEM_NWPW_LIBRARY environment variable
 * 2) value of the compiled in library name
 *      
-c the string library1 is appended by default for now
+c the string library1 is appended by default for pspw
+c the string library2 is appended by default for paw
 c
-C $Id: nwpw_libfile.F,v 1.3 2002-01-09 23:55:11 edo Exp $
-      subroutine nwpw_libfile(filename,element)
+      subroutine nwpw_libfile(flag,filename,element)
       implicit none
 #include "inp.fh"
 #include "stdio.fh"
-      character*(*) filename
+      integer       flag
+      character*(*) filename !RESULT
       character*(*) element
 c
       character*255 libname
       external util_find_dir
       logical  util_find_dir,lexist
-      integer lgth
+      integer lgth,l
       logical from_environment
 c
       call util_getenv('NWCHEM_NWPW_LIBRARY',libname)
@@ -57,7 +62,19 @@ c
      &     libname(1:inp_strlen(libname)),'>'
       write(luout,*) ' '
 
-      filename=libname(1:inp_strlen(libname))//'/library1/'//element
+*     **** library for paw ****
+      if (flag.eq.2) then
+        l = index(element,' ')  -1
+        if (l.lt.1) l = 1
+        filename=
+     > libname(1:inp_strlen(libname))
+     > //'/library2/'//element(1:l)//'_basis'
+
+*     **** library for pspw and band ****
+      else
+        filename=libname(1:inp_strlen(libname))//'/library1/'//element
+      end if
+
 c
 c     check if file exists
 c
