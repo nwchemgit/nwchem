@@ -1,9 +1,10 @@
-#$Id: GNUmakefile,v 1.23 1996-07-15 22:14:11 gutowski Exp $
+#$Id: GNUmakefile,v 1.24 1996-07-22 06:04:45 d3e129 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
-USES_BLAS = sym_put_geom.F sym_pr_all.F sym_g_sym.F \
-            sym_mo_adapt.F sym_geom_prj.F sym_bs_irrep.F sym_op_clsfy.F
+
+USES_BLAS = sym_bs_irrep.F sym_g_sym.F sym_geom_prj.F sym_mo_adapt.F sym_op_clsfy.F sym_op_mtab.F sym_put_geom.F
+
 HEADERS = sym.fh
 
 OBJ_OPTIMIZE = sym_sh_pair.o sym_sym.o \

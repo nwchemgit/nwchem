@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.49 1996-07-02 21:02:54 rg240 Exp $
+#$Id: GNUmakefile,v 1.50 1996-07-22 06:04:18 d3e129 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -25,15 +25,7 @@ OBJ_OPTIMIZE = \
 
     LIBRARY = libmoints.a
 
-  USES_BLAS = \
-	      moints_2x.F \
-              moints_6x.F \
-	      moints_ccsd.F \
-              moints_aux2.F \
-              direct_mp2.F \
-              moints_semi.F \
-              mointdriver.F \
-	      moints_full.F
+USES_BLAS = moints_2x.F moints_6x.F moints_aux2.F moints_ccsd.F moints_full.F moints_semi.F sifs.F
 
 LIB_DEFINES =  -DDEBUG_PRINT
 

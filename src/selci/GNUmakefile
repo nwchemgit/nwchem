@@ -35,6 +35,8 @@ mpdele.o	stool.o 	restk.o		restin.o        orbanal.o
 
 OBJ_OPTIMIZE = $(UOBJ) $(DVOBJ) $(CIOBJ) $(SELOBJ) $(BLAS)
 
+USES_BLAS = axbt.f davids.F e0mp2.F fcidim.F makeh.F makehs.F makhdb.F mkvc.F tester.F
+
 include ../config/makefile.h
 include ../config/makelib.h
 

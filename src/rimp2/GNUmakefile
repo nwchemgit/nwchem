@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.29 1995-12-13 01:36:47 d3g681 Exp $
+# $Id: GNUmakefile,v 1.30 1996-07-22 06:04:36 d3e129 Exp $
 # Note: To switch on disk arrays, uncomment the DEFINE +=... after the
 # includes.  Do NOT move the DEFINE ahead of the includes or it won't
 # have the desired effect.
@@ -29,9 +29,7 @@ else
    OBJ_OPTIMIZE += eval_3ci.o
 endif
 
-USES_BLAS =	rimp2_v_e2.F    xf3ci_step12.F  xf3ci_s12a.F \
-		xf3ci_s12b.F xform_3cints.F open_3ci.F \
-		rimp2.F eval_3ci.F
+USES_BLAS = eval_3ci.F rimp2_v_e2.F xf3ci_s12a.F xf3ci_s12b.F xf3ci_step3.F
 
 include ../config/makefile.h
 include ../config/makelib.h

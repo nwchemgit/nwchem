@@ -23,18 +23,7 @@
 
       LIBRARY =	libmcscf.a
 
-   USES_BLAS  =	mcscf.F \
-		mcscf_b.F \
-		mcscf_aux.F \
-		mcscf_debug.F \
-		mcscf_etr.F \
-		mcscf_fock.F \
-		mcscf_ohvmo.F \
-		mcscf_orb.F \
-		mcscf_prcnd.F \
-		linesrch.F \
-		hmat.F
-
+   USES_BLAS = hmat.F mcscf_aux.F mcscf_b.F mcscf_debug.F mcscf_fock.F mcscf_ohvmo.F mcscf_orb.F mcscf_prcnd.F
 
   LIB_INCLUDES = -I../ddscf -I./detci
 

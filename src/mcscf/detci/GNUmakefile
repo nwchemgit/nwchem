@@ -11,7 +11,6 @@
     USES_BLAS = detci_aux.F \
 	 	detci_dens.F \
 	        detci_diag.F \
-		detci_intf.F \
 		detci_sigma.F \
 		detci_spin.F
 

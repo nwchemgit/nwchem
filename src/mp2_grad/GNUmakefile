@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.4 1996-07-19 23:05:57 mg141 Exp $
+#$Id: GNUmakefile,v 1.5 1996-07-22 06:04:20 d3e129 Exp $
 
         OBJ = mp2_make_trhf.o \
 	      mp2_make_tuhf.o \
@@ -19,7 +19,9 @@
 #ifneq ($(TARGET),CRAY-T3D)
 #        OBJ += crayio.o
 #endif
-
+USES_BLAS = mp2_energy.F mp2_lai_uhf.F mp2_make_t.F mp2_make_trhf.F \
+            mp2_make_tuhf.F mp2_pijab_uhf.F mp2_vooo_uhf.F \
+            mp2_vvoo_uhf.F mp2_vvvo_uhf.F mp2_wai_uhf.F mp2_wijab_uhf.F
 
     LIBRARY = libmp2.a
 
