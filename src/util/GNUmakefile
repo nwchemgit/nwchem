@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.104 1999-07-01 09:30:39 d3e129 Exp $
+# $Id: GNUmakefile,v 1.105 1999-07-01 22:22:45 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -102,7 +102,7 @@ endif
               util_cpusec.o util_wallsec.o \
 	      gather.o scatter.o \
 	      ga_trace_dg.o \
-              icopy.o util_legal.o \
+              icopy.o lcopy.o util_legal.o \
               util_file_name.o \
               util_speak.o util_rtdb_speak.o util_file_copy.o \
               util_file_unlink.o util_system.o util_sleep.o \
