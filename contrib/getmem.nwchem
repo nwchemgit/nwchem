@@ -1,0 +1,97 @@
+#!/bin/csh  -f
+#
+# $Id: getmem.nwchem,v 1.1 2000-11-30 21:21:36 edo Exp $
+# this script tries to figure out no. of processors and RAM
+# to get the maximum available memory in memor_def.F
+#
+cd $NWCHEM_TOP/src/input
+set ffc="f77"
+set a=("" "" "" "" "" "") 
+set good=1
+if ($NWCHEM_TARGET == LINUX) then
+set ffc="g77"
+set nproc = `egrep processor /proc/cpuinfo | wc --line`
+set memtot = `egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
+else  if ($NWCHEM_TARGET == LINUX64) then
+set ffc="fort"
+set nproc = `egrep cpus /proc/cpuinfo |  sed -e "s/cpus detected		: //"`
+set memtot = `egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
+else  if ($NWCHEM_TARGET == DECOSF) then
+set nproc = `/usr/sbin/psrinfo | wc -l `
+set memtot = ` /usr/bin/vmstat -P | egrep "Total Physical Memory ="| sed -e "s/Total Physical Memory =//"| sed -e "s/.00 M//"`
+@ memtot = ($memtot * 1000)
+else  if ($NWCHEM_TARGET == SGI_N32 || $NWCHEM_TARGET == SGITFP ) then
+set a=`/sbin/hinv  -c processor|head -1`  
+set nproc=$a[1]
+set a=`/sbin/hinv -c memory | head -1`  
+@ memtot = ($a[4] * 1000)
+else  if ($NWCHEM_TARGET == SOLARIS ) then
+set nproc = `/usr/sbin/psrinfo | wc -l `
+set a=`/usr/sbin/prtconf | egrep -i mem   `  
+@ memtot = ($a[3] * 1000)
+else  if ($NWCHEM_TARGET == IBM || $NWCHEM_TARGET == IBM64 || $NWCHEM_TARGET == LAPI ) then
+set good="2"
+set nproc=`/usr/sbin/lsdev -Cc processor | wc -l `
+set nmcard = `/usr/sbin/lsdev -Cc memory | egrep mem | wc -l`
+set i=0
+set memtot=0
+while ($i != $nmcard) 
+set a=`/usr/sbin/lsattr -E -l mem$i |head -1`
+set cardmem=$a[2]
+@ memtot = ($memtot + $cardmem)
+@ i = ($i + 1)
+end
+@ memtot = ($memtot * 1000)
+else  if ($NWCHEM_TARGET == HPUX || $NWCHEM_TARGET == HPUX64  ) then
+set ffc="f90"
+set nproc=`/usr/sbin/ioscan -fkC processor | grep '^proc' | wc -l `
+cat > getmemhp.c <<EOF
+#include <sys/param.h>
+#include <sys/pstat.h>
+#include <sys/unistd.h>
+main()
+{
+   struct pst_static buf;
+      pstat_getstatic(&buf, sizeof(buf), 0, 0);
+ printf(" %ld\n", buf.physical_memory);
+                 }                                                             
+EOF
+cc -Wl,+vnocompatwarnings -o getmemhp getmemhp.c
+set memtot=`./getmemhp`
+rm -f ./getmemhp
+else 
+set good=0
+endif
+if($good != 0) then
+set memproc=0
+@ memproc = ($memtot / $nproc)
+echo "Total Memory         :" $memtot "Kb"
+echo "No. of processors    :" $nproc
+echo "Total Memory/proc    :" $memproc "Kb"
+# take 30 MB away for OS
+@ memproc = (($memproc - (30 * 1024)))
+# multiply by 128*1024
+@ memproc = ($memproc * 128)
+if($good == 1) then
+set copt=$ffc" -DDFLT_TOT_MEM="$memproc
+touch memory_def.F
+set mymake=`which make`
+echo `/usr/bin/strings $mymake | egrep GNU | head -1` >! tmp.out.test
+set nbyte=`wc -c tmp.out.test`
+rm -f tmp.out.test 
+if ($nbyte[1] != 1) then
+echo "Executing " 'make FC="'$copt '"'
+make FC="$copt "
+else
+echo "Executing " 'gmake FC="'$copt '"'
+gmake FC="$copt " 
+endif 
+else
+echo " "
+echo "Edit memory_def.F and change DFLT_TOT_MEM to "$memproc
+echo " "
+endif
+else
+echo "not ready for " $NWCHEM_TARGET
+endif
+
