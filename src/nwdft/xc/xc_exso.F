@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.1 2000-04-25 01:46:33 zzhang Exp $
+C$Id: xc_exso.F,v 1.2 2000-04-25 15:37:40 edo Exp $
 c
       implicit none
 c      
@@ -24,7 +24,7 @@ c--> XC Energy
 c
       double precision Exc(2)
       double precision ecoul ! [output]
-      integer me,nbf,type
+      integer me,type
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
