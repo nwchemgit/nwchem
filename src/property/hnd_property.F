@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.5 1997-08-22 19:49:11 mdupuis Exp $
+* $Id: hnd_property.F,v 1.6 1998-04-21 21:37:28 mdupuis Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -20,6 +20,8 @@ c
 c
       logical  int_normalize
       external int_normalize
+      logical  bas_is_spherical
+      external bas_is_spherical
 
       integer rtdb              ! [input] database handle
       integer geom, basis       ! handles
@@ -75,7 +77,12 @@ c
 c
 c     call hondo property calculation routines
 c
-      call hnd_propty ( rtdb, basis, geom )
+      if(.not.bas_is_spherical(basis)) then
+         call hnd_propty ( rtdb, basis, geom )
+      else
+         write(luout,*) 'basis', basis
+         write(luout,9999)
+      endif
 c
 c property is done. destroy basis and geometry handles  
 c (e.g., preserve the memory available to other modules!!)
@@ -93,4 +100,6 @@ c
       hnd_property = .true.
 c
       return
+ 9999 format(' property routines lifted from -hondo- do not handle',
+     &       ' spherical basis sets yet ... . skip and continue ')
       end
