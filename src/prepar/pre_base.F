@@ -1,6 +1,6 @@
       integer function pre_base(isgm,isegm,csa,msa,nsa)
 c
-c $Id: pre_base.F,v 1.1 2000-12-13 19:52:26 d3j191 Exp $
+c $Id: pre_base.F,v 1.2 2000-12-13 19:59:23 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,6 @@ c
 c
       do 1 i=1,nsa
       if(isgm.eq.isegm(i)) then
-      write(*,'(i5,a)') 
       if(csa(i)(1:3).eq.'DA ') ibase=1
       if(csa(i)(1:3).eq.'DA_') ibase=1
       if(csa(i)(1:3).eq.'DAT') ibase=1
