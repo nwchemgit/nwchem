@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.14 2000-10-30 21:37:52 windus Exp $*/
+/*$Id: rtdb_seq.c,v 1.15 2001-12-05 20:13:44 edo Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -37,9 +37,11 @@
 
 #include "sndrcv.h"
 
+#if !defined(LINUX)
 extern char *strdup(const char *);
 extern void *malloc(size_t);
 extern void free(void *);
+#endif
 
 #define MAX_RTDB 2
 
