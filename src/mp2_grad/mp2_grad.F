@@ -1,4 +1,4 @@
-      subroutine mp2_grad(rtdb)
+      logical function mp2_grad(rtdb)
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
