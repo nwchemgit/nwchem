@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_ion.F,v 1.3 2003-02-26 01:10:21 bylaska Exp $
+* $Id: paw_matrix_ion.F,v 1.4 2003-02-27 00:16:49 bylaska Exp $
 *
 
 !**************************************************
@@ -159,3 +159,17 @@
 
       return
       end !subroutine find_ion_matrix
+
+
+
+      subroutine paw_ion_matrix_ptr(ptr)
+      implicit none
+      integer ptr
+
+#include "paw_matrix_ion_data.fh"
+
+      ptr = paw_ion_matrix(1)
+
+      return
+      end
+

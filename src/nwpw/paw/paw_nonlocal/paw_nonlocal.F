@@ -1,5 +1,5 @@
 *
-* $Id: paw_nonlocal.F,v 1.3 2003-02-26 23:50:39 bylaska Exp $
+* $Id: paw_nonlocal.F,v 1.4 2003-02-27 00:16:50 bylaska Exp $
 *
 
 !**************************************************
@@ -18,6 +18,7 @@
 #include "mafdecls.fh"
 #include "paw_proj.fh"
 #include "paw_nonlocal_data.fh" 
+#include "paw_matrix_kin_data.fh"
 #include "paw_geom.fh" 
 #include "paw_ma.fh" 
 #include "paw_basis.fh" 
@@ -25,8 +26,9 @@
 *     **** local variables ****
       logical value
       integer ii,ia,nion
-      integer i,li,mi,j,lj,mj,il,jl,indx_m
-      integer basis_nbasis
+      integer i,li,mi,j,lj,mj,il,jl
+      integer basis_nbasis,indx,indx_m,ptr
+      integer ke_ptr,ion_ptr,core_ptr,vloc_ptr
 
       nion = ion_nion()
 
@@ -71,10 +73,15 @@
 
 
       !*** set the static part of the nonlocal operator ****
+      call paw_kin_matrix_ptr(ke_ptr)
+      call paw_ion_matrix_ptr(ion_ptr)
+      call paw_core_matrix_ptr(core_ptr)
+      call paw_vloc_matrix_ptr(vloc_ptr)
       indx_m = 0
       do ii=1,nion
          ia           = ion_katm(ii)
          basis_nbasis = paw_basis_nbasis(ia)
+         ptr = int_mb(i_paw_kin_matrix(1)+ia-1)
 
          jl = 0
          do j=1,basis_nbasis
@@ -86,8 +93,12 @@
                li = paw_basis_orb_l(i,ia)
                do mi=-li,li
               
-c                dcpl_mb(paw_Gop_static(1)) 
-c    >               = 
+                 indx = ptr + (j-1)*basis_nbasis + (i-1)
+                 dcpl_mb(paw_Gop_static(1)+indx_m) 
+     >               = dbl_mb(ke_ptr  +indx)
+     >               + dbl_mb(ion_ptr +indx)
+     >               + dbl_mb(core_ptr+indx)
+     >               + dbl_mb(vloc_ptr+indx)
 
                  indx_m = indx_m + 1
                end do !*mi*

@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_vloc.F,v 1.2 2003-02-25 02:38:37 bylaska Exp $
+* $Id: paw_matrix_vloc.F,v 1.3 2003-02-27 00:16:50 bylaska Exp $
 *
 
 !**************************************************
@@ -162,3 +162,16 @@
 
       return
       end !subroutine find_paw_vloc_matrix
+
+
+
+      subroutine paw_vloc_matrix_ptr(ptr)
+      implicit none
+      integer ptr
+
+#include "paw_matrix_vloc_data.fh"
+
+      ptr = paw_vloc_matrix(1)
+
+      return
+      end

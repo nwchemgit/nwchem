@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_core.F,v 1.1 2003-02-11 21:50:52 marat Exp $
+* $Id: paw_matrix_core.F,v 1.2 2003-02-27 00:16:49 bylaska Exp $
 *
 
 !**************************************************
@@ -187,3 +187,18 @@
 
       return
       end
+
+
+
+      subroutine paw_core_matrix_ptr(ptr)
+      implicit none
+      integer ptr
+
+#include "paw_matrix_core_data.fh"
+
+      ptr = paw_core_matrix(1)
+
+      return
+      end
+
+

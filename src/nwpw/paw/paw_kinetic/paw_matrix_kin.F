@@ -1,5 +1,5 @@
 c
-c $Id: paw_matrix_kin.F,v 1.2 2003-02-11 01:41:23 edo Exp $
+c $Id: paw_matrix_kin.F,v 1.3 2003-02-27 00:16:50 bylaska Exp $
 c
 
 !**************************************************
@@ -199,3 +199,18 @@ c
 
       return
       END 
+
+
+
+      subroutine paw_kin_matrix_ptr(ptr)
+      implicit none
+      integer ptr
+
+#include "paw_matrix_kin_data.fh"
+
+      ptr = paw_kin_matrix(1)
+
+      return
+      end
+
+
