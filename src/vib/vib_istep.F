@@ -2,7 +2,7 @@
      &    eigenvecs,eigenvals,coords,
      &    steps,stepsave,master)
 *
-* $Id: vib_istep.F,v 1.6 2000-10-23 16:24:13 windus Exp $
+* $Id: vib_istep.F,v 1.7 2000-11-21 23:53:44 d3g681 Exp $
 *
 * routine to compute the direction vector, magnitudes, updated
 * geometries for all negative eigenvalues in the current spectrum.
@@ -126,6 +126,29 @@ c
               write(luout,10002)iatom,tag,charge,(xyz(ixyz),ixyz=1,3)
             enddo
             write(luout,'(/)')
+c
+c     And also the negative step ...
+c
+            call dcopy(nat3,master,1,coords,1)
+            call dcopy(nat3,stepsave,1,steps,1)
+            call dscal(nat3,(-percents(ip)/100.0d00),steps,1)
+            length_of_step = sqrt(ddot(nat3,steps,1,steps,1))/
+     &          scale
+            call daxpy(nat3,1.0d00,steps,1,coords,1)
+            if (.not.geom_cart_coords_set(geom,coords)) call errquit
+     &          ('vib_istep: geom_cart_coords_set failed',911)
+            write(luout,10003)-percents(ip),imode,length_of_step,units
+            write(luout,10004)largest_step(ip)
+            do iatom=1,natom
+              if (.not.geom_cent_get(geom,iatom,tag,xyz,charge))
+     &            call errquit
+     &            ('vib_istep: geom_cent_get failed',911)
+              do ixyz = 1,3
+                xyz(ixyz)=xyz(ixyz)/scale ! convert to user coordinates
+              enddo
+              write(luout,10002)iatom,tag,charge,(xyz(ixyz),ixyz=1,3)
+            enddo
+            write(luout,'(/)')
           enddo
         endif
       enddo
@@ -140,7 +163,7 @@ c
 10001 format(2x,' Raw step length:',f7.3,1x,a10,';',
      &    2x, 'The Raw step for this mode is:')
 10002 format(' ',i4,' ',a16,' ',f10.4,3f15.8)
-10003 format(2x,'Geometry after ',f5.1,
+10003 format(2x,'Geometry after ',f6.1,
      &    '% step for mode ',
      &    i2,'; Step length =',f7.3,1x,a10)
 10004 format(3x,'Maximum component (any atom: x,y, or z) displacement:',
