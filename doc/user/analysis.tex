@@ -59,32 +59,6 @@ reference <string filename>
 where {\rm filename} is the name of an existing restart file. 
 This input directive is required.
 
-\section{Selection}
-
-Analyses can be applied to a selection of solute atoms. The selection
-is determined by
-
-\begin{verbatim}
-select [ <integer isgm> [ <integer jsgm> ]] [ { <string atom> } ]
-\end{verbatim}
-
-where {\rm isgm} is the first segment number, {\rm jsgm} is the last 
-segment number in the selection, and {\rm \{atom\}} is the set of atom
-names selected from the specified residues. By default all solute
-atoms are selected.
-\par
-For example, all protein backbone atoms are selected by
-
-\begin{verbatim}
-select _N _CA _C
-\end{verbatim}
-
-To select the backbone atoms in residues 20 to 80 only, use
-
-\begin{verbatim}
-select 20 80 _N _CA _C
-\end{verbatim}
-
 \section{File specification}
 
 The trajectory file(s) to be analyzed are specified with
@@ -131,7 +105,36 @@ the specified trajectory files, use
 frames 200 400 10
 \end{verbatim}
 
-\section{Root mean square deviation}
+\section{Selection}
+
+Analyses can be applied to a selection of solute atoms. The selection
+is determined by
+
+\begin{verbatim}
+select [ <integer isgm> [ <integer jsgm> ]] [ { <string atom> } ]
+\end{verbatim}
+
+where {\rm isgm} is the first segment number, {\rm jsgm} is the last 
+segment number in the selection, and {\rm \{atom\}} is the set of atom
+names selected from the specified residues. By default all solute
+atoms are selected.
+\par
+For example, all protein backbone atoms are selected by
+
+\begin{verbatim}
+select _N _CA _C
+\end{verbatim}
+
+To select the backbone atoms in residues 20 to 80 only, use
+
+\begin{verbatim}
+select 20 80 _N _CA _C
+\end{verbatim}
+
+This selection is reset to apply to all atoms after each file
+directive.
+
+\section{Coordinate analysis}
 
 To analyze the root mean square deviation from the specified reference
 coordinates:
@@ -139,6 +142,35 @@ coordinates:
 \begin{verbatim}
 rmsd
 \end{verbatim}
+
+To define a bond:
+
+\begin{verbatim}
+bond <integer ibonc> <string atomi> <string atomj> 
+\end{verbatim}
+
+To define an angle:
+
+\begin{verbatim}
+angle <integer ibonc> <string atomi> <string atomj> <string atomk> 
+\end{verbatim}
+
+To define a torsion:
+
+\begin{verbatim}
+torsion<integer ibonc> <string atomi> <string atomj> \
+                       <string atomk> <string atoml> 
+\end{verbatim}
+
+To perform the coordinate analysis:
+
+\begin{verbatim}
+scan <string filename>
+\end{verbatim}
+
+which will create, depending on the specified analysis options
+files filename.rms and filename.ana. After the scan directive
+previously defined coordinate analysis options are all reset.
 
 \section{Essential dynamics analysis}
 
@@ -189,18 +221,16 @@ The format of the new file is determined from the extension, which
 can be one of
 
 \begin{tabular}{rl}
-arc & \discover\ archive file\\
+trj & \nwchem\ trajectory file\\
+frm & \ecce\ frames file\\
 amb & \amber\ formatted trajectory file\\
 bam & \amber\ unformatted trajectory file\\
-mwm & \ecce\ mwm file\\
-xyz & \ecce\ xyz file\\
-eci & \ecce\ eci file\\
-frm & \ecce\ frm file\\
+arc & \discover\ archive file\\
 \end{tabular}
 
 If no extension is specified, a {\rm trj} formatted file will be written.
 
-A special tag can be added to {\rm frm} formated files  using
+A special tag can be added to {\rm frm} formatted files  using
 
 \begin{verbatim}
 label <integer itag> <string tag>  [ <real rtag default 0.0> ] \\
