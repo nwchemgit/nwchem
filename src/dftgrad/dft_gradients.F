@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.14 2003-10-17 22:54:42 carlfahl Exp $
+* $Id: dft_gradients.F,v 1.15 2004-08-11 15:30:12 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -80,7 +80,7 @@ c
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      $     lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      $     nscr, lscr, iscr
-      integer ipoint, itmpm,ltmpm,g_tmp(2),lenvec
+      integer ipoint, itmpm,ltmpm,g_tmp(2),lenvec,maavail
       double precision charge, charge_nuc, rhffact, tol2e, onem,
      , toll
       parameter(toll=1.d-9)
@@ -362,9 +362,10 @@ c     one-electron contribution
 c     buffers for one electron integral derivatives
 c     
       status = ma_push_get(mt_dbl, lbuf, 'deriv buffer', l_buf, k_buf)
-      if (.not.status) 
-     $     call errquit('dft_gradient: could not allocate buffer',1,
-     &       MA_ERR)
+      maavail=MA_inquire_avail(mt_dbl)
+      if(.not.status)
+     &    call errquit('dft_gradient: could not allocate buffer',
+     &     8*(lbuf-maavail),  MA_ERR)
 c     
       status = ma_push_get(mt_dbl, lscratch, 'deriv scratch', 
      $     l_scr, k_scr)
