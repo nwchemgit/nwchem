@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.93 1996-10-21 19:16:42 d3e129 Exp $
+c     $Id: nwchem.F,v 1.94 1996-10-23 05:56:38 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -304,7 +304,7 @@ c
       write(6,*)
       write(6,*)
       call util_print_centered(6,
-     $     'Northwest Computational Chemisty Package (NWChem)',
+     $     'Northwest Computational Chemistry Package (NWChem) 2.0',
      $     40, .true.)
       write(6,*)
       write(6,*)
@@ -336,7 +336,6 @@ c
          cstart = 'startup'
       else
         if (ocontinue) then
-*                   12345678
           cstart = 'continue'
         else
           cstart = 'restart'
