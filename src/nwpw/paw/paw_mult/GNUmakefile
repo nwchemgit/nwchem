@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.5 2003-02-23 21:37:07 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2003-03-17 23:12:22 marat Exp $
 #
 
           OBJ =  paw_mult.o paw_mult_interaction.o paw_mult_energy.o
-          HEADERS = 
+          HEADERS = paw_mult_data.fh
 
 
       LIBRARY =	libpaw.a
