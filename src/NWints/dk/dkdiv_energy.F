@@ -1,5 +1,5 @@
       logical function dkdiv_energy(rtdb)
-c $Id: dkdiv_energy.F,v 1.4 2000-02-04 00:59:06 mg201 Exp $
+c $Id: dkdiv_energy.F,v 1.5 2000-02-04 19:30:53 mg201 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -39,7 +39,7 @@ c
 c
       call int_init(rtdb,1,basis)
 c
-      if (.not. int_normalize(basis,rtdb))
+      if (.not. int_normalize(rtdb,basis))
      $     call errquit('dkdiv_energy: int_normalize failed',0)
       if (.not. bas_numbf(basis,nbf))
      $   call errquit('dkdiv_energy: bas_numbf failed',0)
