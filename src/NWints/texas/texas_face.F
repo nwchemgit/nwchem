@@ -1,5 +1,5 @@
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.1 1995-10-30 20:58:01 d3e129 Exp $
+c $Id: texas_face.F,v 1.2 1995-10-30 23:26:35 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -236,10 +236,14 @@ c     leri=614656
 c----------------------------------------------------------------------
 c
       rtdb_copy = rtdb
-      if (nbas.gt.1)
-     & call errquit
-     & (' texas can only handle 1 basis today/tommorrow/and Tuesday',
-     & 911)
+      if (nbas.gt.1) then
+        write(6,*)' warning '
+        write(6,*)
+     &  ' texas can only handle 1 basis today/tommorrow/and Tuesday',
+        write(6,*)' using the first basis passed as the MO basis.'
+        write(6,*)' '
+        write(6,*)' Krys is working on the fix '
+      endif
 c
       basis = bases(1) ! only one basis in texas
 c
