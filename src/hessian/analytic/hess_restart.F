@@ -1,5 +1,5 @@
 C
-C $Id: hess_restart.F,v 1.2 2001-04-05 22:25:06 windus Exp $
+C $Id: hess_restart.F,v 1.3 2001-05-17 23:28:26 windus Exp $
 C
       subroutine hess_restart(rtdb, restr)
 c
@@ -17,12 +17,34 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
+#include "util.fh"
 c
       integer rtdb              ! [input] Run-time database handle
       integer restr             ! [input] level of calculation completed
                                 ! 1 = 1 e-; 2 = 2 e-
 c
+      logical oprint
+      integer i
+c
       call ga_dgop(msg_hess_exy,dbl_mb(k_exy),n3xyz2,'+')
+c
+c  Print out if requested
+c
+      oprint = util_print('hess_follow',print_high)
+      if (oprint.and.(ga_nodeid().eq.0)) then
+        write(LuOut,*)
+        call util_flush(LuOut)
+        write(LuOut,*) 'The Hessian after contributions:',restr
+        call hess_hssout(dbl_mb(k_exy),n3xyz,n3xyz,n3xyz)
+        write(LuOut,*)
+        write(LuOut,*) 'The Fock derivatives :'
+      endif
+      if (oprint) then
+        do i = 1, n3xyz
+          call ga_print(g_rhs(i))
+        enddo
+      endif
 c
 c  Write hessian out to disk
 c
