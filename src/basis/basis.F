@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.93 1999-10-15 06:09:46 d3e129 Exp $
+c $Id: basis.F,v 1.94 1999-10-26 21:38:07 mg201 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -350,7 +350,7 @@ c
 *.....................................................................
       logical function ecp_check_handle(ecpidin,msg)
 c
-c Checks to see if a basis set handle is valid
+c Checks to see if an ECP basis set handle is valid
 c
       implicit none
 #include "basdeclsP.fh"
@@ -379,7 +379,7 @@ c
 *.....................................................................
       logical function so_check_handle(soidin,msg)
 c
-c Checks to see if a basis set handle is valid
+c Checks to see if an ECP so basis set handle is valid
 c
       implicit none
 #include "basdeclsP.fh"
@@ -1356,7 +1356,7 @@ c::local
       logical foundit
       logical found_any
       logical is_bq
-      logical ecpORso
+      logical ecpORso, relbas
       integer int_dummy, num_elec
       integer h_tmp, k_tmp
       character*2 tag12
@@ -1373,6 +1373,8 @@ c::functions
       external ecp_get_num_elec
       logical bas_match_tags
       external bas_match_tags
+      logical basis_is_rel
+      external basis_is_rel
 c
 #include "bas_ibs_sfn.fh"
 #include "ecpso_sfnP.fh"
@@ -1380,6 +1382,7 @@ c
       basis = basisin + Basis_Handle_Offset
       geom  = ibs_geom(basis)
       ecpORso = Is_ECP(basis).or.Is_SO(basis)
+      relbas = basis_is_rel(basisin)
 c
 *debug:mem      do inode = 0,(ga_nnodes() - 1)
 *debug:mem        if (inode.eq.ga_nodeid()) call MA_summarize_allocated_blocks()
@@ -1485,18 +1488,19 @@ c
           found_any = .true.
           goto 00102
         endif
-        if (.not. foundit .and. .not. ecpORso) then
+        if (.not. foundit .and. .not. (ecpORso .or. relbas)) then
           if (geom_tag_to_element(tags(i,geom), symbol, element,
      $        atn)) then
             if (ga_nodeid().eq.0)
-     &          write(6,10) tags(i,geom)(1:inp_strlen(tags(i,geom))),
+     &          write(LuOut,10) 
+     &          tags(i,geom)(1:inp_strlen(tags(i,geom))),
      $          element(1:inp_strlen(element)),
      $          bs_name(basis)(1:len_bs_name(basis))
  10         format(/' ERROR: geometry tag ',a,' (',a,
      &          ') is an atom ',
      $          'but has no functions in basis "',a,'"'/
      $          ' ERROR: only bq* centers can have no functions')
-            if (ga_nodeid().eq.0) call util_flush(6)
+            if (ga_nodeid().eq.0) call util_flush(LuOut)
             call errquit
      &          ('bas_geobas_build: basis/geometry mismatch', 0)
           else
@@ -1505,13 +1509,13 @@ c
      $           (inp_compare(.false.,'X',tags(i,geom)(1:1)) .and. 
      $           (.not. inp_compare(.false.,'e',tags(i,geom)(2:2))))
             if (ga_nodeid().eq.0 .and.(.not.is_bq))
-     &          write(6,11) i,
+     &          write(LuOut,11) i,
      &          tags(i,geom)(1:inp_strlen(tags(i,geom))),
      $          bs_name(basis)(1:len_bs_name(basis))
  11         format(/'WARNING: geometry tag ',i4, ' ', a,
      $          ' not found in basis "',a,'"'/)
             int_mb(mb_ibs_ce2uce(i,basis)) = 0
-            if (ga_nodeid().eq.0) call util_flush(6)
+            if (ga_nodeid().eq.0) call util_flush(LuOut)
           endif
         endif
 00102   continue
@@ -3192,6 +3196,9 @@ c
       else if (norm_id.eq.BasNorm_2c)  then
         write(luout,*)
      &        ' basis has dft/fitting normalization via int_norm_2c'
+      else if (norm_id.eq.BasNorm_rel)  then
+        write(luout,*)
+     &        ' basis has relativistic normalization via int_norm'
       else
         write(luout,*)' basis handle: ',basisin
         write(luout,*)' norm_id = ',norm_id
@@ -4562,4 +4569,28 @@ c
 *        write(luout,*)' exponent ',exponent,'  test ', test_exponent
       enddo
 *      write(luout,*)' largest exponent ',exponent
+      end
+*.....................................................................
+      logical function bas_rel_exists (rtdb)
+      implicit none
+      integer rtdb
+#include "rel_nwc.fh"
+      logical  bas_name_exist_rtdb
+      external bas_name_exist_rtdb
+      bas_rel_exists = bas_name_exist_rtdb(rtdb,small_cmpt_name)
+      end
+*
+*.....................................................................
+      logical function basis_is_rel (basisin)
+      implicit none
+      integer basisin
+#include "rel_nwc.fh"
+      character*32 basis_name,trans_name
+      logical  bas_name
+      external bas_name
+      basis_is_rel = bas_name(basisin,basis_name,trans_name)
+      if (basis_is_rel) then
+        basis_is_rel = (basis_name .eq. small_cmpt_name) 
+     &      .or. (basis_name .eq. large_cmpt_name)
+      end if
       end
