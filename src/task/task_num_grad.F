@@ -40,7 +40,7 @@ c
       call util_print_rtdb_load(rtdb, 'numg')
       oprint_info = util_print('information', print_low) .and. 
      $     ga_nodeid().eq.0
-      oprint_mode = util_print('modes', print_default) .and. 
+      oprint_mode = util_print('modes', print_high) .and. 
      $     ga_nodeid().eq.0
       oprint_step = util_print('step', print_low) .and. 
      $     ga_nodeid().eq.0
@@ -383,7 +383,7 @@ c     by diagonalizing the metric
 c     
       call dgemm('t','n',natoms3,natoms3,natoms3,1.0d0, 
      $     vectors, natoms3, vectors, natoms3, 0.0d0, temp, natoms3)
-      call dsyev('v','u',natoms3,temp,natoms3,eval,work,600,info)
+      call dsyev('v','u',natoms3,temp,natoms3,eval,work,18*maxat,info)
       if (info .ne. 0) call errquit('fd_make_vectors: dsyev failed',0)
 *      write(6,*) ' Eigen values of the projected vectors metric '
 *      call output(eval, 1, natoms3, 1, 1, natoms3, 1, 1)
