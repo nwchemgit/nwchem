@@ -1,6 +1,6 @@
       subroutine dmd_input(rtdb)
 *
-* $Id: dmd_input.F,v 1.1 1999-12-16 23:44:05 bert Exp $
+* $Id: dmd_input.F,v 1.2 1999-12-16 23:50:44 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -33,7 +33,7 @@ c
          elseif (inp_compare(.false., 'on', test)) then
             dmd_run  = .true.
          else
-            call errquit('dk_input: unknown directive',0)
+            call errquit('dmd_input: unknown directive',0)
          endif
          goto 10
       endif
@@ -49,7 +49,7 @@ c
 c     Put parameters in rtdb
 c       
       if (.not. rtdb_put(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run))
-     $   call errquit('dk_input: rtdb_put failed', 0)
+     $   call errquit('dmd_input: rtdb_put failed', 0)
 c
       return
 c       
