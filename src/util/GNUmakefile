@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.101 1999-06-22 23:05:23 d3e129 Exp $
+# $Id: GNUmakefile,v 1.102 1999-06-25 01:04:13 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -77,7 +77,7 @@ endif
                  ga_it_lsolve.o ga_it_orth.o ga_orthog.o idamin.o
 
   SUBDIRS = md5
-
+  LIB_INCLUDES = -I../ddscf
 
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \
