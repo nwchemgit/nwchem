@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.48 2000-04-11 15:21:10 d3j191 Exp $
+c $Id: sp_main.F,v 1.49 2000-05-16 16:56:56 d3j191 Exp $
 c
       implicit none
 c
@@ -1865,7 +1865,7 @@ c
 c
       return
       end
-      subroutine sp_getxpbl(ibbl,lhandl,local,
+      subroutine sp_getxpbl(ibbl,lhandl,
      + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
      + isl,xs,ps,psp,isfr,isto,jsfr,jsto,lself,lpbcs)
 c
@@ -1880,9 +1880,9 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3)
       real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
       real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
-      logical lself,local,lpbcs
+      logical lself,lpbcs
 c
-      call sp_gtxpbl(ibbl,lhandl,local,
+      call sp_gtxpbl(ibbl,lhandl,
      + iwl,int_mb(i_packw),xw,pw,pwp,iwfr,iwto,jwfr,jwto,
      + isl,int_mb(i_pack),xs,ps,psp,isfr,isto,jsfr,jsto,
      + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself,.true.)
@@ -1891,7 +1891,38 @@ c
 c
       return
       end
-      subroutine sp_getxbl(ibbl,lhandl,local,
+      logical function sp_local(ibbl)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      integer ibbl
+      logical local
+c
+      call sp_gtself(ibbl,local,int_mb(i_bb))
+c
+      sp_local=local
+c
+      return
+      end
+      subroutine sp_gtlocal(ibbl,local,lbbl)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+c
+      integer ibbl
+      logical local
+      integer lbbl(mbbl,mbb2)
+c
+      local=lbbl(ibbl,1).eq.me
+c
+      return
+      end
+      subroutine sp_getxbl(ibbl,lhandl,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
      + lself,lpbcs)
 c
@@ -1904,10 +1935,10 @@ c
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3)
-      logical lself,local,lpbcs
+      logical lself,lpbcs
       real*8 pw(2),pwp(2),ps(2),psp(2)
 c
-      call sp_gtxpbl(ibbl,lhandl,local,
+      call sp_gtxpbl(ibbl,lhandl,
      + iwl,int_mb(i_packw),xw,pw,pwp,iwfr,iwto,jwfr,jwto,
      + isl,int_mb(i_pack),xs,ps,psp,isfr,isto,jsfr,jsto,
      + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself,.false.)
@@ -1916,7 +1947,7 @@ c
 c
       return
       end
-      subroutine sp_gtxpbl(ibbl,lhandl,local,
+      subroutine sp_gtxpbl(ibbl,lhandl,
      + iwl,iwlp,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
      + isl,islp,xs,ps,psp,isfr,isto,jsfr,jsto,
      + lbbl,ipl,jpl,lself,lpp)
@@ -1934,7 +1965,7 @@ c
       real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
       integer lbbl(mbbl,mbb2)
       integer ipl(mbox,mip2),jpl(mbox,mip2)
-      logical lself,local,lpp
+      logical lself,lpp
 c
       integer i,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
       character*80 string
@@ -1946,7 +1977,6 @@ c
       jbox=lbbl(ibbl,2)
       ibox=lbbl(ibbl,3)
       lhandl=lbbl(ibbl,4)
-      local=jnode.eq.me
 c
       lself=ibox.eq.jbox
 c
