@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.167 1996-08-29 17:16:35 d3g681 Exp $
+# $Id: makefile.h,v 1.168 1996-09-20 18:19:06 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -407,8 +407,11 @@ ifeq ($(TARGET),SGITFP)
 # CORE_SUBDIRS_EXTRA are those machine specific libraries required 
 #
 # TPS 95/11/22:
-# Optimization options const_copy_limit=18000, global_limit=18000 and fprop_limit=1200 added to
-# FOPTIMIZE to allow full optimization of the MD module nwArgos on SGI Power Indigo^2
+# Optimization options const_copy_limit=18000, global_limit=18000 and 
+# fprop_limit=1200 added to FOPTIMIZE to allow full optimization of the 
+# MD module nwArgos on SGI Power Indigo^2
+#
+# RJH ... note that fprop_limit is not supported by 7.0 compilers
 #
 # TPS 95/12/12:
 # Increased fprop_limit to 1750
@@ -535,7 +538,6 @@ ifeq ($(TARGET),IBM)
 # -qhot seems to break a lot of things so don't ever use it
 # -qarch=pwr (for peril) com (for any) , pwr2  or ppc
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
-# -qstrict -qhot
   COPTIMIZE = -O
 
     DEFINES = -DIBM -DAIX -DEXTNAME
