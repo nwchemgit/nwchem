@@ -1,11 +1,11 @@
-c $Id: int_init.F,v 1.31 1997-05-22 21:02:38 d3e129 Exp $
+c $Id: int_init.F,v 1.32 1997-05-28 08:17:44 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
-c:tex-\subsubsection{int\_init}
+c:tex-\subsection{int\_init}
 c:tex-This is the main initialization routine for integrals.
-c:tex-memory requirements, accuracy thresholds, and other 
+c:tex-Default memory requirements, accuracy thresholds, and other 
 c:tex-initializations for all base integral codes are set here. 
-c:tex-This routine will read (from the rtdb)any integral 
+c:tex-This routine will read (from the rtdb) any integral 
 c:tex-settings changed by the user.
 c:tex-
 c:tex-{\it Syntax:}

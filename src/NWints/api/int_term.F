@@ -1,5 +1,16 @@
+c:tex-
+c:tex-%API Initialization and Termination Routines
+c:tex-\subsection{int\_terminate}
+c:tex-This is the main termination routine for integrals.
+c:tex-After this call the INT-API is ready for re-initialization.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_terminate()
-c $Id: int_term.F,v 1.7 1997-04-25 00:40:55 d3e129 Exp $
+c:tex-\end{verbatim}
+c:tex-No formal arguments
+c:tex-
+c $Id: int_term.F,v 1.8 1997-05-28 08:17:45 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
@@ -51,7 +62,19 @@ c
 *_not_used?:      write(6,*)'::done:: de-allocating sp blocks of memory'
 *_not_used?:c
       end
+c:tex-
+c:tex-%API Initialization and Termination Routines
+c:tex-\subsection{intd\_terminate}
+c:tex-This is the main termination routine for integral
+c:tex-derivatives.
+c:tex-After this call the INT-API is ready for re-initialization.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine intd_terminate()
+c:tex-\end{verbatim}
+c:tex-No formal arguments
+c:tex-
       implicit none
 #include "apiP.fh"
 c::functions

@@ -1,5 +1,17 @@
+c $Id: intd_init.F,v 1.10 1997-05-28 08:17:45 d3e129 Exp $
+*
+c:tex-%API Initialization and Termination Routines
+c:tex-\subsection{intd\_init}
+c:tex-This is the main initialization routine for integral derivatives.
+c:tex-Default memory requirements, accuracy thresholds, and other 
+c:tex-initializations for all base integral codes are set here. 
+c:tex-This routine will read (from the rtdb) any integral 
+c:tex-settings changed by the user.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine intd_init(rtdb,nbas,bases)
-c $Id: intd_init.F,v 1.9 1997-05-22 21:01:34 d3e129 Exp $
+c:tex-\end{verbatim}
 c
 c Initializes integral derivative code 
 c
@@ -16,9 +28,11 @@ c::functions
       logical int_ecp_init
       external int_ecp_init
 c::passed
-      integer rtdb        ! run time data base handle
-      integer nbas        ! number of basis sets to be used
-      integer bases(nbas) ! basis set handles
+c:tex-\begin{verbatim}
+      integer rtdb        ! [input] run time data base handle
+      integer nbas        ! [input] number of basis sets to be used
+      integer bases(nbas) ! [input] basis set handles
+c:tex-\end{verbatim}
 c::local
       integer ibas, ang2use, angm
       logical status

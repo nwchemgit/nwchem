@@ -1,0 +1,81 @@
+*:tex-begin
+*:tex-cvsid
+%-----------------------------------------------------------------% 
+%                                                                 %
+%                                                                 %
+%  This latex source file should not be edited.  It is generated  %
+%  automatically from the integral API source code using "seetex" %
+%  modifications required sould be made in the source code which  %
+%  is in the source directory ".../nwchem/src/NWints/api" from    %
+%  the standard repository. If you have questions or problems     %
+%  contact Ricky Kendall at ra_kendall@pnl.gov or (509)375-2602   %
+%                                                                 %
+%                                                                 %
+%-----------------------------------------------------------------% 
+\chapter{Integral Application Programmer's Interface}
+The integral (INT) Application Programmer's Interface (API) is the
+interface to the base integral technology available in the NWChem
+application software.  The INT-API interfaces currently three integral
+codes, the sp rotated axis code (from GAMESS-UK), the
+McMurchie-Davidson code (PNNL, Stave, Fr\"uchtl, and Kendall), and the
+Texas 93/95 Integral code (Wolinski and Pulay).  The API is currently
+limited to the requisite functionality of NWChem.  Further
+functionality will be added over time as requirements are determined,
+prioritized and implemented.  
+
+The integral code operates as a single threaded suite and all
+parallelization is achieved at the level of the routines that call the
+API or above.  The API requires a collective initialization phase to
+determine operating parameters for the particular run based on both
+user input and the basis set specification.  The API will select the
+appropriate base integral code for the requested integrals at the time
+of each request.  Once all integral computations have completed for
+the module the termination routines should be called.  
+
+Coupled initialization and termination can be executed as many times
+as required. It is imperative that the basis set object and geometry
+object are constant between initialization and termination, e.g.,
+normalization must occur prior to initialization.  If this data must
+be modified then a termination and re-initialization of the integral
+API is {\bf{\it required}}.
+
+The INT-API has the following kinds of routines:
+\begin{itemize}
+\item initialization, integral accuracy and termination,
+\item memory requirements,
+\item integral routines (both shell based and blocked),
+\item derivative integral routines,
+\item property integral routines,
+\item periodic integral routines,
+\item Internal API Routines
+\end{itemize}
+
+%\subsection{API Initialization and Termination Routines}
+%int\_init, intd\_init, int\_terminate, int\_acc, 
+% 
+%\subsection{API Internal Routines}
+%int\_chk\_init, int\_chk\_sh, exact\_mem, exactd\_mem, cando\_sp, int\_canon,
+%int\_hf1sp
+% 
+%\subsection{API include files}
+%apiP.fh, apispP.fh, int\_tim.fh, numb\_qP.fh
+% 
+%\subsection{API Standard Integral Routines}
+%int\_mem int\_1cg, int\_1e3ov, int\_1eall, int\_1eh1, int\_1eke, int\_1eov, int\_1epe,
+%int\_2e2c, int\_2e3c, int\_2e4c, int\_l1e3ov, int\_l1eall, int\_l1eh1,
+%int\_l1eke, int\_l1eov, int\_l1epe, int\_l2e2c, int\_l2e3c, int\_l2e4c,
+%int\_lgen1e, int\_mpole, int\_nint, int\_pgen1e, int\_projpole
+% 
+%\subsection{API blocking routines}
+%intb\_2e4c, intb\_init4c
+% 
+%\subsection{API Integral Derivative Routines}
+%intd\_1eh1, intd\_1eov, intd\_2e2c, intd\_2e3c, intd\_2e4c 
+% 
+%\subsection{API Periodic Integral Routines}
+%intp\_* routines include only the specific translations of centers
+%required currently by the periodic DFT code.
+% 
+%intp\_txyz 
+% 
+*:tex-end

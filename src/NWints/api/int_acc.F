@@ -1,7 +1,7 @@
-C $Id: int_acc.F,v 1.8 1996-10-07 16:50:18 d3e129 Exp $
+C $Id: int_acc.F,v 1.9 1997-05-28 08:17:43 d3e129 Exp $
 *
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{int\_acc\_std}
+c:tex-\subsection{int\_acc\_std}
 c:tex-This routine sets the integral threshold for radial cutoffs in all 
 c:tex-integral codes used in the api via a parameter statement.  Other
 c:tex-routines have access via the apiP.fh common blocks and the set/get API.
@@ -23,7 +23,7 @@ c
       end
 c......................................................................
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{int\_acc\_high}
+c:tex-\subsection{int\_acc\_high}
 c:tex-This routine sets the integral threshold to ``high'' accuracy 
 c:tex-for radial cutoffs in all integral codes used in the api via a 
 c:tex-parameter statement.  Other routines have access via the apiP.fh 
@@ -43,11 +43,10 @@ c:tex-\end{verbatim}
       end
 c......................................................................
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{int\_acc\_get}
+c:tex-\subsection{int\_acc\_get}
 c:tex-This routine returns the current integral threshold 
 c:tex-for radial cutoffs in all integral codes used in the api via a 
-c:tex-parameter statement.  Other routines have access via the apiP.fh 
-c:tex-common blocks and the set/get API.
+c:tex-parameter statement.  
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -62,11 +61,10 @@ c:tex-\end{verbatim}
       end
 c......................................................................
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{int\_acc\_set}
+c:tex-\subsection{int\_acc\_set}
 c:tex-This routine sets the current integral threshold 
 c:tex-for radial cutoffs in all integral codes used in the api via a 
-c:tex-parameter statement.  Other routines have access via the apiP.fh 
-c:tex-common blocks and the set/get API.
+c:tex-parameter statement.  
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}

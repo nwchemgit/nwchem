@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.54 1997-04-25 00:40:30 d3e129 Exp $
+# $Id: GNUmakefile,v 1.55 1997-05-28 08:17:46 d3e129 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -45,3 +45,11 @@ noo:
 txs:
 	@touch cando_sp.F int_2e2c.F int_2e3c.F
 	$(MAKE) "USE_TEXAS=YEP"
+
+doc:
+	rm -f integral_api.tex
+	$(BINDIR)/seetex integral_api.th integral_api.tex
+	rm -f int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec.th int_api_spec_sec1.th int_init.F intd_init.F int_term.F int_acc.F int_api_spec.tex
+	cp integral_api.tex int_api_spec.tex ${NWCHEM_TOP}/doc/prog
+
