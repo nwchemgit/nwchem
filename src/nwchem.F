@@ -87,6 +87,14 @@ c
       if (.not. pstat_terminate()) call errquit
      $     ('nwchem: pstat_terminate failed', 0)
 c
+c     Print memory info
+c
+      if (ga_nodeid() .eq. 0) then
+         call ga_summarize(.false.)
+         call ma_summarize_allocated_blocks()
+         call ma_print_stats()
+      endif
+c
 c     Tidy up the global memory
 c
       call ga_terminate()
