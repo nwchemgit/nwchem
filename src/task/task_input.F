@@ -82,7 +82,7 @@ c
 c
 c     Read input of the shell task directive
 c
-c     task shell ([<integer-range processor = 0>]|all) <string command>
+c     task shell [(<integer-range processor = 0>|all)] <string command>
 c
       character*1023 command
       character*8 test
@@ -93,7 +93,6 @@ c
 c
       if (inp_n_field() .eq. 4) then
          if (.not. inp_irange(range(1),range(2),range(3))) then
-            call inp_errout()
             if (inp_a(test)) then
                if (inp_compare(.false.,test,'all')) then
                   range(1) = 0
@@ -107,7 +106,8 @@ c
          endif
          call errquit('task shell: bad format for processor range',0)
 c
- 10      if (range(1).lt.0 .or. range(1).ge.ga_nnodes() .or.
+ 10      call inp_clear_err()
+         if (range(1).lt.0 .or. range(1).ge.ga_nnodes() .or.
      $        range(2).lt.0 .or. range(2).ge.ga_nnodes() .or.
      $        range(3).lt.1)
      $        call errquit('task shell: invalid process range',0)
