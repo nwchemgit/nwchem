@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.8 1999-11-09 20:19:06 bert Exp $
+c $Id: int_1edk_ga.F,v 1.9 1999-11-09 22:21:52 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -47,7 +47,6 @@ c
 c     
 c     local variables
 c     
-      integer form_type         ! form of Douglas-Kroll (see first section header)
       integer nbf, nbf_in       ! # of basis functions for usebasis and basis_in
       integer usebasis          ! Uncontracted basis to be used for computation of integrals
       integer Tg_a              ! GA handle kinetic energy integral matrix T 
@@ -68,8 +67,8 @@ c
 c
       double precision c, c2    ! Speed of light c (in au) plus c^2 
 c
-c     c = 137.0359895d0
-      c = 137.0360000d0
+      c = 137.0359895d0
+c     c = 137.0360000d0         ! Speed of light by Bernd Hess
       c2 = c*c
 c
 c     At this point we set oskel to false. Having symmetry and oskel is true 
