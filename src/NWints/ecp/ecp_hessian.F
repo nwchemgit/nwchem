@@ -1,4 +1,4 @@
-C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
+C $Id: ecp_hessian.F,v 1.2 1997-08-20 23:06:36 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_hessian (
@@ -76,8 +76,11 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
       integer i,j,k,l,m,n,
      &    n_prim_A,n_cont_A,l_A,i_c_A,
      &    n_prim_B,n_cont_B,l_B,i_c_B,
-     &    n_zeta_C,n_C,l_ecp_max,n_int,n_cent,i_c_C,
+     &    n_zeta_C,n_C,l_ecp_max,n_int,n_blk,n_cent,i_c_C,
      &    sphcart,lscr,ibug
+Ctest
+      parameter (n_blk=1)
+Cend
       integer n_prim_C(0:2,-1:l_ecp_max,n_C),
      &    n_coef_C(-1:l_ecp_max,n_C),ind_C(-1:l_ecp_max,n_C),
      &    n_tot_C(n_C),l_C(n_C),i_cent_C(n_C)
@@ -92,14 +95,14 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
       integer i_scr,i_s,i_zeta,i_zeta0,i_zeta1,n_prim0,n_prim1,
      &    mem,max_loc,max_type1,max_type2,l_scr,
      &    n_cart_a,n_cart_b,n_cont_ab,
-     &    n_all_a,n_all_b,n_ab,n_ab9
+     &    n_all_a,n_all_b,n_ab,n_abblk,n_ab9blk
       integer lcsco
       logical DryRun,debug_gen,debug_addresses,debug_arrays
       double precision 
      &    xyz_A(3),zeta_A(n_prim_A),coef_A(n_prim_A,n_cont_A),
      &    xyz_B(3),zeta_B(n_prim_B),coef_B(n_prim_B,n_cont_B),
      &    xyz_C(3,n_C),zeta_C(n_zeta_C),coef_C(n_zeta_C),
-     &    scr(lscr),ecp_hess(n_int,3,n_cent,3,n_cent)
+     &    scr(lscr),ecp_hess(n_int*n_blk,3,n_cent,3,n_cent)
       double precision 
      &    X_AC,Y_AC,Z_AC,R_AC,X_BC,Y_BC,Z_BC,R_BC,
      &    tol
@@ -117,7 +120,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
 *
       if (debug_gen) write (LuOut,'(//A,/)') 'Entering ecp_hessian ...'
       if (debug_addresses) then
-        write(LuOut,*)' lscr in ecp_integral:',lscr
+        write(LuOut,*)' lscr in ecp_hessian:',lscr
         write (LuOut,*) 'n_prim_A,n_cont_A,l_A',n_prim_A,n_cont_A,l_A
         write (LuOut,*) 'n_prim_B,n_cont_B,l_B',n_prim_B,n_cont_B,l_B
         write (LuOut,*) 'l_ecp_max,n_c,n_cent',l_ecp_max,n_c,n_cent
@@ -128,11 +131,12 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
       n_all_a = n_cart_a*n_cont_a
       n_cont_ab = n_cont_a*n_cont_b
       n_ab = n_all_a*n_all_b
-      n_ab9 = n_ab*9
+      n_abblk = n_ab*n_blk
+      n_ab9blk = n_abblk*9
       if (debug_addresses) write (LuOut,*) 
      &    'n_cart_a,n_cart_b,n_cont_ab,n_ab',
      &    n_cart_a,n_cart_b,n_cont_ab,n_ab
-      if (n_int .ne. n_ab) call errquit (
+      if (n_int .lt. n_abblk) call errquit (
      &    'Mismatch of integral count in ecp_gradient',99)
       if (sphcart .ne. 0) call errquit(
      &    'Do your own spherical transformation, lazy bum!',99)
@@ -141,7 +145,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
         max_type2 = 0
         max_loc = 0
       else
-        call dcopy (n_int*9*n_cent**2,zero,0,ecp_hess,1)
+        call dfill (n_int*n_blk*9*n_cent**2,zero,ecp_hess,1)
       end if
 *
 *   Set up pointers to scratch space for coefficients multiplied by 
@@ -183,10 +187,10 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
       i_xcb = i_xxca+n_prim_A*n_cont_A
       i_xxcb = i_xcb+n_prim_B*n_cont_B
       i_lp = i_xxcb+n_prim_B*n_cont_B
-      i_lm = i_lp+max(n_intpaa,n_intpbb,n_intppab)
-      i_grdp = i_lm+max(n_ab,n_intpmab,n_intmpab)
-      i_grdm = i_grdp+max(n_intpa,n_intpb)*3
-      i_scr = i_grdm+max(n_intpa,n_intpb)*3
+      i_lm = i_lp+max(n_intpaa,n_intpbb,n_intppab)*n_blk
+      i_grdp = i_lm+max(n_ab,n_intpmab,n_intmpab)*n_blk
+      i_grdm = i_grdp+max(n_intpa,n_intpb)*3*n_blk
+      i_scr = i_grdm+max(n_intpa,n_intpb)*3*n_blk
       if (debug_addresses) then
         write (LuOut,*) 'i_xca,i_xcb',i_xca,i_xcb
         write (LuOut,*) 'i_lp,i_lm',i_lp,i_lm
@@ -198,7 +202,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
       if (.not.DryRun) then
         l_scr = lscr-i_scr+1
         if (l_scr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in ecp_integral',99)
+     &      'Insufficient scratch memory in ecp_hessian',99)
         k = i_xca-1
         m = n_prim_A*n_cont_A
         do j = 1,n_cont_a
@@ -280,7 +284,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
 *
 *         Calculate integrals for l_B+2 with coeffs * zeta**2
 *
-          call ecp_local (mem,DryRun,
+          if (n_blk .ne. 3) call ecp_local (mem,DryRun,
      &        xyz_A,zeta_A,coef_A,
      &        n_prim_A,n_cont_A,n_cart_A,l_A,
      &        xyz_B,zeta_B,scr(i_xxcb),
@@ -300,7 +304,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &          n_zeta_C,coef_C,zeta_C,0,2,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lp),n_intpbb,.false.,ibug/10)
+     &          scr(i_lp),n_intpbb,n_blk,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
           else
             call ecp_int2 (mem,DryRun,
@@ -312,13 +316,13 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &          n_zeta_C,coef_C,zeta_C,0,2,
      &          tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lp),n_intpbb,ibug/10)
+     &          scr(i_lp),n_intpbb,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
           end if
 *
 *         Calculate integrals for l_B with coeffs * zeta
 *
-          call ecp_local (mem,DryRun,
+          if (n_blk .ne. 3) call ecp_local (mem,DryRun,
      &        xyz_A,zeta_A,coef_A,
      &        n_prim_A,n_cont_A,n_cart_A,l_A,
      &        xyz_B,zeta_B,scr(i_xcb),
@@ -338,7 +342,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &          n_zeta_C,coef_C,zeta_C,0,2,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lm),n_ab,.false.,ibug/10)
+     &          scr(i_lm),n_ab,n_blk,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
           else
             call ecp_int2 (mem,DryRun,
@@ -350,22 +354,23 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &          n_zeta_C,coef_C,zeta_C,0,2,
      &          tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lm),n_ab,ibug/10)
+     &          scr(i_lm),n_ab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
           end if
 *
 *         Construct gradient for l_b+1 with coeffs * zeta.
 *
           if (.not.DryRun) then
-            call dcopy (n_intpb*3,zero,0,scr(i_grdp),1)
+            call dfill (n_intpb*3*n_blk,zero,scr(i_grdp),1)
             call ecp_grad_b (l_B+1,n_cartp2_b,n_cartp1_b,n_cart_b,
-     &          n_cont_B,scr(i_lp),scr(i_lm),scr(i_grdp),n_all_a)
+     &          n_cont_B,scr(i_lp),scr(i_lm),scr(i_grdp),n_all_a*n_blk,
+     &          ibug/10)
           end if
 *
 *         Calculate integrals for l_B-2
 *
           if (l_B .gt. 1) then
-            call ecp_local (mem,DryRun,
+            if (n_blk .ne. 3) call ecp_local (mem,DryRun,
      &          xyz_A,zeta_A,coef_A,
      &          n_prim_A,n_cont_A,n_cart_A,l_A,
      &          xyz_B,zeta_B,coef_B,
@@ -385,7 +390,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &            n_zeta_C,coef_C,zeta_C,0,2,
      &            tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
-     &            scr(i_lp),n_intmbb,.false.,ibug/10)
+     &            scr(i_lp),n_intmbb,n_blk,.false.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
             else
               call ecp_int2 (mem,DryRun,
@@ -397,7 +402,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &            n_zeta_C,coef_C,zeta_C,0,2,
      &            tol,sphcart,scr(i_scr),l_scr,
      &            csco,lcsco,
-     &            scr(i_lp),n_intmbb,ibug/10)
+     &            scr(i_lp),n_intmbb,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
             end if
           end if
@@ -406,28 +411,30 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
 *
           if (.not.DryRun) then
             if (l_B .gt. 0) then
-              call dcopy (n_intmb*3,zero,0,scr(i_grdm),1)
+              call dfill (n_intmb*3*n_blk,zero,scr(i_grdm),1)
               call ecp_grad_b (l_B-1,n_cart_b,n_cartm1_b,n_cartm2_b,
-     &            n_cont_B,scr(i_lm),scr(i_lp),scr(i_grdm),n_all_a)
+     &            n_cont_B,scr(i_lm),scr(i_lp),scr(i_grdm),
+     &            n_all_a*n_blk,ibug/10)
             end if
 *
 *         Construct Hessian and add to final array
 *
-            call dcopy (n_ab9,zero,0,scr(i_scr),1)
+            call dfill (n_ab9blk,zero,scr(i_scr),1)
             call ecp_grad_b (l_B,n_cartp1_b,n_cart_b,n_cartm1_b,
-     &          n_cont_B,scr(i_grdp),scr(i_grdm),scr(i_scr),n_all_a*3)
+     &          n_cont_B,scr(i_grdp),scr(i_grdm),scr(i_scr),
+     &          n_all_a*3*n_blk,ibug/10)
             i_s = i_scr
             do j = 1,3
               do k = 1,3
-                call daxpy (n_ab,one,scr(i_s),1,
+                call daxpy (n_abblk,one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_B,j,i_c_B),1)
-                call daxpy (n_ab,one,scr(i_s),1,
+                call daxpy (n_abblk,one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_C,j,i_c_C),1)
-                call daxpy (n_ab,-one,scr(i_s),1,
+                call daxpy (n_abblk,-one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_B,j,i_c_C),1)
-                call daxpy (n_ab,-one,scr(i_s),1,
+                call daxpy (n_abblk,-one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_C,j,i_c_B),1)
-                i_s = i_s+n_ab
+                i_s = i_s+n_abblk
               end do
             end do
           end if
@@ -440,7 +447,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
 *
 *         Calculate integrals for l_A+2 with coeffs * zeta**2
 *
-          call ecp_local (mem,DryRun,
+          if (n_blk .ne. 3) call ecp_local (mem,DryRun,
      &        xyz_A,zeta_A,scr(i_xxca),
      &        n_prim_A,n_cont_A,n_cartp2_A,l_A+2,
      &        xyz_B,zeta_B,coef_B,
@@ -460,7 +467,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &          n_zeta_C,coef_C,zeta_C,0,2,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lp),n_intpaa,.true.,ibug/10)
+     &          scr(i_lp),n_intpaa,n_blk,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
           else
             call ecp_int2 (mem,DryRun,
@@ -472,13 +479,13 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &          n_zeta_C,coef_C,zeta_C,0,2,
      &          tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lp),n_intpaa,ibug/10)
+     &          scr(i_lp),n_intpaa,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
           end if
 *
 *         Calculate integrals for l_A with coeffs * zeta
 *
-          call ecp_local (mem,DryRun,
+          if (n_blk .ne. 3) call ecp_local (mem,DryRun,
      &        xyz_A,zeta_A,scr(i_xca),
      &        n_prim_A,n_cont_A,n_cart_A,l_A,
      &        xyz_B,zeta_B,coef_B,
@@ -498,7 +505,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &          n_zeta_C,coef_C,zeta_C,0,2,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lm),n_ab,.true.,ibug/10)
+     &          scr(i_lm),n_ab,n_blk,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
           else
             call ecp_int2 (mem,DryRun,
@@ -510,7 +517,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &          n_zeta_C,coef_C,zeta_C,0,2,
      &          tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lm),n_ab,ibug/10)
+     &          scr(i_lm),n_ab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
           end if
 *
@@ -519,13 +526,14 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
           if (.not.DryRun) then
             call dcopy (n_intpa*3,zero,0,scr(i_grdp),1)
             call ecp_grad_a (l_A+1,n_cartp2_a,n_cartp1_a,n_cart_a,
-     &          n_cont_A,scr(i_lp),scr(i_lm),scr(i_grdp),n_all_b)
+     &          n_cont_A*n_blk,scr(i_lp),scr(i_lm),scr(i_grdp),n_all_b,
+     &          ibug/10)
           end if
 *
 *         Calculate integrals for l_A-2
 *
           if (l_A .gt. 1) then
-            call ecp_local (mem,DryRun,
+            if (n_blk .ne. 3) call ecp_local (mem,DryRun,
      &          xyz_A,zeta_A,coef_A,
      &          n_prim_A,n_cont_A,n_cartm2_A,l_A-2,
      &          xyz_B,zeta_B,coef_B,
@@ -545,7 +553,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &            n_zeta_C,coef_C,zeta_C,0,2,
      &            tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
-     &            scr(i_lp),n_intmaa,.true.,ibug/10)
+     &            scr(i_lp),n_intmaa,n_blk,.true.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
             else
               call ecp_int2 (mem,DryRun,
@@ -557,7 +565,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &            n_zeta_C,coef_C,zeta_C,0,2,
      &            tol,sphcart,scr(i_scr),l_scr,
      &            csco,lcsco,
-     &            scr(i_lp),n_intmaa,ibug/10)
+     &            scr(i_lp),n_intmaa,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
             end if
           end if
@@ -568,26 +576,28 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
             if (l_A .gt. 0) then
               call dcopy (n_intma*3,zero,0,scr(i_grdm),1)
               call ecp_grad_a (l_A-1,n_cart_a,n_cartm1_a,n_cartm2_a,
-     &            n_cont_A,scr(i_lm),scr(i_lp),scr(i_grdm),n_all_b)
+     &            n_cont_A*n_blk,scr(i_lm),scr(i_lp),scr(i_grdm),
+     &            n_all_b,ibug/10)
             end if
 *
 *         Construct Hessian and add to final array
 *
-            call dcopy (n_ab9,zero,0,scr(i_scr),1)
+            call dcopy (n_ab9blk,zero,0,scr(i_scr),1)
             call ecp_grad_a (l_A,n_cartp1_a,n_cart_a,n_cartm1_a,
-     &          n_cont_A*3,scr(i_grdp),scr(i_grdm),scr(i_scr),n_all_b)
+     &          n_cont_A*3*n_blk,scr(i_grdp),scr(i_grdm),scr(i_scr),
+     &          n_all_b,ibug/10)
             i_s = i_scr
             do j = 1,3
               do k = 1,3
-                call daxpy (n_ab,one,scr(i_s),1,
+                call daxpy (n_abblk,one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_B,j,i_c_B),1)
-                call daxpy (n_ab,one,scr(i_s),1,
+                call daxpy (n_abblk,one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_A,j,i_c_A),1)
-                call daxpy (n_ab,-one,scr(i_s),1,
+                call daxpy (n_abblk,-one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_B,j,i_c_A),1)
-                call daxpy (n_ab,-one,scr(i_s),1,
+                call daxpy (n_abblk,-one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_A,j,i_c_B),1)
-                i_s = i_s+n_ab
+                i_s = i_s+n_abblk
               end do
             end do
           end if
@@ -601,7 +611,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
 *
 *         Calculate integrals for l_A+1, l_B+1
 *
-          call ecp_local (mem,DryRun,
+          if (n_blk .ne. 3) call ecp_local (mem,DryRun,
      &        xyz_A,zeta_A,scr(i_xca),
      &        n_prim_A,n_cont_A,n_cartp1_A,l_A+1,
      &        xyz_B,zeta_B,scr(i_xcb),
@@ -620,13 +630,13 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &        n_zeta_C,coef_C,zeta_C,0,2,
      &        tol,sphcart,scr(i_scr),l_scr,
      &        csco,lcsco,
-     &        scr(i_lp),n_intppab,ibug/10)
+     &        scr(i_lp),n_intppab,n_blk,ibug/10)
           if (DryRun) max_type2 = max(mem,max_type2)
 *
 *         Calculate integrals for l_A-1, l_B+1
 *
           if (l_A .gt. 0) then
-            call ecp_local (mem,DryRun,
+            if (n_blk .ne. 3) call ecp_local (mem,DryRun,
      &          xyz_A,zeta_A,coef_A,
      &          n_prim_A,n_cont_A,n_cartm1_A,l_A-1,
      &          xyz_B,zeta_B,scr(i_xcb),
@@ -645,22 +655,23 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &          n_zeta_C,coef_C,zeta_C,0,2,
      &          tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lm),n_intmpab,ibug/10)
+     &          scr(i_lm),n_intmpab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
           end if
 *
 *         Construct gradient wrt A for l_A, l_B+1.
 *
           if (.not.DryRun) then
-            call dcopy (n_intpb,zero,0,scr(i_grdp),1)
+            call dfill (n_intpb*n_blk,zero,scr(i_grdp),1)
             call ecp_grad_a (l_A,n_cartp1_A,n_cart_A,n_cartm1_A,
-     &          n_cont_A,scr(i_lp),scr(i_lm),scr(i_grdp),n_allp1_B)
+     &          n_cont_A*n_blk,scr(i_lp),scr(i_lm),scr(i_grdp),
+     &          n_allp1_B,ibug/10)
           end if
 *
 *         Calculate integrals for l_A+1, l_B-1
 *
           if (l_B .gt. 0) then
-            call ecp_local (mem,DryRun,
+            if (n_blk .ne. 3) call ecp_local (mem,DryRun,
      &          xyz_A,zeta_A,scr(i_xca),
      &          n_prim_A,n_cont_A,n_cartp1_A,l_A+1,
      &          xyz_B,zeta_B,coef_B,
@@ -679,13 +690,13 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &          n_zeta_C,coef_C,zeta_C,0,2,
      &          tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lp),n_intpmab,ibug/10)
+     &          scr(i_lp),n_intpmab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
 *
 *         Calculate integrals for l_A-1, l_B-1
 *
             if (l_A .gt. 0) then
-              call ecp_local (mem,DryRun,
+              if (n_blk .ne. 3) call ecp_local (mem,DryRun,
      &            xyz_A,zeta_A,coef_A,
      &            n_prim_A,n_cont_A,n_cartm1_A,l_A-1,
      &            xyz_B,zeta_B,coef_B,
@@ -704,45 +715,47 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
      &            n_zeta_C,coef_C,zeta_C,0,2,
      &            tol,sphcart,scr(i_scr),l_scr,
      &            csco,lcsco,
-     &            scr(i_lm),n_intmmab,ibug/10)
+     &            scr(i_lm),n_intmmab,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
             end if
 *
 *         Construct gradient wrt A for l_A, l_B-1.
 *
             if (.not.DryRun) then
-              call dcopy (n_intmb,zero,0,scr(i_grdm),1)
+              call dfill (n_intmb*n_blk,zero,scr(i_grdm),1)
               call ecp_grad_a (l_A,n_cartp1_A,n_cart_A,n_cartm1_A,
-     &            n_cont_A,scr(i_lp),scr(i_lm),scr(i_grdm),n_allm1_B)
+     &            n_cont_A*n_blk,scr(i_lp),scr(i_lm),scr(i_grdm),
+     &            n_allm1_B,ibug/10)
             end if
           end if
 *
 *         Construct gradient wrt B
 *
           if (.not.DryRun) then
-            call dcopy (n_ab9,zero,0,scr(i_scr),1)
+            call dfill (n_ab9blk,zero,scr(i_scr),1)
             call ecp_grad_b (l_B,n_cartp1_b,n_cart_b,n_cartm1_b,
-     &          n_cont_B,scr(i_grdp),scr(i_grdm),scr(i_scr),n_all_a*3)
+     &          n_cont_B,scr(i_grdp),scr(i_grdm),scr(i_scr),
+     &          n_all_a*3*n_blk,ibug/10)
             i_s = i_scr
             do j = 1,3 ! centre B
               do k = 1,3 ! centre A
-                call daxpy (n_ab,one,scr(i_s),1,
+                call daxpy (n_abblk,one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_A,j,i_c_B),1)
-                call daxpy (n_ab,one,scr(i_s),1,
+                call daxpy (n_abblk,one,scr(i_s),1,
      &              ecp_hess(1,j,i_c_B,k,i_c_A),1)
-                call daxpy (n_ab,one,scr(i_s),1,
+                call daxpy (n_abblk,one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_C,j,i_c_C),1)
-                call daxpy (n_ab,one,scr(i_s),1,
+                call daxpy (n_abblk,one,scr(i_s),1,
      &              ecp_hess(1,j,i_c_C,k,i_c_C),1)
-                call daxpy (n_ab,-one,scr(i_s),1,
+                call daxpy (n_abblk,-one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_A,j,i_c_C),1)
-                call daxpy (n_ab,-one,scr(i_s),1,
+                call daxpy (n_abblk,-one,scr(i_s),1,
      &              ecp_hess(1,j,i_c_C,k,i_c_A),1)
-                call daxpy (n_ab,-one,scr(i_s),1,
+                call daxpy (n_abblk,-one,scr(i_s),1,
      &              ecp_hess(1,k,i_c_C,j,i_c_B),1)
-                call daxpy (n_ab,-one,scr(i_s),1,
+                call daxpy (n_abblk,-one,scr(i_s),1,
      &              ecp_hess(1,j,i_c_B,k,i_c_C),1)
-                i_s = i_s+n_ab
+                i_s = i_s+n_abblk
               end do
             end do
           end if
@@ -767,7 +780,7 @@ C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
         end do
       end if
       if (DryRun) lscr = i_scr-1
-     &    +max(max_loc,max_type1,max_type2,n_ab9)
+     &    +max(max_loc,max_type1,max_type2,n_ab9blk)
       if (debug_gen) write (LuOut,*) 'Exiting ecp_hessian'
 *
       return
