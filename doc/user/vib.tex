@@ -1,31 +1,30 @@
-The vibrational frequencies can be computed by finite difference for
-SCF and DFT wavefunctions currently.  Drivers for other wavefunctions
-will be developed as required.  The vibrational package was integrated
-from the Utah Messkit and can use any Hessian generated from the
-driver routines.
+% $Id: vib.tex,v 1.7 1997-06-27 08:58:41 d3e129 Exp $
 
-{\it The input module for vib is under development and incomplete.}
+The nuclear hessian which is used to compute the vibrational
+frequencies can be computed by finite difference for any ab initio
+wavefunction that has analytic gradients.  An analytic nuclear hessian
+is available only for SCF.  The appropriate nuclear hessian generation
+algorithm is chosen based on the user input when \verb+TASK <theory>
+frequencies+ is the task directive.
 
-\section{Project out translations and rotations}
+The vibrational package was integrated from the Utah Messkit and can
+use any nuclear hessian generated from the driver routines.  There is
+no required input for the ``VIB'' package.  VIB computes the
+frequencies and intensities\footnote{Intensities are only computed if
+  the dipole derivatives are available; these are computed by default
+  for most methods that use the finite difference driver routines} for
+for the comptued nuclear hessian and the ``projected'' nuclear
+hessian.  The VIB module projects out the translations and rotations
+of the nuclear hessian using the standard Eckart projection algorithm.
+The VIB module also computes the zero point energy for the molecular
+system based on the frequencies obtained from the projected hessian.
 
-The VIB module can project out the translations and rotations of the
-Hessian using the standard Eckart projection algorithm.  To set this
-option you must enter the following in your input deck.
+The default mass of each atom is used unless an alternative mass is
+provided via the geometry input, (c.f., \ref{sec:geom}).  The default
+mass is the mass of the most abundant isotope of each
+element.\footnote{c.f., "The Elements" by John Emsley, Oxford
+  University Press, (C) 1989, ISBN 0-19-855237-8.} When the abundance
+was roughly equal the mass of the isotope with the longest half life
+was used.
 
-\begin{verbatim}
-  set "vib:project" true
-\end{verbatim}
 
-\section{Zero point energy}
-
-The VIB module can also compute the zero point energy for the
-molecular system.  This will automatically set the projection flag to
-remove the translations and rotations.   To compute the zero point energy
-you must enter the following in your input deck.
-
-\begin{verbatim}
-  set "vib:zero point energy" logical true
-\end{verbatim}
-
-Note: the mass of each atom is set via the geometry input, (c.f.,
-\ref{sec:geom}). 
