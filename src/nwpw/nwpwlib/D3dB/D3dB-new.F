@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.5 2002-01-08 23:15:25 bylaska Exp $
+* $Id: D3dB-new.F,v 1.6 2002-01-08 23:28:05 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -925,6 +925,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end if
 
 *     **** wait ****
+      call ga_sync()
 #ifdef MPI
       call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
 #endif
@@ -1027,6 +1028,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end if
 
 *     **** wait ****
+      call ga_sync()
 #ifdef MPI
       call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
 #endif
@@ -1114,6 +1116,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end if
 
 *     **** wait ****
+      call ga_sync()
 #ifdef MPI
       call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
 #endif
@@ -2086,6 +2089,7 @@ c     integer i2_start(NFFT3+1)
       end if
 
 *     **** wait ****
+      call ga_sync()
 #ifdef MPI
       call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
 #endif
