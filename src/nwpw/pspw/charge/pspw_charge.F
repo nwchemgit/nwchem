@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.1 2001-11-29 02:18:05 bylaska Exp $
+c $Id: pspw_charge.F,v 1.2 2002-01-16 04:01:17 bylaska Exp $
 c
 
 ***********************************************************
@@ -33,10 +33,8 @@ c
 #include "geom.fh"
 
 ****** pspw_qmmm common block ****
-#include "pspw_qmmm.fh"
+#include "pspw_charge.fh"
 
-      logical mmexist
-      common / pspwcharge / mmexist
 
 *     **** local variables ****
       logical value
@@ -45,8 +43,10 @@ c
       double precision q
       character*16 t
 
+      logical     ion_chargeexist
       character*2 pspw_qmmm_aname
       integer     control_version
+      external    ion_chargeexist
       external    pspw_qmmm_aname
       external    control_version
 
@@ -54,7 +54,7 @@ c
 *     *************************
 *     **** read in MM data ****
 *     *************************
-      if (mmexist) then
+      if (ion_chargeexist()) then
     
          value = geom_create(geom,'chargegeometry')
          value = value.and.geom_rtdb_load(rtdb,geom,'chargegeometry')
@@ -164,7 +164,7 @@ c
         if (.not.value) call errquit('cannot free heap memory',0)
 
 *       **** set katm_list: nkatm, katm, natm, atom ****
-        call set_katm_list(2,nion,pspw_qmmm_aname,
+        call set_katm_list(2,nion,pspw_qmm_aname,
      >                     nkatm,katm,natm,atom)
 
 

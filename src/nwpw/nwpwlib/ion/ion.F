@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.10 2002-01-14 21:06:26 bylaska Exp $
+* $Id: ion.F,v 1.11 2002-01-16 04:01:17 bylaska Exp $
 *
 
 *     ***************************
@@ -504,6 +504,21 @@ c     call ion_shift()
       common / ion_qmmm/ mmexist
 
       ion_mmexist = mmexist
+      return
+      end
+
+*     ***************************
+*     *							*
+*     *		ion_chargeexist		*
+*     *							*
+*     ***************************
+      logical function ion_chargeexist()
+      implicit none
+
+      logical mmexist
+      common / ion_charge / mmexist
+
+      ion_chargeexist = mmexist
       return
       end
 
