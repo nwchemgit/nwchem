@@ -1,4 +1,4 @@
-c     $Id: et_2e.F,v 1.5 2002-02-20 23:44:22 d3k958 Exp $
+c     $Id: et_2e.F,v 1.6 2002-02-28 00:11:25 d3k958 Exp $
       subroutine et_2e(nbf,basis,geom,max2e,mem2,g_pa,g_pb,omega2)
       implicit none
 c
@@ -20,6 +20,7 @@ c
 #include "msgids.fh"   
 c
       integer g_pa,g_pb
+      integer g_paa,g_pbb
       integer nbf, geom, basis,max2e, mem2
       integer l_gJ, k_gJ, l_scr, k_scr
       integer ish, jsh, ksh, lsh, nsh
@@ -30,26 +31,38 @@ c
       integer nxtask, next
       external nxtask
       double precision start_cpu, end_cpu, elapsed
-      double precision smax, sij, skl, tol
+      double precision smax, sij, skl, tol, dtol
       double precision pa(nbf,nbf), pb(nbf,nbf)
+      double precision paa(nbf,nbf), pbb(nbf,nbf)
       double precision pt2(nbf,nbf)
       double precision norm, G(10000), dij, dkl
       double precision density_shell, acc
       external  density_shell
 c     
-
+c     calculate alpha-alpha and beta-beta density products
+c     ====================================================
+c
+      if(.not.ga_create(mt_dbl,nbf,nbf,'paa',0,0,g_paa))
+     $        call errquit('et_2e: ga_create failed', 0)    
+c
+      if(.not.ga_create(mt_dbl,nbf,nbf,'pbb',0,0,g_pbb))
+     $        call errquit('et_2e: ga_create failed', 0)
+c
+      call ga_dgemm('N','N',nbf,nbf,nbf,1.d0,g_pa,g_pa,0.0d0,g_paa)
+      call ga_dgemm('N','N',nbf,nbf,nbf,1.d0,g_pb,g_pb,0.0d0,g_pbb)
+c
 c     get densities and keep in memory
 c     ================================
 c
 c      call ga_get(g_pa, 1, nbf, 1, nbf, pa, 1)
 c      call ga_get(g_pb, 1, nbf, 1, nbf, pb, 1)
 c
-c      call int_acc_get(acc)
-c      write(6,*)'integral accuracy',acc
       do i = 1,nbf
       do j = 1,nbf
         call ga_get(g_pa, i, i, j, j, pa(i,j),1)
         call ga_get(g_pb, i, i, j, j, pb(i,j),1)
+        call ga_get(g_paa, i, i, j, j, paa(i,j),1)
+        call ga_get(g_pbb, i, i, j, j, pbb(i,j),1)
       enddo
       enddo
 c
@@ -82,6 +95,7 @@ c
       next = nxtask(nproc,1)
 c     
       tol = 1.0d-9
+      dtol = 1.0d-6
 c     
       do ish = nsh, 1, -1
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
@@ -90,6 +104,9 @@ c
          do jsh = ish, 1, -1
             if (.not. bas_cn2bfr(basis, jsh, jlo, jhi))
      $           call errquit('et_2e: bas_cn2bfr', jsh)
+c
+             dij =  density_shell(ilo,ihi,jlo,jhi,pa,pb,paa,pbb,nbf) 
+             if (dij.gt.dtol) then
 c
               sij = schwarz_shell(ish,jsh)
                 if (sij*smax .gt. tol) then
@@ -101,6 +118,9 @@ c
                   maxlsh = ksh
                   if (ksh.EQ.ish) maxlsh = jsh
                   do lsh = maxlsh, 1, -1
+c
+             dkl =  density_shell(klo,khi,llo,lhi,pa,pb,paa,pbb,nbf) 
+             if (dkl.gt.dtol) then
 c
                    if (shellnum.eq.next) then
 c
@@ -130,11 +150,13 @@ c
 c     
                      endif
                    next = nxtask(nproc,1)
+                   endif   !dkl
                    endif
                    shellnum = shellnum + 1
                   enddo
                enddo
             endif
+            endif  !dij
          enddo
       enddo
 c     
@@ -146,6 +168,11 @@ c
 c     destroy arrays
 c     ==============
 c     
+      if (.not.ga_destroy(g_paa))
+     &  call errquit('could not destroy paa array',g_paa)
+      if (.not.ga_destroy(g_pbb))
+     &  call errquit('could not destroy pbb array',g_pbb)
+c
       if (.not. ma_pop_stack(l_scr)) call errquit('et_2e: pop',0)
       if (.not. ma_pop_stack(l_gJ))  call errquit('et_2e: pop',1)
 c     

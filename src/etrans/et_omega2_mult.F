@@ -57,7 +57,7 @@ c
          enddo
       enddo
 c
- 1111 format (4i4,1x,3(F16.12))
+ 1111 format (3(F16.12))
 c 1111 format (a12,3(F16.12))
        return
        end
