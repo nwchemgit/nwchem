@@ -945,8 +945,8 @@ c
 c           This is also done by default inside xc_perdew91.F
 c           when lcfac(5) is .true.
 c
-            lcfac(12) = .true.
-            cfac(12) = 1.0d0
+            lcfac(6) = .true.
+            cfac(6) = 1.0d0
           endif
         endif
       endif
