@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.4 2003-02-12 15:24:46 bylaska Exp $
+* $Id: nwpw_libfile.F,v 1.5 2003-02-12 18:08:54 bylaska Exp $
 *
 
 *
@@ -65,7 +65,7 @@ c
 *     **** library for paw ****
       if (flag.eq.2) then
         l = index(element,' ')  -1
-        if (l.lt.1) l = 1
+        if (l.lt.1) l = 2
         filename=
      > libname(1:inp_strlen(libname))
      > //'/library2/'//element(1:l)//'_basis'
