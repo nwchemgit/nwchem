@@ -1,10 +1,8 @@
-
+start uo2_sodft
 echo
 
 Memory 32 mw
 
-permanent_dir . 
-scratch_dir /scratch 
 
 charge 2  
 
