@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf_so.F,v 1.2 2000-04-18 00:24:02 edo Exp $
+c     $Id: dft_scf_so.F,v 1.3 2000-04-24 19:10:35 edo Exp $
 c     
       implicit none
 c     
@@ -302,8 +302,8 @@ c     2e- integrals.
 c     
 c     - amount needed for all incore:
 c     
-         n3c_dbl_r = dft_n3cdbl(AO_bas_han,CD_bas_han,itol_max)
-         n3c_int = dft_n3cint(AO_bas_han,CD_bas_han,itol_max)
+         n3c_dbl_r = dft_n3cdbl()
+         n3c_int = dft_n3cint()
 c     
 c     find - (minimum)amount local available memory on all nodes
 c     
@@ -406,10 +406,9 @@ c
          if (incore)then
             if (me.eq.0 .and. oprint_3c2e)
      &           write(LuOut,3229)n3c_dbl*1.d-6
-            call dft_3cincor(rtdb, n_batch, n3c_int, int_mb(k_3cwhat), 
+            call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
      &           dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
-     &           n_semi_bufs, fd, int_mb(icntoce), 
-     &           int_mb(icntobfr), int_mb(icetobfr), natoms)
+     &           n_semi_bufs, fd)
          else
             if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
          endif
@@ -909,12 +908,12 @@ c
      &        call errquit('dft_scf: cannot allocate cd_coef',0)
          if (oprint_time)
      &        call dft_tstamp(' Before call to FITCD.   ')
-         call dft_fitcd(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, rtdb,
-     &                  g_cdinv, g_dens, nTotEl, n_batch, n3c_int,
+         call dft_fitcd(1,Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, 
+     &                  g_dens, nTotEl, n_batch, n3c_int,
      &                  int_mb(k_3cwhat), n3c_dbl, iwhat_max, 
      &                  n_semi_bufs, fd, IOLGC, 
-     &                  dbl_mb(irdens_atom), int_mb(icntoce), 
-     &                  int_mb(icntobfr), int_mb(icetobfr), natoms)
+     .        natoms,
+     &                  .false., 0d0, .false.)
       endif
 c     
 #if defined(DFT_TIMER)
@@ -925,12 +924,10 @@ c
 #endif
       if (oprint_time)
      &     call dft_tstamp(' Before call to GETVCOUL.')
-      call dft_getvc(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, rtdb,
-     &               g_tmp, iVcoul_opt, g_dens, n_batch, 
+      call dft_getvc(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, 
+     &               g_tmp, iVcoul_opt,  n_batch, 
      &               n3c_int, int_mb(k_3cwhat), n3c_dbl, iwhat_max,
      &               n_semi_bufs, fd, IOLGC,
-     &               dbl_mb(irdens_atom), int_mb(icntoce), 
-     &               int_mb(icntobfr), int_mb(icetobfr), natoms,
      &               .false., 1)
 c     
 c     Add V coul to Fock Matrix
@@ -1263,7 +1260,9 @@ c
          if (me.eq.0 .and. oprint_conv_details)
      &      write(LuOut,3224)homo, lumo
             call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
-     &                  g_fock, g_movecs(ispin), g_tmp)
+     &                  g_tmp, g_movecs(ispin), g_s,g_fock,
+     ,        noc,oprint_conv_details,
+     ,        homo,lumo)
 
          homo = -1.0d8
          lumo =  1.0d8
@@ -1498,7 +1497,7 @@ c
 c     Check for SCF convergence.
 c     
       call ga_sync
-      call dft_scfcvg(rms, derr, Etold, Etnew, Enuc, 
+      call dft_scfcvg(rms, derr, Etold, Etnew, 
      &     e_conv, d_conv, g_conv, ipol, 
      &     iter, iterations, idone, rtdb,
      &     converged, diising)
