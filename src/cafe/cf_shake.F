@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.16 2001-12-11 18:51:27 d3j191 Exp $
+c $Id: cf_shake.F,v 1.17 2001-12-11 19:26:00 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -91,8 +91,8 @@ c
       skip=.true.
 c
       do 1 i=1,numpmf
-      if(ipmf(i,1).eq.-1.or.(lpmfc.and.(ipmf(i,1).eq.1.or.
-     + ipmf(i,1).eq.5.or.ipmf(i,1).eq.6))) then
+      if(ipmf(i,6).eq.2.or.(lpmfc.and.
+     + (ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6))) then
       skip=.false.
       do 2 j=1,4
       xpmf(j,1,i)=zero
@@ -104,7 +104,6 @@ c
       ypmf(j,3,i)=zero
     2 continue
       m=0
-      if(ipmf(i,1).eq.-1) m=2
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
@@ -150,7 +149,7 @@ c
 c
       do 6 i=1,numpmf
 c
-      if(ipmf(i,1).eq.-1.or.(lpmfc.and.ipmf(i,1).eq.1)) then
+      if(ipmf(i,6).eq.2.or.(lpmfc.and.ipmf(i,1).eq.1)) then
       do 7 j=1,2
       w(j)=xpmf(j,4,i)
       ign(j)=j
@@ -168,7 +167,6 @@ c
       call cf_shks(1,it,1,3,ip,rpmf,rv,2,4,ign,iml,idt,
      + xpmf(1,1,i),ypmf(1,1,i),w)
       m=0
-      if(ipmf(i,1).eq.-1) m=2
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4

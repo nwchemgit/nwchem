@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.119 2001-12-11 18:51:27 d3j191 Exp $
+c $Id: cf_main.F,v 1.120 2001-12-11 19:26:00 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1449,7 +1449,7 @@ c
       xpmf(j,3,i)=zero
       wpmf(j,i)=zero
     2 continue
-      if(ipmf(i,1).eq.-1) goto 1
+      if(ipmf(i,6).eq.2) goto 1
       m=0
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       if(ipmf(i,1).eq.2) m=3
@@ -1480,7 +1480,7 @@ c
       call ga_dgop(mcf_73,xpmf,12*numpmf,'+')
 c
       do 6 i=1,numpmf
-      if(ipmf(i,1).eq.-1) goto 6
+      if(ipmf(i,6).eq.2) goto 6
 c
       m=0
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
@@ -1521,7 +1521,7 @@ c
       if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
  1000 format(i3,f12.6,e12.5)
       if(me.eq.0) then
-      if(ipmf(i,6).gt.0) ubias=ubias+rv(2)
+      if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
       epmf=epmf+rv(2)
       endif
       endif
@@ -1559,7 +1559,7 @@ c
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
       if(me.eq.0) then
       epmf=epmf+rv(2)
-      if(ipmf(i,6).gt.0) ubias=ubias+rv(2)
+      if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
       endif
       do 14 j=1,3
       do 15 k=1,ipmf(i,j+1)
@@ -1603,7 +1603,7 @@ c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Imp:',rv,(ft(3,j),j=1,3)
       endif
       if(me.eq.0) then
       epmf=epmf+rv(2)
-      if(ipmf(i,6).gt.0) ubias=ubias+rv(2)
+      if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
       endif
       do 19 j=1,4
       do 20 k=1,ipmf(i,j+1)

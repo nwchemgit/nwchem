@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi)
-c $Id: cf_init.F,v 1.68 2001-12-11 17:41:54 d3j191 Exp $
+c $Id: cf_init.F,v 1.69 2001-12-11 19:26:00 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -415,7 +415,7 @@ c
       endif
 c
       call ga_sync()
-      call ga_brdcst(mcf_60,ipmf,5*numpmf*lenint,0)
+      call ga_brdcst(mcf_60,ipmf,7*numpmf*lenint,0)
       call ga_brdcst(mcf_61,jpmf,4*numpmf*npmfa*lenint,0)
       call ga_brdcst(mcf_62,rpmf,18*numpmf*lendbl,0)
       if(ithint) call ga_brdcst(mcf_30,ith,24*lenlog,0)
