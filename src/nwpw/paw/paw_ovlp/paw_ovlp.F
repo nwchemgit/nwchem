@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.38 2003-02-25 02:43:56 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.39 2003-02-25 20:01:53 marat Exp $
 *
 
 !**************************************************
@@ -269,7 +269,12 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       
       !*** check for restricted calculation ****
       occup = 1.0d0
-      if (ispin.eq.1) occup = 2.0d0
+      if (ispin.eq.1) then
+        occup = 2.0d0
+        write(*,*) " spin restricted calculation"
+      else
+        write(*,*) " spin unrestricted calculation"
+      end if
 
       ii = 0
       i_nbasis = 0
@@ -291,7 +296,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
 
            !*** this loop is not computed when ispin=1 ***
            w_tmp = dcmplx(0.0d0,0.0d0)
-           do n=ne_u+1,ne_d
+           do n=ne_u+1,ne_d+ne_u
              indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
              indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
              w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
@@ -309,37 +314,38 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       end do
       
 
-c     write(*,*) " paw weights"
-c     ii = 0
-c     nilm = 0
-c     njlm = 0
-c     do in=1,ion_nion()
-c       ia = ion_katm(in)
-c       i_w0 = int_mb(i_paw_ovlp_w(1) + in - 1)
-c       nbasis = paw_basis_nbasis(ia)
-c       nilm = 0
-c       do i=1,nbasis
-c         li = paw_basis_orb_l(i,ia)
-c         do mi=-li,li
-c           njlm = 0
-c           do j=1,nbasis
-c             lj = paw_basis_orb_l(j,ia)
-c               do mj=-lj,lj
-c                 i_w   = i_w0-1+(njlm+lj+mj+1)+
-c    >                   (nilm+li+mi)*paw_proj_nbasis(ia)
-c                 write(*,*) i,mi,j,mj,in
-c                 write(*,*)ii,i_w,i_w0,dcpl_mb(paw_ovlp_w(1)+ii),
-c    >                      dcpl_mb(paw_ovlp_w(1)+i_w)
-c               
-c                 ii =ii +1
-c               end do
-c               njlm=njlm + 2*lj+1
-c            end do
-c          end do   
-c          nilm = nilm + 2*li+1
-c        end do
-c     end do
-     
+      write(*,*) " paw weights"
+      ii = 0
+      nilm = 0
+      njlm = 0
+      do in=1,ion_nion()
+        ia = ion_katm(in)
+        i_w0 = int_mb(i_paw_ovlp_w(1) + in - 1)
+        nbasis = paw_basis_nbasis(ia)
+        nilm = 0
+        do i=1,nbasis
+          li = paw_basis_orb_l(i,ia)
+          do mi=-li,li
+            njlm = 0
+            do j=1,nbasis
+              lj = paw_basis_orb_l(j,ia)
+                do mj=-lj,lj
+                  i_w   = i_w0-1+(njlm+lj+mj+1)+
+     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+                  write(*,*) i,mi,j,mj,in
+                  write(*,*)"w=",dcpl_mb(paw_ovlp_w(1)+ii)
+                  write(*,*)"w_up=",dcpl_mb(paw_ovlp_w_u(1)+ii)
+                  write(*,*)"w_down=",dcpl_mb(paw_ovlp_w_d(1)+ii)
+                
+                  ii =ii +1
+                end do
+                njlm=njlm + 2*lj+1
+             end do
+           end do   
+           nilm = nilm + 2*li+1
+         end do
+      end do
+    
       return
       end
 
