@@ -5,7 +5,7 @@ c     Look for lines ending in E that should probably be a D for
 c     double precision.  The stuff on the following line is often
 c     gibberish.
 c
-c$$$c $Id: rt123.F,v 1.6 2001-08-09 22:25:08 bjohnson Exp $
+c$$$c $Id: rt123.F,v 1.7 2001-08-19 21:28:33 bjohnson Exp $
 c$$$C MAR 29 91 PP PUT IN SAFEGURDS AGAINST INFINITE LOOP - IT MAY HAPPEN
 c$$$C   IN DNODE
 c$$$C MAR 26 91 PP FIXED SUBROUTINE FM ACCORDING TO KRZYSZTOF'S INSTRUCTIONS
@@ -1147,11 +1147,11 @@ c$$$      END
       SUBROUTINE FT0
       IMPLICIT REAL*8(A-H,O-Z)
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
       COMMON /RYS/ T,RYSR(10),RYSW(10),XX,F0,F1,F2,F3,F4,F5,NROOTS
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          call errquit('Screened operator enabled in FT0',0)
       endif
 #endif
@@ -1501,7 +1501,7 @@ c     this subroutine returns the incomplete gamma function fm(x)
 c     in t.  x must be non-negative, m is a non-negative integer
       implicit real*8 (a-h,o-z)
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
       dimension f(0:*)
       common /fmtable/fx(5,600),gx(5,600)
@@ -1510,7 +1510,7 @@ c
      & 1.0d0,2.0d0/
 c
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          call errquit('Screened operator enabled in fm',0)
       endif
 #endif
@@ -1682,13 +1682,13 @@ c
       subroutine fm0(x,m,f)
       implicit real*8 (a-h,o-z)
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
       dimension f(0:*)
       data twopi,half,zero,one,two/1.128379167096d0,0.5d0,0.0d0,
      & 1.0d0,2.0d0/
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          call errquit('Screened operator on in fm0',0)
       endif
 #endif
@@ -1838,14 +1838,14 @@ c
       double precision F(0:m), T, theta, Ks, K, sqrtT, KmT, KpT,
      &     F0m, F0p, expT, d(0:7), fac(2:10), S, C, Fm0(0:50),
      &     expK2, exp2KsqT
-      double precision derfc, bettis_Ks
+      double precision derfc, screened_operator_Ks
       double precision pi, twosqpi
 #if 0
 c
 c     Uncomment this code to return to the original test of scaling HF K
 c
       call fm_orig(T,m,F)
-      Ks = bettis_Ks()
+      Ks = screened_operator_Ks()
       do i = 0, m
          F(i) = F(i) * Ks
       enddo
@@ -1858,13 +1858,20 @@ c
       pi = acos(-1d0)
       twosqpi = 2d0/sqrt(pi)
 c
-      Ks = bettis_Ks()
+      Ks = screened_operator_Ks()
       K = 0.5d0 * Ks / theta
-      if (T .lt. 5d-2) then
+      if (T .lt. 0.25d0) then
 c
 c     Small T case - Taylor expansion about T = 0
 c
-         maxpow = 5             ! Highest power of T in Taylor series
+c     The expansion powers are deliberately on the conservative
+c     side - could tighten them if needed
+c
+         if (T .lt. 1d-3) then
+            maxpow = 5
+         else
+            maxpow = 7
+         endif
 c
 c     Calculate Fm(0) values
 c
@@ -1882,14 +1889,27 @@ c
 c
 c     Compute Fm(T) values
 c
-         do i = 0, m
-            F(i) = Fm0(i)
-     &           - T*(Fm0(i+1)
-     &           - T*(Fm0(i+2)*fac(2)
-     &           - T*(Fm0(i+3)*fac(3)
-     &           - T*(Fm0(i+4)*fac(4)
-     &           - T* Fm0(i+5)*fac(5)))))
-         enddo
+         if (maxpow .eq. 5) then
+            do i = 0, m
+               F(i) = Fm0(i)
+     &              - T*(Fm0(i+1)
+     &              - T*(Fm0(i+2)*fac(2)
+     &              - T*(Fm0(i+3)*fac(3)
+     &              - T*(Fm0(i+4)*fac(4)
+     &              - T* Fm0(i+5)*fac(5)))))
+            enddo
+         else
+            do i = 0, m
+               F(i) = Fm0(i)
+     &              - T*(Fm0(i+1)
+     &              - T*(Fm0(i+2)*fac(2)
+     &              - T*(Fm0(i+3)*fac(3)
+     &              - T*(Fm0(i+4)*fac(4)
+     &              - T*(Fm0(i+5)*fac(5)
+     &              - T*(Fm0(i+6)*fac(6)
+     &              - T* Fm0(i+7)*fac(7)))))))
+            enddo
+         endif
       else if (T .gt. 30.0d0) then
 c
 c     Large T case - compute for numerical stability, exp(-T) considered
@@ -1957,7 +1977,7 @@ c
       enddo
       do i = 0, m
          if (F(i) .gt. twosqpi/(2*i+1)) then
-            write(*,*)'Error: T m K bound',T,i,K,twosqpi/(2*i+1)
+            write(*,*)'Error: T m K bound',T,i,K,1d0/(2*i+1)
             do j = 0,i
                write(*,*)'  m F',j,F(j)/twosqpi
             enddo
