@@ -8,7 +8,7 @@ c
 c
       call defnxyz(Lvalm)
 c
-      do 00100 Lval = 0,Lvalm
+      do 00100 Lval = 0,Lvalm*4
         icrng = ((Lval+1)*(Lval+2))/2
         do 00200 ic = 1,icrng
           call getNxyz(lval,ic,nxyz)
@@ -20,7 +20,7 @@ c
       subroutine prntnxyz(lval,ic,nxyz)
       implicit none
       integer lval, ic, nxyz(3)
-      character*10 cxyz
+      character*30 cxyz
       character*1 pxyz(3)
       integer i,j, icnt
 c
