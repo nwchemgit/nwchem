@@ -69,6 +69,8 @@ c
       call prp_proper(0,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),eskin,epme,epot)
 c
+      call prp_print()
+c
       call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
 c
 c     print energies
@@ -122,8 +124,9 @@ c
      + call errquit('Failed to allocate memory for pcgw',me)
       if(.not.ma_push_get(mt_dbl,3*msa,'pcgs',l_pcgs,i_pcgs))
      + call errquit('Failed to allocate memory for pcgs',me)
-      call md_congra(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),
-     + dbl_mb(i_fw),dbl_mb(i_pcgw),dbl_mb(i_xs),dbl_mb(i_ys),
+      call md_congra(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
+     + dbl_mb(i_yw),dbl_mb(i_vw),dbl_mb(i_fw),dbl_mb(i_pcgw),
+     + int_mb(i_is+(lsdyn-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
      + dbl_mb(i_vs),dbl_mb(i_fs),dbl_mb(i_pcgs),dbl_mb(i_wws),
      + dbl_mb(i_wws+mwa))
       if(.not.ma_pop_stack(l_pcgs))
@@ -153,7 +156,8 @@ c
       real*8 ww(mwa),ws(msa)
 c
       integer i,j
-      real*8 epot,edif,epsd,dx,dxf,dxmax,factor,dxstep
+      logical ltr,ldone
+      real*8 epot,edif,epsd,dx,dxf,dxmax,factor,dxstep,eqrs
       character*1 cqrs
 c
       if(me.eq.0) write(lfnout,1000)
@@ -178,6 +182,7 @@ c
      + dbl_mb(i_ess),eskin,epme,epot)
 c
       epsd=epot
+      eqrs=epot
       dx=dx0sd
       mdstep=0
 c
@@ -274,11 +279,24 @@ c
       edif=epot-epsd
       epsd=epot
 c
+      ltr=frequency(isdit,nfem)
+c
+      if(ltr) then
+      call sp_wrttrj(lfnemt,.true.,.false.,.true.,.false.,
+     + stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
+c
+      ldone=.not.(dxmax.gt.dxsdmx.and.isdit.lt.msdit)
+c
       cqrs=' '
-      if(frequency(isdit,nfqrs)) then
+      if(frequency(isdit,nfqrs).or.(ldone.and.eqrs.gt.epot)) then
       call md_wrtrst(lfnqrs,filqrs,.false.)
       cqrs='*'
+      eqrs=epot
       endif
+      if(me.eq.0.and.frequency(isdit,nfprop)) call prp_record()
 c
       if(me.eq.0) then
       write(lfnout,600) isdit,cqrs,edif,epsd,dxmax
@@ -287,11 +305,12 @@ c
 c
       dx=min(1.2d0*dx,dxmsd)
 c
-      if(dxmax.gt.dxsdmx.and.isdit.lt.msdit) goto 1
+      if(.not.ldone) goto 1
 
       return
       end
-      subroutine md_congra(xw,yw,vw,fw,pcgw,xs,ys,vs,fs,pcgs,ww,ws)
+      subroutine md_congra(iwdt,xw,yw,vw,fw,pcgw,
+     + isdt,xs,ys,vs,fs,pcgs,ww,ws)
 c
       implicit none
 c
@@ -302,16 +321,18 @@ c
       logical frequency
       external frequency
 c
+      integer iwdt(mwm),isdt(msa)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 pw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3),ps(msa,3)
       real*8 pcgw(mwm,3,mwa),pcgs(msa,3),ww(mwa),ws(msa)
 c
       integer iwa,iwm,isa,ix,inner
+      logical ltr,ldone
       real*8 alpha,beta1,beta2,beta3,beta4,beta5,gamma,zeta
       real*8 epot,dx,ecgnew,eqrs,ecgold,ecgdif,edt,dxf,edif,espt
       real*8 dxsmax,dxwmax,fnorm1,fnorm2,ypa,ypb,pnorm,dxstep
-      real*8 dxmax,dxfi,ecg0,ecg1,ecg2
+      real*8 dxmax,dxfi,ecg0,ecg1,ecg2,eqrs
       character*1 cqrs
 c
       if(me.eq.0) write(lfnout,1000)
@@ -323,6 +344,7 @@ c
       dx=dx0cg
       beta1=zero
       icgit=1
+      lpair=.true.
 c
 c     initialize cf
 c
@@ -374,7 +396,9 @@ c
       do 7 ix=1,3
       do 8 iwm=1,nwmloc
       yw(iwm,ix,iwa)=xw(iwm,ix,iwa)
+      if(iand(iwdt(iwm),mfixed).ne.lfixed) then
       xw(iwm,ix,iwa)=xw(iwm,ix,iwa)+dxf*fw(iwm,ix,iwa)/ww(iwa)
+      endif
     8 continue
     7 continue
     6 continue
@@ -383,7 +407,9 @@ c
       do 9 ix=1,3
       do 10 isa=1,nsaloc
       ys(isa,ix)=xs(isa,ix)
+      if(iand(isdt(isa),mfixed).ne.lfixed) then
       xs(isa,ix)=xs(isa,ix)+dxf*fs(isa,ix)/ws(isa)
+      endif
    10 continue
     9 continue
       endif
@@ -429,7 +455,7 @@ c
 c
       if(icgit.eq.(icgit/ncgcy)*ncgcy) beta1=zero
       icgit=icgit+1
-      if(.not.lpair) lpair=frequency(icgit,nfpair)
+      lpair=frequency(icgit,nfpair)
 c
       ypa=zero
       pnorm=zero
@@ -477,7 +503,9 @@ c
       do 21 iwa=1,nwa
       do 22 ix=1,3
       do 23 iwm=1,nwmloc
+      if(iand(iwdt(iwm),mfixed).ne.lfixed) then
       xw(iwm,ix,iwa)=vw(iwm,ix,iwa)+beta2*pcgw(iwm,ix,iwa)/ww(iwa)
+      endif
    23 continue
    22 continue
    21 continue
@@ -485,7 +513,9 @@ c
       if(nsaloc.gt.0) then
       do 24 ix=1,3
       do 25 isa=1,nsaloc
+      if(iand(isdt(isa),mfixed).ne.lfixed) then
       xs(isa,ix)=vs(isa,ix)+beta2*pcgs(isa,ix)/ws(isa)
+      endif
    25 continue
    24 continue
       endif
@@ -510,7 +540,9 @@ c
       do 28 iwm=1,nwmloc
       yw(iwm,ix,iwa)=xw(iwm,ix,iwa)
       dxstep=beta3*fw(iwm,ix,iwa)/ww(iwa)
+      if(iand(iwdt(iwm),mfixed).ne.lfixed) then
       xw(iwm,ix,iwa)=yw(iwm,ix,iwa)+dxstep
+      endif
    28 continue
    27 continue
    26 continue
@@ -520,7 +552,9 @@ c
       do 30 isa=1,nsaloc
       ys(isa,ix)=xs(isa,ix)
       dxstep=beta3*fs(isa,ix)/ws(isa)
+      if(iand(isdt(isa),mfixed).ne.lfixed) then
       xs(isa,ix)=ys(isa,ix)+dxstep
+      endif
    30 continue
    29 continue
       endif
@@ -592,8 +626,10 @@ c
       do 41 iwm=1,nwmloc
       yw(iwm,ix,iwa)=vw(iwm,ix,iwa)
       dxstep=beta4*pcgw(iwm,ix,iwa)/ww(iwa)
+      if(iand(iwdt(iwm),mfixed).ne.lfixed) then
       xw(iwm,ix,iwa)=vw(iwm,ix,iwa)+dxstep
       if(abs(dxstep).gt.dxmax) dxmax=abs(dxstep)
+      endif
    41 continue
    40 continue
    39 continue
@@ -603,8 +639,10 @@ c
       do 43 isa=1,nsaloc
       ys(isa,ix)=vs(isa,ix)
       dxstep=beta4*pcgs(isa,ix)/ws(isa)
+      if(iand(isdt(isa),mfixed).ne.lfixed) then
       xs(isa,ix)=vs(isa,ix)+dxstep
       if(abs(dxstep).gt.dxmax) dxmax=abs(dxstep)
+      endif
    43 continue
    42 continue
       endif
@@ -642,8 +680,10 @@ c
       do 46 iwm=1,nwmloc
       yw(iwm,ix,iwa)=xw(iwm,ix,iwa)
       dxstep=beta5*fw(iwm,ix,iwa)/ww(iwa)
+      if(iand(iwdt(iwm),mfixed).ne.lfixed) then
       xw(iwm,ix,iwa)=yw(iwm,ix,iwa)+dxstep
       if(abs(dxstep).gt.dxwmax) dxwmax=abs(dxstep)
+      endif
    46 continue
    45 continue
    44 continue
@@ -654,8 +694,10 @@ c
       do 48 isa=1,nsaloc
       ys(isa,ix)=xs(isa,ix)
       dxstep=beta5*fs(isa,ix)/ws(isa)
+      if(iand(isdt(isa),mfixed).ne.lfixed) then
       xs(isa,ix)=ys(isa,ix)+dxstep
       if(abs(dxstep).gt.dxsmax) dxsmax=abs(dxstep)
+      endif
    48 continue
    47 continue
       if(dxsmax.gt.dxmax) dxmax=dxsmax
@@ -709,38 +751,26 @@ c
 c
 c     record to lfnemt
 c
-c     recording properties and coordinates
+      ltr=frequency(icgit,nfem)
 c
-c      if(icgit.eq.(icgit/nfem)*nfem) then
-c      lupdat=1
-c      call arg_record(g,lfnemt)
-c      endif
-c      if(icgit.eq.(icgit/nfprop)*nfprop) then
-c      call arg_record(g,lfnprp)
-c      endif
-cc
-cc     rewrite restart file
-cc
-c      lqrs=.false.
-c      if(icgit.eq.(icgit/nfqrs)*nfqrs.or.icgit.gt.mcgit-2.or.
-c     + dxmax.lt.dxcgmx.or.ecgdif.ge.zero) then
-c      lqrs=epot.lt.eqrs
-c      if(lqrs) then
-c      lupdat=1
-c      call arg_record(g,lfnqrs)
-c      ipairi=-1
-c      eqrs=epot
-c      endif
-c      endif
+      if(ltr) then
+      call sp_wrttrj(lfnemt,.true.,.false.,.true.,.false.,
+     + stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
 c
 c     write restart file
 c
+      ldone=.not.(icgit.lt.mcgit.and.dxmax.gt.dxcgmx.and.ecgdif.lt.zero)
+c
       cqrs=' '
-      if(frequency(icgit,nfqrs)) then
+      if(frequency(icgit,nfqrs).or.(ldone.and.eqrs.gt.epot)) then
       call md_wrtrst(lfnqrs,filqrs,.false.)
       cqrs='*'
-      lpair=.true.
+      eqrs=ecg1
       endif
+      if(me.eq.0.and.frequency(icgit,nfprop)) call prp_record()
 c
 c     print minimization step data to output
 c
@@ -749,22 +779,7 @@ c
   600 format(i7,1x,a1,3x,2(1pe13.5),0pf12.8)
       endif
 c
-c      if(me.eq.0.and.ntype.ne.3) then
-c      cqrs=' '
-c      if(lqrs) cqrs='*'
-c      if(npstep.ne.0) write(lfnout,601) nemit,cqrs,icgit,inner,
-c     + zero,ecgdif,edt,espi,two*(espt-espi),ewp-(espt-espi),ewp+espt,
-c     + dxmax
-c  601 format(i7,1x,a1,8x,2i5,7e13.5,f12.8)
-c      call util_flush(lfnout)
-c      if(npxpct.gt.0) call arg_expect
-c      if(itest.gt.0) call arg_test
-c      endif
-c
-c     check convergence and repeat if not done
-c
-      if(icgit.lt.mcgit.and.dxmax.gt.dxcgmx.and.ecgdif.lt.zero)
-     + goto 100
+      if(.not.ldone) goto 100
 c
       ecgdif=edt
       edif=edif+edt

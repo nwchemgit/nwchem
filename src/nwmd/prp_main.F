@@ -7,12 +7,17 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
+      logical frequency
+      external frequency
+c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme
       real*8 epot,stime,esk(msf)
 c
       call prp_proper(mdstep,stime,eww,esw,ess,esk,epme,epot)
       if(me.eq.0) call prp_stat(mdstep,stime,eww,esw,ess,esk,epme)
+c
+      if(frequency(mdstep,nfprop)) call prp_record()
 c
       return
       end
@@ -278,7 +283,39 @@ c
       lhdr=.false.
       endif
 c
-      if(frequency(mdstep,nfprop)) then
+      return
+      end
+      subroutine prp_print()
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      character*10 pdate,ptime
+      integer i,j
+c
+      if(me.ne.0) return
+c
+      call swatch(pdate,ptime)
+      write(lfnout,1000) pdate,ptime
+ 1000 format(/,' SINGLE POINT PROPERTIES',t110,2a10,/)
+      do 1  i=1,nprop
+      j=ixp(i)
+      write(lfnout,1001) pronam(j)(1:39),p(j),pronam(j)(40:50)
+ 1001 format(1x,a39,t41,1pe12.5,1x,a11)
+    1 continue
+c
+      return
+      end
+      subroutine prp_record()
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      integer i
+      character*10 pdate,ptime
+c
       if(.not.lfhdr) then
       call swatch(pdate,ptime)
       write(lfnprp,3000) nprop,pdate,ptime
@@ -289,7 +326,6 @@ c
       endif
       write(lfnprp,3002) (p(ixp(i)),i=1,nprop)
  3002 format(4e12.5)
-      endif
 c
       return
       end

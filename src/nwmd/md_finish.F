@@ -63,6 +63,25 @@ c
 c
       call md_timing
 c
+c     close files
+c
+      if(me.eq.0) then
+      if(ntype.eq.1) then
+      if(nfem.gt.0) then
+      close(unit=lfnemt,status='keep')
+      endif
+      endif
+      if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
+      close(unit=lfncoo,status='keep')
+      endif
+      if(nfprop.gt.0) then
+      close(unit=lfnprp,status='keep')
+      endif
+      if(ntype.eq.3) then
+      close(unit=lfngib,status='keep')
+      endif
+      endif
+c
       return
       end
       subroutine md_timing

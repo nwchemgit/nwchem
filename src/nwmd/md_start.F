@@ -238,7 +238,7 @@ c
 c     set logical file numbers
 c
       lfninp=10
-      lfnout=6
+      lfnout=11
       lfntop=12
       lfnrst=13
       lfncoo=14
@@ -1020,10 +1020,18 @@ c
       endif
 c
       ltwin=rlong.gt.rshort
+      msa=msareq
+      mwm=mwmreq
 c
 c     open recording file
 c
       if(me.eq.0) then
+      if(ntype.eq.1) then
+      if(nfem.gt.0) then
+      open(unit=lfnemt,file=filemt(1:index(filemt,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      endif
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
       open(unit=lfncoo,file=filcoo(1:index(filcoo,' ')-1),
      + form='formatted',status='unknown')
