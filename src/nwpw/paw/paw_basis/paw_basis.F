@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.18 2003-02-13 02:11:49 bylaska Exp $
+* $Id: paw_basis.F,v 1.19 2003-02-16 23:45:48 bylaska Exp $
 *
 
 !**************************************************
@@ -37,9 +37,15 @@ c      !*** external functions ***
       call paw_basis_exist_check()
 
       nt = ion_nkatm()
+
+*     **** allocating memory from stack ****
       ok = MA_push_get(MT_INT,nt, "nb_tmp_array", l_nb,i_nb)
-      ok = MA_push_get(MT_INT,nt, "ng_tmp_array", l_ng,i_ng)
+      ok = ok.and.
+     >     MA_push_get(MT_INT,nt, "ng_tmp_array", l_ng,i_ng)
+      if (.not.ok) 
+     > call errquit('init_paw_basis: out of stack memory',0)
   
+
       do it = 1, nt
        call ion_atom_plus_suffix(it,'_basis',fname)
        call util_file_name_resolve(fname, .false.)
@@ -91,6 +97,7 @@ c      !*** external functions ***
      >           amesh*dbl_mb(paw_basis_i_rgrid(it)+ir-1)
          end do
          
+c       !***** determine max orbital moment for this kind of atom ****
          i_lo =  paw_basis_i_orb_l(it)
 	 i_hi =  paw_basis_i_orb_l(it)  
      >        + int_mb(paw_basis_i_nbasis(it)) - 1
@@ -104,23 +111,31 @@ c      !*** external functions ***
            
       end do
 
-      ok = MA_chop_stack(l_nb)
 
-c     !*****determine max orbital moment     
-      i_lo =  paw_basis_i_orb_l(1)
-      i_hi =  paw_basis_i_orb_l(1) +  paw_basis_tot_nbasis() - 1
-      max_mult_l = dabsmax(i_hi-i_lo+1,int_mb(i_lo))
+c     !***** determine largest max orbital moment ****
+      max_mult_l = 0
+      do it=1,nt
+        if (int_mb(paw_basis_i_mult_l(it)).gt.max_mult_l) 
+     >    max_mult_l = int_mb(paw_basis_i_mult_l(it))
+      end do
 
 
 c     !*****enter max orbital moment into paw_basis_data structure
       call set_max_mult_l(max_mult_l)
 
+
 c     !*** set core charges ***
-            
       do it = 1,nt 
         call calc_paw_basis_core_charge(
      (        it,dbl_mb(paw_basis_i_core_charge(it)))
       end do
+
+
+*     **** deallocating memory from stack ****
+      ok =        MA_pop_stack(l_ng)
+      ok = ok.and.MA_pop_stack(l_nb)
+      if (.not.ok) 
+     > call errquit('init_paw_basis:error popping stack',1)
 
       return
       end 
