@@ -23,12 +23,12 @@
       parameter(p_a_ao_u=19)
       parameter(p_b_ao_u=20)
 c
-*      write(6,*) ' PIJ_A'
-*      call ga_print(g_p_ij_a)
-*      write(6,*) ' PAB_A'
-*      call ga_print(g_p_ab_a)
-*      write(6,*) ' g_rhs '
-*      call ga_print(g_rhs)
+c$$$      write(6,*) ' PIJ_A'
+c$$$      call ga_print(g_p_ij_a)
+c$$$      write(6,*) ' PAB_A'
+c$$$      call ga_print(g_p_ab_a)
+c$$$      write(6,*) ' PAI_A'
+c$$$      call ga_print(g_rhs)
       call util_file_name('p_a_ao',.true.,.true.,p_a_ao)
       call waopen(p_a_ao_u,p_a_ao,1,0,ierr)
       if(ierr.ne.0)call errquit(

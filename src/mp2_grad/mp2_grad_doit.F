@@ -97,7 +97,9 @@ c
       npass=0
       do oseg_lo=noa_lo,noa_hi,num_i_perseg
          npass=npass+1
-         write(6,*) 'inside grad_doit:# of passes = ',npass
+         if(ga_nodeid().eq.0)
+     $        write(6,*) '# of passes through ints in grad_doit = ',
+     $        npass
          oseg_hi=min((oseg_lo+num_i_perseg-1),noa_hi)
 c     
 c     Generate the part transformed integrals on disk (ia|uv)
