@@ -1,0 +1,41 @@
+start bett
+
+geometry
+zmat
+  C
+  O 1 AB
+  H 1 AH3 2 H3AB
+  H 2 BH9 1 H9BA 3 180. 0
+  X 1 1. 2 BAH12 3 180. 0
+  H 1 AH1 5 H1AH2 2 90. 0
+  H 1 AH1 5 H1AH2 2 -90. 0
+  variables
+  AB 1.42294
+  AH1 1.096734
+  AH3 1.089541
+  BH9 0.97
+  H1AH2 54.401488
+  BAH12 130.662232
+  H3AB 106.27799
+  H9BA 107.3899
+end
+end
+
+basis
+  C library 6-31G*
+  H library 6-31G*
+  O library 6-31G*
+end
+
+title "Test with OLYP"
+dft
+  xc optx lyp
+end
+task dft optimize
+
+title "Test with B3LYP"
+dft
+  xc b3lyp
+end
+task dft optimize
+
