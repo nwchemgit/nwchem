@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.40 2001-11-15 04:31:43 d3j191 Exp $
+c $Id: prp_init.F,v 1.41 2001-12-17 04:00:29 d3j191 Exp $
 c
       implicit none
 c
@@ -178,9 +178,9 @@ c
       pronam( 66)='Energy solvent potential                    kJ/mol'
       pronam( 67)='Energy solvent total                        kJ/mol'
       pronam( 68)='Virial solvent                              kJ/mol'
-      pronam( 69)='Mean square displacement solvent /6          nm**2'
+      pronam( 69)='Mean square displacement solvent             nm**2'
       lp(69)=nwm.gt.0.and.ntype.gt.1
-      pronam( 70)='Diffusion constant solvent * e9             m**2/s'
+      pronam( 70)='Diffusion constant solvent                  m**2/s'
       lp(70)=nwm.gt.0.and.ntype.gt.1
       pronam( 71)='Dipole moment solvent permanent            e30 C m'
       pronam( 72)='Dipole moment solvent induced              e30 C m'
@@ -298,8 +298,8 @@ c
       lp(it+17)=.true.
       pronam(it+18)='Energy solute     total                     kJ/mol'
       pronam(it+19)='Virial solute                               kJ/mol'
-      pronam(it+20)='Mean square displacement solute     /6       nm**2'
-      pronam(it+21)='Diffusion coefficient solute *e9            m**2/s'
+      pronam(it+20)='Mean square displacement solute              nm**2'
+      pronam(it+21)='Diffusion coefficient solute                m**2/s'
       pronam(it+22)='Dipole moment solute     permanent         e30 C m'
       pronam(it+23)='Dipole moment solute     induced           e30 C m'
       pronam(it+24)='Dipole moment solute                       e30 C m'

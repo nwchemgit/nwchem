@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.61 2001-11-15 04:31:43 d3j191 Exp $
+c $Id: prp_main.F,v 1.62 2001-12-17 04:00:32 d3j191 Exp $
 c
       implicit none
 c
@@ -343,10 +343,10 @@ c
       endif
 c
       if(nwm.gt.0) then
-      dwr=p(69)/dble(6*nwm)
+      dwr=p(69)/dble(nwm)
       p(69)=dwr
       if(stime.ne.0) then
-      p(70)=1.0d-6*dwr/stime
+      p(70)=1.0d-6*dwr/(6.0d0*stime)
       else
       p(70)=zero
       endif
