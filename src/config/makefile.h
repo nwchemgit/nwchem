@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.207 1997-02-25 22:40:54 d3e129 Exp $
+# $Id: makefile.h,v 1.208 1997-02-26 16:46:19 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -711,7 +711,7 @@ endif
 #       CORE_LIBS += -lessl
 #endif
 
- EXPLICITF = TRUE
+  EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
@@ -932,24 +932,26 @@ MKDIR = mkdir
 
 ifndef FLINT
 
-#-- redundant -- will be removed later -- rak: ifdef EXPLICITF
-#-- redundant -- will be removed later -- rak: #
-#-- redundant -- will be removed later -- rak: # Needed on machines where FCC does not preprocess .F files
-#-- redundant -- will be removed later -- rak: # with CPP to get .f files
-#-- redundant -- will be removed later -- rak: #
-#-- redundant -- will be removed later -- rak: .SUFFIXES:	
-#-- redundant -- will be removed later -- rak: .SUFFIXES:	.o .s .F .f .c
-#-- redundant -- will be removed later -- rak: 
-#-- redundant -- will be removed later -- rak: .F.o:	
-#-- redundant -- will be removed later -- rak: 	@echo Converting $*.F '->' $*.f
-#-- redundant -- will be removed later -- rak: 	@$(FCONVERT)
-#-- redundant -- will be removed later -- rak: 	$(FC) -c $(FFLAGS) $*.f
-#-- redundant -- will be removed later -- rak: 	@$(RM) $*.f
-#-- redundant -- will be removed later -- rak: 
-#-- redundant -- will be removed later -- rak: .F.f:
-#-- redundant -- will be removed later -- rak: 	@echo Converting $*.F '->' $*.f
-#-- redundant -- will be removed later -- rak: 	@$(FCONVERT)
-#-- redundant -- will be removed later -- rak: endif
+ifdef EXPLICITF
+#
+# Needed on machines where FCC does not preprocess .F files
+# with CPP to get .f files
+#
+.SUFFIXES:	
+.SUFFIXES:	.o .s .F .f .c
+
+.F.o:	
+	@echo Converting $*.F '->' $*.f
+	@$(FCONVERT)
+	$(FC) -c $(FFLAGS) $*.f
+	@$(RM) $*.f
+
+.F.f:
+	@echo Converting $*.F '->' $*.f
+	@$(FCONVERT)
+.f.o:
+	$(FC) -c $(FFLAGS) $<
+endif
 # 
 # More explicit rules to avoid infinite recursion, to get dependencies, and
 # for efficiency.  CRAY does not like -o with -c.
