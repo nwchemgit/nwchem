@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.5 2001-06-06 19:20:07 edo Exp $
+C     $Id: vectors_inp.F,v 1.6 2002-09-10 15:52:50 d3k958 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -26,7 +26,7 @@ c
 c     vectors output filename
 c     
       integer num_dirs, ind
-      parameter (num_dirs = 8)
+      parameter (num_dirs = 9)
       character*8 dirs(num_dirs)
       integer max_swap
       parameter (max_swap = 20)
@@ -40,7 +40,7 @@ c
       character*20 swapname
       logical olock
       data dirs /'input', 'output', 'atomic', 'hcore', 'swap',
-     $     'project', 'lock', 'fragment'/
+     $     'reorder', 'project', 'lock', 'fragment'/
 c     
       nfrag = 0  
       vectors_in = ' '
@@ -60,7 +60,7 @@ c
          goto 10
       endif
 c     
-      goto (100, 200, 300, 400, 500, 600, 700, 800, 999) ind
+      goto (100, 200, 300, 400, 500, 550, 600, 700, 800, 999) ind
       call errquit('scf_input: unimplemented directive', ind)
 c     
 c     input ... quietly ignore this
@@ -128,6 +128,30 @@ c
          goto 510
       endif
 c     
+c ================================================================
+c     reorder <integer list of pairs of nuclei>
+c
+ 550  nswap = 0
+ 551  if (.not. inp_i(itest)) then
+c
+c     Have hit end of pair list ... EOL or another directive
+c
+         if (mod(nswap,2).ne.0 .or. nswap.le.0) call errquit
+     $        ('vectors_input: invalid no. of nuclei to swap', nswap)
+c
+         if (.not. rtdb_put(rtdb, 'reorder', mt_int, nswap,swap))
+     $        call errquit('vectors_input: put of reorder?', nswap)
+         goto 10
+      else
+         swap(nswap+1) = itest
+         if (.not. inp_i(swap(nswap+2))) call errquit
+     $        ('vectors input: it takes two to swap!', 0)
+         nswap = nswap + 2
+         goto 551
+      endif
+c
+c ================================================================
+
 c     Project basisname filename
 c     
  600  if (.not. inp_a(project(1))) goto 10000

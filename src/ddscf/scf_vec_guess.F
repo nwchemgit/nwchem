@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.40 2002-07-12 22:29:08 d3k958 Exp $
+c     $Id: scf_vec_guess.F,v 1.41 2002-09-10 15:52:47 d3k958 Exp $
 c
       implicit none
 c
@@ -74,6 +74,7 @@ c
       double precision tolguess, zero, one, two
       character*20 file_scftype
       character*255 string
+      integer type, nelem, swap, handle
 c
 c     externals
 c
@@ -418,6 +419,15 @@ c
       call movecs_swap(rtdb, 
      &     calling_module(1:inp_strlen(calling_module)), scftype, 
      &     g_movecs, dbl_mb(k_occ), dbl_mb(k_eval))
+c
+c
+c    Apply any swaps of nuclei in the mapping of mo vectors
+c
+       if ( rtdb_ma_get(rtdb, 'reorder', type, nelem, handle)) then
+         call movecs_swap_nuclei(rtdb,nbf,basis,scftype,g_movecs,
+     &     dbl_mb(k_occ), dbl_mb(k_eval))
+       endif
+c
 c
 c     Optionally symmetry adapt the initial molecular orbitals
 c
