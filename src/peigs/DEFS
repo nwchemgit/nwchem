@@ -606,8 +606,8 @@ CODEOBJ		= DBLE
 AR		= ar r
 RANLIB		= ranlib
 CC              = xlC -DSTD_INT -DSTD_DBL -DRIOS -DEXTNAME  -I$(HDIR) -DIBM -O2
-F77             = xlhpf -qnohpf -qEXTNAME -I$(HDIR) -DIBM -O2
-LINK            = xlhpf -qnohpf -qEXTNAME
+FC              = mpxlf -qEXTNAME -I$(HDIR) -DIBM -O2
+LINK            = mpxlf -qEXTNAME
 CUBIX_OPTS	=
 NODE_EXT	= o
 HOST_EXT	= out
@@ -734,4 +734,9 @@ ifeq ($(TARGET),LINUX)
 			/bin/rm -f /tmp/$$$$.c) || exit 1
 endif
 
+export CC
+export FC
+export AR
+export RANLIB
+export LINK
 COMMLIB       = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg

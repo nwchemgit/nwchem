@@ -41,13 +41,13 @@ realclean:
 
 
 eig.o:		eig.f
-		$(F77) -c eig.f
+		$(FC) -c eig.f
 
 gendrv.o:	gendrv.F
 		$(CPP) < gendrv.F > gendrv.f
-		$(F77) $(OPT) -c $(F77NFLAGS) gendrv.f
+		$(FC) $(OPT) -c $(FCNFLAGS) gendrv.f
 		rm gendrv.f
 
 
-.f.o: ;	 $(F77) $(OPT) -c $(F77NFLAGS) $<
+.f.o: ;	 $(FC) $(OPT) -c $(FCNFLAGS) $<
 .c.o: ;  $(CC) $(OPTC)  -c $(CFLAGS) -I$(HDIR) $<

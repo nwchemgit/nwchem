@@ -82,7 +82,7 @@ realclean:
 maxx.o :	maxx.cpp
 		-rm -f maxx.f
 		$(CPP) < maxx.cpp > maxx.f
-		$(F77) $(OPT) -c $(F77NFLAGS) maxx.f
+		$(FC) $(OPT) -c $(FCNFLAGS) maxx.f
 
 soort.o:	soort.c
 		$(CC) $(OPTC) -c soort.c
@@ -232,10 +232,10 @@ mapdif1.o:	mapdif1.c
 		$(CC) $(OPTC) -c mapdif1.c    
 
 peigs_cmod.o:	peigs_cmod.f
-		$(F77) -c peigs_cmod.f
+		$(FC) -c peigs_cmod.f
 
 
 .c.o:;	$(CC) $(OPTC) -c $<
 
-.f.o:;	$(F77) $(OPT) -c $<
+.f.o:;	$(FC) $(OPT) -c $<
 
