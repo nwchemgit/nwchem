@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.95 1995-02-02 23:10:45 d3g681 Exp $
+# $Id: makefile.h,v 1.96 1995-02-03 18:21:54 d3h449 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -416,6 +416,10 @@ ifeq ($(TARGET),IBM)
 	      -brename:.dgetrf_,.dgetrf \
 	      -brename:.dgetrs_,.dgetrs \
 	      -brename:.dscal_,.dscal \
+	      -brename:.dspsvx_,.dspsvx \
+	      -brename:.dpotrf_,.dpotrf \
+	      -brename:.dpotri_,.dpotri \
+	      -brename:.times_,.times \
 	      -brename:.idamax_,.idamax 
 
  EXPLICITF = TRUE
@@ -428,6 +432,45 @@ endif
 #	      -brename:.lsame_,.lsame \
 #	      -brename:.xerbla_,.xerbla \
 
+ifeq ($(TARGET),SP1)
+#
+
+    CORE_SUBDIRS_EXTRA = blas lapack
+         FC = mpxlf
+         CC = mpcc
+    ARFLAGS = urs
+     RANLIB = echo
+  MAKEFLAGS = -j 2
+    INSTALL = @echo $@ is built
+        CPP = /usr/lib/cpp -P
+
+   FOPTIONS = -qEXTNAME
+   COPTIONS =
+  FOPTIMIZE = -O
+  COPTIMIZE = -O
+
+    DEFINES = -DSP1 -DEXTNAM 
+
+       LIBPATH += -L/usr/lib -L/msrc/apps/lib
+       CORE_LIBS = -lglobal -lutil -ltcgmsg -llapack -lblas\
+	      -brename:.daxpy_,.daxpy \
+	      -brename:.dgesv_,.dgesv \
+	      -brename:.dcopy_,.dcopy \
+	      -brename:.ddot_,.ddot \
+	      -brename:.dgemm_,.dgemm \
+	      -brename:.dgemv_,.dgemv \
+	      -brename:.dgetrf_,.dgetrf \
+	      -brename:.dgetrs_,.dgetrs \
+	      -brename:.dscal_,.dscal \
+	      -brename:.dspsvx_,.dspsvx \
+	      -brename:.dpotrf_,.dpotrf \
+	      -brename:.dpotri_,.dpotri \
+	      -brename:.times_,.times \
+	      -brename:.idamax_,.idamax 
+
+ EXPLICITF = TRUE
+#
+endif
 
 
 ###################################################################
@@ -477,6 +520,9 @@ ifeq ($(TARGET),UNKNOWN)
 	$(CPP) $(CPPFLAGS) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
 endif
 ifeq ($(TARGET),IBM)
+	$(CPP) $(CPPFLAGS) $*.F > $*.f
+endif
+ifeq ($(TARGET),SP1)
 	$(CPP) $(CPPFLAGS) $*.F > $*.f
 endif
 ifeq ($(TARGET),CRAY-T3D)
