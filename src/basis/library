@@ -1,3 +1,4 @@
+# $Id: library,v 1.28 1999-07-29 01:22:02 d3e129 Exp $
 basis "H_STO-2G" CARTESIAN
   H    S
          1.309756377      0.43012850
