@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.47 2000-06-09 17:18:17 d3j191 Exp $
+c $Id: prp_main.F,v 1.48 2000-07-13 23:08:02 edo Exp $
 c
       implicit none
 c
@@ -289,8 +289,13 @@ c
 c
       p(98)=(p(98)-p(97))/p(98)
 c
-      p(38)=exp(-p(36)/(rgas*temp))
-      p(39)=exp(-p(37)/(rgas*temp))
+      if(temp.eq.0d0) then
+         p(38)=0d0
+         p(39)=0d0
+      else
+         p(38)=exp(-p(36)/(rgas*temp))
+         p(39)=exp(-p(37)/(rgas*temp))
+      endif
 c
       if(nwm.gt.0) then
       dwr=p(69)/dble(6*nwm)
