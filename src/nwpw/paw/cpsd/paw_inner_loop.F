@@ -1,8 +1,13 @@
 *
-* $Id: paw_inner_loop.F,v 1.31 2003-03-14 01:20:59 marat Exp $
+* $Id: paw_inner_loop.F,v 1.32 2003-03-15 01:47:43 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.31  2003/03/14 01:20:59  marat
+* moved call to paw_force_solve after nonlocal
+* matrices have been calculated
+* MV
+*
 * Revision 1.30  2003/03/11 17:57:10  bylaska
 * updates...EJB
 *
@@ -210,15 +215,11 @@
 *     ****                                  ****
 *     ******************************************
       do it=1,it_in
+
+*       **** shift wavefunction and atoms ****
         call dcopy(2*npack1*nemax,psi2,1,psi1,1)
-
         if (move) call ion_shift()
-
-*       ********************************
-*       **** generate phaze factors ****
-*       ********************************
-        if (move) call phafac()
-
+        !if (move) call phafac()
 
         call nwpw_timing_start(11)
 *       *******************
@@ -236,7 +237,7 @@
 *       *******************
         call paw_ovlp_coeff_set(psi1)
         call paw_ovlp_weights_set()
-        call paw_ovlp_weights_write(89)
+        !call paw_ovlp_weights_write(89)
 
 *       *************************************
 *       ****generate comp charge potential***
@@ -419,16 +420,10 @@
 *       *********************
 *       **** generate force *
 *       *********************
-        call paw_force_solve(psi1) 
-        call paw_force_weights_write(67)
          if (move) then
 
-*          **** get the ewald force ****
-           if (control_version().eq.3) call ewald_f(dbl_mb(fion(1)))
-
-*          **** get the free-space ion force ****
-           if (control_version().eq.4) call ion_ion_f(dbl_mb(fion(1)))
-
+           call paw_force_solve(psi1,dbl_mb(fion(1))) 
+           !call paw_force_weights_write(67)
 
 
 *          **** remove ion forces using ion_FixIon ****
@@ -442,11 +437,15 @@
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
         if (gram_schmidt) then
+          if (move) call phafac2()
           do ms=1,ispin
             call paw_psi_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
           end do
         else
+
           call paw_ovlp_S(n2(ispin),psi1,psi_r)
+
+          if (move) call phafac2()
           call paw_psi_lmbda(ispin,ne,nemax,npack1,psi_r,psi2,dte,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         end if

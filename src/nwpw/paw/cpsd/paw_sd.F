@@ -1,7 +1,12 @@
 *
-* $Id: paw_sd.F,v 1.53 2003-03-14 01:20:59 marat Exp $
+* $Id: paw_sd.F,v 1.54 2003-03-15 01:47:43 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.53  2003/03/14 01:20:59  marat
+* moved call to paw_force_solve after nonlocal
+* matrices have been calculated
+* MV
+*
 * Revision 1.52  2003/03/11 18:09:35  bylaska
 * io fixes...EJB
 *
@@ -336,7 +341,7 @@
       call init_paw_xc(ispin,0)
 
 *     *** intialize paw force ***      
-      call paw_force_init()
+      if (control_move()) call paw_force_init()
 
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
@@ -748,6 +753,7 @@ c         write(6,1498) virial
       call end_paw_pot_hartree()
       call paw_density_end()
       call paw_xc_end()
+      if (control_move()) call paw_force_end()
 
       value =           MA_free_heap(psir(2))
       value = value.and.MA_free_heap(Hpsi(2))

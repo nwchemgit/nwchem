@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.5 2003-03-15 00:05:20 bylaska Exp $
+* $Id: paw_force.F,v 1.6 2003-03-15 01:47:43 bylaska Exp $
 *
 
 !**************************************************
@@ -91,9 +91,10 @@
 !
 !	Created:	8/07/2002
 !**************************************************
-      subroutine paw_force_solve(psi)
+      subroutine paw_force_solve(psi,fion)
       implicit none
       complex*16 psi(*)
+      real*8     fion(3,*)
       
 #include "mafdecls.fh"
 #include "paw_force_data.fh"
@@ -365,7 +366,7 @@ c           !*** this loop is not computed when ispin=1 ***
         i_nbasis = i_nbasis + nbasis
       end do
 
-      call paw_force_atom()
+      call paw_force_atom(fion)
       return
       end
 
@@ -441,8 +442,9 @@ c           !*** this loop is not computed when ispin=1 ***
 !
 !	Created:	8/07/2002
 !**************************************************
-      subroutine paw_force_atom()
+      subroutine paw_force_atom(fion)
       implicit none
+      real*8 fion(3,*)
 
 #include "mafdecls.fh"
 #include "paw_force_data.fh"
@@ -464,13 +466,13 @@ c           !*** this loop is not computed when ispin=1 ***
       call paw_nonloc_gop_u_ptr(gop_u)
       call paw_nonloc_gop_d_ptr(gop_d)
 
-      write(*,*) " paw force, gop"
-      do in=1,gop_u(3)
-      write(*,*) 
-     > dcpl_mb(gop_u(1)+in-1),
-     > dcpl_mb(gop_d(1)+in-1),
-     > dcpl_mb(paw_force_wx_u(1)+in-1)
-      end do
+c      write(*,*) " paw force, gop"
+c      do in=1,gop_u(3)
+c      write(*,*) 
+c     > dcpl_mb(gop_u(1)+in-1),
+c     > dcpl_mb(gop_d(1)+in-1),
+c     > dcpl_mb(paw_force_wx_u(1)+in-1)
+c      end do
 
       nion = ion_nion()
       do in=1,nion
@@ -508,18 +510,22 @@ c           !*** this loop is not computed when ispin=1 ***
         dbl_mb(paw_force_fy_atom(1)+in-1)=-dble(tmp_fy)
         dbl_mb(paw_force_fz_atom(1)+in-1)=-dble(tmp_fz)
 
-      end do
-
-
-      write(*,*) "atomic force"
-      do in=1,nion
-
-        write(*,*) in, 
-     >             dbl_mb(paw_force_fx_atom(1)+in-1),
-     >             dbl_mb(paw_force_fy_atom(1)+in-1),
-     >             dbl_mb(paw_force_fz_atom(1)+in-1)
+        fion(1,in) = fion(1,in) - dble(tmp_fx)
+        fion(1,in) = fion(2,in) - dble(tmp_fy)
+        fion(3,in) = fion(3,in) - dble(tmp_fz)
 
       end do
+
+
+c     write(*,*) "atomic force"
+c     do in=1,nion
+c
+c       write(*,*) in, 
+c    >             dbl_mb(paw_force_fx_atom(1)+in-1),
+c    >             dbl_mb(paw_force_fy_atom(1)+in-1),
+c    >             dbl_mb(paw_force_fz_atom(1)+in-1)
+c     end do
+
       return
       end
 
@@ -536,21 +542,32 @@ c           !*** this loop is not computed when ispin=1 ***
 
 #include "mafdecls.fh"
 #include "paw_ma.fh" 
-#include "paw_ovlp_data.fh"
+#include "paw_force_data.fh"
 
       !*** local variables ***
       logical value
 
       value = .true.
-      
-c      value =           MA_free_heap(coeff(2))
-c      value = value.and.MA_free_heap(toeff(2))
-c      value = value.and.MA_free_heap(indx2(2))
-c      value = value.and.MA_free_heap(sgn(2))
-c      value = value.and.MA_free_heap(paw_ovlp_w(2))
-c      value = value.and.MA_free_heap(paw_ovlp_w_u(2))
-c      value = value.and.MA_free_heap(paw_ovlp_w_d(2))
-c      value = value.and.my_dealloc(i_paw_ovlp_w)
+      value = value.and.my_dealloc(paw_force_cx_u)
+      value = value.and.my_dealloc(paw_force_cx_s)
+      value = value.and.my_dealloc(paw_force_cy_u)
+      value = value.and.my_dealloc(paw_force_cy_s)
+      value = value.and.my_dealloc(paw_force_cz_u)
+      value = value.and.my_dealloc(paw_force_cz_s)
+
+      value = value.and.my_dealloc(paw_force_wx)
+      value = value.and.my_dealloc(paw_force_wx_u)
+      value = value.and.my_dealloc(paw_force_wx_d)
+      value = value.and.my_dealloc(paw_force_wy)
+      value = value.and.my_dealloc(paw_force_wy_u)
+      value = value.and.my_dealloc(paw_force_wy_d)
+      value = value.and.my_dealloc(paw_force_wz)
+      value = value.and.my_dealloc(paw_force_wz_u)
+      value = value.and.my_dealloc(paw_force_wz_d)
+
+      value = value.and.my_dealloc(paw_force_fx_atom)
+      value = value.and.my_dealloc(paw_force_fy_atom)
+      value = value.and.my_dealloc(paw_force_fz_atom)
 c
       if (.not.value) call errquit('paw_force_end: dealloc heap',0)
       return
