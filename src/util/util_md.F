@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.41 2003-10-19 04:55:19 d3j191 Exp $
+c $Id: util_md.F,v 1.42 2004-01-31 16:09:19 d3j191 Exp $
 c
       implicit none
 c
@@ -1503,8 +1503,18 @@ c
       end
       subroutine md_abort(string, icode)
       implicit none
+#include "global.fh"
+#include "stdio.fh"
       character*(*) string
+      character*255 card
       integer icode
-      call errquit(string,icode,0)
+      if(ga_nodeid().eq.0) then
+      write(luout,1000) 0,string,icode
+ 1000 format(/,1x,102('*'),/,' * ',i3,': ',a,i5,t102,' *',/,1x,102('*'))
+      card=' '
+      else
+      write(card,1000) ga_nodeid(),string,icode
+      endif
+      call ga_error(card,icode)
       return
       end
