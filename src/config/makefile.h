@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.188 1996-12-06 21:09:50 d3j191 Exp $
+# $Id: makefile.h,v 1.189 1996-12-09 18:59:26 d3h325 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -549,11 +549,17 @@ endif
 
 ifeq ($(TARGET),SGI)
 #
-# SGI normal
+# SGI normal (32-bit platform)
 #
 # CORE_SUBDIRS_EXTRA are those machine specific libraries required 
+#
+# JN 12/4/96: 
+# removed -lblas from CORE_SUBDIRS_EXTRA and -lmalloc from the EXTRA_LIBS
+# replaced -mips2 with -mips3
+# On IRIX >= 6.1, SGI recomends using -n32 to utilize internal 64-bit
+# registers (up to 50% better floating point performance over -32 flag) 
 
-    CORE_SUBDIRS_EXTRA = blas lapack
+    CORE_SUBDIRS_EXTRA = lapack
          FC = f77
          AR = ar
      RANLIB = echo
@@ -562,13 +568,55 @@ ifeq ($(TARGET),SGI)
   MAKEFLAGS = -j 4 --no-print-directory
     DEFINES = -DSGI  -DHAVE_LOC
 
-  FOPTIONS = -mips2
-  COPTIONS = -mips2 -fullwarn
+  FOPTIONS = -mips3
+  COPTIONS = -mips3 -fullwarn
  FOPTIMIZE = -O2
  COPTIMIZE = -O2
 
        CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
-      EXTRA_LIBS = -lmalloc 
+#     EXTRA_LIBS = -lmalloc 
+endif
+
+
+ifeq ($(TARGET),SGI_N32)
+#
+# SGI 64-bit MIPS-4 processors (R5k, R8k, R10k) under IRIX > 6.0  (ABI)
+#
+# JN, 12.06.96:
+# -n32 allows to use 64-bit processor features and 32-bit address space
+# 32-bit address space - use SGITFP if 64-bit addresses needed
+#
+# SGI BLAS can be used directly
+
+    CORE_SUBDIRS_EXTRA = lapack
+         FC = f77
+         AR = ar
+     RANLIB = echo
+
+    INSTALL = @echo nwchem is built
+  MAKEFLAGS = -j 4 --no-print-directory
+    DEFINES = -DSGI
+
+  FOPTIONS = -n32 -mips4 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
+  COPTIONS = -n32 -mips4 -fullwarn
+ COPTIMIZE = -O2
+
+#optimization flags for R8000 (IP21)
+ FOPTIMIZE_8K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_8K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
+
+#optimization flags for R10000 (IP28)
+ FOPTIMIZE_10K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC -SWP:if_conversion=OFF
+FVECTORIZE_10K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=1 -WK,-dr=AKC -SWP:if_conversion=OFF
+
+# optimization flags for R5000 (IP22)
+ FOPTIMIZE_5K = -O3
+
+#default optimization flag
+ FOPTIMIZE = $(FOPTIMIZE_8K)
+ FVECTORIZE = $(FVECTORIZE_8K)
+
+       CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
 endif
 
 
