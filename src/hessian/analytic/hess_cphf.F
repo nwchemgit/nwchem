@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.13 2000-08-14 21:16:05 windus Exp $
+C $Id: hess_cphf.F,v 1.14 2000-08-14 23:14:40 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -17,8 +17,8 @@ c
 c
       integer rtdb 
       integer i, ij, jnd
-      integer nocc, nc, nxyz, num, num2, norb, nrot, nc3 
-      integer num3, norb2, nocc2, nbf2, ind, ndns, in, nfock
+      integer nocc(2), nc, nxyz, num, num2, norb, nc3 
+      integer num3, norb2, nbf2, ind, ndns, in, nfock
       integer l_evals, k_evals, l_occ, k_occ
       integer g_vecs(2), g_modx
       integer g_wax(nw_max_atom*3)
@@ -53,7 +53,12 @@ c     The code that depends on nocc will have to be changed to use nalpha and
 c     nbeta to handle UHF case (nalpha = nclosed in RHF case)
 c 
 
-      nocc = nclosed
+      if (ndens.eq.1) then  ! RHF case
+       nocc(1) = nclosed
+      else                  ! UHF case
+       nocc(1) = nalpha
+       nocc(2) = nbeta
+      endif
 
 c     ----- define parameters -----
  
@@ -61,12 +66,10 @@ c     ----- define parameters -----
       nxyz = nc              ! substitue nc or nxyz for one or the other (later)
       num  = nbf
       norb = num
-      nrot = nocc * nvirt
       nc3  = nc * nc
       num2 =(num*(num+1))/2
       num3 = num* num
       norb2= norb*norb
-      nocc2= nocc*nocc
 c
 c may need to pick up hessian off of disk, but for now assuming it is 
 c in memory
@@ -161,21 +164,25 @@ c
 c
 c  Pull out contributions to wax and aa, first getting memory for each.
 c
-        if(.not.ga_create(mt_dbl,nocc,nvirt,'g_wax',0,0,g_wax(ind)))
+        write(6,*) 'nocc and nvirt ',nocc(ndns),nvirt(ndns)
+        call flush(6)
+        if(.not.ga_create(MT_DBL,nocc(ndns),nvirt(ndns),'g_wax',0,0,
+     $     g_wax(ind)))
      $     call errquit('cphf_hess:could not alloc wax array',555) 
-        if(.not.ga_create(mt_dbl,nocc,nocc,'g_aa',0,0,g_aa(ind)))
+        if(.not.ga_create(MT_DBL,nocc(ndns),nocc(ndns),'g_aa',0,0,
+     $     g_aa(ind)))
      $     call errquit('cphf_hess:could not alloc aa array',555) 
 c
 c Need to look up the exact calls, but should be something like
 c
         write(6,*) 'before the wax copy_patch ',ind
         call flush(6)
-        call ga_copy_patch('N',g_rhs(ind),1,nocc,nocc+1,num,
-     $     g_wax(ind),1,nocc,1,nvirt)
+        call ga_copy_patch('N',g_rhs(ind),1,nocc(ndns),nocc(ndns)+1,
+     $     num, g_wax(ind),1,nocc(ndns),1,nvirt(ndns))
         write(6,*) 'before the aa copy_patch ',ind
         call flush(6)
-        call ga_copy_patch('N',g_rhs(ind),1,nocc,1,nocc,
-     $     g_aa(ind),1,nocc,1,nocc)
+        call ga_copy_patch('N',g_rhs(ind),1,nocc(ndns),1,nocc(ndns),
+     $     g_aa(ind),1,nocc(ndns),1,nocc(ndns))
         write(6,*) 'after the aa copy_patch ',ind
         call flush(6)
         if (out) then
@@ -220,11 +227,11 @@ c
 c get contribution to wax, need to put into ga language 
 c try to do this a row at a time as a ga_add_patch
 c
-         do i = 1, nocc
+         do i = 1, nocc(ndns)
            write(6,*) 'index ',(ndns-1)*nbf+i
-           call ga_add_patch(one,g_wax(ind),i,i,1,nvirt,
+           call ga_add_patch(one,g_wax(ind),i,i,1,nvirt(ndns),
      $       eight*dbl_mb(k_evals+(ndns-1)*nbf+i),g_rhs(ind),i,i,
-     $       nocc+1, num,g_wax(ind),i,i,1,nvirt)
+     $       nocc(ndns)+1, num,g_wax(ind),i,i,1,nvirt(ndns))
          enddo
          if (out) then
            write(6,*) 'g_wax after T addition'
@@ -241,8 +248,12 @@ c Do wxy = wxy + 8*sum(i)sum(j)[(ei+ej)*Ta((i-1*nocc)+j,x))*Ta((i-1*nocc)+j,y)]
 c This is the hondo equivalent of cpwab1 [ Ta is part of g_rhs, e is 
 c dbl_mb(k_evals) and wxy is dbl_mb(k_exy)
 c
+      do ndns = 1, ndens
+      write(6,*) 'nocc and ncent before hess_sxsy ',nocc(ndns),ncent
+      call flush(6)
       call hess_sxsy(dbl_mb(k_exy),dbl_mb(k_evals),g_rhs,
-     &    log_mb(k_act),ncent,nocc,hf_job)
+     &    log_mb(k_act),ncent,nocc(ndns),hf_job)
+      enddo
 c
 c  Get rid of some memory
 c
@@ -254,15 +265,16 @@ c adds to g_aa and g_wax.  Ta needs to be transformed back into the AO
 c basis, combined with the integrals, and then transformed back into the
 c MO basis.
 c
+      do ndns = 1, ndens
       do ind = 1, nc
         call ga_matmul_patch ('n','n', 1.D0, 0.D0,
-     $                         g_vecs(1),    1, num,   1, nocc,
-     $                         g_rhs(ind),   1, nocc,  1, nocc,
-     $                         g_modx,       1, num,   1, nocc)
+     $                g_vecs(1),    1, num,         1, nocc(ndns),
+     $                g_rhs(ind),   1, nocc(ndns),  1, nocc(ndns),
+     $                g_modx,       1, num,         1, nocc(ndns))
        call ga_matmul_patch ('n','t', 1.D0, 0.D0,
-     $                         g_modx,       1, num,  1, nocc,
-     $                         g_vecs(1),    1, nocc, 1, num,
-     $                         g_rhs(ind),   1, num,  1, num )
+     $                g_modx,       1, num,         1, nocc(ndns),
+     $                g_vecs(1),    1, nocc(ndns),  1, num,
+     $                g_rhs(ind),   1, num,         1, num )
 c
 c Set up some parameters for the fock_2e call.  Note that I am not
 c sure if jfact and kfact should stay the same for DFT!  This needs to
@@ -312,13 +324,15 @@ c
 c
 c Now form the Wax and Aa contributions
 c
-        call ga_add_patch(one,g_wax(ind),1,nocc,1,nvirt,
-     $                    two,g_rhs(ind),1,nocc,nocc+1,nocc+nvirt,
-     $                        g_wax(ind),1,nocc,1,nvirt)
+        call ga_add_patch(one,g_wax(ind),1,nocc(ndns),1,nvirt(ndns),
+     $                    two,g_rhs(ind),1,nocc(ndns),nocc(ndns)+1,
+     $                        nocc(ndns)+nvirt(ndns),
+     $                        g_wax(ind),1,nocc(ndns),1,nvirt(ndns))
 
-        call ga_add_patch(one,g_aa(ind), 1,nocc,1,nocc,
-     $                    one,g_rhs(ind),1,nocc,1,nocc,
-     $                        g_aa(ind), 1,nocc,1,nocc)
+        call ga_add_patch(one,g_aa(ind), 1,nocc(ndns),1,nocc(ndns),
+     $                    one,g_rhs(ind),1,nocc(ndns),1,nocc(ndns),
+     $                        g_aa(ind), 1,nocc(ndns),1,nocc(ndns))
+      enddo
       enddo
 c
 c Do wxy = wxy + sum(i)sum(j){Ta([i-1]*nocc+j,x)*AA([i-1]*nocc+j,y) +
@@ -327,16 +341,18 @@ c This is the hondo equivalent of cpwab2
 c
       write(6,*) 'k_exy at Ta*AA sum ',k_exy
       call flush(6)
+      do ndns = 1, ndens
       ij = 0
       do jnd = 1, nc
         do ind = 1, nc
           dbl_mb(k_exy+ij) = 
-     $      ga_ddot_patch(g_rhs(ind),'N',1,nocc,1,nocc,
-     $                    g_aa(jnd), 'N',1,nocc,1,nocc) +
-     $      ga_ddot_patch(g_rhs(jnd),'N',1,nocc,1,nocc,
-     $                    g_aa(ind), 'N',1,nocc,1,nocc)
+     $      ga_ddot_patch(g_rhs(ind),'N',1,nocc(ndns),1,nocc(ndns),
+     $                    g_aa(jnd), 'N',1,nocc(ndns),1,nocc(ndns)) +
+     $      ga_ddot_patch(g_rhs(jnd),'N',1,nocc(ndns),1,nocc(ndns),
+     $                    g_aa(ind), 'N',1,nocc(ndns),1,nocc(ndns))
           ij = ij + 1
         enddo
+      enddo
       enddo
       write(6,*) 'k_exy after Ta*AA sum ',k_exy
       call flush(6)
@@ -364,16 +380,19 @@ c
 
       write(6,*) 'k_exy after getting file names ',k_exy
       call flush(6)
-      if (.not.ga_create(mt_dbl,nvirt*nocc,1,'cphf_tmp',0,0,g_tmp))
-     $  call errquit('hess_cphf: could not create g_tmp',555)
-        if(.not.ga_create(mt_dbl,nocc,nvirt,'g_sol',0,0,g_sol))
-     $     call errquit('hess_cphf:could not alloc sol array',555) 
 
+      do ndns = 1, ndens
+        if (.not.ga_create(MT_DBL,nvirt(ndns)*nocc(ndns),1,'cphf_tmp',
+     $    0,0,g_tmp))
+     $    call errquit('hess_cphf: could not create g_tmp',555)
+        if(.not.ga_create(MT_DBL,nocc(ndns),nvirt(ndns),'g_sol',
+     $     0,0,g_sol))
+     $     call errquit('hess_cphf:could not alloc sol array',555) 
       do ind = 1, nc
         write(6,*) 'before the tmp copy_patch ',ind
         call flush(6)
-        call ga_copy_patch('T',g_wax(ind),1,nocc,1,nvirt,
-     $    g_tmp,1,nvirt*nocc,1,1)   ! put into format for current cphf
+        call ga_copy_patch('T',g_wax(ind),1,nocc(ndns),1,nvirt(ndns),
+     $    g_tmp,1,nvirt(ndns)*nocc(ndns),1,1)   ! put into format for current cphf
 
         if(.not.file_write_ga(cphf_rhs,g_tmp)) call errquit
      $    ('hess_cphf:could not write cphf_rhs',ind)
@@ -394,12 +413,17 @@ c
      $    ('hess_cphf:could not read cphf_rhs',ind)
         write(6,*) 'before the sol copy_patch ',ind
         call flush(6)
-        call ga_copy_patch('T',g_tmp,1,nvirt*nocc,1,1,
-     $    g_sol,1,nocc,1,nvirt)
+        call ga_copy_patch('T',g_tmp,1,nvirt(ndns)*nocc(ndns),1,1,
+     $    g_sol,1,nocc(ndns),1,nvirt(ndns))
       write(6,*) 'k_exy before hess_pxfy ',k_exy
       call flush(6)
         call hess_pxfy(dbl_mb(k_exy),g_sol,g_wax,log_mb(k_act),ncent,
      $    ind, hf_job)
+      enddo
+        if (.not.ga_destroy(g_tmp)) call errquit
+     $    ('cannot destroy g_tmp ',555)
+        if (.not.ga_destroy(g_sol)) call errquit
+     $    ('cannot destroy g_sol ',555)
       enddo
 c
 c Do final summation of the hessian to get result
@@ -416,10 +440,6 @@ c
         if (.not.ga_destroy(g_wax(ind))) call errquit
      $    ('cannot destroy g_wax ',ind)
       enddo
-      if (.not.ga_destroy(g_tmp)) call errquit
-     $  ('cannot destroy g_tmp ',555)
-      if (.not.ga_destroy(g_sol)) call errquit
-     $  ('cannot destroy g_sol ',555)
 c
       return
       end

@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.13 2000-08-14 21:35:10 windus Exp $
+C $Id: hess_init.F,v 1.14 2000-08-14 23:14:41 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -151,10 +151,12 @@ c
       endif
 c
       if (scftype.eq.'UHF') then
+         nvirt(1) = nmo-nalpha
+         nvirt(2) = nmo-nbeta
          vlen = nalpha*(nmo-nalpha) + nbeta*(nmo-nbeta)
       else if (scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
-         nvirt = nmo - nclosed - nopen
-         vlen = nclosed*(nopen+nvirt) + nopen*nvirt
+         nvirt(1) = nmo - nclosed - nopen
+         vlen = nclosed*(nopen+nvirt(1)) + nopen*nvirt(1)
       else
          call errquit('hess_init: unknown SCF type',0)
       endif
