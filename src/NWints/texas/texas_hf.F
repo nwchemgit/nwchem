@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.4 1995-12-22 01:24:45 d3e129 Exp $
+c $Id: texas_hf.F,v 1.5 1995-12-23 00:07:11 pg481 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -58,21 +58,19 @@ ccccc    call switch_scr(blscr,l_blscr)
          call switch_scr(dbl_mb(ntxs_bl_scr),blscr,l_blscr)
       endif
 c--------------------------------------------------------
-       call mul_quart(ish,jsh,ksh,lsh,nquart,ra,rb,rc,rd,use_r,
-     *                blscr,l_blscr,
-     *                eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
-     *                       more_int)
+       call mul_quart(ish,jsh,ksh,lsh,nquart, q4,use_q4,
+     *                ra,rb,rc,rd,use_r, blscr,l_blscr,eri,leri,
+     *                icf,jcf,kcf,lcf,integ_n0,labels, more_int)
 c--------------------------------------------------------
       end
 c=================================================================
-      subroutine mul_quart(icspnl,jcspnl,kcspnl,lcspnl,nquart,
-     *                     ra, rb, rc, rd, use_r,
-     *                bl   ,l_blscr,
-     *                     eri,leri,
-     *                     icf,jcf,kcf,lcf,integ_nx,labels,more_int)
+c23456789.123456789.123456789.123456789.123456789.123456789.123456789.12
+      subroutine mul_quart(icspnl,jcspnl,kcspnl,lcspnl,nquart,q4,use_q4,
+     *                     ra,rb,rc,rd,use_r, bl   ,l_blscr,eri,leri,
+     *                     icf,jcf,kcf,lcf,integ_nx,labels, more_int)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
-      logical use_r,labels,more_int
+      logical use_q4,use_r,labels,more_int
       double precision ra(3), rb(3), rc(3), rd(3)
       common /index/ maxsh,ifp,inx(1)
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
@@ -85,14 +83,13 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
       common /pnl006/ nsplit,isplit,isbl_split
 c----------------------------------------------------------------
-c------------------------------pnl time--------------------------
       common /pnl_time1/ time_pt,time_setup
       common /pnl_time2/ time_calc2,time_do2,time_do4,time_doqrt
 c
       common /pnl_nqrt/ ncall_pnl, nqrts_pnl
 c------------------------------pnl time--------------------------
 cpnl  common /big/ bl(1)
-      dimension bl(l_blscr)
+      dimension bl(l_blscr), q4(nquart)
 c
 c requested quartets of shells :
       dimension icspnl(nquart),jcspnl(nquart),
@@ -174,7 +171,7 @@ c
 c        calculate integrals without labels :
 c        write(82,*)'calculate integrals without labels '
 c
-         call calcint2(bl,inx, nsym, icf,jcf,kcf,lcf,eri )
+         call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri )
          integ_nx=integ_n0
 c
 c        call print_int_nol(eri,leri,integ_n0)
@@ -187,7 +184,7 @@ c
 c        calculate integrals with labels :
 c        write(82,*)'calculate integrals with labels '
 c
-         call calcint2(bl,inx, nsym, icf,jcf,kcf,lcf,eri )
+         call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri )
          integ_nx=integ_n0
 c
 c        find pnl-labels corresponding to the given set of 
