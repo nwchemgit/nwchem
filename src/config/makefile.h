@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.251 1998-01-30 16:34:47 vg038 Exp $
+# $Id: makefile.h,v 1.252 1998-02-24 18:53:55 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -595,7 +595,7 @@ ifeq ($(NWCHEM_TARGET_CPU),R8000)
  FVECTORIZE = $(FVECTORIZE_8K)
 endif
 
-    DEFINES = -DSGI -DSGITFP -DEXT_INT
+    DEFINES = -DSGI -DSGITFP -DEXT_INT -DPARALLEL_DIAG
   CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 endif
 
