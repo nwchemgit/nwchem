@@ -1,8 +1,11 @@
 *
-* $Id: paw_mult.F,v 1.16 2003-02-25 00:21:00 bylaska Exp $
+* $Id: paw_mult.F,v 1.17 2003-02-26 20:34:06 marat Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.16  2003/02/25 00:21:00  bylaska
+* debug write statements commented out...EJB
+*
 * Revision 1.15  2003/02/24 20:59:58  bylaska
 * paw_mult_rcut and paw_mult_ncut functions have been added....EJB
 *
@@ -119,27 +122,28 @@
       sigma_smooth = control_rcut()
       ncut         = control_ncut()
       if (ncut.lt.0)     ncut=0
-      if (sigma_smooth.le.0.0d0) then
-         rs = lattice_unita(1,1)**2
-     >      + lattice_unita(2,1)**2
-     >      + lattice_unita(3,1)**2
-         rs = dsqrt(rs)
-         sigma_smooth=4.0d0*rs/fourpi
-
-         rs = lattice_unita(1,2)**2
-     >      + lattice_unita(2,2)**2
-     >      + lattice_unita(3,2)**2
-         rs = dsqrt(rs)
-         w=4.0d0*rs/fourpi
-         if (w.lt.sigma_smooth) sigma_smooth = w
-
-         rs = lattice_unita(1,3)**2
-     >      + lattice_unita(2,3)**2
-     >      + lattice_unita(3,3)**2
-         rs = dsqrt(rs)
-         w=4.0d0*rs/fourpi
-         if (w.lt.sigma_smooth) sigma_smooth = w
-      end if
+      sigma_smooth = 1.5d0
+c      if (sigma_smooth.le.0.0d0) then
+c         rs = lattice_unita(1,1)**2
+c     >      + lattice_unita(2,1)**2
+c     >      + lattice_unita(3,1)**2
+c         rs = dsqrt(rs)
+c         sigma_smooth=4.0d0*rs/fourpi
+c
+c         rs = lattice_unita(1,2)**2
+c     >      + lattice_unita(2,2)**2
+c     >      + lattice_unita(3,2)**2
+c         rs = dsqrt(rs)
+c         w=4.0d0*rs/fourpi
+c         if (w.lt.sigma_smooth) sigma_smooth = w
+c
+c         rs = lattice_unita(1,3)**2
+c     >      + lattice_unita(2,3)**2
+c     >      + lattice_unita(3,3)**2
+c         rs = dsqrt(rs)
+c         w=4.0d0*rs/fourpi
+c         if (w.lt.sigma_smooth) sigma_smooth = w
+c      end if
 
 
 
@@ -824,20 +828,20 @@ c     !*** DEBUG ***
         do m=-l,l
 
           indx_2 = mtrx_ptr2
-          do j=1,basis_nbasis
-            lj=paw_basis_orb_l(j,ia)
-            do mj=-lj,lj
+          do i=1,basis_nbasis
+            li=paw_basis_orb_l(i,ia)
+            do mi=-li,li
 
-            do i=1,basis_nbasis
-              li=paw_basis_orb_l(i,ia)
-              do mi=-li,li
+            do j=1,basis_nbasis
+              lj=paw_basis_orb_l(j,ia)
+              do mj=-lj,lj
 
               !*** check for non-zero gaunt coefficient ***
               if ( (l.le.(li+lj))   .and. 
      >             (l.ge.abs(li-lj)).and.
      >             (m.eq.(mi-mj)) ) then
-                indx = mtrx_ptr + (i-1) 
-     >                          + (j-1)*basis_nbasis
+                indx = mtrx_ptr + (j-1) 
+     >                          + (i-1)*basis_nbasis
      >                          +     l*basis_nbasis**2
                 dcpl_mb(comp_coeff(1)+jj)
      >            = dcpl_mb(comp_coeff(1)+jj)
