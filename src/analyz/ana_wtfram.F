@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel)
 c
-c $Id: ana_wtfram.F,v 1.12 2000-05-24 20:48:43 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.13 2000-05-25 22:53:33 d3j191 Exp $
 c
       implicit none
 c
@@ -50,7 +50,7 @@ c
  1001 format(2f12.6,e12.5)
 c      write(*,'(a,2f12.6,e12.5)') 'frame ',time,temp,pres
       write(iunit,1002) box
- 1002 format(f12.6,36x,f12.6,36x,f12.6)
+ 1002 format(f12.6,/,12x,f12.6,/,24x,f12.6)
       write(iunit,1003) lxw,.false.,lsx,.false.,0,0,nsel
  1003 format(4l1,3i10)
       if(lxw.and..not.lsonly) then

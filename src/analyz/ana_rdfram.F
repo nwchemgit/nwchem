@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.11 2000-05-16 14:46:45 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.12 2000-05-25 22:53:32 d3j191 Exp $
 c
       implicit none
 c
@@ -37,7 +37,7 @@ c
       time=timp+timoff
       timr=timp
       read(lfntrj,1002) box
- 1002 format(f12.6,36x,f12.6,36x,f12.6)
+ 1002 format(f12.6,/,12x,f12.6,/,24x,f12.6)
       read(lfntrj,1003) lxw,lvw,lsx,lsv,nwm,nwa,nsa
  1003 format(4l1,3i10)
       if(nsa.gt.msa) call errquit('Error in trj 1',0)
