@@ -81,7 +81,7 @@ c     Finally, R(1,1,1) = 1 (s functions).
 c     
       double precision R(1:maxf,1:maxf,0:ang_max)
       double precision matrix(3,4)
-      integer II, JJ, KK, LL, MM, IIMM, JJKK, i, j, op, nLL, nLLm1
+      integer II, JJ, KK, LL, MM, IIMM, JJKK, i, j,  nLL, nLLm1
       integer ijk(3), pqr(3), lmn(3)
 c     
 c     Ensure cartesian basis function polynomials are defined

@@ -7,7 +7,7 @@ c   calls gensym chain:  (creates matrix representaions of the
 c                         symmetry operators)
 c   calls dosymops:      (applies operatorst to symmetry distinct atoms
 c                         prints and stores expanded lists)
-c   This routine has direct access to geom's private include files and
+c   This routine has direct access to geom private include files and
 c   thus common blocks.
 c
 c   calls sym_map: creates atom pair mapping relations based upon the 
@@ -159,13 +159,12 @@ c
 c
 c--> formats
 c
-    9 format(//,15x,'Crystallographic -> Cartesian Transformation Matrix
-     &',/)
+    9 format(//15x,
+     & 'Crystallographic to Cartesian Transformation Matrix',/)
    10 format(//,21x,'THE METRIC MATRIX FOR THE DIRECT LATTICE ',/)
    15 format(20x,3(f12.6,2x))      
    17 format(/,19x,'UNIT CELL VOLUME = ',f12.6,3x,'ANGSTOMS**3')
-   14 format(/,'--------------------------------------------------------
-     &---------------------------',/)
+   14 format(/,80('-'),/)
 c   20 format(15x,i5,5x,a16,3(f10.6,2x))
    20 format(10x,i5,2x,a16,3(f10.6,2x))
    30 format(/,15x,'--------- CARTESIAN COORDINATES (A.U.) ---------',
