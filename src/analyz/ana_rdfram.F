@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.14 2000-05-26 19:15:39 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.15 2000-07-28 21:35:00 d3j191 Exp $
 c
       implicit none
 c
@@ -18,6 +18,7 @@ c
 c
       logical succes
       real*8 timp
+      integer inwm,inwa
 c
       lxw=.false.
       lvw=.false.
@@ -46,7 +47,12 @@ c
       read(lfntrj,1022) box(2),box(3)
  1022 format(12x,f12.6,/,24x,f12.6)
       endif
-      read(lfntrj,1003) lxw,lvw,lsx,lsv,nwm,nwa,nsa
+      read(lfntrj,1003) lxw,lvw,lsx,lsv,inwm,inwa,nsa
+      if(inwm.gt.0) then
+      nwm=inwm
+      nwa=inwa
+      endif
+c      read(lfntrj,1003) lxw,lvw,lsx,lsv
  1003 format(4l1,3i10)
       if(nsa.gt.msa) call errquit('Error in trj 1',0)
       if((lxw.or.lvw).and.nwm.gt.0) then

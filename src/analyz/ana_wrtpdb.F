@@ -1,18 +1,21 @@
-      subroutine ana_wrtpdb(lfnpdb,filpdb,sgmnam,isel,xs)
+      subroutine ana_wrtpdb(lfnpdb,filpdb,sgmnam,isel,xs,
+     + iwsel,xw,logs,logw)
 c
-c $Id: ana_wrtpdb.F,v 1.2 2000-05-04 06:26:37 d3j191 Exp $
+c $Id: ana_wrtpdb.F,v 1.3 2000-07-28 21:35:01 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 c
       character*16 sgmnam(msa)
-      integer isel(msa)
+      integer isel(msa),iwsel(mwm)
       integer lfnpdb
-      real*8 xs(msa,3)
+      real*8 xs(msa,3),xw(mwm,mwa,3)
       character*255 filpdb
+      logical logs,logw
+      character*3 string
 c
-      integer i,k,length
+      integer i,j,k,length,ia,isoff
 c
       if(me.eq.0) then
 c
@@ -30,6 +33,7 @@ c
      + 'TITLE    3',/,
      + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996')
 c
+      if(logs) then
       do 1 i=1,nsa
       if(isel(i).gt.0) then
       write(lfnpdb,1001) i,sgmnam(i)(6:9),sgmnam(i)(1:3),
@@ -37,9 +41,34 @@ c
  1001 format('ATOM',i7,1x,a4,1x,a3,2x,a4,4x,3f8.3)
       endif
     1 continue
+      else
+      do 2 i=1,nsa
+      write(lfnpdb,1001) i,sgmnam(i)(6:9),sgmnam(i)(1:3),
+     + sgmnam(i)(13:16),(1.0d1*xs(i,k),k=1,3)
+    2 continue
+      endif
 c
+      if(logw) then
       write(lfnpdb,1002)
- 1002 format('END')
+ 1002 format('TER')
+      read(sgmnam(nsa)(13:16),'(i4)') isoff
+      ia=nsa
+      string=wnam(1)(1:3)
+      if(string.eq.'spc') string='HOH'
+      do 3 i=1,nwm
+      if(iwsel(i).ne.0) then
+      do 4 j=1,nwa
+      ia=ia+1
+      write(lfnpdb,1003) ia,wnam(j)(6:9),string,isoff+i,
+     + (1.0d1*xw(i,j,k),k=1,3)
+ 1003 format('ATOM',i7,1x,a4,1x,a3,2x,i4,4x,3f8.3)
+    4 continue
+      endif
+    3 continue
+      endif
+c
+      write(lfnpdb,1004)
+ 1004 format('END')
 c
       close(unit=lfnpdb)
 c

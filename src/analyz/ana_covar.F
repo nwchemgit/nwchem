@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.7 2000-03-24 17:44:02 d3j191 Exp $
+c $Id: ana_covar.F,v 1.8 2000-07-28 21:35:00 d3j191 Exp $
 c
       implicit none
 c
@@ -138,15 +138,19 @@ c
     3 continue
 c
       if(valmin.gt.valmax) then
-      call ana_wrtpdb(lfnmax,filmax,byte_mb(i_snam),isel,xp)
+      call ana_wrtpdb(lfnmax,filmax,byte_mb(i_snam),isel,xp,
+     + isel,xp,.true.,.false.)
       valmax=val
-      call ana_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,xp)
+      call ana_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,xp,
+     + isel,xp,.true.,.false.)
       valmin=val
       elseif(val.lt.valmin) then
-      call ana_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,xp)
+      call ana_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,xp,
+     + isel,xp,.true.,.false.)
       valmin=val
       elseif(val.gt.valmax) then
-      call ana_wrtpdb(lfnmax,filmax,byte_mb(i_snam),isel,xp)
+      call ana_wrtpdb(lfnmax,filmax,byte_mb(i_snam),isel,xp,
+     + isel,xp,.true.,.false.)
       valmax=val
       endif
 c

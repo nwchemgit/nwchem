@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.24 2000-07-19 18:26:37 d3j191 Exp $
+c $Id: ana_input.F,v 1.25 2000-07-28 21:35:00 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
       real*8 timoff,rsel,rtag,rcut,scale,cpk
       logical lref,lfil,lsol
-      integer iesppb,lent
+      integer iesppb,lent,idpdb
 c
       if(ga_nodeid().eq.0) then
       call util_print_centered(6,'Analysis Input Module',40,.true.)
@@ -159,6 +159,30 @@ c
       if(.not.inp_f(cpk)) call errquit('Error in scale',0)
       write(lfncmd,1304) cpk
  1304 format('cpk   ',f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     write pdb file
+c
+      if(inp_compare(.false.,'write',item)) then
+      if(.not.inp_i(idpdb)) idpdb=0
+      if(.not.inp_a(filcop)) call errquit('Error in copy',0)
+      lsol=.false.
+      if(filcop(1:6).eq.'solute') then
+      if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      lsol=.true.
+      endif
+      if(index(filcop,'.').le.0)
+     + filcop=filcop(1:index(filcop,' ')-1)//'.pdb '
+      if(filcop.eq.filtrj) call errquit('File name conflict',0)
+      if(lsol) then
+      write(lfncmd,3004) idpdb,filcop(1:index(filcop,' ')-1)
+ 3004 format('wtspdb',i8,a)
+      else
+      write(lfncmd,3024) idpdb,filcop(1:index(filcop,' ')-1)
+ 3024 format('wrtpdb',i8,a)
+      endif
       numcmd=numcmd+1
       goto 2
       endif

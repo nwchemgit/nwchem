@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.30 2000-07-19 18:26:38 d3j191 Exp $
+c $Id: ana_task.F,v 1.31 2000-07-28 21:35:00 d3j191 Exp $
 c
       implicit none
 c
@@ -26,6 +26,7 @@ c
       real*8 ana_bond,ana_angle,ana_torsion
       external ana_rdfram
       external ana_bond,ana_angle,ana_torsion
+      integer idpdb
 c
 c     set sequential access to rtdb
 c     and ignore current state
@@ -362,6 +363,44 @@ c
       write(*,'(/,3(a,i10))') ' Selected frames ',ifrfr,' to ',ifrto,
      + ' by',ifrsk
       endif
+      goto 1
+      endif
+c
+c     write pdb
+c     ---------
+c
+      if(card(1:6).eq.'wrtpdb'.or.card(1:6).eq.'wtspdb') then
+      lsonly=card(1:6).eq.'wtspdb'
+      read(card(7:14),'(i8)') idpdb
+      read(card(15:80),'(a)') filcop
+      i=index(filcop,'.')
+      fmt=filcop(i+1:i+3)
+c
+      call ana_rdhdr(byte_mb(i_snam))
+c
+      nread=0
+      nwrit=0
+      nframe=0
+  222 continue
+      if(ana_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
+      nread=nread+1
+      if(nread.lt.ifrfr) goto 222
+      if(fmt.eq.'pdb') then
+      call ana_wrtpdb(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
+     + dbl_mb(i_xdat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.not.lsonly)
+      else
+      call errquit('Illegal file format specified',0)
+      endif
+      endif
+      if(me.eq.0) then
+      close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
+      close(unit=lfncop)
+      write(*,'(/,a,i10,a,a)') ' Written frame ',idpdb,' to ',
+     + filcop(1:index(filcop,' ')-1)
+      lsonly=.false.
+      endif
+c
       goto 1
       endif
 c
