@@ -1,0 +1,114 @@
+      subroutine int_projpole(i_basis, ish, centerl, lmax, 
+     &    lscr, scr, lmpint, MP)
+c $Id: int_projpole.F,v 1.1 1995-01-10 06:06:24 d3e129 Exp $
+c
+c routine to compute projected multipole integrals up to level lmax (0->lmax)
+c The general form is <pole|shell>
+c 
+c  Integrals are returned in <pole|shell> blocks one block for each L value 0->lmax.
+c  for example a multipole, L = 1 and a d shell you would get (1+3)*6 = 24 integrals
+c  The order would be <0|xx>, <0|xy>, <0|xz>, ... <0|zz> first six.
+c    <x|xx>, <x|xy>, <x|xz>, <x|yy>, .. <x|zz> second six.
+c    <y|xx>, <y|xy>, <y|xz>, <y|yy>, .. <y|zz> third six.
+c    <z|xx>, <z|xy>, <z|xz>, <z|yy>, .. <z|zz> fourth six.
+c  
+c
+      implicit none
+#include "apiP.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+#include "geomP.fh"
+c
+c::functions
+      logical int_chk_init
+      logical cando_sp, cando_nw
+      integer int_nint
+      external int_chk_init
+      external cando_sp, cando_nw
+      external int_nint
+c::passed
+      integer i_basis             ! [input] basis set handle for ish
+      integer ish                 ! [input] i shell/contraction
+      integer lmax                ! [input] maximum lvalue for multipole integrals in this batch
+      double precision centerl(3) ! [input] coordinates of multipole
+      integer lscr                ! [input] length of scratch array
+      double precision scr(lscr)  ! [input] scratch array
+      integer lmpint              ! [input/output] length of multipole integrals array
+      double precision MP(lmpint) ! [output] multipole integrals
+c::local      
+      logical shells_ok
+      integer ibas, Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom
+      integer ucont, lval
+      integer l_int, i_int, num_int
+      integer int_point, int_size
+      logical inline_chk_sh      
+c
+c... statement function for int_chk_sh
+      inline_chk_sh(ibas,ish) =
+     $     ((ish.gt.0) .and. (ish.le.ncont_tot_gb(ibas)))
+c
+c check initialization
+c      
+      if (.not.int_chk_init('int_projpole'))
+     &       call errquit('int_projpole: int_init was not called' ,0)
+c
+      ibas = i_basis + BASIS_HANDLE_OFFSET
+c
+      shells_ok = inline_chk_sh(ibas,ish)
+      if (.not. shells_ok)
+     &       call errquit('int_projpole: invalid contraction/shell',0)
+c
+      ucont   = ibs_cn2ucn(ish,ibas)
+      Li      = infbs_cont(CONT_TYPE ,ucont,ibas)
+      i_prim  = infbs_cont(CONT_NPRIM,ucont,ibas)
+      i_gen   = infbs_cont(CONT_NGEN ,ucont,ibas)
+      i_iexp  = infbs_cont(CONT_IEXP ,ucont,ibas)
+      i_icfp  = infbs_cont(CONT_ICFP ,ucont,ibas)
+      i_cent  = ibs_cn2ce(ish,ibas)
+      i_geom  = ibs_geom(ibas)
+c
+      num_int = 0
+      do 00100 lval = 0,lmax
+        l_int  = (lval+1)*(lval+2)/2
+        i_int  = int_nint(i_basis, ish, 0, 0, 0,0, 0,0)
+        int_point = num_int + 1
+        int_size  = lmpint - num_int
+        num_int = num_int + l_int*i_int
+        if (num_int.gt.lmpint) then
+          write(6,*)' int_projpole: lmpint  = ',lmpint
+          write(6,*)' int_projpole: num_int = ',num_int
+          call errquit('int_projpole: lmpint too small ',911)
+        endif
+        if (cando_sp(i_basis,ish,0)) then
+          call int_hf1sp(
+     &        centerl,DCexp,
+     &        DCcoeff, 1, 1, lval,
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
+     &        exndcf(i_icfp,ibas), i_prim, i_gen, Li,
+     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        MP(int_point),scr,scr,int_size,
+c............. doS    doT     doV     canonical
+     &        .true.,.false.,.false.,.false.,
+c.............. dryrun
+     &        .false.,scr,lscr,'int_projpole')
+        elseif (cando_nw(i_basis,ish,0)) then
+          call hf1(
+     &        centerl,DCexp,
+     &        DCcoeff, 1, 1, lval,
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
+     &        exndcf(i_icfp,ibas), i_prim, i_gen, Li,
+     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        MP(int_point),scr,scr,int_size,
+c............. doS    doT     doV     canonical
+     &        .true.,.false.,.false.,.false.,
+c.............. dryrun
+     &        .false.,scr,lscr)
+        else
+          call errquit
+     &        ('int_projpole: could not do sp or nw integrals',0)
+        endif
+c
+00100 continue
+      lmpint = num_int
+      end

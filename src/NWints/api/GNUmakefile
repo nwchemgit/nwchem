@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.21 1995-01-09 08:50:41 d3e129 Exp $
+# $Id: GNUmakefile,v 1.22 1995-01-10 06:06:26 d3e129 Exp $
 
     OBJ = int_init.o exact_mem.o int_mem.o \
           int_terminate.o int_chk_sh.o int_2e4c.o \
@@ -12,7 +12,7 @@
           intd_1eov.o intd_1eh1.o intd_2e4c.o \
           intd_init.o exactd_mem.o int_acc.o \
           int_1cg.o intd_2e2c.o intd_2e3c.o \
-          int_mpole.o \
+          int_mpole.o int_projpole.o \
           intp_1eov.o intp_1eke.o intp_txyz.o \
           intp_1epe.o
 

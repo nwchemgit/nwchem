@@ -1,8 +1,18 @@
       subroutine int_mpole(i_basis, ish, j_basis, jsh, lmax, centerl,
      &    lscr, scr, lmpint, MP)
-c $Id: int_mpole.F,v 1.1 1995-01-09 08:48:38 d3e129 Exp $
+c $Id: int_mpole.F,v 1.2 1995-01-10 06:06:22 d3e129 Exp $
 c
 c routine to compute multipole integrals up to level lmax
+c The general form is <shell|pole|shell>
+c
+c  Intgrals are returned in shell blocks of <ish|L|jsh> L=0 to lmax
+c  one block for each L value.  
+c  for ish = p and L = 1 and jsh = p you would get (3*1*3)+(3*3*3)=36 integrals
+c  order would be <x|x>, <x|y>, <x|z>, <y|x> ... <z|z> (first nine)
+c   <x|x|x>, <x|x|y>, <x|x|z>, <x|y|x>, <x|y|y> ... <x|z|z> (second nine)
+c   <y|x|x>, <y|x|y>, <y|x|z>, <y|y|x>, <y|y|y> ... <y|z|z> (third nine)
+c   <z|x|x>, <z|x|y>, <z|x|z>, <z|y|x>, <z|y|y> ... <z|z|z> (fourth nine)
+c
 c
       implicit none
 #include "apiP.fh"
@@ -88,7 +98,7 @@ c
       endif
 c
       num_int = 0
-      do 00100 lval = 1,lmax
+      do 00100 lval = 0,lmax
         l_int  = (lval+1)*(lval+2)/2
         ij_int = int_nint(i_basis, ish, j_basis, jsh, 0,0, 0,0)
         int_point = num_int + 1
