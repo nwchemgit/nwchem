@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr,donewbf)
 c      
-c     $Id: dftg_gridv0b.F,v 1.14 2000-10-26 21:11:26 bjohnson Exp $
+c     $Id: dftg_gridv0b.F,v 1.15 2001-03-08 19:27:45 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -128,7 +128,7 @@ c
             mbf_ao=grid_nbfm( AO_bas_han,  natoms, 
      &           ictr_buf,rad,xyz,qxyz,nqpts,
      &           ibf_ao, docset, iniz, ifin, expo, 
-     .           minexp,ldiff, acc_AO_gauss)
+     .           minexp,ldiff, acc_AO_gauss,iatype_pt_chg)
             if (mbf_ao .eq. 0) return
             
             

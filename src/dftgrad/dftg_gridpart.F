@@ -3,7 +3,7 @@
      ,      whichfunc,
      ,     rad,expo)
 c
-C$Id: dftg_gridpart.F,v 1.1 2000-07-10 23:02:43 edo Exp $
+C$Id: dftg_gridpart.F,v 1.2 2001-03-08 19:27:45 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -75,7 +75,7 @@ c
      .        nq_orig, nqpts,
      ,        whichfunc,.true.)
       else
-         call a_dist(xyz, dbl_mb(k_Rij), natoms)
+         call a_dist(xyz, dbl_mb(k_Rij), natoms,.false.)
          call dftg_beckew(.true.,d_qwght, qwght, qxyz, xyzm,
      &        dbl_mb(k_Rij), rq, dbl_mb(ibp),
      &        dbl_mb(izeta), dbl_mb(idzeta),

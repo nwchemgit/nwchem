@@ -4,7 +4,7 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     whichfunc,lscreen)
 c
-C$Id: dftg_gridssw.F,v 1.6 2000-10-25 22:50:10 windus Exp $
+C$Id: dftg_gridssw.F,v 1.7 2001-03-08 19:27:45 edo Exp $
 c
       implicit none
       logical grid_written
@@ -70,6 +70,10 @@ c
         ass=ass_erf2
         iw=2
         alpha_erf=alpha_erf2
+      else
+        ass=0d0
+        alpha_erf=0d0
+        call errquit(' dftg_ssw: wrong family',0)
       endif
       do  i = 1, nctrs_pruned
 
@@ -85,7 +89,7 @@ c
           rq(n,i) = sqrt(x*x + y*y + z*z) 
         enddo
       enddo
-      call a_dist(xyz, Rij, nctrs_pruned)
+      call a_dist(xyz, Rij, nctrs_pruned,.false.)
       AA=ictr
 c
 c     find nearest neighb

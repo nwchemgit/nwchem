@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.14 2000-10-19 01:27:14 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.15 2001-03-08 19:27:45 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -89,12 +89,12 @@ c
       double precision Ex, Ec, rho_int,rad
       integer nqpts_per_buf, nqpts, ictr_buf
       integer lrqbuf, irqbuf,
-     .     grid_nbfm,ncube,istep,ntot_cube
+     .     ncube,istep,ntot_cube
       integer lbas_cent_info, ibas_cent_info,
      &        lbas_cset_info, ibas_cset_info,
      &        ldocset, idocset
       logical grid_file_rewind,grid_file_read
-      external grid_file_rewind,grid_nbfm,grid_file_read
+      external grid_file_rewind,grid_file_read
       logical donewbf           !!! !!!! *** temp
 c
 c     
