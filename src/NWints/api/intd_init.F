@@ -1,5 +1,5 @@
       subroutine intd_init(rtdb,nbas,bases)
-c $Id: intd_init.F,v 1.8 1997-04-25 00:41:10 d3e129 Exp $
+c $Id: intd_init.F,v 1.9 1997-05-22 21:01:34 d3e129 Exp $
 c
 c Initializes integral derivative code 
 c
@@ -94,7 +94,7 @@ c.. input memory in words should be scaled by 1/12 for same range
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
-      call exactd_mem(bases,nbas)
+      call exactd_mem(rtdb,bases,nbas)
       call sp_der_init(nbas,bases)
       call int_acc_std()
 c
@@ -123,6 +123,10 @@ c
 #include "apispP.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
+c
+c:: functions
+      logical api_is_ecp_basis
+      external api_is_ecp_basis
 c::passed
       integer nbas
       integer bases(nbas)
@@ -132,18 +136,20 @@ c::local
 c
       no_sp_conts = .true.
       do 00100 ibas = 1,nbas
-        if (.not.bas_numcont(bases(ibas),ncont))
-     &         call errquit('sp_der_init: bas_numcont failed',911)
-        do 00200 icont = 1,ncont
-          if(.not.bas_continfo
-     &           (bases(ibas),icont,mytype,nprim,ngen,sphorcart))
-     &           call errquit('sp_der_init: bas_continfo failed',911)
-
-          if (mytype.lt.0) then
-            no_sp_conts = .false.
-            goto 00201
-          endif
-00200   continue
+        if (.not.api_is_ecp_basis(bases(ibas))) then
+          if (.not.bas_numcont(bases(ibas),ncont))
+     &        call errquit('sp_der_init: bas_numcont failed',911)
+          do 00200 icont = 1,ncont
+            if(.not.bas_continfo
+     &          (bases(ibas),icont,mytype,nprim,ngen,sphorcart))
+     &          call errquit('sp_der_init: bas_continfo failed',911)
+            
+            if (mytype.lt.0) then
+              no_sp_conts = .false.
+              goto 00201
+            endif
+00200     continue
+        endif
 00100 continue
 00201 continue
 c
