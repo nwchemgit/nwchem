@@ -1,0 +1,86 @@
+title "OH + H2 -> OH2 + H: Page-McIver CUBE"
+ 
+start oh3
+ 
+basis noprint
+  H library 3-21G
+  O library 3-21G
+end
+ 
+scf
+  uhf
+  doublet
+  thresh 1.0e-6
+end
+ 
+dirdyvtst noautosym
+  theory scf
+*GENERAL
+
+  TITLE
+    OH + H2 -> OH2 + H: Page-McIver CUBE
+
+  ATOMS
+    1   O
+    2   H
+    3   H
+    4   H
+  END
+
+*REACT1
+
+   GEOM
+     1    0.00000000E+00  0.00000000E+00  3.49927953E+01  
+     2    0.00000000E+00  0.00000000E+00  3.31299679E+01  
+   END
+
+   SPECIES   LINRP
+
+*REACT2
+
+   GEOM
+     3   0.00000000E+00  0.00000000E+00 -1.55841858E+02
+     4   0.00000000E+00  0.00000000E+00 -1.57230472E+02
+   END
+
+    SPECIES  LINRP
+
+
+*PROD1
+    GEOM
+       1    -1.84864199E-02  1.74609895E+01  0.0
+       2    -1.76443848E+00  1.79981786E+01  0.0
+       3     0.00000000E+00  1.56343590E+01  0.0
+    END
+
+    SPECIES   NONLINRP
+
+*PROD2
+    GEOM
+       4     1.91232984E+00 -1.73320453E+02  0.0
+    END
+
+    SPECIES  ATOMIC
+
+*START
+
+    GEOM
+      1    0.00000000E+00  5.60652774E-01 0.0
+      2    1.82745787E+00  2.80471026E-01 0.0
+      3   -7.90114349E-01 -1.46910012E+00 0.0
+      4   -1.03734352E+00 -3.29659309E+00 0.0
+    END
+
+    SPECIES  NONLINTS
+
+*PATH
+  SCALEMASS 1.8020614
+  SSTEP      0.05 
+  SSAVE      0.05
+  SLP        0.50 
+  SLM       -0.80
+  INTEGRA    CUBE
+
+end
+
+task dirdyvtst

@@ -1,0 +1,7 @@
+This is a set of various tests on OH + H2 -> OH2 + H for different 
+options in DIRDYVTST.  When running oh3tr2, make sure that the files 
+for oh3tr1 are available as oh3tr2 is a "restart" of oh3tr1 extending 
+the points calculated on the surface.  The script runoh3 is included 
+for ease of running these jobs serially.  NOTE: noautosym is used 
+because the reactants have spacial symmetry breaking that causes
+problems when symmetry is used.

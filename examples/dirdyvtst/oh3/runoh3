@@ -1,0 +1,16 @@
+#!/bin/csh
+
+$NWCHEM_EXECUTABLE ./oh3tr1.nw >& oh3tr1.out 
+cp oh3.file30 oh3file30.1
+$NWCHEM_EXECUTABLE ./oh3tr2.nw >& oh3tr2.out
+mv oh3.file30 oh3file30.2
+rm oh3.*
+$NWCHEM_EXECUTABLE ./oh3tr3.nw >& oh3tr3.out
+mv oh3.file30 oh3file30.3
+rm oh3.*
+$NWCHEM_EXECUTABLE ./oh3tr4.nw >& oh3tr4.out
+mv oh3.file30 oh3file30.4
+rm oh3.*
+$NWCHEM_EXECUTABLE ./oh3tr5.nw >& oh3tr5.out
+mv oh3.file30 oh3file30.5
+rm oh3.*
