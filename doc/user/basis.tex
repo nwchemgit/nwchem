@@ -95,7 +95,17 @@ a geometry that has either been input by the user (Section
 \ref{sec:geom}) or is available elsewhere.  Each atom or center with
 the same \verb+tag+ will have the same basis set.  All atoms must have
 basis functions assigned to them --- only dummy centers may have no
-basis functions.
+basis functions.  To facilitate the specification of the geometry and
+the basis set for any chemical system, the matching process of a basis
+set tag to a geometry tag first allows for an exact match, e.g., O22
+has the specific basis for the 22nd oxygen, all other oxygen atoms
+will have the generic basis set defined for oxygen.  If no exact match
+is found, the tags are related to the best guess for the element and
+symbol name present.  This means that all 54 hydrogens of a system can
+be labeled ``H1'' - ``H54'' in the geometry specification but only one
+basis set specification for ``H'' or ``hydrogen'' is necessary.  If
+the matching mechanism fails then NWChem stops with an appropriate
+error message.
 
 Examined next is how to reference standard basis sets in the basis set
 library, and finally, how to define a basis set using exponents and
