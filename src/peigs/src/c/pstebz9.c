@@ -488,7 +488,7 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
    ncol = numeig / nn_procs;
    irem = (numeig % nn_procs);
 
-   printf("got here in pdspevx 9 ");
+/*    printf("got here in pdspevx 9 "); */
 
    goto JUNK;
    
@@ -787,7 +787,7 @@ JUNK:
       printf(" me = %d iii  %d iblock = %d isplit %d \n", me, iii, iblock[iii], isplit[iii]);
     }
 #endif
-   printf(" exiting pstebz9.c \n");
+/*   printf(" exiting pstebz9.c \n"); */
    
    return;
 }
