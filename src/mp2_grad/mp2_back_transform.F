@@ -245,6 +245,8 @@ c
       integer count, tcount, ind,  ptr
       integer symi, symj, syma, symb, symia
       integer i, a, u, v, ush, vsh, udim, vdim, ishpair
+c
+#include "bitops.fh"
 c     
       zero=0.0d0
       one=1.0d0

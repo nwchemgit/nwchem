@@ -14,6 +14,8 @@ c     account symmetry blocking
 c
       integer count, b, symb, symj
 c
+#include "bitops.fh"
+c
       count = 0
       do b = nv_lo, nv_hi
          symb=irs(b)

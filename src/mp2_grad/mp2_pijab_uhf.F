@@ -9,6 +9,7 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
+#include "bitops_decls.fh"
       integer i
       integer noa_lo,noa_hi,nva_lo,nva_hi
       integer sym_lo_oa(0:*),sym_hi_oa(0:*)
@@ -52,6 +53,8 @@ c
       off_ob(symj) = sym_lo_ob(symj)-nob_lo+(sym_lo_ob(symj)-noa_lo)*nob
       off_va(symb) = sym_lo_va(symb)-nva_lo+(sym_lo_va(symb)-nva_lo)*nva
       off_vb(symb) = sym_lo_vb(symb)-nvb_lo+(sym_lo_vb(symb)-nvb_lo)*nvb
+c
+#include "bitops_funcs.fh"
 c     
       noa=noa_hi-noa_lo+1
       nva=nva_hi-nva_lo+1

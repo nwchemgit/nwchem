@@ -49,6 +49,8 @@
       parameter(msg_l_ai1_b_sum=9989)
       integer i_batch
       integer g_wai_a,g_wai_b
+c
+#include "bitops.fh"
 c     
       zero=0.0d0
       one=1.0d0

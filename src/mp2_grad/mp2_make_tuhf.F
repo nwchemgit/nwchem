@@ -46,6 +46,8 @@ c
 c
       integer l_ia_uv, k_ia_uv, l_tmp, k_tmp, l_ia_jb, k_ia_jb
 c
+#include "bitops.fh"
+c
       otdebug = util_print('tdebug',print_debug)
 c     
       eaa=0.0d0
