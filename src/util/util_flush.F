@@ -1,5 +1,5 @@
       subroutine util_flush(unit)
-C$Id: util_flush.F,v 1.11 1995-06-21 18:29:02 pg511 Exp $
+C$Id: util_flush.F,v 1.12 1995-06-23 19:30:32 pg511 Exp $
       implicit none
       integer unit
 c
@@ -14,7 +14,8 @@ c
       call forflush(unit)
 #else
 #if defined(IBM)
-      call fflush(unit)      
+
+      return
 #endif
 #endif
 #endif
