@@ -82,6 +82,8 @@ SCF:
 
   o Routine to rotate movecs to a new geometry (keyword "rotate" in
     vectors input)
+  o routine to reorder the mapping of MO coefficients to nuclei (keyword
+    "reorder" in vectors input)
 
 RIMP2
 
@@ -110,7 +112,7 @@ MP2:
   o 64-bit platforms: removed 2GB file limit (this will drastically
     reduce the number of passes)
 
-CSD(T):
+CCSD(T):
 
   o BUG FIX: Triples energies were wrong for systems with higher than
     abelian symmetry. This is now handled correctly.
