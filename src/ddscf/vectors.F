@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.43 2002-11-21 22:05:20 d3k958 Exp $
+C$Id: vectors.F,v 1.44 2002-12-20 23:09:36 d3k958 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -567,8 +567,7 @@ c
 c
       end
 
-      subroutine movecs_swap_nuclei(rtdb,basis,scftype,g_vecs,
-     &   occ,eval)
+      subroutine movecs_swap_nuclei(rtdb,basis,geom,scftype,g_vecs)
       implicit none
 c
 #include "rtdb.fh"
@@ -577,48 +576,45 @@ c
 #include "util.fh"
 #include "inp.fh"
 #include "bas.fh"
+#include "geom.fh"
 c
 c     In the database may be an entry 'reorder' which is a list
 c     of pairs of nuclei to swap. The MO blocks over each atom's
 c     range of basis functions will be reordered according to the
 c     pair list.  
 c
-c     Apply these to the input vectors, occupation
-c     numbers and eigenvalues.  In the case of
-c     UHF g_vecs is assumed to be an array with 2 handles.
+c     Apply these to the input vectors only (eigenvalues and
+c     occupation numbers are unchanged since the MO ordering is
+c     not changed). In the case of UHF, g_vecs is assumed to be
+c     an array with 2 handles.
+c
 c     When finished delete the databse entries so that
 c     a restart does not re-reorder the vectors.
 c
       character*(*) scftype
-      integer rtdb, basis,g_vecs(*)
-      double precision occ(*), eval(*)
+      integer rtdb, basis,g_vecs(*), nbf, nat, geom
       integer type, nelem, handle, index
-      integer pair, i, j, off, set, nset, mlen
-      integer l_tmpevl, k_tmpevl, l_tmpocc, k_tmpocc
+      integer pair, i, j, ii,jj,ioff, joff,set, nset, mlen
+      integer l_bfi, k_bfi, l_bfj, k_bfj
       integer dim1, dim2
       integer g_tempv(2), ilo, ihi, jlo, jhi, copy
+      logical oprint
 c
-      call ga_inquire(g_vecs, type, dim1, dim2)
+      oprint = util_print('mo guess',print_default)  
 c
       if (scftype .eq. 'UHF') then
-      nset = 2
-      if (.not.ga_create(mt_dbl,dim1,dim2,'temp avecs',0,0,g_tempv(1))) 
-     &    call errquit ('movecs_swap_nuclei:couldnt create array',0)
-      call ga_zero(g_tempv(1))
-      call ga_copy(g_vecs(1),g_tempv(1))
-      if (.not.ga_create(mt_dbl,dim1,dim2,'temp bvecs',0,0,g_tempv(2))) 
-     &    call errquit ('movecs_swap_nuclei:couldnt create array',0)
-      call ga_zero(g_tempv(2))
-      call ga_copy(g_vecs(2),g_tempv(2))
-c
+        nset = 2
       else
-      nset = 1
-      if (.not.ga_create(mt_dbl,dim1,dim2,'temp vecs',0,0,g_tempv(1))) 
-     &    call errquit ('movecs_swap_nuclei:couldnt create array',0)
-      call ga_zero(g_tempv(1))
-      call ga_copy(g_vecs(1),g_tempv(1))
+        nset = 1
       endif
 c
+      if (.not.bas_numbf(basis,nbf))
+     $     call errquit('movecs_swap_nuclei: bas_numbf failed',0)
+c
+      if (.not. geom_ncent(geom, nat))
+     &     call errquit('movecs_swap_nuclei: geom_ncent failed',0)
+c
+      do set = 1,nset
          if (.not. rtdb_ma_get(rtdb, 'reorder', type, nelem, 
      $        handle)) goto 1000
          if (.not. ma_get_index(handle,index)) call errquit
@@ -626,26 +622,25 @@ c
          if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
      $        ('movecs_swap_nuclei: invalid list of pairs',nelem)
 c
-        if (.not.ma_push_get(mt_dbl,nset*dim1,'temp evals',
-     &     l_tmpevl,k_tmpevl) )
-     &     call errquit('movecs_swap_nuclei: ma_push failed',0)
-        if (.not.ma_push_get(mt_dbl,nset*dim1,'temp occ',
-     &     l_tmpocc,k_tmpocc)) 
-     &     call errquit('movecs_swap_nuclei: ma_push failed',0)
+      call ga_sync()
+      call ga_inquire(g_vecs, type, dim1, dim2)
+      if (ga_nodeid().eq.0) then
 c
-      do i = 1,dim1*nset
-         dbl_mb(k_tmpevl+i-1) = eval(i)
-         dbl_mb(k_tmpocc+i-1) =  occ(i)
-      enddo
-c
-      do set = 1, nset
+        if (.not.ma_push_get(mt_dbl,dim2,'swapi',l_bfi, k_bfi))
+     &     call errquit('movecs_swap_nuclei: ma_push failed',0)
+        if (.not.ma_push_get(mt_dbl,dim2,'swapj',l_bfj, k_bfj))
+     &     call errquit('movecs_swap_nuclei: ma_push failed',0)
 c
             do pair = 1, nelem, 2
                i = int_mb(index+pair-1)
                j = int_mb(index+pair  )
-                 if(ga_nodeid().eq.0) then
+                 if (oprint) then
                  write(6,*) 'swapping MOs of centers',i,j,' in set',set
                  endif
+                 if (i.lt.0.or.i.gt.nat) 
+     &              call errquit('movecs_swap_nucei: invalid vector',0)
+                 if (j.lt.0.or.j.gt.nat) 
+     &              call errquit('movecs_swap_nucei: invalid vector',0)
 c
                if (.not.bas_ce2bfr(basis,i,ilo,ihi)) 
      &          call errquit('movecs_swap_nuclei: bas_ce2bfr',0)
@@ -653,55 +648,51 @@ c
                if (.not.bas_ce2bfr(basis,j,jlo,jhi)) 
      &          call errquit('movecs_swap_nuclei: bas_ce2bfr',0)
 c
-                off = ihi-ilo
+               ioff = ihi-ilo
+               joff = jhi-jlo
+               if (ioff.ne.joff) then
+               if (oprint) write(6,*) 'nbf(i), atom(i)',ioff+1,i
+               if (oprint) write(6,*) 'nbf(j), atom(j)',joff+1,j
+               call errquit('nbf for atoms i and j are different',0)
+               endif
 c
-                call ga_copy_patch('N',g_vecs(set),ilo,ihi,1,dim2,
-     &                           g_tempv(set),jlo,jlo+off,1,dim2)
+c  swap the MO's on the atoms one at a time
 c
-                call ga_copy_patch('N',g_vecs(set),jlo,jhi,1,dim2,
-     &                           g_tempv(set),ilo,ilo+off,1,dim2)
+                 ii = ilo
+                 jj = jlo
+               do i = 1,ioff+1
+                 call ga_get(g_vecs(set), ii,ii,1,dim2, dbl_mb(k_bfi),1)
+                 call ga_get(g_vecs(set), jj,jj,1,dim2, dbl_mb(k_bfj),1)
+                 call ga_put(g_vecs(set), jj,jj,1,dim2, dbl_mb(k_bfi),1)
+                 call ga_put(g_vecs(set), ii,ii,1,dim2, dbl_mb(k_bfj),1)
+                 ii = ii + 1
+                 jj = jj + 1
+               enddo
 c
-                do copy = 0,off
-                dbl_mb(k_tmpevl+jlo+copy+dim1*set-dim1-1) 
-     &            = eval(ilo+copy+(set-1)*dim1)
-                dbl_mb(k_tmpocc+jlo+copy+dim1*set-dim1-1) 
-     &            =  occ(ilo+copy+(set-1)*dim1)
-                dbl_mb(k_tmpevl+ilo+copy+dim1*set-dim1-1) 
-     &            = eval(jlo+copy+(set-1)*dim1)
-                dbl_mb(k_tmpocc+ilo+copy+dim1*set-dim1-1) 
-     &            =  occ(jlo+copy+(set-1)*dim1)
-                enddo
+            enddo              
+c
+            if (oprint) call util_flush(6)
+c
+            if (.not.ma_pop_stack(l_bfj)) 
+     &        call errquit('movecs_swap_nuclei: ma_pop failed',0)
+c
+            if (.not.ma_pop_stack(l_bfi)) 
+     &        call errquit('movecs_swap_nuclei: ma_pop failed',0)
 
-            enddo  !pair
+       endif  ! ga_nodeid()
 c
-      do i = 1,dim1*nset
-        eval(i) = dbl_mb(k_tmpevl+i-1)
-        occ(i)  = dbl_mb(k_tmpocc+i-1)
-      enddo
+       call ga_sync()
 c
-      call ga_zero(g_vecs(set))
-      call ga_copy(g_tempv(set),g_vecs(set))
+ 1000 continue
       enddo  ! set
+       if (.not.rtdb_delete(rtdb,'reorder') )
+     &   call errquit('movecs_swap_nuclei: rtdb delete failed',0)
 c
-      if (.not.ma_pop_stack(l_tmpocc)) 
-     &  call errquit('movecs_swap_nuclei: ma_pop failed',0)
-      if (.not.ma_pop_stack(l_tmpevl)) 
-     &  call errquit('movecs_swap_nuclei: ma_pop failed',0)
+       if (.not. ma_free_heap(handle)) 
+     &   call errquit('movecs_swap_nuclei: cant free heap',0)
 c
-         if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0)
- 1000    continue
-c
-      if (.not.ga_destroy (g_tempv(1))) 
-     &   call errquit('could not destroy temp vectors',0)
-      if (nset.gt.1) then
-        if (.not.ga_destroy(g_tempv(2))) 
-     &     call errquit('could not destroy temp vectors',0)
-      endif
-
-      call ga_sync
-c
-      return
       end
+
       logical function file_write_ga(fname, g_a)
       implicit none
 c
