@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_hartree.F,v 1.2 2003-02-14 19:55:59 d3j191 Exp $
+c $Id: paw_pot_hartree.F,v 1.3 2003-02-15 01:29:40 bylaska Exp $
 c
 
 !**************************************************
@@ -145,10 +145,10 @@ c     !*** calculate the size and indexing ***
             do mjp=-ljp,ljp
               if (m.eq.(mjp-mip)) then
                  i_w   = i_w0-1+(njplm+ljp+mjp+1)+
-     >                   (niplm+lip+mip)*paw_proj_nbasis(in)
+     >                   (niplm+lip+mip)*paw_proj_nbasis(ia)
 
                  i_hp  = i_hp0-1+(njlm+lj+mj+1)+
-     >                   (nilm+li+mi)*paw_proj_nbasis(in)
+     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
 
                  i_mtr = i_mtr0-1+i+(j-1)*nb+(ip-1)*nb2+(jp-1)*nb3+l*nb4
 
@@ -207,7 +207,7 @@ c        write(*,*) "hpot:pot",dcpl_mb(paw_pot_hartree(1)+i_hp)
               lj = paw_basis_orb_l(j,ia)
                 do mj=-lj,lj
                  i_hp  = i_hp0-1+(njlm+lj+mj+1)+
-     >                   (nilm+li+mi)*paw_proj_nbasis(in)
+     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
 
                   write(*,*) i,mi,j,mj,dcpl_mb(paw_pot_hartree(1)+i_hp),
      >                     i_hp

@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_comp.F,v 1.3 2003-02-15 01:29:46 marat Exp $
+c $Id: paw_pot_comp.F,v 1.4 2003-02-15 01:33:52 bylaska Exp $
 c
 
 !**************************************************
@@ -173,7 +173,7 @@ c     !*** calculate the size and indexing ***
               lj = paw_basis_orb_l(j,ia)
                 do mj=-lj,lj
                  i_cp  = i_cp0-1+(njlm+lj+mj+1)+
-     >                   (nilm+li+mi)*paw_proj_nbasis(in)
+     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
 
                   write(*,*) i,mi,j,mj,dcpl_mb(paw_pot_comp(1)+i_cp),
      >                     i_cp
