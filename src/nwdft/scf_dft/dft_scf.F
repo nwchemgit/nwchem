@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.211 2001-12-21 23:08:19 edo Exp $
+c     $Id: dft_scf.F,v 1.212 2001-12-21 23:13:39 edo Exp $
 c     
       implicit none
 c
@@ -148,9 +148,9 @@ c
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
+      logical gotsmear
       s_rabuck(nn,ss,nss,delta)=min(ss*exp((1d0/(nss-1d0))*
      *     log(1d-10/ss)*(nn-1d0)),delta*1d-4)
-      logical gotsmear
       gotsmear(ss)=abs(ss).gt.1d-9
 c
       call ecce_print_module_entry('dft')
