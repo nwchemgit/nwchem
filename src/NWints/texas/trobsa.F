@@ -1,4 +1,4 @@
-* $Id: trobsa.F,v 1.2 2001-08-10 18:51:17 bjohnson Exp $
+* $Id: trobsa.F,v 1.3 2001-08-19 21:28:59 bjohnson Exp $
 c=======================================================================
 c     For the set of NBLS1 quartets of primitive shells I,J,K,L
 c  (where NBLS1 is already reduced after some integrals have
@@ -486,7 +486,7 @@ c=======================================================================
       subroutine ssssm(nbls,rysx,const,mmax,wt1,l11,l12,wt0,l01,l02)
       implicit real*8 (a-h,o-z)
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
       dimension const(*),rysx(*)
       dimension wt0(nbls,l01,l02),wt1(nbls,l11,l12)
@@ -516,7 +516,7 @@ C  CALCULATE (SS,SS)(M)  M=1,MMAX
 C    S ORBITALS ARE NORMALIZED
 C
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          do 410 i=1,nbls
          xrys=rysx(i)
          call screened_fm(f0m,mmax-1,xrys,ijkl_theta(i))

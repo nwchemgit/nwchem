@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.54 2001-08-10 18:43:33 bjohnson Exp $
+c     $Id: grad_force.F,v 1.55 2001-08-19 21:29:55 bjohnson Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -62,7 +62,7 @@ C------------------------------------------------------------------------------
 #include "apiP.fh"
 #include "inp.fh"
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
 
       integer rtdb, basis, geom
@@ -745,11 +745,11 @@ c
       wall_tim(2) = util_wallsec()
       if (jfac.ne.0.0d0 .or. kfac.ne.0.0d0) then
 #ifdef BETTIS
-         if (bettis_screened_x()) then
+         if (screened_exchange()) then
 c           Calculate Coulomb only with unscreened operator
             kfac_save = kfac
             kfac = 0d0
-            if (bs_scroperator_enabled()) then
+            if (screened_operator_enabled()) then
                call errquit('Screened operator active in grad_force',0)
             endif
          endif
@@ -786,10 +786,10 @@ c           Calculate Coulomb only with unscreened operator
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
      $     jfac, kfac,.false.)
 #ifdef BETTIS
-         if (bettis_screened_x()) then
+         if (screened_exchange()) then
 c           Calculate screened K gradient'
             kfac = kfac_save
-            call bettis_enable_scroperator()
+            call enable_screened_operator()
             call grad2(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
@@ -821,7 +821,7 @@ c           Calculate screened K gradient'
      $     int_mb(k_bfmap), int_mb(k_rbfmap), 
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
      $     0d0, kfac,.false.)
-            call bs_disable_screened_operator()
+            call disable_screened_operator()
          endif
 #endif
       endif

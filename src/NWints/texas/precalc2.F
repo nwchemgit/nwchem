@@ -1,4 +1,4 @@
-* $Id: precalc2.F,v 1.26 2001-08-09 22:15:56 bjohnson Exp $
+* $Id: precalc2.F,v 1.27 2001-08-19 21:28:59 bjohnson Exp $
 c--------------------------------------------------------------------
       subroutine prec2ij(ibl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)
@@ -751,7 +751,7 @@ coutput
 c--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /neglect/ eps,eps1,epsr
@@ -847,7 +847,7 @@ cpnl        endif
 c
       nbls1=ijkl1
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          if (nbls1 .gt. 5000) then
             call errquit('Temp storage for theta too small',nbls1)
          endif
@@ -867,7 +867,7 @@ c output
 c-------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /neglect/ eps,eps1,epsr
@@ -969,7 +969,7 @@ c
       nbls1=ijkl1
       if(nbls1.eq.0) return
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          if (nbls1 .gt. 5000) then
             call errquit('Temp storage for theta too small',nbls1)
          endif
@@ -1262,7 +1262,7 @@ c====================================================================
 c*
       implicit real*8 (a-h,o-z)
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
       logical first
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
@@ -1315,7 +1315,7 @@ c
 c
 c
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          do 110 i=1,nbls1
             xrys=rysx(i)
             call screened_fm(F0,1,xrys,ijkl_theta(i))
@@ -2024,7 +2024,7 @@ coutput
 c--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
       common /neglect/ eps,eps1,epsr
 c-------
@@ -2043,7 +2043,7 @@ c now scalars:  rppq,rhoapb,rhocpd
 c
       data one /1.d0/
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          call errquit('Screened operator on in prec4neg_2',0)
       endif
 #endif
@@ -2114,7 +2114,7 @@ cpnl        endif
 c
       nbls1=ijkl1
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          if (nbls1 .gt. 5000) then
             call errquit('Temp storage for theta too small',nbls1)
          endif
@@ -2134,7 +2134,7 @@ c     output
 c-------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /neglect/ eps,eps1,epsr
@@ -2155,7 +2155,7 @@ c
 c     
       data one /1.d0/
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          call errquit('Screened operator on in precspec_2',0)
       endif
 #endif
@@ -2227,7 +2227,7 @@ c
       nbls1=ijkl1
       if(nbls1.eq.0) return
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          if (nbls1 .gt. 5000) then
             call errquit('Temp storage for theta too small',nbls1)
          endif

@@ -1,10 +1,10 @@
       Subroutine igamma(Fj,N,L)
-c $Id: igamma.F,v 1.7 2001-08-10 18:46:07 bjohnson Exp $
+c $Id: igamma.F,v 1.8 2001-08-19 21:26:17 bjohnson Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
       Parameter (EXPLIM=100.D0)
       Parameter (TMAX=30.D0,ACCY=1.D-14)
@@ -22,7 +22,7 @@ c               /0
 c
 c******************************************************************************
 #ifdef BETTIS
-      if (bs_scroperator_enabled()) then
+      if (screened_operator_enabled()) then
          call errquit('Screened operator on in igamma',0)
       endif
 #endif

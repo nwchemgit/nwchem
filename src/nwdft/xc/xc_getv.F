@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.45 2001-08-10 18:42:11 bjohnson Exp $
+C$Id: xc_getv.F,v 1.46 2001-08-19 21:32:56 bjohnson Exp $
 c
       implicit none
 c      
@@ -23,7 +23,7 @@ c
 #include "util.fh"
 #include "sym.fh"
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
 c
       integer cetobfr(2,natoms)
@@ -77,7 +77,7 @@ c
       Exc(1)=0.d0
       Exc(2)=0.d0
 #ifdef BETTIS
-      call bettis_average(0d0, 0d0, 0, 0, 0) ! init
+      call density_average(0d0, 0d0, 0, 0, 0) ! init
 #endif
       me=ga_nodeid()
       havehfxc=abs(xfac(1)).gt.1d-8
@@ -96,7 +96,7 @@ c
       endif
 c
 #ifdef BETTIS
-      if (CDFIT .and. bettis_screened_x()) then
+      if (CDFIT .and. screened_exchange()) then
          call errquit(
      &       'Screened HF exchange not implemented with fitted J',0)
       endif
@@ -105,13 +105,6 @@ c
 c       
 c        Compute the exact exchange potential (as in Hartree-Fock calculations).
 c       
-#ifdef BETTIS
-         if (bettis_screened_x()) then
-            write(*,*)'**Screened exchange is ON in xc_getv'
-         else
-            write(*,*)'**Screened exchange is OFF in xc_getv'
-         endif
-#endif
          tol2e=10.d0**(-itol2e)
          call ga_sync
          if (oprint_time)call dft_tstamp(' Before call to fock_2e. ')
@@ -125,7 +118,7 @@ c
               call ga_zero(g_vxc(2))
               g_dens(2)=g_dens(1)
 #ifdef BETTIS
-              if (.not. bettis_screened_x()) then
+              if (.not. screened_exchange()) then
 c                Do J and K together
 #endif
                  call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
@@ -137,10 +130,10 @@ c                Do J
                  call fock_2e(geom, AO_bas_han, 1, jfac(2), kfac(2),
      &                tol2e, oskel, g_dens(2), g_vxc(2), .false.)
 c                Do K
-                 call bettis_enable_scroperator()
+                 call enable_screened_operator()
                  call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
      &                tol2e, oskel, g_dens, g_vxc, .false.)
-                 call bs_disable_screened_operator()
+                 call disable_screened_operator()
               endif
 #endif
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
@@ -183,7 +176,7 @@ c                Do K
                g_d(3)  = g_dens(2)
                g_d(4)  = g_dens(2)
 #ifdef BETTIS
-               if (.not. bettis_screened_x()) then
+               if (.not. screened_exchange()) then
 c                 Do J and K together
 #endif
                   call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
@@ -210,10 +203,10 @@ c                 Do K
                   kfac(2) = 1.0d0
                   g_d(3) = g_jk(2)
                   g_d(4) = g_jk(4)
-                  call bettis_enable_scroperator()
+                  call enable_screened_operator()
                   call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
      &                 tol2e, oskel, g_d(1), g_d(3), .false.)
-                  call bs_disable_screened_operator()
+                  call disable_screened_operator()
                endif
 #endif
                ecoul = 0.5d0*( ! Alpha coulomb energy
@@ -336,7 +329,7 @@ c
          if(ipol.eq.2)call ga_print(g_vxc(2))
       endif
 #ifdef BETTIS
-      call bettis_average(0d0, 0d0, 0, 0, -1) ! print
+      call density_average(0d0, 0d0, 0, 0, -1) ! print
 #endif
 c     
 c     
