@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.36 1999-08-20 18:47:23 d3e129 Exp $
+* $Id: task.F,v 1.37 2000-01-05 00:25:53 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -24,7 +24,8 @@ c
 c     This needs extending to accomodate QM/MM and other mixed methods
 c     by having both MM and QM pieces specified (e.g., task md dft).
 c
-      character*30 theory, operation
+      character*30 operation
+      character*32 theory
       logical status, ignore
       character*80 errmsg
       double precision task_cpu, task_wall

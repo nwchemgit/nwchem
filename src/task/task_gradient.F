@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.18 1998-12-08 18:44:20 bernhold Exp $
+* $Id: task_gradient.F,v 1.19 2000-01-05 00:25:53 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -49,7 +49,8 @@ c
       integer k_grad, l_grad, type, nelem, i
       logical status, numerical
       double precision energy, cpu, wall,dipole(3), gmax, gnorm
-      character*80 theory, key, prefix
+      character*80 key, prefix
+      character*32 theory
 c
       call ecce_print_module_entry('task gradient')
 c

@@ -9,7 +9,7 @@
 *::passed:
       integer rtdb
 *::local:
-      character*40 theory
+      character*32 theory
       logical okay
 *
       okay = .true.

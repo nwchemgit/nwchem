@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.42 1999-12-11 00:14:00 bert Exp $
+c     $Id: grad_force.F,v 1.43 2000-01-05 00:25:48 windus Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -127,7 +127,7 @@ c
       external grad_norm, grad_max
 
       character*16 tag
-      character*20 theory
+      character*32 theory
       character*8 scftype
       character*32 rtdb_string
 

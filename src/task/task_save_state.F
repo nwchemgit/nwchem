@@ -1,6 +1,6 @@
       logical function task_save_state(rtdb,suffix)
 *
-* $Id: task_save_state.F,v 1.6 1997-12-08 18:39:13 d3g681 Exp $
+* $Id: task_save_state.F,v 1.7 2000-01-05 00:25:53 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -32,7 +32,7 @@ c
 c     Output ... function value T/F on success/failure
 c     
       logical status
-      character*20 theory
+      character*32 theory
       character*(nw_max_path_len) vectors, name
       logical oexist, oprint
 c     
@@ -168,7 +168,7 @@ c
 c     See comments in task_save_state
 c     
       logical status
-      character*20 theory
+      character*32 theory
       character*(nw_max_path_len) vectors, name
       logical oexist, oprint
 c     
@@ -304,7 +304,7 @@ c
 c     See comments in task_save_state
 c     
       logical status
-      character*20 theory
+      character*32 theory
       character*(nw_max_path_len) vectors, name
       logical oexist, oprint
 c     

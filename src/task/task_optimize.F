@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.19 1999-07-01 00:07:55 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.20 2000-01-05 00:25:53 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -33,7 +33,7 @@ c
 c     
       logical ousedriver, status, ts, omin
 c     
-      character*20 theory
+      character*32 theory
 c     
       logical  task_gradient, stpr_walk_task, driver, nwargos,nwmd
       external task_gradient, stpr_walk_task, driver, nwargos,nwmd
@@ -122,7 +122,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.19 1999-07-01 00:07:55 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.20 2000-01-05 00:25:53 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -160,7 +160,7 @@ c
       logical ousedriver, status, ts, omin
       integer modsad
 c     
-      character*20 theory
+      character*32 theory
 c     
       logical  task_gradient, stpr_walk_task, driver, nwargos
       external task_gradient, stpr_walk_task, driver, nwargos
@@ -249,7 +249,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.19 1999-07-01 00:07:55 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.20 2000-01-05 00:25:53 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -281,7 +281,7 @@ c
 c
       logical status 
 c
-      character*20 theory
+      character*32 theory
 c
       call errquit('lst broken by rjh ',0)
 c$$$      logical  drv_lst 

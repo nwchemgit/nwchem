@@ -4,13 +4,14 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.24 1999-12-13 20:58:30 gg502 Exp $
+* $Id: task_num_grad.F,v 1.25 2000-01-05 00:25:53 windus Exp $
 *
 #include "inp.fh"
       logical analytic
       logical task_energy, num_grad
       external task_energy, num_grad
-      character*128 theory, ename, gname
+      character*128 ename, gname
+      character*32 theory
 c
 c check for analytic user input 
 c

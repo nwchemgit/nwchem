@@ -21,7 +21,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.125 1999-10-15 06:07:04 d3e129 Exp $
+c     $Id: nwchem.F,v 1.126 2000-01-05 00:25:28 windus Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -537,7 +537,8 @@ c
 c     Summarize the status of a restart calculation
 c
       logical mode, task_qmmm, ignore, lstatus
-      character*30 theory, operation, status
+      character*30 operation, status
+      character*32 theory
 c
       if (ga_nodeid() .eq. 0) then
          mode = rtdb_parallel(.false.)

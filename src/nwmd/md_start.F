@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.42 1999-12-16 16:55:09 d3j191 Exp $
+c $Id: md_start.F,v 1.43 2000-01-05 00:25:52 windus Exp $
 c
       implicit none
 c
@@ -195,7 +195,8 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 c
-      character*20 theory,operat
+      character*20 operat
+      character*32 theory
       logical lstate,lstart,lrstrt,lcont
       integer igt,igr,nbytes,ibl,iun
       integer niperw,nbperw

@@ -1,11 +1,11 @@
       logical function scf_gradient(rtdb)
-c$Id: scf_gradient.F,v 1.6 1998-08-30 17:55:30 d3g681 Exp $
+c$Id: scf_gradient.F,v 1.7 2000-01-05 00:25:49 windus Exp $
       implicit none
 #include "rtdb.fh"
 c
       integer rtdb
 c
-      character*20 theory
+      character*32 theory
       logical mcscf, scf, gradients
       external mcscf, scf, gradients
 c

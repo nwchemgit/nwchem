@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.8 1999-02-15 15:10:41 d3e129 Exp $
+* $Id: task_hessian.F,v 1.9 2000-01-05 00:25:53 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -42,7 +42,8 @@ c
       logical status, ignore, numerical, analytic
       double precision cpu, wall, delta_pass
       double precision default_delta
-      character*80 theory, prefix
+      character*80 prefix
+      character*32 theory
       character*(nw_max_path_len) filehess
 c
       call ecce_print_module_entry('task hessian')

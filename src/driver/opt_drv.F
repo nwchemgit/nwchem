@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.87 1999-09-21 22:15:04 d3g681 Exp $
+* $Id: opt_drv.F,v 1.88 2000-01-05 00:25:48 windus Exp $
 *
       implicit none
 #include "global.fh"
@@ -863,7 +863,8 @@ c
       integer i, j, num, ma_type, nactive_atoms, l_actlist
       logical ignore
       character*80 title
-      character*8 source, test, theory
+      character*8 source, test
+      character*32 theory
       logical geom_zmt_get_source, geom_zmtmak, geom_zmt_get_nizmat,
      $     geom_zmt_get_nzvar, geom_zmt_get_nzfrz, geom_compute_zmatrix,
      $     geom_zmt_get_izfrz, geom_zmt_get_varinfo

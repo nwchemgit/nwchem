@@ -16,7 +16,7 @@
       integer opcode
       character*(*)calling_routine
 *::local::
-      character*255 drdy_theory
+      character*32 drdy_theory
       integer current_print_level
       logical status
       logical status_rtdb, status_ignore

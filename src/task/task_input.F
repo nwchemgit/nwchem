@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.17 1999-06-22 22:42:29 d3e129 Exp $
+* $Id: task_input.F,v 1.18 2000-01-05 00:25:53 windus Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -20,7 +20,8 @@ c     task [qmmm] <string theory> [<string operation = energy>] [numerical || an
 c          [ignore]
 c
       logical numerical, ignore, oqmmm, analytic
-      character*30 test, theory, operation
+      character*30 test, operation
+      character*32 theory
       character*128 err_string
 c
       theory    = ' '

@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.15 1999-03-15 21:16:30 d3j191 Exp $
+* $Id: task_energy.F,v 1.16 2000-01-05 00:25:53 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -35,7 +35,8 @@ c
 c
       logical status
       double precision energy, cpu, wall, dipole(3)
-      character*80 theory, key, prefix
+      character*80 key, prefix
+      character*32 theory
 c
       call ecce_print_module_entry('task energy')
 c
