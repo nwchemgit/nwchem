@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.8 2004-08-14 02:30:57 marat Exp $
+c $Id: qmmm.F,v 1.9 2004-08-17 23:20:40 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -17,7 +17,6 @@ c
 c
       integer nqm
       integer i_ind
-      double precision aqcharge
 
       qmmm_init = .true.
 

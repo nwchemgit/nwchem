@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.4 2004-08-14 02:30:57 marat Exp $
+c $Id: qmmm_geom.F,v 1.5 2004-08-17 23:20:41 marat Exp $
 c
 c
       subroutine qmmm_create_qm_geom(irtdb)
@@ -92,11 +92,19 @@ c     local variables
       integer i_m_all,h_m_all
       double precision charge
  
+c
+c     load bq information (coord and charges)
+c     into qmmm common arrays from md module
+c     --------------------------------------
       call qmmm_load_bq()
 
       nqm   = qmmm_get_nqm()
-      nbq   = qmmm_get_nbqs()
+      nbq   = qmmm_get_nbq()
       ntot  = qmmm_get_ntot()
+
+c     nothing to do if no bq's
+c     -----------------------
+      if(nbq.eq.0) return
 
       i_ind = qmmm_get_i_ai()
       i_num = qmmm_get_i_num()
@@ -105,8 +113,8 @@ c     local variables
       i_t   = qmmm_get_i_t()
       i_m   = qmmm_get_i_m()
 
-      i_cbq = qmmm_get_i_cbqs()
-      i_qbq = qmmm_get_i_qbqs()
+      i_cbq = qmmm_get_i_cbq()
+      i_qbq = qmmm_get_i_qbq()
 
 
 c    --------------------------------------
@@ -147,18 +155,18 @@ c    --------------------------------------
      &       MA_ERR)
 
       call qmmm_comb_geom(ntot,
-     >                         dbl_mb(i_c_all),
-     >                         dbl_mb(i_q_all),
-     >                         byte_mb(i_t_all),
-     >                         dbl_mb(i_m_all),
-     >                         nqm,
-     >                         dbl_mb(i_c),
-     >                         dbl_mb(i_qf),
-     >                         byte_mb(i_t),
-     >                         dbl_mb(i_m),
-     >                         nbq,
-     >                         dbl_mb(i_cbq),
-     >                         dbl_mb(i_qbq))
+     >                    dbl_mb(i_c_all),
+     >                    dbl_mb(i_q_all),
+     >                    byte_mb(i_t_all),
+     >                    dbl_mb(i_m_all),
+     >                    nqm,
+     >                    dbl_mb(i_c),
+     >                    dbl_mb(i_qf),
+     >                    byte_mb(i_t),
+     >                    dbl_mb(i_m),
+     >                    nbq,
+     >                    dbl_mb(i_cbq),
+     >                    dbl_mb(i_qbq))
 
 
       if(.not.geom_create(igeom,'geometry'))
@@ -168,7 +176,7 @@ c    --------------------------------------
      + dbl_mb(i_c_all),dbl_mb(i_q_all)))
      + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
 
-      if(.not.geom_masses_set(igeom,nqm,dbl_mb(i_m_all)))
+      if(.not.geom_masses_set(igeom,ntot,dbl_mb(i_m_all)))
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
 
@@ -178,24 +186,24 @@ c    --------------------------------------
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
+c
+c     release temporary memory
+c     ------------------------
       if(.not.ma_pop_stack(h_t_all))
      & call errquit('qmmm: Failed to deallocate stack',ntot,
      &       MA_ERR)
-
       if(.not.ma_pop_stack(h_m_all))
      & call errquit('qmmm: Failed to deallocate stack',ntot,
      &       MA_ERR)
-
       if(.not.ma_pop_stack(h_q_all))
      & call errquit('qmmm: Failed to deallocate stack',ntot,
      &       MA_ERR)
-
       if(.not.ma_pop_stack(h_c_all))
      & call errquit('qmmm: Failed to deallocate stack',ntot,
      &       MA_ERR)
 
 
-c     -----------------------------
+c    
 c     set total charge
 c     -----------------------------
       charge =  qmmm_get_qcharge()
@@ -206,8 +214,6 @@ c     -----------------------------
           call errquit('qmmm: Failed to set charge',0,
      &       RTDB_ERR)
       end if
-
-      call qmmm_load_bq()
 
       end
 
@@ -223,23 +229,28 @@ c     local variables
       integer i
       integer ntot
       integer nqm
-      integer nbqs
+      integer nbq
       integer igeom
       integer i_c
       integer i_c_all, h_c_all
+      double precision charge
+      nbq  = qmmm_get_nbq()
+      
+c     nothing to do if no bq's
+c     -----------------------
+      if(nbq.eq.0) return
+
+      nqm  = qmmm_get_nqm()
+      ntot = qmmm_get_ntot()
+      i_c  = qmmm_get_i_c()
 
 c
-c     allocate temporary memory
-c     ------------------------
-      nqm  = qmmm_get_nqm()
-      nbqs = qmmm_get_nbqs()
-      ntot = nbqs+nqm
-      i_c   = qmmm_get_i_c()
-
+c     get coord information from combined
+c     qm and bq geometry
+c     -----------------------------------
       if(.not.ma_push_get(mt_dbl,3*ntot,'c_all',h_c_all,i_c_all))
      + call errquit('qmmm: Failed to allocate memory for c_all',
      + 3*ntot, MA_ERR)
-      write(*,*) "ntot",ntot
 
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
@@ -256,15 +267,20 @@ c     ------------------------
       if(.not.geom_rtdb_delete(irtdb,"geometry"))
      >    call errquit("qmmm:delete geometry",0,0)
 
-      write(*,*) "nqm",nqm,i_c
+c
+c     copy qm coordinates
+c     ------------------
       do i=1,3*nqm
        dbl_mb(i_c+i-1)= dbl_mb(i_c_all+i-1)
       end do
 
       if(.not.ma_pop_stack(h_c_all))
-     & call errquit('qmmm: Failed to deallocate stack',nbqs,
+     & call errquit('qmmm: Failed to deallocate stack',ntot,
      &       MA_ERR)
 
+c
+c     create geometry out qm coordnates only
+c     --------------------------------------
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
@@ -277,9 +293,18 @@ c     ------------------------
       if(.not.geom_rtdb_store(irtdb,igeom,"geometry"))
      >    call errquit("qmmm:load geometry",0,0)
 
-
       if(.not.geom_destroy(igeom))
      >    call errquit("qmmm:load geometry",0,0)
+
+c    
+c     return charge to normal
+c     -----------------------------
+      charge =  qmmm_get_qcharge()
+      if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,charge)) then
+          call errquit('qmmm: Failed to set charge',0,
+     &       RTDB_ERR)
+      end if
+
 
       end
 

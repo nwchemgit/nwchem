@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.8 2004-08-17 17:59:50 marat Exp $
+c $Id: mm_interface.F,v 1.9 2004-08-17 23:20:40 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -191,7 +191,6 @@ c
 c
       integer i
       integer bq_exclude
-      logical nobq
 c
       integer cf_element
       external cf_element

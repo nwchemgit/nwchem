@@ -133,7 +133,17 @@ c
 
       integer qmmm_get_ntot
 
-      qmmm_get_ntot = nqm+nbqs
+      qmmm_get_ntot = nqm+nbqs+nbqw
+
+      end 
+
+      function qmmm_get_nbq()
+      implicit none
+#include "qmmm_data.fh"
+
+      integer qmmm_get_nbq
+
+      qmmm_get_nbq = nbqs+nbqw
 
       end 
 
@@ -204,21 +214,39 @@ c
 
       end 
 
-      function qmmm_get_h_qbqs()
+      function qmmm_get_h_qbq()
       implicit none
 #include "qmmm_data.fh"
-      integer qmmm_get_h_qbqs
+      integer qmmm_get_h_qbq
 
-      qmmm_get_h_qbqs = h_qbqs
+      qmmm_get_h_qbq = h_qbq
 
       end 
 
-      function qmmm_get_i_qbqs()
+      function qmmm_get_i_qbq()
       implicit none
 #include "qmmm_data.fh"
-      integer qmmm_get_i_qbqs
+      integer qmmm_get_i_qbq
 
-      qmmm_get_i_qbqs = i_qbqs
+      qmmm_get_i_qbq = i_qbq
+
+      end 
+
+      function qmmm_get_h_cbq()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_h_cbq
+
+      qmmm_get_h_cbq = h_cbq
+
+      end 
+
+      function qmmm_get_i_cbq()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_i_cbq
+
+      qmmm_get_i_cbq = i_cbq
 
       end 
 
@@ -240,23 +268,41 @@ c
 
       end 
 
-      subroutine qmmm_set_cbqs(a_i_cbqs,a_h_cbqs)
+      function qmmm_get_h_cbqw()
       implicit none
 #include "qmmm_data.fh"
-      integer a_i_cbqs,a_h_cbqs
+      integer qmmm_get_h_cbqw
 
-      i_cbqs=a_i_cbqs
-      h_cbqs=a_h_cbqs
+      qmmm_get_h_cbqw = h_cbqw
 
       end 
 
-      subroutine qmmm_set_qbqs(a_i_qbqs,a_h_qbqs)
+      function qmmm_get_i_cbqw()
       implicit none
 #include "qmmm_data.fh"
-      integer a_i_qbqs,a_h_qbqs
+      integer qmmm_get_i_cbqw
 
-      i_qbqs=a_i_qbqs
-      h_qbqs=a_h_qbqs
+      qmmm_get_i_cbqw = i_cbqw
+
+      end 
+
+      subroutine qmmm_set_cbq(a_i_cbq,a_h_cbq)
+      implicit none
+#include "qmmm_data.fh"
+      integer a_i_cbq,a_h_cbq
+
+      i_cbq=a_i_cbq
+      h_cbq=a_h_cbq
+
+      end 
+
+      subroutine qmmm_set_qbq(a_i_qbq,a_h_qbq)
+      implicit none
+#include "qmmm_data.fh"
+      integer a_i_qbq,a_h_qbq
+
+      i_qbq=a_i_qbq
+      h_qbq=a_h_qbq
 
       end 
 

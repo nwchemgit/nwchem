@@ -1,17 +1,17 @@
 c
-c $Id: qmmm.fh,v 1.4 2004-08-14 02:30:57 marat Exp $
+c $Id: qmmm.fh,v 1.5 2004-08-17 23:20:40 marat Exp $
 c
       integer qmmm_get_ntot
+      integer qmmm_get_nbq
       integer qmmm_get_nbqw
       integer qmmm_get_nbqs
       integer qmmm_get_nqm
       integer qmmm_get_i_ai
       integer qmmm_get_i_c
-      integer qmmm_get_h_cbqs
-      integer qmmm_get_i_cbqs
-      integer qmmm_get_h_qbqs
-      integer qmmm_get_i_qbqs
-      integer qmmm_get_i_cbqw
+      integer qmmm_get_i_cbq
+      integer qmmm_get_h_cbq
+      integer qmmm_get_i_qbq
+      integer qmmm_get_h_qbq
       integer qmmm_get_i_t
       integer qmmm_get_i_q
       integer qmmm_get_i_qf
@@ -37,11 +37,11 @@ c
       external qmmm_get_ntot
       external qmmm_get_nbqw
       external qmmm_get_nbqs
-      external qmmm_get_h_cbqs
-      external qmmm_get_h_qbqs
-      external qmmm_get_i_cbqs
-      external qmmm_get_i_qbqs
-      external qmmm_get_i_cbqw
+      external qmmm_get_i_cbq
+      external qmmm_get_h_cbq
+      external qmmm_get_i_qbq
+      external qmmm_get_h_qbq
       external qmmm_get_bq_exclude
       external qmmm_get_link_atom
+      external qmmm_get_nbq
  
