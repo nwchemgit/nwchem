@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.11 1999-06-25 02:51:08 d3j191 Exp $
+c $Id: util_md.F,v 1.12 1999-08-28 02:13:40 d3j191 Exp $
 c
       implicit none
 c
@@ -514,7 +514,7 @@ c
 c
       integer itime
 c
-      call timer(itime,-1)
+      call timer(itime,-2)
 c
       return
       end
@@ -561,6 +561,8 @@ c
       ncall(i)=0
       ctime(i,1)=0.0d0
       ttime(i,1)=0.0d0
+      ctime(i,2)=0.0d0
+      ttime(i,2)=0.0d0
     1 continue
       elseif(itime.le.0.or.itime.gt.mtime) then
       call errquit('Timer index out of range',0)
