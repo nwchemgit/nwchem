@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.107 1999-01-20 17:42:00 d3j191 Exp $
+c     $Id: msgids.fh,v 1.108 1999-02-12 18:36:20 d3j191 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -196,6 +196,58 @@ c
 c
       integer pre_i00
       integer pre_i99
+c
+      integer mcf_00
+      integer mcf_01
+      integer mcf_02
+      integer mcf_03
+      integer mcf_04
+      integer mcf_05
+      integer mcf_06
+      integer mcf_07
+      integer mcf_08
+      integer mcf_09
+      integer mcf_10
+      integer mcf_11
+      integer mcf_12
+      integer mcf_13
+      integer mcf_14
+      integer mcf_15
+      integer mcf_16
+      integer mcf_17
+      integer mcf_18
+      integer mcf_19
+      integer mcf_20
+      integer mcf_21
+      integer mcf_22
+      integer mcf_23
+      integer mcf_24
+      integer mcf_25
+      integer mcf_26
+      integer mcf_27
+      integer mcf_28
+      integer mcf_29
+      integer mcf_30
+      integer mcf_31
+      integer mcf_32
+      integer mcf_33
+      integer mcf_34
+      integer mcf_35
+      integer mcf_36
+      integer mcf_37
+      integer mcf_38
+      integer mcf_39
+      integer mcf_40
+      integer mcf_41
+      integer mcf_42
+      integer mcf_43
+      integer mcf_44
+      integer mcf_45
+      integer mcf_46
+      integer mcf_47
+      integer mcf_48
+      integer mcf_49
+      integer mcf_50
 c
       integer msg_hessmin
       integer msg_hessmax
@@ -677,3 +729,55 @@ c
       parameter (mag_d10=msg_ftn_base-510) ! analysis module
       parameter (mag_d11=msg_ftn_base-511) ! analysis module
       parameter (mag_d12=msg_ftn_base-512) ! analysis module
+c
+      parameter(mcf_00=msg_ftn_base-550)
+      parameter(mcf_01=msg_ftn_base-551)
+      parameter(mcf_02=msg_ftn_base-552)
+      parameter(mcf_03=msg_ftn_base-553)
+      parameter(mcf_04=msg_ftn_base-554)
+      parameter(mcf_05=msg_ftn_base-555)
+      parameter(mcf_06=msg_ftn_base-556)
+      parameter(mcf_07=msg_ftn_base-557)
+      parameter(mcf_08=msg_ftn_base-558)
+      parameter(mcf_09=msg_ftn_base-559)
+      parameter(mcf_10=msg_ftn_base-560)
+      parameter(mcf_11=msg_ftn_base-561)
+      parameter(mcf_12=msg_ftn_base-562)
+      parameter(mcf_13=msg_ftn_base-563)
+      parameter(mcf_14=msg_ftn_base-564)
+      parameter(mcf_15=msg_ftn_base-565)
+      parameter(mcf_16=msg_ftn_base-566)
+      parameter(mcf_17=msg_ftn_base-567)
+      parameter(mcf_18=msg_ftn_base-568)
+      parameter(mcf_19=msg_ftn_base-569)
+      parameter(mcf_20=msg_ftn_base-570)
+      parameter(mcf_21=msg_ftn_base-571)
+      parameter(mcf_22=msg_ftn_base-572)
+      parameter(mcf_23=msg_ftn_base-573)
+      parameter(mcf_24=msg_ftn_base-574)
+      parameter(mcf_25=msg_ftn_base-575)
+      parameter(mcf_26=msg_ftn_base-576)
+      parameter(mcf_27=msg_ftn_base-577)
+      parameter(mcf_28=msg_ftn_base-578)
+      parameter(mcf_29=msg_ftn_base-579)
+      parameter(mcf_30=msg_ftn_base-580)
+      parameter(mcf_31=msg_ftn_base-581)
+      parameter(mcf_32=msg_ftn_base-582)
+      parameter(mcf_33=msg_ftn_base-583)
+      parameter(mcf_34=msg_ftn_base-584)
+      parameter(mcf_35=msg_ftn_base-585)
+      parameter(mcf_36=msg_ftn_base-586)
+      parameter(mcf_37=msg_ftn_base-587)
+      parameter(mcf_38=msg_ftn_base-588)
+      parameter(mcf_39=msg_ftn_base-589)
+      parameter(mcf_40=msg_ftn_base-590)
+      parameter(mcf_41=msg_ftn_base-591)
+      parameter(mcf_42=msg_ftn_base-592)
+      parameter(mcf_43=msg_ftn_base-593)
+      parameter(mcf_44=msg_ftn_base-594)
+      parameter(mcf_45=msg_ftn_base-595)
+      parameter(mcf_46=msg_ftn_base-596)
+      parameter(mcf_47=msg_ftn_base-597)
+      parameter(mcf_48=msg_ftn_base-598)
+      parameter(mcf_49=msg_ftn_base-599)
+      parameter(mcf_50=msg_ftn_base-600)
