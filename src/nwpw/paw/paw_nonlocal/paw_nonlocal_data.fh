@@ -1,0 +1,22 @@
+c 
+c $Id: paw_nonlocal_data.fh,v 1.1 2003-02-26 02:13:16 bylaska Exp $
+c 
+
+      !**** paw_nonlocal_data.fh common blocks ****
+      integer    paw_nl_coeff(4) ! non-local operator coefficients
+      integer    total_nbasis
+      integer    ne_d,ne_u,neall,ispin
+
+      integer    i_paw_Gop(4)
+      integer    paw_Gop_u(4)  ! one-center atomic matrices
+      integer    paw_Gop_d(4)
+      integer    paw_Gop_size
+
+
+      common / paw_nl_data / paw_nl_coeff,
+     >                      i_paw_Gop, 
+     >                      paw_Gop_u,paw_Gop_d,
+     >                      total_nbasis,
+     >                      paw_Gop_size,
+     >                      ne_d,ne_u,neall,ispin
+
