@@ -106,6 +106,16 @@ The \verb+swap+ keyword of the \verb+VECTORS+ directive may be
 used to reorder orbitals to obtain the correct active space.
 See Section \ref{sec:vectors} for an example.
 
+The \verb+LOCK+ keyword allows the user to specify that the ordering
+of orbitals will be locked to that of the initial vectors, insofar as
+possible. The default is to order by ascending orbital energies within
+each orbital space. One application where locking might be desirable
+is a calculation where it is necessary to preserve the ordering of a
+previous geometry, despite flipping of the orbital energies.  For such
+a case, the \verb+LOCK+ directive can be used to prevent the SCF
+calculation from changing the ordering, even if the orbital energies
+change.
+
 Output orbitals of a converged MCSCF calculation are canonicalized as
 follows:
 \begin{itemize}
