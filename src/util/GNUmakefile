@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.141 2001-11-09 23:10:51 windus Exp $
+# $Id: GNUmakefile,v 1.142 2001-11-14 23:49:28 edo Exp $
 
 include ../config/makefile.h
 
@@ -115,7 +115,7 @@ ifeq ($(TARGET),FUJITSU_VPP)
                  -Wp,-DINTEGER_1=byte
 endif
 
-       BLAS = dfill.o ifill.o rsg.o mabyte_fill.o
+       BLAS = dfill.o ifill.o rsg.o mabyte_fill.o ga_it2.o
 
    LIB_TARGETS = testsolve testecce
 
