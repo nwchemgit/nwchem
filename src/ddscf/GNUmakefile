@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.15 1994-10-07 19:39:56 d3g681 Exp $
+# $Id: GNUmakefile,v 1.16 1994-10-11 19:36:14 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -19,12 +19,13 @@
         ri_v_fit_cd.o             ri_v_fit_j.o \
         ri_drive.o \
         matrix_exp.o              scf_pstat.o \
-        schwarz_max.o dabsmax.o dabssum.o   schwarz_atom.o
+        schwarz_max.o 
+
 
 # rhf_fock_2e_b compiles incorrectly with optimize on the SGITFP
 
-  OBJ_OPTIMIZE =  rhf_fock_2e_c.o comp4_extract.o schwarz_shell.o \
-                  dabsmax.o dabssum.o
+  OBJ_OPTIMIZE =  rhf_fock_2e_c.o dabsmax.o dabssum.o  \
+                  schwarz_atom.o comp4_extract.o schwarz_shell.o
 
     LIBRARY = libddscf.a
 
