@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.21 1999-09-17 22:22:42 d3j191 Exp $
+c $Id: sp_main.F,v 1.22 1999-09-20 15:04:15 d3j191 Exp $
 c
       implicit none
 c
@@ -1331,6 +1331,31 @@ c
 c
       return
       end
+      subroutine sp_getxpbl(ibbl,lhandl,local,
+     + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
+     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,lself)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      integer ibbl,lhandl
+      integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
+      integer iwl(mwm,miw2),isl(msa,mis2)
+      real*8 xw(mwm,3,mwa),xs(msa,3)
+      real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
+      real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
+      logical lself,local
+c
+      call errquit('Retrieval of p not done',0)
+c
+      call sp_gtxbl(ibbl,lhandl,local,
+     + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
+     + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself)
+c
+      return
+      end
       subroutine sp_getxbl(ibbl,lhandl,local,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,lself)
 c
@@ -1460,6 +1485,26 @@ c
       endif
 c
       endif
+c
+      return
+      end
+      subroutine sp_accpbl(ibbl,lhandl,pw,pwp,ps,psp,lpair,iwz,isz)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      integer ibbl,lhandl
+      real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
+      real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
+      real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
+      logical lpair
+      integer iwz(mwm),isz(msa)
+c
+      call errquit('Accumulation p not implemented',0)
+c      call sp_acfbl(ibbl,lhandl,fw,fs,int_mb(i_bb),int_mb(i_jpl),
+c     + lpair,iwz,isz)
 c
       return
       end
