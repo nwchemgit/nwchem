@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.131 2001-05-07 18:09:09 edo Exp $
+# $Id: GNUmakefile,v 1.132 2001-05-07 23:25:17 edo Exp $
 
 include ../config/makefile.h
 
@@ -64,7 +64,6 @@ ifeq ($(TARGET),LAPI64)
 endif
 
 ifeq ($(TARGET),HPUX64)
-  EXTRA_OBJ = util_erfc.o
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
 

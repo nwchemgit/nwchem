@@ -1,3 +1,23 @@
+#if defined(IFCLINUX) || defined(HPUX64)
+      double precision function derfc(x)
+      implicit none
+      double precision x,util_erfc,derfc
+      external util_erfc
+      derfc=util_erfc(x)
+      return
+      end
+c
+      double precision function erfc(x)
+      implicit none
+      double precision x,util_erfc
+      external util_erfc
+      erfc=util_erfc(x)
+      return
+      end
+c
+#endif                                                                          
+
+
       real*8 function util_erf(x) 
       implicit none
       real*8 x
