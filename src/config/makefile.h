@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.84 1994-12-21 02:08:39 d3g681 Exp $
+# $Id: makefile.h,v 1.85 1994-12-29 07:22:09 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -206,6 +206,32 @@ ifeq ($(TARGET),SUN)
   EXPLICITF = FALSE
 endif
 
+ifeq ($(TARGET),CRAY-T3D)
+#
+# CRAY-T3D cross-compiled
+# remember to run make sngl_to_dbl to use CRAY blas and lapack
+# and to setenv TARGET CRAY-T3D (for C compiler)
+#
+    CORE_SUBDIRS_EXTRA = 
+       LINK.f = /mpp/bin/mppldr -Drdahead=on    -L$(LIBDIR)
+     RANLIB = @echo
+  MAKEFLAGS = -j 6
+    INSTALL = @echo $@ is built
+
+         FC = /mpp/bin/f90
+       CPP = /mpp/lib/cpp -P  -N
+   FOPTIONS = -Wf"-dp" 
+   COPTIONS = 
+  FOPTIMIZE = 
+  COPTIMIZE = 
+
+    DEFINES =   -DCRAY-T3D -DDFT_TIMER
+
+       CORE_LIBS =  -lglobal \
+                -ltcgmsg 
+
+  EXPLICITF = TRUE
+endif
 ifeq ($(TARGET),KSR)
 #
 # KSR running OSF
@@ -222,7 +248,7 @@ ifeq ($(TARGET),KSR)
 
     DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
 
-#    LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
+#     LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
      LIBPATH += -L/home2/d3g270/peigs1.1 -L/home/d3g681/TCGMSG_DISTRIB
        CORE_LIBS = -lglobal -lutil -lpeigs \
               -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
@@ -393,13 +419,13 @@ ifeq ($(TARGET),IBM)
 	      -brename:.dscal_,.dscal \
 	      -brename:.dspsvx_,.dspsvx \
 	      -brename:.idamax_,.idamax \
-	      -brename:.lsame_,.lsame \
-	      -brename:.xerbla_,.xerbla \
 	      -brename:.times_,.times 
 
  EXPLICITF = TRUE
 #
 endif
+#	      -brename:.lsame_,.lsame \
+#	      -brename:.xerbla_,.xerbla \
 
 
 
@@ -445,12 +471,17 @@ ifeq ($(EXPLICITF),TRUE)
 	$(FC) -c $(FFLAGS) $*.f
 	$(RM) $*.f
 
-.F.f:	
-ifeq ($(TARGET),IBM)
-	$(CPP) $(CPPFLAGS) $*.F > $*.f
-else
+.F.f:
+ifeq ($(TARGET),UNKNOWN)
 	$(CPP) $(CPPFLAGS) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
 endif
+ifeq ($(TARGET),IBM)
+	$(CPP) $(CPPFLAGS) $*.F > $*.f
+endif
+ifeq ($(TARGET),CRAY-T3D)
+	$(CPP) $(CPPFLAGS)   $*.F | sed '/^#/D'  > $*.f
+endif
+
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $*.c

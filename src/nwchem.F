@@ -288,6 +288,9 @@ c
       character*80 hostname
       character*256 executable
       character*26 date
+#if defined(CRAY)
+      integer ilen,ierror
+#endif
       integer heap, stack, total, nproc
       logical status
       character*3 cstatus
@@ -317,7 +320,11 @@ c
       write(6,*)
       write(6,*)
 c
+#if defined(CRAY)
+      call pxfgetarg(0,executable,ilen,ierror)
+#else
       call getarg(0,executable)
+#endif
       call util_hostname(hostname)
       call util_date(date)
       total = ma_inquire_avail(mt_dbl)
