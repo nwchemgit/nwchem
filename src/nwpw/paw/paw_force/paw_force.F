@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.11 2003-03-22 21:50:41 bylaska Exp $
+* $Id: paw_force.F,v 1.12 2003-03-25 16:43:31 edo Exp $
 *
 
 !**************************************************
@@ -10,10 +10,11 @@
 !
 !	Created:	8/07/2002
 !**************************************************
-      subroutine paw_force_init(ispin0,ne)
+      subroutine paw_force_init
+cedo      subroutine paw_force_init(ispin0,ne)
       implicit none
-      integer ispin0
-      integer ne(2)
+cedo      integer ispin0
+cedo      integer ne(2)
 
 #include "mafdecls.fh"
 #include "paw_proj.fh"
