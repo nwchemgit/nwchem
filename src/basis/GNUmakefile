@@ -1,8 +1,9 @@
 include ../config/makefile.h
 
+       LIBRARY = libutil.a
+#      LIBRARY = libbasis.a
        HEADERS = bas.fh basP.fh bas_staticP.fh geobasmapP.fh basdeclsP.fh
            OBJ = basis.o basisP.o bas_input.o
-       LIBRARY = libbasis.a
    LIB_TARGETS = testbasis testbasis.o
 
 ifeq ($(TARGET),DELTA)

@@ -1,6 +1,7 @@
 
+ LIBRARY = libutil.a
+#LIBRARY = libgeom.a
      OBJ = geom.o geom_input.o
- LIBRARY = libgeom.a
  HEADERS = geom.fh geomP.fh
 
  USES_BLAS = geom.F
