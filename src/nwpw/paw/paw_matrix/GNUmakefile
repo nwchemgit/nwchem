@@ -1,9 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.12 2003-02-11 20:56:40 marat Exp $
+# $Id: GNUmakefile,v 1.13 2003-02-11 21:16:36 marat Exp $
 #
 
-          OBJ = paw_core_matrix.o \
-                paw_hartree_matrix.o paw_comp_charge_matrix.o \
+          OBJ = paw_hartree_matrix.o paw_comp_charge_matrix.o \
                  paw_comp_pot_matrix.o 
           
 
@@ -17,7 +16,7 @@
 
   LIB_DEFINES = 
 
-  HEADERS = paw_comp_charge_matrix.fh  paw_core_matrix.fh \
+  HEADERS = paw_comp_charge_matrix.fh \
             paw_comp_pot_matrix.fh paw_hartree_matrix.fh
 
 
