@@ -1,5 +1,5 @@
 *
-* $Id: nwc_const.fh,v 1.6 2003-01-30 01:18:47 bert Exp $
+* $Id: nwc_const.fh,v 1.7 2003-07-28 21:29:49 edo Exp $
 *
 * These constants are used to control some fixed dimensions within nwchem
 * Developers should strive to dynamically allocate memory for arrays and 
@@ -91,7 +91,7 @@
 * Maximum number of shells on a QM system 
 *...................................(must be <= nw_max_atom_shells*nw_max_atom)
       integer nw_max_shells
-      parameter (nw_max_shells = 6000)
+      parameter (nw_max_shells = 10000)
 *------------------------------------------------------------------------------
 * Maximum number of basis functions on an atom 
 *
