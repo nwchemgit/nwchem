@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.18 2002-01-08 07:17:07 edo Exp $
+c $Id: shell_fock_build.F,v 1.19 2002-01-08 20:49:57 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -783,8 +783,6 @@ c
       integer dims(3),chunk(3)
       integer g_xc
       integer ifock
-      logical xc_active
-      double precision ffac
       integer i
       character*4 scftype
 c
@@ -792,52 +790,25 @@ c
       if(ndens.eq.2) scftype='UHF'
       write(0,*) ' newfockxc nder ',nder, ' nfock ',nfock,
      ,     ' ndens ',ndens
-      write(0,*) ' xcnf jfac ',(jfac(i),i=1,ndens)
-      write(0,*) ' xcnf kfac ',(kfac(i),i=1,ndens)
       dims(1) = nfock
       dims(2) = nbf
       dims(3) = nbf
       chunk(1) = dims(1)
       chunk(2) = -1
       chunk(3) = -1
-      write(0,*) ' d ',dims
-      write(0,*) ' chunk ',chunk
       if (.not. nga_create (MT_DBL, 3, dims, 'nfockxc:3dxc',chunk, 
      &     g_xc))
      &        call errquit('fock_2e: could not allocate g_xc',555)
-      write(0,*) ' got create: g_xc=',g_xc, ' gdens ',g_dens
       call ga_zero(g_xc)
 
       call fock_xc(geom, nbf,basis,
      ,      ndens,  g_dens, g_xc,scftype,.true.)
-         if (bgj_print() .gt. 1) then
-      write(*,*)'*** Scaling XC mats',nfock,' by',jfac(1),jfac(nfock)
+      call ga_add(1d0, g_xc, 1.0d0, g_fock,
+     &     g_fock)
+      if (bgj_print() .gt. 1) then
+         write(*,*)'*** fock_2e: fock matrix',ifock
+         call ga_print(g_fock)
       endif
-      do ifock = 1, 1
-!      do ifock = 1, ndens
-!         if (xc_active.and.jfac(1).ne.0d0) then
-!         if (xc_active) then
-         if (.true.) then
-c     Scale the XC matrices by the same scaling factor as J in this case
-c     since there is no explicit way to pass in an XC scaling factor, yet
-c     the 2nd derivative code uses a scale factor of 8 for the OO part of
-c     the CPSCF RHS that needs to be applied to XC also.
-            if (jfac(ifock).ne.1d0.and.jfac(ifock).ne.8d0) then
-               write(*,*)'shf:cant Scale XCm',ifock,' by',jfac(ifock)
-               ffac=kfac(ifock)
-            else
-               ffac=jfac(ifock)
-            endif
-!            ffac=ffac*2d0
-            write(*,*)'*** Scaling XC matrix',ifock,' by',ffac
-            call ga_add(jfac(ifock), g_xc, 1.0d0, g_fock,
-     &           g_fock)
-         endif
-         if (bgj_print() .gt. 1) then
-            write(*,*)'*** fock_2e: fock matrix',ifock
-            call ga_print(g_fock)
-         endif
-      enddo
       if (.not.ga_destroy(g_xc)) then
          call errquit('fock_2e: problem destroying test array',1)
       endif
