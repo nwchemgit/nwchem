@@ -1,5 +1,5 @@
       subroutine util_flush(unit)
-C$Id: util_flush.F,v 1.16 1999-07-02 00:30:12 d3e129 Exp $
+C$Id: util_flush.F,v 1.17 1999-10-08 22:19:31 edo Exp $
       implicit none
 #include "stdio.fh"
       integer unit
@@ -8,7 +8,7 @@ c     Flush buffered output for the fortran unit
 c
 #if defined(SUN)      || defined(KSR)    || defined(PARAGON) || \
     defined(SOLARIS)  || \
-    defined(CRAY_T3D) || defined(CRAY_T3E) || defined(IBM)
+    defined(CRAY_T3D) || defined(CRAY_T3E) || defined(IBM)||defined(LINUX)
       call flush(unit)
 #endif
 #if defined(SGI)
