@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.11 2000-09-21 15:32:50 bjohnson Exp $
+c     $Id: dftg_gridv0b.F,v 1.12 2000-10-14 01:46:14 bjohnson Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -30,6 +30,8 @@ c
 c !!! BGJ test !!!
 #include "bgj.fh"
 c !!! BGJ test !!!
+c !!! temporary !!!
+#include "rtdb.fh"
       integer nqpts, ictr_buf ! [in]
       double precision rad ! [in]
       integer natoms
@@ -91,7 +93,7 @@ c
      &        ld3chi_ao, id3chi_ao
       integer lchi_ao, ichi_ao, 
      &        lgradchi_ao, idelchi_ao
-      integer nbf_ao_mxnbf_ce2
+      integer nbf_ao_mxnbf_ce2, maxdbas
       double precision acc_AO_gauss 
       double precision Ex, Ec
       double precision rho_int ! [in/out]
@@ -102,14 +104,24 @@ c
       integer natoms_l ! atoms left after xc_sig
 c
       integer ncuratoms
+      logical donewbf           !!! !!!! *** temp
 c     
-         
-c         Evaluate the AO basis set at each of the quad. points.
+c           Evaluate the AO basis set at each of the quad. points.
 c           allocate arrays for exponents and contraction coefficients
 c           within int_eval_gbsets mbf is # of orbs with nonzero 
 c           points in sampling set.  iniz is a mapping array.
 c           currently set up only for cartesian (6d) sets
 c         
+      if (der3chi) then
+         maxdbas = 3
+      elseif (hesschi) then
+         maxdbas = 2
+      elseif (gradchi) then
+         maxdbas = 1
+      else
+         maxdbas = 0
+      endif
+c
             mbf_ao = nbf_ao
             call ifill(mbf_ao, 0, ibf_ao, 1)
             mbf_ao=grid_nbfm( AO_bas_han,  natoms, 
@@ -152,6 +164,15 @@ c
      &            (' exiting in dftg_quadv0: insuff stack',19)
 c
                call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 'bgj:new_bf', mt_log,
+     &     1, donewbf)) donewbf = .true.
+      if (donewbf) then
+               call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
+     &              dbl_mb(idelchi_ao), dbl_mb(iheschi_ao),
+     &              dbl_mb(id3chi_ao), rq, qxyz, xyz, nqpts, natoms,
+     &              iniz, docset, bas_cent_info, bas_cset_info)
+      else
+c !!! Can delete this once confident in new basis fn code
                if (der3chi) then
                   call new_eval_gbsets_d3(ao_bas_han,
      &                 dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
@@ -174,6 +195,7 @@ c
      &                                 ncoef_max, 
      &                                 iniz,ifin)
                endif
+      endif
 c         
 c
 c              Pre-compute reduced Xi(r) and dXi(r) over atoms
