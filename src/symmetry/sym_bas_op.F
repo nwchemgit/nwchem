@@ -1,6 +1,6 @@
       subroutine sym_bas_op(geom, op, r, maxf, ang_max,
      &    otransform)
-C$Id: sym_bas_op.F,v 1.6 1997-11-07 01:45:17 d3e129 Exp $
+C$Id: sym_bas_op.F,v 1.7 1997-11-07 23:12:26 d3e129 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -196,7 +196,7 @@ c::local
 *     double precision scale
       integer lval
       integer l2s
-      integer s1, s2, c1, c2, r1, r2, c3
+      integer s1, s2, c1, c2, r1, r2
       double precision sover(6,6,0:2)
 c::functions
       logical spcart_init
@@ -274,11 +274,11 @@ c
         enddo
 *        write(6,*)' spherical matrix for angular momentum ',lval
 *        call output(R(1,1,lval),1,(2*lval+1),1,(2*lval+1),maxf,maxf,1)
-        do s1 = 2*lval+2,maxf
-          do s2 = 2*lval+2,maxf
-            R(s1,s2,lval) = 1234.0d00
-          enddo
-        enddo
+*        do s1 = 2*lval+2,maxf
+*          do s2 = 2*lval+2,maxf
+*            R(s1,s2,lval) = 1234.0d00
+*          enddo
+*        enddo
       enddo
 c      
       end
