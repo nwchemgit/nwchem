@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.94 2001-12-27 18:31:21 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.95 2002-01-16 01:29:55 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -31,7 +31,7 @@ c
       integer nopen
       character*32 theory 
       character*40 blank_40c
-      Logical lnewtype,lgridfile,ignore
+      Logical lnewtype,lgridfile
       Logical int_normalize
       Logical int_norm_2c
       Logical atom_tag_check
@@ -665,7 +665,6 @@ c
       else
          if (.not. bas_destroy(CD_bas_han))
      &      call errquit('rdinput:not able to destroy CD_bas:',86)
-         ignore = rtdb_delete(rtdb, 'dft:cdfit')
          CD_bas_han=-99999
          nbf_cd = 0
          nbf_cd_mxprim = 0
@@ -716,6 +715,7 @@ c     This switch controls whether the grid is
 c     rotationally invariant. For now, it is hard-wired to 
 c     1 (rotationally invariant).
 c     
+      call ga_sync()
       if (.not. rtdb_get(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
      &   then
         iqrot = 1
