@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2002-09-12 01:01:44 marat Exp $
+# $Id: GNUmakefile,v 1.7 2003-01-30 20:50:39 bylaska Exp $
 #
 
           OBJ = paw_kin_matrix.o paw_ion_matrix.o paw_vloc_matrix.o paw_core_matrix.o \
@@ -11,7 +11,7 @@
 
    USES_BLAS = 
 
-#  LIB_INCLUDES = -I../include/
+  LIB_INCLUDES = 
 
   LIB_DEFINES = 
 
