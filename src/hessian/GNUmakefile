@@ -1,3 +1,6 @@
+#
+# $Id: GNUmakefile,v 1.9 1997-11-04 10:33:05 d3e129 Exp $
+#
 
  OBJ = scf_hessian.o rhf_hessian.o hess_quad.o hess_blas.o
  
