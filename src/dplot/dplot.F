@@ -19,6 +19,7 @@
       Logical  movecs_read_header, movecs_read, Int_Normalize
       External movecs_read_header, movecs_read, Int_Normalize
       Character*80 File_Vec,File_Vec2
+      character*20 scftype, scftype2
       Character*255 Title_Vec, Title_Vec2, Basis_Name, Basis_Name2
       Integer nBF,nBF2,iBF,nSet,nSet2,iSet,nSetTri,
      &        nMO(2),nMO2(2)
@@ -277,7 +278,7 @@
 *
 *---- Read the info from the first MO file
       If (.not.movecs_read_header(File_Vec,Title_Vec,Basis_Name, 
-     &   nBF,nSet,nMO,2))
+     &     scftype, nBF,nSet,nMO,2))
      &   Call ErrQuit('DPlot: movecs_read_header failed',1)
       nSetTri = nSet*(nSet+1)/2
 *---- Check, if the MO Vectors correspond to the specified basis set
@@ -329,7 +330,7 @@
       If (File_Vec2.ne.' ') Then
 *------- Read the info from the second orbital file
          If (.not.movecs_read_header(File_Vec2,Title_Vec2,Basis_Name2, 
-     &      nBF2,nSet2,nMO2,2))
+     &        scftype2, nBF2,nSet2,nMO2,2))
      &      Call ErrQuit('DPlot: movecs_read_header failed',2)
 *------- Check, if the the orbital files match
          If (nBF2.ne.nBF . or . nSet2.ne.nSet)

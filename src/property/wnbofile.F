@@ -66,6 +66,7 @@ c>>>  MO vector and calculation-type objects
 c
       character*4   spintype
       character*255 bas_vecs, movecs_in, title_vecs
+      character*20 scftype_vecs
       integer  lenocc, nbf_vecs, nset, nmo_vecs(2)
 
 c
@@ -126,7 +127,7 @@ c>>>    Get information on molecular orbital vectors.
 c       
       call util_file_name('movecs', .false., .false., movecs_in)
       if(.not.movecs_read_header(movecs_in, title_vecs, bas_vecs,
-     $     nbf_vecs, nset, nmo_vecs, 2))
+     $     scftype_vecs, nbf_vecs, nset, nmo_vecs, 2))
      $     call errquit('wnbofile:  failed on movecs_read_header',0)
 
       if(nset.eq.1)then

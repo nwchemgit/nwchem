@@ -27,6 +27,7 @@
       integer g_vecs_a,g_vecs_b
       integer nocc
       character*4 scftype
+      character*20 scftypevecs
       integer i,nbf_vecs,nsets,nmos(2),nbf, nmo
       integer l_eval_a,k_eval_a,l_eval_b,k_eval_b
       integer noa_frozen,nva_frozen,nob_frozen,nvb_frozen
@@ -85,7 +86,7 @@ c
       if (.not. bas_numbf(basis,nbf))
      $     call errquit('mp2_grad: could not get nbf',0)
       if(.not.movecs_read_header(movecs,title_vecs,basis_vecs,
-     $     nbf_vecs,nsets,nmos,2))
+     $     scftypevecs, nbf_vecs,nsets,nmos,2))
      $     call errquit('mp2_grad: problem with movecs_read_header',1)
       if(nbf.ne.nbf_vecs)call errquit('mp2: MO vectors mismatch?',0)
       nmo = nmos(1)

@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.29 1996-10-22 08:37:43 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.30 1997-02-13 01:21:11 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -21,6 +21,7 @@ c
        character*255 title
        character*255 movecs_in
        character*255 title_vecs, basis_vecs
+       character*20 scftype_vecs
        double precision nuclear_charge, charge
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
@@ -39,8 +40,8 @@ c
        double precision tpass, ttotal, scf_energy
        character*7 algo
 c
-       logical movecs_read_header, movecs_read, movecs_write
-       external movecs_read_header, movecs_read, movecs_write
+       logical movecs_read_header, movecs_read
+       external movecs_read_header, movecs_read
        integer ga_create_atom_blocked
        external ga_create_atom_blocked
        integer ga_create_JKblocked
@@ -150,7 +151,7 @@ c Read in MO coefficients
 c
        g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
        if (.not. movecs_read_header(movecs_in, title_vecs,
-     $    basis_vecs, nbf_vecs, nsets, nmo, 2))
+     $    basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
      $    call errquit('direct_mp2: cannot read MO vectors header',0)
        if (nbf.ne.nbf_vecs)
      $    call errquit(

@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.15 1997-02-07 22:06:14 d3g681 Exp $
+c     $Id: grad_force.F,v 1.16 1997-02-13 01:20:44 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -78,9 +78,6 @@ C------------------------------------------------------------------------------
 
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-
-      logical movecs_read_header, movecs_read
-      external movecs_read_header, movecs_read
 
       integer g_dens,           ! density matrices(up to 6)
      $     g_wdens,             ! energy weighted density

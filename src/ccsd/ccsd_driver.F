@@ -46,6 +46,7 @@ C
        Logical OUseSym, OBlk
        Integer MaxBfSh
        Character*80 CC_Theory
+       character*20 scftype_vecs
 capr
       integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
       common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
@@ -71,8 +72,8 @@ c
 c
 c
 c
-       logical movecs_read_header, movecs_read, movecs_write
-       external movecs_read_header, movecs_read, movecs_write
+       logical movecs_read_header, movecs_read
+       external movecs_read_header, movecs_read
        integer ga_create_atom_blocked
        external ga_create_atom_blocked
        integer ga_create_JKblocked
@@ -136,7 +137,7 @@ c Read in MO coefficients
 c
        g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
        if (.not. movecs_read_header(movecs_in, title_vecs,
-     $    basis_vecs, nbf_vecs, nsets, nmo, 2))
+     $    basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
      $    call errquit('ccsddriver: cannot read MO vectors header',0)
        if (nbf.ne.nbf_vecs)
      $    call errquit(

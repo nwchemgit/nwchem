@@ -31,6 +31,7 @@ c
       external file_write_ga,file_read_ga
       integer vlen, nvirt, nmos(2), nbf_vecs, nsets
       character*255 title_vecs, basis_vecs
+      character*20 scftype_vecs
       logical movecs_read_header
       external movecs_read_header
 c
@@ -59,7 +60,7 @@ c
 c     Get the MO vectors
 c
       if(.not.movecs_read_header(movecs_in,title_vecs,basis_vecs,
-     $     nbf_vecs,nsets,nmos,2))
+     $     scftype_vecs, nbf_vecs,nsets,nmos,2))
      $     call errquit('cphf: problem with movecs_read_header',1)
       if(nbf.ne.nbf_vecs)call errquit('cphf: MO vectors mismatch?',0)
       nmo = nmos(1)

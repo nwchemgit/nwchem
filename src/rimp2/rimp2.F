@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.31 1996-09-22 18:40:42 d3g681 Exp $
+C$Id: rimp2.F,v 1.32 1997-02-13 01:22:27 d3g681 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -54,6 +54,7 @@ C
       Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner
       Character*(80) Title, SCFBasNam, FNVec, FNInt, String, Approx
+      character*20 scftype
       Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
       Logical Status
       Character*(1) Mem_Opt
@@ -159,7 +160,8 @@ C
 C     Check MOVecs file for number of spin cases, and the number of MOs
 C     contained.
 C
-      If ( .NOT.  MOVecs_Read_Header(FNVec, Title, SCFBasNam, NAOBF,
+      If ( .NOT.  MOVecs_Read_Header(FNVec, Title, SCFBasNam, 
+     $     scftype, NAOBF,
      $   RefSpin, RefNMO, MaxSpin) )
      $   Call ErrQuit('RIMP2: Unable to open SCF eigenvectors', 0)
 C

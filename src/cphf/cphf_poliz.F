@@ -14,6 +14,7 @@ c
      $     file_read_ga
       character*(nw_max_path_len) movecs, fname
       character*10 scftype
+      character*20 scftype_vecs
       character*255 title_vecs, basis_vecs, title
       integer nbf, nbf_vecs, nsets, nmos(2), nmo
       integer noa, nob, nva, nvb, nvirt, nclosed, nopen
@@ -46,7 +47,7 @@ c
      $     call errquit('cphf_poliz: could not get nbf',0)
 c
       if(.not.movecs_read_header(movecs,title_vecs,basis_vecs,
-     $     nbf_vecs,nsets,nmos,2))
+     $     scftype_vecs, nbf_vecs,nsets,nmos,2))
      $     call errquit('cphf_poliz: problem with movecs_read_header',1)
       if(nbf.ne.nbf_vecs)call errquit('cphf: MO vectors mismatch?',0)
       nmo = nmos(1)

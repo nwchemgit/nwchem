@@ -303,6 +303,7 @@ C      integer nclosed, nact
       character*255 title_vecs, bas_vecs       ! Basis names from movecs_in
       character*255 trans, name                ! Basis names from rtdb
       character*255 movecs_in                  ! Input/output filenames
+      character*20 scftype_vecs
       integer i, nbf_vecs, nsets, nmo_vecs(2)
       integer l_oph, k_oph
       integer l_v, k_v
@@ -377,6 +378,7 @@ c  Read vectors from file movecs_in and see if
 c  they make sense
 c
          status = movecs_read_header( movecs_in, title_vecs, bas_vecs,
+     $        scftype_vecs,
      $                                nbf_vecs, nsets, nmo_vecs, 2)
          if (status) then
 c     
@@ -505,6 +507,7 @@ c     local variables
 c
       character*255 title_vecs, bas_vecs       ! Names from movecs_in
       character*255 trans, name                ! Basis names from rtdb
+      character*20 scftype_vecs
       character*255 v_in                       ! Input filename
       integer nbf_vecs, nsets, nmo, nmo_vecs(2)
       logical status
@@ -533,6 +536,7 @@ c  Read vectors from file v_in and see if
 c  they make sense
 c
       status = movecs_read_header( v_in, title_vecs, bas_vecs,
+     $     scftype_vecs,
      $                             nbf_vecs, nsets, nmo_vecs, 2)
       if (status) then
 c     
@@ -582,7 +586,6 @@ c
 c     local variables
 c
       character*255 title_vecs                 ! Title
-      character*255 trans, name                ! Basis names from rtdb
       character*255 v_out                 ! Output filename
       integer nset, nmo
 c
@@ -607,8 +610,6 @@ c
 c
       if (.not. rtdb_cget(rtdb, 'title', 1, title_vecs))
      $     title_vecs = ' '
-      if (.not. bas_name(basis, name, trans))
-     $     call errquit('scf_init: bas_name?', 0)
 c
 c
 c
@@ -617,8 +618,8 @@ c
 c
 c
 c
-      if (.not. movecs_write(v_out, title_vecs, trans,
-     $   nbf, nset, nmo, occ, nbf, evals, nbf, g_movecs ))
+      if (.not. movecs_write(rtdb, basis, v_out, 'mcscf',
+     $     title_vecs, nbf, nset, nmo, occ, nbf, evals, nbf, g_movecs ))
      $   call errquit('mcscf_movecs_write: movecs_write failed', 0)
       return
       end
@@ -633,7 +634,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.20 1997-02-07 22:06:52 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.21 1997-02-13 01:21:05 d3g681 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -724,7 +725,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.20 1997-02-07 22:06:52 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.21 1997-02-13 01:21:05 d3g681 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)

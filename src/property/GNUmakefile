@@ -12,6 +12,8 @@ include ../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(wnbofile.o):	$(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(prop_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
-$(LIBRARY_PATH)(prop.o):	$(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(scf_property.o):	../include/util.fh ../include/stdio.fh ../include/rtdb.fh ../include/mafdecls.fh ../include/global.fh ../include/geom.fh ../include/cfock.fh ../include/bas.fh 
+$(LIBRARY_PATH)(prp.o):	../include/stdio.fh ../include/rtdb.fh ../include/mafdecls.fh ../include/global.fh 
+$(LIBRARY_PATH)(prop_input.o):	../include/rtdb.fh ../include/mafdecls.fh ../include/inp.fh ../include/context.fh 
+$(LIBRARY_PATH)(wnbofile.o):	../include/stdio.fh ../include/rtdb.fh ../include/mafdecls.fh ../include/global.fh ../include/geom.fh ../include/bas.fh 
+$(LIBRARY_PATH)(prop.o):	../include/stdio.fh ../include/rtdb.fh ../include/mafdecls.fh ../include/global.fh ../include/context.fh 

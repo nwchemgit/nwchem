@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.15 1996-10-23 05:09:57 d3g681 Exp $
+C     $Id: moints_full.F,v 1.16 1997-02-13 01:21:14 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -57,6 +57,7 @@ c
       parameter (moints_unit=1)
       integer geom, basis
       character*255 title_vecs, basis_vecs, title
+      character*20 scftype_vecs
       integer nbf_vecs, nmo(2), nsets
       integer k_occ, l_occ, k_evals, l_evals, g_vecs, k_g, l_g
       integer k_irs, l_irs, k_map, l_map, l_work, k_work
@@ -73,8 +74,8 @@ c
       character*7 algo
       character*10 intfmt
 c     
-      logical movecs_read_header, movecs_read, movecs_write
-      external movecs_read_header, movecs_read, movecs_write
+      logical movecs_read_header, movecs_read
+      external movecs_read_header, movecs_read
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       integer ga_create_JKblocked
@@ -122,7 +123,7 @@ c
      $        call util_file_name('movecs',.false.,.false.,movecs_in)
       endif
       if (.not. movecs_read_header(movecs_in, title_vecs,
-     $     basis_vecs, nbf_vecs, nsets, nmo, 2))
+     $     basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
      $     call errquit('moints: cannot read MO vectors header',0)
       if (nbf.ne.nbf_vecs) call errquit
      $     ('moints: number of basis fun does not match input',0)

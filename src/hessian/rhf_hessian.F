@@ -8940,158 +8940,158 @@ C
 C     ------ SUBROUTINES TAKEN FROM DER.F IN HONDO ------
 C
 C     ------ SUBSTITUTE BY NWCHEM ------
-      SUBROUTINE LGRDDM(D,V,E,EIJ,T,IA,NDIM)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (MXATOM=500)
-      CHARACTER*8 ERRMSG
-      CHARACTER*8 WFNTYP,SCFTYP
-      CHARACTER*8 RHF,UHF,GVB,SCF,WFNMC,WFNCI,WFNMP2,WFNMP4
-      LOGICAL OUT
-      COMMON/IOFILE/IR,IW
-      COMMON/DAFILE/IDAF,NAV,IODA(255)
-      COMMON/INFOA/NAT,ICH,MUL,NUM,NX,NE,NA,NB,ZAN(MXATOM),
-     1                                         C(3,MXATOM)
-      COMMON/SCFWFN/CICOEF(2,12),F(25),ALPHA(325),BETA(325),
-     1 NO(10),NCO,NSETO,NPAIR
-      COMMON/SCFOPT/SCFTYP
-      COMMON/WFNOPT/WFNTYP
-      COMMON/QMTOPT/QMTTOL,NQMT
-      COMMON/ MCPAR/NFZC,NCORBS,NCI
-      DIMENSION EIJ(NDIM,1),T(1),IA(1)
-      DIMENSION V(NDIM,1),D(1),E(1)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-LGRDDM-'/
-      DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
-      DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
-      DATA RHF    /'RHF     '/
-      DATA UHF    /'UHF     '/
-      DATA GVB    /'GVB     '/
-      DATA SCF    /'SCF     '/
-      DATA WFNMC  /'MC      '/
-      DATA WFNCI  /'CI      '/
-      DATA WFNMP2 /'MP2     '/
-      DATA WFNMP4 /'MP4     '/
-C
-      OUT =.FALSE.
-      NUM2=(NUM*(NUM+1))/2
-      NUM3= NUM* NUM
-C
-      IF(WFNTYP.NE.SCF                  ) GO TO 100
-      IF(SCFTYP.EQ.GVB                  ) GO TO 100
-      IF(SCFTYP.EQ.RHF.AND.NSETO.GT.0   ) GO TO 100
-C
-C     ----- CLOSED-SHELL OR -UHF- CASE -----
-C
-      OCC=ONE
-      IF(SCFTYP.NE.UHF) OCC=TWO
-      CALL HND_DAREAD(IDAF,IODA,V,NUM3,15)
-      CALL HND_DAREAD(IDAF,IODA,E,NUM ,17)
-C
-      IJ=0
-      DO 20 I=1,NUM
-         DO 20 J=1,I
-            IJ=IJ+1
-            DUM=ZERO
-            DO 10 K=1,NA
-   10          DUM=DUM-E(K)*V(I,K)*V(J,K)
-   20       D(IJ)=DUM*OCC
-C
-      IF(SCFTYP.EQ.UHF) THEN
-         CALL HND_DAREAD(IDAF,IODA,V,NUM3,19)
-         CALL HND_DAREAD(IDAF,IODA,E,NUM ,21)
-         IJ=0
-         DO 40 I=1,NUM
-            DO 40 J=1,I
-               IJ=IJ+1
-               DUM=ZERO
-               DO 30 K=1,NB
-   30             DUM=DUM-E(K)*V(I,K)*V(J,K)
-   40          D(IJ)=D(IJ)+DUM*OCC
-      ENDIF
-C
-      IF(OUT) THEN
-         WRITE(IW,9998)
-         CALL HND_PRTRL(D,NUM)
-      ENDIF
-      RETURN
-C
-  100 IF(WFNTYP.EQ.WFNCI.OR.WFNTYP.EQ.WFNMP2
-     1                  .OR.WFNTYP.EQ.WFNMP4) GO TO 200
-C
-C     -----       -ROHF- OR -GVB- OR -MCHF- CASE           -----
-C     ----- IF -NFZC- .NE.0 ( ORBITALS ARE NOT OPTIMIZED ) -----
-C           THE GRADIENT CANNOT BE DONE PRESENTLY.
-C
-      IF(NFZC.NE.0) THEN
-         WRITE(IW,9999)
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF
-C
-      CALL HND_DAREAD(IDAF,IODA,  V,NUM3,15)
-      CALL HND_DAREAD(IDAF,IODA,EIJ,NUM3,22)
-      NORB=NA
-      IF(WFNTYP.EQ.WFNMC) NORB=NCORBS+NCI
-      IF(OUT) THEN
-         WRITE(IW,9997)
-         CALL HND_PRSQL(V,NORB,NUM,NDIM)
-         WRITE(IW,9996)
-         CALL HND_PRSQ(EIJ,NORB,NQMT,NDIM)
-      ENDIF
-C
-C     ----- CALCULATE - C * E * C(T) - -----
-C
-      DO 110 IJ=1,NUM2
-  110    D(IJ)=ZERO
-      DO 150 I=1,NUM
-         DO 130 L=1,NORB
-            DUM=ZERO
-            DO 120 K=1,NORB
-  120          DUM=DUM+V(I,K)*EIJ(K,L)
-  130       T(L)=DUM
-      DO 150 J=1,NUM
-         II=MAX0(I,J)
-         JJ=MIN0(I,J)
-         IJ=IA(II)+JJ
-         DUM=ZERO
-         DO 140 L=1,NORB
-  140       DUM=DUM+T(L)*V(J,L)
-         D(IJ)=D(IJ)-DUM*PT5
-  150    CONTINUE
-C
-C     -----             -MP- OR -CI- WAVEFUNCTIONS              -----
-C     ----- TOTAL ENERGY-WEIGHTED DENSITY IS ALREADY CALCULATED -----
-C
-  200 IF(WFNTYP.EQ.WFNCI ) THEN
-         WRITE(IW,9999)
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF
-      IF(WFNTYP.EQ.WFNMP4) THEN
-         WRITE(IW,9999)
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF
-
-C     ----- -MP- WAVEFUNCTIONS -----
-
-      IF(WFNTYP.EQ.WFNMP2) THEN
-         CALL HND_DAREAD(IDAF,IODA,D,NUM2,111)
-      ENDIF
-C
-      IF(OUT) THEN
-         WRITE(IW,9998)
-         CALL HND_PRTR(D,NUM)
-c        CALL HND_PRTRL(D,NUM)
-      ENDIF
-      RETURN
- 9999 FORMAT(' THERE ARE FROZEN CORE ORBITALS IN THE MCSCF.',/,
-     1       ' OR ELSE THIS IS A -CI- OR -MP4- WAVEFUNCTION.',/,
-     2       ' IN ANY CASE THE GRADIENT CAN NOT BE COMPUTED PRESENTLY')
- 9998 FORMAT(/,' -D- IN -LGRDDM- ')
- 9997 FORMAT(/,' -V- IN -LGRDDM- ')
- 9996 FORMAT(/,' -EIJ- IN -LGRDDM- ')
-      END
-C
+c$$$      SUBROUTINE LGRDDM(D,V,E,EIJ,T,IA,NDIM)
+c$$$      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c$$$      PARAMETER (MXATOM=500)
+c$$$      CHARACTER*8 ERRMSG
+c$$$      CHARACTER*8 WFNTYP,SCFTYP
+c$$$      CHARACTER*8 RHF,UHF,GVB,SCF,WFNMC,WFNCI,WFNMP2,WFNMP4
+c$$$      LOGICAL OUT
+c$$$      COMMON/IOFILE/IR,IW
+c$$$      COMMON/DAFILE/IDAF,NAV,IODA(255)
+c$$$      COMMON/INFOA/NAT,ICH,MUL,NUM,NX,NE,NA,NB,ZAN(MXATOM),
+c$$$     1                                         C(3,MXATOM)
+c$$$      COMMON/SCFWFN/CICOEF(2,12),F(25),ALPHA(325),BETA(325),
+c$$$     1 NO(10),NCO,NSETO,NPAIR
+c$$$      COMMON/SCFOPT/SCFTYP
+c$$$      COMMON/WFNOPT/WFNTYP
+c$$$      COMMON/QMTOPT/QMTTOL,NQMT
+c$$$      COMMON/ MCPAR/NFZC,NCORBS,NCI
+c$$$      DIMENSION EIJ(NDIM,1),T(1),IA(1)
+c$$$      DIMENSION V(NDIM,1),D(1),E(1)
+c$$$      DIMENSION ERRMSG(3)
+c$$$      DATA ERRMSG /'PROGRAM ','STOP IN ','-LGRDDM-'/
+c$$$      DATA ZERO   /0.0D+00/
+c$$$      DATA PT5    /0.5D+00/
+c$$$      DATA ONE    /1.0D+00/
+c$$$      DATA TWO    /2.0D+00/
+c$$$      DATA RHF    /'RHF     '/
+c$$$      DATA UHF    /'UHF     '/
+c$$$      DATA GVB    /'GVB     '/
+c$$$      DATA SCF    /'SCF     '/
+c$$$      DATA WFNMC  /'MC      '/
+c$$$      DATA WFNCI  /'CI      '/
+c$$$      DATA WFNMP2 /'MP2     '/
+c$$$      DATA WFNMP4 /'MP4     '/
+c$$$C
+c$$$      OUT =.FALSE.
+c$$$      NUM2=(NUM*(NUM+1))/2
+c$$$      NUM3= NUM* NUM
+c$$$C
+c$$$      IF(WFNTYP.NE.SCF                  ) GO TO 100
+c$$$      IF(SCFTYP.EQ.GVB                  ) GO TO 100
+c$$$      IF(SCFTYP.EQ.RHF.AND.NSETO.GT.0   ) GO TO 100
+c$$$C
+c$$$C     ----- CLOSED-SHELL OR -UHF- CASE -----
+c$$$C
+c$$$      OCC=ONE
+c$$$      IF(SCFTYP.NE.UHF) OCC=TWO
+c$$$      CALL HND_DAREAD(IDAF,IODA,V,NUM3,15)
+c$$$      CALL HND_DAREAD(IDAF,IODA,E,NUM ,17)
+c$$$C
+c$$$      IJ=0
+c$$$      DO 20 I=1,NUM
+c$$$         DO 20 J=1,I
+c$$$            IJ=IJ+1
+c$$$            DUM=ZERO
+c$$$            DO 10 K=1,NA
+c$$$   10          DUM=DUM-E(K)*V(I,K)*V(J,K)
+c$$$   20       D(IJ)=DUM*OCC
+c$$$C
+c$$$      IF(SCFTYP.EQ.UHF) THEN
+c$$$         CALL HND_DAREAD(IDAF,IODA,V,NUM3,19)
+c$$$         CALL HND_DAREAD(IDAF,IODA,E,NUM ,21)
+c$$$         IJ=0
+c$$$         DO 40 I=1,NUM
+c$$$            DO 40 J=1,I
+c$$$               IJ=IJ+1
+c$$$               DUM=ZERO
+c$$$               DO 30 K=1,NB
+c$$$   30             DUM=DUM-E(K)*V(I,K)*V(J,K)
+c$$$   40          D(IJ)=D(IJ)+DUM*OCC
+c$$$      ENDIF
+c$$$C
+c$$$      IF(OUT) THEN
+c$$$         WRITE(IW,9998)
+c$$$         CALL HND_PRTRL(D,NUM)
+c$$$      ENDIF
+c$$$      RETURN
+c$$$C
+c$$$  100 IF(WFNTYP.EQ.WFNCI.OR.WFNTYP.EQ.WFNMP2
+c$$$     1                  .OR.WFNTYP.EQ.WFNMP4) GO TO 200
+c$$$C
+c$$$C     -----       -ROHF- OR -GVB- OR -MCHF- CASE           -----
+c$$$C     ----- IF -NFZC- .NE.0 ( ORBITALS ARE NOT OPTIMIZED ) -----
+c$$$C           THE GRADIENT CANNOT BE DONE PRESENTLY.
+c$$$C
+c$$$      IF(NFZC.NE.0) THEN
+c$$$         WRITE(IW,9999)
+c$$$         CALL HND_HNDERR(3,ERRMSG)
+c$$$      ENDIF
+c$$$C
+c$$$      CALL HND_DAREAD(IDAF,IODA,  V,NUM3,15)
+c$$$      CALL HND_DAREAD(IDAF,IODA,EIJ,NUM3,22)
+c$$$      NORB=NA
+c$$$      IF(WFNTYP.EQ.WFNMC) NORB=NCORBS+NCI
+c$$$      IF(OUT) THEN
+c$$$         WRITE(IW,9997)
+c$$$         CALL HND_PRSQL(V,NORB,NUM,NDIM)
+c$$$         WRITE(IW,9996)
+c$$$         CALL HND_PRSQ(EIJ,NORB,NQMT,NDIM)
+c$$$      ENDIF
+c$$$C
+c$$$C     ----- CALCULATE - C * E * C(T) - -----
+c$$$C
+c$$$      DO 110 IJ=1,NUM2
+c$$$  110    D(IJ)=ZERO
+c$$$      DO 150 I=1,NUM
+c$$$         DO 130 L=1,NORB
+c$$$            DUM=ZERO
+c$$$            DO 120 K=1,NORB
+c$$$  120          DUM=DUM+V(I,K)*EIJ(K,L)
+c$$$  130       T(L)=DUM
+c$$$      DO 150 J=1,NUM
+c$$$         II=MAX0(I,J)
+c$$$         JJ=MIN0(I,J)
+c$$$         IJ=IA(II)+JJ
+c$$$         DUM=ZERO
+c$$$         DO 140 L=1,NORB
+c$$$  140       DUM=DUM+T(L)*V(J,L)
+c$$$         D(IJ)=D(IJ)-DUM*PT5
+c$$$  150    CONTINUE
+c$$$C
+c$$$C     -----             -MP- OR -CI- WAVEFUNCTIONS              -----
+c$$$C     ----- TOTAL ENERGY-WEIGHTED DENSITY IS ALREADY CALCULATED -----
+c$$$C
+c$$$  200 IF(WFNTYP.EQ.WFNCI ) THEN
+c$$$         WRITE(IW,9999)
+c$$$         CALL HND_HNDERR(3,ERRMSG)
+c$$$      ENDIF
+c$$$      IF(WFNTYP.EQ.WFNMP4) THEN
+c$$$         WRITE(IW,9999)
+c$$$         CALL HND_HNDERR(3,ERRMSG)
+c$$$      ENDIF
+c$$$
+c$$$C     ----- -MP- WAVEFUNCTIONS -----
+c$$$
+c$$$      IF(WFNTYP.EQ.WFNMP2) THEN
+c$$$         CALL HND_DAREAD(IDAF,IODA,D,NUM2,111)
+c$$$      ENDIF
+c$$$C
+c$$$      IF(OUT) THEN
+c$$$         WRITE(IW,9998)
+c$$$         CALL HND_PRTR(D,NUM)
+c$$$c        CALL HND_PRTRL(D,NUM)
+c$$$      ENDIF
+c$$$      RETURN
+c$$$ 9999 FORMAT(' THERE ARE FROZEN CORE ORBITALS IN THE MCSCF.',/,
+c$$$     1       ' OR ELSE THIS IS A -CI- OR -MP4- WAVEFUNCTION.',/,
+c$$$     2       ' IN ANY CASE THE GRADIENT CAN NOT BE COMPUTED PRESENTLY')
+c$$$ 9998 FORMAT(/,' -D- IN -LGRDDM- ')
+c$$$ 9997 FORMAT(/,' -V- IN -LGRDDM- ')
+c$$$ 9996 FORMAT(/,' -EIJ- IN -LGRDDM- ')
+c$$$      END
+c$$$C
       SUBROUTINE HND_JKDSET(MDER)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
@@ -15639,7 +15639,7 @@ C
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c$Id: rhf_hessian.F,v 1.4 1997-02-06 07:04:21 d3j191 Exp $
+c$Id: rhf_hessian.F,v 1.5 1997-02-13 01:20:56 d3g681 Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
