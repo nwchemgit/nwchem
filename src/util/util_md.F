@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.1 1999-02-16 17:49:10 d3j191 Exp $
+c $Id: util_md.F,v 1.2 1999-02-20 18:58:36 d3j191 Exp $
 c
       implicit none
 c
@@ -387,5 +387,88 @@ c
       call time(now(1:8))
       now(9:10)='  '
 #endif
+      return
+      end
+      subroutine matinv(a,n,ndim)
+c
+      implicit none
+c
+      integer maxdim
+      real*8 zero,small,one
+      parameter(maxdim=3)
+      parameter(zero=0.0d0)
+      parameter(small=1.0d-6)
+      parameter(one=1.0d0)
+c
+      integer n,ndim
+      real*8 a(ndim,ndim)
+      integer ia(2,maxdim),ib(maxdim),ic(maxdim)
+      real*8 d(maxdim)
+c
+      integer idim,i,j,k,l,m
+      real*8 b,e
+c
+      if(ndim.gt.maxdim) call errquit('matinv dimension error',0)
+c
+      do 1 idim=1,n
+      ia(1,idim)=0
+      ia(2,idim)=0
+    1 continue
+c
+      do 9 idim=1,n
+      b=zero
+      do 3 l=1,n
+      do 4 m=1,n
+      if(ia(1,l).ne.1.and.ia(2,m).ne.1) then
+      e=dabs(a(l,m))
+      if(e.ge.b) then
+      i=l
+      k=m
+      endif
+    8 b=dmax1(b,e)
+      endif
+    4 continue
+    3 continue
+      ia(1,i)=1
+      ia(2,k)=1
+      ib(k)=i
+      ic(i)=k
+      b=a(i,k)
+c
+      if(dabs(b).lt.small) call errquit('arg_matinv singular matrix',0)
+      a(i,k)=one/b
+      do 6 l=1,n
+      if(l.ne.k) a(i,l)=-a(i,l)/b
+  6   continue
+      do 5 l=1,n
+      do 7 m=1,n
+      if(l.ne.i.and.m.ne.k) a(l,m)=a(l,m)+a(l,k)*a(i,m)
+    7 continue
+  5   continue
+      do 11 l=1,n
+      if(l.ne.i) a(l,k)=a(l,k)/b
+  11  continue
+  9   continue
+c
+      do 15 l=1,n
+      do 13 j=1,n
+      k=ib(j)
+      d(j)=a(k,l)
+   13 continue
+      do 14 j=1,n
+      a(j,l)=d(j)
+   14 continue
+  15  continue
+c
+      do 16 l=1,n
+      do 17 j=1,n
+      k=ic(j)
+      d(j)=a(l,k)
+   17 continue
+      do 18 j=1,n
+      a(l,j)=d(j)
+   18 continue
+  16  continue
+c
       return
       end
