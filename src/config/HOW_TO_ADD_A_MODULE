@@ -72,7 +72,6 @@ selci|moints|-lselci|selci selci_input
 moints|NWints|-lmoints|atwtest
 nwdft|ddscf NWints|-lnwdft|nwdft dft_input
 rimp2|ddscf NWints|-lrimp2|rimp2
-riscf|rimp2 ddscf NWints|-lriscf|ri_scf
 stepper|gradients|-lstepper|scf_optimize stepper_input
 symmetry||-lutil|
 ideaz||-lideaz|mdmain md_input

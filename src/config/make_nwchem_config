@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.29 1996-03-12 21:49:06 d3g681 Exp $
+# $Id: make_nwchem_config,v 1.30 1996-03-14 23:00:15 vg038 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -28,7 +28,7 @@ MODULES := $(NWCHEM_MODULES)
 EXPANSIONS = all qm md qmmd argos
 
 EXP_all = $(filter-out nwargos ideaz scfaux cphf plane_wave,$(KNOWN_MODULE_SUBDIRS) )
-EXP_qm  = NWints atomscf ddscf gradients moints mp2_grad nwdft rimp2 riscf \
+EXP_qm  = NWints atomscf ddscf gradients moints mp2_grad nwdft rimp2 \
 	stepper symmetry ccsd vib mcscf plane_wave
 EXP_argos = nwargos
 EXP_md  = ideaz
@@ -76,7 +76,6 @@ MODULES := $(patsubst moints,moints ddscf NWints,$(MODULES) )
 MODULES := $(patsubst cphf,cphf ddscf,$(MODULES) )
 MODULES := $(patsubst scfaux,scfaux ddscf,$(MODULES) )
 
-MODULES := $(patsubst riscf,riscf rimp2 ddscf NWints,$(MODULES) )
 MODULES := $(patsubst rimp2,rimp2 ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
@@ -109,7 +108,6 @@ MOD_LIBS := $(patsubst mcscf,-lmcscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst moints,-lmoints,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwdft,-lnwdft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst rimp2,-lrimp2,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst riscf,-lriscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst stepper,-lstepper,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst symmetry,-lutil,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ideaz,-lideaz,$(MOD_LIBS) )
@@ -138,7 +136,6 @@ STUBROUTINES := $(patsubst mcscf,mcscf,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwdft,nwdft dft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst riscf,ri_scf,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst stepper,stpr_walk scf_optimize dft_optimize stepper_input scf_freq dft_freq eopt,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst symmetry,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ideaz,mdmain md_input,$(STUBROUTINES) )
