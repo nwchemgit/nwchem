@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.34 1999-05-09 19:16:22 d3g681 Exp $
+#$Id: GNUmakefile,v 1.35 1999-05-10 08:26:22 d3e129 Exp $
 
  LIBRARY = libutil.a
 
@@ -9,7 +9,7 @@
 
  HEADERS = geom.fh geomP.fh
 
- USES_BLAS = geom.F geom_input.F geom_print_ecce.F
+ USES_BLAS = geom.F geom_input.F geom_print_ecce.F geom_hnd.F
 
 include ../config/makefile.h
 include ../config/makelib.h
