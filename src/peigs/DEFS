@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.95 2003-02-19 18:19:23 fruechtl Exp $
+# $Id: DEFS,v 1.96 2003-07-07 22:49:10 edo Exp $
 #
 #======================================================================
 #
@@ -527,6 +527,21 @@ endif
      peigs_FC  += -DSTD_INT
   endif
 endif
+endif
+
+ifeq ($(_CPU),x86_64)
+#ia64 with /tcgmsg
+peigs_CPU  = PENTIUM
+peigs_COMM = TCGMSG
+peigs_CPP =  $(CPP) -D${CPU} -DSTD_DBL
+peigs_CODEOBJ = DBLE
+peigs_CC  += -DSTD_DBL 
+peigs_FC +=  -DSTD_DBL    -D$(peigs_COMM)  -D$(peigs_CPU)
+  ifdef USE_INTEGER4
+     peigs_CPP += -DSTD_INT
+     peigs_CC  += -DSTD_INT
+     peigs_FC  += -DSTD_INT
+  endif
 endif
 
 ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX CYGWIN CYGNUS))
