@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.77 1994-11-10 23:46:40 gg502 Exp $
+# $Id: makefile.h,v 1.78 1994-11-11 01:00:40 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -345,7 +345,7 @@ ifeq ($(TARGET),IBM)
 # note: using only source blas.
 #
 
-    SUBDIRS_EXTRA = lapack blas
+    SUBDIRS_EXTRA = 
          FC = xlf
     ARFLAGS = urs
      RANLIB = echo
@@ -360,7 +360,7 @@ ifeq ($(TARGET),IBM)
 
     DEFINES = -DIBM -DEXTNAM 
 
-       LIBS = /usr/lib/libblas.a /msrc/apps/lib/liblapack.a -L$(LIBDIR) $(LIBPATH) \
+       LIBS = -L/usr/lib -L/msrc/apps/lib -L$(LIBDIR) $(LIBPATH) \
               -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
 	      -lstepper -lmoints \
               -lguess -lglobal -lutil \
