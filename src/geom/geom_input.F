@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C$Id: geom_input.F,v 1.17 1995-02-07 00:10:49 d3g681 Exp $
+C$Id: geom_input.F,v 1.18 1995-03-01 19:56:49 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -60,7 +60,7 @@ c
 c     
       units = 'atomic units'
       name  = ' '
-      oprint = .false.
+      oprint = .true.           ! Default is to print the geometry
       osymmetry = .true.
       oprint_sym = .false.
       include_bqbq = .false.

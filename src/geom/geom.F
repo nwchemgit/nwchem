@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.32 1995-02-07 00:10:40 d3g681 Exp $
+C$Id: geom.F,v 1.33 1995-03-01 19:56:46 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -440,7 +440,7 @@ c
          do j = i+1, ncenter(geom)
             j_is_atom = geom_tag_to_element(tags(j,geom),
      $           symj, elj, atnj)
-            if (include_bqbq(geom) .or. (i_is_atom.and.j_is_atom)) then
+            if (include_bqbq(geom) .or. (i_is_atom.or.j_is_atom)) then
 
                r = dsqrt(
      $              (coords(1,i,geom)-coords(1,j,geom))**2 + 
