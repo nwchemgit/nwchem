@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin)
-* $Id: int_ecp.F,v 1.1 1996-09-30 19:29:36 d3e129 Exp $
+* $Id: int_ecp.F,v 1.2 1996-10-16 20:35:46 mg201 Exp $
       implicit none
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
@@ -211,6 +211,7 @@ c l_ecp currently has Lmax for ecp basis
       call ecp_init_c2s(lmax_both,
      &      dbl_mb(k_ecp_c2s),dbl_mb(k_ecp_c2s),mem_c2s,1,1,.false.,
      &      idum)
+      call ecp_init_con
       int_ecp_init = .true.
       end
       subroutine int_ecp_terminate()
