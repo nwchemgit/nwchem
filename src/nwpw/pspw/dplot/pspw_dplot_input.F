@@ -1,5 +1,5 @@
 c
-c $Id: pspw_dplot_input.F,v 1.8 2003-10-17 22:57:15 carlfahl Exp $
+c $Id: pspw_dplot_input.F,v 1.9 2003-10-28 01:54:11 edo Exp $
 c
 
 
@@ -353,7 +353,7 @@ c
 
       if (.not. value)
      >   call errquit(
-     >    'pspw_dplot_input: translate_origin failed to read', 0)
+     >    'pspw_dplot_input: translate_origin failed to read',0,0)
 
       goto 10
 
