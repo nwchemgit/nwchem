@@ -1,6 +1,6 @@
       subroutine mcscf_input(rtdb)
 c
-c $Id: mcscf_input.F,v 1.7 1997-03-21 01:55:10 d3g681 Exp $
+c $Id: mcscf_input.F,v 1.8 1997-04-02 02:15:19 d3g681 Exp $
 c
       implicit none
 #include "inp.fh"
@@ -12,14 +12,14 @@ c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       integer num_profopt       ! No. of known profiling options
-      parameter (num_dirs = 16)
+      parameter (num_dirs = 17)
       parameter (num_profopt = 1)
       character*12 dirs(num_dirs)
       character*12 prof_opt(num_profopt)
       character*255 test, keyword
       double precision conv, levelshift, tol2e
       logical status
-      integer maxiter, nclosed, nact, multip, nel, pflg, statesym
+      integer maxiter, nact, multip, nel, pflg, statesym
       data dirs / 'thresh',
      $            'maxiter',
      $            'level',
@@ -35,6 +35,7 @@ c
      $            'print',
      $            'noprint',
      $            'lock',
+     $            'state',
      $            'end'/
       data prof_opt/ 'fock' /
 c
@@ -53,7 +54,7 @@ c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900, 1000,
-     $      1100, 1200, 1300, 1400, 1500,
+     $      1100, 1200, 1300, 1400, 1500, 1600,
      $      9999) ind
       call errquit('mcscf_input: unimplemented directive', ind)
 c     
@@ -175,6 +176,15 @@ c
      $     call errquit('mcscf_input: failed putting lock',0)
       goto 1001
 c
+c     state multiplictyxsym
+c
+ 1600 if (.not. inp_a(keyword)) call errquit
+     $     ('mcscf_input: failed reading the state',0)
+      if (.not. rtdb_cput(rtdb,'mcscf:state',1,keyword)) 
+     $     call errquit('mcscf_input: failed storing the state',0)
+      status = rtdb_delete(rtdb,'mcscf:statesymmetry') ! Delete alternate form
+      status = rtdb_delete(rtdb,'mcscf:multiplicity')
+      goto 1001
 c
 c
  9999 continue

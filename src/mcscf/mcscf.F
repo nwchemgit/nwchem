@@ -9,12 +9,14 @@
 #include "sym.fh"
 #include "pstat.fh"
 #include "mcscfprof.fh"
+#include "inp.fh"
 c     
       integer rtdb
 c     
       integer geom, basis
       integer nbf, nclosed, nvir, nact, noper, nsym
-      integer nactel, nela, nelb, multip, orlen
+      integer nactel, nela, nelb, multip, orlen, symstate
+      character*8 state
       integer l_occ, k_occ, l_sym, k_sym
       integer l_evals, k_evals
       integer l_dm1, k_dm1, l_dm2, k_dm2
@@ -45,6 +47,12 @@ c
 c     
       character*255 title, movecs_in
 c     
+      integer maxop, maxireps
+      parameter (maxop = 120, maxireps=20)
+      integer nop, nir,  class_dim(maxireps)
+      character*8 zir(maxireps), zclass(maxireps), zname
+      double precision chars(maxireps*maxireps)
+c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       integer ga_create_JKblocked
@@ -55,7 +63,10 @@ c
       external int_normalize
       logical moints_aodisk_init
       external moints_aodisk_init
+c
+      character*1 mchar(9)
 c     
+      data mchar/'1','2','3','4','5','6','7','8','9'/
       data ohalf/.true./
       data blen/25/
 c     
@@ -79,6 +90,10 @@ c
 c     Get w.f. parameters
 c     
       call mcscf_getinfo(rtdb, geom, basis, nbf, nclosed, nact )
+c
+      if (.not. sym_abelian_group(geom)) call errquit
+     $     ('mcscf: the molecular point group is not abelian',0)
+c
       nvir = nbf - nclosed - nact
       orlen = (nclosed*nvir) + (nact*nvir) + (nclosed*nact)
       nsym = sym_number_ops(geom)+1
@@ -92,14 +107,35 @@ c
 c
       if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
      $     tol2e = 1.d-9       ! Redundant recovered later
+c
+      call sym_group_name(geom,zname)
+      if (.not. sym_char_table(zname, nop, nir, class_dim,
+     $     zir, zclass, chars)) call errquit
+     $     ('mcscf: failed to get character table info',0)
 c     
-c     Get electron and spin multiplicity (NB: for info only)
+c     Get electron and spin multiplicity (NB: for info only) and symm
 c     Active elec and multiplicity must be set --- no defaults
 c     
+      if (rtdb_cget(rtdb,'mcscf:state',1,state)) then
+        do multip = 1,9
+	   if (state(1:1).eq.mchar(multip)) goto 656
+        enddo
+	call errquit('mcscf: failed to parse multiplicity in state',0)
+656     do symstate = 1,nir
+	  if (inp_compare(.false.,state(2:),zir(symstate))) goto 657
+        enddo
+	call errquit('mcscf: failed to recognize irrep in state',0)
+ 657    if (.not.rtdb_put(rtdb,'mcscf:statesymmetry',MT_INT,1,symstate))
+     $     call errquit('mcscf: rtdb put of state sym?',0)
+        if (.not.rtdb_put(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
+     $     call errquit('mcsf: rtdb put of spin multiplicity ?',0)
+      endif
+      if (.not.rtdb_get(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
+     $   call errquit('mcsf: rtdb get of spin multiplicity ?',0)
+      if (.not.rtdb_get(rtdb,'mcscf:statesymmetry',MT_INT,1,symstate))
+     $   symstate = 1
       if (.not.rtdb_get(rtdb,'mcscf:nactelec',MT_INT,1,nactel))
      $     call errquit('number of active electrons not set',0)
-      if (.not.rtdb_get(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
-     $     call errquit('spin multiplicity not set',0)
       nela = (nactel + multip - 1)/2
       nelb = nactel - nela
       if ((mod((nactel + multip - 1),2).ne.0).or.
@@ -155,7 +191,7 @@ c
             write(6,*)
             write(6,*)
          endif
-         write(6,901) nbf, nclosed, nact, nactel,
+         write(6,901) nbf, nclosed, nact, nactel,zir(symstate),
      $        multip, orlen
          if (oprhigh) write(6,902) (nclosed*nvir),(nact*nvir),
      $        (nclosed*nact)
@@ -164,6 +200,7 @@ c
      $        7x,'Inactive shells:',10x,i5,/,
      $        7x,'Active shells:',12x,i5,/,
      $        7x,'Active electrons:',9x,i5,/,
+     $        7x,'Symmetry:    ',16x,a,/,
      $        7x,'Multiplicity:',13x,i5,/,
      $        7x,'Orbital rotations:',8x,i5)
  902     format(12x,'Inact - Virt',9x,i5,/,
@@ -260,8 +297,8 @@ c
  551     format(6f13.6)
          write(6,887) 
  887     format(/,2x,'Orbital Symmetry Irreps')
-         write(6,888) (int_mb(k_sym+i),i=0,nbf-1)
- 888     format(25i3)
+         write(6,888) (zir(int_mb(k_sym+i)),i=0,nbf-1)
+ 888     format(15(a4,x))
       endif
       if (.not.ga_duplicate(g_movecs,g_hcore,'1e hamiltonian'))
      $     call errquit('mcscf: cannot dup MO vectors',0)

@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.37 1997-04-01 18:01:52 d3g681 Exp $
+c  $Id: mcscf_orb.F,v 1.38 1997-04-02 02:15:19 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -80,7 +80,7 @@ c
        logical odelta_core
        logical olsrchprint, ociprint
        logical ocivecprint, oprcndprint
-       logical oblk
+       logical oblk, obshift
        double precision micro_citol, citol
        double precision lshift, bshift
        double precision e0, eci
@@ -125,6 +125,8 @@ c
          if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,1,oblk))
      $      oblk = .false.
        endif
+       if (.not. rtdb_get(rtdb,'mcscf:obshift',mt_log, 1, obshift))
+     $      obshift = .true.
 c
 c  Allocate MO matrices
 c
@@ -201,7 +203,6 @@ c
        else
          lshift = 0.d0
        endif
-       bshift = lshift
 *       write(6,*) ' bshift ', bshift
 *       bshift = 0.d0
 c
@@ -232,6 +233,7 @@ c
      $                     g_coul, g_exch, g_movecs,
      $                     g_ifock, g_afock, g_gfock,
      $                     g_hdiag, g_kvec, g_srch, p_acc )
+c
        call mcscf_vsymm_chk( nbf, nclosed, nact, orbsym,
      $                       g_srch, .true., .false., maxx )
        if (maxx .gt. 1d-6) call errquit('mcscf_orb: large symmetry'//
@@ -360,6 +362,8 @@ c
 c   New energy and gradient
 c
          if (oe2approx) then
+            bshift = 0.0d0
+            if (obshift) bshift = 0.2d0 * lshift
            call mcscf_b( geom, basis, nbf, nclosed, nact, orbsym,
      $                   dm1, dm2, oskel, tol2e, bshift, g_movecs,
      $                   g_ifock, g_afock, g_coul, g_exch, g_u, g_b )
@@ -375,6 +379,7 @@ c
 c     Apply level shift of 0.5*bshift*T^2 to the energy, bshift*T to gradient
 c     Don't have T in a convenient form but we have K.
 c
+**           write(6,*) ' BSHIFT ', bshift
            call ga_dadd( bshift, g_kvec, 1.d0, g_grad, g_grad )
            knorm = ga_ddot(g_kvec, g_kvec)
            call ga_transpose( g_b, g_tmp )
