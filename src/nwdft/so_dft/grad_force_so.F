@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.1 2000-04-17 21:46:02 zzhang Exp $
+c     $Id: grad_force_so.F,v 1.2 2000-05-01 05:35:36 zzhang Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -343,7 +343,9 @@ C     local replication(separate for the different pieces)
 
 C     global density
 cso   
-      ndens = 5 !alpha, beta, x, y and z densities 
+      ndens = 6                 !alpha, beta, x, y and z densities
+                                !Re(Daa), Re(Dbb), 
+                                !Im(Daa), Im(Dbb), Re(Dab), Im(Dba)
       do i=1, ndens
          status = ga_create(mt_dbl,nbf,nbf,'density matrix', 0, 0, 
      &        g_dens(i))
@@ -423,9 +425,9 @@ C     occupation numbers
 c     
       call grad_active_atoms(rtdb, nat, log_mb(k_act), nactive)
 c
-cso   
-cso   call grad_dens_so to get the total (weighted) density
-cso     
+c     
+c     call grad_dens_so to get the total (weighted) density
+c     
       call grad_dens_so(geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
      $     nopen, nclosed, scftype, movecs_in, omp2, 
@@ -513,6 +515,11 @@ c
 C     two-electron contribution
 C     allocate arrays for two-electron integral stuff(or rename old ones)
 C     blocks of density matrix:
+      if(theory .eq. 'sodft' .and. xfac(1) .ne. 0)
+     &     call grad_dens_so2(geom, basis, g_dens,  
+     $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
+     $     nopen, nclosed, scftype, movecs_in, omp2, 
+     $     dbl_mb(k_pdm2), dbl_mb(k_coeff))
 
       lsqa = blen*blen
 
@@ -668,8 +675,112 @@ c
      $     int_mb(k_bfmap), int_mb(k_rbfmap), 
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
      $     jfac, kfac)
-      cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
-      wall_tim(2) = util_wallsec() - wall_tim(2)
+      if (theory .eq. 'sodft' .and. kfac.ne.0.0d0) then 
+c
+c     contribution from Im(Daa) and Im(Dbb)
+c
+         call ga_dadd(dble(1.0d0),g_dens(3),dble(1.0d0),g_dens(4),
+     &        g_dens(1))
+         call ga_dadd(dble(1.0d0),g_dens(3),dble(-1.0d0),g_dens(4),
+     &        g_dens(2))
+         call ga_symmetrize(g_dens(1))
+         call ga_symmetrize(g_dens(2))
+         call grad2(
+     $        dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
+     $        dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
+     $        dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),
+     $        dbl_mb(ld_jl2),dbl_mb(ld_il2),dbl_mb(ld_jk2),
+     $        dbl_mb(ld_ij3),dbl_mb(ld_kl3),dbl_mb(ld_ik3),
+     $        dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
+     $        dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
+     $        dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
+     $        dbl_mb(k_frc_2el), g_dens, g_force, blen,
+     $        geom, basis, nproc, nat, 
+     $        lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf), 
+     $        int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
+     $        tol2e, nsh, 
+     $        log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
+     $        dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
+     $        dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
+     $        nshblocks,
+     $        int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi), 
+     $        int_mb(k_bfglo), int_mb(k_bfghi), 
+     $        int_mb(k_bfmap), int_mb(k_rbfmap), 
+     $        int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
+     $        dble(0.0d0), dble(-1.0d0)*kfac)
+         cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
+         wall_tim(2) = util_wallsec() - wall_tim(2)
+c     
+c     contribution from Re(Dab) and Re(Dba)
+c     
+         call ga_transpose(g_dens(5),g_dens(3)) !5=Re(Dab),3=Re(Dba)
+         call ga_dadd(dble(1.0d0),g_dens(5),dble(1.0d0),g_dens(3),
+     &        g_dens(1))
+         call ga_dadd(dble(1.0d0),g_dens(5),dble(-1.0d0),g_dens(3),
+     &        g_dens(2))
+         call ga_symmetrize(g_dens(1))
+         call ga_symmetrize(g_dens(2))
+         call grad2(
+     $        dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
+     $        dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
+     $        dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),
+     $        dbl_mb(ld_jl2),dbl_mb(ld_il2),dbl_mb(ld_jk2),
+     $        dbl_mb(ld_ij3),dbl_mb(ld_kl3),dbl_mb(ld_ik3),
+     $        dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
+     $        dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
+     $        dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
+     $        dbl_mb(k_frc_2el), g_dens, g_force, blen,
+     $        geom, basis, nproc, nat, 
+     $        lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf), 
+     $        int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
+     $        tol2e, nsh, 
+     $        log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
+     $        dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
+     $        dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
+     $        nshblocks,
+     $        int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi), 
+     $        int_mb(k_bfglo), int_mb(k_bfghi), 
+     $        int_mb(k_bfmap), int_mb(k_rbfmap), 
+     $        int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
+     $        dble(0.0d0), dble(1.0d0)*kfac)
+         cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
+         wall_tim(2) = util_wallsec() - wall_tim(2)
+c     
+c     contribution from Im(Dab) and Im(Dba)
+c     
+         call ga_transpose(g_dens(6),g_dens(3)) !5=Im(Dab),3=Im(Dba)
+         call ga_dadd(dble(1.0d0),g_dens(6),dble(1.0d0),g_dens(3),
+     &        g_dens(1))
+         call ga_dadd(dble(1.0d0),g_dens(6),dble(-1.0d0),g_dens(3),
+     &        g_dens(2))
+         call ga_symmetrize(g_dens(1))
+         call ga_symmetrize(g_dens(2))
+         call grad2(
+     $        dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
+     $        dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
+     $        dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),
+     $        dbl_mb(ld_jl2),dbl_mb(ld_il2),dbl_mb(ld_jk2),
+     $        dbl_mb(ld_ij3),dbl_mb(ld_kl3),dbl_mb(ld_ik3),
+     $        dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
+     $        dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
+     $        dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
+     $        dbl_mb(k_frc_2el), g_dens, g_force, blen,
+     $        geom, basis, nproc, nat, 
+     $        lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf), 
+     $        int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
+     $        tol2e, nsh, 
+     $        log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
+     $        dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
+     $        dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
+     $        nshblocks,
+     $        int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi), 
+     $        int_mb(k_bfglo), int_mb(k_bfghi), 
+     $        int_mb(k_bfmap), int_mb(k_rbfmap), 
+     $        int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
+     $        dble(0.0d0), dble(-1.0d0)*kfac)
+         cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
+         wall_tim(2) = util_wallsec() - wall_tim(2)
+      endif
 c     
 c     terminate integrals
 c     
