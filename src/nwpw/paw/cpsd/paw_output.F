@@ -1,5 +1,5 @@
 *
-* $Id: paw_output.F,v 1.1 2003-02-22 01:54:27 marat Exp $
+* $Id: paw_output.F,v 1.2 2003-02-23 20:49:27 marat Exp $
 *
 
 *     ***********************************
@@ -21,7 +21,7 @@
       write(un,1453)
 
 *     *** kinetic energy ***
-      write(un,1431)
+      write(un,1431) E(2)+E(3),(E(2)+E(3))/nel
 *     *** plane wave  ***
       write(un,1432) E(2),E(2)/nel
 *     *** local basis ***
@@ -51,7 +51,7 @@
       write(un,1443) E(10),E(10)/nel
 
  1430 FORMAT(//' TOTAL ENERGY:              ',E19.10,' (',E15.5,'/ion)')
- 1431 FORMAT(/'  kinetic energy:')
+ 1431 FORMAT(/'  kinetic energy:           ',E19.10,' (',E15.5,'/ion)')
  1432 FORMAT('      plane wave:           ',E19.10,' (',E15.5,'/ion)')
  1433 FORMAT('     local basis:           ',E19.10,' (',E15.5,'/ion)')
  1434 FORMAT(/'  coulomb energy:')
