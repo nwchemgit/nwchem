@@ -1,4 +1,4 @@
-C $Id:
+C $Id: ecp_local2.F,v 1.2 1999-03-08 22:26:07 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_local2 (mem_max,DryRun,
@@ -218,7 +218,11 @@ Cend
           do j = 0,n_ab-1
             tmp(i_gam+i) = one/sqrt(zeta_c(i_c)+tmp(i_ab+j))
             tmp(i_alp+i) = tmp(i_rpc+j)*tmp(i_ab+j)*tmp(i_gam+i)
-            tmp(i_ai+i) = one/(two*tmp(i_rpc+j)*tmp(i_ab+j))
+            if (tmp(i_rpc+j)) .eq. zero) then
+              tmp(i_ai+i) = zero
+            else
+              tmp(i_ai+i) = one/(two*tmp(i_rpc+j)*tmp(i_ab+j))
+            end if
             log_prefac = tmp(i_alp+i)**2-tmp(i_ab+j)*tmp(i_rpc+j)**2
      &          -tmp(i_prod+j)
             tmp(i_pre+i) = exp(log_prefac)
@@ -238,6 +242,7 @@ Cend
 *
 *      Evaluate radial integrals
 *
+        call dfill(n_ab*n_rad,zero,tmp(i_Q_int),1)
         call ecp_locint1 (p_min,p_max,l_c,n_prim_a,n_prim_b,n_coef_c,
      &      n_prim_c,coef_c,tmp(i_ai),tmp(i_gam),tmp(i_alp),tmp(i_pre),
      &      tol,n_ab,n_abc,n_rad,tmp(i_tmp),tmp(i_ind),tmp(i_Qabc),
