@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.74 1997-05-04 05:32:03 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.75 1997-05-12 20:05:32 d3h449 Exp $
 c     
       implicit none
 c
@@ -1118,15 +1118,7 @@ c
          call dft_mxspin_ovlp(ao_bas_han, g_movecs(1), g_movecs(2), 
      &                        g_tmp)
       endif
-c     
-      if (ipol.gt.1)then
-c         call gadest(g_fockt)
-         if (.not. ga_destroy(g_fockt)) call errquit
-     &      ('dft_scf: could not destroy g_fockt', 0)
-      endif
-c      call gadest(g_tmp)
-      if (.not. ga_destroy(g_tmp)) call errquit
-     &   ('dft_scf: could not destroy g_tmp', 0)
+c
       if (wght_GA)then
 c         call gadest(g_wght)
          if (.not. ga_destroy(g_wght)) call errquit
@@ -1261,6 +1253,16 @@ c
       endif
 c
  1101 continue                  ! Jump here if already converged
+c     
+      if (ipol.gt.1)then
+c         call gadest(g_fockt)
+         if (.not. ga_destroy(g_fockt)) call errquit
+     &      ('dft_scf: could not destroy g_fockt', 0)
+      endif
+c      call gadest(g_tmp)
+      if (.not. ga_destroy(g_tmp)) call errquit
+     &   ('dft_scf: could not destroy g_tmp', 0)
+c
       call fock_2e_tidy(rtdb)
 c     
       if (converged)then

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.41 1997-04-11 23:42:12 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.42 1997-05-12 20:05:29 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -24,9 +24,8 @@ c
 #include "stdio.fh"
 #include "util.fh"
 c
-      integer bases(3)
       integer iproc,ichg,itype,
-     &     icenter,jcenter,i3
+     &     icenter,jcenter
       integer lcoord,icoord,lcharge,icharge,ltags,itags,
      &     lznuc,iznuc,lratom,iratom,lrot,irot
       integer iline, n
@@ -816,29 +815,6 @@ c
      $     call errquit('inpana: dft:ipol put failed', 0)
 c
       call ga_sync
-c****
-c**** initialize the integral object
-c****
-      if(XCFIT.and.CDFIT) then
-        i3 = 3
-        bases(1) = AO_bas_han
-        bases(2) = CD_bas_han
-        bases(3) = XC_bas_han
-      elseif((.not.XCFIT).and.CDFIT) then
-        i3 = 2
-        bases(1) = AO_bas_han
-        bases(2) = CD_bas_han
-      elseif((.not.CDFIT).and.XCFIT) then
-        i3 = 2
-        bases(1) = AO_bas_han
-        bases(2) = XC_bas_han
-      else
-        i3 = 1
-        bases(1) = AO_bas_han
-      endif
-c
-      call int_app_set_no_texas(rtdb)
-      call int_init(rtdb, i3, bases)
 c
       return
       end

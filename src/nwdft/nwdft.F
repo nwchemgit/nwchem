@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.30 1997-02-20 10:03:14 d3e129 Exp $
+C$Id: nwdft.F,v 1.31 1997-05-12 20:05:17 d3h449 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -33,6 +33,7 @@ c
       character*(nw_max_path_len) timings
 #endif
       integer iproc,itype
+      integer bases(3), i3
       logical LResult,oprint
 c>>>  
 
@@ -77,6 +78,29 @@ c-->  Gather input from all available resources e.g. input unit,
 c     old checkpoint files, etc.
 c
       call dft_rdinput(rtdb)
+c****
+c**** initialize the integral object
+c****
+      if(XCFIT.and.CDFIT) then
+        i3 = 3
+        bases(1) = AO_bas_han
+        bases(2) = CD_bas_han
+        bases(3) = XC_bas_han
+      elseif((.not.XCFIT).and.CDFIT) then
+        i3 = 2
+        bases(1) = AO_bas_han
+        bases(2) = CD_bas_han
+      elseif((.not.CDFIT).and.XCFIT) then
+        i3 = 2
+        bases(1) = AO_bas_han
+        bases(2) = XC_bas_han
+      else
+        i3 = 1
+        bases(1) = AO_bas_han
+      endif
+c
+      call int_app_set_no_texas(rtdb)
+      call int_init(rtdb, i3, bases)
 c     
 c--> determine system type (molecule, polymer,surface,crystal)
 c    if no system type exists in db --> default = molecular case     
