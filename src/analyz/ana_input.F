@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.4 1999-03-15 21:27:47 d3j191 Exp $
+c $Id: ana_input.F,v 1.5 1999-07-12 16:13:42 d3j191 Exp $
 c
       implicit none
 c
@@ -63,15 +63,9 @@ c
 c
 c     default esp charges take from ${file_prefix}.q
 c
-      filchg=fpref(1:index(fpref,' ')-1)//'.q '
-c
-c     default plt data to  ${file_prefix}.plt
-c
-      filplt=fpref(1:index(fpref,' ')-1)//'.plt '
-c
-c     default xyz data to  ${file_prefix}.plt
-c
-      filxyz=fpref(1:index(fpref,' ')-1)//'.xyz '
+      filchg=' '
+      filplt=' '
+      filxyz=' '
 c
       filcop=' '
       fmtcop='sco'
@@ -101,6 +95,15 @@ c
 c
       if(inp_compare(.false.,'system',item)) then
       if(.not.inp_a(project)) call errquit('ana_input: error system',0)
+      if(filchg(1:1).eq.' ') then
+      filchg=project(1:index(project,' ')-1)//'.q '
+      endif
+      if(filplt(1:1).eq.' ') then
+      filplt=project(1:index(project,' ')-1)//'.plt '
+      endif
+      if(filxyz(1:1).eq.' ') then
+      filxyz=project(1:index(project,' ')-1)//'.xyz '
+      endif
       goto 2
       endif
 c
@@ -306,6 +309,22 @@ c
 c
       if(filsup(1:1).eq.' ') then
       filsup=fpref(1:index(fpref,' ')-1)//'-super.sco'
+      endif
+c
+      if(filchg(1:1).eq.' ') then
+      filchg=fpref(1:index(fpref,' ')-1)//'.q '
+      endif
+c
+c     default plt data to  ${file_prefix}.plt
+c
+      if(filplt(1:1).eq.' ') then
+      filplt=fpref(1:index(fpref,' ')-1)//'.plt '
+      endif
+c
+c     default xyz data to  ${file_prefix}.plt
+c
+      if(filxyz(1:1).eq.' ') then
+      filxyz=fpref(1:index(fpref,' ')-1)//'.xyz '
       endif
 c
 c     put input in rtdb
