@@ -40,12 +40,12 @@ explicitly, using the following format;
 
 The \verb+START+ directive indicates that the calculation is one 
 in which the database is to be created.  Any relevent information that
-already exists in the database is destroyed.  The string {\tt file_prefix}
+already exists in the database is destroyed.  The string {\tt file\_prefix}
 will be used as the prefix when naming any files created in the 
 course of the calculation.
 The user can also specify a unique name for the database itself, using
 the keyword {\tt rtdb}.  When this keyword is entered, the
-string {\tt rtdb_file_name} is used as the database name.  If the keyword
+string {\tt rtdb\_file\_name} is used as the database name.  If the keyword
 {\tt rtbd} is omitted, the name of the database defaults to 
 \verb+<file_prefix>.db+ in the directory for permanent files.
 
@@ -54,8 +54,8 @@ using the existing database, the \verb+RESTART+ directive or the
 \verb+CONTINUE+ directive must be used.  In such a case, the database
 \verb+file_prefix+ must already exist.  If a database with this name 
 does not exist, use of either of these directives will generate an error.
-This also means that the name {\tt file_prefix} usually should not be 
-changed when restarting a calculation.  If the name {\tt file_prefix} is 
+This also means that the name {\tt file\_prefix} usually should not be 
+changed when restarting a calculation.  If the name {\tt file\_prefix} is 
 changed on the \verb+RESTART+ or \verb+CONTINUE+ directive, 
 NWChem will not be able to
 find needed files automatically when going on with the calculation.
@@ -111,14 +111,14 @@ If the input file does not contain a \verb+START+ or a \verb+CONTINUE+ or a
 \verb+RESTART+ directive, NWChem assumes the following defaults;
 
 \begin{itemize}
-  \item the name of the database for the calculation is {\tt file_prefix.db}
-  \item the file prefix is {\tt file_prefix}
+  \item the name of the database for the calculation is {\tt file\_prefix.db}
+  \item the file prefix is {\tt file\_prefix}
 \end{itemize}
 
 If the database 
-with name {\tt file_prefix.db} does {\it not} exist, then the calculation 
+with name {\tt file\_prefix.db} does {\it not} exist, then the calculation 
 is carried out as if a \verb+START+ directive had been encountered.  
-If the database with name {\tt file_prefix.db} {\it does} exist, then 
+If the database with name {\tt file\_prefix.db} {\it does} exist, then 
 the calculation
 is performed as if a \verb+RESTART+ directive had been encountered.  That is,
 the input file is parsed up to the first \verb+TASK+ directive, and that
@@ -135,7 +135,7 @@ if a \verb+CONTINUE+ directive had been specified.
 
 For example, if the NWChem input file \verb+water.nw+ does not contain
 a \verb+START+, \verb+RESTART+, or \verb+CONTINUE+ directive, the default
-{\tt file_prefix} is set to {\tt water}, and the default database name is
+{\tt file\_prefix} is set to {\tt water}, and the default database name is
 {\tt water.db}.  If the database \verb+water.db+ does {\it not} exist already,
 the code behaves as if the input file contained the directive,
 
@@ -360,7 +360,7 @@ separate\footnote{This is because on true shared-memory machines there
 is no choice but to allocate GAs from within a shared-memory segment,
 which is mangaged differently by the operating system.}.  On
 distributed memory platforms, the MA region is actually the total size of
-\{\tt stack+heap+global}.  All three types of memory allocation compete
+{\tt stack+heap+global}.  All three types of memory allocation compete
 for the same pool of memory, with no limits except on the total
 available memory.  This relaxation of the memory category definitions 
 usually benefits the user since it can allow allocation requests to 
@@ -571,8 +571,8 @@ specified as \verb+integer+,
 \verb+real+, \verb+double+, \verb+logical+, or \verb+string+.  If
 this item is omitted from the directive, the value for \verb+type+ is
 inferred from the data type of the {\em first} element of
-\verb+<$type$ data>.  In such a case, floating-point data entered in 
-\verb+<$type$ data> using this directive must include either an 
+\verb+<$type$ data>+.  In such a case, floating-point data entered in 
+\verb+<$type$ data>+ using this directive must include either an 
 exponent or decimal point to ensure that the correct default type will 
 be assumed.  The correct default type will be inferred for logical values 
 if logical-true values are specified as \verb+.true.+, \verb+true+, or
@@ -594,13 +594,13 @@ different geometry objects for a calculation with the water molecule, one
 task might have the directive,
 
 \begin{verbatim}
-\verb+SET+ geometry ``my water geometry''
+SET geometry ``my water geometry''
 \end{verbatim}
 
 A subsequent task might contain the directive,
 
 \begin{verbatim}
-\verb+SET+ geometry ``my other water geometry''
+SET geometry ``my other water geometry''
 \end{verbatim}
 
 Similar indirection can be used when different basis set objects 
@@ -674,7 +674,7 @@ information in the database with names that begin with
 \verb+module:+.
 
 An example illustrating how to reverse the above example of the
-\verb+SET+ directive setting the logical variable \verb+int:cando_sp 
+\verb+SET+ directive setting the logical variable \verb+int:cando_sp+ 
 to the value 'false' is as follows;
 
 \begin{verbatim}
@@ -699,7 +699,7 @@ verifying input.
 The \verb+TASK+ directive is used to tell the code what to do with the input.
 The input directives are parsed
 sequentially until a \verb+TASK+ directive is encountered, as described
-in Section \ref{\sec:inputstructure}  At that
+in Section \ref{sec:inputstructure}  At that
 point, the calculation or operation specified in the \verb+TASK+ directive
 is performed.  When that task is completed,
 the code looks for additional input to process until the next
@@ -772,6 +772,7 @@ available in NWChem, and the string entry for \verb+operation+ for each one.
  \item \verb+THERMODYNAMICS+ --- multiconfiguration thermodynamic integration
     using NWArgos.
 \end{itemize} 
+\end{itemize}
 
 The user should be aware that some of these operations require
 computation of derivatives of the energy.

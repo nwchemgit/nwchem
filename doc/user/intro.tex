@@ -236,7 +236,7 @@ vectors, as indicated by the \verb+||+ symbol separating the two descriptions;
 
 The first option, \verb+(<string input_movecs default atomic>)+, allows
 the user to specify an ASCII character string for the parameter {\tt 
-input_movecs}.
+input\_movecs}.
 If no entry is specified, the code assumes a
 standard source of the vectors with a default of \verb+``atomic''+ 
 (atomic guess).  The second option, 
@@ -254,9 +254,9 @@ enclosing this input.
 
 The third keyword, /verb+output+, allows the user to tell the code where
 to put the output values of the vectors by specifying an ASCII string
-for the parameteer {\tt output_movecs}.  If no entry is specified for
+for the parameteer {\tt output\_movecs}.  If no entry is specified for
 this parameter, the default is to write them
-back into the input file, {\tt $file_prefix$.movecs}.
+back into the input file, {\tt $file\_prefix$.movecs}.
 
 % The keyword \verb+input+ is the default,
 % which means that the directive expects some sort of input to specify the
@@ -353,7 +353,7 @@ command for NWChem.  For example;
 The default name for the input file is \verb+nwchem.nw+.  If an input
 file name \verb+input_file+ is specified without an extension, the code
 assumes a default extension of \verb+input_file.nw+.  If the code cannot
-locate a file named either \verb+nwchem.nw+ or \verb+input_file.nw, an 
+locate a file named either \verb+nwchem.nw+ or \verb+input_file.nw+, an 
 error is reported and execution terminates.  The following
 subsection presents two input files to illustrate the directive syntax and 
 input file format for NWChem applications.
