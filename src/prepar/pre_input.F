@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.54 2000-06-01 05:20:08 d3j191 Exp $
+c $Id: pre_input.F,v 1.55 2000-06-01 05:24:24 d3j191 Exp $
 c
       implicit none
 c
@@ -1116,6 +1116,10 @@ c
       write(68,6809) item(1:index(item,' ')-1)
       lrdcoo=.true.
       elseif(index(item,'.rst').gt.0) then
+      if(numcmd.eq.0) rewind(68)
+      write(68,6810) item(1:index(item,' ')-1)
+      lrdcoo=.true.
+      elseif(index(item,'.qrs').gt.0) then
       if(numcmd.eq.0) rewind(68)
       write(68,6810) item(1:index(item,' ')-1)
       lrdcoo=.true.
