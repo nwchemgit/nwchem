@@ -2,6 +2,8 @@
      + lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk)
 c
+c $Id: pre_links.F,v 1.4 1998-04-29 18:35:17 d3j191 Exp $
+c
 c     function to scan database for link segments in sequence
 c
 c     in    lseq(1,*) = sequence segment numbers

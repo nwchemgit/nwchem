@@ -1,6 +1,8 @@
       logical function pre_sgmsiz(lfnsgm,filsgm,
      + natm,nbnd,nang,ndih,nimp)
 c
+c $Id: pre_sgmsiz.F,v 1.3 1998-04-29 18:35:25 d3j191 Exp $
+c
 c     function to determine dimensions for segment
 c
       implicit none

@@ -1,6 +1,8 @@
       logical function pre_sgmndx(iunit,dir_s,dir_x,dir_u,dir_t,
      + lfnout,lprint,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm)
 c
+c $Id: pre_sgmndx.F,v 1.5 1998-04-29 18:35:24 d3j191 Exp $
+c
 c     function to scan database directories for segments in sequence
 c
 c     in  : iunit        = dbase logical file number

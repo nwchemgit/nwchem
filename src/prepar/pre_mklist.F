@@ -9,6 +9,8 @@
      + limp,rimp,mimp,nimp,lmat,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
+c $Id: pre_mklist.F,v 1.8 1998-04-29 18:35:18 d3j191 Exp $
+c
       implicit none
 c
       logical pre_sgmfil,pre_rdsgm

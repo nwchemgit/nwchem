@@ -1,5 +1,7 @@
       logical function pre_dih(lang,mang,nang,ldih,mdih,ndih)
 c
+c $Id: pre_dih.F,v 1.2 1998-04-29 18:35:13 d3j191 Exp $
+c
       implicit none
 c
       integer mang,mdih

@@ -1,5 +1,7 @@
       logical function pre_parcnv(icomb,latt,patt,matt,natt)
 c
+c $Id: pre_parcom.F,v 1.2 1998-04-29 18:35:20 d3j191 Exp $
+c
       implicit none
 c
       integer icomb,matt,natt

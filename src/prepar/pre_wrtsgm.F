@@ -2,6 +2,8 @@
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp)
 c
+c $Id: pre_wrtsgm.F,v 1.5 1998-04-29 18:35:31 d3j191 Exp $
+c
       implicit none
 c
       integer lfnout,lfnsgm

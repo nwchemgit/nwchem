@@ -1,6 +1,8 @@
       logical function pre_sgmfil(sgmnam,lfnsgm,filsgm,
      + dir_s,dir_x,dir_u,dir_t)
 c
+c $Id: pre_sgmfil.F,v 1.3 1998-04-29 18:35:24 d3j191 Exp $
+c
       implicit none
 c
       integer lfnsgm

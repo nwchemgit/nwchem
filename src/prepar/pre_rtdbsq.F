@@ -2,6 +2,8 @@
      + lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk)
 c
+c $Id: pre_rtdbsq.F,v 1.3 1998-04-29 18:35:23 d3j191 Exp $
+c
 c     function to read sequence from the rtdb
 c
 c     in  : irtdb

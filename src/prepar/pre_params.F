@@ -5,6 +5,8 @@
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,nats)
 c
+c $Id: pre_params.F,v 1.6 1998-04-29 18:35:20 d3j191 Exp $
+c
       implicit none
 c
       logical pre_ffield,pre_parcnv,pre_check

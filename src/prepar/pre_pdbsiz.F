@@ -1,6 +1,8 @@
       logical function pre_pdbsiz(iunit,filnam,lfnout,lprint,
      + model,natm,nseq,nssb,nlnk,namslv,numslv)
 c
+c $Id: pre_pdbsiz.F,v 1.5 1998-04-29 18:35:21 d3j191 Exp $
+c
 c     function to read dimensions from a pdb formatted file
 c
 c     in  : iunit  = pdb file logical file number

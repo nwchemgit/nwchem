@@ -1,6 +1,8 @@
       logical function pre_excl(l3rd,m3rd,n3rd,lbnd,mbnd,nbnd,
      + lang,mang,nang,lexc,mexc,nexc)
 c
+c $Id: pre_excl.F,v 1.3 1998-04-29 18:35:15 d3j191 Exp $
+c
       implicit none
 c
       integer m3rd,n3rd,mbnd,nbnd,mang,nang,mexc,nexc

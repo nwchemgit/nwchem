@@ -1,6 +1,8 @@
       subroutine pre_rotate(o,p,angle,xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
      + xs,msa,nsa)
 c
+c $Id: pre_rotate.F,v 1.2 1998-04-29 18:35:23 d3j191 Exp $
+c
       implicit none
 c
       integer mwm,mwa,nwm,nwa,mwmc,nwmc,msa,nsa

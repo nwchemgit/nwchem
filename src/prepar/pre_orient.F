@@ -1,6 +1,8 @@
       logical function pre_orient(xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
      + xs,msa,nsa)
 c
+c $Id: pre_orient.F,v 1.2 1998-04-29 18:35:19 d3j191 Exp $
+c
       implicit none
 c
       integer mwm,mwa,nwm,nwa,mwmc,nwmc,msa,nsa

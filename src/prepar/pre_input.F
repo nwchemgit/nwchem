@@ -1,5 +1,7 @@
       subroutine pre_input(irtdb)
 c
+c $Id: pre_input.F,v 1.8 1998-04-29 18:35:17 d3j191 Exp $
+c
       implicit none
 c
 #include "rtdb.fh"
@@ -17,8 +19,8 @@ c
       character*255 dir_s,dir_x,dir_u,dir_t,commnd
       integer newtop,newseq,newrst
 c
-      integer len,number,mgrid,mnoe,inoe(2)
-      real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5)
+      integer len,number,mgrid,mnoe,inoe(2),maxscf
+      real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale
       character*4  cnoe(2)
 c
 c      if(ga_nodeid().eq.0) then
@@ -49,6 +51,8 @@ c
       mgrid=24
       rgrid=0.2d0
       mnoe=0
+      maxscf=0
+      qscale=-1.2d0
 c
       touch=0.25
       xpndw=0.10
@@ -141,6 +145,18 @@ c     ------
 c
       if(inp_compare(.false.,'source',item)) then
       if(.not.inp_a(source)) call errquit('pre_input: error source',0)
+      goto 2
+      endif
+c
+c     max atoms in scf and charge scaling
+c     -----------------------------------
+c
+      if(inp_compare(.false.,'maxscf',item)) then
+      if(.not.inp_i(maxscf)) call errquit('pre_input: error maxscf',0)
+      goto 2
+      endif
+      if(inp_compare(.false.,'qscale',item)) then
+      if(.not.inp_f(qscale)) call errquit('pre_input: error qscale',0)
       goto 2
       endif
 c
@@ -444,6 +460,15 @@ c
       if(.not.rtdb_put(irtdb,'prep:mgrid',mt_int,1,mgrid))
      + call errquit('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:rgrid',mt_dbl,1,rgrid))
+     + call errquit('pre_input: rtdb_put failed',0)
+      endif
+c
+      if(maxscf.gt.0) then
+      if(.not.rtdb_put(irtdb,'prep:maxscf',mt_int,1,maxscf))
+     + call errquit('pre_input: rtdb_put failed',0)
+      endif
+      if(qscale.gt.0.0d0) then
+      if(.not.rtdb_put(irtdb,'prep:qscale',mt_dbl,1,qscale))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
 c

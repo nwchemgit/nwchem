@@ -1,6 +1,8 @@
       logical function pre_rdseq(lfnout,lprint,lfnseq,filseq,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
+c $Id: pre_rdseq.F,v 1.7 1998-04-29 18:35:22 d3j191 Exp $
+c
 c     function to read the sequence file
 c
 c     out : lseq(1,mseq) = segment number

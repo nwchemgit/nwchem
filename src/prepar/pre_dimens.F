@@ -2,6 +2,8 @@
      + dir_s,dir_x,dir_u,dir_t,
      + lseq,cseq,mseq,nseq,natm,nbnd,nang,ndih,nimp)
 c
+c $Id: pre_dimens.F,v 1.5 1998-04-29 18:35:14 d3j191 Exp $
+c
 c     function to determine total system array dimensions
 c
       implicit none

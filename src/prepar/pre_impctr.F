@@ -1,6 +1,8 @@
-      logical function pre_impctr(xatm,latm,matm,jlo,ilo,ihi,jhi,
-     + lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,lring,aring,
-     + mring,nring3,nring4,nring5,nring6)
+      logical function pre_impctr(lfnout,lprint,xatm,latm,matm,
+     + jlo,ilo,ihi,jhi,lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
+     + lring,aring,mring,nring3,nring4,nring5,nring6)
+c
+c $Id: pre_impctr.F,v 1.3 1998-04-29 18:35:16 d3j191 Exp $
 c
 c     function to determine the center type
 c
@@ -31,6 +33,7 @@ c
       external pre_torang
 c
       integer matm,ilo,ihi,jlo,jhi,mbnd,nbnd,mang,nang,mdih,ndih
+      integer lfnout,lprint
       real*8 xatm(3,matm)
       integer latm(5,matm),lbnd(2,mbnd),lang(3,mang),ldih(4,mdih)
 c
@@ -78,6 +81,10 @@ c
       nring3=nring3-1
       goto 29
    33 continue
+      if(lprint.ge.4) then
+      write(lfnout,1000) nring3,(lring(j,nring3),j=1,3)
+ 1000 format('Ring',i5,': atoms ',6i5)
+      endif
       endif
    30 continue
    29 continue
@@ -113,6 +120,9 @@ c
       nring4=nring4-1
       goto 35
    39 continue
+      if(lprint.ge.4) then
+      write(lfnout,1000) nring4,(lring(j,nring4),j=1,4)
+      endif
       endif
    36 continue
    35 continue
@@ -148,6 +158,9 @@ c
       nring5=nring5-1
       goto 4
     9 continue
+      if(lprint.ge.4) then
+      write(lfnout,1000) nring5,(lring(j,nring5),j=1,5)
+      endif
       endif
     5 continue
     4 continue
@@ -184,6 +197,9 @@ c
       nring6=nring6-1
       goto 11
    16 continue
+      if(lprint.ge.4) then
+      write(lfnout,1000) nring6,(lring(j,nring6),j=1,6)
+      endif
       endif
    12 continue
    11 continue
@@ -298,8 +314,8 @@ c
       if(lbnd(2,lj).eq.j.and.lbnd(1,lj).ne.i) k=lbnd(1,lj)
       if(k.ge.jlo.and.k.le.jhi) then
       if(latm(2,k).eq.8.and.latm(3,k).eq.1) then
-      latm(4,i)=1
-      latm(4,j)=1
+      if(latm(4,i).eq.0) latm(4,i)=1
+      if(latm(4,j).eq.0) latm(4,j)=1
       goto 1
       endif
       endif
@@ -320,7 +336,8 @@ c
       if(lbnd(1,li).eq.i) j=lbnd(2,li)
       if(lbnd(2,li).eq.i) j=lbnd(1,li)
       if(j.ge.jlo.and.j.le.jhi) then
-      if(latm(2,j).eq.8.and.latm(3,j).eq.1) latm(4,i)=1
+      if(latm(2,j).eq.8.and.latm(3,j).eq.1.and.latm(4,i).eq.0)
+     + latm(4,i)=1
       endif
    27 continue
       endif
@@ -342,7 +359,8 @@ c
       if(latm(2,j).eq.6.and.latm(3,j).eq.3) ic=j
       endif
    46 continue
-      if((nh.eq.1.or.nh.eq.2).and.ic.gt.0) latm(4,i)=1
+      if((nh.eq.1.or.nh.eq.2).and.ic.gt.0.and.latm(4,i).eq.0)
+     + latm(4,i)=1
       endif
    45 continue
 c
@@ -351,7 +369,7 @@ c     ----------
 c
       do 47 i=jlo,jhi
       if(latm(2,i).eq.6.and.latm(3,i).eq.3.and.latm(4,i).eq.0) then
-      latm(4,i)=1
+      if(latm(4,i).eq.0) latm(4,i)=1
       endif
    47 continue
 c

@@ -1,6 +1,8 @@
       logical function pre_slvrd(lfnslv,filslv,xw,vw,mwm,mwa,nwm,nwa,
      + box)
 c
+c $Id: pre_slvrd.F,v 1.2 1998-04-29 18:35:26 d3j191 Exp $
+c
       implicit none
 c
       integer lfnslv,mwm,mwa,nwm,nwa

@@ -1,5 +1,7 @@
       logical function pre_torang(x,mx,ia,ja,ka,la,angle)
 c
+c $Id: pre_torang.F,v 1.2 1998-04-29 18:35:29 d3j191 Exp $
+c
       implicit none
 c
       integer mx,ia,ja,ka,la

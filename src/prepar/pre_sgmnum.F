@@ -1,6 +1,8 @@
       logical function pre_sgmnum(lfnout,lprint,
      + lseq,cseq,mseq,nseq,nsgm)
 c
+c $Id: pre_sgmnum.F,v 1.4 1998-04-29 18:35:24 d3j191 Exp $
+c
 c     function to scan database for unique segments in sequence
 c
 c     in  : filnam    = dbase file name

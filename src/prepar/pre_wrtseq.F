@@ -2,6 +2,8 @@
      + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,
      + slvmdl)
 c
+c $Id: pre_wrtseq.F,v 1.5 1998-04-29 18:35:30 d3j191 Exp $
+c
 c     function to write the sequence file
 c
       implicit none

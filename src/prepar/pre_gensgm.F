@@ -1,6 +1,8 @@
       logical function pre_gensgm(lfnout,lprint,lfnfrg,lfnsgm,
      + ffield,dir_s,dir_x,dir_u,dir_t,lsgm,csgm,msgm,nsgm)
 c
+c $Id: pre_gensgm.F,v 1.5 1998-04-29 18:35:16 d3j191 Exp $
+c
 c     function to generate segment files
 c
 c     in  : lfnfrg    = fragment file logical file number

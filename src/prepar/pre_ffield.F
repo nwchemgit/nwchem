@@ -4,6 +4,8 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
+c $Id: pre_ffield.F,v 1.8 1998-04-29 18:35:15 d3j191 Exp $
+c
       implicit none
 c
       integer idir,lfnpar,lfnout

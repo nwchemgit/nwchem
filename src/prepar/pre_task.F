@@ -1,5 +1,7 @@
       logical function pre_task(irtdb,itask)
 c
+c $Id: pre_task.F,v 1.2 1998-04-29 18:35:27 d3j191 Exp $
+c
       implicit none
 c
 #include "rtdb.fh"

@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.15 1998-04-28 23:10:56 d3j191 Exp $
+c $Id: prepar.F,v 1.16 1998-04-29 18:35:31 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -47,8 +47,8 @@ c
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
       integer len,lenc,lend,lprint,lfntmp,lfncmd,lfnslv
-      integer newtop,newseq,newrst,mgrid,mnoe
-      real*8 gdist
+      integer newtop,newseq,newrst,mgrid,mnoe,maxscf
+      real*8 gdist,qscale
       logical lstate
 c
       irtdb=irtdb0
@@ -199,7 +199,8 @@ c     ---------------------------------------------
 c
       if(.not.pre_mkseq(irtdb,lfnout,lprint,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
-     + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl))
+     + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
+     + qscale))
      + call errquit('pre_mkseq failed',9999)
       write(lfnout,1005) filseq(1:index(filseq,' ')-1)
  1005 format('Created sequence file ',a)

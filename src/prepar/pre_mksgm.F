@@ -1,6 +1,8 @@
       logical function pre_mksgm(lfnout,lprint,ffield,
      + lfnfrg,filfrg,lfnsgm,filsgm)
 c
+c $Id: pre_mksgm.F,v 1.5 1998-04-29 18:35:18 d3j191 Exp $
+c
 c     function to make segment file
 c
 c     in  : lfnfrg    = fragment file logical file number

@@ -2,6 +2,8 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
+c $Id: pre_mkrst.F,v 1.6 1998-04-29 18:35:18 d3j191 Exp $
+c
       implicit none
 c
 #include "mafdecls.fh"

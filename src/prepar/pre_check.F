@@ -2,6 +2,8 @@
      + latt,catt,matt,natt,catm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp)
 c
+c $Id: pre_check.F,v 1.7 1998-04-29 18:35:13 d3j191 Exp $
+c
       implicit none
 c
       integer lfnout,lprint,matm,natm

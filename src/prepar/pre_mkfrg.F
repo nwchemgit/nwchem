@@ -2,7 +2,9 @@
      + dir_s,dir_x,dir_u,dir_t,
      + lfnout,lprint,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
-     + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp)
+     + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
+c
+c $Id: pre_mkfrg.F,v 1.11 1998-04-29 18:35:17 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -29,8 +31,8 @@ c
 c
       integer irtdb
       character*80 source
-      integer mring
-      parameter (mring=100)
+      integer mring,maxscf
+      parameter (mring=1000)
       integer lring(6,mring)
       logical aring(mring)
 c
@@ -48,7 +50,7 @@ c
       integer lseq(4,mseq),lsgm(3,msgm),latm(5,matm)
       character*5 cseq(2,mseq),csgm(msgm)
       character*6 catm(3,matm)
-      real*8 xatm(3,matm),qatm(matm)
+      real*8 xatm(3,matm),qatm(matm),qscale
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
       character*255 filpar,filnam
       character*255 dir_s,dir_x,dir_u,dir_t
@@ -157,7 +159,7 @@ c
 c     determine center types
 c     ----------------------
 c
-      if(.not.pre_impctr(xatm,latm,matm,jlo,ilo,ihi,jhi,
+      if(.not.pre_impctr(lfnout,lprint,xatm,latm,matm,jlo,ilo,ihi,jhi,
      + lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
      + lring,aring,mring,nring3,nring4,nring5,nring6))
      + call errquit('pre_impctr failed',9999)
@@ -189,7 +191,7 @@ c     guestimate partial charges
 c     --------------------------
 c
       if(.not.pre_charge(irtdb,source,jlo,ilo,ihi,jhi,
-     + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd))
+     + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale))
      + call errquit('pre_charge failed',9999)
 c
 c     write the fragment file

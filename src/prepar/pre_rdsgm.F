@@ -3,6 +3,8 @@
      + lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + wcorr)
 c
+c $Id: pre_rdsgm.F,v 1.6 1998-04-29 18:35:22 d3j191 Exp $
+c
       implicit none
 c
       integer lfnout,lprint,lfnsgm,imol,isgm,igrp,ipgrp

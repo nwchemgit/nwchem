@@ -1,7 +1,7 @@
       logical function pre_charge(irtdb,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.9 1998-04-29 18:35:13 d3j191 Exp $
+c $Id: pre_charge.F,v 1.10 1998-04-29 18:38:51 d3j191 Exp $
 c
       implicit none
 c
@@ -149,9 +149,9 @@ c
       if(.not.geom_destroy(igeom2))
      + call errquit('pre_charge: geom_destroy failed',9999)
       if(abs(qsum).lt.1.0d-5) then
-      do 10 i=1,nout
+      do 14 i=1,nout
       qatm(ilo+i-1)=qscale*qatm(ilo+i-1)
-   10 continue
+   14 continue
       endif
       pre_charge=.true.
       return

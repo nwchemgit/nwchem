@@ -5,6 +5,8 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
+c $Id: pre_wrttop.F,v 1.9 1998-04-29 18:35:31 d3j191 Exp $
+c
       implicit none
 c
       integer lfntop

@@ -1,6 +1,8 @@
       logical function pre_imp(ffield,latm,matm,natm,lbnd,mbnd,nbnd,
      + limp,mimp,nimp)
 c
+c $Id: pre_imp.F,v 1.5 1998-04-29 18:35:16 d3j191 Exp $
+c
       implicit none
 c
       integer matm,natm,mbnd,nbnd,mimp,nimp

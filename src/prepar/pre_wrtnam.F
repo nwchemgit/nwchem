@@ -1,5 +1,7 @@
       logical function pre_wrtnam(lfntmp,filtmp,catm,matm,natm)
 c
+c $Id: pre_wrtnam.F,v 1.3 1998-04-29 18:35:30 d3j191 Exp $
+c
       implicit none
 c
       integer lfntmp,matm,natm

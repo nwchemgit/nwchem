@@ -2,6 +2,8 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk)
 c
+c $Id: pre_pdbseq.F,v 1.6 1998-04-29 18:35:21 d3j191 Exp $
+c
 c     function to read sequence from a pdb formatted file
 c
 c     in  : iunit       = pdb logical file number

@@ -1,5 +1,7 @@
       logical function pre_natyps(catm,matm,natm,natt)
 c
+c $Id: pre_natyps.F,v 1.2 1998-04-29 18:35:19 d3j191 Exp $
+c
       implicit none
 c
       integer matm,natm,natt

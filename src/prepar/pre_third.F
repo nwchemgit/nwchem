@@ -1,6 +1,8 @@
       logical function pre_third(lbnd,mbnd,nbnd,lang,mang,nang,
      + l3rd,m3rd,n3rd,ib,ia,i3)
 c
+c $Id: pre_third.F,v 1.3 1998-04-29 18:35:28 d3j191 Exp $
+c
       implicit none
 c
       integer mbnd,nbnd,mang,nang,m3rd,n3rd

@@ -1,6 +1,9 @@
       logical function pre_mkseq(irtdb,lfnout,lprint,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
-     + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl)
+     + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
+     + qscale)
+c
+c $Id: pre_mkseq.F,v 1.12 1998-04-29 18:35:18 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -30,13 +33,15 @@ c
       external pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
 c
       integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk
-      integer natm,nseq,nssb,nsgm,nlnk
+      integer natm,nseq,nssb,nsgm,nlnk,maxscf
       integer lprint
       integer l_lseq,i_lseq,l_cseq,i_cseq
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
       integer l_latm,i_latm,l_catm,i_catm,l_xatm,i_xatm,l_qatm,i_qatm
       integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp
+c
+      real*8 qscale
 c
       character*255 filpdb,filpar,filseq,filtmp
       character*255 dir_s,dir_x,dir_u,dir_t
@@ -294,7 +299,7 @@ c
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_xatm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,int_mb(i_ang),mang,int_mb(i_dih),mdih,
-     + int_mb(i_imp),mimp))
+     + int_mb(i_imp),mimp,maxscf,qscale))
      + call errquit('pre_mkfrg failed',9999)
 c
 c     deallocate memory

@@ -1,5 +1,7 @@
       logical function pre_slvnum(islv,boxs,nwms,box,nwm)
 c
+c $Id: pre_slvnum.F,v 1.2 1998-04-29 18:35:26 d3j191 Exp $
+c
       implicit none
 c
       integer islv,nwms,nwm

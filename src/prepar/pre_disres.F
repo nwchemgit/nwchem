@@ -1,6 +1,8 @@
       logical function pre_disres(card,isgm,csa,msa,nsa,inoe,dnoe,mnoe,
      + nnoe)
 c
+c $Id: pre_disres.F,v 1.2 1998-04-29 18:35:14 d3j191 Exp $
+c
       implicit none
 c
       integer mnoe,nnoe,msa,nsa

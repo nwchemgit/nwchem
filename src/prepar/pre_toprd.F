@@ -2,6 +2,8 @@
      + num,amass,mat,cwa,mwa,nwa,isat,isgm,csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb)
 c
+c $Id: pre_toprd.F,v 1.5 1998-04-29 18:35:29 d3j191 Exp $
+c
       implicit none
 c
       integer lfntop,lfnout,lprint,mwa,nwa,msa,nsa,nsm,msb,nsb,mat

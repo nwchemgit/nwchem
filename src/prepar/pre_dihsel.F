@@ -1,6 +1,8 @@
       logical function pre_dihsel(ffield,catm,matm,natm,
      + ldih,mdih,ndih)
 c
+c $Id: pre_dihsel.F,v 1.2 1998-04-29 18:35:14 d3j191 Exp $
+c
       implicit none
 c
       integer pre_atnum

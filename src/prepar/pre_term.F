@@ -2,6 +2,8 @@
      + dir_s,dir_x,dir_u,dir_t,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
+c $Id: pre_term.F,v 1.5 1998-04-29 18:35:28 d3j191 Exp $
+c
 c     function to determine the terminal segments
 c
       implicit none

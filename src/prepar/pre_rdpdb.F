@@ -2,6 +2,8 @@
      + csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,mwm,mwa,nwm,nwa)
 c
+c $Id: pre_rdpdb.F,v 1.5 1998-04-29 18:35:22 d3j191 Exp $
+c
       implicit none
 c
       integer lfnpdb,lfntmp,msa,nsa,nmis,msm,nsm,mwm,mwa,nwm,nwa

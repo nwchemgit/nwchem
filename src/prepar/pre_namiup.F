@@ -1,6 +1,8 @@
       logical function pre_namiup(lfnout,lprint,
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm)
 c
+c $Id: pre_namiup.F,v 1.5 1998-04-29 18:35:19 d3j191 Exp $
+c
 c     function to comply with IUPAC atom naming
 c
 c     in  : lfnout    = output file logical file number

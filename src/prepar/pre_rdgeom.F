@@ -1,6 +1,8 @@
       logical function pre_rdgeom(irtdb,csa,isar,isgm,isfnd,xs,vs,
      + msa,nsa,nmis,msm,nsm)
 c
+c $Id: pre_rdgeom.F,v 1.3 1998-04-29 18:35:21 d3j191 Exp $
+c
       implicit none
 c
 #include "geom.fh"

@@ -3,6 +3,8 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
+c $Id: pre_rdrst.F,v 1.2 1998-04-29 18:35:22 d3j191 Exp $
+c
       implicit none
 c
       integer lfnrst,mwm,mwa,nwm,nwa,msa,nsa,mnoe,noe,msm,nsm,mwmc,nwmc

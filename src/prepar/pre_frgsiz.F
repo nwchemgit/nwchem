@@ -1,6 +1,8 @@
       logical function pre_frgsiz(lfnfrg,filfrg,lfnout,lprint,
      + natm,nbnd)
 c
+c $Id: pre_frgsiz.F,v 1.4 1998-04-29 18:35:15 d3j191 Exp $
+c
 c     function to read dimensions from a frg file
 c
 c     in  : lfnfrg = frg file logical file number

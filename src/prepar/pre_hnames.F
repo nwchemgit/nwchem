@@ -1,6 +1,8 @@
       logical function pre_hnames(latm,catm,matm,natm,
      + lbnd,mbnd,nbnd)
 c
+c $Id: pre_hnames.F,v 1.2 1998-04-29 18:35:16 d3j191 Exp $
+c
       implicit none
 c
       integer matm,natm,mbnd,nbnd

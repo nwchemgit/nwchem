@@ -1,6 +1,8 @@
       logical function pre_scnseq(iunit,dirnam,lfnout,lprint,
      + kseq,cseq,mseq,ksgm,csgm,msgm)
 c
+c $Id: pre_scnseq.F,v 1.4 1998-04-29 18:35:23 d3j191 Exp $
+c
 c     function to scan database for segments in sequence
 c
 c     return value:

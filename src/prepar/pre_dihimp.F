@@ -1,6 +1,8 @@
       logical function pre_dihimp(ffield,latm,matm,natm,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp)
 c
+c $Id: pre_dihimp.F,v 1.4 1998-04-29 18:35:14 d3j191 Exp $
+c
       implicit none
 c
       integer matm,natm,mang,nang,mdih,ndih,mimp,nimp
