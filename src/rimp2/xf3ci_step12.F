@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.5 1994-08-08 23:39:28 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.6 1994-10-11 18:39:30 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(IntTyp, Alo, Ahi, Ilo, Ihi,
@@ -87,8 +87,8 @@ C EXTERNAL ROUTINES
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer IAlo, IAhi, NI, NA
-      Integer MxBFSh, LInt, LScr, MySLo, MySHi
-      Integer SShlo, SShhi
+      Integer MxBFSh, LInt, LScr, MySLo, MySHi, MxFitSh
+      Integer SShlo, SShhi, SSh, First, Last
       Logical Status, UseERI
       Integer Local_Idx, LDLocal, H_Int, H_Scr, Int_Idx, Scr_Idx
       Integer H_CP, H_CQ, CP_Idx, CQ_Idx, LCP, LCQ
@@ -153,6 +153,14 @@ C
          Status = Status .AND. Bas_BF2Cn( FitBas, MySLo, SShlo)
          Status = Status .AND. Bas_BF2Cn( FitBas, MySHi, SShhi)
 C
+C        Find the largest shell we own
+C
+         MxFitSh = 0
+         Do SSh = SShLo, SShHi
+            Status = Status .AND. Bas_Cn2Bfr( FitBas, SSh, First, Last)
+            MxFitSh = Max( MxFitSh, Last-First+1)
+         EndDo
+C
 C        We also need some info about the AO basis
 C
          Status = Status .AND. Bas_NBF_Cn_Max( AOBas, MxBFSh)
@@ -185,7 +193,7 @@ C        so we have them in a convenient organization.  So we must make
 C        sure that Scr is at least the size of Int (though the integrals
 C        will probably already require this).
 C        
-         LScr = Max( LScr, LInt, NA*MxBFSh )
+         LScr = Max( LScr, LInt, NI*MxBFSh*MxFitSh )
 C
 C        And we reuse Int as the intermediate in the two transformation
 C        steps, where we need it to be large enough to hold the
