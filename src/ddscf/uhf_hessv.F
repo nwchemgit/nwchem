@@ -1,21 +1,32 @@
       subroutine uhf_hessv(acc, g_x, g_ax)
 *
-* $Id: uhf_hessv.F,v 1.6 2000-04-27 21:00:03 zzhang Exp $
+* $Id: uhf_hessv.F,v 1.7 2001-06-21 19:06:44 zzhang Exp $
 *
       implicit none
 #include "cuhf.fh"
 #include "cscf.fh"
+#include "rtdb.fh"
+#include "bgj.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 c     
       double precision acc      ! [input] required accuracy of products
       integer g_x               ! [input] handle to input vectors
       integer g_ax              ! [input] handle to output products
 c
-      integer gtype, vlen, nvec, nvecp
+      integer gtype, vlen, nvec, nvecp, g_tmp
+      logical cphf_tddft 
+      cphf_tddft = .false.
 c
 c     Multiply a set of vectors by the level-shifted UHF hessian.
 c     
 c     Check dimensions
 c     
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
+         cphf_tddft = .false.
+      endif      
 c      if (cuhf_init_flag.ne.1)
       if(.not.cuhf_init_flag)
      $     call errquit('uhf_hessv: UHF internal block invalid',0)
@@ -30,11 +41,32 @@ c      if (cuhf_init_flag.ne.1)
 c
       call ga_zero(g_ax)
 *      write(6,*) ' lshift ', lshift
+      if(cphf_tddft)then
+         if (.not. ga_create(MT_DBL, vlen, nvec, 'tddft_precond: tmp',
+     $        1, 0, g_tmp)) call errquit('diag', 0)
+         call ga_copy(g_x, g_tmp)
+         call tddft_scale(g_tmp, g_tmp, .false.)
+         goto 200   ! skip 1e part
+      endif
       if (lshift .ne. 0.0d0)
      $     call ga_dadd( lshift, g_x, 0.d0, g_ax, g_ax )
-c
+c     
       call uhf_hessv_1e(acc, g_x, g_ax, nvec)
-      if (pflg .gt. 1) call uhf_hessv_2e(acc, g_x, g_ax, nvec)
+c     
+ 200  continue
+c
+      if (pflg .gt. 1)then 
+         if(cphf_tddft)then
+            call uhf_hessv_2e(acc, g_tmp, g_ax, nvec)
+         else
+            call uhf_hessv_2e(acc, g_x, g_ax, nvec)
+         endif
+      endif
+      if(cphf_tddft)then
+         call tddft_scale(g_tmp, g_ax, .true.)
+         if(.not.ga_destroy(g_tmp))
+     &        call errquit("uhf_hessv: destroy g_tmp?", 0)
+      endif
 c
       end
       subroutine uhf_hessv_1e(acc, g_x, g_ax, nvec)
@@ -115,6 +147,8 @@ c
 #include "cscfps.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "rtdb.fh"
+#include "bgj.fh"
 c     
       double precision acc      ! [input] required accuracy of products
       integer g_x               ! [input] handle to input vectors
@@ -137,7 +171,7 @@ c
       integer ivec, nfock
       integer g_tmp1, g_tmp2, g_tmp3, g_tmp4
       integer nocc, nvir, g_vecs, nocc_diff, nvir_diff, g_vecs_diff
-      integer iset, isetoff
+      integer iset, isetoff, i
       integer istart, istart_diff, iend, iend_diff, vbase, vbase_diff
       integer max_nvec
       parameter (max_nvec=300)
@@ -151,11 +185,19 @@ c      logical ga_create_atom_blocked
       external ga_create_atom_blocked
       double precision zero, one, mone, four
       parameter (zero=0.0d0, one=1.0d0, mone=-1.0d0, four=4.0d0)
+      logical cphf_tddft
+      cphf_tddft = .false.
 c
 c     First allocated arrays and build the AO densities.
 c     This will be cleaner when we restructure the fock build to take
 c     a single density array argument rather than an array of arrays
 c
+c      write(*,*)"in uhf_hessv, g_x"
+c      call ga_print(g_x)
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
+         cphf_tddft = .false.
+      endif
       do iset = 1, 2
          if (iset .eq. 1) then
             isetoff = 0
@@ -187,7 +229,6 @@ c
             g_dens(isetoff+2,ivec) = g_d
             g_fock(isetoff+1,ivec) = g_j
             g_fock(isetoff+2,ivec) = g_k
-c
             if (nocc*nvir .gt. 0) then
                call ga_copy_patch('n', ! Reshape vector into matrix Xbj
      $              g_x, istart, iend, ivec, ivec,
@@ -308,14 +349,22 @@ c
      $             g_vecs, vbase, nmo, 1, nbf,
      $             g_tmp1, 1, nbf, 1, nocc,
      $             g_tmp2, 1, nvir, 1, nocc)
-              call ga_dadd_patch(
-     $          four, g_tmp2, 1, nvir, 1, nocc,
-     $             one, g_ax, istart, iend, ivec, ivec,
-     $                  g_ax, istart, iend, ivec, ivec)
+              if(cphf_tddft)then
+                 call ga_dadd_patch(
+     $                2.0d0, g_tmp2, 1, nvir, 1, nocc,
+     $                one, g_ax, istart, iend, ivec, ivec,
+     $                g_ax, istart, iend, ivec, ivec)
+              else 
+                 call ga_dadd_patch(
+     $                four, g_tmp2, 1, nvir, 1, nocc,
+     $                one, g_ax, istart, iend, ivec, ivec,
+     $                g_ax, istart, iend, ivec, ivec)
+              endif
            endif
 c     
 c     Different spin
 c
+           if(cphf_tddft)goto 200
            if (nocc_diff*nvir_diff .gt. 0) then
               call ga_matmul_patch('n', 'n', one, zero,
      $             g_j, 1, nbf, 1, nbf,
@@ -325,11 +374,18 @@ c
      $             g_vecs_diff, vbase_diff, nmo, 1, nbf,
      $             g_tmp3, 1, nbf, 1, nocc_diff,
      $             g_tmp4, 1, nvir_diff, 1, nocc_diff)
+c              call ga_dadd_patch(
+c     $             four, g_tmp4, 1, nvir_diff, 1, nocc_diff,
+c     $             one, g_ax, istart_diff, iend_diff, ivec, ivec,
+c     $                  g_ax, istart_diff, iend_diff, ivec, ivec)
               call ga_dadd_patch(
-     $             four, g_tmp4, 1, nvir_diff, 1, nocc_diff,
+     $             one, g_tmp4, 1, nvir_diff, 1, nocc_diff,
      $             one, g_ax, istart_diff, iend_diff, ivec, ivec,
-     $                  g_ax, istart_diff, iend_diff, ivec, ivec)
+     $             g_ax, istart_diff, iend_diff, ivec, ivec)
+c              write(*,*)"g_ax: differet spin, iset = ", iset
+c              call ga_print(g_ax)
            endif
+ 200       continue
            if (.not. ga_destroy(g_j)) call errquit('uhf_hessv: GA?',0)
            if (.not. ga_destroy(g_k)) call errquit('uhf_hessv: GA?',0)
         enddo
