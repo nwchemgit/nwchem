@@ -1,5 +1,5 @@
 #
-# $Id: hassblas.pl,v 1.1 1997-03-17 20:34:35 d3e129 Exp $
+# $Id: hassblas.pl,v 1.2 1997-03-17 21:00:59 d3e129 Exp $
 #
 # perl script searches for "single" values of the 
 # blas and lapack routines reporting only those that have a recognized
@@ -27,7 +27,6 @@
 #
 #
 $debug = 0;
-$printit = 0;
 @tokens = ();
 $data_path = $ENV{'NWCHEM_TOP'} ;
 if ($data_path eq "") {

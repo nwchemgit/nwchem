@@ -1,5 +1,5 @@
 #
-# $Id: showblas.pl,v 1.1 1997-03-17 20:34:32 d3e129 Exp $
+# $Id: showblas.pl,v 1.2 1997-03-17 21:01:14 d3e129 Exp $
 #
 # perl script searches for both "double" and "single" values of the 
 # blas and lapack routines reporting only those files that have a 
@@ -27,7 +27,6 @@
 #           email: ra_kendall@pnl.gov
 #
 $debug = 0;
-$printit = 0;
 @tokens = ();
 $data_path = $ENV{'NWCHEM_TOP'} ;
 if ($data_path eq "") {
@@ -67,13 +66,12 @@ foreach $file (@ARGV){
 	  $lines ++;
 	  if (/^[ \d]/){
 	      $itok = 0;
-	      while ($itok < $num_tokens && (!($found)))
+	      while ($itok < $num_tokens )
 	      {
 		  if (/[\W{1}]$tokens[$itok][\W{1}]/i) {
 		      $found++;
-		      print "token: $tokens[$itok]\n";
+		      if ($debug) {print "token: $tokens[$itok]\n";}
 		      print "$file: $_";
-		      last FOUNDIT;
 		  }
 		  $itok++;
 	      }
@@ -85,5 +83,5 @@ foreach $file (@ARGV){
 }
 $num_found_files = @found_files;
 if ($num_found_files) {
-    print "hasblas: found $num_found_files files: @found_files\n";
+    print "showblas: found $num_found_files files: @found_files\n";
 }

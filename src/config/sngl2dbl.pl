@@ -1,5 +1,5 @@
 #
-# $Id: sngl2dbl.pl,v 1.1 1997-03-17 20:34:30 d3e129 Exp $
+# $Id: sngl2dbl.pl,v 1.2 1997-03-17 21:01:20 d3e129 Exp $
 #
 #
 # perl script to do transliteration from "single" values to "double" values
@@ -23,7 +23,6 @@
 #           email: ra_kendall@pnl.gov
 #
 $debug = 0;
-$printit = 0;
 @from = ();
 @to   = ();
 $data_path = $ENV{'NWCHEM_TOP'} ;
@@ -81,30 +80,18 @@ foreach $file (@ARGV){
 	if (/^[ \d]/){
 	    for ($compare = 0; $compare < $num_compare ; $compare++)
 	    {
-		if ($debug) {
-		    $printit = 0;
-		    if ($from[$compare] eq "dcopy") {$printit = 1;}
-		}
-		if ($printit && $debug) {print "from:$from[$compare]  to:$to[$compare]\n" ;}
-		if ($printit && $debug) {print "one  : $_";}
+		if ($debug) {print "from:$from[$compare]  to:$to[$compare]\n" ;}
+		if ($debug) {print "one  : $_";}
 		s/(\W{1})$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
-		if ($printit && $debug) {print "two  : $_";}
-#		s/$[(\W{1})]$from[$compare]/$1$to[$compare]/gi ;
-		if ($printit && $debug) {print "three: $_";}
+		if ($debug) {print "two  : $_";}
 	    }
 	}
 	if (/^[ ]{5}[^\s]/) {
 	    for ($compare = 0; $compare < $num_compare ; $compare++)
 	    {
-		if ($debug) {
-		    $printit = 0;
-		    if ($from[$compare] eq "dcopy") {$printit = 1;}
-		}
-		if ($printit && $debug) {print "four : $_";}
+		if ($debug) {print "three: $_";}
 		s/([ ]{5}.)$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
-		if ($printit && $debug) {print "five : $_";}
-#		s/$$from[$compare]/$to[$compare]/gi ;
-		if ($printit && $debug) {print "six  : $_";}
+		if ($debug) {print "four : $_";}
 	    }
 	}
 	

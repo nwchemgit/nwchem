@@ -1,5 +1,5 @@
 #
-# $Id: hasblas.pl,v 1.1 1997-03-17 20:34:28 d3e129 Exp $
+# $Id: hasblas.pl,v 1.2 1997-03-17 21:00:57 d3e129 Exp $
 #
 # perl script searches for both "double" and "single" values of the 
 # blas and lapack routines reporting only those files that have a 
@@ -26,7 +26,6 @@
 #
 #
 $debug = 0;
-$printit = 0;
 @tokens = ();
 $data_path = $ENV{'NWCHEM_TOP'} ;
 if ($data_path eq "") {

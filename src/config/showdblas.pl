@@ -1,5 +1,5 @@
 #
-# $Id: showdblas.pl,v 1.1 1997-03-17 20:34:36 d3e129 Exp $
+# $Id: showdblas.pl,v 1.2 1997-03-17 21:01:15 d3e129 Exp $
 #
 # perl script searches for "double" values of the blas and lapack 
 # routines reporting only those files that have a recognized routine.
@@ -27,7 +27,6 @@
 #
 #
 $debug = 0;
-$printit = 0;
 @tokens = ();
 $data_path = $ENV{'NWCHEM_TOP'} ;
 if ($data_path eq "") {
@@ -59,7 +58,6 @@ if ($debug) { print "arguments: @ARGV\n";}
 @found_files = ();
 foreach $file (@ARGV){
     if ($debug){print "file        : $file\n";}
-#    print "checking file: $file\n";
     open(FIXEDFILE,$file) || die "Could not open file: $file\n";
     $found = 0;
     $lines = 0;
@@ -68,13 +66,12 @@ foreach $file (@ARGV){
 	  $lines ++;
 	  if (/^[ \d]/){
 	      $itok = 0;
-	      while ($itok < $num_tokens && (!($found)))
+	      while ($itok < $num_tokens)
 	      {
 		  if (/[\W{1}]$tokens[$itok][\W{1}]/i) {
 		      $found++;
-		      print "token: $tokens[$itok]\n";
+		      if ($debug) {print "token: $tokens[$itok]\n";}
 		      print "$file: $_";
-		      last FOUNDIT;
 		  }
 		  $itok++;
 	      }
@@ -86,5 +83,5 @@ foreach $file (@ARGV){
 }
 $num_found_files = @found_files;
 if ($num_found_files) {
-    print "hasdblas: found $num_found_files files: @found_files\n";
+    print "showdblas: found $num_found_files files: @found_files\n";
 }

@@ -1,5 +1,5 @@
 #
-# $Id: hasdblas.pl,v 1.1 1997-03-17 20:34:34 d3e129 Exp $
+# $Id: hasdblas.pl,v 1.2 1997-03-17 21:00:58 d3e129 Exp $
 #
 # perl script searches for "double" values of the 
 # blas and lapack routines reporting only those that have a recognized
@@ -26,7 +26,6 @@
 #
 #
 $debug = 0;
-$printit = 0;
 @tokens = ();
 $data_path = $ENV{'NWCHEM_TOP'} ;
 if ($data_path eq "") {
@@ -58,7 +57,6 @@ if ($debug) { print "arguments: @ARGV\n";}
 @found_files = ();
 foreach $file (@ARGV){
     if ($debug){print "file        : $file\n";}
-#    print "checking file: $file\n";
     open(FIXEDFILE,$file) || die "Could not open file: $file\n";
     $found = 0;
     $lines = 0;
