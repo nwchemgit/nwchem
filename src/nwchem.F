@@ -16,7 +16,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.51 1995-05-17 16:36:56 mg650 Exp $
+c     $Id: nwchem.F,v 1.52 1995-06-02 04:39:45 gg502 Exp $
 c
       character*255 input_filename
 c
@@ -209,7 +209,7 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 18)
+      parameter (ntasks = 17)
       character*10 task_list(ntasks)
       data task_list /'rjhtest',
      $                'raktest',
@@ -220,7 +220,6 @@ c
      $                'optscf',
      $                'atwtest',
      $                'rimp2',
-     $                'riscf',
      $                'checksum',
      $                'dft',
      $                'md',
@@ -239,7 +238,7 @@ c
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130,
+         goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 110, 120, 130,
      &         140, 150, 160, 170, 180)
      $   ind
 c
@@ -292,11 +291,11 @@ C        RI-MP2 energy (SCF must be done separately first)
 c
  90      call rimp2(rtdb)
          goto 1000
-c
-C        RI-SCF
-c
- 100     call ri_scf(rtdb)
-         goto 1000
+c$$$c
+c$$$C        RI-SCF
+c$$$c
+c$$$ 100     call ri_scf(rtdb)
+c$$$         goto 1000
 c
 c integral check sum
 c
