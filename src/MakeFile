@@ -24,6 +24,10 @@ LIB_DEFINES = -DCOMPILATION_DATE="'$(COMPILATION_DATE)'" \
               -DCOMPILATION_DIR="'$(TOPDIR)'" \
               -DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
 
+!IFDEF PYTHONHOME
+LIB_DEFINES += -DWITHPYTHON
+!ENDIF
+
 WIN32_EXE_NAME = nw32
 WIN32_EXE = $(BINDIR)\$(WIN32_EXE_NAME).exe
 
@@ -46,8 +50,10 @@ pre_build:
 
 link: $(BINDIR) $(OBJDIR) $(OBJ)
 	$(FC) /Fe"$(WIN32_EXE)" $(OBJ) /link \
+        /stack:2000000 \
 	/debug:full /debugtype:cv /pdb:none /libpath:"$(LIB_DISTRIB)" \
-	/libpath:"$(SRCDIR)\tools\lib\win32" /libpath:"$(MPI_LIB)" $(LIBS)
+	/libpath:"$(SRCDIR)\tools\lib\win32" /libpath:"$(MPI_LIB)" $(LIBS) \
+	$(PYTHON_SYSLIB) 
 	@echo $(WIN32_EXE) is built
 
 VS_wrappers:
