@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.9 2005-02-01 02:50:06 bylaska Exp $
+* $Id: band_structure.F,v 1.10 2005-02-10 00:29:51 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -634,7 +634,7 @@
      >                    full_filename)
         if (taskid.eq.MASTER) then
           open(unit=58,file=full_filename,form='formatted')
-          call band_dos_generate(58,dosgrid,
+          call band_dos_generate(58,dosgrid(1),dosgrid(2),dosgrid(3),
      >                           dbl_mb(eigs_dos(1)),ne(1),
      >                           (1.0d0),
      >                           npoints,emin,emax)
@@ -900,18 +900,19 @@
 *     *                                           *
 *     *********************************************
 
-      subroutine band_dos_generate(unit,dosgrid,eigs,neigs,
+      subroutine band_dos_generate(unit,idx,idy,idz,eigs,neigs,
      >                             sign,npoints,emin,emax)
       implicit none
       integer unit
-      integer dosgrid(3)
-      real*8 eigs(dosgrid(1),dosgrid(2),dosgrid(3),*)
+      integer idx,idy,idz
+      real*8 eigs(idx,idy,idz,*)
       integer neigs
       real*8  sign
       integer npoints
       real*8 emin,emax
 
 *     **** local variables ****
+      integer dosgrid(3)
       integer i,j,k,ii,jj,kk,ncubes,ntetra,count
       integer ishft,jshft,kshft
       integer k1_d(4),k2_d(4),k3_d(4),k1_dd(4),k2_dd(4),k3_dd(4)
@@ -924,6 +925,10 @@
 *     **** external functions ****
       real*8   lattice_unitg,Dstates_Cube,Nstates_Cube
       external lattice_unitg,Dstates_Cube,Nstates_Cube
+
+       dosgrid(1) = idx
+       dosgrid(2) = idy
+       dosgrid(3) = idz
 
 c      write(unit,*) "dosgrid:",dosgrid
 c      write(unit,*) "neigs:     ",neigs
