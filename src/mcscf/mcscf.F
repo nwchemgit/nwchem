@@ -45,6 +45,10 @@ c
        integer mclosed, mopen                             ! ROHF occupation
        integer g_fcv, g_fpv, g_fcp                        ! ROHF Fock matrices
        double precision crap(1000), hh(100000)
+       integer ssiz
+       parameter(ssiz=1000)
+       double precision scr(ssiz), ev(ssiz)
+       integer info
 c
 c
        integer ga_create_atom_blocked, ga_create_JKblocked
@@ -333,8 +337,7 @@ c
 c
 c
 c
-c
-c
+
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c         
@@ -366,12 +369,6 @@ c
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .true., 16 )
-c
-c  Zero out blocks of MO ints for debugging
-c
-c$$$       call debug_zeromoints( nclosed, nact, nbf, g_exch, g_coul,
-c$$$     $                        1, nclosed, 1, nclosed )
-c
 c
 c
        call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
@@ -436,30 +433,40 @@ c
          if (ga_nodeid().eq.0) write(6,675) energy
  675     format(/,20x,'<<<<<<<< fock energy: ',f20.10,' >>>>>>>',/)
        endif
+
 c
+c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c         
+c        Explicit Hessian contruction and Eigenvalues Section
 c
+c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
-c$$$       CALL GA_ZERO(G_COUL)
-c
-       print*,'Skipping Hessian make'
-       goto 666
        call makeJK( basis, nbf, nclosed, nact, g_movecs )
        call dfill((orlen*orlen),0.d0,hh,1)
-c
-c  Explicit Hessian
-c
        call hmat( nbf, nclosed, nact, orlen, dbl_mb(k_dm1),
      $            dbl_mb(k_dm2), g_ifock, g_afock, g_gfock,
      $            g_coul, g_exch, hh)
+
+       write(6,951) 
+ 951   format('Hessian diagonal')
+       write(6,222) (hh((i-1)*orlen+i),i=1,orlen)
+ 222   format(10f12.6)
+       call dsyev( 'V', 'L', orlen, hh, orlen, ev, scr, ssiz, info )
+       write(6,953)
+ 953   format('Hessian eigenvalues')
+       write(6,222) (ev(i),i=1,orlen)
+c
 c
 c  Make explicit Hessian matrix from vector products
 c
-       call dfill((orlen*orlen),0.d0,hh,1)
-       call mcscf_hessmake( geom, basis, nbf, nclosed, nact,
-     $                      oskel, orlen, g_movecs, dbl_mb(k_dm1),
-     $                      dbl_mb(k_dm2), g_ifock, g_afock,
-     $                      g_gfock, g_coul, g_exch, g_x, g_prod,
-     $                      hh )
+c$$$       call dfill((orlen*orlen),0.d0,hh,1)
+c$$$       call mcscf_hessmake( geom, basis, nbf, nclosed, nact,
+c$$$     $                      oskel, orlen, g_movecs, dbl_mb(k_dm1),
+c$$$     $                      dbl_mb(k_dm2), g_ifock, g_afock,
+c$$$     $                      g_gfock, g_coul, g_exch, g_x, g_prod,
+c$$$     $                      hh )
+c
+c
  666   continue
 c
 c  Finite difference Hessian
@@ -708,13 +715,11 @@ C       INTEGER L_HD, K_HD
        integer l_hv, k_hv, l_hy, k_hy
        integer nvir, incr, xoff, i, j, ii, pflg
        double precision xx, lshift
-       integer ssiz
-       parameter(ssiz=1000)
-       double precision scr(ssiz), ev(ssiz)
-       integer info
        data pflg/2/
        data lshift/0.d0/
-
+c
+c
+c
        if (.not.ma_push_get(MT_DBL, orlen, 'H', l_hv, k_hv))
      $     call errquit('rohf: cannot allocate',0)
        if (.not.ma_push_get(MT_DBL, orlen, 'Hy', l_hy, k_hy))
@@ -730,13 +735,12 @@ C       goto 10000
 c
 c
 c
-       PRINT*,' Start analtyical Hessian make'
        do j=1,nclosed+nact
          do i=1,nvir
            ii = (j-1)*nvir + i
            call ga_zero(g_x)
            call ga_put(g_x,ii,ii,1,1,xx,1)
-           call mcscf_0hessv( geom, basis, nbf, nclosed, nact,
+           call mcscf_hessv( geom, basis, nbf, nclosed, nact,
      $                       .false., pflg, lshift, dm1, dm2,
      $                       g_movecs, g_ifock, g_afock, g_gfock,
      $                       g_coul, g_exch, g_x, g_prod )
@@ -752,7 +756,7 @@ c
            ii = xoff + (j-1)*nact + i
            call ga_zero(g_x)
            call ga_put(g_x,ii,ii,1,1,xx,1)
-           call mcscf_0hessv( geom, basis, nbf, nclosed, nact,
+           call mcscf_hessv( geom, basis, nbf, nclosed, nact,
      $                       .false., pflg, lshift, dm1, dm2,
      $                       g_movecs, g_ifock, g_afock, g_gfock,
      $                       g_coul, g_exch, g_x, g_prod )
@@ -797,19 +801,6 @@ c$$$ 901   format(10f12.6)
 c$$$       if (.not.ma_pop_stack(l_hd))
 c$$$     $      call errquit('rohf: damn',0)
 c
-c  Compute eigenvalues
-c
-       print*,'Exact Hessian diagonal from HESSV'
-       write(6,222) (hh(i,i),i=1,orlen)
- 222   format(10f12.6)
-       call dsyev( 'V', 'L', orlen, hh, orlen, ev, scr, ssiz, info )
-       print*
-       print*,'Hessian eigenvalues'
-       write(6,222) (ev(i),i=1,orlen)
-       print*
-       print*,'Lowest eigenvector'
-       write(6,222) (hh(i,1),i=1,orlen)
-c
 c  Clean up
 c
        if (.not.ma_pop_stack(l_hy))
@@ -821,110 +812,6 @@ c
        end
 
 
-
-
-
-
-
-       subroutine mcscf_hessmat( geom, basis, nbf, nclosed, nact,
-     $                           oskel, g_movecs, dm1, dm2,
-     $                           g_ifock, g_afock, g_gfock,
-     $                           g_coul, g_exch,
-     $                           g_x, g_prod, h )
-       implicit none
-#include "mafdecls.fh"
-       integer geom, basis
-       integer nbf, nclosed, nact
-       logical oskel
-       double precision dm1(*), dm2(*)
-       integer g_movecs, g_ifock, g_afock, g_gfock
-       integer g_coul, g_exch
-       integer g_x, g_prod
-       double precision h(*)
-c
-       integer l_hv, k_hv, nvir, i, ii, orlen, pflg
-       double precision xx, lshift
-c
-c
-c
-       pflg = 2
-       lshift = 0.d0
-       nvir = nbf - nclosed - nact
-       orlen = nvir*(nclosed+nact) + nclosed*nact
-       if (.not.ma_push_get(MT_DBL, orlen, 'H', l_hv, k_hv))
-     $     call errquit('rohf: cannot allocate',0)
-c
-       ii = 1
-       xx = 1.d0
-       do i=1,orlen
-         call ga_zero(g_x)
-         call ga_put(g_x,i,i,1,1,xx,1)
-         call mcscf_hessv( geom, basis, nbf, nclosed, nact,
-     $                     oskel, pflg, lshift, dm1, dm2,
-     $                     g_movecs, g_ifock, g_afock, g_gfock,
-     $                     g_coul, g_exch, g_x, g_prod )
-         call ga_get(g_prod,1,orlen,1,1,h(ii),orlen)
-         ii = ii + orlen
-       enddo
-c
-       if (.not.ma_pop_stack(l_hv))
-     $      call errquit('rohf: damn',0)
-       return
-       end
-
-
-
-
-
-
-
-
-       subroutine debug_zeromoints( nclosed, nact, nbf, g_exch, g_coul,
-     $                              ilo, ihi, jlo, jhi )
-       implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-       integer nclosed, nact, nbf
-       integer g_exch, g_coul
-       integer ilo, ihi, jlo, jhi
-       integer v, x, vx, nn, k_x, ld
-
-       nn = nbf*nbf
-       do v=1,nact
-         do x=1,v
-           vx = (v*(v-1))/2 + x
-           call ga_access(g_exch,1,nn,vx,vx,k_x,ld)
-           call dbg_zero(nbf,nbf,dbl_mb(k_x),ilo,ihi,jlo,jhi)          ! zero closed shell block
-           call ga_release(g_exch,1,nn,vx,vx)
-           call moints_matprint(nbf,nbf,dbl_mb(k_x))
-
-           call ga_access(g_coul,1,nn,vx,vx,k_x,ld)
-           call dbg_zero(nbf,nbf,dbl_mb(k_x),ilo,ihi,jlo,jhi)          ! zero closed shell block
-           call ga_release(g_coul,1,nn,vx,vx)
-           call moints_matprint(nbf,nbf,dbl_mb(k_x))
-         enddo
-       enddo
-       return
-       end
-
-
-
-
-       subroutine dbg_zero( n, m, x, ilo, ihi, jlo, jhi )
-       implicit none
-       integer n, m, ilo, ihi, jlo, jhi
-       double precision x(n,m)
-       integer i, j
-
-       if ((ilo.lt.0).or.(ihi.gt.n).or.(jlo.lt.0).or.(jhi.gt.m))
-     $   call errquit('dbg_zero:incompatible index ranges',0)
-       do j=jlo,jhi
-         do i=ilo,ihi
-           x(i,j) = 0.d0
-         enddo
-       enddo
-       return
-       end
 
       
 c
