@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.120 2000-06-01 14:07:23 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.121 2000-06-07 23:40:04 windus Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -63,11 +63,11 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md qmmm argos alldev pnnl pnnldev
 
-EXP_all = $(filter-out uccsdt nbo python develop gapss pspw oimp2 ideaz scfaux plane_wave rimp2_grad vscf,$(KNOWN_MODULE_SUBDIRS) )
-EXP_pnnl = $(EXP_all) nbo python 
+EXP_all = $(filter-out uccsdt nbo python develop gapss pspw oimp2 ideaz scfaux plane_wave rimp2_grad vscf hessian,$(KNOWN_MODULE_SUBDIRS) )
+EXP_pnnl = $(EXP_all) nbo python hessian
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
-EXP_qm  = NWints atomscf ddscf gradients moints hessian nwdft rimp2 \
+EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 \
           stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp
 EXP_ver2 = prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
@@ -107,7 +107,7 @@ endif
 
 MODULES := $(patsubst gapss,gapss atomscf nwdft ddscf NWints,$(MODULES) )
 
-MODULES := $(patsubst property,property ddscf hessian,$(MODULES) )
+MODULES := $(patsubst property,property ddscf,$(MODULES) )
 
 MODULES := $(patsubst plane_wave,plane_wave nwdft,$(MODULES) )
 MODULES := $(patsubst oimp2,oimp2 rimp2 moints,$(MODULES) )
