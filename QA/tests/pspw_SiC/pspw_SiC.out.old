@@ -1,0 +1,500 @@
+ argument  1 = pspw_SiC.nw
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 4.0
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                                         
+                                         
+
+
+            COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+
+                            >>> All Rights Reserved <<<
+
+
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = wv02696.emsl.pnl.gov
+    program       = nwchem
+    date          = Wed Dec  5 11:14:34 2001
+
+    compiled      = Wed Dec  5 10:51:20 PST 2001
+    source        = /home/bylaska/nwchem/nwchem
+    nwchem branch = Development
+    input         = pspw_SiC.nw
+    prefix        = SiC.
+    data base     = ./SiC.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =    8847354 doubles =     67.5 Mbytes
+    stack     =    2949107 doubles =     22.5 Mbytes
+    global    =   11796484 doubles =     90.0 Mbytes (within heap+stack)
+    total     =   11796461 doubles =     90.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                                                                                                      SiC 8 atom cubic cell
+                                                                                                                      ---------------------
+
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+ Turning off AUTOSYM since
+ SYMMETRY directive was detected!
+
+
+          ------
+          auto-z
+          ------
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |       a.u.
+ ------------------------------------------------------------------------------
+    5 C                |   1 Si               |     3.58405  |     3.58405
+    6 C                |   1 Si               |     3.58405  |     3.58405
+    6 C                |   2 Si               |     3.58405  |     3.58405
+    7 C                |   1 Si               |     3.58405  |     3.58405
+    7 C                |   3 Si               |     3.58405  |     3.58405
+    8 C                |   1 Si               |     3.58405  |     3.58405
+    8 C                |   4 Si               |     3.58405  |     3.58405
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          7
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    5 C                |   1 Si               |   6 C                |   109.47
+    5 C                |   1 Si               |   7 C                |   109.47
+    5 C                |   1 Si               |   8 C                |   109.47
+    6 C                |   1 Si               |   7 C                |   109.47
+    6 C                |   1 Si               |   8 C                |   109.47
+    7 C                |   1 Si               |   8 C                |   109.47
+    1 Si               |   6 C                |   2 Si               |   109.47
+    1 Si               |   7 C                |   3 Si               |   109.47
+    1 Si               |   8 C                |   4 Si               |   109.47
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          9
+ ==============================================================================
+
+
+
+          ****************************************************
+          *                                                  *
+          *     Car-Parrinello microcluster calculation      *
+          *                                                  *
+          *     [     conjugate gradient minimization   ]    *
+          *     [   (Grassman manifold implementation)  ]    *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.00   06/01/00              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Wed Dec  5 11:14:34 2001  <<<
+          ================ input data ========================
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+ need to generate 1d psp for Si
+  library name resolved from: compiled reference
+  library file name is: </home/bylaska/nwchem/nwchem/src/nwpw/libraryps>
+  
+Creating datafile for Kleinman-Bylander input: ./Si.psp
+  + Appending pseudopotentials:    s thru d
+  + Appending pseudowavefunctions: s thru d
+
+ Generated formatted_filename: ./Si.vpp
+
+ need to generate 1d psp for C 
+  library name resolved from: compiled reference
+  library file name is: </home/bylaska/nwchem/nwchem/src/nwpw/libraryps>
+  
+Creating datafile for Kleinman-Bylander input: ./C.psp
+  + Appending pseudopotentials:    s thru d
+  + Appending pseudowavefunctions: s thru d
+
+ Generated formatted_filename: ./C.vpp
+
+
+ Generated formatted atomic orbitals, filename: ./Si.aorb
+
+
+ Generated formatted atomic orbitals, filename: ./C.aorb
+
+ lcao guess, initial psi:SiC.movecs                    
+ -   spin, nalpha, nbeta: 1 16 0
+
+ number of processors used:  1
+
+ options:
+      boundry conditions   = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: Si  core charge: 4.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   1.059   1.286   1.286
+      2: C   core charge: 4.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   0.800   0.850   0.850
+
+ total charge: 0
+
+ atomic composition:
+     Si:  4     C :  4
+
+ initial position of ions:
+        1 Si (    4.13850    4.13850    4.13850 ) - atomic mass= 27.977 
+        2 Si (    0.00000    0.00000    4.13850 ) - atomic mass= 27.977 
+        3 Si (    0.00000    4.13850    0.00000 ) - atomic mass= 27.977 
+        4 Si (    4.13850    0.00000    0.00000 ) - atomic mass= 27.977 
+        5 C  (   -2.06925   -2.06925   -2.06925 ) - atomic mass= 12.000 
+        6 C  (    2.06925    2.06925   -2.06925 ) - atomic mass= 12.000 
+        7 C  (    2.06925   -2.06925    2.06925 ) - atomic mass= 12.000 
+        8 C  (   -2.06925    2.06925    2.06925 ) - atomic mass= 12.000 
+       G.C.  (    1.03463    1.03463    1.03462 )
+      C.O.M. (    1.44812    1.44812    1.44812 )
+
+ number of electrons: spin up= 16  spin down= 16 (fourier space)
+
+ supercell:
+      lattice: a1=<   8.277   0.000   0.000 >
+               a2=<   0.000   8.277   0.000 >
+               a3=<   0.000   0.000   8.277 >
+               b1=<   0.759   0.000   0.000 >
+               b2=<   0.000   0.759   0.000 >
+               b3=<   0.000   0.000   0.759 >
+      volume :      567.0
+      density cutoff= 18.440  fft= 16x 16x 16(     1052 waves     1052 per task)
+      wavefnc cutoff= 18.440  fft= 16x 16x 16(     1052 waves     1052 per task)
+      ewald summation: cut radius=    2.63  and  8
+                        mandelung= 1.76011888
+
+ technical parameters:
+      time step=      5.80     fictacious mass=  400000.0
+      tolerance=.100E-08 (energy)   0.100E-08 (density)   0.100E-03 (ion)
+
+
+
+
+
+======================
+= energy calculation =
+======================
+
+
+          ============ electron iteration ====================
+     >>>  ITERATION STARTED AT Wed Dec  5 11:15:11 2001  <<<
+      -  5 steepest descent iterations performed
+      25   -0.3835356752E+02   -0.15971E-05    0.16703E-07
+      50   -0.3835357047E+02   -0.17826E-08    0.17005E-10
+      75   -0.3835357047E+02   -0.60531E-09    0.12303E-11
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Wed Dec  5 11:17:07 2001  <<<
+
+
+          =============  summary of results  =================
+ final position of ions:
+        1 Si (    4.13850    4.13850    4.13850 ) - atomic mass= 27.977 
+        2 Si (    0.00000    0.00000    4.13850 ) - atomic mass= 27.977 
+        3 Si (    0.00000    4.13850    0.00000 ) - atomic mass= 27.977 
+        4 Si (    4.13850    0.00000    0.00000 ) - atomic mass= 27.977 
+        5 C  (   -2.06925   -2.06925   -2.06925 ) - atomic mass= 12.000 
+        6 C  (    2.06925    2.06925   -2.06925 ) - atomic mass= 12.000 
+        7 C  (    2.06925   -2.06925    2.06925 ) - atomic mass= 12.000 
+        8 C  (   -2.06925    2.06925    2.06925 ) - atomic mass= 12.000 
+       G.C.  (    1.03463    1.03463    1.03462 )
+      C.O.M. (    1.44812    1.44812    1.44812 )
+
+ number of electrons: spin up=   16.00000  down=   16.00000 (real space)
+
+ total     energy    :  -0.3835357047E+02 (   -0.47942E+01/ion)
+ total orbital energy:   0.4621733552E+01 (    0.28886E+00/electron)
+ hartree   energy    :   0.5074187085E+01 (    0.31714E+00/electron)
+ exc-corr  energy    :  -0.1221470485E+02 (   -0.76342E+00/electron)
+ ion-ion   energy    :  -0.4165217770E+02 (   -0.52065E+01/ion)
+
+ K.S. kinetic energy :   0.2392881729E+02 (    0.14956E+01/electron)
+ K.S. V_l  energy    :  -0.1609661789E+02 (   -0.10060E+01/electron)
+ K.S. V_nl energy    :   0.2606925597E+01 (    0.16293E+00/electron)
+ K.S. V_Hart energy  :   0.1014837417E+02 (    0.63427E+00/electron)
+ K.S. V_xc energy    :  -0.1596576562E+02 (   -0.99786E+00/electron)
+ Virial Coefficient  :  -0.8068549107E+00
+
+ orbital energies:
+     0.3523747E+00 (   9.589eV)
+     0.3523746E+00 (   9.589eV)
+     0.3523745E+00 (   9.589eV)
+     0.2299284E+00 (   6.257eV)
+     0.2299280E+00 (   6.257eV)
+     0.2299279E+00 (   6.257eV)
+     0.2299279E+00 (   6.257eV)
+     0.2299277E+00 (   6.257eV)
+     0.2299274E+00 (   6.257eV)
+     0.5604649E-01 (   1.525eV)
+     0.5604641E-01 (   1.525eV)
+     0.5604622E-01 (   1.525eV)
+    -0.2570468E-01 (  -0.699eV)
+    -0.2570485E-01 (  -0.699eV)
+    -0.2570501E-01 (  -0.699eV)
+    -0.2168490E+00 (  -5.901eV)
+
+ Total PSPW energy   :  -0.3835357047E+02
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =   0.
+ <S^2>      =   0.
+
+
+
+== Center of Charge ==
+
+spin up     (   -0.1687,   -0.1687,   -0.1687 )
+spin down   (   -0.1687,   -0.1687,   -0.1687 )
+     total  (   -0.1687,   -0.1687,   -0.1687 )
+ionic       (    1.0346,    1.0346,    1.0346 )
+
+
+== Molecular Dipole ==
+
+mu   =  (   38.5064,   38.5064,   38.5064 ) au
+|mu| =    66.6951 au,     169.5122 Debye
+
+
+========================
+= Gradient calculation =
+========================
+
+
+Translation force removed: (    0.00000    0.00000    0.00000)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 Si (    4.13850    4.13850    4.13850 )
+        2 Si (    0.00000    0.00000    4.13850 )
+        3 Si (    0.00000    4.13850    0.00000 )
+        4 Si (    4.13850    0.00000    0.00000 )
+        5 C  (   -2.06925   -2.06925   -2.06925 )
+        6 C  (    2.06925    2.06925   -2.06925 )
+        7 C  (    2.06925   -2.06925    2.06925 )
+        8 C  (   -2.06925    2.06925    2.06925 )
+ Ion Forces:
+        1 Si (    0.00000    0.00000    0.00000 )
+        2 Si (    0.00000    0.00000    0.00000 )
+        3 Si (    0.00000    0.00000    0.00000 )
+        4 Si (    0.00000    0.00000    0.00000 )
+        5 C  (    0.00002   -0.00002    0.00001 )
+        6 C  (   -0.00001    0.00002    0.00000 )
+        7 C  (    0.00001    0.00002    0.00000 )
+        8 C  (   -0.00002   -0.00003    0.00000 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.5795197528E-04
+
+
+
+ -----------------
+ cputime in seconds
+ prologue    :   36.89712
+ main loop   :   117.589784
+ epilogue    :   0.032368
+ total       :   154.519272
+ cputime/step:   0.412595733   ( 285 evalulations,  51 line searches)
+
+ -------------------------------
+ Time spent doing:
+   FFTs                       :   34.924694
+   dot products               :   18.318522
+   geodesic                   :   20.259204
+   exchange correlation       :   4.122702
+   local pseudopotentials     :   0.037138
+   non-local pseudopotentials :   34.783374
+   hartree potentials         :   0.132662
+   structure factors          :   9.341926
+   masking and packing        :   13.982882
+
+     >>>  JOB COMPLETED     AT Wed Dec  5 11:17:08 2001  <<<
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+ Task  times  cpu:      153.8s     wall:      154.5s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:   12       12      196       10        0        0        0        0     
+bytes total:             2.09e+05 8.19e+04 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 98304 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        78	        12
+	current total bytes		         0	         0
+	maximum total bytes		   3722236	    332508
+	maximum total K-bytes		      3723	       333
+	maximum total M-bytes		         4	         1
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 4.0.1" (2001), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis, E. J. Bylaska,
+            G. I. Fann, T. L. Windus, E. Apra, J. Anchell, D. Bernholdt, P. Borowski,
+            T. Clark, D. Clerc, H. Dachsel, B. de Jong, M. Deegan, K. Dyall, D. Elwood,
+            H. Fruchtl, E. Glendenning, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
+            R. Kendall, R. Kobayashi, R, Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor, G. Thomas,
+            J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
+            "NWChem, A Computational Chemistry Package for Parallel Computers, 
+            Version 4.0.1" (2001),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+                                    REFERENCES
+                                    ----------
+
+            Where appropriate, please cite the following reference(s) 
+            when publishing results obtained with NWChem:
+
+
+     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
+        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
+        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
+        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
+        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
+
+
+
+ Total times  cpu:      154.0s     wall:      154.7s

@@ -28,11 +28,33 @@ nwpw
      ngrid: 16 16 16
    end
    ewald_ncut: 8
+   mulliken
 end
 set nwpw:lcao_iterations 20
 set nwpw:minimizer 2
 #set nwpw:lmbfgs_size 1
 #set nwpw:precondition .false.
+#set nwpw:lcao_skip .true.
 
 task pspw energy
 
+nwpw
+  tolerances 1.0d-9 1.0d-9 
+end
+
+## stupid input ##
+set nwpw:mulliken .false.
+set cgsd:mulliken .false.
+set band:mulliken .false.
+set nwpw:mulliken_kawai .false.
+
+
+driver
+   clear
+end
+set includestress .true.          # tell driver to optimize unit cell
+task pspw optimize
+
+set nwpw:stress_numerical .true.
+set includestress .true.          # tell driver to optimize unit cell using numerical stress
+task pspw optimize
