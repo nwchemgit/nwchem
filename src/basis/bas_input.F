@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.51 2000-10-23 05:16:52 d3e129 Exp $
+c $Id: bas_input.F,v 1.52 2000-10-23 17:25:34 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -931,10 +931,12 @@ c
       logical is_it_open
       logical debug
       logical foundit
+      logical nwrcopen
       integer calls
       data calls/0/
       save calls
 *
+      nwrcopen=.false.
       from_environment = .false.
       from_nwchemrc    = .false.
       from_compile     = .false.
@@ -1002,11 +1004,13 @@ c
           is_it_open = .false.
           inquire(unit=unitrc,opened=is_it_open)
           if (is_it_open) goto 00001
+          nwrcopen=.false.
 * found unitrc
           open (unit=unitrc,  file=file_nwchemrc,
      &        status='old', err=99998,
      &        form='formatted',
      &        access='sequential')
+          nwrcopen=.true.
           call inp_init(unitrc,LuOut)
 00002     continue
           if (.not.inp_read()) then
@@ -1021,7 +1025,6 @@ c
           if (foundit) then
             if (.not.inp_a(test)) call errquit('inp_a error 2',911)
             libname = test
-            close(unit=unitrc,status='keep')  ! close file after library name found
             does_it_exist = .false.
             inquire(file=libname,exist=does_it_exist)
             if (does_it_exist)then
@@ -1069,6 +1072,8 @@ c
      &      libname(1:inp_strlen(libname)),'>'
         write(luout,*) ' '
       endif
+      if (nwrcopen)
+     .     close(unit=unitrc,status='keep') ! close file after library name found
       end
       subroutine bas_set_library_name()
       implicit none
