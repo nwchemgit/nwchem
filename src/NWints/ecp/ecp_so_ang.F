@@ -3,7 +3,8 @@ C$Id
 *                                                                      *
       subroutine ecp_so_ang (l,angint,soint,n_ang)
 *                                                                      *
-*   Perform sum over m for spin-orbit integrals                        *
+*   Perform sum over m for spin-orbit integrals. This includes the 2/l *
+*   factor in the s.l formalism                                        *
 *                                                                      *
 *   Argument (status) - description                                    *
 *                                                                      *
@@ -24,6 +25,7 @@ C$Id
 *
       ll = 2*l+1
       call dfill (ll*n_ang*3,zero,soint,1)
+      if (l .eq. 0) return
       do m = 1,l
 *
 *     z spin-orbit component
@@ -48,6 +50,10 @@ C$Id
         call daxpy (n_ang,wa,angint(-m,1),ll,soint(1-m,1,2),ll)
         call daxpy (n_ang,-wa,angint(1-m,1),ll,soint(-m,1,2),ll)
       end do
+*
+      wa = l
+      wa = two/wa
+      call dscal (ll*n_ang*3,wa,soint,1)
 *
       return
       end
