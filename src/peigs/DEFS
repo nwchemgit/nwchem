@@ -349,7 +349,7 @@ peigs_COMM =TCGMSG
 peigs_CPU = RS6000
 peigs_CODEOBJ=DBLE
 peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
--I$(HDIR) -qfloat=rsqrt:fltint:hssngl  -qinline
+-I$(peigs_HDIR) -qfloat=rsqrt:fltint:hssngl  -qinline
 
 peigs_FC  += -qthreaded -I$(peigs_HDIR) -O3 -qstrict \
 -WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
