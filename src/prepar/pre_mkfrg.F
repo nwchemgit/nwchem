@@ -6,7 +6,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.28 2000-03-13 18:04:28 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.29 2000-03-17 17:22:56 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -196,7 +196,7 @@ c
 c     memory allocation for work array ltyp
 c     -------------------------------------
 c
-      mtyp=nato+25
+      mtyp=nato+50
       if(.not.ma_push_get(mt_int,15*mtyp,'ltyp',l_ltyp,i_ltyp))
      + call errquit('Memory allocation failed for ltyp',9999)
 c

@@ -3,7 +3,7 @@
      + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
      + isar,xs,vs,msa,nsa,msm,nsm)
 c
-c $Id: pre_wrtrst.F,v 1.12 2000-01-26 16:51:17 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.13 2000-03-17 17:22:56 d3j191 Exp $
 c
       implicit none
 c
@@ -119,7 +119,7 @@ c
 c
       call swatch(rstdat,rsttim)
 c
-      write(lfnrst,1001) 3.4,rstdat,rsttim
+      write(lfnrst,1001) 3.1,rstdat,rsttim
  1001 format('This is an automatically generated restart file',/,
      + ' ',/,' ',/,f12.6,2a10)
       write(lfnrst,1002) npbtyp,box,nbxtyp
@@ -214,7 +214,7 @@ c
 c
       if(util_print('files',print_default)) then
       write(lfnout,2000) filrst(1:length)
- 2000 format(' Created restart',t40,a,/)
+ 2000 format(' Created old format restart',t40,a,/)
       endif
 c
       pre_wtrst=.true.

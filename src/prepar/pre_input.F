@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.36 2000-02-20 16:05:14 d3j191 Exp $
+c $Id: pre_input.F,v 1.37 2000-03-17 17:22:55 d3j191 Exp $
 c
       implicit none
 c
@@ -825,6 +825,14 @@ c
       else
       write(68,6808) item(1:index(item,' ')-1)
  6808 format('wr_rst ',a)
+      lwrcoo=.true.
+      endif
+      elseif(inp_compare(.false.,'rst_old',item)) then
+      if(.not.inp_a(item)) then
+      write(68,6808) ' '
+      else
+      write(68,6848) item(1:index(item,' ')-1)
+ 6848 format('wr_old ',a)
       lwrcoo=.true.
       endif
       elseif(inp_compare(.false.,'xyz',item)) then

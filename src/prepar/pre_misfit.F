@@ -1,8 +1,8 @@
-      logical function pre_misfit(lfnout,isfnd,xs,qsa,msa,nsa,
+      logical function pre_misfit(lfnout,isfnd,xs,csa,qsa,msa,nsa,
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.17 2000-03-07 20:35:39 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.18 2000-03-17 17:22:56 d3j191 Exp $
 c
       implicit none
 c
@@ -16,6 +16,7 @@ c
       integer lfnout,msa,nsa,msb,nsb,mgrid,iwater,mwm,mwa,nwm,nwa
       integer isfnd(msa),idsb(2,msb),iwfnd(mwm),npbtyp
       real*8 cdsb(msb),xs(3,msa),qsa(msa)
+      character*16 csa(msa)
       real*8 xw(3,mwa,mwm),qwa(mwa),box(3)
 c
       real*8 grid(4,mgrid),distx,disty,distz
@@ -43,7 +44,7 @@ c
       if(isfnd(i).ne.1) then
 c
       if(util_print('coordinates',print_debug)) then
-      write(lfnout,'(a,i7)') 'Not found: atom ',i
+      write(lfnout,'(a,i7,5x,a16') 'Not found: atom ',i,csa(i)
       endif
       nn=0
 c
@@ -445,8 +446,8 @@ c
       else
       miss=miss+1
       if(util_print('coordinates',print_none)) then
-      write(lfnout,9998) i
- 9998 format(' Coordinates missing for atom ',i5)
+      write(lfnout,9998) i,csa(i)
+ 9998 format(' Coordinates missing for atom ',i5,':',a)
       endif
       endif
       endif

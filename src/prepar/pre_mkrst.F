@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.42 2000-02-14 18:41:55 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.43 2000-03-17 17:22:56 d3j191 Exp $
 c
       implicit none
 c
@@ -263,7 +263,8 @@ c
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
       if(.not.pre_misfit(lfnout,int_mb(i_sfnd),dbl_mb(i_xs),
-     + dbl_mb(i_qsa),msa,nsa,int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
+     + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,
+     + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
      + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
      + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box))
      + call errquit('pre_misfit failed',9999)
@@ -449,13 +450,8 @@ c
       filnam=card(8:80)
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filrst
-      if(mdold.gt.0) then
-      if(.not.pre_rstsz(lfnrst,filnam,nnwm,nnwa,nnsa,nnwmc))
-     + call errquit('pre_rstsiz failed',9999)
-      else
       if(.not.pre_rstsiz(lfnrst,filnam,nnwm,nnwa,nnsa,nnwmc))
      + call errquit('pre_rstsiz failed',9999)
-      endif
       if(nnwm.gt.mwm) then
       if(lsolva) then
       if(.not.ma_free_heap(l_xw))
@@ -497,21 +493,13 @@ c
       if(.not.ma_alloc_get(mt_int,mwmc,'wcmr',l_wcmr,i_wcmr))
      + call errquit('ma_alloc_get failed for wcmr',9999)
       lcryst=.true.
-      if(mdold.gt.0) then
-      if(.not.pre_rrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
-     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
-     + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
-     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
-     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
-     + call errquit('pre_rdrst failed',9999)
-      else
       if(.not.pre_rdrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
      + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_rdrst failed',9999)
-      endif
+
       endif
 c
 c     read restart file
@@ -683,7 +671,8 @@ c
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
       if(.not.pre_misfit(lfnout,int_mb(i_sfnd),dbl_mb(i_xs),
-     + dbl_mb(i_qsa),msa,nsa,int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
+     + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,
+     + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
      + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
      + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box))
      + call errquit('pre_misfit failed',9999)
@@ -710,20 +699,26 @@ c
       filnam=card(8:80)
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filrst
-      if(mdold.gt.0) then
-      if(.not.pre_wtrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
-     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
-     + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
-     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
-     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
-     + call errquit('pre_wtrst failed',9999)
-      else
       if(.not.pre_wrtrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,msm,nsm))
      + call errquit('pre_wrtrst failed',9999)
       endif
+c
+c     write restart file
+c     ------------------
+c
+      if(card(1:6).eq.'wr_old') then
+      filnam=card(8:80)
+      length=index(filnam,' ')-1
+      if(length.eq.0) filnam=filrst
+      if(.not.pre_wtrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
+     + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
+     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + call errquit('pre_wtrst failed',9999)
       endif
 c
 c
