@@ -1,0 +1,36 @@
+c
+c   Common block for MCSCF pstat handles
+c
+      integer ps_orb
+      integer ps_ci
+      integer ps_4index
+      integer ps_prcnd
+      integer ps_hv
+      integer ps_hv1e
+      integer ps_hv2e
+      integer ps_hv2eao
+      integer ps_hv2emo
+      integer ps_gfock
+      integer ps_cidiag
+      integer ps_cidens
+      logical omcscfprof
+      logical ofockprof
+      logical ociprof
+      common/mcscfprof/ps_orb,
+     $                 ps_ci,
+     $                 ps_4index,
+     $                 ps_prcnd,
+     $                 ps_hv,
+     $                 ps_hv1e,
+     $                 ps_hv2e,
+     $                 ps_hv2eao,
+     $                 ps_hv2emo,
+     $                 ps_gfock,
+     $                 ps_cidiag,
+     $                 ps_cidens,
+     $                 omcscfprof,
+     $                 ofockprof,
+     $                 ociprof
+
+c
+c
