@@ -1,6 +1,6 @@
       subroutine tce_mo1e(g_ao1e,d_mo1e)
 c
-c $Id: tce_mo1e.F,v 1.6 2002-11-20 06:01:33 sohirata Exp $
+c $Id: tce_mo1e.F,v 1.7 2003-04-15 17:08:43 sohirata Exp $
 c
 c     Spin-spatial-symmetry blocked Fock matrix transformations.
 c
@@ -110,5 +110,105 @@ c
      1  call errquit('tce_mo1e: GA problem',2)
       if (.not.ga_destroy(g_ao1e(2)))
      1  call errquit('tce_mo1e: GA problem',3)
+      return
+      end
+
+
+
+      subroutine tce_mo1e_epsilon(d_mo1e)
+c
+c     Spin-spatial-symmetry blocked Fock matrix formation from epsilons.
+c
+      implicit none
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "sym.fh"
+#include "sf.fh"
+#include "tce.fh"
+      integer l_mo1e,k_mo1e       ! MO Fock matrices
+      integer sf_size,sf_offset   ! SF size and offset
+      integer d_mo1e              ! File handle
+      integer spin                ! Spin
+      integer g1b,g2b             ! Block indexes
+      integer range_g1,range_g2   ! Block ranges
+      integer g1,g2
+      logical nodezero
+c
+c     =====================================
+c     Determine the size of SF and allocate
+c     =====================================
+c
+      nodezero = (ga_nodeid().eq.0)
+      sf_size=0
+      do g1b = 1,noa+nob+nva+nvb
+        do g2b = 1,noa+nob+nva+nvb
+          if (int_mb(k_spin+g1b-1) .eq. int_mb(k_spin+g2b-1)) then
+          if ((.not.restricted).or.(int_mb(k_spin+g1b-1)
+     1      +int_mb(k_spin+g2b-1).ne.4)) then
+          if (ieor(int_mb(k_sym+g1b-1),int_mb(k_sym+g2b-1))
+     1      .eq. 0) then
+            sf_size = sf_size + int_mb(k_range+g1b-1)
+     1                        * int_mb(k_range+g2b-1)
+          endif
+          endif
+          endif
+        enddo
+      enddo
+      if (.not.ma_push_get(mt_dbl,sf_size,'MO Fock',
+     1  l_mo1e,k_mo1e)) call errquit('tce_mo1e: MA problem',3)
+c
+c     ==============
+c     Transformation
+c     ==============
+c
+      sf_offset=0
+      do g2b = 1,noa+nob+nva+nvb
+        do g1b = 1,noa+nob+nva+nvb
+          if (int_mb(k_spin+g1b-1) .eq. int_mb(k_spin+g2b-1)) then
+          if ((.not.restricted).or.(int_mb(k_spin+g1b-1)
+     1      +int_mb(k_spin+g2b-1).ne.4)) then
+          if (ieor(int_mb(k_sym+g1b-1),int_mb(k_sym+g2b-1))
+     1      .eq. 0) then
+            spin = int_mb(k_spin+g1b-1)
+            range_g1 = int_mb(k_range+g1b-1)
+            range_g2 = int_mb(k_range+g2b-1)
+            do g2 = 1, range_g2
+              do g1 = 1, range_g1
+                if ((g1b.eq.g2b).and.(g1.eq.g2)) then
+                  dbl_mb(k_mo1e+sf_offset+(g2-1)*range_g1+g1-1)=
+     1            dbl_mb(k_evl_sorted+int_mb(k_offset+g1b-1)+g1-1)
+                else
+                  dbl_mb(k_mo1e+sf_offset+(g2-1)*range_g1+g1-1)=0.0d0
+                endif
+              enddo
+            enddo
+            if (nodezero.and.util_print('mo1e',print_debug))
+     1        call ma_print(dbl_mb(k_mo1e+sf_offset),
+     2        range_g1,range_g2,'Spin symmetry block of Fock')
+            sf_offset = sf_offset + range_g1 * range_g2
+          endif
+          endif
+          endif
+        enddo
+      enddo
+c
+c     ===========
+c     Write to SF
+c     ===========
+c
+      call put_block(d_mo1e,dbl_mb(k_mo1e),sf_size,0)
+c
+c     ===================
+c     Close SF and return
+c     ===================
+c
+      if (nodezero.and.util_print('mo1e',print_debug)) then
+        call sf_print(d_mo1e,sf_size)
+      endif
+      if (.not.ma_pop_stack(l_mo1e))
+     1  call errquit('tce_mo1e: MA problem',6)
       return
       end

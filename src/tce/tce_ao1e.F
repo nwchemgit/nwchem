@@ -1,6 +1,6 @@
       subroutine tce_ao1e_shellfockbuild(rtdb,g_ao1e)
 c
-c $Id: tce_ao1e.F,v 1.3 2002-11-16 06:27:52 sohirata Exp $
+c $Id: tce_ao1e.F,v 1.4 2003-04-15 17:08:43 sohirata Exp $
 c
 c     Returns a GA handle for AO Fock matrix.
 c
@@ -304,9 +304,5 @@ c     ======
 c     Return
 c     ======
 c
-      do i = 1, ipol
-        if (.not.ga_destroy(g_movecs(i)))
-     1    call errquit('tce_ao1e: GA problem',0)
-      enddo
       return
       end
