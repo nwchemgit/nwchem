@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.7 2003-01-23 01:24:14 marat Exp $
+* $Id: paw_ovlp.F,v 1.8 2003-01-27 01:56:37 marat Exp $
 *
 
 !**************************************************
@@ -28,11 +28,14 @@
       external psi_ne
       external ion_nion,ion_natm,ion_nkatm,ion_katm
 
+c     !*** total number of (n,l,m) projectors  ***
       total_nbasis = 0
       do ia=1,ion_nkatm()
          total_nbasis = total_nbasis 
      >                + paw_proj_nbasis(ia)*ion_natm(ia)
       end do
+
+c     !*** total number of electron states ***
       neall = (psi_ne(1) + psi_ne(2))
 
       value =           MA_alloc_get(mt_dcpl,(total_nbasis*neall),
@@ -47,8 +50,6 @@
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
 
-      nbasis = paw_proj_nbasis(1)
-      write(*,*) "paw_ovlp_init set unscramble arrays"
 
       !*** set unsrcramble arrays ***
       nion = ion_nion()
