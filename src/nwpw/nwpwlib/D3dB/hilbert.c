@@ -1,5 +1,5 @@
 /* hilbert.c -
-$Id: hilbert.c,v 1.3 2004-04-26 00:07:53 bylaska Exp $
+$Id: hilbert.c,v 1.4 2004-05-12 20:20:00 edo Exp $
    Author - Eric Bylaska
 
    This file contains 2d hilbert mapping routines
@@ -10,6 +10,9 @@ $Id: hilbert.c,v 1.3 2004-04-26 00:07:53 bylaska Exp $
 #include "typesf2c.h"
 #include "olist.h"
 
+#ifdef WIN32
+#define hilbert2d_map_ HILBERT2D_MAP
+#endif
 
 
 #define bottom_left     0
