@@ -1,0 +1,2 @@
+      logical flag
+      common /ceccemoprint/flag ! Used to suppress MO print in geom opt
