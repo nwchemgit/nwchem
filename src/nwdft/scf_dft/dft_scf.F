@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.130 1999-08-11 21:06:29 jolguin Exp $
+c     $Id: dft_scf.F,v 1.131 1999-08-30 22:32:21 edo Exp $
 c     
       implicit none
 c
@@ -530,6 +530,7 @@ c
 c
 c     get info for int2e_ and set sleazy tolerance
 c     
+cedo      tol2e_sleazy = 1.d-7
       tol2e_sleazy = 1.d-3
       call scf_get_fock_param(rtdb, tol2e_sleazy)
 c
@@ -1017,6 +1018,12 @@ c
          if (oprint_intermediate_fock)then     
             call ga_print(g_fock)
          endif
+#if defined(DFT_TIMER)
+         call dft_second(tp4)
+         pgmsect(10) = '   ga_dgemm   '
+         call tcllct(t_pgm(1,10),tp4,tp3)
+         call dft_second(tp3)
+#endif
 #if defined(PARALLEL_DIAG)
          call ga_diag_std(g_fock, g_tmp, Dbl_MB(k_eval(ispin)))
 #else 
@@ -1093,8 +1100,8 @@ c
          call ga_sync
 #if defined(DFT_TIMER)
          call dft_second(tp4)
-         pgmsect(10) = '   Diag   '
-         call tcllct(t_pgm(1,10),tp4,tp3)
+         pgmsect(11) = '   Diag   '
+         call tcllct(t_pgm(1,11),tp4,tp3)
 #endif
 c     
 c        Save previous density for convergence check.
