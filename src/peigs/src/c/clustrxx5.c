@@ -397,7 +397,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       onenrm = max(onenrm, tmp );
     }
     
-    stpcrt = 10.*sqrt((DoublePrecision ) 1.0e-1 / (DoublePrecision ) blksiz);
+    stpcrt = 5.*sqrt((DoublePrecision ) 1.0e-1 / (DoublePrecision ) blksiz);
     
     indx = 0;
     if ( csiz > 1 ){

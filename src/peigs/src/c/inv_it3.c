@@ -1,5 +1,5 @@
 /*
- $Id: inv_it3.c,v 1.8 2000-02-28 21:41:45 d3g270 Exp $
+ $Id: inv_it3.c,v 1.9 2000-05-22 23:11:06 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -55,7 +55,9 @@ Integer inv_it( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps,
 #include "clustr_inv.h"
 
 #define    ITS   2
-#define    MAXITR 5
+#define    MAXITR 10
+#define FABS(a)   ((a) < (DoublePrecision) 0.0e0 ? (- a): (a))
+
 extern DoublePrecision psigma, psgn;
 
 
@@ -161,18 +163,16 @@ Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps
       niter++;
       
       if (niter > MAXITR){
-        /*
-	  fprintf(stderr, " \n me = %d MAXITS exceeded in inv_it \n \n", me);
-	  fprintf(stderr, " c1= %d cn= %d b1= %d bn = %d \n", *c1,*cn,*b1,*bn);
-	  fprintf(stderr, " nrm = %g stpcrt = %g \n", nrm, *stpcrt );
-	  fprintf(stderr, "xj = %g onenrm = %g \n", xj, *onenrm);
-	  for (indx22  = *b1; indx22 < *bn + 1; indx22++ )
-	  fprintf(stderr, "d[%d] = %g e[%d] = %g \n",
-	  indx22, d[indx22], indx22, e[indx22]);
-	  exit (-1);
-        */
+	fprintf(stderr, " \n me = %d MAXITS exceeded in inv_it \n \n", me);
+	fprintf(stderr, " c1= %d cn= %d b1= %d bn = %d \n", *c1,*cn,*b1,*bn);
+	fprintf(stderr, " nrm = %g stpcrt = %g \n", nrm, *stpcrt );
+	fprintf(stderr, "xj = %e onenrm = %e \n", xj, *onenrm);
+	for (indx22  = *b1; indx22 < *bn + 1; indx22++ )
+	  fprintf(stderr, "d[%d] = %e e[%d] = %e \n",
+		  indx22, d[indx22], indx22, e[indx22]);
+
 	
-	printf(" \n me = %d Eigenvector %d failed to convergve in inv_it \n \n", me, *c1 + j );
+	printf(" \n me = %d Eigenvector %d failed to convergve in inv_it3 \n \n", me, *c1 + j );
 	
         if( ibad == 0 )
 	  ibad = *c1 + j + 1;   /* note +1 needed since *c1 may be 0 */
@@ -190,10 +190,10 @@ Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps
       scl *= (DoublePrecision) blksz ;
       scl *= *onenrm ;
       /*
-	scl *= max(*eps, fabs(work[indrv4 + blksz - 1]));
+	scl *= max(*eps, FABS(work[indrv4 + blksz - 1]));
       */
 
-      scl *= max(*eps, fabs(work[indrv4 + blksz - 1]) / *onenrm );
+      scl *= max(*eps, FABS(work[indrv4 + blksz - 1]) / *onenrm );
       dscal_(&blksz, &scl, ptr, &IONE );
       
       /*
@@ -207,11 +207,11 @@ Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps
 	       &work[indrv3], &work[indrv5], &iwork[0], ptr, &tol, &info);
       
       jmax = idamax_(&blksz, ptr, &IONE);
-      nrm = fabs( *(ptr + jmax - 1 ) );
+      nrm = FABS(ptr[jmax - 1]);
       
       if ( nrm < *stpcrt ) goto loop;
-      
       nrmchk++;
+
       if ( nrmchk < ITS ) goto loop;
       /*
 	should do something about this

@@ -1,5 +1,5 @@
 /*
- $Id: pdspevx.c,v 1.38 2000-03-22 21:45:47 d3g270 Exp $
+ $Id: pdspevx.c,v 1.39 2000-05-22 23:11:07 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -784,8 +784,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    fprintf(file, "%d \n", msize);
    for ( iii = 0; iii < msize; iii++)
      fprintf(file, "%d %20.16f %20.16f \n", iii, dd[iii], ee[iii]);
-   fflush(file);
    fclose(file);
+   fflush(file);
    */
 
 #ifdef DEBUG7
