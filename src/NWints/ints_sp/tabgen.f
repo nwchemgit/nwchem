@@ -1,5 +1,6 @@
+C$PRAGMA SUN OPT=2
       subroutine tabgen
-c $Id: tabgen.f,v 1.2 1995-11-03 20:41:22 d3g681 Exp $
+c $Id: tabgen.f,v 1.3 2000-05-05 20:41:51 edo Exp $
 c
 c        *****  computes and tabulates f0(x) to f5(x)           *****
 c        *****  in range x = -0.24 to x = 26.4                  *****
