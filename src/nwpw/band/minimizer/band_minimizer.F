@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.10 2002-01-04 23:20:00 bylaska Exp $
+* $Id: band_minimizer.F,v 1.11 2002-01-10 15:36:40 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -362,11 +362,6 @@
 *                |***************************|
 
       
-      E(5) = c_ewald_e()
-      if (taskid.eq.MASTER) then
-      write(6,1470) E(5),E(5)/ion_nion()
-      end if
-
 *     **** calculate Mulliken Populations ***
 
 *     **** write geometry to rtdb ****
