@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.33 2001-12-15 01:05:23 edo Exp $
+C$Id: dft_densm.F,v 1.34 2002-07-14 05:15:44 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -74,7 +74,7 @@ cedo         if (check_deg.and.ipol.eq.2) then
          enddo
       else	
          if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
-     &        call errquit('dftdensm: failed to alloc tmpm',0)
+     &        call errquit('dftdensm: failed to alloc tmpm',nbf)
 c
 c     initialize ef
 c
@@ -296,10 +296,11 @@ c
       nb=0d0
       do i=1,nmo(1)
          x=(evals(i)-efermi)/ssmear
-         xb=(evals(i+nbf)-efermi)/ssmear
          na=util_erfc(x)*0.5d0
-	if(ipol.eq.2.and.nmo(2).ne.0) 
-     *    nb=util_erfc(xb)*0.5d0
+	if(ipol.eq.2.and.nmo(2).ne.0) then
+         xb=(evals(i+nbf)-efermi)/ssmear
+         nb=util_erfc(xb)*0.5d0
+        endif
          fzeroa=fzeroa+na
          if(ipol.eq.2) fzerob=fzerob+nb
       enddo
@@ -380,13 +381,13 @@ c
 c
 c  assignments      
 c
-      ncheck=0d0
       do ispin=1,ipol
          avg_fon = dble(nel_fon(ispin))/dble(nmo_fon(ispin)) 
          do i=1,noc(ispin)-nel_fon(ispin)
             focc(i,ispin) = 2d0/ipol
-            ncheck=ncheck+focc(i,ispin)
          enddo
+            ncheck=(noc(ispin)-nel_fon(ispin)+1d0)*
+     .      2d0/dble(ipol)
          do i = noc(ispin)-nel_fon(ispin)+1,
      ,        noc(ispin)-nel_fon(ispin)+nmo_fon(ispin)
             focc(i,ispin) = avg_fon*(2d0/ipol)
