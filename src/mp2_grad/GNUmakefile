@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.30 1997-05-20 00:15:20 d3g681 Exp $
+#$Id: GNUmakefile,v 1.31 1998-10-12 18:35:33 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -22,6 +22,11 @@ OBJ_OPTIMIZE = mp2_back_transform.o \
                mp2_lai_fock_uhf.o mp2_memory.o
 
 ifeq ($(TARGET),SGITFP)
+   OBJ += mp2_make_tuhf.o
+else
+   OBJ_OPTIMIZE += mp2_make_tuhf.o
+endif
+ifeq ($(TARGET),SGI_N32)
    OBJ += mp2_make_tuhf.o
 else
    OBJ_OPTIMIZE += mp2_make_tuhf.o
