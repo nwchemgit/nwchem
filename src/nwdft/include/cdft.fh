@@ -1,15 +1,22 @@
 c
-C$Id: cdft.fh,v 1.7 1996-12-30 21:54:40 d3h449 Exp $
+C$Id: cdft.fh,v 1.8 1997-02-13 19:02:12 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
+c
+c     variables related to "vectors" input,
+c     variables related to "convergence" input,
+c     variables related to "xc" input,
+c     variables related to "tolerances" input,
+c     variables related to "grid" input, and
+c     other misc variables.
 c
       character*255 title
       character*10 gridtype
       character*40 xname, cname, xcname
       double precision
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
-     &     rcharge, rscale, cfac, xfac, TOLL, radius, rm, hl_tol
+     &     rcharge, rscale, cfac, xfac, tol_rho, radius, rm, hl_tol
       logical
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
@@ -31,7 +38,7 @@ c     Doubles
 c
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
      &     rcharge, rscale, cfac(15), xfac(15),
-     &     TOLL, radius, rm, hl_tol, 
+     &     tol_rho, radius, rm, hl_tol, 
 c
 c     Logicals
 c

@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.12 1997-02-13 01:07:35 d3g681 Exp $
+c     $Id: dft_input.F,v 1.13 1997-02-13 19:01:36 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -48,7 +48,7 @@ c
      &     iAOacc,iXCacc,irqmax,itol2e,imull,iangquad,
      &     ncydp, ncysh, ncyds,
      &     nquad_task
-      double precision rlshift, TOLL, radius, rm, hl_tol
+      double precision rlshift, tol_rho, radius, rm, hl_tol
       double precision dampon, dampoff, levlon, levloff, 
      &                 diison, diisoff
       integer nfield, iline
@@ -1247,16 +1247,16 @@ c
 c
             elseif ( inp_compare(.false., 'tol_rho', test)) then
 c             
-c>>>          TOLL
+c>>>          tol_rho
 c             
-              if ( .not. inp_f(TOLL) ) then
+              if ( .not. inp_f(tol_rho) ) then
                 write(6,*)
      &               ' dft_input: tol_rho value not found; defaulting ',
      &               ' to 1.d-15 '
-                TOLL=1.D-15
+                tol_rho=1.D-15
               endif            
               if (.not. rtdb_put(rtdb, 'dft:tol_rho',
-     &           mt_dbl, 1,TOLL))
+     &           mt_dbl, 1,tol_rho))
      &           call errquit('dft_input: rtdb_put failed', 214)
 c
             elseif ( inp_compare(.false., 'rm', test)) then
