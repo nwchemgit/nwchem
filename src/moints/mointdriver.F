@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.51 1996-10-21 22:45:55 rg240 Exp $
+C$Id: mointdriver.F,v 1.52 1996-10-22 08:37:08 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -204,7 +204,7 @@ c Allocate pair energy array
 c
        if (.not.ga_create(MT_DBL,1,((nocc_correl*(nocc_correl+1))/2),
      $      'epair',1,1,g_epair))
-     $      call errquit('cannot create epair array',0)
+     $      call errquit('mointdriver: cannot create epair array',0)
 c
 c Symmetry toggle
 c
