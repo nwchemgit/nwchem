@@ -105,6 +105,7 @@ void MAIN1()
   extern DoublePrecision mxclock_(); 
   extern Integer mxnprc_();
   extern Integer mxmynd_();
+  extern Integer mxsync_();
   
   extern void memreq_();
   
@@ -152,7 +153,7 @@ void MAIN1()
   }
   
   if ((mapB = (Integer *) malloc( n * sizeof(Integer))) == NULL ) {
-    fprintf(stderr, " me = %d: ERROR in memory allocation, not enough memory for mapB \n");
+    fprintf(stderr, "me = %d: ERROR in memory allocation, not enough memory for mapB \n", me);
     exit(-1);
   }
   
