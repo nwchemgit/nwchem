@@ -1,7 +1,7 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.2 1997-04-18 21:54:09 d3e129 Exp $
+* $Id: bas_blasP.F,v 1.3 1998-02-05 00:01:43 d3e129 Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
@@ -125,6 +125,8 @@ c
 c
 c     Increment basis info on this tag
 c
+      infbs_tags(Tag_High_Ang,itag,ind) =
+     &      max(infbs_tags(Tag_High_Ang,itag,ind),abs(l_value))
       infbs_tags(TAG_NCONT,itag,ind) = infbs_tags(TAG_NCONT,itag,ind)
      $     + 1
       infbs_tags(TAG_NPRIM,itag,ind) = infbs_tags(TAG_NPRIM,itag,ind)
@@ -147,7 +149,6 @@ c
       infbs_cont(CONT_TYPE, iu_cont,ind) = l_value
       infbs_cont(CONT_NPRIM,iu_cont,ind) = nprim
       infbs_cont(CONT_NGEN, iu_cont,ind) = ngen
-      infbs_cont(CONT_TYPE, iu_cont,ind) = l_value
       infbs_cont(CONT_IEXP, iu_cont,ind) = free
       infbs_cont(CONT_ICFP, iu_cont,ind) = free + nprim
       if (Is_ecp) then

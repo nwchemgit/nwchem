@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.76 1997-11-12 22:23:52 d3e129 Exp $
+c $Id: basis.F,v 1.77 1998-02-05 00:01:46 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1247,6 +1247,8 @@ c::local
       integer uce
 *debug:mem      integer inode
 c::functions
+      logical bas_high_angular
+      external bas_high_angular
       integer nbf_from_ucont
       external nbf_from_ucont
       logical ecp_get_num_elec
@@ -1659,10 +1661,8 @@ c
 c build high angular momentum of this loaded <basis|geom> pair
 c note angular_bs(*) initialized in block data function
 c
-      do 00800 i = 1, infbs_head(HEAD_NCONT,basis)
-        myang   = abs(infbs_cont(CONT_TYPE,i,basis))
-        angular_bs(basis) = max(angular_bs(basis),myang)
-00800 continue
+      if (.not.bas_high_angular(basisin,myang))call errquit
+     &      ('bas_geobas_build: error bas_high_angular',911)
 *
       if (Is_ECP(basis)) then
 * if ECP basis must modify geometry data appropriately
@@ -1853,6 +1853,7 @@ c:: passed
       integer high_angular  ! [output] high angular momentum of basis
 c:local
       integer basis, myucont, i, myang
+      integer myutag
 c
       bas_high_angular = bas_check_handle(basisin,'bas_high_angular')
       if (.not. bas_high_angular ) then
@@ -1867,15 +1868,15 @@ c
         return
       endif
 c
-      myucont = infbs_head(HEAD_NCONT,basis)
+      myutag =  infbs_head(head_ntags,basis)
       high_angular = -565
-c
-      do 00100 i = 1,myucont
-        myang = abs(infbs_cont(CONT_TYPE,i,basis))
-        high_angular = max(high_angular, myang)
-00100 continue
-c
+      do i = 1,myutag
+        myang = abs(infbs_tags(tag_high_ang,i,basis))
+        high_angular = max(high_angular,myang)
+      enddo
+*is this needed here?
       angular_bs(basis) = high_angular
+c
       bas_high_angular = .true.
       return
       end
@@ -3476,7 +3477,7 @@ c
       logical bas_numcont, bas_continfo
       external bas_numcont, bas_continfo
 c::args
-C$Id: basis.F,v 1.76 1997-11-12 22:23:52 d3e129 Exp $
+C$Id: basis.F,v 1.77 1998-02-05 00:01:46 d3e129 Exp $
       integer basis_hand ! nwchem basis handle
       integer ncontr_max  ! max no of contractions for any contraction set
 c::locals

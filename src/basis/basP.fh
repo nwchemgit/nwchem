@@ -1,4 +1,4 @@
-c $Id: basP.fh,v 1.10 1997-04-25 00:41:21 d3e129 Exp $
+c $Id: basP.fh,v 1.11 1998-02-05 00:01:43 d3e129 Exp $
 c:basP.fh
 c
 c basis set object/api  
@@ -121,13 +121,14 @@ c           ! 4 = num_coeff_total    ! num of coeffs in basis
 c           ! 5 = ex_off             ! next ptr in exndcf array
 c           ! 6 = shpherical         ! yes/no  1/o
 c           ! 7 = ECP_basis            ! yes/no  1/0
-c  Integer infbs_tags(6,num_tags)      
+c  Integer infbs_tags(7,num_tags)      
 c           ! 1 = num_cont   ! Num of conts on tag
 c           ! 2 = nprim_tag  ! Num of prim exponents on tag
 c           ! 3 = ncoeff_tag ! Num of prim coeffs on tag
 c           ! 4 = first cont ! first contaction on tag
 c           ! 5 = last cont  ! last contaction on tag
 c           ! 6 = nelec      ! number of elecs removed by ECP
+c           ! 7 = high ang   ! highest angular momentum on tag
 c  Integer infbs_cont(7,num_cont) 
 c           ! 1 = itype    ! type of contraction 0=s,1=p,2=d...
 c                          ! later -1=sp,-2=spd etc.
@@ -165,13 +166,14 @@ c           ! 4 = num_coeff_total      ! num of coeffs in basis
 c           ! 5 = ex_off               ! next ptr in exndcf array
 c           ! 6 = spherical            ! yes/no  1/0 
 c           ! 7 = ECP_basis            ! yes/no  1/0
-c  Integer infbs_tags(6,num_tags,nbasis)      
+c  Integer infbs_tags(7,num_tags,nbasis)      
 c           ! 1 = num_cont_tag         ! Num of conts on tag
 c           ! 2 = nprim_tag            ! Num of prim exponents on tag
 c           ! 3 = ncoeff_tag           ! Num of prim coeffs on tag
 c           ! 4 = first cont           ! first contraction on tag
 c           ! 5 = last cont            ! last contraction on tag
 c           ! 6 = nelec                ! number of elecs removed by ECP
+c           ! 7 = high ang   ! highest angular momentum on tag
 c  Integer infbs_cont(7,num_cont_total,nbasis) 
 c           ! 1 = itype      ! type of contraction 0=s,1=p,2=d...
 c                            ! later -1=sp,-2=spd etc.
@@ -210,7 +212,7 @@ c.. static dimension information for common blocks
 c
 c leading dimensions of compressed arrays
       integer ndbs_tags, ndbs_ucont, ndbs_head
-      parameter(ndbs_tags=6, ndbs_ucont=7, ndbs_head=7)
+      parameter(ndbs_tags=7, ndbs_ucont=7, ndbs_head=7)
 c.. stored structures
       character*256 bs_name
       character*16  bs_tags
