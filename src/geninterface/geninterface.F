@@ -1,5 +1,5 @@
 C
-C $Id: geninterface.F,v 1.3 2003-06-20 23:53:30 yuri Exp $
+C $Id: geninterface.F,v 1.4 2003-10-09 00:30:45 yuri Exp $
 C
 C This is a first attempt at an interface code for Venus written in F77.
 C
@@ -36,13 +36,6 @@ C
 
 C  Create parallel processes
 
-      call flush(6)
-      call flush(6)
-c      write (6,*) 'before theory init'
-      call flush(6)
-      call flush(6)
-      call flush(6)
-      call flush(6)
       call ga_brdcst(MT_INT, natom, mitob(1), 0)
       write (6,*) 'after natom ', natom, ga_nodeid()
       write (6,*) '3*natom ', 3*natom, ga_nodeid()
@@ -65,9 +58,9 @@ c      write (6,*) 'before theory init'
       write(6,*) labels(1), labels(2), labels(3),labels(4)
      * ,labels(5),labels(6)
       call flush(6)
+C YA
+      call ga_brdcst(MT_DBL, charge, mdtob(1), 0)
       call ga_brdcst(MT_INT,printName, 256/4, 0)
-!      write (6,*) 'after printName',printName, ga_nodeid()
-!      call flush(6)
 
       numatoms = natom
 C  Worry about input file.  For now use a dummy one.  Do I need to open it?
@@ -258,12 +251,6 @@ C
       integer i
 
       setCoordinates = .false.
-!
-c      write (6,*) 'Before conversion'
-c      do i = 1,9
-c         write(6,*) coords(i), i
-c      enddo
-!
 
       if (.not.geom_create(geom,'geometry'))
      $      call errquit('setCoordinates: geom_create failed',555)
@@ -283,14 +270,6 @@ c      enddo
       call flush(6)
       if (scale.ne.1.0d0) 
      $   call dscal(3*numatoms, scale, coords, 1)
-
-!
-c      write (6,*) 'After conversion'
-c      do i = 1,9
-c         write(6,*) coords(i), i
-!  Pratima changed from  write(6,*) coordinates(i), i
-c      enddo
-!
 
       if (.not.geom_cart_coords_set(geom,coords))
      $      call errquit
@@ -328,15 +307,6 @@ C
       logical is_atom
 
       setInitCoordinates = .false.
-
-!
-c      write (6,*) 'Before conversion'
-c      do i = 1,3
-c       do j = 1,3
-c         write(6,*) coordinates(i,j), i,j
-c       end do
-c      enddo
-!
 
       if (.not.geom_create(geom,'geometry'))
      $      call errquit('setCoordinates: geom_create failed',555)
@@ -376,20 +346,6 @@ C  Map labels to atoms and charges
 
       if (scale.ne.1.0d0) 
      $   call dscal(3*natoms, scale, coordinates, 1)
-!
-!      write (6,*) 'After conversion'
-!      do i = 1,9
-!         write(6,*) coordinates(i), i
-!      enddo
-!
-!  Pratima changed the above code
-
-c       write (6,*) 'After conversion in INIT '
-c        do i = 1,3
-c         do j = 1,3
-c         write(6,*) coordinates(i,j), i,j
-c        end do
-c       enddo
 
       if (.not.geom_cart_set(geom,natoms,labels,coordinates,charges))
      $     call errquit
@@ -411,7 +367,6 @@ c       enddo
       return
       end
 C
-C
       logical function evaluateObjective(coords, energy)
 
       implicit none
@@ -431,12 +386,7 @@ C
    
       evaluateObjective = .false.
 
-      call flush(6)
       call ga_brdcst(MT_DBL, coords, mdtob(3*numatoms), 0)
-c      write (6,*) 'after coords ', ga_nodeid()
-c      do i = 1,9
-c         write(6,*) coords(i), i, ga_nodeid()
-c      enddo
       call flush(6)
 
       if (.not.setCoordinates(coords))
@@ -452,7 +402,6 @@ c      enddo
 
       return
       end
-C
 C
       logical function evaluateGradient(coords, gradient)
 
@@ -497,7 +446,6 @@ C
 
       return
       end
-C
 C
       logical function evaluateObjectiveAndGradient(coords, 
      $       energy, gradient)
@@ -560,7 +508,6 @@ C
 #include "util.fh"
 #include "geninterface.fh"
 
-C
 C      call ga_sync()
       call ga_terminate()
 
@@ -583,22 +530,9 @@ C  Close the parallel environment
 #include "geninterface.fh"
 
       integer myid,idop
-C
-      call flush(6)
-      call flush(6)
-c      write (6,*) 'myid=',myid,' before broadcast'
-      call flush(6)
-      call flush(6)
-      call flush(6)
-      call flush(6)
+
       call ga_brdcst(MT_INT, idop, mitob(1), 0)
-      call flush(6)
-      call flush(6)
-c      write (6,*) 'myid=',myid,' after broadcast'
-      call flush(6)
-      call flush(6)
-      call flush(6)
-      call flush(6)
+
       return
       end
 
