@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.96 1999-05-28 19:42:38 d3g681 Exp $
+C     $Id: geom_input.F,v 1.97 1999-05-31 23:23:56 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -215,7 +215,7 @@ c
             call geom_sys_input(geom,scale)
             goto 20
          else if (inp_compare(.false.,'zcoord', field)) then
-            call geom_autoz_input(geom)
+            call geom_autoz_input(geom,oprint)
             goto 20
          else if (inp_compare(.false.,'zmt', field).or.
      $           inp_compare(.false.,'zmat', field).or.
@@ -562,7 +562,7 @@ c
       end
       logical function geom_autoz_info_get(geom,
      $     xcvr_scaling, xijbond, xijkang, xijklto, xijklop, 
-     $     xijklnb)
+     $     xijklnb,xmaxtor)
       implicit none
 #include "geomP.fh"
       integer geom
@@ -571,6 +571,7 @@ c
       integer xijklto(4,max_zcoord)
       integer xijklop(4,max_zcoord)
       integer xijklnb(4,max_zcoord)
+      integer xmaxtor
       double precision xcvr_scaling
 c
       logical geom_check_handle
@@ -581,53 +582,54 @@ c
      $     'geom_autoz_info_get')
       if (.not. geom_autoz_info_get) return
 c
-***      write(6,*) '  cvr_scaling(geom) ', cvr_scaling(geom)
-      if (cvr_scaling(geom) .eq. 0d0) then
+      if (zmt_cvr_scaling(geom) .eq. 0d0) then
          geom_autoz_info_get = .false.
          return
       endif
 c
-      xcvr_scaling = cvr_scaling(geom)
+      xmaxtor = zmt_maxtor(geom)
+      xcvr_scaling = zmt_cvr_scaling(geom)
       do i = 1, max_zcoord
-         xijbond(1,i) = ijbond(1,i,geom)
-         xijbond(2,i) = ijbond(2,i,geom)
-         xijkang(1,i) = ijkang(1,i,geom)
-         xijkang(2,i) = ijkang(2,i,geom)
-         xijkang(3,i) = ijkang(3,i,geom)
-         xijklto(1,i) = ijklto(1,i,geom)
-         xijklto(2,i) = ijklto(2,i,geom)
-         xijklto(3,i) = ijklto(3,i,geom)
-         xijklto(4,i) = ijklto(4,i,geom)
-         xijklop(1,i) = ijklop(1,i,geom)
-         xijklop(2,i) = ijklop(2,i,geom)
-         xijklop(3,i) = ijklop(3,i,geom)
-         xijklop(4,i) = ijklop(4,i,geom)
-         xijklnb(1,i) = ijklnb(1,i,geom)
-         xijklnb(2,i) = ijklnb(2,i,geom)
-         xijklnb(3,i) = ijklnb(3,i,geom)
-         xijklnb(4,i) = ijklnb(4,i,geom)
+         xijbond(1,i) = zmt_ijbond(1,i,geom)
+         xijbond(2,i) = zmt_ijbond(2,i,geom)
+         xijkang(1,i) = zmt_ijkang(1,i,geom)
+         xijkang(2,i) = zmt_ijkang(2,i,geom)
+         xijkang(3,i) = zmt_ijkang(3,i,geom)
+         xijklto(1,i) = zmt_ijklto(1,i,geom)
+         xijklto(2,i) = zmt_ijklto(2,i,geom)
+         xijklto(3,i) = zmt_ijklto(3,i,geom)
+         xijklto(4,i) = zmt_ijklto(4,i,geom)
+         xijklop(1,i) = zmt_ijklop(1,i,geom)
+         xijklop(2,i) = zmt_ijklop(2,i,geom)
+         xijklop(3,i) = zmt_ijklop(3,i,geom)
+         xijklop(4,i) = zmt_ijklop(4,i,geom)
+         xijklnb(1,i) = zmt_ijklnb(1,i,geom)
+         xijklnb(2,i) = zmt_ijklnb(2,i,geom)
+         xijklnb(3,i) = zmt_ijklnb(3,i,geom)
+         xijklnb(4,i) = zmt_ijklnb(4,i,geom)
       enddo
 c     
       end
-      subroutine geom_autoz_input(geom)
+      subroutine geom_autoz_input(geom,oprint)
       implicit double precision (a-h,o-z)
 #include "geomP.fh"
       integer geom
 c
       call hnd_autoz_input(
-     $     ijbond(1,1,geom),
-     $     ijkang(1,1,geom),
-     $     ijklto(1,1,geom),
-     1     ijklop(1,1,geom),
-     $     ijklnb(1,1,geom),
+     $     zmt_ijbond(1,1,geom),
+     $     zmt_ijkang(1,1,geom),
+     $     zmt_ijklto(1,1,geom),
+     $     zmt_ijklop(1,1,geom),
+     $     zmt_ijklnb(1,1,geom),
      $     max_zcoord,
-     2     cvr_scaling(geom))
+     $     zmt_cvr_scaling(geom),
+     $     zmt_maxtor(geom), oprint)
 c     
       return
       end
       subroutine hnd_autoz_input(ijbond,ijkang,ijklto,
      1                           ijklop,ijklnb,max_zcoord,
-     2                           cvr_scaling)
+     2                           cvr_scaling,maxtor,oprint)
       implicit none
 #include "inp.fh"
 c
@@ -640,6 +642,8 @@ c
       integer ijklto(4,*)
       integer ijklop(4,*)
       integer ijklnb(4,*)
+      integer maxtor
+      logical oprint
 c
       integer nbond, nangl, ntors, nopla, nlinb, i
 c
@@ -649,6 +653,7 @@ c
       ntors=0
       nopla=0
       nlinb=0
+      maxtor = 100
       do i=1,max_zcoord
          ijbond(1,i)=0
          ijbond(2,i)=0
@@ -678,17 +683,21 @@ c
      $     call errquit('hnd_autoz_input: read of field failed',911)
 c
       if (inp_compare(.false.,'zend',field).or.   
-     1     inp_compare(.false.,'end',field)) then
+     $     inp_compare(.false.,'end',field)) then
          return
       else if(inp_compare(.false.,'cvr_scaling',field)) then
          if(.not. inp_f(cvr_scaling)) call errquit
-     1        ('hnd_autoz_input:  reading cvr_scaling',911)
+     $        ('hnd_autoz_input:  reading cvr_scaling',911)
+         if (oprint) write(6,1) cvr_scaling
+ 1       format(' AUTOZ cvr_scaling: ', f6.2)
       else if (inp_compare(.false.,'ijbond',field)) then
          nbond = nbond + 1
          if(.not. inp_i(ijbond(1,nbond))) call errquit
      $        ('hnd_autoz_input: reading ijbond',1)
          if(.not. inp_i(ijbond(2,nbond))) call errquit
      $        ('hnd_autoz_input: reading ijbond',2)
+         if (oprint) write(6,2) ijbond(1,nbond), ijbond(2,nbond)
+ 2       format(' AUTOZ ijbond:      ',2i5)
       else if(inp_compare(.false.,'ijkang',field)) then
          nangl = nangl + 1
          if(.not. inp_i(ijkang(1,nangl))) call errquit
@@ -697,6 +706,9 @@ c
      $        ('hnd_autoz_input: reading ijkang',2)
          if(.not. inp_i(ijkang(3,nangl))) call errquit
      $        ('hnd_autoz_input: reading ijkang',3)
+         if (oprint) write(6,3) ijkang(1,nangl), ijkang(2,nangl), 
+     $        ijkang(3,nangl)
+ 3       format(' AUTOZ ijkang:      ',3i5)
       else if(inp_compare(.false.,'ijklto',field)) then
          ntors=ntors+1
          if(.not. inp_i(ijklto(1,ntors))) call errquit
@@ -707,26 +719,34 @@ c
      $        ('hnd_autoz_input: reading ijklto',3)
          if(.not. inp_i(ijklto(4,ntors))) call errquit
      $        ('hnd_autoz_input: reading ijklto',4)
-      else if(inp_compare(.false.,'ijklop',field)) then
-         nopla=nopla+1
-         if(.not. inp_i(ijklop(1,nopla))) call errquit
-     $        ('hnd_autoz_input: reading ijklop',1)
-         if(.not. inp_i(ijklop(2,nopla))) call errquit
-     $        ('hnd_autoz_input: reading ijklop',2)
-         if(.not. inp_i(ijklop(3,nopla))) call errquit
-     $        ('hnd_autoz_input: reading ijklop',3)
-         if(.not. inp_i(ijklop(4,nopla))) call errquit
-     $        ('hnd_autoz_input: reading ijklop',4)
-      else if(inp_compare(.false.,'ijklnb',field)) then
-         nlinb=nlinb+1
-         if(.not. inp_i(ijklnb(1,nlinb))) call errquit
-     $        ('hnd_autoz_input: reading ijklnb',1)
-         if(.not. inp_i(ijklnb(2,nlinb))) call errquit
-     $        ('hnd_autoz_input: reading ijklnb',2)
-         if(.not. inp_i(ijklnb(3,nlinb))) call errquit
-     $        ('hnd_autoz_input: reading ijklnb',3)
-         if(.not. inp_i(ijklnb(4,nlinb))) call errquit
-     $        ('hnd_autoz_input: reading ijklnb',4)
+         if (oprint) write(6,4) ijklto(1,ntors), ijklto(2,ntors), 
+     $        ijklto(3,ntors), ijklto(4,ntors)
+ 4       format(' AUTOZ ijklto:      ',4i5)
+c$$$      else if(inp_compare(.false.,'ijklop',field)) then
+c$$$         nopla=nopla+1
+c$$$         if(.not. inp_i(ijklop(1,nopla))) call errquit
+c$$$     $        ('hnd_autoz_input: reading ijklop',1)
+c$$$         if(.not. inp_i(ijklop(2,nopla))) call errquit
+c$$$     $        ('hnd_autoz_input: reading ijklop',2)
+c$$$         if(.not. inp_i(ijklop(3,nopla))) call errquit
+c$$$     $        ('hnd_autoz_input: reading ijklop',3)
+c$$$         if(.not. inp_i(ijklop(4,nopla))) call errquit
+c$$$     $        ('hnd_autoz_input: reading ijklop',4)
+c$$$      else if(inp_compare(.false.,'ijklnb',field)) then
+c$$$         nlinb=nlinb+1
+c$$$         if(.not. inp_i(ijklnb(1,nlinb))) call errquit
+c$$$     $        ('hnd_autoz_input: reading ijklnb',1)
+c$$$         if(.not. inp_i(ijklnb(2,nlinb))) call errquit
+c$$$     $        ('hnd_autoz_input: reading ijklnb',2)
+c$$$         if(.not. inp_i(ijklnb(3,nlinb))) call errquit
+c$$$     $        ('hnd_autoz_input: reading ijklnb',3)
+c$$$         if(.not. inp_i(ijklnb(4,nlinb))) call errquit
+c$$$     $        ('hnd_autoz_input: reading ijklnb',4)
+      else if(inp_compare(.false.,'maxtor',field)) then
+         if(.not. inp_i(maxtor)) call errquit
+     $        ('hnd_autoz_input: reading maxtor',0)
+         if (oprint) write(6,5) maxtor
+ 5       format(' AUTOZ maxtor:      ',i5)
       else
          call errquit('hnd_autoz_input: unkown directive',0)
       endif
@@ -1302,18 +1322,11 @@ c
       ifzmat=1
       call hnd_icoord(geom)
 c
-c     RJH.  Since AUTOZ does not presently handle linear
-c     bends it might not have generated a complete set
-c     of coordinates.  Check that the no. of linearly independent
-c     variables (NVAR) is at least NCART-6.  
+c     RJH.  HND_ICOORD calls BINVR which will now hard-fail
+c     if there are insufficient linearly indp. coords
 c
-c     When this fails and what else this breaks I don't yet know
-c
-**      write(6,*) ' NVAR NAT ', nvar, nat
-      if (nvar .lt. 3*nat-6) call errquit('geom_zmt_icoord:'//
-     $     ' insufficient linearly independent internals ...'//
-     $     ' adjust AUTOZ options or use NOAUTOZ', nvar)
       return
+c
  9999 format(' in -geom_zmt_icoord ')
  9998 format(' reading -izmat- via -geom_zmt_get_izmat- ')
  9997 format(' $zmat izmat = ')

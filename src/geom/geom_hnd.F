@@ -2802,6 +2802,7 @@ C
          ENDDO
       ENDDO
       CVR_SCALING=1.0D+00
+      max_tor_per_bond = 100
 C
 C     ----- READ IMPOSED BONDS, ANGLES, TORSIONS -----    
 C     ----- O-O-PLANE, LINEAR BENDS, ... IF ANY  -----
@@ -2812,7 +2813,7 @@ c
 c
       if(.not. geom_autoz_info_get(geom,
      $     cvr_scaling, ijbond, ijkang, ijklto, ijklop, 
-     $     ijklnb)) then
+     $     ijklnb, max_tor_per_bond)) then
          continue               ! No zcoord data input
       endif
 c
@@ -3237,7 +3238,8 @@ c
          CALL HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,mxizmt,C,
      1                   NAT,NBNDS,IJMODS,IIMODS,NIMODS,NUMBND,
      2                   IJKANG,NUMANG,IJKLTO,NUMTOR,
-     3                   IJKLOP,NUMOOP,IJKLNB,NUMLNB,XYZLNB)
+     3                   IJKLOP,NUMOOP,IJKLNB,NUMLNB,XYZLNB,
+     $        max_tor_per_bond)
 c
 
          NZMAT=NIZMAT
@@ -3498,7 +3500,8 @@ c
      1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,NUMBND,
      2                      IJKANG,NUMANG,IJKLTO,NUMTOR,
      3                      IJKLOP,NUMOOP,
-     4                      IJKLNB,NUMLNB,XYZLNB)
+     4                      IJKLNB,NUMLNB,XYZLNB,
+     $     max_tor_per_bond)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (MXATOM=500)        
       PARAMETER (MXBNDS= 8*MXATOM)
@@ -3592,7 +3595,8 @@ C
 C     ----- TORSIONS -----
 C
       CALL HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,mxizmt,C,
-     1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLTO,NUMTOR)
+     1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLTO,NUMTOR,
+     $     max_tor_per_bond)
 C
       IF(DBUG) THEN
          WRITE(IW,9998)
@@ -3960,7 +3964,7 @@ C
       END
       SUBROUTINE HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,mxizmt,C,
      1     NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
-     2     IJKLTO,NUMTOR)
+     2     IJKLTO,NUMTOR, max_tor_per_bond)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (ITHREE=3)
       PARAMETER (MXATOM=500)        
@@ -3968,6 +3972,7 @@ C
       PARAMETER (MXTORS= 8*MXATOM)
       LOGICAL     DBUG
       LOGICAL     LINIJK,LINJKL
+      logical odoit
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
       DIMENSION C(3,*)
@@ -3998,9 +4003,6 @@ C
          WRITE(IW,9999)
       ENDIF
 c     
-*      max_tor_per_bond = 2      ! Minimize torsions...also see if below
-      max_tor_per_bond = 100    ! Allow all torsions
-C     
 C     ----- TORSIONS -----
 C     
       NBOND=NBNDS
@@ -4045,30 +4047,45 @@ C
                               CALL HND_HNDERR(3,ERRMSG)
                            ENDIF
                            LAT=LCON
-                           IF(LAT.NE.JAT) THEN
-                              if ( iat.ne.jat .and. ! RJH from (h2o)5 test
+c     
+c     (H2O)5 test case showed some logic was missing.  Can avoid 
+c     some duplicates by restricting i>l unless are restricting 
+c     to a subset of the torsions.
+c
+                           if (max_tor_per_bond .lt. 100) then
+                              odoit = (
+     $                             iat.ne.jat .and.
      $                             iat.ne.kat .and. 
-     $                             iat.gt.lat .and. ! Must be .ne. if restrict ntor_for_ij
+     $                             iat.ne.lat .and.
      $                             jat.ne.kat .and.
      $                             jat.ne.lat .and.
-     $                             kat.ne.lat) then
-                                 IF(NTOR.EQ.MXTORS) THEN
-                                    WRITE(IW,*) 'TOO MANY TORSIONS',
-     1                                   ' NTOR, MXTORS = ',NTOR,
-     2                                   MXTORS
-                                    CALL HND_HNDERR(3,ERRMSG)
-                                 ENDIF
-                                 NTOR=NTOR+1
-                                 IJKLTO(1,NTOR)=IAT
-                                 IJKLTO(2,NTOR)=JAT
-                                 IJKLTO(3,NTOR)=KAT
-                                 IJKLTO(4,NTOR)=LAT
+     $                             kat.ne.lat)
+                           else
+                              odoit = (
+     $                             iat.ne.jat .and.
+     $                             iat.ne.kat .and. 
+     $                             iat.gt.lat .and.
+     $                             jat.ne.kat .and.
+     $                             jat.ne.lat .and.
+     $                             kat.ne.lat)
+                           endif
+                           if (odoit) then
+                              IF(NTOR.EQ.MXTORS) THEN
+                                 WRITE(IW,*) 'TOO MANY TORSIONS',
+     1                                ' NTOR, MXTORS = ',NTOR,
+     2                                MXTORS
+                                 CALL HND_HNDERR(3,ERRMSG)
+                              ENDIF
+                              NTOR=NTOR+1
+                              IJKLTO(1,NTOR)=IAT
+                              IJKLTO(2,NTOR)=JAT
+                              IJKLTO(3,NTOR)=KAT
+                              IJKLTO(4,NTOR)=LAT
 c     
-                                 ntor_for_ij = ntor_for_ij + 1
-                                 if (ntor_for_ij.eq.max_tor_per_bond)
-     $                                goto 1212 ! Next ij
-                              endif
-                           ENDIF
+                              ntor_for_ij = ntor_for_ij + 1
+                              if (ntor_for_ij.eq.max_tor_per_bond)
+     $                             goto 1212 ! Next ij
+                           endif
                         ENDDO
                      ENDIF
                   ENDIF

@@ -1,5 +1,5 @@
 *
-* $Id: geomP.fh,v 1.26 1999-05-27 17:50:44 d3g681 Exp $
+* $Id: geomP.fh,v 1.27 1999-05-31 23:23:55 d3g681 Exp $
 *
 c
 c     Private fortran include file for the geometry routines
@@ -124,14 +124,14 @@ c
      $     sym_op_inv, sym_num_ops, sym_center_map_handle,
      $     sym_center_map_index,
      $     zmt_izmat,zmt_nizmat,
-     $     zmt_izfrz,zmt_nzfrz, zmt_nzvar,
-     $     ijbond, ijkang, ijklto, ijklop, ijklnb
+     $     zmt_izfrz,zmt_nzfrz, zmt_nzvar, zmt_maxtor,
+     $     zmt_ijbond, zmt_ijkang, zmt_ijklto, zmt_ijklop, zmt_ijklnb
 
       double precision coords, charge, efield, latvec, ndipole, erep,
      $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
      $     volume_direct, metric_matrix, recip_lat_vectors, 
      $     recip_lat_angles, sym_ops, angstrom_to_au,
-     $     geom_mass,bmatrix, velocities, zmt_varsign, cvr_scaling
+     $     geom_mass,bmatrix, velocities, zmt_varsign, zmt_cvr_scaling
       common/cgeometry/
      $     coords(3,max_cent,max_geom),
      $     velocities(3,max_cent,max_geom),
@@ -141,7 +141,7 @@ c
      $     latvec(3,3, max_geom), ! Obsolete ?
      $     erep(max_geom),
      $     zmt_varsign(max_nzvar,max_geom),
-     $     cvr_scaling(max_geom),
+     $     zmt_cvr_scaling(max_geom),
      $     ndipole(3,max_geom),
      $     lattice_vectors(1:3,1:max_geom),
      $     lattice_angles(1:3,1:max_geom),
@@ -176,13 +176,14 @@ c
      $     zmt_nizmat(max_geom),
      $     zmt_nzfrz(max_geom),
      $     zmt_nzvar(max_geom),
+     $     zmt_maxtor(max_geom),
      $     zmt_izmat(max_izmat,max_geom),
      $     zmt_izfrz(max_nzvar,max_geom),
-     $     ijbond(2,max_zcoord,max_geom),
-     $     ijkang(3,max_zcoord,max_geom),
-     $     ijklto(4,max_zcoord,max_geom),
-     $     ijklop(4,max_zcoord,max_geom),
-     $     ijklnb(4,max_zcoord,max_geom)
+     $     zmt_ijbond(2,max_zcoord,max_geom),
+     $     zmt_ijkang(3,max_zcoord,max_geom),
+     $     zmt_ijklto(4,max_zcoord,max_geom),
+     $     zmt_ijklop(4,max_zcoord,max_geom),
+     $     zmt_ijklnb(4,max_zcoord,max_geom)
 c
       character*256 names, names_rtdb, trans
       character*16 tags

@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.84 1999-05-29 01:43:20 d3g681 Exp $
+C$Id: geom.F,v 1.85 1999-05-31 23:23:55 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -360,23 +360,26 @@ c
      $        zmt_varname(1,geom))
          tmp(k:) = ':zmt_source'
          s = s .and. rtdb_cget(rtdb, tmp, 1, zmt_source(geom))
-         tmp(k:) = ':ijbond'
+         tmp(k:) = ':zmt_maxtor'
+         s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, zmt_maxtor(geom))
+         tmp(k:) = ':zmt_ijbond'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 2*max_zcoord, 
-     $        ijbond(1,1,geom))
-         tmp(k:) = ':ijkang'
+     $        zmt_ijbond(1,1,geom))
+         tmp(k:) = ':zmt_ijkang'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 3*max_zcoord, 
-     $        ijkang(1,1,geom))
-         tmp(k:) = ':ijklto'
+     $        zmt_ijkang(1,1,geom))
+         tmp(k:) = ':zmt_ijklto'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 4*max_zcoord, 
-     $        ijklto(1,1,geom))
-         tmp(k:) = ':ijklop'
+     $        zmt_ijklto(1,1,geom))
+         tmp(k:) = ':zmt_ijklop'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 4*max_zcoord, 
-     $        ijklop(1,1,geom))
-         tmp(k:) = ':ijklnb'
+     $        zmt_ijklop(1,1,geom))
+         tmp(k:) = ':zmt_ijklnb'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 4*max_zcoord, 
-     $        ijklnb(1,1,geom))
-         tmp(k:) = ':cvr_scaling'
-         s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 1, cvr_scaling(geom))
+     $        zmt_ijklnb(1,1,geom))
+         tmp(k:) = ':zmt_cvr_scaling'
+         s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 1,
+     $        zmt_cvr_scaling(geom))
       endif
 c
 c--> get symmetry operators, number of operators and operator/atom
@@ -678,23 +681,26 @@ c
      $        zmt_varname(1,geom))
          tmp(k:) = ':zmt_source'
          s = s .and. rtdb_cput(rtdb, tmp, 1, zmt_source(geom))
-         tmp(k:) = ':ijbond'
+         tmp(k:) = ':zmt_maxtor'
+         s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_maxtor(geom))
+         tmp(k:) = ':zmt_ijbond'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 2*max_zcoord, 
-     $        ijbond(1,1,geom))
-         tmp(k:) = ':ijkang'
+     $        zmt_ijbond(1,1,geom))
+         tmp(k:) = ':zmt_ijkang'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 3*max_zcoord, 
-     $        ijkang(1,1,geom))
-         tmp(k:) = ':ijklto'
+     $        zmt_ijkang(1,1,geom))
+         tmp(k:) = ':zmt_ijklto'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 4*max_zcoord, 
-     $        ijklto(1,1,geom))
-         tmp(k:) = ':ijklop'
+     $        zmt_ijklto(1,1,geom))
+         tmp(k:) = ':zmt_ijklop'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 4*max_zcoord, 
-     $        ijklop(1,1,geom))
-         tmp(k:) = ':ijklnb'
+     $        zmt_ijklop(1,1,geom))
+         tmp(k:) = ':zmt_ijklnb'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 4*max_zcoord, 
-     $        ijklnb(1,1,geom))
-         tmp(k:) = ':cvr_scaling'
-         s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 1, cvr_scaling(geom))
+     $        zmt_ijklnb(1,1,geom))
+         tmp(k:) = ':zmt_cvr_scaling'
+         s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 1, 
+     $        zmt_cvr_scaling(geom))
       endif
 c
 c--> put symmetry operators, number of operators and operator/atom
@@ -4221,7 +4227,8 @@ c
       zmt_nzvar(geom) = 0
       zmt_nzfrz(geom) = 0
       zmt_source(geom) = ' '
-      cvr_scaling(geom) = 0d0   ! Indicates no user zcoord input
+      zmt_maxtor(geom) = 100
+      zmt_cvr_scaling(geom) = 0d0   ! Indicates no user zcoord input
 c
       do i = 1, 3
         lattice_vectors(i,geom) = 0
