@@ -1,7 +1,12 @@
 *
-* $Id: paw_sd.F,v 1.48 2003-03-05 23:16:31 bylaska Exp $
+* $Id: paw_sd.F,v 1.49 2003-03-06 00:34:40 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.48  2003/03/05 23:16:31  bylaska
+* Commented out write statements and other minor fixes.....
+* self-consistent loop looks like it is working.....
+* ....EJB
+*
 * Revision 1.47  2003/02/26 02:13:50  bylaska
 * paw_nonlocal initialization and deallocation added...EJB
 *
@@ -481,9 +486,9 @@
             go to 2
          end if
          deltae = dabs(deltae)
-         if ((deltae.lt.control_tole()).and.
-     >       (deltac.lt.control_tolc()).and.
-     >       (deltar.lt.control_tolr())) then
+         if ((deltae.le.control_tole()).and.
+     >       (deltac.le.control_tolc()).and.
+     >       (deltar.le.control_tolr())) then
             if (taskid.eq.MASTER) 
      >       write(6,*) ' *** tolerance ok.     iteration terminated.'
             go to 2
