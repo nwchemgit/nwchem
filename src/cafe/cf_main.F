@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.135 2002-03-27 22:30:56 d3j191 Exp $
+c $Id: cf_main.F,v 1.136 2002-04-04 15:19:20 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1457,14 +1457,16 @@ c
       wpmf(j,i)=zero
     2 continue
       if(ipmf(i,6).eq.2.and.lpmfc) goto 1
+c
       m=0
-c      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       if(ipmf(i,1).eq.1) m=2
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
       if(ipmf(i,1).eq.4) m=4
       if(ipmf(i,1).eq.5) m=2
       if(ipmf(i,1).eq.6) m=1
+      if(ipmf(i,1).eq.8) m=1
+      if(ipmf(i,1).eq.9) m=2
       if(m.eq.0) call errquit('Error in pmf xx',ipmf(i,1))
       skip=.false.
       do 3 j=1,m
@@ -1503,6 +1505,8 @@ c
       if(ipmf(i,1).eq.4) m=4
       if(ipmf(i,1).eq.5) m=2
       if(ipmf(i,1).eq.6) m=1
+      if(ipmf(i,1).eq.8) m=1
+      if(ipmf(i,1).eq.9) m=2
       do 222 j=1,m
       wmtot=one/wpmf(j,i)
       wpmf(j,i)=wmtot
@@ -1510,9 +1514,28 @@ c
       xpmf(j,2,i)=xpmf(j,2,i)*wmtot
       xpmf(j,3,i)=xpmf(j,3,i)*wmtot
   222 continue
+c
+c     5: alignment in z-direction does not change z coordinates
+c
       if(ipmf(i,1).eq.5) xpmf(2,3,i)=xpmf(1,3,i)
 c
-      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5) then
+c     9: z-distance pmf does not change x or y coordinates
+c
+      if(ipmf(i,1).eq.9) then
+      xpmf(2,1,i)=xpmf(1,1,i)
+      xpmf(2,2,i)=xpmf(1,2,i)
+      endif
+c
+c     10: z-axis COG pmf does not change z coordinates
+c
+      if(ipmf(i,1).eq.9) then
+      xpmf(2,1,i)=zero
+      xpmf(2,2,i)=zero
+      xpmf(2,3,i)=xpmf(1,3,i)
+      endif
+c
+      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.9.or.
+     + ipmf(i,1).eq.10) then
       do 7 j=1,2
       ign(j)=j
       iml(j)=1
@@ -1632,12 +1655,23 @@ c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Imp:',rv,(ft(3,j),j=1,3)
 c
 c     planar pmf
 c
+      if(ipmf(i,1).eq.6.or.ipmf(i,1).eq.8) then
+c
+c     for planar pmf copy x and y coordinates of center of mass
+c
       if(ipmf(i,1).eq.6) then
-c
-c     copy x and y coordinates of center of mass
-c
       xpmf(2,1,i)=xpmf(1,1,i)
       xpmf(2,2,i)=xpmf(1,2,i)
+      endif
+c
+c     for z-axis pmf set x and y coordinates to zero, and
+c                        z coordinate to center of mass
+c
+      if(ipmf(i,1).eq.8) then
+      xpmf(2,1,i)=zero
+      xpmf(2,2,i)=zero
+      xpmf(2,3,i)=xpmf(1,3,i)
+      endif
 c
 c     loop over all atoms on this processor
 c
@@ -1650,7 +1684,11 @@ c
 c
 c     copy z coordinate of the atom in xpmf
 c
-      xpmf(2,3,i)=xs(j,3)
+      if(ipmf(i,1).eq.6) xpmf(2,3,i)=xs(j,3)
+      if(ipmf(i,1).eq.8) then
+      xpmf(2,1,i)=xs(j,1)
+      xpmf(2,2,i)=xs(j,2)
+      endif
 c
 c     initialize arrays for fsb
 c
