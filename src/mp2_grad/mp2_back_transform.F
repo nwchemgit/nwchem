@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.24 1997-12-09 00:42:10 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.25 1998-07-08 21:58:00 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -516,9 +516,9 @@ c     First compute offset to first shell pair on each processor
 c     
          nshpair = 0
          call ifill(nproc, 0, map, 1)
-         npairmin = 0
          logmax = 1000000
-         do logmin = -1,-9,-4
+         do logmin = -1,-13,-4  ! NOTE THAT SCREENING IS IMPLIED IN THIS LOOP
+            npairmin = 0
             do ipairb = 1, npairblock ! Loop thru types of pairs
                npairmax = pairblock(ipairb)
                do u = nsh, 1, -1
@@ -566,9 +566,9 @@ c
       nbfpair = 0
       nbfpairlocal = 0
       nshpair = 0
-      npairmin = 0
       logmax = 1000000
-      do logmin = -1,-9,-2
+      do logmin = -1,-13,-4  ! NOTE THAT SCREENING IS IMPLIED IN THIS LOOP
+         npairmin = 0
          do ipairb = 1, npairblock ! Loop thru types of pairs
             npairmax = pairblock(ipairb)
             do u = nsh, 1, -1
@@ -715,10 +715,11 @@ c
       integer nat, geom,
      $     ulo_cur, uhi_cur, vlo_cur, vhi_cur, xlo_cur, xhi_cur, 
      $     ylo_cur, yhi_cur, udim_cur, vdim_cur, xdim_cur, ydim_cur
-      logical status, odebug, odoit, sym_shell_quartet
+      logical status, odebug, odoit, sym_shell_quartet, oenergy
       external sym_shell_quartet
 c     
       odebug = util_print('mp2_backt', print_debug)
+      oenergy = util_print('backtenergy', print_debug)
 c     
       energy = 0.0d0
 c     
@@ -775,6 +776,7 @@ c
                if (odoit .and. oskel) odoit = 
      $              sym_shell_quartet(basis, ush, vsh, xsh, ysh, q4)
 c     
+               odoit = .true.
                if (odoit) then
 c     
                   scale = q4
@@ -790,10 +792,16 @@ c
      $                 scale, c_t, t, pdm)
 c     
 c     use density to screen evaluation of gradient integrals
-
+                     if (oenergy) then
+                        call int_2e4c(basis, ush, vsh, basis, xsh, ysh, 
+     $                       lenscr, scratch, leneri, eri)
+                        energy = energy + 
+     $                       ddot(udim*vdim*xdim*ydim,eri,1,pdm,1)
+                     endif
+c
                   if (schwarz_shell(xsh,ysh)*schwarz_shell(ush,vsh)*psum
      $                 .gt. tol2e) then
-
+c
                      nq = nq + 1
                      sh_list(nq,1) = ysh
                      sh_list(nq,2) = xsh
@@ -892,7 +900,7 @@ c
 c     
       end do
 c     
-      if (odebug) then
+      if (oenergy) then
          call ga_dgop(1,energy,1,'+')
          write(6,*) ' The energy from the two PDM is ', energy
       end if

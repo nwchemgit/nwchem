@@ -7,7 +7,7 @@
      $     ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
      $     e2,task,tunita,tunitb,kunit)
 *
-* $Id: mp2_make_tuhf.F,v 1.12 1997-03-27 08:50:05 d3e129 Exp $
+* $Id: mp2_make_tuhf.F,v 1.13 1998-07-08 21:58:02 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -169,6 +169,8 @@ c
                      denom=eval_a(a_a)+eval_a(b)
      $                    -eval_a(i)-eval_a(j)
                      t=dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))/denom
+                     if(abs(t).lt.1d-12)t=0.0d0
+c
                      eaa=eaa+t*t*denom
                      dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))=t
                   enddo
