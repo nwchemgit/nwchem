@@ -5,9 +5,13 @@
 #include <stdlib.h>
 
 #include "macdecls.h"
+#include "global.h"
 
-
+#if defined(CRAY_T3E) || defined(CRAY_T3D)
+int TASK_PYTHON(int *rtdb_ptr)
+#else
 int task_python_(int *rtdb_ptr)
+#endif
 {
    FILE *F;
    PyObject *phndl, *pmod, *pdict;

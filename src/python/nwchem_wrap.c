@@ -10,6 +10,15 @@
 #include "macdecls.h"
 #include "global.h"
 
+#if defined(CRAY_T3E) || defined(CRAY_T3E)
+#define NWC_TASK_GRADIENT TASK_GRADIENT
+#define NWC_TASK_ENERGY   TASK_ENERGY
+#else
+#define NWC_TASK_GRADIENT task_gradient_
+#define NWC_TASK_ENERGY   task_energy_
+#endif
+
+
 static PyObject *NwchemError;
 
 static int rtdb_handle;            /* handle to the rtdb */
@@ -281,7 +290,7 @@ static PyObject *wrap_task_energy(PyObject *self, PyObject *args)
 	    PyErr_SetString(NwchemError, "task_energy: putting theory failed");
 	    return NULL;
 	}
-	if (!task_energy_(&rtdb_handle)) {
+	if (!NWC_TASK_ENERGY(&rtdb_handle)) {
 	    PyErr_SetString(NwchemError, "task_energy: failed");
 	    return NULL;
 	}
@@ -313,7 +322,7 @@ static PyObject *wrap_task_gradient(PyObject *self, PyObject *args)
 	    PyErr_SetString(NwchemError, "task_gradient: putting theory failed");
 	    return NULL;
 	}
-	if (!task_gradient_(&rtdb_handle)) {
+	if (!NWC_TASK_GRADIENT(&rtdb_handle)) {
 	    PyErr_SetString(NwchemError, "task_gradient: failed");
 	    return NULL;
 	}
