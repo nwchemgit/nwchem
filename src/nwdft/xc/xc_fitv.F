@@ -2,7 +2,7 @@
      &                   Tmat,nTrows,nTcols,
      &                   idirect,g_vxc,g_xcinv,IOLGC)
 
-C$Id: xc_fitv.F,v 1.6 1996-04-04 00:02:51 og845 Exp $
+C$Id: xc_fitv.F,v 1.7 1996-07-08 23:10:05 d3h449 Exp $
       implicit none
       
 c****
@@ -104,7 +104,7 @@ c
       LResult = LResult .and. bas_numbf( XC_bas_han, nbf_XC)
       LResult = LResult .and. bas_nbf_cn_max( XC_bas_han, MXnshbf_XC)
       if ( .not. LResult) then
-        call errquit('Exit from fitvxc',1)
+        call errquit('Exit from xc_fitv',1)
       endif 
 c
 c     Compute the XC fitting coefficients.
@@ -114,14 +114,18 @@ c
 #endif
 c
       ndbl = nbf_xc*nTcols
-      LResult = MA_Push_Get(MT_Dbl,ndbl,'xc_coef',lxc_coef,ixc_coef)
-      LResult = MA_Push_Get(MT_Dbl,nbf_xc,'scratchinv',lscr,iscr)
+
+      if(.not.MA_Push_Get(MT_Dbl,ndbl,'xc_coef',lxc_coef,ixc_coef))
+     &  call errquit('xc_fitv: cannot allocate xc_coef',0)
+
+      if(.not.MA_Push_Get(MT_Dbl,nbf_xc,'scratchinv',lscr,iscr))
+     &  call errquit('xc_fitv: cannot allocate scratchinv',0)
 
       call dfill(ndbl,0.d0,DBL_MB(ixc_coef),1)
 
       if(IOLGC)             
-     &     call gacrea(
-     &     geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',g_xcinv,'row')
+     &  call gacrea(
+     &    geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',g_xcinv,'row')
       if(me.eq.0.and.IOLGC) then
         call dft_invio('XC',g_xcinv,nbf_xc,'READ',lmiss)
       endif
@@ -149,7 +153,10 @@ c     *         1,nbf_xc,k,k,Dbl_MB(iscr),1)
           enddo
         endif
       enddo
-      LResult = MA_pop_stack(lscr)
+
+      if(.not.ma_pop_stack(lscr))
+     &  call errquit('xc_fitv: cannot pop stack',0)
+
       next=nxtval(-nproc)
       call ga_dgop(Msg_XC_Coef,DBL_MB(ixc_coef),ndbl,'+')
       if(IOLGC)  call gadest(g_xcinv)
@@ -167,11 +174,20 @@ c
 c     Allocate scratch.
 c
       n3OI = (MXnshbf_ao**2)*MXnshbf_xc
-      LResult = MA_Push_Get(MT_Dbl,n3OI,'3OI',l3OI,i3OI)
-      LResult = MA_Push_Get(MT_Dbl,nTcols*n3OI,'vvxc',lvvxc,ivvxc)
-      LResult = MA_Push_Get(MT_Dbl,n3OI,'vec2',lvec2,ivec2)
+
+      if(.not.MA_Push_Get(MT_Dbl,n3OI,'3OI',l3OI,i3OI))
+     &  call errquit('xc_fitv: cannot allocate 3OI',0)
+
+      if(.not.MA_Push_Get(MT_Dbl,nTcols*n3OI,'vvxc',lvvxc,ivvxc))
+     &  call errquit('xc_fitv: cannot allocate vvxc',0)
+
+      if(.not.MA_Push_Get(MT_Dbl,n3OI,'vec2',lvec2,ivec2))
+     &  call errquit('xc_fitv: cannot allocate vec2',0)
+
       call int_mem_3ov(mag,Max_scr)
-      LResult = MA_Push_Get(MT_Dbl,Max_scr,'scr2',lscr2,iscr2)
+
+      if(.not.MA_Push_Get(MT_Dbl,Max_scr,'scr2',lscr2,iscr2))
+     &  call errquit('xc_fitv: cannot allocate scr2',0)
 c
 c     Compute 3-ctr OIs between a given pair of AO shells and a set of XC shells.
 c     
@@ -251,11 +267,21 @@ c
       call dft_second(ts1)
 #endif
 c
-      LResult = MA_Pop_Stack(lscr2)
-      LResult = MA_Pop_Stack(lvec2)
-      LResult = MA_Pop_Stack(lvvxc)
-      LResult = MA_Pop_Stack(l3OI)
-      LResult = MA_Pop_Stack(lxc_coef)
+
+      if(.not.ma_pop_stack(lscr2))
+     &  call errquit('xc_fitv: cannot pop stack',0)
+
+      if(.not.ma_pop_stack(lvec2))
+     &  call errquit('xc_fitv: cannot pop stack',0)
+
+      if(.not.ma_pop_stack(lvvxc))
+     &  call errquit('xc_fitv: cannot pop stack',0)
+
+      if(.not.ma_pop_stack(l3OI))
+     &  call errquit('xc_fitv: cannot pop stack',0)
+
+      if(.not.ma_pop_stack(lxc_coef))
+     &  call errquit('xc_fitv: cannot pop stack',0)
 
       n1 = nxtval(-nproc)
 c

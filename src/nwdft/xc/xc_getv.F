@@ -3,7 +3,7 @@
      &     iVxc_opt,g_xcinv,
      &     g_dens,g_vxc,IOLGC,iAOacc,
      &     g_wght,g_xyz,wght_GA)
-C$Id: xc_getv.F,v 1.4 1995-12-19 20:21:54 og845 Exp $
+C$Id: xc_getv.F,v 1.5 1996-07-08 23:10:08 d3h449 Exp $
       implicit none
       
       integer ipol,nExc
@@ -165,8 +165,8 @@ c
 c         
 c         Allocate scratch space for the "T" matrix.
 c         
-          LResult = 
-     &         MA_Push_Get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,iTmat)
+          if(.not.ma_push_get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,iTmat))
+     &      call errquit('xc_getv: cannot allocate Tmat',0)
           call xc_quadv1(rtdb,geom, AO_bas_han, XC_bas_han,
      &         Dbl_MB(iTmat),nbf_xc,ipol,nExc,
      &         g_dens,Exc,iAOacc)
@@ -174,7 +174,8 @@ c
      &         Dbl_MB(iTmat),nTrows,nTcols,
      &         1,g_vxc,g_xcinv,IOLGC)
 
-          LResult = MA_Pop_Stack(lTmat)
+          if(.not.ma_pop_stack(lTmat))
+     &      call errquit('xc_getv: cannot pop stack',0)
 
         endif
 
