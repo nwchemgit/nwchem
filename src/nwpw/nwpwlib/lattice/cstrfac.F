@@ -1,5 +1,5 @@
 *
-* $Id: cstrfac.F,v 1.6 2002-06-06 00:15:21 bylaska Exp $
+* $Id: cstrfac.F,v 1.7 2002-06-06 16:22:57 bylaska Exp $
 *
 
 *     ***********************************
@@ -15,6 +15,9 @@
 #include "cstrfac_common.fh"
 
       integer nion,nx,ny,nz,nbrillioun
+      integer nb,i,j,k,index,taskid,p,q
+      integer nfft3d
+      integer i_indx(2),j_indx(2),k_indx(2)
       logical value
 
 *     ***** external functions ****
@@ -23,6 +26,7 @@
 
       nion       = ion_nion()
       nbrillioun = brillioun_nbrillioun()
+      call Parallel_taskid(taskid)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
@@ -36,7 +40,62 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,(nbrillioun*nion),
      >                    'cxr',cxr(2),cxr(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      value = value.and.
+     >        MA_alloc_get(mt_int,(2*nbrillioun+2),
+     >                    'i_indx_list',i_indx_list(2),i_indx_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(2*nbrillioun+2),
+     >                    'j_indx_list',j_indx_list(2),j_indx_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(2*nbrillioun+2),
+     >                    'k_indx_list',k_indx_list(2),k_indx_list(1))
+      if (.not. value) call errquit('cstrfac_init:out of heap',0)
+
+
+*     **** allocate indx blocks ****
+      do nb=0,nbrillioun
+        call C3dB_nfft3d(1,nfft3d)
+        value = MA_alloc_get(mt_int,nfft3d,'i_indx0',
+     >                     i_indx(2),i_indx(1))
+        value = value.and.
+     >          MA_alloc_get(mt_int,nfft3d,'j_indx0',
+     >                     j_indx(2),j_indx(1))
+        value = value.and.
+     >          MA_alloc_get(mt_int,nfft3d,'k_indx0',
+     >                     k_indx(2),k_indx(1))
+        if (.not. value) 
+     >  call errquit('cstrfac_init:out of heap memory',nb+1)
+
+        int_mb(i_indx_list(1)+2*nb)  =i_indx(1)
+        int_mb(i_indx_list(1)+2*nb+1)=i_indx(2)
+
+        int_mb(j_indx_list(1)+2*nb)  =j_indx(1)
+        int_mb(j_indx_list(1)+2*nb+1)=j_indx(2)
+
+        int_mb(k_indx_list(1)+2*nb)  =k_indx(1) 
+        int_mb(k_indx_list(1)+2*nb+1)=k_indx(2) 
+      
+        do k=0,nz-1
+         call D3dB_ktoqp(1,(k+1),q,p)
+         if (p.eq.taskid) then
+            do j=0,ny-1
+            do i=0,nx-1
+              index = (q-1)*(nx)*ny
+     >              + j*(nx)
+     >              + i+1
+              int_mb(i_indx(1)+index-1) = i
+              int_mb(j_indx(1)+index-1) = j
+              int_mb(k_indx(1)+index-1) = k
+            end do
+            end do
+         end if
+        end do
+        call Cram_i_pack(nb,int_mb(i_indx(1)))
+        call Cram_i_pack(nb,int_mb(j_indx(1)))
+        call Cram_i_pack(nb,int_mb(k_indx(1)))
+      end do
+
+
 
       return
       end
@@ -53,13 +112,37 @@ C     ***********************************
 #include "mafdecls.fh"
 #include "cstrfac_common.fh"
 
+*     **** local variables ****
       logical value
+      integer i_indx,j_indx,k_indx
+      integer nb,nbrillioun
 
-      value = MA_free_heap(ex1(2))
-      value = MA_free_heap(ex2(2))
-      value = MA_free_heap(ex3(2))
-      value = MA_free_heap(cxr(2))
-       
+*     **** external functions ****
+      integer  brillioun_nbrillioun
+      external brillioun_nbrillioun
+
+      nbrillioun = brillioun_nbrillioun()
+
+*     **** deallocate index blocks ****
+      do nb=0,nbrillioun
+         i_indx=int_mb(i_indx_list(1)+2*nb+1)
+         j_indx=int_mb(j_indx_list(1)+2*nb+1)
+         k_indx=int_mb(k_indx_list(1)+2*nb+1)
+         value =           MA_free_heap(i_indx)
+         value = value.and.MA_free_heap(j_indx)
+         value = value.and.MA_free_heap(k_indx)
+         if (.not.value) call errquit('cstrfac_end:freeing heap',nb) 
+      end do
+
+      value =           MA_free_heap(i_indx_list(2))
+      value = value.and.MA_free_heap(j_indx_list(2))
+      value = value.and.MA_free_heap(k_indx_list(2))
+      value = value.and.MA_free_heap(ex1(2))
+      value = value.and.MA_free_heap(ex2(2))
+      value = value.and.MA_free_heap(ex3(2))
+      value = value.and.MA_free_heap(cxr(2))
+      if (.not. value) call errquit('cstrfac_end:freeing heap',990)
+ 
       return
       end
 
@@ -232,6 +315,61 @@ C
       end
 
 C ... End STRFAC ....
+
+
+
+C      **********************************
+C      *				*
+C      *	CSTRFAC_pack 		*
+C      *				*
+C      **********************************
+C
+C 	This routine returns the structure factor, EXI, for
+C  a specified ion I.
+C
+C	Entry - II: the Ion index 
+C	Exit  - EXI: the structure factor
+C
+C
+      subroutine cstrfac_pack(nb,II,exi)
+      implicit none
+      integer    nb
+      integer    II
+      complex*16 exi(*)
+
+#include "mafdecls.fh"
+#include "cstrfac_common.fh"
+   
+*     **** local variables ****
+      integer i,j,k,index
+      integer nx,ny,nz,npack
+      integer i_indx,j_indx,k_indx
+
+      call nwpw_timing_start(8)
+
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
+      call Cram_npack(nb,npack)
+      i_indx = int_mb(i_indx_list(1)+2*nb)
+      j_indx = int_mb(j_indx_list(1)+2*nb)
+      k_indx = int_mb(k_indx_list(1)+2*nb)
+
+*     **** crammed structure factor ****
+      do index=1,npack
+         i = int_mb(i_indx+index-1)
+         j = int_mb(j_indx+index-1)
+         k = int_mb(k_indx+index-1)
+
+         exi(index) = dcpl_mb(ex1(1)+i+(II-1)*nx)
+     >              * dcpl_mb(ex2(1)+j+(II-1)*ny)
+     >              * dcpl_mb(ex3(1)+k+(II-1)*nz)
+      end do
+
+      call nwpw_timing_end(8)
+
+      return
+      end
 
 
 *      **********************************

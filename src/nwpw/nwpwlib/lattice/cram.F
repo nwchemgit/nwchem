@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.11 2002-06-06 00:15:21 bylaska Exp $
+* $Id: cram.F,v 1.12 2002-06-06 16:22:57 bylaska Exp $
 *
 
 *     ***********************************
@@ -298,11 +298,11 @@
       pack = int_mb(pack_list(1)+2*nb)
 
       call C3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = MA_push_get(mt_int,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) 
      >  call errquit('Cram_i_pack:out of stack memory',0)
 
-      call icopy(nfft3d,A,1,dbl_mb(tmp1(1)),1)
+      call icopy(nfft3d,A,1,int_mb(tmp1(1)),1)
       call icopy(nfft3d,0,0,A,1)
       do i=1,(nidb)
         A(i) = int_mb(tmp1(1) + int_mb(pack+i-1) - 1)

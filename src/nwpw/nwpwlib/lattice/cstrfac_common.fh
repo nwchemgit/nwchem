@@ -1,6 +1,6 @@
 
 *
-* $Id: cstrfac_common.fh,v 1.2 2002-05-03 19:44:03 bylaska Exp $
+* $Id: cstrfac_common.fh,v 1.3 2002-06-06 16:22:57 bylaska Exp $
 *
 
 *     **** local common block ****
@@ -10,3 +10,10 @@
       integer cxr(2)
       common / cstrfac_k_block / cxr
 
+
+*     **** index lists block ****
+      integer i_indx_list(2),j_indx_list(2),k_indx_list(2)
+      common / cstrfac_indx_blck / 
+     >                            i_indx_list,
+     >                            j_indx_list,
+     >                            k_indx_list

@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.13 2002-05-03 19:44:00 bylaska Exp $
+* $Id: cpsp.F,v 1.14 2002-06-06 16:22:50 bylaska Exp $
 *
 
 #define TCGMSG
@@ -270,7 +270,7 @@ c     cpsp_rc = rc(i,ia)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       if (.not. value) call errquit('cpsp_v_local: pushing stack',0)
@@ -302,9 +302,10 @@ c     cpsp_rc = rc(i,ia)
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
-        call cstrfac(ii,dcpl_mb(exi(1)))
-        call Cram_c_pack(0,dcpl_mb(exi(1)))
-        
+c        call cstrfac(ii,dcpl_mb(exi(1)))
+c        call Cram_c_pack(0,dcpl_mb(exi(1)))
+        call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
+       
 *       **** add to local psp ****
         call Cram_rc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
      >                   dcpl_mb(exi(1)),
@@ -373,7 +374,7 @@ c     cpsp_rc = rc(i,ia)
       
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
@@ -401,8 +402,9 @@ c     cpsp_rc = rc(i,ia)
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
-        call cstrfac(ii,dcpl_mb(exi(1)))
-        call Cram_c_pack(0,dcpl_mb(exi(1)))
+c        call cstrfac(ii,dcpl_mb(exi(1)))
+c        call Cram_c_pack(0,dcpl_mb(exi(1)))
+        call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
         
 *       **** add to local psp ****
         call Cram_rc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
@@ -481,9 +483,7 @@ c     cpsp_rc = rc(i,ia)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'tmp4', tmp4(2), tmp4(1))
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
@@ -516,12 +516,13 @@ c     cpsp_rc = rc(i,ia)
       do ii=1,ion_nion()
         ia=ion_katm(ii)
 
-        call cstrfac(ii,dcpl_mb(tmp4(1)))
+c        call cstrfac(ii,dcpl_mb(tmp4(1)))
 
         do nb=1,nbrill
            call Cram_npack(nb,npack)
-           call C3dB_c_Copy(1,dcpl_mb(tmp4(1)),dcpl_mb(exi(1)))
-           call Cram_c_pack(nb,dcpl_mb(exi(1)))
+c           call C3dB_c_Copy(1,dcpl_mb(tmp4(1)),dcpl_mb(exi(1)))
+c           call Cram_c_pack(nb,dcpl_mb(exi(1)))
+           call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
            call cstrfac_k(ii,nb,cxr)
            call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
 
@@ -635,7 +636,6 @@ c     cpsp_rc = rc(i,ia)
 
       value = MA_pop_stack(zsw1(2))
       value = value.and.MA_pop_stack(vtmp(2))
-      value = value.and.MA_pop_stack(tmp4(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',3)
 
@@ -689,7 +689,7 @@ c     cpsp_rc = rc(i,ia)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
@@ -727,8 +727,9 @@ c     cpsp_rc = rc(i,ia)
         do ii=1,ion_nion()
           ia=ion_katm(ii)
 
-          call cstrfac(ii,dcpl_mb(exi(1)))
-          call Cram_c_pack(nb,dcpl_mb(exi(1)))
+c          call cstrfac(ii,dcpl_mb(exi(1)))
+c          call Cram_c_pack(nb,dcpl_mb(exi(1)))
+          call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
           call cstrfac_k(ii,nb,cxr)
           call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
 
