@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.28 2003-04-08 00:10:03 windus Exp $
+# $Id: GNUmakefile,v 1.29 2003-04-08 00:24:42 windus Exp $
 #
 
 
@@ -14,7 +14,7 @@ iprtri.o	prtri.o  \
 tred1.o		tqlrat.o	loadw.o		rdhint.o 	rdhcon.o \
 rdhwmt.o	rdconf.o	upkcon.o	prtcon.o	wrtcon.o \
 iodiff.o	bserch.o	popcnt32.o	readh.o  \
-selci_renorm.o	sread.o		swrite.o	pkcon.o  \
+selci_renorm.o	selci_sread.o		swrite.o	pkcon.o  \
 wthcon.o	wtconf.o	vadd.o		idmin.o	\
 isum.o		rd1.o		fcidim.o        \
 axb.o		axbt.o		gettim.o	cputm.o \
