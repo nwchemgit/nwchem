@@ -1,11 +1,15 @@
 c
-c $Id: shell_fock_build.F,v 1.25 2002-02-19 02:10:56 edo Exp $
+c $Id: shell_fock_build.F,v 1.26 2002-03-22 02:27:19 sohirata Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
 c
-C Took oactive out for the time being, but will probably need to
+c Took oactive out for the time being, but will probably need to
 c bring it back - tlw
+c
+c osym=.false. now means that the density matrix is anti-symmetric
+c and so, at the end of this subroutine, the output fock matrix
+c will be anti-symmetrized - sh, 2/15/02
 c
       implicit none
 #include "mafdecls.fh"
@@ -192,7 +196,11 @@ c
      %        nder, ndens, nfock, g_fock,g_dens)
       endif
 c
-      if (osym) call nga_symmetrize(g_fock)
+      if (osym) then
+         call nga_symmetrize(g_fock)
+      else
+         call nga_antisymmetrize(g_fock)
+      endif
 c
       return
       end
