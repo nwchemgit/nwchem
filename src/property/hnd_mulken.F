@@ -1,6 +1,6 @@
       subroutine hnd_mulken(rtdb,basis,geom)
-* $Id: hnd_mulken.F,v 1.2 2004-09-30 04:05:10 edo Exp $
-      implicit double precision (a-h,o-z)
+* $Id: hnd_mulken.F,v 1.3 2004-09-30 04:10:34 edo Exp $
+      implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -16,6 +16,14 @@
       integer g_s, g_spin, g_p, g_ps, atn
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
       integer bf_offset,sh_offset
+      integer natoms,nshells,nbf,lmax
+      integer l_tags,k_tags,l_aogr,k_aogr,l_atov,k_atov,
+     ,     l_atsh,k_atsh,l_scr,k_scr
+      integer iseg,idens,i,irow,m,iatom,jatom,jlo,jhi,ii,ilo,ihi,ij
+      integer ij_offset,jshell,jtype,l_b,k_b,l_v,k_v,l_f,k_f
+      integer idum
+      double precision dsum,dums,temp
+      external dsum
       character*3 scftyp
       character symbol*2, symbolj*2, tag*16, element*20, thedens*10
       character*1 types(8)
