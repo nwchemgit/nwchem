@@ -1,4 +1,4 @@
-/*$Id: util_host.c,v 1.1 1995-12-13 01:37:44 d3g681 Exp $*/
+/*$Id: util_host.c,v 1.2 1997-02-27 23:52:28 d3g681 Exp $*/
 #include <stdio.h>
 #ifdef CRAY
 #include <fortran.h>
@@ -14,9 +14,7 @@ void UTIL_HOSTNAME(name)
   int namelen = _fcdlen(name);
 #else
 extern int string_to_fortchar(char *, int, const char *);
-void util_hostname_(name, namelen)
-  char *name;
-  int namelen;
+void util_hostname_(char *name, int namelen)
 {
 #endif
 /*
