@@ -1,6 +1,6 @@
 #!/bin/csh  -f
 #
-# $Id: getmem.nwchem,v 1.5 2001-04-17 23:07:41 windus Exp $
+# $Id: getmem.nwchem,v 1.6 2002-01-24 23:17:55 bert Exp $
 # this script tries to figure out no. of processors and RAM
 # to get the maximum available memory in memor_def.F
 # It can also pick up an alternate amount of memory to take 
@@ -32,7 +32,7 @@ else  if ($NWCHEM_TARGET == SOLARIS ) then
 set nproc = `/usr/sbin/psrinfo | wc -l `
 set a=`/usr/sbin/prtconf | egrep -i mem   `  
 @ memtot = ($a[3] * 1024)
-else  if ($NWCHEM_TARGET == IBM || $NWCHEM_TARGET == IBM64 || $NWCHEM_TARGET == LAPI ) then
+else  if ($NWCHEM_TARGET == IBM || $NWCHEM_TARGET == IBM64 || $NWCHEM_TARGET == LAPI || $NWCHEM_TARGET == LAPI64) then
 set nproc=`/usr/sbin/lsdev -Cc processor | wc -l `
 set nmcard = `/usr/sbin/lsdev -Cc memory | egrep mem | wc -l`
 set i=0
