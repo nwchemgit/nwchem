@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.3 2002-10-24 22:31:42 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.4 2002-10-29 00:58:06 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -187,10 +187,12 @@ c
                   call ma_print_compact(dbl_mb(k_pq_packed),
      1              sf_size_pq,1,'Half transformed MO 2e')
                 endif
+                call ga_lock(0)
                 dummy=sf_write(d_ao2e,
      1            dfloat(bytes*(loff(l)+k-1)*sf_size_pq),
      2            dfloat(bytes*sf_size_pq),dbl_mb(k_pq_packed),request)
                 dummy=sf_wait(request)
+                call ga_unlock(0)
               enddo
             enddo
             if (.not.ma_pop_stack(l_ijkl)) 

@@ -1,6 +1,6 @@
       subroutine put_block(d_file,array,size,offset)
 c
-c $Id: put_block.F,v 1.2 2002-10-23 01:38:51 sohirata Exp $
+c $Id: put_block.F,v 1.3 2002-10-29 00:58:06 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -20,11 +20,13 @@ c
       endif
       if (offset .eq. -1)
      1  call errquit('put_block: illegal offset',0)
+      call ga_lock(0)
       if (sf_write(d_file,dfloat(bytes*offset),
      1  dfloat(bytes*size),array,request).ne.0)
      2  call errquit('put_block: sf problem',0)
       if (sf_wait(request).ne.0)
      1  call errquit('put_block: sf problem',1)
+      call ga_unlock(0)
  9000 format(1x,'node',i3,' put_block request to file:',i10,
      1  ' size:',i10,' offset:',i10)
       return

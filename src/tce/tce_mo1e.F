@@ -1,6 +1,6 @@
       subroutine tce_mo1e(g_ao1e,d_mo1e)
 c
-c $Id: tce_mo1e.F,v 1.2 2002-10-23 01:38:53 sohirata Exp $
+c $Id: tce_mo1e.F,v 1.3 2002-10-29 00:58:06 sohirata Exp $
 c
 c     Spin-spatial-symmetry blocked Fock matrix transformations.
 c
@@ -87,9 +87,11 @@ c     ===========
 c     Write to SF
 c     ===========
 c
+      call ga_lock(0)
       dummy = sf_write(d_mo1e,0.0d0,dfloat(bytes*sf_size),
      1  dbl_mb(k_mo1e),request)
       dummy = sf_wait(request)
+      call ga_unlock(0)
 c
 c     ===================
 c     Close SF and return
