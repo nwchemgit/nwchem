@@ -25,7 +25,7 @@ c
 c     
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine sym_map(itype, tags, symops, nops, nareal, map, xnew,
-     &     acord, oprint)
+     &     acord, oprint,ilbl)
       implicit real*8 (a-h,o-z)
 c     
       integer maxops
@@ -33,7 +33,7 @@ c
       parameter(maxops=192,tol=1.0d-07)
       dimension symops(maxops*3,4),xnew(nops,3),acord(3,nareal)
       character*16 tags(nareal)
-      integer ilbl(maxops)
+      integer ilbl(nareal)
       integer itype
       logical oprint
 c     

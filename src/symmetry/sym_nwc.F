@@ -96,11 +96,15 @@ c
       if (.not. MA_Push_Get(MT_Dbl,nops*3,'xnew scratch',
      &     lxnew,ixnew)) call errquit
      $     ('sym_nwc: ma for xnew scratch', nops*3)
+      if (.not. MA_Push_Get(MT_INT,nareal,'ilbl',
+     &     llbl,ilbl)) call errquit
+     $     ('sym_nwc: ma for ilbl', nareal)
 c
       call sym_map(itype, Byte_MB(iatags), sym_ops(1,1,geom),
      $     nops, nareal, Int_Mb(imscr),Dbl_Mb(ixnew),Dbl_Mb(icoord),
-     $     oprint)
+     $     oprint,INT_MB(ilbl))
 c
+      LResult = MA_Pop_Stack(llbl)
       LResult = MA_Pop_Stack(lxnew)
 c
 c     Insert new information into the geometry data structures
