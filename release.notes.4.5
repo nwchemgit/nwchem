@@ -55,7 +55,7 @@ Geometry:
     coordinates for 3-d geometries.
   o BUG FIX: z-matrix input modified to  digest
     symbols bq"atomic symbol" x"atomic symbol" needed for DFT BSSE
-  o BUG FIX: power
+  o BUG FIX: wrong power of complex number in autosym
   o BUG FIX: when bqbq option is set  the geometry was shifted
     a large amount.
 
@@ -95,10 +95,10 @@ COSMO:
 
 Driver: 
 
-  o BUG FIX: fraction coordinates optimizer
+  o BUG FIX: fractional coordinates optimizer
   o NEB (Nudged Elastic Band) method added (still under development)
   o ONIOM calculations can be performed with the PSPW module
-  o BUG FIX: fractional	coordinate optimizer
+  o BUG FIX: fractional	coordinates optimizer
 
 Properties: 
 
@@ -132,7 +132,7 @@ Vib:
 PSPW:
 
   o CIF output changed
-  o new elements added to PS library: Au Cu Fe Ge Pb Dr Ti
+  o new elements added to PS library: Au Cu Fe Ge Pb Sr Ti
   o SIC (Self-Interaction Correction)
   o band by band minimizer added
   o Wannier functions
@@ -167,7 +167,7 @@ General Utilities:
   o BUG FIX: determination of how many processes are simultaneously
     using the scratch directory
   o introduction of wall time remaining mechanism for LSF and PBS,
-    activated by typing make LSF=y and make PBS=y,respectively.
+    activated by typing make LSF=y and make PBS=y, respectively.
 
 Tests, manuals and miscellaneous script changes: 
 
