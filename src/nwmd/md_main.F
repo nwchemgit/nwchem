@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.58 2000-02-02 21:36:54 d3j191 Exp $
+c $Id: md_main.F,v 1.59 2000-02-04 17:18:01 d3j191 Exp $
 c
       implicit none
 c
@@ -176,7 +176,7 @@ c
      + '                 kJ/mol       kJ/mol       kJ/mol   ',
      + '    kJ/mol       kJ/mol        nm',/)
 c
-      isdit=1
+      isdit=0
 c
       lpair=.true.
 c
@@ -364,8 +364,10 @@ c
 c
       dx=dx0cg
       beta1=zero
-      icgit=1
+      icgit=0
       lpair=.true.
+c
+      call timer_start(1)
 c
 c     atomic forces and potential energies
 c
@@ -467,6 +469,8 @@ c
       ecg1=ecgnew
       ecg2=ecgnew
       icgit=0
+c
+      call timer_stop(1)
 c
 c     outer loop
 c
@@ -614,6 +618,7 @@ c
       epcgs=epots
       ecgdif=ecg2-ecgold
       edt=ecg2-ecg0
+      call timer_stop(1)
 c
 c     check if interval is appropriate
 c
@@ -622,9 +627,9 @@ c
       ecg1=ecg2
       ypa=ypb
       beta2=two*beta2
-      call timer_stop(1)
       goto 200
       endif
+      call timer_start(1)
 c
 c     find interpolation in interval
 c
@@ -804,6 +809,7 @@ c
   600 format(i7,1x,a1,3x,5(1pe13.5),0pf12.8)
       endif
 c
+      call timer_stop(1)
       if(.not.ldone) goto 100
 c
       ecgdif=edt
