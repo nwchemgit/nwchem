@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.281 1999-06-01 20:48:05 d3h325 Exp $
+# $Id: makefile.h,v 1.282 1999-06-09 19:03:25 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -682,7 +682,7 @@ ifeq ($(TARGET),SGI_N32)
 
     INSTALL = @echo nwchem is built
   MAKEFLAGS = -j 4 --no-print-directory
-    DEFINES = -DSGI
+    DEFINES = -DSGI  -DSGI_N32
 
   FOPTIONS = -n32 -mips4 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -n32 -mips4 -fullwarn
@@ -705,6 +705,11 @@ endif
 ifeq ($(NWCHEM_TARGET_CPU),R8000)
  FOPTIMIZE = $(FOPTIMIZE_8K)
  FVECTORIZE = $(FVECTORIZE_8K)
+endif
+ifeq ($(BUILDING_PYTHON),python)
+      EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/mips-sgi-irix6.5/2.8.1 -lgcc
+# needed here if using a python version with tk/tcl extensions 
+#     EXTRA_LIBS += -ltk -ltcl -lX11
 endif
 
        CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
