@@ -2,7 +2,7 @@
 \newcommand{\mc}[3]{\multicolumn{#1}{#2}{#3}}
 \newcommand{\vb}[1]{\mbox{\verb.#1.}}
 \newcommand{\none}{\multicolumn{2}{|c|}{ }}
-\renewcommand{\thetable}{\Roman{table}}
+%%%%%%%\renewcommand{\thetable}{\Roman{table}}
 \newcommand{\mcc}[1]{\multicolumn{2}{c}{#1}}
 \def\bmu{\mbox{\boldmath $\mu$}}
 \def\bE{\mbox{\bf E}}
@@ -54,26 +54,24 @@ locality of communication which is the main reason for the efficiency
 of this approach for very large molecular systems.
 
 To improve efficiency, molecular systems are broken up into separately
-treated solvent and solute parts.
-Solvent molecules are assigned to the domains according to their
-center of geometry and are always owned by a one node. This avoids 
-bonded interactions crossing node boundaries. 
-Solute molecules are broken up into segments, with each 
-segment assigned to a processor based on its center of geometry. 
-This limits the number of solute bonded interactions that cross node 
-boundaries.
-The processor to which a particular box is assigned is responsible for
-the calculation of all interactions between atoms within that box.
-For the calculation of forces and energies in which atoms in
-boxes assigned to different processors are involved, data are
-exchanged between processors. The number of neighboring boxes is 
-determined by the size and shape of the boxes and the range of 
-interaction. The data exchange that takes place every simulation time 
-step represents the main communication requirements.
-Consequently, one of the main efforts is to design algorithms and
-data structures to minimize the cost of this communication. However, 
-for very large molecular systems, memory requirements also need to be 
-taken into account. 
+treated solvent and solute parts.  Solvent molecules are assigned to
+the domains according to their center of geometry and are always owned
+by a one node. This avoids solvent--solvent bonded interactions
+crossing node boundaries.  Solute molecules are broken up into
+segments, with each segment assigned to a processor based on its
+center of geometry.  This limits the number of solute bonded
+interactions that cross node boundaries.  The processor to which a
+particular box is assigned is responsible for the calculation of all
+interactions between atoms within that box.  For the calculation of
+forces and energies in which atoms in boxes assigned to different
+processors are involved, data are exchanged between processors. The
+number of neighboring boxes is determined by the size and shape of the
+boxes and the range of interaction. The data exchange that takes place
+every simulation time step represents the main communication
+requirements.  Consequently, one of the main efforts is to design
+algorithms and data structures to minimize the cost of this
+communication. However, for very large molecular systems, memory
+requirements also need to be taken into account.
 
 To compromise between these requirements exchange of data is performed
 in successive point to point communications rather than using the
@@ -100,7 +98,7 @@ redistribution is the more efficient and preferred  method.
 The description of a molecular system consists of static and dynamic
 information. The static information does not change during a
 simulation and includes items such as connectivity, excluded and third
-neighbor lists and equilibrium values and force constants for all
+neighbor lists, equilibrium values and force constants for all
 bonded and non-bonded interactions. The static information is called
 the topology of the molecular system, and is kept on a separate
 topology file. The dynamic information includes coordinates and
@@ -117,7 +115,7 @@ a list of atoms, their non-bonded parameters for van der Waals and
 electrostatic interactions, and the complete connectivity in terms
 of bonds, angles and dihedrals.
 
-In \nwargos, molecular systems a distinction is made between 
+In \nwargos\ molecular systems, a distinction is made between 
 {\it solvent} and {\it solute}, which are treated separately.
 A solvent molecule is defined only once in the topology file,
 even though many solvent molecules usually are included in the
@@ -142,7 +140,7 @@ topology file.
 A utility \nwsgm\ reads a rudimentary, force-field independent
 {\it fragment} defining atom types and connectivity, and 
 constructs a template for a force-field dependent segment.
-Fragments can be also be collected into a set of fragment database
+Fragments can also be collected into a set of fragment database
 files.
 
 A utility \nwrst\ generates a {\it restart} file, given a topology
@@ -166,7 +164,7 @@ For example, if {\tt crown.top} is the name of the topology file for
 a crown ether, {\tt crown\_em}, {\tt crown\_md}, {\tt crown\_mcti} could
 be used with appropriate extensions for the filenames for energy
 minimization, molecular dynamics simulation and multiconfiguration
-thermodynamic integration respectively. All of these calculations
+thermodynamic integration, respectively. All of these calculations
 would use the same topology file {\tt crown.top}.
 
 \label{sec:nwaextensions}
@@ -213,7 +211,7 @@ level   & Description                 & Availability \\
 \end{center}
 
 Only the level {\bf s} and {\bf x} databases are publicly available. 
-The user is responsible for the private level {\bf u} and {\bf r}
+The user is responsible for the private level {\bf u} and {\bf t}
 databases. When the utility programs scan the databases, the priority
 is {\bf t}$>${\bf u}$>${\bf x}$>${\bf s}$>$.
 
@@ -253,8 +251,14 @@ Keyword      & Force field   & Current status \\
 \section{Creating fragment files}
 Fragment files contain the basic information needed to specify all
 interactions that need to be considered in a molecular simulation.
-The format of the fragment files is
-\begin{center}
+The format of the fragment files is described in Table \ref{tbl:nwafrag}
+
+\begin{table}[htbp]
+
+\label{tbl:nwafrag}
+
+\center
+
 \begin{tabular}{lll}
 \hline\hline
 Card & Format & Description \\ \hline
@@ -263,7 +267,7 @@ I-1-2  & a10    & name of the fragment, the tenth character\\
        &        & N: identifies beginning of a chain\\
        &        & C: identifies end of a chain\\
        &        & blank: identifies chain fragment\\
-       &        & M: identifies a integral molecule\\
+       &        & M: identifies an integral molecule\\
 \hline
 I-2-1  & i5     & number of atoms in the fragment\\ 
 \hline
@@ -296,13 +300,15 @@ connectivity} \\
 III-1-1  & 16i5   & connectivity, duplication allowed\\ 
 \hline\hline
 \end{tabular}
-\end{center}
+
+\caption{The format of NWArgos fragment files.}
+\end{table}
 
 \section{Creating segment files}
 \label{sec:nwanwsgm}
 Program \nwsgm\ can be used to generate a template for a segment file 
 from a corresponding fragment file. The segment file contains all
-information for the calculation of bonded and non-bonded interaction
+information for the calculation of bonded and non-bonded interactions
 for a given chemical system using a specific force field. If a
 fragment is available in a local file or in a database file, the
 segment can be generated using
@@ -315,17 +321,22 @@ should be replaced by underlines. \verb+<ffield>+ should be the
 name of an available force field.
 
 The program \nwsgm\ only provides a template for a segment. It is
-often needed to make additional changes in this file. One important 
-restriction is that dihedral interactions may only involve atoms on 
-at most two segments. The segment entries define three sets of
-parameters for each interaction. Free energy perturbations can be
-performed using set 1 for the generation of the ensemble while using
-sets 2 and/or 3 as perturbations. Free energy multiconfiguration 
-thermodynamic integration and multistep thermodynamic perturbation
-calculations are performed by gradually changing the interactions in
-the system from parameter set 2 to parameter set 3.
-The format of a segment is
-\begin{center}
+often needed to make additional changes in this file. One important
+restriction is that dihedral interactions may only involve atoms on at
+most two segments. The segment entries define three sets of parameters
+for each interaction. Free energy perturbations can be performed using
+set 1 for the generation of the ensemble while using sets 2 and/or 3
+as perturbations. Free energy multiconfiguration thermodynamic
+integration and multistep thermodynamic perturbation calculations are
+performed by gradually changing the interactions in the system from
+parameter set 2 to parameter set 3.  The format of a segment is
+described in Tables \ref{tbl:nwaseg1}--\ref{tbl:nwaseg6}.
+
+\begin{table}[htbp]
+\center
+
+\label{tbl:nwaseg1}
+
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck  & Format & Description \\ \hline
@@ -341,7 +352,16 @@ I-2-3 & i5     & number of angles in the segment\\
 I-2-4 & i5     & number of proper dihedrals in the segment\\
 I-2-5 & i5     & number of improper dihedrals in the segment\\
 \hline
-\end{tabular*}\\
+\end{tabular*}
+
+\caption{NWArgos segment file format, table 1 of 6.}
+\end{table}
+
+\begin{table}[htbp]
+\center
+
+\label{tbl:nwaseg2}
+
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
@@ -385,7 +405,16 @@ II-2-4  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 2\\
 II-2-5  & f12.6  & atomic partial charge in e, set 3\\
 II-2-6  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 3\\
 \hline
-\end{tabular*}\\
+\end{tabular*}
+
+\caption{NWArgos segment file format, table 2 of 6.}
+\end{table}
+
+\begin{table}[htbp]
+\center
+
+\label{tbl:nwaseg3}
+
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
@@ -406,7 +435,17 @@ III-2-4 & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 2 \\
 III-2-5 & f12.6  & bond length in nm, set 3\\
 III-2-6 & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 3 \\
 \hline
-\end{tabular*}\\
+\end{tabular*}
+
+\caption{NWArgos segment file format, table 3 of 6.}
+
+\end{table}
+
+\begin{table}
+\center
+
+\label{tbl:nwaseg4}
+
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
@@ -427,7 +466,17 @@ IV-2-4 & e12.5  & angle force constant in kJ mol$^{-1}$, set 2 \\
 IV-2-5 & f12.6  & angle in radians, set 3\\
 IV-2-6 & e12.5  & angle force constant in kJ mol$^{-1}$, set 3 \\
 \hline
-\end{tabular*}\\
+\end{tabular*}
+
+\caption{NWArgos segment file format, table 4 of 6.}
+
+\end{table}
+
+\begin{table}[htbp]
+\center
+
+\label{tbl:nwaseg5}
+
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
@@ -452,7 +501,16 @@ V-2-7 & i5     & multiplicity, set 3\\
 V-2-8 & f12.6  & proper dihedral in radians, set 3\\
 V-2-9 & e12.5  & proper dihedral force constant in kJ mol$^{-1}$, set 3 \\
 \hline
-\end{tabular*}\\
+\end{tabular*}
+
+\caption{NWArgos segment file format, table 5 of 6.}
+\end{table}
+
+\begin{table}[htbp]
+\center
+
+\label{tbl:nwaseg6}
+
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
@@ -475,12 +533,21 @@ VI-2-5 & f12.6  & improper dihedral in radians, set 3\\
 VI-2-6 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$, set 3 \\
 \hline\hline
 \end{tabular*}
-\end{center}
+
+\caption{NWArgos segment file format, table 6 of 6.}
+
+\end{table}
+
 
 \section{Creating sequence files}
 A sequence file describes a molecular system in terms of segments. The
-file format is
-\begin{center}
+file format is given in Table \ref{tbl:nwaseq}
+
+\begin{table}[htbp]
+\center
+
+\label{tbl:nwaseq}
+
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Card & Format & Description \\ \hline
@@ -517,7 +584,9 @@ II-1-1 & i5     & link segment 10\\
 II-1-2 & i3     & link atom in link segment 10\\
 \hline\hline
 \end{tabular*}
-\end{center}
+
+\caption{The NWArgos sequence file format.}
+\end{table}
 
 \section{Creating topology files}
 \label{sec:nwanwtop}

@@ -42,7 +42,7 @@ All three MP2 tasks share the same input block.
 
 \begin{verbatim}
   MP2
-    [FREEZE [[(core|occupied)] (atomic || <integer nfzc default 0>)] \
+    [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
             [virtual <integer nfzv default 0>]]
     [AOTOL2E <real aotol2e default 1d-9>]
     [MOTOL2E <real motol2e default 1d-9>]
@@ -59,10 +59,10 @@ All three MP2 tasks share the same input block.
 \label{mp2:core}
 
 All MP2 modules support frozen core orbitals, however, only the direct
-MP2 and RI-MP2 modules support frozen virtual orbitals.
+MP2 and RI-MP2 modules support frozen virtual orbitals. 
 
 By default, no orbitals are frozen.  The \verb+atomic+ keyword causes
-orbitals to be frozen according according to the rules in Table
+orbitals to be frozen according to the rules in Table
 \ref{tbl:freeze-by-atoms}.  The actual input would be
 \begin{verbatim}
   freeze atomic
@@ -118,6 +118,14 @@ Again, note that if the 10 orbitals to be frozen do not correspond to
 the first 10 orbitals, then the \verb+swap+ keyword of the
 \verb+VECTORS+ directive must be used to order the input orbitals
 correctly (Section \ref{sec:mp2vectors}).
+
+To freeze the highest virtual orbitals, use the \verb+virtual+
+keyword.  For instance, to freeze the top 5 virtuals
+\begin{verbatim}
+  freeze virtual 5
+\end{verbatim}
+Again, note that this only works for the direct-MP2 and RI-MP2 energy
+codes.
 
 \section{{\tt AOTOL2E} and {\tt MOTOL2E} --- Integral Screening}
 
@@ -351,7 +359,7 @@ boundaries).  The compromise here is memory space versus multiple
 integral evaluations.
 
 The energy evaluation batch sizes are computed in the code from the
-number of occupied orbitals in the the two sets of three-center
+number of occupied orbitals in the two sets of three-center
 integrals to be multiplied together to produce a matrix of approximate
 four-center integrals.  Two blocks of integrals of dimension $({<batch
   isize>}\times {vir})$ and $({<batch jsize>}\times {vir})$ by fit are
@@ -364,7 +372,7 @@ large matrices) versus memory space.
 
 The user must choose a  strategy for the memory allocation in the energy
 evaluation phase of the RI-MP2 calculation, either by minimizing the amount
-of I/O, or minimizing the amount of compulation.  This is be accomplished 
+of I/O, or minimizing the amount of computation.  This can be accomplished 
 using a \verb+SET+ directive of the form,
 
 \begin{verbatim}

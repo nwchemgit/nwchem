@@ -22,7 +22,7 @@ The general form of the \verb+BASIS+ directive is as follows;
         [(print || noprint) default print]
 
      <string tag> library [<string tag_in_lib>] \
-                  <string standard set> [file <filename>]
+                  <string standard_set> [file <filename>]
 
         ...
 
@@ -172,7 +172,7 @@ The \verb+shell_type+ identifies the angular momentum of the shell,
 $s$, $p$, $d$, \ldots.  By default, NWChem is configured to handle up
 to $i$ functions.  Subsequent lines define the primitive function
 exponents and contraction coefficients.  General contractions are
-specified by including multiple coefficients.
+specified by including multiple columns of coefficients.
 
 For example, the following \verb+BASIS+ directive augments the Dunning
 cc-pvdz basis set for the water molecule with a diffuse s-shell on

@@ -35,140 +35,136 @@ number of iterations and the convergence criteria from the default
 values.  The input for these options is described in the following
 sections.
 
-\section{Action directives in the STEPPER Module}
+\section{{\tt MIN} and {\tt TS} --- Minimum or transition state search}
 
 The default is for STEPPER to minimize the energy with respect to the
-geometry of the system.  STEPPER can also be used to find the
-transition state by following the lowest eigenvector of the nuclear
-Hessian.  There are several options available to modify the behavior
-of the STEPPER module.  The input to define the multiple actions of
-STEPPER is defined generically. 
-
+geometry of the system.  This default behaviour may be forced with the
+directive
 \begin{verbatim}
-   <string (action || variable) [variable value]  default MIN>
-\end{verbatim}
+  MIN
+\end{directive}
 
-The value \verb+MIN+ for the string \verb+action+ specifies the default
-energy minimization.  Finding the lowest transition state is specified
-by entering the value \verb+TS+ for the string \verb+action+.
+STEPPER can also be used to find the transition state by following the
+lowest eigenvector of the nuclear Hessian.  This is usually invoked 
+by using the \verb+saddle+ keyword on the \verb+TASK+ directive
+(Section \ref{sec:task}), but it may also be selected by specifying
+the directive
+\begin{verbatim}
+  TS
+\end{verbatim}
+in the STEPPER input. 
+
+\section{{\tt TRACK} --- Mode selection}
 
 STEPPER has the ability to ``track'' a specific mode during an
 optimation for a transition state search, the user can also have the
 module track the eigenvector corresponding to a specific mode.  This
-is done by specifying the keyword \verb+TRACK+, using the following
-input line,
-
+is done by specifying the directive 
 \begin{verbatim}
   TRACK [nmode <integer nmode default 1>]
 \end{verbatim}
-
 The keyword \verb+TRACK+ tells STEPPER to track the eigenvector
-corresponding to the integer value of \verb+nmode+ during a transition
+corresponding to the integer value of \verb+<nmode>+ during a transition
 state walk.  (Note: this input is invalid for a minimization walk
 since following a specific eigenvector will not necessarily give the
-desired local minimum .)  The step is constructed to go up in energy
+desired local minimum.)  The step is constructed to go up in energy
 along the \verb+nmode+ eigenvector and down in all other degrees of
 freedom.
 
-\section{Control of the STEPPER Calculation}
+\section{{\tt MAXITER} --- Maximum number of steps}
 
 In most applications, 20 stepper iterations will be sufficient to
-obtain the energy minimization.  However, the user has
-the option of specifying the maximum number of iterations allowed,
-using the input line,
-
+obtain the energy minimization.  However, the user has the option of
+specifying the maximum number of iterations allowed, using the input
+line,
 \begin{verbatim}
   MAXITER <integer maxiter default 20>
 \end{verbatim}
+The value specified for the integer \verb+<maxiter>+ defines the maximum
+number of geometry optimization steps.  The geometry optimization will
+restart automatically.
 
-The value specified for the integer \verb+maxiter+ defines the maximum 
-number of geometry optimization steps.  The
-geometry optimization will restart automatically.
+\section{{\tt TRUST} --- Trust radius}
 
-The size of steps that can be taken in STEPPER is governed by the degree
-to which the calculated values of the eigenvectors can be considered 
-reasonably good.  This is the 'trust radius', and has a default value of
-0.1, which means that the step in the direction determined will be no
-longer than the trust radius.  The user has the option of overriding this
-default using the keyword \verb+TRUST+, with the following input line,
-
+The size of steps that can be taken in STEPPER is controlled by the
+trust radius which has a default value of 0.1.  Steps are constrained
+to be no larger than the trust radius.  The user has the option of
+overriding this default using the keyword \verb+TRUST+, with the
+following input line,
 \begin{verbatim}
   TRUST <real radius default 0.1>
 \end{verbatim}
 
-The larger the value specified for the variable \verb+radius+, the larger 
-the steps that can be taken by STEPPER. Experience has shown that for
-larger systems (i.e., those with 20 or more atoms), a value of 0.5 or
-greater should be entered for \verb+radius+.
+The larger the value specified for the variable \verb+radius+, the
+larger the steps that can be taken by STEPPER.  Experience has shown
+that for larger systems (i.e., those with 20 or more atoms), a value
+of 0.5, or greater, usually should be entered for \verb+<radius>+.
 
-\section{Convergence Criteria for the STEPPER Calculations}
+\section{{\tt CONVGG} and {\tt CONVGE} --- Convergence criteria}
 
 Two convergence criteria can be specified explicitly for the 
 STEPPER calculations.  The keyword \verb+CONVGG+ allows the user to
 specify the the convergence tolerence for the gradient norm for
 all degrees of freedom.  The input line is of the following form,
-
 \begin{verbatim}
    CONVGG <real convgg default 1.0d-04>
 \end{verbatim}
-
-The entry for the real variable \verb+convgg+ should be approximately 
+The entry for the real variable \verb+<convgg>+ should be approximately 
 equal to the square root of the energy convergence tolerance.
 
 The energy convergence tolerance is the convergence criterion for the 
 energy difference in the geometry optimization in STEPPER.  It can be
 specified by input using a line of the following form,
-
 \begin{verbatim}
    CONVGE <real convge default 1.0d-08>
 \end{verbatim}
 
 
-\section{Initial Guess for Nuclear Hessian}
+%\section{{\tt FDAT} and {\tt FOPT} --- Initial Guess for Nuclear Hessian}
+%
+%Any initial hessian can be used with the STEPPER module via the ASCII
+%hessian interface.  The lower triangular [$3N{\times}(3N+1)/2$] matrix
+%written in any ASCII format (e.g., 1pd20.10) will work but the entries
+%must be one per line.  This should be stored in a file called
+%\verb+$file_prefix$+.hess in the current working directory of
+%node zero.  
+%
+%There are two other options that stepper allows regarding the initial
+%guess for the nuclear hessian.  By specifying a basis set (smaller
+%than the desired basis set) with basis set name of ``fd basis'' (c.f.,
+%Section \ref{sec:basis} users can optimize the geometry using the
+%smaller basis and then generate a finite difference hessian.
+%Alternatively users may generate a finite difference hessian at the
+%current geometry.  
+%
+%These actions are invoked with the input
+%\begin{verbatim}
+%  FDAT
+%\end{verbatim}
+%This computes the finite difference nuclear hessian at the current
+%geometry using the ``fd basis'' and then begins the optimization using
+%the ``ao basis'' for the particular QM method.  
+%
+%The directive
+%\begin{verbatim}
+%FDOPT
+%\end{verbatim}
+%optimizes the geomety of the system in the basis ``fd basis'' using
+%the user specified QM method.  The finite difference nuclear hessian
+%is then computed at this optimized geometry for the ``fd basis.''  The
+%optimization using the ``ao basis'' for the particular QM method is
+%then started.
+%
 
-Any initial hessian can be used with the STEPPER module via the ASCII
-hessian interface.  The lower triangular [$3N{\times}(3N+1)/2$] matrix
-written in any ASCII format (e.g., 1pd20.10) will work but the entries
-must be one per line.  This should be stored in a file called
-\verb+<default_file_prefix>+.hess in the current working directory of
-node zero.  
-
-There are two other options that stepper allows regarding the initial
-guess for the nuclear hessian.  By specifying a basis set (smaller
-than the desired basis set) with basis set name of ``fd basis'' (c.f.,
-Section \ref{sec:basis} users can optimize the geometry using the
-smaller basis and then generate a finite difference hessian.
-Alternatively users may generate a finite difference hessian at the
-current geometry.  
-
-These actions are invoked with the input tokens:
-
-\begin{verbatim}
-FDAT
-\end{verbatim}
-
-FDAT computes the finite difference nuclear hessian at the current
-geometry using the ``fd basis'' and then begins the optimization using
-the ``ao basis'' for the particular QM method.  
-
-\begin{verbatim}
-FDOPT
-\end{verbatim}
-
-FDOPT optimizes the geomety of the system in the ``fd basis'' using
-the user specified QM method.  The finite difference nuclear hessian
-is then computed at this optimized geometry for the ``fd basis.''
-The optimization using the ``ao basis'' for the particular QM method
-is then started.  
 
 \section{Backsteping in Stepper}
 
 If a step taken during the optimization is too large (e.g., the step
 causes the energy to go up for a minimization or down for a transition
-state search), the STEPPER optimizer will automatically ``backstep'' and
-correct the step based on information prior to the faulty step.  If
-you have an optimization that ``backsteps'' frequently then the inital
-trust radius should most likely be decreased.  
+state search), the STEPPER optimizer will automatically ``backstep''
+and correct the step based on information prior to the faulty step.
+If you have an optimization that ``backsteps'' frequently then the
+inital trust radius should most likely be decreased.
 
 
 

@@ -163,7 +163,7 @@ single directory for all processes, or different directories for
 different processes.  The general form of the directive is as follows;
 
 \begin{verbatim}
-   (PERMANENT_DIR || SCRATCH_DIR) [(<string host>|<integer process>):] \
+   (PERMANENT_DIR || SCRATCH_DIR) [(<string host>||<integer process>):] \
                                        <string directory> \ 
                                   [...]
 \end{verbatim}
@@ -770,7 +770,8 @@ specified processes to be executed using the Bourne shell.  This form
 of the task directive is as follows;
 
 \begin{verbatim}
-  TASK shell [(<integer-range processor = 0>|all)] <string command> [ignore]
+  TASK shell [(<integer-range processor = 0>||all)] \
+             <string command> [ignore]
 \end{verbatim}
 
 The keyword \verb+shell+ is required for this directive.  It specifies

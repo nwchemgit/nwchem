@@ -23,7 +23,6 @@ DFT input is provided using the compound \verb+DFT+ directive
     ...
   END
 \end{verbatim}
-
 The actual DFT calculation will be performed when the input module
 encounters the \verb+TASK+ directive (Section \ref{sec:task}).  
 \begin{verbatim}
@@ -35,30 +34,29 @@ the DFT module can be invoked with no input directives (defaults
 invoked throughout).  There are subdirectives which allow for 
 customized application; those currently provided as options for 
 the DFT module are:
-
 \begin{verbatim}
   VECTORS [[input] (<string input_movecs default atomic>) || \
                    (project <string basisname> <string filename>)] \
-           [swap [alpha|beta] <integer vec1 vec2> ...] \
+           [swap [alpha||beta] <integer vec1 vec2> ...] \
            [output <string output_filename default input_movecs>] \
            [lock]
 
 
   XC [[acm] [b3lyp] [beckehandh] \
-      [HFexch <real multiplicative_factor default 1.0>] \
-      [becke88 [nonlocal] <real multiplicative_factor default 1.0>] \
-      [lyp <real multiplicative_factor default 1.0>] \
-      [perdew81 <real multiplicative_factor default 1.0>] \
-      [perdew86 [nonlocal] <real multiplicative_factor default 1.0>] \
-      [perdew91 [nonlocal] <real multiplicative_factor default 1.0>] \
-      [pw91lda <real multiplicative_factor default 1.0>] \
-      [slater <real multiplicative_factor default 1.0>] \
-      [vwn_1 <real multiplicative_factor default 1.0>] \
-      [vwn_2 <real multiplicative_factor default 1.0>] \
-      [vwn_3 <real multiplicative_factor default 1.0>] \
-      [vwn_4 <real multiplicative_factor default 1.0>] \
-      [vwn_5 <real multiplicative_factor default 1.0>] \
-      [vwn_1_rpa <real multiplicative_factor default 1.0>]]
+      [HFexch <real prefactor default 1.0>] \
+      [becke88 [nonlocal] <real prefactor default 1.0>] \
+      [lyp <real prefactor default 1.0>] \
+      [perdew81 <real prefactor default 1.0>] \
+      [perdew86 [nonlocal] <real prefactor default 1.0>] \
+      [perdew91 [nonlocal] <real prefactor default 1.0>] \
+      [pw91lda <real prefactor default 1.0>] \
+      [slater <real prefactor default 1.0>] \
+      [vwn_1 <real prefactor default 1.0>] \
+      [vwn_2 <real prefactor default 1.0>] \
+      [vwn_3 <real prefactor default 1.0>] \
+      [vwn_4 <real prefactor default 1.0>] \
+      [vwn_5 <real prefactor default 1.0>] \
+      [vwn_1_rpa <real prefactor default 1.0>]]
 
 
   CONVERGENCE [[energy <real energy default 1e-7>] \
@@ -80,11 +78,14 @@ the DFT module are:
                [hl_tol <real hl_tol default 0.1>]]
 
 
-  GRID [[coarse|medium|fine|xfine] \
-        [gausleg <integer radpts default 50> <integer nagrid default 10>] \ 
-        [lebedev <integer radpts default 50> <integer iangquad default 4>] \ 
-        [store_wght] [nquad_task <integer nquad_task default 1>] \
-        [delley|becke] [rm <real rm default 2.0>]]
+  GRID [(coarse||medium||fine||xfine) default medium] \
+       [(gausleg <integer radpts default 50> 
+                 <integer nagrid default 10>) ||\ 
+        (lebedev <integer radpts default 50> 
+                 <integer iangquad default 4>)] \ 
+       [store_wght] [nquad_task <integer nquad_task default 1>] \
+       [delley||becke] \
+       [rm <real rm default 2.0>]
         
 
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-15>] \
@@ -96,7 +97,7 @@ the DFT module are:
 
 
   DECOMP
-  DFT|ODFT
+  DFT||ODFT
   DIRECT
   INCORE
   ITERATIONS <integer iterations default 30>
@@ -104,7 +105,7 @@ the DFT module are:
   MULLIKEN
   MULT <integer mult default 1>
   NOIO
-  PRINT|NOPRINT
+  PRINT||NOPRINT
 \end{verbatim}
 
 The following 
@@ -112,7 +113,8 @@ sections describe these keywords and
 optional subdirectives that can be specified for a \verb+DFT+ calculation
 in NWChem.
 
-\section{Basis Sets Specification for the DFT Module}
+\section{Specification of Basis Sets for the DFT Module}
+
 The DFT module requires at a minimum the basis set for the Kohn-Sham 
 molecular orbitals.  This basis set must be in the default basis set named
 {\tt "ao basis"}, or it must be assigned to this default name using the
@@ -138,77 +140,71 @@ so the {\tt "xc basis"} basis set is not generally required.
 
 For the DFT module, the input options for defining the basis sets in a given
 calculation can be summarized as follows;
-
 \begin{itemize}
 \item {\tt "ao basis"} -- Kohn-Sham molecular orbitals; required for all 
 calculations
-
 \item {\tt "cd basis"} -- charge density fitting basis set; optional, but
 recommended for evaluation of the Coulomb potential
-
 \item {\tt "xc basis"} -- exchange-correlation (XC) fitting basis set; 
 optional, and usually not recommended
-
 \end{itemize}
 
 
-\section{Input/Output of KS-MO Vector}
+\section{{\tt VECTORS} and {\tt MAX\_OVL} --- KS-MO Vectors}
+
+The \verb+VECTORS+ directive is the same as that in the SCF module
+(Section \ref{sec:vectors}).  Currently, the \verb+LOCK+ keyword
+is not supported by the DFT module, however the directive
 \begin{verbatim}
-  VECTORS [[input] (<string input_movecs default atomic>) || \
-                   (project <string basisname> <string filename>)] \
-           [swap [alpha|beta] <integer vec1 vec2> ...] \
-           [output <string output_filename default input_movecs>] \
-           [lock]
-
-
-  MAX_OVL (same as LOCK in VECTORS directive although not yet
-  implemented as such)
+  MAX_OVL
 \end{verbatim}
+has the same effect.
 
-\section{Exchange-Correlation Potentials}
+\section{{\tt XC} and {\tt DECOMP} --- Exchange-Correlation Potentials}
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] \
-      [HFexch <real multiplicative_factor default 1.0>] \
-      [becke88 [nonlocal] <real multiplicative_factor default 1.0>] \
-      [lyp <real multiplicative_factor default 1.0>] \
-      [perdew81 <real multiplicative_factor default 1.0>] \
-      [perdew86 [nonlocal] <real multiplicative_factor default 1.0>] \
-      [perdew91 [nonlocal] <real multiplicative_factor default 1.0>] \
-      [pw91lda <real multiplicative_factor default 1.0>] \
-      [slater <real multiplicative_factor default 1.0>] \
-      [vwn_1 <real multiplicative_factor default 1.0>] \
-      [vwn_2 <real multiplicative_factor default 1.0>] \
-      [vwn_3 <real multiplicative_factor default 1.0>] \
-      [vwn_4 <real multiplicative_factor default 1.0>] \
-      [vwn_5 <real multiplicative_factor default 1.0>] \
-      [vwn_1_rpa <real multiplicative_factor default 1.0>]]
-
-
-  DECOMP
+      [HFexch <real prefactor default 1.0>] \
+      [becke88 [nonlocal] <real prefactor default 1.0>] \
+      [lyp <real prefactor default 1.0>] \
+      [perdew81 <real prefactor default 1.0>] \
+      [perdew86 [nonlocal] <real prefactor default 1.0>] \
+      [perdew91 [nonlocal] <real prefactor default 1.0>] \
+      [pw91lda <real prefactor default 1.0>] \
+      [slater <real prefactor default 1.0>] \
+      [vwn_1 <real prefactor default 1.0>] \
+      [vwn_2 <real prefactor default 1.0>] \
+      [vwn_3 <real prefactor default 1.0>] \
+      [vwn_4 <real prefactor default 1.0>] \
+      [vwn_5 <real prefactor default 1.0>] \
+      [vwn_1_rpa <real prefactor default 1.0>]]
 \end{verbatim}
 
-The user has the option of specifying the exchange-correlation treatment 
-in the DFT Module.  The default exchange-correlation functional is defined
-as the local density approximation (LDA) for closed shell systems and it's
-counterpart the local spin-density (LSD) approximation for open shell
-systems.  Within this approximation the exchange functional is the 
-the Slater $\rho^{1/3}$ functional (from J.C.~Slater, 
-{\sl Quantum Theory of Molecules and
-Solids, Vol.~4: The Self-Consistent Field for Molecules and Solids}
-(McGraw-Hill, New York, 1974)), and the correlation
-functional is the Vosk-Wilk-Nusair (VWN) functional (functional V)
-(S.J.~Vosko, L.~Wilk and M.~Nusair, 
-Can.~J.~Phys.~{\bf  58}, 1200 (1980)).  The parameters used in this
-formula are obtained by fitting to the {\bf Ceperley \&
-Alder\footnotemark[1]} Quantum
-MonteCarlo solution of the {\bf homogenous electron gas}.
+The user has the option of specifying the exchange-correlation
+treatment in the DFT Module.  The default exchange-correlation
+functional is defined as the local density approximation (LDA) for
+closed shell systems and its counterpart the local spin-density (LSD)
+approximation for open shell systems.  Within this approximation the
+exchange functional is the Slater $\rho^{1/3}$ functional (from
+J.C.~Slater, {\sl Quantum Theory of Molecules and Solids, Vol.~4: The
+  Self-Consistent Field for Molecules and Solids} (McGraw-Hill, New
+York, 1974)), and the correlation functional is the Vosk-Wilk-Nusair
+(VWN) functional (functional V) (S.J.~Vosko, L.~Wilk and M.~Nusair,
+Can.~J.~Phys.~{\bf 58}, 1200 (1980)).  The parameters used in this
+formula are obtained by fitting to the Ceperley and
+Alder\footnote{D.M.~Ceperley and B.J.~Alder, Phys. Rev. Lett. {\bf
+    45}, 566 (1980).}
+Quantum MonteCarlo solution of the {\em
+  homogenous electron gas}.
 
 These defaults can be invoked explicitly by specifying the following
 keywords within the DFT module input directive,
-
 \begin{verbatim}
   XC slater vwn_5
 \end{verbatim}
+
+The \verb+DECOMP+ directive causes the components of the energy
+corresponding to each functional to be printed, rather than just the
+total exchange-correlation energy which is the default.
 
 Many alternative exchange and correlation functionals are available to
 the user.  The following sections describe these options.
@@ -221,34 +217,30 @@ J.~Chem.~Phys.~88, 3098 (1988)), and the Hartree-Fock exact exchange.
 
 The Becke gradient-corrected functional is invoked by specifying the input
 line,
-
 \begin{verbatim}
    XC becke88
 \end{verbatim}
 
-The Hartree-Fock exact exchange functional, (which is exact to $O(N^4)$),
-is invoked by specifying the input line,
-
+The Hartree-Fock exact exchange functional, (which has $O(N^4)$
+computation expense), is invoked by specifying the input line,
 \begin{verbatim}
    XC HFexch
 \end{verbatim}
 
 Note that the user also has the ability to include only the local or
 nonlocal contributions of a given functional.  In addition the user
-can specify a multiplicative factor for the local/nonlocal component
-or total.  An example of this might be,
-
+can specify a multiplicative prefactor (the variable
+\verb+<prefactor>+ in the input) for the local/nonlocal component or
+total.  An example of this might be,
 \begin{verbatim}
    XC becke88 nonlocal 0.72
 \end{verbatim}
-
 The user should be aware that the Becke88 local component is simply
-the slater exchange and should be input as such.
+the Slater exchange and should be input as such.
 
 Any combination of the supported exchange functional options can be
 used.  For example the popular Gaussian B3 exchange could be specified
 as:
-
 \begin{verbatim}
    XC slater 0.8 becke88 nonlocal 0.72 HFexch 0.2
 \end{verbatim}
@@ -262,7 +254,7 @@ perdew86, perdew91, pw91lda, \verb+vwn_1+, \verb+vwn_2+, \verb+vwn_3+,
 \verb+vwn_4+, and \verb+vwn_1_rpa+.
 
 As in the exchange functional input, individual local/nonlocal
-components as well as multiplicative factors can be invoked where
+components as well as multiplicative prefactors can be invoked where
 appropriate.  Each of the correlation functionals is listed below along with
 appropriate citation. 
 
@@ -281,16 +273,16 @@ appropriate citation.
    XC vwn_5
 \end{verbatim}
 
-Note that functionals; \verb+vwn_2+, \verb+vwn_3+, and \verb+vwn_4+ require both sets of 
-parameters (the Monte Carlo parameters of Ceperley and Alder and
-VWN's RPA parameters) used in fitting the homogenous electron gas
-correlation energy.  Functionals \verb+vwn_1+ and \verb+vwn_5+ require only the
-Monte Carlo fitting parameters.  In order to reproduce results in the
-literature another functional was added; the \verb+vwn_1_rpa+.  This is the
-original \verb+vwn_1+ functional with RPA paramenters as opposed to the
-prescribed Monte Carlo parameters.  This functional can be invoked
-with the keyword,
-
+  Note that functionals; \verb+vwn_2+, \verb+vwn_3+, and \verb+vwn_4+
+  require both sets of parameters (the Monte Carlo parameters of
+  Ceperley and Alder and VWN's RPA parameters) used in fitting the
+  homogenous electron gas correlation energy.  Functionals
+  \verb+vwn_1+ and \verb+vwn_5+ require only the Monte Carlo fitting
+  parameters.  In order to reproduce results in the literature another
+  functional was added; the \verb+vwn_1_rpa+.  This is the original
+  \verb+vwn_1+ functional with RPA parameters as opposed to the
+  prescribed Monte Carlo parameters.  This functional can be invoked
+  with the keyword,
 \begin{verbatim}
    XC vwn_1_rpa
 \end{verbatim}
@@ -298,18 +290,16 @@ with the keyword,
 \item Perdew81 local density functional; J.~P.~Perdew and A.~Zunger,
   Phys.~Rev.~B {\bf23}, 5048 (1981). This functional can be invoked with the
   keyword,
-  
 \begin{verbatim}
    XC perdew81
 \end{verbatim}
 
 \item Perdew \& Wang 1991 local density functional;  J.P.~Perdew
   and Y.~Wang, Phys. Rev. B {\bf 45}, 13244 (1992).  The parameters
-  used in this formula are obtained by fitting to the {\bf Ceperley \&
-  Alder\footnotemark[1]} Quantum Monte Carlo solution of the {\bf
+  used in this formula are obtained by fitting to the Ceperley and
+  Alder Quantum Monte Carlo solution of the {\em
   homogenous electron gas}.  This functional can be invoked with the
   keyword,
-  
 \begin{verbatim}
    XC pw91lda
 \end{verbatim}
@@ -320,7 +310,6 @@ with the keyword,
   component is defaulted to the perdew81 local correlation
   functional. This functional can be invoked with the
   keyword,
-  
 \begin{verbatim}
    XC perdew86
 \end{verbatim}
@@ -331,7 +320,6 @@ with the keyword,
   is a nonlocal functional and in the absence of any local functional 
   specification the local component is defaulted to the \verb+pw91lda+ local 
   correlation functional.  This functional can be invoked with the keyword,
-
 \begin{verbatim}
    XC perdew91
 \end{verbatim}
@@ -341,7 +329,6 @@ with the keyword,
   is a local and nonlocal functional but cannot be conveniently split
   into the individual components.  The option to scale the total remains.
   This functional can be invoked with the keyword,
-  
 \begin{verbatim}
    XC lyp
 \end{verbatim}
@@ -353,15 +340,11 @@ with the keyword,
 Any combination of the supported correlation functional options can be
 used.  For example the correlation component of the popular B3LYP
 could be specified as:
-
 \begin{verbatim}
    XC vwn_1_rpa 0.19 lyp 0.81
 \end{verbatim}
 
   
-\footnotetext[1]{D.M.~Ceperley and B.J.~Alder, Phys. Rev. Lett. {\bf 45},
-  566 (1980).}
-
 \subsection{Hybrid Exchange and Correlation Functionals}
 
 In addition to the options listed above for the exchange and correlation
@@ -372,7 +355,6 @@ adiabatic connection method (see A.D.~Becke, J.~Chem.~Phys.~98, 5648
 (1993)), and the b3lyp (popularized by Gaussian9X).
 
 These options can be invoked by specifying any of the following input lines,
-
 \begin{verbatim}
    XC beckehandh
    XC acm
@@ -388,17 +370,17 @@ E_{X} \ = \ \frac{1}{2} E^{\rm HF}_X + \frac{1}{2} E^{\rm
 
 The keyword \verb+acm+ specifies that the exchange-correlation energy
 is computed as
-
 \begin{eqnarray*}
 E_{XC} \ &=& \ a_0 E^{\rm HF}_X + (1-a_0) E^{\rm Slater}_{X} +
 a_X \Delta E^{\rm Becke88}_{X} + E^{\rm VWN}_C + a_C \Delta E^{Perdew91}_C \\
 & &{\rm where } \\
 a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \end{eqnarray*}
+and $\Delta$ stands for a non-local component.
+
 
 The keyword \verb+b3lyp+ specifies that the exchange-correlation energy
 is computed as
-
 \begin{eqnarray*}
 E_{XC} \ &=& \ a_0 E^{\rm HF}_X + (1-a_0) E^{\rm Slater}_{X} +
 a_X \Delta E^{\rm Becke88}_{X} + (1-a_C)E^{\rm \verb+VWN_1_RPA+}_C + a_C E^{LYP}_C \\
@@ -407,30 +389,10 @@ a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \end{eqnarray*}
 
 
-\section{SCF Convergence Control}
+\section{{\tt ITERATIONS} --- Number of SCF iterations}
+
 \begin{verbatim}
-
   ITERATIONS <integer iterations default 30>
-
-  CONVERGENCE [[energy <real energy default 1e-7>] \
-               [density <real density default 1e-5>] \
-               [gradient <real gradient default 1e-4>] \
-               [dampon <real dampon default 0.0>] \
-               [dampoff <real dampoff default 0.0>] \
-               [diison <real diison default 0.0>] \
-               [diisoff <real diisoff default 0.0>] \
-               [levlon <real levlon default 0.0>] \
-               [levloff <real levloff default 0.0>] \
-               [ncydp <integer ncydp default 2>] \
-               [ncyds <integer ncyds default 30>] \
-               [ncysh <integer ncysh default 30>] \
-               [damp <integer ndamp default 70>] [nodamping] \
-               [diis [nfock <integer nfock default 10>]] \
-               [nodiis] [lshift <real lshift default 0.5>] \
-               [nolevelshifting] \
-               [hl_tol <real hl_tol default 0.1>]]
-
-
 \end{verbatim}
 
 The default optimization in the DFT module is to iterate on the 
@@ -443,15 +405,35 @@ is \verb+ITERATIONS+, and has the following general form,
 \end{verbatim}
 
 The optimization procedure will stop when the specified number of
-iterations is reached or convergence is meant.  Convergence is
-satisfied by meeting any or all of three criteria; 
+iterations is reached or convergence is met.
 
+\section{{\tt CONVERGENCE} --- SCF Convergence Control}
+
+\begin{verbatim}
+  CONVERGENCE [energy <real energy default 1e-7>] \
+              [density <real density default 1e-5>] \
+              [gradient <real gradient default 1e-4>] \
+              [hl_tol <real hl_tol default 0.1>]
+              [dampon <real dampon default 0.0>] \
+              [dampoff <real dampoff default 0.0>] \
+              [ncydp <integer ncydp default 2>] \
+              [ncyds <integer ncyds default 30>] \
+              [ncysh <integer ncysh default 30>] \
+              [damp <integer ndamp default 70>] [nodamping] \
+              [diison <real diison default 0.0>] \
+              [diisoff <real diisoff default 0.0>] \
+              [(diis [nfock <integer nfock default 10>]) || nodiis] \
+              [levlon <real levlon default 0.0>] \
+              [levloff <real levloff default 0.0>] \
+              [(lshift <real lshift default 0.5>) || nolevelshifting] \
+\end{verbatim}
+
+Convergence is satisfied by meeting any or all of three criteria;
 \begin{itemize}
 \item convergence of the total energy; this is defined to be when the
   total DFT energy at iteration N and at iteration N-1 differ by a value less
   than some value (the default is 1e-7).  This value can be modified
   using the key word,
-
 \begin{verbatim}
   CONVERGENCE energy <real energy default 1e-7>
 \end{verbatim}
@@ -460,7 +442,6 @@ satisfied by meeting any or all of three criteria;
   total DFT density matrix at iteration N and at iteration N-1 have a
   RMS difference less than some value (the default is 1e-5).  This value can be modified
   using the key word,
-
 \begin{verbatim}
   CONVERGENCE density <real density default 1e-5>
 \end{verbatim}
@@ -468,26 +449,24 @@ satisfied by meeting any or all of three criteria;
 \item convergence of the orbital gradient; this is defined to be when the
   DIIS error vector becomes less than some value (the default is
   1e-4).  This value can be modified using the key word,
-
 \begin{verbatim}
   CONVERGENCE gradient <real gradient default 1e-4>
 \end{verbatim}
 \end{itemize}
 
-The default optimization strategy is to immediately begin direct inversion of the
-iterative subspace\footnote {P.~Pulay,  Chem.\ Phys.\ Lett.\ {\bf 73}, 
-393 (1980) and P.~Pulay,  J.~Comp.~Chem.~{\bf 3}, 566 (1982)}.
-Damping is also initiated (using 70\% of the previous density) for
-the first 2 iteration.  In addition, if the HOMO - LUMO gap is small
-and the Fock matrix somewhat diagonally dominant, then levelshifting
-is automatically initiated.  There are a variety of ways to customize
-this procedure to whatever is desired.
+The default optimization strategy is to immediately begin direct
+inversion of the iterative subspace\footnote {P.~Pulay, Chem.\ Phys.\ 
+  Lett.\ {\bf 73}, 393 (1980) and P.~Pulay, J.~Comp.~Chem.~{\bf 3},
+  566 (1982)}.  Damping is also initiated (using 70\% of the previous
+density) for the first 2 iteration.  In addition, if the HOMO - LUMO
+gap is small and the Fock matrix somewhat diagonally dominant, then
+levelshifting is automatically initiated.  There are a variety of ways
+to customize this procedure to whatever is desired.
 
 An alternative optimization strategy is to specify, by using the change 
 in total energy (from iterations when N and N-1), when to turn
 damping, levelshifting, and/or diis on/off.  Start and stop keywords for
 each of these is available as,
-
 \begin{verbatim}
   CONVERGENCE  [dampon <real dampon default 0.0>] \
                [dampoff <real dampoff default 0.0>] \
@@ -504,7 +483,6 @@ Another strategy can be to simply specify how many iterations (cycles) you wish
 each type of procedure to be used.  The necessary keywords to control
 the number of damping cycles (ncydp), the number of diis cycles
 (ncyds), and the number of levelshifting cycles (ncysh) are input as,
-
 \begin{verbatim}
   CONVERGENCE  [ncydp <integer ncydp default 2>] \
                [ncyds <integer ncyds default 30>] \
@@ -514,7 +492,6 @@ the number of damping cycles (ncydp), the number of diis cycles
 The amount of damping, levelshifting, time at which levelshifting is
 automatically imposed, and Fock matrices used in the DIIS
 extrapolation can be modified by the following keywords
-
 \begin{verbatim}
   CONVERGENCE  [damp <integer ndamp default 70>] \
                [diis [nfock <integer nfock default 10>]] \
@@ -524,11 +501,9 @@ extrapolation can be modified by the following keywords
 
 Damping is defined to be the percentage of the previous iterations
 density mixed with the current iterations density.  So, for example 
-
 \begin{verbatim}
   CONVERGENCE damp 70
 \end{verbatim}
-
 would mix 30\% of the current iteration density with 70\% of the
 previous iteration density.
 
@@ -537,23 +512,20 @@ V.R.~Saunders, Mol.~Phys.~{\bf 28}, 819 (1974)} is defined as the
 amount of shift applied to the diagonal elements of the unoccupied
 block of the Fock matrix.  The shift is specified by the
 keyword \verb+lshift+.  For example the directive,
-
 \begin{verbatim}
   CONVERGENCE lshift 0.5
 \end{verbatim}
-
 causes the diagonal elements of the Fock matrix
 corresponding to the virtual orbitals to be shifted by 0.5 au.
 By default, this levelshifting procedure is switched on whenever the
 HOMO-LUMO gap is small.  Small is defined by default to be 0.1 au but
 can be modified by the directive \verb+hl_tol+.  An example of
 changing the HOMO-LUMO gap tolerance to 0.01 would be,
-
 \begin{verbatim}
   CONVERGENCE hl_tol 0.01
 \end{verbatim}
 
-Direct inversion of the iterative subspace with extrapolation of upto
+Direct inversion of the iterative subspace with extrapolation of up to
 10 Fock matrices is a default optimization procedure.  For large
 molecular systems the amount of available memory may preclude the ability to
 store this number of N**2 arrays in global memory.  The user may then
@@ -561,7 +533,6 @@ specify the number of Fock matrices to be used in the extrapolation
 (must be greater than three (3) to be effective).  To set the number of
 Fock matrices stored and used in the extrapolation procedure to 3
 would take the form,
-
 \begin{verbatim}
   CONVERGENCE diis nfock 3
 \end{verbatim}
@@ -573,16 +544,17 @@ procedures deemed undesirable with the obvious keywords,
 \end{verbatim}
 
 
-\section{Numerical Integration of the Exchange-Correlation Potential}
+\section{{\tt GRID} --- Numerical Integration of the Exchange-Correlation Potential}
 
 \begin{verbatim}
-  GRID [[coarse|medium|fine|xfine] \ [gausleg <integer radpts default
-  50> <integer nagrid default 10>] \ [lebedev <integer radpts default
-  50> <integer iangquad default 4>] \ [store_wght] [nquad_task
-  <integer nquad_task default 1>] \ [delley|becke] [rm <real rm
-  default 2.0>]]
-        
-
+  GRID [(coarse||medium||fine||xfine) default medium] \
+       [(gausleg <integer radpts default 50> 
+                 <integer nagrid default 10>) ||\ 
+        (lebedev <integer radpts default 50> 
+                 <integer iangquad default 4>)] \ 
+       [store_wght] [nquad_task <integer nquad_task default 1>] \
+       [delley||becke] \
+       [rm <real rm default 2.0>]
 \end{verbatim}
 
 A numerical integration is necessary for the evaluation of the
@@ -593,16 +565,14 @@ scheme for the angular components (see C.W.~Murray, N.C.~Handy, and
 G.L.Laming, Mol.~Phys.~78, 997-1014, (1993)).  Within this numerical 
 integration procedure various levels of accuracy have been defined and
 are available to the user.  The user can specify the level of accuracy
-with the keywords; coarse, medium, fine, and xfine.
+with the keywords; coarse, medium, fine, and xfine.  The default is medium.
 
 \begin{verbatim}
-  GRID [coarse|medium|fine|xfine]
-
+  GRID [coarse||medium||fine||xfine]
 \end{verbatim}
 
 The definitions of these gridtypes are:\\
-
-
+{\center
   \begin{tabular}[right]{|l|r r r r|} \hline
 Keyword & {\tt coarse} & {\tt medium} & {\tt fine} & {\tt xfine} \\ \hline
 $N_{radial}$ & 35 & 50 & 75 & 105 \\
@@ -610,23 +580,18 @@ $N_{theta}$ & 8 & 10 & 12 & 14 \\  \hline
 $N_{phi}$ & 16 & 20 & 24 & 28 \\  \hline
 $total unpruned per center$ & 4480 & 10000 & 21600 & 41160 \\  \hline
   \end{tabular}
+}
 
 The user has the option of specifying a customed quadrature of this
 type with the keywords,
-
 \begin{verbatim}
   GRID gausleg <integer nradpts default 50> <integer nagrid default 10> 
-        
 \end{verbatim}
-
 In this type of grid, the number of phi points is twice the number of
 theta points. So, for example, a specification of,
-
 \begin{verbatim}
   GRID gausleg 80 20
-        
 \end{verbatim}
-
 would be interpreted as 80 radial points, 20 theta points, and 40
 phi points per center (or 64000 points per center before pruning).
 
@@ -637,25 +602,26 @@ for the Lebedev grid was supplied by M.~Caus\`a of the University of
 Torino.}.  Within this numerical integration procedure various levels 
 of accuracy have also been defined and are available to the user.  
 The input for this type of grid takes the form,
-
 \begin{verbatim}
   GRID lebedev <integer radpts default 50> <integer iangquad default 4> 
-
 \end{verbatim}
-
 In this context the variable iangquad specifies a certain number of
 angular points as indicated by the table below.
 
-
+{\center
   \begin{tabular}[right]{|l|r r r r r r r|} \hline
 $IANGQUAD$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\ \hline
 $N_{angular}$ & 38 & 50 & 110 & 194 & 266 & 302 & 434 \\  \hline
   \end{tabular}
+}
 
-Therefor the user can specify any number of radial points along with
+Therefore the user can specify any number of radial points along with
 the level of angular quadrature (1-7).
 
-\section{Control of Screening (Setting Tolerances)}
+{\bf JEFF: store\_weight, nquad\_task, delley, and becke need explaining}
+
+\section{{\tt TOLERANCES} --- Screening tolerances}
+
 \begin{verbatim}
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-15>] \
               [accAOfunc <integer accAOfunc default 20>] \
@@ -663,25 +629,22 @@ the level of angular quadrature (1-7).
               [accQrad <integer accQrad default 40>] \
               [accXCfunc <integer accXCfunc default 20>] \
               [radius <real radius default 16.0>]]
-
-
 \end{verbatim}
 
+{\bf JEFF: tight needs explanation}
 
 The user has the option of controlling screening for the tolerances in
-the integral evaluations for the DFT module.  In most applications, the
-default values will be adequate for the calculation, but different values
-can be specified in the input for the DFT module using the keywords
-described below.
+the integral evaluations for the DFT module.  In most applications,
+the default values will be adequate for the calculation, but different
+values can be specified in the input for the DFT module using the
+keywords described below.
 
 The input to define a screening tolerance for evaluation of the AO 
 Gaussian functions is specified with the keyword \verb+accAOfunc+, as
 follows,
-
 \begin{verbatim}
   TOLERANCES accAOfunc <integer accAOfunc default 20>
 \end{verbatim}
-
 A Gaussian orbital basis (AO) function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is 
 evaluated  at a point $r_i$ only if 
@@ -690,11 +653,9 @@ $\zeta\cdot r_i^2$ is greater than the value specified for ${\tt accAOfunc}$.
 The input to define a screening tolerance for evaluation of the exchange-
 correlation (XC) Gaussian fitting functions is specified with the
 keyword \verb+accXCfunc+, as follows,
- 
 \begin{verbatim}
   TOLERANCES accXCfunc <integer accXCfunc default 20>
 \end{verbatim}
-
 An exchange-correlation (XC) fitting function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is 
 evaluated  at a point $r_i$ only if 
@@ -703,11 +664,9 @@ $\zeta\cdot r_i^2$ is greater than the value specified for ${\tt accXCfunc}$.
 The input to define a screening tolerance for evaluation of the
 charge-density (CD) Gaussian fitting functions is specified with the
 keyword \verb+accCoul+, as follows,
-
 \begin{verbatim}
   TOLERANCES accCoul <integer accCoul default 15>
 \end{verbatim}
-
 A  charge-density (CD) fitting function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is evaluated  at a 
 point $r_i$ only if $\zeta\cdot r_i^2$ is greater than ${\tt accCoul}$
@@ -719,7 +678,6 @@ values greater than $10^{(-{\tt accCoul})}$ are evaluated.
 The user also has the option of specifying the radial quadrature 
 grid cut-off for the DFT calculation, using the keyword
 \verb+accQrad+.  The input line for this option is as follows,
-
 \begin{verbatim}
   TOLERANCES accQrad <integer accQrad default 40>
 \end{verbatim}
@@ -730,27 +688,23 @@ points around a given center or atom.  Grid points that lie more than
 
 Screening away needless computation of the XC functional (on the grid)
 due to negligible density is also possible with the use of,
-
 \begin{verbatim}
   TOLERANCES tol_rho <real tol_rho default 1e-15>
 \end{verbatim}
-
 XC functional computation is bypassed if the corresponding density
 elements are less than \verb+tol_rho+.
 
 A screening parameter, \verb+radius+, used in the screening of the
 Becke or Delley spatial weights is also available as,
-
 \begin{verbatim}
   TOLERANCES radius <real radius default 16.0>
 \end{verbatim}
-
 where radius is the cutoff value in bohr.
 
 
-\section{Hardware Resource Control}
+\section{{\tt DIRECT} and {\tt NOIO} --- Hardware Resource Control}
 \begin{verbatim}
-  DIRECT|INCORE
+  DIRECT||INCORE
   NOIO
 \end{verbatim}
 
@@ -774,9 +728,9 @@ are computed ``on-the-fly''.
 
 \fussy
 
-\section{Control of Open Shells}
+\section{{\tt DFT}, {\tt ODFT} and {\tt MULT} --- Open shell systems}
 \begin{verbatim}
-  DFT|ODFT
+  DFT||ODFT
   MULT <integer mult default 1>
 \end{verbatim}
 
@@ -784,20 +738,19 @@ Both {\sl closed-shell} and {\sl open-shell} systems can be studied using
 the DFT module.  Specifying the keyword \verb+MULT+ within the \verb+DFT+
 directive allows the user to define the spin multiplicity of the system.
 The form of the input line is as follows;
-
 \begin{verbatim}
-   mult <integer mult default 1> 
+   MULT <integer mult default 1> 
 \end{verbatim}
-
 When the keyword \verb+MULT+ is specified, the user can define the integer
 variable \verb+mult+, where \verb+mult+ is equal to the number of alpha 
 electrons minus beta electrons, plus 1.
 
-The keywords \verb+DFT|ODFT+ were originally intended to specify
-closed or openshell and are really unnecessary except in the context of
-forcing a system to be computed as an openshell system.
+The keywords \verb+DFT||ODFT+ were originally intended to specify
+closed or open shell and are really unnecessary except in the context
+of forcing a closed-shell system to be computed as an open shell
+system (i.e., using a spin-unrestricted wavefunction).
 
-\section{Standard Property Control}
+\section{{\tt MULLIKEN} --- Mulliken analysis}
 \begin{verbatim}
   MULLIKEN
 \end{verbatim}
@@ -806,22 +759,18 @@ Mulliken analysis of the charge distribution is invoked by the keyword:
 \begin{verbatim}
   MULLIKEN
 \end{verbatim}
-
-When this keyword is encountered, mulliken analysis of both the input 
+When this keyword is encountered, Mulliken analysis of both the input 
 density as well as the output density will occur.
-
 
 \section{Print Control}
 \begin{verbatim}
-  PRINT|NOPRINT
+  PRINT||NOPRINT
 \end{verbatim}
 
-The \verb+PRINT|NOPRINT+ options control the level of output in the
-DFT.  Known controllable print options are:
+The \verb+PRINT||NOPRINT+ options control the level of output in the
+DFT.  Documentation is not yet available for items under explicit
+print control.
 
 
 
-%%% Local Variables: 
-%%% mode: latex
-%%% TeX-master: t
-%%% End: 
+

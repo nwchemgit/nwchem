@@ -34,19 +34,24 @@ are as follows;
   TRIPLET 
   QUARTET 
   QUINTET 
+  SEXTEXT
+  SEPTET
+  OCTET
   NOPEN <integer nopen default 0>
   RHF
   ROHF
   UHF
 \end{verbatim}
 
-The optional keywords \verb+SINGLET, DOUBLET, TRIPLET, QUARTET, QUINTET+ 
-and \verb+NOPEN+ allow the user to specify the number of open shells for a 
-particular calculation.  \verb+SINGLET+ is the default, and specifies a 
-closed shell; \verb+DOUBLET+ specifies one open shell; \verb+TRIPLET+
-specifies two open shells; and so forth.  If there are more than four
-open shells, the keyword \verb+NOPEN+ must be used, with the integer
-\verb+nopen+ defining the exact number of open shells.
+The optional keywords \verb+SINGLET+, \verb+DOUBLET+, \ldots,
+\verb+OCTET+ and \verb+NOPEN+ allow the user to specify the number of
+singly occupied orbitals for a particular calculation.  \verb+SINGLET+
+is the default, and specifies a closed shell; \verb+DOUBLET+ specifies
+one singly occupied orbital; \verb+TRIPLET+ specifies two singly
+occupied orbitals; and so forth.  If there are more than seven singly
+occupied orbitals, the keyword \verb+NOPEN+ must be used, with the
+integer \verb+nopen+ defining the exact number of singly occupied
+orbitals (sometimes referred to as open shells).
 
 If the multiplicity is any value other than \verb+SINGLET+, the
 default calculation will be a spin-restricted, high-spin, open-shell
@@ -58,10 +63,10 @@ this.
 
 A spin-unrestricted solution can also be performed by specifying the
 keyword \verb+UHF+.  In UHF calculations, it is assumed that the
-number of open shells corresponds to the difference between the number
-of alpha-spin and beta-spin orbitals.  For example, a UHF calculation
-with 2 more alpha-spin orbitals than beta-spin orbitals can be
-obtained by specifying
+number of singly occupied orbitals corresponds to the difference
+between the number of alpha-spin and beta-spin orbitals.  For example,
+a UHF calculation with 2 more alpha-spin orbitals than beta-spin
+orbitals can be obtained by specifying
 
 \begin{verbatim}
 scf
@@ -145,7 +150,7 @@ error in the energy is typically much greater than this threshold.
 The default threshold is the minimum of $10^{-7}$ and $0.01$ times the
 requested convergence threshold of the SCF calculation.  This is
 suitable for nearly all purposes, though a more relaxed value of 
-$10^-6$ might accelerate inaccurate exploratory calculations.
+$10^{-6}$ might accelerate inaccurate exploratory calculations.
 
 The input to specify the threshold explicitly within the
 \verb+SCF+ directive is as follows, e.g.
@@ -172,7 +177,7 @@ by the user.
 \begin{verbatim}
   VECTORS [[input] (<string input_movecs default atomic>) || \
                    (project <string basisname> <string filename>)] \
-          [swap [alpha|beta] <integer vec1 vec2> ...] \
+          [swap [alpha||beta] <integer vec1 vec2> ...] \
           [output <string output_filename default input_movecs>] \
           [lock]
 \end{verbatim}
@@ -267,9 +272,9 @@ An example of use of the \verb+SWAP+ directive:
 \end{verbatim}
 This directive will cause the initial orbitals to be read from the
 file \verb+"try1.movecs"+.  The vectors for the orbitals within the
-pairs 173--175 will be swapped with those within 174--176.  The final
-orbitals obtained in the calculation will be written to the file
-\verb+"try2.movecs"+.
+pairs 173--175 will be swapped with those within 174--176, so the
+resulting order is 175, 176, 173, 174.  The final orbitals obtained in
+the calculation will be written to the file \verb+"try2.movecs"+.
 
 The swapping of orbitals occurs as a sequential process in the order
 (left to right) input by the user.  Thus, regarding each pair as an
@@ -369,14 +374,14 @@ precision is usually available by default.
 The default convergence threshold suffices for most SCF energy and
 geometry optimization calculations, providing about 6--8 decimal
 places in the energy, and about four significant figures in the
-density and derivative w.r.t.\ nuclear coordinates.  However, weakly
-interacting systems, floppy molecules, finite-difference of gradients
-to compute the Hessian, and post-Hartree-Fock calculations may require
-greater precision.  A threshold of $10^{-6}$ is adequate for most such
-purposes, and a threshold of $10^{-8}$ might be necessary for very
-high accuracy or very weak interactions.  A threshold of $10^{-10}$
-should be regarded as the best that can be attained in most
-circumstances.
+density and energy derivative w.r.t.\ nuclear coordinates.  However,
+weakly interacting systems, floppy molecules, finite-difference of
+gradients to compute the Hessian, and post-Hartree-Fock calculations
+may require greater precision.  A threshold of $10^{-6}$ is adequate
+for most such purposes, and a threshold of $10^{-8}$ might be
+necessary for very high accuracy or very weak interactions.  A
+threshold of $10^{-10}$ should be regarded as the best that can be
+attained in most circumstances.
 
 \section{{\tt MAXITER} --- iteration limit}
 \label{sec:max}
@@ -426,7 +431,7 @@ and the computational strategy.
 
 \begin{verbatim}
    RI [<string (hessian || preconverge || full) default full>] \
-      [<string (disk || memory || auto) default memory>]
+      [<string (disk || memory || auto) default auto>]
 \end{verbatim}
 
 The first three parameters determine the extent of the approximation:
@@ -806,30 +811,28 @@ Hessian used with the Newton Raphson (NR) approach.  It is also
 possible to change the level-shift automatically as the solution
 attains some specified accuracy.  The form of the directive is as
 follows;
-
 \begin{verbatim}
    LEVEL [pcg <real initial default 20.0> \
            [<real tol default 0.5> <real final default 0.0>]] \
          [nr <real initial default 0.0> \
-           [<rel tol default 0.0> <real final default 0.0>]]
+           [<real tol default 0.0> <real final default 0.0>]]
 \end{verbatim}
 
-% Section \ref{sec:scfconv} discussed the use of level shifts to control
-% convergence.  Level shifts may be set independently for both the
-% approximate (denoted here by PCG) and exact Hessians (denoted by
-% NR).  You can also have the level shift automatically changed when a
-% certain accuracy is attained.  
-
 This directive contains only two keywords; one for the PCG method and
-the other for the exact Hessians.  Specifying the keyword \verb+pcg+
-allows the user to define the level shifting for the approximate
-(i.e., PCG) method.  Specifying the keyword \verb+nr+ allows the user
-to define the level shifting for the exact Hessians.  In both options,
-the initial level shift is defined by the value specified for the
-variable \verb+initial+.  Optionally, \verb+tol+ can specified
-independently with each keyword to define the level of accuracy that
-must be attained in the solution before the level shifting is changed
-to the value specified by input in the real variable \verb+final+.
+the other for the exact Hessian (Newton Raphson, or NR).  Use of PCG
+or NR is determined by the input specified for \verb+nr_switch+ on the
+\verb+NR+ directive, Section \ref{sec:nrswitch} above.  
+
+Specifying the keyword \verb+pcg+ on the \verb+LEVEL+ directive allows
+the user to define the level shifting for the approximate (i.e., PCG)
+method.  Specifying the keyword \verb+nr+ allows the user to define
+the level shifting for the exact Hessians.  In both options, the
+initial level shift is defined by the value specified for the variable
+\verb+initial+.  Optionally, \verb+tol+ can be specified independently
+with each keyword to define the level of accuracy that must be
+attained in the solution before the level shifting is changed to the
+value specified by input in the real variable \verb+final+.  Level
+shifts and gradient thresholds are specified in atomic units.
 
 For the PCG method (as specified using the keyword \verb+pcg+), the
 defaults for this input are 20.0 for \verb+initial+, 0.5 for
@@ -842,7 +845,6 @@ For the exact Hessian (as specified using the keyword \verb+nr+), the
 defaults are all zero.  The exact Hessian is usually not shifted since
 this destroys quadratic convergence.  An example of an input directive
 that applies a shift of 0.2 to the exact Hessian is as follows;
-
 \begin{verbatim}
   level nr 0.2
 \end{verbatim}
@@ -850,7 +852,6 @@ that applies a shift of 0.2 to the exact Hessian is as follows;
 To apply this shift to the exact Hessian only until the maximum
 element of the gradient falls below 0.005, the required input
 directive is as follows;
-
 \begin{verbatim}
   level nr 0.2 0.005 0
 \end{verbatim}
@@ -861,7 +862,6 @@ defaults, the keyword \verb+pcg+ must be specified also.  For example,
 to specify the level shifting in the above example for the exact
 Hessian {\em and} non-default shifting for the PCG method, the
 directive would be something like the following;
-
 \begin{verbatim}
   level pcg 20 0.3 0.0 nr 0.2 0.005 0.0
 \end{verbatim}
@@ -870,9 +870,7 @@ This input will cause the PCG method to be level-shifted by 20.0 until
 the maximum element of the gradient falls below 0.3, then the shift
 will be zero.  For the exact Hessian, the level shifting is initially
 0.2, until the maximum element falls below 0.005, after which the
-shift is zero.  (use of PCG or NR is determined by the input specified
-for \verb+nr_switch+ on the \verb+NR+ directive, Section
-\ref{sec:nrswitch} above.)
+shift is zero. 
 
 The default options correspond to
 \begin{verbatim}
@@ -912,18 +910,4 @@ print control, along with the print level or each one.
  ``parameters''           \> default\> convergence parameters \\
  ``convergence''          \> default\> info each iteration
 \end{tabbing}
-
-If no \verb+PRINT+ directives are defined explicitly in the input for
-the SCF module, the printed output from an SCF calculation will
-consist only of the above items with a ``default'' print level (i.e.,
-\verb+''mo guess''+, \verb+''final evals''+, \verb+''vectors i/o''+,
-\verb+''parameters''+, and \verb+''convergence''+).  If the keyword
-\verb+debug+ is explicitly invoked on a \verb+PRINT+ directive, the
-output will include all items in the above list with a print level of
-\verb+debug+, in addition to the items with a print level of
-\verb+default+.  If the keyword \verb+high+ is also invoked, all items
-in the above list will be printed.  If only the keyword \verb+low+ is
-invoked, the only item that will be printed is \verb+''information''+.
-
-
 
