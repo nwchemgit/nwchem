@@ -1,8 +1,8 @@
       SubRoutine Get_Grid(Grid,nGrid,CooFrom,CooTo,nGridXYZ,
      &                    Volume,Out_Unit,iProc,Where,
-     &                    nAtom,XYZ,What)
+     &                    nAtom,XYZ,What,lgaussian,charge)
 *
-* $Id: get_grid.F,v 1.5 1998-05-06 08:08:21 d3e129 Exp $
+* $Id: get_grid.F,v 1.6 1999-11-11 03:22:58 edo Exp $
 *
       Implicit None
 *
@@ -14,14 +14,14 @@
       Integer nGrid, nGridXYZ(3), Out_Unit, iProc, nAtom
       Double Precision Volume
       Double Precision Grid(3,nGrid),XYZ(3,nAtom)
-      Double Precision CooFrom(3), CooTo(3)
+      Double Precision CooFrom(3), CooTo(3),charge(*)
       Character*8 Where,What
 *---- Define local variables
       Double Precision Step(3),Spread(3),Angle(3),Scale,Frac_P
       Double Precision Dist,Thr
       Integer i,iGrid,iX,iY,iZ,Const_M(3),Const_P(3),iFast,iAtom
       Integer InRow,nTimes,iTimes,LeftNo,nLoop,Length,j,iOff,nRejected
-      Logical DeBug
+      Logical DeBug,lgaussian
 *
       Parameter (Thr = 1.d-8)
 *
@@ -62,19 +62,68 @@
          End If
       End Do
       If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
-         Write(Out_Unit,'(3(1x,f10.5),3(3x,f5.2))')
-     &        (Spread(i),i=1,3),(Angle(i),i=1,3)
-         Write(Out_Unit,'(3(2x,i4))')(nGridXYZ(i),i=1,3)
-         iFast = 1
-         Write(Out_Unit,'(5x,i1,6(2x,i4))')
-     &         iFast,(Const_M(i),Const_P(i),i=1,3)
+         if(lgaussian) then
+ 9498       format(I5,3F12.6)
+            Write(Out_Unit,9498)
+     &           natom,(coofrom(i),i=1,3)
+            Write(Out_Unit,9498)
+     &           ngridxyz(1)+1,step(1),0d0,0d0
+            Write(Out_Unit,9498)
+     &           ngridxyz(2)+1,0d0,step(2),0d0
+            Write(Out_Unit,9498)
+     &           ngridxyz(3)+1,0d0,0d0,step(3)
+            do i=1,natom
+            Write(Out_Unit,9499)
+     .            int(charge(i)),charge(i),xyz(1,i),xyz(2,i),xyz(3,i)
+ 9499       format(I5,4F12.6)
+         enddo
+         else
+            Write(Out_Unit,'(3(1x,f10.5),3(3x,f5.2))')
+     &           (Spread(i),i=1,3),(Angle(i),i=1,3)
+            Write(Out_Unit,'(3(2x,i4))')(nGridXYZ(i),i=1,3)
+            iFast = 1
+            Write(Out_Unit,'(5x,i1,6(2x,i4))')
+     &           iFast,(Const_M(i),Const_P(i),i=1,3)
+         endif
       End If
 *
       If (What.eq.'CHARGES') GoTo 2345   ! ***** temporary *****
+      if(lgaussian) then
       iGrid = 0
-      Do iZ = 0, nGridXYZ(3)
+      Do ix = 0, nGridXYZ(1)
          Do iY = 0, nGridXYZ(2)
-            Do iX = 0, nGridXYZ(1)
+            Do iz = 0, nGridXYZ(3)
+*
+               iGrid = iGrid + 1
+               Grid(1,iGrid) = CooFrom(1) + dble(iX)*Step(1)
+               Grid(2,iGrid) = CooFrom(2) + dble(iY)*Step(2)
+               Grid(3,iGrid) = CooFrom(3) + dble(iZ)*Step(3)
+               If (What.eq.'CHARGES') Then
+                  Do iAtom = 1, nAtom
+                     Dist = 0.d0
+                     Do i = 1, 3
+                        Dist = Dist + ( Grid(i,iGrid)-XYZ(i,iAtom) )**2
+                     End Do
+                     Dist = Sqrt(Dist)
+                     If (Dist.le.Thr) Then
+                        If (iProc.eq.0) Write(*,*)' Grid point No',
+     &                     iGrid,' was rejected.'
+                        iGrid = iGrid - 1
+                        nRejected = nRejected + 1
+                        GoTo 12340
+                     End If
+                  End Do
+12340             Continue
+               End If
+*
+            End Do
+         End Do
+      End Do
+      else
+      iGrid = 0
+      Do iz = 0, nGridXYZ(3)
+         Do iY = 0, nGridXYZ(2)
+            Do ix = 0, nGridXYZ(1)
 *
                iGrid = iGrid + 1
                Grid(1,iGrid) = CooFrom(1) + dble(iX)*Step(1)
@@ -101,6 +150,7 @@
             End Do
          End Do
       End Do
+      endif
       If (iGrid+nRejected.ne.nGrid)
      &   Call ErrQuit('Get_Grid: iGrid .ne. nGrid', 0)
       GoTo 3456

@@ -1,6 +1,6 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.4 1997-11-04 10:10:38 d3e129 Exp $
+* $Id: dplot_input.F,v 1.5 1999-11-11 03:22:58 edo Exp $
 *
       Implicit none
 *
@@ -18,7 +18,7 @@
       Double Precision Ext_From_To(3,2),ValueR
 *
       Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
-      Parameter (Num_Dirs  = 9)
+      Parameter (Num_Dirs  = 10)
       Parameter (Num_Units = 3)
       Parameter (Num_What  = 2)
       Parameter (Num_Spin  = 4)
@@ -30,12 +30,14 @@
      &              Allowed_Where(Num_Where)
       Character*8   Units,What,Spin,Where
       Character*3   Charges
+      character*30 tag
       Character*80  File_Vec,File_Vec2,File_Out
+      logical lgaussian
 *
       Logical status
 *
       Data Dirs / 'LimitXYZ','Vectors','Output','Title','Orbitals',
-     &            'Spin','Where','Charges','End' /
+     &            'Spin','Where','Charges','Gaussian','End' /
       Data Allowed_Units / 'angstrom','au','bohr' /
       Data Allowed_What  / 'density','view' /
       Data Allowed_Spin  / 'total','spindens','alpha','beta' /
@@ -44,11 +46,21 @@
 ************************************************************************
 *
 *---- Set up defaults
+      lgaussian = .false.
       Units     = 'angstrom'
       What      = 'density'
       Spin      = 'total'
       Where     = 'grid'
-      File_Vec  = 'movecs'
+c
+c     try to get a scf movecs
+c
+      tag = 'scf:input vectors'
+      if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) then
+         tag = 'dft:input vectors'
+         if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) 
+     .        File_Vec  = 'movecs'
+      endif
+      
       File_Vec2 = ' '
       File_Out  = 'dplot'
       Title     = 'Unknown Title'
@@ -71,7 +83,7 @@
 *
       If (.not.inp_match(Num_Dirs,.false.,test,Dirs,ind))
      &   Call ErrQuit('DPlot_Input: unknown directive',0)
-      GoTo (100, 200, 300, 400, 500, 600, 700, 800, 9999) ind
+      GoTo (100, 200, 300, 400, 500, 600, 700, 800, 900, 9999) ind
       Call ErrQuit('DPlot_Input: unimplemented directive',ind)
 *
 *---- Read the information about the limits of the grid
@@ -186,12 +198,17 @@
       Charges = 'yes'
       GoTo 10
 *
+ 900  continue
+      lgaussian=.true.
+      goto 10
  9999 Continue
 *
       If (Charges.eq.'yes') What = 'charges'
 *
 *---- Write limits to the rtdb
       Call Inp_UCase(Units)
+      if (.not. rtdb_put(rtdb, 'dplot:lgaussian', mt_log, 1,
+     &   lgaussian)) call errquit('dpinput:rtdbwr failed',11)
       If (.not.rtdb_cput(rtdb,'dplot:Units',1,Units))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - Units',0)
       If (.not.rtdb_put(rtdb,'dplot:Ext_From_To',mt_dbl,6,Ext_From_To))

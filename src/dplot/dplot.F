@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.10 1999-11-10 21:44:54 edo Exp $
+* $Id: dplot.F,v 1.11 1999-11-11 03:22:58 edo Exp $
 *
       Implicit None
 *     
@@ -43,10 +43,11 @@
       Character*80 File_Out
       Character*255 Title
       Logical LResult, DeBug
+      logical lgaussian
       Integer Inp_StrLen
       External Inp_StrLen
 c     
-      integer  ga_create_atom_blocked
+      integer  ga_create_atom_blocked,ii,nwr
       external ga_create_atom_blocked
 c
 *
@@ -65,6 +66,8 @@ c
 ***************************************
 *     Read the data from the rtdb     *
 ***************************************
+      if (.not. rtdb_get(rtdb, 'dplot:lgaussian', mt_log, 1,
+     &   lgaussian)) call errquit('dpinput:rtdbget failed',11)
       If (.not.rtdb_cget(rtdb,'dplot:Units',1,Units))
      &   Call ErrQuit('DPlot: rtdb_get failed - Units',0)
       If (Debug . and . iProc.eq.0)
@@ -219,10 +222,15 @@ c
 *
 *---- Write the title and the format to the output file
       If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
+         if(lgaussian) then
+!            Write(Out_Unit,*)' Nwchem dplot run'
+            Write(Out_Unit,*)Title(1:Lth_Tit)
+            Write(Out_Unit,*) ' SCF Total Density'
+         else
          Write(Out_Unit,*)Title(1:Lth_Tit)
          Write(Out_Unit,115)
  115     format('(1F15.10)')
-!         Write(Out_Unit,*)'(1D20.10)'
+      endif
       End If
 *
 *---- Get the geometry
@@ -275,7 +283,8 @@ c
          Call Get_Grid(Dbl_mb(k_Grid),nGrid,
      &                 Ext_From_To(1,1),Ext_From_To(1,2),
      &                 No_Of_Spacings,Volume,Out_Unit,iProc,Where,
-     &                 nAtom,Dbl_mb(k_xyz),What)
+     &                 nAtom,Dbl_mb(k_xyz),What,
+     .        lgaussian,dbl_mb(k_charge))
          If (What.eq.'CHARGES') nPoint = nGrid
          Call GA_Sync
       End If
@@ -423,13 +432,27 @@ c
       Call GA_Get(g_Vls,1,nPoint,1,1,Dbl_mb(k_Vls),nPoint)
       Call GA_Sync
       If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
-         Sum = 0.d0
-         Do i = 1, nGrid
-            Sum = Sum + Dbl_mb(k_Vls-1+i)
-            Write(Out_Unit,'(f15.10)')Dbl_mb(k_Vls-1+i)
-!            Write(Out_Unit,'(D20.10)')Dbl_mb(k_Vls-1+i)
-         End Do
-         AppCh = Sum*Volume
+         if(lgaussian) then
+c
+c     truncation
+c
+            Do i = 0, nGrid-1
+               if(abs(Dbl_mb(k_Vls+i)).lt.1d-10) 
+     .              Dbl_mb(k_Vls+i)=0d0
+            enddo
+            Do i = 1, nGrid,No_Of_Spacings(3)+1
+               Write(Out_Unit,9498)(Dbl_mb(k_Vls+i-1+ii),ii=0,
+     .              No_Of_Spacings(3))
+ 9498          format(6E13.5)
+            enddo
+            else
+            Sum = 0.d0
+            Do i = 1, nGrid
+               Sum = Sum + Dbl_mb(k_Vls-1+i)
+               Write(Out_Unit,'(f15.10)')Dbl_mb(k_Vls-1+i)
+            End Do
+            AppCh = Sum*Volume
+         endif
          If (What.eq.'DENSITY') Then
             Write(LuOut,*)
             Write(LuOut,'(a,f8.2)')'  Aproximate Charge    = ',AppCh
