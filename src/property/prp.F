@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.55 2003-10-20 18:45:58 bert Exp $
+* $Id: prp.F,v 1.56 2003-10-27 02:45:56 edo Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -395,7 +395,7 @@ C
       NEED = L2+L2+L2+L2+L2+L3+L3
       IF(.NOT.MA_PUSH_GET(MT_DBL,NEED,'MEM INIT:prp:hnd_dipole:1',
      &    I_INIT,INIT))
-     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
+     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911,0)
 C
       DO I=1,NEED
          X(I+INIT-1)=ZERO
@@ -540,7 +540,7 @@ C
 C     ----- RELEASE MEMORY BLOCK -----
 C
       IF(.NOT.MA_POP_STACK(I_INIT))
-     & CALL ERRQUIT('HND_DIPOLE, MA_POP_STACK OF INIT FAILED',911)
+     & CALL ERRQUIT('HND_DIPOLE, MA_POP_STACK OF INIT FAILED',911,0)
 C
       RETURN
 C
@@ -1277,7 +1277,7 @@ C
       NEED = L2+L2+L2+L2+L2+L2+L2+L2+L3+L3
       IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_qdpole:2',
      &    I_INIT,INIT))
-     & CALL ERRQUIT('HND_QDPOLE, MALLOC OF INIT  FAILED',911)
+     & CALL ERRQUIT('HND_QDPOLE, MALLOC OF INIT  FAILED',911,0)
 
       DO I=1,NEED
          X(I+INIT-1)=ZERO
@@ -1438,7 +1438,7 @@ C     ----- RELEASE MEMORY BLOCK -----
 C
       IF(.NOT.MA_POP_STACK(I_INIT))
      & CALL ERRQUIT('HND_QDPOLE, MA_POP_STACK OF INIT
-     & FAILED',911)
+     & FAILED',911,0)
 C
       RETURN
 C
@@ -2024,7 +2024,7 @@ C
       NEED = L2+L2+L2+L2+L2+L2+L2+L2+L2+L2+L2+L2+L3+L3
       IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_otpole:3',
      &    I_INIT,INIT))
-     & CALL ERRQUIT('HND_OTPOLE, MALLOC OF INIT  FAILED',911)
+     & CALL ERRQUIT('HND_OTPOLE, MALLOC OF INIT  FAILED',911,0)
 
       DO I=1,NEED
          X(I+INIT-1)=ZERO
@@ -2249,7 +2249,7 @@ C     ----- RELEASE MEMORY BLOCK -----
 C
       IF(.NOT.MA_POP_STACK(I_INIT))
      & CALL ERRQUIT('HND_OTPOLE, MA_POP_STACK OF INIT
-     & FAILED',911)
+     & FAILED',911,0)
 C
       RETURN
 C
@@ -2925,7 +2925,7 @@ C
 C
       IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_mulken:4',
      &    I_INIT,INIT))
-     & CALL ERRQUIT('HND_MULKEN, MALLOC OF INIT  FAILED',911)
+     & CALL ERRQUIT('HND_MULKEN, MALLOC OF INIT  FAILED',911,0)
 C
       status=MA_verify_allocator_stuff()
 C
@@ -3192,7 +3192,7 @@ C     ----- RELEASE MEMORY BLOCK -----
 C
       IF(.NOT.MA_POP_STACK(I_INIT))
      & CALL ERRQUIT('HND_MULKEN, MA_POP_STACK OF INIT
-     & FAILED',911)
+     & FAILED',911,0)
 C
       RETURN
  9999 FORMAT(//,10X,28(1H-),/,10X,'Mulliken population analysis',
@@ -4504,7 +4504,7 @@ C     ----- ALLOCATE MEMORY BLOCK -----
 C
       IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_elpmap:5',
      &    I_INIT,INIT))
-     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
+     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911,0)
 
       DO I=1,NEED
          X(I+INIT-1)=ZERO
@@ -4680,7 +4680,7 @@ C     ----- RELEASE MEMORY BLOCK -----
 C
       IF(.NOT.MA_POP_STACK(I_INIT))
      & CALL ERRQUIT('HND_DIPOLE, MA_POP_STACK OF INIT
-     & FAILED',911)
+     & FAILED',911,0)
 C
       RETURN
  9999 FORMAT(/,10X,45(1H-),
@@ -5042,7 +5042,7 @@ C     ----- ALLOCATE MEMORY BLOCK -----
 C
       IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_elfmap:6',
      &    I_INIT,INIT))
-     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
+     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911,0)
 
       DO I=1,NEED
          X(I+INIT-1)=ZERO
@@ -5155,7 +5155,7 @@ C     ----- RELEASE MEMORY BLOCK -----
 C
       IF(.NOT.MA_POP_STACK(I_INIT))
      & CALL ERRQUIT('HND_DIPOLE, MA_POP_STACK OF INIT
-     & FAILED',911)
+     & FAILED',911,0)
 C
       RETURN
  9999 FORMAT(/,10X,14(1H-),/,10X,'Electric field',
@@ -5537,7 +5537,7 @@ C     ----- ALLOCATE MEMORY BLOCK -----
 C
       IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_efgmap:7',
      &    I_INIT,INIT))
-     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
+     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911,0)
 
       DO I=1,NEED
          X(I+INIT-1)=ZERO
@@ -5690,7 +5690,8 @@ C
          vec(i,j)=a(ij)
   241    vec(j,i)=a(ij)
       if (.not. geom_tag_to_element(anam(ipt),symbol,element,atn))
-     &        call errquit('hnd_efgmap: geom_tag_to_element failed',911)
+     &        call errquit('hnd_efgmap: geom_tag_to_element failed',
+     &  911,0)
       call ecce_print1_char('atom name',symbol,1)
       call ecce_print2('EFG tensor',MT_DBL,vec,3,3,3)
 C
@@ -5728,7 +5729,7 @@ C     ----- RELEASE MEMORY BLOCK -----
 C
       IF(.NOT.MA_POP_STACK(I_INIT))
      & CALL ERRQUIT('HND_DIPOLE, MA_POP_STACK OF INIT
-     & FAILED',911)
+     & FAILED',911,0)
 C
       RETURN
  9999 FORMAT(/,10X,23(1H-),/,10X,'Electric field gradient',
@@ -6277,7 +6278,7 @@ C     ----- ALLOCATE MEMORY BLOCK -----
 C
       IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_eldmap:8',
      &    I_INIT,INIT))
-     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
+     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911,0)
 
       DO I=1,NEED
          X(I+INIT-1)=ZERO
@@ -6614,7 +6615,7 @@ C     ----- RELEASE MEMORY BLOCK -----
 C
       IF(.NOT.MA_POP_STACK(I_INIT))
      & CALL ERRQUIT('HND_DIPOLE, MA_POP_STACK OF INIT
-     & FAILED',911)
+     & FAILED',911,0)
 C
       RETURN
  9999 FORMAT(/,10X,21(1H-),/,10X,'Electron/spin density',
