@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.60 1997-12-04 22:51:57 d3g681 Exp $
+# $Id: GNUmakefile,v 1.61 1998-01-14 09:56:33 d3e129 Exp $
 
 include config/makefile.h
 
@@ -152,7 +152,8 @@ endif
 #
 tags_file:
 	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | etags -
-
+tags_clean:
+	find . -name TAGS -print -exec rm -f "{}" ";"
 
 # This is a convenience target that will make sure all subdirectories
 # listed in $(SUBDIRS) exist. Useful because CVS will only update
