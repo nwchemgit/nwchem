@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.12 2000-01-26 16:28:41 d3j191 Exp $
+c $Id: md_input.F,v 1.13 2000-04-19 16:53:34 d3j191 Exp $
 c
       implicit none
 c
@@ -29,6 +29,7 @@ c
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,maxpro,nfanal,iport,iguide
+      integer mbbreq
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -138,6 +139,7 @@ c
       imfft=1
       mwmreq=0
       msareq=0
+      mbbreq=0
       itest=0
       nodpme=0
       lbpair=5
@@ -1049,6 +1051,10 @@ c
       if(.not.inp_i(msareq)) call errquit('md_input: error msa',15)
       goto 2
       endif
+      if(inp_compare(.false.,'mbb',item)) then
+      if(.not.inp_i(mbbreq)) call errquit('md_input: error mbb',15)
+      goto 2
+      endif
       if(inp_compare(.false.,'load',item)) then
       loadb=0
   700 continue
@@ -1298,6 +1304,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:mwmreq',mt_int,1,mwmreq))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:msareq',mt_int,1,msareq))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:mbbreq',mt_int,1,mbbreq))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:itest',mt_int,1,itest))
      + call errquit('md_input: rtdb_put failed',0)

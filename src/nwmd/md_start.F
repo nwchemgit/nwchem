@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.53 2000-04-14 19:58:31 d3j191 Exp $
+c $Id: md_start.F,v 1.54 2000-04-19 16:53:34 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
-     + iguide,lfndbg,idebug,projct)
+     + iguide,lfndbg,idebug,projct,mbbreq)
       endif
 c
 c     start the analysis API
@@ -785,6 +785,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',72)
       if(.not.rtdb_get(irtdb,'md:mwmreq',mt_int,1,mwmreq))
      + call errquit('md_rtdbin: rtdb_get failed',84)
       if(.not.rtdb_get(irtdb,'md:msareq',mt_int,1,msareq))
+     + call errquit('md_rtdbin: rtdb_get failed',85)
+      if(.not.rtdb_get(irtdb,'md:mbbreq',mt_int,1,mbbreq))
      + call errquit('md_rtdbin: rtdb_get failed',85)
       if(.not.rtdb_get(irtdb,'md:itest',mt_int,1,itest))
      + call errquit('md_rtdbin: rtdb_get failed',86)
