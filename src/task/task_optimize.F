@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.8 1997-05-14 01:16:01 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.9 1997-05-22 00:26:54 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -80,8 +80,8 @@ c
      $           call errquit('task_saddle: rtdb corrupt?', 0)
             status = drv_opt(rtdb)
          else
-            ts   = .true.
-            omin = .false.
+            ts   = .false.
+            omin = .true.
             if (.not.rtdb_put(rtdb,'stepper:ts',MT_LOG,1,ts))
      &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
             if (.not.rtdb_put(rtdb,'stepper:omin',MT_LOG,1,omin))
@@ -117,7 +117,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.8 1997-05-14 01:16:01 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.9 1997-05-22 00:26:54 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
