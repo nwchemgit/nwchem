@@ -138,10 +138,14 @@ c
          nfock = 3
       endif
 c
-      call do_ri (.false.)
+C     don't do it if RI HESSIAN is active
+      call do_riscf (.false.)
+C     Dyalls method for RHF
+      if ( nopen .eq. 0 ) call riscf_dovecs(.true., g_vecs)
       call fock_2e(geom, basis, nfock, jfactor, kfactor,
      $     tol2e, oskel, iv_dens, iv_fock)
-      call do_ri (.true.)
+      call do_riscf (.true.)
+      if ( nopen .eq. 0 ) call riscf_dovecs(.false., g_vecs)
 c     
 c     Energy evaluation
 c     

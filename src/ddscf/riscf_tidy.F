@@ -1,5 +1,6 @@
       subroutine riscf_tidy
-C$Id: riscf_tidy.F,v 1.1 1995-05-22 22:28:29 vg038 Exp $
+C$Id: riscf_tidy.F,v 1.2 1995-12-29 02:04:15 vg038 Exp $
+      implicit none
 c
 c     this is just a wrapper for del_3c_ints, to free ALL arrays of 3c 
 c     integrals

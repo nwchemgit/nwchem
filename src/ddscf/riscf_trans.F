@@ -2,8 +2,8 @@
      $     bfsquare, ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, 
      $     tol2e, g_indx, V_row, T_tmp, buf, lbuf, scr, lscr)
 
-C$Id: riscf_trans.F,v 1.1 1995-12-13 01:25:40 d3g681 Exp $
-      implicit double precision (a-h,o-z)
+C$Id: riscf_trans.F,v 1.2 1995-12-29 02:04:15 vg038 Exp $
+      implicit none
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -11,13 +11,22 @@ C$Id: riscf_trans.F,v 1.1 1995-12-13 01:25:40 d3g681 Exp $
 #include "tcgmsg.fh"
 
       integer g_three, ao_basis, ri_basis, g_Vsqrt, g_indx, s, sfirst, 
-     $     slast, bfsquare
-      logical status, IeqJ
+     $     slast, bfsquare, nsh, nbf, nsh_F, Nff, max_bf_ri, lbuf, lscr
+
+      double precision tol2e, V_row, T_tmp, buf, scr
 
       dimension V_row (Nff, max_bf_ri)
       dimension T_tmp (Nff, bfsquare)
       dimension buf (lbuf)
       dimension scr (lscr)
+
+      integer icount, i, j, ifirst, ilast, jfirst, jlast, nfi, nfj, nfs, 
+     $     ij, nij, next, indx, nproc, ic, is, nsqhalf
+
+      logical status, IeqJ
+
+      double precision ddot
+      external ddot
 
       nproc = ga_nnodes()
 
@@ -79,11 +88,14 @@ C             transform three center integrals
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine put_int (buf, sfirst, nfs, nfi, nfj, T_tmp, 
      $                    Nff, IeqJ)
-      implicit double precision (a-h,o-z)
-      integer s, sfirst
+      implicit none
+      integer sfirst, nfs, nfi, nfj, Nff
+      double precision buf, T_tmp
       logical IeqJ
       dimension T_tmp (Nff, *)
       dimension buf (nfj, nfi, nfs)
+
+      integer ic, i, j, s
 
       ic = 0
       if (IeqJ) then

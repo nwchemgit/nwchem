@@ -1,6 +1,6 @@
       block data riscf_three_eri_list
-C$Id: riscf_list.F,v 1.4 1995-12-01 16:58:11 d3g681 Exp $
-      implicit double precision (a-h,o-z)
+C$Id: riscf_list.F,v 1.5 1995-12-29 02:04:14 vg038 Exp $
+      implicit none
 #include "riscf.fh"
       data riscf_info / dim*0 /
       data nbases / 0 /
@@ -16,11 +16,11 @@ C     handle:             ERI handle (GA)   [input]
 C     index:            index handle (GA)   [input]
 C     npair:   # of non-zero (ij)-pairs     [input]
 
-      implicit double precision (a-h,o-z)
+      implicit none
 
 #include "riscf.fh"
 
-      integer ao_basis, ri_basis, handle
+      integer ao_basis, ri_basis, handle, npair, index, i
       external riscf_three_eri_list ! For T3D linker
 C     is it already there?
       do i = 1, maxbases

@@ -1,11 +1,13 @@
 c
-c$Id: cfock.fh,v 1.13 1995-12-11 17:24:19 d3g681 Exp $
+c$Id: cfock.fh,v 1.14 1995-12-29 02:04:09 vg038 Exp $
 c
       integer task_bf         ! Chunking parameter for density matrix
       integer filesize        ! Max integral file size in doubles
       integer memsize         ! Max integral cache size in doubles
       logical oreadfile       ! True if file/cache being read from
       logical owritefile      ! True if writing integrals to file
+      logical dovecs          ! use of MO vectors for ri fock build
+      integer g_vecs          ! MO vectors for ri
       logical rifock          ! in case of mixed method: ri or directfock build
       integer first_atoms(4)    ! Atoms that semidirect code starts at
       integer incomplete_atoms(4) ! Atom quartet that semidirect truncated
@@ -19,6 +21,8 @@ c
      $     oreadfile,
      $     owritefile,
      $     rifock,
+     $     dovecs,
+     $     g_vecs,
      $     first_atoms, incomplete_atoms,
      $     oerilabel
       common/ccfock/int2efilename

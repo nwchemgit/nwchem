@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.3 1995-07-25 00:17:11 gg502 Exp $
+C$Id: riscf_init.F,v 1.4 1995-12-29 02:04:13 vg038 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -12,7 +12,7 @@ C     ri_basis:  basis set handle (fit) [input]
 C     tol2e:     integral threshold [input]
 C     g_three:   global array handle for transformed three-center ERIs [output]
 C 
-      implicit double precision (a-h,o-z)
+      implicit none
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -25,6 +25,10 @@ C
      $        bases(2), bfsquare
       double precision tol2e, MinEval
       logical status, riscf_put_3c_ints, Mk_Fit_Xf
+
+      integer k_T_tmp, l_T_tmp, k_V_row, l_V_row, nsh, nsh_F, npair, 
+     $     nsqhalf, nbf, Nff, lbuf, l_buf, k_buf, l_scr, k_scr, lscr,
+     $     max_bf_ao, max_bf_ri
 
 C     get basis set information
       status = bas_numbf (ao_basis, nbf)
@@ -127,7 +131,7 @@ C     destroy integral setup for expansion basis
       call schwarz_tidy()
 
 C     make ri the default for mixed methods
-      call do_ri (.true.)
+      call do_riscf (.true.)
 
       riscf_init = status
 

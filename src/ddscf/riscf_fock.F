@@ -1,10 +1,10 @@
-      subroutine riscf_fock_2e(geom, ao_basis, ri_basis, nfock,
-     $     fcoul, fexch, tol2e, oskeleton, g_dens, g_fock)
-C$Id: riscf_fock.F,v 1.2 1995-12-16 06:19:46 d3g681 Exp $
+      subroutine riscf_fock_2e(geom1, ao_basis, ri_basis, nfock,
+     $     fcoul, fexch, tol2e1, oskeleton, g_dens, g_fock)
+C$Id: riscf_fock.F,v 1.3 1995-12-29 02:04:12 vg038 Exp $
 C     calculate the coulomb and exchange contribution to the Fock matrix 
 C     from the density matrix and the transformed three-center ERIs
 
-      implicit double precision (a-h,o-z)
+      implicit none
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -13,17 +13,27 @@ C     from the density matrix and the transformed three-center ERIs
 #include "msgids.fh"
 #include "pstat.fh"
 #include "cscfps.fh"
+#include "cscf.fh"
+#include "cfock.fh"
 
-      integer rtdb
-      integer geom, ao_basis, ri_basis, g_dens, g_fock, g_three, g_indx, 
-     $     g_sthree, g_T, g_tr, t, riscf_nr_nu
+      integer ao_basis, ri_basis, g_dens, g_fock, g_three, g_indx, 
+     $     g_sthree, g_T, g_tr, t, riscf_nr_nu, geom1, g_x1, g_x2, nfock
       logical status, ocoul, oexch, oskeleton, riscf_get_3c_ints, 
      $     riscf_init
+      double precision fcoul, fexch, tol2e1
 
       dimension g_dens(nfock), g_fock(nfock), fcoul(nfock), fexch(nfock)
 
-      parameter (zero=0.0D0, one=1.0D0)
+      integer nbf, Nff, nsh, lsq, lhalf, npair, n_t, nt, nocc, in, il,
+     $     l_indx, k_indx, l_three, k_three, l_sthree, k_sthree,
+     $     ifirst, ifirst1, ifirst2, ilast, ilast1, ilast2, ifk, mxbf, 
+     $     mxints, nloop, nrest, nproc, nt_dim
 
+      double precision mone, zero, one, sq2, W, factor
+
+      parameter (zero=0.0D0, one=1.0D0, mone=-1.D0)
+
+      sq2 = sqrt(2.D0)
       if (oskeleton) then
         if (ga_nodeid().eq.0) then
           write(6,*)
@@ -43,13 +53,20 @@ C     get 3center integrals and indices
       status = riscf_get_3c_ints (ao_basis, ri_basis, g_three, g_indx, 
      $                npair)
       if (.not. status) then
-        status = riscf_init (rtdb, geom, ao_basis, ri_basis, tol2e)
-        status = riscf_get_3c_ints (ao_basis, ri_basis, g_three, g_indx,
-     $                npair)
+        call errquit ('RISCF not initialized', 110)
+*       status = riscf_init (rtdb, geom, ao_basis, ri_basis, tol2e)
+*       status = riscf_get_3c_ints (ao_basis, ri_basis, g_three, g_indx,
+*    $                npair)
       endif
 
 C     get number of expansion functions to be processed at the same time
-      n_t = riscf_nr_nu()
+      if ( scftype .eq. 'ROHF' .or. scftype .eq. 'RHF') then
+        nocc = nclosed + nopen
+      else if ( scftype .eq. 'UHF' ) then
+        nocc = MAX ( nalpha, nbeta )
+      endif
+      n_t = riscf_nr_nu ( nbf, nocc )
+      n_t = min ( n_t, Nff )
 
 C     temporary arrays (local and global)
       status = bas_nbf_cn_max (ao_basis, mxbf)
@@ -66,11 +83,23 @@ C     block of square matrix
 C     full 3c square matrix (ij|t) (range of t fixed)
       status = ga_create (MT_DBL, n_t*nbf, nbf,'3c-eri square', 1, nbf, 
      $     g_sthree)
-C     intermediate array T
-      status = ga_create (MT_DBL, n_t*nbf, nbf,'3c-eri tmp', 1, nbf,
-     $     g_T)
-C     scratch array for transposition of T-blocks
-      status = ga_create (MT_DBL, nbf, nbf,'scr', 1, nbf, g_tr)
+C
+      if (dovecs) then
+C       Ken Dyalls MO-vector method
+
+        if ( scftype .ne. 'ROHF' .and. scftype .ne. 'RHF' )
+     $        call errquit ('Dyall method only for ROHF', 110)
+        status = ga_create (MT_DBL, n_t*nbf, nocc, 'Dyall tmp 1',1, 
+     $       nocc, g_x1)
+        status = ga_create (MT_DBL, nbf, n_t*nocc, 'Dyall tmp 2',1, 
+     $       nocc, g_x2)
+      else
+C       intermediate array T
+        status = ga_create (MT_DBL, n_t*nbf, nbf,'3c-eri tmp', 1, nbf,
+     $       g_T)
+C       scratch array for transposition of T-blocks
+        status = ga_create (MT_DBL, nbf, nbf,'scr', 1, nbf, g_tr)
+      endif
 
       nproc = ga_nnodes()
 
@@ -109,37 +138,70 @@ c
           if (oexch) then
 C           exchange contribution to Fock matrix
             if (oscfps) call pstat_on(ps_exchange)
-C           T := three x D
-            call ga_matmul_patch ('N','N', one, zero,
-     $           g_sthree,   1, nt_dim, 1, nbf,
-     $           g_dens(ifk),1,    nbf, 1, nbf,
-     $           g_T,        1, nt_dim, 1, nbf )
+            if (dovecs) then
+              if (scftype.eq.'RHF') then
+                factor = 1.D0
+              else
+                factor = 1.D0
+              endif
+              
+C             X := three x C
+              call ga_matmul_patch ('N','N', factor, zero,
+     $             g_sthree, 1, nt_dim, 1, nbf,
+     $             g_vecs  , 1, nbf,    1, nocc,
+     $             g_x1,     1, nt_dim, 1, nocc )
+C             bring X in shape for second dgemm
+              ifirst1 = 1
+              ifirst2 = 1
+              do in = 1, nt
+                ilast1 = ifirst1 + nbf - 1
+                ilast2 = ifirst2 + nocc - 1
+                call ga_copy_patch ('N', g_x1, ifirst1, ilast1, 1, nocc,
+     $                                   g_x2, 1, nbf, ifirst2, ilast2)
+                ifirst1 = ilast1 + 1
+                ifirst2 = ilast2 + 1
+              enddo
 
-C           transpose blocks of T
-            ifirst = 1
-            do in = 1, nt
-              ilast = ifirst + nbf - 1
-              if (oscfps) call pstat_on(ps_copy)
-              call ga_copy_patch ('N', g_T, ifirst, ilast, 1, nbf, 
-     $                                 g_tr,     1,   nbf, 1, nbf)
-              if (oscfps) call pstat_off(ps_copy)
-              if (oscfps) call pstat_on(ps_transpose)
-              call ga_copy_patch ('T', g_tr,     1,   nbf, 1, nbf,
-     $                                 g_T, ifirst, ilast, 1, nbf) 
-              if (oscfps) call pstat_off(ps_transpose)
-              ifirst = ifirst + nbf
-            enddo
+C             K := K + X x X(T)
+              call ga_matmul_patch ('N','T', mone, one,
+     $             g_x2, 1, nbf, 1, nt*nocc,
+     $             g_x2, 1, nt*nocc, 1, nbf,
+     $             g_fock(ifk), 1, nbf, 1, nbf)
 
-C           K := K + T x three
-            call ga_matmul_patch ('T','N', fexch(ifk), one,
-     $           g_T,        1,     nbf, 1, nt_dim,
-     $           g_sthree,   1, nt_dim, 1, nbf,
-     $           g_fock(ifk),1,    nbf, 1, nbf)
+           else !not dovecs => use density
 
-*           Call ga_dgemm ('T','N', nbf, nbf, nt_dim, fexch(ifk), 
-*    $           g_sthree, g_T, one, g_fock(ifk))
+C             T := three x D
+              call ga_matmul_patch ('N','N', one, zero,
+     $             g_sthree,   1, nt_dim, 1, nbf,
+     $             g_dens(ifk),1,    nbf, 1, nbf,
+     $             g_T,        1, nt_dim, 1, nbf )
+              
+C             transpose blocks of T
+              ifirst = 1
+              do in = 1, nt
+                ilast = ifirst + nbf - 1
+                if (oscfps) call pstat_on(ps_copy)
+                call ga_copy_patch ('N', g_T, ifirst, ilast, 1, nbf, 
+     $               g_tr,     1,   nbf, 1, nbf)
+                if (oscfps) call pstat_off(ps_copy)
+                if (oscfps) call pstat_on(ps_transpose)
+                call ga_copy_patch ('T', g_tr,     1,   nbf, 1, nbf,
+     $               g_T, ifirst, ilast, 1, nbf) 
+                if (oscfps) call pstat_off(ps_transpose)
+                ifirst = ifirst + nbf
+              enddo
+              
+C             K := K + T x three
+              call ga_matmul_patch ('T','N', fexch(ifk), one,
+     $             g_T,        1,     nbf, 1, nt_dim,
+     $             g_sthree,   1, nt_dim, 1, nbf,
+     $             g_fock(ifk),1,    nbf, 1, nbf)
+              
+            endif !dovecs or not
+
             if (oscfps) call pstat_off(ps_exchange)
-          endif
+          endif !exchange
+
           if (ocoul) then
 C           Coulomb contribution
             if (oscfps) call pstat_on(ps_coulomb)
@@ -164,26 +226,39 @@ C     free the temporary arrays
       status = ma_free_heap ( l_sthree )
       status = ma_free_heap ( l_three )
       status = ma_free_heap ( l_indx )
-      status = ga_destroy ( g_tr )
-      status = ga_destroy ( g_T )
+      if (dovecs) then
+        status = ga_destroy ( g_x1)
+        status = ga_destroy ( g_x2 )
+      else
+        status = ga_destroy ( g_tr )
+        status = ga_destroy ( g_T )
+      endif
       status = ga_destroy ( g_sthree )
 
       return
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      integer function riscf_nr_nu()
+      integer function riscf_nr_nu ( nbf, nocc )
 C     calculate number of expansion functions to be processed in one ga_dgemm
 C     from the available memory
 C     at the moment a dummy (hoping for better memory control routines)
 #include "mafdecls.fh"
 #include "global.fh"
 
-      logical lma, llim
+      integer total
 
-      llim = ga_memory_limited()
-      lma  = ga_uses_ma()
+      localmem = ga_memory_avail()
+      if ( localmem .lt. 0 ) then
+C       memory cannot be determined
+        riscf_nr_nu = 10
+      else
+        call ga_igop ( 90462, localmem, 1, 'min' )
+        total = localmem / 8 * ga_nnodes()
 
-      riscf_nr_nu = 10
+        ndens = ( total - nbf**2 ) / ( 2 * nbf**2 )
+        nvec  = total / ( nbf * ( nbf + 2 * nocc ) )
+        riscf_nr_nu = min ( nvec, ndens )
+      endif
 
       return
       end

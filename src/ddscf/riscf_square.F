@@ -1,19 +1,28 @@
       subroutine riscf_square (ao_basis, g_three, g_sthree, three, 
      $     sthree, g_indx, indx, t, in, nbf, nsh, mxbf, nproc)
 
-C$Id: riscf_square.F,v 1.1 1995-05-22 22:28:28 vg038 Exp $
+C$Id: riscf_square.F,v 1.2 1995-12-29 02:04:14 vg038 Exp $
 
 C     get integrals from compressed array g_three and blow up to square matrix
 C     g_sthree (both GAs)
 
-      implicit double precision (a-h,o-z)
+      implicit none
       
 #include "tcgmsg.fh"
 #include "bas.fh"
 
+      integer ao_basis, g_three, g_sthree, g_indx, t, first, indx, in, 
+     $     nbf, nsh, mxbf, nproc
+
+      double precision three, sthree
+
       dimension three(nbf*mxbf), sthree(nbf,mxbf), indx(nsh)
 
-      integer ao_basis, g_three, g_sthree, g_indx, t, first
+      integer ish, jsh, next, i, j, ind, last, ifirst, ilast, jfirst, 
+     $     jlast, ioffs, ni, nint
+
+      double precision zero
+
       logical status
 
       parameter (zero=0.0D0)
@@ -99,6 +108,8 @@ C           use three for transpose of sthree
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine transpose (a, b, idim1, idim2, ld1, ld2)
+      implicit none
+      integer idim1, idim2, ld1, ld2, i, j
       double precision a, b, x
       dimension a(ld1,idim2), b(ld2,idim1)
 
