@@ -1,5 +1,5 @@
 c
-c     $Id: perfm.fh,v 1.2 2004-10-15 01:59:40 edo Exp $
+c     $Id: perfm.fh,v 1.3 2004-10-18 20:32:06 edo Exp $
 c
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -21,8 +21,9 @@ c
       integer*8 fpcompopsexe
       integer*8 uso, usn,values(10)
       integer nativees,es,ll,nevents
+      logical lfailed
       character*32 eventname(10)
       character*(PAPI_MAX_STR_LEN) papi_errstr
       common/perfm_papi/uso,eventname,
-     ,	es,nevents
+     ,	es,nevents,lfailed
 #endif

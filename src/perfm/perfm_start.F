@@ -1,5 +1,5 @@
 c
-c     $Id: perfm_start.F,v 1.2 2004-10-12 17:30:41 edo Exp $
+c     $Id: perfm_start.F,v 1.3 2004-10-18 20:32:06 edo Exp $
 c
       subroutine perfm_start()
       implicit none
@@ -7,10 +7,14 @@ c
 #ifdef USE_PAPI
       integer ii
       integer*4 arg1
+      lfailed=.false.
       retval = PAPI_VER_CURRENT
       call PAPIf_library_init(retval)
-      if ( retval.NE.PAPI_VER_CURRENT) call errquit
-     $ (' perfm_start: wrong papi header from ver ',retval,0)
+      if ( retval.NE.PAPI_VER_CURRENT) then
+        write(luout,*) ga_nodeid(),' failed papi_init '
+        lfailed=.true.
+        return
+      endif
 #ifdef PAPI_FPINS
       arg1=PAPI_FP_INS
       call PAPIf_query_event(arg1, retval)

@@ -1,5 +1,5 @@
 c
-c     $Id: perfm_end.F,v 1.3 2004-10-15 01:59:40 edo Exp $
+c     $Id: perfm_end.F,v 1.4 2004-10-18 20:32:06 edo Exp $
 c
       subroutine perfm_end()
       implicit none
@@ -8,12 +8,18 @@ c
       double precision flpsum,flpmax,flpmin
       integer retvals
 #ifdef PAPI_FPINS
-      call ga_sync()
-      call PAPIf_flips( real_time, proc_time, flpins, mflops, retval)
-      call ga_sync()
-      retvals=retval
-      if (retval .NE. PAPI_OK) call perfm_error(retval,
+      if(lfailed) then
+        flpins=0d0
+        mflops=0d0
+        real_time=10d0
+        proc_time=10d0
+      else
+        call  PAPIf_flips( real_time, proc_time, flpins, mflops, retval)
+        retvals=retval
+        if (retval .NE. PAPI_OK) call perfm_error(retval,
      $     ' perfm_end: could not get papi flpins ')
+      endif
+      call ga_sync()
 c
 c     sum,max and min dgops
 c     
