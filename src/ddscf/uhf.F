@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.24 1996-10-06 20:12:37 d3g681 Exp $
+C$Id: uhf.F,v 1.25 1996-10-10 23:38:05 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -171,7 +171,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.24 1996-10-06 20:12:37 d3g681 Exp $
+C     $Id: uhf.F,v 1.25 1996-10-10 23:38:05 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -200,7 +200,7 @@ c
 c     Local variables
 c     
       integer ls_max            ! Max. no. of points for line search
-      parameter (ls_max=10)
+      parameter (ls_max=20)
       integer iwork(10)         ! PCG routine internal info
       double precision dwork(3*ls_max+5) ! PCG routine internal info
       character*16 mode         ! For communication with PCG routine 
@@ -445,7 +445,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.24 1996-10-06 20:12:37 d3g681 Exp $
+C$Id: uhf.F,v 1.25 1996-10-10 23:38:05 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -536,7 +536,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.24 1996-10-06 20:12:37 d3g681 Exp $
+c     $Id: uhf.F,v 1.25 1996-10-10 23:38:05 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1022,7 +1022,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.24 1996-10-06 20:12:37 d3g681 Exp $
+C$Id: uhf.F,v 1.25 1996-10-10 23:38:05 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

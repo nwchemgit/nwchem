@@ -154,11 +154,14 @@ c
       parameter(tol_ceil=1.d-1)
       double precision ndigit
 c
-
-      if (iter .eq. 1) then
+      if (iter .le. 2) then     ! First call is with iter = 2
          ododiag = .true.
          odisable_nr = .false.
       endif
+c
+*      write(6,*) ' iter, odisable_nr ', iter, odisable_nr, max_grad
+*      write(6,*) ' shifts ', shifts
+*      write(6,*) ' lshift ', lshift, min_shift
 c
       oconjugacy = .true.
 c
@@ -250,6 +253,8 @@ c
          ndigit = 2             ! For 1-e hessian
       endif
       precond_tol = max(min(10.0d0**(-ndigit), tol_ceil), tol_floor)
+c
+*      write(6,*) ' pflg, pflg_prev ', pflg, pflg_prev
 c
       if (pflg .ne. pflg_prev) oconjugacy = .false.
       pflg_prev = pflg
