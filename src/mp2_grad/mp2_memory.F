@@ -46,8 +46,7 @@ c
       call intd_init(rtdb,1,basis)
       call int_mem_2e4c(leng, lenscr)
       call int_mem ( idum, lengd, idum2, lenscrd )
-      lenscr = max(lenscr, leng)
-      lenscrd = max(lenscrd, lengd)
+c
       max_ma=2*nbf*nbf+((nva+nvb)*8+nnbf+1)
      $     /ma_sizeof(mt_dbl,1,mt_int)
       if(task.eq.'energy')then

@@ -53,7 +53,7 @@
       integer nva_lo_local,nva_hi_local
       parameter(kunit=11)
       integer tunita,tunitb
-      logical ocoul,oexch, oprint_mem
+      logical ocoul,oexch, oprint_mem, oprint_where
       double precision tol2e,e2
       double precision eval_a(*),eval_b(*)
       integer oseg_lo,oseg_hi
@@ -123,6 +123,9 @@ c
 c
       oprint_mem = util_print('multipass',print_default) .and. 
      $     ga_nodeid().eq.0
+      oprint_where = util_print('where',print_high) .and. 
+     $     ga_nodeid().eq.0
+c      
       if (oprint_mem) then
          write(6,201) ga_uses_ma(), ga_memory_limited()
  201     format(/' GA uses MA = ',l1,'    GA memory limited = ',l1)
@@ -132,14 +135,17 @@ c
          call util_flush(6)
       endif
 c
+      do num_i_perseg = (noa_hi-noa_lo+1), 1, -1
+         npasses = (noa_hi-noa_lo)/num_i_perseg + 1
+c
       do npasses = 1, noa_hi-noa_lo+1
          num_i_perseg = (noa_hi-noa_lo)/npasses + 1
          call mp2_memory(basis,rtdb,tol2e,nbf,noa,nva,nob,nvb,
      $        num_i_perseg,max_ma,max_ga,max_file,task)
          if(oprint_mem) then
-            write(6,22) npasses, max_ma, max_ga, max_file
- 22         format(1x,i4,' pass:      ',
-     $        '     ',i10,'            ',i10,
+            write(6,22) npasses, num_i_perseg, max_ma, max_ga, max_file
+ 22         format(1x,i3,' passes of',i4,':  ',
+     $        ' ',i10,'            ',i10,
      $        '            ',i10)
             call util_flush(6)
          endif
@@ -186,6 +192,11 @@ c
          call int_terminate()
          call schwarz_tidy()
          call pstat_off(ps_moints)
+c
+         if (oprint_where) then
+            write(6,*) ' Done moints_semi'
+            call util_flush(6)
+         endif
 c     
 c     make t-pure-spin in tunita, t-mixed-spin in tunitb
 c
@@ -230,6 +241,11 @@ c
      $        int_mb(k_v),nva_lo_local,nva_hi_local,
      $        e2,task,tunita,tunitb,kunit)
          call pstat_off(ps_maket)
+c
+         if (oprint_where) then
+            write(6,*) ' Done maket'
+            call util_flush(6)
+         endif
 c     
          if(task.eq.'gradient')then
             if(.not.ma_push_get(mt_dbl,noa*nva,
@@ -256,6 +272,12 @@ c
      $           eval_a,eval_b,g_p_ij_a,g_p_ij_b,
      $           g_p_ab_a,g_p_ab_b)
             call pstat_off(ps_pijab)
+c
+            if (oprint_where) then
+               write(6,*) ' Done pijab'
+               call util_flush(6)
+            endif
+c               
             call pstat_on(ps_wijab)
             call mp2_wijab_uhf(nir,nva_lo,nva_hi,
      $           sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,sym_lo_vb,
@@ -268,6 +290,12 @@ c
      $           tunita,tunitb,eval_a, eval_b,
      $           g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
             call pstat_off(ps_wijab)
+c
+            if (oprint_where) then
+               write(6,*) ' Done wijab'
+               call util_flush(6)
+            endif
+c
             if(.not.ma_pop_stack(l_t_eps_b))
      $           call errquit('could not pop stack',1)
             if(.not.ma_pop_stack(l_t_eps_a))
@@ -312,6 +340,11 @@ c
      $           g_lai_a,g_lai_b,g_wai_a,g_wai_b,kunit)
             call pstat_off(ps_lai)
 c
+            if (oprint_where) then
+               write(6,*) ' Done lai'
+               call util_flush(6)
+            endif
+c
             if(.not. ma_chop_stack(l_t_a_in))
      $           call errquit(
      $           'mp2_grad_doit: failed chopping t_a_in',0)
@@ -334,6 +367,11 @@ c
      $           dbl_mb(k_amos), dbl_mb(k_bmos), 
      $           nva_lo_local, nva_hi_local, 
      $           tunita, tunitb, grad)
+c
+            if (oprint_where) then
+               write(6,*) ' Done nonsep'
+               call util_flush(6)
+            endif
 c     
             if (util_print('iostats', print_high) .and. 
      $           ga_nodeid().eq.0) then
@@ -350,4 +388,10 @@ c
          if(.not.ma_chop_stack(l_amos))call errquit(
      $        'mp2_grad: could not chop stack at amos',1)
       enddo
+c
+      if (oprint_where) then
+         write(6,*) ' Done multipass loop'
+         call util_flush(6)
+      endif
+c
       end

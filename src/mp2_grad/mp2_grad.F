@@ -15,6 +15,7 @@
       character*255 movecs_in
       logical status
       character*8 task
+      double precision threshscf
 c
       logical cphf, scf
       external cphf, scf
@@ -22,6 +23,14 @@ c
       status=rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(rtdb,'mp2_grad')
+c
+c     Make sure the SCF is being converged accurately enough
+c
+      if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,threshscf))
+     $     threshscf = 1.0d-4
+      threshscf = min(threshscf, 1.0d-6)
+      if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
+     $     call errquit('mp2_grad: failed setting scf:thresh',0)
 c
       if (.not. scf(rtdb)) then
          semi_dir_mp2 = .false.

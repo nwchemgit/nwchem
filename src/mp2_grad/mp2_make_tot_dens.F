@@ -67,9 +67,9 @@ c
      $     nob+1,nmo,nob+1,nmo)
 c
       if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',1,1,g_scratch))
-     $     call errquit('scratch',1)
+     $     call errquit('mp2_grad: scratch',1)
       if(.not.ga_create(mt_dbl,nbf,nbf,'scratch',1,1,g_tmp))
-     $     call errquit('scratch',1)
+     $     call errquit('mp2_grad: scratch',2)
 c
       call ga_dgemm('n','t',nmo,nbf,nmo,one,g_p_tot_a,g_vecs_a,
      $     zero,g_scratch)

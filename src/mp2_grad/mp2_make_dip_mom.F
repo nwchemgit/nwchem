@@ -1,80 +1,94 @@
-      subroutine mp2_make_dip_mom(g_p_tot_a,g_p_tot_b,
-     $     basis,rtdb,nbf,g_vecs_a,g_vecs_b)
+      subroutine mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
+     $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
-      integer basis,rtdb,nbf
+#include "bas.fh"
+#include "geom.fh"
+      integer basis,rtdb,nbf,nmo
       integer g_p_tot_a,g_p_tot_b
-      integer g_x_a,g_y_a,g_z_a
-      integer g_x_b,g_y_b,g_z_b
       integer g_vecs_a,g_vecs_b
-      integer g_scratch
-      double precision dipx,dipx_a,dipx_b
-      double precision dipy,dipy_a,dipy_b
-      double precision dipz,dipz_a,dipz_b
+      integer noa, nob
 c
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
-     $     1,1,g_x_a)) call errquit('ga',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
-     $     1,1,g_x_b)) call errquit('ga',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
-     $     1,1,g_y_a)) call errquit('ga',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
-     $     1,1,g_y_b)) call errquit('ga',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
-     $     1,1,g_z_a)) call errquit('ga',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
-     $     1,1,g_z_b)) call errquit('ga',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,'uhf_s_e: alpha MOs',
-     $     1,1,g_scratch))call errquit('uhf_s_e: MOs',0)
+      integer g_x, g_y, g_z
+      integer g_scratch, g_dens
+      double precision mp2x, scfx
+      double precision mp2y, scfy
+      double precision mp2z, scfz
+      double precision ndip(3)
+      integer geom
+c
+      if (.not. bas_geom(basis, geom)) 
+     $     call errquit('mp2_dip: bad basis?',0)
+c
+c     Generate dipole integrals
+c
+      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs x ',
+     $     1,1,g_x)) call errquit('mp2_dipole: ga',0)
+      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs y ',
+     $     1,1,g_y)) call errquit('mp2_dipole: ga',0)
+      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs z',
+     $     1,1,g_z)) call errquit('mp2_dipole: ga',0)
+c
       call int_init(rtdb,1,basis)
-      call int_dip_ga(basis,basis,g_x_a,g_y_a,g_z_a)
-      call int_dip_ga(basis,basis,g_x_b,g_y_b,g_z_b)
-      call two_index_transf(g_x_a,g_vecs_a,
-     $     g_vecs_a,g_scratch,g_x_a)
-      call two_index_transf(g_x_b,g_vecs_b,
-     $     g_vecs_b,g_scratch,g_x_b)
-      call two_index_transf(g_y_a,g_vecs_a,
-     $     g_vecs_a,g_scratch,g_y_a)
-      call two_index_transf(g_y_b,g_vecs_b,
-     $     g_vecs_b,g_scratch,g_y_b)
-      call two_index_transf(g_z_a,g_vecs_a,
-     $     g_vecs_a,g_scratch,g_z_a)
-      call two_index_transf(g_z_b,g_vecs_b,
-     $     g_vecs_b,g_scratch,g_z_b)
-      dipx_a=ga_ddot(g_x_a,g_p_tot_a)
-      dipx_b=ga_ddot(g_x_b,g_p_tot_b)
-      dipx=dipx_a+dipx_b
-      dipy_a=ga_ddot(g_y_a,g_p_tot_a)
-      dipy_b=ga_ddot(g_y_b,g_p_tot_b)
-      dipy=dipy_a+dipy_b
-      dipz_a=ga_ddot(g_z_a,g_p_tot_a)
-      dipz_b=ga_ddot(g_z_b,g_p_tot_b)
-      dipz=dipz_a+dipz_b
-      write(6,*) 'dipx_a = ',dipx_a
-      write(6,*) 'dipx_b = ',dipx_b
-      write(6,*) 'dipx = ',dipx
-      write(6,*) 'dipy_a = ',dipy_a
-      write(6,*) 'dipy_b = ',dipy_b
-      write(6,*) 'dipy = ',dipy
-      write(6,*) 'dipz_a = ',dipz_a
-      write(6,*) 'dipz_b = ',dipz_b
-      write(6,*) 'dipz = ',dipz
-      if(.not.ga_destroy(g_x_a))call errquit(
-     $     'could not destroy g_x_a',1)
-      if(.not.ga_destroy(g_x_b))call errquit(
-     $     'could not destroy g_x_b',1)
-      if(.not.ga_destroy(g_y_a))call errquit(
-     $     'could not destroy g_y_a',1)
-      if(.not.ga_destroy(g_y_b))call errquit(
-     $     'could not destroy g_y_b',1)
-      if(.not.ga_destroy(g_z_a))call errquit(
-     $     'could not destroy g_z_a',1)
-      if(.not.ga_destroy(g_z_b))call errquit(
-     $     'could not destroy g_z_b',1)
-      if(.not.ga_destroy(g_scratch))call errquit(
-     $     'could not destroy g_scratch',1)
-c      call int_terminate()
+      call int_dip_ga(basis, basis, g_x, g_y, g_z)
+      call int_terminate()
+c
+c     Generate SCF AO density
+c
+      if(.not.ga_create(mt_dbl, nbf, nbf,' AO density  ',
+     $     1,1,g_dens)) call errquit('mp2_dipole: ga',0)
+      call ga_dgemm('n', 't', nbf, nbf, noa, 1.0d0, g_vecs_a,
+     $     g_vecs_a, 0.0d0, g_dens)
+      call ga_dgemm('n', 't', nbf, nbf, nob, 1.0d0, g_vecs_b,
+     $     g_vecs_b, 1.0d0, g_dens)
+c
+      scfx = -ga_ddot(g_dens, g_x) ! Electrons are negative
+      scfy = -ga_ddot(g_dens, g_y)
+      scfz = -ga_ddot(g_dens, g_z)
+c
+c     Form the MP2 AO density
+c
+      if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',1,1,g_scratch))
+     $     call errquit('mp2_grad: scratch',1)
+      call ga_dgemm('n','t',nmo,nbf,nmo,1.0d0,g_p_tot_a,g_vecs_a,
+     $     0.0d0,g_scratch)
+      call ga_dgemm('n','n',nbf,nbf,nmo,1.0d0,g_vecs_a,g_scratch,
+     $     0.0d0,g_dens)
+      call ga_dgemm('n','t',nmo,nbf,nmo,1.0d0,g_p_tot_b,g_vecs_b,
+     $     0.0d0,g_scratch)
+      call ga_dgemm('n','n',nbf,nbf,nmo,1.0d0,g_vecs_b,g_scratch,
+     $     1.0d0,g_dens)
+c
+      mp2x = -ga_ddot(g_dens, g_x) ! Electrons are negative
+      mp2y = -ga_ddot(g_dens, g_y)
+      mp2z = -ga_ddot(g_dens, g_z)
+c
+      if(.not.ga_destroy(g_x))call errquit('mp2_grad: ga destroy?',0)
+      if(.not.ga_destroy(g_y))call errquit('mp2_grad: ga destroy?',0)
+      if(.not.ga_destroy(g_z))call errquit('mp2_grad: ga destroy?',0)
+      if(.not.ga_destroy(g_dens))call errquit('mp2_grad: ga destroy?',0)
+      if(.not.ga_destroy(g_scratch))
+     $     call errquit('mp2_grad: ga destroy?',0)
+c
+      if (.not. geom_nuc_dipole(geom,ndip)) 
+     $     call errquit('mp2_dip: failed to get nuclear dipole',0)
+c
+      if (ga_nodeid() .eq. 0) then
+         write(6,1) 
+         write(6,2) 'X', ndip(1), scfx+ndip(1),mp2x+scfx+ndip(1)
+         write(6,2) 'Y', ndip(2), scfy+ndip(2),mp2y+scfy+ndip(2)
+         write(6,2) 'Z', ndip(3), scfz+ndip(3),mp2z+scfz+ndip(3)
+         write(6,*)
+ 1       format(
+     $        6x,'          Dipole Moments (a.u.)'/
+     $        6x,'          --------------'/
+     $        6x,'   Nuclear       SCF       SCF+MP2'/
+     $        6x,' ----------- ----------- -----------')
+ 2       format(1x,a1,3x,3f12.6)
+         call util_flush(6)
+      endif
+c
       end
 
 
