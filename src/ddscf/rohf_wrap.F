@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -94,7 +94,7 @@ c
 #include "global.fh"
 #include "rtdb.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
 c
       integer rtdb
 
@@ -109,6 +109,10 @@ c
       logical osome
       logical ocosmo
       double precision ecosmo
+
+      odbug=.false.
+      osome=.false.
+      osome=osome.or.odbug
 c     
 c     Check
 c     
@@ -118,15 +122,36 @@ c
       if ((grow.ne.crohf_vlen).or.(gcol.ne.1))
      $     call errquit('rohf_energy: invalid vector length',grow)
 c     
+      if(ga_nodeid().eq.0.and.osome) then
+         write(6,*) 'in  rohf_energy calling rohf_fock ...'
+         call util_flush(6)
+      endif
+
       call rohf_fock(rtdb, geom, basis,
      $     nclosed, nopen, nmo, tol2e, g_vecs,
      $     eone, etwo,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp, oskel, iter )
+
+      if(ga_nodeid().eq.0.and.osome) then
+         write(6,*) 'in  rohf_energy returning from rohf_fock ...'
+         call util_flush(6)
+      endif
 c
 *      call rohf_fock2grad( nmo, nclosed, nopen,
 *     $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
 *     $     g_grad)
-       call rohf_get_grad(g_grad)
+
+      if(ga_nodeid().eq.0.and.osome) then
+         write(6,*) 'in  rohf_energy calling rohf_get_grad ...'
+         call util_flush(6)
+      endif
+
+      call rohf_get_grad(g_grad)
+
+      if(ga_nodeid().eq.0.and.osome) then
+         write(6,*) 'in  rohf_energy returning from rohf_get_grad ...'
+         call util_flush(6)
+      endif
 c
       if (.not. geom_nuc_rep_energy(geom, enrep))
      $     call errquit('rohf_energy: no repulsion energy?', 0)
@@ -151,6 +176,7 @@ c
             write(6,*) '-cosmo- ... found in rohf_energy',
      $                  ocosmo,ga_nodeid()
             write(6,33) energy, eone, etwo, enrep
+            call util_flush(6)
          endif
          if(ocosmo) then
             if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
@@ -164,6 +190,7 @@ c
                write(6,9999) (energy-ecosmo),ecosmo,energy
  9999 format(' energ0 = ',f20.10,/,' ecosmo = ',f20.10,/,
      $       ' energy = ',f20.10)
+               call util_flush(6)
             endif
          else
             if(odbug) then
@@ -177,6 +204,7 @@ c
      $                 ga_nodeid()
          endif
       endif
+      if(ga_nodeid().eq.0) call util_flush(6)
       call ga_sync()
 c
       end
@@ -185,7 +213,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -229,7 +257,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
 c
       integer g_x
       double precision solveshift

@@ -3,7 +3,7 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel, iter)
 *
-* $Id: rohf_fock.F,v 1.16 2000-08-23 22:18:58 windus Exp $
+* $Id: rohf_fock.F,v 1.17 2000-11-28 20:39:11 mdupuis Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -149,12 +149,14 @@ c
             if(odbug) then
                write(6,*) '-cosmo- ... found but .false.',
      $                    ga_nodeid()
+               call util_flush(6)
             endif
          endif
       else
          if(odbug) then
             write(6,*) '-cosmo- not found in rohf_fock',
      $                 ga_nodeid()
+            call util_flush(6)
          endif
       endif
       call ga_sync()
@@ -182,16 +184,20 @@ c
 c
             g_cos1e(1)  = ga_create_atom_blocked(geom, basis,
      $                                       'rohf_fock:cos1e')
-            if(odbug) then
+            if(osome) then
                write(6,*) 'rohf_fock ... g-cos1e'
-               call ga_zero(g_cos1e(1))
-               call int_1e_ga(basis,basis,g_cos1e(1),'cos_chg_pot',
-     $                                                     .false.)
-               call ga_print(g_cos1e(1))
+               if(odbug) then
+                  call ga_zero(g_cos1e(1))
+                  call int_1e_ga(basis,basis,g_cos1e(1),'cos_chg_pot',
+     $                                                        .false.)
+                  call ga_print(g_cos1e(1))
+               endif
+               call util_flush(6)
             endif
 c
             if(odbug) then
                call ga_print(g_hcore)
+               call util_flush(6)
             endif
 c
             call int_1e_ga(basis,basis,g_hcore   ,'cos_chg_pot',
@@ -199,6 +205,7 @@ c
 c
             if(odbug) then
                call ga_print(g_hcore)
+               call util_flush(6)
             endif
 c
             if (.not. ga_destroy(g_cos1e)) call errquit

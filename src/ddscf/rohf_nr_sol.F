@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.27 2000-11-22 23:46:53 edo Exp $
+c     $Id: rohf_nr_sol.F,v 1.28 2000-11-28 20:39:11 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -159,11 +159,11 @@ c
          endif
       else
          if(odbug) then
-            write(6,*) '-cosmo- not found in rohf_nr_solve'
+            write(LuOut,*) '-cosmo- not found in rohf_nr_solve'
+            call util_flush(LuOut)
          endif
          ogas_phase=.true.
          osol_phase=.false.
-         call util_flush(LuOut)
       endif
       call ga_sync()
 c
@@ -218,6 +218,7 @@ c
             write(LuOut,*) 'mode = ',mode
          endif
       endif
+      if (ga_nodeid().eq.0) call util_flush(6)
  909  format(2x,'   gas_phase')
  910  format(2x,'   sol_phase')
 c
@@ -235,6 +236,7 @@ c
                write(LuOut,*) 'iter, energy = ',iter,energy
             endif
          endif
+         if (ga_nodeid().eq.0) call util_flush(6)
 c
          call ga_pcg_minim(crohf_vlen, iter, energy, g_grad, g_work,
      $        g_search, step, ls_tol, ls_max, eprec, oconjugacy, 
@@ -247,6 +249,7 @@ c
                write(LuOut,*) 'iter, energy = ',iter,energy
             endif
          endif
+         if (ga_nodeid().eq.0) call util_flush(6)
 c     
          if (mode .eq. 'energy+gradient') then
 c     
@@ -265,6 +268,8 @@ c
                   write(LuOut,*) 'iter, enrep  = ',iter,enrep 
                endif
             endif
+            if (ga_nodeid().eq.0) call util_flush(6)
+
             call rohf_step_energy(rtdb, step, g_search,
      $           eone, etwo, enrep, energy, g_grad)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
@@ -279,6 +284,7 @@ c
                   write(LuOut,*) 'iter, enrep  = ',iter,enrep 
                endif
             endif
+            if (ga_nodeid().eq.0) call util_flush(6)
 c
             call ecce_print1('total energy', mt_dbl, energy, 1)
             call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
@@ -395,6 +401,7 @@ c
  915     format(' ')
          endif
       endif
+      if (ga_nodeid().eq.0) call util_flush(6)
       call ga_sync()
 c     
 c     *ALWAYS* return canonical MOs ... don't do aufbau
