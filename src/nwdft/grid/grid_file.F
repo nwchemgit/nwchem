@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.61 2005-01-28 18:52:33 edo Exp $
+* $Id: grid_file.F,v 1.62 2005-01-29 01:52:45 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -158,7 +158,6 @@ c
 #else
 #if defined(AIX) || defined(XLFLINUX) 
          close(unit=gr_unit,status='keep',iostat=ioserr)
-C         write(0,*) ' ios_out ',ioserr
 #endif	
          open(unit=gr_unit,file=grinfo,status='replace',
      .        form='formatted')
@@ -215,9 +214,8 @@ cedo           write(6,*) ' enucs ',enuc,enuc_in
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1, DISK_ERR)
          file_opened=.false.
-#if 0
          filedump_opened=.false.
-#endif
+         rewind(gr_unit)
          ierr=eaf_open(actualname, eaf_rw, fd)
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr,errmsg)
@@ -247,7 +245,7 @@ c
 #include "global.fh"
 #include "stdio.fh"
       logical okeep  ! [input] If true keep, otherwise delete
-      logical oprint
+      logical oprint,lstatus
       integer ioserr
       oprint=util_print('iostats',print_high).and.ga_nodeid().eq.0
 c
@@ -263,13 +261,15 @@ c
       endif
 c
       if(okeep) then
-         if(filedump_opened) then
+         inquire(file=grinfo,exist=lstatus)
+         if(lstatus) then
+         rewind(gr_unit)
+            read(gr_unit,*,err=199) 
             write(gr_unit,99,err=199) max_file_rec
  99         format(I72)
             write(gr_unit,99,err=199) max_cache_rec
             write(gr_unit,99,err=199) n_rec_in_file
             write(gr_unit,'(L1)',err=199) file_opened
-            rewind(gr_unit)
             close(gr_unit)
          endif
       else
