@@ -1,35 +1,4 @@
-      logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.73 1999-06-12 18:38:18 d3g681 Exp $
-      implicit none
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "global.fh"
-#include "stdio.fh"
-#include "util.fh"
-      integer  rtdb
-      integer  idriver
-      logical  drv_optx
-      external drv_optx
-c
-      call util_print_push
-      call util_print_rtdb_load(rtdb, 'driver')
-      call ecce_print_module_entry('driver')
-c
-      idriver=0
-c
-      drv_opt = drv_optx(rtdb,idriver)
-c
-      if (drv_opt) then
-         call ecce_print_module_exit('driver', 'ok')
-      else
-         call ecce_print_module_exit('driver', 'failed')
-      endif
-c
-      call movecs_ecce_print_on() ! Restore MO printing
-      call util_print_pop
-c
-      end
-      logical function drv_optx(rtdb,idriver)
+      logical function driver(rtdb)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -39,7 +8,7 @@ c
 #include "rtdb.fh"
 #include "geom.fh"
 c     
-      integer rtdb, idriver
+      integer rtdb
 c     
       integer geom, geomi, i
       integer istep
@@ -70,10 +39,13 @@ c
             if (.not. geom_print(geom)) call errquit('driver: geom?',0)
          endif
 c     
-c     Save old energy and gradient, and compute new energy and gradient
+c     Save old energy, gradient, searchdir and alpha, and compute 
+c     new energy and gradient.
 c
-         penergy = energy
-         call dcopy(nvar, g, 1, gp, 1)
+         alphap  = alpha        ! Used in conjugacy and starting LS
+         energyp = energy       ! Used for convergence and step restriction
+         call dcopy(nvar, g, 1, gp, 1) ! Used for Hessian update
+         call dcopy(nvar, ds, 1, dsp, 1) ! Used for conjugacy
 c
          if (.not. task_gradient(rtdb))
      $        call errquit('driver: task_gradient failed',0)
@@ -108,7 +80,7 @@ c
 c     
 c     Check for convergence and time remaining
 c     
-         if (driver_converged()) then
+         if (istep.gt.1 .and. driver_converged()) then
             converged = .true.
             goto 100
          endif
@@ -118,19 +90,31 @@ c
 c
 c     Generate a new search direction
 c
-         call driver_search_dir(geom) ! Fills in ds(), recommends alpha
+         if (modsad .eq. 0) then
+            call driver_opt_search_dir(geom) ! Fills in ds(), recommends alpha
+         else
+            call driver_sad_search_dir(rtdb,geom,istep) ! Fills in ds(), alpha
+         endif
 c     
 c     Either do line search or take recommended step.
 c     
          if (linopt.le.0) then
-            call driver_take_step(rtdb, geom) ! Updates geom
+            call driver_take_step(rtdb, geom) ! Updates geom using alpha*ds
          else if (linopt .eq. 1) then
-            call driver_line_search1(rtdb, geom) ! Updates geom,alpha,ds,energy
+            call driver_line_search1(rtdb, geom) ! Updates geom,alpha
          else 
-            call driver_line_search2(rtdb, geom) ! Updates geom,alpha,ds,energy
+            call driver_line_search2(rtdb, geom) ! Updates geom,alpha
          endif
 c
+c     We have now taken a step.  Replace the approximate step taken
+c     by the exact step in case update of internals was not exact.
+c     This is only significant if big steps are being taken
+c     (e.g., saves 30 iterations in h2o5 test case).
+c     
+         call driver_compute_actual_step(geom)
+c
       enddo                     ! End of iterative loop
+      istep = istep - 1         ! Since we fell out
  200  if (oprint) write(6,201)
  201  format(/,1x,63('-')/,1x,'Failed to converge in maximum number',
      $     ' of steps or available time'/,1x,63('-')/)
@@ -193,13 +177,23 @@ c
          endif
       endif
 c
+c     Clean up and go home
+c
       if (.not.geom_destroy(geom))
      &     call errquit('hnd_opt: geom_destroy?', 911)
 c
+      driver=converged
+      if (converged) then
+         call ecce_print_module_exit('driver', 'ok')
+      else
+         call ecce_print_module_exit('driver', 'failed')
+      endif
+c
+      call movecs_ecce_print_on() ! Restore MO printing
+      call util_print_pop
+c
       call ga_sync()
 c
-      drv_optx=converged
-c     
       end
       subroutine driver_tfgx(geom)
       implicit none
@@ -220,13 +214,13 @@ c
 c     gq() = gradient in internals with no constants/constraints applied
 c     g()  = gradient in internals with    constants/constraints applied
 c
-      integer l_bi, k_bi, i, j, num
-      double precision sum
-      character*8 test
-      logical geom_zmt_get_varinfo
+      integer l_bi, k_bi, num
 c
-      if (.not. ma_push_get(mt_dbl, ncart*nzvar,'binv',l_bi, k_bi))
-     $     call errquit('driver: memory for binv', ncart*nzvar)
+c     gq = gx*B^-1
+c
+      num = max(ncart*nzvar,nzvar**2)
+      if (.not. ma_push_get(mt_dbl, num,'binv',l_bi, k_bi))
+     $     call errquit('driver: memory for binv', num)
       call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nzvar)
       if (odebug) then
          write(6,*) ' B^-1 '
@@ -236,66 +230,26 @@ c
       endif
       call dgemv('t', ncart, nzvar, 1.0d0, dbl_mb(k_bi), ncart,
      $     gx, 1, 0.0d0, gq, 1)
-      if (.not. ma_pop_stack(l_bi)) call errquit('driver: ma?',99)
       if (odebug) then
          write(6,*) ' Internal coordinate gradient '
          call doutput(gq, 1, nvar, 1, 1, nvar, 1, 1)
       endif
 c
-c     Apply constants and constraints to the gradient before
-c     it is used for upating the Hessian.  
+c     g = C*gq 
 c
-c     Currently constants and constraints only happen in the
-c     user input non-redundant coordinates ... when we
-c     eventually do this for the redundant coordinates
-c     then it will have to transform the gradient to & from
-c     the redundant set.  DON'T DO THIS YET.
+c     Projecting with P only works for constraints in non-redundant
+c     variables ... must project with P in redundant case.
 c
-      if (nzfrz .gt. 0) then
-         do i = 1, nzfrz
-            gq(izfrz(i)) = 0d0
-         enddo
+      call geom_hnd_get_data('p', dbl_mb(k_bi), nzvar**2)
+      call dgemv('n', nzvar, nzvar, 1.0d0, dbl_mb(k_bi), nzvar,
+     $     gq, 1, 0.0d0, g, 1)
+      if (odebug) then
+         write(6,*) ' Internal coordinate gradient after constraints'
+         call doutput(gq, 1, nvar, 1, 1, nvar, 1, 1)
       endif
 c
-      if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
-     $     call errquit('hnd_opt_tfgx: varinfo?',0)
-      do i = 1, nzvar
-         if (zvarname(i).ne.' ') then
-            sum = 0d0
-            num = 0
-            test = zvarname(i)
-            do j = 1, nzvar
-               if (zvarname(j).eq.test) then 
-                  sum = sum + g(j)*zvarsign(j)
-                  num = num + 1
-               endif
-            enddo
-            if (num .gt. 1) then
-               sum = sum / dble(num)
-               do j = 1, nzvar
-                  if (zvarname(j).eq.test) then 
-*     write(6,77) j, test, zvarsign(j), g(j),sum
-*     77                  format(' Constraining : ',i3,2x,a,2x,f3.1,2f10.6)
-                     g(j) = sum*zvarsign(j)
-                     zvarname(j) = ' '
-                  endif
-               enddo
-            endif
-         endif
-      enddo
+      if (.not. ma_pop_stack(l_bi)) call errquit('driver: ma?',99)
 c
-c     Just stomped on zvarname ... restore it
-c
-      if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
-     $     call errquit('hnd_opt_tfgx: varinfo?',0)
-c
-c     Finally copy gq() into g()
-c
-      call dcopy(nzvar, gq, 1, g, 1)
-c
-      end
-      subroutine hnd_opt_hss_init(rtdb,geom)
-      call errquit('hnd_opt_hss_init: not yet ported to new code!',0)
       end
       subroutine driver_hss_init(rtdb,geom)
       implicit none
@@ -308,8 +262,10 @@ c
       integer rtdb, geom
 
 c
-      logical geom_zmt_get_izmat, geom_zmt_get_nizmat
-      external geom_zmt_get_izmat, geom_zmt_get_nizmat
+      logical geom_zmt_get_izmat, geom_zmt_get_nizmat, 
+     $     geom_compute_zmatrix
+      external geom_zmt_get_izmat, geom_zmt_get_nizmat,
+     $     geom_compute_zmatrix
 c
       double precision zero
       parameter (zero=0.0d+00)
@@ -328,10 +284,15 @@ c
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),natom
       integer nnzmat, nnzvar, nnvar
       common/hnd_zmtpar/nnzmat,nnzvar,nnvar
+      double precision hscale
 c
-      integer l_hess, k_hess, l_zmat, k_zmat, i
+      integer l_hess, k_hess, l_zmat, k_zmat, l_izmat, k_izmat, i
+      integer l_c, k_c, l_t, k_t
       logical old_hessian
       character*16 atom_tags(mxatom)
+c
+      if (.not. rtdb_get(rtdb,'driver:hscale',mt_dbl,1,hscale))
+     $     hscale = 1d0
 c
       nnzmat = nzmat
       nnzvar = nzvar
@@ -339,18 +300,25 @@ c
       if (.not. geom_ncent(geom,natom))
      1       call errquit('hnd_opt: geom_ncent?',911)
 c
-      old_hessian=.false.
-      if(inhess.eq.0) call driver_opt_check_hess(nvar, old_hessian)
-      if (old_hessian) then
-         if (oprint) write(6,*) ' Using old Hessian'
-         return
-      else
-         if (oprint) write(6,*) ' Using diagonal initial Hessian '
-      endif
-c
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hessian',
      $     l_hess, k_hess)) call errquit
      $     ('driver_init_hess: failed allocating hessian',nvar**2)
+c
+      old_hessian=.false.
+      if(inhess.ne.1) call driver_opt_check_hess(nvar, old_hessian)
+      if (old_hessian) then
+         if (oprint) write(6,*) ' Using old Hessian from',
+     $        ' previous optimization'
+         goto 999
+      else if (inhess.eq.2) then
+         call driver_hess_cart_guess()
+         if (oprint) write(6,*)
+     $        ' Using Cartesian Hessian from previous frequency',
+     $        ' calculation'
+         goto 999
+      else
+         if (oprint) write(6,*) ' Using diagonal initial Hessian '
+      endif
 c
       if (.not. zcoord) then
 c
@@ -362,11 +330,16 @@ c
 c
 c     Internals.
 c
-         call geom_bandbi(geom) ! SHOULD USE COMPUTE_ZMATRIX
          if (.not. ma_push_get(mt_dbl, nzvar, 'zmat',
      $        l_zmat, k_zmat)) call errquit
      $        ('driver_init_hess: failed allocating zmat ', nzvar)
-         call geom_hnd_get_data('zmat',dbl_mb(k_zmat),nzvar)
+         if (.not. ma_push_get(mt_int, nzmat, 'izmat',
+     $        l_izmat, k_izmat)) call errquit
+     $        ('driver_init_hess: failed allocating izmat ', nzmat)
+         if (.not. geom_compute_zmatrix(geom, dbl_mb(k_zmat)))
+     $        call errquit('driver_init_hess: zmatrix?',0)
+         if (.not. geom_zmt_get_izmat(geom,int_mb(k_izmat),nzmat))
+     $        call errquit('driver_init_hess: izmat?',0)
 c
          if (.not. ma_verify_allocator_stuff()) call errquit('h',0)
 c
@@ -382,7 +355,7 @@ c
          enddo
          nvar = nzvar
          call hnd_opt_hss_init_zmt(dbl_mb(k_hess),
-     $        nzvar, dbl_mb(k_zmat), izmat, .false.)
+     $        nzvar, dbl_mb(k_zmat), int_mb(k_izmat), .false.)
          if (odebug) then
             write(6,*) ' The initial hessian '
             call output(dbl_mb(k_hess),1,nzvar,1,nzvar,nzvar,nzvar,1)
@@ -390,6 +363,29 @@ c
       endif
 c
       call geom_hnd_put_data('drv.hess', dbl_mb(k_hess), nvar*nvar)
+c
+c     Apply constants, constraints and scaling
+c
+ 999  if (.not. ma_push_get(mt_dbl, nvar**2, 'hessian',
+     $     l_c, k_c)) call errquit
+     $     ('driver_init_hess: failed allocating hessian',nvar**2)
+      if (.not. ma_push_get(mt_dbl, nvar**2, 'hessian',
+     $     l_t, k_t)) call errquit
+     $     ('driver_init_hess: failed allocating hessian',nvar**2)
+c
+      call geom_hnd_get_data('drv.hess', dbl_mb(k_hess), nvar*nvar)
+      call geom_hnd_get_data('c',dbl_mb(k_c), nvar*nvar)
+c
+      call dgemm('n','n',nvar,nvar,nvar,1d0,dbl_mb(k_c),nvar,
+     $     dbl_mb(k_hess),nvar,0d0,dbl_mb(k_t),nvar)
+      call dgemm('n','t',nvar,nvar,nvar,1d0,dbl_mb(k_t),nvar,
+     $     dbl_mb(k_c),nvar,0d0,dbl_mb(k_hess),nvar)
+c
+      call dscal(nvar*nvar, hscale, dbl_mb(k_hess), 1)
+      if (oprint .and. hscale.ne.1d0) write(6,78) hscale
+ 78   format(' Scaling initial hessian by ',f6.2)
+c
+      call geom_hnd_get_data('drv.hess',dbl_mb(k_c), nvar*nvar)
 c
       if (.not. ma_chop_stack(l_hess)) call errquit
      $     ('driver_init_hess ma corrupt',0)
@@ -777,23 +773,47 @@ c     This routine initializes the common /coptopt/ and
 c     also creates and returns the geometry handle
 c     
       integer i, j, num
-      logical status
+      logical ignore
+      character*80 title
       character*8 source, test
       logical geom_zmt_get_source, geom_zmtmak, geom_zmt_get_nizmat,
-     $     geom_zmt_get_izmat, geom_zmt_get_nzvar, geom_zmt_get_nzfrz,
+     $     geom_zmt_get_nzvar, geom_zmt_get_nzfrz, geom_compute_zmatrix,
      $     geom_zmt_get_izfrz, geom_zmt_get_varinfo
 c     
+      call util_print_push
+      call util_print_rtdb_load(rtdb, 'driver')
+      call ecce_print_module_entry('driver')
       oprint = util_print('information', print_low)
      $     .and. (ga_nodeid() .eq. 0)
       odebug = util_print('debug', print_debug)
+c
+      if (oprint) then
+         write(6,*)
+         write(6,*)
+         call util_print_centered(6,
+     $        'NWChem Geometry Optimization',
+     $        40,.true.)
+         write(6,*)
+         write(6,*)
+      endif
+c
+      if (rtdb_cget(rtdb,'title',1,title)) then
+         if (oprint) then
+            write(6,*)
+            write(6,*)
+            call util_print_centered(6, title, 40, .false.)
+            write(6,*)
+            write(6,*)
+         endif
+      endif
 c     
 c     Before loading info regenerate the autoz coordinates if
 c     the user has requested this
 c     
-      if (rtdb_get(rtdb,'driver:redoautoz',mt_log,1,status)) then
+      if (rtdb_get(rtdb,'driver:redoautoz',mt_log,1,ignore)) then
          if (ga_nodeid() .eq. 0) then
-            status = rtdb_parallel(.false.)
-            status = rtdb_delete(rtdb,'driver:redoautoz')
+            ignore = rtdb_parallel(.false.)
+            ignore = rtdb_delete(rtdb,'driver:redoautoz')
             call driver_opt_del_hess() ! Clear hessian info
             if (.not. geom_create(geom, 'geometry'))
      &           call errquit('hnd_opt: geom_create?', 911)
@@ -814,23 +834,30 @@ c
             endif
             if (.not. geom_destroy(geom))
      $           call errquit('driver: geom_destroy?',0)
-            status = rtdb_parallel(.true.)
+            ignore = rtdb_parallel(.true.)
          endif
          call ga_sync()
       endif
 c     
 c     ----- parameters for optimization driver -----
 c     
-      if (.not. rtdb_get(rtdb,'driver:trust',mt_dbl,1,trust))
-     $     trust=0.3d0
-      if (.not. rtdb_get(rtdb,'driver:eprec',mt_dbl,1,eprec))
-     $     eprec=1d-6
+      if (.not. rtdb_get(rtdb,'driver:modsad',mt_int,1,modsad)) 
+     $     modsad=0
+      if (.not. rtdb_get(rtdb,'driver:trust',mt_dbl,1,trust)) then
+         if (modsad .eq. 0) then
+            trust = 0.3d0
+         else
+            trust = 0.1d0
+         endif
+      endif
+      if (.not. rtdb_get(rtdb,'driver:eprec',mt_dbl,1,eprec)) 
+     $     eprec=1d-7
       if (.not. rtdb_get(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
      $     gmax_tol = 0.00045d0
       if (.not. rtdb_get(rtdb,'driver:grms_tol',mt_dbl,1,grms_tol))
      $     grms_tol = 0.0003d0
-      if (.not. rtdb_get(rtdb,'driver:smax_tol',mt_dbl,1,smax_tol))
-     $     smax_tol = 0.0018d0
+      if (.not. rtdb_get(rtdb,'driver:xmax_tol',mt_dbl,1,xmax_tol))
+     $     xmax_tol = 0.0018d0
       if (.not. rtdb_get(rtdb,'driver:xrms_tol',mt_dbl,1,xrms_tol))
      $     xrms_tol = 0.0012d0
       if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt))
@@ -839,22 +866,38 @@ c
      $     inhess=0
       if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt)) 
      $     linopt=1
-      if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd))
-     $     modupd=1
       if (.not. rtdb_get(rtdb,'driver:moddir',mt_int,1,moddir)) 
      $     moddir=1
+      if (.not. rtdb_get(rtdb,'driver:vardir',mt_int,1,vardir)) 
+     $     vardir = 0
+      ignore = rtdb_delete(rtdb,'driver:vardir') ! Forget for restart
       if (.not. rtdb_get(rtdb,'driver:modsad',mt_int,1,modsad)) 
      $     modsad=0
       if (.not. rtdb_get(rtdb,'driver:sadstp',mt_dbl,1,sadstp)) 
-     $     sadstp=0.35d+00
+     $     sadstp=0.1d0
       if (.not. rtdb_get(rtdb,'driver:oqstep',mt_log,1,oqstep))
      $     oqstep = .true.
+      if (.not. rtdb_get(rtdb,'driver:ofirstneg',mt_log,1,ofirstneg))
+     $     ofirstneg = .true.
+      if (.not. rtdb_get(rtdb,'driver:opcg',mt_log,1,opcg))
+     $     opcg = .false.
+      if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd)) 
+     $     modupd = 1
+c
+c     Force sensible options
+c
+      if (modsad .eq. 0) then
+         modupd = 1             ! BFGS update for minimization
+      else
+         modupd = 2             ! PSB update for saddle point
+         linopt = 0             ! No line search
+      endif
 c     
 c     Save a  copy of the initial geometry so we can analyze what 
 c     happened during the optimization
 c     
       if (ga_nodeid() .eq. 0) then
-         status = rtdb_parallel(.false.)
+         ignore = rtdb_parallel(.false.)
          if (.not. geom_create(geom, 'geometry'))
      &        call errquit('hnd_opt: geom_create?', 911)
          if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
@@ -863,7 +906,7 @@ c
      &        call errquit('hnd_opt: no geometry ', 911)
          if (.not. geom_destroy(geom))
      $        call errquit('driver: geom_destroy?',0)
-         status = rtdb_parallel(.true.)
+         ignore = rtdb_parallel(.true.)
       endif
       call ga_sync()
 c     
@@ -886,38 +929,52 @@ c
       nzfrz = 0
       if (zcoord) then
          if(.not.geom_zmt_get_nizmat(geom,nzmat))
-     &        call errquit('geom_input: geom_zmt_get_nizmat failed',0)
-         if(.not.geom_zmt_get_izmat(geom, izmat,nzmat))
-     1        call errquit('hnd_opt_hss_init:zmt_get_izmat failed?',911)
+     $        call errquit('geom_input: geom_zmt_get_nizmat failed',0)
          if(.not.geom_zmt_get_nzvar(geom,nzvar))
-     &        call errquit('geom_input: geom_zmt_get_nzvar failed',0)
+     $        call errquit('geom_input: geom_zmt_get_nzvar failed',0)
          call geom_bandbi(geom)
          if (.not. zmatrix) oqstep = .false. ! Only qstep in user z-matrix
          if(.not.geom_zmt_get_nzfrz(geom,nzfrz))
-     &        call errquit('geom_input: geom_zmt_get_nzfrz failed',0)
-         if(.not.geom_zmt_get_izfrz(geom,izfrz,nzfrz))
+     $        call errquit('geom_input: geom_zmt_get_nzfrz failed',0)
+         if(.not.geom_zmt_get_izfrz(geom,izfrz))
      $        call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
       endif
       if (oprint) then
-         write(6,9996) gmax_tol,nptopt,linopt,inhess,modupd,
-     $        modsad,moddir, sadstp, source, oqstep
- 9996    format(' optimization convergence threshold    (cvgopt) = ',
-     $        f10.6,
-     1        /,' maximum number of energy evaluations  (nptopt) = ',
-     $        i4,/,
-     2        ' max.num. of points in linear search   (linopt) = ',i4,/,
-     3        ' initial guess option for opt.hessian  (inhess) = ',i4,/,
-     4        ' hessian update selection option       (modupd) = ',i4,/,
-     5        ' optimization to saddle point          (modsad) = ',i4,/,
-     6        ' initial eigen-mode followed to saddle (moddir) = ',i4,/,
-     7        ' maximum step size to saddle           (sadstp) = ',f6.2/
-     7        ' source of zmatrix                              =   ',a8/
-     8        ' line search in internals              (oqstep) =    ',
-     $        l1)
-         write(6,9994)
- 9994    format(/,10x,19(1h-),
-     1        /,10x,'Energy Minimization',
-     2        /,10x,19(1h-),/)
+         write(6,1) gmax_tol, grms_tol, xmax_tol, xrms_tol, trust,
+     $        sadstp, eprec,
+     $        nptopt, inhess, linopt, modupd, modsad, moddir, 
+     $        vardir, ofirstneg, opcg, source
+ 1       format(
+     $        ' maximum gradient threshold         (gmax) = ', f10.6,/,
+     $        ' rms gradient threshold             (grms) = ', f10.6,/,
+     $        ' maximum cartesian step threshold   (xmax) = ', f10.6,/,
+     $        ' rms cartesian step threshold       (xrms) = ', f10.6,/,
+     $        ' fixed trust radius                (trust) = ', f10.6,/,
+     $        ' maximum step size to saddle      (sadstp) = ', f10.6,/,
+     $        ' energy precision                  (eprec) = ', 1p,d9.1,
+     $        0p,/,
+     $        ' maximum number of steps          (nptopt) = ', i4,/,
+     $        ' initial hessian option           (inhess) = ', i4,/,
+     $        ' line search option               (linopt) = ', i4,/,
+     $        ' hessian update option            (modupd) = ', i4,/,
+     $        ' saddle point option              (modsad) = ', i4,/
+     $        ' initial eigen-mode to follow     (moddir) = ', i4,/,
+     $        ' initial variable to follow       (vardir) = ', i4,/,
+     $        ' follow first negative mode     (firstneg) = ', l4,/,
+     $        ' apply conjugacy                    (opcg) = ', l4,/,
+     $        ' source of zmatrix                         =   ', a8,/)
+         if (modsad .eq. 0) then
+            write(6,9994)
+ 9994       format(/,10x,19('-'),
+     1           /,10x,'Energy Minimization',
+     2           /,10x,19('-'),/)
+         else
+            write(6,9995)
+ 9995       format(/,10x,23('-'),
+     1           /,10x,'Transition State Search',
+     2           /,10x,23('-'),/)
+         endif
+         call util_flush(6)
       endif
 c     
 c     Nvar is the no. of variables in the optimization
@@ -929,31 +986,10 @@ c
          nvar = 3*nat
       endif
 c     
-c     Nindep is the no. of independent variables ... not needed?
-c     
-      if (zmatrix) then
-         nindep = nzvar
-      else
-         if (nat .eq. 1) then
-            nindep = 0
-         else if (nat .eq. 2) then
-            nindep = 1
-         else
-            nindep = 3*nat - 6  ! Linear molecules ????
-         endif
-      endif
-c     
 c     ----- frozen coordinates ? if so .... -----
 c     
       if (oprint) then
-         if(nzfrz.gt.0) then
-            write(6,3) nzfrz, (izfrz(i),i=1,nzfrz) 
- 3          format(/' Number of frozen variables =',i5/
-     $           20(1x,15i5,/,:))
-            if (.not. oqstep) write(6,*) 'freezing of variables',
-     $           ' will not be exact since qstep is not used'
-         endif
-         if (zmatrix) then
+         if (zcoord) then
             if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
      $           call errquit('hnd_optx: varinfo?',0)
             write(6,*)
@@ -965,8 +1001,6 @@ c
             write(6,*)
             write(6,*) 'variables with the same non-blank name',
      $           ' are constrained to be equal'
-            if (.not. oqstep) write(6,*) 'constraints will be not be',
-     $           ' exact since qstep is not used'
             write(6,*)
             do i = 1, nzvar
                if (zvarname(i).ne.' ') then
@@ -996,20 +1030,43 @@ c
                endif
             enddo
          endif
+         if(nzfrz.gt.0) then
+            write(6,3) nzfrz, (izfrz(i),i=1,nzfrz) 
+ 3          format(/' Number of frozen variables =',i5/
+     $           20(1x,15i5,/,:))
+         endif
       endif
-c     
+c
 c     We'll be printing the zmatrix and gradient so no
 c     need for geom print to do this
 c
       if (zcoord) call util_print_disable('geomzmat')
 c
+      lsmode = ' '
       energy = 0d0
-      penergy= 0d0
+      energyp= 0d0
+      alphap = 1d0
+      alpha  = 1d0
+      gmax   = 0d0
+      grms   = 0d0
+      smax   = 0d0
+      srms   = 0d0
+      xmax   = 0d0
+      xrms   = 0d0
       call dfill(max_nvar, 0d0, ds, 1)
+      call dfill(max_nvar, 0d0,dsp, 1)
       call dfill(max_nvar, 0d0, gx, 1)
       call dfill(max_nvar, 0d0, gq, 1)
-      call dfill(max_nvar, 0d0, g, 1)
+      call dfill(max_nvar, 0d0,  g, 1)
       call dfill(max_nvar, 0d0, gp, 1)
+c
+      if (zcoord) then
+         if (.not. geom_compute_zmatrix(geom, sp))
+     $        call errquit('driver: zmatrix?',0)
+      else
+         if (.not. geom_cart_coords_get(geom, sp))
+     $        call errquit('driver: geom?',0)
+      endif
 c     
       end
       subroutine driver_hessian_update()
@@ -1021,8 +1078,8 @@ c
 c     Update the current Hessian in the optimization variables using 
 c     .   gp() - the gradient at the previous point
 c     .    g() - the gradient at the current point
-c     .   ds() - the search direction
-c     .  alpha - the step in the search direction
+c     .   ds() - the previous search direction
+c     .  alpha - the step in the previous search direction
 c     
 c     Only the Hessian is modified.
 c     
@@ -1031,16 +1088,21 @@ c
       integer l_hess, k_hess, i, j, iz
       integer ind
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
+c
+      if (alpha .eq. 0d0) call errquit
+     $     ('driver_hessian_update: zero step?',0)
+      call dscal(nvar, alpha, ds, 1)
 c     
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
      $     l_hess, k_hess)) call errquit
      $     ('driver_hessian_update: memory for hessian',nvar**2)
       call geom_hnd_get_data('drv.hess',dbl_mb(k_hess), nvar**2)
-c     
+c
 c     Form bits and pieces that are needed
 c     
       call dgemv('n',nvar,nvar,1d0,dbl_mb(k_hess),nvar,
      $     ds,1,0d0,hds,1)
+c
       dshds = ddot(nvar, ds, 1, hds, 1)
       dsds  = ddot(nvar, ds, 1,  ds, 1)
       dsdg  = 0d0
@@ -1052,7 +1114,7 @@ c
 c     
 c     ----- -bfgs- update -----
 c     
-         if(abs(dsdg).gt.1d-8) then
+         if(abs(dsdg).gt.1d-12) then
             do i=1,nvar
                do j=1,nvar
                   dbl_mb(ind(i,j))=dbl_mb(ind(i,j))
@@ -1097,15 +1159,19 @@ c
       call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar**2)
       if (.not. ma_pop_stack(l_hess)) call errquit
      $     ('driver_hessian_update: ma?',0)
+c
+      call dscal(nvar, 1d0/alpha, ds, 1)
 c     
       end
-      subroutine driver_search_dir(geom)
+      subroutine driver_opt_search_dir(geom)
       implicit none
 #include "coptopt.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
       integer geom
+c
+c     This routine for minimization
 c
 c     Put into ds() a search direction in the optimization
 c     variables (internal or cartesian) based upon the
@@ -1114,9 +1180,10 @@ c
 c     Apply step restrictions by recommending an initial
 c     value for the line search parameter alpha.
 c
-c     Only ds() is modified.
+c     Only alpha and ds() are modified.
 c
-      integer i, info
+      integer i
+*     integer info
       integer l_hess, k_hess, l_work, k_work, lenwork
       double precision  e(max_nvar) ! Hessian eigenvalues
       double precision pg(max_nvar) ! P.g
@@ -1124,6 +1191,8 @@ c
       double precision dv(max_nvar) ! Step along eigenvectors
       double precision dsmax    ! Max. value of current step (smax is prev.)
 c
+      double precision beta, s0g0, s0g1, s1g0, s1g1, numerator,
+     $     denominator
       double precision bohr, deg ! For printing purposes
       double precision trustds  ! Restriction of step in opt. variable
       logical geom_print_zmatrix
@@ -1141,15 +1210,23 @@ c     Diagonalize the Hessian.  Should really do the generalized
 c     eigenvalue problem since the underlying basis is not independent
 c     (if we are using autoz). NOT YET BEING DONE.  
 c
+c     To cause degenerate eigenvalues to be resolved into symmetry
+c     adapted combinations use Jacobi not dsyev and screen out junk
+c
       lenwork = max(nvar**2,100)
       if (.not. ma_push_get(mt_dbl, lenwork, 'work',
      $     l_work, k_work)) call errquit
      $     ('driver_search_dir: memory for hessian', lenwork)
-      call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
-     $     nvar, e, dbl_mb(k_work), lenwork, info)
-      if (info .ne. 0) call errquit
-     $     ('driver_search_dir: dsyev failed',info)
-      if (odebug) then
+      do i = 0, nvar**2-1
+         if (abs(dbl_mb(k_hess+i)).lt.1d-8) dbl_mb(k_hess+i) = 0d0
+      enddo
+*      call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
+*     $     nvar, e, dbl_mb(k_work), lenwork, info)
+*      if (info .ne. 0) call errquit
+*     $     ('driver_search_dir: dsyev failed',info)
+      call util_jacobi(nvar, dbl_mb(k_hess), nvar, e)
+      if (odebug .or. (util_print('hvecs',print_never) 
+     $     .and. ga_nodeid().eq.0)) then
          write(6,*) ' Eigenvalues of the Hessian '
          call doutput(e, 1, nvar, 1, 1, nvar, 1, 1)
          write(6,*) ' Eigenvectors of the Hessian '
@@ -1170,8 +1247,13 @@ c
 c     Form the step applying trust radius on each mode.
 c
       do i = 1, nvar
-         if (abs(e(i)) .gt. 1d-8) then
-            dv(i) = -gv(i) / abs(e(i))
+         if (e(i) .gt. 1d-8) then
+            dv(i) = -gv(i) / abs(e(i)) ! +ve curvature
+         else if (e(i) .lt. -1d-8) then
+            dv(i) = sign(0.3d0*trust,-gv(i))
+            if (oprint) write(6,666) i, e(i), gv(i), dv(i)
+ 666        format(' Forcing step in negative mode',i5,
+     $           '  eval=', 1p,d8.1,' grad=',d8.1,' step=',d8.1)
          else
 c
 c     Linearly dependent modes, and rotations and translations
@@ -1213,6 +1295,35 @@ c
          call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
       endif
 c
+c     Uncomment following for conjugacy.  Dubious benefit with quasi-Newton.
+c
+c     Conjugacy ... sometimes helps the end game.  However, if the
+c     last line search was very incomplete, or we are not doing line
+c     searches then we should not do this.
+c
+      beta = 0d0
+      if (linopt.ne.0  .and.  lsmode.eq.'ok' .and. opcg) then
+         s0g1 = ddot(nvar, dsp, 1, g, 1)
+         s0g0 = ddot(nvar, dsp, 1,gp, 1)
+         s1g1 = ddot(nvar, ds, 1, g, 1)
+         s1g0 = ddot(nvar, ds, 1,gp, 1)
+         numerator = s1g1 - s1g0
+         denominator = s0g1 - s0g0
+         if (abs(denominator) .gt. 1d-8) then
+            beta = -numerator/denominator
+            if (beta .lt. 0d0) then 
+               beta = 0d0
+            endif
+         endif
+         if (oprint .and. beta.ne.0d0) write(6,88) beta
+ 88      format(' Applying conjugacy beta = ',1p,d8.1)
+      endif
+      call daxpy(nvar, beta, dsp, 1, ds, 1)
+c
+c     Enforce symmetry
+c
+      call driver_symmetrize_step(geom)
+c
 c     Restriction of the overall step based on
 c     
 c     1.  Did we go uphill on the last step?
@@ -1224,24 +1335,46 @@ c
       enddo
 c
       trustds =trust
-      alpha = 1d0
+c
+c     If we are not applying conjugacy and only doing approximate LS
+c     then the LS could be exploring a similar mode to the last step, 
+c     thus use alphap as a guide.  sqrt(alphap) converges to 1.0 when iterated.
+c     If we are using conjugacy then our seach step will be orthogonal
+c     to the last one so we cannot use alphap.  Exact NR is automatically
+c     conjugate (and will also have unit step).
+c
+c     But ... after many tests conclude that obtain slightly better speed
+c     and overall stability by taking initial NR step of alpha=1
+c
+c$$$      if (beta .ne. 0d0) then
+c$$$         alpha = 1d0
+c$$$      else
+c$$$         alpha = sqrt(abs(alphap))
+c$$$         alpha = min(2.5d0,alpha)
+c$$$         alpha = max(0.4d0,alpha)
+c$$$      endif
+c
+      alpha = 1d0               !!!!!!!!!!!!!!!!!!1
+c
+      if (dsmax.gt.trustds .or. (energy-energyp).gt.eprec)
+     $     alpha = min(1d0,alpha)
       if (dsmax .gt. trustds) then
          alpha = trustds/dsmax
          if (oprint) write(6,7) alpha
  7       format(' Restricting overall step due to large component.',
      $        ' alpha=', f6.2)
       endif
-      if ((energy-penergy) .gt. eprec) then
-         alpha = 0.5d0*alpha
+      if ((energy-energyp) .gt. eprec) then
+         alpha = min(0.5d0,0.5d0*alpha)
          if (oprint) write(6,8) alpha
- 8       format('  Restricting overall step due to uphill motion.  ',
+ 8       format(' Restricting overall step due to uphill motion.  ',
      $        ' alpha=', f6.2)
       endif
 c
       if (.not. ma_chop_stack(l_hess)) call errquit
      $     ('driver_search_dir: ma?',0)
 c
-c     Edo seems to have encountered a case where difference processors
+c     Edo seems to have encountered a case where different processors
 c     generated different steps.  To prevent this, broadcast the 
 c     critical info to everyone.
 c
@@ -1280,12 +1413,140 @@ c     search.
 c
 c     Return with alpha, geom as the accepted point.
 c
-c     Only alpha, energy and geom are modified.  Energy may not
-c     refer to the returned values of alpha/geom.
+c     Only alpha and geom are modified.
+c
+      double precision e0, e1, e2p, dsgrad
+      double precision hess, a0, a1, a2
+      double precision driver_energy_step
+c
+      dsgrad = ddot(nvar, ds, 1, g, 1)
+      if (dsgrad*alpha .ge. 0d0) then
+         if (oprint) write(6,*) 
+     $        ' Warning ... line search gradient +ve ', alpha, dsgrad
+         alpha = -alpha
+      endif
+c
+      e0 = energy
+      a0 = 0d0
+c
+c     Compute energy at alpha*ds
+c
+      e1 = driver_energy_step(rtdb, geom)
+      a1 = alpha
+c
+c     Fit to a parabola using e0, g0, e1
+c
+      hess = (e1-e0-alpha*dsgrad)/alpha**2
+c
+      if (abs(e1-e0) .lt. eprec) then
+c
+c     Insufficient precision in the energy to do anything else
+c
+c     If this condition persists we should switch off the LS.
+c
+         a2 = alpha 
+         lsmode = 'fixed'
+      else if (hess .gt. 0d0) then
+c
+c     Positive curvature.  Compute NR step, and ...
+c     1) If we went downhill take the step with some restriction
+c     2) If we went uphill then take the step if it is in [0,alpha]
+c     .  otherwise take alpha/2.
+c
+         a2 = -dsgrad/(2d0*hess)
+         if ((e1 - e0) .le. -eprec) then ! Downhill
+            lsmode = 'downhill'
+            if (abs(a2) .gt. 4d0*abs(alpha)) then 
+               lsmode = 'restrict'
+               a2 = sign(4d0*abs(alpha),a2)
+            endif
+         else                   ! Uphill
+            lsmode = 'bracket'
+            if (abs(a2) .gt. abs(alpha)) then
+               lsmode = 'confused'
+               a2 = alpha/2d0
+            endif
+         endif
+      else
+c
+c     Negative curvature.
+c     1.  If we went downhill, step cautiously ahead.
+c     2.  If we went uphill then something is really confused.
+c     .   Just accept the current point.
+c
+         if ((e1 - e0) .lt. eprec ) then ! Downhill
+            lsmode = 'negative'
+            a2 = 2d0*alpha
+         else
+            lsmode = 'punt'
+            a2 = alpha
+         endif
+      endif
+c
+c     Now have a2.  If it is close to alpha or does
+c     not give us much energy lowering then just
+c     return alpha so that any SCF/MCSCF/DFT does not have to
+c     be repeated before computing the next gradient.
+c
+c     Be sure to have reduced line search gradient by 10x
+c     and that we are working within available precision.
+c
+c     Added accept of alpha if predicted energy lowering is
+c     less than energy precision.  Should diminish thrashing
+c     around on flat surfaces.
+c
+      e2p = e0 + dsgrad*a2 + hess*a2**2
+***     $     ((e2p-e1) .gt. 0.01*(e1-e0)) .or.
+***     $     (abs(e2p-e1) .lt. eprec) )then
+      if ( (abs(a2-alpha) .lt. abs(0.1d0*alpha)) ) then
+         lsmode = 'accept'
+         a2 = alpha
+      endif
+      e2p = e0 + dsgrad*a2 + hess*a2**2
+c
+      if (oprint) write(6,1) alpha, dsgrad, hess, e1, lsmode, a2, e2p
+ 1    format(' Line search: ',/, '     step=',f5.2, ' grad=',1p,d8.1,0p,
+     $     ' hess=',1p,d8.1,0p,' energy=',f14.6,' mode=',a,/,
+     $     ' new step=',f5.2, 19x,'predicted energy=',f14.6)
+      alpha = a2
+c
+c     Mode will be used by search_dir on the next iteration to
+c     figure out if the LS was complete or not.  To make this decision
+c     easier reassign mode to be either ok or notok
+c
+      if (lsmode.eq.'bracket' .or. lsmode.eq.'downhill' .or. 
+     $     lsmode.eq.'accept') then
+         lsmode = 'ok'          ! Seemingly good situation
+      else
+         lsmode = 'notok'
+      endif
+c
+      call driver_take_step(rtdb, geom)
+c
+c     There's code in the graveyard to do a more thorough search
+c     for steps that have been restricted, but it actually seems
+c     slightly counterproductive for most tests.  Dunno why.
+c
+      end
+      subroutine driver_line_search2(rtdb,geom)
+      implicit none
+#include "coptopt.fh"
+#include "geom.fh"
+#include "util.fh"
+      integer rtdb, geom
+c
+c     Starting with a value of alpha recommended by whatever
+c     generated the search direction, perform a more accurate 
+c     line search than that done by search1.
+c
+c     Return with alpha, geom as the accepted point.
+c
+c     Only alpha and geom are modified.
 c
       double precision e0, e1, e2, alphanew, a, dsgrad
       double precision driver_energy_step
-      character*8 mode
+c
+      call errquit('line search2 not implemented',0)
 c
       dsgrad = ddot(nvar, ds, 1, g, 1)
       if (dsgrad*alpha .ge. 0d0) then
@@ -1311,7 +1572,7 @@ c
 c     If this condition persists we should switch off the LS.
 c
          alphanew = alpha 
-         mode = 'accept'
+         lsmode = 'fixed'
       else if (a .gt. 0d0) then
 c
 c     Positive curvature.  Compute NR step, and ...
@@ -1321,15 +1582,15 @@ c     .  otherwise take alpha/2.
 c
          alphanew = -dsgrad/(2d0*a)
          if ((e1 - e0) .lt. eprec ) then ! Downhill
-            mode = 'downhill'
+            lsmode = 'downhill'
             if (abs(alphanew) .gt. 4d0*abs(alpha)) then 
-               mode = 'restrict'
+               lsmode = 'restrict'
                alphanew = sign(4d0*abs(alpha),alphanew)
             endif
          else                   ! Uphill
-            mode = 'bracket'
+            lsmode = 'bracket'
             if (abs(alphanew) .gt. abs(alpha)) then
-               mode = 'restrict'
+               lsmode = 'confused'
                alphanew = alpha/2d0
             endif
          endif
@@ -1341,10 +1602,10 @@ c     2.  If we went uphill then something is really confused.
 c     .   Just accept the current point.
 c
          if ((e1 - e0) .lt. eprec ) then ! Downhill
-            mode = 'negative'
+            lsmode = 'negative'
             alphanew = 2d0*alpha
          else
-            mode = 'punt'
+            lsmode = 'punt'
             alphanew = alpha
          endif
       endif
@@ -1354,97 +1615,39 @@ c     not give us much energy lowering then just
 c     return alpha so that any SCF/MCSCF/DFT does not have to
 c     be repeated before computing the next gradient.
 c
+c     75% of energy lowering reduced to 99% so that we
+c     are sure to have reduced line search gradient by 10x.
+c
+c     Added accept of alpha if predicted energy lowering is
+c     less than energy precision.  Should diminish thrashing
+c     around on flat surfaces.
+c
       e2 = e0 + dsgrad*alphanew + a*alphanew**2
       if ( (abs(alphanew-alpha) .lt. abs(0.1d0*alpha)) .or.
-     $     ((e2-e1) .gt. 0.25d0*(e1-e0)) ) then 
-         mode = 'accept'
+     $     ((e2-e1) .gt. 0.01*(e1-e0)) .or.
+     $     (abs(e2-e1) .lt. eprec) )then
+         lsmode = 'accept'
          alphanew = alpha
       endif
       e2 = e0 + dsgrad*alphanew + a*alphanew**2
 c
-      if (oprint) write(6,1) alpha, dsgrad, a, e1, mode, alphanew, e2
+      if (oprint) write(6,1) alpha, dsgrad, a, e1, lsmode, alphanew, e2
  1    format(' Line search: ',/, '     step=',f5.2, ' grad=',1p,d8.1,0p,
      $     ' hess=',1p,d8.1,0p,' energy=',f14.6,' mode=',a,/,
      $     ' new step=',f5.2, 19x,'predicted energy=',f14.6)
       alpha = alphanew
 c
-      call driver_take_step(rtdb, geom)
+c     Mode will be used by search_dir on the next iteration to
+c     figure out if the LS was complete or not.  To make this decision
+c     easier reassign mode to be either ok or notok
 c
-      end
-      subroutine driver_line_search2(rtdb,geom)
-      implicit none
-#include "coptopt.fh"
-#include "geom.fh"
-#include "util.fh"
-      integer rtdb, geom
-c
-c     Starting with a value of alpha recommended by whatever
-c     generated the search direction, perform an approximate line 
-c     search using no more than linopt steps.  Accept the first 
-c     point that is lower in energy than the starting point.
-c
-c     Enter with the supposition that any preconditioning of
-c     the gradient is positive-definite so that the minimum
-c     is found by a positive step along the search direction.
-c
-c     Return with alpha, energy and geom as the accepted point.
-c
-c     Only alpha, energy and geom are modified.
-c
-c     THIS ROUTINE DOES NOT DO WHAT IT PUPORTS TO DO.
-c     STILL NEED TO IMPLEMENT AN EXACT LS.
-c
-      double precision enew, anew, a, dsgrad
-      integer lstep
-      double precision driver_energy_step
-c
-      dsgrad = ddot(nvar, ds, 1, g, 1)
-      if (dsgrad*alpha .ge. 0d0) then
-         write(6,*) ' Warning ... line search gradient +ve ',
-     $        alpha, dsgrad
-         call errquit('fred',0)
+      if (lsmode.eq.'bracket' .or. lsmode.eq.'downhill' .or. 
+     $     lsmode.eq.'accept') then
+         lsmode = 'ok'
+      else
+         lsmode = 'notok'
       endif
 c
-      do lstep = 1, linopt
-c
-c     Compute energy at alpha*ds
-c
-         enew = driver_energy_step(rtdb, geom)
-         write(6,*) ' ALPHA ', lstep, alpha, enew
-         if ((enew - energy) .lt. eprec ) goto 1000 ! Downhill.  Accept.
-c
-c     Must have overshot.  Downhill somewhere in [0,alpha].
-c
-c     Fit to a parabola using e(0), g(0), e(alpha)
-c
-         a = (enew-energy-alpha*dsgrad)/alpha**2
-         if (a .le. 0d0) then
-c
-c     Not positive curvature. Bisect.
-c
-            write(6,*) ' Negative curvature ... bisecting'
-            alpha = 0.5d0*alpha
-         else
-c
-c     Parabolic extrapolation
-c
-            anew = -dsgrad/(2d0*a)
-            if (anew .ge. alpha) then 
-               write(6,*) ' Overshooting ... bisecting'
-               alpha = 0.5d0*alpha ! Downhill somewhere in [0,alpha]
-            else
-               alpha = anew
-            endif
-         endif
-      enddo
-c
-c     Mmmm ... if we fell out of the loop we did not find a downhill 
-c     step.  Not much to do about this ... just take the last point 
-c     which will have been a small step
-c
-c     Jump to 1000 if went downhill.  Set energy and geometry
-c
- 1000 energy = enew
       call driver_take_step(rtdb, geom)
 c
       end
@@ -1588,9 +1791,10 @@ c
       double precision diff, de
       logical geom_print_zmatrix, oprint_grad
       character*9 cvg1, cvg2, cvg3, cvg4
+      character*1 mark
 c
       de = 0d0
-      if (istep .gt. 1) de = energy-penergy
+      if (istep .gt. 1) de = energy-energyp
       cvg1 = ' '
       cvg2 = ' '
       cvg3 = ' '
@@ -1598,18 +1802,25 @@ c
       if (gmax .lt. gmax_tol) cvg1 = '     ok  '
       if (grms .lt. grms_tol) cvg2 = '     ok  '
       if (xrms .lt. xrms_tol) cvg3 = '     ok  '
-      if (smax .lt. smax_tol) cvg4 = '     ok  '
+      if (xmax .lt. xmax_tol) cvg4 = '     ok  '
 c
-      if (oprint) write(6,1) istep, energy, de,
-     $     gmax, grms, xrms, smax, util_wallsec(),
+      if (oprint) then 
+         mark = '@'
+         if (istep .gt. 1) mark = ' '
+         write(6,1) mark, mark
+         mark = '@'
+         write(6,2) mark, istep, energy, de,
+     $     gmax, grms, xrms, xmax, util_wallsec(),
      $     cvg1, cvg2, cvg3, cvg4
- 1    format(
-     $     /,1x,' Step       Energy      Delta E   Gmax',
-     $     '     Grms     Xrms     Smax   Walltime',
-     $     /,1x,' ---- ---------------- -------- --------',
-     $     ' -------- -------- -------- --------',
-     $     /,1x,i5,f17.8,1p,d9.1,0p,4f9.5,f9.1,
-     $     /,1x,5x,17x,9x,4a9,/)
+ 1       format(
+     $        /,a1,' Step       Energy      Delta E   Gmax',
+     $        '     Grms     Xrms     Xmax   Walltime',
+     $        /,a1,' ---- ---------------- -------- --------',
+     $        ' -------- -------- -------- --------')
+ 2       format(
+     $        a1,i5,f17.8,1p,d9.1,0p,4f9.5,f9.1,/,
+     $        1x,5x,17x,9x,4a9,/)
+      endif
 c
 c     Optionally print out the gradient in internal coordinates.
 c
@@ -1628,7 +1839,7 @@ c
          if (diff .gt. 1d-6) then
             write(6,*) ' Internal coordinate gradient after',
      $           ' constraints'
-            if (.not. geom_print_zmatrix(geom, gq, 'Gradient',.true.))
+            if (.not. geom_print_zmatrix(geom, g, 'Gradient',.true.))
      $           call errquit('tfgx: print internal gradient?',geom)
          endif
       endif
@@ -1645,13 +1856,14 @@ c     has been called.
 c     gmax_tol,            ! [user] tolerance for max internal gradient
 c     grms_tol,            ! [user] tolerance for rms internal gradient
 c     xrms_tol,            ! [user] tolerance for rms cartesian step
-c     smax_tol,            ! [user] tolerance for max internal step
+c     xmax_tol,            ! [user] tolerance for max cartesian step
 c
       driver_converged = 
-     $     (gmax .lt. gmax_tol) .and.
-     $     (grms .lt. grms_tol) .and.
-     $     (xrms .lt. xrms_tol) .and.
-     $     (smax .lt. smax_tol)
+     $     ((gmax .lt. gmax_tol) .and. (grms .lt. grms_tol) .and.
+     $     (xrms .lt. xrms_tol)  .and. (xmax .lt. xmax_tol))
+     $     .or. 
+     $     ((gmax.lt.0.01d0*gmax_tol) .and. (grms.lt.0.01d0*grms_tol))
+
 c
       end
       subroutine driver_cart_pmat(rtdb, geom)
@@ -1749,8 +1961,11 @@ c
 c     
 c     Store dummy unit matrix for Binv ... the cartesian 
 c     gradient should already be invariant to rotations and translations.
+c
+c     Also store dummy cmat (constraints)
 c     
       call geom_hnd_put_data('b^-1', dbl_mb(k_pmat), ncart**2)
+      call geom_hnd_put_data('c', dbl_mb(k_pmat), ncart**2)
 c     
       if (rtdb_get_info(rtdb, 'geometry:actlist', ma_type, 
      $     nelem, date)) then
@@ -1794,6 +2009,8 @@ c
      $     pg(nvar)             ! returns projected gradient
 c
 c     Project and shift the Hessian and gradient following Peng et al.
+c
+c     Nothing else is changed.
 c
       integer l_pmat, k_pmat, l_work, k_work, i
       double precision big
@@ -1881,5 +2098,489 @@ c
       srms = sqrt(srms/dble(nvar))
 c
       end
-
-         
+      subroutine driver_hess_cart_guess()
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "coptopt.fh"
+#include "inp.fh"
+c     
+c     Read in cartesian Hessian and transform it as necessary
+c     to internal coordinates (neglecting the component due to
+c     the derivative) and writing the result to the hessian file.
+c     
+c     Reads file in vib_vib format using vib_vib filename default
+c     Note the default filename is set in task_freq
+c     filenames must be made identical.
+c     
+c     Format of vib file is ascii lower triangular elements only.
+c     
+      integer h_unit
+      parameter (h_unit=47)
+      character*255 fname
+      double precision x
+      integer i,j
+      integer l_bi, k_bi, l_hc, k_hc, l_hq, k_hq
+c     
+      if (ga_nodeid().eq.0) then
+         if (.not. ma_push_get(mt_dbl, ncart*nvar, 'binv',
+     $        l_bi, k_bi)) call errquit
+     $        ('driver_hess_cart_guess: ma?', ncart*nvar)
+c     
+         if (.not. ma_push_get(mt_dbl, max(ncart**2,nvar**2), 'hcart',
+     $        l_hc, k_hc)) call errquit
+     $        ('driver_hess_cart_guess: ma?', ncart**2)
+c     
+         if (.not. ma_push_get(mt_dbl, max(ncart**2,nvar**2), 'hcart2',
+     $        l_hq, k_hq)) call errquit
+     $        ('driver_hess_cart_guess: ma?', nvar**2)
+c     
+         call util_file_name('hess',.false.,.false.,fname)
+         open(unit=h_unit,file=fname,form='formatted',status='unknown',
+     $        err=99990,access='sequential')
+         rewind h_unit
+         do i = 1,ncart
+            do j = 1,i
+               read(h_unit,10000,err=99992,end=99992) x
+               dbl_mb(k_hc+(i-1)*ncart+(j-1)) = x
+               dbl_mb(k_hc+(j-1)*ncart+(i-1)) = x
+            enddo
+         enddo
+         close(unit=h_unit,status='keep')
+      endif
+      call ga_brdcst(1,dbl_mb(k_hc),8*ncart**2,0)
+c     
+      call geom_hnd_get_data('b^-1', dbl_mb(k_bi), nvar*ncart)
+      call dgemm('n', 'n', ncart, nvar, ncart, 1d0, dbl_mb(k_hc), ncart,
+     $     dbl_mb(k_bi), ncart, 0d0, dbl_mb(k_hq), ncart)
+      call dgemm('t', 'n', nvar, nvar, ncart, 1d0, dbl_mb(k_bi), ncart,
+     $     dbl_mb(k_hq), ncart, 0d0, dbl_mb(k_hc), nvar)
+c
+      do i = 1,nvar
+         do j = 1,i
+            x = (dbl_mb(k_hc+(i-1)*nvar+(j-1)) + 
+     $           dbl_mb(k_hc+(j-1)*nvar+(i-1))) * 0.5d0
+            dbl_mb(k_hc+(i-1)*nvar+(j-1)) = x
+            dbl_mb(k_hc+(j-1)*nvar+(i-1)) = x
+         enddo
+      enddo
+c
+      call geom_hnd_put_data('drv.hess',dbl_mb(k_hc), nvar**2)
+c
+      if (.not. ma_chop_stack(l_bi))
+     $     call errquit('driver_hess_cart_guess: ma corrupt?',0)
+c
+      return
+10000 format(f30.15)
+99990 write(6,*)' could not open <',fname(1:inp_strlen(fname)),
+     $     '> as unknown file'
+      call errquit('driver_hess_cart: fatal error', 911)
+99991 write(6,*)' could not open <',fname(1:inp_strlen(fname)),
+     $     '> as new file'
+      call errquit('driver_hess_cart: fatal error', 911)
+99992 write(6,*)' error in reading <',fname(1:inp_strlen(fname)),
+     $     '> as hessian file'
+      call errquit('driver_hess_cart: fatal error', 911)
+      end
+      subroutine driver_sad_search_dir(rtdb,geom,istep)
+      implicit none
+#include "rtdb.fh"
+#include "coptopt.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "util.fh"
+      integer rtdb
+      integer geom
+      integer istep
+c     
+c     This routine for saddle point search
+c     
+c     Put into ds() a search direction in the optimization
+c     variables (internal or cartesian) based upon the
+c     current gradient, g(), and Hessian.  Apply constraints.
+c     
+c     Only alpha and ds() are modified.  Saves moddir to RTDB
+c     
+c     On first geometry optimization step need to identify
+c     the search direction.
+c     
+      integer i
+*     integer info
+      integer l_hess, k_hess, l_work, k_work, lenwork
+      double precision  e(max_nvar) ! Hessian eigenvalues
+      double precision pg(max_nvar) ! P.g
+      double precision gv(max_nvar) ! Gradient along eigenvectors
+      double precision dv(max_nvar) ! Step along eigenvectors
+      double precision saddir(max_nvar) ! Tracks mode for saddle ... saved
+      double precision dsmax    ! Max. value of current step (smax is prev.)
+c     
+      integer nzero, negeig, idamax, mod2
+      double precision bohr, deg ! For printing purposes
+      double precision trustds  ! Restriction of step in opt. variable
+      double precision gvrms, dir, tmp1, tmp2
+      logical geom_print_zmatrix
+      save saddir
+c     
+c     Get the Hessian and gradient with appropriate projects
+c     applied following Peng, Ayala, Schlegel and Frisch so that
+c     redundant internal modes are shifted to high eigenvalues.
+c     
+      if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
+     $     l_hess, k_hess)) call errquit
+     $     ('driver_search_dir: memory for hessian',nvar**2)
+      call driver_project_hess_grad(dbl_mb(k_hess), pg)
+c     
+c     Diagonalize the Hessian.  Should really do the generalized
+c     eigenvalue problem since the underlying basis is not independent
+c     (if we are using autoz). NOT YET BEING DONE.  
+c     
+c     To cause degenerate eigenvalues to be resolved into symmetry
+c     adapted combinations use Jacobi not dsyev and screen out junk
+c     
+      lenwork = max(nvar**2,100)
+      if (.not. ma_push_get(mt_dbl, lenwork, 'work',
+     $     l_work, k_work)) call errquit
+     $     ('driver_search_dir: memory for hessian', lenwork)
+      do i = 0, nvar**2-1
+         if (abs(dbl_mb(k_hess+i)).lt.1d-8) dbl_mb(k_hess+i) = 0d0
+      enddo
+c$$$  call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
+c$$$  $     nvar, e, dbl_mb(k_work), lenwork, info)
+c$$$  if (info .ne. 0) call errquit
+c$$$  $     ('driver_search_dir: dsyev failed',info)
+      call util_jacobi(nvar, dbl_mb(k_hess), nvar, e)
+      if (odebug .or. (util_print('hvecs',print_never) 
+     $     .and. ga_nodeid().eq.0)) then
+         write(6,*) ' Eigenvalues of the Hessian '
+         call doutput(e, 1, nvar, 1, 1, nvar, 1, 1)
+         write(6,*) ' Eigenvectors of the Hessian '
+         call output(dbl_mb(k_hess), 1, nvar, 1, nvar, nvar, nvar, 1)
+      endif
+c     
+c     Now have eigenvalues in e, eigenvectors in dbl_mb(k_hess).
+c     
+c     Project the gradient onto the Hessian eigenvectors
+c     
+      call dgemv('t', nvar, nvar, 1d0, dbl_mb(k_hess), nvar,
+     $     pg, 1, 0d0, gv, 1)
+      gvrms = ddot(nvar, gv, 1, gv, 1)
+      gvrms = sqrt(gvrms/dble(nvar))
+      if (odebug) then
+         write(6,*) ' Gradient in spectral form ', gvrms
+         call doutput(gv, 1, nvar, 1, 1, nvar, 1, 1)
+      endif
+c     
+c     Analyze the structure of the Hessian.  Don't count
+c     modes with significant gradients as having zero eigenvalues.
+c     
+      nzero =0
+      negeig=0
+      do i=1,nvar
+         if(abs(e(i)).lt.1d-8 .and. abs(gv(i)).lt.1d-2*gmax_tol) then
+            nzero=nzero+1
+         else if(e(i) .lt. -1d-8) then
+            negeig=negeig+1
+         endif
+      enddo     
+      if (oprint) then
+         write(6,11) nvar-negeig-nzero, negeig, nzero
+ 11      format(' Hessian eigenvalues: positive=',i4,
+     $        ' negative=',i3,' zero=',i3)
+      endif
+c     
+c     Translations and rotations have already been shifted to
+c     the right so zero modes are rather weird.  However, they
+c     can arise if dummy centers have been specified in user
+c     input z-matrices.  They can also arise by accident, or
+c     if a cartesian coordinate has been frozen but partial rot/trans
+c     invariance remains. Shift remaining zero modes to the right.
+c     
+      if(nzero.gt.0) then
+         do i=negeig+nzero+1,nvar ! COPY LOGIC INCOMPLETE WITH GV MOD ABOVE !!
+            e(i-nzero)  = e(i)
+            gv(i-nzero) = gv(i)
+            call dcopy(nvar, dbl_mb(k_hess+(i-1)*nvar), 1,
+     $           dbl_mb(k_hess+(i-nzero-1)*nvar), 1)
+         enddo
+         do i=nvar-nzero+1,nvar
+            e(i)  = 1000d0
+            gv(i) = 0d0
+            call dfill(nvar, 0d0, dbl_mb(k_hess+(i-1)*nvar), 1)
+         enddo
+      endif
+c     
+c     Fill in initial saddir 
+c     
+      dir = 1d0                 ! Sign of very first step ... +ve default
+      if (istep .eq. 1) then
+         if (vardir .ne. 0) then
+            if (vardir .lt. 0) dir = -1d0
+            vardir = abs(vardir)
+            call dfill(nvar, 0d0, saddir, 1)
+            saddir(vardir) = 1d0
+         else 
+            if (moddir .lt. 0) dir = -1d0
+            moddir = abs(moddir)
+            call dcopy(nvar,dbl_mb(k_hess+(moddir-1)*nvar),1,saddir,1)
+         endif
+      endif
+c     
+c     Look for the internal coordinate or mode to be followed.  On the
+c     first iteration step along the mode/variable specified by the user.
+c     Otherwise do maximum overlap to track the mode ... must track the
+c     mode not the overall step since the step in the modes being minimized
+c     might be bigger than the uphill step.  
+c     
+c     Also, might not want to take the first negative mode that appears 
+c     since it might be a transverse mode rather than the one of interest.
+c     However, since we might not be tracking the correct mode the default
+c     option is to just follow the first -ve mode that appears.  This
+c     can be disabled with firstneg.
+c     
+      if (ofirstneg .and. negeig.eq.1) then
+         if (oprint) write(6,34) 
+ 34      format(' Hessian has correct structure - ',
+     $        'following negative mode')
+         moddir = 1
+      else
+c     
+c     Maximum overlap for tracking the mode
+c     
+         call dgemv('t', nvar, nvar, 1d0, dbl_mb(k_hess), nvar,
+     $        saddir, 1, 0d0, dv, 1)
+         do i = 1, nvar         ! This to avoid matching rot/trans/constraint
+            if (e(i) .gt. 1d2) dv(i) = 0d0
+         enddo
+         moddir = idamax(nvar, dv, 1)
+         call dcopy(nvar, dbl_mb(k_hess+(moddir-1)*nvar), 1, saddir, 1)
+c     
+c     Print out first two maximum overlaps to warn of ambiguity
+c     
+         tmp1 = abs(dv(moddir))
+         dv(moddir) = 0d0
+         mod2 = idamax(nvar, dv, 1)
+         tmp2 = abs(dv(mod2))
+         if (oprint) write(6,98) moddir, tmp1, mod2, tmp2
+ 98      format(' Maximum overlap of modes: mode=', i3, 1p, 
+     $        ' overlap=',d8.1, 0p, '  mode=', i3, 1p, ' overlap=',d8.1,
+     $        0p, 3x)
+         if (tmp1 .eq. 0d0) call errquit('driver_sad_dir: no mode?',0)
+      endif
+c     
+c     Save moddir so that it is picked up for a restart
+c     
+      if (.not. rtdb_put(rtdb,'driver:moddir',mt_int,1,moddir)) 
+     $     call errquit('driver_sad_search_dir: rtdb?',0)
+c     
+c     Form the step applying trust radius on each mode.
+c     Augmented Hessian step is similar to replacing
+c     eigenvalue e(i) with (e(i) + gv(i)**2/e(i))
+c     
+      do i = 1, nvar
+         if (i .eq. moddir) then
+            if (e(i) .ge. 0d0) then ! +ve curvature ... fixed step uphill
+c     
+c     +ve curvature and first step ... force in the direction
+c     requested by the user.  Otherwise go uphill.
+c     
+               if (istep.eq.1) then
+                  dv(i) = sadstp*dir
+               else
+                  dv(i) = sign(sadstp,gv(i))
+               endif
+c     
+               if (oprint) write(6,667) i, e(i), gv(i), dv(i)
+ 667           format(' Forcing   uphill step in mode',i5,
+     $              '  eval=', 1p,d8.1,' grad=',d8.1,
+     $              ' step=',d8.1)
+            else
+               dv(i) = -gv(i)*dir/(e(i)+max(gvrms**2,gv(i)**2)/e(i))
+*     dv(i) = -gv(i) / e(i)
+               if (abs(dv(i)) .gt. sadstp) then 
+                  if (oprint) write(6,2) i, e(i), dv(i), 
+     $                 sign(sadstp,dv(i))
+                  dv(i) = sign(sadstp,dv(i))
+               endif
+            endif
+         else
+            if (e(i) .gt. 1d-8) then ! +ve curvature
+               dv(i) = -gv(i) / (e(i) + max(gvrms**2,gv(i)**2)/e(i))
+*     dv(i) = -gv(i) / e(i)
+            else if (e(i) .lt. -1d-8) then ! -ve curvature 
+               dv(i) = sign(0.3d0*trust,-gv(i))
+               if (oprint) write(6,666) i, e(i), gv(i), dv(i)
+ 666           format(' Forcing downhill step in mode',i5,
+     $              '  eval=', 1p,d8.1,' grad=',d8.1,' step=',
+     $              d8.1)
+            else
+               if (abs(gv(i)) .gt. 1d-2*gmax_tol) then
+                  dv(i) = sign(trust,-gv(i))
+               else
+                  dv(i) = 0d0
+               endif
+               if (oprint) write(6,1) i, e(i), dv(i)
+ 1             format(' Restricting step in mode',i5,
+     $              ' due to tiny eigenvalue=', 1p,d8.1,
+     $              ' step=',d8.1)
+            endif
+            if (abs(dv(i)) .gt. trust) then 
+               if (oprint) write(6,2) i, e(i), dv(i), 
+     $              sign(trust,dv(i))
+ 2             format(' Restricting large step in mode',i5, 
+     $              ' eval=', 1p,d8.1,' step=',d8.1,' new=',d8.1)
+               dv(i) = sign(trust,dv(i))
+            endif
+         endif
+      enddo
+      if (oprint) then
+         write(6,12) moddir,e(moddir),gv(moddir),dv(moddir)
+ 12      format(' Search mode=',i2,' eval=',1p,d8.1,' grad=',d8.1,
+     $        ' step=',d8.1)
+      endif
+      if (odebug) then
+         write(6,*) ' Step in spectral form '
+         call doutput(dv, 1, nvar, 1, 1, nvar, 1, 1)
+      endif
+c     
+c     Transform back to optimization space
+c     
+      call dgemv('n', nvar, nvar, 1d0, dbl_mb(k_hess), nvar,
+     $     dv, 1, 0d0, ds, 1)
+c     
+      call driver_symmetrize_step(geom)
+c     
+c     Restriction of the overall step based on
+c     
+c     1.  Is a component of the step large in the optimization space.
+c     
+      dsmax = 0d0
+      do i = 1, nvar
+         dsmax = max(dsmax, abs(ds(i)))
+      enddo
+c     
+      trustds = min(trust,sadstp)
+c     
+      alpha = 1d0
+c     
+      if (dsmax .gt. trustds) then
+         alpha = trustds/dsmax
+         if (oprint) write(6,7) alpha
+ 7       format(' Restricting overall step due to large component.',
+     $        ' alpha=', f6.2)
+      endif
+c     
+      if (.not. ma_chop_stack(l_hess)) call errquit
+     $     ('driver_search_dir: ma?',0)
+c     
+c     Edo seems to have encountered a case where different processors
+c     generated different steps.  To prevent this, broadcast the 
+c     critical info to everyone.
+c     
+      call ga_brdcst(1,ds,8*nvar,0)
+      call ga_brdcst(2,alpha,8,0)
+c     
+      if (util_print('searchdir',print_high) .and. 
+     $     ga_nodeid().eq.0) then
+         write(6,*)
+         write(6,*) '       The search direction'
+         if (zcoord) then
+            bohr = 0.52917715d0
+            deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
+            call geom_zmat_ico_scale(geom, ds, bohr, deg)
+            if (.not. geom_print_zmatrix(geom, ds, 'Search  ',.true.))
+     $           call errquit('driver:print search_dir?',geom)
+            call geom_zmat_ico_scale(geom, ds, 1d0/bohr, 1d0/deg)
+         else
+            call output(ds,1,ncart,1,1,ncart,1,1)
+         endif
+         write(6,*)
+         call util_flush(6)
+      endif
+c     
+      end
+      subroutine driver_symmetrize_step(geom)
+      implicit none
+#include "coptopt.fh"
+#include "mafdecls.fh"
+      integer geom
+c
+c     Force symmetry upon the current search direction by projecting
+c     ds() onto symmetric component in cartesians
+c
+c     Updates ds().
+c
+      double precision dx(max_nvar)
+      integer k_bi, l_bi
+c
+c     1) dx = dq*B-1
+c     2) symmetrize dx
+c     3) dq = dx*B
+c
+      if (.not. ma_push_get(mt_dbl, ncart*nzvar,'binv',l_bi, k_bi))
+     $     call errquit('driver_sym: memory for binv', ncart*nzvar)
+      call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nzvar)
+      if (odebug) then
+         write(6,*) ' Symmetrize step - initial q '
+         call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
+      endif
+      call dgemv('n', ncart, nzvar, 1d0, dbl_mb(k_bi), ncart,
+     $     ds, 1, 0.0d0, dx, 1)
+      call sym_grad_symmetrize(geom, dx)
+      call geom_hnd_get_data('b', dbl_mb(k_bi), ncart*nzvar)
+      call dgemv('t', ncart, nzvar, 1d0, dbl_mb(k_bi), ncart,
+     $     dx, 1, 0.0d0, ds, 1)
+      if (odebug) then
+         write(6,*) ' Symmetrize step - final q '
+         call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
+      endif
+c
+      if (.not. ma_pop_stack(l_bi)) call errquit('driver_sym:ma',0)
+c
+      end
+      subroutine driver_compute_actual_step(geom)
+      implicit none
+#include "coptopt.fh"
+#include "geom.fh"
+      integer geom
+c
+c     We have now taken a step.  Since the non-linear transformations
+c     involved in taking a step may not have been done exactly replace
+c     ds() with the actual step taken so that the Hessian may be precisely
+c     updated.  Updates ds(), sp().  Divides by alpha so the step is still
+c     alpha*ds().
+c
+c     This has little effect on most calculations but for (h2o)5 it
+c     reduces the number of iterations from 99 to 6?.
+c
+      logical geom_compute_zmatrix
+      double precision bohr, deg
+      integer i
+c
+      if (odebug) then
+         write(6,*) ' Expected ds '
+         call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
+      endif
+      call dcopy(nvar, sp, 1, ds, 1) ! Old coordinates into ds()
+      if (zcoord) then
+         if (.not. geom_compute_zmatrix(geom, sp)) ! New coordinates into sp()
+     $        call errquit('driver: zmatrix?',0)
+      else
+         if (.not. geom_cart_coords_get(geom, sp))
+     $        call errquit('driver: geom?',0)
+      endif
+      do i = 1, nvar 
+         ds(i) = sp(i) - ds(i)
+      enddo
+      if (zcoord) then
+         bohr = 0.52917715d0
+         deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
+         call geom_zmat_sane_step(geom, ds)
+         call geom_zmat_ico_scale(geom, ds, 1d0/bohr, 1d0/deg)
+      endif
+      call dscal(nvar, 1d0/alpha, ds, 1)
+      if (odebug) then
+         write(6,*) ' Actual ds '
+         call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
+      endif
+c
+      end

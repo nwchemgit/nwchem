@@ -28,8 +28,6 @@ c     is performed in one of
 c     .   cartesians
 c     .   redundant internals
 c     .   non-redundant user-specified internals
-c     nindep is the number of independent variables but this
-c     is not actually used in the optimizer.
 c
       double precision 
      $     eprec,               ! [user|auto] precision in the energy
@@ -37,27 +35,29 @@ c
      $     gmax_tol,            ! [user] tolerance for max internal gradient
      $     grms_tol,            ! [user] tolerance for rms internal gradient
      $     xrms_tol,            ! [user] tolerance for rms cartesian step
-     $     smax_tol,            ! [user] tolerance for max internal step
+     $     xmax_tol,            ! [user] tolerance for max cartesian step
      $     sadstp,              ! [user] step in search for saddle point
      $     zvarsign(max_nzvar)  ! sign of zmatrix variables
       integer 
      $     nptopt,              ! [user] max no. of steps
      $     inhess,              ! [user] guess hessian option
      $     linopt,              ! [user] max. no. of steps for line search
-     $     modupd,              ! [user] ??
-     $     moddir,              ! [user] ??
-     $     modsad,              ! [user] ??
+     $     modupd,              ! [user] update mode for hessian
+     $     moddir,              ! [user] +/- mode for initial saddle step
+     $     vardir,              ! [user] +/- var  for initial saddle step
+     $     modsad,              ! [user] 0=minim, 1=saddle
      $     nat,                 ! no. of atoms
      $     ncart,               ! no. of cartesians = 3*nat
      $     nzmat,               ! no. of zmatrix integers
      $     nzvar,               ! no. of zmatrix variables
      $     nvar,                ! no. of redundant or cartesian variables
-     $     nindep,              ! no. of independent variables
      $     nzfrz,               ! no. of frozen zmatrix variables
      $     izmat(max_izmat),    ! zmatrix integers
      $     izfrz(max_nzvar)     ! list of frozen variables
 c
       logical 
+     $     ofirstneg,           ! [user] take the first negative mode
+     $     opcg,                ! [user] use conjugacy
      $     oqstep,              ! [user/auto] step in internal coords
      $     zcoord,              ! autoz/zmatrix being used
      $     zmatrix,             ! user specified zmatrix being used
@@ -69,13 +69,13 @@ c
 c
       common/cdrv_optopt/
 c     doubles
-     $     eprec, trust, gmax_tol, grms_tol, xrms_tol, smax_tol, 
+     $     eprec, trust, gmax_tol, grms_tol, xrms_tol, xmax_tol, 
      $     sadstp, zvarsign, 
 c     integers
-     $     nptopt,inhess,linopt,modupd,moddir, modsad, 
-     $     nat, ncart, nzmat, nzvar, nvar, nindep, izmat, nzfrz, izfrz,
+     $     nptopt, inhess, linopt, modupd, moddir, vardir, modsad, 
+     $     nat, ncart, nzmat, nzvar, nvar, izmat, nzfrz, izfrz,
 c     logicals
-     $     oqstep, zcoord, zmatrix, oprint, odebug
+     $     ofirstneg, opcg, oqstep, zcoord, zmatrix, oprint, odebug
 c     characters
       common/ccdrv_optopt/
      $     zvarname
@@ -95,8 +95,15 @@ c
      $     gq(max_nvar),        ! Current internal coord gradient
      $     g(max_nvar),         ! Current gradient in optimization variables
      $     ds(max_nzvar),       ! Current search direction in opt. var.
-     $     penergy,             ! Previous energy
+     $     energyp,             ! Previous energy
+     $     alphap,              ! Previous alpha
+     $     sp(max_nvar),        ! Previous values of optimization variables
+     $     dsp(max_nvar),       ! Previous search direction
      $     gp(max_nvar)         ! Previous gradient in optimization variables
 c
+      character*8 lsmode        ! Action taken by previous line search
+c
       common /coptimize/ gmax, grms, smax, srms, xmax, xrms,
-     $     energy, penergy, alpha, gx, gq, g, gp, ds
+     $     energy, energyp, alpha, alphap, gx, gq, g, gp, ds, dsp, sp
+c
+      common /ccoptimize/ lsmode

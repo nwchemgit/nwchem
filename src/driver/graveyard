@@ -3408,3 +3408,97 @@ c
          call geom_zmat_to_cart(q)
       else 
          n
+
+
+
+
+
+
+
+
+
+
+
+c
+c     Here only if lsmode.ne.'restrict' ... meaning truncated
+c     downhill step with +ve curvature.  Continue the line search.
+c
+      e2 = driver_energy_step(rtdb, geom)
+      if (oprint) write(6,22) alpha, e2
+ 22   format('     step=',f5.2,19x,'   actual energy=',f14.6)
+c
+c     Fit a quadratic to the 3 points we have 
+c
+      d1 = (e1 - e0) / a1
+      d2 = (e2 - e0) / a2
+      a  = (d2 - d1) / (a2 - a1)
+      b  = d1 - a*a1
+      a3 = -b / (2d0*a)
+      e3p = e0 + b*a3 + a*a3**2
+*      write(6,*) ' a, b, a3, e3p ', a, b, a3, e3p
+c
+      if (abs(e1-e2) .le. eprec) then ! insufficient precision
+         lsmode = 'accept'
+         a3 = alpha
+      else if (abs(e2-e2p) .le. 0.2d0*abs(e2p-e1)) then 
+c     
+c     Predicted energy was within 20% of estimate. 
+c     If we still have +ve curvature take bigger step to 
+c     the minimum
+c     
+         if (a.gt.0d0 .and. b.lt.0d0) then
+            lsmode = 'downhill'
+            if (abs(a3) .gt. 4d0*abs(alpha)) then 
+               lsmode = 'restrict'
+               a3 = sign(4d0*abs(alpha),a3)
+            endif
+         else
+            lsmode = 'confused'
+            a3 = alpha
+         endif
+      else if (e2 .lt. e1) then 
+c
+c     Went downhill but not as expected.
+c     Take the parabolic step, but a little more cautiously.
+c
+         if (a.gt.0d0 .and. b.lt.0d0) then
+            lsmode = 'nonparab'
+            if (abs(a3) .gt. 2d0*abs(alpha)) then 
+               lsmode = 'restrict'
+               a3 = sign(4d0*abs(alpha),a3)
+            endif
+         else
+            lsmode = 'confused'
+            a3 = alpha
+         endif
+      else
+c
+c     Went uphill.  Take the parabolic step only if it
+c     is bracketed by 0 and a2
+c
+         lsmode = 'bracket'
+         if (a.gt.0d0 .and. b.lt.0d0 .and. a3.lt.a2) then
+            continue
+         else
+            lsmode = 'restrict'
+            a3 = alpha
+         endif
+      endif
+c
+c     Again don't bother with very small steps
+c
+      e3p = e0 + b*a3 + a*a3**2
+      if ( (abs(a3-alpha) .lt. abs(0.1d0*alpha)) .or.
+     $     (abs(e3p-e2) .lt. eprec) )then
+         lsmode = 'accept'
+         a3 = alpha
+      endif
+      e3p = e0 + b*a3 + a*a3**2
+c
+      if (oprint) write(6,33) a3, e3p, lsmode
+ 33   format(' new step=',f5.2, 19x,'predicted energy=',f14.6,
+     $     ' mode=',a)
+c
+      alpha = a3
+      call driver_take_step(rtdb, geom)
+c

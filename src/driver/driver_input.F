@@ -43,10 +43,52 @@ c
          if (.not. rtdb_put(rtdb,'driver:xrms_tol',mt_dbl,1,xrms_tol))
      $        call errquit('driver_input: rtdb put failed',0)
 c
-      else if(inp_compare(.false.,'smax',field)) then
-         if(.not. inp_f(smax_tol))
-     $        call errquit('driver_input: smax',911)
-         if (.not. rtdb_put(rtdb,'driver:smax_tol',mt_dbl,1,smax_tol))
+      else if(inp_compare(.false.,'xmax',field)) then
+         if(.not. inp_f(xmax_tol))
+     $        call errquit('driver_input: xmax',911)
+         if (.not. rtdb_put(rtdb,'driver:xmax_tol',mt_dbl,1,xmax_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if (inp_compare(.false.,'loose', field)) then
+         gmax_tol = 0.0045d0    !10*default
+         grms_tol = 0.0030d0    !10*default
+         xmax_tol = 0.0054d0    !30*default
+         xrms_tol = 0.0036d0    !30*default
+         if (.not. rtdb_put(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+         if (.not. rtdb_put(rtdb,'driver:grms_tol',mt_dbl,1,grms_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+         if (.not. rtdb_put(rtdb,'driver:xrms_tol',mt_dbl,1,xrms_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+         if (.not. rtdb_put(rtdb,'driver:xmax_tol',mt_dbl,1,xmax_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if (inp_compare(.false.,'default', field)) then
+         gmax_tol = 0.00045d0
+         grms_tol = 0.00030d0
+         xmax_tol = 0.00018d0
+         xrms_tol = 0.00012d0
+         if (.not. rtdb_put(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+         if (.not. rtdb_put(rtdb,'driver:grms_tol',mt_dbl,1,grms_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+         if (.not. rtdb_put(rtdb,'driver:xrms_tol',mt_dbl,1,xrms_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+         if (.not. rtdb_put(rtdb,'driver:xmax_tol',mt_dbl,1,xmax_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if (inp_compare(.false.,'tight', field)) then
+         gmax_tol = 0.000015d0
+         grms_tol = 0.00001d0
+         xmax_tol = 0.00006d0
+         xrms_tol = 0.00004d0
+         if (.not. rtdb_put(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+         if (.not. rtdb_put(rtdb,'driver:grms_tol',mt_dbl,1,grms_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+         if (.not. rtdb_put(rtdb,'driver:xrms_tol',mt_dbl,1,xrms_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+         if (.not. rtdb_put(rtdb,'driver:xmax_tol',mt_dbl,1,xmax_tol))
      $        call errquit('driver_input: rtdb put failed',0)
 c
       else if(inp_compare(.false.,'eprec',field)) then
@@ -59,6 +101,12 @@ c
          if(.not. inp_f(trust)) 
      $        call errquit('driver_input: trust',911)
          if (.not. rtdb_put(rtdb,'driver:trust',mt_dbl,1,trust))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'sadstp',field)) then
+         if(.not. inp_f(sadstp)) 
+     $        call errquit('driver_input: sadstp',911)
+         if (.not. rtdb_put(rtdb,'driver:sadstp',mt_dbl,1,sadstp))
      $        call errquit('driver_input: rtdb put failed',0)
 c
       else if(inp_compare(.false.,'nptopt',field) .or. 
@@ -105,6 +153,12 @@ c
          if (.not. rtdb_put(rtdb,'driver:moddir',mt_int,1,moddir))
      $        call errquit('driver_input: rtdb put failed',0)
 c
+      else if(inp_compare(.false.,'vardir',field)) then
+         if(.not. inp_i(vardir)) 
+     $        call errquit('driver_input: vardir',911)
+         if (.not. rtdb_put(rtdb,'driver:vardir',mt_int,1,vardir))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
       else if(inp_compare(.false.,'print',field)) then
          call util_print_input(rtdb,'driver')
 c
@@ -116,10 +170,22 @@ c
          if (.not. rtdb_put(rtdb,'driver:oqstep',mt_log,1,oqstep))
      $        call errquit('driver_input: rtdb put failed',0)
 c
+      else if (inp_compare(.false.,'firstneg',field)) then
+         ofirstneg = .true.
+         if (.not. rtdb_put(rtdb,'driver:ofirstneg',mt_log,1,ofirstneg))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if (inp_compare(.false.,'nofirstneg',field)) then
+         ofirstneg = .false.
+         if (.not. rtdb_put(rtdb,'driver:ofirstneg',mt_log,1,ofirstneg))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
       else if (inp_compare(.false.,'noqstep',field)) then
          oqstep = .false.
          if (.not. rtdb_put(rtdb,'driver:oqstep',mt_log,1,oqstep))
      $        call errquit('driver_input: rtdb put failed',0)
+      else
+         call errquit('driver_input: unknown directive',0)
       endif
 c
       goto 10                   ! While loop
