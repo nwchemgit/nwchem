@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.6 2001-10-25 21:51:33 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.7 2001-10-26 21:48:02 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -408,7 +408,7 @@ c
       elseif (maxl .eq. 2 .or. gen_l .eq. 3) then
          if (spherical .and.
      &        (maxl .lt. gen_l .or. gen_l - maxder .gt. 2)) then
-            cd(1) = sqrt(3d0)
+            cd(1) = sqrt(3.d0)
             cd(2) = cd(1)*0.5d0
             do n = 1, nq
                x = q(1,n) - ctr(1)
@@ -446,13 +446,13 @@ c
       elseif (maxl .eq. 3 .or. gen_l .eq. 4) then
          if (spherical .and.
      &        (maxl .lt. gen_l .or. gen_l - maxder .gt. 3)) then
-            cd(1) = sqrt(3d0)
+            cd(1) = sqrt(3.d0)
             cd(2) = cd(1)*0.5d0
             cf(1) = sqrt(2.5d0)*0.5d0
             cf(2) = cf(1)*3d0
-            cf(3) = sqrt(15d0)
+            cf(3) = sqrt(15.d0)
             cf(4) = sqrt(1.5d0)*0.5d0
-            cf(5) = sqrt(6d0)
+            cf(5) = sqrt(6.d0)
             cf(6) = 1.5d0
             cf(7) = cf(3)*0.5d0
             do n = 1, nq
@@ -1296,7 +1296,7 @@ c
 
 c     Spherical d functions
 
-         s(1) = sqrt(3d0)
+         s(1) = sqrt(3.d0)
          s(2) = 1d0/s(1)
          if (max_der_component .eq. dz) then
             do n = 1, nq
