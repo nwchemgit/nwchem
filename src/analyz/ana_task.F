@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.57 2001-01-18 23:54:57 d3j191 Exp $
+c $Id: ana_task.F,v 1.58 2001-02-21 23:30:16 d3j191 Exp $
 c
       implicit none
 c
@@ -909,7 +909,11 @@ c
 c
       lsaver=card(1:6).eq.'saver '
 c
+      if(card(7:7).eq.' ') then
+      filcop=' '
+      else
       read(card(7:80),'(a)') filcop
+      endif
       i=index(filcop,'.')
       if(i.le.0) then
       fmt='pdb'
@@ -1209,7 +1213,7 @@ c
 c
       if(ifr.gt.1) then
       do 1 j=1,3
-      do 2 i=1,ifr
+      do 2 i=1,ifr-1
       x(i,j)=0.0d0
     2 continue
     1 continue
