@@ -1,15 +1,17 @@
 c
-c $Id: maxc.fh,v 1.1 1994-04-06 23:51:56 d3e129 Exp $
+c $Id: maxc.fh,v 1.2 1994-07-15 18:53:22 d3g681 Exp $
 c
 c     cmaxa/b/c/d = max of s/p contraction coeffs
-c     ismlp = ?
+c     ismlp = holds info on how to compute gamma function ?
 c     ismlq = ?
 c     isml  = ?
-c     error1 = ?
-c     error2 = ?
+c     error1 = screening for prefactors
+c     error2 = screening for prefactors
 c
       double precision cmaxa, cmaxb, cmaxc, cmaxd
       integer ismlp, ismlq, isml
       double precision error1, error2
-      common /maxc/ cmaxa(10),cmaxb(10),cmaxc(10),cmaxd(10),
-     +              ismlp(100),ismlq,isml,error1,error2
+      common /maxc/
+     $     error1,error2,
+     $     cmaxa(25),cmaxb(25),cmaxc(25),cmaxd(25),
+     $     ismlp(25*25),ismlq,isml

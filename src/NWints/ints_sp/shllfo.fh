@@ -1,5 +1,5 @@
 c
-c $Id: shllfo.fh,v 1.1 1994-04-06 23:52:04 d3e129 Exp $
+c $Id: shllfo.fh,v 1.2 1994-07-15 18:53:24 d3g681 Exp $
 c
 c     ag/bg/cg/dg = exponents
 c     csa/cpa/... = s/p contraction coefficients
@@ -9,8 +9,8 @@ c
       double precision ag, csa, cpa, bg, csb, cpb
       double precision cg, csc, cpc, dg, csd, cpd
       integer nga, ngb, ngc, ngd, la, lb, lc, ld
-      common/shllfo/nga,la,ag(10),csa(10),cpa(10),
-     +              ngb,lb,bg(10),csb(10),cpb(10),
-     +              ngc,lc,cg(10),csc(10),cpc(10),
-     +              ngd,ld,dg(10),csd(10),cpd(10)
+      common/shllfo/nga,la,ag(25),csa(25),cpa(25),
+     +              ngb,lb,bg(25),csb(25),cpb(25),
+     +              ngc,lc,cg(25),csc(25),cpc(25),
+     +              ngd,ld,dg(25),csd(25),cpd(25)
 c

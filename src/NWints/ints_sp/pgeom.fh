@@ -1,9 +1,9 @@
 c
-c $Id: pgeom.fh,v 1.1 1994-04-06 23:51:58 d3e129 Exp $
+c $Id: pgeom.fh,v 1.2 1994-07-15 18:53:23 d3g681 Exp $
 c
 c     more sp integral stuff
 c
       double precision gp, ep, dp00p, dp01p, dp10p, dp11p, app, bpp
-      common /pgeom/ gp(100),ep(100),dp00p(100),dp01p(100),
-     +               dp10p(100),dp11p(100),app(100),bpp(100)
+      common /pgeom/ gp(25*25),ep(25*25),dp00p(25*25),dp01p(25*25),
+     +               dp10p(25*25),dp11p(25*25),app(25*25),bpp(25*25)
 c

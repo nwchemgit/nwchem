@@ -1,8 +1,8 @@
 c
-c $Id: const.fh,v 1.1 1994-04-06 23:51:50 d3e129 Exp $
+c $Id: const.fh,v 1.2 1994-07-15 18:53:21 d3g681 Exp $
 c
-c     conp = ?
+c     conp = prefactors from pairs of primitives
 c
       double precision conp
-      common /const/ conp(100)
+      common /const/ conp(25*25)
 c
