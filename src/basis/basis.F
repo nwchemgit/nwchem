@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.121 2002-05-09 16:01:04 bert Exp $
+c $Id: basis.F,v 1.122 2003-01-07 18:04:48 edo Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -954,7 +954,7 @@ c:: local
       integer h_tmp, k_tmp, h_new, k_new
       integer iunique, uniquecent, istar , ntag_read
       integer istart, iexcpt, ilen, junique
-      integer array(nw_max_unq_tags)
+      integer i_array,l_array
       logical oIsexcept
       character*16 tag_to_add, tag_in_lib
 c:: statement functions
@@ -1127,19 +1127,25 @@ c get a list of tags from the current geometry
 c
         if (.not. geom_ncent_unique(geom,uniquecent)) 
      &     call errquit('bas_rtdb_do_load: geom_ncent_unique',211)
-        if (.not. geom_uniquecent_get(geom,uniquecent,array)) 
+      if (.not.MA_alloc_Get(mt_int,uniquecent, 'iarray', 
+     &     l_array, i_array))
+     &     call errquit('basrtdbdoload: cannot allocate ',0)
+        if (.not. geom_uniquecent_get(geom,uniquecent,
+     ,     int_mb(i_array))) 
      &     call errquit('bas_rtdb_do_load: geom_uniquecent_get',211)
 c
 c We got the tag_to_add info from the geometry object
 c
         do iunique = 1, uniquecent
-           if (.not. geom_cent_tag(geom,array(iunique),tag_to_add))
+           if (.not. geom_cent_tag(geom,
+     ,          int_mb(i_array+iunique-1),tag_to_add))
      &        call errquit('bas_rtdb_do_load: geom_cen_tag',211)
 c
 c First check if we did this geometry tag already
 c
            do junique = 1, iunique - 1
-              if (.not. geom_cent_tag(geom,array(junique),tag_in_lib))
+              if (.not. geom_cent_tag(geom,
+     ,             int_mb(i_array+junique-1),tag_in_lib))
      &           call errquit('bas_rtdb_do_load: geom_cen_tag',211)
               if (inp_compare(.true.,tag_to_add,tag_in_lib)
      &              .and. (inp_strlen(tag_to_add) .eq. 
@@ -1194,6 +1200,8 @@ c
            enddo
 00012   continue
         enddo
+        if (.not.MA_Free_Heap(l_array)) call
+     E       errquit(' basrtdbdoload: failed freeheap',0)
 c
 c We messed around with the memory. The basis set sould have room for 
 c two (2) extra variables, which are added below. Add them now.
