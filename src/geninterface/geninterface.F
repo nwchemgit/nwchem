@@ -1,5 +1,5 @@
 C
-C $Id: geninterface.F,v 1.5 2003-10-09 23:57:05 yuri Exp $
+C $Id: geninterface.F,v 1.6 2003-10-25 00:45:22 marat Exp $
 C
 C This is a first attempt at an interface code for Venus written in F77.
 C
@@ -113,7 +113,7 @@ C  Need to get the input file name and the rtdb_name taken care of
       ostartup = .true.
       ocontinue = .false.
       if (.not. rtdb_open(rtdb_name, 'empty', rtdb))
-     $     call errquit('initialize_qm: rtdb_open empty failed ', 555)
+     $     call errquit('initialize_qm: rtdb_open empty failed ', 555,0)
       call util_set_rtdb_state(rtdb,.true.,.false.,.false.)
       call util_file_info_rtdb(rtdb)
       call geom_hnd_parallel(.true.)
@@ -121,28 +121,28 @@ C  Need to get the input file name and the rtdb_name taken care of
 C  Process number of scf iterations
 
       if (.not. rtdb_put(rtdb, 'scf:maxiter', mt_int, 1, 200))
-     $     call errquit('scf-input: rtdb_put failed', 0)
+     $     call errquit('scf-input: rtdb_put failed', 0,0)
 
 C  Process number of dft iterations
 
       if (.not. rtdb_put(rtdb, 'dft:iterations',
      &     mt_int, 1, 200))
-     &     call errquit('dft_rdinput: rtdb_put failed', 101)
+     &     call errquit('dft_rdinput: rtdb_put failed', 101,0)
 
 C  Process theory type and put into rtdb
 
       if (.not. setTheory(theory))
-     $     call errquit('initialize_qm: setTheory failed', 555)
+     $     call errquit('initialize_qm: setTheory failed', 555,0)
 
 C  Process basis type and put into rtdb
 
       if (.not. setBasisSet(basis))
-     $     call errquit('initialize_qm: setBasisSet failed', 555)
+     $     call errquit('initialize_qm: setBasisSet failed', 555,0)
 
 C  Process charge and put into rtdb
 
       if (.not. setCharge(charge))
-     $     call errquit('initialize_qm: setCharge failed', 555)
+     $     call errquit('initialize_qm: setCharge failed', 555,0)
 
 C  Process molecule input and put into rtdb
 
@@ -171,7 +171,7 @@ C
 C  Close the rtdb
 
       if (.not. rtdb_close(rtdb, 'delete'))
-     $     call errquit('finalize_qm: rtdb_close failed', rtdb)
+     $     call errquit('finalize_qm: rtdb_close failed', rtdb,0)
 
 C  Close the global memory
 
@@ -210,7 +210,7 @@ C
      $     temp_basis(1:inp_strlen(temp_basis))
 
       if (.not. nw_inp_from_character(rtdb, basisSet))
-     $     call errquit('setBasisSet: setting rtdb failed', 555)
+     $     call errquit('setBasisSet: setting rtdb failed', 555,0)
 
       setBasisSet = .true.
 
@@ -229,7 +229,7 @@ C
       setTheory = .false.
 
       if (.not. rtdb_cput(rtdb, 'task:theory', 1, theoryName))
-     $     call errquit('setTheory: failed setting theory',555)
+     $     call errquit('setTheory: failed setting theory',555,0)
 
       setTheory = .true.
 
@@ -253,10 +253,10 @@ C
       setCoordinates = .false.
 
       if (.not.geom_create(geom,'geometry'))
-     $      call errquit('setCoordinates: geom_create failed',555)
+     $      call errquit('setCoordinates: geom_create failed',555,0)
 
       if (.not.geom_rtdb_load(rtdb, geom,'geometry'))
-     $      call errquit('setCoordinates: geom_rtdb_load failed',555)
+     $      call errquit('setCoordinates: geom_rtdb_load failed',555,0)
 
       if (.not. geom_set_user_units(geom,'angstroms'))
      $     call errquit
@@ -276,10 +276,10 @@ C
      $      ('setCoordinates: geom_cart_coords_set failed',555)
 
       if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
-     $      call errquit('setCoordinates: geom_rtdb_store failed',555)
+     $      call errquit('setCoordinates: geom_rtdb_store failed',555,0)
 
       if (.not.geom_destroy(geom))
-     $      call errquit('setCoordinates: geom_destroy failed',555)
+     $      call errquit('setCoordinates: geom_destroy failed',555,0)
 
       write(6,*) 'numatoms at end of setCoordinates', numatoms
       call flush(6)
@@ -309,7 +309,7 @@ C
       setInitCoordinates = .false.
 
       if (.not.geom_create(geom,'geometry'))
-     $      call errquit('setCoordinates: geom_create failed',555)
+     $      call errquit('setCoordinates: geom_create failed',555,0)
       if (.not. geom_set_user_units(geom,'angstroms'))
      $     call errquit
      $     ('setInitCoordinates: failed setting user units',0)
@@ -360,7 +360,7 @@ C  Map labels to atoms and charges
      $     ('setInitCoordinates: geom_rtdb_store failed',555)
 
       if (.not.geom_destroy(geom))
-     $     call errquit('setInitCoordinates: geom_destroy failed',555)
+     $     call errquit('setInitCoordinates: geom_destroy failed',555,0)
 
       setInitCoordinates = .true.
 
@@ -390,13 +390,13 @@ C
       call flush(6)
 
       if (.not.setCoordinates(coords))
-     $     call errquit('evaluateObjective: setCoordinates failed',555)
+     $     call errquit('evaluateObjective: setCoordinates failed',555,0)
 
       if (.not.task_energy(rtdb))
-     $     call errquit('evaluateObjective:task_energy failed',555)
+     $     call errquit('evaluateObjective:task_energy failed',555,0)
 
       if (.not.rtdb_get(rtdb, "task:energy", mt_dbl, 1, energy))
-     $     call errquit('evaluateObjective:rtdb_get failed',555)
+     $     call errquit('evaluateObjective:rtdb_get failed',555,0)
 
       evaluateObjective = .true.
 
@@ -428,19 +428,19 @@ C
       call ga_brdcst(MT_DBL, coords, mdtob(3*numatoms), 0)
 
       if (.not.setCoordinates(coords))
-     $     call errquit('evaluateGradient: setCoordinates failed',555)
+     $     call errquit('evaluateGradient: setCoordinates failed',555,0)
 
       if (.not.task_energy(rtdb))
-     $     call errquit('evaluateGradient:task_gradient failed',555)
+     $     call errquit('evaluateGradient:task_gradient failed',555,0)
       if (.not.task_gradient(rtdb))
-     $     call errquit('evaluateGradient:task_gradient failed',555)
+     $     call errquit('evaluateGradient:task_gradient failed',555,0)
 
 C      if (.not.rtdb_print(rtdb, .true.))
 C     $     call errquit('evaluateGradient:rtdb_print failed',555)
 C
       if (.not.rtdb_get(rtdb, "task:gradient", mt_dbl, numatoms*3, 
      $     gradient))
-     $     call errquit('evaluateGradient:rtdb_get failed',555)
+     $     call errquit('evaluateGradient:rtdb_get failed',555,0)
 
       evaluateGradient = .true.
 

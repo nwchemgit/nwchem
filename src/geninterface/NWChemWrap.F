@@ -72,7 +72,7 @@ C  Need to get the input file name and the rtdb_name taken care of
       call input_file_info(input_filename, rtdb_name,
      $                     ostartup, ocontinue)
       if (.not. rtdb_open(rtdb_name, 'empty', rtdb))
-     $     call errquit('initialize_qm: rtdb_open empty failed ', 555)
+     $     call errquit('initialize_qm: rtdb_open empty failed ', 555,0)
       call util_set_rtdb_state(rtdb,.true.,.false.,.false.)
       call util_file_info_rtdb(rtdb)
       call geom_hnd_parallel(.true.)
@@ -91,7 +91,7 @@ C  Need to get the input file name and the rtdb_name taken care of
 
 C  Close the rtdb
       if (.not. rtdb_close(rtdb, 'delete'))
-     $     call errquit('finalize_qm: rtdb_close failed', rtdb)
+     $     call errquit('finalize_qm: rtdb_close failed', rtdb,0)
 
 C  Close the global memory
       call ga_sync()
@@ -113,20 +113,20 @@ C  Close the parallel environment
       common /sidlinfo/ rtdb
 
       if (.not.geom_create(geom,'geometry'))
-     $      call errquit('setCoordinates: geom_create failed',555)
+     $      call errquit('setCoordinates: geom_create failed',555,0)
 
       if (.not.geom_rtdb_load(rtdb, geom,'geometry'))
-     $      call errquit('setCoordinates: geom_rtdb_load failed',555)
+     $      call errquit('setCoordinates: geom_rtdb_load failed',555,0)
 
       if (.not.geom_cart_coords_set(geom,coords))
      $      call errquit
      $      ('setCoordinates: geom_cart_coords_set failed',555)
 
       if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
-     $      call errquit('setCoordinates: geom_rtdb_store failed',555)
+     $      call errquit('setCoordinates: geom_rtdb_store failed',555,0)
 
       if (.not.geom_destroy(geom))
-     $      call errquit('setCoordinates: geom_destroy failed',555)
+     $      call errquit('setCoordinates: geom_destroy failed',555,0)
 
       return
       end
@@ -151,7 +151,7 @@ C  Close the parallel environment
      $      basisSet(1:inp_strlen(basisSet))
 
       if (.not. nw_inp_from_character(rtdb, temp_basis))
-     $ call errquit('setBasisSet: nw_inp_from_character failed',555)
+     $ call errquit('setBasisSet: nw_inp_from_character failed',555,0)
 
       return
       end
@@ -174,10 +174,10 @@ C  Close the parallel environment
       common /sidlinfo/ rtdb
 
       if (.not.task_energy(rtdb))
-     $     call errquit('NWChemMod:task_energy failed',555)
+     $     call errquit('NWChemMod:task_energy failed',555,0)
 
       if (.not.rtdb_get(rtdb, "task:energy", mt_dbl, 1, energy))
-     $     call errquit('NWChemMod:rtdb_get failed',555)
+     $     call errquit('NWChemMod:rtdb_get failed',555,0)
 
       return
       end
@@ -205,14 +205,14 @@ C  Close the parallel environment
       call NWChem_getNumCoordinates(ncent)
 
       if (.not.task_energy(rtdb))
-     $     call errquit('NWChemMod:task_energy failed',555)
+     $     call errquit('NWChemMod:task_energy failed',555,0)
 
       if (.not.task_gradient(rtdb))
-     $     call errquit('NWChemMod:task_gradient failed',555)
+     $     call errquit('NWChemMod:task_gradient failed',555,0)
 
       if (.not.rtdb_get(rtdb, "task:gradient", mt_dbl, ncent,
      $     gradient))
-     $     call errquit('NWChemMod:rtdb_get failed',555)
+     $     call errquit('NWChemMod:rtdb_get failed',555,0)
 
       return
       end
@@ -250,7 +250,7 @@ C  Close the parallel environment
       character*(30) theoryName
 
       if (.not. rtdb_cput(rtdb, 'task:theory', 1, theoryName))
-     $     call errquit('setTheory: failed setting theory',555)
+     $     call errquit('setTheory: failed setting theory',555,0)
 
       return
       end
@@ -265,17 +265,17 @@ C  Close the parallel environment
       common /sidlinfo/ rtdb
 
       if (.not.geom_create(geom,'geometry'))
-     $      call errquit('getCoordinates: geom_create failed',555)
+     $      call errquit('getCoordinates: geom_create failed',555,0)
 
       if (.not.geom_rtdb_load(rtdb, geom,'geometry'))
-     $      call errquit('getCoordinates: geom_rtdb_load failed',555)
+     $      call errquit('getCoordinates: geom_rtdb_load failed',555,0)
 
       if (.not.geom_cart_coords_get(geom,coords))
      $      call errquit
      $      ('getCoordinates: geom_cart_coords_get failed',555)
 
       if (.not.geom_destroy(geom))
-     $      call errquit('getCoordinates: geom_destroy failed',555)
+     $      call errquit('getCoordinates: geom_destroy failed',555,0)
 
       return
       end
@@ -290,17 +290,17 @@ C  Close the parallel environment
       common /sidlinfo/ rtdb
 
       if (.not.geom_create(geom,'geometry'))
-     $      call errquit('getNumCoordinates: geom_create failed',555)
+     $      call errquit('getNumCoordinates: geom_create failed',555,0)
 
       if (.not.geom_rtdb_load(rtdb, geom,'geometry'))
-     $      call errquit('getNumCoordinates: geom_rtdb_load failed',555)
+     $      call errquit('getNumCoordinates: geom_rtdb_load failed',555,0)
 
       if (.not.geom_ncent(geom,ncent))
      $      call errquit
      $      ('getNumCoordinates: geom_ncent failed',555)
 
       if (.not.geom_destroy(geom))
-     $      call errquit('getNumCoordinates: geom_destroy failed',555)
+     $      call errquit('getNumCoordinates: geom_destroy failed',555,0)
 
       ncent=ncent*3;
 
@@ -334,7 +334,7 @@ C      logical task_energy
 !     $     call errquit('NWChem_TaskHessian:task_energy failed',555)
 
       if (.not.task_hessian(rtdb))
-     $     call errquit('NWChem_TaskHessian:task_hessian failed',555)
+     $     call errquit('NWChem_TaskHessian:task_hessian failed',555,0)
 
       call hess_read(ncent/3,hessian)
 
