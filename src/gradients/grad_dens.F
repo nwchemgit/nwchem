@@ -2,7 +2,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c$Id: grad_dens.F,v 1.1 1995-11-07 20:00:03 vg038 Exp $
+c$Id: grad_dens.F,v 1.2 1995-11-07 20:01:33 vg038 Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -99,7 +99,6 @@ C       read in Lagrangian matrix ('eigenvalue matrix' in ROHF case)
         if (.not.status) then
           call errquit('grad_dens: could not read Lagrangian', 110)
         endif
-        call ga_print(g_eigen_diag)
 
 C       multiply to weighted density
         call ga_matmul_patch ('n','n', 2.D0, 0.D0,
@@ -110,7 +109,6 @@ C       multiply to weighted density
      $                         g_dens(1),    1, nbf,  1, nocc,
      $                         g_vecs,       1, nocc, 1, nbf,
      $                         g_wdens,      1, nbf,  1, nbf )
-        call ga_print(g_wdens)
 
 C       density matrices:
 C       g_dens(1): D(closed) + 1/2 D(open)
