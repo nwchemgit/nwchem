@@ -30,11 +30,13 @@ c
       logical  task_energy, task_gradient, task_optimize, task_freq
       logical  task_hessian
       logical  task_qmmm
+      logical task_version
 c
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       external nwargos, property, dplot, gapss, task_shell, moints_full
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian
+      external task_version
 c
       if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
@@ -78,6 +80,8 @@ c
             status = rjhtest(rtdb)
          else if (inp_compare(.false.,'raktest', theory)) then
             status = raktest(rtdb)
+         else if (inp_compare(.false.,'version', theory)) then
+            status = task_version(rtdb)
          else if (inp_compare(.false.,'atwtest', theory)) then
             status = atwtest(rtdb)
          else if (inp_compare(.false.,'rtdbprint', theory)) then
@@ -154,6 +158,12 @@ c
          endif
       endif
 c
+      end
+      logical function task_version(rtdb)
+      implicit none
+      integer rtdb
+      call util_version()
+      task_version = .true.
       end
       logical function task_shell(rtdb)
       implicit none
