@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_ion.F,v 1.1 2003-02-11 21:11:30 marat Exp $
+* $Id: paw_matrix_ion.F,v 1.2 2003-02-14 19:25:23 marat Exp $
 *
 
 !**************************************************
@@ -141,7 +141,7 @@
             tmp = def_integr(power_f,dbl_mb(i_f),power_r,r,
      >                       log_amesh,ic)
         
-            tmp = tmp*ion_charge
+            tmp = -tmp*ion_charge
             matrix(i,j) = tmp
             matrix(j,i) = tmp
           else
