@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.40 1996-09-27 16:13:36 d3g681 Exp $
+C$Id: scf.F,v 1.41 1996-10-10 20:32:04 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -162,6 +162,10 @@ c
 c     Initialize integral library, schwarz screening, cached 1-e integs
 c
       call int_init(rtdb,1, basis)
+c
+      if (util_print('allaoints',print_never)) ! Debug
+     $     call print_aoints(basis)
+c
       call schwarz_init(geom, basis)
       call int_1e_cache_ga(basis, oskel)
 c

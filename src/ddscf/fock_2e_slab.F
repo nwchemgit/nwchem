@@ -4,7 +4,7 @@
      $     eri, scr,
      $     neri)
 c
-c     $Id: fock_2e_slab.F,v 1.1 1995-12-13 01:25:00 d3g681 Exp $
+c     $Id: fock_2e_slab.F,v 1.2 1996-10-10 20:32:02 d3g681 Exp $
 c
 c     Given a shell block of integrals from nwints, 
 c     compress out the zeroes, constrain for canonical
@@ -56,6 +56,8 @@ c
                      jlab(neri) = j
                      klab(neri) = k
                      llab(neri) = l
+*                     write(6,1) i, j, k, l, g
+* 1                   format(4i5,f20.6)
                   endif
                enddo
             enddo

@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_nr_sol.F,v 1.6 1996-09-19 01:09:28 d3g681 Exp $
+C     $Id: rohf_nr_sol.F,v 1.7 1996-10-10 20:32:04 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -151,7 +151,7 @@ c     search so must ensure that we have sufficient precision in the
 c     energy so that the line search does not fail.  Also must allow for 
 c     quadratic convergence.
 c     
-               if (pflg .eq. 2) then
+               if (converged .or. pflg .eq. 2) then
                   tol2e = tol2e_save
                else
                   tol2e = tol2e*0.1d0

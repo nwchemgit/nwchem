@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.15 1996-10-08 18:49:08 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.16 1996-10-10 20:32:02 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -138,15 +138,19 @@ c
             call util_flush(6)
          endif
 c     
-*         open(66,file='/scratch1/ints',form='formatted',
-*     $        status='unknown')
+         if (util_print('debuginteg',print_never)) then
+            open(66,file='/scratch/ints',form='formatted',
+     $           status='unknown')
+         endif
          call fock_2e_rep( geom, basis, nfock, nbf, natom,
      $        jfac, kfac, tol2e_local, oskel,
      $        dbl_mb(k_dens), dbl_mb(k_fock), dbl_mb(k_rdens),
      $        int_mb(k_plist), dbl_mb(k_ps), maxquartet,
      $        dbl_mb(k_q4), int_mb(k_ijkl))
-*         close(66)
-*         call errquit('done',0)
+         if (util_print('debuginteg',print_never)) then
+            close(66)
+            call errquit('done',0)
+         endif
 c     
          if (util_print('screening statistics', print_debug)) then
             if ( .not. bas_numcont(basis, nsh) ) call errquit(
@@ -701,9 +705,11 @@ c
             endif
          end if
 c     
-*     call print_integ_list(neri,
-*     $     int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
-*     $     dbl_mb(k_eri))
+         if (util_print('debuginteg',print_never)) then
+            call print_integ_list(neri,
+     $           int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
+     $           dbl_mb(k_eri))
+         endif
 c     
          call fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e, neri,
      $        int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
