@@ -15,7 +15,7 @@ c                              tauU - uniform-gas KE density
      
 
 c
-c$Id: xc_ctpss03.F,v 1.4 2004-10-12 15:21:18 edo Exp $
+c$Id: xc_ctpss03.F,v 1.5 2004-10-15 17:31:19 pollack Exp $
 c
 
 c     References:
@@ -626,8 +626,8 @@ c  grz = dsqrt(sumz)/dens
          if(sumz.lt.tol_rho) then
              dgrzdna=0.d0
          else
-         dlongterdna=0.5d0*(sumz**(-.5d0))*
-     &      (dter1dna+dter2dna-dter3dna)
+         dlongterdna=0.5d0*(dter1dna+dter2dna-dter3dna)/
+     &               sumz**(.5d0)
          dgrzdna=(dlongterdna/dens)-
      &       (sumz**(.5d0))/dens**2
          end if
@@ -636,8 +636,8 @@ c  grz = dsqrt(sumz)/dens
           if(sumz.lt.tol_rho) then
              dgrzdnb=0.d0
           else
-         dlongterdnb=0.5d0*(sumz**(-.5d0))*
-     &      (dter1dnb+dter2dnb-dter3dnb)
+         dlongterdnb=0.5d0*(dter1dnb+dter2dnb-dter3dnb)/
+     &                (sumz**(.5d0))
          dgrzdnb=(dlongterdnb/dens)-
      &       (sumz**(.5d0))/dens**2
           end if
@@ -656,38 +656,38 @@ c let  szeta2 = (  DELz/(2.d0*(3Pi*Pi dens)^1/3)  )**2.d0
 c         szeta2 = (grz/(2.d0*fer))**2.d0
 
        if(dabs(1.d0-zeta).lt.tol_rho) then
-       dbaddna= -F43*szeta2*dzetadna*(1.d0+zeta)**(-F73) +
-     &         2.d0*(grz/(2.d0*fer))*dxidna*(1.d0+zeta)**(-F43)
+       dbaddna= -F43*szeta2*dzetadna/(1.d0+zeta)**(F73) +
+     &         2.d0*(grz/(2.d0*fer))*dxidna/(1.d0+zeta)**(F43)
   
-       dbaddnb= -F43*szeta2*dzetadnb*(1.d0+zeta)**(-F73) +
-     &         2.d0*(grz/(2.d0*fer))*dxidnb*(1.d0+zeta)**(-F43)
+       dbaddnb= -F43*szeta2*dzetadnb/(1.d0+zeta)**(F73) +
+     &         2.d0*(grz/(2.d0*fer))*dxidnb/(1.d0+zeta)**(F43)
 
 
        else if (dabs(1.d0+zeta).lt.tol_rho) then
-       dbaddna=  F43*szeta2*dzetadna*(1.d0-zeta)**(-F73)    
-     &  +      2.d0*(grz/(2.d0*fer))*dxidna*(1.d0-zeta)**(-F43)
+       dbaddna=  F43*szeta2*dzetadna/(1.d0-zeta)**(F73)    
+     &  +      2.d0*(grz/(2.d0*fer))*dxidna/(1.d0-zeta)**(F43)
 
-       dbaddnb=  F43*szeta2*dzetadnb*(1.d0-zeta)**(-F73)    
-     &  +      2.d0*(grz/(2.d0*fer))*dxidnb*(1.d0-zeta)**(-F43)
+       dbaddnb=  F43*szeta2*dzetadnb/(1.d0-zeta)**(F73)    
+     &  +      2.d0*(grz/(2.d0*fer))*dxidnb/(1.d0-zeta)**(F43)
 
         else
-       dbaddna= -F43*szeta2*dzetadna*(1.d0+zeta)**(-F73) +
-     &         2.d0*(grz/(2.d0*fer))*dxidna*(1.d0+zeta)**(-F43)
-     &  +        F43*szeta2*dzetadna*(1.d0-zeta)**(-F73)    
-     &  +      2.d0*(grz/(2.d0*fer))*dxidna*(1.d0-zeta)**(-F43)
+       dbaddna= -F43*szeta2*dzetadna/(1.d0+zeta)**(F73) +
+     &         2.d0*(grz/(2.d0*fer))*dxidna/(1.d0+zeta)**(F43)
+     &  +        F43*szeta2*dzetadna/(1.d0-zeta)**(F73)    
+     &  +      2.d0*(grz/(2.d0*fer))*dxidna/(1.d0-zeta)**(F43)
 
-       dbaddnb= -F43*szeta2*dzetadnb*(1.d0+zeta)**(-F73) +
-     &         2.d0*(grz/(2.d0*fer))*dxidnb*(1.d0+zeta)**(-F43)
-     &  +        F43*szeta2*dzetadnb*(1.d0-zeta)**(-F73)    
-     &  +      2.d0*(grz/(2.d0*fer))*dxidnb*(1.d0-zeta)**(-F43)
+       dbaddnb= -F43*szeta2*dzetadnb/(1.d0+zeta)**(F73) +
+     &         2.d0*(grz/(2.d0*fer))*dxidnb/(1.d0+zeta)**(F43)
+     &  +        F43*szeta2*dzetadnb/(1.d0-zeta)**(F73)    
+     &  +      2.d0*(grz/(2.d0*fer))*dxidnb/(1.d0-zeta)**(F43)
 
         endif
 
 
 c yyz = szeta2*(term1 + term2)/2.d0
 
-       ddennydna=-2.d0*dbaddna*(1.d0+yyz)**(-3)
-       ddennydnb=-2.d0*dbaddnb*(1.d0+yyz)**(-3)
+       ddennydna=-2.d0*dbaddna/(1.d0+yyz)**(3)
+       ddennydnb=-2.d0*dbaddnb/(1.d0+yyz)**(3)
 
 
        dCCCdna=CCC1*ddennydna+
@@ -717,7 +717,7 @@ c         fer = FACE*dens**THRD
           if(sumz.lt.tol_rho) then
               dgrzdgaa=0.d0
           else
-             dgrzdgaa =0.5d0*((sumz)**(-.5d0))*dter1dgaa/dens
+             dgrzdgaa =0.5d0*dter1dgaa/(dens*sumz**(0.5d0))
           end if
           dxidgaa  =dgrzdgaa/(2.d0*fer)
 
@@ -726,7 +726,7 @@ c         fer = FACE*dens**THRD
           if(sumz.lt.tol_rho) then
              dgrzdgbb=0.d0
           else
-          dgrzdgbb =0.5d0*((sumz)**(-.5d0))*dter1dgbb/dens
+          dgrzdgbb =0.5d0*dter1dgbb/(dens*sumz**(0.5d0))
           end if
           dxidgbb  =dgrzdgbb/(2.d0*fer)
   
@@ -735,7 +735,7 @@ c         fer = FACE*dens**THRD
           if(sumz.lt.tol_rho) then
              dgrzdgab=0.d0
           else
-          dgrzdgab=0.5d0*((sumz)**(-.5d0))*dter3dgab/dens
+          dgrzdgab=0.5d0*dter3dgab/(dens*sumz**(0.5d0))
           end if
           dxidgab = dgrzdgab/(2.d0*fer)
 
@@ -765,17 +765,17 @@ c         fer = FACE*dens**THRD
 
 c yyz = szeta2*(term1 + term2)/2.d0
 
-          ddennydgaa=-4.d0*dbaddgaa*(1.d0+yyz)**(-3)
+          ddennydgaa=-4.d0*dbaddgaa/(1.d0+yyz)**(3)
           dCCCdgaa = CCC1*ddennydgaa
           dtwt2dgaa = 2.d0*(tauw/tauN)/(8.d0*dens*tauN)
           deggadgaa = dneGGAdg(1)/dens
 
-          ddennydgbb=-4.d0*dbaddgbb*(1.d0+yyz)**(-3)
+          ddennydgbb=-4.d0*dbaddgbb/(1.d0+yyz)**(3)
           dCCCdgbb = CCC1*ddennydgbb
           dtwt2dgbb = dtwt2dgaa
           deggadgbb = dneGGAdg(3)/dens
 
-          ddennydgab=-4.d0*dbaddgab*(1.d0+yyz)**(-3)
+          ddennydgab=-4.d0*dbaddgab/(1.d0+yyz)**(3)
           dCCCdgab = CCC1*ddennydgab
           dtwt2dgab = 4.d0*(tauw/tauN)/(8.d0*dens*tauN)
           deggadgab = dneGGAdg(2)/dens
