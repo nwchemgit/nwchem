@@ -5,9 +5,9 @@
      $     oseg_lo,oseg_hi,irs_a,c_a,irs_b,c_b,
      $     eval_a,eval_b,toff_a,toff_b,nva,noa,nvb,nob,nir,
      $     ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
-     $     e2,task,tunita,tunitb,kunit)
+     $     e2,esing,etrip,task,tunita,tunitb,kunit)
 *
-* $Id: mp2_make_tuhf.F,v 1.15 2001-09-26 16:58:22 d3g681 Exp $
+* $Id: mp2_make_tuhf.F,v 1.16 2001-09-28 00:56:50 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -37,7 +37,7 @@ c
 c
       double precision c_a(nbf,nbf),c_b(nbf,nbf)
       integer i_batch
-      double precision e2,denom,t,minusone
+      double precision e2,esing,etrip,denom,t,minusone
       integer syma,symi,symb,symj,symia
       integer irs_a(*),irs_b(*),b,j
       integer indx_v(*)
@@ -226,13 +226,10 @@ c
       call ga_dgop(1,eaa,1,'+')
       call ga_dgop(1,eab,1,'+')
 c
-      if (ga_nodeid().eq.0 .and. 
-     $     util_print('information',print_default)) then
-         write(6,555) eaa, eab
- 555     format(//,'EAA = ',f20.10, ' EBB = ',f20.10,//)
-         call util_flush(6)
-      end if
       e2=e2-0.25d0*eaa-0.5d0*eab
+      esing = esing + (-4.0d0*eab + eaa)/4.0d0
+      etrip = etrip + (-3.0d0*eaa)/4.0d0
+c
       if(.not.ga_destroy(g_t_b))call errquit(
      $     'could not destroy t_b handle',1)
       if(.not.ga_destroy(g_t_a))call errquit(

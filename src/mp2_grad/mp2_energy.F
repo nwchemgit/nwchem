@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.50 2001-08-01 20:49:21 windus Exp $
+* $Id: mp2_energy.F,v 1.51 2001-09-28 00:56:50 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -52,6 +52,7 @@ c
       integer pass
       integer noa,nob,nva,nvb
       double precision tol2e,tol2e_fock,backtol,escf,e2,e_total,norm
+      double precision esing, etrip
       integer ga_create_atom_blocked
       logical otrace, omatrix, oskel, osym
       external ga_create_atom_blocked
@@ -336,6 +337,8 @@ c
 *      call testtwopdm(rtdb, g_vecs_a, noa, nmo, nbf)
 c     
       e2=0.0d0
+      esing = 0.0d0
+      etrip = 0.0d0
 c     
 c...  A note on notation: arrays for four index quantities of pure spin
 c...  denoted with a _a on the end. Mixed spin case with a _b. On first
@@ -431,7 +434,8 @@ c
      $     sym_lo_fob,sym_hi_fob,num_fob_sym,
 
      $     dbl_mb(k_eval_a),
-     $     dbl_mb(k_eval_b),basis,geom,tol2e,e2,nbf,nmo,task,
+     $     dbl_mb(k_eval_b),basis,geom,tol2e,e2,esing,etrip,
+     $     nbf,nmo,task,
      $     pass,oblk,oskel,osym,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,g_liy_a,g_liy_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
@@ -450,12 +454,15 @@ c
      $        sym_lo_foa,sym_hi_foa,num_foa_sym,
 
      $        dbl_mb(k_eval_b),
-     $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,nmo,task,
+     $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,esing,etrip,
+     $        nbf,nmo,task,
      $        pass,oblk,oskel,osym,
      $        g_p_ij_b,g_p_ij_a,g_p_ab_b,g_p_ab_a,g_liy_b,g_liy_a,
      $        g_w_ij_b,g_w_ij_a,g_w_ab_b,g_w_ab_a,
      $        g_w_ai_b,g_w_ai_a,g_lai_b,g_lai_a,
      $        dbl_mb(k_grad),scftype)
+         esing = 0.0d0
+         etrip = 0.0d0
       else
 c     
 c     For RHF basically just need to add the mixed and pure
@@ -489,10 +496,12 @@ c
      $     call errquit('could not get scf energy',1)
       e_total = escf + e2
       if (util_print('information',print_low).and.ga_nodeid().eq.0) then
-         write(6,999) escf, e2, e_total
+         write(6,999) escf, e2, esing, etrip, e_total
  999     format(//,10x,43('-'),
      $        /,10x,'SCF energy         ',f24.12,
      $        /,10x,'Correlation energy ',f24.12,
+     $        /,10x,'Singlet pairs      ',f24.12,
+     $        /,10x,'Triplet pairs      ',f24.12,
      $        /,10x,'Total MP2 energy   ',f24.12,
      $        /,10x,43('-'),/)
          call util_flush(6)
@@ -502,6 +511,12 @@ c
       if(.not. rtdb_put(rtdb,'mp2:correlation energy',mt_dbl,1,e2))
      $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
       if(.not. rtdb_put(rtdb,'mp2:energy',mt_dbl,1,e_total))
+     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
+      if(.not. rtdb_put(rtdb,'mp2:esing',mt_dbl,1,esing))
+     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
+      if(.not. rtdb_put(rtdb,'mp2:etrip',mt_dbl,1,etrip))
+     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
+      if(.not. rtdb_put(rtdb,'mp2:escf',mt_dbl,1,escf))
      $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
 c     
       if(task.eq.'gradient') then

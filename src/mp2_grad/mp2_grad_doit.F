@@ -7,14 +7,14 @@
      $     sym_lo_foa,sym_hi_foa,num_foa,
      $     sym_lo_fob,sym_hi_fob,num_fob,
 
-     $     eval_a,eval_b,basis,geom,tol2e,e2,nbf,nmo,
+     $     eval_a,eval_b,basis,geom,tol2e,e2,esing,etrip,nbf,nmo,
      $     task,passab,oblk,oskel,osym,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,g_liy_a,g_liy_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.40 1999-01-21 00:16:43 d3g681 Exp $
+* $Id: mp2_grad_doit.F,v 1.41 2001-09-28 00:56:50 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -65,7 +65,7 @@
 *     parameter(kunit=11)  ! it becomes output argument if EAF is used
       integer tunita,tunitb
       logical oprint_mem, oprint_where
-      double precision tol2e,e2
+      double precision tol2e,e2,esing,etrip
       double precision eval_a(*),eval_b(*)
       integer oseg_lo,oseg_hi, noa_frozen, nob_frozen
       character*8 task
@@ -274,7 +274,7 @@ c
      $        eval_a,eval_b,int_mb(k_toff_a),int_mb(k_toff_b),
      $        nva,noa,nvb,nob,nir,ioff,nnbf,
      $        int_mb(k_v),nva_lo_local,nva_hi_local,
-     $        e2,task,tunita,tunitb,kunit)
+     $        e2,esing,etrip,task,tunita,tunitb,kunit)
          call pstat_off(ps_maket)
 c     
          if (oprint_where) then
