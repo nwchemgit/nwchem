@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.80 2002-04-11 21:43:52 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.81 2002-04-17 19:27:04 d3j191 Exp $
 c
       implicit none
 c
@@ -1292,6 +1292,7 @@ c
       read(card(47:51),'(i5)') iropt
       read(card(52:56),'(i5)') irrand
       read(card(57:61),'(i5)') invert
+      if(invert.gt.0) nzrep=-iabs(nzrep)
       write(*,1019) nxrep,nyrep,nzrep
  1019 format(/,' Repeating ',3i5,/)
       if(.not.pre_repeat(card,lfnout,drep,box,
