@@ -1,5 +1,5 @@
 c
-c     $Id: pair_dist.F,v 1.4 2003-10-17 22:56:53 carlfahl Exp $
+c     $Id: pair_dist.F,v 1.5 2005-02-23 19:14:43 edo Exp $
 c
 *     *********************************
 *     *                               *
@@ -12,6 +12,7 @@ c
       character*(*) filename
 
 #include "mafdecls.fh"
+#include "stdio.fh"
 
 c     *** parameters ***
       real*8 DELR
@@ -48,9 +49,10 @@ c     *** parameters ***
 *     ***************************************
       if (taskid.eq.MASTER) then
 
-      write(*,*)
-      write(*,*) '===== Calculating pair distribution function ===='
-      write(*,*)
+      write(luout,*)
+      write(luout,*) 
+     =  '===== Calculating pair distribution function ===='
+      write(luout,*)
 
 *     *** get the number of frames from MOTION ***
       call MOTION_nframes(filename,nframes,natoms,volume)
@@ -105,16 +107,16 @@ c     *** parameters ***
       end do
       close(unit=19)
 
-      write(6,*) 
-      write(6,*) 'frames used:  ',nframes
-      write(6,*) 'natoms:       ',natoms
-      write(6,*) 'delr:         ',DELR
-      write(6,*) 'volume:       ',volume
-      write(6,*) 'maxbin:       ',MAXBIN
-      write(6,*) 'MOTION filename:     ',filename
-      write(6,*) 'g(r)   filename:     ',full_filename
-      write(6,*) 
-      call flush(6)
+      write(luout,*) 
+      write(luout,*) 'frames used:  ',nframes
+      write(luout,*) 'natoms:       ',natoms
+      write(luout,*) 'delr:         ',DELR
+      write(luout,*) 'volume:       ',volume
+      write(luout,*) 'maxbin:       ',MAXBIN
+      write(luout,*) 'MOTION filename:     ',filename
+      write(luout,*) 'g(r)   filename:     ',full_filename
+      write(luout,*) 
+      call util_flush(luout)
 
 *     ***** write out g(r) in PAIR_DISTRIBUTION ****
 c     open(unit=19,file='PAIR_DISTRIBUTION',form='formatted')
