@@ -1,6 +1,6 @@
       subroutine hnd_elfcon(basis,geom,g_dens,points,npt,elfval,nder)
 c
-c $Id: hnd_elfcon.F,v 1.1 2004-07-21 17:28:27 bert Exp $
+c $Id: hnd_elfcon.F,v 1.2 2004-07-22 16:55:25 bert Exp $
 c
 c     This routine calculates the electronic contribution of the
 c     electronic integral defined by nder for a given density at 
@@ -25,7 +25,7 @@ c
       integer npt      ! [input] number of coord points
       integer nder     ! [input] electronic integral type
       double precision points(3,npt) ! [input] coordinates for points
-      double precision elfval(max(nder*3,1),npt) ! [output] efg values for each coord
+      double precision elfval(*)     ! [output] efg values for each coord
 c
       integer ishell, jshell, ijshell, nshell, nbf_max, me, nproc
       integer ilo, ihi, jlo, jhi, idim, jdim, nint
