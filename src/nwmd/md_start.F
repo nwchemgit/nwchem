@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.132 2002-07-11 03:43:19 d3j191 Exp $
+c $Id: md_start.F,v 1.133 2002-07-17 14:25:20 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
      + tmprlx,tmsrlx,prsrlx,scaleq,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
-     + npener,icntrl,nbias,mropt,includ)
+     + npener,icntrl,nbias,mropt,includ,ltwin)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
@@ -1224,7 +1224,8 @@ c
       lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))
       lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
 c
-      ltwin=rlong.gt.rshort
+      lpme=ipme.gt.0
+      ltwin=rlong.gt.rshort.or.lpme
 c
       lpack=nopack.eq.0
       if(lqmd) lpack=.false.
@@ -1486,7 +1487,7 @@ c
      + ' Tolerance ',1pe12.5)
       endif
 c
-      if(rshort.le.rlong) then
+      if(.not.ltwin) then
       write(lfnout,1004) rshort
  1004 format(/,' Cutoff radius ',f12.6, ' nm')
       else
@@ -1577,7 +1578,7 @@ c
       if(ntype.ge.2) then
       write(lfnout,1019) nfpair
  1019 format(' Frequency update pair lists ',t55,i5)
-      if(rshort.lt.rlong) write(lfnout,1020) nflong
+      if(ltwin) write(lfnout,1020) nflong
  1020 format(' Frequency update long range forces ',t55,i5)
       write(lfnout,1017) nfslow
  1017 format(' Frequency removal overall motion ',t55,i5)

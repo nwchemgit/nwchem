@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.11 2001-12-10 15:42:34 d3j191 Exp $
+c $Id: cf_grid.F,v 1.12 2002-07-17 14:25:21 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -15,7 +15,7 @@ c
     1 continue
       a=two*a
       i=i+1
-      b=(erfc(a*rshrt))/rshrt
+      b=(erfc(a*rlong))/rlong
       if(b.ge.pmetol) goto 1
 c
       n=i+60
@@ -23,7 +23,7 @@ c
       ahigh=a
       do 2 i=1,n
       a=half*(alow+ahigh)
-      b=(erfc(a*rshrt))/rshrt
+      b=(erfc(a*rlong))/rlong
       if(b.ge.pmetol) then
       alow=a
       else

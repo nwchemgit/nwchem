@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.141 2002-07-11 04:01:36 d3j191 Exp $
+c $Id: md_main.F,v 1.142 2002-07-17 14:25:20 d3j191 Exp $
 c
       implicit none
 c
@@ -1879,7 +1879,7 @@ c
       endif
       call timer_stop(32)
 c
-      if(ipme.gt.0) then
+      if(lpme.and.llong) then
       if(lpert2) then
       call pme_energy(2,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
      + isl(1,lsct1),nsaloc,epme(2))
@@ -2095,8 +2095,8 @@ c
 c
     1 continue
 c
-      if(ipme.gt.0) then
-      call pme_forces(fw,nwmloc,fs,isl(1,lsct1),nsaloc)
+      if(lpme.and.llong) then
+      call pme_forces(fw(1,1,1,2),nwmloc,fs(1,1,2),isl(1,lsct1),nsaloc)
       endif
 c
       return
@@ -2472,7 +2472,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.141 2002-07-11 04:01:36 d3j191 Exp $
+c $Id: md_main.F,v 1.142 2002-07-17 14:25:20 d3j191 Exp $
 c
       implicit none
 c

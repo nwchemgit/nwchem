@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.84 2002-07-11 03:43:19 d3j191 Exp $
+c $Id: prp_main.F,v 1.85 2002-07-17 14:25:20 d3j191 Exp $
 c
       implicit none
 c
@@ -327,7 +327,7 @@ c
       call ga_dgop(mrg_d40,eww,mpe,'+')
       call ga_dgop(mrg_d41,esw,msf*mpe,'+')
       call ga_dgop(mrg_d42,ess,msf*msf*mpe,'+')
-      call ga_dgop(mrg_d43,epme,3,'+')
+cxxxxx      call ga_dgop(mrg_d43,epme,3,'+')
       if(npener.gt.0) call ga_dgop(mrg_d47,esa,2*nsa,'+')
       endif
 c

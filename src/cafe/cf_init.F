@@ -5,8 +5,8 @@
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
-     + mropti,incl)
-c $Id: cf_init.F,v 1.78 2002-06-17 18:04:01 d3j191 Exp $
+     + mropti,incl,ltwn)
+c $Id: cf_init.F,v 1.79 2002-07-17 14:25:21 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -25,7 +25,7 @@ c
       integer nodpme,ntyp,idset,ipset1,ipset2
       integer issscl,npenrg,nbiasi,mropti
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
-      logical logqmd,lpbc
+      logical logqmd,lpbc,ltwn
 c
       integer i,itemp(2)
       character*3 string
@@ -88,7 +88,7 @@ c
       rshrt2=rshrt*rshrt
       rlong2=rlong*rlong
       rqmmm2=rqmmm*rqmmm
-      ltwin=rlong.gt.rshrt
+      ltwin=ltwn
       lssscl=issscl.ne.0
 c
       nbxtyp=nbxt
@@ -125,7 +125,7 @@ c
       npww=1
       npsw=1
       npss=1
-      if(rlong.gt.rshrt) then
+      if(ltwin) then
       npww=2
       npsw=2
       npss=2
