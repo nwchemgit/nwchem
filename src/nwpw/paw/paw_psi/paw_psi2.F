@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.8 2004-11-29 16:05:20 bylaska Exp $
+* $Id: paw_psi2.F,v 1.9 2005-02-02 06:59:40 bylaska Exp $
 *
 
 
@@ -2717,6 +2717,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       external paw_psi_CheckOrtho
 
 
+      call Parallel_taskid(taskid)
+
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne(ispin,ne)
       call D3dB_nfft3d(1,nfft3d)
@@ -2766,7 +2768,6 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
         hnfft(1) = control_ngrid(1)
         hnfft(2) = control_ngrid(2)
         hnfft(3) = control_ngrid(3)
-        call Parallel_taskid(taskid)
 
         call ga_sync()
         value = rtdb_parallel(.false.)
@@ -2830,17 +2831,15 @@ c     >                      dcpl_mb(psi2(1)))
      >                   dcpl_mb(psi1(1)+(ms-1)*ne(1)*npack1))
           if (taskid.eq.MASTER) then
             if (ms.eq.1) then
-              write(*,*) "Warning: ",
-     >                   "Gram-Schmidt performed on up spin of psi1 "
-              write(*,*) "       : (old error=",sum1,
-     >                   " new error=",sum2,")"
+              write(*,24) sum1,sum2
             end if
             if (ms.eq.2) then
-              write(*,*) "Warning: ",
-     >                   "Gram-Schmidt performed on down spin of psi1 "
-              write(*,*) "       : (old error=",sum1,
-     >                   " new error=",sum2,")"
+              write(*,25) sum1,sum2
             end if
+  24  format('Gram-Schmidt performed on up spin  : (old error=',
+     >        E10.3,' new error=',E10.3,')' )
+  25  format('Gram-Schmidt performed on down spin: (old error=',
+     >        E10.3,' new error=',E10.3,')' )
 
           end if
         end if

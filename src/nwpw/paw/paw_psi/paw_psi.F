@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.10 2004-08-12 18:39:41 bylaska Exp $
+* $Id: paw_psi.F,v 1.11 2005-02-02 06:59:40 bylaska Exp $
 *
 
 
@@ -45,12 +45,11 @@
 *   This routine return true if the orbitals are
 * orthonormal.
 
-      function paw_psi_CheckOrtho(npack,ne,psi)
+      real*8 function paw_psi_CheckOrtho(npack,ne,psi)
       implicit none
       integer npack,ne
       double complex psi(npack,ne)
 
-      real*8 paw_psi_CheckOrtho  !** RESULT **
 
 *     **** local variables ****
       integer j,k
