@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.11 2003-02-10 02:34:44 marat Exp $
+* $Id: paw_comp_charge.F,v 1.12 2003-02-11 01:41:23 edo Exp $
 *
 
 
@@ -55,7 +55,7 @@
         dbl_mb(q00(1)+ia-1)=q00_tmp
       end do
 
-      end subroutine
+      end
 
       subroutine paw_comp_charge_update()
         implicit none

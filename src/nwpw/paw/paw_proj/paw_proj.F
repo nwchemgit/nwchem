@@ -1,7 +1,11 @@
 *
-* $Id: paw_proj.F,v 1.23 2003-02-09 21:27:07 marat Exp $
+* $Id: paw_proj.F,v 1.24 2003-02-11 01:41:24 edo Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.23  2003/02/09 21:27:07  marat
+* commented out some of the write statements
+* MV
+*
 * Revision 1.22  2003/02/06 06:13:09  marat
 * moved legendre and spher. harm. stuff to paw_special_functions dir
 *
@@ -762,7 +766,7 @@ c           pause
       subroutine paw_proj_weghts_set()
 
       return
-      end subroutine
+      end 
 !**************************************************
 !
 !	Name: paw_proj_end

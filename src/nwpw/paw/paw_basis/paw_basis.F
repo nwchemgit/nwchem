@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.15 2003-02-08 03:38:12 bylaska Exp $
+* $Id: paw_basis.F,v 1.16 2003-02-11 01:41:21 edo Exp $
 *
 
 !**************************************************
@@ -135,7 +135,7 @@ c     !*** set core charges ***
 #include "stdio.fh"
       integer          ng
       integer          nb
-      character(*)     filename
+      character*(*)     filename
 
 *     !*** local variables ***
       integer     fp

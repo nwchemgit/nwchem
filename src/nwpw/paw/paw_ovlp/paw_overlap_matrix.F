@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.1 2003-02-10 23:08:29 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.2 2003-02-11 01:41:23 edo Exp $
 c
 
 !**************************************************
@@ -161,7 +161,7 @@ c
          l = orb_l(i)
          power_f = 2*orb_l(i)+2
          do j=1,i
-           if(orb_l(i)==orb_l(j)) then
+           if(orb_l(i).eq.orb_l(j)) then
 
              do ii=1,ic
              dbl_mb(i_f+ii-1) =  phi_ae(ii,i)*phi_ae(ii,j) 

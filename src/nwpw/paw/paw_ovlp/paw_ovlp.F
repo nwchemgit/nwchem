@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.24 2003-02-10 23:24:44 marat Exp $
+* $Id: paw_ovlp.F,v 1.25 2003-02-11 01:41:24 edo Exp $
 *
 
 !**************************************************
@@ -64,7 +64,7 @@ c     !*** calculate the size for diagonal weight coefficients  ***
             do j=1,nbasis
               lj = paw_basis_orb_l(j,ia)
                 do mj=-lj,lj
-                if (mi==mj) paw_ovlp_w_d_size = paw_ovlp_w_d_size + 1
+                if (mi.eq.mj) paw_ovlp_w_d_size = paw_ovlp_w_d_size + 1
                 end do
              end do
            end do   
@@ -349,7 +349,7 @@ c     *** calculate diagonal weights mi=mj***
             do j=1,nbasis
               lj = paw_basis_orb_l(j,ia)
                 do mj=-lj,lj
-                if(mi==mj) then
+                if(mi.eq.mj) then
                   dcpl_mb(paw_ovlp_w_d(1)+ii1)= 
      >            dcpl_mb(paw_ovlp_w(1)+ii)
                   ii1 = ii1 + 1

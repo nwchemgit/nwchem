@@ -1,5 +1,5 @@
 c
-c $Id: paw_matrix_kin.F,v 1.1 2003-02-11 00:48:17 marat Exp $
+c $Id: paw_matrix_kin.F,v 1.2 2003-02-11 01:41:23 edo Exp $
 c
 
 !**************************************************
@@ -147,7 +147,7 @@ c
         l = orb_l(i)
         power_f = 2*orb_l(i)
         do j=1,i
-          if(orb_l(i)==orb_l(j)) then
+          if(orb_l(i).eq.orb_l(j)) then
 
             do ii =1,ic
             dbl_mb(i_f+ii-1) =  

@@ -1,7 +1,10 @@
 c
-c $Id: paw_gaunt.F,v 1.2 2003-02-10 02:36:26 marat Exp $
+c $Id: paw_gaunt.F,v 1.3 2003-02-11 01:41:23 edo Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.2  2003/02/10 02:36:26  marat
+c ...
+c
 c Revision 1.1  2003/02/06 06:04:37  marat
 c Initial Revision
 c
@@ -13,7 +16,7 @@ c
       paw_gaunt_lmax = 4
       
       return
-      end subroutine
+      end
       function gen_gaunt_coeff (l1, m1, l2, m2, l3, m3)
 
       implicit none

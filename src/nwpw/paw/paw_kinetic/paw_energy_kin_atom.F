@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_kin_atom.F,v 1.1 2003-02-11 00:48:17 marat Exp $
+* $Id: paw_energy_kin_atom.F,v 1.2 2003-02-11 01:41:23 edo Exp $
 *
 
 
@@ -41,7 +41,7 @@
               lj = paw_basis_orb_l(j,ia)
                 do mj=-lj,lj
                 i_mtr = i_mtr0 +i+(j-1)*nb
-                if(mi==mj) then
+                if(mi.eq.mj) then
                   ekin = ekin + dcpl_mb(paw_ovlp_w(1)+i_w)*
      >                          dbl_mb(paw_kin_matrix(1) + i_mtr - 1) 
                 end if
@@ -54,6 +54,6 @@
  
       paw_energy_kin_atom = ekin
 
-      end function
+      end
 
  
