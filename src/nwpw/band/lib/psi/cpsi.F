@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.7 2002-01-07 03:04:58 bylaska Exp $
+* $Id: cpsi.F,v 1.8 2002-01-15 17:27:20 edo Exp $
 *
 
 
@@ -235,7 +235,7 @@
       real*8   c_electron_psi_vl_ave
       external c_electron_psi_vl_ave
  
-      cpsi_1vl = c_electron_psi_vl_ave(dcpl_mb(psi1(1)),dbl_mb(rho1(1)))
+      cpsi_1vl = c_electron_psi_vl_ave(dcpl_mb(psi1(1)))
 
       return
       end
@@ -535,7 +535,6 @@
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-      real*8 sum
 *     **** external functions ****
       real*8   c_electron_eorbit
       external c_electron_eorbit

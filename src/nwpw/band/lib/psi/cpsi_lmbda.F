@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_lmbda.F,v 1.2 2001-12-17 23:31:12 bylaska Exp $
+* $Id: cpsi_lmbda.F,v 1.3 2002-01-15 17:27:20 edo Exp $
 *
 
       subroutine cpsi_lmbda(ispin,ne,nfft3d,neall,nbrill,n,
@@ -175,6 +175,7 @@ c     >                  psi1,psi2,q11)
      >                tmp(st1),1)
 
           iadiff = st1 - 1 + izamax(n*ne(ms),tmp(st1),1)
+cedo          write(0,*) 8*nn,iadiff,'tmp iad ',tmp(iadiff)
           adiff=  dble(tmp(iadiff))**2
      >         + dimag(tmp(iadiff))**2
 
