@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.217 2002-01-08 18:38:42 d3k958 Exp $
+c     $Id: dft_scf.F,v 1.218 2002-01-15 22:29:36 d3k958 Exp $
 c     
       implicit none
 c
@@ -931,7 +931,7 @@ c     If open shell compute overlap of alpha orbitals with beta
 c     orbitals.
 c     
       if ((ipol.gt.1).and.(oprint_interm_overlap)) then
-         call dft_mxspin_ovlp(rtdb, ao_bas_han, noc, g_movecs(1), 
+         call dft_mxspin_ovlp(ao_bas_han, noc, g_movecs(1), 
      &       g_movecs(2),g_tmp)
       endif
 c     
@@ -1191,7 +1191,7 @@ c
 c     If open shell compute overlap of alpha orbitals with beta orbitals.
 c     
       if (ipol.gt.1 .and. util_print('final overlap',print_default))then
-         call dft_mxspin_ovlp(rtdb, ao_bas_han, noc, g_movecs(1), 
+         call dft_mxspin_ovlp(ao_bas_han, noc, g_movecs(1), 
      &        g_movecs(2),g_tmp)
       endif
 c

@@ -1,6 +1,6 @@
-      Subroutine dft_mxspin_ovlp(rtdb,basis,noc,g_alpha,g_beta,g_tmp)
+      Subroutine dft_mxspin_ovlp(basis,noc,g_alpha,g_beta,g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.12 2002-01-08 18:38:42 d3k958 Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.13 2002-01-15 22:29:36 d3k958 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -16,13 +16,10 @@ C$Id: dft_mxspin_ovlp.F,v 1.12 2002-01-08 18:38:42 d3k958 Exp $
 #include "msgids.fh"
 #include "stdio.fh"
 #include "util.fh"   
-#include "rtdb.fh"   
 c
 c     local
 c
-      logical oprint
-c
-      integer me,nproc, rtdb
+      integer me,nproc
 c
       integer i,j,jbig,n,ichunks,nbe,nend
       integer k_tmpr1, l_tmpr1, k_tmpr2, l_tmpr2, k_tmpi1, l_tmpi1
@@ -103,11 +100,9 @@ c
 c
 c
 c -------------------------------------------------------------
-c If the number of occupied alpha orbitals is greater than the
-c number of occupied beta orbitals, print some useful information
-c about the un-paired alpha orbitals:
+c Print some useful information
+c about the un-paired alpha orbitals.
 c
-      if (noc(1).gt.noc(2)) then
 c
 c Find alpha orbital which best overlaps with each beta
 c orbital, then the remaining alpha orbitals are the un-partnered
@@ -143,8 +138,8 @@ c
           nbe = 10*(i-1) + 1
           nend = nbe + 9
           if(nend.gt.noc(2))nend = noc(2)
-          write(LuOut,9997)(n,n=nbe,nend)
-          write(LuOut,9998)(int_mb(k_part+n-1),n=nbe,nend) 
+          write(LuOut,9997)(int_mb(k_part+n-1),n=nbe,nend) 
+          write(LuOut,9998)(n,n=nbe,nend)
         enddo
         write(6,*)
       endif
@@ -152,31 +147,33 @@ c
 c determine which alpha orbitals are left over:
 c
       call ga_sync()
-      if(.not.MA_Push_Get(MT_int,noc(1)-noc(2),'non',l_non, k_non))
+      if(.not.MA_Push_Get(MT_int,noc(1),'non',l_non, k_non))
      &    call errquit('dft_mxspin_ovlp: cannot allocate values',0)
 c
       nct=1
       do 160 i = 1,noc(1)
       do 150 j = 1,noc(2)
         if(int_mb(k_part+j-1).EQ.i) goto 160
-          if(nct.le.noc(1)-noc(2)) then
+c          if(nct.le.noc(1)-noc(2)) then
             int_mb(k_non+nct-1) = i
-          endif 
+c          endif 
   150 continue    
         nct = nct + 1
   160 continue
 c
+      nct=nct-1
+c
       if(me.eq.0) then
-      if (nct.GT.1) then
-         write(6,9995) (int_mb(k_non+n-1),n=1,nct-1)
+      if (nct.Ge.1) then
+         write(6,9995) nct, (int_mb(k_non+n-1),n=1,nct)
       endif 
       endif
 c
- 9995 format(/,1X,'UN-PARTNERED ALPHA ORBITALS :',20I4)  
+ 9995 format(/,1X,'THERE ARE ',i3,' UN-PARTNERED ALPHA ORBITALS :',20I4)  
 c
 c print the un-partnered alpha orbitals
 c
-      nct=nct-1
+      if (nct.GE.1) then  !only do the rest if there are un-partnered orbitals
 c
       call ga_sync()
 c
@@ -203,13 +200,9 @@ c with partners, the overlap is very nearly 1.0. For
 c un-partnered orbitals, the overlap is zero.
 c See J. Chem. Phys. (1967) 47, 1936.
 c
-      call util_print_push
-      call util_print_rtdb_load(rtdb,'dft')
-      oprint = util_print('svd vectors', print_high)
 c
 c if the SVD vectors and overlap aren't desired in the output,
 c don't bother calculating them.
-      if (oprint) then
 c
 c calculate Sab*SabT
 c 
@@ -299,6 +292,7 @@ c
         endif
       enddo
 c
+c
 c      write(6,*) 'paired/unpaired alpha orbitals'
 c      write(6,*) (int_mb(k_unp+i-1),i=1,noc(1))
 c
@@ -322,12 +316,24 @@ c associate SVD transformed alpha orbitals with the original
 c alpha orbitals:
 c
       if(me.eq.0) then
-      if (nalp.GT.1) then
-        write(6,9990) nalp
-      endif 
+      write(6,9989)'=================================================='
+      write(6,9989)'  Performing Singular Value Decomposition (SVD)   '
+      write(6,9989)'to diagonalize and maximize the alpha/beta overlap'
+      write(6,9989)'       See J. Chem. Phys. (1967) 47, 1936.        '
+      write(6,9989)
+      write(6,9989)'NOTE: The vector numbering of the SVD transformed '
+      write(6,9989)'orbitals is different from the original orbitals. '
+      write(6,9989)'=================================================='
+      write(6,9989)
       endif
+ 9989 format(13x,a51)
 c
- 9990 format(/,18x,'THERE ARE',i3,1x,'UN-PARTNERED ALPHA ORBITALS')
+c      if(me.eq.0) then
+c      if (nalp.GT.1) then
+c        write(6,9990) nalp
+c      endif 
+c      endif
+c 9990 format(/,18x,'THERE ARE',i3,1x,'UN-PARTNERED ALPHA ORBITALS')
 c
        call movecs_print_anal(basis, 1, nalp, 0.15d0, g_ualpha,
      &'Alpha Orbitals without Beta Partners (after maximizing alpha/beta
@@ -352,8 +358,8 @@ c
         write(6,*)
       endif
 c
- 9994 format(/,1x,'  MAXIMIZED alpha - beta orbital overlaps ',/,
-     &         1x,'  --------------------------------------- ',/)
+ 9994 format(/,1x,'  SVD maximized alpha - beta orbital overlaps ',/,
+     &         1x,'  ------------------------------------------- ',/)
 c
 c
       if (.not. ga_destroy(g_ualpha)) call errquit
@@ -368,18 +374,13 @@ c
       if(.not.MA_Pop_Stack(l_vals))
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
 c
-c
-      call util_print_pop
-      endif !oprint
+      endif !if na>nb
 c
       if(.not.MA_Pop_Stack(l_non))
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
-c  
+c
       if(.not.MA_Pop_Stack(l_part))
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
-c
-c
-      endif !if na>nb
 c
 c---------------------------------------------------------------
       if (.not. ga_destroy(g_s)) call errquit
