@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.43 2002-01-08 19:29:03 windus Exp $
+C $Id: hess_cphf.F,v 1.44 2002-01-09 00:54:46 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -730,8 +730,8 @@ c
 c
       integer ndens, n3xyz, rtdb, geom, basis, num
       integer g_rhs_x, g_vecs(ndens), g_tmp
-      integer ind, ndns, in
-      integer l_jfac, k_jfac, l_kfac, k_kfac
+      integer ind, ndns, in, ndensity, nfock
+      integer l_jfac, k_jfac, l_kfac, k_kfac, nfacs
       double precision tol2e, jfac(ndens), kfac(ndens)
       double precision multfac
       logical ocphfprint
@@ -743,11 +743,13 @@ c be dependent on the jfac and kfac in hess_info.fh.
 c
 c     call ga_maxelt(g_rhs_x,dmax)
 c     if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
-      if (.not. ma_push_get(MT_DBL, ndens*n3xyz,'j factors',
+      nfacs = ndens*n3xyz
+      if (ndens.eq.2) nfacs = nfacs*2
+      if (.not. ma_push_get(MT_DBL, nfacs,'j factors',
      $     l_jfac, k_jfac))
      $     call errquit
      $     ('hess_modfock: could not allocate l_jfac',ndens*n3xyz)
-      if (.not. ma_push_get(MT_DBL, ndens*n3xyz,'k factors',
+      if (.not. ma_push_get(MT_DBL, nfacs,'k factors',
      $     l_kfac, k_kfac))
      $     call errquit
      $     ('hess_modfock: could not allocate l_kfac',ndens*n3xyz)
@@ -770,7 +772,6 @@ c         dbl_mb(k_kfac+ind) =  0.0d+00*kfac(ndns)
 
       if (ocphfprint) then
         if(ga_nodeid().eq.0) then
-c         write(LuOut,*) 'nfock ',nfock
           write(LuOut,*) 'density like matrix before fock_2e'
         endif
         call ga_print(g_tmp)
@@ -789,11 +790,19 @@ c
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
      $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0)
 c
-c     call shell_fock_build(basis,0,ndens,jfac,kfac,tol2e,
-c    &            g_tmp,g_rhs_x)
-      call shell_fock_build(geom,basis,0,ndens*n3xyz,dbl_mb(k_jfac),
+      ndensity = ndens*n3xyz
+      nfock = ndensity
+      if (ndens.gt.1) call uhf_fock_setup(g_tmp, g_rhs_x,
+     &            dbl_mb(k_jfac), dbl_mb(k_kfac), ndensity,
+     &            nfock, num, ocphfprint)
+c
+      call shell_fock_build(geom,basis,0,ndensity,dbl_mb(k_jfac),
      &            dbl_mb(k_kfac),tol2e,
      &            g_tmp,g_rhs_x,.true.)
+c
+      if (ndens.gt.1) call  uhf_fock_finish(g_tmp, g_rhs_x,
+     &            dbl_mb(k_jfac), dbl_mb(k_kfac), ndensity,
+     &            nfock, num, ocphfprint)
 c
       call ga_dscal(g_rhs_x, multfac)
 c

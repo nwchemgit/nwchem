@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.31 2002-01-05 01:25:42 edo Exp $
+C $Id: twodd_cont.F,v 1.32 2002-01-09 00:54:47 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -50,6 +50,7 @@ c
       integer l_shbflo, l_shbfhi
       integer k_shbflo, k_shbfhi
       integer g_dens2
+      integer nfock
       integer dims(3), chunk(3), alo(3), ahi(3), blo(2), bhi(2)
 c
 c dummy variable needed for grad2 call, but not used here
@@ -221,8 +222,13 @@ c
         call nga_copy_patch('N',g_dens(i),blo,bhi,g_dens2,alo,ahi)
       enddo
 c
+      nfock = ndens*n3xyz
+      if (scftype .eq. 'UHF') call uhf_fock_setup(g_dens2,g_rhs,
+     *   jfac,kfac,ndens,nfock,nbf,otwoprint)
       call shell_fock_build (geom,basis, 1, ndens, jfac, kfac,
      *   tol2e, g_dens2, g_rhs,.true.)
+      if (scftype .eq. 'UHF') call uhf_fock_finish(g_dens2,g_rhs,
+     *   jfac,kfac,ndens,nfock,nbf,otwoprint)
 c will eventually bring back - log_mb(k_act))
 c
 c Get rid of temporary memory

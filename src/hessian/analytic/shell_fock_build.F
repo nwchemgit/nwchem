@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.19 2002-01-08 20:49:57 edo Exp $
+c $Id: shell_fock_build.F,v 1.20 2002-01-09 00:54:47 windus Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -45,8 +45,6 @@ c
       logical xc_gotxc
       external ga_create_atom_blocked,xc_gotxc
 c
-c     write(6,*) 'inside of shell_fock_build',kfac(1)
-c
 c Quietly modify the values of jfac and kfac so that the original
 c values coming in can be consistent with the original fock_2e
 c
@@ -57,11 +55,7 @@ c
 c
 c Get the dimensions of g_fock and eventually g_dens.
 c
-      write(6,*) 'before the inquire in shell_fock_build'
-      call flush(6)
       call nga_inquire(g_fock, ityp, ndim, dims)
-      write(6,*) 'after the inquire in shell_fock_build'
-      call flush(6)
       nfock = dims(1)
 c
       if (.not. bas_numbf(basis,nbf))
@@ -150,10 +144,6 @@ c
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
      $     call errquit('new_fock:could not allocate q4',maxq)
 c
-c     do j = 1, ndens
-c        call ga_reorder(g_dens(j), .true., int_mb(k_rbfmap),
-c    $        .true., int_mb(k_rbfmap))
-c     enddo
       call nga_reorder(g_dens, .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
       call nga_reorder(g_fock, .true., int_mb(k_rbfmap),
@@ -176,10 +166,6 @@ c
 c     $     oactive,
      $     jfac, kfac)
 c
-c     do j = 1, ndens
-c        call ga_reorder(g_dens(j), .true., int_mb(k_bfmap),
-c    $        .true., int_mb(k_bfmap))
-c     enddo
       call nga_reorder(g_dens, .true., int_mb(k_bfmap),
      $     .true., int_mb(k_bfmap))
       call nga_reorder(g_fock, .true., int_mb(k_bfmap),
@@ -201,8 +187,10 @@ c
          call xc_newfock(geom,basis,jfac,kfac,nbf,
      %        nder, ndens, nfock, g_fock,g_dens)
       endif
-       if (osym) call nga_symmetrize(g_fock)
 c
+      if (osym) call nga_symmetrize(g_fock)
+c
+      return
       end
 c
       subroutine newfock(
@@ -298,7 +286,7 @@ c
       task_size = nshblocks*(nshblocks+1)/2
       task_size = task_size*(task_size+1)/2
       task_size = max(1,task_size/(20*nproc))
-      write(6,*) 'nshblocks and task_size ',nshblocks,task_size
+c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
 c     
 c     Parallel loop over quartets of reordered shell blocks
 c     
@@ -336,18 +324,8 @@ c     Get blocks of the one-particle densities
 c     
                      call new_get_dens_block(g_dens, ndens, blen, 
      $                    ibflo, ibfhi, jbflo, jbfhi, d_ij, jfac)
-c                    write(6,*) 'alpha density'
-c                    do id = 1, 1+ ibfhi -ibflo
-c                      do jd = 1, 1+ jbfhi -jbflo
-c                        write(6,*) id,jd,d_ij(id,jd,1)
-c                      enddo
-c                    enddo
-c                    write(6,*) 'beta density'
-c                    do id = 1, 1+ ibfhi -ibflo
-c                      do jd = 1, 1+ jbfhi -jbflo
-c                        write(6,*) id,jd,d_ij(id,jd,2)
-c                      enddo
-c                    enddo
+c                    call print_dens_bit(d_ij, ndens, ibflo, ibfhi,
+c    $                    jbflo, jbfhi, blen)
                      call new_get_dens_block(g_dens, ndens, blen, 
      $                    kbflo, kbfhi, lbflo, lbfhi, d_kl, jfac)
                      call new_get_dens_block(g_dens, ndens, blen, 
@@ -516,18 +494,6 @@ c
 c                                      
                      call new_acc_fock_block(g_fock, nfock, 
      $                 blen, ibflo, ibfhi, jbflo, jbfhi, f_ij)
-c                    write(6,*) 'alpha fock'
-c                    do id = 1, 1+ ibfhi -ibflo
-c                      do jd = 1, 1+ jbfhi -jbflo
-c                        write(6,*) id,jd,f_ij(id,jd,1,1)
-c                      enddo
-c                    enddo
-c                    write(6,*) 'beta fock'
-c                    do id = 1, 1+ ibfhi -ibflo
-c                      do jd = 1, 1+ jbfhi -jbflo
-c                        write(6,*) id,jd,f_ij(id,jd,2,1)
-c                      enddo
-c                    enddo
                      call new_acc_fock_block(g_fock, nfock, 
      $                 blen, kbflo, kbfhi, lbflo, lbfhi, f_kl)
                      call new_acc_fock_block(g_fock, nfock, 
@@ -538,10 +504,7 @@ c                    enddo
      $                 blen, ibflo, ibfhi, lbflo, lbfhi, f_il)
                      call new_acc_fock_block(g_fock, nfock, 
      $                 blen, jbflo, jbfhi, kbflo, kbfhi, f_jk)
-c                    if (.not. ma_verify_allocator_stuff())
-c    $                    call errquit(' ',0)
-c                                         
-c                    call ga_print(g_fock)
+c
                      next = nxtask(nproc,task_size)
                   end if
 c     
@@ -561,7 +524,7 @@ c
 c     
       return
       end
-
+c
       subroutine new_get_dens_block(
      $     g_dens, ndens, blen, ibflo, ibfhi, jbflo, jbfhi, buf, fac)
       implicit none
@@ -583,13 +546,35 @@ c
       ld(1) = ndens
       ld(2) = blen
       call nga_get(g_dens, lo, hi, buf, ld) 
-      do idens = 1, ndens
-c        call ga_get(g_dens(idens),ibflo,ibfhi,jbflo,jbfhi,
-c    *     buf((idens-1)*blen2+1),blen)
-         call dscal(blen2, fac(idens), buf((idens-1)*blen2+1), 1)
-      end do
 c
+      call scale_dens_block(buf,ndens,blen,ibflo,ibfhi,
+     *   jbflo,jbfhi,fac)
+c
+      return
       end
+c
+      subroutine scale_dens_block(buf,ndens,blen,ibflo,ibfhi,
+     *   jbflo,jbfhi,fac)
+      implicit none
+c
+      integer ndens, blen, ibflo, ibfhi, jbflo, jbfhi
+      double precision buf(ndens,blen,blen), fac(ndens)
+c
+      integer idens, i, j
+      double precision factor
+c
+      do idens = 1, ndens
+        factor = fac(idens)
+        do i = 1, ibfhi-ibflo+1
+          do j = 1, jbfhi-jbflo+1
+            buf(idens,i,j) = buf(idens,i,j) * factor
+          enddo
+        enddo
+      enddo
+c
+      return
+      end
+c
       subroutine new_acc_fock_block(
      $   g_fock, nfock, blen, ibflo, ibfhi, jbflo, jbfhi, buf)
       implicit none
@@ -702,8 +687,6 @@ c
       integer atoms(4),nfockder,xyz
       double precision g
 c
-c     write(6,*) 'inside new_fock_doit_der'
-c     write(6,*) 'ndens, nfock ',ndens,nfock
       nbuf = 1
       do integ = 1, nint
 c        if (abs(g) .gt. tol2e) then
@@ -711,17 +694,14 @@ c        if (abs(g) .gt. tol2e) then
             j = labels(integ,2)
             k = labels(integ,3)
             l = labels(integ,4)
-c     write(6,*) ' b ' ,i,j,k,l
             atoms(1) = bftoat(i)
             atoms(2) = bftoat(j)
             atoms(3) = bftoat(k)
             atoms(4) = bftoat(l)
-c     write(6,*) ' a ' ,atoms
             i = rbfmap(i) - ibflo + 1
             j = rbfmap(j) - jbflo + 1
             k = rbfmap(k) - kbflo + 1
             l = rbfmap(l) - lbflo + 1
-c     write(6,*) ' c ', i,j,k,l
             do iiat = 1, 4
               iat = atoms(iiat)
               nfockder = (iat-1)*3 + 1
@@ -740,19 +720,7 @@ c
               do v = 1, ndens
               nbuf = nstart
               do xyz=nfockder+(nfock*(v-1)),nfockder+2+(nfock*(v-1))
-c     write(6,*) 'contributing to fockder ',xyz
                g = eri(nbuf)
-c        write(6,*) 'integral is ',g, nbuf
-c     write(6,*) 'densities are kl, ij, jl, jk, ik, il,i,j,k,l ',
-c    *  i,j,k,l,
-c    *  d_kl(v,k,l),d_ij(v,i,j),d_jl(v,j,l),d_jk(v,j,k),
-c    *  d_ik(v,i,k),d_il(v,i,l)
-c              f_ij(xyz,i,j)=f_ij(xyz,i,j)+4.0d+00*g*d_kl(v,k,l)
-c              f_kl(xyz,k,l)=f_kl(xyz,k,l)+4.0d+00*g*d_ij(v,i,j)
-c              f_ik(xyz,i,k)=f_ik(xyz,i,k)-g*d_jl(v,j,l)
-c              f_il(xyz,i,l)=f_il(xyz,i,l)-g*d_jk(v,j,k)
-c              f_jl(xyz,j,l)=f_jl(xyz,j,l)-g*d_ik(v,i,k)
-c              f_jk(xyz,j,k)=f_jk(xyz,j,k)-g*d_il(v,i,l)
                f_ij(xyz,i,j)=f_ij(xyz,i,j)+g*d_kl(v,k,l)
                f_kl(xyz,k,l)=f_kl(xyz,k,l)+g*d_ij(v,i,j)
                f_ik(xyz,i,k)=f_ik(xyz,i,k)+g*d_jl(v,j,l)
@@ -813,5 +781,329 @@ c
          call errquit('fock_2e: problem destroying test array',1)
       endif
 
+      return
+      end
+c
+      subroutine uhf_fock_setup(g_dens, g_fock, jfac, kfac, ndens,
+     &   nfock, nbf, oprint)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+c
+c  This routine takes the multidimensional density and the fock matrices
+c  that are set up for alpha and beta and expand them to be alpha and
+c  beta/coulomb and exchange (2 -> 4) so that the correct summation can
+c  be performed after the shell_fock_build call.
+c
+      integer g_dens       ! [input/output] density
+      integer g_fock       ! [input/output] Fock matrices
+      integer ndens        ! [input/output] number of density matrices
+      integer nfock        ! [input/output] number of Fock matrices
+      integer nbf          ! [input] number of basis functions
+      double precision jfac(ndens)  ! [input/output] Coulomb scale factors
+      double precision kfac(ndens)  ! [input/output] Exchange scale factors
+      logical oprint       ! [input] Print output
+c
+      integer dims(3), chunk(3)
+      integer alo(3), ahi(3), blo(3), bhi(3)
+      integer g_dens2, g_fock2
+      integer i, noffset, noffset2, noffset3
+      double precision zero
+      parameter (zero = 0.0D0)
+c
+c First set up jfac and kfac correctly.  This assumes that there is
+c already enough space in jfac and kfac to expand from 2 to 4.
+c
+      noffset = ndens/2
+      noffset2 = noffset*2
+      noffset3 = noffset*3
+      do i = 1, noffset
+        jfac(noffset3+i) = zero
+        jfac(noffset2+i) = jfac(noffset+i)
+        jfac(noffset+i)  = zero
+        kfac(noffset3+i) = kfac(noffset+i)
+        kfac(noffset2+i) = zero
+        kfac(noffset+i)  = kfac(i)
+        kfac(i)          = zero
+      enddo
+c
+c Next expand the density.  We create a new ga and substitute it
+c for the original.
+c
+      dims(1) = ndens * 2
+      dims(2) = nbf
+      dims(3) = nbf
+      chunk(1) = dims(1)
+      chunk(2) = -1
+      chunk(3) = -1
+      if (.not. nga_create (MT_DBL, 3, dims, 'Density',chunk,
+     &     g_dens2)) call errquit
+     &     ('uhf_fock_setup: could not allocate g_dens2',555)
+c
+c Copy "backwards" so that we don't loose any data
+c
+      alo(1) = noffset + 1 ! Beta
+      ahi(1) = ndens
+      alo(2) = 1
+      ahi(2) = nbf
+      alo(3) = 1
+      ahi(3) = nbf
+      blo(1) = noffset*3 + 1
+      bhi(1) = noffset*4
+      blo(2) = 1
+      bhi(2) = nbf
+      blo(3) = 1
+      bhi(3) = nbf
+      call nga_copy_patch('N',g_dens,alo,ahi,g_dens2,blo,bhi)
+      blo(1) = noffset*2 + 1
+      bhi(1) = noffset*3
+      call nga_copy_patch('N',g_dens,alo,ahi,g_dens2,blo,bhi)
+      alo(1) = 1       ! Alpha
+      ahi(1) = noffset
+      blo(1) = noffset + 1
+      bhi(1) = ndens
+      call nga_copy_patch('N',g_dens,alo,ahi,g_dens2,blo,bhi)
+      blo(1) = 1
+      bhi(1) = noffset
+      call nga_copy_patch('N',g_dens,alo,ahi,g_dens2,blo,bhi)
+c
+c  Now get rid of original density
+c
+      if (.not. ga_destroy(g_dens)) call errquit
+     *   ('uhf_fock_setup: failed to free g_dens', ndens)
+c
+c  Assign g_dens to be the new matrix and update ndens
+c
+      g_dens = g_dens2
+      ndens = ndens * 2
+c
+c Now expand the fock matrices doing what we did above for
+c the densities.
+c
+      dims(1) = nfock * 2
+      chunk(1) = dims(1)
+      if (.not. nga_create (MT_DBL, 3, dims, 'Fock matrices',
+     &    chunk, g_fock2)) call errquit
+     &     ('uhf_fock_setup: could not allocate g_fock2',555)
+c
+      noffset = nfock/2
+      alo(1) = noffset + 1  ! Beta
+      ahi(1) = nfock
+      blo(1) = noffset*3 + 1
+      bhi(1) = noffset*4
+      call nga_copy_patch('N',g_fock,alo,ahi,g_fock2,blo,bhi)
+      blo(1) = noffset*2 + 1
+      bhi(1) = noffset*3
+      call nga_copy_patch('N',g_fock,alo,ahi,g_fock2,blo,bhi)
+      alo(1) = 1       ! Alpha
+      ahi(1) = noffset
+      blo(1) = noffset + 1
+      bhi(1) = nfock
+      call nga_copy_patch('N',g_fock,alo,ahi,g_fock2,blo,bhi)
+      blo(1) = 1
+      bhi(1) = noffset
+      call nga_copy_patch('N',g_fock,alo,ahi,g_fock2,blo,bhi)
+c
+      if (.not. ga_destroy(g_fock)) call errquit
+     *   ('uhf_fock_setup: failed to free g_fock', nfock)
+c
+      g_fock = g_fock2
+      nfock = nfock * 2
+c
+      if (oprint) then
+        if (ga_nodeid().eq.0) write(LuOut,*)
+     &     'Density and Fock matrices after uhf_fock_setup'
+        call ga_print(g_dens)
+        call ga_print(g_fock)
+      endif
+c
+      return
+      end
+c
+      subroutine uhf_fock_finish(g_dens,g_fock,jfac, kfac, ndens,
+     &       nfock, nbf, oprint)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+c
+c  This routine takes the results of shell_fock_build and forms the
+c  complete alpha and beta Fock matrices (4 -> 2).
+c
+      integer g_dens       ! [input/output] density
+      integer g_fock       ! [input/output] Fock matrices
+      integer ndens        ! [input/output] number of density matrices
+      integer nfock        ! [input/output] number of Fock matrices
+      integer nbf          ! [input] number of basis functions
+      double precision jfac(ndens)  ! [input/output] Coulomb scale factors
+      double precision kfac(ndens)  ! [input/output] Exchange scale factors
+      logical oprint       ! [input] Print output
+c
+      integer dims(3), chunk(3)
+      integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
+      integer g_dens2, g_fock2
+      integer i, noffset, noffset2, noffset3
+      double precision zero, one, mone
+      parameter (zero =  0.0D0)
+      parameter (one  =  1.0D0)
+      parameter (mone = -1.0D0)
+c
+c  Put jfac and kfac back to their original form.
+c
+      ndens = ndens/2
+      noffset = ndens/2
+      noffset2 = noffset*2
+      noffset3 = noffset*3
+      do i = 1, noffset
+        jfac(noffset+i)  = jfac(noffset2+i)
+        kfac(i)          = kfac(noffset+i)
+        kfac(noffset+i)  = kfac(noffset3+i)
+      enddo
+c
+c  Put the density back to its original.  We create a new ga and 
+c  substitute it for the original.
+c
+      dims(1) = ndens
+      dims(2) = nbf
+      dims(3) = nbf
+      chunk(1) = dims(1)
+      chunk(2) = -1
+      chunk(3) = -1
+      if (.not. nga_create (MT_DBL, 3, dims, 'Density',chunk,
+     &     g_dens2)) call errquit
+     &     ('uhf_fock_finish: could not allocate g_dens2',555)
+c
+c Copy data
+c
+      alo(1) = noffset*3 + 1  ! Beta
+      ahi(1) = noffset*4
+      alo(2) = 1
+      ahi(2) = nbf
+      alo(3) = 1
+      ahi(3) = nbf
+      blo(1) = noffset + 1
+      bhi(1) = ndens
+      blo(2) = 1
+      bhi(2) = nbf
+      blo(3) = 1
+      bhi(3) = nbf
+      call nga_copy_patch('N',g_dens,alo,ahi,g_dens2,blo,bhi)
+      alo(1) = 1   ! Alpha
+      ahi(1) = noffset
+      blo(1) = 1
+      bhi(1) = noffset
+      call nga_copy_patch('N',g_dens,alo,ahi,g_dens2,blo,bhi)
+c
+c  Now get rid of original density
+c
+      if (.not. ga_destroy(g_dens)) call errquit
+     *   ('uhf_fock_finish: failed to free g_dens', ndens)
+c
+c  Assign g_dens to be the new matrix and update ndens
+c
+      g_dens = g_dens2
+c
+c  Now get the Fock matrices set up.
+c
+      nfock = nfock/2
+      dims(1) = nfock
+      chunk(1) = dims(1)
+      if (.not. nga_create (MT_DBL, 3, dims, 'Fock matrices',
+     &    chunk, g_fock2)) call errquit
+     &     ('uhf_fock_setup: could not allocate g_fock2',555)
+c
+      noffset = nfock/2
+      noffset2 = noffset*2
+      noffset3 = noffset*3
+      alo(1) = 1  ! Coulomb part (add alpha and beta)
+      ahi(1) = noffset
+      blo(1) = noffset*2 + 1
+      bhi(1) = noffset*3
+      clo(1) = 1
+      chi(1) = noffset
+      clo(2) = 1
+      chi(2) = nbf
+      clo(3) = 1
+      chi(3) = nbf
+      call nga_add_patch(one,g_fock,alo,ahi,
+     &                    one,g_fock,blo,bhi,
+     &                    g_fock2,clo,chi)
+      alo(1) = noffset + 1
+      ahi(1) = nfock
+      call nga_copy_patch('N',g_fock2,clo,chi,
+     &    g_fock2,alo,ahi)
+c
+c  Add exchange of same spin
+c
+      alo(1) = noffset + 1   ! Alpha
+      ahi(1) = nfock
+      blo(1) = 1
+      bhi(1) = noffset
+      call nga_add_patch(mone,g_fock,alo,ahi,
+     &                   one,g_fock2,blo,bhi,
+     &                    g_fock2,blo,bhi)
+c
+      alo(1) = noffset*3 + 1 ! Beta
+      ahi(1) = noffset*4
+      blo(1) = noffset + 1
+      bhi(1) = nfock
+      call nga_add_patch(mone,g_fock,alo,ahi,
+     &                   one,g_fock2,blo,bhi,
+     &                    g_fock2,blo,bhi)
+c
+c  Add coulomb of opposite spin
+c
+c     alo(1) = 1       ! Alpha added to Beta
+c     ahi(1) = noffset
+c     blo(1) = noffset + 1
+c     bhi(1) = nfock
+c     call nga_add_patch(one,g_fock,alo,ahi,
+c    &                   mone,g_fock2,blo,bhi,
+c    &                    g_fock2,blo,bhi)
+c
+c     alo(1) = noffset*2 + 1    ! Beta added to Alpha
+c     ahi(1) = noffset*3
+c     blo(1) = 1
+c     bhi(1) = noffset
+c     call nga_add_patch(one,g_fock,alo,ahi,
+c    &                   mone,g_fock2,blo,bhi,
+c    &                    g_fock2,blo,bhi)
+c
+c  Now get rid of g_fock and assign the new one (g_fock2) to g_fock
+c
+      if (.not. ga_destroy(g_fock)) call errquit
+     &   ('uhf_fock_setup: failed to free g_fock', nfock)
+c
+      g_fock = g_fock2
+c
+      if (oprint) then
+        if (ga_nodeid().eq.0) write(LuOut,*)
+     &     'Density and Fock matrices after uhf_fock_finish'
+        call ga_print(g_dens)
+        call ga_print(g_fock)
+      endif
+c
+      return
+      end
+c
+      subroutine print_dens_bit(d_ij, ndens, ibflo, ibfhi,
+     $                    jbflo, jbfhi, blen)
+      implicit none
+c
+      integer ndens, ibflo, ibfhi, jbflo, jbfhi, blen
+      double precision d_ij(ndens,blen,blen)
+      integer ndns, id, jd
+c
+      write(6,*) 'density bit'
+      do ndns = 1, ndens
+        write(6,*) 'ndns is ',ndns
+        do id = 1, 1+ ibfhi -ibflo
+          do jd = 1, 1+ jbfhi -jbflo
+            write(6,*) id,jd,d_ij(ndns,id,jd)
+          enddo
+        enddo
+      enddo
+c
       return
       end
