@@ -1,6 +1,6 @@
       subroutine mcscf_input(rtdb)
 c
-c $Id: mcscf_input.F,v 1.4 1997-02-07 22:06:54 d3g681 Exp $
+c $Id: mcscf_input.F,v 1.5 1997-02-13 02:45:06 d3g681 Exp $
 c
       implicit none
 #include "inp.fh"
@@ -18,6 +18,7 @@ c
       character*12 prof_opt(num_profopt)
       character*255 test, keyword
       double precision conv, levelshift, tol2e
+      logical status
       integer maxiter, nclosed, nact, multip, nel, pflg, statesym
       data dirs / 'thresh',
      $            'maxiter',
@@ -36,8 +37,9 @@ c
      $            'end'/
       data prof_opt/ 'fock' /
 c
+c     Any input causes convergence flag to be deleted
 c
-c
+      status = rtdb_delete(rtdb, 'mcscf:converged')
 c
 c
  10   if (.not. inp_read()) call errquit

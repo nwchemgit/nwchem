@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.29 1996-11-10 18:05:24 d3g681 Exp $
+c  $Id: mcscf_orb.F,v 1.30 1997-02-13 02:45:07 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -842,7 +842,7 @@ c
          endif
          call ga_sync()
          call ga_igop(msg_mcscf_chkhess,ismall,1,'+')
-         if ((ga_nodeid().eq.0).and.(ismall.gt.0)) then
+         if ((ga_nodeid().eq.0).and.(ismall.gt.0) .and. oprconv) then
            write(6,112) ismall
  112       format(5x,'--- Warning:',i5,' Hessian diagonals < 0.05 ---')
          endif

@@ -44,26 +44,28 @@ c
       logical oblk
       integer ciiterlo, ciiterhi ! Iteration range for CI solution
 c     
-      character*255 title
+      character*255 title, movecs_in
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       integer ga_create_JKblocked
       external ga_create_JKblocked
+      logical movecs_converged
+      external movecs_converged
 c     
       data ohalf/.true./
       data blen/25/
 c     
       cputime = util_cpusec()
       walltime= util_wallsec()
-c
+c     
       mcscf = .true.
       oconverged = .false.
 c     
       call util_print_push
       call util_print_rtdb_load(rtdb, 'mcscf')
       call ecce_print_module_entry('mcscf')
-c
+c     
       oprinfo = (util_print('information',print_low).and.
      $     (ga_nodeid().eq.0))
       oprconv = (util_print('conv',print_default).and.
@@ -101,7 +103,7 @@ c     Get convergence info
 c     
       if (.not.rtdb_get(rtdb,'mcscf:maxiter',MT_INT,1,maxiter)) then
          if (.not.rtdb_get(rtdb,'scf:maxiter',MT_INT,1,maxiter))
-     $        maxiter = 5
+     $        maxiter = 20
       endif
       if (.not.rtdb_get(rtdb,'mcscf:cgreset',MT_INT,1,icgreset))  
      $     icgreset = 20
@@ -182,6 +184,29 @@ c
      $        5x,35('-'))
       endif
 c     
+      call int_normalize(basis)
+c     
+c     See if we are already converged
+
+      if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,movecs_in)) then
+         if (.not.rtdb_cget(rtdb,'scf:input vectors',1,movecs_in))
+     $        call util_file_name('movecs', .false., .false., movecs_in)
+      endif
+      if (.not. (movecs_in.eq.'atomic'.or.movecs_in.eq.'hcore')) then
+         if (movecs_converged(rtdb, basis, 'mcscf', movecs_in)) then
+            if (.not. rtdb_get(rtdb, 'mcscf:energy', mt_dbl, 1, energy))
+     $           call errquit('mcscf:failed getting converged energy',0)
+            if (ga_nodeid().eq.0 .and. oprinfo) then
+               write(6,1101) energy
+ 1101          format(/'  The MCSCF is already converged '//,
+     $              '       Total MCSCF energy =', f20.12/)
+               call util_flush(6)
+            endif
+            oconverged = .true.
+            goto 401
+         endif
+      endif
+c     
 c     Create occupation and orbital energy vectors
 c     
       if (.not.ma_push_get(MT_DBL, nbf, 'eps', l_evals, k_evals))
@@ -200,7 +225,6 @@ c
 c     
 c     Initialize stuff
 c     
-      call int_normalize(basis)
       call int_init(rtdb, 1, basis)
       call schwarz_init(geom, basis)
       call scf_get_fock_param( rtdb, tol2e )
@@ -359,11 +383,11 @@ c
      $        ecore, gnorm, dbl_mb(k_evals),
      $        g_movecs, oconverged, oprconv,
      $        dbl_mb(k_occ))
-c
+c     
          energy = eone + etwo + enrep
          call ecce_print1('total energy', mt_dbl, energy, 1)
          call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
-c
+c     
          gnrmv(iter) =  gnorm
          ocjrst = ocjrst.or.ocanon
          if (omcscfprof) call pstat_off(ps_orb)
@@ -453,6 +477,14 @@ c
      $     g_hcore, g_coul, 
      $     citol, .true., .false., ocivecprint,
      $     dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
+c
+c     Save convergence status ... must do this before saving
+c     final orbitals since date of entry is examined at restart
+c     
+         if (.not. rtdb_put(rtdb, 'mcscf:converged', MT_LOG, 1,
+     $        oconverged))
+     $        call errquit('mcscf: failed to store converged in rtdb',0)
+
 c     
 c     Natural Orbitals
 c     
@@ -522,26 +554,26 @@ c
      $     dbl_mb(k_dm2), g_movecs, g_coul,
      $     eone, etwo, ecore )
       energy = eone + etwo + enrep
-c
+c     
       cputime  = util_cpusec() - cputime
       walltime = util_wallsec() - walltime
       if (util_print('trace energy',print_low).and.
      $     (ga_nodeid().eq.0)) write(6,674) energy, gnorm, 
      $     cputime, walltime
  674  format(//
-     $        '       Final MCSCF results '/
-     $        '       ------------------- '//
-     $        '       Total MCSCF energy =', f20.12/
-     $        '            Gradient norm =', 1p,d13.1,0p//
-     $        '    CPU time for solution =', f9.1,'s'/
-     $        '   Wall time for solution =', f9.1,'s'//)
+     $     '       Final MCSCF results '/
+     $     '       ------------------- '//
+     $     '       Total MCSCF energy =', f20.12/
+     $     '            Gradient norm =', 1p,d13.1,0p//
+     $     '    CPU time for solution =', f9.1,'s'/
+     $     '   Wall time for solution =', f9.1,'s'//)
 c     
       call ecce_print1('total energy', mt_dbl, energy, 1)
       call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
       call ecce_print1('two-electron energy', mt_dbl, etwo, 1)
       call ecce_print1('one-electron energy', mt_dbl, eone, 1)
       call ecce_print1('nuclear repulsion energy', mt_dbl, enrep, 1)
-c
+c     
       call mcscf_dump_for_grad(geom, basis, nbf, nclosed, nact,
      $     oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2), 
      $     g_movecs,  g_coul)
@@ -558,14 +590,9 @@ c     Store energy and convergence status
 c     
       if (.not. rtdb_put(rtdb, 'mcscf:energy', MT_DBL, 1, energy)) 
      $     call errquit('mcscf: failed to store energy in rtdb', 0)
-      if (.not. rtdb_put(rtdb, 'mcscf:converged', MT_LOG, 1,
-     $     oconverged))
-     $     call errquit('mcscf: failed to store converged in rtdb', 0)
 c     
 c     Cleanup
 c     
- 401  continue
-      call mcscf_profile_tidy()
       call scf_tidy(rtdb)
       call schwarz_tidy()
       call int_terminate()
@@ -575,10 +602,6 @@ c
      $     call errquit('mcscf: cannot destroy conjugacy',0)
       if (.not.ga_destroy(g_gradold))
      $     call errquit('mcscf: cannot destroy old gradient',0)
-      if (.not.bas_destroy(basis))
-     $     call errquit('mcscf: cannot free basis handle',0)
-      if (.not.geom_destroy(geom))
-     $     call errquit('mcscf: cannot destory geom handle', 0)
       if (.not.ma_pop_stack(l_sym))
      $     call errquit('mcscf: cannot pop stack?',0)
       if (.not.ma_pop_stack(l_dm1))
@@ -595,6 +618,12 @@ c
      $     call errquit('mcscf: cannot destroy Coulomb',0)
       if (.not.ga_destroy(g_movecs))
      $     call errquit('mcscf: cannot destroy MO vectors',0)
+c
+ 401  call mcscf_profile_tidy()
+      if (.not.bas_destroy(basis))
+     $     call errquit('mcscf: cannot free basis handle',0)
+      if (.not.geom_destroy(geom))
+     $     call errquit('mcscf: cannot destory geom handle', 0)
 c     
       if (oconverged) then
          call ecce_print_module_exit('mcscf', 'ok')
