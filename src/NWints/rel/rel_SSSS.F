@@ -1,4 +1,4 @@
-C $Id: rel_SSSS.F,v 1.1 1998-09-25 18:10:24 mg201 Exp $
+C $Id: rel_SSSS.F,v 1.2 1998-09-25 19:01:37 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSSS}
 c:tex-This routine generates the SSSS-type two-electron integrals for
@@ -39,7 +39,6 @@ c:tex-\begin{verbatim}
       integer NPD     ! [input] num. prims in shell D
       integer NCD     ! [input] num general conts in shell D
       integer l_D     ! [input] angular momentum of shell D 
-      integer nat     ! [input] number of atoms
       integer lscr    ! [input] size of scratch array
       integer n_ints  ! [input] size of any integral buffer
       integer ibug    ! [input] debug variable
@@ -57,6 +56,7 @@ c:tex-\begin{verbatim}
       double precision Dxyz(3)         ! [input] position of center D
       double precision zeta_D(NPD)     ! [input] exponents of shell D 
       double precision coef_D(NPD,NCD) ! [input] D coeffs
+      double precision scr(lscr)       ! [scratch] scratch buffers
       double precision rel_ints(n_ints,ntypAB*ntypCD)  ! [output] LLSS integrals
       logical canAB   ! [input] compute only canonical ints (false only)
       logical canCD   ! [input] compute only canonical ints (false only)
@@ -75,8 +75,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       integer n_cart_b   ! cartesian components of shell B
       integer n_cart_c   ! cartesian components of shell C
       integer n_cart_d   ! cartesian components of shell D
-      integer n_cart_cd  ! n_cart_c*n_cart_d
-      integer n_cont_cd  ! NCC*NCD
+      integer n_cont_ab  ! NCA*NCB
       integer n_all_a    ! n_cart_a*NCA
       integer n_all_b    ! n_cart_b*NCB
       integer n_all_c    ! n_cart_c*NCC
@@ -84,10 +83,10 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       integer n_ab       ! number of ab densities
       integer n_cd       ! number of cd densities
       integer n_abcd     ! number of integrals
-      integer n_cartp_c  ! cartesian components for l_C+1
-      integer n_cartp_d  ! cartesian components for l_D+1
-      integer n_cartm_c  ! cartesian components for l_C-1
-      integer n_cartm_d  ! cartesian components for l_D-1
+      integer n_cartp_a  ! cartesian components for l_A+1
+      integer n_cartp_b  ! cartesian components for l_B+1
+      integer n_cartm_a  ! cartesian components for l_A-1
+      integer n_cartm_b  ! cartesian components for l_B-1
       integer n_intpp    ! number of integrals for l_A+1,l_B+1
       integer n_intpm    ! number of integrals for l_A-1,l_B+1
       integer n_intmp    ! number of integrals for l_A+1,l_B-1
@@ -114,11 +113,15 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       debug_arrays = mod(ibug,10)/2 .eq. 1
       max_mem = 0
 *
+      if ((ntypAB .ne. 1) .and. (ntypAB .ne. 3) .and. (ntypAB .ne. 4))
+     &    call errquit('Invalid value of ntypAB in rel_SSLL',99)
+      if ((ntypCD .ne. 1) .and. (ntypCD .ne. 3) .and. (ntypCD .ne. 4))
+     &    call errquit('Invalid value of ntypCD in rel_SSLL',99)
+*
       n_cart_a = (l_a+1)*(l_a+2)/2
       n_cart_b = (l_b+1)*(l_b+2)/2
       n_cart_c = (l_c+1)*(l_c+2)/2
       n_cart_d = (l_d+1)*(l_d+2)/2
-      n_cart_ab = n_cart_a*n_cart_b
       n_cont_ab = NCA*NCB
       n_all_a = n_cart_a*NCA
       n_all_b = n_cart_b*NCB
@@ -134,8 +137,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
         write (LuOut,*) 'n_cart_b',n_cart_b
         write (LuOut,*) 'n_cart_c',n_cart_c
         write (LuOut,*) 'n_cart_d',n_cart_d
-        write (LuOut,*) 'n_cart_cd',n_cart_cd
-        write (LuOut,*) 'n_cont_cd',n_cont_cd
+        write (LuOut,*) 'n_cont_ab',n_cont_ab
         write (LuOut,*) 'n_all_a',n_all_a
         write (LuOut,*) 'n_all_b',n_all_b
         write (LuOut,*) 'n_all_c',n_all_c
@@ -252,7 +254,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *     Call routine to generate the integrals.
 *
       call rel_pot2 (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),
-     &    scr,ntypAB,n_cd,
+     &    scr,n_abcd,ntypAB,n_cd,
      &    l_A,n_cartp_a,n_cart_a,n_cartm_a,NCA*ntypCD,
      &    l_B,n_cartp_b,n_cart_b,n_cartm_b,NCB,
      &    DryRun,scr(i_scr),memscr,ibug)

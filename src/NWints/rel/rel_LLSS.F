@@ -1,4 +1,4 @@
-C $Id: rel_LLSS.F,v 1.1 1998-09-25 18:10:23 mg201 Exp $
+C $Id: rel_LLSS.F,v 1.2 1998-09-25 19:01:36 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_LLSS}
 c:tex-This routine generates the LLSS-type two-electron integrals for
@@ -36,7 +36,6 @@ c:tex-\begin{verbatim}
       integer NPD     ! [input] num. prims in shell D
       integer NCD     ! [input] num general conts in shell D
       integer l_D     ! [input] angular momentum of shell D 
-      integer nat     ! [input] number of atoms
       integer lscr    ! [input] size of scratch array
       integer n_ints  ! [input] size of any integral buffer
       integer ibug    ! [input] debug variable
@@ -53,6 +52,7 @@ c:tex-\begin{verbatim}
       double precision Dxyz(3)         ! [input] position of center D
       double precision zeta_D(NPD)     ! [input] exponents of shell D 
       double precision coef_D(NPD,NCD) ! [input] D small coeffs
+      double precision scr(lscr)       ! [scratch] scratch buffers
       double precision rel_ints(n_ints,ntyp)  ! [output] LLSS integrals
       logical canAB   ! [input] compute only canonical ints (false only)
       logical canCD   ! [input] compute only canonical ints (false only)
@@ -109,6 +109,9 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = mod(ibug,10)/2 .eq. 1
       max_mem = 0
+*
+      if ((ntyp .ne. 1) .and. (ntyp .ne. 3) .and. (ntyp .ne. 4))
+     &    call errquit('Invalid value of ntyp in rel_LLSS',99)
 *
       n_cart_a = (l_a+1)*(l_a+2)/2
       n_cart_b = (l_b+1)*(l_b+2)/2
