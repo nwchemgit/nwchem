@@ -1,20 +1,12 @@
-      Subroutine a_dist(geom, xyz, Rij, ncenter, charge, tags )
+      Subroutine a_dist(xyz, Rij, ncenter)
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
-#include <geom.fh>
-
-c****
-c**** nwchem geometry handle
-c****
-      integer geom
 
 c--> Cartesian Coordinates
 
-      Dimension xyz(3,ncenter), charge(ncenter)
-
-      character*16 tags(ncenter)
+      Dimension xyz(3,ncenter)
 
 c--> Internuclear Distances
 
@@ -24,8 +16,6 @@ c
 c Evaluate the distance between each pair of centers.
 c
 c***************************************************************************
-      LResult = geom_cart_get( geom, ncenter, tags, xyz, charge )
-
       ij = 0
       do 10 j = 2,ncenter
       do 10 i = 1,j-1
