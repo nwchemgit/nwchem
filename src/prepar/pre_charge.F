@@ -1,7 +1,7 @@
       logical function pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.17 1998-08-18 16:45:45 d3j191 Exp $
+c $Id: pre_charge.F,v 1.18 1998-08-24 16:02:21 d3j191 Exp $
 c
       implicit none
 c
@@ -288,6 +288,13 @@ c
       if(it.eq.1.and.jt.eq.7) then
       qatm(ia)=qatm(ia)+0.27d0
       qatm(ja)=qatm(ja)-0.27d0
+      endif
+c
+c     H - O : 0.19  : -0.19
+c
+      if(it.eq.1.and.jt.eq.8) then
+      qatm(ia)=qatm(ia)+0.40d0
+      qatm(ja)=qatm(ja)-0.40d0
       endif
 c
 c     H - S : 0.19  : -0.19
