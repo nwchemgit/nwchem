@@ -13,8 +13,8 @@ The changes for version 4.1 are listed at the bottom of this file.
 Several new major capabilities are available in NWChem, including several new
 modules. The new modules are: 
 
-  o 
-  o 
+  o HESSIAN: This module controls the analytic hessian calculation
+  o DIRDYVTST: The DIRect Dynamics for Variational Transition State Theory
   o 
   o 
   o 
@@ -24,8 +24,8 @@ information.
 
 Additional major additions to the capabilities include: 
 
-  o 
-  o 
+  o The AUTOSYM directive in the GEOMETRY group is now ON by default.
+  o NBO 5.0 is now available.
   o 
   o 
   o 
@@ -43,8 +43,9 @@ older.
 
 Top level directives:
 
-  o 
-  o 
+  o BUG FIX: Problems on some platforms with a title longer than 80
+    characters has been fixed.
+  o BUG FIX: TASK SHELL now returns properly for DECOSF.
   o 
 
 Initial orbital Guess: 
@@ -65,31 +66,40 @@ Basis Sets:
 
 Geometry: 
 
-  o 
+  o The AUTOSYM directive has been improved and is now ON by default.
   o 
   o 
 
 DFT: 
 
-  o 
-  o 
-  o 
+  o BUG FIX: DFT Open-shell calculations with the Exchange functions xpbe96
+    and xperdew91 now give correct gradients.
+  o BUG FIX: Restart calculations now work under NQE or NQS.
+  o BUG FIX: DFT calculations now work when the molecule contains ghost atoms.
+  o BUG FIX: Bug introduced in 4.0.1 which produced nonsense numbers for
+    very large SCF and DFT calculations has been fixed.
+  o BUG FIX: Convergence of COSMO for UDFT has been improved.
 
 SCF: 
 
+  o BUG FIX: Bug introduced in 4.0.1 which produced nonsense numbers for
+    very large SCF and DFT calculations has been fixed.
   o 
   o 
-  o 
+
+COSMO:
+  o BUG FIX: Make COSMO gradients always go numerically.
 
 Driver: 
 
-  o 
+  o BUG FIX: Insufficient internal variable errors have been minimized.
   o 
   o 
 
 Properties: 
 
-  o 
+  o BUG FIX: Segmentation violations in large property calculations have been
+    fixed.
   o 
   o 
 
@@ -98,6 +108,10 @@ MP2:
   o 
   o 
   o 
+
+MCSCF:
+
+  o BUG FIX: bjg_get_scf_method error has been eliminated.
 
 Hessian and Frequencies: 
 
@@ -132,23 +146,29 @@ Integral changes:
 Relativistic:
  
   o Various levels of third-order Douglas-Kroll have been added.
-  o
+  o BUG FIX: Spin-orbit gradient crashes have been fixed.
 
 DPLOT:
 
-  o 
-  o 
+  o BUG FIX: Vectors directive now picks up the vectors correctly.
+  o BUG FIX: Negative spin densities are now correctly calculated for
+    DFT wavefunctions.
   o 
 
 Tests, manuals and misc script changes: 
 
   o Updated User's Manual to reflect new and modified functionality in
     NWChem. 
-  o QA tests have been updated to reflect the new functionality and the
-    TITLE change. 
+  o QA tests have been updated to reflect the new functionality.
+  o contrib/getmem.nwchem script bugs have been fixed.
+  o The program contrib/hessian/makerestart has been added to create the
+    *.fdrst file from the *.hessian and *.fd_ddipole files for numerical
+    hessian restarts.
   o 
-  o 
-  o 
+
+Tools:
+  o BUG FIX: MPICH does not cause segmentation violations with RedHat 7.1.
+  o BUG FIX: Parallel hangs have been fixed.
 
 Installation availability: 
 
