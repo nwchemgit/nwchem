@@ -1,4 +1,4 @@
-C $Id: ecp_hessian.F,v 1.5 1998-04-01 17:54:00 mg201 Exp $
+C $Id: ecp_hessian.F,v 1.6 1998-04-03 01:54:24 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_hessian (
@@ -74,7 +74,7 @@ C $Id: ecp_hessian.F,v 1.5 1998-04-01 17:54:00 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
-      integer i,j,k,l,m,n,
+      integer i,j,k,l,m,
      &    n_prim_A,n_cont_A,l_A,i_c_A,
      &    n_prim_B,n_cont_B,l_B,i_c_B,
      &    n_zeta_C,n_coef_C,n_C,i_c_C,l_ecp_max,
@@ -228,7 +228,6 @@ C $Id: ecp_hessian.F,v 1.5 1998-04-01 17:54:00 mg201 Exp $
      &    'coordinate array',81,5)
       if (debug_gen) write (LuOut,*) 'Number of ECP centers =',n_C
       do i = 1,n_C
-        n = n_tot_C(i)
         l = l_C(i)
         i_c_C = i_cent_C(i)
         if (debug_gen) write (LuOut,*) 'ECP center',i
@@ -261,20 +260,19 @@ C $Id: ecp_hessian.F,v 1.5 1998-04-01 17:54:00 mg201 Exp $
         i_zeta1 = i_zeta+n_prim_C(0,-1,i)
         i_zeta0 = i_zeta1+n_prim1
 *
-        if (debug_arrays) then
-          write (LuOut,*) 'Parameters of ECP'
-          write (LuOut,*) '   n_tot_C',n_tot_C(i)
-          call ecp_matpi (n_prim_C,0,2,-1,l_ecp_max,0,2,0,l_C,
-     &        'n_prim_C',81,15)
-          call ecp_matpi (ind_C,-1,l_ecp_max,1,1,0,l_C,1,1,
-     &        'ind_C',81,15)
-          call ecp_matpi (n_colc_C,-1,l_ecp_max,1,1,0,l_C,1,1,
-     &        'n_colc_C',81,15)
-          call ecp_matpr (zeta_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
-     &        'zeta_C','E',81,5)
-          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
-     &        'coef_C','E',81,5)
-        end if
+C        if (debug_arrays) then
+C          write (LuOut,*) 'Parameters of ECP'
+C          call ecp_matpi (n_prim_C,0,2,-1,l_ecp_max,0,2,0,l_C,
+C     &        'n_prim_C',81,15)
+C          call ecp_matpi (ind_C,-1,l_ecp_max,1,1,0,l_C,1,1,
+C     &        'ind_C',81,15)
+C          call ecp_matpi (n_colc_C,-1,l_ecp_max,1,1,0,l_C,1,1,
+C     &        'n_colc_C',81,15)
+C          call ecp_matpr (zeta_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
+C     &        'zeta_C','E',81,5)
+C          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
+C     &        'coef_C','E',81,5)
+C        end if
 *
 *       Contributions from second derivative wrt centre B
 *       =================================================
