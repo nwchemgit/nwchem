@@ -2,8 +2,8 @@
 
 A pseudopotential plane-wave (PSPW) module, which can perform Car-Parrinello
 simulations, is being implemented into the NWChem program package.  
-This module complements the capabilities of NWChem by including algorithms 
-which allow for the calculation of density functional theory total energies 
+This module complements the capabilities of NWChem by including cods 
+which allows for the calculation of density functional theory total energies 
 and forces with the technology based on plane-wave basis sets and 
 pseudopotentials.  Consistent with NWChem's philosophy this module is able 
 to run on a variety of architectures, including parallel supercomputers.
@@ -96,15 +96,15 @@ parameter input.  Listed below is the format of a STEEPEST\_DESCENT sub-block.
 PSPW
 ...
    STEEPEST_DESCENT
-      [CELL_NAME: <string cell_name>]
+      CELL_NAME: <string cell_name>
       [GEOMETRY_OPTIMIZE]
-      [FORMATTED_FILENAME: <string formatted_name>]+
-      [INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions>]
-      [OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions>]
-      [FAKE_MASS: <real fake_mass>]
-      [TIME_STEP: <real time_step>]
-      [LOOP: <integer inner_iteration outer_iteration>]
-      [TOLERANCES: <real tole tolc tolr>]
+      (FORMATTED_FILENAME: <string formatted_name>)+
+      INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions>
+      OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions>
+      FAKE_MASS: <real fake_mass>
+      TIME_STEP: <real time_step>
+      LOOP: <integer inner_iteration outer_iteration>
+      TOLERANCES: <real tole tolc tolr>
       [ENERGY_CUTOFF:       <real ecut>]
       [WAVEFUNCTION_CUTOFF: <real wcut>]
       [EWALD_NCUT: <integer ncut>]
@@ -179,17 +179,17 @@ parameter input.  Listed below is the format of a Car-Parrinello sub-block.
 PSPW
 ...
    Car-Parrinello
-      [CELL_NAME: <string cell_name>]
+      CELL_NAME: <string cell_name>
       [GEOMETRY_OPTIMIZE]
-      [FORMATTED_FILENAME: <string formatted_name>]+
-      [INPUT_WAVEFUNCTION_FILENAME:    <string input_wavefunctions>]
-      [OUTPUT_WAVEFUNCTION_FILENAME:   <string output_wavefunctions>]
-      [INPUT_V_WAVEFUNCTION_FILENAME:  <string input_v_wavefunctions>]
-      [OUTPUT_V_WAVEFUNCTION_FILENAME: <string output_v_wavefunctions>]
-      [FAKE_MASS: <real fake_mass>]
-      [TIME_STEP: <real time_step>]
-      [LOOP: <integer inner_iteration outer_iteration>]
-      [SCALING: <real scale_c scale_r>]
+      (FORMATTED_FILENAME: <string formatted_name>)+
+      INPUT_WAVEFUNCTION_FILENAME:    <string input_wavefunctions>
+      OUTPUT_WAVEFUNCTION_FILENAME:   <string output_wavefunctions>
+      INPUT_V_WAVEFUNCTION_FILENAME:  <string input_v_wavefunctions>
+      OUTPUT_V_WAVEFUNCTION_FILENAME: <string output_v_wavefunctions>
+      FAKE_MASS: <real fake_mass>
+      TIME_STEP: <real time_step>
+      LOOP: <integer inner_iteration outer_iteration>
+      SCALING: <real scale_c scale_r>
       [ENERGY_CUTOFF:       <real ecut>]
       [WAVEFUNCTION_CUTOFF: <real wcut>]
       [EWALD_NCUT: <integer ncut>]
@@ -477,13 +477,13 @@ Listed below is the format of a PSP\_GENERATOR sub-block.
 PSPW
 ... 
    PSP_GENERATOR
-      [PSEUDOPOTENTIAL_FILENAME: <string psp_name>]
-      [ELEMENT: <string element>
-      [CHARGE: (real charge>
-      [MASS_NUMBER: <real mass_number>
-      [ATOMIC_FILLING: <integer ncore nvalence>
+      PSEUDOPOTENTIAL_FILENAME: <string psp_name>
+      ELEMENT: <string element>
+      CHARGE: <real charge>
+      MASS_NUMBER: <real mass_number>
+      ATOMIC_FILLING: <integer ncore nvalence>
        {n=(1||2||...) l=(s||p||d||f) <real filling[n,l]> i=1,(ncore+nvalence)}
-      ]
+      
       [CUTOFF: <integer lmax> \
          {l=(s||p||d||f||g) <real rcut[l]> i=1,lmax}
       ]
@@ -620,7 +620,7 @@ and the format of it is:
 
 In this section we show how to setup and run a steepest descent
 simulation to optimize the one-electron orbitals with respect to 
-the total energy for a NaCl molecule.
+the total energy for a NaCl molecule.  
 
 Before running a steepest\_descent simulation several files and
 RTDB structures must be defined or initialized.  Specifically, the user 
@@ -632,7 +632,8 @@ a {\bf file containing the one-electron orbitals}, and lastly a
 In the following tutorial we show the input needed to find an
 energy for an NaCl molecule.  In this example default Hamann pseudopotentials
 are used for Na and Cl, the exchange correlation functional is LSDA, and
-the cutoff energy is 12 au.
+the cutoff energy is 12 au.  This example input deck can be found in the nwchem
+source tree in the file: nwchem/examples/pspw/NaCl.nw
 \begin{enumerate}
 \item Define the ion positions using the geometry directive.
  \tiny     \begin{verbatim}
@@ -770,6 +771,7 @@ the cutoff energy is 12 au.
 \item Optimize the one-electron orbitals with respect to energy using
       steepest descent.
 \tiny \begin{verbatim}
+         ...
          PSPW
             STEEPEST_DESCENT
                cell_name: small
@@ -794,97 +796,6 @@ the cutoff energy is 12 au.
 \normalsize
 
 
-Putting it all together we have:
-\tiny
-\begin{verbatim}
-title; NaCl
-
-start NaCl
-
-memory global 22 mb stack 16 mb heap 20 mb
-
-geometry units au
-Na 1.2000000000 0.00000000  0.00000000
-Cl -1.2000000000 0.00000000 0.00000000
-end
-
-PSPW
-   PSP_GENERATOR
-      pseudopotential_filename: C.psp
-      element: C
-      charge: 6.0
-      mass_number: 12.0
-      solver_type: pauli
-      pseudopotential_type: hamann
-      atomic_filling: 1 2
-        1 s 2.0
-        2 s 2.0
-        2 p 2.0
-      cutoff: 3
-         s 0.8
-         p 0.85
-         d 0.85
-   END
-END
-task pspw psp_generator
-
-PSPW
-   SIMULATION_CELL
-      cell_name: small
-      boundry_conditions: periodic
-      lattice_vectors:
-         20.0  0.0  0.0
-          0.0 20.0  0.0
-          0.0  0.0 20.0
-      ngrid: 32 32 32
-   END
-END
-
-PSPW
-   PSP_FORMATTER
-      cell_name: small
-      psp_filename: C.psp
-      formatted_filename: C.vpp
-      locp: 0
-   END
-END
-task pspw psp_formattor
-
-PSPW
-   WAVEFUNCTION_INITIALIZER
-      restricted
-      up_filling: 4
-               0 0 0     0
-               1 0 0    -1
-               0 1 0    -1
-               0 0 1    -1
-      wavefunction_filename: c2.small.00.elc
-      cell_name: small
-   END
-END
-task pspw wavefunction_initializer
-
-PSPW
-   STEEPEST_DESCENT
-      cell_name: small
-      formatted_filename: C.vpp
-      input_wavefunction_filename:  c2.small.00.elc
-      output_wavefunction_filename: c2.small.00.elc
-      fake_mass: 400000.0d0
-      time_step: 51.8d0
-      loop: 100 10
-      tolerances: 1.0d-9 1.0d-9 1.0d-4
-      energy_cutoff:       21.0d0
-      wavefunction_cutoff: 21.0d0
-   END
-END
-task pspw steepest_descent
-end
-\end{verbatim}
-\begin{verbatim}
-
-
-\end{verbatim}
 \normalsize
 \section{Running a Car-Parrinello Simulation}
 \label{sec:pspw_cp}
@@ -898,16 +809,59 @@ correlation functional, and a cutoff energy of 12 au.
 Before running a PSPW Car-Parrinello  simulation the system should be
 on the Born-Oppenheimer surface, i.e. the one-electron
 orbitals should be minimized with respect to the total energy using steepest
-descent.
+descent(see section~\ref{sec:pspw_sd}).  
 
-several files and
-RTDB structures must be defined or initialized.  Specifically, the user 
-is required to have defined the ion positions, ion velocities, and 
-simulation cell in the RTDB, a formatted pseudopotential file for each 
-kind of ion, a file containing the one-electron orbitals, a file containing 
-the one-electron orbital velocities, and lastly a Car-Parrinello 
-PSPW sub-block. 
+Continuning where we left off in section ~\ref{sec:pspw_sd} we now 
+continue the simulation to run a MD simulation of an NaCl molecule.  
+This example input deck can be found in the nwchem source tree in 
+the file: nwchem/examples/pspw/NaCl-md.nw
 
+\begin{enumerate}
+\item Optimize wavefunctions - See previous section
+
+\normalsize
+\item Generate an initial guess for the one-electron orbitals velocities.
+\tiny   \begin{verbatim}
+         ...
+         PSPW
+            V_WAVEFUNCTION_INITIALIZER
+               cell_name: small
+               unrestricted
+               up_filling: 4
+               down_filling: 4
+               v_wavefunction_filename: NaCl.small.00.velc
+            END
+         END
+         task PSPW WAVEFUNCTION_INTITALIZER
+         ...
+   \end{verbatim}
+\normalsize
+\item Run an MD simulation using Car-Parrinello.
+\tiny \begin{verbatim}
+         PSPW
+            Car-Parrinello
+               cell_name: small
+               formatted_filename: Na.vpp
+               formatted_filename: Cl.vpp
+               input_wavefunction_filename:    NaCl.small.00.elc
+               output_wavefunction_filename:   NaCl.small.01.elc
+               v_input_wavefunction_filename:  NaCl.00.velc
+               v_output_wavefunction_filename: NaCl.01.velc
+               fake_mass: 800.0d0
+               time_step: 5.0d0
+               loop: 10 100
+               scaling: 1.0d0 1.0d0
+               energy_cutoff:       21.0d0
+               wavefunction_cutoff: 21.0d0
+            END 
+         END
+         task PSPW Car-Parrinello
+         ...
+      \end{verbatim}
+
+
+\end{enumerate}
+\normalsize
 
 
 \section{PSPW Capabilities and Limitations}
@@ -917,7 +871,7 @@ PSPW sub-block.
 
 \section{Questions and Difficulties}
 
-Encountered problems should be reported to 
+Questions and encountered problems should be reported to 
 Eric J. Bylaska, eric.bylaska@pnl.gov
 
 
