@@ -214,10 +214,10 @@ c
 
 
 
-c
-c  Called by application
-c  Enable disk caching & check for existing file and open file
-c
+c     
+c     Called by application
+c     Enable disk caching & check for existing file and open file
+c     
       logical function moints_aodisk_init( odisk, oreuse )
       implicit none
 #include "mafdecls.fh"
@@ -225,49 +225,53 @@ c
 #include "eaf.fh"
 #include "mointsmoaodef.fh"
 #include "cmointsmoao.fh"
-      logical odisk                          ! [input] toggle caching
-      logical oreuse                         ! [input] toggle reuse of existing file
-c
+      logical odisk             ! [input] toggle caching
+      logical oreuse            ! [input] toggle reuse of existing file
+c     
       logical fexist
       integer stat
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       external moints_moao_block
 #endif
-c
-c  first time through --- enable caching TO disk
-c  otherwise must be caching FROM disk
-c
+c     
+c     first time through --- enable caching TO disk
+c     otherwise must be caching FROM disk
+c     
       moints_aodisk_init = .false.
       if (.not.(odisk)) then
-        moao_ipass = -1
-        moints_aodisk_init = .true.
-        return
+         moao_ipass = -1
+         moints_aodisk_init = .true.
+         return
       endif
       if (moao_ipass.lt.0) moao_ipass = 0
-c
-c  if AO file exists AND reuse enabled then set ipass > 0
-c      
+c     
+c     if AO file exists AND reuse enabled then set ipass > 0
+c     
       if (moao_fname.eq.'') then
-        call util_file_name( 'moao', .true., .true., moao_fname )
+         call util_file_name( 'moao', .true., .true., moao_fname )
       endif
-      inquire(file=moao_fname, exist=fexist)                    ! No equivalent EAF functionality?
+c
+      inquire(file=moao_fname, exist=fexist) ! Equivalent is eaf_stat ?
       if (oreuse) then
-        stat = 0
-        if (fexist) stat=1
-        call ga_igop( 481, stat, 1, '*')
-        if (stat.eq.1) then
-          moao_ipass = 1
-          if (ga_nodeid().eq.0) write(6,331)
- 331      format(10x,'Existing AO integral file will be reused')
-        endif
+         if (fexist) stat=1
+         call ga_igop( 481, stat, 1, '*')
+         if (stat.eq.1) then
+            moao_ipass = 1
+            if (ga_nodeid().eq.0) write(6,331)
+ 331        format(10x,'Existing AO integral file will be reused')
+         else if (fexist) then
+            call util_file_unlink(moao_fname) ! Only some nodes had it
+         endif
+      else if (fexist) then
+         call util_file_unlink(moao_fname) ! No reuse but file there.
       endif
-c
-c  open AO integral disk cache
-c
+c     
+c     open AO integral disk cache
+c     
       if (moao_fd.lt.0) then
-        stat = eaf_open( moao_fname, EAF_RW, moao_fd )
-        if (stat.ne.0) call errquit(
-     $                'moints_aodisk_init: cannot open ao file',0)
+         stat = eaf_open( moao_fname, EAF_RW, moao_fd )
+         if (stat.ne.0) call errquit(
+     $        'moints_aodisk_init: cannot open ao file',0)
       endif
       moints_aodisk_init = .true.
       return
