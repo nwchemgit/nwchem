@@ -4,6 +4,7 @@ LIBRARY = libutil.a
 USES_BLAS = sym_put_in_geom.F sym_print_all.F
 HEADERS = sym.fh
 
+OBJ_OPTIMIZE = sym_shell_pair.o 
 OBJ =     dosymops.o \
           gensym.o \
           ludcmp.o \
@@ -22,7 +23,6 @@ OBJ =     dosymops.o \
           sym_ops_get.o \
           sym_print_all.o \
           sym_symmetrize.o \
-          sym_shell_pair.o \
           sym_geom_project.o \
           wrcell.o
 
