@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.36 2003-02-20 01:23:04 mhackler Exp $
+C     $Id: ccsd_driver.F,v 2.37 2003-10-09 23:51:09 edo Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -177,7 +177,8 @@ capr change gt to ge
          noper =  (nocc_correl*(nocc_correl+1))/2
        else
 capr
-         call errquit('cannot hold J and K in core ',0)
+         call errquit('ccsd: increase global memory by this pctg ',
+     .        100-(100*max_noper/nocct))
 capr
          if ((ocoul).and.(oexch)) then
            noper = max_noper/2
