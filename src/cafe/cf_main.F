@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.151 2002-11-09 03:46:55 d3j191 Exp $
+c $Id: cf_main.F,v 1.152 2003-01-08 20:07:47 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -759,6 +759,7 @@ c
       z(3,3)=z(3,3)+zs(i,3,3,1)
     5 continue
 c
+c      write(*,'(i5,3f12.4)') me, vpme(1),vpme(4),vpme(6)
       z(1,1)=z(1,1)+half*vpme(1)
       z(2,2)=z(2,2)+half*vpme(4)
       z(3,3)=z(3,3)+half*vpme(6)
@@ -825,6 +826,7 @@ c
       prx(2,3)=(two*ekc(2,3)-z(2,3))/(three*volume*avoga)
       prx(3,3)=(two*ekc(3,3)-z(3,3))/(three*volume*avoga)
       endif
+c      write(*,'(i5,e12.5)') me,pres
 c
       pscale=one
       if(ipscal.ne.0) then
@@ -1570,6 +1572,7 @@ c
       ip(3)=0
       call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
      + xpmf(1,1,i),ft,et,.false.,.false.,.false.,dbl_mb(i_sti))
+c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Distance:',rv,(ft(2,j),j=1,3)
       if(me.eq.0) then
       if(lrec.and.lfnpmf.lt.0.and.(iprpmf.lt.0.or.iprpmf.eq.ipmf(i,1)))
      + write(-lfnpmf,1000) i,rv

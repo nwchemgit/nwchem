@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.14 2002-08-09 22:16:13 d3j191 Exp $
+c $Id: cf_finish.F,v 1.15 2003-01-08 20:07:47 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -10,6 +10,11 @@ c
 c     deallocate memory
 c
       if(ipme.gt.0) call pme_finish()
+c
+      if(norder.gt.0) then
+      if(.not.ma_pop_stack(l_order))
+     + call errquit('Failed to deallocate order',0)
+      endif
 c
       if(numpmf.gt.0) then
       if(.not.ma_pop_stack(l_upmf))

@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.15 2002-03-08 17:28:52 d3j191 Exp $
+c $Id: cf_list.F,v 1.16 2003-01-08 20:07:47 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -744,6 +744,9 @@ c
       do 150 jsa=jsafr,jsato
       if(iand(iss(iisa),72).eq.72) list(jsa,3)=0
       if(iand(iss(jsa),72).eq.72) list(jsa,3)=0
+c
+c     this is where proton hopping dummy atom interactions could be excluded
+c
   150 continue
       else
       do 151 jsa=jsafr,jsato
