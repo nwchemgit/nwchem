@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.83 1998-09-25 19:01:26 d3e129 Exp $
+c $Id: raktest.F,v 1.84 1999-01-28 00:22:28 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -9,8 +9,8 @@ c $Id: raktest.F,v 1.83 1998-09-25 19:01:26 d3e129 Exp $
 c::functions
       logical task_computeSld, task_printsoints, task_pderiv
       external task_computeSld, task_printsoints, task_pderiv
-      logical task_dddd, task_accy, raktask_intdd
-      external task_dddd, task_accy, raktask_intdd
+      logical task_dddd, task_accy, raktask_intdd, raktask_ecppe
+      external task_dddd, task_accy, raktask_intdd, raktask_ecppe
 c::passed
       integer rtdb          ! rtdb handle
 c::local
@@ -128,6 +128,10 @@ c
         if (me.eq.0)write(luout,*)
      &      ' raktest: second derivative code '        
         raktest = raktask_intdd(rtdb)
+      else if (raktask.eq.24) then !................................. 23
+        if (me.eq.0)write(luout,*)
+     &      ' raktest: ecp PE code test'        
+        raktest = raktask_ecppe(rtdb)
       else
         if (me.eq.0) then
           write(luout,*)' unknown raktask number :',raktask
