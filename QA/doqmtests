@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.14 2000-12-04 17:23:39 windus Exp $
+# $Id: doqmtests,v 1.15 2000-12-04 19:10:38 windus Exp $
 #
 #---   small tests
 runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
@@ -16,10 +16,17 @@ runtests.unix oh2
 runtests.unix dft_feco5 
 runtests.unix dft_ozone 
 runtests.unix dft_siosi3
+echo 'The intermediate values for this test may cause some differences.'
+echo 'Please check the final values for the last optimized structure.'
 runtests.unix dielsalder
+echo 'The intermediate energy values for the numerical gradient '
+echo 'test may cause some differences.'
+echo 'Please check the final gradient values for correctness.'
 runtests.unix grad_ozone
 runtests.unix hess_c6h6
 runtests.unix intchk
+echo 'The intermediate values for this test may cause some differences.'
+echo 'Please check the final values for the last optimized structure.'
 runtests.unix sadbig
 runtests.unix br2_dk
 runtests.unix uo2_sodft
