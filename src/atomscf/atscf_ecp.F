@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.3 1997-03-01 06:30:58 gutowski Exp $
+* $Id: atscf_ecp.F,v 1.4 1997-09-05 23:08:45 d3e129 Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
@@ -306,6 +306,10 @@ c::-local
       integer iexp,icfp,irexp ! private basis set pointer info
       integer n_tot_c        ! total number of prims on ecp center
       integer l_c            ! max ang on ecp center
+* for atomic code the next three are the same = 1
+      integer i_cent_C       ! lexical atom index of ecp center
+      integer i_c_A          ! lexical atom index of basis function center A
+      integer i_c_B          ! lexical atom index of basis function center B
       integer i, j, k,       ! loop indices 
      &    lj, lk, ljkoff     ! pointer offsets
       double precision
@@ -379,6 +383,9 @@ c
         l_c              = max(type,l_c)
         nn_off = nn_off + nprim
       enddo
+      i_cent_c = 1
+      i_c_A    = 1
+      i_c_B    = 1
 c
 *debug:      write(6,*)' exponent list for ecp '
 *debug:      call output(zeta_c,1,atscf_n_zetac,1,1,atscf_n_zetac,1,1)
@@ -415,12 +422,12 @@ c.. loop over primitives for |ket>
 
 c..  do dryrun to check memory for scratch array
             call ecp_integral(
-     &          C,expa,coefa,1,1,type,
-     &          C,expb,coefb,1,1,type,
+     &          C,expa,coefa,1,1,type,i_c_A,
+     &          C,expb,coefb,1,1,type,i_c_B,
      &          C,zeta_c,coef_c,n_prim_C,n_coef_c,
      &          ind_c, n_tot_c,
      &          atscf_n_zetac,
-     &          l_c,1,lmax_all,0,
+     &          l_c,i_cent_C,1,lmax_all,0,
      &          dbl_mb(k_ecp_c2s),mem_c2s,
      &          ecp_ints,sz_ints,
      &          .true.,
@@ -436,12 +443,12 @@ c.. make sure scratch array is big enough
             else
 c.. compute ecp integrals <bra|ecp|ket>
               call ecp_integral(
-     &            C,expa,coefa,1,1,type,
-     &            C,expb,coefb,1,1,type,
+     &            C,expa,coefa,1,1,type,i_c_A,
+     &            C,expb,coefb,1,1,type,i_c_B,
      &            C,zeta_c,coef_c,n_prim_C,n_coef_c,
      &            ind_c, n_tot_c,
      &            atscf_n_zetac,
-     &            l_c,1,lmax_all,0,
+     &            l_c,i_cent_C,1,lmax_all,0,
      &            dbl_mb(k_ecp_c2s),mem_c2s,
      &            ecp_ints,sz_ints,
      &            .false.,
