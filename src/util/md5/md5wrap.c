@@ -101,7 +101,7 @@ void checksum_update_(integer *len, const void *buf)
 #ifdef CRAY
 void checksum_char_update_(_fcd f)
 {
-    checksum_update(_fcdlen(f), fcdtocp(f));
+    checksum_update(_fcdlen(f), _fcdtocp(f));
 }
 #else
 void checksum_char_update_(const char *buf, int len)
@@ -113,7 +113,7 @@ void checksum_char_update_(const char *buf, int len)
 #ifdef CRAY
 void checksum_final_(_fcd f)
 {
-    int flen = fcdlen(f);
+    int flen = _fcdlen(f);
 #else
 void checksum_final_(char *f, int flen)
 {
