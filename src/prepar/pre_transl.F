@@ -1,6 +1,6 @@
       logical function pre_transl(itran,jtran,xtran,is,xs,msa,nsa)
 c
-c $Id: pre_transl.F,v 1.1 2000-04-24 14:40:44 d3j191 Exp $
+c $Id: pre_transl.F,v 1.2 2002-04-10 03:13:34 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,7 @@ c
       endif
     1 continue
 c
-      pre_transl=.false.
+      pre_transl=.true.
 c
       return
       end
