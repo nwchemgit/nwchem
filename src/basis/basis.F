@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.85 1998-08-14 22:37:55 d3e129 Exp $
+c $Id: basis.F,v 1.86 1998-09-25 23:25:14 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -181,6 +181,7 @@ c
       call ifill(3, 0, ibs_ce2uce(1,basis), 1)
       call ifill(3, 0, ibs_cn2bfr(1,basis), 1)
       call ifill(3, 0, ibs_ce2cnr(1,basis), 1)
+      nbfmax_bs(basis)    = -565
       ncont_tot_gb(basis) = 0
       nprim_tot_gb(basis) = 0
       ncoef_tot_gb(basis) = 0
@@ -299,6 +300,7 @@ c
 c
       angular_bs(basis)       = -565
       bas_norm_id(basis)      = -565
+      nbfmax_bs(basis)        = -565
       bsactive(basis)         = .false.
       bas_spherical(basis)    = .false.
       bas_any_gc(basis)       = .false.
@@ -3879,7 +3881,6 @@ c
       logical bas_numcont, bas_continfo
       external bas_numcont, bas_continfo
 c::args
-C$Id: basis.F,v 1.85 1998-08-14 22:37:55 d3e129 Exp $
       integer basis_hand ! nwchem basis handle
       integer ncontr_max  ! max no of contractions for any contraction set
 c::locals
