@@ -1,5 +1,5 @@
       subroutine intb_chk_sum(rtdb,basis,print_ints)
-* $Id: intb_chk_sum.F,v 1.1 1995-10-30 20:55:36 d3e129 Exp $
+* $Id: intb_chk_sum.F,v 1.2 1995-12-22 01:39:47 d3e129 Exp $
 * does checksum for 2 electron eri blocking integral interface only
       implicit none
 c::includes
@@ -23,7 +23,8 @@ c::local
       integer i_kqtet, h_kqtet, i_lqtet, h_lqtet ! handles and index for quartet buffers
       integer i_iat, h_iat, i_jat, h_jat         ! handles and index for atom cache
       integer i_kat, h_kat, i_lat, h_lat         ! handles and index for atom cache
-      integer h_stats, i_stats                   ! handles for stats of checksum
+      integer h_stats, i_stats                   ! handle and index for stats of checksum
+      integer h_q4, k_q4                         ! handle and index for q4 symmetry factors
       integer atom_blk_sz                        ! number of atom quartets in atom cache
 c
       logical print69  ! print integrals to unit 69
@@ -167,12 +168,18 @@ c
      &      ma_push_get(MT_INT,max_shell_q,'l cont buffer',
      &      h_lqtet,i_lqtet)
         status = status.and.
+     &      ma_push_get(MT_DBL,max_shell_q,'q4 cont buffer',
+     &      h_q4,k_q4)
+        status = status.and.
      &      ma_push_get(MT_DBL,(5*3),'summary stats',h_stats,i_stats)
         if(.not.status) call errquit
      &      ('intb_chk_sum: ma_push_get failed somewhere',911)
         call intb_all_at_once_gen(basis,nat,max_shell_q,
      &      int_mb(i_iqtet),int_mb(i_jqtet),
      &      int_mb(i_kqtet),int_mb(i_lqtet),num_quart,debug)
+
+        call dfill(num_quart,1.0d00,dbl_mb(k_q4),1)
+
         num_ints_total = 0
         status = intb_init4c(basis,int_mb(i_iqtet),int_mb(i_jqtet),
      &      basis,int_mb(i_kqtet),int_mb(i_lqtet),num_quart,
@@ -184,6 +191,7 @@ c
      &      intb_2e4c(
      &      basis,int_mb(i_iqtet),int_mb(i_jqtet),
      &      basis,int_mb(i_kqtet),int_mb(i_lqtet),num_quart,
+     &      dbl_mb(k_q4),.true.,
      &      zerotol,.false.,
      &      int_mb(i_ilab),int_mb(i_jlab),
      &      int_mb(i_klab),int_mb(i_llab),
@@ -236,6 +244,9 @@ c
      &      ma_push_get(MT_INT,max_shell_q,'l cont buffer',
      &      h_lqtet,i_lqtet)
         status = status.and.
+     &      ma_push_get(MT_DBL,max_shell_q,'q4 cont buffer',
+     &      h_q4,k_q4)
+        status = status.and.
      &      ma_push_get(MT_DBL,(5*3),'summary stats',h_stats,i_stats)
         status = status.and.
      &      ma_push_get(MT_INT,atom_blk_sz,'i atom buffer',
@@ -257,6 +268,7 @@ c
      &      int_mb(i_klab),int_mb(i_llab),
      &      int_mb(i_iqtet),int_mb(i_jqtet),
      &      int_mb(i_kqtet),int_mb(i_lqtet),
+     &      dbl_mb(k_q4),
      &      int_mb(i_iat),int_mb(i_jat),
      &      int_mb(i_kat),int_mb(i_lat),
      &      dbl_mb(i_scr),dbl_mb(i_stats),zerotol,
@@ -272,6 +284,7 @@ c
         status = status .and. ma_pop_stack(h_iat)
       endif
       status = status .and. ma_pop_stack(h_stats)
+      status = status .and. ma_pop_stack(h_q4)
       status = status .and. ma_pop_stack(h_lqtet)
       status = status .and. ma_pop_stack(h_kqtet)
       status = status .and. ma_pop_stack(h_jqtet)
@@ -288,6 +301,7 @@ c
       subroutine intb_atom_blocks_chksum(
      &    leri,memscr,max_q,a_blk,nat,
      &    basis,eri,ilb,jlb,klb,llb,iq,jq,kq,lq,
+     &    q4,
      &    iiat,jjat,kkat,llat,scr,stats,zerotol,
      &    printem,print69,debug)
       implicit none
@@ -302,6 +316,7 @@ c::passed
       integer ilb(leri),jlb(leri),klb(leri),llb(leri)
       integer iq(max_q),jq(max_q),kq(max_q),lq(max_q)
       integer iiat(a_blk),jjat(a_blk),kkat(a_blk),llat(a_blk)
+      double precision q4(max_q)
       double precision scr(memscr),stats(5,3), zerotol
       logical printem,print69,debug
 c::local      
@@ -381,7 +396,7 @@ c---------------------------------------------------------------------
 *.. do group of atoms work              
               num_q = 0
               call intb_quart_from_atoms(basis,iiat,jjat,kkat,llat,
-     &            nat_cache,max_q,iq,jq,kq,lq,num_q,debug)
+     &            nat_cache,max_q,iq,jq,kq,lq,num_q,q4,debug)
 *rak:              write(6,*)'iiat  =',iiat
 *rak:              write(6,*)'jjat  =',jjat
 *rak:              write(6,*)'kkat  =',kkat
@@ -402,7 +417,7 @@ c---------------------------------------------------------------------
      &            ('intb_atom_blocks_chksum: init blocking error',911)
 00002         continue
               more_integrals = intb_2e4c(
-     &            basis, iq, jq, basis, kq, lq, num_q,
+     &            basis, iq, jq, basis, kq, lq, num_q, q4, .true.,
      &            zerotol,.false.,
      &            ilb,jlb,klb,llb,eri,leri,neri,memscr,scr)
 *rak:              write(6,*)
@@ -453,7 +468,7 @@ c---------------------------------------------------------------------
       end
       subroutine intb_quart_from_atoms(
      &    basis,iiat,jjat,kkat,llat,num_at,
-     &    max_q,iq,jq,kq,lq,num_q,debug)
+     &    max_q,iq,jq,kq,lq,num_q,q4,debug)
       implicit none
 c
 c generates all shell quartets for given atom quartets
@@ -467,6 +482,7 @@ c::passed
       integer iiat(num_at),jjat(num_at),kkat(num_at),llat(num_at)
       integer max_q
       integer iq(max_q),jq(max_q),kq(max_q),lq(max_q)
+      double precision q4(max_q)
       integer num_q
       logical debug
 c::local
@@ -476,6 +492,7 @@ c::local
       integer ishi,jshi,kshi,lshi
       integer ish,jsh,ksh,lsh
       integer kstop,jstop,lstop
+      double precision q4_atom
       logical oaij,oakl,oaikjl,status
 c
 *.. reset debug to false
@@ -487,6 +504,7 @@ c
         jat = jjat(iatom)
         kat = kkat(iatom)
         lat = llat(iatom)
+        q4_atom  = 1.0d00   ! later some function of iat,jat,kat,lat
         status = .true.
         status = status .and. bas_ce2cnr(basis, iat, islo, ishi)
         status = status .and. bas_ce2cnr(basis, jat, jslo, jshi)
@@ -514,6 +532,7 @@ c
                   jq(count) = jsh
                   kq(count) = ksh
                   lq(count) = lsh
+                  q4(count) = q4_atom
                   if (debug) 
      &                write(luout,10000)count,
      &                iat,jat,kat,lat,ish,jsh,ksh,lsh
