@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.10 1998-05-18 18:16:27 d3e129 Exp $
+C     $Id: memory_def.F,v 1.11 1998-09-01 21:36:25 d3e129 Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -48,23 +48,29 @@ c     RJH: adjusted defaults to provide more local memory in
 c          light of new integrals, caching and replicated data
 C
 #ifdef DFLT_TOT_MEM
-      Parameter (Total_Dflt = DFLT_TOT_MEM )
+      Parameter (Total_Dflt = DFLT_TOT_MEM )   ! from compile flag
+#elif defined(SP1) || defined(LAPI)
+C     This is probably a minimum configuration for most IBM
+C     platforms, but many will have more.  Assumes dedicated node
+C     access.
+C
+      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sp1 or lapi)
 #elif defined(LINUX)
 c     Our lap tops have 24 MB of pyshical memory
-      parameter (total_dflt = 2097152 ) ! 16 MB
+      parameter (total_dflt = 2097152 ) ! 16 MB (linux)
 #elif defined(SUN) || defined(SOLARIS)
-      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
+      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sun or solaris)
 #elif defined(CRAY_T3E)
 C
 *too large   Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
-      Parameter ( Total_Dflt = 11010052) ! 83 MB on 128 MB node
+      Parameter ( Total_Dflt = 11010052) ! 83 MB on 128 MB node (t3e)
 #elif defined(CRAY_T3D)
 C     Note this is a minimum memory configuration for a T3D
 C     Code seems to be very large on T3D (~10-15 MB)
 C
-      Parameter ( Total_Dflt = 5242880 ) ! 40 MB on a 64 MB node
+      Parameter ( Total_Dflt = 5242880 ) ! 40 MB on a 64 MB node (t3d)
 #elif defined(KSR)
-      Parameter ( Total_Dflt = 2621440 ) ! 20 MB on a 32 MB node
+      Parameter ( Total_Dflt = 2621440 ) ! 20 MB on a 32 MB node  (ksr)
 #elif defined(__PARAGON__)
 C     The OS Version 1.3 release notes give the following table
 C     for memory usage by the OS based on physical memory on the
@@ -76,27 +82,21 @@ C      32 MB       10 MB    1 MB          21 MB    2 763 264 dbl
 C      64 MB       11 MB    1 MB          52 MB    6 815 744 dbl
 C     128 MB       12 MB    1 MB         115 MB   15 973 289 dbl
 C
-      Parameter ( Total_Dflt = 2097152 ) ! 16 MB on a 32 MB node
+      Parameter ( Total_Dflt = 2097152 ) ! 16 MB on a 32 MB node (paragon)
 #elif defined(DELTA)
 C     Note:  RTDB presently needs to be able to malloc to function
 C     so this limit leaves it a little room.  It is pretty much
 C     an upper limit on memory usage on the Delta, unfortunately.
 C
-      Parameter (Total_Dflt = 917504 ) ! 7 MB on a 16 MB node
+      Parameter (Total_Dflt = 917504 ) ! 7 MB on a 16 MB node (delta)
 #elif defined(SGITFP)
-      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
+      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgitfp)
 #elif defined(DECOSF)
-      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node
+      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node (decosf)
 #elif defined(SGI) && ! defined(SGITFP)
-      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node
+      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node (sgi)
 #elif defined(IBM) 
-      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node
-#elif defined(SP1)
-C     This is probably a minimum configuration for most IBM
-C     platforms, but many will have more.  Assumes dedicated node
-C     access.
-C
-      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
+      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node (ibm)
 #endif
 C
 C     Fraction of total memory which goes into each memory category
