@@ -93,7 +93,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.12 1996-01-25 23:15:38 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.13 1996-01-29 23:55:28 mg141 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -278,7 +278,9 @@ c  Note complications to do with writing ints in units of double
 c
        call ifill(10, 0, vtmp, 1 )
        itmp = nnbf+mod(nnbf,2)
-       vtmp(1) = ma_sizeof(MT_INT,(10 + itmp),MT_DBL) + 1
+       vtmp(1) = ma_sizeof(MT_INT,12,MT_DBL) + 
+     $      ma_sizeof(MT_INT,nnbf+mod(nnbf,2),MT_DBL)
+*       vtmp(1) = ma_sizeof(MT_INT,(10 + itmp),MT_DBL) + 1
        vtmp(2) = nnbf
        if (oexch) then
          Call Util_PName('KHalf', fnameK)
@@ -457,7 +459,11 @@ c Initialize
 c
        ploop = 0
        jopass = 1
-       iocnt = ma_sizeof(MT_INT,(10+nnbf+mod(nnbf,2)),MT_DBL) + 1    ! start counting from initial segment
+*       iocnt = ma_sizeof(MT_INT,(10+nnbf+mod(nnbf,2)),MT_DBL) + 1    ! start counting from initial segment
+c       write(6,*) ' old iocnt', iocnt
+       iocnt = ma_sizeof(MT_INT,12,MT_DBL) + 
+     $      ma_sizeof(MT_INT,nnbf+mod(nnbf,2),MT_DBL)
+c       write(6,*) ' new iocnt', iocnt
        next = nxtval(num_nodes)
        tpass = tcgtime()
 c
@@ -878,6 +884,7 @@ c
       logical status
       double precision moints_epair_eval
       external moints_epair_eval
+       integer i
 
       tmp2 = tcgtime()
       Call Util_PName('KHalf', fname)
@@ -890,6 +897,9 @@ c
       call moints_vrange( kunit, balo, bahi, nnbf, ioff )
       status = ma_push_get(MT_INT,(nnbf+mod(nnbf,2)),'scatter',l_v,k_v)
       call moints_getscattv( kunit, nnbf, int_mb(k_v) )
+c$$$       do i=1,nnbf
+c$$$         write(6,*) 'k_v',int_mb(k_v+i-1)
+c$$$       enddo
       if (.not.ga_create( MT_DBL, (nvir*nvir), nocc, 'exch',
      $                    (nvir*nvir), 1, g_exch))
      $    call errquit('moints_semimp2: cannot allocate exch',0)
