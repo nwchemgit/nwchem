@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.58 1997-03-12 21:45:09 d3e129 Exp $
+C     $Id: geom_input.F,v 1.59 1997-03-12 22:12:39 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -5771,6 +5771,8 @@ C
          NIBOND(IAT)=NIBNDS(IAT)
       ENDDO
 C
+      IF(NAT.LE.1) RETURN
+C
 C     ----- BONDS -----
 C
       NBND=NBOND
@@ -5860,6 +5862,8 @@ C
          IIBOND(IAT)=IIBNDS(IAT)
          NIBOND(IAT)=NIBNDS(IAT)
       ENDDO
+C
+      IF(NAT.LE.2) RETURN
 C
       NANG=0
       DO IAT=1,NAT
@@ -6036,6 +6040,8 @@ C
          IIBOND(IAT)=IIBNDS(IAT)
          NIBOND(IAT)=NIBNDS(IAT)
       ENDDO
+C
+      IF(NAT.LE.3) RETURN
 C
       NTOR=0
       DO IAT=1,NAT
@@ -6220,6 +6226,8 @@ C
          NIBOND(IAT)=NIBNDS(IAT)
       ENDDO
 C
+      IF(NAT.LE.3) RETURN
+C
       NOOP=0
       DO IAT=1,NAT
          DO IJBND=IIBOND(IAT)+1,IIBOND(IAT)+NIBOND(IAT)
@@ -6392,6 +6400,9 @@ C
 C     ----- LINEAR-BENDS -----
 C
       NLBND=0
+C
+      IF(NAT.LE.3) RETURN
+C
       IF(DBUG) THEN
          IF(NLBND.GT.1) THEN
             WRITE(IW,9994)
