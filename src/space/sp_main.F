@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.64 2001-11-13 22:26:50 d3j191 Exp $
+c $Id: sp_main.F,v 1.65 2001-11-14 19:30:08 d3j191 Exp $
 c
       implicit none
 c
@@ -1202,7 +1202,22 @@ c
 c
       if(nwmloc.gt.0) then
       do 21 iwm=1,nwmloc
-      if(iwl(iwm,lwnod).eq.me) nwstay=iwm
+      if(iwl(iwm,lwnod).eq.me) then
+      nwstay=iwm
+      else
+c
+c     check if moving atoms go to neighboring processor
+c
+      do 222 k=1,27
+      if(iwl(iwm,lwnod).eq.neighb(k,1)) goto 223
+  222 continue
+      write(string,'(a,i4,a,i4,a,i4)') 'sp_travel: solvent molecule ',
+     + iwl(iwm,lwgmn),' moving to non-neighbor ',iwl(iwm,lwnod),
+     + ' from ',me
+      call errquit(string,me)
+  223 continue
+c
+      endif
 c
 c     testcode
 c
