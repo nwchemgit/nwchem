@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.8 1998-12-23 19:41:22 d3j191 Exp $
+c $Id: esp_input.F,v 1.9 1999-02-14 22:28:28 d3j191 Exp $
 c
       implicit none
 c
@@ -37,7 +37,7 @@ c
       idump=0
       lscrn=0
       newgrd=0
-      scrtol=1.0d-5
+      scrtol=0.0d0
       toler=1.0d-4
       maxit=25
       resa=0.0d0

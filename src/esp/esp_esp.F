@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.11 1999-02-01 15:59:18 d3j191 Exp $
+c $Id: esp_esp.F,v 1.12 1999-02-14 22:28:27 d3j191 Exp $
 c
       implicit none
 c
@@ -84,7 +84,7 @@ c
      + call errquit('esp: bas_cn2bfr failed',me)
       do 4 ish=1,jsh
       if(lscrn.ne.0) then
-      if(schwarz_shell(ish,jsh).lt.1.0d-5) goto 4
+      if(schwarz_shell(ish,jsh).lt.scrtol) goto 4
       endif
       fact=1.0d0
       if(ish.ne.jsh) fact=2.0d0
@@ -93,7 +93,7 @@ c
       npts=ngto-ngfr+1
       call esp_getden(dns,jlo,jhi,ilo,ihi)
       call potential_from_shell_pair(ibasis,jsh,ish,dns,mbf,
-     + 0.0d0,dwk,diwk,6,npts,grid(1,ngfr),val(ngfr),fact)
+     + scrtol,dwk,diwk,6,npts,grid(1,ngfr),val(ngfr),fact)
     4 continue
       call ga_dgop(mre_003,val,ngrid,'+')
       if(me.eq.0) then

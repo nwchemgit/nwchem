@@ -1,6 +1,6 @@
       subroutine esp_plt(x,q,g,t)
 c
-c $Id: esp_plt.F,v 1.2 1999-01-29 21:15:35 d3j191 Exp $
+c $Id: esp_plt.F,v 1.3 1999-02-14 22:28:28 d3j191 Exp $
 c
       implicit none
 c
@@ -69,7 +69,7 @@ c      endif
     3 continue
       if(np.gt.1) call ga_dgop(mre_003,g,mgrid(1)+2,'+')
       if(me.eq.0) then
-      call arg_swatch(today,now)
+      call esp_swatch(today,now)
       write(lfnplt,1003) (g(ix),ix=1,mgrid(1)+2)
  1003 format(2e20.12)
 c      write(*,1004) today,now,iy,iz
