@@ -1,0 +1,651 @@
+c
+c (atw) Modified to directly create the distributed AO-density
+c       from the atomic density blocks
+c (7/3/94)
+c
+c Routines changed: (see guess_dens1.F)
+c                    guess_dens
+c                    guess_mem
+c                    denat
+c                    datoms
+c                    creded
+c                    pdfded
+c
+c
+
+
+
+
+
+
+
+#ifndef ADRIANS_CRAP
+      subroutine guess_dens(rtdb, basis, g_dens, g_old_dens, iprint)
+      implicit none
+c
+#include "mafdecls.h"
+#include "global.h"
+#include "tcgmsg.h"
+c
+c     arguments
+c
+      integer rtdb, basis, g_dens, g_old_dens, iprint
+c
+c     local variables
+c
+      integer nshell, iproc, nproc, mem1, max1e
+      integer natoms, nbf, nprim, maxprim, max_l, max_sh_bf, max_at_bf
+c
+      integer l_dens, l_scr
+      integer k_dens, k_scr
+      logical status
+c
+      integer iread, iwrite
+      common /iofile/ iread,iwrite
+c
+c     Global array g_dens     = Density Matrix
+c     Global array g_old_dens = old Density Matrix
+c
+c
+      call ga_zero(g_dens)
+      call ga_zero(g_old_dens)
+c
+c     Get info about the basis set
+c
+      call gto_info(basis, natoms, nshell, nbf, nprim, maxprim,
+     $     max_l, max_sh_bf, max_at_bf)
+c
+      iwrite = 6
+c
+      iproc = nodeid()
+      nproc = nnodes()
+c     iproc = ga_nodeid()
+c     nproc = ga_nnodes()
+c
+c     allocate necessary local temporary arrays on the stack
+c
+c     l_dens ... buffer for density
+c     l_scr ... workspace for guess routines
+c
+c     k_* are the offsets corrsponding to the l_* handles
+c
+c
+c     guess_mem call ... 
+c
+      call guess_mem(mem1, max1e, nbf)
+c
+      status = MA_push_get(MT_DBL, max1e, 'guess_dens: dens', 
+     +                     l_dens, k_dens)
+      status = MA_push_get(MT_DBL, mem1,  'guess_dens: scr', 
+     +                     l_scr, k_scr)
+c
+c
+      call denat(dbl_mb(k_dens), nbf, natoms, iprint, iproc, 
+     +           dbl_mb(k_scr),  mem1)
+      call square(dbl_mb(k_scr), dbl_mb(k_dens), nbf, nbf)
+c
+      call ga_put(g_dens,1,nbf,1,nbf,dbl_mb(k_scr),nbf)
+      call ga_put(g_old_dens,1,nbf,1,nbf,dbl_mb(k_scr),nbf)
+c
+c     chop stack at first item allocated
+c
+      status = MA_pop_stack(l_scr)
+      status = MA_pop_stack(l_dens)
+c
+      end
+      subroutine guess_mem(mem1, max1e, nbf)
+c
+      implicit none
+c
+      integer mem1, nbf, max1e
+c
+c..   calculate memory requirements for atomic guess routines
+c..
+      integer nb, no, ntr, nsq
+      integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
+      integer ih, idc, idos, idt, idold, iss, ic, icopn, ismin
+      integer iqmin, itransf, icc
+c..
+c..    core partitioning
+c..
+      max1e = nbf*(nbf+1)/2
+c
+c     allow for maximum of 100 bfns on any given atom
+c
+      nb = 100
+      no = 50
+      ntr = nb*(nb+1)/2
+      nsq = nb * nb
+c
+c
+      i10 = 1
+      ipcap = i10 + max1e
+      iqcap = ipcap + ntr
+      ifc = iqcap + ntr
+      ifo = ifc + ntr
+      is = ifo + ntr
+      iu = is + ntr
+      it = iu + ntr
+      ih = it + ntr
+      idc = ih + ntr
+      idos = idc + ntr
+      idt = idos + ntr
+      idold = idt + ntr
+      iss = idold + ntr
+      ic = iss + ntr
+c
+      icopn = ic + nsq
+      ismin = icopn + nsq
+      iqmin = ismin + nb * no
+      itransf = iqmin + nb * no
+      icc = itransf + nsq
+      mem1 = icc + nsq - 1
+c
+c     NOTE: later inserts required for pseudopotentials
+c
+      end
+      subroutine denat(dens,nbf,nat,iprint,iproc,q,memq)
+c
+      implicit none
+c
+      integer nat, nbf
+      integer iprint, memq, iproc
+c
+c..   get starting vectors from superposition of atomic densities
+c..
+c..   routines involved are (all present in this order) :
+c..   denat  : general control routine
+c..   datoms : translate orbital info, call atomscf , gather d-matrix
+c..   atomd,tracd,trafsd,cmergd,oeigd,teigd,densid,denmad, ..
+c..   .. hamild,outpud,shalfd,atcond,starcd,creded,pdfded, ..
+c..   .. jacod,orderd,tramad
+c..   oeigd has been changed to pick up the 1-elec ints
+c..   atcond has been changed to allow for effective nuclear charge
+c..   creded/pdfded have been adapted to yield directly a d-matrix
+crz   xpsnld: implemented for use of non local pseudo potentials
+c..
+c...    start all types after one cycle closed shell in routine denscf
+c
+      real *8 q(memq),dens(*)
+c
+      integer iread, iwrite
+      common/iofile/ iread,iwrite
+c
+      logical oprinv
+      integer l2
+      integer nb, no, ntr, nsq
+      integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
+      integer ih, idc, idos, idt, idold, iss, ic, icopn, ismin
+      integer iqmin, itransf, icc, last
+c
+      if (iproc.eq.0) write (iwrite,6010)
+c..
+c..    core partitioning
+c..
+      oprinv = iprint.eq.2
+      l2 = nbf*(nbf+1)/2
+c
+c..   zero total density matrix
+c..
+C      call vclr(dens,1,l2)
+      call dfill(l2,0.d0,dens,1)
+       
+c
+c     allow for maximum of 100 bfns on any given atom
+c
+      nb = 100
+      no = 50
+      ntr = nb*(nb+1)/2
+      nsq = nb * nb
+c
+c
+      i10 = 1
+      ipcap = i10 + l2
+      iqcap = ipcap + ntr
+      ifc = iqcap + ntr
+      ifo = ifc + ntr
+      is = ifo + ntr
+      iu = is + ntr
+      it = iu + ntr
+      ih = it + ntr
+      idc = ih + ntr
+      idos = idc + ntr
+      idt = idos + ntr
+      idold = idt + ntr
+      iss = idold + ntr
+      ic = iss + ntr
+c
+      icopn = ic + nsq
+      ismin = icopn + nsq
+      iqmin = ismin + nb * no
+      itransf = iqmin + nb * no
+      icc = itransf + nsq
+      last = icc + nsq
+c
+c     NOTE: later inserts required for pseudopotentials
+c
+c..     get core
+c
+c..    to supply to the atomic scf routines to cover
+c..    pseudo-potential calculations
+c..     d in  dens    /  workspace in i10 (exact fit)
+c      pseudo corrections in i15 .. NOW REMOVED
+c..    **** not symmetry adapted ****
+c..
+c..
+c..   now loop over the atoms / do atomic scf and gather d-matrix
+c..
+      call datoms(q(i10),dens,oprinv,iproc,
+     +    q(ipcap), q(iqcap), q(ifc), q(ifo), q(is), q(iu), 
+     +    q(it), q(ih), q(idc), q(idos), q(idt), q(idold), q(iss) ,
+     +    q(ic), q(icopn), q(ismin), q(iqmin), q(itransf), q(icc) ,
+     +    nb) 
+c
+c..   print if requested
+c
+      if (oprinv.and.iproc.eq.0) then
+         write (iwrite,6020)
+         call writel(dens,nbf,.false.)
+      end if
+c
+      return
+ 6010 format (/,' initial guess orbitals generated by ',
+     +        'superposition of atomic densities',/)
+ 6020 format (//30x,28('-'),/,30x,'   initial guess density   ',/,30x,
+     +        28('-')//)
+      end
+      subroutine datoms(hatom,d,oprin,iproc,
+     + pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
+     + cvec, copn, smin, qmin, transf, cc, nbb)
+c
+      implicit none
+      logical osatod
+c
+c...   subroutine to coordinate atom-scf calls and d-matrix gathering
+c...   for atomic startup
+c...   h,t  : full h-matrix and t-matrix to supply to atom
+c...   d    : full density matrix as return parameter
+c...
+c...   **note** data is transferred to atom directly via common/cguess/
+c
+c
+      integer nbb, iproc
+      real *8 hatom(*), d(*)
+      real *8 pcap(*), qcap(*), fc(*), fo(*), s(*), u(*), t(*)
+      real *8 h(*), dc(*), dos(*), dt(*), dold(*), ss(*)
+      real *8 cvec(*), copn(*), smin(nbb,*), qmin(nbb,*),transf(*),cc(*)
+      logical oprin
+c
+c...   commons where information comes from :
+c
+#include 'int.h'
+c
+      integer iread, iwrite
+      common /iofile/ iread,iwrite
+      integer kmin, kmax, nuct
+      common /iguess/ kmin(mxshell), kmax(mxshell), nuct(mxnat)
+c
+c...   common where info goes to :
+c
+      integer nb, no
+      parameter (nb=100, no=50)
+      integer nsym, nbas, ncsh, nosh, nccup, nsht, nitscf
+      integer nqn, n1, nconv, nbc, nbct, nstrt, ifcont
+      real *8 zn, zeta, eps, cin, vir, energ, ajmn, damp, cont
+      common /cguess/nsym,nbas(5),ncsh(5),nosh(5),nccup(6),nsht,nitscf,
+     + zn,n1(6),nqn(nb),zeta(nb),eps(no),cin,vir,energ,ajmn(24),damp,
+     + nconv,nbc(5),cont(nb),nbct,nstrt(nb),ifcont
+c
+      integer ic(6,nb),iiloc(nb,6),iisch(nb,6)
+      logical odone(mxnat)
+c
+      integer i, ii, ispdf, iat, j, k, iorb
+      integer kk, mini, maxi
+      integer kkzc, kh, isymax, is, if
+      real *8 pi32, toteng, ee, fac, znps
+c
+c..    we need xy for d and xyz for f in gathering h-ints
+c..    so set proper offsets in ioffhp (see do 140)
+c
+      integer ioffhp(4)
+      data ioffhp/0,0,3,9/
+c
+      integer maxtyp
+      parameter (maxtyp = 6)
+      integer minf(maxtyp),maxf(maxtyp)
+      data minf  / 1, 2,  5, 11, 21, 1 /
+      data maxf  / 1, 4, 10, 20, 35, 4 /
+c
+c..
+      data pi32/5.56832799683170d0/
+c
+      do i = 1,nshell
+        ii = ktype(i)
+        kmin(i) = minf(ii)
+        kmax(i) = maxf(ii)
+      enddo
+c
+      toteng = 0.0d0
+      do i = 1 , nat
+         nuct(i) = 1
+         odone(i) = .false.
+      enddo
+c
+c...  loop over atoms like adapt does
+c
+      do iat = 1 , nat
+c
+c ... eliminate ghost/dummies/point charges
+c
+         if (nuct(iat).ne.1) then
+            odone(iat) = .true.
+            go to 110
+c..
+c..   check if we have already treated this one or if it is of same
+c..   type as the one we just did
+         else if (iat.gt.1) then
+            if (odone(iat)) then
+               odone(iat) = .true.
+               go to 110
+            else if (osatod(iat,ic,iiloc,iisch,nbb)) then
+               go to 100
+            end if
+         end if
+c
+c...  gather  shell / symmetry info
+c
+         do i = 1 , 4
+            nbc(i) = 0
+         enddo
+c
+c   nbc  # shell's / symmetry
+c   iisch  contains index of shell
+c   iiloc  contains position of starting ao of shell in "real" world
+c   translate to 1 (s)
+c
+         do ii = 1 , nshell
+            i = katom(ii)
+            if (i.eq.iat) then
+               mini = kmin(ii)
+               maxi = kmax(ii)
+               kk = ktype(ii)
+               if (kk.eq.6) kk = 2
+               do iorb = mini , maxi
+                  if (iorb.eq.1) then
+                     nbc(1) = nbc(1) + 1
+                     iisch(nbc(1),1) = ii
+                     iiloc(nbc(1),1) = kloc(ii)
+                  else if (iorb.eq.2 .or. iorb.eq.5 .or. iorb.eq.11)
+     +                     then
+c..  translate to 2 (p) 3(d) or  4(f)
+                     ispdf = kk
+                     nbc(ispdf) = nbc(ispdf) + 1
+                     iisch(nbc(ispdf),ispdf) = ii
+                     iiloc(nbc(ispdf),ispdf) = kloc(ii) + iorb - mini
+                  end if
+               enddo
+            end if
+         enddo
+c..
+c..     we gathered symmetry/shell info ; now get the real thing
+c..
+         kkzc = 0
+         kh = 0
+         isymax = 0
+         do ispdf = 1 , 4
+c..      nbas = total # primitives for this symmetry
+            nbas(ispdf) = 0
+            if (nbc(ispdf).gt.0) isymax = ispdf
+            do j = 1 , nbc(ispdf)
+               ii = iisch(j,ispdf)
+               is = kstart(ii)
+               if = is + kng(ii) - 1
+c..      ic = # number of primitives /contracted /symmetry
+               ic(ispdf,j) = kng(ii)
+               nbas(ispdf) = nbas(ispdf) + kng(ii)
+c..      gather the primitives / watch the subtle use of 2-dim cspd
+               do k = is , if
+                  kkzc = kkzc + 1
+                  zeta(kkzc) = ex(k)
+                  cont(kkzc) = cspd(k,ispdf)
+c...     get contraction coeff's as we are used to
+                  ee = 2*zeta(kkzc)
+                  fac = pi32/(ee*sqrt(ee))
+                  if (ispdf.eq.2) then
+                     fac = 0.5d0*fac/ee
+                  else if (ispdf.eq.3) then
+                     fac = 0.75d0*fac/(ee*ee)
+                  else if (ispdf.eq.4) then
+                     fac = 1.875d0*fac/(ee**3)
+                  end if
+                  cont(kkzc) = cont(kkzc)*sqrt(fac)
+               enddo
+c...     in the pseudopotential case, we would be involved in
+c...     gathering  the h integrals for the contracted ao's
+c...     so that they are added in at the right time (in atomd)
+c...     use proper offset to use pure d or f functions (ioffhp)
+c...     only the comments remain ...
+               do k = 1 , j
+                  kh = kh + 1
+                  hatom(kh) = 0.0d0
+               enddo
+c...
+            enddo
+         enddo
+c..
+c..     all prepared call  atomd
+c..     zeta,cont,nbas,nbc,nbas,ic,zn are passed via cguess
+c..     energ and the density matrix dt are received via cguess
+c..     note zn is the real nuclear charge / znps is the effective charg
+c..
+         zn = zan(iat)
+         znps = zan(iat)
+c
+         call atomd(oprin,iwrite,znps,ic,isymax,hatom,
+     +    pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
+     +    cvec, copn, smin, qmin, transf, cc, nbb)
+c..
+ 100     toteng = toteng + energ
+c..
+c..      now add density-matrix to the molecular d-matrix
+c..
+         call creded(d,dt,iiloc,nbb)
+c..
+         odone(iat) = .true.
+ 110  continue
+      enddo
+c..
+      if (iproc.eq.0) write (iwrite,6010) toteng
+c..
+      return
+ 6010 format (/1x,'***** total atomic energy ',f17.8,' *** ')
+      end
+#endif /* ADRIANS_CRAP */
+
+
+
+#ifndef ADRIANS_CRAP
+      subroutine creded(d,dt,iiloc,nbb)
+c
+      implicit none
+c
+c..   routine to merge atomic density matrix into molecular one
+c..   is called straight after atom, so all info is still in
+c..   common /cguess/ : i.e. dt,nbc
+c
+      integer nbb
+      real *8 d(*),dt(*)
+      integer iiloc(nbb,6)
+c
+      integer nb, no, nsym, nbas, ncsh, nosh, nccup, nsht, nitscf, n1
+      integer nqn, nconv, nbc, nbct, nstrt, ifcont
+      real *8 zn, zeta, eps, cin, vir, energ, ajmn, damp, cont
+      parameter (nb=100, no=50)
+      common /cguess/nsym,nbas(5),ncsh(5),nosh(5),nccup(6),nsht,nitscf,
+     + zn,n1(6),nqn(nb),zeta(nb),eps(no),cin,vir,energ,ajmn(24),damp,
+     + nconv,nbc(5),cont(nb),nbct,nstrt(nb),ifcont
+c..
+      real *8 dmult(145)
+c..
+crz   order of d's and f's in GAMESS is completely different
+crz   from MOLECULE !!
+c
+c     dmult consists of :
+c     nothing for s;
+c      p functions (1 line)
+c      d functions (next 4 lines)
+c      f functions (last lines)
+c      -0.670820393 = -0.3*sqrt(5) (used for f)
+c
+      data dmult/ 1.0d0, 3*0.0d0, 1.0d0, 3*0.0d0, 1.0d0,
+     x  1.0d0, -0.5d0, -0.5d0, 3*0.0d0,
+     x -0.5d0,  1.0d0, -0.5d0, 3*0.0d0,
+     x -0.5d0, -0.5d0,  1.0d0, 3*0.0d0,
+     x  3*0.0d0, 1.0d0, 6*0.0d0, 1.0d0, 6*0.0d0, 1.0d0,
+     x  1.0d0,   4*0.0d0, -0.670820393d0, 0.0d0,-0.670820393d0, 2*0.0d0,
+     x  0.0d0,1.0d0,0.0d0,-0.670820393d0, 4*0.0d0,-0.670820393d0, 0.0d0,
+     x2*0.0d0,1.0d0,0.0d0,-0.670820393d0, 0.0d0,-0.670820393d0, 3*0.0d0,
+     x   0.0d0, -0.670820393d0,  0.0d0,  1.2d0, 4*0.0d0, -0.3d0,  0.0d0,
+     x 2*0.0d0, -0.670820393d0,  0.0d0,  1.2d0,  0.0d0, -0.3d0, 3*0.0d0,
+     x  -0.670820393d0,         4*0.0d0, 1.2d0,  0.0d0, -0.3d0, 2*0.0d0,
+     x 2*0.0d0, -0.670820393d0,  0.0d0, -0.3d0,  0.0d0,  1.2d0, 3*0.0d0,
+     x  -0.670820393d0,     4*0.0d0,    -0.3d0,  0.0d0,  1.2d0, 2*0.0d0,
+     x   0.0d0, -0.670820393d0, 0.0d0, -0.3d0, 4*0.0d0,  1.2d0,   0.0d0,
+     x 9*0.0d0,  1.0d0/
+c.......................................................................
+c         among the variables used are:
+c
+c              nsym       - highest l-quantum no. used in atomic calc.
+c              dt         - atomic density matrix
+c              d          - area for final molecular density matrix.
+c.......................................................................
+c
+      integer k, l, m
+      integer lm, nbci, noff, kdim, kmone, kpoint
+      real *8 factor
+c..
+c..    triangle statement function
+c..
+      integer itrian, i, j
+      itrian(i,j) = max0(i,j)*(max0(i,j)-1)/2 + min0(i,j)
+
+c..
+      lm = 0
+      do k = 1 , nsym
+         nbci = nbc(k)
+         if (k.eq.1) then
+c.......................................................................
+c
+c       s-orbitals, simple distribution of matrix elements.
+c
+c.......................................................................
+            do l = 1 , nbci
+               do m = 1 , l
+                  noff = itrian(iiloc(l,1),iiloc(m,1))
+                  lm = lm + 1
+                  d(noff) = dt(lm)
+               enddo
+            enddo
+         else if (k.le.4) then
+            kdim = k*(k+1)/2
+            kmone = k - 1
+            kpoint = kmone*(kmone+1)*(((6*kmone+24)*kmone+26)*kmone+4)
+     +               /120
+            factor = 1.d0/(k+k-1)
+            call pdfded(k,kdim,d,dt,factor,dmult(kpoint),lm,nbci,
+     +                  iiloc(1,k))
+         end if
+      enddo
+c..
+      return
+      end
+#endif /* ADRIANS_CRAP */
+
+
+#ifndef ADRIANS_CRAP
+
+      subroutine pdfded(k,kdim,d,dhelp,factor,dmult,lm,nbci,iiloc)
+      implicit none
+c.......................................................................
+c
+c     routine for distributing atomic densities to the molecular
+c     density matrix. note that the number of orbitals differ in
+c     the molecular and atomic case for d and f orbitals. transformat-
+c     ion matrices are provided in dmult(*,*). to work out these tables
+c     real atomic orbitals are needed. for f functions these are:
+c              sqrt(1/60)*(2zzz-3zyy-3zxx)
+c              sqrt(1/40)*(4zzy-yyy-xxy)
+c              sqrt(1/40)*(4zzx-xxx-xyy)
+c                    xyz
+c              sqrt(1/4)*(xxz-yyz)
+c              sqrt(1/24)*(3xxy-yyy)
+c              sqrt(1/24)*(3xyy-xxx)
+c     normalization of primitives is given by (xyz:xyz)=1, (xxy:xxy)=3
+c     (xxx:xxx)=15.
+c
+c.......................................................................
+c..
+      integer k, kdim, lm, nbci
+      real *8 d(*),dhelp(*),dmult(kdim,kdim)
+      real *8 factor
+      integer iiloc(nbci)
+c
+      integer l, na, m, nb
+      integer lmsave, nbrang, noff
+      real *8 delem
+c     
+      integer i, j, itria2
+      itria2(i,j,na) = (max0(i,j)+na-1)*(max0(i,j)+na-2)/2 + min0(i,j)
+c..
+c..
+      do l = 1 , nbci
+         lmsave = lm
+         do na = 1 , kdim
+            lm = lmsave
+            do m = 1 , l
+               noff = itria2(iiloc(m),iiloc(l),na) - 1
+               lm = lm + 1
+               delem = dhelp(lm)*factor
+               nbrang = kdim
+               if (m.eq.l) nbrang = na
+               do nb = 1 , nbrang
+                  noff = noff + 1
+                  d(noff) = delem*dmult(na,nb)
+               enddo
+            enddo
+         enddo
+      enddo
+c..
+      return
+      end
+      subroutine guess_dens(geom, basis, g_dens)
+      implicit none
+#include "mafdecls.fh"
+      integer geom, basis       ! [input] handles
+      integer g_dens            ! [input] GA returns superposition of AO dens
+c     
+      integer memscr            ! Size of scratch required in doubles
+      integer l_scr,k_scr
+      logical status
+c     
+c     Return in g_dens a full square matrix with atomic HF densities 
+c     along the diagonal and zeroes elsewhere
+c
+      call ga_zero(g_dens)
+c     
+      call guess_mem(memscr)
+      
+#ifdef DEBUG
+      if (ga_nodeid().eq.0) then
+         print*,'Maximum primitives:',nprim
+         print*,'Scratch space:',memscr
+         call flush_output()
+      endif
+#endif
+      
+      status = ma_push_get(MT_DBL,memscr,'guess scratch',l_scr,k_scr)
+      call denat(geom,basis,1,dbl_mb(k_scr),memscr,g_dens)
+      status = ma_pop_stack(l_scr)
+      
+      return
+      end

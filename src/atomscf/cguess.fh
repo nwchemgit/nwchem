@@ -1,0 +1,32 @@
+c
+c     common used by guess routines for storing info and passing arguments
+c
+      integer nb                ! Maximum no. of primitives on any atom
+      integer no                ! Maximum no. of orbitals on any atom ??
+      parameter (nb=200, no=50)
+c
+      integer nsym              ! highest l-quantum no. used in atomic calc
+      integer nbas              ! No. of primitives of each sym
+      integer ncsh              ! No. of closed shell orbs of each sym
+      integer nosh              ! No. of open ...
+      integer nsht              ! No. of open+closed shells of each sym
+      integer nccup             ! No. of open-shell electrons of each sym ??
+      integer nitscf            ! CUrrent/final no. of SCF iterations
+      integer n1                ! No. of contracted orbitals in symm
+      integer nconv             ! =1 if SCF is converged
+      integer nbc               ! No. of cont. orbitals in symmetry i
+      integer nbct              ! Total number of cont. basis functions
+      integer nstrt             ! number for first primitive in cont. no. i
+      double precision zn       ! Effective nuclear charge
+      double precision zeta     ! Exponents of primitives
+      double precision eps      ! Orbital energies
+      double precision cin      ! Kinetic energy
+      double precision vir      ! Virial
+      double precision energ    ! Energy
+      double precision ajmn     ! Coupling coefficients
+      double precision damp     ! Damping factor for the SCF
+      double precision cont     ! Contraction coeffs
+      common /cguess/zn,zeta(nb),eps(no),cin,vir,energ,ajmn(24),damp,
+     $     cont(nb),nsym,nbas(5),ncsh(5),nosh(5),nccup(6),nsht,nitscf,
+     $     n1(6),nconv,nbc(5),nbct,nstrt(nb)
+c
