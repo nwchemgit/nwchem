@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.380 2002-02-18 23:40:11 edo Exp $
+# $Id: makefile.h,v 1.381 2002-02-19 02:34:16 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1174,7 +1174,6 @@ ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
    EXTRA_LIBS +=  -lreadline -lncurses -lnwcutil  -lpthread -ldl
-   INCPATH += -I/usr/include/python1.5
 endif
 
   DEFINES = -DLINUX -DPARALLEL_DIAG
@@ -1194,6 +1193,9 @@ ifeq ($(LINUXCPU),x86)
   FOPTIMIZE  =  -O2  -malign-double -finline-functions 
   FOPTIMIZE  +=  -march=$(_CPU)
   COPTIONS   = -Wall -march=$(_CPU) -malign-double 
+    ifeq ($(_CPU),i786)
+  COPTIONS   = -Wall -march=i686 -malign-double 
+    endif
 # FOPTIMIZE  +=  -m486
 # COPTIONS   = -Wall -m486 -malign-double 
   COPTIMIZE  = -g -O2
