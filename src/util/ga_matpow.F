@@ -3,7 +3,7 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.4 1996-04-19 21:02:27 gg502 Exp $
+C     $Id: ga_matpow.F,v 1.5 1997-02-17 22:18:07 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)
@@ -140,10 +140,18 @@ C
 #endif
 #endif /* defined(USE_GEN_DIAG) */
 C
+C     Sometimes people may just want a look at the eigenvalues.
+C
+      If ( Util_Print('ga_matpow eigenvalues', Print_Debug)
+     $   .OR. Util_Print('ga_matpow details', Print_Debug) ) then
+         If ( GA_NodeID() .eq. 0 ) then
+            Call DGeWr(1, Rows, Dbl_MB(Eval_Idx), 1, 0, 0, LuOut,
+     $         'GA_MatPow Eigenvalues', 80, 'E15.6', Junk)
+         EndIf
+         Call GA_Sync
+      EndIf
       If ( Util_Print('ga_matpow details', Print_Debug) ) then
          If ( GA_NodeID() .eq. 0 ) then
-c$$$            Call DGeWr(1, Rows, Dbl_MB(Eval_Idx), 1, 0, 0, LuOut,
-c$$$     $           'GA_MatPow Eigenvalues', 80, 'E15.6', Junk)
             Call Util_Print_Centered(LuOut, 'GA_MatPow Vectors', 40,
      $           .TRUE.)
          EndIf
@@ -182,6 +190,15 @@ C
       If ( Have_Diag ) then
          Do D = DiagLo, DiagHi
             Elem = Dbl_MB( Eval_Idx + D - 1) 
+C
+C           It seems that in the RI-MP2 application, very large
+C           fitting basis sets can lead to a fair number of eigenvalues
+C           which are negative, but small (< ~1e-5).  We suppose that
+C           these arise from small numerical inaccuracies in the
+C           integrals, and perhaps in the eigensolver.  In any case,
+C           requiring strict positive definiteness seems too harsh
+C           in practice.
+C
 c$$$C
 c$$$            If ( Elem .lt. FP_Zero ) then
 c$$$               Write (LuErr, *) 'V is not positive definite! ',
@@ -192,7 +209,7 @@ c$$$            EndIf
 C
             If ( Pow .lt. FP_Zero .AND. Elem .lt. MinEval ) then
                Write (LuErr, *)
-     $            'Setting small eigenvalue to infinity ', D, Elem
+     $            'Dropping small eigenvalue ', D, Elem
                Elem = FP_Zero
             ElseIf (Pow .eq. -FP_Half) then
                Elem = FP_One / Sqrt( Elem )
