@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,epme)
-c $Id: pme_grid.F,v 1.32 2003-08-18 15:54:23 d3j191 Exp $
+c $Id: pme_grid.F,v 1.33 2003-08-18 16:14:15 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -350,12 +350,10 @@ c
 c
 c     wait until potential grid is available
 c
-      print*,'wait in'
       call timer_start(39)
       call pme_wait(0,1)
       call timer_stop(39)
       call timer_start(40)
-      print*,'wait out'
 c
       do 1 inode=1,np
       node=me+inode
