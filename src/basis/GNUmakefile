@@ -1,4 +1,7 @@
-#$Id: GNUmakefile,v 1.43 2001-08-28 00:54:37 edo Exp $
+#$Id: GNUmakefile,v 1.44 2001-12-14 19:24:56 bert Exp $
+TARGET = $(NWCHEM_TARGET)
+include ../tools/armci/config/makecoms.h
+include ../tools/armci/config/makemp.h
 include ../config/makefile.h
 
        LIBRARY = libnwcutil.a
@@ -19,12 +22,12 @@ endif
    LIB_TARGETS = testbasis testbasis.o libcheck
 
 ifeq ($(TARGET),DELTA)
-   LIB_DEFINES = -DBASIS_LIBRARY="'library'"
+   LIB_DEFINES = -DBASIS_LIBRARY="'libraries/'"
 else
 ifdef NWCHEM_BASIS_LIBRARY_PATH
    LIB_DEFINES = -DBASIS_LIBRARY="'$(NWCHEM_BASIS_LIBRARY_PATH)'"
 else
-   LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)/basis/library'"
+   LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)/basis/libraries/'"
 endif
 endif
 
@@ -32,22 +35,20 @@ ifeq ($(TARGET),FUJITSU_VPP)
 ifdef NWCHEM_BASIS_LIBRARY_PATH
    LIB_DEFINES = -Wp,-DBASIS_LIBRARY=$(NWCHEM_BASIS_LIBRARY_PATH)
 else
-   LIB_DEFINES = -Wp,-DBASIS_LIBRARY="'$(SRCDIR)/basis/library'"
+   LIB_DEFINES = -Wp,-DBASIS_LIBRARY="'$(SRCDIR)/basis/libraries/'"
 endif
 endif
 
      USES_BLAS = bas_blas.F bas_blasP.F
 
-     TESTLIBS = -lutil
-
 include ../config/makelib.h
 
 compare:	compare.o
-	$(FC) $(FFLAGS) -o $@ compare.o  $(LDFLAGS) $(LIBS) $(TESTLIBS)
+	$(LINK.f) -o $@ compare.o  $(LIBS) 
 libcheck:	libcheck.o
-	$(FC) $(FFLAGS) -o $@ libcheck.o  $(LDFLAGS) $(LIBS) $(TESTLIBS)
+	$(LINK.f) -o $@ libcheck.o $(LIBS) 
 testbasis:	testbasis.o
-	$(FC) $(FFLAGS) -o $@ testbasis.o  $(LDFLAGS) $(LIBS) $(TESTLIBS)
+	$(LINK.f) -o $@ testbasis.o  $(LIBS)
 
 basP.fh:	bas_staticP.fh
 	@touch basP.fh
