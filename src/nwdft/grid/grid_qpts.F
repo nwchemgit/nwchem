@@ -1,7 +1,7 @@
       Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
      *     nx,ny,nz)
 c
-c$Id: grid_qpts.F,v 1.6 2000-03-17 02:58:56 edo Exp $
+c$Id: grid_qpts.F,v 1.7 2000-03-17 03:03:05 edo Exp $
 c
       implicit none
 c      
@@ -26,7 +26,7 @@ c     set of radial shells.
 c     Keep only point belonging to cube
 c
       integer k, l, ia_ictr
-      double precision r, tx, ty, tz, xor, yor, zor
+      double precision  tx, ty, tz, xor, yor, zor
 c
       oprint_grid = util_print('griddebug', print_debug)
 c
