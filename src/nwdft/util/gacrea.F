@@ -12,7 +12,7 @@ c
       logical ok
       character*(*) name
       integer ihand,  i
-      ok=ga_create(MT_DBL, n, m, name, 1, 1, ihand)
+      ok=ga_create(MT_DBL, n, m, name, n, 1, ihand)
       if(.not.ok)  call ga_error(' ga_create failed ',2)
 c
 #if defined(DFT_GASTAT)
