@@ -30,7 +30,7 @@ c
       integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
       integer ih, idc, idos, idt, idold, iss, ic, icopn, ismin
       integer iqmin, itransf, icc, last, memq, l_scr, k_scr
-      data iwrite/6/, oprint_dens/.false./, oprint_scf/.true./
+      data iwrite/6/, oprint_dens/.false./, oprint_scf/.false./
 c..
 c..    core partitioning
 c..

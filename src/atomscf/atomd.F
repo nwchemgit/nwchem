@@ -1,8 +1,8 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
-     + c, copn, smin, qmin, transf, cc , nbb)
-c
+     + c, copn, smin, qmin, transf, cc , nbb, element, tag)
       implicit none
+#include "inp.fh"
 c
       logical oprin
       integer iwr, nbb, isymax
@@ -11,6 +11,8 @@ c
       real *8  h(*), dc(*), dos(*), dt(*), dold(*), ss(*), hatom(*)
       real *8  c(*),copn(*),smin(nbb,*),qmin(nbb,*),transf(*),cc(*)
       real *8 znps
+      character*(*) element, tag ! Tag and element of atom
+      integer tagl, elel        !  Length of strings minus trailing blanks
 c
 c.......................................................................
 c     atomic r h f code for gto's. uses roothaan double diagonalization.
@@ -103,7 +105,9 @@ cjvl  few extra checks
             end if
          enddo
 cjvl      
-         if (oprin) write (iwr,6030) zn
+         tagl = inp_strlen(tag)
+         elel = inp_strlen(element)
+         if (oprin) write (iwr,6030) zn, tag(1:tagl), element(1:elel)
          if (oprin) write (iwr,6040) (nbas(i),i=1,nsym)
          if (oprin) write (iwr,6050) (nbc(i),i=1,nsym)
          if (oprin) write (iwr,6060) (ncsh(i),i=1,nsym)
@@ -278,13 +282,13 @@ c.......................................................................
       end if
 c
       return
- 6010 format (' it.',i4,'  energy',d19.10,'  div.',d13.5)
- 6020 format ('-',' wrong contraction in symmetry   ',3i5)
- 6030 format (/'      charge =',f10.6,//'      symmetry species',12x,
-     +        's',5x,'p',5x,'d',5x,'f')
- 6040 format (6x,'number of basis functions =',4(i2,4x))
- 6050 format (6x,'number of cont. functions =',4(i2,4x))
- 6060 format (6x,'number of closed shells   =',4(i2,4x))
- 6070 format (6x,'number of open shells     =',4(i2,4x))
- 6080 format (6x,'open shell occupation     =',4(i2,4x))
+ 6010 format(' it.',i4,'  energy',d19.10,'  div.',d13.5)
+ 6020 format('-',' wrong contraction in symmetry   ',3i5)
+ 6030 format(/'      charge =',f10.1,1x,a,' (',a,')'//
+     $     '      symmetry species',12x, 's',5x,'p',5x,'d',5x,'f')
+ 6040 format(6x,'number of basis functions =',4(i2,4x))
+ 6050 format(6x,'number of cont. functions =',4(i2,4x))
+ 6060 format(6x,'number of closed shells   =',4(i2,4x))
+ 6070 format(6x,'number of open shells     =',4(i2,4x))
+ 6080 format(6x,'open shell occupation     =',4(i2,4x))
       end

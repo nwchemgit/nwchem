@@ -22,10 +22,10 @@ c
       real *8 pcap(*), qcap(*), fc(*), fo(*), s(*), u(*), t(*)
       real *8 h(*), dc(*), dos(*), dt(*), dold(*), ss(*)
       real *8 cvec(*), copn(*), smin(nbb,*), qmin(nbb,*),transf(*),cc(*)
-      logical oprin
+      logical oprin, status
       integer iwrite
 c
-c     These need dynamically allocating
+c     These should be dynamically allocated
 c
       integer mxnat, mxnprim, mxngen
       parameter (mxnat = 1000, mxnprim = 20, mxngen = 10)
@@ -39,10 +39,13 @@ c
       character*2 symbol
       integer atn
       integer natoms
-      integer nbf_per_shell, ibf, igen
-      integer icnlo, icnhi, ibflo, ibfhi, icont
+      integer nbf_per_shell, ibf, igen, shift
+      integer icnlo, icnhi, ibflo, ibfhi, icont, jbfhi, jbflo, jat
 c
       integer ic(4,nb),iiloc(nb,4),iisch(nb,4),iicnt(nb,4)
+c
+      logical omyjob            ! True if this process does this atom
+      integer nproc, me, icount ! Parallel processing info
 c
       integer i, ispdf, iat, j, k, nshell
       integer type, nprim, ngen, sphcart
@@ -61,8 +64,6 @@ c
       integer minf(maxtyp),maxf(maxtyp)
       data minf  / 1, 2,  5, 11, 21, 1 /
       data maxf  / 1, 4, 10, 20, 35, 4 /
-c
-c..
       data pi32/5.56832799683170d0/
 c
       toteng = 0.0d0
@@ -87,16 +88,31 @@ c
 c
 c     Loop thru atoms doing the calculation
 c     
-      do iat = 1 , natoms
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+      icount = 0
+c
+      do iat = 1, natoms
+c
          if (.not. odone(iat)) then
-            odone(iat) = .true.
             if (.not. geom_cent_get(geom, iat, tag, coords, charge))
      $           call errquit('guess atom dens: geom_cent_get?', iat)
-            if (.not. bas_ce2cnr(basis, iat, icnlo, icnhi))
-     $           call errquit('guess atom dens: bas_ce2cnr?', iat)
+c
+c     Decide if this atom is my task
+c
+            omyjob = mod(icount,nproc) .eq. me
+            icount = icount + 1
+            if (.not. omyjob) then
+               do jat = iat, natoms
+                  if (tags(iat) .eq. tag) odone(jat) = .true.
+               enddo
+               goto 1010
+            endif
 c
 c...  gather  shell / symmetry info
 c
+            if (.not. bas_ce2cnr(basis, iat, icnlo, icnhi))
+     $           call errquit('guess atom dens: bas_ce2cnr?', iat)
             do i = 1 , 4
                nbc(i) = 0
             enddo
@@ -120,28 +136,31 @@ c
      $              ('guess atom dens: nprim/ngen too big', 0)
                if (sphcart .ne. 0) call errquit
      $              ('guess atoms dens: cannot do sphericals', 0)
+c
+               if (type .le. 3) then ! Only s/p/d/f functions
+                  nbf_per_shell = (ibfhi - ibflo + 1) / ngen
+                  if (type .eq. -1) nbf_per_shell = 1
+                  ibf = ibflo
 c     
 c     loop thru shells inside contractions
 c     
-               nbf_per_shell = (ibfhi - ibflo + 1) / ngen
-               if (type .eq. -1) nbf_per_shell = 1
-               ibf = ibflo
-               do igen = 1, ngen
-                  nshell = nshell + 1
+                  do igen = 1, ngen
+                     nshell = nshell + 1
 c     
-                  if (type .eq. -1) then
-                     ispdf = igen ! 1/2 = s/p
-                  else
-                     ispdf = type + 1
-                  endif
+                     if (type .eq. -1) then
+                        ispdf = igen ! 1/2 = s/p
+                     else
+                        ispdf = type + 1
+                     endif
 c     
-                  nbc(ispdf) = nbc(ispdf) + 1
-                  iicnt(nbc(ispdf),ispdf) = icont
-                  iisch(nbc(ispdf),ispdf) = igen
-                  iiloc(nbc(ispdf),ispdf) = ibf
+                     nbc(ispdf) = nbc(ispdf) + 1
+                     iicnt(nbc(ispdf),ispdf) = icont
+                     iisch(nbc(ispdf),ispdf) = igen
+                     iiloc(nbc(ispdf),ispdf) = ibf
 c     
-                  ibf = ibf + nbf_per_shell
-               enddo
+                     ibf = ibf + nbf_per_shell
+                  enddo
+               endif
             enddo
 c..   
 c..   we gathered symmetry/shell info ; now get the real thing
@@ -208,26 +227,57 @@ c..
             zn = charge
             znps = charge
 c     
+            status = geom_cent_get(geom, iat, tag, coords, charge)
+            status = geom_tag_to_element(tag, symbol, element, atn)
             call atomd(oprin,iwrite,znps,ic,isymax,hatom,
      +           pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
-     +           cvec, copn, smin, qmin, transf, cc, nbb)
+     +           cvec, copn, smin, qmin, transf, cc, nbb,
+     +           element, tag)
 c..   
-            toteng = toteng + energ
 c
-c..   now add density-matrix to the molecular d-matrix
-c..   
-            call creded(g_dens, dt, iiloc, nbb)
-c..   
+c     loop thru atoms with the same tag and add in energy and density
+c
+            if (.not. bas_ce2bfr(basis, iat, ibflo, ibfhi)) 
+     $           call errquit('guess atom dens: bas_ce2bfr', iat)
+            do jat = iat, natoms
+               if ((.not. odone(jat)) .and. tags(iat).eq.tags(jat)) then
+                  if (.not. bas_ce2bfr(basis, jat, jbflo, jbfhi))
+     $                 call errquit('guess atom dens: bas_ce2bfr', jat)
+c
+c     shift adjusts iiloc() from atom iat to atom jat
+c
+                  shift = jbflo - ibflo
+                  do ispdf = 1, 4
+                     do j = 1, nbc(ispdf)
+                        iiloc(j,ispdf) = iiloc(j,ispdf) + shift
+                     enddo
+                  enddo
+c
+                  odone(jat) = .true.
+                  toteng = toteng + energ
+                  call creded(g_dens, dt, iiloc, nbb)
+c
+c     undo the shifting ready for next atom ... clearer than fudging shift
+c
+                  do ispdf = 1, 4
+                     do j = 1, nbc(ispdf)
+                        iiloc(j,ispdf) = iiloc(j,ispdf) - shift
+                     enddo
+                  enddo
+               endif
+            enddo
          endif
+c
+ 1010    continue               ! Jump here if not this node's task
       enddo
-c..   
+c
       if (ga_nodeid().eq.0) then
+         call util_print_centered(6,
+     $        'Superposition of Atomic Density Guess', 20, .true.)
          write (iwrite,6010) toteng
          call util_flush(iwrite)
       endif
-c..   
+c
       return
- 6010 format(/,1x,'Superposition of Atomic Density Guess',/,
-     $     1x,'-----------------------------------------------',/,
-     $     1x,'Sum of atomic energies: ',6x,f17.8)
+ 6010 format(' Sum of atomic energies: ',f20.8)
       end

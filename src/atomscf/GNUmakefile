@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.1 1994-05-03 20:36:28 d3g681 Exp $
+# $Id: GNUmakefile,v 1.2 1994-05-09 18:58:49 d3g681 Exp $
 
       OBJ = atcond.o    denat.o        hamild.o    outpud.o    teigd.o \
             atomd.o     denmad.o       jacod.o     pdfded.o    tracd.o \
@@ -13,3 +13,4 @@
 include ../config/makefile.h
 include ../config/makelib.h
 
+$(OBJ):	cguess.fh
