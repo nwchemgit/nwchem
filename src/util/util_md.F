@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.12 1999-08-28 02:13:40 d3j191 Exp $
+c $Id: util_md.F,v 1.13 1999-12-13 23:44:45 d3j191 Exp $
 c
       implicit none
 c
@@ -750,7 +750,7 @@ c
 c
       return
       end
-      subroutine error(lauto,lapprox,lenacf,data,ndata,
+      subroutine error(lauto,lapprox,maxacf,data,ndata,
      + aver,drift,stderr,corerr,ratio)
 c
       implicit none
@@ -762,7 +762,7 @@ c
 #include "mafdecls.fh"
 c
       logical lauto,lapprox
-      integer ndata,lenacf
+      integer ndata,lenacf,maxacf
       real*8 data(ndata),aver,drift,stderr,corerr,ratio
 c
       integer i,i_acf,l_acf
@@ -802,6 +802,8 @@ c               drift  : drift
 c               acf    : autocorrelation function
 c               corerr : correlated error
 c               ratio  : sampling ratio
+c
+      lenacf=maxacf
 c
       dsum=zero
       ddsum=zero
