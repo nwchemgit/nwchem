@@ -14,6 +14,11 @@ c
 c     rtdb_max_file ... an integer parameter that defines the maximum
 c                       length of a file name
 c
+c
+c     logical function rtdb_parallel(mode)
+c     logical mode              [input]
+c
+c
 c     logical function rtdb_open(filename, mode, handle)
 c     character *(*) filename   [input]
 c     character *(*) mode       [input]
@@ -73,20 +78,12 @@ c     character *(*) name       [input]
 c
       logical rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
      $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info,
-     $     rtdb_first, rtdb_next, rtdb_delete
+     $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel
       external rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
      $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info,
-     $     rtdb_first, rtdb_next, rtdb_delete
-      logical rtdb_par_open, rtdb_par_close, rtdb_par_put,
-     $     rtdb_par_get, rtdb_par_ma_get, rtdb_par_cput,
-     $     rtdb_par_cget, rtdb_par_print, rtdb_par_first,
-     $     rtdb_par_next, rtdb_par_delete
-      external rtdb_par_open, rtdb_par_close, rtdb_par_put,
-     $     rtdb_par_get, rtdb_par_ma_get, rtdb_par_cput,
-     $     rtdb_par_cget, rtdb_par_print, rtdb_par_first,
-     $     rtdb_par_next, rtdb_par_delete
+     $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel
 c
-c     Check these values against rtdb_f2c.c and rtdb_par_f2c.c
+c     Check these values against rtdb_f2c.c
 c
       integer rtdb_max_key, rtdb_max_file
       parameter (rtdb_max_key=255, rtdb_max_file=255)
