@@ -75,14 +75,16 @@ c
          bases(1) = AO_bas_han
       endif
 c
-c     initialize NWints
+c     initialize for schwarz screening
+c
+      call int_init(rtdb, 1, ao_bas_han)
+      call schwarz_init (geom, ao_bas_han)
+      call int_terminate()
+c
+c     initialize for derivative integrals
 c
       call intd_init(rtdb,nbases,bases)
 c
-c     initialize for schwarz screening
-c
-      call schwarz_init (geom, ao_bas_han)
-c 
       if (ga_nodeid() .eq. 0)then
          if (util_print('information',print_default) )then
             write(luout,*)
