@@ -242,6 +242,7 @@ c     See if we are already converged
                call util_flush(6)
             endif
             oconverged = .true.
+            mcscf = .true.
             goto 401
          endif
       endif
