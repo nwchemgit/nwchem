@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.37 1995-11-03 20:43:10 d3g681 Exp $
+#$Id: GNUmakefile,v 1.38 1995-11-13 06:45:03 d3g681 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -46,32 +46,8 @@ LIB_DEFINES =  -DDEBUG_PRINT
 #              -DBLOCK_TRANSF         /* Use block-transfer for comms calls */
 #
 
-
 include ../config/makefile.h
 include ../config/makelib.h
-
-#
-#
-#
-moints_2x.o:	moints_stats.fh
-moints_6x.o:	moints_stats.fh
-moints_stats.o:	moints_stats.fh
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 atwtest.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
