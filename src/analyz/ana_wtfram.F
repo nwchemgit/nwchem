@@ -1,6 +1,6 @@
-      subroutine ana_wtfram(iunit,fmt,x,sgmnam,w)
+      subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel)
 c
-c $Id: ana_wtfram.F,v 1.5 2000-03-16 20:45:38 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.6 2000-03-21 22:23:50 d3j191 Exp $
 c
       implicit none
 c
@@ -8,6 +8,7 @@ c
 #include "mafdecls.fh"
 c
       real*8 x(msa,3),w(mwm,mwa,3)
+      integer isel(msa)
       integer iunit
       character*3 fmt
       character*16 sgmnam(msa)
@@ -27,7 +28,7 @@ c
       if(fmt.eq.'eci') write(iunit,'(a)') 'End'
       close(unit=iunit)
       icopf=icopf+1
-      call ana_wthdr(lfncop,fmtcop,byte_mb(i_snam))
+      call ana_wthdr(lfncop,fmtcop,byte_mb(i_snam),isel)
       endif
       endif
 c
@@ -37,7 +38,7 @@ c
       if(fmt.eq.'eci') write(iunit,'(a)') 'End'
       close(unit=iunit)
       isupf=isupf+1
-      call ana_wthdr(lfnsup,fmtsup,byte_mb(i_snam))
+      call ana_wthdr(lfnsup,fmtsup,byte_mb(i_snam),isel)
       endif
       endif
 c
@@ -49,7 +50,7 @@ c
 c      write(*,'(a,2f12.6,e12.5)') 'frame ',time,temp,pres
       write(iunit,1002) box
  1002 format(f12.6,36x,f12.6,36x,f12.6)
-      write(iunit,1003) lxw,.false.,lsx,.false.,0,0,nsa
+      write(iunit,1003) lxw,.false.,lsx,.false.,0,0,nsel
  1003 format(4l1,3i10)
       if(lxw) then
       do 1 i=1,nwm
@@ -61,7 +62,7 @@ c      write(*,'(a,2f12.6,e12.5)') 'frame ',time,temp,pres
       endif
       if(lsx) then
       do 3 i=1,nsa
-      write(iunit,1005) (x(i,j),j=1,3)
+      if(isel(i).ne.0) write(iunit,1005) (x(i,j),j=1,3)
  1005 format(3f8.3)
     3 continue
       endif

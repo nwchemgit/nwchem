@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.4 2000-03-20 22:50:46 d3j191 Exp $
+c $Id: ana_covar.F,v 1.5 2000-03-21 22:23:50 d3j191 Exp $
 c
       implicit none
 c
@@ -24,11 +24,16 @@ c
       if(.not.ma_push_get(mt_dbl,3*nsel,'cov',l_cov,i_cov))
      + call errquit('Failed to allocate memory for cov',me)
 c
+      if(me.eq.0) then
+      write(*,1000) 3*nsel
+ 1000 format(' Memory allocated for covariance ',i5)
+      endif
+c
       return
       end
       subroutine ana_edfinal()
 c
-c $Id: ana_covar.F,v 1.4 2000-03-20 22:50:46 d3j191 Exp $
+c $Id: ana_covar.F,v 1.5 2000-03-21 22:23:50 d3j191 Exp $
 c
       implicit none
 c
@@ -110,7 +115,6 @@ c
       real*8 x(nsa,3),xa(nsa,3),xp(nsa,3)
       integer isel(nsa)
 c
-c
       integer i,j,k
 c
       val=0.0d0
@@ -119,7 +123,7 @@ c
       do 2 j=1,3
       k=k+1
       val=(x(ndx(i),j)-xa(ndx(i),j))*vct(k)
-      xp(i,j)=val*vct(k)+xa(ndx(i),j)
+      xp(ndx(i),j)=val*vct(k)+xa(ndx(i),j)
     2 continue
     1 continue
 c

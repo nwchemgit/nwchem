@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.15 2000-03-20 22:50:46 d3j191 Exp $
+c $Id: ana_task.F,v 1.16 2000-03-21 22:23:50 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
 c
       logical ignore
 c
-      integer lfncmd,lfn
+      integer lfncmd,lfnprj,lfnval,lfncov
       character*255 filcmd,fil,string
 c
       character*80 card
@@ -44,7 +44,9 @@ c
       lfnxyz=82
       lfnana=83
       lfnrms=84
-      lfn=85
+      lfnprj=85
+      lfnval=86
+      lfncov=86
 c
       ifrfr=1
       ifrto=1
@@ -266,7 +268,8 @@ c
 c     write header
 c
       call ana_rdhdr(byte_mb(i_snam))
-      call ana_wthdr(lfncop,fmt,byte_mb(i_snam),byte_mb(i_tag))
+      call ana_wthdr(lfncop,fmt,byte_mb(i_snam),byte_mb(i_tag),
+     + int_mb(i_isel))
 c
       nread=0
       nwrit=0
@@ -277,7 +280,7 @@ c
       if(nframe.lt.ifrfr) goto 2
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call ana_wtfram(lfncop,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
-     + dbl_mb(i_wdat))
+     + dbl_mb(i_wdat),int_mb(i_isel))
       nwrit=nwrit+1
       endif
       nframe=nframe+1
@@ -308,7 +311,8 @@ c
 c     write header
 c
       call ana_rdhdr(byte_mb(i_snam))
-      call ana_wthdr(lfncop,fmt,byte_mb(i_snam),byte_mb(i_tag))
+      call ana_wthdr(lfncop,fmt,byte_mb(i_snam),byte_mb(i_tag),
+     + int_mb(i_isel))
 c
       nread=0
       nwrit=0
@@ -322,7 +326,7 @@ c
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1)
       call ana_wtfram(lfncop,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
-     + dbl_mb(i_wdat))
+     + dbl_mb(i_wdat),int_mb(i_isel))
       nwrit=nwrit+1
       endif
       nframe=nframe+1
@@ -522,19 +526,21 @@ c
 c
       call ga_scale(ga_cov,1.0d0/dble(nave))
 c
+      call ga_print(ga_cov)
       call ga_diag_std(ga_cov,ga_vec,dbl_mb(i_cov))
+      call ga_print(ga_vec)
 c
       if(me.eq.0) then
       write(*,'(/,a,i10,a)') ' Covariance matrix diagonalized for ',
      + nave,' frames'
       write(*,'(/,a,//,(5x,6e12.5))') ' Eigenvalues',
      + (dbl_mb(i_cov-1+i),i=3*nsel,1,-1)
-      if(fil(1:1).ne.' ') then
-      open(unit=lfn,file=fil(1:index(fil,' ')-1),
-     + form='formatted',status='unknown',err=9999)
-      write(lfn,'(i5,6e12.5)') (i,dbl_mb(i_cov-1+i),i=3*nsel,1,-1)
-      close(unit=lfn)
-      endif
+c      if(fil(1:1).ne.' ') then
+c      open(unit=lfncov,file=fil(1:index(fil,' ')-1),
+c     + form='formatted',status='unknown',err=9999)
+c      write(lfncov,'(i5,6e12.5)') (i,dbl_mb(i_cov-1+i),i=3*nsel,1,-1)
+c      close(unit=lfncov)
+c      endif
       endif
 c
       close(unit=lfntrj)
@@ -553,12 +559,16 @@ c
       if(.not.active) call errquit('No ED matrix active',0)
 c
       if(me.eq.0) then
-      open(unit=lfn,file=fil(1:index(fil,' ')-1),
+      open(unit=lfnprj,file=fil(1:index(fil,' ')-1)//'.prj',
+     + form='formatted',status='unknown',err=9999)
+      open(unit=lfnval,file=fil(1:index(fil,' ')-1)//'.val',
      + form='formatted',status='unknown',err=9999)
       endif
+      fmt='trj'
+      call ana_wthdr(lfnprj,fmt,byte_mb(i_snam),byte_mb(i_tag),
+     + int_mb(i_isel))
 c
-      call ga_get(ga_vec,1,nsel,nsel-ivec+1,nsel-ivec+1,
-     + dbl_mb(i_cov),nsel)
+      call ga_get(ga_vec,1,3*nsel,ivec,ivec,dbl_mb(i_cov),nsel)
 c
       call ana_rdhdr(byte_mb(i_snam))
       nave=0
@@ -577,10 +587,14 @@ c
      + dbl_mb(i_xdat+ifr-1),dbl_mb(i_xadat+ifr-1),val,
      + dbl_mb(i_xp+ifr-1))
 c
+      lxw=.false.
+      call ana_wtfram(lfnprj,fmt,dbl_mb(i_xp),byte_mb(i_snam),
+     + dbl_mb(i_wdat),int_mb(i_isel))
+c
       nave=nave+1
 c
       if(me.eq.0) then
-      write(lfn,'(i5,f12.6)') nave,val
+      write(lfnval,'(i5,f12.6)') nave,val
       endif
 c
       endif
@@ -588,7 +602,8 @@ c
       if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 6
       endif
       if(me.eq.0) then
-      close(unit=lfn)
+      close(unit=lfnval)
+      close(unit=lfnprj)
       write(*,'(/,a,i5,a,a)') ' Projection of vector ',ivec,
      +' written to ',fil(1:index(fil,' ')-1)
       endif

@@ -1,12 +1,13 @@
-      subroutine ana_wthdr(iunit,fmt,sgmnam,tag)
+      subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel)
 c
-c $Id: ana_wthdr.F,v 1.7 2000-03-16 20:45:38 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.8 2000-03-21 22:23:50 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 c
       character*16 cwa,sgmnam(msa)
+      integer isel(msa)
       integer iunit
       character*3 fmt
       character*4 cnum
@@ -73,12 +74,12 @@ c
  4401 format(3i10)
       do 1 i=1,nwa
       read(44,4402) cwa
- 4402 format(a16)
-      write(iunit,4402) cwa
+ 4402 format(a16,i10)
+      write(iunit,4402) cwa,i
     1 continue
       do 2 i=1,nsa
       read(44,4402) cwa
-      write(iunit,4402) cwa
+      if(isel(i).ne.0) write(iunit,4402) cwa,i
     2 continue
       do 3 i=1,nsb
       read(44,4403) ib,jb
