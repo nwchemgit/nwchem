@@ -5,7 +5,7 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E, occd, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.19 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.20 2004-06-10 15:43:22 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "util.fh"
@@ -250,6 +250,14 @@ c
       if (util_test_time_remaining(rtdb,time_prev_iter)) then
          goto 99
       else
+c
+c     We are running out of time, so we better write out the current 
+c     T1 and T2 for possible restart 
+c
+      if (.not. ccsd_write_restart(t2file, g_t2, 
+     $     nvir, lhoov, offt2))
+     $     call errquit('ccsd: failed saving vector for restart',0,
+     &       UNKNOWN_ERR)
          goto 999
       endif
 c
