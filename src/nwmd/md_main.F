@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.152 2002-11-09 16:39:11 d3j191 Exp $
+c $Id: md_main.F,v 1.153 2002-11-14 18:04:45 d3j191 Exp $
 c
       implicit none
 c
@@ -1537,14 +1537,21 @@ c
 c     dynamic load balancing
 c
       if(itload.eq.0) then
+      wallt=timer_wall(3)
       syntim=timer_wall(4)
       elseif(itload.eq.1) then
+      wallt=timer_wall_minimum(3)
       syntim=timer_wall_minimum(4)
       elseif(itload.eq.2) then
+      wallt=timer_wall_average(3)
       syntim=timer_wall_average(4)
       else
+      wallt=timer_wall_average(3)
       syntim=timer_wall_average(4)
-      if(me.eq.0) syntim=timer_wall_minimum(4)
+      if(me.eq.0) then
+      wallt=timer_wall_minimum(3)
+      syntim=timer_wall_minimum(4)
+      endif
       endif
 c
       if(me.eq.0.and.ioload.eq.1) then
@@ -1566,6 +1573,7 @@ c
       endif
 c
       call sp_balanc(stime,syntim,wallt,frequency(mdstep,nfsync))
+      call timer_reset(3)
       call timer_reset(4)
 c
       call timer_stop(12)
@@ -2527,7 +2535,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.152 2002-11-09 16:39:11 d3j191 Exp $
+c $Id: md_main.F,v 1.153 2002-11-14 18:04:45 d3j191 Exp $
 c
       implicit none
 c
