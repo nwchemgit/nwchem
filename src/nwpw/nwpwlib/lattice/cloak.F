@@ -1,14 +1,41 @@
 *
-* $Id: cloak.F,v 1.2 2001-11-28 21:09:17 bylaska Exp $
+* $Id: cloak.F,v 1.3 2001-12-08 01:06:38 bylaska Exp $
 *
+
+*     *******************************
+*     *								*
+*     *	        cloak_init          *
+*     *								*
+*     *******************************
+      subroutine cloak_init()
+      implicit none
+
+#include "mafdecls.fh"
+#include "cloak_common.fh"
+
+      logical value
+      integer nfft3d
+
+*     **** allocate masker memory ****
+      call C3dB_nfft3d(1,nfft3d)
+
+      value = MA_alloc_get(mt_log,nfft3d,
+     >                     'masker',masker(2),masker(1))
+      if (.not. value) call errquit('out of heap memory',0)
+
+      return
+      end
+
+*     *******************************
+*     *								*
+*     *	        cloak_end           *
+*     *								*
+*     *******************************
       subroutine cloak_end()
       implicit none
 
 #include "mafdecls.fh"
-
-*     **** common block for masker ****
-      integer masker(2),nwave,nwave_all
-      common / cloak_block / masker,nwave,nwave_all
+#include "cloak_common.fh"
 
       logical value
 
@@ -18,16 +45,17 @@
       return
       end
 
-
-
-      subroutine cloak_init(kvector,ecut)
+*     *******************************
+*     *								*
+*     *	        cloak_set           *
+*     *								*
+*     *******************************
+      subroutine cloak_set(kvector,ecut)
       implicit none
+      real*8 kvector(3),ecut
 
 #include "mafdecls.fh"
-
-*     **** common block for masker ****
-      integer masker(2),nwave,nwave_all
-      common / mask_block / masker,nwave,nwave_all
+#include "cloak_common.fh"
 
 *     **** local variables ****
       integer nfft3d
@@ -37,21 +65,13 @@
       integer nxh,nyh,nzh
       real*8  ggcut,g1,g2,g3,gg
       integer taskid
-      logical value
 
 *     **** external functions ***
-      real*8   lattice_ggcut,lattice_wggcut,lattice_unitg
-      external lattice_ggcut,lattice_wggcut,lattice_unitg
-
-*     **** allocate masker memory ****
-      call C3dB_nfft3d(1,nfft3d)
-
-      value = MA_alloc_get(mt_log,nfft3d,
-     >                     'masker',masker(2),masker(1))
-      if (.not. value) call errquit('out of heap memory',0)
-
+      real*8   lattice_unitg
+      external lattice_unitg
 
       call Parallel_taskid(taskid)
+      call C3dB_nfft3d(1,nfft3d)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
@@ -74,14 +94,17 @@
          do k2 = -nyh+1, nyh-1
             do k1 = -nxh+1, nxh-1
                g1 = k1*lattice_unitg(1,1) 
-                  + k2*lattice_unitg(1,2) 
-                  + k3*lattice_unitg(1,3)
+     >            + k2*lattice_unitg(1,2) 
+     >            + k3*lattice_unitg(1,3)
+     >            + kvector(1)
                g2 = k1*lattice_unitg(2,1) 
-                  + k2*lattice_unitg(2,2) 
-                  + k3*lattice_unitg(2,3)
+     >            + k2*lattice_unitg(2,2) 
+     >            + k3*lattice_unitg(2,3)
+     >            + kvector(2)
                g3 = k1*lattice_unitg(3,1) 
-                  + k2*lattice_unitg(3,2) 
-                  + k3*lattice_unitg(3,3)
+     >            + k2*lattice_unitg(3,2) 
+     >            + k3*lattice_unitg(3,3)
+     >            + kvector(3)
                i=k1
                j=k2
                k=k3
@@ -93,8 +116,8 @@
                   gg = g1*g1 + g2*g2 + g3*g3
                   if (gg.lt.ggcut) then
                      index = (q-1)*(nx)*ny
-  >                        + j*(nx)
-  >                        + i+1
+     >                     + j*(nx)
+     >                     + i+1
                      log_mb(masker(1)+index-1) = .false.
                      nwave = nwave + 1
                   end if
@@ -108,15 +131,17 @@
       return
       end
 
+*     *******************************
+*     *								*
+*     *	        cloak_C             *
+*     *								*
+*     *******************************
       subroutine cloak_C(A)
       implicit none
       complex*16 A(*)
 
 #include "mafdecls.fh"
-
-*     **** common block for masker ****
-      integer masker(2),nwave,nwave_all
-      common / mask_block / masker,nwave,nwave_all
+#include "cloak_common.fh"
 
 *     **** local variables ****
       integer i,nfft3d
@@ -149,16 +174,17 @@
       return 
       end
 
-
+*     *******************************
+*     *								*
+*     *	        cloak_R             *
+*     *								*
+*     *******************************
       subroutine cloak_R(A)
       implicit none
       real*8    A(*)
 
 #include "mafdecls.fh"
-
-*     **** common block for masker ****
-      integer masker(2),nwave,nwave_all
-      common / mask_block / masker,nwave,nwave_all
+#include "cloak_common.fh"
 
 *     **** local variables ****
       integer i,nfft3d
@@ -172,24 +198,30 @@
       end
 
 
+*     *******************************
+*     *								*
+*     *	        cloak_nwave         *
+*     *								*
+*     *******************************
       integer function cloak_nwave()
       implicit none
 
-*     **** common block for masker ****
-      integer masker(2),nwave,nwave_all
-      common / mask_block / masker,nwave,nwave_all
+#include "cloak_common.fh"
 
-      mask_nwave = nwave
+      cloak_nwave = nwave
       return
       end
 
+*     *******************************
+*     *								*
+*     *	        cloak_nwave_all     *
+*     *								*
+*     *******************************
       integer function cloak_nwave_all()
       implicit none
 
-*     **** common block for masker ****
-      integer masker(2),nwave,nwave_all
-      common / mask_block / masker,nwave,nwave_all
+#include "cloak_common.fh"
 
-      mask_nwave_all = nwave_all
+      cloak_nwave_all = nwave_all
       return
       end

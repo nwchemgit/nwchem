@@ -1,0 +1,9 @@
+*
+* $Id: cloak_common.fh,v 1.1 2001-12-08 01:06:38 bylaska Exp $
+*
+
+*     **** common block for masker ****
+      integer masker(2),nwave,nwave_all
+      common / cloak_block / masker,nwave,nwave_all
+
+
