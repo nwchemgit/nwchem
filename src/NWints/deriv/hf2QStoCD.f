@@ -1,6 +1,6 @@
       Subroutine hf2QStoCD(dQ,dS,dC,dD,alpha,ipair,ff,NPP,NPQ,Nint,
      &       ictrc,ictrd)
-c $Id: hf2QStoCD.f,v 1.4 1995-06-27 21:01:04 d3e129 Exp $
+c $Id: hf2QStoCD.f,v 1.5 1995-06-30 18:52:20 d3h449 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -43,7 +43,7 @@ c Initialize derivative integrals wrt to (C,D).
 00200     continue
           dC(nn) = sumC
 00100   continue
-	call dlaset(' ',nint,1,0.0d00,0.0d00,dD,nint)
+        call dlaset(' ',nint,1,0.0d00,0.0d00,dD,nint)
       else
 c Compute exponent ratios.
 

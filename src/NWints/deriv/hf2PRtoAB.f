@@ -1,6 +1,6 @@
       Subroutine hf2PRtoAB(dP,dR,dA,dB,alpha,ipair,ff,NPP,NPQ,Nint3,
      &       ictra,ictrb)
-c $Id: hf2PRtoAB.f,v 1.5 1995-06-27 21:01:03 d3e129 Exp $
+c $Id: hf2PRtoAB.f,v 1.6 1995-06-30 18:52:20 d3h449 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -44,7 +44,7 @@ c Initialize derivative integrals wrt to (A,B).
 00200     continue
           dA(nn) = sumA
 00100   continue
-	call dlaset(' ',nint3,1,0.0d00,0.0d00,dB,nint3)
+        call dlaset(' ',nint3,1,0.0d00,0.0d00,dB,nint3)
       else
 c Compute exponent ratios.
 
