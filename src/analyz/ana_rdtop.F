@@ -5,6 +5,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "util.fh"
 #include "ana_common.fh"
 c
       character*16 sgmnam(msa)
@@ -12,14 +13,14 @@ c
       integer iram(msgm,7),imol(msa),ibnd(msb,2)
 c
       character*1 cdummy
-      integer i,j,nat,naq,i_tmp,l_tmp,i_itmp,l_itmp
+      integer i,j,k,nat,naq,nparm,nseq,i_tmp,l_tmp,i_itmp,l_itmp
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbs,num
       character*5 sname,aname
 c
       ltop=.false.
 c
-      do 9 i=1,nsgm
+      do 1 i=1,nsgm
       iram(i,1)=0
       iram(i,2)=0
       iram(i,3)=0
@@ -27,37 +28,47 @@ c
       iram(i,5)=0
       iram(i,6)=0
       iram(i,7)=0
-    9 continue
+    1 continue
 c
       if(me.eq.0) then
 c
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
      + form='formatted',status='old',err=999)
 c
+c      print*,'TOPOLOGY FILE ',filtop(1:index(filtop,' ')-1)
       read(lfntop,1000,end=999,err=999) cdummy
       read(lfntop,1000) cdummy
       read(lfntop,1000) cdummy
       read(lfntop,1000) cdummy
-      read(lfntop,1000) cdummy
  1000 format(a1)
+      read(lfntop,1001) nparm
       read(lfntop,1001) nat
       read(lfntop,1001) naq
+      read(lfntop,1001) nseq
+      read(lfntop,1000) cdummy
  1001 format(i5)
-      do 1 i=1,nat
+      do 2 i=1,nat*nparm
       read(lfntop,1000) cdummy
-    1 continue
-      do 2 i=1,nat
-      do 3 j=i,nat
-      read(lfntop,1000) cdummy
-      read(lfntop,1000) cdummy
-    3 continue
     2 continue
+      do 3 i=1,nat
+      do 4 j=i,nat
+      do 5 k=1,nparm
+      read(lfntop,1000) cdummy
+    5 continue
+    4 continue
+    3 continue
       if(.not.ma_push_get(mt_dbl,naq,'tmp',l_tmp,i_tmp))
      + call md_abort('Failed to allocate tmp',0)
-      do 4 i=1,naq
+      do 6 i=1,naq
       read(lfntop,1002) dbl_mb(i_tmp-1+i)
- 1002 format(f12.6)
-    4 continue
+ 1002 format(5x,f12.6)
+      do 7 j=1,nparm-1
+      read(lfntop,1000) cdummy
+    7 continue
+    6 continue
+      do 8 i=1,nseq
+      read(lfntop,1000) cdummy
+    8 continue
       read(lfntop,1003) naw,nbw,nhw,ndw,now,ntw,nnw
  1003 format(5i7,2i10)
       read(lfntop,1003) nas,nbs
@@ -66,20 +77,22 @@ c
       rewind(44)
       write(44,2003) naw,nas,nbs
  2003 format(3i10)
-      do 7 i=1,naw
+      do 9 i=1,naw
       read(lfntop,1005) sname,aname,num,num,j
       write(44,2004) sname,aname
  2004 format(2a5,i6)
       qw(i)=dbl_mb(i_tmp-1+j)
-    7 continue
-      do 19 i=1,nbw
+    9 continue
+      do 10 i=1,nbw
       read(lfntop,'(2i7)') ibndw(i,1),ibndw(i,2)
+      do 11 j=1,nparm
       read(lfntop,1000) cdummy
-   19 continue
-      nat=2*(nhw+ndw+now)
-      do 5 i=1,nat
+   11 continue
+   10 continue
+      nat=4*(nhw+ndw+now)
+      do 12 i=1,nat
       read(lfntop,1000) cdummy
-    5 continue
+   12 continue
       if(ntw.gt.0) then
       read(lfntop,1004) (j,i=1,ntw)
       read(lfntop,1004) (j,i=1,ntw)
@@ -90,9 +103,12 @@ c
       read(lfntop,1004) (j,i=1,nnw)
       endif
       read(lfntop,1000) cdummy
+      do 13 i=1,nparm
+      read(lfntop,1000) cdummy
+   13 continue
       if(.not.ma_push_get(mt_int,nas,'itmp',l_itmp,i_itmp))
      + call md_abort('Failed to allocate itmp',0)
-      do 6 i=1,nas
+      do 14 i=1,nas
       read(lfntop,1005) sname,aname,imol(i),num,j
  1005 format(a5,5x,a5,6x,2i5,15x,i5)
       write(44,2004) sname,aname,num
@@ -104,12 +120,14 @@ c
       if(aname.eq.' C   ') iram(num,4)=i
       if(aname.eq.' H   ') iram(num,6)=i
       if(aname.eq.' O   ') iram(num,7)=i
-    6 continue
-      do 8 i=1,nbs
+   14 continue
+      do 15 i=1,nbs
       read(lfntop,1006) j,num
       ibnd(i,1)=j
       ibnd(i,2)=num
+      do 16 k=1,nparm
       read(lfntop,1000) cdummy
+   16 continue
  1006 format(2i7)
       write(44,2005) j,num
  2005 format(2i8)
@@ -125,7 +143,7 @@ c
       iram(int_mb(i_itmp-1+num),5)=j
       endif
       endif
-    8 continue
+   15 continue
       if(.not.ma_pop_stack(l_itmp))
      + call md_abort('Failed to deallocate itmp',0)
       close(unit=44)
@@ -146,6 +164,7 @@ c
       endif
       endif
 c
+c      print*,'ANA_RDTOP DONE'
       return
       end
       subroutine ana_siztop()
@@ -160,10 +179,11 @@ c
       character*1 cdummy
       real*8 rdummy
 c
-      integer i,j,nat,naq
+      integer i,j,k,nat,naq,nparm,nseq
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbs,num
       character*5 sname,aname
+      character*80 string
 c
       ltop=.false.
       nsgm=0
@@ -177,24 +197,31 @@ c
       read(lfntop,1000) cdummy
       read(lfntop,1000) cdummy
       read(lfntop,1000) cdummy
-      read(lfntop,1000) cdummy
  1000 format(a1)
+ 5000 format(a)
+      read(lfntop,1001) nparm
       read(lfntop,1001) nat
       read(lfntop,1001) naq
+      read(lfntop,1001) nseq
  1001 format(i5)
-      do 1 i=1,nat
+      read(lfntop,1000) cdummy
+      do 1 i=1,nat*nparm
       read(lfntop,1000) cdummy
     1 continue
       do 2 i=1,nat
       do 3 j=i,nat
+      do 4 k=1,nparm
       read(lfntop,1000) cdummy
-      read(lfntop,1000) cdummy
+    4 continue
     3 continue
     2 continue
-      do 4 i=1,naq
+      do 5 i=1,naq*nparm
       read(lfntop,1002) rdummy
- 1002 format(f12.6)
-    4 continue
+ 1002 format(5x,f12.6)
+    5 continue
+      do 6 i=1,nseq
+      read(lfntop,1000) cdummy
+    6 continue
       read(lfntop,1003) naw,nbw,nhw,ndw,now,ntw,nnw
  1003 format(5i7,2i10)
       mwb=nbw
@@ -204,10 +231,10 @@ c
       read(lfntop,1005) sname,aname,num,j
  2004 format(2a5,i6)
     7 continue
-      nat=2*(nbw+nhw+ndw+now)
-      do 5 i=1,nat
+      nat=4*(nbw+nhw+ndw+now)
+      do 8 i=1,nat
       read(lfntop,1000) cdummy
-    5 continue
+    8 continue
       if(ntw.gt.0) then
       read(lfntop,1004) (j,i=1,ntw)
       read(lfntop,1004) (j,i=1,ntw)
@@ -218,17 +245,20 @@ c
       read(lfntop,1004) (j,i=1,nnw)
       endif
       read(lfntop,1000) cdummy
-      do 6 i=1,nas
+      do 9 i=1,nparm
+      read(lfntop,1000) cdummy
+    9 continue
+      do 10  i=1,nas
       read(lfntop,1005) sname,aname,num,j
  1005 format(a5,5x,a5,11x,i5,15x,i5)
       nsgm=max(nsgm,num)
-    6 continue
-      do 8 i=1,nbs
+   10 continue
+      do 11 i=1,nbs
       read(lfntop,1006) j,num
       read(lfntop,1000) cdummy
  1006 format(2i7)
  2005 format(2i8)
-    8 continue
+   11 continue
       close(unit=lfntop)
 c
       msgm=nsgm

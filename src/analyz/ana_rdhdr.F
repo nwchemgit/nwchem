@@ -1,16 +1,16 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.15 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.16 2004-03-06 03:41:15 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
+#include "mafdecls.fh"
 c
       character*16 sgmnam(msa)
       character*80 card
       character*255 fname
       integer i,lq
-      character*3 cnum
 c
       integer ib,jb,nsb,nwb
 c
@@ -34,6 +34,7 @@ c
       write(*,3333) fname(1:index(fname,' ')-1)
  3333 format(/,' Opening trj file ',a)
       rewind(lfntrj)
+      if(lrdf) call ana_rdfhdr(int_mb(i_rdf))
     1 continue
       read(lfntrj,1000,err=9998,end=9997) card
  1000 format(a)

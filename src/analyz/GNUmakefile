@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.20 2003-12-03 05:04:04 d3j191 Exp $
+# $Id: GNUmakefile,v 1.21 2004-03-06 03:41:15 d3j191 Exp $
 #
  OBJ_OPTIMIZE = ana_angle.o\
                 ana_atrad.o\
@@ -19,6 +19,7 @@
                 ana_pltgrd.o\
                 ana_rama.o\
                 ana_rdhdr.o\
+                ana_rdf.o\
                 ana_rdfram.o\
                 ana_rdref.o\
                 ana_rdtop.o\

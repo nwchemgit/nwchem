@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.67 2003-12-03 05:04:04 d3j191 Exp $
+c $Id: ana_input.F,v 1.68 2004-03-06 03:41:15 d3j191 Exp $
 c
       implicit none
 c
@@ -16,9 +16,9 @@ c
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,lsel
       integer iopt,ivctr,iorder
-      integer itag,iatag,jatag,ipbc
+      integer itag,iatag,jatag,ipbc,nrdf
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
-      real*8 arota
+      real*8 arota,rrdf
       logical lref,lfil,lsol,lsuper,lselo
       integer iesppb,lent,idpdb,indx,icent,jcent,nwhb
       character*8 option
@@ -35,6 +35,8 @@ c
       numcmd=0
       lref=.false.
       lfil=.false.
+      nrdf=0
+      rrdf=1.0d0
 c
       timoff=0.0d0
       scale=1.0d0
@@ -446,6 +448,19 @@ c
       write(lfncmd,1021) isel,jsel,ksel,ipbc,rsel,rval,
      + item(1:index(item,' ')-1)
  1021 format('histo  ',2i7,i5,i3,2f12.6,a)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     radial distribution function
+c     ----------------------------
+c
+      if(inp_compare(.false.,'rdf',item)) then
+      if(.not.inp_i(nrdf))
+     + call md_abort('No rdf number of bins specified',0)
+      if(.not.inp_f(rrdf)) call md_abort('No rdf range specified',0)
+      write(lfncmd,1032) nrdf,rrdf
+ 1032 format('rdf    ',i7,f12.6)
       numcmd=numcmd+1
       goto 2
       endif

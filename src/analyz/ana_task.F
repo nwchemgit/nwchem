@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.94 2003-12-03 05:04:05 d3j191 Exp $
+c $Id: ana_task.F,v 1.95 2004-03-06 03:41:15 d3j191 Exp $
 c
       implicit none
 c
@@ -41,6 +41,7 @@ c
       lfnloc=70
       lfnhba=71
       lfnecc=72
+      lfnrdf=73
       lfnref=76
       lfntrj=77
       lfncop=78
@@ -105,6 +106,7 @@ c
       lesd=.false.
       lloc=.false.
       lhbond=.false.
+      lrdf=.false.
 c
       nave=0
       ndata=0
@@ -478,6 +480,15 @@ c
       open(unit=idhis(nhis,3),file=fil(1:index(fil,' ')-1),
      + form='formatted',status='unknown')
       endif
+      goto 1
+      endif
+c
+c     radial distribution function
+c     ----------------------------
+c
+      if(card(1:6).eq.'rdf   ') then
+      read(card,'(7x,i7,f12.6)') nrdf,rrdf
+      lrdf=.true.
       goto 1
       endif
 c
@@ -862,6 +873,11 @@ c
       fildie=string(1:index(string,' ')-1)//'.die'
       time=0.0d0
 c
+      if(lrdf) then
+      call ana_rdf_init()
+      print*,'rdf_init'
+      endif
+c
 c     read file header
 c
       call ana_rdhdr(byte_mb(i_snam))
@@ -1018,6 +1034,11 @@ c
  3307 continue
       endif
 c
+      if(lrdf) then
+      call ana_rdf(int_mb(i_isel),dbl_mb(i_xdat),dbl_mb(i_wdat),
+     + int_mb(i_rdf))
+      endif
+c
       if(ngroups.gt.0) then
       if(me.eq.0) write(lfngrp,4004) time
  4004 format('frame',/,f12.6)
@@ -1057,14 +1078,10 @@ c
       close(unit=lfnhis)
       endif
 c
-      if(lhbond) then
-      if(.not.ma_pop_stack(l_temp))
-     + call md_abort('Failed to deallocate temp',0)
-      endif
-c
       if(me.eq.0) then
       close(unit=lfntrj)
       write(*,'(a)') ' Closing trj file '
+      if(lrdf) call ana_rdfwrt(int_mb(i_isel),int_mb(i_rdf))
       if(lana) then
       close(unit=lfnana)
       write(*,'(a)') ' Closing scn file '
@@ -1104,6 +1121,17 @@ c
       close(unit=idhis(i,3))
  3304 continue
       endif
+      endif
+c
+      if(lrdf) then
+      print*,'deallocating rdf'
+      if(.not.ma_pop_stack(l_rdf))
+     + call md_abort('Failed to deallocate rdf',0)
+      endif
+c
+      if(lhbond) then
+      if(.not.ma_pop_stack(l_temp))
+     + call md_abort('Failed to deallocate temp',0)
       endif
 c
       nbnds=0
@@ -1457,6 +1485,7 @@ c
       endif
 c
       if(me.eq.0) close(unit=lfncmd,status='delete')
+c      if(me.eq.0) close(unit=lfncmd,status='keep')
 c
       if(active) call ana_edfinal()
 c

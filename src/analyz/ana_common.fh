@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.60 2003-12-03 05:04:04 d3j191 Exp $
+c $Id: ana_common.fh,v 1.61 2004-03-06 03:41:15 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -24,11 +24,11 @@ c
       integer irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
      + lfnchg,lfnplt,lfnxyz,lfnrms,lfnprj,lfnval,lfnmin,lfnmax,lfncov,
      + lfnvec,lfntop,lfnhis,lfnepz,lfngrp,lfnram,lfnord,lfnloc,lfnsel,
-     + lfnhba,lfnecc,lfndie
+     + lfnhba,lfnecc,lfndie,lfnrdf
       common/ana_rtdb/irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
      + lfnchg,lfnplt,lfnxyz,lfnrms,lfnprj,lfnval,lfnmin,lfnmax,lfncov,
      + lfnvec,lfntop,lfnhis,lfnepz,lfngrp,lfnram,lfnord,lfnloc,lfnsel,
-     + lfnhba,lfnecc,lfndie
+     + lfnhba,lfnecc,lfndie,lfnrdf
 c
       real*8 time,timr,timoff,box(3),spac(3),rcut,xmax(3),xmin(3)
       real*8 temp,pres,xsmin,xsmax,scale,cpk,stick,rangle
@@ -70,7 +70,8 @@ c
      + i_xp,l_xp,i_ord,l_ord,i_hist,l_hist,i_qdat,l_qdat,i_wsel,l_wsel,
      + i_ndxw,l_ndxw,i_val,l_val,i_iram,l_iram,i_imol,l_imol,
      + i_wrk,l_wrk,i_ssel,l_ssel,i_swt,l_swt,i_hbnd,l_hbnd,
-     + i_sbnd,l_sbnd,i_osel,l_osel,i_owt,l_owt,i_qwdat,l_qwdat
+     + i_sbnd,l_sbnd,i_osel,l_osel,i_owt,l_owt,i_qwdat,l_qwdat,
+     + i_rdf,l_rdf
       common/ana_ptr/i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,
      + l_isel,i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,
      + i_x,l_x,i_q,l_q,i_t,l_t,i_grid,l_grid,i_tag,l_tag,ga_vec,
@@ -78,7 +79,8 @@ c
      + i_xp,l_xp,i_ord,l_ord,i_hist,l_hist,i_qdat,l_qdat,i_wsel,l_wsel,
      + i_ndxw,l_ndxw,i_val,l_val,i_iram,l_iram,i_imol,l_imol,
      + i_wrk,l_wrk,i_ssel,l_ssel,i_swt,l_swt,i_hbnd,l_hbnd,
-     + i_sbnd,l_sbnd,i_osel,l_osel,i_owt,l_owt,i_qwdat,l_qwdat
+     + i_sbnd,l_sbnd,i_osel,l_osel,i_owt,l_owt,i_qwdat,l_qwdat,
+     + i_rdf,l_rdf
 c
       integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov,nwsel,
      + nwrit,indx,msgm,nsgm,msb,mwb,nselo,ifr,ito
@@ -86,14 +88,15 @@ c
      + nwsel,nwrit,indx,msgm,nsgm,msb,mwb,nselo,ifr,ito
 c
       logical lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,lsonly,
-     + ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel
+     + ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf
       common/ana_log/lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,
-     + lsonly,ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel
+     + lsonly,ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf
 c
       character*24 wtag(100,2)
       character*16 wnam(100)
       character*10 datum,tijd
-      common/ana_chr/wtag,wnam,datum,tijd
+      character*3 cnum
+      common/ana_chr/wtag,wnam,datum,tijd,cnum
 c
       real*8 wval(100,2)
       common/ana_val/wval
@@ -103,13 +106,13 @@ c
      + ihbndw(100),ibndw(100,2)
       real*8 rgroups(maxgrp,2),rgroup(maxgrp,2)
       integer nhis,lhis,ihis(mlhis,mhis),idhis(mhis,3)
-      integer nord,idord(mord,4),iord(mord,2)
+      integer nord,idord(mord,4),iord(mord,2),nrdf,numrdf
       real*8 rord(mord,2)
-      real*8 rhis,dhis
-      common/ana_def/rord,rgroups,rgroup,rhis,dhis,
+      real*8 rhis,dhis,rrdf
+      common/ana_def/rord,rgroups,rgroup,rhis,dhis,rrdf,
      + ndef,ldef,idef,ngroups,igroups,ngroup,igroup,
      + ihbndw,ibndw,nhis,lhis,ihis,idhis,
-     + nord,idord,iord
+     + nord,idord,iord,nrdf,numrdf
 c
       integer nrot,irot(100)
       real*8 arot(100)

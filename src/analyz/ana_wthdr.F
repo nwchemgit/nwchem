@@ -1,6 +1,6 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel,logw)
 c
-c $Id: ana_wthdr.F,v 1.18 2003-10-19 03:31:02 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.19 2004-03-06 03:41:15 d3j191 Exp $
 c
       implicit none
 c
@@ -10,7 +10,7 @@ c
       integer isel(msa)
       integer iunit
       character*3 fmt
-      character*4 cnum
+      character*4 cdnum
       character*255 fname
       character*24 tag(msa,2)
       logical logw
@@ -42,8 +42,8 @@ c
       fname=filcop
       if(mcopf.gt.0) then
       lq=index(filcop,'.')
-      write(cnum,'(a1,i3.3)') '_',icopf
-      fname=filcop(1:lq-1)//cnum//filcop(lq:index(filcop,' ')-1)
+      write(cdnum,'(a1,i3.3)') '_',icopf
+      fname=filcop(1:lq-1)//cdnum//filcop(lq:index(filcop,' ')-1)
       endif
       if(binary) then
       open(unit=lfncop,file=fname(1:index(fname,' ')-1),
@@ -60,8 +60,8 @@ c
       fname=filsup
       if(msupf.gt.0) then
       lq=index(filsup,'.')
-      write(cnum,'(a1,i3.3)') '_',isupf
-      fname=filsup(1:lq-1)//cnum//filsup(lq:index(filsup,' ')-1)
+      write(cdnum,'(a1,i3.3)') '_',isupf
+      fname=filsup(1:lq-1)//cdnum//filsup(lq:index(filsup,' ')-1)
       endif
       if(binary) then
       open(unit=lfnsup,file=fname(1:index(fname,' ')-1),

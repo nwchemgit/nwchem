@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.32 2003-12-03 05:04:04 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.33 2004-03-06 03:41:15 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,6 @@ c
       character*108 card
       integer i,j,k,lq
       character*255 fname
-      character*3 cnum
 c
       logical succes
       real*8 timp
@@ -141,6 +140,7 @@ c
 c
       close(unit=lfntrj)
       write(*,'(a)') ' Closing trj file '
+      if(lrdf) call ana_rdfwrt()
 c
       fname=filtrj
 c
@@ -156,6 +156,8 @@ c
      + status='old',err=9998)
       write(*,3333) fname(1:index(fname,' ')-1)
  3333 format(/,' Opening trj file ',a)
+c
+      if(lrdf) call ana_rdfhdr(int_mb(i_rdf))
       goto 100
 c
  9998 continue
