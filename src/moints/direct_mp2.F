@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.9 1995-04-21 18:51:00 rg240 Exp $
+C$Id: direct_mp2.F,v 1.10 1995-06-16 20:51:11 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -32,6 +32,7 @@ c
        integer g_coul, g_exch, g_epair
        integer i, j, ij, ii
        logical oprint, status, omemprint
+       logical ohalf
        double precision emp2, e2pair
        double precision tpass, ttotal, scf_energy
        character*7 algo
@@ -40,6 +41,7 @@ c
 c
        data g_coul,g_exch/-1,-1/
        data charge/0.d0/
+       data ohalf/.false./
 c
 c
 c
@@ -47,8 +49,8 @@ c
        external movecs_read_header, movecs_read, movecs_write
        integer ga_create_atom_blocked
        external ga_create_atom_blocked
-       integer ga_create_Jblocked,ga_create_Kblocked
-       external ga_create_Jblocked,ga_create_Kblocked
+       integer ga_create_JKblocked
+       external ga_create_JKblocked
        integer moints_numoper
        external moints_numoper
        integer moints_occrange
@@ -189,10 +191,10 @@ c
 c
 c Allocate operator matrix
 c
-       if (algo.eq.'twofold') then
-         g_exch = ga_create_Kblocked(noper,nbf,nmo2,'X oper')
+       if ((algo.eq.'twofold').and.(.not.(ohalf))) then
+         g_exch = ga_create_JKblocked(noper,nbf,nmo2,'X oper')
        else
-         g_exch = ga_create_Kblocked(noper,nbf,nbf,'X oper')
+         g_exch = ga_create_JKblocked(noper,nbf,nbf,'X oper')
        endif
 c
 c Allocate pair energy array
@@ -250,7 +252,7 @@ c
      $                        g_coul, .false., g_exch, .true.,
      $                        blen )
        else
-         call moints_build_2x(basis,  .false., occ_lo,
+         call moints_build_2x(basis, ohalf, occ_lo,
      $                        oseg_lo, oseg_hi,
      $                        vir_lo, vir_hi, g_vecs,
      $                        g_coul, .false., g_exch, .true.,
