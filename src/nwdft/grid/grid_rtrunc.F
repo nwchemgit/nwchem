@@ -1,8 +1,8 @@
       subroutine grid_rtrunc(rtdb, zprim, 
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
-c
-c$Id: grid_rtrunc.F,v 1.35 2000-06-07 23:29:17 edo Exp $
+c 
+c$Id: grid_rtrunc.F,v 1.36 2000-06-09 01:53:42 edo Exp $
 c
       implicit none
 c      
@@ -223,7 +223,7 @@ c     I(k) = [(k-1)*I(k-2) + r^(k-1)*exp(-alpha*r^2)]/(2*alpha)
 c
       integer i, ilo
       double precision value,valexp,dexpo
-#if defined(SGI) || defined(DECOSF) || defined(WIN32) ||defined(LINUX64)
+#if defined(SGI) || defined(DECOSF) || defined(WIN32) ||defined(LINUX)
       double precision derfc
 #else
       double precision erfc
@@ -237,7 +237,7 @@ c
          if(dexpo.gt.40d0) then
             value=0d0
          else
-#if defined(SGI) || defined(DECOSF) || defined(WIN32) ||defined(LINUX64)
+#if defined(SGI) || defined(DECOSF) || defined(WIN32) ||defined(LINUX)
             value = 0.5d0*sqrt(4.0d0*atan(1.0d0)/alpha)*
      $           derfc(dexpo)
 #else 
