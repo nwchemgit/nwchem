@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.21 1996-01-09 17:56:27 og845 Exp $
+C$Id: nwdft.F,v 1.22 1996-01-09 19:04:01 og845 Exp $
       implicit none
       logical CDFIT,XCFIT
 c****
@@ -46,17 +46,19 @@ c
       call util_print_push
       call util_print_rtdb_load(rtdb, 'dft')
       oprint = util_print('information', print_low)
-      if (iproc.eq.0 .and. oprint) then
+      if (oprint) then
         if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $       title = ' '
-        call util_print_centered(
-     .       LuOut, 'NWCHEM DFT Module', 40, .true.)
-        write(6,*)
-        write(6,*)
-        if (title .ne. ' ') then
-          call util_print_centered(6, title, 40, .false.)
-          write(6,*)
-          write(6,*)
+        if(iproc.eq.0) then
+          call util_print_centered(
+     .         LuOut, 'NWCHEM DFT Module', 40, .true.)
+          write(LuOut,*)
+          write(LuOut,*)
+          if (title .ne. ' ') then
+            call util_print_centered(6, title, 40, .false.)
+            write(LuOut,*)
+            write(LuOut,*)
+          endif
         endif
       endif
 c
