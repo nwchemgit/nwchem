@@ -1,0 +1,413 @@
+\label{sec:tddft}
+
+\section{Overview}
+
+NWChem supports a spectrum of single excitation theories for
+vertical excitation energy calculations, namely, configuration interaction
+singles (CIS),\footnote{J. B. Foreman, M. Head-Gordon, J. A. Pople, and M. J. Frisch, J.\ Phys.\ Chem. {\bf 96,} 135 (1992).} 
+time-dependent Hartree--Fock (TDHF or also known as 
+random-phase approximation RPA), time-dependent density functional
+theory (TDDFT),\footnote{C. Jamorski, M. E. Casida, and D. R. Salahub, J.\ Chem.\ Phys. {\bf 104,} 5134 (1996);
+R. Bauernschmitt and R. Ahlrichs, Chem.\ Phys.\ Lett. {\bf 256,} 454 (1996); 
+R. Bauernschmitt, M. H\"{a}ser, O. Treutler, and R. Ahlrichs, Chem.\ Phys.\ Lett. {\bf 264,} 573 (1997).} 
+and Tamm--Dancoff approximation to TDDFT.\footnote{ S. Hirata and M. Head-Gordon, Chem.\ Phys.\ Lett. {\bf 314,} 291 (1999).}
+These methods
+are implemented in a single framework that invokes Davidson's trial vector
+algorithm (or its modification for a non-Hermitian eigenvalue problem).\footnote{E. R. Davidson, J.\ Comput.\ Phys. {\bf 17,} 87 (1975); J. Olsen, H. J. Aa.\ Jensen, and P. J\o rgensen, J.\ Comput.\ Phys. {\bf 74,} 265 (1988).}
+The capabilities of the module are summarized as follows:
+\begin{itemize}
+\item Vertical excitation energies,
+\item Spin-restricted singlet and triplet excited states for closed-shell systems,
+\item Spin-unrestricted doublet, etc., excited states for open-shell systems,
+\item Tamm--Dancoff and full time-dependent linear response theories,
+\item Davidson's trial vector algorithm,
+\item Symmetry (irreducible representation) characterization and specification,
+\item Spin multiplicity characterization and specification,
+\item Transition moments and oscillator strengths,
+\item Geometrical first and second derivatives of vertical excitation energies 
+by numerical differentiation,
+\item Disk-based and fully incore algorithms,
+\item Multiple and single trial-vector processing algorithms,
+\item Frozen core and virtual approximation.
+\end{itemize}
+
+\section{Performance of CIS, TDHF, and TDDFT methods}
+
+The accuracy of CIS and TDHF for excitation energies of closed-shell systems
+are comparable to each other, and are normally considered a zeroth-order
+description of the excitation process.  These methods are particularly well balanced
+in describing Rydberg excited states, in contrast to TDDFT.
+However, for open-shell systems,
+the errors in the CIS and TDHF excitation energies are often excessive, primarily
+due to the multi-determinantal character of the ground and excited state wave functions
+of open-shell systems in a HF reference.\footnote{D. Maurice and M. Head-Gordon, J.\ Phys.\ Chem. {\bf 100,} 6131 (1996).} 
+The scaling of the computational cost of a CIS
+or TDHF calculation per state with respect to the system size is the same as that for 
+a HF calculation for the ground state, since the critical step of the both methods are
+the Fock build, namely, the contraction of two-electron integrals with density matrices.
+It is usually necessary to include two sets of diffuse exponents in the basis set
+to properly account for the diffuse Rydberg excited states of neutral species.
+
+The accuracy of TDDFT may vary depending on the exchange-correlation functional.
+In general, the exchange-correlation functionals that are widely used today and are implemented
+in NWChem work well for low-lying valence excited states.  However, for high-lying diffuse
+excited states and Rydberg excited states in particular, TDDFT employing these 
+conventional functionals breaks down and the excitation energies are substantially 
+underestimated.  This is because of the fact that the exchange-correlation potentials
+generated from these functionals decay too rapidly (exponentially) as opposed to the 
+slow $-1/r$ asymptotic decay of the true potential.  A rough but useful index is the 
+negative of the highest occupied KS orbital energy; when the calculated excitation energies
+become close to this threshold, these numbers are most likely underestimated relative
+to experimental results.\footnote{M. E. Casida, C. Jamorski, K. C. Casida, and D. R. Salahub, J.\ Chem.\ Phys. {\bf 108,} 4439 (1998).}  It appears that TDDFT provides a better-balanced description
+of radical excited states.\footnote{S. Hirata and M. Head-Gordon, Chem.\ Phys.\ Lett. {\bf 302,} 375 (1999).} 
+This may be traced to the fact that, in DFT, the ground state
+wave function is represented well as a single KS determinant, with less multi-determinantal
+character and less spin contamination, and hence the excitation thereof is described well
+as a simple one electron transition.  The computational cost per state of TDDFT calculations 
+scales as the same as the ground state DFT calculations, although the prefactor of the scaling
+may be much greater in the former.
+
+\section{Input syntax}
+
+The module is called TDDFT as TDDFT employing a hybrid HF-DFT functional 
+encompasses all of the above-mentioned methods implemented.  To use this
+module, one needs to specify \verb+TDDFT+ on the task directive, e.g.,
+\begin{verbatim}
+      TASK TDDFT ENERGY
+\end{verbatim}
+for a single-point excitation energy calculation, and
+\begin{verbatim}
+      TASK TDDFT OPTIMIZE
+\end{verbatim}
+for an excited-state geometry optimization (and perhaps an adiabatic
+excitation energy calculation), and
+\begin{verbatim}
+      TASK TDDFT FREQUENCIES
+\end{verbatim}
+for an excited-state vibrational frequency calculation.  The TDDFT module
+first invokes DFT module for a ground-state calculation (regardless of 
+whether the calculations uses a HF reference as in CIS or TDHF or a DFT
+functional), and hence there is no need to perform a separate ground-state
+DFT calculation prior to calling a TDDFT task.  When no second argument
+of the task directive is given, a single-point excitation energy calculation
+will be assumed.  For geometry optimizations, it is usually necessary to
+specify the target excited state and its irreducible representation it
+belongs to.  See the subsections \verb+TARGET+ and \verb+TARGETSYM+ for
+more detail.
+
+Individual parameters and keywords may be supplied in the TDDFT input
+block.  The syntax is:
+\begin{verbatim}
+  TDDFT
+    [(CIS||RPA) default RPA]
+    [NROOTS <integer nroots default 1>]
+    [MAXVECS <integer maxvecs default 1000>]
+    [(SINGLET||NOSINGLET) default SINGLET]
+    [(TRIPLET||NOTRIPLET) default TRIPLET]
+    [THRESH <double thresh default 1e-4>]
+    [MAXITER <integer maxiter default 100>]
+    [TARGET <integer target default 1>]
+    [TARGETSYM <character targetsym default 'none'>]
+    [SYMMETRY]
+    [ALGORITHM <integer algorithm default 1>]
+    [VECTOR <character vector default jobname'.tddft']
+    [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
+             [virtual <integer nfzv default 0>]]
+    [PRINT (none||low||medium||high||debug)
+      <string list_of_names ...>]
+  END
+\end{verbatim}
+
+The user can also specify the reference wave function in the DFT input block
+(even when CIS and TDHF calculations are requested).  See the section of Sample
+input and output for more details.
+
+Since each keyword has a default value, a minimal input file will be
+\begin{verbatim}
+  GEOMETRY
+  Be 0.0 0.0 0.0
+  END
+
+  BASIS
+  Be library 6-31G**
+  END
+
+  TASK TDDFT ENERGY
+\end{verbatim}
+
+\section{Keywords of {\tt TDDFT} input block}
+
+\subsection{{\tt CIS} and {\tt RPA} --- the Tamm--Dancoff approximation}
+
+These keywords toggle the Tamm--Dancoff approximation.  \verb+CIS+ means
+that the Tamm--Dancoff approximation is used and the CIS or Tamm--Dancoff TDDFT
+calculation is requested.  \verb+RPA+, which is the default, requests 
+TDHF (RPA) or TDDFT calculation.
+
+The performance of CIS (Tamm--Dancoff TDDFT) and RPA (TDDFT) are comparable in
+accuracy.  However, the computational cost is slightly greater in the latter due to
+the fact that the latter involves a non-Hermitian eigenvalue problem and requires
+left and right eigenvectors while the former needs just one set of eigenvectors of 
+a Hermitian eigenvalue problem.  The latter has much greater chance of
+aborting the calculation due to triplet near instability or other instability 
+problems.
+
+\subsection{{\tt NROOTS} --- the number of excited states}
+
+One can specify the number of excited state roots to be determined.  The default 
+value is \verb+1+.  It is advised that the users request several more roots than actually
+needed, since owing to the nature of the trial vector algorithm, some low-lying
+roots can be missed when they do not have sufficient overlap with the initial guess
+vectors.
+
+\subsection{{\tt MAXVECS} --- the subspace size}
+
+This keyword limits the subspace size of Davidson's algorithm; in other words, it
+is the maximum number of trial vectors that the calculation is allowed to hold.
+Typically, 10 to 20 trial vectors are needed for each excited state root to be
+converged.  However, it need not exceed the product of the number of occupied 
+orbitals and the number of virtual orbitals.  The default value is \verb+1000+.
+
+\subsection{{\tt SINGLET} and {\tt NOSINGLET} --- singlet excited states}
+
+\verb+SINGLET+ (\verb+NOSINGLET+) requests (suppresses) the calculation of singlet 
+excited states when the reference wave function is closed shell.  The default 
+is \verb+SINGLET+.
+
+\subsection{{\tt TRIPLET} and {\tt NOTRIPLET} --- triplet excited states}
+
+\verb+TRIPLET+ (\verb+NOTRIPLET+) requests (suppresses) the calculation of triplet 
+excited states when the reference wave function is closed shell.  The default 
+is \verb+TRIPLET+.
+
+\subsection{{\tt THRESH} --- the convergence threshold of Davidson iteration}
+
+This keyword specifies the convergence threshold of Davidson's iterative algorithm
+to solve a matrix eigenvalue problem.  The threshold refers to the norm of residual,
+namely, the difference between the left-hand side and right-hand side of the matrix
+eigenvalue equation with the current solution vector.  With the default value of 
+\verb+1e-4+, the excitation energies are usually converged to \verb+1e-5+ hartree.
+
+\subsection{{\tt MAXITER} --- the maximum number of Davidson iteration}
+
+It typically takes 10--30 iterations for the Davidson algorithm to get converged results.
+The default value is \verb+100+.
+
+\subsection{{\tt TARGET} and {\tt TARGETSYM}--- the target root and its symmetry}
+
+At the moment, the first and second geometrical derivatives of excitation 
+energies that are needed in force, geometry, and frequency calculations are
+obtained by numerical differentiation.  These keywords may be used to specify
+which excited state root is being used for the geometrical derivative calculation.
+For instance, when \verb+TARGET 3+ and \verb+TARGETSYM a1g+ are included in the
+input block, the total energy (ground state energy plus excitation energy) 
+of the third lowest excited state root (excluding the ground state) transforming as
+the irreducible representation \verb+a1g+ will be passed to the module which performs
+the derivative calculations.  The default values of these keywords are \verb+1+ and \verb+none+,
+respectively.
+
+The keyword \verb+TARGETSYM+ is essential in excited state geometry 
+optimization, since it is very common that the order of excited states changes due to 
+the geometry changes in the course of optimization.  Without specifying the \verb+TARGETSYM+,
+the optimizer could (and would likely) be optimizing the geometry of an excited state that
+is different from the one the user had intended to optimize at the starting geometry.
+On the other hand, in the frequency calculations, \verb+TARGETSYM+ must be \verb+none+,
+since the finite displacements given in the course of frequency calculations will lift
+the spatial symmetry of the equilibrium geometry.  When these finite displacements can
+alter the order of excited states including the target state, the frequency calculation
+is not be feasible.
+
+\subsection{{\tt SYMMETRY} --- restricting the excited state symmetry}
+
+By adding this keyword to the input block, the user can request the module to
+generate the initial guess vectors transforming as the 
+same irreducible representation as \verb+TARGETSYM+.  This causes the final
+excited state roots be (exclusively) dominated by those with the specified 
+irreducible representation.  This may be useful, when the user is interested in
+just the optically allowed transitions, or in the geometry optimization of
+an excited state root with a particular irreducible representation.  By default,
+this option is not set.  \verb+TARGETSYM+ must be specified when \verb+SYMMETRY+ 
+is invoked.
+
+\subsection{{\tt ALGORITHM} --- algorithms for tensor contractions}
+
+There are four distinct algorithms to choose from, and the default value
+of \verb+0+ (optimal) means that the program makes an optimal choice from the four
+algorithms on the basis of available memory.  In the order of decreasing memory requirement,
+the four algorithms are:
+\begin{itemize}
+\item \verb+ALGORITHM 1+ : Incore, multiple tensor contraction,
+\item \verb+ALGORITHM 2+ : Incore, single tensor contraction,
+\item \verb+ALGORITHM 3+ : Disk-based, multiple tensor contraction,
+\item \verb+ALGORITHM 4+ : Disk-based, single tensor contraction.
+\end{itemize}
+The incore algorithm stores all the trial and product vectors in memory across
+different nodes with the GA,
+and often decreases the \verb+MAXITER+ value to accommodate them.  The disk-based
+algorithm stores the vectors on disks across different nodes with the DRA, and
+retrieves each vector one at a time when it is needed.  The multiple and single
+tensor contraction refers to whether just one or more than one trial vectors
+are contracted with integrals.  The multiple tensor contraction algorithm is 
+particularly effective (in terms of speed) for CIS and TDHF, since the number of 
+the direct evaluations of two-electron integrals is diminished substantially.
+
+\subsection{{\tt VECTOR} --- initial guess vectors}
+
+The user may request the module to read the initial guess vectors from a file,
+by specifying the file name following the keyword \verb+VECTOR+.  When no file name
+is supplied for this keyword, the \verb+<file_prefix>+ appended by \verb+.tddft+ is assumed as 
+the file name.  For the file to be compatible, it must be created from the calculation
+with the same wave function type (spin-restricted or unrestricted) and the same trial
+vector lengths, but the exchange-correlation functionals, 
+whether to use the Tamm--Dancoff approximation,
+may be different.
+
+\subsection{{\tt FREEZE} --- the frozen core/virtual approximation}
+
+Some of the lowest-lying core orbitals and/or some of the highest-lying
+virtual orbitals may be excluded in the CIS, TDHF, and TDDFT calculations
+by this keyword (this does not affect the ground state HF or DFT calculation).
+No orbitals are frozen by default.  To exclude the atom-like
+core regions altogether, one may request
+\begin{verbatim}
+  FREEZE atomic
+\end{verbatim}
+To specify the number of lowest-lying occupied orbitals be excluded, one may use
+\begin{verbatim}
+  FREEZE 10
+\end{verbatim}
+which causes 10 lowest-lying occupied orbitals excluded.
+This is equivalent to writing
+\begin{verbatim}
+  FREEZE core 10
+\end{verbatim}
+To freeze the highest virtual orbitals, use the \verb+virtual+
+keyword.  For instance, to freeze the top 5 virtuals
+\begin{verbatim}
+  FREEZE virtual 5
+\end{verbatim}
+
+\subsection{{\tt PRINT} --- the verbosity}
+
+This keyword changes the level of output verbosity.  One may also
+request some particular items in Table \ref{tbl:tddft-printable} printed.
+
+\begin{table}[htbp]
+\center
+\caption{Printable items in the TDDFT modules and their default print levels.}
+\label{tbl:tddft-printable}
+\begin{tabular}{lll}
+\hline\hline
+Item                     & Print Level   & Description \\
+\hline 
+``timings''              & high          & CPU and wall times spent in each step \\
+``trial vectors''        & high          & Trial CI vectors \\
+``initial guess''        & debug         & Initial guess CI vectors \\
+``general information''  & default       & General information \\
+``xc information''       & default       & HF/DFT information \\
+``memory information''   & default       & Memory information \\
+``convergence''          & debug         & Convergence \\
+``subspace''             & debug         & Subspace representation of CI matrices \\
+``transform''            & debug         & MO to AO and AO to MO transformation of CI vectors \\
+``diagonalization''      & debug         & Diagonalization of CI matrices \\
+``iteration''            & default       & Davidson iteration update \\
+``contract''             & debug         & Integral transition density contraction \\
+``ground state''         & default       & Final result for ground state \\
+``excited state''        & low           & Final result for target excited state \\
+\hline\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Sample input}
+
+The following is a sample input for a spin-restricted TDDFT calculation of 
+singlet excitation energies for the water molecule at the B3LYP/6-31G*.
+\begin{verbatim}
+START h2o
+
+TITLE "B3LYP/6-31G* H2O"
+
+GEOMETRY
+O     0.00000000     0.00000000     0.12982363
+H     0.75933475     0.00000000    -0.46621158
+H    -0.75933475     0.00000000    -0.46621158
+END
+
+BASIS
+* library 6-31G*
+END
+
+DFT
+XC B3LYP
+END
+
+TDDFT
+RPA
+NROOTS 20
+END
+
+TASK TDDFT ENERGY
+\end{verbatim}
+
+To perform a spin-unrestricted TDHF/aug-cc-pVDZ calculation for the CO+ radical,
+\begin{verbatim}
+START co
+
+TITLE "TDHF/aug-cc-pVDZ CO+"
+
+CHARGE 1
+
+GEOMETRY
+C  0.0  0.0  0.0
+O  1.5  0.0  0.0
+END
+
+BASIS
+* library aug-cc-pVDZ
+END
+
+DFT
+XC HFexch
+MULT 2
+END
+
+TDDFT
+RPA
+NROOTS 5
+END
+
+TASK TDDFT ENERGY
+\end{verbatim}
+
+A geometry optimization followed by a frequency calculation for an excited state
+is carried out for BF at the CIS/6-31G* level in the following sample input.
+\begin{verbatim}
+START bf
+
+TITLE "CIS/6-31G* BF optimization frequencies"
+
+GEOMETRY
+B 0.0 0.0 0.0
+F 0.0 0.0 1.2
+END
+
+BASIS
+* library 6-31G*
+END
+
+DFT
+XC HFexch
+END
+
+TDDFT
+CIS
+NROOTS 3
+NOTRIPLET
+TARGET 1
+END
+
+TASK TDDFT OPTIMIZE
+
+TASK TDDFT FREQUENCIES
+\end{verbatim}
