@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.1 2002-07-31 20:18:24 bylaska Exp $
+* $Id: paw_proj.F,v 1.2 2002-07-31 20:45:08 bylaska Exp $
 *
 
 !**************************************************
@@ -18,7 +18,7 @@
   
 *     **** local variables ****
       logical value,found
-      integer ia,ntotal
+      integer ia,ntotal,npack1
       character*4 element
       character*20 fname
 
@@ -69,6 +69,8 @@
 #include "mafdecls.fh"
 #include "paw_proj.fh"
 
+      logical value
+
       value =           MA_free_heap(nbasis(2))
       value = value.and.MA_free_heap(prj(2))
       if (.not.value) call errquit('paw_proj_end: dealloc heap',0)
@@ -85,7 +87,7 @@
 !
 !	Created:	7/30/2002
 !**************************************************
-      integer paw_proj_nbasis(ia)
+      integer function paw_proj_nbasis(ia)
       implicit none
       integer ia
       
@@ -109,14 +111,16 @@
 
 *     **** local variables ****
       logical value,found
-      integer ia,ntotal
+      integer ia,ntotal,nkatm
       character*4 element
       character*20 fname
 
 *     **** external functions ****
-      logical     nwpw_filefind
+      logical     nwpw_filefind,paw_proj_format_ok
+      character*2 ion_atom
       integer     ion_nkatm
-      external    nwpw_filefind
+      external    nwpw_filefind,paw_proj_format_ok
+      external    ion_atom
       external    ion_nkatm
 
       nkatm = ion_nkatm()
@@ -244,7 +248,7 @@
 *    *** local variables ***
       integer MASTER,taskid
       parameter(MASTER=0)
-      integer msglen
+      integer msglen,l
       character*255 full_filename
 
       call Parallel_taskid(taskid)
