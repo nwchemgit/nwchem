@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.7 1995-05-24 23:51:31 vg038 Exp $
+C$Id: uhf.F,v 1.8 1995-06-28 22:39:04 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -141,7 +141,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.7 1995-05-24 23:51:31 vg038 Exp $
+C     $Id: uhf.F,v 1.8 1995-06-28 22:39:04 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -209,16 +209,16 @@ c
  1       format(//,
      $        1x,'----------------------------------------------',/
      $        1x,'    Not yet quadratically convergent UHF',//,
-     $        1x,'Convergence threshold     :',9x,1p,e10.2,0p,/,
+     $        1x,'Convergence threshold     :',9x,1p,e10.3,0p,/,
      $        1x,'Maximum no. of iterations :',9x,i4,/,
-     $        1x,'Integral*density screening:',9x,1p,e10.2,0p,//,
-     $        1x,'PCG initial level shift   :',9x,f10.2,/,
-     $        1x,'PCG change shift at maxg  :',9x,f10.2,/,
-     $        1x,'PCG final level shift     :',9x,f10.2,/,
-     $        1x,'NR  initial level shift   :',9x,f10.2,/,
-     $        1x,'NR  change shift at maxg  :',9x,f10.2,/,
-     $        1x,'NR  final level shift     :',9x,f10.2,/,
-     $        1x,'NR  enabled at maxg       :',9x,f10.2,/,
+     $        1x,'Integral*density screening:',9x,1p,e10.3,0p,//,
+     $        1x,'PCG initial level shift   :',9x,f10.3,/,
+     $        1x,'PCG change shift at maxg  :',9x,f10.3,/,
+     $        1x,'PCG final level shift     :',9x,f10.3,/,
+     $        1x,'NR  initial level shift   :',9x,f10.3,/,
+     $        1x,'NR  change shift at maxg  :',9x,f10.3,/,
+     $        1x,'NR  final level shift     :',9x,f10.3,/,
+     $        1x,'NR  enabled at maxg       :',9x,f10.3,/,
      $        1x,'----------------------------------------------',/)
          call util_flush(6)
       end if
@@ -402,7 +402,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.7 1995-05-24 23:51:31 vg038 Exp $
+C$Id: uhf.F,v 1.8 1995-06-28 22:39:04 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -488,7 +488,7 @@ c
 #include "cscf.fh"
 #include "util.fh"
 c     
-c     $Id: uhf.F,v 1.7 1995-05-24 23:51:31 vg038 Exp $
+c     $Id: uhf.F,v 1.8 1995-06-28 22:39:04 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -849,7 +849,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.7 1995-05-24 23:51:31 vg038 Exp $
+C$Id: uhf.F,v 1.8 1995-06-28 22:39:04 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
