@@ -227,8 +227,8 @@ c
                 e=axb*apb1
 c98
                 err=e*rr
-                if(err.gt.32) then
-                   exp_err=0.d0         ! exp(-32)=1.27*10**-14
+                if(err.gt.46) then ! was 32  exp(-32)=1.27*10**-14
+                   exp_err=0.d0         ! exp(-46) = 1e-20
                 else
                    exp_err=exp(-err)
                 endif
@@ -1481,7 +1481,7 @@ c----------------------------------
 cold            sab(ijpar,ij)=rapb(ij)*sqrt3*exp(-e*rr)
 cnew98......
                 err=e*rr
-                if(err.gt.32.d0) then
+                if(err.gt.46.d0) then ! was 32
                    sab(ijpar,ij)=0.d0
                 else
                    sab(ijpar,ij)=rapb(ij)*sqrt3*exp(-err)
@@ -2682,6 +2682,7 @@ c
                enddo
             enddo
          enddo
+         if (const_ij_max.eq.0.0d0) const_ij_max=1d-20
 c
 c---------------------------------------------------
 c right side pairs:
@@ -2703,6 +2704,7 @@ c
                enddo
             enddo
          enddo 
+         if (const_kl_max.eq.0.0d0) const_kl_max=1d-20
 c---------------------------------------------------
          ijcs=ij_uniqe(1)    
          call get_ij_half(ijcs,ics,jcs)

@@ -4,7 +4,7 @@
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr,zerotol,int_type)
 *
-* $Id: texas_hf.F,v 1.33 1998-07-31 21:27:55 d3g681 Exp $
+* $Id: texas_hf.F,v 1.34 1998-12-15 02:35:06 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -460,14 +460,14 @@ c  7 calls to getmem
 c--------------------------------------------------------
       call memo1_int(nquart,isupblk)
       call memo1_int(nsupblk,isblpoin)
-         call txs_second(time_beg)
+*         call txs_second(time_beg)
       call swap_shells(nquart,icspnl,jcspnl,kcspnl,lcspnl,
      *     nbl2,
      *     bl(ijblock),bl(klblock),bl(ijpres2),bl(klpres2),
      *     bl(isupblk),bl(isblsize),bl(isblqrts),bl(nblock1_back),
      *     bl(iqorder),bl(isblpoin) )
          call txs_second(time_end)
-         time_swap=time_swap +(time_end-time_beg)
+*         time_swap=time_swap +(time_end-time_beg)
       call retmem(1)
       call retmem(1)
 c  
