@@ -768,8 +768,40 @@ density as well as the output density will occur.
 \end{verbatim}
 
 The \verb+PRINT||NOPRINT+ options control the level of output in the
-DFT.  Documentation is not yet available for items under explicit
-print control.
+DFT.  Known controllable print options are:
+
+\begin{tabbing}
+  Very\_long\_descriptive\_name \= Print level space \= \kill
+  Name                              \> Print Level \> Description \\
+                                    \>             \> \\
+ ``semi-direct info''               \> default     \> semi direct algorithm \\
+ ``coulomb fit''                    \> high        \> fitting electronic charge density \\
+ ``io info''                        \> debug       \> reading from and writing to disk  \\
+ ``information''                    \> low         \> general information  \\
+ ``quadrature''                     \> high        \> numerical quadrature  \\
+ ``parameters''                     \> default     \> input parameters \\
+ ``convergence''                    \> default     \> convergence of SCF procedure \\
+ ``intermediate vectors''           \> high        \> intermediate molecular orbitals
+ \\
+ ``intermediate evals''             \> high        \> intermediate orbital energies \\
+ ``interm vector symm''             \> high        \> symmetries of intermediate orbitals \\
+ ``dft timings''                    \> high        \> \\
+ ``input vectors''                  \> high        \> \\
+ ``common''                         \> debug       \> dump of common blocks \\
+ ``screening parameters''           \> high        \> integral accuracies \\
+ ``intermediate energy info''       \> high        \> \\
+ ``intermediate fock matrix''       \> high        \> \\
+ ``final vectors''                  \> high        \> \\
+ ``schwarz''                        \> high        \> integral screening info \&
+  stats at completion\\
+ ``all vector symmetries''          \> high        \> symmetries of all molecular
+ orbitals \\
+ ``final vector symmetries''        \> default     \> symmetries of final molecular
+ orbitals \\
+ ``multipole''                      \> default     \> moments of alpha, beta, and
+ nuclear charge densities \\
+
+\end{tabbing}
 
 
 
