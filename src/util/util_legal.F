@@ -1,8 +1,8 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.40 2004-05-21 20:10:47 windus Exp $
+* $Id: util_legal.F,v 1.41 2004-12-21 19:56:00 edo Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
-*              2000, 2001, 2002, 2003, 2004                          *
+*              2000, 2001, 2002, 2003, 2004, 2005                    *
 *              Pacific Northwest National Laboratory,                *
 *              Battelle Memorial Institute.                          *
 *--------------------------------------------------------------------*
@@ -161,7 +161,7 @@ c
      &    /,12x,
      &    'Computational Chemistry Package for Parallel Computers, ',
      &    /,12x,
-     &    'Version 4.6" (2004), ',
+     &    'Version 4.7" (2005), ',
      &    'Pacific Northwest National Laboratory,',
      &    /,12x,
      &    'Richland, Washington 99352-0999, USA.'
@@ -196,7 +196,7 @@ c
      + 12x,'"NWChem, A Computational Chemistry Package for Parallel ',
      &    'Computers, ',
      &    /,12x,
-     &    'Version 4.6" (2004),',
+     &    'Version 4.7" (2005),',
      &    /,22x,'Pacific Northwest National Laboratory,',
      &    /,22x,'Richland, Washington 99352-0999, USA.'
      &    /,/)
