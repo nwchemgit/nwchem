@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.51 2003-10-21 23:51:25 edo Exp $
+C$Id: vectors.F,v 1.52 2004-05-13 01:25:11 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -908,7 +908,11 @@ c
         ierr = eaf_read(unitno, offset, len1,lgth)
         offset=offset+lgth
         lgth=len1
+#ifdef WIN32        
+        title=' '
+#else
         ierr = eaf_read(unitno, offset, title(1:len1),lgth)
+#endif
         offset=offset+lgth
         lgth=ma_sizeof(MT_INT,1,MT_BYTE)
         ierr = eaf_read(unitno, offset, nrow,lgth)
@@ -1023,7 +1027,11 @@ c
         ierr = eaf_write(unitno, offset, len1,lgth)
         offset=offset+lgth
         lgth=len1
+#ifdef WIN32        
+        gtitle=' '
+#else     
         ierr = eaf_write(unitno, offset, gtitle(1:len1),lgth)
+#endif
         offset=offset+lgth
         lgth=ma_sizeof(MT_INT,1,MT_BYTE)
         ierr = eaf_write(unitno, offset, nrow,lgth)
@@ -1164,7 +1172,11 @@ c
         ierr = eaf_read(unitno, offset, len1,lgth)
         offset=offset+lgth
         lgth=len1
+#ifdef WIN32        
+        gtitle=' '
+#else
         ierr = eaf_read(unitno, offset, gtitle(1:len1),lgth)
+#endif
         offset=offset+lgth
         lgth=ma_sizeof(MT_INT,1,MT_BYTE)
         ierr = eaf_read(unitno, offset, nrow,lgth)
