@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist,scale,cpk)
 c
-c $Id: pre_wrtpov.F,v 1.2 2000-07-06 19:54:13 d3j191 Exp $
+c $Id: pre_wrtpov.F,v 1.3 2000-07-06 20:39:00 d3j191 Exp $
 c
       implicit none
 c
@@ -83,7 +83,8 @@ c
       write(lfnpov,8001) (scale*xs(j,i),j=1,3),scale*cpk*atom_radius(k),
      + color(1:index(color,' ')-1)
       else
-      write(lfnpov,8001) (scale*xs(j,i),j=1,3),scale*atom_radius(1),
+      write(lfnpov,8001) (scale*xs(j,i),j=1,3),
+     + scale*abs(cpk)*atom_radius(1),
      + color(1:index(color,' ')-1)
       endif
  8001 format('sphere {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
@@ -100,7 +101,7 @@ c
       k=pre_atnum(csa(ib)(11:12))
       color=atom_color(k) 
       write(lfnpov,8002) (scale*xs(j,ib),j=1,3),
-     + (scale*xh(j),j=1,3),scale*cpk*atom_radius(1),
+     + (scale*xh(j),j=1,3),scale*abs(cpk)*atom_radius(1),
      + color(1:index(color,' ')-1)
  8002 format('cylinder {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
      + '  <',f12.6,',',f12.6,',',f12.6,'>,',/,
@@ -108,7 +109,7 @@ c
       k=pre_atnum(csa(jb)(11:12))
       color=atom_color(k) 
       write(lfnpov,8002) (scale*xs(j,jb),j=1,3),
-     + (scale*xh(j),j=1,3),scale*cpk*atom_radius(1),
+     + (scale*xh(j),j=1,3),scale*abs(cpk)*atom_radius(1),
      + color(1:index(color,' ')-1)
     3 continue
       endif
