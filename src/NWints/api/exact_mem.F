@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.18 1995-06-07 18:11:21 d3e129 Exp $
+c $Id: exact_mem.F,v 1.19 1995-06-08 01:28:44 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -58,10 +58,6 @@ c.... 1e
            isz_1e = max(isz_1e, lsz_1e)
 00200   continue
 00100 continue
-c
-c new label routines require additional isz_1e
-c
-      mem_1e = mem_1e + isz_1e
 c     
 c.. need extra memory for H1 call externalized by int_mem_h1
 c
@@ -151,6 +147,20 @@ c
       it_ucont = infbs_head(HEAD_NCONT,ibas)
       jt_ucont = infbs_head(HEAD_NCONT,jbas)
       kt_ucont = infbs_head(HEAD_NCONT,kbas)
+* error checkint
+      if (it_ucont.eq.0 .or. jt_ucont.eq.0 .or. kt_ucont.eq.0) then
+        write(6,*)' the number of unique contractions is zero'
+        write(6,*)' i handle ',ibasin
+        write(6,*)' i name   ',bs_name(ibas)
+        write(6,*)' i contractions ',it_ucont
+        write(6,*)' j handle ',jbasin
+        write(6,*)' j name   ',bs_name(jbas)
+        write(6,*)' j contractions ',jt_ucont
+        write(6,*)' k handle ',kbasin
+        write(6,*)' k name   ',bs_name(kbas)
+        write(6,*)' k contractions ',kt_ucont
+        call errquit('emem_3ov: bad basis info ',911)
+      endif
 c
       do 00100 iic = 1,it_ucont
         i_type = abs(infbs_cont(CONT_TYPE,iic,ibas))
@@ -224,6 +234,17 @@ c
 c
       bra_ucont = infbs_head(HEAD_NCONT,bra)
       ket_ucont = infbs_head(HEAD_NCONT,ket)
+*error checking
+      if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
+        write(6,*)' the number of unique contractions is zero'
+        write(6,*)' bra handle ',brain
+        write(6,*)' bra name   ',bs_name(bra)
+        write(6,*)' bra contractions ',bra_ucont
+        write(6,*)' ket handle ',ketin
+        write(6,*)' ket name   ',bs_name(ket)
+        write(6,*)' ket contractions ',ket_ucont
+        call errquit('emem_1e: bad basis info ',911)
+      endif
 c
       do 00100 ibc = 1, bra_ucont
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
@@ -303,6 +324,18 @@ c
 c
       bra_ucont = infbs_head(HEAD_NCONT,bra)
       ket_ucont = infbs_head(HEAD_NCONT,ket)
+c
+*error checking
+      if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
+        write(6,*)' the number of unique contractions is zero'
+        write(6,*)' bra handle ',brain
+        write(6,*)' bra name   ',bs_name(bra)
+        write(6,*)' bra contractions ',bra_ucont
+        write(6,*)' ket handle ',ketin
+        write(6,*)' ket name   ',bs_name(ket)
+        write(6,*)' ket contractions ',ket_ucont
+        call errquit('emem_2e4c: bad basis info ',911)
+      endif
 c
       do 00100 ibc = 1, bra_ucont
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
@@ -425,6 +458,17 @@ c
 c
       bra_ucont = infbs_head(HEAD_NCONT,bra)
       ket_ucont = infbs_head(HEAD_NCONT,ket)
+*error checking
+      if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
+        write(6,*)' the number of unique contractions is zero'
+        write(6,*)' bra handle ',brain
+        write(6,*)' bra name   ',bs_name(bra)
+        write(6,*)' bra contractions ',bra_ucont
+        write(6,*)' ket handle ',ketin
+        write(6,*)' ket name   ',bs_name(ket)
+        write(6,*)' ket contractions ',ket_ucont
+        call errquit('emem_2e3c: bad basis info ',911)
+      endif
 c
       do 00100 ibc = 1, bra_ucont
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
@@ -507,6 +551,18 @@ c
 c
       bra_ucont = infbs_head(HEAD_NCONT,bra)
       ket_ucont = infbs_head(HEAD_NCONT,ket)
+c
+*error checking
+      if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
+        write(6,*)' the number of unique contractions is zero'
+        write(6,*)' bra handle ',brain
+        write(6,*)' bra name   ',bs_name(bra)
+        write(6,*)' bra contractions ',bra_ucont
+        write(6,*)' ket handle ',ketin
+        write(6,*)' ket name   ',bs_name(ket)
+        write(6,*)' ket contractions ',ket_ucont
+        call errquit('emem_2e2c: bad basis info ',911)
+      endif
 c
       do 00100 ibc = 1, bra_ucont
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
@@ -595,6 +651,18 @@ c
 c
       bra_ucont = infbs_head(HEAD_NCONT,bra)
       ket_ucont = infbs_head(HEAD_NCONT,ket)
+c
+*error checking
+      if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
+        write(6,*)' the number of unique contractions is zero'
+        write(6,*)' bra handle ',brain
+        write(6,*)' bra name   ',bs_name(bra)
+        write(6,*)' bra contractions ',bra_ucont
+        write(6,*)' ket handle ',ketin
+        write(6,*)' ket name   ',bs_name(ket)
+        write(6,*)' ket contractions ',ket_ucont
+        call errquit('emem_2e4c_full: bad basis info ',911)
+      endif
 c
       do 00100 ibc = 1, bra_ucont
         i_type = infbs_cont(CONT_TYPE,ibc,bra)
