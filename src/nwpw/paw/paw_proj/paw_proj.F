@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.11 2002-09-12 01:01:44 marat Exp $
+* $Id: paw_proj.F,v 1.12 2002-09-13 00:11:56 marat Exp $
 *
 
 !**************************************************
@@ -530,12 +530,13 @@
 #include "mafdecls.fh"
 #include "bessel_transform.fh"
 #include "paw_basis.fh"
+#include "paw_params.fh"
 
       !*** external functions ***
       external G_indx
-      external lattice_unita
+      external lattice_unita,lattice_omega
       integer  G_indx
-      real*8   lattice_unita
+      real*8   lattice_unita,lattice_omega
 
       !*** local variables ***
       integer MASTER,taskid
@@ -545,7 +546,7 @@
       parameter (small=1.0d-9)
 
       logical value
-      integer ii,i,npack1,nfft3d,nr,basis_nbasis,l,m,nbasis,ngrid(3)
+      integer ii,i,npack1,nfft3d,nr,basis_nbasis,l,m,nbasis,ngrid(3),jj
       integer i_rgrid,i_prj
       real*8  unita(3,3),gg,log_amesh
       integer tmp(2),prj(2),rayleigh(2),Gx(2),Gy(2),Gz(2)
@@ -631,7 +632,9 @@
       do ii=1,basis_nbasis
         l =  int_mb(get_i_orb_l(ia)+ii-1)
         write(*,*) "formatting prj ",ii," l:",l
-     
+        write(*,*) "nr=",nr
+        write(*,*) "log_amesh=",log_amesh
+
         do i=1,npack1
           gg  = dsqrt( dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
      >               + dbl_mb(Gy(1)+i-1)*dbl_mb(Gy(1)+i-1)
@@ -649,20 +652,31 @@
      >                                dbl_mb(i_rgrid),
      >                                dbl_mb(i_prj+(ii-1)*nr))
           end if
+c        write(*,*) "gg=",gg
+c        write(*,*) "bess=",dbl_mb(rayleigh(1)+i-1)
+
         end do
         do m=-l,l
+*          *** generate Ylm ***
            call spher_harmonics_generate(l,m,npack1,
      >                      dbl_mb(Gx(1)),
      >                      dbl_mb(Gy(1)),
      >                      dbl_mb(Gz(1)),
      >                      dcpl_mb(prj(1)))
+
+           write(*,*) "ylm(1)=",dcpl_mb(prj(1))
+           write(*,*) "bess(1)=",dbl_mb(rayleigh(1))
+
+*          *** multiply Ylm and spherical besse
            call Pack_tc_Mul(1,dbl_mb(rayleigh(1)),
      >                     dcpl_mb(prj(1)),
      >                     dcpl_mb(prj(1)))
+           write(*,*) "ylm(1)*bess(1)=",dcpl_mb(prj(1))
            call rayleigh_itol_scaling(l,npack1,
      >                                dcpl_mb(prj(1)),
      >                                dcpl_mb(prj(1)))
-        
+           write(*,*) "ylm(1)*bess(1)*coeff=",dcpl_mb(prj(1))
+c           pause 
            if (taskid.eq.MASTER) then
              write(*,*) "writing formatted prj:",ii,"  l,m",l,m
              call iwrite(6,l,1)
@@ -705,6 +719,10 @@
       integer l,nfft3d
       complex*16 Y(*)
 
+      real*8 lattice_omega
+      external lattice_omega
+#include "paw_params.fh"
+
       !*** local variables ***
       integer k
       complex*16 coef
@@ -719,6 +737,7 @@
          coef = dcmplx(0.0d0,1.0d0)
       end if
 
+      coef = coef*fourpi/sqrt(lattice_omega())
       do k=1,nfft3d
         Y(k) = coef*Y(k)
       end do
