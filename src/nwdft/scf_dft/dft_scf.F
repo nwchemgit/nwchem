@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.78 1997-05-21 20:49:09 d3g681 Exp $
+c     $Id: dft_scf.F,v 1.79 1997-05-23 21:46:53 d3e129 Exp $
 c     
       implicit none
 c
@@ -95,8 +95,8 @@ c
       double precision zero, onem, one
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
       parameter(itol_min = 6, iAOacc_min = 15)
-      double precision dft_dencvg, dabssum, dft_time
-      external dft_dencvg, dabssum
+      double precision dft_dencvg, dft_time
+      external dft_dencvg
       double precision homo, lumo, homo_lumo_gap
       integer stat1, stat2, l_ir, k_ir
       logical status, last_time, last_time_vecs, last_time_energy
