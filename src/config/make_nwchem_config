@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.52 1996-11-05 00:36:09 rg240 Exp $
+# $Id: make_nwchem_config,v 1.53 1997-01-15 21:34:12 d3j191 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -123,7 +123,8 @@ MOD_LIBS := $(patsubst cphf,-lcphf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst plane_wave,-lplnwv,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst nwargos,-lnwargos -lnwaprep,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwaprep,-lnwaprep,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwargos,-lnwargos,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
