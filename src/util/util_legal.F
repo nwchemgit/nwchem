@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.22 2001-01-22 22:50:29 windus Exp $
+* $Id: util_legal.F,v 1.23 2001-08-09 20:33:37 edo Exp $
 *---------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001  *
 *         Pacific Northwest National Laboratory,                *
@@ -173,7 +173,7 @@ c
      + ' K. Dyall, D. Elwood,',/,
      + 12x,'H. Fruchtl, E. Glendenning, M. Gutowski, A. Hess,',
      + ' J. Jaffe, B. Johnson, J. Ju,',/,
-     + 12x,'R. Kendall, R. Kobayashi, R, Kutteh, Z. lin,',
+     + 12x,'R. Kendall, R. Kobayashi, R, Kutteh, Z. Lin,',
      + ' R. Littlefield, X. Long, B. Meng,',/,
      + 12x,'J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave,',
      + ' H. Taylor, G. Thomas,',/,
