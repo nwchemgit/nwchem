@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.6 2003-02-11 21:13:14 marat Exp $
+* $Id: paw_inner_loop.F,v 1.7 2003-02-11 21:50:52 marat Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -28,6 +28,7 @@
 #include "paw_energy_kin_atom.fh"
 #include "paw_energy_vloc_atom.fh"
 #include "paw_energy_ion_atom.fh"
+#include "paw_energy_core_atom.fh"
 
 
 *     **** local variables ****
@@ -42,6 +43,7 @@
       double precision paw_ekin_atom
       double precision paw_evloc_atom
       double precision paw_eion_atom
+      double precision paw_ecore_atom
 
 
 *     **** MA local variables ****
@@ -429,9 +431,11 @@ c     get paw atom energies
       paw_ekin_atom = paw_energy_kin_atom()
       paw_evloc_atom = paw_energy_vloc_atom()
       paw_eion_atom = paw_energy_ion_atom()
+      paw_ecore_atom = paw_energy_core_atom()
       write(*,*) "paw atom kin energy",paw_ekin_atom
       write(*,*) "paw atom vloc energy",paw_evloc_atom 
       write(*,*) "paw atom ion energy",paw_eion_atom 
+      write(*,*) "paw atom core energy",paw_ecore_atom 
 
 *     **** total energy ****
       Eold=E(1)

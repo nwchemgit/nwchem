@@ -1,0 +1,8 @@
+*
+* $Id: paw_matrix_core_data.fh,v 1.1 2003-02-11 21:50:52 marat Exp $
+*
+
+      integer paw_core_matrix(4)
+      integer i_paw_core_matrix(4)
+
+      common /paw_core_matrix/ paw_core_matrix,i_paw_core_matrix
