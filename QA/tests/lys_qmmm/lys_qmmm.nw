@@ -1,0 +1,98 @@
+Title "QM/MM of Lys monomer"
+
+
+memory total 1000 Mb
+
+start lys_qmmm
+
+echo
+
+prepare
+ print high
+ system lys_em
+ source lys0.pdb
+# touch 0.23
+# expand 0.1
+ new_top
+ new_rst
+ modify atom 1:_NZ  quantum
+ modify atom 1:2HZ  quantum
+ modify atom 1:3HZ  quantum
+ modify atom 1:4HZ  quantum
+# modify atom 1:_CE  quantum
+# modify atom 1:2HE  quantum
+# modify atom 1:3HE  quantum
+ update lists
+ ignore
+# center
+# orient
+# solvate
+end
+
+task prepare
+
+# A basis set must be defined for the QM part 
+
+basis "ao basis" 
+  O library "6-31G*"
+  H library "6-31G*"
+  C library "6-31G*"
+  N library "6-31G*"
+  F library "6-31G*"
+END
+
+
+# There is a net charge on NH3 group
+charge 1.0
+
+# Specify any SCF details
+dft
+ iterations 100
+end
+
+driver
+clear
+maxiter 20
+xyz test
+end
+
+ecp "ecp basis" 
+F nelec 2
+F ul
+  1 8.51659 4.36253
+F s
+  2 25.00120 29.99904
+F p
+  2 3.56805 0.40215
+end
+
+
+
+md
+ system lys_em
+ sd 50   init 0.01   min 0.00001   max 0.05
+ cg 30   init 0.01   min 1.0E-8    cy 10
+ cutoff 1.9   qmmm 1.8
+# fix solute  1 1 C
+# noshake solute
+ memory 15000
+# record rest 1
+end
+
+set geometry:actlist 2
+# Define combined QM/MM part.  Need to give quantum energy
+# for atoms in atomic units (Hartrees).
+qmmm
+ eatoms -95
+ nobq all
+ link hydrogen
+ xyz
+ xyzq
+end
+
+#set driver:ocheckgrad .true.
+
+# Run QM/MM optimization.
+task qmmm dft optimize
+
+
