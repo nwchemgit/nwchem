@@ -1,0 +1,22 @@
+#ifdef MPIPROCS
+      include "mpif.h"
+#endif
+
+      integer mpi,tcg
+      parameter (mpi=1,tcg=2)
+      integer me, nproc
+      common /distvars/ me, nproc
+      integer proctype
+
+#ifdef TCGPROCS
+      integer ierr, status(2), istatus
+      parameter (proctype=tcg) 
+#endif
+
+
+#ifdef MPIPROCS
+      integer ierr, status(MPI_STATUS_SIZE), istatus
+      parameter (proctype=mpi) 
+#endif
+
+      common /statvars/ ierr, istatus, status 

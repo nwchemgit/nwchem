@@ -1,0 +1,20 @@
+      character*8 fft_type
+      character*9 procs_type
+#ifdef EMSLFFT 
+      parameter (fft_type='EMSL_FFT')
+#endif
+#ifdef ESSLFFT 
+      parameter (fft_type='ESSL_FFT') 
+#endif
+#ifdef MPIPROCS
+      parameter (procs_type='MPI_PROCS') 
+#endif
+#ifdef TCGPROCS
+      parameter (procs_type='TCG_PROCS') 
+#endif
+      integer nd1, nd2, nd3
+      parameter (nd1=32, nd2=32, nd3=32)
+c     parameter (nd1=8, nd2=8, nd3=8)
+      integer md1, md2, md3
+      parameter (md1=8, md2=8, md3=8)
+
