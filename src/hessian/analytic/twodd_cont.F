@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.3 2000-05-30 14:47:30 windus Exp $
+C $Id: twodd_cont.F,v 1.4 2000-07-18 15:03:42 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -95,7 +95,7 @@ c
       ld_jl4  = 1
       ld_il4  = 1
       ld_jk4  = 1
-      ld_ik5  = 1
+      ld_ik5  = 1    ! Should be 0?
       ld_jl5  = 1
       ld_il5  = 1
       ld_jk5  = 1
@@ -154,6 +154,12 @@ c
       if (.not. ma_push_get(mt_dbl, blen**4, 'pdm2d',
      $     l_pdm2d, k_pdm2d)) call errquit
      $     ('twodd_cont:failed allocating pdm2d',blen**4)
+c initialize for integral gradients
+      call intdd_terminate()
+      call int_init(rtdb, 1, basis)
+      call schwarz_init(geom, basis)
+      call int_terminate()
+      call intdd_init(rtdb, 1, basis)
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       call intb_mem_2e4c(max2e, mscratch_2e) ! blocking algorithm
       max2e = max2e/12
@@ -164,14 +170,16 @@ c
 C     one-electron contribution
 C     buffers for one electron integral derivatives
  
-      if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,k_buf))
-     $     call errquit('grad:could not allocate buffer',12*lbuf)
+      if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,
+     $    k_buf)) call errquit('twodd_cont:could not allocate buffer'
+     $    ,78*lbuf)
 *      call ma_summarize_allocated_blocks()
       if (.not. ma_push_get(mt_dbl,lscratch,'deriv scratch',
-     $     l_scr,k_scr))call errquit('grad: scratch alloc failed',
-     $     lscratch)
+     $     l_scr,k_scr))call errquit
+     $     ('twodd_cont: scratch alloc failed', lscratch)
       if (.not. ma_push_get(mt_int,4*lbuf,'labels',l_labels,k_labels))
-     $     call errquit('grad: could not allocate labels',4*lbuf)               
+     $     call errquit('twodd_cont: could not allocate labels',
+     $     4*lbuf)
 c
 C     define threshold for Schwarz screening(same as in SCF)
 c
@@ -240,8 +248,8 @@ c
 c For now I am not dealing with the active atom stuff, just setting every
 c atom to active.
 c
-      if (.not. ma_push_get(MT_LOG,ncent,'active atoms',l_act,k_act))
-     $     call errquit('twodd_cont: could not allocate l_act',ncent) 
+c     if (.not. ma_push_get(MT_LOG,ncent,'active atoms',l_act,k_act))
+c    $     call errquit('twodd_cont: could not allocate l_act',ncent) 
       do i = 1, ncent
         log_mb(k_act+i-1) = .true.
       end do
@@ -255,6 +263,7 @@ c
 c
 c  Actually do the deed
 c
+c     if (jfac.ne.0.0d0 .or. kfac.ne.0.0d0) call grad2(
       if (jfac.ne.0.0d0 .or. kfac.ne.0.0d0) call twodd_coul_ex(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk),
@@ -286,6 +295,7 @@ c
      $     int_mb(k_bfmap), int_mb(k_rbfmap),
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
      $     jfac, kfac) 
+c    $     jfac, kfac,.false.) 
 c
 c Print out the hessian before adding anything else
 c
@@ -321,6 +331,11 @@ c
      *     g_rhs_xc)
       endif
 
+c
+c call terminate since cphf will call it's own integral initialization
+c
+      call schwarz_tidy()    ! need to get rid of temp buffers
+      call intdd_terminate()
 c
 c  Temporary copy to real spot (needs to be an add in the very near future)
 c
