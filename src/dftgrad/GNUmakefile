@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.51 2000-04-15 01:24:22 edo Exp $
+# $Id: GNUmakefile,v 1.52 2000-04-27 01:04:40 edo Exp $
 #
 
    OBJ = dft_grad_top.o  dftg_force.o \
@@ -11,7 +11,7 @@
                   dftg_grad2.o dftg_hf_x.o dint_block_j.o j_nucder_gen.o  \
                   dftg_beckew.o dftg_wderiv.o  dftg_gridssw.o
 
-   USES_BLAS = dftg_cdfit.F dftg_quadv0a.F dftg_quadv0b.F dftg_wderiv.F j_nucder_gen.F dft_gradients.F dftg_force.F 
+   USES_BLAS = dftg_cdfit.F dftg_quadv0a.F dftg_quadv0b.F dftg_wderiv.F j_nucder_gen.F dft_gradients.F dftg_force.F  dftg_gridv0a.F dftg_gridv0b.F
 
 LIB_INCLUDES = -I../nwdft/include -I../nwdft/grid
 
