@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.37 2000-06-06 00:43:36 mg201 Exp $
+c $Id: int_2e4c.F,v 1.38 2000-06-06 23:54:14 mg201 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -84,6 +84,7 @@ c
       logical any_spherical
       integer a_nbf,   b_nbf,   c_nbf,   d_nbf
       integer a_nbf_s, b_nbf_s, c_nbf_s, d_nbf_s
+      integer ab_gen, ab_cmp, cd_gen, cd_cmp
 c
 #if defined(PERF_NORMAL)
       logical shells_ok
@@ -332,15 +333,20 @@ c
           b_nbf = int_nbf_x(Lb)
           c_nbf = int_nbf_x(Lc)
           d_nbf = int_nbf_x(Ld)
+          cd_gen = c_gen*d_gen
+          ab_gen = a_gen*b_gen
+          ab_cmp = a_nbf*b_nbf
+          cd_cmp = c_nbf*d_nbf
           if(bas_spherical(bra)) then
             a_nbf_s = int_nbf_s(La)
             b_nbf_s = int_nbf_s(Lb)
             call spcart_bra2etran(eri,scr,
      &            b_nbf,a_nbf,b_nbf_s,a_nbf_s,
      &            Lb, La, b_gen, a_gen,
-     &            (c_nbf*d_nbf),.false.)
+     &            cd_gen*cd_cmp,.false.)
             a_nbf = a_nbf_s
             b_nbf = b_nbf_s
+            ab_cmp = a_nbf*b_nbf
           endif
           if(bas_spherical(ket)) then
             c_nbf_s = int_nbf_s(Lc)
@@ -348,7 +354,7 @@ c
             call spcart_ket2etran(eri,scr,
      &            d_nbf,c_nbf,d_nbf_s,c_nbf_s,
      &            Ld, Lc, d_gen, c_gen,
-     &            (a_nbf*b_nbf),.false.)
+     &            ab_gen*ab_cmp,.false.)
             c_nbf = c_nbf_s
             d_nbf = d_nbf_s
           endif
