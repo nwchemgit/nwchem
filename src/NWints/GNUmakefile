@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.9 1994-06-08 22:39:25 d3e129 Exp $
+# $Id: GNUmakefile,v 1.10 1994-06-09 05:31:09 d3g681 Exp $
 
 LIBRARY = libnwints.a
 
@@ -28,7 +28,8 @@ INTSP_OBJ = ./ints_sp/genr70.o ./ints_sp/init70.o ./ints_sp/qout70.o \
             ./ints_sp/sp1111.o ./ints_sp/tabgen.o 
 
 USES_BLAS = ./api/int_l1eall.F ./api/int_l2e4c.F ./api/int_lgen1e.F \
-            ./api/int_pgen1e.F ./api/int_l2e2c.F ./api/int_l2e3c.F
+            ./api/int_pgen1e.F ./api/int_l2e2c.F ./api/int_l2e3c.F \
+            ./ints_sp/sp1111.F ./deriv/hf1d.F    
 
 DERIV_OBJ  = ./deriv/hf1PRtoAB.o ./deriv/hf1d.o   ./deriv/hf2PRtoAB.o \
              ./deriv/hf2QStoCD.o ./deriv/hf2d.o   ./deriv/hfd2oi.o \

@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.7 1994-06-07 00:29:51 d3e129 Exp $
+c $Id: exact_mem.F,v 1.8 1994-06-09 05:31:12 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -217,8 +217,8 @@ c
 c... insure scratch is large enough to hold 3*max1e
       memsize = max(3*max1e,memsize)
 c
-      write(6,'(a,i10)')'emem_1e: memsize =',memsize
-      write(6,'(a,i10)')'emem_1e: max1e   =',max1e
+*      write(6,'(a,i10)')'emem_1e: memsize =',memsize
+*      write(6,'(a,i10)')'emem_1e: max1e   =',max1e
 c
       end
       subroutine emem_2e4c(brain, ketin, maxg, memsize)
@@ -325,8 +325,8 @@ c
       maxg = maxg*max_nbf_ket*max_nbf_ket
       
 c
-      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
-      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
+*      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
+*      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
 c
       end
 

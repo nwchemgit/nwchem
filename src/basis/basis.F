@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.19 1994-06-06 19:22:35 d3e129 Exp $
+c $Id: basis.F,v 1.20 1994-06-09 05:31:19 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -805,14 +805,14 @@ c::: functions
 c::: passed
       integer rtdb                              ! [input] rtdb handle
       character*(*) name                        ! [input] name of basis set
+      integer ntagsin                           ! [input] number of tags
+      integer nucontin                          ! [input] number of unique contractions
+      integer nexcf                             ! [input] number of exponents and 
       character*16 tagsin(ntagsin)              ! [input] name of tags
       integer head_array(ndbs_head)             ! [input] head data
       integer tags_array(ndbs_tags,ntagsin)     ! [input] tag data
       integer ucont_array(ndbs_ucont,nucontin)  ! [input] unique contraction data
       double precision excfin(nexcf)            ! [input] exponents and contraction coeffs
-      integer ntagsin                           ! [input] number of tags
-      integer nucontin                          ! [input] number of unique contractions
-      integer nexcf                             ! [input] number of exponents and 
 c                                               !         contractions coeffs.
 c::: local
       character*256 tmp

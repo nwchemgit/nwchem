@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 1994-05-27 02:01:23 d3g681 Exp $
+# $Id: GNUmakefile,v 1.6 1994-06-09 05:31:28 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -26,17 +26,7 @@
 
     LIBRARY = libddscf.a
 
-  USES_BLAS = rhf_fock_2e.F      rhf_fock_2e_a.F \
-              rhf_fock_2e_b.F    rhf_fock_2e_c.F \
-              rhf_get_param.F    ga_conform.F \
-              rhf_hessv.F        rhf_nr_solve.F \
-              ga_maxelt.F        rhf_precond.F \
-              scf.F              schwarz_atom.F \
-              schwarz_init.F     k2cf.F \
-              schwarz_max.F \
-              schwarz_print.F    rhf.F \
-              rhf_dens_to_mo.F   schwarz_tidy.F \
-              rhf_do_canon.F     rhf_energy.F
+  USES_BLAS = *.F
 
 
 

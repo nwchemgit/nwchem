@@ -15,7 +15,6 @@
 # 08-feb-90 four-part division. -rls
 # 14-dec-88 written by ron shepard. based on a previous script written
 #           by eric stahlberg.
-
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Aa][Xx][Pp][Yy]\([^A-Za-z0-9_]\)/\1daxpy\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Dd][Oo][Tt]\([^A-Za-z0-9_]\)/\1ddot\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Ss][Cc][Aa][Ll]\([^A-Za-z0-9_]\)/\1dscal\2/g
@@ -34,6 +33,7 @@
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Gg][Ee][Rr]\([^A-Za-z0-9_]\)/\1dger\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Gg][Ee][Ss][Vv][Dd]\([^A-Za-z0-9_]\)/\1dgesvd\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Ss][Pp][Ss][Vv][Xx]\([^A-Za-z0-9_]\)/\1dspsvx\2/g
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Gg][Ee][Tt][Rr][Ss]\([^A-Za-z0-9_]\)/\1dgetrs\2/g
 
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Aa][Xx][Pp][Yy]$/\1daxpy/
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Dd][Oo][Tt]$/\1ddot/
@@ -53,6 +53,7 @@
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Gg][Ee][Rr]$/\1dger/
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Gg][Ee][Ss][Vv][Dd]$/\1dgesvd/
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Ss][Pp][Ss][Vv][Xx]$/\1dspsvx/
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Gg][Ee][Tt][Rr][Ss]$/\1dgetrs/
 
 s/^\(     .\)[Ss][Aa][Xx][Pp][Yy]\([^A-Za-z0-9_]\)/\1daxpy\2/
 s/^\(     .\)[Ss][Dd][Oo][Tt]\([^A-Za-z0-9_]\)/\1ddot\2/
@@ -72,6 +73,7 @@ s/^\(     .\)[Ss][Ss][Pp][Mm][Vv]\([^A-Za-z0-9_]\)/\1dspmv\2/
 s/^\(     .\)[Ss][Gg][Ee][Rr]\([^A-Za-z0-9_]\)/\1dger\2/
 s/^\(     .\)[Ss][Gg][Ee][Ss][Vv][Dd]\([^A-Za-z0-9_]\)/\1dgesvd\2/
 s/^\(     .\)[Ss][Ss][Pp][Ss][Vv][Xx]\([^A-Za-z0-9_]\)/\1dspsvx\2/
+s/^\(     .\)[Ss][Gg][Ee][Tt][Rr][Ss]\([^A-Za-z0-9_]\)/\1dgetrs\2/
 
 s/^\(     .\)[Ss][Aa][Xx][Pp][Yy]$/\1daxpy/
 s/^\(     .\)[Ss][Dd][Oo][Tt]$/\1ddot/
@@ -91,4 +93,4 @@ s/^\(     .\)[Ss][Ss][Pp][Mm][Vv]$/\1dspmv/
 s/^\(     .\)[Ss][Gg][Ee][Rr]$/\1dger/
 s/^\(     .\)[Ss][Gg][Ee][Ss][Vv][Dd]$/\1dgesvd/
 s/^\(     .\)[Ss][Ss][Pp][Ss][Vv][Xx]$/\1dspsvx/
-
+s/^\(     .\)[Ss][Gg][Ee][Tt][Rr][Ss]$/\1dgetrs/

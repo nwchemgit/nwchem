@@ -3,30 +3,40 @@
 #include "mafdecls.h"
 #include "global.fh"
 #include "rtdb.fh"
+#include "tcgmsg.fh"
       integer rtdb
       integer stack
       integer heap
       logical status
+#ifdef PARALLEL_DIAG
+      integer junk(4)
+#endif
 c
       character*255 input_filename
 c
 c     Create parallel processes and initialize IPC layer
 c
       call pbeginf()
+#ifdef PARALLEL_DIAG
+      call mxpara(junk)
+#endif
+c
+c     Only process 0 opens the input file 
+c     (note that ga_nodeid() does not work yet!)
+c
+      if (nodeid() .eq. 0) then   
 c
 c     Get the name of the input file from the command line
 c
-      call get_input_filename(input_filename)
+         call get_input_filename(input_filename)
 c
-c     Only process 0 opens the input file
-c
-      if (ga_nodeid() .eq. 0) then
          open(5, file=input_filename, status='old', form='formatted',
      $        err=10000)
       else
+#ifndef KSR
          close(5)
+#endif
       endif
-
 c
 c     Look for memory directive in the input ... must eventually
 c     open the rtdb first so that can get memory directive out of that

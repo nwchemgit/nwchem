@@ -1,5 +1,5 @@
       subroutine int_init(nbas, bases)
-c $Id: int_init.F,v 1.7 1994-06-07 00:29:59 d3e129 Exp $
+c $Id: int_init.F,v 1.8 1994-06-09 05:31:13 d3g681 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -26,7 +26,7 @@ c
 00200   continue
         call errquit('int_init: basis handles hosed ',nbas)
       endif
-      write(6,*)' int_init: basis set handles valid '
+*      write(6,*)' int_init: basis set handles valid '
 c
 c initialize defnxyz routines
 c      

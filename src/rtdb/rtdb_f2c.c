@@ -138,7 +138,7 @@ logical rtdb_get_info_(const integer *handle, const char *name,
   }
 }
 
-logical rtdb_put_(const integer *handle, const char *name, const int *ma_type,
+logical rtdb_put_(const integer *handle, const char *name, const integer *ma_type,
 		  const integer *nelem, const void *array, const int nlen)
 {
   int hbuf = (int) *handle;
@@ -154,6 +154,11 @@ logical rtdb_put_(const integer *handle, const char *name, const int *ma_type,
 
   nelbuf = (int) *nelem;
   typebuf= (int) *ma_type;
+
+#ifdef DEBUG
+  printf("put: rtdb=%d, mat=%d, nel=%d, name=%s\n", hbuf, typebuf, nelbuf, nbuf);
+  fflush(stdout);
+#endif
 
   if (rtdb_put(hbuf, nbuf, typebuf, nelbuf, array))
     return FORTRAN_TRUE;
@@ -178,6 +183,11 @@ logical rtdb_get_(const integer *handle, const char *name,
 
   nelbuf = (int) *nelem;
   typebuf= (int) *ma_type;
+
+#ifdef DEBUG
+  printf("get: rtdb=%d, mat=%d, nel=%d, name=%s\n", hbuf, typebuf, nelbuf, nbuf);
+  fflush(stdout);
+#endif
 
   if (rtdb_get(hbuf, nbuf, typebuf, nelbuf, array)) {
     return FORTRAN_TRUE;
@@ -264,6 +274,11 @@ logical rtdb_cput_(const integer *handle, const char *name,
 
   nelbuf = strlen(abuf) + 1;
   typebuf= (int) MT_CHAR;
+
+#ifdef DEBUG
+  printf("cput: rtdb=%d, mat=%d, nel=%d, name=%s\n", hbuf, typebuf, nelbuf, nbuf);
+  fflush(stdout);
+#endif
 
   if (rtdb_put(hbuf, nbuf, typebuf, nelbuf, abuf))
     return FORTRAN_TRUE;

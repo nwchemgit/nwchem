@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.23 1994-06-01 19:04:06 d3g681 Exp $
+# $Id: makefile.h,v 1.24 1994-06-09 05:31:23 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -30,7 +30,7 @@ endif
 
 #
 # Define TARGET to be the machine you wish to build for
-# (one of SUN, IPSC, KSR)
+# (one of SUN, IPSC, IBM, KSR)
 #
 # Either do a setenv for NWCHEM_TARGET or define it here
 # ... it is preferable to do the setenv then this file is independent
@@ -54,6 +54,7 @@ endif
 
     SUBDIRS = include ddscf develop global db NWints rtdb basis inp util \
               atomscf geom input ma tcgmsg $(SUBDIRS_EXTRA)
+
 #
 # Define LIBPATH to be paths for libraries that you are linking in
 # from precompiled sources and are not building now. These libraries
@@ -121,6 +122,9 @@ ifeq ($(TARGET),KSR)
 #
 # KSR running OSF
 #
+    SUBDIRS_EXTRA = blas 
+#lapack
+
          FC = f77
          CC = cc
          AR = ar
@@ -130,21 +134,24 @@ ifeq ($(TARGET),KSR)
   MAKEFLAGS = -j 20
     INSTALL = echo $@ is built
 
-       FOPT = -g -r8 -u
+       FOPT = -g -r8
+# -u
    FOPT_REN = $(FOPT)
        COPT = -g
      FLDOPT = $(FOPT)
      CLDOPT = $(COPT)
   INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
 
-    DEFINES = -DKSR  -DLongInteger $(LIB_DEFINES) 
+    DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger $(LIB_DEFINES) 
      FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
      CFLAGS = $(COPT) $(INCLUDES) $(DEFINES)
     ARFLAGS = rcv
 
-       LIBS = -L$(LIBDIR) $(LIBPATH) \
+       LIBS = -L$(LIBDIR) $(LIBPATH) -L/home/d3g681/TCGMSG_DISTRIB \
               -ltest -lddscf -lnwints \
-              -linput -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
+              -linput -lguess -lgeom -lbasis -lutil \
+              -lglobal -lpeigs -llapack2 -lblas2 \
+              -lrtdb -ldb -linp \
 	      -lutil -lma -ltcgmsg -llapack -lblas -para -lrpc
 
   EXPLICITF = FALSE
