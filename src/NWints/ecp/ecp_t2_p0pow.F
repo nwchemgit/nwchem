@@ -1,4 +1,4 @@
-C$Id: ecp_t2_p0pow.F,v 1.1 1996-10-16 22:52:31 mg201 Exp $
+C$Id: ecp_t2_p0pow.F,v 1.2 1997-05-28 20:34:56 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_t2_p0pow (n,m,k,alpha,beta,gamma,term,test,temp,
@@ -30,11 +30,14 @@ C$Id: ecp_t2_p0pow.F,v 1.1 1996-10-16 22:52:31 mg201 Exp $
 #include "ecp_consts.fh"
       integer i,idamax,j1,j2,j3,k,k_abs,m,n
       double precision alpha(n),beta(n),gamma(n),term(n),test(n),
-     &    temp(n,9),Q(n),tol,fac0,fac1,fac2,fac3,fac4,fac5
+     &    temp(n,9),Q(n),tol,fac0,fac1,fac2,fac3,fac4,fac5,small,logbig
+      data small/1.0D-10/
 *
 *   Set up factors for recursion
 *
       if (n .eq. 0) return
+C      write (6,*) ' Entering ecp_t2_p0pow ...'
+      logbig = -log(small)
       fac1 = m+1+min(k,0)
       fac1 = fac1+half
       fac2 = 1-max(k,0)
@@ -64,6 +67,7 @@ C      write (6,'(5F10.4)') fac1,fac2,fac3,fac4,fac5
           term(i) = fac0*temp(i,4)
         end if
         test(i) = one
+	temp(i,9) = -alpha(i)*(beta(i)+beta(i)+alpha(i))
       end do
       j1 = 0
 C      write (6,'(5F10.4)') fac1,fac2,fac3,fac4,fac5
@@ -82,6 +86,14 @@ C      write (6,'(5F10.4)') fac1,fac2,fac3,fac4,fac5
      &                 - fac3*fac4*temp(i,j1)
             term(i) = term(i)*temp(i,4)*fac0
             test(i) = term(i)*temp(i,j3)/Q(i)
+            if ((Q(i)*small .gt. one) .or. (temp(i,j3)*small .gt. one)) 
+     &          then
+              Q(i) = Q(i)*small
+              temp(i,j1) = temp(i,j1)*small
+              temp(i,j2) = temp(i,j2)*small
+              temp(i,j3) = temp(i,j3)*small
+              temp(i,9) = temp(i,9)+logbig
+            end if
           end if
         end do
         fac3 = fac3+one
@@ -111,8 +123,9 @@ C      write (6,*) fac1,fac5
 *   Perform remaining exponent shift.
 *
       do i = 1,n
-        Q(i) = Q(i)*exp(-alpha(i)*(two*beta(i)+alpha(i)))
+        Q(i) = Q(i)*exp(temp(i,9))
       end do
+C      write (6,*) ' Exiting ecp_t2_p0pow ...'
 *
       return
       end
