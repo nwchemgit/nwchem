@@ -1,5 +1,16 @@
 \label{sec:pspw}
 
+\newcounter{algcounter}[chapter]
+\def\thealgcounter{\thechapter.\arabic{algcounter}}
+\newenvironment{algorithm}[1]
+               { \refstepcounter{algcounter}
+                \begin{center}
+                  {\bf Algorithm} \thealgcounter: #1
+                \end{center}
+               \begin{center}\begin{enumerate} \em}
+               {\end{enumerate}\end{center}}
+
+
 A pseudopotential plane-wave (PSPW) module, which can perform Car-Parrinello
 simulations, is being implemented into the NWChem program package.  
 This module complements the capabilities of NWChem by including code 
@@ -20,9 +31,11 @@ global minima, explicit simulation of solvated molecules, and simulations
 of complex vibrational modes that cannot be described within the harmonic 
 approximation.
 
-The next section describes the tasks contained within the PSPW module.
-Then the RTDB entries and datafiles used by the PSPW module are described 
-in section \ref{sec:pspw_data}.  Examples of how to setup and run
+Section \ref{sec:pspw_tasks} describes the tasks contained within the PSPW module, 
+and section \ref{sec:pspw_nose} describes the input parameters for a Car-Parrinello
+simulation at constant temperature.  Then the RTDB entries and datafiles used by the 
+PSPW module are described in section \ref{sec:pspw_data}, and Car-Parrinello output data files are 
+described in section \ref{sec:pspw_cp_data}.  Examples of how to setup and run
 a steepest descent simulation and a Car-Parrinello simulation are presented
 in sections \ref{sec:pspw_sd}-\ref{sec:pspw_cp}.  Finally in section
 \ref{sec:pspw_limits} the capabilities and limitations of the PSPW
@@ -42,8 +55,9 @@ PSPW
 END
 \end{verbatim}
 
-To perform an actual calculation a TASK PSPW directive is used.
-The format for the TASK PSPW directive is the TASK directive followed by the 
+To perform an actual calculation a TASK PSPW directive is used.  The TASK
+cg\_pspw directive may also be used (see below).  The format for the 
+TASK PSPW directive is the TASK directive followed by the 
 PSPW string, and after that an $<$operation$>$ string is required.  The 
 TASK PSPW directive for PSPW calculations is of the following form:
 \begin{verbatim}
@@ -79,11 +93,12 @@ section \ref{sec:first_task}. The PSPW conjugate\_gradient sub-module is used
 in this interface.  Specifically the following task operations 
 are interafaced using the cg\_pspw theory directive.
 \begin{verbatim}
-TASK cg_pspw energy           
+TASK cg_pspw energy      #equivalent to TASK PSPW conjugate_gradient           
 TASK cg_pspw gradient         
 TASK cg_pspw optimize         
 TASK cg_pspw saddle           
 TASK cg_pspw freqencies       
+TASK cg_pspw vib
 \end{verbatim}
 
 
@@ -91,30 +106,9 @@ TASK cg_pspw freqencies
 
 The steepest\_descent task is used to optimize the one-electron orbitals
 with respect to the total energy.  In addition it can also be used to optimize
-geometries.  
-
-In this method the LSDA energy functional is minimized with
-respect to the Kohn-Sham orbitals {$\psi_{i,\sigma}$} and subject to 
-orthonormality contraints ($\Lambda_{ji,\sigma}$ Lagrange Multipliers) 
-by a fixed step minimization procedure.
-\begin{eqnarray}
-\psi_{i,\sigma}^{t+ \Delta t} 
-                   &\leftarrow& 
-                     \psi_{i,\sigma}^{t} 
-                      - \frac{\Delta t}{\sqrt{\mu}} 
-                        \left[ 
-                           \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
-                            + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
-                        \right]_{t}
-\end{eqnarray}
-The ion positions can also be minimized using a fixed step minimization 
-procedure.
-\begin{eqnarray}
-\vec{R}_I^{t+\Delta t} &\leftarrow& 
-                      \vec{R}_I^{t}
-                    - \frac{(\Delta t)}{\sqrt{M_I}} 
-                       \frac{\partial E}{\partial \vec{R}_I}
-\end{eqnarray}
+geometries.   This method is meant to be used for coarse optimization of
+the one-electron orbitals.  A detailed description of the this method
+is described in section \ref{sec:pspw_sd}
 
 Input to the steepest\_descent simulation is contained
 within the steepest\_descent sub-block.
@@ -141,17 +135,17 @@ PSPW
       CELL_NAME: <string cell_name>
       [GEOMETRY_OPTIMIZE]
       (FORMATTED_FILENAME: <string formatted_name>)+
-      INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions>
-      OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions>
+      INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions  default input_movecs>
+      OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions default input_movecs>
       FAKE_MASS: <real fake_mass default 400000.0>
       TIME_STEP: <real time_step default 5.8>
       LOOP: <integer inner_iteration outer_iteration default 10 1>
-      TOLERANCES: <real tole tolc tolr>
-      [ENERGY_CUTOFF:       <real ecut>]
-      [WAVEFUNCTION_CUTOFF: <real wcut>]
-      [EWALD_NCUT: <integer ncut>]
-      [EWALD_RCUT: <real rcut>]
-      [EXCHANGE_CORRELATION: (Vosko || PBE96  default PBE96)]
+      TOLERANCES: <real tole tolc tolr default 1.0d-9 1.0d-9 1.0d-4>
+      ENERGY_CUTOFF:       <real ecut default (see input desciption)>
+      WAVEFUNCTION_CUTOFF: <real wcut default (see input description)>
+      EWALD_NCUT: <integer ncut default 1>]
+      EWALD_RCUT: <real rcut default (see input description)>
+      EXCHANGE_CORRELATION: (Vosko || PBE96  default Vosko)
       [MULLIKEN]
 
    END
@@ -163,7 +157,7 @@ The following list describes the input for the STEEPEST\_DESCENT
 sub-block.
 \begin{itemize}
 	\item $<$cell\_name$>$ - name that points to the
-              the simulation\_cell named $<$cell\_name$>$.
+              the simulation\_cell named $<$cell\_name$>$. See section \ref{sec:pspw_cell}.
 	\item GEOMETRY\_OPTIMIZE - optional keyword which if specified
 	      turns on geometry optimization. 	
 	\item $<$formatted\_name$>$ - name that points
@@ -192,71 +186,62 @@ sub-block.
 			  part of the Ewald summation.
 	\item $<$rcut$>$ - value for the cutoff radius used
 			  in the Ewald summation.
-        \item (Vosko || PBE96) - Choose between Vosko et al's LDA 
+        \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
                                and Erzherhoff GGA functional.
         \item MULLIKEN - optional keyword which if specified
                          causes a Mulliken anaysis to be performed at
-                         the end of the simulation
+                         the end of the simulation.  For this option
+	                 to work angular momentum weights for each kind
+                         of atom have to be entered into the RTDB using
+                         the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}.
 \end{itemize}
 
 
 \subsection{CONJUGATE\_GRADIENT} 
 
-The steepest\_descent task is used to optimize the one-electron orbitals
-with respect to the total energy.  In addition it can also be used to optimize
-geometries.  
+The conjugate\_descent task is used to optimize the one-electron orbitals
+with respect to the total energy.  This method should be used for finer
+optimization. It is better to the the steepest\_descent task When intitially 
+optimizing the one-electron orbitals.  A detailed description of the this method
+is described in section \ref{sec:pspw_cgmanifold}.
 
-In this method the LSDA energy functional is minimized with
-respect to the Kohn-Sham orbitals {$\psi_{i,\sigma}$} and subject to 
-orthonormality contraints ($\Lambda_{ji,\sigma}$ Lagrange Multipliers) 
-by a fixed step minimization procedure.
-\begin{eqnarray}
-\psi_{i,\sigma}^{t+ \Delta t} 
-                   &\leftarrow& 
-                     \psi_{i,\sigma}^{t} 
-                      - \frac{\Delta t}{\sqrt{\mu}} 
-                        \left[ 
-                           \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
-                            + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
-                        \right]_{t}
-\end{eqnarray}
 
 Input to the conjugate\_gradient simulation is contained
 within the conjugate\_gradient sub-block.
 \begin{verbatim}
 PSPW
   ...
-  CONJUGATET_GRADIENT
+  CONJUGATE_GRADIENT
      ...
   END
   ...
 END
 \end{verbatim}
-and to run a steepest\_descent calculation the following directive is used:
+and to run a conjugate\_gradient calculation the following directive is used:
 \begin{verbatim}
-TASK PSPW steepest_descent 
+TASK PSPW conjugate_gradient 
 \end{verbatim}
-The steepest\_descent sub-block contains a great deal
+The conjugate\_gradient sub-block contains a great deal
 of input, including pointers to RTDB data, pointers to data, as well as
-parameter input.  Listed below is the format of a CONJUGATE\_GRADIENT sub-block.
+parameter input.  Listed below is the format of a conjugate\_gradient sub-block.
 \begin{verbatim}
 PSPW
 ...
    CONJUGATE_GRADIENT
       CELL_NAME: <string cell_name>
-      (FORMATTED_FILENAME: <string formatted_name>)+
-      INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions>
-      OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions>
+      {FORMATTED_FILENAME: <string formatted_name>}+
+      INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions  default input_movecs>
+      OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions default input_movecs>
       [FAKE_MASS: <real fake_mass default 400000.0>]
       [TIME_STEP: <real time_step default 5.8>]
       LOOP: <integer inner_iteration outer_iteration default 10 1>
       TOLERANCES: <real tole tolc tolr default 1.0e-9 1.0e-9 1.0e-4>
-      [ENERGY_CUTOFF:       <real ecut>]
-      [WAVEFUNCTION_CUTOFF: <real wcut>]
-      [EWALD_NCUT: <integer ncut>]
-      [EWALD_RCUT: <real rcut>]
-      [EXCHANGE_CORRELATION: (Vosko || PBE96  default PBE96)]
+      ENERGY_CUTOFF:       <real ecut default (see input description)>
+      WAVEFUNCTION_CUTOFF: <real wcut default (see input description)>
+      EWALD_NCUT: <integer ncut default 1>]
+      EWALD_RCUT: <real rcut default (see input description)>
+      EXCHANGE_CORRELATION: (Vosko || PBE96  default Vosko)
       [MULLIKEN]
 
    END
@@ -264,13 +249,11 @@ PSPW
 
 END
 \end{verbatim}
-The following list describes the input for the STEEPEST\_DESCENT
+The following list describes the input for the CONJUGATE\_GRADIENT
 sub-block.
 \begin{itemize}
 	\item $<$cell\_name$>$ - name that points to the
-              the simulation\_cell named $<$cell\_name$>$.
-	\item GEOMETRY\_OPTIMIZE - optional keyword which if specified
-	      turns on geometry optimization. 	
+              the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
 	\item $<$formatted\_name$>$ - name that points
               to a formatted\_pseudopotential file.  A file must
               be specified for each kind of ion in the simulation.
@@ -299,12 +282,15 @@ sub-block.
 			  part of the Ewald summation.
 	\item $<$rcut$>$ - value for the cutoff radius used
 			  in the Ewald summation.
-        \item (Vosko || PBE96) - Choose between Vosko et al's LDA 
+        \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
                                and Erzherhoff GGA functional.
         \item MULLIKEN - optional keyword which if specified
                          causes a Mulliken anaysis to be performed at
-                         the end of the simulation
+                         the end of the simulation.  For this option
+	                 to work angular momentum weights for each kind
+                         of atom have to be entered into the RTDB using
+                         the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}.
 \end{itemize}
 
 
@@ -316,56 +302,12 @@ The Car-Parrinello task is used to perform ab initio molecular dynamics
 using the scheme developed by Car and Parrinello.  In this unified ab
 initio molecular dynamics scheme the motion of the ion cores is coupled to
 a fictacious motion for the Kohn-Sham orbitals of density functional
-theory.  At the heart of this method an auxillary energy functional is 
-defined by adding a fictacious kinetic energy functional of the Kohn-Sham 
-orbitals
-\begin{eqnarray}
-KE(\{\psi_{i,\sigma}(\vec{r})\}) &=& \sum_{i,\sigma}^{occ} 
-                                      \int d\vec{r}\ \mu \left| 
-                                      \dot{\psi}_{i,\sigma}(\vec{r}) \right|^2 
-\end{eqnarray}
-along with the ion kinetic energy
-\begin{eqnarray}
-\label{appendix:b2}
-KE(\vec{R_I}) &=& \sum_{I} \frac{1}{2} M_I \left| \dot{\vec{R_I}} \right|^2  
-\end{eqnarray}
-to the density functional total energy, $E$.  Integrating this auxillary 
-functional, subject to orthonormality constraints 
-($\Lambda_{ji,\sigma}$ Lagrange Multipliers) of the Kohn-Sham orbitals,
-using the Verlet algorithm we get the following equations of motion:
-\begin{eqnarray}
-\psi_{i,\sigma}^{t+ \Delta t} 
-                   &\leftarrow& 
-                    2 \psi_{i,\sigma}^{t} - \psi_{i,\sigma}^{t-\Delta t}
-                      + \frac{(\Delta t)^2}{\mu}
-                        \left[ 
-                           \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
-                            + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
-                        \right]_{t}
-\end{eqnarray}
-\begin{eqnarray}
-\vec{R}_I^{t+\Delta t} &\leftarrow& 
-                    2 \vec{R}_I^{t} - \vec{R}_I^{t-\Delta t}
-                    + \frac{(\Delta t)^2}{M_I} 
-                       \frac{\partial E}{\partial \vec{R}_I}
-\label{eq:b7}
-\end{eqnarray}
+theory.  Constant energy or constant temperature simulations can be
+performed.  A detailed description of the this method
+is described in section \ref{sec:pspw_Car-Parrinello}.
 
-Nose-Hoover Thermostats for the electrons and ions can also be added to the 
-Car-Parrinello simulation.  In this type of simulation thermostats variables $x_e$ and $x_R$ 
-are added to the simulation by adding the auxillary energy functionals to the total energy.
-\begin{eqnarray}
-ELECTRON_THERMOSTAT(x_e) &=&  \frac{1}{2} Q_e \dot{x_e} + E_{e0} 
-\end{eqnarray}
-\begin{eqnarray}
-ION_THERMOSTAT(x_R)      &=&  \frac{1}{2} Q_R \dot{x_R} + E_{R0} 
-\end{eqnarray}
-A description of the parameters $Q_e$, $E_{e0}$, $Q_R$, and $E_{R0}$ is given in 
-section \ref{section:pspw_nose}.
 
- 
-  
-Input to the Car-Parrinello 
+  Input to the Car-Parrinello 
 simulation is contained within the Car-Parrinello sub-block.
 \begin{verbatim}
 PSPW
@@ -388,28 +330,28 @@ PSPW
 ...
    Car-Parrinello
       CELL_NAME: <string cell_name>
-      (FORMATTED_FILENAME: <string formatted_name>)+
-      INPUT_WAVEFUNCTION_FILENAME:    <string input_wavefunctions>
-      OUTPUT_WAVEFUNCTION_FILENAME:   <string output_wavefunctions>
-      INPUT_V_WAVEFUNCTION_FILENAME:  <string input_v_wavefunctions>
-      OUTPUT_V_WAVEFUNCTION_FILENAME: <string output_v_wavefunctions>
-      FAKE_MASS: <real fake_mass>
-      TIME_STEP: <real time_step>
-      LOOP: <integer inner_iteration outer_iteration>
-      SCALING: <real scale_c scale_r>
-      [ENERGY_CUTOFF:       <real ecut>]
-      [WAVEFUNCTION_CUTOFF: <real wcut>]
-      [EWALD_NCUT: <integer ncut>]
-      [EWALD_RCUT: <real rcut>]
-      [EXCHANGE_CORRELATION: (Vosko || PBE96  default PBE96)]
-      [Nose-Hoover: <real Period_electron Temperature_electrion Period_ion Temperatur_ion 
+      {FORMATTED_FILENAME: <string formatted_name>}+
+      INPUT_WAVEFUNCTION_FILENAME:    <string input_wavefunctions    default input_movecs>
+      OUTPUT_WAVEFUNCTION_FILENAME:   <string output_wavefunctions   default input_movecs>
+      INPUT_V_WAVEFUNCTION_FILENAME:  <string input_v_wavefunctions  default input_vmovecs>
+      OUTPUT_V_WAVEFUNCTION_FILENAME: <string output_v_wavefunctions default input_vmovecs>
+      FAKE_MASS: <real fake_mass default default 1000.0>
+      TIME_STEP: <real time_step default 5.0>
+      LOOP: <integer inner_iteration outer_iteration default 10 1>
+      SCALING: <real scale_c scale_r default 1.0 1.0>
+      ENERGY_CUTOFF:       <real ecut default (see input description)>
+      WAVEFUNCTION_CUTOFF: <real wcut default (see input description)>
+      EWALD_NCUT: <integer ncut default 1>
+      EWALD_RCUT: <real rcut    default (see input description)>
+      EXCHANGE_CORRELATION: (Vosko || PBE96  default Vosko)
+      [Nose-Hoover: <real Period_electron Temperature_electrion Period_ion Temperature_ion 
                           default 100.0 298.15 100.0 298.15>]
-      [XYZ_FILENAME: <string xyz_filename default XYZ>]
-      [EMOTION_FILENAME: <string emotion_filename default EMOTION>]
-      [HMOTION_FILENAME: <string hmotion_filename default HMOTION>]
-      [OMOTION_FILENAME: <string omotion_filename default OMOTION>]
-      [EIGMOTION_FILENAME: <string eigmotion_filename default EIGMOTION>]
-      [ION_MOTION_FILENAME: <string ion_motion_filename default MOTION>]
+      XYZ_FILENAME: <string xyz_filename default XYZ>
+      EMOTION_FILENAME: <string emotion_filename default EMOTION>
+      HMOTION_FILENAME: <string hmotion_filename default HMOTION>
+      OMOTION_FILENAME: <string omotion_filename default OMOTION>
+      EIGMOTION_FILENAME: <string eigmotion_filename default EIGMOTION>
+      ION_MOTION_FILENAME: <string ion_motion_filename default MOTION>
 
    END
 ...
@@ -420,7 +362,7 @@ The following list describes the input for the Car-Parrinello
 sub-block.
 \begin{itemize}
 	\item $<$cell\_name$>$ - name that points to the
-              the simulation\_cell named $<$cell\_name$>$.
+              the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
 	\item $<$formatted\_name$>$ - name that points
               to a formatted\_pseudopotential file.  A file must
               be specified for each kind of ion in the simulation.
@@ -454,7 +396,7 @@ sub-block.
 			  part of the Ewald summation.
 	\item $<$rcut$>$ - value for the cutoff radius used
 			  in the Ewald summation.
-        \item (Vosko || PBE96) - Choose between Vosko et al's LDA 
+        \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
                                and Erzherhoff GGA functional.
         \item Nose-Hoover: - optional subblock which if specified
@@ -463,13 +405,32 @@ sub-block.
                          simulation to perform constant energy dyanmics.
                          See section \ref{sec:pspw_nose} for a description of the parameters.
                          \begin{itemize}
-                             \item $<$Period\_electron$>$ - estimated period for electron motion
-                             \item $<$Temperature\_electron$>$ - temperature for electron motion
-                             \item $<$Period\_ion$>$ - estimated period for ion motion
-                             \item $<$Temperature\_ion$>$ - temperature for ion motion
+                             \item $<$Period\_electron$>$ $\equiv$ $P_{electron}$ 
+                                    - estimated period for electron motion
+                             \item $<$Temperature\_electron$>$ $\equiv$ $T_{electron}$ 
+                                    - temperature for electron motion
+                             \item $<$Period\_ion$>$ $\equiv$ $P_{ion}$ 
+                                    - estimated period for ion motion
+                             \item $<$Temperature\_ion$>$ $\equiv$ $T_{ion}$ 
+                                    - temperature for ion motion
                          \end{itemize}
 	\item $<$xyz\_filename$>$ - name that points to the XYZ motion file
 				generated
+        \item $<$emotion\_filename$>$ - name that points to the emotion motion file
+				generated. See section \ref{sec:pspw_cp_data} for a 
+                                description of the datafile.
+        \item $<$hmotion\_filename$>$ - name that points to the hmotion motion file
+				generated. See section \ref{sec:pspw_cp_data} for a 
+                                description of the datafile.
+        \item $<$omotion\_filename$>$ - name that points to the omotion motion file
+				generated. See section \ref{sec:pspw_cp_data} for a 
+                                description of the datafile.
+        \item $<$eigmotion\_filename$>$ - name that points to the eigmotion motion file
+				generated. See section \ref{sec:pspw_cp_data} for a 
+                                description of the datafile.
+        \item $<$ion\_motion\_filename$>$ - name that points to the ion\_motion motion file
+				generated. See section \ref{sec:pspw_cp_data} for a 
+                                description of the datafile.
 \end{itemize}
 
 
@@ -505,8 +466,8 @@ PSPW
       CELL_NAME:          <string cell_name> 
       PSP_FILENAME:       <string psp_name>
       FORMATTED_FILENAME: <string formatted_name>
-      LOCP: (s||p||d||f)
-      LMAX: (s||p||d||f||g)
+      LOCP: (s||p||d||f||g default (see input description))
+      LMAX: (s||p||d||f||g default (see input description))
    end
 ...
 END
@@ -515,12 +476,12 @@ The following list describes the input for the PSP\_FORMATTER
 sub-block.
 \begin{itemize}
 	\item $<$cell\_name$>$ - name that points 
-		to the simulation\_cell named $<$cell\_name$>$.
+		to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
 	\item $<$psp\_name$>$ - name that points
               to a one-dimensional pseudopotential datafile.
 	\item $<$formatted\_name$>$ -  
  	      name that points to a formatted\_pseudopotential datafile.
-  	\item LOCP (s$||$p$||$d$||$f) - used to specify which angular potential
+  	\item LOCP (s$||$p$||$d$||$f$||$g) - used to specify which angular potential
 	      is to used as the local potential.
         \item LMAX (s$||$p$||$d$||$f$||$g) - used to specify the maximum number
               of angular potentials to use.
@@ -554,7 +515,7 @@ PSPW
 ... 
    WAVEFUNCTION_INITIALIZER
      CELL_NAME: <string cell_name>
-     WAVEFUNCTION_FILENAME: <string wavefunction_name>
+     WAVEFUNCTION_FILENAME: <string wavefunction_name default input_movecs>
      (RESTRICTED||UNRESTRICTED)
      if (RESTRICTED)   [RESTRICTED_ELECTRONS: <integer restricted electrons>]
      if (UNRESTRICTED) [UP_ELECTRONS: <integer up_electrons>]
@@ -574,7 +535,7 @@ The following list describes the input for the WAVEFUNCTION\_INITIALIZER
 sub-block.
 \begin{itemize}
 	\item $<$cell\_name$>$ - name that points 
-		to the simulation\_cell named $<$cell\_name$>$.
+		to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
 	\item $<$wavefunction\_name$>$ - name that will point
               to a wavefunction file.
 	\item (RESTRICTED$||$UNRESTRICTED) - keyword specifying the whether
@@ -613,7 +574,7 @@ Listed below is the format of a V\_WAVEFUNCTION\_INITIALIZER sub-block.
 PSPW
 ... 
    V_WAVEFUNCTION_INITIALIZER
-     V_WAVEFUNCTION_FILENAME: <string v_wavefunction_name>
+     V_WAVEFUNCTION_FILENAME: <string v_wavefunction_name default input_vmovecs>
      CELL_NAME: <string cell_name>
      (RESTRICTED||UNRESTRICTED)
      UP_FILLING: <integer up_filling>
@@ -626,7 +587,7 @@ The following list describes the input for the V\_WAVEFUNCTION\_INITIALIZER
 sub-block.
 \begin{itemize}
 	\item $<$cell\_name$>$ - name that points 
-		to the simulation\_cell named $<$cell\_name$>$.
+		to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
 	\item $<$wavefunction\_name$>$ - name that will point
               to a velocity wavefunction file.
 	\item (RESTRICTED$||$UNRESTRICTED) - keyword specifying the whether
@@ -733,9 +694,6 @@ END
 \end{verbatim}
 
 
-\section{PSPW Nose-Hoover Simulation Parameters}
-\label{section:pspw_nose}
-
 
 \section{PSPW RTDB Entries and DataFiles}
 \label{sec:pspw_data}
@@ -758,6 +716,7 @@ in the RTDB, and must be specified in cartesian
 coordinates using the GEOMETRY directive.
 
 \subsection{Simulation Cell}
+\label{sec:pspw_cell}
 Simulation cells are stored in the RTDB.  To enter a  simulation cell
 into the RTDB the user defines a simulation\_cell sub-block within the PSPW 
 block.  Listed below is the format of a simulation\_cell sub-block.
@@ -784,8 +743,7 @@ input in detail.
 	\item periodic - keyword specifying that the simulation cell 
 	                 has periodic boundary conditions. 	
 	\item aperiodic - keyword specifying that the simulation cell
-		          has free-space boundary conditions. !!! Currently 
-			  this option is not implemented !!!
+		          has free-space boundary conditions. 
 	\item $<$a1.x a1.y a1.z$>$ - user-supplied values for the first 
 				   lattice vector 
 	\item $<$a2.x a2.y a2.z$>$ - user-supplied values for the second 
@@ -795,6 +753,28 @@ input in detail.
 	\item $<$na1 na2 na3$>$ - user-supplied values for discretization 
 				along lattice vector directions.
 \end{itemize}
+
+\subsection{Analysis: Mulliken RTDB data}
+\label{sec:pspw_analysis}
+
+To perform Mulliken analysis information is needed from the one-dimensional
+pseudopotential file.  In-order to facilitate the transfer of this information
+to the simulation the ANALYSIS sub-block is used to exract the necessary information
+and put it into the RTDB.
+\begin{verbatim}
+PSPW
+...
+   ANALYSIS
+      {psp_filename: <string psp_name>}+
+   END
+...
+END
+\end{verbatim}
+Basically, the user needs to enter each pseudopotential used in the simulation.
+\begin{itemize}
+	\item $<$psp\_name$>$ - name that ponts to a one-dimensional pseudopotential file.
+\end{itemize}
+
 
 \subsection{Wavefunction Datafile}
 The one-electron orbitals are stored in a wavefunction datafile.  This
@@ -848,6 +828,11 @@ and the format of it is:
 [line nr+6:  ] ....
 [line 2*nr+4:] r(nr) (psi(nr,l), l=1,lmax)
 \end{verbatim}
+
+
+
+\section{PSPW Car-Parrinello Output Datafiles}
+\label{sec:pspw_cp_data}
 
 
 \section{Running a Steepest Descent Simulation}
@@ -1103,13 +1088,660 @@ the file: nwchem/examples/pspw/NaCl-md.nw
 \normalsize
 
 
+\section{Minimizing the DFT Energy Functional}
+\label{sec:pspw_Minimize}
+
+In this section the algorithms for steepest\_descent and conjugate\_gradient 
+methods that are used to minimize the DFT energy functional 
+(Eqs.~\ref{eqn:lda1}-\ref{eqn:lda2}) are presented.
+First is the the steepest descent method without line minimization.   
+This method is slow, but doesn't require line minimization.  
+Second is the recent method developed by Edelman, Arias, and Smith.
+These researchers have developed methods for performing line minimizations
+on the constrained space used in the DFT energy functional
+\cite{Edelman-Smith:97}.
+
+
+\subsection{Steepest Descent Equations}
+\label{sec:pspw_sd}
+
+To minimize the DFT energy functional with respect to $\{\psi_{i,\sigma}\}$
+we define the the auxiliary functional, $F$, which takes into account
+the orthonormality constraints.
+
+\begin{eqnarray}
+F\left(\{\psi_{i,\sigma}\},\{\vec{R_I}\} \right)
+&=& E\left(\{\psi_{i,\sigma}\},\{\vec{R_I}\} \right) \nonumber \\
+&+&\sum_{ij,\sigma}  \left( \int d\vec{r}\ 
+\psi_{i,\sigma}^{*}(\vec{r}) \psi_{j,\sigma}(\vec{r}) \Lambda_{ji,\sigma}
+                 - \delta_{ij,\sigma} 
+\right) 
+\label{eq:sd1}
+\end{eqnarray}
+
+\noindent
+The steepest descent minimization procedure without line minimization
+is then
+\begin{eqnarray}
+\psi_{i,\sigma}^{t+ \Delta t} 
+                   &\leftarrow& 
+                    \psi_{i,\sigma}^{t} 
+                      - \alpha 
+                        \left[ 
+                           \frac{\delta F}{\delta \psi_{i,\sigma}^{*}}
+                        \right]_{t}
+                   = \psi_{i,\sigma}^{t} 
+                      - \alpha 
+                        \left[ 
+                           \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
+                            + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
+                        \right]_{t}
+\label{eq:sd2}
+\end{eqnarray}
+where $\alpha =\frac{\Delta t}{\sqrt{\mu}}$ is a positive numerical parameter.
+In this minimization procedure we have to know variational derivative
+$\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$ and the matrix 
+$\Lambda_{ij,\sigma}$. 
+The variational derivative $\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$ 
+can be analytically found and is
+\begin{eqnarray}
+\frac{\delta E}{\delta \psi_{i,\sigma}^{*}} 
+      &=&  -\frac{1}{2} \nabla^2 
+            \psi_{i,\sigma}(\vec{r}) \nonumber \\
+      &+& \int d\vec{r^{\prime}} 
+           W_{ext}(\vec{r},\vec{r^{\prime}}) 
+          \psi_{i,\sigma}(\vec{r^{\prime}}) \nonumber \\
+      &+& \int d\vec{r^{\prime}} 
+                    \frac{n(\vec{r^{\prime}})}{|\vec{r}-\vec{r^{\prime}}|}
+          \psi_{i,\sigma}(\vec{r}) \nonumber \\
+      &+& \mu_{xc}^{\sigma}(\vec{r}) 
+          \psi_{i,\sigma}(\vec{r}) \nonumber \\
+& \equiv & \hat{H} \psi_{i,\sigma}
+\label{eq:sd3}
+\end{eqnarray}
+  
+The ion positions can also be minimized using a fixed step minimization 
+procedure.
+\begin{eqnarray}
+\vec{R}_I^{t+\Delta t} &\leftarrow& 
+                      \vec{R}_I^{t}
+                    - \frac{(\Delta t)}{\sqrt{M_I}} 
+                       \frac{\partial E}{\partial \vec{R}_I}
+\end{eqnarray}
+                      
+\noindent
+To find the matrix $\Lambda_{ij,\sigma}$ we impose the orthonormality
+constraint on $\psi_{i,\sigma}^{t+\Delta t}$ to obtain the
+matrix Riccatti equation 
+(to simplify the following equations we define the following symbol
+$\bar{\psi}_{i,\sigma}^{t} =  
+              \left(\frac{\delta E}{\delta \psi_{i,\sigma}^{*}} \right)_{t}$
+)
+
+\begin{eqnarray}
+I &=& <\psi_{i,\sigma}^{t+\Delta t} | \psi_{j,\sigma}^{t+\Delta t}> \nonumber \\
+  &=& 
+   \left( <\psi_{i,\sigma}^{t}| 
+          - \alpha  
+            \left[
+                  <\bar{\psi}_{i,\sigma}^{t}| 
+                  + \sum_{k} \Lambda_{ik,\sigma}^{*} <\psi_{k,\sigma}^{t}|
+            \right]
+   \right) \nonumber \\
+& & 
+   \left( |\psi_{j,\sigma}^{t}> 
+          - \alpha  
+            \left[
+                  |\bar{\psi}_{j,\sigma}^{t}> 
+                  + \sum_{l} |\psi_{l,\sigma}^{t}> \Lambda_{lj,\sigma} 
+            \right]
+   \right) \nonumber \\
+  &=& <\psi_{i,\sigma}^{t}| \psi_{j,\sigma}^{t}> \nonumber \\
+  &-& \alpha 
+       \left[ 
+         \begin{array}{ll}
+           <\psi_{i,\sigma}^{t}| \bar{\psi}_{j,\sigma}^{t}> &
+         + <\bar{\psi}_{i,\sigma}^{t}| \psi_{j,\sigma}^{t}> \\
+         + \sum_{k} \Lambda_{ik,\sigma}^{*} 
+                     <\psi_{k,\sigma}^{t}| \psi_{j,\sigma}^{t}> &
+         + \sum_{l} <\psi_{i,\sigma}^{t}| \psi_{l,\sigma}^{t}>
+                    \Lambda_{lj,\sigma} 
+        \end{array}
+       \right] \nonumber \\
+  &+& \alpha^2 
+       \left[
+               <\bar{\psi}_{i,\sigma}^{t}| \bar{\psi}_{j,\sigma}^{t}> 
+            + \sum_{k} \Lambda_{ik,\sigma}^{*} 
+                    <\psi_{k,\sigma}^{t}| \bar{\psi}_{j,\sigma}^{t}> 
+            + \sum_{l} <\bar{\psi}_{i,\sigma}^{t}| \psi_{l,\sigma}^{t}>
+                         \Lambda_{lj,\sigma} 
+       \right]     \nonumber \\
+  &+& \alpha^2 
+       \left[
+                \sum_{k} \sum_{l}
+                 \Lambda_{ik,\sigma}^{*} 
+                 <\psi_{k,\sigma}^{t}|\psi_{l,\sigma}^{t}>
+                 \Lambda_{lj,\sigma} 
+       \right] \nonumber \\
+  &=& A + \alpha XB + \alpha B^{\dag}X^{\dag} + \alpha^2 XCX^{\dag} 
+\label{eq:sd4}
+\end{eqnarray}
+
+\noindent
+where $X_{ij,\sigma}=\Lambda_{ij,\sigma}^{*}$ and the matrices 
+$A$, $B$, and $C$ are given by
+
+\begin{eqnarray}
+A_{ij,\sigma} &=& \int d\vec{r} 
+             \left[\psi_{i,\sigma}^{t}(\vec{r}) 
+                   - \alpha 
+                     \left( \frac{\delta E}{\delta \psi_{i,\sigma}^{*}} 
+                     \right)_t
+             \right]^{*} 
+             \left[\psi_{j,\sigma}^{t}(\vec{r}) 
+                   - \alpha 
+                     \left( \frac{\delta E}{\delta \psi_{j,\sigma}^{*}}
+                     \right)_t
+             \right] \\
+B_{ij,\sigma} &=& \int d\vec{r} 
+             \left[\psi_{i,\sigma}^{t}(\vec{r}) 
+             \right]^{*} 
+             \left[\psi_{j,\sigma}^{t}(\vec{r}) 
+                   - \alpha 
+                     \left( \frac{\delta E}{\delta \psi_{j,\sigma}^{*}}
+                     \right)_t
+             \right] \\
+C_{ij,\sigma} &=& \int d\vec{r} 
+             \left[\psi_{i,\sigma}^{t}(\vec{r}) 
+             \right]^{*} 
+             \left[\psi_{j,\sigma}^{t}(\vec{r}) 
+             \right]
+\end{eqnarray}
+
+\noindent
+To solve the Riccatti equation an iterative solution is setup by rewriting
+Eq.~\ref{eq:sd4} in the following form\cite{Car-Parrinello:88}.
+\begin{equation}
+\alpha^2 XCX^{\dag} + \alpha X(B-I) + \alpha (B^{\dag}-I)X^{\dag} 
+ + \alpha(X + X^{\dag}) = I-A
+\end{equation}
+Since X is by definition Hermitian, $X=X^{\dag}$, and 
+\begin{eqnarray}
+A  &\approx& I + O(\alpha) \nonumber \\
+B  &\approx& I + O(\alpha)  \\
+\end{eqnarray}
+we can solve for X iteratively.
+\begin{eqnarray}
+\label{eq:sd15}
+X_{(n)} \leftarrow && \frac{1}{2 \alpha}(I-A) + \nonumber \\
+                   && \frac{1}{2} \left( X_{(n-1)}(I-B)
+                    + (I-B^{\dag})X_{(n-1)}^{\dag}
+                    - \alpha X_{(n-1)}CX_{(n-1)}^{\dag} \right)  \\
+\label{eq:sd16}
+X_{(0)} \leftarrow && \left(\frac{I-A}{2 \alpha}\right)
+\end{eqnarray}
+The convergence of Eq.~\ref{eq:sd15} is guaranteed for small $\alpha$
+since each successive iteration has the property
+\begin{eqnarray}
+X_{(1)} &\leftarrow& X_{(0)} + O(\alpha)X_{(0)} \nonumber \\
+X_{(2)} &\leftarrow& X_{(0)} + O(\alpha) X_{(1)} 
+        = X_{(0)} + O(\alpha)X_{(0)} + O(\alpha^2)X_{(0)} \nonumber \\
+X_{(3)} &\leftarrow& X_{(0)} + O(\alpha) X_{(2)} 
+        = X_{(0)} + O(\alpha)   X_{(0)} 
+                  + O(\alpha^2) X_{(0)} 
+                  + O(\alpha^3) X_{(0)} \nonumber
+\end{eqnarray}
+
+
+\subsection{Conjugate Gradient with Curvature: Grassmann Manifold}
+\label{sec:pspw_cgmanifold}
+
+Minimizing the DFT energy functional with a non-linear conjugate 
+gradient algorithm requires an algorithm for minimizing along a 
+search direction or line.  However, the equation for a line (or search direction)
+in the LSDA minimization problem is complicated by the fact that the
+energy functional is subject to orthonormality constraints of Eq.~\ref{eq:lda4}. 
+Furthermore, the orthonormality constraints complicate the
+conjugate gradient's algorithm for generating the current search 
+direction by using a linear combination of the current gradient and 
+the previous search direction.
+
+These two pesky orthonormality constraint problems
+have been investigated and solved for by Edelman {\it et al} 
+\cite{Edelman-Smith:97}.  
+They recognized that the orthonormal Kohn-Sham
+orbitals $\{\psi_{i,\sigma}\}$ 
+belong to a quotient space called a Grassmann manifold. 
+Using the properties of the Grassmann manifold they
+developed an equation for a line (or geodesic) which
+conserves orthonormality, as well as 
+a conjugate gradient procedure for generating the current search direction on this
+constrained space.
+
+Following Edelman {\it et al} we write
+$\{ \psi_{i,\sigma}(\vec{r}) \}$ in terms of the orthonormal basis
+$\{ \phi_j(\vec{r}) \}$.
+\begin{equation}
+\psi_{i,\sigma}(\vec{r}) = \sum_{j}^{N_{basis}} 
+                           \psi_{i,\sigma}(\phi_j) 
+                            \phi_j(\vec{r})
+\end{equation}
+Which allows us to rewrite
+Eqs.~\ref{eqn:lda1}-\ref{eqn:lda2} as a function,
+$E(Y_{\uparrow},Y_{\downarrow})$,
+of two tall and skinny $N_{basis}$-by-$N_{\sigma}$ matrices
+which are
+\begin{equation}
+Y_{\uparrow}=\left[\begin{array}{rrrr}
+                    \psi_{1,\uparrow}(\phi_1) 
+                     & \psi_{2,\uparrow}(\phi_1) 
+                     & \cdots
+                     & \psi_{N_{\uparrow},\uparrow}(\phi_1) \\
+                    \psi_{1,\uparrow}(\phi_2) 
+                     & \psi_{2,\uparrow}(\phi_2) 
+                     & \cdots
+                     & \psi_{N_{\uparrow},\uparrow}(\phi_2) \\
+                    \psi_{1,\uparrow}(\phi_3) 
+                     & \psi_{2,\uparrow}(\phi_3) 
+                     & \cdots
+                     & \psi_{N_{\uparrow},\uparrow}(\phi_3) \\
+                    \vdots 
+                     & \vdots
+                     &
+                     & \vdots \\
+                    \psi_{1,\uparrow}(\phi_{N_{basis}}) 
+                     & \psi_{2,\uparrow}(\phi_{N_{basis}}) 
+                     & \cdots
+                     & \psi_{N_{\uparrow},\uparrow}(\phi_{N_{basis}})
+                   \end{array}
+               \right]
+\end{equation}
+and
+\begin{equation}
+Y_{\downarrow}=\left[\begin{array}{rrrr}
+                    \psi_{1,\downarrow}(\phi_1) 
+                     & \psi_{2,\downarrow}(\phi_1) 
+                     & \cdots
+                     & \psi_{N_{\downarrow},\downarrow}(\phi_1) \\
+                    \psi_{1,\downarrow}(\phi_2) 
+                     & \psi_{2,\downarrow}(\phi_2) 
+                     & \cdots
+                     & \psi_{N_{\downarrow},\downarrow}(\phi_2) \\
+                    \psi_{1,\downarrow}(\phi_3) 
+                     & \psi_{2,\downarrow}(\phi_3) 
+                     & \cdots
+                     & \psi_{N_{\downarrow},\downarrow}(\phi_3) \\
+                    \vdots 
+                     & \vdots
+                     & 
+                     & \vdots \\
+                    \psi_{1,\downarrow}(\phi_{N_{basis}}) 
+                     & \psi_{2,\uparrow}(\phi_{N_{basis}}) 
+                     & \cdots
+                     & \psi_{N_{\downarrow},\downarrow}(\phi_{N_{basis}})
+                   \end{array}
+               \right]
+\end{equation}
+The orthonormality constraints make the $Y_{\sigma}$ matrices
+obey $Y_{\sigma}^{\dag}Y_{\sigma}=I$. 
+Furthermore since the LSDA energy can be written as
+\begin{equation}
+E(Y_{\uparrow},Y_{\downarrow}) = \sum_{\sigma} 
+        tr \left( Y_{\sigma}^{\dag} (\mathrm{Operator}) Y_{\sigma} \right)
+\end{equation}
+we are only interested in subspace spanned by $Y_\sigma$.
+This homogeneity property allows us to state that
+$E(Y_{\uparrow},Y_{\downarrow}) = E(Y_{\uparrow}Q_a,Y_{\downarrow}Q_b)$ 
+where $Q_{a/b}$ is any $N_{\sigma}$-by-$N_{\sigma}$
+orthogonal matrix (i.e. $Q$ is any group element of the orthogonal
+group $O(N_{\sigma})$).  The constrained surface that each $Y_{\sigma}$ spans
+is known as the Grassmann manifold (i.e. $Y_{\sigma}$ is a group element
+of the quotient space group 
+$\frac{\left(\frac{O(N_{basis})}{O(N_{basis}-N_{\sigma})}\right)}{O(N_{\sigma})}$
+\footnote{See reference on Lie Groups, e.g. reference\cite{Olver:95}, 
+          for a definition of a quotient space and a definition of the 
+          orthogonal group $O(n)$.
+         }
+).
+
+In this work Algorithm~\ref{algorithm:grassmann} (see below) is the 
+conjugate gradient
+algorithm that is used to minimize the LSDA energy functional
+$E=E\left( Y_{\uparrow},Y_{\downarrow} \right)$.  What makes this
+algorithm different from a standard 
+Polak-Ribi\`{e}re conjugate gradient algorithm\cite{Shewchuk:94}
+is that a line search on a Euclidean space 
+\[ Y_{\sigma}(t) = Y_{\sigma}^{(0)} + t*H_{\sigma}^{(0)} \]
+is replaced by Eq.~\ref{grass:1}, 
+and the parallel transports on a Euclidean space
+\[ \tau H_{\sigma}^{(0)} = H_{\sigma}^{(0)} \]
+\[ \tau G_{\sigma}^{(0)} = G_{\sigma}^{(0)} \]
+are replaced by Eqs.~\ref{grass:2}-\ref{grass:3}.
+
+\begin{algorithm}{Edelman {\it et al's} Algorithm for Conjugate Gradient
+                  Minimization on the Grassmann Manifold}
+                   
+\label{algorithm:grassmann}
+   \item Given $Y_{\sigma}^{(0)}$ such that 
+               $Y_{\sigma}^{(0)\dag}Y_{\sigma}^{(0)}$,\\
+               Compute $G_{\sigma}^{(0)} 
+                        = \left[\frac{\delta E}{\delta Y_{\sigma}}
+                          \right]_{Y_{\sigma}=Y_{\sigma}^{(0)}}
+               -  Y_{\sigma}^{(0)}Y_{\sigma}^{(0) \dag} 
+                         \left[\frac{\delta E}{\delta Y_{\sigma}}
+                          \right]_{Y_{\sigma}=Y_{\sigma}^{(0)}}$ \\
+               Set $H_{\sigma}^{(0)} = -G_{\sigma}^{(0)}$.
+   \item Find the compact singular value decompositions of 
+           $H_{\sigma}^{(0)} \rightarrow 
+                U_{\sigma} \Sigma_{\sigma} V_{\sigma}^{\dag}$
+   \item Minimize $E\left(Y_{\uparrow}(t), Y_{\downarrow}(t) \right)$ along the 
+         geodesic lines derived by Edelman {\it et al} for the 
+         Grassmann Manifold\\
+        \begin{equation}
+          Y_{\sigma}(t) = Y_{\sigma}^{(0)} V_{\sigma} 
+                             \cos \left(\Sigma_{\sigma} t \right) V^{\dag}
+           + U_{\sigma} \sin \left(\Sigma_{\sigma} t \right) V_{\sigma}^{\dag}
+         \label{grass:1}
+        \end{equation}
+   \item Set $Y_{\sigma}^{(1)} = Y_{\sigma}(t_{min})$ and\\
+         compute $G_{\sigma}^{(1)} 
+                        = \left[\frac{\delta E}{\delta Y_{\sigma}}
+                          \right]_{Y_{\sigma}=Y_{\sigma}^{(1)}}
+               -  Y_{\sigma}^{(1)}Y_{\sigma}^{(1) \dag} 
+                         \left[\frac{\delta E}{\delta Y_{\sigma}}
+                          \right]_{Y_{\sigma}=Y_{\sigma}^{(1)}}$ 
+   \item Parallel transport along the geodesics the tangent vectors
+         $H_{\sigma}^{(0)}$ and $G_{\sigma}^{(0)}$
+        \begin{equation}
+          \tau H_{\sigma}^{(0)} = 
+            \left( -Y_{\sigma}^{(1)} V_{\sigma} 
+                     \sin \left(\Sigma_{\sigma} t \right)
+           + U_{\sigma} \cos \left(\Sigma_{\sigma} t \right) 
+             \right) \Sigma_{\sigma} V_{\sigma}^{\dag}
+         \label{grass:2}
+        \end{equation}
+        \begin{equation}
+          \tau G_{\sigma}^{(0)} = G_{\sigma}^{(0)}
+            \left( Y_{\sigma}^{(1)} V_{\sigma} 
+                       \sin \left(\Sigma_{\sigma} t \right)
+           + U_{\sigma} \left(I- \cos \left(\Sigma_{\sigma} t \right) \right) 
+             \right) U_{\sigma}^{\dag} G_{\sigma}^{(0)}
+         \label{grass:3}
+        \end{equation}
+   \item Compute the new search direction
+        \[
+             H_{\sigma}^{(1)} = -G_{\sigma}^{(1)}  
+                                + \Gamma_{\sigma} \tau H_{\sigma}^{(0)}
+        \]
+        where
+        \[
+           \Gamma_{\sigma} = \frac{tr \left[\left(G_{\sigma}^{(1)} 
+                                   - \tau G_{\sigma}^{(0)}\right)
+                                     G_{\sigma}^{(1)}\right]}
+                                  {tr \left[G_{\sigma}^{(0)}
+                                        G_{\sigma}^{(0)}\right]}
+        \]
+   \item Set 
+         $Y_{\sigma}^{(0)} = Y_{\sigma}^{(1)}$,
+         $G_{\sigma}^{(0)} = G_{\sigma}^{(1)}$, and
+         $H_{\sigma}^{(0)} = H_{\sigma}^{(1)}$
+   \item Go to step 2.
+\end{algorithm}
+        
+
+\section{Car-Parrinello Scheme for {\it Ab Initio} Molecular Dynamics}
+\label{sec:pspw_Car-Parrinello}
+
+Car and Parrinello developed a unified scheme for doing {\it ab initio}
+molecular dynamics by combining the motion of the ion cores and a fictacious
+motion for the Kohn-Sham orbitals of density-functional theory
+\cite{Car-Parrinello:85,Remler-Madden:90}.  
+At the heart of this method they introduced a fictacious kinetic energy 
+functional for the Kohn-Sham orbitals.
+
+\begin{eqnarray}
+\label{appendix:b1}
+KE(\{\psi_{i,\sigma}(\vec{r})\}) &=& \sum_{i,\sigma}^{occ} 
+                                      \int d\vec{r}\ \mu \left| 
+                                      \dot{\psi}_{i,\sigma}(\vec{r}) \right|^2 
+\end{eqnarray}
+
+\noindent
+Given this kinetic energy the constrained equations of motion are found 
+by taking the first variation of the auxiliary Lagrangian.
+\begin{eqnarray}
+\label{appendix:b2}
+L &=& \sum_{i,\sigma}^{occ} \int d\vec{r}\ \mu \left| 
+     \dot{\psi}_{i,\sigma}(\vec{r}) \right|^2 
+     + \frac 12 \sum_I M_I \left| \dot{\vec{R}}_I \right|^2 
+- E\left[ \left\{ \psi_{i,\sigma}(\vec{r})\right\},\left\{\vec{R}_I \right\} \right]  
+\nonumber \\
+&&+\sum_{ij,\sigma} \Lambda_{ij,\sigma} \left( \int d\vec{r}\ 
+\psi_{i,\sigma}^{*}(\vec{r}) \psi_{j,\sigma}(\vec{r}) - \delta_{ij,\sigma} 
+\right) 
+\end{eqnarray}
+
+\noindent
+Which generates a dynamics for the wavefunctions $\psi_{i,\sigma}(\vec{r})$ and 
+atoms positions $\vec{R}_I$ through the constrained equations of motion:
+
+\begin{eqnarray}
+\mu \ddot{\psi}_{i,\sigma}(\vec{r},t) &=& -\frac{\delta E}{\delta \psi_{i,\sigma }^{*}
+\left( \vec{r},t \right) } + \sum\limits_j \Lambda_{ij,\sigma} 
+\psi_{j,\sigma} \left( \vec{r},t \right)
+\label{eq:b3}
+\end{eqnarray}
+\begin{eqnarray}
+M_I \ddot{\vec{R}}_I &=& -\frac{\partial E}{\partial \vec{R}_I}
+\label{eq:b4}
+\end{eqnarray}
+
+\noindent
+where $\mu$ is the fictitious mass for the electronic degrees of freedom and 
+$M_I$ are the ionic masses.  
+The adjustable parameter $\mu$ is used to 
+describe the relative rate at which the wavefunctions change with time.  
+$\Lambda_{ij,\sigma}$ are the 
+Lagrangian multipliers for the orthonormalization of the single-particle 
+orbitals $\psi_{i,\sigma}(\vec{r})$. 
+They are defined by the orthonormalization constraint conditions
+and can be rigorously found. 
+However, the equations of motion for the Lagrange multipliers
+depend on the specific algorithm used to integrate
+Eqs.~\ref{eq:b3}-\ref{eq:b4}.
+
+For this method to give ionic motions that are physically meaningful
+the kinetic energy of the Kohn-Sham orbitals must be relatively
+small when compared to the kinetic energy of the ions.
+There are two ways where this criterion can fail.
+First, the numerical integrations for the Car-Parrinello equations of motion 
+can often lead to large relative values of the kinetic energy of 
+the Kohn-Sham orbitals relative to the kinetic energy of the ions.
+This kind of failure is easily fixed by requiring a more accurate
+numerical integration, i.e. use a smaller time step for the numerical
+integration.
+Second, during the motion of the system a the ions can be in locations where
+there is an Kohn-Sham orbital level crossing, i.e. the density-functional
+energy can have two states that are nearly degenerate.  This kind
+of failure often occurs in the study of chemical reactions.
+This kind of failure is not easily fixed and requires the use
+of a more sophisticated density-functional energy that accounts
+for low-lying excited electronic states.
+
+
+\subsection{Verlet Algorithm for Integrating Eqs.~\ref{eq:b3}-\ref{eq:b4}}
+
+Eqs.~\ref{eq:b3}-\ref{eq:b4} integrated using the Verlet algorithm
+results in
+
+\begin{eqnarray}
+\psi_{i,\sigma}^{t+ \Delta t} 
+                   &\leftarrow& 
+                    2 \psi_{i,\sigma}^{t} - \psi_{i,\sigma}^{t-\Delta t}
+                      + \frac{(\Delta t)^2}{\mu}
+                        \left[ 
+                           \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
+                            + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
+                        \right]_{t}
+\label{eq:b6}
+\end{eqnarray}
+\begin{eqnarray}
+\vec{R}_I^{t+\Delta t} &\leftarrow& 
+                    2 \vec{R}_I^{t} - \vec{R}_I^{t-\Delta t}
+                    + \frac{(\Delta t)^2}{M_I} 
+                       \frac{\partial E}{\partial \vec{R}_I}
+\label{eq:b7}
+\end{eqnarray}
+               
+In this molecular dynamic procedure we have to know variational derivative
+$\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$ and the matrix 
+$\Lambda_{ij,\sigma}$. 
+The variational derivative $\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$ 
+can be analytically found and is
+\begin{eqnarray}
+\frac{\delta E}{\delta \psi_{i,\sigma}^{*}} 
+      &=&  -\frac{1}{2} \nabla^2 
+            \psi_{i,\sigma}(\vec{r}) \nonumber \\
+      &+& \int d\vec{r^{\prime}} 
+           W_{ext}(\vec{r},\vec{r^{\prime}}) 
+          \psi_{i,\sigma}(\vec{r^{\prime}}) \nonumber \\
+      &+& \int d\vec{r^{\prime}} 
+                    \frac{n(\vec{r^{\prime}})}{|\vec{r}-\vec{r^{\prime}}|}
+          \psi_{i,\sigma}(\vec{r}) \nonumber \\
+      &+& \mu_{xc}^{\sigma}(\vec{r}) 
+          \psi_{i,\sigma}(\vec{r}) \nonumber \\
+& \equiv & \hat{H} \psi_{i,\sigma}
+\label{eq:b8}
+\end{eqnarray}
+                        
+\noindent
+To find the matrix $\Lambda_{ij,\sigma}$ we impose the orthonormality
+constraint on $\psi_{i,\sigma}^{t+\Delta t}$ to obtain the
+matrix Riccatti equation 
+(To simplify the following equations we define the following symbols
+$\bar{\psi}_{i,\sigma}^{t} = 2 \psi_{i,\sigma}^{t} -\psi_{i,\sigma}^{t-\Delta t}
+              + \frac{(\Delta t)^2}{\mu}
+                 \left[ \frac{\delta E}{\delta \psi_{i,\sigma}^{*}} \right]_{t}$
+and $\alpha = \frac{(\Delta t)^2}{\mu}$.
+)
+
+\begin{eqnarray}
+I &=& <\psi_{i,\sigma}^{t+\Delta t} | \psi_{j,\sigma}^{t+\Delta t}> \nonumber \\
+  &=& 
+   \left( <\bar{\psi}_{i,\sigma}^{t}| 
+          + \alpha  
+            \left[
+                   \sum_{k} \Lambda_{ik,\sigma}^{*} <\psi_{k,\sigma}^{t}|
+            \right]
+   \right)
+   \left( |\bar{\psi}_{j,\sigma}^{t}> 
+          + \alpha  
+            \left[
+                   \sum_{l} |\psi_{l,\sigma}^{t}> \Lambda_{lj,\sigma} 
+            \right]
+   \right) \nonumber \\
+  &=& <\bar{\psi}_{i,\sigma}^{t}| \bar{\psi}_{j,\sigma}^{t}> \nonumber \\
+  &+& \alpha 
+       \left[
+          \sum_{k} \Lambda_{ik,\sigma}^{*} 
+                     <\psi_{k,\sigma}^{t}| \bar{\psi}_{j,\sigma}^{t}> 
+         + \sum_{l} <\bar{\psi}_{i,\sigma}^{t}| \psi_{l,\sigma}^{t}>
+                    \Lambda_{lj,\sigma} 
+       \right] \nonumber \\
+  &+& \alpha^2 
+       \left[
+                \sum_{k} \sum_{l}
+                 \Lambda_{ik,\sigma}^{*} 
+                 <\psi_{k,\sigma}^{t}|\psi_{l,\sigma}^{t}>
+                 \Lambda_{lj,\sigma} 
+       \right] \nonumber \\
+  &=& A + \alpha XB + \alpha B^{\dag}X^{\dag} + \alpha^2 XCX^{\dag} 
+\label{eq:b9}
+\end{eqnarray}
+
+\noindent
+where $X_{ij,\sigma}=\Lambda_{ij,\sigma}^{*}$ and the matrices 
+$A$, $B$, and $C$ are given by
+
+\begin{eqnarray}
+A_{ij,\sigma} &=& \int d\vec{r} 
+             \left[\bar{\psi}_{i,\sigma}^{t}(\vec{r}) 
+             \right]^{*} 
+             \left[\bar{\psi}_{j,\sigma}^{t}(\vec{r}) 
+             \right] \\
+B_{ij,\sigma} &=& \int d\vec{r} 
+             \left[\psi_{i,\sigma}^{t}(\vec{r}) 
+             \right]^{*} 
+             \left[\bar{\psi}_{j,\sigma}^{t}(\vec{r}) 
+             \right] \\
+C_{ij,\sigma} &=& \int d\vec{r} 
+             \left[\psi_{i,\sigma}^{t}(\vec{r}) 
+             \right]^{*} 
+             \left[\psi_{j,\sigma}^{t}(\vec{r}) 
+             \right]
+\end{eqnarray}
+
+\noindent
+To solve the Riccatti equation an iterative solution is setup by rewriting
+Eq.~\ref{eq:b9} in the following form\cite{Car-Parrinello:88}.
+\begin{equation}
+\alpha^2 XCX^{\dag} + \alpha X(B-I) + \alpha (B^{\dag}-I)X^{\dag} 
+ + \alpha(X + X^{\dag}) = I-A
+\end{equation}
+Since X is by definition Hermitian, $X=X^{\dag}$, and 
+\begin{eqnarray}
+A  &\approx& I + O(\alpha) \nonumber \\
+B  &\approx& I + O(\alpha)  \\
+\end{eqnarray}
+we can solve for X iteratively.
+\begin{eqnarray}
+\label{eq:b11}
+X_{(n)} \leftarrow && \frac{1}{2 \alpha}(I-A) + \nonumber \\
+                   && \frac{1}{2} \left( X_{(n-1)}(I-B)
+                    + (I-B^{\dag})X_{(n-1)}^{\dag}
+                    - \alpha X_{(n-1)}CX_{(n-1)}^{\dag} \right)  \\
+\label{eq:b12}
+X_{(0)} \leftarrow && \left(\frac{I-A}{2 \alpha}\right)
+\end{eqnarray}
+The convergence of Eq.~\ref{eq:b12} is guaranteed for small $\alpha$
+since each successive iteration has the property
+\begin{eqnarray}
+X_{(1)} &\leftarrow& X_{(0)} + O(\alpha)X_{(0)} \nonumber \\
+X_{(2)} &\leftarrow& X_{(0)} + O(\alpha) X_{(1)} 
+        = X_{(0)} + O(\alpha)X_{(0)} + O(\alpha^2)X_{(0)} \nonumber \\
+X_{(3)} &\leftarrow& X_{(0)} + O(\alpha) X_{(2)} 
+        = X_{(0)} + O(\alpha)   X_{(0)} 
+                  + O(\alpha^2) X_{(0)} 
+                  + O(\alpha^3) X_{(0)} \nonumber
+\end{eqnarray}
+
+\subsection{Constant Temperature Simulations: Nose-Hoover Thermostats}
+\label{sec:pspw_nose}
+
+Nose-Hoover Thermostats for the electrons and ions can also be added to the 
+Car-Parrinello simulation.  In this type of simulation thermostats variables $x_e$ and $x_R$ 
+are added to the simulation by adding the auxillary energy functionals to the total energy.
+\begin{eqnarray}
+ELECTRON\_THERMOSTAT(x_e) &=&  \frac{1}{2} Q_e \dot{x_e} + E_{e0}x_e 
+\end{eqnarray}
+\begin{eqnarray}
+ION\_THERMOSTAT(x_R)      &=&  \frac{1}{2} Q_R \dot{x_R} + E_{R0}x_R 
+\end{eqnarray}
+
+
+A description of the parameters $Q_e$, $E_{e0}$, $Q_R$, and $E_{R0}$ and their relationship
+to the input parameters, $P_{electron}$, $T_{electron}$, $P_{ion}$, and $T_{ion}$, is given 
+in section.  
+
+
 \section{PSPW Capabilities and Limitations}
 \label{sec:pspw_limits}
 
 \begin{itemize}
-\item Currently the one-dimensional pseudopotential module will not work
-       on 64 bit architectures.
-
+\item You cannot use more processors than the size of the third dimension (e.g. a 64x64x64 FFT grid
+      can use at most 64 processors).
+\item The second and third dimsntions of the FFT grid must be the same (i.e. the parameters na2 and 
+      na3 must be the same for each simulation cell).
 \end{itemize}
 
 
