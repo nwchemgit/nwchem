@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.55 2001-08-19 21:31:02 bjohnson Exp $
+c     $Id: dft_inpana.F,v 1.56 2001-12-11 19:31:13 edo Exp $
 c
 c*********************************************************************
 c     
@@ -279,8 +279,8 @@ c     requested convergence tolerances.
 c
 c     make sure tol_rho is less than 0.01*e_conv or (0.01*g_conv**2)
 c
-      if (tol_rho.gt.(1.0d-2*e_conv))then
-         tol_rho = 1.0d-2*e_conv
+      if (tol_rho.gt.(1.0d-3*e_conv))then
+         tol_rho = 1.0d-3*e_conv
          if (.not. rtdb_put(rtdb, 'dft:tol_rho',
      &      mt_dbl, 1, tol_rho))
      &      call errquit('dft_inpana: rtdb_put failed', 127)
