@@ -1,4 +1,4 @@
-C $Id: Input_for_drdy.F,v 1.6 2001-02-06 19:14:23 windus Exp $
+C $Id: Input_for_drdy.F,v 1.7 2001-04-04 23:51:27 windus Exp $
       Subroutine Input_for_drdy(rtdb)
 C
 C Options in lgs array
@@ -161,6 +161,7 @@ C
       if (natom.gt.natoms) then
          lexit = .true.
          write (fu6,*) ' number of atoms is greater than max=',natoms
+         call errquit('Input_for_drdy: too many atoms', 555)
       endif
       write (fu6,614)
       write (fu6,615) (i,xmass(i),xmass(i)/cau,xmass(i)*ckg,i=1,natom)
