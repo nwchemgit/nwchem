@@ -1,8 +1,13 @@
 *
-* $Id: paw_nonlocal.F,v 1.8 2003-03-05 01:46:58 bylaska Exp $
+* $Id: paw_nonlocal.F,v 1.9 2003-03-05 20:36:17 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.8  2003/03/05 01:46:58  bylaska
+* bug fixes....The eigenvalues now agree with the F90 code for all terms
+* except the multipole potential....I have currently commented out
+* the multipole potential term....EJB
+*
 
 !**************************************************
 !
@@ -177,11 +182,6 @@
       call paw_mult_pot_ptr(mult_ptr)
       call paw_comp_pot_ptr(comp_ptr)
 
-c      do k=1,paw_Gop_u(3)
-c       dcpl_mb(paw_Gop_u(1)+k-1)= 
-c     >       dcpl_mb(paw_Gop_static(1)+k-1) +
-c     >       dcpl_mb(hartree_ptr+k-1) 
-c       end do
 
       call dcopy(2*paw_Gop_size,
      >           dcpl_mb(paw_Gop_static(1)),1,
@@ -190,9 +190,9 @@ c       end do
      >           dcpl_mb(hartree_ptr),1,
      >           dcpl_mb(paw_Gop_u(1)),1)
 
-c     call daxpy(2*paw_Gop_size,1.0d0,
-c    >           dcpl_mb(mult_ptr),1,
-c    >           dcpl_mb(paw_Gop_u(1)),1)
+      call daxpy(2*paw_Gop_size,1.0d0,
+     >           dcpl_mb(mult_ptr),1,
+     >           dcpl_mb(paw_Gop_u(1)),1)
 
       call daxpy(2*paw_Gop_size,1.0d0,
      >           dcpl_mb(comp_ptr),1,
