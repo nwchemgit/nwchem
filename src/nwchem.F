@@ -265,6 +265,7 @@ c     of the code along with hostname, no. of processors, date, ...
 c
       character*(*) input_filename
       character*80 hostname
+      character*256 executable
       character*26 date
       integer heap, stack, total, nproc
       logical status
@@ -295,6 +296,7 @@ c
       write(6,*)
       write(6,*)
 c
+      call getarg(0,executable)
       call util_hostname(hostname)
       call util_date(date)
       total = ma_inquire_avail(mt_dbl)
@@ -303,11 +305,14 @@ c
       nproc = ga_nnodes()
 c
       call util_print_centered(6, 'Job information', 20, .true.)
-      write(6,2) hostname(1:inp_strlen(hostname)),
+      write(6,2) 
+     $     hostname(1:inp_strlen(hostname)),
+     $     executable(1:inp_strlen(executable)),
      $     date(1:inp_strlen(date)),
      $     input_filename(1:inp_strlen(input_filename)), nproc
  2    format(/
      $     '    hostname = ', a/
+     $     '    program  = ', a/
      $     '    date     = ', a/
      $     '    input    = "',a,'"'/
      $     '    nproc    = ', i4//)
