@@ -12,13 +12,14 @@ c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       logical status, echo
-      parameter (num_dirs = 15)
+      parameter (num_dirs = 16)
       character*8 dirs(num_dirs)
       character*255 test
       data dirs /
      $     'memory',   'rtdb',     'geometry', 'basis',    'scf',
      $     'task',     'time',     'set'     , 'enter',    'stop',
-     $     'title',    'start',    'restart' , 'stepper',  'echo'/
+     $     'title',    'start',    'restart' , 'stepper',  'echo',
+     $     'charge'/
       data echo /.false./
 c
 c     Only process 0 is involved here
@@ -48,7 +49,7 @@ c
 c
          call inp_prev_field
          goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-     $        1100, 1200, 1300, 1400, 1500) ind
+     $        1100, 1200, 1300, 1400, 1500, 1600) ind
          call errquit('input_parse: unimplemented directive', ind)
 c
 c     Memory ... already handled by input_mem_size() but will soon
@@ -120,6 +121,12 @@ c     Echo
 c
  1500    echo = .true.
          goto 10
+c
+c     Charge
+c
+ 1600    call input_charge(rtdb)
+         goto 10
+c
       endif
 c
 99999 continue
@@ -153,3 +160,20 @@ c
       subroutine input_verify
       implicit none
       end
+      subroutine input_charge(rtdb)
+      implicit none
+#include "inp.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
+      double precision charge
+c
+      if (.not. inp_f(charge)) call errquit
+     $     ('input_charge: failed to read real number', 0)
+c
+      if (.not. rtdb_put(rtdb, 'charge', MT_DBL, 1, charge))
+     $     call errquit
+     $     ('input_charge: failed to write to rtdb', 0)
+c
+      end
+
