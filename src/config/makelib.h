@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.26 1995-11-21 19:05:30 mg141 Exp $
+# $Id: makelib.h,v 1.27 1995-11-21 19:33:49 gg502 Exp $
 
 #
 # A makefile for a library should
@@ -266,5 +266,5 @@ realclean:	clean
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
-	-$(RM) *~ \#*\# makefile.bak
+	-$(RM) *~ \#*\# makefile.bak $(LIBRARY_PATH)
 
