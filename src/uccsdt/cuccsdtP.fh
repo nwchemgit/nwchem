@@ -96,6 +96,12 @@ c
 c     This just temporary stuff for development
 c
       integer k_moint, l_moint, k_most, l_most
+      integer k_t1a, l_t1a, k_t1b, l_t1b
+      integer k_t2aa, l_t2aa, k_t2bb, l_t2bb
+      integer k_t2ab, l_t2ab
       common /cuccsdtfudge/ 
-     $     k_moint, l_moint, k_most, l_most
+     $     k_moint, l_moint, k_most, l_most,
+     $     k_t1a, l_t1a, k_t1b, l_t1b,
+     $     k_t2aa, l_t2aa, k_t2bb, l_t2bb,
+     $     k_t2ab, l_t2ab
 c

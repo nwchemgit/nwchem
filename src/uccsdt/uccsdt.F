@@ -455,14 +455,13 @@ c
       call ga_summarize(0)
 c
       end
-      double precision function uccsdt_triples_sub_blocked(t1a)
+      double precision function uccsdt_triples_sub_blocked()
       implicit none
 #include "cuccsdtP.fh"
 #include "util.fh"
 #include "global.fh"
 #include "mafdecls.fh"
-      double precision t1a(*)
-c     
+c
       integer ablk, alo, ahi, syma
       integer bblk, blo, bhi, symb
       integer cblk, clo, chi, symc
@@ -486,7 +485,8 @@ c     $     int_bcik(5000),
 c     $     int_acik(5000)
 c     
 c      double precision int_buf(5000), t_buf(5000), w(100000)
-      integer btop, ctop, ktop, vlo, vhi, olo, ohi
+      integer btop, ctop, ktop, vlo, vhi, olo, ohi,
+     $        vlo_ck, vhi_ck, olo_ck, ohi_ck
       integer lentbuf, l_tbuf, k_tbuf
       integer lenibuf, l_ibuf, k_ibuf
       integer lenwbuf, l_wbuf, k_wbuf
@@ -504,7 +504,7 @@ c
       integer nxtval, next, count, me, nproc
       external nxtval
 c     
-      integer spin, spinck
+      integer spin, spinck, k_t1(2), k_t, k_t_ck
       integer sym3, sym4, i, j, k, l, int_sym, t1_sym
       sym3(i,j,k) = ieor(ieor(i,j),k)
       sym4(i,j,k,l) = ieor(ieor(ieor(i,j),k),l)
@@ -550,8 +550,8 @@ c
      $   k_ibuf_bcik))call errquit('uccsdt: ibuf_bcik?',len9ibuf)
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_acik',l_ibuf_acik,
      $   k_ibuf_acik))call errquit('uccsdt: ibuf_acik?',len9ibuf)
-      write(6,*)' lentbuf, lenibuf, lenwbuf, len9ibuf: ',
-     &            lentbuf, lenibuf, lenwbuf, len9ibuf
+c      write(6,*)' lentbuf, lenibuf, lenwbuf, len9ibuf: ',
+c     &            lentbuf, lenibuf, lenwbuf, len9ibuf
 c
 c note t1 is still dummy memory
 c
@@ -616,9 +616,9 @@ c
                      ktop = noblock(spinck)
                      if (spin .eq. spinck) ktop = jblk
                      do kblk = ktop, 1, -1
-                        klo = oblock(1,kblk,spin)
-                        khi = oblock(2,kblk,spin)
-                        symk = oblock(3,kblk,spin)
+                        klo = oblock(1,kblk,spinck)
+                        khi = oblock(2,kblk,spinck)
+                        symk = oblock(3,kblk,spinck)
 c     
                         test_sym = ieor(sym3(symi,symj,symk),
      $                       sym3(syma,symb,symc))
@@ -1146,13 +1146,32 @@ c
                                  call dfill(len9ibuf, 0d0, 
      $                                dbl_mb(k_ibuf_acik), 1)
                               endif
-c     
+c
+                              k_t1(1) = k_t1a
+                              k_t1(2) = k_t1b
+c                              write(6,*)' k_t1: ',k_t1
+c
                               vlo = nc(spin) + no(spin) + 1
                               vhi = nmo
                               olo = nc(spin) + 1
                               ohi = nc(spin) + no(spin)
-                              call uccsdt_w_t1a_int_energy
-     $                             (dbl_mb(k_wbuf), t1a, eps, energy,
+                              k_t = k_t1(spin)
+c                              write(6,*)' for spin: ',spin
+c                              write(6,*)' vlo, vhi, olo, ohi, k_t: ',
+c     &                                    vlo, vhi, olo, ohi, k_t
+c
+                              vlo_ck = nc(spinck) + no(spinck) + 1
+                              vhi_ck = nmo
+                              olo_ck = nc(spinck) + 1
+                              ohi_ck = nc(spinck) + no(spinck)
+                              k_t_ck = k_t1(spinck)
+c                              write(6,*)' for spinck: ',spinck
+c              write(6,*)' vlo_ck, vhi_ck, olo_ck, ohi_ck, k_t_ck: ',
+c     &                    vlo_ck, vhi_ck, olo_ck, ohi_ck, k_t_ck
+c
+                              call uccsdt_w_t1_int_energy
+     $                             (dbl_mb(k_wbuf), dbl_mb(k_t),
+     $                             dbl_mb(k_t_ck), eps, energy,
      $                             dbl_mb(k_ibuf_abij),
      $                             dbl_mb(k_ibuf_abjk),
      $                             dbl_mb(k_ibuf_abik),
@@ -1166,7 +1185,9 @@ c
      $                             clo, chi,
      $                             ilo, ihi, jlo, jhi, 
      $                             klo, khi,
-     $                             vlo, vhi, olo, ohi, spin, spinck, 
+     $                             vlo, vhi, olo, ohi, 
+     $                             vlo_ck, vhi_ck, olo_ck, ohi_ck, 
+     $                             spin, spinck, 
      $                             nw_max_nbf)
 c     
                               next = nxtval(nproc)
@@ -1192,21 +1213,26 @@ c
       uccsdt_triples_sub_blocked = energy
 c     
       end
-      subroutine uccsdt_w_t1a_int_energy
-     $  (w, t1a, eps, energy,
+      subroutine uccsdt_w_t1_int_energy
+     $  (w, t1, t1_ck, eps, energy,
      $   int_abij, int_abjk, int_abik, int_bcij,
      $   int_acij, int_bcjk, int_acjk, int_bcik,
      $   int_acik,
      $   alo, ahi, blo, bhi, clo, chi,
      $   ilo, ihi, jlo, jhi, klo, khi,
-     $   vlo, vhi, olo, ohi, spin, spinck, nmo)
+     $   vlo, vhi, olo, ohi, 
+     $   vlo_ck, vhi_ck, olo_ck, ohi_ck, 
+     $   spin, spinck, nmo)
 c
       implicit none
       integer alo, ahi, blo, bhi, clo, chi,
      $        ilo, ihi, jlo, jhi, klo, khi,
-     $        vlo, vhi, olo, ohi, spin, spinck, nmo
+     $        vlo, vhi, olo, ohi, 
+     $        vlo_ck, vhi_ck, olo_ck, ohi_ck, 
+     $        spin, spinck, nmo
 c
-      double precision t1a(vlo:vhi,olo:ohi)
+      double precision t1(vlo:vhi,olo:ohi)
+      double precision t1_ck(vlo_ck:vhi_ck,olo_ck:ohi_ck)
       double precision w(klo:khi,jlo:jhi,ilo:ihi,
      $                   clo:chi,blo:bhi,alo:ahi)
       double precision int_abij(alo:ahi,blo:bhi,ilo:ihi,jlo:jhi)
@@ -1220,7 +1246,17 @@ c
       double precision int_acik(alo:ahi,clo:chi,ilo:ihi,klo:khi)
       double precision eps(nmo,2), energy, v, d
       integer i, j, k, a, b, c, ctop, ktop
+c      integer vt, ot
 c
+c      call output(eps, 1, nmo, 1, 2, nmo, 2, 1)
+c      vt = vhi-vlo+1
+c      ot = ohi-olo+1
+c      write(6,*)' t1 - vt, ot:', vt, ot
+c      call output(t1, 1, vt, 1, ot, vt, ot, 1)
+c      vt = vhi_ck-vlo_ck+1
+c      ot = ohi_ck-olo_ck+1
+c      write(6,*)' t1_ck - vt, ot:', vt, ot
+c      call output(t1_ck, 1, vt, 1, ot, vt, ot, 1)
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
            ctop = chi
@@ -1233,26 +1269,26 @@ c
                      do k = klo, ktop
 c
                         v = w(k,j,i,c,b,a)
-     $                        + t1a(c,k)*
+     $                        + t1_ck(c,k)*
      $                          int_abij(a,b,i,j)
-     $                        + t1a(a,i)*
+     $                        + t1(a,i)*
      $                          int_bcjk(b,c,j,k)
-     $                        - t1a(b,i)*
+     $                        - t1(b,i)*
      $                          int_acjk(a,c,j,k)
-     $                        - t1a(a,j)*
+     $                        - t1(a,j)*
      $                          int_bcik(b,c,i,k)
-     $                        + t1a(b,j)*
+     $                        + t1(b,j)*
      $                          int_acik(a,c,i,k)
 c
                         if (spin .eq. spinck) then
                           v = v +
-     $                        + t1a(c,i)*
+     $                        + t1(c,i)*
      $                          int_abjk(a,b,j,k)
-     $                        - t1a(c,j)*
+     $                        - t1(c,j)*
      $                          int_abik(a,b,i,k)
-     $                        + t1a(a,k)*
+     $                        + t1(a,k)*
      $                          int_bcij(b,c,i,j)
-     $                        - t1a(b,k)*
+     $                        - t1(b,k)*
      $                          int_acij(a,c,i,j)
                         end if
 c
@@ -1261,10 +1297,12 @@ c
      $                      eps(c,spinck)-
      $                      eps(i,spin)-
      $                      eps(j,spin)-
-     $                      eps(k,spin)
+     $                      eps(k,spinck)
 c
                         energy = energy - 
      $                           v*w(k,j,i,c,b,a)/d
+c                        write(6,*)' a,b,c,i,j,k,v,d,energy: ',
+c     &                              a,b,c,i,j,k,v,d,energy
                      end do
                   end do
                end do
@@ -2317,6 +2355,10 @@ c
       integer nasuper, ncsuper  ! No. of super blocks for current spin case
       integer a_super_block(2,max_nsuper_block) ! Super block info
       integer c_super_block(2,max_nsuper_block)
+      integer l_t2aa, l_t2ab, l_t2bb, l_t1a, l_t1b
+      integer k_t2aa, k_t2ab, k_t2bb, k_t1a, k_t1b
+      integer l_ttemp, k_ttemp
+      integer noa, nob, nva, nvb
 c     
       oprint_sub = util_print('sub-blocking', print_debug) .and.
      $     ga_nodeid().eq.0
@@ -2337,6 +2379,59 @@ c
      $     dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most), 
      $     dbl_mb(k_moint), 'Dirac')
 c     
+c     For debug purposes generate the full list of t1 and t2 amplitudes
+c
+      noa = nc(1) + no(1)
+      nob = nc(2) + no(2)
+      nva = nv(1)
+      nvb = nv(2)
+c      write(6,*)' nva, nvb, noa, nob, nbf: ',
+c     &            nva, nvb, noa, nob, nbf
+      if (.not. ma_push_get(mt_dbl, (noa*nva), 't1a', l_t1a, k_t1a))
+     $     call errquit('ma t1a', (noa*nva))
+      if (.not. ma_push_get(mt_dbl, (nob*nvb), 't1b', l_t1b, k_t1b))
+     $     call errquit('ma t1b', (nob*nvb))
+      if (.not. ma_push_get(mt_dbl, nbf**4, 't2aa', l_t2aa, k_t2aa))
+     $     call errquit('ma t2_aa', nbf**4)
+      if (.not. ma_push_get(mt_dbl, nbf**4, 't2bb', l_t2bb, k_t2bb))
+     $     call errquit('ma t2_bb', nbf**4)
+      if (.not. ma_push_get(mt_dbl, nbf**4, 't2ab', l_t2ab, k_t2ab))
+     $     call errquit('ma t2_ab', nbf**4)
+c
+      call read_dummy_t(nbf,
+     $     noa, nob, nva, nvb, 
+     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
+c
+c     re-map these t1 and t2 amplitudes into symmetry blocks
+c
+      if (.not. ma_push_get(mt_dbl, nbf**4, 'ttemp', l_ttemp, k_ttemp))
+     $     call errquit('ma ttemp', nbf**4)
+      call sym_map_amps_t1(
+     $     dbl_mb(k_t1a), dbl_mb(k_ttemp), nva, noa, 1)
+c      write(6,*)' re-mapped t1a '
+      call sym_map_amps_t1(
+     $     dbl_mb(k_t1b), dbl_mb(k_ttemp), nvb, nob, 2)
+c      write(6,*)' re-mapped t1b '
+      call sym_map_amps_t2(
+     $     dbl_mb(k_t2aa), dbl_mb(k_ttemp), 1, 1)
+c      write(6,*)' re-mapped t2aa '
+      call sym_map_amps_t2(
+     $     dbl_mb(k_t2bb), dbl_mb(k_ttemp), 2, 2)
+c      write(6,*)' re-mapped t2bb '
+      call sym_map_amps_t2(
+     $     dbl_mb(k_t2ab), dbl_mb(k_ttemp), 1, 2)
+c      write(6,*)' re-mapped t2ab '
+      if (.not. ma_pop_stack(l_ttemp)) call errquit('ttemp?',0)
+c
+c      call jan_debug_print('k_t2aa', dbl_mb(k_t2aa), nbf, nbf, nbf, nbf)
+c      call jan_debug_print('k_t2bb', dbl_mb(k_t2bb), nbf, nbf, nbf, nbf)
+c      call jan_debug_print('k_t2ab', dbl_mb(k_t2ab), nbf, nbf, nbf, nbf)
+c
+c     debug: temp zero t1a
+c
+c      call dfill (nva*noa, 0.0d0, dbl_mb(k_t1a), 1)
+c
 c     Loop over the four spin cases
 c     
       total = 0.0d0
@@ -2372,18 +2467,18 @@ c
                      call uccsdt_triples_sub_blocking
      $                    (alo, ahi, blo, bhi, clo, chi, spina, spinc,
      $                    oprint_sub, .false., ma_used, ga_used)
-                     write(6,*)' after sub_blocking before moints '
+c                     write(6,*)' after sub_blocking before moints '
                      call uccsdt_triples_moints()
-                     write(6,*)' after moints before dummy amps '
+c                     write(6,*)' after moints before dummy amps '
 c
                      call uccsdt_triples_dummy_amplitudes()
                      call dfill(5000, 0.0d0, dummy, 1)
 c
-                     write(6,*)' after dummy amps before sub_blocked '
+c                     write(6,*)' after dummy amps before sub_blocked '
                      energy(spina,spinc) = energy(spina,spinc) + 
-     $                    uccsdt_triples_sub_blocked(dummy)
+     $                    uccsdt_triples_sub_blocked()
 c     
-                     write(6,*)' after sub_blocked before end '
+c                     write(6,*)' after sub_blocked before end '
                      call uccsdt_triples_sub_blocking_end()
 c     
 *                     write(6,*) ' SUPERBLOCK: ', 
@@ -2406,7 +2501,78 @@ c
  77      format(//' The total (T) energy is ', f20.12,//)
       end if
 c     
+      if (.not. ma_pop_stack(l_t2ab)) call errquit('t2ab?',0)
+      if (.not. ma_pop_stack(l_t2bb)) call errquit('t2bb?',0)
+      if (.not. ma_pop_stack(l_t2aa)) call errquit('t2aa?',0)
+      if (.not. ma_pop_stack(l_t1b)) call errquit('t1b?',0)
+      if (.not. ma_pop_stack(l_t1a)) call errquit('t1a?',0)
       if (.not. ma_pop_stack(l_moint)) call errquit('moint?',0)
       if (.not. ma_pop_stack(l_most)) call errquit('most?',0)
 c     
+      end
+      subroutine sym_map_amps_t1(
+     $     t1, t_buf, nv1, no1, spin)
+      implicit none
+#include "cuccsdtP.fh"
+#include "mafdecls.fh"
+      integer nv1, no1
+      integer v, o
+      integer spin
+      integer v_old_abs, v_new_rel
+      double precision t1(nv1, no1)
+      double precision t_buf(nv1, no1)
+c
+c     copy t1 to t_buf, zero t1 and move t_buf back 
+c     to proper symmetry locations in t1
+c
+      call dfill(nv1*no1, 0.0d0, t_buf,1)
+      call dcopy(nv1*no1, t1, 1, t_buf, 1)
+      call dfill(nv1*no1, 0.0d0, t1, 1)
+      do v = 1, nv1
+         do o = 1, no1
+c            write(6,*)' v, o, map(v,spin), map(o,spin): ',
+c     &                  v, o, map(v,spin), map(o,spin)
+            v_old_abs = v + no1
+            v_new_rel = map(v_old_abs,spin) - no1
+c            write(6,*)' v_old_abs, o, v_new_rel, map(o,spin): ',
+c     &                  v_old_abs, o, v_new_rel, map(o,spin)
+            t1(v_new_rel,map(o,spin)) = t_buf(v,o)
+         end do
+      end do
+c      if (.not. ma_verify_allocator_stuff())
+c     $     call errquit('x',1)
+      return
+      end
+      subroutine sym_map_amps_t2(
+     $     t2, t_buf, spin1, spin2)
+      implicit none
+#include "cuccsdtP.fh"
+#include "mafdecls.fh"
+      double precision t2(nbf, nbf, nbf, nbf)
+      double precision t_buf(nbf, nbf, nbf, nbf)
+      integer v1, v2, o1, o2
+      integer spin1, spin2
+      call dfill(nbf**4, 0.0d0, t_buf, 1)
+      call dcopy(nbf**4, t2, 1, t_buf, 1)
+      call dfill(nbf**4, 0.0d0, t2, 1)
+      do v1 = 1, nbf
+         do v2 = 1, nbf
+            do o1 = 1, nbf
+               do o2 = 1, nbf
+c
+c            write(6,*)' v1, v2, map(v1,spin1), map(v2,spin2): ',
+c     &                  v1, v2, map(v1,spin1), map(v2,spin2)
+c            write(6,*)' o1, o2, map(o1,spin1), map(o2,spin2): ',
+c     &                  o1, o2, map(o1,spin1), map(o2,spin2)
+                  t2(map(v1,spin1),map(v2,spin2),
+     &               map(o1,spin1),map(o2,spin2)) = 
+     &                             t_buf(v1,v2,o1,o2)
+c
+               end do
+            end do
+         end do
+      end do
+c      if (.not. ma_verify_allocator_stuff())
+c     $     call errquit('x',2)
+      return
       end

@@ -238,13 +238,33 @@ c
 c     t(a,b,i,j) = <ab||ij> / (eps(i)+eps(j)-eps(a)-eps(b))
 c
       integer spina, spinc, spini, spink, spine, spinm, list
+      integer k_ptr(2:4), k_t2
       logical oasym
 c
       spina = asuper_spin
       spinc = csuper_spin
       spini = spina
-      spink = spini
+      spink = spinc
       oasym = spina .eq. spinc
+c
+      k_ptr(2) = k_t2aa
+      k_ptr(3) = k_t2ab
+      k_ptr(4) = k_t2bb
+c
+c      write(6,*)' k_t2aa, k_t2ab, k_t2bb, k_ptr(2), k_ptr(3), k_ptr(4)',
+c     &            k_t2aa, k_t2ab, k_t2bb, k_ptr(2), k_ptr(3), k_ptr(4)
+c
+c      call jan_debug_print('k_t2aa', dbl_mb(k_t2aa), nbf, nbf,  
+c     $                      nbf, nbf)
+c
+c      call jan_debug_print('k_t2ab', dbl_mb(k_t2ab), nbf, nbf,  
+c     $                      nbf, nbf)
+c
+c      call jan_debug_print('k_t2bb', dbl_mb(k_t2bb), nbf, nbf,  
+c     $                      nbf, nbf)
+c
+c      write(6,*)' spina, spinc, spini, spink ',
+c     &            spina, spinc, spini, spink
 c
 cccccccc      if (spina .ne. spinc) call errquit('dummy_amplitudes: no mixed',0)
 c
@@ -252,120 +272,150 @@ c     14.  t(e,c,i,k) spin(e)=spin(a) mixed
 c
       list = 14
       spine = spina
+      k_t2 = k_ptr(spine+spinc)
+c      write(6,*)' list, spine, spinc, k_t2 ', 
+c     &            list, spine, spinc, k_t2
       call uccsdt_do_triples_dummy_amplitudes(
      $     v_sym(1,0,spine), eps(1,spine),
      $     ncblock, cblock,  eps(1,spinc),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
      $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
-     $     dbl_mb(k_moint), nbf,
+     $     dbl_mb(k_t2), nbf, k_t2, spine, spinc,
      $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
 c
 c     15.  t(e,a,i,j) spin(e)=spin(a) pure
 c
       list = 15
       spine = spina
+      k_t2 = k_ptr(spine+spina)
+c      write(6,*)' list, spine, spina, k_t2 ', 
+c     &            list, spine, spina, k_t2
       call uccsdt_do_triples_dummy_amplitudes(
      $     v_sym(1,0,spine), eps(1,spine),
      $     nablock, ablock,  eps(1,spina),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     dbl_mb(k_moint), nbf,
+     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
      $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .true.)
 c
 c     16.  t(e,b,i,j) spin(e)=spin(a) pure
 c
       list = 16
       spine = spina
+      k_t2 = k_ptr(spine+spina)
+c      write(6,*)' list, spine, spina, k_t2 ', 
+c     &            list, spine, spina, k_t2
       call uccsdt_do_triples_dummy_amplitudes(
      $     v_sym(1,0,spine), eps(1,spine),
      $     nbblock, bblock,  eps(1,spina),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     dbl_mb(k_moint), nbf,
+     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
      $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .true.)
 c
 c     17.  t(e,a,k,i) spin(e)=spin(c) mixed
 c
       list = 17
       spine = spinc
+      k_t2 = k_ptr(spine+spina)
+c      write(6,*)' list, spine, spina, k_t2 ', 
+c     &            list, spine, spina, k_t2
       call uccsdt_do_triples_dummy_amplitudes(
      $     v_sym(1,0,spine), eps(1,spine),
      $     nablock, ablock,  eps(1,spina),
      $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     dbl_mb(k_moint), nbf,
+     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
      $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
 c
 c     18.  t(e,b,k,i) spin(e)=spin(c) mixed
 c
       list = 18
       spine = spinc
+      k_t2 = k_ptr(spine+spina)
+c      write(6,*)' list, spine, spina, k_t2 ', 
+c     &            list, spine, spina, k_t2
       call uccsdt_do_triples_dummy_amplitudes(
      $     v_sym(1,0,spine), eps(1,spine),
      $     nbblock, bblock,  eps(1,spina),
      $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     dbl_mb(k_moint), nbf,
+     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
      $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
 c
 c     19.  t(m,i,a,b) spin(m)=spin(a) pure
 c
       list = 19
       spinm = spina
+      k_t2 = k_ptr(spinm+spini)
+c      write(6,*)' list, spinm, spini, k_t2 ', 
+c     &            list, spinm, spini, k_t2
       call uccsdt_do_triples_dummy_amplitudes(
      $     o_sym(1,0,spinm), eps(1,spinm),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
      $     nablock, ablock,  eps(1,spina),
      $     nbblock, bblock,  eps(1,spina),
-     $     dbl_mb(k_moint), nbf,
+     $     dbl_mb(k_t2), nbf, k_t2, spinm, spini,
      $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .true.)
 c
 c     20.  t(m,k,a,c) spin(m)=spin(a) mixed
 c
       list = 20
       spinm = spina
+      k_t2 = k_ptr(spinm+spink)
+c      write(6,*)' list, spinm, spink, k_t2 ', 
+c     &            list, spinm, spink, k_t2
       call uccsdt_do_triples_dummy_amplitudes(
      $     o_sym(1,0,spinm), eps(1,spinm),
      $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
      $     nablock, ablock,  eps(1,spina),
      $     ncblock, cblock,  eps(1,spinc),
-     $     dbl_mb(k_moint), nbf,
+     $     dbl_mb(k_t2), nbf, k_t2, spinm, spink,
      $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
 c
 c     21.  t(m,k,b,c) spin(m)=spin(a) mixed
 c
       list = 21
       spinm = spina
+      k_t2 = k_ptr(spinm+spink)
+c      write(6,*)' list, spinm, spink, k_t2 ', 
+c     &            list, spinm, spink, k_t2
       call uccsdt_do_triples_dummy_amplitudes(
      $     o_sym(1,0,spinm), eps(1,spinm),
      $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
      $     nbblock, bblock,  eps(1,spina),
      $     ncblock, cblock,  eps(1,spinc),
-     $     dbl_mb(k_moint), nbf,
+     $     dbl_mb(k_t2), nbf, k_t2, spinm, spink,
      $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
 c
 c     22.  t(m,i,c,a) spin(m)=spin(c) mixed
 c
       list = 22
       spinm = spinc
+      k_t2 = k_ptr(spinm+spini)
+c      write(6,*)' list, spinm, spini, k_t2 ', 
+c     &            list, spinm, spini, k_t2
       call uccsdt_do_triples_dummy_amplitudes(
      $     o_sym(1,0,spinm), eps(1,spinm),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
      $     ncblock, cblock,  eps(1,spinc),
      $     nablock, ablock,  eps(1,spina),
-     $     dbl_mb(k_moint), nbf,
+     $     dbl_mb(k_t2), nbf, k_t2, spinm, spini,
      $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
 c
 c     23.  t(m,i,c,b) spin(m)=spin(c) mixed
 c
       list = 23
       spinm = spinc
+      k_t2 = k_ptr(spinm+spini)
+c      write(6,*)' list, spinm, spini, k_t2 ', 
+c     &            list, spinm, spini, k_t2
       call uccsdt_do_triples_dummy_amplitudes(
      $     o_sym(1,0,spinm), eps(1,spinm),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
      $     ncblock, cblock,  eps(1,spinc),
      $     nbblock, bblock,  eps(1,spina),
-     $     dbl_mb(k_moint), nbf,
+     $     dbl_mb(k_t2), nbf, k_t2, spinm, spini,
      $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
 c
       end
@@ -374,20 +424,21 @@ c
      $     ncblock, cblock, ceps,
      $     niblock, iblock, ieps,
      $     nkblock, kblock, keps,
-     $     moints, nbf,
+     $     moints, nbf, k_t2, spine, spinf,
      $     pointers, g_list, phase, oasym)
       implicit none
+#include "mafdecls.fh"
       integer e_sym(2,0:7)
       integer ncblock, cblock(3,*)
       integer niblock, iblock(3,*)
       integer nkblock, kblock(3,*)
-      integer nbf
+      integer nbf, spine, spinf
       double precision eeps(*), ceps(*), ieps(*), keps(*)
       double precision moints(nbf, nbf, nbf, nbf)
       integer pointers(2,ncblock,niblock,nkblock)
-      integer g_list
+      integer g_list, k_t2
       double precision phase
-      logical oasym
+      logical oasym, flip
 c
       integer cblk, iblk, kblk, c, i, k, e, syme, ptr
       double precision t
@@ -398,6 +449,8 @@ c     14.  t(e,c,i,k) spin(e)=spin(a) mixed
 c
 c     THIS IS CURRENTLY MOSTLY HARDWIRED TO CLOSED SHELL
 c
+      flip = (spine.ne.spinf).and.(spine.ne.1)
+c      write(6,*)' k_t2 ', k_t2
       do kblk = 1, nkblock
          do iblk = 1, niblock
             do cblk = 1, ncblock
@@ -408,10 +461,16 @@ c
                   do i = iblock(1,iblk),iblock(2,iblk)
                      do c = cblock(1,cblk),cblock(2,cblk)
                         do e = e_sym(1,syme),e_sym(2,syme)
-                           t = moints(e,c,i,k)
-                           if (oasym) t = t - moints(e,c,k,i)
-                           t = t / (eeps(e)+ceps(c)-ieps(i)-keps(k))
-                           t = t * phase
+                           if (flip)then
+                              t = moints(c,e,k,i)
+                           else
+                              t = moints(e,c,i,k)
+                           endif
+c                          if (oasym) t = t - moints(e,c,k,i)
+c                          t = t / (eeps(e)+ceps(c)-ieps(i)-keps(k))
+c                          t = t * phase
+c                          call uccsdt_check_t2(dbl_mb(k_t2),nbf,
+c    &                                          e,c,i,k,t,oasym)
                            call ga_put(g_list,ptr,ptr,1,1,t,1)
                            ptr = ptr + 1
                         end do
@@ -425,6 +484,19 @@ c
          end do
       end do
 c
+      end
+      subroutine uccsdt_check_t2(
+     $     buf, nbf, e, c, i, k, t, oasym)
+      implicit none
+      integer nbf, e, c, i, k
+      double precision buf(nbf,nbf,nbf,nbf), t
+      logical oasym
+      if (abs(buf(e,c,i,k)-t).gt.1e-6) then
+         write(6,1) e,c,i,k,t,buf(e,c,i,k),buf(e,c,k,i),
+     &                        buf(c,e,i,k),buf(c,e,k,i),oasym
+ 1       format(4i3,5(1x,f12.7),1x,l1)
+      endif
+      return
       end
       subroutine uccsdt_do_check_list(
      $     buf,
