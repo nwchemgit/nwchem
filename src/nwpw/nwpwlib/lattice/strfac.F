@@ -1,5 +1,5 @@
 *
-* $Id: strfac.F,v 1.8 2003-02-20 15:18:40 bylaska Exp $
+* $Id: strfac.F,v 1.9 2003-03-15 01:41:58 bylaska Exp $
 *
 
 *     ***********************************
@@ -155,28 +155,28 @@ C
 *::::::::::::::::::  phase factor of ion positions  :::::::::::::::::::
       do i=1,ion_nion()
 
-        sw1= lattice_unitg(1,1)*ion_rion(1,i)
-     >     + lattice_unitg(2,1)*ion_rion(2,i)
-     >     + lattice_unitg(3,1)*ion_rion(3,i) + pi
-        sw2= lattice_unitg(1,2)*ion_rion(1,i)
-     >     + lattice_unitg(2,2)*ion_rion(2,i)
-     >     + lattice_unitg(3,2)*ion_rion(3,i) + pi
-        sw3= lattice_unitg(1,3)*ion_rion(1,i)
-     >     + lattice_unitg(2,3)*ion_rion(2,i)
-     >     + lattice_unitg(3,3)*ion_rion(3,i) + pi
-
-c      !***DEBUG ***
-c       write(*,*) "Warning: paw box center being used:"
 c       sw1= lattice_unitg(1,1)*ion_rion(1,i)
 c    >     + lattice_unitg(2,1)*ion_rion(2,i)
-c    >     + lattice_unitg(3,1)*ion_rion(3,i) 
+c    >     + lattice_unitg(3,1)*ion_rion(3,i) + pi
 c       sw2= lattice_unitg(1,2)*ion_rion(1,i)
 c    >     + lattice_unitg(2,2)*ion_rion(2,i)
-c    >     + lattice_unitg(3,2)*ion_rion(3,i) 
+c    >     + lattice_unitg(3,2)*ion_rion(3,i) + pi
 c       sw3= lattice_unitg(1,3)*ion_rion(1,i)
 c    >     + lattice_unitg(2,3)*ion_rion(2,i)
-c    >     + lattice_unitg(3,3)*ion_rion(3,i) 
-c      !***DEBUG ***
+c    >     + lattice_unitg(3,3)*ion_rion(3,i) + pi
+
+       !***DEBUG ***
+        write(*,*) "Warning: paw box center being used:"
+        sw1= lattice_unitg(1,1)*ion_rion(1,i)
+     >     + lattice_unitg(2,1)*ion_rion(2,i)
+     >     + lattice_unitg(3,1)*ion_rion(3,i) 
+        sw2= lattice_unitg(1,2)*ion_rion(1,i)
+     >     + lattice_unitg(2,2)*ion_rion(2,i)
+     >     + lattice_unitg(3,2)*ion_rion(3,i) 
+        sw3= lattice_unitg(1,3)*ion_rion(1,i)
+     >     + lattice_unitg(2,3)*ion_rion(2,i)
+     >     + lattice_unitg(3,3)*ion_rion(3,i) 
+       !***DEBUG ***
 
 
         cw1=dcmplx(dcos(sw1),-dsin(sw1))
@@ -229,7 +229,94 @@ c       ex3(nz/2,i)=dcmplx(0.0d0, 0.0d0)
       return
       end
 
+
 C .. End PhaFac .... 
+
+
+C     ***********************************
+C     *					*
+C     *		phafac2			*
+C     *					*
+C     ***********************************
+      subroutine phafac2()
+      implicit none
+#include "mafdecls.fh"
+#include "strfac_common.fh"
+*     *** local variables
+      integer    i,k
+      integer    nx,ny,nz
+      complex*16 cw1,cw2,cw3
+      real*8     sw1,sw2,sw3
+      real*8     pi
+
+*     **** external functions ****
+      integer  ion_nion
+      real*8   lattice_unitg,ion_rion2
+      external ion_nion
+      external lattice_unitg,ion_rion2
+
+      call nwpw_timing_start(8)
+      pi = 4.0d0*datan(1.0d0)
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+
+      do i=1,ion_nion()
+
+c       sw1= lattice_unitg(1,1)*ion_rion2(1,i)
+c    >     + lattice_unitg(2,1)*ion_rion2(2,i)
+c    >     + lattice_unitg(3,1)*ion_rion2(3,i) + pi
+c       sw2= lattice_unitg(1,2)*ion_rion2(1,i)
+c    >     + lattice_unitg(2,2)*ion_rion2(2,i)
+c    >     + lattice_unitg(3,2)*ion_rion2(3,i) + pi
+c       sw3= lattice_unitg(1,3)*ion_rion2(1,i)
+c    >     + lattice_unitg(2,3)*ion_rion2(2,i)
+c    >     + lattice_unitg(3,3)*ion_rion2(3,i) + pi
+
+       !***DEBUG ***
+        write(*,*) "Warning: paw box center being used:"
+        sw1= lattice_unitg(1,1)*ion_rion2(1,i)
+     >     + lattice_unitg(2,1)*ion_rion2(2,i)
+     >     + lattice_unitg(3,1)*ion_rion2(3,i) 
+        sw2= lattice_unitg(1,2)*ion_rion2(1,i)
+     >     + lattice_unitg(2,2)*ion_rion2(2,i)
+     >     + lattice_unitg(3,2)*ion_rion2(3,i) 
+        sw3= lattice_unitg(1,3)*ion_rion2(1,i)
+     >     + lattice_unitg(2,3)*ion_rion2(2,i)
+     >     + lattice_unitg(3,3)*ion_rion2(3,i) 
+       !***DEBUG ***
+
+        cw1=dcmplx(dcos(sw1),-dsin(sw1))
+        cw2=dcmplx(dcos(sw2),-dsin(sw2))
+        cw3=dcmplx(dcos(sw3),-dsin(sw3))
+        dcpl_mb(ex1(1)+(i-1)*nx)=dcmplx(1.0d0,0.0d0)
+        dcpl_mb(ex2(1)+(i-1)*ny)=dcmplx(1.0d0,0.0d0)
+        dcpl_mb(ex3(1)+(i-1)*nz)=dcmplx(1.0d0,0.0d0)
+        do k=1,nx/2
+          dcpl_mb(ex1(1)+k+(i-1)*nx)
+     >         = dcpl_mb(ex1(1)+k-1+(i-1)*nx)*cw1
+          dcpl_mb(ex1(1)+nx-k+(i-1)*nx)
+     >         =dconjg(dcpl_mb(ex1(1)+k+(i-1)*nx))
+        end do
+        do k=1,ny/2
+          dcpl_mb(ex2(1)+k+(i-1)*ny)
+     >         = dcpl_mb(ex2(1)+k-1+(i-1)*ny)*cw2
+          dcpl_mb(ex2(1)+ny-k+(i-1)*ny)
+     >         =dconjg(dcpl_mb(ex2(1)+k+(i-1)*ny))
+        end do
+        do k=1,nz/2
+          dcpl_mb(ex3(1)+k+(i-1)*nz)
+     >         = dcpl_mb(ex3(1)+k-1+(i-1)*nz)*cw3
+          dcpl_mb(ex3(1)+nz-k+(i-1)*nz)
+     >         =dconjg(dcpl_mb(ex3(1)+k+(i-1)*nz))
+        end do
+        dcpl_mb(ex1(1)+nx/2+(i-1)*nx)=dcmplx(0.0d0, 0.0d0)
+        dcpl_mb(ex2(1)+ny/2+(i-1)*ny)=dcmplx(0.0d0, 0.0d0)
+        dcpl_mb(ex3(1)+nz/2+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)
+      end do
+      call nwpw_timing_end(8)
+      return
+      end
 
 C     ***********************************
 C     *					*
