@@ -1,0 +1,21 @@
+c
+c $Id: paw_mult_data.fh,v 1.1 2003-02-16 23:41:47 bylaska Exp $
+c
+
+      
+      real*8    sigma_smooth  ! defined in nwpw to be the same as ewald_rcut
+      integer   ncut          ! defined in nwpw to be the same as ewald_ncut
+
+      integer    gk_smooth(4)  ! gk_smooth(k)  = 4*pi*Exp[-k*k*sigma_smooth**2 / 4]
+      integer    gk(4)         ! gk(k,1:nkatm) = 4*pi*Exp[-k*k*sigma(ia)**2 / 4]
+
+      integer    g_lm(4)       ! g_lm(k, lm=1:(max_mult_l+1)**2) = Ylm(k) * (-i)**l * |k|**l /(2l+1)!!
+
+      integer    v_mult(4)   ! (v_q^a)^lm coefficients
+      integer    i_v_mult(4) !
+
+
+      common / paw_mult_common / sigma_smooth,ncut,
+     >                           gk,gk_smooth,g_lm,
+     >                           v_mult,i_v_mult
+
