@@ -1,8 +1,8 @@
 
 *     ***************************
-*     *							*
+*     *				*
 *     *	     Nose_Init          *
-*     *							*
+*     *				*
 *     ***************************
 
       subroutine Nose_Init(eke0)
@@ -14,6 +14,9 @@
       real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
       common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
      >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+
+      real*8 eke0_init
+      common / nose_hoover1 / eke0_init
 
 *     **** boltzman constant ****
       double precision kb
@@ -46,6 +49,7 @@
 *     ************************************
 *     **** initialize the thermostats ****
 *     ************************************
+      eke0_init = eke0
       Pe = control_Nose_Pe()
       Te = control_Nose_Te()
       Pr = control_Nose_Pr()
@@ -83,9 +87,66 @@
       end
 
 *     ***************************
-*     *							*
+*     *				*
+*     *	     Nose_reset_T       *
+*     *				*
+*     ***************************
+
+      subroutine Nose_reset_T(Te_new,Tr_new)
+      implicit none
+      real*8 Te_new,Tr_new
+     
+*     **** nose-hoover common block ****
+      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
+      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
+      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
+     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+
+      real*8 eke0_init
+      common / nose_hoover1 / eke0_init
+
+*     **** boltzman constant ****
+      double precision kb
+      parameter (kb=3.16679d-6)
+
+*     **** local variables ****
+      integer i
+      real*8 am,fmass
+
+*     **** external functions ****
+      real*8   control_fake_mass
+      real*8   ion_amass
+      integer  ion_nion
+      external control_fake_mass
+      external ion_amass
+      external ion_nion
+
+      fmass = control_fake_mass()
+
+*     **** reSet Er0 ****
+      if (ion_nion().gt.2) then
+        Er0 = 0.5d0*(3.0d0*dble(ion_nion())-6.0d0)*kb*Tr_new
+      else
+        Er0 = 0.5d0*(1)*kb*Tr_new
+      end if
+
+      am = 0.0d0
+      do i=1,ion_nion()
+         am = am + ion_amass(i)
+      end do
+
+*     **** reSet Ee0 ****
+      Ee0 = 4.0*kb*Te_new*fmass*dble(ion_nion())/am * eke0_init
+
+      return
+      end
+
+
+
+*     ***************************
+*     *				*
 *     *	     Nose_Newton_Step   *
-*     *							*
+*     *				*
 *     ***************************
 
       subroutine Nose_Newton_Step(eke,eki)
