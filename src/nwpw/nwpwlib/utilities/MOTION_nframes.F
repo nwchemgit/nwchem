@@ -1,5 +1,5 @@
 c
-c     $Id: MOTION_nframes.F,v 1.1 2002-05-09 00:32:30 bylaska Exp $
+c     $Id: MOTION_nframes.F,v 1.2 2003-02-12 20:12:19 edo Exp $
 c
 
 *     *********************************
@@ -21,7 +21,6 @@ c
 
       real*8    time
       integer   i,nion1
-      character ch_tmp
 
       nframes = 0
       nion    = 0
@@ -31,7 +30,7 @@ c
         read(19,*,ERR=30,END=30) time,nion1,omega
         if (nion1.gt.nion) nion = nion1
         do i=1,nion1
-          read(19,*,ERR=30,END=30) ch_tmp
+          read(19,*,ERR=30,END=30) 
         end do
         nframes = nframes + 1
       end do
