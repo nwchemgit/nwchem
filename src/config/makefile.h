@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.298 1999-09-24 21:25:37 d3g681 Exp $
+# $Id: makefile.h,v 1.299 1999-10-05 21:50:11 d3g681 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -52,7 +52,7 @@ endif
 #                  SGI
 #                  SGI_N32      NWCHEM_TARGET_CPU : R8000 or R10000
 #                  SGITFP       NWCHEM_TARGET_CPU : R8000 or R10000
-#                  SOLARIS
+#                  SOLARIS      NWCHEM_TARGET_CPU : not defined or ULTRA
 #                  SP           NWCHEM_TARGET_CPU : P2SC
 #                      (uses non-thread safe libraries and MPL)
 #                  LAPI      NWCHEM_TARGET_CPU : P2SC
@@ -295,7 +295,7 @@ ifeq ($(TARGET),SOLARIS)
    COPTIONS = 
   COPTIMIZE = -fast
      RANLIB = echo
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 4 --no-print-directory
     INSTALL = echo $@ is built
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on the stack which seems a good thing
@@ -306,8 +306,12 @@ ifeq ($(TARGET),SOLARIS)
 # -fsimple=2 enables more rearranging of floating point expressions
 # -depend enables more loop restructuring ... now implicit in -fast?
 # -xvector requires -mvec library
-  FOPTIMIZE = -O3 -fsimple=2 -depend -xvector=yes 
-# This for ultra-2 -xarch=v8plusa
+  FOPTIMIZE = -O5 -fsimple=2 -depend -xtarget=native
+ifeq ($(NWCHEM_TARGET_CPU), ULTRA)
+  FOPTIMIZE += -xarch=v8plusa -xsafe=mem -xvector=yes 
+endif
+# 
+# This for ultra-2 
 # Under Solaris -g no longer disables optimization ... -O2 seems solid
 # but is slow and impairs debug ... use -O1 for speed and debugability.
 # -fast now turns on -depend so must turn it off
@@ -318,10 +322,9 @@ ifeq ($(TARGET),SOLARIS)
 # -DPARALLEL_DIAG
 
   LDOPTIONS = -xildoff
-
-       CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -lsunperf -lmvec -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
-      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lmvec -ldl 
+      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl 
 ifeq ($(BUILDING_PYTHON),python)
 # needed if python was compiled with gcc (common)
       EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
@@ -331,6 +334,14 @@ ifeq ($(BUILDING_PYTHON),python)
 #     EXTRA_LIBS += -L/msrc/apps/lib -lBLT
 # Both tk/tcl and BLT need X11 (common)
       EXTRA_LIBS += -lX11
+
+ifdef LARGE_FILES
+  LDOPTIONS  += $(shell getconf LFS_LDFLAGS)
+  EXTRA_LIBS += $(shell getconf LFS_LIBS)
+  DEFINES    += -DLARGE_FILES
+endif
+
+
 endif
 
 #end of solaris
