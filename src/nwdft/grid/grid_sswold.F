@@ -1,8 +1,8 @@
       Subroutine grid_sswold(xyzw, xyz, Rij, rq, p, ictr, 
      &                     nctrs_pruned, nq, 
-     &                     iscr, whichfunc,indx)
+     &                     iscr, indx, whichfunc)
 c
-C$Id: grid_sswold.F,v 1.2 2003-10-17 22:55:37 carlfahl Exp $
+C$Id: grid_sswold.F,v 1.3 2004-09-01 22:30:29 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -19,7 +19,7 @@ c
       integer ictr
       integer iscr(*)
       integer indx(*)
-      character*4 whichfunc ! [input]
+      character*8 whichfunc ! [input]
       double precision p(*)
       double precision rq(nq,*)  ! sum of p(n) [ output]
 

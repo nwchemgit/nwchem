@@ -4,7 +4,7 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     whichfunc,lscreen)
 c
-C$Id: dftg_gridssw.F,v 1.11 2004-03-26 01:39:51 edo Exp $
+C$Id: dftg_gridssw.F,v 1.12 2004-09-01 22:30:52 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -19,7 +19,7 @@ c
 c
       double precision Rij(*) !interatomic distances [input]
       integer ictr ! [in] ctr of quadr
-      character*4 whichfunc ! [input]
+      character*8 whichfunc ! [input]
       double precision p(*)
       double precision rq(nq_orig,*)  ! sum of p(n) [ output]
       double precision qwght(nq_orig) ! weights [output]
@@ -60,13 +60,13 @@ c
       call dfill(nq, 0.d0, zeta, 1)
       call dfill(nq*3*nctrs_pruned, 0.d0, d_p, 1)
       call dfill(nq*3*nctrs_pruned, 0.d0, d_qwght, 1)
-      if(whichfunc.eq.'ssf ') then
-        ass=ass_ssf
-        iw=0
-      elseif(whichfunc.eq.'erf1') then
+      if(whichfunc.eq.'erf1') then
         ass=ass_erf1
         alpha_erf=alpha_erf1
         iw=1
+      elseif(whichfunc.eq.'ssf ') then
+        ass=ass_ssf
+        iw=0
       elseif(whichfunc.eq.'erf2') then
         ass=ass_erf2
         iw=2

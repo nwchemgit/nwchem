@@ -1,8 +1,8 @@
       Subroutine grid_ssw(xyzw, xyz, Rij, rq, p, ictr, 
      &                     nctrs_pruned, nq, 
-     &                     iscr, whichfunc,indx)
+     &                     iscr, indx, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.23 2004-05-12 19:37:19 edo Exp $
+C$Id: grid_ssw.F,v 1.24 2004-09-01 22:30:29 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -18,7 +18,7 @@ c
       integer ictr
       integer iscr(*)
       integer indx(*)
-      character*4 whichfunc ! [input]
+      character*8 whichfunc ! [input]
       double precision p(*)
       double precision rq(nq,*)  ! sum of p(n) [ output]
 

@@ -1,7 +1,7 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.18 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_checks.F,v 1.19 2004-09-01 22:30:29 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -429,7 +429,7 @@ c     &             wghts, n0, 2d0)
             xyzw(4,nq) = wa_leb(k,acc_leb)*ww
          enddo
          call grid_ssw(xyzw, xyz, Rdum, rq, p, 1, 
-     &        2,nq,iscr, 'erf1', 0)
+     &        2,nq,iscr, 0, 'erf1')
       grid_s2int0=grid_s2int0 +
      +        grid_s2int(nq,xyzw,alphaa,lla,alphab,llb,rij)
       enddo
