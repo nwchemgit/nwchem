@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.25 1997-08-22 19:58:05 mdupuis Exp $
+* $Id: prp.F,v 1.26 1997-08-25 23:35:07 d3e129 Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -204,10 +204,10 @@ C
      6 ' nogiao=',I2,' noiglo=',i2,' noston=',I2)
  9998 FORMAT(' runtyp = --',A8,'--',/,' scftyp = --',A8,'--')
       END
-      SUBROUTINE HND_GIAOX(RTDB,BASIS,GEOM)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      RETURN
-      END
+*:rak      SUBROUTINE HND_GIAOX(RTDB,BASIS,GEOM)
+*:rak      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+*:rak      RETURN
+*:rak      END
       SUBROUTINE HND_PRPDEN(DA,DB,L)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (MXIODA=255)
