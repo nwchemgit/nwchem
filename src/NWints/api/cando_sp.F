@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.30 1998-07-29 00:36:41 d3e129 Exp $
+c $Id: cando_sp.F,v 1.31 1998-08-24 03:20:42 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -32,9 +32,11 @@ c:tex-\end{verbatim}
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
 c:tex-for all 2e permutations and multiple basis sets.
 c::local
+#if defined(USE_SP_CODE)
       integer basis
       integer i_ucont
       integer j_ucont
+#endif
 *_old_code:      integer mytype, mycont
 *_old_code:      integer ucont
 c
@@ -43,6 +45,7 @@ c
 c
 #include "bas_ibs_sfn.fh"
 c
+#if defined(USE_SP_CODE)
       basis = basisin + BASIS_HANDLE_OFFSET
 c.. get ish unique shell index
       i_ucont = (sf_ibs_cn2ucn(ish,basis))
@@ -50,6 +53,9 @@ c.. get jsh unique shell index
       j_ucont = (sf_ibs_cn2ucn(jsh,basis))
 c
       cando_sp = cando_sp_u(basisin, i_ucont, j_ucont)
+#else
+      cando_sp = .false.
+#endif
 c
       return
       end
