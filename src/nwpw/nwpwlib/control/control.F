@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.67 2005-01-25 22:32:03 bylaska Exp $
+* $Id: control.F,v 1.68 2005-01-28 01:32:40 bylaska Exp $
 *
 
 *     ***********************************
@@ -38,6 +38,9 @@
       character*30 exchange_correlation
       integer i,l,ind
 
+      logical  control_allow_translation
+      external control_allow_translation
+
 
       value = rtdb_parallel(.true.)
       code = code_in
@@ -68,14 +71,14 @@
      >        rtdb_cget(rtdb,'cpsd:exchange_correlation',
      >                  1,exchange_correlation)
 
-      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
-      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.0d0)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
+c      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
+c      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.0d0)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
       if (inp_compare(.false.,exchange_correlation,'off')) then
         gga = -1
       else if (inp_compare(.false.,exchange_correlation,'vosko')) then
@@ -185,14 +188,14 @@
       if(.not.rtdb_cget(rtdb,'cpmd:exchange_correlation',
      >                  1,exchange_correlation))
      >  exchange_correlation = 'vosko'
-      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
-      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
-      if(.not. rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.00d0))
-     *     call errquit(' control: rtdb_put failed ',0,0)      
-      if(.not. rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.00d0))
-     *     call errquit(' control: rtdb_put failed ',0,0)
-      if(.not. rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0))
-     *     call errquit(' control: rtdb_put failed ',0,0)
+c      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+c      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
+c      if(.not. rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.00d0))
+c     *     call errquit(' control: rtdb_put failed ',0,0)      
+c      if(.not. rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.00d0))
+c     *     call errquit(' control: rtdb_put failed ',0,0)
+c      if(.not. rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0))
+c     *     call errquit(' control: rtdb_put failed ',0,0)
       if (inp_compare(.false.,exchange_correlation,'off')) then
         gga = -1
       else if (inp_compare(.false.,exchange_correlation,'vosko')) then
@@ -337,14 +340,14 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
-      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.0d0)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
+c      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+c      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.0d0)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
       if (inp_compare(.false.,exchange_correlation,'off')) then
         gga = -1
       else if (inp_compare(.false.,exchange_correlation,'vosko')) then
@@ -847,6 +850,8 @@ c     >                  1,output_wavefunction_filename)
      >      'nwpw:gram-schmidt',mt_log,1,gram_schmidt))
      >  gram_schmidt = .false.
 
+*     **** set translation ***
+      translation = control_allow_translation()
       
       control_read = value
       return
@@ -1304,6 +1309,24 @@ c         mtensor(3,3) = z
       control_rotation = rotation
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *       control_translation       *
+*     *                                 *
+*     ***********************************
+      logical function control_translation()
+      implicit none
+
+#include "control.fh"
+
+      control_translation = translation
+      return
+      end
+
+
 
 
 *     ***********************************
