@@ -196,10 +196,12 @@ The following list describes the keywords contained in the PSPW input block.
 A prototype limited memory BFGS (LMBFGS) minimizer can be used to minimize the energy.  To
 use this new optimizer the following SET directive needs to be specified:
 \begin{verbatim}
-set nwpw:mimimizer 1  # Default - conjugate gradient minimizer is used to minimize the energy.
-set nwpw:mimimizer 2  # LMBFGS minimimzer is used to minimize the energy.
+set nwpw:mimimizer 1  # Default - Grassman conjugate gradient minimizer is used to minimize the energy.
+set nwpw:mimimizer 2  # Grassman LMBFGS minimimzer is used to minimize the energy.
+set nwpw:minimizer 4  # Stiefel conjugate gradient minimizer is used to minimize the energy. 
+set nwpw:minimizer 5  # Band-by-band minimizer is used to minimize the energy.
 \end{verbatim}
-Limited testing suggests that the LMBFGS minimizer is about twice as fast as
+Limited testing suggests that the Grassman LMBFGS minimizer is about twice as fast as
 the conjugate gradient minimizer.  However, there are several known cases
 where this optimizer fails, so it is currently not a default option, and
 should be used with caution.
@@ -210,7 +212,9 @@ set nwpw:lcao_skip .false. # Default - initial wavefunctions generated using an 
 set nwpw:lcao_skip .true.  # Initial wavefunctions generated using a random plane-wave guess.
 
 set nwpw:lcao_print .false. # Default - Ouput not produced during the generation of the LCAO guess. 
-set nwpw:lcao_print .true.  # Output produced during the generation of the LCAO guess. 
+set nwpw:lcao_print .true.  # Output produced during the generation of the LCAO guess.
+
+set nwpw:lcao_iterations 2  #specifies the number of LCAO iterations 
 \end{verbatim}
 
 
@@ -253,6 +257,18 @@ input in detail.
                                 along lattice vector directions.
 \end{itemize}
 
+\subsection(\tt Unit Cell Optimization}
+\label{sec:pspw_cell_optimization}
+
+The PSPW module using the DRIVER geometry optimizer can optimize a crystal unit cell.
+Currently this type of optimization works only if the geometry is specified in fractional
+coordinates.  The following SET directive is used to tell the DRIVER geometry optimizer to
+optimize the crystal unit cell in addition to the geometry.
+\begin{verbatim}
+set includestress .true.
+\end{verbatim}
+
+\normalsize
 \subsection{\tt DPLOT}
 \label{sec:pspw_dplot}
 The pspw dplot task is used to generate plots of various types of electron
@@ -300,10 +316,14 @@ sub-block.
                                     orbital plot.
 \end{itemize}
 
+
 \subsection{\tt Wannier}
 \label{sec:pspw_wannier}
 The pspw wannier task is generate maximally localized (Wannier) molecular orbitals.  The
-algorithm proposed by Silvestrelli et al is use to generate the Wannier orbitals.
+algorithm proposed by Silvestrelli et al is use to generate the Wannier orbitals.  The
+current version of this code works only for cubic cells. 
+
+
 Input to the Wannier task is contained within the Wannier sub-block.
 \begin{verbatim}
 PSPW
@@ -338,6 +358,47 @@ sub-block.
               will contain the Wannier orbitals. 
 \end{itemize}
 
+
+
+\subsection{\tt Self-Interaction Corrections}
+\label{sec:pspw_SIC}
+
+The SET directive is used to specify the molecular orbitals 
+contribute to the self-interaction-correction (SIC) term.
+\begin{verbatim}
+set pspw:SIC_orbitals  <integer list_of_molecular_orbital_numbers>
+\end{verbatim}
+This defines only the molecular orbitals in the list as SIC active.  All
+other molecular orbitals will not contribute to the SIC term.
+
+For example the following directive specifies that the molecular orbitals numbered
+1,5,6,7,8, and 15 are SIC active.
+\begin{verbatim}
+set pspw:SIC_orbitals  1 5:8 15
+\end{verbatim}
+or equivalently
+\begin{verbatim}
+set pspw:SIC_orbitals  1 5 6 7 8 15
+\end{verbatim}
+
+The following directive turns on self-consistent SIC.
+\begin{verbatim}
+set pspw:SIC_relax 	.false.  # Default - Perturbative SIC calculation
+set pspw:SIC_relax 	.true.   # Self-consistent SIC calculation
+\end{verbatim}
+
+Two types of solvers can be used and they are specified using the following
+SET directive
+\begin{verbatim}
+set pspw:SIC_solver_type 1  # Default - cutoff coulomb kernel
+set pspw:SIC_solver_type 2  # Free-space boundary condition kernel
+\end{verbatim}
+The parameters for the cutoff coulomb kernel are defined by the following
+SET directives:
+\begin{verbatim}
+set pspw:SIC_screening_radius <real rcut>
+set pspw:SIC_screening_power  <real rpower>
+\end{verbatim}
 
 
 
@@ -1123,15 +1184,96 @@ Brillouin zone.  The following list describes the input in detail.
 \end{itemize}
 
 
+
+
 \section{PAW Tasks}
 \label{sec:paw_tasks}
 
-...
 
-\section{Pseudopotential Libraries}
+All input to the PAW Tasks is contained within the compound NWPW block,
+\begin{verbatim}
+NWPW
+   ...
+END
+\end{verbatim}
+
+To perform an actual calculation the following is used (Section \ref{sec:task}).  
+\begin{verbatim}
+  TASK PAW steepest\_descent
+\end{verbatim} 
+
+Once a user has specified a geometry, the PAW module can be invoked with no input directives (defaults invoked throughout).  There are sub-directives which allow for customized application; those currently provided as options for the PAW module are:
+\begin{verbatim}
+NWPW
+  CELL_NAME <string cell_name default 'cell_default'>  
+  [GEOMETRY_OPTIMIZE]
+  INPUT_WAVEFUNCTION_FILENAME  <string input_wavefunctions  default input_movecs>
+  OUTPUT_WAVEFUNCTION_FILENAME <string output_wavefunctions default input_movecs>
+  FAKE_MASS <real fake_mass default 400000.0>
+  TIME_STEP <real time_step default 5.8>
+  LOOP <integer inner_iteration outer_iteration default 10 100>
+  TOLERANCES <real tole tolc default 1.0e-7 1.0e-7>
+  ENERGY_CUTOFF       <real ecut default (see input description)>
+  WAVEFUNCTION_CUTOFF <real wcut default (see input description)>
+  EWALD_NCUT <integer ncut default 1>]
+  EWALD_RCUT <real rcut default (see input description)>
+  EXCHANGE_CORRELATION: (Vosko || PBE96  default Vosko)
+  DFT||ODFT||RESTRICTED||UNRESTRICTED
+  MULT <integer mult default 1>
+  
+  SIMULATION_CELL ... (see input description) END
+
+END 
+\end{verbatim}
+The following list describes these keywords.
+\begin{itemize}
+        \item $<$cell\_name$>$ - name that points to the
+              the simulation\_cell named $<$cell\_name$>$. The
+              current version of PAW only accepts periodic unit cells.  
+              See section \ref{sec:pspw_cell}.
+        \item GEOMETRY\_OPTIMIZE - optional keyword which if specified
+              turns on geometry optimization.   
+        \item $<$input\_wavefunctions$>$ - name that points
+              to a file containing one-electron orbitals
+        \item $<$output\_wavefunctions$>$ - name that will
+              point to file containing the one-electron orbitals at the
+              end of the run. 
+        \item $<$fake\_mass$>$ - value for the electronic
+              fake mass ($\mu$). This parameter is not presently used in a 
+              conjugate gradient simulation
+        \item $<$time\_step$>$ - value for the time step ($\Delta t$).  This
+              parameter is not presently used in a conjugate gradient simulation.
+        \item $<$inner\_iteration$>$ - number of iterations between the 
+              printing out of energies and tolerances
+        \item $<$outer\_iteration$>$ - number of outer iterations
+        \item $<$tole$>$ - value for the energy tolerance.
+        \item $<$tolc$>$ - value for the one-electron orbital tolerance.
+        \item $<$ecut$>$ - value for the cutoff energy used
+                           to define the density. Default is set
+                           to be the maximum value that will fit
+                            within the simulation\_cell $<$cell\_name$>$.
+        \item $<$wcut$>$ - value for the cutoff energy used
+                           to define the one-electron orbitals.
+                           Default is set to be the maximum value that 
+                           will fix within the simulation\_cell $<$cell\_name$>$.
+        \item $<$ncut$>$ - value for the number of unit cells
+                          to sum over (in each direction) for the real space
+                          part of the smooth compensation summation. 
+        \item $<$rcut$>$ - value for the cutoff radius used
+                          in the smooth compensation summation. \\
+                           Default set to be
+                          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
+        \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
+                               parameterization or the Perdew, Burke, 
+        \item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
+\end{itemize}
+
+
+
+\section{Pseudopotential and PAW basis Libraries}
 \label{sec:psp_library}
 
-A library of pseudopotentials is currently available  in the
+A library of pseudopotentials used by PSPW and BAND is currently available  in the
 directory \\
 \verb+ $NWCHEM_TOP/src/nwpw/libraryps/library1+
 
@@ -1148,7 +1290,17 @@ The elements listed in the following table are present:
  ------------------------------------------------------
 \end{verbatim}
 
-If you wish to redirect the code to a different directory ther than
+
+Similary, a library of PAW basis used by PAW is currently available in the
+directory \\
+\verb+ $NWCHEM_TOP/src/nwpw/libraryps/library2+
+
+Currently there are not very many elements available for PAW.  However,
+the user can request additional basis sets from Eric J. Bylaska at
+(nwchem-support@emsl.pnl.gov or eric.bylaska@pnl.gov)  
+The elements available are: H, O Al, Sc, V, and Fe.  
+
+If you wish to redirect the code to a different directory other than
 the default one, 
 you need to set the environmental variable
 {\tt NWCHEM\_NWPW\_LIBRARY}
@@ -1340,398 +1492,7 @@ one-electron orbitals.  To be used with a molecular
 orbital viewer that will be ported to NWChem
 in the near future. 
 
-
-\section{Minimizing the DFT Energy Functional}
-\label{sec:pspw_Minimize}
-
-In this section the algorithms for steepest\_descent and conjugate\_gradient 
-methods that are used to minimize the DFT energy functional are presented.
-First is the the steepest descent method without line minimization.   
-This method is slow, but doesn't require line minimization.  
-Second is the recent method developed by Edelman, Arias, and Smith.
-These researchers have developed methods for performing line minimizations
-on the constrained space used in the DFT energy functional
-(A. Edelman, T. Arias, and S.T. Smith, Siam J. Matrix Anal. Appl., 
-\textbf{20},303, (1998)).
-
-
-\subsection{Steepest Descent Equations}
-\label{sec:pspw_sd2}
-
-To minimize the DFT energy functional with respect to $\{\psi_{i,\sigma}\}$
-we define the the auxiliary functional, $F$, which takes into account
-the orthonormality constraints.
-
-\begin{eqnarray}
-F\left(\{\psi_{i,\sigma}\},\{\vec{R_I}\} \right)
-&=& E\left(\{\psi_{i,\sigma}\},\{\vec{R_I}\} \right) \nonumber \\
-&+&\sum_{ij,\sigma}  \left( \int d\vec{r}\ 
-\psi_{i,\sigma}^{*}(\vec{r}) \psi_{j,\sigma}(\vec{r}) \Lambda_{ji,\sigma}
-                 - \delta_{ij,\sigma} 
-\right) 
-\label{eq:sd1}
-\end{eqnarray}
-
-\noindent
-The steepest descent minimization procedure without line minimization
-is then
-\begin{eqnarray}
-\psi_{i,\sigma}^{t+ \Delta t} 
-                   &\leftarrow& 
-                    \psi_{i,\sigma}^{t} 
-                      - \alpha 
-                        \left[ 
-                           \frac{\delta F}{\delta \psi_{i,\sigma}^{*}}
-                        \right]_{t}
-                   = \psi_{i,\sigma}^{t} 
-                      - \alpha 
-                        \left[ 
-                           \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
-                            + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
-                        \right]_{t}
-\label{eq:sd2}
-\end{eqnarray}
-where $\alpha =\frac{\Delta t}{\sqrt{\mu}}$ is a positive numerical parameter.
-In this minimization procedure we have to know the variational derivative
-$\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$ and the matrix 
-$\Lambda_{ij,\sigma}$. 
-The variational derivative $\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$ 
-can be analytically found and is
-\begin{eqnarray}
-\frac{\delta E}{\delta \psi_{i,\sigma}^{*}} 
-      &=&  -\frac{1}{2} \nabla^2 
-            \psi_{i,\sigma}(\vec{r}) \nonumber \\
-      &+& \int d\vec{r^{\prime}} 
-           W_{ext}(\vec{r},\vec{r^{\prime}}) 
-          \psi_{i,\sigma}(\vec{r^{\prime}}) \nonumber \\
-      &+& \int d\vec{r^{\prime}} 
-                    \frac{n(\vec{r^{\prime}})}{|\vec{r}-\vec{r^{\prime}}|}
-          \psi_{i,\sigma}(\vec{r}) \nonumber \\
-      &+& \mu_{xc}^{\sigma}(\vec{r}) 
-          \psi_{i,\sigma}(\vec{r}) \nonumber \\
-& \equiv & \hat{H} \psi_{i,\sigma}
-\label{eq:sd3}
-\end{eqnarray}
-  
-The ion positions can also be minimized using a fixed step minimization 
-procedure.
-\begin{eqnarray}
-\vec{R}_I^{t+\Delta t} &\leftarrow& 
-                      \vec{R}_I^{t}
-                    - \frac{(\Delta t)}{\sqrt{M_I}} 
-                       \frac{\partial E}{\partial \vec{R}_I}
-\end{eqnarray}
-                      
-\noindent
-To find the matrix $\Lambda_{ij,\sigma}$ we impose the orthonormality
-constraint on $\psi_{i,\sigma}^{t+\Delta t}$ to obtain the
-matrix Riccatti equation 
-(to simplify the following equations we define the following symbol
-$\bar{\psi}_{i,\sigma}^{t} =  
-              \left(\frac{\delta E}{\delta \psi_{i,\sigma}^{*}} \right)_{t}$
-)
-
-\begin{eqnarray}
-I &=& <\psi_{i,\sigma}^{t+\Delta t} | \psi_{j,\sigma}^{t+\Delta t}> \nonumber \\
-  &=& 
-   \left( <\psi_{i,\sigma}^{t}| 
-          - \alpha  
-            \left[
-                  <\bar{\psi}_{i,\sigma}^{t}| 
-                  + \sum_{k} \Lambda_{ik,\sigma}^{*} <\psi_{k,\sigma}^{t}|
-            \right]
-   \right) \nonumber \\
-& & 
-   \left( |\psi_{j,\sigma}^{t}> 
-          - \alpha  
-            \left[
-                  |\bar{\psi}_{j,\sigma}^{t}> 
-                  + \sum_{l} |\psi_{l,\sigma}^{t}> \Lambda_{lj,\sigma} 
-            \right]
-   \right) \nonumber \\
-  &=& <\psi_{i,\sigma}^{t}| \psi_{j,\sigma}^{t}> \nonumber \\
-  &-& \alpha 
-       \left[ 
-         \begin{array}{ll}
-           <\psi_{i,\sigma}^{t}| \bar{\psi}_{j,\sigma}^{t}> &
-         + <\bar{\psi}_{i,\sigma}^{t}| \psi_{j,\sigma}^{t}> \\
-         + \sum_{k} \Lambda_{ik,\sigma}^{*} 
-                     <\psi_{k,\sigma}^{t}| \psi_{j,\sigma}^{t}> &
-         + \sum_{l} <\psi_{i,\sigma}^{t}| \psi_{l,\sigma}^{t}>
-                    \Lambda_{lj,\sigma} 
-        \end{array}
-       \right] \nonumber \\
-  &+& \alpha^2 
-       \left[
-               <\bar{\psi}_{i,\sigma}^{t}| \bar{\psi}_{j,\sigma}^{t}> 
-            + \sum_{k} \Lambda_{ik,\sigma}^{*} 
-                    <\psi_{k,\sigma}^{t}| \bar{\psi}_{j,\sigma}^{t}> 
-            + \sum_{l} <\bar{\psi}_{i,\sigma}^{t}| \psi_{l,\sigma}^{t}>
-                         \Lambda_{lj,\sigma} 
-       \right]     \nonumber \\
-  &+& \alpha^2 
-       \left[
-                \sum_{k} \sum_{l}
-                 \Lambda_{ik,\sigma}^{*} 
-                 <\psi_{k,\sigma}^{t}|\psi_{l,\sigma}^{t}>
-                 \Lambda_{lj,\sigma} 
-       \right] \nonumber \\
-  &=& A + \alpha XB + \alpha B^{\dag}X^{\dag} + \alpha^2 XCX^{\dag} 
-\label{eq:sd4}
-\end{eqnarray}
-
-\noindent
-where $X_{ij,\sigma}=\Lambda_{ij,\sigma}^{*}$ and the matrices 
-$A$, $B$, and $C$ are given by
-
-\begin{eqnarray}
-A_{ij,\sigma} &=& \int d\vec{r} 
-             \left[\psi_{i,\sigma}^{t}(\vec{r}) 
-                   - \alpha 
-                     \left( \frac{\delta E}{\delta \psi_{i,\sigma}^{*}} 
-                     \right)_t
-             \right]^{*} 
-             \left[\psi_{j,\sigma}^{t}(\vec{r}) 
-                   - \alpha 
-                     \left( \frac{\delta E}{\delta \psi_{j,\sigma}^{*}}
-                     \right)_t
-             \right] \\
-B_{ij,\sigma} &=& \int d\vec{r} 
-             \left[\psi_{i,\sigma}^{t}(\vec{r}) 
-             \right]^{*} 
-             \left[\psi_{j,\sigma}^{t}(\vec{r}) 
-                   - \alpha 
-                     \left( \frac{\delta E}{\delta \psi_{j,\sigma}^{*}}
-                     \right)_t
-             \right] \\
-C_{ij,\sigma} &=& \int d\vec{r} 
-             \left[\psi_{i,\sigma}^{t}(\vec{r}) 
-             \right]^{*} 
-             \left[\psi_{j,\sigma}^{t}(\vec{r}) 
-             \right]
-\end{eqnarray}
-
-\noindent
-To solve the Riccatti equation an iterative solution is setup by rewriting
-Eq.~\ref{eq:sd4} in the following form.
-\begin{equation}
-\alpha^2 XCX^{\dag} + \alpha X(B-I) + \alpha (B^{\dag}-I)X^{\dag} 
- + \alpha(X + X^{\dag}) = I-A
-\end{equation}
-Since X is by definition Hermitian, $X=X^{\dag}$, and 
-\begin{eqnarray}
-A  &\approx& I + O(\alpha) \nonumber \\
-B  &\approx& I + O(\alpha)  \\
-\end{eqnarray}
-we can solve for X iteratively.
-\begin{eqnarray}
-\label{eq:sd15}
-X_{(n)} \leftarrow && \frac{1}{2 \alpha}(I-A) + \nonumber \\
-                   && \frac{1}{2} \left( X_{(n-1)}(I-B)
-                    + (I-B^{\dag})X_{(n-1)}^{\dag}
-                    - \alpha X_{(n-1)}CX_{(n-1)}^{\dag} \right)  \\
-\label{eq:sd16}
-X_{(0)} \leftarrow && \left(\frac{I-A}{2 \alpha}\right)
-\end{eqnarray}
-
-
-\subsection{Conjugate Gradient with Curvature: Grassmann Manifold}
-\label{sec:pspw_cgmanifold}
-
-Minimizing the DFT energy functional with a non-linear conjugate 
-gradient algorithm requires an algorithm for minimizing along a 
-search direction or line.  However, the equation for a line 
-(or search direction) in the DFT minimization problem is complicated 
-by the fact that the energy functional is subject to orthonormality 
-constraints. 
-Furthermore, the orthonormality constraints complicate the
-conjugate gradient's algorithm for generating the current search 
-direction by using a linear combination of the current gradient and 
-the previous search direction, since the previous search direction
-must be parallel transported to the current search point.
-
-These orthonormality constraint problems
-have been investigated and solved for by Edelman {\it et al} 
-(A. Edelman, T. Arias, and S.T. Smith, Siam J. Matrix Anal. Appl., 
-\textbf{20},303, (1998)).  
-They recognized that the orthonormal Kohn-Sham
-orbitals $\{\psi_{i,\sigma}\}$ 
-belong to a quotient space called a Grassmann manifold. 
-Using the properties of the Grassmann manifold they
-developed an equation for a line (or geodesic) which
-conserves orthonormality, as well as 
-a conjugate gradient procedure for generating the current search direction on this
-constrained space.
-
-Following Edelman {\it et al} we write
-$\{ \psi_{i,\sigma}(\vec{r}) \}$ in terms of the orthonormal basis
-$\{ \phi_j(\vec{r}) \}$.
-\begin{equation}
-\psi_{i,\sigma}(\vec{r}) = \sum_{j}^{N_{basis}} 
-                           \psi_{i,\sigma}(\phi_j) 
-                            \phi_j(\vec{r})
-\end{equation}
-Which allows us to rewrite the DFT energy functional as a function,
-$E(Y_{\uparrow},Y_{\downarrow})$, of two tall and skinny 
-$N_{basis}$-by-$N_{\sigma}$ matrices which are
-\begin{equation}
-Y_{\uparrow}=\left[\begin{array}{rrrr}
-                    \psi_{1,\uparrow}(\phi_1) 
-                     & \psi_{2,\uparrow}(\phi_1) 
-                     & \cdots
-                     & \psi_{N_{\uparrow},\uparrow}(\phi_1) \\
-                    \psi_{1,\uparrow}(\phi_2) 
-                     & \psi_{2,\uparrow}(\phi_2) 
-                     & \cdots
-                     & \psi_{N_{\uparrow},\uparrow}(\phi_2) \\
-                    \psi_{1,\uparrow}(\phi_3) 
-                     & \psi_{2,\uparrow}(\phi_3) 
-                     & \cdots
-                     & \psi_{N_{\uparrow},\uparrow}(\phi_3) \\
-                    \vdots 
-                     & \vdots
-                     &
-                     & \vdots \\
-                    \psi_{1,\uparrow}(\phi_{N_{basis}}) 
-                     & \psi_{2,\uparrow}(\phi_{N_{basis}}) 
-                     & \cdots
-                     & \psi_{N_{\uparrow},\uparrow}(\phi_{N_{basis}})
-                   \end{array}
-               \right]
-\end{equation}
-and
-\begin{equation}
-Y_{\downarrow}=\left[\begin{array}{rrrr}
-                    \psi_{1,\downarrow}(\phi_1) 
-                     & \psi_{2,\downarrow}(\phi_1) 
-                     & \cdots
-                     & \psi_{N_{\downarrow},\downarrow}(\phi_1) \\
-                    \psi_{1,\downarrow}(\phi_2) 
-                     & \psi_{2,\downarrow}(\phi_2) 
-                     & \cdots
-                     & \psi_{N_{\downarrow},\downarrow}(\phi_2) \\
-                    \psi_{1,\downarrow}(\phi_3) 
-                     & \psi_{2,\downarrow}(\phi_3) 
-                     & \cdots
-                     & \psi_{N_{\downarrow},\downarrow}(\phi_3) \\
-                    \vdots 
-                     & \vdots
-                     & 
-                     & \vdots \\
-                    \psi_{1,\downarrow}(\phi_{N_{basis}}) 
-                     & \psi_{2,\uparrow}(\phi_{N_{basis}}) 
-                     & \cdots
-                     & \psi_{N_{\downarrow},\downarrow}(\phi_{N_{basis}})
-                   \end{array}
-               \right]
-\end{equation}
-The orthonormality constraints make the $Y_{\sigma}$ matrices
-obey $Y_{\sigma}^{\dag}Y_{\sigma}=I$. 
-Furthermore since the LSDA energy can be written as
-\begin{equation}
-E(Y_{\uparrow},Y_{\downarrow}) = \sum_{\sigma} 
-        tr \left( Y_{\sigma}^{\dag} (\mathrm{Operator}) Y_{\sigma} \right)
-\end{equation}
-we are only interested in subspace spanned by $Y_\sigma$.
-This homogeneity property allows us to state that
-$E(Y_{\uparrow},Y_{\downarrow}) = E(Y_{\uparrow}Q_{\uparrow},Y_{\downarrow}Q_{\downarrow})$ 
-where $Q_{\sigma}$ is any $N_{\sigma}$-by-$N_{\sigma}$
-orthogonal matrix (i.e. $Q$ is any group element of the orthogonal
-group $O(N_{\sigma})$).  The constrained surface that each $Y_{\sigma}$ spans
-is known as the Grassmann manifold (i.e. $Y_{\sigma}$ is a group element
-of the quotient space group 
-$\frac{\left(\frac{O(N_{basis})}{O(N_{basis}-N_{\sigma})}\right)}{O(N_{\sigma})}$
-\footnote{See reference on Lie Groups, e.g. reference (P.J. Olver, 
-\textit{Equivalence, Invariants, and Symmetry}, 1st ed. Cambridge University Press,
-New York, 1995), for a definition of a quotient space and a definition of the 
-          orthogonal group $O(n)$.
-         }
-).
-
-In this work Algorithm~\ref{algorithm:grassmann} (see below) is the 
-conjugate gradient
-algorithm that is used to minimize the DFT energy functional
-$E=E\left( Y_{\uparrow},Y_{\downarrow} \right)$.  What makes this
-algorithm different from a standard 
-Polak-Ribi\`{e}re conjugate gradient algorithm
-is that a line search on a Euclidean space 
-\[ Y_{\sigma}(t) = Y_{\sigma}^{(0)} + t*H_{\sigma}^{(0)} \]
-is replaced by Eq.~\ref{grass:1}, 
-and the parallel transports on a Euclidean space
-\[ \tau H_{\sigma}^{(0)} = H_{\sigma}^{(0)} \]
-\[ \tau G_{\sigma}^{(0)} = G_{\sigma}^{(0)} \]
-are replaced by Eqs.~\ref{grass:2}-\ref{grass:3}.
-
-\begin{algorithm}{Edelman {\it et al's} Algorithm for Conjugate Gradient
-                  Minimization on the Grassmann Manifold}
-                   
-\label{algorithm:grassmann}
-   \item Given $Y_{\sigma}^{(0)}$ such that 
-               $Y_{\sigma}^{(0)\dag}Y_{\sigma}^{(0)}$,\\
-               Compute $G_{\sigma}^{(0)} 
-                        = \left[\frac{\delta E}{\delta Y_{\sigma}}
-                          \right]_{Y_{\sigma}=Y_{\sigma}^{(0)}}
-               -  Y_{\sigma}^{(0)}Y_{\sigma}^{(0) \dag} 
-                         \left[\frac{\delta E}{\delta Y_{\sigma}}
-                          \right]_{Y_{\sigma}=Y_{\sigma}^{(0)}}$ \\
-               Set $H_{\sigma}^{(0)} = -G_{\sigma}^{(0)}$.
-   \item Find the compact singular value decompositions of 
-           $H_{\sigma}^{(0)} \rightarrow 
-                U_{\sigma} \Sigma_{\sigma} V_{\sigma}^{\dag}$
-   \item Minimize $E\left(Y_{\uparrow}(t), Y_{\downarrow}(t) \right)$ along the 
-         geodesic lines derived by Edelman {\it et al} for the 
-         Grassmann Manifold\\
-        \begin{equation}
-          Y_{\sigma}(t) = Y_{\sigma}^{(0)} V_{\sigma} 
-                             \cos \left(\Sigma_{\sigma} t \right) V^{\dag}
-           + U_{\sigma} \sin \left(\Sigma_{\sigma} t \right) V_{\sigma}^{\dag}
-         \label{grass:1}
-        \end{equation}
-   \item Set $Y_{\sigma}^{(1)} = Y_{\sigma}(t_{min})$ and\\
-         compute $G_{\sigma}^{(1)} 
-                        = \left[\frac{\delta E}{\delta Y_{\sigma}}
-                          \right]_{Y_{\sigma}=Y_{\sigma}^{(1)}}
-               -  Y_{\sigma}^{(1)}Y_{\sigma}^{(1) \dag} 
-                         \left[\frac{\delta E}{\delta Y_{\sigma}}
-                          \right]_{Y_{\sigma}=Y_{\sigma}^{(1)}}$ 
-   \item Parallel transport along the geodesics the tangent vectors
-         $H_{\sigma}^{(0)}$ and $G_{\sigma}^{(0)}$
-        \begin{equation}
-          \tau H_{\sigma}^{(0)} = 
-            \left( -Y_{\sigma}^{(1)} V_{\sigma} 
-                     \sin \left(\Sigma_{\sigma} t \right)
-           + U_{\sigma} \cos \left(\Sigma_{\sigma} t \right) 
-             \right) \Sigma_{\sigma} V_{\sigma}^{\dag}
-         \label{grass:2}
-        \end{equation}
-        \begin{equation}
-          \tau G_{\sigma}^{(0)} = G_{\sigma}^{(0)}
-            \left( Y_{\sigma}^{(1)} V_{\sigma} 
-                       \sin \left(\Sigma_{\sigma} t \right)
-           + U_{\sigma} \left(I- \cos \left(\Sigma_{\sigma} t \right) \right) 
-             \right) U_{\sigma}^{\dag} G_{\sigma}^{(0)}
-         \label{grass:3}
-        \end{equation}
-   \item Compute the new search direction
-        \[
-             H_{\sigma}^{(1)} = -G_{\sigma}^{(1)}  
-                                + \Gamma_{\sigma} \tau H_{\sigma}^{(0)}
-        \]
-        where
-        \[
-           \Gamma_{\sigma} = \frac{tr \left[\left(G_{\sigma}^{(1)} 
-                                   - \tau G_{\sigma}^{(0)}\right)
-                                     G_{\sigma}^{(1)}\right]}
-                                  {tr \left[G_{\sigma}^{(0)}
-                                        G_{\sigma}^{(0)}\right]}
-        \]
-   \item Set 
-         $Y_{\sigma}^{(0)} = Y_{\sigma}^{(1)}$,
-         $G_{\sigma}^{(0)} = G_{\sigma}^{(1)}$, and
-         $H_{\sigma}^{(0)} = H_{\sigma}^{(1)}$
-   \item Go to step 2.
-\end{algorithm}
-\normalsize        
+       
 
 \section{Car-Parrinello Scheme for Ab Initio Molecular Dynamics}
 \label{sec:pspw_Car-Parrinello}
@@ -2006,6 +1767,65 @@ task pspw energy
 task pspw Car-Parrinello
 \end{verbatim}
 
+\normalsize
+\section{PSPW Tutorial 3: Running a Simulated Annealing Car-Parrinello Simulation}
+\label{sec:pspw_annealing}
+
+
+
+\normalsize
+\section{PSPW Tutorial 4: optimizing a unit cell and geometry for Silicon-Carbide}
+\label{sec:pspw_unitcell_optimization}
+
+The following example demonstrates how to uses the PSPW module to optimize the unit cell
+and geometry for a silicon-carbide crystal.
+
+\begin{verbatim}
+title "SiC 8 atom cubic cell - geometry and unit cell optimization"
+
+start SiC
+
+#**** Enter the geometry using fractional coordinates ****
+geometry units au center noautosym noautoz print
+  system crystal
+    lat_a 8.277d0
+    lat_b 8.277d0
+    lat_c 8.277d0
+    alpha 90.0d0
+    beta  90.0d0
+    gamma 90.0d0
+  end
+Si    -0.50000d0  -0.50000d0  -0.50000d0
+Si     0.00000d0   0.00000d0  -0.50000d0
+Si     0.00000d0  -0.50000d0   0.00000d0
+Si    -0.50000d0   0.00000d0   0.00000d0
+C     -0.25000d0  -0.25000d0  -0.25000d0
+C      0.25000d0   0.25000d0  -0.25000d0
+C      0.25000d0  -0.25000d0   0.25000d0
+C     -0.25000d0   0.25000d0   0.25000d0
+end
+
+#***** setup the nwpw gamma point code ****
+nwpw
+   simulation_cell
+     ngrid 16 16 16
+   end
+   ewald_ncut 8
+end
+set nwpw:minimizer 2
+set nwpw:psi_nolattice .true.  # turns of unit cell checking for wavefunctions
+
+driver
+  clear
+  maxiter 40
+end
+set includestress .true.    # this option tells driver to optimize the unit cell
+
+task pspw optimize
+
+\end{verbatim}
+
+
 
 
 \normalsize
@@ -2062,10 +1882,49 @@ task pspw energy
 task band energy
 \end{verbatim}
 
+
 \section{PAW Tutorial}
 \label{sec:paw_tutorial}
 
-...
+The following input deck performs for a water molecule a PSPW energy calculation followed
+by a PAW energy calculation and a PAW geometry optimization calculation.  
+The default unit cell paramters are used (SC=20.0, ngrid 32 32 32).  In this simulation, the
+first PAW run optimizes the wavefunction and the second PAW run optimizes the wavefunction
+and geometry in tandem.
+
+\begin{verbatim}
+title "paw steepest descent test"
+
+start paw_test
+
+charge 0
+
+geometry units au nocenter noautoz noautosym
+O      0.00000    0.00000    0.01390
+H     -1.49490    0.00000   -1.18710
+H      1.49490    0.00000   -1.18710
+end
+
+nwpw
+   time_step 15.8
+   ewald_rcut 1.50
+   tolerances 1.0d-8 1.0d-8
+end
+set nwpw:lcao_iterations 1
+set nwpw:minimizer 2
+task pspw energy
+
+task paw steepest_descent
+
+nwpw
+   time_step 5.8
+   geometry_optimize
+   ewald_rcut 1.50
+   tolerances 1.0d-7 1.0d-7 1.0d-4
+end
+task paw steepest_descent
+\end{verbatim}
+
 
 
 \section{NWPW Capabilities and Limitations}
@@ -2077,7 +1936,10 @@ task band energy
   (e.g. a 64x64x64 FFT grid can use at most 64 processors).
 \item The second and third dimensions of the FFT grid must be the same 
   (i.e. the parameters na2 and na3 must be the same for each simulation cell).
+\item Wannier orbital generation only works with cubic unit cells ($\alpha=\beta=\gamma=90^o$)
 \item A default Brillouin zone has not been defined for Band simulations.
+\item PAW only works with units cells that have periodic boundary conditions.
+\item PAW is not interfaced to driver, stepper, and vib modules.
 \end{itemize}
 
 
@@ -2087,7 +1949,6 @@ task band energy
 Questions and encountered problems should be reported to 
 nwchem-support@emsl.pnl.gov 
 or to Eric J. Bylaska, Eric.Bylaska@pnl.gov
-
 
 
 
