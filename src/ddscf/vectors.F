@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.42 2002-09-26 18:28:28 d3k958 Exp $
+C$Id: vectors.F,v 1.43 2002-11-21 22:05:20 d3k958 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -610,19 +610,25 @@ c
      &    call errquit ('movecs_swap_nuclei:couldnt create array',0)
       call ga_zero(g_tempv(2))
       call ga_copy(g_vecs(2),g_tempv(2))
-
+c
       else
       nset = 1
       if (.not.ga_create(mt_dbl,dim1,dim2,'temp vecs',0,0,g_tempv(1))) 
      &    call errquit ('movecs_swap_nuclei:couldnt create array',0)
-      call ga_copy(g_vecs(1),g_tempv(1))
       call ga_zero(g_tempv(1))
+      call ga_copy(g_vecs(1),g_tempv(1))
       endif
+c
+         if (.not. rtdb_ma_get(rtdb, 'reorder', type, nelem, 
+     $        handle)) goto 1000
+         if (.not. ma_get_index(handle,index)) call errquit
+     $        ('movecs_swap_nuclei: get index failed', handle)
+         if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
+     $        ('movecs_swap_nuclei: invalid list of pairs',nelem)
 c
         if (.not.ma_push_get(mt_dbl,nset*dim1,'temp evals',
      &     l_tmpevl,k_tmpevl) )
      &     call errquit('movecs_swap_nuclei: ma_push failed',0)
-c
         if (.not.ma_push_get(mt_dbl,nset*dim1,'temp occ',
      &     l_tmpocc,k_tmpocc)) 
      &     call errquit('movecs_swap_nuclei: ma_push failed',0)
@@ -632,22 +638,14 @@ c
          dbl_mb(k_tmpocc+i-1) =  occ(i)
       enddo
 c
-         if (.not. rtdb_ma_get(rtdb, 'reorder', type, nelem, 
-     $        handle)) goto 1000
-         if (.not. ma_get_index(handle,index)) call errquit
-     $        ('movecs_swap_nuclei: get index failed', handle)
-         if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
-     $        ('movecs_swap_nuclei: invalid list of pairs',nelem)
-c
-      call ga_sync()
-      if (ga_nodeid() .eq. 0) then
-c
       do set = 1, nset
 c
             do pair = 1, nelem, 2
                i = int_mb(index+pair-1)
                j = int_mb(index+pair  )
-               print *,'swapping MOs of nuclei',i,j,' in set',set
+                 if(ga_nodeid().eq.0) then
+                 write(6,*) 'swapping MOs of centers',i,j,' in set',set
+                 endif
 c
                if (.not.bas_ce2bfr(basis,i,ilo,ihi)) 
      &          call errquit('movecs_swap_nuclei: bas_ce2bfr',0)
@@ -685,16 +683,11 @@ c
       call ga_copy(g_tempv(set),g_vecs(set))
       enddo  ! set
 c
-c
       if (.not.ma_pop_stack(l_tmpocc)) 
      &  call errquit('movecs_swap_nuclei: ma_pop failed',0)
       if (.not.ma_pop_stack(l_tmpevl)) 
      &  call errquit('movecs_swap_nuclei: ma_pop failed',0)
 c
-      endif   !if ga_nodeid().eq.0
-c
-      call ga_sync
-
          if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0)
  1000    continue
 c
@@ -705,6 +698,8 @@ c
      &     call errquit('could not destroy temp vectors',0)
       endif
 
+      call ga_sync
+c
       return
       end
       logical function file_write_ga(fname, g_a)
