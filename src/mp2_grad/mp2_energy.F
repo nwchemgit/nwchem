@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.39 1997-04-23 01:12:42 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.40 1997-04-25 23:18:01 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -51,7 +51,7 @@ c
       integer k_occ_a,k_occ_b,l_occ_a
       integer pass
       integer noa,nob,nva,nvb
-      double precision tol2e,escf,e2,e_total,norm
+      double precision tol2e,tol2e_fock,escf,e2,e_total,norm
       integer ga_create_atom_blocked
       logical otrace, omatrix, oskel, osym
       external ga_create_atom_blocked
@@ -297,7 +297,9 @@ c
      $     ('mp2_grad: ma failed popping workspace(1)', 0)
 c     
       if (.not. rtdb_get(rtdb, 'mp2:aotol2e', mt_dbl, 1, tol2e))
-     $     tol2e = 1d-9
+     $     tol2e = 1d-9  ! For screening integrals
+      if (.not. rtdb_get(rtdb, 'mp2:aotol2e fock', mt_dbl, 1, tol2e))
+     $     tol2e_fock = 1d-7 ! For overall accuracy of Fock builds
 c
       if (util_print('information',print_low).and.ga_nodeid().eq.0) then
          write(6,123) nbf, nmo, noa_frozen, nva_frozen, 
@@ -530,7 +532,7 @@ c
          call pstat_on(ps_laifock)
          call mp2_lai_fock_uhf(geom,basis,
      $        g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,g_vecs_a,g_vecs_b,
-     $        noa,nob,nva,nvb,g_lai_a,g_lai_b,rtdb,tol2e)
+     $        noa,nob,nva,nvb,g_lai_a,g_lai_b,rtdb,tol2e_fock)
          call pstat_off(ps_laifock)
 c
          if (omatrix) then

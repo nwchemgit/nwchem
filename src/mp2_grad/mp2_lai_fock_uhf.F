@@ -4,7 +4,7 @@
      $     no_a, no_b, nv_a, nv_b,
      $     g_lai_a, g_lai_b,rtdb,tol2e)
 *
-* $Id: mp2_lai_fock_uhf.F,v 1.11 1997-03-27 08:49:46 d3e129 Exp $
+* $Id: mp2_lai_fock_uhf.F,v 1.12 1997-04-25 23:18:02 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -53,6 +53,7 @@ c
          call ga_zero(g_fock(i))
       end do
       call scf_get_fock_param(rtdb,tol2e)
+      call fock_force_direct(rtdb)    ! Force Fock build to be direct
 c     
 c     Workspace
 c     
@@ -191,6 +192,7 @@ c
          call ga_zero(g_fock(i))
       end do
       call scf_get_fock_param(rtdb,tol2e)
+      call fock_force_direct(rtdb)    ! Force Fock build to be direct
 c     
 c     Workspace
 c     

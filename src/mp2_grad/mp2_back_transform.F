@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.15 1997-04-23 01:12:40 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.16 1997-04-25 23:18:00 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -22,6 +22,7 @@
 #include "eaf.fh"
 #include "cmp2ps.fh"
 #include "geom.fh"
+#include "rtdb.fh"
       integer basis, rtdb, geom
       logical oskel
       integer nbf               ! No. of basis functions
@@ -58,7 +59,8 @@ c
 c
       double precision tol2e
 c
-      tol2e = 1d-9
+      if (.not. rtdb_get(rtdb, 'mp2:backtol', mt_dbl, 1, tol2e))
+     $     tol2e = 1d-7
 c
       if (.not. bas_numcont(basis, nsh)) call errquit
      $     ('mp2: backt bad basis handle ', basis)
@@ -442,50 +444,81 @@ c
       integer shpairs(2,*)      ! [output] 1->u, 2->v u>=v shells in pair
       integer shpairslocal(2,*) ! [output] ditto but only for local pairs
       integer map(0:*)          ! [output] Map for g_create_irreg for g_buf
-c
+c     
 c     Form a list of interacting shell pairs (u>=v) and assign them
 c     to processors.  Ideally do this so as to optimize the efficiency
 c     of derivative integral evaluation and to provide good load balance 
 c     for the back transformation.  Right now we just do round-robin.
-c
+c     
 c     If (omakearrays) then 
-c        actually make the arrays
+c     actually make the arrays
 c     else
-c        just return the scalar results
+c     just return the scalar results
 c     end if
-c
+c     
 c     The Schwarz package must be initialized before entry
-c
+c     
       integer u, v, nbf, nsh, lo, hi, udim, vdim, me, nproc, owner
-      integer count, tmp, ishpair, first, last, iproc
+      integer count, tmp, ishpair, first, last, iproc, uvdim
       logical odoit
-      double precision q2
+      double precision q2, sss
+c     
+      integer npairblock        ! Crude attempt to load balance the pairs
+      parameter (npairblock = 9)
+      integer pairblock(npairblock), ipairb, npairmin, npairmax
+      integer logmin, logmax
+      intrinsic log10
+      data pairblock /1,3,6,10,18,36,60,100,1000000/ ! Selected from s*s,s*p,p*p ...
 c
       if (.not. bas_numbf(basis, nbf))
      $     call errquit('mp2_backt_info: bad basis handle', 0)
       if (.not. bas_numcont(basis, nsh))
      $     call errquit('mp2_backt_info: bad basis handle', 0)
-c
+c     
       me = ga_nodeid()
       nproc = ga_nnodes()
       shmax = 0
-c
+c     
       if (omakearrays) then
-c
+c     
 c     First compute offset to first shell pair on each processor
-c
+c     
          nshpair = 0
          call ifill(nproc, 0, map, 1)
-         do u = 1, nsh
-            do v = 1, u
-               odoit = schwarz_shell(u,v)*schwarz_max().gt.tol2e
-               if (odoit .and. oskel) odoit=sym_shell_pair(basis,u,v,q2)
-               if (odoit) then
-                  owner = mod(nshpair,nproc)
-                  map(owner) = map(owner) + 1
-                  nshpair = nshpair + 1
-               endif
+         npairmin = 0
+         logmax = 1000000
+         do logmin = -1,-9,-2
+            do ipairb = 1, npairblock ! Loop thru types of pairs
+               npairmax = pairblock(ipairb)
+               do u = nsh, 1, -1
+                  if (.not. bas_cn2bfr(basis, u, lo, hi))
+     $                 call errquit('mp2_backt_info: bas range', u)
+                  udim = hi - lo + 1
+                  do v = 1, u
+                     if (.not. bas_cn2bfr(basis, v, lo, hi))
+     $                    call errquit('mp2_backt_info:bas range',v)
+                     vdim = hi - lo + 1
+                     uvdim = udim*vdim
+                     sss = schwarz_shell(u,v)*schwarz_max() + 1d-100
+                     if (uvdim.gt.npairmin .and. uvdim.le.npairmax .and.
+     $                    log10(sss).lt.logmax .and. 
+     $                    log10(sss).ge.logmin) then
+c     
+                        odoit = sss .gt. tol2e
+                        if (odoit .and. oskel) 
+     $                       odoit = sym_shell_pair(basis,u,v,q2)
+                        if (odoit) then
+                           owner = mod(nshpair,nproc)
+                           map(owner) = map(owner) + 1
+                           nshpair = nshpair + 1
+                        endif
+c     
+                     endif
+                  enddo
+               enddo
+               npairmin = npairmax
             enddo
+            logmax = logmin
          enddo
          count = 1
          do u = 0, nproc-1
@@ -494,52 +527,69 @@ c
             count = count + tmp
          end do
       endif
-c
+c     
 c     Make list of all shell pairs ordered by their assigned processor,
 c     the list of local shell pairs, and also count the other information.
-c
+c     
       nshpairlocal = 0
       nbfpair = 0
       nbfpairlocal = 0
       nshpair = 0
-      do u = 1, nsh
-         if (.not. bas_cn2bfr(basis, u, lo, hi))
-     $        call errquit('mp2_backt_info: bas range failed', u)
-         shmax = max(shmax,hi-lo+1)
-         if (omakearrays) then
-            shdim(u) = hi - lo + 1
-            shlo(u) = lo
-         end if
-         udim = hi - lo + 1
-         do v = 1, u
-            if (.not. bas_cn2bfr(basis, v, lo, hi))
-     $           call errquit('mp2_backt_info: bas range failed', v)
-            vdim = hi - lo + 1
-            odoit = schwarz_shell(u,v)*schwarz_max().gt.tol2e
-            if (odoit .and. oskel) odoit = sym_shell_pair(basis,u,v,q2)
-            if (odoit) then
-               owner = mod(nshpair,nproc)
-               if (owner.eq.me) then
-                  nshpairlocal = nshpairlocal + 1
-                  nbfpairlocal = nbfpairlocal + udim*vdim
-                  if (omakearrays) then
-                     shpairslocal(1,nshpairlocal) = u
-                     shpairslocal(2,nshpairlocal) = v
-                  end if
-               end if
-               nshpair = nshpair + 1
-               nbfpair = nbfpair + udim*vdim
+      npairmin = 0
+      logmax = 1000000
+      do logmin = -1,-9,-2
+         do ipairb = 1, npairblock ! Loop thru types of pairs
+            npairmax = pairblock(ipairb)
+            do u = nsh, 1, -1
+               if (.not. bas_cn2bfr(basis, u, lo, hi))
+     $              call errquit('mp2_backt_info: bas range', u)
+               shmax = max(shmax,hi-lo+1)
                if (omakearrays) then
-                  shpairs(1,map(owner)) = u
-                  shpairs(2,map(owner)) = v
-                  map(owner) = map(owner) + 1
+                  shdim(u) = hi - lo + 1
+                  shlo(u) = lo
                end if
-            end if
-         end do
-      end do
-c
+               udim = hi - lo + 1
+               do v = 1, u
+                  if (.not. bas_cn2bfr(basis, v, lo, hi))
+     $                 call errquit('mp2_backt_info: bas range', v)
+                  vdim = hi - lo + 1
+                  uvdim = udim*vdim
+                  sss = schwarz_shell(u,v)*schwarz_max() + 1d-100
+                  if (uvdim.gt.npairmin .and. uvdim.le.npairmax .and.
+     $                 log10(sss).lt.logmax .and. 
+     $                 log10(sss).ge.logmin) then
+c     
+                     odoit = sss.gt.tol2e
+                     if (odoit .and. oskel) 
+     $                    odoit = sym_shell_pair(basis,u,v,q2)
+                     if (odoit) then
+                        owner = mod(nshpair,nproc)
+                        if (owner.eq.me) then
+                           nshpairlocal = nshpairlocal + 1
+                           nbfpairlocal = nbfpairlocal + udim*vdim
+                           if (omakearrays) then
+                              shpairslocal(1,nshpairlocal) = u
+                              shpairslocal(2,nshpairlocal) = v
+                           end if
+                        end if
+                        nshpair = nshpair + 1
+                        nbfpair = nbfpair + udim*vdim
+                        if (omakearrays) then
+                           shpairs(1,map(owner)) = u
+                           shpairs(2,map(owner)) = v
+                           map(owner) = map(owner) + 1
+                        end if
+                     end if
+                  endif
+               end do
+            end do
+            npairmin = npairmax
+         enddo
+         logmax = logmin
+      enddo
+c     
 c     Now replace map with the map creating the global array for transposing
-c
+c     
       if (omakearrays) then
          count = 1
          first = 1
@@ -552,9 +602,9 @@ c
                count = count + shdim(u)*shdim(v)
             enddo
             first = last + 1
-         enddo
+         end do
       end if
-c
+c     
       if (util_print('mp2_backt', print_debug)) then
          write(6,*) me, ' nshpair ', nshpair
          write(6,*) me, ' nshpairlocal ', nshpairlocal
@@ -573,7 +623,7 @@ c
             end do
          end if
       end if
-c
+c     
       end
       subroutine mp2_nonsep(
      $     rtdb,
