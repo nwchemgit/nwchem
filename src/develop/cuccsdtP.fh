@@ -1,0 +1,92 @@
+#include "nwc_const.fh"
+c
+c     Internal common/parameters for UCCSDT
+c
+c     Alpha=1, Beta=2
+c     Irreps numbered 0..7 so that ijsym=ieor(isym,jsym)
+c
+      integer nmo               ! Total no. of MOs (frozen core + active occupied + virtual)
+      integer nact              ! Total no. of active MOS (active occupied + virtual)
+      integer nir               ! No. of irreducible representations
+      integer nc(1:2)           ! No. of frozen orbitals (same for each spin)
+      integer no(1:2)           ! No. of active occupied for each spin.
+      integer nv(1:2)           ! Ditto for virtuals (assuming no frozen virtuals?)
+c
+c     Orbitals are numbered core+occupied+virtual sub-blocked by symmetry.
+c
+      integer nc_sym(0:7,1:2)   ! No. of frozen core orbitals of each symmetry & spin
+      integer no_sym(0:7,1:2)   ! Ditto for active occupied
+      integer nv_sym(0:7,1:2)   ! Ditto for virtuals
+c
+      integer c_sym(1:2,0:7,1:2) ! First/last frozen core orbital for given irrep & spin
+      integer o_sym(1:2,0:7,1:2) ! Ditto for active occupied
+      integer v_sym(1:2,0:7,1:2) ! Ditto for virtuals 
+c
+      integer map(nw_max_nbf,1:2) ! Map from semi-canonical to symmetry blocked order
+c
+c     Blocking info for the triples
+c
+      integer oblock(1:2,nw_max_nbf,1:2) ! First/last occupied orbital in block for each spin
+      integer vblock(1:2,nw_max_nbf,1:2) ! Ditto for virtuals
+      integer oblock_sym(nw_max_nbf,1:2) ! Symmetry of each block of occupied orbitals 
+      integer vblock_sym(nw_max_nbf,1:2) ! Ditto for virtuals
+      integer noblock(1:2)      ! No. of blocks of occupied orbitals 
+      integer nvblock(1:2)      ! No. of blocks of virtuals
+      integer oblock_max        ! Maximum size of any oblock
+      integer vblock_max        ! Maximum size of any vblock
+c
+      double precision eps(nw_max_nbf,1:2) ! Eigenvalues for each spin
+c
+      common /cuccsdt/ 
+     $     nmo, nact, nir, nc, no, nv, c_sym, o_sym, v_sym, map, 
+     $     oblock, vblock, oblock_sym, vblock_sym, noblock, 
+     $     oblock_max, vblock_max
+c
+c     This just temporary stuff for development
+c
+      integer k_moints_aa, k_moints_ab, k_moints_bb ! MA offsets for integrals & amplitudes
+      integer k_taa, k_tab, k_tbb, k_ta, k_tb
+      common /cuccsdtfudge/ 
+     $     k_moints_aa, k_moints_ab, k_moints_bb, 
+     $     k_taa, k_tab, k_tbb, k_ta, k_tb
+c
+c     Triples integral access APIs
+c
+c     subroutine uccsdt_get_3x(kblock, ablock, bblock, spin1, spin2, ints)
+c     Returns <ek||ab> for orbitals in the specified triples blocks and for given
+c     spins of electrons 1 and 2.  The integrals will be in the array
+c     I(nv_sym(esym),dim(kblock),dim(ablock),dim(bblock)).  Mixed spin integrals
+c     will get one of <ek|ab> or <ek|ba>.  Orbitals e & a correspond to electron 1.
+c
+c     WHAT ABOUT THE SIGN?  Test code already includes +- from asymmetry.
+c
+c     subroutine uccsdt_get_2x(iblock, jblock, ablock, bblock, spin1, spin2, ints)
+c     <ij||ab>
+c     I(dim(iblock),dim(jblock),dim(ablock),dim(bblock))
+c     
+c     SIGN?
+c
+c     subroutine uccsdt_get_1x(cblock, iblock, jblock, spin1, spin2, ints)
+c     <mc||ij>
+c     I(no_sym(msym,spin1),dim(cblock),dim(iblock),dim(jblock))
+c
+c     SIGN?
+c
+c     Triples amplitude access APIs
+c
+c     subroutine uccsdt_get_t3x(cblock, iblock, jblock, spin1, spin2, T)
+c     Returns T(e,c,i,j) = orbitals i & e correspond to electon 1.
+c     T(nv_sym(esym,spin1),dim(cblock),dim(iblock),dim(jblock))
+c
+c     SIGN?
+c
+c     No 2x t is needed since the singles amplitudes are replicated.
+c
+c     subroutine uccsdt_get_t1x(kblock, ablock, bblock, spin1, spin2, T)
+c     T(m,k,a,b) = orbitals m & a correspond to electron 1.
+c     T(no_sym(msym,spin1),dim(kblock),dim(ablock),dim(bblock))
+c
+c     SIGN?
+c
+
+

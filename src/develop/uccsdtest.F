@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.1 2000-03-21 21:28:19 d3g681 Exp $
+*     $Id: uccsdtest.F,v 1.2 2000-03-29 21:14:20 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -255,7 +255,7 @@ c
       call dfill((noa*nva), 0.0d0, dbl_mb(k_t1a), 1)
       call dfill((nob*nvb), 0.0d0, dbl_mb(k_t1b), 1)
 c
-      do iter = 1, 90
+      do iter = 1, 3
 c
 c     Transform the MO coefficients with the particle and hole matrices
 c
@@ -490,6 +490,12 @@ c
       write(6,*) energyaaa, energybbb
       write(6,*) energyaab, energybba
       write(6,*) energyaaa+energybbb+energyaab+energybba
+c
+      call uccsdt_initialize(nmo, noa, nob, nva, nvb, 
+     $     dbl_mb(k_beval), dbl_mb(k_aeval),
+     $     k_ibb, k_iaa, k_iba,
+     $     k_t1b, k_t1a,
+     $     k_t2bb,k_t2aa,k_t2ab)
 c
       if (.not. ma_chop_stack(l_occ)) call errquit('ma?',0)
 c
@@ -1981,7 +1987,119 @@ c
       uccsdtest_triples_mixed = energy
 c
       end
-
-
-                           
-
+      subroutine uccsdt_initialize(nummo, noa, nob, nva, nvb, 
+     $     epsa, epsb, kk_iaa, kk_ibb, kk_iab, kk_t1a, kk_t1b,
+     $     kk_t2aa,kk_t2bb,kk_t2ab)
+      implicit none
+#include "cuccsdtP.fh"
+      integer nummo, noa, nob, nva, nvb
+      double precision epsa(*), epsb(*)
+      integer kk_iaa, kk_ibb, kk_iab, kk_t1a, kk_t1b,
+     $     kk_t2aa,kk_t2bb,kk_t2ab
+c
+      integer i, ir, spin, block
+c
+      nmo = nummo
+      nact = nmo
+      nir = 1
+      nc(1) = 0
+      nc(2) = 0
+      no(1) = noa
+      no(2) = nob
+      nv(1) = nva
+      nv(2) = nvb
+c
+      call ifill(8*2, 0, nc_sym, 1)
+      call ifill(8*2, 0, no_sym, 1)
+      call ifill(8*2, 0, nv_sym, 1)
+      no_sym(0,1) = noa
+      no_sym(0,2) = nob
+      nv_sym(0,1) = nva
+      nv_sym(0,2) = nvb
+c
+      do spin = 1, 2
+         call ifill(8*2, 0, c_sym(1,0,spin), 2)
+         call ifill(8*2,-1, c_sym(2,0,spin), 2)
+         call ifill(8*2, 0, o_sym(1,0,spin), 2)
+         call ifill(8*2,-1, o_sym(2,0,spin), 2)
+         call ifill(8*2, 0, v_sym(1,0,spin), 2)
+         call ifill(8*2,-1, v_sym(2,0,spin), 2)
+      end do
+      o_sym(1,0,1) = 1
+      o_sym(2,0,1) = noa
+      o_sym(1,0,2) = 1
+      o_sym(2,0,2) = nob
+      v_sym(1,0,1) = noa+1
+      v_sym(2,0,1) = nmo
+      v_sym(1,0,2) = nob+1
+      v_sym(2,0,2) = nmo
+c
+      call ifill(nmo, -999999999, map, 1)
+c
+      oblock_max = 2
+      vblock_max = 3
+      do spin = 1, 2
+         nvblock(spin) = 0
+         noblock(spin) = 0
+         do ir = 0, nir-1
+            do i = v_sym(1,ir,spin),v_sym(2,ir,spin),vblock_max
+               nvblock(spin) = nvblock(spin) + 1
+               vblock_sym(nvblock(spin),spin) = 1
+               vblock(1,nvblock(spin),spin) = i
+               vblock(2,nvblock(spin),spin) = 
+     $              min(v_sym(2,ir,spin),i+vblock_max-1)
+            end do
+            do i = o_sym(1,ir,spin),o_sym(2,ir,spin),oblock_max
+               noblock(spin) = noblock(spin) + 1
+               oblock_sym(noblock(spin),spin) = 1
+               oblock(1,noblock(spin),spin) = i
+               oblock(2,noblock(spin),spin) = 
+     $              min(o_sym(2,ir,spin),i+oblock_max-1)
+            end do
+         end do
+      end do
+c
+c     This just temporary stuff for development
+c
+      call dcopy(nmo, epsa, 1, eps(1,1), 1)
+      call dcopy(nmo, epsb, 1, eps(1,2), 1)
+      k_moints_aa = kk_iaa
+      k_moints_ab = kk_iab
+      k_moints_bb = kk_ibb
+      k_taa = kk_t2aa
+      k_tab = kk_t2ab
+      k_tbb = kk_t2bb
+      k_ta  = kk_t1a
+      k_tb  = kk_t1b
+c
+      write(6,*) ' nact ', nact
+      write(6,*) ' nmo  ', nmo
+      write(6,*) ' nir  ', nir
+      write(6,*) ' nc   ', nc
+      write(6,*) ' no   ', no
+      write(6,*) ' nv   ', nv
+      write(6,*) ' nc_sym ', ((nc_sym(ir,spin),ir=0,nir-1),spin=1,2)
+      write(6,*) ' no_sym ', ((no_sym(ir,spin),ir=0,nir-1),spin=1,2)
+      write(6,*) ' nv_sym ', ((nv_sym(ir,spin),ir=0,nir-1),spin=1,2)
+      write(6,*) ' c_sym(1) ', ((c_sym(1,ir,spin),ir=0,nir-1),spin=1,2)
+      write(6,*) ' c_sym(2) ', ((c_sym(2,ir,spin),ir=0,nir-1),spin=1,2)
+      write(6,*) ' o_sym(1) ', ((o_sym(1,ir,spin),ir=0,nir-1),spin=1,2)
+      write(6,*) ' o_sym(2) ', ((o_sym(2,ir,spin),ir=0,nir-1),spin=1,2)
+      write(6,*) ' v_sym(1) ', ((v_sym(1,ir,spin),ir=0,nir-1),spin=1,2)
+      write(6,*) ' v_sym(2) ', ((v_sym(2,ir,spin),ir=0,nir-1),spin=1,2)
+      write(6,*) ' oblock_max ', oblock_max
+      write(6,*) ' vblock_max ', vblock_max
+      write(6,*) ' noblock ', noblock
+      write(6,*) ' nvblock ', nvblock
+      write(6,*) ' oblock(1) ', 
+     $     ((oblock(1,block,spin),block=1,noblock(spin)),spin=1,2)
+      write(6,*) ' oblock(2) ', 
+     $     ((oblock(2,block,spin),block=1,noblock(spin)),spin=1,2)
+      write(6,*) ' vblock(1) ', 
+     $     ((vblock(1,block,spin),block=1,nvblock(spin)),spin=1,2)
+      write(6,*) ' vblock(2) ', 
+     $     ((vblock(2,block,spin),block=1,nvblock(spin)),spin=1,2)
+c
+      write(6,*) ' eps ', ((eps(i,spin),i=1,nmo),spin=1,2)
+c
+      end
