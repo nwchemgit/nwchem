@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.89 1999-06-07 22:15:19 d3g681 Exp $
+C$Id: geom.F,v 1.90 1999-06-16 20:00:11 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -3926,7 +3926,7 @@ c
      &    i4,1x,a8,1x,'|',
      &    1x,f8.2)
 10002 format(1x,78('-'))
-10003 format(28x,'number of included dihegral angles: ',i10)
+10003 format(28x,'number of included dihedral angles: ',i10)
 10004 format(1x,78('='))
 10005 format(/,/)
       geom_prt_dihedrals = .true.
