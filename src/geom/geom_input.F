@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.127 1999-12-08 23:26:29 mg201 Exp $
+C     $Id: geom_input.F,v 1.128 2000-01-25 19:33:30 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -46,8 +46,6 @@ c     .                           and for forcing symmetry
       character*16 format, nucmodel
       logical geom_zmtmak
       external geom_zmtmak
-      logical geom_mass_to_invnucexp
-      external geom_mass_to_invnucexp
       external geom_data        ! What is this?
       external geom_impose_initial_values_on_q
 c     
