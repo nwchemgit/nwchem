@@ -3,7 +3,7 @@
      + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk)
 c
-c $Id: pre_mkseq.F,v 1.24 1999-01-29 21:12:44 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.25 1999-06-16 23:37:46 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -61,7 +61,7 @@ c
 c
       if(source(1:3).eq.'pdb') then
       if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,model,
-     + natm,nseq,nssb,nlnk,slvnam,numslv))
+     + natm,nseq,nssb,nlnk,slvnam,numslv,altloc,chain))
      + call errquit('pre_pdbsiz failed',9999)
       else
       if(.not.geom_create(igeom,source))

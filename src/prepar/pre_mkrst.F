@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model)
 c
-c $Id: pre_mkrst.F,v 1.31 1999-05-19 20:16:17 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.32 1999-06-16 23:37:46 d3j191 Exp $
 c
       implicit none
 c
@@ -209,7 +209,7 @@ c
       endif
       else
       if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,model,
-     + idum1,idum2,idum3,idum4,slvnam,nwmc))
+     + idum1,idum2,idum3,idum4,slvnam,nwmc,altloc,chain))
      + call errquit('pre_pdbsiz failed',9999)
 c
 c     allocate memory for crystal solvent
@@ -559,7 +559,7 @@ c     determine the dimensions on the pdb file
 c     ----------------------------------------
 c
       if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,0,
-     + idum1,idum2,idum3,idum4,slvnam,nwmc))
+     + idum1,idum2,idum3,idum4,slvnam,nwmc,altloc,chain))
      + call errquit('pre_pdbsiz failed',9999)
 c
 c     allocate memory for crystal solvent

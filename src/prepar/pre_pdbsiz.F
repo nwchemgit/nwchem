@@ -1,7 +1,7 @@
       logical function pre_pdbsiz(iunit,filnam,lfnout,
-     + model,natm,nseq,nssb,nlnk,namslv,numslv)
+     + model,natm,nseq,nssb,nlnk,namslv,numslv,altloc,chain)
 c
-c $Id: pre_pdbsiz.F,v 1.10 1999-01-05 16:27:24 d3j191 Exp $
+c $Id: pre_pdbsiz.F,v 1.11 1999-06-16 23:37:47 d3j191 Exp $
 c
 c     function to read dimensions from a pdb formatted file
 c
@@ -28,6 +28,7 @@ c
       character*255 filnam
       integer numslv
       character*3 namslv
+      character*1 ,altloc,chain
 c
       character*80 card
       integer length,mdl,nsgm,isgm,i
@@ -129,6 +130,10 @@ c     ATOM
 c
       if(card(1:4).eq.'ATOM') then
       if(card(18:20).eq.namslv) lslvnt=.true.
+      if(card(17:17).ne.' '.and.
+     + card(17:17).ne.altloc.and.altloc.ne.'*') goto 1
+      if(card(22:22).ne.' '.and.
+     + card(22:22).ne.chain.and.chain.ne.'*') goto 1
       if(mdl.eq.model) then
       if(.not.lslvnt) natm=natm+1
       read(card(23:26),1003) i
