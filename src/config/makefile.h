@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.471 2004-06-29 16:10:01 edo Exp $
+# $Id: makefile.h,v 1.472 2004-07-01 20:12:14 windus Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1861,6 +1861,9 @@ endif
 #  All machine dependent sections should be above here, otherwise #
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
+#the new GA uses ARMCI library
+      CORE_LIBS += -larmci
+
 # MPI version requires tcgmsg-mpi library
 
 ifdef USE_MPI 
@@ -1876,9 +1879,6 @@ else
 endif 
 # lower level libs used by communication libraries 
  
-#the new GA uses ARMCI library
-      CORE_LIBS += -larmci
-
 
 ifdef COMM_LIBS 
  CORE_LIBS += $(COMM_LIBS) 
