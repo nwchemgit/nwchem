@@ -6,7 +6,7 @@
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd)
 c
 c
-c $Id: sp_init.F,v 1.33 1999-08-25 23:21:01 d3j191 Exp $
+c $Id: sp_init.F,v 1.34 1999-08-28 02:14:58 d3j191 Exp $
 c
       implicit none
 c
@@ -170,12 +170,17 @@ c
 c
       third=1.0d0/3.0d0
       nldup=-1
+      ipairf=-1
+      ipairt=-1
+      lpipo=.false.
 c
       lpbc=npbtyp.gt.0
 c
       if(me.eq.0) then
       if(nfsync.gt.0) open(unit=lfnsyn,
      + file=filsyn(1:index(filsyn,' ')-1),status='unknown')
+      write(lfnsyn,3000) np
+ 3000 format(i5)
       endif
 c
       call ga_sync()
@@ -273,9 +278,9 @@ c
       itemp(8)=npbtyp
       itemp(9)=nbxtyp
       rtemp(1)=bsize
-      rtemp(2)=bxmin
-      rtemp(3)=bymin
-      rtemp(4)=bzmin
+      rtemp(2)=1.001d0*bxmin
+      rtemp(3)=1.001d0*bymin
+      rtemp(4)=1.001d0*bzmin
       call ga_brdcst(msp_03,itemp,ma_sizeof(mt_int,9,mt_byte),0)
       call ga_brdcst(msp_04,rtemp,ma_sizeof(mt_dbl,4,mt_byte),0)
       call ga_brdcst(msp_05,box,ma_sizeof(mt_dbl,3,mt_byte),0)
@@ -1025,6 +1030,7 @@ c
       integer ilx,ihx,ily,ihy,ilz,ihz
       integer jbox,jnode,mbblb,mbblp
       real*8 dx,dxtmp,dy,dytmp,dz,dztmp,dist2
+      character*255 string
 c
 c     determine size of box-box pairlist
 c     ----------------------------------
@@ -1162,6 +1168,8 @@ c
       if(rlong*rlong.gt.dist2) mbbl=mbbl+1
       endif
       if(rlong*rlong.gt.dist2) mbblb=mbblb+1
+      if(me.eq.0) write(*,'(2i5,2f12.6)')
+     +  mbbl,mbblb,dist2,rlong*rlong
  6    continue
  5    continue
  4    continue
@@ -1180,8 +1188,12 @@ c
       if(.not.ma_push_get(mt_int,15*mbbl,'bb',l_bb,i_bb))
      + call errquit('Failed to allocate memory for bb',0)
       else
-      if(mbbl.gt.mbblp)
-     + call errquit('lbbl increased beyond allocated memory',me)
+      if(mbbl.gt.mbblp) then
+      write(string,1111) mbblp,mbbl
+ 1111 format('error: lbbl increase from ',i6,' to ',i6)
+      call errquit(string,me)
+c      call errquit('lbbl increased beyond allocated memory',me)
+      endif
       endif
 c
       return

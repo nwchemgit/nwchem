@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.18 1999-08-26 15:44:31 d3j191 Exp $
+c $Id: sp_main.F,v 1.19 1999-08-28 02:14:58 d3j191 Exp $
 c
       implicit none
 c
@@ -1560,7 +1560,7 @@ c
 c
       return
       end
-      subroutine sp_balanc(stime,syntim)
+      subroutine sp_balanc(stime,syntim,waltim)
 c
       implicit none
 c
@@ -1570,7 +1570,7 @@ c
       logical sp_diffbb
       external sp_diffbb
 c
-      real*8 stime,syntim
+      real*8 stime,syntim,waltim
 c
       integer l_dlb,i_dlb,i_nod,l_nod,i_nen,l_nen,i_lst,l_lst
 c
@@ -1589,7 +1589,7 @@ c
       if(.not.ma_verify_allocator_stuff())
      + call errquit('Problems in sp_balanc at 2',me)
 c
-      call sp_dldbal(stime,syntim,int_mb(i_nod),int_mb(i_lst),
+      call sp_dldbal(stime,syntim,waltim,int_mb(i_nod),int_mb(i_lst),
      + int_mb(i_nen),int_mb(i_bb),dbl_mb(i_dlb))
       if(.not.ma_verify_allocator_stuff())
      + call errquit('Problems in sp_balanc at 3',me)
@@ -1614,7 +1614,7 @@ c
 c
       return
       end
-      subroutine sp_dldbal(stime,syntim,nod,nlst,nen,lbbl,dlb)
+      subroutine sp_dldbal(stime,syntim,waltim,nod,nlst,nen,lbbl,dlb)
 c
       implicit none
 c
@@ -1624,9 +1624,11 @@ c
 c
       integer nod(np),nlst(np,2),nen(np,mbbl)
       integer lbbl(mbbl,mbb2)
-      real*8 stime,syntim,synsum,dlb(np),factor,facx,facy,facz
+      real*8 stime,syntim,synsum,waltim,dlb(np),factor,facx,facy,facz
 c
       integer i,j,k,n,ibusy
+c
+      if(np.eq.1) return
 c
 c     broad cast times
 c
@@ -1639,12 +1641,7 @@ c
 c
       call ga_dgop(msp_14,dlb,np,'+')
       call ga_dgop(msp_15,synsum,1,'+')
-cx
-      if(me.eq.0) then
-      write(lfnsyn,3000) stime,synsum
- 3000 format('synchronization',/,2f12.6)
-      endif
-cx
+c
       if(synsum.lt.1.0d-5) return
 c
       facx=1.0d0
@@ -1685,23 +1682,24 @@ c
 c     resize boxes
 c     ------------
 c
-      if(loadb.eq.1.or.(loadb.eq.3.and.nldup.gt.lbpair)) then
-      nldup=0
-      tsyncp=synsum
+      if(loadb.eq.1.or.(loadb.eq.3.and.(nldup.gt.lbpair.or.lpipo))) then
       factor=(1.0d0-factld*(synsum/dble(np)-dlb(ibusy))/synsum)**third
       call sp_resize(ibusy-1,int_mb(i_iown),dbl_mb(i_boxs),factor,
      + facx,facy,facz)
       if(me.eq.0) then
+      write(lfnsyn,3000) 1,stime,synsum,waltim,ibusy-1,
+     + factor,facx,facy,facz,nldup,lpipo
+ 3000 format('synchronization',/,i5,3f12.6,/,i5,4f12.6,i3,1x,l1)
       do 16 i=1,np
-      if(i.eq.1) then
-      write(lfnsyn,3001) nod(i),dlb(nod(i)+1),facx,facy,facz
- 3001 format(i5,f12.6,12x,3f12.6)
-      else
-      write(lfnsyn,3002) nod(i),dlb(nod(i)+1)
- 3002 format(i5,f12.6)
-      endif
+      write(lfnsyn,3001) nod(i),dlb(nod(i)+1)
+ 3001 format(i5,f12.6)
    16 continue
       endif
+      ipairf=-3
+      ipairt=-4
+      lpipo=.false.
+      nldup=0
+      tsyncp=synsum
       return
       endif
 c
@@ -1763,8 +1761,10 @@ c
    14 continue
 c
       if(me.eq.0) then
+      write(lfnsyn,3002) 2,stime,synsum,waltim
+ 3002 format('synchronization',/,i5,3f12.6)
       do 15 i=1,np
-      write(lfnsyn,3003) nod(i),dlb(nod(i)+1),nlst(nod(i),2),
+      write(lfnsyn,3003) nod(i),dlb(nod(i)+1),nlst(nod(i)+1,2),
      + nen(nod(i)+1,1)
  3003 format(i5,f12.6,i7,i5)
    15 continue
@@ -1775,6 +1775,12 @@ c
 c     cascade box-box pairs
 c
       if(loadb.ge.2) then
+c
+      lpipo=(nod(1).eq.ipairt.and.nen(nod(1)+1,1).eq.ipairf).or.
+     + (nen(nod(1)+1,1).eq.-1)
+      ipairf=nod(1)
+      ipairt=nen(nod(1)+1,1)
+c
       call sp_cascad(nen,int_mb(i_bb))
       endif
 c
@@ -1841,7 +1847,7 @@ c
       facy=1.0d0/boxsiz(iby,2)
       boxsiz(iby,2)=factor*boxsiz(iby,2)
       if(boxsiz(iby,2).lt.bymin) boxsiz(iby,2)=bymin
-      facy=1.0d0/boxsiz(iby,2)
+      facy=facy*boxsiz(iby,2)
       byi=byi+boxsiz(iby,2)
       else
       byr=byr+boxsiz(iby,2)
@@ -1867,7 +1873,7 @@ c
       facz=1.0d0/boxsiz(ibz,3)
       boxsiz(ibz,3)=factor*boxsiz(ibz,3)
       if(boxsiz(ibz,3).lt.bzmin) boxsiz(ibz,3)=bzmin
-      facz=1.0d0/boxsiz(ibz,3)
+      facz=facz*boxsiz(ibz,3)
       bzi=bzi+boxsiz(ibz,3)
       else
       bzr=bzr+boxsiz(ibz,3)
@@ -1927,7 +1933,7 @@ c
       endif
 c
     4 continue
-      call ga_igop(msp_20,ltran(1,2),2*np,'+')
+      call ga_igop(msp_22,ltran(1,2),2*np,'+')
 c
       do 5 i=1,np
       if(ltran(i,1).eq.me.and.ltran(i,2).ge.0) then
