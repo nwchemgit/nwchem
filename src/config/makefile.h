@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.403 2003-02-20 16:46:36 fruechtl Exp $
+# $Id: makefile.h,v 1.404 2003-02-20 17:26:31 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -265,7 +265,7 @@ ifeq ($(TARGET),SOLARIS)
 
 # Don't need this if using the SUN performance library
 #  need for BLASOPT business because of lapack and other possible missing entries
-ifdef BLASOPT
+ifndef BLASOPT
 CORE_SUBDIRS_EXTRA = blas lapack 
 endif
 
