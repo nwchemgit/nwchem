@@ -24,6 +24,7 @@ c
       logical geom_tag_to_element
       external geom_tag_to_element
 c
+      appch=0d0
       call  dplot_defgrid(volume,angle,
      ,     spread,step,const_m,const_p,
      ,     cooto,coofrom,no_of_spacings)
