@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.46 1999-11-11 00:39:58 bert Exp $
+c $Id: int_init.F,v 1.47 1999-11-24 23:09:16 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -227,6 +227,10 @@ c
       if (doug_kroll) then
          if (.not. rtdb_get(rtdb,'doug_kroll:type',MT_INT,1,
      $      dk_form_type)) dk_form_type = 2
+         if (.not. rtdb_get(rtdb,'doug_kroll:eventemp',MT_LOG,1,
+     $      dk_even_bas)) dk_even_bas = .false.
+         if (.not. rtdb_get(rtdb,'doug_kroll:etratio',MT_DBL,1,
+     $      dk_ratio)) dk_ratio = 2.0d0
       endif
 c
 c... generate memory requirements and store in structures in apiP.fh
