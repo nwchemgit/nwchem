@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.29 2003-10-17 22:55:09 carlfahl Exp $
+c$Id: gradients.F,v 1.30 2003-12-12 22:50:05 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -24,7 +24,7 @@ c
       integer geom, basis       ! handles
       logical status
       character*255 title
-      double precision charge
+c      double precision charge
 c
 c     cosmo flag
 c
@@ -53,8 +53,8 @@ c
 c     Figure out the numer of electrons from the required total
 c     charge and the sum of nuclear charges
 c
-      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
-     $     charge = 0.0d0
+c      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
+c     $     charge = 0.0d0
 c
       if (ga_nodeid().eq.0) then
          if (util_print('information',print_low)) then
