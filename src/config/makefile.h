@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.278 1999-05-25 17:06:06 d3e129 Exp $
+# $Id: makefile.h,v 1.279 1999-05-25 18:07:05 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1121,6 +1121,11 @@ ifeq ($(TARGET),LINUX)
   MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
 
+ifeq ($(BUILDING_PYTHON),python)
+   EXTRA_LIBS += -ltk -ltcl -L/usr/X11/lib -lX11 -ldl
+   INCPATH += -I/usr/include/python1.5
+endif
+
 ifdef USE_F2C
    FOPTIONS = -Nc40 -Nn2500 -Nx1000 -fno-globals -malign-double
   EXPLICITF = TRUE
@@ -1141,7 +1146,7 @@ endif
   LDOPTIONS = -g
 ifdef EGCS
      LINK.f = g77 $(LDFLAGS)
- EXTRA_LIBS = -lm
+ EXTRA_LIBS += -lm
 else
      LINK.f = gcc $(LDFLAGS)
  EXTRA_LIBS = -lf2c -lm
@@ -1153,9 +1158,6 @@ endif
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
 
-ifeq ($(BUILDING_PYTHON),python)
-   INCPATH += -I/usr/include/python1.5
-endif
 
 endif
 
