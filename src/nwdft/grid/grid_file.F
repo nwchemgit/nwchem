@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.59 2004-05-19 18:37:27 edo Exp $
+* $Id: grid_file.F,v 1.60 2005-01-11 05:32:37 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -211,7 +211,9 @@ cedo           write(6,*) ' enucs ',enuc,enuc_in
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1, DISK_ERR)
          file_opened=.false.
+#if 0
          filedump_opened=.false.
+#endif
          ierr=eaf_open(actualname, eaf_rw, fd)
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr,errmsg)
