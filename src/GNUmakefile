@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.76 1999-08-03 23:10:35 d3e129 Exp $
+# $Id: GNUmakefile,v 1.77 1999-08-20 18:59:57 d3e129 Exp $
 
 include config/makefile.h
 
@@ -134,7 +134,12 @@ sngl_to_dbl dbl_to_sngl:
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
-        
+ifeq ($(TARGET),CRAY-T3E)
+	$(MAKE) cleanDEP
+endif        
+ifeq ($(TARGET),CRAY-T3D)
+	$(MAKE) cleanDEP
+endif        
 #
 # This rule to make necessary subdirectories in lib and bin (normally)
 #
