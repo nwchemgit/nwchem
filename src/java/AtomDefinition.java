@@ -7,9 +7,9 @@ public class AtomDefinition{
 
     public AtomDefinition(String card1, String card2){
 	Name=card1.substring(5,10);
-	Type1=card1.substring(11,16);
-	Type2=card1.substring(17,22);
-	Type3=card1.substring(23,28);
+	Type1=card1.substring(11,17);
+	Type2=card1.substring(17,23);
+	Type3=card1.substring(23,29);
 	cgroup=Integer.parseInt(card1.substring(29,33).trim());
 	pgroup=Integer.parseInt(card1.substring(33,37).trim());
 	link=Integer.parseInt(card1.substring(37,41).trim());

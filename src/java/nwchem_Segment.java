@@ -457,12 +457,12 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    sgmFile.printf("%5d",k+1);
 		    if(id[k][0]>=0){
 			sgmFile.print(FrSgm.atom[id[k][0]].Name+" ");
-			sgmFile.print(FrSgm.atom[id[k][0]].Type1+" ");
-			sgmFile.print(FrSgm.atom[id[k][0]].Type1+" ");
+			sgmFile.print(FrSgm.atom[id[k][0]].Type1);
+			sgmFile.print(FrSgm.atom[id[k][0]].Type1);
 			if(id[k][1]>=0){
-			    sgmFile.print(ToSgm.atom[id[k][1]].Type1+" ");
+			    sgmFile.print(ToSgm.atom[id[k][1]].Type1);
 			} else {
-			    sgmFile.print(FrSgm.atom[id[k][0]].Type1+"D");
+			    sgmFile.print(FrSgm.atom[id[k][0]].Type1.substring(0,5)+"D");
 			};
 			sgmFile.printf("%4d",chgrp);
 			sgmFile.printf("%4d",polgrp);
@@ -487,9 +487,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.println();
 		    } else {
 			sgmFile.print(ToSgm.atom[id[k][1]].Name+" ");
-			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D");
-			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D");
-			sgmFile.print(ToSgm.atom[id[k][1]].Type1+" ");
+			sgmFile.print(ToSgm.atom[id[k][1]].Type1.substring(0,5)+"D");
+			sgmFile.print(ToSgm.atom[id[k][1]].Type1.substring(0,5)+"D");
+			sgmFile.print(ToSgm.atom[id[k][1]].Type1);
 			sgmFile.printf("%4d",chgrp);
 			sgmFile.printf("%4d",polgrp);
 			// sgmFile.printf("%4d",ToSgm.atom[id[k][1]].cgroup);

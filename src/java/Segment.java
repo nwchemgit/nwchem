@@ -148,9 +148,9 @@ public class Segment{
 	    for(int i=0; i<numAtoms; i++){
 		file.printf("%5d",i+1);
 		file.print(atom[i].Name+" ");
-		file.print(atom[i].Type1+" ");
-		file.print(atom[i].Type2+" ");
-		file.print(atom[i].Type3+" ");
+		file.print(atom[i].Type1);
+		file.print(atom[i].Type2);
+		file.print(atom[i].Type3);
 		file.printf("%4d",atom[i].cgroup);
 		file.printf("%4d",atom[i].pgroup);
 		file.printf("%4d",atom[i].link);
