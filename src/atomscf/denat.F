@@ -11,7 +11,7 @@ c
 c
       end
       subroutine guess_dens_gen(rtdb, geom, basis, odens, g_dens, eatom)
-C$Id: denat.F,v 1.14 1996-10-21 17:49:01 vg038 Exp $
+C$Id: denat.F,v 1.15 1997-02-07 01:28:53 d3g681 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -51,6 +51,10 @@ c
       integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
       integer ih, idc, idos, idt, idold, iss, ic, icopn, ismin
       integer iqmin, itransf, icc, last, memq, l_scr, k_scr
+c
+      integer ma_type
+      character*26 date
+c
       data iwrite/6/, oprint_dens/.false./, oprint_scf/.false./
 c
       oprint_dens = (odens .and. 
@@ -108,8 +112,12 @@ c
 c..
 c.. parse data from rtdb about atoms
 c..
-      if (.not.rtdb_get(rtdb,'atomscf:num_z',mt_int,1,num_z))
-     &    num_z = 0
+*      if (.not.rtdb_get(rtdb,'atomscf:num_z',mt_int,1,num_z))
+*     &    num_z = 0
+c
+      if (.not. rtdb_get_info(rtdb, 'atomscf:z', ma_type, num_z, date))
+     $     num_z = 0
+c
       if (num_z .gt. max_num_z)
      &    call errquit
      &    ('guess_dens: max_num_z < num_z  delta =',(max_num_z-num_z))
