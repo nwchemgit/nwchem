@@ -1,0 +1,6 @@
+Things to follow up on:
+
+o /para1/ should be replaced with called to GA_NodeID() and
+  GA_NNodes().  RSize and ISize have already been eliminated from the
+  code. 
+o Frozen orbitals do not work for energies.
