@@ -10,16 +10,12 @@
 
     LIBRARY = libmoints.a
 
-  USES_BLAS = moints.F moints_xx.F
+  USES_BLAS = moints_xx.F
 
  LIB_DEFINES =  -DDEBUG_PRINT -DDEBUG_PARALLEL
 
-#	       -DINTS_ONLY
-#              -DMOINTS_INTS_DUMMY
 #              -DDEBUG_PRINT
 #              -DDEBUG_PARALLEL
-#	       -DPERMUT_SYMM
-#              -DOLD_ALGORITHM
 
 
 include ../config/makefile.h
