@@ -64,4 +64,4 @@ thresh 1.0d-12
 nroots 1
 end
  
-task tce energy
+#task tce energy

@@ -1190,7 +1190,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   The SCF is already converged 
 
-         Total SCF energy =    -74.962663062035
+         Total S#F energy =    -74.962663062035
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
@@ -1335,8 +1335,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    22   0.0000000000009  -0.0501785354269     0.3     0.4
  --------------------------------------------------------
  Iterations converged
- CCSDTQ correlation energy / hartree =        -0.050178535426851
- CCSDTQ total energy / hartree       =       -75.012841597461656
+ C#SDTQ correlation energy / hartree =        -0.050178535426851
+ C#SDTQ total energy / hartree       =       -75.012841597461656
 
  CCSDTQ Lambda iterations
  --------------------------------------
@@ -1493,7 +1493,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Iterations converged
 
  Excited state root  1
- Excitation energy / hartree =        0.441646797754022
+ E#citation energy / hartree =        0.441646797754022
                    / eV      =       12.017825949981284
 
  EOM-CCSDTQ transition moments / hartree
@@ -1518,9 +1518,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   10a   (alpha)  11a   (beta ) ---   2a   (alpha)   8a   (beta )             0.13331
   10a   (alpha)  11a   (beta ) ---   4a   (alpha)   6a   (beta )             0.10658
  
- EOM-CCSDTQ ground state energy / hartree  =      -75.012841597461656
- EOM-CCSDTQ excitation energy / hartree    =        0.441646797754022
- EOM-CCSDTQ excited state energy / hartree =      -74.571194799707640
+ EOM-C#SDTQ ground state energy / hartree  =      -75.012841597461656
+ EOM-C#SDTQ excitation energy / hartree    =        0.441646797754022
+ EOM-C#SDTQ excited state energy / hartree =      -74.571194799707640
 
  Task  times  cpu:       55.8s     wall:       68.5s
  
