@@ -2,7 +2,7 @@
      &                       zeta, dzeta, d_p, ictr, bcenters, nq,
      &                       iandex)
 c
-C     $Id: dftg_beckew.F,v 1.5 1997-03-18 01:19:27 d3h449 Exp $
+C     $Id: dftg_beckew.F,v 1.6 1998-03-24 22:48:01 d3h449 Exp $
 c
       implicit none
 c
@@ -25,15 +25,17 @@ C
       double precision sk
       double precision aaij, rrij
 C     
-      double precision damuab(3), dbmuab(3)
+      double precision damuab(3), dbmuba(3)
       double precision dBPA(3), dAPA(3)
       double precision xi, yi, zi, dmu1, dmu2, dmu3
       integer ictr_reduc
       double precision tmu, tmu1
       integer A, B
-      double precision fac, tfac, TOLL
-      parameter (tfac=-27./16.)
-      parameter(TOLL=0.99d0)
+      double precision fac, tfac, TOLL,eps
+      parameter (tfac=-27.d0/16.d0,eps=1.d-16)
+      parameter(TOLL=0.925)
+      double precision ppp
+      ppp(x)=0.5D0*x*(3.D0-x*x)
 c     
 c     Evaluate derivative of Becke space partitioning weight. 
 c     
@@ -94,22 +96,8 @@ c                 i>j
 c
 c                 atomic size adjustment 
 c             
-c                 nu = mu + aaij*(1.D0 - mu*mu)
-                  nu = mu
-c             
-c                 compute p1(nu)
-c             
-                  nu = 0.5D0*nu*(3.D0 - nu*nu)
-c             
-c                 compute p2(nu)
-c             
-                  nu = 0.5D0*nu*(3.D0 - nu*nu)
-c             
-c                 compute p3(nu)
-c             
-                  nu = 0.5D0*nu*(3.D0 - nu*nu)
-c              
-                  sk = 0.5D0 - 0.5D0*nu
+                 nu = mu + aaij*(1.D0 - mu*mu)
+                  sk = 0.5D0 - 0.5D0*ppp(ppp(ppp(nu)))
 c
                   p(n,i) = p(n,i)*sk
                   p(n,j)=p(n,j)*(1.d0 - sk)
@@ -136,7 +124,6 @@ c        derivation variable B
 c       
          do B = 1, bcenters
             if (A.ne.B)then
-c               write(0,*) ' A ',A,' B ',B,' istep ',istep
                jind = iandex(B)
 c
                if (A.ge.B)then
@@ -156,12 +143,9 @@ c
 c
                   mu = (rq(n,A) - rq(n,B))*rrij
 c
-                  if (mu.le.TOLL)then
-c               
 c                    atomic size adjustment 
 c               
-c                    nu = mu + aaij*(1.D0 - mu*mu)
-                     nu = mu
+                    nu = mu + aaij*(1.D0 - mu*mu)
 c
 c                    t(mu) = -27/16*(1-mu*mu)
 c
@@ -169,7 +153,7 @@ c
 c               
 c                    compute p1(nu)
 c               
-                     nu = 0.5D0*nu*(3.D0 - nu*nu)
+                     nu = ppp(nu)
 c
 c                    t(mu) = t(mu)*(1-p1(mu)*p1(mu))
 c
@@ -177,7 +161,7 @@ c
 c               
 c                    compute p2(nu)
 c               
-                     nu = 0.5D0*nu*(3.D0 - nu*nu)
+                     nu = ppp(nu)
 c
 c                    t(mu) = t(mu)*(1-p2(mu)*p2(mu))
 c
@@ -185,68 +169,70 @@ c
 c               
 c                    compute p3(nu)
 c               
-                     nu = 0.5D0*nu*(3.D0 - nu*nu)
+                     nu = ppp(nu)
 c                
                      sk = 0.5D0 - 0.5D0*nu
+c                     tmu=(1.d0-ppp(ppp(nu))**2)*(1.-ppp(nu)**2)*
+c     *                    (1.-nu*nu)*tfac  
+c                     sk = 0.5D0 - 0.5D0*ppp(ppp(ppp(nu)))
+                     if(abs(sk).gt.eps) then
                      tmu = tmu/sk
-c               
-c                    atomic size adjustment derivative
-c               
-c                    fac=(1.-aaij*2.*mu)
-                     fac=1.d0
-c               
-c                    compute D(A)mu(AB)
-c               
-                     xi = qxyz(1,n) - xyz(1,A)
-                     yi = qxyz(2,n) - xyz(2,A)
-                     zi = qxyz(3,n) - xyz(3,A)
-c      
-                     damuab(1) = (xi/rq(n,A) - mu*dmu1)*rrij*fac
-                     damuab(2) = (yi/rq(n,A) - mu*dmu2)*rrij*fac
-                     damuab(3) = (zi/rq(n,A) - mu*dmu3)*rrij*fac
 c               
 c                    compute D(B)mu(AB)
 c               
                      xi = qxyz(1,n) - xyz(1,B)
                      yi = qxyz(2,n) - xyz(2,B)
                      zi = qxyz(3,n) - xyz(3,B)
-c
-                     dbmuab(1) = -(xi/rq(n,B) - mu*dmu1)*rrij*fac
-                     dbmuab(2) = -(yi/rq(n,B) - mu*dmu2)*rrij*fac
-                     dbmuab(3) = -(zi/rq(n,B) - mu*dmu3)*rrij*fac
+c               
+c                    atomic size adjustment derivative
+c               
+                    fac=(1.-aaij*2.*mu)
+                     dbmuba(1) = -(xi/rq(n,B) + mu*dmu1)*rrij*fac
+                     dbmuba(2) = -(yi/rq(n,B) + mu*dmu2)*rrij*fac
+                     dbmuba(3) = -(zi/rq(n,B) + mu*dmu3)*rrij*fac
 c
                      tmu1=tmu*p(n,A)
 c               
 c                    term \Delta_B PA
 c               
-                     dBPA(1)= tmu1*dbmuab(1)
-                     dBPA(2)= tmu1*dbmuab(2)
-                     dBPA(3)= tmu1*dbmuab(3)
-c               
-c                    term \Delta_A PA (partial)
-c               
-                     dAPA(1) = tmu1*damuab(1)
-                     dAPA(2) = tmu1*damuab(2)
-                     dAPA(3) = tmu1*damuab(3)
+                     dBPA(1)= -tmu1*dbmuba(1)
+                     dBPA(2)= -tmu1*dbmuba(2)
+                     dBPA(3)= -tmu1*dbmuba(3)
 c
                      dzeta(1,n,B) = dzeta(1,n,B)+ dBPA(1)
                      dzeta(2,n,B) = dzeta(2,n,B)+ dBPA(2)
                      dzeta(3,n,B) = dzeta(3,n,B)+ dBPA(3)
 c
-                     if (A.eq.ictr_reduc)then
-                        d_p(1,n,B) = d_p(1,n,B)+ dBPA(1)
-                        d_p(2,n,B) = d_p(2,n,B)+ dBPA(2)
-                        d_p(3,n,B) = d_p(3,n,B)+ dBPA(3)
-                     else
-                        dzeta(1,n,A) = dzeta(1,n,A)+ dAPA(1)
-                        dzeta(2,n,A) = dzeta(2,n,A)+ dAPA(2)
-                        dzeta(3,n,A) = dzeta(3,n,A)+ dAPA(3)
-                     endif
-                  endif
+                     if (A.ne.ictr_reduc)then
+c               
+c                    term \Delta_A PA (partial)
+c               
+c               
+c                    compute D(A)mu(AB)
+c               
+                     xi = qxyz(1,n) - xyz(1,A)
+                     yi = qxyz(2,n) - xyz(2,A)
+                     zi = qxyz(3,n) - xyz(3,A)
+                     fac=(1.-aaij*2.*mu)
+                     damuab(1) = -(xi/rq(n,A)+mu*dmu1)*rrij*fac
+                     damuab(2) = -(yi/rq(n,A)+mu*dmu2)*rrij*fac
+                     damuab(3) = -(zi/rq(n,A)+mu*dmu3)*rrij*fac
+                     dAPA(1) = tmu1*damuab(1)
+                     dAPA(2) = tmu1*damuab(2)
+                     dAPA(3) = tmu1*damuab(3)
+                     dzeta(1,n,A) = dzeta(1,n,A)+ dAPA(1)
+                     dzeta(2,n,A) = dzeta(2,n,A)+ dAPA(2)
+                     dzeta(3,n,A) = dzeta(3,n,A)+ dAPA(3)
+                   else
+                     d_p(1,n,B) =  dBPA(1)
+                     d_p(2,n,B) =  dBPA(2)
+                     d_p(3,n,B) =  dBPA(3)
+                   endif
+                 endif
                enddo
-            endif
+             endif
+           enddo
          enddo
-      enddo
 c     
 c     compute \Delta_i W_ictr
 c     
@@ -267,14 +253,5 @@ c
       do n = 1, nq
          qwght(n) = (p(n,ictr_reduc)*qwght(n))/zeta(n)
       enddo
-c                
-c        write(0,1235) qxyz(1,n),qxyz(2,n),qxyz(3,n),
-c     &               dAPA(1),dAPA(2),dAPA(3),
-c     &               dBPA(1),dBPA(2),dBPA(3)
-c 1235   format(1x,3f12.6,'A',3f10.6,'B',3f10.6,i4)
-c        write(0,1234) B,qxyz(1,n),qxyz(2,n),qxyz(3,n),
-c     & d_qwght(1,n,B),d_qwght(2,n,B),d_qwght(3,n,B)
-c 1234   format(i4,3f12.6,' | ',3f12.6)
-c
       return
       end
