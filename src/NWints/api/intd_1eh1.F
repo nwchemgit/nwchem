@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.16 1999-10-26 22:18:54 mg201 Exp $
+C $Id: intd_1eh1.F,v 1.17 1999-12-30 22:22:28 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -101,6 +101,7 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "rel_nwc.fh"
 c::external subroutines used
 c... errquit
 c::functions
@@ -121,7 +122,7 @@ c                       ! NOTE: nint*3 integral derivatives returned per unique 
       double precision Ta(nint,3,2)     ! [scratch] space for kinetic integrals
 c::local
       logical doT
-      integer ucont
+      integer ucont,uconts
       integer ibas,iatom,inp,igen,iexp,icf,itype,igeom,isbas,icfS
       integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom,jsbas,jcfS
       integer nat
@@ -134,8 +135,7 @@ c
       integer i_nbf_s, j_nbf_s
       integer nint_x, nint_s
       integer zatom, zyx
-      integer lbas, sbas
-      integer rel_dbg, rel_typ
+      integer lbas, sbas, abas
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
@@ -149,39 +149,39 @@ c
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
-      isbas = ibas
-      jsbas = jbas
       oNR = .true.
       oirel = .false.
       ojrel = .false.
+      orel = .false.
 c
-      if (any_rel) then
-C        write (LuOut,*) 'int_1eke .............'
+      if (dyall_mod_dir) then
         lbas = lc_bsh + BASIS_HANDLE_OFFSET
         sbas = sc_bsh + BASIS_HANDLE_OFFSET
-        oirel = (ish.le.ncont_tot_gb(sbas))
-        ojrel = (jsh.le.ncont_tot_gb(sbas))
-        oNR = .not.(oirel.and.ojrel)
-c
-c     relativistic integral options. rel_typ selects scalar (1),
-c     spin-orbit (3) or both (4). Should be passed when spin-orbit 
-c     integrals are needed, or included in a common block.
-c
-        rel_dbg = 0
-        rel_typ = 1
-c
-        if (oirel) then
-          if (any_large) ibas = lbas
-          isbas = sbas
-        end if
-        if (ojrel) then
-          if (any_large) jbas = lbas
-          jsbas = sbas
-        end if
+        abas = ao_bsh + BASIS_HANDLE_OFFSET
+        orel = ibas .eq. abas .and. jbas .eq. abas
       end if
-      orel = oirel.or.ojrel
+c
+c   i shell
 c
       ucont = (sf_ibs_cn2ucn(ish,ibas))
+c
+c     check for relativistic shell
+c
+      if (orel .and. (infbs_cont(CONT_RELLS ,ucont,ibas) .ne. 0)) then
+        oirel = .true.
+        isbas = sbas
+        uconts = ao_to_ls(ucont)
+        if (uconts .eq. 0) call errquit (
+     &      'int_1eke: no relativistic pointer',911)
+        if (nesc_1e_approx) then
+          ibas = lbas
+          ucont = uconts
+        end if
+      else
+        uconts = ucont
+        isbas = ibas
+      end if
+c
       inp   = infbs_cont(CONT_NPRIM,ucont,ibas)
       igen  = infbs_cont(CONT_NGEN,ucont,ibas)
       iexp  = infbs_cont(CONT_IEXP,ucont,ibas)
@@ -189,9 +189,29 @@ c
       itype = infbs_cont(CONT_TYPE,ucont,ibas) 
       igeom = ibs_geom(ibas)
       iatom = (sf_ibs_cn2ce(ish,ibas))
-      icfS  = infbs_cont(CONT_ICFP ,ucont,isbas)
+      icfS  = infbs_cont(CONT_ICFP ,uconts,isbas)
+c
+c   j shell
 c
       ucont = (sf_ibs_cn2ucn(jsh,jbas))
+c
+c     check for relativistic shell
+c
+      if (orel .and. (infbs_cont(CONT_RELLS ,ucont,jbas) .ne. 0)) then
+        ojrel = .true.
+        jsbas = sbas
+        uconts = ao_to_ls(ucont)
+        if (uconts .eq. 0) call errquit (
+     &      'int_1eke: no relativistic pointer',911)
+        if (nesc_1e_approx) then
+          jbas = lbas
+          ucont = uconts
+        end if
+      else
+        uconts = ucont
+        jsbas = jbas
+      end if
+c
       jnp   = infbs_cont(CONT_NPRIM,ucont,jbas)
       jgen  = infbs_cont(CONT_NGEN,ucont,jbas)
       jexp  = infbs_cont(CONT_IEXP,ucont,jbas)
@@ -199,7 +219,10 @@ c
       jtype = infbs_cont(CONT_TYPE,ucont,jbas) 
       jgeom = ibs_geom(jbas)
       jatom = (sf_ibs_cn2ce(jsh,jbas))
-      jcfS  = infbs_cont(CONT_ICFP ,ucont,jsbas)
+      jcfS  = infbs_cont(CONT_ICFP ,uconts,jsbas)
+c
+      oNR = .not.(oirel.and.ojrel)
+      orel = oirel.or.ojrel
 c
       if (igeom.ne.jgeom) then
         write(luout,*)'intd_1eh1P.F: two different geometries for',
@@ -251,7 +274,7 @@ c..............overlap, k-e,  pot-e,  canab,   dryrun
      &         scr,lscr)
         end if
       elseif (cando_hnd_1e(i_basis,ish,0).and.
-     &  cando_hnd_1e(j_basis,jsh,0).and. .not.any_rel) then
+     &  cando_hnd_1e(j_basis,jsh,0).and. .not.dyall_mod_dir) then
         call hnd_stvintd(
      &       coords(1,iatom,igeom),
      &       dbl_mb(mb_exndcf(iexp,ibas)),
