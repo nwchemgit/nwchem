@@ -1,4 +1,4 @@
-C $Id: rel_pot2.F,v 1.1 1998-09-25 18:07:49 mg201 Exp $
+C $Id: rel_pot2.F,v 1.2 1998-09-25 18:44:25 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pot2}
 c:tex-This routine assembles the relativistic (small-small) potential 
@@ -14,8 +14,8 @@ c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine rel_pot2 (Vpp,Vpm,Vmp,Vmm,Vrel,nints,ntyp,n_x,
-     &    l_a,np_a,n_a,nm_a,n_cont_A,
-     &    l_b,np_b,n_b,nm_b,n_cont_B,
+     &    l_a,np_a,n_a,nm_a,n_ca,
+     &    l_b,np_b,n_b,nm_b,n_cb,
      &    DryRun,scr,lscr,ibug)
 c:tex-\end{verbatim}
 ************************************************************************
@@ -63,7 +63,7 @@ c:tex-ibug = 1 for address printing,
 c:tex-ibug = 2 for array printing, 
 c:tex-ibug = 3 for both.}
 c:tex-
-c:tex-Note that n_cont_A and n_cont_B are essentially only the second and
+c:tex-Note that n_ca and n_cb are essentially only the second and
 c:tex-fourth dimensions of the integral array; the code does not make use
 c:tex-of their significance as number of contracted functions, so there
 c:tex-is no reason why these cannot be used for the two-electron integrals.
@@ -115,10 +115,10 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
         call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cA,Vpp,Vpm,
      &      scr(i_grdp),n_allp_B)
         call dfill (nm,zero,scr(i_grdm),1)
-        if (l_B .gt. 0) call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cont_A,
+        if (l_B .gt. 0) call ecp_grad_a (l_A,np_A,n_A,nm_A,n_ca,
      &      Vmp,Vmm,scr(i_grdm),n_allm_B)
         call dfill (nn,zero,scr,1)
-        call ecp_grad_a (l_b,np_b,n_b,nm_b,n_cont_B*n_all_A*3,
+        call ecp_grad_a (l_b,np_b,n_b,nm_b,n_cb*n_all_A*3,
      &      scr(i_grdp),scr(i_grdm),scr,n_x)
         call dfill (nints*ntyp,zero,Vrel,1)
 *
