@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.496 2005-01-28 20:23:07 edo Exp $
+# $Id: makefile.h,v 1.497 2005-02-05 00:02:02 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1369,7 +1369,7 @@ endif
   ifeq ($(LINUXCPU),ppc)
 # this are for PowerPC
     ifeq ($(FC),xlf)
-      FOPTIONS  = -q32  -qextname -qfixed -qnosave -qsmallstack  -qalign=4k
+      FOPTIONS  = -q32  -qextname -qfixed 
       FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsigtrap -qxlf77=leadzero
       FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
       ifdef RSQRT
@@ -1662,9 +1662,6 @@ endif # end of ia32 bit
         COPTIONS  +=   -march=k8 -mtune=k8
       endif
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
-     ifeq ($(BUILDING_PYTHON),python)
-     EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl
-     endif
      ifdef  USE_GPROF
        FOPTIONS += -pg
        COPTIONS += -pg
@@ -1673,16 +1670,30 @@ endif # end of ia32 bit
 endif
 
     ifeq ($(_CPU),ppc64)
+# Tested on Red Hat Enterprise Linux AS release 3 (Taroon Update 3)
+# Tested on SLES 9
+# Feb 5th 2005
+# xlf v9.1
+# xlc v7.0 
+# gcc-3.2.3-42 
+
       FC=xlf
-      CC=/opt/cross/bin/powerpc64-linux-gcc
+      CC=gcc
+      ifeq ($(CC),xlc)
+        COPTIONS  +=  -q64 -qlanglvl=extended
+      else
+#this for gcc/cc
+        COPTIONS  +=  -m64  -O
+      endif
       ifeq ($(FC),xlf)
-        FOPTIONS  =  -q64 -qextname -qfixed -qnosave  -qalign=natural
+#RSQRT=y breaks intchk QA
+        FOPTIONS  =  -q64 -qextname -qfixed #-qnosave  #-qalign=4k
         FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192 -qxlf77=leadzero
         ifdef  USE_GPROF
           FOPTIONS += -pg
           LDOPTIONS += -pg
         endif
-        FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qcache=auto
+        FOPTIMIZE= -O3 -qstrict -qarch=auto -qtune=auto -qcache=auto -qfloat=fltint 
         ifdef RSQRT
           FOPTIMIZE  += -qfloat=rsqrt:fltint
         endif
@@ -1691,13 +1702,6 @@ endif
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
         DEFINES  +=   -DXLFLINUX -DCHKUNDFLW
         CPP=/usr/bin/cpp  -P -C -traditional
-#    LDOPTIONS = -v #-F/home/eapra/nwchem/src/xlf.cfg:edo
-#ld with SLES 8 broken. Needed snapshot from binutils
-     ifdef USE_GPROF
-LINK.f = /home/eapra/bin/ld   -L/home/eapra/nwchem/lib/LINUX64 -L/home/eapra/nwchem/src/tools/lib/LINUX64 /opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib/gcrt1.o -L/opt/ibmcmp/xlf/8.1/lib64 -L/opt/ibmcmp/xlsmp/1.3/lib64 -L/opt/ibmcmp/xlf/8.1/lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlsmp/1.3/../../lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 $(LDFLAGS) 
-      else
-LINK.f = /home/eapra/bin/ld  -L/home/eapra/nwchem/src/tools/lib/LINUX64 /opt/cross/powerpc64-linux/lib/crt1.o -L/opt/ibmcmp/xlf/8.1/lib64 -L/opt/ibmcmp/xlsmp/1.3/lib64 -L/opt/ibmcmp/xlf/8.1/lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlsmp/1.3/../../lib -L/opt/cross/powerpc64-linux/lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 -R/opt/cross/powerpc64-linux/lib -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 $(LDFLAGS)  -lpthread
-      endif
         ifdef USE_INTEGER4
           FOPTIONS += -qintsize=4
           DEFINES  +=   -DBAD_GACCESS
@@ -1705,17 +1709,14 @@ LINK.f = /home/eapra/bin/ld  -L/home/eapra/nwchem/src/tools/lib/LINUX64 /opt/cro
           FOPTIONS += -qintsize=8
         endif
       endif
-      ifeq ($(CC),xlc)
-        COPTIONS  +=  -q64 -qlanglvl=extended
-      endif
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
-     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
+#     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
     endif
 
-ifeq ($(BUILDING_PYTHON),python)
+     ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
-   EXTRA_LIBS += -lpthread -ldl
-endif
+     EXTRA_LIBS +=    -lnwcutil  -lpthread -lutil -ldl
+     endif
 
 endif
 
