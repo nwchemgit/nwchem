@@ -30,7 +30,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
-c $Id: cf_pairs.F,v 1.9 2000-02-10 22:54:36 d3j191 Exp $
+c $Id: cf_pairs.F,v 1.10 2000-02-20 15:59:33 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -47,7 +47,7 @@ c
 c
       integer nwloc,nsloc,nwnon,nsnon,npairs,mpairs
       integer lptr,lptrn
-      integer nconst,i
+      integer nconst
 c
       if(lself) then
       jwfr=iwfr

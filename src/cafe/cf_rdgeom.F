@@ -1,5 +1,5 @@
       subroutine cf_rdgeom(snam)
-c $Id: cf_rdgeom.F,v 1.2 2000-02-18 07:02:30 d3j191 Exp $
+c $Id: cf_rdgeom.F,v 1.3 2000-02-20 15:59:33 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -15,7 +15,7 @@ c
       real*8 rdata(9),vadata(6),vrdata(6)
       integer idata(16)
       character*6 cdata(3)
-      integer i,j,itemp(4),i_i,i_j
+      integer i,j,itemp(4)
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbt,nhs,nds,nos,nts,nxs
       integer numbl,numbi,numbd
@@ -94,9 +94,6 @@ c
       ewc(1)=0.0d0
       ewc(2)=0.0d0
       ewc(3)=0.0d0
-c
-      call cf_ndxtrd(2,int_mb(i_i),int_mb(i_j),nts)
-      call cf_ndxxcl(2,int_mb(i_i),int_mb(i_j),nxs)
 c
       endif
 c

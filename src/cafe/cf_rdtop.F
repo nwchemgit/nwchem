@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.13 1999-12-09 19:41:17 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.14 2000-02-20 15:59:33 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -12,7 +12,6 @@ c
 c
       character*80 title(3)
       character*10 topdat,toptim,ffield
-      character*1 cdummy
       real*8 releps
       character*16 stemp,snam(nsatot)
       integer natyps,nqtyps
@@ -29,8 +28,6 @@ c
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
      + form='formatted',status='old',err=9999)
 c
-c      nsm=0
-c      nsf=0
       nwc=0
       nsc=0
       nmult(1)=0

@@ -1,12 +1,12 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.11 1999-09-08 16:49:56 d3j191 Exp $
+c $Id: pme_fft.F,v 1.12 2000-02-20 15:59:33 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
 #include "mafdecls.fh"
 c
-      integer nd1,nd2,nd3,isign,map1(*),map2(*),itype,istat
+      integer nd1,nd2,nd3,isign,map1(*),map2(*),itype
       real*8 x1(*),x2(*)
       integer knode(ngz)
 c
@@ -26,12 +26,12 @@ c     itype        : 0=standard 3d-fft, 1=specific 3d-fft if available
 c
       integer i,ndim,jstat,isgn
       real*8 scale
-      integer liwrk,lrwrk,i_rwrk,l_rwrk,i_iwrk,l_iwrk,icntxt
+      integer liwrk,lrwrk,i_rwrk,l_rwrk,i_iwrk,l_iwrk
 c
 c     IBM-SP2 specific
 c
 #if defined(USE_ESSL)
-      integer ip(40)
+      integer icntxt,ip(40)
 #endif
 c
       ndim=nd1*nd2*nd3

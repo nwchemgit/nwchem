@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.9 2000-02-18 07:02:30 d3j191 Exp $
+c $Id: cf_list.F,v 1.10 2000-02-20 15:59:33 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -420,6 +420,7 @@ c
      + (iand(idt(isa),mrestr).eq.lrestr.or.
      + iand(idt(jsa),mrestr).eq.lrestr) ) iskip1=0
       istsum=0
+      isxsum=0
       if(iskip1.eq.0.or.iskip2.eq.0) then
       jsglob=iga(jsa)
       jfrsx=ndxx(jsglob-1,1)+1
@@ -435,9 +436,8 @@ c
     6 continue
       istsum=0
     7 continue
-      endif
       isxsum=0
-      if((iskip1.eq.0.or.iskip2.eq.0).and.istsum.eq.0) then
+      if(istsum.eq.0) then
       isxsum=1
       do 8 isx=ifrsx,itosx
       if(jsglob.eq.ndxx(isx,2)) goto 10
@@ -447,6 +447,7 @@ c
     9 continue
       isxsum=0
    10 continue
+      endif
       endif
       if(istsum.eq.0.and.isxsum.eq.0) then
       if(iskip1.eq.0) then
@@ -1231,11 +1232,13 @@ c
     8 continue
       do 9 istloc=1,nthird
       ist=lthird(istloc)
+      itloc=-1
       do 10 isa=1,nsatot
       itloc=itemp(isa)
       if(idtn(isa-1,1).lt.ist.and.idtn(isa,1).ge.ist) goto 11
    10 continue
    11 continue
+      if(itloc.lt.0) call errquit('Error in cf_lst',me)
       jtloc=itemp(idtn(ist,2))
       iq=iand(idt(itloc),lquant)
       jq=iand(idt(jtloc),lquant)
