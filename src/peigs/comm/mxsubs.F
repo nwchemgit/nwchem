@@ -1,5 +1,5 @@
 *
-* $Id: mxsubs.F,v 1.12 1999-07-28 00:39:03 d3e129 Exp $
+* $Id: mxsubs.F,v 1.13 2000-08-11 18:36:23 bjohnson Exp $
 *
 *======================================================================
 *
@@ -88,7 +88,7 @@ c            used by the diagonalizer is 'ialnod', meaning "all nodes".)
 c
 
       common /xpress/ nocare, norder, nonode, ihost, ialnod, ialprc
-      include 'mxsubs.h'
+#include "mxsubs.h"
       integer ienv(4)
 #ifdef ALOG
 #include "alogf.h"
