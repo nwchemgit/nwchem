@@ -135,7 +135,7 @@ also specify \verb+SYM OFF+ (Section \ref{sec:sym}).
 \label{sec:tol2e}
 
 \begin{verbatim}
-  TOL2E <real tol2e default min(10^-7 , 0.01*$thresh$)>
+  TOL2E <real tol2e default min(10^-7 , 0.001*$thresh$)>
 \end{verbatim}
 
 The variable \verb+tol2e+ is used in determining the integral
@@ -162,7 +162,7 @@ directive is, for example:
 \end{verbatim}
 
 For very diffuse basis sets, or for high-accuracy calculations it
-might be necessary to set this parameter.  A value of $10^{-10}$ is
+might be necessary to set this parameter.  A value of $10^{-12}$ is
 sufficient for nearly all such purposes.
 
 \section{{\tt VECTORS} --- input/output of MO vectors}

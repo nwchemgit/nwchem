@@ -1,0 +1,518 @@
+\label{sec:python}
+
+Python (version 1.5.1) programs may be embedded into the NWChem input
+and used to control the execution of NWChem.  Python is a very
+powerful and widely used scripting language that provides useful
+things such as variables, conditional branches and loops, and is also
+readily extended.  Example applications include scanning potential
+energy surfaces, computing properties in a variety of basis sets,
+optimizing the energy w.r.t. parameters in the basis set, computing
+polarizabilities, and simple molecular dynamics.
+
+Visit the Python web-site \verb+http://www.python.org+ for a full manual
+and lots of useful code and resources.  
+
+\section{How to input and run a Python program inside NWChem}
+
+A Python program in input into NWChem inside a Python compound directive.
+\begin{verbatim}
+  python [print|noprint]
+    ...
+  end
+\end{verbatim}
+The \verb+END+ directive must be flush against the left
+margin (see the Troubleshooting section for the reason why).
+
+The program is by default printed to standard output when read, but
+this may be disabled with the \verb+noprint+ keyword.  Python uses
+indentation to indicate scope (and the initial level of indentation
+must be zero), whereas NWChem uses optional indentation only to make
+the input more readable.  For example, in Python, the contents of a
+loop, or conditionally-executed block of code must be indented further
+than the surrounding code.  Also, Python attaches special meaning to
+several symbols also used by NWChem.  For these reasons, the input
+inside a \verb+PYTHON+ compound directive is read verbatim except that
+if the first line of the Python program is indented, the same amount
+of indentation is removed from all subsequent lines.  This is so that
+a program may be indented inside the \verb+PYTHON+ input block for
+improved readability of the NWChem input, while satisfying the
+constraint that when given to Python the first line has zero
+indentation.
+
+E.g., the following two sets of input specify the same Python program.
+\begin{verbatim}
+  python
+    print 'Hello'
+    print 'Goodbye'
+  end
+
+  python
+  print 'Hello'
+  print 'Goodbye'
+  end
+\end{verbatim}
+whereas this program is in error since the indentation of the second
+line is less than that of the first.
+\begin{verbatim}
+  python
+    print 'Hello'
+  print 'Goodbye'
+  end
+\end{verbatim}
+
+The Python program is not executed until the following directive
+is encountered
+\begin{verbatim}
+  task python
+\end{verbatim}
+which is to maintain consistency with the behavior of NWChem in general.
+{\em The program is executed by all nodes.}  This enables the full functionality and speed of NWChem to be accessible from Python, but there are some gotchas
+\begin{itemize}
+\item Print statements and other output will be executed by all nodes
+so you will get a lot more output than probably desired unless the
+output is restricted to just one node (by convention node zero).
+\item The calls to NWChem functions are all collective (i.e., all
+nodes must execute them).  If these calls are not made collectively
+your program may deadlock (i.e., cease to make progress).
+
+\item When writing to the database (\verb+rtdb_put()+) it is the data
+from node zero that is written.
+\end{itemize}
+
+\section{NWChem extensions}
+
+Since we have little experience using Python, the NWChem-Python
+interface might change in a non-backwardly compatible fashion as we
+discover better ways of providing useful functionality.  We would
+appreciate suggestions about useful things that can be added to the
+NWChem-Python interface.  In principle, nearly any Fortran or C
+routine within NWChem can be extended to Python, but we are also
+interested in ideas that will enable users to build completely new
+things.  For instance, how about being able to define your own energy
+functions that can be used with the existing optimizers or dynamics
+package?
+
+Python has been extended with the following NWChem-specific commands.
+They all handle errors by throwing exceptions which may be handled in
+the standard Python manner.  The first four commands will be of the
+widest interest.
+\begin{itemize}
+\item \verb+input_parse(string)+ --- invokes the standard NWChem input
+parser with the data in \verb+string+ as input.  Note that the usual
+behavior of NWChem will apply --- the parser only reads input up to
+either end of input or until a \verb+TASK+ directive is encountered
+(the task directive is {\em not} executed by the parser).
+
+\item \verb+task_energy(theory)+ --- returns the energy as if computed
+with the NWChem directive \verb+TASK ENERGY <THEORY>+.
+
+\item \verb+task_gradient(theory)+ --- returns a tuple
+\verb+(energy,gradient)+ as if computed with the NWChem
+directive \verb+TASK GRADIENT <THEORY>+.
+
+\item \verb+ga_nodeid()+ --- returns the number of the parallel
+process.
+
+\item \verb+rtdb_print(print_values)+ --- prints the contents of the
+RTDB.  If \verb+print_values+ is 0, only the keys are printed, if it
+is 1 then the values are also printed.
+
+\item \verb+rtdb_put(name, values)+ or
+\verb+rtdb_put(name, values, type)+ --- puts the values into the
+database with the given name.  In the first form, the type is inferred
+from the first value, and in the second form the type is specified
+using the last argument as one of \verb+INT+, \verb+DBL+,
+\verb+LOGICAL+, or \verb+CHAR+.
+
+\item \verb+rtdb_get(name) + --- returns the data from the database
+associated with the given name.
+\end{itemize}
+
+\section{Examples}
+
+Several examples will provide the best explanation of how the extensions
+are used, and how Python might prove useful.
+
+\subsection{Hello world}
+
+\begin{verbatim}
+  python
+    print 'Hello world from process ', ga_nodeid()
+  end
+
+  task python
+\end{verbatim}
+
+This input prints the traditional greeting from each parallel process.
+
+\subsection{Scanning a basis exponent}
+\begin{verbatim}
+  geometry units au noprint
+   O 0   0       0
+   H 0   1.430  -1.107
+   H 0  -1.430  -1.107
+  end
+
+  python noprint
+    exponent = 0.1
+    while (exponent <= 2.01):
+       input_parse('''
+          basis noprint
+            H library 3-21g
+            O library 3-21g
+            O d; %f 1.0
+          end
+       ''' % (exponent))
+
+       print ' exponent = ', exponent, ' energy = ', task_energy('scf')
+       exponent = exponent + 0.1
+  end
+
+  print none
+
+  task python
+\end{verbatim}
+
+This program augments a 3-21g basis for water with a d-function on
+oxygen and varies the exponent from 0.1 to 2.0 in steps of 0.1,
+printing the exponent and energy at each step.  
+
+The geometry is input as usual, but the basis set input is embedded
+inside a call to \verb+input_parse()+ in the Python program.  The
+standard Python string substitution is used to put the current value of
+the exponent into the basis set (replacing the \verb+%f+) before being
+parsed by NWChem.  The energy is returned by \verb+task_energy('scf')+
+and printed out.  The \verb+print none+ in the NWChem input switches
+off all NWChem output so all you will see is the output from your
+Python program.
+
+Note that execution in parallel may produce unwanted output since
+all process execute the print statement inside the Python program.
+
+\subsection{Scanning a basis exponent revisited.}
+
+\begin{verbatim}
+  geometry units au
+   O 0       0        0
+   H 0       1.430   -1.107
+   H 0      -1.430   -1.107
+  end
+
+  print none
+
+  python
+    if (ga_nodeid() == 0): plotdata = open("plotdata",'w')
+
+    def energy_at_exponent(exponent):
+       input_parse('''
+          basis noprint
+             H library 3-21g
+             O library 3-21g
+             O d; %f 1.0
+          end
+       ''' % (exponent))
+
+       return task_energy('scf')
+
+    exponent = 0.1
+    while exponent <= 2.0:
+       energy = energy_at_exponent(exponent)
+       if (ga_nodeid() == 0):
+          print ' exponent = ', exponent, ' energy = ', energy
+          plotdata.write('%f %f\n' % (exponent , energy))
+       exponent = exponent + 0.1
+
+    if (ga_nodeid() == 0): plotdata.close()
+  end
+
+  task python
+\end{verbatim}
+
+This input performs exactly the same calculation as the previous one,
+but uses a slightly more sophisticated Python program, also writes
+the data out to a file for easy visualization with a package such as
+\verb+gnuplot+, and protects write statements to prevent 
+duplicate output in a parallel job.  The only significant differences
+are in the Python program.  A file called \verb+"plotdata"+ is opened,
+and then a procedure is defined which given an exponent returns the
+energy.  Next comes the main loop that scans the exponent through the
+desired range and prints the results to standard output and to the
+file.  When the loop is finished the additional output file is closed.
+
+\subsection{Scanning a geometric variable}
+
+\begin{verbatim}
+  python
+    geometry = '''
+      geometry noprint
+         symmetry d2h
+         C 0  0  %f
+         H 0  0.916 1.224
+      end
+    '''
+    x = 0.6
+    while (x < 0.721):
+      input_parse(geometry % x)
+      energy = task_energy('scf')
+      print ' x = %5.2f   energy = %10.6f' % (x, energy)
+      x = x + 0.01
+  end
+
+  basis
+    C library 6-31g*
+    H library 6-31g*
+  end
+
+  print none
+
+  task python
+\end{verbatim}
+
+This scans the bond length in ethene from 1.2 to 1.44 in steps 
+of 0.2 computing the energy at each geometry.  Since it is using 
+$D_{2h}$ symmetry the program actually uses a variable (verb+x+) that is
+half the bond length.
+
+\subsection{Scan using the BSSE counterpoise corrected energy}
+
+\begin{verbatim}
+  basis spherical noprint
+      Ne library cc-pvdz;       He library cc-pvdz
+    BqNe library Ne cc-pvdz;  BqHe library He cc-pvdz
+  end
+
+  mp2; tight; freeze core atomic; end
+
+  print none
+
+  python noprint
+    supermolecule = '''
+      geometry noprint
+        Ne   0       0        0
+        He   0       0       %f 
+      end
+    '''
+    fragment1 = '''
+      geometry noprint
+        Ne   0       0         0
+        BqHe 0       0        %f
+      end
+    '''
+    fragment2 = '''
+      geometry noprint
+        BqNe 0       0        0
+        He   0       0        %f
+      end
+    '''
+    def geom_energy(geometry):
+      input_parse(geometry)
+      input_parse('scf; vectors atomic; end\n')
+      return task_energy('mp2')
+
+    def bsse_energy(z):
+      return geom_energy(supermolecule % z) - \
+             geom_energy(fragment1 % z) - \
+             geom_energy(fragment2 % z)
+    z = 3.3
+    while (z < 4.301):
+      energy = bsse_energy(z)
+      if (ga_nodeid() == 0):
+        print ' z = %5.2f   energy = %10.7f ' % (z, energy)
+      z = z + 0.1
+  end
+
+  task python
+\end{verbatim}
+
+This example scans the He---Ne bond-length from 3.3 to 4.3 and prints out
+the BSSE counterpoise corrected MP2 energy.
+
+The basis set is specified as usual, noting that we will need
+functions on ghost centers to do the counterpoise correction.  The
+Python program commences by defining strings containing the geometry
+of the super-molecule and two fragments, each having one variable to be
+substituted.  Next, a function is defined to compute the energy given
+a geometry, and then a function is defined to compute the counterpoise
+corrected energy at a given bond length.  Finally, the bond length is
+scanned and the energy printed.  When computing the energy, the atomic
+guess has to be forced in the SCF since by default it will attempt to
+use orbitals from the previous calculation which is not appropriate
+here.
+
+Since the counterpoise corrected energy is a linear combination of
+other standard energies, it is possible to compute the analytic
+derivatives term by term.  Thus, combining this example and the next
+could yield the foundation of a BSSE corrected geometry optimization
+package.
+
+\subsection{Scan the geometry and compute the energy and gradient}
+
+\begin{verbatim}
+  basis noprint; H library sto-3g; O library sto-3g; end
+
+  python noprint
+    print '   y     z     energy                gradient'
+    print ' ----- ----- ---------- ------------------------------------'
+    y = 1.2
+    elo = 0.0
+    while y <= 1.61:
+       z = 1.0
+       while z <= 1.21:
+          input_parse('''
+             geometry noprint units atomic
+                O 0   0   0
+                H 0  %f -%f
+                H 0 -%f -%f
+             end
+          ''' % (y, z, y, z))
+
+          (energy,gradient) = task_gradient('scf')
+
+          if (energy < elo):
+             elo = energy
+             ylo = y
+             zlo = z
+          print ' %5.2f %5.2f %9.6f' % (y, z, energy),
+          i = 0
+          while (i < len(gradient)):
+             print '%5.2f' % gradient[i],
+             i = i + 1
+          print ''
+          z = z + 0.1
+       y = y + 0.1
+    print ''
+    print ' Lowest energy =',elo,' at y=',ylo,', z =',zlo
+    print ' '
+  end
+
+  print none
+
+  task python
+\end{verbatim}
+
+This program illustrates evaluating the energy and gradient
+by calling \verb+task_gradient()+.  A water molecule is scanned
+through several $C_{2v}$ geometries by varying the y and z coordinates
+of the two hydrogen atoms.  At each geometry the coordinates, energy 
+and gradient are printed.  The lowest energy geometry is recorded.
+
+The basis set (sto-3g) is input as usual.  The two while loops vary
+the y and z coordinates.  These are then substituted into a geometry
+which is parsed by NWChem using \verb+input_parse()+.  The energy and
+gradient are then evaluated by calling \verb+task_gradient()+ which
+returns a tuple containing the energy (a scalar) and the gradient (a
+vector or list).  These are printed out exploiting the Python
+convention that a print statement ending in a comma does not print
+end-of-line.
+
+\subsection{Reaction energies varying the basis set}
+
+\begin{verbatim}
+  mp2; freeze atomic; end
+
+  print none
+
+  python
+    energies = {}
+    c2h4 = '''
+      geometry noprint
+        symmetry d2h
+        C 0 0     0.672
+        H 0 0.935 1.238
+      end
+    '''
+    ch4 = '''
+      geometry noprint
+        symmetry td 
+        C 0     0     0
+        H 0.634 0.634 0.634
+      end
+    '''
+    h2 = '''
+      geometry noprint
+        H 0 0  0.378
+        H 0 0 -0.378
+      end
+    '''
+
+    def energy(basis, geometry):
+      input_parse('''
+        basis spherical noprint
+          c library %s ; h library %s 
+        end
+      ''' % (basis, basis))
+      input_parse(geometry)
+      return task_energy('mp2')
+
+    for basis in ('sto-3g', '6-31g', '6-31g*', 'cc-pvdz', 'cc-pvtz'):
+       energies[basis] = 2*energy(basis, ch4) - \
+                         2*energy(basis, h2)  - \
+                           energy(basis, c2h4)
+       if (ga_nodeid() == 0): print basis, ' %8.6f' % energies[basis]
+  end 
+
+  task python
+\end{verbatim}
+
+In this example the reaction energy for 
+$2H_2 + C_2H_4 \rightarrow 2CH_4$ is evaluated using MP2 in several
+basis sets.  The geometries are fixed, but could be re-optimized in
+each basis.  To illustrate the useful associative arrays in Python,
+the reaction energies are put into the associative array
+\verb+energies+ --- note its declaration at the top of the program.
+
+\subsection{Using the database}
+
+\begin{verbatim}
+  python
+    rtdb_put("test_int2", 22)
+    rtdb_put("test_int", [22, 10, 3],    INT)
+    rtdb_put("test_dbl", [22.9, 12.4, 23.908],  DBL)
+    rtdb_put("test_str", "hello", CHAR)
+    rtdb_put("test_logic", [0,1,0,1,0,1], LOGICAL)
+    rtdb_put("test_logic2", 0, LOGICAL)
+
+    rtdb_print(1)
+
+    print "test_str    = ", rtdb_get("test_str")
+    print "test_int    = ", rtdb_get("test_int")
+    print "test_in2    = ", rtdb_get("test_int2")
+    print "test_dbl    = ", rtdb_get("test_dbl")
+    print "test_logic  = ", rtdb_get("test_logic")
+    print "test_logic2 = ", rtdb_get("test_logic2")
+  end
+
+  task python
+\end{verbatim}
+
+This example illustrates how to access the database from Python.
+
+\section{Troubleshooting}
+
+Common problems with Python programs inside NWChem.
+
+\begin{enumerate}
+\item You get the message
+\begin{verbatim}
+      0:python_input: indentation must be >= that of first line: 4
+\end{verbatim}
+This indicates that NWChem thinks that a line is less indented than
+the first line.  If this is not the case then perhaps there is a tab
+in your input which NWChem treats as a single space character but
+appears to you as more spaces. Try running \verb+untabify+ in Emacs.
+It could also be the \verb+END+ directive that terminates the
+\verb+PYTHON+ compound directive --- since Python also has an
+\verb+end+ statement then to avoid confusion the \verb+END+ directive
+for NWChem {\em must} be at the start of the line.
+
+\item The last (or only) line of your input to \verb+input_parse()+
+seems to be ignored --- An entire line of input must be provided,
+including the end of line.  Try terminating the string with
+\verb+'\n'+.
+
+\item Your program hangs or deadlocks --- most likely you have a piece
+of code that is restricted to executing on a subset of the processors
+(perhaps just node 0) but is calling (perhaps indirectly) a function
+that must execute on all nodes.
+
+\end{enumerate}
