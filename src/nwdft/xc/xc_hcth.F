@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.27 2002-01-18 21:31:59 edo Exp $
+c$Id: xc_hcth.F,v 1.28 2003-02-13 18:49:43 edo Exp $
 c
       Implicit none
 c
@@ -110,7 +110,7 @@ c
      &                      Amat, Amat2, Cmat, Cmat2, nq, ipol,
      &                      Ex, Ec,  qwght, ldew,func,funcname)
 c
-c$Id: xc_hcth.F,v 1.27 2002-01-18 21:31:59 edo Exp $
+c$Id: xc_hcth.F,v 1.28 2003-02-13 18:49:43 edo Exp $
 c
       Implicit none
 c
@@ -670,7 +670,7 @@ Cfah with the various powers of u.
       u_cbb = 0.2D0*s_b2/(1.D0+0.2D0*s_b2) 
 
       u_cab = 0.006D0*s_avg2/(1.d0+0.006D0*s_avg2)
-      if(rhoa.gt.0) then
+      if(rhoa.gt.tol_rho) then
          rsa = ((3.d0/Pi)**(1.D0/3.D0)*
      -        (1.d0/rhoa)**(1.D0/3.D0))/
      -        2**(2.D0/3.D0)
@@ -684,7 +684,7 @@ Cfah with the various powers of u.
          rsa21=0d0
       endif
 
-      if(rhob.gt.0d0) then
+      if(rhob.gt.tol_rho) then
          rsb = ((3.d0/Pi)**(1.D0/3.D0)*
      -        (1.d0/rhob)**(1.D0/3.D0))/
      -        2**(2.D0/3.D0)
@@ -694,7 +694,7 @@ Cfah with the various powers of u.
 C     
 C     pw91 LDA Ecorr
 C
-         if(rhoa.gt.0d0) then
+         if(rhob.gt.tol_rho) then
             e_crsb1 = e_crs1(rsb12,rsb,rsb32,rsb21)
             de_crsb1_by_drsb =  decrsdrs(rsb,rsb12,rsb21,rsb32)
          else
@@ -768,14 +768,18 @@ C
      -        (1.d0 + zeta)**(4.D0/3.D0))/
      -        (-2.d0 + 2.d0*2.d0**(1.D0/3.D0))
          else
-            fzeta = 0d0
+            fzeta = 1d0
          endif
 
 C     
 C     pw91 LDA Ecorr
 C
-      if(rhoa.gt.0d0) then
+      if(rhoa.gt.tol_rho) then
          e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
+      else
+         e_crsa1 = 0d0
+      endif
+      if(rho.gt.tol_rho) then
          e_crsab1 = e_crs1(rsab12,rsab,rsab32,rsab21)
          e_crsab0 = -0.062182d0*dlog(1.d0 +
      -        16.0818243221511d0/
@@ -793,7 +797,6 @@ C
      -        0.49671d0*rsab21))*
      -        (1.d0 + 0.11125d0*rsab)
       else
-         e_crsa1 = 0d0
          e_crsab1 = 0d0
          e_crsab0 = 0d0
          a_crsab=0d0
@@ -805,7 +808,7 @@ C
       e_caa = rhoa*e_crsa1
       e_cbb = rhob*e_crsb1
       e_cab = rho*e_crsabzeta - rhoa*e_crsa1 - rhob*e_crsb1
-      if(rhoa.gt.0d0) then
+      if(rhoa.gt.tol_rho) then
          du_caa_by_drhoa = (-1.6D0*za*za*rhoa**(5.D0/3.D0))/
      -        (3.*(0.2D0*za*za + 
      -        rhoa**(8.D0/3.D0))**2)
@@ -899,13 +902,18 @@ Cfah -     0.006D0*za**2*rhob**(8.D0/3.D0) +
 Cfah -     2*rhoa**(8.D0/3.D0)*
 Cfah -      rhob**(8.D0/3.D0))**3 
 
-      if(rhoa.gt.0) then
+      if(rhoa.gt.tol_rho) then
          drsa_by_drhoa = drsbydrh(rhoa)
       else
          drsa_by_drhoa =0d0
       endif
-      drsab_by_drhoa = drsbydrh(rho) 
-      drsab_by_drhob = drsab_by_drhoa 
+      if(rho.gt.tol_rho) then
+         drsab_by_drhoa = drsbydrh(rho) 
+         drsab_by_drhob = drsab_by_drhoa 
+      else
+         drsab_by_drhoa = 0d0
+         drsab_by_drhob = 0d0
+      endif
 
       dzeta_by_drhoa = 2.d0*rhob/rho**2
       dzeta_by_drhob = -2.d0*rhoa/rho**2
@@ -946,7 +954,7 @@ Cfah -      rhob**(8.D0/3.D0))**3
      -   dlog(1.d0 + 16.0818243221511d0/
      -      (3.5876*rsab + 7.595699999999999d0*rsab12 + 
      -        0.49294d0*rsab21 + 1.6382d0*rsab32))
-      if(rhoa.gt.0) then
+      if(rhoa.gt.tol_rho) then
          de_crsa1_by_drsa = decrsdrs(rsa,rsa12,rsa21,rsa32)
          de_crsab1_by_drsab = decrsdrs(rsab,rsab12,rsab21,rsab32)
       else
@@ -1017,7 +1025,7 @@ Cfah -------------------------------
           F_xc(n*3+1) = F_xs (n, sol((n*3) + 1), rhoa, za)
           endif
         ENDIF
-          if(abs(u_caa).gt.0.d0)then
+          if(abs(u_caa).gt.tol_rho)then
              if(n.eq.0) then
              F_xc(2) = e_caa*c_naa
              else
@@ -1032,7 +1040,7 @@ Cfah -------------------------------
           F_xc(n*3+1) = F_xc(n*3+1)+F_xs(n, sol((n*3) + 1), rhob, zb)
           endif
         ENDIF
-          if(abs(u_cbb).gt.0.d0) then
+          if(abs(u_cbb).gt.tol_rho) then
              if(n.eq.0) then
                 F_xc(2) = F_xc(2)+e_cbb*c_nbb
              else
@@ -1040,7 +1048,7 @@ Cfah -------------------------------
              endif
           endif
 
-          if(abs(u_cab).gt.0.d0) then
+          if(abs(u_cab).gt.tol_rho) then
              if(n.eq.0) then
                 F_xc(3) = e_cab*c_nab
              else
@@ -1079,7 +1087,7 @@ Cfah ---------------------
           endif
            endif
 
-        if(abs(u_caa).gt.0.d0) then
+        if(abs(u_caa).gt.tol_rho) then
            if(n.eq.0) then
           dF_caa(1) = c_naa*de_caa_by_drhoa
           dF_caa(3) = 0d0
@@ -1095,7 +1103,7 @@ Cfah ---------------------
           endif
         endif
 
-        if(abs(u_cbb).gt.0.d0) then
+        if(abs(u_cbb).gt.tol_rho) then
            if(n.eq.0) then
           dF_cbb(2) = c_nbb*de_cbb_by_drhob 
           dF_cbb(4) = 0d0
@@ -1111,7 +1119,7 @@ Cfah ---------------------
         endif
 
 
-        if(abs(u_cab).gt.0.d0) then
+        if(abs(u_cab).gt.tol_rho) then
            if(n.eq.0) then
           dF_cab(1) = c_nab*de_cab_by_drhoa
           dF_cab(2) = c_nab*de_cab_by_drhob
