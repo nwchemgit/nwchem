@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.363 2001-06-08 19:38:50 edo Exp $
+# $Id: makefile.h,v 1.364 2001-06-18 18:04:06 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -954,7 +954,7 @@ ifeq ($(NWCHEM_TARGET_CPU),604)
   LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
    LINK.f   = mpxlf_r   $(LDFLAGS)
 else
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi_map
    LINK.f   = mpcc_r   $(LDFLAGS)
 endif
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k 
@@ -1046,13 +1046,14 @@ ifeq ($(TARGET),LAPI64)
          CC = mpcc_r
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 8 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
      MPILIB = 
 LARGE_FILES = YES
 
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi64_map
+#  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi64_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -bloadmap:nwchem.lapi64_map
    LINK.f   = mpcc_r   $(LDFLAGS)
 
    FOPTIONS = -qEXTNAME -qnosave -q64 -qalign=4k 
@@ -1064,10 +1065,10 @@ LARGE_FILES = YES
 
     DEFINES = -DLAPI64 -DEXTNAME -DLAPI -DSP1 -DAIX -DPARALLEL_DIAG
 ifdef USE_INTEGER4
-   FOPT_REN += -qintsize=4
+   FOPTIONS += -qintsize=4
  CORE_LIBS += -lessl_r -llapack -lblas # need 64-bit essl
 else
-   FOPT_REN += -qintsize=8
+   FOPTIONS += -qintsize=8
         CDEFS = -DEXT_INT
   CORE_LIBS +=  -llapack -lblas
 endif
