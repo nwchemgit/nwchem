@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.19 2002-10-01 18:45:25 edo Exp $
+C $Id: hess_anal.F,v 1.20 2002-10-24 00:33:12 edo Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -167,6 +167,7 @@ c
       if (ohessprof) call pstat_off(ps_cphf)
       if (oprintsome) write(LuOut,*) 'HESSIAN: the CPHF ',
      $  'contributions are done'
+      if(oprint) call hess_print
 c
 c  dump hessian with the final result
 c
