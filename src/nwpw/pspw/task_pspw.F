@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.4 2002-02-12 17:46:25 edo Exp $
+* $Id: task_pspw.F,v 1.5 2002-04-24 17:44:49 bylaska Exp $
 *
 
       logical function task_pspw(rtdb)
@@ -16,7 +16,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 11)
+      parameter (num_dirs = 12)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'psp_generator',
@@ -29,15 +29,16 @@ c
      >            'v_wavefunction_initializer',
      >            'wavefunction_expander',
      >            'cell_optimize',
-     >            'pspw_dplot' /
+     >            'pspw_dplot',
+     >            'stress' /
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
       logical  v_wvfnc_init,wvfnc_expander,cell_optimize
-      logical  pspw_dplot
+      logical  pspw_dplot,pspw_stress_numerical
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize
-      external pspw_dplot
+      external pspw_dplot,pspw_stress_numerical
 c
 c
       value = .false.
@@ -50,7 +51,7 @@ c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
-     >       1000, 1100 ) ind
+     >       1000, 1100, 1200 ) ind
       call errquit('task pspw: unimplemented directive', ind)
 
 
@@ -195,6 +196,18 @@ c
       value = .true.
       value = rtdb_parallel(.true.)
       value = pspw_dplot(rtdb)
+      call ga_sync()
+      goto 9999
+
+c
+c  stress - debug
+c
+ 1200 if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> PSPW Parallel Module - stress <<<<"
+      end if
+      value = .true.
+      value = rtdb_parallel(.true.)
+      value = pspw_stress_numerical(rtdb)
       call ga_sync()
       goto 9999
 

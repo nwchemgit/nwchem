@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.20 2002-04-24 01:16:27 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.21 2002-04-24 17:44:49 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -8,11 +8,18 @@ c     $Id: cgsd_energy.F,v 1.20 2002-04-24 01:16:27 bylaska Exp $
       real*8 function cgsd_energy(newpsi)
       implicit none
 #include "stdio.fh"
+
+**** debug ***********
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+**********************
+
       logical newpsi
       integer MASTER
       parameter (MASTER=0)
 
-      logical stalled
+      logical stalled,value
       integer taskid
       integer minimizer
       integer i,neall,NN
@@ -23,18 +30,19 @@ c     $Id: cgsd_energy.F,v 1.20 2002-04-24 01:16:27 bylaska Exp $
       real*8  gx,gy,gz
       real*8  en(2)
       real*8  E(30)
+      integer rtdb
 
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
       character*2 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
-      integer     ion_nion,ion_katm,psi_ne,psi_ispin
+      integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       real*8      control_tole,control_tolc
       real*8      ion_rion,psi_eigenvalue,ion_amass
       external psp_semicore,pspw_qmmm_found,pspw_charge_found
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
-      external ion_nion,ion_katm,psi_ne,psi_ispin
+      external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       external control_tole,control_tolc
       external ion_rion,psi_eigenvalue,ion_amass
 
@@ -235,6 +243,18 @@ c        call pspw_charge_Print(6)
          end do
 
       end if
+
+*     **** debug - energies written to rtdb for numerical stress ****
+      rtdb = control_rtdb()
+      value =           rtdb_put(rtdb,'pspw:E_ke',      mt_dbl,1,E(6))
+      value = value.and.rtdb_put(rtdb,'pspw:E_hartree', mt_dbl,1,E(3))
+      value = value.and.rtdb_put(rtdb,'pspw:E_xc',      mt_dbl,1,E(4))
+      value = value.and.rtdb_put(rtdb,'pspw:E_ewald',   mt_dbl,1,E(5))
+      value = value.and.rtdb_put(rtdb,'pspw:E_local',   mt_dbl,1,E(7))
+      value = value.and.rtdb_put(rtdb,'pspw:E_nonlocal',mt_dbl,1,E(8))
+      if (.not. value) call errquit(
+     >   'cgsd_energy: numerical stress - error writing rtdb',0)
+
 
       cgsd_energy = E(1)
       return
@@ -501,15 +521,13 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 *     **** Kinetic energy component : dE_kin/dhuv ****
       call psi_1ke_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      write(*,*) "KE "
-      call write_stress(tstress)
+      call write_stress(tstress,"ke")
 
 
 *     **** Coulomb energy component : dE_Coul/dhuv ****
       call psi_1coulomb_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      write(*,*) "+coulomb"
-      call write_stress(tstress)
+      call write_stress(tstress,"coulomb")
 
 *     **** Core-correction Coulomb energy component : dE_core/dhuv ****
 *     call electron_semicore_stress(tstress)
@@ -518,33 +536,25 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 *     **** Local pseudo energy component : dE_local/dhuv ****
       call dng_1vlocal_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      write(*,*) "+local"
-      call write_stress(tstress)
+      call write_stress(tstress,"local")
 
 *     **** Nonlocal pseudo energy component : dE_nolocal/dhuv ****
       call dcopy(9,0.0d0,0,tstress,1)
       call psi_1vnonlocal_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      write(*,*) "nonlocal"
-      call write_stress(tstress)
+      call write_stress(tstress,"nonlocal")
 
 *     **** xc energy component : dE_xc/dhuv ****
       call dcopy(9,0.0d0,0,tstress,1)
-c      write(*,*) " xc 0"
-c      call write_stress(tstress)
       call rho_1exc_stress(tstress)
-c      write(*,*) " xc a"
-c      call write_stress(tstress)
 
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      write(*,*) " xc"
-      call write_stress(tstress)
+      call write_stress(tstress,"xc")
 
 *     **** Ewald energy component : dE_ewald/dhuv ****
       call ewald_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      write(*,*) "+ewald"
-      call write_stress(tstress)
+      call write_stress(tstress,"ewald")
 
 **     **** define ht ****
 *      do v=1,3
@@ -566,14 +576,15 @@ c      call write_stress(tstress)
 *      call dcopy(9,tstress,1,stress,1)
 
       call dscal(9,-1.0d0,stress,1)
-      call write_stress(stress)
+      call write_stress(stress,"-1*total")
 
       return
       end
 
-      subroutine write_stress(stress)
+      subroutine write_stress(stress,name)
       implicit none
       real*8 stress(3,3)
+      character*(*) name
 
       integer MASTER,taskid
       parameter (MASTER=0)
@@ -584,6 +595,7 @@ c      call write_stress(tstress)
          write(*,1901)
          write(*,1902)
          write(*,1904)
+         write(*,1909) name
          write(*,1910)
          write(*,1911) stress(1,1),stress(1,2),stress(1,3)
          write(*,1912) stress(2,1),stress(2,2),stress(2,3)
@@ -598,6 +610,7 @@ c      call write_stress(tstress)
  1901 FORMAT(  '= Stress calculation =')
  1902 FORMAT(  '======================')
  1904 FORMAT(/)
+ 1909 FORMAT(10X,A)
  1910 FORMAT(10X,'=============  Stress Tensor =================')
  1911 FORMAT(5X,' S = ',' (',3F11.5,' )')
  1912 FORMAT(5X,'     ',' (',3F11.5,' )')

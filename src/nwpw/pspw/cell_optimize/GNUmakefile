@@ -1,10 +1,12 @@
 
-# $Id: GNUmakefile,v 1.3 2002-02-11 18:27:12 edo Exp $
+# $Id: GNUmakefile,v 1.4 2002-04-24 17:44:49 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
-				cell_optimize_input.o \
+		cell_optimize_input.o \
                 cell_optimize.o \
-                update_unitcell.o
+                update_unitcell.o \
+		pspw_stress_numerical.o \
+		stress_fd.o
 
 
 

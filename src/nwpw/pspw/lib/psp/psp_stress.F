@@ -2,7 +2,7 @@
 
       subroutine psp_stress_init()      
 *
-* $Id: psp_stress.F,v 1.4 2002-04-24 01:16:27 bylaska Exp $
+* $Id: psp_stress.F,v 1.5 2002-04-24 17:44:49 bylaska Exp $
 *
       implicit none
 
@@ -215,7 +215,6 @@
          end do
       end do
       end do
-      call dscal(9,-1.0d0,euv,1)
 
 
       call nwpw_timing_end(5)
