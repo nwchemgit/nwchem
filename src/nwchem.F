@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.83 1996-07-15 17:59:38 gutowski Exp $
+c     $Id: nwchem.F,v 1.84 1996-07-17 16:24:50 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -67,8 +67,9 @@ c
 *--------------------------------------------------------------------*
 c     
 c
-      character*255 input_filename
+      character*(nw_max_path_len) input_filename, rtdb_name
       double precision total_wall, total_cpu
+      logical ostartup
 c
 c     Create parallel processes and initialize IPC layer
 c
@@ -142,13 +143,15 @@ c
       if (.not. pstat_init(20, 1, ' ')) call errquit
      $     ('nwchem: pstat_init failed', 0)
 c
+      call input_file_info(input_filename, rtdb_name, ostartup)
+c
 c     Now are ready to summarize the environment
 c
-      call nwchem_banner(input_filename)
+      call nwchem_banner(input_filename, rtdb_name, ostartup)
 c
 c     Read the input and open the RTDB
 c
-      call start(rtdb)
+      call start(rtdb, rtdb_name, ostartup)
 c
       if (util_print('debug tcgmsg',print_never)) 
      $     call setdbg(1)
@@ -215,41 +218,29 @@ c
 c     Done
 c
       end
-      subroutine start(rtdb)
+      subroutine start(rtdb, rtdb_name, ostartup)
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "global.fh"
       integer rtdb              ! [output]
-      character*255 rtdb_name
-      character*255 file_prefix
-      logical startup
+      character*(*) rtdb_name   ! [input]
+      logical ostartup          ! [input]
 c
-c     Figure out if this is a start/restart and what the database
-c     and file prefix are
-c
-      call input_start_opt(rtdb_name, file_prefix, startup)
-c
-c     Actually open the database and insert the file_prefix
+c     Actually open the database and store the file prefix 
 c
 c     Note that only process 0 has the database name ... that is OK.
 c
-      if (startup) then
+      if (ostartup) then
          if (.not. rtdb_open(rtdb_name, 'empty', rtdb))
      $        call errquit('start: rtdb_open empty failed ', 0)
       else
          if (.not. rtdb_open(rtdb_name, 'old', rtdb))
      $        call errquit('start: rtdb_open old failed ', 0)
       endif
-      call util_file_prefix_set(file_prefix)
-      call util_file_prefix_rtdb_store(rtdb) ! Not ideal location for this
 c
-      if (ga_nodeid() .eq. 0) then
-         write(6,1) file_prefix(1:inp_strlen(file_prefix))
- 1       format(' file prefix = ', a//)
-         call util_flush(6)
-      endif
+      call util_file_info_rtdb(rtdb)
 c
 c     Parse input data and shove into the database
 c
@@ -285,9 +276,10 @@ c
       external scf, task_check_sum, selci, eopt, rjhtest, rimp2, oimp2
       logical nwdft, nwargos, mp2_grad, cphf, ccsd, moints_full, gapss
       external cphf, ccsd, moints_full
-      logical scf_gradient
-      external scf_gradient
+      logical scf_gradient, direct_mp2
+      external scf_gradient, direct_mp2
       parameter (ntasks = 28)
+c
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
      $     'raktest',           ! 2
@@ -411,7 +403,7 @@ c
 c     
 c     conventional direct MP2 (requires moints module)
 c     
- 150     call direct_mp2(rtdb)
+ 150     status = direct_mp2(rtdb)
          goto 1000
 c     
 c     Miles test 
@@ -502,18 +494,21 @@ c
       status = rtdb_delete(rtdb, 'task') ! quietly discard the status
 c     
       end
-      subroutine nwchem_banner(input_filename)
+      subroutine nwchem_banner(input_filename, rtdb_name, ostartup)
       implicit none
 #include "global.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
+#include "util.fh"
 c
 c     Print a banner at the top of the output to identify the origin
 c     of the code along with hostname, no. of processors, date, ...
 c
-      character*(*) input_filename
-      character*80 hostname, compiled, srcdir
-      character*256 executable
+      character*(*) input_filename, rtdb_name
+      logical ostartup
+c
+      character*80 hostname, compiled
+      character*(nw_max_path_len) executable, srcdir, file_prefix
       character*26 date
 #if defined(CRAY)
       integer ilen,ierror
@@ -521,6 +516,7 @@ c
       integer heap, stack, global, global_b, total, nproc
       logical status
       character*3 cstatus
+      character*8 cstart
       Character*40 GStatus
 c
       if (ga_nodeid() .ne. 0) return
@@ -559,6 +555,12 @@ c
       call util_hostname(hostname)
       call util_date(date)
       nproc = ga_nnodes()
+      if (ostartup) then
+         cstart = 'startup'
+      else
+         cstart = 'restart'
+      endif
+      call util_file_prefix(' ',file_prefix)
 c
       compiled = COMPILATION_DATE
       srcdir   = 
@@ -571,15 +573,21 @@ c
      $     compiled(1:inp_strlen(compiled)),
      $     srcdir(1:inp_strlen(srcdir)),
      $     input_filename(1:inp_strlen(input_filename)),
+     $     file_prefix(1:inp_strlen(file_prefix)),
+     $     rtdb_name(1:inp_strlen(rtdb_name)),
+     $     cstart(1:inp_strlen(cstart)),
      $     nproc
  2    format(/
-     $     '    hostname = ', a/
-     $     '    program  = ', a/
-     $     '    date     = ', a/
-     $     '    compiled = ', a/
-     $     '    source   = ', a/
-     $     '    input    = ', a/
-     $     '    nproc    = ', i4//)
+     $     '    hostname  = ', a/
+     $     '    program   = ', a/
+     $     '    date      = ', a/
+     $     '    compiled  = ', a/
+     $     '    source    = ', a/
+     $     '    input     = ', a/
+     $     '    prefix    = ', a/
+     $     '    data base = ', a/
+     $     '    status    = ', a/
+     $     '    nproc     = ', i4//)
 c
 c     Determine, without altering, setting of memory verification
 c
@@ -625,11 +633,11 @@ c
 c
       write(6,3) heap, stack, global, GStatus, total, cstatus
  3    format(/
-     $     '    heap   = ', i10,' doubles'/
-     $     '    stack  = ', i10,' doubles'/
-     $     '    global = ', i10,' doubles ', A/
-     $     '    total  = ', i10,' doubles'/
-     $     '    verify = ',a3//)
+     $     '    heap      = ', i10,' doubles'/
+     $     '    stack     = ', i10,' doubles'/
+     $     '    global    = ', i10,' doubles ', A/
+     $     '    total     = ', i10,' doubles'/
+     $     '    verify    = ',a3//)
 c
       call util_flush(6)
 c
