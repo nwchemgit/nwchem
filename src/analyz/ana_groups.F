@@ -1,6 +1,6 @@
       subroutine ana_groups(card,sgmnam,imol,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.6 2001-05-09 18:14:54 d3j191 Exp $
+c $Id: ana_groups.F,v 1.7 2002-05-24 15:04:47 d3j191 Exp $
 c
       implicit none
 c
@@ -39,7 +39,7 @@ c
       end
       subroutine ana_group(card,sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: ana_groups.F,v 1.6 2001-05-09 18:14:54 d3j191 Exp $
+c $Id: ana_groups.F,v 1.7 2002-05-24 15:04:47 d3j191 Exp $
 c
       implicit none
 c
@@ -97,8 +97,8 @@ c
 c
       if(ldef(igrp).lt.0) return
 c
-      write(lfngrp,1000) time
- 1000 format('Atom distances for selected atoms at time ',f12.6)
+      write(lfngrp,1000) igr,igroups(igr,3)
+ 1000 format(2i5)
 c
       ito=ldef(igrp)
       if(igrp.eq.jgrp) ito=ito-1
@@ -131,6 +131,9 @@ c
       endif
     2 continue
     1 continue
+c
+      write(lfngrp,1002) 0
+ 1002 format(i5)
 c
       return
       end
@@ -368,6 +371,81 @@ c
       rord(i,2)=rord(i,2)+cphi*cphi
 c
     1 continue
+c
+      return
+      end
+      subroutine ana_grpcogdis(sgmnam,imol,isel,wt,x,igr)
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "ana_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      character*16 sgmnam(nsa)
+      real*8 wt(nsa)
+      integer isel(nsa),igr,imol(msa)
+      real*8 x(nsa,3)
+c
+      integer igrp,jgrp
+      integer i,j,ito,jfrom,ia,ja
+      real*8 dist,dx,dy,dz
+      real*8 cogi(3),cogj(3),factor
+      integer numi,numj
+c
+      igrp=igroups(igr,1)
+      jgrp=igroups(igr,2)
+c
+      if(ldef(igrp).lt.0) return
+      if(ldef(jgrp).lt.0) return
+c
+      do 1 i=1,3
+      cogi(i)=zero
+      cogj(i)=zero
+    1 continue
+c
+      do 2 i=1,ldef(igrp)
+      ia=idef(igrp,i)
+      cogi(1)=cogi(1)+x(ia,1)
+      cogi(2)=cogi(2)+x(ia,2)
+      cogi(3)=cogi(3)+x(ia,3)
+    2 continue
+      factor=one/dble(ldef(igrp))
+      cogi(1)=cogi(1)*factor
+      cogi(2)=cogi(2)*factor
+      cogi(3)=cogi(3)*factor
+c
+      do 3 i=1,ldef(jgrp)
+      ja=idef(jgrp,i)
+      cogj(1)=cogj(1)+x(ja,1)
+      cogj(2)=cogj(2)+x(ja,2)
+      cogj(3)=cogj(3)+x(ja,3)
+    3 continue
+      factor=one/dble(ldef(jgrp))
+      cogj(1)=cogj(1)*factor
+      cogj(2)=cogj(2)*factor
+      cogj(3)=cogj(3)*factor
+c
+      dx=abs(cogi(1)-cogj(1))
+      dy=abs(cogi(2)-cogj(2))
+      dz=abs(cogi(3)-cogj(3))
+c
+      if(igroups(igr,4).eq.1) then
+      if(dz.gt.box(3)) dz=dz-box(3)
+      elseif(igroups(igr,4).eq.2) then
+      if(dx.gt.box(1)) dx=dx-box(1)
+      if(dy.gt.box(2)) dy=dy-box(2)
+      elseif(igroups(igr,4).eq.3) then
+      if(dx.gt.box(1)) dx=dx-box(1)
+      if(dy.gt.box(2)) dy=dy-box(2)
+      if(dz.gt.box(3)) dz=dz-box(3)
+      endif
+      dist=sqrt(dx*dx+dy*dy+dz*dz)
+c
+      write(lfngrp,1001) igr,igroups(igr,3),dist,dx,dy,dz
+ 1001 format(2i5,4f12.6)
 c
       return
       end

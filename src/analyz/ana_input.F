@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.55 2002-04-30 16:46:26 d3j191 Exp $
+c $Id: ana_input.F,v 1.56 2002-05-24 15:05:04 d3j191 Exp $
 c
       implicit none
 c
@@ -412,8 +412,9 @@ c
       if(.not.inp_a(item)) call errquit('No group function',0)
       endif
       ksel=0
-      if(inp_compare(.false.,'distances',item)) ksel=1
-      if(inp_compare(.false.,'zcoordinate',item)) ksel=2
+      if(inp_compare(.false.,'distance',item)) ksel=1
+      if(inp_compare(.false.,'distances',item)) ksel=2
+      if(inp_compare(.false.,'zcoordinate',item)) ksel=3
       if(.not.inp_f(rsel)) rsel=0.0d0
       if(.not.inp_f(rval)) rval=rsel
       if(.not.inp_a(item)) item=' '

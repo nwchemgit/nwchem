@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.75 2002-04-30 20:30:30 d3j191 Exp $
+c $Id: ana_task.F,v 1.76 2002-05-24 15:05:04 d3j191 Exp $
 c
       implicit none
 c
@@ -847,6 +847,13 @@ c
       if(ngroups.gt.0) then
       open(unit=lfngrp,file=filgrp(1:index(filgrp,' ')-1),
      + form='formatted',status='unknown')
+      write(lfngrp,4001) ngroups
+ 4001 format(i5)
+      do 4002 i=1,ngroups
+      write(lfngrp,4003) igroups(i,3),
+     + ldef(igroups(i,1)),ldef(igroups(i,2))
+ 4003 format(3i5)
+ 4002 continue
       endif
       if(nord.gt.0) then
       open(unit=lfnord,file=filord(1:index(filord,' ')-1),
@@ -945,8 +952,13 @@ c
       endif
 c
       if(ngroups.gt.0) then
+      if(me.eq.0) write(lfngrp,4004) time
+ 4004 format('frame',/,f12.6)
       do 3301 i=1,ngroups
       if(igroups(i,3).eq.1)
+     + call ana_grpcogdis(byte_mb(i_snam),int_mb(i_imol),int_mb(i_isel),
+     + dbl_mb(i_wt),dbl_mb(i_xdat),i)
+      if(igroups(i,3).eq.2)
      + call ana_grpdis(byte_mb(i_snam),int_mb(i_imol),int_mb(i_isel),
      + dbl_mb(i_wt),dbl_mb(i_xdat),i)
  3301 continue
