@@ -1,10 +1,10 @@
 C
-C $Id: geninterface.F,v 1.2 2003-04-18 22:27:17 windus Exp $
+C $Id: geninterface.F,v 1.3 2003-06-20 23:53:30 yuri Exp $
 C
 C This is a first attempt at an interface code for Venus written in F77.
 C
       Subroutine initialize_qm(theory, basis, natom, 
-     $    coordinates, labels)
+     $    coordinates, labels, charge, printName)
 
       implicit none
 
@@ -18,22 +18,27 @@ C
 
       character*256 theory
       character*256 basis
-      integer natom
+      integer natom,I3N
+      double precision charge
       double precision coordinates (3*natom)
       character*16 labels(natom)
+      character*256 printName
       character*(nw_max_path_len) input_filename, rtdb_name
 
-      integer stack, heap, global, i, j
+      integer stack, heap, global, i 
       logical overify, ohardfail, ostartup, ocontinue
 
-      logical setTheory, setBasisSet, setInitCoordinates
-      external setTheory, setBasisSet, setInitCoordinates
+      logical setTheory, setBasisSet, setInitCoordinates, setCharge
+      external setTheory, setBasisSet, setInitCoordinates, setCharge
  
+      logical setPrint
+      external setPrint
+
 C  Create parallel processes
 
       call flush(6)
       call flush(6)
-      write (6,*) 'before theory init'
+c      write (6,*) 'before theory init'
       call flush(6)
       call flush(6)
       call flush(6)
@@ -44,7 +49,8 @@ C  Create parallel processes
       call flush(6)
       call ga_brdcst(MT_DBL, coordinates, mdtob(3*natom), 0)
       write (6,*) 'after coordinates ', ga_nodeid()
-      do i = 1,9
+      I3N = 3*natom
+      do i = 1,I3N
          write(6,*) coordinates(i), i, ga_nodeid()
       enddo
       call flush(6)
@@ -56,16 +62,14 @@ C  Create parallel processes
       call flush(6)
       call ga_brdcst(MT_INT, labels, 16*mitob(natom)/4, 0)
       write (6,*) 'after labels ', ga_nodeid()
-      write(6,*) labels(1), labels(2), labels(3)
+      write(6,*) labels(1), labels(2), labels(3),labels(4)
+     * ,labels(5),labels(6)
       call flush(6)
+      call ga_brdcst(MT_INT,printName, 256/4, 0)
+!      write (6,*) 'after printName',printName, ga_nodeid()
+!      call flush(6)
+
       numatoms = natom
-      call flush(6)
-      call flush(6)
-      write (6,*) 'natom=',natom, ga_nodeid()
-      call flush(6)
-      call flush(6)
-      call flush(6)
-      call flush(6)
 C  Worry about input file.  For now use a dummy one.  Do I need to open it?
 
       input_filename = "junk.nw"
@@ -85,9 +89,12 @@ c      endif
 C  Set up memory environment
 
 !      call input_mem_size(stack, heap, global, overify, ohardfail)
-       stack = 6553600
-       heap = 6553600
-       global = 13107200
+!       stack = 6553600
+!       heap = 6553600
+!       global = 13107200
+       stack = 6553587
+       heap = 19660794
+       global = 26214404
        overify = .true.
        ohardfail = .true.
        write (6,*) 'stack=',stack,' heap=',heap,' global=',global,
@@ -118,6 +125,17 @@ C  Need to get the input file name and the rtdb_name taken care of
       call util_file_info_rtdb(rtdb)
       call geom_hnd_parallel(.true.)
 
+C  Process number of scf iterations
+
+      if (.not. rtdb_put(rtdb, 'scf:maxiter', mt_int, 1, 200))
+     $     call errquit('scf-input: rtdb_put failed', 0)
+
+C  Process number of dft iterations
+
+      if (.not. rtdb_put(rtdb, 'dft:iterations',
+     &     mt_int, 1, 200))
+     &     call errquit('dft_rdinput: rtdb_put failed', 101)
+
 C  Process theory type and put into rtdb
 
       if (.not. setTheory(theory))
@@ -128,6 +146,11 @@ C  Process basis type and put into rtdb
       if (.not. setBasisSet(basis))
      $     call errquit('initialize_qm: setBasisSet failed', 555)
 
+C  Process charge and put into rtdb
+
+      if (.not. setCharge(charge))
+     $     call errquit('initialize_qm: setCharge failed', 555)
+
 C  Process molecule input and put into rtdb
 
       if (.not. setInitCoordinates(coordinates,labels,natom))
@@ -135,7 +158,7 @@ C  Process molecule input and put into rtdb
      $     ('initialize_qm:setInitCoordinates failed',555)
 
 c      initialize_qm = .true.
-
+       write(6,*)'Initalize called'
       return
       end
 C
@@ -189,7 +212,7 @@ C
       setBasisSet = .false.
 
       temp_basis = basisSet(1:inp_strlen(basisSet))
-
+	write(6,*)'basis in setbasis set function',temp_basis 
       write(basisSet, '(''basis; * library '',a,'' ; end'')')
      $     temp_basis(1:inp_strlen(temp_basis))
 
@@ -232,8 +255,15 @@ C
       character*12 units
       double precision scale
       double precision coords(*)
+      integer i
 
       setCoordinates = .false.
+!
+c      write (6,*) 'Before conversion'
+c      do i = 1,9
+c         write(6,*) coords(i), i
+c      enddo
+!
 
       if (.not.geom_create(geom,'geometry'))
      $      call errquit('setCoordinates: geom_create failed',555)
@@ -249,8 +279,18 @@ C
      $     call errquit
      $     ('setInitCoordinates:: failed getting user scale',0)
 
+      write(6,*) 'numatoms is in setCoordinates', numatoms
+      call flush(6)
       if (scale.ne.1.0d0) 
      $   call dscal(3*numatoms, scale, coords, 1)
+
+!
+c      write (6,*) 'After conversion'
+c      do i = 1,9
+c         write(6,*) coords(i), i
+!  Pratima changed from  write(6,*) coordinates(i), i
+c      enddo
+!
 
       if (.not.geom_cart_coords_set(geom,coords))
      $      call errquit
@@ -262,6 +302,8 @@ C
       if (.not.geom_destroy(geom))
      $      call errquit('setCoordinates: geom_destroy failed',555)
 
+      write(6,*) 'numatoms at end of setCoordinates', numatoms
+      call flush(6)
       setCoordinates = .true.
 
       return
@@ -276,7 +318,7 @@ C
 #include "geom.fh"
 #include "rtdb.fh"
 
-      integer natoms, geom, atn, i
+      integer natoms, geom, atn, i, j
       double precision coordinates(3,natoms)
       character*16 labels(natoms), element
       character*2 symbol
@@ -286,6 +328,15 @@ C
       logical is_atom
 
       setInitCoordinates = .false.
+
+!
+c      write (6,*) 'Before conversion'
+c      do i = 1,3
+c       do j = 1,3
+c         write(6,*) coordinates(i,j), i,j
+c       end do
+c      enddo
+!
 
       if (.not.geom_create(geom,'geometry'))
      $      call errquit('setCoordinates: geom_create failed',555)
@@ -325,6 +376,20 @@ C  Map labels to atoms and charges
 
       if (scale.ne.1.0d0) 
      $   call dscal(3*natoms, scale, coordinates, 1)
+!
+!      write (6,*) 'After conversion'
+!      do i = 1,9
+!         write(6,*) coordinates(i), i
+!      enddo
+!
+!  Pratima changed the above code
+
+c       write (6,*) 'After conversion in INIT '
+c        do i = 1,3
+c         do j = 1,3
+c         write(6,*) coordinates(i,j), i,j
+c        end do
+c       enddo
 
       if (.not.geom_cart_set(geom,natoms,labels,coordinates,charges))
      $     call errquit
@@ -368,10 +433,10 @@ C
 
       call flush(6)
       call ga_brdcst(MT_DBL, coords, mdtob(3*numatoms), 0)
-      write (6,*) 'after coords ', ga_nodeid()
-      do i = 1,9
-         write(6,*) coords(i), i, ga_nodeid()
-      enddo
+c      write (6,*) 'after coords ', ga_nodeid()
+c      do i = 1,9
+c         write(6,*) coords(i), i, ga_nodeid()
+c      enddo
       call flush(6)
 
       if (.not.setCoordinates(coords))
@@ -401,28 +466,29 @@ C
 #include "util.fh"
 #include "tcgmsg.fh"
 
-      double precision coords(*), gradient(*)
+      double precision coords(3*numatoms), gradient(3*numatoms)
       integer i
 
       external setCoordinates, task_gradient
       logical setCoordinates, task_gradient
+      external task_energy
+      logical task_energy
 
       evaluateGradient = .false.
 
-      call flush(6)
       call ga_brdcst(MT_DBL, coords, mdtob(3*numatoms), 0)
-      write (6,*) 'after coords ', ga_nodeid()
-      do i = 1,9
-         write(6,*) coords(i), i, ga_nodeid()
-      enddo
-      call flush(6)
 
       if (.not.setCoordinates(coords))
      $     call errquit('evaluateGradient: setCoordinates failed',555)
 
+      if (.not.task_energy(rtdb))
+     $     call errquit('evaluateGradient:task_gradient failed',555)
       if (.not.task_gradient(rtdb))
      $     call errquit('evaluateGradient:task_gradient failed',555)
 
+C      if (.not.rtdb_print(rtdb, .true.))
+C     $     call errquit('evaluateGradient:rtdb_print failed',555)
+C
       if (.not.rtdb_get(rtdb, "task:gradient", mt_dbl, numatoms*3, 
      $     gradient))
      $     call errquit('evaluateGradient:rtdb_get failed',555)
@@ -520,7 +586,7 @@ C  Close the parallel environment
 C
       call flush(6)
       call flush(6)
-      write (6,*) 'myid=',myid,' before broadcast'
+c      write (6,*) 'myid=',myid,' before broadcast'
       call flush(6)
       call flush(6)
       call flush(6)
@@ -528,11 +594,39 @@ C
       call ga_brdcst(MT_INT, idop, mitob(1), 0)
       call flush(6)
       call flush(6)
-      write (6,*) 'myid=',myid,' after broadcast'
+c      write (6,*) 'myid=',myid,' after broadcast'
       call flush(6)
       call flush(6)
       call flush(6)
       call flush(6)
+      return
+      end
+
+C
+C
+      logical function setCharge(charge)
+
+      implicit none
+
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "tcgmsg.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "geninterface.fh"
+#include "inp.fh"
+
+      double precision charge
+
+      setCharge = .false.
+
+      if (.not. rtdb_put(rtdb, 'charge', MT_DBL, 1, charge))
+     $     call errquit
+     $     ('input_charge: failed to write to rtdb', 0)
+
+      setCharge = .true.
+
       return
       end
 
