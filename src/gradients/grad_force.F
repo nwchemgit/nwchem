@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.47 2000-07-21 20:41:32 edo Exp $
+c     $Id: grad_force.F,v 1.48 2000-08-14 19:57:12 windus Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -405,7 +405,7 @@ c
       call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
      $     nopen, nclosed, scftype, movecs_in, omp2, 
-     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ)
+     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ,.false.)
 
 C     free temporary arrays
       if (.not. ga_destroy(g_eigen_diag))

@@ -1,8 +1,8 @@
       subroutine grad_dens (geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
-     $     movecs, omp2, pdm2, coeff,lsmear)
+     $     movecs, omp2, pdm2, coeff,lsmear,osep)
 
-c     $Id: grad_dens.F,v 1.11 2000-02-29 19:21:10 windus Exp $
+c     $Id: grad_dens.F,v 1.12 2000-08-14 19:57:12 windus Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -25,6 +25,8 @@ C     movecs (and Lagrangian in ROHF case) on disk
       integer l_buf, k_buf
 
       logical omp2
+      logical osep              ! [input] get seperate alpha and beta density
+                                ! for UHF
 
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -338,8 +340,12 @@ C     D_up and D_down (or and b)
 
          if ( .not. omp2 ) then
 C     D+ and D- (Formalism from Dupuis & King, JCP 68(9), p4000
+            if (.not. osep) then
             call ga_dadd ( one, g_dens(1), mone, g_vecs, g_dens(2) )
             call ga_dadd ( one, g_dens(1), one,  g_vecs, g_dens(1) )
+            else
+             call ga_copy (g_vecs,g_dens(2))
+            endif
             call ga_symmetrize(g_dens(1))
             call ga_symmetrize(g_dens(2))
          else                   ! UMP2
