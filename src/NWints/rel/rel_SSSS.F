@@ -1,4 +1,4 @@
-C $Id: rel_SSSS.F,v 1.3 2000-01-03 21:59:05 mg201 Exp $
+C $Id: rel_SSSS.F,v 1.4 2000-01-25 19:39:59 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSSS}
 c:tex-This routine generates the SSSS-type two-electron integrals for
@@ -62,7 +62,6 @@ c:tex-\begin{verbatim}
       logical canCD   ! [input] compute only canonical ints (false only)
       logical canPQ   ! [input] compute only canonical ints (false only)
       logical DryRun  ! [input] true means only compute required memory
-      logical AddInts ! [input] true: daxpy SSLL ints to rel_ints, false: dcopy
 c:tex-\end{verbatim}
 c:tex-See rel_pot for a description of the allowed values of ibug and ntyp
 c:tex-Note that in the current version of this routine, the call to rel_pot 
