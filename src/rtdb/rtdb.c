@@ -26,7 +26,7 @@ extern void free(void *);
 #define FORTRAN_TRUE  1L
 #define FORTRAN_FALSE 0L
 
-struct {			/* Keep track of active RTDBs */
+static struct {			/* Keep track of active RTDBs */
   int active;
   char *filename;
   int scratch;

@@ -104,7 +104,7 @@ c     field in istrt(i) and the number of characters in that field
 c     in inumb(i).
 c     
       character*1 xprev
-      integer lenja, i, k, mark, j, nbegin, nfini, length
+      integer lenja, i, k, mark, j, nbegin, nfini
       integer inp_strlen, jwidth
       logical inp_compare
       external inp_strlen, inp_compare
@@ -412,8 +412,7 @@ c
 #include "inpP.fh"
       double precision ten, buf
       integer i1, i2, ie2, isign, ie, iexp, ie1, ibuff, i, j
-      integer n, ifact, ist, nstrt, i, j
-      character*1 xtemp
+      integer i, j
       logical orep
       character*1 xchar(15)
       data xchar /'0','1','2','3','4','5','6','7','8','9'
