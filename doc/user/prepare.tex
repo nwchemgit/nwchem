@@ -306,7 +306,37 @@ charges will be multiplied.
 If no existing sequence file is present in the current directory,
 or if the \verb+new_seq+ keyword was specified in the \prepare\ 
 input deck, a new sequence file is generated from information
-from the pdb file.
+from the pdb file, and the following \verb+modify+ and \verb+link+ 
+input commands.
+
+\begin{verbatim}
+modify sequence { <integer sgmnum>:<string sgmnam> }
+\end{verbatim}
+
+This command specifies that segment {\bf sgmnam} should be used
+for segment with number {\it sgmnum}. This command can be used
+to specify a particular protonation state. For example, the
+following command specifies that residue 114 is a hystidine
+protonated at the N$_\epsilon$ site and residue 202 is a hystidine
+protonated at the N$_\delta$ site:
+
+\begin{verbatim}
+modify sequence 114:HIE 202:HID
+\end{verbatim}
+
+Links between atoms can be enforced with
+
+\begin{verbatim}
+link <string atomname> <string atomname>
+\end{verbatim}
+
+For example, to link atom {\rm SG} in segment 20 with atom {\rm FE}
+in segment 55, use:
+
+\begin{verbatim}
+link 20:_SG 55:FE
+\end{verbatim}
+
 \par
 The format of the sequence file is given in Table~\ref{tbl:nwaseq}.
 In addition to the list of segments this file also includes links
