@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.36 1998-04-29 07:27:36 d3e129 Exp $
+c $Id: int_init.F,v 1.37 1998-07-29 00:38:19 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -24,10 +24,12 @@ c
 #include "rtdb.fh"
 #include "int_nbf.fh"
 c::functions
-      logical spcart_init
+      logical  spcart_init
       external spcart_init
-      logical int_ecp_init
+      logical  int_ecp_init
       external int_ecp_init
+      logical  texas_check_basis_ok
+      external texas_check_basis_ok
 c::passed
 c:tex-\begin{verbatim}
       integer rtdb        ! [input] run time data base handle
@@ -111,6 +113,19 @@ c
           write(6,*)
      &        ' int_init: cando_txs set to always be ',def_cando_txs
           call util_flush(6)
+        endif
+      endif
+*
+      if (.not.user_cando_txs) then
+        if (.not.texas_check_basis_ok(nbas,bases)) then
+          user_cando_txs = .true.
+          def_cando_txs = .false.
+          if (ga_nodeid().eq.0) then
+            write(6,*)' internal texas instability possible '
+            write(6,*)
+     &          ' int_init: cando_txs set to always be ',def_cando_txs
+            call util_flush(6)
+          endif
         endif
       endif
 * sanity checking: e.g., you only want to turn off a particular integral
@@ -285,4 +300,48 @@ c See if any basis has an attached SO potential
 *_not_used?:     &       call errquit('sp_init:ma_alloc_get scat failed',911)
 *_not_used?:      write(6,*)':::done: allocating sp blocks of memory'
       end
-      
+      logical function texas_check_basis_ok(nbas,bases)
+      implicit none
+#include "bas.fh"
+c::passed
+      integer nbas        ! [input] number of basis sets
+      integer bases(nbas) ! [input] basis set handles
+c::local
+      integer ibas  ! specific basis index
+      integer jbas  ! specific basis index
+      integer i_highang ! high angular momentum for specific basis set
+      integer j_highang ! high angular momentum for specific basis set
+      double precision i_exponent ! largest exponent for ith basis set
+      double precision j_exponent ! largest exponent for jth basis set
+      logical okay1, okay2, okay3, okay4
+c
+      texas_check_basis_ok = .true.  ! [output] true texas is okay to use
+c
+      do ibas = 1,nbas
+        if (.not.bas_large_exponent(bases(ibas),i_exponent))
+     &      call errquit
+     &      ('texas_check_basis_ok:i: bas_large_exponent failed',911)
+        if (.not.bas_high_angular(bases(ibas),i_highang))
+     &      call errquit
+     &      ('texas_check_basis_ok:i: bas_high_angular',911)
+        do jbas = 1,ibas
+          if (.not.bas_large_exponent(bases(jbas),j_exponent))
+     &        call errquit
+     &        ('texas_check_basis_ok:j: bas_large_exponent failed',911)
+          if (.not.bas_high_angular(bases(jbas),j_highang))
+     &        call errquit
+     &        ('texas_check_basis_ok:j: bas_high_angular',911)
+*          write(6,*)' i_highang  ',i_highang
+*          write(6,*)' j_highang  ',j_highang
+*          write(6,*)' i_exponent ',i_exponent
+*          write(6,*)' j_exponent ',j_exponent
+          okay1 = .not.((i_highang.ge.2).and.(i_exponent.gt.10000.0d00))
+          okay2 = .not.((j_highang.ge.2).and.(j_exponent.gt.10000.0d00))
+          okay3 = .not.((i_highang.ge.2).and.(j_exponent.gt.10000.0d00))
+          okay4 = .not.((j_highang.ge.2).and.(i_exponent.gt.10000.0d00))
+*          write(6,*)okay1, okay2, okay3, okay4
+          texas_check_basis_ok = okay1.and.okay2.and.okay3.and.okay4
+          if (.not.texas_check_basis_ok) return
+        enddo
+      enddo
+      end

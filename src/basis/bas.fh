@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.20 1998-04-29 07:29:49 d3e129 Exp $
+c $Id: bas.fh,v 1.21 1998-07-29 00:39:21 d3e129 Exp $
 c:bas.fh
 c
       logical bas_checksum
@@ -84,6 +84,7 @@ c
       logical bas_num_coef
       logical bas_num_prim
       logical bas_isce
+      logical bas_large_exponent
 c
       external bas_version        
       external bas_create         
@@ -169,3 +170,4 @@ c
       external bas_num_coef
       external bas_num_prim
       external bas_isce
+      external bas_large_exponent

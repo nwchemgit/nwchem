@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.80 1998-07-02 20:31:17 ng972 Exp $
+c $Id: basis.F,v 1.81 1998-07-29 00:39:22 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3873,7 +3873,7 @@ c
       logical bas_numcont, bas_continfo
       external bas_numcont, bas_continfo
 c::args
-C$Id: basis.F,v 1.80 1998-07-02 20:31:17 ng972 Exp $
+C$Id: basis.F,v 1.81 1998-07-29 00:39:22 d3e129 Exp $
       integer basis_hand ! nwchem basis handle
       integer ncontr_max  ! max no of contractions for any contraction set
 c::locals
@@ -4296,4 +4296,54 @@ c
 *      write(6,*)' center = ',center,' gtag:<',gtag,'>'
       bas_isce  = bas_match_tags(gtag,basisin,tag_indx)
       end
-      
+      logical function bas_large_exponent(basisin,exponent)
+      implicit none
+c
+c returns the largest primitive exponent in the given basis set
+c
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
+c::functions
+      logical  bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin
+      double precision exponent
+c::local
+      integer basis
+      integer num_cont
+      integer icont, ucont
+      integer myexptr
+      integer mynprim
+      integer iprim
+      double precision test_exponent
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+      bas_large_exponent =
+     &    bas_check_handle(basisin,'bas_large_exponent')
+      if (.not.bas_large_exponent) then
+        write(luout,*)'invalid/inactive basis handle',basisin
+        call errquit('bas_large_exponent: fatal error',911)
+      endif
+      basis = basisin + Basis_Handle_Offset 
+      num_cont = ncont_tot_gb(basis)
+      exponent = -565.6589d00
+      do icont = 1,num_cont
+        ucont = sf_ibs_cn2ucn(icont,basis)
+        myexptr = infbs_cont(CONT_IEXP,ucont,basis)
+        mynprim = infbs_cont(CONT_NPRIM,ucont,basis)
+        do iprim = 1, mynprim
+          test_exponent = sf_exndcf((myexptr-1+iprim),basis)
+          exponent = max(exponent,test_exponent)
+*          write(luout,*)' exponent ',exponent,'  test ', test_exponent
+        enddo
+      enddo
+*      write(luout,*)' largest exponent ',exponent
+      end
