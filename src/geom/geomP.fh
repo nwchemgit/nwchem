@@ -1,5 +1,5 @@
 *
-* $Id: geomP.fh,v 1.30 1999-10-26 21:23:16 mg201 Exp $
+* $Id: geomP.fh,v 1.31 2000-11-08 00:42:30 d3g681 Exp $
 *
 c
 c     Private fortran include file for the geometry routines
@@ -115,7 +115,7 @@ c
       parameter (max_geom_rtdb = 100)
       parameter (nelements     = 109)
       parameter (max_cent      = nw_max_atom)
-      parameter (max_nzvar     = 3*max_cent)
+      parameter (max_nzvar     = 6*max_cent)
       parameter (max_izmat     = 4*max_nzvar)
       parameter (max_zcoord    = 16) ! For augmenting autoz
 c
