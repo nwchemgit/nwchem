@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.108 2001-08-23 15:54:25 d3j191 Exp $
+c $Id: cf_main.F,v 1.109 2001-10-11 18:55:25 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -361,7 +361,7 @@ c
       return
       end
       subroutine cf_mdstep(iwdt,xw,yw,vw,vwt,fw,numw,
-     + isdt,isat,xs,ys,vs,vst,fs,nums,iwgmn,isgan)
+     + isdt,isat,xs,ys,vs,vst,fs,nums,iwgmn,isgan,tmpx)
 c
       implicit none
 c
@@ -373,6 +373,9 @@ c
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),fs(msa,3)
+      real*8 tmpx
+c
+      tmpext=tmpx
 c
       call cf_tscale()
 c

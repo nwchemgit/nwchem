@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.43 2001-08-29 23:02:52 d3j191 Exp $
+c $Id: md_input.F,v 1.44 2001-10-11 18:55:39 d3j191 Exp $
 c
       implicit none
 c
@@ -36,6 +36,7 @@ c
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
       real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide,rfix,fcoll
+      real*8 tmpext2,tann1,tann2
       character*12 afix
 c
       integer i,mtimes,len
@@ -186,8 +187,11 @@ c
       prsrlx=0.5d0
       compr=4.53e-10
       tmpext=298.15d0
+      tmpext2=298.15d0
       tmprlx=0.1d0
       tmsrlx=0.1d0
+      tann1=0.0d0
+      tann2=0.0d0
       tgauss=298.15d0
       rlong=0.9d0
       rshort=0.9d0
@@ -529,17 +533,29 @@ c
 c
 c     constant temperature
 c
-c     isotherm [<temp_ext>] [trelax <tmprlx> [<tmsrlx>]]
+c     isotherm [<tmpext> [tmpext2>]] [trelax <tmprlx> [<tmsrlx>]] \
+c              [anneal <tanneal1> [<tanneal2>]]
 c
       if(inp_compare(.false.,'isotherm',item)) then
       itscal=1
       if(inp_f(tmpext)) itscal=1
+      if(.not.inp_f(tmpext2)) tmpext2=tmpext
+  252 continue
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'trelax',item)) then
       if(.not.inp_f(tmprlx))
      + call errquit('md_input: error t_trelax',14)
       if(inp_f(tmsrlx)) itscal=2
-      goto 2
+      goto 252
+      endif
+      if(inp_compare(.false.,'anneal',item)) then
+      if(.not.inp_f(tann1))
+     + call errquit('md_input: error t_tanneal',14)
+      if(.not.inp_f(tann2)) then
+      tann2=tann1
+      tann1=0.0d0
+      endif
+      goto 252
       endif
       goto 3
       endif
@@ -1600,9 +1616,15 @@ c
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:tmpext',mt_dbl,1,tmpext))
      + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:tmpext2',mt_dbl,1,tmpext2))
+     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:tmprlx',mt_dbl,1,tmprlx))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:tmsrlx',mt_dbl,1,tmsrlx))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:tann1',mt_dbl,1,tann1))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:tann2',mt_dbl,1,tann2))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:tgauss',mt_dbl,1,tgauss))
      + call errquit('md_input: rtdb_put failed',0)

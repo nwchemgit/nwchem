@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.110 2001-08-10 17:51:49 d3j191 Exp $
+c $Id: md_main.F,v 1.111 2001-10-11 18:55:39 d3j191 Exp $
 c
       implicit none
 c
@@ -1178,6 +1178,15 @@ c
       mdstep=mdstep+1
       stime=stime+tstep
 c
+      if(tann2.gt.0.and.tmpext1.ne.tmpext2.and.tann1.lt.tann2)then
+      if(stime.gt.tann1.and.stime.lt.tann2) then
+      tmpext=((tann2-stime)*tmpext1+(stime-tann1)*tmpext2)/(tann2-tann1)
+      else
+      tmpext=tmpext1
+      if(stime.ge.tann2) tmpext=tmpext2
+      endif
+      endif
+c
       wallt=timer_wall(3)
       call timer_start(3)
 c
@@ -1307,7 +1316,7 @@ c
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
      + dbl_mb(i_fs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm),
-     + int_mb(i_is+(lsgan-1)*msa))
+     + int_mb(i_is+(lsgan-1)*msa),tmpext)
 c
 c     shake
 c
@@ -2148,7 +2157,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.110 2001-08-10 17:51:49 d3j191 Exp $
+c $Id: md_main.F,v 1.111 2001-10-11 18:55:39 d3j191 Exp $
 c
       implicit none
 c

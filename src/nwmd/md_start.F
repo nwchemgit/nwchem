@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.98 2001-08-23 15:54:16 d3j191 Exp $
+c $Id: md_start.F,v 1.99 2001-10-11 18:55:39 d3j191 Exp $
 c
       implicit none
 c
@@ -545,8 +545,12 @@ c     constant t
 c
       itscal=0
       tmpext=298.15d0
+      tmpext1=298.15d0
+      tmpext2=298.15d0
       tmprlx=0.4d0
       tmsrlx=0.4d0
+      tann1=0.0d00
+      tann2=1.0d02
 c
 c     velocity reassignment
 c
@@ -898,12 +902,19 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',113)
       if(.not.rtdb_get(irtdb,'md:compr',mt_dbl,1,compr))
      + call errquit('md_rtdbin: rtdb_get failed',114)
-      if(.not.rtdb_get(irtdb,'md:tmpext',mt_dbl,1,tmpext))
+      if(.not.rtdb_get(irtdb,'md:tmpext',mt_dbl,1,tmpext1))
+     + call errquit('md_rtdbin: rtdb_get failed',115)
+      tmpext=tmpext1
+      if(.not.rtdb_get(irtdb,'md:tmpext2',mt_dbl,1,tmpext2))
      + call errquit('md_rtdbin: rtdb_get failed',115)
       if(.not.rtdb_get(irtdb,'md:tmprlx',mt_dbl,1,tmprlx))
      + call errquit('md_rtdbin: rtdb_get failed',116)
       if(.not.rtdb_get(irtdb,'md:tmsrlx',mt_dbl,1,tmsrlx))
      + call errquit('md_rtdbin: rtdb_get failed',117)
+      if(.not.rtdb_get(irtdb,'md:tann1',mt_dbl,1,tann1))
+     + call errquit('md_rtdbin: rtdb_get failed',116)
+      if(.not.rtdb_get(irtdb,'md:tann2',mt_dbl,1,tann2))
+     + call errquit('md_rtdbin: rtdb_get failed',116)
       if(.not.rtdb_get(irtdb,'md:tgauss',mt_dbl,1,tgauss))
      + call errquit('md_rtdbin: rtdb_get failed',118)
       if(.not.rtdb_get(irtdb,'md:frgaus',mt_dbl,1,frgaus))
@@ -1361,11 +1372,12 @@ c
  1022 format(/,' Velocity reassignment temperature ',f12.6,' K')
       endif
       if(itscal.gt.0) then
-      write(lfnout,1021) tmpext,tmprlx,tmsrlx
+      write(lfnout,1021) tmpext1,tmpext2,tmprlx,tmsrlx,tann1,tann2
  1021 format(/,' Isothermal ensemble external temperature ',
-     + f12.6,' K',/,
+     + 2f12.6,' K',/,
      + ' Temperature relaxation time solvent      ',f12.6,' ps',/,
-     + ' Temperature relaxation time solute       ',f12.6,' ps')
+     + ' Temperature relaxation time solute       ',f12.6,' ps',/,
+     + ' Temperature annealing between times      ',2f12.6,' ps')
       endif
       if(ipscal.ne.0) then
       write(lfnout,1023) prsext,prsrlx,compr
