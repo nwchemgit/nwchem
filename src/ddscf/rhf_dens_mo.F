@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.12 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id: rhf_dens_mo.F,v 1.13 2003-12-25 17:10:20 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -65,7 +65,7 @@ c
      $     abs(dens_norm-dble(nelec)).gt.1.0d-6) then
          if (ga_nodeid() .eq. 0 .and. oprint) then
             write(6,17) dens_norm, nelec
- 17         format(/' Renormalizing density from ',f8.2,' to ',i4)
+ 17         format(/' Renormalizing density from ',f10.2,' to ',i6)
             call util_flush(6)
          endif
          dens_norm = dble(nelec)/dens_norm

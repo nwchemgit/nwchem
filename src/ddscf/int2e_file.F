@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.56 2003-10-17 22:54:32 carlfahl Exp $
+* $Id: int2e_file.F,v 1.57 2003-12-25 17:10:05 edo Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -853,10 +853,16 @@ c
      $        buf, rec_len_in_dbl*8)
       else
          if (.not. file_opened) then
-            if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $           call errquit('int2e_file_open: eaf_open failed', 0,
-     &       UNKNOWN_ERR)
-            file_opened = .true.
+            ierr=eaf_open(actualname, eaf_rw, fd)
+            if (ierr .ne. 0) then
+               call eaf_errmsg(ierr, errmsg)
+               write(6,*) ' IO error message ',
+     ,           errmsg(1:inp_strlen(errmsg))
+               call errquit('int2e_file_open: eaf_open failed', 0,
+     &         UNKNOWN_ERR)
+             else
+               file_opened = .true.
+             endif
          end if
 c
 c     Should really detect failures in writing and return false
