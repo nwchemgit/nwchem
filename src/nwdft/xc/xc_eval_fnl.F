@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.4 1998-10-17 00:39:38 og845 Exp $
+c     $Id: xc_eval_fnl.F,v 1.5 1998-12-31 21:33:54 bjohnson Exp $
 c
       implicit none
 c
@@ -54,11 +54,11 @@ c
          if (.not. do_2nd) then
             call xc_becke88(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ex, qwght,ldew,func)
+     &           Ex, qwght)
          else
             call xc_becke88_d2(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
-     &           Ex, qwght,ldew,func)
+     &           Ex, qwght)
          endif
       endif
 C
