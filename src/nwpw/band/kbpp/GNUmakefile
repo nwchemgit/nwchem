@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-12-13 03:51:23 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2002-02-11 19:05:22 edo Exp $
 #
  OBJ_OPTIMIZE = \
 				cpsp_formatter_auto.o \
@@ -16,7 +16,7 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = kbpp_band.F
+    USES_BLAS = kbpp_band.F setup_kbpp_band.F integrate_kbpp_band_local.F integrate_kbpp_band_nonlocal.F
                 
 
   LIB_DEFINES =
