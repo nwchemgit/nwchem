@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.262 1998-08-10 10:45:54 d3e129 Exp $
+# $Id: makefile.h,v 1.263 1998-08-17 22:50:41 d3g270 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -951,7 +951,7 @@ ifeq ($(TARGET),LAPI)
 LARGE_FILES = YES
 
 ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR) 
+  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR) 
    LINK.f   = mpxlf_r   $(LDOPTIONS)
 else
   LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR)
