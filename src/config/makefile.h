@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.198 1997-01-31 22:04:11 d3g681 Exp $
+# $Id: makefile.h,v 1.199 1997-02-03 19:46:05 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -225,7 +225,7 @@ ifeq ($(TARGET),SUN)
   FOPTIMIZE = -O3
   COPTIMIZE = -g -O2
 
-    DEFINES = -DSUN -DHAVE_LOC
+    DEFINES = -DSUN
 
        CORE_LIBS =  -lutil -lchemio -lglobal -llapack -lblas
 endif
@@ -260,7 +260,7 @@ ifeq ($(TARGET),SOLARIS)
      FDEBUG = -g -O1
   COPTIMIZE = -g -O2
    LIBPATH += -L/usr/ucblib
-    DEFINES = -DSOLARIS -DHAVE_LOC
+    DEFINES = -DSOLARIS
 
   LDOPTIONS = -xildoff
 
@@ -296,7 +296,7 @@ ifdef PURECOV
   COPTIMIZE = -g -O1
    LIBPATH += -L/usr/ucblib
    LIBPATH += -L/afs/msrc/sun4m_54/apps/purecov
-   DEFINES = -DSOLARIS -DHAVE_LOC
+   DEFINES = -DSOLARIS
    OPTIONS = -xildoff -Bstatic
    CORE_LIBS = -lutil -lglobal -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
@@ -347,7 +347,7 @@ ifeq ($(TARGET),CRAY-T3D)
             LDOPTIONS = -s -Drdahead=on -L$(LIBDIR) 
 
 # Compilation also depends on compilers defining CRAY
-              DEFINES = -DCRAY_T3D -DPARALLEL_DIAG -DHAVE_LOC
+              DEFINES = -DCRAY_T3D -DPARALLEL_DIAG
 
 #               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
                LINK.f = mppldr $(LDOPTIONS)
@@ -378,7 +378,7 @@ ifeq ($(TARGET),CRAY-T3E)
             COPTIMIZE = -O
             LDOPTIONS = -L$(LIBDIR) 
 
-              DEFINES = -DCRAY_T3D -D__F90__ -DHAVE_LOC
+              DEFINES = -DCRAY_T3D -D__F90__
 
                LINK.f = f90 $(LDOPTIONS)
 
@@ -404,7 +404,7 @@ ifeq ($(TARGET),KSR)
   FOPTIMIZE = -xfpu3 -O1
   COPTIMIZE = -xfpu3 -O1
 
-    DEFINES = -DKSR -DPARALLEL_DIAG -DEXT_INT -DHAVE_LOC
+    DEFINES = -DKSR -DPARALLEL_DIAG -DEXT_INT
 
 #       LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
         LIBPATH += -L/home2/d3g270/peigs1.1.1 -L/home/d3g681/TCGMSG_DISTRIB
@@ -442,7 +442,7 @@ FVECTORIZE = -O2 -Minline=1000 # -Mvect
 # real iPSC and Delta that is not applicable to the paragon, which is more
 # unixy since it runs OSF/1.
 #
-    DEFINES = -D__PARAGON__ -DPARALLEL_DIAG -DHAVE_LOC
+    DEFINES = -D__PARAGON__ -DPARALLEL_DIAG
     ARFLAGS = ru
 
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
@@ -474,7 +474,7 @@ ifeq ($(TARGET),DELTA)
 FVECTORIZE = -O4 		# -Mvect corrupts lapack for large vectors
  COPTIMIZE = -O2
 
-   DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG -DHAVE_LOC
+   DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
         LIBPATH += -L/home/delilah11/gifann/lib
        CORE_LIBS = -lglobal -lutil -lchemio -lglobal -lpeigs_delta\
    	            $(LIBDIR)/liblapack.a -llapack -lblas
@@ -542,7 +542,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
 
  COPTIMIZE = -O
 
-    DEFINES = -DSGI -DSGITFP -DEXT_INT -DHAVE_LOC
+    DEFINES = -DSGI -DSGITFP -DEXT_INT
   CORE_LIBS = -lutil -lpfft -lpeigs -lchemio -lglobal -llapack -lblas
 endif
 
@@ -566,7 +566,7 @@ ifeq ($(TARGET),SGI)
 
     INSTALL = @echo nwchem is built
   MAKEFLAGS = -j 4 --no-print-directory
-    DEFINES = -DSGI  -DHAVE_LOC
+    DEFINES = -DSGI
 
   FOPTIONS = -mips3
   COPTIONS = -mips3 -fullwarn
@@ -639,7 +639,7 @@ ifeq ($(TARGET),CONVEX-SPP)
   COPTIMIZE = -O
 
 
-    DEFINES = -DCONVEX -DHPUX -DEXTNAME -DHAVE_LOC
+    DEFINES = -DCONVEX -DHPUX -DEXTNAME
 
 # &%@~* Convex compiler will preprocess only *.f and *.FORT files !
   EXPLICITF = TRUE
@@ -673,7 +673,7 @@ ifeq ($(TARGET),IBM)
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
   COPTIMIZE = -O
 
-    DEFINES = -DIBM -DAIX -DEXTNAME -DHAVE_LOC
+    DEFINES = -DIBM -DAIX -DEXTNAME
 ifdef USE_ESSL
    DEFINES += -DESSL
 endif
@@ -761,7 +761,7 @@ ifeq ($(TARGET),SP1)
   FOPTIMIZE = -O
   COPTIMIZE = -O
 
-    DEFINES = -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG -DHAVE_LOC
+    DEFINES = -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
 #
 # Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
 #
@@ -873,7 +873,7 @@ ifeq ($(TARGET),LINUX)
   FOPTIMIZE = -g -O2
   COPTIMIZE = -g -O2
 
-    DEFINES = -DLINUX
+    DEFINES = -DLINUX -DNEED_LOC
 
   LDOPTIONS = -g
      LINK.f = gcc $(LDFLAGS)
