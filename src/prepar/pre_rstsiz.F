@@ -1,6 +1,6 @@
       logical function pre_rstsiz(lfnrst,filrst,nwm,nwa,nsa)
 c
-c $Id: pre_rstsiz.F,v 1.1 1998-07-15 21:18:11 d3j191 Exp $
+c $Id: pre_rstsiz.F,v 1.2 1998-07-16 01:45:02 d3j191 Exp $
 c
       implicit none
 c
@@ -8,7 +8,7 @@ c
       character*255 filrst
 c
       character*1 cdummy
-      integer i,nsa,npbtyp
+      integer i,nsa,npbtyp,kinsep
 c
       open(unit=lfnrst,file=filrst(1:index(filrst,' ')-1),
      + status='old',err=9999)
@@ -20,12 +20,17 @@ c
     1 continue
       read(lfnrst,1001) npbtyp
  1001 format(i5)
-      do 2 i=1,2
+      read(lfnrst,1002) kinsep
+ 1002 format(40x,i5)
+      read(lfnrst,1000) cdummy
+      if(kinsep.eq.1) then
+      do 2 i=1,3
       read(lfnrst,1000) cdummy
     2 continue
+      endif
 c
-      read(lfnrst,1002) nwm,nwa,nsa
- 1002 format(2i10,10x,i10)
+      read(lfnrst,1003) nwm,nwa,nsa
+ 1003 format(2i10,10x,i10)
 c
       close(unit=lfnrst)
 c

@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.17 1998-07-15 22:03:48 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.18 1998-07-16 01:45:01 d3j191 Exp $
 c
       implicit none
 c
@@ -410,7 +410,7 @@ c
       filnam=card(8:80)
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filrst
-      if(.not.pre_rstsiz(lfnrst,filrst,nnwm,nnwa,nnsa))
+      if(.not.pre_rstsiz(lfnrst,filnam,nnwm,nnwa,nnsa))
      + call errquit('pre_rstsiz failed',9999)
       if(nnwm.gt.mwm) then
       if(lsolva) then
