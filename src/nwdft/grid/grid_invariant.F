@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.3 1999-06-14 22:39:21 d3h449 Exp $
+c$Id: grid_invariant.F,v 1.4 1999-06-15 20:49:12 d3e129 Exp $
 c
       implicit none
 c      
@@ -73,7 +73,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.3 1999-06-14 22:39:21 d3h449 Exp $
+c$Id: grid_invariant.F,v 1.4 1999-06-15 20:49:12 d3e129 Exp $
 c
       implicit none
 c
@@ -83,7 +83,6 @@ c
       double precision eps
       parameter (eps = 1.d-20)
       double precision coord(3,ncenters), charge(ncenters)
-      integer ncenters
 c
 c     allocate space for M and T (rotational invariance; 
 c     see B.G. Johnson et al, CPL, 220, 377 (1994), and auxiliary 

@@ -1,9 +1,15 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.8 1999-06-15 20:16:26 edo Exp $
+c$Id: grid_tasks.F,v 1.9 1999-06-15 20:49:12 d3e129 Exp $
 c
       implicit none
+c
+#include "cdft.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+*****************8#include "tcgmsg.fh"
 c
       integer rtdb, qsh, nqlen, npts_per_ang, nq_tot
       integer lrij, irij, lrq, irq, lp, ip, lexpo, iexpo
@@ -12,12 +18,6 @@ c
       dimension coord(3,ncenters)
       dimension qsh(3,nqlen)
       dimension aqbuf(4,npts_per_ang)
-c
-#include "cdft.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
 c
       logical oreadfile, owritefile
       integer filesize, memsize
