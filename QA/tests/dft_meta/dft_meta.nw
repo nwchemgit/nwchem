@@ -1,23 +1,25 @@
+
 title "Methane Molecule META GGA XC"
 echo
-
+ 
 geometry units au
     c   0.0000000        0.0000000        0.0000000
     h   1.177225798      1.177225798      1.177225798
     symmetry group Td
 end
-
-
+ 
+ 
 basis
-  C  library "6-311G**"
-  H  library "6-311G**"
+  C  library  6-311++G(3df,3pd)
+  H  library  6-311++G(3df,3pd)
 end
-
-
+ 
+ 
 dft
- xc xpkzb99 cpkzb99
+ xc xtpss03 ctpss03
  decomp
  print low
 end
 task dft optimize numerical
+
 
