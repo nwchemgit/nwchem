@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.38 2004-12-04 02:59:27 marat Exp $
+c $Id: qmmm.F,v 1.39 2004-12-21 02:15:21 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -16,6 +16,7 @@ c
       integer irtdb
       logical qmmm_init
 c
+      logical checkgrad
       character*32 pname
 c
       call qmmm_print_header(irtdb)
@@ -43,6 +44,15 @@ c     --------------------------------------------
 
       if(qmmm_print_debug()) 
      >  write(*,*) ga_nodeid(),"out "//pname
+
+
+      if (.not. rtdb_get(irtdb,'qmmm:checkgrad',mt_log,1,checkgrad))
+     $     checkgrad = .false.
+
+      if(checkgrad) then
+       call qmmm_check_forces(irtdb)
+       stop
+      end if
 
       call util_print_pop() 
 
