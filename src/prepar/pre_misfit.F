@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,nmis,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box,fcount,nrgrid,iogrid,rogrid)
 c
-c $Id: pre_misfit.F,v 1.35 2003-07-17 19:38:56 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.36 2003-10-01 10:25:37 d3j191 Exp $
 c
       implicit none
 c
@@ -474,19 +474,19 @@ c
       if(grid(2,ngrid).lt.rogrid(1,k)) goto 16
       if(grid(2,ngrid).gt.rogrid(2,k)) goto 16
       elseif(iogrid(k).eq.4) then
-      if(grid(2,ngrid).gt.rogrid(1,k).and.grid(1,ngrid).lt.rogrid(2,k))
+      if(grid(2,ngrid).gt.rogrid(1,k).and.grid(2,ngrid).lt.rogrid(2,k))
      + goto 16
       elseif(iogrid(k).eq.5) then
       if(grid(3,ngrid).lt.rogrid(1,k)) goto 16
       if(grid(3,ngrid).gt.rogrid(2,k)) goto 16
       elseif(iogrid(k).eq.6) then
-      if(grid(3,ngrid).gt.rogrid(1,k).and.grid(1,ngrid).lt.rogrid(2,k))
+      if(grid(3,ngrid).gt.rogrid(1,k).and.grid(3,ngrid).lt.rogrid(2,k))
      + goto 16
-      elseif(iogrid(k).eq.5) then
+      elseif(iogrid(k).eq.7) then
       dgrid=sqrt(grid(1,ngrid)**2+grid(2,ngrid)**2)
       if(dgrid.lt.rogrid(1,k)) goto 16
       if(dgrid.gt.rogrid(2,k)) goto 16
-      elseif(iogrid(k).eq.6) then
+      elseif(iogrid(k).eq.8) then
       dgrid=sqrt(grid(1,ngrid)**2+grid(2,ngrid)**2)
       if(dgrid.gt.rogrid(1,k).and.dgrid.lt.rogrid(2,k)) goto 16
       endif
