@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.17 2003-02-08 01:43:26 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.18 2003-02-08 23:05:14 bylaska Exp $
 *
 
 !**************************************************
@@ -105,6 +105,7 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
 !**************************************************
       subroutine paw_ovlp_end()
       implicit none      
+
 #include "mafdecls.fh"
 #include "paw_ovlp_data.fh"
 
@@ -115,6 +116,7 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       value = value.and.MA_free_heap(toeff(2))
       value = value.and.MA_free_heap(indx2(2))
       value = value.and.MA_free_heap(sgn(2))
+      value = value.and.MA_free_heap(w(2))
       if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0)
       return
       end

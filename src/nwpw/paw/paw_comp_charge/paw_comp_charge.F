@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.9 2003-01-30 21:12:33 bylaska Exp $
+* $Id: paw_comp_charge.F,v 1.10 2003-02-08 23:05:14 bylaska Exp $
 *
 
 
@@ -50,6 +50,8 @@
       ok = .TRUE.
       ok = ok .AND. my_alloc(MT_DCPL,qlm_size,"qlm",qlm)
       ok = ok .AND. my_alloc(MT_DBL,nkatm,"q00",q00)
+      if (.not.ok)
+     > call errquit("paw_comp_charge_init: out of heap memory",0)
 
       !*** set q00 array ***
       do ia=1,nkatm
@@ -58,7 +60,27 @@
         dbl_mb(q00(1)+ia-1)=q00_tmp
       end do
 
-      end subroutine
+      return
+      end !subroutine
+
+
+      subroutine paw_comp_charge_end()
+      implicit none
+
+#include "paw_comp_charge_data.fh"
+#include "paw_ma.fh"
+
+      logical ok
+
+      ok =        my_dealloc(qlm)
+      ok = ok.and.my_dealloc(q00)
+      if (.not.ok)
+     > call errquit("paw_comp_charge_init: error freeing heap",0)
+
+      return
+      end !subroutine
+
+
 
       subroutine paw_comp_charge_update()
         implicit none
@@ -109,6 +131,8 @@ c        end do
             end do 
           end do
         end do
+
+        return
 	end !subroutine
 	
 

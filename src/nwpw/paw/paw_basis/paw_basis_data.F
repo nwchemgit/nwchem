@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.12 2003-02-07 06:40:01 marat Exp $
+! $Id: paw_basis_data.F,v 1.13 2003-02-08 23:05:14 bylaska Exp $
 
 !**************************************************
 !
@@ -47,7 +47,7 @@
       ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"log_amesh",log_amesh)
       ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"sigma",sigma)
       ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"ion_charge",ion_charge) 
-      ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"core_charge",ion_charge) 
+      ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"core_charge",core_charge) 
       ok = ok .AND. 
      >     my_alloc(MT_DBL,tot_ntype,"core_kin_energy",core_kin_energy)
 
@@ -111,7 +111,7 @@
       logical ok
 
         ok = .true.
-        ok = ok .and. ok .and. my_dealloc(i_ngb)
+        ok = ok .and. my_dealloc(i_ngb)
         ok = ok .and. my_dealloc(i_ng)
         ok = ok .and. my_dealloc(i_nb)
         ok = ok .and. my_dealloc(rgrid)
@@ -130,6 +130,7 @@
         ok = ok .and. my_dealloc(pr_n_ps)
         ok = ok .and. my_dealloc(core_kin_energy)
         ok = ok .and. my_dealloc(ion_charge) 
+        ok = ok .and. my_dealloc(core_charge) 
         ok = ok .and. my_dealloc(sigma)
         ok = ok .and. my_dealloc(log_amesh)
         ok = ok .and. my_dealloc(rmax)
@@ -145,7 +146,7 @@
 
 
 
-      END SUBROUTINE
+      END !SUBROUTINE
 
 !**************************************************
 !
