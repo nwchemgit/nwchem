@@ -7,3 +7,6 @@ Oct 06	Initial Electrostatic Potential (ESP) module
 		c) Restraints (cf RESP)
 
 Oct 09	Added USES_BLAS=esp_denmat
+
+Apr 21 1998	print under util_print contol
+         	put fitted charges onto rtdb

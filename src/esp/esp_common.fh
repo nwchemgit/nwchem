@@ -1,11 +1,11 @@
 c
-c $Id: esp_common.fh,v 1.4 1997-10-09 15:46:58 d3j191 Exp $
+c $Id: esp_common.fh,v 1.5 1998-04-21 21:45:16 d3j191 Exp $
 c
 c     esp_mpp : node and global array related variables
 c     -------------------------------------------------
 c
-      integer me,np,irtdb,igeom,ibasis
-      common/esp_mpp/me,np,irtdb,igeom,ibasis
+      integer me,np,irtdb,igeom,ibasis,lfnout
+      common/esp_mpp/me,np,irtdb,igeom,ibasis,lfnout
 c
 c     esp_ptr : pointers and handles
 c     ------------------------------

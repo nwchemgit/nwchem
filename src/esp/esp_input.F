@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.2 1997-10-07 18:09:51 d3j191 Exp $
+c $Id: esp_input.F,v 1.3 1998-04-21 21:45:17 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,7 @@ c
       integer i,me,np,icon(2500),ncon,nconst,jcon,irest,maxit,ihfree
       integer idump
       real*8 rcut,spac,radius(107),rcon(500),resa,resb
-      real*8 toler
+      real*8 toler,factor,probe
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -40,113 +40,116 @@ c
       resb=0.0d0
       rcut=0.5d0
       spac=0.1d0
-      radius(  1)=0.145d0
-      radius(  2)=0.200d0
-      radius(  3)=0.200d0
-      radius(  4)=0.200d0
-      radius(  5)=0.200d0
-      radius(  6)=0.170d0
-      radius(  7)=0.180d0
-      radius(  8)=0.190d0
-      radius(  9)=0.200d0
-      radius( 10)=0.200d0
-      radius( 11)=0.200d0
-      radius( 12)=0.200d0
-      radius( 13)=0.200d0
-      radius( 14)=0.200d0
-      radius( 15)=0.200d0
-      radius( 16)=0.200d0
-      radius( 17)=0.200d0
-      radius( 18)=0.200d0
-      radius( 19)=0.200d0
-      radius( 20)=0.200d0
-      radius( 21)=0.200d0
-      radius( 22)=0.200d0
-      radius( 23)=0.200d0
-      radius( 24)=0.200d0
-      radius( 25)=0.200d0
-      radius( 26)=0.200d0
-      radius( 27)=0.200d0
-      radius( 28)=0.200d0
-      radius( 29)=0.200d0
-      radius( 30)=0.200d0
-      radius( 31)=0.200d0
-      radius( 32)=0.200d0
-      radius( 33)=0.200d0
-      radius( 34)=0.200d0
-      radius( 35)=0.200d0
-      radius( 36)=0.200d0
-      radius( 37)=0.200d0
-      radius( 38)=0.200d0
-      radius( 39)=0.200d0
-      radius( 40)=0.200d0
-      radius( 41)=0.200d0
-      radius( 42)=0.200d0
-      radius( 43)=0.200d0
-      radius( 44)=0.200d0
-      radius( 45)=0.200d0
-      radius( 46)=0.200d0
-      radius( 47)=0.200d0
-      radius( 48)=0.200d0
-      radius( 49)=0.200d0
-      radius( 50)=0.200d0
-      radius( 51)=0.200d0
-      radius( 52)=0.200d0
-      radius( 53)=0.200d0
-      radius( 54)=0.200d0
-      radius( 55)=0.200d0
-      radius( 56)=0.200d0
-      radius( 57)=0.200d0
-      radius( 58)=0.200d0
-      radius( 59)=0.200d0
-      radius( 60)=0.200d0
-      radius( 61)=0.200d0
-      radius( 62)=0.200d0
-      radius( 63)=0.200d0
-      radius( 64)=0.200d0
-      radius( 65)=0.200d0
-      radius( 66)=0.200d0
-      radius( 67)=0.200d0
-      radius( 68)=0.200d0
-      radius( 69)=0.200d0
-      radius( 70)=0.200d0
-      radius( 71)=0.200d0
-      radius( 72)=0.200d0
-      radius( 73)=0.200d0
-      radius( 74)=0.200d0
-      radius( 75)=0.200d0
-      radius( 76)=0.200d0
-      radius( 77)=0.200d0
-      radius( 78)=0.200d0
-      radius( 79)=0.200d0
-      radius( 80)=0.200d0
-      radius( 81)=0.200d0
-      radius( 82)=0.200d0
-      radius( 83)=0.200d0
-      radius( 84)=0.200d0
-      radius( 85)=0.200d0
-      radius( 86)=0.200d0
-      radius( 87)=0.200d0
-      radius( 88)=0.200d0
-      radius( 89)=0.200d0
-      radius( 90)=0.200d0
-      radius( 91)=0.200d0
-      radius( 92)=0.200d0
-      radius( 93)=0.200d0
-      radius( 94)=0.200d0
-      radius( 95)=0.200d0
-      radius( 96)=0.200d0
-      radius( 97)=0.200d0
-      radius( 98)=0.200d0
-      radius( 99)=0.200d0
-      radius(100)=0.200d0
-      radius(101)=0.200d0
-      radius(102)=0.200d0
-      radius(103)=0.200d0
-      radius(104)=0.200d0
-      radius(105)=0.200d0
-      radius(106)=0.200d0
-      radius(107)=0.200d0
+      radius(  1)=0.030d0
+      radius(  2)=0.122d0
+      radius(  3)=0.123d0
+      radius(  4)=0.089d0
+      radius(  5)=0.088d0
+      radius(  6)=0.077d0
+      radius(  7)=0.070d0
+      radius(  8)=0.066d0
+      radius(  9)=0.058d0
+      radius( 10)=0.160d0
+      radius( 11)=0.140d0
+      radius( 12)=0.136d0
+      radius( 13)=0.125d0
+      radius( 14)=0.117d0
+      radius( 15)=0.110d0
+      radius( 16)=0.104d0
+      radius( 17)=0.099d0
+      radius( 18)=0.191d0
+      radius( 19)=0.203d0
+      radius( 20)=0.174d0
+      radius( 21)=0.144d0
+      radius( 22)=0.132d0
+      radius( 23)=0.122d0
+      radius( 24)=0.119d0
+      radius( 25)=0.117d0
+      radius( 26)=0.117d0
+      radius( 27)=0.116d0
+      radius( 28)=0.115d0
+      radius( 29)=0.117d0
+      radius( 30)=0.125d0
+      radius( 31)=0.125d0
+      radius( 32)=0.122d0
+      radius( 33)=0.121d0
+      radius( 34)=0.117d0
+      radius( 35)=0.114d0
+      radius( 36)=0.198d0
+      radius( 37)=0.222d0
+      radius( 38)=0.192d0
+      radius( 39)=0.162d0
+      radius( 40)=0.145d0
+      radius( 41)=0.134d0
+      radius( 42)=0.129d0
+      radius( 43)=0.127d0
+      radius( 44)=0.124d0
+      radius( 45)=0.125d0
+      radius( 46)=0.128d0
+      radius( 47)=0.134d0
+      radius( 48)=0.141d0
+      radius( 49)=0.150d0
+      radius( 50)=0.140d0
+      radius( 51)=0.141d0
+      radius( 52)=0.137d0
+      radius( 53)=0.133d0
+      radius( 54)=0.209d0
+      radius( 55)=0.235d0
+      radius( 56)=0.198d0
+      radius( 57)=0.169d0
+      radius( 58)=0.165d0
+      radius( 59)=0.165d0
+      radius( 60)=0.164d0
+      radius( 61)=0.165d0
+      radius( 62)=0.166d0
+      radius( 63)=0.165d0
+      radius( 64)=0.161d0
+      radius( 65)=0.159d0
+      radius( 66)=0.159d0
+      radius( 67)=0.158d0
+      radius( 68)=0.157d0
+      radius( 69)=0.156d0
+      radius( 70)=0.156d0
+      radius( 71)=0.156d0
+      radius( 72)=0.144d0
+      radius( 73)=0.134d0
+      radius( 74)=0.130d0
+      radius( 75)=0.128d0
+      radius( 76)=0.126d0
+      radius( 77)=0.126d0
+      radius( 78)=0.129d0
+      radius( 79)=0.134d0
+      radius( 80)=0.144d0
+      radius( 81)=0.155d0
+      radius( 82)=0.154d0
+      radius( 83)=0.152d0
+      radius( 84)=0.153d0
+      radius( 85)=0.150d0
+      radius( 86)=0.220d0
+      radius( 87)=0.324d0
+      radius( 88)=0.268d0
+      radius( 89)=0.225d0
+      radius( 90)=0.216d0
+      radius( 91)=0.193d0
+      radius( 92)=0.166d0
+      radius( 93)=0.157d0
+      radius( 94)=0.181d0
+      radius( 95)=0.221d0
+      radius( 96)=0.143d0
+      radius( 97)=0.142d0
+      radius( 98)=0.140d0
+      radius( 99)=0.139d0
+      radius(100)=0.138d0
+      radius(101)=0.137d0
+      radius(102)=0.136d0
+      radius(103)=0.134d0
+      radius(104)=0.130d0
+      radius(105)=0.130d0
+      radius(106)=0.130d0
+      radius(107)=0.130d0
+c
+      probe=0.07d0
+      factor=1.45d0
 c
 c     read the nwchem input file
 c
@@ -174,6 +177,16 @@ c
       if(.not.inp_i(i)) call errquit('esp_input: radius error',0)
       if(.not.inp_f(radius(i)))
      + call errquit('esp_input: radius error',0)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'probe',item)) then
+      if(.not.inp_f(probe)) call errquit('esp_input: probe error',0)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'factor',item)) then
+      if(.not.inp_f(factor)) call errquit('esp_input: factor error',0)
       goto 2
       endif
 c
@@ -241,6 +254,13 @@ c
       if(np.gt.1) call ga_sync()
       call errquit('arg_input: error reading input file',0)
       endif
+c
+      if(factor.le.0.0d0) call errquit('illegal value for factor',0)
+      if(probe.le.0.0d0) call errquit('illegal value for probe',0)
+c
+      do 5 i=1,107
+      radius(i)=factor*(radius(i)+probe)
+    5 continue
 c
       if(.not.rtdb_put(irtdb,'esp:rcut',mt_dbl,1,rcut))
      + call errquit('esp: rtdb_put rcut failed',0)

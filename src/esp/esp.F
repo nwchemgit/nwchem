@@ -1,6 +1,6 @@
       logical function esp(irtdb0)
 c
-c $Id: esp.F,v 1.3 1997-10-07 23:41:36 d3j191 Exp $
+c $Id: esp.F,v 1.4 1998-04-21 21:45:16 d3j191 Exp $
 c
       implicit none
 c
@@ -10,8 +10,12 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "inp.fh"
+#include "util.fh"
 c
       integer irtdb0
+c
+      call util_print_push
+      call util_print_rtdb_load(irtdb,'esp')
 c
 c     me : number current node
 c     np : number of nodes
@@ -19,20 +23,24 @@ c
       me=ga_nodeid()
       np=ga_nnodes()
       irtdb=irtdb0
+      lfnout=6
 c
-      if(me.eq.0) then
-      write(6,*)
-      write(6,*)
-      call util_print_centered(6,
-     + 'NWChem Electrostatic Potential Fit Module',40,.true.)
-      write(6,*)
-      write(6,*)
-      call ecce_print_module_entry('nwesp')
-      endif
 c
 c     read input from rtdb
 c
       call esp_rtdbin
+c
+      if(util_print('output',print_medium)) then
+      if(me.eq.0) then
+      write(lfnout,*)
+      write(lfnout,*)
+      call util_print_centered(6,
+     + 'NWChem Electrostatic Potential Fit Module',40,.true.)
+      write(lfnout,*)
+      write(lfnout,*)
+      call ecce_print_module_entry('nwesp')
+      endif
+      endif
 c
 c     allocate memory
 c
@@ -75,6 +83,8 @@ c
 c     deallocate memory
 c
       call esp_dalloc
+c
+      call util_print_pop
 c
       esp=.true.
       return
