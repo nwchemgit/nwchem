@@ -36,7 +36,7 @@ c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c     iwhich = 4; build S**(-1)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.19 2003-10-17 22:55:44 carlfahl Exp $
+C$Id: diis_bld12.F,v 1.20 2003-10-25 00:10:57 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -76,7 +76,7 @@ c
          numi =  ihi-ilo+1
          numj =  jhi-jlo+1
          if (.not. MA_Push_Get(MT_Dbl, numi*numj, 'matS', l_s, k_s))
-     &        call errquit('diis_bld12: failed to alloc tmpm',0)
+     &        call errquit('diis_bld12: failed to alloc tmpm',0,0)
          if (numi.gt.0 .and. numj.gt.0) then
             call ga_get(iga_stmp,ilo,ihi,jlo,jhi,
      .           dbl_mb(k_s),numi)
@@ -103,7 +103,7 @@ c
       endif
 #ifdef OLD
       if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
-     &   call errquit('diis_bld12: failed to alloc tmpm',0)
+     &   call errquit('diis_bld12: failed to alloc tmpm',0,0)
       do i = me+1, nbf_ao, nproc
          aaz = svals(i)
          if (aaz.ge.toll_s)  then

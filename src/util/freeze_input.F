@@ -1,4 +1,4 @@
-c $Id: freeze_input.F,v 1.3 2003-02-20 17:23:54 edo Exp $
+c $Id: freeze_input.F,v 1.4 2003-10-25 00:07:42 marat Exp $
       subroutine freeze_input(rtdb, module)
       implicit none
 #include "inp.fh"
@@ -57,7 +57,7 @@ c
          write(key,'(a,'':'',a,'':'',a)') module(1:mlen),
      $        space(1:inp_strlen(space)), 'freeze by atoms'
          if (.not. rtdb_put(rtdb, key, mt_log, 1, .true.))
-     $        call errquit('freeze_input: failed writing rtbd',0)
+     $        call errquit('freeze_input: failed writing rtbd',0,0)
        
  20      if(inp_a(tag)) then
            find_atn = geom_tag_to_element(tag, symbol, element, atn)
@@ -81,7 +81,7 @@ c
      $       space(1:inp_strlen(space)), 'freeze by atoms'
            call rtdb_clean(rtdb, key)
            if(.not. rtdb_put(rtdb, key, mt_int, 1, num_elem)) then
-             call errquit('freeze_input: failed writing to rtdb', 0)
+             call errquit('freeze_input: failed writing to rtdb', 0,0)
            endif
  
            space = 'tag freeze'
@@ -90,7 +90,7 @@ c
      $        space(1:inp_strlen(space)), 'freeze by atoms'
            call rtdb_clean(rtdb, key)
            if(.not. rtdb_put(rtdb, key, mt_int, num_elem, tagfrz)) then
-             call errquit('freeze_input: failed writing to rtdb', 0)
+             call errquit('freeze_input: failed writing to rtdb', 0,0)
            endif
            
            space = 'num freeze'
@@ -99,7 +99,7 @@ c
      $        space(1:inp_strlen(space)), 'freeze by atoms'
            call rtdb_clean(rtdb, key)
            if(.not. rtdb_put(rtdb, key, mt_int, num_elem, numcore)) then
-             call errquit('freeze_input: failed writing to rtdb', 0)
+             call errquit('freeze_input: failed writing to rtdb', 0,0)
            endif
          endif
 
@@ -113,7 +113,7 @@ c
          write(key, '(a,'':'',a)') module(1:mlen),
      $           space(1:inp_strlen(space))
          if (.not. rtdb_put(rtdb, key, mt_int, 1, n))
-     $        call errquit('freeze_input: failed writing rtdb',0)
+     $        call errquit('freeze_input: failed writing rtdb',0,0)
          space = 'frozen core'         ! restore default
       endif
 c      

@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.36 2003-10-17 22:55:35 carlfahl Exp $
+c     $Id: dft_fitvc.F,v 1.37 2003-10-25 00:12:02 marat Exp $
       implicit none
 #include "errquit.fh"
 c      
@@ -68,7 +68,7 @@ c
 c !!! BGJ test !!!
 c      write(*,*)'*** dft_fitvc: dermat nmat =',dermat,nmat
       if (.not.dermat .and. nmat.ne.1) then
-         call errquit('nmat must be 1 for regular fit in dft_fitvc',0)
+         call errquit('nmat must be 1 for regular fit in dft_fitvc',0,0)
       endif
 c !!! BGJ test !!!
       oprint_ioinfo = util_print('io info',print_debug)
@@ -84,7 +84,7 @@ c     Allocate scratch space.
 c      
       if(.not.MA_Push_Get(MT_Dbl,nshells_cd,'CD shell max',
      &  lcd_shell,icd_shell))
-     &  call errquit('dft_fitvc: cannot allocate CD shell max',0)
+     &  call errquit('dft_fitvc: cannot allocate CD shell max',0,0)
 c      
 c      
 c     Determine the largest magnitude of the CD expansion coefficients in
@@ -97,7 +97,7 @@ c
       i1 = 1
       do 5 ishp = 1,nshells_cd
         if( .not. bas_cn2bfr(CD_bas_han,ishp,ishbf,lshbf) )then
-          call errquit('Exiting in fitvcoul.',4)
+          call errquit('Exiting in fitvcoul.',4,0)
         end if
         shmax = 0.D0
         do 2 i = ishbf,lshbf
@@ -112,7 +112,7 @@ c
 *ga:1:0
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
      &                       nbf_cd, 0, g_2ceri)) 
-     &      call errquit('dft_fitvc: error creating g_2ceri',0)
+     &      call errquit('dft_fitvc: error creating g_2ceri',0,0)
         if (me.eq.0)then
            lmiss = 0
            call dft_invio('CD',g_2ceri,nbf_cd,'READ',lmiss)
@@ -142,18 +142,18 @@ c
 c
       Nao2 = nbf_ao_mxnbf_cn**2
       if(.not.MA_Push_Get(MT_Dbl,Nao2*nmat,'isvec',lsvec,isvec))
-     &  call errquit('dft_fitvc: cannot allocate isvec',0)
+     &  call errquit('dft_fitvc: cannot allocate isvec',0,0)
       if(.not.MA_Push_Get(MT_Dbl,nmat*Nao2,'isvec2',lsvec2,isvec2))
-     &  call errquit('dft_fitvc: cannot allocate isvec2',0)
+     &  call errquit('dft_fitvc: cannot allocate isvec2',0,0)
 c
       call int_mem_2e3c(maxg, mscratch_2e3c)
 c      nERI    = Nao2*nbf_cd_mxnbf_cn
       nERI    = maxg
       if(.not.MA_Push_Get(MT_Dbl,nERI,'ERI',lERI,iERI))
-     &  call errquit('dft_fitvc: cannot allocate ERI',0)
+     &  call errquit('dft_fitvc: cannot allocate ERI',0,0)
       nscr    = mscratch_2e3c
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &  call errquit('dft_fitvc: cannot allocate scr',0)
+     &  call errquit('dft_fitvc: cannot allocate scr',0,0)
 c
       if (do_init) then
             call ga_zero(g_vc)
@@ -199,7 +199,7 @@ c
 c     
       do 24 ishc = 1, nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc))
-     &       call errquit('Exiting in fitvcoul.',3)
+     &       call errquit('Exiting in fitvcoul.',3,0)
         nshbfc=ilastc-ifirstc+1
 c        
         do 23 ishd = 1, ishc
@@ -213,7 +213,7 @@ c     &       me,ishc,ishd,ndone,iwhat(ndone),ipoint
 c            call util_flush(LuOut)
 c
             if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd))
-     &           call errquit('Exiting in fitvcoul.',4)
+     &           call errquit('Exiting in fitvcoul.',4,0)
             nshbfd=ilastd-ifirstd+1
             Nao2 = nshbfc*nshbfd
 c           
@@ -253,7 +253,7 @@ c
 c             Scatter the computed values of Vcoul.
 c           
               if(dermat) then
-                 call errquit('fitvc: not coded yet',0)
+                 call errquit('fitvc: not coded yet',0,0)
               else
                  call sca_lab_mat(AO_bas_han,ishc,ishd,
      &                nshbfc,nshbfd,g_vc,
@@ -335,7 +335,7 @@ c
 c
       do 240 ishc = ishc_be, nshells_ao
         if( .not. bas_cn2bfr( AO_bas_han,ishc,ifirstc,ilastc))
-     &    call errquit('Exiting in fitvcoul.',3)
+     &    call errquit('Exiting in fitvcoul.',3,0)
         nshbfc=ilastc-ifirstc+1
 c        
         do 230 ishd = ishd_be, ishc
@@ -346,7 +346,7 @@ c            write(LuOut,*)'me,ishc,ishd,n1,n2', me,ishc,ishd,n1,n2
 c            call util_flush(LuOut)
 c
             if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd))
-     &         call errquit('Exiting in fitvcoul.',4)
+     &         call errquit('Exiting in fitvcoul.',4,0)
             nshbfd=ilastd-ifirstd+1
             Nao2 = nshbfc*nshbfd
 c           
@@ -362,7 +362,7 @@ c
               do 220 ishp = 1,nshells_cd
 c                
                 if( .not.bas_cn2bfr(CD_bas_han, ishp, ifirstp, ilastp))
-     &            call errquit('Exiting in fitvcoul.',5)
+     &            call errquit('Exiting in fitvcoul.',5,0)
                 nshbf_cd=ilastp-ifirstp+1
                 Nintegrals=nshbf_cd*Nao2
                 Ninteg_api=maxg
@@ -453,13 +453,13 @@ c
 c      call dft_tstamp(' In dft_fitvc 4          ')
 c
       if(.not.ma_pop_stack(lscr))
-     &  call errquit('dft_fitvc: cannot pop stack',0)
+     &  call errquit('dft_fitvc: cannot pop stack',0,0)
       if(.not.ma_pop_stack(lERI))
-     &  call errquit('dft_fitvc: cannot pop stack',0)
+     &  call errquit('dft_fitvc: cannot pop stack',0,0)
       if(.not.ma_pop_stack(lsvec2))
-     &  call errquit('dft_fitvc: cannot pop stack',0)
+     &  call errquit('dft_fitvc: cannot pop stack',0,0)
       if(.not.ma_pop_stack(lsvec))
-     &  call errquit('dft_fitvc: cannot pop stack',0)
+     &  call errquit('dft_fitvc: cannot pop stack',0,0)
 c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
@@ -471,7 +471,7 @@ c
       n1 = nxtask(-nproc,icount)
 c      
       if(.not.ma_pop_stack(lcd_shell))
-     &  call errquit('dft_fitvc: cannot pop stack',0)
+     &  call errquit('dft_fitvc: cannot pop stack',0,0)
 c
 c     Compute the Coulombic self-energy of the fitted charge density.
 c      
@@ -483,7 +483,7 @@ c     Obtain the matrix of 2-ctr ERIs.
 c      
 c     !!! Not needed if not doing Ecoul2
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'scr',lscr,iscr))
-     &  call errquit('dft_fitvc: cannot allocate scr',0)
+     &  call errquit('dft_fitvc: cannot allocate scr',0,0)
 c
 c      call dft_tstamp(' In dft_fitvc 5          ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
@@ -520,7 +520,7 @@ c      call ga_sync
       endif         
 c
       if(.not.ma_pop_stack(lscr))
-     &  call errquit('dft_fitvc: cannot pop stack',0)
+     &  call errquit('dft_fitvc: cannot pop stack',0,0)
 c
 c      call dft_tstamp(' In dft_fitvc 7          ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'

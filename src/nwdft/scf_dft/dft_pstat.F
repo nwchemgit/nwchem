@@ -13,33 +13,33 @@ c
       if (.not. odftps) return
 c
       if (.not. pstat_allocate('dft: 1-e', pstat_qstat, 0, junk,
-     $     ps_onel)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_onel)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft: guess', pstat_qstat, 0, junk,
-     $     ps_guess)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_guess)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:incore', pstat_qstat, 0, junk,
-     $     ps_incore)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_incore)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:  xc', pstat_qstat, 0, junk,
-     $     ps_xc)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_xc)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:diag', pstat_qstat, 0, junk,
-     $     ps_diag)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_diag)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:fitcd', pstat_qstat, 0, junk,
-     $     ps_fitcd)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_fitcd)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:vcoul', pstat_qstat, 0, junk,
-     $     ps_vcoul)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_vcoul)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:bld12', pstat_qstat, 0, junk,
-     $     ps_bld12)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_bld12)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:diis', pstat_qstat, 0, junk,
-     $     ps_diis)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_diis)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:fockb', pstat_qstat, 0, junk,
-     $     ps_fockb)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_fockb)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:dgemm', pstat_qstat, 0, junk,
-     $     ps_dgemm)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_dgemm)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:scfend', pstat_qstat, 0, junk,
-     $     ps_scfend)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_scfend)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:scf', pstat_qstat, 0, junk,
-     $     ps_scfdft)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_scfdft)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:total', pstat_qstat, 0, junk,
-     $     ps_dft)) call errquit('dft: dft_pstat_init', 0)
+     $     ps_dft)) call errquit('dft: dft_pstat_init', 0,0)
 c       
       call pstat_on(ps_dft)
       odftps = .true.
@@ -57,19 +57,19 @@ c
 c
 c     delete the SCF timers
 c
-         if (.not. pstat_free(ps_onel))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_guess))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_xc))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_diis))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_fockb))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_diag))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_dgemm))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_fitcd))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_incore))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_vcoul))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_scfdft))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_bld12))call errquit('dft_pstat?', 0)
-         if (.not. pstat_free(ps_dft))call errquit('dft_pstat?', 0)
+         if (.not. pstat_free(ps_onel))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_guess))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_xc))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_diis))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_fockb))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_diag))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_dgemm))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_fitcd))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_incore))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_vcoul))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_scfdft))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_bld12))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_dft))call errquit('dft_pstat?', 0,0)
 c
       endif
 c
