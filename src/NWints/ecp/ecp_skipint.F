@@ -1,4 +1,4 @@
-C $Id: ecp_skipint.F,v 1.1 2000-04-13 20:36:47 mg201 Exp $
+C $Id: ecp_skipint.F,v 1.2 2000-04-13 20:52:11 mg201 Exp $
 ************************************************************************
 *                                                                      *
       logical function ecp_skipint(
@@ -94,10 +94,10 @@ C $Id: ecp_skipint.F,v 1.1 2000-04-13 20:36:47 mg201 Exp $
             else 
               pr = pre - pref
               if (pr .lt. zero) then
-                if (pr .gt. thr_ecp) 
+                if (pr .gt. ln_thr_ecp) 
      &              sum = sum+coef_c(i_c)*exp(pr)
               else
-                if (-pr .gt. thr_ecp) then
+                if (-pr .gt. ln_thr_ecp) then
                   sum = sum*exp(-pr)
                 else
                   sum = zero
@@ -119,7 +119,7 @@ C $Id: ecp_skipint.F,v 1.1 2000-04-13 20:36:47 mg201 Exp $
       end do
 *
       log_prefac = log_prefac + log(dble(n_prim_a*n_prim_b))
-      ecp_skipint = log_prefac .lt. thr_ecp
+      ecp_skipint = log_prefac .lt. ln_thr_ecp
 *
       return
       end
