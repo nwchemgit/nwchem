@@ -1,5 +1,5 @@
       subroutine errquit(string, icode)
-C$Id: errquit.F,v 1.7 1996-01-26 18:19:18 d3e129 Exp $
+C$Id: errquit.F,v 1.8 1996-05-14 18:10:46 d3g681 Exp $
       character*(*) string
       integer icode
 c     
@@ -18,6 +18,7 @@ c
       write(6,*) ' current input line : '
       call inp_outrec
       write(6,1)
+      call util_flush(6)
       call ga_error(string, icode)
 *
 #ifdef TCGMSG

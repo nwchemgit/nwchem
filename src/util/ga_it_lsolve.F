@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.1 1995-12-13 01:37:27 d3g681 Exp $
+C$Id: ga_it_lsolve.F,v 1.2 1996-05-14 18:10:47 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -84,9 +84,12 @@ c
 c     Required precision in matrix-vector products is about the maximum
 c     element in the rhs vector * the tolerance + 2 extra guard digits
 c
-      call ga_maxelt(g_b, prod_acc)
-      prod_acc = prod_acc * tol * 0.1d0
+c     Experiment with rms value rather than max
+c
       bnorm = sqrt(ga_ddot(g_b, g_b))
+      prod_acc = bnorm / sqrt(dfloat(n))
+*     call ga_maxelt(g_b, prod_acc)
+      prod_acc = prod_acc * tol * 0.01d0
 c
       if (oprint .and. ga_nodeid().eq.0) then
          write(6,1) tol, prod_acc
