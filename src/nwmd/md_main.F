@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.138 2002-06-26 20:43:56 d3j191 Exp $
+c $Id: md_main.F,v 1.139 2002-06-26 21:01:01 d3j191 Exp $
 c
       implicit none
 c
@@ -1283,6 +1283,7 @@ c
       lequi=.true.
       jequi=kequi
       lprpmf=.false.
+      iprpmf=0
       do 2 iequi=kequi+1,mequi
       lpmfc=npmf.gt.1.and.iequi.gt.npmf
       call timer_start(1)
@@ -1303,6 +1304,7 @@ c
       lequi=.false.
       jdacq=kdacq
       lprpmf=.true.
+      iprpmf=-1
       do 3 idacq=kdacq+1,mdacq
 c
       call md_timer_init()
@@ -1865,7 +1867,8 @@ c
       call timer_stop(22)
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
      + isl(1,lsatt),isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),
-     + dbl_mb(i_ess),dbl_mb(i_fss),lfnpmf,lprpmf,npmf.eq.1.or.lpmfc)
+     + dbl_mb(i_ess),dbl_mb(i_fss),lfnpmf,lprpmf,iprpmf,
+     + npmf.eq.1.or.lpmfc)
 c
       call timer_start(32)
       if(ipolt.gt.0) then
@@ -2467,7 +2470,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.138 2002-06-26 20:43:56 d3j191 Exp $
+c $Id: md_main.F,v 1.139 2002-06-26 21:01:01 d3j191 Exp $
 c
       implicit none
 c

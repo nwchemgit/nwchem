@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.145 2002-06-26 15:23:31 d3j191 Exp $
+c $Id: cf_main.F,v 1.146 2002-06-26 21:00:58 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1383,14 +1383,14 @@ c
       return
       end
       subroutine cf_multi(nums,xs,fs,isgan,isatt,isfrc,isdyn,isct1,ess,
-     + fss,lfnpmf,lrec,lpmfci)
+     + fss,lfnpmf,lrec,iprpmf,lpmfci)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer nums,lfnpmf
+      integer nums,lfnpmf,iprppmf
       real*8 xs(msa,3),fs(msa,3),ess(msf,msf,mpe,2)
       real*8 fss(msf,msf,3,2)
       integer isgan(msa),isatt(msa),isfrc(msa),isdyn(msa),isct1(msa)
@@ -1416,13 +1416,13 @@ c
       if(lpmf) then
       call cf_plist(nums,xs,fs,isgan,isatt,int_mb(i_ipmf),
      + int_mb(i_jpmf),dbl_mb(i_rpmf),dbl_mb(i_xpmf),dbl_mb(i_wpmf),
-     + lfnpmf,lrec)
+     + lfnpmf,lrec,iprpmf)
       endif
 c
       return
       end
       subroutine cf_plist(nums,xs,fs,isgan,isatt,
-     + ipmf,jpmf,rpmf,xpmf,wpmf,lfnpmf,lrec)
+     + ipmf,jpmf,rpmf,xpmf,wpmf,lfnpmf,lrec,iprpmf)
 c
       implicit none
 c
@@ -1434,7 +1434,7 @@ c
       real*8 cf_atmass
       external cf_atmass
 c
-      integer nums,lfnpmf
+      integer nums,lfnpmf,iprpmf
       real*8 xs(msa,3),fs(msa,3)
       integer isgan(msa),isatt(msa)
       integer ipmf(numpmf,7),jpmf(numpmf,4,npmfa)
@@ -1558,8 +1558,9 @@ c
       call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
      + xpmf(1,1,i),ft,et,.false.,.false.,.false.,dbl_mb(i_sti))
       if(me.eq.0) then
-      if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
- 1000 format(i3,f12.6,e12.5)
+      if(lrec.and.lfnpmf.lt.0.and.(iprpmf.lt.0.or.iprpmf.eq.ipmf(i,1)))
+     + write(-lfnpmf,1000) i,rv
+ 1000 format(i5,f12.6,e12.5)
       if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
       epmf=epmf+rv(2)
       endif

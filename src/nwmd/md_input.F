@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.65 2002-06-26 20:31:39 d3j191 Exp $
+c $Id: md_input.F,v 1.66 2002-06-26 21:01:01 d3j191 Exp $
 c
       implicit none
 c
@@ -1088,7 +1088,7 @@ c
       goto 500
       endif
       if(inp_compare(.false.,'pmf',item)) then
-      iprpmf=1
+      if(.not.inp_i(iprpmf)) iprpmf=-1
       goto 500
       endif
       if(inp_compare(.false.,'extra',item)) then
