@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.54 1996-07-01 16:28:21 d3g681 Exp $
+# $Id: GNUmakefile,v 1.55 1996-07-05 15:38:12 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -27,6 +27,8 @@ endif
    LIB_TARGETS = testsolve
 
  OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS)
+
+  SUBDIRS = md5
 
 
         OBJ = output.o errquit.o ffflush.o \
