@@ -3,7 +3,7 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.5 1998-11-09 22:41:32 bernhold Exp $
+C     $Id: corr_mk_ref.F,v 1.6 1998-11-10 15:10:47 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function Corr_Mk_Ref(RTDB, Mod, Geom, Basis, DoSCF, 
@@ -69,6 +69,11 @@ C        appropriate for a correlated calculation.  Some modules which
 C        do NOT use corr_mk_ref check the convergence threshold, and may
 C        even invoke the SCF if they consider the threshold inadequate.
 C
+C     When orbitals are frozen, a simple test is made to try to warn
+C     users if they are splitting a degeneracy.  It is possible to
+C     fool this check by swaping orbitals, but this is simple and
+C     useful as a sanity check.
+C
 C RTDB ENTRIES USED
 C <Mod>:input vectors, scf:output vectors
 C     Used to figure out what movecs file to read
@@ -117,6 +122,10 @@ C
 C
       Integer MyMxSpin
       Parameter (MyMxSpin = 2)
+C
+C     Warn user when freeze directives split degeneracies
+      Double Precision Thresh_Degen
+      Parameter (Thresh_Degen = 1.0d-4)
 C 
 C LOCAL VARIABLES
 C
@@ -126,11 +135,11 @@ C
       Integer VecSpin, VecNMO(MyMxSpin), G_Vec(MyMxSpin), MxVecNMO,
      $     MxRefNMO
       Integer SpinMap(MyMxSpin)
-      Double Precision TotOcc(MyMxSpin), RealThresh
+      Double Precision TotOcc(MyMxSpin), RealThresh, Delta
       Integer H_Occ, I_Occ, H_EVal, I_EVal
 c$$$      Integer H_Occ0, I_Occ0, H_EVal0, I_EVal0
       Integer I_RefOcc, I_RefEVal
-      Logical Status, PrInfo
+      Logical Status, PrInfo, Header
 C
 C STATEMENT FUNCTIONS
       Character*1 SpinItoA
@@ -170,7 +179,7 @@ C
       If ( Status )
      $     Status = MOVecs_Converged( RTDB, Basis, 'scf', VecFil)
 C
-      If ( PrInfo ) Write (LUOut, 8910) Routine,
+      If ( .NOT. Status .AND. PrInfo ) Write (LUOut, 8910) Routine,
      $     VecFil(1:Inp_StrLen(VecFil) )
  8910 Format(1X, A, 'MO vectors ''', A, ''' don''t exist or aren''t ',
      $     'converged.')
@@ -445,6 +454,37 @@ c$$$      Write (LuOut, '(/(16F5.2))')
 c$$$     $     (Dbl_MB(I_Occ + i), i=0, (VecSpin*NAO)-1)
 c$$$      Write (LuOut, '(/(16F5.2))')
 c$$$     $     (Dbl_MB(I_RefOcc + i), i=0, (RefSpin*NAO)-1)
+C
+C     Check for broken degeneracies in frozen/active split, which can
+C     cause denominators to blow up. This is a simplistic check, but 
+C     it should catch most cases.
+C
+      Header = .FALSE.
+      Do Spin = 1, RefSpin
+         If ( NFrzOcc .gt. 0 ) then
+            Delta = Abs ( Dbl_MB(I_EVal+NAO*(SpinMap(Spin)-1) + NFrzOcc)
+     $           - Dbl_MB(I_EVal+NAO*(SpinMap(Spin)-1) + NFrzOcc - 1) )
+            If ( Delta .lt. Thresh_Degen ) then
+               If ( .NOT. Header ) Write (LuOut, 8950)
+               Header = .TRUE.
+               Write (LuOut, 8960) 'occupied', Spin, Delta
+            EndIf
+         EndIF
+         If ( NFrzVir .gt. 0 ) then
+            Delta = Abs( Dbl_MB(I_EVal+NAO*(SpinMap(Spin)-1) + NFrzVir)
+     $           - Dbl_MB(I_EVal+NAO*(SpinMap(Spin)-1) + NFrzVir + 1) )
+            If ( Delta .lt. Thresh_Degen ) then
+               If ( .NOT. Header ) Write (LuOut, 8950)
+               Header = .TRUE.
+               Write (LuOut, 8960) 'virtual ', Spin, Delta
+            EndIf
+         EndIF
+      EndDo
+ 8950 Format(/1X, '>>>>> WARNING!  FREEZE directive appears to spit ',
+     $     'degeneracy    <<<<<' )
+
+ 8960 Format(1X, '>>>>> WARNING!  in ', A, ' space, spin ', I2,
+     $     ' (eval diff ', 1P, E7.1, ') <<<<<')
 C
 C     Free up memory
 C
