@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.16 2000-10-26 00:07:49 windus Exp $
+* $Id: util_legal.F,v 1.17 2000-11-28 23:23:29 windus Exp $
 *--------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,2000  *
 *         Pacific Northwest National Laboratory,         * 
@@ -140,6 +140,7 @@ c
         write(luout,10103) 3
         write(luout,10104) 4
         write(luout,10105) 5
+        write(luout,10106) 6
       endif
 10000 format(
      &    /,12x,
@@ -253,6 +254,13 @@ c
      &    '"High-Performance Computing in Chemistry; NWChem", ',
      &    'Future ',/,8x,
      &    'Generations Computer Systems  12(4), 273, (1996).'
+     &    /,/)
+10106 format(1x,i5,'.',1x,
+     &    'Kendall, R. A; Apra, E; Bernholdt, D. E; Bylaska, E.J.; ',
+     &    'Dupuis, M; Fann, G. I; Harrison, R. J; Ju, J; ',
+     &    'Nichols, J. A; Nieplocha, J; Straatsma, T. P; ',
+     &    'Windus, T. L; Wong, A. T; Computer Phys. Comm. 128, ',
+     &    '260 (2000).'
      &    /,/)
 c
       end
