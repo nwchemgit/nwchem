@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.16 1998-10-27 18:06:47 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.17 1998-11-06 21:18:10 d3j191 Exp $
 c
       implicit none
 c
@@ -52,6 +52,32 @@ c
       real*8 qq(3,6),qsum(3),qtot(3)
       logical lprt
 c
+      integer nqu,iql(3)
+c
+      nqu=0
+c
+c     generate list with unique charges and polarizabilities
+c
+      do 331 i=1,natmt
+      do 332 j=1,nqu
+      if(qatm(1,i).eq.qatm(1,j).and.qatm(2,i).eq.qatm(2,j).and.
+     + qatm(3,i).eq.qatm(3,j).and.qatm(4,i).eq.qatm(4,j).and.
+     + qatm(5,i).eq.qatm(5,j).and.qatm(6,i).eq.qatm(6,j)) then
+      latm(7,i)=j
+      goto 331
+      endif
+  332 continue
+      nqu=nqu+1
+      latm(7,i)=nqu
+      do 333 j=1,6
+      qatm(j,nqu)=qatm(j,i)
+  333 continue
+  331 continue
+      nqu=nqu+1
+      do 334 j=1,6
+      qatm(j,nqu)=0.0d0
+  334 continue
+c
       length=index(filtop,' ')-1
       open(unit=lfntop,file=filtop(1:length),form='formatted',
      + status='new',err=9999)
@@ -63,8 +89,8 @@ c
      + 'GENERATED AUTOMICALLY BY NWCHEM PREPARE MODULE',//,
      + f12.6,3a10)
 c     
-      write(lfntop,1004) nats,q14fac,releps,0.0d0,0
- 1004 format(i5,3f12.6,i5)
+      write(lfntop,1004) nats,q14fac,releps,0.0d0,0,nqu
+ 1004 format(i5,3f12.6,2i5)
       do 1 i=1,nats
       write(lfntop,1005) (catt(1,lats(j,i)),ratt(lats(j,i)),j=1,3),
      + (latt(1,lats(j,i)),j=1,3)
@@ -77,6 +103,10 @@ c
  1006 format(6(1pe12.5))
     3 continue
     2 continue
+      do 322 i=1,nqu
+      write(lfntop,1304) (qatm(j,i),j=1,6),i
+ 1304 format(3(0pf12.6,1pe12.5),i5)
+  322 continue
 c
       write(lfntop,1008) natmt-natm,nbndt-nbnd,nangt-nang,ndiht-ndih,
      + nimpt-nimp,n3rdt-n3rd,nnon
@@ -94,11 +124,14 @@ c
 c
       if(natmt.gt.natm) then
       do 4 i=natm+1,natmt
-      write(lfntop,1007) latm(3,i),0,0,0,0,cseq(nseq+1),catm(1,i)(1:5),
-     + i-natm
- 1007 format(5i7,a10,a5,1x,i7)
-      write(lfntop,1217) (qatm(2*j-1,i),j=1,3),(qatm(2*j,i),j=1,3)
- 1217 format(6f12.6)
+      write(lfntop,1007) cseq(nseq+1),catm(1,i)(1:5),latm(3,i),
+     + latm(7,i),latm(7,i),latm(7,i),i-natm
+ 1007 format(a10,a5,1x,25x,4i5,i7)
+c      write(lfntop,1007) latm(3,i),0,0,0,0,cseq(nseq+1),catm(1,i)(1:5),
+c     + i-natm
+c 1007 format(5i7,a10,a5,1x,i7)
+c      write(lfntop,1217) (qatm(2*j-1,i),j=1,3),(qatm(2*j,i),j=1,3)
+c 1217 format(6f12.6)
     4 continue
 c
       if(nbndt.gt.nbnd) then
@@ -191,39 +224,57 @@ c
       ifrac=ifrac+1
       endif
       iq=0
-      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=3
-      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=3
-      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=3
-      write(lfntop,1010) latm(3,i),imol,latm(1,i),latm(2,i),
-     + lseq(1,latm(5,i)),cseq(latm(5,i)),catm(1,i)(1:5),i,iq,ifrac
- 1010 format(5i7,a10,a5,1x,i7,2i5)
-      if(iq.eq.0) then
-      write(lfntop,1011) (qatm(2*j-1,i),j=1,3),(qatm(2*j,i),j=1,3)
- 1011 format(6f12.6)
-      else
-      do 101 j=1,3
-      qq(1,j)=qatm(2*j-1,i)
-      qq(1,3+j)=qatm(2*j,i)
-  101 continue
-      do 102 j=1,6
-      qq(2,j)=qq(1,j)
-      qq(3,j)=qq(1,j)
-  102 continue
-      do 103 j=1,3
-      if(catt(1,lats(j,latm(3,i)))(6:6).eq.'S') then
-      qq(1,j)=0.0d0
-      qq(1,j+3)=0.0d0
-      qq(2,j)=0.0d0
-      qq(2,j+3)=0.0d0
+      iql(1)=latm(7,i)
+      iql(2)=latm(7,i)
+      iql(3)=latm(7,i)
+      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') then
+      iq=3
+      iql(1)=nqu
       endif
-  103 continue
-      write(lfntop,1011) (qq(1,j),j=1,6)
-      write(lfntop,1011) (qq(2,j),j=1,6)
-      write(lfntop,1011) (qq(3,j),j=1,6)
+      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') then
+      iq=3
+      iql(2)=nqu
       endif
-      qtot(1)=qtot(1)+qatm(1,i)
-      qtot(2)=qtot(2)+qatm(3,i)
-      qtot(3)=qtot(3)+qatm(5,i)
+      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') then
+      iq=3
+      iql(3)=nqu
+      endif
+c      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=3
+c      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=3
+c      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=3
+      write(lfntop,1024) cseq(latm(5,i)),catm(1,i)(1:5),ifrac,imol,
+     + lseq(1,latm(5,i)),latm(1,i),latm(2,i),latm(3,i),iql,i
+ 1024 format(a10,a5,1x,9i5,i7)
+c      write(lfntop,1010) latm(3,i),imol,latm(1,i),latm(2,i),
+c     + lseq(1,latm(5,i)),cseq(latm(5,i)),catm(1,i)(1:5),i,iq,ifrac
+c 1010 format(5i7,a10,a5,1x,i7,2i5)
+c      if(iq.eq.0) then
+c      write(lfntop,1011) (qatm(2*j-1,i),j=1,3),(qatm(2*j,i),j=1,3)
+c 1011 format(6f12.6)
+c      else
+c      do 101 j=1,3
+c      qq(1,j)=qatm(2*j-1,i)
+c      qq(1,3+j)=qatm(2*j,i)
+c  101 continue
+c      do 102 j=1,6
+c      qq(2,j)=qq(1,j)
+c      qq(3,j)=qq(1,j)
+c  102 continue
+c      do 103 j=1,3
+c      if(catt(1,lats(j,latm(3,i)))(6:6).eq.'S') then
+c      qq(1,j)=0.0d0
+c      qq(1,j+3)=0.0d0
+c      qq(2,j)=0.0d0
+c      qq(2,j+3)=0.0d0
+c      endif
+c  103 continue
+c      write(lfntop,1011) (qq(1,j),j=1,6)
+c      write(lfntop,1011) (qq(2,j),j=1,6)
+c      write(lfntop,1011) (qq(3,j),j=1,6)
+c      endif
+      qtot(1)=qtot(1)+qatm(1,iql(1))
+      qtot(2)=qtot(2)+qatm(3,iql(2))
+      qtot(3)=qtot(3)+qatm(5,iql(3))
       if(isgm.ne.lseq(1,latm(5,i))) then
       if(isgm.ne.0) then
       if(util_print('files',print_default)) then

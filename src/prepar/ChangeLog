@@ -105,3 +105,4 @@ Sep 24 1998	 Fix bug in read pdb file commands
 Oct 05 1998	 Fix bug in parameter search
 Oct 30 1998      Minor change in fix logic
 Nov 06 1998	 Add err= jump in close of lfncmd
+	         Indexed charge/polarization parameters from topology file

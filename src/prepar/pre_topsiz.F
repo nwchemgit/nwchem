@@ -1,11 +1,11 @@
       logical function pre_topsiz(lfntop,filtop,lfnout,
-     + nat,nsa,nwa,nsb)
+     + nat,nsa,nwa,nsb,nqu)
 c
-c $Id: pre_topsiz.F,v 1.4 1998-06-08 23:29:40 d3j191 Exp $
+c $Id: pre_topsiz.F,v 1.5 1998-11-06 21:18:09 d3j191 Exp $
 c
       implicit none
 c
-      integer lfntop,lfnout,nsa,nwa,nat
+      integer lfntop,lfnout,nsa,nwa,nat,nqu
       character*255 filtop
       character*1 cdummy
 c
@@ -20,8 +20,8 @@ c
       read(lfntop,1000) cdummy
  1000 format(a1)
     1 continue
-      read(lfntop,1001) nat
- 1001 format(i5)
+      read(lfntop,1001) nat,nqu
+ 1001 format(i5,41x,i5)
       do 2 i=1,nat
       read(lfntop,1000) cdummy
     2 continue
@@ -31,6 +31,9 @@ c
       read(lfntop,1000) cdummy
     4 continue
     3 continue
+      do 5 i=1,nqu
+      read(lfntop,1000) cdummy
+    5 continue
       read(lfntop,1002) nwa,nwb,nwh,nwd,nwo,nwt,nwn
       read(lfntop,1002) nsa,nsb,nsh,nsd,nso,nst,nsx
  1002 format(7i7)

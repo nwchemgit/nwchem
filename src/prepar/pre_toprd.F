@@ -1,8 +1,8 @@
       logical function pre_toprd(lfntop,filtop,lfnout,
      + num,amass,mat,cwa,qwa,mwa,nwa,isat,isgm,csa,qsa,msa,nsa,nsm,
-     + idsb,cdsb,msb,nsb)
+     + idsb,cdsb,msb,nsb,qu,nqu)
 c
-c $Id: pre_toprd.F,v 1.9 1998-10-27 18:06:47 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.10 1998-11-06 21:18:09 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       character*1 cdummy
 c
       integer natl,nwb,nwh,nwd,nwo,nwt,nwn,nsh,nsd,nso,nst,nsx
-      integer i,j,idummy,len,n,m
+      integer i,j,idummy,len,n,m,nqu,qu(nqu)
 c
       len=index(filtop,' ')-1
       open(unit=lfntop,file=filtop(1:len),form='formatted',
@@ -27,8 +27,8 @@ c
       read(lfntop,1000)
  1000 format(a1)
     1 continue
-      read(lfntop,1001) natl
- 1001 format(i5)
+      read(lfntop,1001) natl,nqu
+ 1001 format(i5,41x,i5)
       do 2 i=1,natl
       read(lfntop,1002) amass(i),num(i)
  1002 format(6x,f12.6,36x,i5)
@@ -39,14 +39,21 @@ c
       read(lfntop,1000) cdummy
     4 continue
     3 continue
+      do 335 i=1,nqu
+      read(lfntop,1333) qu(i)
+ 1333 format(f12.6)
+  335 continue
       read(lfntop,1003) nwa,nwb,nwh,nwd,nwo,nwt,nwn
       read(lfntop,1003) nsa,nsb,nsh,nsd,nso,nst,nsx
  1003 format(7i7)
       do 5 i=1,nwa
-      read(lfntop,1004) cwa(i)
- 1004 format(35x,a16)
-      read(lfntop,1010) qwa(i)
- 1010 format(f12.6)
+      read(lfntop,1336) cwa(i),idummy
+ 1336 format(a16,30x,i5)
+      qwa(i)=qu(idummy)
+c      read(lfntop,1004) cwa(i)
+c 1004 format(35x,a16)
+c      read(lfntop,1010) qwa(i)
+c 1010 format(f12.6)
     5 continue
       do 6 i=1,nwb
       read(lfntop,1000) cdummy
@@ -76,15 +83,18 @@ c
       if(nwa.gt.0) read(lfntop,1006) slvnam
  1006 format(a10)
       do 10 i=1,nsa
-      read(lfntop,1007) isat(i),m,isgm(i),csa(i),n
- 1007 format(i7,i7,14x,i7,a16,7x,i5)
+      read(lfntop,1339) csa(i),m,isgm(i),isat(i),idummy
+ 1339 format(a16,5x,2i5,10x,2i5)
+      qsa(i)=qu(idummy)
+c      read(lfntop,1007) isat(i),m,isgm(i),csa(i),n
+c 1007 format(i7,i7,14x,i7,a16,7x,i5)
       if(nsm.lt.m) nsm=m
-      read(lfntop,1008) qsa(i)
- 1008 format(f12.6) 
-      if(n.eq.3) then
-      read(lfntop,1000) cdummy
-      read(lfntop,1000) cdummy
-      endif
+c      read(lfntop,1008) qsa(i)
+c 1008 format(f12.6) 
+c      if(n.eq.3) then
+c      read(lfntop,1000) cdummy
+c      read(lfntop,1000) cdummy
+c      endif
    10 continue
       do 11 i=1,nsb
       read(lfntop,1009) idsb(1,i),idsb(2,i),cdsb(i)

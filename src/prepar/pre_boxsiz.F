@@ -1,6 +1,6 @@
       logical function pre_boxsiz(xw,mwm,mwa,nwm,nwa,xs,msa,nsa,box)
 c
-c $Id: pre_boxsiz.F,v 1.2 1998-04-29 18:35:12 d3j191 Exp $
+c $Id: pre_boxsiz.F,v 1.3 1998-11-06 21:18:09 d3j191 Exp $
 c
       implicit none
 c
@@ -33,6 +33,9 @@ c
       return
 c
  9999 continue
-      pre_boxsiz=.false.
+      box(1)=0.0d0
+      box(1)=0.0d0
+      box(1)=0.0d0
+      pre_boxsiz=.true.
       return
       end
