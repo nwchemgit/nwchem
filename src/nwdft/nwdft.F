@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.56 2001-11-26 23:12:15 edo Exp $
+C$Id: nwdft.F,v 1.57 2001-12-21 23:08:17 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -69,7 +69,7 @@ c
 c
       logical dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
       external dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
-      logical ocosmo,grid_ok
+      logical ocosmo,grid_ok,l1ecache
       integer necp
       character*80 theory
 c     
@@ -131,15 +131,6 @@ c
      .        ' cosmo does not support ECPs yet',0)
       endif
 c
-c     Build the grid.
-c
-      grid_written=.false.
-      call grid_setquad(rtdb)
-c
-c     Analyze set parameters for consistency
-c
-      call dft_inpana(rtdb)
-c
 c     Can we check here to see if system if already converged?
 c
       if (movecs_in .eq. movecs_out) then
@@ -159,9 +150,9 @@ c
                if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, 
      &              energy)) call errquit(
      .              'dft_scf: failed getting converged energy',0)
-               if (ga_nodeid().eq.0 .and. oprint)then
+               if (iproc.eq.0 .and. oprint)then
                   write(LuOut,1011)energy
-                  call util_flush(6)
+                  call util_flush(Luout)
                endif
                converged = .true.
                nwdft = .true.
@@ -173,9 +164,9 @@ c
                if (.not. rtdb_get(rtdb, 'sodft:energy', mt_dbl, 1, 
      &              energy)) call errquit(
      .             'dft_scf: failed getting converged energy',0)
-               if (ga_nodeid().eq.0 .and. oprint)then
+               if (iproc.eq.0 .and. oprint)then
                   write(LuOut,1011)energy
-                  call util_flush(6)
+                  call util_flush(Luout)
                endif
                converged = .true.
                nwdft = .true.
@@ -208,6 +199,28 @@ c
 c
 !      if (i3 .gt. 1) call int_app_set_no_texas(rtdb)
       call int_init(rtdb, i3, bases)
+c
+c     get 1-el in cache
+c
+      call schwarz_init(geom, AO_bas_han)
+      l1ecache=.false.
+      if ((nbf_ao*nbf_ao*3*8)/ga_nnodes() .lt. 8000000) then! Cache if < 8MB/node
+         if (iproc.eq.0 .and. oprint)then
+            write(LuOut,*) ' Caching 1-el integrals '
+            call util_flush(Luout)
+         endif
+         l1ecache=.true.
+         call int_1e_cache_ga(AO_bas_han, oskel)
+      endif
+c
+c     Build the grid.
+c
+      grid_written=.false.
+      call grid_setquad(rtdb)
+c
+c     Analyze set parameters for consistency
+c
+      call dft_inpana(rtdb)
 c     
 c--> determine system type (molecule, polymer,surface,crystal)
 c    if no system type exists in db --> default = molecular case     
@@ -223,6 +236,8 @@ c
 c     
 c     terminate integrals 
 c     
+      if(l1ecache) call int_1e_uncache_ga()
+      call schwarz_tidy
       call int_terminate
 !      if (i3 .gt. 1) call int_app_unset_no_texas(rtdb)
 c

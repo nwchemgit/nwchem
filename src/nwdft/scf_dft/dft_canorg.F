@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.6 2001-12-02 01:18:11 edo Exp $
+c     $Id: dft_canorg.F,v 1.7 2001-12-21 23:08:19 edo Exp $
 c     
       implicit none
 c
@@ -212,3 +212,134 @@ c
 !     $      ('scf_lindep: only one of n_dep and tol permitted',0)
        return
        end
+      subroutine dft_convpam(oprint,iter,etnew,etold,enuc)
+      implicit none
+#include "cdft.fh"
+#include "stdio.fh"
+#include "global.fh"
+#include "dft_conv.fh"
+c
+      logical oprint
+      integer iter
+      double precision etnew,etold,enuc
+c
+      double precision util_cpusec,current_cpu
+      external util_cpusec
+      logical gotsmear
+      double precision ss
+      gotsmear(ss)=abs(ss).gt.1d-9
+c
+      if (abs(delta).lt.1.d-3)then
+c     
+c        Set coulomb acc to max (e.g., input parameter).
+c        (note, may also require re-initializing DIIS)
+c     
+         itol2e = itol_max
+         iAOacc = iAOacc_max
+         tol_rho = tol_rho_max
+         iswitc = iswitc+1
+      endif
+c     
+      iter = iter + 1
+c     
+c     Check convergence parameters.
+c     
+      if ((delta.lt.dampon.and.delta.gt.dampoff).or.iter.le.ncydp)then
+         damping = .true.
+         ndamp = ndamp_input
+      else
+         damping = .false.
+         ndamp = ndamp_def
+      endif
+c     
+      if ((delta.lt.levlon.and.delta.gt.levloff).or.
+     &    (iter.le.ncysh).or.levelshifting)then
+         if (homo_lumo_gap.lt.hl_tol.and.(.not.gotsmear(ssmear)))then
+            levelshifting = .true.
+            rlshift = rlshift_input
+            if (check_shift)then
+               if (lumo .lt. homo)then
+                  levelshifting = .false.
+                  if (ga_nodeid().eq.0 .and. oprint)
+     &               write(LuOut,2224)homo, lumo
+               endif
+            endif
+         else
+            levelshifting = .false.
+            rlshift = rlshift_def
+         endif 
+      else
+         levelshifting = .false.
+         rlshift = rlshift_def
+      endif
+c     
+      if ((delta.lt.diison.and.delta.gt.diisoff).or.
+     &     iter.le.ncyds.or.keep_diis_on)then
+         diising = .true.
+c     
+c        Once started, keep DIIS on until diisoff threshold.
+c     
+         keep_diis_on = .true.
+      else
+         diising = .false.
+      endif
+      if (delta.lt.diisoff.or.(ncyds.gt.0.and.iter.gt.ncyds))then
+         diising = .false.
+         keep_diis_on = .false.
+      endif
+c     
+      if (nodamping)damping = .false.
+      if (nolevelshifting) then 
+        levelshifting = .false.
+        rlshift=rlshift_def
+      endif        
+      if (nodiis)diising = .false.
+c     
+      Etold = Etnew
+c
+      lmaxov = lmaxov_sv
+      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
+         lmaxov = .false.
+         if (ga_nodeid().eq.0 .and. oprint)
+     &      write(LuOut,224)homo, lumo
+      endif
+c     
+      if (oprint.and.ga_nodeid().eq.0)then         
+         current_cpu = util_cpusec()
+         if (nexc.le.1)then
+            write(LuOut,222)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
+     &                      rho_n, current_cpu
+         else
+            write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
+     &                      enuc, rho_n, current_cpu
+         endif
+      endif
+      return
+ 222  format(//
+     &     '         Total DFT energy =', f20.12/
+     &     '      One electron energy =', f20.12/
+     &     '           Coulomb energy =', f20.12/
+     &     '    Exchange-Corr. energy =', f20.12/
+     &     ' Nuclear repulsion energy =', f20.12//
+     &     ' Numeric. integr. density =', f20.12//
+     &     '     Total iterative time =', f9.1,'s'//)
+ 223  format(//
+     &     '         Total DFT energy =', f20.12/
+     &     '      One electron energy =', f20.12/
+     &     '           Coulomb energy =', f20.12/
+     &     '          Exchange energy =', f20.12/
+     &     '       Correlation energy =', f20.12/
+     &     ' Nuclear repulsion energy =', f20.12//
+     &     ' Numeric. integr. density =', f20.12//
+     &     '     Total iterative time =', f9.1,'s'//)
+ 224  format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
+     &     /,10x,'Significant orbital reordering with',
+     &     ' maximum overlap',
+     &     /,10x,'turned ON.  Turning max_ovl OFF.')
+ 2224 format(10x,'HOMO = ',f6.2,' LUMO (with shift) = ',f6.2,
+     &     /,10x,'Unshifted LUMO is less than HOMO.',
+     &     /,10x,'Turning levelshifting OFF this iteration.')
+ 4224 format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
+     &              ' RLSHIFT = ',f6.2,' HL_GAP = ',f6.2)
+
+      end

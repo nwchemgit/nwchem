@@ -1,0 +1,34 @@
+c     
+c     $Id: dft_conv.fh,v 1.1 2001-12-21 23:08:19 edo Exp $
+c     
+      double precision delta
+      integer itol_max, iaoacc_max
+      integer itol_min, iAOacc_min
+      integer nexc
+      integer iswitc
+      logical diising, damping, levelshifting,ldmix
+      logical keep_damp_on,keep_levl_on, keep_diis_on
+      double precision tol_rho_min, tol_rho_max
+c     convergence declarations
+      double precision rlshift_input, rlshift_def
+      double precision ecoul, ecore,exc(2)
+      double precision homo, lumo, homo_lumo_gap
+      double precision ssmear,rho_n
+      integer ndamp_input, ndamp_def
+      logical  check_shift, lmaxov_sv
+c
+c     early convergence tolerances
+c
+      parameter(itol_min = 6.4, iAOacc_min = 12, tol_rho_min = 1.d-7)
+      common /dft_conv/delta,tol_rho_max, rlshift_input, rlshift_def,
+     .      ecoul, ecore, homo, lumo, homo_lumo_gap,ssmear,rho_n,exc,
+c     integer
+     .     itol_max, iaoacc_max,
+     .     nexc, iswitc, ndamp_input, ndamp_def,
+c     logical
+     .     diising, damping, levelshifting,ldmix,
+     .     keep_damp_on,keep_levl_on, keep_diis_on,
+     .      check_shift, lmaxov_sv
+
+
+

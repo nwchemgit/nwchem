@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c 
-c$Id: grid_rtrunc.F,v 1.39 2001-11-16 22:13:42 edo Exp $
+c$Id: grid_rtrunc.F,v 1.40 2001-12-21 23:08:19 edo Exp $
 c
       implicit none
 c      
@@ -431,12 +431,10 @@ c
 c
 c     get overlap matrix
 c
-      call int_init(rtdb, 1, AO_bas_han) 
       g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
       call ga_zero(g_s)
       call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',oskel)
       if (oskel)call sym_symmetrize(geom, AO_bas_han, .false., g_s)
-      call int_terminate
 c
 c     get coord
 c

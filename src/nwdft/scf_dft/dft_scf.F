@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.210 2001-12-15 01:51:36 edo Exp $
+c     $Id: dft_scf.F,v 1.211 2001-12-21 23:08:19 edo Exp $
 c     
       implicit none
 c
@@ -15,7 +15,7 @@ c
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &        g_fock, g_svecs, 
      &        g_xcinv
-      double precision rho_n, toll_s
+      double precision  toll_s
       double precision svals(*) ! [in] S evals
 c     
 #include "bas.fh"
@@ -27,6 +27,7 @@ c
 #include "global.fh"
 #include "msgids.fh"
 #include "util.fh"
+#include "dft_conv.fh"
 #ifdef BETTIS
 #include "screened_op.fh"
 #endif
@@ -44,7 +45,7 @@ c
 c
       integer g_s ! [in]
       logical oprint
-      double precision Exc(2), rms(2), derr(2)
+      double precision rms(2), derr(2)
       integer noc(2), nmo(2), icall(2)
       integer n3c_dbl, n3c_int, n_batch
       integer iwhat_max
@@ -72,11 +73,6 @@ cc    Jorge Garza/End
       integer g_tmp, g_fockt,  g_wght, g_xyz,g_nq
       integer nheap, nstack
       integer ispin, idone
-      integer nexc
-      integer iswitc
-      integer itol_max, iaoacc_max
-      integer itol_min, iAOacc_min
-      double precision tol_rho_min, tol_rho_max
       integer npol
       integer leneval
       integer lcntoce, icntoce, lcntobfr, icntobfr,
@@ -85,14 +81,9 @@ cc    Jorge Garza/End
      &                 save_wall, current_cpu, start_cpu,
      &                 wall_time_reqd
       integer int_wall_time_reqd
-      double precision ecoul, ecore
       double precision pp, delta
       double precision anucl_charg, anel
-      double precision  onempp
       double precision etnew, tol2e, tol2e_sleazy,tdots
-c     convergence declarations
-      double precision rlshift_input, rlshift_def
-      integer ndamp_input, ndamp_def
 c     
 c     Note, damping, levelshifting, and diising logicals
 c     are used to turn on/off these procedures per
@@ -100,8 +91,6 @@ c     iteration.  The alternative logicals nodamping,
 c     nolevelshifting, and nodiis are specified and held
 c     for the entire convergence sequence.
 c     
-      logical diising, damping, levelshifting,ldmix
-      logical keep_damp_on,keep_levl_on, keep_diis_on
       Logical  IOLGC, mulliken
       logical converged, wght_GA
       logical oprint_parm, oprint_conv, oprint_vecs, 
@@ -118,17 +107,11 @@ c
       parameter (eval_pr_tol_lo = -1.5d0, eval_pr_tol_hi=0.5)
 C
 c
-c     early convergence tolerances
-c
-      parameter(itol_min = 6.4, iAOacc_min = 12, tol_rho_min = 1.d-7)
-c
       double precision dft_dencvg, dft_time
       external dft_dencvg
-      double precision homo, lumo, homo_lumo_gap
-      double precision ssmear
       integer l_ir, k_ir
       logical last_time_energy
-      logical check_shift, lmaxov_sv,fon, reorth
+      logical fon, reorth
       character*7 name
       character*4 scftype
       character*7 vecs_or_dens
@@ -155,7 +138,7 @@ c
 c
 c     slow switching of annealing
 c
-      double precision s_rabuck,ss,smear_in
+      double precision s_rabuck,ss,smear_in,derrt
       integer nn,nss,n_dep
       integer n_rabuck
       logical rabuck_act,spinset
@@ -165,10 +148,10 @@ c
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
+      s_rabuck(nn,ss,nss,delta)=min(ss*exp((1d0/(nss-1d0))*
+     *     log(1d-10/ss)*(nn-1d0)),delta*1d-4)
       logical gotsmear
       gotsmear(ss)=abs(ss).gt.1d-9
-      s_rabuck(nn,ss,nss,delta)=min(ss*exp((1d0/(nss-1d0))*
-     *     log(1d-10/ss)*(nn-1d0)),delta*5d-4)
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
@@ -211,19 +194,24 @@ c     check if smearing is on
 c
       ssmear=0.d0
       delta=1d20
+      derr(1)=1d99
+      derr(2)=1d99
       n_rabuck=0
       rabuck_act=.false.
       if (.not.rtdb_get(rtdb, 'dft:spinset', mt_log, 1,
      &   spinset))spinset=.false.
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear))then
-      if (rtdb_get(rtdb, 'dft:n_rabuck', mt_int, 1,
-     &   n_rabuck))then
-         smear_in=ssmear
-c
+         if (rtdb_get(rtdb, 'dft:n_rabuck', mt_int, 1,
+     &        n_rabuck))then
+            smear_in=ssmear
+c     
 c n_rabuck=1 gives  a 1/0 
-c
-         if(n_rabuck.ne.0) n_rabuck=max(n_rabuck,2)
+c     
+            if(n_rabuck.ne.0) then
+               spinset=.true.
+               n_rabuck=max(n_rabuck,2)
+            endif
          endif
       endif
       if (rtdb_get(rtdb, 'dft:fon', mt_log, 1,
@@ -595,7 +583,7 @@ c
 c
       call dft_cosmochk(rtdb,ocosmo,odbug,ogas_phase,osol_phase)
 c
-      iter = 1
+      iter = 0
 c
       if (ipol.gt.1)then
          g_fockt = ga_create_atom_blocked(geom, AO_bas_han, 'fock tr')
@@ -721,6 +709,8 @@ c
 c
          call ga_symmetrize(g_focks(ispin))
       enddo
+      call dft_convpam(oprint_conv_details,iter,etnew,etold,enuc)
+
       if (diising)then
 c     
 c     DIIS step taken here.
@@ -728,7 +718,10 @@ c
          if (oprint_time)
      &        call dft_tstamp(' calling diis driver ')
          if(n_rabuck.ne.0) then
-            ssmear=s_rabuck(iter,smear_in,n_rabuck,delta)
+            derrt=derr(1)
+            if(ipol.eq.2) derrt=max(derr(1),derr(2))
+            ssmear=s_rabuck(iter,smear_in,n_rabuck,derrt)
+!            ssmear=s_rabuck(iter,smear_in,n_rabuck,delta)
             
             rabuck_act=gotsmear(ssmear)
          endif
@@ -869,8 +862,7 @@ c        Damping implemented here.
 c     
          if (damping)then
             pp = dble(ndamp)*1.d-2
-            onempp = 1.0d0 - pp
-            call ga_dadd(pp, g_denso(ispin),onempp, g_dens(ispin), 
+            call ga_dadd(pp, g_denso(ispin),(1d0-pp), g_dens(ispin), 
      &                   g_dens(ispin))
          else
             ndamp = 0
@@ -974,91 +966,6 @@ c
      &                converged, diising)
       if (oprint_time)
      &     call dft_tstamp(' called scfcvg ')
-      if (abs(delta).lt.1.d-3)then
-c     
-c        Set coulomb acc to max (e.g., input parameter).
-c        (note, may also require re-initializing DIIS)
-c     
-         itol2e = itol_max
-         iAOacc = iAOacc_max
-         tol_rho = tol_rho_max
-         iswitc = iswitc+1
-      endif
-c     
-      iter = iter + 1
-c     
-c     Check convergence parameters.
-c     
-      if ((delta.lt.dampon.and.delta.gt.dampoff).or.iter.le.ncydp)then
-         damping = .true.
-         ndamp = ndamp_input
-      else
-         damping = .false.
-         ndamp = ndamp_def
-      endif
-c     
-      if ((delta.lt.levlon.and.delta.gt.levloff).or.
-     &    (iter.le.ncysh))then
-         if (homo_lumo_gap.lt.hl_tol.and.(.not.gotsmear(ssmear)))then
-            levelshifting = .true.
-            rlshift = rlshift_input
-            if (check_shift)then
-               if (lumo .lt. homo)then
-                  levelshifting = .false.
-                  if (me.eq.0 .and. oprint_conv_details)
-     &               write(LuOut,2224)homo, lumo
-               endif
-            endif
-         else
-            levelshifting = .false.
-            rlshift = rlshift_def
-         endif 
-      else
-         levelshifting = .false.
-         rlshift = rlshift_def
-      endif
-c     
-      if ((delta.lt.diison.and.delta.gt.diisoff).or.
-     &     iter.le.ncyds.or.keep_diis_on)then
-         diising = .true.
-c     
-c        Once started, keep DIIS on until diisoff threshold.
-c     
-         keep_diis_on = .true.
-      else
-         diising = .false.
-      endif
-      if (delta.lt.diisoff.or.(ncyds.gt.0.and.iter.gt.ncyds))then
-         diising = .false.
-         keep_diis_on = .false.
-      endif
-c     
-      if (nodamping)damping = .false.
-      if (nolevelshifting) then 
-        levelshifting = .false.
-        rlshift=rlshift_def
-      endif        
-      if (nodiis)diising = .false.
-c     
-      Etold = Etnew
-c
-      lmaxov = lmaxov_sv
-      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
-         lmaxov = .false.
-         if (me.eq.0 .and. oprint_conv_details)
-     &      write(LuOut,224)homo, lumo
-      endif
-c     
-      if (oprint_energy_step.and.me.eq.0)then         
-         current_cpu = util_cpusec()
-         if (nexc.le.1)then
-            write(LuOut,222)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
-     &                      rho_n, current_cpu
-         else
-            write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
-     &                      enuc, rho_n, current_cpu
-         endif
-      endif
 c
 c     Check for remaining time to exit "gracefully"
 c
@@ -1433,13 +1340,6 @@ c
      &     ' Nuclear repulsion energy =', f20.12//
      &     ' Numeric. integr. density =', f20.12//
      &     '     Total iterative time =', f9.1,'s'//)
- 224  format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
-     &     /,10x,'Significant orbital reordering with',
-     &     ' maximum overlap',
-     &     /,10x,'turned ON.  Turning max_ovl OFF.')
- 2224 format(10x,'HOMO = ',f6.2,' LUMO (with shift) = ',f6.2,
-     &     /,10x,'Unshifted LUMO is less than HOMO.',
-     &     /,10x,'Turning levelshifting OFF this iteration.')
  4224 format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
      &              ' RLSHIFT = ',f6.2,' HL_GAP = ',f6.2)
 c     

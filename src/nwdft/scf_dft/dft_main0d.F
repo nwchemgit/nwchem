@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.54 2001-12-11 21:19:16 edo Exp $
+c     $Id: dft_main0d.F,v 1.55 2001-12-21 23:08:19 edo Exp $
 c     
       implicit none
 c
@@ -36,7 +36,7 @@ c
       integer iVxc_opt, lmiss, ivcoul_opt
       integer isvals, lsvals,  idum,n_dep
       double precision toll_s
-      logical dft_scf,l1ecache
+      logical dft_scf
       external dft_scf
       logical dft_scf_so 
       external dft_scf_so 
@@ -58,12 +58,6 @@ c
      .     util_print('geometry', print_high)) then
         if(.not.geom_print(geom)) call errquit(
      .       ' dftmain0d: geom print failed',0)
-      endif
-      call schwarz_init(geom, AO_bas_han)
-      l1ecache=.false.
-      if ((nbf_ao*nbf_ao*3*8)/ga_nnodes() .lt. 2000000) then! Cache if < 2MB/node
-         l1ecache=.true.
-         call int_1e_cache_ga(AO_bas_han, oskel)
       endif
       IOLGC = .TRUE.
       if (noio.eq.1) IOLGC = .FALSE.
@@ -426,8 +420,6 @@ cnos      endif
      &   ('dft_main0d: could not destroy g_dens(1)', 0)
       if (.not. ga_destroy(g_svecs)) call errquit
      &   ('dft_main0d: could not destroy g_svecs', 0)
-      if(l1ecache) call int_1e_uncache_ga()
-      call schwarz_tidy
 c     
 #if defined(DFT_TIMER)
          if (me.eq.0)then
