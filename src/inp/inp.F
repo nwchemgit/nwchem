@@ -413,9 +413,9 @@ c
       double precision ten, buf, dtmp
       integer i1, i2, ie2, isign, ie, iexp, ie1, itmp, i, j
       logical orep
-      character*1 xchar(15)
+      character*1 xchar(17)
       data xchar /'0','1','2','3','4','5','6','7','8','9'
-     1     ,'+','-','.','e','d'/
+     1     ,'+','-','.','e','d','E','D'/
       data ten/10.0d0/
 c     
       ierrpos = -1
@@ -437,7 +437,8 @@ c...  sign
       if (ia(i1:i1).eq.xchar(12).or.ia(i1:i1).eq.xchar(11)) i1=i1+1
 c...  exponent
       do ie=i1,i2
-         if (ia(ie:ie).eq.xchar(14) .or. ia(ie:ie).eq.xchar(15)) goto 20
+         if (ia(ie:ie).eq.xchar(14) .or. ia(ie:ie).eq.xchar(15) .OR.
+     $      ia(ie:ie).eq.xchar(16) .or. ia(ie:ie).eq.xchar(17)) goto 20
       enddo
       iexp=0
       go to 50
