@@ -4,7 +4,7 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.16 2000-01-17 20:03:25 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.17 2000-04-12 17:21:25 d3j191 Exp $
 c
       implicit none
 c
@@ -37,6 +37,7 @@ c
       integer i,j,length,nt,ng,latnum,mult,ifnd,nd
       character*80 card
       character*6 atyp1,atyp2,atyp3,atyp4,btyp1,btyp2,btyp3,btyp4
+      character*1 qtm
       real*8 rmass,p1,p2,p3,p4,pt1,pt2,pt3,pt4
 c
       length=index(filpar,' ')-1
@@ -112,11 +113,12 @@ c
       read(card,1001,err=2) atyp1(1:5),rmass,p1,p2,p3,p4,nt,ng
  1001 format(a5,f10.5,4e12.5,i5,1x,i10)
       if(atyp1.eq.'      ') goto 1
-      read(lfnpar,1002,err=9999) atyp2(1:5),latnum,pt1,pt2,pt3,pt4
- 1002 format(a5,5x,i5,4e12.5)
+      read(lfnpar,1002,err=9999) atyp2(1:5),qtm,latnum,pt1,pt2,pt3,pt4
+ 1002 format(a5,1x,a1,3x,i5,4e12.5)
       if(atyp2.eq.'      ') atyp2=atyp1
       do 4 i=1,natt
-      if(catt(1,i)(1:5).eq.atyp1(1:5)) then
+      if(catt(1,i)(1:5).eq.atyp1(1:5).and.
+     + (qtm.eq.' '.or.qtm.eq.catt(1,i)(6:6))) then
       catt(2,i)=atyp2
       ratt(i)=rmass
       latt(1,i)=latnum
