@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.27 2002-03-01 00:44:22 windus Exp $
+* $Id: util_legal.F,v 1.28 2003-02-20 21:05:04 edo Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002 *
 *              Pacific Northwest National Laboratory,                *
@@ -174,18 +174,21 @@ c
      + ' W. de Jong,',/,
      + 12x,'S. Hirata, M. T. Hackler, J. Anchell, D. Bernholdt,',
      + ' P. Borowski,',/,
-     + 12x,'T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall,',
-     + ' D. Elwood,',/,
-     + 12x,'H. Fruchtl, E. Glendening, M. Gutowski, K. Hirao,',
-     + ' A. Hess,',/,
-     + 12x,'J. Jaffe, B. Johnson, J. Ju, R. Kendall,',
-     + ' R. Kobayashi, R. Kutteh,',/,
-     + 12x,'Z. Lin, R. Littlefield, X. Long, B. Meng,',
-     + ' T. Nakajima,',/,
-     + 12x,'J. Nieplocha, S. Niu, M. Rosing, G. Sandrone,',
-     + ' M. Stave, H. Taylor,',/,
-     + 12x,'G. Thomas, J. van Lenthe, K. Wolinski,',
-     + ' A. Wong, and Z. Zhang,',/,
+     + 12x,'E. Brown, G. Cisneros, T. Clark, D. Clerc, H. Dachsel,',
+     + ' M. Deegan,',/, 
+     + 12x,'K. Dyall, D. Elwood, H. Fruchtl, E. Glendening,',
+     + ' M. Gutowski,',/,
+     + 12x,'K. Hirao, A. Hess, J. Jaffe, B. Johnson, J. Ju,',
+     + ' R. Kendall,',/,
+     + 12x,'R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,',
+     + ' X. Long,',/,
+     + 12x,'B. Meng, T. Nakajima, J. Nieplocha, S. Niu, L. Pollack,',
+     + ' M. Rosing,',/,
+     + 12x,'G. Sandrone, D. Smith, M. Stave, H. Taylor,',
+     + ' K. Tsemekhman,',/,
+     + 12x,'G. Thomas, J. van Lenthe, M. Valiev, K. Wolinski,',
+     + ' A. Wong,',/,
+     + 12x,'and Z. Zhang,',/,
      + 12x,'"NWChem, A Computational Chemistry Package for Parallel ',
      &    'Computers, ',
      &    /,12x,
