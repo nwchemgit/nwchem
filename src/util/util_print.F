@@ -9,7 +9,7 @@ c
 c     
       end
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.10 1996-07-26 16:43:44 d3g681 Exp $
+C$Id: util_print.F,v 1.11 1996-10-16 00:38:25 vg038 Exp $
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
@@ -35,7 +35,7 @@ c
 c     
       if (n_no_print(depth) .gt. 0) then
          if (inp_match(n_no_print(depth), .false., name, 
-     $        no_ print_names(1,depth), ind)) then
+     $        no_print_names(1,depth), ind)) then
             util_print = .false.
             if (oprint_print(depth)) then
                write(6,*) ' up: explicit off for: ', name
