@@ -1,6 +1,10 @@
-!$Id: paw_xc.F,v 1.2 2003-02-17 05:43:37 marat Exp $
+!$Id: paw_xc.F,v 1.3 2003-02-17 05:54:59 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.2  2003/02/17 05:43:37  marat
+!added memory deallocation
+!MV
+!
 !Revision 1.1  2003/02/17 05:28:19  marat
 !initial revision
 !MV
@@ -37,6 +41,8 @@
 *     *** size for multipole density arrays ***
       ok = my_alloc(mt_int,nion,"i_paw_vxc",
      >                                i_paw_vxc)
+      if (.not.ok)
+     > call errquit("init_paw_vxc_end: error allocating heap",0)
 
       paw_vxc_size = 0     
       do in=1,nion
@@ -78,13 +84,21 @@
       logical ok
       
       ok = my_dealloc(paw_vxc_d_ps) 
+      if (.not.ok)
+     > call errquit("paw_vxc_end1: error freeing heap",0)
       ok = ok .and. my_dealloc(paw_vxc_u_ps) 
+      if (.not.ok)
+     > call errquit("paw_vxc_end2: error freeing heap",0)
       ok = ok .and. my_dealloc(paw_vxc_d_ae) 
+      if (.not.ok)
+     > call errquit("paw_vxc_end3: error freeing heap",0)
       ok = ok .and. my_dealloc(paw_vxc_u_ae) 
+      if (.not.ok)
+     > call errquit("paw_vxc_end4: error freeing heap",0)
       ok = ok .and. my_dealloc(i_paw_vxc)
 
       if (.not.ok)
-     > call errquit("paw_vxc_end: error freeing heap",0)
+     > call errquit("paw_vxc_end5: error freeing heap",0)
 
 
       end 

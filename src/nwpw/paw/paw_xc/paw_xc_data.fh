@@ -1,6 +1,10 @@
-!$Id: paw_xc_data.fh,v 1.1 2003-02-17 05:28:19 marat Exp $
+!$Id: paw_xc_data.fh,v 1.2 2003-02-17 05:54:59 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.1  2003/02/17 05:28:19  marat
+!initial revision
+!MV
+!
 
       integer paw_xc_lmax
       integer i_paw_vxc(4)
@@ -9,7 +13,8 @@
       integer paw_vxc_u_ps(4)
       integer paw_vxc_d_ps(4)
 
-      common /paw_exc_data/  paw_vxc_u_ae,
+      common /paw_exc_data/   i_paw_vxc,
+     >                        paw_vxc_u_ae,
      >                        paw_vxc_d_ae,
      >                        paw_vxc_u_ps,
      >                        paw_vxc_d_ps
