@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.5 1999-04-27 17:48:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.6 1999-04-30 20:58:30 d3j191 Exp $
 c
       implicit none
 c
@@ -426,7 +426,7 @@ c
       ep3(ipww)=ep3(ipww)+facu(iax)*(c12p*rwi6(iax)-c6p)*rwi6(iax)
    35 continue
       endif
-      if(ip2(3)+ip2(9).ne.0) then
+      if(ip2(3).or.ip2(9)) then
       qp=chg(iwatm(iwa),1,3)*chg(iwatm(jwa),1,3)
 c      qp=qwa(iwa,3)*qwa(jwa,3)
       ep3tmp=zero
@@ -513,7 +513,7 @@ c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
 c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
 c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
 c
-c $Id: cf_f.fh,v 1.5 1999-04-27 17:48:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.6 1999-04-30 20:58:30 d3j191 Exp $
 c
       implicit none
 c
@@ -1076,7 +1076,7 @@ c
    49 continue
       endif
       endif
-      if(ip2(3)+ip2(9)+ip2(12)+ip2(18).ne.0) then
+      if(ip2(3).or.ip2(9).or.ip2(12).or.ip2(18)) then
 c      qj=qwa(iwa,3)
       qj=chg(iwq(iwa),1,3)
       if(ipme.eq.0) then
@@ -1196,7 +1196,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.5 1999-04-27 17:48:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.6 1999-04-30 20:58:30 d3j191 Exp $
 c
       implicit none
 c
@@ -1945,7 +1945,7 @@ c
    49 continue
       endif
       endif
-      if(ip2(12)+ip2(18).ne.0) then
+      if(ip2(12).or.ip2(18)) then
       if(ipme.eq.0) then
       if(issscl.eq.0) then
       do 50 iax=1,nax
@@ -2083,7 +2083,7 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.5 1999-04-27 17:48:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.6 1999-04-30 20:58:30 d3j191 Exp $
 c
 c     cf_forsb returns forces and energies for solute bonds
 c
@@ -2363,7 +2363,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.5 1999-04-27 17:48:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.6 1999-04-30 20:58:30 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2621,7 +2621,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.5 1999-04-27 17:48:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.6 1999-04-30 20:58:30 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2948,7 +2948,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.5 1999-04-27 17:48:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.6 1999-04-30 20:58:30 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3260,7 +3260,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc)
 c
-c $Id: cf_f.fh,v 1.5 1999-04-27 17:48:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.6 1999-04-30 20:58:30 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3548,7 +3548,7 @@ c
      + (vdw(iatt(isa),iatt(jsa),4,3)*r6i-
      + vdw(iatt(isa),iatt(jsa),2,3))*r6i
       endif
-      if(ip2(12)+ip2(18).ne.0) then
+      if(ip2(12).or.ip2(18)) then
       rxx=xs(isa,1)-xs(jsa,1)
       rxy=xs(isa,2)-xs(jsa,2)
       rxz=xs(isa,3)-xs(jsa,3)
@@ -3575,7 +3575,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.5 1999-04-27 17:48:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.6 1999-04-30 20:58:30 d3j191 Exp $
 c
       implicit none
 c

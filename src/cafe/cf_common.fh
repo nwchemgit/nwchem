@@ -92,7 +92,7 @@ c
      + i_pmew,l_pmew,i_pmes,l_pmes,
      + i_theta,l_theta,i_dtheta,l_dtheta
 c
-      integer npbtyp,nbxtyp,iqmmm,lstype
+      integer ntype,npbtyp,nbxtyp,iqmmm,lstype
       integer ngc,ngl,nfrdf,ifstep,ngrww,ireact,iset,npener
       integer lpww,lpsw,lpss,issscl,ngrsw,ngrss,nrwrec
       integer isolvo,npww,npsw,npss,ipme,morder,ngx,ngy,ngz,ngmax
@@ -116,7 +116,7 @@ c
      + tstep,tstepi,wbox,xbm,tmpext,prsext,tmwrlx,tmsrlx,prsrlx,pres,
      + temp,tempw,temps,factmp,factmw,factms,scalew,scales,ewk,ek,
      + ewkc,eskc,facpsc,pscale,
-     + npbtyp,nbxtyp,iqmmm,lstype,iset,
+     + ntype,npbtyp,nbxtyp,iqmmm,lstype,iset,
      + ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,ipme,lpww,lpsw,
      + lpss,issscl,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,
      + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,
