@@ -1,5 +1,3 @@
-// $Id: NWChem.java,v 1.1 1998-03-17 07:55:29 d3e129 Exp $
-
 import java.net.Socket;
 import java.io.*;
 import java.net.*;
@@ -11,6 +9,7 @@ import java.awt.image.*;
 
 public class NWChem extends Frame
 		 {
+/******all window event handling**********/
 
 public void windowClosed(WindowEvent event) {}
 public void windowDeiconified(WindowEvent event) {}
@@ -22,7 +21,9 @@ public void windowClosing(WindowEvent event) {
 	super.dispose();
 	System.exit(0);
 }
- public NWChem() {
+
+
+public NWChem() {
 
 	super("NWChem support");
 	
@@ -102,6 +103,11 @@ public void windowClosing(WindowEvent event) {
 	label14.setFont(new Font("Dialog",Font.BOLD,12));
 	add(label14);
 	label14.setBounds(7,585,150,30);
+
+	label16 = new Label("Other attachment:");
+	label16.setFont(new Font("Dialog",Font.BOLD,12));
+	add(label16);
+	label16.setBounds(7,620,150,30);
 	
 	label15 = new Label("Danielle Farrar, 1998");
 	label15.setFont(new Font("SansSerif",Font.BOLD,10));
@@ -110,12 +116,20 @@ public void windowClosing(WindowEvent event) {
 	
 
 /*****************Each text field is a part of the message****************/
-
-	edit1=new TextField(25);
-////////Sender?
+	edit1 = new TextField(37);
 	add(edit1);
 	edit1.setBounds(78,135,210,30);
 
+try {
+	String user = System.getProperty("user.home");
+	String nwpath = user + "/nwchemsupport";
+	File nwfile = new File(nwpath);
+
+	RandomAccessFile emailfile = new RandomAccessFile(nwfile, "rw");
+	String sentfrom = emailfile.readLine();
+	edit1.setText(sentfrom);
+	} catch (IOException e) {}
+	
 	edit2=new TextField(37);
 ////////Subject?
 	add(edit2);
@@ -132,24 +146,29 @@ public void windowClosing(WindowEvent event) {
 	edit4.setBounds(12,420,650,100);
 
 	edit5=new TextField(68);
-////////additional cc area
+////////input file attachment
 	add(edit5);
 	edit5.setBounds(155,550,210,30);
 
 	edit6= new TextField(68);
-////////additional cc area
+////////output file attachment
 	add(edit6);
 	edit6.setBounds(155,585,210,30);
 
 	edit7 = new TextField(18);
-////////input attachment directory/filename
+////////ccarea
 	edit7.setBounds(250,200,150,30);
 	add(edit7);
 
 	edit8 = new TextField(18);
-////////output attachment directory/filename
+////////ccarea
 	edit8.setBounds(420,200,150,30);
 	add(edit8);
+
+	edit9 = new TextField(18);
+////////another attachment directory/filename
+	edit9.setBounds(155,620,210,30);
+	add(edit9);
 
 	group1= new CheckboxGroup();
 ////////receipt request checkboxes
@@ -160,8 +179,10 @@ public void windowClosing(WindowEvent event) {
 	add(check2);
 	check2.setBounds(120,240,48,20);
 
+
+/****************choice boxes**************************/
+
 	choice1= new Choice();
-////////first choice box, "user priority".  other choices can be added through "addItem()" method.
 	add(choice1);
 	choice1.setBounds(12,308,132,26);
 	choice1.addItem("user_priority");
@@ -173,7 +194,6 @@ public void windowClosing(WindowEvent event) {
 	choice1.addItem("emergency");
 
 	choice2= new Choice();
-////////second choice box, states problem
 	add(choice2);// second choice box, describes the problem
 	choice2.setBounds(200,308,132,26);
 	choice2.addItem("Problem?");
@@ -192,7 +212,6 @@ public void windowClosing(WindowEvent event) {
 	choice2.addItem("Unknown");
 
 	choice3= new Choice();
-////////third choice box, describes the module/theory
 	add(choice3);
 	choice3.setBounds(12,344,132,26);
 	choice3.addItem("Module/Theory?");
@@ -293,6 +312,12 @@ public void windowClosing(WindowEvent event) {
 	button4.setBounds(380,585,85,30);
 	add(button4);
 
+	button5= new Button("Attach File");
+////////calls up dialog box, exactly the same as button3, except inserts directory/file into textfield edit6
+	button5.setBounds(380,620,85,30);
+	add(button5);
+
+
 	setVisible(true); 	
 
 
@@ -301,7 +326,8 @@ public void windowClosing(WindowEvent event) {
 
 /////////listens for when textfield value changed, but no action is performed///////////////
 	edit1.addActionListener(new ActionListener() {
-	public void actionPerformed(ActionEvent e) {} });
+	public void actionPerformed(ActionEvent e)
+{ }});
 
 	edit2.addActionListener(new ActionListener() {
 	public void actionPerformed(ActionEvent e)
@@ -322,33 +348,33 @@ public void windowClosing(WindowEvent event) {
 	 } });
 
 
-//////listens for when button1 is clicked, then clickedButton1() method invoked////////
 	button1.addActionListener(new ActionListener()
 	{
  	public void actionPerformed(ActionEvent e) {
 	if (e.getSource() == button1) {
 	clickedButton1(); }}});
 
-/////listens for when button2 is clicked, then clickedButton2() method invoked
 	button2.addActionListener(new ActionListener() {
 	public void actionPerformed(ActionEvent e){
 	if (e.getSource() == button2) {
 	clickedButton2(); }}});
 
-//////listens for when button3 is clicked, then clickedButton3() method invoked
 	button3.addActionListener(new ActionListener() {
 	public void actionPerformed(ActionEvent e){
 	if (e.getSource() == button3) {
 	clickedButton3();
 }}});
 
-///////listens for when button4 is clicked, then clickedButton4() method invoked
 	button4.addActionListener(new ActionListener() {
 	public void actionPerformed(ActionEvent e){
 	if (e.getSource() == button4) {
 	clickedButton4(); }}});
 
-///////listens for when the choice boxes are changed, but nothing happens
+	button5.addActionListener(new ActionListener() {
+	public void actionPerformed(ActionEvent e){
+	if (e.getSource() == button5) {
+	clickedButton5(); }}});
+
 	choice1.addItemListener(new ItemListener() {
 	public void itemStateChanged(ItemEvent e) {
 }});
@@ -380,8 +406,9 @@ public void windowClosing(WindowEvent event) {
 	public void actionPerformed(ActionEvent e) 
 		{
 		if ( e.getSource() instanceof MenuItem){
-			if(e.equals("Exit"));{
+			if (e.equals("Exit")); {
 				Exit();}}}});}
+
 
     public static void main(String args[]) {
 	new NWChem();
@@ -405,6 +432,8 @@ public void windowClosing(WindowEvent event) {
     	Label label13;
     	Label label14;
 	Label label15;
+	Label label16;
+	Label variable;
     	TextField edit1;
     	TextField edit2;
     	TextField edit3;
@@ -413,6 +442,7 @@ public void windowClosing(WindowEvent event) {
     	TextField edit6;
     	TextField edit7;
     	TextField edit8;
+	TextField edit9;
     	CheckboxGroup group1;
     	Checkbox check1;
     	Checkbox check2;
@@ -425,9 +455,10 @@ public void windowClosing(WindowEvent event) {
     	Button button2;
     	Button button3;
     	Button button4;
+	Button button5;
     	FileDialog openDialog;
     	Frame frame;
-
+	String sent;
 
     	public synchronized void setVisible() {
 		setLocation(50, 50);
@@ -450,7 +481,7 @@ public void clickedButton3() {
 	File file = new File(FileName);
 	if (file.exists()) {
 	edit5.setText(FileName);}
-	else {edit6.setText("");}
+	else {edit5.setText("");}
 
 	
 }
@@ -468,6 +499,18 @@ public void clickedButton4() {
 }
 
 
+public void clickedButton5() {
+////////also calls up dialog box, edit6 textfield set to selected directory/file
+	FileDialog openDialog;
+	openDialog = new FileDialog(frame, "Text:Open", FileDialog.LOAD);
+	openDialog.setVisible(true);
+	String FileName = openDialog.getDirectory() + openDialog.getFile();
+	File file = new File(FileName);
+	if (file.exists()) {
+	edit9.setText(FileName);}
+	else { edit9.setText("");}
+}
+
 
 
 
@@ -476,15 +519,22 @@ public void clickedButton1()
 ///////sends an e-mail to nwchem with information from textfields, choiceboxes, and attachments
 ///////must be in a try-catch loop to send file information
     try {
+	waiting waiting2 = new waiting();
+	waiting2.setVisible(true);
 
 ////////class "Email" sends to designated address
+
 	Email support = new Email();
 
 ////////e-mail address from edit1 is set as sender
-    	String sender = edit1.getText().toString();
-    	support.setMailFrom(sender);
+	String sending = edit1.getText().toString();
+	support.setMailFrom(sending);
+	
+	notsent notsentwin = new notsent();
 
-////////string "to" can be set to any e-mail address	
+
+
+/////////string "to" can be set to any e-mail address	
 	String to = "nwchem-support@emsl.pnl.gov";
 	support.setMailTo(to);
 
@@ -499,6 +549,19 @@ public void clickedButton1()
 ////////subject is set to text from textfield edit2
 	String subject = edit2.getText().toString();
 	support.setMailSubject(subject);
+
+	if (edit1.getText().toString() == "") 
+		{
+		waiting2.setVisible(false);
+		notsentwin.setVisible(true);
+		} 
+
+	if (edit2.getText().length() <= 0)
+		{
+		waiting2.setVisible(false);
+		notsentwin.setVisible(true);
+		} 
+
 
 	String start = "";
 	support.setMailMessage(start);
@@ -529,7 +592,7 @@ public void clickedButton1()
 //    	support.addMailMessage(message);
 
 ////////choice box information will be sent only if choice has been changed from default.	
-    	if (choice1.getSelectedItem() != "user_priority")	{
+/*    	if (choice1.getSelectedItem() != "user_priority")	{
         	String message0 = "User Priority\t:\t" + choice1.getSelectedItem().toString();
        		support.addMailMessage(message0); 
         	}
@@ -549,7 +612,7 @@ public void clickedButton1()
         	String message4 = "Platform\t:\t" + choice5.getSelectedItem().toString();
         	support.addMailMessage(message4);
     		}
-
+*/
 ////////message body, including date, sender, reciever, cc, subject, etc
 	String message5 ="\n" + "--- Request Message ---";
 //	support.addMailMessage(message5);
@@ -558,7 +621,7 @@ public void clickedButton1()
 //   	support.addMailMessage(message6);
     	String message7 = "To\t\t\t:\t nwchem-support@emsl.pnl.gov";
 //    	support.addMailMessage(message7);
-    	String message8 = "From\t\t:\t" + sender;
+ //   	String message8 = "From\t\t:\t" + sender;
 //   	support.addMailMessage(message8);
         String message9 = "cc\t\t\t:\t" + edit3.getText().toString() + edit7.getText() + edit8.getText();
 //        support.addMailMessage(message9);
@@ -571,7 +634,7 @@ public void clickedButton1()
 ////////attachment doesn't need to be included for message to be sent
 	File filename = new File(edit5.getText());
 	if (filename.exists()) {
-		String message12 = "***************INPUT FILE*****************\r\n\r\n";
+		String message12 = "<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*INPUT FILE<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*\r\n\r\n\r\n\r\n";
 		support.addMailMessage(message12);
 		RandomAccessFile File = new RandomAccessFile(filename, "rw");
 		String attach0 = edit5.getText().toString();
@@ -586,7 +649,7 @@ public void clickedButton1()
 	if (filename1.exists()) {
 		String messagenull = "\r\n\r\n";
 		support.addMailMessage(messagenull);
-		String message14 = "***************OUTPUT FILE*****************\r\n\r\n";
+		String message14 = "<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*OUTPUT FILE<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*\r\n\r\n\r\n\r\n";
 		support.addMailMessage(message14);
 		RandomAccessFile File1 = new RandomAccessFile(filename1, "rw");
 		String attach = edit6.getText();
@@ -595,19 +658,52 @@ public void clickedButton1()
 			support.addMailMessage(message15);
 	}}
 
+	File filename2 = new File(edit9.getText());
+	if (filename2.exists()) {
+		String message16 = "\r\n\r\n";
+		support.addMailMessage(message16);
+		String message17 = "<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*OTHER FILE<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*<>*\r\n\r\n\r\n\r\n";
+		support.addMailMessage(message17);
+		RandomAccessFile File2 = new RandomAccessFile(filename2, "rw");
+		String attach1 = edit9.getText();
+		while (File2.getFilePointer() < File2.length()) {
+			String message18 = File2.readLine();
+			support.addMailMessage(message18);}}
+
 ////////if all has been entered correctly, dialog box reading "You're message has been submitted" appears
 ////////and screen is reset
-    	if (support.sendMail() == true) {
+
+	if  (support.sendMail() == true) {
+		waiting2.setVisible(false);
         	submitted thesubmitted = new submitted();
 		thesubmitted.setVisible(true);
         	clickedButton2();
     		}
-	} catch (IOException e) {System.out.println("Error:" + e.toString());}
+
+	else if (support.sendMail() == false) 
+	{
+		waiting2.setVisible(false);
+		notsent notsentyet = new notsent();
+//		notsentyet.setVisible(true);
+}	
+
+} catch (IOException e) {System.out.println("Error:" + e.toString());}
+		
 } 
 
 public void clickedButton2() {
 ////////clears all textfields and choiceboxes back to default
-    	edit1.setText("");
+
+try {
+	String user = System.getProperty("user.home");
+	String nwpath = user + "/nwchemsupport";
+	File nwfile = new File(nwpath);
+
+	RandomAccessFile emailfile = new RandomAccessFile(nwfile, "rw");
+	String sentfrom = emailfile.readLine();
+	edit1.setText(sentfrom);
+	} catch (IOException e) {}
+
     	edit2.setText("");
     	edit3.setText("");
     	edit4.setText("");
@@ -615,6 +711,7 @@ public void clickedButton2() {
     	edit6.setText("");
 	edit7.setText("");
 	edit8.setText("");
+	edit9.setText("");
     	group1.setSelectedCheckbox(check1);
     	choice1.select("user_priority");
     	choice2.select("Problem?");

@@ -8,8 +8,6 @@
 // Written in Java 1.1 by Chris Parkinson, 1997
 //
 ////////////////////////////////////////////////////////
-// $Id: Email.java,v 1.1 1998-03-17 07:55:28 d3e129 Exp $
-
 
 
 import java.awt.event.*;

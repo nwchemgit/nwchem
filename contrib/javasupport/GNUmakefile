@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.1 1998-03-17 07:55:29 d3e129 Exp $
+# $Id: GNUmakefile,v 1.2 1998-05-29 21:27:09 d3e129 Exp $
 
 
 include ../../src/config/makefile.h
@@ -20,7 +20,7 @@ classes:
 	$(MAKE) NWChem.class
 	-mv *.class $(CLASSDIR)
 
-NWChem.class: 	NWChem.java Email.java submitted.java
+NWChem.class: 	NWChem.java Email.java submitted.java notsent.java waiting.java
 	javac NWChem.java
 
 Email.class:	Email.java
@@ -29,6 +29,12 @@ Email.class:	Email.java
 submitted.class:	submitted.java
 	javac submitted.java
 
+waiting.class:	waiting.java
+	javac waiting.java
+
+notsent.class:	notsent.java
+	javac notsent.java
+
 javacheck.class:
 realclean clean:
-	rm -f NWChem*.class Email.class submitted*.class
+	rm -f *.class
