@@ -184,6 +184,7 @@
 #define dlaebz2_  slaebz2_
 #define damax_    samax_
 #endif
+
 #ifdef CRAY_T3D
 
 #define DLAMCHE        2.22044604925031308E-16
@@ -297,5 +298,8 @@ peigs
 #define maxd_                   MAXD
 #define maxi_                   MAXI
 #define dgetavec_               DGETAVEC
+#define dlas2_                  DLAS2
+#define dlascl_                 DLASCL
+
 
 #endif
