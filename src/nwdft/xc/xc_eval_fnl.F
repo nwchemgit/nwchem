@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.31 2002-08-07 23:17:31 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.32 2002-08-15 02:37:38 edo Exp $
 c
       implicit none
 c
@@ -46,7 +46,7 @@ c
          if (.not. do_2nd) then
             call xc_dirac(tol_rho, xfac(2), lxfac(2), nlxfac(2), rho, 
      &           Amat, nq, ipol, Ex, qwght, 
-     &           ldew, func)
+     &           ldew, func,.false.,0d0)
          else
             call xc_dirac_d2(tol_rho, xfac(2), lxfac(2), nlxfac(2), rho, 
      &           Amat, Amat2, nq, ipol, Ex, qwght, 
@@ -331,9 +331,22 @@ c
          if (.not. do_2nd) then
             call xc_lb94(tol_rho, xfac(18), lxfac(18), nlxfac(18),
      &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ex, qwght,ldew,func)
+     &           Ex, qwght,ldew,func,.false.,0d0,0)
          else
             call xc_lb94_d2(tol_rho,xfac(18),lxfac(18),nlxfac(18), 
+     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         endif
+      endif
+      if (abs(xfac(19)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_casidaac(delta_ac,
+     .           tol_rho, 1d0, .true., .true.,
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func,.false.,0d0,0)
+         else
+            call xc_casidaac_d2(delta_ac,
+     .           tol_rho,1d0,.true.,.true., 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
          endif

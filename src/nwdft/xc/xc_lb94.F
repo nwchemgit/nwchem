@@ -1,13 +1,14 @@
 #ifndef SECOND_DERIV
       Subroutine xc_lb94(tol_rho, fac, lfac, nlfac, rho, delrho, 
-     &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)
+     &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func,
+     .     getcross,delta,nqcross)
 #else
       Subroutine xc_lb94_d2(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                         Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_lb94.F,v 1.1 2002-08-08 14:11:12 edo Exp $
+C$Id: xc_lb94.F,v 1.2 2002-08-15 02:37:38 edo Exp $
 c
       implicit none
 c      
@@ -33,12 +34,17 @@ c
 c     Sampling Matrices for the XC Potential
 c
       double precision Amat(nq,ipol), Cmat(nq,*)
+      
 c
 #ifdef SECOND_DERIV
 c
 c     Second Derivatives of the Exchange Energy Functional
 c
       double precision Amat2(nq,NCOL_AMAT2), Cmat2(nq,NCOL_CMAT2)
+#else
+      logical getcross
+      integer nqcross
+      double precision delta
 #endif
 c
       double precision BETA
@@ -52,8 +58,8 @@ c***************************************************************************
 c
       integer n
       double precision arcsinh, darcsinh
-      double precision C, rho13, rho43, gamma, x, g, gdenom, dg,
-     &     dgdenom, t
+      double precision  rho13, rho43, gamma, x, g, gdenom, dg,
+     &     dgdenom, t,tolsq
 #ifdef SECOND_DERIV
       double precision rhom23, d2g, d2gdenom
 #endif
@@ -61,10 +67,11 @@ c
       arcsinh(x)=log(x+dsqrt(1d0+x*x))
       darcsinh(x)=1d0/dsqrt(1d0+x*x)
 c
-c     Uniform electron gas constant
-c
-      C = -(1.5d0)*(0.75d0/acos(-1d0))**(1d0/3d0)
-c
+      tolsq=tol_rho
+#if !defined(SECOND_DERIV)
+                 
+      nqcross=1
+#endif
       if (ipol.eq.1) then
 c
 c        ======> SPIN-RESTRICTED <======
@@ -79,24 +86,32 @@ c
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
-            if (dsqrt(gamma).gt.tol_rho)then
+            if (abs(gamma).gt.tolsq)then
                gamma = 0.25d0 * gamma
                x = sqrt(gamma) / rho43
+               gdenom =  3d0*BETA*x*arcsinh(x)
+               g = -BETA*x*x / gdenom
+               dgdenom = 3d0*BETA*(arcsinh(x) + x*darcsinh(x))
+               dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
             else
                x = 0d0
+               g=0d0
+               gdenom=0d0
+               dgdenom = 0d0
+               dg = 0d0
             endif
 c
-            gdenom =  3d0*BETA*x*arcsinh(x)
-            g = -BETA*x*x / gdenom
-            dgdenom = 3d0*BETA*(arcsinh(x) + x*darcsinh(x))
-            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
-c
-            if (lfac) then
-cedo LDA bit done externally
-cedo               Ex = Ex + 2d0*rho43*C*qwght(n)*fac
-cedo               if(ldew)func(n) = func(n) + 2.d0*rho43*C*fac
-cedo               Amat(n,1) = Amat(n,1) + (4d0/3d0)*rho13*C*fac
+#if !defined(SECOND_DERIV)
+            if(getcross.and.delta.ne.0d0) then
+               if(delta.gt.(-g*rho13)) then
+                  nqcross = 1 
+               else
+                  nqcross=0
+                  
+               endif
+               return
             endif
+#endif
 c
             if (nlfac) then
                Ex = Ex + 2d0*rho43*g*qwght(n)*fac
@@ -113,8 +128,6 @@ c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
             endif
 c
 #ifdef SECOND_DERIV
-cedo LDA bit done externally
-!            if(lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / (0.5d0*rho(n,1))
             d2gdenom = 3d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
             d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
@@ -181,8 +194,6 @@ c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
             endif
 c
 #ifdef SECOND_DERIV
-cedo LDA bit done externally
-!            if (lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / rho(n,2)
             d2gdenom = 3d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
             d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
@@ -243,7 +254,6 @@ c               Cmat(n,3,2) = Cmat(n,3,2) + t*delrho(n,3,2)
             endif
 c
 #ifdef SECOND_DERIV
-            if(lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / rho(n,3)
             d2gdenom = 3d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
             d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
