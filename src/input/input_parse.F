@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.70 2002-01-19 07:03:18 windus Exp $
+C     $Id: input_parse.F,v 1.71 2002-02-08 19:42:30 bert Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -214,7 +214,7 @@ c
 c
       if (.not. inp_a(test)) call errquit
      &    ('input_charge: failed to read ascii string',911)
-      if (test.ne.'charge') call errquit
+      if (.not.inp_compare(.false.,test,'charge')) call errquit
      &    ('input_charge: failed to read "charge"',911)
 c
       if (.not. inp_f(charge)) call errquit
