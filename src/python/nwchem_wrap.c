@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.17 2000-08-26 00:37:57 d3g681 Exp $
+ $Id: nwchem_wrap.c,v 1.18 2001-05-11 18:40:06 d3g681 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -196,15 +196,35 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
       
       if (list) {
 	list_len = PyList_Size(obj);
-	if (   PyInt_Check(PyList_GetItem(obj, 0)))  ma_type = MT_F_INT;
-	if ( PyFloat_Check(PyList_GetItem(obj, 0)))  ma_type = MT_F_DBL;
-	if (PyString_Check(PyList_GetItem(obj, 0)))  ma_type = MT_CHAR;
+	if (   PyInt_Check(PyList_GetItem(obj, 0)))  
+	  ma_type = MT_F_INT;
+	else if ( PyFloat_Check(PyList_GetItem(obj, 0)))  
+	  ma_type = MT_F_DBL;
+	else if (PyString_Check(PyList_GetItem(obj, 0))) 
+	  ma_type = MT_CHAR;
+	else {
+	  printf("ERROR A\n");
+	  ma_type = -1;
+	}
       } else {
 	list_len = 1;
-	if (   PyInt_Check(obj))  ma_type = MT_F_INT;
-	if ( PyFloat_Check(obj))  ma_type = MT_F_DBL;
-	if (PyString_Check(obj))  ma_type = MT_CHAR; 
+	if (   PyInt_Check(obj))  
+	  ma_type = MT_F_INT;
+	else if ( PyFloat_Check(obj))  
+	  ma_type = MT_F_DBL;
+	else if (PyString_Check(obj))  
+	  ma_type = MT_CHAR; 
+	else {
+	  printf("ERROR B\n");
+	  ma_type = -1;
+	}
       } 
+
+      if (ma_type == -1) {
+	  PyErr_SetString(PyExc_TypeError, 
+			  "Usage: rtdb_put - ma_type is confused");
+	  return NULL;
+      }
       
       if (PyTuple_Size(args) == 3) {
 	int intma_type;
