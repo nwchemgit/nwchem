@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.17 1995-06-29 01:14:23 pg511 Exp $
+# $Id: make_nwchem_config,v 1.18 1995-07-29 23:55:33 d3e129 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -27,9 +27,9 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md qmmd
 
-EXP_all = $(filter-out ideaz scfaux cphf,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out ideaz scfaux cphf vib,$(KNOWN_MODULE_SUBDIRS) )
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 riscf \
-	stepper symmetry
+	stepper symmetry vib
 EXP_md  = ideaz
 EXP_qmmd = gradients ideaz
 
@@ -60,6 +60,7 @@ endif
 
 MODULES := $(patsubst develop,develop rimp2,$(MODULES) )
 
+MODULES := $(patsubst vib,vib stepper,$(MODULES) )
 MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
 MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
@@ -104,6 +105,7 @@ MOD_LIBS := $(patsubst symmetry,-lutil,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ideaz,-lideaz,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cphf,-lcphf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
@@ -113,7 +115,7 @@ STUBROUTINES = $(EXCLUDED_SUBDIRS)
 STUBROUTINES := $(patsubst NWints,task_check_sum,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst dftgrad,dft_grad_top grad_dft dft_optimize,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst dftgrad,dft_grad_top grad_dft,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,rjhtest raktest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,scf_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ccsd,ccsd,$(STUBROUTINES) )
@@ -121,11 +123,12 @@ STUBROUTINES := $(patsubst moints,atwtest direct_mp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwdft,nwdft dft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst riscf,ri_scf,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst stepper,scf_optimize stepper_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst stepper,scf_optimize dft_optimize stepper_input scf_freq dft_freq,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst symmetry,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ideaz,mdmain md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst cphf,mjdtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst vib,vib_vib,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 
 .PHONY:	all list-options nwchem_config.h NWCHEM_CONFIG ../stubs.f
