@@ -31,7 +31,7 @@ c
       end
       
 
-c  $Id: moints_trp.F,v 2.13 2003-02-28 23:28:02 bert Exp $
+c  $Id: moints_trp.F,v 2.14 2003-04-07 17:36:05 bert Exp $
 c
 c
 c     No-one knows what this stuff is doing ... are the next comments correct?
@@ -99,6 +99,7 @@ c
        integer num_nodes, ploop, next, nmixed, i, iz, jz, kz
        integer l_sym, k_sym
        integer g_tmp                       
+       integer nmo
        double precision scale, schw_ij, q2
 *       double precision d1, d2
        logical status, osym, odoit, oblk, st
@@ -121,6 +122,8 @@ c
        if (.not.status) call errquit('moints: cannot get basis info',0)
        nmo1 = mo1_hi - mo1_lo + 1
        nmo2 = mo2_hi - mo2_lo + 1
+c
+       nmo = ncor + nocc + nvir
 c     
 c  Symmetry adapt the MOs and renumber irreps to start at zero
 c     
@@ -129,24 +132,24 @@ c
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_trp: no memory for syms?',0)
 *ga:1:0
-          if (.not.ga_create(MT_DBL,nbf,nbf,'tmp',nbf,0,g_tmp))
+          if (.not.ga_create(MT_DBL,nbf,nmo,'tmp',nbf,0,g_tmp))
      $      call errquit('moints_trp: cannot ga_create tmp',0)
-          if (ga_nodeid() .eq. 0) call ga_put(g_tmp,1,nbf,1,nbf,cmo,nbf)
+          if (ga_nodeid() .eq. 0) call ga_put(g_tmp,1,nbf,1,nmo,cmo,nbf)
 	  call ga_sync
           call sym_movecs_adapt( basis, 1d-6, g_tmp,
      $                            int_mb(k_sym), nmixed )
-          call ga_get(g_tmp,1,nbf,1,nbf,cmo,nbf)
+          call ga_get(g_tmp,1,nbf,1,nmo,cmo,nbf)
           if (.not.ga_destroy(g_tmp))
      $      call errquit('cannot destroy tmp',0)
           if (nmixed .ne. 0)
      $       call errquit('moints_trp: symmetry contamination', nmixed)
-          do i =0, nbf-1
+          do i =0, nmo-1
              int_mb(k_sym+i) = int_mb(k_sym+i) - 1
           enddo
           if (util_print('orbital symmetry',print_debug)) then
             write(6,887) 
  887        format('Symmetry of MOs')
-            write(6,888) (int_mb(k_sym+i),i=0,nbf-1)
+            write(6,888) (int_mb(k_sym+i),i=0,nmo-1)
  888        format(16i3)
           endif
        endif
