@@ -4,7 +4,7 @@
      &                  cetobfr, natoms,
      &                  g_movecs, noc,  totsic, i_degen, n_levels)
 c
-C$Id: xc_sic.F,v 1.16 2002-05-08 21:39:14 edo Exp $
+C$Id: xc_sic.F,v 1.17 2003-01-13 18:34:46 edo Exp $
 c
       implicit none
 c      
@@ -61,6 +61,10 @@ c
 c
       me=ga_nodeid()
       nproc=ga_nnodes()
+c
+c     tol2e def
+c
+      tol2e = 10.d0**(-itol2e)
 c
       if (iVxc_opt.eq.0) then
 c         
