@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.22 2000-05-25 20:39:57 d3j191 Exp $
+c $Id: md_input.F,v 1.23 2000-05-25 21:24:38 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       integer ireact,itemp,nscb,idscb(10),memlim,morder,isolvo,lfout6
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
-      integer itload,ihess,latom,icomm,maxpro,nfanal,iport,iguide
+      integer itload,ihess,latom,icomm,nfanal,iport,iguide
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
@@ -156,7 +156,6 @@ c
       ihess=0
       latom=0
       icomm=0
-      maxpro=0
       iport=0
       iguide=0
       nopack=0
@@ -317,13 +316,6 @@ c
       if(.not.inp_i(ncgcy)) call errquit('md_input: error cg cy',2)
       goto 103
       endif
-      endif
-c
-c     profile
-c
-      if(inp_compare(.false.,'profile',item)) then
-      if(.not.inp_i(maxpro)) call  errquit('md_input: error profile',2)
-      goto 2
       endif
 c
 c     forward mcti
@@ -1377,8 +1369,6 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:latom',mt_int,1,latom))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:icomm',mt_int,1,icomm))
-     + call errquit('md_input: rtdb_put failed',0)
-      if(.not.rtdb_put(irtdb,'md:maxpro',mt_int,1,maxpro))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:iguide',mt_int,1,iguide))
      + call errquit('md_input: rtdb_put failed',0)

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.35 2000-05-25 20:39:57 d3j191 Exp $
+c $Id: md_common.fh,v 1.36 2000-05-25 21:24:38 d3j191 Exp $
 c
 c     parameters
 c
@@ -135,7 +135,7 @@ c
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
      + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
-     + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
+     + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,npmf,
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
@@ -163,7 +163,7 @@ c
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
      + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
-     + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
+     + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,npmf,
      + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,
