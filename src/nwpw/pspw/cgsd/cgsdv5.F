@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.35 2003-12-02 23:55:34 bylaska Exp $
+* $Id: cgsdv5.F,v 1.36 2003-12-03 23:36:11 bylaska Exp $
 *
 
 ***********************************************************************
@@ -116,8 +116,8 @@
       external  psi_filefind
       logical   pspw_charge_found,ion_q_FixIon
       external  pspw_charge_found,ion_q_FixIon
-      integer  control_minimizer
-      external control_minimizer
+      integer  control_minimizer,LEN_TRIM
+      external control_minimizer,LEN_TRIM
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************

@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.13 2003-12-02 19:17:10 bylaska Exp $
+* $Id: psp.F,v 1.14 2003-12-03 23:36:11 bylaska Exp $
 *
 
 #define TCGMSG
@@ -861,7 +861,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
            l_prj = int_mb(l_projector(1)+(l-1) 
      >                                  + (ia-1)*(nmax_max*lmmax_max))
 
-           sd_function = .not.(and(l_prj,1))
+           !sd_function = .not.and(l_prj,1)
+           k = and(l_prj,1)
+           sd_function = (k.eq.0)
 
 
 *          **** phase factor does not matter therefore ****
@@ -1009,8 +1011,7 @@ c     >              psi2,                    (2*npack1))
       real*8  sw2(nn,nprj)
 
       !**** local variables ****
-      integer a,b,na,nb,la,lb,ma,mb,n
-
+      integer a,b,na,nb,la,lb,ma,mb
       
 
       call dcopy(nn*nprj,0.0d0,0,sw2,1)
@@ -1126,7 +1127,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
            l_prj = int_mb(l_projector(1)+(l-1) 
      >                                  +(ia-1)*(nmax_max*lmmax_max))
 
-           sd_function = .not.(and(l_prj,1))
+           !sd_function = .not.and(l_prj,1)
+           k = and(l_prj,1)
+           sd_function = (k.eq.0)
 
 
 *          **** phase factor does not matter therefore ****
@@ -1189,7 +1192,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
            l_prj = int_mb(l_projector(1)+(l-1) 
      >                                  + (ia-1)*(nmax_max*lmmax_max))
 
-           sd_function = .not.(and(l_prj,1))
+           !sd_function = .not.and(l_prj,1)
+           k = and(l_prj,1)
+           sd_function = (k.eq.0)
 
 
 *          **** phase factor does not matter therefore ****
