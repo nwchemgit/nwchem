@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.71 1998-09-04 18:04:04 d3e129 Exp $
+# $Id: GNUmakefile,v 1.72 1998-09-29 20:33:58 bjohnson Exp $
 
 include config/makefile.h
 
@@ -37,13 +37,17 @@ endif
 # This to link only and avoid tedious subdir makes
 #
 
+PFLAGS = -messages=first -leaks-at-exit=yes -follow-child-processes=yes \
+	 -windows=no
+#PURIFY = purify $(PFLAGS)
+
 link nwchem_link:    
 	@/bin/rm -f nwchem.o stubs.o
 	$(MAKE) nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/$(NWBINNAME)
 endif
-	$(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -ltask $(LIBS)
+	$(PURIFY) $(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -ltask $(LIBS)
 #	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 
