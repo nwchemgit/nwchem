@@ -16,7 +16,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
     double dlambda;
     double deriv[] = new double[24];
     double free, freep, ep2, ep3, tmp;
-    double dfree;
+    double dfree, freeb, dfbias;
     Graph gibPlot = new Graph();
     Graph cnvPlot = new Graph();
     
@@ -79,6 +79,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 	    gibPlot.resize(500,300);
 	    gibPlot.setTitle("Free Energy");
 	    gibPlot.setXLabel("Lambda");
+	    gibPlot.setMarksStyle("dots",2);
 	    cnvPlot.init();
 	    cnvPlot.resize(500,300);
 	    cnvPlot.setTitle("Free Energy");
@@ -91,6 +92,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 	    String card;
 	    free=0.0;
             freep=0.0;
+            freeb=0.0;
 	    boolean first=true;
             int j,ndata;
 	    double cnv[] = new double[10000];
@@ -113,6 +115,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		if(first){
 		    gibPlot.addData(0,lambda,free,!first,true);
 		    gibPlot.addData(1,lambda,freep,!first,true);
+		    gibPlot.addData(2,lambda,freeb,!first,true);
 		};
 		first=false;
 		for(int i=0; i<6; i++){
@@ -139,9 +142,13 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		lambda=lambda+dlambda;
 		gibPlot.addData(0,lambda,free,!first,false);
 		card=br.readLine();
-		tmp=Double.valueOf(card.substring(10,30)).doubleValue();
-		ep2=Double.valueOf(card.substring(30,50)).doubleValue();
-		ep3=Double.valueOf(card.substring(50,70)).doubleValue();
+		card=br.readLine();
+		tmp=Double.valueOf(card.substring(0,20)).doubleValue();
+		ep2=Double.valueOf(card.substring(20,40)).doubleValue();
+		ep3=Double.valueOf(card.substring(40,60)).doubleValue();
+		dfbias=Double.valueOf(card.substring(60,80)).doubleValue();
+		freeb=freeb+dfbias*dlambda;
+		gibPlot.addData(2,lambda,freeb,!first,false);
 		freep=freep+0.00831151*tmp*(Math.log(ep2)-Math.log(ep3));
 		gibPlot.addData(1,lambda,freep,!first,false);
 		if(ndec>0) {for(int i=0; i<5*nsa; i=i+4){ card=br.readLine(); };};
