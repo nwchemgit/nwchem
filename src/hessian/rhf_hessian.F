@@ -36,8 +36,6 @@ c
       logical out
       dimension atom_tags(mxatom)
       dimension mini(mxtype),maxi(mxtype)
-      data mini / 1, 2, 5,11,21/
-      data maxi / 1, 4,10,20,35/
 c
 c     ----- routine initializes HONDO common blocks -----
 c
@@ -64,6 +62,10 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+
+      data mini / 1, 2, 5,11,21/
+      data maxi / 1, 4,10,20,35/
+
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
@@ -316,6 +318,12 @@ c
       common/hnd_nwtohnd/inw_to_hnd(mxnbf)
       common/hnd_hndtonw/ihnd_to_nw(mxnbf)
       common/hnd_facntoh/fac_nwthnd(mxnbf)
+c
+#include "global.fh"
+c
+      logical dbug
+      logical out 
+c
       integer map_ntoh(35)
       double precision fac_ntoh(35)
 c
@@ -337,10 +345,6 @@ c
      5           sq5d3, sqrt7, sqrt3, sqrt3, sqrt7,
      6               1, sqrt7, sq5d3, sqrt7,     1/
 c
-#include "global.fh"
-c
-      logical dbug
-      logical out 
       dbug=.false.
       out =.false.
 c
@@ -2593,13 +2597,13 @@ C     COMMON/HND_IOFILE/IR,IW
       DIMENSION DNAM(3)
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
+      LOGICAL SOME,OUT
       DIMENSION ERRMSG(3)
       DATA ERRMSG  /'PROGRAM ','STOP IN','- HLFX -'/
       DATA SCF,UHF /'SCF     ','UHF    '/
       DATA ZERO    /0.0D+00/
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
 C
-      LOGICAL SOME,OUT
       SOME = .FALSE.
       OUT  = .FALSE.
 C
@@ -3192,12 +3196,12 @@ C
 C     COMMON/HND_IOFILE/IR,IW
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
+      LOGICAL OUT
       DIMENSION ERRMSG(3)
       DATA ERRMSG  /'PROGRAM ','STOP IN ','- HLFDX-'/
       DATA SCF,UHF /'SCF     ','UHF     '/
       DATA ZERO   /0.0D+00/
 C
-      LOGICAL OUT
       OUT = .FALSE.
 C
       NC=3*NAT
@@ -3682,6 +3686,7 @@ C
 C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_GRAD12/DE(3,MXATOM)
       DIMENSION X(1)
+      LOGICAL OUT
       EQUIVALENCE (X(1),DBL_MB(1))
       DIMENSION ERRMSG(3)
       DIMENSION DNAM(3)
@@ -3691,7 +3696,6 @@ C     COMMON/HND_IOFILE/IR,IW
       DATA ZERO   /0.0D+00/
       DATA NFT17  /17/
 C
-      LOGICAL OUT
       OUT = .FALSE.
 C
       NC=3*NAT
@@ -4445,16 +4449,16 @@ C     COMMON/HND_IJPAIR/IA(1)
 C     COMMON/HND_IOFILE/IR,IW
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
+      LOGICAL OUT,SOME
       DIMENSION ERRMSG(3)
+      DIMENSION DNAM(3)
       DATA ERRMSG      /'PROGRAM ','STOP IN ','- SDX  -'/
       DATA SCF,RHF,GVB /'SCF     ','RHF     ','GVB     '/
       DATA ZERO        /0.0D+00/
-      DIMENSION DNAM(3)
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
       DATA NFT17  /17/
       DATA NFT18  /18/
 C
-      LOGICAL OUT,SOME
       OUT = .FALSE.
       SOME= .FALSE.
 C
@@ -9959,10 +9963,10 @@ C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_BASNUM/NUM
       COMMON/HND_FUNCT/EHF,EG(3,MXATOM)
       DIMENSION DE(3,1)
+      LOGICAL OUT
       DIMENSION DNAM(3)
       DATA DNAM /4HE'X ,4HE'Y ,4HE'Z /
 C
-      LOGICAL OUT
       OUT = .FALSE.
 C
 C     ----- TRANSFER GRADIENT INTO -EG- -----
@@ -12246,13 +12250,21 @@ C
       END
 C
       SUBROUTINE HND_DROOT
+#if defined(LINUX)
+      implicit double precision (a-h,o-z)
+#else
       IMPLICIT REAL*16 (A-H,O-Z)
+#endif
       DOUBLE PRECISION XX,UF,WF
       COMMON/HND_HFK/XX,UF(9),WF(9),NROOTS
       COMMON/HND_RYSFF/FF(19)
       COMMON/HND_RYSRW/R(9,9),W(9,9)
       DIMENSION C(10,10),S(10,10),A(10),RT(10)
+#if defined(LINUX)
+      DATA PT5,ZERO,ONE,FOUR /0.5D+00,0.0D+00,1.0D+00,4.0D+00/
+#else
       DATA PT5,ZERO,ONE,FOUR /0.5Q+00,0.0Q+00,1.0Q+00,4.0Q+00/
+#endif
 C
 C     THIS VERSION USES CHRISTOFFEL FORMULA FOR WEIGHTS.
 C     ITH ROOT OF THE JTH RYS POLYNOMIAL IS RETURNED IN R(I,J) WITH
@@ -12311,15 +12323,29 @@ C
       END
 C
       SUBROUTINE HND_RYSFUN(X,N)
+#if defined(LINUX)
+      implicit double precision (a-h,o-z)
+#else
       IMPLICIT REAL*16 (A-H,O-Z)
+#endif
       COMMON/HND_RYSFF/FF(19)
-      DATA PT5,ONE,TWO /0.5Q+00,1.0Q+00,2.0Q+00/
-      TOL=1.0Q-14
+#if defined(LINUX)
+      DATA PT5,ONE,TWO /0.5D+00,1.0D+00,2.0D+00/
+      TOL=1.0D-12
+      E=0.5409855304296342219319112D-78
       XX=X+X
       FACMIN=XX
+      IF(FACMIN.LT.2*180.2160D+00) E= EXP(-X)
+      IF(FACMIN.GT.   80.0000D+00) GO TO 100
+#else
+      DATA PT5,ONE,TWO /0.5Q+00,1.0Q+00,2.0Q+00/
+      TOL=1.0Q-14
       E=0.5409855304296342219319112Q-78
+      XX=X+X
+      FACMIN=XX
       IF(FACMIN.LT.2*180.2160Q+00) E= EXP(-X)
       IF(FACMIN.GT.   80.0000Q+00) GO TO 100
+#endif
       TERM=ONE
       SUM =ONE
       FAC=N
@@ -12343,7 +12369,11 @@ C
 C
 C     USE ASYMPTOTIC EXPANSION FOR LARGE ARGUMENTS.
 C
+#if defined(LINUX)
+  100 A= SQRT(.7853981633974483096156608D+00/X)
+#else
   100 A= SQRT(.7853981633974483096156608Q+00/X)
+#endif
       TMAX=A*TOL/E
       TERM=ONE/XX
       SUM=TERM
@@ -12364,9 +12394,17 @@ C
       END
 C
       SUBROUTINE HND_RYSSMT(C,S,N)
+#if defined(LINUX)
+      implicit double precision (a-h,o-z)
+#else
       IMPLICIT REAL*16 (A-H,O-Z)
+#endif
       DIMENSION C(10,10),S(10,10),V(10),Y(10)
+#if defined(LINUX)
+      DATA ZERO,ONE /0.0D+00,1.0D+00/
+#else
       DATA ZERO,ONE /0.0Q+00,1.0Q+00/
+#endif
 C
 C     ROUTINE RETURNS AN N BY N TRIANGULAR MATRIX C SUCH THAT
 C     C(TRANSPOSE)SC=I,  WHERE I IS AN N BY N IDENTITY MATRIX.
@@ -12398,18 +12436,30 @@ C
       END
 C
       SUBROUTINE HND_RYSNOD(A,RT,K)
+#if defined(LINUX)
+      implicit double precision (a-h,o-z)
+#else
       IMPLICIT REAL*16 (A-H,O-Z)
+#endif
       CHARACTER*8 ERRMSG
       DIMENSION A(10),RT(10)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-RYSNOD-'/
+#if defined(LINUX)
+      DATA ZERO /0.0D+00/
+#else
       DATA ZERO /0.0Q+00/
+#endif
 C
 C     ROUTINE RETURNS RT(I) THE ITH ROOT OF A POLYNOMIAL OF ORDER
 C     K WHOSE MTH COEFFICIENT IS STORED IN A(M+1).  IT IS ASSUMED THAT
 C     THE INITIAL VALUES IN RT BRACKET THE FINAL VALUES.
 C
+#if defined(LINUX)
+      TOL=1.0d-09
+#else
       TOL=1.0Q-11
+#endif
       K1=K+1
       R2= ZERO
       P2=A(1)
@@ -12438,7 +12488,11 @@ C
       DR=R4-R3
       DELTA=DR
       IF( ABS(DELTA).LT.TOL) GO TO 90
+#if defined(LINUX)
+      DR=0.0625D+00*DR
+#else
       DR=0.0625Q+00*DR
+#endif
       R5=R-DR
       IF(R5.LT.R3) R5=R3
       R6=R+DR
@@ -12452,12 +12506,20 @@ C
       IF(PROD.LT. ZERO) GO TO 30
       PROD=P3*P5
       IF(PROD.GT. ZERO) GO TO 60
+#if defined(LINUX)
+      R5=0.25D+00*R3+0.75D+00*R5
+#else
       R5=0.25Q+00*R3+0.75Q+00*R5
+#endif
       P5=A(K1)
       DO 50 I=1,K
    50 P5=P5*R5+A(K1-I)
       GO TO 45
+#if defined(LINUX)
+   60 R6=0.25D+00*R4+0.75D+00*R6
+#else
    60 R6=0.25Q+00*R4+0.75Q+00*R6
+#endif
       P6=A(K1)
       DO 70 I=1,K
    70 P6=P6*R6+A(K1-I)
@@ -15686,7 +15748,7 @@ C
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c$Id: rhf_hessian.F,v 1.8 1997-02-19 00:47:00 bmeng Exp $
+c$Id: rhf_hessian.F,v 1.9 1997-03-20 01:53:37 d3e129 Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -17205,12 +17267,12 @@ c
 c     common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
 c     common/hnd_basnum/num
 c
+      logical debug
       dimension    x(1)
       equivalence (x(1),dbl_mb(1))
 c
       data zero   /0.0d+00/
 c
-      logical debug
       debug=.false.
 c
       do i = 1,3
@@ -17308,10 +17370,10 @@ c     common/hnd_basnum/num
 c
       dimension    x(1)
       equivalence (x(1),dbl_mb(1))
+      logical debug
 c
       data zero    /0.0d+00/
 c
-      logical debug
       debug=.false.
 c
       do i = 1,3
