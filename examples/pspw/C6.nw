@@ -111,8 +111,8 @@ task pspw conjugate_gradient
 driver
    xyz C6.xyz
 end
-task cg_pspw optimize
-task cg_pspw freq
+task pspw optimize
+task pspw freq
 
 PSPW
    STEEPEST_DESCENT
