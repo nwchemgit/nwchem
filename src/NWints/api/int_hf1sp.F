@@ -3,10 +3,9 @@
      &       xyzj,expj,coefj, j_nprim, j_ngen, Lj,
      &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       dryrun,scr,lscr,msg)
-c $Id: int_hf1sp.F,v 1.3 1994-08-01 19:00:38 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.4 1995-07-30 07:57:48 d3e129 Exp $
       implicit none
-#include "apispP.fh"
-#include "mafdecls.fh"
+#include "stdio.fh"
 c::passed
       integer i_nprim, i_ngen, Li
       integer j_nprim, j_ngen, Lj
@@ -19,6 +18,9 @@ c::passed
       character*(*) msg
 c::local
       integer offset
+      integer nintx, nintxsp
+c
+*debug_print      integer iii
 c
       if (Li.gt.-1.and.Lj.gt.-1) then
         call hf1(
@@ -78,9 +80,22 @@ c________________________________ (P|P)
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
-        call spfix1(li,lj,int_mb(kspscat),
-     &         int_mb(kszspa),int_mb(kszspb),
-     &         scr,lscr,doS,doT,doV,S,T,V)
+*
+        if (doS) call int_1spsp(S,1)
+        if (doT) call int_1spsp(T,1)
+        if (dov) call int_1spsp(V,1)
+*debug_print:        if (doS) then
+*debug_print:          write(6,*)'sp|sp new way overlap'
+*debug_print:          write(6,'(1x,i5,f20.10)')(iii,S(iii),iii=1,16)
+*debug_print:        endif
+*debug_print:        if (doT) then
+*debug_print:          write(6,*)'sp|sp new way kinetic'
+*debug_print:          write(6,'(1x,i5,f20.10)')(iii,T(iii),iii=1,16)
+*debug_print:        endif
+*debug_print:        if (doV) then
+*debug_print:          write(6,*)'sp|sp new way potential'
+*debug_print:          write(6,'(1x,i5,f20.10)')(iii,V(iii),iii=1,16)
+*debug_print:        endif
         return
       elseif (Li.eq.-1) then
 c.............................................................. (SP|X)
@@ -126,132 +141,246 @@ c________________________________ (X|P)
      &         ,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
 c
-        call spfix1(li,lj,int_mb(kspscat),
-     &         int_mb(kszspa),int_mb(kszspb),
-     &         scr,lscr,doS,doT,doV,S,T,V)
+        if (li.eq.0) then
+c * nothing needed since (s|s), (s|p) is same order as (s|sp)
+c * (s|s), (s|x), (s|y), (s|z)
+          continue
+        else if (li.eq.1) then
+          if (doS) call int_1psp(S,1)
+          if (doT) call int_1psp(T,1)
+          if (doV) call int_1psp(V,1)
+        else if (li.eq.2) then
+          if (doS) call int_1dsp(S,1)
+          if (doT) call int_1dsp(T,1)
+          if (doV) call int_1dsp(V,1)
+        else
+          nintx   = (Li+1)*(Li+2)/2  ! size of X
+          nintxsp = nintx * 4        ! size of X * size of sp
+          if (doS) then
+            call dcopy(nintxsp,S,1,scr,1)
+            call int_sp1b(S,scr,scr(nintx+1),nintx,1)
+          endif
+          if (doT) then
+            call dcopy(nintxsp,T,1,scr,1)
+            call int_sp1b(T,scr,scr(nintx+1),nintx,1)
+          endif
+          if (doV) then
+            call dcopy(nintxsp,V,1,scr,1)
+            call int_sp1b(V,scr,scr(nintx+1),nintx,1)
+          endif
+        endif
+*debug_print:        if (doS) then
+*debug_print:          write(6,*)'sp|sp new way overlap'
+*debug_print:          write(6,'(1x,i5,f20.10)')(iii,S(iii),iii=1,16)
+*debug_print:        endif
+*debug_print:        if (doT) then
+*debug_print:          write(6,*)'sp|sp new way kinetic'
+*debug_print:          write(6,'(1x,i5,f20.10)')(iii,T(iii),iii=1,16)
+*debug_print:        endif
+*debug_print:        if (doV) then
+*debug_print:          write(6,*)'sp|sp new way potential'
+*debug_print:          write(6,'(1x,i5,f20.10)')(iii,V(iii),iii=1,16)
+*debug_print:        endif
         return
       endif
-      write(6,*)'int_hf1sp called by ',msg
+      write(luout,*)'int_hf1sp called by ',msg
       call errquit('int_hf1sp: unknown case finished',911)
 c
       end
-      subroutine spfix1(li,lj,iscat,
-     &       iszi,iszj,
-     &       scr,lscr,doS,doT,doV,S,T,V)
+      subroutine int_1psp(block,num_blocks)
+c
+c transforms a (p|sp) block to correct order in place
+c integrals in block were calculated (p|s),(p|p).
+c      computed transformed 
+c       order     order
+c  1.  (x|s)     (x|s)     
+c  2.  (y|s)     (x|x)     2 -> 5
+c  3.  (z|s)     (x|y)     3 -> 9
+c  4.  (x|x)     (x|z)     4 -> 2
+c  5.  (x|y)     (y|s)     5 -> 3
+c  6.  (x|z)     (y|x)     6 -> 4
+c  7.  (y|x)     (y|y)     7 -> 6
+c  8.  (y|y)     (y|z)     8 -> 7
+c  9.  (y|z)     (z|s)     9 -> 8
+c 10.  (z|x)     (z|x)     
+c 11.  (z|y)     (z|y)     
+c 12.  (z|z)     (z|z)     
+c
       implicit none
+      integer num_blocks
+      double precision block(12,num_blocks)
 c
-c
-c::passed
-      integer Li
-      integer Lj
-      integer lscr
-      integer iscat(*)
-      integer iszi(*),iszj(*)
-      double precision scr(lscr)
-      logical doS,doT,doV
-      double precision S(*), T(*), V(*)
-c
-      integer sizei,sizej
-      integer ii,jj,nint
-      integer nbi,nbj
-c
-      if (li.lt.0) then
-        nbi = abs(li) + 1
-        sizei =  0
-        do 00100 ii=0,abs(li)
-          iszi(ii+1) = (ii+1)*(ii+2)/2
-          sizei = sizei + iszi(ii+1)
-00100   continue
-      else
-        nbi = 1
-        iszi(1) = (li+1)*(li+2)/2
-        sizei = iszi(1)
-      endif
-c
-      if (lj.lt.0) then
-        nbj = abs(lj) + 1
-        sizej = 0
-        do 00101 jj=0,abs(lj)
-          iszj(jj+1) = (jj+1)*(jj+2)/2
-          sizej = sizej + iszj(jj+1)
-00101   continue
-      else
-        nbj = 1
-        iszj(1) = (lj+1)*(lj+2)/2 
-        sizej = iszj(1)
-      endif
-c
-      nint = sizei*sizej
-      call spscat1(iscat,nbi,iszi,nbj,iszj)
-c
-      if (doS) then
-        call dcopy(nint,S,1,scr,1)
-        do 00200 ii = 1,nint
-          S(ii) = scr(iscat(ii))
-00200   continue
-      endif
-c
-      if (doT) then
-        call dcopy(nint,T,1,scr,1)
-        do 00300 ii = 1,nint
-          T(ii) = scr(iscat(ii))
-00300   continue
-      endif
-c
-      if (doV) then
-        call dcopy(nint,V,1,scr,1)
-        do 00400 ii = 1,nint
-          V(ii) = scr(iscat(ii))
-00400   continue
-      endif
-c
+      integer ib
+      double precision temp1, temp2
+      do 00100 ib = 1,num_blocks
+        temp1       = block(2,ib)  ! 2 -> temp1
+        temp2       = block(3,ib)  ! 3 -> temp2
+        block(2,ib) = block(4,ib)  ! 4 -> 2
+        block(3,ib) = block(5,ib)  ! 5 -> 3
+        block(4,ib) = block(6,ib)  ! 6 -> 4
+        block(6,ib) = block(7,ib)  ! 7 -> 6
+        block(7,ib) = block(8,ib)  ! 8 -> 7
+        block(8,ib) = block(9,ib)  ! 9 -> 8
+        block(9,ib) = temp2        ! temp2 -> 9 or 3 -> 9
+        block(5,ib) = temp1        ! temp1 -> 5 or 2 -> 5
+00100 continue
       end
-      subroutine spscat1(iscat,na,sza,nb,szb)
+      subroutine int_1dsp(block,num_blocks)
+c
+c transforms a (d|sp) block to correct order in place
+c integrals in block were calculated (d|s),(d|p).
+c      computed transformed 
+c       order     order
+c  1.  (xx|s)     (xx|s)
+c  2.  (xy|s)     (xx|x)  2 -> 5   *
+c  3.  (xz|s)     (xx|y)  3 -> 9   *
+c  4.  (yy|s)     (xx|z)  4 -> 13  *
+c  5.  (yz|s)     (xy|s)  5 -> 17  *
+c  6.  (zz|s)     (xy|x)  6 -> 21  *
+c  7.  (xx|x)     (xy|y)  7 -> 2   *
+c  8.  (xx|y)     (xy|z)  8 -> 3   *
+c  9.  (xx|z)     (xz|s)  9 -> 4   *
+c 10.  (xy|x)     (xz|x) 10 -> 6   *
+c 11.  (xy|y)     (xz|y) 11 -> 7   *
+c 12.  (xy|z)     (xz|z) 12 -> 8   *
+c 13.  (xz|x)     (yy|s) 13 -> 10  *
+c 14.  (xz|y)     (yy|x) 14 -> 11  *
+c 15.  (xz|z)     (yy|y) 15 -> 12  *
+c 16.  (yy|x)     (yy|z) 16 -> 14  *
+c 17.  (yy|y)     (yz|s) 17 -> 15  *
+c 18.  (yy|z)     (yz|x) 18 -> 16  *
+c 19.  (yz|x)     (yz|y) 19 -> 18  *
+c 20.  (yz|y)     (yz|z) 20 -> 19  *
+c 21.  (yz|z)     (zz|s) 21 -> 20  *
+c 22.  (zz|x)     (zz|x)
+c 23.  (zz|y)     (zz|y)
+c 24.  (zz|z)     (zz|z)
+c
       implicit none
+      integer num_blocks
+      double precision block(24,num_blocks)
 c
-c routine to determine scatter array for sp, spd, ... shells 
-c evaluated left/right (a|b) blocked.  i.e., for an (sp|sp) 
-c one electron integeral (s|s), (s|p), (p|s) (p|p)     
+      double precision temp1, temp2, temp3
+      integer ib
 c
-      integer iscat(*)    ! [output] scatter array
-      integer na          ! [input] number of blocks in a "L"-block
-      integer nb          ! [input] number of blocks in b "L"-block
-      integer sza(na)     ! [input] size of each block in a ! (la+1)*(la+2)/2 for 
-      integer szb(nb)     ! [input] size of each block in b ! (lb+1)*(lb+2)/2 for 
+      do 00100 ib = 1, num_blocks
+        temp1        = block(2,ib)    ! 2 -> temp1
+        block(2,ib)  = block(7,ib)    ! 7 -> 2
+        temp2        = block(3,ib)    ! 3 -> temp2
+        block(3,ib)  = block(8,ib)    ! 8 -> 3
+        temp3        = block(4,ib)    ! 4 -> temp3
+        block(4,ib)  = block(9,ib)    ! 9 -> 4
+        block(9,ib)  = temp2          ! temp2 -> 9 or 3 -> 9
+        temp2        = block(6,ib)    ! 6 -> temp2
+        block(6,ib)  = block(10,ib)   ! 10 -> 6
+        block(7,ib)  = block(11,ib)   ! 11 -> 7
+        block(8,ib)  = block(12,ib)   ! 12 -> 8
+        block(10,ib) = block(13,ib)   ! 13 -> 10
+        block(11,ib) = block(14,ib)   ! 14 -> 11
+        block(12,ib) = block(15,ib)   ! 15 -> 12
+        block(14,ib) = block(16,ib)   ! 16 -> 14
+        block(15,ib) = block(17,ib)   ! 17 -> 15
+        block(17,ib) = block(5,ib)    ! 5 -> 17
+        block(5,ib)  = temp1          ! temp1 -> 5 or 2 -> 5
+        block(16,ib) = block(18,ib)   ! 18 -> 16
+        block(18,ib) = block(19,ib)   ! 19 -> 18
+        block(19,ib) = block(20,ib)   ! 20 -> 19
+        block(20,ib) = block(21,ib)   ! 21 -> 20
+        block(13,ib) = temp3          ! temp3 -> 13 or 4 -> 13
+        block(21,ib) = temp2          ! temp2 -> 21 or 6 -> 21
+00100 continue
+      end
+      subroutine int_1spsp(block,num_blocks)
 c
-      integer iba,isa,ibb,isb
-      integer jba,jsa,jbb,jsb
-      integer counti,countj
+c transforms a 1 electron integral block holding the 16
+c (sp|sp) integrals calculated from 4 calls:
+c           (s|s),(s|p),(p|s),(p|p) to the (sp|sp) order
 c
-      counti = 0
-      do 00100 iba = 1,na
-        do 00200 isa = 1,sza(iba)
-          do 00300 ibb = 1,nb
-            do 00400 isb = 1,szb(ibb)
-              counti = counti + 1
-              countj = 0
-              do 00500 jba = 1,na
-                do 00600 jbb = 1,nb
-                  do 00700 jsa = 1,sza(jba)
-                    do 00800 jsb = 1,szb(jbb)
-                      countj = countj + 1
-                      if (
-     &                    iba.eq.jba.and.
-     &                    ibb.eq.jbb.and.
-     &                    isa.eq.jsa.and.
-     &                    isb.eq.jsb
-     &                   ) then
-                        iscat(counti) = countj
-                        goto 00401
-                      endif
-00800               continue
-00700             continue
-00600           continue
-00500         continue
-00401         continue
-00400       continue
-00300     continue
+c      computed transformed 
+c       order      order
+c  1.   (s|s)      (s|s)
+c  2.   (s|x)      (s|x)  
+c  3.   (s|y)      (s|y)
+c  4.   (s|z)      (s|z)
+c  5.   (x|s)      (x|s)
+c  6.   (y|s)      (x|x)   6 -> 9
+c  7.   (z|s)      (x|y)   7 -> 13
+c  8.   (x|x)      (x|z)   8 -> 6
+c  9.   (x|y)      (y|s)   9 -> 7
+c 10.   (x|z)      (y|x)  10 -> 8 
+c 11.   (y|x)      (y|y)  11 -> 10
+c 12.   (y|y)      (y|z)  12 -> 11
+c 13.   (y|z)      (z|s)  13 -> 12
+c 14.   (z|x)      (z|x)
+c 15.   (z|y)      (z|y)
+c 16.   (z|z)      (z|z)
+      implicit none
+      integer num_blocks
+      double precision block(16,num_blocks)
+c
+      double precision temp
+      integer ib
+c
+      do 00100 ib = 1,num_blocks
+        temp         = block(6, ib)
+        block(6, ib) = block(8, ib)
+        block(8, ib) = block(10,ib)
+        block(10,ib) = block(11,ib)
+        block(11,ib) = block(12,ib)
+        block(12,ib) = block(13,ib)
+        block(13,ib) = block(7, ib)
+        block(7, ib) = block(9, ib)
+        block(9, ib) = temp
+00100 continue
+      end
+      subroutine int_sp1a(sp_block,s_block,p_block,sizeb,num_blocks)
+c
+*..  sp 1 electron transformation routine 
+*.. (ash|bsh) block of integrals where a is an sp shell
+c
+      implicit none
+c::passed
+      integer sizeb
+      integer num_blocks
+      double precision sp_block(sizeb,1:4,num_blocks)
+      double precision s_block(sizeb,num_blocks)
+      double precision p_block(sizeb,2:4,num_blocks)
+c::local
+      integer block
+      integer ib
+c
+      do 00100 block=1,num_blocks
+        do 00200 ib = 1,sizeb
+          sp_block(ib,1,block) = s_block(ib,block)
+          sp_block(ib,2,block) = p_block(ib,2,block)
+          sp_block(ib,3,block) = p_block(ib,3,block)
+          sp_block(ib,4,block) = p_block(ib,4,block)
 00200   continue
 00100 continue
+      end
+      subroutine int_sp1b(sp_block,s_block,p_block,sizea,num_blocks)
 c
+*..  sp 1 electron transformation routine 
+*.. (ash|bsh) block of integrals where b is an sp shell
+c
+      implicit none
+c::passed
+      integer sizea
+      integer num_blocks
+      double precision sp_block(1:4,sizea,num_blocks)
+      double precision s_block(sizea,num_blocks)
+      double precision p_block(2:4,sizea,num_blocks)
+c::local
+      integer block
+      integer ia
+c
+      do 00100 block = 1,num_blocks
+        do 00200 ia = 1,sizea
+          
+          sp_block(1,ia,block) = s_block(ia,block)
+          sp_block(2,ia,block) = p_block(2,ia,block)
+          sp_block(3,ia,block) = p_block(3,ia,block)
+          sp_block(4,ia,block) = p_block(4,ia,block)
+00200   continue
+00100 continue
       end

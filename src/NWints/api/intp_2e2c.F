@@ -1,6 +1,6 @@
       subroutine intp_2e2c(brain, ish, ketin, jsh, Rj,
      &       lscr, scr, leri, eri)
-c $Id: intp_2e2c.F,v 1.2 1995-06-16 09:44:18 d3e129 Exp $
+c $Id: intp_2e2c.F,v 1.3 1995-07-30 07:57:50 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -12,6 +12,7 @@ c
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "stdio.fh"
 c
 c::external subroutines used
 c errquit
@@ -65,9 +66,10 @@ c
       q_geom = ibs_geom(ket)
 c
       if (p_geom.ne.q_geom.and.WarnP.eq.0) then
-        write(6,*)'intp_2e2c: WARNING: possible geometry inconsistency'
-        write(6,*)'bra geometry handle:',p_geom
-        write(6,*)'ket geometry handle:',q_geom
+        write(luout,*)
+     &      'intp_2e2c: WARNING: possible geometry inconsistency'
+        write(luout,*)'bra geometry handle:',p_geom
+        write(luout,*)'ket geometry handle:',q_geom
         WarnP = 1
       endif
 c
@@ -107,11 +109,11 @@ c............. dryrun
      &         .false., scr, lscr)
 c
       else
-        write(6,*)'intp_2e2c: could not do nw integrals'
-        write(6,*)' brain :',brain
-        write(6,*)' ketin :',ketin
-        write(6,*)' ish   :',ish
-        write(6,*)' jsh   :',jsh
+        write(luout,*)'intp_2e2c: could not do nw integrals'
+        write(luout,*)' brain :',brain
+        write(luout,*)' ketin :',ketin
+        write(luout,*)' ish   :',ish
+        write(luout,*)' jsh   :',jsh
         call errquit('intp_2e2c: fatal error ',0)
       endif
       end

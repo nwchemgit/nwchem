@@ -1,11 +1,11 @@
-# $Id: GNUmakefile,v 1.25 1995-05-09 18:01:03 d3e129 Exp $
+# $Id: GNUmakefile,v 1.26 1995-07-30 07:57:52 d3e129 Exp $
 
     OBJ = cando_sp.o     exact_mem.o    exactd_mem.o \
           int_1cg.o      int_1e3ov.o    int_1eall.o \
           int_1eh1.o     int_1eke.o     int_1eov.o \
           int_1epe.o     int_2e2c.o     int_2e3c.o \
           int_2e4c.o     int_acc.o      int_canon.o \
-          int_chk_init.o int_chk_sh.o   int_hf1sp.o \
+          int_chk_init.o int_chk_sh.o   \
           int_init.o     int_l1e3ov.o   int_l1eall.o \
           int_l1eh1.o    int_l1eke.o    int_l1eov.o \
           int_l1epe.o    int_l2e2c.o    int_l2e3c.o \
@@ -18,6 +18,7 @@
           intp_2e2c.o    intp_2e3c.o    intp_mpole.o \
           intp_txyz.o \
           intb_init4c.o  intb_2e4c.o
+    OBJ_OPTIMIZE = int_hf1sp.o 
 
    LIBRARY = libnwints.a
 

@@ -1,6 +1,6 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.9 1995-06-23 06:40:16 d3e129 Exp $
+c $Id: cando_sp.F,v 1.10 1995-07-30 07:57:46 d3e129 Exp $
 c
 c a zero [i|j]sh means ignore this shell
 c this allows one function for all 1e and 2e permutations
@@ -144,5 +144,49 @@ c.... check jsh_u
      &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
      $         (mycont.le.25)
       endif
+c
+      end
+      logical function cando_txs(basisin,ish,jsh)
+      implicit none
+      integer basisin
+      integer ish,jsh
+c
+#include "candoP.fh"
+c
+      if (user_cando_txs) then
+        cando_txs = def_cando_txs
+        return
+      endif
+c
+      cando_txs = .true.
+      if(ish.eq.0.or.jsh.eq.0) cando_txs=.false.
+      end
+      subroutine int_set_cando_txs(user_value)
+      implicit none
+c
+#include "candoP.fh"
+c
+      logical oldvalue_user, oldvalue_def
+      common /cndo_txs/ oldvalue_user, oldvalue_def
+      logical user_value
+      
+      oldvalue_user = user_cando_txs
+      oldvalue_def  = def_cando_txs
+      user_cando_txs = .true.
+      def_cando_txs  = user_value
+      if (def_cando_txs) call errquit
+     &('int_set_cando_txs: logic error with user cando_texas settings',
+     &    911)
+      end
+      subroutine int_unset_cando_txs()
+      implicit none
+c
+#include "candoP.fh"
+c
+      logical oldvalue_user, oldvalue_def
+      common /cndo_txs/ oldvalue_user, oldvalue_def
+c
+      user_cando_txs = oldvalue_user
+      def_cando_txs  = oldvalue_def
 c
       end
