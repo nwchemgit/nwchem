@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.91 2000-06-12 20:08:20 d3j191 Exp $
+c $Id: md_main.F,v 1.92 2000-07-13 19:07:59 d3j191 Exp $
 c
       implicit none
 c
@@ -986,8 +986,8 @@ c
  4000 format('md ',i7,'+ ',i7,' @ ',f7.2,' K ',a)
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
-      if(frequency(mdstep,nfanal)) call ana_data(stime,nsaloc,
-     + int_mb(i_is+(lsgan-1)*msa),dbl_mb(i_xs))
+c      if(frequency(mdstep,nfanal)) call ana_data(stime,nsaloc,
+c     + int_mb(i_is+(lsgan-1)*msa),dbl_mb(i_xs))
 c
       call timer_stop(1)
     2 continue
@@ -2068,7 +2068,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.91 2000-06-12 20:08:20 d3j191 Exp $
+c $Id: md_main.F,v 1.92 2000-07-13 19:07:59 d3j191 Exp $
 c
       implicit none
 c

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.70 2000-06-09 17:18:17 d3j191 Exp $
+c $Id: md_start.F,v 1.71 2000-07-13 19:08:00 d3j191 Exp $
 c
       implicit none
 c
@@ -31,7 +31,7 @@ c
 c     start the analysis API
 c     ----------------------
 c
-      if(nfanal.gt.0) call ana_init(nsa,msa,.false.)
+c      if(nfanal.gt.0) call ana_init(nsa,msa,.false.)
 c
 c     start the classical forces API
 c     ------------------------------
