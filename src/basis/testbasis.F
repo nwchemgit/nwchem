@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.12 1994-10-27 08:17:13 d3e129 Exp $
+c $Id: testbasis.F,v 1.13 1996-01-11 18:14:18 d3e129 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -35,10 +35,14 @@ c
       data coeff_new/-1., -2., -3., 0.0, -4., -5., -6., 0.0, -7., -8.,
      $     -9., 0.0/
 c
-      if (.not. ma_init(MT_DBL, -1, -1)) stop 99
-      status = rtdb_open('shit.rtdb','unknown', rtdb)
+      if (.not. ma_init(MT_DBL, 400 000, 400 000))
+     &      call errquit('testbasis: ma_init failed',911)
+
+      status = rtdb_open('shit.rtdb','empty', rtdb)
+      if (.not.status) call errquit
+     &      ('testbasis rtdb open failed',911)
 c
-      write(6,*)' rtdb handle ', rtdb
+c      write(6,*)' rtdb handle ', rtdb
       status = bas_321g_load(rtdb)
 c
       if(.not.geom_create(geom,'321g:1-20')) then
@@ -90,6 +94,7 @@ c
         stop ' error '
       endif
 c
+c
       status = bas_rtdb_load(rtdb,geom,basis,'321g:1-20')
       status = bas_print(basis)
       status = gbs_map_print(basis)
@@ -123,6 +128,7 @@ c
       status = bas_setu_coeff(basis,1,coeff,(nprim*ngen)+1)
       status = bas_setu_exponent(basis,1,exp,nprim)
       status = bas_setu_coeff(basis,1,coeff,nprim*ngen)
+c
 c
       status = bas_ucontinfo(basis,1,type,nprim,ngen,sphcart)
       write(6,*)' modified '
