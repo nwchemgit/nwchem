@@ -76,7 +76,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 
 	System.out.println("Number is "+number);
 
-	data = new double[number][5000];
+	data = new double[number][10000];
 	numdat=0;
 
 	System.out.println("---");
@@ -85,7 +85,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	    while((card=br.readLine()) != null){
 		int k=1;
 		for(int l=0; l<number; l=l+1){
-		    if(k==49){card=br.readLine(); k=1;};
+		    if(k==61){card=br.readLine(); k=1;};
 		    //		    System.out.println(card.substring(k,k+11));
 		    data[l][numdat]=Double.valueOf(card.substring(k,k+11)).doubleValue();
 		    k=k+12;
@@ -153,7 +153,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	clearButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
-		    setVisible(false); }});
+		    for(int i=0; i<iset; i++){anaPlot.removeSet(i);}; iset=0; anaPlot.fillPlot(); }});
 	addComponent(header,doneButton,4,j,2,1,1,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	doneButton.addActionListener(new ActionListener(){
@@ -174,6 +174,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	System.out.println("Plot index "+ndx);
 	boolean first=true;
 	for(int i=0; i<numdat; i++){
+	    if(i>0 && Math.abs(data[ndx][i-1]-data[ndx][i])>3.14){first=true;};
 	    anaPlot.addData(iset,data[0][i],data[ndx][i],!first,false); first=false;
 	};
 	anaPlot.fillPlot();

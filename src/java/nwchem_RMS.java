@@ -17,7 +17,8 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
     String card;
 
     Graph rmsPlot = new Graph();
-    Graph smrPlot = new Graph();
+    Graph rmsaPlot = new Graph();
+    Graph rmsrPlot = new Graph();
 
     JLabel systemLabel = new JLabel();
     JButton doneButton = new JButton("done");
@@ -52,19 +53,21 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 		     GridBagConstraints.NONE,GridBagConstraints.WEST);
 	
 	JLabel systemLabel = new JLabel(chooser.getSelectedFile().toString());
-	addComponent(header,systemLabel,0,0,10,1,1,1,
+	addComponent(header,systemLabel,2,0,10,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	systemLabel.setForeground(Color.black);
 	
-	addComponent(header,doneButton,0,0,2,1,1,10,
+	addComponent(header,doneButton,0,0,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	doneButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
 
-	addComponent(header,rmsPlot,1,0,20,10,10,10,
+	addComponent(header,rmsPlot,0,1,20,20,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	addComponent(header,smrPlot,21,0,20,10,10,10,
+	addComponent(header,rmsaPlot,21,1,20,10,10,10,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	addComponent(header,rmsrPlot,21,21,20,10,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	try{
 	    BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
@@ -89,43 +92,28 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	    first=true;
 	    while(!card.startsWith("Analysis")){
 		rms1=Double.valueOf(card.substring(27,38)).doubleValue();
-		System.out.println(card); 
-		System.out.println(card.substring(11,16));
-		System.out.println(card.substring(17,21));
-		m=Integer.valueOf(card.substring(12,16)).intValue();
+		m=Integer.parseInt(card.substring(11,16).trim());
                 if(m!=mprev){mprev=m; ndxs++;}; 
-		n=Integer.valueOf(card.substring(18,21)).intValue();
+		n=Integer.parseInt(card.substring(17,21).trim());
 		ndx[ndxs]=n;
 		numa++;
-		smrPlot.addData(0,numa,rms1,!first,false); first=false;
+		rmsaPlot.addData(1,numa,rms1,!first,false); first=false;
 		card=br.readLine();
 	    };
-	    card=br.readLine();
 	    numa=0;
 	    first=true;
-	    while(!card.startsWith("Analysis")){
+	    while((card=br.readLine()) != null){
 		rms1=Double.valueOf(card.substring(12,23)).doubleValue();
 		if(numa==0){
-		    smrPlot.addData(0,0,rms1,!first,false); first=false;
+		    rmsrPlot.addData(0,0,rms1,!first,false); first=false;
 		} else {
-		    smrPlot.addData(0,ndx[numa-1],rms1,!first,false);
+		    rmsrPlot.addData(0,ndx[numa-1],rms1,!first,false);
 		}; 
-		smrPlot.addData(0,ndx[numa],rms1,!first,false); numa++;
-		card=br.readLine();
+		rmsrPlot.addData(0,ndx[numa],rms1,!first,false); numa++;
 	    };
-	    smrPlot.fillPlot();
+	    rmsaPlot.fillPlot();
 	    br.close();
 	    
-	    System.out.println("Number is "+numt+","+numa);
-
-	    System.out.println("---");
-
-	    br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
-
-	    card=br.readLine();
-
-	    br.close();
-
 	} catch(Exception ee) {ee.printStackTrace();};
 
 	
