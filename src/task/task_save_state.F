@@ -75,7 +75,7 @@ c
      $              ' Backup vectors   = ',a//)
                call util_flush(6)
             endif
-         status = rtdb_parallel(.true.)
+            status = rtdb_parallel(.true.)
          endif
       else if (ga_nodeid() .eq. 0) then
          write(6,*) ' task_save_state: ', 
@@ -148,7 +148,7 @@ c
      $           theory(1:inp_strlen(theory))
             if (.not. rtdb_cput(rtdb,name,1,vectors)) call errquit
      $           ('task_restore_state: rtdb corrupt',0)
-            status = rtdb_parallel(.false.)
+            status = rtdb_parallel(.true.)
          endif
       else if (ga_nodeid() .eq. 0) then
          write(6,*) ' task_restore_state: ', 
