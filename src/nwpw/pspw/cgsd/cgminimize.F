@@ -1,4 +1,4 @@
-c     $Id: cgminimize.F,v 1.10 2001-12-28 19:04:25 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.11 2002-01-02 22:12:51 bylaska Exp $                       
 *  ************************************************************
 *  *                MPI cgminimize routine                    *
 *  *               (Fletcher-Reeves' steps)                   *
@@ -162,7 +162,7 @@ c        Eold = psi_geodesic_energy(0.0d0)
 c        Enew = linesearch(0.0d0,E0,dE0,deltat,
 c    >                        psi_geodesic_energy,
 c    >                        psi_geodesic_denergy,
-c    >                        0.1d0,tmin,deltae,2)
+c    >                        0.5d0,tmin,deltae,2)
          call psi_geodesic_final(tmin)
          deltac = rho_error()
 
@@ -262,7 +262,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
 c     Enew = linesearch(0.0d0,E0,dE0,deltat,
 c    >                        psi_geodesic_energy,
 c    >                        psi_geodesic_denergy,
-c    >                        0.1d0,tmin,deltae,2)
+c    >                        0.5d0,tmin,deltae,2)
 
       call psi_geodesic_final(tmin)
       deltac = rho_error()

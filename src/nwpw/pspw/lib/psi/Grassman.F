@@ -94,9 +94,10 @@ c         call D3dB_c_Copy(1,A(1,i),C(1,i))
 *     **** local variables ****
       integer i
 
-      do i=1,n
-          call Pack_cc_daxpy(1,alpha,A(1,i),C(1,i))
-      end do
+      call daxpy(2*n*nfft3d,alpha,A,1,C,1)
+c     do i=1,n
+c         call Pack_cc_daxpy(1,alpha,A(1,i),C(1,i))
+c     end do
  
       return
       end

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.9 2001-12-28 01:32:02 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.10 2002-01-02 22:12:51 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -57,6 +57,7 @@ c     $Id: cgsd_energy.F,v 1.9 2001-12-28 01:32:02 bylaska Exp $
          write(6,1304)
          if (minimizer.eq.1) write(6,1305)
          if (minimizer.eq.2) write(6,1306)
+         if (minimizer.eq.3) write(6,1307)
          call util_flush(6)
       end if
 
@@ -72,7 +73,7 @@ c     $Id: cgsd_energy.F,v 1.9 2001-12-28 01:32:02 bylaska Exp $
       if (taskid.eq.MASTER) call message(2)
       if (taskid.eq.MASTER) call util_flush(6)
       if (newpsi) call sdminimize(5)
-      if (minimizer.eq.2) call pspw_Grsm_list_start()
+      if (minimizer.gt.1) call pspw_Grsm_list_start()
    2  continue
          icount = icount + 1
          if (stalled) then
@@ -86,7 +87,10 @@ c     $Id: cgsd_energy.F,v 1.9 2001-12-28 01:32:02 bylaska Exp $
            call cgminimize(E,deltae,deltac,bfgscount)
          else if (minimizer.eq.2) then
            bfgscount = bfgscount + 1
-           call bfgsminimize(E,deltae,deltac,bfgscount)
+           call bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
+         else if (minimizer.eq.3) then
+           bfgscount = bfgscount + 1
+           call bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
@@ -119,7 +123,7 @@ c     $Id: cgsd_energy.F,v 1.9 2001-12-28 01:32:02 bylaska Exp $
 *     :::::::::::  end of electron iteration loop  :::::::::::::::::::::
 
    3  continue
-      if (minimizer.eq.2) call pspw_Grsm_list_end()
+      if (minimizer.gt.1) call pspw_Grsm_list_end()
       if (taskid.eq.MASTER) CALL MESSAGE(3)
 
 
@@ -210,7 +214,8 @@ c     $Id: cgsd_energy.F,v 1.9 2001-12-28 01:32:02 bylaska Exp $
  1302 FORMAT(  '======================')
  1304 FORMAT(/)
  1305 FORMAT(10X,'========== conjugate gradient iteration ============')
- 1306 FORMAT(10X,'============== lmbfgs iteration ====================')
+ 1306 FORMAT(10X,'================ lmbfgs iteration ==================')
+ 1307 FORMAT(10X,'================= diis iteration ===================')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')

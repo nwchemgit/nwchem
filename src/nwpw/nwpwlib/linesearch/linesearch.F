@@ -1,4 +1,4 @@
-c     $Id: linesearch.F,v 1.4 2001-12-28 19:04:25 bylaska Exp $                       
+c     $Id: linesearch.F,v 1.5 2002-01-02 22:12:51 bylaska Exp $                       
 *     ********************************
 *     *                              *
 *     *      linesearch_init	     *
@@ -55,6 +55,8 @@ c     $Id: linesearch.F,v 1.4 2001-12-28 19:04:25 bylaska Exp $
 
 
 *     **** local variables ****
+      integer maxiter,iteration
+      parameter (maxiter=8)
       logical secant,notfinished
       integer indx(3)
       real*8  t(3)
@@ -87,12 +89,13 @@ c     df(1) = DFUNC1(t(1))
       f(2)  =  FUNC1(t(1)+deltat)
       df(2) = DFUNC1(t(1)+deltat)
       
-
+      iteration = 1
 *     **** make sure that f2 < f1 ******
-      do while (f(2).gt.f(1))
+      do while ((f(2).gt.f(1)).and.(iteration.le.maxiter))
         deltat = 0.5d0*deltat
         f(2)  =  FUNC1(t(1)+deltat)
         df(2) = DFUNC1(t(1)+deltat)
+        iteration = iteration + 1
       end do
       t(2) = t(1) + deltat
       t_last = t(2)
@@ -103,6 +106,7 @@ c     df(1) = DFUNC1(t(1))
       t(3)   = t(1) + deltat
       f(3)   =  FUNC1(t(3))
       df(3)  = DFUNC1(t(3))
+      iteration = iteration + 1
       t_last = t(3)
       f_last = f(3)
 
@@ -111,9 +115,11 @@ c     df(1) = DFUNC1(t(1))
       deltaf = f(indx(2)) - f(indx(1))
 
       if (stoptype.eq.1) then
-        notfinished = dabs(deltaf).gt.tolerance
+        notfinished = (dabs(deltaf).gt.tolerance)
+     >                .and.(iteration.le.maxiter)
       else
-        notfinished = dabs(df(indx(1))/df_first).gt.tolerance
+        notfinished = (dabs(df(indx(1))/df_first).gt.tolerance)
+     >                .and.(iteration.le.maxiter)
       end if
 
       do while (notfinished) 
@@ -128,6 +134,7 @@ c     df(1) = DFUNC1(t(1))
           tmin = t(indx(1)) + deltat
           fmin  =  FUNC1(tmin)
           dfmin = DFUNC1(tmin)
+          iteration = iteration + 1
           t_last = tmin
           f_last = fmin
 
@@ -159,6 +166,7 @@ c     df(1) = DFUNC1(t(1))
              tmin = 0.5d0*up/down
              fmin  =  FUNC1(tmin)
              dfmin = DFUNC1(tmin)
+             iteration = iteration + 1
              t_last = tmin
              f_last = fmin
 
@@ -183,9 +191,11 @@ c     df(1) = DFUNC1(t(1))
         end if
 
         if (stoptype.eq.1) then
-          notfinished = dabs(deltaf).gt.tolerance
+          notfinished = (dabs(deltaf).gt.tolerance)
+     >                .and.(iteration.le.maxiter)
         else
-          notfinished = dabs(df(indx(1))/df_first).gt.tolerance
+          notfinished = (dabs(df(indx(1))/df_first).gt.tolerance)
+     >                .and.(iteration.le.maxiter)
         end if
            
       end do

@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.9 2001-12-31 22:52:59 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.10 2002-01-02 22:12:51 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -8,11 +8,14 @@ c
 *  *                                                          *
 *  ************************************************************
   
-      subroutine bfgsminimize(E,deltae,deltac,current_iteration)
+      subroutine bfgsminimize(E,deltae,deltac,
+     >                        current_iteration,
+     >                        minimizer)
       implicit none
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
+      integer    minimizer
 
 #include "mafdecls.fh"
 
@@ -134,15 +137,21 @@ c     dte = 1.0d0
       if (current_iteration.eq.1) then
 
 *        ***** use the initial gradient for the direction ****
-         call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
-c        call pspw_diis_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
+         if (minimizer.eq.3) then
+           call pspw_diis_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
+         else
+           call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
+         end if
          call Grsm_gg_Copy(npack1,neall,
      >                      dcpl_mb(G0(1)),
      >                      dcpl_mb(S0(1)))
          tmin  = 10*deltat_min
       else
-         call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
-c        call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+         if (minimizer.eq.3) then
+           call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+         else
+           call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+         end if
       end if
 
 *     ******************************************
@@ -184,8 +193,11 @@ c        call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
            call psi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
          end if
 
-         call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
-c        call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+         if (minimizer.eq.3) then
+           call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+         else
+           call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+         end if
 
 
 *        **** make psi1 <--- psi2(tmin) ****
