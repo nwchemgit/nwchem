@@ -97,8 +97,6 @@ PSPW
 END
 
 
-
-
 #******* Generate a Formmatted pseudopotential for silicon *****
 PSPW
    PSP_FORMATTER
@@ -124,24 +122,7 @@ task pspw psp_formatter
 PSPW
    WAVEFUNCTION_INITIALIZER
       restricted
-      up_filling: 16
-               0 0 0     0
-               1 0 0    -1
-               0 1 0    -1
-               0 0 1    -1
-               1 0 0    +1
-               0 1 0    +1
-               0 0 1    +1
-               1 1 0    -1
-               1 0 1    -1
-               0 1 1    -1
-               1 1 0    +1
-               1 0 1    +1
-               0 1 1    +1
-               2 0 0    -1
-               0 2 0    -1
-               0 0 2    -1
-      wavefunction_filename: SiC.movecs
+      restricted_electrons: 32
       cell_name: small
    END 
 END
@@ -153,13 +134,10 @@ PSPW
       cell_name: small
       formatted_filename: Si.vpp
       formatted_filename: C.vpp
-      input_wavefunction_filename:  SiC.movecs
-      output_wavefunction_filename: SiC.movecs
       fake_mass: 400000.0d0
       time_step: 15.8d0
       loop: 100 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
-      #exchange_correlation: pbe96
       ewald_ncut: 8
       wavefunction_cutoff:  18.0d0
       energy_cutoff:        73.0d0
@@ -173,13 +151,10 @@ PSPW
       cell_name: small
       formatted_filename: Si.vpp
       formatted_filename: C.vpp
-      input_wavefunction_filename:  SiC.movecs
-      output_wavefunction_filename: SiC.movecs
       fake_mass: 400000.0d0
       time_step: 15.8d0
       loop: 15 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
-      #exchange_correlation: pbe96
       ewald_ncut: 8
       energy_cutoff:       73.0d0
       wavefunction_cutoff: 18.0d0
@@ -192,28 +167,6 @@ task pspw conjugate_gradient
 task pspw steepest_descent
 task pspw conjugate_gradient
 
-
-
-#***** do geometry optimization with steepest descent ********
-PSPW
-   STEEPEST_DESCENT
-      geometry_optimize
-      cell_name: small
-      formatted_filename: Si.vpp
-      formatted_filename: C.vpp
-      input_wavefunction_filename:  SiC.movecs
-      output_wavefunction_filename: SiC.movecs
-      fake_mass: 400000.0d0
-      time_step: 5.8d0
-      loop: 10 100
-      tolerances: 1.0d-9 1.0d-9 1.0d-4
-      #exchange_correlation: pbe96
-      ewald_ncut: 8
-      energy_cutoff:       73.0d0
-      wavefunction_cutoff: 18.0d0
-   END 
-END
-#task pspw steepest_descent
 
 driver
   clear
