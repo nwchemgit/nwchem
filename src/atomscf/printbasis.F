@@ -3,8 +3,8 @@
 #include "cguess.fh"
         integer isym, ibas, lobas, iprim
 c
-        write(6,*)
-	write(6,*) ' zn=', zn, 'nbct=', nbct, ' nsym=', nsym, ' nsht=', nsht
+*       write(6,*)
+*       write(6,*) ' zn=', zn, 'nbct=', nbct, ' nsym=', nsym, ' nsht=', nsht
         lobas =  1
 	do isym = 1, nsym
            write(6,*) ' isym ', isym
