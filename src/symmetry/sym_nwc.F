@@ -21,8 +21,8 @@ c                                          A.C.H. 5/12/94
 c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
-      subroutine sym_nwc(geom,rtdb,nata,oprint)
-C$Id: sym_nwc.F,v 1.11 1996-08-22 21:42:37 d3e863 Exp $
+      subroutine sym_nwc(geom,rtdb,nata,oprint,scale)
+C$Id: sym_nwc.F,v 1.12 1997-03-05 07:38:59 gutowski Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
@@ -127,7 +127,7 @@ c ... sloppy way for the moment to fix units for 2-d case
 c
       if(itype.eq.2) then
          do i=1,nareal
-            coords(3,i,geom)=coords(3,i,geom)*angstrom_to_au
+            coords(3,i,geom)=coords(3,i,geom)*scale
          enddo
       endif
 c
