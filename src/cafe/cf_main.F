@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.116 2001-11-15 04:31:00 d3j191 Exp $
+c $Id: cf_main.F,v 1.117 2001-11-19 17:15:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2316,7 +2316,7 @@ c
 c
       return
       end
-      subroutine cf_fix(lfn,numfix,iwgmn,iwdt,numw,
+      subroutine cf_fix(lfnout,lfn,numfix,iwgmn,iwdt,numw,
      + isgan,isatt,isdt,issgm,nums,xwm,xs)
 c
       implicit none
@@ -2324,7 +2324,7 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer lfn,numfix,numw,nums
+      integer lfnout,lfn,numfix,numw,nums
       integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
       integer issgm(msa)
       real*8 xwm(mwm,3),xs(msa,3)
@@ -2334,7 +2334,7 @@ c
       if(.not.ma_push_get(mt_int,nsatot,'itemp',l_temp,i_temp))
      + call errquit('Unable to allocate temp array in cf_fix',0) 
 c
-      call cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
+      call cf_fix_sw(lfnout,lfn,numfix,iwgmn,iwdt,numw,
      + isgan,isatt,isdt,issgm,nums,byte_mb(i_snam),xwm,xs,
      + int_mb(i_ibnd(2)),mbt(2),int_mb(i_temp))
 c
@@ -2342,7 +2342,7 @@ c
      + call errquit('Unable to deallocate temp array in cf_fix',0) 
       return
       end
-      subroutine cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
+      subroutine cf_fix_sw(lfnout,lfn,numfix,iwgmn,iwdt,numw,
      + isgan,isatt,isdt,issgm,nums,snam,xwm,xs,idb,nsb,itemp)
 c
       implicit none
@@ -2356,7 +2356,7 @@ c
       integer cf_atonum,cf_numcon
       external cf_atonum,cf_numcon
 c
-      integer lfn,numfix,numw,nums,nsb
+      integer lfnout,lfn,numfix,numw,nums,nsb
       integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
       integer issgm(msa),idb(nsb,4),itemp(nsatot)
       character*16 snam(nsatot)
@@ -2369,8 +2369,9 @@ c
       character*16 tag
 c
       if(me.eq.0) then
-      write(*,1000) numfix
- 1000 format(/,' Number of fix directives is ',i5,/)
+      write(lfnout,1000) numfix
+ 1000 format(/,' POSITIONAL CONSTRAINTS',/,
+     + ' Number of fix directives is ',i5,/)
       endif
 c
       number=0
@@ -2650,9 +2651,9 @@ c
       endif
 c
       if(me.eq.0) then
-      write(*,'(a,i8,a,i8,a)')
+      write(lfnout,'(a,i8,a,i8,a)')
      +  ' Solute fix applied to  ',ntotal(1),' out of ',nsa,' atoms'
-      write(*,'(a,i8,a,i8,a,/)')
+      write(lfnout,'(a,i8,a,i8,a,/)')
      +  ' Solvent fix applied to ',ntotal(2),' out of ',nwm,' molecules'
       endif
 c

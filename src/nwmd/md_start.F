@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.105 2001-11-15 04:31:43 d3j191 Exp $
+c $Id: md_start.F,v 1.106 2001-11-19 17:15:08 d3j191 Exp $
 c
       implicit none
 c
@@ -163,7 +163,7 @@ c     initialize packing
 c     ------------------
 c
       if(lpack)
-     + call sp_pack_init(int_mb(i_is),nsaloc,int_mb(i_iw),nwmloc)
+     + call sp_pack_init(int_mb(i_is),nsaloc,int_mb(i_iw),nwmloc,lfnout)
 c
 c     spacial decomposition
 c     ---------------------
@@ -195,7 +195,7 @@ c
      + form='formatted',status='old')
       rewind(lfncmd)
       endif
-      call cf_fix(lfncmd,numfix,int_mb(i_iw+(lwgmn-1)*mwm),
+      call cf_fix(lfnout,lfncmd,numfix,int_mb(i_iw+(lwgmn-1)*mwm),
      + int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
      + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lssgm-1)*msa),nsaloc,
