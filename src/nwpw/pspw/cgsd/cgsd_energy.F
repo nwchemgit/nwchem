@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.33 2003-01-24 02:06:52 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.34 2003-02-05 03:20:17 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -253,9 +253,7 @@ c#include "rtdb.fh"
            write(luout,1331)
            do ms=1,psi_ispin()
              do i=1,psi_ne(ms)
-             do j=1,psi_ne(ms)
-               write(luout,1341) ms,i,j,psi_hml(ms,i,j)
-             end do
+               write(luout,1341) ms,i,i,psi_hml(ms,i,i)
              end do
            end do
 
@@ -309,7 +307,7 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
- 1331 FORMAT(/' Hamiltonian matrix')
+ 1331 FORMAT(/' Diagonal Elements of Hamiltonian matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
  1341 FORMAT(I3,2I3,' H=',E16.6)
  1350 FORMAT(/' orthonormality')
