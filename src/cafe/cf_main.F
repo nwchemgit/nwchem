@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.21 1999-09-17 22:21:41 d3j191 Exp $
+c $Id: cf_main.F,v 1.22 1999-09-20 20:14:53 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1935,6 +1935,58 @@ c
 c
       a='Bq              '
       if(i.gt.0.and.i.lt.104) a(1:2)=symbol(i)
+c
+      return
+      end
+      subroutine cf_trjhdr(iunit)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer iunit
+c
+      call cf_wthdr(iunit,byte_mb(i_snam),int_mb(i_ibnd(2)),mbt(2))
+c
+      return
+      end
+      subroutine cf_wthdr(iunit,snam,idb,nsb)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer iunit,nsb
+      character*16 snam(nsatot)
+      integer idb(nsb,4)
+c
+      integer i
+c
+      rewind(iunit)
+c
+      write(iunit,1000)
+ 1000 format('header')
+      write(iunit,1001) nwa,nsatot,numb(2)
+ 1001 format(3i10)
+      if(nwa.gt.0) then
+      do 1 i=1,nwa
+      write(iunit,1004) ' '
+ 1004 format(a16)
+    1 continue
+      endif
+      if(nsatot.gt.0) then
+      do 2 i=1,nsatot
+      write(iunit,1005) snam(i)
+ 1005 format(a16)
+    2 continue
+      endif
+      if(numb(2).gt.0) then
+      do 3 i=1,numb(2)
+      write(iunit,1006) idb(i,1),idb(i,2)
+ 1006 format(2i8)
+    3 continue
+      endif
 c
       return
       end

@@ -1,5 +1,5 @@
-      subroutine cf_rdtop(lfntop,filtop)
-c $Id: cf_rdtop.F,v 1.11 1999-09-17 22:21:41 d3j191 Exp $
+      subroutine cf_rdtop(lfntop,filtop,snam)
+c $Id: cf_rdtop.F,v 1.12 1999-09-20 20:14:53 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -14,6 +14,7 @@ c
       character*10 topdat,toptim,ffield
       character*1 cdummy
       real*8 releps
+      character*16 stemp,snam(nsatot)
       integer natyps,nqtyps
       real*8 rdata(9),vadata(6),vrdata(6)
       integer idata(16)
@@ -140,8 +141,9 @@ c
       read(lfntop,1024,end=9997,err=9998) ewc
  1024 format(10x,3f12.6)
       do 10 i=1,nas
-      read(lfntop,1017,end=9997,err=9998) j,k
- 1017 format(16x,2i5)
+      read(lfntop,1017,end=9997,err=9998) stemp,j,k
+ 1017 format(a16,2i5)
+      snam(i)=stemp
 c      if(i.gt.nsf) nsf=i
 c      if(j.gt.nsm) nsm=j
    10 continue
@@ -294,6 +296,11 @@ c
       call ga_brdcst(mcf_31,ip2,24*numbl,0)
       call ga_brdcst(mcf_32,ip3,24*numbl,0)
       call ga_brdcst(mcf_56,qfac,numbd,0)
+      call ga_brdcst(mcf_66,byte_mb(i_snam),16*nsatot,0)
+      if(lanal) then
+      call ana_select(byte_mb(i_snam))
+      call ana_initx()
+      endif
 c
       itemp(1)=nwc
       itemp(2)=nsc

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.31 1999-09-20 15:03:42 d3j191 Exp $
+c $Id: md_start.F,v 1.32 1999-09-20 20:15:18 d3j191 Exp $
 c
       implicit none
 c
@@ -28,6 +28,11 @@ c
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,.false.,.false.,temp,tempw,temps,lqmd)
 c
+c     start the analysis API
+c     ----------------------
+c
+      if(nfanal.gt.0) call ana_init(nsa,msa,.false.)
+c
 c     start the classical forces API
 c     ------------------------------
 c
@@ -39,7 +44,7 @@ c
      + tstep,tlwsha,mshitw,mshits,noshak,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
-     + issscl,delta)
+     + issscl,delta,nfanal)
 c
 c     print topology information
 c     --------------------------
@@ -47,6 +52,7 @@ c
       call cf_print_top(lfnout)
 c
 c     start the property API
+c     ----------------------
 c
       call prp_start(nserie,ntype,lfnrst,filrst,lfnout,lfnprp,
      + lfngib,nfoutp,nfstat,nfprop,
@@ -157,6 +163,14 @@ c
       call sp_print(lfnout)
 c
       call prp_setup(wbox)
+c
+c     write file headers
+c     ------------------
+c
+      if(me.eq.0) then
+      if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0)
+     + call cf_trjhdr(lfncoo)
+      endif
 c
       return
       end

@@ -5,8 +5,8 @@
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
-     + issscl,delta)
-c $Id: cf_init.F,v 1.28 1999-09-20 15:01:56 d3j191 Exp $
+     + issscl,delta,nfanal)
+c $Id: cf_init.F,v 1.29 1999-09-20 20:14:53 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -19,7 +19,7 @@ c
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf
       real*8 spmet,step,tols,bx(3)
-      integer mdalg,npbt,nbxt,iiqmmm,iipolt
+      integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal
       real*8 rcs,rcl,rqm,compr,delta
       integer iitmps,iiprss,iislow,nodpme,ntyp,idset,ipset1,ipset2
       integer issscl
@@ -53,6 +53,7 @@ c
       lpmfc=npmf.eq.2
       ndxp=0
       maxl=0
+      lanal=nfanal.gt.0
 c
       mwm=mwmi
       mwa=mwai
@@ -169,7 +170,10 @@ c
       ip3(i)=.false.
     2 continue
 c
-      call cf_rdtop(lfntop,filtop)
+      if(.not.ma_push_get(mt_byte,16*nsatot,'snam',l_snam,i_snam))
+     + call errquit('Failed to allocate snam',me)
+c
+      call cf_rdtop(lfntop,filtop,byte_mb(i_snam))
 c
       if(ithint) then
       do 3 i=1,24

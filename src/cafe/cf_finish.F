@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.5 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_finish.F,v 1.6 1999-09-20 20:14:53 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -101,6 +101,11 @@ c
 c
       if(.not.ma_pop_stack(l_vdw))
      + call errquit('Failed to deallocate vdw',0)
+c
+      if(.not.ma_pop_stack(l_snam))
+     + call errquit('Failed to deallocate snam',0)
+c
+      if(lanal) call ana_finish(byte_mb(i_snam),.false.)
 c
       return
       end

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.38 1999-09-20 15:03:42 d3j191 Exp $
+c $Id: md_main.F,v 1.39 1999-09-20 20:15:17 d3j191 Exp $
 c
       implicit none
 c
@@ -822,6 +822,8 @@ c
 c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
+      if(frequency(mdstep,nfanal)) call ana_data(stime,nsaloc,
+     + int_mb(i_is+(lsgan-1)*msa),dbl_mb(i_xs))
 c
       lxw=frequency(mdstep,nfcoor)
       lvw=frequency(mdstep,nfvelo)
