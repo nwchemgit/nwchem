@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.5 2004-04-08 00:23:45 bylaska Exp $
+* $Id: silvestrelli_minimize.F,v 1.6 2004-04-25 19:12:05 edo Exp $
 *
 
 
@@ -209,7 +209,7 @@
         write(6,1001) iter, omega, maxgrad,crit
  1000 FORMAT(//' fixed step steepest descent iteration results:')
  1001 FORMAT(5x,'iterations performed=',I12,
-     >       /5x,'               omega=' F12.6,
+     >       /5x,'               omega=',F12.6,
      >       /5x,'               errors=',2E12.3)
 
       end if
