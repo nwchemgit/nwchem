@@ -1,4 +1,4 @@
-c     $Id: cgminimize.F,v 1.4 2001-10-26 02:28:25 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.5 2001-11-28 21:09:18 bylaska Exp $                       
 *  ************************************************************
 *  *                MPI cgminimize routine                    *
 *  *               (Fletcher-Reeves' steps)                   *
@@ -115,6 +115,7 @@ c      complex*16 G1(nfft3d,nemax)
      >                   dcpl_mb(G1(1)),
      >                   dcpl_mb(G1(1)),sum1)
 
+c     write(*,*) "sum1a,Estart,:",sum1,Estart
       call Grsm_gg_Copy(npack1,neall,
      >                   dcpl_mb(G1(1)),
      >                   dcpl_mb(H0(1)))
@@ -132,6 +133,8 @@ c      complex*16 G1(nfft3d,nemax)
 
 *        **** initialize the geoedesic line data structure ****
          call geodesic_start(dcpl_mb(H0(1)),max_sigma)
+c        Eold= psi_geodesic_energy(0.0d0)
+c        write(*,*) "Eold:", Eold,max_sigma
 
 *        ******* line search *********
          if (tmin.gt.0.0d0) then
@@ -139,7 +142,7 @@ c      complex*16 G1(nfft3d,nemax)
          else
             deltat = deltat_min
          end if
-c         Eold = psi_geodesic_energy(0.0d0)
+c        Eold = psi_geodesic_energy(0.0d0)
          Enew = linesearch(0.0d0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
@@ -184,7 +187,8 @@ c        call dng_2to1()
      >                        dcpl_mb(G1(1)),
      >                        sum3)
 
-c         write(*,*) "sum1:",sum1,sum0,sum3,max_sigma
+c        write(*,*) "sum1:",sum1,sum0,sum3,max_sigma
+c        write(*,*) "Enew:",Enew
 
 *        **** the new direction using Fletcher-Reeves ****
          if (dabs(deltae).le.(1.0d-2).and.(tmin.gt.0.0d0)) then

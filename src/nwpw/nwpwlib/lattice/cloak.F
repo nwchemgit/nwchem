@@ -1,5 +1,5 @@
 *
-* $Id: cloak.F,v 1.1 2001-11-27 01:25:11 bylaska Exp $
+* $Id: cloak.F,v 1.2 2001-11-28 21:09:17 bylaska Exp $
 *
       subroutine cloak_end()
       implicit none
@@ -52,9 +52,9 @@
 
 
       call Parallel_taskid(taskid)
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
       nxh = nx/2
       nyh = ny/2
       nzh = nz/2
@@ -103,7 +103,7 @@
          end do
       end do
       nwave_all = nwave
-      call D3dB_ISumAll(nwave_all)
+      call C3dB_ISumAll(nwave_all)
 
       return
       end
@@ -138,7 +138,7 @@
       call current_second(tim1)
 
 
-      call D3dB_nfft3d(1,nfft3d)
+      call C3dB_nfft3d(1,nfft3d)
       do i=1,nfft3d
          if (log_mb(masker(1)+i-1)) A(i) = dcmplx(0.0d0,0.0d0)
       end do

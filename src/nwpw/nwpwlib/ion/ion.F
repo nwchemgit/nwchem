@@ -6,7 +6,7 @@
 *     ***************************
       subroutine ion_end()
 *
-* $Id: ion.F,v 1.6 2001-11-17 01:01:16 bylaska Exp $
+* $Id: ion.F,v 1.7 2001-11-28 21:09:17 bylaska Exp $
 *
       implicit none
 
@@ -633,6 +633,34 @@ c     call ion_shift()
       ion_nion = nion
       return
       end
+
+*     ***************************
+*     *							*
+*     *		ion_TotalCharge		*
+*     *							*
+*     ***************************
+      real*8 function ion_TotalCharge()
+      implicit none
+
+*     **** local variables ****
+      integer ia
+      real*8  icharge
+
+*     **** external functions ****
+      real*8   psp_zv
+      integer  ion_natm,ion_nkatm
+      external psp_zv
+      external ion_natm,ion_nkatm
+
+      icharge = 0.0d0
+      do ia=1,ion_nkatm()
+         icharge = icharge + ion_natm(ia)*psp_zv(ia)
+      end do
+
+      ion_TotalCharge = icharge
+      return
+      end
+
 
 *     ***************************
 *     *							*

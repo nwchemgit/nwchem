@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.7 2001-11-26 21:34:21 bylaska Exp $
+* $Id: cgsdv5.F,v 1.8 2001-11-28 21:09:18 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -60,7 +60,7 @@
       integer fion(2)
 
 *     **** error variables ****
-      logical value
+      logical value,newpsi
       integer ierr
 
 *     **** local variables ****
@@ -119,6 +119,11 @@
       external cgsd_energy
       logical  control_Mulliken
       external control_Mulliken
+      real*8   ion_TotalCharge
+      external ion_TotalCharge
+      logical   psi_filefind
+      external  psi_filefind
+
 *                            |************|
 *****************************|  PROLOGUE  |****************************
 *                            |************|
@@ -199,7 +204,7 @@
 
 
 *     **** read in wavefunctions and initialize psi ****
-      value = psi_initialize()
+c     value = psi_initialize()
 
 *     **** read ions ****
       value = ion_init(rtdb)
@@ -209,6 +214,15 @@
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
       call psp_readall()
+
+*     **** read in wavefunctions and initialize psi ****
+      if (.not.psi_filefind()) then
+        call psi_new()
+        newpsi = .true.
+      else
+        newpsi = .false.
+      end if
+      value = psi_initialize()
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
       call ke_init()
@@ -265,9 +279,7 @@ c         ENDIF
          end do
 
          icharge = -(psi_ne(1)+psi_ne(psi_ispin()))
-         do ia=1,ion_nkatm()
-           icharge = icharge + ion_natm(ia)*psp_zv(ia)
-         end do
+     >           + ion_TotalCharge()
          write(6,1159) icharge
 
          write(6,1160)
@@ -328,7 +340,7 @@ c       call control_gradient_iterations()
 c     end if
 
 *     **** calculate energy ****
-      EV= cgsd_energy()
+      EV= cgsd_energy(newpsi)
 
 *     **** extra energy output for QA test ****
       if (taskid.eq.MASTER) write(6,1600) EV

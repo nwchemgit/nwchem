@@ -14,6 +14,7 @@
       real*8      time_step,fake_mass,ecut,wcut,rcut
       integer     loop(2),ngrid(3),npsp,ncut
       integer     code,gga
+      integer	  ispin,multiplicity
       logical     move,frac_coord
       common / control_block / output_wavefunction_filename,
      >                         input_wavefunction_filename,
@@ -27,5 +28,6 @@
      >                         ecut,wcut,rcut,ncut,gga,
      >                         loop,ngrid,npsp,
      >                         code,
+     >                         ispin,multiplicity,
      >                         move,frac_coord
 

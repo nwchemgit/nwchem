@@ -1806,8 +1806,11 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       common / rhoall_block / rho1_all,rho2_all
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
       logical value
       integer nemax
+      real*8 sum1,sum2
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne(ispin,ne)
@@ -1849,6 +1852,32 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 *     *****  read initial wavefunctions into psi1  ****
       call psi_read(ispin,ne,dcpl_mb(psi1(1)))
+
+*     **** Ortho Check ****
+      call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
+     >                        dcpl_mb(psi1(1)),
+     >                        dcpl_mb(psi1(1)),
+     >                        sum2)
+
+      sum1 = dble(ne(1) + ne(2))
+      if (dabs(sum2-sum1).gt.1.0d-10) then
+         call Parallel_taskid(taskid)
+         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi1(1)))
+         if (ispin.gt.1) then
+           call Grsm_g_MakeOrtho(npack1,ne(2),
+     >                           dcpl_mb(psi1(1) + ne(1)*npack1))
+         end if
+         call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
+     >                        dcpl_mb(psi1(1)),
+     >                        dcpl_mb(psi1(1)),
+     >                        sum2)
+         if (taskid.eq.MASTER)
+     >    write(*,*) "Waring - Gram-Schmidt being performed on psi:",
+     >               dabs(sum2-sum1)
+
+
+      end if
+
 
 
       psi_initialize = value

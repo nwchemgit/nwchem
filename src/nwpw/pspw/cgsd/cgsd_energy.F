@@ -1,12 +1,13 @@
-c     $Id: cgsd_energy.F,v 1.5 2001-11-27 00:05:03 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.6 2001-11-28 21:09:18 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
 *     *							*
 *     ***************************
 
-      real*8 function cgsd_energy()
+      real*8 function cgsd_energy(newpsi)
       implicit none
+      logical newpsi
       integer MASTER
       parameter (MASTER=0)
 
@@ -64,9 +65,10 @@ c     $Id: cgsd_energy.F,v 1.5 2001-11-27 00:05:03 bylaska Exp $
       E(1)=0.0d0
       if (taskid.eq.MASTER) call message(2)
       if (taskid.eq.MASTER) call util_flush(6)
+      if (newpsi) call sdminimize(5)
    2  continue
          icount = icount + 1
-         if (stalled) call sdminimize()
+         if (stalled) call sdminimize(0)
 
          deltae_old = deltae
          call cgminimize(E,deltae,deltac)

@@ -1,6 +1,7 @@
-c     $Id: sdminimize.F,v 1.1 2001-11-27 00:05:03 bylaska Exp $                       
-      subroutine sdminimize()
+c     $Id: sdminimize.F,v 1.2 2001-11-28 21:09:18 bylaska Exp $                       
+      subroutine sdminimize(flag)
       implicit none
+      integer flag
 
 #include "mafdecls.fh"
 
@@ -21,6 +22,7 @@ c     $Id: sdminimize.F,v 1.1 2001-11-27 00:05:03 bylaska Exp $
       dt = control_time_step()
       dte = dt/dsqrt(control_fake_mass())
       it_in = control_it_in()
+      if (flag.gt.0) it_in = flag
 
       do it=1,it_in
          call psi1to2_sd_update(dte)

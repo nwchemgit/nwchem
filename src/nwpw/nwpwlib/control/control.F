@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.4 2001-11-27 01:25:11 bylaska Exp $
+* $Id: control.F,v 1.5 2001-11-28 21:09:17 bylaska Exp $
 *
 
 *     ***********************************
@@ -17,7 +17,7 @@
 #include "control.fh"
 
       logical value 
-      integer ispin,ne(2)
+      integer ispin0,ne(2)
 
 *     **** control_nose common block ****
       logical nose
@@ -209,6 +209,10 @@
      >        rtdb_get(rtdb,'cgsd:rcut',mt_dbl,1,rcut)     
       value = value.and.
      >        rtdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut)
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:mult',mt_int,1,multiplicity)
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin)
 
       do i=1,npsp
         id = 'cgsd:psp'//CHAR(i)
@@ -221,7 +225,7 @@
          value = .true.
          value = rtdb_cget(rtdb,'pspw_dplot:wavefunction_filename',
      >                  1,input_wavefunction_filename)
-         call psi_get_header(i,ngrid,unita,ispin,ne)
+         call psi_get_header(i,ngrid,unita,ispin0,ne)
          if (i.eq.3) boundry = 'periodic'
          if (i.eq.4) boundry = 'aperiodic'
 
@@ -757,6 +761,35 @@
       end
 
 
+*     ***********************************
+*     *									*
+*     *		control_multiplicity		*
+*     *									*
+*     ***********************************
+      integer function control_multiplicity()
+      implicit none
+
+#include "control.fh"
+
+      control_multiplicity = multiplicity
+      return 
+      end
+
+
+*     ***********************************
+*     *									*
+*     *			control_ispin      		*
+*     *									*
+*     ***********************************
+      integer function control_ispin()
+      implicit none
+
+#include "control.fh"
+
+      control_ispin = ispin
+      return 
+      end
+
 
 *     *******************************************
 *     *											*
@@ -1045,6 +1078,31 @@
 
       if (.not. value)
      >  call errquit('control_kvector: failed', 0)
+      return
+      end
+
+*     *****************************
+*     *                	 		  *
+*     *    control_TotalCharge	  *
+*     *                 	 	  *
+*     *****************************
+      real*8 function control_TotalCharge()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb / rtdb
+
+      double precision charge
+
+      charge = 0.0d0 
+      if (.not.rtdb_get(rtdb,'charge',mt_dbl,1,charge)) then
+         charge = 0.0d0 
+      end if
+      control_TotalCharge = charge
       return
       end
 

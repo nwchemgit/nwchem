@@ -294,11 +294,13 @@ c     real*8 sum1,sumv
       
       do i=1,ne
          dbl_mb(tmp2(1)+i-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+i-1))
+
          call Pack_c_SMul(1,dbl_mb(tmp2(1)+i-1),
      >                    U(1,i),U(1,i))
  
       end do
       do i=1,ne
+        if (S(i).lt.0.0d0) S(i) = dabs(S(i))
         S(i) = dsqrt(S(i))
       end do
 
@@ -448,7 +450,8 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
       if (dabs(sum2-sum1).gt.1.0d-10) then
          call Parallel_taskid(taskid)
 c         if (taskid.eq.MASTER) 
-c     >      write(*,*) "Waring: Gram-Schmidt being performed on psi2"
+c    >      write(*,*) 
+c    >      "Waring: Gram-Schmidt being performed in geodesic_get"
          call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
          if (psi_ispin().gt.1) then
            call Grsm_g_MakeOrtho(npack1,psi_ne(2),
