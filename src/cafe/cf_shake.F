@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.7 1999-10-12 16:12:48 d3j191 Exp $
+c $Id: cf_shake.F,v 1.8 2000-01-12 06:06:55 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -109,9 +109,9 @@ c
       xpmf(i,j,2)=xpmf(i,j,2)+xs(l,2)
       xpmf(i,j,3)=xpmf(i,j,3)+xs(l,3)
       xpmf(i,j,4)=xpmf(i,j,4)+wgt(isat(l),iset)
-      ypmf(i,j,1)=ypmf(i,j,1)+xs(l,1)
-      ypmf(i,j,2)=ypmf(i,j,2)+xs(l,2)
-      ypmf(i,j,3)=ypmf(i,j,3)+xs(l,3)
+      ypmf(i,j,1)=ypmf(i,j,1)+ys(l,1)
+      ypmf(i,j,2)=ypmf(i,j,2)+ys(l,2)
+      ypmf(i,j,3)=ypmf(i,j,3)+ys(l,3)
       endif
     5 continue
     4 continue
@@ -142,7 +142,7 @@ c
       do 7 j=1,2
       w(j)=xpmf(i,j,4)
       ign(j)=j
-      iml(j)=1
+      iml(j)=j
       idt(j)=0
       ich(j)=1
       do 8 k=1,3
@@ -467,7 +467,7 @@ c
       xs(jsa,3)=xs(jsa,3)-ff3*wsaj
       endif
       if(ithint) then
-      deriv(19,1)=deriv(19,1)+half*tstepi*tstepi*
+      deriv(19,1)=deriv(19,1)+tstepi*tstepi*
      + (rsx1*ff1+rsx2*ff2+rsx3*ff3)*bnd(isb,1,4)/
      + sqrt(rsx1*rsx1+rsx2*rsx2+rsx3*rsx3)
       endif
