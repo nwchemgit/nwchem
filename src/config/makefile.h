@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.56 1994-08-27 20:01:14 d3g681 Exp $
+# $Id: makefile.h,v 1.57 1994-09-01 18:02:16 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -265,6 +265,36 @@ ifeq ($(TARGET),DELTA)
              -lglobal -lpeigs -ltcgmsg -llapack -lkmath -node
 
  EXPLICITF = FALSE
+endif
+
+
+ifeq ($(TARGET),SGITFP)
+#
+# SGI power challenge
+#
+# SUBDIRS_EXTRA are those machine specific libraries required 
+
+    SUBDIRS_EXTRA = blas lapack
+         FC = f77
+         CC = cc
+         AR = ar
+     RANLIB = echo
+
+    INSTALL = @echo nwchem is built
+  MAKEFLAGS = -j 4
+
+  FOPTIONS = -d8 -i8 
+  COPTIONS = 
+ FOPTIMIZE = -O3 -64 -mips4 -OPT:IEEE_arithmetic=2
+ COPTIMIZE = -O
+
+    DEFINES = -DSGITFP -DSGI -DLongInteger $(LIB_DEFINES) 
+       LIBS = -L$(LIBDIR) $(LIBPATH) \
+              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+              -lguess -lglobal -lutil -lglobal\
+	      -ltcgmsg -llapack -lblas
+
+  EXPLICITF = FALSE
 endif
 
 
