@@ -99,6 +99,8 @@ Geometry:
   o More redundant internals are allowed.
   o Allow linear angles.
   o Mixed Cartesians in zmatrix input is more robust.
+  o BUG FIX: D5H classification is now correct.
+  o BUG FIX: C5H operations are recognized.
 
 DFT: 
 
@@ -125,12 +127,15 @@ Properties:
     changed by using the CENTER directive.
   o Relativistic corrections to multipole integrals in the Dyall-modified-Dirac
     approach have been added.
+  o Performance fix: GIAO convergence has been improved.
+  o BUG FIX: Several parallel bugs that caused calculations to fail have 
+    been fixed.
   o BUG FIX: GIAO code now recognizes when an unsupported wavefunction is
     trying to be used with GIAO.
 
 MP2: 
 
-  o 
+  o BUG FIX: RIMP2 now has more rigorous error handling.
 
 Hessian and Frequencies: 
 
@@ -147,6 +152,14 @@ Prepare module:
 MD: 
 
   o 
+
+PSPW:
+
+  o
+
+Python:
+
+  o
 
 Integral changes: 
 
