@@ -1,0 +1,40 @@
+#
+# Test for CCSD[T] & CCDS(T) codes in the TCE module
+# Reference data obtained by an independent code are
+#
+# CCSD(T) -0.21632467284
+# CCSD[T] -0.21640986353
+#
+# in units of hartree.
+#
+# The (T) & [T] codes and the reference data have been
+# provided by Alex A. Auer (University of Waterloo)
+#
+start tce_ccsd_t_h2o
+
+echo
+
+geometry units bohr
+O     0.00000000     0.00000000     0.22138519
+H     0.00000000    -1.43013023    -0.88554075
+H     0.00000000     1.43013023    -0.88554075
+end
+
+basis spherical
+H library cc-pVDZ
+O library cc-pVDZ
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+ccsd(t)
+io ga
+end
+
+task tce energy
