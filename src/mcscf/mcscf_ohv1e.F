@@ -12,6 +12,7 @@ c
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "mcscfprof.fh"
 c
 c
        integer geom, basis                          ! [input] Handles
@@ -32,6 +33,7 @@ c
        integer nvir, vlen, voff, aoff, aend
 c
 c
+       if (omcscfprof) call pstat_on(ps_hv1e)
        nvir = nbf - nclosed - nact
        vlen = (nclosed+nact)*nvir + nclosed*nact
        voff = nclosed + nact + 1
@@ -251,6 +253,7 @@ c
 c
        if (.not.ga_destroy(g_tmp4))
      $      call errquit('mcscf_hessv_1e: cannot destroy',0)
+       if (omcscfprof) call pstat_off(ps_hv1e)
        return
        end
 

@@ -10,6 +10,7 @@
 #include "rtdb.fh"
 #include "bas.fh"
 #include "sym.fh"
+#include "mcscfprof.fh"
 c
 c
        integer geom, basis                              ! [input] Handles
@@ -49,6 +50,7 @@ c
 c
 c
 c
+       if (omcscfprof) call pstat_on(ps_prcnd)
        if (.not. bas_numbf( basis, nbf))
      $    call errquit('mcscf_precond: bas_numbf failed',0)
        nvir = nbf - nclosed - nact
@@ -238,6 +240,7 @@ C       CALL GA_ROWPRINT( 'SOLUTION', G_AXV )
      $    call errquit('mcscf_precond: failed to destroy',0)
        if (.not.ga_destroy(g_axv))
      $    call errquit('mcscf_precond: failed to destroy',0)
+       if (omcscfprof) call pstat_off(ps_prcnd)
 
        return
        end

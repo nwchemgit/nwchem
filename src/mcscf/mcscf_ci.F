@@ -12,6 +12,7 @@ c
 #include "geom.fh"
 #include "detciP.fh"
 #include "detci.fh"
+#include "mcscfprof.fh"
       integer rtdb
       integer geom
       integer basis
@@ -142,6 +143,7 @@ c$$$      CALL DETCI_GUESS( 6, GUESS_CFG, GUESS_COEFF, G_CIVEC )
 c
 c   Davidson diag
 c
+      if ((omcscfprof).and.(ociprof)) call pstat_on(ps_cidiag)
 #ifdef OLD_DAVIDSON
       call detci_dvddiag0( detci_sigma, detci_ciprecon, mxworkvec,
      $                     1.d-12, ciener, g_wvec, g_civec, oprint )
@@ -150,6 +152,7 @@ c
      $                    citol, oprint, g_civec, g_wvec(1), g_wvec(2),
      $                    g_wvec(3), g_wvec(4), g_wvec(5), ciener )
 #endif
+      if ((omcscfprof).and.(ociprof)) call pstat_off(ps_cidiag)
 c
 c   Print out converged ground state CI vector
 c
@@ -157,7 +160,9 @@ c
 c
 c   Compute MO densities
 c
+      if ((omcscfprof).and.(ociprof)) call pstat_on(ps_cidens)
       call detci_density( g_civec, dm1, dm2 )
+      if ((omcscfprof).and.(ociprof)) call pstat_off(ps_cidens)
 c
 c   Save CI vector for restart
 c

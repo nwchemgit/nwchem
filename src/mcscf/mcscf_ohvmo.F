@@ -4,6 +4,7 @@
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "mcscfprof.fh"
 c
 c
        integer nbf                                  ! [input] Basis functions
@@ -22,6 +23,7 @@ c
 c
 c
 c
+       if (omcscfprof) call pstat_on(ps_hv2emo)
        nvir = nbf - nclosed - nact
        vlen = (nclosed+nact)*nvir + nclosed*nact
        voff = nclosed + nact + 1
@@ -63,6 +65,7 @@ c
 c
 c
 c
+       if (omcscfprof) call pstat_off(ps_hv2emo)
        return
        end
 

@@ -1,5 +1,5 @@
 c
-c  $Id: mcscf_ohv2e.F,v 1.2 1996-02-14 23:03:45 rg240 Exp $
+c  $Id: mcscf_ohv2e.F,v 1.3 1996-02-15 23:39:59 rg240 Exp $
 c
 c Return the MCSCF 2e Hessian-vector product
 c
@@ -11,6 +11,7 @@ c
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "mcscfprof.fh"
 c
 c
        integer geom, basis                          ! [input] Handles
@@ -30,6 +31,7 @@ c
        integer nvir, vlen, voff, aoff, aend
 c
 c
+       if (omcscfprof) call pstat_on(ps_hv2e)
        nvir = nbf - nclosed - nact
        vlen = (nclosed+nact)*nvir + nclosed*nact
        voff = nclosed + nact + 1
@@ -55,5 +57,6 @@ c
 c
 c
 c
+       if (omcscfprof) call pstat_off(ps_hv2e)
        return
        end

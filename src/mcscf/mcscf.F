@@ -8,28 +8,27 @@
 #include "context.fh"
 #include "util.fh"
 #include "sym.fh"
+#include "pstat.fh"
+#include "mcscfprof.fh"
 c
        integer rtdb
 c
        integer geom, basis
-       integer nbf, nclosed, nvir, nact
+       integer nbf, nclosed, nvir, nact, noper
        integer nactel, nela, nelb, multip, orlen
-       integer noper
        integer l_occ, k_occ, l_sym, k_sym
        integer l_evals, k_evals
        integer l_dm1, k_dm1, l_dm2, k_dm2
        integer l_tmp, k_tmp
        integer g_movecs, g_coul, g_exch
-       integer g_hcore
-       integer g_conj, g_gradold
+       integer g_conj, g_gradold, g_hcore
        integer g_afock, g_ifock, g_gfock
        integer g_grad, g_prod, g_x
        integer mo_lo, mo_hi
        integer i, j, iter, maxiter, nmixed, clo, chi
-       integer avstart, iastart
        integer icgreset                                   ! Number of iterations between CG resets
        double precision pfac
-       double precision thresh
+       double precision thresh, lshift0
        double precision eone, etwo, energy, enrep
        double precision tol2e, gnorm, xx
        logical oconj
@@ -73,8 +72,6 @@ c
        call mcscf_getinfo(rtdb, geom, basis, nbf, nclosed, nact )
        nvir = nbf - nclosed - nact
        orlen = (nclosed*nvir) + (nact*nvir) + (nclosed*nact)
-       avstart = nclosed*nvir + 1
-       iastart = ((nclosed+nact)*nvir) + 1
        if (.not.rtdb_get(rtdb,'scf:skeleton',MT_LOG,1,oskel)) then
          oskel = sym_number_ops(geom).gt.0
        endif
@@ -108,6 +105,14 @@ c
         if (.not.rtdb_get(rtdb,'scf:thresh',MT_DBL,1,thresh))
      $     thresh = 1.d-6
       endif
+      if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0)) then
+        if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
+     $    lshift0 = 0.1d0
+      endif
+c
+c  Profiling and statistics
+c
+      call mcscf_profile_init(rtdb)
 c
 c  Print info
 c
@@ -117,7 +122,7 @@ c
      $            28x,'Direct MCSCF',/
      $            27x,14('='),/)
          write(6,901) nclosed, nact, nactel, multip, orlen,
-     $                1, avstart, iastart
+     $                (nclosed*nvir),(nact*nvir),(nclosed*nact)
  901     format(18x,35('-'),/
      $          20x,'Inactive shells:',10x,i5,/
      $          20x,'Active shells:',12x,i5,/,
@@ -128,11 +133,12 @@ c
      $          25x,'Act - Virt',11x,i5,/,
      $          25x,'Inact - Act',10x,i5,/,
      $          18x,35('-'))
-         write(6,902) maxiter, thresh, icgreset
+         write(6,902) maxiter, thresh, icgreset, lshift0
  902     format(/,18x,35('-'),/,
      $          20x,'Maximum iterations:',7x,i5,/,
      $          20x,'Converge threshold:',e12.2,/,
      $          20x,'Conjugacy resets:',9x,i5,/,
+     $          20x,'Initial levelshift:',f12.2,/,
      $          18x,35('-'))
        endif
 c
@@ -217,43 +223,44 @@ c
 c
 c  4-Index Tranform 
 c
-         if (ga_nodeid().eq.0) PRINT*,'Calling 4index'
+         if (omcscfprof) call pstat_on(ps_4index)
          call moints_build_6x( basis, osym,
      $                         mo_lo, mo_lo, mo_hi, 1, nbf,
      $                         g_movecs, g_coul, .true.,
      $                         g_exch, .true., 16 )
+         if (omcscfprof) call pstat_off(ps_4index)
          call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $                     g_coul, g_exch, g_hcore )
 c
 c  CI solver
 c
-         if (iter.lt.1000) then
-           if (ga_nodeid().eq.0) print*,'Calling CIsolve'
-           call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                         dbl_mb(k_evals), g_hcore, g_coul,
-     $                         dbl_mb(k_dm1), dbl_mb(k_dm2), .true.,
-     $                         .false. )
-         endif
+         if (omcscfprof) call pstat_on(ps_ci)
+         call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
+     $                       dbl_mb(k_evals), g_hcore, g_coul,
+     $                       dbl_mb(k_dm1), dbl_mb(k_dm2), .true.,
+     $                       .false. )
+         if (omcscfprof) call pstat_off(ps_ci)
 c
 c  Orbital solver
 c
          oconj = .true.
          if ((oconj).and.(mod(iter,icgreset).eq.0)) then
-C           PRINT*,'=== Conjugacy Reset ==='
            call ga_zero(g_conj)
            call ga_zero(g_gradold)
            pfac = 1.d0
          endif
          if (oorbsolve) then
-           if (ga_nodeid().eq.0) PRINT*,'Calling orbsolve'
+           if (omcscfprof) call pstat_on(ps_orb)
            call mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                          osym, int_mb(k_sym), dbl_mb(k_dm1),
      $                          dbl_mb(k_dm2), g_coul, g_exch, oconj,
      $                          pfac, g_conj, g_gradold, g_hcore,
      $                          dbl_mb(k_evals), eone, etwo, gnorm,
      $                          g_movecs )
+           if (omcscfprof) call pstat_off(ps_orb)
          else
-           if (ga_nodeid().eq.0) PRINT*,'Orbital solve skipped'
+           if (ga_nodeid().eq.0) write(6,221)
+ 221       format('Orbital solve skipped')
          endif
          energy = eone + etwo + enrep
          write(6,927) iter,energy,gnorm
@@ -576,6 +583,7 @@ c              Final Cleanup
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
+       call mcscf_profile_tidy()
        call scf_tidy()
        call schwarz_tidy()
        call int_terminate()
@@ -845,6 +853,115 @@ c
 
 
 
+
+
+
+
+
+
+
+      subroutine mcscf_profile_init(rtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "pstat.fh"
+#include "mcscfprof.fh"
+c
+      integer rtdb
+      integer junk
+c
+c  Check if General profiling enabled
+c
+      if (.not.rtdb_get(rtdb,'mcscf:prof',MT_LOG,1,omcscfprof))
+     $     omcscfprof = .false.
+      if (.not.(omcscfprof)) return
+c
+c  If Fock profiling enabled call SCF initialization
+c
+      if (.not.rtdb_get(rtdb,'mcscf:fockprof',MT_LOG,1,ofockprof)) then
+        if (.not.rtdb_get(rtdb,'scf:pstat',MT_LOG,1,ofockprof))
+     $     ofockprof = .false.
+      endif
+      if (ofockprof) then
+        if (.not.rtdb_put(rtdb,'scf:pstat',MT_LOG,1,.true.))
+     $     call errquit('mcscf_profile: rtdb_put of scf:stat failed',0)
+        call scf_pstat_init(rtdb)
+      endif
+c
+c  Overall MCSCF profiling
+c
+      if (.not. pstat_allocate('mcscf:orbsolve', pstat_qstat, 0,junk,
+     $     ps_orb)) call errquit('mcscf: scf_pstat_init', 0)
+      if (.not. pstat_allocate('mcscf:ci', pstat_qstat, 0,junk,
+     $     ps_ci)) call errquit('mcscf: scf_pstat_init', 0)
+      if (.not. pstat_allocate('mcscf:4index', pstat_qstat, 0,junk,
+     $     ps_4index)) call errquit('mcscf: scf_pstat_init', 0)
+      if (.not. pstat_allocate('mcscf:prcnd', pstat_qstat, 0,junk,
+     $     ps_prcnd)) call errquit('mcscf: scf_pstat_init', 0)
+      if (.not. pstat_allocate('mcscf:hess',
+     $     pstat_qstat, 0, junk, ps_hv))
+     $     call errquit('mcscf: scf_pstat_init', 0)
+      if (.not. pstat_allocate('mcscf:hess:1e',
+     $     pstat_qstat, 0, junk, ps_hv1e))
+     $     call errquit('mcscf: scf_pstat_init', 0)
+      if (.not. pstat_allocate('mcscf:hess:2e',
+     $     pstat_qstat, 0, junk, ps_hv2e))
+     $     call errquit('mcscf: scf_pstat_init', 0)
+      if (.not. pstat_allocate('mcscf:hess:2e-ao',
+     $     pstat_qstat, 0, junk, ps_hv2eao))
+     $     call errquit('mcscf: scf_pstat_init', 0)
+      if (.not. pstat_allocate('mcscf:hess:2e-mo',
+     $     pstat_qstat, 0, junk, ps_hv2emo))
+     $     call errquit('mcscf: scf_pstat_init', 0)
+      if (.not. pstat_allocate('mcscf:fock',
+     $     pstat_qstat, 0, junk, ps_gfock))
+     $     call errquit('mcscf: scf_pstat_init', 0)
+c
+c Detailed CI profiling
+c
+      if (.not.rtdb_get(rtdb,'mcscf:ciprof',MT_LOG,1,ociprof))
+     $   ociprof = .false.
+      if (ociprof) then
+        if (.not. pstat_allocate('mcscf:cidiag',
+     $     pstat_qstat, 0, junk, ps_cidiag))
+     $     call errquit('mcscf: scf_pstat_init', 0)
+        if (.not. pstat_allocate('mcscf:cidens',
+     $     pstat_qstat, 0, junk, ps_cidens))
+     $     call errquit('mcscf: scf_pstat_init', 0)
+      endif
+
+      
+      return
+      end
+
+
+
+
+      subroutine mcscf_profile_tidy()
+      implicit none
+#include "rtdb.fh"
+#include "pstat.fh"
+#include "mcscfprof.fh"
+c
+      integer rtdb
+c
+      if (.not.(omcscfprof)) return
+      if (ofockprof) call scf_pstat_print()
+      if (.not.pstat_free(ps_orb)) call errquit('mcscf_pstat?',0)
+      if (.not.pstat_free(ps_ci)) call errquit('mcscf_pstat?',0)
+      if (.not.pstat_free(ps_4index)) call errquit('mcscf_pstat?',0)
+      if (.not.pstat_free(ps_prcnd)) call errquit('mcscf_pstat?',0)
+      if (.not.pstat_free(ps_hv)) call errquit('mcscf_pstat?',0)
+      if (.not.pstat_free(ps_hv1e)) call errquit('mcscf_pstat?',0)
+      if (.not.pstat_free(ps_hv2e)) call errquit('mcscf_pstat?',0)
+      if (.not.pstat_free(ps_hv2eao)) call errquit('mcscf_pstat?',0)
+      if (.not.pstat_free(ps_hv2emo)) call errquit('mcscf_pstat?',0)
+      if (ociprof) then
+        if (.not.pstat_free(ps_cidiag)) call errquit('mcscf_pstat?',0)
+        if (.not.pstat_free(ps_cidens)) call errquit('mcscf_pstat?',0)
+      endif
+      return
+      end
 
 
 

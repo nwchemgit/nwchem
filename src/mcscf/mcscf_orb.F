@@ -1,7 +1,7 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.5 1996-02-13 23:51:18 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.6 1996-02-15 23:40:04 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
      $                           nact, osym, orbsym, dm1, dm2,
@@ -16,6 +16,7 @@ c
 #include "rtdb.fh"
 #include "sym.fh"
 #include "msgids.fh"
+#include "mcscfprof.fh"
 c
        integer rtdb, geom, basis                       ! [input] Handles
        integer nbf, nclosed, nact                      ! [input] Orbital parameters
@@ -69,7 +70,7 @@ c
        endif
        if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0)) then
          if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
-     $     lshift0 = 0.0d0
+     $     lshift0 = 0.1d0
        endif
        if (.not.rtdb_get(rtdb,'scf:skeleton',MT_LOG,1,oskel)) then
          oskel = sym_number_ops(geom).gt.0
@@ -302,7 +303,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.5 1996-02-13 23:51:18 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.6 1996-02-15 23:40:04 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch

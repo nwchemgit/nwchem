@@ -5,6 +5,7 @@
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "mcscfprof.fh"
 c
 c
        integer geom, basis                          ! [input] Handles
@@ -31,6 +32,7 @@ c
 c
 c
 c
+       if (omcscfprof) call pstat_on(ps_hv)
        if (.not.ga_duplicate(g_afock, g_tmp1, 'temp1'))
      $      call errquit('mcscf_hessv: cannot duplicate',0)
        if (.not.ga_duplicate(g_afock, g_tmp2, 'temp2'))
@@ -67,5 +69,6 @@ c
 c
 c
 c
+       if (omcscfprof) call pstat_off(ps_hv)
        return
        end

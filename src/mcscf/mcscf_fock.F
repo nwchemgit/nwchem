@@ -1,6 +1,6 @@
 c
 c  %A%
-c  $Id: mcscf_fock.F,v 1.2 1995-12-15 11:59:11 d3g681 Exp $
+c  $Id: mcscf_fock.F,v 1.3 1996-02-15 23:39:54 rg240 Exp $
 c
 c Compute the MCSCF MO-Fock matrices;
 c inactive, active and generalized
@@ -16,6 +16,7 @@ c
 #include "rtdb.fh"
 #include "bas.fh"
 #include "geom.fh"
+#include "mcscfprof.fh"
 c
 c
 c The definition for the *generalized* Fock
@@ -70,6 +71,7 @@ c
 c
 c
 c
+       if (omcscfprof) call pstat_on(ps_gfock)
        aoff = nclosed + 1
        aend = nclosed + nact
        call ga_zero(g_ifock)
@@ -168,6 +170,7 @@ c
      $   call errquit('mcscf_fock: cannot destroy',0)
        if (.not.ga_destroy(g_adens))
      $   call errquit('mcscf_fock: cannot destroy',0)
+       if (omcscfprof) call pstat_off(ps_gfock)
        return
        end
 
