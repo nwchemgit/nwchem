@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.57 1999-05-11 23:42:45 d3g681 Exp $
+C$Id: opt_drv.F,v 1.58 1999-05-13 16:22:45 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -367,31 +367,7 @@ c
 c
 c     ----- exit if converged -----                     
 c
-      if(cvged) then
-         if ((ga_nodeid().eq.0.or.dbug) .and.
-     $        util_print('geometry',print_low))  then
-            write(iw,9998)
-            if (.not. geom_print(geom)) call errquit
-     $           ('hnd_opt_drv: geom_print?',0)
-*rak:            if (util_print('bonds',print_default))
-*rak:     $           call distan(nat,c)
-*rak:            if (util_print('angles',print_default))
-*rak:     $           call angle(nat,c)
-            if (util_print('bonds',print_default)) then
-              if (.not.geom_print_distances(geom)) call errquit(
-     &            'hnd_opt_drv: geom_print_distances failed',911)
-            endif
-            if (util_print('angles',print_default)) then
-              if (.not.geom_print_angles(geom)) call errquit(
-     &            'hnd_opt_drv: geom_print_angles failed',911)
-            endif
-         endif
-         call ga_sync()
-         if (.not.geom_destroy(geom))
-     &      call errquit('hnd_opt: geom_destroy?', 911)
-         hnd_optx=.true.
-         return
-      endif
+      if (cvged) goto 3301
 c
   100 continue
 c
@@ -448,32 +424,8 @@ c
       call hnd_opt_gmax(rtdb)
       call hnd_opt_converge(rtdb,cvged)
       call hnd_opt_print(rtdb)
-      if(cvged) then
-         if ((ga_nodeid().eq.0.or.dbug)
-     $       .and. util_print('geometry',print_low))  then
-
-            write(iw,9998)
-            if (.not. geom_print(geom)) call errquit
-     $           ('hnd_opt_drv: geom_print?',0)
-*rak:            if (util_print('bonds',print_default))
-*rak:     $           call distan(nat,c)
-*rak:            if (util_print('angles',print_default))
-*rak:     $           call angle(nat,c)
-            if (util_print('bonds',print_default)) then
-              if (.not.geom_print_distances(geom)) call errquit(
-     &            'hnd_opt_drv: geom_print_distances failed',911)
-            endif
-            if (util_print('angles',print_default)) then
-              if (.not.geom_print_angles(geom)) call errquit(
-     &            'hnd_opt_drv: geom_print_angles failed',911)
-            endif
-         endif
-         if (.not.geom_destroy(geom))
-     &      call errquit('hnd_opt: geom_destroy?', 911)
-         call ga_sync()
-         hnd_optx=.true.
-         return
-      endif
+c
+      if(cvged) goto 3301
 c
 c     ----- update hessian matrix -----
 c
@@ -499,6 +451,32 @@ c
 c     ----- go back to next search direction -----
 c
       go to 100
+c
+c     Converged ... print info and clean up
+c
+ 3301 if ((ga_nodeid().eq.0.or.dbug)
+     $     .and. util_print('geometry',print_low))  then
+         write(iw,9998)
+         if (.not. geom_print(geom)) call errquit
+     $        ('hnd_opt_drv: geom_print?',0)
+         if (zcoord)  then 
+            call hnd_zmtprt(geom)
+            write(6,*)
+         endif
+         if (util_print('bonds',print_default)) then
+            if (.not.geom_print_distances(geom)) call errquit(
+     &           'hnd_opt_drv: geom_print_distances failed',911)
+         endif
+         if (util_print('angles',print_default)) then
+            if (.not.geom_print_angles(geom)) call errquit(
+     &           'hnd_opt_drv: geom_print_angles failed',911)
+         endif
+      endif
+      if (.not.geom_destroy(geom))
+     &     call errquit('hnd_opt: geom_destroy?', 911)
+      call ga_sync()
+      hnd_optx=.true.
+      return
 c
  9999 format(/,10x,21(1h-),
      1       /,10x,'Geometry Optimization',
@@ -911,7 +889,7 @@ c
 c
       if(nzmat.gt.0) then
          call hnd_bandbi(geom,nat,c)
-         if (util_print('geometry', print_low)) then
+         if (util_print('optimization', print_low)) then
             call hnd_zmtprt(geom)
             if (ga_nodeid().eq.0) write(iw,9997)
          endif
