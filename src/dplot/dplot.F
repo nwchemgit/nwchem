@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.22 2002-12-12 00:35:10 edo Exp $
+* $Id: dplot.F,v 1.23 2003-01-10 19:55:18 edo Exp $
 *
       Implicit None
 *     
@@ -9,6 +9,7 @@
 #include "mafdecls.fh"
 #include "global.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
@@ -54,7 +55,7 @@ c
 ************************************************************************
 *     
       iProc = ga_nodeid()
-      DeBug = .False.
+      DeBug = util_print('dplot', print_high)
       Coord(1) = 'X'
       Coord(2) = 'Y'
       Coord(3) = 'Z'
@@ -319,17 +320,13 @@ c
       End If
 *
 *---- Create global array for MOs and the density matrix
-c      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(1),'atom')
       g_Vec(1) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Vec1')
       If (nSet.eq.2)then
-c     &   Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(2),'atom')
          g_Vec(2) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Vec2')
       endif
       If (What.ne.'VIEW') Then
-c         Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns1',g_Dns(1),'atom')
          g_Dns(1) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dns1')
          If (nSet.eq.2)then
-c     &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns2',g_Dns(2),'atom')
              g_Dns(2) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dns2')
          endif
       End If
@@ -366,10 +363,8 @@ c     &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns2',g_Dns(2),'atom')
          If (nBF2.ne.nBF . or . nSet2.ne.nSet)
      &      Call ErrQuit('DPlot: Orbital files do not match',0)
 *------- Create global array for density matrix
-c         Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dn1',g_Dns2(1),'atom')
          g_Dns2(1) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dn1')
          If (nSet.eq.2)then
-c     &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dn2',g_Dns2(2),'atom')
             g_Dns2(2) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dn2')
          endif
 *------- Get the density matrix for the second orbital file
@@ -391,11 +386,6 @@ c         Call GADest(g_Dns2(1))
 *---- Get the values of the density at the grid points
       LResult = MA_Push_Get(MT_Dbl,nPoint,'Vls',l_Vls,k_Vls)
       Call ErrMem(LResult,'DPlot: Failed to allocate values',0)
-c      Call GACrea(Geom,AO_Bas_Han,nPoint,1,'Vls',g_Vls,'column')
-c
-c      this call seems stupid but this is the proper translation 
-c      of gacrea.F to ga_create (JAN).
-c
 *ga:1:0
       if (.not. ga_create(mt_dbl, nPoint, 1, 'Vls', 
      &                    0, 0, g_Vls)) 

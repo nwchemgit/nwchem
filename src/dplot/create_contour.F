@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.19 2003-01-03 23:29:54 edo Exp $
+* $Id: create_contour.F,v 1.20 2003-01-10 19:55:18 edo Exp $
 *
       Implicit None
 *
@@ -11,6 +11,7 @@
 #include "mafdecls.fh"
 #include "global.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
@@ -52,20 +53,18 @@
      .     k_rdat,l_rdat,lcntoce, icntoce, 
      .     lcntobfr, icntobfr,
      .     iscr,lscr,nscr,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2
-            integer lbas_cent_info, ibas_cent_info,
-     &        lbas_cset_info, ibas_cset_info,
-     &        ldocset, idocset,ncontrset,i
+      integer lbas_cent_info, ibas_cent_info,
+     &     lbas_cset_info, ibas_cset_info,
+     &     ldocset, idocset,ncontrset,i
+      integer avail,nstep,ii,ioffg_s,ngrpp_s,needed
 
             
 
-cedo      double precision rdens_atom(natom*natom)
       Logical LResult,DeBug,GRAD
-      external grid_nbfm
-      integer grid_nbfm
 *
 ************************************************************************
 *
-      DeBug = .False.
+      DeBug = util_print('dplot', print_high)
       GRAD  = .False.
       iProc = ga_nodeid()
       nProc = ga_nnodes()
@@ -168,6 +167,8 @@ cedo      double precision rdens_atom(natom*natom)
      &     ldocset, idocset))
      &     call errquit('grid_quadv0a: cannot allocate docset',
      .     ncontrset)
+      Call QDist(Dbl_mb(k_rq0),Dbl_mb(k_rq),Grid(1,iOffG),Dbl_mb(k_xyz),
+     &           nGrPP,nAtom)
       Call oldnBF_to_mBF(AO_Bas_Han,dbl_mb(k_rq0),
      &                mBF,nAtom,
      &                Int_mb(k_iniz),Int_mb(k_ifin),
@@ -181,13 +182,34 @@ cedo      double precision rdens_atom(natom*natom)
 *---- Compute values of the basis functions and the grid points (use
 *     Int_Eval_GBSets from the NWDFT module)
 *
+      LResult = Bas_High_Angular(AO_Bas_Han,nbf_ao_mxang)
+      LResult = Bas_nContr_CN_Max(AO_bas_han,nbf_ao_mxcont)
+      Max_Component = ((nbf_ao_mxang+2)*(nbf_ao_mxang+1))/2
+      If ( nbf_ao_mxang .eq. 0 ) Then
+         Max_Elem_Ang_Scr = Max_Component *  3
+      ElseIf ( nbf_ao_mxang .le. 3 ) Then
+         Max_Elem_Ang_Scr = Max_Component *  9
+      Else
+         Max_Elem_Ang_Scr = Max_Component * 28
+      Endif 
+cedo
+cedo  make it in pieces that use 70% of  MA
+cedo
+      avail = MA_inquire_avail(mt_dbl)*7/10
       lth1 = nGrPP*nBF
+      nscr4 = 3*ngrpp*nbf_ao_mxcont + 
+     &     max(3*ngrpp*nbf_ao_mxprim,
+     &     ngrpp*max_elem_ang_scr) + 1
+      needed=lth1+nscr4
+      nstep=int(dble(needed)/dble(avail)+1d0)
+      if(debug.and.iproc.eq.0) then
+         write(luout,*) ' no. doubles avail ',avail,' nstep ',nstep
+      endif
+      lth1=lth1/nstep
+      nscr4=nscr4/nstep
       If (lth1.eq.0) lth1 = 1
       lth2 = 1
-      If (GRAD) lth2 = nGrPP*mBF*3
-      If (lth2.eq.0) lth2 = 1
-      lth3 = nBF
-      If (lth3.eq.0) lth3 = 1
+      lth3 = 1
       LResult = MA_Push_Get(MT_Dbl,lth1,'Scr1',l_Scr1,k_Scr1)
       Call ErrMem(LResult,'C_C: Failed to allocate Scr1',lth1)
       LResult = MA_Push_Get(MT_Dbl,lth2,'Scr2',l_Scr2,k_Scr2)
@@ -197,26 +219,13 @@ cedo      double precision rdens_atom(natom*natom)
       LResult = MA_Push_Get(MT_Int,lth3,'Scr3',l_Scr3,k_Scr3)
       Call ErrMem(LResult,'C_C: Failed to allocate Scr3',lth3)
 *
-      LResult = Bas_High_Angular(AO_Bas_Han,nbf_ao_mxang)
-      LResult = Bas_nContr_CN_Max(AO_bas_han,nbf_ao_mxcont)
 !      If (DeBug . and . iProc.eq.0)Write(LuOut,*)' nbf_ao_mxang      = ',nbf_ao_mxang
 !      If (DeBug . and . iProc.eq.0)Write(LuOut,*)' nbf_ao_mxcont     = ',nbf_ao_mxcont
 *
 *---- Allocate an extra scratch space
-      Max_Component = ((nbf_ao_mxang+2)*(nbf_ao_mxang+1))/2
-      If ( nbf_ao_mxang .eq. 0 ) Then
-         Max_Elem_Ang_Scr = Max_Component *  3
-      ElseIf ( nbf_ao_mxang .le. 3 ) Then
-         Max_Elem_Ang_Scr = Max_Component *  9
-      Else
-         Max_Elem_Ang_Scr = Max_Component * 28
-      Endif 
-      nscr4 = 3*ngrpp*nbf_ao_mxcont + 
-     &     max(3*ngrpp*nbf_ao_mxprim,
-     &     ngrpp*max_elem_ang_scr) + 1
 *
       LResult = MA_Push_Get(MT_Dbl,nScr4,'Scr4',l_Scr4,k_Scr4)
-      Call ErrMem(LResult,'C_C: Failed to allocate Scr4',0)
+      Call ErrMem(LResult,'C_C: Failed to allocate Scr4',nscr4)
 *
       if (.not.MA_Push_Get(mt_int, 3*natom, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
@@ -226,13 +235,29 @@ cedo      double precision rdens_atom(natom*natom)
      &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natom)
-!      call qdist(rchi_atom, rq, qxyz, xyz, nqpts, natoms)
-      Call QDist(Dbl_mb(k_rq0),Dbl_mb(k_rq),Grid(1,iOffG),Dbl_mb(k_xyz),
-     &           nGrPP,nAtom)
+
+      do ii=1,nstep
+         ngrpp_s=ngrpp/nstep
+         ioffg_s=ioffg+(ii-1)*ngrpp_s
+         if(ii.eq.nstep) ngrpp_s = ngrpp - ioffg_s
+      If (DeBug . and . iProc.eq.0) Then
+         write(luout,*)  ' step # ',ii,
+     ,        'ioffg_s ',ioffg_s,' ngrpp_s ',ngrpp_s,
+     ,        ' ngrpp ',ngrpp
+      endif
+      Call QDist(Dbl_mb(k_rq0),Dbl_mb(k_rq),
+     .        Grid(1,ioffg_s),Dbl_mb(k_xyz),
+     &           ngrpp_s,nAtom)
+      Call oldnBF_to_mBF(AO_Bas_Han,dbl_mb(k_rq0),
+     &                mBF,nAtom,
+     &                Int_mb(k_iniz),Int_mb(k_ifin),
+     .     int_mb(k_ibf),
+     &                Dbl_mb(k_Expo),nbf_ao_mxprim,
+     .        log_mb(idocset),Acc_AO_Gauss)
       call xc_eval_basis(ao_bas_han, 0, dbl_mb(k_scr1),
      &     dbl_mb(k_scr2), dbl_mb(k_scr3), dbl_mb(k_hess),
-     ,     Dbl_mb(k_rq), Grid(1,iOffG),Dbl_mb(k_xyz),
-     ,      ngrpp, natom, int_mb(k_iniz), log_mb(idocset), 
+     ,     Dbl_mb(k_rq), Grid(1,iOffG_s),Dbl_mb(k_xyz),
+     ,      ngrpp_s, natom, int_mb(k_iniz), log_mb(idocset), 
      .     int_mb(ibas_cent_info), int_mb(ibas_cset_info))
 
 *---- Matrix Scr1(nGrid,nBF) contains HOPEFULY!!! the values of each
@@ -254,9 +279,8 @@ cedo      double precision rdens_atom(natom*natom)
          End Do
          max_at_bf2 = max_at_bf*max_at_bf
 *
-         lthB = nbf_ao_mxnbf_ce*nGrPP
+         lthB = nbf_ao_mxnbf_ce*ngrpp_s
          lthZ=1
-         If (GRAD) lthZ = 3*nGrPP*max_at_bf
          nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
 *
          LResult = MA_Push_Get(MT_dbl,nbf_ao_mxnbf_ce2,'DENSF',
@@ -270,14 +294,13 @@ cedo      double precision rdens_atom(natom*natom)
          Call ErrMem(LResult,'C_C: Failed to allocate BMat',0)
          call dfill(nbf_ao_mxnbf_ce2, 0.0d0, dbl_mb(k_Fmat), 1)
          call dfill(nbf_ao_mxnbf_ce2, 0.0d0,dbl_mb(k_Pmat), 1)
-         call dfill(nbf_ao_mxnbf_ce*ngrpp, 0.0d0,dbl_mb(k_Bmat), 1)
+         call dfill(nbf_ao_mxnbf_ce*ngrpp_s, 0.0d0,dbl_mb(k_Bmat), 1)
          
 *
-         lthDel=3*nGrPP
+         lthDel=3*ngrpp_s
          LResult = MA_Push_Get(MT_dbl,lthDel,'DelRho',l_DelRho,k_DelRho)
          Call ErrMem(LResult,'C_C: Failed to allocate DelRho',0)
          nelem=1
-         if(GRAD) nelem=nGrPP
          LResult = MA_Push_Get(MT_Dbl,nelem,'gamma',l_gamma,k_gamma)
          Call ErrMem(LResult,'C_C: Failed to allocate Gamma',0)
          LResult = MA_Push_Get(MT_int,2*nAtom,'cet',l_cetofbr,
@@ -314,26 +337,22 @@ c
      &         lrdelchi_atom,irdelchi_atom))call errquit
      &         ('cre_cont: cannot allocate rdelchi_atom',0)
             call dfill(natom, 0.0d0, dbl_mb(irdelchi_atom), 1)
-            call util_rmsatbf(ngrpp, natom,
+            call util_rmsatbf(ngrpp_s, natom,
      .           int_mb(k_iniz),int_mb(k_ifin),
      ,           dbl_mb(k_scr1),dbl_mb(irchi_atom))
 *
 !            call dplot_nobq(natom,byte_mb(k_tags),
 !     .           int_mb(k_iniz),int_mb(k_ifin),
-!     ,           dbl_mb(irchi_atom),dbl_mb(k_rdat))
-*
-!         write(0,*) ' scr ',dbl_mb(k_scr1)
-!         write(0,*) ' ibf ',dbl_mb(k_ibf)
-!         write(0,*) ' iniz ',dbl_mb(k_ifin)
+!     ,           dbl_mb(irchi_atom))
 
          call xc_rhogen(TOLL,AO_Bas_Han,g_Dns,
-     &                  nbf_ao_mxnbf_ce,nAtom,1,nGrPP,nBF,mBF,
-     &                  .false.,GRAD,
+     &                  nbf_ao_mxnbf_ce,nAtom,1,ngrpp_s,nBF,mBF,
+     &                  .false.,.false.,
      &                  Dbl_mb(k_FMat),Dbl_mb(k_PMat),
      &                  Dbl_mb(k_BMat),
      &                  Dbl_mb(k_Scr1),Dbl_mb(k_Scr2),Int_mb(k_ibf),
      &                  Int_mb(k_iniz),Int_mb(k_ifin),
-     &                  Values(iOffG),Dbl_mb(k_DelRho),
+     &                  Values(iOffG_s),Dbl_mb(k_DelRho),
      &              dbl_mb(irchi_atom), dbl_mb(irdelchi_atom),
      &              dbl_mb(k_rdat), int_mb(k_cetobfr),1d0)
 *------- Deallocate Scratch memory needed by xc_rhogen
@@ -344,12 +363,13 @@ c
          LResult = MA_Push_Get(MT_Dbl,nBF,'MOVec',l_MOVec,k_MOVec)
          Call ErrMem(LResult,'C_C: Failed to allocate MOVec',0)
 *
-         Call PhiGen(Dbl_mb(k_Scr1),Dbl_mb(k_MOVec),Values(iOffG),
-     &               nGrPP,nBF,g_Vec(1),nSet,Spin,Orb_No)
+         Call PhiGen(Dbl_mb(k_Scr1),Dbl_mb(k_MOVec),Values(iOffG_s),
+     &               ngrpp_s,nBF,g_Vec(1),nSet,Spin,Orb_No)
 *
          LResult = MA_Pop_Stack(l_MOVec)
          Call ErrMem(LResult,'C_C: Failed to deallocate MOVec',0)
       End If
+      enddo
 *
 *---- Deallocate Scratch memory
       if(.not.MA_chop_Stack(ldocset))

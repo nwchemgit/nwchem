@@ -1,6 +1,6 @@
       SubRoutine DMat(Geom,Basis,g_Vec,g_Dns,nOcc,nBF)
 *
-* $Id: dmat.F,v 1.5 1997-11-04 10:10:37 d3e129 Exp $
+* $Id: dmat.F,v 1.6 2003-01-10 19:55:18 edo Exp $
 *
       Implicit None
 *
@@ -32,7 +32,6 @@ c
       iProc = ga_nodeid()
 *
 *---- Allocate the global array
-c      Call GACrea(Geom,Basis,nBF,nBF,'Scr',g_Scr,'atom')
       g_Scr = ga_create_atom_blocked(Geom, Basis, 'Scr')
       Call GA_Copy(g_Vec,g_Scr)
       Call GA_Sync
@@ -69,7 +68,6 @@ c      Call GACrea(Geom,Basis,nBF,nBF,'Scr',g_Scr,'atom')
       Call GA_Sync
       Call GA_Dgemm('N','T',nBF,nBF,nBF,1.d0,g_Vec,g_Scr,0.d0,g_Dns)
 *
-c      Call GADest(g_Scr)
       if (.not. ga_destroy(g_Scr)) call errquit
      &   ('dmat: could not destroy g_Scr', 0)
 *
