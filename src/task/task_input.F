@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.35 2004-12-08 23:59:05 bert Exp $
+* $Id: task_input.F,v 1.36 2004-12-18 00:50:23 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -163,6 +163,27 @@ c
         if (theory.eq.'md') call errquit
      &      ('task_input:theory must be a QM method for QMMM',911,
      &       RTDB_ERR)
+        if (operation.ne.'energy' .and.
+     >      operation.ne.'optimize' .and.
+     >      operation.ne.'saddle' .and.
+     >      operation.ne.'frequencies' .and.
+     >      operation.ne.'hessian' .and.
+     >      operation.ne.'freq' .and.
+     >      operation.ne.'gradient' .and.
+     >      operation.ne.'dynamics' .and.
+     >      operation.ne.'et' ) call errquit
+     &      ("task_input:"//operation//"not supported with QMMM",911,
+     &       RTDB_ERR)
+
+        if (operation.eq.'freq' .or.
+     >      operation.eq.'hessian' .or.
+     >      operation.eq.'frequencies' ) then
+           if(.not.numerical) call errquit
+     &      ("task_input:only numerical "//operation//
+     >        "is supported with QMMM",911,
+     &       RTDB_ERR)
+        end if
+
       endif
       if (ignore) then
          if (.not. rtdb_put(rtdb, 'task:ignore', mt_log, 1, 
