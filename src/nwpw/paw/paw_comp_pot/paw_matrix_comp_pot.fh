@@ -1,0 +1,10 @@
+*
+* $Id: paw_matrix_comp_pot.fh,v 1.1 2003-02-14 19:55:07 marat Exp $
+*
+      integer paw_comp_pot_matrix(4)
+      integer i_paw_comp_pot_matrix(4)
+      integer s_paw_comp_pot_matrix(4)
+
+      common /paw_comp_pot_matrix/ paw_comp_pot_matrix,
+     >                      i_paw_comp_pot_matrix,
+     >                      s_paw_comp_pot_matrix
