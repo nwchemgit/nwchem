@@ -1,5 +1,5 @@
 /*
- $Id: util_file_copy.c,v 1.9 2000-12-02 02:00:44 edo Exp $
+ $Id: util_file_copy.c,v 1.10 2000-12-03 03:36:19 edo Exp $
  */
 
 #include <stdio.h>
@@ -13,7 +13,7 @@
 #if defined(CRAY) || defined(USE_FCD)
 int fortchar_to_string(_fcd, int, char *, const int);
 #else
-int fortchar_to_string(const char *, int, char *, const int);
+Integer fortchar_to_string(const char *, Integer, char *, const Integer);
 #endif
 
 void util_file_copy(const char *input, const char *output)
@@ -37,9 +37,9 @@ void util_file_copy(const char *input, const char *output)
 	ga_error("util_file_copy",0);
     }
     while ((nread = fread(buf, 1, sizeof(buf), fin)) > 0)
-      ndone=fwrite(buf, 1, nread, fout);
-	if (ndone != nread) {
-	    fprintf(stderr,"util_file_copy: ndone %d nread %d\n", ndone,nread);
+      /*      ndone=fwrite(buf, 1, nread, fout);*/
+	if (fwrite(buf, 1, nread, fout) != nread) {
+	    fprintf(stderr,"util_file_copy: ndone dd nread %d\n", nread);
 	    fprintf(stderr,"util_file_copy: failed writing %s\n", output);
 	    ga_error("util_file_copy",0);
 	}
