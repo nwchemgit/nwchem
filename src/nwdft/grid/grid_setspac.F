@@ -1,7 +1,7 @@
       subroutine grid_setspac(xyz, xyzw, Rij, rq, p, ictr, nq,
      ,     expo, rad)
 c
-c$Id: grid_setspac.F,v 1.16 2004-01-24 01:48:44 edo Exp $
+c$Id: grid_setspac.F,v 1.17 2004-09-01 22:49:13 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -72,11 +72,11 @@ c
          if(whichssw.eq.'erf1') then
             call grid_ssw(xyzw, dbl_mb(ixyzm), rij,rq, 
      &           p, ictr_scr, ncenters_scr, nq,
-     ,           int_mb(iscr),whichssw,int_mb(k_indx))
+     ,           int_mb(iscr),int_mb(k_indx), 'erf1')
          else
             call grid_sswold(xyzw, dbl_mb(ixyzm), rij,rq, 
      &           p, ictr_scr, ncenters_scr, nq,
-     ,           int_mb(iscr),whichssw,int_mb(k_indx))
+     ,           int_mb(iscr),int_mb(k_indx),whichssw)
          endif
          if (odftps) call pstat_off(ps_ssw)
       endif
