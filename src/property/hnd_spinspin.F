@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.2 2004-12-06 20:15:36 bert Exp $
+c $Id: hnd_spinspin.F,v 1.3 2004-12-06 21:46:47 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -179,6 +179,13 @@ c
      &                      nvirt,scftyp,vectors,dbl_mb(k_occ),
      &                      dbl_mb(k_eval),nmo)
 c
+c     Return if scftyp equals RHF
+c
+      if (scftyp.eq.'RHF') then
+          if (ga_nodeid().eq.0) write(luout,7000)
+          goto 911
+      endif
+c
 c     Allocate array for tensor data (5 x # of pairs x 9, one for each term)
 c
       if (.not. ma_push_get(mt_dbl,9*5*ipairs,'eigenval',l_data,k_data))
@@ -293,7 +300,7 @@ c
           if (.not.ga_destroy(g_dens(i))) call 
      &       errquit('giao_aotomo: ga_destroy failed gdens',i,GA_ERR)
       enddo
-      if (.not.ga_destroy(vectors(1))) call 
+ 911  if (.not.ga_destroy(vectors(1))) call 
      &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
       if (.not.ga_destroy(vectors(2))) call 
      &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
@@ -308,6 +315,8 @@ c
      &    errquit('hnd_spinspin: geom_rtdb_store failed',555,RTDB_ERR)
 c
       return
+ 7000 format(/,10x,'Indirect spin-spin coupling not calculated for RHF',
+     1      ' wave functions: needs UHF wave function')
  9000 format(6x,49(1h-),/,
      &       6x,'Atom ',i4,': ',i3,'-',a2,' and Atom ',i4,': ',
      &       i3,'-',a2,//,

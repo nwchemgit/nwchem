@@ -1,5 +1,5 @@
       subroutine hnd_giaox(rtdb,basis,geom)
-c $Id: hnd_giaox.F,v 1.5 2004-12-06 20:15:36 bert Exp $
+c $Id: hnd_giaox.F,v 1.6 2004-12-06 21:46:47 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -112,6 +112,13 @@ c     Get Unperturbed Density Matrix
 c
       call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
      &                      nclosed,nopen,nvirt)
+c
+c     Return if scftyp equals UHF (= ROHF)
+c
+      if (scftyp.eq.'UHF') then
+          if (ga_nodeid().eq.0) write(luout,7000)
+          goto 911
+      endif
 c
 c     Create U matrix of dimension (nbf,nmo,3) and zero
 c     Use ahi for dimension and ahi array for chunking/blocking
@@ -649,7 +656,7 @@ c
 c
 c     Clean up all remaining memory
 c
-      if (.not.ga_destroy(vectors(1))) call 
+ 911  if (.not.ga_destroy(vectors(1))) call 
      &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
 c
       if (.not.ma_pop_stack(l_dia)) call
@@ -672,6 +679,8 @@ c
      &    errquit('hnd_giaox: geom_rtdb_store failed',555,RTDB_ERR)
 c
       return
+ 7000 format(/,10x,'NMR shielding cannot be calculated for UHF',
+     1      ' or ROHF wave functions: use RHF')
  9700 format(6x,'Atom: ',i4,2x,a2)
  9800 format(8x,'Diamagnetic',/,3(3F12.4,/))
  9801 format(8x,'Paramagnetic',/,3(3F12.4,/))
