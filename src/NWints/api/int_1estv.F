@@ -1,4 +1,4 @@
-c $Id: int_1estv.F,v 1.5 2000-05-22 23:45:49 mdupuis Exp $
+c $Id: int_1estv.F,v 1.6 2000-05-23 05:49:17 mdupuis Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}
@@ -594,6 +594,13 @@ c
         write(luout,*)'i_basis geometry handle:',i_geom
         write(luout,*)'j_basis geometry handle:',j_geom
         WarnP = 1
+      endif
+c
+c     ----- current cosmo restriction ... -----
+c
+      if(i_geom.ne.1.or.j_geom.ne.1) then
+         write(luout,*) 'i_geom and/or j_geom is not .eq. 0 . stop.'
+         call errquit('int_1eefc: i_geom and/or j_geom must be =0',0)  
       endif
 
       ohnd_ok = cando_hnd_1e(i_basis,ish,0)
