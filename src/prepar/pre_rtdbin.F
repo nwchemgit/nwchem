@@ -5,7 +5,7 @@
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
      + mfract,nfract,ifract)
 c
-c $Id: pre_rtdbin.F,v 1.20 2000-04-26 20:32:20 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.21 2000-04-26 23:55:06 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -91,7 +91,7 @@ c
 c
       if(.not.rtdb_get(irtdb,'prep:maxscf',mt_int,1,maxscf)) maxscf=20
       if(.not.rtdb_get(irtdb,'prep:qscale',mt_dbl,1,qscale))
-     + qscale=1.2d0
+     + qscale=1.0d0
 c
       if(.not.rtdb_get(irtdb,'prep:mnoe',mt_int,1,nxlnk)) nxlnk=1
 c
