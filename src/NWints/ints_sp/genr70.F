@@ -1,6 +1,6 @@
       subroutine genr70(bra, ish, xi, jsh, xj, ket, ksh, xk, lsh, xl,
      $     eri)
-c $Id: genr70.F,v 1.7 2003-10-17 22:54:05 carlfahl Exp $
+c $Id: genr70.F,v 1.8 2003-11-22 01:22:14 mhackler Exp $
 c
 c     Generic interface to the gaussian two electron integral package.
 c     Evaluates those integrals involving only s, p and sp functions.
@@ -11,6 +11,7 @@ c
 c     sinfo obtains geometrical information about the four centers
 c
       implicit none
+#include "errquit.fh"
 #include "basdeclsP.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -45,7 +46,6 @@ c
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
-#include "errquit.fh"
 c
 c
 c     check basis handles, prepare to get data from basis structures

@@ -1,4 +1,4 @@
-c $Id: int_rel_init.F,v 1.5 2003-10-17 22:54:09 carlfahl Exp $
+c $Id: int_rel_init.F,v 1.6 2003-11-22 01:26:01 mhackler Exp $
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_rel\_init}
 c:tex-This routine initializes the relativistic integrals.
@@ -8,6 +8,7 @@ c:tex-\begin{verbatim}
       logical function int_rel_init(rtdb,nbas,basis)
 c:tex-\end{verbatim}
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "stdio.fh"
 #include "apiP.fh"
@@ -34,7 +35,6 @@ c
       logical  bas_name_exist_rtdb
       external bas_name_exist_rtdb
 #include "bas_exndcf.fh"
-#include "errquit.fh"
 c
       if (init_rel) call errquit('int_rel_init: already called',911,
      &       INT_ERR)
