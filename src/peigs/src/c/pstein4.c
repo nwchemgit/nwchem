@@ -154,7 +154,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 
    Integer           **piwork, max_sz, sync_proc;
 
-   DoublePrecision         *dwork, *d_scrat, dbad[1], res;
+   DoublePrecision         *dwork, *d_scrat, dbad[1], res, syncco[1];
    extern DoublePrecision tcgtime_();
 
 
@@ -476,8 +476,15 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
         sync_proc = max(sync_proc, ii);
     }
   }
-  
+
+  /*
   bbcast00( (char *) d_scrat, 1, 999, sync_proc, nn_proc, proclist);
+  */
+
+  
+  syncco[0] = 0.0e0;
+  gsum00( (char *) syncco, 1, 5, 10, mapZ[0], nn_proc, proclist, d_scrat);
+
   
   /*
    * Compute eigenvectors
@@ -494,7 +501,9 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   nacluster= numclstr;
   
+  /*
   bbcast00( (char *) &clustr_info[0], 4*msize*sizeof(Integer), 9, proclist[0], nn_proc, proclist);
+  */
   
   /*
      printf(" in pstein4 after bbcast00 me = %d \n", me);
@@ -516,11 +525,11 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    */
   
 	  
-  bbcast00( (char *) &ibad, 1, 999, sync_proc, nn_proc, proclist);
+
   
   dbad[0] = (DoublePrecision) ibad;
   gmax00( (char *) dbad, 1, 1, 888, proclist[0], nn_proc, proclist, dwork );
-  
+
   ibad = (Integer) dbad[0];
   ibad = -ibad;
     

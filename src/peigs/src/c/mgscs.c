@@ -238,6 +238,12 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
 
   if ( column_indx != 1 )
     return 0;
+
+#ifdef DEBUG7
+      printf(" me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
+      fflush(stdout);
+#endif
+
   
   column_indx = ii;
   csize = bn - b1 + 1 ;

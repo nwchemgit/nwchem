@@ -345,10 +345,12 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     nproc = mxnprc_();
     strcpy( msg,  "Error in pdspevx." );
 
+#ifdef DEBUG7
     sprintf( filename, "pdspevx.%d", me);
+#endif
     
 /*
-setdbg_(&peigs_DEBUG);
+    setdbg_(&peigs_DEBUG);
 */
 
     
@@ -531,6 +533,7 @@ setdbg_(&peigs_DEBUG);
     
 #ifdef DEBUG7
     printf(" in pdspevx me = %d \n", mxmynd_());
+   fflush(stdout);
 #endif
     
     proclist = iscratch;
@@ -694,12 +697,14 @@ setdbg_(&peigs_DEBUG);
 #endif
 #ifdef DEBUG7
    printf(" in pdspevx tred2 me = %d \n", mxmynd_());
+   fflush(stdout);
 #endif
 
    tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
 
 #ifdef DEBUG7
    printf(" in pdspevx out tred2 me = %d \n", mxmynd_());
+   fflush(stdout);
 #endif
    
    
@@ -727,6 +732,7 @@ setdbg_(&peigs_DEBUG);
 #endif
 #ifdef DEBUG7
    printf(" in pdspevx pstebz10 me = %d \n", mxmynd_());
+   fflush(stdout);
 #endif
       
       peigs_shift = 0.0e0;
@@ -738,6 +744,10 @@ setdbg_(&peigs_DEBUG);
 	      dd, ee, dplus, lplus,
 	      mapZ, &neigval, &nsplit, eval, iblock, isplit,
 	      d_scrat, i_scrat, &linfo);
+
+      syncco[0] = 0.0e0;
+      gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
+
 #endif
       
    pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
@@ -745,12 +755,26 @@ setdbg_(&peigs_DEBUG);
 	      mapZ, &neigval, &nsplit, eval, iblock, isplit,
 	      d_scrat, i_scrat, &linfo);
 
+      syncco[0] = 0.0e0;
+      gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
+
+
    if ( linfo != 0 ) {
+
+     printf(" error in peigs...pstebz10 me = %d \n", me);
+     fflush(stdout);
      pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
 	       dplus, lplus, mapZ, &neigval, &nsplit, eval, iblock, isplit,
 	       d_scrat, i_scrat, info);
+
+      syncco[0] = 0.0e0;
+      gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
+
      
      if ( *info != 0 ) {
+     printf(" error in peigs...pstebz9 me = %d \n", me);
+     fflush(stdout);
+
        for ( iii = 0 ; iii < msize; iii++ )
 	 d_scrat[iii] = dd[iii];
        for (iii = 0; iii < msize; iii++)
@@ -848,6 +872,7 @@ setdbg_(&peigs_DEBUG);
       
 #ifdef DEBUG7
       printf(" me = %d just before pstein5 %d \n", me, *info );
+      fflush(stdout);
 #endif
       
       /*
@@ -878,11 +903,12 @@ setdbg_(&peigs_DEBUG);
       fflush(file);
 */
       
-      linfo = 26001;
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 11, mapA[0], nn_proc, proclist, d_scrat);
       
+      /*
       bbcast00( (char * ) eval, msize*sizeof(DoublePrecision), 111, proclist[0], nn_proc, proclist);
+      */
       
       
 #ifdef DEBUG7
@@ -895,6 +921,7 @@ setdbg_(&peigs_DEBUG);
 
 #ifdef DEBUG7
       printf(" me = %d just before pstein4 %d \n", me, *info );
+      fflush(stdout);
 #endif
       
       pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
@@ -996,7 +1023,8 @@ END:
     
     
 #ifdef DEBUG7
-    fprintf(stderr, "me = %d Exiting pdspevx \n", me );
+    printf( "me = %d Exiting pdspevx \n", me );
+	fflush(stdout);
 #endif
     
 #ifdef TIMING
