@@ -1,0 +1,67 @@
+#
+# Test for CC Lambda & EOM-CC codes in the TCE module
+# Reference data obtained by an independent determinantal CC code are
+#
+# CCSD       dipole -0.622369 au
+# EOM-CCSD   energy 11.99085 eV -74.5720575104 au
+#            dipole -0.002805 au trnsmmnt 0.106385 au
+#
+# CCSDT      dipole -0.623302 au
+# EOM-CCSDT  energy 12.01829 eV -74.5711542500 au
+#            dipole 0.023918 au  trnsmmnt 0.106140 au
+#
+# CCSDTQ     dipole -0.623208 au
+# EOM-CCSDTQ energy 12.01783 eV -74.5711948088 au
+#            dipole 0.024926 au  trnsmmnt 0.106143 au
+#
+start tce_h2o_eomcc
+ 
+echo
+ 
+geometry units bohr
+symmetry c1
+H    1.474611052297904   0.000000000000000   0.863401706825835
+O    0.000000000000000   0.000000000000000  -0.215850436155089
+H   -1.474611052297904   0.000000000000000   0.863401706825835
+end
+ 
+basis
+* library sto-3g
+end
+ 
+scf
+thresh 1.0e-14
+tol2e 0.0e-10
+singlet
+rhf
+end
+ 
+tce
+ccsd
+dipole
+freeze core atomic
+thresh 1.0d-12
+nroots 1
+end
+ 
+task tce energy
+ 
+tce
+ccsdt
+dipole
+freeze core atomic
+thresh 1.0d-12
+nroots 1
+end
+ 
+task tce energy
+ 
+tce
+ccsdtq
+dipole
+freeze core atomic
+thresh 1.0d-12
+nroots 1
+end
+ 
+task tce energy
