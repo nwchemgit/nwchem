@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.141 2002-05-14 19:01:45 d3j191 Exp $
+c $Id: cf_main.F,v 1.142 2002-06-12 19:18:30 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -261,17 +261,20 @@ c
       gsm(isml(i),j,1)=gsm(isml(i),j,1)+wgt(isat(i),j)*dist2
       gsm(isml(i),j,2)=gsm(isml(i),j,2)+wgt(isat(i),j)
     7 continue
+      gsm(isml(i),4,1)=gsm(isml(i),4,1)+dist2
+      gsm(isml(i),4,2)=gsm(isml(i),4,2)+1.0d0
     5 continue
 c
       endif
 c
       if(np.gt.0) call ga_dgop(mcf_67,gsm,8*msm,'+')
 c
-      do 8 j=1,4
       do 9 i=1,nsm
+      do 8 j=1,3
       gsm(i,j,2)=sqrt(gsm(i,j,1)/gsm(i,j,2))
-    9 continue
     8 continue
+      gsm(i,4,1)=sqrt(gsm(i,4,1))/gsm(i,4,2)
+    9 continue
 c
       return
       end
