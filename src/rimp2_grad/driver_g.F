@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_G -- Master routine for RI-MP2 gradient evaluation
 C
 C REVISION
-C     $Id: driver_g.F,v 1.6 1998-07-20 00:32:01 bernhold Exp $
+C     $Id: driver_g.F,v 1.7 1998-07-22 00:46:47 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_G(RTDB, Geom, AOBas, NAO,
@@ -164,6 +164,13 @@ C
 C
       Call RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
 C
+C     Now we can clean up the Lagrangian
+C
+      Do ISpin = 1, TopSpin
+         If ( .NOT. GA_Destroy( G_L(ISpin) ) ) Call ErrQuit(
+     $        'RIMP2_Driver_G: can''t free L', ISpin)
+      EndDo
+C
 C     *************************
 C     * Save correlated 1-PDM *
 C     *************************
@@ -193,13 +200,20 @@ C
          Call ErrQuit( 'RIMP2_Driver_G: TopSpin out of range', TopSpin)
       EndIf
 C
+C     ***************
+C     * Complete W2 *
+C     ***************
+C
+      If ( PrPrgRpt ) Call Progress_Report(LuOut,
+     $     '    Completing energy-weighted density (incl. Fock build)')
+      Call RIMP2_Mk_W2(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
+     $     g_P2, g_W2, Eig, LDEig, g_AOXF, Tol2e_Fock)
+C
 C     *******************
 C     * Clean up memory *
 C     *******************
 C
       Do ISpin = 1, TopSpin
-         If ( .NOT. GA_Destroy( G_L(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t free L', ISpin)
          If ( .NOT. GA_Destroy( G_W2(ISpin) ) ) Call ErrQuit(
      $        'RIMP2_Driver_G: can''t free W2', ISpin)
 C

@@ -31,3 +31,5 @@ rimp2g--+
 		|
 		mp2_make_dip_mom		(mp2_grad module)
 		mp2_make_nos			(mp2_grad module)
+		mk_w2---+
+			mp2_wij_fock_uhf	(mp2_grad module)

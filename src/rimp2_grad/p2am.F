@@ -3,7 +3,7 @@ C NAME
 C     rimp2_p2am -- Solve CPHF eqns for relaxed part of density
 C
 C REVISION
-C     $Id: p2am.F,v 1.1 1998-07-20 00:32:02 bernhold Exp $
+C     $Id: p2am.F,v 1.2 1998-07-22 00:46:49 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
@@ -100,6 +100,8 @@ c$$$         Call GA_Copy_Patch('N', g_L(ISpin), C+A+1, C+A+V, 1, C+A,
 c$$$     $        g_RHS, 1+Length, (V*(C+A))+Length, 1, 1)
          Call GA_Copy_Patch('N', g_RHS, 1+Length, (V*(C+A))+Length,
      $        1, 1, g_P2(ISpin), C+A+1, C+A+V, 1, C+A)
+         Call GA_Copy_Patch('T', g_P2(ISpin), C+A+1, C+A+V, 1, C+A, 
+     $        g_P2(ISpin), 1, C+A, C+A+1, C+A+V )
 C
 C        Need length of alpha spin for next spin case
 C
@@ -108,6 +110,10 @@ C
          If ( Util_Print('partial p2', Print_Debug) )
      $        Call GA_Print(g_P2(ISpin) )
       EndDo
+C
+C     THIS IS A TEMPORARY HACK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+C
+      Call GA_Copy(g_P2(1), g_P2(2) )
 C
 C     Free temporary memory
 C

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_L -- Form Lagrangian terms & their contributions elsewhere
 C
 C REVISION
-C     $Id: mk_l.F,v 1.4 1998-07-19 00:08:31 bernhold Exp $
+C     $Id: mk_l.F,v 1.5 1998-07-22 00:46:48 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
@@ -156,7 +156,6 @@ C
                Do Y = QLo, QHi
                   Do I = PLo, PHi
                      Scale = 1/( Eig(I, ISpin) - Eig(Y, ISpin) )
-                     Write ( 6, *) 'I, Y, Scale = ', I, Y, Scale
                      Dbl_MB( Index ) = Dbl_MB(Index) * Scale
                      Index = Index + 1
                   EndDo
@@ -272,47 +271,45 @@ C
      $        Call GA_Print( g_L(ISpin) )
 C
       EndDo ! ISpin
-c$$$C
-c$$$C     ***********************
-c$$$C     * L contributes to W2 *
-c$$$C     ***********************
-c$$$C
-c$$$      Do ISpin = 1, TopSpin
-c$$$         Call GA_Zero( g_W2(ISpin) )
-c$$$C
-c$$$         C = NFrzO(ISpin)
-c$$$         A = NAct(ISpin)
-c$$$         V = NVir(ISpin)
-c$$$C
-c$$$C        NOTE: All L contributions to W2 come with a 1/2 factor attached.
-c$$$C        Also, all L contributions to the (C+A)x(C+A) region carry a minus
-c$$$C        sign. These will be handled at the end, after the matrix is 
-c$$$C        assembled.
+C
+C     ***********************
+C     * L contributes to W2 *
+C     ***********************
+C
+      Do ISpin = 1, TopSpin
+         Call GA_Zero( g_W2(ISpin) )
+C
+         C = NFrzO(ISpin)
+         A = NAct(ISpin)
+         V = NVir(ISpin)
+C
+C        NOTE: All L contributions to W2 come with a 1/2 factor attached.
+C        Also, all L contributions to the (C+A)x(C+A) region carry a minus
+C        sign. These will be handled at the end, after the matrix is 
+C        assembled.
 c$$$C
 c$$$C        W2(mi) <-- L1(mi) 
 c$$$C
-c$$$         Write (6, *) 'Add patch in W2(mi)'
-c$$$         Call GA_Add_Patch(1.0d0, g_L1(ISpin), 1, C+A, 1,   A,
+c$$$                           ! + on 0.5d0 is CHEATING!
+c$$$         Call GA_Add_Patch(0.5d0, g_L1(ISpin), 1, C+A, 1,   A,
 c$$$     $                     1.0d0, g_W2(ISpin), 1, C+A, C+1, C+A,
 c$$$     $                            g_W2(ISpin), 1, C+A, C+1, C+A)
-c$$$C
-c$$$C        W2(ap) <-- L2(ap)
-c$$$C
-c$$$         Write (6, *) 'Add patch in W2(ap)'
-c$$$         Call GA_Add_Patch(1.0d0, g_L2(ISpin), 1,     V,     1, C+A+V,
-c$$$     $                     1.0d0, g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V,
-c$$$     $                            g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V)
+C
+C        W2(ap) <-- L2(ap)
+C
+                           ! - on 0.5d0 is CHEATING!
+         Call GA_Add_Patch(-0.5d0, g_L2(ISpin), 1,     V,     1, C+A+V,
+     $                      1.0d0, g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V,
+     $                             g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V)
 c$$$C
 c$$$C        W2(mi) <-- L3(mi) (Note: L3(ij) = L3(ji))
 c$$$C
-c$$$         Write (6, *) 'Add patch in W2(mi)'
 c$$$         Call GA_Add_Patch(1.0d0, g_L34(ISpin), 1, C+A, 1,   A,
 c$$$     $                     1.0d0, g_W2(ISpin),  1, C+A, C+1, C+A,
 c$$$     $                            g_W2(ISpin),  1, C+A, C+1, C+A)
 c$$$C
 c$$$C        W2(yz) <-- L3(yz)
 c$$$C
-c$$$         Write (6, *) 'Add patch in W2(yz)'
 c$$$         If ( C .gt. 0)
 c$$$     $        Call GA_Add_Patch(1.0d0, g_L34(ISpin), 1, C, 1, C,
 c$$$     $                          1.0d0, g_W2(ISpin),  1, C, 1, C,
@@ -320,7 +317,6 @@ c$$$     $                                 g_W2(ISpin),  1, C, 1, C)
 c$$$C
 c$$$C        W2(om) <-- L4(om)
 c$$$C
-c$$$         Write (6, *) 'Add patch in W2(om)'
 c$$$         Call GA_Add_Patch(1.0d0, g_L34(ISpin), 1, C+A, 1, C+A,
 c$$$     $                     1.0d0, g_W2(ISpin),  1, C+A, 1, C+A,
 c$$$     $                            g_W2(ISpin),  1, C+A, 1, C+A)
@@ -328,7 +324,7 @@ c$$$C
 c$$$C        Handle minus sign and 1/2 factor
 c$$$C
 c$$$         Call GA_Scale_Patch(g_W2(ISpin), 1, C+A, 1, C+A, -1.0d0)
-c$$$         Call GA_Scale(g_W2(ISpin), -0.5d0)
+c$$4         Call GA_Scale(g_W2(ISpin), 0.5d0)
 c$$$C
 c$$$C        Now handle the two blocks which we know from symmetry arguments
 c$$$C        but are not currently correct in W2.
@@ -343,14 +339,14 @@ c$$$C
 c$$$         If ( C .gt. 0 ) Call GA_Copy_Patch('T',
 c$$$     $        g_W2(ISpin), 1,   C,   C+1, C+A,
 c$$$     $        g_W2(ISpin), C+1, C+A, 1,   C)
-c$$$C
-c$$$C
-c$$$C        Print results if requested
-c$$$C
-c$$$         If ( Util_Print('partial w2', Print_Debug) )
-c$$$     $        Call GA_Print( g_W2(ISpin) )
-c$$$C     
-c$$$      EndDo                     ! ISpin
+C
+C
+C        Print results if requested
+C
+         If ( Util_Print('partial w2', Print_Debug) )
+     $        Call GA_Print( g_W2(ISpin) )
+C     
+      EndDo                     ! ISpin
 C
 C     Clean up memory
 C
