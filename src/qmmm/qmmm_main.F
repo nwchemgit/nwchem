@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.29 2005-01-25 18:42:00 marat Exp $
+c $Id: qmmm_main.F,v 1.30 2005-01-27 02:06:35 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -48,7 +48,6 @@ c
       integer nbqs, nbqw
       logical link
 
-      write(*,*) "in "//pname
       pname = 'qmmm_main'
       if(qmmm_print_debug()) 
      >  write(*,*) "in "//pname
