@@ -1,33 +1,72 @@
+\subsection{Hartree-Fock or SCF Gradients}
+
+\Large
+***This should be part of the SCF section (Section 8, in the current
+numbering; it doesn't belong all on its own as a separate Section 9),
+ since
+it appears to be part of the SCF module input.****
+\normalsize
+
+The input for this directive allows the user to define some important
+characteristics of the Hartree-Fock gradients for the SCF, UHF and ROHF
+calculations.  The form of the directive is as follows;
+
 \begin{verbatim}
   GRADIENTS 
-    [CHKPT <integer minutes>]
-    [RESTART]
-    [PRINT]
-    [NOPRINT]
+    [chkpt <integer minutes>]
+    [restart]
+    [print || noprint]
   END
 \end{verbatim}
 
-  This input controls the Hartree-Fock (SCF, UHF and ROHF) gradients.  
+%  This input controls the Hartree-Fock (SCF, UHF and ROHF) gradients.  
 
-\subsection{CHKPT}
+The directive contains two keywords, \verb+chkpt+ and \verb+restart+,
+that are related to the creation of the gradients.  The keyword \verb+chkpt+
+allows the user to specify a time interval at which the current values
+for the forces that make up 
+the gradient are saved, for access by a later calculation.  The time
+interval is specified in the integer variable \verb+minutes+, and defines
+the number of minutes of elapsed wall-clock time since the start of the
+calculation when the gradient is written to the runtime database.
 
-  This keyword is used to specify a time interval after which a
-  checkpoint for later restart is created. After \verb+minutes+
-  minutes of walltime the forces are written to the runtime database.
+% \subsection{CHKPT}
 
-\subsection{RESTART}
+%  This keyword is used to specify a time interval after which a
+%  checkpoint for later restart is created. After \verb+minutes+
+%  minutes of walltime the forces are written to the runtime database.
 
-  This keyword tells the program that this is a restart of an aborted
-  gradient calculation. The partially calculated forces are taken from
-  the database of the previous run. If they are not present, the
-  keyword is ignored and a complete calculation of the gradients is started.
+% \subsection{RESTART}
+
+Specifying the keyword \verb+restart+ allows the user to restart a calculation
+using the gradient calculated from a previous calculation that may have
+aborted for some reason.  (This implies, of course, that the previous
+calculation employed the keyword \verb+chkpt+ with a value specified for
+the variable \verb+minutes+ that allowed the calculation to write out the
+gradient before failing.)  The keyword \verb+restart+ allows the partially
+calculated forces from the previous calculation to be used as the starting
+point for the new calculation.  If the gradient was not saved previously,
+however, this keyword has no affect.  The gradients area automatically 
+recalculated from zero.
+
+%  This keyword tells the program that this is a restart of an aborted
+%  gradient calculation. The partially calculated forces are taken from
+%  the database of the previous run. If they are not present, the
+%  keyword is ignored and a complete calculation of the gradients is started.
 
   It also works within a geometry optimization. Subsequent gradient 
   calculations are not treated as restarts.
+\Large  **Elucidate.**
+\normalsize
 
-\subsection{PRINT, NOPRINT}
+% \subsection{PRINT, NOPRINT}
 
-  Currently only some print control is available.
+The complementary keyword pair \verb+print+ and \verb+noprint+ allow the 
+user some additional control on the information that can be obtained from
+the SCF calculation.  Currently, only a few items can be explicitly invoked
+via print control.  These are as follows;
+ 
+%  Currently only some print control is available.
 
 \begin{tabbing}
   Very\_long\_descriptive\_name \= Print level space \= \kill
@@ -43,8 +82,15 @@
 \subsection{frozen atoms}
 \label{sec:activeatoms}
 
+\Large
+***This section belongs somewhere near where you explain about atoms
+and centers and frozen atoms; somewhere in the section on Geometry,
+or maybe Basis sets, I suspect.  It definitely does not belong here,
+all on its lonesome.***
+\normalsize
+
 Currently the only mechanism for freezing atoms is to enter a list of
-active atoms via the \verb+set+ directive.
+active atoms via the \verb+SET+ directive.
 
 \begin{verbatim}
   set geometry:actlist integer <at1> <at2> <at3> ...
