@@ -1,7 +1,7 @@
 
 include ../../config/makefile.h
 
-  OBJ = hdbm.o
+ OBJ_OPTIMIZE = hdbm.o
 
   LIB_TARGETS = test.o words.o 
 

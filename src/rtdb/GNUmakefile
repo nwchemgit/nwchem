@@ -1,10 +1,10 @@
-# $Id: GNUmakefile,v 1.16 1997-02-17 20:52:31 d3g681 Exp $
+# $Id: GNUmakefile,v 1.17 1997-04-16 16:53:28 d3g681 Exp $
 
 include ../config/makefile.h
 
          LIBRARY = libutil.a
 
-             OBJ = rtdb_f2c.o rtdb.o rtdb_seq.o \
+    OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o rtdb_seq.o \
                    context.o context_f2c.o
 
          HEADERS = context.h rtdb.h rtdb.fh context.fh rtdb.cray.h
