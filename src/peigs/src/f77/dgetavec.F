@@ -258,7 +258,7 @@ CIBM           PREFER SCALAR
       DO I = BN-1, B1, -1
          DMINUS( I+1 ) = ( LLD( I ) + P( I+1 ) ) - DELTA
 
-         if ( dminus(i+1) < DLAMCHU ) then
+         if ( dminus(i+1) .lt. DLAMCHU ) then
             TMP = D( I ) / (DMINUS( I+1 )+DLAMCHU)
          else
             TMP = D( I ) / DMINUS( I+1 )
@@ -278,7 +278,7 @@ CIBM           PREFER SCALAR
          P( BN ) = D( BN ) - LAMBDA
          DO I = BN-1, B1, -1
             DMINUS( I+1 ) = ( LLD( I ) + P( I+1 ) ) - DELTA
-            if ( dminus(i+1) < DLAMCHU ) then
+            if ( dminus(i+1) .lt. DLAMCHU ) then
                TMP = D( I ) / (DMINUS( I+1 )+DLAMCHU)
             else
                TMP = D( I ) / DMINUS( I+1 )
