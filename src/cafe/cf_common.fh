@@ -1,9 +1,9 @@
-c $Id: cf_common.fh,v 1.49 2003-11-25 16:40:11 d3j191 Exp $
+c $Id: cf_common.fh,v 1.50 2004-02-24 03:32:41 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
       parameter(zero=0.0d0)
-      parameter(tiny=1.0d-12)
+      parameter(tiny=1.0d-18)
       parameter(small=1.0d-6)
       parameter(one=1.0d0)
       parameter(fourth=2.5d-1)
