@@ -1,17 +1,19 @@
       Subroutine RIMP2_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt,
      $   MxEBatch, Approx, MinEVal)
-C$Id: rimp2_parm.F,v 1.3 1998-03-17 00:14:36 bernhold Exp $
+C$Id: rimp2_parm.F,v 1.4 1998-03-17 17:16:02 bernhold Exp $
       Implicit NONE
       Integer RTDB, MxTBatch, MxEBatch(2)
       Double precision Thresh, MinEVal
       Character*(*) Approx
       Character*(*) Mem_Opt
 C
-      Integer Type, I
+      Integer Type, I, Junk
       Character*(26) Date
+      Logical Fail
 C
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 C
 C     **********************
 C     * Integral Threshold *
@@ -47,6 +49,31 @@ C
      $   1, Approx) ) Approx = 'V'
       If ( .NOT. RTDB_Get( RTDB, 'mp2:fit min eval',
      $   MT_Dbl, 1, MinEVal) ) MinEVal = 1.0d-8
+C
+C     ************************
+C     * Check for bad inputs *
+C     ************************
+C     These are no longer supported, and we consider it a favor to draw
+C     the attention of users to this fact, lest they get wrong results!
+C
+      Fail = .False.
+      If ( RTDB_Get_Info( RTDB, 'mp2:freeze by atoms', Type, Junk,
+     $     Date) ) then
+         Fail = .True.
+         Write (LuOut, '(A,A/A)')
+     $        'ERROR: ''mp2:freeze by atoms'' no longer supported ',
+     $        'by RI-MP2 module.',
+     $        'ERROR: Use FREEZE directive instead.'
+      EndIf
+      If ( RTDB_Get_Info( RTDB, 'mp2:freeze orbitals', Type, Junk,
+     $     Date) ) then
+         Fail = .True.
+         Write (LuOut, '(A,A/A)')
+     $        'ERROR: ''mp2:freeze orbitals'' no longer supported ',
+     $        'by RI-MP2 module.',
+     $        'ERROR: Use FREEZE and VECTORS SWAP directives instead.'
+      EndIf
+      If ( Fail ) Call ErrQuit('rimp2: aborting', 0)
 C
       Return
       End
