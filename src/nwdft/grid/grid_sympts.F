@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.13 2001-10-25 02:57:36 edo Exp $
+c$Id: grid_sympts.F,v 1.14 2001-10-25 21:51:35 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -79,6 +79,7 @@ c
       logical grid_incube
       external grid_incube
       integer iang_done ! [in/out] angular quadra analyzed
+      double precision pifact
 c
 c     Compute the quadrature points & weights for a given 
 c     set of radial shells.
@@ -88,6 +89,7 @@ c
       double precision  tx, ty, tz, xor, yor, zor
       double precision x,y,z,x1,y1,z1,ddd,wsum
 c
+      pifact=1d0/dacos(-1d0)*.25d0
       oprint_grid = util_print('griddebug', print_debug)
 c
 c
@@ -95,21 +97,20 @@ c
       nxyz2=nxyz*0.5d0
       ia_ictr = iatype(ictr)
       if(iang_done.ne.iang) then
-         nq_left = 0
+         nq_left = ntheta(iang)
          do k = 1, ntheta(iang)
 c     
             tx=za_leb(1,k,iang)
             ty=za_leb(2,k,iang)
             tz=za_leb(3,k,iang)
-            nq_left = nq_left + 1
             
-            gridscr(1,nq_left) =
+            gridscr(1,k) =
      .           qrot(1,1)*tx + qrot(1,2)*ty + qrot(1,3)*tz
-            gridscr(2,nq_left) =  
+            gridscr(2,k) =  
      .           qrot(2,1)*tx + qrot(2,2)*ty + qrot(2,3)*tz
-            gridscr(3,nq_left) =  
+            gridscr(3,k) =  
      .           qrot(3,1)*tx + qrot(3,2)*ty + qrot(3,3)*tz
-            gridscr(4,nq_left) = wa_leb(k,iang)
+            gridscr(4,k) = wa_leb(k,iang)
          enddo
 c
 c     apply symmetry operations
@@ -156,7 +157,7 @@ c
                wsum=wsum+gridscr(4,k)
             enddo
 cedo         write(6,'(A,I4),A,1PE20.12)') '         final nq ',nq_left
-            wsum=wsum/dacos(-1d0)*.25d0
+            wsum=wsum*pifact
             if(abs(wsum-1d0).gt.1d-6) call errquit(
      '           'grid_sympts: lost weights normaliz ',
      ,           log10((abs(wsum-1d0))))
@@ -167,6 +168,7 @@ cedo         write(6,'(A,I4),A,1PE20.12)') '         final nq ',nq_left
 c     
 c
       nq=0
+      wsum=rwghts(irsh,ia_ictr)
       do k = 1, nq_left
          xor=gridscr(1,k)*r
          yor=gridscr(2,k)*r
@@ -178,7 +180,7 @@ c
             aqbuf(1,nq) = xyz(1) +xor
             aqbuf(2,nq) = xyz(2) +yor
             aqbuf(3,nq) = xyz(3) +zor
-            aqbuf(4,nq) = gridscr(4,k)*rwghts(irsh,ia_ictr)
+            aqbuf(4,nq) = gridscr(4,k)*wsum
 
          endif
       enddo

@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.5 2001-10-25 01:28:43 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.6 2001-10-25 21:51:33 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -78,26 +78,26 @@ c
 #define Af6 15
 #define Af7 16
 c
-#define D0 1
-#define Dx 2
-#define Dy 3
-#define Dz 4
-#define Dxx 5
-#define Dxy 6
-#define Dxz 7
-#define Dyy 8
-#define Dyz 9
-#define Dzz 10
-#define Dxxx 11
-#define Dxxy 12
-#define Dxxz 13
-#define Dxyy 14
-#define Dxyz 15
-#define Dxzz 16
-#define Dyyy 17
-#define Dyyz 18
-#define Dyzz 19
-#define Dzzz 20
+#define d0 1
+#define dx 2
+#define dy 3
+#define dz 4
+#define dxx 5
+#define dxy 6
+#define dxz 7
+#define dyy 8
+#define dyz 9
+#define dzz 10
+#define dxxx 11
+#define dxxy 12
+#define dxxz 13
+#define dxyy 14
+#define dxyz 15
+#define dxzz 16
+#define dyyy 17
+#define dyyz 18
+#define dyzz 19
+#define dzzz 20
 c
 c     Determine when to use general code
 c
@@ -384,15 +384,15 @@ c
 #include "mafdecls.fh"
 c
       integer nq, maxl, maxder, l2k(0:maxl,0:maxl,0:maxl), gen_l
-      double precision ang(nq,*), d1ang(nq,Dx:Dz,*),
-     &     d2ang(nq,Dxx:Dzz,*), d3ang(nq,Dxxx:Dzzz,*),
+      double precision ang(nq,*), d1ang(nq,dx:dz,*),
+     &     d2ang(nq,dxx:dzz,*), d3ang(nq,dxxx:dzzz,*),
      &     q(3,nq), ctr(3), cd(2), cf(7)
       logical spherical
 c
       integer n, l, nl, nl1, i1s, i1, ix, iy, i, nx, nxy, lx, ly, lz,
-     &     k, k1(Dx:Dz), k2(Dxx:Dzz), k3(Dxxx:Dzzz), iscr, lscr, nscr
+     &     k, k1(dx:dz), k2(dxx:dzz), k3(dxxx:dzzz), iscr, lscr, nscr
       double precision x, y, z,
-     &     fac1(Dx:Dz), fac2(Dxx:Dzz), fac3(Dxxx:Dzzz)
+     &     fac1(dx:dz), fac2(dxx:dzz), fac3(dxxx:dzzz)
 c
       external nang_cart, nang_cart_tot
       integer nang_cart, nang_cart_tot,nxyz(3)
@@ -533,12 +533,12 @@ c     set the 0th angular function to 1
             call dfill(nq, 1d0, ang(1,1), 1)
             nl1 = nang_cart_tot(gen_l-1)
             nl = nang_cart_tot(maxl) - nl1
-            call dfill(nq*3*nl, 0d0, d1ang(1,Dx,nl1+1), 1)
+            call dfill(nq*3*nl, 0d0, d1ang(1,dx,nl1+1), 1)
             if (maxder .ge. 2) then
-               call dfill(nq*6*nl, 0d0, d2ang(1,Dxx,nl1+1), 1)
+               call dfill(nq*6*nl, 0d0, d2ang(1,dxx,nl1+1), 1)
             endif
             if (maxder .ge. 3) then
-               call dfill(nq*10*nl, 0d0, d3ang(1,Dxxx,nl1+1), 1)
+               call dfill(nq*10*nl, 0d0, d3ang(1,dxxx,nl1+1), 1)
             endif
          endif
 
@@ -608,16 +608,16 @@ c     zeroed out initially
                   do ly = (l-1) - lx, 0, -1
                      lz = (l-1) - lx - ly
                      k = l2k(lx,ly,lz)
-                     k1(Dx) = l2k(lx+1,ly,lz)
-                     k1(Dy) = l2k(lx,ly+1,lz)
-                     k1(Dz) = l2k(lx,ly,lz+1)
-                     fac1(Dx) = lx + 1
-                     fac1(Dy) = ly + 1
-                     fac1(Dz) = lz + 1
+                     k1(dx) = l2k(lx+1,ly,lz)
+                     k1(dy) = l2k(lx,ly+1,lz)
+                     k1(dz) = l2k(lx,ly,lz+1)
+                     fac1(dx) = lx + 1
+                     fac1(dy) = ly + 1
+                     fac1(dz) = lz + 1
                      do n = 1, nq
-                        d1ang(n,Dx,k1(Dx)) = fac1(Dx) * ang(n,k)
-                        d1ang(n,Dy,k1(Dy)) = fac1(Dy) * ang(n,k)
-                        d1ang(n,Dz,k1(Dz)) = fac1(Dz) * ang(n,k)
+                        d1ang(n,dx,k1(dx)) = fac1(dx) * ang(n,k)
+                        d1ang(n,dy,k1(dy)) = fac1(dy) * ang(n,k)
+                        d1ang(n,dz,k1(dz)) = fac1(dz) * ang(n,k)
                      enddo
                   enddo
                enddo
@@ -627,25 +627,25 @@ c     zeroed out initially
                   do ly = (l-2) - lx, 0, -1
                      lz = (l-2) - lx - ly
                      k = l2k(lx,ly,lz)
-                     k2(Dxx) = l2k(lx+2,ly,lz)
-                     k2(Dxy) = l2k(lx+1,ly+1,lz)
-                     k2(Dxz) = l2k(lx+1,ly,lz+1)
-                     k2(Dyy) = l2k(lx,ly+2,lz)
-                     k2(Dyz) = l2k(lx,ly+1,lz+1)
-                     k2(Dzz) = l2k(lx,ly,lz+2)
-                     fac2(Dxx) = (lx + 1)*(lx + 2)
-                     fac2(Dxy) = (lx + 1)*(ly + 1)
-                     fac2(Dxz) = (lx + 1)*(lz + 1)
-                     fac2(Dyy) = (ly + 1)*(ly + 2)
-                     fac2(Dyz) = (ly + 1)*(lz + 1)
-                     fac2(Dzz) = (lz + 1)*(lz + 2)
+                     k2(dxx) = l2k(lx+2,ly,lz)
+                     k2(dxy) = l2k(lx+1,ly+1,lz)
+                     k2(dxz) = l2k(lx+1,ly,lz+1)
+                     k2(dyy) = l2k(lx,ly+2,lz)
+                     k2(dyz) = l2k(lx,ly+1,lz+1)
+                     k2(dzz) = l2k(lx,ly,lz+2)
+                     fac2(dxx) = (lx + 1)*(lx + 2)
+                     fac2(dxy) = (lx + 1)*(ly + 1)
+                     fac2(dxz) = (lx + 1)*(lz + 1)
+                     fac2(dyy) = (ly + 1)*(ly + 2)
+                     fac2(dyz) = (ly + 1)*(lz + 1)
+                     fac2(dzz) = (lz + 1)*(lz + 2)
                      do n = 1, nq
-                        d2ang(n,Dxx,k2(Dxx)) = fac2(Dxx) * ang(n,k)
-                        d2ang(n,Dxy,k2(Dxy)) = fac2(Dxy) * ang(n,k)
-                        d2ang(n,Dxz,k2(Dxz)) = fac2(Dxz) * ang(n,k)
-                        d2ang(n,Dyy,k2(Dyy)) = fac2(Dyy) * ang(n,k)
-                        d2ang(n,Dyz,k2(Dyz)) = fac2(Dyz) * ang(n,k)
-                        d2ang(n,Dzz,k2(Dzz)) = fac2(Dzz) * ang(n,k)
+                        d2ang(n,dxx,k2(dxx)) = fac2(dxx) * ang(n,k)
+                        d2ang(n,dxy,k2(dxy)) = fac2(dxy) * ang(n,k)
+                        d2ang(n,dxz,k2(dxz)) = fac2(dxz) * ang(n,k)
+                        d2ang(n,dyy,k2(dyy)) = fac2(dyy) * ang(n,k)
+                        d2ang(n,dyz,k2(dyz)) = fac2(dyz) * ang(n,k)
+                        d2ang(n,dzz,k2(dzz)) = fac2(dzz) * ang(n,k)
                      enddo
                   enddo
                enddo
@@ -655,37 +655,37 @@ c     zeroed out initially
                   do ly = (l-3) - lx, 0, -1
                      lz = (l-3) - lx - ly
                      k = l2k(lx,ly,lz)
-                     k3(Dxxx) = l2k(lx+3,ly,lz)
-                     k3(Dxxy) = l2k(lx+2,ly+1,lz)
-                     k3(Dxxz) = l2k(lx+2,ly,lz+1)
-                     k3(Dxyy) = l2k(lx+1,ly+2,lz)
-                     k3(Dxyz) = l2k(lx+1,ly+1,lz+1)
-                     k3(Dxzz) = l2k(lx+1,ly,lz+2)
-                     k3(Dyyy) = l2k(lx,ly+3,lz)
-                     k3(Dyyz) = l2k(lx,ly+2,lz+1)
-                     k3(Dyzz) = l2k(lx,ly+1,lz+2)
-                     k3(Dzzz) = l2k(lx,ly,lz+3)
-                     fac3(Dxxx) = (lx + 1)*(lx + 2)*(lx + 3)
-                     fac3(Dxxy) = (lx + 1)*(lx + 2)*(ly + 1)
-                     fac3(Dxxz) = (lx + 1)*(lx + 2)*(lz + 1)
-                     fac3(Dxyy) = (lx + 1)*(ly + 1)*(ly + 2)
-                     fac3(Dxyz) = (lx + 1)*(ly + 1)*(lz + 1)
-                     fac3(Dxzz) = (lx + 1)*(lz + 1)*(lz + 2)
-                     fac3(Dyyy) = (ly + 1)*(ly + 2)*(ly + 3)
-                     fac3(Dyyz) = (ly + 1)*(ly + 2)*(lz + 1)
-                     fac3(Dyzz) = (ly + 1)*(lz + 1)*(lz + 2)
-                     fac3(Dzzz) = (lz + 1)*(lz + 2)*(lz + 3)
+                     k3(dxxx) = l2k(lx+3,ly,lz)
+                     k3(dxxy) = l2k(lx+2,ly+1,lz)
+                     k3(dxxz) = l2k(lx+2,ly,lz+1)
+                     k3(dxyy) = l2k(lx+1,ly+2,lz)
+                     k3(dxyz) = l2k(lx+1,ly+1,lz+1)
+                     k3(dxzz) = l2k(lx+1,ly,lz+2)
+                     k3(dyyy) = l2k(lx,ly+3,lz)
+                     k3(dyyz) = l2k(lx,ly+2,lz+1)
+                     k3(dyzz) = l2k(lx,ly+1,lz+2)
+                     k3(dzzz) = l2k(lx,ly,lz+3)
+                     fac3(dxxx) = (lx + 1)*(lx + 2)*(lx + 3)
+                     fac3(dxxy) = (lx + 1)*(lx + 2)*(ly + 1)
+                     fac3(dxxz) = (lx + 1)*(lx + 2)*(lz + 1)
+                     fac3(dxyy) = (lx + 1)*(ly + 1)*(ly + 2)
+                     fac3(dxyz) = (lx + 1)*(ly + 1)*(lz + 1)
+                     fac3(dxzz) = (lx + 1)*(lz + 1)*(lz + 2)
+                     fac3(dyyy) = (ly + 1)*(ly + 2)*(ly + 3)
+                     fac3(dyyz) = (ly + 1)*(ly + 2)*(lz + 1)
+                     fac3(dyzz) = (ly + 1)*(lz + 1)*(lz + 2)
+                     fac3(dzzz) = (lz + 1)*(lz + 2)*(lz + 3)
                      do n = 1, nq
-                        d3ang(n,Dxxx,k3(Dxxx)) = fac3(Dxxx) * ang(n,k)
-                        d3ang(n,Dxxy,k3(Dxxy)) = fac3(Dxxy) * ang(n,k)
-                        d3ang(n,Dxxz,k3(Dxxz)) = fac3(Dxxz) * ang(n,k)
-                        d3ang(n,Dxyy,k3(Dxyy)) = fac3(Dxyy) * ang(n,k)
-                        d3ang(n,Dxyz,k3(Dxyz)) = fac3(Dxyz) * ang(n,k)
-                        d3ang(n,Dxzz,k3(Dxzz)) = fac3(Dxzz) * ang(n,k)
-                        d3ang(n,Dyyy,k3(Dyyy)) = fac3(Dyyy) * ang(n,k)
-                        d3ang(n,Dyyz,k3(Dyyz)) = fac3(Dyyz) * ang(n,k)
-                        d3ang(n,Dyzz,k3(Dyzz)) = fac3(Dyzz) * ang(n,k)
-                        d3ang(n,Dzzz,k3(Dzzz)) = fac3(Dzzz) * ang(n,k)
+                        d3ang(n,dxxx,k3(dxxx)) = fac3(dxxx) * ang(n,k)
+                        d3ang(n,dxxy,k3(dxxy)) = fac3(dxxy) * ang(n,k)
+                        d3ang(n,dxxz,k3(dxxz)) = fac3(dxxz) * ang(n,k)
+                        d3ang(n,dxyy,k3(dxyy)) = fac3(dxyy) * ang(n,k)
+                        d3ang(n,dxyz,k3(dxyz)) = fac3(dxyz) * ang(n,k)
+                        d3ang(n,dxzz,k3(dxzz)) = fac3(dxzz) * ang(n,k)
+                        d3ang(n,dyyy,k3(dyyy)) = fac3(dyyy) * ang(n,k)
+                        d3ang(n,dyyz,k3(dyyz)) = fac3(dyyz) * ang(n,k)
+                        d3ang(n,dyzz,k3(dyzz)) = fac3(dyzz) * ang(n,k)
+                        d3ang(n,dzzz,k3(dzzz)) = fac3(dzzz) * ang(n,k)
                      enddo
                   enddo
                enddo
@@ -726,22 +726,22 @@ c     Allocate scratch space for transformation
                if (l .lt. gen_l) goto 100
 
                if (maxder .ge. 1) then
-                  call spcart_a_s(d1ang(1,Dx,nl1),dbl_mb(iscr),nq*3,l,
+                  call spcart_a_s(d1ang(1,dx,nl1),dbl_mb(iscr),nq*3,l,
      &                 1,.false.,.false.)
                   call dcopy(nq*3*(2*l+1),dbl_mb(iscr),1,
-     &                 d1ang(1,Dx,nl),1)
+     &                 d1ang(1,dx,nl),1)
                endif
                if (maxder .ge. 2) then
-                  call spcart_a_s(d2ang(1,Dxx,nl1),dbl_mb(iscr),nq*6,l,
+                  call spcart_a_s(d2ang(1,dxx,nl1),dbl_mb(iscr),nq*6,l,
      &                 1,.false.,.false.)
                   call dcopy(nq*6*(2*l+1),dbl_mb(iscr),1,
-     &                 d2ang(1,Dxx,nl),1)
+     &                 d2ang(1,dxx,nl),1)
                endif
                if (maxder .ge. 3) then
-                  call spcart_a_s(d3ang(1,Dxxx,nl1),dbl_mb(iscr),nq*10,
+                  call spcart_a_s(d3ang(1,dxxx,nl1),dbl_mb(iscr),nq*10,
      &                 l,1,.false.,.false.)
                   call dcopy(nq*10*(2*l+1),dbl_mb(iscr),1,
-     &                 d3ang(1,Dxxx,nl),1)
+     &                 d3ang(1,dxxx,nl),1)
                endif
  100        continue
 
@@ -787,61 +787,61 @@ c
          call dcopy(nq, rad, 1, drad, 1)
       elseif (maxd .eq. 1) then
          do n = 1, nq
-            drad(D0,n) = rad(0,n)
+            drad(d0,n) = rad(0,n)
             r1 = rad(1,n)
             x = ang(n,Ax)
             y = ang(n,Ay)
             z = ang(n,Az)
-            drad(Dx,n) = x*r1
-            drad(Dy,n) = y*r1
-            drad(Dz,n) = z*r1
+            drad(dx,n) = x*r1
+            drad(dy,n) = y*r1
+            drad(dz,n) = z*r1
          enddo
       elseif (maxd .eq. 2) then
          do n = 1, nq
-            drad(D0,n) = rad(0,n)
+            drad(d0,n) = rad(0,n)
             r1 = rad(1,n)
             r2 = rad(2,n)
             x = ang(n,Ax)
             y = ang(n,Ay)
             z = ang(n,Az)
-            drad(Dx,n) = x*r1
-            drad(Dy,n) = y*r1
-            drad(Dz,n) = z*r1
-            drad(Dxx,n) = x*x*r2 + r1
-            drad(Dxy,n) = x*y*r2
-            drad(Dxz,n) = x*z*r2
-            drad(Dyy,n) = y*y*r2 + r1
-            drad(Dyz,n) = y*z*r2
-            drad(Dzz,n)= z*z*r2 + r1
+            drad(dx,n) = x*r1
+            drad(dy,n) = y*r1
+            drad(dz,n) = z*r1
+            drad(dxx,n) = x*x*r2 + r1
+            drad(dxy,n) = x*y*r2
+            drad(dxz,n) = x*z*r2
+            drad(dyy,n) = y*y*r2 + r1
+            drad(dyz,n) = y*z*r2
+            drad(dzz,n)= z*z*r2 + r1
          enddo
       elseif (maxd .eq. 3) then
          do n = 1, nq
-            drad(D0,n) = rad(0,n)
+            drad(d0,n) = rad(0,n)
             r1 = rad(1,n)
             r2 = rad(2,n)
             r3 = rad(3,n)
             x = ang(n,Ax)
             y = ang(n,Ay)
             z = ang(n,Az)
-            drad(Dx,n) = x*r1
-            drad(Dy,n) = y*r1
-            drad(Dz,n) = z*r1
-            drad(Dxx,n) = x*x*r2 + r1
-            drad(Dxy,n) = x*y*r2
-            drad(Dxz,n) = x*z*r2
-            drad(Dyy,n) = y*y*r2 + r1
-            drad(Dyz,n) = y*z*r2
-            drad(Dzz,n)= z*z*r2 + r1
-            drad(Dxxx,n)= x*(3d0*r2 + x*x*r3)
-            drad(Dxxy,n)= y*(r2 + x*x*r3)
-            drad(Dxxz,n)= z*(r2 + x*x*r3)
-            drad(Dxyy,n)= x*(r2 + y*y*r3)
-            drad(Dxyz,n)= x*y*z*r3
-            drad(Dxzz,n)= x*(r2 + z*z*r3)
-            drad(Dyyy,n)= y*(3d0*r2 + y*y*r3)
-            drad(Dyyz,n)= z*(r2 + y*y*r3)
-            drad(Dyzz,n)= y*(r2 + z*z*r3)
-            drad(Dzzz,n)= z*(3d0*r2 + z*z*r3)
+            drad(dx,n) = x*r1
+            drad(dy,n) = y*r1
+            drad(dz,n) = z*r1
+            drad(dxx,n) = x*x*r2 + r1
+            drad(dxy,n) = x*y*r2
+            drad(dxz,n) = x*z*r2
+            drad(dyy,n) = y*y*r2 + r1
+            drad(dyz,n) = y*z*r2
+            drad(dzz,n)= z*z*r2 + r1
+            drad(dxxx,n)= x*(3d0*r2 + x*x*r3)
+            drad(dxxy,n)= y*(r2 + x*x*r3)
+            drad(dxxz,n)= z*(r2 + x*x*r3)
+            drad(dxyy,n)= x*(r2 + y*y*r3)
+            drad(dxyz,n)= x*y*z*r3
+            drad(dxzz,n)= x*(r2 + z*z*r3)
+            drad(dyyy,n)= y*(3d0*r2 + y*y*r3)
+            drad(dyyz,n)= z*(r2 + y*y*r3)
+            drad(dyzz,n)= y*(r2 + z*z*r3)
+            drad(dzzz,n)= z*(3d0*r2 + z*z*r3)
          enddo
       else
          call errquit('Bad value for maxd in eval_der_radial',maxd)
@@ -856,8 +856,8 @@ c
       implicit none
       integer nq, iabeg, iaend, max_der_component
       double precision chi(nq,iabeg:iaend),
-     &     d1chi(nq,Dx:Dz,iabeg:iaend), d2chi(nq,Dxx:Dzz,iabeg:iaend),
-     &     d3chi(nq,Dxxx:Dzzz,iabeg:iaend), drad(max_der_component,nq),
+     &     d1chi(nq,dx:dz,iabeg:iaend), d2chi(nq,dxx:dzz,iabeg:iaend),
+     &     d3chi(nq,dxxx:dzzz,iabeg:iaend), drad(max_der_component,nq),
      &     ang(nq,*)
 c
       integer n, iang, irem
@@ -866,50 +866,57 @@ c
 
 c     Special case: s functions - just copy
 
-         if (max_der_component .eq. D0) then
+         if (max_der_component .eq. d0) then
             call dcopy(nq, drad, 1, chi, 1)
-         elseif (max_der_component .eq. Dz) then
+         elseif (max_der_component .eq. dz) then
+            call dcopy(nq, drad, max_der_component, chi, 1)
+           call dcopy(
+     .           nq,drad(dx,1),max_der_component,d1chi(1,dx,1),1)
+           call dcopy(
+     .           nq,drad(dy,1),max_der_component,d1chi(1,dy,1),1)
+           call dcopy(
+     .           nq,drad(dz,1),max_der_component,d1chi(1,dz,1),1)
+!           do n = 1, nq
+!               chi(n,1) = drad(d0,n)
+!              d1chi(n,dx,1) = drad(dx,n)
+!              d1chi(n,dy,1) = drad(dy,n)
+!              d1chi(n,dz,1) = drad(dz,n)
+!           enddo
+         elseif (max_der_component .eq. dzz) then
             do n = 1, nq
-               chi(n,1) = drad(D0,n)
-               d1chi(n,Dx,1) = drad(Dx,n)
-               d1chi(n,Dy,1) = drad(Dy,n)
-               d1chi(n,Dz,1) = drad(Dz,n)
+               chi(n,1) = drad(d0,n)
+               d1chi(n,dx,1) = drad(dx,n)
+               d1chi(n,dy,1) = drad(dy,n)
+               d1chi(n,dz,1) = drad(dz,n)
+               d2chi(n,dxx,1) = drad(dxx,n)
+               d2chi(n,dxy,1) = drad(dxy,n)
+               d2chi(n,dxz,1) = drad(dxz,n)
+               d2chi(n,dyy,1) = drad(dyy,n)
+               d2chi(n,dyz,1) = drad(dyz,n)
+               d2chi(n,dzz,1) = drad(dzz,n)
             enddo
-         elseif (max_der_component .eq. Dzz) then
+         elseif (max_der_component .eq. dzzz) then
             do n = 1, nq
-               chi(n,1) = drad(D0,n)
-               d1chi(n,Dx,1) = drad(Dx,n)
-               d1chi(n,Dy,1) = drad(Dy,n)
-               d1chi(n,Dz,1) = drad(Dz,n)
-               d2chi(n,Dxx,1) = drad(Dxx,n)
-               d2chi(n,Dxy,1) = drad(Dxy,n)
-               d2chi(n,Dxz,1) = drad(Dxz,n)
-               d2chi(n,Dyy,1) = drad(Dyy,n)
-               d2chi(n,Dyz,1) = drad(Dyz,n)
-               d2chi(n,Dzz,1) = drad(Dzz,n)
-            enddo
-         elseif (max_der_component .eq. Dzzz) then
-            do n = 1, nq
-               chi(n,1) = drad(D0,n)
-               d1chi(n,Dx,1) = drad(Dx,n)
-               d1chi(n,Dy,1) = drad(Dy,n)
-               d1chi(n,Dz,1) = drad(Dz,n)
-               d2chi(n,Dxx,1) = drad(Dxx,n)
-               d2chi(n,Dxy,1) = drad(Dxy,n)
-               d2chi(n,Dxz,1) = drad(Dxz,n)
-               d2chi(n,Dyy,1) = drad(Dyy,n)
-               d2chi(n,Dyz,1) = drad(Dyz,n)
-               d2chi(n,Dzz,1) = drad(Dzz,n)
-               d3chi(n,Dxxx,1) = drad(Dxxx,n)
-               d3chi(n,Dxxy,1) = drad(Dxxy,n)
-               d3chi(n,Dxxz,1) = drad(Dxxz,n)
-               d3chi(n,Dxyy,1) = drad(Dxyy,n)
-               d3chi(n,Dxyz,1) = drad(Dxyz,n)
-               d3chi(n,Dxzz,1) = drad(Dxzz,n)
-               d3chi(n,Dyyy,1) = drad(Dyyy,n)
-               d3chi(n,Dyyz,1) = drad(Dyyz,n)
-               d3chi(n,Dyzz,1) = drad(Dyzz,n)
-               d3chi(n,Dzzz,1) = drad(Dzzz,n)
+               chi(n,1) = drad(d0,n)
+               d1chi(n,dx,1) = drad(dx,n)
+               d1chi(n,dy,1) = drad(dy,n)
+               d1chi(n,dz,1) = drad(dz,n)
+               d2chi(n,dxx,1) = drad(dxx,n)
+               d2chi(n,dxy,1) = drad(dxy,n)
+               d2chi(n,dxz,1) = drad(dxz,n)
+               d2chi(n,dyy,1) = drad(dyy,n)
+               d2chi(n,dyz,1) = drad(dyz,n)
+               d2chi(n,dzz,1) = drad(dzz,n)
+               d3chi(n,dxxx,1) = drad(dxxx,n)
+               d3chi(n,dxxy,1) = drad(dxxy,n)
+               d3chi(n,dxxz,1) = drad(dxxz,n)
+               d3chi(n,dxyy,1) = drad(dxyy,n)
+               d3chi(n,dxyz,1) = drad(dxyz,n)
+               d3chi(n,dxzz,1) = drad(dxzz,n)
+               d3chi(n,dyyy,1) = drad(dyyy,n)
+               d3chi(n,dyyz,1) = drad(dyyz,n)
+               d3chi(n,dyzz,1) = drad(dyzz,n)
+               d3chi(n,dzzz,1) = drad(dzzz,n)
             enddo
          endif
       else
@@ -921,148 +928,148 @@ c     Do remainder first
 
          irem = (iaend-iabeg+1)-((iaend-iabeg+1)/3)*3
          if (irem .eq. 1) then
-            if (max_der_component .eq. D0) then
+            if (max_der_component .eq. d0) then
                do n = 1, nq
-                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(D0,n)
+                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(d0,n)
                enddo
-            elseif (max_der_component .eq. Dz) then
+            elseif (max_der_component .eq. dz) then
                do n = 1, nq
-                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(D0,n)
+                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(d0,n)
 c
-                  d1chi(n,Dx,iabeg  ) = ang(n,iabeg  )*drad(Dx,n)
-                  d1chi(n,Dy,iabeg  ) = ang(n,iabeg  )*drad(Dy,n)
-                  d1chi(n,Dz,iabeg  ) = ang(n,iabeg  )*drad(Dz,n)
+                  d1chi(n,dx,iabeg  ) = ang(n,iabeg  )*drad(dx,n)
+                  d1chi(n,dy,iabeg  ) = ang(n,iabeg  )*drad(dy,n)
+                  d1chi(n,dz,iabeg  ) = ang(n,iabeg  )*drad(dz,n)
                enddo
-            elseif (max_der_component .eq. Dzz) then
+            elseif (max_der_component .eq. dzz) then
                 do n = 1, nq
-                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(D0,n)
+                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(d0,n)
 c
-                  d1chi(n,Dx,iabeg  ) = ang(n,iabeg  )*drad(Dx,n)
-                  d1chi(n,Dy,iabeg  ) = ang(n,iabeg  )*drad(Dy,n)
-                  d1chi(n,Dz,iabeg  ) = ang(n,iabeg  )*drad(Dz,n)
+                  d1chi(n,dx,iabeg  ) = ang(n,iabeg  )*drad(dx,n)
+                  d1chi(n,dy,iabeg  ) = ang(n,iabeg  )*drad(dy,n)
+                  d1chi(n,dz,iabeg  ) = ang(n,iabeg  )*drad(dz,n)
 c
-                  d2chi(n,Dxx,iabeg  ) = ang(n,iabeg  )*drad(Dxx,n)
-                  d2chi(n,Dxy,iabeg  ) = ang(n,iabeg  )*drad(Dxy,n)
-                  d2chi(n,Dxz,iabeg  ) = ang(n,iabeg  )*drad(Dxz,n)
-                  d2chi(n,Dyy,iabeg  ) = ang(n,iabeg  )*drad(Dyy,n)
-                  d2chi(n,Dyz,iabeg  ) = ang(n,iabeg  )*drad(Dyz,n)
-                  d2chi(n,Dzz,iabeg  ) = ang(n,iabeg  )*drad(Dzz,n)
+                  d2chi(n,dxx,iabeg  ) = ang(n,iabeg  )*drad(dxx,n)
+                  d2chi(n,dxy,iabeg  ) = ang(n,iabeg  )*drad(dxy,n)
+                  d2chi(n,dxz,iabeg  ) = ang(n,iabeg  )*drad(dxz,n)
+                  d2chi(n,dyy,iabeg  ) = ang(n,iabeg  )*drad(dyy,n)
+                  d2chi(n,dyz,iabeg  ) = ang(n,iabeg  )*drad(dyz,n)
+                  d2chi(n,dzz,iabeg  ) = ang(n,iabeg  )*drad(dzz,n)
                enddo
-            elseif (max_der_component .eq. Dzzz) then
+            elseif (max_der_component .eq. dzzz) then
                do n = 1, nq
-                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(D0,n)
+                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(d0,n)
 c
-                  d1chi(n,Dx,iabeg  ) = ang(n,iabeg  )*drad(Dx,n)
-                  d1chi(n,Dy,iabeg  ) = ang(n,iabeg  )*drad(Dy,n)
-                  d1chi(n,Dz,iabeg  ) = ang(n,iabeg  )*drad(Dz,n)
+                  d1chi(n,dx,iabeg  ) = ang(n,iabeg  )*drad(dx,n)
+                  d1chi(n,dy,iabeg  ) = ang(n,iabeg  )*drad(dy,n)
+                  d1chi(n,dz,iabeg  ) = ang(n,iabeg  )*drad(dz,n)
 c
-                  d2chi(n,Dxx,iabeg  ) = ang(n,iabeg  )*drad(Dxx,n)
-                  d2chi(n,Dxy,iabeg  ) = ang(n,iabeg  )*drad(Dxy,n)
-                  d2chi(n,Dxz,iabeg  ) = ang(n,iabeg  )*drad(Dxz,n)
-                  d2chi(n,Dyy,iabeg  ) = ang(n,iabeg  )*drad(Dyy,n)
-                  d2chi(n,Dyz,iabeg  ) = ang(n,iabeg  )*drad(Dyz,n)
-                  d2chi(n,Dzz,iabeg  ) = ang(n,iabeg  )*drad(Dzz,n)
+                  d2chi(n,dxx,iabeg  ) = ang(n,iabeg  )*drad(dxx,n)
+                  d2chi(n,dxy,iabeg  ) = ang(n,iabeg  )*drad(dxy,n)
+                  d2chi(n,dxz,iabeg  ) = ang(n,iabeg  )*drad(dxz,n)
+                  d2chi(n,dyy,iabeg  ) = ang(n,iabeg  )*drad(dyy,n)
+                  d2chi(n,dyz,iabeg  ) = ang(n,iabeg  )*drad(dyz,n)
+                  d2chi(n,dzz,iabeg  ) = ang(n,iabeg  )*drad(dzz,n)
 c
-                  d3chi(n,Dxxx,iabeg  ) = ang(n,iabeg  )*drad(Dxxx,n)
-                  d3chi(n,Dxxy,iabeg  ) = ang(n,iabeg  )*drad(Dxxy,n)
-                  d3chi(n,Dxxz,iabeg  ) = ang(n,iabeg  )*drad(Dxxz,n)
-                  d3chi(n,Dxyy,iabeg  ) = ang(n,iabeg  )*drad(Dxyy,n)
-                  d3chi(n,Dxyz,iabeg  ) = ang(n,iabeg  )*drad(Dxyz,n)
-                  d3chi(n,Dxzz,iabeg  ) = ang(n,iabeg  )*drad(Dxzz,n)
-                  d3chi(n,Dyyy,iabeg  ) = ang(n,iabeg  )*drad(Dyyy,n)
-                  d3chi(n,Dyyz,iabeg  ) = ang(n,iabeg  )*drad(Dyyz,n)
-                  d3chi(n,Dyzz,iabeg  ) = ang(n,iabeg  )*drad(Dyzz,n)
-                  d3chi(n,Dzzz,iabeg  ) = ang(n,iabeg  )*drad(Dzzz,n)
+                  d3chi(n,dxxx,iabeg  ) = ang(n,iabeg  )*drad(dxxx,n)
+                  d3chi(n,dxxy,iabeg  ) = ang(n,iabeg  )*drad(dxxy,n)
+                  d3chi(n,dxxz,iabeg  ) = ang(n,iabeg  )*drad(dxxz,n)
+                  d3chi(n,dxyy,iabeg  ) = ang(n,iabeg  )*drad(dxyy,n)
+                  d3chi(n,dxyz,iabeg  ) = ang(n,iabeg  )*drad(dxyz,n)
+                  d3chi(n,dxzz,iabeg  ) = ang(n,iabeg  )*drad(dxzz,n)
+                  d3chi(n,dyyy,iabeg  ) = ang(n,iabeg  )*drad(dyyy,n)
+                  d3chi(n,dyyz,iabeg  ) = ang(n,iabeg  )*drad(dyyz,n)
+                  d3chi(n,dyzz,iabeg  ) = ang(n,iabeg  )*drad(dyzz,n)
+                  d3chi(n,dzzz,iabeg  ) = ang(n,iabeg  )*drad(dzzz,n)
                enddo
             endif
          elseif (irem .eq. 2) then
-            if (max_der_component .eq. D0) then
+            if (max_der_component .eq. d0) then
                do n = 1, nq
-                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(D0,n)
-                  chi(n,iabeg+1) = ang(n,iabeg+1)*drad(D0,n)
+                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(d0,n)
+                  chi(n,iabeg+1) = ang(n,iabeg+1)*drad(d0,n)
                enddo
-            elseif (max_der_component .eq. Dz) then
+            elseif (max_der_component .eq. dz) then
                do n = 1, nq
-                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(D0,n)
-                  chi(n,iabeg+1) = ang(n,iabeg+1)*drad(D0,n)
+                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(d0,n)
+                  chi(n,iabeg+1) = ang(n,iabeg+1)*drad(d0,n)
 c
-                  d1chi(n,Dx,iabeg  ) = ang(n,iabeg  )*drad(Dx,n)
-                  d1chi(n,Dy,iabeg  ) = ang(n,iabeg  )*drad(Dy,n)
-                  d1chi(n,Dz,iabeg  ) = ang(n,iabeg  )*drad(Dz,n)
-                  d1chi(n,Dx,iabeg+1) = ang(n,iabeg+1)*drad(Dx,n)
-                  d1chi(n,Dy,iabeg+1) = ang(n,iabeg+1)*drad(Dy,n)
-                  d1chi(n,Dz,iabeg+1) = ang(n,iabeg+1)*drad(Dz,n)
+                  d1chi(n,dx,iabeg  ) = ang(n,iabeg  )*drad(dx,n)
+                  d1chi(n,dy,iabeg  ) = ang(n,iabeg  )*drad(dy,n)
+                  d1chi(n,dz,iabeg  ) = ang(n,iabeg  )*drad(dz,n)
+                  d1chi(n,dx,iabeg+1) = ang(n,iabeg+1)*drad(dx,n)
+                  d1chi(n,dy,iabeg+1) = ang(n,iabeg+1)*drad(dy,n)
+                  d1chi(n,dz,iabeg+1) = ang(n,iabeg+1)*drad(dz,n)
                enddo
-            elseif (max_der_component .eq. Dzz) then
+            elseif (max_der_component .eq. dzz) then
                 do n = 1, nq
-                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(D0,n)
-                  chi(n,iabeg+1) = ang(n,iabeg+1)*drad(D0,n)
+                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(d0,n)
+                  chi(n,iabeg+1) = ang(n,iabeg+1)*drad(d0,n)
 c
-                  d1chi(n,Dx,iabeg  ) = ang(n,iabeg  )*drad(Dx,n)
-                  d1chi(n,Dy,iabeg  ) = ang(n,iabeg  )*drad(Dy,n)
-                  d1chi(n,Dz,iabeg  ) = ang(n,iabeg  )*drad(Dz,n)
-                  d1chi(n,Dx,iabeg+1) = ang(n,iabeg+1)*drad(Dx,n)
-                  d1chi(n,Dy,iabeg+1) = ang(n,iabeg+1)*drad(Dy,n)
-                  d1chi(n,Dz,iabeg+1) = ang(n,iabeg+1)*drad(Dz,n)
+                  d1chi(n,dx,iabeg  ) = ang(n,iabeg  )*drad(dx,n)
+                  d1chi(n,dy,iabeg  ) = ang(n,iabeg  )*drad(dy,n)
+                  d1chi(n,dz,iabeg  ) = ang(n,iabeg  )*drad(dz,n)
+                  d1chi(n,dx,iabeg+1) = ang(n,iabeg+1)*drad(dx,n)
+                  d1chi(n,dy,iabeg+1) = ang(n,iabeg+1)*drad(dy,n)
+                  d1chi(n,dz,iabeg+1) = ang(n,iabeg+1)*drad(dz,n)
 c
-                  d2chi(n,Dxx,iabeg  ) = ang(n,iabeg  )*drad(Dxx,n)
-                  d2chi(n,Dxy,iabeg  ) = ang(n,iabeg  )*drad(Dxy,n)
-                  d2chi(n,Dxz,iabeg  ) = ang(n,iabeg  )*drad(Dxz,n)
-                  d2chi(n,Dyy,iabeg  ) = ang(n,iabeg  )*drad(Dyy,n)
-                  d2chi(n,Dyz,iabeg  ) = ang(n,iabeg  )*drad(Dyz,n)
-                  d2chi(n,Dzz,iabeg  ) = ang(n,iabeg  )*drad(Dzz,n)
-                  d2chi(n,Dxx,iabeg+1) = ang(n,iabeg+1)*drad(Dxx,n)
-                  d2chi(n,Dxy,iabeg+1) = ang(n,iabeg+1)*drad(Dxy,n)
-                  d2chi(n,Dxz,iabeg+1) = ang(n,iabeg+1)*drad(Dxz,n)
-                  d2chi(n,Dyy,iabeg+1) = ang(n,iabeg+1)*drad(Dyy,n)
-                  d2chi(n,Dyz,iabeg+1) = ang(n,iabeg+1)*drad(Dyz,n)
-                  d2chi(n,Dzz,iabeg+1) = ang(n,iabeg+1)*drad(Dzz,n)
+                  d2chi(n,dxx,iabeg  ) = ang(n,iabeg  )*drad(dxx,n)
+                  d2chi(n,dxy,iabeg  ) = ang(n,iabeg  )*drad(dxy,n)
+                  d2chi(n,dxz,iabeg  ) = ang(n,iabeg  )*drad(dxz,n)
+                  d2chi(n,dyy,iabeg  ) = ang(n,iabeg  )*drad(dyy,n)
+                  d2chi(n,dyz,iabeg  ) = ang(n,iabeg  )*drad(dyz,n)
+                  d2chi(n,dzz,iabeg  ) = ang(n,iabeg  )*drad(dzz,n)
+                  d2chi(n,dxx,iabeg+1) = ang(n,iabeg+1)*drad(dxx,n)
+                  d2chi(n,dxy,iabeg+1) = ang(n,iabeg+1)*drad(dxy,n)
+                  d2chi(n,dxz,iabeg+1) = ang(n,iabeg+1)*drad(dxz,n)
+                  d2chi(n,dyy,iabeg+1) = ang(n,iabeg+1)*drad(dyy,n)
+                  d2chi(n,dyz,iabeg+1) = ang(n,iabeg+1)*drad(dyz,n)
+                  d2chi(n,dzz,iabeg+1) = ang(n,iabeg+1)*drad(dzz,n)
                enddo
-            elseif (max_der_component .eq. Dzzz) then
+            elseif (max_der_component .eq. dzzz) then
                do n = 1, nq
-                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(D0,n)
-                  chi(n,iabeg+1) = ang(n,iabeg+1)*drad(D0,n)
+                  chi(n,iabeg  ) = ang(n,iabeg  )*drad(d0,n)
+                  chi(n,iabeg+1) = ang(n,iabeg+1)*drad(d0,n)
 c
-                  d1chi(n,Dx,iabeg  ) = ang(n,iabeg  )*drad(Dx,n)
-                  d1chi(n,Dy,iabeg  ) = ang(n,iabeg  )*drad(Dy,n)
-                  d1chi(n,Dz,iabeg  ) = ang(n,iabeg  )*drad(Dz,n)
-                  d1chi(n,Dx,iabeg+1) = ang(n,iabeg+1)*drad(Dx,n)
-                  d1chi(n,Dy,iabeg+1) = ang(n,iabeg+1)*drad(Dy,n)
-                  d1chi(n,Dz,iabeg+1) = ang(n,iabeg+1)*drad(Dz,n)
+                  d1chi(n,dx,iabeg  ) = ang(n,iabeg  )*drad(dx,n)
+                  d1chi(n,dy,iabeg  ) = ang(n,iabeg  )*drad(dy,n)
+                  d1chi(n,dz,iabeg  ) = ang(n,iabeg  )*drad(dz,n)
+                  d1chi(n,dx,iabeg+1) = ang(n,iabeg+1)*drad(dx,n)
+                  d1chi(n,dy,iabeg+1) = ang(n,iabeg+1)*drad(dy,n)
+                  d1chi(n,dz,iabeg+1) = ang(n,iabeg+1)*drad(dz,n)
 c
-                  d2chi(n,Dxx,iabeg  ) = ang(n,iabeg  )*drad(Dxx,n)
-                  d2chi(n,Dxy,iabeg  ) = ang(n,iabeg  )*drad(Dxy,n)
-                  d2chi(n,Dxz,iabeg  ) = ang(n,iabeg  )*drad(Dxz,n)
-                  d2chi(n,Dyy,iabeg  ) = ang(n,iabeg  )*drad(Dyy,n)
-                  d2chi(n,Dyz,iabeg  ) = ang(n,iabeg  )*drad(Dyz,n)
-                  d2chi(n,Dzz,iabeg  ) = ang(n,iabeg  )*drad(Dzz,n)
-                  d2chi(n,Dxx,iabeg+1) = ang(n,iabeg+1)*drad(Dxx,n)
-                  d2chi(n,Dxy,iabeg+1) = ang(n,iabeg+1)*drad(Dxy,n)
-                  d2chi(n,Dxz,iabeg+1) = ang(n,iabeg+1)*drad(Dxz,n)
-                  d2chi(n,Dyy,iabeg+1) = ang(n,iabeg+1)*drad(Dyy,n)
-                  d2chi(n,Dyz,iabeg+1) = ang(n,iabeg+1)*drad(Dyz,n)
-                  d2chi(n,Dzz,iabeg+1) = ang(n,iabeg+1)*drad(Dzz,n)
+                  d2chi(n,dxx,iabeg  ) = ang(n,iabeg  )*drad(dxx,n)
+                  d2chi(n,dxy,iabeg  ) = ang(n,iabeg  )*drad(dxy,n)
+                  d2chi(n,dxz,iabeg  ) = ang(n,iabeg  )*drad(dxz,n)
+                  d2chi(n,dyy,iabeg  ) = ang(n,iabeg  )*drad(dyy,n)
+                  d2chi(n,dyz,iabeg  ) = ang(n,iabeg  )*drad(dyz,n)
+                  d2chi(n,dzz,iabeg  ) = ang(n,iabeg  )*drad(dzz,n)
+                  d2chi(n,dxx,iabeg+1) = ang(n,iabeg+1)*drad(dxx,n)
+                  d2chi(n,dxy,iabeg+1) = ang(n,iabeg+1)*drad(dxy,n)
+                  d2chi(n,dxz,iabeg+1) = ang(n,iabeg+1)*drad(dxz,n)
+                  d2chi(n,dyy,iabeg+1) = ang(n,iabeg+1)*drad(dyy,n)
+                  d2chi(n,dyz,iabeg+1) = ang(n,iabeg+1)*drad(dyz,n)
+                  d2chi(n,dzz,iabeg+1) = ang(n,iabeg+1)*drad(dzz,n)
 c
-                  d3chi(n,Dxxx,iabeg  ) = ang(n,iabeg  )*drad(Dxxx,n)
-                  d3chi(n,Dxxy,iabeg  ) = ang(n,iabeg  )*drad(Dxxy,n)
-                  d3chi(n,Dxxz,iabeg  ) = ang(n,iabeg  )*drad(Dxxz,n)
-                  d3chi(n,Dxyy,iabeg  ) = ang(n,iabeg  )*drad(Dxyy,n)
-                  d3chi(n,Dxyz,iabeg  ) = ang(n,iabeg  )*drad(Dxyz,n)
-                  d3chi(n,Dxzz,iabeg  ) = ang(n,iabeg  )*drad(Dxzz,n)
-                  d3chi(n,Dyyy,iabeg  ) = ang(n,iabeg  )*drad(Dyyy,n)
-                  d3chi(n,Dyyz,iabeg  ) = ang(n,iabeg  )*drad(Dyyz,n)
-                  d3chi(n,Dyzz,iabeg  ) = ang(n,iabeg  )*drad(Dyzz,n)
-                  d3chi(n,Dzzz,iabeg  ) = ang(n,iabeg  )*drad(Dzzz,n)
-                  d3chi(n,Dxxx,iabeg+1) = ang(n,iabeg+1)*drad(Dxxx,n)
-                  d3chi(n,Dxxy,iabeg+1) = ang(n,iabeg+1)*drad(Dxxy,n)
-                  d3chi(n,Dxxz,iabeg+1) = ang(n,iabeg+1)*drad(Dxxz,n)
-                  d3chi(n,Dxyy,iabeg+1) = ang(n,iabeg+1)*drad(Dxyy,n)
-                  d3chi(n,Dxyz,iabeg+1) = ang(n,iabeg+1)*drad(Dxyz,n)
-                  d3chi(n,Dxzz,iabeg+1) = ang(n,iabeg+1)*drad(Dxzz,n)
-                  d3chi(n,Dyyy,iabeg+1) = ang(n,iabeg+1)*drad(Dyyy,n)
-                  d3chi(n,Dyyz,iabeg+1) = ang(n,iabeg+1)*drad(Dyyz,n)
-                  d3chi(n,Dyzz,iabeg+1) = ang(n,iabeg+1)*drad(Dyzz,n)
-                  d3chi(n,Dzzz,iabeg+1) = ang(n,iabeg+1)*drad(Dzzz,n)
+                  d3chi(n,dxxx,iabeg  ) = ang(n,iabeg  )*drad(dxxx,n)
+                  d3chi(n,dxxy,iabeg  ) = ang(n,iabeg  )*drad(dxxy,n)
+                  d3chi(n,dxxz,iabeg  ) = ang(n,iabeg  )*drad(dxxz,n)
+                  d3chi(n,dxyy,iabeg  ) = ang(n,iabeg  )*drad(dxyy,n)
+                  d3chi(n,dxyz,iabeg  ) = ang(n,iabeg  )*drad(dxyz,n)
+                  d3chi(n,dxzz,iabeg  ) = ang(n,iabeg  )*drad(dxzz,n)
+                  d3chi(n,dyyy,iabeg  ) = ang(n,iabeg  )*drad(dyyy,n)
+                  d3chi(n,dyyz,iabeg  ) = ang(n,iabeg  )*drad(dyyz,n)
+                  d3chi(n,dyzz,iabeg  ) = ang(n,iabeg  )*drad(dyzz,n)
+                  d3chi(n,dzzz,iabeg  ) = ang(n,iabeg  )*drad(dzzz,n)
+                  d3chi(n,dxxx,iabeg+1) = ang(n,iabeg+1)*drad(dxxx,n)
+                  d3chi(n,dxxy,iabeg+1) = ang(n,iabeg+1)*drad(dxxy,n)
+                  d3chi(n,dxxz,iabeg+1) = ang(n,iabeg+1)*drad(dxxz,n)
+                  d3chi(n,dxyy,iabeg+1) = ang(n,iabeg+1)*drad(dxyy,n)
+                  d3chi(n,dxyz,iabeg+1) = ang(n,iabeg+1)*drad(dxyz,n)
+                  d3chi(n,dxzz,iabeg+1) = ang(n,iabeg+1)*drad(dxzz,n)
+                  d3chi(n,dyyy,iabeg+1) = ang(n,iabeg+1)*drad(dyyy,n)
+                  d3chi(n,dyyz,iabeg+1) = ang(n,iabeg+1)*drad(dyyz,n)
+                  d3chi(n,dyzz,iabeg+1) = ang(n,iabeg+1)*drad(dyzz,n)
+                  d3chi(n,dzzz,iabeg+1) = ang(n,iabeg+1)*drad(dzzz,n)
                enddo
             endif
          endif
@@ -1070,128 +1077,128 @@ c
 c     Do the bulk
 
          do iang = iabeg+irem, iaend, 3
-            if (max_der_component .eq. D0) then
+            if (max_der_component .eq. d0) then
                do n = 1, nq
-                  chi(n,iang  ) = ang(n,iang  )*drad(D0,n)
-                  chi(n,iang+1) = ang(n,iang+1)*drad(D0,n)
-                  chi(n,iang+2) = ang(n,iang+2)*drad(D0,n)
+                  chi(n,iang  ) = ang(n,iang  )*drad(d0,n)
+                  chi(n,iang+1) = ang(n,iang+1)*drad(d0,n)
+                  chi(n,iang+2) = ang(n,iang+2)*drad(d0,n)
                enddo
-            elseif (max_der_component .eq. Dz) then
+            elseif (max_der_component .eq. dz) then
                do n = 1, nq
-                  chi(n,iang  ) = ang(n,iang  )*drad(D0,n)
-                  chi(n,iang+1) = ang(n,iang+1)*drad(D0,n)
-                  chi(n,iang+2) = ang(n,iang+2)*drad(D0,n)
+                  chi(n,iang  ) = ang(n,iang  )*drad(d0,n)
+                  chi(n,iang+1) = ang(n,iang+1)*drad(d0,n)
+                  chi(n,iang+2) = ang(n,iang+2)*drad(d0,n)
 c
-                  d1chi(n,Dx,iang  ) = ang(n,iang  )*drad(Dx,n)
-                  d1chi(n,Dy,iang  ) = ang(n,iang  )*drad(Dy,n)
-                  d1chi(n,Dz,iang  ) = ang(n,iang  )*drad(Dz,n)
-                  d1chi(n,Dx,iang+1) = ang(n,iang+1)*drad(Dx,n)
-                  d1chi(n,Dy,iang+1) = ang(n,iang+1)*drad(Dy,n)
-                  d1chi(n,Dz,iang+1) = ang(n,iang+1)*drad(Dz,n)
-                  d1chi(n,Dx,iang+2) = ang(n,iang+2)*drad(Dx,n)
-                  d1chi(n,Dy,iang+2) = ang(n,iang+2)*drad(Dy,n)
-                  d1chi(n,Dz,iang+2) = ang(n,iang+2)*drad(Dz,n)
+                  d1chi(n,dx,iang  ) = ang(n,iang  )*drad(dx,n)
+                  d1chi(n,dy,iang  ) = ang(n,iang  )*drad(dy,n)
+                  d1chi(n,dz,iang  ) = ang(n,iang  )*drad(dz,n)
+                  d1chi(n,dx,iang+1) = ang(n,iang+1)*drad(dx,n)
+                  d1chi(n,dy,iang+1) = ang(n,iang+1)*drad(dy,n)
+                  d1chi(n,dz,iang+1) = ang(n,iang+1)*drad(dz,n)
+                  d1chi(n,dx,iang+2) = ang(n,iang+2)*drad(dx,n)
+                  d1chi(n,dy,iang+2) = ang(n,iang+2)*drad(dy,n)
+                  d1chi(n,dz,iang+2) = ang(n,iang+2)*drad(dz,n)
                enddo
-            elseif (max_der_component .eq. Dzz) then
+            elseif (max_der_component .eq. dzz) then
                 do n = 1, nq
-                  chi(n,iang  ) = ang(n,iang  )*drad(D0,n)
-                  chi(n,iang+1) = ang(n,iang+1)*drad(D0,n)
-                  chi(n,iang+2) = ang(n,iang+2)*drad(D0,n)
+                  chi(n,iang  ) = ang(n,iang  )*drad(d0,n)
+                  chi(n,iang+1) = ang(n,iang+1)*drad(d0,n)
+                  chi(n,iang+2) = ang(n,iang+2)*drad(d0,n)
 c
-                  d1chi(n,Dx,iang  ) = ang(n,iang  )*drad(Dx,n)
-                  d1chi(n,Dy,iang  ) = ang(n,iang  )*drad(Dy,n)
-                  d1chi(n,Dz,iang  ) = ang(n,iang  )*drad(Dz,n)
-                  d1chi(n,Dx,iang+1) = ang(n,iang+1)*drad(Dx,n)
-                  d1chi(n,Dy,iang+1) = ang(n,iang+1)*drad(Dy,n)
-                  d1chi(n,Dz,iang+1) = ang(n,iang+1)*drad(Dz,n)
-                  d1chi(n,Dx,iang+2) = ang(n,iang+2)*drad(Dx,n)
-                  d1chi(n,Dy,iang+2) = ang(n,iang+2)*drad(Dy,n)
-                  d1chi(n,Dz,iang+2) = ang(n,iang+2)*drad(Dz,n)
+                  d1chi(n,dx,iang  ) = ang(n,iang  )*drad(dx,n)
+                  d1chi(n,dy,iang  ) = ang(n,iang  )*drad(dy,n)
+                  d1chi(n,dz,iang  ) = ang(n,iang  )*drad(dz,n)
+                  d1chi(n,dx,iang+1) = ang(n,iang+1)*drad(dx,n)
+                  d1chi(n,dy,iang+1) = ang(n,iang+1)*drad(dy,n)
+                  d1chi(n,dz,iang+1) = ang(n,iang+1)*drad(dz,n)
+                  d1chi(n,dx,iang+2) = ang(n,iang+2)*drad(dx,n)
+                  d1chi(n,dy,iang+2) = ang(n,iang+2)*drad(dy,n)
+                  d1chi(n,dz,iang+2) = ang(n,iang+2)*drad(dz,n)
 c
-                  d2chi(n,Dxx,iang  ) = ang(n,iang  )*drad(Dxx,n)
-                  d2chi(n,Dxy,iang  ) = ang(n,iang  )*drad(Dxy,n)
-                  d2chi(n,Dxz,iang  ) = ang(n,iang  )*drad(Dxz,n)
-                  d2chi(n,Dyy,iang  ) = ang(n,iang  )*drad(Dyy,n)
-                  d2chi(n,Dyz,iang  ) = ang(n,iang  )*drad(Dyz,n)
-                  d2chi(n,Dzz,iang  ) = ang(n,iang  )*drad(Dzz,n)
-                  d2chi(n,Dxx,iang+1) = ang(n,iang+1)*drad(Dxx,n)
-                  d2chi(n,Dxy,iang+1) = ang(n,iang+1)*drad(Dxy,n)
-                  d2chi(n,Dxz,iang+1) = ang(n,iang+1)*drad(Dxz,n)
-                  d2chi(n,Dyy,iang+1) = ang(n,iang+1)*drad(Dyy,n)
-                  d2chi(n,Dyz,iang+1) = ang(n,iang+1)*drad(Dyz,n)
-                  d2chi(n,Dzz,iang+1) = ang(n,iang+1)*drad(Dzz,n)
-                  d2chi(n,Dxx,iang+2) = ang(n,iang+2)*drad(Dxx,n)
-                  d2chi(n,Dxy,iang+2) = ang(n,iang+2)*drad(Dxy,n)
-                  d2chi(n,Dxz,iang+2) = ang(n,iang+2)*drad(Dxz,n)
-                  d2chi(n,Dyy,iang+2) = ang(n,iang+2)*drad(Dyy,n)
-                  d2chi(n,Dyz,iang+2) = ang(n,iang+2)*drad(Dyz,n)
-                  d2chi(n,Dzz,iang+2) = ang(n,iang+2)*drad(Dzz,n)
+                  d2chi(n,dxx,iang  ) = ang(n,iang  )*drad(dxx,n)
+                  d2chi(n,dxy,iang  ) = ang(n,iang  )*drad(dxy,n)
+                  d2chi(n,dxz,iang  ) = ang(n,iang  )*drad(dxz,n)
+                  d2chi(n,dyy,iang  ) = ang(n,iang  )*drad(dyy,n)
+                  d2chi(n,dyz,iang  ) = ang(n,iang  )*drad(dyz,n)
+                  d2chi(n,dzz,iang  ) = ang(n,iang  )*drad(dzz,n)
+                  d2chi(n,dxx,iang+1) = ang(n,iang+1)*drad(dxx,n)
+                  d2chi(n,dxy,iang+1) = ang(n,iang+1)*drad(dxy,n)
+                  d2chi(n,dxz,iang+1) = ang(n,iang+1)*drad(dxz,n)
+                  d2chi(n,dyy,iang+1) = ang(n,iang+1)*drad(dyy,n)
+                  d2chi(n,dyz,iang+1) = ang(n,iang+1)*drad(dyz,n)
+                  d2chi(n,dzz,iang+1) = ang(n,iang+1)*drad(dzz,n)
+                  d2chi(n,dxx,iang+2) = ang(n,iang+2)*drad(dxx,n)
+                  d2chi(n,dxy,iang+2) = ang(n,iang+2)*drad(dxy,n)
+                  d2chi(n,dxz,iang+2) = ang(n,iang+2)*drad(dxz,n)
+                  d2chi(n,dyy,iang+2) = ang(n,iang+2)*drad(dyy,n)
+                  d2chi(n,dyz,iang+2) = ang(n,iang+2)*drad(dyz,n)
+                  d2chi(n,dzz,iang+2) = ang(n,iang+2)*drad(dzz,n)
                enddo
-            elseif (max_der_component .eq. Dzzz) then
+            elseif (max_der_component .eq. dzzz) then
                do n = 1, nq
-                  chi(n,iang  ) = ang(n,iang  )*drad(D0,n)
-                  chi(n,iang+1) = ang(n,iang+1)*drad(D0,n)
-                  chi(n,iang+2) = ang(n,iang+2)*drad(D0,n)
+                  chi(n,iang  ) = ang(n,iang  )*drad(d0,n)
+                  chi(n,iang+1) = ang(n,iang+1)*drad(d0,n)
+                  chi(n,iang+2) = ang(n,iang+2)*drad(d0,n)
 c
-                  d1chi(n,Dx,iang  ) = ang(n,iang  )*drad(Dx,n)
-                  d1chi(n,Dy,iang  ) = ang(n,iang  )*drad(Dy,n)
-                  d1chi(n,Dz,iang  ) = ang(n,iang  )*drad(Dz,n)
-                  d1chi(n,Dx,iang+1) = ang(n,iang+1)*drad(Dx,n)
-                  d1chi(n,Dy,iang+1) = ang(n,iang+1)*drad(Dy,n)
-                  d1chi(n,Dz,iang+1) = ang(n,iang+1)*drad(Dz,n)
-                  d1chi(n,Dx,iang+2) = ang(n,iang+2)*drad(Dx,n)
-                  d1chi(n,Dy,iang+2) = ang(n,iang+2)*drad(Dy,n)
-                  d1chi(n,Dz,iang+2) = ang(n,iang+2)*drad(Dz,n)
+                  d1chi(n,dx,iang  ) = ang(n,iang  )*drad(dx,n)
+                  d1chi(n,dy,iang  ) = ang(n,iang  )*drad(dy,n)
+                  d1chi(n,dz,iang  ) = ang(n,iang  )*drad(dz,n)
+                  d1chi(n,dx,iang+1) = ang(n,iang+1)*drad(dx,n)
+                  d1chi(n,dy,iang+1) = ang(n,iang+1)*drad(dy,n)
+                  d1chi(n,dz,iang+1) = ang(n,iang+1)*drad(dz,n)
+                  d1chi(n,dx,iang+2) = ang(n,iang+2)*drad(dx,n)
+                  d1chi(n,dy,iang+2) = ang(n,iang+2)*drad(dy,n)
+                  d1chi(n,dz,iang+2) = ang(n,iang+2)*drad(dz,n)
 c
-                  d2chi(n,Dxx,iang  ) = ang(n,iang  )*drad(Dxx,n)
-                  d2chi(n,Dxy,iang  ) = ang(n,iang  )*drad(Dxy,n)
-                  d2chi(n,Dxz,iang  ) = ang(n,iang  )*drad(Dxz,n)
-                  d2chi(n,Dyy,iang  ) = ang(n,iang  )*drad(Dyy,n)
-                  d2chi(n,Dyz,iang  ) = ang(n,iang  )*drad(Dyz,n)
-                  d2chi(n,Dzz,iang  ) = ang(n,iang  )*drad(Dzz,n)
-                  d2chi(n,Dxx,iang+1) = ang(n,iang+1)*drad(Dxx,n)
-                  d2chi(n,Dxy,iang+1) = ang(n,iang+1)*drad(Dxy,n)
-                  d2chi(n,Dxz,iang+1) = ang(n,iang+1)*drad(Dxz,n)
-                  d2chi(n,Dyy,iang+1) = ang(n,iang+1)*drad(Dyy,n)
-                  d2chi(n,Dyz,iang+1) = ang(n,iang+1)*drad(Dyz,n)
-                  d2chi(n,Dzz,iang+1) = ang(n,iang+1)*drad(Dzz,n)
-                  d2chi(n,Dxx,iang+2) = ang(n,iang+2)*drad(Dxx,n)
-                  d2chi(n,Dxy,iang+2) = ang(n,iang+2)*drad(Dxy,n)
-                  d2chi(n,Dxz,iang+2) = ang(n,iang+2)*drad(Dxz,n)
-                  d2chi(n,Dyy,iang+2) = ang(n,iang+2)*drad(Dyy,n)
-                  d2chi(n,Dyz,iang+2) = ang(n,iang+2)*drad(Dyz,n)
-                  d2chi(n,Dzz,iang+2) = ang(n,iang+2)*drad(Dzz,n)
+                  d2chi(n,dxx,iang  ) = ang(n,iang  )*drad(dxx,n)
+                  d2chi(n,dxy,iang  ) = ang(n,iang  )*drad(dxy,n)
+                  d2chi(n,dxz,iang  ) = ang(n,iang  )*drad(dxz,n)
+                  d2chi(n,dyy,iang  ) = ang(n,iang  )*drad(dyy,n)
+                  d2chi(n,dyz,iang  ) = ang(n,iang  )*drad(dyz,n)
+                  d2chi(n,dzz,iang  ) = ang(n,iang  )*drad(dzz,n)
+                  d2chi(n,dxx,iang+1) = ang(n,iang+1)*drad(dxx,n)
+                  d2chi(n,dxy,iang+1) = ang(n,iang+1)*drad(dxy,n)
+                  d2chi(n,dxz,iang+1) = ang(n,iang+1)*drad(dxz,n)
+                  d2chi(n,dyy,iang+1) = ang(n,iang+1)*drad(dyy,n)
+                  d2chi(n,dyz,iang+1) = ang(n,iang+1)*drad(dyz,n)
+                  d2chi(n,dzz,iang+1) = ang(n,iang+1)*drad(dzz,n)
+                  d2chi(n,dxx,iang+2) = ang(n,iang+2)*drad(dxx,n)
+                  d2chi(n,dxy,iang+2) = ang(n,iang+2)*drad(dxy,n)
+                  d2chi(n,dxz,iang+2) = ang(n,iang+2)*drad(dxz,n)
+                  d2chi(n,dyy,iang+2) = ang(n,iang+2)*drad(dyy,n)
+                  d2chi(n,dyz,iang+2) = ang(n,iang+2)*drad(dyz,n)
+                  d2chi(n,dzz,iang+2) = ang(n,iang+2)*drad(dzz,n)
 c
-                  d3chi(n,Dxxx,iang  ) = ang(n,iang  )*drad(Dxxx,n)
-                  d3chi(n,Dxxy,iang  ) = ang(n,iang  )*drad(Dxxy,n)
-                  d3chi(n,Dxxz,iang  ) = ang(n,iang  )*drad(Dxxz,n)
-                  d3chi(n,Dxyy,iang  ) = ang(n,iang  )*drad(Dxyy,n)
-                  d3chi(n,Dxyz,iang  ) = ang(n,iang  )*drad(Dxyz,n)
-                  d3chi(n,Dxzz,iang  ) = ang(n,iang  )*drad(Dxzz,n)
-                  d3chi(n,Dyyy,iang  ) = ang(n,iang  )*drad(Dyyy,n)
-                  d3chi(n,Dyyz,iang  ) = ang(n,iang  )*drad(Dyyz,n)
-                  d3chi(n,Dyzz,iang  ) = ang(n,iang  )*drad(Dyzz,n)
-                  d3chi(n,Dzzz,iang  ) = ang(n,iang  )*drad(Dzzz,n)
-                  d3chi(n,Dxxx,iang+1) = ang(n,iang+1)*drad(Dxxx,n)
-                  d3chi(n,Dxxy,iang+1) = ang(n,iang+1)*drad(Dxxy,n)
-                  d3chi(n,Dxxz,iang+1) = ang(n,iang+1)*drad(Dxxz,n)
-                  d3chi(n,Dxyy,iang+1) = ang(n,iang+1)*drad(Dxyy,n)
-                  d3chi(n,Dxyz,iang+1) = ang(n,iang+1)*drad(Dxyz,n)
-                  d3chi(n,Dxzz,iang+1) = ang(n,iang+1)*drad(Dxzz,n)
-                  d3chi(n,Dyyy,iang+1) = ang(n,iang+1)*drad(Dyyy,n)
-                  d3chi(n,Dyyz,iang+1) = ang(n,iang+1)*drad(Dyyz,n)
-                  d3chi(n,Dyzz,iang+1) = ang(n,iang+1)*drad(Dyzz,n)
-                  d3chi(n,Dzzz,iang+1) = ang(n,iang+1)*drad(Dzzz,n)
-                  d3chi(n,Dxxx,iang+2) = ang(n,iang+2)*drad(Dxxx,n)
-                  d3chi(n,Dxxy,iang+2) = ang(n,iang+2)*drad(Dxxy,n)
-                  d3chi(n,Dxxz,iang+2) = ang(n,iang+2)*drad(Dxxz,n)
-                  d3chi(n,Dxyy,iang+2) = ang(n,iang+2)*drad(Dxyy,n)
-                  d3chi(n,Dxyz,iang+2) = ang(n,iang+2)*drad(Dxyz,n)
-                  d3chi(n,Dxzz,iang+2) = ang(n,iang+2)*drad(Dxzz,n)
-                  d3chi(n,Dyyy,iang+2) = ang(n,iang+2)*drad(Dyyy,n)
-                  d3chi(n,Dyyz,iang+2) = ang(n,iang+2)*drad(Dyyz,n)
-                  d3chi(n,Dyzz,iang+2) = ang(n,iang+2)*drad(Dyzz,n)
-                  d3chi(n,Dzzz,iang+2) = ang(n,iang+2)*drad(Dzzz,n)
+                  d3chi(n,dxxx,iang  ) = ang(n,iang  )*drad(dxxx,n)
+                  d3chi(n,dxxy,iang  ) = ang(n,iang  )*drad(dxxy,n)
+                  d3chi(n,dxxz,iang  ) = ang(n,iang  )*drad(dxxz,n)
+                  d3chi(n,dxyy,iang  ) = ang(n,iang  )*drad(dxyy,n)
+                  d3chi(n,dxyz,iang  ) = ang(n,iang  )*drad(dxyz,n)
+                  d3chi(n,dxzz,iang  ) = ang(n,iang  )*drad(dxzz,n)
+                  d3chi(n,dyyy,iang  ) = ang(n,iang  )*drad(dyyy,n)
+                  d3chi(n,dyyz,iang  ) = ang(n,iang  )*drad(dyyz,n)
+                  d3chi(n,dyzz,iang  ) = ang(n,iang  )*drad(dyzz,n)
+                  d3chi(n,dzzz,iang  ) = ang(n,iang  )*drad(dzzz,n)
+                  d3chi(n,dxxx,iang+1) = ang(n,iang+1)*drad(dxxx,n)
+                  d3chi(n,dxxy,iang+1) = ang(n,iang+1)*drad(dxxy,n)
+                  d3chi(n,dxxz,iang+1) = ang(n,iang+1)*drad(dxxz,n)
+                  d3chi(n,dxyy,iang+1) = ang(n,iang+1)*drad(dxyy,n)
+                  d3chi(n,dxyz,iang+1) = ang(n,iang+1)*drad(dxyz,n)
+                  d3chi(n,dxzz,iang+1) = ang(n,iang+1)*drad(dxzz,n)
+                  d3chi(n,dyyy,iang+1) = ang(n,iang+1)*drad(dyyy,n)
+                  d3chi(n,dyyz,iang+1) = ang(n,iang+1)*drad(dyyz,n)
+                  d3chi(n,dyzz,iang+1) = ang(n,iang+1)*drad(dyzz,n)
+                  d3chi(n,dzzz,iang+1) = ang(n,iang+1)*drad(dzzz,n)
+                  d3chi(n,dxxx,iang+2) = ang(n,iang+2)*drad(dxxx,n)
+                  d3chi(n,dxxy,iang+2) = ang(n,iang+2)*drad(dxxy,n)
+                  d3chi(n,dxxz,iang+2) = ang(n,iang+2)*drad(dxxz,n)
+                  d3chi(n,dxyy,iang+2) = ang(n,iang+2)*drad(dxyy,n)
+                  d3chi(n,dxyz,iang+2) = ang(n,iang+2)*drad(dxyz,n)
+                  d3chi(n,dxzz,iang+2) = ang(n,iang+2)*drad(dxzz,n)
+                  d3chi(n,dyyy,iang+2) = ang(n,iang+2)*drad(dyyy,n)
+                  d3chi(n,dyyz,iang+2) = ang(n,iang+2)*drad(dyyz,n)
+                  d3chi(n,dyzz,iang+2) = ang(n,iang+2)*drad(dyzz,n)
+                  d3chi(n,dzzz,iang+2) = ang(n,iang+2)*drad(dzzz,n)
                enddo
             endif
          enddo
@@ -1207,19 +1214,19 @@ c
       implicit none
       integer nq, iabeg, iaend, max_der_component, gen_l
       double precision chi(nq,iabeg:iaend),
-     &     d1chi(nq,Dx:Dz,iabeg:iaend),
-     &     d2chi(nq,Dxx:Dzz,iabeg:iaend),
-     &     d3chi(nq,Dxxx:Dzzz,iabeg:iaend),
+     &     d1chi(nq,dx:dz,iabeg:iaend),
+     &     d2chi(nq,dxx:dzz,iabeg:iaend),
+     &     d3chi(nq,dxxx:dzzz,iabeg:iaend),
      &     drad(max_der_component,nq), ang(nq,*),
-     &     d1ang(nq,Dx:Dz,*), d2ang(nq,Dxx:Dzz,*), d3ang(nq,Dxxx:Dzzz,*)
+     &     d1ang(nq,dx:dz,*), d2ang(nq,dxx:dzz,*), d3ang(nq,dxxx:dzzz,*)
 c
       integer n, irem, iang
-      double precision t(Ax:Azz), u(Dx:Dz,Ax:Azz), v(Dxx:Dzz,Ax:Az),
+      double precision t(Ax:Azz), u(dx:dz,Ax:Azz), v(dxx:dzz,Ax:Az),
      &     s(2)
 c
 c     Nothing to do if s functions or no derivatives
 c
-      if (iabeg .eq. 1 .or. max_der_component .eq. D0) then
+      if (iabeg .eq. 1 .or. max_der_component .eq. d0) then
          return
       endif
 c
@@ -1227,62 +1234,62 @@ c
 
 c     p functions
 
-         if (max_der_component .eq. Dz) then
+         if (max_der_component .eq. dz) then
             do n = 1, nq
-               d1chi(n,Dx,Ax) = d1chi(n,Dx,Ax) + drad(D0,n)
-               d1chi(n,Dy,Ay) = d1chi(n,Dy,Ay) + drad(D0,n)
-               d1chi(n,Dz,Az) = d1chi(n,Dz,Az) + drad(D0,n)
+               d1chi(n,dx,Ax) = d1chi(n,dx,Ax) + drad(d0,n)
+               d1chi(n,dy,Ay) = d1chi(n,dy,Ay) + drad(d0,n)
+               d1chi(n,dz,Az) = d1chi(n,dz,Az) + drad(d0,n)
             enddo
-         elseif (max_der_component .eq. Dzz) then
+         elseif (max_der_component .eq. dzz) then
             do n = 1, nq
-               d1chi(n,Dx,Ax) = d1chi(n,Dx,Ax) + drad(D0,n)
-               d1chi(n,Dy,Ay) = d1chi(n,Dy,Ay) + drad(D0,n)
-               d1chi(n,Dz,Az) = d1chi(n,Dz,Az) + drad(D0,n)
+               d1chi(n,dx,Ax) = d1chi(n,dx,Ax) + drad(d0,n)
+               d1chi(n,dy,Ay) = d1chi(n,dy,Ay) + drad(d0,n)
+               d1chi(n,dz,Az) = d1chi(n,dz,Az) + drad(d0,n)
 c
-               d2chi(n,Dxx,Ax) = d2chi(n,Dxx,Ax) + drad(Dx,n)*2d0
-               d2chi(n,Dxy,Ax) = d2chi(n,Dxy,Ax) + drad(Dy,n)
-               d2chi(n,Dxz,Ax) = d2chi(n,Dxz,Ax) + drad(Dz,n)
-               d2chi(n,Dxy,Ay) = d2chi(n,Dxy,Ay) + drad(Dx,n)
-               d2chi(n,Dyy,Ay) = d2chi(n,Dyy,Ay) + drad(Dy,n)*2d0
-               d2chi(n,Dyz,Ay) = d2chi(n,Dyz,Ay) + drad(Dz,n)
-               d2chi(n,Dxz,Az) = d2chi(n,Dxz,Az) + drad(Dx,n)
-               d2chi(n,Dyz,Az) = d2chi(n,Dyz,Az) + drad(Dy,n)
-               d2chi(n,Dzz,Az) = d2chi(n,Dzz,Az) + drad(Dz,n)*2d0
+               d2chi(n,dxx,Ax) = d2chi(n,dxx,Ax) + drad(dx,n)*2d0
+               d2chi(n,dxy,Ax) = d2chi(n,dxy,Ax) + drad(dy,n)
+               d2chi(n,dxz,Ax) = d2chi(n,dxz,Ax) + drad(dz,n)
+               d2chi(n,dxy,Ay) = d2chi(n,dxy,Ay) + drad(dx,n)
+               d2chi(n,dyy,Ay) = d2chi(n,dyy,Ay) + drad(dy,n)*2d0
+               d2chi(n,dyz,Ay) = d2chi(n,dyz,Ay) + drad(dz,n)
+               d2chi(n,dxz,Az) = d2chi(n,dxz,Az) + drad(dx,n)
+               d2chi(n,dyz,Az) = d2chi(n,dyz,Az) + drad(dy,n)
+               d2chi(n,dzz,Az) = d2chi(n,dzz,Az) + drad(dz,n)*2d0
             enddo
-         elseif (max_der_component .eq. Dzzz) then
+         elseif (max_der_component .eq. dzzz) then
             do n = 1, nq
-               d1chi(n,Dx,Ax) = d1chi(n,Dx,Ax) + drad(D0,n)
-               d1chi(n,Dy,Ay) = d1chi(n,Dy,Ay) + drad(D0,n)
-               d1chi(n,Dz,Az) = d1chi(n,Dz,Az) + drad(D0,n)
+               d1chi(n,dx,Ax) = d1chi(n,dx,Ax) + drad(d0,n)
+               d1chi(n,dy,Ay) = d1chi(n,dy,Ay) + drad(d0,n)
+               d1chi(n,dz,Az) = d1chi(n,dz,Az) + drad(d0,n)
 c
-               d2chi(n,Dxx,Ax) = d2chi(n,Dxx,Ax) + drad(Dx,n)*2d0
-               d2chi(n,Dxy,Ax) = d2chi(n,Dxy,Ax) + drad(Dy,n)
-               d2chi(n,Dxz,Ax) = d2chi(n,Dxz,Ax) + drad(Dz,n)
-               d2chi(n,Dxy,Ay) = d2chi(n,Dxy,Ay) + drad(Dx,n)
-               d2chi(n,Dyy,Ay) = d2chi(n,Dyy,Ay) + drad(Dy,n)*2d0
-               d2chi(n,Dyz,Ay) = d2chi(n,Dyz,Ay) + drad(Dz,n)
-               d2chi(n,Dxz,Az) = d2chi(n,Dxz,Az) + drad(Dx,n)
-               d2chi(n,Dyz,Az) = d2chi(n,Dyz,Az) + drad(Dy,n)
-               d2chi(n,Dzz,Az) = d2chi(n,Dzz,Az) + drad(Dz,n)*2d0
+               d2chi(n,dxx,Ax) = d2chi(n,dxx,Ax) + drad(dx,n)*2d0
+               d2chi(n,dxy,Ax) = d2chi(n,dxy,Ax) + drad(dy,n)
+               d2chi(n,dxz,Ax) = d2chi(n,dxz,Ax) + drad(dz,n)
+               d2chi(n,dxy,Ay) = d2chi(n,dxy,Ay) + drad(dx,n)
+               d2chi(n,dyy,Ay) = d2chi(n,dyy,Ay) + drad(dy,n)*2d0
+               d2chi(n,dyz,Ay) = d2chi(n,dyz,Ay) + drad(dz,n)
+               d2chi(n,dxz,Az) = d2chi(n,dxz,Az) + drad(dx,n)
+               d2chi(n,dyz,Az) = d2chi(n,dyz,Az) + drad(dy,n)
+               d2chi(n,dzz,Az) = d2chi(n,dzz,Az) + drad(dz,n)*2d0
 c
-               d3chi(n,Dxxx,Ax) = d3chi(n,Dxxx,Ax) + drad(Dxx,n)*3d0
-               d3chi(n,Dxxy,Ax) = d3chi(n,Dxxy,Ax) + drad(Dxy,n)*2d0
-               d3chi(n,Dxxz,Ax) = d3chi(n,Dxxz,Ax) + drad(Dxz,n)*2d0
-               d3chi(n,Dxyy,Ax) = d3chi(n,Dxyy,Ax) + drad(Dyy,n)
-               d3chi(n,Dxyz,Ax) = d3chi(n,Dxyz,Ax) + drad(Dyz,n)
-               d3chi(n,Dxzz,Ax) = d3chi(n,Dxzz,Ax) + drad(Dzz,n)
-               d3chi(n,Dxxy,Ay) = d3chi(n,Dxxy,Ay) + drad(Dxx,n)
-               d3chi(n,Dxyy,Ay) = d3chi(n,Dxyy,Ay) + drad(Dxy,n)*2d0
-               d3chi(n,Dxyz,Ay) = d3chi(n,Dxyz,Ay) + drad(Dxz,n)
-               d3chi(n,Dyyy,Ay) = d3chi(n,Dyyy,Ay) + drad(Dyy,n)*3d0
-               d3chi(n,Dyyz,Ay) = d3chi(n,Dyyz,Ay) + drad(Dyz,n)*2d0
-               d3chi(n,Dyzz,Ay) = d3chi(n,Dyzz,Ay) + drad(Dzz,n)
-               d3chi(n,Dxxz,Az) = d3chi(n,Dxxz,Az) + drad(Dxx,n)
-               d3chi(n,Dxyz,Az) = d3chi(n,Dxyz,Az) + drad(Dxy,n)
-               d3chi(n,Dxzz,Az) = d3chi(n,Dxzz,Az) + drad(Dxz,n)*2d0
-               d3chi(n,Dyyz,Az) = d3chi(n,Dyyz,Az) + drad(Dyy,n)
-               d3chi(n,Dyzz,Az) = d3chi(n,Dyzz,Az) + drad(Dyz,n)*2d0
-               d3chi(n,Dzzz,Az) = d3chi(n,Dzzz,Az) + drad(Dzz,n)*3d0
+               d3chi(n,dxxx,Ax) = d3chi(n,dxxx,Ax) + drad(dxx,n)*3d0
+               d3chi(n,dxxy,Ax) = d3chi(n,dxxy,Ax) + drad(dxy,n)*2d0
+               d3chi(n,dxxz,Ax) = d3chi(n,dxxz,Ax) + drad(dxz,n)*2d0
+               d3chi(n,dxyy,Ax) = d3chi(n,dxyy,Ax) + drad(dyy,n)
+               d3chi(n,dxyz,Ax) = d3chi(n,dxyz,Ax) + drad(dyz,n)
+               d3chi(n,dxzz,Ax) = d3chi(n,dxzz,Ax) + drad(dzz,n)
+               d3chi(n,dxxy,Ay) = d3chi(n,dxxy,Ay) + drad(dxx,n)
+               d3chi(n,dxyy,Ay) = d3chi(n,dxyy,Ay) + drad(dxy,n)*2d0
+               d3chi(n,dxyz,Ay) = d3chi(n,dxyz,Ay) + drad(dxz,n)
+               d3chi(n,dyyy,Ay) = d3chi(n,dyyy,Ay) + drad(dyy,n)*3d0
+               d3chi(n,dyyz,Ay) = d3chi(n,dyyz,Ay) + drad(dyz,n)*2d0
+               d3chi(n,dyzz,Ay) = d3chi(n,dyzz,Ay) + drad(dzz,n)
+               d3chi(n,dxxz,Az) = d3chi(n,dxxz,Az) + drad(dxx,n)
+               d3chi(n,dxyz,Az) = d3chi(n,dxyz,Az) + drad(dxy,n)
+               d3chi(n,dxzz,Az) = d3chi(n,dxzz,Az) + drad(dxz,n)*2d0
+               d3chi(n,dyyz,Az) = d3chi(n,dyyz,Az) + drad(dyy,n)
+               d3chi(n,dyzz,Az) = d3chi(n,dyzz,Az) + drad(dyz,n)*2d0
+               d3chi(n,dzzz,Az) = d3chi(n,dzzz,Az) + drad(dzz,n)*3d0
             enddo
          endif
       elseif (iaend .eq. 9 .and. gen_l .gt. 2) then
@@ -1291,23 +1298,23 @@ c     Spherical d functions
 
          s(1) = sqrt(3d0)
          s(2) = 1d0/s(1)
-         if (max_der_component .eq. Dz) then
+         if (max_der_component .eq. dz) then
             do n = 1, nq
-               t(Ax) = ang(n,Ax)*drad(D0,n)*s(1)
-               t(Ay) = ang(n,Ay)*drad(D0,n)*s(1)
-               t(Az) = ang(n,Az)*drad(D0,n)*s(1)
+               t(Ax) = ang(n,Ax)*drad(d0,n)*s(1)
+               t(Ay) = ang(n,Ay)*drad(d0,n)*s(1)
+               t(Az) = ang(n,Az)*drad(d0,n)*s(1)
 c
-               d1chi(n,Dx,Ad1) = d1chi(n,Dx,Ad1) +     t(Ay)
-               d1chi(n,Dy,Ad1) = d1chi(n,Dy,Ad1) +     t(Ax)
-               d1chi(n,Dy,Ad2) = d1chi(n,Dy,Ad2) +     t(Az)
-               d1chi(n,Dz,Ad2) = d1chi(n,Dz,Ad2) +     t(Ay)
-               d1chi(n,Dx,Ad3) = d1chi(n,Dx,Ad3) -     t(Ax)*s(2)
-               d1chi(n,Dy,Ad3) = d1chi(n,Dy,Ad3) -     t(Ay)*s(2)
-               d1chi(n,Dz,Ad3) = d1chi(n,Dz,Ad3) + 2d0*t(Az)*s(2)
-               d1chi(n,Dx,Ad4) = d1chi(n,Dx,Ad4) -     t(Az)
-               d1chi(n,Dz,Ad4) = d1chi(n,Dz,Ad4) -     t(Ax)
-               d1chi(n,Dx,Ad5) = d1chi(n,Dx,Ad5) +     t(Ax)
-               d1chi(n,Dy,Ad5) = d1chi(n,Dy,Ad5) -     t(Ay)
+               d1chi(n,dx,Ad1) = d1chi(n,dx,Ad1) +     t(Ay)
+               d1chi(n,dy,Ad1) = d1chi(n,dy,Ad1) +     t(Ax)
+               d1chi(n,dy,Ad2) = d1chi(n,dy,Ad2) +     t(Az)
+               d1chi(n,dz,Ad2) = d1chi(n,dz,Ad2) +     t(Ay)
+               d1chi(n,dx,Ad3) = d1chi(n,dx,Ad3) -     t(Ax)*s(2)
+               d1chi(n,dy,Ad3) = d1chi(n,dy,Ad3) -     t(Ay)*s(2)
+               d1chi(n,dz,Ad3) = d1chi(n,dz,Ad3) + 2d0*t(Az)*s(2)
+               d1chi(n,dx,Ad4) = d1chi(n,dx,Ad4) -     t(Az)
+               d1chi(n,dz,Ad4) = d1chi(n,dz,Ad4) -     t(Ax)
+               d1chi(n,dx,Ad5) = d1chi(n,dx,Ad5) +     t(Ax)
+               d1chi(n,dy,Ad5) = d1chi(n,dy,Ad5) -     t(Ay)
             enddo
          else
             call errquit('d fn gen_l error in eval_dang_x_rad',1)
@@ -1316,230 +1323,230 @@ c
 
 c     Cartesian d functions
 
-         if (max_der_component .eq. Dz) then
+         if (max_der_component .eq. dz) then
             do n = 1, nq
-               t(Ax) = ang(n,Ax)*drad(D0,n)
-               t(Ay) = ang(n,Ay)*drad(D0,n)
-               t(Az) = ang(n,Az)*drad(D0,n)
+               t(Ax) = ang(n,Ax)*drad(d0,n)
+               t(Ay) = ang(n,Ay)*drad(d0,n)
+               t(Az) = ang(n,Az)*drad(d0,n)
 c
-               d1chi(n,Dx,Axx) = d1chi(n,Dx,Axx) + 2d0*t(Ax)
-               d1chi(n,Dx,Axy) = d1chi(n,Dx,Axy) +     t(Ay)
-               d1chi(n,Dy,Axy) = d1chi(n,Dy,Axy) +     t(Ax)
-               d1chi(n,Dx,Axz) = d1chi(n,Dx,Axz) +     t(Az)
-               d1chi(n,Dz,Axz) = d1chi(n,Dz,Axz) +     t(Ax)
-               d1chi(n,Dy,Ayy) = d1chi(n,Dy,Ayy) + 2d0*t(Ay)
-               d1chi(n,Dy,Ayz) = d1chi(n,Dy,Ayz) +     t(Az)
-               d1chi(n,Dz,Ayz) = d1chi(n,Dz,Ayz) +     t(Ay)
-               d1chi(n,Dz,Azz) = d1chi(n,Dz,Azz) + 2d0*t(Az)
+               d1chi(n,dx,Axx) = d1chi(n,dx,Axx) + 2d0*t(Ax)
+               d1chi(n,dx,Axy) = d1chi(n,dx,Axy) +     t(Ay)
+               d1chi(n,dy,Axy) = d1chi(n,dy,Axy) +     t(Ax)
+               d1chi(n,dx,Axz) = d1chi(n,dx,Axz) +     t(Az)
+               d1chi(n,dz,Axz) = d1chi(n,dz,Axz) +     t(Ax)
+               d1chi(n,dy,Ayy) = d1chi(n,dy,Ayy) + 2d0*t(Ay)
+               d1chi(n,dy,Ayz) = d1chi(n,dy,Ayz) +     t(Az)
+               d1chi(n,dz,Ayz) = d1chi(n,dz,Ayz) +     t(Ay)
+               d1chi(n,dz,Azz) = d1chi(n,dz,Azz) + 2d0*t(Az)
             enddo
-         elseif (max_der_component .eq. Dzz) then
+         elseif (max_der_component .eq. dzz) then
             do n = 1, nq
-               t(Ax) = ang(n,Ax)*drad(D0,n)
-               t(Ay) = ang(n,Ay)*drad(D0,n)
-               t(Az) = ang(n,Az)*drad(D0,n)
-               u(Dx,Ax) = ang(n,Ax)*drad(Dx,n)
-               u(Dy,Ax) = ang(n,Ax)*drad(Dy,n)
-               u(Dz,Ax) = ang(n,Ax)*drad(Dz,n)
-               u(Dx,Ay) = ang(n,Ay)*drad(Dx,n)
-               u(Dy,Ay) = ang(n,Ay)*drad(Dy,n)
-               u(Dz,Ay) = ang(n,Ay)*drad(Dz,n)
-               u(Dx,Az) = ang(n,Az)*drad(Dx,n)
-               u(Dy,Az) = ang(n,Az)*drad(Dy,n)
-               u(Dz,Az) = ang(n,Az)*drad(Dz,n)
+               t(Ax) = ang(n,Ax)*drad(d0,n)
+               t(Ay) = ang(n,Ay)*drad(d0,n)
+               t(Az) = ang(n,Az)*drad(d0,n)
+               u(dx,Ax) = ang(n,Ax)*drad(dx,n)
+               u(dy,Ax) = ang(n,Ax)*drad(dy,n)
+               u(dz,Ax) = ang(n,Ax)*drad(dz,n)
+               u(dx,Ay) = ang(n,Ay)*drad(dx,n)
+               u(dy,Ay) = ang(n,Ay)*drad(dy,n)
+               u(dz,Ay) = ang(n,Ay)*drad(dz,n)
+               u(dx,Az) = ang(n,Az)*drad(dx,n)
+               u(dy,Az) = ang(n,Az)*drad(dy,n)
+               u(dz,Az) = ang(n,Az)*drad(dz,n)
 c
-               d1chi(n,Dx,Axx) = d1chi(n,Dx,Axx) + 2d0*t(Ax)
-               d1chi(n,Dx,Axy) = d1chi(n,Dx,Axy) +     t(Ay)
-               d1chi(n,Dy,Axy) = d1chi(n,Dy,Axy) +     t(Ax)
-               d1chi(n,Dx,Axz) = d1chi(n,Dx,Axz) +     t(Az)
-               d1chi(n,Dz,Axz) = d1chi(n,Dz,Axz) +     t(Ax)
-               d1chi(n,Dy,Ayy) = d1chi(n,Dy,Ayy) + 2d0*t(Ay)
-               d1chi(n,Dy,Ayz) = d1chi(n,Dy,Ayz) +     t(Az)
-               d1chi(n,Dz,Ayz) = d1chi(n,Dz,Ayz) +     t(Ay)
-               d1chi(n,Dz,Azz) = d1chi(n,Dz,Azz) + 2d0*t(Az)
+               d1chi(n,dx,Axx) = d1chi(n,dx,Axx) + 2d0*t(Ax)
+               d1chi(n,dx,Axy) = d1chi(n,dx,Axy) +     t(Ay)
+               d1chi(n,dy,Axy) = d1chi(n,dy,Axy) +     t(Ax)
+               d1chi(n,dx,Axz) = d1chi(n,dx,Axz) +     t(Az)
+               d1chi(n,dz,Axz) = d1chi(n,dz,Axz) +     t(Ax)
+               d1chi(n,dy,Ayy) = d1chi(n,dy,Ayy) + 2d0*t(Ay)
+               d1chi(n,dy,Ayz) = d1chi(n,dy,Ayz) +     t(Az)
+               d1chi(n,dz,Ayz) = d1chi(n,dz,Ayz) +     t(Ay)
+               d1chi(n,dz,Azz) = d1chi(n,dz,Azz) + 2d0*t(Az)
 c
-               d2chi(n,Dxx,Axx) = d2chi(n,Dxx,Axx) + 2d0*drad(D0,n)
-     &                                             + 4d0*u(Dx,Ax)
-               d2chi(n,Dxy,Axx) = d2chi(n,Dxy,Axx) + 2d0*u(Dy,Ax)
-               d2chi(n,Dxz,Axx) = d2chi(n,Dxz,Axx) + 2d0*u(Dz,Ax)
+               d2chi(n,dxx,Axx) = d2chi(n,dxx,Axx) + 2d0*drad(d0,n)
+     &                                             + 4d0*u(dx,Ax)
+               d2chi(n,dxy,Axx) = d2chi(n,dxy,Axx) + 2d0*u(dy,Ax)
+               d2chi(n,dxz,Axx) = d2chi(n,dxz,Axx) + 2d0*u(dz,Ax)
 
-               d2chi(n,Dxx,Axy) = d2chi(n,Dxx,Axy) + 2d0*u(Dx,Ay)
-               d2chi(n,Dxy,Axy) = d2chi(n,Dxy,Axy) + drad(D0,n)
-     &                                             + u(Dy,Ay) + u(Dx,Ax)
-               d2chi(n,Dxz,Axy) = d2chi(n,Dxz,Axy) + u(Dz,Ay)
-               d2chi(n,Dyy,Axy) = d2chi(n,Dyy,Axy) + 2d0*u(Dy,Ax)
-               d2chi(n,Dyz,Axy) = d2chi(n,Dyz,Axy) + u(Dz,Ax)
+               d2chi(n,dxx,Axy) = d2chi(n,dxx,Axy) + 2d0*u(dx,Ay)
+               d2chi(n,dxy,Axy) = d2chi(n,dxy,Axy) + drad(d0,n)
+     &                                             + u(dy,Ay) + u(dx,Ax)
+               d2chi(n,dxz,Axy) = d2chi(n,dxz,Axy) + u(dz,Ay)
+               d2chi(n,dyy,Axy) = d2chi(n,dyy,Axy) + 2d0*u(dy,Ax)
+               d2chi(n,dyz,Axy) = d2chi(n,dyz,Axy) + u(dz,Ax)
 
-               d2chi(n,Dxx,Axz) = d2chi(n,Dxx,Axz) + 2d0*u(Dx,Az)
-               d2chi(n,Dxy,Axz) = d2chi(n,Dxy,Axz) + u(Dy,Az)
-               d2chi(n,Dxz,Axz) = d2chi(n,Dxz,Axz) + drad(D0,n)
-     &                                             + u(Dz,Az) + u(Dx,Ax)
-               d2chi(n,Dyz,Axz) = d2chi(n,Dyz,Axz) + u(Dy,Ax)
-               d2chi(n,Dzz,Axz) = d2chi(n,Dzz,Axz) + 2d0*u(Dz,Ax)
+               d2chi(n,dxx,Axz) = d2chi(n,dxx,Axz) + 2d0*u(dx,Az)
+               d2chi(n,dxy,Axz) = d2chi(n,dxy,Axz) + u(dy,Az)
+               d2chi(n,dxz,Axz) = d2chi(n,dxz,Axz) + drad(d0,n)
+     &                                             + u(dz,Az) + u(dx,Ax)
+               d2chi(n,dyz,Axz) = d2chi(n,dyz,Axz) + u(dy,Ax)
+               d2chi(n,dzz,Axz) = d2chi(n,dzz,Axz) + 2d0*u(dz,Ax)
 
-               d2chi(n,Dxy,Ayy) = d2chi(n,Dxy,Ayy) + 2d0*u(Dx,Ay)
-               d2chi(n,Dyy,Ayy) = d2chi(n,Dyy,Ayy) + 2d0*drad(D0,n)
-     &                                             + 4d0*u(Dy,Ay)
-               d2chi(n,Dyz,Ayy) = d2chi(n,Dyz,Ayy) + 2d0*u(Dz,Ay)
+               d2chi(n,dxy,Ayy) = d2chi(n,dxy,Ayy) + 2d0*u(dx,Ay)
+               d2chi(n,dyy,Ayy) = d2chi(n,dyy,Ayy) + 2d0*drad(d0,n)
+     &                                             + 4d0*u(dy,Ay)
+               d2chi(n,dyz,Ayy) = d2chi(n,dyz,Ayy) + 2d0*u(dz,Ay)
 
-               d2chi(n,Dxy,Ayz) = d2chi(n,Dxy,Ayz) + u(Dx,Az)
-               d2chi(n,Dxz,Ayz) = d2chi(n,Dxz,Ayz) + u(Dx,Ay)
-               d2chi(n,Dyy,Ayz) = d2chi(n,Dyy,Ayz) + 2d0*u(Dy,Az)
-               d2chi(n,Dyz,Ayz) = d2chi(n,Dyz,Ayz) + drad(D0,n)
-     &                                             + u(Dy,Ay) + u(Dz,Az)
-               d2chi(n,Dzz,Ayz) = d2chi(n,Dzz,Ayz) + 2d0*u(Dz,Ay)
+               d2chi(n,dxy,Ayz) = d2chi(n,dxy,Ayz) + u(dx,Az)
+               d2chi(n,dxz,Ayz) = d2chi(n,dxz,Ayz) + u(dx,Ay)
+               d2chi(n,dyy,Ayz) = d2chi(n,dyy,Ayz) + 2d0*u(dy,Az)
+               d2chi(n,dyz,Ayz) = d2chi(n,dyz,Ayz) + drad(d0,n)
+     &                                             + u(dy,Ay) + u(dz,Az)
+               d2chi(n,dzz,Ayz) = d2chi(n,dzz,Ayz) + 2d0*u(dz,Ay)
 
-               d2chi(n,Dxz,Azz) = d2chi(n,Dxz,Azz) + 2d0*u(Dx,Az)
-               d2chi(n,Dyz,Azz) = d2chi(n,Dyz,Azz) + 2d0*u(Dy,Az)
-               d2chi(n,Dzz,Azz) = d2chi(n,Dzz,Azz) + 2d0*drad(D0,n)
-     &                                             + 4d0*u(Dz,Az)
+               d2chi(n,dxz,Azz) = d2chi(n,dxz,Azz) + 2d0*u(dx,Az)
+               d2chi(n,dyz,Azz) = d2chi(n,dyz,Azz) + 2d0*u(dy,Az)
+               d2chi(n,dzz,Azz) = d2chi(n,dzz,Azz) + 2d0*drad(d0,n)
+     &                                             + 4d0*u(dz,Az)
             enddo
-         elseif (max_der_component .eq. Dzzz) then
+         elseif (max_der_component .eq. dzzz) then
             do n = 1, nq
-               t(Ax) = ang(n,Ax)*drad(D0,n)
-               t(Ay) = ang(n,Ay)*drad(D0,n)
-               t(Az) = ang(n,Az)*drad(D0,n)
-               u(Dx,Ax) = ang(n,Ax)*drad(Dx,n)
-               u(Dy,Ax) = ang(n,Ax)*drad(Dy,n)
-               u(Dz,Ax) = ang(n,Ax)*drad(Dz,n)
-               u(Dx,Ay) = ang(n,Ay)*drad(Dx,n)
-               u(Dy,Ay) = ang(n,Ay)*drad(Dy,n)
-               u(Dz,Ay) = ang(n,Ay)*drad(Dz,n)
-               u(Dx,Az) = ang(n,Az)*drad(Dx,n)
-               u(Dy,Az) = ang(n,Az)*drad(Dy,n)
-               u(Dz,Az) = ang(n,Az)*drad(Dz,n)
-               v(Dxx,Ax) = ang(n,Ax)*drad(Dxx,n)
-               v(Dxy,Ax) = ang(n,Ax)*drad(Dxy,n)
-               v(Dxz,Ax) = ang(n,Ax)*drad(Dxz,n)
-               v(Dyy,Ax) = ang(n,Ax)*drad(Dyy,n)
-               v(Dyz,Ax) = ang(n,Ax)*drad(Dyz,n)
-               v(Dzz,Ax) = ang(n,Ax)*drad(Dzz,n)
-               v(Dxx,Ay) = ang(n,Ay)*drad(Dxx,n)
-               v(Dxy,Ay) = ang(n,Ay)*drad(Dxy,n)
-               v(Dxz,Ay) = ang(n,Ay)*drad(Dxz,n)
-               v(Dyy,Ay) = ang(n,Ay)*drad(Dyy,n)
-               v(Dyz,Ay) = ang(n,Ay)*drad(Dyz,n)
-               v(Dzz,Ay) = ang(n,Ay)*drad(Dzz,n)
-               v(Dxx,Az) = ang(n,Az)*drad(Dxx,n)
-               v(Dxy,Az) = ang(n,Az)*drad(Dxy,n)
-               v(Dxz,Az) = ang(n,Az)*drad(Dxz,n)
-               v(Dyy,Az) = ang(n,Az)*drad(Dyy,n)
-               v(Dyz,Az) = ang(n,Az)*drad(Dyz,n)
-               v(Dzz,Az) = ang(n,Az)*drad(Dzz,n)
+               t(Ax) = ang(n,Ax)*drad(d0,n)
+               t(Ay) = ang(n,Ay)*drad(d0,n)
+               t(Az) = ang(n,Az)*drad(d0,n)
+               u(dx,Ax) = ang(n,Ax)*drad(dx,n)
+               u(dy,Ax) = ang(n,Ax)*drad(dy,n)
+               u(dz,Ax) = ang(n,Ax)*drad(dz,n)
+               u(dx,Ay) = ang(n,Ay)*drad(dx,n)
+               u(dy,Ay) = ang(n,Ay)*drad(dy,n)
+               u(dz,Ay) = ang(n,Ay)*drad(dz,n)
+               u(dx,Az) = ang(n,Az)*drad(dx,n)
+               u(dy,Az) = ang(n,Az)*drad(dy,n)
+               u(dz,Az) = ang(n,Az)*drad(dz,n)
+               v(dxx,Ax) = ang(n,Ax)*drad(dxx,n)
+               v(dxy,Ax) = ang(n,Ax)*drad(dxy,n)
+               v(dxz,Ax) = ang(n,Ax)*drad(dxz,n)
+               v(dyy,Ax) = ang(n,Ax)*drad(dyy,n)
+               v(dyz,Ax) = ang(n,Ax)*drad(dyz,n)
+               v(dzz,Ax) = ang(n,Ax)*drad(dzz,n)
+               v(dxx,Ay) = ang(n,Ay)*drad(dxx,n)
+               v(dxy,Ay) = ang(n,Ay)*drad(dxy,n)
+               v(dxz,Ay) = ang(n,Ay)*drad(dxz,n)
+               v(dyy,Ay) = ang(n,Ay)*drad(dyy,n)
+               v(dyz,Ay) = ang(n,Ay)*drad(dyz,n)
+               v(dzz,Ay) = ang(n,Ay)*drad(dzz,n)
+               v(dxx,Az) = ang(n,Az)*drad(dxx,n)
+               v(dxy,Az) = ang(n,Az)*drad(dxy,n)
+               v(dxz,Az) = ang(n,Az)*drad(dxz,n)
+               v(dyy,Az) = ang(n,Az)*drad(dyy,n)
+               v(dyz,Az) = ang(n,Az)*drad(dyz,n)
+               v(dzz,Az) = ang(n,Az)*drad(dzz,n)
 c
-               d1chi(n,Dx,Axx) = d1chi(n,Dx,Axx) + 2d0*t(Ax)
-               d1chi(n,Dx,Axy) = d1chi(n,Dx,Axy) +     t(Ay)
-               d1chi(n,Dy,Axy) = d1chi(n,Dy,Axy) +     t(Ax)
-               d1chi(n,Dx,Axz) = d1chi(n,Dx,Axz) +     t(Az)
-               d1chi(n,Dz,Axz) = d1chi(n,Dz,Axz) +     t(Ax)
-               d1chi(n,Dy,Ayy) = d1chi(n,Dy,Ayy) + 2d0*t(Ay)
-               d1chi(n,Dy,Ayz) = d1chi(n,Dy,Ayz) +     t(Az)
-               d1chi(n,Dz,Ayz) = d1chi(n,Dz,Ayz) +     t(Ay)
-               d1chi(n,Dz,Azz) = d1chi(n,Dz,Azz) + 2d0*t(Az)
+               d1chi(n,dx,Axx) = d1chi(n,dx,Axx) + 2d0*t(Ax)
+               d1chi(n,dx,Axy) = d1chi(n,dx,Axy) +     t(Ay)
+               d1chi(n,dy,Axy) = d1chi(n,dy,Axy) +     t(Ax)
+               d1chi(n,dx,Axz) = d1chi(n,dx,Axz) +     t(Az)
+               d1chi(n,dz,Axz) = d1chi(n,dz,Axz) +     t(Ax)
+               d1chi(n,dy,Ayy) = d1chi(n,dy,Ayy) + 2d0*t(Ay)
+               d1chi(n,dy,Ayz) = d1chi(n,dy,Ayz) +     t(Az)
+               d1chi(n,dz,Ayz) = d1chi(n,dz,Ayz) +     t(Ay)
+               d1chi(n,dz,Azz) = d1chi(n,dz,Azz) + 2d0*t(Az)
 c
-               d2chi(n,Dxx,Axx) = d2chi(n,Dxx,Axx) + 2d0*drad(D0,n)
-     &                                             + 4d0*u(Dx,Ax)
-               d2chi(n,Dxy,Axx) = d2chi(n,Dxy,Axx) + 2d0*u(Dy,Ax)
-               d2chi(n,Dxz,Axx) = d2chi(n,Dxz,Axx) + 2d0*u(Dz,Ax)
+               d2chi(n,dxx,Axx) = d2chi(n,dxx,Axx) + 2d0*drad(d0,n)
+     &                                             + 4d0*u(dx,Ax)
+               d2chi(n,dxy,Axx) = d2chi(n,dxy,Axx) + 2d0*u(dy,Ax)
+               d2chi(n,dxz,Axx) = d2chi(n,dxz,Axx) + 2d0*u(dz,Ax)
 
-               d2chi(n,Dxx,Axy) = d2chi(n,Dxx,Axy) + 2d0*u(Dx,Ay)
-               d2chi(n,Dxy,Axy) = d2chi(n,Dxy,Axy) + drad(D0,n)
-     &                                             + u(Dy,Ay) + u(Dx,Ax)
-               d2chi(n,Dxz,Axy) = d2chi(n,Dxz,Axy) + u(Dz,Ay)
-               d2chi(n,Dyy,Axy) = d2chi(n,Dyy,Axy) + 2d0*u(Dy,Ax)
-               d2chi(n,Dyz,Axy) = d2chi(n,Dyz,Axy) + u(Dz,Ax)
+               d2chi(n,dxx,Axy) = d2chi(n,dxx,Axy) + 2d0*u(dx,Ay)
+               d2chi(n,dxy,Axy) = d2chi(n,dxy,Axy) + drad(d0,n)
+     &                                             + u(dy,Ay) + u(dx,Ax)
+               d2chi(n,dxz,Axy) = d2chi(n,dxz,Axy) + u(dz,Ay)
+               d2chi(n,dyy,Axy) = d2chi(n,dyy,Axy) + 2d0*u(dy,Ax)
+               d2chi(n,dyz,Axy) = d2chi(n,dyz,Axy) + u(dz,Ax)
 
-               d2chi(n,Dxx,Axz) = d2chi(n,Dxx,Axz) + 2d0*u(Dx,Az)
-               d2chi(n,Dxy,Axz) = d2chi(n,Dxy,Axz) + u(Dy,Az)
-               d2chi(n,Dxz,Axz) = d2chi(n,Dxz,Axz) + drad(D0,n)
-     &                                             + u(Dz,Az) + u(Dx,Ax)
-               d2chi(n,Dyz,Axz) = d2chi(n,Dyz,Axz) + u(Dy,Ax)
-               d2chi(n,Dzz,Axz) = d2chi(n,Dzz,Axz) + 2d0*u(Dz,Ax)
+               d2chi(n,dxx,Axz) = d2chi(n,dxx,Axz) + 2d0*u(dx,Az)
+               d2chi(n,dxy,Axz) = d2chi(n,dxy,Axz) + u(dy,Az)
+               d2chi(n,dxz,Axz) = d2chi(n,dxz,Axz) + drad(d0,n)
+     &                                             + u(dz,Az) + u(dx,Ax)
+               d2chi(n,dyz,Axz) = d2chi(n,dyz,Axz) + u(dy,Ax)
+               d2chi(n,dzz,Axz) = d2chi(n,dzz,Axz) + 2d0*u(dz,Ax)
 
-               d2chi(n,Dxy,Ayy) = d2chi(n,Dxy,Ayy) + 2d0*u(Dx,Ay)
-               d2chi(n,Dyy,Ayy) = d2chi(n,Dyy,Ayy) + 2d0*drad(D0,n)
-     &                                             + 4d0*u(Dy,Ay)
-               d2chi(n,Dyz,Ayy) = d2chi(n,Dyz,Ayy) + 2d0*u(Dz,Ay)
+               d2chi(n,dxy,Ayy) = d2chi(n,dxy,Ayy) + 2d0*u(dx,Ay)
+               d2chi(n,dyy,Ayy) = d2chi(n,dyy,Ayy) + 2d0*drad(d0,n)
+     &                                             + 4d0*u(dy,Ay)
+               d2chi(n,dyz,Ayy) = d2chi(n,dyz,Ayy) + 2d0*u(dz,Ay)
 
-               d2chi(n,Dxy,Ayz) = d2chi(n,Dxy,Ayz) + u(Dx,Az)
-               d2chi(n,Dxz,Ayz) = d2chi(n,Dxz,Ayz) + u(Dx,Ay)
-               d2chi(n,Dyy,Ayz) = d2chi(n,Dyy,Ayz) + 2d0*u(Dy,Az)
-               d2chi(n,Dyz,Ayz) = d2chi(n,Dyz,Ayz) + drad(D0,n)
-     &                                             + u(Dy,Ay) + u(Dz,Az)
-               d2chi(n,Dzz,Ayz) = d2chi(n,Dzz,Ayz) + 2d0*u(Dz,Ay)
+               d2chi(n,dxy,Ayz) = d2chi(n,dxy,Ayz) + u(dx,Az)
+               d2chi(n,dxz,Ayz) = d2chi(n,dxz,Ayz) + u(dx,Ay)
+               d2chi(n,dyy,Ayz) = d2chi(n,dyy,Ayz) + 2d0*u(dy,Az)
+               d2chi(n,dyz,Ayz) = d2chi(n,dyz,Ayz) + drad(d0,n)
+     &                                             + u(dy,Ay) + u(dz,Az)
+               d2chi(n,dzz,Ayz) = d2chi(n,dzz,Ayz) + 2d0*u(dz,Ay)
 
-               d2chi(n,Dxz,Azz) = d2chi(n,Dxz,Azz) + 2d0*u(Dx,Az)
-               d2chi(n,Dyz,Azz) = d2chi(n,Dyz,Azz) + 2d0*u(Dy,Az)
-               d2chi(n,Dzz,Azz) = d2chi(n,Dzz,Azz) + 2d0*drad(D0,n)
-     &                                             + 4d0*u(Dz,Az)
+               d2chi(n,dxz,Azz) = d2chi(n,dxz,Azz) + 2d0*u(dx,Az)
+               d2chi(n,dyz,Azz) = d2chi(n,dyz,Azz) + 2d0*u(dy,Az)
+               d2chi(n,dzz,Azz) = d2chi(n,dzz,Azz) + 2d0*drad(d0,n)
+     &                                             + 4d0*u(dz,Az)
 c
-               d3chi(n,Dxxx,Axx) = d3chi(n,Dxxx,Axx) + 6d0*drad(Dx,n)
-     &                                               + 6d0*v(Dxx,Ax)
-               d3chi(n,Dxxy,Axx) = d3chi(n,Dxxy,Axx) + 2d0*drad(Dy,n)
-     &                                               + 4d0*v(Dxy,Ax)
-               d3chi(n,Dxxz,Axx) = d3chi(n,Dxxz,Axx) + 2d0*drad(Dz,n)
-     &                                               + 4d0*v(Dxz,Ax)
-               d3chi(n,Dxyy,Axx) = d3chi(n,Dxyy,Axx) + 2d0*v(Dyy,Ax)
-               d3chi(n,Dxyz,Axx) = d3chi(n,Dxyz,Axx) + 2d0*v(Dyz,Ax)
-               d3chi(n,Dxzz,Axx) = d3chi(n,Dxzz,Axx) + 2d0*v(Dzz,Ax)
+               d3chi(n,dxxx,Axx) = d3chi(n,dxxx,Axx) + 6d0*drad(dx,n)
+     &                                               + 6d0*v(dxx,Ax)
+               d3chi(n,dxxy,Axx) = d3chi(n,dxxy,Axx) + 2d0*drad(dy,n)
+     &                                               + 4d0*v(dxy,Ax)
+               d3chi(n,dxxz,Axx) = d3chi(n,dxxz,Axx) + 2d0*drad(dz,n)
+     &                                               + 4d0*v(dxz,Ax)
+               d3chi(n,dxyy,Axx) = d3chi(n,dxyy,Axx) + 2d0*v(dyy,Ax)
+               d3chi(n,dxyz,Axx) = d3chi(n,dxyz,Axx) + 2d0*v(dyz,Ax)
+               d3chi(n,dxzz,Axx) = d3chi(n,dxzz,Axx) + 2d0*v(dzz,Ax)
 
-               d3chi(n,Dxxx,Axy) = d3chi(n,Dxxx,Axy) + 3d0*v(Dxx,Ay)
-               d3chi(n,Dxxy,Axy) = d3chi(n,Dxxy,Axy) + 2d0*drad(Dx,n)
-     &                               + 2d0*v(Dxy,Ay) + v(Dxx,Ax)
-               d3chi(n,Dxxz,Axy) = d3chi(n,Dxxz,Axy) + 2d0*v(Dxz,Ay)
-               d3chi(n,Dxyy,Axy) = d3chi(n,Dxyy,Axy) + 2d0*drad(Dy,n)
-     &                               + 2d0*v(Dxy,Ax) + v(Dyy,Ay)
-               d3chi(n,Dxyz,Axy) = d3chi(n,Dxyz,Axy) + drad(Dz,n)
-     &                                   + v(Dyz,Ay) + v(Dxz,Ax)
-               d3chi(n,Dxzz,Axy) = d3chi(n,Dxzz,Axy) + v(Dzz,Ay)
-               d3chi(n,Dyyy,Axy) = d3chi(n,Dyyy,Axy) + 3d0*v(Dyy,Ax)
-               d3chi(n,Dyyz,Axy) = d3chi(n,Dyyz,Axy) + 2d0*v(Dyz,Ax)
-               d3chi(n,Dyzz,Axy) = d3chi(n,Dyzz,Axy) + v(Dzz,Ax)
+               d3chi(n,dxxx,Axy) = d3chi(n,dxxx,Axy) + 3d0*v(dxx,Ay)
+               d3chi(n,dxxy,Axy) = d3chi(n,dxxy,Axy) + 2d0*drad(dx,n)
+     &                               + 2d0*v(dxy,Ay) + v(dxx,Ax)
+               d3chi(n,dxxz,Axy) = d3chi(n,dxxz,Axy) + 2d0*v(dxz,Ay)
+               d3chi(n,dxyy,Axy) = d3chi(n,dxyy,Axy) + 2d0*drad(dy,n)
+     &                               + 2d0*v(dxy,Ax) + v(dyy,Ay)
+               d3chi(n,dxyz,Axy) = d3chi(n,dxyz,Axy) + drad(dz,n)
+     &                                   + v(dyz,Ay) + v(dxz,Ax)
+               d3chi(n,dxzz,Axy) = d3chi(n,dxzz,Axy) + v(dzz,Ay)
+               d3chi(n,dyyy,Axy) = d3chi(n,dyyy,Axy) + 3d0*v(dyy,Ax)
+               d3chi(n,dyyz,Axy) = d3chi(n,dyyz,Axy) + 2d0*v(dyz,Ax)
+               d3chi(n,dyzz,Axy) = d3chi(n,dyzz,Axy) + v(dzz,Ax)
 
-               d3chi(n,Dxxx,Axz) = d3chi(n,Dxxx,Axz) + 3d0*v(Dxx,Az)
-               d3chi(n,Dxxy,Axz) = d3chi(n,Dxxy,Axz) + 2d0*v(Dxy,Az)
-               d3chi(n,Dxxz,Axz) = d3chi(n,Dxxz,Axz) + 2d0*drad(Dx,n)
-     &                               + 2d0*v(Dxz,Az) + v(Dxx,Ax)
-               d3chi(n,Dxyy,Axz) = d3chi(n,Dxyy,Axz) + v(Dyy,Az)
-               d3chi(n,Dxyz,Axz) = d3chi(n,Dxyz,Axz) + drad(Dy,n)
-     &                                   + v(Dyz,Az) + v(Dxy,Ax)
-               d3chi(n,Dxzz,Axz) = d3chi(n,Dxzz,Axz) + 2d0*drad(Dz,n)
-     &                               + 2d0*v(Dxz,Ax) + v(Dzz,Az)
-               d3chi(n,Dyyz,Axz) = d3chi(n,Dyyz,Axz) + v(Dyy,Ax)
-               d3chi(n,Dyzz,Axz) = d3chi(n,Dyzz,Axz) + 2d0*v(Dyz,Ax)
-               d3chi(n,Dzzz,Axz) = d3chi(n,Dzzz,Axz) + 3d0*v(Dzz,Ax)
+               d3chi(n,dxxx,Axz) = d3chi(n,dxxx,Axz) + 3d0*v(dxx,Az)
+               d3chi(n,dxxy,Axz) = d3chi(n,dxxy,Axz) + 2d0*v(dxy,Az)
+               d3chi(n,dxxz,Axz) = d3chi(n,dxxz,Axz) + 2d0*drad(dx,n)
+     &                               + 2d0*v(dxz,Az) + v(dxx,Ax)
+               d3chi(n,dxyy,Axz) = d3chi(n,dxyy,Axz) + v(dyy,Az)
+               d3chi(n,dxyz,Axz) = d3chi(n,dxyz,Axz) + drad(dy,n)
+     &                                   + v(dyz,Az) + v(dxy,Ax)
+               d3chi(n,dxzz,Axz) = d3chi(n,dxzz,Axz) + 2d0*drad(dz,n)
+     &                               + 2d0*v(dxz,Ax) + v(dzz,Az)
+               d3chi(n,dyyz,Axz) = d3chi(n,dyyz,Axz) + v(dyy,Ax)
+               d3chi(n,dyzz,Axz) = d3chi(n,dyzz,Axz) + 2d0*v(dyz,Ax)
+               d3chi(n,dzzz,Axz) = d3chi(n,dzzz,Axz) + 3d0*v(dzz,Ax)
 
-               d3chi(n,Dxxy,Ayy) = d3chi(n,Dxxy,Ayy) + 2d0*v(Dxx,Ay)
-               d3chi(n,Dxyy,Ayy) = d3chi(n,Dxyy,Ayy) + 2d0*drad(Dx,n)
-     &                                               + 4d0*v(Dxy,Ay)
-               d3chi(n,Dxyz,Ayy) = d3chi(n,Dxyz,Ayy) + 2d0*v(Dxz,Ay)
-               d3chi(n,Dyyy,Ayy) = d3chi(n,Dyyy,Ayy) + 6d0*drad(Dy,n)
-     &                                               + 6d0*v(Dyy,Ay)
-               d3chi(n,Dyyz,Ayy) = d3chi(n,Dyyz,Ayy) + 2d0*drad(Dz,n)
-     &                                               + 4d0*v(Dyz,Ay)
-               d3chi(n,Dyzz,Ayy) = d3chi(n,Dyzz,Ayy) + 2d0*v(Dzz,Ay)
+               d3chi(n,dxxy,Ayy) = d3chi(n,dxxy,Ayy) + 2d0*v(dxx,Ay)
+               d3chi(n,dxyy,Ayy) = d3chi(n,dxyy,Ayy) + 2d0*drad(dx,n)
+     &                                               + 4d0*v(dxy,Ay)
+               d3chi(n,dxyz,Ayy) = d3chi(n,dxyz,Ayy) + 2d0*v(dxz,Ay)
+               d3chi(n,dyyy,Ayy) = d3chi(n,dyyy,Ayy) + 6d0*drad(dy,n)
+     &                                               + 6d0*v(dyy,Ay)
+               d3chi(n,dyyz,Ayy) = d3chi(n,dyyz,Ayy) + 2d0*drad(dz,n)
+     &                                               + 4d0*v(dyz,Ay)
+               d3chi(n,dyzz,Ayy) = d3chi(n,dyzz,Ayy) + 2d0*v(dzz,Ay)
 
-               d3chi(n,Dxxy,Ayz) = d3chi(n,Dxxy,Ayz) + v(Dxx,Az)
-               d3chi(n,Dxxz,Ayz) = d3chi(n,Dxxz,Ayz) + v(Dxx,Ay)
-               d3chi(n,Dxyy,Ayz) = d3chi(n,Dxyy,Ayz) + 2d0*v(Dxy,Az)
-               d3chi(n,Dxyz,Ayz) = d3chi(n,Dxyz,Ayz) + drad(Dx,n)
-     &                                   + v(Dxz,Az) + v(Dxy,Ay)
-               d3chi(n,Dxzz,Ayz) = d3chi(n,Dxzz,Ayz) + 2d0*v(Dxz,Ay)
-               d3chi(n,Dyyy,Ayz) = d3chi(n,Dyyy,Ayz) + 3d0*v(Dyy,Az)
-               d3chi(n,Dyyz,Ayz) = d3chi(n,Dyyz,Ayz) + 2d0*drad(Dy,n)
-     &                               + 2d0*v(Dyz,Az) + v(Dyy,Ay)
-               d3chi(n,Dyzz,Ayz) = d3chi(n,Dyzz,Ayz) + 2d0*drad(Dz,n)
-     &                               + 2d0*v(Dyz,Ay) + v(Dzz,Az)
-               d3chi(n,Dzzz,Ayz) = d3chi(n,Dzzz,Ayz) + 3d0*v(Dzz,Ay)
+               d3chi(n,dxxy,Ayz) = d3chi(n,dxxy,Ayz) + v(dxx,Az)
+               d3chi(n,dxxz,Ayz) = d3chi(n,dxxz,Ayz) + v(dxx,Ay)
+               d3chi(n,dxyy,Ayz) = d3chi(n,dxyy,Ayz) + 2d0*v(dxy,Az)
+               d3chi(n,dxyz,Ayz) = d3chi(n,dxyz,Ayz) + drad(dx,n)
+     &                                   + v(dxz,Az) + v(dxy,Ay)
+               d3chi(n,dxzz,Ayz) = d3chi(n,dxzz,Ayz) + 2d0*v(dxz,Ay)
+               d3chi(n,dyyy,Ayz) = d3chi(n,dyyy,Ayz) + 3d0*v(dyy,Az)
+               d3chi(n,dyyz,Ayz) = d3chi(n,dyyz,Ayz) + 2d0*drad(dy,n)
+     &                               + 2d0*v(dyz,Az) + v(dyy,Ay)
+               d3chi(n,dyzz,Ayz) = d3chi(n,dyzz,Ayz) + 2d0*drad(dz,n)
+     &                               + 2d0*v(dyz,Ay) + v(dzz,Az)
+               d3chi(n,dzzz,Ayz) = d3chi(n,dzzz,Ayz) + 3d0*v(dzz,Ay)
 
-               d3chi(n,Dxxz,Azz) = d3chi(n,Dxxz,Azz) + 2d0*v(Dxx,Az)
-               d3chi(n,Dxyz,Azz) = d3chi(n,Dxyz,Azz) + 2d0*v(Dxy,Az)
-               d3chi(n,Dxzz,Azz) = d3chi(n,Dxzz,Azz) + 2d0*drad(Dx,n)
-     &                                               + 4d0*v(Dxz,Az)
-               d3chi(n,Dyyz,Azz) = d3chi(n,Dyyz,Azz) + 2d0*v(Dyy,Az)
-               d3chi(n,Dyzz,Azz) = d3chi(n,Dyzz,Azz) + 2d0*drad(Dy,n)
-     &                                               + 4d0*v(Dyz,Az)
-               d3chi(n,Dzzz,Azz) = d3chi(n,Dzzz,Azz) + 6d0*drad(Dz,n)
-     &                                               + 6d0*v(Dzz,Az)
+               d3chi(n,dxxz,Azz) = d3chi(n,dxxz,Azz) + 2d0*v(dxx,Az)
+               d3chi(n,dxyz,Azz) = d3chi(n,dxyz,Azz) + 2d0*v(dxy,Az)
+               d3chi(n,dxzz,Azz) = d3chi(n,dxzz,Azz) + 2d0*drad(dx,n)
+     &                                               + 4d0*v(dxz,Az)
+               d3chi(n,dyyz,Azz) = d3chi(n,dyyz,Azz) + 2d0*v(dyy,Az)
+               d3chi(n,dyzz,Azz) = d3chi(n,dyzz,Azz) + 2d0*drad(dy,n)
+     &                                               + 4d0*v(dyz,Az)
+               d3chi(n,dzzz,Azz) = d3chi(n,dzzz,Azz) + 6d0*drad(dz,n)
+     &                                               + 6d0*v(dzz,Az)
             enddo
          endif
       elseif (iaend .eq. 16 .and. gen_l .gt. 3) then
@@ -1551,33 +1558,33 @@ c     Spherical f functions
 
 c     Cartesian f functions
 
-         if (max_der_component .eq. Dz) then
+         if (max_der_component .eq. dz) then
             do n = 1, nq
-               t(Axx) = ang(n,Axx)*drad(D0,n)
-               t(Axy) = ang(n,Axy)*drad(D0,n)
-               t(Axz) = ang(n,Axz)*drad(D0,n)
-               t(Ayy) = ang(n,Ayy)*drad(D0,n)
-               t(Ayz) = ang(n,Ayz)*drad(D0,n)
-               t(Azz) = ang(n,Azz)*drad(D0,n)
+               t(Axx) = ang(n,Axx)*drad(d0,n)
+               t(Axy) = ang(n,Axy)*drad(d0,n)
+               t(Axz) = ang(n,Axz)*drad(d0,n)
+               t(Ayy) = ang(n,Ayy)*drad(d0,n)
+               t(Ayz) = ang(n,Ayz)*drad(d0,n)
+               t(Azz) = ang(n,Azz)*drad(d0,n)
 c
-               d1chi(n,Dx,Axxx) = d1chi(n,Dx,Axxx) + 3d0*t(Axx)
-               d1chi(n,Dx,Axxy) = d1chi(n,Dx,Axxy) + 2d0*t(Axy)
-               d1chi(n,Dy,Axxy) = d1chi(n,Dy,Axxy) +     t(Axx)
-               d1chi(n,Dx,Axxz) = d1chi(n,Dx,Axxz) + 2d0*t(Axz)
-               d1chi(n,Dz,Axxz) = d1chi(n,Dz,Axxz) +     t(Axx)
-               d1chi(n,Dx,Axyy) = d1chi(n,Dx,Axyy) +     t(Ayy)
-               d1chi(n,Dy,Axyy) = d1chi(n,Dy,Axyy) + 2d0*t(Axy)
-               d1chi(n,Dx,Axyz) = d1chi(n,Dx,Axyz) +     t(Ayz)
-               d1chi(n,Dy,Axyz) = d1chi(n,Dy,Axyz) +     t(Axz)
-               d1chi(n,Dz,Axyz) = d1chi(n,Dz,Axyz) +     t(Axy)
-               d1chi(n,Dx,Axzz) = d1chi(n,Dx,Axzz) +     t(Azz)
-               d1chi(n,Dz,Axzz) = d1chi(n,Dz,Axzz) + 2d0*t(Axz)
-               d1chi(n,Dy,Ayyy) = d1chi(n,Dy,Ayyy) + 3d0*t(Ayy)
-               d1chi(n,Dy,Ayyz) = d1chi(n,Dy,Ayyz) + 2d0*t(Ayz)
-               d1chi(n,Dz,Ayyz) = d1chi(n,Dz,Ayyz) +     t(Ayy)
-               d1chi(n,Dy,Ayzz) = d1chi(n,Dy,Ayzz) +     t(Azz)
-               d1chi(n,Dz,Ayzz) = d1chi(n,Dz,Ayzz) + 2d0*t(Ayz)
-               d1chi(n,Dz,Azzz) = d1chi(n,Dz,Azzz) + 3d0*t(Azz)
+               d1chi(n,dx,Axxx) = d1chi(n,dx,Axxx) + 3d0*t(Axx)
+               d1chi(n,dx,Axxy) = d1chi(n,dx,Axxy) + 2d0*t(Axy)
+               d1chi(n,dy,Axxy) = d1chi(n,dy,Axxy) +     t(Axx)
+               d1chi(n,dx,Axxz) = d1chi(n,dx,Axxz) + 2d0*t(Axz)
+               d1chi(n,dz,Axxz) = d1chi(n,dz,Axxz) +     t(Axx)
+               d1chi(n,dx,Axyy) = d1chi(n,dx,Axyy) +     t(Ayy)
+               d1chi(n,dy,Axyy) = d1chi(n,dy,Axyy) + 2d0*t(Axy)
+               d1chi(n,dx,Axyz) = d1chi(n,dx,Axyz) +     t(Ayz)
+               d1chi(n,dy,Axyz) = d1chi(n,dy,Axyz) +     t(Axz)
+               d1chi(n,dz,Axyz) = d1chi(n,dz,Axyz) +     t(Axy)
+               d1chi(n,dx,Axzz) = d1chi(n,dx,Axzz) +     t(Azz)
+               d1chi(n,dz,Axzz) = d1chi(n,dz,Axzz) + 2d0*t(Axz)
+               d1chi(n,dy,Ayyy) = d1chi(n,dy,Ayyy) + 3d0*t(Ayy)
+               d1chi(n,dy,Ayyz) = d1chi(n,dy,Ayyz) + 2d0*t(Ayz)
+               d1chi(n,dz,Ayyz) = d1chi(n,dz,Ayyz) +     t(Ayy)
+               d1chi(n,dy,Ayzz) = d1chi(n,dy,Ayzz) +     t(Azz)
+               d1chi(n,dz,Ayzz) = d1chi(n,dz,Ayzz) + 2d0*t(Ayz)
+               d1chi(n,dz,Azzz) = d1chi(n,dz,Azzz) + 3d0*t(Azz)
             enddo
          else
             call errquit('f fn gen_l error in eval_dang_x_rad',1)
@@ -1590,379 +1597,379 @@ c     Do remainder first
 
          irem = (iaend-iabeg+1)-((iaend-iabeg+1)/3)*3
          if (irem .eq. 1) then
-            if (max_der_component .eq. Dz) then
+            if (max_der_component .eq. dz) then
                do n = 1, nq
-                  d1chi(n,Dx,iabeg  ) = d1chi(n,Dx,iabeg  )
-     &                 + d1ang(n,Dx,iabeg  )*drad(D0,n)
-                  d1chi(n,Dy,iabeg  ) = d1chi(n,Dy,iabeg  )
-     &                 + d1ang(n,Dy,iabeg  )*drad(D0,n)
-                  d1chi(n,Dz,iabeg  ) = d1chi(n,Dz,iabeg  )
-     &                 + d1ang(n,Dz,iabeg  )*drad(D0,n)
+                  d1chi(n,dx,iabeg  ) = d1chi(n,dx,iabeg  )
+     &                 + d1ang(n,dx,iabeg  )*drad(d0,n)
+                  d1chi(n,dy,iabeg  ) = d1chi(n,dy,iabeg  )
+     &                 + d1ang(n,dy,iabeg  )*drad(d0,n)
+                  d1chi(n,dz,iabeg  ) = d1chi(n,dz,iabeg  )
+     &                 + d1ang(n,dz,iabeg  )*drad(d0,n)
                enddo
-            elseif (max_der_component .eq. Dzz) then
+            elseif (max_der_component .eq. dzz) then
                 do n = 1, nq
-                  d1chi(n,Dx,iabeg  ) = d1chi(n,Dx,iabeg  )
-     &                 + d1ang(n,Dx,iabeg  )*drad(D0,n)
-                  d1chi(n,Dy,iabeg  ) = d1chi(n,Dy,iabeg  )
-     &                 + d1ang(n,Dy,iabeg  )*drad(D0,n)
-                  d1chi(n,Dz,iabeg  ) = d1chi(n,Dz,iabeg  )
-     &                 + d1ang(n,Dz,iabeg  )*drad(D0,n)
+                  d1chi(n,dx,iabeg  ) = d1chi(n,dx,iabeg  )
+     &                 + d1ang(n,dx,iabeg  )*drad(d0,n)
+                  d1chi(n,dy,iabeg  ) = d1chi(n,dy,iabeg  )
+     &                 + d1ang(n,dy,iabeg  )*drad(d0,n)
+                  d1chi(n,dz,iabeg  ) = d1chi(n,dz,iabeg  )
+     &                 + d1ang(n,dz,iabeg  )*drad(d0,n)
 c
-                  d2chi(n,Dxx,iabeg  ) = d2chi(n,Dxx,iabeg  )
-     &                 + d2ang(n,Dxx,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iabeg  ) = d2chi(n,Dxy,iabeg  )
-     &                 + d2ang(n,Dxy,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dy,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dx,n)
-                  d2chi(n,Dxz,iabeg  ) = d2chi(n,Dxz,iabeg  )
-     &                 + d2ang(n,Dxz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dx,n)
-                  d2chi(n,Dyy,iabeg  ) = d2chi(n,Dyy,iabeg  )
-     &                 + d2ang(n,Dyy,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iabeg  ) = d2chi(n,Dyz,iabeg  )
-     &                 + d2ang(n,Dyz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dy,n)
-                  d2chi(n,Dzz,iabeg  ) = d2chi(n,Dzz,iabeg  )
-     &                 + d2ang(n,Dzz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dz,n)*2d0
+                  d2chi(n,dxx,iabeg  ) = d2chi(n,dxx,iabeg  )
+     &                 + d2ang(n,dxx,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dx,n)*2d0
+                  d2chi(n,dxy,iabeg  ) = d2chi(n,dxy,iabeg  )
+     &                 + d2ang(n,dxy,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dy,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dx,n)
+                  d2chi(n,dxz,iabeg  ) = d2chi(n,dxz,iabeg  )
+     &                 + d2ang(n,dxz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dx,n)
+                  d2chi(n,dyy,iabeg  ) = d2chi(n,dyy,iabeg  )
+     &                 + d2ang(n,dyy,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dy,n)*2d0
+                  d2chi(n,dyz,iabeg  ) = d2chi(n,dyz,iabeg  )
+     &                 + d2ang(n,dyz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dy,n)
+                  d2chi(n,dzz,iabeg  ) = d2chi(n,dzz,iabeg  )
+     &                 + d2ang(n,dzz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dz,n)*2d0
                enddo
-            elseif (max_der_component .eq. Dzzz) then
+            elseif (max_der_component .eq. dzzz) then
                do n = 1, nq
-                  d1chi(n,Dx,iabeg  ) = d1chi(n,Dx,iabeg  )
-     &                 + d1ang(n,Dx,iabeg  )*drad(D0,n)
-                  d1chi(n,Dy,iabeg  ) = d1chi(n,Dy,iabeg  )
-     &                 + d1ang(n,Dy,iabeg  )*drad(D0,n)
-                  d1chi(n,Dz,iabeg  ) = d1chi(n,Dz,iabeg  )
-     &                 + d1ang(n,Dz,iabeg  )*drad(D0,n)
+                  d1chi(n,dx,iabeg  ) = d1chi(n,dx,iabeg  )
+     &                 + d1ang(n,dx,iabeg  )*drad(d0,n)
+                  d1chi(n,dy,iabeg  ) = d1chi(n,dy,iabeg  )
+     &                 + d1ang(n,dy,iabeg  )*drad(d0,n)
+                  d1chi(n,dz,iabeg  ) = d1chi(n,dz,iabeg  )
+     &                 + d1ang(n,dz,iabeg  )*drad(d0,n)
 c
-                  d2chi(n,Dxx,iabeg  ) = d2chi(n,Dxx,iabeg  )
-     &                 + d2ang(n,Dxx,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iabeg  ) = d2chi(n,Dxy,iabeg  )
-     &                 + d2ang(n,Dxy,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dy,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dx,n)
-                  d2chi(n,Dxz,iabeg  ) = d2chi(n,Dxz,iabeg  )
-     &                 + d2ang(n,Dxz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dx,n)
-                  d2chi(n,Dyy,iabeg  ) = d2chi(n,Dyy,iabeg  )
-     &                 + d2ang(n,Dyy,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iabeg  ) = d2chi(n,Dyz,iabeg  )
-     &                 + d2ang(n,Dyz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dy,n)
-                  d2chi(n,Dzz,iabeg  ) = d2chi(n,Dzz,iabeg  )
-     &                 + d2ang(n,Dzz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dz,n)*2d0
+                  d2chi(n,dxx,iabeg  ) = d2chi(n,dxx,iabeg  )
+     &                 + d2ang(n,dxx,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dx,n)*2d0
+                  d2chi(n,dxy,iabeg  ) = d2chi(n,dxy,iabeg  )
+     &                 + d2ang(n,dxy,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dy,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dx,n)
+                  d2chi(n,dxz,iabeg  ) = d2chi(n,dxz,iabeg  )
+     &                 + d2ang(n,dxz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dx,n)
+                  d2chi(n,dyy,iabeg  ) = d2chi(n,dyy,iabeg  )
+     &                 + d2ang(n,dyy,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dy,n)*2d0
+                  d2chi(n,dyz,iabeg  ) = d2chi(n,dyz,iabeg  )
+     &                 + d2ang(n,dyz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dy,n)
+                  d2chi(n,dzz,iabeg  ) = d2chi(n,dzz,iabeg  )
+     &                 + d2ang(n,dzz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dz,n)*2d0
 c
-                  d3chi(n,Dxxx,iabeg  ) = d3chi(n,Dxxx,iabeg  )
-     &                 + d3ang(n,Dxxx,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxx,iabeg  )*drad(Dx,n)*3d0
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dxx,n)*3d0
-                  d3chi(n,Dxxy,iabeg  ) = d3chi(n,Dxxy,iabeg  )
-     &                 + d3ang(n,Dxxy,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxx,iabeg  )*drad(Dy,n)
-     &                 + d2ang(n,Dxy,iabeg  )*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dxy,n)*2d0
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dxx,n)
-                  d3chi(n,Dxxz,iabeg  ) = d3chi(n,Dxxz,iabeg  )
-     &                 + d3ang(n,Dxxz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxx,iabeg  )*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iabeg  )*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dxz,n)*2d0
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dxx,n)
-                  d3chi(n,Dxyy,iabeg  ) = d3chi(n,Dxyy,iabeg  )
-     &                 + d3ang(n,Dxyy,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxy,iabeg  )*drad(Dy,n)*2d0
-     &                 + d2ang(n,Dyy,iabeg  )*drad(Dx,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dyy,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dxy,n)*2d0
-                  d3chi(n,Dxyz,iabeg  ) = d3chi(n,Dxyz,iabeg  )
-     &                 + d3ang(n,Dxyz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxy,iabeg  )*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iabeg  )*drad(Dy,n)
-     &                 + d2ang(n,Dyz,iabeg  )*drad(Dx,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dyz,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dxz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dxy,n)
-                  d3chi(n,Dxzz,iabeg  ) = d3chi(n,Dxzz,iabeg  )
-     &                 + d3ang(n,Dxzz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxz,iabeg  )*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iabeg  )*drad(Dx,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dxz,n)*2d0
-                  d3chi(n,Dyyy,iabeg  ) = d3chi(n,Dyyy,iabeg  )
-     &                 + d3ang(n,Dyyy,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dyy,iabeg  )*drad(Dy,n)*3d0
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dyy,n)*3d0
-                  d3chi(n,Dyyz,iabeg  ) = d3chi(n,Dyyz,iabeg  )
-     &                 + d3ang(n,Dyyz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dyy,iabeg  )*drad(Dz,n)
-     &                 + d2ang(n,Dyz,iabeg  )*drad(Dy,n)*2d0
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dyz,n)*2d0
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dyy,n)
-                  d3chi(n,Dyzz,iabeg  ) = d3chi(n,Dyzz,iabeg  )
-     &                 + d3ang(n,Dyzz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dyz,iabeg  )*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iabeg  )*drad(Dy,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dyz,n)*2d0
-                  d3chi(n,Dzzz,iabeg  ) = d3chi(n,Dzzz,iabeg  )
-     &                 + d3ang(n,Dzzz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dzz,iabeg  )*drad(Dz,n)*3d0
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dzz,n)*3d0
+                  d3chi(n,dxxx,iabeg  ) = d3chi(n,dxxx,iabeg  )
+     &                 + d3ang(n,dxxx,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxx,iabeg  )*drad(dx,n)*3d0
+     &                 + d1ang(n,dx,iabeg  )*drad(dxx,n)*3d0
+                  d3chi(n,dxxy,iabeg  ) = d3chi(n,dxxy,iabeg  )
+     &                 + d3ang(n,dxxy,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxx,iabeg  )*drad(dy,n)
+     &                 + d2ang(n,dxy,iabeg  )*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iabeg  )*drad(dxy,n)*2d0
+     &                 + d1ang(n,dy,iabeg  )*drad(dxx,n)
+                  d3chi(n,dxxz,iabeg  ) = d3chi(n,dxxz,iabeg  )
+     &                 + d3ang(n,dxxz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxx,iabeg  )*drad(dz,n)
+     &                 + d2ang(n,dxz,iabeg  )*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iabeg  )*drad(dxz,n)*2d0
+     &                 + d1ang(n,dz,iabeg  )*drad(dxx,n)
+                  d3chi(n,dxyy,iabeg  ) = d3chi(n,dxyy,iabeg  )
+     &                 + d3ang(n,dxyy,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxy,iabeg  )*drad(dy,n)*2d0
+     &                 + d2ang(n,dyy,iabeg  )*drad(dx,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dyy,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dxy,n)*2d0
+                  d3chi(n,dxyz,iabeg  ) = d3chi(n,dxyz,iabeg  )
+     &                 + d3ang(n,dxyz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxy,iabeg  )*drad(dz,n)
+     &                 + d2ang(n,dxz,iabeg  )*drad(dy,n)
+     &                 + d2ang(n,dyz,iabeg  )*drad(dx,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dyz,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dxz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dxy,n)
+                  d3chi(n,dxzz,iabeg  ) = d3chi(n,dxzz,iabeg  )
+     &                 + d3ang(n,dxzz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxz,iabeg  )*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iabeg  )*drad(dx,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dzz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dxz,n)*2d0
+                  d3chi(n,dyyy,iabeg  ) = d3chi(n,dyyy,iabeg  )
+     &                 + d3ang(n,dyyy,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dyy,iabeg  )*drad(dy,n)*3d0
+     &                 + d1ang(n,dy,iabeg  )*drad(dyy,n)*3d0
+                  d3chi(n,dyyz,iabeg  ) = d3chi(n,dyyz,iabeg  )
+     &                 + d3ang(n,dyyz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dyy,iabeg  )*drad(dz,n)
+     &                 + d2ang(n,dyz,iabeg  )*drad(dy,n)*2d0
+     &                 + d1ang(n,dy,iabeg  )*drad(dyz,n)*2d0
+     &                 + d1ang(n,dz,iabeg  )*drad(dyy,n)
+                  d3chi(n,dyzz,iabeg  ) = d3chi(n,dyzz,iabeg  )
+     &                 + d3ang(n,dyzz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dyz,iabeg  )*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iabeg  )*drad(dy,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dzz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dyz,n)*2d0
+                  d3chi(n,dzzz,iabeg  ) = d3chi(n,dzzz,iabeg  )
+     &                 + d3ang(n,dzzz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dzz,iabeg  )*drad(dz,n)*3d0
+     &                 + d1ang(n,dz,iabeg  )*drad(dzz,n)*3d0
                enddo
             endif
          elseif (irem .eq. 2) then
-            if (max_der_component .eq. Dz) then
+            if (max_der_component .eq. dz) then
                do n = 1, nq
-                  d1chi(n,Dx,iabeg  ) = d1chi(n,Dx,iabeg  )
-     &                 + d1ang(n,Dx,iabeg  )*drad(D0,n)
-                  d1chi(n,Dy,iabeg  ) = d1chi(n,Dy,iabeg  )
-     &                 + d1ang(n,Dy,iabeg  )*drad(D0,n)
-                  d1chi(n,Dz,iabeg  ) = d1chi(n,Dz,iabeg  )
-     &                 + d1ang(n,Dz,iabeg  )*drad(D0,n)
-                  d1chi(n,Dx,iabeg+1) = d1chi(n,Dx,iabeg+1)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(D0,n)
-                  d1chi(n,Dy,iabeg+1) = d1chi(n,Dy,iabeg+1)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(D0,n)
-                  d1chi(n,Dz,iabeg+1) = d1chi(n,Dz,iabeg+1)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(D0,n)
+                  d1chi(n,dx,iabeg  ) = d1chi(n,dx,iabeg  )
+     &                 + d1ang(n,dx,iabeg  )*drad(d0,n)
+                  d1chi(n,dy,iabeg  ) = d1chi(n,dy,iabeg  )
+     &                 + d1ang(n,dy,iabeg  )*drad(d0,n)
+                  d1chi(n,dz,iabeg  ) = d1chi(n,dz,iabeg  )
+     &                 + d1ang(n,dz,iabeg  )*drad(d0,n)
+                  d1chi(n,dx,iabeg+1) = d1chi(n,dx,iabeg+1)
+     &                 + d1ang(n,dx,iabeg+1)*drad(d0,n)
+                  d1chi(n,dy,iabeg+1) = d1chi(n,dy,iabeg+1)
+     &                 + d1ang(n,dy,iabeg+1)*drad(d0,n)
+                  d1chi(n,dz,iabeg+1) = d1chi(n,dz,iabeg+1)
+     &                 + d1ang(n,dz,iabeg+1)*drad(d0,n)
                enddo
-            elseif (max_der_component .eq. Dzz) then
+            elseif (max_der_component .eq. dzz) then
                 do n = 1, nq
-                  d1chi(n,Dx,iabeg  ) = d1chi(n,Dx,iabeg  )
-     &                 + d1ang(n,Dx,iabeg  )*drad(D0,n)
-                  d1chi(n,Dy,iabeg  ) = d1chi(n,Dy,iabeg  )
-     &                 + d1ang(n,Dy,iabeg  )*drad(D0,n)
-                  d1chi(n,Dz,iabeg  ) = d1chi(n,Dz,iabeg  )
-     &                 + d1ang(n,Dz,iabeg  )*drad(D0,n)
-                  d1chi(n,Dx,iabeg+1) = d1chi(n,Dx,iabeg+1)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(D0,n)
-                  d1chi(n,Dy,iabeg+1) = d1chi(n,Dy,iabeg+1)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(D0,n)
-                  d1chi(n,Dz,iabeg+1) = d1chi(n,Dz,iabeg+1)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(D0,n)
+                  d1chi(n,dx,iabeg  ) = d1chi(n,dx,iabeg  )
+     &                 + d1ang(n,dx,iabeg  )*drad(d0,n)
+                  d1chi(n,dy,iabeg  ) = d1chi(n,dy,iabeg  )
+     &                 + d1ang(n,dy,iabeg  )*drad(d0,n)
+                  d1chi(n,dz,iabeg  ) = d1chi(n,dz,iabeg  )
+     &                 + d1ang(n,dz,iabeg  )*drad(d0,n)
+                  d1chi(n,dx,iabeg+1) = d1chi(n,dx,iabeg+1)
+     &                 + d1ang(n,dx,iabeg+1)*drad(d0,n)
+                  d1chi(n,dy,iabeg+1) = d1chi(n,dy,iabeg+1)
+     &                 + d1ang(n,dy,iabeg+1)*drad(d0,n)
+                  d1chi(n,dz,iabeg+1) = d1chi(n,dz,iabeg+1)
+     &                 + d1ang(n,dz,iabeg+1)*drad(d0,n)
 c
-                  d2chi(n,Dxx,iabeg  ) = d2chi(n,Dxx,iabeg  )
-     &                 + d2ang(n,Dxx,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iabeg  ) = d2chi(n,Dxy,iabeg  )
-     &                 + d2ang(n,Dxy,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dy,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dx,n)
-                  d2chi(n,Dxz,iabeg  ) = d2chi(n,Dxz,iabeg  )
-     &                 + d2ang(n,Dxz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dx,n)
-                  d2chi(n,Dyy,iabeg  ) = d2chi(n,Dyy,iabeg  )
-     &                 + d2ang(n,Dyy,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iabeg  ) = d2chi(n,Dyz,iabeg  )
-     &                 + d2ang(n,Dyz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dy,n)
-                  d2chi(n,Dzz,iabeg  ) = d2chi(n,Dzz,iabeg  )
-     &                 + d2ang(n,Dzz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dz,n)*2d0
-                  d2chi(n,Dxx,iabeg+1) = d2chi(n,Dxx,iabeg+1)
-     &                 + d2ang(n,Dxx,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iabeg+1) = d2chi(n,Dxy,iabeg+1)
-     &                 + d2ang(n,Dxy,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dy,n)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dx,n)
-                  d2chi(n,Dxz,iabeg+1) = d2chi(n,Dxz,iabeg+1)
-     &                 + d2ang(n,Dxz,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dx,n)
-                  d2chi(n,Dyy,iabeg+1) = d2chi(n,Dyy,iabeg+1)
-     &                 + d2ang(n,Dyy,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iabeg+1) = d2chi(n,Dyz,iabeg+1)
-     &                 + d2ang(n,Dyz,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dy,n)
-                  d2chi(n,Dzz,iabeg+1) = d2chi(n,Dzz,iabeg+1)
-     &                 + d2ang(n,Dzz,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dz,n)*2d0
+                  d2chi(n,dxx,iabeg  ) = d2chi(n,dxx,iabeg  )
+     &                 + d2ang(n,dxx,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dx,n)*2d0
+                  d2chi(n,dxy,iabeg  ) = d2chi(n,dxy,iabeg  )
+     &                 + d2ang(n,dxy,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dy,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dx,n)
+                  d2chi(n,dxz,iabeg  ) = d2chi(n,dxz,iabeg  )
+     &                 + d2ang(n,dxz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dx,n)
+                  d2chi(n,dyy,iabeg  ) = d2chi(n,dyy,iabeg  )
+     &                 + d2ang(n,dyy,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dy,n)*2d0
+                  d2chi(n,dyz,iabeg  ) = d2chi(n,dyz,iabeg  )
+     &                 + d2ang(n,dyz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dy,n)
+                  d2chi(n,dzz,iabeg  ) = d2chi(n,dzz,iabeg  )
+     &                 + d2ang(n,dzz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dz,n)*2d0
+                  d2chi(n,dxx,iabeg+1) = d2chi(n,dxx,iabeg+1)
+     &                 + d2ang(n,dxx,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg+1)*drad(dx,n)*2d0
+                  d2chi(n,dxy,iabeg+1) = d2chi(n,dxy,iabeg+1)
+     &                 + d2ang(n,dxy,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg+1)*drad(dy,n)
+     &                 + d1ang(n,dy,iabeg+1)*drad(dx,n)
+                  d2chi(n,dxz,iabeg+1) = d2chi(n,dxz,iabeg+1)
+     &                 + d2ang(n,dxz,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg+1)*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg+1)*drad(dx,n)
+                  d2chi(n,dyy,iabeg+1) = d2chi(n,dyy,iabeg+1)
+     &                 + d2ang(n,dyy,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg+1)*drad(dy,n)*2d0
+                  d2chi(n,dyz,iabeg+1) = d2chi(n,dyz,iabeg+1)
+     &                 + d2ang(n,dyz,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg+1)*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg+1)*drad(dy,n)
+                  d2chi(n,dzz,iabeg+1) = d2chi(n,dzz,iabeg+1)
+     &                 + d2ang(n,dzz,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dz,iabeg+1)*drad(dz,n)*2d0
                enddo
-            elseif (max_der_component .eq. Dzzz) then
+            elseif (max_der_component .eq. dzzz) then
                do n = 1, nq
-                  d1chi(n,Dx,iabeg  ) = d1chi(n,Dx,iabeg  )
-     &                 + d1ang(n,Dx,iabeg  )*drad(D0,n)
-                  d1chi(n,Dy,iabeg  ) = d1chi(n,Dy,iabeg  )
-     &                 + d1ang(n,Dy,iabeg  )*drad(D0,n)
-                  d1chi(n,Dz,iabeg  ) = d1chi(n,Dz,iabeg  )
-     &                 + d1ang(n,Dz,iabeg  )*drad(D0,n)
-                  d1chi(n,Dx,iabeg+1) = d1chi(n,Dx,iabeg+1)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(D0,n)
-                  d1chi(n,Dy,iabeg+1) = d1chi(n,Dy,iabeg+1)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(D0,n)
-                  d1chi(n,Dz,iabeg+1) = d1chi(n,Dz,iabeg+1)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(D0,n)
+                  d1chi(n,dx,iabeg  ) = d1chi(n,dx,iabeg  )
+     &                 + d1ang(n,dx,iabeg  )*drad(d0,n)
+                  d1chi(n,dy,iabeg  ) = d1chi(n,dy,iabeg  )
+     &                 + d1ang(n,dy,iabeg  )*drad(d0,n)
+                  d1chi(n,dz,iabeg  ) = d1chi(n,dz,iabeg  )
+     &                 + d1ang(n,dz,iabeg  )*drad(d0,n)
+                  d1chi(n,dx,iabeg+1) = d1chi(n,dx,iabeg+1)
+     &                 + d1ang(n,dx,iabeg+1)*drad(d0,n)
+                  d1chi(n,dy,iabeg+1) = d1chi(n,dy,iabeg+1)
+     &                 + d1ang(n,dy,iabeg+1)*drad(d0,n)
+                  d1chi(n,dz,iabeg+1) = d1chi(n,dz,iabeg+1)
+     &                 + d1ang(n,dz,iabeg+1)*drad(d0,n)
 c
-                  d2chi(n,Dxx,iabeg  ) = d2chi(n,Dxx,iabeg  )
-     &                 + d2ang(n,Dxx,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iabeg  ) = d2chi(n,Dxy,iabeg  )
-     &                 + d2ang(n,Dxy,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dy,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dx,n)
-                  d2chi(n,Dxz,iabeg  ) = d2chi(n,Dxz,iabeg  )
-     &                 + d2ang(n,Dxz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dx,n)
-                  d2chi(n,Dyy,iabeg  ) = d2chi(n,Dyy,iabeg  )
-     &                 + d2ang(n,Dyy,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iabeg  ) = d2chi(n,Dyz,iabeg  )
-     &                 + d2ang(n,Dyz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dy,n)
-                  d2chi(n,Dzz,iabeg  ) = d2chi(n,Dzz,iabeg  )
-     &                 + d2ang(n,Dzz,iabeg  )*drad(D0,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dz,n)*2d0
-                  d2chi(n,Dxx,iabeg+1) = d2chi(n,Dxx,iabeg+1)
-     &                 + d2ang(n,Dxx,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iabeg+1) = d2chi(n,Dxy,iabeg+1)
-     &                 + d2ang(n,Dxy,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dy,n)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dx,n)
-                  d2chi(n,Dxz,iabeg+1) = d2chi(n,Dxz,iabeg+1)
-     &                 + d2ang(n,Dxz,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dx,n)
-                  d2chi(n,Dyy,iabeg+1) = d2chi(n,Dyy,iabeg+1)
-     &                 + d2ang(n,Dyy,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iabeg+1) = d2chi(n,Dyz,iabeg+1)
-     &                 + d2ang(n,Dyz,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dy,n)
-                  d2chi(n,Dzz,iabeg+1) = d2chi(n,Dzz,iabeg+1)
-     &                 + d2ang(n,Dzz,iabeg+1)*drad(D0,n)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dz,n)*2d0
+                  d2chi(n,dxx,iabeg  ) = d2chi(n,dxx,iabeg  )
+     &                 + d2ang(n,dxx,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dx,n)*2d0
+                  d2chi(n,dxy,iabeg  ) = d2chi(n,dxy,iabeg  )
+     &                 + d2ang(n,dxy,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dy,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dx,n)
+                  d2chi(n,dxz,iabeg  ) = d2chi(n,dxz,iabeg  )
+     &                 + d2ang(n,dxz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dx,n)
+                  d2chi(n,dyy,iabeg  ) = d2chi(n,dyy,iabeg  )
+     &                 + d2ang(n,dyy,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dy,n)*2d0
+                  d2chi(n,dyz,iabeg  ) = d2chi(n,dyz,iabeg  )
+     &                 + d2ang(n,dyz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dy,n)
+                  d2chi(n,dzz,iabeg  ) = d2chi(n,dzz,iabeg  )
+     &                 + d2ang(n,dzz,iabeg  )*drad(d0,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dz,n)*2d0
+                  d2chi(n,dxx,iabeg+1) = d2chi(n,dxx,iabeg+1)
+     &                 + d2ang(n,dxx,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg+1)*drad(dx,n)*2d0
+                  d2chi(n,dxy,iabeg+1) = d2chi(n,dxy,iabeg+1)
+     &                 + d2ang(n,dxy,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg+1)*drad(dy,n)
+     &                 + d1ang(n,dy,iabeg+1)*drad(dx,n)
+                  d2chi(n,dxz,iabeg+1) = d2chi(n,dxz,iabeg+1)
+     &                 + d2ang(n,dxz,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iabeg+1)*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg+1)*drad(dx,n)
+                  d2chi(n,dyy,iabeg+1) = d2chi(n,dyy,iabeg+1)
+     &                 + d2ang(n,dyy,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg+1)*drad(dy,n)*2d0
+                  d2chi(n,dyz,iabeg+1) = d2chi(n,dyz,iabeg+1)
+     &                 + d2ang(n,dyz,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dy,iabeg+1)*drad(dz,n)
+     &                 + d1ang(n,dz,iabeg+1)*drad(dy,n)
+                  d2chi(n,dzz,iabeg+1) = d2chi(n,dzz,iabeg+1)
+     &                 + d2ang(n,dzz,iabeg+1)*drad(d0,n)
+     &                 + d1ang(n,dz,iabeg+1)*drad(dz,n)*2d0
 c
-                  d3chi(n,Dxxx,iabeg  ) = d3chi(n,Dxxx,iabeg  )
-     &                 + d3ang(n,Dxxx,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxx,iabeg  )*drad(Dx,n)*3d0
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dxx,n)*3d0
-                  d3chi(n,Dxxy,iabeg  ) = d3chi(n,Dxxy,iabeg  )
-     &                 + d3ang(n,Dxxy,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxx,iabeg  )*drad(Dy,n)
-     &                 + d2ang(n,Dxy,iabeg  )*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dxy,n)*2d0
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dxx,n)
-                  d3chi(n,Dxxz,iabeg  ) = d3chi(n,Dxxz,iabeg  )
-     &                 + d3ang(n,Dxxz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxx,iabeg  )*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iabeg  )*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dxz,n)*2d0
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dxx,n)
-                  d3chi(n,Dxyy,iabeg  ) = d3chi(n,Dxyy,iabeg  )
-     &                 + d3ang(n,Dxyy,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxy,iabeg  )*drad(Dy,n)*2d0
-     &                 + d2ang(n,Dyy,iabeg  )*drad(Dx,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dyy,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dxy,n)*2d0
-                  d3chi(n,Dxyz,iabeg  ) = d3chi(n,Dxyz,iabeg  )
-     &                 + d3ang(n,Dxyz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxy,iabeg  )*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iabeg  )*drad(Dy,n)
-     &                 + d2ang(n,Dyz,iabeg  )*drad(Dx,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dyz,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dxz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dxy,n)
-                  d3chi(n,Dxzz,iabeg  ) = d3chi(n,Dxzz,iabeg  )
-     &                 + d3ang(n,Dxzz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dxz,iabeg  )*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iabeg  )*drad(Dx,n)
-     &                 + d1ang(n,Dx,iabeg  )*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dxz,n)*2d0
-                  d3chi(n,Dyyy,iabeg  ) = d3chi(n,Dyyy,iabeg  )
-     &                 + d3ang(n,Dyyy,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dyy,iabeg  )*drad(Dy,n)*3d0
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dyy,n)*3d0
-                  d3chi(n,Dyyz,iabeg  ) = d3chi(n,Dyyz,iabeg  )
-     &                 + d3ang(n,Dyyz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dyy,iabeg  )*drad(Dz,n)
-     &                 + d2ang(n,Dyz,iabeg  )*drad(Dy,n)*2d0
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dyz,n)*2d0
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dyy,n)
-                  d3chi(n,Dyzz,iabeg  ) = d3chi(n,Dyzz,iabeg  )
-     &                 + d3ang(n,Dyzz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dyz,iabeg  )*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iabeg  )*drad(Dy,n)
-     &                 + d1ang(n,Dy,iabeg  )*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dyz,n)*2d0
-                  d3chi(n,Dzzz,iabeg  ) = d3chi(n,Dzzz,iabeg  )
-     &                 + d3ang(n,Dzzz,iabeg  )*drad(D0,n)
-     &                 + d2ang(n,Dzz,iabeg  )*drad(Dz,n)*3d0
-     &                 + d1ang(n,Dz,iabeg  )*drad(Dzz,n)*3d0
-                  d3chi(n,Dxxx,iabeg+1) = d3chi(n,Dxxx,iabeg+1)
-     &                 + d3ang(n,Dxxx,iabeg+1)*drad(D0,n)
-     &                 + d2ang(n,Dxx,iabeg+1)*drad(Dx,n)*3d0
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dxx,n)*3d0
-                  d3chi(n,Dxxy,iabeg+1) = d3chi(n,Dxxy,iabeg+1)
-     &                 + d3ang(n,Dxxy,iabeg+1)*drad(D0,n)
-     &                 + d2ang(n,Dxx,iabeg+1)*drad(Dy,n)
-     &                 + d2ang(n,Dxy,iabeg+1)*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dxy,n)*2d0
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dxx,n)
-                  d3chi(n,Dxxz,iabeg+1) = d3chi(n,Dxxz,iabeg+1)
-     &                 + d3ang(n,Dxxz,iabeg+1)*drad(D0,n)
-     &                 + d2ang(n,Dxx,iabeg+1)*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iabeg+1)*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dxz,n)*2d0
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dxx,n)
-                  d3chi(n,Dxyy,iabeg+1) = d3chi(n,Dxyy,iabeg+1)
-     &                 + d3ang(n,Dxyy,iabeg+1)*drad(D0,n)
-     &                 + d2ang(n,Dxy,iabeg+1)*drad(Dy,n)*2d0
-     &                 + d2ang(n,Dyy,iabeg+1)*drad(Dx,n)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dyy,n)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dxy,n)*2d0
-                  d3chi(n,Dxyz,iabeg+1) = d3chi(n,Dxyz,iabeg+1)
-     &                 + d3ang(n,Dxyz,iabeg+1)*drad(D0,n)
-     &                 + d2ang(n,Dxy,iabeg+1)*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iabeg+1)*drad(Dy,n)
-     &                 + d2ang(n,Dyz,iabeg+1)*drad(Dx,n)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dyz,n)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dxz,n)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dxy,n)
-                  d3chi(n,Dxzz,iabeg+1) = d3chi(n,Dxzz,iabeg+1)
-     &                 + d3ang(n,Dxzz,iabeg+1)*drad(D0,n)
-     &                 + d2ang(n,Dxz,iabeg+1)*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iabeg+1)*drad(Dx,n)
-     &                 + d1ang(n,Dx,iabeg+1)*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dxz,n)*2d0
-                  d3chi(n,Dyyy,iabeg+1) = d3chi(n,Dyyy,iabeg+1)
-     &                 + d3ang(n,Dyyy,iabeg+1)*drad(D0,n)
-     &                 + d2ang(n,Dyy,iabeg+1)*drad(Dy,n)*3d0
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dyy,n)*3d0
-                  d3chi(n,Dyyz,iabeg+1) = d3chi(n,Dyyz,iabeg+1)
-     &                 + d3ang(n,Dyyz,iabeg+1)*drad(D0,n)
-     &                 + d2ang(n,Dyy,iabeg+1)*drad(Dz,n)
-     &                 + d2ang(n,Dyz,iabeg+1)*drad(Dy,n)*2d0
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dyz,n)*2d0
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dyy,n)
-                  d3chi(n,Dyzz,iabeg+1) = d3chi(n,Dyzz,iabeg+1)
-     &                 + d3ang(n,Dyzz,iabeg+1)*drad(D0,n)
-     &                 + d2ang(n,Dyz,iabeg+1)*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iabeg+1)*drad(Dy,n)
-     &                 + d1ang(n,Dy,iabeg+1)*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dyz,n)*2d0
-                  d3chi(n,Dzzz,iabeg+1) = d3chi(n,Dzzz,iabeg+1)
-     &                 + d3ang(n,Dzzz,iabeg+1)*drad(D0,n)
-     &                 + d2ang(n,Dzz,iabeg+1)*drad(Dz,n)*3d0
-     &                 + d1ang(n,Dz,iabeg+1)*drad(Dzz,n)*3d0
+                  d3chi(n,dxxx,iabeg  ) = d3chi(n,dxxx,iabeg  )
+     &                 + d3ang(n,dxxx,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxx,iabeg  )*drad(dx,n)*3d0
+     &                 + d1ang(n,dx,iabeg  )*drad(dxx,n)*3d0
+                  d3chi(n,dxxy,iabeg  ) = d3chi(n,dxxy,iabeg  )
+     &                 + d3ang(n,dxxy,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxx,iabeg  )*drad(dy,n)
+     &                 + d2ang(n,dxy,iabeg  )*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iabeg  )*drad(dxy,n)*2d0
+     &                 + d1ang(n,dy,iabeg  )*drad(dxx,n)
+                  d3chi(n,dxxz,iabeg  ) = d3chi(n,dxxz,iabeg  )
+     &                 + d3ang(n,dxxz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxx,iabeg  )*drad(dz,n)
+     &                 + d2ang(n,dxz,iabeg  )*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iabeg  )*drad(dxz,n)*2d0
+     &                 + d1ang(n,dz,iabeg  )*drad(dxx,n)
+                  d3chi(n,dxyy,iabeg  ) = d3chi(n,dxyy,iabeg  )
+     &                 + d3ang(n,dxyy,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxy,iabeg  )*drad(dy,n)*2d0
+     &                 + d2ang(n,dyy,iabeg  )*drad(dx,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dyy,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dxy,n)*2d0
+                  d3chi(n,dxyz,iabeg  ) = d3chi(n,dxyz,iabeg  )
+     &                 + d3ang(n,dxyz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxy,iabeg  )*drad(dz,n)
+     &                 + d2ang(n,dxz,iabeg  )*drad(dy,n)
+     &                 + d2ang(n,dyz,iabeg  )*drad(dx,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dyz,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dxz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dxy,n)
+                  d3chi(n,dxzz,iabeg  ) = d3chi(n,dxzz,iabeg  )
+     &                 + d3ang(n,dxzz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dxz,iabeg  )*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iabeg  )*drad(dx,n)
+     &                 + d1ang(n,dx,iabeg  )*drad(dzz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dxz,n)*2d0
+                  d3chi(n,dyyy,iabeg  ) = d3chi(n,dyyy,iabeg  )
+     &                 + d3ang(n,dyyy,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dyy,iabeg  )*drad(dy,n)*3d0
+     &                 + d1ang(n,dy,iabeg  )*drad(dyy,n)*3d0
+                  d3chi(n,dyyz,iabeg  ) = d3chi(n,dyyz,iabeg  )
+     &                 + d3ang(n,dyyz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dyy,iabeg  )*drad(dz,n)
+     &                 + d2ang(n,dyz,iabeg  )*drad(dy,n)*2d0
+     &                 + d1ang(n,dy,iabeg  )*drad(dyz,n)*2d0
+     &                 + d1ang(n,dz,iabeg  )*drad(dyy,n)
+                  d3chi(n,dyzz,iabeg  ) = d3chi(n,dyzz,iabeg  )
+     &                 + d3ang(n,dyzz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dyz,iabeg  )*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iabeg  )*drad(dy,n)
+     &                 + d1ang(n,dy,iabeg  )*drad(dzz,n)
+     &                 + d1ang(n,dz,iabeg  )*drad(dyz,n)*2d0
+                  d3chi(n,dzzz,iabeg  ) = d3chi(n,dzzz,iabeg  )
+     &                 + d3ang(n,dzzz,iabeg  )*drad(d0,n)
+     &                 + d2ang(n,dzz,iabeg  )*drad(dz,n)*3d0
+     &                 + d1ang(n,dz,iabeg  )*drad(dzz,n)*3d0
+                  d3chi(n,dxxx,iabeg+1) = d3chi(n,dxxx,iabeg+1)
+     &                 + d3ang(n,dxxx,iabeg+1)*drad(d0,n)
+     &                 + d2ang(n,dxx,iabeg+1)*drad(dx,n)*3d0
+     &                 + d1ang(n,dx,iabeg+1)*drad(dxx,n)*3d0
+                  d3chi(n,dxxy,iabeg+1) = d3chi(n,dxxy,iabeg+1)
+     &                 + d3ang(n,dxxy,iabeg+1)*drad(d0,n)
+     &                 + d2ang(n,dxx,iabeg+1)*drad(dy,n)
+     &                 + d2ang(n,dxy,iabeg+1)*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iabeg+1)*drad(dxy,n)*2d0
+     &                 + d1ang(n,dy,iabeg+1)*drad(dxx,n)
+                  d3chi(n,dxxz,iabeg+1) = d3chi(n,dxxz,iabeg+1)
+     &                 + d3ang(n,dxxz,iabeg+1)*drad(d0,n)
+     &                 + d2ang(n,dxx,iabeg+1)*drad(dz,n)
+     &                 + d2ang(n,dxz,iabeg+1)*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iabeg+1)*drad(dxz,n)*2d0
+     &                 + d1ang(n,dz,iabeg+1)*drad(dxx,n)
+                  d3chi(n,dxyy,iabeg+1) = d3chi(n,dxyy,iabeg+1)
+     &                 + d3ang(n,dxyy,iabeg+1)*drad(d0,n)
+     &                 + d2ang(n,dxy,iabeg+1)*drad(dy,n)*2d0
+     &                 + d2ang(n,dyy,iabeg+1)*drad(dx,n)
+     &                 + d1ang(n,dx,iabeg+1)*drad(dyy,n)
+     &                 + d1ang(n,dy,iabeg+1)*drad(dxy,n)*2d0
+                  d3chi(n,dxyz,iabeg+1) = d3chi(n,dxyz,iabeg+1)
+     &                 + d3ang(n,dxyz,iabeg+1)*drad(d0,n)
+     &                 + d2ang(n,dxy,iabeg+1)*drad(dz,n)
+     &                 + d2ang(n,dxz,iabeg+1)*drad(dy,n)
+     &                 + d2ang(n,dyz,iabeg+1)*drad(dx,n)
+     &                 + d1ang(n,dx,iabeg+1)*drad(dyz,n)
+     &                 + d1ang(n,dy,iabeg+1)*drad(dxz,n)
+     &                 + d1ang(n,dz,iabeg+1)*drad(dxy,n)
+                  d3chi(n,dxzz,iabeg+1) = d3chi(n,dxzz,iabeg+1)
+     &                 + d3ang(n,dxzz,iabeg+1)*drad(d0,n)
+     &                 + d2ang(n,dxz,iabeg+1)*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iabeg+1)*drad(dx,n)
+     &                 + d1ang(n,dx,iabeg+1)*drad(dzz,n)
+     &                 + d1ang(n,dz,iabeg+1)*drad(dxz,n)*2d0
+                  d3chi(n,dyyy,iabeg+1) = d3chi(n,dyyy,iabeg+1)
+     &                 + d3ang(n,dyyy,iabeg+1)*drad(d0,n)
+     &                 + d2ang(n,dyy,iabeg+1)*drad(dy,n)*3d0
+     &                 + d1ang(n,dy,iabeg+1)*drad(dyy,n)*3d0
+                  d3chi(n,dyyz,iabeg+1) = d3chi(n,dyyz,iabeg+1)
+     &                 + d3ang(n,dyyz,iabeg+1)*drad(d0,n)
+     &                 + d2ang(n,dyy,iabeg+1)*drad(dz,n)
+     &                 + d2ang(n,dyz,iabeg+1)*drad(dy,n)*2d0
+     &                 + d1ang(n,dy,iabeg+1)*drad(dyz,n)*2d0
+     &                 + d1ang(n,dz,iabeg+1)*drad(dyy,n)
+                  d3chi(n,dyzz,iabeg+1) = d3chi(n,dyzz,iabeg+1)
+     &                 + d3ang(n,dyzz,iabeg+1)*drad(d0,n)
+     &                 + d2ang(n,dyz,iabeg+1)*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iabeg+1)*drad(dy,n)
+     &                 + d1ang(n,dy,iabeg+1)*drad(dzz,n)
+     &                 + d1ang(n,dz,iabeg+1)*drad(dyz,n)*2d0
+                  d3chi(n,dzzz,iabeg+1) = d3chi(n,dzzz,iabeg+1)
+     &                 + d3ang(n,dzzz,iabeg+1)*drad(d0,n)
+     &                 + d2ang(n,dzz,iabeg+1)*drad(dz,n)*3d0
+     &                 + d1ang(n,dz,iabeg+1)*drad(dzz,n)*3d0
                enddo
             endif
          endif
@@ -1970,365 +1977,365 @@ c
 c     Do the bulk
 
          do iang = iabeg+irem, iaend, 3
-            if (max_der_component .eq. Dz) then
+            if (max_der_component .eq. dz) then
                do n = 1, nq
-                  d1chi(n,Dx,iang  ) = d1chi(n,Dx,iang  )
-     &                 + d1ang(n,Dx,iang  )*drad(D0,n)
-                  d1chi(n,Dy,iang  ) = d1chi(n,Dy,iang  )
-     &                 + d1ang(n,Dy,iang  )*drad(D0,n)
-                  d1chi(n,Dz,iang  ) = d1chi(n,Dz,iang  )
-     &                 + d1ang(n,Dz,iang  )*drad(D0,n)
-                  d1chi(n,Dx,iang+1) = d1chi(n,Dx,iang+1)
-     &                 + d1ang(n,Dx,iang+1)*drad(D0,n)
-                  d1chi(n,Dy,iang+1) = d1chi(n,Dy,iang+1)
-     &                 + d1ang(n,Dy,iang+1)*drad(D0,n)
-                  d1chi(n,Dz,iang+1) = d1chi(n,Dz,iang+1)
-     &                 + d1ang(n,Dz,iang+1)*drad(D0,n)
-                  d1chi(n,Dx,iang+2) = d1chi(n,Dx,iang+2)
-     &                 + d1ang(n,Dx,iang+2)*drad(D0,n)
-                  d1chi(n,Dy,iang+2) = d1chi(n,Dy,iang+2)
-     &                 + d1ang(n,Dy,iang+2)*drad(D0,n)
-                  d1chi(n,Dz,iang+2) = d1chi(n,Dz,iang+2)
-     &                 + d1ang(n,Dz,iang+2)*drad(D0,n)
+                  d1chi(n,dx,iang  ) = d1chi(n,dx,iang  )
+     &                 + d1ang(n,dx,iang  )*drad(d0,n)
+                  d1chi(n,dy,iang  ) = d1chi(n,dy,iang  )
+     &                 + d1ang(n,dy,iang  )*drad(d0,n)
+                  d1chi(n,dz,iang  ) = d1chi(n,dz,iang  )
+     &                 + d1ang(n,dz,iang  )*drad(d0,n)
+                  d1chi(n,dx,iang+1) = d1chi(n,dx,iang+1)
+     &                 + d1ang(n,dx,iang+1)*drad(d0,n)
+                  d1chi(n,dy,iang+1) = d1chi(n,dy,iang+1)
+     &                 + d1ang(n,dy,iang+1)*drad(d0,n)
+                  d1chi(n,dz,iang+1) = d1chi(n,dz,iang+1)
+     &                 + d1ang(n,dz,iang+1)*drad(d0,n)
+                  d1chi(n,dx,iang+2) = d1chi(n,dx,iang+2)
+     &                 + d1ang(n,dx,iang+2)*drad(d0,n)
+                  d1chi(n,dy,iang+2) = d1chi(n,dy,iang+2)
+     &                 + d1ang(n,dy,iang+2)*drad(d0,n)
+                  d1chi(n,dz,iang+2) = d1chi(n,dz,iang+2)
+     &                 + d1ang(n,dz,iang+2)*drad(d0,n)
                enddo
-            elseif (max_der_component .eq. Dzz) then
+            elseif (max_der_component .eq. dzz) then
                 do n = 1, nq
-                  d1chi(n,Dx,iang  ) = d1chi(n,Dx,iang  )
-     &                 + d1ang(n,Dx,iang  )*drad(D0,n)
-                  d1chi(n,Dy,iang  ) = d1chi(n,Dy,iang  )
-     &                 + d1ang(n,Dy,iang  )*drad(D0,n)
-                  d1chi(n,Dz,iang  ) = d1chi(n,Dz,iang  )
-     &                 + d1ang(n,Dz,iang  )*drad(D0,n)
-                  d1chi(n,Dx,iang+1) = d1chi(n,Dx,iang+1)
-     &                 + d1ang(n,Dx,iang+1)*drad(D0,n)
-                  d1chi(n,Dy,iang+1) = d1chi(n,Dy,iang+1)
-     &                 + d1ang(n,Dy,iang+1)*drad(D0,n)
-                  d1chi(n,Dz,iang+1) = d1chi(n,Dz,iang+1)
-     &                 + d1ang(n,Dz,iang+1)*drad(D0,n)
-                  d1chi(n,Dx,iang+2) = d1chi(n,Dx,iang+2)
-     &                 + d1ang(n,Dx,iang+2)*drad(D0,n)
-                  d1chi(n,Dy,iang+2) = d1chi(n,Dy,iang+2)
-     &                 + d1ang(n,Dy,iang+2)*drad(D0,n)
-                  d1chi(n,Dz,iang+2) = d1chi(n,Dz,iang+2)
-     &                 + d1ang(n,Dz,iang+2)*drad(D0,n)
+                  d1chi(n,dx,iang  ) = d1chi(n,dx,iang  )
+     &                 + d1ang(n,dx,iang  )*drad(d0,n)
+                  d1chi(n,dy,iang  ) = d1chi(n,dy,iang  )
+     &                 + d1ang(n,dy,iang  )*drad(d0,n)
+                  d1chi(n,dz,iang  ) = d1chi(n,dz,iang  )
+     &                 + d1ang(n,dz,iang  )*drad(d0,n)
+                  d1chi(n,dx,iang+1) = d1chi(n,dx,iang+1)
+     &                 + d1ang(n,dx,iang+1)*drad(d0,n)
+                  d1chi(n,dy,iang+1) = d1chi(n,dy,iang+1)
+     &                 + d1ang(n,dy,iang+1)*drad(d0,n)
+                  d1chi(n,dz,iang+1) = d1chi(n,dz,iang+1)
+     &                 + d1ang(n,dz,iang+1)*drad(d0,n)
+                  d1chi(n,dx,iang+2) = d1chi(n,dx,iang+2)
+     &                 + d1ang(n,dx,iang+2)*drad(d0,n)
+                  d1chi(n,dy,iang+2) = d1chi(n,dy,iang+2)
+     &                 + d1ang(n,dy,iang+2)*drad(d0,n)
+                  d1chi(n,dz,iang+2) = d1chi(n,dz,iang+2)
+     &                 + d1ang(n,dz,iang+2)*drad(d0,n)
 c
-                  d2chi(n,Dxx,iang  ) = d2chi(n,Dxx,iang  )
-     &                 + d2ang(n,Dxx,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iang  )*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iang  ) = d2chi(n,Dxy,iang  )
-     &                 + d2ang(n,Dxy,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iang  )*drad(Dy,n)
-     &                 + d1ang(n,Dy,iang  )*drad(Dx,n)
-                  d2chi(n,Dxz,iang  ) = d2chi(n,Dxz,iang  )
-     &                 + d2ang(n,Dxz,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iang  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang  )*drad(Dx,n)
-                  d2chi(n,Dyy,iang  ) = d2chi(n,Dyy,iang  )
-     &                 + d2ang(n,Dyy,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iang  )*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iang  ) = d2chi(n,Dyz,iang  )
-     &                 + d2ang(n,Dyz,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iang  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang  )*drad(Dy,n)
-                  d2chi(n,Dzz,iang  ) = d2chi(n,Dzz,iang  )
-     &                 + d2ang(n,Dzz,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dz,iang  )*drad(Dz,n)*2d0
-                  d2chi(n,Dxx,iang+1) = d2chi(n,Dxx,iang+1)
-     &                 + d2ang(n,Dxx,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+1)*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iang+1) = d2chi(n,Dxy,iang+1)
-     &                 + d2ang(n,Dxy,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+1)*drad(Dy,n)
-     &                 + d1ang(n,Dy,iang+1)*drad(Dx,n)
-                  d2chi(n,Dxz,iang+1) = d2chi(n,Dxz,iang+1)
-     &                 + d2ang(n,Dxz,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+1)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang+1)*drad(Dx,n)
-                  d2chi(n,Dyy,iang+1) = d2chi(n,Dyy,iang+1)
-     &                 + d2ang(n,Dyy,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dy,iang+1)*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iang+1) = d2chi(n,Dyz,iang+1)
-     &                 + d2ang(n,Dyz,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dy,iang+1)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang+1)*drad(Dy,n)
-                  d2chi(n,Dzz,iang+1) = d2chi(n,Dzz,iang+1)
-     &                 + d2ang(n,Dzz,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dz,iang+1)*drad(Dz,n)*2d0
-                  d2chi(n,Dxx,iang+2) = d2chi(n,Dxx,iang+2)
-     &                 + d2ang(n,Dxx,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+2)*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iang+2) = d2chi(n,Dxy,iang+2)
-     &                 + d2ang(n,Dxy,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+2)*drad(Dy,n)
-     &                 + d1ang(n,Dy,iang+2)*drad(Dx,n)
-                  d2chi(n,Dxz,iang+2) = d2chi(n,Dxz,iang+2)
-     &                 + d2ang(n,Dxz,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+2)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang+2)*drad(Dx,n)
-                  d2chi(n,Dyy,iang+2) = d2chi(n,Dyy,iang+2)
-     &                 + d2ang(n,Dyy,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dy,iang+2)*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iang+2) = d2chi(n,Dyz,iang+2)
-     &                 + d2ang(n,Dyz,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dy,iang+2)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang+2)*drad(Dy,n)
-                  d2chi(n,Dzz,iang+2) = d2chi(n,Dzz,iang+2)
-     &                 + d2ang(n,Dzz,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dz,iang+2)*drad(Dz,n)*2d0
+                  d2chi(n,dxx,iang  ) = d2chi(n,dxx,iang  )
+     &                 + d2ang(n,dxx,iang  )*drad(d0,n)
+     &                 + d1ang(n,dx,iang  )*drad(dx,n)*2d0
+                  d2chi(n,dxy,iang  ) = d2chi(n,dxy,iang  )
+     &                 + d2ang(n,dxy,iang  )*drad(d0,n)
+     &                 + d1ang(n,dx,iang  )*drad(dy,n)
+     &                 + d1ang(n,dy,iang  )*drad(dx,n)
+                  d2chi(n,dxz,iang  ) = d2chi(n,dxz,iang  )
+     &                 + d2ang(n,dxz,iang  )*drad(d0,n)
+     &                 + d1ang(n,dx,iang  )*drad(dz,n)
+     &                 + d1ang(n,dz,iang  )*drad(dx,n)
+                  d2chi(n,dyy,iang  ) = d2chi(n,dyy,iang  )
+     &                 + d2ang(n,dyy,iang  )*drad(d0,n)
+     &                 + d1ang(n,dy,iang  )*drad(dy,n)*2d0
+                  d2chi(n,dyz,iang  ) = d2chi(n,dyz,iang  )
+     &                 + d2ang(n,dyz,iang  )*drad(d0,n)
+     &                 + d1ang(n,dy,iang  )*drad(dz,n)
+     &                 + d1ang(n,dz,iang  )*drad(dy,n)
+                  d2chi(n,dzz,iang  ) = d2chi(n,dzz,iang  )
+     &                 + d2ang(n,dzz,iang  )*drad(d0,n)
+     &                 + d1ang(n,dz,iang  )*drad(dz,n)*2d0
+                  d2chi(n,dxx,iang+1) = d2chi(n,dxx,iang+1)
+     &                 + d2ang(n,dxx,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+1)*drad(dx,n)*2d0
+                  d2chi(n,dxy,iang+1) = d2chi(n,dxy,iang+1)
+     &                 + d2ang(n,dxy,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+1)*drad(dy,n)
+     &                 + d1ang(n,dy,iang+1)*drad(dx,n)
+                  d2chi(n,dxz,iang+1) = d2chi(n,dxz,iang+1)
+     &                 + d2ang(n,dxz,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+1)*drad(dz,n)
+     &                 + d1ang(n,dz,iang+1)*drad(dx,n)
+                  d2chi(n,dyy,iang+1) = d2chi(n,dyy,iang+1)
+     &                 + d2ang(n,dyy,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dy,iang+1)*drad(dy,n)*2d0
+                  d2chi(n,dyz,iang+1) = d2chi(n,dyz,iang+1)
+     &                 + d2ang(n,dyz,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dy,iang+1)*drad(dz,n)
+     &                 + d1ang(n,dz,iang+1)*drad(dy,n)
+                  d2chi(n,dzz,iang+1) = d2chi(n,dzz,iang+1)
+     &                 + d2ang(n,dzz,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dz,iang+1)*drad(dz,n)*2d0
+                  d2chi(n,dxx,iang+2) = d2chi(n,dxx,iang+2)
+     &                 + d2ang(n,dxx,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+2)*drad(dx,n)*2d0
+                  d2chi(n,dxy,iang+2) = d2chi(n,dxy,iang+2)
+     &                 + d2ang(n,dxy,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+2)*drad(dy,n)
+     &                 + d1ang(n,dy,iang+2)*drad(dx,n)
+                  d2chi(n,dxz,iang+2) = d2chi(n,dxz,iang+2)
+     &                 + d2ang(n,dxz,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+2)*drad(dz,n)
+     &                 + d1ang(n,dz,iang+2)*drad(dx,n)
+                  d2chi(n,dyy,iang+2) = d2chi(n,dyy,iang+2)
+     &                 + d2ang(n,dyy,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dy,iang+2)*drad(dy,n)*2d0
+                  d2chi(n,dyz,iang+2) = d2chi(n,dyz,iang+2)
+     &                 + d2ang(n,dyz,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dy,iang+2)*drad(dz,n)
+     &                 + d1ang(n,dz,iang+2)*drad(dy,n)
+                  d2chi(n,dzz,iang+2) = d2chi(n,dzz,iang+2)
+     &                 + d2ang(n,dzz,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dz,iang+2)*drad(dz,n)*2d0
                enddo
-            elseif (max_der_component .eq. Dzzz) then
+            elseif (max_der_component .eq. dzzz) then
                do n = 1, nq
-                  d1chi(n,Dx,iang  ) = d1chi(n,Dx,iang  )
-     &                 + d1ang(n,Dx,iang  )*drad(D0,n)
-                  d1chi(n,Dy,iang  ) = d1chi(n,Dy,iang  )
-     &                 + d1ang(n,Dy,iang  )*drad(D0,n)
-                  d1chi(n,Dz,iang  ) = d1chi(n,Dz,iang  )
-     &                 + d1ang(n,Dz,iang  )*drad(D0,n)
-                  d1chi(n,Dx,iang+1) = d1chi(n,Dx,iang+1)
-     &                 + d1ang(n,Dx,iang+1)*drad(D0,n)
-                  d1chi(n,Dy,iang+1) = d1chi(n,Dy,iang+1)
-     &                 + d1ang(n,Dy,iang+1)*drad(D0,n)
-                  d1chi(n,Dz,iang+1) = d1chi(n,Dz,iang+1)
-     &                 + d1ang(n,Dz,iang+1)*drad(D0,n)
-                  d1chi(n,Dx,iang+2) = d1chi(n,Dx,iang+2)
-     &                 + d1ang(n,Dx,iang+2)*drad(D0,n)
-                  d1chi(n,Dy,iang+2) = d1chi(n,Dy,iang+2)
-     &                 + d1ang(n,Dy,iang+2)*drad(D0,n)
-                  d1chi(n,Dz,iang+2) = d1chi(n,Dz,iang+2)
-     &                 + d1ang(n,Dz,iang+2)*drad(D0,n)
+                  d1chi(n,dx,iang  ) = d1chi(n,dx,iang  )
+     &                 + d1ang(n,dx,iang  )*drad(d0,n)
+                  d1chi(n,dy,iang  ) = d1chi(n,dy,iang  )
+     &                 + d1ang(n,dy,iang  )*drad(d0,n)
+                  d1chi(n,dz,iang  ) = d1chi(n,dz,iang  )
+     &                 + d1ang(n,dz,iang  )*drad(d0,n)
+                  d1chi(n,dx,iang+1) = d1chi(n,dx,iang+1)
+     &                 + d1ang(n,dx,iang+1)*drad(d0,n)
+                  d1chi(n,dy,iang+1) = d1chi(n,dy,iang+1)
+     &                 + d1ang(n,dy,iang+1)*drad(d0,n)
+                  d1chi(n,dz,iang+1) = d1chi(n,dz,iang+1)
+     &                 + d1ang(n,dz,iang+1)*drad(d0,n)
+                  d1chi(n,dx,iang+2) = d1chi(n,dx,iang+2)
+     &                 + d1ang(n,dx,iang+2)*drad(d0,n)
+                  d1chi(n,dy,iang+2) = d1chi(n,dy,iang+2)
+     &                 + d1ang(n,dy,iang+2)*drad(d0,n)
+                  d1chi(n,dz,iang+2) = d1chi(n,dz,iang+2)
+     &                 + d1ang(n,dz,iang+2)*drad(d0,n)
 c
-                  d2chi(n,Dxx,iang  ) = d2chi(n,Dxx,iang  )
-     &                 + d2ang(n,Dxx,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iang  )*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iang  ) = d2chi(n,Dxy,iang  )
-     &                 + d2ang(n,Dxy,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iang  )*drad(Dy,n)
-     &                 + d1ang(n,Dy,iang  )*drad(Dx,n)
-                  d2chi(n,Dxz,iang  ) = d2chi(n,Dxz,iang  )
-     &                 + d2ang(n,Dxz,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dx,iang  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang  )*drad(Dx,n)
-                  d2chi(n,Dyy,iang  ) = d2chi(n,Dyy,iang  )
-     &                 + d2ang(n,Dyy,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iang  )*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iang  ) = d2chi(n,Dyz,iang  )
-     &                 + d2ang(n,Dyz,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dy,iang  )*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang  )*drad(Dy,n)
-                  d2chi(n,Dzz,iang  ) = d2chi(n,Dzz,iang  )
-     &                 + d2ang(n,Dzz,iang  )*drad(D0,n)
-     &                 + d1ang(n,Dz,iang  )*drad(Dz,n)*2d0
-                  d2chi(n,Dxx,iang+1) = d2chi(n,Dxx,iang+1)
-     &                 + d2ang(n,Dxx,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+1)*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iang+1) = d2chi(n,Dxy,iang+1)
-     &                 + d2ang(n,Dxy,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+1)*drad(Dy,n)
-     &                 + d1ang(n,Dy,iang+1)*drad(Dx,n)
-                  d2chi(n,Dxz,iang+1) = d2chi(n,Dxz,iang+1)
-     &                 + d2ang(n,Dxz,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+1)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang+1)*drad(Dx,n)
-                  d2chi(n,Dyy,iang+1) = d2chi(n,Dyy,iang+1)
-     &                 + d2ang(n,Dyy,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dy,iang+1)*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iang+1) = d2chi(n,Dyz,iang+1)
-     &                 + d2ang(n,Dyz,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dy,iang+1)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang+1)*drad(Dy,n)
-                  d2chi(n,Dzz,iang+1) = d2chi(n,Dzz,iang+1)
-     &                 + d2ang(n,Dzz,iang+1)*drad(D0,n)
-     &                 + d1ang(n,Dz,iang+1)*drad(Dz,n)*2d0
-                  d2chi(n,Dxx,iang+2) = d2chi(n,Dxx,iang+2)
-     &                 + d2ang(n,Dxx,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+2)*drad(Dx,n)*2d0
-                  d2chi(n,Dxy,iang+2) = d2chi(n,Dxy,iang+2)
-     &                 + d2ang(n,Dxy,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+2)*drad(Dy,n)
-     &                 + d1ang(n,Dy,iang+2)*drad(Dx,n)
-                  d2chi(n,Dxz,iang+2) = d2chi(n,Dxz,iang+2)
-     &                 + d2ang(n,Dxz,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dx,iang+2)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang+2)*drad(Dx,n)
-                  d2chi(n,Dyy,iang+2) = d2chi(n,Dyy,iang+2)
-     &                 + d2ang(n,Dyy,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dy,iang+2)*drad(Dy,n)*2d0
-                  d2chi(n,Dyz,iang+2) = d2chi(n,Dyz,iang+2)
-     &                 + d2ang(n,Dyz,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dy,iang+2)*drad(Dz,n)
-     &                 + d1ang(n,Dz,iang+2)*drad(Dy,n)
-                  d2chi(n,Dzz,iang+2) = d2chi(n,Dzz,iang+2)
-     &                 + d2ang(n,Dzz,iang+2)*drad(D0,n)
-     &                 + d1ang(n,Dz,iang+2)*drad(Dz,n)*2d0
+                  d2chi(n,dxx,iang  ) = d2chi(n,dxx,iang  )
+     &                 + d2ang(n,dxx,iang  )*drad(d0,n)
+     &                 + d1ang(n,dx,iang  )*drad(dx,n)*2d0
+                  d2chi(n,dxy,iang  ) = d2chi(n,dxy,iang  )
+     &                 + d2ang(n,dxy,iang  )*drad(d0,n)
+     &                 + d1ang(n,dx,iang  )*drad(dy,n)
+     &                 + d1ang(n,dy,iang  )*drad(dx,n)
+                  d2chi(n,dxz,iang  ) = d2chi(n,dxz,iang  )
+     &                 + d2ang(n,dxz,iang  )*drad(d0,n)
+     &                 + d1ang(n,dx,iang  )*drad(dz,n)
+     &                 + d1ang(n,dz,iang  )*drad(dx,n)
+                  d2chi(n,dyy,iang  ) = d2chi(n,dyy,iang  )
+     &                 + d2ang(n,dyy,iang  )*drad(d0,n)
+     &                 + d1ang(n,dy,iang  )*drad(dy,n)*2d0
+                  d2chi(n,dyz,iang  ) = d2chi(n,dyz,iang  )
+     &                 + d2ang(n,dyz,iang  )*drad(d0,n)
+     &                 + d1ang(n,dy,iang  )*drad(dz,n)
+     &                 + d1ang(n,dz,iang  )*drad(dy,n)
+                  d2chi(n,dzz,iang  ) = d2chi(n,dzz,iang  )
+     &                 + d2ang(n,dzz,iang  )*drad(d0,n)
+     &                 + d1ang(n,dz,iang  )*drad(dz,n)*2d0
+                  d2chi(n,dxx,iang+1) = d2chi(n,dxx,iang+1)
+     &                 + d2ang(n,dxx,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+1)*drad(dx,n)*2d0
+                  d2chi(n,dxy,iang+1) = d2chi(n,dxy,iang+1)
+     &                 + d2ang(n,dxy,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+1)*drad(dy,n)
+     &                 + d1ang(n,dy,iang+1)*drad(dx,n)
+                  d2chi(n,dxz,iang+1) = d2chi(n,dxz,iang+1)
+     &                 + d2ang(n,dxz,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+1)*drad(dz,n)
+     &                 + d1ang(n,dz,iang+1)*drad(dx,n)
+                  d2chi(n,dyy,iang+1) = d2chi(n,dyy,iang+1)
+     &                 + d2ang(n,dyy,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dy,iang+1)*drad(dy,n)*2d0
+                  d2chi(n,dyz,iang+1) = d2chi(n,dyz,iang+1)
+     &                 + d2ang(n,dyz,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dy,iang+1)*drad(dz,n)
+     &                 + d1ang(n,dz,iang+1)*drad(dy,n)
+                  d2chi(n,dzz,iang+1) = d2chi(n,dzz,iang+1)
+     &                 + d2ang(n,dzz,iang+1)*drad(d0,n)
+     &                 + d1ang(n,dz,iang+1)*drad(dz,n)*2d0
+                  d2chi(n,dxx,iang+2) = d2chi(n,dxx,iang+2)
+     &                 + d2ang(n,dxx,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+2)*drad(dx,n)*2d0
+                  d2chi(n,dxy,iang+2) = d2chi(n,dxy,iang+2)
+     &                 + d2ang(n,dxy,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+2)*drad(dy,n)
+     &                 + d1ang(n,dy,iang+2)*drad(dx,n)
+                  d2chi(n,dxz,iang+2) = d2chi(n,dxz,iang+2)
+     &                 + d2ang(n,dxz,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dx,iang+2)*drad(dz,n)
+     &                 + d1ang(n,dz,iang+2)*drad(dx,n)
+                  d2chi(n,dyy,iang+2) = d2chi(n,dyy,iang+2)
+     &                 + d2ang(n,dyy,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dy,iang+2)*drad(dy,n)*2d0
+                  d2chi(n,dyz,iang+2) = d2chi(n,dyz,iang+2)
+     &                 + d2ang(n,dyz,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dy,iang+2)*drad(dz,n)
+     &                 + d1ang(n,dz,iang+2)*drad(dy,n)
+                  d2chi(n,dzz,iang+2) = d2chi(n,dzz,iang+2)
+     &                 + d2ang(n,dzz,iang+2)*drad(d0,n)
+     &                 + d1ang(n,dz,iang+2)*drad(dz,n)*2d0
 c
-                  d3chi(n,Dxxx,iang  ) = d3chi(n,Dxxx,iang  )
-     &                 + d3ang(n,Dxxx,iang  )*drad(D0,n)
-     &                 + d2ang(n,Dxx,iang  )*drad(Dx,n)*3d0
-     &                 + d1ang(n,Dx,iang  )*drad(Dxx,n)*3d0
-                  d3chi(n,Dxxy,iang  ) = d3chi(n,Dxxy,iang  )
-     &                 + d3ang(n,Dxxy,iang  )*drad(D0,n)
-     &                 + d2ang(n,Dxx,iang  )*drad(Dy,n)
-     &                 + d2ang(n,Dxy,iang  )*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iang  )*drad(Dxy,n)*2d0
-     &                 + d1ang(n,Dy,iang  )*drad(Dxx,n)
-                  d3chi(n,Dxxz,iang  ) = d3chi(n,Dxxz,iang  )
-     &                 + d3ang(n,Dxxz,iang  )*drad(D0,n)
-     &                 + d2ang(n,Dxx,iang  )*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iang  )*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iang  )*drad(Dxz,n)*2d0
-     &                 + d1ang(n,Dz,iang  )*drad(Dxx,n)
-                  d3chi(n,Dxyy,iang  ) = d3chi(n,Dxyy,iang  )
-     &                 + d3ang(n,Dxyy,iang  )*drad(D0,n)
-     &                 + d2ang(n,Dxy,iang  )*drad(Dy,n)*2d0
-     &                 + d2ang(n,Dyy,iang  )*drad(Dx,n)
-     &                 + d1ang(n,Dx,iang  )*drad(Dyy,n)
-     &                 + d1ang(n,Dy,iang  )*drad(Dxy,n)*2d0
-                  d3chi(n,Dxyz,iang  ) = d3chi(n,Dxyz,iang  )
-     &                 + d3ang(n,Dxyz,iang  )*drad(D0,n)
-     &                 + d2ang(n,Dxy,iang  )*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iang  )*drad(Dy,n)
-     &                 + d2ang(n,Dyz,iang  )*drad(Dx,n)
-     &                 + d1ang(n,Dx,iang  )*drad(Dyz,n)
-     &                 + d1ang(n,Dy,iang  )*drad(Dxz,n)
-     &                 + d1ang(n,Dz,iang  )*drad(Dxy,n)
-                  d3chi(n,Dxzz,iang  ) = d3chi(n,Dxzz,iang  )
-     &                 + d3ang(n,Dxzz,iang  )*drad(D0,n)
-     &                 + d2ang(n,Dxz,iang  )*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iang  )*drad(Dx,n)
-     &                 + d1ang(n,Dx,iang  )*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iang  )*drad(Dxz,n)*2d0
-                  d3chi(n,Dyyy,iang  ) = d3chi(n,Dyyy,iang  )
-     &                 + d3ang(n,Dyyy,iang  )*drad(D0,n)
-     &                 + d2ang(n,Dyy,iang  )*drad(Dy,n)*3d0
-     &                 + d1ang(n,Dy,iang  )*drad(Dyy,n)*3d0
-                  d3chi(n,Dyyz,iang  ) = d3chi(n,Dyyz,iang  )
-     &                 + d3ang(n,Dyyz,iang  )*drad(D0,n)
-     &                 + d2ang(n,Dyy,iang  )*drad(Dz,n)
-     &                 + d2ang(n,Dyz,iang  )*drad(Dy,n)*2d0
-     &                 + d1ang(n,Dy,iang  )*drad(Dyz,n)*2d0
-     &                 + d1ang(n,Dz,iang  )*drad(Dyy,n)
-                  d3chi(n,Dyzz,iang  ) = d3chi(n,Dyzz,iang  )
-     &                 + d3ang(n,Dyzz,iang  )*drad(D0,n)
-     &                 + d2ang(n,Dyz,iang  )*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iang  )*drad(Dy,n)
-     &                 + d1ang(n,Dy,iang  )*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iang  )*drad(Dyz,n)*2d0
-                  d3chi(n,Dzzz,iang  ) = d3chi(n,Dzzz,iang  )
-     &                 + d3ang(n,Dzzz,iang  )*drad(D0,n)
-     &                 + d2ang(n,Dzz,iang  )*drad(Dz,n)*3d0
-     &                 + d1ang(n,Dz,iang  )*drad(Dzz,n)*3d0
-                  d3chi(n,Dxxx,iang+1) = d3chi(n,Dxxx,iang+1)
-     &                 + d3ang(n,Dxxx,iang+1)*drad(D0,n)
-     &                 + d2ang(n,Dxx,iang+1)*drad(Dx,n)*3d0
-     &                 + d1ang(n,Dx,iang+1)*drad(Dxx,n)*3d0
-                  d3chi(n,Dxxy,iang+1) = d3chi(n,Dxxy,iang+1)
-     &                 + d3ang(n,Dxxy,iang+1)*drad(D0,n)
-     &                 + d2ang(n,Dxx,iang+1)*drad(Dy,n)
-     &                 + d2ang(n,Dxy,iang+1)*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iang+1)*drad(Dxy,n)*2d0
-     &                 + d1ang(n,Dy,iang+1)*drad(Dxx,n)
-                  d3chi(n,Dxxz,iang+1) = d3chi(n,Dxxz,iang+1)
-     &                 + d3ang(n,Dxxz,iang+1)*drad(D0,n)
-     &                 + d2ang(n,Dxx,iang+1)*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iang+1)*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iang+1)*drad(Dxz,n)*2d0
-     &                 + d1ang(n,Dz,iang+1)*drad(Dxx,n)
-                  d3chi(n,Dxyy,iang+1) = d3chi(n,Dxyy,iang+1)
-     &                 + d3ang(n,Dxyy,iang+1)*drad(D0,n)
-     &                 + d2ang(n,Dxy,iang+1)*drad(Dy,n)*2d0
-     &                 + d2ang(n,Dyy,iang+1)*drad(Dx,n)
-     &                 + d1ang(n,Dx,iang+1)*drad(Dyy,n)
-     &                 + d1ang(n,Dy,iang+1)*drad(Dxy,n)*2d0
-                  d3chi(n,Dxyz,iang+1) = d3chi(n,Dxyz,iang+1)
-     &                 + d3ang(n,Dxyz,iang+1)*drad(D0,n)
-     &                 + d2ang(n,Dxy,iang+1)*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iang+1)*drad(Dy,n)
-     &                 + d2ang(n,Dyz,iang+1)*drad(Dx,n)
-     &                 + d1ang(n,Dx,iang+1)*drad(Dyz,n)
-     &                 + d1ang(n,Dy,iang+1)*drad(Dxz,n)
-     &                 + d1ang(n,Dz,iang+1)*drad(Dxy,n)
-                  d3chi(n,Dxzz,iang+1) = d3chi(n,Dxzz,iang+1)
-     &                 + d3ang(n,Dxzz,iang+1)*drad(D0,n)
-     &                 + d2ang(n,Dxz,iang+1)*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iang+1)*drad(Dx,n)
-     &                 + d1ang(n,Dx,iang+1)*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iang+1)*drad(Dxz,n)*2d0
-                  d3chi(n,Dyyy,iang+1) = d3chi(n,Dyyy,iang+1)
-     &                 + d3ang(n,Dyyy,iang+1)*drad(D0,n)
-     &                 + d2ang(n,Dyy,iang+1)*drad(Dy,n)*3d0
-     &                 + d1ang(n,Dy,iang+1)*drad(Dyy,n)*3d0
-                  d3chi(n,Dyyz,iang+1) = d3chi(n,Dyyz,iang+1)
-     &                 + d3ang(n,Dyyz,iang+1)*drad(D0,n)
-     &                 + d2ang(n,Dyy,iang+1)*drad(Dz,n)
-     &                 + d2ang(n,Dyz,iang+1)*drad(Dy,n)*2d0
-     &                 + d1ang(n,Dy,iang+1)*drad(Dyz,n)*2d0
-     &                 + d1ang(n,Dz,iang+1)*drad(Dyy,n)
-                  d3chi(n,Dyzz,iang+1) = d3chi(n,Dyzz,iang+1)
-     &                 + d3ang(n,Dyzz,iang+1)*drad(D0,n)
-     &                 + d2ang(n,Dyz,iang+1)*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iang+1)*drad(Dy,n)
-     &                 + d1ang(n,Dy,iang+1)*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iang+1)*drad(Dyz,n)*2d0
-                  d3chi(n,Dzzz,iang+1) = d3chi(n,Dzzz,iang+1)
-     &                 + d3ang(n,Dzzz,iang+1)*drad(D0,n)
-     &                 + d2ang(n,Dzz,iang+1)*drad(Dz,n)*3d0
-     &                 + d1ang(n,Dz,iang+1)*drad(Dzz,n)*3d0
-                  d3chi(n,Dxxx,iang+2) = d3chi(n,Dxxx,iang+2)
-     &                 + d3ang(n,Dxxx,iang+2)*drad(D0,n)
-     &                 + d2ang(n,Dxx,iang+2)*drad(Dx,n)*3d0
-     &                 + d1ang(n,Dx,iang+2)*drad(Dxx,n)*3d0
-                  d3chi(n,Dxxy,iang+2) = d3chi(n,Dxxy,iang+2)
-     &                 + d3ang(n,Dxxy,iang+2)*drad(D0,n)
-     &                 + d2ang(n,Dxx,iang+2)*drad(Dy,n)
-     &                 + d2ang(n,Dxy,iang+2)*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iang+2)*drad(Dxy,n)*2d0
-     &                 + d1ang(n,Dy,iang+2)*drad(Dxx,n)
-                  d3chi(n,Dxxz,iang+2) = d3chi(n,Dxxz,iang+2)
-     &                 + d3ang(n,Dxxz,iang+2)*drad(D0,n)
-     &                 + d2ang(n,Dxx,iang+2)*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iang+2)*drad(Dx,n)*2d0
-     &                 + d1ang(n,Dx,iang+2)*drad(Dxz,n)*2d0
-     &                 + d1ang(n,Dz,iang+2)*drad(Dxx,n)
-                  d3chi(n,Dxyy,iang+2) = d3chi(n,Dxyy,iang+2)
-     &                 + d3ang(n,Dxyy,iang+2)*drad(D0,n)
-     &                 + d2ang(n,Dxy,iang+2)*drad(Dy,n)*2d0
-     &                 + d2ang(n,Dyy,iang+2)*drad(Dx,n)
-     &                 + d1ang(n,Dx,iang+2)*drad(Dyy,n)
-     &                 + d1ang(n,Dy,iang+2)*drad(Dxy,n)*2d0
-                  d3chi(n,Dxyz,iang+2) = d3chi(n,Dxyz,iang+2)
-     &                 + d3ang(n,Dxyz,iang+2)*drad(D0,n)
-     &                 + d2ang(n,Dxy,iang+2)*drad(Dz,n)
-     &                 + d2ang(n,Dxz,iang+2)*drad(Dy,n)
-     &                 + d2ang(n,Dyz,iang+2)*drad(Dx,n)
-     &                 + d1ang(n,Dx,iang+2)*drad(Dyz,n)
-     &                 + d1ang(n,Dy,iang+2)*drad(Dxz,n)
-     &                 + d1ang(n,Dz,iang+2)*drad(Dxy,n)
-                  d3chi(n,Dxzz,iang+2) = d3chi(n,Dxzz,iang+2)
-     &                 + d3ang(n,Dxzz,iang+2)*drad(D0,n)
-     &                 + d2ang(n,Dxz,iang+2)*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iang+2)*drad(Dx,n)
-     &                 + d1ang(n,Dx,iang+2)*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iang+2)*drad(Dxz,n)*2d0
-                  d3chi(n,Dyyy,iang+2) = d3chi(n,Dyyy,iang+2)
-     &                 + d3ang(n,Dyyy,iang+2)*drad(D0,n)
-     &                 + d2ang(n,Dyy,iang+2)*drad(Dy,n)*3d0
-     &                 + d1ang(n,Dy,iang+2)*drad(Dyy,n)*3d0
-                  d3chi(n,Dyyz,iang+2) = d3chi(n,Dyyz,iang+2)
-     &                 + d3ang(n,Dyyz,iang+2)*drad(D0,n)
-     &                 + d2ang(n,Dyy,iang+2)*drad(Dz,n)
-     &                 + d2ang(n,Dyz,iang+2)*drad(Dy,n)*2d0
-     &                 + d1ang(n,Dy,iang+2)*drad(Dyz,n)*2d0
-     &                 + d1ang(n,Dz,iang+2)*drad(Dyy,n)
-                  d3chi(n,Dyzz,iang+2) = d3chi(n,Dyzz,iang+2)
-     &                 + d3ang(n,Dyzz,iang+2)*drad(D0,n)
-     &                 + d2ang(n,Dyz,iang+2)*drad(Dz,n)*2d0
-     &                 + d2ang(n,Dzz,iang+2)*drad(Dy,n)
-     &                 + d1ang(n,Dy,iang+2)*drad(Dzz,n)
-     &                 + d1ang(n,Dz,iang+2)*drad(Dyz,n)*2d0
-                  d3chi(n,Dzzz,iang+2) = d3chi(n,Dzzz,iang+2)
-     &                 + d3ang(n,Dzzz,iang+2)*drad(D0,n)
-     &                 + d2ang(n,Dzz,iang+2)*drad(Dz,n)*3d0
-     &                 + d1ang(n,Dz,iang+2)*drad(Dzz,n)*3d0
+                  d3chi(n,dxxx,iang  ) = d3chi(n,dxxx,iang  )
+     &                 + d3ang(n,dxxx,iang  )*drad(d0,n)
+     &                 + d2ang(n,dxx,iang  )*drad(dx,n)*3d0
+     &                 + d1ang(n,dx,iang  )*drad(dxx,n)*3d0
+                  d3chi(n,dxxy,iang  ) = d3chi(n,dxxy,iang  )
+     &                 + d3ang(n,dxxy,iang  )*drad(d0,n)
+     &                 + d2ang(n,dxx,iang  )*drad(dy,n)
+     &                 + d2ang(n,dxy,iang  )*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iang  )*drad(dxy,n)*2d0
+     &                 + d1ang(n,dy,iang  )*drad(dxx,n)
+                  d3chi(n,dxxz,iang  ) = d3chi(n,dxxz,iang  )
+     &                 + d3ang(n,dxxz,iang  )*drad(d0,n)
+     &                 + d2ang(n,dxx,iang  )*drad(dz,n)
+     &                 + d2ang(n,dxz,iang  )*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iang  )*drad(dxz,n)*2d0
+     &                 + d1ang(n,dz,iang  )*drad(dxx,n)
+                  d3chi(n,dxyy,iang  ) = d3chi(n,dxyy,iang  )
+     &                 + d3ang(n,dxyy,iang  )*drad(d0,n)
+     &                 + d2ang(n,dxy,iang  )*drad(dy,n)*2d0
+     &                 + d2ang(n,dyy,iang  )*drad(dx,n)
+     &                 + d1ang(n,dx,iang  )*drad(dyy,n)
+     &                 + d1ang(n,dy,iang  )*drad(dxy,n)*2d0
+                  d3chi(n,dxyz,iang  ) = d3chi(n,dxyz,iang  )
+     &                 + d3ang(n,dxyz,iang  )*drad(d0,n)
+     &                 + d2ang(n,dxy,iang  )*drad(dz,n)
+     &                 + d2ang(n,dxz,iang  )*drad(dy,n)
+     &                 + d2ang(n,dyz,iang  )*drad(dx,n)
+     &                 + d1ang(n,dx,iang  )*drad(dyz,n)
+     &                 + d1ang(n,dy,iang  )*drad(dxz,n)
+     &                 + d1ang(n,dz,iang  )*drad(dxy,n)
+                  d3chi(n,dxzz,iang  ) = d3chi(n,dxzz,iang  )
+     &                 + d3ang(n,dxzz,iang  )*drad(d0,n)
+     &                 + d2ang(n,dxz,iang  )*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iang  )*drad(dx,n)
+     &                 + d1ang(n,dx,iang  )*drad(dzz,n)
+     &                 + d1ang(n,dz,iang  )*drad(dxz,n)*2d0
+                  d3chi(n,dyyy,iang  ) = d3chi(n,dyyy,iang  )
+     &                 + d3ang(n,dyyy,iang  )*drad(d0,n)
+     &                 + d2ang(n,dyy,iang  )*drad(dy,n)*3d0
+     &                 + d1ang(n,dy,iang  )*drad(dyy,n)*3d0
+                  d3chi(n,dyyz,iang  ) = d3chi(n,dyyz,iang  )
+     &                 + d3ang(n,dyyz,iang  )*drad(d0,n)
+     &                 + d2ang(n,dyy,iang  )*drad(dz,n)
+     &                 + d2ang(n,dyz,iang  )*drad(dy,n)*2d0
+     &                 + d1ang(n,dy,iang  )*drad(dyz,n)*2d0
+     &                 + d1ang(n,dz,iang  )*drad(dyy,n)
+                  d3chi(n,dyzz,iang  ) = d3chi(n,dyzz,iang  )
+     &                 + d3ang(n,dyzz,iang  )*drad(d0,n)
+     &                 + d2ang(n,dyz,iang  )*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iang  )*drad(dy,n)
+     &                 + d1ang(n,dy,iang  )*drad(dzz,n)
+     &                 + d1ang(n,dz,iang  )*drad(dyz,n)*2d0
+                  d3chi(n,dzzz,iang  ) = d3chi(n,dzzz,iang  )
+     &                 + d3ang(n,dzzz,iang  )*drad(d0,n)
+     &                 + d2ang(n,dzz,iang  )*drad(dz,n)*3d0
+     &                 + d1ang(n,dz,iang  )*drad(dzz,n)*3d0
+                  d3chi(n,dxxx,iang+1) = d3chi(n,dxxx,iang+1)
+     &                 + d3ang(n,dxxx,iang+1)*drad(d0,n)
+     &                 + d2ang(n,dxx,iang+1)*drad(dx,n)*3d0
+     &                 + d1ang(n,dx,iang+1)*drad(dxx,n)*3d0
+                  d3chi(n,dxxy,iang+1) = d3chi(n,dxxy,iang+1)
+     &                 + d3ang(n,dxxy,iang+1)*drad(d0,n)
+     &                 + d2ang(n,dxx,iang+1)*drad(dy,n)
+     &                 + d2ang(n,dxy,iang+1)*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iang+1)*drad(dxy,n)*2d0
+     &                 + d1ang(n,dy,iang+1)*drad(dxx,n)
+                  d3chi(n,dxxz,iang+1) = d3chi(n,dxxz,iang+1)
+     &                 + d3ang(n,dxxz,iang+1)*drad(d0,n)
+     &                 + d2ang(n,dxx,iang+1)*drad(dz,n)
+     &                 + d2ang(n,dxz,iang+1)*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iang+1)*drad(dxz,n)*2d0
+     &                 + d1ang(n,dz,iang+1)*drad(dxx,n)
+                  d3chi(n,dxyy,iang+1) = d3chi(n,dxyy,iang+1)
+     &                 + d3ang(n,dxyy,iang+1)*drad(d0,n)
+     &                 + d2ang(n,dxy,iang+1)*drad(dy,n)*2d0
+     &                 + d2ang(n,dyy,iang+1)*drad(dx,n)
+     &                 + d1ang(n,dx,iang+1)*drad(dyy,n)
+     &                 + d1ang(n,dy,iang+1)*drad(dxy,n)*2d0
+                  d3chi(n,dxyz,iang+1) = d3chi(n,dxyz,iang+1)
+     &                 + d3ang(n,dxyz,iang+1)*drad(d0,n)
+     &                 + d2ang(n,dxy,iang+1)*drad(dz,n)
+     &                 + d2ang(n,dxz,iang+1)*drad(dy,n)
+     &                 + d2ang(n,dyz,iang+1)*drad(dx,n)
+     &                 + d1ang(n,dx,iang+1)*drad(dyz,n)
+     &                 + d1ang(n,dy,iang+1)*drad(dxz,n)
+     &                 + d1ang(n,dz,iang+1)*drad(dxy,n)
+                  d3chi(n,dxzz,iang+1) = d3chi(n,dxzz,iang+1)
+     &                 + d3ang(n,dxzz,iang+1)*drad(d0,n)
+     &                 + d2ang(n,dxz,iang+1)*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iang+1)*drad(dx,n)
+     &                 + d1ang(n,dx,iang+1)*drad(dzz,n)
+     &                 + d1ang(n,dz,iang+1)*drad(dxz,n)*2d0
+                  d3chi(n,dyyy,iang+1) = d3chi(n,dyyy,iang+1)
+     &                 + d3ang(n,dyyy,iang+1)*drad(d0,n)
+     &                 + d2ang(n,dyy,iang+1)*drad(dy,n)*3d0
+     &                 + d1ang(n,dy,iang+1)*drad(dyy,n)*3d0
+                  d3chi(n,dyyz,iang+1) = d3chi(n,dyyz,iang+1)
+     &                 + d3ang(n,dyyz,iang+1)*drad(d0,n)
+     &                 + d2ang(n,dyy,iang+1)*drad(dz,n)
+     &                 + d2ang(n,dyz,iang+1)*drad(dy,n)*2d0
+     &                 + d1ang(n,dy,iang+1)*drad(dyz,n)*2d0
+     &                 + d1ang(n,dz,iang+1)*drad(dyy,n)
+                  d3chi(n,dyzz,iang+1) = d3chi(n,dyzz,iang+1)
+     &                 + d3ang(n,dyzz,iang+1)*drad(d0,n)
+     &                 + d2ang(n,dyz,iang+1)*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iang+1)*drad(dy,n)
+     &                 + d1ang(n,dy,iang+1)*drad(dzz,n)
+     &                 + d1ang(n,dz,iang+1)*drad(dyz,n)*2d0
+                  d3chi(n,dzzz,iang+1) = d3chi(n,dzzz,iang+1)
+     &                 + d3ang(n,dzzz,iang+1)*drad(d0,n)
+     &                 + d2ang(n,dzz,iang+1)*drad(dz,n)*3d0
+     &                 + d1ang(n,dz,iang+1)*drad(dzz,n)*3d0
+                  d3chi(n,dxxx,iang+2) = d3chi(n,dxxx,iang+2)
+     &                 + d3ang(n,dxxx,iang+2)*drad(d0,n)
+     &                 + d2ang(n,dxx,iang+2)*drad(dx,n)*3d0
+     &                 + d1ang(n,dx,iang+2)*drad(dxx,n)*3d0
+                  d3chi(n,dxxy,iang+2) = d3chi(n,dxxy,iang+2)
+     &                 + d3ang(n,dxxy,iang+2)*drad(d0,n)
+     &                 + d2ang(n,dxx,iang+2)*drad(dy,n)
+     &                 + d2ang(n,dxy,iang+2)*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iang+2)*drad(dxy,n)*2d0
+     &                 + d1ang(n,dy,iang+2)*drad(dxx,n)
+                  d3chi(n,dxxz,iang+2) = d3chi(n,dxxz,iang+2)
+     &                 + d3ang(n,dxxz,iang+2)*drad(d0,n)
+     &                 + d2ang(n,dxx,iang+2)*drad(dz,n)
+     &                 + d2ang(n,dxz,iang+2)*drad(dx,n)*2d0
+     &                 + d1ang(n,dx,iang+2)*drad(dxz,n)*2d0
+     &                 + d1ang(n,dz,iang+2)*drad(dxx,n)
+                  d3chi(n,dxyy,iang+2) = d3chi(n,dxyy,iang+2)
+     &                 + d3ang(n,dxyy,iang+2)*drad(d0,n)
+     &                 + d2ang(n,dxy,iang+2)*drad(dy,n)*2d0
+     &                 + d2ang(n,dyy,iang+2)*drad(dx,n)
+     &                 + d1ang(n,dx,iang+2)*drad(dyy,n)
+     &                 + d1ang(n,dy,iang+2)*drad(dxy,n)*2d0
+                  d3chi(n,dxyz,iang+2) = d3chi(n,dxyz,iang+2)
+     &                 + d3ang(n,dxyz,iang+2)*drad(d0,n)
+     &                 + d2ang(n,dxy,iang+2)*drad(dz,n)
+     &                 + d2ang(n,dxz,iang+2)*drad(dy,n)
+     &                 + d2ang(n,dyz,iang+2)*drad(dx,n)
+     &                 + d1ang(n,dx,iang+2)*drad(dyz,n)
+     &                 + d1ang(n,dy,iang+2)*drad(dxz,n)
+     &                 + d1ang(n,dz,iang+2)*drad(dxy,n)
+                  d3chi(n,dxzz,iang+2) = d3chi(n,dxzz,iang+2)
+     &                 + d3ang(n,dxzz,iang+2)*drad(d0,n)
+     &                 + d2ang(n,dxz,iang+2)*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iang+2)*drad(dx,n)
+     &                 + d1ang(n,dx,iang+2)*drad(dzz,n)
+     &                 + d1ang(n,dz,iang+2)*drad(dxz,n)*2d0
+                  d3chi(n,dyyy,iang+2) = d3chi(n,dyyy,iang+2)
+     &                 + d3ang(n,dyyy,iang+2)*drad(d0,n)
+     &                 + d2ang(n,dyy,iang+2)*drad(dy,n)*3d0
+     &                 + d1ang(n,dy,iang+2)*drad(dyy,n)*3d0
+                  d3chi(n,dyyz,iang+2) = d3chi(n,dyyz,iang+2)
+     &                 + d3ang(n,dyyz,iang+2)*drad(d0,n)
+     &                 + d2ang(n,dyy,iang+2)*drad(dz,n)
+     &                 + d2ang(n,dyz,iang+2)*drad(dy,n)*2d0
+     &                 + d1ang(n,dy,iang+2)*drad(dyz,n)*2d0
+     &                 + d1ang(n,dz,iang+2)*drad(dyy,n)
+                  d3chi(n,dyzz,iang+2) = d3chi(n,dyzz,iang+2)
+     &                 + d3ang(n,dyzz,iang+2)*drad(d0,n)
+     &                 + d2ang(n,dyz,iang+2)*drad(dz,n)*2d0
+     &                 + d2ang(n,dzz,iang+2)*drad(dy,n)
+     &                 + d1ang(n,dy,iang+2)*drad(dzz,n)
+     &                 + d1ang(n,dz,iang+2)*drad(dyz,n)*2d0
+                  d3chi(n,dzzz,iang+2) = d3chi(n,dzzz,iang+2)
+     &                 + d3ang(n,dzzz,iang+2)*drad(d0,n)
+     &                 + d2ang(n,dzz,iang+2)*drad(dz,n)*3d0
+     &                 + d1ang(n,dz,iang+2)*drad(dzz,n)*3d0
                enddo
             endif
          enddo
