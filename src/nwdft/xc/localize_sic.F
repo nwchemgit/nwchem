@@ -1,6 +1,6 @@
       Subroutine localize_sic(g_movecs, noc) 
 c
-C$Id: localize_sic.F,v 1.2 2000-04-27 20:36:45 jolguin Exp $
+C$Id: localize_sic.F,v 1.3 2000-04-28 17:54:38 jolguin Exp $
 c
       implicit none
 c      
@@ -33,9 +33,10 @@ c
      &   call errquit('localize_sic:push_get failed', 911)
 c
       do isp=1,ipol
-         if (me.eq.0.and.oprint_sic) 
-     $        call util_print_centered(6,
-     $        'Foster-Boys orbital localization', 40, .true.)
+         if (me.eq.0) 
+     $    call util_print_centered(6,
+     $    'Foster-Boys orbital localization for the SIC approximation',
+     &         40, .true.)
          nocc=noc(isp)
          if (me.eq.0.and.oprint_sic) write(LuOut,*) 
      $                         ' Number of Orbitals to localize',nocc
