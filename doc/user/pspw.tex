@@ -9,7 +9,7 @@
                 \end{center}
                \begin{center}\begin{enumerate} \begin{em}}
                {\end{em}\end{enumerate}\end{center}}
-
+ 
 
 The NWChem plane-wave (NWPW) module uses pseudopotentials and
 plane-wave basis sets to perform Density Functional Theory
@@ -194,6 +194,27 @@ The following list describes the keywords contained in the PSPW input block.
         \item CONJUGATE\_GRADIENT (see section \ref{sec:pspw_conjugate_gradient})
 \end{itemize}
 
+A prototype limited memory BFGS (LMBFGS) minimizer can be used to minimize the energy.  To
+use this new optimizer the following SET directive needs to be specified:
+\begin{verbatim}
+set nwpw:mimimizer 1  # Default - conjugate gradient minimizer is used to minimize the energy.
+set nwpw:mimimizer 2  # LMBFGS minimimzer is used to minimize the energy.
+\end{verbatim}
+Limited testing suggests that the LMBFGS minimizer is about twice as fast as
+the conjugate gradient minimizer.  However, there are several known cases
+where this optimizer fails, so it is currently not a default option, and
+should be used with caution.
+
+In addition the following SET directives can be specified:
+\begin{verbatim}
+set nwpw:lcao_skip .false. # Default - initial wavefunctions generated using an LCAO guess. 
+set nwpw:lcao_skip .true.  # Initial wavefunctions generated using a random plane-wave guess.
+
+set nwpw:lcao_print .false. # Default - Ouput not produced during the generation of the LCAO guess. 
+set nwpw:lcao_print .true.  # Output produced during the generation of the LCAO guess. 
+\end{verbatim}
+
+
 \subsection{Simulation Cell}
 \label{sec:pspw_cell}
 Simulation cells are stored in the RTDB.  To enter a  simulation cell
@@ -277,6 +298,33 @@ sub-block.
         \item $<$orbital\_name$>$ - name that will 
               point to a generated Gaussian Cube file of the specified orbital.
 \end{itemize}
+
+
+\subsection{\tt Point Charge Analysis}
+\label{sec:pspw_point_charge_analysis}
+
+The MULLIKEN option can be used to generate derived atomic point charges
+from a plane-wave density.  This analysis is based on a strategy suggested in the work of
+P.E. Blochl, J. Chem. Phys. vol. 103, page 7422 (1995).  In this strategy
+the low-frequency components a plane-wave density are fit to a linear
+combination of atom centered Gaussian functions.
+
+The following SET directives are used to define the fitting.
+\begin{verbatim}
+set pspw_APC:Gc <real Gc_cutoff>  # specifies the maximum frequency component of the density to be used in the fitting in units of au.
+
+set pspw_APC:nga <integer number_gauss> # specifies the the number of Gaussian functions per
+atom.
+
+set pspw_APC:gamma <real gamma_list> # specifies the decay lengths of each atom centered Gaussian. 
+\end{verbatim}
+
+We suggest using the following parameters.
+\begin{verbatim}
+set pspw_APC:Gc 2.5
+set pspw_APC:nga 3
+set pspw_APC:gamma 0.6 0.9 1.35 
+\end{verbatim}
 
 
 \subsection{\tt Car-Parrinello}
@@ -426,6 +474,21 @@ sub-block.
                                 generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
 \end{itemize}
+
+When a DPLOT sub-block is specified the following SET directive can be used 
+to output dplot data during a Car-Parrinello simulation:
+\begin{verbatim}
+set pspw_dplot:iteration_list <integer list_of_iteration_numbers>
+\end{verbatim}
+The Gaussian cube files specified in the DPLOT sub-block are appended
+with the specified iteration number. 
+
+For example, the following directive specifies that at the 
+3,10,11,12,13,14,15, and 50 iterations Gaussian cube files are to be produced.
+
+\begin{verbatim}
+set pspw_dplot:iteration_list 3,10:15,50
+\end{verbatim}
 
 
 \subsection{\tt PSP\_GENERATOR}
@@ -1060,7 +1123,6 @@ sub-block.
 
 
 
-
 \section{Band Tasks}
 \label{sec:band_tasks}
 
@@ -1187,11 +1249,11 @@ The elements listed in the following table are present:
 \begin{verbatim}
   H
  -------
-  Li Be                                  C  N  O
+  Li Be                               B  C  N  O
  -------                             ------------------
-                                      Al Si P  S  
+                                      Al Si P  S     
  ------------------------------------------------------
-                       Fe          Zn Ga               
+                                   Zn Ga               
  ------------------------------------------------------
 \end{verbatim}
 
@@ -2106,6 +2168,15 @@ task pspw Car-Parrinello
 \section{Band Tutorial 1: Minimizing the energy of a silicon-carbide crystal by running a PSPW and Band simulation in tandem}
 \label{sec:band_tutorial1}
 \normalsize
+
+The following input deck performs a PSPW energy calculation followed
+by a Band energy calculation at the $\Gamma$-point  for a cubic (8-atom) 
+silicon-carbide crystal.  Since the geometry is entered using fractional coordinates
+the unit cell parameters do not have to be re-specified in the simulation\_cell
+nwpw sub-block.  In this example, default pseudopotential from the pseudopotential
+library are used for C and Si.  The advantage of running these calculations in tandem is that
+the Band code uses the wavefunctions generated from the faster PSPW calculation for
+its initial guess.  The PSPW energy is -38.353570, and the Band energy is -38.353570.
  
 \begin{verbatim}
 start SiC_band
