@@ -23,7 +23,7 @@ c
       double precision range_max
       double precision zprim(nbf_ao_mxprim)
 c
-      integer ll_at
+      integer ll_at,atneigh
       double precision exex_at,shiftm_2g
       integer g_s
       integer k_minexp,l_minexp,k_ldiff,l_ldiff,iat,
@@ -61,10 +61,12 @@ c
 c     loop over atoms again
 c
       do iat=1+me,ncenters,nproc
+         if(.not.iatype_pt_chg(iat))then
+
          call grid_rtrunc1(iat,dbl_mb(k_minexp),int_mb(k_ldiff),
      .        g_s, dbl_mb(ipmat),job_grid_acc,iat_diff,range_max,
      .        dbl_mb(k_coord),
-     .        ll_at,exex_at,shiftm_2g)
+     .        ll_at,exex_at,shiftm_2g,atneigh)
          if (tol_reset)then
             if((nint(range_max)).gt.rad_cutoff(1,iatype(iat))) then
                if(llind) then
@@ -73,8 +75,10 @@ c
                   shiftm(iatype(iat)) = shiftm_2g
                endif
                rad_cutoff(1,iatype(iat)) = nint(range_max) 
-               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
+c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
+               rad_cutoff(2,iatype(iat)) = atneigh
             endif
+         endif
          endif
       enddo
 c
@@ -191,7 +195,7 @@ c
       subroutine grid_rtrunc1(iat,expo,l,g_s,pmat,my_acc,
      .     iat_diff,range_max,
      .     coord,
-     .     ll_at,exex_at,shiftm_2g)
+     .     ll_at,exex_at,shiftm_2g,atneigh)
       implicit none
 #include "cdft.fh"
       integer iat ! [in]
@@ -205,6 +209,7 @@ c
       integer ll_at ! [out]
       double precision exex_at ! [out]
       double precision shiftm_2g ! [out]
+      integer atneigh ! [out]
       
 c
       integer jat,dimi,dimj,l_iat
@@ -279,6 +284,8 @@ c
 c     loop over atoms to get min exp for each atom
 c
       do iat=1,ncenters
+         if(.not.iatype_pt_chg(iat))then
+
 c
 c     get minimum exponent of all basis functions
 c
@@ -306,6 +313,7 @@ C            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
                ldiff(iat)=l
             endif
          enddo
+      endif
       enddo
       return
       end

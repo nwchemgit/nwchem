@@ -1,6 +1,6 @@
       Subroutine grid_setspac_params
 c
-c$Id: grid_setspac_params.F,v 1.2 1999-06-14 22:39:26 d3h449 Exp $
+c$Id: grid_setspac_params.F,v 1.3 2000-02-02 02:37:30 edo Exp $
 c
       implicit none
 c      
@@ -37,6 +37,7 @@ c
 c            
 c               chij = sqrt(bsrad_atom_type(iti)/bsrad_atom_type(itj))
                chij = bsrad_atom_type(iti)/bsrad_atom_type(itj)
+c               chij = dble(rad_cutoff(1,iti))/dble(rad_cutoff(1,itj))
 c
 c              uij = (bsrad_atom_type(iti - bsrad_atom_type(itj))/(bsrad_atom_type(iti) + bsrad_atom_type(itj))
 c

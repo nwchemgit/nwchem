@@ -1,7 +1,7 @@
       subroutine grid_setspac(rtdb, xyz, xyzw, Rij, rq, p, ictr, nq,
-     ,     lssw, whichf, expo, rad,trunc_neigh)
+     ,     expo, rad,trunc_neigh)
 c
-c$Id: grid_setspac.F,v 1.6 1999-07-21 22:57:09 edo Exp $
+c$Id: grid_setspac.F,v 1.7 2000-02-02 02:37:30 edo Exp $
 c
       implicit none
       integer rtdb
@@ -20,8 +20,7 @@ c
       double precision p(nq,ncenters)
       double precision rad
       double precision expo(*)
-      logical lssw,trunc_neigh
-      character*4 whichf
+      logical trunc_neigh
 c
       integer iscr,lscr,lgth_scr,ixyzm,lxyzm
       integer ncenters_scr ! no. of centers after screening
@@ -62,7 +61,7 @@ c
      &        rad, expo, int_mb(iscr),iatype_pt_chg)
          call grid_ssw(xyzw, dbl_mb(ixyzm),rij, rq, 
      &        p, ictr_scr, ncenters_scr, nq,
-     ,        int_mb(iscr),whichf)
+     ,        int_mb(iscr),whichssw)
       endif
          
 

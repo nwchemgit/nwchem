@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.44 2000-01-06 00:42:24 edo Exp $
+c     $Id: dft_inpana.F,v 1.45 2000-02-02 02:37:39 edo Exp $
 c
 c*********************************************************************
 c     
@@ -41,10 +41,10 @@ c
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
       character*16 tag
-      character*20 rgridnames(6)
+      character*20 rgridnames(8)
       data rgridnames /'Euler-MacLaurin','Mura-Knowles',
      .     'Treutler-Ahlrichs','Gauss-Legendre','G-C-interv',
-     ,     'Lindh'/
+     ,     'Lindh','Chebyshev','Legendre'/
 c     
       me=ga_nodeid()
 c     
@@ -467,9 +467,19 @@ c
             write(LuOut,4004)nqshells
 c
             if (ldelley)then
-               write(LuOut,9139)
+               write(LuOut,9140) 'Delley'
+            elseif(lssw) then
+               if(whichssw.eq.'ssf ') then
+                  write(LuOut,9140) ' Straatman-Scuseria-Fritsch'
+               elseif(whichssw.eq.'erf1') then
+                  write(LuOut,9140) ' Erf1'
+               elseif(whichssw.eq.'erf2') then
+                  write(LuOut,9140) ' Erf2'
+               else
+                  write(LuOut,9140) whichssw
+               endif
             else
-               write(LuOut,9140)
+               write(LuOut,9140) 'Becke'
             endif
             if (nquad_task.ne.1)then
                write(LuOut,9141)nquad_task
@@ -575,8 +585,8 @@ cedo 9136 format(10x,'Radial quadrature: Euler-MacLaurin. ')
  9136 format(10x,'Radial quadrature: ',A)
  9137 format(10x,a16,2x,f6.2,6x,i3,6x,f6.1,3x,i2,1x,'*',1x,i2)
  9138 format(10x,a16,2x,f6.2,6x,i3,8x,f6.1,3x,2x,i5)
- 9139 format(10x,'Spatial weights used: Delley. ')
- 9140 format(10x,'Spatial weights used: Becke. ')
+c 9139 format(10x,'Spatial weights used: Delley. ')
+ 9140 format(10x,'Spatial weights used: ',A)
  9141 format(10x,'Parallel task size associated with evaluation of ',/,
      &       10x,'grid based components has been modified to: ',i2)
  9145 format(10x,'Chunking of the angular grid is being used; ',

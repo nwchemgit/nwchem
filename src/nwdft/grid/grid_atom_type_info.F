@@ -1,6 +1,6 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.4 1999-12-17 17:24:25 edo Exp $
+c$Id: grid_atom_type_info.F,v 1.5 2000-02-02 02:37:30 edo Exp $
 c
       implicit none
 c      
@@ -159,7 +159,10 @@ c
      &           element, i_atomic_number)) then
                if (inp_compare(.false.,tag(1:2),'bq')) then 
                   i_atomic_number = 0
+               elseif (inp_compare(.false.,tag(1:1),'X')) then 
+                  i_atomic_number = 0
                else
+                  write(0,*) ' tag ',tag
                   call errquit(
      &            'grid_atom_type_info: non-bq center with zero charge',
      &             0)

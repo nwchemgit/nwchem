@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.19 2000-01-26 00:40:48 edo Exp $
+c$Id: grid_setrad.F,v 1.20 2000-02-02 02:37:30 edo Exp $
 c
       implicit none
 c      
@@ -17,7 +17,7 @@ c
       double precision eps
       parameter (eps = 1.d-20)
       logical oprint, oprint_grid
-      logical tol_reset, mul_reset,llind
+      logical tol_reset, mul_reset,llind,check_s
 c
       integer i, itype, ir, nr, irsh
       double precision r, r_max
@@ -37,14 +37,20 @@ c
       oprint_grid = util_print('griddebug', print_debug)
       if (.not. rtdb_get(rtdb, 'dft:tol_reset', mt_log, 1,
      &   tol_reset))then
-         tol_reset = .false.
+         tol_reset = .true.
       endif
+      llind=.false.
+      if (.not. rtdb_get(rtdb, 'dft:check_s', mt_log, 1,
+     &   check_s))then
+         check_s = .false.
+      endif
+      if(check_s) llind=.true.
+c      check_s=
 c
 c     define radial grid type
 c
       if (.not. rtdb_cget(rtdb,'dft:radgrid', 1,radgrid)) 
      *     radgrid='eumac'
-      llind=.false.
       if(radgrid.eq.'eumac') then
          wradgrid=1
       elseif(radgrid.eq.'murakn') then
@@ -91,6 +97,7 @@ c
       if(tol_reset) call grid_rtrunc(rtdb, dbl_mb(iexpo), 
      .     llind,dbl_mb(k_2ex),dbl_mb(k_2g),int_mb(k_2l),
      &     tol_reset, range_max)
+      if(check_s) call grid_checks(dbl_mb(k_2ex),int_mb(k_2l))
 
       if (.not.ma_pop_stack(lexpo))
      &   call errquit('grid_setrad: cannot pop stack expo',1)
@@ -219,7 +226,6 @@ c
 cedo             if(ga_nodeid().eq.0.and.oprint) write(Luout,*)
 cedo     .            ' Murakn itype cutoff ',itype,range_mk
              call xc_murakn(
-     .            znint,
      .            rpts(1,itype), 
      &            rwghts(1,itype),nrad(itype),range_mk,
      .            tol_reset)

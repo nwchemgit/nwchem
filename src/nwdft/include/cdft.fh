@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.39 2000-01-15 02:06:47 edo Exp $
+C$Id: cdft.fh,v 1.40 2000-02-02 02:37:38 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -14,6 +14,7 @@ c
       character*255 title
       character*16 grtagin
       character*10 gridtype
+      character*4 whichssw
       character*40 xname, cname, xcname
       double precision
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
@@ -23,7 +24,7 @@ c
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
      &     nlxfac, xccomb, levelshift, damp, diis, direct, oskel, 
-     &     oadapt
+     &     oadapt, lssw
       integer
      &     iAOacc, iCDacc, iXCacc, irqmax, itol2e, imull, iangquad, 
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
@@ -60,7 +61,7 @@ c
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac(numfunc), 
      ,     nlcfac(numfunc),lxfac(numfunc), nlxfac(numfunc), 
      ,     xccomb(numfunc), levelshift, damp, diis, 
-     &     direct, oskel, oadapt,
+     &     direct, oskel, oadapt, lssw,
 c
 c     Integers
 c
@@ -87,7 +88,7 @@ c
       common /ccdft/ 
      &     title, gridtype, xname(numfunc), cname(numfunc), 
      .     xcname(numfunc),
-     &     movecs_in, movecs_out, movecs_guess
+     &     movecs_in, movecs_out, movecs_guess,whichssw
 c
 c-->  old dimensions.fh
 c

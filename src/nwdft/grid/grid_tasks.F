@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.14 2000-01-06 00:43:02 edo Exp $
+c$Id: grid_tasks.F,v 1.15 2000-02-02 02:37:31 edo Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
 c
       integer iqsh, irsh, ictr, iang, npts_iqsh
       integer nq,nproc,me,g_buck,g_buckind
-      logical lssw,trunc_neigh
+      logical trunc_neigh
       logical grid_file_open
       external grid_file_open
       logical grid_file_close
@@ -73,11 +73,7 @@ c
 c
 c     get partitioning function
 c
-      lssw=.true.
-      whichf='dumm'
-      if (.not.rtdb_cget(rtdb, 'dft:ssweights',  1, whichf))then
-        lssw=.false.
-      endif
+
       if(lssw) do_interp = xc_interp(whichf)
 c
 c     Allocate some scratch space for construction of the spatial weights
@@ -121,7 +117,7 @@ c        modify the weight to include the spatial weight (and symmetry factor)
 c
          call grid_setspac(rtdb, coord, aqbuf, dbl_mb(irij), 
      &                     dbl_mb(irq), dbl_mb(ip), ictr, npts_iqsh,
-     ,        lssw, whichf, dbl_mb(iexpo), rad, trunc_neigh)
+     ,        dbl_mb(iexpo), rad, trunc_neigh)
 
          if (npts_iqsh.eq.0) then
             go to 100

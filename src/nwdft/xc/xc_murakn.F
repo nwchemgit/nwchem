@@ -1,11 +1,10 @@
-      Subroutine xc_murakn(znumber,r,w,nr,range,lreset)
+      Subroutine xc_murakn(r,w,nr,range,lreset)
 
-C$Id: xc_murakn.F,v 1.8 2000-01-26 00:36:41 edo Exp $
+C$Id: xc_murakn.F,v 1.9 2000-02-02 02:37:40 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
       double precision w(*) ! grid pts weights [output]
-      integer znumber !   atomic number [input]
 c
       double precision rm    
       parameter (rm=3d0)
