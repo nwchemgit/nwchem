@@ -60,9 +60,9 @@ c     print level
 c     -------------------
       if (inp_compare(.false.,'print', token)) then
          call util_print_input(rtdb, "qmmm")
+         goto 2
       end if
       
-      goto 2
 c
       if (token.eq.'xyz') then
         xyz = .true.
