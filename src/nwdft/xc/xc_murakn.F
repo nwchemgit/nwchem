@@ -1,6 +1,6 @@
       Subroutine xc_murakn(znumber,r,w,nr,range,lreset)
 
-C$Id: xc_murakn.F,v 1.7 2000-01-08 02:40:20 edo Exp $
+C$Id: xc_murakn.F,v 1.8 2000-01-26 00:36:41 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -36,8 +36,12 @@ c***************************************************************************
       if(lreset) then
          alpha=-range/log(1d0-(nr/(1d0+nr))**3)
       else
-         alpha=5d0
-         if(znumber.lt.37) alpha=alphad(znumber)
+c
+c     huub recipe
+c
+         alpha=3.3d0*range
+c         alpha=5d0
+c         if(znumber.lt.37) alpha=alphad(znumber)
       endif
       fmn = rm/dble(nr)
 

@@ -1,6 +1,6 @@
-      subroutine xc_tarad(znumber,r,w,nr,origin,which)
+      subroutine xc_tarad(znumber,r,w,nr,origin,which,rlast)
 
-C$Id: xc_tarad.F,v 1.5 2000-01-08 02:40:21 edo Exp $
+C$Id: xc_tarad.F,v 1.6 2000-01-26 00:36:42 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -10,7 +10,7 @@ C$Id: xc_tarad.F,v 1.5 2000-01-08 02:40:21 edo Exp $
 c
       integer nr,i
       double precision xi,wi
-      double precision ri,zetad(36),zeta
+      double precision ri,zetad(36),zeta,rlast
       character*8 which
       double precision alpha,rsc(400),wsc(400)
       parameter (alpha=0.6d0)
@@ -51,17 +51,22 @@ c
 c     get zeta from rmax
 c
          call grid_gausscheb(wi,xi,nr,nr)
-         zeta=origin*log(2d0)/
-     /        ((1.d0+xi)**alpha*log(2d0/(1d0-xi)))
-        ri = zeta/log(2.D0)*(1.d0+xi)**alpha*log(2d0/(1d0-xi))
-        r(nr) = ri
-        w(nr)=wi*ri*ri*ri*(alpha/(1d0+xi)+
+c M4
+c         zeta=rlast*log(2d0)/
+c     /        ((1.d0+xi)**alpha*log(2d0/(1d0-xi)))
+c        ri = zeta/log(2.D0)*(1.d0+xi)**alpha*log(2d0/(1d0-xi))
+c M3
+         zeta=(rlast-origin)*log(2d0)/
+     /        (log(2d0/(1d0-xi)))
+        ri = zeta/log(2.D0)*log(2d0/(1d0-xi))
+        r(nr) = ri+origin
+        w(nr)=wi*r(nr)*r(nr)*ri*(alpha/(1d0+xi)+
      +       1d0/(1d0-xi)/log(2d0/(1d0-xi)))
          
       do  i = 1,nr-1
          call grid_gausscheb(wi,xi,i,nr)
         ri = zeta/log(2.D0)*(1.d0+xi)**alpha*log(2d0/(1d0-xi))
-        r(i) = ri
+        r(i) = ri+origin
         w(i)=wi*r(i)*r(i)*ri*(alpha/(1d0+xi)+
      +       1d0/(1d0-xi)/log(2d0/(1d0-xi)))
 c
