@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.79 2004-05-17 20:04:36 edo Exp $ 
+% $Id: dft.tex,v 1.80 2004-05-17 20:29:46 pollack Exp $ 
 %
 \label{sec:dft}
 
@@ -497,13 +497,8 @@ a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 
 \subsection{Meta-GGA Functionals}
 
-One way to compute Meta-GGA energies is self consistently, 
-which we have implemented in the code, 
-using the method outlined in 
-R. Neumann, R.H. Nobes, and N.C. Handy, Mol.Phys.
-{\bf 87}, 1 1996.
 
-Another way to calculate meta-GGA energies is to use
+One way to calculate meta-GGA energies is to use
  orbitals and densities 
 from fully self-consistent GGA or LDA calculations
 and run them in one iteration in the meta-GGA functional.
@@ -532,6 +527,14 @@ the  functional.
 S. Kurth, J. Perdew, P. Blaha, Int. J. Quant. Chem 75, 889 (1999)
 for a brief description of meta-GGAs, and  citations 14-27
 therein for thorough background )
+
+Note:  both TPSS and PKZB correlation
+require the PBE GGA CORRELATION (which is itself dependent on an LDA).  
+The decision has been made to
+use these functionals with the accompanying local
+PW91LDA.  The user does not have the ability to set
+the local part of these metaGGA functionals.
+
 
 \section{{\tt LB94} and {\tt CS00} --- Asymptotic correction}
 
@@ -666,6 +669,8 @@ htch407p   & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[28]\\
 \hline                                                  
 xpkzb99    & $\star$  &             &           &$\star$&   &  N   &[27]\\
 cpkzb99    &          &  $\star$    &           &$\star$&   &  N   &[27]\\
+xtpss03    & $\star$  &             &           &$\star$&   &  N   &[29]\\
+ctpss03    &          &  $\star$    &           &$\star$&   &  N   &[29]\\
 
 \hline
 beckehandh & $\star$  &   $\star$   &           &   & $\star$  &  Y   &[13]\\
@@ -737,7 +742,9 @@ J. Chem. Phys {\bf 114}, 3958 (2001).\\
 \item  J.P.~Perdew, S.~Kurth, A.~Zupan and P.~Blaha, 
 Phys. Rev. Lett. {\bf 82}, 2544 (1999) \\
 \item A.~D.~Boese, A.~Chandra, J.~M.~L.~Martin and D.~Marx,
-  J. Chem. Phys. {\bf 119}, 5965 (2003).
+  J. Chem. Phys. {\bf 119}, 5965 (2003) \\
+\item J. Tao,J.Perdew,V. Staroverov and G. Scuseria,
+Phys. Rev. Let. {\bf 91}, 146401-1 (2003)
 \end{enumerate}
 }
 %\end{table}
