@@ -33,7 +33,7 @@ c
       integer maxprim           ! Max. no. primitives in a contraction
       parameter (maxprim=25)
       integer lmax, lmax2, lencart, lenprod, maxn
-      parameter (lmax = 3)      ! Max. angular momentum of shell
+      parameter (lmax = 4)      ! Max. angular momentum of shell
       parameter (lmax2 = 2*lmax)
       parameter (lencart = ((lmax2+1)*(lmax2+2))/2)
       parameter (lenprod = ((lmax2+1)*(lmax2+2)*(lmax2+3))/6)
@@ -54,8 +54,8 @@ c
      $     dmax, radial, factor, sum, ppot, r, charge, ralpha
       double precision anls((lmax2+2)*(lmax2+3)/4)
       character*16 tag
-      double precision anl_fit
-      external anl_fit
+      double precision anl_fit, vnlm
+      external anl_fit, vnlm
 c
 c     Get info on the shells
 c
@@ -137,14 +137,12 @@ c
      $           expj(jprim), rj(1), rj(2), rj(3),
      $           alpha, a, b, c, prefac)
 c
-            prefac = prefac*coeffi(iprim)*coeffj(jprim)*
+            prefac = prefac*coeffi(iprim)*coeffj(jprim)*fact*
      $           4.0d0*3.1415926535897932d0 / alpha
 c
 c     Screen
 c
             if (abs(prefac*dmax) .gt. tol) then
-c
-      prefac=fact*prefac
 c
 c     Translate density to product center and reform as spherical
 c
@@ -154,7 +152,7 @@ c
                   call cart_dens_trans_prod_sph(
      $                 itype, ri(1), ri(2), ri(3), 
      $                 jtype, rj(1), rj(2), rj(3), 
-     $                 a, b, c, work, dinv, lmax2, 
+     $                 a, b, c, work, dinv, lmaxd, 
      $                 dens, ndens)
                endif
 c
@@ -202,7 +200,7 @@ c
                      do n = 0, ijtype
                         radial = prefac
                         do l = n, 0, -2
-                           factor = radial * anls(ind) ! anl_fit(n,l,ar)
+                           factor = radial * anls(ind) ! anl_fit(n,l,ar) 
                            ind = ind + 1
                            sum = 0.0d0
                            do m = -l, l

@@ -1,7 +1,7 @@
       implicit none
 #include "mafdecls.fh"
       integer nx, ny, nz, lmax, depth, lenxlm, nnx, nny, nnz
-      parameter (nx=149, ny=149, nz=149, lmax=16, depth=3)
+      parameter (nx=124, ny=124, nz=124, lmax=16, depth=3)
       parameter (nnx=75, nny=75, nnz=75)
 c     
       double precision g(nx,ny,nz), ! gg(nnx, nny, nnz), 
@@ -13,6 +13,7 @@ c
 c     Use a difference between two gaussians to produce a potential
 c     that decays exponentially so that boundary conditions are exact.
 c     
+      double precision q(-lmax:lmax,0:lmax), qn(-lmax:lmax,0:lmax)
       double precision xlo, xhi, ylo, yhi, zlo, zhi, x, y, z, pi
       double precision hx, hy, hz, hx_fmm, hy_fmm, hz_fmm
       double precision hhx, hhy, hhz
@@ -25,7 +26,8 @@ c
       integer order, ninterp, ilo, jlo, klo
 c     
       double precision fnlm, vnlm, fmm_potential,
-     $     tn_interp_3d_point, drand
+     $     tn_interp_3d_point, drand, double_factorial, 
+     $     xlm_potential_test
       external fnlm, vnlm, fmm_potential
 c     
       if (.not. ma_init(mt_dbl, 64000000, 64000000)) call errquit
@@ -33,18 +35,30 @@ c
 c     
 *     *      call initfm
       call anl_fit_init
-      call xlm_init
 c     
       lenxlm = (lmax+1)**2
       call dfill(lenxlm*8**depth, 0.0d0, poles, 1)
+      call xlm_init
+c
+      call xlm(lmax,1.0d0,2.0d0,3.0d0, q, lmax)
+      call xlm_slower(lmax,1.0d0,2.0d0,3.0d0, qn, lmax)
+      do l = 0, lmax
+         do m = -l, l
+            if (abs((qn(m,l)-q(m,l))/qn(m,l)) .gt. 1d-12) then
+               write(6,*) m, l, qn(m,l), q(m,l)
+               stop 66
+            endif
+         enddo
+      enddo
+      write(6,*) ' faster XLM is OK ?'
 c     
-      n = 0 ! 3
-      l = 0 ! 1
-      m = 0 ! -1
-      alpha = 1.0d0 ! 0.95189d0
-      a = 0.8d0
-      b = -1.11d0
-      c = 0.77777d0
+      n =  3
+      l =  1
+      m =  1
+      alpha = 1.35189d0
+      a = 0.0d0 ! 0.8d0
+      b = 0.0d0 ! -1.11d0
+      c = 0.0d0 ! 0.77777d0
 c     
       pi = 4.0d0*atan(1.0d0)
       xlo = -8.0d0
@@ -76,6 +90,11 @@ c
             end do
          end do
       end do
+c
+      write(6,*) ' slice of g'
+      do i = 1, nx
+         write(6,*) i, g(i,ny/2,nz/2)
+      enddo
 c     
       call solver(g, nx, ny, nz, poles, depth, lmax, 
      $     xlo, xhi, ylo, yhi, zlo, zhi, .false.)
@@ -130,11 +149,40 @@ c
       y = ylo + hy*ny*.5d0
       z = zlo + hz*nz*.5d0
       pot = vnlm(n,l,m,alpha,a,b,c,x,y,z)
+      write(6,*) n,l,m,alpha,a,b,c,x,y,z
+      write(6,*) ' POT ', pot
+      write(6,*) ' G ', g(nx/2,ny/2,nz/2)
       write(6,*) ' actual boundary layer potential ', 
      $     pot - g(nx/2,ny/2,nz/2) ! Assumes even no. points
       write(6,*) '    FMM boundary layer potential ',
      $     fmm_potential(lmax,depth,
      $     xhi-xlo,yhi-ylo,zhi-zlo,poles,x-xlo,y-ylo,z-zlo)
       write(6,*) ii, jj, kk
+c
+      write(6,*) ' slice of g'
+      do i = 1, nx
+         write(6,*) i, g(i,ny/2,nz/2)
+      enddo
+c
+c     Test phase of xlm_potential versus vnlm
+c
+      call xlm_norm(lmax, qn, lmax)
+      x = xhi
+      y = yhi + 3.1519
+      z = zhi + 2.71
+      do n = 0, 5
+         do l = n, 0, -2
+            do m = -l, l
+               call dfill((2*lmax+1)*(lmax+1),0.0d0,q,1)
+               q(m,l) = sqrt(pi)*double_factorial(n+l+1) /
+     $              ((2.0d0**((n+l+4)/2))*(alpha**((n+l+3.0d0)/2.0d0))*
+     $              qn(m,l)**2)
+               poti = xlm_potential_test(x,y,z,a,b,c,q,lmax,lmax)
+               pot  = vnlm(n,l,m,alpha,a,b,c,x,y,z)
+               write(6,771) n, l, m, poti, pot, abs(pot-poti)
+ 771           format(1x,3i3,2x,2f12.8,2x,1p,d9.2)
+            enddo
+         enddo
+      enddo
 c     
       end

@@ -2,7 +2,7 @@
       integer lmax, npoly, numl, lmax2
       double precision drand
       external drand
-      parameter (lmax = 5, npoly = 7)
+      parameter (lmax = 3, npoly = 7)
       parameter (lmax2 = lmax+lmax)
       parameter (numl = (lmax+1)*(lmax+2)*(lmax+3)/6)
       integer i, j, k, l, m, ijk, ind, nlm, n

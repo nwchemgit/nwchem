@@ -84,14 +84,13 @@ c
 c     Done by direct summation of the potential due to the
 c     primitive charge distributions with screening on the primitives.
 c
-c     Can use NWints or directly evaluate the potential
-c
       integer nshell
       integer ishell, jshell, l_scr, k_scr
       integer ilo, ihi, jlo, jhi, idim, jdim
+      double precision fact
 c
       integer lmax2, lencart, lenprod
-      parameter (lmax2 = 2*3) ! Twice max angular momentum
+      parameter (lmax2 = 2*4) ! Twice max angular momentum
       parameter (lencart = ((lmax2+1)*(lmax2+2))/2)
       parameter (lenprod = ((lmax2+1)*(lmax2+2)*(lmax2+3))/6)
       double precision d(lencart,-lmax2:lmax2,0:lmax2),
@@ -107,21 +106,26 @@ c
       if (.not. MA_push_get(MT_DBL, lencart**2,
      $     'potential:scr',l_scr,k_scr))
      $     call errquit('potential: ma failed', lencart)
+c
+      call dfill(npts, 0.0d0, potential, 1)
 c     
       do jshell = 1, nshell
          if (.not. bas_cn2bfr(basis, jshell, jlo, jhi))
      $        call errquit('potential: bas_cn2bfr ?', basis)
          jdim = jhi - jlo + 1
 c
-         do ishell = 1, nshell
+         do ishell = 1, jshell
             if (.not. bas_cn2bfr(basis, ishell, ilo, ihi)) 
      $           call errquit('potential: bas_cn2bfr ?', basis)
             idim = ihi - ilo + 1
 c
             call ga_get(g_dens,ilo,ihi,jlo,jhi,dbl_mb(k_scr),idim)
+c
+            fact = 1.0d0
+            if (ishell .ne. jshell) fact = 2.0d0
             call potential_from_shell_pair(basis, ishell, jshell,
      $           dbl_mb(k_scr), idim, tol, d, dinv, lmax2, 
-     $           npts, r, potential, 1.0d0)
+     $           npts, r, potential, fact)
 c
          enddo
       enddo

@@ -14,7 +14,7 @@ else
   OBJ_OPTIMIZE := $(OPTIM)
 endif
 
- LIB_TARGETS = solver testcheby
+ LIB_TARGETS = solver testcheby testcarttrans
 
 
 include ../../config/makefile.h
@@ -24,6 +24,9 @@ solver:	testsolver.o $(LIBRARY_PATH)
 	$(LINK.f) -p -o $@ $^ fftpack/libfftpack.a $(LIBS)
 
 testcheby:	testcheby.o $(LIBRARY_PATH)
+	$(LINK.f) -o $@ $^ fftpack/libfftpack.a $(LIBS)
+
+testcarttrans:	testcarttrans.o $(LIBRARY_PATH)
 	$(LINK.f) -o $@ $^ fftpack/libfftpack.a $(LIBS)
 
 

@@ -557,3 +557,49 @@ c
       
 
 
+stuff to debug cart... inside pot_shell
+
+c$$$               write(6,*) ' ISH , JSH ', ish, jsh
+c$$$               call output(dens, 1, numi, 1, numj, numi, numj, 1)
+c$$$                  x = 3.2d0
+c$$$                  y = -1.9d0
+c$$$                  z = 2.7d0
+c$$$
+c$$$            test1 = 0.0d0
+c$$$            ind = 0
+c$$$            do i2 = jtype,0,-1
+c$$$               do j2 = jtype-i2,0,-1
+c$$$                  k2 = jtype-i2-j2
+c$$$                  do i1 = itype,0,-1
+c$$$                     do j1 = itype-i1,0,-1
+c$$$                        k1 = itype-i1-j1
+c$$$                        ind = ind + 1
+c$$$                        test1 = test1 + dens(ind)*
+c$$$     $                       (x-ri(1))**i1*(y-ri(2))**j1*(z-ri(3))**k1*
+c$$$     $                       (x-rj(1))**i2*(y-rj(2))**j2*(z-rj(3))**k2
+c$$$                     enddo
+c$$$                  enddo
+c$$$               enddo
+c$$$            enddo
+
+
+c$$$               lll = (ijtype+1)*(ijtype+2)*(ijtype+3)/6
+c$$$               call output(ndens, 1, lll, 1, 1, lll, 1, 1)
+c$$$
+c$$$            test = 0.0d0
+c$$$            r = sqrt((x-a)**2 + (y-b)**2 + (z-c)**2)
+c$$$            call xlm(ijtype,x-a,y-b,z-c,q,lmax2)
+c$$$            nlm = 0
+c$$$            do n = 0, ijtype
+c$$$               do l = n, 0, -2
+c$$$                  factor = r**(n-l)
+c$$$                  do m = -l, l
+c$$$                     nlm = nlm + 1
+c$$$                     test = test + factor*q(m,l)*ndens(nlm)
+c$$$                  enddo
+c$$$               enddo
+c$$$            enddo
+c$$$
+c$$$            write(6,*) test1, test, test-test1
+
+

@@ -60,6 +60,7 @@ c     ind = 1
 c     do n = 0, nmax
 c     .  do l = n, 0, -2
 c     .     values(ind) = anl_fit(n, l, x)
+c     .     ind = ind + 1
 c     .  enddo
 c     end
 c
@@ -212,7 +213,7 @@ c
          xsq = x*x
          xkm1 = xsq
          do k = 3, n-l-1, 2
-            ik = 0.5d0*dble(k-1) + xkm1
+            ik = 0.5d0*dble(k-1)*ik + xkm1
             xkm1 = xkm1 * xsq
          enddo
          ik = ik * exp(-x*x) * 0.5d0
@@ -238,7 +239,7 @@ c
       double precision et, twot, fp
       integer j
 c
-      if (t .gt. 50.0d0) then
+      if (t .gt. 690.0d0) then
          et = 0.0d0
       else
          et = exp(-t)

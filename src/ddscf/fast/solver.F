@@ -664,7 +664,7 @@ c
       parameter (maxn = 1025, ncol = 63)
       double precision wsave(10*maxn), scale
       double precision x(ncol,maxn+1), xt(ncol,maxn+1)
-      integer i, j, k, ilo, ihi, jlo, jhi
+      integer i, j, k, ilo, ihi
 c
       if (ny .gt. maxn) call errquit('sint3d: ny>maxn', ny)
       if (nz .gt. maxn) call errquit('sint3d: nz>maxn', nz)

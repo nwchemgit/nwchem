@@ -639,7 +639,7 @@ c
       integer luse(0:2**level-1,0:2**level-1,0:2**level-1)
 c     
       double precision hx, hy, hz, x, y, z, xn, yn, zn, xp, yp, zp
-      integer dkx, dky, dkz, l, m, ln
+      integer dkx, dky, dkz, l, ln
       integer kx, ky, kz, kxn, kyn, kzn, kxp, kyp, kzp, nbox
       integer lq
       parameter (lq = 25)

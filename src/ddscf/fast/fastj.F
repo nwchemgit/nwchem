@@ -37,7 +37,7 @@ c
       integer ngrid, nnx, nny, nnz, l_poles, k_poles, lenpoles
       double precision c(3), charge, x, y, z, xlo, xhi, ylo, yhi,
      $     zlo, zhi, range, side, resolution, pi, exponent, xx, yy, zz,
-     $     hx, hy, hz, hx_fmm, hy_fmm, hz_fmm, test1, test2,
+     $     hx, hy, hz, hx_fmm, hy_fmm, hz_fmm, test1, test2, 
      $     errmax, errrms, err, rneglect, resn
       double precision fastj_gaussian_range, fastj_eval_point, potential
       double precision drand, fastj_r_neglected
@@ -49,6 +49,9 @@ c     and also the multipoles
 c
       call anl_fit_init
       call xlm_init
+c
+      call ga_zero(g_dens)
+      call ga_put(g_dens,1,1,1,1,1.0d0,1)
 c
 c     Get info
 c
@@ -322,7 +325,7 @@ c
             z = rtest(3,i)
             test1 = fastj_eval_point(data, x, y, z)
             test2 = ptest(i)
-*****            test3 = potential(basis, g_dens, x, y, z)
+**            test3 = potential(basis, g_dens, x, y, z)
             err = abs(test1 - test2)
             errrms = errrms + err*err
             if (abs(err) .gt. errmax) then
@@ -331,8 +334,10 @@ c
                yy = y
                zz = z
             end if
-*            write(6,781) x, y, z, test1, test2, err
-* 781        format(1x,3f10.4,2x,2f14.8,1p,d9.2)
+**            if (abs(test2-test3) .gt. 1d-10) then
+**               write(6,781) i, x, y, z, test2, test3, test2-test3
+** 781           format(1x,i5,2x,3f8.2,2x,2f14.8,1p,d9.2)
+**            endif
          enddo
          errrms = sqrt(errrms / ntest)
          write(6,82) errrms, errmax, xx, yy, zz
@@ -340,13 +345,13 @@ c
      $        2x,3f10.4)
 c     
          start = util_cpusec()
-         do i = 1, ntest
+         do i = 1, 100
             x = xlo + 2.0d0*hx_fmm + drand(0)*(xhi-xlo-4.0d0*hx_fmm)
             y = ylo + 2.0d0*hy_fmm + drand(0)*(yhi-ylo-4.0d0*hy_fmm)
             z = zlo + 2.0d0*hz_fmm + drand(0)*(zhi-zlo-4.0d0*hz_fmm)
             test1 = fastj_eval_point(data, x, y, z)
          enddo
-         used = (util_cpusec()-start)/ntest
+         used = (util_cpusec()-start)/100
          write(6,83) used
  83      format(' fastj: Time per function evaluation ', 1p,d9.2,' sec')
       endif
@@ -388,7 +393,7 @@ c
       double precision expj(maxprim), coeffj(maxprim)
       double precision factor, charge, coords(3)
       double precision a, b, c, range
-      double precision alpha, prefac, tol, dmax, gmin, pi
+      double precision alpha, prefac, tol, dmax, pi
       double precision h, hx, hy, hz, resolution, scale, start, used
 c
       character*16 tag
@@ -525,8 +530,13 @@ c
                         prefac = prefac*factor*
      $                       coeffi(iprim)*coeffj(jprim) 
 c
-                        range = 1.1d0*fastj_gaussian_range(ijtype,alpha, 
-     $                       min(tol/abs(dmax*prefac),1d-4))
+                        if (dmax*prefac .ne. 0.0d0) then
+                           range = 1.1d0*fastj_gaussian_range(
+     $                          ijtype,alpha, 
+     $                          min(tol/abs(dmax*prefac),1d-4))
+                        else
+                           range = 0.0d0 ! Will not be used
+                        endif
 c
                         if (abs(prefac*dmax*range**ijtype).gt.tol) then
                            call cart_dens_translate(
@@ -1134,7 +1144,6 @@ c
       double precision value
 c
       double precision erfc
-      external erfc
 c
       ilo = mod(k,2)
 c
