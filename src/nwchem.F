@@ -129,11 +129,13 @@ c     If no task is present then perform some default action (exit).
 c     
       character*255 task_name
       integer ntasks, ind
-      logical status, scf, gradients
-      parameter (ntasks = 6)
+      logical status 
+      logical scf, gradients, stpr_walk
+      external scf, gradients, stpr_walk
+      parameter (ntasks = 7)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
-     $   'debtest', 'gradients'/
+     $   'debtest', 'gradients', 'scfopt'/
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -143,7 +145,7 @@ c
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         goto (10, 20, 30, 40, 50, 60) ind
+         goto (10, 20, 30, 40, 50, 60, 70) ind
 c
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -181,6 +183,16 @@ c
          status = gradients(rtdb)
          goto 1000
 c
+ 70      continue
+         status = scf(rtdb)
+         status = status.and.gradients(rtdb)
+         if (status) then
+           status = stpr_walk(rtdb)
+           if(.not.status) goto 70
+         else
+           call errquit('control: scf or gradients failed',911)
+         endif
+         goto 1000
       else
 c
          write(6,*) ' task_name = ', 
