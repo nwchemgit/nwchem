@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.82 2002-06-17 22:27:20 bert Exp $
+# $Id: GNUmakefile,v 1.83 2003-01-30 01:09:20 bert Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -37,7 +37,7 @@ endif
     OBJ_OPTIMIZE = int_hf1sp.o int_l2e4c.o intb_init4c.o intb_2e4c.o \
                    int_2e4c.o
 
-    HEADERS = int_tim.fh apiP.fh int_nbf.fh
+    HEADERS = int_tim.fh apiP.fh int_nbf.fh ../../property/prop.fh
    LIBRARY = libnwints.a
 
  USES_BLAS = int_1e3ov.F int_hf1sp.F int_lgen1e.F intb_2e4c.F intbd_2e4c.F intd_1e3ov.F \

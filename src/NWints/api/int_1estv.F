@@ -1,4 +1,4 @@
-c $Id: int_1estv.F,v 1.9 2003-01-24 17:37:37 bert Exp $
+c $Id: int_1estv.F,v 1.10 2003-01-30 01:09:20 bert Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}
@@ -560,6 +560,12 @@ c----------------------------------------------------------------------
 #include "stdio.fh"
 #include "apiP.fh"
 #include "rel_nwc.fh"
+C
+C The following include block contains the geometry handle for the
+C geometry and charges of the solvent for COSMO. This is a clear violation
+C of the integral API, but for now the cleanest solution
+C
+#include "prop.fh"
 c::external subroutines used
 c... errquit
 c::functions
@@ -596,8 +602,6 @@ c::local
       integer lbas, sbas, abas, isbas, jsbas
       integer Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_icfpS
       integer Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent, j_icfpS
-c
-      integer i_geom_efc,iii
 c
       logical any_spherical
       integer i_nbf_x, j_nbf_x
@@ -725,10 +729,6 @@ c
       onw1e_ok = cando_nw_1e(i_basis,ish,0)
      &    .and. cando_nw_1e(j_basis,jsh,0)
 c
-c     ----- i_geom_efc = igeom + 1 -----
-c
-      i_geom_efc = i_geom + 1
-c
       if (orel) then
         call rel_onel (
      &      coords(1,i_cent,i_geom),
@@ -739,8 +739,8 @@ c
      &      dbl_mb(mb_exndcf(j_iexp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfpS,jsbas)),j_prim,j_gen,Lj,
-     &      coords(1,1,i_geom_efc),charge(1,i_geom_efc),
-     &      geom_invnucexp(1,i_geom),ncenter(i_geom),
+     &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
+     &      geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
      &      S,T,V,lstv,doS,doT,doV,canAB,onw_ok,ohnd_ok,oNR,.false.,
      &      scr,lscr,rel_dbg,rel_typ)
       else if (ohnd_ok) then
@@ -751,8 +751,8 @@ c
      &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfp,jbas)),
      &      j_prim, j_gen, Lj,
-     &      coords(1,1,i_geom_efc),charge(1,i_geom_efc),
-     &      ncenter(i_geom_efc),
+     &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
+     &      ncenter(cosmo_geom_efc),
      &      S,T,V,lstv,doS,doT,doV,scr,lscr)
 c
       elseif (onw1e_ok) then
@@ -763,8 +763,8 @@ c
      &        coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
      &        dbl_mb(mb_exndcf(j_icfp,jbas)),
      &        j_prim, j_gen, Lj, j_cent,
-     &        coords(1,1,i_geom_efc),charge(1,i_geom_efc),
-     &        geom_invnucexp(1,i_geom),ncenter(i_geom_efc),
+     &        coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
+     &        geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
      &        S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &        scr,lscr,'int_1eefc')
       elseif (onw_ok) then
@@ -773,8 +773,8 @@ c
      &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
      &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
-     &      coords(1,1,i_geom_efc),charge(1,i_geom_efc),
-     &      geom_invnucexp(1,i_geom),ncenter(i_geom_efc),
+     &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
+     &      geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
      &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &      scr,lscr)
       else
