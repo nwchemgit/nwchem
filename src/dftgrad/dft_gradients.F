@@ -43,6 +43,10 @@ c
 #include "sym.fh"
 #include "cdft.fh"
 c
+c!!! BGJ test !!!
+#include "bgj.fh"
+      integer l_hess, k_hess, g_rhs(3,100), j
+c!!! BGJ test !!!
       double precision  zero, one, two
       Parameter (zero=0.d0, one=1.d0, two=2.d0)
 c     
@@ -409,6 +413,96 @@ c
       if (.not.ma_pop_stack(lcntoce))
      $     call errquit('dft_gradient: cannot pop stack',0)
 c     
+c!!! BGJ test !!!
+c
+c     store total DM in ga_dens(1)
+c
+      if (ipol .eq. 2)then
+         call ga_dadd (1d0,iga_dens(1),1d0,iga_dens(2),iga_dens(1))
+      endif 
+c
+c     J hesssian test calculation done by setting bgj:j_hessian
+c     to true
+c
+      if (.not. rtdb_get(rtdb, 'bgj:j_hessian', mt_log,
+     &     1, status)) status = .false.
+      if (status) then
+
+         call schwarz_tidy()
+         call intd_terminate()
+         call int_init(rtdb, 1, ao_bas_han)
+         call schwarz_init (geom, ao_bas_han)
+         call int_terminate()
+         call intdd_init(rtdb,1,ao_bas_han)
+
+         status = MA_push_get(MT_DBL, 3*nat*3*nat,
+     &        'j hessian', l_hess, k_hess)
+         if (.not.status) 
+     &        call errquit('dft_gradients: could not alloc j hessian',
+     &        1)
+         if (bgj_print() .gt. 0)
+     &        write(6,*)'*** In dft_gradients: calling j_hessian'
+         call j_hessian(iga_dens, log_mb(k_act), nactive,
+     &        dbl_mb(k_hess))
+         status = MA_pop_stack(l_hess)
+         if (.not.status) call
+     &        errquit('dft_gradients: could not pop j hessian',
+     &        1)
+
+         call schwarz_tidy()
+         call intdd_terminate()
+
+      endif
+c
+c     J CPKS RHS test calculation done by setting bgj:j_cpks_rhs
+c     to true
+c
+      if (.not. rtdb_get(rtdb, 'bgj:j_cpks_rhs', mt_log,
+     &     1, status)) status = .false.
+      if (status) then
+
+         call schwarz_tidy()
+         call intd_terminate()
+
+         call int_init(rtdb, 1, ao_bas_han)
+         call schwarz_init (geom, ao_bas_han)
+         call int_terminate()
+         call intd_init(rtdb,1,ao_bas_han)
+c        !!! Do this to be consistent with DFT gradient
+c!!!         call int_app_set_no_texas(rtdb)
+c
+c        Allocate temp GA's for RHS
+c
+         if (bgj_print() .gt. 0)
+     &        write(*,*)'*** j cpks rhs test: nactive =',nactive
+         if (nat.gt.100)
+     &        call errquit('dft_gradients: dimension error in test',0)
+         do i = 1, nat
+            if (log_mb(k_act+i-1)) then
+               g_rhs(1,i) = ga_create_atom_blocked
+     &              (geom, ao_bas_han, 'CPKS RHS test x')
+               g_rhs(2,i) = ga_create_atom_blocked
+     &              (geom, ao_bas_han, 'CPKS RHS test y')
+               g_rhs(3,i) = ga_create_atom_blocked
+     &              (geom, ao_bas_han, 'CPKS RHS test z')
+            endif
+         enddo
+
+         if (bgj_print() .gt. 0)
+     &        write(6,*)'*** In dft_gradients: calling j_cpks_rhs'
+         call j_cpks_rhs(iga_dens, log_mb(k_act), nactive, g_rhs)
+
+         do i = 1, nat
+            if (log_mb(k_act+i-1)) then
+               do j = 1, 3
+                  if (.not.ga_destroy(g_rhs(j,i))) then
+                     call errquit('j_cpks_rhs: problem destroying ga',1)
+                  endif
+               enddo
+            endif
+         enddo
+      endif
+c!!! BGJ test !!!
       status = ma_free_heap (l_act)
       status = ma_free_heap (l_frc_xc)
       status = ma_free_heap (l_frc_2el)
