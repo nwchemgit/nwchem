@@ -1436,8 +1436,8 @@ c
 c
       return
       end
-      subroutine sp_wrtrst(lfnrst,filrst,pres,temp,tempw,temps,
-     + iwl,xw,vw,xwcr,isl,xs,vs)
+      subroutine sp_wrtrst(lfnrst,filrst,lveloc,
+     + pres,temp,tempw,temps,iwl,xw,vw,xwcr,isl,xs,vs)
 c
       implicit none
 c
@@ -1447,6 +1447,7 @@ c
 c
       integer lfnrst
       character*255 filrst
+      logical lveloc
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 pres,temp,tempw,temps
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
@@ -1468,7 +1469,7 @@ c
       if(.not.ma_push_get(mt_int,lenscr,'n',l_n,i_n))
      + call errquit('Failed to allocate n',0)
 c
-      call sp_wtrst(lfnrst,filrst,pres,temp,tempw,temps,
+      call sp_wtrst(lfnrst,filrst,lveloc,pres,temp,tempw,temps,
      + iwl,xw,vw,xwcr,isl,xs,vs,int_mb(i_ipl),
      + lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),dbl_mb(i_br),
      + int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv))
@@ -1486,7 +1487,7 @@ c
 c
       return
       end
-      subroutine sp_wtrst(lfnrst,filrst,pres,temp,tempw,temps,
+      subroutine sp_wtrst(lfnrst,filrst,lveloc,pres,temp,tempw,temps,
      + iwl,xw,vw,xwcr,isl,xs,vs,
      + ipl,nb,ibw,bxw,bvw,brw,ibs,bxs,bvs)
 c
@@ -1498,6 +1499,7 @@ c
 c
       integer lfnrst,nb
       character*255 filrst
+      logical lveloc
       real*8 pres,temp,tempw,temps
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
@@ -1544,7 +1546,8 @@ c
       call ga_get(ga_iw,ili,ili+nwmn-1,jli,jli+lwdyn-1,iwl,mwm)
       call ga_distribution(ga_w,node,ilw,ihw,jlw,jhw)
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw,jlw+3*mwa-1,xw,mwm)
-      call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+3*mwa,jlw+6*mwa-1,vw,mwm)
+      if(lveloc)
+     + call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+3*mwa,jlw+6*mwa-1,vw,mwm)
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+6*mwa,jlw+6*mwa+2,xwcr,mwm)
       do 3 i=1,nwmn
       j=iwl(i,lwgmn)-number
@@ -1566,7 +1569,11 @@ c
       endif
     2 continue
       do 5 i=1,numw
+      if(lveloc) then
       write(lfnrst,1006) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),k=1,nwa)
+      else
+      write(lfnrst,1006) ((bxw(i,j,k),j=1,3),(zero,j=1,3),k=1,nwa)
+      endif
  1006 format(2x,6f13.8)
       write(lfnrst,1007) ibw(i),(brw(i,k),k=1,3)
  1007 format(i1,1x,3f13.8)
@@ -1589,7 +1596,7 @@ c
       call ga_get(ga_is,ili,ili+nsan-1,jli,jli+lsdyn-1,isl,msa)
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
-      call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
+      if(lveloc) call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
       do 8 i=1,nsan
       j=isl(i,lsgan)-number
       if(j.gt.0.and.j.le.nums) then
@@ -1605,7 +1612,11 @@ c
       endif
     7 continue
       do 9 i=1,nums
+      if(lveloc) then
       write(lfnrst,1008) ibs(i),(bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
+      else
+      write(lfnrst,1008) ibs(i),(bxs(i,j),j=1,3),(zero,j=1,3)
+      endif
  1008 format(i1,1x,6f13.8)
     9 continue
     6 continue
@@ -2223,6 +2234,12 @@ c
       call ga_get(ga_s,ils,ils+nsaloc-1,jls,jls+2,xs,msa)
       call ga_get(ga_s,ils,ils+nsaloc-1,jls+3,jls+5,vs,msa)
       endif
+c
+      return
+      end
+      subroutine sp_fix()
+c
+      implicit none
 c
       return
       end
