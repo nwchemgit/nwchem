@@ -16,7 +16,7 @@ c               int(0,inf) exp(x)x**(2-alf)f(x) x**alf exp(-x) dx.
 c          The real weights are thus a(i)*exp(x)*x**(2-alf) where a(i)
 c          are the original Gauss-Laguerre weights.
 c
-C$Id: grid_gaussq.F,v 1.2 1999-08-11 18:09:45 edo Exp $
+C$Id: grid_gaussq.F,v 1.3 1999-08-24 22:55:15 edo Exp $
       implicit none
 #include "cdft.fh"      
       integer nn ! [input]
@@ -28,10 +28,10 @@ C
       double precision csx,tsx,tsa,csa
       parameter(alf=1.5d0,eps=1.d-10)
 c
-      
+      do n=1,nn
         b(n)=alf+2*n-1
         c(n)=(n-1.d0)*(alf+n-1.d0)
-10      continue
+      enddo
         call grid_laguer(nn,x,a,realwt,alf,b,c,eps,csx,csa,tsx,tsa)
 c       write(6,100)(x(i),realwt(i),i=1,nn)
 100     format(2D18.10)
