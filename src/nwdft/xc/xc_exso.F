@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.5 2000-04-27 20:26:44 zzhang Exp $
+C$Id: xc_exso.F,v 1.6 2000-04-28 18:58:35 zzhang Exp $
 c
       implicit none
 c      
@@ -105,6 +105,8 @@ c
          endif
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
+         call asym_fock2e(g_jk(2))
+         call asym_fock2e(g_jk(4))
          exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy (i.i=-1)
      $        onem*ga_ddot(g_dens(1),g_jk(2)) +
      $        onem*ga_ddot(g_dens(2),g_jk(4)))
@@ -125,24 +127,28 @@ c
          call ga_zero(g_jk(3))
          call ga_zero(g_jk(4))
 c
-c     Re(Kab) and Im(Kab) (g_dens(1) and g_dens(2))
-c
-         call ga_dens_abri(g_dens, g_densso, nao)
+c     Re(Kab) and Re(Kba) (g_dens(1) and g_dens(2))
+c     
+         call ga_dens_abbar(g_dens, g_densso, nao)
          g_d(1)  = g_dens(1)
          g_d(2)  = g_dens(1)
          g_d(3)  = g_dens(2)
          g_d(4)  = g_dens(2)
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
+         call ga_transpose(g_jk(4),g_jk(1))
+         call ga_add(dble(0.5d0),g_jk(2),dble(0.5d0),g_jk(1), 
+     &        g_jk(2))          !g_jk(2) has Kab
+         call ga_transpose(g_jk(2),g_jk(4))
          exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy 
-     $        ga_ddot(g_dens(1),g_jk(2)) -
-     $        onem*ga_ddot(g_dens(2),g_jk(4)))
+     $        ga_ddot(g_dens(1),g_jk(2)) +
+     $        ga_ddot(g_dens(2),g_jk(4)))
          call ga_dadd_patch(1.0d0,g_fockso(1),1,nao,nao+1,2*nao, 
      &                   -xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(1),1,nao,nao+1,2*nao)
-         call ga_dadd_patch(1.0d0,g_fockso(2),1,nao,nao+1,2*nao, 
-     &                    xfac(1),g_jk(4),    1,nao,1,nao,
-     &                            g_fockso(2),1,nao,nao+1,2*nao)
+         call ga_dadd_patch(1.0d0,g_fockso(1),nao+1,2*nao,1,nao, 
+     &                   -xfac(1),g_jk(4),    1,nao,1,nao,
+     &                            g_fockso(1),nao+1,2*nao,1,nao)
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kab) and Im(Kab):'
             call ga_print(g_jk(2))
@@ -154,21 +160,26 @@ c
          call ga_zero(g_jk(3))
          call ga_zero(g_jk(4))
 c
-c     Re(Kba) and Im(Kba) (g_dens(1) and g_dens(2))
+c     Im(Kab) and Im(Kba) (g_dens(1) and g_dens(2))
 c
-         call ga_dens_bari(g_dens, g_densso, nao)
+         call ga_dens_abbai(g_dens, g_densso, nao)
          g_d(1)  = g_dens(1)
          g_d(2)  = g_dens(1)
          g_d(3)  = g_dens(2)
          g_d(4)  = g_dens(2)
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
-         exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy 
-     $        ga_ddot(g_dens(1),g_jk(2)) -
+         call ga_transpose(g_jk(4),g_jk(1))
+         call ga_add(dble(0.5d0),g_jk(2),dble(-0.5d0),g_jk(1),
+     &        g_jk(2))
+         call ga_transpose(g_jk(2),g_jk(4))
+         call ga_scale(g_jk(4),dble(-1.0d0))
+         exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy 
+     $        onem*ga_ddot(g_dens(1),g_jk(2)) +
      $        onem*ga_ddot(g_dens(2),g_jk(4)))
-         call ga_dadd_patch(1.0d0,g_fockso(1),nao+1,2*nao,1,nao, 
-     &                   -xfac(1),g_jk(2),    1,nao,1,nao,
-     &                            g_fockso(1),nao+1,2*nao,1,nao)
+         call ga_dadd_patch(1.0d0,g_fockso(2),1,nao,nao+1,2*nao,
+     &                    xfac(1),g_jk(2),    1,nao,1,nao,
+     &                            g_fockso(2),1,nao,nao+1,2*nao)
          call ga_dadd_patch(1.0d0,g_fockso(2),nao+1,2*nao,1,nao, 
      &                    xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(2),nao+1,2*nao,1,nao)
@@ -199,6 +210,25 @@ c
       endif
       call ga_sync
 c     
+      return
+      end
+
+      subroutine asym_fock2e(g_fock)
+c
+#include "global.fh"
+c
+      implicit none
+      integer g_fock, g_tmp
+c
+      if (.not. ga_duplicate(g_fock, g_tmp, 'tmp'))
+     $     call errquit('asym_fock2e: ga duplicate?',0)
+c
+      call ga_transpose(g_fock,g_tmp)
+      call ga_add(0.5d0,g_fock,-0.5d0,g_tmp,g_fock)
+
+      if (.not. ga_destroy(g_tmp)) call errquit
+     $     ('asym_fock2e: ga corrupt?',0)
+c
       return
       end
 
