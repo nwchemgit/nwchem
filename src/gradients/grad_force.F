@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.41 1999-12-10 17:50:24 bert Exp $
+c     $Id: grad_force.F,v 1.42 1999-12-11 00:14:00 bert Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -508,8 +508,8 @@ c
      $          3*nat, dbl_mb(k_dkdivfrc))) call errquit
      $          ('grad_force: could not read grad_dk:dkdiv_frc',0)
             do i = 0, 3*nat-1
-               dbl_mb(k_frc_kin+i) = dbl_mb(k_frc_kin+i) +
-     $                               dbl_mb(k_dkdivfrc+i)
+               dbl_mb(k_force+i) = dbl_mb(k_force+i) +
+     $                             dbl_mb(k_dkdivfrc+i)
             enddo
             if (.not. ma_pop_stack(l_dkdivfrc))
      $         call errquit('grad_force: ma_pop_stack failed',0)
@@ -707,7 +707,7 @@ c
          status = rtdb_parallel(.false.)
 
          do i=0, 3*nat-1
-            dbl_mb(k_force+i) = 
+            dbl_mb(k_force+i) = dbl_mb(k_force+i) +
      $           dbl_mb(k_frc_2el+i) + dbl_mb(k_frc_nuc+i) +
      $           dbl_mb(k_frc_wgh+i) + dbl_mb(k_frc_kin+i)
          end do
