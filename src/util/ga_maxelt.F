@@ -16,6 +16,7 @@ c
 c
 c     Each process first determines max of data local to it
 c
+       call ga_sync()
        value = 0.d0
        call ga_distribution(g_a, ga_nodeid(), ilo, ihi, jlo, jhi)
        if (ihi.gt.0 .and. ihi.ge.ilo) then
