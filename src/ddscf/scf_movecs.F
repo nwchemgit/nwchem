@@ -50,3 +50,38 @@ c
      $     ('scf_movecs_write: movecs_write failed', 0)
 c
       end
+      subroutine scf_movecs_lock
+      implicit none
+#include "cscf.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer l_e, k_e, l_o, k_o
+      integer g_old
+      logical movecs_read
+      external movecs_read
+c
+      if (scftype .eq. 'UHF') call errquit
+     $     ('scf_movecs_lock: not yet for UHF',0)
+c
+c     Allocate space for the old vectors
+c
+      if (.not. ga_create(mt_dbl, nbf, nmo, 'scf_movecs_lock:old',
+     $     nmo, 1, g_old)) call errquit
+     $     ('scf_movecs_lock: ga_create of old failed',nmo*nbf)
+      if (.not. ma_push_get(mt_dbl, nbf, 'movecs_lock:e',l_e, k_e))
+     $     call errquit('movecs_lock: insufficient memory',nbf)
+      if (.not. ma_push_get(mt_dbl, nbf, 'movecs_lock:e',l_o, k_o))
+     $     call errquit('movecs_lock: insufficient memory',nbf)
+c
+      if (.not. movecs_read(movecs_in, 1,
+     $     dbl_mb(k_o), dbl_mb(k_e), g_old))
+     $     call errquit('scf_movecs_lock: read failed',0)
+c
+      call movecs_lock(geom, basis, g_old, g_movecs, dbl_mb(k_eval))
+c
+      if (.not. ma_pop_stack(l_o))call errquit('scf_movecs_lock: ma?',0)
+      if (.not. ma_pop_stack(l_e))call errquit('scf_movecs_lock: ma?',0)
+      if (.not. ga_destroy(g_old))call errquit('scf_movecs_lock: ga?',0)
+c
+      end

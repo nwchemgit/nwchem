@@ -21,6 +21,7 @@ c
       double precision min_shift ! Shift forcing 1-e precond to be positive
       double precision precond_acc ! Accuracy attained by solver
       integer precond_iter       ! No. of iterations used by solver
+      double precision prodmax
       logical oprint_conv, oprint_eval, oprint_debug,
      $  oprint_solve
       logical ga_iter_lsolve
@@ -114,7 +115,12 @@ c
             goto 20
          endif
       endif
-      call ga_screen(g_work, 1.0d-13) ! Force zeroes due to symmetries
+c
+c     Discard small components to circumvent some instabilities
+c
+      call ga_maxelt(g_work, prodmax)
+      prodmax = min(1d-4,abs(prodmax)*precond_tol*0.1d0)
+      call ga_screen(g_work, prodmax)
       if (oscfps) call pstat_off(ps_solve)
 c
       end
@@ -197,6 +203,9 @@ c     Determine if should canonicalize the orbitals to make the
 c     Hessian more diagonally dominant ... right now do a diag
 c     on the first iteration and whenever doing exact preconditioning
 c     Note that a large rotation of the orbitals will mess up conjugacy.
+c     If are locking the orbitals we current disable all diagonalization
+c     except the last since unless we munge the gradient after reordering
+c     we need to recompute it.
 c
       if ( (iter.eq.2) .or.
      $     ((max_grad.gt.1.0e-2) .and. (.not. oconjugacy))) then
@@ -204,6 +213,7 @@ c
       else
          ododiag = .false.
       endif
+      if (olock) ododiag = .false.
 c
 c     Determine no. of significant digits required to either
 c     maintain quadratic convergence or to reach the desired

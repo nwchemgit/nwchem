@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_nr_sol.F,v 1.1 1995-12-13 01:25:57 d3g681 Exp $
+C     $Id: rohf_nr_sol.F,v 1.2 1996-03-13 22:22:59 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -123,6 +123,8 @@ c
             call rohf_rotate_movecs(step, g_search)
             converged = gnorm .lt. gnorm_tol
             if ((iter.le.maxiter).and.(.not. converged)) then
+               if (mod(iter,5).eq.0) 
+     $              call ga_orthog_mos(basis, g_movecs)
 c     
 c     Not finished ... dump mo-vectors to disk for restart and
 c     go back to top of loop
@@ -152,6 +154,7 @@ c     *ALWAYS* return canonical MOs ... don't do aufbau
 c     
       call rohf_canon(.false., oprint_eval)
       call movecs_fix_phase(g_movecs)
+      if (olock) call scf_movecs_lock
       call scf_movecs_write
       if (olagr) call rohf_lagr()
 c     

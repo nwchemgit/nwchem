@@ -42,6 +42,9 @@ c
       if (.not.rtdb_get(rtdb, 'scf:adapt',MT_LOG, 1, oadapt)) then
          oadapt = sym_number_ops(geom) .gt. 0
       endif
+      if (.not.rtdb_get(rtdb, 'scf:lock',MT_LOG, 1, olock)) then
+         olock = .false.
+      endif
 c     
 c     load the basis set and get info about it
 c
@@ -193,7 +196,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.24 1996-02-07 00:41:35 vg038 Exp $
+C$Id: scf_get_info.F,v 1.25 1996-03-13 22:23:07 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

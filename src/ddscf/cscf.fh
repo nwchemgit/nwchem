@@ -37,6 +37,9 @@ c
 c     oskel      = if true use symmetry in fock building
 c     oadapt     = if true force symmetry on the MOs
 c     ouser_changed_conv  if true the user overrode default conv. parms.
+c     olock      = if true use max overlap to lock orbitals to correspond
+c                  to input orbitals.  Has side effect of disabling
+c                  some convergence aids (interim diag of fock matrix)
 c
 c     These are determined by rohf_precond_select and control convergence.
 c
@@ -66,7 +69,7 @@ c
       double precision gnorm_tol, shifts, nr_gswitch, tol2e
       double precision ls_tol, lshift, precond_tol, charge, eprec
       logical oconjugacy, ododiag, odisable_nr, ouser_changed_conv
-      logical oskel, oadapt, oinitialized, olagr, odiis
+      logical oskel, oadapt, oinitialized, olagr, odiis, olock
       integer pflg, pflg_prev, maxiter, iter, g_movecs
       character*255 movecs_in, movecs_out, title, trans
       character*4 scftype
@@ -83,7 +86,7 @@ c
 c     Logicals
 c
      $     oconjugacy, ododiag, odisable_nr, ouser_changed_conv,
-     $     oskel, oadapt, oinitialized, olagr, odiis,
+     $     oskel, oadapt, oinitialized, olagr, odiis, olock,
 c
 c     Integers
 c

@@ -1,6 +1,6 @@
       subroutine rohf_k2cf(basis, nbf, nmo, nclosed, nopen,
      $     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.5 1996-01-19 07:29:18 d3g681 Exp $
+C     $Id: rohf_k2cf.F,v 1.6 1996-03-13 22:22:58 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -18,6 +18,7 @@ c
       integer tmp_siz
       double precision one, mone, zero
       parameter (one=1.0d0, mone=-1.0d0, zero=0.0d0)
+      double precision kmax
 c     
       call ga_sync()
       nnnodes = ga_nnodes()
@@ -58,9 +59,13 @@ c
      $     call errquit('k2cf: pop failed', 0)
 c
 c     Make near zeoes exactly zero so that sparsity tests in the
-c     matrix multiply work well
+c     matrix multiply work well ... we only need to maintain
+c     quadratic convergence.
 c
-      call ga_screen(g_temp, 1d-12)
+      call ga_maxelt(g_temp, kmax)
+      kmax = max(1d-12,min(1d-4,abs(kmax)**2))
+**      write(6,*) ' screening k with ', kmax
+      call ga_screen(g_temp, kmax)
 c     
 c     Get a unitary 2nd order approximation to exp(K)
 c     

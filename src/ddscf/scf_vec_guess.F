@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.2 1996-01-19 07:29:29 d3g681 Exp $
+C     $Id: scf_vec_guess.F,v 1.3 1996-03-13 22:23:11 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -253,6 +253,8 @@ c     will end up so that a restart automatically picks them up
 c
       if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, movecs_out))
      $     call errquit('scf:rtdb_cput failed scf:input vectors',0)
+      if (.not. rtdb_cput(rtdb, 'scf:output vectors', 1, movecs_out))
+     $     call errquit('scf:rtdb_cput failed scf:output vectors',0)
 c
       movecs_in = movecs_out
 c
