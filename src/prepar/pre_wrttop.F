@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.26 1999-09-11 03:43:34 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.27 2000-01-11 20:39:47 d3j191 Exp $
 c
       implicit none
 c
@@ -105,6 +105,9 @@ c
       do 338 j=1,6
       qatm(j,nqu)=qatom(j)
   338 continue
+      latm(7,i)=nqu
+      latm(8,i)=nqu
+      latm(9,i)=nqu
   335 continue
       do 339 i=1,natm
       do 340 j=1,3
@@ -289,6 +292,9 @@ c
       if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=iq+4
       if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=iq+2
       if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=iq+1
+      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'D') iq=iq+36
+      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'D') iq=iq+18
+      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'D') iq=iq+9
 c      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') then
 c      iq=3
 c      iql(1)=nqu

@@ -1,6 +1,6 @@
       logical function pre_parcnv(icomb,latt,patt,catt,matt,natt)
 c
-c $Id: pre_parcnv.F,v 1.3 1998-06-11 18:51:54 d3j191 Exp $
+c $Id: pre_parcnv.F,v 1.4 2000-01-11 20:39:46 d3j191 Exp $
 c
       implicit none
 c
@@ -69,6 +69,16 @@ c
       patt(1,2,i,i)=0.0d0
       patt(2,1,i,i)=0.0d0
       patt(2,2,i,i)=0.0d0
+      do 7 j=1,natt
+      patt(1,1,i,j)=0.0d0
+      patt(1,2,i,j)=0.0d0
+      patt(2,1,i,j)=0.0d0
+      patt(2,2,i,j)=0.0d0
+      patt(1,1,j,i)=0.0d0
+      patt(1,2,j,i)=0.0d0
+      patt(2,1,j,i)=0.0d0
+      patt(2,2,j,i)=0.0d0
+    7 continue
       endif
     5 continue
 c
