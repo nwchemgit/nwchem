@@ -19,6 +19,9 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "cscf.fh"
+c !!! BGJ
+#include "bgj.fh"
+c !!! BGJ
 c     
       integer rtdb              ! database handle
 c     
@@ -26,6 +29,13 @@ c
       character*255 name
       integer len_occ
       external cscfdata ! For T3D linker
+c
+      logical hf_job
+      character*30 tag
+c
+      hf_job = .not. bgj_have_xc()
+      if (bgj_print() .gt. 0)
+     &     write(*,*)'*** scf_get_info: hf_job ',hf_job
 c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
@@ -83,9 +93,19 @@ c
 c
 c     Figure input/output MO vectors
 c     
-      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+      if (hf_job) then
+         tag = 'scf:input vectors'
+      else
+         tag = 'dft:input vectors'
+      endif
+      if (.not. rtdb_cget(rtdb, tag, 1, movecs_in))
      $     movecs_in = 'atomic'
-      if (.not. rtdb_cget(rtdb, 'scf:output vectors', 1, movecs_out))
+      if (hf_job) then
+         tag = 'scf:output vectors'
+      else
+         tag = 'dft:output vectors'
+      endif
+      if (.not. rtdb_cget(rtdb, tag, 1, movecs_out))
      $     movecs_out = ' '
       if (movecs_out.eq.' ') then
          if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
@@ -123,6 +143,8 @@ c
 c     Determine no. of open and closed shells ... default is to run closed
 c     shell unless told otherwise
 c     
+      if (bgj_print() .gt. 0)
+     &   write(*,*)'*** !!! more stuff to check in scf_get_info.F !!!'
       if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
      $     nopen = 0
       if (nopen .gt. nelec) call errquit
@@ -231,7 +253,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.44 1998-07-13 23:41:17 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.45 1998-09-09 13:07:06 bjohnson Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

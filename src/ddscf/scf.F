@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.58 1998-03-13 01:38:17 d3g681 Exp $
+C$Id: scf.F,v 1.59 1998-09-09 13:07:06 bjohnson Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -31,8 +31,8 @@ c
       external rohf, uhf, riscf_init, movecs_converged
       logical int_normalize
       external int_normalize
-c     logical cphf_poliz
-c     external cphf_poliz
+      logical cphf_poliz, do_poliz
+      external cphf_poliz
 c
 c     Make sure database is parallel, 
 c     and initialize performance statistics
@@ -46,6 +46,13 @@ c
 c     Extract high level info from the data-base setting defaults
 c     return parameters here and also shoving stuff into commons
 c
+c !!! BGJ
+c !!! Can't place the following in scf_init since scf_init is called
+c !!! by cphf for either HF or DFT
+c     Store SCF hamiltonian type as HF for use in BGJ routines
+      if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 1))
+     $     call errquit('scf: put of bgj:scf_type failed',0)
+c !!! BGJ
       call scf_init(rtdb)
 c
 c     Initialize performance statistics
@@ -305,5 +312,17 @@ c
       endif
 c
       scf = converged
+c
+c !!! BGJ
+      if (.not. rtdb_get(rtdb, 'bgj:poliz', mt_log,
+     &     1, do_poliz)) then
+         do_poliz = .false.
+      endif
+      if (do_poliz) then
+         write(*,*)'*** scf: calling cphf_poliz'
+         if (.not. cphf_poliz(rtdb)) ! Never executed.
+     $        call errquit(' cphf_poliz: failed from scf !',0)
+      endif
+c !!! BGJ
 c
       end
