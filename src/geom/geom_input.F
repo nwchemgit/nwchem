@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.106 1999-06-12 05:31:10 mdupuis Exp $
+C     $Id: geom_input.F,v 1.107 1999-06-12 15:28:17 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1419,30 +1419,24 @@ c
       call errquit('geom_zmat_to_cart: invalid bond angle',0)
 c     
       end
-      subroutine geom_zmat_ico_scale(s,nzvar,bscale,ascale)
+      subroutine geom_zmat_ico_scale(geom, s, bscale, ascale)
       implicit none
-c
-      integer nzvar
-      double precision s(nzvar)
+#include "geomP.fh"
+c     
+      integer geom
+      double precision s(*)
       double precision bscale, ascale
 c     
-c     Scale the internal coordinates in s 
+c     Scale the internal coordinates in s (bonds or angles)
 c     
-      double precision zmat
-      integer izmat
-      integer mxcoor, mxizmt, nizmat
-      parameter (mxcoor = 1500)
-      parameter (mxizmt=6000)
-      common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
-c
       integer iadd, itype, izvar
 c     
       iadd=1
 c
 *      write(6,*) ' ICO SCALE ', nzvar, bscale, ascale
 c
-      do izvar=1,nzvar
-         itype=izmat(iadd)
+      do izvar=1,zmt_nzvar(geom)
+         itype=zmt_izmat(iadd,geom)
 *         write(6,*) izvar, ' is ', itype
          if(itype.eq.1) then
 c     
@@ -4903,3 +4897,284 @@ C
  1001 FORMAT(/)
       RETURN
       END
+      subroutine geom_update_cart_from_int(geom, ds, alpha, err)
+      implicit none
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
+      integer geom
+      double precision alpha, ds(*)
+      double precision err      ! [output] Returns the error
+c
+c     Adjust the cartesian coordinates in geom to reflect a
+c     displacement of the internal coordinates alpha*ds().  
+c     ds() is in units of bohr and radians.
+c
+c     Also enforce symmetry.
+c
+      integer max_cent, max_nzvar
+      parameter (max_cent = 500)
+      parameter (max_nzvar= 3*max_cent)
+      double precision  p(max_nzvar) ! Current internals
+      double precision  q(max_nzvar) ! Target internals
+      double precision dq(max_nzvar) ! Step in internals
+      double precision  x(max_nzvar) ! Cartesian coordinates
+      double precision dx(max_nzvar) ! Step in Cartesian coordinates
+      double precision xsave(max_nzvar) ! Save starting coords for recovery
+c
+      integer l_bi, k_bi, i, ipass,nat, ncart, nzvar
+      double precision err, err1, xmax
+      logical oprint, geom_print_zmatrix
+      logical geom_zmt_get_nzvar, geom_compute_zmatrix
+      double precision bohr, deg
+c
+      oprint = (ga_nodeid().eq.0).and.util_print('optitoc',print_never)
+c
+         if (.not. geom_cart_coords_get(geom, xsave))
+     $        call errquit('opt_int_to_cart: geom get/set',0)
+c
+      if (.not. geom_zmt_get_nzvar(geom, nzvar))
+     $     call errquit('driver_u_c_f_i: geom?',0)
+      if (.not. geom_ncent(geom, nat))
+     $     call errquit('driver_u_c_f_i: geom?',0)
+      if (.not. geom_compute_zmatrix(geom, q))
+     $     call errquit('driver_u_c_f_i: geom?',0)
+      ncart = nat * 3
+c
+      do i = 1, nzvar
+         dq(i) = alpha*ds(i)
+      enddo
+c
+c     Form the target internals in bohr & degrees
+c
+      bohr = 0.52917715d0
+      deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
+      if (.not. geom_compute_zmatrix(geom, q))
+     $     call errquit('driver_u_c_f_i: geom?',0)
+      call geom_zmat_ico_scale(geom, dq, bohr, deg)
+*      if (.not. geom_print_zmatrix(geom, dq, 'Step  ', .true.))
+*     $     call errquit('fjl',0)
+      do i = 1, nzvar
+         q(i) = q(i) + dq(i)
+      enddo
+      call geom_zmat_ico_scale(geom, dq, 1d0/bohr, 1d0/deg)
+      if (oprint) then
+         write(6,*) ' Target internals '
+         call output(q,1,nzvar,1,1,nzvar,1,1)
+         call util_flush(6)
+      endif
+c
+      if (.not. ma_push_get(mt_dbl,ncart*nzvar,'mem bi',l_bi,k_bi))
+     $     call errquit('opt_int_to_cart: ma', ncart*nzvar)
+c
+c     In non-redundant set of coordinates the iteration will be 
+c     quadratically convergent once very large steps have been damped 
+c     out ... well this would be true except some torsions and
+c     angles can be very strongly coupled.
+c
+      do ipass = 1, 5
+c
+c     dq -> dx -> x -> new q
+c
+         call geom_bandbi(geom)
+         call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nzvar)
+         call dgemv('n', ncart, nzvar, 1d0, dbl_mb(k_bi), ncart,
+     $        dq, 1, 0.0d0, dx, 1)
+         call sym_grad_symmetrize(geom, dx)
+         if (.not. geom_cart_coords_get(geom, x))
+     $        call errquit('opt_int_to_cart: geom get/set',0)
+         xmax = 0d0
+         do i = 1, ncart
+            xmax = max(xmax, abs(dx(i)))
+            x(i) = x(i) + dx(i)
+         enddo
+         if (.not. geom_cart_coords_set(geom, x))
+     $        call errquit('opt_int_to_cart: geom get/set',0)
+         call sym_geom_project(geom, xmax*0.1d0)
+         if (.not. geom_compute_zmatrix(geom, p))
+     $        call errquit('driver_u_c_f_i: geom?',0)
+         if (oprint) then 
+            write(6,*) ' Current internals '
+            call output(p,1,nzvar,1,1,nzvar,1,1)
+         endif
+c
+c     Get zmat returns bonds in angstrom and angles in degrees
+c     (-180..180).  Take care of angles that have changed sign.
+c
+         do i = 1, nzvar
+            dq(i) = q(i) - p(i)
+         enddo
+         if (oprint) then 
+            write(6,*) ' Step in internals before angle restrict'
+            call doutput(dq,1,nzvar,1,1,nzvar,1,1)
+         endif
+         call geom_zmat_sane_step(geom,dq)
+         if (oprint) then 
+            write(6,*) ' Step in internals after angle restrict'
+            call doutput(dq,1,nzvar,1,1,nzvar,1,1)
+         endif
+c
+c     Convert change in internals into hondo internal units
+c     (Bohr for bonds, and radians for angles)
+c
+         call geom_zmat_ico_scale(geom, dq, 1d0/bohr, 1d0/deg)
+c
+c     Compute the error 
+c
+         err = 0.0d0
+         do i = 1, nzvar
+            err = err + dq(i)*dq(i)
+         enddo
+         err = sqrt(err)
+         if (oprint) write(6,*) ' ERR in internals ', err
+c
+         if (ipass .eq. 1) err1 = err
+c
+         if (err .lt. 1d-6) goto 100
+c
+      enddo
+c
+c     Take first order step here if things desparate
+c
+      if (err .gt. err1) then
+         if (.not. geom_cart_coords_set(geom, xsave))
+     $        call errquit('opt_int_to_cart: geom get/set',0)
+         call geom_bandbi(geom)
+         call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nzvar)
+         call dgemv('n', ncart, nzvar, 1d0, dbl_mb(k_bi), ncart,
+     $        ds, 1, 0.0d0, dx, 1)
+         call sym_grad_symmetrize(geom, dx)
+         if (.not. geom_cart_coords_get(geom, x))
+     $        call errquit('opt_int_to_cart: geom get/set',0)
+         xmax = 0d0
+         do i = 1, ncart
+            xmax = max(xmax, abs(dx(i)))
+            x(i) = x(i) + dx(i)
+         enddo
+         if (.not. geom_cart_coords_set(geom, x))
+     $        call errquit('opt_int_to_cart: geom get/set',0)
+         call sym_geom_project(geom, xmax*0.1d0)
+      endif
+c
+ 100  if (.not. ma_chop_stack(l_bi))
+     $     call errquit('opt_int_to_cart: ma chop', 0)
+c
+      call geom_bandbi(geom)
+c
+      end
+      subroutine geom_zmat_sane_step(geom, s)
+      implicit none
+#include "geomP.fh"
+#include "util.fh"
+c
+      integer geom
+      double precision s(*)
+c     
+c     S is a step in internals (angstrom, degrees)
+c     ... make it sane by handling cases where bond angles
+c     and torsions wrap around +/- 180 degrees.
+c
+      integer iadd, itype, izvar
+      logical oprint
+      oprint = util_print('sane_step', print_never)
+c
+      iadd=1
+c
+      do izvar=1,zmt_nzvar(geom)
+         itype=zmt_izmat(iadd,geom)
+*         write(6,*) izvar, ' is ', itype
+         if(itype.eq.1) then
+c     
+c     ----- bond stretch -----
+c     
+            iadd = iadd + 3
+         elseif(itype.eq.2) then
+c     
+c     ----- angle bend -----
+c     
+            iadd = iadd + 4
+         elseif(itype.eq.3) then
+c     
+c     ----- torsion -----
+c     
+            iadd = iadd + 5
+         elseif(itype.eq.4) then
+c     
+c     ----- out of plane angle bend -----
+c     
+            iadd = iadd + 5
+         elseif(itype.eq.5) then
+c     
+c     ----- linear angle bend -----
+c     
+            iadd=iadd+5
+         elseif(itype.eq.6) then
+c     
+c     ----- dihedral angle between two planes sharing one atom -----
+c     
+            iadd=iadd+6
+         elseif(itype.eq.7) then
+c
+c     ----- second bond angle + orientation ----
+c
+            iadd = iadd + 5
+c
+         else
+            call errquit('geom_zmat_sane_step: ??', itype)
+         endif    
+c
+         if (itype.eq.1) then
+            continue
+         else if (itype.eq.2 .or. itype .eq. 7) then
+c
+c     Scenario: target geometry has an angle greater in magnitude
+c     than 180 and now the current geometry has changed the
+c     sign of the angle, leading to the internal coordinate step
+c     appearing to be close to 360. 
+c
+            if (s(izvar).gt.180d0) then
+               s(izvar) = -(360d0 - s(izvar))
+               if (oprint) write(6,1) izvar, 'angle 1 ', s(izvar)
+            else if (s(izvar) .lt. -180d0) then
+               s(izvar) =  (360d0 + s(izvar))
+               if (oprint) write(6,1) izvar, 'angle 2 ', s(izvar)
+            end if
+         else if (itype.eq.3) then
+c
+c     Scenario 1:  A bond angle involved in the torsion has
+c     inverted leading to the torsion changing sign.  This leads
+c     to, e.g., a torsion that was zero (or 180) becoming
+c     180 (or zero).  Thus, the coordinate step is close to 180.
+c
+c     Scenario 2:  Same as the angle bend scenario - coordinate
+c     step close to 360.
+c
+c     What happens if get both at once?
+c
+            if (abs(s(izvar)) .ge. 270d0) then
+               if (s(izvar).gt.180d0) then
+                  s(izvar) = s(izvar) - 360d0
+                  if (oprint) write(6,1) izvar, 'torsion 1 ', s(izvar)
+               else if (s(izvar) .lt. -180d0) then
+                  s(izvar) = s(izvar) + 360d0
+                  if (oprint) write(6,1) izvar, 'torsion 2 ', s(izvar)
+               end if
+            else
+               if (s(izvar).gt.90d0) then
+                  s(izvar) = -(s(izvar) - 180d0)
+                  if (oprint) write(6,1) izvar, 'torsion 3 ', s(izvar)
+               else if (s(izvar).lt.-90d0) then
+                  s(izvar) = -(s(izvar) + 180d0)
+                  if (oprint) write(6,1) izvar, 'torsion 4 ', s(izvar)
+               end if
+            endif
+         else
+            call errquit('geom_zmat_sane_step: ???',999)
+         endif
+c
+      enddo
+c
+ 1    format(1x,i5,' sane step ', a, f14.8)
+c     
+      end
