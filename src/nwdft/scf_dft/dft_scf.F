@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.127 1999-08-10 21:21:11 jolguin Exp $
+c     $Id: dft_scf.F,v 1.128 1999-08-10 21:49:13 jolguin Exp $
 c     
       implicit none
 c
@@ -889,8 +889,10 @@ c
       else
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
       endif
-      write(LuOut,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic: ',
-     &           Etnew, Ecore, Ecoul, Exc(1), Exc(2), totsic
+      if (oprint_conv_details.and.me.eq.0)then
+         write(LuOut,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic: ',
+     &                  Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic
+      endif
 c     
       if (last_time_energy)then
          etnew=etnew+tdots
