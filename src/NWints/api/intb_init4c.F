@@ -1,6 +1,6 @@
       logical function intb_init4c(brain, icl, jcl, ketin, kcl, lcl,
      &    num_q, lscr, scr, l_erilab, block_eff)
-c $Id: intb_init4c.F,v 1.2 1995-05-15 19:37:00 d3e129 Exp $  
+c $Id: intb_init4c.F,v 1.3 1995-10-30 20:53:42 d3e129 Exp $  
       implicit none
 *
 c
@@ -20,19 +20,11 @@ c
       double precision scr(lscr)  ! [input] scratch array
       double precision block_eff  ! [output] blocking efficiency parameter
 #include "numb_qP.fh"
-      integer i_q, ii, jj, kk, ll
 c
       num_q_start = 1
       num_q_last  = -1
 c
-      do 00100 i_q = 1,num_q
-        ii = icl(i_q)
-        jj = jcl(i_q)
-        kk = kcl(i_q)
-        ll = lcl(i_q)
-        call int_canon(ii,jj,kk,ll,
-     &      icl(i_q),jcl(i_q),kcl(i_q),lcl(i_q))
-00100 continue
+      more_ints_txs = .false. 
       intb_init4c = .true.
-      block_eff = 0.0d00
+      block_eff = -1.0d00
       end

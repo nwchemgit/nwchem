@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.14 1995-03-04 16:32:49 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.15 1995-10-30 20:53:34 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -22,8 +22,10 @@ c errquit
 c::functions
       logical cando_nw
       logical cando_sp
+      logical cando_txs
       external cando_nw
       external cando_sp
+      external cando_txs
 #define PERF_NORMAL
 #if defined(PERF_NORMAL)
       logical int_chk_sh
@@ -42,6 +44,11 @@ c:: local
       integer Lb, b_prim, b_gen, b_iexp, b_icfp, b_cent
       integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
+c.txs
+      integer num_quart, dummy_lab(2)
+      double precision roff(3)
+      integer nint
+      logical dum_log
 c
 #if defined(PERF_NORMAL)
       logical shells_ok
@@ -109,6 +116,22 @@ c
      &               lsh,coords(1,d_cent,ket),
      &         eri)
 c        
+      elseif(cando_txs(brain,ish,jsh).and.cando_txs(ketin,ksh,lsh))
+     &      then
+        num_quart = 1
+        dummy_lab(1) = 0
+        dummy_lab(2) = 0
+        roff(1) = 0.0d00
+        roff(2) = 0.0d00
+        roff(3) = 0.0d00
+        dum_log = .false.
+        call texas_hf2_m(ish,jsh,ksh,lsh,num_quart,
+c............................... use roff set false
+     &      roff,roff,roff,roff,.false.,
+     &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
+c............... gen labs .. more_integrals
+     &      nint, .false., dum_log, scr, lscr)
+
       elseif(cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh)) then
 c
         ucont   = ibs_cn2ucn(ish,bra)

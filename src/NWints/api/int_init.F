@@ -1,5 +1,5 @@
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.20 1995-06-23 06:40:20 d3e129 Exp $
+c $Id: int_init.F,v 1.21 1995-10-30 20:53:38 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -140,6 +140,7 @@ c
       call sp_init(nbas,bases)
       call init70               ! To generate tables etc.
       call int_acc_std()
+      call texas_init(rtdb,nbas,bases)
       init_int = 1
       end
       subroutine sp_init(nbas,bases)
