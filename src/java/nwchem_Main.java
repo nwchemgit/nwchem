@@ -124,6 +124,12 @@ class nwchem_Main extends JFrame implements ActionListener, WindowListener {
     menubar.add(edit);
     edit.add(frgmnt = new JMenuItem("fragment"));
     edit.add(segmnt = new JMenuItem("segment"));
+    segmnt.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+	System.out.println("Segment Editor");
+	nwchem_Segment segmnt_View = new nwchem_Segment();
+	segmnt_View.setVisible(true); 
+      }});
     edit.add(param  = new JMenuItem("parameter"));
     param.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
