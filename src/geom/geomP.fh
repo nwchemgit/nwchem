@@ -112,7 +112,7 @@ c
       parameter (max_atom      =  max_cent)
       parameter (max_cart      =3*max_atom)
       parameter (max_zmat      =1500)
-      parameter (max_izmat     = 750)
+      parameter (max_izmat     =6000)
 c
       logical active, operiodic, oefield, include_bqbq, oecpcent
       integer ngeom_rtdb, ncenter, lenn, lent, lenr, group_number,

@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.35 1996-10-10 22:13:21 mdupuis Exp $
+C     $Id: geom_input.F,v 1.36 1996-10-11 17:58:16 mdupuis Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -477,7 +477,7 @@ c
       integer      mxizmt
       integer      mxatom
       integer      mxbfn
-      parameter    (mxizmt=750)
+      parameter    (mxizmt=6000)
       parameter    (mxatom=500)
       parameter    (mxbfn=3072)
       integer      i
@@ -921,7 +921,7 @@ c
       integer      mxcart
       integer      mxcoor
       parameter    (mxbfn=3072)
-      parameter    (mxizmt=750)
+      parameter    (mxizmt=6000)
       parameter    (mxatom=500)
       parameter    (mxcart=3*mxatom)
       parameter    (mxzmat=1500)
@@ -1007,7 +1007,7 @@ c
       integer      mxcart
       integer      mxcoor
       parameter    (mxbfn=3072)
-      parameter    (mxizmt=750)
+      parameter    (mxizmt=6000)
       parameter    (mxzmat=1500)
       parameter    (mxatom=500)
       parameter    (mxcart=3*mxatom)
@@ -1109,7 +1109,7 @@ c
       integer      mxatom
       integer      mxcart
       integer      mxcoor
-      parameter    (mxizmt=750)
+      parameter    (mxizmt=6000)
       parameter    (mxatom=500)
       parameter    (mxcart=3*mxatom)
       parameter    (mxzmat=1500)
@@ -1148,8 +1148,9 @@ c
       dimension errmsg(3)
       data errmsg /'program ','stop in ','-icoord-'/
 c
-      some=.false.
       dbug=.false.
+      some=.false.
+      some=some.or.dbug
 c
       nprint=0
       list  =0
@@ -1223,12 +1224,16 @@ C
       DATA UNIT  /0.52917715D+00/
 C
       DBUG=.FALSE.
-      SOME=.TRUE.         
+      SOME=.FALSE.
       SOME=SOME.OR.DBUG
       IF(DBUG) THEN
          WRITE(IW,*) 'IN HND_ICOORD'
          WRITE(IW,*) 'IFZMAT',IFZMAT
       ENDIF
+C
+C     ----- IN -nwchem- , some MUST BE true -----
+C
+      SOME=.TRUE.
 C
       IF(IFZMAT.NE.0) THEN
 C
@@ -1576,7 +1581,7 @@ C     ----- READ IN Z-MATRIX INPUT -----
 C
       PARAMETER (    NA=10 )
       PARAMETER (MXNIJS=500)
-      PARAMETER (MXIZMT=750)
+      PARAMETER (MXIZMT=6000)
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
@@ -3816,7 +3821,7 @@ C
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)    
       PARAMETER (MXCOOR=1500)    
-      PARAMETER (MXIZMT=750)
+      PARAMETER (MXIZMT=6000)
       PARAMETER (MXBOND= 64)
       PARAMETER (MXBNDS=12*MXATOM)
       PARAMETER (MXANGS=12*MXATOM)
@@ -5373,7 +5378,7 @@ C
       PARAMETER     (MXATOM=500)
       PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=256)
       PARAMETER     (MAXPRM=100)
-      PARAMETER     (MXIZMT=750)
+      PARAMETER     (MXIZMT=6000)
       PARAMETER     (MAXLST=10+1)
       CHARACTER*16  TAGS
       LOGICAL       DBUG
@@ -5474,7 +5479,7 @@ C
       DATA UNDERS /'_'/
       DATA DASH   /'-'/
       DATA WRDBAS /' $BASIS '/
-      DATA WRDEND /' $END   '/
+      DATA WRDEND /'end     '/
       DATA WRDXYZ /' $XYZ   '/
       DATA WRDGEO /' $GEO   '/
       DATA WRDZMT /' $ZMT   '/
@@ -5609,14 +5614,22 @@ C
                CHAR5 =BLNK5
                SYMBOL=BLNK2
                ATMNAM=BLNK8
-               READ(PRSWRD(1),*) CHAR5
-               READ(PRSWRD(2),*) XXIAT
-               READ(PRSWRD(3),*) YYIAT
-               READ(PRSWRD(4),*) ZZIAT
-               READ(PRSWRD(5),*) CHAR12
-               READ(PRSWRD(6),*) CHAR2
-               READ(PRSWRD(7),*) CHAR2
-               READ(PRSWRD(8),*) SYMBOL
+c              READ(PRSWRD(1),*) CHAR5
+c              READ(PRSWRD(2),*) XXIAT
+c              READ(PRSWRD(3),*) YYIAT
+c              READ(PRSWRD(4),*) ZZIAT
+c              READ(PRSWRD(5),*) CHAR12
+c              READ(PRSWRD(6),*) CHAR2
+c              READ(PRSWRD(7),*) CHAR2
+c              READ(PRSWRD(8),*) SYMBOL
+               call hnd_dparsc(prswrd(1),numchr(1),char5 , 5)
+               call hnd_dparsr(prswrd(2),numchr(2),xxiat    )
+               call hnd_dparsr(prswrd(3),numchr(3),yyiat    )
+               call hnd_dparsr(prswrd(4),numchr(4),zziat    )
+               call hnd_dparsc(prswrd(5),numchr(5),char12,12)
+               call hnd_dparsc(prswrd(6),numchr(6),char2 , 2)
+               call hnd_dparsc(prswrd(7),numchr(7),char2 , 2)
+               call hnd_dparsc(prswrd(8),numchr(8),symbol, 2)
                ATMNAM(1:ZMTCHR(8,IAT))=SYMBOL(1:ZMTCHR(8,IAT))
                ATMNAM(ZMTCHR(8,IAT)+1:ZMTCHR(8,IAT)              +1)='_'
                ATMNAM(ZMTCHR(8,IAT)+2:ZMTCHR(8,IAT)+ZMTCHR(1,IAT)+1)=
@@ -5695,7 +5708,7 @@ C
          IF(NUMWRD.GT.1) THEN
             GO TO 110
          ELSE
-            IF(NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(2:5)) THEN
+            IF(NUMCHR(1).EQ.5.AND.PRSWRD(1)(2:4).EQ.CHREND(1:3)) THEN
                NAT = IAT -1
                GO TO 140
             ELSE
@@ -5736,7 +5749,7 @@ C
             ENDIF
             GO TO 120
          ELSE
-            IF(NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(2:5)) THEN
+            IF(NUMCHR(1).EQ.5.AND.PRSWRD(1)(2:4).EQ.CHREND(1:3)) THEN
                NVAR = IVAR -1
                GO TO 140
             ELSE
@@ -5770,7 +5783,7 @@ C
                FRZVAR(  IVAR)=.TRUE.
             GO TO 130
          ELSEIF(NUMWRD.EQ.1) THEN
-            IF(PRSWRD(1)(2:NUMCHR(1)-1).NE.CHREND(2:5)) THEN
+            IF(PRSWRD(1)(2:NUMCHR(1)-1).NE.CHREND(1:3)) THEN
                WRITE(IW,8880)
                CALL HND_HNDERR(3,ERRMSG)
             ENDIF
@@ -6100,6 +6113,103 @@ C
      1       ' STOP .')
  7774 FORMAT(' ERROR WHILE READING -BIOSYM.CAR- . STOP .')
       END
+      subroutine hnd_dparsc(a,la,c,lc)
+      implicit double precision (a-h,o-z)
+      character*(*) a
+      character*(*) c
+      character*1   blk
+      data  blk /' '/
+      do ic=1,lc
+         c(ic:ic)=blk
+      enddo
+      if(lc.le.(la-2)) then
+         c(1:lc)=a(2:lc+1)
+      else
+         c(1:lc)=a(2:la-1)
+      endif
+      return
+      end
+      subroutine hnd_dparsr(a,la,x)
+      implicit double precision (a-h,o-z)
+      logical rep
+      character*(*) a
+      character*1   char(17)
+      data char     /'0','1','2','3','4','5','6','7','8','9',
+     1               '+','-','.','e','d','E','D'/
+      data zero     /0.0d+00/
+      data ten      /1.0d+01/
+c     
+      i1 =1            
+      i2 =la
+c
+c     ----- sign -----
+c
+      isign=1
+      if(a(i1:i1).eq.char(12)) then
+         isign=-1
+         i1=i1+1
+      elseif(a(i1:i1).eq.char(11)) then
+         isign= 1
+         i1=i1+1
+      else
+         isign= 1
+      endif
+c
+c     ----- exponent -----
+c
+      ie2=i2
+      do ie=i1,i2
+         if(a(ie:ie).eq.char(14).or.a(ie:ie).eq.char(15).or. 
+     1      a(ie:ie).eq.char(16).or.a(ie:ie).eq.char(17)) go to 10
+      enddo
+      iexp=0
+      go to 50
+c
+ 10   ie2=i2
+      ie1=ie+1
+      i2 =ie-1
+      iexp=1
+      if(a(ie1:ie1).eq.char(12)                           ) then
+         iexp=-1
+      endif
+      if(a(ie1:ie1).eq.char(12).or.a(ie1:ie1).eq.char(11)) then
+         ie1=ie1+1
+      endif
+      itmp=0
+      do i=ie1,ie2
+         do j=1,10
+            if(a(i:i).eq.char(j)) go to 30
+         enddo
+         go to 100
+ 30      itmp=itmp*10+j-1
+      enddo
+      iexp=iexp*itmp
+c
+c     ----- the number itself -----
+c
+ 50   continue
+      rep=.false.
+      dum=zero
+      do i=i1,i2
+         if(a(i:i).ne.char(13)) then
+            do j=1,10
+               if(a(i:i).eq.char(j)) go to 70
+            enddo
+            go to 100
+ 70         dum=dum*ten+dble(j-1)
+         else
+            if(rep) go to 100
+            iexp=iexp+i-i2
+            rep=.true.
+         endif
+      enddo
+      dum=dum*dble(isign)*ten**iexp
+      x  =dum
+      return
+c
+ 100  continue       
+      return
+      end
       SUBROUTINE HND_HNDERR(LERR,ERRMSG)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       CHARACTER*8  ERRMSG
@@ -6228,17 +6338,25 @@ C
       IF(FLGZMT(3,IAT).EQ.1.AND.FLGZMT(4,IAT).EQ.1) THEN
              IF(NUMZMT(  IAT).EQ.4.AND.FLGZMT(1,IAT).EQ.3.AND.
      1          FLGZMT(2,IAT).EQ.1                            ) THEN
-            READ(PRSZMT(1,IAT),*) ATNAME(IAT)
-            READ(PRSZMT(2,IAT),*) XX(IAT)
-            READ(PRSZMT(3,IAT),*) YY(IAT)
-            READ(PRSZMT(4,IAT),*) ZZ(IAT)
+c           READ(PRSZMT(1,IAT),*) ATNAME(IAT)
+c           READ(PRSZMT(2,IAT),*) XX(IAT)
+c           READ(PRSZMT(3,IAT),*) YY(IAT)
+c           READ(PRSZMT(4,IAT),*) ZZ(IAT)
+            call hnd_dparsc(prszmt(1,iat),zmtchr(1,iat),atname(iat),8)
+            call hnd_dparsr(prszmt(2,iat),zmtchr(2,iat),xx(iat)      )
+            call hnd_dparsr(prszmt(3,iat),zmtchr(3,iat),yy(iat)      )
+            call hnd_dparsr(prszmt(4,iat),zmtchr(4,iat),zz(iat)      )
                  ZMTCHR(1,IAT)= ZMTCHR(1,IAT) - 2
          ELSEIF(NUMZMT(  IAT).EQ.5.AND.FLGZMT(1,IAT).EQ.3.AND.
      1          FLGZMT(2,IAT).EQ.2.AND.FLGZMT(5,IAT).EQ.1     ) THEN
-            READ(PRSZMT(1,IAT),*) ATNAME(IAT)
-            READ(PRSZMT(3,IAT),*) XX(IAT)
-            READ(PRSZMT(4,IAT),*) YY(IAT)
-            READ(PRSZMT(5,IAT),*) ZZ(IAT)
+c           READ(PRSZMT(1,IAT),*) ATNAME(IAT)
+c           READ(PRSZMT(3,IAT),*) XX(IAT)
+c           READ(PRSZMT(4,IAT),*) YY(IAT)
+c           READ(PRSZMT(5,IAT),*) ZZ(IAT)
+            call hnd_dparsc(prszmt(1,iat),zmtchr(1,iat),atname(iat),8)
+            call hnd_dparsr(prszmt(3,iat),zmtchr(3,iat),xx(iat)      )
+            call hnd_dparsr(prszmt(4,iat),zmtchr(4,iat),yy(iat)      )
+            call hnd_dparsr(prszmt(5,iat),zmtchr(5,iat),zz(iat)      )
                  ZMTCHR(1,IAT)= ZMTCHR(1,IAT) - 2
          ELSE
             WRITE(IW,9994) IAT
@@ -6267,7 +6385,8 @@ C     ----- ANCHOR ATOM              -----
 C
       ZMT(1,IAT) = IAT
       IF(FLGZMT(1,IAT) .EQ. 3) THEN
-         READ (PRSZMT(1,IAT),*) ATNAME(IAT)
+c        READ (PRSZMT(1,IAT),*) ATNAME(IAT)
+         call hnd_dparsc(prszmt(1,iat),zmtchr(1,iat),atname(iat),8)
                ZMTCHR(1,IAT)= ZMTCHR(1,IAT) - 2
       ELSE
          WRITE(IW,9999)
@@ -6280,7 +6399,8 @@ C
 C     ----- BOND LENGTH -----
 C
       IF(FLGZMT(2,IAT) .EQ. 2) THEN
-         READ (PRSZMT(2,IAT),*) ZMT(2,IAT)
+c        READ (PRSZMT(2,IAT),*) ZMT(2,IAT)
+         call hnd_dparsr(prszmt(2,iat),zmtchr(2,iat),zmt(2,iat)   )
       ELSE
          READY=.FALSE.
          DO JAT=1,IAT-1
@@ -6297,7 +6417,8 @@ C
       ENDIF
 C
       IF(FLGZMT(3,IAT) .EQ. 1) THEN
-         READ (PRSZMT(3,IAT),*) ZVAL(1,IAT)
+c        READ (PRSZMT(3,IAT),*) ZVAL(1,IAT)
+         call hnd_dparsr(prszmt(3,iat),zmtchr(3,iat),zval(1,iat)  )
                                 ZLST(1,IAT)=ZVAL(1,IAT)
       ELSEIF(FLGZMT(3,IAT) .EQ. 3) THEN
          READY=.FALSE.
@@ -6305,31 +6426,37 @@ C
             IF((ZMTCHR(3, IAT).EQ.VARCHR(1,JVAR)).AND.
      1         (PRSZMT(3, IAT) (1:ZMTCHR(3, IAT)).EQ.
      2          PRSVAR(1,JVAR) (1:VARCHR(1,JVAR)))   ) THEN
-               READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
+c              READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
+         call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(1,iat)  )
                                        ZLST(1,IAT)=ZVAL(1,IAT)
                FRZVAL(1,IAT)=FRZVAR(JVAR)
                READY=.TRUE.
                IF(LST.AND.NUMVAR(JVAR).EQ.3) THEN
-                  READ (PRSVAR(3,JVAR),*) ZLST(1,IAT)
+c                 READ (PRSVAR(3,JVAR),*) ZLST(1,IAT)
+         call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(1,iat)  )
                ENDIF
             ELSEIF((ZMTCHR(3, IAT).EQ.VARCHR(1,JVAR)+1).AND.
      1             (PRSZMT(3, IAT) (3:ZMTCHR(3, IAT)).EQ.
      2              PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)))   ) THEN
                IF(PRSZMT(3, IAT) (2:2).EQ.PLUS) THEN
-                  READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
+c                 READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
+         call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(1,iat)  )
                                           ZLST(1,IAT)=ZVAL(1,IAT)
                   FRZVAL(1,IAT)=FRZVAR(JVAR)
                   READY=.TRUE.
                   IF(LST.AND.NUMVAR(JVAR).EQ.3) THEN
-                     READ (PRSVAR(3,JVAR),*) ZLST(1,IAT)
+c                    READ (PRSVAR(3,JVAR),*) ZLST(1,IAT)
+         call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(1,iat)  )
                   ENDIF
                ELSEIF(PRSZMT(3, IAT) (2:2).EQ.MINUS) THEN
-                  READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
+c                 READ (PRSVAR(2,JVAR),*) ZVAL(1,IAT)
+         call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(1,iat)  )
                                           ZLST(1,IAT)=ZVAL(1,IAT)
                   FRZVAL(1,IAT)=FRZVAR(JVAR)
                   READY=.TRUE.
                   IF(LST.AND.NUMVAR(JVAR).EQ.3) THEN
-                     READ (PRSVAR(3,JVAR),*) ZLST(1,IAT)
+c                    READ (PRSVAR(3,JVAR),*) ZLST(1,IAT)
+         call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(1,iat)  )
                   ENDIF
                   ZVAL(1,IAT)=-ZVAL(1,IAT)
                   ZLST(1,IAT)=-ZLST(1,IAT)
@@ -6352,7 +6479,8 @@ C
 C     ----- BOND ANGLE -----
 C
       IF(FLGZMT(4,IAT) .EQ. 2) THEN
-         READ (PRSZMT(4,IAT),*) ZMT(3,IAT)
+c        READ (PRSZMT(4,IAT),*) ZMT(3,IAT)
+         call hnd_dparsr(prszmt(4,iat),zmtchr(4,iat),zmt(3,iat)  )
       ELSE
          READY=.FALSE.
          DO JAT=1,IAT-1
@@ -6369,7 +6497,8 @@ C
       ENDIF
 C
       IF(FLGZMT(5,IAT) .EQ. 1) THEN
-         READ (PRSZMT(5,IAT),*) ZVAL(2,IAT)
+c        READ (PRSZMT(5,IAT),*) ZVAL(2,IAT)
+         call hnd_dparsr(prszmt(5,iat),zmtchr(5,iat),zval(2,iat)  )
                                 ZLST(2,IAT)=ZVAL(2,IAT)
       ELSEIF(FLGZMT(5,IAT) .EQ. 3) THEN
          READY=.FALSE.
@@ -6377,31 +6506,37 @@ C
             IF((ZMTCHR(5, IAT).EQ.VARCHR(1,JVAR)).AND.
      1         (PRSZMT(5, IAT) (1:ZMTCHR(5, IAT)).EQ.
      2          PRSVAR(1,JVAR) (1:VARCHR(1,JVAR)))    ) THEN
-               READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
+c              READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
+         call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(2,iat)  )
                                        ZLST(2,IAT)=ZVAL(2,IAT)
                FRZVAL(2,IAT)=FRZVAR(JVAR)
                READY=.TRUE.
                IF(LST.AND.NUMVAR(JVAR).EQ.3) THEN
-                  READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
+c                 READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
+         call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(2,iat)  )
                ENDIF
             ELSEIF((ZMTCHR(5, IAT).EQ.VARCHR(1,JVAR)+1).AND.
      1             (PRSZMT(5, IAT) (3:ZMTCHR(5, IAT)).EQ.
      2              PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)))    ) THEN
                IF(PRSZMT(5, IAT) (2:2).EQ.PLUS) THEN
-                  READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
+c                 READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
+         call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(2,iat)  )
                                           ZLST(2,IAT)=ZVAL(2,IAT)
                   FRZVAL(2,IAT)=FRZVAR(JVAR)
                   READY=.TRUE.
                   IF(LST.AND.NUMVAR(JVAR).EQ.3) THEN
-                     READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
+c                    READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
+         call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(2,iat)  )
                   ENDIF
                ELSEIF(PRSZMT(5, IAT) (2:2).EQ.MINUS) THEN
-                  READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
+c                 READ (PRSVAR(2,JVAR),*) ZVAL(2,IAT)
+         call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(2,iat)  )
                                           ZLST(2,IAT)=ZVAL(2,IAT)
                   FRZVAL(2,IAT)=FRZVAR(JVAR)
                   READY=.TRUE.
                   IF(LST.AND.NUMVAR(JVAR).EQ.3) THEN
-                     READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
+c                    READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
+         call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(2,iat)  )
                   ENDIF
                   ZVAL(2,IAT)=-ZVAL(2,IAT)
                   ZLST(2,IAT)=-ZLST(2,IAT)
@@ -6429,7 +6564,8 @@ C
 C     ----- TORSION -----
 C
       IF(FLGZMT(6,IAT) .EQ. 2) THEN
-         READ (PRSZMT(6,IAT),*) ZMT(4,IAT)
+c        READ (PRSZMT(6,IAT),*) ZMT(4,IAT)
+         call hnd_dparsr(prszmt(6,iat),zmtchr(6,iat),zmt(4,iat)  )
       ELSE
          READY=.FALSE.
          DO JAT=1,IAT-1
@@ -6446,7 +6582,8 @@ C
       ENDIF
 C
       IF(FLGZMT(7,IAT) .EQ. 1) THEN
-         READ (PRSZMT(7,IAT),*) ZVAL(3,IAT)
+c        READ (PRSZMT(7,IAT),*) ZVAL(3,IAT)
+         call hnd_dparsr(prszmt(7,iat),zmtchr(7,iat),zval(3,iat)  )
                                 ZLST(3,IAT)=ZVAL(3,IAT)
       ELSEIF(FLGZMT(7,IAT) .EQ. 3) THEN
          READY=.FALSE.
@@ -6454,31 +6591,37 @@ C
             IF((ZMTCHR(7, IAT).EQ.VARCHR(1,JVAR)).AND.
      1         (PRSZMT(7, IAT) (1:ZMTCHR(7, IAT)).EQ.
      2          PRSVAR(1,JVAR) (1:VARCHR(1,JVAR)))    ) THEN
-               READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
+c              READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
+         call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(3,iat)  )
                                        ZLST(3,IAT)=ZVAL(3,IAT)
                FRZVAL(3,IAT)=FRZVAR(JVAR)
                READY=.TRUE.
                IF(LST.AND.NUMVAR(JVAR).EQ.3) THEN
-                  READ (PRSVAR(3,JVAR),*) ZLST(3,IAT)
+c                 READ (PRSVAR(3,JVAR),*) ZLST(3,IAT)
+         call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(3,iat)  )
                ENDIF
             ELSEIF((ZMTCHR(7, IAT).EQ.VARCHR(1,JVAR)+1).AND.
      1             (PRSZMT(7, IAT) (3:ZMTCHR(7, IAT)).EQ.
      2              PRSVAR(1,JVAR) (2:VARCHR(1,JVAR)))    ) THEN
                IF(PRSZMT(7, IAT) (2:2).EQ.PLUS) THEN
-                  READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
+c                 READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
+         call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(3,iat)  )
                                           ZLST(3,IAT)=ZVAL(3,IAT)
                   FRZVAL(3,IAT)=FRZVAR(JVAR)
                   READY=.TRUE.
                   IF(LST.AND.NUMVAR(JVAR).EQ.3) THEN
-                     READ (PRSVAR(3,JVAR),*) ZLST(3,IAT)
+c                    READ (PRSVAR(3,JVAR),*) ZLST(3,IAT)
+         call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(3,iat)  )
                   ENDIF
                ELSEIF(PRSZMT(7, IAT) (2:2).EQ.MINUS) THEN
-                  READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
+c                 READ (PRSVAR(2,JVAR),*) ZVAL(3,IAT)
+         call hnd_dparsr(prsvar(2,jvar),varchr(2,jvar),zval(3,iat)  )
                                           ZLST(3,IAT)=ZVAL(3,IAT)
                   FRZVAL(3,IAT)=FRZVAR(JVAR)
                   READY=.TRUE.
                   IF(LST.AND.NUMVAR(JVAR).EQ.3) THEN
-                     READ (PRSVAR(3,JVAR),*) ZLST(3,IAT)
+c                    READ (PRSVAR(3,JVAR),*) ZLST(3,IAT)
+         call hnd_dparsr(prsvar(3,jvar),varchr(3,jvar),zlst(3,iat)  )
                   ENDIF
                   ZVAL(3,IAT)=-ZVAL(3,IAT)
                   ZLST(3,IAT)=-ZLST(3,IAT)
@@ -6500,7 +6643,8 @@ C     ----- LAST INTEGER PARAMETER -----
 C
       IF(NUMZMT(IAT).EQ.8) THEN
          IF(FLGZMT(8,IAT).EQ.2) THEN
-            READ(PRSZMT(8,IAT),*) ZMT(5,IAT)
+c           READ(PRSZMT(8,IAT),*) ZMT(5,IAT)
+         call hnd_dparsr(prszmt(8,iat),zmtchr(8,iat),zmt(5,iat)  )
          ELSE
             WRITE(IW,9993) IAT
             WRITE(IW,9995) IAT,(ZMT(I,IAT),I=1,5),(ZVAL(I,IAT),I=1,3)
