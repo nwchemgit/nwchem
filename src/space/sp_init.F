@@ -7,7 +7,7 @@
      + ldbg,idbg)
 c
 c
-c $Id: sp_init.F,v 1.46 1999-12-17 22:04:46 d3j191 Exp $
+c $Id: sp_init.F,v 1.47 2000-01-04 00:09:42 d3j191 Exp $
 c
       implicit none
 c
@@ -70,6 +70,9 @@ c
       msa=msai
 c
       iguide=iguidi
+c
+      npack=0
+      npackw=0
 c
       call sp_nrnode()
 c
@@ -776,6 +779,8 @@ c
       isl(new,lsct3)=ibs(k,9)
       isl(new,lssss)=ibs(k,10)
       isl(new,lsdyn)=5*ibs(k,11)
+      isl(new,lsbox)=ndx(k)
+      isl(new,lsnod)=node
       xs(new,1)=bxs(k,1)
       xs(new,2)=bxs(k,2)
       xs(new,3)=bxs(k,3)
