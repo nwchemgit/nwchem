@@ -28,7 +28,6 @@ void FATR util_debug_(Integer *rtdb)
 
 void FATR util_debug_(Integer *rtdb)
 {
-  int i;
   pid_t child;
   char *argv[20];
   char display[256], path[256], title[256], pid[256], xterm[256];

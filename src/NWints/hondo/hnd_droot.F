@@ -211,10 +211,7 @@ c
 #endif
 #include "stdio.fh"
       integer k, k1, m, i
-      character*8 errmsg
       dimension a(10),rt(10)
-      dimension errmsg(3)
-      data errmsg /'program ','stop in ','-rysnod-'/
 #if defined(LINUX) || defined(CRAY_T3E) || defined(WIN32)
       data zero /0.0d+00/
 #else

@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.25 2000-10-23 15:52:29 windus Exp $
+c  $Id: moints_6x.F,v 1.26 2000-10-23 23:37:48 windus Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -87,7 +87,7 @@ c
        double precision ttask, ttaskmax, ttaskmin, ttaskagg
        double precision flop1, flop2k, flop2j, q2
        integer tottask
-       logical status, st, oprint, osym, odoit
+       logical status, st, osym, odoit
 #include "moints_stats.fh"
 c
 c
@@ -98,7 +98,6 @@ c
 c
 c
        data tol2e/1.d-12/
-       data oprint/.true./
 c
 c
 c

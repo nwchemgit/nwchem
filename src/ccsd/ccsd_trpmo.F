@@ -2,7 +2,7 @@
      $                       g_objv,g_ncoul,g_nexch,
      $                       iprt)
       implicit none
-C     $Id: ccsd_trpmo.F,v 2.2 1997-10-18 20:14:40 d3g681 Exp $
+C     $Id: ccsd_trpmo.F,v 2.3 2000-10-23 23:37:45 windus Exp $
       integer ncor,nocc,nvir,nact,nbf,g_objv,g_nt2,
      $        g_ncoul,g_nexch,iprt
       double precision scr(*),scra(*),t1(*)
@@ -14,8 +14,6 @@ c
       integer iam
       integer ihi,ilo,jhi,jlo,i,j,k,b,av,ad1,ad2
       integer nvp1
-      double precision zip
-      data zip/0.0d00/
 c
       if (iprt.gt.5)print *,' sort_ccsd '
 c

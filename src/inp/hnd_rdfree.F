@@ -30,7 +30,7 @@ c$$$c
 c$$$      end
       subroutine hnd_rdfree(ir, string, ierr)
 *
-* $Id: hnd_rdfree.F,v 1.3 1997-11-04 10:02:28 d3e129 Exp $
+* $Id: hnd_rdfree.F,v 1.4 2000-10-23 23:37:48 windus Exp $
 *
       implicit none
 #include "inp.fh"
@@ -50,8 +50,8 @@ c
       double precision dval
       integer ival
       integer next, i
-      character*8 types(3)
-      data types/'float','integer','string'/
+c$$$  character*8 types(3)
+c$$$  data types/'float','integer','string'/
 c     
       ierr = 0
       if (.not. inp_read()) then

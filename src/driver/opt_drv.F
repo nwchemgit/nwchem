@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.90 2000-06-16 19:15:36 d3g681 Exp $
+* $Id: opt_drv.F,v 1.91 2000-10-23 23:37:45 windus Exp $
 *
       implicit none
 #include "global.fh"
@@ -476,7 +476,6 @@ c
       CHARACTER*8 GUESS
       CHARACTER*8 GUESS1
       CHARACTER*8 GUESS2
-      CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLNUC/NUC(MXATOM)
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
@@ -484,8 +483,6 @@ c
       DIMENSION HSSQ(NINT,*)
       DIMENSION ZMAT(*),IZMAT(*)
       DIMENSION IROW(86),DPARM(6,6),APARM(6,6),RCOV(86)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-HSSGSS-'/
 C     
 C     --- DATA TABLES FOR BADGER'S RULES (SEE J.C.P. 2, 128(1934)) ---
 C     A GENERALIZED BADGER'S RULE, AND THESE PARAMETERS ARE FROM

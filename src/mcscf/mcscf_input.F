@@ -1,6 +1,6 @@
       subroutine mcscf_input(rtdb)
 c
-c $Id: mcscf_input.F,v 1.8 1997-04-02 02:15:19 d3g681 Exp $
+c $Id: mcscf_input.F,v 1.9 2000-10-23 23:37:48 windus Exp $
 c
       implicit none
 #include "inp.fh"
@@ -15,7 +15,6 @@ c
       parameter (num_dirs = 17)
       parameter (num_profopt = 1)
       character*12 dirs(num_dirs)
-      character*12 prof_opt(num_profopt)
       character*255 test, keyword
       double precision conv, levelshift, tol2e
       logical status
@@ -37,7 +36,6 @@ c
      $            'lock',
      $            'state',
      $            'end'/
-      data prof_opt/ 'fock' /
 c
 c     Any input causes convergence flag to be deleted
 c

@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.50 2000-10-23 15:53:25 windus Exp $
+* $Id: prp.F,v 1.51 2000-10-23 23:37:49 windus Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -13,7 +13,7 @@
       LOGICAL     SOME
       LOGICAL     OUT 
       CHARACTER*8 WFNTYP,SCFTYP
-      CHARACTER*8 SCF,RHF,UHF,MP2
+      CHARACTER*8 SCF,RHF
       CHARACTER*8 RUNTYP
       CHARACTER*8 PROP
       CHARACTER*8 BLANK
@@ -34,8 +34,6 @@
       COMMON/HND_SCFOPT/SCFTYP
       DATA SCF     /'SCF     '/
       DATA RHF     /'RHF     '/
-      DATA UHF     /'UHF     '/
-      DATA MP2     /'MP2     '/
       DATA ZERO    /0.0D+00/
       DATA PROP    /'PROPTY  '/
       DATA BLANK   /'        '/
@@ -353,7 +351,6 @@ c
       integer rtdb,basis,geom
       PARAMETER   (MXIODA=255)
       PARAMETER   (MXATOM=NW_MAX_ATOM)
-      CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP, RUNTYP
       CHARACTER*8 SCF, UHF, MP2, PROP
       LOGICAL     SOME,OUT
@@ -373,13 +370,11 @@ c
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       DIMENSION AM(MXATOM),CM(3),AXS(3,3)
-      DIMENSION ERRMSG(3), dmtemp(3)
-      DATA ERRMSG  /'PROGRAM ','STOP IN ','-DIPOLE-'/
+      DIMENSION dmtemp(3)
       DATA SCF,UHF /'SCF     ','UHF     '/
       DATA MP2     /'MP2     '/
       DATA DEBYE   /2.54176568D+00/
       DATA ZERO    /0.0D+00/
-      DATA TOL     /1.0D-06/
       DATA PROP    /'PROPTY  '/
       DATA KEYEFC  /4H EFC/
 C
@@ -1110,7 +1105,6 @@ C
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA CONV   /1.0D-10/
-      DATA MAXIT  /50/
 C
       IF(N.EQ.3.AND.NDIM.EQ.3) GO TO 10
          WRITE(IW,9999)
@@ -1241,7 +1235,6 @@ C
       integer rtdb,basis,geom
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=NW_MAX_ATOM)
-      CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP
       CHARACTER*8 SCF, UHF, MP2
       LOGICAL OUT,QDPOUT
@@ -1258,12 +1251,9 @@ C
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       DIMENSION AM(MXATOM),CM(3)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG  /'PROGRAM ','STOP IN ','-QDPOLE'/
       DATA SCF,UHF /'SCF     ','UHF     '/
       DATA MP2     /'MP2     '/
       DATA BUCK    /1.344911D+00/
-      DATA TOL     /1.0D-06/
       DATA ZERO    /0.0D+00/
       DATA TWO     /2.0D+00/
       DATA THREE   /3.0D+00/
@@ -1990,7 +1980,6 @@ C
       integer rtdb,basis,geom
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=NW_MAX_ATOM)
-      CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP
       CHARACTER*8 SCF, UHF, MP2
       LOGICAL OUT,OTPOUT
@@ -2007,12 +1996,9 @@ C
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       DIMENSION AM(MXATOM),CM(3)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG  /'PROGRAM ','STOP IN ','-OTPOLE'/
       DATA SCF,UHF /'SCF     ','UHF     '/
       DATA MP2     /'MP2     '/
       DATA OCTO    /0.711688D+00/
-      DATA TOL     /1.0D-06/
       DATA ZERO    /0.0D+00/
       DATA TWO     /2.0D+00/
       DATA THREE   /3.0D+00/
@@ -2873,7 +2859,6 @@ C
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
       PARAMETER (MXATOM=NW_MAX_ATOM)
-      CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP, RUNTYP
       CHARACTER*8 SCF, UHF, MP2, PROP
       CHARACTER*8 ELEC, ALPHA, BETA, ALL
@@ -2900,15 +2885,13 @@ C
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       DIMENSION ZNUC(MXATOM)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG         /'PROGRAM ','STOP IN ','-MULKEN-'/
       DATA ALPHA,BETA,ALL /'   ALPHA','    BETA','     ALL'/
       DATA SCF,UHF        /'SCF     ','UHF     '/
       DATA MP2            /'MP2     '/
       DATA PROP           /'PROPTY  '/
       DATA ZERO           /0.0D+00/
-      DATA NORB           /0/
-      DATA MOFLG          /0/
+c--   DATA NORB           /0/
+c--   DATA MOFLG          /0/
 C
       POPOUT=.TRUE.          
       IF(.NOT.POPOUT) RETURN
@@ -3652,7 +3635,6 @@ C
       PARAMETER (MXSHEL=512)
       PARAMETER (ZERO=0.0D+00)
 C     LOGICAL DEBUG
-      CHARACTER*8 ERRMSG
       character*8 anam,bflab
       character*2 bnam
       COMMON/HND_BASSPH/ISPHER
@@ -3667,8 +3649,6 @@ C     LOGICAL DEBUG
       COMMON/HND_IOFILE/IR,IW,IP
       DIMENSION AOPOP(1)
       DIMENSION SHL(5)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-SHLPOP-'/
 C
       if (ga_nodeid().eq.0) WRITE(IW,9999)
       IF(ISPHER.LT.0) THEN
@@ -3832,9 +3812,9 @@ C
       PARAMETER (MXBFN=3072)
 #include "nwc_const.fh"
       PARAMETER (MXATOM=NW_MAX_ATOM)
-      CHARACTER*8 ERRMSG
+c     CHARACTER*8 ERRMSG
 c%%
-      CHARACTER*8 VECWRD, ENDWRD
+c--   CHARACTER*8 VECWRD, ENDWRD
 c%%
       LOGICAL OUT
       LOGICAL NOBOYS
@@ -3847,10 +3827,10 @@ c%%
      1                                         C(3,MXATOM)
       COMMON/HND_SCM/X(1)
       DIMENSION IFRZ(MXBFN),IPAIR(MXBFN)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-BOYLOC-'/
+c     DIMENSION ERRMSG(3)
+c     DATA ERRMSG /'PROGRAM ','STOP IN ','-BOYLOC-'/
       DATA IDAR   /32/
-      DATA VECWRD,ENDWRD /' $VEC   ',' $END   '/
+c--   DATA VECWRD,ENDWRD /' $VEC   ',' $END   '/
 C
       NAMELIST /BOYS/ NORB,IFRZ,IPAIR
 C
@@ -4423,7 +4403,6 @@ C
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
       PARAMETER (MXATOM=NW_MAX_ATOM)
-      CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP
       CHARACTER*8 SCF, UHF, MP2
       character*8 anam,bflab
@@ -4446,14 +4425,13 @@ C     INTEGER SPIND
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       DIMENSION AM(MXATOM),CM(3)
-      DIMENSION MO(100),MOA(100),MOB(100)
+      DIMENSION MO(100),MOA(100)
+*     DIMENSION MOB(100)
       DIMENSION XYZMAP(3,100)
       DIMENSION XRANGE(3),YRANGE(3),ZRANGE(3),XVEC(3),YVEC(3),ZVEC(3)
       DIMENSION ORIGIN(3)
       DIMENSION IATOM(4)
-      DIMENSION ERRMSG(3)
       EQUIVALENCE (MO(1),MOA(1))
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-ELPMAP-'/
       DATA KEYEFC /4H EFC/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
@@ -4463,7 +4441,7 @@ C     INTEGER SPIND
       DATA MP2    /'MP2     '/
       DATA SCF    /'SCF     '/
       DATA MOA    /100*0/
-      DATA MOB    /100*0/
+*     DATA MOB    /100*0/
       DATA XYZMAP /300*1.0D+12/
       DATA NPTXYZ /100/
       DATA IUNIT  /-1/
@@ -5023,7 +5001,6 @@ C     INTEGER SPIND
       EQUIVALENCE (X(1),DBL_MB(1))
       DATA KEYEFC /4H EFC/
       DATA ZERO   /0.0D+00/
-      DATA ONE    /1.0D+00/
       DATA TENM3  /1.0D-03/
       DATA UHF    /'UHF     '/
       DATA MP2    /'MP2     '/
@@ -5220,9 +5197,7 @@ C
       DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
       DATA PI212  /1.1283791670955D+00/
       DATA SQRT3  /1.73205080756888D+00/
       DATA SQRT5  /2.23606797749979D+00/
@@ -5749,8 +5724,6 @@ C
       DIMENSION A(6),H(3,3),VEC(3,3),EIG(3),BIG(6)
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
-      DATA CONV   /1.0D-05/
-      DATA MAXIT  /50/
 C
       DO 20 I=1,3
          DO 10 J=1,3
@@ -5824,7 +5797,6 @@ C
       DATA MAXRYS /6/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
       DATA FOUR   /4.0D+00/
@@ -6127,7 +6099,8 @@ C
 c*      logical  status
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP, RUNTYP
-      CHARACTER*8 RHF, UHF, MP2, GVB, SCF, PROP
+      CHARACTER*8 RHF, UHF, MP2, SCF, PROP
+c--   CHARACTER*8 GVB
       LOGICAL SOME,OUT,DBUG
       COMMON/HND_MEMORY/MAXCOR,MAXLCM
       COMMON/HND_OUTPUT/NPRINT
@@ -6156,13 +6129,12 @@ c*      logical  status
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
-      DATA TENM3  /1.0D-03/
       DATA TEN12  /1.0D+12/
       DATA PROP   /'PROPTY  '/
       DATA RHF    /'RHF     '/
       DATA UHF    /'UHF     '/
       DATA MP2    /'MP2     '/
-      DATA GVB    /'GVB     '/
+c--   DATA GVB    /'GVB     '/
       DATA SCF    /'SCF     '/
       DATA MOA    /100*0/
       DATA MOB    /100*0/
@@ -6668,8 +6640,6 @@ C     LOGICAL NORM,DOUBLE
       DIMENSION XG(5),YG(5),ZG(5)
       DIMENSION IJX(35),IJY(35),IJZ(35)
       DATA ZERO  /0.0D+00/
-      DATA ONE   /1.0D+00/
-      DATA TWO   /2.0D+00/
       DATA RLN10 /2.30258D+00/
       DATA SQRT3 /1.73205080756888D+00/
       DATA SQRT5 /2.23606797749979D+00/
@@ -6851,7 +6821,6 @@ C
       DIMENSION IJX(35),IJY(35),IJZ(35)
       DATA ZERO  /0.0D+00/
       DATA ONE   /1.0D+00/
-      DATA TWO   /2.0D+00/
       DATA RLN10 /2.30258D+00/
       DATA SQRT3 /1.73205080756888D+00/
       DATA SQRT5 /2.23606797749979D+00/
@@ -7141,7 +7110,7 @@ C
       integer rtdb,basis,geom
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=NW_MAX_ATOM)
-      CHARACTER*8 ERRMSG
+C     CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP
       CHARACTER*8 SCF, UHF, MP2
       LOGICAL SOME,OUT
@@ -7156,11 +7125,10 @@ C
       COMMON/HND_WFNOPT/WFNTYP
       COMMON/HND_SCM/X(1)
       DIMENSION A(6),VEC(3,3),EIG(3)
-      DIMENSION ISOTOP(18),GN(18)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','- SPIND-'/
+      DIMENSION GN(18)
+C     DIMENSION ERRMSG(3)
+C     DATA ERRMSG /'PROGRAM ','STOP IN ','- SPIND-'/
       DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
       DATA THREE  /3.0D+00/
@@ -7180,8 +7148,6 @@ C
      2         5.2576D+00   , -0.4412D+00,1.4783333D+00,-0.34212D+00  ,
      3         1.45656D+00  ,-1.11106D+00,2.2634D+00   , 0.4288666D+00,
      4         0.5478866D+00,-0.3714285D+00/
-      DATA ISOTOP / 1, 3, 7, 9,11,13,14,17,19,
-     1             21,23,25,27,29,31,33,35,39/
 C
       NOSPIN=.FALSE.
       IF(NOSPIN) RETURN
@@ -7431,8 +7397,6 @@ c%%
       DIMENSION A(6),H(3,3),VEC(3,3),EIG(3),BIG(6)
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
-      DATA CONV   /1.0D-05/
-      DATA MAXIT  /50/
 C
       DO 20 I=1,3
          DO 10 J=1,3
@@ -7472,8 +7436,6 @@ C
       DIMENSION COOR(3)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-GRDMAP-'/
-      DATA ZERO   /0.0D+00/
-      DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
       DATA TM8    /1.0D-08/
       DATA TM2    /1.0D-02/
@@ -8110,7 +8072,7 @@ c
      1kstart(512),katom(512),ktype(512),kng(512),kloc(512),kmin(512),
      2kmax(512),nshell
       dimension x(*),y(*),z(*),d(*),s(*),c(3)
-      data zero,one,two /0.0d+00,1.0d+00,2.0d+00/
+      data zero /0.0d+00/
 c
       cx=zero
       cy=zero
@@ -8784,7 +8746,7 @@ c
       END
       SUBROUTINE HND_STNMAP(DBUG)
       implicit DOUBLE PRECISION (a-h,o-z)
-      character*8 errmsg
+C     character*8 errmsg
       logical some,dbug
       COMMON/HND_memory/maxcor,maxlcm
       COMMON/HND_output/nprint
@@ -8796,12 +8758,10 @@ c
       dimension xrange(3),yrange(3),zrange(3),xvec(3),yvec(3),zvec(3)
       dimension origin(3)
       dimension iatom(4)
-      dimension errmsg(3)
+C     dimension errmsg(3)
       equivalence (mo(1),moa(1))
-      data errmsg /'program ','stop in ','-STNMAP-'/
-      data zero   /0.0d+00/
+C     data errmsg /'program ','stop in ','-STNMAP-'/
       data one    /1.0d+00/
-      data tenm3  /1.0d-03/
       data ten12  /1.0d+12/
       data moa    /100*0/
       data mob    /100*0/
@@ -9170,14 +9130,14 @@ C
       END
       SUBROUTINE HND_SYMOFF
       IMPLICIT REAL*8 (A-H,O-Z)
-      CHARACTER*5 IRPA
+C     CHARACTER*5 IRPA
       PARAMETER (MXSYM =48)
       COMMON/HND_SYMREP/IRPNAM(14),IPA(14),LAMBDA(14),LAMBD0(14),
      1              IADDR1(14),IADDR2(14),IADDR3(14)
       COMMON/HND_SYMBLK/NIRRED,NSALC
       COMMON/HND_SYMTRY/INVT(MXSYM),NT,NTMAX,NTWD,NOSYM
       COMMON/HND_SYMSAV/NIRP1,LAB1,NSALC1,NDIM1,NDEG1
-      DATA IRPA /'A   '/
+C     DATA IRPA /'A   '/
 C
       IF(NIRRED.EQ.1) RETURN
 C
@@ -10777,10 +10737,7 @@ C
       SUBROUTINE HND_LUDCMP(A,LDA,N,IB,VV,D,IERR)
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      CHARACTER*8 ERRMSG
       DIMENSION A(LDA,1),IB(N),VV(N)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG   /'PROGRAM ','STOP IN ','-LUDCMP-'/
       DATA TINY     /1.0D-20/
       DATA ZERO,ONE /0.0D+00,1.0D+00/
 C
@@ -10896,7 +10853,6 @@ C
       logical          geom_cent_tag
       external         geom_cent_tag
       logical          debug
-      character*8 errmsg
       CHARACTER*4 BFNAM(35)
       CHARACTER*4 ATMLAB(106),BONDF,LABEL
       CHARACTER*8 BFL
@@ -10920,8 +10876,6 @@ C
       common/hnd_mollab/anam(mxatom),bnam(mxatom),bflab(mxbfn)
 C     COMMON/hnd_MOLNUC/NUC(MXATOM)
       common/hnd_iofile/ir,iw,ip
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-ATLABL-'/
 C
       data bfnam/'   S','   X','   Y','   Z',
      1           '  XX','  YY','  ZZ','  XY','  XZ','  YZ',

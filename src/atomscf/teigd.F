@@ -1,5 +1,5 @@
       subroutine teigd(pcap,qcap,u,t,dt,dos)
-C$Id: teigd.F,v 1.3 1995-11-03 20:41:33 d3g681 Exp $
+C$Id: teigd.F,v 1.4 2000-10-23 23:37:44 windus Exp $
       implicit none
       logical klnemn
       real *8  pcap(*),qcap(*),u(*),t(*),dos(*),dt(*)
@@ -29,16 +29,16 @@ c     angular factors for exchange integrals. obtained as sum of squares
 c     of slater coefficients c(kappa;l1,m1;l2,m2) divided by
 c     2*(2*l1+1)*(2*l2+1) for any kappa, l1, and l2.
 c.......................................................................
-      real *8 ss0, sp1, pp0, pp2, sd2, pd1, pd3, dd0, dd2, dd4
+      real *8 ss0, sp1, pp0, pp2, sd2, pd1, pd3, dd0, dd2
       real *8 sf3, pf2, pf4, df1, df3, df5, ff0, ff2, ff4, ff6
       real *8 a, b
       real *8 f0pol, f2pol, df1pol, df3pol
-      data ss0,sp1,pp0,pp2,sd2,pd1,pd3,dd0,dd2,dd4,
+      data ss0,sp1,pp0,pp2,sd2,pd1,pd3,dd0,dd2,
      x     sf3,pf2,pf4,df1,df3,df5,ff0,ff2,ff4,ff6
      x/ .50000000000d+00, .16666666667d+00, .16666666667d+00,
      x  .66666666667d-01, .10000000000d+00, .66666666667d-01,
      x  .42857142857d-01, .10000000000d+00, .28571428571d-01,
-     x  .28571428571d-01, .71428571429d-01, .42857142857d-01,
+     x  .71428571429d-01, .42857142857d-01,
      x  .31746031746d-01, .42857142857d-01, .19047619048d-01,
      x  .21645021645d-01, .71428571429d-01, .19047619048d-01,
      x  .12987012987d-01, .16650016650d-01/

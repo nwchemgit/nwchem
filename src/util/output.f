@@ -21,13 +21,15 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: output.f,v 1.8 2000-06-09 00:42:08 d3g681 Exp $
+C$Id: output.f,v 1.9 2000-10-23 23:37:51 windus Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
       double precision z(rowdim,coldim), zero
-      character*8 asa(3), column, ctl, blank
-      data column/'column'   /,asa/' ','00000000'  ,
+      character*8 asa(3), ctl, blank
+*     character*8 column
+*     data column/'column'   /
+      data asa/' ','00000000'  ,
      1     '--------'  /,blank/' '/
       data kcol/8/
       data zero/0.d00/
@@ -95,13 +97,15 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: output.f,v 1.8 2000-06-09 00:42:08 d3g681 Exp $
+C$Id: output.f,v 1.9 2000-10-23 23:37:51 windus Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
       double precision z(rowdim,coldim), zero
-      character*8 asa(3), column, ctl, blank
-      data column/'column'   /,asa/' ','00000000'  ,
+      character*8 asa(3), ctl, blank
+*     character*8 column
+*     data column/'column'   /
+      data asa/' ','00000000'  ,
      1     '--------'  /,blank/' '/
       data kcol/8/
       data zero/0.d00/
@@ -169,13 +173,15 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: output.f,v 1.8 2000-06-09 00:42:08 d3g681 Exp $
+C$Id: output.f,v 1.9 2000-10-23 23:37:51 windus Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
       integer z(rowdim,coldim), zero
-      character*8 asa(3), column, ctl, blank
-      data column/'column'   /,asa/' ','00000000'  ,
+      character*8 asa(3), ctl, blank
+*     character*8 column
+*     data column/'column'   /
+      data asa/' ','00000000'  ,
      1     '--------'  /,blank/' '/
       data kcol/8/
       data zero/0/

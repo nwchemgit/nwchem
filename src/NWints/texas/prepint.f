@@ -1,4 +1,4 @@
-c $Id: prepint.f,v 1.16 2000-10-23 15:51:15 windus Exp $
+c $Id: prepint.f,v 1.17 2000-10-23 23:37:43 windus Exp $
 cccc  subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
       subroutine prepint2(bl,    inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,maxprice,scftype)
@@ -218,7 +218,7 @@ c----------------------------------------------------------------
 c pi256=pi/256
 c
       common /neglect/ eps,eps1,epsr
-      data one,pi, pi256 /1.d0 , 3.1415926535d0 , 0.012271846d0 /
+      data one,pi256 /1.d0 , 0.012271846d0 /
 c
       eps =thres
       eps1=one/eps

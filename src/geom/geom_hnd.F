@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.36 2000-08-26 19:51:54 d3g681 Exp $
+* $Id: geom_hnd.F,v 1.37 2000-10-23 23:37:45 windus Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -679,13 +679,10 @@ C          SEE WDC P58. -----
 C     -----I IS THE END ATOM, J IS THE APEX ATOM, AND
 C          K AND L ARE THE ANCHOR ATOMS -----
 C
-      CHARACTER*8 ERRMSG
       DIMENSION B(NCART,1),C(3,1)
       DIMENSION RJI(3),RJK(3),RJL(3)
       DIMENSION EJI(3),EJK(3),EJL(3)
       DIMENSION C1(3),C2(3),C3(3)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG    /'PROGRAM ','STOP IN ','-OPLA  -'/
       DATA ZERO,ONE  /0.0D+00,1.0D+00/
       DATA TOL,PIDEG /5.0D-05,180.00D+00/
 C
@@ -2152,8 +2149,6 @@ c
       dimension nibnds(  *)
       data tol    /1.0d-01/     ! 5.7 degrees
 *     data tol    /1.0d-08/
-      data zero   /0.0d+00/
-      data one    /1.0d+00/
       data two    /2.0d+00/
 c     
       distsq(iat,jat)=(c(1,iat)-c(1,jat))**2+
@@ -2430,8 +2425,8 @@ c
       dimension nibnds(  *)
       data tol    /1.0d-01/     ! sin(5.7 degrees) = 0.1
 *     data tol    /1.0d-08/
-      data zero   /0.0d+00/
-      data one    /1.0d+00/
+c$$$  data zero   /0.0d+00/
+c$$$  data one    /1.0d+00/
       data two    /2.0d+00/
 c     
       distsq(iat,jat)=(c(1,iat)-c(1,jat))**2+
@@ -3852,7 +3847,6 @@ C
       DATA ERRMSG    /'PROGRAM ','STOP IN ','- ZXYZ -'/
       DATA ZERO,ONE  /0.0D+00,1.0D+00/
       DATA TWO,THREE /2.0D+00,3.0D+00/
-      DATA PT1,MAX   /0.1D+00,6/
 C
       DBUG=.FALSE.
       IW = luout

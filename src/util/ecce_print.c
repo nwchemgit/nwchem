@@ -1,5 +1,5 @@
 /*
- $Id: ecce_print.c,v 1.15 1999-11-16 20:51:02 edo Exp $
+ $Id: ecce_print.c,v 1.16 2000-10-23 23:37:51 windus Exp $
  */
 
 #include <stdio.h>
@@ -211,7 +211,6 @@ void ecce_print2_dbl_tol(const char *key,
 			 const double *data, 
 			 int ld1, int dim1, int dim2, double tol)
 {
-    static int print_warning = 1;
     int i;
     int ndecimal;
 
@@ -281,8 +280,6 @@ void ecce_print_echo_string(const char *mystring)
 Echo the contents of string into the ECCE file
  */
 {
-    int len ;
-    
     if (!ecce_print_enabled) return;
     (void)fprintf(ecce_file,"%s\n",mystring);
     (void)fflush(ecce_file);    

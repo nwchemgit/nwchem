@@ -1,5 +1,5 @@
       subroutine jacod(f,v,nb,nb1,nb2,nmin,nmax,big,jbig,maxao)
-C$Id: jacod.F,v 1.3 1997-01-21 00:43:19 d3e129 Exp $
+C$Id: jacod.F,v 1.4 2000-10-23 23:37:44 windus Exp $
       implicit none
 c.......................................................................
 c      f is the matrix to be diagonalized. f is stored triangular
@@ -19,9 +19,9 @@ c
       integer iear, iebr, ieaa, ieab, it, kq, ir1
       real *8 sd, t, dif, t2x2, t2x25, cx, sx, tt
 c
-      real *8 root2, c1, c2, c3, c4, c5, c6
+      real *8 root2, c2, c3, c4, c5, c6
       data root2 /0.707106781186548d0/
-      data c1,c2,c3,c4,c5,c6/1.0d-12,1.0d-12,4.0d-16,2.0d-16,
+      data c2,c3,c4,c5,c6/1.0d-12,4.0d-16,2.0d-16,
      +                        8.0d-9,3.0d-6/
 c
       ia = 0

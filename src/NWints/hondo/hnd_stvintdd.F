@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintdd.F,v 1.6 2000-08-16 19:48:15 windus Exp $
+c $Id: hnd_stvintdd.F,v 1.7 2000-10-23 23:37:42 windus Exp $
 c
 c Taken and modified from HONDO
 c
@@ -39,9 +39,8 @@ c
       integer nder, mini, maxi, minj, maxj, minprim, maxprim
       integer i, index
       dimension minprim(5), maxprim(5)
-      double precision zero, negone
+      double precision zero
       data zero   /0.0d+00/
-      data negone /-1.0d+00/
       data minprim / 1, 2, 5,11,21/
       data maxprim / 1, 4,10,20,35/
 c

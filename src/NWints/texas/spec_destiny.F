@@ -1,4 +1,4 @@
-* $Id: spec_destiny.F,v 1.16 2000-10-23 15:51:15 windus Exp $
+* $Id: spec_destiny.F,v 1.17 2000-10-23 23:37:43 windus Exp $
 c==============================================================
 c K.Wolinski : May,1997 : the use of 
 c       ics=iis(ijcs)    
@@ -45,8 +45,6 @@ c
       dimension iqorder(*)
       dimension lder(78) ! derivative's order
       dimension worker(78) ! local working scratch
-c--------------------------------
-      data zero,half /0.d0,0.5d0/
 c--------------------------------------------------------
 c  loop over quartets belonging to the block IKBL :
 c--------------------------------------------------------
@@ -262,8 +260,6 @@ c
       dimension worker(78)
 c
       double precision threshold ! For screening output integrals
-c--------------------------------
-      data zero,half /0.d0,0.5d0/
 c----------------------------
 c     do not zero out integ_n0 here
 c----------------------------
@@ -776,8 +772,6 @@ c
       dimension q4(*)
       dimension iqorder(*)
       dimension lder(12) ! derivative's order
-c--------------------------------
-      data zero,half /0.d0,0.5d0/
 c--------------------------------------------------------
 c  loop over quartets belonging to the block IKBL :
 c--------------------------------------------------------
@@ -1031,8 +1025,6 @@ c
       double precision xtmp(12)
 c     
       double precision threshold ! For screening output integrals
-c--------------------------------
-      data zero,half /0.d0,0.5d0/
 c----------------------------
 c     do not zero out integ_n0 here
 c----------------------------
@@ -1335,8 +1327,6 @@ c
       dimension icfg(*),jcfg(*),kcfg(*),lcfg(*)
       dimension indxp(*),ipres(*)
       dimension q4(*)
-c--------------------------------
-      data zero,half /0.d0,0.5d0/
 c--------------------------------------------------------
 c  loop over quartets belonging to the block IKBL :
 c--------------------------------------------------------
@@ -1507,9 +1497,6 @@ c      write(6,*) ' shell-size=',ilen,jlen,klen,llen
 c      ENDIF
 c
 c TEST --------------------------
-c--------------------------------
-      data zero,half /0.d0,0.5d0/
-c----------------------------
 c     do not zero out integ_n0 here
 c----------------------------
 c     loop over quartets belonging to the block IKBL :

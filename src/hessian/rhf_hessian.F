@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.32 2000-10-23 15:52:05 windus Exp $
+c $Id: rhf_hessian.F,v 1.33 2000-10-23 23:37:47 windus Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -629,7 +629,6 @@ c
       common/hnd_basnum/num
       dimension x(1)
       equivalence (x(1),dbl_mb(1))
-      data zero    /0.0d+00/
 c
       dbug=.false.
       if(dbug) then
@@ -1135,7 +1134,6 @@ c
       dimension x(1)
 c
       equivalence (x(1),dbl_mb(1))
-      data zero    /0.0d+00/
 c
       dbug=.false.
       if(dbug) then
@@ -1955,7 +1953,6 @@ C
       PARAMETER (MXCART=3*MXATOM)
       LOGICAL OUT
 C     LOGICAL SOME
-      CHARACTER*4 KEYEFC
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_GRAD12/DE(3,MXATOM)
@@ -1966,11 +1963,7 @@ C     LOGICAL SOME
 C
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
       DATA ZERO   /0.0D+00/
-      DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
       DATA THREE  /3.0D+00/
-      DATA KEYEFC /' EFC'/
-      DATA KEYFLD /4H FLD/
 C
       OUT =.FALSE.
 C
@@ -2101,8 +2094,6 @@ C
 #include "global.fh"
 #include "nwc_const.fh"
       PARAMETER (MXATOM=nw_max_atom)
-      CHARACTER*8 ERRMSG
-      CHARACTER*8 SCF,UHF
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_WFNOPT/WFNTYP
@@ -2114,9 +2105,6 @@ C
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       LOGICAL SOME,OUT,DBUG
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG  /'PROGRAM ','STOP IN','- HLFX -'/
-      DATA SCF,UHF /'SCF     ','UHF    '/
       DATA ZERO    /0.0D+00/
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
 C
@@ -2254,7 +2242,6 @@ C
       PARAMETER (MXATOM=nw_max_atom)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
-      CHARACTER*8 ERRMSG
       LOGICAL IANDJ
       LOGICAL SOME,OUT
       COMMON/HND_IOFILE/IR,IW,IP
@@ -2270,13 +2257,7 @@ C
       DIMENSION DIJ(225)
       DIMENSION DVIJ(3,225),DDVIJ(3,3,225)
       DIMENSION DNAM(3)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-HLFSPD-'/
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
-      DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
-      DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
 #include "global.fh"
 C
       OUT =.FALSE.
@@ -2496,14 +2477,11 @@ C
       DIMENSION  DXV(5,5,5), DYV(5,5,5), DZV(5,5,5)
       DIMENSION DDXV(5,5,5),DDYV(5,5,5),DDZV(5,5,5)
       DIMENSION W2(5),W4(5)
-      DIMENSION DNAM(3)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-HLFSPD-'/
-      DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
       DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
       DATA FOUR   /4.0D+00/
@@ -2862,7 +2840,6 @@ C     COMMON/HND_IJPAIR/IA(1)
       DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
       DATA FOUR   /4.0D+00/
@@ -3279,8 +3256,6 @@ C
 #include "mafdecls.fh"
 #include "nwc_const.fh"
       PARAMETER (MXATOM=nw_max_atom)
-      CHARACTER*8 ERRMSG
-      CHARACTER*8 SCF,UHF
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_WFNOPT/WFNTYP
@@ -3290,9 +3265,6 @@ C
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       LOGICAL OUT
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG  /'PROGRAM ','STOP IN ','- HLFDX-'/
-      DATA SCF,UHF /'SCF     ','UHF     '/
       DATA ZERO   /0.0D+00/
 C
       OUT =.FALSE. 
@@ -3361,7 +3333,6 @@ C
       PARAMETER (MXATOM=nw_max_atom)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
-      CHARACTER*8 ERRMSG
       LOGICAL IANDJ
       LOGICAL OUT
       COMMON/HND_IOFILE/IR,IW,IP
@@ -3376,13 +3347,6 @@ C
       DIMENSION FC(LFC,1),DF(LDF,1),DAB(1)
       DIMENSION DIJ(225)
       DIMENSION DIDVIJ(3,3,225)
-      DIMENSION DNAM(3)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','- HLFD -'/
-      DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
-      DATA MAXRYS /5/
-      DATA RLN10  /2.30258D+00/
-      DATA ZERO   /0.0D+00/
       DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
@@ -3569,14 +3533,11 @@ C
       DIMENSION    DXV(6,5,5),   DYV(6,5,5),   DZV(6,5,5)
       DIMENSION  DXVDI(5,5,5), DYVDI(5,5,5), DZVDI(5,5,5)
       DIMENSION DDXVDI(5,5,5),DDYVDI(5,5,5),DDZVDI(5,5,5)
-      DIMENSION DNAM(3)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','- HLFD -'/
-      DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
       DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
       DATA PI212  /1.1283791670955D+00/
@@ -3899,10 +3860,8 @@ C     COMMON/HND_IJPAIR/IA(1)
       DIMENSION    DXV(6,5,5),   DYV(6,5,5),   DZV(6,5,5)
       DIMENSION  DXVDI(5,5,5), DYVDI(5,5,5), DZVDI(5,5,5)
       DIMENSION DDXVDI(5,5,5),DDYVDI(5,5,5),DDZVDI(5,5,5)
-      DIMENSION DNAM(3)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','- HLFD -'/
-      DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
       DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
@@ -4273,8 +4232,6 @@ C
 #include "mafdecls.fh"
 #include "nwc_const.fh"
       PARAMETER (MXATOM=NW_MAX_ATOM)
-      CHARACTER*8 ERRMSG
-      CHARACTER*8 SCF,UHF
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_WFNOPT/WFNTYP
@@ -4285,11 +4242,8 @@ C
       DIMENSION X(1)
       LOGICAL OUT
       EQUIVALENCE (X(1),DBL_MB(1))
-      DIMENSION ERRMSG(3)
       DIMENSION DNAM(3)
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
-      DATA ERRMSG  /'PROGRAM ','STOP IN ','- TVDX -'/
-      DATA SCF,UHF /'SCF     ','UHF     '/
       DATA ZERO   /0.0D+00/
       DATA NFT17  /17/
 C
@@ -4419,7 +4373,6 @@ C
       PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
-      CHARACTER*8 ERRMSG
       LOGICAL IANDJ
       LOGICAL OUT
       LOGICAL DBUG
@@ -4438,16 +4391,7 @@ C
       DIMENSION DIDIVIJ(3,3,225),DIDJVIJ(3,3,225)
       DIMENSION DIJ(225)
       DIMENSION DNAM(3)
-      DIMENSION ERRMSG(3)
-      DATA NFT17  /17/
-      DATA ERRMSG /'PROGRAM ','STOP IN ','- TVD  -'/
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
-      DATA MAXRYS /5/
-      DATA RLN10  /2.30258D+00/
-      DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
-      DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
 C
       DBUG=.FALSE.
       OUT =.FALSE.
@@ -4745,16 +4689,12 @@ C
       DIMENSION  DXVDJ(5,5,5), DYVDJ(5,5,5), DZVDJ(5,5,5)
       DIMENSION DXVDII(5,5,5),DYVDII(5,5,5),DZVDII(5,5,5)
       DIMENSION DXVDIJ(5,5,5),DYVDIJ(5,5,5),DZVDIJ(5,5,5)
-      DIMENSION DNAM(3)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','- TVD  -'/
-      DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
       DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
       DATA PI212  /1.1283791670955D+00/
       DATA SQRT3  /1.73205080756888D+00/
       DATA SQRT5  /2.23606797749979D+00/
@@ -5264,15 +5204,13 @@ C     COMMON/HND_IJPAIR/IA(1)
       DIMENSION DXVDIJ(5,5,5),DYVDIJ(5,5,5),DZVDIJ(5,5,5)
       DIMENSION DNAM(3)
       DIMENSION ERRMSG(3)
-      DATA NFT17  /17/
+c     DATA NFT17  /17/
       DATA ERRMSG /'PROGRAM ','STOP IN ','- TVD  -'/
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
       DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
       DATA PI212  /1.1283791670955D+00/
       DATA SQRT3  /1.73205080756888D+00/
       DATA SQRT5  /2.23606797749979D+00/
@@ -5832,8 +5770,6 @@ C
 #include "mafdecls.fh"
 #include "nwc_const.fh"
       PARAMETER (MXATOM=NW_MAX_ATOM)
-      CHARACTER*8 ERRMSG
-      CHARACTER*8 SCF,RHF,GVB
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_SCFWFN/CICOEF(2,12),F(25),ALPHA(325),BETA(325),
@@ -5847,10 +5783,7 @@ C     COMMON/HND_IJPAIR/IA(1)
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       LOGICAL OUT,SOME
-      DIMENSION ERRMSG(3)
       DIMENSION DNAM(3)
-      DATA ERRMSG      /'PROGRAM ','STOP IN ','- SDX  -'/
-      DATA SCF,RHF,GVB /'SCF     ','RHF     ','GVB     '/
       DATA ZERO        /0.0D+00/
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
       DATA NFT17  /17/
@@ -5993,10 +5926,6 @@ C
       DIMENSION DIJ(225)
       DIMENSION DNAM(3)
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
-      DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
-      DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
 C
       OUT =.FALSE.
 C
@@ -6207,10 +6136,7 @@ C
       DIMENSION DXSDIJ(5,5),DYSDIJ(5,5),DZSDIJ(5,5)
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
-      DATA PI212  /1.1283791670955D+00/
       DATA SQRT3  /1.73205080756888D+00/
       DATA SQRT5  /2.23606797749979D+00/
       DATA SQRT7  /2.64575131106459D+00/
@@ -6501,15 +6427,11 @@ C     COMMON/HND_IJPAIR/IA(1)
       DIMENSION DXSDII(5,5),DYSDII(5,5),DZSDII(5,5)
       DIMENSION DXSDIJ(5,5),DYSDIJ(5,5),DZSDIJ(5,5)
       DIMENSION DNAM(3)
-      DATA NFT17  /17/
-      DATA NFT18  /18/
+c     DATA NFT17  /17/
+c     DATA NFT18  /18/
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
       DATA RLN10  /2.30258D+00/
-      DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
-      DATA PI212  /1.1283791670955D+00/
       DATA SQRT3  /1.73205080756888D+00/
       DATA SQRT5  /2.23606797749979D+00/
       DATA SQRT7  /2.64575131106459D+00/
@@ -7208,8 +7130,6 @@ c
       dimension x(1)
       equivalence (x(1),dbl_mb(1))
 c
-      data zero    /0.0d+00/
-c
       dbug=.false.
       if(dbug) then
          write(iw,*) 'in -hnd_dder2_init-'
@@ -7270,8 +7190,6 @@ c
 c
       dimension x(1)
       equivalence (x(1),dbl_mb(1))
-c
-      data zero    /0.0d+00/
 c
       dbug=.false.
       if(dbug) then
@@ -7337,7 +7255,7 @@ c
       PARAMETER (MXSHEL=512)
       PARAMETER (MXNBF =2048)
       CHARACTER*8 ERRMSG
-      CHARACTER*8 CPMCHF,RHF,UHF,GVB,SCF,TYPMC,TYPCI
+      CHARACTER*8 RHF,UHF,GVB,SCF,TYPMC,TYPCI
       CHARACTER*8 WFNTYP,SCFTYP
       LOGICAL SOME
       LOGICAL NOCORE,NOOPEN,NOPAIR,SUHF,ROHF,RGVB,ROGVB,MC,CI,MCCI
@@ -7388,7 +7306,6 @@ C
       DIMENSION LENSHL(5)
       DIMENSION ERRMSG(3)
       DATA ERRMSG      /'PROGRAM ','STOP IN ','-DDERJK-'/
-      DATA CPMCHF      /'CPMCHF  '/
       DATA RHF,UHF,GVB /'RHF     ','UHF     ','GVB     '/
       DATA SCF         /'SCF     '/
       DATA TYPMC,TYPCI /'MC      ','CI      '/
@@ -7828,7 +7745,6 @@ C
       DIMENSION SJ(NG*NR),SK(NG*NR),SL(NG*NR)
       DIMENSION DIJSI(NG*NR),DIJSJ(NG*NR),DKLSK(NG*NR),DKLSL(NG*NR)
       DATA ZERO /0.0D+00/
-      DATA ONE  /1.0D+00/
 C
 C     ----- FIRST DERIVATIVE INTEGRALS + GRADIENT + HESSIAN -----
 C
@@ -8957,7 +8873,6 @@ C
       DIMENSION SJ(NG*NR),SK(NG*NR),SL(NG*NR)
       DIMENSION DIJSI(NG*NR),DIJSJ(NG*NR),DKLSK(NG*NR),DKLSL(NG*NR)
       DATA ZERO /0.0D+00/
-      DATA ONE  /1.0D+00/
 C
 C     ----- FIRST DERIVATIVE INTEGRALS + GRADIENT + HESSIAN -----
 C
@@ -10806,7 +10721,6 @@ C
       DIMENSION MI(48)
       DIMENSION ISO(512,24)
       EQUIVALENCE (ISO(1,1),MAPSHL(1,1))
-      DATA ZERO  /0.0D+00/
       DATA TEN   /1.0D+01/
       DATA RLN10 /2.30258D+00/
       DATA NTYP  /6/
@@ -11389,7 +11303,6 @@ C
 #include "bitops_decls.fh"
       DATA ERRMSG /'PROGRAM ','STOP IN ','- JKDMC-'/
       DATA ZERO   /0.0D+00/
-      DATA TWO    /2.0D+00/
       DATA GTOL   /1.0D-09/
       DATA NFTG   /15/
 c
@@ -12402,8 +12315,6 @@ C
       COMMON/HND_DERINV/INVTYP
       COMMON/HND_DSHPRT/OUT
 C
-      DATA ZERO,ONE,TWO /0.0D+00,1.0D+00,2.0D+00/
-C
       SKIPI=.TRUE.
       SKIPJ=.TRUE.
       SKIPK=.TRUE.
@@ -13194,8 +13105,8 @@ C
       DIMENSION IA(1),DC(1),DV(1)
       DIMENSION DM2(LDM2,LDM2,LDM2,LDM2)
       DIMENSION DAB(1)
-      DATA ZERO,PT5,TWO,FOUR /0.0D+00,0.5D+00,2.0D+00,4.0D+00/
-      DATA PT125,PT25,ONE    /0.125D+00,0.25D+00,1.0D+00/
+      DATA ZERO,PT5,FOUR /0.0D+00,0.5D+00,4.0D+00/
+      DATA PT25 /0.25D+00/
 C
       MINI=KMIN(II)
       MINJ=KMIN(JJ)
@@ -13462,7 +13373,6 @@ C
       DIMENSION DAB(1)
       DIMENSION FC(NC,1),DF(LDF,1),DEN(1)
       DATA PI252  /34.986836655250D+00/
-      DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
       DATA TENM01 /1.0D-01/
 C
@@ -14751,7 +14661,6 @@ C
       DIMENSION SJ(NG*NR),SK(NG*NR),SL(NG*NR)
       DIMENSION DIJSI(NG*NR),DIJSJ(NG*NR),DKLSK(NG*NR),DKLSL(NG*NR)
       DATA ZERO /0.0D+00/
-      DATA ONE  /1.0D+00/
 C
       IF(SPIJKL) GO TO 1000
 C
@@ -15269,7 +15178,6 @@ C
       DIMENSION SJ(NG*NR),SK(NG*NR),SL(NG*NR)
       DIMENSION DIJSI(NG*NR),DIJSJ(NG*NR),DKLSK(NG*NR),DKLSL(NG*NR)
       DATA ZERO /0.0D+00/
-      DATA ONE  /1.0D+00/
 C
       IF(SPIJKL) GO TO 1000
 C
@@ -16582,7 +16490,6 @@ c*    character*(nw_max_path_len) cphf_sol
       character*256 cphf_sol
       integer  g_ya, g_ya_tr
 c
-      character*8 errmsg
       logical dbug
       logical out
       logical out_grad
@@ -16592,13 +16499,10 @@ c
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_basnum/num
       common/hnd_cphf_mem/i_init,init
-      dimension errmsg(3)
 c
       dimension x(1)
       equivalence (x(1),dbl_mb(1))
 c
-      data errmsg /'program ','stop in ','-  cphf-'/
-      data zero   /0.0d+00/
       data two   /2.0d+00/ 
       data four  /4.0d+00/ 
       data eight /8.0d+00/

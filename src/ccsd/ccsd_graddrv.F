@@ -4,7 +4,7 @@
      &                        giu,gabe,bbkp,bb,g_nt2,g_z2,g_hz2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst, Tol2E)
-C     $Id: ccsd_graddrv.F,v 2.5 1997-06-05 17:45:39 gg502 Exp $
+C     $Id: ccsd_graddrv.F,v 2.6 2000-10-23 23:37:44 windus Exp $
       implicit none
 c
       integer msg_cc_z1a
@@ -29,7 +29,7 @@ c
       integer max2e,mem2
       double precision eold,dabs,tx(4),rms,
      &                 tstart,tend
-      double precision zip,ten
+      double precision zip
       Integer IAm
 C
 #include "msgids.fh"
@@ -39,7 +39,7 @@ C
 #include "ccsd_len.fh"
 c
 * DATA MUST FOLLOW ALL DELCARATIONS 
-      data zip/0.0d00/,ten/10.0d00/
+      data zip/0.0d00/
 c
       IAM = GA_NodeID()
 C

@@ -1,4 +1,4 @@
-C $Id: rel_pvp.F,v 1.3 2000-01-03 21:42:13 mg201 Exp $
+C $Id: rel_pvp.F,v 1.4 2000-10-23 23:37:42 windus Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pvp}
 c:tex-This routine generates the pV.p integrals needed for various
@@ -94,9 +94,6 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       logical doS     ! compute overlap (True/False)
       logical doT     ! compute kinetic (True/False)
       logical doV     ! compute potential (True/False)
-      character*12 pot_type(4)
-      data pot_type
-     &    /'      Scalar','z spin-orbit','y spin-orbit','x spin-orbit'/
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1

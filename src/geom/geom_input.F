@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.136 2000-05-06 21:52:29 edo Exp $
+C     $Id: geom_input.F,v 1.137 2000-10-23 23:37:46 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1861,7 +1861,6 @@ C
       LOGICAL       GHOST
       CHARACTER*8   ATNAME
       CHARACTER*2   ATLBL1,ATLBL2,ATLBL3,ATLBL4
-      CHARACTER*8   DUMMY
       CHARACTER*2   GH
       CHARACTER*1   BLK
       CHARACTER*80  BLNK80
@@ -1880,10 +1879,8 @@ C
       CHARACTER*1   DASH
       CHARACTER*1   DIGIT(10)
       CHARACTER*8   ERRMSG
-      CHARACTER*8   WRDBAS
       CHARACTER*8   WRDEND
       CHARACTER*8   WRDXYZ
-      CHARACTER*8   WRDGEO
       CHARACTER*8   WRDZMT
       CHARACTER*8   WRDIZM
       CHARACTER*8   WRDOPT
@@ -1933,10 +1930,8 @@ C
       DATA DIGIT  /'1' ,'2' ,'3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,'0' /
       DATA UNDERS /'_'/
       DATA DASH   /'-'/
-      DATA WRDBAS /' $BASIS '/
       DATA WRDEND /'zend    '/
       DATA WRDXYZ /' $XYZ   '/
-      DATA WRDGEO /' $GEO   '/
       DATA WRDZMT /' $ZMT   '/
       DATA WRDIZM /' IZMAT ='/
       DATA WRDOPT /' $OPTZ  '/
@@ -1945,7 +1940,6 @@ C
       DATA WR2VAR /'variables:'/
       DATA WR1CON /'CONSTANTS:'/
       DATA WR2CON /'constants:'/
-      DATA DUMMY  /'   DUMMY'/
       DATA BLK    /80*' '/
       DATA BLNK8  /'        '/
       DATA BLNK5  /'     '/
@@ -2835,7 +2829,7 @@ c
       double precision zan
       character*16 tags
       character*16 atmlab
-      character*8  errmsg,groupname
+      character*8  groupname
       character*(*) group
       common/hnd_iofile/ir,iw
       common/hnd_molnuc/nuc(mxatom)
@@ -2844,9 +2838,7 @@ c
       dimension coords(3,*)
       dimension charge(  *)
       dimension   tags(  *)
-      dimension errmsg(3)
       logical odone
-      data errmsg /'program ','stop in ','-autsym-'/
 c
       dbug=.false.
       some=.false.
@@ -2907,9 +2899,7 @@ c
       LOGICAL     ODONE
       PARAMETER   (MXATOM=nw_max_atom)
       PARAMETER   (MXSYM =120)
-      CHARACTER*8 ERRMSG,groupname
-      CHARACTER*1 XYZNAM
-      CHARACTER*1 ABCNAM
+      CHARACTER*8 groupname
       LOGICAL     SOME
       LOGICAL     OUT
       LOGICAL     DBUG
@@ -2923,13 +2913,6 @@ c
       DIMENSION   AXS(3,3),EIG(3)
       DIMENSION   RT(3,3)
       DIMENSION   TR(3)
-      DIMENSION   XYZNAM(3),ABCNAM(3)
-      DIMENSION   ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-AUTSYM-'/
-      DATA ZERO   /0.0D+00/
-      DATA ONE    /1.0D+00/
-      DATA XYZNAM /'X','Y','Z'/
-      DATA ABCNAM /'A','B','C'/
 C
       DBUG=.FALSE.
       OUT =.FALSE. 
@@ -3091,12 +3074,10 @@ C
       DATA TWO    /2.0D+00/
       DATA THREE  /3.0D+00/
       DATA FOUR   /4.0D+00/
-      DATA TENM01 /1.0D-01/
-      DATA TENM02 /1.0D-02/
+c     DATA TENM01 /1.0D-01/
+c     DATA TENM02 /1.0D-02/
       DATA TENM04 /1.0D-04/
       DATA TENM05 /1.0D-05/
-      DATA TENM09 /1.0D-09/
-      DATA TEN06  /1.0D+06/
       DATA EPS    /1.01D+00/
 C
       QZERO=cmplx(ZERO,ZERO)
@@ -4189,13 +4170,11 @@ C
       LOGICAL  OUT
       LOGICAL  SOME
       LOGICAL  PUNCH
-      CHARACTER*8 ERRMSG
       CHARACTER*8 WRDSYM
       CHARACTER*8 WRDEND
       CHARACTER*8 GRPSAV
       CHARACTER*8 GROUP,groupname
       CHARACTER*8 BLANK
-      CHARACTER*1 I2
       CHARACTER*1 B
       CHARACTER*1 C
       CHARACTER*1 S
@@ -4231,10 +4210,7 @@ C
       COMMON/HND_SYMMOL/COMPLX,IGROUP,NAXIS,LINEAR
       COMMON/HND_SYMNAM/GROUP
       DIMENSION TR(3),RT(3,3)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'-PROGRM ','STOP IN ','-MOLSMB-'/
       DATA BLANK  /'        '/
-      DATA I2     /'2'/
       DATA B      /' '/
       DATA S      /'S'/
       DATA C      /'C'/
@@ -4512,7 +4488,6 @@ C
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA CONV   /1.0D-10/
-      DATA MAXIT  /50/
 C
       IF(N.EQ.3.AND.NDIM.EQ.3) GO TO 10
          WRITE(IW,9999)

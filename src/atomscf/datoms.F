@@ -2,7 +2,7 @@
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
      $     odens, eatom)
-C     $Id: datoms.F,v 1.22 2000-03-09 00:12:12 mg201 Exp $
+C     $Id: datoms.F,v 1.23 2000-10-23 23:37:44 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "geom.fh"
@@ -95,21 +95,12 @@ c
       integer isymax
       real *8 toteng, znps
 c     
-c..   we need xy for d and xyz for f in gathering h-ints
-c..   so set proper offsets in ioffhp (see do 140)
-c     
-      integer ioffhp(4)
       integer maxtyp
       parameter (maxtyp = 6)
-      integer minf(maxtyp),maxf(maxtyp)
 c
       logical ospherical
 c     
-      data ioffhp/0,0,3,9/
       data iwrite/6/
-c     
-      data minf  / 1, 2,  5, 11, 21, 1 /
-      data maxf  / 1, 4, 10, 20, 35, 4 /
 c     
       toteng = 0.0d0
 c     

@@ -1,4 +1,4 @@
-* $Id: precalc2.F,v 1.24 2000-10-23 15:51:14 windus Exp $
+* $Id: precalc2.F,v 1.25 2000-10-23 23:37:43 windus Exp $
 c--------------------------------------------------------------------
       subroutine prec2ij(ibl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)
@@ -724,8 +724,6 @@ c
       dimension rapb(nij_uniqe,*),rcpd(nkl_uniqe,*)
       dimension habcd(nhabcd,3,nfumax,*)
       dimension ij_uniqe(nij_uniqe),kl_uniqe(nkl_uniqe)
-c
-      data half /0.5d0/
 c-----------------------
          do 170 kl=1,lckl
            do 180 ifu=1,nfumax
@@ -1957,8 +1955,6 @@ c
 c
       dimension rapb(*),rcpd(*), habcd(3,nfumax,*)
 c
-      data half /0.5d0/
-c
 c-----------------------
 c Do it only for one pair (the first one)
 c
@@ -2000,7 +1996,7 @@ ccc   dimension rppq(*),rhoapb(*),rhocpd(*),rys(*),const(*)
 c now scalars:  rppq,rhoapb,rhocpd  
       dimension rys(*),const(*)
 c
-      data zero,one /0.d0 , 1.d0/
+      data one /1.d0/
 c---------------------------------------------------------------
 c not par268=eps1*8.d0
       par268=     8.d0
@@ -2097,7 +2093,7 @@ c
       dimension rys(*),const(*)
       dimension xpqr(3,*),txxr(3,*)
 c     
-      data zero,one /0.d0 , 1.d0/
+      data one /1.d0/
 c---------------------------------------------------------------
       par268=     8.d0
 c---------------------------------------------------------------

@@ -5,7 +5,7 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E, occd, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.17 1998-12-03 01:38:35 d3g681 Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.18 2000-10-23 23:37:44 windus Exp $
       implicit none
 #include "util.fh"
 c
@@ -52,8 +52,8 @@ C
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c
-      double precision zip,ten
-      data zip/0.0d00/,ten/10.0d00/
+      double precision zip
+      data zip/0.0d00/
 c
       IAm = GA_NodeID()
 C

@@ -1,6 +1,6 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.30 2000-10-23 15:51:29 windus Exp $
+C     $Id: ccsd_driver.F,v 2.31 2000-10-23 23:37:44 windus Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -62,8 +62,8 @@ c
        logical int_normalize
        external int_normalize
 c
-       double precision zip,one,two
-       data zip/0.0d00/,one/1.0d00/,two/2.0d00/
+       double precision zip
+       data zip/0.0d00/
 c
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.true./

@@ -1,4 +1,4 @@
-c  $Id: hnd_util.F,v 1.1 2000-06-07 23:37:48 windus Exp $
+c  $Id: hnd_util.F,v 1.2 2000-10-23 23:37:49 windus Exp $
 c
 c  These are a bunch of utility routines that were in hessian/rhf_hessian.F
 c  that were moved here since the hessian code no longer depends on them.
@@ -527,7 +527,6 @@ C
       DIMENSION GNM(NG,NMAX,MMAX)
       DIMENSION C00(NG),D00(NG),F00(NG)
       DIMENSION B00(NG,1),B01(NG,1),B10(NG,1)
-      DATA ZERO,ONE /0.0D+00,1.0D+00/
 C
 C     ----- G(0,0) -----
 C
@@ -636,7 +635,6 @@ C
       DIMENSION GNM(NG,NMAX,MMAX)
       DIMENSION C00(NG),D00(NG),F00(NG)
       DIMENSION B00(NG,1),B01(NG,1),B10(NG,1)
-      DATA ZERO,ONE /0.0D+00,1.0D+00/
 C
 C     ----- G(0,0) -----
 C

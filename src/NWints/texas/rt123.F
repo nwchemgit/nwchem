@@ -5,7 +5,7 @@ c     Look for lines ending in E that should probably be a D for
 c     double precision.  The stuff on the following line is often
 c     gibberish.
 c
-c$$$c $Id: rt123.F,v 1.3 1998-08-27 06:24:10 d3g681 Exp $
+c$$$c $Id: rt123.F,v 1.4 2000-10-23 23:37:43 windus Exp $
 c$$$C MAR 29 91 PP PUT IN SAFEGURDS AGAINST INFINITE LOOP - IT MAY HAPPEN
 c$$$C   IN DNODE
 c$$$C MAR 26 91 PP FIXED SUBROUTINE FM ACCORDING TO KRZYSZTOF'S INSTRUCTIONS
@@ -1547,7 +1547,7 @@ c      m between 6 and 9
       end
       subroutine ft05 (t,f0,f1,f2,f3,f4,f5)
       implicit real*8 (a-h,o-z)
-      data facmul,conmul,cmul/1.0d0,1.0d0,1.0d0/
+      data cmul/1.0d0/
       data cst/.564189583548d0/
       k=idint(t)+1
       if (k.ge.35) go to 10
