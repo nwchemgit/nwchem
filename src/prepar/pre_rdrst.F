@@ -4,7 +4,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.12 2000-01-26 16:51:17 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.13 2000-02-11 18:01:45 d3j191 Exp $
 c
       implicit none
 c
@@ -179,7 +179,7 @@ c
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.12 2000-01-26 16:51:17 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.13 2000-02-11 18:01:45 d3j191 Exp $
 c
       implicit none
 c
@@ -275,11 +275,12 @@ c
     3 continue
       endif
       if(nsa.gt.0) then
-      read(lfnrst,1008)
-     + (isar(i),(xs(k,i),k=1,3),(vs(k,i),k=1,3),i=1,nsa)
+      do 4 i=1,nsa
+      read(lfnrst,1008) isar(i),(xs(k,i),k=1,3),(vs(k,i),k=1,3)
  1008 format(i1,1x,6f13.8)
       if(lforces) read(lfnrst,1111) (rdummy,j=1,3)
  1111 format(2x,6e13.6)
+    4 continue
       endif
 c
 c      print*,nsm
