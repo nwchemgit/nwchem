@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.30 1999-07-09 22:42:06 edo Exp $
+C$Id: cdft.fh,v 1.31 1999-07-13 02:24:39 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -12,6 +12,7 @@ c     variables related to "grid" input, and
 c     other misc variables.
 c
       character*255 title
+      character*16 grtagin
       character*10 gridtype
       character*40 xname, cname, xcname
       double precision
@@ -110,7 +111,7 @@ c
      &     max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq, nq_chunk,
      &     rad_cutoff,task_list,n_tot_tasks,red_iqsh,
      &     nradin, nangin, 
-     &     accqrin,znucin,ngridin
+     &     accqrin,ngridin
 c
       integer MX_l_ang, IAC_MAX, MAX_CHUNK
 c
@@ -147,5 +148,5 @@ c
      & rad_cutoff(2,dft_max_cent),task_list(2,MXqshells),n_tot_tasks,
      & red_iqsh(MXqshells,MAX_CHUNK),
      & nradin(dft_ntags_bsmx), nangin(dft_ntags_bsmx), 
-     & accqrin(dft_ntags_bsmx),znucin(dft_ntags_bsmx),ngridin
+     & accqrin(dft_ntags_bsmx),grtagin(dft_ntags_bsmx),ngridin
 

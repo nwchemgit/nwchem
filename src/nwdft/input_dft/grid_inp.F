@@ -219,7 +219,7 @@ c
       if(ngridin.ne.0) then
          if (.not. rtdb_put(rtdb, 'dft:ngridin', mt_int, 1, ngridin))
      &      call errquit('grid_inp: rtdb_put failed', 1000)
-         if (.not. rtdb_put(rtdb,'dft:znucin',mt_int,ngridin,znucin))
+         if(.not. rtdb_put(rtdb,'dft:grtagin',mt_byte,ngridin,grtagin))
      &      call errquit('grid_inp: rtdb_put failed', 1000)
          if(.not.rtdb_put(rtdb,'dft:nradin',mt_int,ngridin,nradin))
      &      call errquit('grid_inp: rtdb_put failed', 1000)
@@ -240,7 +240,7 @@ c            if (.not. inp_a(tag)) goto 1688
 !     $     call errquit
 !     &    ('grid_inp: tag does not refer to an atom', 0)
       ngridin=ngridin+1
-      znucin(ngridin)=atn
+      grtagin(ngridin)=test
       if (.not. inp_i(nradpts)) then
          write(6,*)' grid_inp: nradpts value not found. '
       else

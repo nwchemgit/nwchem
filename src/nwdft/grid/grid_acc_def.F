@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.5 1999-07-10 06:55:35 d3e129 Exp $
+c$Id: grid_acc_def.F,v 1.6 1999-07-13 02:24:35 edo Exp $
 c
       implicit none
 c      
@@ -185,7 +185,7 @@ c
      .     then
          ngridin=0
       else
-         if (.not. rtdb_get(rtdb,'dft:znucin',mt_int,ngridin,znucin))
+         if (.not. rtdb_get(rtdb,'dft:grtagin',mt_byte,ngridin,grtagin))
      &        call errquit('grid_inp: rtdb_put failed', 1000)
          if(.not.rtdb_get(rtdb,'dft:nradin',mt_int,ngridin,nradin))
      &        call errquit('grid_inp: rtdb_get failed', 1000)
@@ -317,7 +317,7 @@ c     check if by atom grid parameters have been redifined by input
 c
                lgridin=.false.
                do jj=1,ngridin
-                  if(znucin(jj).eq.znuc_atom_type(itype)) then
+                  if(grtagin(jj).eq.tag) then
                      lgridin=.true.
                      igridin=jj
                   endif
@@ -335,9 +335,7 @@ c
                elseif (grid_acc_index.gt.5)then
                   nrad(itype) = nradpts
                   if(leb) then
-                     write(0,*) ' ll ',iangquad
                      nang(itype) = xc_leb_acc2nrd(iangquad)
-                     write(0,*) ' ll ',nang(itype),iangquad
                   else
                      nang(itype) = nagrid
                   endif
