@@ -408,20 +408,23 @@ could be specified as:
 \end{verbatim}
 
   
-\subsection{Hybrid Exchange and Correlation Functionals}
+\subsection{Combined Exchange and Correlation Functionals}
 
 In addition to the options listed above for the exchange and correlation
-functionals, the user has the alternative of specifying a ``canned'' hybrid
-functional.  The available hybrid functionals consist of the Becke
+functionals, the user has the alternative of specifying combined exchange and 
+correlation functionals.
+  The available hybrid functionals consist of the Becke
 ``{\sl half and half}'' (see A.D.~Becke, J.~Chem.~Phys.~98, 1372 (1992)), the
 adiabatic connection method (see A.D.~Becke, J.~Chem.~Phys.~98, 5648
-(1993)), and the b3lyp (popularized by Gaussian9X).
+(1993)),  b3lyp (popularized by Gaussian9X), Becke 1997 (``Becke V'' paper: A.D.Becke, J. Chem. Phys., {\bf 107}, 8554 (1997)
 
 These options can be invoked by specifying any of the following input lines,
 \begin{verbatim}
    XC beckehandh
    XC acm
    XC b3lyp
+   XC becke97
+   Xc becke97-1
 \end{verbatim}
 
 The keyword \verb+beckehandh+ specifies that the exchange-correlation energy will be
@@ -457,12 +460,15 @@ a_X \Delta E^{\rm Becke88}_{X} + (1-a_C)E^{\rm \verb+VWN_1_RPA+}_C + a_C E^{LYP}
 a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \end{eqnarray*}
 
-The keyword \verb+becke97+ specifies that the exchange-correlation energy
-defined in the "Becke V" paper: A.D.Becke,
-J. Chem. Phys., {\bf 107}, 8554 (1997)
 
-The keyword \verb+becke97-1+ specifies that the exchange-correlation energy
+The keyword \verb+becke97-1+ specifies  the hybrid exchange-correlation energy
 derived by Handy et al by re-fitting the Becke 1997 functional
+(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
+    J. Chem. Phys. {\bf 109}, 6264 (1998))
+
+The keyword \verb+hcth+ specifies the  exchange-correlation energy 
+functional derived by Hamprecht-Cohen-Tozer-Handy 
+(this is not a hybrid functional)
 (F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
     J. Chem. Phys. {\bf 109}, 6264 (1998))
 
