@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.5 2004-04-24 21:07:10 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.6 2004-05-05 19:42:38 edo Exp $
 *
 
 #ifdef MPI
@@ -63,14 +63,18 @@ c     integer msgid
       call Parallel_np(np)
 
 *     **** pack A(i) array ****
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do i=1,nfft3d(nb) 
          tmp1(int_mb(iq_to_i1(1,nb)+i-1)) = A(i)
       end do
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do i=1,msglen
          tmp2(int_mb(i2_start(1,nb)+1-1)+i-1) 
      > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
@@ -123,7 +127,9 @@ c     integer msgid
       call MPI_WAITALL(reqcnt,request,status,mpierr)
 
 *     **** unpack A(i) array ****
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do i=1,nfft3d(nb) !***(nx(nb)/2+1)*ny(nb)*nq(nb)
          A(i) = tmp2(int_mb(iq_to_i2(1,nb)+i-1))
       end do
@@ -193,7 +199,9 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** pack A(i) array ****
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do index1=int_mb(i1_start(1,nb)+1-1),
      >         (int_mb(i1_start(1,nb)+np+1-1)-1)
          tmp1(index1) = A(int_mb(iq_to_i1(1,nb)+index1-1))
@@ -201,7 +209,9 @@ c     integer i2_start(NFFT3+1)
 
 *     **** it = 0, transpose data on same thread ****
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do i=1,msglen
          tmp2(int_mb(i2_start(1,nb)+1-1)+i-1)
      > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
@@ -256,7 +266,9 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** unpack A(i) array ****
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do index2=int_mb(i2_start(1,nb)+1-1),
      >         (int_mb(i2_start(1,nb)+np+1-1)-1)
         A(int_mb(iq_to_i2(1,nb)+index2-1))=dconjg(tmp2(index2))
@@ -336,7 +348,9 @@ c     integer msgid
       if ((op.eq.1).or.(op.eq.5)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
       if ((op.eq.2).or.(op.eq.4)) nnfft3d = (ny(nb))    *nq2(nb)
       if ((op.eq.3).or.(op.eq.6)) nnfft3d = (nz(nb))    *nq3(nb)
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do i=1,nnfft3d
          tmp1(int_mb(h_iq_to_i1(1,op,nb)+i-1)) = A(i)
       end do
@@ -344,7 +358,9 @@ c     integer msgid
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do i=1,msglen
          tmp2(int_mb(h_i2_start(1,op,nb)+1-1)+i-1) 
      > = tmp1(int_mb(h_i1_start(1,op,nb)+1-1)+i-1)
@@ -400,7 +416,9 @@ c     integer msgid
       if ((op.eq.4).or.(op.eq.6)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
       if ((op.eq.1).or.(op.eq.3)) nnfft3d = (ny(nb))    *nq2(nb)
       if ((op.eq.2).or.(op.eq.5)) nnfft3d = (nz(nb))    *nq3(nb)
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do i=1,nnfft3d
          A(i) = tmp2(int_mb(h_iq_to_i2(1,op,nb)+i-1))
       end do
@@ -475,7 +493,9 @@ c     integer msgid
       if ((op.eq.1).or.(op.eq.5)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
       if ((op.eq.2).or.(op.eq.4)) nnfft3d = (ny(nb))    *nq2(nb)
       if ((op.eq.3).or.(op.eq.6)) nnfft3d = (nz(nb))    *nq3(nb)
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do i=1,nnfft3d
          tmp1(int_mb(h_iq_to_i1(1,op,nb)+i-1)) = A(i)
       end do
@@ -483,7 +503,9 @@ c     integer msgid
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do i=1,msglen
          tmp2(int_mb(h_i2_start(1,op,nb)+1-1)+i-1) 
      > = tmp1(int_mb(h_i1_start(1,op,nb)+1-1)+i-1)
@@ -539,7 +561,9 @@ c     integer msgid
       if ((op.eq.4).or.(op.eq.6)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
       if ((op.eq.1).or.(op.eq.3)) nnfft3d = (ny(nb))    *nq2(nb)
       if ((op.eq.2).or.(op.eq.5)) nnfft3d = (nz(nb))    *nq3(nb)
+#ifndef CRAY
 !DIR$ ivdep
+#endif
       do i=1,nnfft3d
          A(i) = tmp2(int_mb(h_iq_to_i2(1,op,nb)+i-1))
       end do

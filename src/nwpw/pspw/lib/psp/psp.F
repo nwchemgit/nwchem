@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.16 2004-03-08 22:51:27 bylaska Exp $
+* $Id: psp.F,v 1.17 2004-05-05 19:43:24 edo Exp $
 *
 
 #define TCGMSG
@@ -632,7 +632,9 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
 
         if (move) then
        
+#ifndef CRAY
 !DIR$ ivdep
+#endif
           do i=1,npack0
              dbl_mb(xtmp(1)+i-1) 
      >          = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
@@ -725,7 +727,9 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
      >                   dcpl_mb(exi(1)),
      >                   dcpl_mb(vtmp(1)))
 
+#ifndef CRAY
 !DIR$ ivdep
+#endif
          do i=1,npack0
            dbl_mb(xtmp(1)+i-1) 
      >        = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
@@ -874,7 +878,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *          *** current function is s or d ****
            if (sd_function) then
+#ifndef CRAY
 !DIR$ ivdep
+#endif
               do k=0,npack1-1
                dcpl_mb(prjtmp(1)+(l-1)*npack1 + k) 
      >           = dbl_mb(k+shift)*dcpl_mb(exi(1)+k)
@@ -882,7 +888,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *          *** current function is p or f ****
            else
+#ifndef CRAY
 !DIR$ ivdep
+#endif
               do k=0,npack1-1
                dcpl_mb(prjtmp(1)+(l-1)*npack1 + k) 
      >                = dbl_mb(k+shift)
@@ -943,7 +951,9 @@ c     >              psi2,                    (2*npack1))
      >            dbl_mb(sw2(1)+n-1+(l-1)*nn)
      >            =2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
 
+#ifndef CRAY
 !DIR$ ivdep
+#endif
                 do i=1,npack1
                    ctmp = psi1(i+(n-1)*npack1)
      >                  *dconjg(dcpl_mb(prjtmp(1)+(l-1)*npack1 + i-1))
@@ -1159,7 +1169,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *          *** current function is p or f ****
            else
+#ifndef CRAY
 !DIR$ ivdep
+#endif
               do i=1,npack1
                  dcpl_mb(vtmp(1)+i-1) 
      >                     = dbl_mb(vnl(1) + (i-1)
@@ -1217,7 +1229,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *          *** current function is s or d ****
            if (sd_function) then
+#ifndef CRAY
 !DIR$ ivdep
+#endif
               do k=0,npack1-1
                dcpl_mb(vtmp(1)+k) = dbl_mb(k+shift)*dcpl_mb(exi(1)+k)
               end do
@@ -1225,7 +1239,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *          *** current function is p or f ****
            else
+#ifndef CRAY
 !DIR$ ivdep
+#endif
               do k=0,npack1-1
                dcpl_mb(vtmp(1)+k) 
      >                = dbl_mb(k+shift)
@@ -1244,7 +1260,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >         dbl_mb(sw2(1)+n-1+(l-1)*nn)
      >         =2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
 
+#ifndef CRAY
 !DIR$ ivdep
+#endif
              do i=1,npack1
                 ctmp = psi1(i+(n-1)*npack1)
      >               *dconjg(dcpl_mb(vtmp(1)+i-1))
