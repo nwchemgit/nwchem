@@ -1,4 +1,4 @@
-## $Id: GNUmakefile,v 1.24 2000-03-01 19:29:48 d3g270 Exp $
+## $Id: GNUmakefile,v 1.25 2000-03-02 01:00:19 edo Exp $
 
 include ../../../config/makefile.h
 include ../../DEFS
@@ -78,8 +78,7 @@ COBJ  = \
 	peigs_tldlfact.o \
 	clustrf5.o \
 	r_ritz.o \
-	gdot.o \
-	ortho2.o
+	gdot.o 
 
 #	clustrf4.o \
 #
