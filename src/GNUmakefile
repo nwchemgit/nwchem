@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.10 1994-08-27 19:59:52 d3g681 Exp $
+# $Id: GNUmakefile,v 1.11 1994-09-14 14:31:57 d3g681 Exp $
 
 include config/makefile.h
 
@@ -18,7 +18,7 @@ nwchem:	libraries
 # This to link only and avoid tedious subdir makes
 #
 
-nwchem_link:    nwchem.o
+link nwchem_link:    nwchem.o
 	$(FC) $(FFLAGS) $(LDFLAGS) -o nwchem nwchem.o $(LIBS)
 	$(INSTALL)
 #
