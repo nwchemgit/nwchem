@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.17 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_links.F,v 1.18 2003-07-24 04:36:56 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -244,8 +244,8 @@ c     change amino acid segment names based on links
 c     ----------------------------------------------
 c
       do 11 i=1,nseq
-      if(pre_protein(ffield,cseq(1,i))) goto 14
-      if(pre_nucleic(ffield,cseq(1,i))) goto 16
+      if(pre_protein(cseq(1,i))) goto 14
+      if(pre_nucleic(cseq(1,i))) goto 16
       do 15 j=lseq(3,i),lseq(3,i+1)-1
       if(latm(5,j).eq.1) latm(5,j)=3
       if(latm(5,j).eq.2) latm(5,j)=3
