@@ -2,7 +2,7 @@
      &                      xyz,xyzm,ctr_quad, rad_quad,
      &                       zprim,  acc_gauss)
 c
-C$Id: xc_signf.F,v 1.2 1999-03-05 06:42:11 edo Exp $
+C$Id: xc_signf.F,v 1.3 1999-03-07 23:25:50 edo Exp $
 c
       implicit none
 c      
@@ -31,7 +31,7 @@ c
 c
 c
 c
-      acc_sigf=max(acc_gauss,24d0)
+      acc_sigf=max(acc_gauss,20d0)
       mcenters_scr = 0
 c
       do ictr=1,mcenters
