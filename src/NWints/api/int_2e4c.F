@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.35 2000-02-04 01:15:13 mg201 Exp $
+c $Id: int_2e4c.F,v 1.36 2000-05-27 19:37:28 mg201 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -174,7 +174,6 @@ c... stat texas
       endif
 c... stat nw
       status_nw  = cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh)
-      status_nw  = status_nw.and. (.not. status_gen)
 c... stat rel
       status_rel = dyall_mod_dir .and. .not.nesc_1e_approx
      &    .and. (brain .eq. ketin) .and. (brain .eq. ao_bsh)
