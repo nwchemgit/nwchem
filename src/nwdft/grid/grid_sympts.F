@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.11 2001-06-14 15:45:26 edo Exp $
+c$Id: grid_sympts.F,v 1.12 2001-10-25 00:01:53 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -101,14 +101,14 @@ c
             tx=za_leb(1,k,iang)
             ty=za_leb(2,k,iang)
             tz=za_leb(3,k,iang)
-            xor=(qrot(1,1)*tx + qrot(1,2)*ty + qrot(1,3)*tz)
-            yor=(qrot(2,1)*tx + qrot(2,2)*ty + qrot(2,3)*tz)
-            zor=(qrot(3,1)*tx + qrot(3,2)*ty + qrot(3,3)*tz)
             nq_left = nq_left + 1
             
-            gridscr(1,nq_left) =  xor
-            gridscr(2,nq_left) =  yor
-            gridscr(3,nq_left) =  zor
+            gridscr(1,nq_left) =
+     .           qrot(1,1)*tx + qrot(1,2)*ty + qrot(1,3)*tz
+            gridscr(2,nq_left) =  
+     .           qrot(2,1)*tx + qrot(2,2)*ty + qrot(2,3)*tz
+            gridscr(3,nq_left) =  
+     .           qrot(3,1)*tx + qrot(3,2)*ty + qrot(3,3)*tz
             gridscr(4,nq_left) = wa_leb(k,iang)
          enddo
 c
@@ -122,13 +122,9 @@ c
                   y=xyz(2) +gridscr(2,k)
                   z=xyz(3) +gridscr(3,k)
                   do h=1,nops
-                     x1=ops(1,h,1)*x+ops(1,h,2)*y+ops(1,h,3)*z
-                     y1=ops(2,h,1)*x+ops(2,h,2)*y+ops(2,h,3)*z
-                     z1=ops(3,h,1)*x+ops(3,h,2)*y+ops(3,h,3)*z
-cedo            write(6,'("  h0",i3,4(F12.6))') h,x1,y1,z1
-                     x1=x1-xyz(1) 
-                     y1=y1-xyz(2) 
-                     z1=z1-xyz(3) 
+                     x1=ops(1,h,1)*x+ops(1,h,2)*y+ops(1,h,3)*z-xyz(1)
+                     y1=ops(2,h,1)*x+ops(2,h,2)*y+ops(2,h,3)*z-xyz(2)
+                     z1=ops(3,h,1)*x+ops(3,h,2)*y+ops(3,h,3)*z-xyz(3)
                      do k1=k+1,nq_left
                         if(k.ne.k1) then
                            ddd=(x1-gridscr(1,k1))*(x1-gridscr(1,k1))+
@@ -136,9 +132,6 @@ cedo            write(6,'("  h0",i3,4(F12.6))') h,x1,y1,z1
      +                         (z1-gridscr(3,k1))*(z1-gridscr(3,k1))
                            if(ddd.lt.1d-10) then
                               if(gridscr(4,k1).ne.0d0) then
-                                 if(abs(gridscr(4,k1)-gridscr(4,k)).
-     .                                gt.1d-5) then
-                                 endif
                                  gridscr(4,k1)=0d0
                                  n_equiv=n_equiv+1
                               endif
