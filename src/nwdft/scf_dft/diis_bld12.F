@@ -35,7 +35,7 @@ c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c     iwhich = 4; build S**(-1)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.17 2003-07-03 01:58:52 edo Exp $
+C$Id: diis_bld12.F,v 1.18 2003-07-03 17:50:50 edo Exp $
 c
       implicit none
 c
@@ -56,21 +56,52 @@ c
       logical LResult
       integer me, nproc, i
       integer ltmpm, itmpm
+      integer ilo,ihi,jlo,jhi,numi,numj,l_s,k_s,icount
       double precision toll_s, aaz
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
       call ga_sync
 c
-      if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
-     &   call errquit('diis_bld12: failed to alloc tmpm',0)
 c
-      call ga_copy(iga_svecs, iga_stmp)
-c      
 c     
 c        Build f(S)
 c     
-      call ga_zero(iga_stmp)
+      call ga_copy(iga_svecs,iga_stmp)
+      call ga_distribution(iga_stmp,
+     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+      if (ilo.gt.0 .and. ilo.le.ihi) then
+         numi =  ihi-ilo+1
+         numj =  jhi-jlo+1
+         if (.not. MA_Push_Get(MT_Dbl, numi*numj, 'matS', l_s, k_s))
+     &        call errquit('diis_bld12: failed to alloc tmpm',0)
+         if (numi.gt.0 .and. numj.gt.0) then
+            call ga_get(iga_stmp,ilo,ihi,jlo,jhi,
+     .           dbl_mb(k_s),numi)
+            icount=k_s
+            do i=jlo,jhi
+               aaz = svals(i)
+               if (aaz.ge.toll_s)  then
+                  if(iwhich.eq.2) then
+                     aaz = 1.d0/sqrt(aaz)
+                  elseif(iwhich.eq.3) then
+                     aaz = dsqrt(aaz)
+                  elseif(iwhich.eq.4) then
+                     aaz=1d0/aaz
+                  endif
+                  call dscal(numi, aaz, DBL_MB(icount), 1)
+               endif
+               icount=icount+numi
+            enddo
+            call ga_put(iga_stmp,ilo,ihi,jlo,jhi,
+     .           dbl_mb(k_s),numi)
+         endif
+         if(.not.MA_Pop_Stack(l_s)) call 
+     .        errquit('diisbld12:postack failed',0)
+      endif
+#ifdef OLD
+      if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
+     &   call errquit('diis_bld12: failed to alloc tmpm',0)
       do i = me+1, nbf_ao, nproc
          aaz = svals(i)
          if (aaz.ge.toll_s)  then
@@ -93,6 +124,7 @@ c     &           i, aaz, toll_s
          endif
       enddo
       LResult = MA_Pop_Stack(ltmpm)
+#endif
 c
 c
       if (odftps) call pstat_on(ps_dgemm)
