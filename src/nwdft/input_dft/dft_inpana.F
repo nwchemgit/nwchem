@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.28 1997-07-01 18:10:43 d3e129 Exp $
+c     $Id: dft_inpana.F,v 1.29 1997-07-01 18:12:32 d3e129 Exp $
 c
 c*********************************************************************
 c     
@@ -511,5 +511,4 @@ c
      &       10x,'XC Gaussian exp screening on grid/accXCfunc: ',i3,/,
      &       10x,'Max radial quadrature (shell size)/accQrad: ',d8.2,/,
      &       10x,'Spatial weight screening/radius: ',d8.2,/)
-      return
       end
