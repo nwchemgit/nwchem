@@ -1,6 +1,6 @@
       subroutine mcscf_input(rtdb)
 c
-c $Id: mcscf_input.F,v 1.5 1997-02-13 02:45:06 d3g681 Exp $
+c $Id: mcscf_input.F,v 1.6 1997-02-27 23:51:12 d3g681 Exp $
 c
       implicit none
 #include "inp.fh"
@@ -90,11 +90,7 @@ c
 c
 c  inactive <integer nclosed>
 c
- 500  if (.not. inp_i(nclosed)) call
-     $  errquit('mcscf_input: inactive <inactive>',0)
-      if (.not. rtdb_put(rtdb,'mcscf:nclosed', MT_INT, 1, nclosed))
-     $     call errquit('mcscf_input: rtdb_put of nclosed failed',0)
-      goto 10
+ 500  call errquit('mcscf_input: inactive directive not used',0)
 c
 c  active <integer nact>
 c
@@ -143,12 +139,6 @@ c
       goto 1001
 c
 c  state symmetry
-c
-c$$$ 1100 if (.not. inp_a(keyword))
-c$$$     $  call errquit('mcscf_input: symmetry <irrep>',0)
-c$$$      if (.not.rtdb_cput(rtdb, 'mcscf:statesymmlabel', 1, keyword ))
-c$$$     $  call errquit('mcscf_input: rtdb_cput of statesymm failed',0)
-c$$$      goto 1001
 c
  1100 if (.not.(inp_i(statesym)))
      $  call errquit('mcscf_input: symmetry <irrep>',0)

@@ -79,12 +79,16 @@ c
       nvir = nbf - nclosed - nact
       orlen = (nclosed*nvir) + (nact*nvir) + (nclosed*nact)
       nsym = sym_number_ops(geom)+1
-      if (.not.rtdb_get(rtdb,'scf:skeleton',MT_LOG,1,oskel))
-     $     oskel = sym_number_ops(geom).gt.0
+c
+*      if (.not.rtdb_get(rtdb,'scf:skeleton',MT_LOG,1,oskel))
+*     $     oskel = sym_number_ops(geom).gt.0
+      oskel = sym_number_ops(geom).gt.0
+c
       if (.not.geom_nuc_rep_energy( geom, enrep ))
      $     call errquit('mcscf: cannot retrieve nuclear repulsion',0)
+c
       if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
-     $     tol2e = 1.d-10       ! Redundant recovered later
+     $     tol2e = 1.d-9       ! Redundant recovered later
 c     
 c     Get electron and spin multiplicity (NB: for info only)
 c     Active elec and multiplicity must be set --- no defaults
@@ -97,26 +101,20 @@ c
       nelb = nactel - nela
       if ((mod((nactel + multip - 1),2).ne.0).or.
      $     (nela.lt.0).or.(nelb.lt.0))
-     $     call errquit('mcscf: incompatible elec and spin',0)
+     $     call errquit('mcscf: incompatible nelec and spin',0)
 c     
 c     Get convergence info
 c     
-      if (.not.rtdb_get(rtdb,'mcscf:maxiter',MT_INT,1,maxiter)) then
-         if (.not.rtdb_get(rtdb,'scf:maxiter',MT_INT,1,maxiter))
-     $        maxiter = 20
-      endif
+      if (.not.rtdb_get(rtdb,'mcscf:maxiter',MT_INT,1,maxiter))
+     $     maxiter = 20
       if (.not.rtdb_get(rtdb,'mcscf:cgreset',MT_INT,1,icgreset))  
      $     icgreset = 20
-      if (.not.rtdb_get(rtdb,'mcscf:thresh',MT_DBL,1,thresh)) then
-         if (.not.rtdb_get(rtdb,'scf:thresh',MT_DBL,1,thresh))
-     $        thresh = 1.d-6
-      endif
-      if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0)) then
-         if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
-     $        lshift0 = 0.1d0
-      endif
+      if (.not.rtdb_get(rtdb,'mcscf:thresh',MT_DBL,1,thresh))
+     $     thresh = 1.d-4
+      if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0))
+     $     lshift0 = 0.1d0
       if (.not.rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
-     $     oe2approx = .true.
+     $     oe2approx = .false.
       if (.not.rtdb_get(rtdb,'mcscf:cisolve',MT_LOG,1,ocisolve))
      $     ocisolve = .true.
       if (.not.rtdb_get(rtdb,'mcscf:conjugacy',MT_LOG,1,oconj))
@@ -658,7 +656,6 @@ c
 c
        integer nactel
        integer nelec
-       character*255 stsym
        double precision charge
        double precision nuclear_charge
 c
@@ -703,12 +700,7 @@ c
        if (.not. rtdb_put(rtdb, 'mcscf:nclosed', mt_int, 1, nclosed))
      $      call errquit('mcscf: failed storing nclosed', 0)
 c
-c  Reconcile symmetry info
-c
-       if (.not.rtdb_cget(rtdb, 'mcscf:statesymmlabel', 1, stsym))
-     $   stsym = 'a'
 
-       return
        end
 
 
