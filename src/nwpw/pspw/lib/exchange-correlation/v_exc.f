@@ -1,5 +1,5 @@
 *
-* $Id: v_exc.f,v 1.2 2002-01-11 17:55:34 bylaska Exp $
+* $Id: v_exc.f,v 1.3 2002-08-25 00:13:46 bylaska Exp $
 *
 
       subroutine vxc(n2ft3d,ispin,dn,xcp,xce,x)
@@ -46,64 +46,12 @@
 
 
       call nwpw_timing_start(4)
-      pi=4.0d0*datan(1.0d0)
-
-*     square root of wigner radius
-      do 100 k=1,n2ft3d
-        rho=dn(k,1)+dn(k,ispin)+dncut
-        x(k)=crs/rho**one6th
-  100 continue
-
-*     paramagnetic correlation energy & potential
-      do 110 k=1,n2ft3d
-        xx=1.0d0/(x(k)*(x(k)+bp)+cp)
-        xce(k,1)=cp1*dlog(xx*x(k)**2)+cp2*dlog(xx*(x(k)+cp3)**2)
-     &          +cp4*datan(cp5/(x(k)+cp6))
-        xcp(k,1)=xce(k,1)-one6th*x(k)*(
-     &           dp1/x(k)+dp2/(x(k)+dp3)+dp4*xx*(2.0d0*x(k)+bp)
-     &          +dp5/((x(k)+dp6)**2+dp7) )
-  110 continue
-
-*     paramagnetic exchange energy & potential
-      do 120 k=1,n2ft3d
-        xce(k,1)=xce(k,1)+(xp/x(k)**2)
-        xcp(k,1)=xcp(k,1)+for3rd*(xp/x(k)**2)
-  120 continue
-
-*     return if spin-restricted lda
-      if(ispin.eq.1) go to 200
-
-*     ferromagnetic correlation energy & potential
-      do 130 k=1,n2ft3d
-        xx=1.0d0/(x(k)*(x(k)+bf)+cf)
-        xce(k,2)=cf1*dlog(xx*x(k)**2)+cf2*dlog(xx*(x(k)+cf3)**2)
-     &          +cf4*datan(cf5/(x(k)+cf6))
-        xcp(k,2)=xce(k,2)-one6th*x(k)*(
-     &           df1/x(k)+df2/(x(k)+df3)+df4*xx*(2.0d0*x(k)+bf)
-     &          +df5/((x(k)+df6)**2+df7) )
-  130 continue
-
-*     ferromagnetic exchange-energy & potential
-      do 140 k=1,n2ft3d
-        xce(k,2)=xce(k,2)+(xf/x(k)**2)
-        xcp(k,2)=xcp(k,2)+for3rd*(xf/x(k)**2)
-  140 continue
-
-*     spin polarized exchange-correlation potential
-      do 150 k=1,n2ft3d
-        rho=dn(k,1)+dn(k,ispin)+dncut
-        zup=2.0d0*dn(k,1)/rho
-        zdw=2.0d0*dn(k,2)/rho
-        f=(zup*(zup**one3rd)+zdw*(zdw**one3rd)-2.0d0)*fc
-        xcp(k,1)=(1.0d0-f)*xcp(k,1)+f*xcp(k,2)
-        df=(zup**one3rd-zdw**one3rd)*(xce(k,2)-xce(k,1))*fd
-        xcp(k,2)=xcp(k,1)-zup*df
-        xcp(k,1)=xcp(k,1)+zdw*df
-        xce(k,1)=xce(k,1)+f*(xce(k,2)-xce(k,1))
-  150 continue
-
-  200 continue
-      
+      !***** semicore stress debug ****
+      do k=1,n2ft3d
+         xce(k,1) = -0.1
+         xcp(k,1) = -0.1
+         xcp(k,2) = -0.1
+      end do
       call nwpw_timing_end(4)
 
       return

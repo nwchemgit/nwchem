@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.13 2002-08-13 23:24:15 bylaska Exp $
+* $Id: electron.F,v 1.14 2002-08-25 00:13:46 bylaska Exp $
 *
 
 
@@ -523,6 +523,53 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
 
       return
       end
+
+*     ***********************************
+*     *					*
+*     *		electron_pxc_rho	*
+*     *					*
+*     ***********************************
+      real*8 function electron_pxc_rho(rho)
+      implicit none
+      real*8 rho(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+*     **** local variables ****
+      integer nx,ny,nz
+      real*8  pxc,pxc2,dv
+
+*     **** external functions *****
+      real*8   lattice_omega
+      external lattice_omega
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      
+      dv = lattice_omega()/dble(nx*ny*nz)
+
+*     **** get exchange-correlation energy ****
+      call D3dB_rr_dot(1,rho,
+     >                 dbl_mb(xcp(1)),
+     >                 pxc)
+      if (ispin.eq.1) then
+         pxc = pxc + pxc
+      else
+         call D3dB_rr_dot(1,rho,
+     >                    dbl_mb(xcp(1)+2*nfft3d),
+     >                    pxc2)
+         pxc = (pxc + pxc2)
+      end if
+      pxc = pxc*dv
+          
+      electron_pxc_rho =  pxc
+      return
+      end
+
+
 
 
 *     ***********************************

@@ -1,5 +1,5 @@
 *
-* $Id: semicore.F,v 1.2 2002-08-21 22:02:50 bylaska Exp $
+* $Id: semicore.F,v 1.3 2002-08-25 00:13:47 bylaska Exp $
 *
 
 #define TCGMSG
@@ -176,7 +176,7 @@ c     logocal semicore(0:nkatmx)
 
 
 *     **********************************
-*     *                         	   *
+*     *                                *
 *     *    semicore_density_update     *
 *     *                                *
 *     **********************************
@@ -219,8 +219,8 @@ c     logocal semicore(0:nkatmx)
       value = MA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
-
+      if (.not. value) 
+     >  call errquit('semicore_density_update: push stack',0)
 
       call dcopy(n2ft3d, 0.0d0,0, dbl_mb(dncore(1)),1)
       do ii=1,ion_nion()
@@ -229,8 +229,10 @@ c     logocal semicore(0:nkatmx)
         if (log_mb(semicore(1)+ia)) then
 
 *          **** structure factor and local pseudopotential ****
-           call strfac(ii,dcpl_mb(exi(1)))
-           call Pack_c_pack(0,dcpl_mb(exi(1)))
+c           call strfac(ii,dcpl_mb(exi(1)))
+c           call Pack_c_pack(0,dcpl_mb(exi(1)))
+           call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
 
 *          **** put sqrt(core-density) at atom position ****
            call Pack_tc_MUL(0,dbl_mb(ncore(1)+(ia-1)*npack0*5),
@@ -254,9 +256,10 @@ c          call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       call D3dB_r_SMul(1,scal2*scal2,dbl_mb(dncore(1)),
      >                               dbl_mb(dncore(1)))
 
-      value = MA_pop_stack(tmp(2))
-      value = MA_pop_stack(exi(2))
-
+      value =           MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) 
+     >  call errquit('semicore_density_update: pop stack',1)
       return
       end
 
@@ -307,7 +310,8 @@ c     logical semicore(0:nkatmx)
       call D3dB_nfft3d(1,nfft3d)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) 
+     >  call errquit('semicore_check:out of stack memory',0)
 
 
       do ia=1,ion_nkatm()
@@ -337,6 +341,7 @@ c     logical semicore(0:nkatmx)
       end do
 
       value = MA_pop_stack(tmp(2))
+      if (.not.value) call errquit('semicore_check: pop stack',1)
       return
       end
 
@@ -368,3 +373,223 @@ c     logical semicore(0:nkatmx)
       end
 
 
+
+*     **********************************
+*     *                                *
+*     *        semicore_euv            *
+*     *                                *
+*     **********************************
+
+      subroutine semicore_euv(stress)
+      implicit none
+      real*8 stress(3,3)
+
+
+#include "mafdecls.fh"
+
+*     **** semicore3 common block ****
+      integer dncore(2)
+      common / ccore3 / dncore
+
+*     **** local variables ****
+      logical value
+      integer u,v,s,n2ft3d
+      real*8  VV,WW(3,3),hm(3,3),tstress(3,3)
+      real*8  wus,pi,scal
+      integer Aus(2)
+
+*     **** external functions ****
+      real*8   electron_pxc_rho,lattice_unitg
+      external electron_pxc_rho,lattice_unitg
+
+
+      call D3dB_n2ft3d(1,n2ft3d)
+      value = MA_push_get(mt_dbl,n2ft3d,'Aus',Aus(2),Aus(1))
+      if (.not. value) 
+     >  call errquit('semicore_euv:out of stack memory',0)
+
+
+
+*     *** define hm ****
+      pi   = 4.0d0*datan(1.0d0)
+      scal = 1.0d0/(2.0d0*pi)
+      do v=1,3
+      do u=1,3
+         hm(u,v) = scal*lattice_unitg(u,v)
+      end do
+      end do
+
+*     **** compute V ****
+      VV = -electron_pxc_rho(dbl_mb(dncore(1)))
+
+*     **** compute W ****
+      do u=1,3
+      do s=u,3
+        call semicore_gen_Aus(s,u,dbl_mb(Aus(1)))
+
+        wus = -electron_pxc_rho(dbl_mb(Aus(1)))
+        WW(u,s) = wus
+        WW(s,u) = wus 
+      end do
+      end do
+
+      do v=1,3
+      do u=1,3
+        tstress(u,v) = VV*hm(u,v)
+      end do
+      end do
+      call write_stress(tstress,'xc2 a')
+
+      do v=1,3
+      do u=1,3
+         tstress(u,v) = 0.0d0
+         do s=1,3
+           tstress(u,v) = tstress(u,v) + WW(u,s)*hm(s,v)
+         end do
+      end do 
+      end do
+      call write_stress(tstress,'xc2 b')
+
+
+*     **** stress(u,v) = V*hm(u,v) + Sum(s){W(u,s)*hm(s,v) }  ****   
+      do v=1,3
+      do u=1,3
+        stress(u,v) = VV*hm(u,v)
+        do s=1,3
+           stress(u,v) = stress(u,v) + WW(u,s)*hm(s,v)
+        end do
+      end do
+      end do
+
+      value = MA_pop_stack(Aus(2))
+      if (.not.value) call errquit('semicore_euv: pop stack',1)      
+      return
+      end
+
+
+*     **********************************
+*     *                                *
+*     *        semicore_gen_Aus        *
+*     *                                *
+*     **********************************
+
+      subroutine semicore_gen_Aus(u,s,Aus)
+      implicit none
+      integer u,s
+      real*8 Aus(*)
+
+#include "mafdecls.fh" 
+
+*     **** semicore common block ****
+      integer ncore(2),rcore(2)
+      integer semicore(2)
+      common / ccore / ncore,rcore,semicore
+
+*     **** coulomb common block ****
+      integer vc_indx,vc_hndl
+      common / vc_block / vc_indx,vc_hndl
+
+
+*     *** local variables ***
+      logical value
+      real*8 scal2,fourpi,ss
+      integer ii,ia
+      integer npack0,nfft3d,n2ft3d
+      integer exi(2),tmp1(2),tmp2(2),tmp3(2),Gu,Gs
+
+*     **** external functions ****
+      integer  ion_nion,ion_katm,G_indx
+      real*8   lattice_omega
+      external ion_nion,ion_katm,G_indx
+      external lattice_omega
+
+      scal2 = 1.0d0/lattice_omega()
+      call Pack_npack(0,npack0)
+      call D3dB_nfft3d(1,nfft3d)
+      call D3dB_n2ft3d(1,n2ft3d)
+
+  
+*     **** allocate memory off of MA stack ****
+      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,npack0,'tmp3',tmp3(2),tmp3(1))
+      if (.not. value) 
+     >   call errquit('semicore_gen_Aus:out of stack memory',0)
+
+*     **** define Gu and Gs ****
+      Gu = tmp1(1)
+      Gs = tmp2(1)
+      call dcopy(nfft3d,dbl_mb(G_indx(u)),1,dcpl_mb(Gu),1)
+      call dcopy(nfft3d,dbl_mb(G_indx(s)),1,dcpl_mb(Gs),1)
+      call Pack_t_pack(0,dcpl_mb(Gu))
+      call Pack_t_pack(0,dcpl_mb(Gs))
+
+ 
+*     **** tmp3(G) = Gu*Gs/G **** 
+      fourpi = 16.0d0*datan(1.0d0)
+      ss     = 1.0d0/fourpi
+      call Pack_t_SMul(0,ss,dbl_mb(vc_indx),dbl_mb(tmp3(1)))
+      call Pack_tt_Sqrt(0,dbl_mb(tmp3(1)),dbl_mb(tmp3(1)))
+      call Pack_tt_Mul(0,dbl_mb(tmp3(1)),
+     >                   dcpl_mb(Gu),
+     >                   dbl_mb(tmp3(1)))
+      call Pack_tt_Mul(0,dbl_mb(tmp3(1)),
+     >                   dcpl_mb(Gs),
+     >                   dbl_mb(tmp3(1)))
+
+*     **** calculate Aus ****  
+      call dcopy(n2ft3d,0.0d0,0,Aus,1)
+      do ii=1,ion_nion()
+        ia=ion_katm(ii)
+
+        if (log_mb(semicore(1)+ia)) then
+
+*          **** structure factor and local pseudopotential ****
+           call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
+*          **** put phi and dphi/dG  at atom position ****
+           call Pack_tc_MUL(0,dbl_mb(ncore(1)+(ia-1)*npack0*5),
+     >                        dcpl_mb(exi(1)),
+     >                        dcpl_mb(tmp1(1)))
+
+           call Pack_tc_Mul(0,dbl_mb(ncore(1)+npack0+(ia-1)*npack0*5),
+     >                        dcpl_mb(exi(1)),
+     >                        dcpl_mb(tmp2(1)))
+           call Pack_tc_Mul(0,dbl_mb(tmp3(1)),
+     >                        dcpl_mb(tmp2(1)),
+     >                        dcpl_mb(tmp2(1)))
+
+*          **** Put put tmp1 and tmp2 into real space ****
+           call Pack_c_unpack(0,dcpl_mb(tmp1(1)))
+           call Pack_c_unpack(0,dcpl_mb(tmp2(1)))
+           call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
+           call D3dB_cr_fft3b(1,dcpl_mb(tmp2(1)))
+
+*          ****  add tmp1*tmp2=phi*dphi*dphi/dG density ****
+           call D3dB_rr_Mul(1,dcpl_mb(tmp1(1)),
+     >                        dcpl_mb(tmp2(1)),
+     >                        dcpl_mb(tmp1(1)))
+           call D3dB_rr_Sum(1,Aus,
+     >                        dcpl_mb(tmp1(1)),
+     >                        Aus)
+        end if
+
+      end do
+      call D3dB_r_Zero_Ends(1,Aus)
+      call D3dB_r_SMul(1,scal2*scal2,Aus,Aus)
+
+
+*     **** pop stack memory ****
+      value =           MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      if (.not. value) 
+     >   call errquit('semicore_gen_Aus:popping stack memory',2)
+
+      return
+      end

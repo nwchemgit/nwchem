@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.21 2002-08-22 21:19:36 bylaska Exp $
+* $Id: psi.F,v 1.22 2002-08-25 00:13:46 bylaska Exp $
 *
 
 *     ***************************
@@ -1415,7 +1415,7 @@ c    >                            dcpl_mb(dng1(1)))
 #include "psi.fh"
 
 *     **** not finished ****
-      call semicore_euv(dbl_mb(rho1(1)),stress)
+      call semicore_euv(stress)
 
       return
       end

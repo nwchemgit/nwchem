@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.30 2002-08-22 21:19:36 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.31 2002-08-25 00:13:43 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -553,10 +553,12 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 *     **** local variables ****
       integer u,v,s
       real*8  tstress(3,3),ht(3,3),scal
-      real*8  sigma(3,3)
+      real*8  sigma(3,3),xcstress(3,3)
 
 *     **** external functions ****
+      logical  psp_semicore
       real*8   lattice_omega,lattice_unita
+      external psp_semicore
       external lattice_omega,lattice_unita
 
 
@@ -584,15 +586,20 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
       call write_stress(tstress,"nonlocal")
 
 *     **** xc energy component : dE_xc/dhuv ****
-      call dcopy(9,0.0d0,0,tstress,1)
+      call dcopy(9,0.0d0,0,xcstress,1)
       call rho_1exc_stress(tstress)
+      call daxpy(9,1.0d0,tstress,1,xcstress,1)
+      call write_stress(tstress,"xc1")
 
 *     **** Core-correction Coulomb energy component : dE_core/dhuv ****
-*     call rho_1semicore_stress(tstress)
-*     call daxpy(9,1.0d0,tstress,1,stress,1)
+      if (psp_semicore(0)) then
+        call rho_1semicore_stress(tstress)
+        call write_stress(tstress,"xc2")
+        call daxpy(9,1.0d0,tstress,1,xcstress,1)
+      end if
 
-      call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"xc")
+      call daxpy(9,1.0d0,xcstress,1,stress,1)
+      call write_stress(xcstress,"xc")
 
 *     **** Ewald energy component : dE_ewald/dhuv ****
       call ewald_stress(tstress)
