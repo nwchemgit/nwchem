@@ -1,11 +1,11 @@
       logical function pre_wrttop(lfnout,ffield,lfntop,filtop,
-     + releps,q14fac,lseq,cseq,mseq,nseq,
+     + releps,q14fac,lseq,cseq,mseq,nseq,mqu,
      + latt,lats,catt,patt,ratt,matt,natt,nats,latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.22 1999-05-10 22:38:09 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.23 1999-05-10 22:57:39 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       character*80 ffield
       character*255 filtop
       real*8 releps,q14fac
-      integer mseq,nseq
+      integer mseq,nseq,mqu
       integer lseq(4,mseq)
       character*10 cseq(mseq)
       integer matt,natt,nats
@@ -25,7 +25,7 @@ c
       integer matm,natm
       integer latm(9,matm)
       character*6 catm(4,matm)
-      real*8 qatm(6,matm)
+      real*8 qatm(6,mqu)
       integer mbnd,nbnd
       integer lbnd(4,mbnd)
       real*8 rbnd(6,mbnd)
@@ -70,7 +70,7 @@ c
       endif
   332 continue
       nqu=nqu+1
-      if(nqu.gt.matm) call errquit('Increase mqu',0)
+      if(nqu.gt.mqu) call errquit('Increase mqu',0)
       latm(7,i)=nqu
       do 333 j=1,6
       qatm(j,nqu)=qatm(j,i)
@@ -100,7 +100,7 @@ c
       endif
   337 continue
       nqu=nqu+1
-      if(nqu.gt.matm) call errquit('Increase mqu',0)
+      if(nqu.gt.mqu) call errquit('Increase mqu',0)
       latm(7,i)=nqu
       do 338 j=1,6
       qatm(j,nqu)=qatom(j)
@@ -125,7 +125,7 @@ c
       endif
   341 continue
       nqu=nqu+1
-      if(nqu.gt.matm) call errquit('Increase mqu',0)
+      if(nqu.gt.mqu) call errquit('Increase mqu',0)
       latm(7,i)=nqu
       latm(8,i)=nqu
       do 342 j=1,6

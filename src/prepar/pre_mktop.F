@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.16 1999-05-10 22:38:03 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.17 1999-05-10 22:57:35 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -67,7 +67,7 @@ c
       integer mnon,nnon
       integer i_lnon,l_lnon
 c
-      integer natmt,nbndt,nangt,ndiht,nimpt,n3rdt
+      integer natmt,nbndt,nangt,ndiht,nimpt,n3rdt,mqu
 c
       real*8 releps,q14fac,wcorr(3)
 c
@@ -203,7 +203,8 @@ c                 4       : polarizability set 2
 c                 5       : partial atomic charges set 3
 c                 6       : polarizability set 3
 c
-      if(.not.ma_push_get(mt_dbl,6*matm,'qatm',l_qatm,i_qatm))
+      mqu=3*matm
+      if(.not.ma_push_get(mt_dbl,6*mqu,'qatm',l_qatm,i_qatm))
      + call errquit('Memory allocation failed for qatm',9999)
 c
 c     allocate memory for bonded lists
@@ -449,7 +450,7 @@ c     write the topology file
 c     -----------------------
 c
       if(.not.pre_wrttop(lfnout,ffield,lfntop,filtop,releps,q14fac,
-     + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
+     + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,mqu,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),
      + dbl_mb(i_ratt),matt,natt,nats,int_mb(i_latm),byte_mb(i_catm),
      + dbl_mb(i_qatm),matm,natm,int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,
