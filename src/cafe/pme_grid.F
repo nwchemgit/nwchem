@@ -1,25 +1,25 @@
-      subroutine pme_chgrid(xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.8 1999-08-31 17:24:21 d3j191 Exp $
+      subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
+c $Id: pme_grid.F,v 1.9 1999-09-08 16:49:56 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
 #include "mafdecls.fh"
 c
-      integer nwmloc,nsaloc
+      integer ipset,nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3),epme
       integer isq(msa)
 c
       call timer_start(11)
-      if(.not.lcorr) then
-      call cf_pmecor(xw,nwmloc,xs,isq,nsaloc,ecorr)
-      lcorr=.true.
+      if(.not.lcorr(ipset)) then
+      call cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr(ipset))
+      lcorr(ipset)=.true.
       endif
 c
-      call pme_grid(xw,nwmloc,xs,isq,nsaloc,
+      call pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + int_mb(i_lnod),log_mb(i_lsld),dbl_mb(i_grd1),dbl_mb(i_grd2))
 c
-      epme=ecorr
+      epme=ecorr(ipset)
       call timer_stop(11)
 c
       if(.not.lpnode) return
@@ -32,7 +32,7 @@ c
       call cf_epme(int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + dbl_mb(i_bmod),dbl_mb(i_grd1),mgz,epme)
 c
-      epme=epme+ecorr
+      epme=epme+ecorr(ipset)
 c
       call pme_sync(nodpme,int_mb(i_nodp))
 c
@@ -50,7 +50,7 @@ c
 c
       return
       end
-      subroutine pme_grid(xw,nwmloc,xs,isq,nsaloc,
+      subroutine pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
      + nodep,knode,kfrom,kto,lnode,lsldo,gridr,gridc)
 c
       implicit none
@@ -59,7 +59,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 c
-      integer nwmloc,nsaloc
+      integer ipset,nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3)
       integer isq(msa)
       logical lsldo(np,mgz)
@@ -87,7 +87,7 @@ c
       if(kto(node+1).gt.0) ngznon=kto(node+1)-kfrom(node+1)+1
       if(ngznon.eq.0) goto 1
 c
-      call cf_chgrid(lset,xw,nwmloc,xs,isq,nsaloc,
+      call cf_chgrid(lset,ipset,xw,nwmloc,xs,isq,nsaloc,
      + gridr,ngznon,lgrid,knode,kfrom,lsldo,node,
      + minx,maxx,miny,maxy,minz,maxz)
 c

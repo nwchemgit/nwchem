@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.5 1999-07-29 00:57:12 d3e129 Exp $
+c $Id: cf_grid.F,v 1.6 1999-09-08 16:49:55 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -34,8 +34,8 @@ c
 c
       return
       end
-      subroutine cf_chgrid(lset,xw,nwmloc,xs,isq,nsaloc,grid,mgz,lgrid,
-     + knode,kfrom,lsldo,node,mnx,mxx,mny,mxy,mnz,mxz)
+      subroutine cf_chgrid(lset,ipset,xw,nwmloc,xs,isq,nsaloc,
+     + grid,mgz,lgrid,knode,kfrom,lsldo,node,mnx,mxx,mny,mxy,mnz,mxz)
 c
       implicit none
 c
@@ -43,7 +43,7 @@ c
 #include "mafdecls.fh"
 c
       logical lset,lgrid
-      integer nwmloc,nsaloc,node,mgz
+      integer ipset,nwmloc,nsaloc,node,mgz
       real*8 xw(mwm,3,mwa),xs(msa,3)
       integer isq(msa)
       integer knode(*),kfrom(*)
@@ -60,14 +60,14 @@ c
       lset=.false.
       endif
 c
-      call cf_grid(xw,dbl_mb(i_pmew),int_mb(i_iwq),nwmloc,
+      call cf_grid(ipset,xw,dbl_mb(i_pmew),int_mb(i_iwq),nwmloc,
      + xs,dbl_mb(i_pmes),isq,nsaloc,
      + dbl_mb(i_chg),dbl_mb(i_theta),dbl_mb(i_dtheta),
      + grid,mgz,lgrid,knode,kfrom,lsldo,node,mnx,mxx,mny,mxy,mnz,mxz)
 c
       return
       end
-      subroutine cf_grid(xw,yw,iwq,nwmloc,xs,ys,isq,nsaloc,chg,
+      subroutine cf_grid(ipset,xw,yw,iwq,nwmloc,xs,ys,isq,nsaloc,chg,
      + theta,dtheta,
      + grid,mgz,lgrid,knode,kfrom,lsldo,node,
      + minx,maxx,miny,maxy,minz,maxz)
@@ -77,7 +77,7 @@ c
 #include "cf_common.fh"
 c
       logical lset,lgrid
-      integer nwmloc,nsaloc,node,mgz
+      integer ipset,nwmloc,nsaloc,node,mgz
       real*8 xw(mwm,3,mwa),xs(msa,3)
       real*8 yw(mwm,3,mwa),ys(msa,3)
       integer iwq(mwa),isq(msa)
@@ -124,7 +124,7 @@ c
       do 5 ith2=1,morder
       j0=j0+1
       j=j0+1+(ngy-isign(ngy,j0))/2
-      prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(iwq(iwa),1,iset)
+      prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(iwq(iwa),1,ipset)
       i0=int(yw(iwm,1,iwa))-morder
       if(j.lt.miny) miny=j
       if(j.gt.maxy) maxy=j
@@ -158,7 +158,7 @@ c
       do 9 ith2=1,morder
       j0=j0+1
       j=j0+1+(ngy-isign(ngy,j0))/2
-      prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(isq(isa),2,iset)
+      prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(isq(isa),2,ipset)
       i0=int(ys(isa,1))-morder
       if(j.lt.miny) miny=j
       if(j.gt.maxy) maxy=j
@@ -510,30 +510,30 @@ c
 c
       return
       end
-      subroutine cf_pmecor(xw,nwmloc,xs,isq,nsaloc,ecorr)
+      subroutine cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer nwmloc,nsaloc
+      integer ipset,nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3),ecorr
       integer isq(msa)
 c
-      call cf_pmec(xw,nwmloc,xs,isq,nsaloc,ecorr,int_mb(i_iwq),
+      call cf_pmec(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr,int_mb(i_iwq),
      + dbl_mb(i_chg))
 c
       return
       end
-      subroutine cf_pmec(xw,nwmloc,xs,isq,nsaloc,ecorr,iwq,chg)
+      subroutine cf_pmec(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr,iwq,chg)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer nwmloc,nsaloc
+      integer ipset,nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3),ecorr
       integer isq(msa),iwq(mwa)
       real*8 chg(mqt,mqp,6)
@@ -544,14 +544,14 @@ c
 c
       if(nwmloc.gt.0) then
       do 1 i=1,nwa
-      ecorr=ecorr-chg(iwq(i),1,iset)*chg(iwq(i),1,iset)
+      ecorr=ecorr-chg(iwq(i),1,iset)*chg(iwq(i),1,ipset)
     1 continue
       ecorr=ecorr*dble(nwmloc)
       endif
 c
       if(nsaloc.gt.0) then
       do 2 i=1,nsaloc
-      ecorr=ecorr-chg(isq(i),1,iset)*chg(isq(i),1,iset)
+      ecorr=ecorr-chg(isq(i),1,iset)*chg(isq(i),1,ipset)
     2 continue
       endif
 c

@@ -1,5 +1,5 @@
       subroutine pme_start(a,m,imffti,nodpmi,ngxi,ngyi,ngzi,nwm,nwa,nsa)
-c $Id: pme_init.F,v 1.9 1999-07-29 00:57:13 d3e129 Exp $
+c $Id: pme_init.F,v 1.10 1999-09-08 16:49:56 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
@@ -21,7 +21,9 @@ c
       nodpme=nodpmi
 c
       imfft=imffti
-      lcorr=.false.
+      lcorr(1)=.false.
+      lcorr(2)=.false.
+      lcorr(3)=.false.
 c
       mwa=nwa
       mwm=nwm

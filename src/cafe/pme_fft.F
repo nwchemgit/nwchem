@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.10 1999-08-25 19:34:42 d3j191 Exp $
+c $Id: pme_fft.F,v 1.11 1999-09-08 16:49:56 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -30,7 +30,7 @@ c
 c
 c     IBM-SP2 specific
 c
-#if defined(SP1)
+#if defined(USE_ESSL)
       integer ip(40)
 #endif
 c
@@ -42,7 +42,7 @@ c
 c
 c     brand name 3d-fft routines
 c
-#if defined(SP1)
+#if defined(USE_ESSL)
       if(itype.gt.1) then
       ip(1)=1
       ip(2)=1
