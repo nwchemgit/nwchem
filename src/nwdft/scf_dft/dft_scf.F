@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.195 2001-11-01 00:00:06 edo Exp $
+c     $Id: dft_scf.F,v 1.196 2001-11-01 01:26:25 edo Exp $
 c     
       implicit none
 c
@@ -37,6 +37,8 @@ c
       Logical movecs_write, movecs_converged
       External movecs_write, movecs_converged
 c
+      external dft_lindep
+      integer dft_lindep
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
@@ -154,8 +156,8 @@ c
 
 
       integer g_focks(2)
-      integer nel_fon(2),nmo_fon(2),g_movad,g_xij,
-     ,     ncanorg,g_gmovecs(2)
+      integer nel_fon(2),nmo_fon(2),g_movad,
+     ,     ncanorg,g_gmovecs(2),nmo_out
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
@@ -419,28 +421,10 @@ c     Force sleazy SCF into "direct" mode.
 c
       call fock_force_direct(rtdb)
 c
-      vecs_or_dens='density'
-      ldmix=.false.
-      ncanorg=0
-      if((movecs_in.ne.'atomic'.and.
-     *     movecs_in.ne.'fragment'.and.movecs_in.ne.'hcore')
-     .     .or.fon) then
-         vecs_or_dens='vectors'
-         ldmix=.true.
-         ncanorg=1
-      else
-         if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'Xij canorg', 
-     &        nbf, 0, g_xij)) 
-     .        call errquit(' ddftdiagn: ga_create failed ',0)
-      endif
-      if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'gvecs', 
-     &     nbf_ao, 0, g_gmovecs(1))) 
-     .     call errquit(' dftscf: ga_create failed ',0)
-      if(ipol.eq.2) then
-         if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'gvecs', 
-     &        nbf_ao, 0, g_gmovecs(2))) 
-     .        call errquit(' dftscf: ga_create failed ',0)
-      endif
+      call dft_guessin(movecs_in,ldmix,ncanorg,fon,
+     ,     vecs_or_dens,
+     ,     ipol,nbf_ao,g_movecs,g_gmovecs,
+     ,     toll_s,svals)
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 
      &                       movecs_guess, scftype, nclosed, nopen, 
@@ -448,28 +432,7 @@ c
      &                       k_ir, g_gmovecs, g_dens, vecs_or_dens, 
      &                       'dft', title, oskel, oadapt, 
      &                       .true.) 
-      if(nmo(1).ne.nbf_ao) then
-         call ga_zero(g_movecs(1))
-         call ga_copy_patch('n', g_gmovecs(1), 1, nbf_ao, 
-     .        1, nmo(1),
-     ,        g_movecs(1), 1,nbf_ao,1,nmo(1))
-         if(ipol.eq.2) then
-            call ga_zero(g_movecs(2))
-            call ga_copy_patch('n', g_gmovecs(2), 1, nbf_ao, 
-     .           1, nmo(2),
-     ,           g_movecs(2), 1,nbf_ao,1,nmo(2))
-         endif
-      else
-         call ga_copy(g_gmovecs(1),g_movecs(1))
-         if(ipol.eq.2)
-     /        call ga_copy(g_gmovecs(2),g_movecs(2))
-      endif
-      if (.not. ga_destroy(g_gmovecs(1))) call errquit
-     &     ('dft_scf: could not destroy g_denso', 0)
-      if(ipol.eq.2) then
-         if (.not. ga_destroy(g_gmovecs(2))) call errquit
-     &        ('dft_scf: could not destroy g_denso', 0)
-      endif
+      call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
       if(oskel) then
         call ga_symmetrize(g_dens(1))
         if(ipol.eq.2) call ga_symmetrize(g_dens(2))
@@ -762,7 +725,7 @@ c
          call dft_second(tp3)
 #endif
          call dft_diagn(levelshifting,
-     ,        nmo(ispin),ncanorg,g_xij,
+     ,        nmo(ispin),ncanorg,
      .        g_focks(ispin),g_s,g_movecs(ispin),g_tmp,g_svecs,
      ,        dbl_mb(k_eval(ispin)),svals,noc(ispin),
      ,        homo,lumo,toll_s,

@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.3 2001-10-05 22:27:12 edo Exp $
+c     $Id: dft_canorg.F,v 1.4 2001-11-01 01:26:25 edo Exp $
 c     
       implicit none
 c
@@ -77,5 +77,87 @@ c
          write(luout,*)
       endif
       dft_lindep=nmo
+      return
+      end
+      subroutine dft_guessin(movecs_in,ldmix,ncanorg,fon,
+     ,     vecs_or_dens,
+     ,     ipol,nbf_ao,g_movecs,g_gmovecs,
+     ,     toll_s,svals)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "stdio.fh"
+      character*(*) movecs_in
+      logical ldmix ! [out]
+      integer ncanorg ! [out]
+      logical fon ! [in]
+      character*(*) vecs_or_dens ! [out]
+      integer ipol,g_movecs(2),g_gmovecs(2),nmo(2)
+      integer nbf_ao
+      double precision svals(*),toll_s
+c
+      external dft_lindep
+      integer dft_lindep,nmo_out,me
+c
+      me=ga_nodeid()
+      vecs_or_dens='density'
+      ldmix=.false.
+      ncanorg=0
+      if((movecs_in.ne.'atomic'.and.
+     *     movecs_in.ne.'fragment'.and.movecs_in.ne.'hcore')
+     .     .or.fon) then
+         vecs_or_dens='vectors'
+         ldmix=.true.
+         ncanorg=1
+      else
+      endif
+      nmo_out=dft_lindep(nbf_ao,toll_s,
+     .        svals,me.eq.0,luout)
+      if(nmo_out.ne.nbf_ao) then
+         if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'gvecs', 
+     &        nbf_ao, 0, g_gmovecs(1))) 
+     .        call errquit(' dftscf: ga_create failed ',0)
+         if(ipol.eq.2) then
+            if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'gvecs', 
+     &           nbf_ao, 0, g_gmovecs(2))) 
+     .           call errquit(' dftscf: ga_create failed ',0)
+         endif
+         call ga_copy(g_movecs(1),g_gmovecs(1))
+         if(ipol.eq.2)
+     /        call ga_copy(g_movecs(2),g_gmovecs(2))
+      else
+         g_gmovecs(1)=g_movecs(1)
+         g_gmovecs(2)=g_movecs(2)
+      endif
+      if(movecs_in.eq.'atomic') then
+         nmo(1)=nmo_out
+         nmo(2)=nmo(1)
+      endif
+      return
+      end
+      subroutine dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
+      implicit none
+#include "global.fh"
+      integer nmo(2),nbf_ao,g_gmovecs(2),g_movecs(2),ipol
+c
+      if(nmo(1).ne.nbf_ao) then
+         call ga_zero(g_movecs(1))
+            write(0,*) ' nbf nm1 ',nbf_ao,nmo(1)
+         call ga_copy_patch('n', g_gmovecs(1), 1, nbf_ao, 
+     .        1, nmo(1),
+     ,        g_movecs(1), 1,nbf_ao,1,nmo(1))
+      if (.not. ga_destroy(g_gmovecs(1))) call errquit
+     &     ('dft_scf: could not destroy g_denso', 0)
+         if(ipol.eq.2) then
+            write(0,*) ' nbf nm2 ',nbf_ao,nmo(2)
+            nmo(2)=nmo(1)
+            call ga_zero(g_movecs(2))
+            call ga_copy_patch('n', g_gmovecs(2), 1, nbf_ao, 
+     .           1, nmo(2),
+     ,           g_movecs(2), 1,nbf_ao,1,nmo(2))
+         if (.not. ga_destroy(g_gmovecs(2))) call errquit
+     &        ('dft_scf: could not destroy g_denso', 0)
+         endif
+      endif
       return
       end
