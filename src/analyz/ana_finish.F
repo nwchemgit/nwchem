@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.18 2001-07-17 23:23:46 d3j191 Exp $
+c $Id: ana_finish.F,v 1.19 2001-08-23 20:27:57 d3j191 Exp $
 c
       implicit none
 c
@@ -105,8 +105,10 @@ c
       n=0
       if(me.eq.0) write(lfnrms,1000)
       do 1 i=1,nsa
+      if(isel(i).ne.0) then
       arms=arms+xrms(i)
       n=n+1
+      endif
       if(i.eq.nsa) goto 2
       if(sgmnam(i)(11:16).ne.sgmnam(i+1)(11:16)) goto 2
       goto 1
