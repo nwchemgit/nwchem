@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.233 2003-07-03 01:58:51 edo Exp $
+c     $Id: dft_scf.F,v 1.234 2003-10-16 19:25:18 d3g681 Exp $
 c     
       implicit none
 c
@@ -1202,6 +1202,18 @@ c
      &           .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
          endif
       enddo
+      if (oprint_final_vecs) then
+         if (me .eq. 0) then
+            call util_print_centered(6,'Final MO vectors',40,.true.)
+            write(6,*)
+            call util_flush(6)
+         end if
+         call ga_sync()
+         do ispin = 1, ipol
+            call ga_print(g_movecs(ispin))
+            call util_flush(6)
+         end do
+      end if
 c
 c Jorge Garza/Begin
 c
