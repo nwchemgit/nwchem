@@ -1,3 +1,4 @@
+C $Id: Input_for_drdy.F,v 1.2 2001-01-08 15:44:17 windus Exp $
       Subroutine Input_for_drdy(rtdb)
 *     Implicit Double Precision (A-H,O-Z)
       Implicit none
