@@ -1,20 +1,17 @@
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C
-C     HONDO : PRP FORTRAN
-C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+*
+* $Id: prp.F,v 1.13 1997-06-10 17:36:27 mdupuis Exp $
+*
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
-*
-* $Id: prp.F,v 1.12 1997-04-02 19:02:12 d3e129 Exp $
-*
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "rtdb.fh"
       integer rtdb, basis, geom
-c     logical  rtdb_cget
-c     external rtdb_cget
       LOGICAL SOME
+      CHARACTER*8 WFNTYP,SCFTYP
+      CHARACTER*8 SCF,RHF,UHF,MP2
       CHARACTER*8 RUNTYP
       CHARACTER*8 PROP
+      CHARACTER*8 BLANK
+      CHARACTER*8 SCFTYPE
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_RESTAR/NREST
       COMMON/HND_OUTPUT/NPRINT
@@ -24,17 +21,15 @@ c     external rtdb_cget
       COMMON/HND_DATDPL/DPOL( 6)
       COMMON/HND_DATDHP/HPOL(10)
       COMMON/HND_DATFPL/FPOL( 6)
-c%%
-      CHARACTER*8 WFNTYP, SCFTYP
-      CHARACTER*8 SCF, UHF, MP2
-      character*4 scftype
       COMMON/HND_WFNOPT/WFNTYP
       COMMON/HND_SCFOPT/SCFTYP
-      DATA SCF,UHF /'SCF     ','UHF     '/
+      DATA SCF     /'SCF     '/
+      DATA RHF     /'RHF     '/
+      DATA UHF     /'UHF     '/
       DATA MP2     /'MP2     '/
-c%%
-      DATA ZERO /0.0D+00/
-      DATA PROP /'PROPTY  '/
+      DATA ZERO    /0.0D+00/
+      DATA PROP    /'PROPTY  '/
+      DATA BLANK   /'        '/
       DATA NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,NODPL,NODHP,NOD2HP,
      1     NOFPL,NOFHP,NOF2HP,NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
      2     NOSTON
@@ -42,41 +37,29 @@ C    3    /  0,    1,    1,    0,    1,    1,    1,    1,    1,
 C    4       1,    1,    1,    1,    1,    1,    1,    1,    1,
 C    5       1/
      3    /  0,    0,    0,    0,    1,    1,    1,    1,    1,
-     4       1,    1,    1,    1,    0,    0,    0,    0,    1,
+     4       1,    1,    1,    1,    0,    0,    0,    1,    1,
      5       1/
 C
-c     NAMELIST /PRP/NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,
-c    1              NODPL,NODHP,NOD2HP,NOFPL,NOFHP,NOF2HP,
-c    2              NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
-c    3              NOSTON
-C
-      IF(NREST.GT.2) RETURN
-      SOME=NPRINT.NE.-5
-C
-c     REWIND IR
-c     READ(IR,PRP,END=10,ERR=10)
-c  10 CONTINUE
-c%%
-C*    RUNTYP=PROP
+      SOME  =.TRUE.        
+      RUNTYP=BLANK
 c
       if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
      $     call errquit('prp: scftype not defined',0)
-c
       call inp_ucase(scftype)
-c
       if ( scftype .eq. 'RHF' ) then
-           scftyp = scftype
-      else
-           write(iw,*)'This one only support property of RHF type'
-
+           scftyp = rhf     
+      elseif ( scftype .eq. 'ROHF' ) then
+           scftyp = rhf     
+      elseif ( scftype .eq. 'UHF' ) then
+           scftyp = uhf     
       endif
-c%%
+c
       IF(NODHP.EQ.0.OR.NOD2HP.EQ.0) NODPL=0
       IF(NOFHP.EQ.0.OR.NOF2HP.EQ.0) NOFPL=0
-c*    IF(SOME) WRITE(IW,9999) NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,
-c*   1                        NODPL,NODHP,NOD2HP,NOFPL,NOFHP,NOF2HP,
-c*   2                        NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
-c*   3                        NOSTON
+      IF(SOME) WRITE(IW,9999) NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,
+     1                        NODPL,NODHP,NOD2HP,NOFPL,NOFHP,NOF2HP,
+     2                        NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
+     3                        NOSTON
 C
 C     ----- INTERFACE OF NWCHEM AND HONDO -----
 C
@@ -154,7 +137,7 @@ C
 C
 C     ----- ATOMIC SPIN DENSITY -----
 C
-*     IF(RUNTYP.NE.PROP.AND.NOSPIN.EQ.0) CALL HND_SPIND
+      IF(RUNTYP.NE.PROP.AND.NOSPIN.EQ.0) CALL HND_SPIND
 C
 C     ----- ELECTROSTATIC POTENTIAL -----
 C
@@ -174,23 +157,19 @@ C
 C
 C     ----- -NMR- CHEMICAL SHIFTS -----
 C
-*     IF(NONMR.EQ.0) CALL HND_NMRX
+      IF(NONMR.EQ.0) CALL HND_NMRX
 C
 C     ----- STONE'S DISTRIBUTED MULTIPOLE ANALYSIS -----
 C
-*     IF(NOSTON.EQ.0) CALL HND_STONEX
+      IF(NOSTON.EQ.0) CALL HND_STONEX
 C
 C     ----- BOYS ORBITAL LOCALIZATION -----
 C
-*     IF(NOLOC.EQ.0) CALL HND_BOYLOC
-*     IF(NOLOC.EQ.0) CALL HND_MULKEN(RTDB,BASIS,GEOM)
-C
-*     NCALL=0
-*     IF(SOME) NCALL=1
-*     CALL HND_TIMIT(NCALL)
+      IF(NOLOC.EQ.0) CALL HND_BOYLOC
+      IF(NOLOC.EQ.0) CALL HND_MULKEN(RTDB,BASIS,GEOM)
 C
       RETURN
- 9999 FORMAT(/,' ----- NAMELIST $PRP -----',/,
+ 9999 FORMAT(/,' ----- PROPERTY SELECTION -----',/,
      1 ' NODIP =',I2,' NOQDP =',I2,' NOOTP =',I2,
      2 ' NOPOP =',I2,' NOSPIN=',I2,
      3 ' NOLOC =',I2,' NODPL =',I2,' NODHP =',I2,' NOD2HP=',I2,/,
@@ -9896,7 +9875,7 @@ C
 C
 C     ----- SUBROUTINES ABOVE TAKEN FROM SYM.F IN HONDO -----
 C
-      SUBROUTINE PRSQL(V,M,N,NDIM)
+      SUBROUTINE HND_PRSQL(V,M,N,NDIM)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "global.fh"
 C
@@ -9973,101 +9952,101 @@ C
  9348 FORMAT(5(I5,1X,A8,F11.5))
       END
       SUBROUTINE HND_JACOBI(A,V,D,N,NP,NROT,B,Z)
-      call errquit('hnd_jacobi: this routine must be replaced',0)
-c$$$      IMPLICIT REAL*8 (A-H,O-Z)
-c$$$      DIMENSION A(NP,NP),V(NP,NP),D(NP),B(NP),Z(NP)
-c$$$      DATA ZERO   /0.0D+00/
-c$$$      DATA ONE    /1.0D+00/
-c$$$      DATA PT2    /0.2D+00/
-c$$$      DATA PT5    /0.5D+00/
-c$$$      DATA HUNDRD /1.0D+02/
-c$$$C
-c$$$      DO 12 IP=1,N
-c$$$         DO 11 IQ=1,N
-c$$$            V(IQ,IP)=ZERO
-c$$$   11    CONTINUE
-c$$$         V(IP,IP)=ONE
-c$$$   12 CONTINUE
-c$$$      DO 13 IP=1,N
-c$$$         B(IP)=A(IP,IP)
-c$$$         D(IP)=B(IP)
-c$$$         Z(IP)=ZERO
-c$$$   13 CONTINUE
-c$$$      NROT=0
-c$$$      IF(N.EQ.1) RETURN
-c$$$      DO 24 I=1,50
-c$$$         SM=ZERO
-c$$$         DO 15 IP=1,N-1
-c$$$            DO 14 IQ=IP+1,N
-c$$$               SM=SM+ABS(A(IP,IQ))
-c$$$   14       CONTINUE
-c$$$   15    CONTINUE
-c$$$         IF(SM.EQ.ZERO) RETURN
-c$$$         IF(I.LT.4) THEN
-c$$$            THRES=PT2*SM/N**2
-c$$$         ELSE
-c$$$            THRES=ZERO
-c$$$         ENDIF
-c$$$         DO 22 IP=1,N-1
-c$$$            DO 21 IQ=IP+1,N
-c$$$               G=HUNDRD*ABS(A(IP,IQ))
-c$$$               IF((I.GT.4).AND.(ABS(D(IP))+G.EQ.ABS(D(IP))).AND.
-c$$$     1                         (ABS(D(IQ))+G.EQ.ABS(D(IQ)))) THEN
-c$$$                  A(IP,IQ)=ZERO
-c$$$               ELSE IF(ABS(A(IP,IQ)).GT.THRES) THEN
-c$$$                  H=D(IQ)-D(IP)
-c$$$                  IF(ABS(H)+G.EQ.ABS(H)) THEN
-c$$$                     T=A(IP,IQ)/H
-c$$$                  ELSE
-c$$$                     THETA=PT5*H/A(IP,IQ)
-c$$$                     T=ONE/(ABS(THETA)+SQRT(ONE+THETA**2))
-c$$$                     IF(THETA.LT.ZERO) T=-T
-c$$$                  ENDIF
-c$$$                  C=ONE/SQRT(ONE+T**2)
-c$$$                  S=T*C
-c$$$                  TAU=S/(ONE+C)
-c$$$                  H=T*A(IP,IQ)
-c$$$                  Z(IP)=Z(IP)-H
-c$$$                  Z(IQ)=Z(IQ)+H
-c$$$                  D(IP)=D(IP)-H
-c$$$                  D(IQ)=D(IQ)+H
-c$$$                  A(IP,IQ)=ZERO
-c$$$                  DO 16 J=1,IP-1
-c$$$                     G=A(J,IP)
-c$$$                     H=A(J,IQ)
-c$$$                     A(J,IP)=G-S*(H+G*TAU)
-c$$$                     A(J,IQ)=H+S*(G-H*TAU)
-c$$$   16             CONTINUE
-c$$$                  DO 17 J=IP+1,IQ-1
-c$$$                     G=A(IP,J)
-c$$$                     H=A(J,IQ)
-c$$$                     A(IP,J)=G-S*(H+G*TAU)
-c$$$                     A(J,IQ)=H+S*(G-H*TAU)
-c$$$   17             CONTINUE
-c$$$                  DO 18 J=IQ+1,N
-c$$$                     G=A(IP,J)
-c$$$                     H=A(IQ,J)
-c$$$                     A(IP,J)=G-S*(H+G*TAU)
-c$$$                     A(IQ,J)=H+S*(G-H*TAU)
-c$$$   18             CONTINUE
-c$$$                  DO 19 J=1,N
-c$$$                     G=V(J,IP)
-c$$$                     H=V(J,IQ)
-c$$$                     V(J,IP)=G-S*(H+G*TAU)
-c$$$                     V(J,IQ)=H+S*(G-H*TAU)
-c$$$   19             CONTINUE
-c$$$                  NROT=NROT+1
-c$$$               ENDIF
-c$$$   21       CONTINUE
-c$$$   22    CONTINUE
-c$$$         DO 23 IP=1,N
-c$$$            B(IP)=B(IP)+Z(IP)
-c$$$            D(IP)=B(IP)
-c$$$            Z(IP)=ZERO
-c$$$   23    CONTINUE
-c$$$   24 CONTINUE
-c$$$      PAUSE '50 ITERATIONS SHOULD NEVER HAPPEN'
-c$$$      RETURN
+c     call errquit('hnd_jacobi: this routine must be replaced',0)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION A(NP,NP),V(NP,NP),D(NP),B(NP),Z(NP)
+      DATA ZERO   /0.0D+00/
+      DATA ONE    /1.0D+00/
+      DATA PT2    /0.2D+00/
+      DATA PT5    /0.5D+00/
+      DATA HUNDRD /1.0D+02/
+C
+      DO 12 IP=1,N
+         DO 11 IQ=1,N
+            V(IQ,IP)=ZERO
+   11    CONTINUE
+         V(IP,IP)=ONE
+   12 CONTINUE
+      DO 13 IP=1,N
+         B(IP)=A(IP,IP)
+         D(IP)=B(IP)
+         Z(IP)=ZERO
+   13 CONTINUE
+      NROT=0
+      IF(N.EQ.1) RETURN
+      DO 24 I=1,50
+         SM=ZERO
+         DO 15 IP=1,N-1
+            DO 14 IQ=IP+1,N
+               SM=SM+ABS(A(IP,IQ))
+   14       CONTINUE
+   15    CONTINUE
+         IF(SM.EQ.ZERO) RETURN
+         IF(I.LT.4) THEN
+            THRES=PT2*SM/N**2
+         ELSE
+            THRES=ZERO
+         ENDIF
+         DO 22 IP=1,N-1
+            DO 21 IQ=IP+1,N
+               G=HUNDRD*ABS(A(IP,IQ))
+               IF((I.GT.4).AND.(ABS(D(IP))+G.EQ.ABS(D(IP))).AND.
+     1                         (ABS(D(IQ))+G.EQ.ABS(D(IQ)))) THEN
+                  A(IP,IQ)=ZERO
+               ELSE IF(ABS(A(IP,IQ)).GT.THRES) THEN
+                  H=D(IQ)-D(IP)
+                  IF(ABS(H)+G.EQ.ABS(H)) THEN
+                     T=A(IP,IQ)/H
+                  ELSE
+                     THETA=PT5*H/A(IP,IQ)
+                     T=ONE/(ABS(THETA)+SQRT(ONE+THETA**2))
+                     IF(THETA.LT.ZERO) T=-T
+                  ENDIF
+                  C=ONE/SQRT(ONE+T**2)
+                  S=T*C
+                  TAU=S/(ONE+C)
+                  H=T*A(IP,IQ)
+                  Z(IP)=Z(IP)-H
+                  Z(IQ)=Z(IQ)+H
+                  D(IP)=D(IP)-H
+                  D(IQ)=D(IQ)+H
+                  A(IP,IQ)=ZERO
+                  DO 16 J=1,IP-1
+                     G=A(J,IP)
+                     H=A(J,IQ)
+                     A(J,IP)=G-S*(H+G*TAU)
+                     A(J,IQ)=H+S*(G-H*TAU)
+   16             CONTINUE
+                  DO 17 J=IP+1,IQ-1
+                     G=A(IP,J)
+                     H=A(J,IQ)
+                     A(IP,J)=G-S*(H+G*TAU)
+                     A(J,IQ)=H+S*(G-H*TAU)
+   17             CONTINUE
+                  DO 18 J=IQ+1,N
+                     G=A(IP,J)
+                     H=A(IQ,J)
+                     A(IP,J)=G-S*(H+G*TAU)
+                     A(IQ,J)=H+S*(G-H*TAU)
+   18             CONTINUE
+                  DO 19 J=1,N
+                     G=V(J,IP)
+                     H=V(J,IQ)
+                     V(J,IP)=G-S*(H+G*TAU)
+                     V(J,IQ)=H+S*(G-H*TAU)
+   19             CONTINUE
+                  NROT=NROT+1
+               ENDIF
+   21       CONTINUE
+   22    CONTINUE
+         DO 23 IP=1,N
+            B(IP)=B(IP)+Z(IP)
+            D(IP)=B(IP)
+            Z(IP)=ZERO
+   23    CONTINUE
+   24 CONTINUE
+      PAUSE '50 ITERATIONS SHOULD NEVER HAPPEN'
+      RETURN
       END
       SUBROUTINE HND_JACSRT(V,D,N,NP)
       IMPLICIT REAL*8 (A-H,O-Z)
