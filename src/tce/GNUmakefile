@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.18 2003-07-25 21:26:59 sohirata Exp $
+#$Id: GNUmakefile,v 1.19 2003-08-01 22:59:51 sohirata Exp $
 
 OBJ = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
-      tce_filename.o createfile.o deletefile.o reconcilefile.o \
+      tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o \
       get_block.o put_block.o add_block.o tce_tidy.o sf_test.o \
       tce_mo2e.o tce_mo1e_offset.o tce_mo2e_offset.o \
       tce_e_offset.o tce_t1_offset.o tce_t2_offset.o tce_t3_offset.o tce_t4_offset.o \

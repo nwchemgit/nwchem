@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.14 2003-07-25 17:56:56 sohirata Exp $
+c $Id: tce_input.F,v 1.15 2003-08-01 22:59:52 sohirata Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -16,7 +16,7 @@ c          MBPT2||MBPT3||MBPT4||MP2||MP3||MP4) default CCSD]
 c        [THRESH <double thresh default 1e-6>]
 c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
-c        [IO (fortran||eaf||ga||sf||replicated) default ga]
+c        [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
 c        [DIIS <integer diis default 5>]
 c        [NROOTS <integer nroots default 0>]
 c        [TARGET <integer target default 1>]
@@ -346,6 +346,10 @@ c
             ioalg=3
           else if (ioalgchar.eq.'replicated') then
             ioalg=4
+          else if (ioalgchar.eq.'dra') then
+            ioalg=5
+          else if (ioalgchar.eq.'ga_eaf') then
+            ioalg=6
           endif
         endif
         if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))

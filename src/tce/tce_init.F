@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.27 2003-07-25 17:56:56 sohirata Exp $
+c $Id: tce_init.F,v 1.28 2003-08-01 22:59:52 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -16,6 +16,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "tce.fh"
+#include "dra.fh"
 c
       integer rtdb             ! RTDB handle
       integer numfunc          ! Number of functionals implemented
@@ -437,6 +438,11 @@ c     Initialize file system
 c     ----------------------
 c
       nfiles = 0
+      if (ioalg.eq.5) then
+        if (dra_init(max_files,1.0d11,1.0d11,
+     1    dfloat(buffer_size)*dfloat(bytes)).ne.0)
+     2    call errquit('tce_init: dra initialization failed',0)
+      endif
 c
 c     -------------
 c     Printing info
@@ -572,6 +578,10 @@ c
           write(LuOut,9140) 'Shared File Library'
         else if (ioalg.eq.4) then
           write(LuOut,9140) 'Replicated Exclusive Access Files'
+        else if (ioalg.eq.5) then
+          write(LuOut,9140) 'Disk Resident Array Algorithm'
+        else if (ioalg.eq.6) then
+          write(LuOut,9140) 'GA/EAF Replicated Algorithm'
         else
           call errquit('tce_init: unknown I/O scheme',ioalg)
         endif

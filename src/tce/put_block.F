@@ -1,6 +1,6 @@
       subroutine put_block(d_file,array,size,offset)
 c
-c $Id: put_block.F,v 1.11 2003-01-31 04:36:43 sohirata Exp $
+c $Id: put_block.F,v 1.12 2003-08-01 22:59:51 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -98,6 +98,22 @@ c
         if (eaf_write(d_file,dfloat(bytes)*dfloat(offset),
      1    array,bytes*size).ne.0)
      2    call errquit('put_block: eaf problem',2)
+      else if (ioalg.eq.5) then
+        if (fileisga(d_file)) then
+          call ga_put(filehandles(d_file),offset+1,offset+size,1,1,
+     1      array,1)
+        else
+          call errquit('put_block: a write request to DRA',1)
+        endif
+      else if (ioalg.eq.6) then
+        if (fileisga(d_file)) then
+          call ga_put(filehandles(d_file),offset+1,offset+size,1,1,
+     1      array,1)
+        else
+          if (eaf_write(filehandles(d_file),
+     1      dfloat(bytes)*dfloat(offset),array,bytes*size).ne.0)
+     2      call errquit('put_block: eaf problem',2)
+        endif
       endif
  9000 format(1x,'node',i3,' put_block request to file:',i10,
      1  ' size:',i10,' offset:',i10)

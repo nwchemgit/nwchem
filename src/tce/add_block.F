@@ -1,6 +1,6 @@
       subroutine add_block(d_file,array,size,offset)
 c
-c $Id: add_block.F,v 1.9 2003-01-31 04:36:42 sohirata Exp $
+c $Id: add_block.F,v 1.10 2003-08-01 22:59:51 sohirata Exp $
 c
 c     This subroutine reads a section of a file and adds
 c     the content of an array to it and write it back to
@@ -146,6 +146,35 @@ c
      2    call errquit('add_block: eaf problem',2)
         if (.not.ma_pop_stack(l_temp))
      1    call errquit('add_block: MA problem',0)
+      else if (ioalg.eq.5) then
+        if (fileisga(d_file)) then
+          call ga_acc(filehandles(d_file),offset+1,offset+size,1,1,
+     1      array,1,1.0d0)
+        else
+          call errquit('add_block: read/write requests to DRA',0)
+        endif
+      else if (ioalg.eq.6) then
+        if (fileisga(d_file)) then
+          call ga_acc(filehandles(d_file),offset+1,offset+size,1,1,
+     1      array,1,1.0d0)
+        else
+          if (.not.ma_push_get(mt_dbl,size,'temporary',
+     1      l_temp,k_temp))
+     2      call errquit('add_block: MA problem',0)
+          if (eaf_read(filehandles(d_file),
+     1      dfloat(bytes)*dfloat(offset),
+     2      dbl_mb(k_temp),bytes*size).ne.0)
+     3      call errquit('add_block: eaf problem',2)
+          do i = 1,size
+            dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
+          enddo
+          if (eaf_write(filehandles(d_file),
+     1      dfloat(bytes)*dfloat(offset),
+     2      dbl_mb(k_temp),bytes*size).ne.0)
+     3      call errquit('add_block: eaf problem',2)
+          if (.not.ma_pop_stack(l_temp))
+     1      call errquit('add_block: MA problem',0)
+        endif
       endif
  9000 format(1x,'node',i3,' add_block request to file:',i10,
      1  ' size:',i10,' offset:',i10)

@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.8 2003-01-31 04:36:42 sohirata Exp $
+c $Id: deletefile.F,v 1.9 2003-08-01 22:59:51 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -11,8 +11,10 @@ c
 #include "util.fh"
 #include "sf.fh"
 #include "eaf.fh"
+#include "dra.fh"
 #include "tce.fh"
       integer d_sf
+      integer d_temp
       logical nodezero
       logical parallel
       integer i,j
@@ -133,6 +135,32 @@ c
             write(LuOut,9010) filehandles(i),filenames(i)(1:40)
           enddo
         endif
+      else if (ioalg.eq.5) then
+        if (fileisga(d_sf)) then
+          if (.not.ga_destroy(filehandles(d_sf)))
+     1      call errquit('deletefile: GA problem',0)
+          if (dra_open(filenames(d_sf),DRA_R,d_temp).ne.0)
+     1      call errquit('deletefile: dra problem',0)
+          if (dra_delete(d_temp).ne.0)
+     1      call errquit('deletefile: dra problem',1)
+        else
+          if (dra_open(filenames(d_sf),DRA_R,d_temp).ne.0)
+     1      call errquit('deletefile: dra problem',0)
+          if (dra_delete(d_temp).ne.0)
+     1      call errquit('deletefile: dra problem',1)
+        endif
+        if (nodezero.and.util_print('files',print_debug))
+     1    call filesummary
+      else if (ioalg.eq.6) then
+        if (fileisga(d_sf)) then
+          if (.not.ga_destroy(filehandles(d_sf)))
+     1      call errquit('deletefile: GA problem',0)
+        else
+          if (eaf_close(filehandles(d_sf)).ne.0)
+     1      call errquit('deletefile: eaf problem',0)
+          call util_file_unlink(filenames(d_sf))
+        endif
+        filehandles(d_sf) = 9999999999
       endif
       cpusecs(2) = cpusecs(2) + util_cpusec()
       cpusecs(52) = cpusecs(52) + util_wallsec()

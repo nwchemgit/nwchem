@@ -1,6 +1,6 @@
       subroutine tce_filename(stub,filename)
 c
-c $Id: tce_filename.F,v 1.2 2003-07-25 17:56:56 sohirata Exp $
+c $Id: tce_filename.F,v 1.3 2003-08-01 22:59:52 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -22,6 +22,10 @@ c
         call util_file_name(stub,.true.,.false.,filename)
       else if (ioalg.eq.4) then
         call util_file_name(stub,.true.,.true.,filename)
+      else if (ioalg.eq.5) then
+        call util_file_name(stub,.true.,.false.,filename)
+      else if (ioalg.eq.6) then
+        call util_file_name(stub,.true.,.true.,filename)
       endif
       return
       end
@@ -30,7 +34,7 @@ c
 
       subroutine tce_filenameindexed(index,stub,filename)
 c
-c $Id: tce_filename.F,v 1.2 2003-07-25 17:56:56 sohirata Exp $
+c $Id: tce_filename.F,v 1.3 2003-08-01 22:59:52 sohirata Exp $
 c
       implicit none
 #include "global.fh"
