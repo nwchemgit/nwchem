@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.29 2003-08-03 01:31:19 bylaska Exp $
+* $Id: cpmdv5.F,v 1.30 2003-08-03 18:20:50 bylaska Exp $
 *
 
 ***********************************************************************
@@ -296,6 +296,9 @@
 *     **** read ions ****
       value = ion_init(rtdb)
 
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
+
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
       call psp_readall()
@@ -349,8 +352,8 @@
          end if
       end if
 
-*     **** initialize FixIon constraint ****
-      call ion_init_FixIon(rtdb)
+!*     **** initialize FixIon constraint ****
+!      call ion_init_FixIon(rtdb)
 
 *     **** initialize QM/MM ****
       call pspw_qmmm_init(rtdb)
