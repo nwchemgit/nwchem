@@ -5,7 +5,7 @@
 #include "stdio.fh"
 #include "util.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.8 2002-01-16 01:37:13 edo Exp $
+c     $Id: rohf_hessv2.F,v 1.9 2002-01-16 15:52:01 windus Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -49,7 +49,7 @@ c
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.8 2002-01-16 01:37:13 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.9 2002-01-16 15:52:01 windus Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -116,7 +116,7 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.8 2002-01-16 01:37:13 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.9 2002-01-16 15:52:01 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -329,12 +329,6 @@ c
 c
          alo(1) = ivec
          ahi(1) = ivec
-         if(oprint) then
-            if(ga_nodeid().eq.0) then
-               write(luout,*) 'before the first copy_patch'
-               call util_flush(luout)
-            endif
-         endif
          call nga_copy_patch('N',g_dcv,blo,bhi,g_dens,alo,ahi)
          if (nopen .gt. 0) then
 c Note that this is NOT correct!
@@ -361,18 +355,10 @@ c
      &     g_fock))
      &   call errquit('rohf_h2e: could not allocate g_fock',555)
       call ga_zero(g_fock)
-      if(oprint.and.ga_nodeid().eq.0) then
-         write(luout,*) 'after the zero of g_fock'
-         call util_flush(luout)
-      endif
 c
       call shell_fock_build(geom, basis, 0, nfock, 
      $     dbl_mb(k_jfac), dbl_mb(k_kfac),
      $     tol2e, g_dens, g_fock,.true.)
-      if(oprint.and.ga_nodeid().eq.0) then
-         write(luout,*) 'after the shell_fock_build'
-         call util_flush(luout)
-      endif
 c     
       if (oskel) 
      $   call errquit('rohf_h2e2: no way',0)
@@ -388,10 +374,6 @@ c
          ifock = ifock + 1      ! History ... copy into tmp arrays
          alo(1) = ivec
          ahi(1) = ivec
-         if(oprint.and.ga_nodeid().eq.0) then
-            write(luout,*) 'before the second copy_patch'
-            call flush(luout)
-         endif
          call nga_copy_patch('N',g_fock,alo,ahi,g_tmp1,blo,bhi)
          call nga_copy_patch('N',g_dens,alo,ahi,g_dcv,blo,bhi)
          if (nopen .gt. 0) then 
