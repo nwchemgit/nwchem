@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.22 1995-06-02 04:45:05 gg502 Exp $
+C$Id: rimp2.F,v 1.23 1995-06-19 18:31:31 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -44,11 +44,11 @@ C
       Parameter (My_Ctx = 'mp2')
 C
       Integer AOBas, FitBas, Bases(2), Geom
-      Integer NAOBF, TopSpin, NFit
+      Integer NAOBF, TopSpin, RefSpin, NFit
       Integer ALo(MaxSpin), AHi(MaxSpin), ILo(MaxSpin), IHi(MaxSpin)
       Integer RefALo(MaxSpin), RefAHi(MaxSpin), RefILo(MaxSpin),
      $   RefIHi(MaxSpin)
-      Integer NMO(MaxSpin), I, Me
+      Integer NMO(MaxSpin), RefNMO(MaxSpin),I, Me, SpinMap(MaxSpin)
       Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner
       Character*(80) Title, SCFBasNam, FNVec, FNInt, String, Approx
@@ -77,7 +77,7 @@ C     Print controls
 C
       Logical PrInfo, PrWarn, PrRef
 C
-      Logical FullRef
+      Logical FullRef, FunnyRef
 C
 C     Initialize this module
 C
@@ -111,7 +111,8 @@ C
 C
 C     Get other controls -- threshold for neglect of integrals, etc.
 C
-      Call RIMP2_Get_Param( RTDB, Thresh, MxTBatch, MxEBatch, Approx)
+      Call RIMP2_Get_Param( RTDB, Thresh, MxTBatch, MxEBatch, Approx,
+     $   TopSpin, SpinMap, MaxSpin)
 C
 C     Figure out file names
 C
@@ -137,12 +138,35 @@ C     Check MOVecs file for number of spin cases, and the number of MOs
 C     contained.
 C
       If ( .NOT.  MOVecs_Read_Header(FNVec, Title, SCFBasNam, NAOBF,
-     $   TopSpin, NMO, MaxSpin) )
+     $   RefSpin, RefNMO, MaxSpin) )
      $   Call ErrQuit('RIMP2: Unable to open SCF eigenvectors', 0)
 C
       MxNMO = 0
+      Do I = 1, RefSpin
+         MxNMO = Max( MxNMO, RefNMO(I) )
+      EndDo
+C
+C     Compare reference information with requested spin mapping
+C
+      If (TopSpin .eq. -1) then
+         TopSpin = RefSpin
+         Do I = 1, TopSpin
+            SpinMap(i) = i
+         EndDo
+      Else
+         Do I = 1, TopSpin
+            If ( SpinMap(i) .lt. 1 .OR. SpinMap(i) .gt. RefSpin)
+     $         Call ErrQuit('RIMP2: Bad spin map entry', SpinMap(i))
+         EndDo
+      EndIf
+C
+C     Produce a correct NMO array and decide if this really is an
+C     abnormal reference so we can remind the user below.
+C
+      FunnyRef = TopSpin .ne. RefSpin
       Do I = 1, TopSpin
-         MxNMO = Max( MxNMO, NMO(I) )
+         NMO(i) = RefNMO( SpinMap(i) )
+         FunnyRef = FunnyRef .OR. (SpinMap(i) .ne. i)
       EndDo
 C
 C     *************************************
@@ -174,7 +198,7 @@ C     Read in the MOVECS data
 C
       Status = .TRUE.
       Do I = 1, TopSpin
-         Status = Status .AND. MOVecs_Read( FNVec, I,
+         Status = Status .AND. MOVecs_Read( FNVec, SpinMap(I),
      $      Dbl_MB( I_Full_Occ + MxNMO * (I-1) ),
      $      Dbl_MB(I_Full_EVal + MxNMO * (I-1) ), G_Full_AOXF(I) )
       EndDo
@@ -232,7 +256,7 @@ C
 C     Read in the correlated basis occupation and eigenstuff.
 C
       Do I = 1, TopSpin
-         If ( .NOT. MOVecs_Gather( FNVec, I, NCorBF(I),
+         If ( .NOT. MOVecs_Gather( FNVec, SpinMap(I), NCorBF(I),
      $      Int_MB(I_CorMap + MxNMO * (I-1) ),
      $      Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
      $      Dbl_MB(I_Eval + MxNCorBF * (I-1) ), G_AOXF(I) ) )
@@ -263,7 +287,14 @@ C
 C
          Write (LuOut, 8520) 'Nr. of AO basis functions:', NAOBF
          Write (LuOut, 8520) 'Nr. of fitting basis functions:', NFit
-         Write (LuOut, 8520) 'Nr. of MO spin cases:', TopSpin
+         If ( FunnyRef ) then
+            Write (LuOut, 8520) 'Nr. of spin cases in ref.:', RefSpin
+            Write (LuOut, 8520) 'Nr. of spin cases in calc.:', TopSpin
+            Write (LuOut, 8520) 'Mapping of ref. spin cases to calc.:',
+     $         (SpinMap(i), i = 1, TopSpin)
+         Else
+            Write (LuOut, 8520) 'Nr. of MO spin cases:', TopSpin
+         EndIf
          If ( .NOT. FullRef ) then
             Write (LuOut, 8520) 'Nr. of MOs in SCF reference:',
      $         (NMO(i), i = 1, TopSpin)
