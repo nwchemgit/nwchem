@@ -425,11 +425,25 @@ charge.)
 
 \subsubsection{{\tt geom\_num\_core}}
 \begin{verbatim}
-  logical function geom_num_core(geom, ncore)
+  logical function geom_num_core(rtdb, geom, module, ncore)
+  integer rtdb          [input]
   integer geom          [input]
+  character*(*)         [input]
   integer ncore         [output]
 \end{verbatim}
-This function determines the number of core orbitals in a system based on the
-constituent atoms and the standard general chemistry concepts of core and
+This function determines the number of core orbitals in a system based on the user defining
+the number of orbitals per atom.  If there is no user input, the number of core orbitals in a system
+is determined by constituent atoms and the standard general chemistry concepts of core and
 valance.
+
+\subsection{{\tt geom\_freeze}}
+\begin{verbatim}
+  logical function geom_freeze(rtdb, geom, module, ncore)
+  integer rtdb          [input]
+  integer geom          [input]
+  character*(*) module  [input]
+  integer ncore         [output]
+\end{verbatim}
+This function determines the number of frozen core orbitals in a system.  If successful,
+it returns the number of frozen core orbitals, as well as a logical true value.
 
