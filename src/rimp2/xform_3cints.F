@@ -1,0 +1,341 @@
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C NAME
+C     XForm_3cInts -- Produce transformed three-center integrals
+C
+C REVISION
+C     $Id: xform_3cints.F,v 1.1 1994-06-14 21:54:39 gg502 Exp $
+C
+C SYNOPSIS
+      Logical Function XForm_3cInts(Type3ci, AOBas, FitBas, G_Int,
+     $   ALo, AHi, ILo, IHi, G_C, XFFit, G_V,
+     $   Dest, G_Out, IntFil)
+      Implicit NONE
+      Integer AOBas, FitBas
+      Integer IntFil
+      Integer ALo, AHi, ILo, IHi
+      Integer G_Int, G_Out, G_C, G_V
+      Character*1 Type3ci, XFFit, Dest
+C
+C ARGUMENTS
+C     Type3ci  Type of 3-center integrals to be used ('E'RI or 'O'verlap) [IN]
+C     AOBas    Handle to basis for two of the indices ("AO basis") [IN]
+C     FitBas   Handle to basis for the third index ("fitting basis") [IN]
+C     G_Int    GA handle for use in first 2/3 of transformation [IN]
+C     ALo      Lower limit of target index range for first AO basis index [IN]
+C     AHi      Upper limit of target index range for first AO basis index [IN]
+C     ILo      Lower limit of target index range for 2nd AO basis index [IN]
+C     IHi      Lower limit of target index range for 2nd AO basis index [IN]
+C     G_C      GA handle for transformation matrix for AO basis indices [IN]
+C     XFFit    'Y'es to transform fitting basis index, 'N'o to skip it [IN]
+C     G_V      GA handle for transformation matrix for fitting basis index [IN]
+C     Dest     Send transformed integrals to 'D'isk or 'M'emory [IN]
+C     G_Out    GA handle for output buffer of integrals [IN]
+C     IntFil   LUN for file to hold transformed integrals [IN]
+C
+C RETURN VALUE
+C     .TRUE.   Successful completion
+C     .FALSE.  Errors in routine or dependents
+C
+C DESCRIPTION
+C     Produce transformed three-center integrals either in disk or in memory.
+C
+C     The global arrays G_Int, G_Out, G_C, G_V must be created and filled
+C     as appropriate before entry.
+C
+C LIMITATIONS
+C     Currently DEST must be 'D'isk.
+C     G_Int and G_Out must be the same size
+C
+C MEMORY USE
+C     Not here, but our dependents do use some.  I'd rather not talk about
+C     it at the moment.
+C
+C INCLUDE FILES
+#include "numerical_constants.fh"
+#include "stdio.fh"
+#include "bas.fh"
+#include "global.fh"
+C
+C EXTERNAL ROUTINES
+      Logical LSame     ! From BLAS-[23]
+      External LSame
+      Logical  XF3cI_Step12, XF3cI_Step3, Put_3cInts
+      External XF3cI_Step12, XF3cI_Step3, Put_3cInts
+      Integer LNBlnk
+      External LNBlnk
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C LOCAL VARIABLES
+      Logical Status, TransFit, Disk
+      Integer Dim1, Dim2, GAType, NFit
+      Integer IBlkSiz, OutBlkSiz, NA, NI, NJ, NK, JLo, JHi, KLo, KHi
+      Character*256 String1, String2
+C
+C     ***********************
+C     * Sanity check inputs *
+C     ***********************
+C     Type3ci is handled by XF3cI_Step12, and it takes little time to
+C     get to that point, so leave that check out here.
+C
+      Disk = LSame( Dest, 'D')
+      If ( .NOT. (Disk .or. LSame( Dest, 'M'))) then
+         Write (LuErr, *) 'XForm_3cInts: Can only place result on ',
+     $      'Disk or in Memory.'
+         XForm_3cInts = .False.
+         Return
+      EndIf
+      TransFit = LSame( XFFit, 'Y')
+      If ( .NOT. (TransFit .or. LSame( XFFit, 'N'))) then
+         Write (LuErr, *) 'XForm_3cInts: Transform fitting basis ',
+     $      'is a Y/N question.'
+         XForm_3cInts = .False.
+         Return
+      EndIf
+C
+C     Basis sets
+C
+      Status = .TRUE.
+      Status = Status .AND.
+     $   Bas_Check_Handle( AOBas, 'XForm_3cInts: AO basis')
+      Status = Status .AND.
+     $   Bas_Check_Handle( FitBas, 'XForm_3cInts: Fitting basis')
+C
+C     Message already printed by the checking routine
+C
+      If ( .NOT. Status ) then
+         XForm_3cInts = .False.
+         Return
+      EndIf
+C
+C     Global arrays which should be already created
+C
+      Call GA_Check_Handle( G_Int, 'XForm_3cInts: integral array')
+      Call GA_Check_Handle( G_C, 'XForm_3cInts: AO transformation')
+      If ( TransFit )
+     $   Call GA_Check_Handle( G_V, 'XForm_3cInts: Fit transformation')
+      If ( TransFit .or. .not. Disk)
+     $   Call GA_Check_Handle( G_Out, 'XForm_3cInts: output array')
+C
+C     If we're supposed to put the results on disk, the file had better
+C     already be setup because we don't do it!
+C
+      If ( Disk ) then
+         Inquire(Unit=IntFil, Opened=Status)
+      EndIf
+C
+C     Now sanity check the index ranges provided.
+C
+      Status = .TRUE.
+      Status = Status .AND. ALo .gt. 0 .AND. AHi .gt. 0
+     $   .AND. AHi .ge. ALo
+      Status = Status .AND. ILo .gt. 0 .AND. IHi .gt. 0
+     $   .AND. IHi .ge. ILo
+C
+      If ( .NOT. Status ) then
+         Write (LuErr, 9000) ALo, AHi, ILo, IHi
+         XForm_3cInts = .False.
+         Return
+      EndIf
+ 9000 Format (1X, 'XForm_3cInts: Bad range for transformation: (',
+     $   I5, ':', I5, ', ', I5, ':', I5, ')')
+C
+C     Compute some basic quantities
+C
+      NA = AHi - Alo + 1
+      NI = IHi - Ilo + 1
+C
+      Status = Bas_NumBF( FitBas, NFit)
+      If ( .NOT. Status ) then
+         Write (LuErr, *) 'XForm_3cInts: Unable to get basis info.'
+         XForm_3cInts = .FALSE.
+         Return
+      EndIf
+C
+C     ******************************
+C     * Determine number of passes *
+C     ******************************
+C     Use the sizes of the GAs passed in to determine block sizes.
+C     This may have to change somewhat when we want to put results
+C     in GAs instead of to disk.
+C
+      Call GA_Inquire( G_Int, GAType, Dim1, Dim2)
+      IBlkSiz = Dim1 / NA
+C
+C     Also verify the size
+C
+      If ( Dim1 .lt. NA .OR. Dim2 .lt. NFit) then
+         Write (LuErr, 9010) Dim1, Dim2, NA, NFit
+         XForm_3cInts = .FALSE.
+         Return
+      EndIf
+C
+      If ( TransFit ) then
+         Call GA_Inquire( G_Out, GAType, Dim1, Dim2)
+         OutBlkSiz = Dim1 / NA
+C
+C        Also verify the size
+C
+         If ( Dim1 .lt. NA .OR. Dim2 .lt. NFit) then
+            Write (LuErr, 9010) Dim1, Dim2, NA, NFit
+            XForm_3cInts = .FALSE.
+            Return
+         EndIf
+      Else
+         OutBlkSiz = IBlkSiz
+      EndIf
+C
+ 9010 Format( 1X, 'XForm_3cInts: GA matrix dimensions ',
+     $   'inconsistent with request:'
+     $   /1X, I5, 'x', I5, ' vs. ', I5, 'x', I5, '.')
+C
+C     Provide some info to the user
+C
+      If ( GA_NodeID() .eq. 0) then
+         Call Banner(LuOut, 'Three-Center Integral Transformation',
+     $      '-', .TRUE., .TRUE., .FALSE.)
+         If ( LSame( Type3ci, 'E') ) then
+            Write (LuOut, 9100) 'ERIs', Alo, AHi, ILo, IHi, '|',
+     $         1, NFit
+         ElseIf ( LSame( Type3ci, 'O') ) then
+            Write (LuOut, 9100) 'overlaps', Alo, AHi, ILo, IHi, ',',
+     $         1, NFit
+         Else
+            Write (LuOut, 9100) 'integrals of unknown type',
+     $         Alo, AHi, ILo, IHi, ',', 1, NFit
+         EndIf
+C
+         Write (LuOut, 9110) (NI + IBlkSiz - 1) / IBlkSiz
+C
+         Status = Bas_Name( AOBas, String1, String2)
+         Write( LuOut, '(1X, A, 1X, A)')
+     $      'Bra basis:', String1(:LNBlnk(String1))
+C
+         Status = Bas_Name( FitBas, String1, String2)
+         Write( LuOut, '(1X, A, 1X, A)')
+     $      'Ket basis:', String1(:LNBlnk(String1))
+C
+         Call GA_Inquire_Name( G_C, String1)
+         Write( LuOut, '(1X, A, 1X, A)')
+     $      'Bra transformation:', String1(:LNBlnk(String1))
+         If ( TransFit ) then
+            Call GA_Inquire_Name( G_V, String1)
+            Write( LuOut, '(1X, A, 1X, A)')
+     $         'Ket transformation:', String1(:LNBlnk(String1))
+         Else
+            Write( LuOut, '(1X, A)') 'Ket is not transformed.'
+         EndIf            
+C
+         If ( Disk ) then
+            Write ( LuOut, '(1X, A)')
+     $         'Transformed integrals stored on disk.'
+         Else
+            Write ( LuOut, '(1X, A)')
+     $         'Transformed integrals stored in memory.'
+         EndIf
+      EndIf
+C
+ 9100 Format(1X, 'Generating three-center ', A,
+     $   ' (', I5, ':', I5, ',', I5, ':', I5, A, I5, ':', I5, ')')
+ 9110 Format(1X, 'in ', I5, ' passes through the integrals.')
+C
+C     ****************************************************
+C     * Cover the requested range of I in several passes *
+C     ****************************************************
+C     The block size is determined by the global array G_Int.
+C     The current range of I is [JLo,JHi].
+C
+      Do JLo = ILo, IHi, IBlkSiz
+         JHi = Min( JLo+IBlkSiz-1, IHi)
+         NJ = JHi - JLo + 1
+C
+C        Generate blocks of (ai|s) (or (ais) ) integrals for the
+C        specified range of I.
+C
+         Status = XF3cI_Step12( Type3ci, ALo, AHi,
+     $      JLo, JHi, AOBas, G_C, FitBas, G_Int)
+         If ( .NOT. Status ) then
+            Write (LuErr, 9020) JLo, JHi, Ilo, Ihi
+            XForm_3cInts = .FALSE.
+            Return
+         EndIf
+ 9020    Format( 1x, 'XForm_3cInts: Error occurred in integral block ',
+     $      I5, ':', I5, ' of requested ', I5, ':', I5, '.')
+c$$$C
+         Write (LuOut, *) 'Results of steps 12 ', JLo, JHi,
+     $      GA_DDot( G_Int, G_Int)
+c$$$         Call GA_Print(G_Int)
+C
+C        Transform fitting basis & write out the result
+C
+         If ( TransFit ) then
+C
+C           For this transformation, we need another global array in 
+C           which to deposit the results.  It may not be the same size
+C           as G_Int -- for space efficiency when the results ultimately
+C           go to disk, for example, G_Out should hold only a single I.
+C
+            Do KLo = JLo, JHi, OutBlkSiz
+               KHi = Min( KLo+OutBlkSiz-1, JHi)
+               NK = KHi - KLo + 1
+C
+C              Do the final 1/3 transformation.  Note that here
+C              we specify the region to transform relative to the
+C              existing global array, not relative to absolute
+C              indices of the occupied & virtual orbitals.
+C
+               Call GA_Zero(G_Out)
+               Status = XF3cI_Step3( G_Int, NA, NJ, 1, NA,
+     $            KLo-JLo+1, KHi-JLo+1, 1, NFit,
+     $            G_V, 1, NFit, G_Out, NA, NK, 1, 1, 1)
+               If ( .NOT. Status ) then
+                  Write (LuErr, 9030) KLo, KHi, JLo, JHi, ILo, IHi
+                  XForm_3cInts = .FALSE.
+                  Return
+               EndIf
+c$$$C
+         Write (LuOut, *) 'Results of step 3 ', KLo, KHi,
+     $            GA_DDot(G_Out, G_Out)
+c$$$         Call GA_Print(G_Out)
+c$$$         Call GA_DAdd(-FP_One, G_Int, FP_One, G_Out, G_Out)
+c$$$         Call GA_Print(G_Out)
+C
+C              Now we're back to actual indices of the occupied
+C              and virtual orbitals.
+C
+               If ( Disk ) then
+                  Status = Put_3cInts(IntFil, G_Out, NA, KLo, KHi)
+                  If ( .NOT. Status ) then
+                     Write (LuErr, 9030) KLo, KHi, JLo, JHi, ILo, IHi
+                     XForm_3cInts = .FALSE.
+                     Return
+                  EndIf
+               EndIf
+            EndDo               ! KLo
+C
+C           If we are skipping the final 1/3-transformation, we
+C           can just write directly from G_Int in one go.
+C
+         Else
+            If ( Disk ) then
+               Status = Put_3cInts(IntFil, G_Int, NA, JLo, JHi)
+               If ( .NOT. Status ) then
+                  Write (LuErr, 9030) JLo, JHi, JLo, JHi, ILo, IHi
+                  XForm_3cInts = .FALSE.
+                  Return
+               EndIf
+            EndIf
+C
+         EndIf
+ 9030    Format( 1X, 'XForm_3cInts: Error occurred in output block ',
+     $      I5, ':', I5, ' of integral block ', I5, ':', I5,
+     $      ' of requested ', I5, ':', I5, '.')
+C
+      EndDo                     ! JLo
+C
+      Call GA_Sync
+C
+      XForm_3cInts = .TRUE.
+C
+      Return
+      End
+
+

@@ -1,0 +1,15 @@
+C     Misc. constants for Fortran file I/O
+C
+C     MA memory type corresponding to the unit of record length for
+C     unformatted direct access files.
+C
+      Integer MT_DAFRecL
+#if defined(sun) || defined(_AIX) || defined(_CRAY) || defined(__ksr__)
+      Parameter ( MT_DAFRecL = MT_BYTE )
+#endif
+#if defined(sgi) || defined(__alpha)
+      Parameter ( MT_DAFRecL = MT_INT )
+#endif
+#if defined(__IPSC__)
+      "I don't know what this should be at the moment"
+#endif
