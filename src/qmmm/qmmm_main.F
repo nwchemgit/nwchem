@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq)
 c
-c $Id: qmmm_main.F,v 1.2 2002-02-08 20:34:58 d3j191 Exp $
+c $Id: qmmm_main.F,v 1.3 2002-02-08 21:07:14 d3j191 Exp $
 c
       implicit none
 c
@@ -217,7 +217,13 @@ c
       q(ioz)=dble(linkatm)
       inum(ioz)=linkatm
       else
-      inum(ioz)=cf_element(isat(i))
+      j=cf_element(isat(i))
+      if(j.le.85) inum(ioz)=85
+      if(j.le.53) inum(ioz)=53
+      if(j.le.35) inum(ioz)=35
+      if(j.le.17) inum(ioz)=17
+      if(j.le.9) inum(ioz)=9
+      if(j.le.1) inum(ioz)=1
       q(ioz)=dble(inum(ioz))
       endif
       else
