@@ -289,9 +289,9 @@ c
       common/hnd_zmtpar/nnzmat,nnzvar,nnvar
       double precision hscale, ascale, bscale, tscale
 c
-      integer l_hess, k_hess, l_zmat, k_zmat, l_izmat, k_izmat, i
-      integer l_c, k_c, l_t, k_t
-      logical old_hessian
+      integer l_hess, k_hess, l_zmat, k_zmat, l_izmat, k_izmat, i, j
+      integer l_c, k_c, l_t, k_t, nactive
+      logical old_hessian, oactive(mxatom)
       character*16 atom_tags(mxatom)
 c
       nnzmat = nzmat
@@ -410,6 +410,25 @@ c
       if (odebug) then
          write(6,*) ' Initial Hessian after P'
          call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+      endif
+c
+      call grad_active_atoms(rtdb, nat, oactive, nactive)
+      if (nactive .ne. nat) then
+c     
+c     We are in cartesian coordinates and some have been frozen.
+c     Since there is no redundancy or coupling we just need
+c     to make sure that the initial Hessian does not couple
+c     frozen with unfrozen variables and we are OK.
+c
+         do i = 1, nat
+            if (.not. oactive(i)) then
+               do j = 1, nvar
+                  dbl_mb(k_hess+j-1+(i-1)*nvar) = 0d0
+                  dbl_mb(k_hess+i-1+(j-1)*nvar) = 0d0
+               enddo
+               dbl_mb(k_hess+i-1+(i-1)*nvar) = 1d0
+            endif
+         enddo
       endif
 c
       if (.not. rtdb_get(rtdb,'driver:hscale',mt_dbl,1,hscale))
@@ -2761,7 +2780,7 @@ c     updated.  Updates ds(), sp().  Divides by alpha so the step is still
 c     alpha*ds().
 c
 c     This has little effect on most calculations but for (h2o)5 it
-c     reduces the number of iterations from 99 to 6?.
+c     reduces the number of iterations from 99 to 69.
 c
       logical geom_compute_zmatrix
       double precision bohr, deg
