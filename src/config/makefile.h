@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.324 2000-05-10 21:34:16 edo Exp $
+# $Id: makefile.h,v 1.325 2000-05-11 00:10:43 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1380,7 +1380,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
   FC         = fort
   CC         = ccc      
   LINK.f = fort $(LDFLAGS)
-  DEFINES   +=  -DNOAIO -DEXT_INT -DLINUX -DLINUX64
+  DEFINES   +=   -DEXT_INT -DLINUX -DLINUX64
   FOPTIONS   = -i8 -assume no2underscore -align dcommons -fpe2 -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow -automatic 
   EXTRA_LIBS = 
   FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
