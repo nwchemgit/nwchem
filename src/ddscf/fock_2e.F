@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock )
-c$Id: fock_2e.F,v 1.11 1999-06-01 21:46:40 edo Exp $
+c$Id: fock_2e.F,v 1.12 1999-06-22 19:22:15 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -52,7 +52,8 @@ c
 c
 c     Determine whether J fitting is involved
 c
-      jfit = bgj_have_j_fit().and.(jfac(1).ne.0d0)
+c      jfit = bgj_have_j_fit().and.(jfac(1).ne.0d0)
+      jfit=.false.
 
 c     !!! BGJ test !!!
       if (jfit) then
