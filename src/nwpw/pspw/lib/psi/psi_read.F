@@ -1,5 +1,5 @@
 *
-* $Id: psi_read.F,v 1.5 2002-07-05 21:19:47 bylaska Exp $
+* $Id: psi_read.F,v 1.6 2003-01-25 00:46:48 bylaska Exp $
 *
 
 #define TCGMSG
@@ -66,9 +66,12 @@ c     complex*16 tmp(*)
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
          filename = control_input_psi()
-         call util_file_name_noprefix(filename,.false.,
-     >                                .false.,
-     >                        full_filename)
+         full_filename = filename
+         call util_file_name_resolve(full_filename, .false.)
+c        call util_file_name_noprefix(filename,.false.,
+c    >                                .false.,
+c    >                        full_filename)
+
          l = index(full_filename,' ') -1
          call openfile(5,full_filename,l,'r',l)
          call iread(5,version,1)

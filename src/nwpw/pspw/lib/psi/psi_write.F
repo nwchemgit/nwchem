@@ -1,5 +1,5 @@
 *
-* $Id: psi_write.F,v 1.3 2002-01-18 01:54:33 bylaska Exp $
+* $Id: psi_write.F,v 1.4 2003-01-25 00:46:48 bylaska Exp $
 *
 
 *     ***********************************
@@ -67,9 +67,11 @@ c     complex*16 tmp(*)
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
          filename = control_output_psi()
-         call util_file_name_noprefix(filename,.false.,
-     >                                .false.,
-     >                       full_filename)
+         full_filename = filename
+         call util_file_name_resolve(full_filename, .false.)
+c        call util_file_name_noprefix(filename,.false.,
+c    >                                .false.,
+c    >                       full_filename)
          l = index(full_filename,' ') -1
          call openfile(6,full_filename,l,'w',l)
          call iwrite(6,version,1)

@@ -1,25 +1,70 @@
 *
-* $Id: psi.F,v 1.23 2002-12-10 01:37:25 bylaska Exp $
+* $Id: psi.F,v 1.24 2003-01-25 00:46:48 bylaska Exp $
 *
+
 
 *     ***********************************
 *     *				        *
-*     *	     psi_1KS_update_orb	        *
+*     *	     psi_KS_update	        *
 *     *				        *
 *     ***********************************
 
-*    This routine performs a linesearch on orbital i, in the direction t.  
-* This routine is needed for a KS minimizer.
-*  e0 = <orb|g>
-*  de0 = 2*<t|g>
+*    This routine (approximately) diagonalizes the KS matrix.
 *
-      subroutine psi_1KS_update_orb(precondition,maxiteration,
-     >                              maxerror,perror,i)
+      subroutine psi_KS_update(psi_number,precondition,maxerror)
       implicit none
+      integer psi_number
+      logical precondition
+      real*8 maxerror
+        
+#include "mafdecls.fh"
+#include "psi.fh"
+    
+*     **** local variables ****
+      logical done
+      integer i,j,neall,maxit_orb,maxit_orbs
+      real*8 error,error_out
+
+      neall = ne(1)+ne(2)
+      maxit_orb  = 3
+      maxit_orbs = 2
+      j = 0
+ 2    j = j+1
+        error = 0.0d0
+        do i=neall,1,-1
+          call psi_KS_update_orb(psi_number,precondition,maxit_orb,
+     >                         maxerror,
+     >                         0.2d0,i,error_out)
+          error = error+error_out
+        end do
+        error = error/dble(neall)
+
+        done = ((j.gt.maxit_orbs).or.(error.lt.maxerror))
+      if (.not.done) go to 2
+
+      return
+      end
+
+
+*     ***********************************
+*     *				        *
+*     *	     psi_KS_update_orb	        *
+*     *				        *
+*     ***********************************
+
+*    This routine performs a KS update on orbital i
+*
+      subroutine psi_KS_update_orb(psi_number,
+     >                             precondition,maxiteration,
+     >                             maxerror,perror,i,
+     >                             error_out)
+      implicit none
+      integer psi_number
       logical precondition
       integer maxiteration
       real*8  maxerror,perror 
       integer i
+      real*8 error_out
       
 #include "mafdecls.fh"
 #include "psi.fh"
@@ -32,7 +77,13 @@
       integer it
       real*8 e0,eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
       integer r1(2),t0(2),t(2),g(2)
+      integer psi_ptr
 
+      if (psi_number.eq.1) then
+         psi_ptr=psi1(1)
+      else 
+         psi_ptr=psi2(1)
+      end if
 
       call Parallel_taskid(taskid)
 
@@ -48,7 +99,7 @@
      >        MA_push_get(mt_dcpl,npack1,'t',
      >                       t(2),t(1))
       if (.not. value) call errquit(
-     >     'psi_1KS_update_orb: out of stack memory',0)
+     >     'psi_KS_update_orb: out of stack memory',0)
 
       done = .false.
       error0 = 0.0d0 
@@ -60,12 +111,12 @@
          eold = e0
 
 *        *** calculate residual (steepest descent) direction for a single band ***
-         call psi_1get_gradient_orb(i,dcpl_mb(g(1)))
-         call Pack_cc_dot(1,dcpl_mb(psi1(1)+(i-1)*npack1),
+         call psi_get_gradient_orb(psi_number,i,dcpl_mb(g(1)))
+         call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
      >                   dcpl_mb(g(1)),
      >                    e0)
          e0 = -e0
-
+         
          if (it.eq.1) then
            percent_error = 1.0d0
          else if (it.eq.2) then
@@ -85,7 +136,7 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
 
          call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
          call Pack_cc_daxpy(1,(e0),
-     >                 dcpl_mb(psi1(1)+(i-1)*npack1),
+     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
      >                 dcpl_mb(r1(1)))
      
 *        **** preconditioning ****
@@ -95,7 +146,7 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
      >                     dcpl_mb(r1(1)))
        
 *          *** project out components from other bands in the residual ***
-           call psi_1project_out_orb(i,dcpl_mb(r1(1)))
+c???       call psi_project_out_orb(psi_number,i,dcpl_mb(r1(1)))
          end if
 
 *        *** determine conjuagate direction ***
@@ -115,7 +166,7 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
 
 
 *        *** normalize search direction, t ****
-         call psi_1project_out_orb(i,dcpl_mb(t(1)))
+         call psi_project_out_orb(psi_number,i,dcpl_mb(t(1)))
          call Pack_cc_dot(1,dcpl_mb(t(1)),
      >                   dcpl_mb(t(1)),
      >                   de0)
@@ -133,7 +184,7 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
          end if
 
          de0 = -2.0d0*de0
-         call psi_1linesearch_update(i,e0,de0,dcpl_mb(t(1)))
+         call psi_linesearch_update(psi_number,i,e0,de0,dcpl_mb(t(1)))
 
       go to 2
 
@@ -144,14 +195,15 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
       value = value.and.MA_pop_stack(r1(2))
       value = value.and.MA_pop_stack(t0(2))
       if (.not. value) call errquit(
-     >     'psi_1KS_update_orb: popping stack memory',1)
+     >     'psi_KS_update_orb: popping stack memory',1)
 
+      error_out = dabs(e0-eold)
       return
       end
 
 *     ***********************************
 *     *				        *
-*     *	     psi_1linesearch_update	*
+*     *	     psi_linesearch_update	*
 *     *				        *
 *     ***********************************
 
@@ -160,8 +212,9 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
 *  e0 = <orb|g>
 *  de0 = 2*<t|g>
 *
-      subroutine psi_1linesearch_update(i,e0,de0,t)
+      subroutine psi_linesearch_update(psi_number,i,e0,de0,t)
       implicit none
+      integer psi_number
       integer i
       real*8  e0,de0
       complex*16 t(*) !search direction
@@ -171,8 +224,14 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
    
 *     **** local variables ****
       logical value
-      integer orb(2),g(2)
+      integer orb(2),g(2),psi_ptr
       real*8 x,y,pi,theta,e1
+
+      if (psi_number.eq.1) then
+         psi_ptr=psi1(1)
+      else 
+         psi_ptr=psi2(1)
+      end if
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -183,10 +242,10 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
      >        MA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
-     >     'psi_1linesearch_update: out of stack memory',0)
+     >     'psi_linesearch_update: out of stack memory',0)
  
 
-      call Pack_c_Copy(1,dcpl_mb(psi1(1)+(i-1)*npack1),
+      call Pack_c_Copy(1,dcpl_mb(psi_ptr+(i-1)*npack1),
      >                   dcpl_mb(orb(1)))
 
 *     **** orb2 = orb*cos(pi/300) + t*sin(pi/300) ****
@@ -194,14 +253,14 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
       y = sin(pi/300.0d0)
       call Pack_c_SMul(1,x,
      >                  dcpl_mb(orb(1)),
-     >                  dcpl_mb(psi1(1)+(i-1)*npack1))
+     >                  dcpl_mb(psi_ptr+(i-1)*npack1))
       call Pack_cc_daxpy(1,y,
      >                   t,
-     >                   dcpl_mb(psi1(1)+(i-1)*npack1))
+     >                   dcpl_mb(psi_ptr+(i-1)*npack1))
 
 *     *** determine theta ***
-      call psi_1get_gradient_orb(i,dcpl_mb(g(1)))
-      call Pack_cc_dot(1,dcpl_mb(psi1(1)+(i-1)*npack1),
+      call psi_get_gradient_orb(psi_number,i,dcpl_mb(g(1)))
+      call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
      >                   dcpl_mb(g(1)),
      >                   e1)
       e1 = -e1
@@ -215,17 +274,19 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
       y = sin(theta)
       call Pack_c_SMul(1,x,
      >                  dcpl_mb(orb(1)),
-     >                  dcpl_mb(psi1(1)+(i-1)*npack1))
+     >                  dcpl_mb(psi_ptr+(i-1)*npack1))
       call Pack_cc_daxpy(1,y,
      >                   t,
-     >                   dcpl_mb(psi1(1)+(i-1)*npack1))
+     >                   dcpl_mb(psi_ptr+(i-1)*npack1))
 
+*     **** update orb2_r and H*orb2 ****
+      call electron_run_orb(i,dcpl_mb(psi_ptr)) 
 
 *     **** release stack memory ****
       value =           MA_pop_stack(g(2))
       value = value.and.MA_pop_stack(orb(2))      
       if (.not. value) call errquit(
-     >     'psi_1linesearch_update: popping stack memory',1)
+     >     'psi_linesearch_update: popping stack memory',1)
 
       return
       end
@@ -235,15 +296,16 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
 
 *     ***************************
 *     *				*
-*     *	     psi_1set_orb	*
+*     *	     psi_set_orb	*
 *     *				*
 *     ***************************
 
 *    This routine copies an orbital, orb, into the ith psi of psi1.  
 * This routine is needed for a KS minimizer.
 *
-      subroutine psi_1set_orb(i,orb)
+      subroutine psi_set_orb(psi_number,i,orb)
       implicit none
+      integer psi_number
       integer i
       complex*16 orb(*)
 
@@ -251,28 +313,35 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
 #include "psi.fh"
    
 *     **** local variables ****
-      integer index
+      integer index,psi_ptr
+
+      if (psi_number.eq.1) then
+         psi_ptr=psi1(1)
+      else 
+         psi_ptr=psi2(1)
+      end if
 
       index = (i-1)*npack1
 
       call zcopy(npack1,
      >           orb, 1,
-     >           dcpl_mb(psi1(1)+index),1)
+     >           dcpl_mb(psi_ptr+index),1)
       return
       end
 
 
 *     ***************************
 *     *				*
-*     *	     psi_1get_orb	*
+*     *	     psi_get_orb	*
 *     *				*
 *     ***************************
 
 *    This routine copies the ith psi of psi1 into an orbital, orb.  
 * This routine is needed for a KS minimizer.
 *
-      subroutine psi_1get_orb(i,orb)
+      subroutine psi_get_orb(psi_number,i,orb)
       implicit none
+      integer psi_number
       integer i
       complex*16 orb(*)
 
@@ -280,35 +349,51 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
 #include "psi.fh"
    
 *     **** local variables ****
-      integer index
+      integer index,psi_ptr
+
+
+      if (psi_number.eq.1) then
+         psi_ptr=psi1(1)
+      else 
+         psi_ptr=psi2(1)
+      end if
 
       index = (i-1)*npack1
 
       call zcopy(npack1,
-     >           dcpl_mb(psi1(1)+index), 1,
+     >           dcpl_mb(psi_ptr+index), 1,
      >           orb, 1)
       return
       end
 
 *     ***********************************
 *     *				        *
-*     *	     psi_1get_gradient_orb	*
+*     *	     psi_get_gradient_orb	*
 *     *				        *
 *     ***********************************
 
 *    This routine returns the Hpsi(i).  
 * This routine is needed for a KS minimizer.
 *
-      subroutine psi_1get_gradient_orb(i,Horb)
+      subroutine psi_get_gradient_orb(psi_number,i,Horb)
       implicit none
+      integer psi_number
       integer i
       complex*16 Horb(*)
 
 #include "mafdecls.fh"
 #include "psi.fh"
 
+*     **** local variables ****
+      integer psi_ptr
 
-      call electron_run_orb(i,dcpl_mb(psi1(1)))
+      if (psi_number.eq.1) then
+         psi_ptr=psi1(1)
+      else 
+         psi_ptr=psi2(1)
+      end if
+
+      call electron_run_orb(i,dcpl_mb(psi_ptr))
       call electron_get_gradient_orb(i,Horb)
       
       return
@@ -317,15 +402,16 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
 
 *     *******************************************
 *     *				                *
-*     *	         psi_1project_out_orb           *
+*     *	         psi_project_out_orb           *
 *     *				                *
 *     *******************************************
 *
 *    This routine projects out non-orthogonal components of Horb.  
 * This routine is needed for a KS minimizer.
 *
-      subroutine psi_1project_out_orb(i,Horb)
+      subroutine psi_project_out_orb(psi_number,i,Horb)
       implicit none
+      integer psi_number
       integer i
       complex*16 Horb(*)
 
@@ -333,18 +419,24 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
 #include "psi.fh"
 
 *     **** local variables ****
-      integer n
+      integer n,psi_ptr
       real*8  x
 
-*     **** spin up orbital ****
+      if (psi_number.eq.1) then
+         psi_ptr=psi1(1)
+      else 
+         psi_ptr=psi2(1)
+      end if
+
+*     **** spin up orbital **** - not very efficient code, needs to be fixed.
       if (i.le.ne(1)) then
         do n=1,(ne(1))
         !if (n.ne.i) then
-           call Pack_cc_dot(1,dcpl_mb(psi1(1)+(n-1)*npack1),
+           call Pack_cc_dot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
      >                      Horb,x)
            x = -x
            call Pack_cc_daxpy(1,x,
-     >                        dcpl_mb(psi1(1)+(n-1)*npack1),
+     >                        dcpl_mb(psi_ptr+(n-1)*npack1),
      >                        Horb) 
         !end if
         end do     
@@ -353,11 +445,11 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
       else       
         do n=(ne(1)+1),(ne(1)+ne(2))
         !if (n.ne.i) then
-           call Pack_cc_dot(1,dcpl_mb(psi1(1)+(n-1)*npack1),
+           call Pack_cc_dot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
      >                      Horb,x)
            x = -x
            call Pack_cc_daxpy(1,x,
-     >                        dcpl_mb(psi1(1)+(n-1)*npack1),
+     >                        dcpl_mb(psi_ptr+(n-1)*npack1),
      >                        Horb) 
         !end if
         end do     
@@ -370,15 +462,16 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
 
 *     ***************************
 *     *				*
-*     *	     psi_1set_density	*
+*     *	     psi_set_density	*
 *     *				*
 *     ***************************
 
 *    This routine sets the densities and potentials in psi and electron.  
 * This routine is needed for a band by band minimizer.
 *
-      subroutine psi_1set_density(rho)
+      subroutine psi_set_density(psi_number,rho)
       implicit none
+      integer psi_number
       real*8 rho(*)
 
 
@@ -390,16 +483,120 @@ c     >    "orb,it,e0,error,perror:",i,it,e0,error0,percent_error
       integer rho2_all(2)
       common / rhoall_block / rho1_all,rho2_all
 
+*     **** local variables ****
+      integer rho_ptr,dng_ptr,rho_all_ptr
+
+      if (psi_number.eq.1) then
+        rho_ptr     = rho1(1)
+        dng_ptr     = dng1(1)
+        rho_all_ptr = rho1_all(1)
+      else
+        rho_ptr     = rho2(1)
+        dng_ptr     = dng2(1)
+        rho_all_ptr = rho2_all(1)
+      end if
 
 
       call dcopy(4*nfft3d,
-     >           dbl_mb(rho(1)),1,
-     >           dbl_mb(rho1(1)),1)
+     >           rho, 1,
+     >           dbl_mb(rho_ptr),1)
 
-      call electron_gen_dng_dnall(dbl_mb(rho1(1)),
-     >                            dcpl_mb(dng1(1)),
-     >                            dbl_mb(rho1_all(1)))
+      call electron_gen_dng_dnall(dbl_mb(rho_ptr),
+     >                            dcpl_mb(dng_ptr),
+     >                            dbl_mb(rho_all_ptr))
+      call electron_gen_scf_potentials(dbl_mb(rho_ptr),
+     >                            dcpl_mb(dng_ptr),
+     >                            dbl_mb(rho_all_ptr))
+      call electron_gen_vall()
+      return
+      end
 
+
+*     ***************************
+*     *				*
+*     *	     psi_get_density	*
+*     *				*
+*     ***************************
+
+*    This routine gets the densities in psi.  
+* This routine is needed for a band by band minimizer.
+*
+      subroutine psi_get_density(psi_number,rho)
+      implicit none
+      integer psi_number
+      real*8 rho(*)
+
+
+#include "mafdecls.fh"
+#include "psi.fh"
+   
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** local variables ****
+      integer rho_ptr
+
+      if (psi_number.eq.1) then
+        rho_ptr = rho1(1)
+      else
+        rho_ptr = rho2(1)
+      end if
+
+      call dcopy(4*nfft3d,
+     >           dbl_mb(rho_ptr),1,
+     >           rho,1)
+      return
+      end
+
+
+*     **************************************
+*     *			   	           *
+*     *	     psi_gen_density_potentials	   *
+*     *				           *
+*     **************************************
+
+*    This routine sets the densities and potentials in psi and electron.  
+* This routine is needed for a band by band minimizer.
+*
+      subroutine psi_gen_density_potentials(psi_number)
+      implicit none
+      integer psi_number
+
+
+#include "mafdecls.fh"
+#include "psi.fh"
+   
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** local variables ****
+      integer psi_ptr,rho_ptr,dng_ptr,rho_all_ptr
+
+      if (psi_number.eq.1) then
+        psi_ptr     = psi1(1)
+        rho_ptr     = rho1(1)
+        dng_ptr     = dng1(1)
+        rho_all_ptr = rho1_all(1)
+      else
+        psi_ptr     = psi2(1)
+        rho_ptr     = rho2(1)
+        dng_ptr     = dng2(1)
+        rho_all_ptr = rho2_all(1)
+      end if
+
+
+      call electron_gen_densities(dcpl_mb(psi_ptr),
+     >                            dbl_mb(rho_ptr),
+     >                            dcpl_mb(dng_ptr),
+     >                            dbl_mb(rho_all_ptr))
+      call electron_gen_scf_potentials(dbl_mb(rho_ptr),
+     >                            dcpl_mb(dng_ptr),
+     >                            dbl_mb(rho_all_ptr))
+      call electron_gen_vall()
       return
       end
 
@@ -565,6 +762,37 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       return
       end
+
+*     ***********************************
+*     *					*
+*     *	    psi_1_noupdate_energy	*
+*     *					*
+*     ***********************************
+      real*8 function psi_1_noupdate_energy()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** external functions ****
+      real*8   electron_energy
+      external electron_energy
+
+
+      !call electron_gen_Hpsi_k(dcpl_mb(psi1(1)))
+      psi_1_noupdate_energy = electron_energy(dcpl_mb(psi1(1)),
+     >                               dbl_mb(rho1(1)),
+     >                              dcpl_mb(dng1(1)),
+     >                              dbl_mb(rho1_all(1)))
+
+      return
+      end
+
 
 *     ***********************************
 *     *					*
