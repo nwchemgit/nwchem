@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.46 2002-01-15 23:16:28 windus Exp $
+C $Id: hess_cphf.F,v 1.47 2002-01-16 18:25:28 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -246,7 +246,7 @@ c
 c
 c Transform ds/dx term into MO basis and scale by -0.5.
 c
-      write(LuOut,*) 'Getting Ta again'
+      if (ocphfprint) write(LuOut,*) 'Getting Ta again'
       call sx_read(g_rhs,nc*ndens,num,sx_dra_handle)
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
@@ -495,9 +495,11 @@ c
       integer alo1(2), ahi1(2), blo1(3), bhi1(3)
       integer alo2(2), ahi2(2), blo2(3), bhi2(3)
 c
-      if(ga_nodeid().eq.0) 
+      if (ocphf) then
+        if(ga_nodeid().eq.0) 
      $    write(LuOut,*) 'RHS before AO transformation'
-      call ga_print(g_rhs_x)
+        call ga_print(g_rhs_x)
+      endif
 c
 c  Set up some arrays
 c
@@ -567,11 +569,8 @@ c
       integer alo1(3), ahi1(3), alo2(3), ahi2(3)
       integer blo(3), bhi(3), clo(3), chi(3)
 c
-      write(6,*) 'num and ndens ',num,ndens
-      call flush(6)
       ind = 0
       do ndns = 1, ndens
-       write(6,*) 'nocc and nvirt ',nocc(ndns),nvirt(ndns)
        alo1(2) = 1
        ahi1(2) = nocc(ndns)
        alo1(3) = nocc(ndns) + 1

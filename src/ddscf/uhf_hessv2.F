@@ -1,6 +1,6 @@
       subroutine uhf_hessv2(acc, g_x, g_ax)
 *
-* $Id: uhf_hessv2.F,v 1.1 2002-01-16 17:22:41 windus Exp $
+* $Id: uhf_hessv2.F,v 1.2 2002-01-16 18:25:28 windus Exp $
 *
       implicit none
 #include "cuhf.fh"
@@ -243,7 +243,7 @@ c
       nfock = ndensity
       call uhf_fock_setup(g_dens2, g_fock2,
      &            dbl_mb(k_jfac), dbl_mb(k_kfac), ndensity,
-     &            nfock, nbf, .true.)
+     &            nfock, nbf, .false.)
 c
 c     Actually do the Fock build
 c

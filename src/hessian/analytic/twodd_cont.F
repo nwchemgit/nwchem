@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.32 2002-01-09 00:54:47 windus Exp $
+C $Id: twodd_cont.F,v 1.33 2002-01-16 18:25:28 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -190,10 +190,12 @@ c    $     call errquit('twodd_cont: could not allocate l_act',ncent)
 c
 c  Take care of the first derivative contributions to the rhs
 c
-      do i = 1, ndens
-        call ga_print(g_dens(i))
-        write(luout,*) 'jfac, kfac, dens ',jfac(i),kfac(i),i
-      enddo
+      if(otwoprint) then
+        if(ga_nodeid().eq.0) write(LuOut,*) 'Original Density'
+        do i = 1, ndens
+          call ga_print(g_dens(i))
+        enddo
+      endif
 C
 c This is temporary until I get the rest of the code working with multi-dimensional
 c GA for the density
@@ -238,7 +240,7 @@ c
       if (otwoprint) then
          if(ga_nodeid().eq.0) then
         write(LuOut,*) 'after going into shell_fock_build:'
-        write(LuOut,*) 'geom, basis, n3xyz, ndens, tol2e', geom, basis, 
+        write(LuOut,*) 'geom, basis, n3xyz, ndens, tol2e',geom,basis,
      *      n3xyz, ndens, tol2e
         endif
         call ga_print(g_rhs)
@@ -407,7 +409,8 @@ c
          call ga_reorder(g_dens(i), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
          if (otwoprint) then
-         if(ga_nodeid().eq.0)write(LuOut,*) 'Density after reordering'
+           if(ga_nodeid().eq.0)write(LuOut,*) 
+     $        'Density after reordering'
            call ga_print(g_dens(i))
          endif
       end do

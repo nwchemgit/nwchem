@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.4 2002-01-16 17:23:18 windus Exp $
+* $Id: cphf_solve2.F,v 1.5 2002-01-16 18:25:28 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -47,7 +47,6 @@ c
       external int_normalize
 c
       logical hf_job
-      integer nroot, leval, ieval, iroot
       logical cphf_tddft, cphf_triplet
       cphf_tddft = .false. 
       cphf_triplet = .false. ! true for triplet, false for singlet
@@ -253,11 +252,11 @@ c !!! BGJ
      $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0)
 c !!! BGJ
 c
-      if (oprint_conv) then
-         write(6,174) precond_acc, precond_iter
- 174     format(/' CPHF converged to ',1p,d9.1,0p,' in ', i4, ' iters'/)
-         call util_flush(6)
-      endif
+c     if (oprint_conv) then
+c        write(6,174) precond_acc, precond_iter
+c174     format(/' CPHF converged to ',1p,d9.1,0p,' in ',i4,' iters'/)
+c        call util_flush(6)
+c     endif
 c
 c$$$  if(.not.ga_it_ls_mrhs(cuhf_vlen,1,max_iter,
 c$$$  $        max_sub,accuracy, 

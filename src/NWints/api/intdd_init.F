@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.9 1999-07-14 00:28:42 d3e129 Exp $
+c $Id: intdd_init.F,v 1.10 2002-01-16 18:25:19 windus Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
@@ -97,8 +97,6 @@ c
       def_cando_txs   = .false.
       def_cando_hnd   = .false.
 c
-      write(6,*) 'before the cando calls'
-      call flush(6)
       if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,status)) then
         user_cando_sp = .true.
         def_cando_sp  = status
@@ -168,8 +166,6 @@ c
         call errquit
      &      ('intdd_init: logic error with user cando settings',911)
       endif
-      write(6,*) 'after the cando calls'
-      call flush(6)
       status = .true.
       do 00100 ibas=1,nbas
         status = status .and. bas_check_handle(bases(ibas),'intdd_init')
@@ -187,8 +183,6 @@ c
 c check for both sp and gc shells
 c
       call int_bothsp_gc_check(bases,nbas,'intdd_init')
-      write(6,*) 'after the int_bothsp_gc_check calls'
-      call flush(6)
 c
 c initialize defnxyz routines
 c      
@@ -235,11 +229,7 @@ c
          call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
      &        'der2_int')
       endif
-      write(6,*) 'before the hnd_initdd calls'
-      call flush(6)
       call hnd_initdd(bases,nbas)
-      write(6,*) 'after the hnd_initdd calls'
-      call flush(6)
 c
 c    confirm basis set maximum buffer size for second derivatives
 c

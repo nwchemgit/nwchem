@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.23 2002-01-04 23:45:02 windus Exp $
+C $Id: onedd_cont.F,v 1.24 2002-01-16 18:25:28 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -208,8 +208,6 @@ c
 c
 c write out Sx terms to disk
 c
-      write(LuOut,*) 'before the sx_write statement'
-      call flush(LuOut)
       call sx_write(g_rhs,n3xyz*ndens,nbf,sx_dra_handle)
 c
 c Clear g_rhs again
