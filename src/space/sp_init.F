@@ -6,7 +6,7 @@
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd)
 c
 c
-c $Id: sp_init.F,v 1.36 1999-09-11 03:40:44 d3j191 Exp $
+c $Id: sp_init.F,v 1.37 1999-09-17 22:22:41 d3j191 Exp $
 c
       implicit none
 c
@@ -309,7 +309,7 @@ c
       maxbox=max(nbx,nby,nbz)
       nbtot=nbx*nby*nbz
       lpbc0=nbx.eq.1.or.nby.eq.1.or.nbz.eq.1.or.
-     + npx.eq.1.or.npy.eq.1.or.npz.eq.1
+     + npx.eq.1.or.npy.eq.1.or.npz.eq.1.or.lpbc9
 c
       mbox=30
       do 2 ibx=1,nbx
@@ -460,8 +460,10 @@ c
       integer ilw,ihw,jlw,jhw,ils,ihs,jls,jhs
       integer ili,ihi,jli,jhi,ilp,ihp,jlp,jhp
 c
-      integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,ipp,ips
+      integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,ipp,ips,ix
+      real*8 boxi(3)
 c
+      lpbc9=.true.
       nsf=0
 c
       if(me.eq.0) then
@@ -539,6 +541,7 @@ c
       do 2 i=1,3
       box(i)=vlat(i,i)
       boxh(i)=half*box(i)
+      boxi(i)=one/box(i)
       do 3 j=1,3
       vlati(i,j)=vlat(i,j)
     3 continue
@@ -694,14 +697,26 @@ c
       ibx=0
       iby=0
       ibz=0
-      do 15 j=1,nbx-1
-      if(bxs(k,1)+boxh(1).gt.boxsiz(j,1)) ibx=j
+      do 15 ix=1,3
+      xt(ix)=bxs(k,ix)
+      if(npbtyp.ne.0) then
+      if(abs(xt(ix)).gt.boxh(ix)) then
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      xt(ix)=xt(ix)-arg_nint(xt(ix)*boxi(ix))*box(ix)
+#else
+      xt(ix)=xt(ix)-nint(xt(ix)*boxi(ix))*box(ix)
+#endif
+      endif
+      endif
    15 continue
-      do 16 j=1,nby-1
-      if(bxs(k,2)+boxh(2).gt.boxsiz(j,2)) iby=j
+      do 16 j=1,nbx-1
+      if(xt(1)+boxh(1).gt.boxsiz(j,1)) ibx=j
    16 continue
+      do 17 j=1,nby-1
+      if(xt(2)+boxh(2).gt.boxsiz(j,2)) iby=j
+   17 continue
       do 18 j=1,nbz-1
-      if(bxs(k,3)+boxh(3).gt.boxsiz(j,3)) ibz=j
+      if(xt(3)+boxh(3).gt.boxsiz(j,3)) ibz=j
    18 continue
 c
       if(npbtyp.gt.0) then

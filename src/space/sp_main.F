@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.20 1999-08-31 17:23:34 d3j191 Exp $
+c $Id: sp_main.F,v 1.21 1999-09-17 22:22:42 d3j191 Exp $
 c
       implicit none
 c
@@ -518,6 +518,7 @@ c
 c
 #include "sp_common.fh"
 #include "global.fh"
+#include "msgids.fh"
 c
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3)
@@ -541,9 +542,15 @@ c
       integer isa,jsa,isstay,jsstay,icsgm,ifsgm,ilsgm
       integer nsnew,nsstay,lsstay,isaloc,jsaloc,lsaloc,irs
       integer nsgo,jnode,iwfr,iwto,isfr,isto
-      real*8 factor,xscx,xscy,xscz
-      integer itemps
+      real*8 factor,xscx,xscy,xscz,boxi(3)
+      integer itemps,nfold
       logical lend
+c
+      boxi(1)=one/box(1)
+      boxi(2)=one/box(2)
+      boxi(3)=one/box(3)
+      nfold=0
+      lpbc9=.false.
 c
       nwstay=0
 c
@@ -1064,6 +1071,32 @@ c
       xscx=factor*xscx
       xscy=factor*xscy
       xscz=factor*xscz
+      if(npbtyp.ne.0) then
+      if(abs(xscx).gt.boxh(1)) then
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      xscx=xscx-arg_nint(xscx*boxi(1))*box(1)
+#else
+      xscx=xscx-nint(xscx*boxi(1))*box(1)
+#endif
+      nfold=1
+      endif
+      if(abs(xscy).gt.boxh(2)) then
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      xscy=xscy-arg_nint(xscy*boxi(2))*box(2)
+#else
+      xscy=xscy-nint(xscy*boxi(2))*box(2)
+#endif
+      nfold=1
+      endif
+      if(abs(xscz).gt.boxh(3)) then
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      xscz=xscz-arg_nint(xscz*boxi(3))*box(3)
+#else
+      xscz=xscz-nint(xscz*boxi(3))*box(3)
+#endif
+      nfold=1
+      endif
+      endif
 c
 c     determine the box number
 c
@@ -1228,6 +1261,9 @@ c
       ipl(1,2)=nwmloc
       nsaloc=nsstay
       ipl(2,2)=nsaloc
+c
+      call ga_igop(msp_23,nfold,1,'+')
+      lpbc9=nfold.gt.0
 c
       return
       end
