@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.23 2004-02-11 02:27:36 edo Exp $
+# $Id: GNUmakefile,v 1.24 2004-10-27 22:58:50 edo Exp $
 
 include ../config/makefile.h
 
@@ -17,7 +17,7 @@ endif
 
      LIB_TARGETS = test test.o rtdbtest rtdbtest.o interact context davetest \
                    context.o davetest.o interact.o rtdb_par_f2c.o \
-                   cntx.o cntx
+                   cntx.o cntx testgr.o testgr
 
        TEST_LIBS = $(LIBRARY) $(LIBS) 
 
@@ -48,6 +48,8 @@ interact:	interact.o $(LIBRARY_PATH)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ interact.o $(LIBRARY_PATH) -lglobal -ltcgmsg -L/msrc/apps/f771.4/SC1.0 -lF77 -lV77 -lm
 
 test:	test.o $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS) 
+testgr:	testgr.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS) 
 
 rtdbtest:	rtdbtest.o $(LIBRARY_PATH)
