@@ -23,8 +23,14 @@ postscript:	$(PSFILE)
 
 
 print:		postscript
-		lp $(PSFILE) 
+	for file in $(PSFILE); do \
+		lpr $$file ; \
+	done
 
+viewall:	postscript
+	for file in $(PSFILE); do \
+		ghostview $$file ; \
+	done
 
 dvi:		$(DVI)
 
@@ -48,7 +54,7 @@ realclean:	clean
 
 
 ####
-user.dvi:	fullpage.sty dft.tex
-prog.dvi:	fullpage.sty integral_api.tex
-
+user.dvi:	fullpage.sty dft.tex user.tex
+prog.dvi:	fullpage.sty integral_api.tex prog.tex
+md.dvi:		fullpage.sty md.tex
 
