@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.2 2000-07-27 16:31:25 bjohnson Exp $
+c $Id: vscf.F,v 1.3 2000-10-31 14:59:47 hvd Exp $
 c*module vscf    *deck vscfm
       subroutine vscfm(NGRID,READV,NSTART,DMDR,NCOUP,NREAD,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
@@ -510,7 +510,7 @@ c
       logical task_energy, property
       external task_energy, property
 C
-      integer rtdb
+      integer rtdb, geom
 c
       PARAMETER (MXATM=500)
 C
@@ -696,7 +696,7 @@ C
                         mn=mn+1
                         dx(mn)= FACT*VEC(mn,i)*RQ(im,il) +
      *                          FACT*VEC(mn,j)*RQ(jm,jl)
-                        coords(n,m,goem) = C0(n,m) + dx(mn)
+                        coords(n,m,geom) = C0(n,m) + dx(mn)
                      end do
                   end do
 c
