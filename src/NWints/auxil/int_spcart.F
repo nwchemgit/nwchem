@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.28 1999-10-26 21:55:37 mg201 Exp $
+c $Id: int_spcart.F,v 1.29 2000-02-04 20:21:20 mg201 Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -9,7 +9,7 @@ c $Id: int_spcart.F,v 1.28 1999-10-26 21:55:37 mg201 Exp $
 *------------> All Rights Reserved <---------------*
 *--------------------------------------------------*
 * 
-* initialization of spherical to cartesean tranformation array
+* initialization of spherical to cartesian tranformation array
 *... stored on heap.  
 *... stored up to lmax values
 *...
@@ -29,7 +29,7 @@ c::passed
 *                         true for integral transformations
 *                         false for ECP integral computations
 *
-      logical all_spherical ! [input] generate all spherical compoents 
+      logical all_spherical ! [input] generate all spherical components 
 *                                     e.g., 6 d sphericals etc.
 *
       external bd_spcart  ! needed for cray T3D to link properly
@@ -49,7 +49,7 @@ c
       if (sph_cart_init.eq.SPH_CART_INIT_VALUE) then
         if (lmaxin.gt.lmax_init) then
           if (.not.spcart_terminate()) call errquit
-     &          ('spcart_init: error terminatine old spcart_init',911)
+     &          ('spcart_init: error terminating old spcart_init',911)
         else
           spcart_init = .true.
           return           ! initialization already done to cover lmaxin
@@ -149,7 +149,7 @@ c
 c
 * free up recursion copy of transformation matricies
       if (.not.ma_free_heap(h_sp2c)) call errquit
-     &    ('spcart_init: free heab failed (array) ',911)
+     &    ('spcart_init: free heap failed (array) ',911)
       active_sp2c = .false.
       k_sp2c = 0
       h_sp2c = 0
@@ -2515,6 +2515,7 @@ c
 *
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "basdeclsP.fh"
       integer lval
       integer rankov
       double precision overlap(rankov,rankov)
@@ -2534,7 +2535,7 @@ c
       coef = 1.0d00
 *
 * normalize exponents just like in integrals       
-      call nmcoef(zeta,coef,lval,1,1)
+      call nmcoef(zeta,coef,lval,1,BasNorm_STD)
 *      
       scr_size = 200000
 *      write(6,*)' spcart_cart_overlap verify 2',' lval   = ',lval,
