@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.123 2002-03-29 03:31:53 d3j191 Exp $
+c $Id: md_main.F,v 1.124 2002-04-10 03:12:19 d3j191 Exp $
 c
       implicit none
 c
@@ -1618,7 +1618,7 @@ c
       if(lqmd) then
       call qmd_forces(irtdb,int_mb(i_is+(lsgan-1)*msa),
      + int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_fs),msa,
-     + nsaloc,uqmd)
+     + nsaloc,uqmd,lesp)
       uqmd=uqmd-uqmatm
       return
       endif
@@ -2252,7 +2252,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.123 2002-03-29 03:31:53 d3j191 Exp $
+c $Id: md_main.F,v 1.124 2002-04-10 03:12:19 d3j191 Exp $
 c
       implicit none
 c

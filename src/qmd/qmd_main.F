@@ -1,6 +1,6 @@
-      subroutine qmd_forces(irtdb,isag,isat,xs,fs,msa,nsa,energy)
+      subroutine qmd_forces(irtdb,isag,isat,xs,fs,msa,nsa,energy,lesp)
 c
-c $Id: qmd_main.F,v 1.1 2000-10-24 02:37:35 d3j191 Exp $
+c $Id: qmd_main.F,v 1.2 2002-04-10 03:12:19 d3j191 Exp $
 c
       implicit none
 c
@@ -10,8 +10,8 @@ c
 #include "qmd_common.fh"
 #include "constants.fh"
 c
-      external task_gradient
-      logical task_gradient
+      external task_gradient,esp
+      logical task_gradient,esp
 c
 c      data lgeom/0/
 c
@@ -19,6 +19,7 @@ c
       integer msa,nsa
       integer isag(msa),isat(msa)
       real*8 xs(msa,3),fs(msa,3),energy
+      logical lesp
 c
       integer i,isa
       integer i_qmdq,l_qmdq,i_qmdt,l_qmdt,i_qmdb,l_qmdb
@@ -66,6 +67,9 @@ c
       if(.not.task_gradient(irtdb))
      + call errquit('qmd: Task_gradient failed',0)
       call ga_sync()
+      if(lesp) then
+      if(.not.esp(irtdb)) call errquit('qmd esp error',0)
+      endif
 c
       if(.not.ma_push_get(mt_dbl,3*msa,'qmdb',l_qmdb,i_qmdb))
      + call errquit('Failed to allocate qmdq',0)
