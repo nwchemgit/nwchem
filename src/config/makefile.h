@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.333 2000-06-17 00:43:22 bert Exp $
+# $Id: makefile.h,v 1.334 2000-08-01 21:02:01 d3g681 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -287,52 +287,55 @@ ifeq ($(TARGET),SUN)
 endif
 
 ifeq ($(TARGET),SOLARIS)
-#
-# Sun running Solaris 2.4 or later
-# if you want to use purecoverage tool you must
-#
-# setenv PURECOV 1
-#FLINT = 1
-#
       SHELL := $(NICE) /bin/sh
-    CORE_SUBDIRS_EXTRA = blas lapack
 	CPP = /usr/ccs/lib/cpp
-#        CC = gcc
-#  COPTIONS = -Wall
-# COPTIMIZE = -g -O2
+#
+# You can use either the f77 or f90 compiler BUT if using f90
+# you'll need to specify -DINTEGER_1='integer*1' in the selci
+# and util makefiles.
+#
          CC = cc
+         FC = f77
+
+# Don't need this if using the SUN performance library
+#CORE_SUBDIRS_EXTRA = blas lapack 
+
+# Note that WS6 does not optimize robustly and if using this you must 
+#   - put "-nodpend -xvector=no" on FOPTIONS after -fast
+#   - remove "-fsimple=2 -depend -xvector=yes" from FOPTIMIZE.
+#   - remove -lmvec from CORELIBS
+# Also in WS6 -fast implies -native so NWCHEM_TARGET_CPU does not
+# really add anything.
+#
+# These options are set for WS5
+
    COPTIONS = 
-  COPTIMIZE = -fast
+  COPTIMIZE = -g -O
      RANLIB = echo
   MAKEFLAGS = -j 4 --no-print-directory
     INSTALL = echo $@ is built
-# -fast introduces many options that must be applied to all files
-# -stackvar puts locals on the stack which seems a good thing
-#     but may need to increase the stacksize at runtime using limit
-# -xs allows debugging without .o files
-   FOPTIONS = -Nl199 -fast -dalign -stackvar
-# Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
-# -fsimple=2 enables more rearranging of floating point expressions
-# -depend enables more loop restructuring ... now implicit in -fast?
-# -xvector requires -mvec library
-  FOPTIMIZE = -O5 -fsimple=2 -depend -xtarget=native
-ifeq ($(NWCHEM_TARGET_CPU), ULTRA)
-  FOPTIMIZE += -xarch=v8plusa -xvector=yes 
-endif
-# 
-# This for ultra-2 
-# Under Solaris -g no longer disables optimization ... -O2 seems solid
-# but is slow and impairs debug ... use -O1 for speed and debugability.
-# -fast now turns on -depend so must turn it off
+   FOPTIONS = -stackvar -fast
+  FOPTIMIZE = -O5 -fsimple=2 -depend -xvector=yes
      FDEBUG = -g -O1 -nodepend
-    DEFINES = -DSOLARIS  -DNOAIO
 
-# -DPARALLEL_DIAG
+ifeq ($(NWCHEM_TARGET_CPU), ULTRA)
+  FOPTIMIZE += -xarch=v8plusa 
+endif
 
+    DEFINES = -DSOLARIS  -DNOAIO  -DPARALLEL_DIAG
   LDOPTIONS = -xildoff
-       CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -lsunperf -lmvec -llapack -lblas
-# First four needed for parallel stuff, last for linking with profiling
+  LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
+  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -xlic_lib=sunperf -lmvec
+#-llapack -lblas
+
       EXTRA_LIBS = -ldl 
+
+ifdef LARGE_FILES
+  LDOPTIONS  += $(shell getconf LFS_LDFLAGS)
+  EXTRA_LIBS += $(shell getconf LFS_LIBS)
+  DEFINES    += -DLARGE_FILES
+endif
+
 ifeq ($(BUILDING_PYTHON),python)
 # needed if python was compiled with gcc (common)
       EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
@@ -342,14 +345,6 @@ ifeq ($(BUILDING_PYTHON),python)
 #     EXTRA_LIBS += -L/msrc/apps/lib -lBLT
 # Both tk/tcl and BLT need X11 (common)
       EXTRA_LIBS += -lX11
-
-ifdef LARGE_FILES
-  LDOPTIONS  += $(shell getconf LFS_LDFLAGS)
-  EXTRA_LIBS += $(shell getconf LFS_LIBS)
-  DEFINES    += -DLARGE_FILES
-endif
-
-
 endif
 
 #end of solaris
@@ -357,63 +352,44 @@ endif
 
 ifeq ($(TARGET),SOLARIS64)
 #
-# Sun running Solaris 64-bit
+# Sun running Solaris 64-bit ... NEEDS WORKSHOP 6.1 or later compilers
+# due to bugs in earlier compilers.  Also cannot yet use sunperf due to
+# the braindead naming of the 64-bit interface.
 #
+# You can use either the f77 or f90 compiler BUT if using f90
+# you'll need to specify -DINTEGER_1='integer*1' in the selci
+# and util makefiles.
+#
+
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
 	CPP = /usr/ccs/lib/cpp
          CC = cc
+         FC = f77
+
    COPTIONS = -xarch=v9 -dalign
   COPTIMIZE = -O
-#  COPTIMIZE = -fast # -fast makes the linker lose the symbols
      RANLIB = echo
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 28 --no-print-directory
     INSTALL = echo $@ is built
-# -fast introduces many options that must be applied to all files
-# -stackvar puts locals on the stack which seems a good thing
-#     but may need to increase the stacksize at runtime using limit
-# -xs allows debugging without .o files
-   FOPTIONS = -Nl199 -fast -dalign -stackvar\
- -xarch=v9 -dalign  -xtypemap=real:64,double:64,integer:64
-# -fsimple=2 enables more rearranging of floating point expressions
-# -depend enables more loop restructuring ... now implicit in -fast?
-# -xvector requires -mvec library
-  FOPTIMIZE = -xmaxopt=5 -O5 -fsimple=2 -depend 
-# -O5 and -fast break in hf1mke3, xmaxopt need to get CPRAGMA directive
-# in source
-#-xtarget=native
-# 
-# Under Solaris -g no longer disables optimization ... -O2 seems solid
-# but is slow and impairs debug ... use -O1 for speed and debugability.
-# -fast now turns on -depend so must turn it off
-     FDEBUG = -g -O1 -nodepend
+
+# These options are set for WS6.1
+
+   FOPTIONS = -stackvar -fast -nodepend -xvector=no -xarch=v9a -xtypemap=real:64,double:64,integer:64
+  FOPTIMIZE = -g -O5
+     FDEBUG = -g -O1
+
     DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64 -DEXT_INT -DPARALLEL_DIAG
 
   LDOPTIONS = -xs -xildoff
-  LINK.f = f77 $(LDFLAGS) $(FOPTIONS)
+  LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
        CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas 
-#-lrtdb
-# sunperf library breaks ... probably uses integer*4
-# First four needed for parallel stuff, last for linking with profiling
-      EXTRA_LIBS =  -ldl 
-#      EXTRA_LIBS =  -ldl  -lutil
-ifeq ($(BUILDING_PYTHON),python)
-# needed if python was compiled with gcc (common)
-      EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
-# needed here if using a python version with tk/tcl extensions (common)
-      EXTRA_LIBS += -L/msrc/apps/lib -ltk8.0 -ltcl8.0 
-# needed here if using a python version built with BLT extensions
-#     EXTRA_LIBS += -L/msrc/apps/lib -lBLT
-# Both tk/tcl and BLT need X11 (common)
-      EXTRA_LIBS += -lX11
+      EXTRA_LIBS =  -ldl -lfsu
 
 ifdef LARGE_FILES
   LDOPTIONS  += $(shell getconf LFS_LDFLAGS)
   EXTRA_LIBS += $(shell getconf LFS_LIBS)
   DEFINES    += -DLARGE_FILES
-endif
-
-
 endif
 
 #end of solaris
