@@ -31,6 +31,8 @@ c     numerical derivative routine.
 c
       logical  scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
+      logical semi_dir_mp2
+      external semi_dir_mp2
 c
       logical scf_gradient, grad_dft
       external scf_gradient, grad_dft
@@ -66,6 +68,8 @@ c
       else if (theory .eq. 'dft') then
          status = nwdft(rtdb)
          if (status) status = grad_dft(rtdb)
+      else if (theory .eq. 'semi_dir_mp2') then
+         status = semi_dir_mp2(rtdb)
       else if (theory .eq. 'rimp2') then
          status = .false.       ! No numerical derivatives yet
       else if (theory .eq. 'oimp2') then
