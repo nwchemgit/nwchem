@@ -1,5 +1,5 @@
       logical function task_check_sum(rtdb)
-C$Id: do_chk_sum.F,v 1.5 1997-02-20 10:51:05 d3e129 Exp $
+C$Id: do_chk_sum.F,v 1.6 1997-06-16 18:42:40 d3e129 Exp $
       implicit none
       integer rtdb
 c
@@ -326,8 +326,10 @@ c
 c
       call int_terminate()
 c
-      if (.not.(bas_destroy(ribasis)))
-     &    call errquit('rak:error destroying ribasis ',0)
+      if (ribasis_exist) then
+        if (.not.(bas_destroy(ribasis)))
+     &      call errquit('rak:error destroying ribasis ',0)
+      endif
       if (.not.(bas_destroy(basis)))
      &    call errquit('rak:error destroying basis',0)
       if (.not.(geom_destroy(geom)))
