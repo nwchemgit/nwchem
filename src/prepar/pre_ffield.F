@@ -1,5 +1,5 @@
       logical function pre_ffield(idir,lfnpar,filpar,lfnout,lprint,
-     + q14fac,releps,
+     + q14fac,releps,ffield,
      + icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
@@ -10,6 +10,7 @@ c
       integer lprint
       character*255 filpar
       real*8 q14fac,releps
+      character*80 ffield
       integer matt,natt,icomb
       integer latt(3,matt)
       character*6 catt(2,matt)
@@ -323,6 +324,51 @@ c
       btyp2(6:6)=' '
       btyp3(6:6)=' '
       btyp4(6:6)=' '
+   18 continue
+      read(lfnpar,1000,end=999) card
+      if(ffield(1:5).eq.'amber') then
+      read(card,1008,err=2) atyp2(1:5),atyp3(1:5),atyp1(1:5),atyp4(1:5),
+     + p1,p2,mult
+ 1008 format(a5,1x,a5,1x,a5,1x,a5,f10.5,e12.5,i5)
+      else
+      read(card,1008,err=2) atyp1(1:5),atyp2(1:5),atyp3(1:5),atyp4(1:5),
+     + p1,p2,mult
+      endif
+      if(atyp1.eq.'      ') goto 1
+      if(atyp4.eq.'      ') goto 1
+      do 19 i=1,nimp
+      if(limp(5,i).le.0) then
+      do 20 j=1,3
+      btyp1(1:5)=catm(1+j,limp(1,i))(1:5)
+      btyp2(1:5)=catm(1+j,limp(2,i))(1:5)
+      btyp3(1:5)=catm(1+j,limp(3,i))(1:5)
+      btyp4(1:5)=catm(1+j,limp(4,i))(1:5)
+c
+      if(atyp1.eq.btyp1.and.(
+     + (atyp2.eq.btyp2.and.atyp3.eq.btyp3.and.atyp4.eq.btyp4).or.
+     + (atyp2.eq.'      '.and.atyp3.eq.btyp3.and.atyp4.eq.btyp4).or.
+     + (atyp2.eq.'      '.and.atyp3.eq.'      '.and.atyp4.eq.btyp4)
+     + )) then
+      limp(6+j,i)=mult
+      rimp(2*j-1,i)=p1 
+      rimp(2*j,i)=p2 
+      limp(5,i)=limp(5,i)-2**(j-1)
+      else
+      if(atyp1.eq.btyp1.and.(
+     + (atyp2.eq.btyp3.and.atyp3.eq.btyp2.and.atyp4.eq.btyp4).or.
+     + (atyp2.eq.'      '.and.atyp3.eq.btyp2.and.atyp4.eq.btyp4).or.
+     + (atyp2.eq.btyp3.and.atyp3.eq.'      '.and.atyp4.eq.btyp4)
+     + )) then
+      limp(6+j,i)=mult
+      rimp(2*j-1,i)=-p1 
+      rimp(2*j,i)=p2 
+      limp(5,i)=limp(5,i)-2**(j-1)
+      endif
+      endif
+c
+   20 continue
+      endif
+   19 continue
       endif
 c
       goto 1

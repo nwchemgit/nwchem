@@ -2,6 +2,8 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t)
 c
+c $Id: pre_mktop.F,v 1.5 1998-04-16 19:04:29 d3j191 Exp $
+c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
 c          integer lfnseq    = logical file number for seq file
@@ -22,6 +24,8 @@ c
       external pre_seqsiz,pre_rdseq,pre_term,pre_dimens,pre_mklist
       logical pre_params,pre_natyps,pre_wrttop,pre_third,pre_excl
       external pre_params,pre_natyps,pre_wrttop,pre_third,pre_excl
+      logical pre_nonbon
+      external pre_nonbon
 c
       integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar
       character*80 ffield
@@ -60,7 +64,12 @@ c
       integer mexc,nexc
       integer i_lexc,l_lexc
 c
-      real*8 releps,q14fac
+      integer mnon,nnon
+      integer i_lnon,l_lnon
+c
+      integer natmt,nbndt,nangt,ndiht,nimpt,n3rdt
+c
+      real*8 releps,q14fac,wcorr(3)
 c
       if(lprint.ge.5) write(lfnout,1000)
  1000 format('TOPOLOGY GENERATION')
@@ -68,7 +77,7 @@ c
       if(.not.pre_seqsiz(lfnout,lprint,lfnseq,filseq,nseq,nlnk))
      + call errquit('pre_seqsize failed',9999)
 c
-      mseq=nseq+1
+      mseq=nseq+2
       mlnk=nlnk
 c
       if(lprint.ge.5) write(lfnout,1001) nseq
@@ -80,7 +89,7 @@ c
 c     integer lseq(1,mseq) : number of sequence entry
 c                  2       : link type
 c                  3       : index of first atom of sequence entry
-c                  4       : 
+c                  4       : molecule number
 c
       if(.not.ma_push_get(mt_int,4*mseq,"lseq",l_lseq,i_lseq))
      + call errquit('Memory allocation failed for lseq',9999)
@@ -280,7 +289,8 @@ c
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,
      + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,int_mb(i_lmat)))
+     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,int_mb(i_lmat),
+     + natmt,nbndt,nangt,ndiht,nimpt,wcorr))
      + call errquit('pre_mklist failed',9999)
 c
       if(lprint.ge.5) write(lfnout,1005)
@@ -295,7 +305,7 @@ c
 c     get number of atom types
 c     ------------------------
 c
-      if(.not.pre_natyps(byte_mb(i_catm),matm,natm,natt))
+      if(.not.pre_natyps(byte_mb(i_catm),matm,natmt,natt))
      + call errquit('pre_natyps failed',9999)
       matt=natt
 c
@@ -320,12 +330,12 @@ c     substitute force field parameters
 c     ---------------------------------
 c
       if(.not.pre_params(lfnpar,filpar,lfnout,lprint,
-     + dir_s,dir_x,dir_u,dir_t,releps,q14fac,
-     + int_mb(i_latm),byte_mb(i_catm),matm,natm,
-     + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,
-     + int_mb(i_lang),dbl_mb(i_rang),mang,nang,
-     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,
+     + dir_s,dir_x,dir_u,dir_t,ffield,releps,q14fac,
+     + int_mb(i_latm),byte_mb(i_catm),matm,natmt,
+     + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbndt,
+     + int_mb(i_lang),dbl_mb(i_rang),mang,nangt,
+     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndiht,
+     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimpt,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),
      + dbl_mb(i_ratt),matt,natt,nats))
      + call errquit('pre_params failed',9999)
@@ -345,8 +355,15 @@ c     construct third neighbor list
 c     -----------------------------
 c
       if(.not.pre_third(int_mb(i_lbnd),mbnd,nbnd,int_mb(i_lang),
-     + mang,nang,int_mb(i_l3rd),m3rd,n3rd))
+     + mang,nang,int_mb(i_l3rd),m3rd,n3rd,1,1,1))
      + call errquit('pre_third failed',9999)
+c
+      n3rdt=n3rd
+      if(nbndt.gt.nbnd.and.nangt.gt.nang) then
+      if(.not.pre_third(int_mb(i_lbnd),mbnd,nbndt,int_mb(i_lang),
+     + mang,nangt,int_mb(i_l3rd),m3rd,n3rdt,nbnd+1,nang+1,n3rd+1))
+     + call errquit('pre_third failed',9999)
+      endif
 c
       if(lprint.ge.5) write(lfnout,1008) n3rd
  1008 format('third neighbor list length is',i10)
@@ -369,6 +386,26 @@ c
       if(lprint.ge.5) write(lfnout,1009) nexc
  1009 format('excluded pair list length is',i10)
 c
+c     allocate memory for solvent non-bonded list
+c     -------------------------------------------
+c
+      mnon=(natmt-natm)*(natmt-natm)
+      nnon=0
+      if(.not.ma_push_get(mt_int,mnon,"lnon",l_lnon,i_lnon))
+     + call errquit('Memory allocation failed for lnon',9999)
+c
+c     construct solvent non-bonded list
+c     ---------------------------------
+c
+      if(.not.pre_nonbon(natm+1,natmt,int_mb(i_lbnd),mbnd,nbnd+1,nbndt,
+     + int_mb(i_lang),mang,nang+1,nangt,
+     + int_mb(i_l3rd),m3rd,n3rd+1,n3rdt,
+     + int_mb(i_lnon),mnon,nnon))
+     + call errquit('pre_nonbon failed',9999)
+c
+      if(lprint.ge.5) write(lfnout,1010) nnon
+ 1010 format('solvent non-bonded list length is',i10)
+c
 c     write the topology file
 c     -----------------------
 c
@@ -381,15 +418,18 @@ c
      + dbl_mb(i_rang),mang,nang,int_mb(i_ldih),int_mb(i_kdih),
      + dbl_mb(i_rdih),mdih,ndih,
      + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,int_mb(i_l3rd),
-     + m3rd,n3rd,int_mb(i_lexc),mexc,nexc))
+     + m3rd,n3rd,int_mb(i_lexc),mexc,nexc,int_mb(i_lnon),mnon,nnon,
+     + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr))
      + call errquit('pre_wrttop failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1010)
- 1010 format('topology file is written')
+      if(lprint.ge.5) write(lfnout,1011)
+ 1011 format('topology file is written')
 c
 c     deallocate memory
 c     -----------------
 c
+      if(.not.ma_pop_stack(l_lnon))
+     + call errquit('Memory deallocation failed for lnon',9999)
       if(.not.ma_pop_stack(l_lexc))
      + call errquit('Memory deallocation failed for lexc',9999)
       if(.not.ma_pop_stack(l_l3rd))

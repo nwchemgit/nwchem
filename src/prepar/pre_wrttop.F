@@ -2,7 +2,8 @@
      + releps,q14fac,lseq,cseq,mseq,nseq,
      + latt,lats,catt,patt,ratt,matt,natt,nats,latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
-     + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc)
+     + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
+     + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
       implicit none
 c
@@ -37,8 +38,12 @@ c
       integer l3rd(2,m3rd)
       integer mexc,nexc
       integer lexc(2,mexc)
+      integer mnon,nnon
+      integer lnon(2,mnon)
+      integer natmt,nbndt,nangt,ndiht,nimpt,n3rdt
+      real*8 wcorr(3)
 c
-      integer i,j,k,l,length,nd
+      integer i,j,k,l,length,nd,ifrac,imol
       character*10 topdat,toptim
 c
       length=index(filtop,' ')-1
@@ -51,8 +56,7 @@ c
  1000 format('TOPOLOGY FILE ',a,/,
      + 'GENERATED AUTOMICALLY BY NWCHEM PREPARE MODULE',//,
      + f12.6,3a10)
-c
-      
+c     
       write(lfntop,1004) nats,q14fac,releps,0.0d0,0
  1004 format(i5,3f12.6,i5)
       do 1 i=1,nats
@@ -68,6 +72,9 @@ c
     3 continue
     2 continue
 c
+      write(lfntop,1008) natmt-natm,nbndt-nbnd,nangt-nang,ndiht-ndih,
+     + nimpt-nimp,n3rdt-n3rd,nnon
+ 1008 format(5i7,2i10)
       nd=0
       do 30 i=1,ndih
       nd=nd+max(ldih(7,i),ldih(8,i),ldih(9,i))
@@ -79,9 +86,81 @@ c
  1009 format(5i7,2i10)
       endif
 c
+      if(natmt.gt.natm) then
+      do 4 i=natm+1,natmt
+      write(lfntop,1007) latm(3,i),0,0,0,0,cseq(nseq+1),catm(1,i)(1:5),
+     + i-natm
+ 1007 format(5i7,a10,a5,i10)
+      write(lfntop,1217) (qatm(2*j-1,i),j=1,3),(qatm(2*j,i),j=1,3)
+ 1217 format(6f12.6)
+    4 continue
+c
+      if(nbndt.gt.nbnd) then
+      do 20 i=nbnd+1,nbndt
+      write(lfntop,1112) lbnd(1,i)-natm,lbnd(2,i)-natm,0,i-nbnd
+ 1112 format(4i7)
+      write(lfntop,1113) (rbnd(j,i),j=1,6)
+ 1113 format(3(0pf12.6,1pe12.5))
+   20 continue
+      endif
+c
+      if(nangt.gt.nang) then
+      do 21 i=nang+1,nangt
+      write(lfntop,1114) lang(1,i)-natm,lang(2,i)-natm,lang(3,i)-natm,
+     + 0,i-nang
+ 1114 format(5i7)
+      write(lfntop,1115) (rang(j,i),j=1,6)
+ 1115 format(3(0pf12.6,1pe12.5))
+   21 continue
+      endif
+c
+      if(ndiht.gt.ndih) then
+      do 22 i=ndih+1,ndiht
+      nd=max(ldih(7,i),ldih(8,i),ldih(9,i))
+      do 23 k=1,nd
+      write(lfntop,1116) (ldih(j,i)-natm,j=1,4),0,i-ndih
+ 1116 format(6i7)
+      write(lfntop,1117)
+     +  (kdih(k,j,i),rdih(k,2*j-1,i),rdih(k,2*j,i),j=1,3)
+ 1117 format(3(i3,0pf12.6,1pe12.5))
+   23 continue
+   22 continue
+      endif
+c
+      if(nimpt.gt.nimp) then
+      do 24 i=nimp+1,nimpt
+      write(lfntop,1118) (limp(j,i)-natm,j=1,4),0,i-nimp
+ 1118 format(6i7)
+      write(lfntop,1119) (0,rimp(2*j-1,i),rimp(2*j,i),j=1,3)
+ 1119 format(3(i3,0pf12.6,1pe12.5))
+   24 continue
+      endif
+c
+      if(n3rdt.gt.n3rd) then
+      write(lfntop,1120) (l3rd(1,i)-natm,i=n3rd+1,n3rdt)
+      write(lfntop,1120) (l3rd(2,i)-natm,i=n3rd+1,n3rdt)
+ 1120 format(15i7)
+      endif
+c
+      if(nnon.gt.0) then
+      write(lfntop,1121) (lnon(1,i)-natm,i=1,nnon)
+      write(lfntop,1121) (lnon(2,i)-natm,i=1,nnon)
+ 1121 format(15i7)
+      endif
+c
+      write(lfntop,1122) cseq(nseq+1),wcorr
+ 1122 format(a10,3f12.6)
+      endif
+c
+      ifrac=1
       do 10 i=1,natm
-      write(lfntop,1010) latm(3,i),0,latm(1,i),latm(2,i),latm(5,i),
-     + cseq(latm(5,i)),catm(1,i)(1:5),i,0,1
+      imol=latm(6,i)
+      if(imol.lt.0) then
+      imol=-imol
+      ifrac=ifrac+1
+      endif
+      write(lfntop,1010) latm(3,i),imol,latm(1,i),latm(2,i),
+     + latm(5,i),cseq(latm(5,i)),catm(1,i)(1:5),i,0,ifrac
  1010 format(5i7,a10,a5,i10,2i5)
       write(lfntop,1011) (qatm(2*j-1,i),j=1,3),(qatm(2*j,i),j=1,3)
  1011 format(6f12.6)

@@ -1,10 +1,11 @@
-      logical function pre_rdsgm(lfnout,lprint,isgm,igrp,ipgrp,
+      logical function pre_rdsgm(lfnout,lprint,imol,isgm,igrp,ipgrp,
      + lfnsgm,filsgm,latm,catm,qatm,matm,natm,lbnd,rbnd,mbnd,nbnd,
-     + lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp)
+     + lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
+     + wcorr)
 c
       implicit none
 c
-      integer lfnout,lprint,lfnsgm,isgm,igrp,ipgrp
+      integer lfnout,lprint,lfnsgm,imol,isgm,igrp,ipgrp
       character*255 filsgm
       integer matm,natm
       integer latm(8,matm)
@@ -22,11 +23,14 @@ c
       integer mimp,nimp
       integer limp(9,mimp)
       real*8 rimp(6,mimp)
+      real*8 wcorr(3)
 c
       character*80 card
-      integer i,j,l,length,na
+      integer i,j,l,length,na,jmol
       character*6 name
       integer nsatm,nsbnd,nsang,nsdih,nsimp,ld(6),md(3),rd(6)
+c
+      jmol=imol
 c
       length=index(filsgm,' ')-1
       open(unit=lfnsgm,file=filsgm(1:length),form='formatted',
@@ -39,8 +43,8 @@ c
       read(lfnsgm,1000) card
  1000 format(a)
       if(card(1:1).eq.'#'.or.card(1:1).eq.'$') goto 1
-      read(card,1001,err=9999) nsatm,nsbnd,nsang,nsdih,nsimp
- 1001 format(5i5)
+      read(card,1001,err=9999) nsatm,nsbnd,nsang,nsdih,nsimp,wcorr
+ 1001 format(5i5,3f12.6)
       if(natm+nsatm.gt.matm) call errquit('increase matm',9999)
       if(nbnd+nsbnd.gt.mbnd) call errquit('increase mbnd',9999)
       if(nang+nsang.gt.mang) call errquit('increase mang',9999)
@@ -64,8 +68,17 @@ c
       endif
 c
       latm(5,natm)=isgm
+      latm(6,natm)=jmol
+      jmol=iabs(jmol)
       latm(1,natm)=latm(1,natm)+igrp
       latm(2,natm)=latm(2,natm)+ipgrp
+c
+      if(isgm.eq.0) then
+      catm(2,natm)(6:6)='w'
+      catm(3,natm)(6:6)='w'
+      catm(4,natm)(6:6)='w'
+      endif
+c
     2 continue
       igrp=latm(1,natm)
       ipgrp=latm(2,natm)

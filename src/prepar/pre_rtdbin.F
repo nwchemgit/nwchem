@@ -10,7 +10,8 @@ c
 c
       integer irtdb
       character*3 slvnam
-      character*80 ffield,sysnam,slvmdl
+      character*80 ffield,sysnam
+      character*10 slvmdl
       character*255 dir_s,dir_x,dir_u,dir_t
       integer newtop,newseq
 c
@@ -38,6 +39,8 @@ c
      + call errquit('rtdb_get failed on newtop',9999)
       if(.not.rtdb_get(irtdb,'prep:newseq',mt_int,1,newseq))
      + call errquit('rtdb_get failed on newseq',9999)
+c
+      if(slvnam.eq.'HOH'.and.slvmdl(1:1).eq.' ') slvmdl='spce      '
 c
       pre_rtdbin=.true.
       return

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 1998-04-15 23:10:39 d3j191 Exp $
+# $Id: GNUmakefile,v 1.4 1998-04-16 19:04:27 d3j191 Exp $
 #
 
 include ../config/makefile.h
@@ -34,6 +34,7 @@ OBJ_OPTIMIZE=prepar.o\
              pre_namamb.o\
              pre_namiup.o\
              pre_natyps.o\
+             pre_nonbon.o\
              pre_params.o\
              pre_parcnv.o\
              pre_pdbseq.o\

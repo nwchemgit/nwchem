@@ -6,7 +6,8 @@
      + lbnd,rbnd,mbnd,nbnd,
      + lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,
-     + limp,rimp,mimp,nimp,lmat)
+     + limp,rimp,mimp,nimp,lmat,
+     + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
       implicit none
 c
@@ -40,6 +41,8 @@ c
       integer mimp,nimp
       integer limp(9,mimp)
       real*8 rimp(6,mimp)
+      integer natmt,nbndt,nangt,ndiht,nimpt
+      real*8 wcorr(3)
 c
       integer i,j,k,l,link1,link2,isgm,jsgm,nb,na,nd,ni,nn,iatm,ia(10)
       integer no,ndi,ltemp,igrp,ipgrp
@@ -62,10 +65,11 @@ c
 c     append the atom and bonded lists
 c     --------------------------------
 c
-      if(.not.pre_rdsgm(lfnout,lprint,i,igrp,ipgrp,lfnsgm,filsgm,
+      if(.not.pre_rdsgm(lfnout,lprint,lseq(4,i),i,igrp,ipgrp,
+     + lfnsgm,filsgm,
      + latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
-     + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp))
+     + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,wcorr))
      + call errquit('pre_rdsgm failed',9999)
 c
     1 continue
@@ -152,6 +156,7 @@ c
       lang(1,nang)=lbnd(2,i)
       lang(2,nang)=lbnd(1,i)
       lang(3,nang)=lbnd(2,j)
+      lang(4,nang)=0
       else
       if(lbnd(2,i).eq.lbnd(1,j)) then
       if(nang.ge.mang) call errquit('increase mang',9999)
@@ -159,6 +164,7 @@ c
       lang(1,nang)=lbnd(1,i)
       lang(2,nang)=lbnd(2,i)
       lang(3,nang)=lbnd(2,j)
+      lang(4,nang)=0
       else
       if(lbnd(1,i).eq.lbnd(2,j)) then
       if(nang.ge.mang) call errquit('increase mang',9999)
@@ -166,6 +172,7 @@ c
       lang(1,nang)=lbnd(2,i)
       lang(2,nang)=lbnd(1,i)
       lang(3,nang)=lbnd(1,j)
+      lang(4,nang)=0
       else
       if(lbnd(2,i).eq.lbnd(2,j)) then
       if(nang.ge.mang) call errquit('increase mang',9999)
@@ -173,6 +180,7 @@ c
       lang(1,nang)=lbnd(1,i)
       lang(2,nang)=lbnd(2,i)
       lang(3,nang)=lbnd(1,j)
+      lang(4,nang)=0
       endif
       endif
       endif
@@ -273,6 +281,7 @@ c
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
+      limp(5,nimp)=0
       endif
 c
 c     chiral
@@ -283,6 +292,7 @@ c
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
+      limp(5,nimp)=0
       endif
 c
 c     aromatic ring
@@ -294,6 +304,7 @@ c
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
+      limp(5,nimp)=0
       endif
       endif
 c      
@@ -515,6 +526,27 @@ c
       endif
    50 continue
    49 continue
+c
+c     read solvent segment
+c     --------------------
+c
+      natmt=natm
+      nbndt=nbnd
+      nangt=nang
+      ndiht=ndih
+      nimpt=nimp
+      if(cseq(nseq+1)(1:1).ne.' ') then
+      lseq(3,nseq+1)=natm+1
+      if(.not.pre_sgmfil(cseq(nseq+1),lfnsgm,filsgm,
+     + dir_s,dir_x,dir_u,dir_t))
+     + call errquit('pre_sgmfil failed',9999)
+      if(.not.pre_rdsgm(lfnout,lprint,0,0,igrp,ipgrp,lfnsgm,filsgm,
+     + latm,catm,qatm,matm,natmt,
+     + lbnd,rbnd,mbnd,nbndt,lang,rang,mang,nangt,
+     + ldih,kdih,rdih,mdih,ndiht,limp,rimp,mimp,nimpt,wcorr))
+     + call errquit('pre_rdsgm failed',9999)
+      endif
+      lseq(3,nseq+2)=natmt+1
 c
       pre_mklist=.true.
       return

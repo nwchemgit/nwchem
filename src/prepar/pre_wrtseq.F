@@ -1,5 +1,6 @@
       logical function pre_wrtseq(lfnseq,filseq,
-     + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk)
+     + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,
+     + slvmdl)
 c
 c     function to write the sequence file
 c
@@ -9,6 +10,7 @@ c
       integer lseq(4,mseq),lssb(2,mssb),llnk(2,mlnk)
       character*4 clnk(2,mlnk)
       character*5 cseq(2,mseq)
+      character*10 slvmdl
       character*255 filseq
       integer i,j,length,mol
 c
@@ -40,8 +42,16 @@ c
  1002 format('link ',i5,a4,i5,a4)
     3 continue
 c
-      write(lfnseq,1003)
- 1003 format('stop')
+c     solvent model
+c     -------------
+c
+      if(slvmdl(1:1).ne.' ') then
+      write(lfnseq,1003) 0,slvmdl
+ 1003 format('solvent',/,i5,a)
+      endif
+c
+      write(lfnseq,1009)
+ 1009 format('stop')
 c
       close(unit=lfnseq)
       pre_wrtseq=.true.

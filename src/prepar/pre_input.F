@@ -11,7 +11,7 @@ c
       character*255 item
 c
       character*3 slvnam
-      character*80 slvmdl
+      character*10 slvmdl
       character*80 ffield,project,sysnam
       character*255 calc,dir_s,dir_x,dir_u,dir_t
       character*255 filnam,home,card
@@ -37,7 +37,7 @@ c
       dir_t=' '
       sysnam=' '
       slvnam='HOH'
-      slvmdl='spce '
+      slvmdl='spce      '
       newtop=0
       newseq=0
 c

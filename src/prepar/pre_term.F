@@ -75,7 +75,7 @@ c
 c     adjust the segment names
 c     ------------------------
 c
-      do 3 i=1,nseq
+      do 3 i=1,nseq+1
       if(lseq(2,i).ne.0) then
       iu=index(cseq(i),' ')
       if(lseq(2,i).eq.-2) cseq(i)(iu:iu+1)='_M'

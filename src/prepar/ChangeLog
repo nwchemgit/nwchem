@@ -4,3 +4,4 @@ Apr 14 1998	 Initial prepar module routines
 Apr 15 1998	 Print control compliant with nwchem
 		 Bug fix in atom type generation
 		 Parameter checks
+Apr 16 1998	 Handle solvent

@@ -15,24 +15,32 @@ c
       character*255 filseq
       character*80 card
       integer lprint
-      integer i,j,iseq,ilnk,length,ival,ncrd,ncnt
+      integer i,j,iseq,ilnk,length,ival,ncrd,ncnt,imol
 c
       length=index(filseq,' ')-1
       open(unit=lfnseq,file=filseq(1:length),form='formatted',
      + status='old',err=9999)
 c
+      if(lprint.ge.5) write(lfnout,2000) filseq(1:length)
+ 2000 format('OPENED SEQUENCE FILE ',a)
+c
       iseq=0
       ilnk=0
+      imol=1
 c
     1 continue
       read(lfnseq,1000,end=9999,err=9999) card
  1000 format(a)
+c
+      if(lprint.ge.5) write(lfnout,2001) card
+ 2001 format(a)
 c
       if(card(1:5).eq.'break') then
       if(iseq.gt.0) lseq(2,iseq)=1
       goto 1
       endif
       if(card(1:8).eq.'fraction') then
+      imol=-(iabs(imol)+1)
       if(iseq.gt.0) lseq(2,iseq)=3
       goto 1
       endif
@@ -44,6 +52,7 @@ c
       goto 1
       endif
       if(card(1:8).eq.'molecule') then
+      imol=iabs(imol)+1
       if(iseq.gt.0) lseq(2,iseq)=2
       goto 1
       endif
@@ -54,6 +63,12 @@ c
       goto 1
       endif
       if(card(1:7).eq.'solvent') then
+      read(lfnseq,1000,end=9999,err=9999) card
+      if(lprint.ge.5) write(lfnout,2001) card
+      if(iseq+1.gt.mseq) call errquit('increase dimension mseq',9999)
+      read(card,1001,err=9999) lseq(1,iseq+1),cseq(iseq+1)
+      lseq(2,iseq+1)=-2
+      lseq(4,iseq+1)=0
       goto 1
       endif
       if(card(1:4).eq.'stop') goto 9
@@ -63,6 +78,12 @@ c
       read(card,1001,err=9999) lseq(1,iseq),cseq(iseq)
  1001 format(i5,a10)
       lseq(2,iseq)=0
+      lseq(4,iseq)=imol
+      if(iseq+1.gt.mseq) call errquit('increase dimension mseq',9999)
+      cseq(iseq+1)='          '
+      lseq(1,iseq+1)=0
+      lseq(2,iseq+1)=0
+      lseq(4,iseq+1)=0
       goto 1
 c
     9 continue

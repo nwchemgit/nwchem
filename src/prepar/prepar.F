@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id:
+c $Id: prepar.F,v 1.6 1998-04-16 19:04:32 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -39,7 +39,8 @@ c
 c
       character*255 filpdb,filtyp,filseq,filtop,filpar
       character*255 dir_s,dir_x,dir_u,dir_t
-      character*80 sysnam,ffield,slvmdl
+      character*80 sysnam,ffield
+      character*10 slvmdl
       character*3 slvnam
 c
       integer lfnpdb,lfnout,lfnfrg,lfntyp,lfnseq,lfnsgm,lfntop,lfnpar
@@ -148,7 +149,7 @@ c     ---------------------------------------------
 c
       if(.not.pre_mkseq(lfnout,lprint,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfntyp,filtyp,
-     + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,slvnam))
+     + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl))
      + call errquit('pre_mkseq failed',9999)
       write(lfnout,1002) filseq(1:index(filseq,' ')-1)
  1002 format('CREATED SEQUENCE FILE ',a)

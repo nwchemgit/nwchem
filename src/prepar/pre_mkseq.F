@@ -1,6 +1,6 @@
       logical function pre_mkseq(lfnout,lprint,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfntyp,filtyp,
-     + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,namslv)
+     + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl)
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -39,15 +39,16 @@ c
       character*255 filpdb,filtyp,filseq
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 ffield
-      character*3 namslv
+      character*3 slvnam
+      character*10 slvmdl
 c
       integer lfnpdb,lfnout,lfnfrg,lfntyp,lfnseq,lfnsgm
 c
-c      write(lfnout,1000)
-c 1000 format('SEQUENCE GENERATION')
+      if(lprint.ge.5) write(lfnout,1000)
+ 1000 format('SEQUENCE GENERATION')
 c
       if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,lprint,0,
-     + natm,nseq,nssb,nlnk,namslv))
+     + natm,nseq,nssb,nlnk,slvnam))
      + call errquit('pre_pdbsiz failed',9999)
 c
 c     set dimensions
@@ -129,7 +130,7 @@ c
 c     read the sequence and atom list from the pdb file
 c     -------------------------------------------------
 c
-      if(.not.pre_pdbseq(lfnpdb,filpdb,lfnout,lprint,0,namslv,
+      if(.not.pre_pdbseq(lfnpdb,filpdb,lfnout,lprint,0,slvnam,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_xatm),matm,natm,
      + int_mb(i_lssb),mssb,nssb,
@@ -287,14 +288,20 @@ c
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm))
      + call errquit('pre_gensgm failed',9999)
 c
+      if(lprint.ge.5) write(lfnout,1001)
+ 1001 format('SEGMENTS FILES GENERATED')
+c
 c     write the sequence file
 c     -----------------------
 c
       if(.not.pre_wrtseq(lfnseq,filseq,
      + byte_mb(i_cseq),int_mb(i_lseq),mseq,nseq,
      + int_mb(i_lssb),mssb,nssb,
-     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
+     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,slvmdl))
      + call errquit('pre_wrtseq failed',9999)
+c
+      if(lprint.ge.5) write(lfnout,1002)
+ 1002 format('SEQUENCE FILE GENERATEd')
 c
 c     deallocate memory
 c     -----------------

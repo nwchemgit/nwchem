@@ -1,5 +1,5 @@
       logical function pre_params(lfnpar,filpar,lfnout,lprint,
-     + dir_s,dir_x,dir_u,dir_t,releps,q14fac,
+     + dir_s,dir_x,dir_u,dir_t,ffield,releps,q14fac,
      + latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
@@ -13,6 +13,7 @@ c
       integer lfnpar,lfnout
       integer lprint
       character*255 filpar,dir_s,dir_x,dir_u,dir_t
+      character*80 ffield
       integer matm,natm
       integer latm(8,matm)
       character*6 catm(4,matm)
@@ -81,7 +82,7 @@ c
       if(ld.gt.0) then
       filnam=dir_s(1:ld)//filpar(1:lp)
       if(.not.pre_ffield(1,lfnpar,filnam,lfnout,lprint,q14fac,releps,
-     + icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
+     + ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
       endif
@@ -90,7 +91,7 @@ c
       if(ld.gt.0) then
       filnam=dir_x(1:ld)//filpar(1:lp)
       if(.not.pre_ffield(2,lfnpar,filnam,lfnout,lprint,q14fac,releps,
-     + icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
+     +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
       endif
@@ -99,7 +100,7 @@ c
       if(ld.gt.0) then
       filnam=dir_u(1:ld)//filpar(1:lp)
       if(.not.pre_ffield(3,lfnpar,filnam,lfnout,lprint,q14fac,releps,
-     + icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
+     +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
       endif
@@ -108,7 +109,7 @@ c
       if(ld.gt.0) then
       filnam=dir_t(1:ld)//filpar(1:lp)
       if(.not.pre_ffield(4,lfnpar,filnam,lfnout,lprint,q14fac,releps,
-     + icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
+     +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
       endif

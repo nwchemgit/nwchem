@@ -24,17 +24,25 @@ c
       ndih=0
       nimp=0
 c
+      pre_dimens=.true.
+c
 c     loop over sequence list
 c     -----------------------
 c
-      do 1 i=1,nseq
+      do 1 i=1,nseq+1
+      if(i.lt.nseq+1.or.cseq(i)(1:1).ne.' ') then
+c
+      if(lprint.ge.5) write(lfnout,1000) cseq(i)
+ 1000 format('SEARCHING FOR SEGMENT FILE FOR ',a10)
 c
 c     find segment file
 c     -----------------
 c
-      if(.not.pre_sgmfil(cseq(i),lfnsgm,filsgm,
-     + dir_s,dir_x,dir_u,dir_t))
-     + call errquit('pre_sgmfil failed',9999)
+      if(pre_sgmfil(cseq(i),lfnsgm,filsgm,
+     + dir_s,dir_x,dir_u,dir_t)) then
+c
+      if(lprint.ge.5) write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
+ 1001 format('FOUND SEGMENT FILE ',a)
 c
 c     find segment dimensions
 c     -----------------------
@@ -48,12 +56,13 @@ c
       ndih=ndih+nsdih
       nimp=nimp+nsimp
 c
+      else
+      if(lprint.ge.1) write(lfnout,1002) cseq(i)
+ 1002 format('A SEGMENT FILE COULD NOT BE FOUND FOR ',a10)
+      pre_dimens=.false.
+      endif
+      endif
     1 continue
 c
-      pre_dimens=.true.
-      return
-c
- 9999 continue
-      pre_dimens=.false.
       return
       end
