@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_init_input.F,v 1.3 2002-10-15 21:24:02 bylaska Exp $
+* $Id: wvfnc_init_input.F,v 1.4 2003-03-06 02:27:16 bylaska Exp $
 *
 
 
@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 10)
+      parameter (num_dirs = 17)
       integer NMAX              ! maximum wavfunctions
       parameter (NMAX = 501)
  
@@ -36,6 +36,13 @@ c
      >            'up_electrons:',
      >            'down_electrons:',
      >            'restricted_electrons:',
+     >            'cell_name',
+     >            'wavefunction_filename',
+     >            'up_filling',
+     >            'down_filling',
+     >            'up_electrons',
+     >            'down_electrons',
+     >            'restricted_electrons',
      >            'end'/
 
 
@@ -61,7 +68,8 @@ c     wavefunction_filename = ' '
      >           'wvfnc_init_input: unknown directive', 0)
 
 
-      goto ( 100,  200, 300, 400, 500, 600,700,800,900,
+      goto ( 100,  200, 300, 400, 500,600,700,800,900,
+     >       100,  200,           500,600,700,800,900,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind)
