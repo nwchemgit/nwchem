@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.43 1995-12-27 19:52:51 d3e129 Exp $
+C$Id: geom.F,v 1.44 1996-01-07 19:08:06 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1013,7 +1013,7 @@ c     Basic printing of cartesian geometry ... needs support for
 c     user defined units, internal coords, different formats, ...
 c
       integer geom              ! [input]
-      integer icent
+      integer icent, jcent
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
       integer i, j
@@ -1096,9 +1096,9 @@ c
 c
       write(6,3) 
  3    format('  No.       Tag          Charge          X',
-     $     '              Y              Z             Mass'/
+     $     '              Y              Z'/
      $       ' ---- ---------------- ---------- --------------',
-     $     ' -------------- -------------- --------------')
+     $     ' -------------- --------------')
       do icent = 1, ncenter(geom)
 c
 c     Convert from cartesian to crystallographic coordinates
@@ -1112,9 +1112,25 @@ c
             tmp(i) = tmp(i)*scale ! Scale units as necessary
          end do
          write(6,4) icent, tags(icent,geom), charge(icent,geom),
-     $        (tmp(i),i=1,3), geom_mass(icent,geom)
- 4       format(' ',i4,' ',a16,' ',f10.6,3f15.8,f15.8)
+     $        (tmp(i),i=1,3)
+ 4       format(' ',i4,' ',a16,' ',f10.6,3f15.8)
       end do
+c
+c     Only print out the masses for unique tags ... the structure
+c     should actually only store the data for unique tags.
+c     Also, keep all common output within 80 columns
+c
+      write(6,*)
+      write(6,*) '     Atomic Mass '
+      write(6,*) '     ----------- '
+      write(6,*)
+      do icent = 1, ncenter(geom)
+	 do jcent = 1, icent-1
+	    if (tags(icent,geom) .eq. tags(jcent,geom)) goto 765
+         enddo
+	 write(6,44) tags(icent,geom), geom_mass(icent,geom)
+ 44      format('      ',a16,' ',f10.6)
+ 765  enddo
       write(6,*)
 c
       if (isystype(geom) .eq. 0) then
