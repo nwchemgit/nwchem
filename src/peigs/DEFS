@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.102 2003-10-23 19:51:42 edo Exp $
+# $Id: DEFS,v 1.103 2003-10-24 20:22:01 edo Exp $
 #
 #======================================================================
 #
@@ -537,6 +537,10 @@ ifeq ($(peigs_TARGET),LINUX64)
     ifeq ($(FC),xlf)
        peigs_FC  = $(FC) -O3 -qextname -qstrict -q64 -qintsize=8  -I$(peigs_HDIR)  \
        -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
+     ifdef USE_GPROF
+      peigs_FC += -pg
+     endif
+      peigs_CC  +=  -O3  
     endif
   endif
 
@@ -581,8 +585,8 @@ peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
 -D${peigs_TARGET_definition}
     ifeq ($(FC),xlf)
       peigs_CPU = RS6000
-      peigs_FC  = $(FC) -O3 -qextname -qstrict   -I$(peigs_HDIR)  \
-      -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
+      peigs_FC  = $(FC) -O3 -g -qextname -qstrict   -I$(peigs_HDIR)  \
+      -WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
     endif
 endif
 
