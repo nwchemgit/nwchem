@@ -86,11 +86,6 @@ c
             movecs_out = movecs_in
          endif
       endif
-c
-c  Dump lagrangian?
-c
-      if (.not.rtdb_get(rtdb, 'scf:lagrangian',MT_LOG, 1, olagr))
-     $   olagr = .false.
 c     
 c     Figure out the number of electrons from the required total
 c     charge and the sum of nuclear charges
@@ -137,6 +132,12 @@ c
       if ( scftype.ne.'ROHF' .and. scftype.ne.'RHF' .and.
      $     scftype.ne.'UHF' ) call errquit
      $     ('scf: only ROHF, RHF, and UHF currently supported', 0)
+c
+c     Dump lagrangian?  Yes by default now since if the SCF 
+c     has converged for an energy it will not be rerun for the gradient.
+c
+      if (.not.rtdb_get(rtdb, 'scf:lagrangian',MT_LOG, 1, olagr))
+     $   olagr = scftype.eq.'ROHF'
 c
       nalpha = nclosed + nopen
       nbeta  = nclosed
@@ -208,7 +209,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.35 1997-02-13 01:14:18 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.36 1997-02-17 17:53:54 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

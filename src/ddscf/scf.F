@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.47 1997-02-13 01:14:17 d3g681 Exp $
+C$Id: scf.F,v 1.48 1997-02-17 17:53:53 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -24,7 +24,6 @@ c
       logical oprint
       character*255 name, ri_trans
 c
-      character*20 crapola
       integer nbf_per_ir(20)
       integer natoms, Nff
       logical rohf, uhf, riscf_init, movecs_converged
@@ -143,8 +142,7 @@ c
 c     If input and output movecs are same then might be converged MOs
 c
       if (movecs_in .eq. movecs_out) then
-         crapola = 'scf'
-         converged = movecs_converged(rtdb, basis, crapola, movecs_in)
+         converged = movecs_converged(rtdb, basis, 'scf', movecs_in)
          if (converged) then
             if (.not. rtdb_get(rtdb, 'scf:energy', mt_dbl, 1, energy))
      $           call errquit('scf: failed getting converged energy',0)

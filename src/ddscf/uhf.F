@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.31 1997-02-13 01:14:20 d3g681 Exp $
+C$Id: uhf.F,v 1.32 1997-02-17 17:53:55 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -132,6 +132,8 @@ C
          call ga_print(g_movecs(2))
       end if
 c
+      call uhf_analyze(rtdb)
+c
 c     Clean up common blocks and allocated data and return
 c
       call uhf_tidy(rtdb)
@@ -177,7 +179,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.31 1997-02-13 01:14:20 d3g681 Exp $
+C     $Id: uhf.F,v 1.32 1997-02-17 17:53:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -456,7 +458,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.31 1997-02-13 01:14:20 d3g681 Exp $
+C$Id: uhf.F,v 1.32 1997-02-17 17:53:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -547,7 +549,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.31 1997-02-13 01:14:20 d3g681 Exp $
+c     $Id: uhf.F,v 1.32 1997-02-17 17:53:55 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1033,7 +1035,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.31 1997-02-13 01:14:20 d3g681 Exp $
+C$Id: uhf.F,v 1.32 1997-02-17 17:53:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1208,3 +1210,142 @@ c
       if (.not. ga_destroy(g_smo)) call errquit('uhf_spin:ga?',0)
 c
       end
+      subroutine uhf_analyze(rtdb)
+      implicit none
+#include "cscf.fh"
+#include "global.fh"
+#include "util.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "bas.fh"
+      integer rtdb
+c
+c     Analyze the UHF wavefunction.  Optionally print the mulliken
+c     analysis and multipoles, always store the dipole in the RTDB
+c     
+      integer g_dens, g_adens, g_bdens, g_over
+c     
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+      logical oprintmulliken, oprintmultipole
+c
+      integer len_moments, lmax
+      parameter (lmax = 3)
+      parameter (len_moments = (lmax+1)*(lmax+2)*(lmax+3)/6)
+      double precision totalmoments(len_moments) 
+      double precision alphamoments (len_moments)
+      double precision betamoments (len_moments)
+      double precision nuclmoments (len_moments)
+      double precision center(3)
+      integer k, l, m, ltotal, ind
+      data center/3*0.0d0/
+c
+      oprintmulliken  = util_print('mulliken', print_default)
+      oprintmultipole = util_print('multipole', print_default)
+c     
+c     First analyze the total density
+c     
+      g_dens = ga_create_atom_blocked(geom, basis, 'rohf_mull:dens')
+      g_adens = ga_create_atom_blocked(geom, basis, 'rohf_mull:dens')
+      g_bdens = ga_create_atom_blocked(geom, basis, 'rohf_mull:dens')
+      g_over  = ga_create_atom_blocked(geom, basis, 'rohf_mull:over')
+      call ga_zero(g_dens)
+      call ga_zero(g_adens)
+      call ga_zero(g_bdens)
+      call ga_zero(g_over)
+      call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
+c     
+      call ga_dgemm('n', 't', nbf, nbf, nalpha, 1.0d0, g_movecs(1),
+     $     g_movecs(1), 0.0d0, g_adens)
+      if (nbeta .gt. 0) 
+     $     call ga_dgemm('n', 't', nbf, nbf, nbeta, 1.0d0, g_movecs(2),
+     $        g_movecs(2), 0.0d0, g_bdens)
+      call ga_dadd(1.0d0, g_adens, 1.0d0, g_bdens, g_dens)
+c
+      if (oprintmulliken) then
+         if (ga_nodeid() .eq. 0) then
+            write(6,*)
+            call util_print_centered(6,
+     $           'Mulliken analysis of the total density', 20,.true.)
+         endif
+         call mull_pop(geom, basis, g_dens, g_over)
+c
+         if (ga_nodeid() .eq. 0) then
+            write(6,*)
+            call util_print_centered(6,
+     $           'Mulliken analysis of the alpha density', 20,.true.)
+         endif
+         call mull_pop(geom, basis, g_adens, g_over)
+c     
+         if (nbeta .gt. 0) then
+            if (ga_nodeid() .eq. 0) then
+               write(6,*)
+               call util_print_centered(6,
+     $              'Mulliken analysis of the beta density', 
+     $              20,.true.)
+            endif
+            call mull_pop(geom, basis, g_bdens, g_over)
+         endif
+      endif
+c
+      if (.not. bas_cando_mpoles(basis)) goto 100
+c     
+      call dfill(len_moments, 0.0d0, totalmoments, 1)
+      call dfill(len_moments, 0.0d0, nuclmoments, 1)
+      call dfill(len_moments, 0.0d0, alphamoments, 1)
+      call dfill(len_moments, 0.0d0, betamoments, 1)
+      call dfill(len_moments, 0.0d0, totalmoments, 1)
+      call dfill(len_moments, 0.0d0, nuclmoments, 1)
+      call dfill(len_moments, 0.0d0, alphamoments, 1)
+      call dfill(len_moments, 0.0d0, betamoments, 1)
+      call geom_nuc_mpole(geom, center, lmax, nuclmoments, len_moments)
+      call multipole_density(basis, center, lmax, g_adens, 
+     $     alphamoments, len_moments)
+      if (nbeta .gt. 0) 
+     $     call multipole_density(basis, center, lmax, g_bdens, 
+     $     betamoments, len_moments)
+      do k = 1, len_moments
+         totalmoments(k) = alphamoments(k) + betamoments(k) + 
+     $        nuclmoments(k)
+      enddo
+c
+      if (oprintmultipole .and. ga_nodeid().eq.0) then
+         write(6,*)
+         call util_print_centered(6,
+     $        'Multipole analysis of the density', 20, .true.)
+         write(6,*)
+         write(6,*) '    L   x y z        total         alpha',
+     $                 '         beta         nuclear'
+         write(6,*) '    -   - - -        -----         -----',
+     $                 '         ----         -------'
+         ind = 0
+         do ltotal = 0, lmax
+            do k = ltotal, 0, -1
+               do l = ltotal-k, 0, -1
+                  m = ltotal - k - l
+                  ind = ind + 1
+                  write(6,12) ltotal, k, l, m, totalmoments(ind),
+     $                 alphamoments(ind), betamoments(ind),
+     $                 nuclmoments(ind)
+ 12               format(4x,i2,2x,3i2,4f14.6)
+               enddo
+            enddo
+            write(6,*)
+         enddo
+      endif
+c
+c     Store the dipole moment
+c
+      if (.not. rtdb_put(rtdb, 'scf:dipole', mt_dbl, 
+     $     3, totalmoments(2))) call errquit('multipole: rtdb?',0)
+c     
+ 100  if (.not. ga_destroy(g_over)) call errquit('rohf_mull: ga?',0)
+      if (.not. ga_destroy(g_adens)) call errquit('rohf_mull: ga?',0)
+      if (.not. ga_destroy(g_bdens)) call errquit('rohf_mull: ga?',0)
+      if (.not. ga_destroy(g_dens)) call errquit('rohf_mull: ga?',0)
+c     
+      end
+
+
+
+

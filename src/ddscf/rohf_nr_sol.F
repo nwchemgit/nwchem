@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.11 1997-02-13 01:14:16 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.12 1997-02-17 17:53:52 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -213,7 +213,7 @@ c
       call movecs_fix_phase(g_movecs)
       if (olock) call scf_movecs_lock
       call scf_movecs_write(rtdb)
-      if (olagr) call rohf_lagr()
+      if (converged .and. nopen.gt.0 .and. olagr) call rohf_lagr()
 c     
 c     Free globals
 c     
