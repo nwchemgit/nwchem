@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.44 2003-08-18 17:35:26 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.45 2003-09-02 14:59:33 d3j191 Exp $
 c
       implicit none
 c
@@ -282,7 +282,7 @@ c
       write(lfntop,1114) lang(1,i)-natm,lang(2,i)-natm,lang(3,i)-natm,
      + lang(5,i),i-nang
  1114 format(5i7)
-      write(lfntop,1115) (rang(j,1,i),rang(j,2,i),j=1,6)
+      write(lfntop,1115) (rang(j,1,i),rang(j,2,i),j=ipfr,ipto)
  1115 format(0pf10.6,1pe12.5)
    21 continue
       endif
