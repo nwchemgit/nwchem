@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.27 2002-06-17 22:29:31 bert Exp $
+# $Id: GNUmakefile,v 1.28 2002-07-13 21:16:49 edo Exp $
 # 
 
 HEADERS   = ecp_nwc.fh
@@ -109,7 +109,4 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 test_drive:	test_drive.o 
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ test_drive.o $(LIBS)
-  ifeq ($(FC),efc)
-     FOPTIMIZE += -O0
-  endif
 
