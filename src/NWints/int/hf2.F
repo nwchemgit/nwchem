@@ -4,7 +4,7 @@
      &               Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,
      &               bERI,Nint,canAB,canCD,canPQ,
      &               DryRun,W0,maxW0)
-c $Id: hf2.F,v 1.8 1995-04-05 23:59:10 d3e129 Exp $
+c $Id: hf2.F,v 1.9 1996-01-17 22:03:48 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -42,7 +42,7 @@ c Determine whether general or segmented contraction is used.
 
       GenCon = (NCP.ne.1) .or. (NCQ.ne.1)
 
-      if( GenCon )then
+      if( GenCon.and.(.not.dryrun) )then
        write(*,*) 'HF2:  Not prepared to handle general contractions.'
        stop
       end if

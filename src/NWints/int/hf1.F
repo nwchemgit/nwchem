@@ -3,7 +3,7 @@
      &               Cxyz,zan,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.7 1995-05-12 08:02:43 d3e129 Exp $
+c $Id: hf1.F,v 1.8 1996-01-17 22:03:46 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -76,10 +76,12 @@ c Determine whether general or segmented contraction is used.
 
       GenCon = NCP.ne.1
 
-      if( GenCon )then
-       write(*,*) 'HF1: Not yet ready for general contraction.'
-       stop
-      end if
+*      write(6,*)' gencon ',gencon,nca,ncb
+
+*rak:      if( GenCon )then
+*rak:       write(*,*) 'HF1: Not yet ready for general contraction.'
+*rak:       stop
+*rak:      end if
 
 c To determine all the Hermite expansion coefficients required to evaluate
 c the kinetic energy integrals, increment the angular momenta by one.
@@ -137,15 +139,22 @@ c Assign pointers to scratch space.
       else
 
        call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
-     &            Bxyz,Bprims,Bcoefs,NPB,NCB,
-     &            GenCon,W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ESp),NPP)
+     &      Bxyz,Bprims,Bcoefs,NPB,NCB,
+     &      GenCon,W0(i_ALPHAp),W0(i_IPAIRp),
+     &      W0(i_ESp),NPP)
 
       end if
 
       if (npp.eq.0) then
-        if (O2I) call dfill(Nint,0.0d00,bO2I,1)
-        if (KEI) call dfill(Nint,0.0d00,bKEI,1)
-        if (NAI) call dfill(Nint,0.0d00,bNAI,1)
+        if(gencon) then
+          if (O2I) call dfill(Nint*nca*ncb,0.0d00,bO2I,1)
+          if (KEI) call dfill(Nint*nca*ncb,0.0d00,bKEI,1)
+          if (NAI) call dfill(Nint*nca*ncb,0.0d00,bNAI,1)
+        else
+          if (O2I) call dfill(Nint,0.0d00,bO2I,1)
+          if (KEI) call dfill(Nint,0.0d00,bKEI,1)
+          if (NAI) call dfill(Nint,0.0d00,bNAI,1)
+        endif
         return
       endif
 c Define the Hermite linear expansion coefficients.
@@ -156,25 +165,44 @@ c Assign pointers to scratch space.
 
       i_Ep   = i_IPAIRp + 2*(NPA*NPB)
       i_pf   = i_Ep     + 3*NPP*(MXD+1)*lprod
-      i_left = i_pf     + 2*NPP - 1
-
+      iptr   = i_pf     + 2*NPP
+      if (gencon) then
+        La2 = (La+1)*(La+2)/2
+        Lb2 = (Lb+1)*(Lb+2)/2
+        i_gct_a    = iptr 
+        i_gct_b    = i_gct_a   + NPP*NCA
+        i_prim_ints = i_gct_b  + NPP*NCB
+        i_half_ints = i_prim_ints + npp*La2*Lb2
+        iptr        = i_half_ints +
+     &        max((npp*La2*Lb2*nca),(ncb*La2*Lb2*nca))
+      else
+        i_gct_a     = -1
+        i_gct_b     = -1
+        i_prim_ints = -1
+      endif
+      i_left = iptr - 1
       if( i_left.ge.i_right )then
 
        write(*,*) 'HF1:  Insufficient scratch space.'
        write(*,*) '       needed    ',i_left + (maxW0-(i_right-1))
        write(*,*) '       allocated ',maxW0
 
-       write(*,*) 'From the right '
+       write(*,*) 'From the left '
        write(*,*) 'ALPHAp:  ',i_ALPHAp
        write(*,*) 'IPAIRp:  ',i_IPAIRp
        write(*,*) 'Ep    :  ',i_Ep
        write(*,*) 'pf    :  ',i_pf
-       write(*,*) 'From the left '
+       write(*,*) 'From the right '
        write(*,*) 'ESp   :  ',i_ESp
 
        stop
 
       end if
+c form transformation matrix for 1 electron
+      if (gencon.and.(.not.dryrun)) then
+        call hf1_tran_gen(W0(i_gct_a),W0(i_gct_b),W0(i_IPAIRp),NPP,
+     &      Acoefs,NPA,NCA,Bcoefs,NPB,NCB)
+      endif                                        
 
       if( DryRun )then
 
@@ -193,7 +221,16 @@ c Compute the 2-center overlap integrals, <a|S|b>.
 
       if( O2I )then
         if( .not. DryRun )then
-          call hf2oi(W0(i_Ep),bO2I,Nint,NPP,La,Lb,Li,canAB)
+          if (gencon) then
+            call hf2oi_gc(W0(i_Ep),bO2I,
+     &          W0(i_prim_ints),W0(i_half_ints),
+     &          (la2*lb2),
+     &          NCA,NCB,NPP,La,Lb,Li,
+     &          W0(i_gct_a),W0(i_gct_b),
+     &          canAB)
+          else
+            call hf2oi(W0(i_Ep),bO2I,Nint,NPP,La,Lb,Li,canAB)
+          endif
         end if
       end if
 
@@ -203,9 +240,13 @@ c Compute kinetic energy integrals, <a|T|b>.
 
 c Assign pointers to scratch space.
 
-       i_Ti  = i_Ep + 3*NPP*(MXD+1)*lprod
-       i_top = i_Ti + NPP - 1
-
+       if (gencon) then
+         i_Ti  = iptr
+         i_top = i_Ti + NPP - 1 
+       else
+         i_Ti  = i_Ep + 3*NPP*(MXD+1)*lprod
+         i_top = i_Ti + NPP - 1
+       endif
        if( i_top.gt.maxW0 )then
 
         write(*,*) 'HF1:  Insufficient scratch space.'
@@ -227,8 +268,20 @@ c Assign pointers to scratch space.
 
        else
 
-        call hfkei(W0(i_ALPHAp),W0(i_Ep),bKEI,W0(i_Ti),
-     &             Nint,NPP,La,Lb,Li,canAB)
+         if (gencon) then
+           call hfkei_gc(W0(i_ALPHAp),W0(i_Ep),bKEI,
+     &         W0(i_prim_ints),W0(i_half_ints),
+     &         W0(i_Ti),(la2*lb2),
+     &         NCA,NCB,NPP,
+     &         La,Lb,Li,
+     &         W0(i_gct_a),W0(i_gct_b),
+     &         canAB)
+
+         else
+           call hfkei(W0(i_ALPHAp),W0(i_Ep),bKEI,W0(i_Ti),
+     &         Nint,NPP,La,Lb,Li,canAB)
+         endif
+
        end if
 
       end if
@@ -241,7 +294,11 @@ c Define the auxiliary function integrals.
 
 c Assign scratch space.
 
-       i_R0  = i_Ep  + 3*NPP*(MXD+1)*lprod
+       if (gencon) then
+         i_R0  = iptr
+       else
+         i_R0  = i_Ep  + 3*NPP*(MXD+1)*lprod
+       endif
        i_IJK = i_R0  + NPP*Lp3
        i_P   = i_IJK + (Lp+1)**3
        i_RS  = i_P   + NPP*3
@@ -282,8 +339,17 @@ c Assign scratch space.
      &              W0(i_Rj),W0(i_R0),W0(i_R0),W0(i_IJK),
      &              NPP,Lp,Lp3,.FALSE.)
 
-        call hfnai(W0(i_Ep),W0(i_R0),W0(i_IJK),bNAI,
-     &             Nint,NPP,La,Lb,Li,Lp,Lp3,canAB)
+        if (gencon) then
+          call hfnai_gc(W0(i_Ep),W0(i_R0),W0(i_IJK),bNAI,
+     &        W0(i_prim_ints),W0(i_half_ints),
+     &        (La2*Lb2),NCA,NCB,NPP,
+     &        La,Lb,Li,Lp,Lp3,
+     &        W0(i_gct_a),W0(i_gct_b),
+     &        canAB)
+        else
+          call hfnai(W0(i_Ep),W0(i_R0),W0(i_IJK),bNAI,
+     &        Nint,NPP,La,Lb,Li,Lp,Lp3,canAB)
+        endif
 
        end if
 

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.18 1995-11-27 02:11:37 d3g681 Exp $
+# $Id: GNUmakefile,v 1.19 1996-01-17 22:03:55 d3e129 Exp $
 
     OBJ          = hf3PEabc.o hf3mkr.o hf3pot.o 
     OBJ_OPTIMIZE = hfmkr_9.o hfmkr_8.o hfmkr_7.o \
@@ -9,7 +9,7 @@
                    hf2oi.o hf3OIs.o hfabc.o hfctr3.o \
                    hferi.o hfkei.o hfmke.o hfmkr.o \
                    hfnai.o hfset.o igamma.o hf_print.o \
-                   hfreord_pq.o
+                   hfreord_pq.o hf1_tran.o
 
   LIB_TARGETS = showxyz showxyz.o
   LIBRARY = libnwints.a
@@ -35,6 +35,7 @@ doc:	3ctrpot.tex
 $(LIBRARY_PATH)(defNxyz.o):	 ./sh_order.fh 
 $(LIBRARY_PATH)(getNxyz.o):	 ./sh_order.fh 
 $(LIBRARY_PATH)(hf1.o):	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
+$(LIBRARY_PATH)(hf1_tran.o):	 $(INCDIR)/stdio.fh 
 $(LIBRARY_PATH)(hf1set3.o):	 $(INCDIR)/apiP.fh 
 $(LIBRARY_PATH)(hf3pot.o):	 $(INCDIR)/stdio.fh 
 $(LIBRARY_PATH)(hfmke.o):	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
