@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.7 1997-08-19 23:32:22 mg201 Exp $
+C $Id: ecp_gradient.F,v 1.8 1997-09-05 22:25:18 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -113,7 +113,7 @@ Cend
 *
       if (debug_gen) write (LuOut,'(//A,/)') 'Entering ecp_gradient ...'
       if (debug_addresses) then
-        write(LuOut,*)' lscr in ecp_integral:',lscr
+        write(LuOut,*)' lscr in ecp_gradient:',lscr
         write (LuOut,*) 'n_prim_A,n_cont_A,l_A',n_prim_A,n_cont_A,l_A
         write (LuOut,*) 'n_prim_B,n_cont_B,l_B',n_prim_B,n_cont_B,l_B
         write (LuOut,*) 'l_ecp_max,n_c',l_ecp_max,n_c

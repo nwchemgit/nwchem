@@ -1,11 +1,11 @@
-C $Id: ecp_integral.F,v 1.4 1997-08-19 23:32:22 mg201 Exp $
+C $Id: ecp_integral.F,v 1.5 1997-09-05 22:25:19 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_integral (
-     &    xyz_A,zeta_A,coef_A,n_prim_A,n_cont_A,l_A,
-     &    xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,l_B,
+     &    xyz_A,zeta_A,coef_A,n_prim_A,n_cont_A,l_A,i_c_A,
+     &    xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,l_B,i_c_B,
      &    xyz_C,zeta_C,coef_C,n_prim_C,n_coef_C,ind_C,n_tot_C,n_zeta_C,
-     &    l_C,n_C,l_ecp_max,sphcart,
+     &    l_C,i_cent_C,n_C,l_ecp_max,sphcart,
      &    csco,lcsco,
      &    ecp_ints,n_int,
      &    DryRun,scr,lscr,ibug)
@@ -31,7 +31,6 @@ C $Id: ecp_integral.F,v 1.4 1997-08-19 23:32:22 mg201 Exp $
 *                  centres C. These are stored in an array of single   *
 *                  dimension, i.e. packed.                             *
 *   coef_C (inp) - array of contraction coefficients on all centres C  *
-*   l_C (inp) - maximum angular momentum of projectors on centres C    *
 *   n_prim_C (inp) - array of number of primitive gaussians for each   *
 *                    power of r, l value and ECP centre. The highest   *
 *                    l value is for the local part, thus the second    *
@@ -46,6 +45,8 @@ C $Id: ecp_integral.F,v 1.4 1997-08-19 23:32:22 mg201 Exp $
 *                   This is n_coef_C summed over the first dimension.  *
 *   n_zeta_C (inp) - total number of ECP exponents/coefficients. This  *
 *                    is n_tot_C summed over centres.                   *
+*   l_C (inp) - maximum angular momentum of projectors on centres C    *
+*   i_cent_C (inp) - indices of ECP centres C                          *
 *   n_C (inp) - number of ECP centres C                                *
 *   l_ecp_max (inp) - maximum angular momentum of any projector on any *
 *                     ECP centre. N.B. This is a different use from in *
@@ -71,14 +72,16 @@ C $Id: ecp_integral.F,v 1.4 1997-08-19 23:32:22 mg201 Exp $
 #include "stdio.fh"
 #include "ecp_consts.fh"
       integer i,j,l,n,
-     &    n_prim_A,n_cont_A,l_A,n_prim_B,n_cont_B,l_B,n_zeta_C,n_C,
-     &    l_ecp_max,n_int,n_blk,sphcart,lscr,ibug
+     &    n_prim_A,n_cont_A,l_A,i_c_A,
+     &    n_prim_B,n_cont_B,l_B,i_c_B,
+     &    n_zeta_C,n_C,i_c_C,l_ecp_max,
+     &    n_int,n_blk,sphcart,lscr,ibug
 Ctest
       parameter (n_blk=1)
 Cend
       integer n_prim_C(0:2,-1:l_ecp_max,n_C),
      &    n_coef_C(-1:l_ecp_max,n_C),ind_C(-1:l_ecp_max,n_C),
-     &    n_tot_C(n_C),l_C(n_C)
+     &    n_tot_C(n_C),l_C(n_C),i_cent_C(n_C)
       integer i_scr,i_zeta,i_zeta0,i_zeta1,memscr,mem,max_loc,
      &    max_type0,max_type1,max_type2,n_intt,n_all_a,n_all_b,
      &    n_cart_a,n_cart_b,n_cart_ab,n_cont_ab,n_prim0,n_prim1
@@ -91,9 +94,9 @@ Cend
      &    scr(lscr),ecp_ints(n_int*n_blk)
       double precision 
      &    X_AC,Y_AC,Z_AC,R_AC,X_BC,Y_BC,Z_BC,R_BC,
-     &    tiny,tol
+     &    tol
       double precision csco(lcsco)
-      data tol/1.0d-16/,tiny/1.0d-13/
+      data tol/1.0d-16/
 *
       if ((n_blk .ne. 1) .and. (n_blk .ne. 3) .and. (n_blk .ne. 4))
      &    call errquit('Illegal value of n_blk in ecp_integral',99)
@@ -165,6 +168,7 @@ Cend
       do i = 1,n_C
         n = n_tot_C(i)
         l = l_C(i)
+        i_c_C = i_cent_C(i)
         if (debug_gen) write (LuOut,*) 'ECP center',i
         if (debug_gen) write (LuOut,*) '   Maximum angular momentum',l
 *
@@ -231,7 +235,7 @@ C          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
 C     &        'coef_C','E',81,5)
 C        end if
         if (.not.DryRun) call dfill (n_intt*n_blk,zero,scr,1)
-        if ((R_AC .lt. tiny) .and. (R_BC .lt. tiny)) then
+        if ((i_c_A .eq. i_c_C) .and. (i_c_B .eq. i_c_C)) then
 *
 *       One-centre case, A = B = C
 *
@@ -245,7 +249,7 @@ C        end if
      &        scr(i_scr),memscr,csco,lcsco,
      &        scr,n_blk,ibug/10)
           if (DryRun) max_type0 = max(mem,max_type0)
-        else if (R_AC .lt. tiny) then
+        else if (i_c_A .eq. i_c_C) then
 *
 *       Two-centre case with A = C
 *
@@ -259,7 +263,7 @@ C        end if
      &        csco,lcsco,
      &        scr,n_intt,n_blk,.false.,ibug/10)
           if (DryRun) max_type1 = max(mem,max_type1)
-        else if (R_BC .lt. tiny) then
+        else if (i_c_B .eq. i_c_C) then
 *
 *       Two-centre case with B = C
 *

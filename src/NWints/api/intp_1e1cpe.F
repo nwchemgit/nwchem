@@ -1,5 +1,5 @@
       subroutine intp_1e1cpe(i_basis,ish,Ri,lscr,scr,lpe,Pe)
-c $Id: intp_1e1cpe.F,v 1.5 1997-04-25 00:41:11 d3e129 Exp $
+c $Id: intp_1e1cpe.F,v 1.6 1997-09-05 22:25:09 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "basP.fh"
@@ -67,8 +67,9 @@ c
       if (cando_nw_1e(i_basis,ish,0)) then
         call int_hf1sp(
      &         xyz_new_i,dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &         dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
-     &         xyz_new_i,DCexp,DCcoeff, 1, 1, 0, 
+     &         dbl_mb(mb_exndcf(i_icfp,ibas)),
+     &         i_prim, i_gen, Li, i_cent,
+     &         xyz_new_i,DCexp,DCcoeff, 1, 1, 0, i_cent,
      &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
 c............................. doS     doT     doV    canonical
      &         scr,scr,Pe,lpe,.false.,.false.,.true.,.false.,

@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.10 1997-05-29 00:46:17 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.11 1997-09-05 22:25:05 d3e129 Exp $
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
@@ -10,8 +10,8 @@ c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_hf1sp(
-     &       xyzi,expi,coefi, i_nprim, i_ngen, Li,
-     &       xyzj,expj,coefj, j_nprim, j_ngen, Lj,
+     &       xyzi,expi,coefi, i_nprim, i_ngen, Li, ictri,
+     &       xyzj,expj,coefj, j_nprim, j_ngen, Lj, ictrj,
      &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       dryrun,scr,lscr,msg)
 c:tex-\end{verbatim}
@@ -25,9 +25,11 @@ c:tex-\begin{verbatim}
       integer i_nprim  ! [input] num. prims on function i
       integer i_ngen   ! [input] num general conts on func. i
       integer Li       ! [input] angular momentum of func. i  
+      integer ictri    ! [input] lexical atom index for function i 
       integer j_nprim  ! [input] num. prims on function j     
       integer j_ngen   ! [input] num general conts on func. j 
       integer Lj       ! [input] angular momentum of func. j  
+      integer ictrj    ! [input] lexical atom index for function j 
       integer nat      ! [input] number of atoms
       integer lscr     ! [input] size of scratch array
       integer lstv     ! [input] size of any integral buffer
@@ -223,9 +225,17 @@ c
         nintV = int_nbf_x(Li)*int_nbf_x(Lj)
         offset = nintV + 1
 *       write(6,*)' lscr to ecp_hf1:',(lscr-nintV)
+        if (ictri.lt.0.or.ictrj.lt.0) then
+          write(luout,*)' int_hf1sp: ictri = ',ictri
+          write(luout,*)' int_hf1sp: ictrj = ',ictrj
+          write(luout,*)'int_hf1sp called by ',msg
+          call errquit(
+     &        'int_hf1sp: unknown center for ECPs',
+     &        911)
+        endif
         call int_ecp_hf1(
-     &      xyzi,expi,coefi,i_nprim,i_ngen,Li,
-     &      xyzj,expj,coefj,j_nprim,j_ngen,Lj,
+     &      xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,
+     &      xyzj,expj,coefj,j_nprim,j_ngen,Lj,ictrj,
      &      scr,nintV,scr(offset),(lscr-nintV),
      &      dryrun)
 *... sum ecp into V block

@@ -1,6 +1,6 @@
       subroutine intp_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
      &    lscr,scr,lpe,Pe)
-c $Id: intp_1epe.F,v 1.6 1996-07-18 23:58:55 d3e129 Exp $
+c $Id: intp_1epe.F,v 1.7 1997-09-05 22:25:15 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -97,9 +97,11 @@ c
      &    then
         call int_hf1sp(
      &         xyz_new_i,dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &         dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
+     &         dbl_mb(mb_exndcf(i_icfp,ibas)),
+     &         i_prim, i_gen, Li, i_cent,
      &         xyz_new_j,dbl_mb(mb_exndcf(j_iexp,jbas)),
-     &         dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
+     &         dbl_mb(mb_exndcf(j_icfp,jbas)),
+     &         j_prim, j_gen, Lj, j_cent,
      &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
 c............................. doS     doT     doV    canonical
      &         scr,scr,Pe,lpe,.false.,.false.,.true.,.false.,

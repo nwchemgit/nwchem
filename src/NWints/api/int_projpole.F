@@ -1,4 +1,4 @@
-c $Id: int_projpole.F,v 1.8 1997-05-29 23:43:07 d3e129 Exp $
+c $Id: int_projpole.F,v 1.9 1997-09-05 22:25:08 d3e129 Exp $
 *
 c:tex-% This is part of the standard API routines
 c:tex-\subsection{int\_projpole}
@@ -114,9 +114,11 @@ c
         if (cando_nw_1e(i_basis,ish,0)) then
           call int_hf1sp(
      &        centerl,DCexp,
-     &        DCcoeff, 1, 1, lval,
+*                                   ! no ECPs allowed when projpole?
+     &        DCcoeff, 1, 1, lval, -1, 
      &        coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &        dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
+     &        dbl_mb(mb_exndcf(i_icfp,ibas)),
+     &        i_prim, i_gen, Li, i_cent,
      &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
      &        MP(int_point),scr,scr,int_size,
 c............. doS    doT     doV     canonical

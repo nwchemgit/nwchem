@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,indx_grad)
-* $Id: int_ecp.F,v 1.7 1997-04-25 02:32:07 d3e129 Exp $
+* $Id: int_ecp.F,v 1.8 1997-09-05 22:25:20 d3e129 Exp $
       implicit none
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
@@ -267,11 +267,11 @@ c
      &        coords(1,ic,ig),
      &        dbl_mb(mb_exndcf(ie,bas_id)),
      &        dbl_mb(mb_exndcf(icf,bas_id)),
-     &        inp,ing,il,
+     &        inp,ing,il,ic,
      &        coords(1,jc,jg),
      &        dbl_mb(mb_exndcf(je,bas_id)),
      &        dbl_mb(mb_exndcf(jcf,bas_id)),
-     &        jnp,jng,jl,
+     &        jnp,jng,jl,jc,
      &        dpdum,nV,dpdum,lecp_mem,.true.)
           lecp_mem = lecp_mem + nV  ! nint block used in api routine int_hf1sp
           mem_ecp = max(mem_ecp,lecp_mem)
@@ -704,15 +704,15 @@ c
       data init_ecp_init /.false./ ! logical saying if ecp is init-ed
       end
       subroutine int_ecp_hf1(
-     &    xyza,expa,coefa,a_nprim,a_ngen,La,
-     &    xyzb,expb,coefb,b_nprim,b_ngen,Lb,
+     &    xyza,expa,coefa,a_nprim,a_ngen,La,ictra,
+     &    xyzb,expb,coefb,b_nprim,b_ngen,Lb,ictrb,
      &    ecp_ints,sz_ints,scr,lscr,dryrun)
       implicit none
 #include "mafdecls.fh"
 #include "ecp_nwc.fh"
 *
-      integer a_nprim, a_ngen, La
-      integer b_nprim, b_ngen, Lb
+      integer a_nprim, a_ngen, La, ictra
+      integer b_nprim, b_ngen, Lb, ictrb
       double precision expa(a_nprim), expb(b_nprim)
       double precision coefa(a_nprim,a_ngen), coefb(b_nprim,b_ngen)
       integer sz_ints  ! [input] buffer size for ecp_ints
@@ -728,11 +728,11 @@ c
      &      xyza,
      &      expa,
      &      coefa,
-     &      a_nprim,a_ngen,La,
+     &      a_nprim,a_ngen,La,ictra,
      &      xyzb,
      &      expb,
      &      coefb,
-     &      b_nprim,b_ngen,Lb,
+     &      b_nprim,b_ngen,Lb,ictrb,
      &      dbl_mb(k_xyzecp),
      &      dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
      &      int_mb(k_ecp_nprim_c),
@@ -741,6 +741,7 @@ c
      &      int_mb(k_ecp_ntot_c),
      &      n_zeta_c,
      &      int_mb(k_ecp_l_c),
+     &      int_mb(k_ecp_lip), 
      &      n_ecp,l_ecp,
      &      0,
      &      dbl_mb(k_ecp_c2s),mem_c2s,

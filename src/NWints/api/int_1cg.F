@@ -1,4 +1,4 @@
-c $Id: int_1cg.F,v 1.8 1997-05-29 00:35:57 d3e129 Exp $
+c $Id: int_1cg.F,v 1.9 1997-09-05 22:24:47 d3e129 Exp $
 *
 **********************************************************************
 c:tex-% This is part of the API Standard Integral routines
@@ -81,9 +81,10 @@ c
      &        coords(1,i_cent,i_geom),
      &        dbl_mb(mb_exndcf(i_iexp,ibas)),
      &        dbl_mb(mb_exndcf(i_icfp,ibas)),
-     &        i_prim, i_gen, Li,
-     &        coords(1,i_cent,i_geom), DCexp, DCcoeff, 1, 1,
-     &        0,coords(1,1,i_geom),charge(1,i_geom),
+     &        i_prim, i_gen, Li, i_cent,
+     &        coords(1,i_cent,i_geom), DCexp, DCcoeff,
+     &        1, 1, 0, i_cent,
+     &        coords(1,1,i_geom),charge(1,i_geom),
      &        ncenter(i_geom),
 c............................. doS    doT     doV     canonical
      &        G1e,scr,scr,l1g,.true.,.false.,.false.,.false.,
