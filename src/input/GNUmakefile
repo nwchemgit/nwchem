@@ -8,4 +8,7 @@
 include ../config/makefile.h
 include ../config/makelib.h
 
-
+ifeq ($(TARGET),SGITFP)
+get_input_filename.o:	get_input_filename.F
+	f77 -g -d8 $(INCLUDES) $(DEFINES)  -c get_input_filename.F -o get_input_filename.o	
+endif
