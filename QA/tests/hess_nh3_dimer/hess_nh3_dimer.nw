@@ -1,0 +1,35 @@
+start nh3dimer
+
+title; hessian calculation for (NH3)2 MP2/aug-cc-pVTZ
+# These are the low freq modes from the user 48.1967   62.4202  109.2947 
+
+geometry
+ symmetry Cs
+ N         -0.023231    1.667884    0.000000  
+ N         -0.023231   -1.566277    0.000000 
+ H          0.275068    0.696268    0.000000
+ H         -1.007619   -1.326674    0.000000
+ H          0.392481    2.108669    0.810839
+ H          0.392481    2.108669   -0.810839 
+ H          0.136411   -2.149091    0.812343
+ H          0.136411   -2.149091   -0.812343
+end
+
+
+basis spherical
+ n   library aug-cc-pvtz
+ h   library aug-cc-pvtz
+end
+
+mp2
+  freeze atomic
+  tight
+end
+
+task mp2 gradient
+
+mp2
+  print none
+end
+
+task mp2 freq
