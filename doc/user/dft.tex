@@ -124,8 +124,6 @@ subsections describe these keywords and
 optional subdirectives that can be specified for a \verb+DFT+ calculation
 in NWChem.
 
-\subsection{Geometry Specification for the DFT Module}
-
 \subsection{Basis Sets Specification for the DFT Module}
 The DFT module requires at a minimum the basis set for the Kohn-Sham 
 molecular orbitals.  This basis set must be in the default basis set named
@@ -166,7 +164,7 @@ optional, and usually not recommended
 \end{itemize}
 
 
-\subsection{Input/Output of KS-MO Vectors in the DFT Module}
+\subsection{Input/Output of KS-MO Vector}
 \begin{verbatim}
   VECTORS [[input] (<string input_movecs default atomic>) || \
                    (project <string basisname> <string filename>)] \
@@ -179,7 +177,7 @@ optional, and usually not recommended
   implemented as such)
 \end{verbatim}
 
-\subsection{Exchange-Correlation Potentials in the DFT Module}
+\subsection{Exchange-Correlation Potentials}
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] \
       [HFexch <real multiplicative_factor default 1.0>] \
@@ -372,8 +370,7 @@ could be specified as:
 \footnotetext[1]{D.M.~Ceperley and B.J.~Alder, Phys. Rev. Lett. {\bf 45},
   566 (1980).}
 
-\subsubsection{Hybrid Methods for Determining the Exchange and Correlation 
-Functionals}
+\subsubsection{Hybrid Exchange and Correlation Functionals}
 
 In addition to the options listed above for the exchange and correlation
 functionals, the user has the alternative of specifying a ``canned'' hybrid
@@ -418,7 +415,7 @@ a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \end{eqnarray*}
 
 
-\subsection{SCF Convergence Control in the DFT Module}
+\subsection{SCF Convergence Control}
 \begin{verbatim}
 
   ITERATIONS <integer iterations default 30>
@@ -584,14 +581,14 @@ procedures deemed undesirable with the obvious keywords,
 \end{verbatim}
 
 
-\subsection{Control of the Numerical Integration (Grid Control) of the
-  Exchange-Correlation Potential in the DFT Module}
+\subsection{Controlling the Numerical Integration of the Exchange-Correlation Potential}
+
 \begin{verbatim}
-  GRID [[coarse|medium|fine|xfine] \
-        [gausleg <integer radpts default 50> <integer nagrid default 10>] \ 
-        [lebedev <integer radpts default 50> <integer iangquad default 4>] \ 
-        [store_wght] [nquad_task <integer nquad_task default 1>] \
-        [delley|becke] [rm <real rm default 2.0>]]
+  GRID [[coarse|medium|fine|xfine] \ [gausleg <integer radpts default
+  50> <integer nagrid default 10>] \ [lebedev <integer radpts default
+  50> <integer iangquad default 4>] \ [store_wght] [nquad_task
+  <integer nquad_task default 1>] \ [delley|becke] [rm <real rm
+  default 2.0>]]
         
 
 \end{verbatim}
@@ -666,7 +663,7 @@ $N_{angular}$ & 38 & 50 & 110 & 194 & 266 & 302 & 434 \\  \hline
 Therefor the user can specify any number of radial points along with
 the level of angular quadrature (1-7).
 
-\subsection{Control of Screening (Setting Tolerances) in the DFT Module}
+\subsection{Control of Screening (Setting Tolerances)}
 \begin{verbatim}
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-15>] \
               [accAOfunc <integer accAOfunc default 20>] \
@@ -759,7 +756,7 @@ Becke or Delley spatial weights is also available as,
 where radius is the cutoff value in bohr.
 
 
-\subsection{Hardware Resource Control in the DFT Module}
+\subsection{Hardware Resource Control}
 \begin{verbatim}
   DIRECT|INCORE
   NOIO
@@ -784,7 +781,7 @@ overridden with the option \verb+DIRECT+ in which case all integrals
 are computed ``on-the-fly''.
 
 
-\subsection{Control of Open Shells in the DFT Module}
+\subsection{Control of Open Shells}
 \begin{verbatim}
   DFT|ODFT
   MULT <integer mult default 1>
@@ -807,7 +804,7 @@ The keywords \verb+DFT|ODFT+ were originally intended to specify
 closed or openshell and are really unnecessary except in the context of
 forcing a system to be computed as an openshell system.
 
-\subsection{Standard Property Control in the DFT Module}
+\subsection{Standard Property Control}
 \begin{verbatim}
   MULLIKEN
 \end{verbatim}
@@ -821,7 +818,7 @@ When this keyword is encountered, mulliken analysis of both the input
 density as well as the output density will occur.
 
 
-\subsection{Print Control in the DFT Module}
+\subsection{Print Control}
 \begin{verbatim}
   PRINT|NOPRINT
 \end{verbatim}
