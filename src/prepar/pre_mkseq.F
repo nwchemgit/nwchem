@@ -2,9 +2,9 @@
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
-     + icount,scount)
+     + mcount,ncount,icount,scount,mfract,nfract,ifract)
 c
-c $Id: pre_mkseq.F,v 1.32 2000-03-21 23:58:04 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.33 2000-03-29 20:29:00 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -36,12 +36,15 @@ c
 c
       integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk,mato,nato
       integer natm,nseq,nssb,nsgm,nlnk,maxscf,icyren,model,nxlnk
+      integer mcount,ncount
+      integer mfract,nfract,ifract(mfract)
       integer mfrb,i_frb,l_frb
       integer l_lseq,i_lseq,l_cseq,i_cseq
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
       integer l_latm,i_latm,l_catm,i_catm,l_xatm,i_xatm,l_qatm,i_qatm
-      integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp,icount
+      integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp
+      integer icount(mcount)
       integer l_lato,i_lato,i_cato,l_cato,l_xato,i_xato,l_qato,i_qato
 c
       real*8 qscale
@@ -54,7 +57,7 @@ c
       character*80 source
       character*10 slvmdl
       character*1 altloc,chain
-      character*4 scount
+      character*4 scount(mcount)
 c
       integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm,lfntmp,lfnmod
       integer igeom,numslv,nlnkf
@@ -383,7 +386,7 @@ c
      + byte_mb(i_cseq),int_mb(i_lseq),mseq,nseq,
      + int_mb(i_lssb),mssb,nssb,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,nlnkf,slvmdl,
-     + icount,scount))
+     + mcount,ncount,icount,scount,mfract,nfract,ifract))
      + call errquit('pre_wrtseq failed',9999)
 c
       if(util_print('where',print_debug)) then

@@ -1,9 +1,11 @@
       logical function pre_rtdbin(irtdb,ffield,
      + dir_s,dir_x,dir_u,dir_t,source,sysnam,calc,slvnam,slvmdl,
-     + newtop,newseq,newrst,icount,mgrid,gdist,mnoe,maxscf,qscale,
-     + altloc,chain,icyren,model,nxlnk,mdold,ignore,scount)
+     + newtop,newseq,newrst,mcount,ncount,icount,mgrid,gdist,mnoe,
+     + maxscf,qscale,
+     + altloc,chain,icyren,model,nxlnk,mdold,ignore,scount,
+     + mfract,nfract,ifract)
 c
-c $Id: pre_rtdbin.F,v 1.18 1999-12-10 23:53:29 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.19 2000-03-29 20:29:01 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -15,17 +17,19 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 c
-      integer irtdb
+      integer irtdb,mcount,ncount
       character*3 slvnam
       character*80 source
       character*80 ffield,sysnam,calc
       character*10 slvmdl
       character*255 dir_s,dir_x,dir_u,dir_t
-      integer newtop,newseq,newrst,icount,icyren,ignore
+      integer newtop,newseq,newrst,icount(mcount),icyren,ignore
       integer len,ndx,mgrid,mnoe,maxscf,model,nxlnk,mdold
+      integer mfract,nfract
+      integer ifract(mfract)
       real*8 gdist,qscale
       character*1 altloc,chain
-      character*4 scount
+      character*4 scount(mcount)
 c
       character*255 key,value
 c
@@ -65,9 +69,18 @@ c
       if(.not.rtdb_get(irtdb,'prep:newseq',mt_int,1,newseq)) newseq=0
       if(.not.rtdb_get(irtdb,'prep:newrst',mt_int,1,newrst)) newrst=0
 c
-      if(.not.rtdb_get(irtdb,'prep:icount',mt_int,1,icount)) icount=0
-      if(icount.gt.0) then
-      if(.not.rtdb_cget(irtdb,'prep:scount',1,scount)) scount='Na  '
+      if(.not.rtdb_get(irtdb,'prep:nfract',mt_int,1,nfract)) nfract=0
+      if(nfract.gt.0) then
+      if(.not.rtdb_get(irtdb,'prep:ifract',mt_int,nfract,ifract))
+     + call errquit('Fraction input problem',0)
+      endif
+c
+      if(.not.rtdb_get(irtdb,'prep:ncount',mt_int,1,ncount)) ncount=0
+      if(ncount.gt.0) then
+      if(.not.rtdb_get(irtdb,'prep:icount',mt_int,ncount,icount))
+     + call errquit('Counter ion input problem',0)
+      if(.not.rtdb_cget(irtdb,'prep:scount',ncount,scount))
+     + call errquit('Counter ion input problem',0)
       endif
       if(.not.rtdb_get(irtdb,'prep:mgrid',mt_int,1,mgrid)) mgrid=24
       if(.not.rtdb_get(irtdb,'prep:rgrid',mt_dbl,1,gdist)) gdist=0.2d0

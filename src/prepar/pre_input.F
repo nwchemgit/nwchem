@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.40 2000-03-29 18:38:19 d3j191 Exp $
+c $Id: pre_input.F,v 1.41 2000-03-29 20:29:00 d3j191 Exp $
 c
       implicit none
 c
@@ -12,12 +12,18 @@ c
       integer irtdb
       character*255 item,atom,type,atomi,atomj,atomk,atoml
 c
+      integer mcount
+      parameter(mcount=10)
+      integer mfract
+      parameter(mfract=10)
+c
       character*3 slvnam
       character*80 source
       character*10 slvmdl
       character*80 ffield,sysnam
       character*255 dir_s,dir_x,dir_u,dir_t,commnd,modify
-      integer newtop,newseq,newrst,icount,multip
+      integer newtop,newseq,newrst,icount(10),multip,ncount
+      integer nfract,ifract(mfract)
 c
       integer len,numcmd,nummod,mgrid,mnoe,maxscf,num,mset
       integer isgm,icyren,model,nxlnk
@@ -30,7 +36,7 @@ c
       integer nxrep,nyrep,nzrep
       real*8 rrep
       real*8 value1,value2
-      character*4 scount
+      character*4 scount(mcount)
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
@@ -66,7 +72,8 @@ c
       mnoe=0
       maxscf=0
       qscale=-1.0d0
-      icount=0
+      ncount=0
+      nfract=0
       icyren=0
       model=0
       nxlnk=0
@@ -302,13 +309,28 @@ c
       goto 2
       endif
 c
+c     divide molecules into fractions
+c     -------------------------------
+c
+      if(inp_compare(.false.,'fraction',item)) then
+    4 continue
+      if(.not.inp_i(i)) goto 2
+      nfract=nfract+1
+      if(nfract.gt.mfract) call errquit('Too many fractions',nfract)
+      ifract(nfract)=i
+      goto 4
+      endif
+c
 c     add counter ions to sequence file
 c     ---------------------------------
 c
       if(inp_compare(.false.,'counter',item)) then
-      if(.not.inp_i(icount)) call errquit('pre_input: counter',9999)
+      ncount=ncount+1
+      if(ncount.gt.mcount) call errquit('Too many counters',ncount)
+      if(.not.inp_i(icount(ncount)))
+     + call errquit('pre_input: counter',9999)
       if(.not.inp_a(item)) call errquit('pre_input: counter',9999)
-      scount=item(1:4)
+      scount(ncount)=item(1:4)
       goto 2
       endif
 c
@@ -1031,12 +1053,21 @@ c
       if(.not.rtdb_put(irtdb,'prep:newrst',mt_int,1,newrst))
      + call errquit('pre_input: rtdb_put failed',0)
 c
+      if(.not.rtdb_put(irtdb,'prep:nfract',mt_int,1,nfract))
+     + call errquit('pre_input: rtdb_put failed',0)
+      if(nfract.gt.0) then
+      if(.not.rtdb_put(irtdb,'prep:ifract',mt_int,nfract,ifract))
+     + call errquit('pre_input: rtdb_put failed',0)
+      endif
+c
       if(.not.rtdb_put(irtdb,'prep:icyren',mt_int,1,icyren))
      + call errquit('pre_input: rtdb_put failed',0)
-      if(.not.rtdb_put(irtdb,'prep:icount',mt_int,1,icount))
+      if(.not.rtdb_put(irtdb,'prep:ncount',mt_int,1,ncount))
      + call errquit('pre_input: rtdb_put failed',0)
-      if(icount.gt.0) then
-      if(.not.rtdb_cput(irtdb,'prep:scount',1,scount))
+      if(ncount.gt.0) then
+      if(.not.rtdb_put(irtdb,'prep:icount',mt_int,ncount,icount))
+     + call errquit('pre_input: rtdb_put failed',0)
+      if(.not.rtdb_cput(irtdb,'prep:scount',ncount,scount))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
       if(mgrid.gt.0) then

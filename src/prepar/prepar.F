@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.32 1999-11-04 22:53:08 d3j191 Exp $
+c $Id: prepar.F,v 1.33 2000-03-29 20:29:01 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -40,6 +40,11 @@ c
 c
       integer irtdb0,irtdb,itask
 c
+      integer mcount
+      parameter(mcount=10)
+      integer mfract
+      parameter(mfract=10)
+c
       character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
       character*255 filmod,prefix,filxyz,filqqq,filnoe,filpmf
       character*255 dir_s,dir_x,dir_u,dir_t
@@ -48,12 +53,14 @@ c
       character*3 slvnam
       character*80 source
       character*1 altloc,chain
-      character*4 scount
+      character*4 scount(mcount)
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
       integer lfnxyz,lfnqqq,lfnnoe,lfnpmf
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
-      integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount,icyren,model
+      integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount(mcount)
+      integer ncount,icyren,model
+      integer nfract,ifract(mfract)
       integer ignore
       real*8 gdist,qscale
       logical lstate
@@ -112,9 +119,10 @@ c     get info from rtdb
 c     ------------------
 c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
-     + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,icount,mgrid,
+     + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,mcount,ncount,
+     + icount,mgrid,
      + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,model,nxlnk,mdold,
-     + ignore,scount))
+     + ignore,scount,mfract,nfract,ifract))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     directories
@@ -177,7 +185,6 @@ c
       if(source(1:1).eq.' ') source='geometry'
       if(source(1:4).eq.'rtdb') source='geometry'
 c
-c
 c     check if the topology file exists
 c     ---------------------------------
 c
@@ -229,7 +236,7 @@ c
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
-     + icount,scount))
+     + mcount,ncount,icount,scount,mfract,nfract,ifract))
      + call errquit('pre_mkseq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2009) filseq(1:index(filseq,' ')-1)
