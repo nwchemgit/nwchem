@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.160 2003-09-22 22:49:12 d3j191 Exp $
+c $Id: cf_main.F,v 1.161 2003-10-13 18:32:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2233,10 +2233,10 @@ c
       vsq=half*(vs(i,1)*vs(i,1)+vs(i,2)*vs(i,2)+vs(i,3)*vs(i,3))
       deriv(13,1)=deriv(13,1)-wgt(isat(i),4)*vsq
       if(npgdec.gt.1) dera(6,isga(i))=dera(6,isga(i))-wgt(isat(i),4)*vsq
-      if(ipert2.and.ip2(13))
-     + ep2(3)=ep2(3)+vsq*(wgt(isat(i),1)/wgt(isat(i),2)-one)
-      if(ipert3.and.ip3(13))
-     + ep3(3)=ep3(3)+vsq*(wgt(isat(i),1)/wgt(isat(i),3)-one)
+      if(ipert2.and.ip2(13)) ep2(3)=ep2(3)+
+     + vsq*wgt(isat(i),1)*(wgt(isat(i),1)/wgt(isat(i),2)-one)
+      if(ipert3.and.ip3(13)) ep3(3)=ep3(3)+
+     + vsq*wgt(isat(i),1)*(wgt(isat(i),1)/wgt(isat(i),3)-one)
     1 continue
 c
       return

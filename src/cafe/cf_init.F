@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi)
-c $Id: cf_init.F,v 1.98 2003-09-23 19:04:25 d3j191 Exp $
+c $Id: cf_init.F,v 1.99 2003-10-13 18:32:39 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -289,10 +289,10 @@ c
       if(lpmf) then
       if(me.eq.0) then
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
-     + form='formatted',status='old',err=9999)
+     + form='formatted',status='old',err=9998)
       rewind(lfntop)
     6 continue
-      read(lfntop,100,end=9999,err=9999) string
+      read(lfntop,100,end=9998,err=9998) string
       if(string.ne.'pmf') goto 6
       read(lfntop,2000) itemp
  2000 format(2i5)
@@ -375,6 +375,8 @@ c
 c
       return
 
+ 9998 continue
+      call errquit('Potentials of mean force input not found',0)
  9999 continue
       call errquit('Distance restraints file not found',0)
 c
