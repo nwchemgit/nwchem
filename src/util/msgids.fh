@@ -13,9 +13,10 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.128 2002-06-21 17:23:00 sohirata Exp $
+c     $Id: msgids.fh,v 1.129 2002-10-23 22:53:24 sohirata Exp $
       parameter (msg_ftn_base = 25000)
 c     
+      integer msg_tcemem
       integer msg_tdmem
       integer msg_et_2e
       integer msg_hess_exy
@@ -1057,3 +1058,4 @@ c
       parameter(msg_et_2e = msg_ftn_base - 801) ! et 2e summation
 c
       parameter (msg_tdmem = msg_ftn_base - 802) ! tddft_memory
+      parameter (msg_tcemem = msg_ftn_base - 803) ! tce_memory
