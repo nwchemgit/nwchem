@@ -36,6 +36,8 @@
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Ss][Pp][Ss][Vv][Xx]\([^A-Za-z0-9_]\)/\1sspsvx\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Gg][Ee][Tt][Rr][Ss]\([^A-Za-z0-9_]\)/\1sgetrs\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Gg][Ee][Tt][Rr][Ff]\([^A-Za-z0-9_]\)/\1sgetrf\2/g
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Pp][Oo][Tt][Rr][Ff]\([^A-Za-z0-9_]\)/\1spotrf\2/g
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Pp][Oo][Tt][Rr][Ii]\([^A-Za-z0-9_]\)/\1spotri\2/g
 
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Aa][Xx][Pp][Yy]$/\1saxpy/
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Dd][Oo][Tt]$/\1sdot/
@@ -57,3 +59,5 @@
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Ss][Pp][Ss][Vv][Xx]$/\1sspsvx/
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Gg][Ee][Tt][Rr][Ss]$/\1sgetrs/
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Gg][Ee][Tt][Rr][Ff]$/\1sgetrf/
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Pp][Oo][Tt][Rr][Ff]$/\1spotrf/
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Pp][Oo][Tt][Rr][Ii]$/\1spotri/
