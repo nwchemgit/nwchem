@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.37 2004-03-16 05:05:26 bylaska Exp $
+* $Id: cpmdv5.F,v 1.38 2004-04-22 15:02:14 bylaska Exp $
 *
 
 ***********************************************************************
@@ -1081,7 +1081,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       call pspw_qmmm_end()
       call dplot_iteration_end()
       call frac_occ_end()
-      call Nose_end()
+      if (control_Nose()) call Nose_end()
 
       value = MA_free_heap(psir(2))
       value = MA_free_heap(Hpsi(2))
