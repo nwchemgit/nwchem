@@ -3,7 +3,7 @@
      ,      whichfunc,
      ,     rad,expo)
 c
-C$Id: dftg_gridssw.F,v 1.2 2000-04-15 01:24:22 edo Exp $
+C$Id: dftg_gridssw.F,v 1.3 2000-06-06 18:36:17 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -27,7 +27,7 @@ c
       integer k_rij,l_rij
       integer idp, ldp, 
      &        izeta, lzeta, idzeta, ldzeta,
-     &        lbp,ibp,lcmp,icmp
+     &        lbp,ibp
 c
 c     works for new grid
 c     combine xc_signf
@@ -64,8 +64,6 @@ c
 
       
       
-      if (.not.MA_Push_Get(mt_int,nqpts,'compr scr',lcmp,icmp))
-     &     call errquit('dftg_grssw: cannot allocate compr',0)
       if(lssw) then
          call xc_signf(AO_bas_han,  nbf_ao, iandex,natoms_l, 
      &        xyz,xyzm,ictr,
@@ -76,7 +74,7 @@ c
      &                    dbl_mb(izeta), dbl_mb(idzeta),
      &        dbl_mb(idp),ictr, natoms_l, 
      .        nq_orig, nqpts,iandex,
-     ,        int_mb(icmp),tol_rho,whichfunc)
+     ,        tol_rho,whichfunc)
       else
          call dftg_beckew(.true.,d_qwght, qwght, qxyz, xyzm,
      &        dbl_mb(k_Rij), rq, dbl_mb(ibp),
