@@ -105,7 +105,7 @@ endif
    if ($?MPIRUN_NPOPT) then   
       set NPOPT = $MPIRUN_NPOPT   
    else 
-      echo " mpirun processor definiton option assumed to be"
+      echo " mpirun processor definition option assumed to be"
       echo "   -np "
       echo " if this is not the case then :"
       echo " setenv MPIRUN_NPOPT -n "
