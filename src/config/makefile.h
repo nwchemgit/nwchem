@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.414 2003-07-01 00:29:45 edo Exp $
+# $Id: makefile.h,v 1.415 2003-07-01 20:25:55 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1401,8 +1401,13 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 endif
     ifeq ($(_CPU),x86_64)
-      FC=pgf90
-      CC=gcc
+# tested under RedHat gingin64 preview vs 8.0.95
+# MA problems (MMAP?) needed malloc replacement
+# with dmalloc or libhoard
+# PGI not tested
+# USE_INTEGER4=y need for g77
+# make FC=g77 CC=gcc USE_INTEGER4=y USE_GCC34=y
+#
       MAKEFLAGS = -j 2 --no-print-directory
       COPTIMIZE = -O1
 
@@ -1414,18 +1419,22 @@ endif
         LDOPTIONS =   -g77libs   
       endif
       ifeq ($(FC),g77)
-        FOPTIONS  +=  -fno-globals -Wno-globals  -Wunused  -fno-silent
+#        FOPTIONS  +=  -fno-globals# -Wno-globals # 
+        FOPTIONS  += -Wunused  -fno-silent
         FOPTIONS  += -fno-second-underscore  -fno-f90 
-        FOPTIMIZE  += -O3 -ffast-math -mred-zone -fssa 
-#        FOPTIMIZE  += -O3 -ffast-math -mno-red-zone -fssa 
+        FOPTIMIZE  += -O3 -ffast-math #-fssa 
         FOPTIMIZE  += -funroll-loops -fstrength-reduce -fno-move-all-movables -fno-reduce-all-givs
         FOPTIMIZE  += -finline-functions -funroll-all-loops
-        FOPTIMIZE  +=  -mfpmath=sse -fstrict-aliasing -fschedule-insns2
+        FOPTIMIZE  += -mfpmath=sse -fstrict-aliasing 
+        ifdef USE_GCC34
+          FOPTIMIZE  += -march=k8 -mtune=k8
+        endif
         FDEBUG = -Os -g
         LDOPTIONS =   -Wl,--relax  
       endif
-      ifeq ($(CC),gcc)
-        COPTIONS   =   -O3 -funroll-loops -ffast-math -mno-red-zone
+      COPTIONS   =   -O3 -funroll-loops -ffast-math  
+      ifdef USE_GCC34
+        COPTIONS  +=   -march=k8 -mtune=k8
       endif
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 endif
