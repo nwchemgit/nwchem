@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.2 2002-07-08 20:27:23 marat Exp $
+# $Id: GNUmakefile,v 1.3 2002-07-12 21:23:45 marat Exp $
 #
-      SUBDIRS = cpsd paw_basis
+      SUBDIRS = cpsd paw_basis paw_utils paw_matrix
 
           OBJ = task_paw.o
 
@@ -10,7 +10,7 @@
 
    USES_BLAS = 
 
-  LIB_INCLUDES = 
+  LIB_INCLUDES = -I./include
 
   LIB_DEFINES = 
 
@@ -19,6 +19,7 @@
 
 include ../../config/makefile.h
 include ../../config/makelib.h
+include makefile.h
 
 
 
