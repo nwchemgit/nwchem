@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.38 1998-02-12 17:55:06 d3e129 Exp $
+c $Id: bas_input.F,v 1.39 1998-04-29 07:29:50 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -11,7 +11,7 @@ c $Id: bas_input.F,v 1.38 1998-02-12 17:55:06 d3e129 Exp $
 c
 c   basis [<name>] [library [<standard set>] [file <filename>] \
 c         [spherical|cartesian] [segment||nosegment] [print|noprint]\
-c         [ecp ecp_name]
+c         [ecpset ecp_name] [soset so_name]
 c
 c     tag library [tag in library] <standard set> [file <filename>]
 c     tag <shell type>
@@ -31,6 +31,18 @@ c       <r-exponent> <exponent> <contraction coefficients>
 c       ...
 c     end ecp
 c
+c also used for so potential input
+c
+c   so [<name>] [library [<standard set>] [file <filename>] \
+c       [spherical|cartesian] [segment||nosegment] [print] [noprint]
+c
+c     tag nelec <integer>
+c     tag library [tag in library] <standard set> [file <filename>]
+c     tag <shell type>
+c       <r-exponent> <exponent> <contraction coefficients>
+c       ...
+c     end so
+c
 c     parse the main directive
 c
 c::functions
@@ -40,28 +52,34 @@ c::passed
       integer rtdb              ! [input] handle to database
 c::local
       integer nopt
-      parameter (nopt = 10)
+      parameter (nopt = 11)
       character*10 opts(nopt)
-      character*255 test, name, filename, standard, ecpname
+      character*255 test, name, filename, standard
+      character*255 ecpname, soname
       character*1000 errmsg
-      logical status, ospherical, osegment, oprint, o_add_ecpname
-      logical oIs_ecp
+      logical status, ospherical, osegment, oprint
+      logical o_add_ecpname, o_add_soname
+      logical oIs_ecp, oIs_so
       integer ind, basis
       logical bas_add_ucnt_init, bas_set_spherical
       external bas_add_ucnt_init, bas_set_spherical
-      data opts /'spherical', 'cartesian', 'segment', 'nosegment',
-     $     'library', 'file', 'print', 'noprint', 'ecpset', 'version'/
+      data opts /
+     &    'spherical', 'cartesian', 'segment', 'nosegment', 'library',
+     &    'file',      'print',     'noprint', 'ecpset',    'soset',
+     &    'version'/
 c
       ecpname = '                                                '
+      soname = '                                                '
 c
 c     Check is a basis/ecp directive and read in name of the basis
 c
       call inp_set_field(0)
       status = inp_a(test)
       oIs_ecp = inp_compare(.false.,test,'ecp')
+      oIs_so = inp_compare(.false.,test,'so')
       status = status.and.
      &    (inp_compare(.false.,test,'basis') .or.
-     &     oIs_ecp)
+     &     oIs_ecp .or. oIs_so)
       if (.not.status) goto 10000
 *:debug-s
 *debug:      write(luout,*)' debug output - start'
@@ -79,7 +97,8 @@ c
       ospherical = .false. ! Default is cartesian
       osegment   = .true.  ! Default is to force segmentation
       oprint     = .true.  ! Default is to print the basis on input
-      o_add_ecpname = .false. ! Default is to not associate a name
+      o_add_ecpname = .false. ! Default is to not associate an ecp name
+      o_add_soname = .false.  ! Default is to not associate a so name
 c
  10   if (inp_a(test)) then
 c
@@ -89,14 +108,15 @@ c     Not a recognized option ... the name of the basis or an error
 c
             if ((name.ne.' ') .or. (inp_cur_field() .ne. 2)) then
                write(6,*)
-     &            ' bas_input: basis/ecp name must be first option'
+     &            ' bas_input: basis/ecp/so name must be first option'
                goto 10000
             endif
             name = test
             goto 10
          endif
 c
-         goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000) ind
+         goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
+     &         1100) ind
          goto 10000
 c
 c     spherical
@@ -143,16 +163,27 @@ c     ecpset "name"
 c
 00900    o_add_ecpname = .true.
          if (.not. inp_a(ecpname)) goto 10000
-         if (oIs_ecp) then 
+         if (oIs_ecp.or.oIs_so) then 
            errmsg = 'bas_input: you are attaching an ecp to '
-           errmsg = errmsg//'an ecp basis.  Not possible'
+           errmsg = errmsg//'an so or ecp basis.  Not possible'
+           call errquit(errmsg, 911)
+         endif
+         goto 10
+c
+c     soset "name"
+c
+01000    o_add_soname = .true.
+         if (.not. inp_a(soname)) goto 10000
+         if (oIs_so.or.oIs_ecp) then 
+           errmsg = 'bas_input: you are attaching an so to '
+           errmsg = errmsg//'an so or ecp basis.  Not possible'
            call errquit(errmsg, 911)
          endif
          goto 10
 c
 c print basis version info
 c
-01000    continue
+01100    continue
          if (.not.bas_version()) call errquit
      &       ('bas_input: bas_version failed ',911)
          goto 10
@@ -172,6 +203,8 @@ c     Open a new basis set to receive the new data
 c
       if (oIs_ecp) then
         if (name .eq. ' ') name = 'ecp basis'
+      else if (oIs_so) then
+        if (name .eq. ' ') name = 'so potential'
       else
         if (name .eq. ' ') name = 'ao basis'
       endif
@@ -181,10 +214,19 @@ c
         if (.not.bas_set_ecp_basis(basis)) call errquit
      &      ('bas_input: ecp_set_basis failed',911)
       endif
+      if (oIs_so) then
+        if (.not.bas_set_so_basis(basis)) call errquit
+     &      ('bas_input: so_set_basis failed',911)
+      endif
       if (o_add_ecpname) then
         write(6,*)' ecp basis set associated is ',ecpname
         if (.not.bas_set_ecp_name(basis,ecpname)) call errquit
      &      ('bas_input: bas_set_ecp_name failed',911)
+      endif
+      if (o_add_soname) then
+        write(6,*)' so basis set associated is ',soname
+        if (.not.bas_set_so_name(basis,soname)) call errquit
+     &      ('bas_input: bas_set_so_name failed',911)
       endif
 c
 c     Process standard basis sets directive ... not yet done
@@ -197,7 +239,7 @@ c    for basis functions or standard sets on specific tags
 c
       if (.not.bas_add_ucnt_init(basis)) call errquit
      &    ('bas_input: failed to init add_ucnt ',911)
-      call bas_input_body(basis, osegment, oIs_ecp)
+      call bas_input_body(basis, osegment)
 c
       if (.not. bas_set_spherical(basis, ospherical))
      &      call errquit
@@ -223,23 +265,26 @@ c
       return
 c
 10000 write(6,10001)
-10001 format(' basis|ecp [<name>] [library <standard set>] \\',/,
+10001 format(' basis|ecp|so [<name>] [library <standard set>] \\',/,
      $    '      [file <filename>] [spherical|cartesian] [segment]\\',
-     &    '      [print|noprint] [ecp name_of_ecp]')
+     &    '      [print|noprint] [ecpset name_of_ecp]',
+     &    ' [soset name_of_so_potential]')
       call errquit('bas_input: invalid format for basis directive', 0)
 c
       end
 *.....................................................................
-      subroutine bas_input_body(basis, osegment, oIs_ecp)
+      subroutine bas_input_body(basis, osegment)
       implicit none
 #include "bas.fh"
 #include "geom.fh"
 #include "inp.fh"
 #include "baslibraryP.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "ecpso_decP.fh"
 c::passed
       integer basis             ! [input]
       logical osegment          ! [input]
-      logical oIs_ecp            ! [input]
 c
 c     Read the body of a basis directive that describes the
 c     tags/exponents/contraction coefficients 
@@ -251,8 +296,8 @@ c       <exponent> <contraction coefficients>
 c       ...
 c     end basis
 c
-c for ecp
-c     tag nelec <integer>      
+c for ecp or so 
+c     tag nelec <integer>      ! only for ecp
 c     tag library [<tag in library>] <standard set> [file <filename>]
 c     tag <contraction type>
 c       <r-exponent> <exponent> <contraction coefficients>
@@ -262,7 +307,7 @@ c
 c
 c     
       character*16 tag, tag_in_lib
-      character*16 cont_type
+      character*16 type_of_cont
       character*255 field, standard, filename
       integer nltypes           ! No. of known angular momentum types
       integer nsptypes          ! No. of known sp type shells
@@ -271,6 +316,8 @@ c
       character*1 ltypes(nltypes)
       character*2 sptypes(nsptypes)
       character*8 opts(nopts)
+      logical oIs_ecp            
+      logical oIs_so
       integer spvalues(nsptypes)
       integer num_elec
       integer l_value, ind
@@ -278,6 +325,11 @@ c
       data sptypes / 'sp', 'l ', 'ul'/
       data spvalues/  -1 , -1 ,   -1 /
       data opts / 'library', 'file', 'nelec' /
+c
+#include "ecpso_sfnP.fh"
+c
+      oIs_ecp = Is_ECP_in(basis)
+      oIs_so  = Is_SO_in(basis)
 c
 c     Input a new line
 c
@@ -294,16 +346,16 @@ c
 *. . . . . . . . . . . . . . . . . . . . . . ! End of basis directive
       if (inp_compare(.false., 'end', tag)) goto 9000 
 c
-      if (.not. inp_a(cont_type)) goto 10000
+      if (.not. inp_a(type_of_cont)) goto 10000
 c     
-      if (inp_match(nltypes, .false., cont_type, ltypes, ind)) then
+      if (inp_match(nltypes, .false., type_of_cont, ltypes, ind)) then
 c     
 c  The contraction is a simple shell or an ecp projector shell of the 
 c  given type
 c     
         l_value = ind - 1
       else if (
-     &      inp_match(nsptypes, .false., cont_type,sptypes,ind)) then
+     &      inp_match(nsptypes, .false., type_of_cont,sptypes,ind)) then
 c     
 c     The contraction is an sp-type shell or an ecp Ulocal shell
 c     
@@ -360,14 +412,14 @@ c     or explicit input
 c
       if (standard .ne. ' ') then
          call bas_tag_lib(basis, osegment, tag, tag_in_lib, standard,
-     $        filename, oIs_ecp)
+     $        filename)
          goto 10
       endif
 c
 c     Fall thru to here to read in a set of contraction coefficients
 c
       call bas_input_cont(basis, osegment, tag, l_value,
-     &    'user specified', oIs_ecp)
+     &    'user specified')
 c
 c     Have already read in the next line ... parse it
 c
@@ -396,13 +448,15 @@ c
 c
       end
 *.....................................................................
-      subroutine bas_input_cont(basis, osegment, tag, l_value, stdtag,
-     &    oIs_ecp)
+      subroutine bas_input_cont(basis, osegment, tag, l_value, stdtag)
       implicit none
 #include "stdio.fh"
 #include "bas.fh"
+#include "basdeclsP.fh"
+#include "basP.fh"
 #include "geom.fh"
 #include "inp.fh"
+#include "ecpso_decP.fh"
 c::functions
       logical bas_add_ucnt
       external bas_add_ucnt
@@ -412,13 +466,15 @@ c
       character*16 tag          ! [input] tag string
       integer l_value           ! [input] l value of contraction
       character*(*) stdtag      ! [input] standard name
-      logical oIs_ecp            ! [input] is this an ecp basis
 c
       integer ngen, iprim, nprim, i, j, nptmp
       integer cont_max          ! Max. no. of contractions
       integer prim_max          ! Max. no. of primitives
       logical status
       character*1000 errmsg
+      logical oIs_ecp            ! is this an ecp basis
+      logical oIs_so             ! is this an so basis
+      logical o_basis
       logical rex_okay
       logical ostat_f, ostat_field, ostat_split
       parameter (cont_max = 30, prim_max = 30)
@@ -426,6 +482,11 @@ c
      $     etmp(prim_max), ctmp(prim_max),
      &     rex(prim_max), rex_tmp(prim_max)
 c
+#include "ecpso_sfnP.fh"
+c
+      oIs_ecp = Is_ECP_in(basis)
+      oIs_so  = Is_SO_in(basis)
+      o_basis = .not.(oIs_ecp.or.oIs_so)
 c
 c    The SUBSEQUENT lines contain coefficients and exponents
 c    for a contraction ... read them in and add the contraction to the
@@ -434,7 +495,7 @@ c    positioned having read the end directive
 c
       if (.not. inp_read()) goto 10000
 c
-      if (oIs_ecp) then
+      if (oIs_ecp.or.oIs_so) then
         ngen = inp_n_field() - 2   ! rex, expn, cont coeff(s)
       else
         ngen = inp_n_field() - 1   ! expn, cont coeff(s)
@@ -443,16 +504,16 @@ c
       if (ngen .lt. 1) goto 10000
       if (ngen .gt. cont_max) then
         errmsg = 'bas_input_cont: '//
-     &        'too many contractions - increase cont_max'
+     &        'too many contractions - increase cont_max='
         call errquit(errmsg,cont_max)
       endif
-      if ((.not.oIs_ecp).and.(l_value.eq.-1 .and. ngen.ne.2))
+      if (o_basis.and.(l_value.eq.-1 .and. ngen.ne.2))
      &    call errquit
      &    ('bas_input_cont: sp shell requires exactly 2 coeffs',ngen)
 c
       do iprim = 1, prim_max
 c
-        if (oIs_ecp) then
+        if (oIs_ecp.or.oIs_so) then
           ostat_f = inp_f(rex(iprim))
           ostat_f = ostat_f .and. inp_f(expnt(iprim))
         else
@@ -467,7 +528,7 @@ c
         else if (expnt(iprim) .le. 0.0d0) then
           call errquit('bas_input_cont: invalid exponent', 0)
         else
-          if (oIs_ecp) then
+          if (oIs_ecp.or.oIs_so) then
             ostat_field = (inp_n_field() - 2) .ne. ngen
           else
             ostat_field = (inp_n_field() - 1) .ne. ngen
@@ -548,18 +609,18 @@ c     simple shell or all ecp shells
             status = status .and.
      $          bas_add_ucnt(basis, tag, l_value, 1, nptmp, 
      $          rex_tmp, etmp, ctmp, prim_max,
-     &          stdtag, oIs_ecp)
+     $          stdtag)
           enddo
         else
 c     sp shell
           status = status .and.
      $        bas_add_ucnt(basis, tag, 0, 1, nprim, 
      $        rex, expnt, coeff(1,1), prim_max,
-     &        stdtag, oIs_ecp)
+     &        stdtag)
           status = status .and.
      $        bas_add_ucnt(basis, tag, 1, 1, nprim, 
      $        rex, expnt, coeff(1,2), prim_max,
-     &        stdtag, oIs_ecp)
+     &        stdtag)
         endif
       else
 c     
@@ -568,7 +629,7 @@ c
         status = status .and.
      $      bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $      rex, expnt, coeff, prim_max,
-     &      stdtag, oIs_ecp)
+     &      stdtag)
       endif
       if (.not. status) call errquit
      $        ('bas_input_cont: bas_add_ucnt failed!!', 0)
@@ -581,7 +642,7 @@ c
      $       '           <exponent> <contraction coefficients>',/,
      $       '           ... ',/,
      $       ' end basis/ecp')
-      call errquit('bas_input_body: format error in the input', 0)
+      call errquit('bas_input_cont: format error in the input', 0)
 10100 format(/,' **** WARNING Zero Coefficient **** on atom "', a16,
      &    '"',/,' angular momentum value:',i2,
      &    '  standard basis set name: "',a,'"',/,
@@ -590,24 +651,26 @@ c
       end
 *.....................................................................
       subroutine bas_tag_lib(basis, osegment, tag, tag_in_lib, 
-     $     standard, filename, oIs_ecp)
+     $     standard, filename)
       implicit none
 #include "bas.fh"
+#include "basdeclsP.fh"
+#include "basP.fh"
 #include "geom.fh"
 #include "inp.fh"
+#include "ecpso_decP.fh"
       integer basis             ! [input] basis handle
       logical osegment          ! [input] segment if true
       character*16 tag          ! [input] tag
       character*16 tag_in_lib   ! [input] tag to lookup in library
       character*(*) standard    ! [input] name of standard basis set
       character*(*) filename    ! [input] name of library file
-      logical oIs_ecp           ! [input] ecp library function read?
 c
       character*5 id_string
       character*2 symbol
       character*16 element
       character*255 string
-      character*4 cont_type
+      character*4 type_of_cont
       integer atn, lenn
       integer nltypes           ! No. of known angular momentum types
       integer nsptypes          ! No. of known sp type shells
@@ -616,6 +679,8 @@ c
       character*2 sptypes(nsptypes)
       character*255 field
       logical status
+      logical oIs_ecp           ! ecp library function read?
+      logical oIs_so            ! so library function read?
       logical inp_search_fast
       external inp_search_fast
       integer spvalues(nsptypes)
@@ -624,6 +689,11 @@ c
       data ltypes /'s','p','d','f','g','h','i'/
       data sptypes / 'sp', 'l ', 'ul'/
       data spvalues/  -1 , -1  ,  -1 /
+c
+#include "ecpso_sfnP.fh"
+c
+      oIs_ecp = Is_ECP_in(basis)
+      oIs_so  = Is_SO_in(basis)
 c
 c     Try to read in a standard basis set for the atom type
 c     associated with this tag
@@ -662,6 +732,8 @@ c
       call inp_init(33,6)
       if (oIs_ecp) then
         id_string = 'ecp'
+      else if (oIs_so) then
+        id_string = 'so'
       else
         id_string = 'basis'
       endif
@@ -692,7 +764,7 @@ c
  20   call inp_set_field(0)
       if (.not. inp_a(field)) goto 10000 ! tag
       if (inp_compare(.false., 'end', field)) goto 9000 ! End
-      if (.not. inp_a(field)) goto 10000 ! cont_type or 'nelec'
+      if (.not. inp_a(field)) goto 10000 ! type_of_cont or 'nelec'
       if (inp_compare(.false.,'nelec', field)) then
          if (.not.inp_i(num_elec)) goto 10000
          if (.not.ecp_set_num_elec(basis,tag,num_elec,'unknown'))
@@ -704,16 +776,16 @@ c
          goto 20
       else
          call inp_prev_field()
-         if (.not. inp_a(cont_type)) goto 10000
+         if (.not. inp_a(type_of_cont)) goto 10000
       endif
 c
-      if (inp_match(nltypes, .false., cont_type, ltypes, ind)) then
+      if (inp_match(nltypes, .false., type_of_cont, ltypes, ind)) then
 c     
 c     The contraction is a simple shell
 c     
          l_value = ind - 1
       else if (
-     &       inp_match(nsptypes, .false., cont_type,sptypes,ind)) then
+     &       inp_match(nsptypes,.false.,type_of_cont,sptypes,ind)) then
 c     
 c     The contraction is an sp-type shell
 c     
@@ -725,7 +797,7 @@ c
 c     Have tag and l_value ... read in the contraction coeffcients
 c
       call bas_input_cont(basis, osegment, tag, l_value,
-     &    standard, oIs_ecp)
+     &    standard)
       goto 20
 c
  9000 close(33)

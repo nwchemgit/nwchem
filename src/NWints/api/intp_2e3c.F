@@ -1,6 +1,6 @@
       subroutine intp_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
      &       lscr, scr, leri, eri)
-c $Id: intp_2e3c.F,v 1.6 1997-04-25 00:41:18 d3e129 Exp $
+c $Id: intp_2e3c.F,v 1.7 1998-04-29 07:27:42 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two 
@@ -18,6 +18,7 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c
 c::external subroutines used
 c errquit
@@ -48,6 +49,7 @@ c:: local
       integer Lp, p_prim, p_gen, p_iexp, p_icfp, p_cent
       integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
+      integer nintx
       double precision xyz_new_i(3)  ! new coordinates for ish function
       double precision xyz_new_j(3)  ! new coordinates for jsh function
 c
@@ -73,8 +75,6 @@ c
 c
 c  check if spherical/gencon/sp shell
 c
-      call int_nospherical_check(brain,'intp_2e3c')
-      call int_nospherical_check(ketin,'intp_2e3c')
       call int_nogencont_check(brain,'intp_2e3c:bra')
       call int_nogencont_check(ketin,'intp_2e3c:ket')
       call int_nospshell_check(brain,'intp_2e3c:bra')
@@ -140,6 +140,18 @@ c......................... canAB    canCD    canPQ
 c............ dryrun
      &         .false., scr, lscr)
 c
+        if (bas_spherical(ket).or.bas_spherical(bra)) then
+          nintx = int_nbf_x(Lp)*int_nbf_x(Lc)*int_nbf_x(Ld)
+          if (nintx.lt.lscr)
+     &        call errquit
+     &        ('intp_2e3c: not enough scratch for spherical transform',
+     &        911)
+          call spcart_3ctran(eri,scr,
+     &        int_nbf_x(Lp),int_nbf_s(Lp),Lp,p_gen,bas_spherical(bra),
+     &        int_nbf_x(Lc),int_nbf_s(Lc),Lc,c_gen,bas_spherical(ket),
+     &        int_nbf_x(Ld),int_nbf_s(Ld),Ld,d_gen,bas_spherical(ket),
+     &        .false.)          
+        endif
       else
         write(luout,*)'intp_2e3c: could not do nw integrals'
         write(luout,*)' brain :',brain

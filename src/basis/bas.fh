@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.19 1997-11-12 22:19:11 d3e129 Exp $
+c $Id: bas.fh,v 1.20 1998-04-29 07:29:49 d3e129 Exp $
 c:bas.fh
 c
       logical bas_checksum
@@ -48,9 +48,11 @@ c
       logical bas_norm_print
 c
       logical ecp_check_handle
+      logical so_check_handle
       logical ecp_get_rexponent
       logical ecp_set_rexponent
       logical ecp_print
+      logical so_print
       logical bas_set_ecp_name
       logical bas_get_ecp_name
       logical bas_set_ecp_handle
@@ -61,8 +63,27 @@ c
       logical ecp_set_parent_handle
       logical ecp_get_parent_handle
 c
+      logical bas_set_so_name
+      logical bas_get_so_name
+      logical bas_set_so_handle
+      logical bas_get_so_handle
+      logical bas_set_so_basis
+c
       logical bas_cont_tag
       logical bas_is_spherical
+c
+      logical ecpso_ncent
+      logical so_ncent
+      logical ecp_ncent
+      logical ecpso_list_ncent
+      logical so_list_ncent
+      logical ecp_list_ncent
+      logical ecpso_get_coords
+      logical so_get_coords
+      logical ecp_get_coords
+      logical bas_num_coef
+      logical bas_num_prim
+      logical bas_isce
 c
       external bas_version        
       external bas_create         
@@ -122,8 +143,29 @@ c
       external ecp_set_parent_handle
       external ecp_get_parent_handle
 c
+      external bas_set_so_name
+      external bas_get_so_name
+      external bas_set_so_handle
+      external bas_get_so_handle
+      external bas_set_so_basis
+c
       external bas_cont_tag
 c
       external bas_checksum
       external bas_cando_mpoles
       external bas_is_spherical
+      external so_check_handle
+      external so_print
+c
+      external ecpso_ncent
+      external so_ncent
+      external ecp_ncent
+      external ecpso_list_ncent
+      external so_list_ncent
+      external ecp_list_ncent
+      external ecpso_get_coords
+      external so_get_coords
+      external ecp_get_coords
+      external bas_num_coef
+      external bas_num_prim
+      external bas_isce

@@ -1,5 +1,5 @@
-      logical function int_ecp_init(ecpidin,indx_grad)
-* $Id: int_ecp.F,v 1.11 1997-11-14 08:24:07 d3e129 Exp $
+      logical function int_ecp_init(ecpidin,soidin,indx_grad)
+* $Id: int_ecp.F,v 1.12 1998-04-29 07:28:34 d3e129 Exp $
       implicit none
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
@@ -20,21 +20,27 @@
 #include "apiP.fh"
 #include "ecp_nwc.fh"
 #include "int_nbf.fh"
+#include "stdio.fh"
 *::passed
       integer ecpidin   ! [input] ecp basis handle
+      integer soidin    ! [input] so potential handle
       integer indx_grad ! [input] gradient level 0=energy 1=grad 2=hess
 *::local
 c
       integer ecpid                 ! lexical index for ecp basis handle
+      integer soid                  ! lexical index for ecp basis handle
       integer geom                  ! geometry handle
-      integer num_ecp               ! number of ecp centers (counted)
+      integer geomecp               ! geometry handle from ecp
+      integer geomso                ! geometry handle from so pot.
+*      integer num_ecp               ! number of ecp centers (counted)
       integer ncenters              ! number of centers
       integer n_zeta_c_e            ! length of ecp exponent array
       integer n_zeta_c_c            ! length of ecp coefficient array
       integer nz_add                ! increment for exp/coef counters
-      integer icent                 ! counter for center loop
-      integer iucent                ! unique center of icent
+*      integer icent                 ! counter for center loop
+*      integer iucent                ! unique center of icent
       integer l_ecp_sz              ! size of ang info for ecp pointer arrays
+      integer l_so                  ! maximum angular momentum of so pot.
       integer lmax_both
       integer idum
       integer basis_handle
@@ -44,7 +50,9 @@ c
       integer i_cont, ic, iuc, ie, icf, inp, ing, il, ig
       integer j_cont, jc, juc, je, jcf, jnp, jng, jl, jg
       integer lecp_mem, mem_ecp
+*      integer h_tlist, k_tlist
       integer nV
+      logical o_both, o_ecp, o_so
       double precision dpdum(2)
 *
       external ecp_init_bd
@@ -71,115 +79,179 @@ c.. check initialization
         call errquit('int_ecp_init error',911)
       endif
       init_ecp_init = .true.
+c.. determine if ecp/so or both are needed
+      o_ecp = ecpidin.ne.0
+      o_so  = soidin.ne.0
+      o_both = o_ecp.and.o_so
 c.. lexical basis index
-      ecpid = ecpidin + BASIS_HANDLE_OFFSET
+      ecpid = -1
+      soid = -1
+      if (o_ecp) ecpid = ecpidin + BASIS_HANDLE_OFFSET
+      if (o_so)  soid  = soidin  + BASIS_HANDLE_OFFSET
 
 c.. determine geom
-      geom = ibs_geom(ecpid)
-      
-*      build up ecp information for heap
+      if (o_ecp) then
+        geomecp = ibs_geom(ecpid)
+        geom = geomecp
+      endif
+      if (o_so) then
+        geomso  = ibs_geom(soid)
+        geom = geomso
+      endif
+      if (o_both) then
+        if (geomso.ne.geomecp) then
+          write(luout,*)' geometry used to load ecp ',geomecp
+          write(luout,*)' geometry used to load so  ',geomso
+          call errquit('int_ecp_init: ecp/so geometry mismatch',911)
+        endif
+        geom = geomecp
+      endif
+*
+*      build up ecp/so information for heap
 c....
-
-c.. get number of ecp centers
-      if (.not.geom_ncent_ecp(geom,n_ecp)) call errquit
-     &    ('int_ecp: geom_ncent_ecp failed?',911)
-
-c.. get number of centers
+c.. get total number of centers
       if (.not.geom_ncent(geom,ncenters)) call errquit
-     &    ('int_ecp: geom_ncent failed?',911)
+     &    ('int_ecp_init: geom_ncent failed?',911)
+c.. get number of ecp/so/both centers
+      n_ecp = 0
+      if (o_both) then
+        if (.not.ecpso_ncent
+     &      (geom,soidin,ecpidin,n_ecp)) call errquit
+     &      ('int_ecp_init: ecpso_ncent failed',911)
+      else if (o_ecp) then
+        if (.not.ecp_ncent
+     &      (geom,ecpidin,n_ecp)) call errquit
+     &      ('int_ecp_init: ecp_ncent failed?',911)
+      else if (o_so) then
+        if (.not.so_ncent
+     &      (geom,soidin,n_ecp)) call errquit
+     &      ('int_ecp_init: so_ncent failed',911)
+      else
+        call errquit('int_ecp_init: no so or ecp basis',911)
+      endif
+      if (n_ecp.eq.0) call errquit
+     &    ('int_ecp_init: fatal error no ecp/so centers',911)
 
-c.. allocate space for coordintates of ecp centers
+c.. allocate space for coordintates of ecp/so centers
       if (.not.ma_alloc_get(mt_dbl,
      &    (3*n_ecp),
      &    'ecp center coords',
      &    h_xyzecp, k_xyzecp)) call errquit
-     &    (' int_ecp: ecp center coords ma failed ',911)
+     &    (' int_ecp_init: ecp center coords ma failed ',911)
 
 c.. get coordinates for ecp centers.
-      if (.not.geom_coords_ecp(geom,dbl_mb(k_xyzecp),n_ecp))
-     &    call errquit('int_ecp: geom_coords_ecp failed',911)
+      if (o_both) then
+        if (.not.ecpso_get_coords(geom,soidin,ecpidin,
+     &      n_ecp,dbl_mb(k_xyzecp)))
+     &    call errquit('int_ecp_init: ecpso_get_coords failed',911)
+      else if (o_ecp) then
+        if (.not.ecp_get_coords(geom,ecpidin,
+     &      n_ecp,dbl_mb(k_xyzecp)))
+     &    call errquit('int_ecp_init: ecp_get_coords failed',911)
+      else if (o_so) then
+        if (.not.so_get_coords(geom,soidin,
+     &      n_ecp,dbl_mb(k_xyzecp)))
+     &    call errquit('int_ecp_init: so_get_coords failed',911)
+      else
+        call errquit('int_ecp_init: no so or ecp basis',911)
+      endif
 *      write(6,*)' coordinates after read '
 *      call output(dbl_mb(k_xyzecp),1,3,1,n_ecp,3,n_ecp,1)
 c
 c...       now comes the tricky part
 c
 c allocate and fill an exponent and coeff array for the ecp basis
-c.. this MUST be changed when general contractions for ecp bases are used!!!!!
 c
 *      write(6,*)'inside ecp init'
 *      if (.not.ecp_print(ecpidin)) stop ' ecp_print error'
-      num_ecp = 0
-      n_zeta_c_e = 0
-      n_zeta_c_c = 0
-      do icent=1,ncenters
-*        write(6,*)' icent = ',icent,oecpcent(icent,geom)
-        if (oecpcent(icent,geom)) then
-          num_ecp = num_ecp + 1
-          iucent = sf_ibs_ce2uce(icent,ecpid)
-*          write(6,*)' iucent',iucent
-          nz_add = infbs_tags(TAG_NPRIM,iucent,ecpid)
-*          write(6,*)' nz_add 1 exp ',nz_add
-          n_zeta_c_e = n_zeta_c_e + nz_add
-          nz_add = infbs_tags(TAG_NCOEF,iucent,ecpid)
-*          write(6,*)' nz_add 2 coef ',nz_add
-          n_zeta_c_c = n_zeta_c_c + nz_add
-        endif
-      enddo
-*.. error check ecp centers
-      if (num_ecp.ne.n_ecp) call errquit
-     &    ('int_ecp_init: diff number of ecp centers',
-     &    (num_ecp-n_ecp))
-
+      if (o_both) then
+        if (.not.bas_num_prim(ecpidin,nz_add)) call errquit
+     &      ('int_ecp_init:bas_num_prim failed?',911)
+        n_zeta_c_e = nz_add
+        if (.not.bas_num_prim(soidin,nz_add)) call errquit
+     &      ('int_ecp_init:bas_num_prim failed?',911)
+        n_zeta_c_e = n_zeta_c_e + nz_add
+        if (.not.bas_num_coef(ecpidin,nz_add)) call errquit
+     &      ('int_ecp_init:bas_num_coef failed?',911)
+        n_zeta_c_c = nz_add
+        if (.not.bas_num_coef(soidin,nz_add)) call errquit
+     &      ('int_ecp_init:bas_num_prim failed?',911)
+        n_zeta_c_c = n_zeta_c_c + nz_add
+      else if (o_ecp) then
+        if (.not.bas_num_prim(ecpidin,nz_add)) call errquit
+     &      ('int_ecp_init:bas_num_prim failed?',911)
+        n_zeta_c_e = nz_add
+        if (.not.bas_num_coef(ecpidin,nz_add)) call errquit
+     &      ('int_ecp_init:bas_num_coef failed?',911)
+        n_zeta_c_c = nz_add
+      else if (o_so) then
+        if (.not.bas_num_prim(soidin,nz_add)) call errquit
+     &      ('int_ecp_init:bas_num_prim failed?',911)
+        n_zeta_c_e = nz_add
+        if (.not.bas_num_coef(soidin,nz_add)) call errquit
+     &      ('int_ecp_init:bas_num_coef failed?',911)
+        n_zeta_c_c = nz_add
+      else
+        call errquit('int_ecp_init: no so or ecp basis',911)
+      endif
 *.. error check for general contraction
       if (n_zeta_c_e.ne.n_zeta_c_c) then
-        write(6,*)' possible general contraction on ecp basis'
+        write(6,*)' possible general contraction on ecp/so basis'
         call errquit ('int_ecp_init: n_zeta_c_e .ne. n_zeta_c_c',
      &      (n_zeta_c_e- n_zeta_c_c))
       endif
       n_zeta_c = n_zeta_c_e ! use e one
 c
-c.. allocate space for ecp exponents and ecp coefficients
+c.. allocate space for ecp/so exponents and ecp/so coefficients
       if (.not.ma_alloc_get(mt_dbl,
      &    n_zeta_c,
      &    'ecp exponents',
      &    h_ecp_e, k_ecp_e)) call errquit
-     &    (' int_ecp: ecp exponent ma failed ',911)
+     &    (' int_ecp_init: ecp exponent ma failed ',911)
       if (.not.ma_alloc_get(mt_dbl,
      &    n_zeta_c,
      &    'ecp coefficients',
      &    h_ecp_c, k_ecp_c)) call errquit
-     &    (' int_ecp: ecp coefficients ma failed ',911)
+     &    (' int_ecp_init: ecp coefficients ma failed ',911)
 c
 c... determine maximum angular momentum of ecp basis
-      if (.not.bas_high_angular(ecpidin,l_ecp)) call errquit
-     &    ('int_ecp: bas_high_angular failed',911)
+      l_ecp = 0
+      if (o_ecp) then
+        if (.not.bas_high_angular(ecpidin,l_ecp)) call errquit
+     &      ('int_ecp_init:ecp: bas_high_angular failed',911)
+      endif
+      if (o_so) then
+        if (.not.bas_high_angular(soidin,l_so)) call errquit
+     &      ('int_ecp_init:so: bas_high_angular failed',911)
+        l_ecp = max(l_ecp,l_so)
+      endif
 c
       l_ecp_sz = l_ecp + 2       !    (-1->Lval)
 c
-c... allocate space for n_prim_C(0:2,-1:l_ecp_max,n_C),
+c... allocate space for n_prim_C(0:2,-1:l_ecp_max,n_C*2),
       if (.not.ma_alloc_get(mt_int,
-     &    (3*l_ecp_sz*n_ecp),
+     &    (3*l_ecp_sz*n_ecp*2),
      &    'ecp n_prim_C',
      &    h_ecp_nprim_c, k_ecp_nprim_c)) call errquit
      &    (' int_ecp: ecp nprim_c ma failed ',911)
-c... allocate space for n_coef_C(-1:l_ecp_max,n_C)
+c... allocate space for n_coef_C(-1:l_ecp_max,n_C*2)
       if (.not.ma_alloc_get(mt_int,
-     &    (l_ecp_sz*n_ecp),
+     &    (l_ecp_sz*n_ecp*2),
      &    'ecp n_coef_C',
      &    h_ecp_ncoef_c, k_ecp_ncoef_c)) call errquit
      &    (' int_ecp: ecp ncoef_c ma failed ',911)
-c... allocate space for n_tot_C      
-      if (.not.ma_alloc_get(mt_int,
-     &    n_ecp,
-     &    'ecp n_tot_C',
-     &    h_ecp_ntot_c, k_ecp_ntot_c)) call errquit
-     &    (' int_ecp: ecp ncoef_c ma failed ',911)
 c... allocate space for ind_C      
       if (.not.ma_alloc_get(mt_int,
-     &    (l_ecp_sz*n_ecp),
+     &    (l_ecp_sz*n_ecp*2),
      &    'ecp ind_C',
      &    h_ecp_ind_c, k_ecp_ind_c)) call errquit
      &      (' int_ecp: ecp ind_c ma failed ',911)
+c... allocate space for ind_z      
+      if (.not.ma_alloc_get(mt_int,
+     &    (l_ecp_sz*n_ecp*2),
+     &    'ecp ind_z',
+     &    h_ecp_ind_z, k_ecp_ind_z)) call errquit
+     &      (' int_ecp: ecp ind_z ma failed ',911)
 c... allocate space for l_C      
       if (.not.ma_alloc_get(mt_int,
      &    n_ecp,
@@ -193,7 +265,8 @@ c... allocate space for ecp center pointer list
      &    h_ecp_lip, k_ecp_lip)) call errquit
      &    (' int_ecp: ecp_lip ma failed',911)
 c
-      call int_ecp_build_ecp_ptrs(ecpidin,
+      call int_ecp_build_ecp_ptrs(ecpidin,soidin,geom,
+     &    o_both,o_ecp,o_so,
      &    ncenters,
      &    n_ecp,
      &    l_ecp,
@@ -201,7 +274,7 @@ c
      &    int_mb(k_ecp_nprim_c),
      &    int_mb(k_ecp_ncoef_c),
      &    int_mb(k_ecp_ind_c),
-     &    int_mb(k_ecp_ntot_c),
+     &    int_mb(k_ecp_ind_z),
      &    int_mb(k_ecp_l_c),
      &    int_mb(k_ecp_lip),
      &    dbl_mb(k_ecp_e),
@@ -301,8 +374,8 @@ c
       status = status .and. MA_free_heap(h_ecp_c)
       status = status .and. MA_free_heap(h_ecp_nprim_c)
       status = status .and. MA_free_heap(h_ecp_ncoef_c)
-      status = status .and. MA_free_heap(h_ecp_ntot_c)
       status = status .and. MA_free_heap(h_ecp_ind_c)
+      status = status .and. MA_free_heap(h_ecp_ind_z)
       status = status .and. MA_free_heap(h_ecp_l_c)
       status = status .and. MA_free_heap(h_ecp_c2s)
       status = status .and. MA_free_heap(h_ecp_lip)
@@ -316,10 +389,10 @@ c
       k_ecp_nprim_c = 0
       h_ecp_ncoef_c = 0
       k_ecp_ncoef_c = 0
-      h_ecp_ntot_c  = 0
-      k_ecp_ntot_c  = 0
       h_ecp_ind_c   = 0
       k_ecp_ind_c   = 0
+      h_ecp_ind_z   = 0
+      k_ecp_ind_z   = 0
       h_ecp_l_c     = 0
       k_ecp_l_c     = 0
       h_ecp_c2s     = 0
@@ -334,110 +407,8 @@ c
       call errquit
      &    ('int_ecp_terminate: error freeing heap',911)
       end
-      subroutine int_ecp(
-     &    basisina, basisinb, ecpidin,
-     &    sha,xyza,shb,xyzb,
-     &    ecp_ints,sz_ints,
-     &    scr,lscr,dryrun)
-      implicit none
-*should be deleted:#include "basP.fh"
-*should be deleted:#include "basdeclsP.fh"
-*should be deleted:#include "geobasmapP.fh"
-*should be deleted:#include "mafdecls.fh"
-*should be deleted:#include "bas_exndcf_dec.fh"
-*should be deleted:#include "bas_ibs_dec.fh"
-*should be deleted:#include "ecp_nwc.fh"
-*should be deleted:#include "geom.fh"
-*should be deleted:*
-      integer basisina ! [input] basis set handle a center
-      integer basisinb ! [input] basis set handle b center
-      integer ecpidin  ! [input] ecp handle
-      integer sha, shb ! [input] lexical index of shells a and b
-      integer sz_ints  ! [input] buffer size for ecp_ints
-      integer lscr     ! [input] length of scratch array
-      double precision xyza(3), xyzb(3)  ! [input] a and b center coords.
-      double precision ecp_ints(sz_ints) ! [output] ecp integrals
-      double precision scr(lscr)         ! [scratch] array
-      logical dryrun   ! [input] compute vs calculate memory requirements.
-*should be deleted:*
-*should be deleted:      integer basisa ! lexical basis index center a
-*should be deleted:      integer basisb ! lexical basis index center b
-*should be deleted:      integer ecpid  ! lexical ecp index
-*should be deleted:      integer geo_bas, geo_ecp, geoma, geomb, geom ! geometry handles 
-*should be deleted:      integer ucont
-*should be deleted:      integer la, npa, nga, iea, ica
-*should be deleted:      integer lb, npb, ngb, ieb, icb
-*should be deleted:*
-*should be deleted:#include "bas_exndcf_sfn.fh"
-*should be deleted:#include "bas_ibs_sfn.fh"
-*should be deleted:*
-*should be deleted:      basisa = basisina + BASIS_HANDLE_OFFSET
-*should be deleted:      basisb = basisinb + BASIS_HANDLE_OFFSET
-*should be deleted:      ecpid  = ecpidin  + BASIS_HANDLE_OFFSET
-*should be deleted:*
-*should be deleted:      geo_bas = ibs_geom(basisa)
-*should be deleted:      geo_ecp = ibs_geom(ecpid)
-*should be deleted:      if (geo_bas.eq.geo_ecp) then
-*should be deleted:        geoma = geo_bas
-*should be deleted:      else
-*should be deleted:        write(6,*)' basis and ecp loaded with different geometries'
-*should be deleted:        write(6,*)' geo_bas: ',geo_bas
-*should be deleted:        write(6,*)' geo_ecp: ',geo_ecp
-*should be deleted:        call errquit(' int_ecp: error ',911)
-*should be deleted:      endif
-*should be deleted:      geo_bas = ibs_geom(basisb)
-*should be deleted:      geo_ecp = ibs_geom(ecpid)
-*should be deleted:      if (geo_bas.eq.geo_ecp) then
-*should be deleted:        geomb = geo_bas
-*should be deleted:      else
-*should be deleted:        write(6,*)' basis and ecp loaded with different geometries'
-*should be deleted:        write(6,*)' geo_bas: ',geo_bas
-*should be deleted:        write(6,*)' geo_ecp: ',geo_ecp
-*should be deleted:        call errquit(' int_ecp: error ',911)
-*should be deleted:      endif
-*should be deleted:      if (geoma.ne.geomb) call errquit
-*should be deleted:     &    (' different geometries for a and b center??',911)
-*should be deleted:*
-*should be deleted:      geom = geoma  ! use a
-*should be deleted:*
-*should be deleted:      ucont = sf_ibs_cn2ucn(sha,basisa)
-*should be deleted:      La  = infbs_cont(CONT_TYPE,ucont,basisa)
-*should be deleted:      Npa = infbs_cont(CONT_NPRIM,ucont,basisa)
-*should be deleted:      Nga = infbs_cont(CONT_NGEN,ucont,basisa)
-*should be deleted:      iea = infbs_cont(CONT_IEXP,ucont,basisa)
-*should be deleted:      ica = infbs_cont(CONT_ICFP,ucont,basisa)
-*should be deleted:
-*should be deleted:      ucont = sf_ibs_cn2ucn(shb,basisb)
-*should be deleted:      Lb  = infbs_cont(CONT_TYPE,ucont,basisb)
-*should be deleted:      Npb = infbs_cont(CONT_NPRIM,ucont,basisb)
-*should be deleted:      Ngb = infbs_cont(CONT_NGEN,ucont,basisb)
-*should be deleted:      ieb = infbs_cont(CONT_IEXP,ucont,basisb)
-*should be deleted:      icb = infbs_cont(CONT_ICFP,ucont,basisb)
-*should be deleted:c
-*should be deleted:      call ecp_integral(
-*should be deleted:     &    xyza,
-*should be deleted:     &    dbl_mb(mb_exndcf(iea,basisa)),
-*should be deleted:     &    dbl_mb(mb_exndcf(ica,basisa)),
-*should be deleted:     &    Npa,Nga,La,
-*should be deleted:     &    xyzb,
-*should be deleted:     &    dbl_mb(mb_exndcf(ieb,basisb)),
-*should be deleted:     &    dbl_mb(mb_exndcf(icb,basisa)),
-*should be deleted:     &    Npb,Ngb,Lb,
-*should be deleted:     &    dbl_mb(k_xyzecp),
-*should be deleted:     &    dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
-*should be deleted:     &    int_mb(k_ecp_nprim_c),
-*should be deleted:     &    int_mb(k_ecp_ncoef_c),
-*should be deleted:     &    int_mb(k_ecp_ind_c),
-*should be deleted:     &    int_mb(k_ecp_ntot_c),
-*should be deleted:     &    n_zeta_c,
-*should be deleted:     &    int_mb(k_ecp_l_c),
-*should be deleted:     &    n_ecp,l_ecp,
-*should be deleted:     &    0,ecp_ints,sz_ints,
-*should be deleted:     &    dryrun,scr,lscr)
-*should be deleted:*
-      call errquit('int_ecp called why?',911)
-      end
-      subroutine int_ecp_build_ecp_ptrs(ecpidin,
+      subroutine int_ecp_build_ecp_ptrs(ecpidin,soidin,geom,
+     &    o_both, o_ecp, o_so,
      &    ncenters,
      &    n_ecp,
      &    l_ecp,
@@ -445,12 +416,13 @@ c
      &    n_prim_C,
      &    n_coef_C,
      &    ind_C,
-     &    n_tot_C,
+     &    ind_Z,
      &    l_C,
      &    i_cent_C,
      &    c_exp,
      &    c_coef)
       implicit none
+#include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -460,21 +432,25 @@ c
 #include "bas_ibs_dec.fh"
 c
       integer ecpidin  ! [input] ecp basis set handle
+      integer soidin   ! [input] so pot. handle
+      logical o_both, o_ecp, o_so ![input] which ones to set up
       integer ncenters ! [input] number of centers
       integer n_ecp    ! [input] number of ecp centers
       integer l_ecp    ! [input] maximum angular momentum in ecp basis
       integer nz_ecp   ! [input] number of prims/coeffs in stored data structure. 
-      integer n_prim_C(0:2,-1:l_ecp,n_ecp) ! [output] 
-      integer n_coef_C(-1:l_ecp,n_ecp)     ! [output] 
-      integer ind_C(-1:l_ecp,n_ecp)        ! [output] 
-      integer n_tot_C(n_ecp)                  ! [output] 
+      integer n_prim_C(0:2,-1:l_ecp,n_ecp,2) ! [output] 
+      integer n_coef_C(-1:l_ecp,n_ecp,2)     ! [output] 
+      integer ind_C(-1:l_ecp,n_ecp,2)        ! [output] 
+      integer ind_z(-1:l_ecp,n_ecp,2)        ! [output] 
       integer l_C(n_ecp)                      ! [output] 
       integer i_cent_C(n_ecp)                 ! [output]
       double precision c_exp(nz_ecp)          ! [output] 
       double precision c_coef(nz_ecp)         ! [output] 
 c
+      logical on_ecp, on_so
       integer geom        ! geometry handle
       integer ecpid       ! lexical basis set handle
+      integer soid        ! lexical so pot handle
       integer icent       ! counter for centers
       integer iucent      ! unique map of icent
       integer p_nprim     ! counter/pointer into exp/coeff array
@@ -489,43 +465,62 @@ c
       integer icfp        ! pointer into exndcf for coefficients
       integer irexp       ! pointer into exndcf for r-exponents
       integer n0,n1,n2    ! r-exponent count 
+      integer ie          ! ecp/so counter
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
 *      write(6,*)' inside build'
       ecpid = ecpidin + BASIS_HANDLE_OFFSET
-      geom = ibs_geom(ecpid)
+      soid  = soidin  + BASIS_HANDLE_OFFSET
 c... zero arrays
-      call ifill((3*(l_ecp+2)*n_ecp),0,n_prim_C,1)
-      call ifill(((l_ecp+2)*n_ecp),0,n_coef_C,1)
-      call ifill(((l_ecp+2)*n_ecp),0,ind_C,1)
-      call ifill(n_ecp,0,n_tot_C,1)
+      call ifill((3*(l_ecp+2)*n_ecp*2),0,n_prim_C,1)
+      call ifill(((l_ecp+2)*n_ecp*2),0,n_coef_C,1)
+      call ifill(((l_ecp+2)*n_ecp*2),0,ind_C,1)
+      call ifill(((l_ecp+2)*n_ecp*2),0,ind_z,1)
       call ifill(n_ecp,0,l_C,1)
+      call ifill(n_ecp,0,i_cent_C,1)
+      call dfill(nz_ecp,0.0d00,c_exp,1)
+      call dfill(nz_ecp,0.0d00,c_coef,1)
 c
-      if (.not.ma_verify_allocator_stuff()) stop ' error'
-      num_ecp = 0
+      if (o_both) then
+        if (.not.
+     &      ecpso_list_ncent(geom,soidin,ecpidin,num_ecp,i_cent_C))
+     &      call errquit('ecp_ptrs: ecpso_list failed',911)
+      else if (o_ecp) then
+        if (.not.ecp_list_ncent(geom,ecpidin,num_ecp,i_cent_C))
+     &      call errquit('ecp_ptrs: ecp_list failed',911)
+      else if (o_so) then
+        if (.not.so_list_ncent(geom,soidin,num_ecp,i_cent_C))
+     &      call errquit('ecp_ptrs: ecpso_list failed',911)
+      else 
+        call errquit('ecp_ptrs: should not get here',911)
+      endif
+      if (num_ecp.ne.n_ecp) call errquit
+     &    ('ecp_ptrs: mismatch in num_ecp and n_ecp',
+     &    (num_ecp-n_ecp))
+c
       p_nprim = 0
-*      write(6,*)' ncenters',ncenters
-      do icent=1,ncenters
-        if (oecpcent(icent,geom)) then
-          num_ecp = num_ecp + 1
-          i_cent_C(num_ecp) = icent
+      do ie = 1,n_ecp
+        icent = i_cent_C(ie)
+        if (o_ecp) then
+          on_ecp = bas_isce(geom,ecpidin,icent)
+        else
+          on_ecp = .false.
+        endif
+        if (o_so) then
+          on_so  = bas_isce(geom,soidin,icent)
+        else
+          on_so  = .false.
+        endif
+        if (on_ecp) then
           iucent = sf_ibs_ce2uce(icent,ecpid)
           F_cont = infbs_tags(TAG_FCONT,iucent,ecpid)
           L_cont = infbs_tags(TAG_LCONT,iucent,ecpid)
-*          write(6,*)' num_ecp :',num_ecp
-*          write(6,*)' iucent  :',iucent
-*          write(6,*)' f_cont  :',F_cont
-*          write(6,*)' l_cont  :',L_cont
           do iucont = F_cont, L_cont
-*            write(6,*)' iucont :',iucont
             type  = infbs_cont(CONT_TYPE,iucont,ecpid)
             nprim = infbs_cont(CONT_NPRIM,iucont,ecpid)
             ncoef = nprim*infbs_cont(CONT_NGEN,iucont,ecpid)
-*            write(6,*)' type  :',type
-*            write(6,*)' nprim :',nprim
-*            write(6,*)' ncoef :',ncoef
             if (nprim.ne.ncoef) then
               write(6,*)'general contraction ecp basis are invalid now'
               call errquit('int_ecp_build_ecp_ptrs: error',911)
@@ -535,16 +530,6 @@ c
             irexp = infbs_cont(CONT_IREXP,iucont,ecpid)
             if ((p_nprim+nprim).gt.nz_ecp) call errquit
      &          ('int_ecp_build_ecp_ptrs:too many coefficients',911)
-*:debugn3:            write(6,*)'iexp,icfp,irexp',iexp,icfp,irexp
-*:debugn3:            write(6,*)' ecp exp before'
-*:debugn3:            call output (dbl_mb(mb_exndcf(iexp,ecpid)),
-*:debugn3:     &          1,nprim,1,1,nprim,1,1)
-*:debugn3:            write(6,*)' ecp coef before'
-*:debugn3:            call output (dbl_mb(mb_exndcf(icfp,ecpid)),
-*:debugn3:     &          1,nprim,1,1,nprim,1,1)
-*:debugn3:            write(6,*)' grexp before'
-*:debugn3:            call output (dbl_mb(mb_exndcf(irexp,ecpid)),
-*:debugn3:     &          1,nprim,1,1,nprim,1,1)
             call ecp_get_n3(
      &          c_exp((p_nprim+1)),
      &          dbl_mb(mb_exndcf(iexp,ecpid)),
@@ -552,15 +537,48 @@ c
      &          dbl_mb(mb_exndcf(icfp,ecpid)),
      &          dbl_mb(mb_exndcf(irexp,ecpid)),
      &          nprim,n0,n1,n2)
-            n_prim_C(0,type,num_ecp) = n0
-            n_prim_C(1,type,num_ecp) = n1
-            n_prim_C(2,type,num_ecp) = n2
-            ind_C(type,num_ecp)      = p_nprim+1
-            n_coef_C(type,num_ecp)   = nprim
-            n_tot_C(num_ecp)          = nprim + n_tot_C(num_ecp)
-            l_C(num_ecp)              = max(type, l_C(num_ecp))
-c.. update pointer to c_exp and c_coef
-            p_nprim = p_nprim + nprim
+            n_prim_C(0,type,ie,1) = n0
+            n_prim_C(1,type,ie,1) = n1
+            n_prim_C(2,type,ie,1) = n2
+            ind_C(type,ie,1)      = p_nprim+1
+            ind_Z(type,ie,1)      = p_nprim+1
+            n_coef_c(type,ie,1)   = nprim
+            l_C(ie)               = max(type,l_C(ie))
+            p_nprim = p_nprim+nprim
+          enddo
+        endif
+        if (on_so) then
+          iucent = sf_ibs_ce2uce(icent,soid)
+          F_cont = infbs_tags(TAG_FCONT,iucent,soid)
+          L_cont = infbs_tags(TAG_LCONT,iucent,soid)
+          do iucont = F_cont, L_cont
+            type  = infbs_cont(CONT_TYPE,iucont,soid)
+            nprim = infbs_cont(CONT_NPRIM,iucont,soid)
+            ncoef = nprim*infbs_cont(CONT_NGEN,iucont,soid)
+            if (nprim.ne.ncoef) then
+              write(6,*)'general contraction so basis are invalid now'
+              call errquit('int_ecp_build_ecp_ptrs: error',911)
+            endif
+            iexp  = infbs_cont(CONT_IEXP,iucont,soid)
+            icfp  = infbs_cont(CONT_ICFP,iucont,soid)
+            irexp = infbs_cont(CONT_IREXP,iucont,soid)
+            if ((p_nprim+nprim).gt.nz_ecp) call errquit
+     &          ('int_ecp_build_ecp_ptrs:too many coefficients',911)
+            call ecp_get_n3(
+     &          c_exp((p_nprim+1)),
+     &          dbl_mb(mb_exndcf(iexp,soid)),
+     &          c_coef((p_nprim+1)),
+     &          dbl_mb(mb_exndcf(icfp,soid)),
+     &          dbl_mb(mb_exndcf(irexp,soid)),
+     &          nprim,n0,n1,n2)
+            n_prim_C(0,type,ie,2) = n0
+            n_prim_C(1,type,ie,2) = n1
+            n_prim_C(2,type,ie,2) = n2
+            ind_C(type,ie,2)      = p_nprim+1
+            ind_Z(type,ie,2)      = p_nprim+1
+            n_coef_c(type,ie,2)   = nprim
+            l_C(ie)               = max(type,l_C(ie))
+            p_nprim = p_nprim+nprim
           enddo
         endif
       enddo
@@ -570,7 +588,7 @@ c
 *debug:     &    n_prim_C,
 *debug:     &    n_coef_C,
 *debug:     &    ind_C,
-*debug:     &    n_tot_C,
+*debug:     &    ind_Z,
 *debug:     &    l_C,
 *debug:     &    c_exp,
 *debug:     &    c_coef)
@@ -581,7 +599,7 @@ c
      &    n_prim_C,
      &    n_coef_C,
      &    ind_C,
-     &    n_tot_C,
+     &    ind_Z,
      &    l_C,
      &    c_exp,
      &    c_coef)
@@ -590,15 +608,15 @@ c
       integer n_ecp    ! [input] number of ecp centers
       integer l_ecp    ! [input] maximum angular momentum in ecp basis
       integer nz_ecp   ! [input] number of prims/coeffs in stored data structure. 
-      integer n_prim_C(0:2,-1:l_ecp,n_ecp) ! [output] 
-      integer n_coef_C(-1:l_ecp,n_ecp)     ! [output] 
-      integer ind_C(-1:l_ecp,n_ecp)        ! [output] 
-      integer n_tot_C(n_ecp)                  ! [output] 
+      integer n_prim_C(0:2,-1:l_ecp,n_ecp,2) ! [output] 
+      integer n_coef_C(-1:l_ecp,n_ecp,2)     ! [output] 
+      integer ind_C(-1:l_ecp,n_ecp,2)        ! [output] 
+      integer ind_Z(-1:l_ecp,n_ecp,2)        ! [output] 
       integer l_C(n_ecp)                      ! [output] 
       double precision c_exp(nz_ecp)          ! [output] 
       double precision c_coef(nz_ecp)         ! [output] 
 *
-      integer i, j, k
+      integer i, j, k, l
 *      integer low0, high0, low1, high1, low2, high2
 *      integer ir
       integer pe, pek
@@ -610,48 +628,57 @@ c
       enddo
 10000 format(1x,'exp(',i5,') =',f12.6,2x,'coeff(',i5,') =',f12.6)
       do i = 1,n_ecp
-        write(6,*)' n_tot_c(',i,')',n_tot_c(i)
-      enddo
-      do i = 1,n_ecp
         write(6,*)' l_c(',i,')',l_c(i)
       enddo
-      do i=1,n_ecp
-        do j=-1,l_ecp
-          write(6,*)' n_coef_C(',j,',',i,') = ',n_coef_C(j,i)
-          write(6,*)' ind_C(',j,',',i,') = ',ind_C(j,i)
-          do k = 0,2
-            write(6,*)' n_prim_C(',k,',',j,',',i,') =',n_prim_C(k,j,i)
+      do l = 1,2
+        do i=1,n_ecp
+          do j=-1,l_ecp
+            write(6,*)' n_coef_C(',j,',',i,',',l,') = ',
+     &          n_coef_C(j,i,l)
+            write(6,*)' ind_C(',j,',',i,',',l,') = ',
+     &          ind_C(j,i,l)
+            write(6,*)' ind_z(',j,',',i,',',l,') = ',
+     &          ind_z(j,i,l)
+            do k = 0,2
+              write(6,*)' n_prim_C(',
+     &            k,',',j,',',i,',',l,') =',
+     &            n_prim_C(k,j,i,l)
+            enddo
           enddo
         enddo
       enddo
       write(6,*)' --- '
       write(6,*)' i = 1:',n_ecp
-      do i=1,n_ecp
-        write(6,*)' total number of coefficients on center',
-     &      i,'is',n_tot_c(i)
-        write(6,*)' angular momentum max on center ',
-     &      i,'is',l_c(i)
-        write(6,*)' j = -1:',l_ecp
-        do j=-1,l_ecp
-          write(6,*)' lval = ',j
-          pe = ind_c(j,i)-1
-          do k=1,n_prim_C(0,j,i)
-            pek = pe + k
-            write(6,*)' 0 ',c_exp(pek),c_coef(pek)
-          enddo
-          pe = pe + n_prim_C(0,j,i)
-          do k=1,n_prim_C(1,j,i)
-            pek = pe + k
-            write(6,*)' 1 ',c_exp(pek),c_coef(pek)
-          enddo
-          pe = pe + n_prim_C(1,j,i)
-          do k=1,n_prim_C(2,j,i)
-            pek = pe + k
-            write(6,*)' 2 ',c_exp(pek),c_coef(pek)
+      do l = 1,2
+        if (l.eq.1)
+     &      write(6,*)'                                            ecp'
+        if (l.eq.2)
+     &      write(6,*)'                                            sop'
+        do i=1,n_ecp
+          write(6,*)' angular momentum max on center ',
+     &        i,'is',l_c(i)
+          write(6,*)' j = -1:',l_ecp
+          do j=-1,l_ecp
+            write(6,*)' lval = ',j
+            pe = ind_c(j,i,l)-1
+            do k=1,n_prim_C(0,j,i,l)
+              pek = pe + k
+              write(6,*)' 0 ',c_exp(pek),c_coef(pek)
+            enddo
+            pe = pe + n_prim_C(0,j,i,l)
+            do k=1,n_prim_C(1,j,i,l)
+              pek = pe + k
+              write(6,*)' 1 ',c_exp(pek),c_coef(pek)
+            enddo
+            pe = pe + n_prim_C(1,j,i,l)
+            do k=1,n_prim_C(2,j,i,l)
+              pek = pe + k
+              write(6,*)' 2 ',c_exp(pek),c_coef(pek)
+            enddo
+            write(6,*)' '
           enddo
           write(6,*)' '
         enddo
-        write(6,*)' '
       enddo
       write(6,*)' print_ecp_ptrs: finish'
       end
@@ -736,8 +763,6 @@ c
       data k_ecp_nprim_c /0/       ! MA index  for n_prim_C (see ecp_integral)
       data h_ecp_ncoef_c /0/       ! MA handle for n_coef_C (see ecp_integral)
       data k_ecp_ncoef_c /0/       ! MA index  for n_coef_C (see ecp_integral)
-      data h_ecp_ntot_c  /0/       ! MA handle for n_tot_C (see ecp_integral)
-      data k_ecp_ntot_c  /0/       ! MA index  for n_tot_C (see ecp_integral)
       data h_ecp_ind_c   /0/       ! MA handle for int_C (see ecp_integral)
       data k_ecp_ind_c   /0/       ! MA index  for int_C (see ecp_integral)
       data h_ecp_l_c     /0/       ! MA handle for l_C (see ecp_integral)
@@ -772,32 +797,6 @@ c
 *
 *      write(6,*)' lscr IN ecp_hf1:',lscr
 c
-#if defined(USE_OLD_ECP)
-      call ecp_integral(
-     &      xyza,
-     &      expa,
-     &      coefa,
-     &      a_nprim,a_ngen,La,ictra,
-     &      xyzb,
-     &      expb,
-     &      coefb,
-     &      b_nprim,b_ngen,Lb,ictrb,
-     &      dbl_mb(k_xyzecp),
-     &      dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
-     &      int_mb(k_ecp_nprim_c),
-     &      int_mb(k_ecp_ncoef_c),
-     &      int_mb(k_ecp_ind_c),
-     &      int_mb(k_ecp_ntot_c),
-     &      n_zeta_c,
-     &      int_mb(k_ecp_l_c),
-     &      int_mb(k_ecp_lip), 
-     &      n_ecp,l_ecp,
-     &      0,
-     &      dbl_mb(k_ecp_c2s),mem_c2s,
-     &      ecp_ints,sz_ints,
-     &      dryrun,scr,lscr,
-     &      0)  ! ibug
-#else
       call ecp_integral(
      &      xyza,
      &      expa,
@@ -811,7 +810,7 @@ c
      &      dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
      &      int_mb(k_ecp_nprim_c),
      &      int_mb(k_ecp_ncoef_c),  ! new name is n_colc_C
-     &      int_mb(k_ecp_ind_c),
+     &      int_mb(k_ecp_ind_z),
      &      int_mb(k_ecp_ind_c),
      &      n_zeta_c,
      &      n_zeta_c,
@@ -823,7 +822,6 @@ c
      &      ecp_ints,sz_ints,1,   ! nblk 1 for ecp integrals only 
      &      dryrun,scr,lscr,
      &      0)  ! ibug
-#endif
 *
       end
       subroutine intd_ecp_hf1(
@@ -848,7 +846,6 @@ c
 *
 *      write(6,*)' lscr IN ecp_hf1:',lscr
 c
-#if defined(USE_OLD_ECP)
       call ecp_gradient(
      &      xyza,
      &      expa,
@@ -862,32 +859,7 @@ c
      &      dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
      &      int_mb(k_ecp_nprim_c),
      &      int_mb(k_ecp_ncoef_c),
-     &      int_mb(k_ecp_ind_c),
-     &      int_mb(k_ecp_ntot_c),
-     &      n_zeta_c,
-     &      int_mb(k_ecp_l_c),
-     &      int_mb(k_ecp_lip), 
-     &      n_ecp,l_ecp,
-     &      0,
-     &      dbl_mb(k_ecp_c2s),mem_c2s,
-     &      ecp_grad,sz_grad,nat,
-     &      dryrun,scr,lscr,
-     &      0)  ! ibug
-#else
-      call ecp_gradient(
-     &      xyza,
-     &      expa,
-     &      coefa,
-     &      a_nprim,a_ngen,La,ictra,
-     &      xyzb,
-     &      expb,
-     &      coefb,
-     &      b_nprim,b_ngen,Lb,ictrb,
-     &      dbl_mb(k_xyzecp),
-     &      dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
-     &      int_mb(k_ecp_nprim_c),
-     &      int_mb(k_ecp_ncoef_c),
-     &      int_mb(k_ecp_ind_c),
+     &      int_mb(k_ecp_ind_z),
      &      int_mb(k_ecp_ind_c),
      &      n_zeta_c,
      &      n_zeta_c,
@@ -899,6 +871,53 @@ c
      &      ecp_grad,sz_grad,1,nat,          ! nblock = 1 for ECP only 
      &      dryrun,scr,lscr,
      &      0)  ! ibug
-#endif
+*
+      end
+      subroutine intso_hf1(
+     &    xyza,expa,coefa,a_nprim,a_ngen,La,ictra,
+     &    xyzb,expb,coefb,b_nprim,b_ngen,Lb,ictrb,
+     &    ecp_ints,sz_ints,scr,lscr,dryrun)
+      implicit none
+#include "mafdecls.fh"
+#include "ecp_nwc.fh"
+*
+      integer a_nprim, a_ngen, La, ictra
+      integer b_nprim, b_ngen, Lb, ictrb
+      double precision expa(a_nprim), expb(b_nprim)
+      double precision coefa(a_nprim,a_ngen), coefb(b_nprim,b_ngen)
+      integer sz_ints  ! [input] buffer size for ecp_ints
+      integer lscr     ! [input] length of scratch array
+      double precision xyza(3), xyzb(3)  ! [input] a and b center coords.
+      double precision ecp_ints(sz_ints) ! [output] ecp integrals
+      double precision scr(lscr)         ! [scratch] array
+      logical dryrun   ! [input] compute vs calculate memory requirements.
+*
+*      write(6,*)' lscr IN so_hf1:',lscr
+c
+      call ecp_integral(
+     &      xyza,
+     &      expa,
+     &      coefa,
+     &      a_nprim,a_ngen,La,ictra,
+     &      xyzb,
+     &      expb,
+     &      coefb,
+     &      b_nprim,b_ngen,Lb,ictrb,
+     &      dbl_mb(k_xyzecp),
+     &      dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
+     &      int_mb(k_ecp_nprim_c),
+     &      int_mb(k_ecp_ncoef_c),  ! new name is n_colc_C
+     &      int_mb(k_ecp_ind_z),
+     &      int_mb(k_ecp_ind_c),
+     &      n_zeta_c,
+     &      n_zeta_c,
+     &      int_mb(k_ecp_l_c),
+     &      int_mb(k_ecp_lip), 
+     &      n_ecp,l_ecp,
+     &      0,
+     &      dbl_mb(k_ecp_c2s),mem_c2s,
+     &      ecp_ints,sz_ints,3,   ! nblk 1 for ecp integrals only 
+     &      dryrun,scr,lscr,
+     &      0)  ! ibug
 *
       end

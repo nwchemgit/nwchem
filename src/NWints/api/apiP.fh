@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.10 1996-10-01 18:46:00 d3e129 Exp $
+c $Id: apiP.fh,v 1.11 1998-04-29 07:27:34 d3e129 Exp $
 c
 c common block that holds memory information
 c
@@ -49,6 +49,8 @@ c
 c ECP specific storage for the API
 c
       logical any_ecp  ! does any basis set have an ecp
-      integer ecp_bsh  ! ecp basis set handle (bsh)
-      common /capi_ecp/any_ecp,ecp_bsh
+      logical any_so   ! does any basis set have an so potential
+      integer ecp_bsh  ! ecp basis set handle
+      integer so_bsh   ! so potential handle 
+      common /capi_ecp/any_ecp,any_so,ecp_bsh,so_bsh
       

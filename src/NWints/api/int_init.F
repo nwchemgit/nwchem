@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.35 1997-11-07 12:56:59 d3e129 Exp $
+c $Id: int_init.F,v 1.36 1998-04-29 07:27:36 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -196,7 +196,24 @@ c
       if (any_ecp) then
         if (.not.ecp_check_handle(ecp_bsh,'int_init')) call errquit
      &        ('int_init: ecp handle is invalid fatal error',911)
-        if (.not.int_ecp_init(ecp_bsh,0)) call errquit
+      endif
+*
+c See if any basis has an attached SO potential
+      any_so = .false.
+      so_bsh = 0
+      do ibas = 1,nbas
+        if (bas_get_so_handle(bases(ibas),so_bsh)) then
+          any_so = .true.
+          goto 00002
+        endif
+      enddo
+00002 continue
+      if (any_so) then
+        if (.not.so_check_handle(so_bsh,'int_init')) call errquit
+     &        ('int_init: so handle is invalid fatal error',911)
+      endif
+      if (any_so.or.any_ecp) then
+        if (.not.int_ecp_init(ecp_bsh,so_bsh,0)) call errquit
      &        ('int_init: int_ecp_init failed ',911)
       endif
       init_int = 1

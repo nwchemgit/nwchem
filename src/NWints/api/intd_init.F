@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.13 1997-11-07 12:56:59 d3e129 Exp $
+c $Id: intd_init.F,v 1.14 1998-04-29 07:27:41 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -90,7 +90,7 @@ c
         def_cando_sp  = status
         if (ga_nodeid().eq.0) then
           write(6,*)
-     &        ' int_init: cando_sp set to always be ',def_cando_sp
+     &        ' intd_init: cando_sp set to always be ',def_cando_sp
           call util_flush(6)
         endif
       endif
@@ -100,7 +100,7 @@ c
         def_cando_nw  = status
         if (ga_nodeid().eq.0) then
           write(6,*)
-     &        ' int_init: cando_nw set to always be ',def_cando_nw
+     &        ' intd_init: cando_nw set to always be ',def_cando_nw
           call util_flush(6)
         endif
       endif
@@ -110,7 +110,7 @@ c
         def_cando_txs  = status
         if (ga_nodeid().eq.0) then
           write(6,*)
-     &        ' int_init: cando_txs set to always be ',def_cando_txs
+     &        ' intd_init: cando_txs set to always be ',def_cando_txs
           call util_flush(6)
         endif
       endif
@@ -126,7 +126,7 @@ c
           call util_flush(6)
         endif
         call errquit
-     &      ('int_init: logic error with user cando settings',911)
+     &      ('intd_init: logic error with user cando settings',911)
       endif
       status = .true.
       do 00100 ibas=1,nbas
@@ -206,7 +206,24 @@ c
       if (any_ecp) then
         if (.not.ecp_check_handle(ecp_bsh,'intd_init')) call errquit
      &        ('intd_init: ecp handle is invalid fatal error',911)
-        if (.not.int_ecp_init(ecp_bsh,1)) call errquit
+      endif
+*
+c See if any basis has an attached SO potential
+      any_so = .false.
+      so_bsh = 0
+      do ibas = 1,nbas
+        if (bas_get_so_handle(bases(ibas),so_bsh)) then
+          any_so = .true.
+          goto 00002
+        endif
+      enddo
+00002 continue
+      if (any_so) then
+        if (.not.so_check_handle(so_bsh,'intd_init')) call errquit
+     &        ('intd_init: so handle is invalid fatal error',911)
+      endif
+      if (any_so.or.any_ecp) then
+        if (.not.int_ecp_init(ecp_bsh,so_bsh,1)) call errquit
      &        ('intd_init: int_ecp_init failed ',911)
       endif
       init_int = 1

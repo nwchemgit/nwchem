@@ -1,0 +1,26 @@
+*
+* $Id: ecpso_decP.fh,v 1.1 1998-04-29 07:29:54 d3e129 Exp $
+*------------------------------------------------*
+* COPYRIGHT (C) 1994, 1995, 1996, 1997           *
+*         Pacific Northwest National Laboratory, *
+*         Battelle Memorial Institute.           *
+*------------------------------------------------*
+*------------> All Rights Reserved <-------------*
+*------------------------------------------------*
+*      
+*
+* RAK Apr 1996
+* ECPs and SO potentials are integrated directly with the basis 
+* set object.  these functions will be used in the bas_* routines 
+* to determine if the handle is an ECP or SO basis
+*
+* requires basP.fh and basdeclsP.fh prior to sfn 
+* ecpso_decP.fh ! (this file) declares functions and integers
+* ecpso_sfnP.fh ! statment function definitions
+* 
+      logical Is_ECP, Is_ECP_in
+      logical Is_SO, Is_SO_in
+      integer basis_xx, basis_xx_in
+*
+
+

@@ -1,4 +1,4 @@
-c $Id: bas_staticP.fh,v 1.8 1997-04-02 00:42:07 d3e129 Exp $
+c $Id: bas_staticP.fh,v 1.9 1998-04-29 07:29:51 d3e129 Exp $
 c:bas_staticP.fh
 c
 c Maximum parameter definitions for static "in-core" data structure
@@ -12,6 +12,9 @@ c.................................. assume average of 8 contractions per tag
       Parameter (nucont_bsmx = 8*ntags_bsmx )
 c..........................! 300 prims, 5:3|coeff:exp ratio, per tag
       Parameter (mxbs_exndcf = (300+500)*ntags_bsmx)
+c
+      Integer nbasis_assoc_max
+      parameter (nbasis_assoc_max = 2)
 c
       integer nat_mx, ncont_mx ! nat_mx should agree with max_cent in geomP.fh
       parameter (nat_mx=500, ncont_mx = nucont_bsmx*32)

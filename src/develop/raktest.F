@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.78 1998-03-18 18:25:13 d3e129 Exp $
+c $Id: raktest.F,v 1.79 1998-04-29 07:36:06 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -2839,7 +2839,7 @@ c
       if (.not.bas_print(ecpid)) stop ' print error'
       if (.not.gbs_map_print(basis)) stop ' gbs map print error'
 c
-      if (.not.int_ecp_init(ecpid,0)) stop ' error in int_ecp_init'
+      if (.not.int_ecp_init(ecpid,0,0)) stop ' error in int_ecp_init'
       call int_ecp_terminate()
 c
       if (.not.bas_destroy(basis)) stop ' bas_dest error 1'
@@ -5302,7 +5302,7 @@ c
       if (any_ecp) then
         if (.not.ecp_check_handle(ecp_bsh,'int_init')) call errquit
      &        ('int_init: ecp handle is invalid fatal error',911)
-        if (.not.int_ecp_init(ecp_bsh,0)) call errquit
+        if (.not.int_ecp_init(ecp_bsh,0,0)) call errquit
      &        ('int_init: int_ecp_init failed ',911)
       endif
       init_int = 1

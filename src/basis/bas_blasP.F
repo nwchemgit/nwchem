@@ -1,16 +1,17 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.3 1998-02-05 00:01:43 d3e129 Exp $
+* $Id: bas_blasP.F,v 1.4 1998-04-29 07:29:50 d3e129 Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
-     $     rex, expnt, coeffs, ldc, stdtag, Is_ecp)
+     $     rex, expnt, coeffs, ldc, stdtag)
       implicit none
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
 #include "basP.fh"
 #include "bas_exndcf_dec.fh"
+#include "ecpso_decP.fh"
       integer basis ! [input] basis handle
       character*(*) tag ! [input] tag on which to add contraction
       character*(*) stdtag ! [input] standard basis set name associated
@@ -23,7 +24,6 @@
       double precision coeffs(ldc, 1:*) ! [input] coefficients
       double precision rex(nprim) ! [input] gaussian R exponents 
 *. . . . . . . . . . . . . . . . .          (offset by 2)
-      logical Is_ecp ! [input] flag saying if this is ecp
 c
       integer size_add ! amount to be added to exndcf array
       integer ind ! Index into basis function structures
@@ -32,6 +32,8 @@ c
       integer i, itag, jtag, iu_cont, ntags ! Locals
       integer s_old, s_new, k_old, k_new, h_old, h_new
 c
+      logical oIs_ecp ! flag saying if this is ecp
+      logical oIs_so ! flag saying if this is so potential
       logical bas_add_utag
       external bas_add_utag
 c
@@ -39,6 +41,11 @@ c
       external bas_check_handle
 c
 #include "bas_exndcf_sfn.fh"
+#include "ecpso_sfnP.fh"
+c
+      oIs_ecp = Is_ECP_in(basis)
+      oIs_so  = Is_SO_in(basis)
+c
 c     adds a new general contraction on the specified tag.  If the
 c     tag is not present it will also add that by calling bas_add_utag
 c      
@@ -58,7 +65,7 @@ c
       free = infbs_head(HEAD_EXCFPTR,ind) + 1
       s_old = exndcf(SZ_exndcf,ind)
       size_add = nprim*ngen + nprim
-      if (Is_ecp) size_add = size_add + nprim
+      if (oIs_ecp.or.oIs_so) size_add = size_add + nprim
       if ((free+size_add-1) .gt. s_old) then
         h_old = exndcf(H_exndcf,ind)
         k_old = exndcf(K_exndcf,ind)
@@ -88,11 +95,6 @@ c
          return
       endif
 c         
-      if (Is_ecp) then
-        infbs_head(Head_Ecp,ind) = 1
-      else
-        infbs_head(Head_Ecp,ind) = 0
-      endif
       infbs_head(HEAD_NCONT,ind) = infbs_head(HEAD_NCONT,ind) + 1
       infbs_head(HEAD_NPRIM,ind) = infbs_head(HEAD_NPRIM,ind) + nprim
       infbs_head(HEAD_NCOEF,ind) = infbs_head(HEAD_NCOEF,ind) +
@@ -151,7 +153,7 @@ c
       infbs_cont(CONT_NGEN, iu_cont,ind) = ngen
       infbs_cont(CONT_IEXP, iu_cont,ind) = free
       infbs_cont(CONT_ICFP, iu_cont,ind) = free + nprim
-      if (Is_ecp) then
+      if (oIs_ecp.or.oIs_so) then
         infbs_cont(Cont_Irexp, iu_cont, ind) =
      &      free + nprim + nprim*ngen
       else
@@ -168,7 +170,7 @@ c
      &      (nprim, coeffs(1,i), 1, dbl_mb(mb_exndcf(free,ind)), 1)
          free = free + nprim
       enddo
-      if (Is_ecp)
+      if (oIs_ecp.or.oIs_so)
      &    call dcopy(nprim, rex, 1, dbl_mb(mb_exndcf(free,ind)), 1)
 c
 c     Done

@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.12 1997-07-11 23:46:42 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.13 1998-04-29 07:27:40 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -406,12 +406,12 @@ c     as a block of 4.
         elseif (nint_s.eq.nint_x) then
           return
         else
-          call intd_c2s_mv
+          call int_c2s_mv
      &        (eri,nint_x,nint_s,(3*4),scr,lscr,'intd_2e4c')
         endif
       endif
       end
-      subroutine intd_c2s_mv
+      subroutine int_c2s_mv
      &    (int_buf,nint_x,nint_s,nblocks,scr,lscr,ctine)
       implicit none
 #include "stdio.fh"
@@ -424,14 +424,22 @@ c::passed
       double precision scr(lscr)
       character*(*) ctine
 c::local
+      integer i
       integer z
       integer offset_x, offset_s
-#if defined(VECTOR_MODE)
+*
       if (nint_x*nblocks.gt.lscr) then
         write(luout,*)' calling routine: ',ctine
         call errquit
-     &      ('intd_c2s_mv: lscr to small by ',((nint_x*nblocks)-lscr))
+     &      ('int_c2s_mv: lscr to small by ',((nint_x*nblocks)-lscr))
       endif
+      if (nint_s.gt.nint_x) then
+        call errquit
+     &      ('int_c2s_mv: nint_s >.nint_x diff=',(nint_s-nint_x))
+      elseif (nint_s.eq.nint_x) then
+        return
+      endif
+#if defined(VECTOR_MODE)
       call dcopy((nint_x*nblocks),int_buf,1,scr,1)
       call dfill((nint_x*nblocks),0.0d00,int_buf,1)
       do z = 1,nblocks
@@ -441,7 +449,6 @@ c::local
       enddo
 #else
 c** scalar  (in place)
-      integer i
       do z = 2,nblocks
         offset_x = (z-1)*nint_x 
         offset_s = (z-1)*nint_s 

@@ -1,4 +1,4 @@
-c $Id: int_l1eke.F,v 1.8 1997-05-29 23:43:01 d3e129 Exp $
+c $Id: int_l1eke.F,v 1.9 1998-04-29 07:27:36 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1eke}
@@ -25,7 +25,8 @@ c::external subroutines used
 c errquit
 c::function
       logical int_chk_sh
-      external int_chk_sh
+      integer int_nint_cart
+      external int_chk_sh, int_nint_cart
 c::passed
 c:tex-\begin{verbatim}
       integer i_basis ! [input] basis set handle for ish
@@ -55,19 +56,11 @@ c
       if (.not.shells_ok)
      &       call errquit('int_l1eke: invalid contraction/shell',0)
 c
-c  check if spherical
-c
-      call int_nospherical_check(i_basis,'int_l1eke')
-      call int_nospherical_check(j_basis,'int_l1eke')
-c      
       ibas  = i_basis + BASIS_HANDLE_OFFSET
       jbas  = j_basis + BASIS_HANDLE_OFFSET
       ijbas = ibas .eq. jbas
 c
-      numint =         (sf_ibs_cn2bfr(2,ish,ibas))-
-     &      (sf_ibs_cn2bfr(1,ish,ibas))+1
-      numint = numint*((sf_ibs_cn2bfr(2,jsh,jbas))-
-     &      (sf_ibs_cn2bfr(1,jsh,jbas))+1)
+      numint =   int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
       newlscr = lscr - numint
       call int_1eke(i_basis, ish, j_basis, jsh,
      &    newlscr,scr(numint+1),numint,scr)

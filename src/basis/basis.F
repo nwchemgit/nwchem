@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.78 1998-02-06 01:29:01 d3e129 Exp $
+c $Id: basis.F,v 1.79 1998-04-29 07:29:52 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -19,32 +19,32 @@ c.. character data
       cdata = cdata + 80*ntags_bsmx*nbasis_bsmx  ! bs_stdname
       cdata = cdata + 256*nbasis_bsmx            ! bs_trans
       cdata = cdata + 256*nbasis_rtdb_mx         ! bs_names_rtdb
-      cdata = cdata + 256*nbasis_bsmx            ! ecp_name_assoc
+      cdata = cdata + 256*nbasis_bsmx*nbasis_assoc_max ! name_assoc
 c      
 c.. real data 
       rdata =  1                   ! bsversion
       rdata = 8*rdata
 c
 c.. integer data in basis set object common
-      idata =         3*nbasis_bsmx               ! exndcf
-      idata = idata + ndbs_head*nbasis_bsmx       ! infbs_head
+      idata =         3*nbasis_bsmx                ! exndcf
+      idata = idata + ndbs_head*nbasis_bsmx        ! infbs_head
       idata = idata +
-     &    ndbs_tags*ntags_bsmx*nbasis_bsmx        ! infbs_tags
+     &    ndbs_tags*ntags_bsmx*nbasis_bsmx         ! infbs_tags
       idata = idata +
-     &    ndbs_ucont*(nucont_bsmx+1)*nbasis_bsmx  ! infbs_cont
-      idata = idata + nbasis_bsmx                 ! len_bs_name
-      idata = idata + nbasis_bsmx                 ! len_bs_trans
-      idata = idata + nbasis_rtdb_mx              ! len_bs_rtdb
-      idata = idata + nbasis_bsmx                 ! bsactive (int==logical)
-      idata = idata + nbasis_bsmx                 ! bas_spherical (int==logical)
-      idata = idata + nbasis_bsmx                 ! bas_any_gc (int==logical)
-      idata = idata + nbasis_bsmx                 ! bas_any_sp_shell (int==logical)
-      idata = idata + nbasis_bsmx                 ! bas_norm_id
-      idata = idata + nbasis_bsmx                 ! angular_bs
-      idata = idata + nbasis_bsmx                 ! nbfmax_bs
-      idata = idata + nbasis_bsmx                 ! ecp_handle_assoc
-      idata = idata + nbasis_bsmx                 ! ecp_parent_assoc
-      idata = idata + 1                           ! nbasis_rtdb
+     &    ndbs_ucont*(nucont_bsmx+1)*nbasis_bsmx   ! infbs_cont
+      idata = idata + nbasis_bsmx                  ! len_bs_name
+      idata = idata + nbasis_bsmx                  ! len_bs_trans
+      idata = idata + nbasis_rtdb_mx               ! len_bs_rtdb
+      idata = idata + nbasis_bsmx                  ! bsactive (int==logical)
+      idata = idata + nbasis_bsmx                  ! bas_spherical (int==logical)
+      idata = idata + nbasis_bsmx                  ! bas_any_gc (int==logical)
+      idata = idata + nbasis_bsmx                  ! bas_any_sp_shell (int==logical)
+      idata = idata + nbasis_bsmx                  ! bas_norm_id
+      idata = idata + nbasis_bsmx                  ! angular_bs
+      idata = idata + nbasis_bsmx                  ! nbfmax_bs
+      idata = idata + nbasis_assoc_max*nbasis_bsmx ! handle_assoc
+      idata = idata + nbasis_assoc_max*nbasis_bsmx ! parent_assoc
+      idata = idata + 1                            ! nbasis_rtdb
       idata = 4*idata
 c
 c.. integer data in the mapped object.  
@@ -134,6 +134,7 @@ c
       character*(*)name         ! [input] name of basis set.  
 c
 *:debug:      integer iiii, jjjj
+      integer ii ! dummy loop counter
 c
       external basis_data  ! This for the T3D linker
 c
@@ -166,8 +167,12 @@ c
      $      infbs_tags(1,1,basis), 1)
       call ifill(ndbs_ucont*nucont_bsmx, 0,
      $      infbs_cont(1,1,basis), 1)
-      ecp_name_assoc(basis) = '                                     '
-      ecp_handle_assoc(basis) = 0
+      do ii = 1,nbasis_assoc_max
+        name_assoc(ii,basis) = ' '
+      enddo
+      call ifill(nbasis_assoc_max,0,handle_assoc(1,basis),1)
+      call ifill(nbasis_assoc_max,0,parent_assoc(1,basis),1)
+      bas_nassoc(basis) = 0
 c
 c Initialize geo-basis info to empty
 c
@@ -178,6 +183,7 @@ c
       call ifill(3, 0, ibs_ce2cnr(1,basis), 1)
       ncont_tot_gb(basis) = 0
       nprim_tot_gb(basis) = 0
+      ncoef_tot_gb(basis) = 0
       nbf_tot_gb(basis)   = 0
       ibs_geom(basis)     = 0
       bas_norm_id(basis)  = BasNorm_UN
@@ -205,17 +211,22 @@ c
 c::functions
       logical bas_get_ecp_handle, ecp_check_handle, bas_do_destroy
       external bas_get_ecp_handle, ecp_check_handle, bas_do_destroy
+      logical bas_get_so_handle, so_check_handle
+      external bas_get_so_handle, so_check_handle
 c::passed
       integer basisin
 c::local
       logical ignore
-      integer ecpid
+      integer ecpid, soid
 c
       ignore = bas_get_ecp_handle(basisin,ecpid)
+      ignore = bas_get_so_handle(basisin,soid)
+      bas_destroy = .true.
       if (ecp_check_handle(ecpid,'bas_destroy')) then
-        bas_destroy = bas_do_destroy(ecpid)
-      else
-        bas_destroy = .true.
+        bas_destroy = bas_destroy.and.bas_do_destroy(ecpid)
+      endif
+      if (so_check_handle(soid,'bas_destroy')) then
+        bas_destroy = bas_destroy.and.bas_do_destroy(soid)
       endif
       bas_destroy = bas_destroy .and. bas_do_destroy(basisin)
       end
@@ -230,9 +241,10 @@ c
 #include "basdeclsP.fh"
 #include "basP.fh"
 #include "bas_exndcf_dec.fh"
-#include "ecp_decP.fh"
+#include "ecpso_decP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "bas_ibs_dec.fh"
 c::functions used
 c::bas
       logical bas_check_handle
@@ -246,13 +258,15 @@ c::bas
 c::passed
       integer basisin ![input] basis set handle to be destroyed
 c::local
+      integer idbstag
       integer i, nat, num_elec
       integer geom
       integer basis
       integer h_tmp
 c
+#include "bas_ibs_sfn.fh"
 #include "bas_exndcf_sfn.fh"
-#include "ecp_sfnP.fh"
+#include "ecpso_sfnP.fh"
 c
       bas_do_destroy = bas_check_handle(basisin,'bas_do_destroy')
       if (.not. bas_do_destroy) return
@@ -267,7 +281,9 @@ c must restore active geometry data appropriately
           if (.not.geom_ncent(geom,nat))
      &        call errquit('bas_do_destroy:geom_ncent failed',911)
           do i = 1,nat
-            if (ecp_get_num_elec(basisin,tags(i,geom),num_elec)) then
+            idbstag = sf_ibs_ce2uce(i,basis)
+            if (ecp_get_num_elec(basisin,
+     &          bs_tags(idbstag,basis),num_elec)) then
               charge(i,geom) = charge(i,geom) + dble(num_elec)
             endif
           enddo
@@ -333,7 +349,7 @@ c
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
-#include "ecp_decP.fh"
+#include "ecpso_decP.fh"
 #include "inp.fh"
 c:functions
       logical bas_check_handle
@@ -344,13 +360,41 @@ c:passed
 c::local
       character*255 newmsg    
 c
-#include "ecp_sfnP.fh"
+#include "ecpso_sfnP.fh"
 c
       newmsg(1:17) = 'ecp_check_handle:'
       newmsg(18:) = msg 
       ecp_check_handle = bas_check_handle(ecpidin,newmsg)
       ecp_check_handle = ecp_check_handle .and.
      &    Is_ECP_in(ecpidin)
+      return
+      end
+*.....................................................................
+      logical function so_check_handle(soidin,msg)
+c
+c Checks to see if a basis set handle is valid
+c
+      implicit none
+#include "basdeclsP.fh"
+#include "basP.fh"
+#include "ecpso_decP.fh"
+#include "inp.fh"
+c:functions
+      logical bas_check_handle
+      external bas_check_handle
+c:passed
+      integer soidin           ! [input] handle
+      character*(*) msg         ! [input] error message
+c::local
+      character*255 newmsg    
+c
+#include "ecpso_sfnP.fh"
+c
+      newmsg(1:17) = 'so_check_handle:'
+      newmsg(18:) = msg 
+      so_check_handle = bas_check_handle(soidin,newmsg)
+      so_check_handle = so_check_handle .and.
+     &    Is_SO_in(soidin)
       return
       end
 *.....................................................................
@@ -421,7 +465,7 @@ c 1s on H
       a_cof (2) = 0.90469100d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load',.false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2s on H
@@ -432,7 +476,7 @@ c 2s on H
       a_cof (1) = 1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1s on He
@@ -446,7 +490,7 @@ c 1s on He
       a_cof (2) =  0.89348300d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2s on He
@@ -457,7 +501,7 @@ c 2s on He
       a_cof (1) = 1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1s on O
@@ -473,7 +517,7 @@ c 1s on O
       a_cof (3) =    0.70765800d00  
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1sp on O
@@ -488,7 +532,7 @@ c add s first
       a_cof (2) =    1.22156000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c add p now
@@ -502,7 +546,7 @@ c add p now
       a_cof (2) =   0.85395500d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2sp on O
@@ -515,7 +559,7 @@ c add s first
       a_cof (1) =  1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
       if (.not. a_status) call errquit
      &    ('bas_321g_load: bas_add_ucnt failed',911)
 c add p now
@@ -527,7 +571,7 @@ c add p now
       a_cof (1) =  1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
       if (.not. a_status) call errquit
      &    ('bas_321g_load: bas_add_ucnt failed',911)
 *_old_checking_code:      bs_tags(1,usebas) = 'H'
@@ -690,7 +734,7 @@ c
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "inp.fh"
-#include "ecp_decP.fh"
+#include "ecpso_decP.fh"
 c::-functions
       logical bas_check_handle
       external bas_check_handle
@@ -718,12 +762,12 @@ c::-local
       character*1 ctype(0:6)
       integer cnt_type(0:6)
 *
-#include "ecp_sfnP.fh"
+#include "ecpso_sfnP.fh"
 *
       bas_summary_print =
      &    bas_check_handle(basisin,'bas_summary_print')
 *
-      if (Is_ECP_in(basisin)) then
+      if (Is_ECP_in(basisin).or.Is_SO_in(basisin)) then
         bas_summary_print = .true.
         return
       endif
@@ -834,12 +878,12 @@ c
 #include "basdeclsP.fh"
 #include "inp.fh"
 #include "geom.fh"
-#include "ecp_decP.fh"
+#include "ecpso_decP.fh"
 c
 c function declarations
 c      
-      logical bas_check_handle, ecp_print
-      external bas_check_handle, ecp_print
+      logical  bas_check_handle, ecp_print, so_print
+      external bas_check_handle, ecp_print, so_print
 c:: passed
       integer basisin  ! [input] basis set handle
 c:: local
@@ -855,10 +899,14 @@ c:: local
       character*12 polynomial
 c
 #include "bas_exndcf.fh"
-#include "ecp_sfnP.fh"
+#include "ecpso_sfnP.fh"
 c
       if (Is_ECP_in(basisin)) then
         bas_print = ecp_print(basisin)
+        return
+      endif
+      if (Is_SO_in(basisin)) then
+        bas_print = so_print(basisin)
         return
       endif
 c
@@ -943,7 +991,6 @@ c
           ifcont = ifcont + 1
 00200   continue
 00100 continue
-*debug:      write(6,*)' associated ecp ',ecp_name_assoc(basis)
 c
 c  If geom is set print out the info about total basis info 
 c  associated with the geometry also
@@ -955,6 +1002,7 @@ c
 *.....................................................................
       logical function bas_rtdb_load(rtdb, geom, basisin, name)
       implicit none
+#include "mafdecls.fh"
 #include "stdio.fh"
 #include "inp.fh"
 c::functions
@@ -966,6 +1014,10 @@ c::functions
       external bas_create, bas_do_destroy, bas_set_ecp_handle
       external ecp_set_parent_handle
       external bas_name_exist_rtdb
+      logical bas_get_so_name, bas_set_so_name, bas_set_so_handle
+      logical so_set_parent_handle
+      external bas_get_so_name, bas_set_so_name, bas_set_so_handle
+      external so_set_parent_handle
 c::passed
       integer rtdb
       integer geom
@@ -973,13 +1025,13 @@ c::passed
       character*(*) name
 c
 c::local
-      character*256 ecp_name
-      integer ecpid
+      character*256 ecp_name, so_name
+      integer ecpid, soid
       logical status
-      logical status_bas_cr
-      logical status_ecp_load
-      logical status_ecp_ph
-      logical status_ecp
+      logical status_ecp_cr, status_so_cr
+      logical status_ecp_load, status_so_load
+      logical status_ecp_ph, status_so_ph
+      logical status_ecp, status_so
 c
 *:debug:      write(6,*)' bas_rtdb_load:rtdb,geom,basis ',
 *:debug:     &    rtdb,geom,basisin
@@ -988,9 +1040,9 @@ c
      &    bas_rtdb_do_load(rtdb, geom, basisin, name)
       if (.not.inp_compare(.false.,'ao basis',name(1:8)))
      &    return
+*
       if (.not.bas_get_ecp_name(basisin,ecp_name)) call errquit
      &    ('bas_rtdb_load: bas_get_ecp_name failed',911)
-
       if (ecp_name .eq. '  ') then
         ecp_name = 'ecp basis'
       endif
@@ -1001,8 +1053,8 @@ c
 *
 * ecp_name is on rtdb so load it
 *
-        status_bas_cr = bas_create(ecpid,ecp_name)
-        if (.not.status_bas_cr) then
+        status_ecp_cr = bas_create(ecpid,ecp_name)
+        if (.not.status_ecp_cr) then
           call errquit
      &        ('bas_rtdb_load: bas_create failed for ecpid',911)
         endif
@@ -1028,6 +1080,50 @@ c
 *... ecp exists but is not used by current geometry so destroy it !
           if (.not.bas_do_destroy(ecpid)) then
             write(luout,*)' unused ecp basis failed to be destroyed'
+            call errquit('bas_rtdb_load: bas_do_destroy failed',911)
+          endif
+        endif
+      endif
+
+      if (.not.bas_get_so_name(basisin,so_name)) call errquit
+     &    ('bas_rtdb_load: bas_get_so_name failed',911)
+      if (so_name .eq. '  ') then
+        so_name = 'so potential'
+      endif
+
+      status = bas_name_exist_rtdb(rtdb,so_name)
+
+      if (status) then
+*
+* so_name is on rtdb so load it
+*
+        status_so_cr = bas_create(soid,so_name)
+        if (.not.status_so_cr) then
+          call errquit
+     &        ('bas_rtdb_load: bas_create failed for soid',911)
+        endif
+
+        status_so_load = bas_rtdb_do_load(rtdb,geom,soid,so_name)
+        if (status_so_load) then
+*.... everything is okay
+          if (.not.bas_set_so_name(basisin,so_name)) call errquit
+     &        ('bas_rtdb_load: bas_set_so_name failed',911)
+
+          status_so = bas_set_so_handle(basisin,soid)
+          if (.not.status_so) then
+            call errquit
+     &          ('bas_rtdb_load: bas_set_so_handle failed',911)
+          endif
+        
+          status_so_ph = so_set_parent_handle(soid,basisin)
+          if (.not.status_so_ph) then
+            call errquit
+     &          ('bas_rtdb_load: so_set_parent_handle failed',911)
+          endif
+        else
+*... so exists but is not used by current geometry so destroy it !
+          if (.not.bas_do_destroy(soid)) then
+            write(luout,*)' unused so basis failed to be destroyed'
             call errquit('bas_rtdb_load: bas_do_destroy failed',911)
           endif
         endif
@@ -1067,6 +1163,8 @@ c:: passed
       character*(*) name  ! [input] basis set name that must be on 
 *. . . . . . . . . . . . .          the rtdb
 c:: local
+      integer ecXtra      ! amount of extra space required for zero shell info
+      parameter (ecXtra = 2)
       character*25 nameex
       integer lentmp, basis, nexcf
       character*256 tmp
@@ -1115,7 +1213,7 @@ c
 c
       tmp(lentmp:) = ':assoc ecp name'
       rtdb_status = rtdb_status .and.
-     &       rtdb_cget(rtdb, tmp, 1, ecp_name_assoc(basis))
+     &       rtdb_cget(rtdb, tmp, 2, name_assoc(1,basis))
 c
       nexcf = 0
       tmp(lentmp:) = ':number of exps and coeffs'
@@ -1130,17 +1228,17 @@ c
      $        exndcf(H_exndcf,basis))
       endif
 
-      if (.not.ma_alloc_get(mt_dbl,(nexcf+2),nameex,
+      if (.not.ma_alloc_get(mt_dbl,(nexcf+ecXtra),nameex,
      &    h_tmp, k_tmp)) then
         write(6,*)' not enough memory'
         call errquit
      &      (' bas_rtdb_do_load: error allocating space'//
      &      ' for exndcf',911)
       else
-        call dfill((nexcf+2),0.0d00,dbl_mb(k_tmp),1)
+        call dfill((nexcf+ecXtra),0.0d00,dbl_mb(k_tmp),1)
         exndcf(H_exndcf,basis) = h_tmp
         exndcf(K_exndcf,basis) = k_tmp
-        exndcf(SZ_exndcf,basis) = (nexcf+2)
+        exndcf(SZ_exndcf,basis) = (nexcf+ecXtra)
       endif
 c
       tmp(lentmp:) = ':exps and coeffs'
@@ -1223,7 +1321,7 @@ c
 #include "inp.fh"
 #include "global.fh"
 #include "bas_ibs_dec.fh"
-#include "ecp_decP.fh"
+#include "ecpso_decP.fh"
 #include "stdio.fh"
 c::passed
       integer basisin
@@ -1243,12 +1341,13 @@ c::local
       logical foundit
       logical found_any
       logical is_bq
+      logical ecpORso
       integer int_dummy, num_elec
       integer h_tmp, k_tmp
       character*2 tag12
       character*16 name_tmp
       double precision erep_save
-      integer uce
+      integer uce, idbstag
 *debug:mem      integer inode
 c::functions
       logical bas_high_angular
@@ -1261,10 +1360,11 @@ c::functions
       external bas_match_tags
 c
 #include "bas_ibs_sfn.fh"
-#include "ecp_sfnP.fh"
+#include "ecpso_sfnP.fh"
 c
       basis = basisin + Basis_Handle_Offset
       geom  = ibs_geom(basis)
+      ecpORso = Is_ECP(basis).or.Is_SO(basis)
 c
 *debug:mem      do inode = 0,(ga_nnodes() - 1)
 *debug:mem        if (inode.eq.ga_nodeid()) call MA_summarize_allocated_blocks()
@@ -1289,7 +1389,7 @@ c.... set spherical flag
       endif
 c.... set flag if any general contractions are present
       bas_any_gc(basis)       = .false.
-      if(.not. Is_ECP(basis)) then
+      if(.not. ecpORso) then
         do i = 1,(infbs_head(Head_Ncont,basis))
           if (.not.bas_any_gc(basis)) then
             my_gen  = infbs_cont(Cont_Ngen,i,basis)
@@ -1301,7 +1401,7 @@ c.... set flag if any general contractions are present
       endif
 c.... set flag if any sp (spd,spdf) shells are present
       bas_any_sp_shell(basis) = .false.
-      if(.not. Is_ECP(basis)) then
+      if(.not. ecpORso) then
         do i = 1,(infbs_head(Head_Ncont,basis))
           if (.not.bas_any_sp_shell(basis)) then
             my_gen  = infbs_cont(Cont_Ngen,i,basis)
@@ -1370,7 +1470,7 @@ c
           found_any = .true.
           goto 00102
         endif
-        if (.not. foundit .and. .not. Is_ECP(basis)) then
+        if (.not. foundit .and. .not. ecpORso) then
           if (geom_tag_to_element(tags(i,geom), symbol, element,
      $        atn)) then
             if (ga_nodeid().eq.0)
@@ -1403,7 +1503,7 @@ c
 00100 continue
 *
       if (.not.found_any) then
-        if (Is_ECP(basis)) then
+        if (ecpORso) then
           bas_geobas_build = .false.
           return
         else
@@ -1637,7 +1737,7 @@ c                                 123456789012
         ibs_cn2bfr(SZ_ibs,basis) = 2*(1+ncont_tot_gb(basis))
       endif
 c
-c build nprim_tot_gb, nbf_tot_gb, and 
+c build nprim_tot_gb, ncoef_tot_gb, nbf_tot_gb, and 
 c contraction -> basis function range map 
 c find nbfmax for basis (initialized in block data statement)
 c
@@ -1655,6 +1755,9 @@ c
         nbf_tot_gb(basis) = nbf_tot_gb(basis) + nbf
         nprim_tot_gb(basis) = nprim_tot_gb(basis) +
      &         infbs_cont(CONT_NPRIM,iu_cont,basis)
+        ncoef_tot_gb(basis) = ncoef_tot_gb(basis) + 
+     &         infbs_cont(CONT_NPRIM,iu_cont,basis)*
+     &         infbs_cont(CONT_NGEN,iu_cont,basis)
 00700 continue
 c
 c set zero elements of cn2bfr
@@ -1672,7 +1775,9 @@ c
 * if ECP basis must modify geometry data appropriately
         do i = 1,nat
           oecpcent(i,geom)=.false.
-          if (ecp_get_num_elec(basisin,tags(i,geom),num_elec)) then
+          idbstag = sf_ibs_ce2uce(i,basis)
+          if (ecp_get_num_elec(basisin,
+     &        bs_tags(idbstag,basis),num_elec)) then
             oecpcent(i,geom) = .true.
             charge(i,geom) = charge(i,geom) - dble(num_elec)
           endif
@@ -1700,7 +1805,7 @@ c
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
 #include "basP.fh"
-#include "ecp_decP.fh"
+#include "ecpso_decP.fh"
 c::passed
       integer rtdb              ! [input] handle to database
       character*(*) name        ! [input] name to use when storing db
@@ -1717,13 +1822,13 @@ c::local
       integer size_ex
 c:: statement functions
 #include "bas_exndcf.fh"      
-#include "ecp_sfnP.fh"
+#include "ecpso_sfnP.fh"
 c
       bas_rtdb_store = bas_check_handle(basisin,'bas_rtdb_store')
       if (.not. bas_rtdb_store) return
       basis = basisin + Basis_Handle_Offset
 c
-      if (Is_ECP(basis)) then
+      if (Is_ECP(basis).or.Is_SO(basis)) then
         size_ex = (2*infbs_head(HEAD_NPRIM,basis))+
      &      infbs_head(HEAD_NCOEF,basis)
       else
@@ -1739,7 +1844,7 @@ c
      $    infbs_head(HEAD_NCONT,basis), 
      $    size_ex,
      &    bs_stdname(1,basis),
-     &    ecp_name_assoc(basis))
+     &    name_assoc(1,basis))
 c
       end
 *.....................................................................
@@ -1780,7 +1885,7 @@ c::: passed
       integer tags_array(ndbs_tags,ntagsin) ! [input] tag data
       integer ucont_array(ndbs_ucont,nucontin) ! [input] unique 
 *. . . . . . . . . . . . . . . . . . . . . . .   contraction data
-      character*(*) ecp_name                   ! [input] ecp 
+      character*(*) ecp_name(2)                 ! [input] ecp 
 *. . . . . . . . . . . . . . . . . . . . . . .   associated with 
 *. . . . . . . . . . . . . . . . . . . . . . .   normal basis
       double precision excfin(nexcf) ! [input] exponents 
@@ -1809,7 +1914,7 @@ c
       status = status .and. rtdb_cput(rtdb,tmp,ntagsin,stdnamein)
       
       tmp(lentmp:) = ':assoc ecp name'
-      status = status .and. rtdb_cput(rtdb,tmp,1,ecp_name)
+      status = status .and. rtdb_cput(rtdb,tmp,2,ecp_name)
 c
       tmp(lentmp:) = ':number of exps and coeffs'
       status = status .and. rtdb_put(rtdb,tmp,mt_int,1,nexcf)
@@ -1856,7 +1961,7 @@ c:: passed
       integer basisin       ! [input] basis set handle
       integer high_angular  ! [output] high angular momentum of basis
 c:local
-      integer basis, myucont, i, myang
+      integer basis, i, myang
       integer myutag
 c
       bas_high_angular = bas_check_handle(basisin,'bas_high_angular')
@@ -1967,6 +2072,7 @@ c
       call ifill(3,0,ibs_ce2cnr(1,basis),1)
       ncont_tot_gb(basis) = 0
       nprim_tot_gb(basis) = 0
+      ncoef_tot_gb(basis) = 0
       nbf_tot_gb(basis)   = 0
 c
       gbs_map_clear = .true.
@@ -2027,6 +2133,8 @@ c
      &       ncont_tot_gb(basis)
       write(6,*)' total number of primitives      :',
      &       nprim_tot_gb(basis)
+      write(6,*)' total number of coefficients    :',
+     &       ncoef_tot_gb(basis)
       write(6,*)' total number of basis functions :',
      &       nbf_tot_gb(basis)
 c
@@ -2533,6 +2641,58 @@ c
       return
       end
 *.....................................................................
+      logical function bas_num_prim(basisin,nprim)
+c
+c returns the total number of primitives of the mapped basis set.
+c
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin ! [input] basis set handle         
+      integer nprim   ! [output] number of primitives in mapped basis
+c::local
+      integer basis 
+c
+      nprim = -6589
+      bas_num_prim = bas_check_handle(basisin,'bas_num_prim')
+      if (.not. bas_num_prim) return
+
+      basis = basisin + Basis_Handle_Offset 
+      nprim = nprim_tot_gb(basis)
+      bas_num_prim = .true.
+      return
+      end
+*.....................................................................
+      logical function bas_num_coef(basisin,ncoef)
+c
+c returns the total number of coeffsof the mapped basis set.
+c
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin ! [input] basis set handle         
+      integer ncoef   ! [output] number of coeffs in mapped basis
+c::local
+      integer basis 
+c
+      ncoef = -6589
+      bas_num_coef = bas_check_handle(basisin,'bas_num_coef')
+      if (.not. bas_num_coef) return
+
+      basis = basisin + Basis_Handle_Offset 
+      ncoef = ncoef_tot_gb(basis)
+      bas_num_coef = .true.
+      return
+      end
+*.....................................................................
       logical function bas_name(basisin,basis_name,trans_name)
 c
 c returns the name and translated name of the basis set
@@ -2968,13 +3128,13 @@ c print basis set information
 c      
       write(6,1)bs_name(ecpid)(1:inp_strlen(bs_name(ecpid))), 
      $    bs_trans(ecpid)(1:inp_strlen(bs_trans(ecpid)))
- 1    format('                 ECP Basis "',a,'" -> "',a,'"'/
+ 1    format('                 ECP       "',a,'" -> "',a,'"'/
      $    '                      -----')
       if (bas_spherical(ecpid)) write(6,2)
  2    format('    ECP Basis is spherical, 5d, 7f, 9g ... ')
       mytags  = infbs_head(HEAD_NTAGS,ecpid)
       if (mytags.le.0) then
-        write(6,*)' Empty ECP Basis set '
+        write(6,*)' Empty ECP '
         write(6,*)
         return
       endif
@@ -3036,15 +3196,140 @@ c
  7          format(1x,i2,1x,a3,1x,f9.2,2x,f14.6,20f15.6)
       end
 *.....................................................................
+      logical function so_print(soidin)
+c
+c routine to print unique soid information that is in core
+c
+      implicit none
+#include "mafdecls.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "inp.fh"
+#include "geom.fh"
+c
+c function declarations
+c      
+      logical so_check_handle
+      external so_check_handle
+c:: passed
+      integer soidin ! [input] basis set handle
+c:: local
+      integer mytags, myucont, myprim, mycoef, soid
+      integer i,j,k,l, ifcont, mygen, mytype, irexptr, iexptr, icfptr
+      integer atn, len_tag, len_ele
+      character*2 symbol
+      character*16 element
+      character*3 ctype(-1:6)
+      character*3 shell_type
+      character*60 buffer 
+c
+#include "bas_exndcf.fh"
+c
+      ctype(-1)='U L'
+      ctype(0) ='U-s'
+      ctype(1) ='U-p'
+      ctype(2) ='U-d'
+      ctype(3) ='U-f'
+      ctype(4) ='U-g'
+      ctype(5) ='U-h'
+      ctype(6) ='U-i'
+      so_print = .true.
+      soid = soidin + Basis_Handle_Offset
+c
+      so_print = so_check_handle(soidin,'so_print')
+      if (.not. so_print) return
+c
+c print basis set information
+c      
+      write(6,1)bs_name(soid)(1:inp_strlen(bs_name(soid))), 
+     $    bs_trans(soid)(1:inp_strlen(bs_trans(soid)))
+ 1    format('             SO Potential "',a,'" -> "',a,'"'/
+     $    '                      -----')
+      if (bas_spherical(soid)) write(6,2)
+ 2    format('    SO Basis is spherical, 5d, 7f, 9g ... ')
+      mytags  = infbs_head(HEAD_NTAGS,soid)
+      if (mytags.le.0) then
+        write(6,*)' Empty SO Basis set '
+        write(6,*)
+        return
+      endif
+c
+      myucont = infbs_head(HEAD_NCONT,soid)
+      myprim  = infbs_head(HEAD_NPRIM,soid)
+      mycoef  = infbs_head(HEAD_NCOEF,soid)
+c
+      do 00100 i=1,mytags
+        
+        if (geom_tag_to_element(bs_tags(i,soid), symbol, element,
+     $      atn)) then
+          len_tag = inp_strlen(bs_tags(i,soid))
+          len_ele = inp_strlen(element)
+          write (buffer,
+     &        '(a,'' ('',a,'')'' )')
+     &        bs_tags(i,soid)(1:len_tag), element(1:len_ele)
+        else
+          buffer = bs_tags(i,soid)
+        endif
+        len_tag = inp_strlen(buffer)
+        call util_print_centered(6, buffer, len_tag/2 + 1, .true.)
+        
+        myucont = infbs_tags(TAG_NCONT,i,soid)
+c        
+        ifcont = infbs_tags(TAG_FCONT,i,soid)
+c     
+        write(6,6)
+ 6      format(
+     $      '          R-exponent    Exponent     Coefficients '/
+     $      '         ------------ ',60('-'))
+        do 00200 j=1,myucont
+          myprim = infbs_cont(CONT_NPRIM,ifcont,soid)
+          mygen  = infbs_cont(CONT_NGEN,ifcont,soid)
+          
+          mytype = infbs_cont(CONT_TYPE, ifcont, soid)
+          shell_type = ctype(mytype)
+          iexptr  = infbs_cont(CONT_IEXP, ifcont,soid) - 1
+          icfptr  = infbs_cont(CONT_ICFP, ifcont,soid) - 1
+          irexptr = infbs_cont(CONT_IREXP,ifcont,soid) - 1
+          do 00300 k=1,myprim
+            write(6,7) j, shell_type,
+     &          sf_exndcf((irexptr+k),soid),
+     &          sf_exndcf((iexptr+k),soid),
+     &          (sf_exndcf((icfptr+k+(l-1)*myprim),soid),l=1,mygen)
+00300     continue
+          write(6,*)
+          ifcont = ifcont + 1
+00200   continue
+00100 continue
+c
+c  If geom is set print out the info about total basis info 
+c  associated with the geometry also
+c
+c  ... not done yet
+c
+      return
+ 7    format(1x,i2,1x,a3,1x,f9.2,2x,f14.6,20f15.6)
+      end
+*.....................................................................
       logical function bas_set_ecp_name(basisin,ecp_name)
       implicit none
 #include "basP.fh"
       integer basisin
       character*(*) ecp_name
 c
-      ecp_name_assoc((basisin+Basis_Handle_Offset)) =
+      name_assoc(1,(basisin+Basis_Handle_Offset)) =
      &    ecp_name
       bas_set_ecp_name = .true.
+      end
+*.....................................................................
+      logical function bas_set_so_name(basisin,so_name)
+      implicit none
+#include "basP.fh"
+      integer basisin
+      character*(*) so_name
+c
+      name_assoc(2,(basisin+Basis_Handle_Offset)) =
+     &    so_name
+      bas_set_so_name = .true.
       end
 *.....................................................................
       logical function bas_get_ecp_name(basisin,ecp_name)
@@ -3054,8 +3339,19 @@ c
       character*(*) ecp_name
 c
       ecp_name =
-     &    ecp_name_assoc((basisin+Basis_Handle_Offset)) 
+     &    name_assoc(1,(basisin+Basis_Handle_Offset)) 
       bas_get_ecp_name = .true.
+      end
+*.....................................................................
+      logical function bas_get_so_name(basisin,so_name)
+      implicit none
+#include "basP.fh"
+      integer basisin
+      character*(*) so_name
+c
+      so_name =
+     &    name_assoc(2,(basisin+Basis_Handle_Offset)) 
+      bas_get_so_name = .true.
       end
 *.....................................................................
       logical function bas_set_ecp_handle(basisin,ecp_handle)
@@ -3064,7 +3360,7 @@ c
       integer basisin
       integer ecp_handle
 c
-      ecp_handle_assoc((basisin+Basis_Handle_Offset)) =
+      handle_assoc(1,(basisin+Basis_Handle_Offset)) =
      &    ecp_handle
       bas_set_ecp_handle = .true.
       end
@@ -3076,7 +3372,7 @@ c
       integer ecp_handle
 c
       ecp_handle =
-     &    ecp_handle_assoc((basisin+Basis_Handle_Offset)) 
+     &    handle_assoc(1,(basisin+Basis_Handle_Offset)) 
       if (ecp_handle.ne.0) then
         bas_get_ecp_handle = .true.
       else
@@ -3099,8 +3395,10 @@ c
       if (.not.ecp_check_handle(ecp_handle,'ecp_set_parent_handle'))
      &      call errquit
      &      ('ecp_set_parent_handle: ecp_handle invalid',911)
-      ecp_parent_assoc(ecp_handle+Basis_Handle_Offset) =
+      parent_assoc(1,(ecp_handle+Basis_Handle_Offset)) =
      &      basis_handle
+      bas_nassoc(basis_handle+Basis_Handle_Offset) =
+     &    bas_nassoc(basis_handle+Basis_Handle_Offset) + 1 
       ecp_set_parent_handle = .true.
       end
 *.....................................................................
@@ -3116,7 +3414,7 @@ c
       if (.not.ecp_check_handle(ecp_handle,'ecp_get_parent_handle'))
      &      call errquit
      &      ('ecp_get_parent_handle: ecp_handle invalid',911)
-      basis_handle = ecp_parent_assoc(ecp_handle+Basis_Handle_Offset)
+      basis_handle = parent_assoc(1,ecp_handle+Basis_Handle_Offset)
       if (basis_handle.ne.0) then
         ecp_get_parent_handle = .true.
       else
@@ -3125,6 +3423,78 @@ c
       if (.not.bas_check_handle(basis_handle,'ecp_get_parent_handle'))
      &      call errquit
      &      ('ecp_get_parent_handle: stored basis_handle invalid',911)
+      end
+*.....................................................................
+      logical function bas_set_so_handle(basisin,so_handle)
+      implicit none
+#include "basP.fh"
+      integer basisin
+      integer so_handle
+c
+      handle_assoc(2,(basisin+Basis_Handle_Offset)) =
+     &    so_handle
+      bas_set_so_handle = .true.
+      end
+*.....................................................................
+      logical function bas_get_so_handle(basisin,so_handle)
+      implicit none
+#include "basP.fh"
+      integer basisin
+      integer so_handle
+c
+      so_handle =
+     &    handle_assoc(2,(basisin+Basis_Handle_Offset)) 
+      if (so_handle.ne.0) then
+        bas_get_so_handle = .true.
+      else
+        bas_get_so_handle = .false.
+      endif
+      end
+*.....................................................................
+      logical function so_set_parent_handle(so_handle,basis_handle)
+      implicit none
+#include "basP.fh"
+      integer so_handle
+      integer basis_handle
+c
+      logical bas_check_handle, so_check_handle
+      external bas_check_handle, so_check_handle
+c      
+      if (.not.bas_check_handle(basis_handle,'so_set_parent_handle'))
+     &      call errquit
+     &      ('so_set_parent_handle: basis_handle invalid',911)
+      if (.not.so_check_handle(so_handle,'so_set_parent_handle'))
+     &      call errquit
+     &      ('so_set_parent_handle: so_handle invalid',911)
+      parent_assoc(2,(so_handle+Basis_Handle_Offset)) =
+     &      basis_handle
+      bas_nassoc(basis_handle+Basis_Handle_Offset) =
+     &    bas_nassoc(basis_handle+Basis_Handle_Offset) + 1 
+      so_set_parent_handle = .true.
+      end
+*.....................................................................
+      logical function so_get_parent_handle(so_handle,basis_handle)
+      implicit none
+#include "basP.fh"
+      integer so_handle
+      integer basis_handle
+c
+      logical bas_check_handle, so_check_handle
+      external bas_check_handle, so_check_handle
+c      
+      if (.not.so_check_handle(so_handle,'so_get_parent_handle'))
+     &      call errquit
+     &      ('so_get_parent_handle: so_handle invalid',911)
+      basis_handle =
+     &    parent_assoc(2,(so_handle+Basis_Handle_Offset))
+      if (basis_handle.ne.0) then
+        so_get_parent_handle = .true.
+      else
+        so_get_parent_handle = .false.
+      endif
+      if (.not.bas_check_handle(basis_handle,'so_get_parent_handle'))
+     &      call errquit
+     &      ('so_get_parent_handle: stored basis_handle invalid',911)
       end
       subroutine bas_print_allocated_info(msg)
       implicit none
@@ -3206,7 +3576,7 @@ c::functions
 c::passed
       character*(*) tag_from_geom ! [input] geometry tag
       integer basisin             ! [input] basis set handle
-      integer btag                ! [output] lexical basis set tag
+      integer btag                ! [output] lexical basis set tag index
 *     bas_match_tags              ! [output] true if they match
 c::local
       integer basis           ! lexical basis index
@@ -3321,8 +3691,8 @@ c
       status = geom_tag_to_element(gstring,g_sym,g_elem,g_atn)
       if (.not.status)then
         if (.not.(g_sym.eq.'bq')) then
-          write(luout,*)'geometry tag',gstring,
-     &        ' could not be matched to an element symbol'
+          write(luout,*)'geometry tag <',gstring,
+     &        '> could not be matched to an element symbol'
           call errquit('bas_match_tags: fatal error ',911)
         endif
       endif
@@ -3417,6 +3787,7 @@ c
 #include "inp.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "geobasmapP.fh"
       character*(*) msg
 c
       integer llen
@@ -3428,13 +3799,22 @@ c
       write(luout,*)'bas_dump_info: bsversion:', bsversion
       do basis = 1, nbasis_bsmx
         if (bsactive(basis)) then
+          write(luout,*)'---------------------------------------------'
+          write(luout,*)'---------------------------------------------'
+          write(luout,*)'handle(computed) :',
+     &        (basis-basis_handle_offset)
+          write(luout,*)'geometry loader  :',
+     &        ibs_geom(basis)
           write(luout,*)'bs_name          :',
      &        bs_name(basis)(1:len_bs_name(basis))
           write(luout,*)'bs_trans         :',
      &        bs_trans(basis)(1:len_bs_trans(basis))
-          llen = inp_strlen(ecp_name_assoc(basis))
+          llen = inp_strlen(name_assoc(1,basis))
           write(luout,*)'ecp_name_assoc   :',
-     &        ecp_name_assoc(basis)(1:llen)
+     &        name_assoc(1,basis)(1:llen)
+          llen = inp_strlen(name_assoc(2,basis))
+          write(luout,*)'so_name_assoc   :',
+     &        name_assoc(2,basis)(1:llen)
           ntags = infbs_head(Head_Ntags,basis)
           write(luout,*)'head ntags       :',ntags
           write(luout,*)'head ncont       :',
@@ -3462,9 +3842,17 @@ c
           write(luout,*)'nbfmax_bs        :',
      &        nbfmax_bs(basis)
           write(luout,*)'ecp_handle_assoc :',
-     &        ecp_handle_assoc(basis)
+     &        handle_assoc(1,basis)
           write(luout,*)'ecp_parent_assoc :',
-     &        ecp_parent_assoc(basis)
+     &        parent_assoc(1,basis)
+          write(luout,*)'so_handle_assoc :',
+     &        handle_assoc(2,basis)
+          write(luout,*)'so_parent_assoc :',
+     &        parent_assoc(2,basis)
+          write(luout,*)'num of assoc    :',
+     &        bas_nassoc(basis)
+          write(luout,*)'^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+          write(luout,*)'---------------------------------------------'
         endif
       enddo
       write(luout,00001)
@@ -3481,7 +3869,7 @@ c
       logical bas_numcont, bas_continfo
       external bas_numcont, bas_continfo
 c::args
-C$Id: basis.F,v 1.78 1998-02-06 01:29:01 d3e129 Exp $
+C$Id: basis.F,v 1.79 1998-04-29 07:29:52 d3e129 Exp $
       integer basis_hand ! nwchem basis handle
       integer ncontr_max  ! max no of contractions for any contraction set
 c::locals
@@ -3508,3 +3896,400 @@ c
 
       return 
       end 
+*----------------------------------------------------------------------
+      logical function ecpso_ncent(geom,soidin,ecpidin,num_cent)
+      implicit none
+*
+* return the combined number of ecp/so centers
+*      
+*::includes
+#include "geom.fh"
+*::functions
+      logical bas_match_tags
+      external bas_match_tags
+*::passed
+      integer geom     ! [input] geometry handle
+      integer soidin   ! [input] so pot. handle
+      integer ecpidin  ! [input] ecp handle
+      integer num_cent ! [output] number of ecp/so centers
+*::local
+      integer ntotal            ! total number of centers in goemetry
+      integer ic                ! loop counter for centers
+      integer tag_indx          ! basis set unique center index for tag
+      character*16 gtag         ! geometry tag 
+      double precision cxyz(3)  ! coordinates
+      double precision chg      ! charge
+      logical inthe_ecp         ! is tag in the ecp?
+      logical inthe_so          ! is the tag in the so pot.?
+*
+      ecpso_ncent = geom_ncent(geom,ntotal)
+      if (.not.ecpso_ncent) call errquit
+     &    ('ecpso_ncent: geom_ncent failed?',911)
+      num_cent = 0
+      do ic = 1,ntotal
+        if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
+     &      ('ecpso_ncent: geom_cent_get failed',911)
+        inthe_ecp = bas_match_tags(gtag,ecpidin,tag_indx)
+        inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
+        if (inthe_ecp.or.inthe_so) num_cent = num_cent + 1
+      enddo
+      end
+*----------------------------------------------------------------------
+      logical function so_ncent(geom,soidin,num_cent)
+      implicit none
+*
+* return the number of so centers
+*      
+*::includes
+#include "geom.fh"
+*::functions
+      logical bas_match_tags
+      external bas_match_tags
+*::passed
+      integer geom     ! [input] geometry handle
+      integer soidin   ! [input] so pot. handle
+      integer num_cent ! [output] number of ecp/so centers
+*::local
+      integer ntotal            ! total number of centers in goemetry
+      integer ic                ! loop counter for centers
+      integer tag_indx          ! basis set unique center index for tag
+      character*16 gtag         ! geometry tag 
+      double precision cxyz(3)  ! coordinates
+      double precision chg      ! charge
+      logical inthe_so          ! is the tag in the so pot.?
+*
+      so_ncent = geom_ncent(geom,ntotal)
+      if (.not.so_ncent) call errquit
+     &    ('so_ncent: geom_ncent failed?',911)
+      num_cent = 0
+      do ic = 1,ntotal
+        if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
+     &      ('so_ncent: geom_cent_get failed',911)
+        inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
+        if (inthe_so) num_cent = num_cent + 1
+      enddo
+      end
+*----------------------------------------------------------------------
+      logical function ecp_ncent(geom,ecpidin,num_cent)
+      implicit none
+*
+* return the number of ecp centers
+*      
+*::includes
+#include "geom.fh"
+*::functions
+      logical bas_match_tags
+      external bas_match_tags
+*::passed
+      integer geom     ! [input] geometry handle
+      integer ecpidin  ! [input] ecp handle
+      integer num_cent ! [output] number of ecp centers
+*::local
+      integer ntotal            ! total number of centers in goemetry
+      integer ic                ! loop counter for centers
+      integer tag_indx          ! basis set unique center index for tag
+      character*16 gtag         ! geometry tag 
+      double precision cxyz(3)  ! coordinates
+      double precision chg      ! charge
+      logical inthe_ecp         ! is the tag in the ecp pot.?
+*
+      ecp_ncent = geom_ncent(geom,ntotal)
+      if (.not.ecp_ncent) call errquit
+     &    ('ecp_ncent: geom_ncent failed?',911)
+      num_cent = 0
+      do ic = 1,ntotal
+        if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
+     &      ('ecp_ncent: geom_cent_get failed',911)
+        inthe_ecp  = bas_match_tags(gtag,ecpidin,tag_indx)
+        if (inthe_ecp) num_cent = num_cent + 1
+      enddo
+      end
+*----------------------------------------------------------------------
+      logical function ecpso_list_ncent(geom,soidin,ecpidin,
+     &    num_cent,ecpso_list)
+      implicit none
+*
+* return the combined number of ecp/so centers and the list of centers
+*      
+*::includes
+#include "geom.fh"
+*::functions
+      logical bas_match_tags
+      external bas_match_tags
+*::passed
+      integer geom          ! [input] geometry handle
+      integer soidin        ! [input] so pot. handle
+      integer ecpidin       ! [input] ecp handle
+      integer num_cent      ! [output] number of ecp/so centers
+      integer ecpso_list(*) ![output] list of ecp/so centers
+*::local
+      integer ntotal            ! total number of centers in goemetry
+      integer ic                ! loop counter for centers
+      integer tag_indx          ! basis set unique center index for tag
+      character*16 gtag         ! geometry tag 
+      double precision cxyz(3)  ! coordinates
+      double precision chg      ! charge
+      logical inthe_ecp         ! is tag in the ecp?
+      logical inthe_so          ! is the tag in the so pot.?
+*
+      ecpso_list_ncent = geom_ncent(geom,ntotal)
+      if (.not.ecpso_list_ncent) call errquit
+     &    ('ecpso_list_ncent: geom_ncent failed?',911)
+      num_cent = 0
+      do ic = 1,ntotal
+        if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
+     &      ('ecpso_list_ncent: geom_cent_get failed',911)
+        inthe_ecp = bas_match_tags(gtag,ecpidin,tag_indx)
+        inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
+        if (inthe_ecp.or.inthe_so) then
+          num_cent = num_cent + 1
+          ecpso_list(num_cent) = ic
+        endif
+      enddo
+      end
+*----------------------------------------------------------------------
+      logical function so_list_ncent(geom,soidin,
+     &    num_cent,so_list)
+      implicit none
+*
+* return the number of so centers and the list of centers
+*      
+*::includes
+#include "geom.fh"
+*::functions
+      logical bas_match_tags
+      external bas_match_tags
+*::passed
+      integer geom          ! [input] geometry handle
+      integer soidin        ! [input] so pot. handle
+      integer num_cent      ! [output] number of so centers
+      integer so_list(*) ![output] list of so centers
+*::local
+      integer ntotal            ! total number of centers in goemetry
+      integer ic                ! loop counter for centers
+      integer tag_indx          ! basis set unique center index for tag
+      character*16 gtag         ! geometry tag 
+      double precision cxyz(3)  ! coordinates
+      double precision chg      ! charge
+      logical inthe_so          ! is the tag in the so pot.?
+*
+      so_list_ncent = geom_ncent(geom,ntotal)
+      if (.not.so_list_ncent) call errquit
+     &    ('so_list_ncent: geom_ncent failed?',911)
+      num_cent = 0
+      do ic = 1,ntotal
+        if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
+     &      ('so_list_ncent: geom_cent_get failed',911)
+        inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
+        if (inthe_so) then
+          num_cent = num_cent + 1
+          so_list(num_cent) = ic
+        endif
+      enddo
+      end
+*----------------------------------------------------------------------
+      logical function ecp_list_ncent(geom,ecpidin,
+     &    num_cent,ecp_list)
+      implicit none
+*
+* return the number of ecp centers and the list of centers
+*      
+*::includes
+#include "geom.fh"
+*::functions
+      logical bas_match_tags
+      external bas_match_tags
+*::passed
+      integer geom          ! [input] geometry handle
+      integer ecpidin       ! [input] ecp handle
+      integer num_cent      ! [output] number of ecp centers
+      integer ecp_list(*)   ! [output] list of ecp centers
+*::local
+      integer ntotal            ! total number of centers in goemetry
+      integer ic                ! loop counter for centers
+      integer tag_indx          ! basis set unique center index for tag
+      character*16 gtag         ! geometry tag 
+      double precision cxyz(3)  ! coordinates
+      double precision chg      ! charge
+      logical inthe_ecp         ! is tag in the ecp?
+*
+      ecp_list_ncent = geom_ncent(geom,ntotal)
+      if (.not.ecp_list_ncent) call errquit
+     &    ('ecp_list_ncent: geom_ncent failed?',911)
+      num_cent = 0
+      do ic = 1,ntotal
+        if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
+     &      ('ecp_list_ncent: geom_cent_get failed',911)
+        inthe_ecp = bas_match_tags(gtag,ecpidin,tag_indx)
+        if (inthe_ecp) then
+          num_cent = num_cent + 1
+          ecp_list(num_cent) = ic
+        endif
+      enddo
+      end
+*----------------------------------------------------------------------
+      logical function ecpso_get_coords(geom,soidin,ecpidin,
+     &    nxyz,xyz)
+      implicit none
+*
+* get the coordinates for the ecp/so centers
+*
+*::includes
+#include "geom.fh"
+*::functions
+      logical bas_match_tags
+      external bas_match_tags
+*::passed
+      integer geom          ! [input] geometry handle
+      integer soidin        ! [input] so pot. handle
+      integer ecpidin       ! [input] ecp handle
+      integer nxyz          ! [input] size of xyz array (trailing dimension)
+      double precision xyz(3,nxyz)  ! [output] coordinates
+*::local      
+      integer ntotal            ! total number of centers in goemetry
+      integer ic                ! loop counter for centers
+      integer num_cent          ! number of centers returned
+      integer tag_indx          ! basis set unique center index for tag
+      character*16 gtag         ! geometry tag 
+      double precision cxyz(3)  ! coordinates
+      double precision chg      ! charge
+      logical inthe_ecp         ! is tag in the ecp?
+      logical inthe_so          ! is the tag in the so pot.?
+*
+      ecpso_get_coords = geom_ncent(geom,ntotal)
+      if (.not.ecpso_get_coords) call errquit
+     &    ('ecpso_get_coords: geom_ncent failed?',911)
+      num_cent = 0
+      do ic = 1,ntotal
+        if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
+     &      ('ecpso_get_coords: geom_cent_get failed',911)
+        inthe_ecp = bas_match_tags(gtag,ecpidin,tag_indx)
+        inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
+        if (inthe_ecp.or.inthe_so) then
+          num_cent = num_cent + 1
+          if (num_cent.gt.nxyz) call errquit
+     &        ('ecpso_get_coords: array passed in was too small',911)
+          xyz(1,num_cent) = cxyz(1)
+          xyz(2,num_cent) = cxyz(2)
+          xyz(3,num_cent) = cxyz(3)
+        endif
+      enddo
+      end
+*----------------------------------------------------------------------
+      logical function so_get_coords(geom,soidin,
+     &    nxyz,xyz)
+      implicit none
+*
+* get the coordinates for the so centers
+*
+*::includes
+#include "geom.fh"
+*::functions
+      logical bas_match_tags
+      external bas_match_tags
+*::passed
+      integer geom          ! [input] geometry handle
+      integer soidin        ! [input] so pot. handle
+      integer nxyz          ! [input] size of xyz array (trailing dimension)
+      double precision xyz(3,nxyz)  ! [output] coordinates
+*::local      
+      integer ntotal            ! total number of centers in goemetry
+      integer ic                ! loop counter for centers
+      integer num_cent          ! number of centers returned
+      integer tag_indx          ! basis set unique center index for tag
+      character*16 gtag         ! geometry tag 
+      double precision cxyz(3)  ! coordinates
+      double precision chg      ! charge
+      logical inthe_so          ! is the tag in the so pot.?
+*
+      so_get_coords = geom_ncent(geom,ntotal)
+      if (.not.so_get_coords) call errquit
+     &    ('so_get_coords: geom_ncent failed?',911)
+      num_cent = 0
+      do ic = 1,ntotal
+        if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
+     &      ('so_get_coords: geom_cent_get failed',911)
+        inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
+        if (inthe_so) then
+          num_cent = num_cent + 1
+          if (num_cent.gt.nxyz) call errquit
+     &        ('so_get_coords: array passed in was too small',911)
+          xyz(1,num_cent) = cxyz(1)
+          xyz(2,num_cent) = cxyz(2)
+          xyz(3,num_cent) = cxyz(3)
+        endif
+      enddo
+      end
+*----------------------------------------------------------------------
+      logical function ecp_get_coords(geom,ecpidin,
+     &    nxyz,xyz)
+      implicit none
+*
+* get the coordinates for the ecp centers
+*
+*::includes
+#include "geom.fh"
+*::functions
+      logical bas_match_tags
+      external bas_match_tags
+*::passed
+      integer geom          ! [input] geometry handle
+      integer ecpidin       ! [input] ecp handle
+      integer nxyz          ! [input] size of xyz array (trailing dimension)
+      double precision xyz(3,nxyz)  ! [output] coordinates
+*::local      
+      integer ntotal            ! total number of centers in goemetry
+      integer ic                ! loop counter for centers
+      integer num_cent          ! number of centers returned
+      integer tag_indx          ! basis set unique center index for tag
+      character*16 gtag         ! geometry tag 
+      double precision cxyz(3)  ! coordinates
+      double precision chg      ! charge
+      logical inthe_ecp         ! is tag in the ecp?
+*
+      ecp_get_coords = geom_ncent(geom,ntotal)
+      if (.not.ecp_get_coords) call errquit
+     &    ('ecp_get_coords: geom_ncent failed?',911)
+      num_cent = 0
+      do ic = 1,ntotal
+        if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
+     &      ('ecp_get_coords: geom_cent_get failed',911)
+        inthe_ecp = bas_match_tags(gtag,ecpidin,tag_indx)
+        if (inthe_ecp) then
+          num_cent = num_cent + 1
+          if (num_cent.gt.nxyz) call errquit
+     &        ('ecp_get_coords: array passed in was too small',911)
+          xyz(1,num_cent) = cxyz(1)
+          xyz(2,num_cent) = cxyz(2)
+          xyz(3,num_cent) = cxyz(3)
+        endif
+      enddo
+      end
+*----------------------------------------------------------------------
+      logical function bas_isce(geom,basisin,center)
+      implicit none
+*
+* return true if the given center is in the designated basis set
+*      
+*::includes
+#include "geom.fh"
+*::functions
+      logical bas_match_tags
+      external bas_match_tags
+*::passed
+      integer geom     ! [input] geometry handle
+      integer basisin  ! [input] basis set handle
+      integer center   ! [input] lexical geometry index of center
+*::local
+      integer tag_indx          ! basis set unique center index for tag
+      character*16 gtag         ! geometry tag 
+      double precision cxyz(3)  ! coordinates
+      double precision chg      ! charge
+*
+      bas_isce = geom_cent_get(geom,center,gtag,cxyz,chg)
+      if (.not.bas_isce) call errquit
+     &      ('bas_iscet: geom_cent_get failed',911)
+*      write(6,*)' center = ',center,' gtag:<',gtag,'>'
+      bas_isce  = bas_match_tags(gtag,basisin,tag_indx)
+      end
+      

@@ -1,5 +1,5 @@
 c:geobasmapP.fh
-c $Id: geobasmapP.fh,v 1.3 1996-01-22 21:50:02 d3e129 Exp $
+c $Id: geobasmapP.fh,v 1.4 1998-04-29 07:29:54 d3e129 Exp $
 c
 cNOTE: this MUST follow basP.fh in the include order
 c
@@ -13,7 +13,8 @@ c contraction -> basis function range  ::  ibs_cn2bfr(2,ncont,nbasis)
 c centers     -> contraction range     ::  ibs_ce2cnr(2,nat,nbasis)
 c
       integer ibs_cn2ucn,ibs_cn2ce,ibs_ce2uce,ibs_cn2bfr,ibs_ce2cnr
-      integer ncont_tot_gb, nprim_tot_gb, nbf_tot_gb, ibs_geom
+      integer ncont_tot_gb, nprim_tot_gb, ncoef_tot_gb
+      integer nbf_tot_gb, ibs_geom
       common /geobasmap/
      &       ibs_cn2ucn(3,nbasis_bsmx),
      &       ibs_cn2ce (3,nbasis_bsmx),
@@ -22,16 +23,7 @@ c
      &       ibs_ce2cnr(3,nbasis_bsmx),
      &       ncont_tot_gb(nbasis_bsmx),
      &       nprim_tot_gb(nbasis_bsmx),
+     &       ncoef_tot_gb(nbasis_bsmx),
      &       nbf_tot_gb(nbasis_bsmx),
      &       ibs_geom(nbasis_bsmx)
-*old_static:      common /geobasmap/
-*old_static:     &       ibs_cn2ucn(ncont_mx,nbasis_bsmx),
-*old_static:     &       ibs_cn2ce (ncont_mx,nbasis_bsmx),
-*old_static:     &       ibs_ce2uce(nat_mx,nbasis_bsmx),
-*old_static:     &       ibs_cn2bfr(2,ncont_mx,nbasis_bsmx),
-*old_static:     &       ibs_ce2cnr(2,nat_mx,nbasis_bsmx),
-*old_static:     &       ncont_tot_gb(nbasis_bsmx),
-*old_static:     &       nprim_tot_gb(nbasis_bsmx),
-*old_static:     &       nbf_tot_gb(nbasis_bsmx),
-*old_static:     &       ibs_geom(nbasis_bsmx)
 c

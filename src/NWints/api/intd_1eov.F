@@ -1,6 +1,6 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.6 1997-04-25 05:21:35 pg481 Exp $
+c $Id: intd_1eov.F,v 1.7 1998-04-29 07:27:39 d3e129 Exp $
       implicit none
 c::functions
       integer int_nint_cart
@@ -259,7 +259,7 @@ c
       elseif (nint_s.eq.nint_x) then
         return
       else
-        call intd_c2s_mv
+        call int_c2s_mv
      &      (Ova,nint_x,nint_s,(3*2),scr,lscr,'intd_1eov')
       endif
 c

@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.7 1997-11-14 08:23:42 d3e129 Exp $
+* $Id: atscf_ecp.F,v 1.8 1998-04-29 07:33:46 d3e129 Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
@@ -145,7 +145,6 @@ c.3. n_prim_c = info about primitives rval, type and center
 c.4. n_coef_c = info about prims summed over rval just type 
 *               and center (-1:lmax,necp=1)
 c.5. ind_c    = first coeff/exponent for each type (-1:lmax,necp=1)
-c.. n_tot_C  = number of coeffs for each ecp center (necp = 1)
 c.. n_zeta_C = total number ecp exponents summed over centers
 c.. l_C      = max projector on center C (necp=1)
 c.. n_c      = number of ecp centers necp=1=n_c
@@ -304,7 +303,6 @@ c::-local
       integer atscf_n_zetac  ! size of n_zeta_c in reality
       integer n0, n1, n2     ! dummy r exponent indecies
       integer iexp,icfp,irexp ! private basis set pointer info
-      integer n_tot_c        ! total number of prims on ecp center
       integer l_c            ! max ang on ecp center
 * for atomic code the next three are the same = 1
       integer i_cent_C       ! lexical atom index of ecp center
@@ -350,7 +348,6 @@ c.. get first/last contraction on ecp tag
 c
 c.. intialize some variables
       l_c = -1000
-      n_tot_c = 0
       nn_off = 1
 
 c.. loop over contractions
@@ -384,7 +381,6 @@ c
         n_prim_c(2,type) = n2
         ind_c(type)      = nn_off
         n_coef_c(type)   = nprim
-        n_tot_c          = n_tot_c + nprim
         l_c              = max(type,l_c)
         nn_off = nn_off + nprim
       enddo
@@ -425,21 +421,6 @@ c.. loop over primitives for |ket>
             lscr_guess = lscr
 *debug:            write(6,*)' lscr ',lscr
 
-#if defined(USE_OLD_ECP)
-c..  do dryrun to check memory for scratch array
-            call ecp_integral(
-     &          C,expa,coefa,1,1,type,i_c_A,
-     &          C,expb,coefb,1,1,type,i_c_B,
-     &          C,zeta_c,coef_c,n_prim_C,n_coef_c,
-     &          ind_c, ind_c, n_tot_c, 
-     &          atscf_n_zetac,
-     &          l_c,i_cent_C,1,lmax_all,0,
-     &          dbl_mb(k_ecp_c2s),mem_c2s,
-     &          ecp_ints,sz_ints, 
-     &          .true.,
-     &          scr,lscr_guess,
-     &          0)            
-#else
               call ecp_integral(
      &            C,expa,coefa,1,1,type,i_c_A,
      &            C,expb,coefb,1,1,type,i_c_B,
@@ -451,7 +432,6 @@ c..  do dryrun to check memory for scratch array
      &            .true.,
      &            scr,lscr_guess,
      &            0)            
-#endif 
 c.. make sure scratch array is big enough
             if (lscr_guess.gt.lscr) then
               write(luout,*)' lscr_guess =',lscr_guess
@@ -459,21 +439,6 @@ c.. make sure scratch array is big enough
               write(luout,*)' contact nwchem-support@emsl.pnl.gov'
               call errquit('atscf_ecp_build_hatom: fatal error',911)
             else
-#if defined(USE_OLD_ECP)
-c.. compute ecp integrals <bra|ecp|ket>
-              call ecp_integral(
-     &            C,expa,coefa,1,1,type,i_c_A,
-     &            C,expb,coefb,1,1,type,i_c_B,
-     &            C,zeta_c,coef_c,n_prim_C,n_coef_c,
-     &            ind_c, n_tot_c,
-     &            atscf_n_zetac,
-     &            l_c,i_cent_C,1,lmax_all,0,
-     &            dbl_mb(k_ecp_c2s),mem_c2s,
-     &            ecp_ints,sz_ints,
-     &            .false.,
-     &            scr,lscr,
-     &            0)            
-#else
 c.. compute ecp integrals <bra|ecp|ket>
               call ecp_integral(
      &            C,expa,coefa,1,1,type,i_c_A,
@@ -486,7 +451,6 @@ c.. compute ecp integrals <bra|ecp|ket>
      &            .false.,
      &            scr,lscr,
      &            0)            
-#endif
 *              write(6,*)' ecp integrals, cart'
 *              call output(ecp_ints,1,sz_ints,1,1,sz_ints,1,1)
               nbf_x = (type+1)*(type+2)/2

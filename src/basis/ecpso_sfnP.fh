@@ -1,0 +1,27 @@
+*
+* $Id: ecpso_sfnP.fh,v 1.1 1998-04-29 07:29:54 d3e129 Exp $
+*------------------------------------------------*
+* COPYRIGHT (C) 1994, 1995, 1996, 1997           *
+*         Pacific Northwest National Laboratory, *
+*         Battelle Memorial Institute.           *
+*------------------------------------------------*
+*------------> All Rights Reserved <-------------*
+*------------------------------------------------*
+*      
+*
+* RAK Apr 1996
+* ECPs are integrated directly with the basis set object.  
+* this function will be used in the bas_* routines to determine
+* if the handle is an ECP
+*
+* requires basP.fh and basdeclsP.fh prior to sfn 
+* ecp_decP.fh ! declares functions and integers
+* ecp_sfnP.fh ! (this file has) statement function definitions
+* 
+      Is_ECP(basis_xx) = (infbs_head(HEAD_ECP,basis_xx)).eq.1
+      Is_ECP_in(basis_xx_in) =
+     & (infbs_head(HEAD_ECP,(basis_xx_in+BASIS_HANDLE_OFFSET))).eq.1
+      Is_SO(basis_xx) = (infbs_head(HEAD_ECP,basis_xx)).eq.2
+      Is_SO_in(basis_xx_in) =
+     & (infbs_head(HEAD_ECP,(basis_xx_in+BASIS_HANDLE_OFFSET))).eq.2
+*

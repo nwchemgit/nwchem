@@ -1,4 +1,4 @@
-c $Id: basP.fh,v 1.11 1998-02-05 00:01:43 d3e129 Exp $
+c $Id: basP.fh,v 1.12 1998-04-29 07:29:50 d3e129 Exp $
 c:basP.fh
 c
 c basis set object/api  
@@ -221,10 +221,11 @@ c.. stored structures
       integer infbs_head,infbs_tags,infbs_cont
 c.. incore sturctures
       double precision bsversion
-      character*256 bs_trans,bs_names_rtdb, ecp_name_assoc
+      character*256 bs_trans,bs_names_rtdb, name_assoc
       integer len_bs_name, len_bs_trans, len_bs_rtdb, nbasis_rtdb
       integer angular_bs, nbfmax_bs,  bas_norm_id
-      integer ecp_handle_assoc, ecp_parent_assoc
+      integer handle_assoc, parent_assoc
+      integer bas_nassoc
       logical bsactive 
       logical bas_spherical
       logical bas_any_gc
@@ -237,7 +238,7 @@ c
 c......... above for each basis is stored ... below is in-core
      &       bs_trans(nbasis_bsmx),
      &       bs_names_rtdb(nbasis_rtdb_mx),
-     &       ecp_name_assoc(nbasis_bsmx)
+     &       name_assoc(nbasis_assoc_max,nbasis_bsmx)
      
       common /cbsdata/
      &       bsversion,exndcf(3,nbasis_bsmx),
@@ -255,8 +256,9 @@ c......... above for each basis is stored ... below is in-core
      &       bas_norm_id(nbasis_bsmx),
      &       angular_bs(nbasis_bsmx),
      &       nbfmax_bs(nbasis_bsmx),
-     &       ecp_handle_assoc(nbasis_bsmx),
-     &       ecp_parent_assoc(nbasis_bsmx),
+     &       handle_assoc(nbasis_assoc_max,nbasis_bsmx),
+     &       parent_assoc(nbasis_assoc_max,nbasis_bsmx),
+     &       bas_nassoc(nbasis_bsmx), 
      &       nbasis_rtdb
 c
 

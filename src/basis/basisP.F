@@ -1,6 +1,6 @@
       subroutine print_exndcf(msg)
       implicit none
-c $Id: basisP.F,v 1.19 1997-04-18 21:54:15 d3e129 Exp $
+c $Id: basisP.F,v 1.20 1998-04-29 07:29:53 d3e129 Exp $
 #include "basP.fh"
       character *(*) msg
       integer i,j
@@ -81,6 +81,24 @@ c
       infbs_head(Head_ECP,bas) = 1
       end
 *.....................................................................
+      logical function bas_set_so_basis(basis)
+      implicit none
+#include "basdeclsP.fh"
+#include "basP.fh"
+      logical bas_check_handle
+      external bas_check_handle
+c      
+      integer basis
+c
+      integer bas
+c
+      bas_set_so_basis = bas_check_handle(basis,'bas_set_so_basis')
+      if (.not. bas_set_so_basis) return
+      bas = basis + BASIS_HANDLE_OFFSET
+c
+      infbs_head(Head_ECP,bas) = 2
+      end
+*.....................................................................
       logical function ecp_set_num_elec(ecpid,tag,num_elec,stdtag)
       implicit none
 #include "basdeclsP.fh"
@@ -126,7 +144,7 @@ c
       external ecp_check_handle
 *passed::
       integer ecpid      ! [input] basis set handle
-      character*16 tag   ! [input] tag to set number of electrons for
+      character*16 tag   ! [input] tag to get number of electrons for
       integer num_elec   ! [input] number of electrons ecp replaces
 c
 *local::
@@ -338,7 +356,8 @@ c
       data angular_bs /nbasis_bsmx*-565/
       data bas_norm_id /nbasis_bsmx*-565/
       data nbfmax_bs /nbasis_bsmx*-565/
-      data bsversion /4.00d00/
+      data bsversion /5.00d00/
+* version 5 includes so stuff
 c     
       end
 *.....................................................................

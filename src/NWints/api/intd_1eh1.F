@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.9 1997-05-22 21:02:07 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.10 1998-04-29 07:27:37 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -291,7 +291,7 @@ c
       elseif (nint_s.eq.nint_x) then
         return
       else
-        call intd_c2s_mv
+        call int_c2s_mv
      &      (H1a,nint_x,nint_s,(3*nat),scr,lscr,'intd_1eh1')
       endif
 c

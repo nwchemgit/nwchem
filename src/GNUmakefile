@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.67 1998-03-11 09:13:29 d3e129 Exp $
+# $Id: GNUmakefile,v 1.68 1998-04-29 07:33:11 d3e129 Exp $
 
 include config/makefile.h
 
@@ -49,7 +49,7 @@ ifeq ($(TARGET),SP1)
 lapi_link:
 	@/bin/rm -f nwchem.o stubs.o
 	$(MAKE) nwchem.o stubs.o
-	mpcc_r -lc -lxlf90 -lxlf -lm -qEXTNAME -qnosave -g \
+	mpcc_r -lc_r -lxlf90 -lxlf -lm -qEXTNAME -qnosave -g \
 		-o $(BINDIR)/nwchem.lapi nwchem.o stubs.o -ltask \
 		-L../lib/LAPI -L../lib/SP1 $(LIBS)
 endif

@@ -9,10 +9,10 @@ c
       integer k_ecp_nprim_c         ! MA index  for n_prim_C (see ecp_integral)
       integer h_ecp_ncoef_c         ! MA handle for n_coef_C (see ecp_integral)
       integer k_ecp_ncoef_c         ! MA index  for n_coef_C (see ecp_integral)
-      integer h_ecp_ntot_c          ! MA handle for n_tot_C (see ecp_integral)
-      integer k_ecp_ntot_c          ! MA index  for n_tot_C (see ecp_integral)
-      integer h_ecp_ind_c           ! MA handle for int_C (see ecp_integral)
-      integer k_ecp_ind_c           ! MA index  for int_C (see ecp_integral)
+      integer h_ecp_ind_c           ! MA handle for ind_C (see ecp_integral)
+      integer k_ecp_ind_c           ! MA index  for ind_C (see ecp_integral)
+      integer h_ecp_ind_z           ! MA handle for ind_Z (see ecp_integral)
+      integer k_ecp_ind_z           ! MA index  for ind_Z (see ecp_integral)
       integer h_ecp_l_c             ! MA handle for l_C (see ecp_integral)
       integer k_ecp_l_c             ! MA index  for l_C (see ecp_integral)
       integer h_ecp_c2s             ! MA handle for c2s routines
@@ -25,10 +25,11 @@ c
       integer mem_c2s               ! size of c2s array
       logical init_ecp_init         ! logical saying if ecp is init-ed
 c
-      common /c_ecp_nwc/ h_xyzecp, k_xyzecp, h_ecp_e, k_ecp_e, h_ecp_c,
-     &    k_ecp_c, h_ecp_nprim_c, k_ecp_nprim_c, h_ecp_ncoef_c,
-     &    k_ecp_ncoef_c, h_ecp_ntot_c, k_ecp_ntot_c, h_ecp_ind_c,
-     &    k_ecp_ind_c, h_ecp_l_c, k_ecp_l_c, h_ecp_c2s, k_ecp_c2s,
+      common /c_ecp_nwc/ h_xyzecp, k_xyzecp, h_ecp_e, k_ecp_e,
+     &    h_ecp_c, k_ecp_c,
+     &    h_ecp_nprim_c, k_ecp_nprim_c, h_ecp_ncoef_c, k_ecp_ncoef_c,
+     &    h_ecp_ind_c, k_ecp_ind_c, h_ecp_ind_z, k_ecp_ind_z,
+     &    h_ecp_l_c, k_ecp_l_c, h_ecp_c2s, k_ecp_c2s,
      &    h_ecp_lip, k_ecp_lip,
      &    n_zeta_c, l_ecp, n_ecp, mem_c2s, init_ecp_init
 
