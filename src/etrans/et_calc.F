@@ -1,10 +1,10 @@
-c $Id: et_calc.F,v 1.4 2001-12-31 17:50:28 windus Exp $
+c $Id: et_calc.F,v 1.5 2002-01-04 18:11:22 d3k958 Exp $
       logical function et_calc(rtdb,Vba)
       implicit none
 c
 c     This function actually calculates Vba
 *
-* $Id: et_calc.F,v 1.4 2001-12-31 17:50:28 windus Exp $
+* $Id: et_calc.F,v 1.5 2002-01-04 18:11:22 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -39,8 +39,8 @@ c
       integer g_av,g_bu,g_t,g_h1
       integer g_avecsa,g_avecsb,g_bvecsa,g_bvecsb
 c
-c     logical et_movecs_read
-c     external et_movecs_read
+      logical et_movecs_read
+      external et_movecs_read
       logical ga_copy
       external ga_copy
       integer ga_create_atom_blocked
@@ -137,9 +137,9 @@ c     -------------------------------------------------------
 
 c     read occ, evals, mo coefficients for alpha orbitals from movecsa.mo
 c     ------------------------------------------------------------------
-c     if(.not.et_movecs_read('movecsa.mo',1,dbl_mb(k_occ),dbl_mb(k_eval)
-c    $   ,g_avecsa,dum))
-c    $ call errquit('et_movecs_read failed for alpha mos',0)
+      if(.not.et_movecs_read('movecsa.mo',1,dbl_mb(k_occ)
+     $   ,dbl_mb(k_eval),g_avecsa,dum))
+     $ call errquit('et_movecs_read failed for alpha mos',0)
 c
 c     get nocc(1): # of occupied alpha mo's
 c     -------------------------------------
@@ -157,9 +157,9 @@ c
 c
 c     read occ, evals, mo coefficients for beta orbitals from movecsa.mo
 c     ------------------------------------------------------------------
-c     if(.not.et_movecs_read('movecsa.mo',2,dbl_mb(k_occ),dbl_mb(k_eval)
-c    $     ,g_avecsb, dum))
-c    $ call errquit('et_movecs_read failed for beta mos',0)
+      if(.not.et_movecs_read('movecsa.mo',2,dbl_mb(k_occ)
+     $     ,dbl_mb(k_eval),g_avecsb, dum))
+     $ call errquit('et_movecs_read failed for beta mos',0)
 c
 c     get nocc(2): # of occupied alpha mo's
 c     -------------------------------------
@@ -186,13 +186,13 @@ c     -------------------------------------------------------
 c
 c     read occ, evals, mo coefficients from movecsb.mo
 c     ------------------------------------------------
-c     if(.not.et_movecs_read('movecsb.mo',1,dbl_mb(k_occ),dbl_mb(k_eval)
-c    $   ,g_bvecsa, dum))
-c    $   call errquit('et_movecs_read failed for alpha mos',0)
+      if(.not.et_movecs_read('movecsb.mo',1,dbl_mb(k_occ)
+     $   ,dbl_mb(k_eval) ,g_bvecsa, dum))
+     $   call errquit('et_movecs_read failed for alpha mos',0)
 c
-c     if(.not.et_movecs_read('movecsb.mo',2,dbl_mb(k_occ),dbl_mb(k_eval)
-c    $  ,g_bvecsb, dum))
-c    $   call errquit('et_movecs_read failed for beta mos',0)
+      if(.not.et_movecs_read('movecsb.mo',2,dbl_mb(k_occ)
+     $  ,dbl_mb(k_eval) ,g_bvecsb, dum))
+     $   call errquit('et_movecs_read failed for beta mos',0)
 c
       if (util_print("et",print_high)) then
        call ga_print(g_bvecsa)
@@ -443,8 +443,6 @@ c  T and temp arrays are no longer needed
      &  call errquit('could not destroy temp array',g_temp)
 c
 c
-c
-c
       if (util_print("et",print_debug)) then
       call ga_print(g_phandle(j))
       endif
@@ -457,10 +455,6 @@ c
 c  overlap integrals are not longer needed
       if (.not.ga_destroy(g_s)) 
      &  call errquit('could not destroy overlap array',g_s)
-c
-c
-c
-c
 c
 c
 c why is Pa scaled by prod(b), Pb scaled by prod(a)?
@@ -543,13 +537,13 @@ c     vectors, occupation vector, eigenvalues will be re-written,
 c     but they are no longer needed at this point.
 c     Filename and Haa or Hbb need to be correct.
 c     -------------------------------------------------
-c     if(.not.et_movecs_read('movecsa.mo',3,dbl_mb(k_occ),dbl_mb(k_eval)
-c    $   ,g_bvecsa, Haa))
-c    $   call errquit('et_movecs_read failed for Haa',0)
+      if(.not.et_movecs_read('movecsa.mo',3,dbl_mb(k_occ),dbl_mb(k_eval)
+     $   ,g_bvecsa, Haa))
+     $   call errquit('et_movecs_read failed for Haa',0)
 c
-c     if(.not.et_movecs_read('movecsb.mo',3,dbl_mb(k_occ),dbl_mb(k_eval)
-c    $   ,g_bvecsa, Hbb))
-c    $   call errquit('et_movecs_read failed for Hbb',0)
+      if(.not.et_movecs_read('movecsb.mo',3,dbl_mb(k_occ),dbl_mb(k_eval)
+     $   ,g_bvecsa, Hbb))
+     $   call errquit('et_movecs_read failed for Hbb',0)
 c
 c
 c     get the nuclear repulsion energy. It needs to be subtracted
@@ -599,6 +593,13 @@ c
        write (6,*) 
        write (6,*) 
 c
+c destroy MA's
+      if (.not.ma_chop_stack(l_vals)) 
+     &    call errquit('unable to destroy MA',l_vals)
+      if (.not.ma_chop_stack(l_eval)) 
+     &    call errquit('unable to destroy MA',l_eval)
+      if (.not.ma_chop_stack(l_occ)) 
+     &    call errquit('unable to destroy MA',l_occ)
 c
 c
       et_calc=.true.
