@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.41 2004-05-24 14:43:28 bylaska Exp $
+* $Id: cpmdv5.F,v 1.42 2004-06-16 18:01:10 bylaska Exp $
 *
 
 ***********************************************************************
@@ -455,7 +455,7 @@
       call frac_occ_init(rtdb,ispin,ne)
 
 *     **** initialize SIC ****
-      call pspw_init_SIC(rtdb)
+      call pspw_init_SIC(rtdb,ne)
 
 
 

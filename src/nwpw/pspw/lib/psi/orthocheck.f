@@ -1,5 +1,5 @@
 *
-* $Id: orthocheck.f,v 1.1 2003-04-07 21:12:13 windus Exp $
+* $Id: orthocheck.f,v 1.2 2004-06-16 18:01:10 bylaska Exp $
 *
 
 *     ***********************************
@@ -102,17 +102,32 @@
       integer j,k
       real*8  w
 
-      do k=1,ne
+c      !**** orthogonalize from the top -> down ****
+c      do k=1,ne
+c         call Pack_cc_dot(1,psi(1,k),psi(1,k),w)
+c         w = 1.0d0/dsqrt(w)
+c         call Pack_c_SMul(1,w,psi(1,k),psi(1,k))
+c
+c         do j=k+1,ne
+c            call Pack_cc_dot(1,psi(1,k),psi(1,j),w)
+c            w = -w
+c            call Pack_cc_daxpy(1,w,psi(1,k),psi(1,j))
+c         end do
+c      end do
+
+      !**** orthogonalize from the bottom -> up ****
+      do k=ne,1,-1
          call Pack_cc_dot(1,psi(1,k),psi(1,k),w)
          w = 1.0d0/dsqrt(w)
          call Pack_c_SMul(1,w,psi(1,k),psi(1,k))
 
-         do j=k+1,ne
+         do j=k-1,1,-1
             call Pack_cc_dot(1,psi(1,k),psi(1,j),w)
             w = -w
             call Pack_cc_daxpy(1,w,psi(1,k),psi(1,j))
          end do
       end do
+
 
       return
       end

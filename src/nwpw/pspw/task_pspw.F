@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.9 2004-03-11 15:46:15 bylaska Exp $
+* $Id: task_pspw.F,v 1.10 2004-06-16 18:01:09 bylaska Exp $
 *
 
       logical function task_pspw(rtdb)
@@ -17,7 +17,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 15)
+      parameter (num_dirs = 17)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'psp_generator',
@@ -34,17 +34,21 @@ c
      >            'stress',
      >            'noit_energy',
      > 		  'wannier',
-     >            'expand_cell'/
+     >            'expand_cell',
+     >            'ionize',
+     >            'convert_restricted'/
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
       logical  v_wvfnc_init,wvfnc_expander,cell_optimize
       logical  pspw_dplot,pspw_stress_numerical,pspw_noit_energy
-      logical  pspw_wannier,expand_cell
+      logical  pspw_wannier,expand_cell,wvfnc_ionize
+      logical  wvfnc_convert_restricted
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize
       external pspw_dplot,pspw_stress_numerical,pspw_noit_energy
-      external pspw_wannier,expand_cell
+      external pspw_wannier,expand_cell,wvfnc_ionize
+      external wvfnc_convert_restricted
 c
 c
       value = .false.
@@ -57,7 +61,7 @@ c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
-     >       1000, 1100, 1200, 1300, 1400, 1500 ) ind
+     >       1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700 ) ind
       call errquit('task pspw: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -254,6 +258,36 @@ c
       endif
       call ga_sync()
       goto 9999
+
+c
+c  ionize
+c
+ 1600 value = .true.
+      value = rtdb_parallel(.false.)
+      if (ga_nodeid().eq.MASTER) then
+        write(*,*)
+     >     ">>>> PSPW Serial Module - ionize <<<<"
+        write(*,*) "not finished"
+        value = wvfnc_ionize(rtdb)
+      endif
+      call ga_sync()
+      goto 9999
+
+
+c
+c  convert_restricted
+c
+ 1700 value = .true.
+      value = rtdb_parallel(.false.)
+      if (ga_nodeid().eq.MASTER) then
+        write(*,*)
+     >     ">>>> PSPW Serial Module - convert_restricted <<<<"
+        write(*,*) "not finished"
+        value = wvfnc_convert_restricted(rtdb)
+      endif
+      call ga_sync()
+      goto 9999
+
 
 
 

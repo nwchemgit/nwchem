@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.28 2004-05-24 13:47:08 bylaska Exp $
+* $Id: pspw_sic.F,v 1.29 2004-06-16 18:01:10 bylaska Exp $
 *
 
 *     *************************
@@ -7,9 +7,10 @@
 *     *     pspw_init_SIC     *
 *     *                       *
 *     *************************
-      subroutine pspw_init_SIC(rtdb)
+      subroutine pspw_init_SIC(rtdb,ne)
       implicit none
       integer rtdb
+      integer ne(2)
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -22,8 +23,8 @@
       integer n1,n2,n3,mapping
 
 *     **** external functions ****
-      integer  control_version,psi_ne,control_mapping
-      external control_version,psi_ne,control_mapping
+      integer  control_version,control_mapping
+      external control_version,control_mapping
 
       norbs = 0
       e_sic = 0.0d0
@@ -33,7 +34,7 @@
 *     **** get the number of SIC orbitals ****
       if (rtdb_get(rtdb,'pspw:SIC_all',mt_log,1,sicall)) then
          sic_on = .true.
-         norbs = psi_ne(1)+psi_ne(2)
+         norbs = ne(1)+ne(2)
          if(.not.MA_alloc_get(mt_int,norbs,
      >       'orbital_list',orbital_list(2),orbital_list(1)))
      >        call errquit('pspw_init_SIC:out of heap memory',0,MA_ERR)

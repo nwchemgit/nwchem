@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.47 2004-05-24 14:43:28 bylaska Exp $
+* $Id: cgsdv5.F,v 1.48 2004-06-16 18:01:09 bylaska Exp $
 *
 
 ***********************************************************************
@@ -341,14 +341,14 @@ c     value = psi_initialize()
       call pspw_charge_init(rtdb)
 
 *     **** initialize SIC ****
-      call pspw_init_SIC(rtdb)
+      ne(1) = psi_ne(1)
+      ne(2) = psi_ne(2)
+      call pspw_init_SIC(rtdb,ne)
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
 
 *     **** initialize frac_occ data structure ****
-      ne(1) = psi_ne(1)
-      ne(2) = psi_ne(2)
       call frac_occ_init(rtdb,psi_ispin(),ne)
 
 *     **** initialize linesearching ****

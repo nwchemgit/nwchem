@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 2004-05-14 17:37:51 edo Exp $
+# $Id: GNUmakefile,v 1.12 2004-06-16 18:01:10 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
                 wvfnc_init_input.o \
@@ -8,6 +8,8 @@
                 wvfnc_expander_input.o \
                 wvfnc_expander.o \
                 wvfnc_reformat.o \
+                wvfnc_ionize.o \
+                wvfnc_convert_restricted.o \
                 v_wvfnc_init_input.o \
                 v_wvfnc_init.o \
                 v_wvfnc_new.o \

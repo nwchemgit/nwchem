@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.31 2004-05-24 14:43:28 bylaska Exp $
+* $Id: cpsdv5.F,v 1.32 2004-06-16 18:01:10 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -434,7 +434,7 @@
       call ion_init_FixIon(rtdb)
 
 *     **** initialize SIC ****
-      call pspw_init_SIC(rtdb)
+      call pspw_init_SIC(rtdb,ne)
 
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
