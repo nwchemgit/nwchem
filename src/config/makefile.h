@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.448 2004-02-20 08:37:56 edo Exp $
+# $Id: makefile.h,v 1.449 2004-03-10 17:16:55 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1495,8 +1495,10 @@ endif
 
       ifeq ($(FC),pgf90)
         FOPTIONS   +=    -Mrecursive -Mdalign -Mllalign -Kieee 
-#        FOPTIONS   +=    -tp k8-64 
-        FOPTIMIZE   =   -fastsse  -O3  
+        FOPTIONS   +=    -tp k8-64  
+        FOPTIMIZE   =  -fast -fastsse  -O3   -Mipa=fast
+        DEFINES  +=   -DCHKUNDFLW
+        FVECTORIZE   = -fast  -fastsse  -O4   -Mipa=fast
         FDEBUG = -g -O0
         DEFINES  +=   -DPGLINUX
         LDOPTIONS =   #-g77libs   
