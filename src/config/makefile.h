@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.402 2003-02-20 01:19:41 edo Exp $
+# $Id: makefile.h,v 1.403 2003-02-20 16:46:36 fruechtl Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -349,8 +349,8 @@ endif
 
   ifeq ($(CC),fcc)
 #    Fujitsu SPARC systems (thanks to Herbert Fruchtl)
-    COPTIONS = -Kdalign
-    COPTIMIZE = -Kfast_GP=2
+    COPTIONS = -Kdalign -KV9FMADD
+    COPTIMIZE = -Kfast_GP=2 -KV9FMADD
     DEFINES += -DFUJITSU_SOLARIS
   else
 # SUN/Solaris options for WS6.1
@@ -363,13 +363,13 @@ endif
 # If using Fujitsu compilers on Sun hardware, replace -Kfast_GP=2 with
 #  -Kfast
      DEFINES += -DFUJITSU_SOLARIS -DEXTNAME
-     FOPTIONS = -Kdalign -w -fw -X9 
+     FOPTIONS = -Kdalign -w -fw -X9  -KV9FMADD
      ifdef USE_INTEGER4
        FOPTIONS += -CcdLL8 -CcdRR8
      else
        FOPTIONS += -CcdLL8 -CcdII8 -CcdRR8
      endif
-     FOPTIMIZE = -Kfast_GP=2 
+     FOPTIMIZE = -Kfast_GP=2  -KV9FMADD
      FDEBUG=
    else
 #  SUN/Solaris f77 options 
@@ -391,8 +391,8 @@ endif
     LDOPTIONS = -xs -xildoff
     CORE_LIBS +=  -llapack $(BLASOPT) -lblas  -lmvec
     CORE_LIBS += -lsocket -lrpcsvc -lnsl
+    EXTRA_LIBS =  -ldl -lfsu
   endif
-      EXTRA_LIBS =  -ldl -lfsu
 
 
 #end of solaris
