@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.46 2000-09-07 19:19:48 d3j191 Exp $
+c $Id: ana_task.F,v 1.47 2000-09-14 21:38:23 d3j191 Exp $
 c
       implicit none
 c
@@ -28,6 +28,8 @@ c
       external ana_bond,ana_angle,ana_torsion
       integer idpdb
       logical lsuper
+c
+      integer i_iram,l_iram
 c
 c     set sequential access to rtdb
 c     and ignore current state
@@ -74,6 +76,7 @@ c
       active=.false.
       lrms=.false.
       lana=.false.
+      lrama=.false.
 c
       nave=0
       ndata=0
@@ -90,6 +93,13 @@ c
 c
       ifr=1
       indx=1
+c
+      rhbmin=0.0d0
+      rhbmax=0.2d0
+      hbdmin=1.9d0
+      hbdmax=3.1416d0
+      hbamin=1.9d0
+      hbamax=3.1416d0
 c
       ngroup=0
 c
@@ -154,7 +164,12 @@ c     ------------------
 c
       if(card(1:6).eq.'topol ') then
       filtop=card(8:80)
-      call ana_rdtop(byte_mb(i_snam),dbl_mb(i_qdat))
+      call ana_siztop()
+      if(ltop) then
+      if(.not.ma_push_get(mt_int,7*msgm,'iram',l_iram,i_iram))
+     + call errquit('Could not allocate iram',0)
+      call ana_rdtop(byte_mb(i_snam),dbl_mb(i_qdat),int_mb(i_iram))
+      endif
 c
       if(me.eq.0) then
       if(ltop) then
@@ -235,6 +250,19 @@ c
       read(card(7:16),'(i10)') indx
       endif
 c
+c     set hydrgen bond criteria
+c     -------------------------
+c
+      if(card(1:6).eq.'hbdist ') then
+      read(card(7:30),'(2f12.6)') rhbmin,rhbmax
+      endif
+      if(card(1:6).eq.'hbdang ') then
+      read(card(7:30),'(2f12.6)') hbdmin,hbdmax
+      endif
+      if(card(1:6).eq.'hbaang ') then
+      read(card(7:30),'(2f12.6)') hbamin,hbamax
+      endif
+c
 c     solvent selection
 c     -----------------
 c
@@ -304,6 +332,14 @@ c
       if(card(1:6).eq.'rmsdev') then
       lrms=.true.
       ndata=0
+      goto 1
+      endif
+c
+c     ramachandran analysis
+c     ---------------------
+c
+      if(card(1:6).eq.'rama  ') then
+      lrama=.true.
       goto 1
       endif
 c
@@ -567,6 +603,7 @@ c     -----------
 c
       if(card(1:6).eq.'scan  ') then
       read(card(8:80),'(a)') string
+      filram=string(1:index(string,' ')-1)//'.ram'
       filrms=string(1:index(string,' ')-1)//'.rms'
       filana=string(1:index(string,' ')-1)//'.ana'
       filhis=string(1:index(string,' ')-1)//'.his'
@@ -588,6 +625,10 @@ c
  3333 format(/,' Opening scn file ',a)
       write(lfnana,2324) nbnds,nangs,ntors,nimps
  2324 format(4i10)
+      endif
+      if(lrama) then
+      open(unit=lfnram,file=filram(1:index(filram,' ')-1),
+     + form='formatted',status='unknown')
       endif
       if(lrms) then
       open(unit=lfnrms,file=filrms(1:index(filrms,' ')-1),
@@ -654,6 +695,12 @@ c
       nwrit=nwrit+1
       endif
 c
+c     ramachandran analysis
+c
+      if(lrama) then
+      call ana_rama(dbl_mb(i_xdat),int_mb(i_iram))
+      endif
+c
 c     root mean square deviation
 c
       if(lrms) then
@@ -696,7 +743,9 @@ c
       write(*,'(/,a,i10,a,a)') ' Scanned ',nwrit,' frames to ',
      + filana(1:index(filana,' ')-1)
       endif
+      if(lrama) close(unit=lfnram)
       if(lrms) then
+      close(unit=lfnrms)
       write(*,'(a)') ' Closing scn file '
       write(*,'(/,a,i10,a,a)') ' Scanned ',ndata,' frames to ',
      + filrms(1:index(filrms,' ')-1)
@@ -958,6 +1007,12 @@ c
       if(me.eq.0) close(unit=lfncmd,status='delete')
 c
       if(active) call ana_edfinal()
+c
+      if(ltop) then
+      if(.not.ma_pop_stack(l_iram))
+     + call errquit('Could not deallocate iram',0)
+      endif
+c
       call ana_finish(byte_mb(i_snam),.true.)
 c
       ignore=rtdb_parallel(.true.)

@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.34 2000-09-07 19:46:53 d3j191 Exp $
+c $Id: ana_input.F,v 1.35 2000-09-14 21:38:22 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel
       integer itag,iatag,jatag,ipbc
-      real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval
+      real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax
       logical lref,lfil,lsol,lsuper
       integer iesppb,lent,idpdb,indx
       character*8 option
@@ -471,6 +471,16 @@ c
       goto 2
       endif
 c
+c     ramachandran analysis
+c     ---------------------
+c
+      if(inp_compare(.false.,'ramachandran',item)) then
+      write(lfncmd,1088)
+ 1088 format('rama   ')
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
 c     root mean square deviation analysis
 c     -----------------------------------
 c
@@ -479,6 +489,45 @@ c
  1008 format('rmsdev ')
       numcmd=numcmd+1
       goto 2
+      endif
+c
+c     set hydrogen bond criteria
+c     --------------------------
+c
+      if(inp_compare(.false.,'hbond')) then
+      if(.not.inp_a(item)) call errquit('Error in hbond',0)
+ 6644 continue
+      if(inp_compare(.false.,'distance')) then
+      if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
+      if(.not.inp_f(rmax)) then
+      rmax=rmin
+      rmin=0.0d0
+      endif
+      write(lfncmd,1066) rmin,rmax
+ 1066 format('hbdist ',2f12.6)
+      if(inp_a(item)) goto 6644
+      goto 2
+      elseif(inp_compare(.false.,'donorangle')) then
+      if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
+      if(.not.inp_f(rmax)) then
+      rmax=3.1416d0
+      endif
+      write(lfncmd,1067) rmin,rmax
+ 1067 format('hbdang ',2f12.6)
+      if(inp_a(item)) goto 6644
+      goto 2
+      elseif(inp_compare(.false.,'acceptorangle')) then
+      if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
+      if(.not.inp_f(rmax)) then
+      rmax=3.1416d0
+      endif
+      write(lfncmd,1068) rmin,rmax
+ 1068 format('hbaang ',2f12.6)
+      if(inp_a(item)) goto 6644
+      goto 2
+      else
+      call errquit('Error in hbond',0)
+      endif
       endif
 c
 c     essential dynamics analysis
