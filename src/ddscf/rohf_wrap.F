@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.5 1996-03-13 22:23:02 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.6 1996-04-16 03:17:41 d3g681 Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.5 1996-03-13 22:23:02 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.6 1996-04-16 03:17:41 d3g681 Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -59,7 +59,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.5 1996-03-13 22:23:02 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.6 1996-04-16 03:17:41 d3g681 Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -87,7 +87,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.5 1996-03-13 22:23:02 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.6 1996-04-16 03:17:41 d3g681 Exp $
 c
       integer g_vecs
       double precision energy
@@ -123,7 +123,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.5 1996-03-13 22:23:02 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.6 1996-04-16 03:17:41 d3g681 Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -150,9 +150,11 @@ c
      $     acc, lshift, g_x, g_ax )
 c
 c     Zap numbers much smaller than acc to ensure hard zeroes 
-c     remain unpolluted
+c     remain unpolluted ... cannot use a threshold larger than the
+c     integral accuracy since can break symmetry in non-abelian groups
 c
-      call ga_screen(g_ax, acc*0.01d0)
+*      call ga_screen(g_ax, acc*0.01d0)
+      call ga_screen(g_ax, 1d-12)
 c
       end
 
@@ -161,7 +163,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.5 1996-03-13 22:23:02 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.6 1996-04-16 03:17:41 d3g681 Exp $
 c
       integer g_x
       double precision solveshift

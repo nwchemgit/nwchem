@@ -116,10 +116,16 @@ c
          endif
       endif
 c
-c     Discard small components to circumvent some instabilities
+c     Screen small rotations to keep out noise.
+c     Cannot screen with a large number (greater than accuracy in integrals) 
+c     since in a non-abelian group we could break symmetry ... either
+c     screen with a small threshold or screen with a large one and then
+c     enforce symmetry (which is expensive in high order groups)
 c
-      call ga_maxelt(g_work, prodmax)
-      prodmax = min(1d-4,abs(prodmax)*precond_tol*0.1d0)
+*      call ga_maxelt(g_work, prodmax)
+*      prodmax = min(1d-4,abs(prodmax)*precond_tol*0.1d0)
+      prodmax = 1d-12
+*      write(6,*) ' prodmax ', prodmax
       call ga_screen(g_work, prodmax)
       if (oscfps) call pstat_off(ps_solve)
 c

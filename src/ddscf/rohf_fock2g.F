@@ -9,7 +9,7 @@
       subroutine rohf_fock2grad( nmo, nclosed, nopen,
      $     g_fcv, g_fpv, g_fcp,
      $     g_grad)
-C     $Id: rohf_fock2g.F,v 1.3 1996-03-13 22:22:57 d3g681 Exp $
+C     $Id: rohf_fock2g.F,v 1.4 1996-04-16 03:17:36 d3g681 Exp $
       implicit none
 #include "global.fh"
       integer nmo, nclosed, nopen ! [input] Occupation and number of mos
@@ -45,9 +45,15 @@ c
 c     Screen small numbers to ensure hard zeroes are not polluted
 c     but don't mess up the quadratic convergence
 c
-      call ga_maxelt(g_grad, tol)
-      tol = max(1d-12,min(1d-6,abs(tol)**2))
-**      write(6,*) ' screening grad with ', tol
+c     Cannot screen with a large number (greater than accuracy in integrals) 
+c     since in a non-abelian group we could break symmetry ... either
+c     screen with a small threshold or screen with a large one and then
+c     enforce symmetry (which is expensive in high order groups)
+c
+*      call ga_maxelt(g_grad, tol)
+*      tol = max(1d-12,min(1d-6,abs(tol)**2))
+      tol = 1d-12
+*      write(6,*) ' screening grad with ', tol
       call ga_screen(g_grad, tol)
 c     
       end

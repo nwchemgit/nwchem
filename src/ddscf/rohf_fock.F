@@ -34,7 +34,6 @@ c
       double precision two, one, zero, mone
       parameter (two=2.0d0, one=1.0d0, zero=0.0d0, mone=-1.0d0)
       double precision sym_tol  ! Threshold for detecting symmetry breaking
-      parameter (sym_tol = 1d-8)
       double precision jfactor(nset),kfactor(nset)
       integer iv_dens(nset),iv_fock(nset)
 c     
@@ -86,6 +85,7 @@ c
          if (oscfps) call pstat_off(ps_sym_sym)
          call ga_dadd(one, g_hcore, mone, g_cdens, g_hcore)
          call ga_maxelt(g_hcore, errmax)
+         sym_tol = tol2e*10.0d0
          if (errmax .gt. sym_tol) then
             write(6,*) ' Symmetry error ', errmax
             call  errquit

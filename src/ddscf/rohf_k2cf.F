@@ -1,6 +1,6 @@
       subroutine rohf_k2cf(basis, nbf, nmo, nclosed, nopen,
      $     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.6 1996-03-13 22:22:58 d3g681 Exp $
+C     $Id: rohf_k2cf.F,v 1.7 1996-04-16 03:17:37 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -61,10 +61,15 @@ c
 c     Make near zeoes exactly zero so that sparsity tests in the
 c     matrix multiply work well ... we only need to maintain
 c     quadratic convergence.
+c     Cannot screen with a large number (greater than accuracy in integrals) 
+c     since in a non-abelian group we could break symmetry ... either
+c     screen with a small threshold or screen with a large one and then
+c     enforce symmetry (which is expensive in high order groups)
 c
-      call ga_maxelt(g_temp, kmax)
-      kmax = max(1d-12,min(1d-4,abs(kmax)**2))
-**      write(6,*) ' screening k with ', kmax
+*      call ga_maxelt(g_temp, kmax)
+*      kmax = max(1d-12,min(1d-4,abs(kmax)**2))
+      kmax = 1d-12
+*      write(6,*) ' screening k with ', kmax
       call ga_screen(g_temp, kmax)
 c     
 c     Get a unitary 2nd order approximation to exp(K)
