@@ -246,15 +246,18 @@ c     initialize rtdb parameters
 
       tag = "qmmm:uqmatm"
       if (.not.rtdb_get(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) then
-        if(master)
-     >   write(*,*) pname//"Warning! qm reference energy is set to", 
-     >             eatoms
         if (.not.rtdb_put(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) 
      >      call errquit(pname//'failed to store eatoms',0,
      >       RTDB_ERR)
       end if
-      if(master) 
-     > write(6,20) "reference energy",tag,eatoms
+      if(master) then 
+       if(eatoms.eq.0) then
+         write(6,19) "reference energy",tag,eatoms,
+     >     "  <--- Warning zero value is not advisable !!!"
+       else
+         write(6,20) "reference energy",tag,eatoms
+       end if
+      end if
 
       tag = "qmmm:bqzone"
       if (.not.rtdb_get(irtdb,tag,mt_dbl,1,bqzone)) then
@@ -390,6 +393,7 @@ c
      >  write(6,23) 
        
 
+19    FORMAT(1X,A,T24,A,T46,F12.6,A)
 20    FORMAT(1X,A,T24,A,T46,F12.6)
 21    FORMAT(1X,A,T24,A,T46,L3)
 22    FORMAT(1X,A,T24,A,T46,A)
