@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.18 1997-03-26 20:19:07 rg240 Exp $
+c  $Id: moints_6x.F,v 1.19 1997-05-15 22:13:04 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -60,7 +60,8 @@ c
 c
 c Local variables
 c
-       integer geom, nmo1, nmo2, nbf, nsh, maxbfsh
+       integer geom, nmo, nmo1, nmo2, nbf, nsh, maxbfsh
+       integer qlo, qhi
        integer nblk, bsize, ngrp
        integer ii, jj, iz, kz, jz
        integer l_gmap, k_gmap
@@ -80,7 +81,7 @@ c
        integer n_ssbb, n_ssbb1, n_ssni, n_hlp, n_ijni
        integer mem2, max2e
        integer num_nodes, ploop, next
-       double precision tol2e, scale, scale0, schw_ij
+       double precision tol2e, scale, scale0, schw_ij, integ_acc
        double precision tz, thalf, tint, t1jidx, t2jidx, t1kidx, t2kidx
        double precision t34kidx, t34jidx, thalf0, ttotal, tsynch
        double precision ttask, ttaskmaxJ, ttaskminJ, ttaskaggJ
@@ -101,6 +102,10 @@ c
        data oprint/.true./
 c
 c
+c
+       integ_acc = min(1d-9, max(0.01d0*tol2e,1d-17))
+       call int_acc_set(integ_acc)
+c
 c  General basis info
 c
        ttotal = util_cpusec()
@@ -111,7 +116,10 @@ c
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
        if (.not.status) call errquit('moints: cannot get basis info',0)
-       nmo1 = mo1_hi - occ_start + 1
+       qlo  = occ_start
+       qhi  = mo2_hi
+       nmo  = qhi - qlo + 1
+       nmo1 = mo1_hi - mo1_lo + 1
        nmo2 = mo2_hi - mo2_lo + 1
 c     
 c     Symmetry adapt the MOs and renumber irreps to start at zero
@@ -141,9 +149,9 @@ c
 c
 c  Local MO coefficients
 c
-       status = status.and.ma_push_get(MT_DBL,(nbf*nbf),
+       status = status.and.ma_push_get(MT_DBL,(nbf*nmo),
      $                                 'movecs cols',l_mo,k_mo)
-       call ga_get(g_movecs,1,nbf,1,nbf,dbl_mb(k_mo),nbf)
+       call ga_get(g_movecs, 1, nbf, qlo, qhi, dbl_mb(k_mo), nbf)
 c
 c  Integrals allocation
 c
@@ -180,9 +188,9 @@ c
 c
 c  Copy of MO coefficients with reordered rows
 c
-       status = ma_push_get(MT_DBL,(nbf*nbf),'reorder mos',
+       status = ma_push_get(MT_DBL,(nbf*nmo),'reorder mos',
      $                      l_xmo, k_xmo)
-       call row_exch( nbf, nbf, int_mb(k_rbfmap), dbl_mb(k_mo),
+       call row_exch( nbf, nmo, int_mb(k_rbfmap), dbl_mb(k_mo),
      $                       dbl_mb(k_xmo) )
 c
 c  Temporary partially-transformed arrays
@@ -266,32 +274,6 @@ c
                    tz = util_cpusec()
                    scale = 1.d0
                    if (kgr.eq.lgr) scale = 0.5d0
-
-c$$$         do ish0=1,nsh
-c$$$           ish = int_mb(k_shmap+ish0-1)
-c$$$           status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
-c$$$           ilen = ibfhi - ibflo + 1
-c$$$           do jsh0=1,ish0
-c$$$             jsh = int_mb(k_shmap+jsh0-1)
-c$$$             status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
-c$$$             jlen = jbfhi - jbflo + 1
-c$$$             scale0 = 1.d0
-c$$$             if (ish.eq.jsh) scale0 = 0.5d0
-c$$$             if (next.eq.ploop) then
-c$$$               ttask = util_cpusec()
-c$$$               tottaskK = tottaskK + 1
-c$$$               call dfill(n_ssni,0.d0,dbl_mb(k_ssni),1)
-c$$$               do kb=1,nblk
-c$$$                 call gr_sh_idx(nblk,int_mb(k_gmap),kb,kshlo,kshhi)
-c$$$                 kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
-c$$$                 do lb=1,kb
-c$$$                   call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
-c$$$                   lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
-c$$$                   tz = util_cpusec()
-c$$$                   scale = 1.d0
-c$$$                   if (kb.eq.lb) scale = 0.5d0
-
-
                    call moints6x_gblkk( basis, ish, jsh, kshlo, kshhi,
      $                                  lshlo, lshhi, int_mb(k_shmap),
      $                                  int_mb(k_rbfmap),
@@ -302,32 +284,19 @@ c$$$                   if (kb.eq.lb) scale = 0.5d0
      $                                  kbflo, kbfhi, lbflo, lbfhi,
      $                                  dbl_mb(k_ssbb),
      $                                  dbl_mb(k_ssbbt) )
-
-
-c$$$                   call moints6x_gblkk( basis, ish, jsh, kshlo, kshhi,
-c$$$     $                                  lshlo, lshhi, schw_ij, tol2e,
-c$$$     $                                  max2e, dbl_mb(k_eri), mem2,
-c$$$     $                                  dbl_mb(k_iscr),
-c$$$     $                                  ibflo, ibfhi, jbflo, jbfhi,
-c$$$     $                                  kbflo, kbfhi, lbflo, lbfhi,
-c$$$     $                                  dbl_mb(k_ssbb),
-c$$$     $                                  dbl_mb(k_ssbbt), oblk )
-
-
-
                    tint = tint + util_cpusec() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    tz = util_cpusec()
-                   call moints6x_trf1K( nbf, occ_start, mo1_hi, ilen,
-     $                                  jlen, kbflo, kbfhi, lbflo,
-     $                                  lbfhi, scale, dbl_mb(k_ssbb),
-     $                                  dbl_mb(k_ssbbt), dbl_mb(k_xmo),
-     $                                  dbl_mb(k_ssni), dbl_mb(k_hlp))
+                   call moints6x_trf1K(nbf, qlo, qhi, occ_start, mo1_hi, 
+     $                                 ilen, jlen, kbflo, kbfhi, lbflo,
+     $                                 lbfhi, scale, dbl_mb(k_ssbb),
+     $                                 dbl_mb(k_ssbbt), dbl_mb(k_xmo),
+     $                                 dbl_mb(k_ssni), dbl_mb(k_hlp))
                    t1kidx = t1kidx + util_cpusec() - tz
                  enddo
                enddo
                tz = util_cpusec()
-               call moints6x_trf2K( nbf, occ_start, mo1_lo, mo1_hi,
+               call moints6x_trf2K( nbf, qlo, qhi, mo1_lo, mo1_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
      $                              dbl_mb(k_ssni),
      $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
@@ -373,29 +342,12 @@ c
               odoit = sym_shell_pair(basis, ish, jsh, q2)
            endif
 
-c$$$         do ish0=1,nsh
-c$$$           do jsh0=1,ish0
-c$$$             ish = max(int_mb(k_shmap+ish0-1),int_mb(k_shmap+jsh0-1))
-c$$$             jsh = min(int_mb(k_shmap+ish0-1),int_mb(k_shmap+jsh0-1))
-c$$$             status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
-c$$$             status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
-c$$$             ilen = ibfhi - ibflo + 1
-c$$$             jlen = jbfhi - jbflo + 1
-c$$$             schw_ij = schwarz_shell(ish,jsh)
-c$$$             scale = 1.d0
-c$$$             if (ish.eq.jsh) scale = scale*0.5d0
-c$$$             odoit = schw_ij*schwarz_max().ge.tol2e
-c$$$             if (odoit .and. osym) then
-c$$$               odoit = sym_shell_pair(basis, ish, jsh, q2)
-c$$$             endif
-
-             if (odoit) then
-               if (next.eq.ploop) then
-                 ttask = util_cpusec()
-                 tottaskJ = tottaskJ + 1
+           if (odoit) then
+             if (next.eq.ploop) then
+               ttask = util_cpusec()
+               tottaskJ = tottaskJ + 1
                  n_ijni = ilen*jlen*nbf*nmo1
                  call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
-
 
                do kgr=1,ngrp
                  kshlo = int_mb(k_glo+kgr-1)
@@ -414,23 +366,6 @@ c$$$             endif
                    lbfhi = int_mb(k_rbfmap+jz-1)
                    lblen = lbfhi - lbflo + 1
                    tz = util_cpusec()
-
-
-c$$$                 do kb=1,nblk
-c$$$                   call gr_sh_idx(nblk,int_mb(k_gmap),kb,kshlo,kshhi)
-c$$$                   kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
-c$$$                   do lb=1,kb
-c$$$                     call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
-c$$$                     lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
-c$$$                     tz = util_cpusec()
-c$$$                  call moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
-c$$$     $                                 lshlo, lshhi, schw_ij, tol2e,
-c$$$     $                                 max2e, dbl_mb(k_eri),
-c$$$     $                                 mem2, dbl_mb(k_iscr),
-c$$$     $                                 ibflo, ibfhi, jbflo, jbfhi,
-c$$$     $                                 kbflo, kbfhi, lbflo, lbfhi,
-c$$$     $                                 dbl_mb(k_ssbb), osym, oblk )
-
                    call moints_gblk( basis, ish, jsh,
      $                               kshlo, kshhi, lshlo, lshhi,
      $                               int_mb(k_shmap),int_mb(k_rbfmap),
@@ -440,47 +375,42 @@ c$$$     $                                 dbl_mb(k_ssbb), osym, oblk )
      $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               kbflo, kbfhi, lbflo, lbfhi,
      $                               dbl_mb(k_ssbb) )
-
-
-                     tint = tint + util_cpusec() - tz
-                     flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
-                     if (lgr.ne.kgr) then
-                       tz = util_cpusec()
-                       call moints_blktr( ilen, jlen, kblen, lblen,
-     $                                    dbl_mb(k_ssbb),
-     $                                    dbl_mb(k_ssbbt))
-                       call moints_trf1( nbf, mo1_lo, mo1_hi, ilen,
-     $                                   jlen, kbflo, kbfhi,
-     $                                   lbflo, lbfhi, 1.d0,
-     $                                   dbl_mb(k_ssbb),
-     $                                   dbl_mb(k_ssbbt),
-     $                                   dbl_mb(k_xmo),
-     $                                   dbl_mb(k_ssni),
-     $                                   dbl_mb(k_hlp))
-                     else
-                       tz = util_cpusec()
-                       call moints_trf1( nbf, mo1_lo, mo1_hi, ilen,
-     $                                   jlen, kbflo, kbfhi, lbflo,
-     $                                   lbfhi, 0.5d0, dbl_mb(k_ssbb),
-     $                                   dbl_mb(k_ssbb),
-     $                                   dbl_mb(k_xmo),
-     $                                   dbl_mb(k_ssni),
-     $                                   dbl_mb(k_hlp))
-                     endif
-                     t1jidx = t1jidx + util_cpusec() - tz
-                   enddo
+                   tint = tint + util_cpusec() - tz
+                   flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
+                   if (lgr.ne.kgr) then
+                     tz = util_cpusec()
+                     call moints_blktr(ilen, jlen, kblen, lblen,
+     $                                 dbl_mb(k_ssbb),
+     $                                 dbl_mb(k_ssbbt))
+                     call moints_trf1(nbf, qlo, qhi, mo1_lo, mo1_hi, 
+     $                                ilen, jlen, kbflo, kbfhi,
+     $                                lbflo, lbfhi, 1.d0,
+     $                                dbl_mb(k_ssbb),
+     $                                dbl_mb(k_ssbbt),
+     $                                dbl_mb(k_xmo),
+     $                                dbl_mb(k_ssni),
+     $                                dbl_mb(k_hlp))
+                   else
+                     tz = util_cpusec()
+                     call moints_trf1(nbf, qlo, qhi, mo1_lo, mo1_hi,
+     $                                ilen, jlen, kbflo, kbfhi, 
+     $                                lbflo, lbfhi, 0.5d0, 
+     $                                dbl_mb(k_ssbb),
+     $                                dbl_mb(k_ssbb),
+     $                                dbl_mb(k_xmo),
+     $                                dbl_mb(k_ssni),
+     $                                dbl_mb(k_hlp))
+                   endif
+                   t1jidx = t1jidx + util_cpusec() - tz
                  enddo
-c$$$                 PRINT*,' <<<<<<<<<<< ',ISH,JSH
-c$$$                 CALL ROW_EXCH( NBF, (ILEN*JLEN*NMO1), INT_MB(K_BFMAP),
-c$$$     $                          DBL_MB(K_SSNI), CRAP )
-c$$$                 CALL MOINTS_MATPRINT( NBF, (ILEN*JLEN*NMO1), CRAP )
+               enddo
                  flop2j = flop2j+2*nbf*ilen*jlen*((nmo1*(nmo1+1))/2)
                  tz = util_cpusec()
-                 call moints_trf2J( nbf, occ_start, mo1_lo, mo1_hi,
-     $                              ibflo, ibfhi, jbflo, jbfhi,
-     $                              dbl_mb(k_ssni), dbl_mb(k_hlp),
-     $                              dbl_mb(k_ssbb), dbl_mb(k_xmo),
-     $                              g_coul )
+                 call moints_trf2J(nbf, qlo, qhi, mo1_lo, mo1_hi,
+     $                             ibflo, ibfhi, jbflo, jbfhi,
+     $                             dbl_mb(k_ssni), dbl_mb(k_hlp),
+     $                             dbl_mb(k_ssbb), dbl_mb(k_xmo),
+     $                             g_coul)
                  t2jidx = t2jidx + util_cpusec() - tz
                  next = moints_nxttask(num_nodes)
                  ttask = util_cpusec() - ttask
@@ -545,22 +475,25 @@ c  Exchange 3 & 4 qtr transformation
 c
        if (oexch) then
          tz = util_cpusec()
-         call moints_Ktrf34(g_exch, .false., occ_start, mo1_lo, mo1_hi,
-     $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
-     $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
+         call moints_Ktrf34(nbf, qlo, qhi, mo1_lo, mo1_hi, 
+     $                      mo2_lo, mo2_hi, .false., dbl_mb(k_mo),
+     $                      dbl_mb(k_hlp), osym, int_mb(k_sym),
+     $                      g_exch)
          t34kidx = util_cpusec() - tz
          if (util_print('exchange integral',print_debug)) then
            call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_exch)
          endif
+C         call MOINTS_OP_PRINT(OCC_START,MO1_LO,MO1_HI,NMO2,G_EXCH)
        endif
 c
 c  Coulomb 3 & 4 qtr transformation
 c
        if (ocoul) then
          tz = util_cpusec()
-         call moints_Jtrf34( g_coul, occ_start, mo1_lo, mo1_hi,
-     $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
-     $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
+         call moints_Jtrf34(nbf, qlo, qhi, mo1_lo, mo1_hi,
+     $                      mo2_lo, mo2_hi, dbl_mb(k_mo),
+     $                      dbl_mb(k_hlp), osym, int_mb(k_sym),
+     $                      g_coul)
          if (util_print('coulomb integral',print_debug)) then
            call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
          endif
@@ -664,6 +597,8 @@ c  Branch according to block or non-block
 c  scheme
 c
 c
+
+#ifdef NOCOMPILE
       subroutine moints6x_gblkk_old( basis, ish, jsh,
      $                           kshlo, kshhi, lshlo, lshhi,
      $                           schw_ij, tol2e, erilen, eri,
@@ -998,7 +933,7 @@ c
       return
       end
 
-
+#endif
 
 
 
@@ -1467,15 +1402,16 @@ c
 
 
 
-      subroutine moints6x_trf1K( nbf, molo, mohi, ilen, jlen,
-     $                           klo, khi, llo, lhi, scale,
-     $                           ssbb, ssbbt, c, ssni, hlp )
+      subroutine moints6x_trf1K(nbf, qlo, qhi, molo, mohi, 
+     $                          ilen, jlen, klo, khi, llo, lhi, 
+     $                          scale, ssbb, ssbbt, c, ssni, hlp )
       implicit none
-      integer nbf, molo, mohi, ilen, jlen, klo, khi, llo, lhi
+      integer nbf, qlo, qhi
+      integer molo, mohi, ilen, jlen, klo, khi, llo, lhi
       double precision scale
       double precision ssbb(llo:lhi,klo:khi,jlen,ilen)
       double precision ssbbt(klo:khi,llo:lhi,jlen,ilen)
-      double precision c(nbf,nbf)
+      double precision c(nbf,qlo:qhi)
       double precision ssni(nbf,jlen,ilen,molo:mohi)
       double precision hlp(*)
 c
@@ -1508,12 +1444,13 @@ c
 
 
 
-      subroutine moints6x_trf2K( nbf, ostart, olo, ohi, ilo, ihi,
-     $                           jlo, jhi, ssni, h1, h2, g1, g2,
-     $                           c, g_exch )
+      subroutine moints6x_trf2K(nbf, qlo, qhi, olo, ohi, 
+     $                          ilo, ihi, jlo, jhi, ssni, h1, h2, 
+     $                          g1, g2, c, g_exch )
       implicit none
-      integer nbf, ostart, olo, ohi, ilo, ihi, jlo, jhi
-      double precision ssni(nbf,jlo:jhi,ilo:ihi,ostart:ohi)
+      integer nbf, qlo, qhi
+      integer ostart, olo, ohi, ilo, ihi, jlo, jhi
+      double precision ssni(nbf,jlo:jhi,ilo:ihi,qlo:ohi)
 #ifdef SCATTER_TRANSF
       double precision h1(*)
       integer iv(100),jv(100)
@@ -1522,13 +1459,14 @@ c
       double precision h2(jlo:jhi,ilo:ihi)
       double precision g1(nbf,jlo:jhi)
       double precision g2(ilo:ihi,jlo:jhi)
-      double precision c(nbf,nbf)
+      double precision c(nbf,qlo:qhi)
       integer g_exch
 c
       integer ilen, jlen, ijlen
       integer nni, nnj, ijlo, ijhi, jilo, jihi
-      integer aoff, ofroz, aa, bb, a, b, ab, i, j
+      integer aoff, ofroz, aa, bb, a, b, ab, i, j, ostart
 c
+      ostart = qlo
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       ilen = ihi - ilo + 1

@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.37 1997-04-11 00:34:10 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.38 1997-05-15 22:13:01 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -59,7 +59,7 @@ c
 c
        data g_coul,g_exch/-1,-1/
        data charge/0.d0/
-       data ohalf/.false./
+       data ohalf/.true./
 c
        if (.not. scf(rtdb)) then
           direct_mp2 = .false.
@@ -202,7 +202,7 @@ c
        occ_hi = nocc
        nocc_correl = occ_hi - occ_lo + 1
        vir_lo = nocc + 1
-       vir_hi = nbf - vir_frozen
+       vir_hi = nmo - vir_frozen
        nmo2 = vir_hi - vir_lo + 1
 c
 c Get Block-length
@@ -253,7 +253,7 @@ c
 c
 c  Enabled disk caching *only* if multipassing required
 c
-       odisk = odisk.and.(npass.gt.1)
+C       odisk = odisk.and.(npass.gt.1)
        if (.not.moints_aodisk_init( odisk, oaoreuse ))
      $    call errquit('direct_mp2: cannot initiliaze ao cache',0)
 c
@@ -325,9 +325,9 @@ c
 c
 c Evaluate and store pair energies
 c
-       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nmo2,
-     $                     nmo2, nbf, g_exch, dbl_mb(k_evals),
-     $                     g_epair )
+       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, 
+     $                     vir_lo, vir_hi, vir_lo, vir_hi,
+     $                     g_exch, dbl_mb(k_evals), g_epair )
 c
 c Print progress of this pass
 c
@@ -343,7 +343,7 @@ c
 c End multipass loop
 c
        if (oseg_hi.lt.occ_hi) goto 22
-            
+c$$$            
 c$$$       CALL GA_ZERO(G_EXCH)
 c$$$       TPASS = UTIL_CPUSEC()
 c$$$       CALL MOINTS_BUILD_2X(BASIS, OHALF, OSYM, OCC_LO,
@@ -351,13 +351,13 @@ c$$$     $                      OSEG_LO, OSEG_HI,
 c$$$     $                      VIR_LO, VIR_HI, G_VECS,
 c$$$     $                      G_COUL, .FALSE., G_EXCH, .TRUE.,
 c$$$     $                      BLEN, OBLK )
-c$$$       CALL MOINTS_E2PAIR( NOCC, OCC_LO, OSEG_LO, OSEG_HI, NMO2,
-c$$$     $                     NMO2, NBF, G_EXCH, DBL_MB(K_EVALS),
-c$$$     $                     G_EPAIR )
+c$$$       CALL MOINTS_E2PAIR( NOCC, OCC_LO, OSEG_LO, OSEG_HI, 
+c$$$     $                     VIR_LO, VIR_HI, VIR_LO, VIR_HI,
+c$$$     $                     G_EXCH, DBL_MB(K_EVALS), G_EPAIR )
 c$$$       TPASS = UTIL_CPUSEC() - TPASS
 c$$$       WRITE(6,771) TPASS
 c$$$ 771   FORMAT(' Second Pass   Time:',f10.2)
-c$$$
+
 
        call moints_aodisk_close( oaokeep )
 c

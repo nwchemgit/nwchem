@@ -1,3 +1,4 @@
+#ifdef OLD_AOBLOCK
 c
 c  General interface to block AO integral routine
 c  Branch on whether to use 
@@ -217,7 +218,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.26 1997-05-01 18:15:57 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.27 1997-05-15 22:13:05 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -298,7 +299,7 @@ c
 
       return
       end
-
+#endif
 
 
 
@@ -531,7 +532,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.26 1997-05-01 18:15:57 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.27 1997-05-15 22:13:05 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -608,39 +609,41 @@ c$$$      CALL MOINTS_MATPRINT(LBLEN,KBLEN,SSBB(LBLO,KBLO,JBFLO,IBFLO))
 
 
       
-      subroutine moints_trf1( nbf, molo, mohi, ilen, jlen,
-     $                          klo, khi, llo, lhi, scale,
-     $                          ssbb, ssbbt, c, ssni, hlp )
+      subroutine moints_trf1( nbf, qlo, qhi, mo1_lo, mo1_hi,
+     $                        ilen, jlen, klo, khi, llo, lhi,
+     $                        scale, ssbb, ssbbt, c, ssni, hlp )
       implicit none
-      integer nbf, molo, mohi
+      integer nbf, qlo, qhi, mo1_lo, mo1_hi
       integer ilen, jlen, klo, khi, llo, lhi
       double precision scale
       double precision ssbb(llo:lhi,klo:khi,jlen,ilen)
       double precision ssbbt(klo:khi,llo:lhi,jlen,ilen)
-      double precision c(nbf,nbf)
-      double precision ssni(nbf,jlen,ilen,molo:mohi)
+      double precision c(nbf,qlo:qhi)
+      double precision ssni(nbf,jlen,ilen,mo1_lo:mo1_hi)
       double precision hlp(*)
 c
-      integer nmo, llen, klen, kjilen, ljilen
+      integer nmo1, llen, klen, kjilen, ljilen
 c
 c
 c      
-      nmo = mohi - molo + 1
+      nmo1 = mo1_hi - mo1_lo + 1
       llen = lhi - llo + 1
       klen = khi - klo + 1
       kjilen = klen*jlen*ilen
       ljilen = llen*jlen*ilen
-      call dgemm( 't', 'n', kjilen, nmo, llen, scale, ssbb, llen,
-     $            c(llo,molo), nbf, 0.d0, hlp, kjilen )
-      call moints_1idxpush( nbf, ilen, jlen, klo, khi, nmo,
+
+      call dgemm( 't', 'n', kjilen, nmo1, llen, scale, ssbb, llen,
+     $            c(llo,mo1_lo), nbf, 0.d0, hlp, kjilen )
+      call moints_1idxpush( nbf, ilen, jlen, klo, khi, nmo1,
      $                      hlp, ssni )
-      call dgemm( 't', 'n', ljilen, nmo, klen, scale, ssbbt, klen,
-     $            c(klo,molo), nbf, 0.d0, hlp, ljilen )
-      call moints_1idxpush( nbf, ilen, jlen, llo, lhi, nmo,
+      call dgemm( 't', 'n', ljilen, nmo1, klen, scale, ssbbt, klen,
+     $            c(klo,mo1_lo), nbf, 0.d0, hlp, ljilen )
+      call moints_1idxpush( nbf, ilen, jlen, llo, lhi, nmo1,
      $                      hlp, ssni )
 
       return
       end
+
 
 
 
@@ -723,15 +726,15 @@ c
 
 
 
-      subroutine moints_1idxpush( nbf, ilen, jlen, klo, khi, nmo,
+      subroutine moints_1idxpush( nbf, ilen, jlen, klo, khi, nmo1,
      $                            x, ssni )
       implicit none
-      integer nbf, ilen, jlen, klo, khi, nmo
-      double precision x(klo:khi,jlen,ilen,nmo)
-      double precision ssni(nbf,jlen,ilen,nmo)
+      integer nbf, ilen, jlen, klo, khi, nmo1
+      double precision x(klo:khi,jlen,ilen,nmo1)
+      double precision ssni(nbf,jlen,ilen,nmo1)
       integer a,i,j,k
       
-      do a=1,nmo
+      do a=1,nmo1
         do i=1,ilen
           do j=1,jlen
             do k=klo,khi
@@ -785,19 +788,21 @@ c
 c
 c Coulomb 2nd index transform
 c
-      subroutine moints_trf2J( nbf, ostart, olo, ohi, ilo, ihi,
+      subroutine moints_trf2J( nbf, qlo, qhi, olo, ohi, ilo, ihi,
      $                         jlo, jhi, ssni, h1, h2, c, g_coul )
       implicit none
-      integer nbf, ostart, olo, ohi, ilo, ihi, jlo, jhi
+      integer nbf, qlo, qhi
+      integer olo, ohi, ilo, ihi, jlo, jhi
       double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
       double precision h1(nbf,ilo:ihi)
       double precision h2(jlo:jhi,ilo:ihi)
-      double precision c(nbf,nbf)
+      double precision c(nbf,qlo:qhi)
       integer g_coul
 c
       integer nni, ijlo, ijhi, ilen, jlen, ijlen
-      integer ab, aa, bb, a, b, i, aoff, ofroz
+      integer ab, aa, bb, a, b, i, aoff, ofroz, ostart
 c
+      ostart = qlo
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       ilen = ihi - ilo + 1
@@ -809,7 +814,7 @@ c
       ijhi = ihi*nbf
 #endif
       do a=olo,ohi
-        do b=ostart,a
+        do b=qlo,a
           call dgemm('t','n',ijlen,1,nbf,1.d0,ssni(1,jlo,ilo,a),
      $               nbf,c(1,b),nbf,0.d0,h2,ijlen)
 #ifndef NOCOMMS
@@ -882,23 +887,23 @@ c
 
 
 
-      subroutine moints_Ktrf34( g_exch, otrp, ostart, olo, ohi,
-     $                          vlo, vhi, nbf, c, tmp, osym, syms )
+      subroutine moints_Ktrf34( nbf, qlo, qhi, olo, ohi, vlo, vhi,
+     $                          otrp, c, tmp, osym, syms, g_exch )
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+      integer nbf, qlo, qhi
+      integer olo, ohi, vlo, vhi
+      logical otrp, osym
+      double precision c(nbf,qlo:qhi)
+      double precision tmp(nbf,qlo:qhi)
+      integer syms(nbf)
       integer g_exch
-      logical otrp
-      integer nbf, ostart, olo, ohi, vlo, vhi
-      double precision c(nbf,nbf)
-      double precision tmp(nbf,nbf)
-
-      integer nvir, clo, chi, rlo, rhi, my_id
+c
+      integer nvir, clo, chi, rlo, rhi, my_id, ostart
       integer ofroz, a1, a2, aa1, aa2, aa, aoff, k_local, ld
 
-      logical osym
-      integer syms(nbf)
-
+      ostart = qlo
       ofroz = ostart - 1
       nvir = vhi - vlo + 1
       my_id = ga_nodeid()
@@ -911,7 +916,7 @@ c
           aa = (aa1*(aa1-1))/2 + aa2 - aoff
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
-            call moints_Ktrf34a( otrp, nbf, vlo, vhi, c,
+            call moints_Ktrf34a( otrp, nbf, ostart, vlo, vhi, c,
      $                           dbl_mb(k_local), tmp )
             if (osym) call moints_sym_zero(nbf, vlo, vhi, syms,
      $                                     a1, a2, dbl_mb(k_local))
@@ -928,13 +933,13 @@ c
 c Note: May require transpose the half-transformed matrix
 c       to conform to convention for storage
 c
-      subroutine moints_Ktrf34a( otrp, nbf, vlo, vhi, c, x, tmp )
+      subroutine moints_Ktrf34a(otrp, nbf, ostart, vlo, vhi, c, x, tmp)
       implicit none
       logical otrp
-      integer nbf, vlo, vhi
-      double precision c(nbf,nbf)
-      double precision x(nbf,nbf)
-      double precision tmp(nbf,nbf)
+      integer nbf, ostart, vlo, vhi
+      double precision c(nbf,ostart:vhi)
+      double precision x(vlo:vhi,vlo:vhi)
+      double precision tmp(vlo:vhi,nbf)
       integer nv
       character*1 ttt
       
@@ -946,10 +951,10 @@ CRK   call dgemm('t',ttt,nv,nbf,nbf,1.d0,c(1,vlo),nbf,x,nbf,
 CRK  $           0.d0,tmp,nv)
 CRK   call dgemm('n','n',nv,nv,nbf,1.d0,tmp,nv,c(1,vlo),nbf,
 CRK  $           0.d0,x,nv)
-      call dgemm('t',ttt,nbf,nbf,nbf,1.d0,c,nbf,x,nbf,
-     $           0.d0,tmp,nbf)
-      call dgemm('n','n',nbf,nbf,nbf,1.d0,tmp,nbf,c,nbf,
-     $           0.d0,x,nbf)
+      call dgemm('t',ttt,nv,nbf,nbf,1.d0,c(1,vlo),nbf,x,nbf,
+     $           0.d0,tmp,nv)
+      call dgemm('n','n',nv,nv,nbf,1.d0,tmp,nv,c(1,vlo),nbf,
+     $           0.d0,x,nv)
 
       return
       end
@@ -965,21 +970,23 @@ CRK  $           0.d0,x,nv)
 c
 c
 c
-      subroutine moints_Jtrf34( g_coul, ostart, olo, ohi, vlo, vhi,
-     $                          nbf, c, tmp, osym, syms )
+      subroutine moints_Jtrf34( nbf, qlo, qhi, olo, ohi, vlo, vhi,
+     $                          c, tmp, osym, syms, g_coul )
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-      integer g_coul
-      integer ostart, olo, ohi, vlo, vhi, nbf
+      integer nbf, qlo, qhi
+      integer olo, ohi, vlo, vhi
       logical osym
       integer syms(nbf)
-      double precision c(nbf,nbf)
-      double precision tmp(nbf,nbf)
-
-      integer clo, chi, rlo, rhi, my_id
+      double precision c(nbf,qlo:qhi)
+      double precision tmp(nbf,qlo:qhi)
+      integer g_coul
+c
+      integer clo, chi, rlo, rhi, my_id, ostart
       integer ofroz, aoff, a1, a2, aa1, aa2, aa, k_local, ld
-
+c
+      ostart = qlo
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       my_id = ga_nodeid()
@@ -991,7 +998,7 @@ c
           aa = (aa1*(aa1-1))/2 + aa2 - aoff
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_coul,rlo,rhi,aa,aa,k_local,ld)
-            call moints_Jtrf34a( nbf, vlo, vhi, c,
+            call moints_Jtrf34a( nbf, qlo, qhi, vlo, vhi, c,
      $                           dbl_mb(k_local), tmp )
             if (osym) call moints_sym_zero(nbf, vlo, vhi, syms,
      $                                     a1, a2, dbl_mb(k_local))
@@ -1006,34 +1013,22 @@ c
 
 
 
-      subroutine moints_Jtrf34a( nbf, vlo, vhi, c, x, tmp )
+      subroutine moints_Jtrf34a( nbf, qlo, qhi, vlo, vhi, c, x, tmp )
       implicit none
-      integer nbf, vlo, vhi
-      double precision c(nbf,nbf)
+      integer nbf, qlo, qhi, vlo, vhi
+      double precision c(nbf,qlo:qhi)
       double precision x(nbf,nbf)
       double precision tmp(nbf,nbf)
-      integer i, j, nv
+      integer nv
 
       nv = vhi - vlo + 1
-      do i=1,nbf
-        do j=1,i
-          tmp(j,i) = x(j,i)
-          tmp(i,j) = x(j,i)
-        enddo
-      enddo
-CRK temporary bug fix
-CRK      call dgemm('t','n',nv,nbf,nbf,1.d0,c(1,vlo),nbf,tmp,nbf,
-CRK     $           0.d0,x,nv)
-CRK      call dgemm('n','n',nv,nv,nbf,1.d0,x,nv,c(1,vlo),nbf,
-CRK     $           0.d0,tmp,nv)
-CRK
-CRK   call dcopy((nv*nv),tmp,1,x,1)
-      call dgemm('t','n',nbf,nbf,nbf,1.d0,c,nbf,tmp,nbf,
-     $           0.d0,x,nbf)
-      call dgemm('n','n',nbf,nbf,nbf,1.d0,x,nbf,c,nbf,
-     $           0.d0,tmp,nbf)
+      call upper2square( nbf, x, tmp )
+      call dgemm('t', 'n', nv, nbf, nbf, 1.d0, c(1,vlo), nbf, tmp, 
+     $           nbf, 0.d0, x, nv)
+      call dgemm('n', 'n', nv, nv, nbf, 1.d0, x, nv, c(1,vlo), nbf,
+     $           0.d0, tmp, nv)
+      call dcopy((nv*nv),tmp,1,x,1)
 
-      call dcopy((nbf*nbf),tmp,1,x,1)
       return
       end
 
@@ -1107,7 +1102,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.26 1997-05-01 18:15:57 d3g681 Exp $
+C$Id: moints_aux2.F,v 1.27 1997-05-15 22:13:05 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1151,7 +1146,7 @@ C$Id: moints_aux2.F,v 1.26 1997-05-01 18:15:57 d3g681 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.26 1997-05-01 18:15:57 d3g681 Exp $
+c$$$C$Id: moints_aux2.F,v 1.27 1997-05-15 22:13:05 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
@@ -1201,23 +1196,69 @@ c$$$       end
 
 
 
-       integer function ga_create_JKblocked(noper,n1,n2,label)
-       implicit none
+      integer function ga_create_JKblocked(noper,n1,n2,label)
+      implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-       integer noper,n1,n2
-       character*(*) label
-       integer g_a
-       integer row_dist, col_dist
+      integer noper,n1,n2
+      character*(*) label
+      integer g_a
+      integer row_dist, col_dist
 
-       col_dist = 1
-       row_dist = n1*n2
-       if (.not.ga_create(MT_DBL,(n1*n2),noper,label,
+      col_dist = 1
+      row_dist = n1*n2
+      if (.not.ga_create(MT_DBL,(n1*n2),noper,label,
      $                    row_dist,col_dist,g_a))
      $      call errquit('ga_create_JKblocked: cannot allocate',0)
 
-       ga_create_JKblocked = g_a
+      ga_create_JKblocked = g_a
+      
+      return
+      end
 
-       return
-       end
 
+
+
+
+
+
+
+
+      subroutine row_exch( n, m, map, x, y )
+      integer n
+      integer m
+      integer map(n)
+      double precision x(n,m)
+      double precision y(n,m)
+
+      do i=1,m
+        do j=1,n
+          y(map(j),i) = x(j,i)
+        enddo
+      enddo
+      return
+      end
+
+
+
+
+
+
+c
+c  Required by moints_trp ... will remove later
+c
+      subroutine moints2xv_Ktrf4a( vlo, vhi, nbf, c, x, tmp )
+      implicit none
+      integer vlo, vhi, nbf
+      double precision c(nbf,nbf)
+      double precision x(vlo:vhi,nbf)
+      double precision tmp(vlo:vhi,vlo:vhi)
+      integer nvir
+      
+      nvir = vhi - vlo + 1
+      call dgemm('t', 't', nvir, nvir, nbf, 1.d0, c(1,vlo), nbf,
+     $            x, nvir, 0.d0, tmp, nvir)
+      return
+      end
+ 
+ 

@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.25 1997-05-01 18:14:43 d3g681 Exp $
+C$Id: moints_mp2.F,v 1.26 1997-05-15 22:13:06 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -110,65 +110,56 @@ c
 c  Evaluates MP2 pair energies from given
 c  exchange operator:
 c
-c            ab               a,b = virtual indices
+c            pq               p,q = arbitrary indices
 c           K                 i,j = correlated occ. orbitals for this pass
 c            ij
 c
-c  Care needed for frozen virtuals, where Kij dimension = nvir which is 
-c  less than nvir_corr.
+c  Obviously, the superscript range mo2_lo:mo2_hi must contain the
+c  the correlated virtual range, vlo:vhi, viz,
+c
+c      mo2_lo <= vlo <= vhi <= mo2_hi
 c  
 
-       subroutine moints_e2pair( nocc, ostart, occ_lo, occ_hi,
-     $                           nvir, nmo2, nbf, g_k, orbe, g_epair )
+       subroutine moints_e2pair(nocc, ostart, occ_lo, occ_hi, 
+     $                          mo2_lo, mo2_hi, vlo, vhi, g_k, 
+     $                          orbe, g_epair)
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
        integer nocc                                  ! [input]  number of occupied orbitals (including frozen)
        integer ostart                                ! [input]  first correlated occupied index
-       integer occ_lo, occ_hi                        ! [input]  range of correlated occupied indices for this pass 
-       integer nvir                                  ! [input]  number of virtual orbitals
-       integer nmo2                                  ! [input]  number of correlated virtual orbitals
-       integer nbf                                   ! [input]  number of basis functions
+       integer occ_lo, occ_hi                        ! [input]  index range of correlated occupied for this pass 
+       integer mo2_lo, mo2_hi                        ! [input]  index range of operator superscript
+       integer vlo, vhi                              ! [input]  index range of correlated virtuals
        double precision orbe(*)                      ! [input]  orbital energies
        integer g_k                                   ! [input]  exchange operator
        integer g_epair                               ! [output] triangular array of pair energies
 c
        integer k_exch,ld_exch
-       integer ii,i,jj,j,ij,vstart,nnt,ndim,ij0,ofroz
+       integer ii,i,jj,j,ij,nnt,ij0,ofroz
        integer ilo,ihi,jlo,jhi,my_id
-       integer ooff
+       integer ooff,nmo2
        double precision xx,denom
        double precision moints_epair_eval
+       external moints_epair_eval
+c$$$       INTEGER III,JJJ
+c$$$       DOUBLE PRECISION CRAP(1000)
 c
 c
        ofroz = ostart - 1
        ooff = ((occ_lo-ofroz)*(occ_lo-ofroz-1))/2
        nnt = ((occ_hi-ofroz)*(occ_hi-ofroz+1))/2 - ooff
+       nmo2 = mo2_hi - mo2_lo + 1
 c
 c Check if this node has any data
 c
        my_id = ga_nodeid()
        call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
        if ((ilo.ne.1).and.(ihi.ne.-1)) call 
-     $ errquit('moints_e2pair: wrong distribution for exchange',my_id)
-c
-c Set to handle different exchange matrix sizes
-c Usually K matrix is (nvir,nvir) but could be (nbf,nbf) 
-c
-       ndim = nvir
-       vstart = 0
-CRK    Temporary Rika bug fix
-CRK    if ((ihi.eq.(nbf*nbf)).and.(nmo2.eq.nbf)) then
-       if (ihi.eq.(nbf*nbf)) then
-         ndim = nbf
-         vstart = nocc
-       else if ((jhi.ne.-1).and.(ihi.ne.(nvir*nvir))
-     $           .and.(ihi.ne.(nvir*nbf)).and.
-     $          (ihi.ne.(nbf*nbf))) then
-         write(6,911) my_id,ilo,ihi,jlo,jhi
- 911     format(i5,':',2(2i5,5x))
-         call util_flush(6)
-         call errquit('moints_e2pair: odd exchange matrix size',ihi)
+     $   errquit('moints_e2pair: wrong distrib for exchange',my_id)
+       if (ihi.ne.-1) then
+         if (ihi.lt.(nmo2*nmo2)) call 
+     $     errquit('moints_e2pair: exchange dim & param mismatch',0)
        endif
 c
 c Loop over occupied orbital pairs
@@ -182,8 +173,9 @@ c
            if ((ij.ge.jlo).and.(ij.le.jhi)) then
              denom = orbe(i) + orbe(j)
              call ga_access(g_k,1,ihi,ij,ij,k_exch,ld_exch)
-             xx = moints_epair_eval(ndim, vstart, nvir, dbl_mb(k_exch),
-     $                              orbe(nocc+1), denom)
+             xx = moints_epair_eval( vlo, vhi, mo2_lo, mo2_hi, 
+     $                                 dbl_mb(k_exch), orbe(nocc+1), 
+     $                                 denom)
              call ga_release(g_k,1,ihi,ij,ij)
              if (i.eq.j) xx = xx/2.d0
              call ga_put(g_epair,1,1,ij0,ij0,xx,1)
@@ -217,30 +209,37 @@ c$$$       endif
 
 
 
-       double precision function moints_epair_eval( ndim, vstart,
-     $                                          nvir, xk, virorbe,
-     $                                          denom )
+       double precision 
+     $    function moints_epair_eval(vlo, vhi, mo2_lo, mo2_hi,
+     $                                 xk, virorbe, denom )
        implicit none
 #include "global.fh"
-       integer ndim, vstart, nvir
-       double precision xk(ndim,ndim), virorbe(nvir), denom
+       integer vlo, vhi, mo2_lo, mo2_hi
+       double precision xk(mo2_lo:mo2_hi,mo2_lo:mo2_hi)
+       double precision virorbe(vlo:vhi), denom
        double precision xx, yy
        double precision xxxx
-       integer k,l,kk,ll
+       integer a,b
 
        xx = 0.d0
-       do kk=1,nvir
-         do ll=1,nvir
-           k = vstart + kk
-           l = vstart + ll
-           yy = xk(l,k)*(4.d0*xk(l,k) - 2.d0*xk(k,l))
-           xxxx = denom  - virorbe(kk) - virorbe(ll)
+       do a=vlo,vhi
+         do b=vlo,vhi
+           yy = xk(a,b)*(4.d0*xk(a,b) - 2.d0*xk(b,a))
+           xxxx = denom  - virorbe(b) - virorbe(a)
            if (abs(xxxx).lt.1.d-10)
      $       call errquit('moints_epair_eval: zero denominator',0)
-           xx = xx + yy/(denom - virorbe(kk) - virorbe(ll))
+           xx = xx + yy/xxxx
          enddo
        enddo
        moints_epair_eval = xx
        return
        end
+
+
+
+
+
+
+
+
 

@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.57 1997-03-26 20:19:05 rg240 Exp $
+C$Id: mointdriver.F,v 1.58 1997-05-15 22:13:03 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -31,6 +31,7 @@ c
        integer nact, nocc, nopen, nocc_correl
        integer occ_frozen, occ_lo, occ_hi
        integer vir_frozen, vir_lo, vir_hi, nmo, nmo2
+       integer qlo, qhi
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
        integer noper_core, seg_incr
        integer g_coul, g_exch, g_epair
@@ -165,19 +166,19 @@ c
        occ_lo = occ_frozen + 1
        occ_hi = nocc
        vir_lo = nocc + 1
-       vir_hi = nbf - vir_frozen 
-c$$$       vir_lo = 1
-c$$$       vir_hi = nbf
+       vir_hi = nmo - vir_frozen 
+       qlo = occ_lo
+       qhi = vir_hi
        nmo2 = vir_hi - vir_lo + 1
        nocc_correl = occ_hi - occ_lo + 1
 c
 c Get Block-length
 c
-       if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,
-     $      1,blen)) blen = 16
+       if (.not.rtdb_get(rtdb, 'fourindex:block', MT_INT,
+     $      1, blen)) blen = 16
        blen = max(blen,maxbfsh)
-       if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,
-     $      1,oblk)) oblk = .false.
+       if (.not.rtdb_get(rtdb,'fourindex:aoblock', MT_LOG,
+     $      1, oblk)) oblk = .false.
 c
 c Initialise integrals and screening
 c
@@ -305,9 +306,12 @@ c
 c
 c Evaluate and store pair energies
 c
-       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nmo2,
-     $                     nmo2, nbf, g_exch, dbl_mb(k_evals),
-     $                     g_epair )
+c$$$       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nmo2,
+c$$$     $                     nmo2, nbf, g_exch, dbl_mb(k_evals),
+c$$$     $                     g_epair )
+       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, 
+     $                     vir_lo, vir_hi, vir_lo, vir_hi,
+     $                     g_exch, dbl_mb(k_evals), g_epair )
 c
 c
 c
@@ -415,8 +419,8 @@ c
 c
        call moints_semi( basis, tol2e, ocoul, oexch, oseg_lo, oseg_hi,
      $                  occ_lo, occ_hi, vir_lo, vir_hi, g_vecs, oblk )
-       status = ma_push_get(MT_DBL, (nbf*nbf), 'mos', l_x, k_x )
-       call ga_get(g_vecs,1,nbf,1,nbf,dbl_mb(k_x),nbf)
+       status = ma_push_get(MT_DBL, (nbf*nmo), 'mos', l_x, k_x )
+       call ga_get(g_vecs,1,nbf,1,nmo,dbl_mb(k_x),nbf)
        if (oexch)
      $    call moints_readintK( nbf, oseg_lo, oseg_hi, occ_lo, occ_hi,
      $                          vir_lo, vir_hi, dbl_mb(k_x),

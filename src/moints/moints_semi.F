@@ -1,3 +1,4 @@
+
 c==========================================================
 c  This stupid section is to try an localize the
 c  interface differences between CRAY and the rest
@@ -19,47 +20,47 @@ c
       end
 
 
-      subroutine waopen0( unit, fname, nblk, istat, ierr )
-      implicit none
-#include "global.fh"
-      integer unit, nblk, istat, ierr
-      character*(*) fname
-      integer inp_strlen
-      external inp_strlen
-      integer flen
-#ifndef CRAY_T3D
-      flen = inp_strlen(fname)
-      call wopen( unit, fname, flen, nblk, istat, ierr )
-#else
-#ifdef __F90__
-      integer(kind=8) fdummy
-      character*8 dunits
-#else
-      double precision fdummy
-      double precision dunits
-#endif
-      integer ii, i, iput,iget
-      character*8 aunit
-      equivalence (fdummy,aunit)
-      common/crayunits/dunits(100),iput,iget
-
-      flen = inp_strlen(fname)
-      do i=8,1,-1
-        ii = flen - 8 + i
-        aunit(i:i) = fname(ii:ii)
-      enddo
-      call wopen( fdummy, nblk, istat, ierr )
-#ifdef __F90__
-      dunits(unit) = aunit
-      iput = 0
-      iget = 0
-#else
-      dunits(unit) = fdummy
-#endif
-#endif
-      if(ierr.ne.0)call errquit('waopen failed',unit)
-      return
-      end
+c$$$      subroutine waopen0( unit, fname, nblk, istat, ierr )
+c$$$      implicit none
+c$$$#include "global.fh"
+c$$$      integer unit, nblk, istat, ierr
+c$$$      character*(*) fname
+c$$$      integer inp_strlen
+c$$$      external inp_strlen
+c$$$      integer flen
+c$$$#ifndef CRAY_T3D
+c$$$      flen = inp_strlen(fname)
+c$$$      call wopen( unit, fname, flen, nblk, istat, ierr )
+c$$$#else
+c$$$#ifdef __F90__
+c$$$      integer(kind=8) fdummy
+c$$$      character*8 dunits
+c$$$#else
+c$$$      double precision fdummy
+c$$$      double precision dunits
+c$$$#endif
+c$$$      integer ii, i, iput,iget
+c$$$      character*8 aunit
+c$$$      equivalence (fdummy,aunit)
+c$$$      common/crayunits/dunits(100),iput,iget
+c$$$
+c$$$      flen = inp_strlen(fname)
+c$$$      do i=8,1,-1
+c$$$        ii = flen - 8 + i
+c$$$        aunit(i:i) = fname(ii:ii)
+c$$$      enddo
+c$$$      call wopen( fdummy, nblk, istat, ierr )
+c$$$#ifdef __F90__
+c$$$      dunits(unit) = aunit
+c$$$      iput = 0
+c$$$      iget = 0
+c$$$#else
+c$$$      dunits(unit) = fdummy
+c$$$#endif
+c$$$#endif
+c$$$      if(ierr.ne.0)call errquit('waopen failed',unit)
+c$$$      return
+c$$$      end
 
 
       subroutine waclose( unit, ierr )
@@ -72,33 +73,33 @@ c
       end
 
 
-      subroutine waclose0( unit, ierr )
-      implicit none
-      integer unit, ierr
-#ifndef CRAY_T3D
-      call wclose(unit,ierr)
-#else
-#ifdef __F90__
-      character*8 dunits
-      integer (kind=8) xu
-      integer iput, iget
-      character*8 fname
-      equivalence (fname,xu)
-      common/crayunits/dunits(100),iput, iget
-
-      fname = dunits(unit)
-      call wclose(xu,ierr)
-#else
-      double precision dunits
-      double precision xu
-      common/crayunits/dunits(100)
-
-      xu = dunits(unit)
-      call wclose(xu,ierr)
-#endif
-#endif
-      return
-      end
+c$$$      subroutine waclose0( unit, ierr )
+c$$$      implicit none
+c$$$      integer unit, ierr
+c$$$#ifndef CRAY_T3D
+c$$$      call wclose(unit,ierr)
+c$$$#else
+c$$$#ifdef __F90__
+c$$$      character*8 dunits
+c$$$      integer (kind=8) xu
+c$$$      integer iput, iget
+c$$$      character*8 fname
+c$$$      equivalence (fname,xu)
+c$$$      common/crayunits/dunits(100),iput, iget
+c$$$
+c$$$      fname = dunits(unit)
+c$$$      call wclose(xu,ierr)
+c$$$#else
+c$$$      double precision dunits
+c$$$      double precision xu
+c$$$      common/crayunits/dunits(100)
+c$$$
+c$$$      xu = dunits(unit)
+c$$$      call wclose(xu,ierr)
+c$$$#endif
+c$$$#endif
+c$$$      return
+c$$$      end
 
 
 c     WAIO on top of EAF
@@ -115,37 +116,37 @@ c     WAIO on top of EAF
 
 
 
-      subroutine waput0( unit, v, addr, len, ierr )
-      implicit none
-      integer unit, addr, len, ierr
-      double precision v(*)
-
-#ifndef CRAY_T3D
-      call putwa( unit, v, addr, len, ierr )
-#else
-#ifdef __F90__
-      character*8 dunits
-      integer iput, iget
-      integer (kind=8) xu
-      character*8 fname
-      equivalence (fname,xu)
-      common/crayunits/dunits(100),iput, iget
-      
-      iput = iput + 1
-      fname = dunits(unit)
-      call putwa( xu, v, addr, len, ierr )
-#else
-      double precision dunits
-      double precision xu
-      common/crayunits/dunits(100)
-
-      xu = dunits(unit)
-      call putwa( xu, v, addr, len, ierr )
-#endif
-#endif
-      if(ierr.ne.0)call errquit('waput failed',unit)
-      return
-      end
+c$$$      subroutine waput0( unit, v, addr, len, ierr )
+c$$$      implicit none
+c$$$      integer unit, addr, len, ierr
+c$$$      double precision v(*)
+c$$$
+c$$$#ifndef CRAY_T3D
+c$$$      call putwa( unit, v, addr, len, ierr )
+c$$$#else
+c$$$#ifdef __F90__
+c$$$      character*8 dunits
+c$$$      integer iput, iget
+c$$$      integer (kind=8) xu
+c$$$      character*8 fname
+c$$$      equivalence (fname,xu)
+c$$$      common/crayunits/dunits(100),iput, iget
+c$$$      
+c$$$      iput = iput + 1
+c$$$      fname = dunits(unit)
+c$$$      call putwa( xu, v, addr, len, ierr )
+c$$$#else
+c$$$      double precision dunits
+c$$$      double precision xu
+c$$$      common/crayunits/dunits(100)
+c$$$
+c$$$      xu = dunits(unit)
+c$$$      call putwa( xu, v, addr, len, ierr )
+c$$$#endif
+c$$$#endif
+c$$$      if(ierr.ne.0)call errquit('waput failed',unit)
+c$$$      return
+c$$$      end
 
 
 c     WAIO on top of EAF
@@ -163,41 +164,41 @@ c     WAIO on top of EAF
 
 
 
-      subroutine waget0( unit, v, addr, len, ierr )
-      implicit none
-      integer unit, addr, len, ierr
-      double precision v(*)
-
-#ifndef CRAY_T3D
-      call getwa( unit, v, addr, len, ierr )
-#else
-#ifdef __F90__
-      integer iput, iget
-      character*8 dunits
-      integer (kind=8) xu
-      character*8 fname
-      equivalence (fname,xu)
-      common/crayunits/dunits(100),iput,iget
-
-      iget = iget + 1
-      fname = dunits(unit)
-      call getwa( xu, v, addr, len, ierr )
-#else
-      double precision dunits
-      double precision xu
-      common/crayunits/dunits(100)
-
-      xu = dunits(unit)
-      call getwa( xu, v, addr, len, ierr )
-#endif
-#endif
-      if (ierr.ne.0) call errquit('waget failed',unit)
-      return
-      end
+c$$$      subroutine waget0( unit, v, addr, len, ierr )
+c$$$      implicit none
+c$$$      integer unit, addr, len, ierr
+c$$$      double precision v(*)
+c$$$
+c$$$#ifndef CRAY_T3D
+c$$$      call getwa( unit, v, addr, len, ierr )
+c$$$#else
+c$$$#ifdef __F90__
+c$$$      integer iput, iget
+c$$$      character*8 dunits
+c$$$      integer (kind=8) xu
+c$$$      character*8 fname
+c$$$      equivalence (fname,xu)
+c$$$      common/crayunits/dunits(100),iput,iget
+c$$$
+c$$$      iget = iget + 1
+c$$$      fname = dunits(unit)
+c$$$      call getwa( xu, v, addr, len, ierr )
+c$$$#else
+c$$$      double precision dunits
+c$$$      double precision xu
+c$$$      common/crayunits/dunits(100)
+c$$$
+c$$$      xu = dunits(unit)
+c$$$      call getwa( xu, v, addr, len, ierr )
+c$$$#endif
+c$$$#endif
+c$$$      if (ierr.ne.0) call errquit('waget failed',unit)
+c$$$      return
+c$$$      end
 
 
 c
-c  $Id: moints_semi.F,v 1.35 1997-05-05 22:55:44 rg240 Exp $
+c  $Id: moints_semi.F,v 1.36 1997-05-15 22:13:07 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -267,11 +268,12 @@ c
        integer junit, kunit
 *      parameter (junit=10,kunit=11)
 c
+
        integer moints_numgr
        integer moints_lmem
        external moints_numgr
        external moints_lmem
-       data blen/16/                              ! Affects performance only
+       data blen/32/                              ! Affects performance only
        data osym/.false./
 c
 c  General info
@@ -388,12 +390,12 @@ c
 c
 c  ------- Old stuff
 c
-#ifdef NEW_AOBLOCK       
-       status = ma_push_get(MT_INT,(ngrp*4),'grp map', l_gmap, k_gmap)
-#else
+#ifdef OLD_AOBLOCK
        ngrp = moints_numgr( basis, blen )
        status = ma_push_get(MT_INT,(ngrp*4),'grp map', l_gmap, k_gmap)
        call moints_grmap( basis, blen, ngrp, int_mb(k_gmap))
+#else
+       status = ma_push_get(MT_INT,(ngrp*4),'grp map', l_gmap, k_gmap)
 #endif
 c
 c  Generate locator and reverse map
@@ -566,13 +568,14 @@ c
 c
 c   Local variables
 c
-       integer nmo1, nmo2
+       integer nmo, nmo1, nmo2
        integer ish0, jsh0, ish, jsh, ilen, jlen
        integer ibflo, ibfhi, jbflo, jbfhi
        integer kbflo, kbfhi, lbflo, lbfhi
        integer kshlo, kshhi, lshlo, lshhi
        integer kblen, lblen
        integer kgr, lgr
+       integer qlo, qhi
        integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_hlp2, k_hlp2
@@ -589,11 +592,14 @@ c
        integer gr_len
        external gr_len
 c
-       if(ocoul)call ga_zero(g_jbuf)
-       if(oexch)call ga_zero(g_kbuf)
+       if (ocoul) call ga_zero(g_jbuf)
+       if (oexch) call ga_zero(g_kbuf)
        num_nodes = ga_nnodes()
        nmo1 = oseghi - oseglo + 1
        nmo2 = vhi - vlo + 1
+       qlo = olo
+       qhi = vhi
+       nmo = qhi - qlo + 1
 c
 c$$$       WRITE(6,221) GA_NODEID(),PVLO,PVHI,POLO,POHI
 c$$$ 221   FORMAT('ME:',I5,5X,' V-RANGE:',2I3,5X,' O-RANGE:',2I3)
@@ -619,13 +625,12 @@ c
        st=st.and.ma_push_get(MT_DBL,n_ssni,'ssni blk',l_ssni,k_ssni)
        if (.not.(st)) call errquit
      $      ('moints_semi: cannot allocate local memory',0)
-       call ga_get(g_movecs,1,nbf,1,vhi,dbl_mb(k_mo),nbf)
-#ifdef NEW_AOBLOCK
-       call row_exch( nbf, vhi, rbfmap, dbl_mb(k_mo), dbl_mb(k_xmo) )
+       call ga_get(g_movecs, 1, nbf, qlo, qhi, dbl_mb(k_mo), nbf )
+#ifdef OLD_AOBLOCK
+       call dcopy((nbf*nmo), dbl_mb(k_mo), 1, dbl_mb(k_xmo), 1)
 #else
-       call dcopy((nbf*vhi), dbl_mb(k_mo), 1, dbl_mb(k_xmo), 1)
+       call row_exch( nbf, nmo, rbfmap, dbl_mb(k_mo), dbl_mb(k_xmo) )
 #endif
-
 c     
 c
 c Initialize
@@ -680,11 +685,6 @@ c
                  endif
                  tio = tio + util_cpusec() - ttmp
                  tpass = util_cpusec() - tpass
-c$$$                 WRITE(6,901) GA_NODEID(), NEXT, IOPASS(NEXT), JOPASS,
-c$$$     $                        RLEN(JOPASS), TPASS
-c$$$ 901             FORMAT('Me:',i5,2x,'Next:',i5,2x,'IOPass:',i5,2x,
-c$$$     $                  'Pass:',i5,2x,'Length:',i6,2x,'Time:',f10.3)
-c$$$                 CALL UTIL_FLUSH(6)
                  iocnt = iocnt + rlen(jopass)
                  jopass = jopass + 1
                  tpass = util_cpusec()
@@ -693,7 +693,21 @@ c
 c  Half-tranformed Integral generation
 c
                call dfill((ilen*jlen*nbf*nmo1),0.d0,dbl_mb(k_ssni),1)
-#ifdef NEW_AOBLOCK
+#ifdef OLD_AOBLOCK
+               do kgr=1,ngrp
+                 call gr_sh_idx(ngrp,gmap,kgr,kshlo,kshhi)
+                 kblen = gr_len(ngrp,gmap,kgr,kbflo,kbfhi)
+                 do lgr=1,kgr
+                   call gr_sh_idx(ngrp,gmap,lgr,lshlo,lshhi)
+                   lblen = gr_len(ngrp,gmap,lgr,lbflo,lbfhi)
+                  call moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
+     $                               lshlo, lshhi, schw_ij, tol2e,
+     $                               max2e, dbl_mb(k_eri),
+     $                               mem2, dbl_mb(k_iscr),
+     $                               ibflo, ibfhi, jbflo, jbfhi,
+     $                               kbflo, kbfhi, lbflo, lbfhi,
+     $                               dbl_mb(k_ssbb), osym, oblk )
+#else
                do kgr=1,ngrp
                  kshlo = glo(kgr)
                  kshhi = ghi(kgr)
@@ -719,34 +733,19 @@ c
      $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               kbflo, kbfhi, lbflo, lbfhi,
      $                               dbl_mb(k_ssbb) )
-
-#else
-               do kgr=1,ngrp
-                 call gr_sh_idx(ngrp,gmap,kgr,kshlo,kshhi)
-                 kblen = gr_len(ngrp,gmap,kgr,kbflo,kbfhi)
-                 do lgr=1,kgr
-                   call gr_sh_idx(ngrp,gmap,lgr,lshlo,lshhi)
-                   lblen = gr_len(ngrp,gmap,lgr,lbflo,lbfhi)
-                  call moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
-     $                               lshlo, lshhi, schw_ij, tol2e,
-     $                               max2e, dbl_mb(k_eri),
-     $                               mem2, dbl_mb(k_iscr),
-     $                               ibflo, ibfhi, jbflo, jbfhi,
-     $                               kbflo, kbfhi, lbflo, lbfhi,
-     $                               dbl_mb(k_ssbb), osym, oblk )
 #endif
                    if (lgr.ne.kgr) then
                      call moints_blktr( ilen, jlen, kblen, lblen,
      $                                  dbl_mb(k_ssbb),
      $                                  dbl_mb(k_ssbbt))
-                     call moints_trf1( nbf, oseglo, oseghi,
+                     call moints_trf1( nbf, qlo, qhi, oseglo, oseghi,
      $                                 ilen, jlen, kbflo, kbfhi,
      $                                 lbflo, lbfhi, 1.d0,
      $                                 dbl_mb(k_ssbb),
      $                                 dbl_mb(k_ssbbt), dbl_mb(k_xmo),
      $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
                    else
-                     call moints_trf1( nbf, oseglo, oseghi,
+                     call moints_trf1( nbf, qlo, qhi, oseglo, oseghi,
      $                                 ilen, jlen, kbflo, kbfhi,
      $                                 lbflo, lbfhi, 0.5d0,
      $                                 dbl_mb(k_ssbb),
@@ -757,17 +756,17 @@ c
                enddo
 
                if (ocoul)
-     $           call moints_trf2Ky( nbf, oseglo, oseghi, olo, ohi,
-     $                               ibflo, ibfhi, jbflo, jbfhi,
-     $                               gloc, dbl_mb(k_ssni),
-     $                               dbl_mb(k_hlp), dbl_mb(k_hlp2),
-     $                               dbl_mb(k_xmo), g_jbuf )
+     $           call moints_trf2Ky(nbf, qlo, qhi, oseglo, oseghi, 
+     $                              olo, ohi, ibflo, ibfhi, 
+     $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
+     $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
+     $                              dbl_mb(k_xmo), g_jbuf )
                if (oexch)
-     $           call moints_trf2Ky( nbf, oseglo, oseghi, vlo, vhi,
-     $                               ibflo, ibfhi, jbflo, jbfhi,
-     $                               gloc, dbl_mb(k_ssni),
-     $                               dbl_mb(k_hlp), dbl_mb(k_hlp2),
-     $                               dbl_mb(k_xmo), g_kbuf )
+     $           call moints_trf2Ky(nbf, qlo, qhi, oseglo, oseghi, 
+     $                              vlo, vhi, ibflo, ibfhi, 
+     $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
+     $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
+     $                              dbl_mb(k_xmo), g_kbuf )
 
 
                next = nxtval(num_nodes)
@@ -794,12 +793,6 @@ c
        endif
        tio = tio + util_cpusec() - ttmp
        tpass = util_cpusec() - tpass
-c$$$       WRITE(6,901) GA_NODEID(), NEXT, IOPASS(NEXT), JOPASS,
-c$$$     $              RLEN(JOPASS), TPASS
-c$$$       CALL GA_SYNC()
-c$$$       CALL UTIL_FLUSH(6)
-c$$$       PRINT*,'ME:',GA_NODEID(),' End AO integral loop and final write'
-c$$$       CALL UTIL_FLUSH(6)
        next = nxtval(-num_nodes)
 c
 c I/O stats
@@ -835,19 +828,6 @@ c
 c 
 c  Complete in-core section
 c
-c$$$       st = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp,k_hlp)
-c$$$       st = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp2,k_hlp2)
-c$$$       call moints_trf34Ky( nbf, ostart, olo, ohi,
-c$$$     $                      vlo, vhi, nnbf, int_mb(k_rloc),
-c$$$     $                      dbl_mb(k_hlp), dbl_mb(k_hlp2),
-c$$$     $                      dbl_mb(k_mo), g_buf )
-c$$$       if (.not. ma_pop_stack(l_hlp2))
-c$$$     $     call errquit('moints: failed to pop', l_hlp2)
-c$$$       if (.not. ma_pop_stack(l_hlp))
-c$$$     $     call errquit('moints: failed to pop', l_hlp)
-c
-c
-c
        if (.not. ma_pop_stack(l_xmo))
      $     call errquit('moints: failed to pop', l_xmo)
        if (.not. ma_pop_stack(l_mo))
@@ -867,17 +847,17 @@ c
 c
 c 
 c
-      subroutine moints_trf2Ky( nbf, oseglo, oseghi, vlo, vhi,
-     $                          ilo, ihi, jlo, jhi, gloc,
+      subroutine moints_trf2Ky( nbf, qlo, qhi, oseglo, oseghi, 
+     $                          vlo, vhi, ilo, ihi, jlo, jhi, gloc,
      $                          ssni, h, h2, c, g_buf )
       implicit none
 #include "global.fh"
-      integer nbf, oseglo, oseghi, vlo, vhi
+      integer nbf, qlo, qhi, oseglo, oseghi, vlo, vhi
       integer ilo, ihi, jlo, jhi
       integer gloc(nbf,nbf)
       double precision ssni(nbf,jlo:jhi,ilo:ihi,oseglo:oseghi)
       double precision h(jlo:jhi,ilo:ihi),h2(*)
-      double precision c(nbf,nbf)
+      double precision c(nbf,qlo:qhi)
       integer g_buf
       integer ilen, jlen, ijlen
       integer glo, ghi, i, j, ij
