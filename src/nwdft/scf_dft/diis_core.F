@@ -1,6 +1,6 @@
       subroutine diis_core(derr,pulay,
      &     mxhist,nhist,icall,nbf,ispin,ipol, g_diis,g_err)
-C$Id: diis_core.F,v 1.7 2000-03-15 00:33:32 edo Exp $
+C$Id: diis_core.F,v 1.8 2000-03-15 03:20:26 edo Exp $
       implicit none
 c
       integer mxhist
@@ -82,7 +82,7 @@ c
       endif 
       ii=(ipol+ispin-1)*mxhist + irow(icall(ispin))
       istep=(ii-1)*nbf
-      call ga_sync
+cedo      call ga_sync
 c
 C     Store new errvec
 c
@@ -121,14 +121,10 @@ C      if(me.eq.0.and.oprint)write(LuOut,1111)temp
 c
         ii=(ipol+ispin-1)*mxhist+irow(icall(ispin)-jj+1)
         istep=(ii-1)*nbf
-        call ga_sync
+cedo        call ga_sync
 
         ijlast = ijcanon(nhist(ispin)+1,nhist(ispin)+2-jj)
-cedo        pulay(ijlast,ispin)=ga_ddot_patch(
-cedo     *       g_diis,'N',1,nbf,istep+1,istep+nbf,
-cedo     *       g_err,'N',1,nbf,1,nbf)
-        pulay(ijlast,ispin)=ga_ddot(
-     *       g_diis(ii),g_err)
+        pulay(ijlast,ispin)=ga_ddot(g_diis(ii),g_err)
 c        
       enddo
       return

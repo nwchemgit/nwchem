@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.141 2000-03-15 00:33:31 edo Exp $
+c     $Id: dft_scf.F,v 1.142 2000-03-15 03:20:26 edo Exp $
 c     
       implicit none
 c
@@ -1024,7 +1024,7 @@ c
      &           icall, nfock, nbf_ao, geom, 
      &           ao_bas_han, g_fock, g_dens(ispin), 
      &           g_tmp, g_svecs, isvals, diising, 
-     &           nodiis,int_mb(k_gdiis))
+     &           nodiis,int_mb(k_gdiis),nbf_ao_mxnbf_ce)
             if (oprint_time)
      &           call dft_tstamp(' called diis driver ')
          endif
@@ -1248,7 +1248,8 @@ c
             call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
      &                       nbf_ao, geom, ao_bas_han, g_fock, 
      &                       g_dens(1), g_tmp, g_svecs, isvals, 
-     &                       diising, nodiis,int_mb(k_gdiis))
+     &                       diising, nodiis,int_mb(k_gdiis),
+     ,           nbf_ao_mxnbf_ce)
             icall(1) = 0
             icall(2) = 0
             endif
@@ -1442,7 +1443,8 @@ c
             call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
      &                       nbf_ao, geom, ao_bas_han, g_fock, 
      &                       g_dens(1), g_tmp, g_svecs, isvals, 
-     &                       diising, nodiis,int_mb(k_gdiis))
+     &                       diising, nodiis,int_mb(k_gdiis),
+     ,           nbf_ao_mxnbf_ce)
             icall(1) = 0
             icall(2) = 0
          endif
@@ -1762,7 +1764,7 @@ c
          call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
      &                    nbf_ao, geom, ao_bas_han, g_fock, g_dens(1), 
      &                    g_tmp, g_svecs, isvals, diising, nodiis,
-     .        int_mb(k_gdiis))
+     .        int_mb(k_gdiis),nbf_ao_mxnbf_ce)
          if (.not. MA_free_heap(l_gdiis))
      .        call errquit(' dft_scf:cannot popstack',111)
       endif

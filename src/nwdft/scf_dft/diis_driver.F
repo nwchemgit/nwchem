@@ -1,9 +1,9 @@
       Subroutine diis_driver(toll_s, derr, ispin, ipol, icall, MXhist, 
      &                       nbf, geom, AO_bas_han, g_fock, g_dens, 
      &                       g_tmp, g_svecs, isvals, diis, nodiis,
-     .     g_diis)
+     .     g_diis,nbf_ao_mxnbf_ce)
 c
-C$Id: diis_driver.F,v 1.15 2000-03-15 00:33:33 edo Exp $
+C$Id: diis_driver.F,v 1.16 2000-03-15 03:20:26 edo Exp $
 c
       implicit none
 c      
@@ -16,6 +16,7 @@ c
       integer g_tmp
       integer g_svecs
       integer g_diis(mxhist)
+      integer nbf_ao_mxnbf_ce ! [in]
       integer isvals
       Integer nhist(2), icall(2)
       integer geom, AO_bas_han
@@ -42,7 +43,7 @@ c
 c
       logical diis, nodiis
       double precision avail, dw_agg_avail
-      integer n_n2_objs,i
+      integer n_n2_objs,i,l_up,k_up,l_down,k_down,nn2
       double precision one, zero
       parameter (one = 1.d0, zero = 0.d0)
 c
@@ -179,23 +180,33 @@ c
 c      call gadest(g_s12p)
       if (.not. ga_destroy(g_s12p)) call errquit
      &   ('diis_driver: could not destroy g_s12p', 0)
-c      call gadest(g_fsm12)
-      if (.not. ga_destroy(g_fsm12)) call errquit
-     &   ('diis_driver: could not destroy g_fsm12', 0)
 c
+      nn2=nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
+      if (.not.MA_Push_Get(MT_dbl,nn2,'ablock',l_up,k_up))
+     &   call errquit('xc_quadv0: cant allocate atblock',22)
+      if (.not.MA_Push_Get(MT_dbl,nn2,'ablock',l_down,k_down))
+     &   call errquit('xc_quadv0: cant allocate atblock',33)
       if (.not.MA_Push_Get(MT_Dbl,nbf,'row',lrow,irow))
      &   call errquit('diis_driver: cannot allocate row',0)
       if (.not.MA_Push_Get(MT_Dbl,nbf,'column',lcol,icol))
      &   call errquit('diis_driver: cannot allocate',0)
 c
-      call diis_refvec(nbf,g_tmp,dbl_mb(irow),dbl_mb(icol))
+      call diis_refvec(g_tmp,dbl_mb(irow),dbl_mb(icol),
+     .     dbl_mb(k_up),dbl_mb(k_down),g_fsm12)
+c      call gadest(g_fsm12)
+      if (.not. ga_destroy(g_fsm12)) call errquit
+     &   ('diis_driver: could not destroy g_fsm12', 0)
 c
       if (.not.ma_pop_stack(lcol))
      &   call errquit('diis_driver: cannot pop stack',0)
       if (.not.ma_pop_stack(lrow))
      &   call errquit('diis_driver: cannot pop stack',0)
+      if (.not.ma_pop_stack(l_down))
+     &   call errquit('diis_driver: cannot pop stack',0)
+      if (.not.ma_pop_stack(l_up))
+     &   call errquit('diis_driver: cannot pop stack',0)
 c
-      call ga_sync
+cedo      call ga_sync
 c
 c
 c     Compute Pulays B matrix.
