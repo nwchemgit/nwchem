@@ -1,6 +1,6 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs,
      .     evals, foccs)
-C$Id: movecs_rotate.F,v 1.13 2002-12-31 23:41:21 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.14 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -10,6 +10,7 @@ C$Id: movecs_rotate.F,v 1.13 2002-12-31 23:41:21 d3k958 Exp $
 #include "util.fh"
 #include "geom.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 c
 c     Read the MO's calculated at an old geometry and rotate them 
 c     to the active geometry.
@@ -45,7 +46,7 @@ c
       oprint_info = (ga_nodeid() .eq. 0 .and. oprint)
 c      
       if (.not. rtdb_cget(rtdb, 'vectors:rotate', 2, rotate))
-     $     call errquit('movecs_rotate: no file/geometry', 0)
+     $     call errquit('movecs_rotate: no file/geometry',0, 0)
       geomname = rotate(1)
       filename = rotate(2)
 c
@@ -67,23 +68,23 @@ c     allocate space for atomic coordinates and charges
 c     -------------------------------------------------
 c
       if (.not. geom_ncent(geom, nat))
-     &     call errquit('movecs_rotate: geom_ncent failed',73)
+     &     call errquit('movecs_rotate: geom_ncent failed',0,0)
 c
       if (.not. ma_push_get(mt_dbl,nat*3,'coordinates',lact,
      &   iact))call errquit(
-     &     'movecs_rotate: failed to alloc coordinates',0)
+     &     'movecs_rotate: failed to alloc coordinates',0,MA_ERR)
 c
       if (.not. ma_push_get(mt_dbl,nat*3,'coordinates',lold,
      &   iold))call errquit(
-     &     'movecs_rotate: failed to alloc coordinates',0)
+     &     'movecs_rotate: failed to alloc coordinates',0,MA_ERR)
 c
       if (.not. ma_push_get(mt_dbl,nat,'charges',lcharge,
      &   icharge))call errquit(
-     &     'movecs_rotate: failed to alloc charges',0)
+     &     'movecs_rotate: failed to alloc charges',0,MA_ERR)
 c
       if (.not. ma_push_get(mt_byte, nat*16, 'center tags',
      &   ltags, itags))call errquit(
-     &     'movecs_rotate: failed to alloc center tags',0)
+     &     'movecs_rotate: failed to alloc center tags',0,MA_ERR)
 c
 c     -------------------------------------------------
 c     get cartesian coordinates for the active geometry
@@ -91,30 +92,31 @@ c     -------------------------------------------------
 c
       if (.not. geom_cart_get(geom, nat, byte_mb(itags),
      &                        dbl_mb(iact), dbl_mb(icharge)))
-     &     call errquit('movecs_rotate: geom_cart_get failed',74)
+     &     call errquit('movecs_rotate: geom_cart_get failed',
+     &     0, GEOM_ERR)
 c
 c     -------------------------------------------------------
 c     load and get cartesian coordinates for the old geometry
 c     -------------------------------------------------------
 c
       if (.not. geom_create(oldgeom, geomname))
-     $     call errquit('movecs_rotate: cant create oldgeom', 0)
+     $     call errquit('movecs_rotate: cant create oldgeom',0, 0)
 c
       if (.not.geom_rtdb_load(rtdb, oldgeom, geomname))
-     $     call errquit('movecs_rotate: cant load geometry', 0)
+     $     call errquit('movecs_rotate: cant load geometry',0, 0)
 c
       if (.not. geom_cart_get(oldgeom, nat, byte_mb(itags),
      &                        dbl_mb(iold), dbl_mb(icharge)))
-     &     call errquit('movecs_rotate: geom_cart_get failed',74)
+     &     call errquit('movecs_rotate: geom_cart_get failed',0,0)
 c
       if (.not. ma_pop_stack(ltags))
-     &     call errquit('movecs_rotate:cant pop stack',0)
+     &     call errquit('movecs_rotate:cant pop stack',0,0)
 c
       if (.not. ma_pop_stack(lcharge))
-     &     call errquit('movecs_rotate:cant pop stack',0)
+     &     call errquit('movecs_rotate:cant pop stack',0,0)
 c
       if (.not. geom_destroy(oldgeom))
-     $     call errquit('movecs_rotate: cant destroy oldgeom', 0)
+     $     call errquit('movecs_rotate: cant destroy oldgeom',0, 0)
 c
 c     ----------------------------------------------------------
 c     calculate the 3x3 rotation matrix which transforms the old
@@ -277,10 +279,10 @@ c
       if (ga_nodeid().eq.0) write(6,*)'det(rot) ',det
 c
       if (.not. ma_pop_stack(lold))
-     &     call errquit('movecs_rotate:cant pop stack',0)
+     &     call errquit('movecs_rotate:cant pop stack',0,0)
 c
       if (.not. ma_pop_stack(lact))
-     &     call errquit('movecs_rotate:cant pop stack',0)
+     &     call errquit('movecs_rotate:cant pop stack',0,0)
 c
 c     ---------------------------------------------
 c     Read the vectors calculated at the old geometry.
@@ -291,21 +293,22 @@ c
       if (.not. movecs_read_header(filename, title,
      $     basisname, scftype, file_nbf, nsets, nmo, 2))
      $     call errquit
-     $     ('movecs_rotate: failed to read old header', 0)
+     $     ('movecs_rotate: failed to read old header', 0,DISK_ERR)
 c
       if (.not. (bas_numbf(basis, nbf)))
-     $     call errquit('movecs rotate: bas_numbf?', 0)
+     $     call errquit('movecs rotate: bas_numbf?',0, 0)
 c
       if (nbf .lt. file_nbf) then
           call errquit
-     $     ('movecs_rotate: nbf on file inconsistent with basis', 0)
+     $     ('movecs_rotate: nbf on file inconsistent with basis',0,0)
       endif
 c
       do iset = 1,nset
          iptr=(iset-1)*nbf+1
       if (.not. movecs_read(filename, iset, foccs(iptr),
      $     evals(iptr), g_vecs(iset))) call errquit
-     $     ('movecs_project: failed reading vectors', 0) 
+     $     ('movecs_project: failed reading vectors', 0, 0) 
+
       enddo
 
 c     ---------------------------------------------------
@@ -313,10 +316,10 @@ c     apply rotation matrix to MO vectors, one at a time
 c     ---------------------------------------------------
 c
       if (.not. ma_push_get(mt_dbl, nbf, 'vectors in', l_a, k_a))
-     $     call errquit('sym_movecs_apply_rot: ma?', nbf)
+     $     call errquit('sym_movecs_apply_rot: ma?',0, 0)
 
       if (.not. ma_push_get(mt_dbl, nbf, 'vectors out', l_b, k_b))
-     $     call errquit('sym_movecs_apply_rot: ma?', nbf)
+     $     call errquit('sym_movecs_apply_rot: ma?',0, 0)
 c
         call ga_sync()
 c
@@ -342,9 +345,9 @@ c
       call ga_sync()
 c
       if (.not. ma_pop_stack(l_b)) call errquit
-     $     ('movecs_rotate: ma pop', 0)
+     $     ('movecs_rotate: ma pop', 0, MA_ERR)
       if (.not. ma_pop_stack(l_a)) call errquit
-     $     ('movecs_rotate: ma pop', 0)
+     $     ('movecs_rotate: ma pop', 0, MA_ERR)
 c
  11   format(2f12.6)
       return 
@@ -352,12 +355,13 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.13 2002-12-31 23:41:21 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.14 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
+#include "errquit.fh"
       integer basis                  ! [input]
       double precision matrix(3,3)   ! [input]
       double precision v(*)          ! [input]
@@ -380,13 +384,15 @@ c
 c     get basis and geom info
 c     
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('sym_movecs_apply_rot: no geometry from basis?', basis)
+     $     ('sym_movecs_apply_rot: no geometry from basis?',
+     $ basis, BASIS_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('sym_movecs_apply_rot: bas_numbf?', basis)
+     $     ('sym_movecs_apply_rot: bas_numbf?', BASIS_ERR, basis)
       if (.not. bas_high_angular(basis, ang_max))
-     $     call errquit('sym_movecs_apply_rot: bas_high_angular', basis)
+     $     call errquit('sym_movecs_apply_rot: bas_high_angular',
+     $     basis , BASIS_ERR)
       if (.not. geom_ncent(geom, ncent)) call errquit
-     $     ('sym_bas_irreps: geom_ncent ?', geom)
+     $     ('sym_bas_irreps: geom_ncent ?', geom, GEOM_ERR)
 c     
 c     get the transformation matrices for shells
 c
@@ -394,7 +400,7 @@ c
       maxf = ((ang_max+1)*(ang_max+2))/2 ! Size of largest cart. shell
       maxr = (ang_max+1)*maxf*maxf ! Size of transformation matrices
       if (.not. ma_push_get(mt_DBL, maxr, 'r', l_r, k_r))
-     $     call errquit('sym_movecs_apply_rot: ma failed', maxr)
+     $     call errquit('sym_movecs_apply_rot: ma failed',maxr,0)
 c
       call sym_bas_rot
      &    (geom, matrix, dbl_mb(k_r), maxf, ang_max, do_spherical)
@@ -402,20 +408,20 @@ c
       do icent = 1, ncent
          jcent = icent
          if (.not. bas_ce2cnr(basis, icent, ishlo, ishhi))
-     $        call errquit('sym_movecs_apply_rot: bas_ce2cnr',0)
+     $        call errquit('sym_movecs_apply_rot: bas_ce2cnr',0,0)
          if (.not. bas_ce2cnr(basis, jcent, jshlo, jshhi))
-     $        call errquit('sym_movecs_apply_rot: bas_ce2cnr',0)
+     $        call errquit('sym_movecs_apply_rot: bas_ce2cnr',0,0)
 c
          do ish = ishlo, ishhi
             jsh = jshlo + ish - ishlo ! OP ish -> jsh
 c
             if (.not. bas_continfo(basis, ish, type, nprim, ngen,
      $           sphcart)) call errquit
-     $           ('sym_movecs_apply_rot: bas_continfo', ish)
+     $           ('sym_movecs_apply_rot: bas_continfo', ish,0)
             if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $           call errquit('sym_movecs_apply_rot: bas_cn2bfr', ish)
+     $           call errquit('sym_movecs_apply_rot: bas_cn2bfr',ish,0)
             if (.not. bas_cn2bfr(basis, jsh, jlo, jhi))
-     $           call errquit('sym_movecs_apply_rot: bas_cn2bfr', jsh)
+     $           call errquit('sym_movecs_apply_rot: bas_cn2bfr',jsh,0)
 c
             if (type .eq. -1) then
 *               call sym_movecs_app_rot2(dbl_mb(k_r), maxf, ang_max,
@@ -437,7 +443,7 @@ c
 c
 c
       if (.not. ma_pop_stack(l_r)) call errquit
-     $     ('sym_movecs_apply_rot: ma?', 0)
+     $     ('sym_movecs_apply_rot: ma?', 0 ,0)
 c
       end
       subroutine sym_movecs_app_rot2(r, maxf, ang_max,
@@ -471,7 +477,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.13 2002-12-31 23:41:21 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.14 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -619,7 +625,7 @@ c
                      goto 10
                   endif
                enddo
-               call errquit('sym_bas_rot: should never get here ', 0)
+               call errquit('sym_bas_rot: should never get here ',0, 0)
  10            continue
 c     
 c     Loop thru LL-1 functions in the result index

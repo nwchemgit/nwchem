@@ -1,7 +1,7 @@
       double precision function fmm_potential(lmax, depth,
      $     dimx, dimy, dimz, potential, x, y, z)
 *
-* $Id: fmm.F,v 1.7 2003-10-17 22:54:37 carlfahl Exp $
+* $Id: fmm.F,v 1.8 2003-10-21 23:51:26 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -812,7 +812,7 @@ c
       lenxlm = (lmax+1)**2
 
       if (lwork/lenxlm .lt. 2*((8**(depth+1)-1)/7)) 
-     $     call errquit('fmm: lwork must be ', 2*((8**(depth+1)-1)/7),
+     $     call errquit('fmm: lwork must be ',0, 2*((8**(depth+1)-1)/7),
      &       FMM_ERR)
 
 c     In the initial debug implementation copy all data into

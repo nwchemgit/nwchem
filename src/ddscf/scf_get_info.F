@@ -280,7 +280,7 @@ c
             osome = util_print('information', print_low)
             if (scftype .eq. 'UHF') then
                write(6,*) 'COSMO cannot be used with UHF !!'
-               call errquit('cannot use COSMO and UHF', 911)
+               call errquit('cannot use COSMO and UHF',0, 911)
             endif
             call cosmo_initialize(rtdb,geom,basis,osome)
 c
@@ -295,7 +295,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.57 2003-10-17 22:54:33 carlfahl Exp $
+C$Id: scf_get_info.F,v 1.58 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

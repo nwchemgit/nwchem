@@ -1,7 +1,7 @@
       subroutine ga_mat_to_vec(g_m, ilo, ihi, jlo, jhi, g_v, klo, col,
      $           scale, op)
 *
-* $Id: ga_mat_to_vec.F,v 1.5 2003-10-17 22:54:32 carlfahl Exp $
+* $Id: ga_mat_to_vec.F,v 1.6 2003-10-21 23:51:25 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -43,7 +43,7 @@ c
      $        1d0,g_v, klo, klo+(ihi-ilo+1)*(jhi-jlo+1)-1, col, col,
      $        g_v, klo, klo+(ihi-ilo+1)*(jhi-jlo+1)-1, col, col) 
       else
-         call errquit('ga_mat_to_vec: bad op', 0)
+         call errquit('ga_mat_to_vec: bad op',0, 0)
       endif
 #else
       call ga_distribution(g_m, ga_nodeid(), iplo, iphi, jplo, jphi)

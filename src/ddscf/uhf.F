@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.64 2003-10-17 22:54:33 carlfahl Exp $
+C$Id: uhf.F,v 1.65 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -106,9 +106,9 @@ c
 C
       if (util_print('schwarz',print_high)) then
          if ( .NOT. geom_ncent(geom, natoms) ) Call ErrQuit(
-     $        'uhf: problem with call to geom_ncent', geom)
+     $        'uhf: problem with call to geom_ncent', geom, 0)
          if ( .NOT. bas_numcont(basis, nshells) ) Call ErrQuit(
-     $        'uhf: problem with call to bas_numcont', basis)
+     $        'uhf: problem with call to bas_numcont', basis,0)
          call schwarz_print(natoms, nshells)
       Endif
 C
@@ -217,7 +217,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.64 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id: uhf.F,v 1.65 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -526,7 +526,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.64 2003-10-17 22:54:33 carlfahl Exp $
+C$Id: uhf.F,v 1.65 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -622,7 +622,7 @@ c
 #include "rtdb.fh"
 #include "bgj.fh"
 c     
-c     $Id: uhf.F,v 1.64 2003-10-17 22:54:33 carlfahl Exp $
+c     $Id: uhf.F,v 1.65 2003-10-21 23:51:25 edo Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1157,7 +1157,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.64 2003-10-17 22:54:33 carlfahl Exp $
+C$Id: uhf.F,v 1.65 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,6 +1,6 @@
       subroutine fastj(rtdb, basis, g_dens, eps, data)
 *
-* $Id: fastj.F,v 1.14 2003-10-17 22:54:37 carlfahl Exp $
+* $Id: fastj.F,v 1.15 2003-10-21 23:51:25 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -1365,7 +1365,7 @@ c
      $     call errquit('fj: vr ', n, MA_ERR)
       if (.not. ma_push_get(mt_dbl, numfit(maxorder), 
      $     'fit', l_fit, k_fit))
-     $     call errquit('fj: fit ', numfit(maxorder), MA_ERR)
+     $     call errquit('fj: fit ',numfit(maxorder), MA_ERR)
 c
       do i = minorder, maxorder
          if (i .le. 9) then

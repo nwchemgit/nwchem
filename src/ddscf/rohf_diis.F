@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.19 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id: rohf_diis.F,v 1.20 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -235,7 +235,7 @@ c
          if(ga_nodeid().eq.0) then
             write(6,*) '                 COSMO solvation results'
             write(6,*) '                 -----------------------'
-            write(6,*) ''
+            write(6,*) 
             write(6,912) egas
             write(6,913) esol
             write(6,914) (egas-esol),(egas-esol)*627.509451d+00

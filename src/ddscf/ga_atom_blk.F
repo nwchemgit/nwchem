@@ -1,5 +1,5 @@
       integer function ga_create_atom_blocked(geom, basis, name)
-C$Id: ga_atom_blk.F,v 1.8 2003-10-17 22:54:32 carlfahl Exp $
+C$Id: ga_atom_blk.F,v 1.9 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -21,12 +21,12 @@ c
 c
       if(.not.ma_push_get(MT_int,ga_nnodes()*2,
      .        'ga block maps',l_map,k_map))
-     .     call errquit('gacratblock: not enough local mem',0)
+     .     call errquit('gacratblock: not enough local mem',0,MA_ERR)
       call util_atom_blocked(ga_nnodes(),
      .     geom, basis, int_mb(k_map), nblock)
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('ga_create_atom_blocked: bas_nbf ?', 0)
+     $     ('ga_create_atom_blocked: bas_nbf ?',0,BASIS_ERR)
 #ifdef DEBUG
       if(ga_nodeid().eq.0) then
       write(0,*) nblock(1),' m1 ',int_mb(k_map),int_mb(k_map+1)
@@ -46,12 +46,13 @@ c
             call util_flush(6)
          endif
          call ga_sync()
-         call errquit('ga_create_atom_blocked: ga_create_irreg ',nbf)
+         call errquit('ga_create_atom_blocked: ga_create_irreg ',nbf,
+     $  GA_ERR)
       endif
 c
       ga_create_atom_blocked = g_a
       if (.not.ma_chop_stack(l_map))
-     &     call errquit('xc_rep_init: cannot chop stack',1)
+     &     call errquit('xc_rep_init: cannot chop stack',0,MA_ERR)
 c
       end
       subroutine util_atom_blocked(max_nproc,

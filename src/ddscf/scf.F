@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.67 2003-10-17 22:54:33 carlfahl Exp $
+C$Id: scf.F,v 1.68 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -264,7 +264,7 @@ c
      $     ('scf: failed to store energy in rtdb', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'scf:converged', MT_LOG, 1, converged)) 
      $     call errquit
-     $     ('scf: failed to store converged in rtdb', 0)
+     $     ('scf: failed to store converged in rtdb', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'scf:alpha irreps', MT_INT, nbf,
      &   int_mb(k_irs)))
      &   call errquit('scf: failed to MO irreps in rtdb', 0, RTDB_ERR)

@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.14 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id: vectors_inp.F,v 1.15 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -145,10 +145,11 @@ c
 c     Have hit end of pair list ... EOL or another directive
 c
          if (nreorder.le.0) call errquit
-     $     ('vectors_input: invalid no. of nuclei to reorder', nreorder)
+     $     ('vectors_input: invalid no. of nuclei to reorder', nreorder,
+     $      0)
 c
          if (.not. rtdb_put(rtdb, 'reorder', mt_int, nreorder,reorder))
-     $        call errquit('vectors_input: put of reorder?', nreorder)
+     $        call errquit('vectors_input: put of reorder?',0, nreorder)
          goto 10
       else
          reorder(nreorder+1) = itest
@@ -174,7 +175,7 @@ c
       if (.not. inp_a(rotate(2))) goto 10000
       vectors_in = 'rotate'
       if (.not. rtdb_cput(rtdb, 'vectors:rotate', 2, rotate))
-     $     call errquit('vectors_input: failed to store rotate',0)
+     $     call errquit('vectors_input: failed to store rotate',0,0)
       goto 10
 c 
 c    

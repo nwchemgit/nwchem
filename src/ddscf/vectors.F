@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.50 2003-10-17 22:54:33 carlfahl Exp $
+C$Id: vectors.F,v 1.51 2003-10-21 23:51:25 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -625,35 +625,36 @@ c
       endif
 c
       if (.not.bas_numbf(basis,nbf))
-     $     call errquit('movecs_swap_nuclei: bas_numbf failed',0)
+     $     call errquit('movecs_swap_nuclei: bas_numbf failed',0,0)
 c
       if (.not. geom_ncent(geom, nat))
-     &     call errquit('movecs_swap_nuclei: geom_ncent failed',0)
+     &     call errquit('movecs_swap_nuclei: geom_ncent failed',0,0)
 c
 c  set up the list of atoms to reorder
 c  -----------------------------------
 c
       if (.not.ma_push_get(mt_int,nat,'atom list',l_atm, k_atm))
-     &    call errquit('movecs_swap_nuclei: ma_push failed',0)
+     &    call errquit('movecs_swap_nuclei: ma_push failed',0,0)
 c
       if (.not.ma_push_get(mt_int,nat,'nbf_at list',l_batm, k_batm))
-     &    call errquit('movecs_swap_nuclei: ma_push failed',0)
+     &    call errquit('movecs_swap_nuclei: ma_push failed',0,0)
 c
       if (.not. rtdb_ma_get(rtdb, 'reorder', type, nelem,handle)) 
-     $   call errquit('movecs_swap_nuclei: invalid list of pairs',nelem)
+     $   call errquit('movecs_swap_nuclei: invalid list of pairs',
+     $   nelem, 0)
       if (.not. ma_get_index(handle,index)) call errquit
-     $    ('movecs_swap_nuclei: get index failed', handle)
+     $    ('movecs_swap_nuclei: get index failed', handle , 0)
       if (type.ne.mt_int) call errquit
-     $    ('movecs_swap_nuclei: invalid list of pairs',nelem)
+     $    ('movecs_swap_nuclei: invalid list of pairs',nelem , 0)
       if (nelem.ne.nat) call errquit
-     $    ('movecs_swap_nuclei: reorder list.ne.#atoms',0)
+     $    ('movecs_swap_nuclei: reorder list.ne.#atoms',0 , 0)
 c
       do i = 1, nelem
          j = int_mb(index+i-1)
            if (i.lt.0.or.i.gt.nat) 
-     &       call errquit('movecs_swap_nucei: invalid vector',0)
+     &       call errquit('movecs_swap_nucei: invalid vector',0,0)
            if (j.lt.0.or.j.gt.nat) 
-     &       call errquit('movecs_swap_nucei: invalid vector',0)
+     &       call errquit('movecs_swap_nucei: invalid vector',0,0)
          int_mb(k_atm+i-1) = j
       enddo
 c
@@ -673,7 +674,7 @@ c
       do i = 1,nat
         j = int_mb(k_atm+i-1)
         if (.not.bas_ce2bfr(basis,i,jlo,jhi)) 
-     &    call errquit('movecs_swap_nuclei: bas_ce2bfr',0)
+     &    call errquit('movecs_swap_nuclei: bas_ce2bfr',0,0)
         int_mb(k_batm+j-1) = jhi-jlo+1
       enddo
 c
@@ -685,7 +686,7 @@ c
 c 
       if ( .not. ga_create( mt_dbl, dim1, dim2, 'temp vectors',
      $    0,0,g_temp) ) 
-     $    call errquit('movecs_swap_nuclei: ga_create failed', 0)
+     $    call errquit('movecs_swap_nuclei: ga_create failed',0, 0)
       call ga_zero(g_temp)
 c
       start_to = 1
@@ -716,7 +717,7 @@ c
       call ga_copy(g_temp, g_vecs(set))
 c
       if ( .not. ga_destroy(g_temp))
-     $    call errquit('movecs_swap_nuclei: ga_destroy failed', 0)
+     $    call errquit('movecs_swap_nuclei: ga_destroy failed',0, 0)
 c
       enddo  ! set
 c
@@ -726,16 +727,16 @@ c
   102 format(1x,a5,2x,a5,7x,a11,8x,a11)
   103 format(i4,2x,i4,5x,i6,2x,i6,5x,i6,2x,i6)
         if (.not. ma_pop_stack(l_batm))
-     $    call errquit('movecs_swap_nuclei: ma pop failed', 0)
+     $    call errquit('movecs_swap_nuclei: ma pop failed',0, 0)
 c
         if (.not. ma_pop_stack(l_atm))
-     $    call errquit('movecs_swap_nuclei: ma pop failed', 0)
+     $    call errquit('movecs_swap_nuclei: ma pop failed',0, 0)
 c
        if (.not.rtdb_delete(rtdb,'reorder') )
-     &   call errquit('movecs_swap_nuclei: rtdb delete failed',0)
+     &   call errquit('movecs_swap_nuclei: rtdb delete failed',0,0)
 c
        if (.not. ma_free_heap(handle)) 
-     &   call errquit('movecs_swap_nuclei: cant free heap',0)
+     &   call errquit('movecs_swap_nuclei: cant free heap',0,0)
 c
       end
 
@@ -1016,7 +1017,7 @@ c
         if (ierr .ne. 0) then
            call eaf_errmsg(ierr,errmsg)
            write(LuOut,*) ga_nodeid(),errmsg
-           call errquit('vectors: eaf_open failed', ierr)
+           call errquit('vectors: eaf_open failed',0, ierr)
         endif
         lgth=ma_sizeof(MT_INT,1,MT_BYTE)
         ierr = eaf_write(unitno, offset, len1,lgth)

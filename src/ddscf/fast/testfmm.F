@@ -1,6 +1,6 @@
       program test
 *
-* $Id: testfmm.F,v 1.3 2003-10-17 22:54:37 carlfahl Exp $
+* $Id: testfmm.F,v 1.4 2003-10-21 23:51:26 edo Exp $
 *
       implicit none
 c
@@ -970,7 +970,7 @@ c
       lenxlm = (lmax+1)**2
 
       if (lwork/lenxlm .lt. 2*((8**(depth+1)-1)/7)) 
-     $     call errquit('fmm: lwork must be ', 2*((8**(depth+1)-1)/7),
+     $     call errquit('fmm: lwork must be ',0, 2*((8**(depth+1)-1)/7),
      &       FMM_ERR)
 
 c     In the initial debug implementation copy all data into

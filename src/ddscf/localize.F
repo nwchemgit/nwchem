@@ -20,7 +20,7 @@ c
       end
       subroutine testlocalize(rtdb)
 *
-* $Id: localize.F,v 1.11 2003-10-17 22:54:33 carlfahl Exp $
+* $Id: localize.F,v 1.12 2003-10-21 23:51:25 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -172,7 +172,8 @@ c
 c     
 c     Localize the core orbitals
 c     
-         if (.not. geom_num_core(geom,ncore)) ncore = 0
+         if (.not. geom_num_core(rtdb,geom,'ddscf',ncore))
+     $       ncore = 0
          if (ncore .gt. 0) then
             do i = 1, ncore
                iloc(i) = i
