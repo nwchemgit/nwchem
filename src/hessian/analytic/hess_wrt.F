@@ -1,5 +1,5 @@
       subroutine hess_wrt
-*     $Id: hess_wrt.F,v 1.5 2003-10-17 22:55:13 carlfahl Exp $
+*     $Id: hess_wrt.F,v 1.6 2003-10-25 18:07:17 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "hess_info.fh"
@@ -56,14 +56,17 @@ c
 c
 99900 continue
       write(luout,*)'hess_file => ',filehess
-      call errquit('hess_read: error opening file: "filehess"',911)
+      call errquit('hess_read: error opening file: "filehess"',
+     & 911,0)
 99901 continue
       write(luout,*)'hess_file => ',filehess
-      call errquit('hess_read: error reading file: "filehess"',911)
+      call errquit('hess_read: error reading file: "filehess"',
+     & 911,0)
 99902 continue
       write(luout,*)'hess_file => ',filehess
       call errquit
-     & ('hess_read: unexpected EOF when reading file: "filehess"',911)
+     & ('hess_read: unexpected EOF when reading file: "filehess"',
+     & 911,0)
 c
       end
 c

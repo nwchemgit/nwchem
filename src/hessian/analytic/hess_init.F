@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.50 2003-10-17 22:55:13 carlfahl Exp $
+C $Id: hess_init.F,v 1.51 2003-10-25 18:07:17 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -509,7 +509,7 @@ c
          if (rtdb_get(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho_rd))
      .        tol_rho=min(tol_rho,tol_rho_rd)
          if (.not.rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho)) 
-     .        call errquit(' hessinit: rtdbput failed ',11)
+     .        call errquit(' hessinit: rtdbput failed ',11,0)
 c     
 c     kill symmetry for XC grid build
 c     
