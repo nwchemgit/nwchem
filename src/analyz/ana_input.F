@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.62 2002-07-21 18:01:20 d3j191 Exp $
+c $Id: ana_input.F,v 1.63 2002-07-21 18:13:42 d3j191 Exp $
 c
       implicit none
 c
@@ -699,7 +699,6 @@ c
       if(inp_a(item)) goto 6644
       elseif(inp_compare(.false.,'solvent',item)) then
       if(.not.inp_i(nwhb)) nwhb=1
-      print*,'INPUT NUMWHB IS ',nwhb
       write(lfncmd,1168) nwhb
  1168 format('numwhb ',i5)
       if(inp_a(item)) goto 6644
