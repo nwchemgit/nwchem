@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.37 1996-10-16 00:18:30 mdupuis Exp $
+C     $Id: geom_input.F,v 1.38 1996-10-18 21:39:15 mdupuis Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -3824,11 +3824,11 @@ C
       PARAMETER (MXCOOR=1500)    
       PARAMETER (MXIZMT=6000)
       PARAMETER (MXBOND= 64)
-      PARAMETER (MXBNDS=12*MXATOM)
-      PARAMETER (MXANGS=12*MXATOM)
-      PARAMETER (MXTORS=12*MXATOM)
-      PARAMETER (MXOOPA=12*MXATOM)
-      PARAMETER (MXLINB=12*MXATOM)
+      PARAMETER (MXBNDS= 6*MXATOM)
+      PARAMETER (MXANGS= 6*MXATOM)
+      PARAMETER (MXTORS= 6*MXATOM)
+      PARAMETER (MXOOPA= 6*MXATOM)
+      PARAMETER (MXLINB= 6*MXATOM)
       PARAMETER (MXLNBA=10       )
       PARAMETER (MXSEG=64)
       PARAMETER (CVFAC=1.1D+00)
@@ -5380,7 +5380,7 @@ C
       PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=256)
       PARAMETER     (MAXPRM=100)
       PARAMETER     (MXIZMT=6000)
-      PARAMETER     (MAXLST=10+1)
+      PARAMETER     (MAXLST= 2+1)
       CHARACTER*16  TAGS
       LOGICAL       DBUG
       LOGICAL       OUT 
@@ -5867,6 +5867,7 @@ C
             IF(CART(IAT)) THEN
                WRITE(IW,9986) IAT,ATNAME(IAT),XX(IAT),YY(IAT),ZZ(IAT)
             ELSE
+               WRITE(IW,9974) IAT,ATNAME(IAT)
                WRITE(IW,9996) IAT,(   ZMT(J,IAT),J=1,4),
      1                            (  ZVAL(J,IAT),J=1,3),
      2                            (FRZVAL(J,IAT),J=1,3)
@@ -6080,6 +6081,7 @@ C
      2       ' EMPTY -DUMMY- BASIS SET. STOP. -IAT- = ',I5)
  9976 FORMAT(' ----- -LST- POINT NO. = ',I3,' -----')
  9975 FORMAT(' $PES     NPES =',I4,', IUNIT =1, $END')
+ 9974 FORMAT(' IAT=',I5,' ATNAME=',2X,A8)
  8889 FORMAT(/,10X,12(1H-),/,10X,'-$GEO- INPUT',/,10X,12(1H-))
  8888 FORMAT(A8)
  8887 FORMAT(' NO DATA GROUP -$GEO- FOUND AS ALTERNATE INPUT.     ')
@@ -6691,6 +6693,7 @@ C
 C
   100 CONTINUE
       IF(DBUG) THEN
+         WRITE(IW,9984) IAT,ATNAME(IAT)
          WRITE(IW,9995) IAT,(ZMT(I,IAT),I=1,5),(  ZVAL(I,IAT),I=1,3),
      1                                         (FRZVAL(I,IAT),I=1,3)
          WRITE(IW,9995) IAT,(ZMT(I,IAT),I=1,5),(  ZLST(I,IAT),I=1,3),
@@ -6781,6 +6784,7 @@ C
      1       ' ALLOWED RANGE ... 0.0 TO 180.0 . STOP')
  9985 FORMAT(' TORSION ANGLE OR BOND ANGLE = ',F10.2,' FOR ATOM = ',I4,
      1       ' IS OUT OF ALLOWED RANGE ... -360.0 TO 360.0 . STOP')
+ 9984 FORMAT(' IAT=',I5,' ATNAME=',1X,A8)
       END
       SUBROUTINE HND_ZXYZ(NAT,NZMT,ZVAL)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
