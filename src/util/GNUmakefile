@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.75 1997-05-03 18:44:29 d3e129 Exp $
+# $Id: GNUmakefile,v 1.76 1997-05-29 00:49:09 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -81,7 +81,7 @@ endif
               printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
-                ga_orthog.F
+                ga_orthog.F dabsmax.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH
