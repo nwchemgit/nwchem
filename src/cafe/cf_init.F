@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi,iradgi)
-c $Id: cf_init.F,v 1.102 2003-11-25 16:40:12 d3j191 Exp $
+c $Id: cf_init.F,v 1.103 2004-02-04 20:09:17 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -31,6 +31,8 @@ c
 c
       integer i,itemp(2)
       character*3 string
+c
+      call ga_sync()
 c
       if(.not.ma_verify_allocator_stuff()) then
       call md_abort('ERROR IN MEMORY USE AT START CF_START',0)

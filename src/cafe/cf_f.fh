@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.60 2004-01-02 21:07:38 d3j191 Exp $
+c $Id: cf_f.fh,v 1.61 2004-02-04 20:09:16 d3j191 Exp $
 c
       implicit none
 c
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.60 2004-01-02 21:07:38 d3j191 Exp $
+c $Id: cf_f.fh,v 1.61 2004-02-04 20:09:16 d3j191 Exp $
 c
       implicit none
 c
@@ -1889,7 +1889,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.60 2004-01-02 21:07:38 d3j191 Exp $
+c $Id: cf_f.fh,v 1.61 2004-02-04 20:09:16 d3j191 Exp $
 c
       implicit none
 c
@@ -3218,7 +3218,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.60 2004-01-02 21:07:38 d3j191 Exp $
+c $Id: cf_f.fh,v 1.61 2004-02-04 20:09:16 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3342,7 +3342,7 @@ c
       endif
 c
       rss2=xs1**2+xs2**2+xs3**2
-      if(rss2.gt.small) then
+      if(rss2.gt.tiny) then
       rss=sqrt(rss2)
       rssi=one/rss
       rss2i=rssi*rssi
@@ -3528,7 +3528,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.60 2004-01-02 21:07:38 d3j191 Exp $
+c $Id: cf_f.fh,v 1.61 2004-02-04 20:09:16 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3867,7 +3867,7 @@ c
       endif
 c
       rss2=xs1**2+xs2**2+xs3**2
-      if(rss2.gt.small) then
+      if(rss2.gt.tiny) then
       rss=sqrt(rss2)
       rssi=one/rss
       rss2i=rssi*rssi
@@ -3949,7 +3949,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.60 2004-01-02 21:07:38 d3j191 Exp $
+c $Id: cf_f.fh,v 1.61 2004-02-04 20:09:16 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -4293,7 +4293,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.60 2004-01-02 21:07:38 d3j191 Exp $
+c $Id: cf_f.fh,v 1.61 2004-02-04 20:09:16 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4620,7 +4620,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,isgm,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa,lseq)
 c
-c $Id: cf_f.fh,v 1.60 2004-01-02 21:07:38 d3j191 Exp $
+c $Id: cf_f.fh,v 1.61 2004-02-04 20:09:16 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4983,7 +4983,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.60 2004-01-02 21:07:38 d3j191 Exp $
+c $Id: cf_f.fh,v 1.61 2004-02-04 20:09:16 d3j191 Exp $
 c
       implicit none
 c
@@ -5055,7 +5055,7 @@ c
       rwx2=xw(iwm,2,iwa)-xw(iwm,2,jwa)
       rwx3=xw(iwm,3,iwa)-xw(iwm,3,jwa)
       rww=sqrt(rwx1**2+rwx2**2+rwx3**2)
-      if(rww.lt.small) then
+      if(rww.lt.tiny) then
       rwwi=one
       else
       rwwi=one/rww
@@ -5223,7 +5223,7 @@ c
       rwx2=xw(iwm,2,iwa)-xw(iwm,2,kwa)
       rwx3=xw(iwm,3,iwa)-xw(iwm,3,kwa)
       rww=sqrt(rwx1**2+rwx2**2+rwx3**2)
-      if(rww.lt.small) then
+      if(rww.lt.tiny) then
       rwwi=one
       else
       rwwi=one/rww
