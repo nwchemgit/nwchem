@@ -3,6 +3,7 @@
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "cbuff.fh"
+#include "global.fh"
       dimension h(*),g(*),int12(*),int34(*),
      &     w1(nfmax,nfmax,nsmax),w2(nfmax2,nfmax,nsmax-1),
      &     ioconf(nintpo,noconf),indxci(noconf),hd(nci)
@@ -32,8 +33,8 @@ c     no. of elements in I/O buffer
       niinb = 0
       nrec = 0
       nval = 0
-      me = nodeid()
-      nproc = nnodes()
+      me = ga_nodeid()
+      nproc = ga_nnodes()
       icount = -1
       call dfill(nci, 0.0d0, hd, 1)
 c     
@@ -104,14 +105,14 @@ c    zero the upper half and diagonal of work1 to simplify putinb
 c     
       call selci_putinb(iflham,-1,0,hbuf,0,jbuf,0)
 c     if running in parallel need to get all the diags together
-      call dgop (99, hd, nci, '+')
+      call ga_dgop (99, hd, nci, '+')
       if (me .eq. 0) then
         rewind iflhdg
         call selci_swrite(iflhdg,hd,nci)
         close(iflhdg, status='keep')
       endif
-      call igop(991, nrec, 1, '+')
-      call igop(992, nval, 1, '+')
+      call ga_igop(991, nrec, 1, '+')
+      call ga_igop(992, nval, 1, '+')
       write(6,99) nrec,nval
  99   format(/' total no. of hamiltonian records  ',i9/
      $     ' total no. of hamiltonian elements ',i9/)

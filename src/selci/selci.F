@@ -4,6 +4,7 @@
 #include "context.fh"
 #include "util.fh"
 #include "global.fh"
+#include "tcgmsg.fh"
 #include "mafdecls.fh"
 #include "cselcifiles.fh"
       integer rtdb              ! [input]
@@ -27,7 +28,7 @@ c
       logical status, oprint, oexist, oforce
       integer ma_type
       character*26 date
-      integer l_mem, k_mem, lword, nelem, i
+      integer l_mem, k_mem, lword, i
       character*20 mode
       character*255 ctmp
       integer max_thresh, nthresh
@@ -54,7 +55,8 @@ c
       endif
       if (.not. rtdb_get(rtdb, 'selci:moints:force', mt_log, 1, oforce))
      $     oforce = .false.
-      inquire(file=moints, exist=oexist)
+      if (ga_nodeid() .eq. 0) inquire(file=moints, exist=oexist)
+      call ga_brdcst(303, oexist, mitob(1), 0)
       if (oforce .or. (.not. oexist)) call moints_full(rtdb)
       call ga_sync()
 c
@@ -64,21 +66,7 @@ c
       if (.not. ma_push_get(mt_dbl, lword, 'selci', l_mem, k_mem))
      $     call errquit('selci: could not allocate all memory',lword)
 c
-c     What is the name of the ciconf file?  Should we delete the
-c     existing one?  (not checking this now). 
-c     If it does not exisit then generate a default.
-c
-      if (.not. rtdb_cget(rtdb, 'selci:ciconf', 1, ciconf))
-     $     call util_file_prefix('ciconf', ciconf)
-      inquire(file=ciconf, exist=oexist)
-      if (.not. oexist) call selci_conf(rtdb, dbl_mb(k_mem), lword)
-c
-c     What about #roots, davids conv., ??????
-c     Passing down file names ?????
-c     Passing down selection thresholds ????
-c     Passing back error conditions ????
-c     tcgmsg vs GA numbering of processes.
-c     use of Ga global operations
+c     tcgmsg vs GA numbering of processes ????????
 c
 c     Get remaining parameters and filenames ...
 c     What should we do?  Default is ci+davids from current ciconf.
@@ -96,6 +84,8 @@ c
 c
 c     These files only opened by process 0
 c
+      if (.not. rtdb_cget(rtdb, 'selci:ciconf', 1, ciconf))
+     $     call util_file_prefix('ciconf', ciconf)
       if (.not. rtdb_cget(rtdb, 'selci:civecs', 1, civecs))
      $     call util_file_prefix('civecs',civecs)
       if (.not. rtdb_cget(rtdb, 'selci:wmatrx', 1, wmatrx))
@@ -114,6 +104,13 @@ c
       if (.not. rtdb_cget(rtdb, 'selci:hamil', 1, ctmp))
      $     call util_file_prefix('hamil',ctmp)
       call util_pname(ctmp, hamil)
+c
+c     Should we delete the existing ciconf file?  (not checking this now). 
+c     If it does not exisit then generate a default.
+c
+      if (ga_nodeid() .eq. 0) inquire(file=ciconf, exist=oexist)
+      call ga_brdcst(304, oexist, mitob(1), 0)
+      if (.not. oexist) call selci_conf(rtdb, dbl_mb(k_mem), lword)
 c      
       if (mode .eq. 'ci+davids') then
          call selci_ci(dbl_mb(k_mem), lword)
@@ -122,7 +119,7 @@ c
          if (.not. rtdb_get_info(rtdb, 'selci:selection thresholds', 
      $        ma_type, nthresh, date)) call errquit
      $        ('selci: no selection thresholds in database', 0)
-         if (nelem .gt. max_thresh) call errquit
+         if (nthresh .gt. max_thresh) call errquit
      $        ('selci: too many selection thresholds', max_thresh)
          if (.not. rtdb_get(rtdb, 'selci:selection thresholds', 
      $        mt_dbl, max_thresh, stols)) call errquit

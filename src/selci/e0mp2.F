@@ -2,7 +2,7 @@
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "cmp2.fh"
-      call brdcst(20,eps,mdtob(norbs),0)
+      call ga_brdcst(20,eps,mdtob(norbs),0)
       return
       end
       subroutine selci_geteig(eigins)

@@ -1,10 +1,3 @@
-*mdc*if alliant
-*c     there is an assembler version for
-*c     popcnt32, leadz32, vpop32
-*c     inibit is not needed but have a dummy call
-*      subroutine inibit
-*      end
-*mdc*elseif sun ardent
       integer function selci_popcnt32(i)
 #include "cbits.fh"
       byte i(4)

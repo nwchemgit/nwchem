@@ -69,5 +69,5 @@ c     allow for reduced space calculations
 c
       write(6,*) ' number of non-zero 2e- integrals ',nread
 c      write(nlist,'(1x,1p5e15.7)')sum
-      call flush(6)
+      call util_flush(6)
       end

@@ -4,6 +4,7 @@
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"
+#include "global.fh"
       dimension q(*)
       dimension h(nnorbs),g(numint),int12(nnorbs),int34(nnorbs),
      $     w1(nfmax,nfmax,nsmax),w2(nfmax2,nfmax,nsmax-1),
@@ -26,7 +27,7 @@ c     root is greater than the input threshold then add this to the
 c     list and add the incremental lowering to the prediction for the
 c     new ci energy.
 c     
-      call flush(6)
+      call util_flush(6)
       ivc = selci_mptr(nfmax*nroot)
       call dfill(nroot,0.0d0,ept,1)
       call dfill(nroot,0.0d0,ept_mp,1)
@@ -38,11 +39,11 @@ c
 c     loop through orbital configurations already in ci
 c     
       iconfm = 0
-      nproc  = nnodes()
-      me     = nodeid()
+      nproc  = ga_nnodes()
+      me     = ga_nodeid()
       master = 0
       icount = -1
-      call flush(6)
+      call util_flush(6)
 c     
 c     If first pass through selci then kill all restart files
 c     
@@ -65,7 +66,7 @@ c
      &              noconf,ioconf,nintpo,nconmx,ncold)
             endif
          endif
-         call flush(6)
+         call util_flush(6)
 c
          call selci_upkcon(norbs, iocc, ioconf(1,iconf), nintpo, nbitpi)
 c     

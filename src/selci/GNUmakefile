@@ -15,8 +15,7 @@ renorm.o	sread.o		swrite.o	pkcon.o  \
 wthcon.o	wtconf.o	vadd.o		idmin.o	\
 isum.o		rd1.o		fcidim.o        \
 axb.o		axbt.o		gettim.o	cputm.o \
-minit.o		ieeetrap.o \
-mxmb.o  check.o
+minit.o		mxmb.o  check.o
 
 DVOBJ = davids.o sigma.o sigsav.o
 
@@ -46,9 +45,9 @@ conf:	conf.o $(LIBRARY_PATH)
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(anal.o):	 ./implicit.fh ./ciinfo.fh 
-$(LIBRARY_PATH)(ci.o):	 ./mptr.fh ./implicit.fh ./ciinfo.fh 
-$(LIBRARY_PATH)(conf.o):	 ./mptr.fh ./implicit.fh ./cconf.fh ./bitops.fh 
-$(LIBRARY_PATH)(davids.o):	 ./mptr.fh ./implicit.fh ./cselcifiles.fh ./cbuff.fh 
+$(LIBRARY_PATH)(ci.o):	 ./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./cselcifiles.fh ./ciinfo.fh 
+$(LIBRARY_PATH)(conf.o):	 $(INCDIR)/rtdb.fh ./mptr.fh $(INCDIR)/mafdecls.fh ./implicit.fh $(INCDIR)/global.fh ./cselcifiles.fh ./cconf.fh ./bitops.fh 
+$(LIBRARY_PATH)(davids.o):	 ./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./cselcifiles.fh ./cbuff.fh 
 $(LIBRARY_PATH)(e0mp2.o):	 ./implicit.fh ./cmp2.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(eij.o):	 ./implicit.fh ./ciinfo.fh ./ceij.fh 
 $(LIBRARY_PATH)(eijeji.o):	 ./implicit.fh ./ciinfo.fh 
@@ -70,8 +69,9 @@ $(LIBRARY_PATH)(loadab.o):	 ./implicit.fh ./ciinfo.fh ./bitops.fh
 $(LIBRARY_PATH)(loadg.o):	 ./implicit.fh ./ciinfo.fh ./bitops.fh 
 $(LIBRARY_PATH)(loadw.o):	 ./implicit.fh 
 $(LIBRARY_PATH)(makef.o):	 ./stfunc.fh ./implicit.fh ./ciinfo.fh 
-$(LIBRARY_PATH)(makeh.o):	 ./implicit.fh ./ciinfo.fh ./cbuff.fh 
+$(LIBRARY_PATH)(makeh.o):	 ./implicit.fh $(INCDIR)/global.fh ./ciinfo.fh ./cbuff.fh 
 $(LIBRARY_PATH)(makehd.o):	 ./stfunc.fh ./implicit.fh ./ciinfo.fh 
+$(LIBRARY_PATH)(makehmod.o):	 ./implicit.fh $(INCDIR)/global.fh ./ciinfo.fh ./cbuff.fh 
 $(LIBRARY_PATH)(makehs.o):	 ./stfunc.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(makhdb.o):	 ./stfunc.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(mkdele.o):	 ./implicit.fh 
@@ -87,18 +87,18 @@ $(LIBRARY_PATH)(pconls.o):	 ./implicit.fh ./ciinfo.fh
 $(LIBRARY_PATH)(pkcon.o):	 ./bitops.fh 
 $(LIBRARY_PATH)(popcnt32.o):	 ./cbits.fh ./bitops.fh 
 $(LIBRARY_PATH)(prtri.o):	 ./implicit.fh 
-$(LIBRARY_PATH)(ptidy.o):	 ./implicit.fh 
+$(LIBRARY_PATH)(ptidy.o):	 ./implicit.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(putinb.o):	 ./implicit.fh ./cbuff.fh 
 $(LIBRARY_PATH)(rdhead.o):	 ./implicit.fh ./cselcifiles.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(rdhint.o):	 ./implicit.fh 
 $(LIBRARY_PATH)(readh.o):	 ./implicit.fh 
-$(LIBRARY_PATH)(restin.o):	 ./cselcifiles.fh 
+$(LIBRARY_PATH)(restin.o):	 $(INCDIR)/global.fh ./cselcifiles.fh 
 $(LIBRARY_PATH)(restk.o):	 ./cselcifiles.fh 
-$(LIBRARY_PATH)(selci.o):	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cselcifiles.fh $(INCDIR)/context.fh 
-$(LIBRARY_PATH)(select.o):	 ./mptr.fh ./implicit.fh ./cselcifiles.fh ./ciinfo.fh 
-$(LIBRARY_PATH)(sigma.o):	 ./cbuff.fh 
-$(LIBRARY_PATH)(sigsav.o):	 ./cbuff.fh 
-$(LIBRARY_PATH)(slect.o):	 ./mptr.fh ./implicit.fh ./ciinfo.fh ./bitops.fh 
-$(LIBRARY_PATH)(stool.o):	 ./cselcifiles.fh 
+$(LIBRARY_PATH)(selci.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cselcifiles.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(select.o):	 ./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./cselcifiles.fh ./ciinfo.fh 
+$(LIBRARY_PATH)(sigma.o):	 $(INCDIR)/global.fh ./cbuff.fh 
+$(LIBRARY_PATH)(sigsav.o):	 $(INCDIR)/global.fh ./cbuff.fh 
+$(LIBRARY_PATH)(slect.o):	 ./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./ciinfo.fh ./bitops.fh 
+$(LIBRARY_PATH)(stool.o):	 $(INCDIR)/global.fh ./cselcifiles.fh 
 $(LIBRARY_PATH)(tester.o):	 ./mptr.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(upkcon.o):	 ./bitops.fh 

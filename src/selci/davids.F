@@ -3,6 +3,7 @@
 #include "cbuff.fh"
 #include "mptr.fh"
 #include "cselcifiles.fh"
+#include "global.fh"
       parameter (iflham = 1, iflhdg=2, iflcon=3, iflciv=4, maxvec = 5)
 c
       dimension q(lword)
@@ -18,8 +19,8 @@ c     open files and read header info
 c
       call selci_gettim(startc, startw)
       junk = selci_minit(lword)
-      me = nodeid()
-      nproc = nnodes()
+      me = ga_nodeid()
+      nproc = ga_nnodes()
       if (me.eq.0) then
         open(iflham,status='old',form='unformatted',file=hamil)
         open(iflhdg,status='old',form='unformatted',file=hamdg)
@@ -33,18 +34,18 @@ c
       else
         open(iflham,status='old',form='unformatted',file=hamil)
       endif
-      call brdcst(1, nnci, mitob(1), 0)
-      call brdcst(2, nci,  mitob(1), 0)
-      call brdcst(3, noconf,  mitob(1), 0)
-      call brdcst(4, nintpo,  mitob(1), 0)
-      call brdcst(5, nbitpi,  mitob(1), 0)
+      call ga_brdcst(1, nnci, mitob(1), 0)
+      call ga_brdcst(2, nci,  mitob(1), 0)
+      call ga_brdcst(3, noconf,  mitob(1), 0)
+      call ga_brdcst(4, nintpo,  mitob(1), 0)
+      call ga_brdcst(5, nbitpi,  mitob(1), 0)
       call inibit
 c
 c     how many roots are wanted and what threshold? ... now from 
 c     arguments ... historically process zero read them in from disk
 c
-      call brdcst(10, nroot, mitob(1), 0)
-      call brdcst(11, thresh, mdtob(1), 0)
+      call ga_brdcst(10, nroot, mitob(1), 0)
+      call ga_brdcst(11, thresh, mdtob(1), 0)
 c
       if (me.eq.0) then
         write(6,2) title, multi, nelec, issss+1, norbs, nci, noconf,
@@ -87,15 +88,15 @@ c
      $     nroot, nci, noconf, nintpo, norbs, nbitpi, thresh)
 c
       close(iflham,status='keep')
-      if (nodeid() .eq. 0) then
+      if (ga_nodeid() .eq. 0) then
          close(iflciv,status='keep')
          junk = selci_mstats(0)
          call selci_gettim(endc, endw)
          write(6,1) 'DAVIDS', endc-startc, endw-startw
  1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
-         call flush(6)
+         call util_flush(6)
       endif
-      call synch(12345)
+      call ga_sync(12345)
 c
       end
       subroutine selci_ddavid(work, roots, hd, alpha, redh,
@@ -104,6 +105,7 @@ c
 #include "implicit.fh"
 #include "cbuff.fh"
 #include "mptr.fh"
+#include "global.fh"
       parameter (iflham = 1, iflhdg=2, iflcon=3, iflciv=4, maxvec = 5)
 c
       dimension work(*), roots(nroot), hd(nci), alpha(*), redh(*),
@@ -114,12 +116,12 @@ c
 c
 c     read in the diagonals and the configuration info
 c
-      me = nodeid()
+      me = ga_nodeid()
       if (me.eq.0) then
         call selci_sread(iflhdg,hd,nci)
         close(iflhdg)
-*        write(6,*)' hd(1)   = ',hd(1),' ',nodeid()
-*        write(6,*)' hd(782) = ',hd(782),' ',nodeid()
+*        write(6,*)' hd(1)   = ',hd(1),' ',ga_nodeid()
+*        write(6,*)' hd(782) = ',hd(782),' ',ga_nodeid()
         call selci_rdconf(iflcon,ioconf,indxci,nintpo,noconf)
         close(iflcon)
         indxci(noconf+1) = nci
@@ -145,8 +147,8 @@ c
       itermx = 50
       nvec = 1
  20   continue
-      call flush(6)
-      call brdcst(101, ci(1,1,nvec), mdtob(nroot*nci), 0)
+      call util_flush(6)
+      call ga_brdcst(101, ci(1,1,nvec), mdtob(nroot*nci), 0)
       if (iter.eq.1) then
          call selci_sigsav(iflham,nci,nroot,hd,
      $        ci(1,1,nvec),si(1,1,nvec))
@@ -170,7 +172,7 @@ c      call selci_output(si(1,1,nvec),1,nci,1,nroot,nci,nroot,1)
            if (conv(i).lt.thresh) ndone = ndone + 1
  30     continue
       endif
-      call brdcst(102, ndone, mitob(1), 0)
+      call ga_brdcst(102, ndone, mitob(1), 0)
       if (ndone.lt.nroot) goto 20
 c
 c     converged ... make solution vectors in work
@@ -425,7 +427,7 @@ c
          write(6,1) iter,nnvec,(roots(i),de(i),conv(i),i=1,nroot)
  1       format(' iter=',i2,'  nvec=',i2,
      &        10('  root=',f13.8,'  de=',f13.8,'  conv=',f13.8:/17x))
-         call flush(6)
+         call util_flush(6)
       endif
 c
       iter = iter + 1
@@ -538,10 +540,10 @@ c
 c
       if (norbs.ge.100) then
          write(6,1) c,iconf,ispin,d,(list(i),iocc(i),i=1,igot)
- 1       format(1x,f12.6,2x,i6,2x,i4,2x,f12.6,4x,9(i4'(',i1,')':))
+ 1       format(1x,f12.6,2x,i6,2x,i4,2x,f12.6,4x,9(i4,'(',i1,')':))
       else
          write(6,2) c,iconf,ispin,d,(list(i),iocc(i),i=1,igot)
- 2       format(1x,f12.6,2x,i6,2x,i4,2x,f12.6,4x,11(i3'(',i1,')':))
+ 2       format(1x,f12.6,2x,i6,2x,i4,2x,f12.6,4x,11(i3,'(',i1,')':))
       endif
 c
       end

@@ -37,10 +37,6 @@ c
             call errquit('integral should be zero by symmetry',0)
          endif
          g(int12(ij)+int34(kl)) = gg
-*mdc*if debug
-*         write(6,1101) i,j,k,l,int12(ij)+int34(kl),gg
-*1101     format(1x,4i5,i8,d16.8)
-*mdc*endif
          goto 10
       else if (i.gt.0) then
          if (abs(gg).lt.1.0d-10) goto 10
@@ -57,9 +53,6 @@ c
             call errquit(' integral should be zero by symmetry',0)
          endif
          h(ij) = gg
-*mdc*if debug
-*         write(6,1101) i,j,0,0,ij,gg
-*mdc*endif
          goto 10
       else if (i.eq.0) then
          repnuc = gg

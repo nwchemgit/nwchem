@@ -23,9 +23,7 @@ c
 c
 c     initialise bit handling routines on sun
 c
-*mdc*if sun ardent
       call inibit
-*mdc*endif
 c
 c     open and read info from ciconf, moints, wmatrx, civecs
 c

@@ -2,7 +2,9 @@
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"
-      character *80 title, hamil
+#include "cselcifiles.fh"
+#include "global.fh"
+      character *80 title
 c
       dimension q(lword)
 c
@@ -12,7 +14,7 @@ c
       call selci_gettim(startc, startw)
 c
       lencib = mitob(lencii) + mdtob(lencir)
-      me = nodeid()
+      me = ga_nodeid()
       if (me.eq.0) then
         call selci_initci(title, 'ci')
         write (iflham) nci
@@ -21,7 +23,7 @@ c
         open(iflham,form='unformatted',status='unknown',file=hamil)
         call inibit
       endif
-      call brdcst(1,repnuc,lencib,0)
+      call ga_brdcst(1,repnuc,lencib,0)
 c
 c     make integral addressing arrays, and then load the integrals
 c
@@ -34,12 +36,12 @@ c
         write(ifllog,7) numint
  7      format(' no. of integrals       ',i9)
         call selci_load(q(ih), q(ig), q(int12), q(int34))
-        call flush(ifllog)
+        call util_flush(ifllog)
       endif
-      call brdcst(2,q(ih),mdtob(nnorbs),0)
-      call brdcst(3,q(ig),mdtob(numint),0)
+      call ga_brdcst(2,q(ih),mdtob(nnorbs),0)
+      call ga_brdcst(3,q(ig),mdtob(numint),0)
 c         some integral types don't make repnuc available until load
-      call brdcst(4,repnuc,mdtob(1),0)
+      call ga_brdcst(4,repnuc,mdtob(1),0)
 c
 c     get in the coupling coefficient arrays
 c
@@ -50,8 +52,8 @@ c
      $        nfmax,nfmax2,nsmax)
          close(iflwmt,status='delete')
       endif
-      call brdcst(5,q(iw1),mdtob(nfmax*nfmax*nsmax),0)
-      call brdcst(6,q(iw2),mdtob(nfmax2*nfmax*(nsmax-1)),0)
+      call ga_brdcst(5,q(iw1),mdtob(nfmax*nfmax*nsmax),0)
+      call ga_brdcst(6,q(iw2),mdtob(nfmax2*nfmax*(nsmax-1)),0)
       call selci_inicij(q(iw1),q(iw2))
 c
 c     allocate space for orbital configurations and
@@ -64,8 +66,8 @@ c
      $        nintpo,noconf)
          close(iflcon,status='keep')
       endif
-      call brdcst(7,q(ioconf),mitob(nintpo*noconf),0)
-      call brdcst(8,q(indxci),mitob(noconf),0)
+      call ga_brdcst(7,q(ioconf),mitob(nintpo*noconf),0)
+      call ga_brdcst(8,q(indxci),mitob(noconf),0)
 c      call selci_pconls(q(ioconf))
 c
 c     make the hamiltonian
@@ -80,14 +82,14 @@ c
      $     q(ioconf), q(indxci), q(ihd), q(iwork1), q(iwork2),
      $     q(iwork3), q(if))
 c
-      if (nodeid() .eq. 0) then
+      if (ga_nodeid() .eq. 0) then
          junk = selci_mstats(0)
          call selci_gettim(endc, endw)
          write(6,1) 'CI', endc-startc, endw-startw
  1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
-         call flush(6)
+         call util_flush(6)
       endif
 c
-      call synch(1234)
+      call ga_sync(1234)
 c
       end

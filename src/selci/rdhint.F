@@ -40,7 +40,7 @@ c     ascii list of integrals
 c
          open(iflint, form='formatted',status='old',file=moints)
          read(iflint,'(a)') dtitle(1)
-         read(iflint,'(i)') nnorbs
+         read(iflint,*) nnorbs, nfzc
          read(iflint,*)         ! map
          read(iflint,*)         ! syms
          read(iflint,*)         ! eigenvalues

@@ -1,13 +1,13 @@
       subroutine selci_sigma(iflham,nci,nroot,hd,ci,si)
       implicit real*8 (a-h,o-z)
 #include "cbuff.fh"
+#include "global.fh"
       dimension hd(nci),ci(nci,nroot),si(nci,nroot)
 c
 c     compute sigma vectors for each root
 c     
       rewind (iflham)
-*mdc*if parallel
-      me = nodeid()
+      me = ga_nodeid()
       if (me.eq.0) read (iflham)
       if (me.ne.0) then
         do 10 iroot = 1, nroot
@@ -22,14 +22,6 @@ c
  21        continue
  11     continue
       endif
-*mdc*else
-*      read (iflham)
-*      do 10 iroot = 1,nroot
-*         do 20 i = 1,nci
-*            si(i,iroot) = hd(i)*ci(i,iroot)
-* 20      continue
-* 10   continue
-*mdc*endif
 c
 c
  30   call selci_sread(iflham,rbuff,lenbuf)
@@ -83,15 +75,13 @@ c               write(6,*) ' sigma: j=',j
       goto 40
 c
 1000  continue
-*mdc*if parallel
 c     collapse the individual components using the hamitonian
-c     i/o buffer as work space for dgop
+c     i/o buffer as work space for ga_dgop
       do 1010 iroot = 1, nroot
          do 1020 i = 1, nci, lenbuf
             ndgop = min(lenbuf, nci-i+1)
-            call dgop (99, si(i, iroot), ndgop, '+', rbuff)
+            call ga_dgop (99, si(i, iroot), ndgop, '+', rbuff)
 1020     continue
 1010  continue
-*mdc*endif
 c
       end

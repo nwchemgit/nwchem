@@ -3,6 +3,8 @@
 #include "cconf.fh"
 #include "mptr.fh"
 #include "cselcifiles.fh"
+#include "rtdb.fh"
+#include "global.fh"
       integer rtdb
       dimension q(lword)
       external data_selci_conf  ! For T3D to link block data
@@ -11,8 +13,11 @@ c     Crude version of a configuration generation program
 c     Needs much doing to it to be very useful
 c
       character*80 title
+      logical status
 c
-      if (nodeid().ne.0) goto 99999
+      if (ga_nodeid().ne.0) goto 99999
+      status = rtdb_parallel(.false.)
+      
       call selci_gettim(startc, startw)
       junk = selci_minit(lword)
 c
@@ -35,7 +40,7 @@ c
 c     screen the references for symmetry and compute maximum
 c     open shell dimension, the index vector and the ci dimension
 c
-      call selci_chkci(q(irefo),q(indxci))
+      call selci_chkci(q(irefo),q(indxci),wmatrx)
 c
 c     write out the header for the conf file
 c
@@ -49,13 +54,14 @@ c
 c
       junk = selci_mfree(irefo)
 c
-99999 call synch(911)
-      if (nodeid() .eq. 0) then
+      status = rtdb_parallel(.true.)
+99999 call ga_sync(911)
+      if (ga_nodeid() .eq. 0) then
          junk = selci_mstats(0)
          call selci_gettim(endc, endw)
          write(6,1) 'CONF', endc-startc, endw-startw
  1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
-         call flush(6)
+         call util_flush(6)
       endif
 c
       end
@@ -108,7 +114,7 @@ c     multiplicity ... get this from the SCF/MCSCF last run
 c
       if (.not. rtdb_get(rtdb,'scf:nopen', mt_int, 1, nopen))
      $     nopen = 0
-      multi = 2*nopen + 1
+      multi = nopen + 1
 c
 c     symmetry ... make nbpsy, isym, norbs, nelpi, nintpo
 c
@@ -309,7 +315,7 @@ c
 c
 c     apply the refgen sets to the list of functions
 c
-      write(6,1)
+      if (ngen.gt.0 .or. iexcit.gt.0) write(6,1)
  1    format(//' Apply reference generators '/)
       do 10 ig = 1,ngen
          call selci_icopy(nintpo*nref,irefo,1,jrefo,1)
@@ -399,10 +405,10 @@ c         ipt = ipt + nintpo
 c 50   continue
 c
       end
-      subroutine selci_chkci(irefo, indxci)
+      subroutine selci_chkci(irefo, indxci,wmatrx)
 #include "implicit.fh"
 #include "cconf.fh"
-      character*80 wmatrx
+      character*(*) wmatrx
       integer irefo(nrefmx), indxci(nrefmx+1)
 #include "bitops.fh"
 c
@@ -414,8 +420,7 @@ c     Generate the coupling coefficient file which contains
 c     the number of spin functions for each number of open shells
 c     
       call selci_mknsneed(irefo,nref,nintpo,nbitpi,norbs,nsneed)
-      call flush(6)
-      wmatrx = 'wmatrix'
+      call util_flush(6)
       call selci_couple(multi,nsneed(1),0,wmatrx)
 c
 c     read the info off the wmatrix file

@@ -1,8 +1,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <strings.h>
+#include <stdlib.h>
 
-char *malloc();
 extern int fortchar_to_string();
 
 /* Maximum number of open shells */
@@ -10,9 +10,7 @@ extern int fortchar_to_string();
 /* Maximum no. of spin functions for nsmax */
 #define nfmax 1001
 
-static void Error(string, integer)
-     char *string;
-     int integer;
+static void Error(char *string, int integer)
 {
 /*
   (void) fflush(stdout);
@@ -24,9 +22,7 @@ static void Error(string, integer)
 }
 
 
-static void Dscal(n, s, u, iu)
-     int n, iu;
-     double s, *u;
+static void Dscal(int n, double s, double *u, int iu)
 /*
   Scale double precision vector u by s
 */
@@ -37,9 +33,7 @@ static void Dscal(n, s, u, iu)
   }
 }
 
-static void Dfill(n, s, u, iu)
-     int n, iu;
-     double s, *u;
+static void Dfill(int n, double s, double *u, int iu)
 /*
   Fill double precision vector u with s
 */
@@ -50,9 +44,7 @@ static void Dfill(n, s, u, iu)
   }
 }
 
-static void Screen(n, s, u, iu)
-     int n, iu;
-     double s, *u;
+static void Screen(int n, double s, double *u, int iu)
 /*
   zero elements of double precision vector u if they are less
   in absolute magnitude than the threshold s
@@ -66,9 +58,7 @@ static void Screen(n, s, u, iu)
   }
 }
 
-static double Sparsity(n, u, iu)
-     int n, iu;
-     double *u;
+static double Sparsity(int n, double *u, int iu)
 /*
   Return (no. zero elements)/(total no. elements)
 */
@@ -85,9 +75,7 @@ static double Sparsity(n, u, iu)
   return (double) zero / (double) n;
 }
 
-static void Identity(u, n)
-     double *u;
-     int n;
+static void Identity(double *u, int n)
 /*
   Form the n*n double precision identity matrix
 */
@@ -97,9 +85,8 @@ static void Identity(u, n)
   Dfill(n, 1.0, u, n+1);
 }
 
-static void PrintMatrix(u, mcol, mrow, ncol, nrow)
-     double *u;
-     int mcol, mrow, ncol, nrow;
+static void PrintMatrix(const double *u, int mcol, int mrow, 
+			int ncol, int nrow)
 /*
   Print a double precision matrix.
   mcol = skip between elements down a column
@@ -147,8 +134,8 @@ static void PrintMatrix(u, mcol, mrow, ncol, nrow)
   }
 }
 
-static void MakeBranchingDiagram(bd, ns, multi, order, info)
-     int bd[nsmax+3][nsmax+3], ns, multi, info;
+static void MakeBranchingDiagram(int bd[nsmax+3][nsmax+3], 
+				 int ns, int multi, int order, int info)
 /*
   Form the branching diagram weights
   bd[m][n] = weight of node with multiplicty m and n electrons
@@ -218,9 +205,9 @@ static void MakeBranchingDiagram(bd, ns, multi, order, info)
   }
 }
 
-static void MakeSpinFunctions(bd, ns, multi, f, nf, order, info)
-     int bd[nsmax+3][nsmax+3], ns, multi, f[nsmax+1][nfmax+1], order;
-     int info;
+static void MakeSpinFunctions(int bd[nsmax+3][nsmax+3], 
+			      int ns, int multi, int f[nsmax+1][nfmax+1],
+			      int nf, int order, int info)
 /*
   Form the ordered spin functions as an array of 1s and 2s.
   bd = branching diagram (reversed if want dictionary ordered functions)
@@ -310,9 +297,9 @@ static void MakeSpinFunctions(bd, ns, multi, f, nf, order, info)
 }
 
 
-static void MakeAxialDistances(ns, f, nf, d, p, g)
-     int ns, f[nsmax+1][nfmax+1], d[nsmax][nfmax+1];
-     double p[nsmax][nfmax+1], g[nsmax][nfmax+1];
+static void MakeAxialDistances(int ns, int f[nsmax+1][nfmax+1], 
+			       int nf, int d[nsmax][nfmax+1], 
+			       double p[nsmax][nfmax+1], double g[nsmax][nfmax+1])
 /*
   Compute the axial distances for transpostions (j, j+1) for
   the Standard Young Tableaux represented by the branching diagram
@@ -372,8 +359,8 @@ static void MakeAxialDistances(ns, f, nf, d, p, g)
 }
 
 
-static void MakePerm(bd, ns, f, nf, perm, order)
-     int bd[nsmax+3][nsmax+3], ns, f[nsmax+1][nfmax+1], perm[nsmax][nfmax+1];
+static void MakePerm(int bd[nsmax+3][nsmax+3], int ns, int f[nsmax+1][nfmax+1], 
+		     int nf, int perm[nsmax][nfmax+1], int order)
 /*
   Compute the effect of the transpositions (j j+1) on the spin functions
   bd = branching diagram (reversed if dictionary order)
@@ -443,9 +430,9 @@ static void MakePerm(bd, ns, f, nf, perm, order)
 }
 
 
-static void RightMultiply(i, u, uu, nf, pp, g, perm)
-     double pp[nsmax][nfmax+1], g[nsmax][nfmax+1], *u, *uu;
-     int i, nf, perm[nsmax][nfmax+1];
+static void RightMultiply(int i, double *u, double *uu, int nf, 
+			  double pp[nsmax][nfmax+1], double g[nsmax][nfmax+1], 
+			  int perm[nsmax][nfmax+1])
 /*
   uu = (-1) * u * U(i i+1), where u and uu are pointers to
   other represenation matrices.
@@ -470,9 +457,9 @@ static void RightMultiply(i, u, uu, nf, pp, g, perm)
     }
   }
 }
-static void LeftMultiply(i, u, uu, nf, pp, g, perm)
-     double pp[nsmax][nfmax+1], g[nsmax][nfmax+1], *u, *uu;
-     int i, nf, perm[nsmax][nfmax+1];
+static void LeftMultiply(int i, double *u, double *uu, int nf, 
+			 double pp[nsmax][nfmax+1], double g[nsmax][nfmax+1], 
+			 int perm[nsmax][nfmax+1])
 /*
   uu = (-1) * U(i i+1) * u, where u and uu are pointers to
   other represenation matrices.
@@ -499,6 +486,7 @@ static void LeftMultiply(i, u, uu, nf, pp, g, perm)
 }
 
 
+#ifdef OLDCODE
 static void ReadArguments(argc, argv, ns, multi, print)
      int argc, *ns, *multi, *print;
      char **argv;
@@ -537,16 +525,15 @@ static void ReadArguments(argc, argv, ns, multi, print)
     *ns = atoi(*argv);
 }
 
-
 /*int main(argc, argv)
      int argc;
      char **argv;
      */
+#endif
 
-void selci_couple_(pmulti, pns, pprint, pfilename, flen)
-   long *pmulti, *pns, *pprint;
-   char *pfilename;
-   int flen;
+typedef long Integer;		/*  FORTRAN integer */
+
+void selci_couple_(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
 /*
   Generate the one particle coupling coefficients between two orbital
   occupancies including all spin couplings. The spin functions are
@@ -681,7 +668,7 @@ void selci_couple_(pmulti, pns, pprint, pfilename, flen)
     if (order == 0)
       MakeSpinFunctions(bd, i, multi, f, nf, 0, info);
     else {
-      MakeBranchingDiagram(rbd, i, multi, 1);
+      MakeBranchingDiagram(rbd, i, multi, 1, info);
       MakeSpinFunctions(rbd, i, multi, f, nf, 1, info);
     }
 

@@ -19,10 +19,10 @@ c
 c
       if (norbs.ge.100) then
          write(ifllog,1) (list(i),locc(i),i=1,igot)
- 1       format(1x,9(i4'(',i1,')':))
+ 1       format(1x,9(i4,'(',i1,')':))
       else
          write(ifllog,2) (list(i),locc(i),i=1,igot)
- 2       format(1x,11(i3'(',i1,')':))
+ 2       format(1x,11(i3,'(',i1,')':))
       endif
 c
       end

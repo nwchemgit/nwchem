@@ -49,7 +49,7 @@ c
 c     Update energy and ptnorm ... the last correction computed
 c     is the one used for the selection process
 c
-      call flush(6)
+      call util_flush(6)
       if (iwpt.eq.0) then       ! EN only
          call selci_mkdele(numf, nroot, q(ide), vc, roots, q(iwork1),
      $        nfmax, q(idnorm))
