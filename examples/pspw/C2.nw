@@ -69,7 +69,7 @@ PSPW
       wavefunction_cutoff: 21.0d0
    END 
 END
-
+task pspw psp_generator
 task pspw psp_formatter
 task pspw wavefunction_initializer
 task pspw steepest_descent
