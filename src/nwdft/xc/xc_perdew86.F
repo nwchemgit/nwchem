@@ -1,7 +1,7 @@
       Subroutine xc_perdew86(fac,rho,delrho,Amat,Cmat,
      *     nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew86.F,v 1.8 1996-10-08 18:11:58 d3h449 Exp $
+C     $Id: xc_perdew86.F,v 1.9 1996-10-15 01:21:44 d3h449 Exp $
       implicit none
 
       double precision fac ! [input]
@@ -31,7 +31,7 @@ c--   > Sampling Matrices for the XC Potential & Energy
      ,     ONE,ONETHIRD,THREE,FOURTHIRDS,SEV6,
      ,     FIVE3,TWO3,FIVE6,pi
 
-      Parameter (TOLL=1.E-40,EXPTOL=80.d0)
+      Parameter (TOLL=1.D-40,EXPTOL=80.d0)
       Parameter (alpha=0.023266D0,beta = 7.389D-6,
      ,   pgamma=8.723d0,delta=0.472d0, beta10=10000.d0*beta)
       parameter (ftilde=0.11d0,zzz=0.001667d0,fff=0.002568d0)

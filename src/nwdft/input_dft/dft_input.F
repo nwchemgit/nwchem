@@ -1,15 +1,17 @@
       subroutine dft_input(rtdb)
-c     $Id: dft_input.F,v 1.4 1996-10-05 00:52:17 d3h449 Exp $
+c     $Id: dft_input.F,v 1.5 1996-10-15 01:21:39 d3h449 Exp $
       implicit none
 #include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "inp.fh"
-c     
-c>>>  added for constant ntags_bsmx
-c     
-#include "bas_staticP.fh"
+c
+c     The following parameters must match those in
+c     bas_staticP.fh e.g., dft_ntags_bsmx = ntags_bsmx.
+c
+      integer dft_ntags_bsmx
+      parameter (dft_ntags_bsmx = 20)
 c     
 c     read input for DFT calculation.  All input is of the form:
 c     <keyword>  or   <keyword> <value>  or   <keyword> <value><units>
@@ -19,7 +21,7 @@ c
      &     nopt_system
       parameter (nopt=57,  nopt_quad=2, nopt_munit=6,
      &     nopt_grid=5, nopt_system=4)
-      character*255 test
+      character*255 test, test2
       character*10 gridtype
 
 c     
@@ -50,12 +52,20 @@ c
       logical nodamping, nolevelshifting, nodiis
       logical ltight, lmaxov, incore
       logical store_wght, ldelley
-      integer nrad(ntags_bsmx)
+c
+c     Define logical flags for local (l) and nonlocal (nl)
+c     parts of exchange-correlation functionals.
+c
+      logical  lcfac(10),  lxfac(10)
+      logical nlcfac(10), nlxfac(10)
+      logical xccomb(10)
+c
+      integer nrad(dft_ntags_bsmx)
       double precision rscale,  cdist(3), cang(3)
 c     
 c     XC functionals coefficients
 c     
-      character*50 xname,cname
+      character*40 xname(10),cname(10),xcname(10),blank_40c
       double precision cfac(10),xfac(10)
 c--   >  defaults from rdcalc.F
 c     
@@ -89,7 +99,6 @@ C
       ncyds = 0
       ndamp=70
       rlshift=0.5d0
-c      icvgtyp=2
 c
       ltight=.false.
       incore=.true.
@@ -100,9 +109,6 @@ c
       pseudo=.false.
       nfock=10
       idirect=0
-c do NOT turn off diis unless specified by user
-c      idisoff=15
-C
 C
       iAOacc=20
       iXCacc=20
@@ -119,17 +125,41 @@ C
       nquad_task = 1
       ldelley = .false.
       store_wght = .false.
+      blank_40c = '                                        '
       do iline=1,10
-        xfac(iline)=0.d0
-        cfac(iline)=0.d0
+          xfac(iline)=0.d0
+          cfac(iline)=0.d0
+         lcfac(iline)=.false.
+        nlcfac(iline)=.false.
+         lxfac(iline)=.false.
+        nlxfac(iline)=.false.
+        xccomb(iline)=.false.
+         cname(iline)=blank_40c
+         xname(iline)=blank_40c
+        xcname(iline)=blank_40c
       enddo
-c     
-c     default XC: vwn and slater
-c     
-      cfac(1)=1.d0
-      xfac(2)=1.d0
-      xname='Slater            Exchange    Functional'
-      cname='Vosko-Wilk-Nusair Correlation Functional'
+c
+c      Correlation functional name defaults.
+c
+       cname(1)='Vosko-Wilk-Nusair Correlation Functional'
+       cname(2)='    Lee-Yang-Parr Correlation Functional'
+       cname(3)='      Perdew 1981 Correlation Functional'
+       cname(4)='      Perdew 1986 Correlation Functional'
+       cname(5)='      Perdew 1991 Correlation Functional'
+       cname(6)='  Perdew 1991 LDA Correlation Functional'
+       cname(7)='          VWN RPA Correlation Functional'
+c
+c      Exchange functional name defaults.
+c
+       xname(1)='           Hartree-Fock (Exact) Exchange'
+       xname(2)='              Slater Exchange Functional'
+       xname(3)='          Becke 1988 Exchange Functional'
+c
+c      Exchange-Correlation combination functional name defaults.
+c
+      xcname(1)='Adiabatic Connection Method XC Potential'
+      xcname(2)='               B3LYP Method XC Potential'
+      xcname(3)=' Becke half-and-half Method XC Potential'
 c     
 c>>>  sym input defaults
 c     
@@ -145,7 +175,7 @@ c     set default grid to  'MEDIUM'
 c     
       gridtype='medium'
       nagrid = 8
-      do n = 1,ntags_bsmx
+      do n = 1,dft_ntags_bsmx
         nrad(n) = 40
       enddo 
 c     
@@ -209,17 +239,6 @@ c
      &               ' dft_input: spin multiplicity value not found'
                 goto 10000 !  die with error
               endif 
-            elseif ( inp_compare(.false., 'charg', test)) then
-c             
-c>>>          charg
-c             
-c****         
-c****         this keyword has been disabled
-c****         
-              call errquit(
-     &             'dft_input: keyword charg no longer supported'
-     &             ,0)
-
             elseif ( inp_compare(.false., 'itrscf', test)) then
 c             
 c>>>          itrscf
@@ -374,15 +393,6 @@ c
 c>>>          nodiis
 c             
               nodiis = .true.
-c            elseif ( inp_compare(.false., 'idiisoff', test)) then
-c             
-c>>>          idiisoff
-c             
-c              icvgtyp=2
-c              if ( .not. inp_i(idisoff) ) then
-c                write(6,*) ' dft_input: idisoff value not found'
-c                goto 10000 !  die with error
-c              endif            
             elseif ( inp_compare(.false., 'nfock', test)) then
 c             
 c>>>          nfock
@@ -391,12 +401,6 @@ c
                 write(6,*) ' dft_input: nfock value not found'
                 goto 10000 !  die with error
               endif            
-c            elseif ( inp_compare(.false., 'diis', test)) then
-c             
-c>>>          nodiis
-c             
-c              icvgtyp=0
-c              nfock=0
             elseif ( inp_compare(.false., 'noio', test)) then
 c             
 c>>>          noio
@@ -417,25 +421,25 @@ c
               if (inp_a(test)) then
                 if ( test .eq. 'coarse' ) then ! coarse
                   gridtype='coarse'
-                  do n = 1,ntags_bsmx
+                  do n = 1,dft_ntags_bsmx
                     nrad(n) = 30
                   enddo 
                   nagrid = 6 ! was 10 in rdquad
                 elseif ( test .eq. 'medium' ) then ! medium
                   gridtype='medium'
-                  do n = 1,ntags_bsmx
+                  do n = 1,dft_ntags_bsmx
                     nrad(n) = 40
                   enddo 
                   nagrid = 8
                 elseif ( test .eq. 'fine' ) then ! fine
                   gridtype='fine'
-                  do n = 1,ntags_bsmx
+                  do n = 1,dft_ntags_bsmx
                     nrad(n) = 60
                   enddo 
                   nagrid = 10
                 elseif ( test .eq. 'xfine' ) then ! xfine
                   gridtype='xfine'
-                  do n = 1,ntags_bsmx
+                  do n = 1,dft_ntags_bsmx
                     nrad(n) = 64
                   enddo 
                   nagrid = 24
@@ -453,7 +457,7 @@ c
 c>>>          coarse
 c             
               gridtype=test
-              do n = 1,ntags_bsmx
+              do n = 1,dft_ntags_bsmx
                 nrad(n) = 30
               enddo 
               nagrid = 6
@@ -462,7 +466,7 @@ c
 c>>>          medium
 c             
               gridtype=test
-              do n = 1,ntags_bsmx
+              do n = 1,dft_ntags_bsmx
                 nrad(n) = 40
               enddo 
               nagrid = 8
@@ -471,7 +475,7 @@ c
 c>>>          fine
 c             
               gridtype=test
-              do n = 1,ntags_bsmx
+              do n = 1,dft_ntags_bsmx
                 nrad(n) = 60
               enddo 
               nagrid = 10
@@ -480,7 +484,7 @@ c
 c>>>          xfine
 c             
               gridtype=test
-              do n = 1,ntags_bsmx
+              do n = 1,dft_ntags_bsmx
                 nrad(n) = 90
               enddo 
               nagrid = 10
@@ -607,79 +611,362 @@ c
                 write(6,*) ' dft_input: gamma value not found'
                 goto 10000 !  die with error
               endif            
-            elseif ( inp_compare(.false., 'slater', test)) then
-c             
-c>>>          Slater f for Xchang
-c             
-              xname='Slater            Exchange    Functional'
-              xfac(2)=1.d0
+c
+c  Input for correlation functionals read here.
+c
             elseif ( inp_compare(.false., 'vwn', test)) then
 c             
 c>>>          VWN f for Corr
 c             
-              cname='Vosko-Wilk-Nusair Correlation Functional'
-              cfac(1)=1.d0
-            elseif ( inp_compare(.false., 'becke88', test)) then
-c             
-c>>>          Becke88 f for Xchang
-c             
-              xname='Becke 1988        Exchange    Functional'
-              xfac(2)=0.d0
-              xfac(3)=1.d0
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwn local descriptor found.'
+                  lcfac(1) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwn nonlocal descriptor found.'
+                  nlcfac(1) = .true.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(1) = .true.
+                  nlcfac(1) = .true.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(1) = .true.
+                nlcfac(1) = .true.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(1)) ) then
+c                write(6,*)
+c     &          ' dft_input: vwn multiplicative factor not found.'
+                cfac(1) = 1.0d0
+              endif
             elseif ( inp_compare(.false., 'lyp', test)) then
 c             
 c>>>          LYP f for Corr
 c             
-              cname='Lee-Yang-Parr     Correlation Functional'
-              cfac(1)=0.d0
-              cfac(2)=1.d0
-            elseif ( inp_compare(.false., 'HFexch', test)) then
-c             
-c>>>          Exact Exchange (HF) and no corr (could change with
-c             a subsequent keyword for correlation)
-c             
-              xname='Hartree-Fock (Exact) Exchange'
-              cname=' No Correlation Potential'
-              xfac(2)=0.d0
-              xfac(1)=1.d0
-              cfac(1)=0.d0
-              
-            elseif ( inp_compare(.false., 'perdew86', test)) then
-c             
-c>>>          P86 f for Corr
-c             
-              cname='Perdew 1986       Correlation Functional'
-              cfac(1)=0.d0
-              cfac(3)=1.d0
-              cfac(4)=1.d0
-            elseif ( inp_compare(.false., 'perdew91', test)) then
-c             
-c>>>          P91 f for Corr
-c             
-              cname='Perdew 1991       Correlation Functional'
-              cfac(1)=0.d0
-              cfac(5)=1.d0
-            elseif ( inp_compare(.false., 'pw91lda', test)) then
-c             
-c>>>          P91LDA f for Corr
-c             
-              cname='Perdew 1991 LDA    Correlation Functional'
-              cfac(1)=0.d0
-              cfac(6)=1.d0
-            elseif ( inp_compare(.false., 'vwnrpa', test)) then
-c             
-c>>>          VWNRPA for Corr
-c             
-              cname='VWN RPA    Correlation Functional'
-              cfac(1)=0.d0
-              cfac(7)=1.d0
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: lyp local descriptor found.'
+                  lcfac(2) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: lyp nonlocal descriptor found.'
+                  nlcfac(2) = .true.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(2) = .true.
+                  nlcfac(2) = .true.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(2) = .true.
+                nlcfac(2) = .true.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(2)) ) then
+c                write(6,*)
+c     &          ' dft_input: lyp multiplicative factor not found.'
+                cfac(2) = 1.0d0
+              endif            
             elseif ( inp_compare(.false., 'perdew81', test)) then
 c             
 c>>>          P81 f for Corr
 c             
-              cname='Perdew 1981       Correlation Functional'
-              cfac(1)=0.d0
-              cfac(3)=1.0d0
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: perdew81 local descriptor found.'
+                  lcfac(3) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: perdew81 nonlocal descriptor found.'
+                  nlcfac(3) = .true.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(3) = .true.
+                  nlcfac(3) = .true.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(3) = .true.
+                nlcfac(3) = .true.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(3)) ) then
+c                write(6,*)
+c     &          ' dft_input: perdew81 multiplicative factor not found.'
+                cfac(3) = 1.0d0
+              endif            
+            elseif ( inp_compare(.false., 'perdew86', test)) then
+c             
+c>>>          P86 f for Corr
+c             
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: perdew86 local descriptor found.'
+                  lcfac(3) = .true.
+                  lcfac(4) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: perdew86 nonlocal descriptor found.'
+                  nlcfac(3) = .true.
+                  nlcfac(4) = .true.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(3) = .true.
+                  nlcfac(3) = .true.
+                  lcfac(4) = .true.
+                  nlcfac(4) = .true.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(3) = .true.
+                nlcfac(3) = .true.
+                lcfac(4) = .true.
+                nlcfac(4) = .true.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(4)) ) then
+c                write(6,*)
+c     &          ' dft_input: perdew86 multiplicative factor not found.'
+                cfac(4) = 1.0d0
+                cfac(3) = cfac(4)
+              endif            
+            elseif ( inp_compare(.false., 'perdew91', test)) then
+c             
+c>>>          P91 f for Corr
+c             
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: perdew91 local descriptor found.'
+                  lcfac(5) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: perdew91 nonlocal descriptor found.'
+                  nlcfac(5) = .true.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(5) = .true.
+                  nlcfac(5) = .true.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(5) = .true.
+                nlcfac(5) = .true.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(5)) ) then
+c                write(6,*)
+c     &          ' dft_input: perdew91 multiplicative factor not found.'
+                cfac(5) = 1.0d0
+              endif            
+            elseif ( inp_compare(.false., 'pw91lda', test)) then
+c             
+c>>>          P91LDA f for Corr
+c             
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: p91LDA local descriptor found.'
+                  lcfac(6) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: p91LDA nonlocal descriptor found.'
+                  nlcfac(6) = .true.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(6) = .true.
+                  nlcfac(6) = .true.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(6) = .true.
+                nlcfac(6) = .true.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(6)) ) then
+c                write(6,*)
+c     &          ' dft_input: p91LDA multiplicative factor not found.'
+                cfac(6) = 1.0d0
+              endif            
+            elseif ( inp_compare(.false., 'vwnrpa', test)) then
+c             
+c>>>          VWNRPA f for Corr
+c             
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwnrpa local descriptor found.'
+                  lcfac(7) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwnrpa nonlocal descriptor found.'
+                  nlcfac(7) = .true.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(7) = .true.
+                  nlcfac(7) = .true.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(7) = .true.
+                nlcfac(7) = .true.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(7)) ) then
+c                write(6,*)
+c     &          ' dft_input: vwnrpa multiplicative factor not found.'
+                cfac(7) = 1.0d0
+              endif            
+c
+c  Input for exchange functionals read here.
+c
+            elseif ( inp_compare(.false., 'HFexch', test)) then
+c             
+c>>>          HF exact exchange
+c             
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: hfexch local descriptor found.'
+                  lxfac(1) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: hfexch nonlocal descriptor found.'
+                  nlxfac(1) = .true.
+                else
+c
+c                 assume total wanted
+c
+                  lxfac(1) = .true.
+                  nlxfac(1) = .true.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lxfac(1) = .true.
+                nlxfac(1) = .true.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(xfac(1)) ) then
+                write(6,*)
+     &          ' dft_input: hfexch multiplicative factor not found.'
+                xfac(1) = 1.0d0
+              endif            
+            elseif ( inp_compare(.false., 'slater', test)) then
+c             
+c>>>          Slater f for exchange
+c             
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: slater local descriptor found.'
+                  lxfac(2) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: slater nonlocal descriptor found.'
+                  nlxfac(2) = .true.
+                else
+c
+c                 assume total wanted
+c
+                  lxfac(2) = .true.
+                  nlxfac(2) = .true.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lxfac(2) = .true.
+                nlxfac(2) = .true.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(xfac(2)) ) then
+c                write(6,*)
+c     &          ' dft_input: slater multiplicative factor not found.'
+                xfac(2) = 1.0d0
+              endif            
+            elseif ( inp_compare(.false., 'becke88', test)) then
+c               
+c>>>          B88 f for exchange
+c               
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: becke88 local descriptor found.'
+                  lxfac(3) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: becke88 nonlocal descriptor found.'
+                  nlxfac(3) = .true.
+                else
+c
+c                 assume total wanted
+c
+                  lxfac(3) = .true.
+                  nlxfac(3) = .true.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lxfac(3) = .true.
+                nlxfac(3) = .true.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(xfac(3)) ) then
+c                write(6,*)
+c     &          ' dft_input: becke88 multiplicative factor not found.'
+                xfac(3) = 1.0d0
+              endif            
+c
+c  Input for special exchange-correlation combination functionals read here.
+c
             elseif ( inp_compare(.false., 'acm', test)) then
 c             
 c>>>          Adiabatic connection method
@@ -687,14 +974,22 @@ c             AD Becke JCP 98, 5648 (1993)
 c             Exc(S+VWN) + A*(Ex(HF)-Ex(S) + B*Ex(B88) + C*Ec(P91) 
 c             A=0.20, B=0.72, C=0.81               
 c             
-              xname = 'Adiabatic Connection Method for XC potential'
-              cname = 
-     &        'EXC=EX(HF)+EXC(Slater&VWN)+EX(Becke88)+EC(Perdew91)'
-              cfac(1)=1.00d0
-              cfac(5)=0.81d0
-              xfac(1)=0.20d0
-              xfac(2)=0.80d0
-              xfac(3)=0.72d0
+              xccomb(1) = .true.
+                cfac(1) = 1.00d0
+               lcfac(1) = .true.
+              nlcfac(1) = .false.
+                cfac(5) = 0.81d0
+               lcfac(5) = .false.
+              nlcfac(5) = .true.
+                xfac(1) = 0.20d0
+               lxfac(1) = .true.
+              nlxfac(1) = .true.
+                xfac(2) = 0.80d0
+               lxfac(2) = .true.
+              nlxfac(2) = .false.
+                xfac(3) = 0.72d0
+               lxfac(3) = .false.
+              nlxfac(3) = .true.
               
             elseif ( inp_compare(.false., 'b3lyp', test)) then
 c             
@@ -704,16 +999,23 @@ c             Exc(S+VWN) + A*(Ex(HF)-Ex(S) + B*Ex(B88) + (1-C)*Ec(VWN)
 c             + C*Ec(VWN) 
 c             A=0.20, B=0.72, C=0.81               
 c             
-              xname = 'B3LYP'
-              cname = 
-     &             'EXC=EX(HF)+EXC(Slater&VWN)+EX(Becke88)+EC(LYP)'
-              cfac(1)=0.00d0
-              cfac(7)=0.19d0
-              cfac(2)=0.81d0
-              xfac(1)=0.20d0
-              xfac(2)=0.80d0
-              xfac(3)=0.72d0
-              
+              xccomb(2) = .true.
+                cfac(2) = 0.81d0
+               lcfac(2) = .true.
+              nlcfac(2) = .true.
+                cfac(7) = 0.19d0
+               lcfac(7) = .true.
+              nlcfac(7) = .false.
+                xfac(1) = 0.20d0
+               lxfac(1) = .true.
+              nlxfac(1) = .true.
+                xfac(2) = 0.80d0
+               lxfac(2) = .true.
+              nlxfac(2) = .false.
+                xfac(3) = 0.72d0
+               lxfac(3) = .false.
+              nlxfac(3) = .true.
+c              
             elseif ( inp_compare(.false., 'beckehandh', test)) then
 c             
 c>>>          Becke Half and Half
@@ -721,11 +1023,17 @@ c             AD Becke JCP 98, 1372
 c             
 c             0.5*Exc(LSD) + 0.5*Ex(HF) 
 c             
-              xname = 'Becke half and half Exchange potential'
-              cname = 'EXC=0.5*EX(HF)+0.5*EX(Slater+Becke88)'
-              xfac(1)=0.5d0
-              xfac(2)=0.5d0
-              xfac(3)=0.5d0
+              xccomb(3) = .true.
+                xfac(1) = 0.5d0
+               lxfac(1) = .true.
+              nlxfac(1) = .true.
+                xfac(2) = 0.5d0
+               lxfac(2) = .true.
+              nlxfac(2) = .false.
+                cfac(6) = 0.5d0
+               lcfac(6) = .true.
+              nlcfac(6) = .false.
+c
             elseif ( inp_compare(.false., 'accAOfunc', test)) then
 c             
 c>>>          for use in int_eval_gbsets (called by quadvxcs)
@@ -870,17 +1178,17 @@ c
    88   continue 
       enddo              ! end of infinite loop over input lines
 99999 continue 
-c     
-c      if(icvgtyp.ne.2) nfock=0
+c
       nrinc = 1
       nrmax = 0
-      do n = 1,ntags_bsmx
+      do n = 1,dft_ntags_bsmx
         nrmax = max(nrmax,nrad(n))
       enddo 
+c
 c     Set the switch to rotate the quadrature points. Eventually this switch
 c     will control whether the user wants the grid rotationally invariant.
+c
       iqrot = 0
-c     Output these parameters.
       rscale = 0.0d0
 c     
 c>>>  place logical parameters in rtdb
@@ -895,121 +1203,127 @@ c
      $     call errquit('dft_input: rtdb_put failed', 4)
       if(.not.rtdb_put(rtdb,'dft:incore', mt_log, 1, incore)) 
      $     call errquit('dft_input: rtdb_put failed', 5)
-      if(.not. rtdb_put(rtdb, 'dft:max_ovl', mt_log, 1,lmaxov ))
+      if(.not. rtdb_put(rtdb, 'dft:max_ovl', mt_log, 1, lmaxov ))
      $     call errquit('dft_input: rtdb_put failed', 6)
-      if(.not. rtdb_put(rtdb, 'dft:store_wght', mt_log, 1,store_wght ))
+      if(.not. rtdb_put(rtdb, 'dft:store_wght', mt_log, 1, store_wght ))
      $     call errquit('dft_input: rtdb_put failed', 7)
-      if(.not. rtdb_put(rtdb, 'dft:delley', mt_log, 1,ldelley ))
+      if(.not. rtdb_put(rtdb, 'dft:delley', mt_log, 1, ldelley ))
      $     call errquit('dft_input: rtdb_put failed', 8)
+      if(.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, 10, lcfac ))
+     $     call errquit('dft_input: rtdb_put failed', 9)
+      if(.not. rtdb_put(rtdb, 'dft:nlcfac', mt_log, 10, nlcfac ))
+     $     call errquit('dft_input: rtdb_put failed', 10)
+      if(.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, 10, lxfac ))
+     $     call errquit('dft_input: rtdb_put failed', 11)
+      if(.not. rtdb_put(rtdb, 'dft:nlxfac', mt_log, 10, nlxfac ))
+     $     call errquit('dft_input: rtdb_put failed', 12)
+      if(.not. rtdb_put(rtdb, 'dft:xccomb', mt_log, 10, xccomb ))
+     $     call errquit('dft_input: rtdb_put failed', 13)
 c     
 c>>>  place integer parameters in rtdb
 c     
-      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     $     call errquit('dft_input: rtdb_put failed', 9) 
-      if (.not. rtdb_cput(rtdb, 'dft:cname', 1, cname))
-     $     call errquit('dft_input: rtdb_put failed', 10) 
-      if (.not. rtdb_cput(rtdb, 'dft:xname', 1, xname))
-     $     call errquit('dft_input: rtdb_put failed', 11) 
       if (.not. rtdb_put(rtdb, 'dft:itrscf', mt_int, 1, itrscf))
-     $     call errquit('dft_input: rtdb_put failed', 12) 
+     $     call errquit('dft_input: rtdb_put failed', 101) 
       if (.not. rtdb_put(rtdb, 'dft:iscfcon', mt_int, 1, iscfcon))
-     $     call errquit('dft_input: rtdb_put failed', 13)
+     $     call errquit('dft_input: rtdb_put failed', 102)
       if (.not. rtdb_put(rtdb, 'dft:iguess', mt_int, 1, iguess))
-     $     call errquit('dft_input: rtdb_put failed', 14)
+     $     call errquit('dft_input: rtdb_put failed', 103)
       if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, mult))
-     $     call errquit('dft_input: rtdb_put failed', 15)
+     $     call errquit('dft_input: rtdb_put failed', 104)
       if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
-     $     call errquit('dft_input: rtdb_put failed', 16)
+     $     call errquit('dft_input: rtdb_put failed', 105)
       if (.not. rtdb_put(rtdb, 'dft:igcon', mt_int, 1, igcon))
-     $     call errquit('dft_input: rtdb_put failed', 17)
-c      if (.not. rtdb_put(rtdb, 'dft:icvgtyp', mt_int, 1, icvgtyp))
-c     $     call errquit('dft_input: rtdb_put failed', 16)
+     $     call errquit('dft_input: rtdb_put failed', 106)
       if (.not. rtdb_put(rtdb, 'dft:nfock', mt_int, 1, nfock))
-     $     call errquit('dft_input: rtdb_put failed', 18)
+     $     call errquit('dft_input: rtdb_put failed', 107)
       if (.not. rtdb_put(rtdb, 'dft:ncydp', mt_int, 1, ncydp))
-     $     call errquit('dft_input: rtdb_put failed', 19)
+     $     call errquit('dft_input: rtdb_put failed', 108)
       if (.not. rtdb_put(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
-     $     call errquit('dft_input: rtdb_put failed', 20)
+     $     call errquit('dft_input: rtdb_put failed', 109)
       if (.not. rtdb_put(rtdb, 'dft:ncyds', mt_int, 1, ncyds))
-     $     call errquit('dft_input: rtdb_put failed', 21)
+     $     call errquit('dft_input: rtdb_put failed', 110)
       if (.not. rtdb_put(rtdb, 'dft:idirect', mt_int, 1, idirect))
-     $     call errquit('dft_input: rtdb_put failed', 22)
-c      if (.not. rtdb_put(rtdb, 'dft:idisoff', mt_int, 1, idisoff))
-c     $     call errquit('dft_input: rtdb_put failed', 22)
+     $     call errquit('dft_input: rtdb_put failed', 111)
       if (.not. rtdb_put(rtdb, 'dft:noio', mt_int, 1, noio))
-     $     call errquit('dft_input: rtdb_put failed', 23)
+     $     call errquit('dft_input: rtdb_put failed', 112)
       if (.not. rtdb_put(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
-     $     call errquit('dft_input: rtdb_put failed', 24)
+     $     call errquit('dft_input: rtdb_put failed', 113)
       if (.not. rtdb_put(rtdb, 'dft:idecomp', mt_int, 1, idecomp))
-     $     call errquit('dft_input: rtdb_put failed', 25)
-      if (.not. rtdb_put(rtdb, 'dft:nrad', mt_int, ntags_bsmx, nrad))
-     $     call errquit('dft_input: rtdb_put failed', 26)
+     $     call errquit('dft_input: rtdb_put failed', 114)
+      if (.not. rtdb_put(rtdb,'dft:nrad',mt_int,dft_ntags_bsmx,nrad))
+     $     call errquit('dft_input: rtdb_put failed', 115)
       if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-     $     call errquit('dft_input: rtdb_put failed', 27)
+     $     call errquit('dft_input: rtdb_put failed', 116)
       if (.not. rtdb_put(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
-     $     call errquit('dft_input: rtdb_put failed', 28)
+     $     call errquit('dft_input: rtdb_put failed', 117)
       if (.not. rtdb_put(rtdb, 'dft:nrinc', mt_int, 1, nrinc))
-     $     call errquit('dft_input: rtdb_put failed', 29)
+     $     call errquit('dft_input: rtdb_put failed', 118)
       if (.not. rtdb_put(rtdb, 'dft:nrmax', mt_int, 1, nrmax))
-     $     call errquit('dft_input: rtdb_put failed', 30)
+     $     call errquit('dft_input: rtdb_put failed', 119)
       if (.not. rtdb_put(rtdb, 'dft:igeotype', mt_int, 1, igeotype))
-     $     call errquit('dft_input: rtdb_put failed', 31)
+     $     call errquit('dft_input: rtdb_put failed', 120)
       if (.not. rtdb_put(rtdb, 'dft:numgrp', mt_int, 1, numgrp))
-     $     call errquit('dft_input: rtdb_put failed', 32)
+     $     call errquit('dft_input: rtdb_put failed', 121)
       if (.not. rtdb_put(rtdb, 'dft:numset', mt_int, 1, numset))
-     $     call errquit('dft_input: rtdb_put failed', 33)
+     $     call errquit('dft_input: rtdb_put failed', 122)
       if (.not. rtdb_put(rtdb, 'dft:nquad_task', mt_int, 1,nquad_task))
-     $     call errquit('dft_input: rtdb_put failed', 34)
+     $     call errquit('dft_input: rtdb_put failed', 123)
       if (.not. rtdb_put(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))
-     $     call errquit('dft_input: rtdb_put failed', 35)
+     $     call errquit('dft_input: rtdb_put failed', 124)
       if (.not. rtdb_put(rtdb, 'dft:iXCacc', mt_int, 1, iXCacc))
-     $     call errquit('dft_input: rtdb_put failed', 36)
+     $     call errquit('dft_input: rtdb_put failed', 125)
       if (.not. rtdb_put(rtdb, 'dft:irqmax', mt_int, 1, irqmax))
-     $     call errquit('dft_input: rtdb_put failed', 37)
+     $     call errquit('dft_input: rtdb_put failed', 126)
       if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
-     $     call errquit('dft_input: rtdb_put failed', 38)
+     $     call errquit('dft_input: rtdb_put failed', 127)
       if (.not. rtdb_put(rtdb, 'dft:imull', mt_int, 1, imull))
-     $     call errquit('dft_input: rtdb_put failed', 39)
+     $     call errquit('dft_input: rtdb_put failed', 128)
       if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
-     $     call errquit('dft_input: rtdb_put failed', 40)
+     $     call errquit('dft_input: rtdb_put failed', 129)
 c     
 c>>>  store real parameters in rtdb
 c     
       if (.not. rtdb_put(rtdb, 'dft:dampon', mt_dbl, 1, dampon))
-     $     call errquit('dft_input: rtdb_put failed', 41)
+     $     call errquit('dft_input: rtdb_put failed', 201)
       if (.not. rtdb_put(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))
-     $     call errquit('dft_input: rtdb_put failed', 42)
+     $     call errquit('dft_input: rtdb_put failed', 202)
       if (.not. rtdb_put(rtdb, 'dft:levlon', mt_dbl, 1, levlon))
-     $     call errquit('dft_input: rtdb_put failed', 43)
+     $     call errquit('dft_input: rtdb_put failed', 203)
       if (.not. rtdb_put(rtdb, 'dft:levloff', mt_dbl, 1, levloff))
-     $     call errquit('dft_input: rtdb_put failed', 44)
+     $     call errquit('dft_input: rtdb_put failed', 204)
       if (.not. rtdb_put(rtdb, 'dft:diison', mt_dbl, 1, diison))
-     $     call errquit('dft_input: rtdb_put failed', 45)
+     $     call errquit('dft_input: rtdb_put failed', 205)
       if (.not. rtdb_put(rtdb, 'dft:diisoff', mt_dbl, 1, diisoff))
-     $     call errquit('dft_input: rtdb_put failed', 46)
+     $     call errquit('dft_input: rtdb_put failed', 206)
       if (.not. rtdb_put(rtdb, 'dft:rscale', mt_dbl, 1, rscale))
-     $     call errquit('dft_input: rtdb_put failed', 47)
+     $     call errquit('dft_input: rtdb_put failed', 207)
       if (.not. rtdb_put(rtdb, 'dft:cang', mt_dbl, 3, cang))
-     $     call errquit('dft_input: rtdb_put failed', 48)
+     $     call errquit('dft_input: rtdb_put failed', 208)
       if (.not. rtdb_put(rtdb, 'dft:cdist', mt_dbl, 3, cdist))
-     $     call errquit('dft_input: rtdb_put failed', 49)
+     $     call errquit('dft_input: rtdb_put failed', 209)
       if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
-     $     call errquit('dft_input: rtdb_put failed', 50)
+     $     call errquit('dft_input: rtdb_put failed', 210)
       if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
-     $     call errquit('dft_input: rtdb_put failed', 51)
+     $     call errquit('dft_input: rtdb_put failed', 211)
       if (.not. rtdb_put(rtdb, 'dft:lshift', mt_dbl, 1,rlshift))
-     $     call errquit('dft_input: rtdb_put failed', 52)
+     $     call errquit('dft_input: rtdb_put failed', 212)
       if (.not. rtdb_put(rtdb, 'dft:radius', mt_dbl, 1,radius))
-     $     call errquit('dft_input: rtdb_put failed', 53)
+     $     call errquit('dft_input: rtdb_put failed', 213)
       if (.not. rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1,TOLL))
-     $     call errquit('dft_input: rtdb_put failed', 54)
+     $     call errquit('dft_input: rtdb_put failed', 214)
       if (.not. rtdb_put(rtdb, 'dft:rm', mt_dbl, 1,rm))
-     $     call errquit('dft_input: rtdb_put failed', 55)
-c     if (.not. rtdb_put(rtdb, 'dft:iEx', mt_int, 1, iEx))
-c     $     call errquit('dft_input: rtdb_put failed', 46)
-c     if (.not. rtdb_put(rtdb, 'dft:iEc', mt_int, 1, iEc))
-c     $     call errquit('dft_input: rtdb_put failed', 47)
-c
+     $     call errquit('dft_input: rtdb_put failed', 215)
+c     
+c>>>  store character parameters in rtdb
+c     
+      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     $     call errquit('dft_input: rtdb_put failed', 301) 
+      if (.not. rtdb_cput(rtdb, 'dft:cname', 10, cname))
+     $     call errquit('dft_input: rtdb_put failed', 302) 
+      if (.not. rtdb_cput(rtdb, 'dft:xname', 10, xname))
+     $     call errquit('dft_input: rtdb_put failed', 303) 
+      if (.not. rtdb_cput(rtdb, 'dft:xcname', 10, xcname))
+     $     call errquit('dft_input: rtdb_put failed', 304) 
       return
 c       
 10000 continue !  die with error

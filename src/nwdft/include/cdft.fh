@@ -1,19 +1,20 @@
 c
-C$Id: cdft.fh,v 1.3 1996-10-05 00:52:15 d3h449 Exp $
+C$Id: cdft.fh,v 1.4 1996-10-15 01:21:27 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
 c
       character*255 title
       character*10 gridtype
-      character*50 xname, cname
+      character*40 xname, cname, xcname
       double precision
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
      &     rcharge, rscale, cdist, cang, cfac, xfac,
      &     TOLL, radius, rm
       logical
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
-     &     XCFIT, CDFIT, store_wght, ldelley
+     &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
+     &     nlxfac, xccomb
       integer
      &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, itrscf, 
      &     iscfcon, iguess, mult, ipol, igcon, nfock, ncydp, ncysh, 
@@ -36,7 +37,8 @@ c
 c     Logicals
 c
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
-     &     XCFIT, CDFIT, store_wght, ldelley,
+     &     XCFIT, CDFIT, store_wght, ldelley, lcfac(10), nlcfac(10),
+     &     lxfac(10), nlxfac(10), xccomb(10),
 c
 c     Integers
 c
@@ -53,7 +55,7 @@ c
 c     Characters
 c
       common /ccdft/ 
-     &     title, gridtype, xname, cname
+     &     title, gridtype, xname(10), cname(10), xcname(10)
 c
 c-->  old dimensions.fh
 c

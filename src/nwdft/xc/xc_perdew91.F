@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,fac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.14 1996-10-08 18:11:59 d3h449 Exp $
+C     $Id: xc_perdew91.F,v 1.15 1996-10-15 01:21:45 d3h449 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -13,8 +13,11 @@ C     $Id: xc_perdew91.F,v 1.14 1996-10-08 18:11:59 d3h449 Exp $
       double precision FOURTHIRDS,SEV6
       double precision FIVE3,TWO3,FIVE6
       double precision pi
-
-      Parameter (TOLL=1.D-20,EXPTOL=40.d0)
+c
+      integer lnq, lipol
+      double precision lfac, lqwght
+c
+      Parameter (TOLL=1.D-40,EXPTOL=40.d0)
       Parameter (alpha=0.023266D0,beta = 7.389D-6,
      ,   pgamma=8.723d0,delta=0.472d0, beta10=10000.d0*beta)
       parameter (zzz=0.001667d0,fff=0.002568d0)
@@ -92,6 +95,7 @@ c***************************************************************************
       atwob2=1.d0/twoab2
       grad_corr=.false.
       if(abs(fac-1.d0).gt.1.e-8) grad_corr=.true.
+c      write(*,*)' grad_corr = ',grad_corr
         rsfact=(0.75d0/pi)**ONE3
         if( ipol.eq.1 )then
 
@@ -126,7 +130,12 @@ C
 C         call for LDA bit
 C
 C          call xc_pw91lda(1.d0,rhoval,dp81drho,1,1,egas,1.d0)
-          call xc_p81(1.d0,rhoval,dp81drho,1,1,egas,1.d0)
+          lnq = 1
+          lqwght = 1.0d0
+          lfac = 1.0d0
+          lipol = 1
+          call xc_p81(lfac,rhoval,dp81drho,lnq,lipol,egas,lqwght)
+c          call xc_p81(1.d0,rhoval,dp81drho,1,1,egas,1.d0)
 C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
 
           degasda=arho*(dp81drho(1) - egas*arho)
@@ -262,7 +271,12 @@ C
 C         call for LDA bit
 C
 C          call xc_pw91lda(1.d0,rho(1,n),dp81drho,1,2,egas,1.d0)
-          call xc_p81(1.d0,rho(1,n),dp81drho,1,2,egas,1.d0)
+          lnq = 1
+          lqwght = 1.0d0
+          lfac = 1.0d0
+          lipol = 2
+          call xc_p81(lfac,rho(1,n),dp81drho,lnq,lipol,egas,lqwght)
+c          call xc_p81(1.d0,rho(1,n),dp81drho,1,2,egas,1.d0)
 C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
 
           degasda=arho*(dp81drho(1) - egas*arho)
@@ -278,7 +292,8 @@ C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
 
           if(abs(1.d0-zeta).lt.tol_rho) then
             dgzetadag=0.d0
-            dgzetadbg=-2.d0*(gzprime(0.d0)/g)*arho
+c            dgzetadbg=-2.d0*(gzprime(0.d0)/g)*arho
+            dgzetadbg=-2.d0*(gzprime(1.d0)/g)*arho
           else
             gggr=(gzprime(zeta)/g)*arho
             dgzetadag=(1.d0-zeta)*gggr
@@ -295,9 +310,9 @@ c
 c
           dexpo1=twoab2*(egas*arho)/g3
           dexpo2=(10.d0*g2*(aks/akf)*t)**2
-          expo1=1.d-20
+          expo1=TOLL
           if(dexpo1.lt.EXPTOL) expo1=exp(-dexpo1)
-          expo2=1.d-20
+          expo2=TOLL
           if(dexpo2.lt.EXPTOL) expo2=exp(-dexpo2)
 c
           A=twoab/(expo1-ONE)
@@ -330,10 +345,12 @@ c
      *         dtdrhob/t + dksdrho/aks - dkfdrho/akf))
 
           dAdrhoa = A/(expo1-ONE)*expo1*
-     *         twoab2/g3*(-THREE*dgzetadag + degasda)
+c     *         twoab2/g3*(-THREE*dgzetadag + degasda)
+     *         twoab2/g3*(-THREE*egas*arho*dgzetadag + degasda)
 
           dAdrhob = A/(expo1-ONE)*expo1*
-     *         twoab2/g3*(-THREE*dgzetadbg + degasdb)
+c     *         twoab2/g3*(-THREE*dgzetadbg + degasdb)
+     *         twoab2/g3*(-THREE*egas*arho*dgzetadbg + degasdb)
 
           dH0drhoa = Three*H0*dgzetadag +
      +         g3*bb*aden1*(

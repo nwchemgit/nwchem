@@ -3,19 +3,13 @@
      &     iVxc_opt,g_xcinv,
      &     g_dens,g_vxc,IOLGC,
      &     g_wght,g_xyz,wght_GA)
-C$Id: xc_getv.F,v 1.6 1996-10-05 00:52:26 d3h449 Exp $
+C$Id: xc_getv.F,v 1.7 1996-10-15 01:21:44 d3h449 Exp $
       implicit none
       
       integer nExc
       integer iVxc_opt
       integer g_xcinv,g_dens(*),g_vxc(*),g_wght,g_xyz
-c      integer iAOacc ! [input]
-
       Logical LResult,IOLGC,wght_GA
-c****
-c**** nwchem handles
-c****
-c      integer rtdb, geom, AO_bas_han,  XC_bas_han
       integer rtdb
 c**** 
 c
@@ -26,7 +20,6 @@ c
 #include "tcgmsg.fh"
 #include "cdft.fh"
 c
-c      double precision jfac(4),kfac(4),xfac(10),cfac(10)
       double precision jfac(4),kfac(4)
       integer d(4),f(4)
 c

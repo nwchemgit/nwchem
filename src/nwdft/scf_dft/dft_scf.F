@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.36 1996-10-08 18:11:48 d3h449 Exp $
+C$Id: dft_scf.F,v 1.37 1996-10-15 01:21:42 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -14,7 +14,7 @@ c
       integer iVxc_opt
       integer iter
       integer g_dens(*),g_movecs(*),g_vxc(*),
-     &     g_fock,g_diis,g_svecs,isvals,
+     &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri, g_scr
 c      
 c**** patches for SC95,  ECCE' parsing
@@ -37,33 +37,28 @@ c
       External movecs_write,movecs_read_header, movecs_read
       logical oprint,oprint_sym,oadapt
       double precision Exc(2), rms(2), derr(2)
-      integer noc(2),nmo(2),nmo_read(2),icall(2)
+      integer noc(2),nmo(2),icall(2)
       integer n3c_dbl,n3c_int,n_batch
       integer avail
       integer l_3cwhat,k_3cwhat,l_3cERI,k_3cERI
       integer dft_n3cdbl,dft_n3cint
       external dft_n3cdbl,dft_n3cint
       Integer l_eval,Type
-      integer g_rmovecs(2)
       integer k_eval(2)
       Character*(nw_max_path_len) movecs_out,movecs_in
-      character*255 title_vecs, basis_vecs
       Character*255 name, trans 
       Double Precision rmoments(3)  ! dipole
       integer lmax   ! CMM
       integer finest ! CMM
-      character*255 filename
-      logical int2e_file_open,int2e_test_mem,int2e_file_close
       integer natoms,nTotEl
       integer l_occ,k_occ
-      integer n_full,n_empty
       integer i,ii,j, iw
       integer n_ashift,n_bshift
       integer me,nproc
       integer g_tmp,g_fockt,g_s,g_wght,g_xyz
       integer nheap,nsets,nstack
-      integer nbf_vecs,ispin,nxang,idone
-      integer idisoff,ielem
+      integer ispin,nxang,idone
+      integer ielem
       integer nexc
       integer l_afshift,n_afshift,i_afshift
       integer l_bfshift,n_bfshift,i_bfshift
@@ -71,15 +66,14 @@ c
       integer itol_max,iaoacc_max
       integer idmtot,nshells,nprint
       integer leneval,lcd_coef,icd_coef
-      double precision ecoul,rb,facto,ecore,afact,anps,aaz
-      double precision pp,bb,delta
-      double precision anucl_charg,anel,anew_nel
+      double precision ecoul,rb,ecore,anps,aaz
+      double precision pp,delta
+      double precision anucl_charg,anel
       double precision anoca,anocb,onempp
       double precision etnew,tol2e,fock_el
 c convergence declarations
       double precision rlshift_input,rlshift_def
       integer ndamp_input,ndamp_def
-      integer nc
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1,strng2,strng3,strng4,strng5,strng6
 c
@@ -101,7 +95,6 @@ c
       double precision zero,onem,one
       parameter(zero=0.d0,one=1.d0,onem=-one)
       parameter(itol_min=6,iAOacc_min=15)
-      character*3 scftype
       double precision dft_dencvg,dabssum,dft_time
       external dft_dencvg,dabssum
 #if defined(SC95)
@@ -259,7 +252,7 @@ C        if (ga_uses_ma()) avail = avail - ga_memory_avail()
           write(LuOut,*) ' add ',n3c_dbl-avail,
      & ' doubles to keep ints in core '
         elseif(incore.and.me.eq.0) then
-          write (LuOut,*) ' Coulomb component computed incore.'
+          write (LuOut,*) '         Coulomb component computed incore.'
         endif
       endif
 c
@@ -398,14 +391,14 @@ c
         write(LuOut,3233)strng1,strng2,strng3,strng4,strng5,strng6
 	call flush(LuOut)
       end if
- 3231 format(/,1x,' Convergence aids based upon iterative change in ',
-     &            'total energy ',/,' or number of iterations. ')
- 3232 format(/,1x,
+ 3231 format(/,10x,'Convergence aids based upon iterative change in ',
+     &       /,10x,'total energy or number of iterations. ')
+ 3232 format(/,10x,
      &'       Damping(',i2,'%)  Levelshifting(',f3.1,')       DIIS',/,
 
-     &1x,'     --------------- ------------------- ---------------')
- 3233 format(1x,' on:',2x,a10,7x,a10,10x,a10,/,
-     &       1x,'off:',2x,a10,7x,a10,10x,a10,/)
+     &10x,'     --------------- ------------------- ---------------')
+ 3233 format(10x,' on:',2x,a10,7x,a10,10x,a10,/,
+     &       10x,'off:',2x,a10,7x,a10,10x,a10,/)
 c
 c     Do not allow levelshifting initially until sure that the
 c     transformed Fock matrix will be diagonally dominant.
@@ -422,9 +415,9 @@ c
       if( me.eq.0 )then
         nheap = MA_Inquire_Heap(MT_Dbl)
         nstack = MA_Inquire_Stack(MT_Dbl)
-        write(LuOut,'(a,f10.2,i20)')
+        write(LuOut,'(10x,a,f10.2,i20)')
      &       ' Heap Space remaining (MW):  ',dble(nheap)*1.D-06,nheap
-        write(LuOut,'(a,f10.2,i20)')
+        write(LuOut,'(10x,a,f10.2,i20)')
      &       'Stack Space remaining (MW):  ',dble(nstack)*1.D-06,nstack
 	call flush(LuOut)
       end if

@@ -5,15 +5,17 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(rtdb)
-C$Id: dft_inpana.F,v 1.10 1996-10-05 00:52:16 d3h449 Exp $
+C$Id: dft_inpana.F,v 1.11 1996-10-15 01:21:38 d3h449 Exp $
       implicit none
-      logical even
+      logical even, cksetd
       integer noc(2)
       Integer rtdb    !  runtime database handle
       integer me,ichg,nel
       integer noc1
+      integer n
       double precision anucl_charg
       double precision EPSILON
+      character*9 local_c, nonlocal_c, nineb_c
       Parameter ( EPSILON=1.d-13 )
 c
 #include "stdio.fh"
@@ -84,40 +86,101 @@ c-->  Write new data to checkpoint file.
 c
       if(me.eq.0) then
 c
-c-->  Write to output.
+c-->    Write to output.
 c
-         write(LuOut,8150)ncenters
+        write(LuOut,8150)ncenters
 c
-         write(LuOut,8200)nel,ichg,mult
+        write(LuOut,8200)nel,ichg,mult
 c
-      endif
+        write(LuOut,9000)
+c     
+        write(LuOut,9020)
+c     
+        if(ipol.eq.1)then
+          write(LuOut,9050)
+        elseif(ipol.eq.2)then
+          write(LuOut,9055)
+        endif
 c
-      if(ga_nodeid().eq.0) then
-      write(LuOut,9000)
+        write(LuOut,9030)itrscf
 c     
-      write(LuOut,9020)
+        if(idirect.eq.1)write(LuOut,9110)
 c     
-      if(ipol.eq.1)then
-        write(LuOut,9050)
-      elseif(ipol.eq.2)then
-        write(LuOut,9055)
-      endif
+        if(nbf_xc.gt.0)write(LuOut,9120)
+c     
+        if(nbf_cd.gt.0)write(LuOut,9130)
+c     
+        write(LuOut,9135)gridtype
+        write(LuOut,9035)iscfcon
+        if(igcon.gt.0)then
+          write(LuOut,9040)igcon
+        endif
 c
-      write(LuOut,9030)itrscf
-c     
-      if(idirect.eq.1)write(LuOut,9110)
-c     
-      if(nbf_xc.gt.0)write(LuOut,9120)
-c     
-      if(nbf_cd.gt.0)write(LuOut,9130)
-c     
-      write(LuOut,9135)gridtype
-      write(LuOut,9035)iscfcon
-      if(igcon.gt.0)then
-        write(LuOut,9040)igcon
-      endif
-      write(LuOut,9223) xname
-      if(cname.ne.' ') write(LuOut,9224) cname
+c       Analyze any user specified XC functionals ... set if none
+c
+        cksetd = .true.
+c
+c       Check if user has specified some type of functional,
+c       if so, do not set defaults.
+c
+        do n = 1, 10
+          if(lcfac(n).or.nlcfac(n).or.lxfac(n).or.nlxfac(n))
+     &      cksetd = .false.
+        enddo
+        if(cksetd)then
+c
+c         Set functional defaults.
+c
+           cfac(1) = 1.0d0
+          lcfac(1) = .true.
+           xfac(2) = 1.0d0
+          lxfac(2) = .true.
+c
+c         Update rtdb.
+c
+          if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
+     $       call errquit('dft_input: rtdb_put failed', 210)
+          if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
+     $       call errquit('dft_input: rtdb_put failed', 211)
+          if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, 10, lcfac ))
+     $       call errquit('dft_input: rtdb_put failed', 9)
+          if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, 10, lxfac ))
+     $       call errquit('dft_input: rtdb_put failed', 11)
+        endif
+c
+c       Write out XC info. Combo info first, than X components,
+c       than C components.
+c
+        write(LuOut,9222)
+           local_c = 'local    '
+        nonlocal_c = 'non-local'
+           nineb_c = '         '
+        do n = 1, 10
+          if(xccomb(n))write(LuOut,9223) xcname(n)
+        enddo
+c
+c       Do exact exchange differently.
+c
+        if(lxfac(1).or.nlxfac(1))
+     &    write(LuOut,9224) xname(1), xfac(1), nineb_c
+        do n = 2, 10
+          if(lxfac(n).and.nlxfac(n))then
+            write(LuOut,9224) xname(n), xfac(n), nineb_c
+          elseif(lxfac(n).and.(.not.nlxfac(n)))then
+            write(LuOut,9224) xname(n), xfac(n), local_c
+          elseif((.not.lxfac(n)).and.nlxfac(n))then
+            write(LuOut,9224) xname(n), xfac(n), nonlocal_c
+          endif
+        enddo
+        do n = 1, 10
+          if(lcfac(n).and.nlcfac(n))then
+            write(LuOut,9224) cname(n), cfac(n), nineb_c
+          elseif(lcfac(n).and.(.not.nlcfac(n)))then
+            write(LuOut,9224) cname(n), cfac(n), local_c
+          elseif((.not.lcfac(n)).and.nlcfac(n))then
+            write(LuOut,9224) cname(n), cfac(n), nonlocal_c
+          endif
+        enddo
       endif
       return
  9000 format(//,5x,31('-'),/,5x,
@@ -132,15 +195,16 @@ c
  9120 format(10x,'An Exch-Corr fitting basis will be used.',/)
  9130 format(10x,'A Charge density fitting basis will be used.',/)
  9135 format(10x,'Grid used for XC integration:  ',a,/)
- 9210 format(10x,'Exact (Hartree-Fock)                 exchange',/)
- 9223 format(10x,A,/)
- 9224 format(10x,A,/)
-8050  format(/,5x,'RHF not allowed for open-shell systems.',
+ 9222 format(10x,'Exchange-Correlation Functional Information',/,
+     &       10x,43('-'))
+ 9223 format(10x,a40)
+ 9224 format(10x,a40,1x,f6.2,1x,a9)
+ 8050 format(/,5x,'RHF not allowed for open-shell systems.',
      &       /,5x,'Stopping program in subroutine inpana.')
-8100  format(/,5x,'Not enough electrons for multiplicity ',i2,'.',
+ 8100 format(/,5x,'Not enough electrons for multiplicity ',i2,'.',
      &       /,5x,'Stopping program in subroutine inpana.')
-8150  format(/,10x,'No. of atoms      :',15x,i4)
-8200  format(/,10x,'No. of electrons  :',15x,i4,
+ 8150 format(/,10x,'No. of atoms      :',15x,i4)
+ 8200 format(/,10x,'No. of electrons  :',15x,i4,
      &      //,10x,'Charge            :',15x,i4,
      &      //,10x,'Spin multiplicity :',15x,i4)
       end
