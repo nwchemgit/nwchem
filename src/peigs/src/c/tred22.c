@@ -1,5 +1,5 @@
 /*
- $Id: tred22.c,v 1.6 1999-07-28 00:39:37 d3e129 Exp $
+ $Id: tred22.c,v 1.7 2004-10-20 16:25:58 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -60,6 +60,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "globalp.c.h"
 

@@ -1,5 +1,5 @@
 /*
- $Id: xerbla.c,v 1.2 1999-07-28 00:39:38 d3e129 Exp $
+ $Id: xerbla.c,v 1.3 2004-10-20 16:25:58 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -33,6 +33,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "globalp.c.h"
 
 void xerbla( string, info )

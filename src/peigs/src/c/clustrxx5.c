@@ -75,6 +75,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "globalp.c.h"
 #include "clustr_inv.h"

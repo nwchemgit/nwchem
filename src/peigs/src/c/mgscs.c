@@ -1,5 +1,5 @@
 /*
- $Id: mgscs.c,v 1.11 2000-10-24 18:25:49 d3g270 Exp $
+ $Id: mgscs.c,v 1.12 2004-10-20 16:25:58 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "globalp.c.h"
 
