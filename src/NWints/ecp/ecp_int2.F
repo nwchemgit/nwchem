@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.11 2000-04-13 20:34:23 mg201 Exp $
+C $Id: ecp_int2.F,v 1.12 2000-06-08 23:53:24 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -127,6 +127,10 @@ C $Id: ecp_int2.F,v 1.11 2000-04-13 20:34:23 mg201 Exp $
       n_ab = n_prim_a*n_prim_b
       nc_ab = n_prim_a*n_cont_b
       ncab = n_cont_a*n_cont_b
+      if (debug_addresses) then
+        write (LuOut,*) 'n_prim_a,n_prim_b,n_ab,nc_ab,ncab',
+     &      n_prim_a,n_prim_b,n_ab,nc_ab,ncab
+      end if
 *
       i_ca = 1
       i_cb = i_ca+n_na*n_all_a
@@ -232,10 +236,6 @@ C $Id: ecp_int2.F,v 1.11 2000-04-13 20:34:23 mg201 Exp $
 *
 *   Set up array dimensions for integrals
 *
-        if (debug_addresses) then
-          write (LuOut,*) 'n_prim_b,n_prim_a,n_abc',
-     &        n_prim_b,n_prim_a,n_abc
-        end if
         m_count = l_a+l_b+1+abs(l_a-l_b)/2
         l_max = max(l_a,l_b)
         l_min = min(l_a,l_b)
@@ -262,6 +262,10 @@ C $Id: ecp_int2.F,v 1.11 2000-04-13 20:34:23 mg201 Exp $
         end if
         n_rad = ncab*n_int_a*n_int_b
         n_abc = n_ab*n_co_max
+        if (debug_addresses) then
+          write (LuOut,*) 'n_rad,n_abc,n_int_a,n_int_b,n_Q',
+     &        n_rad,n_abc,n_int_a,n_int_b,n_Q
+        end if
 *
 *   Allocate scratch memory for integrals
 *
