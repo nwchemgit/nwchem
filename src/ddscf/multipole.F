@@ -1,5 +1,8 @@
       subroutine multipole_density(basis, center, lmax, 
      &     g_dens, moments, len_moments)
+*
+* $Id: multipole.F,v 1.8 1997-11-07 11:35:14 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

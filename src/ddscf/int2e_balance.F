@@ -1,4 +1,7 @@
       subroutine int2e_file_balance
+*
+* $Id: int2e_balance.F,v 1.5 1997-11-07 11:35:11 d3e129 Exp $
+*
       implicit none
 #include "cint2efile.fh"
 #include "eaf.fh"

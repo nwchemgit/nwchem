@@ -1,5 +1,8 @@
       subroutine rohf_step_energy(rtdb, step, g_search,
      $     eone, etwo, enrep, energy, g_grad)
+*
+* $Id: rohf_step.F,v 1.4 1997-11-07 11:35:18 d3e129 Exp $
+*
       implicit none
 #include "crohf.fh"
 #include "cscfps.fh"

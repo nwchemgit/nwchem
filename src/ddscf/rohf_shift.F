@@ -1,4 +1,7 @@
       subroutine rohf_make_shift(shift)
+*
+* $Id: rohf_shift.F,v 1.6 1997-11-07 11:35:17 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -1,5 +1,8 @@
       subroutine scf_sym_screen(nclosed, nopen, nvir, irs,
      $                          g_v, ivoff, oprint, maxelt)
+*
+* $Id: scf_sym_scr.F,v 1.6 1997-11-07 11:35:19 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

@@ -1,4 +1,7 @@
       subroutine cphf_int_debug(geom, basis, g_dens)
+*
+* $Id: cphf_int_dbg.F,v 1.2 1997-11-07 11:36:35 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -1,4 +1,7 @@
       logical function cphf_poliz(rtdb)
+*
+* $Id: cphf_poliz.F,v 1.9 1997-11-07 11:36:35 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

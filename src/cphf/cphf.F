@@ -1,4 +1,7 @@
       logical function cphf(rtdb)
+*
+* $Id: cphf.F,v 1.6 1997-11-07 11:36:34 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "rtdb.fh"

@@ -1,4 +1,7 @@
        subroutine mjdtest(rtdb)
+*
+* $Id: mjdtest.F,v 1.4 1997-11-07 11:36:39 d3e129 Exp $
+*
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"

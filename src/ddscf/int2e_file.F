@@ -1,4 +1,7 @@
       block data cint2efdata
+*
+* $Id: int2e_file.F,v 1.47 1997-11-07 11:35:12 d3e129 Exp $
+*
       implicit none
 #include "cint2efile.fh"
       data file_opened /.false./

@@ -1,3 +1,6 @@
+#
+# $Id: dbl_to_sngl.sed,v 1.9 1997-11-07 11:37:44 d3e129 Exp $
+#
 # This script performs blas keyword substitutions using the sed editor.
 # It is divided into four separate sed commands because of buffer overflow 
 # on some machines, including Cray unicos.  

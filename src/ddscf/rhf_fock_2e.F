@@ -1,5 +1,8 @@
       subroutine rhf_fock_2e( geom, basis, g_dens, g_fock, tol2e,
      $     ocoul, oexch, oskel )
+*
+* $Id: rhf_fock_2e.F,v 1.17 1997-11-07 11:35:15 d3e129 Exp $
+*
       implicit none
 c     
 c     Convenience wrapper routine that computes the standard

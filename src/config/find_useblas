@@ -2,6 +2,9 @@
 #
 # finds files in tree that have converted blas calls
 #
+#
+# $Id: find_useblas,v 1.3 1997-11-07 11:37:45 d3e129 Exp $
+#
 
 
 set blas = (daxpy ddot  dscal  dcopy  dnrm2 idamax dasum drot)

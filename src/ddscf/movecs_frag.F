@@ -1,5 +1,8 @@
       subroutine movecs_fragment(rtdb, geom, basis, 
      $     module, iset, nclosed, nopen, g_vecs, evals)
+*
+* $Id: movecs_frag.F,v 1.6 1997-11-07 11:35:13 d3e129 Exp $
+*
       implicit none
 #include "util.fh"
 #include "global.fh"

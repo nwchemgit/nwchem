@@ -1,4 +1,7 @@
 #!/bin/csh
+#
+# $Id: simpledepend,v 1.2 1997-11-07 11:37:46 d3e129 Exp $
+#
 
 #
 # Simple shell script that figures out the dependecies of

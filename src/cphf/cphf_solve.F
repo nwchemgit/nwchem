@@ -1,4 +1,7 @@
       subroutine cphf_solve(rtdb)
+*
+* $Id: cphf_solve.F,v 1.17 1997-11-07 11:36:37 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

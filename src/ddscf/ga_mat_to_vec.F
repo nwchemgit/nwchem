@@ -1,5 +1,8 @@
       subroutine ga_mat_to_vec(g_m, ilo, ihi, jlo, jhi, g_v, klo, col,
      $           scale, op)
+*
+* $Id: ga_mat_to_vec.F,v 1.2 1997-11-07 11:35:10 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

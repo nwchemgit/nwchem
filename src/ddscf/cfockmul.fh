@@ -1,3 +1,6 @@
+*
+* $Id: cfockmul.fh,v 1.3 1997-11-07 11:35:07 d3e129 Exp $
+*
       integer maxim, maxim1
       parameter (maxim = 2048)
       parameter (maxim1=maxim-1)

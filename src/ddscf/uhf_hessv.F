@@ -1,4 +1,7 @@
       subroutine uhf_hessv(acc, g_x, g_ax)
+*
+* $Id: uhf_hessv.F,v 1.4 1997-11-07 11:35:19 d3e129 Exp $
+*
       implicit none
 #include "cuhf.fh"
 #include "cscf.fh"

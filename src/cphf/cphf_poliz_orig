@@ -1,4 +1,7 @@
        subroutine cphf_poliz( rtdb, geom, basis, movecs )
+*
+* $Id: cphf_poliz_orig,v 1.2 1997-11-07 11:36:36 d3e129 Exp $
+*
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"

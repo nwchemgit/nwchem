@@ -1,4 +1,7 @@
       subroutine movecs_fix_phase(g_vecs)
+*
+* $Id: movecs_phase.F,v 1.2 1997-11-07 11:35:13 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

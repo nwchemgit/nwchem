@@ -1,4 +1,7 @@
       subroutine movecs_lock(geom, basis, g_old, g_new, evals, occ)
+*
+* $Id: movecs_lock.F,v 1.5 1997-11-07 11:35:13 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

@@ -1,7 +1,9 @@
 #ifdef RISCF_USE_DRA
       subroutine riscf_put_dra ( da_three, scr, indx, nij, Nff, npair, 
      $             ndone, g_three, req )
-C$
+*
+* $Id: riscf_io.F,v 1.4 1997-11-07 11:35:15 d3e129 Exp $
+*
       implicit none
 
 #include "dra.fh"

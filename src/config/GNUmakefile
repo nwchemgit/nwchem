@@ -1,3 +1,7 @@
+#
+# $Id: GNUmakefile,v 1.5 1997-11-07 11:37:46 d3e129 Exp $
+#
+
 include makefile.h
 
   DEPENDCFLAGS = 

@@ -1,3 +1,7 @@
+/*
+ $Id: depend.c,v 1.4 1997-11-07 11:37:45 d3e129 Exp $
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>

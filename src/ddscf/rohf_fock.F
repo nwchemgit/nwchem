@@ -2,6 +2,9 @@
      $     tol2e, g_vecs,
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel)
+*
+* $Id: rohf_fock.F,v 1.10 1997-11-07 11:35:16 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "bas.fh"

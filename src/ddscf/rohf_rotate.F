@@ -1,4 +1,7 @@
       subroutine rohf_rotate_movecs(step, g_search)
+*
+* $Id: rohf_rotate.F,v 1.4 1997-11-07 11:35:17 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

@@ -1,4 +1,7 @@
       subroutine rohf_search_precond(rtdb, g_grad, g_work)
+*
+* $Id: rohf_precon.F,v 1.11 1997-11-07 11:35:17 d3e129 Exp $
+*
       implicit none
 #include "crohf.fh"      
 #include "cscfps.fh"

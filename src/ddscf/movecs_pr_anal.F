@@ -1,6 +1,9 @@
       subroutine movecs_print_anal(basis, ilo, ihi, thresh,
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
+*
+* $Id: movecs_pr_anal.F,v 1.5 1997-11-07 11:35:14 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"

@@ -1,3 +1,7 @@
+/*
+ $Id: raktestc.c,v 1.2 1997-11-07 11:33:47 d3e129 Exp $
+ */
+
 #include <stdio.h>
 #if defined(SOLARIS)
 #define WORKS_FOR 1

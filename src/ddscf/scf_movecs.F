@@ -1,4 +1,7 @@
       subroutine scf_movecs_read
+*
+* $Id: scf_movecs.F,v 1.9 1997-11-07 11:35:18 d3e129 Exp $
+*
       implicit none
 #include "cscf.fh"
 #include "mafdecls.fh"

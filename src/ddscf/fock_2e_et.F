@@ -1,4 +1,7 @@
       subroutine fock_2e_est_task(geom, oskel, tol2e, task_size)
+*
+* $Id: fock_2e_et.F,v 1.6 1997-11-07 11:35:09 d3e129 Exp $
+*
       implicit none
 #include "schwarz.fh"
 #include "sym.fh"

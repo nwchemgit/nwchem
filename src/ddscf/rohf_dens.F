@@ -1,5 +1,8 @@
       subroutine rohf_dens(g_vecs, nbf, nclosed, nopen,
      $     g_cdens, g_odens)
+*
+* $Id: rohf_dens.F,v 1.2 1997-11-07 11:35:16 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
       integer g_vecs

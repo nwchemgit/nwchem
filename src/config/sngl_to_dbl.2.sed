@@ -1,3 +1,6 @@
+#
+# $Id: sngl_to_dbl.2.sed,v 1.6 1997-11-07 11:37:47 d3e129 Exp $
+#
 s/^\(     .\)[Ss][Aa][Xx][Pp][Yy]\([^A-Za-z0-9_]\)/\1daxpy\2/
 s/^\(     .\)[Ss][Dd][Oo][Tt]\([^A-Za-z0-9_]\)/\1ddot\2/
 s/^\(     .\)[Ss][Ss][Cc][Aa][Ll]\([^A-Za-z0-9_]\)/\1dscal\2/

@@ -1,5 +1,8 @@
       subroutine scf_movecs_sym_adapt(basis, g_movecs, oprint,
      $     nprint, name, oirs, irs)
+*
+* $Id: scf_sym_adap.F,v 1.4 1997-11-07 11:35:19 d3e129 Exp $
+*
       implicit none
 #include "bas.fh"
 #include "inp.fh"
