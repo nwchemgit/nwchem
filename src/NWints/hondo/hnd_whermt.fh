@@ -1,0 +1,8 @@
+c
+c $Id: hnd_whermt.fh,v 1.1 1998-10-01 18:50:44 windus Exp $
+c
+      double precision h, w
+
+      common/hnd_hermit/h(28)
+      common/hnd_wermit/w(28)
+

@@ -1,0 +1,7 @@
+c
+c $Id: hnd_rys.fh,v 1.1 1998-10-01 18:50:43 windus Exp $
+c
+      double precision xx, u, w, yy, t, v
+      integer nroots, mroots
+      common/hnd_rys/xx,u(5),w(5),nroots
+      common/hnd_hfk/yy,t(9),v(9),mroots
