@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.150 1996-04-24 19:02:55 d3j191 Exp $
+# $Id: makefile.h,v 1.151 1996-05-10 21:58:24 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -227,19 +227,24 @@ ifeq ($(TARGET),SOLARIS)
 #
 # Sun running Solaris 2.4 or later
 #
-
        NICE = nice
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
-     RANLIB = @ echo
-  MAKEFLAGS = -j 1 --no-print-directory
-    INSTALL = @echo $@ is built
-
-   FOPTIONS = -Nl199 -fast -dalign
+     RANLIB = echo
+  MAKEFLAGS = -j 2 --no-print-directory
+    INSTALL = echo $@ is built
+# -fast introduces many options that must be applied to all files
+# -stackvar puts locals on the stack which seems a good thing
+#     but may need to increase the stacksize at runtime using limit
+   FOPTIONS = -Nl199 -fast -dalign -stackvar
    COPTIONS = -Wall
-# -O4 breaks at least inp_* and seems no faster than -O3
-  FOPTIMIZE = -O3
+# Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
+# -fsimple=2 enables more rearranging of floating point expressions
+# -depend enables more loop restructuring
+  FOPTIMIZE = -O3 -fsimple=2 -depend 
+# Under Solaris -g no longer disables optimization ... -O2 seems solid
+     FDEBUG = -g -O2
   COPTIMIZE = -g -O2
    LIBPATH += -L/usr/ucblib
     DEFINES = -DSOLARIS
@@ -508,7 +513,13 @@ ifeq ($(TARGET),IBM)
    FOPTIONS = -qEXTNAME -qalign=4k -qnosave
 # -qinitauto=FF
    COPTIONS = 
-  FOPTIMIZE = -O3 -NQ40000 -NT80000 -qstrict -qhot
+# -qstrict required with -O3 (according to Edo)
+# -qfloat=rsqrt gives faster square roots (off by -qstrict)
+# -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
+# -qhot seems to break a lot of things so don't ever use it
+#-qarch=pwr (for peril) com (for any) , pwr2  or ppc
+  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
+# -qstrict -qhot
   COPTIMIZE = -O
 
     DEFINES = -DIBM -DEXTNAM
@@ -536,21 +547,21 @@ endif
 	      -brename:.dswap_,.dswap \
 	      -brename:.dger_,.dger \
 	      -brename:.dtrsm_,.dtrsm \
-              -brename:.dnrm2_,.dnrm2
-# to make all - 
-#              -brename:.dtrmm_,.dtrmm \
-#              -brename:.drot_,.drot \
-#              -brename:.dasum_,.dasum \
-#              -brename:.dtrmv_,.dtrmv \
-#              -brename:.dspmv_,.dspmv \
-#              -brename:.dspr_,.dspr \
-#              -brename:.dsyrk_,.dsyrk \
-#              -brename:.dsymm_,.dsymm \
-#              -brename:.dsyr2k_,.dsyr2k \
-#              -brename:.dsyr2_,.dsyr2 \
-#              -brename:.dtrsv_,.dtrsv \
-#              -brename:.dsymv_,.dsymv \
-#              -brename:.times_,.times
+              -brename:.dnrm2_,.dnrm2 \
+              -brename:.dtrmm_,.dtrmm \
+              -brename:.drot_,.drot \
+              -brename:.dasum_,.dasum \
+              -brename:.dtrmv_,.dtrmv \
+              -brename:.dspmv_,.dspmv \
+              -brename:.dspr_,.dspr \
+              -brename:.dsyrk_,.dsyrk \
+              -brename:.dsymm_,.dsymm \
+              -brename:.dsyr2k_,.dsyr2k \
+              -brename:.dsyr2_,.dsyr2 \
+              -brename:.dtrsv_,.dtrsv \
+              -brename:.dsymv_,.dsymv \
+              -brename:.times_,.times
+#comment out from dtrmm_ inclusive
 ifdef USE_ESSL
        CORE_LIBS += -lessl
 endif
@@ -707,8 +718,9 @@ ifdef OPTIMIZE
     FFLAGS = $(FOPTIONS) $(FOPTIMIZE)
     CFLAGS =  $(COPTIONS) $(COPTIMIZE)
 else
-    FFLAGS = $(FDEBUG) $(FOPTIONS)
-    CFLAGS = $(CDEBUG) $(COPTIONS) 
+# Need FDEBUG after FOPTIONS on SOLARIS to correctly override optimization
+    FFLAGS = $(FOPTIONS) $(FDEBUG) 
+    CFLAGS = $(COPTIONS) $(CDEBUG) 
 endif
   INCLUDES = -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
   CPPFLAGS = $(INCLUDES) $(DEFINES) $(LIB_DEFINES)
