@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.9 2003-03-21 23:41:13 bylaska Exp $
+* $Id: paw_force.F,v 1.10 2003-03-22 02:30:01 bylaska Exp $
 *
 
 !**************************************************
@@ -487,9 +487,9 @@ c      end do
         fion(2,in) = fion(2,in) - dble(tmp_fy)
         fion(3,in) = fion(3,in) - dble(tmp_fz)
 
-        write(*,*) "  fatom",in,-dble(tmp_fx),
-     >                          -dble(tmp_fy),
-     >                          -dble(tmp_fz)
+c       write(*,*) "  fatom",in,-dble(tmp_fx),
+c    >                          -dble(tmp_fy),
+c    >                          -dble(tmp_fz)
 
       end do
 

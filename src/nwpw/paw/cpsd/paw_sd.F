@@ -1,7 +1,11 @@
 *
-* $Id: paw_sd.F,v 1.56 2003-03-21 23:41:13 bylaska Exp $
+* $Id: paw_sd.F,v 1.57 2003-03-22 02:30:01 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.56  2003/03/21 23:41:13  bylaska
+*
+* paw updates ...EJB
+*
 * Revision 1.55  2003/03/15 02:14:44  bylaska
 * orthonormalization checking fixed to work with forces...EJB
 *
@@ -423,7 +427,8 @@
      >                    paw_basis_ion_charge(ia),
      >                    paw_basis_core_charge(ia)
             write(6,1143) paw_basis_sphere_radius(ia)
-            write(6,1144) paw_basis_sigma(ia),paw_basis_sigma(ia)
+            !write(6,1144) paw_basis_sigma(ia),paw_basis_sigma(ia)
+            write(6,1144) paw_basis_sigma(ia)
             write(6,1150) paw_proj_nbasis(ia)
             write(6,1151)
             do i=1,paw_basis_nbasis(ia)
@@ -868,8 +873,9 @@ c         write(6,1498) virial
  1141 FORMAT(5X,I2,': ',A2,'  ion charge:',F4.1,'  core charge:',F4.1)
 
  1143 FORMAT(12x,' augmentation sphere radius  :',F6.3)
- 1144 FORMAT(12x,' compensation sigma          :',F6.3,
-     .   ' (',F6.3,' smooth)')
+c1144 FORMAT(12x,' compensation sigma          :',F6.3,
+c    .   ' (',F6.3,' smooth)')
+ 1144 FORMAT(12x,' compensation sigma          :',F6.3)
 
  1150 FORMAT(12x,' total number of projectors  :',I3)
 

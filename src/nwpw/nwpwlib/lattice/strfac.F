@@ -1,5 +1,5 @@
 *
-* $Id: strfac.F,v 1.11 2003-03-21 23:42:08 bylaska Exp $
+* $Id: strfac.F,v 1.12 2003-03-22 02:30:01 bylaska Exp $
 *
 
 *     ***********************************
@@ -155,28 +155,28 @@ C
 *::::::::::::::::::  phase factor of ion positions  :::::::::::::::::::
       do i=1,ion_nion()
 
-c       sw1= lattice_unitg(1,1)*ion_rion(1,i)
-c    >     + lattice_unitg(2,1)*ion_rion(2,i)
-c    >     + lattice_unitg(3,1)*ion_rion(3,i) + pi
-c       sw2= lattice_unitg(1,2)*ion_rion(1,i)
-c    >     + lattice_unitg(2,2)*ion_rion(2,i)
-c    >     + lattice_unitg(3,2)*ion_rion(3,i) + pi
-c       sw3= lattice_unitg(1,3)*ion_rion(1,i)
-c    >     + lattice_unitg(2,3)*ion_rion(2,i)
-c    >     + lattice_unitg(3,3)*ion_rion(3,i) + pi
-
-       !***DEBUG ***
-        write(*,*) "Warning: paw box center being used:"
         sw1= lattice_unitg(1,1)*ion_rion(1,i)
      >     + lattice_unitg(2,1)*ion_rion(2,i)
-     >     + lattice_unitg(3,1)*ion_rion(3,i) 
+     >     + lattice_unitg(3,1)*ion_rion(3,i) + pi
         sw2= lattice_unitg(1,2)*ion_rion(1,i)
      >     + lattice_unitg(2,2)*ion_rion(2,i)
-     >     + lattice_unitg(3,2)*ion_rion(3,i) 
+     >     + lattice_unitg(3,2)*ion_rion(3,i) + pi
         sw3= lattice_unitg(1,3)*ion_rion(1,i)
      >     + lattice_unitg(2,3)*ion_rion(2,i)
-     >     + lattice_unitg(3,3)*ion_rion(3,i) 
-       !***DEBUG ***
+     >     + lattice_unitg(3,3)*ion_rion(3,i) + pi
+
+c      !***DEBUG ***
+c       write(*,*) "Warning: paw box center being used:"
+c       sw1= lattice_unitg(1,1)*ion_rion(1,i)
+c    >     + lattice_unitg(2,1)*ion_rion(2,i)
+c    >     + lattice_unitg(3,1)*ion_rion(3,i) 
+c       sw2= lattice_unitg(1,2)*ion_rion(1,i)
+c    >     + lattice_unitg(2,2)*ion_rion(2,i)
+c    >     + lattice_unitg(3,2)*ion_rion(3,i) 
+c       sw3= lattice_unitg(1,3)*ion_rion(1,i)
+c    >     + lattice_unitg(2,3)*ion_rion(2,i)
+c    >     + lattice_unitg(3,3)*ion_rion(3,i) 
+c      !***DEBUG ***
 
 
         cw1=dcmplx(dcos(sw1),-dsin(sw1))
@@ -263,28 +263,28 @@ C     ***********************************
 
       do i=1,ion_nion()
 
-c       sw1= lattice_unitg(1,1)*ion_rion2(1,i)
-c    >     + lattice_unitg(2,1)*ion_rion2(2,i)
-c    >     + lattice_unitg(3,1)*ion_rion2(3,i) + pi
-c       sw2= lattice_unitg(1,2)*ion_rion2(1,i)
-c    >     + lattice_unitg(2,2)*ion_rion2(2,i)
-c    >     + lattice_unitg(3,2)*ion_rion2(3,i) + pi
-c       sw3= lattice_unitg(1,3)*ion_rion2(1,i)
-c    >     + lattice_unitg(2,3)*ion_rion2(2,i)
-c    >     + lattice_unitg(3,3)*ion_rion2(3,i) + pi
-
-       !***DEBUG ***
-        write(*,*) "Warning: paw box center being used:"
         sw1= lattice_unitg(1,1)*ion_rion2(1,i)
      >     + lattice_unitg(2,1)*ion_rion2(2,i)
-     >     + lattice_unitg(3,1)*ion_rion2(3,i) 
+     >     + lattice_unitg(3,1)*ion_rion2(3,i) + pi
         sw2= lattice_unitg(1,2)*ion_rion2(1,i)
      >     + lattice_unitg(2,2)*ion_rion2(2,i)
-     >     + lattice_unitg(3,2)*ion_rion2(3,i) 
+     >     + lattice_unitg(3,2)*ion_rion2(3,i) + pi
         sw3= lattice_unitg(1,3)*ion_rion2(1,i)
      >     + lattice_unitg(2,3)*ion_rion2(2,i)
-     >     + lattice_unitg(3,3)*ion_rion2(3,i) 
-       !***DEBUG ***
+     >     + lattice_unitg(3,3)*ion_rion2(3,i) + pi
+
+c      !***DEBUG ***
+c       write(*,*) "Warning: paw box center being used:"
+c       sw1= lattice_unitg(1,1)*ion_rion2(1,i)
+c    >     + lattice_unitg(2,1)*ion_rion2(2,i)
+c    >     + lattice_unitg(3,1)*ion_rion2(3,i) 
+c       sw2= lattice_unitg(1,2)*ion_rion2(1,i)
+c    >     + lattice_unitg(2,2)*ion_rion2(2,i)
+c    >     + lattice_unitg(3,2)*ion_rion2(3,i) 
+c       sw3= lattice_unitg(1,3)*ion_rion2(1,i)
+c    >     + lattice_unitg(2,3)*ion_rion2(2,i)
+c    >     + lattice_unitg(3,3)*ion_rion2(3,i) 
+c      !***DEBUG ***
 
         cw1=dcmplx(dcos(sw1),-dsin(sw1))
         cw2=dcmplx(dcos(sw2),-dsin(sw2))

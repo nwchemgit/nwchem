@@ -1,8 +1,12 @@
 *
-* $Id: paw_inner_loop.F,v 1.34 2003-03-21 23:41:13 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.35 2003-03-22 02:30:01 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.34  2003/03/21 23:41:13  bylaska
+*
+* paw updates ...EJB
+*
 * Revision 1.33  2003/03/15 02:14:44  bylaska
 * orthonormalization checking fixed to work with forces...EJB
 *
@@ -229,7 +233,7 @@
 *       **** shift wavefunction and atoms ****
         call dcopy(2*npack1*nemax,psi2,1,psi1,1)
         if (move) call ion_shift()
-        if (move) call phafac()
+        !if (move) call phafac()
         if (move) call paw_set_mult_energy_coeff()
 
         call nwpw_timing_start(11)
@@ -437,37 +441,37 @@
      >                            dcpl_mb(vcomp(1)),
      >                            dbl_mb(fion(1)))
 
-           write(*,*)
-           write(*,*) " pw force:"
-           write(*,*) " fpw1:",dbl_mb(fion(1)),
-     >                         dbl_mb(fion(1)+1),
-     >                         dbl_mb(fion(1)+2)
-           write(*,*) " fpw2:",dbl_mb(fion(1)   +3),
-     >                         dbl_mb(fion(1)+1 +3),
-     >                         dbl_mb(fion(1)+2 +3)
-           write(*,*) " fpw3:",dbl_mb(fion(1)   +6),
-     >                         dbl_mb(fion(1)+1 +6),
-     >                         dbl_mb(fion(1)+2 +6)
-           write(*,*)
-           write(*,*)
+c          write(*,*)
+c          write(*,*) " pw force:"
+c          write(*,*) " fpw1:",dbl_mb(fion(1)),
+c    >                         dbl_mb(fion(1)+1),
+c    >                         dbl_mb(fion(1)+2)
+c          write(*,*) " fpw2:",dbl_mb(fion(1)   +3),
+c    >                         dbl_mb(fion(1)+1 +3),
+c    >                         dbl_mb(fion(1)+2 +3)
+c          write(*,*) " fpw3:",dbl_mb(fion(1)   +6),
+c    >                         dbl_mb(fion(1)+1 +6),
+c    >                         dbl_mb(fion(1)+2 +6)
+c          write(*,*)
+c          write(*,*)
 
            call paw_force_solve(psi1,dbl_mb(fion(1))) 
 
-           call dcopy(3*natmx,0.0d0,0,dbl_mb(ftest(1)),1)
-           call paw_force_mult(dbl_mb(ftest(1))) 
-           write(*,*)
-           write(*,*) " mult force:"
-           write(*,*) " fmult1:",dbl_mb(ftest(1)),
-     >                           dbl_mb(ftest(1)+1),
-     >                           dbl_mb(ftest(1)+2)
-           write(*,*) " fmult2:",dbl_mb(ftest(1)   +3),
-     >                           dbl_mb(ftest(1)+1 +3),
-     >                           dbl_mb(ftest(1)+2 +3)
-           write(*,*) " fmult3:",dbl_mb(ftest(1)   +6),
-     >                           dbl_mb(ftest(1)+1 +6),
-     >                           dbl_mb(ftest(1)+2 +6)
-           write(*,*)
-           write(*,*)
+c          call dcopy(3*natmx,0.0d0,0,dbl_mb(ftest(1)),1)
+c          call paw_force_mult(dbl_mb(ftest(1))) 
+c          write(*,*)
+c          write(*,*) " mult force:"
+c          write(*,*) " fmult1:",dbl_mb(ftest(1)),
+c    >                           dbl_mb(ftest(1)+1),
+c    >                           dbl_mb(ftest(1)+2)
+c          write(*,*) " fmult2:",dbl_mb(ftest(1)   +3),
+c    >                           dbl_mb(ftest(1)+1 +3),
+c    >                           dbl_mb(ftest(1)+2 +3)
+c          write(*,*) " fmult3:",dbl_mb(ftest(1)   +6),
+c    >                           dbl_mb(ftest(1)+1 +6),
+c    >                           dbl_mb(ftest(1)+2 +6)
+c          write(*,*)
+c          write(*,*)
 
 *           *** compute hamiltonian matrix if first iteration ****
            if (first_iteration) then
@@ -503,61 +507,61 @@
            call paw_force_constraint(dbl_mb(tmp_L(1)),dbl_mb(fion(1))) 
 
 
-*     **** write out lambda matrix ****
-      n = ne(1)
-      nn = n*n
-         write(*,*)
-         write(*,*)
-         do ms=1,ispin
-            do i=n1(ms),n2(ms)
-               ii = i-n1(ms)
-               do j=n1(ms),n2(ms)
-                  jj = j-n1(ms)
-                  index = (ii+1) + jj*n +(ms-1)*nn
-                  write(*,1340) ms,ii+1,jj+1,
-     >                           hml(index),
-     >                           dbl_mb(tmp_L(1)+index-1)
-               end do
-            end do
-         end do
-         write(*,*)
-         write(*,*)
- 1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
-*     **** write out lambda matrix ****
+c*     **** write out lambda matrix ****
+c      n = ne(1)
+c      nn = n*n
+c         write(*,*)
+c         write(*,*)
+c         do ms=1,ispin
+c            do i=n1(ms),n2(ms)
+c               ii = i-n1(ms)
+c               do j=n1(ms),n2(ms)
+c                  jj = j-n1(ms)
+c                  index = (ii+1) + jj*n +(ms-1)*nn
+c                  write(*,1340) ms,ii+1,jj+1,
+c     >                           hml(index),
+c     >                           dbl_mb(tmp_L(1)+index-1)
+c               end do
+c            end do
+c         end do
+c         write(*,*)
+c         write(*,*)
+c 1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
+c*     **** write out lambda matrix ****
 
 
 
 
 
-           call dcopy(3*natmx,0.0d0,0,dbl_mb(ftest(1)),1)
-           call paw_force_constraint(dbl_mb(tmp_L(1)),dbl_mb(ftest(1))) 
-           write(*,*)
-           write(*,*) " constraint force:"
-           write(*,*) " fcons1:",dbl_mb(ftest(1)),
-     >                           dbl_mb(ftest(1)+1),
-     >                           dbl_mb(ftest(1)+2)
-           write(*,*) " fcons2:",dbl_mb(ftest(1)   +3),
-     >                           dbl_mb(ftest(1)+1 +3),
-     >                           dbl_mb(ftest(1)+2 +3)
-           write(*,*) " fcons3:",dbl_mb(ftest(1)   +6),
-     >                           dbl_mb(ftest(1)+1 +6),
-     >                           dbl_mb(ftest(1)+2 +6)
-           write(*,*)
-           write(*,*)
+c          call dcopy(3*natmx,0.0d0,0,dbl_mb(ftest(1)),1)
+c          call paw_force_constraint(dbl_mb(tmp_L(1)),dbl_mb(ftest(1))) 
+c          write(*,*)
+c          write(*,*) " constraint force:"
+c          write(*,*) " fcons1:",dbl_mb(ftest(1)),
+c    >                           dbl_mb(ftest(1)+1),
+c    >                           dbl_mb(ftest(1)+2)
+c          write(*,*) " fcons2:",dbl_mb(ftest(1)   +3),
+c    >                           dbl_mb(ftest(1)+1 +3),
+c    >                           dbl_mb(ftest(1)+2 +3)
+c          write(*,*) " fcons3:",dbl_mb(ftest(1)   +6),
+c    >                           dbl_mb(ftest(1)+1 +6),
+c    >                           dbl_mb(ftest(1)+2 +6)
+c          write(*,*)
+c          write(*,*)
 
-           write(*,*)
-           write(*,*) " total force:"
-           write(*,*) " f1:",dbl_mb(fion(1)),
-     >                           dbl_mb(fion(1)+1),
-     >                           dbl_mb(fion(1)+2)
-           write(*,*) " f2:",dbl_mb(fion(1)   +3),
-     >                           dbl_mb(fion(1)+1 +3),
-     >                           dbl_mb(fion(1)+2 +3)
-           write(*,*) " f3:",dbl_mb(fion(1)   +6),
-     >                           dbl_mb(fion(1)+1 +6),
-     >                           dbl_mb(fion(1)+2 +6)
-           write(*,*)
-           write(*,*)
+c          write(*,*)
+c          write(*,*) " total force:"
+c          write(*,*) " f1:",dbl_mb(fion(1)),
+c    >                           dbl_mb(fion(1)+1),
+c    >                           dbl_mb(fion(1)+2)
+c          write(*,*) " f2:",dbl_mb(fion(1)   +3),
+c    >                           dbl_mb(fion(1)+1 +3),
+c    >                           dbl_mb(fion(1)+2 +3)
+c          write(*,*) " f3:",dbl_mb(fion(1)   +6),
+c    >                           dbl_mb(fion(1)+1 +6),
+c    >                           dbl_mb(fion(1)+2 +6)
+c          write(*,*)
+c          write(*,*)
 
 
 *          **** remove ion forces using ion_FixIon ****
@@ -612,7 +616,7 @@
       call nwpw_timing_start(10)
       call Parallel_np(np)
 
-      if (move) call phafac() !*** reset phase factors to r1 ***
+      !if (move) call phafac() !*** reset phase factors to r1 ***
 
 *     *** get orbital energies ****
       n = ne(1)
