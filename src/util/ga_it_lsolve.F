@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.6 1996-12-06 21:47:39 d3h325 Exp $
+C$Id: ga_it_lsolve.F,v 1.7 1997-03-04 06:07:09 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -92,7 +92,7 @@ c
 c     Experiment with rms value rather than max
 c
       bnorm = sqrt(ga_ddot(g_b, g_b))
-      prod_acc = bnorm / sqrt(real(n))
+      prod_acc = bnorm / sqrt(dble(n))
 *     call ga_maxelt(g_b, prod_acc)
       prod_acc = prod_acc * tol * 0.01d0
 c

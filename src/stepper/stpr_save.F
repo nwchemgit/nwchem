@@ -1,5 +1,5 @@
       SUBROUTINE stpr_SAVE(HESS,GRAD,COORD,ENERGY,IERR)
-c $Id: stpr_save.F,v 1.3 1996-07-17 16:36:49 d3g681 Exp $
+c $Id: stpr_save.F,v 1.4 1997-03-04 06:07:53 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL SECO, SWSEC, SWFIR
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
@@ -140,13 +140,8 @@ C
       PSTEPP(11) = TRUST
       PSTEPP(12) = TRUSTN
       PSTEPP(13) = E2NEW
-#if defined(CRAY) || defined(KSR)
-      PSTEPP(14) = real(NWALK)
-      PSTEPP(15) = real(NNEG)
-#else
       PSTEPP(14) = dble(NWALK)
       PSTEPP(15) = dble(NNEG)
-#endif
 C
 C     Write previous step parameters PSTEPP.
 C

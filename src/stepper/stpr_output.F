@@ -1,5 +1,5 @@
       SUBROUTINE stpr_output(STEP,COORD,BCKSTP, mxgrad)
-c     $Id: stpr_output.F,v 1.7 1996-11-02 03:00:02 vg038 Exp $
+c     $Id: stpr_output.F,v 1.8 1997-03-04 06:07:52 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
 #include "mafdecls.fh"
@@ -56,11 +56,7 @@ C       initial geometry
          write(6,1032)mxgrad
          WRITE(6,1002)GLNGTH
       endif
-#if defined(KSR) || defined(CRAY)
-      GLNGTH = GLNGTH/SQRT(real(NATOM))
-#else
       GLNGTH = GLNGTH/SQRT(DBLE(NATOM))
-#endif
       if (oprint_info) then
          WRITE(6,1022)GLNGTH
          WRITE(6,1005)SLNGTH
