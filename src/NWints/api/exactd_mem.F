@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.36 2000-01-25 20:17:09 mg201 Exp $
+c $Id: exactd_mem.F,v 1.37 2000-02-04 01:09:45 mg201 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -417,7 +417,9 @@ c:tex-\end{verbatim}
 #include "geomP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 #include "stdio.fh"
+#include "apiP.fh"
 c::functions
       integer int_unint
       external int_unint
@@ -435,13 +437,16 @@ c::local
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
       integer bra_geom, ket_geom
+      integer bra_cent, ket_cent
       integer bra_fact, ket_fact
+      logical bra_rel, ket_rel, status_rel
       double precision factor
 *debug:-start-debug
 *debug:      integer fbra, fket, find
 *debug:-start-end
 c
 #include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c
       memsize = 0
       maxg = 0
@@ -459,6 +464,11 @@ c
      &         ' derivatives?'
         call errquit('emem_d2e4c: geom error ',911)
       endif
+c 
+c relativistic?
+c
+      status_rel = dyall_mod_dir .and. (.not.nesc_1e_approx)
+     &    .and. (brain .eq. ketin) .and. (brain .eq. ao_bsh)
 c
       do 00100 ibc = 1, bra_ucont
         bra_fact = 1
@@ -467,6 +477,8 @@ c
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
         bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
         bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
+        bra_rel = infbs_cont(CONT_RELLS,ibc,bra) .ne. 0
+        bra_cent  = (sf_ibs_cn2ce(ibc,bra))
         if (bra_gen.gt.1) then
           bra_gen = 1
           bra_fact = 1
@@ -486,6 +498,8 @@ c
           ket_type = infbs_cont(CONT_TYPE,ikc,ket)
           ket_prim = infbs_cont(CONT_NPRIM,ikc,ket)
           ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
+          ket_rel = infbs_cont(CONT_RELLS ,ikc,ket) .ne. 0
+          ket_cent  = (sf_ibs_cn2ce(ikc,ket))
           if (ket_gen.gt.1) then
             ket_gen = 1
             ket_fact = 1
@@ -496,9 +510,50 @@ c
           endif
 c
           memdum = 20 000 000
-c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
+c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulomb
           nint = int_unint(brain,ibc,brain,ibc,ketin,ikc,ketin,ikc)
-          call hf2d(
+          if (status_rel .and. (bra_rel .or. ket_rel)) then
+            if (ss_one_cent) then
+              call rel_2e4cd_sf (
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,bra_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,bra_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,ket_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,ket_cent,
+c ...........                             canAB   canCD   canPQ
+     &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........     DryRun
+     &            .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &            bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+            else
+              call rel_2e4cd_sf (
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,1,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,2,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,3,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,4,
+c ...........                             canAB   canCD   canPQ
+     &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........     DryRun
+     &            .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &            bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+            end if
+          else
+            call hf2d(
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
      &          bra_type, 1, dbl_mb(mb_exndcf(1,1)),
@@ -511,6 +566,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &          ket_prim, ket_gen, ket_type, 4,
      &          dbl_mb(mb_exndcf(1,1)), nint, .false., .false.,
      &          .false.,.true.,dbl_mb(mb_exndcf(1,1)), memdum)
+          end if
 *debug:-start-debug
 *debug:          write(luout,*)
 *debug:          write(luout,*)'===============================================',
@@ -529,7 +585,48 @@ c
           memdum = 20 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
           nint = int_unint(brain,ibc,brain,ibc,ketin,ikc,ketin,ikc)
-          call hf2d(dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+          if (status_rel .and. bra_rel .and. ket_rel) then
+            if (ss_one_cent) then
+              call rel_2e4cd_sf (
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,bra_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,ket_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,bra_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,ket_cent,
+c ...........                             canAB   canCD   canPQ
+     &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........     DryRun
+     &            .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &            bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+            else
+              call rel_2e4cd_sf (
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,1,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,2,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,3,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,4,
+c ...........                             canAB   canCD   canPQ
+     &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........     DryRun
+     &            .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &            bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+            end if
+          else
+            call hf2d(dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen, bra_type,
      &          1, dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)), ket_prim, ket_gen, ket_type,
@@ -539,6 +636,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &          dbl_mb(mb_exndcf(1,1)), ket_prim, ket_gen, ket_type,
      &          4, dbl_mb(mb_exndcf(1,1)), nint,.false.,.false.,
      &          .false., .true., dbl_mb(mb_exndcf(1,1)), memdum)
+          end if
 *debug:-start-debug
 *debug:          find = fbra*fbra*fket*fket
 *debug:          write(luout,10000)ibc,ikc,ibc,ikc,
@@ -551,7 +649,48 @@ c
             memdum = 20 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
             nint = int_unint(brain,ibc,brain,ibc,brain,ibc,ketin,ikc)
-            call hf2d(
+            if (status_rel .and. bra_rel .and. ket_rel) then
+              if (ss_one_cent) then
+                call rel_2e4cd_sf (
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              bra_prim,bra_gen,bra_type,bra_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              bra_prim,bra_gen,bra_type,bra_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              bra_prim,bra_gen,bra_type,bra_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              ket_prim,ket_gen,ket_type,ket_cent,
+c ...........                             canAB   canCD   canPQ
+     &              dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........     DryRun
+     &              .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &              bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+              else
+                call rel_2e4cd_sf (
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              bra_prim,bra_gen,bra_type,1,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              bra_prim,bra_gen,bra_type,2,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              bra_prim,bra_gen,bra_type,3,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              ket_prim,ket_gen,ket_type,4,
+c ...........                             canAB   canCD   canPQ
+     &              dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........     DryRun
+     &              .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &              bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+              end if
+            else
+              call hf2d(
      &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
      &            bra_type, 1,  dbl_mb(mb_exndcf(1,1)),
@@ -564,6 +703,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
      &            ket_prim, ket_gen, ket_type, 4,
      &            dbl_mb(mb_exndcf(1,1)), nint, .false., .false.,
      &            .false., .true., dbl_mb(mb_exndcf(1,1)), memdum)
+            end if
 *debug:-start-debug
 *debug:          find = fbra*fbra*fbra*fket
 *debug:          write(luout,10000)ibc,ibc,ibc,ikc,
@@ -575,7 +715,48 @@ c
             memdum = 20 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
             nint = int_unint(brain,ibc,ketin,ikc,ketin,ikc,ketin,ikc)
-            call hf2d(
+            if (status_rel .and. bra_rel .and. ket_rel) then
+              if (ss_one_cent) then
+                call rel_2e4cd_sf (
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              bra_prim,bra_gen,bra_type,bra_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              ket_prim,ket_gen,ket_type,ket_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              ket_prim,ket_gen,ket_type,ket_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              ket_prim,ket_gen,ket_type,ket_cent,
+c ...........                                 canAB   canCD   canPQ
+     &              dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........        DryRun
+     &              .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &              bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+              else
+                call rel_2e4cd_sf (
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              bra_prim,bra_gen,bra_type,1,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              ket_prim,ket_gen,ket_type,2,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              ket_prim,ket_gen,ket_type,3,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              ket_prim,ket_gen,ket_type,4,
+c ...........                                 canAB   canCD   canPQ
+     &              dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........        DryRun
+     &              .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &              bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+              end if
+            else
+              call hf2d(
      &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
      &            bra_type, 1, dbl_mb(mb_exndcf(1,1)),
@@ -587,6 +768,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
      &            ,dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type
      &            ,4,dbl_mb(mb_exndcf(1,1)),nint,.false.,.false.,
      &            .false.,.true.,dbl_mb(mb_exndcf(1,1)),memdum)
+            end if
 *debug:-start-debug
 *debug:          find = fbra*fket*fket*fket
 *debug:          write(luout,10000)ibc,ikc,ikc,ikc,
@@ -642,6 +824,7 @@ c:tex-\end{verbatim}
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
 #include "stdio.fh"
+#include "apiP.fh"
 c::functions
       integer int_unint
       external int_unint
@@ -663,6 +846,7 @@ c
       integer kkc, k_type, k_prim, k_gen, k_atom
       integer lkc, l_type, l_prim, l_gen, l_atom
       integer memdum, nint
+      logical bra_rel, ket_rel, status_rel
       double precision factor
 c
 #include "bas_exndcf_sfn.fh"
@@ -688,6 +872,11 @@ c
      &         ' derivatives?'
         call errquit('emem_d2e4c: geom error ',911)
       endif
+c 
+c relativistic?
+c
+      status_rel = dyall_mod_dir .and. (.not.nesc_1e_approx)
+     &    .and. (brain .eq. ketin) .and. (brain .eq. ao_bsh)
 c
       do ibc = 1, bra_ucont
 c
@@ -714,6 +903,8 @@ c
             j_type = abs(j_type)
             j_gen  = 1
           endif
+          bra_rel = infbs_cont(CONT_RELLS,ibc,bra) .ne. 0
+     &        .and. infbs_cont(CONT_RELLS,jbc,bra) .ne. 0
 c
           if (bra.eq.ket) then
             ket_lim = bra_ucont
@@ -745,10 +936,32 @@ c
                 l_type = abs(l_type)
                 l_gen  = 1
               endif
+              ket_rel = infbs_cont(CONT_RELLS,kkc,ket) .ne. 0
+     &            .and. infbs_cont(CONT_RELLS,lkc,ket) .ne. 0
 c
               memdum = 20 000 000
               nint = int_unint(brain,ibc,brain,jbc,ketin,kkc,ketin,lkc)
-              call hf2d(
+              if (status_rel .and. (bra_rel .or. ket_rel)) then
+                call rel_2e4cd_sf (
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              i_prim, i_gen, i_type, i_atom,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              j_prim, j_gen, j_type, j_atom,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              k_prim, k_gen, k_type, k_atom,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              l_prim, l_gen, l_type, l_atom,
+c ...........                                 canAB   canCD   canPQ
+     &              dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........       DryRun
+     &              .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &              bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+              else
+                call hf2d(
      &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),
      &            i_prim, i_gen, i_type, i_atom,
@@ -763,6 +976,7 @@ c
      &            l_prim, l_gen, l_type, l_atom,
      &            dbl_mb(mb_exndcf(1,1)), nint, .false., .false.,
      &            .false.,.true.,dbl_mb(mb_exndcf(1,1)), memdum)
+              end if
               memsize = max(memsize,memdum)
             enddo
           enddo

@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.15 1999-07-14 00:28:41 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.16 2000-02-04 01:08:50 mg201 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -15,6 +15,8 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "apiP.fh"
+#include "rel_nwc.fh"
 c
 c::external subroutines used
 c errquit
@@ -103,10 +105,14 @@ c
 c::local
       integer nint, ucont
       integer bra, ket, ab_geom, cd_geom
-      integer inp, igen, iexp, icf, itype, iatom
-      integer jnp, jgen, jexp, jcf, jtype, jatom
-      integer knp, kgen, kexp, kcf, ktype, katom
-      integer lnp, lgen, lexp, lcf, ltype, latom
+      integer inp, igen, iexp, icf, icfs, itype, iatom
+      integer jnp, jgen, jexp, jcf, jcfs, jtype, jatom
+      integer knp, kgen, kexp, kcf, kcfs, ktype, katom
+      integer lnp, lgen, lexp, lcf, lcfs, ltype, latom
+c.rel-dmd
+      logical status_rel, bra_rel, ket_rel
+      logical i_rel, j_rel, k_rel, l_rel
+      integer sbas, abas, bras, kets
 ckw
       double precision roff(3)
       integer txs_i, txs_j, txs_k, txs_l
@@ -149,7 +155,40 @@ c
      &         ' derivatives?'
         call errquit('intd_2e4c: geom error ',911)
       endif
-      
+
+c... stat rel
+      status_rel = dyall_mod_dir .and. .not.nesc_1e_approx
+     &    .and. (brain .eq. ketin) .and. (brain .eq. ao_bsh)
+      if (status_rel) then
+c
+c     get basis set handles; relativistic integral option valid
+c     if bra or ket are the ao basis and bra and ket have both
+c     functions relativistic
+c
+        bra_rel = .false.
+        ket_rel = .false.
+        sbas = sc_bsh + BASIS_HANDLE_OFFSET
+        abas = ao_bsh + BASIS_HANDLE_OFFSET
+        bras = sbas
+        kets = sbas
+        bra_rel = bra .eq. abas
+        if (bra_rel) then
+          ucont = sf_ibs_cn2ucn(ish,bra)
+          i_rel = infbs_cont(CONT_RELLS ,ucont,bra) .ne. 0
+          ucont = sf_ibs_cn2ucn(jsh,bra)
+          j_rel = infbs_cont(CONT_RELLS ,ucont,bra) .ne. 0
+          bra_rel = bra_rel .and. i_rel .and. j_rel
+        end if
+        ket_rel = ket .eq. abas
+        if (ket_rel) then
+          ucont = sf_ibs_cn2ucn(ksh,ket)
+          k_rel = infbs_cont(CONT_RELLS ,ucont,ket) .ne. 0
+          ucont = sf_ibs_cn2ucn(lsh,ket)
+          l_rel = infbs_cont(CONT_RELLS ,ucont,ket) .ne. 0
+          ket_rel = ket_rel .and. k_rel .and. l_rel
+        end if
+        status_rel = status_rel .and. (bra_rel .or. ket_rel)
+      end if
 c
       ucont = (sf_ibs_cn2ucn(ish,bra))
       inp   = infbs_cont(CONT_NPRIM,ucont,bra)
@@ -158,6 +197,8 @@ c
       icf   = infbs_cont(CONT_ICFP,ucont,bra)
       itype = infbs_cont(CONT_TYPE,ucont,bra) 
       iatom = (sf_ibs_cn2ce(ish,bra))
+      if (i_rel) ucont = ao_to_ls(ucont)
+      icfs = infbs_cont(CONT_ICFP,ucont,bras)
 c
       ucont = (sf_ibs_cn2ucn(jsh,bra))
       jnp   = infbs_cont(CONT_NPRIM,ucont,bra)
@@ -166,6 +207,8 @@ c
       jcf   = infbs_cont(CONT_ICFP,ucont,bra)
       jtype = infbs_cont(CONT_TYPE,ucont,bra) 
       jatom = (sf_ibs_cn2ce(jsh,bra))
+      if (j_rel) ucont = ao_to_ls(ucont)
+      jcfs = infbs_cont(CONT_ICFP,ucont,bras)
 c
       ucont = (sf_ibs_cn2ucn(ksh,ket))
       knp   = infbs_cont(CONT_NPRIM,ucont,ket)
@@ -174,6 +217,8 @@ c
       kcf   = infbs_cont(CONT_ICFP,ucont,ket)
       ktype = infbs_cont(CONT_TYPE,ucont,ket) 
       katom = (sf_ibs_cn2ce(ksh,ket))
+      if (k_rel) ucont = ao_to_ls(ucont)
+      kcfs = infbs_cont(CONT_ICFP,ucont,kets)
 c
       ucont = (sf_ibs_cn2ucn(lsh,ket))
       lnp   = infbs_cont(CONT_NPRIM,ucont,ket)
@@ -182,6 +227,8 @@ c
       lcf   = infbs_cont(CONT_ICFP,ucont,ket)
       ltype = infbs_cont(CONT_TYPE,ucont,ket) 
       latom = (sf_ibs_cn2ce(lsh,ket))
+      if (l_rel) ucont = ao_to_ls(ucont)
+      lcfs = infbs_cont(CONT_ICFP,ucont,kets)
 c
 c... new logic
       if (iatom.eq.jatom.and.jatom.eq.katom.and.katom.eq.latom) then
@@ -211,7 +258,7 @@ ckw
       status_txs = .false.
 *************************************************************************
 c
-      if (status_txs) then
+      if (status_txs .and. .not.status_rel) then
         call dfill(3,0.0d00,roff,1)
         q4 = 1.0d00
         txs_i = ish
@@ -245,7 +292,28 @@ c
         call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
 c
       else if (status_nw) then
-        call hf2d(
+        if (status_rel) then
+          call rel_2e4cd_sf (
+     &        coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
+     &        dbl_mb(mb_exndcf(icf,bra)),dbl_mb(mb_exndcf(icfs,bra)),
+     &        inp,igen,itype,iatom,
+c     
+     &        coords(1,jatom,ab_geom),dbl_mb(mb_exndcf(jexp,bra)),
+     &        dbl_mb(mb_exndcf(jcf,bra)),dbl_mb(mb_exndcf(jcfs,bra)),
+     &        jnp,jgen,jtype,jatom,
+c
+     &        coords(1,katom,cd_geom),dbl_mb(mb_exndcf(kexp,ket)),
+     &        dbl_mb(mb_exndcf(kcf,ket)),dbl_mb(mb_exndcf(kcfs,ket)),
+     &        knp,kgen,ktype,katom,
+c
+     &        coords(1,latom,cd_geom),dbl_mb(mb_exndcf(lexp,ket)),
+     &        dbl_mb(mb_exndcf(lcf,ket)),dbl_mb(mb_exndcf(lcfs,ket)),
+     &        lnp,lgen,ltype,latom,
+c
+     &        eri,nint,.false.,.false.,.false.,.false.,
+     &        scr,lscr,bra_rel,ket_rel,ss_one_cent,do_ssss,rel_dbg)
+        else
+          call hf2d(
      &      coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
      &      dbl_mb(mb_exndcf(icf,bra)),inp,igen,itype,iatom,
 c
@@ -260,6 +328,7 @@ c
 c
      &      eri,nint,.false.,.false.,.false.,.false.,
      &      scr,lscr)
+        end if
         used_nw = .true.
 c
         call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
