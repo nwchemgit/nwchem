@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.24 1996-08-19 17:55:42 d3g681 Exp $
+# $Id: GNUmakefile,v 1.25 1996-09-24 21:40:46 d3e129 Exp $
  
 USE_TEXAS = YEP
 
@@ -53,7 +53,7 @@ removeobj:
 	ar d  $(LIBRARY_PATH) $(OBJ) $(OBJ_OPTIMIZE)
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(texas_face.o):	$(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/bas_ibs_sfn.fh $(INCDIR)/bas_ibs_dec.fh $(INCDIR)/bas_exndcf_sfn.fh $(INCDIR)/bas_exndcf_dec.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh $(INCDIR)/apiP.fh 
-$(LIBRARY_PATH)(precalc2.o):	$(INCDIR)/mafdecls.fh 
 $(LIBRARY_PATH)(texas_hf.o):	$(INCDIR)/mafdecls.fh 
+$(LIBRARY_PATH)(texas_face.o):	$(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/bas_ibs_sfn.fh $(INCDIR)/bas_ibs_dec.fh $(INCDIR)/bas_exndcf_sfn.fh $(INCDIR)/bas_exndcf_dec.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh $(INCDIR)/apiP.fh 
 $(LIBRARY_PATH)(spec_block.o):	$(INCDIR)/mafdecls.fh 
+$(LIBRARY_PATH)(precalc2.o):	$(INCDIR)/mafdecls.fh 
