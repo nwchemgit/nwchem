@@ -1,6 +1,5 @@
 include ../../../config/makefile.h
 include ../../DEFS
-#
 
 COBJ  = pscale.o \
 	clustrxx5.o \
@@ -75,7 +74,6 @@ COBJ  = pscale.o \
 	clustrf4.o \
 	clustrf5.o
 #
-
 #	inv_it3.o
 #	 inv_it4.o 
 #	inv_it6.o
@@ -257,6 +255,12 @@ mapdif1.o:	mapdif1.c
 
 peigs_cmod.o:	peigs_cmod.f
 		$(peigs_FC) -c peigs_cmod.f
+
+clustrxx5.o:	clustrxx5.c
+		$(peigs_CC) -g -c clustrxx5.c
+
+clustrxx4.o:	clustrxx4.c
+		$(peigs_CC) -g -c clustrxx4.c
 
 
 .c.o:;	$(peigs_CC) $(OPTC) -c $<
