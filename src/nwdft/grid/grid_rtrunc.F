@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.27 2000-03-10 02:03:16 edo Exp $
+c$Id: grid_rtrunc.F,v 1.28 2000-03-20 22:24:05 edo Exp $
 c
       implicit none
 c      
@@ -28,7 +28,7 @@ c
       integer ll_at
       double precision exex_at,shiftm_2g
       integer g_s
-      integer k_minexp,l_minexp,k_ldiff,l_ldiff,iat,
+      integer iat,
      .     lpmat,ipmat,l_ics,k_ics,iat_diff,k_coord,l_coord
 c
       double precision alphaa,alphab,xa(3),xb(3)
@@ -49,8 +49,8 @@ c
 c
 c     preliminary ops
 c
-      call grid_rtinit(rtdb,l_minexp, k_minexp,k_coord,l_coord,
-     .     l_ldiff, k_ldiff,ipmat, lpmat, l_ics,k_ics,g_s)
+      call grid_rtinit(rtdb,k_coord,l_coord,
+     .     ipmat, lpmat, l_ics,k_ics,g_s)
       call ifill(2*ntypes, 0, rad_cutoff, 1)
       call ifill(ntypes, 0, ll, 1)
       call dfill(ntypes, 0d0, exex, 1)
@@ -67,7 +67,7 @@ c
 c      job_grid_acc=min(job_grid_acc,1d-7)
       
       call grid_rtrunc0(zprim,job_grid_acc,
-     ,     int_mb(k_ics),int_mb(k_ldiff),dbl_mb(k_minexp))
+     ,     int_mb(k_ics))
       range_max=0d0
       
 c
@@ -76,7 +76,7 @@ c
       do iat=1+me,ncenters,nproc
          if(.not.iatype_pt_chg(iat))then
 
-         call grid_rtrunc1(iat,dbl_mb(k_minexp),int_mb(k_ldiff),
+         call grid_rtrunc1(iat,
      .        g_s, dbl_mb(ipmat),job_grid_acc,iat_diff,range_max,
      .        dbl_mb(k_coord),
      .        ll_at,exex_at,shiftm_2g,oprint,LuOut)
@@ -102,17 +102,17 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
       call ga_igop(msg_igop_tru2,ll,ntypes,'absmax') 
       call ga_dgop(msg_igop_tru3,range_max,1,'absmax') 
       if(check_s) then 
-      call ga_igop(msg_igop_tru5,int_mb(k_ldiff),ncenters,'absmax') 
-      call ga_dgop(msg_igop_tru6,dbl_mb(k_minexp),ncenters,'absmax') 
+      call ga_igop(msg_igop_tru5,ldiff,ncenters,'absmax') 
+      call ga_dgop(msg_igop_tru6,minexp,ncenters,'absmax') 
 
          do itype=1,ntypes
             iat=ityp2ctr(itype)
             iat_diff=rad_cutoff(2,itype)
             if(me.eq.0.and.oprint)
      .           write(LuOut,*) ' A and B are ',iat,iat_diff
-            alphab=dbl_mb(k_minexp+iat_diff-1)
+            alphab=minexp(iat_diff)
             alphaa=exex(itype)-alphab
-            llb=int_mb(k_ldiff+iat_diff-1)
+            llb=ldiff(iat_diff)
             lla=ll(iatype(iat))-llb
             xa(1)=dbl_mb(k_coord+3*(iat-1))
             xa(2)=dbl_mb(k_coord+3*(iat-1)+1)
@@ -146,8 +146,8 @@ c
 c     check input flag to see if tolerance modifications desired:
 c     accAOfunc, accqrad, radius
 c
-      call  grid_rtclea(l_minexp, l_coord,
-     .     l_ldiff, lpmat,l_ics,g_s)
+      call  grid_rtclea(l_coord,
+     .     lpmat,l_ics,g_s)
 
       if(me.eq.0) 
      .     call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
@@ -249,7 +249,7 @@ c
       grid_ik = value
 c
       end
-      subroutine grid_rtrunc1(iat,expo,l,g_s,pmat,my_acc,
+      subroutine grid_rtrunc1(iat,g_s,pmat,my_acc,
      .     iat_diff,range_max,
      .     coord,
      .     ll_at,exex_at,shiftm_2g,oprint,LuOut)
@@ -258,9 +258,7 @@ c
       integer iat ! [in]
       integer iat_diff ! [out]
       integer g_s ! [in]
-      double precision expo(*) ! [in]
       double precision coord(3,*) ! [in]
-      integer l(*) ! [in]
       double precision pmat(*) ! [local]
       double precision my_acc ! [in]
       integer ll_at ! [out]
@@ -280,8 +278,8 @@ c
 c
       range_max=0d0
       shiftm_2g=0d0
-      l_iat=l(iat)
-      exp_iat=expo(iat)
+      l_iat=ldiff(iat)
+      exp_iat=minexp(iat)
          do jat=1,ncenters
             s_max=10d0
             if(iat.ne.jat) then
@@ -293,9 +291,9 @@ c
               if(oprint) 
      .              write(LuOut,*) 
      .              ' atom ',iat,' - neighbor  & S ',jat,
-     .              s_max,' exp AB ',exp_iat,expo(jat)
-              range=grid_rnegl(l_iat+l(jat)+2,exp_iat+expo(jat),
-     .              my_acc) 
+     .              s_max,' exp AB ',exp_iat,minexp(jat)
+              range=grid_rnegl(l_iat+ldiff(jat)+2,
+     .             exp_iat+minexp(jat),    my_acc) 
 c
 c     bit to add from gaussian product formula
 c               
@@ -303,7 +301,7 @@ c
      .              (coord(2,iat)-coord(2,jat))**2+
      .              (coord(3,iat)-coord(3,jat))**2)
                shift_2g=rrr*exp_iat/
-     /              (exp_iat+expo(jat))
+     /              (exp_iat+minexp(jat))
 c               if(shift_2g.gt.1e-12) shift_2g=shift_2g*2d0
                range=range+shift_2g
 c
@@ -315,28 +313,26 @@ c               if(iat.ne.jat) range=range+6d0/rrr
                   shiftm_2g=shift_2g
                   range_max =  range
                   iat_diff=jat
-                  ll_at=l_iat+l(jat)
-                  exex_at=exp_iat+expo(jat)
+                  ll_at=l_iat+ldiff(jat)
+                  exex_at=exp_iat+minexp(jat)
                endif
             endif
          enddo
          if(oprint)
-     .    write(LuOut,1234)' zmins = ',exp_iat,expo(iat_diff),
-     ,        ' lprod = ',l_iat+l(iat_diff),
+     .    write(LuOut,1234)' zmins = ',exp_iat,minexp(iat_diff),
+     ,        ' lprod = ',l_iat+ldiff(iat_diff),
      ,        ' range = ',range_max, ' acc ',my_acc,
      ,        ' sh ',shiftm_2g
          return
  1234          format(A,2f15.9,A,I3,A,f12.2,A,d10.2)
          end
-      subroutine grid_rtrunc0(zprim,job_grid_acc,cs,ldiff,mexp)
+      subroutine grid_rtrunc0(zprim,job_grid_acc,cs)
       implicit none
 #include "bas.fh"
 #include "cdft.fh"
 c
       double precision zprim(nbf_ao_mxprim)! [local]
       integer cs(ncenters)! [out]
-      integer ldiff(ncenters)! [out]
-      double precision mexp(ncenters)! [out]
       double precision job_grid_acc ! [in]
 c
       integer iat,ic1,ic2,l,nprimo,ncontr,isphere,iprimo,
@@ -378,7 +374,7 @@ C            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
             if(range.gt.range_max) then
                range_max =  range
                cs(iat)=icset
-               mexp(iat)=min_exp
+               minexp(iat)=min_exp
                ldiff(iat)=l
             endif
          enddo
@@ -386,8 +382,8 @@ C            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
       enddo
       return
       end
-      subroutine grid_rtinit(rtdb,l_minexp, k_minexp,k_coord,l_coord,
-     .     l_ldiff, k_ldiff,ipmat, lpmat,l_ics,k_ics,g_s)
+      subroutine grid_rtinit(rtdb,k_coord,l_coord,
+     .     ipmat, lpmat,l_ics,k_ics,g_s)
       implicit none
 #include "mafdecls.fh"
 #include "geom.fh"
@@ -395,19 +391,13 @@ C            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
 c
       integer rtdb ! [in]
       integer k_coord,l_coord
-      integer l_minexp, k_minexp, l_ics,k_ics,
-     .     l_ldiff, k_ldiff,ipmat, lpmat,g_s ! [out]
+      integer l_ics,k_ics,
+     .   ipmat, lpmat,g_s ! [out]
 c
       integer itags,ltags,k_charge,l_charge
       external ga_create_atom_blocked
       integer ga_create_atom_blocked
 c
-      if (.not.MA_Push_Get(MT_dbl, ncenters, 'minexp',
-     &     l_minexp, k_minexp))
-     &         call errquit('rdatru: cannot allocate degen minexp',0)
-      if (.not.MA_Push_Get(MT_int, ncenters, 'diffuse l',
-     &     l_ldiff, k_ldiff))
-     &         call errquit('rdatru: cannot allocate degen minexp',0)
       if (.not.MA_Push_Get(MT_int, ncenters, 'diffuse ic',
      &     l_ics, k_ics))
      &         call errquit('rdatru: cannot allocate degen minexp',0)
@@ -445,13 +435,13 @@ c
       
       return
       end
-      subroutine grid_rtclea(l_minexp, l_coord,
-     .     l_ldiff, lpmat,l_ics,g_s)
+      subroutine grid_rtclea(l_coord,
+     .     lpmat,l_ics,g_s)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
-      integer l_minexp,  l_ics, l_coord,
-     .      l_ldiff, lpmat,g_s ! [in]
+      integer  l_ics, l_coord,
+     .       lpmat,g_s ! [in]
 c
       if (.not. ga_destroy(g_s)) call errquit
      &     ('radtrun: could not destroy g_s', 0)
@@ -461,9 +451,5 @@ c
      &   call errquit('radtru: cannot pop stack',1)
       if (.not.ma_pop_stack(l_ics))
      &   call errquit('radtru: cannot pop stack',2)
-      if (.not.ma_pop_stack(l_ldiff))
-     &   call errquit('radtru: cannot pop stack',3)
-      if (.not.ma_pop_stack(l_minexp))
-     &   call errquit('radtru: cannot pop stack',4)
       return
       end

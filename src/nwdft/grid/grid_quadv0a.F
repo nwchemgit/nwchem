@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.10 2000-03-20 21:11:49 edo Exp $
+c$Id: grid_quadv0a.F,v 1.11 2000-03-20 22:24:05 edo Exp $
 c
       implicit none
 c
@@ -50,7 +50,7 @@ c
      &        lrdelchi_atom, irdelchi_atom
       integer nat_tot,nat_scr
       integer nqpts_per_buf, nqpts, ictr_buf
-      integer lrqbuf, irqbuf,ldmat,idmat,i,iii,k_rq,l_rq,
+      integer lrqbuf, irqbuf,ldmat,idmat,i,iii,
      .     grid_nbfm,ncube,istep,ntot_cube
       logical grid_file_rewind
       external grid_file_rewind,grid_nbfm
@@ -106,9 +106,6 @@ c
      &     lrdelchi_atom,irdelchi_atom))call errquit
      &        ('dft_scf: cannot allocate rdelchi_atom',0)
       endif
-      if (.not.MA_Push_get(MT_dbl, buffer_size, 
-     &                     'quad rq buffer', l_rq, k_rq))
-     &   call errquit('grid_gen: cannot allocate quad pt buffer', 3)
 C
       ntot_cube=0
       do 200 iqsh = 1, n_tot_tasks
@@ -146,9 +143,9 @@ c
          if(natoms.gt.1) then
          call ifill(mbf_ao, 0, int_mb(iibf_ao), 1)
          mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
-     &        ictr_buf,rad,xyz,qxyz,nqpts,dbl_mb(k_rq),
+     &        ictr_buf,rad,xyz,qxyz,nqpts,
      &        int_mb(iibf_ao),  iniz, ifin, expo, 
-     &        acc_ao_gauss)
+     &        minexp,ldiff,acc_ao_gauss)
          if (mbf_ao.eq.0) goto 110
          else
             iniz(1)=1
@@ -260,8 +257,6 @@ c
      &        call errquit('grid_quadv0a: cannot pop stack', 3)
  110      ntot_cube=ntot_cube+1
   200 continue
-      if (.not.ma_pop_stack(l_rq))
-     &     call errquit('grid_quadv0a: cannot pop stack',4)
       if(grad) then
          if (.not.ma_pop_stack(lrdelchi_atom))
      &        call errquit('grid_quadv0a: cannot pop stack',5)
