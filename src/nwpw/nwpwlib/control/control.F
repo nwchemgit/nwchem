@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.37 2003-03-19 00:45:58 bylaska Exp $
+* $Id: control.F,v 1.38 2003-03-19 20:30:06 bylaska Exp $
 *
 
 *     ***********************************
@@ -211,8 +211,18 @@ c
          gga = 1
       end if
 
+*     **** set ks_alpha ***
       if (.not. rtdb_get(rtdb,'cgsd:ks_alpha',mt_dbl,1,ks_alpha))
      >   ks_alpha = 1.00d0
+
+*     **** set maxit_orb maxit_orbs ***
+      if (.not.rtdb_get(rtdb,
+     >      'nwpw:ks_maxit_orb',mt_int,1,maxit_orb))
+     >  maxit_orb = 3
+      if (.not.rtdb_get(rtdb,
+     >      'nwpw:ks_maxit_orbs',mt_int,1,maxit_orbs))
+     >  maxit_orbs = 2
+
 
       value = value.and.
      >        rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp)
@@ -472,6 +482,7 @@ c
       if (.not.rtdb_get(rtdb,
      >      'nwpw:gram-schmidt',mt_log,1,gram_schmidt))
      >  gram_schmidt = .false.
+
       
       control_read = value
       return
@@ -742,6 +753,35 @@ c
       control_ks_alpha = ks_alpha
       return
       end
+
+*     ***********************************
+*     *					*
+*     *		control_ks_maxit_orb 	*
+*     *					*
+*     ***********************************
+      integer function control_ks_maxit_orb()
+      implicit none 
+
+#include "control.fh"
+
+      control_ks_maxit_orb = maxit_orb
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	     control_ks_maxit_orbs 	*
+*     *					*
+*     ***********************************
+      integer function control_ks_maxit_orbs()
+      implicit none 
+
+#include "control.fh"
+
+      control_ks_maxit_orbs = maxit_orbs
+      return
+      end
+
 
 
 *     ***********************************
