@@ -297,6 +297,24 @@ directives in the sequence file, making them forced links.
 Alternatively, these links can be made forced-links by changing 
 \verb+link+ into \verb+LINK+ in the sequence file. 
 
+\begin{verbatim}
+fraction { <integer imol> }
+\end{verbatim}
+
+Directive \verb+fraction+ can be used to separate solute molecules
+into fractions for which energies will be separately reported 
+during molecular dynamics simulations. The listed molecules will be
+the last molecule in a fraction. Up to 10 molecules may be
+specified in this directive.
+
+\begin{verbatim}
+counter <integer num> <string ion>
+\end{verbatim}
+
+Directive \verb+counter+ add \verb+num+ counter ions of type
+\verb+ion+ to the sequence file. Up to 10 \verb+counter+
+directive may appear in the input block.
+
 \section{Topology file generation}
 
 \begin{verbatim}
@@ -463,7 +481,8 @@ for which solvent coordinates will be used.
 \begin{verbatim}
 solvate ( [ cube <real edge> ] |  \\
           [ box <real xedge> [ <real xedge> [ <real xedge> ]]] | \\
-          [ sphere <real radius> ] )
+          [ sphere <real radius> ] |
+          [ troct <real edge> ])
 \end{verbatim}
 
 Solvation can be specified to be in a cubic box with specified edge,
@@ -540,3 +559,28 @@ fix ( atoms | segments ) ( beyond | within ) <real rfix> <string atmfix>
 
 The \verb+fix+ keyword may be used to specify that the identified
 atoms should remain fixed during any operation.
+
+\begin{verbatim}
+box <real xsize> <real ysize>  <real zsize>
+\end{verbatim}
+
+The \verb+box+ directive resets the box size.
+
+\begin{verbatim}
+align <string atomi> <string atomj> <string atomk>
+\end{verbatim}
+
+The \verb+align+ directive orients the system such that
+\verb+atomi+ and \verb+atomj+ are on the z-axis, and \verb+atomk+
+in the x=y plane.
+
+\begin{verbatim}
+repeat <integer nx> <integer ny> <integer nz> <real dist>
+\end{verbatim}
+
+The \verb+repeat+ directive causes a subsequent \verb+write pdb+
+directive to write out multiple copies of the system, with \verb+nx+
+copies in the x, \verb+ny+ copies in the y, and \verb+nz+ copies in 
+the z-direction, with a minimum distance of \verb+dist+ bewtween any
+pair of atoms from different copies. This directive should only be
+used for system without solvent.
