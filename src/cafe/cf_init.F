@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.63 2001-11-06 15:40:17 d3j191 Exp $
+c $Id: cf_init.F,v 1.64 2001-11-06 15:43:29 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -20,7 +20,8 @@ c
       real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq
       integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl
       real*8 rcs,rcl,rqm,compr,delta
-      integer iitmps,iiprss,iislow,nodpme,ntyp,idset,ipset1,ipset2
+      integer iitmps,iiprss,iislow,iipopt
+      integer nodpme,ntyp,idset,ipset1,ipset2
       integer issscl,npenrg
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
       logical logqmd,lpbc
