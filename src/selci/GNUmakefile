@@ -49,7 +49,6 @@ htoa:	htoa.o
 	$(FC) -o $@ $^
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(fcidim.o):	./implicit.fh ./bitops.fh 
 $(LIBRARY_PATH)(upkcon.o):	./bitops.fh 
 $(LIBRARY_PATH)(tester.o):	./mptr.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(stool.o):	$(INCDIR)/global.fh ./cselcifiles.fh 
@@ -95,6 +94,7 @@ $(LIBRARY_PATH)(initci.o):	./implicit.fh ./ciinfo.fh
 $(LIBRARY_PATH)(inicij.o):	./implicit.fh ./ciinfo.fh ./ceij.fh 
 $(LIBRARY_PATH)(gtijkl.o):	./bitops.fh 
 $(LIBRARY_PATH)(getij.o):	./bitops.fh 
+$(LIBRARY_PATH)(fcidim.o):	./implicit.fh ./bitops.fh 
 $(LIBRARY_PATH)(eirerj.o):	./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(eijkl.o):	./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(eijkj.o):	./implicit.fh ./ciinfo.fh 

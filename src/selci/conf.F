@@ -81,6 +81,8 @@ c
       parameter (max_inconf = 4095)
       integer inconf(max_inconf)
 c
+      character*10 intfmt
+c
 c     read in title, nelec, multi, symmetry, norbs, nbpsy, conf, refgen
 c
       write(6,1)
@@ -89,17 +91,38 @@ c
 c
 c     Get most junk from the moints file
 c
-      inttyp = 0
       title = ' '
 c
+      if (.not. rtdb_cget(rtdb,'fourindex:file format',1,intfmt))
+     $   intfmt = 'nwchem'
+c
+      if (intfmt .eq. 'ascii') then
+        inttyp = 0
+      else if (intfmt .eq. 'nwchem') then
+        inttyp = 3
+      else
+        call errquit('selci:conf:unknown integral file format',0)
+      endif
+c
       iflint = 8
-      open(iflint, form='formatted',status='old',file=moints)
-      read(iflint,'(a)') title
-      read(iflint,*) norbs, nfzc
-      read(iflint,*)            ! map
-      read(iflint,*) (isym(i),i=1,norbs) ! syms
-      read(iflint,*)            ! eigenvalues
-      read(iflint,*) (occ(i),i=1,norbs) ! occupations
+      if (intfmt .eq. 'ascii') then
+        open(iflint, form='formatted',status='old',file=moints)
+        read(iflint,'(a)') title
+        read(iflint,*) norbs, nfzc
+        read(iflint,*)            ! map
+        read(iflint,*) (isym(i),i=1,norbs) ! syms
+        read(iflint,*)            ! eigenvalues
+        read(iflint,*) (occ(i),i=1,norbs) ! occupations
+      else
+        open(iflint, form='unformatted',status='old',file=moints)
+        read(iflint) title
+        read(iflint) norbs, nfzc
+        read(iflint)
+        read(iflint)            ! map
+        read(iflint) (isym(i),i=1,norbs) ! syms
+        read(iflint)            ! eigenvalues
+        read(iflint) (occ(i),i=1,norbs) ! occupations
+      endif
       close(iflint, status='keep')
 c
 c     nelectrons ... add up the occupation numbers ... 

@@ -12,22 +12,14 @@ c     later will be able to include re-ordering vector here.
 c
       call dfill(nnorbs, 0.0d0, h, 1)
       call dfill(numint, 0.0d0, g, 1)
-      if (inttyp.eq.1) then
-c
-c     gamess integrals ... assume that ed3 is position to
-c     read in the one electron integrals (rdhint does this)
-c
-         call errquit('load: gamess interface not functional',0)
-*         call reads(h,nnorbs,4)
-c     7 here indicates gamess file ed6
-*         call selci_loadg(g,int12,int34)
-      else if (inttyp.eq.0) then
+      if (inttyp.eq.0) then
          call selci_loada(h, g, int12, int34)
+      else if (inttyp.eq.1) then
+         call errquit('load: gamess interface not functional',0)
+      else if (inttyp.eq.2) then
+         call errquit('load: columbus interface not functional',0)
       else if (inttyp.eq.3) then
          call selci_loadab(h, g, int12, int34)
-      else if (inttyp.eq.2) then
-         call selci_rd1(iflint,h,norbs)
-         call selci_loadg(g,int12,int34)
       else
          call errquit('load: invalid inttyp',inttyp)
       endif

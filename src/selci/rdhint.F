@@ -48,22 +48,25 @@ c
          read(iflint,*) repnuc,i,j,k,l 
          if (i.ne.0) call errquit('rdhint: ascii list repnuc?',0)
          ntitle = 1
-         nnorbs = 255
       else if (inttyp.eq.3) then
 c
 c     binary version of ascii list of integrals
 c
          open(iflint, form='unformatted',status='old',file=moints)
-         repnuc = 0.0d0
-         ntitle = 0
+         read(iflint) title
+         read(iflint) nnorbs, nfzc
+         read(iflint) repnuc
+         read(iflint)            ! map
+         read(iflint)            ! syms
+         read(iflint)            ! eigenvalues
+         read(iflint)            ! occupations
+         ntitle = 1
          nnorbs = 255
       else if (inttyp.eq.2) then
 c
 c     columbus integrals
 c
-         open(iflint, form='unformatted',status='old',file=moints)
-         read(iflint) ntitle,(dtitle(i),i=1,ntitle),repnuc,nnorbs,nsym,
-     &        (nbpsy(i),i=1,nsym)
+         call errquit('rdhint: columbus integrals not working',0)
       else
          call errquit('rdhead: unknown integral source ',inttyp)
       endif
