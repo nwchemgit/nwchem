@@ -55,7 +55,7 @@ c ------NEW AO CCSD CODE
      $     call errquit('scf: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('scf: no ao basis ', 0)
-      if (.not. rtdb_cget(rtdb, 'cssd:input mo vector file',
+      if (.not. rtdb_cget(rtdb, 'cssd:input mo vector file', 1,
      $     movecs_in)) 
      $     call util_file_name('movecs',.false.,.false.,movecs)
 c
@@ -66,7 +66,7 @@ c
       if (.not.bas_destroy(basis))
      $     call errquit('cannot free basis handle',0)
       if (.not. geom_destroy(geom))
-     $   call errquit('ccsd: cannot destroy basis')
+     $   call errquit('ccsd: cannot destroy basis',0)
       if (ga_nodeid().eq.0) then
         call MA_summarize_allocated_blocks()
       endif

@@ -2,7 +2,7 @@ c
 c
 c
 c
-c  $Id: moints_trp.F,v 1.9 1996-07-25 18:44:00 rg240 Exp $
+c  $Id: moints_trp.F,v 1.10 1996-10-20 17:48:55 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -118,7 +118,7 @@ c
      $                            int_mb(k_sym), nmixed )
           call ga_get(g_tmp,1,nbf,1,nbf,cmo,nbf)
           if (.not.ga_destroy(g_tmp))
-     $      call errquit('cannot destroy tmp')
+     $      call errquit('cannot destroy tmp',0)
           if (nmixed .ne. 0)
      $       call errquit('moints_trp: symmetry contamination', nmixed)
           do i =0, nbf-1
