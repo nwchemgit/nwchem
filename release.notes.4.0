@@ -1,5 +1,6 @@
 NWChem Version 4.0 Release Notes
-(Also available at http://www.emsl.pnl.gov/pub/docs/nwchem/support/release.4.0.html)
+(Also available at 
+http://www.emsl.pnl.gov/pub/docs/nwchem/support/release.4.0.html)
 
 NOTE: These release notes are not a substitute for reading the User Manual!
 They are meant to give a thumbnail sketch of the new capabilities and bug
@@ -7,34 +8,47 @@ fixes that are available in NWChem Version 4.0. When there is a conflict
 between the release notes and the User Manual, the User Manual takes
 precedence. 
 
-Bugs in version 3.3.1 that have been fixed in version 4.0:
-
-  o A bug was found in the distribution of multidimensional Global Array's. This 
-    bug created uneven distributions of array elements (i.e. some nodes got many 
-    and some nodes got a few elements), and this had a significant impact on the 
-    parallel performance through-out the code. Note: the final calculated results
-    were correct, the performance was not as good as could be expected. 
-
 Several new major capabilities are available in NWChem, including several new
 modules. The new modules are: 
 
-  o 
+  o ONIOM
+  o COSMO
+  o NBO - Natural Bond Orbital analysis is now available inside NWChem (not
+    just the interface which was in the previous versions).
+  o SODFT - Spin-orbit density functional theory.
+  o MD - While this is not a new capability, the MD module has been rewritten
+    to allow for new force fields to be incorporated in a modular fashion.
 
 For each of these capabilities, the user is referred to the User Manual for more
 information. 
 
 Additional major additions to the capabilities include: 
 
-  o The Douglas-Kroll(-Hess) approach is implemented. It can be used at all levels 
-    of theory. Gradients have been implemented allowing geometry optimizations and 
-    frequency calculations using the Douglas-Kroll Hamiltonian.
-  o Inclusion of code to evaluate relativistic integrals based on Dyall's modified
-    Dirac (DmD) equation.  A one-electron approximation very similar to the 
-    Douglas-Kroll-Hess approach has been implemented with gradients. Two-electron
-    scalar relativistic corrections have been implemented for energies only.
+  o The Douglas-Kroll(-Hess) approach is implemented. It can be used at 
+    all levels of theory. Gradients have been implemented allowing geometry 
+    optimizations and frequency calculations using the Douglas-Kroll 
+    Hamiltonian.
+  o Inclusion of code to evaluate relativistic integrals based on Dyall's 
+    modified Dirac (DmD) equation.  A one-electron approximation very similar 
+    to the Douglas-Kroll-Hess approach has been implemented with gradients. 
+    Two-electron scalar relativistic corrections have been implemented for 
+    energies only.
+  o Vibrational analysis now allows different masses to be used for a
+    previously calculated hessian - see VIB description.
+  o Input files to standard graphics packages such as RasMol or XMol can 
+    be generated to animate vibrational modes - see VIB description.
 
-Again, for each of these capabilities, the user is referred to the User Manual for
-more information. 
+Again, for each of these capabilities, the user is referred to the User Manual 
+for more information. 
+
+Bugs in version 3.3.1 that have been fixed in version 4.0:
+
+  o A bug was found in the distribution of multidimensional Global Array's. 
+    This bug created uneven distributions of array elements (i.e. some nodes 
+    got many elements and some nodes got a few elements), and this had a 
+    significant impact on the parallel performance through-out the code. 
+    Note: the final calculated results were correct, the performance was not 
+    as good as could be expected. 
 
 Listed below are the other major and many minor changes for each module
 with significant changes. These descriptions are somewhat terse and more
@@ -46,7 +60,8 @@ Top level directives:
     with previous versions of the directive so the user will need to change
     the TITLE directive in any current input files.
   o The CONTINUE directive is no longer supported.
-  o Addition of RELATIVISTIC directive to control evaluation of relativistic integrals.
+  o Addition of RELATIVISTIC directive to control evaluation of relativistic 
+    integrals.
   o BUG FIX: Task shell is now working under Linux.
   o BUG FIX: The words start and restart in the TITLE directive no longer cause
     problems.
@@ -61,10 +76,13 @@ Basis Sets:
     Gaussian Basis Set Order Form page of David Feller 
     (http://www.emsl.pnl.gov:2080/forms/basisform.html)
   o Some of the old basis sets were corrected:
-    Basis Set "Ag_Hay-Wadt_VDZ_(n+1)_ECP", correction coefficient in first s-contraction
-    Basis Set "Ag_LANL2DZ_ECP", correction coefficient in first s-contraction
-    Complete Basis Set Family "CRENBS_ECP", complete revision of all basis sets
-    ECP "Ce_SBKJC_VDZ_ECP", correction switched integer powers for d-f component
+    o Basis Set "Ag_Hay-Wadt_VDZ_(n+1)_ECP", correction coefficient in first 
+      s-contraction
+    o Basis Set "Ag_LANL2DZ_ECP", correction coefficient in first s-contraction
+    o Complete Basis Set Family "CRENBS_ECP", complete revision of all basis 
+      sets
+    o ECP "Ce_SBKJC_VDZ_ECP", correction switched integer powers for d-f 
+      component
   o Relativistic contractions of the cc-pvnz, n = 2--5, basis sets for the 
     Douglas-Kroll and DmD approximations.
   o Dyall double-zeta basis sets for the 4p, 5p and 6p elements added
@@ -123,14 +141,19 @@ Integral changes:
     have been added.
   o General contraction and multipassing have been implemented for the
     Mc-Murchie-Davidson 2e integrals.
+  o Spin-orbit integrals for SODFT enabled.
+  o Effective charge potential for COSMO added.
 
 Tests, manuals and misc script changes: 
 
   o Updated User's Manual to reflect new and modified functionality in
     NWChem. 
-  o QA tests have been updated to reflect the new functionality in NWChem. 
-  o 
-  o Updates in the Programmer's Manual (much more is still left to come!). 
+  o QA tests have been updated to reflect the new functionality and the
+    TITLE change. 
+  o Updated the example directory.
+  o INSTALL instructions have been rewritten to be more user friendly.
+  o Updates in the contrib directory to reflect more recent machines and
+    capabilities, especially the Python capability.
 
 Installation availability: 
 
