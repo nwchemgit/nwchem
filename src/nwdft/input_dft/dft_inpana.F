@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.60 2002-03-24 05:39:54 edo Exp $
+c     $Id: dft_inpana.F,v 1.61 2002-03-24 20:55:25 edo Exp $
 c
 c*********************************************************************
 c     
@@ -35,7 +35,7 @@ c
       integer nshells
       integer ictr
       double precision bsr, radang
-      double precision anucl_charg, ckfac, t1, r1
+      double precision anucl_charg, ckfac, t1
       double precision ictr_coord(3), ictr_chg,smear_sigma
       character*3 on_off_1, on_off_2
       logical oprint_general, oprint_grid, oprint_xc, 
@@ -635,6 +635,7 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
       integer rtdb
 c
       logical oprint_general
+      double precision tol2e
 c
       oprint_general = util_print('general information',print_default)
 c
@@ -646,10 +647,10 @@ c
 c     check integral tolerances to make sure they match 
 c     requested convergence tolerances.
 c
-c     make sure itol2e is less than 0.01*e_conv or (0.01*g_conv**2)
+c     make sure itol2e is less than 0.1*e_conv or (0.01*g_conv**2)
 c
-      if (10.d0**(-itol2e).gt.(1.0d-2*e_conv))then
-         itol2e = -nint(log10(5.0d-3*e_conv))
+      if (10.d0**(-itol2e).gt.(1.0d-1*e_conv))then
+         itol2e = -nint(log10(1.0d-1*e_conv))
          if (.not. rtdb_put(rtdb, 'dft:itol2e',
      &      mt_int, 1, itol2e))
      &      call errquit('dft_inpanae: rtdb_put failed', 127)
@@ -681,5 +682,8 @@ c
      &      mt_int, 1, iAOacc))
      &      call errquit('dft_inpanae: rtdb_put failed', 124)
       endif
+      tol2e = 10.d0**(-itol2e)
+      if (.not. rtdb_put(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) 
+     .     call errquit('dftinpanae:rtdbput failed',0)
       return
       end
