@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize2.F,v 1.4 2002-06-26 19:26:53 bylaska Exp $                       
+c     $Id: cgminimize2.F,v 1.5 2003-02-05 03:45:04 bylaska Exp $                       
 c
 
 *  **************************************************************
@@ -142,6 +142,7 @@ c
 
 *        **** initialize the geoedesic line data structure ****
          call psi_1geodesic2_start(dcpl_mb(H0(1)),max_sigma,dE0)
+
 
 *        ******* line search *********
          if (tmin.gt.deltat_min) then

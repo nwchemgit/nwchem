@@ -1,5 +1,5 @@
 *
-* $Id: geodesic2.F,v 1.2 2002-06-25 19:51:26 bylaska Exp $
+* $Id: geodesic2.F,v 1.3 2003-02-05 03:45:25 bylaska Exp $
 *
 
 *     ***********************************
@@ -131,6 +131,7 @@
       ispin = psi_ispin()
       ne(1) = psi_ne(1)
       ne(2) = psi_ne(2)
+
 
 *     **** allocate tmp space ****
       value = MA_push_get(mt_dbl,4*(ne(1)*ne(1)+ne(2)*ne(2)),
