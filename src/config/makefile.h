@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.470 2004-06-29 16:05:21 edo Exp $
+# $Id: makefile.h,v 1.471 2004-06-29 16:10:01 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1405,7 +1405,7 @@ endif
 ifeq ($(LINUXCPU),ppc)
   EXTRA_LIBS += -lm
     ifeq ($(FC),xlf)
-      LINK.f   = xlf_r   $(LDFLAGS) 
+      LINK.f   = xlf_r -Wl,-Bstatic $(LDFLAGS) 
     endif
 endif
 
