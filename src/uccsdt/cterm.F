@@ -1,4 +1,7 @@
       subroutine uccsdt_cterm(urange,vrange,qO_handles,qV_handles)
+c
+c$Id: cterm.F,v 1.3 2002-08-28 22:16:19 bert Exp $
+c
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
