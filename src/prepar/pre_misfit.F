@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,nmis,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box,fcount,nrgrid,iogrid,rogrid)
 c
-c $Id: pre_misfit.F,v 1.38 2003-11-11 20:28:50 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.39 2004-04-06 16:18:30 d3j191 Exp $
 c
       implicit none
 c
@@ -399,6 +399,12 @@ c
       xmin(k)=xmin(k)-2.0d0*gdist
    12 continue
 c
+      if(ngrid.gt.0.and.util_print('coordinates',print_debug)) then
+      do 555 k=1,nrgrid
+      write(lfnout,'(a,i5,2f12.5)') 'grid option ',
+     + iogrid(k),rogrid(1,k),rogrid(2,k)
+  555 continue
+      endif
       ngrid=1
       do 14 ix=1,mgrid
       do 15 iy=1,mgrid
@@ -443,6 +449,7 @@ c
       endif
   217 continue
       endif
+      write(*,'(a,4i5)') 'grid ',ix,iy,iz
       do 17 k=1,nsa
       if(isfnd(k).eq.1) then
       if(npbtyp.eq.0) then
@@ -505,7 +512,7 @@ c
    14 continue
       ngrid=ngrid-1
 c
-      if(ngrid.le.0) call md_abort('No grid points',9999)
+      if(ngrid.le.0) call md_abort('No grid points 0',9999)
 c
 c     calculate grid potential
 c
@@ -571,7 +578,7 @@ c
 c
       endif
 c
-      if(ngrid.le.0) call md_abort('No grid points',9999)
+      if(ngrid.le.0) call md_abort('No grid points 1',9999)
 c
 c     find extrema
 c

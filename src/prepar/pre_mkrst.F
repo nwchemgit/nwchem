@@ -5,7 +5,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: pre_mkrst.F,v 1.97 2004-02-14 20:09:18 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.98 2004-04-06 16:18:30 d3j191 Exp $
 c
       implicit none
 c
@@ -65,7 +65,11 @@ c
       real*8 zdist,xr(3,2),boxmax
 c
       integer iskip(3,100),nskip,nmoves
+      integer mcolgr,ncolgr
+      parameter(mcolgr=20)
+      integer icolgr(2,mcolgr)
 c
+      ncolgr=0
       irrep=0
       lpdbbx=.false.
 c
@@ -1063,7 +1067,7 @@ c
       if(.not.ma_push_get(mt_dbl,6*msa,'vec',l_vec,i_vec))
      + call md_abort('Memory allocation failed for ndx',9999)
       call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),int_mb(i_ndx),
-     + dbl_mb(i_vec),msa,nsa,touch,3,nmoves)
+     + dbl_mb(i_vec),msa,nsa,touch,3,nmoves,ncolgr,icolgr)
       if(.not.ma_pop_stack(l_vec))
      + call md_abort('Memory deallocation failed for vec',9999)
       if(.not.ma_pop_stack(l_ndx))
@@ -1076,11 +1080,16 @@ c
       if(.not.ma_push_get(mt_dbl,6*msa,'vec',l_vec,i_vec))
      + call md_abort('Memory allocation failed for ndx',9999)
       call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),int_mb(i_ndx),
-     + dbl_mb(i_vec),msa,nsa,touch,1,nmoves)
+     + dbl_mb(i_vec),msa,nsa,touch,1,nmoves,ncolgr,icolgr)
       if(.not.ma_pop_stack(l_vec))
      + call md_abort('Memory deallocation failed for vec',9999)
       if(.not.ma_pop_stack(l_ndx))
      + call md_abort('Memory deallocation failed for ndx',9999)
+      endif
+      if(card(1:9).eq.'collapsgr') then
+      ncolgr=ncolgr+1
+      if(ncolgr.gt.10) call md_abort('Increase dimension mcolgr',ncolgr)
+      read(card(11:20),'(2i5)') icolgr(1,ncolgr),icolgr(2,ncolgr)
       endif
 c
 c     remove solvent

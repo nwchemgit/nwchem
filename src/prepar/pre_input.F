@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.117 2004-02-14 20:09:14 d3j191 Exp $
+c $Id: pre_input.F,v 1.118 2004-04-06 16:18:30 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
       integer irepeat,nrepeat,iopt,jopt,kopt,irrand,invert,irrep
       integer iskip,jskip,kskip
       integer nrgrid,iogrid(5),rogrid(2,5)
-      integer itopol,ititle,ntitle,nmoves,icomb
+      integer itopol,ititle,ntitle,nmoves,icomb,icolgrp,jcolgrp
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo,ltitle
 c
@@ -1226,6 +1226,14 @@ c
       if(.not.inp_i(nmoves)) nmoves=-1
       write(68,6881) nmoves
  6881 format('collapsez ',i5)
+      numcmd=numcmd+1
+      goto 2
+      endif
+      if(inp_compare(.false.,'collapse_group',item)) then
+      if(.not.inp_i(icolgrp)) call md_abort('pre_input collapse_group')
+      if(.not.inp_i(jcolgrp)) call md_abort('pre_input collapse_group')
+      write(68,6885) icolgrp,jcolgrp
+ 6885 format('collapsgr ',2i5)
       numcmd=numcmd+1
       goto 2
       endif

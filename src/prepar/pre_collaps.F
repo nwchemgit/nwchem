@@ -1,4 +1,5 @@
-      subroutine pre_collaps(xs,id,ndx,vec,msa,nsa,touch,mode,nmoves)
+      subroutine pre_collaps(xs,id,ndx,vec,msa,nsa,touch,mode,nmoves,
+     + ncolgr,icolgr)
 c
       implicit none
 c
@@ -6,6 +7,8 @@ c
       integer id(msa),ndx(msa,3)
       real*8 xs(3,msa),vec(6,msa)
       real*8 touch
+      integer ncolgr
+      integer icolgr(2,ncolgr)
 c
       logical first,found
       integer i,j,k,m
@@ -65,6 +68,17 @@ c
       endif
       endif
    15 continue
+c
+      if(ncolgr.gt.0) then
+      do 26 j=1,ncolgr
+      do 27 i=1,nsa
+      if(ndx(i,2).eq.icolgr(2,j)) ndx(i,2)=icolgr(1,j)
+   27 continue
+      write(*,'(a,i8,a,i4)') 
+     + ' Molecule   ',icolgr(2,j),
+     + ' grouped with molecule ',icolgr(1,j)
+   26 continue
+      endif
 c
       nummov=0
 c
