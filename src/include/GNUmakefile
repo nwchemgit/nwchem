@@ -18,7 +18,5 @@ include_stamp sngl_to_dbl dbl_to_sngl:
 	echo Nothing to be done
 
 realclean clean:
-	mv msgids.fh msgids.FH
 	/bin/rm -f *.h *.fh
 	/bin/rm -f *~ \#*\#
-	mv msgids.FH msgids.fh
