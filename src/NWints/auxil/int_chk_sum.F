@@ -1,5 +1,5 @@
       subroutine int_chk_sum(basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.11 1994-10-20 23:31:47 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.12 1995-01-09 02:03:29 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -455,6 +455,7 @@ c
       double precision stats(5,3)   ! stats array (zeroed elsewhere)
       logical printem               ! print values as you go??
 c::local 
+      logical printjust
       integer ii,i,j,k,l,l4
       double precision x,x2,denom,s1,d1
 c
@@ -463,6 +464,8 @@ c
       ISYM4(I,J,K,L)=MAX(ISYM2(I,J),ISYM2(K,L))*
      &               (MAX(ISYM2(I,J),ISYM2(K,L))-1)/2+
      &               MIN(ISYM2(I,J),ISYM2(K,L))
+c
+      printjust = .false.
 c
       numtot = numtot + num
       do 00100 ii = 1,num
@@ -476,8 +479,13 @@ c
         if (printem) then
           l4 = isym4(i,j,k,l)
           write(6,10001)l4,i,j,k,l,x
-10001    format(i8,4(i4,1x),5x,'eri = ',1pd20.10)
-       endif
+10001     format(i8,4(i4,1x),5x,'eri = ',1pd20.10)
+        endif
+        if (printjust) then
+          l4 = isym4(i,j,k,l)
+          write(69,10002)l4,i,j,k,l,x
+10002     format(i8,4(i4,1x),1x,f30.20)
+        endif
         x2    = x*x
         denom = 1.0d00 + x2
 c
