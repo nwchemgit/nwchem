@@ -47,6 +47,8 @@ c
       double precision dval
       integer ival
       integer next, i
+      character*8 types(3)
+      data types/'float','integer','string'/
 c     
       ierr = 0
       if (.not. inp_read()) then
@@ -79,30 +81,33 @@ c
 c     Stuff the ASCII value and length into prswrd
 c     
          call inp_prev_field()
-         if (.not. inp_a(prswrd(i))) call errquit
+         if (.not. inp_a(aval)) call errquit
      $        ('hnd_rdfree: failed reading ascii value',i)
-         numchr(i) = inp_strlen(prswrd(i))
+         if (flgwrd(i) .eq. 3) then
+            prswrd(i)(1:1) = ''''
+            prswrd(i)(2:)  = aval
+            numchr(i) = inp_strlen(prswrd(i)) + 1
+            prswrd(i)(numchr(i):numchr(i)) = ''''
+         else
+            prswrd(i) = aval
+            numchr(i) = inp_strlen(prswrd(i))
+         endif
 c
 c     Concatenate it onto the end of string
 c
-         if (flgwrd(i) .lt. 3) then
-            if (next+numchr(i) .le. len(string)) then
-               string(next:) = prswrd(i)
-               next = next + numchr(i) + 1
-            else
-               call errquit('hnd_rdfree: string too short',len(string))
-            endif
+         if (next+numchr(i) .le. len(string)) then
+            string(next:) = prswrd(i)
+            next = next + numchr(i) + 1
          else
-            if (next+numchr(i)+3 .le. len(string)) then
-               string(next:next) = ''''
-               string(next+1:) = prswrd(i)
-               string(next+1+numchr(i):next+1+numchr(i)) = ''''
-               next = next + 3 + numchr(i)
-            else
-               call errquit('hnd_rdfree: string too short',len(string))
-            endif
+            call errquit('hnd_rdfree: string too short',len(string))
          endif
-c               
+c
       enddo
+c
+c$$$      write(6,*) ' STRING "',string(1:inp_strlen(string)),'"'
+c$$$      do i = 1, numwrd
+c$$$         write(6,*) i, ' ', types(flgwrd(i)), ' ', numchr(i), '=',
+c$$$     $        prswrd(i)(1:numchr(i))
+c$$$      enddo
 c     
       end
