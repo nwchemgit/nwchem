@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.22 2002-01-16 17:21:38 windus Exp $
+c $Id: shell_fock_build.F,v 1.23 2002-02-05 04:22:36 windus Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -125,7 +125,7 @@ c
      $     int_mb(k_bfghi), int_mb(k_shbflo), int_mb(k_shbfhi))
 c
       call intb_mem_2e4c(max2e, lscr) ! blocking algorithm
-      leri = max(max2e,1296*100) ! 100 D quartets
+      leri = max(max2e*12,1296*100) ! 100 D quartets
 c 
       if (.not. ma_push_get(mt_dbl,leri,'eri',l_eri,k_eri)) 
      $     call errquit('new_fock:could not allocate buffer',leri)
