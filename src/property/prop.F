@@ -5,7 +5,7 @@ c
 c>>>  Inquire rtdb for properties to be evaluated.
 c
 *
-* $Id: prop.F,v 1.4 1997-04-02 19:02:11 d3e129 Exp $
+* $Id: prop.F,v 1.5 1997-06-11 16:44:54 mdupuis Exp $
 *
       implicit none
       integer rtdb              ! [input]
@@ -27,7 +27,7 @@ c
 c
 c     hondo property calculation routines 
 c
-      status = scf_property(rtdb)
+      status = hnd_property(rtdb)
 c
       if (rtdb_get(rtdb,'prop:nbofile',MT_INT, 1, nbofile)) then
         if(nbofile.eq.1)call wnbofile(rtdb)
@@ -36,4 +36,3 @@ c
       property = .true.
 
       end
-

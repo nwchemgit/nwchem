@@ -1,11 +1,12 @@
 *
-* $Id: prp.F,v 1.13 1997-06-10 17:36:27 mdupuis Exp $
+* $Id: prp.F,v 1.14 1997-06-11 16:44:55 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "rtdb.fh"
       integer rtdb, basis, geom
-      LOGICAL SOME
+      LOGICAL     SOME
+      LOGICAL     OUT 
       CHARACTER*8 WFNTYP,SCFTYP
       CHARACTER*8 SCF,RHF,UHF,MP2
       CHARACTER*8 RUNTYP
@@ -40,7 +41,9 @@ C    5       1/
      4       1,    1,    1,    1,    0,    0,    0,    1,    1,
      5       1/
 C
+      OUT   =.TRUE.
       SOME  =.TRUE.        
+      SOME  =SOME.OR.OUT
       RUNTYP=BLANK
 c
       if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
@@ -60,6 +63,7 @@ c
      1                        NODPL,NODHP,NOD2HP,NOFPL,NOFHP,NOF2HP,
      2                        NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
      3                        NOSTON
+      IF(OUT ) WRITE(IW,9998) RUNTYP,SCFTYP
 C
 C     ----- INTERFACE OF NWCHEM AND HONDO -----
 C
@@ -176,6 +180,7 @@ C
      4 ' NOFPL =',I2,' NOFHP =',I2,' NOF2HP=',I2,' NOSOS =',I2,
      5 ' NOELP =',I2,' NOELF =',I2,' NOELFG=',I2,' NODEN =',I2,
      6 ' NONMR =',I2,' NOSTON=',I2)
+ 9998 FORMAT(' RUNTYP = --',A8,'--',/,' SCFTYP = --',A8,'--')
       END
       SUBROUTINE HND_NMRX
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
