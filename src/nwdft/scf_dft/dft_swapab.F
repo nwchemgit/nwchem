@@ -1,15 +1,15 @@
       Subroutine dft_swapab(g_dens, g_movecs,nbf_ao,nocc,
      ,        evals,occ,g_tmp,ktmp)
 
-C$Id: dft_swapab.F,v 1.1 1999-06-16 01:00:35 edo Exp $
+C$Id: dft_swapab.F,v 1.2 1999-06-16 18:24:32 d3e129 Exp $
       Implicit none
+      integer nbf_ao              ! [input] number of ao basis functions
       integer g_dens(2)           ! dens       [input/out] 
       integer g_movecs(2)         ! eigenvecs [input/output]
       integer g_tmp            ! scratch space
       double precision evals(nbf_ao,2)! eigenvalues  [input/output]
       double precision occ(nbf_ao,2)! occup nos  [input/output]
       double precision ktmp(*)! [scratch]
-      integer nbf_ao
       integer nocc(2)
 c
 c     local
