@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.27 2000-05-21 05:46:42 mdupuis Exp $
+C$Id: int_1e_ga.F,v 1.28 2000-05-22 20:28:52 zzhang Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -101,7 +101,9 @@ c
 c     arguments
 c     
       integer ibas, jbas        ! [input] bra and ket basis sets
-      integer g(3)              ! [output] GA handle to array 
+      integer g(3)              ! [output] GA handle to array. g(1..3) are used only
+                                ! for spin-orbit calculations. All other calculations use
+                                ! g(1) only 
       character*(*) integ_type  ! [input] Name of integrals to compute
       logical oskel             ! [input] If true generate symmetry unique list
 c     
