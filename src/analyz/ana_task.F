@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.87 2002-07-23 21:13:21 d3j191 Exp $
+c $Id: ana_task.F,v 1.88 2002-08-01 15:14:04 d3j191 Exp $
 c
       implicit none
 c
@@ -853,6 +853,7 @@ c
       if(lrama) then
       open(unit=lfnram,file=filram(1:index(filram,' ')-1),
      + form='formatted',status='unknown')
+      call ana_ramhdr(byte_mb(i_snam),int_mb(i_iram))
       endif
       if(lrms) then
       open(unit=lfnrms,file=filrms(1:index(filrms,' ')-1),
