@@ -1,4 +1,4 @@
-c $Id: int_func_c.F,v 1.5 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_func_c.F,v 1.6 2002-04-11 15:22:14 windus Exp $
 *
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nospherical\_check}
@@ -113,7 +113,7 @@ c
       endif
       end
 c:tex-% this is an internal API routine
-c:tex-\subsection{int\_bothsp_gc\_check}
+c:tex-\subsection{int\_bothsp\_gc\_check}
 c:tex-This routine checks to see if the basis sets used
 c:tex-have both sp shells/type basis functions and general
 c:tex-contractions.  The 2e integral codes cannot handle this.

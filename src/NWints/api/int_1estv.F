@@ -1,18 +1,36 @@
-c $Id: int_1estv.F,v 1.7 2001-01-10 21:03:11 edo Exp $
+c $Id: int_1estv.F,v 1.8 2002-04-11 15:22:14 windus Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}
-c:tex-This routine computes the 1 electron integrals
+c:tex-This is an internal routine that most of the external 1 electron
+c:tex-routines call.  This is the actual workhorse routine.
+c:tex-This routine computes the 1 electron integrals S, T, and V:
 c:tex-\begin{eqnarray*}
 c:tex-S & = & ({\mu}|{\nu}) \\
 c:tex-  & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1} \\
 c:tex-T & = & ({\mu}|-\frac{1}{2}\nabla^{2}|{\nu}) \\
-c:tex-  & = & -\frac{1}{2}\int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\nabla^{2}(r_{1})
-c:tex-        g_{\nu}(X_{\nu},r_{1})dr_{1}
+c:tex-  & = & -\frac{1}{2}\int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\nabla^{2}(r_{1})
+c:tex-        g_{\nu}(X_{\nu},r_{1})dr_{1} \\
 c:tex-V & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\
 c:tex-  & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac
-c:tex-{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1} 
+c:tex-{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1} \\
 c:tex-\end{eqnarray*}
+c:tex-
+c:tex-If an ECP is defined then the ECP integral contributions are summed
+c:tex-directly into the V integrals.
+c:tex-
+c:tex-If a relativistic basis is defined then the one-electron integrals
+c:tex-for the case where both shells are relativistic are modified to
+c:tex-\begin{eqnarray*}
+c:tex-S & = & ({\mu^L}|{\nu^L})
+c:tex-      - ({\mu^S}|\frac{\alpha^2}{4}{\nabla^{2}}|{\nu^S}) \\
+c:tex-T & = & -\frac{1}{2} ({\mu^L}|{\nabla^{2}}|{\nu^S})
+c:tex-      -  \frac{1}{2} ({\mu^S}|{\nabla^{2}}|{\nu^L})
+c:tex-      +  \frac{1}{2} ({\mu^S}|{\nabla^{2}}|{\nu^S}) \\
+c:tex-V & = & ({\mu^L}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu^L})
+c:tex-    - \frac{\alpha^2}{4} ({\mu^S}|\nabla\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}\cdot\nabla|{\nu^S}) \\
+c:tex-\end{eqnarray*}
+c:tex- 
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -319,8 +337,22 @@ c     Wrapper routines to compute different classes of integrals.
 c     All of these call int_1estv.
 c
 c----------------------------------------------------------------------
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsection{int\_1eov}
+c:tex-This routine computes the 1 electron overlap integrals ($S$):
+c:tex-\begin{eqnarray*}
+c:tex-S & = & ({\mu}|{\nu}) \\
+c:tex-  & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
+c:tex-\end{eqnarray*}
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_1eov(i_basis,ish,j_basis,jsh,lscr,scr,lov,Ov)
+c:tex-\end{verbatim}
 c
+c::passed
+c:tex-\begin{verbatim}
       integer i_basis ! [input] basis set handle for ish
       integer ish     ! [input] i shell/contraction
       integer j_basis ! [input] basis set handle for jsh
@@ -329,6 +361,7 @@ c
       double precision scr(lscr) ! [scratch] scratch array
       integer lov                ! [input] length of Ov buffer
       double precision Ov(lov)   ! [output] overlap integrals
+c:tex-\end{verbatim}
 c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr,scr,lov,Ov,scr,scr,
      &    .true.,.false.,.false.)
@@ -336,8 +369,22 @@ c          doS    doT     doV
       return
       end
 c----------------------------------------------------------------------
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsection{int\_1eke}
+c:tex-This routine computes the 1 electron kinetic energy integrals, ($T$).:
+c:tex-\begin{eqnarray*}
+c:tex-T & = & ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) \\
+c:tex-  & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}\nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
+c:tex-\end{eqnarray*}
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_1eke(i_basis,ish,j_basis,jsh,lscr,scr,lke,Ke)
+c:tex-\end{verbatim}
 c
+c::passed
+c:tex-\begin{verbatim}
       integer i_basis ! [input] basis set handle for ish
       integer ish     ! [input] i shell/contraction
       integer j_basis ! [input] basis set handle for jsh
@@ -346,6 +393,7 @@ c
       double precision scr(lscr) ! [scratch] scratch array
       integer lke                ! [input] length of Ke buffer
       double precision Ke(lke)   ! [output] kinetic energy integrals
+c:tex-\end{verbatim}
 c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr,scr,lke,scr,Ke,scr,
      &    .false.,.true.,.false.)
@@ -353,8 +401,25 @@ c          doS     doT    doV
       return
       end
 c----------------------------------------------------------------------
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsection{int\_1epe}
+c:tex-This routine computes the 1 electron potential integrals, ($V$):
+c:tex-\begin{eqnarray*}
+c:tex-V & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\
+c:tex-  & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac
+c:tex-{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1}
+c:tex-\end{eqnarray*}
+c:tex-If an ECP is defined then the ECP integral contributions are summed
+c:tex-directly into the V integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_1epe(i_basis,ish,j_basis,jsh,lscr,scr,lpe,Pe)
+c:tex-\end{verbatim}
 c
+c::passed
+c:tex-\begin{verbatim}
       integer i_basis ! [input] basis set handle for ish
       integer ish     ! [input] i shell/contraction
       integer j_basis ! [input] basis set handle for jsh
@@ -363,6 +428,7 @@ c
       double precision scr(lscr) ! [scratch] scratch array
       integer lpe                ! [input] length of Pe buffer
       double precision Pe(lpe)   ! [output] kinetic energy integrals
+c:tex-\end{verbatim}
 c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr,scr,lpe,scr,scr,Pe,
      &    .false.,.false.,.true.)
@@ -370,8 +436,37 @@ c          doS     doT     doV
       return
       end
 c----------------------------------------------------------------------
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsection{int\_1eh1}
+c:tex-This routine computes the 1 electron hamiltonian, ($H1$).
+c:tex-\begin{eqnarray*}
+c:tex-H1 & = & T + V      \\
+c:tex-T  & = & ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) \\
+c:tex-   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}
+c:tex-\nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1} \\
+c:tex-V  & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\
+c:tex-   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac
+c:tex-{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1}
+c:tex-\end{eqnarray*}
+c:tex-
+c:tex-If an ECP is defined then the ECP integral contributions are summed
+c:tex-directly into the $H1$ integrals.
+c:tex-
+c:tex-If a relativistic basis is defined then the one-electron integrals for
+c:tex-the case where both shells are relativistic are the modified integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,lh1,H1)
+c:tex-\end{verbatim}
+#include "apiP.fh"
 c
+c::functions
+      logical cando_hnd_1e
+      external cando_hnd_1e
+c::passed
+c:tex-\begin{verbatim}
       integer i_basis ! [input] basis set handle for ish
       integer ish     ! [input] i shell/contraction
       integer j_basis ! [input] basis set handle for jsh
@@ -380,10 +475,7 @@ c
       double precision scr(lscr) ! [scratch] scratch array
       integer lh1                ! [input] length of H1 buffer.
       double precision H1(lh1)   ! [output] one electron
-c. . . . . . . . . . . . . . . . !      hamiltonian integrals
-#include "apiP.fh"
-      logical cando_hnd_1e
-      external cando_hnd_1e
+c:tex-\end{verbatim}
 c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr-lh1,scr(lh1+1),lh1,
      &    scr,scr,H1,.false.,.true.,.true.)
@@ -394,8 +486,29 @@ c                     doS     doT    doV
       return
       end
 c----------------------------------------------------------------------
+*
+c:tex-
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsection{int\_1eall}
+c:tex-This routine computes the 1 electron integrals S, T, and V:
+c:tex-\begin{eqnarray*}
+c:tex-S & = & ({\mu}|{\nu}) \\
+c:tex-  & = & \int_{{-}\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1} \\
+c:tex-T & = & ({\mu}|-\frac{1}{2}{\nabla^{2}}|{\nu}) \\
+c:tex-  & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}{\nabla^{2}}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1} \\
+c:tex-V & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\
+c:tex-  & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac{-Z_{\alpha}}
+c:tex-{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1}
+c:tex-\end{eqnarray*}
+c:tex-
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim} 
       subroutine int_1eall(i_basis,ish,j_basis,jsh,lscr,scr,lstv,S,T,V)
+c:tex-\end{verbatim}
 c
+c::passed
+c:tex-\begin{verbatim}
       integer i_basis ! [input] basis set handle for ish
       integer ish     ! [input] i shell/contraction
       integer j_basis ! [input] basis set handle for jsh
@@ -406,6 +519,7 @@ c
       double precision T(lstv)   ! [output] kinetic integral buffer
       double precision V(lstv)   ! [output] potential integral buffer
       double precision S(lstv)   ! [output] overlap integral buffer
+c:tex-\end{verbatim}
 c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr,scr,lstv,S,T,V,
      &    .true.,.true.,.true.)
