@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.59 2001-11-02 16:04:11 d3j191 Exp $
+c $Id: sp_main.F,v 1.60 2001-11-09 16:20:06 d3j191 Exp $
 c
       implicit none
 c
@@ -1287,7 +1287,19 @@ c
 c
       if(nsa.gt.0) then
       do 43 isa=1,nsaloc
-      if(isl(isa,lsnod).eq.me) nsstay=isa
+      if(isl(isa,lsnod).eq.me) then
+      nsstay=isa
+      else
+c
+c     check if moving atoms go to neighboring processor
+c
+      do 444 k=1,27
+      if(isl(isa,lsnod).eq.neighb(k,1)) goto 445
+  444 continue
+      call errquit('sp_travel: solute atom to non-neighbor node',me)
+  445 continue
+c
+      endif
    43 continue
       endif
 c
