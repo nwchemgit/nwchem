@@ -1,0 +1,101 @@
+I've just checked in a substantial functional change to the NWChem
+makefile setup. This change will allow you to exclude certain
+computational modules from the build, giving you shorter build times
+and smaller executables.
+
+Use of these capabilities is pretty straightforward, but there are
+some more complicated issues underlying this, so please read this
+entire description through!
+
+When the code is checked out of the repository, it will, by default,
+build in the same way it always has.  You can change the configuration
+with the command
+	make nwchem_config NWCHEM_MODULES="list of modules"
+(assuming NWCHEM_TOP and NWCHEM_TARGET are set via environment
+variables). You can look in src/config/NWCHEM_CONFIG for a listing of
+how the code is currently configured.  The chosen configuration will
+remain in effect until replaced with another one. (NOTE: NWCHEM_CONFIG
+lists your NWCHEM_TOP and NWCHEM_TARGET settings, but at present they
+don't have any effect, the must still be specified as they always have).
+
+With this change, directories/libraries are now divided into two
+categories.  Top-level computational modules, which are generally
+those libraries that handle the chemistry, and "core" or support
+stuff, which is basically required by all of the top-level modules.
+The core directories/libraries are always built, while the top-level
+computational modules can be configured in and out.
+
+The "list of modules" should be a blank-separated list of the
+directories that are to be included in the build.  Order is not
+important.  Currently recognized modules are:
+	NWints atomscf ddscf develop gradients ideaz moints nwdft rimp2 
+	riscf stepper symmetry
+There are also a couple of shorthand "modules" which are recognized.
+	all	everything except ideaz (the source is not available to all)
+	qm	excludes develop and ideaz
+	md	ideaz only
+	qmmd	gradients ideaz
+Dependencies among the computational modules are handled automatically
+(I think I have it right, though I have not tested every possible
+configuration) so that if you specify "nwdft" it will automatically
+build NWints, atomscf, and ddscf too because nwdft uses routines from
+all of them.  (Might be good to think about moving some routines around
+to reduce dependencies, but that's a long-term thing.)
+
+Modules which are not included are replaced with "stubs" so that the
+link will complete.  These stubs simply call ErrQuit with a report
+that the given routine is not in the current build of NWChem.  This
+means that input decks which contain input for excluded modules may
+fail, even if the input deck wouldn't actually incoke the module --
+some of the input routines are stubbed out too!  To get around this,
+comment out all input for modules you have not included in your build.
+
+Finally, you should be aware of some new files which require special
+treatment. 
+	src/stubs.f	
+		contains the replacement (stub) routines for the
+		present configuration of the code.
+	src/config/NWCHEM_CONFIG
+		a (more or less) human-readable description of the
+		current configuration.
+	src/config/nwchem_config.h
+		a makefile fragment which gives the configuration
+		information to all makefiles (included by
+		src/config/makefile.h)
+The files listed above are all generated automatically when the code
+is reconfigured.  YOU SHOULD NOT NORMALLY NEED TO EDIT THESE FILES.
+YOU SHOULD NOT NORMALLY CHECK THEM INTO THE REPOSITORY -- the proper
+defaults are already checked in!
+
+For those curious about how it all works, the main player is
+src/config/make_nwchem_config, a makefile which is used a
+reconfigration time to generate the files above.  There is also a file
+HOW_TO_ADD_A_MODULE which tells you exactly what you'd think from the
+title.
+
+The src/makefile also has a couple of new convenience targets:
+	make_source_dirs
+		Will create directories for all source directories
+		which the program is configured to build.  One problem
+		that sometimes occurs with CVS is that new directories
+		in the repository are not automatically created in
+		your tree when you do an update.  Now you can do the
+		following:
+		1) update src/config
+		2) configure the code to include all modules
+		3) do make make_source_dirs
+		4) update the whole source tree
+	remove_unused_dirs
+		Will remove those directories which are excluded from
+		the build.  This could be used to prune source trees
+		if you're tight on disk space or just uninterested in
+		some parts of the code. WARNING!  THIS CAN BE A
+		DANGEROUS THING TO DO since it does "rm -rf" without
+		any kind of check that you don't have something
+		important in the directories in question!
+
+If there are any questions or problems, please contact me.  I'll be
+out next week, but in regular email contact.  If things get desparate
+(I doubt it) and you need a version of the code that doesn't have this
+configuration stuff in it, check out the version tagged
+"before_module_configurability".
