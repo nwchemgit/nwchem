@@ -170,36 +170,44 @@ c     locals
 c     
       character*16 tag
       double precision coord(3), q
-      integer ncenter, icent, ltotal, k, l, m, ind
+      integer ncenter, icent, ltotal, k, l, m, ind, atn
       double precision xk, xl, xm
+      logical bqbq, isatom
+      character*2 symbol
+      character*20 element
 c     
       if (.not. geom_ncent(geom, ncenter)) 
      $     call errquit('geom_nuc_mpole: bad geometry',0)
+c
+      bqbq = geom_include_bqbq(geom)
 c     
 c     loop over centers, summing multipole moments
 c     
       do icent = 1,ncenter
          if (.not. geom_cent_get(geom,icent,tag,coord,q))
      &        call errquit('geom_nuc_mpole:  geom_cent_get failed',10)
+         isatom = geom_tag_to_element(tag, symbol, element, atn)
+         if (isatom .or. bqbq) then
 c     
 c     x^k y^l z^m, k+l+m=ltotal
 c     
-         ind = 0
-         do ltotal = 0, lmax
-           do k = ltotal, 0, -1
-               do l = (ltotal-k), 0, -1
-                  m = ltotal - k - l
-                  xk = dble(k)
-                  xl = dble(l)
-                  xm = dble(m)
-                  ind = ind + 1
-                  moments(ind) = moments(ind) + q*(
-     $                 (coord(1)-center(1))**xk *
-     $                 (coord(2)-center(2))**xl * 
-     $                 (coord(3)-center(3))**xm)
+            ind = 0
+            do ltotal = 0, lmax
+               do k = ltotal, 0, -1
+                  do l = (ltotal-k), 0, -1
+                     m = ltotal - k - l
+                     xk = dble(k)
+                     xl = dble(l)
+                     xm = dble(m)
+                     ind = ind + 1
+                     moments(ind) = moments(ind) + q*(
+     $                    (coord(1)-center(1))**xk *
+     $                    (coord(2)-center(2))**xl * 
+     $                    (coord(3)-center(3))**xm)
+                  end do
                end do
             end do
-         end do
+         endif
       end do
 c
       end 
