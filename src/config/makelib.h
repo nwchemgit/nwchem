@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.22 1995-11-13 06:54:51 d3g681 Exp $
+# $Id: makelib.h,v 1.23 1995-11-16 16:26:55 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -260,7 +260,7 @@ endif
 
 
 .PHONY:	realclean
-realclean:	clean	cleanF
+realclean:	clean
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
