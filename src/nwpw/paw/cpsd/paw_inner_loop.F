@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.2 2003-02-10 22:34:06 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.3 2003-02-11 01:16:35 marat Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -25,6 +25,7 @@
 
 
 #include "mafdecls.fh"
+#include "paw_energy_kin_atom.fh"
 
 
 *     **** local variables ****
@@ -36,7 +37,7 @@
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  deltamm
-
+      double precision paw_ekin_atom
 
 
 *     **** MA local variables ****
@@ -406,7 +407,9 @@ c     end do
 c     if (np.gt.1) call D3dB_SumAll(enlocal)
 c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
-
+c     get paw atom energies
+      paw_ekin_atom = paw_energy_kin_atom()
+      write(*,*) "paw atom kin energy",paw_ekin_atom
 
 *     **** total energy ****
       Eold=E(1)
