@@ -1,8 +1,8 @@
-#$Id: GNUmakefile,v 1.41 1999-05-11 05:46:51 d3e129 Exp $
+#$Id: GNUmakefile,v 1.42 1999-06-04 04:44:20 d3e129 Exp $
 
 # Put into task library so that it occurs at the front of the link path
 
- LIBRARY = libtask.a
+ LIBRARY = libnwctask.a
 
      OBJ = input_parse.o input_mem.o memory_input.o input_set.o \
            input_title.o \

@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.73 1999-06-01 20:47:48 d3h325 Exp $
+# $Id: GNUmakefile,v 1.74 1999-06-04 04:43:47 d3e129 Exp $
 
 include config/makefile.h
 
@@ -30,7 +30,7 @@ all $(BINDIR)/$(NWBINNAME) $(NWBINNAME):	directories libraries
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/$(NWBINNAME)
 endif
-	$(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -ltask $(LIBS)
+	$(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -lnwctask $(LIBS)
 	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 #
@@ -47,7 +47,7 @@ link nwchem_link:
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/$(NWBINNAME)
 endif
-	$(PURIFY) $(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -ltask $(LIBS)
+	$(PURIFY) $(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -lnwctask $(LIBS)
 #	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 
@@ -61,7 +61,7 @@ prof profile:
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f nwchem_prof
 endif
-	$(LINK.f) -p -o nwchem_prof nwchem.o stubs.o -ltask $(LIBS)
+	$(LINK.f) -p -o nwchem_prof nwchem.o stubs.o -lnwctask $(LIBS)
 	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 #
@@ -71,7 +71,7 @@ test:	nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f nwchem_test
 endif
-	$(LINK.f) -o nwchem_test nwchem.o stubs.o -ltask $(LIBS)
+	$(LINK.f) -o nwchem_test nwchem.o stubs.o -lnwctask $(LIBS)
 	$(INSTALL)
 
 # This dependency so that includes which are made by libraries rule

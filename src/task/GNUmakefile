@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.18 1999-03-15 21:16:28 d3j191 Exp $
+# $Id: GNUmakefile,v 1.19 1999-06-04 04:45:19 d3e129 Exp $
 #
 
-  LIBRARY = libtask.a
+  LIBRARY = libnwctask.a
   
   OBJ = task_energy.o task_gradient.o task_optimize.o task_freq.o \
 	task_hessian.o task_dynamics.o task_thermo.o\
