@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.38 2000-03-15 00:48:50 d3j191 Exp $
+c $Id: cf_init.F,v 1.39 2000-03-16 00:43:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1200,6 +1200,7 @@ c
       implicit none
 c
 #include "cf_common.fh"
+#include "mafdecls.fh"
 c
 c      real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),vs(msa,3),vst(msa,3)
       real*8 bx(3),vl(3,3),vli(3,3),zwi(3,2),zs(msf,3,2)
@@ -1288,6 +1289,28 @@ c
       if(.not.llst) call cf_lalloc()
 c
       ndxp=0
+c
+      call cf_binit(dbl_mb(i_rbnd(2)),numb(2),2)
+      call cf_binit(dbl_mb(i_rang(2)),numh(2),2)
+      call cf_binit(dbl_mb(i_rdih(2)),numd(2),2)
+      call cf_binit(dbl_mb(i_rimp(2)),numi(2),2)
+c
+      return
+      end
+      subroutine cf_binit(r,m1,m2)
+c
+      implicit none
+c
+      integer m1,m2
+      real*8 r(m1,m2)
+c
+      integer i,j
+c
+      do 1 j=1,m2
+      do 2 i=1,m1
+      r(i,j)=0.0d0
+    2 continue
+    1 continue
 c
       return
       end
