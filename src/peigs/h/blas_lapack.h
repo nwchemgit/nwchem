@@ -1,5 +1,5 @@
 /*
- $Id: blas_lapack.h,v 1.18 2000-05-18 02:07:02 edo Exp $
+ $Id: blas_lapack.h,v 1.19 2000-10-23 23:11:22 d3g270 Exp $
   c defines */
 #define NO_EVEC 0
 
@@ -32,6 +32,22 @@
 #endif
 
 #ifdef HPPA
+/*
+ Double Precision results
+ depsilon   1.1102230246251565E-16
+ dbase      2.0000000000000000E+00
+ dsafeulp   2.2250738585072013-308
+ dlamch(u)  2.2250738585072013-308
+ */
+#define DLAMCHE 1.1102230246251565E-16
+#define DLAMCHP 1.1102230246251565E-16
+#define DLAMCHB 2.0000000000000000E+00
+#define DLAMCHS 2.2250738585072013E-308
+#define DLAMCHU 2.2250738585072013E-308
+
+#endif
+
+#ifdef IEEE
 /*
  Double Precision results
  depsilon   1.1102230246251565E-16
