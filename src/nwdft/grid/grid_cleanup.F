@@ -1,6 +1,6 @@
       Subroutine grid_cleanup(okeep)
 c
-c$Id: grid_cleanup.F,v 1.11 2004-03-31 00:25:28 edo Exp $
+c$Id: grid_cleanup.F,v 1.12 2004-04-17 01:45:05 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -64,5 +64,16 @@ c
             grid_opencache=.false.
          endif
       endif
+      return
+      end
+      logical function grid_clinit(rtdb)
+      implicit none
+#include "cdft.fh"
+#include "mafdecls.fh"
+#include "cgridfile.fh"
+#include "rtdb.fh"
+      integer rtdb
+      grid_clinit=rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc,xfac)
+      call util_file_name('grinfo',.true.,.true.,grinfo)
       return
       end
