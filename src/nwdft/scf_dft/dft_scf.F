@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.42 1996-10-23 01:21:43 gutowski Exp $
+C$Id: dft_scf.F,v 1.43 1996-11-08 23:46:08 vg038 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -98,6 +98,11 @@ c
       logical movecs_to_logfile
       integer n_homo, n_lumo            ! # of HOMOs, LUMOs to output to stdout
 #endif      
+      integer stat1, stat2, l_ir, k_ir
+      logical status
+
+      call ecce_print_module_entry('dft')
+
 c-----------------------------------------------------------------------
       oprint = util_print('information',print_low)
       oprint_info = util_print('common',print_debug)
@@ -1175,6 +1180,52 @@ C
         call ga_print(g_movecs)
         if(ipol.eq.2) call ga_print(g_movecs(2))
       end if
+C     
+C     ECCE printout (for SC '96)
+C
+C     requested?
+      stat1 = 0
+      call ecce_print_control(stat1, stat2) ! stat2 set to print status
+      stat1 = stat2
+      call ecce_print_control(stat1, stat2) ! restore previous setting
+      if ( stat1 .eq. 1 ) then
+C       allocate array for irreps
+        status = ma_push_get ( mt_dbl, nbf_ao,'dft:irreps', 
+     $       l_ir, k_ir )
+        if ( .not. status ) 
+     $       call errquit ('dft:error allocating ir array', 110 )
+        if ( oadapt ) then
+          call scf_movecs_sym_adapt( ao_bas_han, g_movecs(1),
+     $         .false., nbf_ao, '- alpha', .true., int_mb(k_ir) )
+        else
+          call ifill ( nbf_ao, 1, int_mb(k_ir), 1 )
+        endif
+        call movecs_ecce(nbf_ao, nmo, 1, nmo, dbl_mb(k_eval(1)),
+     $       dbl_mb(k_occ), int_mb(k_ir), 
+     $       g_movecs(1), 'dft', 'alpha')
+        if ( nsets.eq.2 ) then ! spin-unrestricted
+          if ( oadapt ) then
+            call scf_movecs_sym_adapt( ao_bas_han, g_movecs(2),
+     $           .false., nbf_ao, '- alpha', .true., int_mb(k_ir) )
+          endif
+          call movecs_ecce(nbf_ao, nmo, 1, nmo, dbl_mb(k_eval(2)),
+     $         dbl_mb(k_occ+nbf_ao), int_mb(k_ir), 
+     $         g_movecs(2), 'dft', 'alpha')
+        endif
+        status = ma_pop_stack ( l_ir )
+        call ecce_print1 ('total energy', mt_dbl, (Etold+Enuc), 1 )
+        call ecce_print1 ('nuclear repulsion energy', mt_dbl, Enuc, 1 )
+        call ecce_print1 ('coulomb energy', mt_dbl, Ecoul, 1 )
+        call ecce_print1 ('exchange energy', mt_dbl, Exc(1), 1 )
+        if ( nexc.gt. 1) then
+          call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1 )
+        endif
+      endif
+      if ( converged ) then
+        call ecce_print_module_exit('dft', 'ok')
+      else
+        call ecce_print_module_exit('dft', 'failed')
+      endif
 c****   
 c****   eval deallocation moved here from inside iteration loop
 c****   
