@@ -1,5 +1,5 @@
 *
-* $Id: psi_Hv4.F,v 1.8 2003-01-25 00:46:15 bylaska Exp $
+* $Id: psi_Hv4.F,v 1.9 2003-07-11 21:06:34 bylaska Exp $
 *
 
 *     *************************************
@@ -52,13 +52,14 @@
 #include "mafdecls.fh"
 
 *     **** local variables ****
+      logical dosic
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
       real*8  scal1,scal2
 
 *     **** tempory space ****
       integer nfft3d,n2ft3d,npack1
-      integer vall(2),vpsi(2)
+      integer vall(2),vpsi(2),Hpsi_r(2)
       logical value
 
 
@@ -69,6 +70,7 @@
       external lattice_omega
 
 
+      dosic = (pspw_SIC().and.pspw_SIC_relaxed())
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -80,7 +82,13 @@
       value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (dosic) then
+         value = value.and.
+     >           MA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,
+     >                        'Hpsi_r',Hpsi_r(2),Hpsi_r(1))
+         call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,0,dbl_mb(Hpsi_r(1)),1)
+      end if
+      if (.not. value) call errquit('psi_H:out of stack memory',0)
       call nwpw_timing_end(12)
       
 
@@ -102,11 +110,12 @@
 *     **************************
       call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
 
-*     **************************
-*     **** SIC corrections?? ***
-*     **************************
-      if (pspw_SIC().and.pspw_SIC_relaxed()) then
-         call pspw_potential_SIC(ispin,psi_r,Hpsi_k)
+
+*     **********************************************
+*     **** SIC corrections- Hpsi_r = Vsic*psi_r ****
+*     **********************************************
+      if (dosic) then
+         call pspw_potential_SIC(ispin,psi_r,dbl_mb(Hpsi_r(1)))
       end if
 
 *     **********************************************************
@@ -143,6 +152,13 @@
      >                       psi_r(1+(n-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
 
+
+*           **** vpsi_r = vpsi_r + Hpsi_r ****
+            if (dosic)
+     >        call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
+     >                         dbl_mb(Hpsi_r(1)+(n-1)*n2ft3d),
+     >                         dcpl_mb(vpsi(1)))
+
 *           **** get vpsi_r in k-space ****
             call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
             call Pack_c_pack(1,dcpl_mb(vpsi(1)))
@@ -155,8 +171,14 @@
       end do
 
       call nwpw_timing_start(12)
-      value = MA_pop_stack(vpsi(2))
-      value = MA_pop_stack(vall(2))
+
+      value = .true.
+      if (dosic)
+     >  value = value.and.MA_pop_stack(Hpsi_r(2))
+      value = value.and.MA_pop_stack(vpsi(2))
+      value = value.and.MA_pop_stack(vall(2))
+      if (.not. value) call errquit('psi_H:popping stack memory',1)
+
       call nwpw_timing_end(12)
       return
       end

@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.22 2003-07-05 15:12:10 bylaska Exp $
+* $Id: electron.F,v 1.23 2003-07-11 21:06:34 bylaska Exp $
 *
 
 
@@ -608,7 +608,21 @@ c      end
       real*8 ehsic0,phsic0
       real*8 exsic0,pxsic0
 
+#include "mafdecls.fh"
 #include "electron_common.fh"
+
+      logical  pspw_SIC_relaxed
+      external pspw_SIC_relaxed
+      
+      if (.not.pspw_SIC_relaxed()) then
+         call pspw_energy_SIC(ispin,dbl_mb(psi_r(1)),
+     >                        ehsic,
+     >                        phsic,
+     >                        exsic,
+     >                        pxsic)
+         phsic = 0.0d0
+         pxsic = 0.0d0
+      end if
 
       ehsic0 = ehsic
       exsic0 = exsic
