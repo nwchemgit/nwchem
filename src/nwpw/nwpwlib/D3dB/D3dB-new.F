@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.9 2002-03-03 22:50:22 bylaska Exp $
+* $Id: D3dB-new.F,v 1.10 2002-07-01 14:27:05 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2203,9 +2203,9 @@ c     integer i2_start(NFFT3+1)
 
 
 *     ***********************************
-*     *									*
-*     *	       D3dB_r_FormatWrite		*	
-*     *									*
+*     *					*
+*     *	       D3dB_r_FormatWrite	*	
+*     *					*
 *     ***********************************
 
       subroutine D3dB_r_FormatWrite(nb,iunit,A,tmp)
@@ -2315,9 +2315,9 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
       end
 
 *     *******************************************
-*     *											*
-*     *	       D3dB_r_FormatWrite_reverse		*	
-*     *											*
+*     *						*
+*     *	       D3dB_r_FormatWrite_reverse	*	
+*     *						*
 *     *******************************************
 
       subroutine D3dB_r_FormatWrite_reverse(nb,iunit,A,tmp)
@@ -2346,7 +2346,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
       parameter(MASTER=0)
       integer p_from, p_here,q
       integer i,j,k,index,index2
-      integer dest,source,status,msglen
+      integer dest,source,status,msglen,idum
 
       call Parallel_taskid(taskid)
 
@@ -2372,6 +2372,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
      >                         status,mpierr)
 #endif
 #ifdef TCGMSG
+                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
                  call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
      >                         source,rcv_proc,1)
 #endif
@@ -2403,6 +2404,8 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
      >                       dest,msgtype,MPI_COMM_WORLD,mpierr)
 #endif
 #ifdef TCGMSG
+                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
+     >                         dest,rcv_proc,1)
                  call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 #endif
               end if

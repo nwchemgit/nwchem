@@ -1,4 +1,8 @@
 
+*
+* $Id: Ursenbach_smoother.F,v 1.2 2002-07-01 14:27:06 bylaska Exp $
+*
+
 *     ***************************
 *     *				*
 *     *   Ursenbach_Smoother	*
