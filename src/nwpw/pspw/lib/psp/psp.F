@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.3 2002-05-14 07:53:59 bylaska Exp $
+* $Id: psp.F,v 1.4 2002-05-14 16:42:08 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1109,7 +1109,8 @@ c     >                      dbl_mb(sw1(1)))
           if (move) then
              do n=1,nn
                 if (ispin.eq.1) 
-     >            dbl_mb(sw1(1)+n-1)=2.0d0*dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
+     >            dbl_mb(sw1(1)+n-1+(l-1)*nn)
+     >            =2.0d0*dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
 
                 do i=1,npack1
                    ctmp = psi1(i+(n-1)*npack1)
