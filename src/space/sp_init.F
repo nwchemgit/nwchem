@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.103 2002-04-12 23:03:51 d3j191 Exp $
+c $Id: sp_init.F,v 1.104 2002-04-17 23:43:15 d3j191 Exp $
 c
       implicit none
 c
@@ -1295,7 +1295,7 @@ c
       integer numwm,iwl(mwm,miw2)
       integer iwlp(mwm,npackw),islp(msa,npack)
 c
-      integer il,ih,jl,jh,i
+      integer il,ih,jl,jh
 c
       if(numsa.gt.0) then
       call ga_distribution(ga_is,me,il,ih,jl,jh)
@@ -3035,6 +3035,19 @@ c
 c
       return
       end
+      subroutine sp_gettp(temp,pres)
+c
+      implicit none
+c
+#include "sp_common.fh"
+c
+      real*8 temp,pres
+c
+      temp=tmp
+      pres=prs
+c
+      return
+      end
       logical function sp_rtrj(lfntri,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,iwl,iwlp,xw,vw,fw,xwcr,
      + isl,islp,xs,vs,fs,ipl,nb,ibw,bxw,bvw,bfw,brw,ibs,bxs,bvs,bfs)
@@ -3076,6 +3089,8 @@ c
 c
       read(lfntri,1001) stime,temp,pres,rdate,rtime
  1001 format(2f12.6,1pe12.5,1x,2a10)
+      tmp=temp
+      prs=pres
       read(lfntri,1002) ((vlat(i,j),j=1,3),i=1,3)
  1002 format(3f12.6)
       read(lfntri,1003) lxw,lvw,lfw,lpw,lxs,lvs,lfs,lps,nwm,nwa,nsa

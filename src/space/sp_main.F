@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.73 2002-04-12 23:03:51 d3j191 Exp $
+c $Id: sp_main.F,v 1.74 2002-04-17 23:43:15 d3j191 Exp $
 c
       implicit none
 c
@@ -226,7 +226,7 @@ c
       integer numsa,isl(msa,mis2),islp(msa,npack)
       integer numwm,iwl(mwm,miw2),iwlp(mwm,npackw)
 c
-      integer il,ih,jl,jh,i
+      integer il,ih,jl,jh
 c
       if(numsa.gt.0.and.npack.gt.0) then
       call ga_distribution(ga_is,me,il,ih,jl,jh)
