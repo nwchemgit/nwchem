@@ -1,4 +1,4 @@
-       subroutine ccsd(rtdb)
+       logical function ccsd(rtdb)
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -22,6 +22,8 @@ c
      $      call errquit('atwtest: context_push failed',0)
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
+c
+      ccsd = .true.
 c
 c     Extract high level info from the data-base setting defaults
 c
