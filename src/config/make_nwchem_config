@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.75 1998-04-17 21:15:25 gg502 Exp $
+# $Id: make_nwchem_config,v 1.76 1998-04-22 21:00:42 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -52,15 +52,18 @@ endif
 
 # Set a default here in case the caller doesn't
 
-NWCHEM_MODULES = all
+ifndef NWCHEM_MODULES
+   NWCHEM_MODULES = all
+endif
 MODULES := $(NWCHEM_MODULES) 
 
 # For convenience, we define some shorthand "module" names which are
 # expanded below.
 
-EXPANSIONS = all qm md qmmd argos
+EXPANSIONS = all qm md qmmd argos alldev
 
 EXP_all = $(filter-out develop gapss oimp2 ideaz scfaux plane_wave rimp2_grad,$(KNOWN_MODULE_SUBDIRS) )
+EXP_alldev = develop $(EXP_all)
 EXP_qm  = NWints atomscf ddscf gradients moints hessian nwdft rimp2 \
           stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp
 EXP_ver2 = nwaprep prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
@@ -77,6 +80,7 @@ MODULES := $(patsubst qm,$(EXP_qm),$(MODULES) )
 MODULES := $(patsubst md,$(EXP_md),$(MODULES))
 MODULES := $(patsubst md,$(EXP_qmmd),$(MODULES))
 MODULES := $(patsubst argos,$(EXP_argos),$(MODULES))
+MODULES := $(patsubst alldev,$(EXP_alldev),$(MODULES) )
 
 # Make sure everything on the list is cool
 UNKNOWN_MODULES := $(filter-out $(KNOWN_MODULE_SUBDIRS),$(MODULES))
