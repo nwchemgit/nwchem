@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.154 2000-04-20 01:47:35 edo Exp $
+c     $Id: dft_scf.F,v 1.155 2000-04-21 20:58:23 jolguin Exp $
 c     
       implicit none
 c
@@ -165,10 +165,6 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
 c
-c    Jorge Garza/Begin
-      call xc_sicinit(rtdb,test_sic,condfukui,exact_pot)
-c     Jorge Garza/End
-c
 c !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
@@ -252,7 +248,12 @@ c
          nmo(1) = nbf_ao
          nmo(2) = nbf_ao
       endif
-
+c
+c    Jorge Garza/Begin
+      call xc_sicinit(rtdb, test_sic, condfukui, exact_pot,
+     &                l_degen, i_degen, noc)
+c     Jorge Garza/End
+c
       if (ipol .eq. 1)then
 c
 c        RHF occupations
@@ -508,11 +509,6 @@ c
 c     Call to Mulliken Pop Ananlysis for initial density
 c     
       if (mulliken) call dft_mulwrap(me,g_dens,g_s)
-c Jorge Garza/Begin
-      if (test_sic.ne.0) then
-         call xc_sicdeg(l_degen,i_degen,dbl_mb(k_eval(1)),noc)
-      end if
-c Jorge Garza/End
 c
 c    The loop associated with the label 135 is to find the exact exchange-
 c    correlation potential.
@@ -566,6 +562,13 @@ c
       Ecoul  = ZERO
       Exc(1)= ZERO
       Exc(2) = ZERO
+c Jorge Garza/Begin
+      if (test_sic.ne.0) then
+        if (iter.ge.3) then
+           call xc_sicdeg(l_degen, i_degen, k_eval, noc)
+        end if
+      end if
+c Jorge Garza/End
 c     
 c     Accumulate core hamiltonian into Fock matrix; compute core energy
 c     
@@ -683,16 +686,18 @@ c  Jorge Garza/Begin
 c       
       if (ipol.eq.2.and.noc(2).eq.0) call ga_zero(g_vxc(2))
       totsic=0.0d00
-      if (test_sic.eq.2.or.test_sic.eq.4.or.test_sic.eq.3) then
-         if (test_sic.eq.4) then
+      if (test_sic.eq.2.or.test_sic.eq.4) then
+        if (iter.ge.3) then
+          if (test_sic.eq.4) then
             call localize_sic(g_movecs, noc)
-         end if
-         call xc_sic(rtdb, nExc,iVxc_opt,g_xcinv, g_dens, 
-     &               g_vxc, IOLGC, g_wght, g_xyz, g_nq, wght_GA,
-     &               dbl_mb(irdens_atom), int_mb(icntoce), 
-     &               int_mb(icntobfr), int_mb(icetobfr), natoms,
-     &               g_movecs, noc, k_eval, totsic, i_degen)
-         Exc(1) = Exc(1) + totsic
+          end if
+          call xc_sic(rtdb, nExc,iVxc_opt,g_xcinv, g_dens, 
+     &                g_vxc, IOLGC, g_wght, g_xyz, g_nq, wght_GA,
+     &                dbl_mb(irdens_atom), int_mb(icntoce), 
+     &                int_mb(icntobfr), int_mb(icetobfr), natoms,
+     &                g_movecs, noc, k_eval, totsic, i_degen)
+          Exc(1) = Exc(1) + totsic
+        end if
       end if
 c
 c  Jorge Garza/End
@@ -1137,7 +1142,7 @@ c
       end if
 c
 c     Jorge Garza / Begin
-      if (test_sic.eq.1.or.test_sic.eq.3) then
+      if (test_sic.eq.1) then
          call localize_sic(g_movecs, noc)
          call xc_sic_pert(rtdb, nExc, iVxc_opt, g_xcinv,
      &                    g_dens, g_vxc, IOLGC, g_wght, g_xyz, g_nq,
