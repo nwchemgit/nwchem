@@ -1,5 +1,5 @@
 /*
- $Id: ecce_print.c,v 1.11 1998-08-14 22:36:09 d3e129 Exp $
+ $Id: ecce_print.c,v 1.12 1998-08-15 23:33:28 d3e129 Exp $
  */
 
 #include <stdio.h>
@@ -349,7 +349,7 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
 #define ecce_print_module_entry_ ECCE_PRINT_MODULE_ENTRY
 #define ecce_print_module_exit_  ECCE_PRINT_MODULE_EXIT
 #define ecce_print_echo_input_   ECCE_PRINT_ECHO_INPUT
-#define ecce_print_echo_string_  ECCE_PRINT_ECHO_INPUT
+#define ecce_print_echo_string_  ECCE_PRINT_ECHO_STRING
 #define is_ecce_print_on_        IS_ECCE_PRINT_ON
 #endif
 
