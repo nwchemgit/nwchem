@@ -1,7 +1,31 @@
       Logical Function Get_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: get_3cints.F,v 1.5 1995-10-17 08:55:45 d3g681 Exp $
+C$Id: get_3cints.F,v 1.6 1995-10-30 22:01:44 gg502 Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
+C
+#ifdef RIMP2_USE_DA
+C
+#include "DA.fh"
+#include "global.fh"
+C
+C LOCAL VARIABLES
+      Integer Type, AILen, FitLen, Req
+C
+      Call GA_Inquire(G_I, Type, AILen, FitLen)
+C
+C     Note:  We don't necessarily want to read in the whole GA.
+C
+      If ( DA_Read_Section(.FALSE.,
+     $   G_I, 1,            NA*(IHi-ILo+1), 1, FitLen,
+     $   LU,  1+NA*(ILo-1), NA*IHi,         1, FitLen, Req) .ne. 0)
+     $   Call ErrQuit( 'Get_3cInts: Error from DA_Read_Section', ILo)
+C
+      If ( DA_Wait(Req) .ne. 0) Call ErrQuit(
+     $   'Get_3cInts: Error from DA_Wait', ILo)
+C
+      Get_3cInts = .TRUE.
+C
+#else
 C
 #include "global.fh"
 #include "mafdecls.fh"
@@ -11,10 +35,6 @@ C LOCAL VARIABLES
       Logical Status
       Integer AILo, AIHi, SLo, SHi, NS, H_Local, Local_Idx, I, LocalI
       Integer Junk, Dim1, Dim2
-c$$$      Double precision ChkSum
-c$$$C
-c$$$      External GA_DASum_Patch
-c$$$      Double precision GA_DASum_Patch
 C
       Call GA_Distribution( G_I, GA_NodeID(), AIlo, AIhi, Slo, Shi)
       NS = SHi-SLo+1
@@ -50,17 +70,6 @@ C
          EndIf
       EndIf
 C
-c$$$      Call GA_Inquire(G_I, Junk, Dim1, Dim2)
-c$$$      Do I = ILo, IHi
-c$$$         LocalI = I - ILo + 1
-c$$$         ChkSum = GA_DASum_Patch( G_I, 1+NA*(LocalI-1), NA*LocalI,
-c$$$     $      1, Dim2)
-c$$$         If ( GA_NodeID() .eq. 0)
-c$$$     $      Write (LuOut, 9000) I, LocalI, ChkSum
-c$$$      EndDo
-c$$$ 9000 Format(1X, 'Get_3cInts: Reading record ', I6, ' into GA block ',
-c$$$     $   I6, ' with checksum ', F30.15)
-C
       Get_3cInts = .TRUE.
       Return
 C
@@ -69,6 +78,8 @@ C
       Call Errquit('Get_3cInts',0)
 C
       Get_3cInts = .FALSE.
+C
+#endif
 C
       Return
       End

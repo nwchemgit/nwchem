@@ -1,7 +1,31 @@
       Logical Function Put_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: put_3cints.F,v 1.6 1995-10-17 08:55:50 d3g681 Exp $
+C$Id: put_3cints.F,v 1.7 1995-10-30 22:01:47 gg502 Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
+C
+#ifdef RIMP2_USE_DA
+C
+#include "DA.fh"
+#include "global.fh"
+C
+C LOCAL VARIABLES
+      Integer Type, AILen, FitLen, Req
+C
+      Call GA_Inquire(G_I, Type, AILen, FitLen)
+C
+C     Note:  We don't necessarily want to write out the whole GA.
+C
+      If ( DA_Write_Section(.FALSE.,
+     $   G_I, 1,            NA*(IHi-ILo+1), 1, FitLen,
+     $   LU,  1+NA*(ILo-1), NA*IHi,         1, FitLen, Req) .ne. 0)
+     $   Call ErrQuit( 'Put_3cInts: Error from DA_Write_Section', ILo)
+C
+      If ( DA_Wait(Req) .ne. 0) Call ErrQuit(
+     $   'Put_3cInts: Error from DA_Wait', ILo)
+C
+      Put_3cInts = .TRUE.
+C
+#else
 C
 #include "global.fh"
 #include "mafdecls.fh"
@@ -54,6 +78,8 @@ C
       Call Errquit('Put_3cInts',0)
 C
       Put_3cInts = .FALSE.
+C
+#endif
 C
       Return
       End

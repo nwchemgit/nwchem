@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.26 1995-10-17 08:55:51 d3g681 Exp $
+C$Id: rimp2.F,v 1.27 1995-10-30 22:01:48 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -14,6 +14,9 @@ C
 #include "rimp2_timers.fh"
 #include "numerical_constants.fh"
 #include "util.fh"
+#ifdef RIMP2_USE_DA
+#include "DA.fh"
+#endif
 C
       Logical MOVecs_Read_Header, MOVecs_Read, MOVecs_Gather,
      $   Int_Normalize
@@ -74,11 +77,20 @@ C
       Integer G_Full_AOXF(MaxSpin)
       Integer MxNMO
 C
+C     "Handles" for the integral file(s) (either logical unit numbers
+C     or disk array handles)
+C
+      Integer D_Int(MaxSpin)
+C
 C     Print controls
 C
       Logical PrInfo, PrWarn, PrRef
 C
       Logical FullRef, FunnyRef
+#ifdef RIMP2_USE_DA
+C
+      Integer MaxDASiz, TotDASiz, Size, SizeB
+#endif
 C
 C     Initialize this module
 C
@@ -89,6 +101,15 @@ C
       Call PStat_On( PS_Overall)
 C
       Me = GA_NodeID()
+C
+#ifndef RIMP2_USE_DA
+C
+C     Initialize integral file LUNs if not using DAs
+C
+      Do I = 1, MaxSpin
+         D_Int(i) = 9 + i
+      EndDo
+#endif
 C
 C     Get necessary info from database
 C
@@ -326,6 +347,13 @@ C
          EndIf
          Write (LuOut, 8500) 'Base file name for MO integrals',
      $      FNInt(:LNBlnk(FNInt))
+#ifdef RIMP2_USE_DA
+         Write (LuOut, 8500) 'Type of storage for MO integrals',
+     $      'disk arrays'
+#else
+         Write (LuOut, 8500) 'Type of storage for MO integrals',
+     $      'Fortran direct access files'
+#endif
          Write (LuOut, *)
 C
          Write (LuOut, 8500) 'SCF reference file:',
@@ -413,6 +441,25 @@ C     *************************************
 C     * Integral transformation (to disk) *
 C     *************************************
 C
+#ifdef RIMP2_USE_DA
+C
+C     Compute largest and total DA sizes (in bytes)
+C
+      MaxDASiz = 0
+      TotDASiz = 0
+      Do I = 1, TopSpin
+         Size =  (IHi(i)-ILo(i)+1) * (AHi(i)-ALo(i)+1) * NFit
+         SizeB = MA_SizeOf(MT_Dbl, Size, MT_Byte)
+         MaxDASiz = Max( MaxDASiz, SizeB)
+         TotDASiz = TotDASiz + SizeB
+      EndDo
+C
+C     Initialize DAs.  We know everything but how much memory to give it.
+C
+      If (DA_Init(TopSpin, MaxDASiz, TotDASiz, -1) .ne. 0)
+     $   Call ErrQuit('RIMP2: DA_Init failed', 0)
+#endif
+C
 C
 C     Initialize integrals
 C
@@ -424,7 +471,7 @@ C
 C
       Status = Status .AND.
      $   RIMP2_XF_Driver( RTDB, Geom, AOBas, FitBas,
-     $   TopSpin, FNInt, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
+     $   TopSpin, D_Int, FNInt, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
      $   Approx, G_AOXF)
 C
 C     Finished with the AO transformation
@@ -459,9 +506,9 @@ C     * Energy calculation *
 C     **********************
 C
       Status = Status .AND.
-     $   RIMP2_V_E2( FNInt, TopSpin, NCorBF, IHi, AHi, NFit, FitBas,
-     $   Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx), CorEner,
-     $   Mem_Opt, MxEBatch(1), MxEBatch(2))
+     $   RIMP2_V_E2( D_Int, FNInt, TopSpin, NCorBF, IHi, AHi, NFit,
+     $   FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
+     $   CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2))
 C
 C     Also get the SCF energy so we can report the total energy
 C
@@ -491,6 +538,12 @@ C
       Status = Status .AND. RTDB_Put( RTDB, String, MT_Dbl, 1, CorEner)
       Status = Status .AND. Context_Prefix('total energy', String)
       Status = Status .AND. RTDB_Put( RTDB, String, MT_Dbl, 1, TotEner)
+C
+#ifdef RIMP2_USE_DA
+C
+      If ( DA_Terminate() .ne. 0) Call ErrQuit(
+     $   'RIMP2: DA_Terminate failed', 0)
+#endif
 C
 C     ***********
 C     * Cleanup *

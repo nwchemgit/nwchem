@@ -1,4 +1,8 @@
-# $Id: GNUmakefile,v 1.23 1995-10-17 08:55:46 d3g681 Exp $
+# $Id: GNUmakefile,v 1.24 1995-10-30 22:01:45 gg502 Exp $
+# Note: To switch on disk arrays, uncomment the DEFINE +=... after the
+# includes.  Do NOT move the DEFINE ahead of the includes or it won't
+# have the desired effect.
+
 
 LIBRARY =	librimp2.a
 
@@ -31,6 +35,12 @@ USES_BLAS =	rimp2_v_e2.F    xf3ci_step12.F  xf3ci_step12a.F \
 
 include ../config/makefile.h
 include ../config/makelib.h
+
+# The default is to use standard Fortran direct access files.
+# Uncomment this definition to switch to use disk arrays instead.
+# You must also build and link against the DA library (see ../global/da).
+#DEFINES += -DRIMP2_USE_DA
+
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 close_3ci_file.o :	 $(INCDIR)/stdio.fh 
 dgewr.o :	 output.h 

@@ -3,22 +3,24 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.22 1995-10-17 08:55:54 d3g681 Exp $
+C     $Id: rimp2_v_e2.F,v 1.23 1995-10-30 22:01:49 gg502 Exp $
 C
 C SYNOPSIS
-      Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
+      Logical Function RIMP2_V_E2(D_Int, FNInt, TopSpin, NMO,
      $   NOcc, NVir, NFit, FitBas, Eig, LDEig, Contrib, E2,
      $   Mem_Opt, IBlock, JBlock)
       Implicit NONE
 C
       Character*(*) FNInt
-      Integer TopSpin, NMO(TopSpin), NFit, FitBas, IBlock, JBlock, LDEig
+      Integer TopSpin, D_Int(TopSpin), NMO(TopSpin), NFit, FitBas,
+     $   IBlock, JBlock, LDEig
       Integer NOcc(TopSpin), NVir(TopSpin)
       Double precision Eig(LDEig, TopSpin), Contrib(TopSpin, TopSpin)
       Double precision E2
       Character*(*) Mem_Opt
 C
 C ARGUMENTS
+C     D_Int    Handles for integral files [IN]
 C     FNInt    File name for MO basis 3-center integrals [IN]
 C     TopSpin  Number of spins in reference (RHF=1, UHF=2) [IN]
 C     NMO      Number of MOs [IN]
@@ -94,9 +96,6 @@ C PARAMETERS
 C
       Integer MinChunk             ! Minimum panel size that is reasonable
       Parameter ( MinChunk = -64)  ! for global distribution of data
-C
-      Integer LUInt
-      Parameter (LuInt = 10)
 C
 C LOCAL VARIBLES
       Integer I, J, ISpin, JSpin, G_J, JTop, JTop2
@@ -220,7 +219,7 @@ C
 C
 C        Open integral file
 C
-         Status = Open_3ci_file(LUInt+ISpin-1, FNInt, ISpin,
+         Status = Open_3ci_file(D_Int(ISpin), FNInt, ISpin,
      $      NVir(ISpin), NOcc(ISpin), G_bigI)
          If ( .NOT. Status ) then
             Write (LuErr, *) 'RIMP2_v_E2:  Problems opening ',
@@ -236,7 +235,7 @@ C
 C           Get integrals (ia|s') for this I
 C
             Call PStat_On( PS_Rd_3ci)
-            If ( .NOT. Get_3cInts(LUInt+ISpin-1, G_bigI, NVir(ISpin),
+            If ( .NOT. Get_3cInts(D_Int(ISpin), G_bigI, NVir(ISpin),
      $         ILo, IHi) ) then
                Write( LuErr, *) ' Unable to get integral block ',
      $            I, ISpin
@@ -263,7 +262,7 @@ C              but we can use G_bigI here because the fitting basis will
 C              not change with the spin case.
 C
                If ( JSpin .ne. ISpin) then
-                  Status = Open_3ci_file(LUInt+JSpin-1, FNInt, JSpin,
+                  Status = Open_3ci_file(D_Int(JSpin), FNInt, JSpin,
      $               NVir(JSpin), NOcc(JSpin), G_bigI)
                   If ( .NOT. Status ) then
                      Write (LuErr, *) 'RIMP2_v_E2:  Problems opening ',
@@ -326,7 +325,7 @@ C
                      Call GA_Sync
                   Else
                      Call PStat_On( PS_Rd_3ci)
-                     If ( .NOT. Get_3cInts(LUInt+JSpin-1, G_bigJ,
+                     If ( .NOT. Get_3cInts(D_Int(JSpin), G_bigJ,
      $                  NVir(JSpin), JLo, JHi) ) then
                         Write( LuErr, *)
      $                     ' Unable to get integral block ',
@@ -584,7 +583,7 @@ C     ************************
 C
       Status = .TRUE.
       Do ISpin = 1, TopSpin
-         Status = Status .AND. Close_3cI_File( LUInt+ISpin-1, 'DELETE')
+         Status = Status .AND. Close_3cI_File( D_Int(ISpin), 'DELETE')
       EndDo
 C
       If ( .NOT. Status ) then

@@ -3,7 +3,7 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.11 1995-10-17 08:55:58 d3g681 Exp $
+C     $Id: xform_3cints.F,v 1.12 1995-10-30 22:01:52 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(RTDB, Geom, Type3ci, AOBas, FitBas,
@@ -136,12 +136,15 @@ C
       If ( TransFit .or. .not. Disk)
      $   Call GA_Check_Handle( G_Out, 'XForm_3cInts: output array')
 C
+#ifndef RIMP2_USE_DA
+C
 C     If we're supposed to put the results on disk, the file had better
 C     already be setup because we don't do it!
 C
       If ( Disk ) then
          Inquire(Unit=IntFil, Opened=Status)
       EndIf
+#endif
 C
 C     Now sanity check the index ranges provided.
 C
