@@ -1,15 +1,10 @@
 \label{sec:sodft}
 
 
-
-Intro: what is SODFT
-       Variational inclusion of one-electron spin-orbit operator
-       uses ECP and SO potentials
-       no symmetry
-       uses data from input block dft (see Section \ref{sec:dft} for specifications).
-       list dft block options that are not working
-
- 
+The spin-orbit DFT module (SODFT) in the NWChem code allows for the variational treatment
+of the one-electron spin-orbit operator within the DFT framework. The implementation 
+requires the definition of an effective core potential (ECP) and a matching spin-orbit
+potential (SO). The current implementation does NOT use symmetry. 
 
 The actual SODFT calculation will be performed when the input module
 encounters the \verb+TASK+ directive (Section \ref{sec:task}).  
@@ -18,8 +13,10 @@ encounters the \verb+TASK+ directive (Section \ref{sec:task}).
   TASK SODFT
 \end{verbatim}
 
-Input parameters are the same as for the DFT, see section \ref{sec:dft}
-Tell user that besides using the standard ECP and basis sets, see Section \ref{sec:ecp} 
-for details, one also has to specify a spin-orbit potential. \ref{sec:spinorb_ecp}
+Input parameters are the same as for the DFT, see section \ref{sec:dft} for specifications. 
+Some of the DFT options are not available in the SODFT. These are \verb+max_ovl+ and 
+\verb+sic+.
 
-
+Besides using the standard ECP and basis sets, see Section \ref{sec:ecp} for details, one 
+also has to specify a spin-orbit (SO) potential. The input specifiction for the SO potential
+can be found in section \ref{sec:spinorb_ecp}.
