@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.177 2005-02-03 16:32:05 bylaska Exp $
+C     $Id: geom_input.F,v 1.178 2005-02-09 00:46:03 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -6127,7 +6127,11 @@ c
      .     abs(s).le.toll)then
          geom_powcmpl=cmplx(0d0,0d0)
       else
-         geom_powcmpl=CMPLX(c,s)**n
+         if(n.ne.1) then
+            geom_powcmpl=CMPLX(c,s)**n
+         else
+            geom_powcmpl=CMPLX(c,s)
+         endif
       endif
  
       return
