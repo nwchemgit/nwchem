@@ -228,8 +228,8 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
   send_num = 0; 
   recv_num = 0;
   send_to = -100;
-	recv_from = -100;
-
+  recv_from = -100;
+  
   if( naproc > 1 ) {
     for (clustr_ptr= 0;  clustr_ptr < cl_num ; clustr_ptr++) {
 
@@ -340,9 +340,11 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 	break;
     }
 
-	printf("me = %d send_to %d send_num %d recv_from %d recv_num %d \n", me, send_to, send_num, recv_from, recv_num);
-	fflush(stdout);
-
+    /*
+      printf("me = %d send_to %d send_num %d recv_from %d recv_num %d \n", me, send_to, send_num, recv_from, recv_num);
+      fflush(stdout);
+      */
+    
 
     if( iscratch[j] != -1 ) {
       fprintf( stderr, " me = %d Internal Error in PEIGS clustrinv. \n", me );
