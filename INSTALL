@@ -1,0 +1,78 @@
+
+        Guide to Installing NWChem  
+        ==========================
+        $Id: INSTALL,v 1.1 1995-06-28 17:46:14 rg240 Exp $
+
+
+1)  The compilation will only work with "GNU" make as the
+    default make in your path. You can check this by seeing 
+    if make understands the "-v" flag.
+
+
+2)  Set the environment variable, NWCHEM_TOP, to the
+    directory where *this* file lives. 
+       % setenv NWCHEM_TOP /home/adrian/nwchem
+    All the following directions assume that the current
+    working directory is $NWCHEM/src.
+
+
+3)  The currently supported platforms are:
+
+    Symb.Name  Platform               OS/Version    Precision
+    ----------------------------------------------------------
+    SUN         Sun                    SunOS        double
+    IBM         IBM RS/6000            AIX          double
+    DECOSF      DEC AXP                OSF/1        double
+    SGI         SGI ?                  IRIX         double
+    SGITFP      SGI Power Challenge    IRIX         double
+    CRAY_T3D    Cray T3D               UNICOS       single
+    PARAGON     Intel Paragon          OSF/1        double
+    DELTA       Intel Delta            NX           double
+    SP1         IBM SP1,SP2            AIX          double
+    KSR         KSR2                   KSR OS       single
+    ----------------------------------------------------------
+
+    Set the environment variable, NWCHEM_TARGET, to the
+    symbolic name that matches your target platform, e.g.
+       % setenv NWCHEM_TARGET PARAGON
+
+
+4)  Run the precision conversion according to the Precision
+    column above for your target. This is necessary to match 
+    BLAS routine names to vendor-supplied libraries.
+    For double:
+       % make sngl_to_dble
+    For single:
+       % make dble_to_sngl
+
+
+5)  Choose which functionality you want from the list of
+    supported modules:
+
+        Name        Description
+        -------------------------------------
+	ddscf       RHF and UHF SCF energies
+        nwdft       DFT energies
+        gradients   SCF gradients
+	dftgrad     DFT gradients
+        stepper     Geometry optimization
+        moints      4-index
+        rimp2       RI-MP2
+        ccsd        CCSD & CCSD(T)
+        -------------------------------------
+
+    Set the environment variable, NWCHEM_MODULES, to the
+    list of modules and run the configure make, e.g.
+       % setenv NWCHEM_MODULES "ddscf ccsd"
+       % make nwchem_config
+
+
+6)  Finally, compile and link:
+       % make
+    This should install the executables and libraries
+    into platform-specific subdirectories in the directory
+    tree. For example, if the target platform equals PARAGON
+    then the following subdirectories are created:
+
+	$NWCHEM_TOP/bin/PARAGON          (executables)
+        $NWCHEM_TOP/lib/PARAGON          (libraries)
