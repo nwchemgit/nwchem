@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.17 2000-08-16 20:22:13 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.18 2000-09-11 15:34:35 d3j191 Exp $
 c
       implicit none
 c
@@ -52,6 +52,8 @@ c
       nwm=inwm
       nwa=inwa
       endif
+      if(nwm.gt.mwm)
+     + call errquit('Restart file not compatible with trajectory',nwm)
 c      write(*,'(f12.6,3i10,1x,4l1)')
 c     + time,inwm,inwa,nsa,lxw,lvw,lsx,lsv
 c      read(lfntrj,1003) lxw,lvw,lsx,lsv
