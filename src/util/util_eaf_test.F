@@ -111,7 +111,7 @@ c           write(0,999) stat2
                goto 1000
             endif
 
-            call sleep(10)
+            call util_sleep(10)
 c           write(0,*) 'Finished reading file=',fnum, 
 c    $           '  fd=',fd(fnum),
 c    $           '  iter=',iter

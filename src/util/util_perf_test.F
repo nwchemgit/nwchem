@@ -1,11 +1,10 @@
-c $Id: util_perf_test.F,v 1.1 2003-03-08 01:58:13 sohirata Exp $
+c $Id: util_perf_test.F,v 1.2 2003-08-13 20:22:23 edo Exp $
 c------------------------------------------------------------------------
 c Program perf.x is used to test performance of GA put, get, accumulate  |
 c It has to be executed on four processors.                              |
 c remote operations access data on processes 1,2,3 in the round-robin way|
 c------------------------------------------------------------------------
 c
-#define SLEEP sleep
       subroutine util_perf_test
       implicit none
 #include "mafdecls.fh"
@@ -150,7 +149,7 @@ c       everybody touches own data
         tg=time_get1(g_a,ilo,ihi,jlo,jhi,buf,chunk(loop),jump,count,
      $               local)
         else
-          call SLEEP(1)
+          call util_sleep(1)
         endif
 c
 c       everybody touches own data
@@ -159,7 +158,7 @@ c       everybody touches own data
         tp=time_put1(g_a,ilo,ihi,jlo,jhi,buf,chunk(loop),jump,count, 
      $               local)
         else
-          call SLEEP(1)
+          call util_sleep(1)
         endif
 c
 c       everybody touches own data
@@ -168,7 +167,7 @@ c       everybody touches own data
         ta=time_acc1(g_a,ilo,ihi,jlo,jhi,buf,chunk(loop),jump,count,
      $               local)
         else
-          call SLEEP(1)
+          call util_sleep(1)
         endif
 c
         if (me .eq. 0) then
@@ -413,7 +412,7 @@ c       everybody touches own data
         tg=time_get(g_a,ilo,ihi,jlo,jhi,buf,chunk(loop),jump,count,
      $               local)
         else
-          call SLEEP(1)
+          call util_sleep(1)
         endif
 c
 c       everybody touches own data
@@ -422,7 +421,7 @@ c       everybody touches own data
         tp=time_put(g_a,ilo,ihi,jlo,jhi,buf,chunk(loop),jump,count, 
      $               local)
         else
-          call SLEEP(1)
+          call util_sleep(1)
         endif
 c
 c       everybody touches own data
@@ -431,7 +430,7 @@ c       everybody touches own data
         ta=time_acc(g_a,ilo,ihi,jlo,jhi,buf,chunk(loop),jump,count,
      $               local)
         else
-          call SLEEP(1)
+          call util_sleep(1)
         endif
 c
         if (me .eq. 0) then
@@ -594,22 +593,3 @@ c
       end
 
 
-      subroutine my_sleep(seconds)
-      implicit none
-#include "global.fh"
-#include "testutil.fh"
-c
-      double precision  ts, te, work
-      integer seconds, loop
-      common  /sleep_block/ work
-c
-      ts = util_timer()
-      work = 0.
-100   continue
-         do loop= 1, 500
-            work = work + 1.
-         enddo
-         te = util_timer()
-      if(te - ts .lt. real(seconds)) goto 100
-*     print *, work, ts, te 
-      end

@@ -6,7 +6,7 @@
    everything is correctly aligned. So you cannot copy common
    blocks or packed buffers, without doing the right thing  */
 
-#if defined(CRAY) || defined(WIN32)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1)
 #define util_memcpy_ UTIL_MEMCPY
 #endif
 

@@ -1,8 +1,8 @@
 /*
- $Id: util_sleep.c,v 1.4 1999-11-13 03:20:15 bjohnson Exp $
+ $Id: util_sleep.c,v 1.5 2003-08-13 20:22:23 edo Exp $
  */
 
-#if defined(CRAY)
+#if defined(CRAY) &&!defined(__crayx1)
 
 void UTIL_SLEEP(long *t)
 {}
