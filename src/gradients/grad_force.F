@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.29 1998-03-13 01:28:38 d3g681 Exp $
+c     $Id: grad_force.F,v 1.30 1998-08-05 16:53:22 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -464,8 +464,13 @@ c
       end if
 
 C     define threshold for Schwarz screening(same as in SCF)
-      if (.not. rtdb_get(rtdb, 'scf:tol2e', mt_dbl, 1, tol2e))
-     $     tol2e = 1.0d-7
+      if (.not. rtdb_get(rtdb, 'scf:tol2e', mt_dbl, 1, tol2e)) then
+         if (rtdb_get(rtdb,'scf:thresh',mt_dbl,1,tol2e)) then
+            tol2e = min(1d-7,tol2e * 1d-2)
+         else
+            tol2e = 1.0d-7
+         endif
+      endif
 c     
 c     Block the shells for Texas
 c     
