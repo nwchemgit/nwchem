@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.153 2002-04-04 22:51:20 bert Exp $
+C     $Id: geom_input.F,v 1.154 2003-01-28 17:45:40 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -6018,7 +6018,7 @@ c
       elseif(abs(c).le.toll) then
          geom_powcmpl=cmplx(0d0,s**n)
       elseif(abs(s).le.toll) then
-         geom_powcmpl=cmplx(c**n,0)
+         geom_powcmpl=cmplx(c**n,0d0)
       endif
  
       return
