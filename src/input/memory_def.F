@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.8 1997-03-04 06:17:09 d3e129 Exp $
+C     $Id: memory_def.F,v 1.9 1997-06-24 02:55:48 d3g681 Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -53,7 +53,7 @@ C
 c     Our lap tops have 24 MB of pyshical memory
       parameter (total_dflt = 2097152 ) ! 16 MB
 #elif defined(SUN) || defined(SOLARIS)
-      Parameter ( Total_Dflt = 6291456 ) ! 48 MB
+      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
 #elif defined(CRAY_T3E)
 C     Code seems to be very large on T3D (~10-15 MB)
 C
@@ -84,13 +84,13 @@ C     an upper limit on memory usage on the Delta, unfortunately.
 C
       Parameter (Total_Dflt = 917504 ) ! 7 MB on a 16 MB node
 #elif defined(SGITFP)
-      Parameter ( Total_Dflt = 6291456 ) ! 48 MB
+      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
 #elif defined(DECOSF)
-      Parameter ( Total_Dflt =  6291456 ) ! 48 MB
+      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node
 #elif defined(SGI) && ! defined(SGITFP)
-      Parameter ( Total_Dflt =  6291456 ) ! 48 MB
+      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node
 #elif defined(IBM) 
-      Parameter ( Total_Dflt =  6291456 ) ! 48 MB
+      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node
 #elif defined(SP1)
 C     This is probably a minimum configuration for most IBM
 C     platforms, but many will have more.  Assumes dedicated node
