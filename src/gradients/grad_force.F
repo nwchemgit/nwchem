@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom, movecs )
-c$Id: grad_force.F,v 1.6 1996-08-29 01:36:40 vg038 Exp $
+c$Id: grad_force.F,v 1.7 1996-08-29 01:43:23 vg038 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -128,11 +128,11 @@ C     get information about type of calculation
 
       if ( ga_nodeid() .eq. 0 ) then
         if (util_print('information',print_medium)) then
-          write(6,1) charge, scftype
+          write(luout,1) charge, scftype
  1        format(/
      $         '  charge          = ', f6.2/
      $         '  wavefunction    =   ', a/)
-          call util_flush(6)
+          call util_flush(luout)
         endif
       endif
 C     # of eigenvalues and density matrices
@@ -204,8 +204,8 @@ C     symmetry or not
 c
       if (oskel .and. ga_nodeid().eq.0 .and. 
      $     util_print('information',print_default)) then
-         write(6,*) ' Using symmetry'
-         call util_flush(6)
+         write(luout,*) ' Using symmetry'
+         call util_flush(luout)
       endif
 c
       status = rtdb_get ( rtdb, 'geometry:nactive', MT_INT, 1, nactive )

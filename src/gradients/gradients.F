@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.16 1996-08-29 01:36:42 vg038 Exp $
+c$Id: gradients.F,v 1.17 1996-08-29 01:43:24 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -8,6 +8,7 @@ c$Id: gradients.F,v 1.16 1996-08-29 01:36:42 vg038 Exp $
 #include "rtdb.fh"
 #include "schwarz.fh"
 #include "util.fh"
+#include "stdio.fh"
 c
 c     gradients module.
 c
@@ -70,28 +71,28 @@ c
 c
       if (ga_nodeid().eq.0) then
          if (util_print('information',print_low)) then
-            call util_print_centered(6,'NWCHEM GRADIENTS Module',
+            call util_print_centered(luout,'NWCHEM GRADIENTS Module',
      $           40,.true.)
-            write(6,*)
-            call util_flush(6)
+            write(luout,*)
+            call util_flush(luout)
           endif
           if (util_print('information',print_medium)) then
-            write(6,*)
+            write(luout,*)
             if (title .ne. ' ') then
-               call util_print_centered(6, title, 40, .false.)
-               write(6,*)
+               call util_print_centered(luout, title, 40, .false.)
+               write(luout,*)
             endif
-            call util_flush(6)
+            call util_flush(luout)
          endif
          if (util_print('geometry',print_high)) then
             if (.not. geom_print(geom)) 
      $           call errquit('gradients: geom_print ?',0)
-            call util_flush(6)
+            call util_flush(luout)
          endif
          if (util_print('basis',print_high)) then
             if (.not. bas_print(basis)) 
      $           call errquit('gradients: bas_print ?',0)
-            call util_flush(6)
+            call util_flush(luout)
          endif
       endif
 c
