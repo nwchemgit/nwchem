@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.5 1994-05-16 23:25:53 d3e129 Exp $
+c $Id: testbasis.F,v 1.6 1994-05-19 05:02:21 d3e129 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -22,6 +22,7 @@ c::friends functions
 c
       integer rtdb, geom, basis, ngen,nprim, iang
       integer ncenters, sphcart, i,j
+      integer nbf,ibf,iat,icont
       character*256 namename, nametrans
       character*16 drivtags(20)
       double precision coords(3,20), charge(20)
@@ -167,6 +168,18 @@ c
       i = inp_strlen(nametrans)
       write(6,*)' translated name: <',
      &       nametrans(1:i),'>'
+c
+c
+      write(6,*)' basis function to ce/cn check '
+      status = bas_numbf(basis,nbf)
+      do 00400 ibf=1,nbf
+        status = bas_bf2ce(basis,ibf,iat)
+        status = bas_bf2cn(basis,ibf,icont)
+        write(6,*)' basis function ',ibf,
+     &            ' is on center ',iat,
+     &         ' and in contraction',icont
+00400 continue
+c
       stop ' testbasis done '
       end
 

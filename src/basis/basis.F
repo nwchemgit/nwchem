@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.14 1994-05-19 03:47:28 d3e129 Exp $
+c $Id: basis.F,v 1.15 1994-05-19 05:02:18 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -527,6 +527,10 @@ c......................................................................
       logical function bas_rtdb_load(rtdb, geom, basisin, name)
       implicit none
 c
+c routine that loads a basis set from the rtdb and using the 
+c geometry information builds the mapping arrays to contractions/
+c shells, basis functions, and centers.
+c
 #include "rtdb.fh"
 #include "geomP.fh"
 #include "geom.fh"
@@ -545,13 +549,6 @@ c:bas
       logical bas_check_handle
       external nbf_from_ucont
       external bas_check_handle
-c
-c
-c:: arguments
-c:I   rtdb    ->  
-c:I   geom    ->  
-c:I   basisin ->  
-c:C** name    ->  
 c:: passed  
       integer rtdb        ! [input] rtdb handle      
       integer geom        ! [input] geometry handle with info loaded
@@ -745,6 +742,9 @@ c
 c......................................................................
       logical function bas_rtdb_store(rtdb, name, basisin)
       implicit none
+c
+c routine that does an incore basis set store to the rtdb
+c
 #include "basdeclsP.fh"
 #include "basP.fh"
 c::passed
@@ -779,6 +779,10 @@ c......................................................................
      &       tags_array, ucont_array, excfin, ntagsin, nucontin,
      &       nexcf)
       implicit none
+c
+c stores from argument data structures the basis set information to
+c the rtdb. 
+c
 #include "basdeclsP.fh"
 #include "basP.fh"
 #include "inp.fh"
@@ -791,23 +795,23 @@ c
 c     This is a private routine called by the user level routine 
 c     bas_rtdb_store(rtdb, name, basis)
 c
-c::: argument description
-c:C*(*)             name         -> name of the basis set
-c:C*16(1:ntagsin)   tagsin       -> name of each tag
 c::: functions
       logical bas_rtdb_in
       logical bas_rtdb_add
       external bas_rtdb_in
       external bas_rtdb_add
 c::: passed
-      integer rtdb
-      integer ntagsin, nucontin, nexcf
-      character*(*) name
-      character*16 tagsin(ntagsin)
-      integer head_array(ndbs_head)
-      integer tags_array(ndbs_tags,ntagsin)
-      integer ucont_array(ndbs_ucont,nucontin)
-      double precision excfin(nexcf)
+      integer rtdb                              ! [input] rtdb handle
+      character*(*) name                        ! [input] name of basis set
+      character*16 tagsin(ntagsin)              ! [input] name of tags
+      integer head_array(ndbs_head)             ! [input] head data
+      integer tags_array(ndbs_tags,ntagsin)     ! [input] tag data
+      integer ucont_array(ndbs_ucont,nucontin)  ! [input] unique contraction data
+      double precision excfin(nexcf)            ! [input] exponents and contraction coeffs
+      integer ntagsin                           ! [input] number of tags
+      integer nucontin                          ! [input] number of unique contractions
+      integer nexcf                             ! [input] number of exponents and 
+c                                               !         contractions coeffs.
 c::: local
       character*256 tmp
       integer len_name, lentmp
@@ -858,7 +862,7 @@ c......................................................................
       logical function bas_high_angular(basisin,high_angular)
       implicit none
 c
-c  calculate and store high angular momentem function
+c  calculate, return and store high angular momentem function
 c   for given basis. 
 c
 #include "basP.fh"
@@ -911,7 +915,7 @@ c::functions
 c:util
 c     ifill      
 c::passed
-      integer basisin
+      integer basisin  ! [input] basis set handle
 c::local
       integer basis
 
@@ -939,6 +943,9 @@ c
 c......................................................................
       logical function gbs_map_print(basisin)
       implicit none
+c
+c prints the basis set <-> geometry mapping information
+c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -947,7 +954,7 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin
+      integer basisin  ! [input] basis set handle
 c::local
       integer nat, basis, i, myfirst, mylast, mysize, mycenter, myucont
       integer mygeom
@@ -1040,16 +1047,17 @@ c
       end
 c......................................................................
       logical function bas_rtdb_out(rtdb)
+c     
+c     output to rtdb info about known basis sets
+c     
       implicit none
 #include "basP.fh"
 #include "rtdb.fh"
 #include "mafdecls.h"
 c     
 c::passed
-      integer rtdb
-c     
-c     output to rtdb info about known basis sets
-c     
+      integer rtdb ! [input] run time data base handle
+c
       bas_rtdb_out  =
      &     rtdb_par_put(rtdb, 'basis:nbasis',
      &       MT_INT, 1, nbasis_rtdb)
@@ -1063,13 +1071,16 @@ c
 c......................................................................
       logical function bas_rtdb_add(rtdb, name)
       implicit none
+c
+c add basis set name to known basis set list on rtdb
+c
 #include "basP.fh"
 #include "rtdb.fh"
 #include "mafdecls.h"
 #include "inp.fh"
 c     
-      integer rtdb              ! [input]
-      character*(*) name        ! [input]
+      integer rtdb              ! [input] run time data base handle
+      character*(*) name        ! [input] name of basis set to add
       integer basis
       logical status
       integer ln
@@ -1108,6 +1119,9 @@ c
       end
 c......................................................................
       logical function bas_print_all()
+c
+c routine to print active all basis set(s) information
+c
       implicit none
 #include "basP.fh"
 c::function
@@ -1128,18 +1142,18 @@ c
       end
 c......................................................................
       logical function bas_rtdb_in(rtdb)
+c     
+c     load in info about known basis sets ... this is more
+c     for diagnostic and debugging purposes
+c     
       implicit none
 #include "basP.fh"
 #include "rtdb.fh"
 #include "mafdecls.h"
 #include "inp.fh"
 c     
-      integer rtdb              ! [input]
+      integer rtdb     ! [input] run time data base handle
       integer bas
-c     
-c     load in info about known basis sets ... this is more
-c     for diagnostic and debugging purposes
-c     
       bas_rtdb_in = .false.
       nbasis_rtdb = 0
       if (rtdb_par_get(rtdb, 'basis:nbasis', MT_INT, 1, nbasis_rtdb))
@@ -1160,13 +1174,18 @@ c
 c......................................................................
       logical function bas_cn2ce(basisin,cont,center)
       implicit none
+c
+c returns the center for a given mapped contraction
+c
 #include "basP.fh"
 #include "geobasmapP.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin, cont, center
+      integer basisin   ! [input] basis set handle
+      integer cont      ! [input] mapped contraction index
+      integer center    ! [output] center index
 c::local
       integer basis
 c
@@ -1187,6 +1206,10 @@ c
       end
 c......................................................................
       logical function bas_cn2bfr(basisin,cont,ifirst,ilast)
+c
+c returns the first basis function index of a mapped contraction 
+c in ifirst and the last basis function index in ilast
+c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1194,7 +1217,10 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin, cont, ifirst, ilast
+      integer basisin   ! [input] basis set handle
+      integer cont      ! [input] mapped contraction index
+      integer ifirst    ! [output] first basis function
+      integer ilast     ! [output] last basis function     
 c::local 
       integer basis
 c
@@ -1217,6 +1243,9 @@ c
       end
 c......................................................................
       logical function bas_ce2bfr(basis, icent, ibflo, ibfhi)
+c
+c  returns the basis function range for a given center
+c
       implicit none
       integer basis             ! [input] handle
       integer icent             ! [input] no. of center
@@ -1237,6 +1266,9 @@ c
       end
 c......................................................................
       logical function bas_ce2cnr(basisin,center,ifirst,ilast)
+c
+c returns the mapped contraction range on a given center
+c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1245,7 +1277,10 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin, center, ifirst, ilast
+      integer basisin  ! [input] basis set handle         
+      integer center   ! [input] center index 
+      integer ifirst   ! [output] first mapped contraction
+      integer ilast    ! [output] last mapped contraction
 c::local 
       integer basis, nat
 c
@@ -1255,6 +1290,7 @@ c
       basis = basisin + BASIS_HANDLE_OFFSET
       bas_ce2cnr = geom_ncent(ibs_geom(basis),nat)
       if (nat.eq.0.or..not.bas_ce2cnr) then
+        bas_ce2cnr = .false.
         write(6,*)' bas_ce2cnr: ERROR '
         write(6,*)' number of centers is zero or weird'
         write(6,*)' nat = ',nat
@@ -1265,8 +1301,8 @@ c..... add diagnostics later
       bas_ce2cnr = center.gt.0 .and. center.le.nat
       if (.not.bas_ce2cnr) then
         write(6,*)' bas_ce2cnr: invalid center information '
-        write(6,*)' contraction range is 1:',nat
-        write(6,*)' input contraction was: ',center
+        write(6,*)' center range is 1:',nat
+        write(6,*)' input center was : ',center
         return
       endif
 c
@@ -1276,7 +1312,100 @@ c
       return
       end
 c......................................................................
+      logical function bas_bf2ce(basisin,testbf,center)
+c
+c routine to return the center of a given basis function 
+c
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "geom.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin ! [input] basis set handle         
+      integer testbf  ! [input] basis function index
+      integer center  ! [output] center index
+c::local
+      integer basis, nat, iat, ibflo, ibfhi
+c
+      bas_bf2ce = bas_check_handle(basisin,'bas_bf2ce')
+      if (.not. bas_bf2ce) return
+c
+      basis = basisin + BASIS_HANDLE_OFFSET 
+      bas_bf2ce = geom_ncent(ibs_geom(basis),nat)
+      if (.not.bas_bf2ce .or. nat.le.0) then
+        bas_bf2ce = .false.
+        write(6,*)' bas_bf2ce: ERROR '
+        write(6,*)' number of centers is zero or weird'
+        write(6,*)' nat = ',nat
+        return
+      endif
+c
+c... linear search through atoms
+c
+      center = -1
+      do 00100 iat = 1,nat
+        ibflo = ibs_cn2bfr(1,ibs_ce2cnr(1,iat,basis),basis)
+        ibfhi = ibs_cn2bfr(2,ibs_ce2cnr(2,iat,basis),basis)
+        if (testbf.ge.ibflo.and.testbf.le.ibfhi) then
+          center = iat
+          return
+        endif
+00100 continue
+c
+      end
+c......................................................................
+      logical function bas_bf2cn(basisin,testbf,cont)
+c
+c returns the mapped contraction index that contains the given 
+c basis function index
+c 
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+c::function
+      logical bas_numcont
+      logical bas_check_handle
+      external bas_numcont
+      external bas_check_handle
+c::passed
+      integer basisin ! [input] basis set handle         
+      integer testbf  ! [input] basis function index
+      integer cont    ! [output] mapped contraction index
+c::local
+      integer basis, icont, ibflo, ibfhi
+      integer numcont
+c
+      bas_bf2cn = bas_check_handle(basisin,'bas_bf2cn')
+      if (.not. bas_bf2cn) return
+c
+      bas_bf2cn = bas_numcont(basisin,numcont)
+      if (.not.bas_bf2cn) then
+        write(6,*)'bas_bf2cn: could not get number of contractions'
+        return
+      endif
+c
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+c... linear search through contractions
+      cont = -1 
+      do 00100 icont = 1,numcont
+        ibflo = ibs_cn2bfr(1,icont,basis)
+        ibfhi = ibs_cn2bfr(2,icont,basis)
+        if(testbf.ge.ibflo.and.testbf.le.ibfhi) then
+          cont = icont
+          return
+        endif
+00100 continue
+c
+      end
+c......................................................................
       logical function bas_numbf(basisin,nbf)
+c
+c returns the total number of basis functions of the mapped basis set.
+c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1284,9 +1413,10 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin,nbf
+      integer basisin ! [input] basis set handle         
+      integer nbf     ! [output] number of basis functions
 c::local
-      integer basis
+      integer basis 
 c
       nbf = -6589
       bas_numbf = bas_check_handle(basisin,'bas_numbf')
@@ -1299,6 +1429,9 @@ c
       end
 c......................................................................
       logical function bas_name(basisin,basis_name,trans_name)
+c
+c returns the name and translated name of the basis set
+c
       implicit none
 #include "basP.fh"      
 #include "inp.fh"
@@ -1327,6 +1460,9 @@ c
       end
 c......................................................................
       logical function bas_get_exponent(basisin,icont,exp)
+c
+c  returns the exponents of a given mapped contraction 
+c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1337,8 +1473,9 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer basisin, icont 
-      double precision exp(*)
+      integer basisin         ! [input] basis set handle
+      integer icont           ! [input] mapped contraction index
+      double precision exp(*) ! [output] exponents
 c::local
       integer basis, myucont, icontmax
       integer myprim,myexptr
@@ -1369,6 +1506,9 @@ c
 c......................................................................
       logical function bas_continfo(basisin,icont,
      &       type,nprimo,ngeno,sphcart)
+c
+c  returns the generic information about the given mapped contraction
+c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1417,6 +1557,10 @@ c... no spherical yet 3/94 only cart.
       end
 c......................................................................
       logical function bas_numcont(basisin,numcont)
+c
+c returns the total number of mapped contractions/shells for the 
+c given basis set
+c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1425,7 +1569,8 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin,numcont
+      integer basisin   ! [input] basis set handle
+      integer numcont   ! [output] number of mapped contractions
 c::local
       integer basis
 c
@@ -1442,6 +1587,9 @@ c
       end
 c......................................................................
       logical function bas_get_coeff(basisin,icont,coeff)
+c
+c returns the coefficients for the given mapped contraction
+c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1452,8 +1600,9 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer basisin, icont 
-      double precision coeff(*)
+      integer basisin            ! [input] basis set handle
+      integer icont              ! [input] mapped contraction index
+      double precision coeff(*)  ! [output] mapped contraction coeffs.
 c::local
       integer basis, myucont, icontmax
       integer mycoeffptr, myprim, mygen
@@ -1485,6 +1634,9 @@ c
       end
 c......................................................................
       logical function bas_set_exponent(basisin,icont,exp,nexp)
+c
+c sets the exponents to the input array for a given mapped contraction
+c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1495,8 +1647,10 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer basisin, icont, nexp
-      double precision exp(nexp)
+      integer basisin             ! [input] basis set handle        
+      integer icont               ! [input] mapped contraction index
+      integer nexp                ! [input] number of exponents for contraction
+      double precision exp(nexp)  ! [input] "new" exponents for contraction    
 c::local
       integer basis, myucont, icontmax
       integer myprim,myexptr
@@ -1537,6 +1691,9 @@ c
       end
 c......................................................................
       logical function bas_set_coeff(basisin,icont,coeff,ncoeff)
+c
+c sets the coefficients of the given mapped contraction
+c
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1547,8 +1704,10 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer basisin, icont, ncoeff
-      double precision coeff(ncoeff)
+      integer basisin                 ! [input] basis set handle                   
+      integer icont                   ! [input] mapped contraction index           
+      integer ncoeff                  ! [input] number of coeffs. for contraction
+      double precision coeff(ncoeff)  ! [input] "new" coeffs. for contraction    
 c::local
       integer basis, myucont, icontmax
       integer mycoeffptr, myprim, mygen
