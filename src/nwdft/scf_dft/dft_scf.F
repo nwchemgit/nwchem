@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.16 1995-11-29 23:16:47 hltaylor Exp $
+C$Id: dft_scf.F,v 1.17 1995-12-13 03:08:56 og845 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -56,7 +56,7 @@ c**** patches for SC95,  ECCE' parsing
       logical int2e_file_open
 
       integer natoms,nTotEl
-      integer l_occ,k_occ,l_excit,i_excit,n_excit
+      integer l_occ,k_occ
       integer n_full,n_empty
       integer i,ii,j
       integer n_ashift,n_bshift
@@ -80,15 +80,15 @@ c**** patches for SC95,  ECCE' parsing
       double precision etnew,tol2e,fock_el
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
       logical converged,XCFIT,wght_GA
-      logical lfrac,lfocka,lfockb
+      logical lfocka,lfockb,lmaxov
       integer itol_min,iAOacc_min,iscfcon
       double precision scfcon
       double precision zero,onem,one
       parameter(zero=0.d0,one=1.d0,onem=-one)
       parameter(itol_min=6,iAOacc_min=15)
+      character*3 scftype
       double precision dft_dencvg,dabssum
       external dft_dencvg,dabssum
-
 #if defined(SC95)
       double precision homo_lumo_gap
       logical movecs_to_logfile
@@ -153,32 +153,6 @@ c****   UHF occupations
           dbl_mb(i-1+k_occ) = 1.0d0
         enddo
       endif 
-C
-C     stuff for IPS
-C      
-      lfrac = RTDB_MA_Get(RTDB, 'dft:excitation', Type,
-     $   n_excit, l_excit)
-      if(lfrac) then
-        if(me.eq.0) write(LuOut,*) ' excitation'
-        If ( Type .ne. MT_Int)  Call ErrQuit(
-     $       'dft_scf: Bad MA type from RTDB_MA_Get', Type)
-        If ( .NOT. MA_Get_Index(l_excit, i_excit) ) Call ErrQuit(
-     $       'dft_scf: Bad MA handle from RTDB_MA_Get', l_excit)
-        n_excit=n_excit/2
-        do ii=1,n_excit
-          n_empty=int_mb(i_excit+(ii-1)*2)
-          n_full =int_mb(i_excit+(ii-1)*2+1)
-          dbl_mb(k_occ+n_empty-1)=0.d0
-          dbl_mb(k_occ+n_full-1)=1.d0
-          if(me.eq.0) write(LuOut,*) ' from ',n_empty,' to ',n_full
-        enddo
-        anew_nel=  dabssum(ipol*nbf_ao,dbl_mb(k_occ))
-        if(dabs(anel-anew_nel).gt..001)
-     $       call errquit(' dft_scf: changed number of electrons to',
-     $       int(anew_nel))
-         If ( .NOT. MA_Free_Heap(l_excit) ) Call ErrQuit(
-     $      'dft_scf: Unable to free MA handle', l_excit)
-      endif
 C     
 C     shift on Fock matrix to change occupancy
 C
@@ -352,11 +326,11 @@ c
       LResult = movecs_read_header(movecs_in, title_vecs, basis_vecs,
      &     nbf_vecs, nsets, nmo_read, 2)
       if(Lresult.and.
-     &     (ipol.eq.nsets).and.
-     &     (nmo(1).eq.nmo_read(1)).and.
-     &     (nbf_vecs.eq.nbf_ao))then
+     &     (nbf_vecs.eq.nbf_ao).and.
+     &     (nmo(1).eq.nmo_read(1))) then
         LResult=.true.
-        do ispin = 1,ipol
+        if(ipol.eq.1.and.nsets.eq.2) nsets=1
+        do ispin = 1,nsets
 c****     
 c****     get orbitals (i.e. fock eigenvectors) and fock eigenvalues
 c****     
@@ -364,10 +338,23 @@ c****
      &         movecs_read(movecs_in, ispin, dbl_mb(k_occ),
      &         dbl_mb(iSbn2(ispin)), g_evecs(ispin))
           call ga_orthog_mos(AO_bas_han, g_evecs(ispin))
-          if(LResult)
-     &         call dft_densm(g_dens(ispin),g_evecs(ispin),
-     &         nbf_ao,ipol,noc(ispin))
         enddo 
+          if(LResult) then
+            if(ipol.eq.2.and.nsets.eq.1) then
+              call ga_copy(g_evecs(1),g_evecs(2))
+            endif
+c
+c     Apply any swaps of orbitals
+c
+            scftype=' '
+            if(ipol.eq.2) scftype='UHF'
+            call movecs_swap(rtdb, scftype, g_evecs,
+     $           dbl_mb(k_occ), dbl_mb(Isbn2(1)))
+            do ispin=1,ipol
+              call dft_densm(g_dens(ispin),g_evecs(ispin),
+     &             nbf_ao,ipol,noc(ispin))
+            enddo
+          endif
       else
         LResult=.false.
       endif
@@ -525,7 +512,7 @@ c
 #if defined(DFT_TIMER)
         call dft_second(tp3)
 #endif  
-      if (oreadfile .or. owritefile) call int2e_file_rewind
+        if (oreadfile .or. owritefile) call int2e_file_rewind
 
         if( CDFIT ) then
 c         
@@ -768,6 +755,21 @@ C
 #endif  
         call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
      &       g_evecs(ispin),g_tmp,zero,g_fockt)
+C
+C       keep orbital ordering according to principle
+C       of maximum overlap with previous iteration
+C
+        if (rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,lmaxov )) then
+          
+        call gacrea(geom,AO_bas_han,
+     &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
+        call ga_zero(g_s)
+        call int_1e_ga(AO_bas_han,AO_bas_han,
+     &       g_s,'overlap',.false.)
+        call dft_mxovl(AO_bas_han, dbl_mb(Isbn2(ispin)),
+     ,       g_fockt, g_evecs(ispin),g_s,g_tmp)
+        call gadest(g_s)
+        endif
         call ga_copy(g_fockt,g_evecs(ispin))
         call ga_sync
 #if defined(DFT_TIMER)
@@ -890,6 +892,14 @@ c
         Etold = Etnew
         if( idone.eq.0.or.
      .   (iswitc.lt.2.and.iter.lt.itrscf)) go to 1000 ! begin new iteration
+C
+C       call for symmetry analysis
+C
+         call scf_movecs_sym_adapt(AO_bas_han, g_evecs(1),.true.,
+     $        nbf_ao, '- alpha')
+         if(ipol.eq.2)
+     $        call scf_movecs_sym_adapt(AO_bas_han, g_evecs(2),
+     $        .true., nbf_ao, '- beta')
 c****   
 c****   end infinite loop for SCF iterations
 c****   
@@ -1044,7 +1054,7 @@ c
      &     g_dens, ipol, rmoments, 3)
 
 C
-C     computatation of <S2> for open shell
+C     computation of <S2> for open shell
 C
       if(ipol.gt.1)then
 
@@ -1055,6 +1065,7 @@ C         Restore alpha and beta densities.
      &     nbf_ao,g_dens(1),g_dens(2))
 
         endif
+
 c
 c
 c
