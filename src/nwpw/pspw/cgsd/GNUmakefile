@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.13 2003-10-20 16:40:00 bylaska Exp $
+# $Id: GNUmakefile,v 1.14 2004-03-09 21:25:57 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 		cgsd_input.o \
@@ -15,6 +15,7 @@
                 cgminimize.o \
 		cgminimize2.o \
                 bfgsminimize.o  \
+                bfgsminimize2.o  \
                 bfgsminimize3.o \
                 bybminimize.o \
                 sdminimize.o \

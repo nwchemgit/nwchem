@@ -1,52 +1,59 @@
 c
-c     $Id: cgminimize2.F,v 1.8 2004-03-09 21:25:57 bylaska Exp $                       
+c     $Id: bfgsminimize2.F,v 1.1 2004-03-09 21:25:57 bylaska Exp $                       
 c
 
-*  **************************************************************
-*  *                MPI cgminimize2 routine                     *
-*  *               (Fletcher-Reeves' steps)                     *
-*  *                                                            *
-*  *  This is a developing Stiefel conjugate gradient minimizer *
-*  *  written for NWChem.                                       *
-*  *                                                            *
-*  *                                                            *
-*  **************************************************************
+*  ************************************************************
+*  *                                                          *
+*  *               Limited Memory BFGS routine                *
+*  *                                                          *
+*  ************************************************************
   
-      subroutine cgminimize2(E,deltae,deltac,current_iteration)
+      subroutine bfgsminimize2(E,deltae,deltac,
+     >                        current_iteration,
+     >                        minimizer)
       implicit none
 #include "errquit.fh"
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
+      integer    minimizer
 
 #include "mafdecls.fh"
 
 *     **** local variables ****
 
       real*8  deltat_min
-      parameter (deltat_min=1.0d-3)
+      parameter (deltat_min=1.0d-2)
        
-      integer H0(2),G1(2)
+      integer G0(2),S0(2)
       real*8  E0,dE0
 
-      real*8     sum0(2),sum1(2),scale,tole,tolc
+      logical    precondition
+      common / cgsd_block2 / precondition
+
+      real*8     tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
       real*8     Enew,Eold,Estart
       common / cgsd_block / Enew,Eold,Estart
 
-      integer it,it_in,ms,ispin,ne(2)
-      real*8 tmin,deltat
-      real*8 max_sigma
+      real*8 tmin,dte,sum0,sum1
+      common / bfgs_block / tmin,dte,sum0,sum1
+
+      integer it,it_in
+      real*8 deltat
+      real*8 max_sigma,dt
 
       logical value
       integer neall,npack1
       real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
-      real*8 e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
-      real*8 ehsic,exsic,phsic,pxsic      
+      real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
+
+
+
 
 
 *     **** external functions ****
-      integer  control_it_in,psi_ne,control_version,control_ispin
+      integer  control_it_in,psi_ne,control_version
       real*8   control_tole,control_tolc
       real*8   psi_geodesic2_energy
       real*8   psi_geodesic2_denergy
@@ -61,7 +68,7 @@ c
       real*8   psi_1eorbit
       real*8   linesearch
    
-      external control_it_in,psi_ne,control_version,control_ispin
+      external control_it_in,psi_ne,control_version
       external control_tole,control_tolc
       external psi_geodesic2_energy
       external psi_geodesic2_denergy
@@ -100,147 +107,138 @@ c
       external pspw_charge_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
-      logical  control_precondition,pspw_SIC
-      external control_precondition,pspw_SIC
-     
+
+
+      real*8   control_time_step,control_fake_mass
+      external control_time_step,control_fake_mass
+      integer  control_lmbfgs_size
+      external control_lmbfgs_size
+      logical  control_precondition
+      external control_precondition
+
+      dt = control_time_step()
+c     dte = dt/dsqrt(control_fake_mass())
+c     dte = dsqrt(control_fake_mass())/dt
+c     dte = 1.0d0
+
+      if (current_iteration.eq.1) then
+         precondition = control_precondition()
+      end if
+
   
       call Pack_npack(1,npack1)
-      ispin = control_ispin()
-      ne(1) = psi_ne(1)
-      ne(2) = psi_ne(2)
-      neall = ne(1)+ne(2)
+      neall = psi_ne(1)+psi_ne(2)
 
 
-*     **** allocate H0 and G1 ****
-      value = MA_alloc_get(mt_dcpl,npack1*neall,
-     >                     'H0',H0(2),H0(1))
+*     **** allocate G0, S0 ****
+      value = MA_push_get(mt_dcpl,npack1*neall,
+     >                     'S0',S0(2),S0(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*neall,
-     >                     'G1',G1(2),G1(1))
-      if (.not. value) call errquit('cgminimize2:out of heap memory',0,
+     >        MA_push_get(mt_dcpl,npack1*neall,
+     >                     'G0',G0(2),G0(1))
+      if (.not. value) call errquit('lmbfgs2:out of heap memory',0,
      &       MA_ERR)
 
-      Estart = Enew
-
-*     ***** get the initial gradient and direction ****
-      call psi_1get_TSgradient(dcpl_mb(G1(1)),E0)
 
 
-      do ms=1,ispin
-        call Grsm_gg_trace(npack1,ne(ms),
-     >                     dcpl_mb(G1(1)+(ms-1)*npack1*ne(1)),
-     >                     dcpl_mb(G1(1)+(ms-1)*npack1*ne(1)),
-     >                     sum1(ms))
-      end do
+*     ***** get the initial direction ****
+      call psi_1get_TSgradient(dcpl_mb(G0(1)),E0)
 
-      call Grsm_gg_Copy(npack1,neall,
-     >                   dcpl_mb(G1(1)),
-     >                   dcpl_mb(H0(1)))
+
+      if (current_iteration.eq.1) then
+
+*        ***** use the initial gradient for the direction ****
+         call pspw_lmbfgs2_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
+         call Grsm_gg_Copy(npack1,neall,
+     >                      dcpl_mb(G0(1)),
+     >                      dcpl_mb(S0(1)))
+         tmin  = 10*deltat_min
+      else
+           call pspw_lmbfgs2(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+      end if
+     
 
 *     ******************************************
 *     ****                                  ****
-*     **** Start of conjugate gradient loop ****
+*     **** Start of BFGS iteration loop     ****
 *     ****                                  ****
 *     ******************************************
       it_in = control_it_in()
       tole  = control_tole()
       tolc  = control_tolc()
-      tmin  = deltat_min
       do it=2,it_in
 
 *        **** initialize the geoedesic line data structure ****
-         call psi_1geodesic2_start(dcpl_mb(H0(1)),max_sigma,dE0)
+         call psi_1geodesic2_start(dcpl_mb(S0(1)),max_sigma,dE0)
 
 
 *        ******* line search *********
-         if (tmin.gt.deltat_min) then
+         if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
             deltat = tmin
          else
             deltat = deltat_min
          end if
+c         deltat = 1.0d0  !** debug **
          Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic2_energy,
      >                        psi_geodesic2_denergy,
-     >                        0.5d0,tmin,deltae,2)
+     >                        0.50d0,tmin,deltae,2)
          call psi_geodesic2_final(tmin)
          deltac = rho_error()
 
 *        **** exit loop early ****
          if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) then
-            go to 30
+            if (.not.precondition) go to 30
+            precondition = .false.
          end if
-   
+     
+*        **** get the new gradient - also updates densities****
+         call psi_2get_TSgradient(2,dcpl_mb(G0(1)),E0)
 
-*        **** transport the previous search directions ****
-         call psi_1geodesic2_transport(tmin,dcpl_mb(H0(1)))
+         call pspw_lmbfgs2(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+
+
 
 *        **** make psi1 <--- psi2(tmin) ****
          call psi_2to1()
 
-*        **** get the new gradient - also updates densities****
-         call psi_1get_TSgradient(dcpl_mb(G1(1)),E0)
+         !****DEBUG ****  check to see if S0 is orthogonal to psi1
+         !call psi_1check_Tangent(dcpl_mb(S0(1)))
+         !****DEBUG ****  
 
-
-         do ms=1,ispin
-           sum0(ms)  = sum1(ms)
-           call Grsm_gg_trace(npack1,ne(ms),
-     >                        dcpl_mb(G1(1)+(ms-1)*npack1*ne(1)),
-     >                        dcpl_mb(G1(1)+(ms-1)*npack1*ne(1)),
-     >                        sum1(ms))
-         end do
-
-*        **** the new direction using Fletcher-Reeves ****
-         if ( (dabs(deltae).le.(1.0d-2)).and.
-     >        (tmin.gt.deltat_min)) then
-
-           do ms=1,ispin
-             if (sum0(ms).gt.1.0d-15) then
-                scale = sum1(ms)/sum0(ms)  ! Fletcher-Reeves
-             else
-                scale = 0.0d0
-             end if
-
-             call Grsm_gg_dScale(npack1,ne(ms),scale,
-     >                         dcpl_mb(H0(1)+(ms-1)*npack1*ne(1)),
-     >                         dcpl_mb(H0(1)+(ms-1)*npack1*ne(1)))
-           end do
-           call Grsm_ggg_Sum(npack1,neall,
-     >                       dcpl_mb(G1(1)),
-     >                       dcpl_mb(H0(1)),
-     >                       dcpl_mb(H0(1)))
-
-
-*        **** the new direction using steepest-descent ****
-         else
-              call Grsm_gg_Copy(npack1,neall,
-     >                          dcpl_mb(G1(1)),
-     >                          dcpl_mb(H0(1)))
-         end if
+c        call rho_2to1()
+c        call dng_2to1()
 
       end do
 
-
 *     **** initialize the geoedesic line data structure ****
-      call psi_1geodesic2_start(dcpl_mb(H0(1)),max_sigma,dE0)
+      call psi_1geodesic2_start(dcpl_mb(S0(1)),max_sigma,dE0)
 
 
 *     ******* line search *********
-      if (tmin.gt.deltat_min) then
+      if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
          deltat = tmin
       else
          deltat = deltat_min
       end if
-
       Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic2_energy,
      >                        psi_geodesic2_denergy,
-     >                        0.5d0,tmin,deltae,2)
-
+     >                        0.50d0,tmin,deltae,2)
       call psi_geodesic2_final(tmin)
       deltac = rho_error()
 
- 30   call psi_2to1()
+*     **** free memory ****
+ 30   value = MA_pop_stack(G0(2))
+      value = value.and.
+     >        MA_pop_stack(S0(2))
+      if (.not. value) 
+     > call errquit('bfgsminimize2:error freeing heap memory',0,MA_ERR)
+
+      call psi_2to1()
       call psi_1toelectron() 
+c     call rho_2to1()
+c     call dng_2to1()
       call psi_check()
 
       eion = 0.0d0
@@ -265,12 +263,12 @@ c
       if (pspw_qmmm_found()) then
 
 *        **** get QM/MM  energies ****
-         e_qmmm_e  = psi_1v_field()
+         e_qmmm_e   = psi_1v_field()
          e_qmmm_q   = pspw_qmmm_Energy_QMMM_Q()
          e_qmmm_lj  = pspw_qmmm_Energy_QMMM_LJ()
 
          e_mmmm_q  = pspw_qmmm_Energy_MMMM_Q()
-         e_mmmm_lj  = pspw_qmmm_Energy_MMMM_LJ()
+         e_mmmm_lj = pspw_qmmm_Energy_MMMM_LJ()
 
          e_pol   = pspw_qmmm_Energy_pol()
          e_vib   = pspw_qmmm_Energy_vib()
@@ -293,9 +291,7 @@ c
          E(18) = e_cav
       end if
 
-
-
-*     **** get pspw_charge  energies ****
+*     **** get pspw_charge energies ****
       if (pspw_charge_found()) then
          E(19)  = psi_1v_field()
          E(20)  = pspw_charge_Energy_ion()
@@ -303,22 +299,6 @@ c
          E(1)   = E(1) + E(20) + E(21)
       end if
 
-
-*     **** SIC corrections ****
-      if (pspw_SIC()) then
-         call electron_SIC_energies(ehsic,phsic,exsic,pxsic)        
-         E(22) = ehsic
-         E(23) = exsic
-         E(24) = phsic
-         E(25) = pxsic
-      end if
-
-      value = MA_free_heap(G1(2))
-      value = value.and.MA_free_heap(H0(2))
-      if (.not. value) 
-     >  call errquit('cgminimize2:error freeing heap memory',2, MA_ERR)
-
-  
       return
       end
  

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.43 2004-03-08 22:51:26 bylaska Exp $
+* $Id: cgsdv5.F,v 1.44 2004-03-09 21:25:57 bylaska Exp $
 *
 
 ***********************************************************************
@@ -248,7 +248,7 @@ c     value = psi_initialize()
 
 *     **** electron and geodesic data structures ****
       call electron_init()
-      if (minimizer.eq.4) then  !debug
+      if ((minimizer.eq.4).or.(minimizer.eq.7)) then  !debug
         call geodesic2_init()
       else
          call geodesic_init()
@@ -517,7 +517,7 @@ c     end if
 
 *     **** deallocate heap memory ****
       call electron_finalize()
-      if (minimizer.eq.4) then
+      if ((minimizer.eq.4).or.(minimizer.eq.7)) then
         call geodesic2_finalize()
       else
         call geodesic_finalize()

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.47 2004-03-08 22:51:26 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.48 2004-03-09 21:25:57 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -80,6 +80,7 @@ c#include "rtdb.fh"
          if (minimizer.eq.4) write(luout,1308)
          if (minimizer.eq.5) write(luout,1309)
          if (minimizer.eq.6) write(luout,1311)
+         if (minimizer.eq.7) write(luout,1312)
          call util_flush(luout)
       end if
 
@@ -133,6 +134,9 @@ c#include "rtdb.fh"
          else if (minimizer.eq.6) then
            bfgscount = bfgscount + 1
            call bfgsminimize3(E,deltae,deltac,bfgscount,minimizer)
+         else if (minimizer.eq.7) then
+           bfgscount = bfgscount + 1
+           call bfgsminimize2(E,deltae,deltac,bfgscount,minimizer)
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
@@ -358,6 +362,7 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1309 FORMAT(10X,'============= Kohn-Sham scf iteration ==============')
  1310 FORMAT(I8,E20.10,3E15.5)
  1311 FORMAT(10X,'======= Projected Grassmann lmbfgs iteration =======')
+ 1312 FORMAT(10X,'============= Stiefel lmbfgs iteration =============')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Diagonal Elements of Hamiltonian matrix')

@@ -1,10 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.5 2003-10-20 16:47:02 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2004-03-09 21:25:58 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
 		pspw_Grsm_list.o \
 		pspw_lmbfgs.o \
+		pspw_lmbfgs2.o \
 		pspw_lmbfgs3.o \
 		pspw_diis.o
 
@@ -14,7 +15,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = pspw_diis.F pspw_Grsm_list.F
+    USES_BLAS = pspw_lmbfgs.F pspw_lmbfgs2.F pspw_diis.F pspw_Grsm_list.F
 
   LIB_DEFINES = 
 
