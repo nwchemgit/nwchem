@@ -6,7 +6,7 @@
      
 
 c
-c$Id: xc_cpkzb99.F,v 1.3 2003-10-15 19:20:04 pollack Exp $
+c$Id: xc_cpkzb99.F,v 1.4 2003-10-21 23:45:44 pollack Exp $
 c
 
 c     References:
@@ -696,7 +696,7 @@ c          fully spin polarized above
 c
 
       Subroutine xc_cpkzb99_d2()
-      call errquit(' not coded ',0)
+      call errquit(' not coded ',0,0)
       return
       end
 

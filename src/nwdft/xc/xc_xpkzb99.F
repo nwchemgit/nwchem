@@ -16,7 +16,7 @@ c         PRL 82, 2544 (1999).
 
 
 c   
-c$Id: xc_xpkzb99.F,v 1.2 2003-10-13 21:19:36 pollack Exp $
+c$Id: xc_xpkzb99.F,v 1.3 2003-10-21 23:45:44 pollack Exp $
 c
       implicit none
 c
@@ -460,7 +460,7 @@ c
 
 
       Subroutine xc_xpkzb99_d2()
-      call errquit(' not coded ',0)
+      call errquit(' not coded ',0,0)
       return
       end
 
