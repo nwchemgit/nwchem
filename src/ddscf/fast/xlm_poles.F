@@ -324,10 +324,14 @@ c
       scale = 4.0d0/(2.0d0*dist)**(lmax+1)
       do l = lmax,0,-1
          loff = l*l + l + 1
+         test = 0.0d0
          do m = -l, l
-            test = abs(scale*q(m,l)*c(m,l)*xlm_max25(loff+m))
-            if (test .gt. thresh) goto 10
+*            test = abs(scale*q(m,l)*c(m,l)*xlm_max25(loff+m))
+*            if (test .gt. thresh) goto 10
+            test = test + abs(q(m,l)*c(m,l)*xlm_max25(loff+m)) 
          enddo
+         test = test*scale
+         if (test .gt. thresh) goto 10
          scale = scale * dist * 2.0d0
       enddo
  10   luse = l
@@ -1038,7 +1042,83 @@ c$$$         enddo
       endif
 c
       end
-      
+      subroutine xlm_translate2(lmax, x, y, z, q, lq)
+      implicit none
+#include "xlm.fh"
+c
+      double precision x, y, z
+      integer lmax, lq
+      double precision q(-lq:lq,0:lmax)
+      integer lbig, l, m, mmp, mp, mmpa, lp, llp, mpa, lo, hi, swap
+      double precision sump, summ, bfac
+c
+c     given a set of unnormalized multipoles about the origin in q
+c     translate the center to (x,y,z).
+c
+      if (lmax .gt. maxl) then
+         write(6,*) ' parameter exceeded', lmax, maxl
+         stop 1
+      end if
+c
+      do l = lmax, 0, -1
+         do m = -l, l
+            if (abs(q(m,l)) .gt. 0.0d0) goto 10
+         enddo
+      enddo
+
+ 10   lbig = l
+      if (lbig .lt. 0) then
+         do l = 0, lmax
+            do m = -l, l
+               q(m,l) = 0.0d0
+            enddo
+         enddo
+         return
+      endif
+c
+      call xlm(lmax, -x, -y, -z, w, maxl)
+c
+c     transfer the charge, then everything else
+c
+      do l = 0, lmax
+         do m = -l, l
+*            q(m,l) = q(m,l) ! UH ?
+*            w(m,l) = w(m,l)
+            v(m,l) = w(m,l) * q(0,0) * b(abs(m),l) * b(0,0)
+         end do
+      end do
+c
+      do l = 1, lmax
+         do m = 0, l
+            sump = 0.0d0
+            summ = 0.0d0
+            do lp = 1, min(l,lbig)
+               llp = l - lp
+               hi = min(lp,max(l-lp+m,lp-l+m))
+               lo = max(-lp,min(l-lp+m,lp-l+m,-lp))
+               do mp = lo, hi
+                  mmp = m - mp
+                  mmpa = abs(mmp)
+                     bfac = b(mmp,llp)*b(mp,lp)
+                     mpa = abs(mp)
+                     sump = sump + (w(mmpa,llp)*q(mpa,lp) - 
+     $                    w(-mmpa,llp)*q(-mpa,lp)*s(mmp)*s(mp))*bfac
+                     summ = summ + (w(mmpa,llp)*q(-mpa,lp)*s(mp) +
+     $                    w(-mmpa,llp)*q(mpa,lp)*s(mmp))*bfac
+               end do
+            end do
+            v(-m,l) = v(-m,l) + summ
+            v( m,l) = v( m,l) + sump
+         end do
+      end do
+c
+      do l = 0, lmax
+         do m = -l, l
+            q(m,l) = v(m,l) / b(abs(m),l)
+         end do
+      end do
+c
+      end
       subroutine xlm_translate(lmax, x, y, z, q, lq)
       implicit none
 #include "xlm.fh"
@@ -1092,6 +1172,7 @@ c
             do lp = 1, min(l,lbig)
                llp = l - lp
                do mp = -lp, lp
+*               do mp = l-lp+m,lp-l+m
                   mmp = m - mp
                   mmpa = abs(mmp)
                   if (mmpa .le. llp) then
@@ -1263,8 +1344,9 @@ c
             sum = sum + abs(q(m,l))
          end do
          if (sum .le. 1e-40) then
-            write(6,3) l
- 3          format(' l = ',i2,' is zero')
+*            write(6,3) l
+* 3          format(' l = ',i2,' is zero')
+*            continue
          else
             write(6,1) l
  1          format(' l = ',i2)
