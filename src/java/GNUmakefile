@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 1999-11-15 23:16:12 d3j191 Exp $
+# $Id: GNUmakefile,v 1.7 1999-11-16 04:47:46 d3j191 Exp $
 #
 
 OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
@@ -9,6 +9,8 @@ OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
 	nwchem_Synch.class nwchem_Input.class nwchem_Times.class\
 	nwchem_MD_control.class nwchem_Property.class nwchem_Rasmol.class\
         nwchem_NWChem.class \
+        nwchem_Prepare_topology.class nwchem_Prepare_restart.class\
+        nwchem_Prepare.class \
 	IntegerField.class DoubleField.class Graph.class
 
 CLASS_PATH = .:$(PTOLEMY):$(SWING)
