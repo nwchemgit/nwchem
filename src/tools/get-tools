@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: get-tools,v 1.9 2001-03-01 15:43:50 gg502 Exp $
+# $Id: get-tools,v 1.10 2004-05-08 17:03:19 edo Exp $
 #
 # We need to rename CVS associated with nwchem repository while
 # checking out tools for the first time
@@ -13,7 +13,7 @@ set repos = /msrc/proj/hpctools
 if ( $?EMSL_HOST ) then
     set emsl_host = $EMSL_HOST
 else
-    set emsl_host = corsair.emsl.pnl.gov
+    set emsl_host = pascal.emsl.pnl.gov
 endif
 
 # Try to be smart about setting CVSROOT
