@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.113 2002-01-24 22:16:57 bert Exp $
+c $Id: basis.F,v 1.114 2002-01-24 22:56:40 bert Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -2211,7 +2211,7 @@ c
       tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':tags info'
       status = status .and. rtdb_put(
-     &       rtdb,tmp,mt_int,(ndbs_tags*ntagsin), tags_array)
+     &       rtdb,tmp,mt_int,(ndbs_tags*ntags_bsmx), tags_array)
 
       tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':contraction info'
