@@ -23,7 +23,6 @@ COBJ  = clustrxx5.o \
          mapdif.o \
          mapdif1.o \
          matmax.o \
-         maxx.o \
          mdif2b.o \
          mdiff1.o \
          mdiff2.o \
