@@ -1,6 +1,6 @@
       integer function ewald_ncut()
 *
-* $Id: ewald.F,v 1.2 2002-04-25 00:34:39 bylaska Exp $
+* $Id: ewald.F,v 1.3 2002-04-26 01:00:08 bylaska Exp $
 *
       implicit none 
 
@@ -67,7 +67,7 @@
 
 *     **** local variables ****
       integer n1,n2,n3
-      real*8  rs,rc,epsilon,pi
+      real*8  rc,rs,epsilon,pi
       real*8  a1,a2,a3,g1,g2,g3,gg
       real*8  unita(3,3),unitg(3,3)
       real*8  alpha1,alpha2,sum,ea,omega
@@ -142,6 +142,8 @@ c           sum = sum + yerfc/ea
       end do
       end do
       alpha1 = sum
+
+
 		
 *     **** calculate alpha2 *****
       sum = 0.0d0
@@ -321,6 +323,8 @@ c           sum = sum + yerfc/ea
       cewald = -0.5d0*zz*(alpha/rs + cewald/lattice_omega())
      >         -0.5d0*(z*z-zz)*rcut*rcut*pi/lattice_omega()
      
+
+
 *     **** allocate rcell memory ****
       nshl3d=(2*ncut+1)**3
       value = MA_alloc_get(mt_dbl,(3*nshl3d),'rcell',rcell(2),
@@ -356,9 +360,9 @@ c           sum = sum + yerfc/ea
       end
 
 *     ***********************************
-*     *				        			*
-*     *				ewald_e				*
-*     *				        			*
+*     *			  		*
+*     *		ewald_e			*
+*     *				       	*
 *     ***********************************
       real*8 function ewald_e()
       implicit none
@@ -366,13 +370,11 @@ c           sum = sum + yerfc/ea
 #include "mafdecls.fh"
 
 
-
 *     **** common block for ewald.f ****
       integer    ncut
       real*8     rcut,cewald,alpha
       integer    vg(2),rcell(2)
       common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
-
 
 *     ****  expansion coefficient of the error function ****
 c     real*8 cerfc,b1,b2,b3,b4,b5,b6
@@ -386,7 +388,7 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       integer i,j,ii,l
       real*8  w,dx,dy,dz,x,y,z,r,zz
       real*8  yerfc
-      real*8  energy,etmp
+      real*8  energy,etmp,energyG
 
 *     **** temporary workspace variables ****
 c     complex*16  exi(nfft3d)
@@ -431,6 +433,7 @@ c     real*8     tmp3(nfft3d*2)
 *     **** calculate the ewald energy ****
       call D3dB_ct_Sqr(1,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
       call D3dB_tt_dot(1,dbl_mb(tmp3(1)),dbl_mb(vg(1)),energy)
+      energyG = 0.5d0*energy/lattice_omega()
       energy = 0.5d0*energy/lattice_omega() + cewald
 
 *     *** need to make parallel ****
@@ -477,9 +480,9 @@ c          dbl_mb(ft(1)+(l-1))=zz*erfc**4/r
 
 
 *     ***********************************
-*     *				        			*
-*     *				ewald_f				*
-*     *				        			*
+*     *	        			*
+*     *		ewald_f			*
+*     *		       			*
 *     ***********************************
 
       subroutine ewald_f(fion)
@@ -662,9 +665,9 @@ c          erfc = 1.0d0/erfc**4
       end
 
 *     ***********************************
-*     *				        			*
-*     *				ewald_stress		*
-*     *				        			*
+*     *					*
+*     *		ewald_stress		*
+*     *	        			*
 *     ***********************************
 
       subroutine ewald_stress(stress)
@@ -705,7 +708,7 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       integer u,v,s
       real*8 pi,fourpi,scal
       real*8 zz,z
-      real*8 Cus(3,3),hm(3,3),energy,sum,ss
+      real*8 Cus(3,3),hm(3,3),energy,sum,ss,rs
       real*8 ea,ax,ay,az,epsilon
       real*8 dx,dy,dz,w
       real*8 unita(3,3),unitg(3,3)
@@ -746,7 +749,7 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
          z  = z  + psp_zv(ion_katm(i))
       end do
 
-*     **** Miscellaneous contributions ****
+*     **** Miscellaneous contributions - stress from cewald term ****
       do v=1,3
       do u=1,3
          stress(u,v) = 0.5d0*z*z*pi*rcut*rcut/lattice_omega()
@@ -785,7 +788,7 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       call Pack_tt_dot(0,dbl_mb(F(1)),dbl_mb(H(1)),energy)
       energy = -0.5d0*energy/lattice_omega()
 
-      write(*,*) "Ewald E:", energy
+
       do v=1,3
       do u=1,3
          stress(u,v) = stress(u,v) + energy*hm(u,v)
@@ -831,7 +834,8 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       call Pack_t_pack(0,dbl_mb(G(1,3)))
 
       call dcopy(9,0.0d0,0,Cus,1)
-      ss = -1.0d0/lattice_omega()
+c     ss = -1.0d0/lattice_omega()
+      ss =  1.0d0/lattice_omega()
       do u=1,3
       do s=u,3
          call Pack_tt_Mul(0,dbl_mb(G(1,u)),
@@ -867,9 +871,11 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
 *     **** R-space contributions ****
 
 
-*     **** calculate alpha1 *****
+*     **** calculate alpha1 - stress from cewald term*****
         call dcopy(9,0.0d0,0,Cus,1)
+        rs      = (3.0d0*lattice_omega()/(4.0d0*pi))**(1.0d0/3.0d0)
         epsilon = 1.0d0/rcut
+        sum = 0.0d0
         do n1=(-N+1),(N-1) 
         do n2=(-N+1),(N-1) 
         do n3=(-N+1),(N-1) 
@@ -887,25 +893,34 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
      >           + n3*unita(3,3)
 
               ea = dsqrt(ax*ax + ay*ay + az*az)
+              w = ea*epsilon
 
-              ss = util_erfc(epsilon*ea)/(ea**2)
-     >           + 2.0d0*epsilon/dsqrt(pi)*exp(-(epsilon*ea)**2)/ea
-              Cus(1,1) = Cus(1,1) - ss * ax*ax/ea * 0.5d0*zz
-              Cus(1,2) = Cus(1,2) - ss * ax*ay/ea * 0.5d0*zz
-              Cus(1,3) = Cus(1,3) - ss * ax*az/ea * 0.5d0*zz
-              Cus(2,2) = Cus(2,2) - ss * ay*ay/ea * 0.5d0*zz
-              Cus(2,3) = Cus(2,3) - ss * ay*az/ea * 0.5d0*zz
-              Cus(3,3) = Cus(3,3) - ss * az*az/ea * 0.5d0*zz
+              ss = util_erfc(w)/ea 
+     >           + 2.0d0*epsilon/dsqrt(pi)*dexp(-w*w)
+              ss = -(0.5d0*zz)*ss/(ea*ea)
+              Cus(1,1) = Cus(1,1) + ss * ax*ax 
+              Cus(1,2) = Cus(1,2) + ss * ax*ay 
+              Cus(1,3) = Cus(1,3) + ss * ax*az 
+
+              Cus(2,1) = Cus(2,1) + ss * ay*ax 
+              Cus(2,2) = Cus(2,2) + ss * ay*ay 
+              Cus(2,3) = Cus(2,3) + ss * ay*az 
+
+              Cus(3,1) = Cus(3,1) + ss * az*ax 
+              Cus(3,2) = Cus(3,2) + ss * az*ay 
+              Cus(3,3) = Cus(3,3) + ss * az*az 
 
            end if
         end do
         end do
         end do
-        do u=1,3
-        do s=u+1,3
-           Cus(s,u) = Cus(u,s)
-        end do
-        end do
+
+c       do u=1,3
+c       do s=u+1,3
+c          Cus(s,u) = Cus(u,s)
+c       end do
+c       end do
+
         do v=1,3
         do u=1,3
           do s=1,3
@@ -914,11 +929,11 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
         end do
         end do
 
-
 *     *** need to make parallel ****
 *     **** calculate erfc contribution *****
       nshl3d = ewald_nshl3d()
       call dcopy(9,0.0d0,0,Cus,1)
+      epsilon = 1.0d0/rcut
       do i=1,ion_nion()-1
       do j=i+1,ion_nion()
         dx = ion_rion(1,i) - ion_rion(1,j)
@@ -930,16 +945,17 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
            ay = dbl_mb(rcell(1)+(l-1)+nshl3d)   + dy
            az = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
            ea = dsqrt(ax*ax+ay*ay+az*az)
-           w = ea/rcut
+           w = ea*epsilon
 
-           ss = -util_erfc(w)/(ea**2) 
-     >        - 2.0d0*epsilon/dsqrt(pi)*exp(-w*w)/ea
-           Cus(1,1) = Cus(1,1) + ss * ax*ax/ea * zz
-           Cus(1,2) = Cus(1,2) + ss * ax*ay/ea * zz
-           Cus(1,3) = Cus(1,3) + ss * ax*az/ea * zz
-           Cus(2,2) = Cus(2,2) + ss * ay*ay/ea * zz
-           Cus(2,3) = Cus(2,3) + ss * ay*az/ea * zz
-           Cus(3,3) = Cus(3,3) + ss * az*az/ea * zz
+           ss = -util_erfc(w)/ea
+     >        - 2.0d0*epsilon/dsqrt(pi)*exp(-w*w)
+           ss = ss/(ea*ea)
+           Cus(1,1) = Cus(1,1) + ss * ax*ax * zz
+           Cus(1,2) = Cus(1,2) + ss * ax*ay * zz
+           Cus(1,3) = Cus(1,3) + ss * ax*az * zz
+           Cus(2,2) = Cus(2,2) + ss * ay*ay * zz
+           Cus(2,3) = Cus(2,3) + ss * ay*az * zz
+           Cus(3,3) = Cus(3,3) + ss * az*az * zz
 
         end do
       end do
@@ -949,6 +965,7 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
            Cus(s,u) = Cus(u,s)
         end do
         end do
+
         do v=1,3
         do u=1,3
           do s=1,3
@@ -956,8 +973,6 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
           end do
         end do
         end do
-
-		
 
       return
       end
