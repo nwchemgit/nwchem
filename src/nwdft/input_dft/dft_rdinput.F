@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.112 2003-10-17 22:55:43 carlfahl Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.113 2003-12-13 02:43:28 marat Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -33,6 +33,7 @@ c
       integer nopen
       character*32 theory 
       character*40 blank_40c
+      logical same_atom, same_bq, isbq
       Logical lnewtype,lgridfile
       Logical int_normalize
       Logical int_norm_2c
@@ -826,10 +827,14 @@ c
 c
 c        is this a new type of atom?
 c
+         isbq = geom_isbq(geom,icenter)
          lnewtype = .true.
          do jcenter = 1, icenter - 1
-            if (Dbl_MB(icharge + icenter - 1) .eq. 
-     &          Dbl_MB(icharge + jcenter - 1) .and.
+            same_atom = Dbl_MB(icharge + icenter - 1) .eq.
+     &         Dbl_MB(icharge + jcenter - 1)
+            same_bq = geom_isbq(geom,jcenter) .and. isbq
+            same_atom = same_atom .or. same_bq
+            if (same_atom .and.
      &          atom_tag_check(Byte_MB(itags + (icenter - 1)*16), 
      &                         Byte_MB(itags + (jcenter - 1)*16))
      &         )then   ! same atom type

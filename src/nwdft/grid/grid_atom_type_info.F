@@ -1,6 +1,6 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.11 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_atom_type_info.F,v 1.12 2003-12-13 02:43:28 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -21,6 +21,7 @@ c
       integer itype, ictr, iaz, i_atomic_number, icenter, jcenter
 c
       integer lcoord, icoord, lcharge, icharge, ltags, itags,iptr
+      logical same_atom, same_bq, isbq
 c
       character*16 element
       character*16 tag
@@ -99,9 +100,13 @@ c
 c        is this a new type of atom?
 c
          lnewtype = .true.
+         isbq = geom_isbq(geom,icenter)
          do jcenter = 1, icenter - 1
-            if (Dbl_MB(icharge + icenter - 1) .eq. 
-     &          Dbl_MB(icharge + jcenter - 1) .and.
+            same_atom = Dbl_MB(icharge + icenter - 1) .eq.
+     &         Dbl_MB(icharge + jcenter - 1)
+            same_bq = geom_isbq(geom,jcenter) .and. isbq
+            same_atom = same_atom .or. same_bq
+            if (same_atom .and.
      &          atom_tag_check(Byte_MB(itags + (icenter - 1)*16), 
      &                         Byte_MB(itags + (jcenter - 1)*16))
      &         )then   ! same atom type
