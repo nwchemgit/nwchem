@@ -1,7 +1,7 @@
       logical function pre_select(card,isegm,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup)
 c
-c $Id: pre_select.F,v 1.3 2000-03-29 00:45:29 d3j191 Exp $
+c $Id: pre_select.F,v 1.4 2000-03-29 00:50:40 d3j191 Exp $
 c
       implicit none
 c
@@ -60,6 +60,8 @@ c
       goto 2
       endif
     1 continue
+      write(*,3) igrp,isgm,atomi(1:4)
+    3 format(' Unable to find in select',i5,' atom ',i4,':',a4)
       call errquit('Atom in select not found:',isgm)
     2 continue
 c
