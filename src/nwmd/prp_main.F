@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.21 1999-10-08 19:21:59 d3j191 Exp $
+c $Id: prp_main.F,v 1.22 1999-10-21 20:02:52 d3j191 Exp $
 c
       implicit none
 c
@@ -191,7 +191,9 @@ c
       do 36 j=i+1,nsf
       it=it+1
       it=it+1
+      p(it)=ess(i,j,6,1)+ess(j,i,6,1)
       it=it+1
+      p(it)=ess(i,j,5,1)+ess(j,i,5,1)
       it=it+1
    36 continue
    35 continue

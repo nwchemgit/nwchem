@@ -3,7 +3,7 @@
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp)
 c
-c $Id: prp_init.F,v 1.15 1999-09-11 03:39:28 d3j191 Exp $
+c $Id: prp_init.F,v 1.16 1999-10-21 20:02:52 d3j191 Exp $
 c
       implicit none
 c
@@ -262,10 +262,12 @@ c
       pronam(it)='Energy solute    -    electrostatic         kJ/mol'
       write(pronam(it)(15:17),'(i3)') i
       write(pronam(it)(19:21),'(i3)') j
+      lp(it)=.true.
       it=it+1
       pronam(it)='Energy solute    -    van der Waals         kJ/mol'
       write(pronam(it)(15:17),'(i3)') i
       write(pronam(it)(19:21),'(i3)') j
+      lp(it)=.true.
       it=it+1
       pronam(it)='Energy solute    -    restraint             kJ/mol'
       write(pronam(it)(15:17),'(i3)') i
