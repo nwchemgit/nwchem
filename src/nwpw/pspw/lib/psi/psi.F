@@ -426,6 +426,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
 
 #include "mafdecls.fh"
+
 *     ***** psi common block ****
       integer ispin,ne(2),nfft3d,npack1,npack0
       integer psi1(2)

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.4 2002-01-16 22:28:24 bylaska Exp $
+c $Id: pspw_charge.F,v 1.5 2002-01-17 01:24:51 bylaska Exp $
 c
 
 ***********************************************************
@@ -440,10 +440,10 @@ c
          yii = ion_rion(2,ii)
          zii = ion_rion(3,ii)
          do i=1,nion
-            xi = dbl_mb(r1(1)+3*(ii-1))
-            yi = dbl_mb(r1(1)+3*(ii-1)+1)
-            zi = dbl_mb(r1(1)+3*(ii-1)+2)
-            qi = dbl_mb(charge(1)+ii-1)
+            xi = dbl_mb(r1(1)+3*(i-1))
+            yi = dbl_mb(r1(1)+3*(i-1)+1)
+            zi = dbl_mb(r1(1)+3*(i-1)+2)
+            qi = dbl_mb(charge(1)+i-1)
             r = (xi-xii)**2 + (yi-yii)**2 + (zi-zii)**2
             r = dsqrt(r)
             energy = energy + qi*qii/r

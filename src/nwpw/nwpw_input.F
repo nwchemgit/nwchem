@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.6 2002-01-15 19:43:41 bylaska Exp $
+c $Id: nwpw_input.F,v 1.7 2002-01-17 01:24:51 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -80,6 +80,7 @@ c
 
 *     ***** initializations ****
       call nwpw_default(rtdb)
+      ispin = 1
 
 c
 c     Any input causes convergence flag to be deleted
