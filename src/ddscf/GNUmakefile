@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.105 1998-12-02 23:58:44 mdupuis Exp $
+# $Id: GNUmakefile,v 1.106 1999-02-01 15:50:29 d3j191 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -66,6 +66,9 @@ HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cint2esave.fh cfoc
 
 #activate disk array use of RI-SCF
   DEFINES += -DRISCF_USE_DRA
+
+
+SUBDIRS = fast
 
 include ../config/makefile.h
 include ../config/makelib.h
