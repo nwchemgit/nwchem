@@ -1023,6 +1023,18 @@ where the default is {\bf none}. Load balancing option {\bf size}
 is resizing boxes on a node, and {\bf pairs} redistributes the
 box-box interactions over nodes.
 \item
+The distribution of the available nodes over the three Cartesian
+dimensions is performed automatically such that, npx*npy*npz=np
+and npx<=npy<=npz, where npx, npy and npz are the nodes in the
+x, y and z dimension respectively, and np is the number of nodes
+allocated for the calculation. Where more than one combination
+of npx, npy and npz are possible, the combination is chosen with
+the minimum value of npx+npy+npz. To change the default setting
+the following optional input option is provided.
+\begin{verbatim}
+[nodes <i npx> <i npy> <i npz>]
+\end{verbatim}
+\item
 In rare events the amount of memory set aside per node is insufficient
 leading to aborts because {\bf mwm} or {\bf msa} is too small. Jobs
 may be restarted with additional space allocated by
