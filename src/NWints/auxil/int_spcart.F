@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.11 1996-07-18 23:59:08 d3e129 Exp $
+c $Id: int_spcart.F,v 1.12 1996-07-20 07:11:08 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, *
@@ -2201,34 +2201,50 @@ c  transforms a block of integrals with loop level crap
 c
 #include "mafdecls.fh"
 #include "spcartP.fh"
-c
+c: functions
 c: passed
       integer li, lj, lk, ll
       integer di, dj, dk, dl
       integer L2i, L2j, L2k, L2l
       integer ni, nj, nk, nl
       double precision blockin(
-     &    ((ll+1)*(ll+2)/2),nl,
-     &    ((lk+1)*(lk+2)/2),nk,
-     &    ((lj+1)*(lj+2)/2),nj,
-     &    ((li+1)*(li+2)/2),ni)
+     &    ((ll+1)*(ll+2)/2)*nl,
+     &    ((lk+1)*(lk+2)/2)*nk,
+     &    ((lj+1)*(lj+2)/2)*nj,
+     &    ((li+1)*(li+2)/2)*ni)
       double precision blockout(
-     &    -ll:ll,nl,
-     &    -lk:lk,nk,
-     &    -lj:lj,nj,
-     &    -li:li,ni)
+     &    (2*ll+1)*nl,
+     &    (2*lk+1)*nk,
+     &    (2*lj+1)*nj,
+     &    (2*li+1)*ni)
+*rak:      double precision blockin(
+*rak:     &    ((ll+1)*(ll+2)/2),nl,
+*rak:     &    ((lk+1)*(lk+2)/2),nk,
+*rak:     &    ((lj+1)*(lj+2)/2),nj,
+*rak:     &    ((li+1)*(li+2)/2),ni)
+*rak:      double precision blockout(
+*rak:     &    -ll:ll,nl,
+*rak:     &    -lk:lk,nk,
+*rak:     &    -lj:lj,nj,
+*rak:     &    -li:li,ni)
       integer i,j,k,l,ig,jg,kg,lg,is,js,ks,ls
+      integer in_x_i,in_x_j,in_x_k,in_x_l
+      integer in_s_i,in_s_j,in_s_k,in_s_l
       integer sizeblocks
 c
       double precision sum, sumadd
 c
 c::statement function ----- start
       integer iic,iis,iil
+      integer sfi,sfj,sfll
+      integer sf_indx, sf_inds
       double precision Dtrans
       Dtrans(iic,iis,iil) =
      &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
      &           ((iis+iil)*(iil+1)*(iil+2)/2)
      &           + iic - 1)
+      sf_indx(sfi,sfj,sfll) = (sfj-1)*(sfll+1)*(sfll+2)/2 + sfi
+      sf_inds(sfi,sfj,sfll) = (sfj-1)*(2*sfll+1) + sfi + sfll + 1
 c::statement function ----- end
 *rak:      ls=4
 *rak:      write(6,*)'a_s,(ndima,l2s) ndima = ',ndima,'   ls = ',ls
@@ -2276,14 +2292,25 @@ c
                             dk = Dtrans(k,ks,Lk)
                             do l = 1,l2l
                               dl = Dtrans(l,ls,Ll)
+*                              sumadd = di*dj*dk*dl*
+*     &                            blockin(l,lg,k,kg,j,jg,i,ig)
+                              in_x_l = sf_indx(l,lg,Ll)
+                              in_x_k = sf_indx(k,kg,Lk)
+                              in_x_j = sf_indx(j,jg,Lj)
+                              in_x_i = sf_indx(i,ig,Li)
                               sumadd = di*dj*dk*dl*
-     &                            blockin(l,lg,k,kg,j,jg,i,ig)
+     &                            blockin(in_x_l,in_x_k,in_x_j,in_x_i)
                               sum = sum + sumadd
                             enddo
                           enddo
                         enddo
                       enddo
-                      blockout(ls,lg,ks,kg,js,jg,is,ig) = sum
+*                      blockout(ls,lg,ks,kg,js,jg,is,ig) = sum
+                      in_s_l = sf_inds(ls,lg,Ll)
+                      in_s_k = sf_inds(ks,kg,Lk)
+                      in_s_j = sf_inds(js,jg,Lj)
+                      in_s_i = sf_inds(is,ig,Li)
+                      blockout(in_s_l,in_s_k,in_s_j,in_s_i) = sum
                     enddo
                   enddo
                 enddo
