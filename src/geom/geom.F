@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.119 2003-02-15 01:46:33 bylaska Exp $
+C$Id: geom.F,v 1.120 2003-07-29 21:21:36 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -5203,10 +5203,12 @@ c
       geom_any_finuc = sum .gt. 1.0d-20
       return
       end
-      subroutine geom_momint0(geom,coord,natoms,ci,AI,oprint)
+      subroutine geom_momint0(geom,coord,natoms,ci,AI,oprint,
+     ,     considerbq)
       implicit none
 #include "stdio.fh"
 #include "geom.fh"
+#include "inp.fh"
 C
 C     ----- CENTER AND MOMENTS OF INERTIA ----- 
 C
@@ -5214,7 +5216,10 @@ C
       integer natoms ! [in]
       double precision coord(3,*) ! [in]
       double precision ci(3),ai(3,3) ! [out] ctr of mass and inertua tensor
-      logical oprint
+      logical oprint, considerbq
+      character*16 element
+      character*16 tag
+      character*2 symbol
 c
       integer iat,i,j
       double precision mass,x,y,z
@@ -5230,8 +5235,18 @@ c
      &   ('geom_momint0: could not get center of mass',555)
 c
       do iat=1,natoms
-         if(.not.geom_mass_get(geom, iat, mass)) call
-     &        errquit(' mass_get  failed ',iat)
+         if (.not. geom_cent_tag(geom,iat,tag)) call 
+     &        errquit(' momint0 hosed ',0)
+         if (considerbq.and.inp_compare(.false.,tag(1:2),'bq')) then 
+c
+c     ahah bq
+c
+            if(.not.geom_tag_to_default_mass(tag(3:),mass))
+     .           call errquit(' momint fails ',2)
+         else  
+            if(.not.geom_mass_get(geom, iat, mass)) call
+     &           errquit(' mass_get  failed ',iat)
+         endif
          x =coord(1,iat) - ci(1)
          y =coord(2,iat) - ci(2)
          z =coord(3,iat) - ci(3)
@@ -5245,7 +5260,7 @@ c
          ai(2,3)=ai(3,2)
          ai(3,3)=ai(3,3)+mass*(x*x+y*y)
       enddo
-      if(oprint) then
+      if(.true.) then
          write(luout,9999)
          write(luout,9998) (ci(i),i=1,3)
          write(luout,9997)
@@ -5286,7 +5301,8 @@ c
      $     call errquit('uhf_anal: geom_cent_tag failed',0)
       if (.not. ma_chop_stack(l_charge))
      $     call errquit('uhf_analyze: pop failed', 0)
-      call geom_momint0(geom,dbl_mb(k_coord),natoms,ci,AI,oprint)
+      call geom_momint0(geom,dbl_mb(k_coord),natoms,ci,AI,oprint,
+     ,     .false.)
       if (.not. ma_chop_stack(l_coord))
      $     call errquit('uhf_analyze: pop failed', 0)
       return

@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.159 2003-04-24 17:56:51 edo Exp $
+C     $Id: geom_input.F,v 1.160 2003-07-29 21:21:36 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2930,12 +2930,7 @@ C
 C
       NT=1
       NTMAX = 1                 ! Never seems to be set
-      IF(NT.GT.1.OR.NTMAX.GT.1) THEN
-         ODONE=.TRUE.
-         RETURN
-      ELSE
-         ODONE=.FALSE.
-      ENDIF
+      ODONE=.FALSE.
 C
 C     ----- AUTOMATIC DETECTION OF SYMMETRY -----
 C
@@ -2949,8 +2944,7 @@ C
 C
 C     ----- GET MOMENTS OF INERTIA -----                
 C
-cedo      CALL HND_MOLINR(C,C1,NAT,CI,AI,TR)
-      CALL geom_momint0(geom,C,NAT,CI,AI,.false.)
+      CALL geom_momint0(geom,C,NAT,CI,AI,.false.,.true.)
       DO IAT=1,NAT
          DO I=1,3
             C1(I,IAT)=C(I,IAT)-CI(I) 
@@ -3121,10 +3115,10 @@ c     DATA TENM02 /1.0D-02/
 c
 ****      THREQUIV = TENM04
 C
-      MUCH=util_print('autosym symmetry information',print_never)
-      DBUG=util_print('autosym symmetry information',print_never)
+      MUCH=util_print('autosym symmetry information',print_debug)
+      DBUG=util_print('autosym symmetry information',print_debug)
       DBUG=DBUG.OR.MUCH
-      OUT =util_print('autosym symmetry information',print_never)
+      OUT =util_print('autosym symmetry information',print_debug)
       OUT =OUT.OR.DBUG
       SOME=util_print('autosym symmetry information',print_high)
       SOME=SOME.OR.OUT
@@ -3161,6 +3155,7 @@ C
          ATOMIC=.FALSE.
          LINEAR=.TRUE.
       ELSEIF(NZER.GT.1) THEN
+         groupname='C1'
          ATOMIC=.TRUE.
          LINEAR=.FALSE.
       ENDIF
@@ -3280,8 +3275,8 @@ C
                         C2(I,IAT)=C1(I,IAT)*EPS
                         C2(I,JAT)=C1(I,JAT)*EPS
                      ENDDO
-cedo                     CALL HND_MOLINR(C2,C3,NAT,CM,AM,TM)
-                     CALL geom_momint0(geom,C2,NAT,CM,AM,.false.)
+                     CALL geom_momint0(geom,C2,NAT,CM,AM,.false.,
+     .                    .true.)
                      DO KAT=1,NAT
                         DO I=1,3
                            C3(I,KAT)=C2(I,KAT)-CM(I) 
