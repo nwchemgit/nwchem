@@ -87,16 +87,6 @@ the user's discretion.
 % , whether specified by the 
 % user or defined in the standard library sets.
 
-As with the input for the standard basis sets using the \verb+BASIS+
-directive, the input specified for the \verb+ECP+ directive in lines
-beginning with the string \verb+tag+ allow particular centers or atoms
-in a calculation to be associated with particular basis functions.
-The values specified for \verb+tag+ must correspond exactly with the
-names supplied for the \verb+tag+ entries on the \verb+GEOMETRY+
-directive for a particular calculation.  Each atom or center with the
-same \verb+tag+ will have the same basis set, which must also be
-specified with the same name \verb+tag+.
-
 The keyword \verb+NELEC+ allows the user to specify the number of core
 electrons replaced by the ECP for the atom represented by the tag.
 Additional input lines can then be used to define the specific
