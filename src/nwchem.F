@@ -16,7 +16,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.57 1995-11-03 19:16:36 d3j191 Exp $
+c     $Id: nwchem.F,v 1.58 1995-11-03 19:23:19 d3j191 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -245,7 +245,7 @@ c
      $                'ccsd',            ! 17
      $                'freqscf',         ! 18
      $                'freqdft',         ! 19
-     $                'mcscf'            ! 20
+     $                'mcscf',           ! 20
      $                'nwargos'          ! 21
      $                /
 c     
