@@ -94,8 +94,7 @@ void MAIN1()
   extern TIMINGG test_timing;
 #endif
   
-  static Integer countlist();
-  
+  extern Integer countlist();
   extern void geneig_res();
   extern void b_ortho();
   extern void tim_com();

@@ -8,29 +8,32 @@ peigs_LIBS = $(peigs_PEIGSLIB) $(peigs_LAPACKLIB) $(peigs_BLASLIB) $(peigs_MATHL
 # on many different processor counts, including (8,8).
 #
 
+OBJECT = teslamch.o slamch.o dlamch.o lsame.o xerbla.o tim_com.o \
+	tsterr.o gendrv.o geneig2.o wilk2.o tritest.o geneig_la.o
+
 all:		geneig tritest wilk
 
-teslamch:	teslamch.o slamch.o dlamch.o lsame.o
-		$(peigs_LINK) $(peigs_FOPT) -o teslamch teslamch.o slamch.o dlamch.o lsame.o
+teslamch:	teslamch.o slamch.o dlamch.o lsame.o xerbla.o
+		$(peigs_LINK) $(peigs_FOPT) -o teslamch teslamch.o slamch.o dlamch.o lsame.o  xerbla.o
 
-geneig_la:	gendrv.o geneig_la.o tim_com.o
+geneig_la:	gendrv.o geneig_la.o tim_com.o xerbla.o
 		$(peigs_LINK) $(peigs_FOPT) -o geneig_la \
-		gendrv.o geneig_la.o tim_com.o $(peigs_LIBS)
+		gendrv.o geneig_la.o tim_com.o  xerbla.o $(peigs_LIBS)
 
-tsterr:		gendrv.o tsterr.o
-		$(peigs_LINK) $(peigs_FOPT) -o tsterr gendrv.o \
+tsterr:		gendrv.o tsterr.o xerbla.o
+		$(peigs_LINK) $(peigs_FOPT) -o tsterr gendrv.o  xerbla.o \
 		tsterr.o $(peigs_LIBS)
 
-geneig:		gendrv.o geneig2.o tim_com.o
-		$(peigs_LINK) $(peigs_FOPT) -o geneig gendrv.o \
+geneig:		gendrv.o geneig2.o tim_com.o xerbla.o
+		$(peigs_LINK) $(peigs_FOPT) -o geneig gendrv.o  xerbla.o \
 		geneig2.o tim_com.o $(peigs_LIBS)
 
-wilk:		gendrv.o wilk2.o tim_com.o
-		$(peigs_LINK) $(peigs_FOPT) -o wilk gendrv.o wilk2.o \
+wilk:		gendrv.o wilk2.o tim_com.o xerbla.o
+		$(peigs_LINK) $(peigs_FOPT) -o wilk gendrv.o wilk2.o  xerbla.o \
 		 tim_com.o  $(peigs_LIBS)
 
-tritest:	gendrv.o tri_test.o tim_com.o
-		$(peigs_LINK) $(peigs_FOPT) -o tritest gendrv.o tri_test.o tim_com.o $(peigs_LIBS)
+tritest:	gendrv.o tri_test.o tim_com.o xerbla.o
+		$(peigs_LINK) $(peigs_FOPT) -o tritest gendrv.o  xerbla.o tri_test.o tim_com.o $(peigs_LIBS)
 
 .EXPORT_ALL_VARIABLES:
 
@@ -48,11 +51,16 @@ realclean:
 eig.o:		eig.f
 		$(peigs_FC) -c eig.f
 
+xerbla.o:	xerbla.f
+		$(peigs_FC) -c xerbla.f
+
 gendrv.o:	gendrv.F
 		$(peigs_CPP) < gendrv.F > gendrv.f
 		$(peigs_FC) $(peigs_FOPT) -c gendrv.f
 		rm gendrv.f
 
 
-.f.o: ;	 $(peigs_FC) $(peigs_FOPT) -c $<
-.c.o: ;  $(peigs_CC) $(peigs_COPT)  -c $<
+.f.o: ;	 $(peigs_FC) -g $(peigs_FOPT) -c $<
+.c.o: ;  $(peigs_CC) -g $(peigs_COPT)  -c $<
+
+

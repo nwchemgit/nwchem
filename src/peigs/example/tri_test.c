@@ -86,7 +86,7 @@ void MAIN1()
   extern TIMINGG test_timing;
 #endif
   
-  static Integer countlist();
+  Integer countlist();
   
   extern void tim_com();
   extern void mxend_();
@@ -135,9 +135,10 @@ void MAIN1()
       */
     /*
       sprintf(filename, "dave_tri");
+      sprintf(filename,"pdspevx.0");
       */
     sprintf(filename, "edo_tri");
-	sprintf(filename,"pdspevx.0");
+    
     
     file = fopen(filename, "r");
     if ( file == NULL ) {

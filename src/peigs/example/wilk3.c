@@ -60,7 +60,7 @@ void MAIN1()
     */
   
 static Integer IZERO = (Integer) 0;
-  Integer index, icounter;
+  Integer index;
   
   Integer n, ii, me, indx, k, i, neleZ, neleA;
   Integer *mapA, mapB[1], *mapZ;
@@ -118,16 +118,16 @@ static Integer IZERO = (Integer) 0;
 #endif
 
   /*
-    while (1) {
+  while (1) {
   */
+  {
+    m = 250;
+
+  n = 2 * m + 1;
+
   
-  icounter = 20;
-  m = 20;
-  while(1) {
-    n = 2*icounter + 1;
-    
-    nprocs = mxnprc_();
-    printf(" n = %d nprocs = %d \n", n, nprocs);
+  nprocs = mxnprc_();
+  printf(" n = %d nprocs = %d \n", n, nprocs);
   
   if ((dd = (DoublePrecision *) malloc( n * sizeof(DoublePrecision))) == NULL ) {
     fprintf(stderr, " me = %d: ERROR in memory allocation, not enough memory for dd %d \n", me, n  );
@@ -212,13 +212,13 @@ static Integer IZERO = (Integer) 0;
   
   /*
     ee[indx] = 1.e0;
-    */
+  */
   
   i = 0;
   for ( indx = 0; indx < m; indx++){
-    dd[indx] = (DoublePrecision) ( m-indx );
+    dd[indx] = (DoublePrecision) ( m-indx + pow(10., (DoublePrecision) indx));
     if ( mapA[indx] == me ){
-      vecA[i][0] = (DoublePrecision) ( m-indx );
+      vecA[i][0] = (DoublePrecision) ( m-indx + pow(10., (DoublePrecision) indx));
       vecA[i][1] = 1.;
       i++;
     }
@@ -230,9 +230,9 @@ static Integer IZERO = (Integer) 0;
     i++;
   }
   for ( indx = m+1; indx < n; indx++){
-    dd[indx] = (DoublePrecision) indx-m;
+    dd[indx] = (DoublePrecision) ( m-indx - pow(10., (DoublePrecision) indx));
     if ( mapA[indx] == me ){
-      vecA[i][0] = (DoublePrecision) indx-m;
+      vecA[i][0] = (DoublePrecision) ( m-indx - pow(10., (DoublePrecision) indx));
       if ( indx != n-1)
 	vecA[i][1] = 1;
       i++;
@@ -324,7 +324,7 @@ static Integer IZERO = (Integer) 0;
          k++;
        }
      }
-
+     
 #ifdef TIMING
      time1 = mxclock_();
 
@@ -415,12 +415,13 @@ static Integer IZERO = (Integer) 0;
   free(matrixA);
   free(mapZ);
   free(mapA);
-  icounter+=abs(random() % 31 );
-  }
+}
   return;
+  
+  
 }
 
-  static Integer countlist ( me, list, size )
+static Integer countlist ( me, list, size )
      Integer me, *list, *size;
 {
   /*
