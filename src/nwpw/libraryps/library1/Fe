@@ -1,5 +1,5 @@
-[lmax] -1
-[locp] -1
+[lmax] 2
+[locp] 0
 [rlocal] 1.0
  <atom>
  Fe
@@ -18,8 +18,9 @@
  <exchange>     dirac                      <end>
  <pseudopotential> troullier-martins         <end>
  <rcut>
-   0  0.200000E+01
-   1  0.200000E+01
-   2  0.200000E+01
+   0  2.292000
+   1  2.835000
+   2  2.292000
  <end>
+ <semicore> 1.564 <end>
 
