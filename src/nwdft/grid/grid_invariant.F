@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.10 2000-03-30 03:05:59 edo Exp $
+c$Id: grid_invariant.F,v 1.11 2000-04-11 10:08:38 hvd Exp $
 c
       implicit none
 c      
@@ -87,13 +87,13 @@ c
 c     rotate by Ahlrichs prescription for groups with 3-fold axis
 c
       call sym_group_name(geom, grrname)
-!      write(6,'("GRGR",A,"!")') grrname
+!      write(LuOut,'("GRGR",A,"!")') grrname
       dogr3rot=.false.
       do n=1,numgr3
          if(grrname.eq.gr3name(n)) dogr3rot=.true.
       enddo
       if(dogr3rot) then
-      if(ga_nodeid().eq.0) write(6,*) ' Rotation of axis '
+      if(ga_nodeid().eq.0) write(LuOut,*) ' Rotation of axis '
          matalr(1,1)= sqrt(6d0)/3d0
          matalr(2,1)=0d0
          matalr(3,1)= sqrt(3d0)/3d0
@@ -111,14 +111,14 @@ c
 c     debug writes
 c
       if (ga_nodeid().eq.0.and.oprint_grid)then
-         write(6,*)' qrot: '
+         write(LuOut,*)' qrot: '
          call output(qrot, 1, 3, 1, 3, 3, 3, 1)
       endif
       return
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.10 2000-03-30 03:05:59 edo Exp $
+c$Id: grid_invariant.F,v 1.11 2000-04-11 10:08:38 hvd Exp $
 c
       implicit none
 c

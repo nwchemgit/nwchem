@@ -1,6 +1,6 @@
       logical function grid_file_balance()
 *
-* $Id: grid_balance.F,v 1.3 2000-03-21 23:11:58 edo Exp $
+* $Id: grid_balance.F,v 1.4 2000-04-11 10:08:38 hvd Exp $
 *  
       implicit none
 #include "cgridfile.fh"
@@ -8,6 +8,7 @@
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
+#include "stdio.fh"
 c     
 c     Attempt to load balance the grid pts file
 c
@@ -42,7 +43,7 @@ c
       odebug = util_print('balance debug',print_never) 
       oprint = util_print('balance', print_default) .and.  me.eq.0
       if (odebug) 
-     $     write(6,*) me, ' initial n_re_in_file ', n_rec_in_file
+     $     write(LuOut,*) me, ' initial n_re_in_file ', n_rec_in_file
 c
       nexch = 0                 ! Just for printing statistics
       nmoved= 0
@@ -105,9 +106,9 @@ c
  11   j = nproc-1-i
 c
       if (odebug .and. me.eq.0) then
-         write(6,1) (info(1,tmp), info(2,tmp), tmp=0,nproc-1)
+         write(LuOut,1) (info(1,tmp), info(2,tmp), tmp=0,nproc-1)
  1       format(400(6(4x,i4,i4:)/))
-         call util_flush(6)
+         call util_flush(LuOut)
       endif
 c
 c     If discrepancy is small enough then quit
@@ -130,8 +131,8 @@ c     He will send to me
 c     
          my_count = min(abs(my_count), his_count)
          if (odebug) then
-            write(6,*) me, ' receiving ', my_count, ' from ', him
-            call util_flush(6)
+            write(LuOut,*) me, ' receiving ', my_count, ' from ', him
+            call util_flush(LuOut)
          endif
          do record = 1, my_count
             call rcv(2,buf,8*rec_len_in_dbl,msglen,him,from,1)
@@ -177,8 +178,9 @@ c
          newfilelen = max(0.0d0,
      $        8.0d0*rec_len_in_dbl*(n_rec_in_file-max_cache_rec))
          if (odebug) then
-            write(6,*) me,' truncating at ', n_rec_in_file, newfilelen
-            call util_flush(6)
+            write(LuOut,*) me,' truncating at ', n_rec_in_file, 
+     $                     newfilelen
+            call util_flush(LuOut)
          endif
          if (eaf_truncate(fd, newfilelen) .ne. 0) call errquit
      $        ('grid_file_balance: file truncate failed', 3)
@@ -187,16 +189,16 @@ c
 c
       if (oprint) then
          used = util_wallsec() - used
-         write(6,21) nexch, nmoved, used
+         write(LuOut,21) nexch, nmoved, used
  21      format(/'File balance: exchanges=',i6,'  moved=',i6,
      $        '  time=',f6.1/)
-         call util_flush(6)
+         call util_flush(LuOut)
       endif
 c
       if (.not. grid_file_rewind()) call errquit
      $     ('grid_file_balance: failed rewind integral file', 0)
       if (odebug) 
-     $     write(6,*) me, ' final n_re_in_file ', n_rec_in_file
+     $     write(LuOut,*) me, ' final n_re_in_file ', n_rec_in_file
       call ga_sync()
 c
 cedo#endif

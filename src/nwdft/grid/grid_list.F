@@ -1,6 +1,6 @@
       Subroutine grid_list(rtdb, qsh, nqlen,nq_tot)
 c
-c$Id: grid_list.F,v 1.10 2000-03-27 19:15:31 edo Exp $
+c$Id: grid_list.F,v 1.11 2000-04-11 10:08:38 hvd Exp $
 c
       implicit none
 c      
@@ -194,7 +194,7 @@ c
   410    continue
 c
          if (ga_nodeid().eq.0.and.oprint_grid)then
-            write(6,*)' ictr, iti, nq_ctr_tot: ',
+            write(LuOut,*)' ictr, iti, nq_ctr_tot: ',
      &                  ictr, iti, nq_ctr_tot
          endif
 c
@@ -209,15 +209,15 @@ c     debug writes
 c
       if (ga_nodeid().eq.0.and.oprint_grid)then
 c
-         write(6,*)' nq_tot = ', nq_tot
+         write(LuOut,*)' nq_tot = ', nq_tot
 c
-         write(6,*)' nqshells, nqmax, nqlen: ',
+         write(LuOut,*)' nqshells, nqmax, nqlen: ',
      &               nqshells, nqmax, nqlen
 c
-         write(6,*)' iqshell: '
+         write(LuOut,*)' iqshell: '
          call i_output(iqshell, 1, 4, 1, nqshells, 4, mxqshells, 1)
 c
-         write(6,*)' qsh: '
+         write(LuOut,*)' qsh: '
          call i_output(qsh, 1, 3, 1, nqshells, 3, nqlen, 1)
 c
       endif

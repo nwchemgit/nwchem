@@ -1,6 +1,6 @@
         subroutine grid_gausslag(nn,x,realwt,idum)
 c
-c$Id: grid_gaussq.F,v 1.5 2000-02-23 01:37:57 edo Exp $
+c$Id: grid_gaussq.F,v 1.6 2000-04-11 10:08:38 hvd Exp $
 c
 c
 c this subroutine calculates the Gauss-Laguerre points and weights for
@@ -19,9 +19,10 @@ c               int(0,inf) exp(x)x**(2-alf)f(x) x**alf exp(-x) dx.
 c          The real weights are thus a(i)*exp(x)*x**(2-alf) where a(i)
 c          are the original Gauss-Laguerre weights.
 c
-C$Id: grid_gaussq.F,v 1.5 2000-02-23 01:37:57 edo Exp $
+C$Id: grid_gaussq.F,v 1.6 2000-04-11 10:08:38 hvd Exp $
       implicit none
 #include "cdft.fh"      
+#include "stdio.fh"      
 c
 c     The following arg was added to match the calls to this routine,
 c     all of which have 4 arguments.  This is necessary to link under
@@ -43,7 +44,7 @@ c
         c(n)=(n-1.d0)*(alf+n-1.d0)
       enddo
         call grid_laguer(nn,x,a,realwt,alf,b,c,eps,csx,csa,tsx,tsa)
-c       write(6,100)(x(i),realwt(i),i=1,nn)
+c       write(LuOut,100)(x(i),realwt(i),i=1,nn)
 100     format(2D18.10)
         return
         end
@@ -74,7 +75,7 @@ C
         do 1 j=2,nn
 1       cc=cc+log(c(j))
         do 7 i=1,nn
-c       write(6,*)i
+c       write(LuOut,*)i
         if (i-1)  6,2,3
 c smallest zero
 2       xt=(1.d0+alf)*(3.d0+.92d0*alf)/(1.d0+2.4d0*fn+1.8d0*alf)
@@ -91,16 +92,16 @@ c all other zeros
         xt=xt+ratio*(xt-x(i-2))
 c
 6       call grid_lgroot(xt,nn,alf,dpn,pn1,b,c,eps,scale)
-c       write(6,*)'back from lgroot'
+c       write(LuOut,*)'back from lgroot'
         x(i)=xt
 c       a(i)=sign(1.d0,dpn)*(exp(cc-log(abs(dpn))))/pn1
-c       write(6,20)alf,nn,i,xt,a(i)
+c       write(LuOut,20)alf,nn,i,xt,a(i)
         realwt(i)=sign(1.d0,dpn)*sign(1.d0,pn1)*
      &   exp(xt+(2.d0-alf)*log(xt)+cc-
      &   2*scale-log(abs(dpn))-log(abs(pn1)))
         csx=csx+xt
 7       csa=csa+a(i)
-c       write(6,20)alf,nn,i,csx,csa,tsx,tsa
+c       write(LuOut,20)alf,nn,i,csx,csa,tsx,tsa
 20      format(f6.2,2i3,2(1x,d14.8),2x,2(1x,d14.8))
         return
         end
@@ -175,6 +176,7 @@ c
 c
         double precision function grid_gamaed(x)
         implicit none
+#include "stdio.fh"      
         
         double precision x
 c
@@ -187,7 +189,7 @@ c
         z=x
         if(z)  1,1,4
 1       grid_gamaed=0.d0
-        write(6,*)'error arg for gamma=',z
+        write(LuOut,*)'error arg for gamma=',z
         go to 14
 4       if(z-70.d0) 6,1,1
 6       if(z-1.d0)  8,7,9
@@ -220,6 +222,7 @@ c               int(-1,1) f(x) dx.
 c
       implicit none
 #include "cdft.fh"      
+#include "stdio.fh"      
       integer nn
       double precision c(MXrad),x(*),a(*)
 c
@@ -231,10 +234,10 @@ c
        c(n)=(n-1.D0)**2/((2.D0*n-1.D0)*(2.D0*n-3.D0))
    10 continue
       call grid_legendre(nn,x,a,c,eps,csx,csa,tsx,tsa)
-c     write(6,*) nn
-c     write(6,'(2E24.16)') (x(i),a(i), i=1,nn)
-c     write(6,*) '(csx,csa)=',csx,csa
-c     write(6,*) '(tsx,tsa)=',tsx,tsa
+c     write(LuOut,*) nn
+c     write(LuOut,'(2E24.16)') (x(i),a(i), i=1,nn)
+c     write(LuOut,*) '(csx,csa)=',csx,csa
+c     write(LuOut,*) '(tsx,tsa)=',tsx,tsa
       end
 c
       subroutine grid_legendre(nn,x,a,c,eps,csx,csa,tsx,tsa)
@@ -296,6 +299,7 @@ c     dpn = derivative of P(n) at x
 c     pn1 = value of P(n-1) at x
 c
       implicit none
+#include "stdio.fh"      
       integer nn
       double precision c(nn)
       double precision pn,dpn,pn1,eps,x
@@ -309,11 +313,11 @@ c
        x=x-d
        if(abs(d).le.eps) return
    10 continue
-      write(6,*)'WARNING:  FAILED TO CONVERGE A ROOT OF THE '//
+      write(LuOut,*)'WARNING:  FAILED TO CONVERGE A ROOT OF THE '//
      &                    'LEGENDRE POLYNOMIAL TO THE DESIRED'
-      write(6,*)'          PRECISION (SEE GAUSSLEG.F).'
-      write(6,*)'            DESIRED PRECISION:  ',eps
-      write(6,*)'            OBTAINED PRECISION:  ',abs(d)
+      write(LuOut,*)'          PRECISION (SEE GAUSSLEG.F).'
+      write(LuOut,*)'            DESIRED PRECISION:  ',eps
+      write(LuOut,*)'            OBTAINED PRECISION:  ',abs(d)
       end
 c
       subroutine grid_recur(pn,dpn,pn1,x,nn,c)

@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.28 2000-04-07 16:34:26 edo Exp $
+c$Id: grid_setrad.F,v 1.29 2000-04-11 10:08:38 hvd Exp $
 c
       implicit none
 c      
@@ -200,7 +200,7 @@ c
      ,           rpts(1,itype), rwghts(1,itype),n1,'legendre')
            call grid_gausslag(ninf,rpts(n1+1,itype),
      ,          rwghts(n1+1,itype),midpoint)
-            write(6,*) ' itype midpoint n1',itype,midpoint,n1
+            write(LuOut,*) ' itype midpoint n1',itype,midpoint,n1
           elseif(radgrid.eq.'gclag') then
             n1=nrad(itype)*ndivide/16
             midpoint=bsrad_atom_type(itype)*braggmult
@@ -209,7 +209,7 @@ c
      ,           rpts(1,itype), rwghts(1,itype),n1,'chebyshe')
            call grid_gausslag(ninf, rpts(n1+1,itype), 
      ,          rwghts(n1+1,itype),midpoint)
-            write(6,*) ' itype midpoint n1',itype,midpoint,n1
+            write(LuOut,*) ' itype midpoint n1',itype,midpoint,n1
           elseif(radgrid.eq.'leggc') then
             n1=nrad(itype)*ndivide/16
             midpoint=bsrad_atom_type(itype)*braggmult
@@ -218,7 +218,7 @@ c
      ,           rpts(1,itype), rwghts(1,itype),n1,'legendre')
             call xc_tarad(iatype(itype), rpts(n1+1,itype), 
      &       rwghts(n1+1,itype), ninf,midpoint,'chebyshe',0d0)
-            write(6,*) ' itype midpoint n1',itype,midpoint,n1
+            write(LuOut,*) ' itype midpoint n1',itype,midpoint,n1
 
           elseif(wradgrid.eq.2) then
              if(tol_reset) then
@@ -241,7 +241,7 @@ cedo     .            ' Murakn itype cutoff ',itype,range_mk
      ,           rpts(1,itype), rwghts(1,itype),n1,'legendre')
             call xc_tarad(iatype(itype), rpts(n1+1,itype), 
      &       rwghts(n1+1,itype), ninf,midpoint,'legendre',0d0)
-            write(6,*) ' itype midpoint n1',itype,midpoint,n1
+            write(LuOut,*) ' itype midpoint n1',itype,midpoint,n1
          endif
             if (ga_nodeid().eq.0.and.oprint)then
                write(LuOut,*)' Center: ',itype,' Radial Pts. & Wghts. '

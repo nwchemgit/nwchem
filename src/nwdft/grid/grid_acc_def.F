@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.24 2000-03-20 23:46:17 edo Exp $
+c$Id: grid_acc_def.F,v 1.25 2000-04-11 10:08:38 hvd Exp $
 c
       implicit none
 c      
@@ -308,7 +308,7 @@ c
       endif
       if (.not. inp_match(num_gridtypes, .false., gridtype, gridtypes, 
      &   grid_acc_index))then
-         write(6,*)' Unknown gridtype; defaulting to medium grid'
+         write(LuOut,*)' Unknown gridtype; defaulting to medium grid'
          gridtype='medium'
          grid_acc_index = 3
       endif
@@ -342,12 +342,12 @@ c
          iangquad = 8
       else
          if (iangquad.lt.1)then
-           write(6,*)' IANGQUAD must be in the range: 1-',IAC_MAX,
+           write(LuOut,*)' IANGQUAD must be in the range: 1-',IAC_MAX,
      *     '; resetting. '
            iangquad = 8
          endif
          if (iangquad.gt.IAC_MAX)then
-           write(6,*)' IANGQUAD must be in the range: 1-',IAC_MAX,
+           write(LuOut,*)' IANGQUAD must be in the range: 1-',IAC_MAX,
      *     '; resetting. '
            iangquad = 8
          endif
@@ -366,12 +366,12 @@ c
          iangquad = 3
       else
          if (iangquad.lt.1)then
-           write(6,*)' IANGQUAD must be in the range: 1-',3,
+           write(LuOut,*)' IANGQUAD must be in the range: 1-',3,
      *     '; resetting. '
            iangquad = 3
          endif
          if (iangquad.gt.3)then
-           write(6,*)' IANGQUAD must be in the range: 1-',3,
+           write(LuOut,*)' IANGQUAD must be in the range: 1-',3,
      *     '; resetting. '
            iangquad =3
          endif
@@ -548,13 +548,13 @@ c
 c     debug writes
 c
       if (ga_nodeid().eq.0.and.oprint_grid)then
-         write(6,*)' grid_acc_index, job_grid_acc: ',
+         write(LuOut,*)' grid_acc_index, job_grid_acc: ',
      &               grid_acc_index, job_grid_acc
-         write(6,*)' mxnrad, mxnang: ', 
+         write(LuOut,*)' mxnrad, mxnang: ', 
      &               mxnrad, mxnang
-         write(6,*)' nrad(ntypes) ',
+         write(LuOut,*)' nrad(ntypes) ',
      &              (nrad(itype),itype = 1, ntypes)
-         write(6,*)' nang(ntypes) ',
+         write(LuOut,*)' nang(ntypes) ',
      &              (nang(itype),itype = 1, ntypes)
       endif
       return

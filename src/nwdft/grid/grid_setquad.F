@@ -1,6 +1,6 @@
       Subroutine grid_setquad(rtdb)
 c
-c$Id: grid_setquad.F,v 1.9 2000-03-27 19:15:32 edo Exp $
+c$Id: grid_setquad.F,v 1.10 2000-04-11 10:08:38 hvd Exp $
 c
       implicit none
       logical oprint, ogrdebug
@@ -11,6 +11,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "stdio.fh"
 c
       integer rtdb
 c
@@ -50,17 +51,17 @@ c     Generate the complete grid and decompose it into blocks
 c     which can define a computational task size on a file system (if desired).
 c  
       call grid_gen_pts(rtdb)
-      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),'  done genpts'
+      if(ogrdebug) write(LuOut,*) ' me ',ga_nodeid(),'  done genpts'
 c
 c     Update any req'd data in rtdb
 c
       call grid_update_rtdb(rtdb)
-      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),'  done uprt'
+      if(ogrdebug) write(LuOut,*) ' me ',ga_nodeid(),'  done uprt'
 c
 c     Memory management (as before)
 c
       call grid_memory(rtdb)
-      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),' done mem'
+      if(ogrdebug) write(LuOut,*) ' me ',ga_nodeid(),' done mem'
       call ga_sync()
       return
       end

@@ -1,7 +1,7 @@
       Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
      *     fnxyz,nxyz)
 c
-c$Id: grid_qpts.F,v 1.15 2000-04-07 01:54:17 edo Exp $
+c$Id: grid_qpts.F,v 1.16 2000-04-11 10:08:38 hvd Exp $
 c
       implicit none
 c      
@@ -13,6 +13,7 @@ c
 #include "cdft.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
       double precision xyz(3) ! [input] quadr center
       logical  oprint_grid
       double precision aqbuf(4,*), qwght_nq ! quadr pts and wght
@@ -42,8 +43,8 @@ c
 c     debug writes
 c
       if (ga_nodeid().eq.0.and.oprint_grid)then
-         write(6,*)' xyz: ', xyz
-         write(6,*)' ictr, irsh, iang, ia_ictr: ',
+         write(LuOut,*)' xyz: ', xyz
+         write(LuOut,*)' ictr, irsh, iang, ia_ictr: ',
      &               ictr, irsh, iang, ia_ictr
       endif
 c

@@ -1,6 +1,6 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.6 2000-03-27 19:15:31 edo Exp $
+c$Id: grid_atom_type_info.F,v 1.7 2000-04-11 10:08:38 hvd Exp $
 c
       implicit none
 c      
@@ -228,13 +228,13 @@ c
 c     debug writes
 c
       if (ga_nodeid().eq.0.and.oprint_grid)then
-         write(6,*)' iatype(ncenters) ',
+         write(LuOut,*)' iatype(ncenters) ',
      &              (iatype(ictr),ictr = 1, ncenters)
-         write(6,*)' iatype_pt_chg(ncenters) ',
+         write(LuOut,*)' iatype_pt_chg(ncenters) ',
      &              (iatype_pt_chg(ictr),ictr = 1, ncenters)
-         write(6,*)' bsrad_atom_type(ntypes) ',
+         write(LuOut,*)' bsrad_atom_type(ntypes) ',
      &              (bsrad_atom_type(itype),itype = 1, ntypes)
-         write(6,*)' znuc_atom_type(ntypes) ',
+         write(LuOut,*)' znuc_atom_type(ntypes) ',
      &              (znuc_atom_type(itype),itype = 1, ntypes)
       endif
       return

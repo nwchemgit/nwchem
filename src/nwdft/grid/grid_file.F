@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.19 2000-04-05 01:41:23 edo Exp $
+* $Id: grid_file.F,v 1.20 2000-04-11 10:08:38 hvd Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -17,6 +17,7 @@
 #include "util.fh"
 #include "global.fh"
 #include "eaf.fh"
+#include "stdio.fh"
       character*(*) filename
       integer cachesize, filesize
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
@@ -44,9 +45,9 @@ c
      $     ga_nodeid().eq.0
 c
       if (otrace) then
-         write(6,*) ' grid_file: opening ',
+         write(LuOut,*) ' grid_file: opening ',
      $        actualname(1:inp_strlen(actualname))
-         call util_flush(6)
+         call util_flush(LuOut)
       end if
 c
 c     Initialize common
@@ -93,7 +94,7 @@ c
             if (eaf_stat(actualname, availkb, fstype) .ne. 0)
      $           call errquit
      $           ('grid_file_open:unable to stat available disk',0)
-            write(6,*) ' non-SCRATCH ', availkb
+            write(LuOut,*) ' non-SCRATCH ', availkb
          endif
 c
          max_file_rec = nint((0.95*1024.0d0*availkb) / 
@@ -137,6 +138,7 @@ c
 #include "eaf.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
       logical okeep  ! [input] If true keep, otherwise delete
 c
       if (file_opened) then
@@ -159,15 +161,15 @@ c
       if (file_opened .or. l_cache.ne.-1) then
          call ga_igop(msg_grid_stat1, n_rec_in_file, 1, '+')
          if (oinfo) then
-            write(6,1) n_rec_in_file
+            write(LuOut,1) n_rec_in_file
  1          format(/
      $           ' Parallel grid_pts file used',i8,' records'/)
-            call util_flush(6)
+            call util_flush(LuOut)
          end if
          if (otrace) then
-            write(6,*) ' grid_file: closing ',
+            write(LuOut,*) ' grid_file: closing ',
      $           actualname(1:inp_strlen(actualname))
-            call util_flush(6)
+            call util_flush(LuOut)
          end if
       endif
 c
@@ -185,6 +187,7 @@ c
       implicit none
 #include "cgridfile.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c
 c     rewind the file ready to read grid_pts ... hide any header.
 c
@@ -192,9 +195,9 @@ c
       call grid_buf_clear
 c
       if (otrace) then
-         write(6,*) ' grid_file: rewinding ', 
+         write(LuOut,*) ' grid_file: rewinding ', 
      $        actualname(1:inp_strlen(actualname))
-         call util_flush(6)
+         call util_flush(LuOut)
       end if
 c
       grid_file_rewind = .true.
@@ -223,6 +226,7 @@ c
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "eaf.fh"
+#include "stdio.fh"
       logical oend           ! [input]
 c
 c     Write the grid_pts buffer to disk.  For all but the
@@ -243,9 +247,9 @@ c
       if ((.not. oend) .and. (cur_rec .gt. maxrec)) then
          grid_packed_buf_write = .false.
          if (otrace) then
-            write(6,12) cur_rec
+            write(LuOut,12) cur_rec
  12         format(' grid_file: file full at record ',i8)
-            call util_flush(6)
+            call util_flush(LuOut)
          end if
          return
       endif
@@ -257,7 +261,7 @@ c
       if (cur_rec .eq. 1) then
          if (oinfo) then
             nbitv = 64
-            write(6,20) actualname(1:inp_strlen(actualname)),
+            write(LuOut,20) actualname(1:inp_strlen(actualname)),
      $           rec_len_in_dbl,n_per_rec,max_cache_rec,max_file_rec
  20         format(/
      $           ' Grid_pts file          = ', a/
@@ -265,7 +269,7 @@ c
      $           ' No. of grid_pts per rec  = ', i6/
      $           ' Max. records in memory = ', i6,7x,
      $           ' Max. records in file   = ', i6/)
-            call util_flush(6)
+            call util_flush(LuOut)
          end if
       end if
 c
@@ -274,7 +278,7 @@ c
          if (l_cache .eq. -1) then
             if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
      $           'grid', l_cache, k_cache)) then
-               write(6,*) ' grid_file: Failed to allocate cache '//
+               write(LuOut,*) ' grid_file: Failed to allocate cache '//
      $              '... halving'
                max_cache_rec = max_cache_rec/2
                goto 10          ! Dirty ... go back and try again
@@ -295,19 +299,20 @@ c
          ierr = eaf_write(fd, offset, buf, 8*rec_len_in_dbl)
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr, errmsg)
-            write(6,*) ' IO offset ', offset
-            write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
+            write(LuOut,*) ' IO offset ', offset
+            write(LuOut,*) ' IO error message ',
+     $                     errmsg(1:inp_strlen(errmsg))
             call errquit('grid_packed_buf_write: write failed',0)
          endif
       end if
 c
       if (otrace) then
-         write(6,2) n_in_rec, cur_rec, n_rec_in_file+1
+         write(LuOut,2) n_in_rec, cur_rec, n_rec_in_file+1
  2       format(' grid_file: wrote ',i6,' grid_pts in record',i5
      $        ,' of ',i5,'.')
-c         write(6,*)' buf: '
+c         write(LuOut,*)' buf: '
 c         call output(buf, 1, 4, 1, n_in_rec, 4, rec_len_in_dbl, 1)
-         call util_flush(6)
+         call util_flush(LuOut)
       end if
 c
       call grid_buf_clear
@@ -319,6 +324,7 @@ c
       logical function grid_buf_read()
       implicit none
 #include "cgridfile.fh"
+#include "stdio.fh"
       logical grid_packed_buf_read
       external grid_packed_buf_read
 c
@@ -334,12 +340,12 @@ c
 *      end if
 c     
       if (otrace) then
-            write(6,2) n_in_rec, cur_rec-1, n_rec_in_file
+            write(LuOut,2) n_in_rec, cur_rec-1, n_rec_in_file
  2          format(' grid_file: read ',i6,' grid_pts in record',i6
      $           ,' of ',i6,'.')
-c         write(6,*)' buf: '
+c         write(LuOut,*)' buf: '
 c         call output(buf, 1, 4, 1, n_in_rec, 4, rec_len_in_dbl, 1)
-         call util_flush(6)
+         call util_flush(LuOut)
       end if
 c
       end
@@ -349,6 +355,7 @@ c
 #include "mafdecls.fh"
 #include "eaf.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
       double precision offset
       integer ierr
@@ -358,9 +365,9 @@ c
       if (cur_rec .gt. n_rec_in_file) then
          grid_packed_buf_read = .false.
 cedo         if (otrace) then
-            write(6,1) cur_rec, n_rec_in_file
+            write(LuOut,1) cur_rec, n_rec_in_file
  1          format(' grid_file: EOF at record',i5,' of ',i5,'?')
-cedo            call util_flush(6)
+cedo            call util_flush(LuOut)
 cedo         end if
             call errquit(' grid_packed_buf_read: EOF reached ',0)
          return
@@ -387,7 +394,7 @@ c
             ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
             if (ierr.ne.0) then
                call eaf_errmsg(ierr,errmsg)
-               write(6,*) ga_nodeid(),errmsg
+               write(LuOut,*) ga_nodeid(),errmsg
                call errquit('grid_buf_read:premature end of file',
      $              cur_rec)
             endif
@@ -398,7 +405,7 @@ c
             ierr = eaf_wait(fd, aioreq)
             if (ierr .ne. 0) then
                call eaf_errmsg(ierr,errmsg)
-               write(6,*) ga_nodeid(),errmsg
+               write(LuOut,*) ga_nodeid(),errmsg
                call errquit('grid_buf_read:eaf_wait failed',cur_rec)
             endif
             oiopending = .false.
@@ -414,7 +421,7 @@ c
             oiopending = .true.
             if (ierr.ne.0) then
                call eaf_errmsg(ierr,errmsg)
-               write(6,*) ga_nodeid(),errmsg
+               write(LuOut,*) ga_nodeid(),errmsg
                call errquit('grid_buf_read:asynch IO failed',cur_rec+1)
             endif
          endif
@@ -502,6 +509,7 @@ c
 #include "sym.fh"
 #include "msgids.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 c
       integer rtdb              ! [input]
       integer geom              ! [input]
@@ -526,7 +534,7 @@ c
       grid_test_mem = .false.
 c
       if (file_opened) return
-!      write(6,*)' file_opened: ', file_opened
+!      write(LuOut,*)' file_opened: ', file_opened
       if (.not. rtdb_get(rtdb, 'grid:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
 !      write(0,*)' filesize: ', filesize
@@ -552,21 +560,21 @@ c
       endif
 !      write(0,*) ' mems ',memsize
       avail = MA_inquire_avail(mt_dbl)
-!      write(6,*) ' 1 avail ', avail
+!      write(LuOut,*) ' 1 avail ', avail
       if (ga_uses_ma() .and. ga_memory_limited()) 
      $   avail = avail - ga_memory_avail()
-!      write(6,*) ' 2 avail ', avail
+!      write(LuOut,*) ' 2 avail ', avail
       call ga_igop(msg_grid_file, avail, 1, 'min')
-!      write(6,*) ' 3 avail ', avail
+!      write(LuOut,*) ' 3 avail ', avail
       avail = min(avail, memsize)
-!      write(6,*) ' 4 avail ', avail
+!      write(LuOut,*) ' 4 avail ', avail
 c     
 c     Assume that for the small systems for which can hold the
 c     grid_pts, that there is no sparsity except for symmetry.
 c     Also, assume that the grid_pts will be evenly distributed
 c     apart from a 10% fluctuation
 c
-c      write(6,*)' nq_tot = ', nq_tot     
+c      write(LuOut,*)' nq_tot = ', nq_tot     
 c
 c     need 4*nq_tot (x,y,z,w)
 c
@@ -575,8 +583,8 @@ c      write(0,*) ' NQTOT ',nq_tot
       nq = nq / dble(ga_nnodes())
       nq = nq * 1.1d0 + dble(2*rec_len_in_dbl) ! Fudge factors for safety
 c
-!      write(6,*) ' needed', int(nq)
-!      write(6,*) ' avail ', avail
+!      write(LuOut,*) ' needed', int(nq)
+!      write(LuOut,*) ' avail ', avail
       if (int(nq) .lt. avail) then
          localmemsize = max(8*buffer_size,int(nq))
       else
@@ -586,7 +594,7 @@ c
 c     let's grab 1/4 memory
 c
 !      localmemsize=avail/4
-!      write(6,*)' localme ', localmemsize
+!      write(LuOut,*)' localme ', localmemsize
 c
       if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
      $        call errquit('grid_file: opening gridpts?', 0)
@@ -597,7 +605,7 @@ c
          grid_test_mem = .true.
       endif
 *      if (localmemsize.eq.0 .and. oinfo .and. ofirst .and. memsize.eq.0) then
-*         write(6,1) nq-avail
+*         write(LuOut,1) nq-avail
 * 1       format(/' Provide',1p,d9.2,' more words/process to ',
 *     $        'cache all grid_pts in memory'/)
 *      end if
@@ -609,6 +617,7 @@ c
 c      logical function grid_file_write(nints, i, j, k, l, g)
       implicit none
 #include "cgridfile.fh"
+#include "stdio.fh"
 c
 c     insert grid_pts into internal buffer writing to disk if necessary.
 c     return true on success. false if insufficient memory/file space.
@@ -630,9 +639,10 @@ c
       grid_written=.true.
 c
       if (otrace) then
-         write(6,*) ' grid_file write: nqpts,nctr,n_in_rec,next_value', 
+         write(LuOut,*) ' grid_file write: nqpts,nctr,n_in_rec',
+     &                  ',next_value', 
      &                                 nqpts,nctr,n_in_rec,next_value
-         call util_flush(6)
+         call util_flush(LuOut)
       end if
 c
       n_in_rec      = next_value - 1
@@ -649,7 +659,7 @@ c     to avoid excessive fragmentation of a single cube
      .     )
 !     .     .or.(cur_cub.ne.ncube.and.ncube.ne.-99)
      .     ) then
-!         write(6,*) '0bufw',n_in_rec
+!         write(LuOut,*) '0bufw',n_in_rec
          grid_file_write = grid_buf_write(.false.)
          cur_rec_ctr = nctr
          if (nctr.eq.0)nctr =  n_rec_in_file
@@ -659,7 +669,7 @@ c     to avoid excessive fragmentation of a single cube
       cur_rec_rad = max(rad,cur_rec_rad)
 c     This copy can be made a lot more efficient
       if (n_in_rec .ge. n_per_rec-1) then
-!         write(6,*) '1bufw',n_in_rec
+!         write(LuOut,*) '1bufw',n_in_rec
          grid_file_write = grid_buf_write(.false.)
          if (.not. grid_file_write) return
       endif
@@ -675,7 +685,7 @@ c     This copy can be made a lot more efficient
 c after 1st shell contribution to cube
          do ind = 1, nqpts
             if (n_in_rec .eq. n_per_rec) then
-!               write(6,*) '2bufw',n_in_rec,ind
+!               write(LuOut,*) '2bufw',n_in_rec,ind
                grid_file_write = grid_buf_write(.false.)
                if (.not. grid_file_write) return
                nsubb=1
@@ -712,6 +722,7 @@ c
       implicit none
 c
 #include "cgridfile.fh"
+#include "stdio.fh"
 c
       integer maxqpts
       integer nqpts
@@ -744,9 +755,10 @@ c      write(0,*) ' nsub_o ',nsub_out
 c      write(0,*) ' nqpts ',nqpts
 c
       if (otrace) then
-         write(6,*) ' grid_file read: nqpts,nctr,n_in_rec,next_value', 
+         write(LuOut,*) ' grid_file read: nqpts,nctr,n_in_rec,',
+     &                  'next_value', 
      &                                nqpts,nctr,n_in_rec,next_value
-         call util_flush(6)
+         call util_flush(LuOut)
       end if
 c
       return

@@ -1,12 +1,13 @@
       Subroutine grid_setspac_params
 c
-c$Id: grid_setspac_params.F,v 1.3 2000-02-02 02:37:30 edo Exp $
+c$Id: grid_setspac_params.F,v 1.4 2000-04-11 10:08:39 hvd Exp $
 c
       implicit none
 c      
 #include "cdft.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
       double precision eps
       parameter (eps = 1.d-20)
@@ -44,11 +45,11 @@ c
                uij = (chij-1.d0)/(chij+1.d0)
                aij = uij/(uij*uij - 1.D0)
                if (ga_nodeid().eq.0.and.oprint_grid)then
-                  write(6,*)' bsrad_atom_type(iti): ',
+                  write(LuOut,*)' bsrad_atom_type(iti): ',
      &                        bsrad_atom_type(iti)
-                  write(6,*)' bsrad_atom_type(itj): ',
+                  write(LuOut,*)' bsrad_atom_type(itj): ',
      &                        bsrad_atom_type(itj)
-                  write(6,*)' chij, uij, aij: ',
+                  write(LuOut,*)' chij, uij, aij: ',
      &                        chij, uij, aij
                endif
                if (aij.lt.-0.5d0)then
@@ -58,7 +59,7 @@ c
                endif
 c
                if (ga_nodeid().eq.0.and.oprint_grid)then
-                  write(6,*)' aij = ', aij
+                  write(LuOut,*)' aij = ', aij
                endif
 c
                aratio(iti,itj) = aij
@@ -71,12 +72,12 @@ c
 c     debug writes
 c
       if (ga_nodeid().eq.0.and.oprint_grid)then
-         write(6,*)' aratio '
+         write(LuOut,*)' aratio '
          call output(aratio, 1, ntypes, 1, ntypes, 
      &               dft_ntags_bsmx, dft_ntags_bsmx, 1)
-         write(6,*)' iatype_pt_chg ', 
+         write(LuOut,*)' iatype_pt_chg ', 
      &             (iatype_pt_chg(iti),iti=1,ncenters)
-         write(6,*)' iatype ', (iatype(iti),iti=1,ncenters)
+         write(LuOut,*)' iatype ', (iatype(iti),iti=1,ncenters)
       endif
       return
       end
