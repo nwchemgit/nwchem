@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.42 1998-06-15 23:21:37 d3g681 Exp $
+C     $Id: input_parse.F,v 1.43 1998-07-02 20:26:15 ng972 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -110,6 +110,8 @@ c
                call dplot_input(rtdb)
             else if (inp_compare(.false.,test,'property')) then
                call prop_input(rtdb)
+            else if (inp_compare(.false.,test,'nbo')) then
+               call nbo_input(rtdb)
             else if (inp_compare(.false.,test,'speech')) then
                call speech_input(rtdb)
             else if (inp_compare(.false.,test,'gapss')) then
