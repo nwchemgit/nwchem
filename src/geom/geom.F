@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.115 2002-05-06 22:35:36 d3g681 Exp $
+C$Id: geom.F,v 1.116 2002-05-07 00:51:09 bylaska Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2349,13 +2349,15 @@ c
 c     
       integer geom,i,j               ! [input]
       double precision amat(3,3)     ! [output]
-      logical geom_check_handle
+      logical geom_check_handle, geom_get_user_scale
       external geom_check_handle
 c
-      double precision c(3,3), vol
+      double precision c(3,3), vol, scale
 c
       geom_amatrix_set = geom_check_handle(geom, 'geom_amatrix_set')
       if (.not. geom_amatrix_set) return
+      if (.not. geom_get_user_scale(geom,scale)) 
+     $     call errquit('geom_amtrix_set: call eric!',0)
 c
       do i=1,3
         do j=1,3
@@ -2369,7 +2371,6 @@ c     the amatrix ... need to update ainv and also recompute the
 c     other crap ... for now just set the other crap to crap so that
 c     we'll know if it is used
 c
-      volume_direct(geom) = 1d300
       do i = 1,3
          do j = 1,3
             metric_matrix(i,j,geom) = 1d300
@@ -2394,16 +2395,71 @@ c
       vol = amat(1,1)*c(1,1)
      >       + amat(2,1)*c(2,1)
      >       + amat(3,1)*c(3,1)
-
+      volume_direct(geom) = vol
+c
       call dscal(9,1.0d0/vol,c,1)
-
-      write(6,*) ' AMATRIX SET'
-      call output(amat,1,3,1,3,3,3,1)
-      call output(c,1,3,1,3,3,3,1)
-
+c
       call dcopy(9,c,1,amatrix_inv(1,1,geom),1)
 c
+c     Ooops ... must also update the pesky lattice parameters
+c
+      call xlattice_abc_abg(
+     $     lattice_vectors(1,geom),
+     $     lattice_vectors(2,geom),
+     $     lattice_vectors(3,geom),
+     $     lattice_angles(1,geom),
+     $     lattice_angles(2,geom),
+     $     lattice_angles(3,geom),amat)
+
+      lattice_vectors(1,geom) = lattice_vectors(1,geom)/scale
+      lattice_vectors(2,geom) = lattice_vectors(2,geom)/scale
+      lattice_vectors(3,geom) = lattice_vectors(3,geom)/scale
+c
       end
+      subroutine xlattice_abc_abg(a,b,c,alpha,beta,gamma,lattice_unita)
+      implicit none
+      real*8 a,b,c
+      real*8 alpha,beta,gamma,lattice_unita(3,3)
+
+*     *** local variables ****
+      real*8 d2,pi
+
+*     **** determine a,b,c,alpha,beta,gmma ***
+      pi = 4.0d0*datan(1.0d0)
+      a = dsqrt(lattice_unita(1,1)**2 
+     >        + lattice_unita(2,1)**2 
+     >        + lattice_unita(3,1)**2)
+      b = dsqrt(lattice_unita(1,2)**2 
+     >        + lattice_unita(2,2)**2 
+     >        + lattice_unita(3,2)**2)
+      c = dsqrt(lattice_unita(1,3)**2 
+     >        + lattice_unita(2,3)**2 
+     >        + lattice_unita(3,3)**2)
+ 
+      d2 = (lattice_unita(1,2)-lattice_unita(1,3))**2 
+     >   + (lattice_unita(2,2)-lattice_unita(2,3))**2 
+     >   + (lattice_unita(3,2)-lattice_unita(3,3))**2
+      alpha = (b*b + c*c - d2)/(2.0d0*b*c)
+      alpha = dacos(alpha)*180.0d0/pi
+ 
+      d2 = (lattice_unita(1,3)-lattice_unita(1,1))**2 
+     >   + (lattice_unita(2,3)-lattice_unita(2,1))**2 
+     >   + (lattice_unita(3,3)-lattice_unita(3,1))**2
+      beta = (c*c + a*a - d2)/(2.0d0*c*a)
+      beta = dacos(beta)*180.0d0/pi
+ 
+      d2 = (lattice_unita(1,1)-lattice_unita(1,2))**2 
+     >   + (lattice_unita(2,1)-lattice_unita(2,2))**2 
+     >   + (lattice_unita(3,1)-lattice_unita(3,2))**2
+      gamma = (a*a + b*b - d2)/(2.0d0*a*b)
+      gamma = dacos(gamma)*180.0d0/pi
+
+      return
+      end
+
+
+
+
       logical function geom_bmatrix_get(geom,bmat)
       implicit none
 #include "nwc_const.fh"
@@ -5240,11 +5296,11 @@ c
      $     call errquit('geom_frac_to_cart: nat', 0)
       if (.not. geom_amatinv_get(geom, ainv))
      $     call errquit('geom_cart_to_frac: ainv', 0)
-      write(6,*) ' The amatrix inverse'
-      call output(ainv, 1, 3, 1, 3, 3, 3, 1)
+*      write(6,*) ' The amatrix inverse'
+*      call output(ainv, 1, 3, 1, 3, 3, 3, 1)
 c 
       do iat = 1, nat
-         write(6,*) 'c2f before ', iat, (c(i,iat),i=1,3)
+*         write(6,*) 'c2f before ', iat, (c(i,iat),i=1,3)
          do i = 1, 3
             t(i) = 0.0d0
             do j = 1, 3
@@ -5254,7 +5310,7 @@ c
          do i = 1, 3
             c(i,iat) = t(i)
          end do
-         write(6,*) 'c2f after  ', iat, (c(i,iat),i=1,3)
+*         write(6,*) 'c2f after  ', iat, (c(i,iat),i=1,3)
       end do
 c
       end
