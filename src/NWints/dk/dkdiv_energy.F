@@ -1,5 +1,5 @@
       logical function dkdiv_energy(rtdb)
-c $Id: dkdiv_energy.F,v 1.2 1999-12-10 01:28:55 bert Exp $
+c $Id: dkdiv_energy.F,v 1.3 1999-12-14 21:31:35 bert Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -20,7 +20,7 @@ c
       logical int_normalize, file_read_ga
       external int_normalize, file_read_ga
 c
-      character*255 dkdiv_name,geometry
+      character*255 dkdiv_name
       integer DKg_a, g_dens
       integer geom, basis
       integer nbf
@@ -28,11 +28,9 @@ c
 c
 c     Get basis, geometry, density or densities and additional data
 c
-      if (.not. rtdb_cget(rtdb, 'geometry', 1, geometry))
-     $     call errquit('dkdiv_energy:rtdb_cget geometry failed',0)
-      if (.not. geom_create(geom, geometry))
+      if (.not. geom_create(geom, 'DK geometry'))
      $     call errquit('dkdiv_energy: geom_create failed', 0)
-      if (.not. geom_rtdb_load(rtdb, geom, geometry))
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      $     call errquit('dkdiv_energy: geom_rtdb_load failed', 0)
       if (.not. bas_create(basis, 'ao basis'))
      $     call errquit('dkdiv_energy: bas_create failed', 0)
