@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,iwsel)
 c
-c $Id: ana_wtfram.F,v 1.20 2000-07-19 18:26:38 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.21 2000-07-25 17:58:23 d3j191 Exp $
 c
       implicit none
 c
@@ -140,7 +140,7 @@ c
 c
       if(fmt.eq.'amb') then
       write(iunit,3000) ((1.0d1*(x(i,j)+0.5d0*box(j)),j=1,3),i=1,nsa)
-      write(iunit,3000) (1.0d1*box(j),j=1,3)
+c      write(iunit,3000) (1.0d1*box(j),j=1,3)
  3000 format(10f8.3)
       endif
 c
