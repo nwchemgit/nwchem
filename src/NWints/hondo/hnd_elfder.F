@@ -2,7 +2,7 @@
      1  xyzj,expj,coefj,j_nprim,j_ngen,Lj,nder,nint,elfder,scr,lscr,
      2  xyzpt, npt)
 c
-c $Id: hnd_elfder.F,v 1.1 2004-07-21 16:24:34 bert Exp $
+c $Id: hnd_elfder.F,v 1.2 2004-07-22 16:45:25 bert Exp $
 c
       implicit double precision (a-h,o-z)
 #include "hnd_pointers.fh"
@@ -11,8 +11,10 @@ c
 c
 c     ----- Wrapper routine that sets the sizes of scratch blocks -----
 c
+      idim = max(nder*3,1)
+c
       call hnd_elfder1(xyzi,expi,coefi,i_nprim,i_ngen, Li, xyzj,expj,
-     1 coefj, j_nprim, j_ngen, Lj, nder, nint, elfder, xyzpt, npt, 
+     1 coefj, j_nprim, j_ngen, Lj, nder, nint, elfder, xyzpt, npt, idim,
      2 scr(elpt(1)),scr(elpt(2)),scr(elpt(3)),scr(elpt(4)),scr(elpt(5)),
      3 scr(elpt(6)),scr(elpt(7)),scr(elpt(8)),scr(elpt(9)))
 c
@@ -21,7 +23,7 @@ c
 c
       subroutine hnd_elfder1(xyzi,expi,coefi,i_nprim,i_ngen,Li,xyzj,
      1  expj,coefj, j_nprim, j_ngen, Lj, nder, nint, elfder, xyzpt, npt,
-     2  xv,yv,zv,dxv,dyv,dzv,ddxv,ddyv,ddzv)
+     2  idim,xv,yv,zv,dxv,dyv,dzv,ddxv,ddyv,ddzv)
 c
       implicit double precision (a-h,o-z)
 #include "nwc_const.fh"
@@ -33,7 +35,7 @@ c
       dimension w2(maxrys),w4(maxrys)
       dimension Nxyz(3),xyzi(3),xyzj(3),expi(i_nprim),expj(j_nprim)
       dimension coefi(i_nprim,i_ngen),coefj(j_nprim,j_ngen)
-      dimension xyzpt(3,npt),elfder(nint,max(nder*3,1),npt)
+      dimension xyzpt(3,npt),elfder(nint,idim,npt)
 c
       dimension xv(Li+1,Lj+1,*)
       dimension yv(Li+1,Lj+1,*)
