@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.23 1996-11-02 02:07:08 vg038 Exp $
+c     $Id: stpr_walk.F,v 1.24 1996-11-02 02:13:21 vg038 Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -45,6 +45,8 @@ c
 c     
       call stpr_filenames()
 c     
+      call ecce_print_module_entry ('stepper')
+c
       if (first_call.eq.0) then
          first_call = 1
       endif
@@ -241,6 +243,7 @@ c
      &        call errquit('stpr_walk: pstat_free failed?',911)
       endif
 c     
+      call ecce_print_module_exit ('stepper','ok')
       call util_print_pop
       call ga_sync()
 c     
