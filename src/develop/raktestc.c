@@ -1,5 +1,5 @@
 /*
- $Id: raktestc.c,v 1.3 1998-08-12 20:46:09 jcarter Exp $
+ $Id: raktestc.c,v 1.4 1998-08-12 21:54:19 d3e129 Exp $
  */
 
 #include <stdio.h>
@@ -25,7 +25,6 @@ int is_this_val_okay_(double *value)
   2 infinity
   3 nonzero
  */
-/* test comment */
     double val;
     fpclass_t fp_res;
     int ret_val;
