@@ -1,6 +1,6 @@
       subroutine ana_sizref(nsai,msai)
 c
-c $Id: ana_sizref.F,v 1.3 1999-09-20 20:37:20 d3j191 Exp $
+c $Id: ana_sizref.F,v 1.4 2000-02-04 17:35:48 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,8 @@ c
       character*1 cdum
       integer i,nsai,msai,nsm
 c
-      integer ibroad(10)
+      integer ibroad(10),nhist
+      logical lforces
 c
       if(me.eq.0) then
       open(unit=lfnref,file=filref(1:index(filref,' ')-1),
@@ -20,8 +21,14 @@ c
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
-      read(lfnref,1000) cdum
  1000 format(a)
+      read(lfnref,1001) nhist,lforces
+ 1001 format(32x,i5,4x,l1)
+      if(nhist.gt.0) then
+      do 1 i=1,nhist
+      read(lfnref,1000) cdum
+    1 continue
+      endif
 c
       read(lfnref,1000) cdum
 c

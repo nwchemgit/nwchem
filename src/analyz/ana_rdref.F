@@ -1,6 +1,6 @@
       subroutine ana_rdref(x)
 c
-c $Id: ana_rdref.F,v 1.4 1999-10-25 17:44:27 d3j191 Exp $
+c $Id: ana_rdref.F,v 1.5 2000-02-04 17:35:48 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,8 @@ c
       integer i,j,nsai,msai,npprev,nbxp,nbyp,nbzp
       real*8 rdum
       integer nbxt,npbt,nsm
-      integer mdold
+      integer mdold,nhist
+      logical lforces
 c
       if(.not.ma_verify_allocator_stuff()) print*,'Oopsi 1'
 c
@@ -29,11 +30,17 @@ c
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
-      read(lfnref,1000) cdum
  1000 format(a)
+      read(lfnref,1001) nhist,lforces
+ 1001 format(32x,i5,4x,l1)
+      if(nhist.gt.0) then
+      do 1 i=1,nhist
+      read(lfnref,1000) cdum
+    1 continue
+      endif
 c
-      read(lfnref,1001) nbxt,npbt
- 1001 format(2i5)
+      read(lfnref,1002) nbxt,npbt
+ 1002 format(2i5)
 c
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
@@ -42,32 +49,32 @@ c
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
 c
-      read(lfnref,1002) nwm,nwa,nsm,nsa
- 1002 format(4i10)
+      read(lfnref,1003) nwm,nwa,nsm,nsa
+ 1003 format(4i10)
 c
       if(mdold.ne.0) then
 c
-      do 1 i=1,nwm
-      read(lfnref,1006) (rdum,j=1,6*nwa)
- 1006 format(2x,6f13.8)
+      do 2 i=1,nwm
+      read(lfnref,1004) (rdum,j=1,6*nwa)
+ 1004 format(2x,6f13.8)
       read(lfnref,1000) cdum
-    1 continue
-c
-      do 2 i=1,nsa
-      read(lfnref,1007) (x(i,j),j=1,3)
- 1007 format(2x,3f13.8)
     2 continue
+c
+      do 3 i=1,nsa
+      read(lfnref,1005) (x(i,j),j=1,3)
+ 1005 format(2x,3f13.8)
+    3 continue
 c
       else
 c
-      do 3 i=1,nwm*(nwa+1)
+      do 4 i=1,nwm*(nwa+1)
       read(lfnref,1000) cdum
-    3 continue
-c
-      do 4 i=1,nsa
-      read(lfnref,1007) (x(i,j),j=1,3)
- 1009 format(2x,3f13.8)
     4 continue
+c
+      do 5 i=1,nsa
+      read(lfnref,1006) (x(i,j),j=1,3)
+ 1006 format(2x,3f13.8)
+    5 continue
 c
       endif
 c
