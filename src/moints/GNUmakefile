@@ -6,7 +6,7 @@
 	      mointdriver.o \
 	      moints.o \
 	      moints_dbg.o \
-	      moints_shgrp.o \
+	      moints_grp.o \
 	      moints_mp2.o
 
 
