@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.92 1999-07-14 00:28:54 d3e129 Exp $
+c $Id: raktest.F,v 1.93 1999-07-26 22:26:10 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -21,6 +21,8 @@ c::functions
       external raktask_geomcalc
       logical raktask_fullsc
       external raktask_fullsc
+      logical rak_justrunvib
+      external rak_justrunvib
 c::passed
       integer rtdb          ! rtdb handle
 c::local
@@ -162,6 +164,10 @@ c
         if (me.eq.0) write(luout,*)
      &      ' raktest: check 2e3c second derivatives'        
         raktest = raktask_intdd_3c(rtdb)
+      else if (raktask.eq.31) then !................................. 31
+        if (me.eq.0) write(luout,*)
+     &      ' raktest: rerun vib'        
+        raktest = rak_justrunvib(rtdb)
       else
         if (me.eq.0) then
           write(luout,*)' unknown raktask number :',raktask
