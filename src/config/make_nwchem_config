@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.154 2001-11-16 22:51:42 bylaska Exp $
+# $Id: make_nwchem_config,v 1.155 2001-11-19 19:39:57 d3h449 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -221,7 +221,7 @@ STUBROUTINES := $(patsubst dftgrad,dft_grad_top dft_energy_gradient sodft_energy
 STUBROUTINES := $(patsubst develop,uccsdtest rjhtest jantest jvltest jvltest2 raktest kgdtest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst drdy,drdy_input task_drdy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,grad_force scf_gradient mcscf_gradient gradients_input grad_active_atoms stpr_sjacobi,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst hessian, hess_tidy hess_input scf_hessian xc_init_index xc_exit_index hessti xc_hessian xc_cpks_rhs xc_rhogen_nucder xc_d2expl xc_cpks_coeff xc_tabcd_cpks_lhs xc_tabcd_cpks_rhs xc_rhogen_pert,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst hessian, hess_tidy hess_input scf_hessian xc_init_index xc_exit_index hessti xc_hessian xc_cpks_rhs xc_rhogen_nucder xc_d2expl xc_cpks_coeff xc_tabcd_cpks_lhs xc_tabcd_cpks_rhs xc_rhogen_pert dft_3dacc,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ccsd,ccsd ccsd_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcscf,mcscf mcscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
@@ -247,7 +247,7 @@ STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initialize cosmo_charges hnd_nwhnd_tran,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input task_pspw pspw_input pspw_energy pspw_gradient,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input task_pspw pspw_input pspw_energy pspw_gradient band_energy band_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcstep,mcstep mcstep_main,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
