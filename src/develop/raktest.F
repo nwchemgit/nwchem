@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.36 1995-04-24 07:59:05 d3e129 Exp $
+c $Id: raktest.F,v 1.37 1995-05-09 21:53:29 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -3914,6 +3914,8 @@ c
       write(6,*)' two electron buffer size        :',mxg
       write(6,*)' one electron scratch buffer size:',mxs1
       write(6,*)' two electron scratch buffer size:',mxs2
+c
+      call int_mem_print()
 c
       end
 
