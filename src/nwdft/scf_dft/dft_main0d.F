@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.56 2001-12-28 19:38:55 edo Exp $
+c     $Id: dft_main0d.F,v 1.57 2003-02-08 01:16:31 edo Exp $
 c     
       implicit none
 c
@@ -92,36 +92,14 @@ c
          if (.not. bas_numbf(XC_bas_han, nbf_xc)) then
             call errquit('Exiting from scfdriver',4)
          endif 
-         lmiss = 1
-         if (IOLGC)then
-*ga:1:0
-            if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
-     &                          nbf_xc, 0, g_xcinv)) 
-     &         call errquit('dft_main0d: error creating g_xcinv',0)
-            call ga_zero(g_xcinv)
-            if (me.eq.0) then
-c
-c              try to read old XC matrix on disk; use if appropriate
-c
-               call dft_invio('XC', g_xcinv, nbf_xc, 'READ', lmiss)
-               if (lmiss.ne.0)then
-                  if (oprint_ioinfo)write(LuOut,*)
-     &            ' old XC READ miss; constructing new matrix. '
-               endif
-            endif
-            call ga_brdcst(Msg_XC_Ex, lmiss, mitob(1), 0)
-         endif
-         if (lmiss.eq.1) then
 c     
 c           Compute the matrix inverse of the 2-ctr OIs.
 c     
-            if (.not.IOLGC)then
 *ga:1:0
                if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
      &                             nbf_xc, 0, g_xcinv)) 
      &            call errquit('dft_main0d: error creating g_xcinv',0)
                call ga_zero(g_xcinv)
-            endif
 *ga:1:0
             if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'g_oi', 
      &                          nbf_xc, 0, g_oi)) 
@@ -164,7 +142,6 @@ c
                if (lmiss.ne.0)call errquit
      &         (' dft_main0d; dft_invio - abnormal write of XC ', 0)
             endif
-         endif
          if (IOLGC)then
             if (.not. ga_destroy(g_xcinv)) call errquit
      &         ('dft_main0d: could not destroy g_xcinv', 0)
