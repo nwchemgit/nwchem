@@ -17,7 +17,7 @@ c         PRL 91, 146401 (2003).
 
 
 c   
-c$Id: xc_xtpss03.F,v 1.2 2004-10-05 18:23:46 pollack Exp $
+c$Id: xc_xtpss03.F,v 1.3 2004-10-12 15:19:26 edo Exp $
 c
       implicit none
 c
@@ -209,7 +209,7 @@ c         daldn=F53*p*phaB+phaA*(-1.d0+1.d0/z)
       daldn=F53*( -p*dzdn/z**2 +dpdn*(-1.d0+1.d0/z) )
 
            til1=al-1.d0
-           til2=(1.d0+b*al*(al-1.d0))**-0.5d0
+           til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
 c          til3 not explicitly needed
 c            dtil3dn=F23*dpdn
             dtil1dn=daldn
@@ -248,7 +248,7 @@ C Derivatives wrt gamma,    below
             dzdg=rrho*0.125d0/tauN
             daldg=F53*( -p*dzdg/(z*z)+dpdg*(-1.d0+1.d0/z) )
 c   recall     til1=al-1.d0
-c     "        til2=(1.d0+b*al*(al-1.d0))**-0.5d0
+c     "        til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
 c     "        til3 not explicitly needed
 c     "        dtil1dg=daldg
                dtil2dg=0.5d0*(2.d0*b*al*daldg-b*daldg)*til2**3.d0               
@@ -258,7 +258,7 @@ c     "        dtil1dg=daldg
 c   recall    ax1=c*p*z*z
 c             bx1=(1.d0+z*z)**(-2.d0)
               dax1dg=c*z*z*dpdg+2.d0*c*p*z*dzdg
-              dbx1dg=-4.d0*z*dzdg*(1.d0+z*z)**-3.d0
+              dbx1dg=-4.d0*z*dzdg*(1.d0+z*z)**(-3.d0)
             dx1dg=C1*dpdg+ax1*dbx1dg+bx1*dax1dg
             dx2dg=C2*2.d0*qtil*dqtdg
 
@@ -272,7 +272,7 @@ c             xd=(0.5d0*(.6d0*z)**2  + .5d0*p*p)**.5d0
              dx4dg=2.d0*C1*C1*p*dpdg/kap
              dx5dg=1.44d0*es*C1*z*dzdg
              dx6dg=3.d0*e*mu*p*p*dpdg
-             dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**-3.d0
+             dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**(-3.d0)
 
 c    recall    xmany=x1+x2+x3 +x4 +x5+x6
             dxmanydg= dx1dg+dx2dg+dx3dg+dx4dg+dx5dg+dx6dg
@@ -291,7 +291,7 @@ c ttttttttttttttttttttttttttttttttttttttttttttttttt
      &               daldt*(1.d0+b*al*al-b*al)**(-.5d0) )
 
 
-            dax1dt=-4.d0*z*dzdt*(1.d0+z**2)**-3
+            dax1dt=-4.d0*z*dzdt*(1.d0+z**2)**(-3)
         dx1dt=c*p*dax1dt*z*z+2*c*p*z*dzdt/(1.d0+z*z)**2
         dx2dt=2*c2*qtil*dqtdt
             dax3dt=0.18d0*z*dzdt/(0.18d0*z*z+p*p*.5d0)**(.5d0)
@@ -404,7 +404,7 @@ c           xa= (C1)
            x4=C1*C1*p**2/kap
            x5=2.d0*es*C1*(.6d0*z)**2
            x6= e*mu*p*p*p
-           x7 = (1.d0+es*p)**-2
+           x7 = 1d0/(1.d0+es*p)**2
 
            x=(x1+x2+x3 +x4 +x5+x6)*x7
 
@@ -421,7 +421,7 @@ C Derivatives wrt n, density   below
          daldn=F53*p*phaB+phaA*(-1.d0+1.d0/z)
 
            til1=al-1.d0
-           til2=(1.d0+b*al*(al-1.d0))**-0.5d0
+           til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
 c          til3 not explicitly needed
             dtil3dn=F23*dpdn
             dtil1dn=daldn
@@ -459,7 +459,7 @@ C Derivatives wrt gamma,    below
             dzdg=4.d0*rrho*0.125d0/tauN
             daldg=F53*( -p*dzdg/(z*z)+dpdg*(-1.d0+1.d0/z) )
 c   recall     til1=al-1.d0
-c     "        til2=(1.d0+b*al*(al-1.d0))**-0.5d0
+c     "        til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
 c     "        til3 not explicitly needed
 c     "        dtil1dg=daldg
                dtil2dg=0.5d0*(2.d0*b*al*daldg-b*daldg)*til2**3.d0               
@@ -469,7 +469,7 @@ c     "        dtil1dg=daldg
 c   recall    ax1=c*p*z*z
 c             bx1=(1.d0+z*z)**(-2.d0)
               dax1dg=c*z*z*dpdg+2.d0*c*p*z*dzdg
-              dbx1dg=-4.d0*z*dzdg*(1.d0+z*z)**-3.d0
+              dbx1dg=-4.d0*z*dzdg*(1.d0+z*z)**(-3.d0)
             dx1dg=C1*dpdg+ax1*dbx1dg+bx1*dax1dg
             dx2dg=C2*2.d0*qtil*dqtdg
 
@@ -483,7 +483,7 @@ c             xd=(0.5d0*(.6d0*z)**2  + .5d0*p*p)**.5d0
              dx4dg=2.d0*C1*C1*p*dpdg/kap
              dx5dg=1.44d0*es*C1*z*dzdg
              dx6dg=3.d0*e*mu*p*p*dpdg
-             dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**-3.d0
+             dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**(-3.d0)
 
 c    recall    xmany=x1+x2+x3 +x4 +x5+x6
             dxmanydg= dx1dg+dx2dg+dx3dg+dx4dg+dx5dg+dx6dg
@@ -501,7 +501,7 @@ c ttttttttttttttttttttttttttttttttttttttttttttttttt
      &               daldt*(1.d0+b*al*al-b*al)**(-.5d0) )
 
 
-            dax1dt=-4.d0*z*dzdt*(1.d0+z**2)**-3
+            dax1dt=-4.d0*z*dzdt*(1.d0+z**2)**(-3)
         dx1dt=c*p*dax1dt*z*z+2*c*p*z*dzdt/(1.d0+z*z)**2
         dx2dt=2*c2*qtil*dqtdt
             dax3dt=0.18d0*z*dzdt/(0.18d0*z*z+p*p*.5d0)**(.5d0)
@@ -610,7 +610,7 @@ c          note below we left off the p**2 term
            x4=C1*C1*p**2/kap
            x5=2.d0*es*C1*(.6d0*z)**2
            x6= e*mu*p*p*p
-           x7 = (1.d0+es*p)**-2
+           x7 = (1.d0+es*p)**(-2)
 
            x=(x1+x2+x3 +x4 +x5+x6)*x7
 
@@ -630,7 +630,7 @@ C Derivatives wrt n, density   below
          daldn=F53*p*phaB+phaA*(-1.d0+1.d0/z)
 
            til1=al-1.d0
-           til2=(1.d0+b*al*(al-1.d0))**-0.5d0
+           til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
 c          til3 not explicitly needed
             dtil3dn=F23*dpdn
             dtil1dn=daldn
@@ -669,7 +669,7 @@ C Derivatives wrt gamma,    below
             dzdg=4.d0*rrho*0.125d0/tauN
             daldg=F53*( -p*dzdg/(z*z)+dpdg*(-1.d0+1.d0/z) )
 c   recall     til1=al-1.d0
-c     "        til2=(1.d0+b*al*(al-1.d0))**-0.5d0
+c     "        til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
 c     "        til3 not explicitly needed
 c     "        dtil1dg=daldg
                dtil2dg=0.5d0*(2.d0*b*al*daldg-b*daldg)*til2**3.d0               
@@ -679,7 +679,7 @@ c     "        dtil1dg=daldg
 c   recall    ax1=c*p*z*z
 c             bx1=(1.d0+z*z)**(-2.d0)
               dax1dg=c*z*z*dpdg+2.d0*c*p*z*dzdg
-              dbx1dg=-4.d0*z*dzdg*(1.d0+z*z)**-3.d0
+              dbx1dg=-4.d0*z*dzdg*(1.d0+z*z)**(-3.d0)
             dx1dg=C1*dpdg+ax1*dbx1dg+bx1*dax1dg
             dx2dg=C2*2.d0*qtil*dqtdg
 
@@ -693,7 +693,7 @@ c             xd=(0.5d0*(.6d0*z)**2  + .5d0*p*p)**.5d0
              dx4dg=2.d0*C1*C1*p*dpdg/kap
              dx5dg=1.44d0*es*C1*z*dzdg
              dx6dg=3.d0*e*mu*p*p*dpdg
-             dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**-3.d0
+             dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**(-3.d0)
 
 c    recall    xmany=x1+x2+x3 +x4 +x5+x6
             dxmanydg= dx1dg+dx2dg+dx3dg+dx4dg+dx5dg+dx6dg
@@ -710,7 +710,7 @@ c ttttttttttttttttttttttttttttttttttttttttttttttttt
      &               daldt*(1.d0+b*al*al-b*al)**(-.5d0) )
 
 
-            dax1dt=-4.d0*z*dzdt*(1.d0+z**2)**-3
+            dax1dt=-4.d0*z*dzdt*(1.d0+z**2)**(-3)
         dx1dt=c*p*dax1dt*z*z+2*c*p*z*dzdt/(1.d0+z*z)**2
         dx2dt=2*c2*qtil*dqtdt
             dax3dt=0.18d0*z*dzdt/(0.18d0*z*z+p*p*.5d0)**(.5d0)
