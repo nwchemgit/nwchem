@@ -19,7 +19,7 @@ c
       character*16 csa(msa)
       character*80 target
 c
-      integer i,j,k,l,m,n,io,ibase,jbase,idatom,nump,im,natoms
+      integer i,j,k,l,m,n,io,ibase,jbase,idatom,nume,nump,im,natoms
       character*3 string
 c
       if(npmfr.le.0) npmfr=1
@@ -29,25 +29,54 @@ c     ipmf(i,1) : type of function in pmf i
 c     ipmf(i,n) : group(s) involved in pmf i
 c
       m=0
-      k=0
+      nume=0
       nump=0
       do 5 i=1,numpmf
-      if(iopt(i).eq.1) then
 c
 c     alignments in more than one equivalent molecule
 c
-      if(ipmf(i,1).eq.5.and.mgroup(ipmf(i,2)).gt.0) then
+      if(iopt(i).eq.1) then
+      if(ipmf(i,1).eq.5) then
+      nump=nump+lgroup(ipmf(i,2))
+      nume=1
+      if(mgroup(ipmf(i,2)).gt.0) then
       l=iequi(mgroup(ipmf(i,2)),3)
       if(l.ne.0) call errquit('pmf not on first equivalent molecule',0)
-      nump=nump+1
       do 51 j=1,nsm
-      if(iequi(j,3).eq.mgroup(ipmf(i,2))) nump=nump+1
+      if(iequi(j,3).eq.mgroup(ipmf(i,2))) then
+      nump=nump+lgroup(ipmf(i,2))
+      nume=nume+1
+      endif
    51 continue
+      m=max(m,nume*lgroup(ipmf(i,2)))
+      endif
+      endif
+c
+c     alignments in combination of more than one equivalent molecule
+c
+      elseif(iopt(i).eq.2) then
+      if(ipmf(i,1).eq.6) then
+      nump=nump+lgroup(ipmf(i,2))
+      nume=1
+      if(mgroup(ipmf(i,2)).gt.0) then
+      l=iequi(mgroup(ipmf(i,2)),3)
+      if(l.ne.0) call errquit('pmf not on first equivalent molecule',0)
+      do 52 j=1,nsm
+      if(iequi(j,3).eq.mgroup(ipmf(i,2))) then
+      nump=nump+lgroup(ipmf(i,2))
+      nume=nume+1
+      endif
+   52 continue
+      m=max(m,nume*lgroup(ipmf(i,2)))
+      endif
       endif
 c
       else
+      if(ipmf(i,1).eq.7) then
+      nump=nump+3
+      else
       nump=nump+1
-      if(ipmf(i,1).eq.7) nump=nump+2
+      endif
       endif
       n=-1
       if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) n=0
@@ -60,7 +89,6 @@ c
       do 6 j=2,n+2
       m=max(m,lgroup(ipmf(i,j)))
     6 continue
-      if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) k=k+lgroup(ipmf(i,2))-1
       endif
     5 continue
 c
@@ -78,7 +106,7 @@ c
       write(lfntop,101)
   101 format('pmf')
    11 continue
-      write(lfntop,1000) npmfr*(nump+k),m
+      write(lfntop,1000) nump,m
  1000 format(2i5)
 c      do 12 l=1,npmfr
       l=1
