@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa)
 c
-c $Id: sp_main.F,v 1.29 1999-11-26 20:13:09 d3j191 Exp $
+c $Id: sp_main.F,v 1.30 1999-12-15 00:44:15 d3j191 Exp $
 c
       implicit none
 c
@@ -17,8 +17,8 @@ c
       integer i_qlst,l_qlst
       integer i,j,k
 c
-      call sp_gagetixv(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa,
-     + int_mb(i_ipl))
+      call sp_gagetixv(node,iwl,xw,xwcr,vw,numwm,isl,int_mb(i_pack),
+     + xs,vs,numsa,int_mb(i_ipl))
 c
       if(me.eq.node) then
       nwmloc=numwm
@@ -46,6 +46,185 @@ c
     5 continue
     4 continue
       endif
+c
+      call sp_pack_init(isl,numsa)
+c
+      return
+      end
+      subroutine sp_pack_finish()
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      if(npack.gt.0) then
+      if(.not.ma_pop_stack(l_pack))
+     + call errquit('Failed to deallocate memory for pack',0)
+      endif
+c
+      return
+      end
+      subroutine sp_pack_init(isl,numsa)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer isl(msa,mis2),numsa
+c
+      integer i,j,k,intsiz
+c
+      intsiz=8*ma_sizeof(mt_int,1,mt_byte)
+c
+      if(me.eq.0) write(*,'(a,i4,a)') ' Integer size is',intsiz,' bits'
+c
+c      npack=0
+c      return
+      do 1 i=1,mis2
+      misl(i)=0
+    1 continue
+c
+      do 2 j=1,mis2
+      do 3 i=1,numsa
+      misl(j)=max(misl(j),isl(i,j))
+    3 continue
+    2 continue
+c
+      call ga_dgop(msp_24,misl,mis2,'max')
+c
+      do 4 i=1,mis2
+      k=misl(i)
+      do 5 j=1,intsiz
+      k=k/2
+      if(k.eq.0) then
+      nbits(i)=j
+      goto 4
+      endif
+    5 continue
+      nbits(i)=intsiz
+    4 continue
+c
+      npack=1
+      ipack(1)=1
+      k=nbits(1)
+      do 6 i=2,mis2
+      if(k+nbits(i).lt.intsiz) then
+      ipack(npack)=ipack(npack)+1
+      k=k+nbits(i)
+      else
+      npack=npack+1
+      ipack(npack)=1
+      k=nbits(i)
+      endif
+    6 continue
+c
+      if(me.eq.0) write(*,'(a,20i7)') 'misl=',(misl(i),i=1,mis2)
+      if(me.eq.0) write(*,'(a,20i7)') 'bits=',(nbits(i),i=1,mis2)
+c
+      do 7 i=1,mis2
+      misl(i)=2**nbits(i)
+    7 continue
+c
+      if(me.eq.0) write(*,'(a,20i7)') 'misl=',(misl(i),i=1,mis2)
+c
+      if(me.eq.0) then
+      write(*,'(a,i2,a,14i4)') ' Packing in ',npack,' integers : ',
+     + (ipack(i),i=1,npack)
+      endif
+c
+      if(npack.eq.mis2) npack=0
+c
+      if(npack.gt.0) then
+      if(.not.ma_push_get(mt_int,msa*npack,'lpack',l_pack,i_pack))
+     + call errquit('Failed to allocate memory for pack',0)
+      endif
+c
+      call sp_pack_ga(numsa,isl,int_mb(i_pack))
+c
+      return
+      end
+      subroutine sp_pack_ga(numsa,isl,islp)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer numsa,isl(msa,mis2),islp(msa,npack)
+c
+      integer il,ih,jl,jh,i,j
+c
+      if(numsa.gt.0) then
+      call ga_distribution(ga_is,me,il,ih,jl,jh)
+      call ga_get(ga_is,il,il+numsa-1,jl,jh,isl,msa)      
+c      write(80+me,8080) (i,(isl(i,j),j=1,mis2),i=1,numsa)
+c 8080 format('isl ',i7,':',14i7)
+c      call util_flush(80+me)
+      call sp_pack(numsa,isl,islp)
+      call sp_unpack(numsa,isl,islp)
+c      write(90+me,8080) (i,(isl(i,j),j=1,mis2),i=1,numsa)
+c      call util_flush(90+me)
+c      call ga_put(ga_is,il,il+numsa-1,jl,jh,isl,msa)
+      call ga_put(ga_is,il,il+numsa-1,jl,jl+npack-1,islp,msa)
+      endif
+c
+      call ga_sync()
+c      npack=0
+      return
+      end
+      subroutine sp_pack(numsa,isl,islp)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer numsa,isl(msa,mis2),islp(msa,npack)
+c
+      integer i,j,k,ipck
+c
+      ipck=0
+      do 1 j=1,npack
+      do 2 i=1,numsa
+      islp(i,j)=0
+    2 continue
+      do 3 k=1,ipack(j)
+      ipck=ipck+1
+      do 4 i=1,numsa
+      islp(i,j)=islp(i,j)*misl(ipck)+isl(i,ipck)
+    4 continue
+    3 continue
+    1 continue
+c
+      return
+      end
+      subroutine sp_unpack(numsa,isl,islp)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer numsa,isl(msa,mis2),islp(msa,npack)
+c
+      integer i,j,k,ipck
+c
+      ipck=mis2+1
+      do 1 j=npack,1,-1
+      do 2 k=ipack(j),1,-1
+      ipck=ipck-1
+      do 3 i=1,numsa
+      isl(i,ipck)=iand(islp(i,j),misl(ipck)-1)
+      islp(i,j)=islp(i,j)/misl(ipck)
+    3 continue
+    2 continue
+    1 continue
 c
       return
       end
@@ -110,8 +289,8 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
       real*8 vw(mwm,3,mwa),vs(msa,3)
 c
-      call sp_gagetixv(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa,
-     + int_mb(i_ipl))
+      call sp_gagetixv(node,iwl,xw,xwcr,vw,numwm,isl,int_mb(i_pack),
+     + xs,vs,numsa,int_mb(i_ipl))
 c
       if(me.eq.node) then
       nwmloc=numwm
@@ -160,7 +339,8 @@ c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3)
 c
-      call sp_gaputix(node,iwl,xw,numwm,isl,xs,numsa,int_mb(i_ipl))
+      call sp_gaputix(node,iwl,xw,numwm,isl,int_mb(i_pack),
+     + xs,numsa,int_mb(i_ipl))
 c
       return
       end
@@ -179,8 +359,8 @@ c
 c
       integer i,j
 c
-      call sp_gaputixv(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa,
-     + int_mb(i_ipl))
+      call sp_gaputixv(node,iwl,xw,xwcr,vw,numwm,isl,int_mb(i_pack),
+     + xs,vs,numsa,int_mb(i_ipl))
 c
       do 1 j=1,3
       box(j)=vlat(j,j)
@@ -200,8 +380,8 @@ c
 c
       return
       end
-      subroutine sp_gagetixv(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa,
-     + ipl)
+      subroutine sp_gagetixv(node,iwl,xw,xwcr,vw,numwm,isl,islp,
+     + xs,vs,numsa,ipl)
 c
       implicit none
 c
@@ -209,11 +389,11 @@ c
 #include "global.fh"
 c
       integer node,numwm,numsa
-      integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwl(mwm,miw2),isl(msa,mis2),islp(msa,npack)
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
       real*8 vw(mwm,3,mwa),vs(msa,3)
       integer ipl(mbox,mip2)
-      integer il,ih,jl,jh
+      integer il,ih,jl,jh,i,j
 c
       call ga_distribution(ga_ip,node,il,ih,jl,jh)
       call ga_get(ga_ip,il,ih,jl,jh,ipl,mbox)
@@ -232,7 +412,12 @@ c
 c
       if(numsa.gt.0) then
       call ga_distribution(ga_is,node,il,ih,jl,jh)
+      if(npack.eq.0) then
       call ga_get(ga_is,il,il+numsa-1,jl,jh,isl,msa)
+      else
+      call ga_get(ga_is,il,il+numsa-1,jl,jl+npack-1,islp,msa)
+      call sp_unpack(numsa,isl,islp)
+      endif
       call ga_distribution(ga_s,node,il,ih,jl,jh)
       ih=il+numsa-1
       call ga_get(ga_s,il,ih,jl,jl+2,xs,msa)
@@ -241,8 +426,8 @@ c
 c
       return
       end
-      subroutine sp_gaputixv(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa,
-     + ipl)
+      subroutine sp_gaputixv(node,iwl,xw,xwcr,vw,numwm,isl,islp,
+     + xs,vs,numsa,ipl)
 c
       implicit none
 c
@@ -250,7 +435,7 @@ c
 #include "global.fh"
 c
       integer node,numwm,numsa
-      integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwl(mwm,miw2),isl(msa,mis2),islp(msa,npack)
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
       real*8 vw(mwm,3,mwa),vs(msa,3)
       integer ipl(mbox,mip2)
@@ -273,7 +458,12 @@ c
 c
       if(numsa.gt.0) then
       call ga_distribution(ga_is,node,il,ih,jl,jh)
+      if(npack.eq.0) then
       call ga_put(ga_is,il,il+numsa-1,jl,jh,isl,msa)
+      else
+      call sp_pack(numsa,isl,islp)
+      call ga_put(ga_is,il,il+numsa-1,jl,jl+npack-1,islp,msa)
+      endif
       call ga_distribution(ga_s,node,il,ih,jl,jh)
       ih=il+numsa-1
       call ga_put(ga_s,il,ih,jl,jl+2,xs,msa)
@@ -282,7 +472,7 @@ c
 c
       return
       end
-      subroutine sp_gaputix(node,iwl,xw,numwm,isl,xs,numsa,ipl)
+      subroutine sp_gaputix(node,iwl,xw,numwm,isl,islp,xs,numsa,ipl)
 c
       implicit none
 c
@@ -290,7 +480,7 @@ c
 #include "global.fh"
 c
       integer node,numwm,numsa
-      integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwl(mwm,miw2),isl(msa,mis2),islp(msa,npack)
       real*8 xw(mwm,3,mwa),xs(msa,3)
       integer ipl(mbox,mip2)
       integer il,ih,jl,jh
@@ -310,7 +500,12 @@ c
 c
       if(numsa.gt.0) then
       call ga_distribution(ga_is,node,il,ih,jl,jh)
+      if(npack.eq.0) then
       call ga_put(ga_is,il,il+numsa-1,jl,jh,isl,msa)
+      else
+      call sp_pack(numsa,isl,islp)
+      call ga_put(ga_is,il,il+numsa-1,jl,jl+npack-1,islp,msa)
+      endif
       call ga_distribution(ga_s,node,il,ih,jl,jh)
       ih=il+numsa-1
       call ga_put(ga_s,il,ih,jl,jl+2,xs,msa)
@@ -539,7 +734,7 @@ c
       if(.not.ma_push_get(mt_dbl,lenx,'rtmp',l_rtmp,i_rtmp))
      + call errquit('Failed to allocate rtmp',0)
 c
-      call sp_trvl(xw,vw,xwcr,gw,iwl,xs,vs,gs,isl,
+      call sp_trvl(xw,vw,xwcr,gw,iwl,xs,vs,gs,isl,int_mb(i_pack),
      + dbl_mb(i_boxs),int_mb(i_iown),int_mb(i_ipl),
      + int_mb(i_ndx),int_mb(i_itmp),dbl_mb(i_rtmp),lenx)
 c
@@ -552,15 +747,15 @@ c
       if(.not.ma_pop_stack(l_ndx))
      + call errquit('Failed to de-allocate ndx',0)
 c
-      call sp_gaputixv(me,iwl,xw,xwcr,vw,nwmloc,isl,xs,vs,nsaloc,
-     + int_mb(i_ipl))
+      call sp_gaputixv(me,iwl,xw,xwcr,vw,nwmloc,isl,int_mb(i_pack),
+     + xs,vs,nsaloc,int_mb(i_ipl))
 c
       numwm=nwmloc
       numsa=nsaloc
 c
       return
       end
-      subroutine sp_trvl(xw,vw,xwcr,gw,iwl,xs,vs,gs,isl,
+      subroutine sp_trvl(xw,vw,xwcr,gw,iwl,xs,vs,gs,isl,islp,
      + boxsiz,ibownr,ipl,ndx,itmp,rtmp,lenx)
 c
       implicit none
@@ -572,7 +767,7 @@ c
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3)
       real*8 gw(mwm,3,mwa),gs(msa,3)
-      integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwl(mwm,miw2),isl(msa,mis2),islp(msa,npack)
       integer lenx
       real*8 boxsiz(maxbox,3)
       integer ipl(mbox,mip2),ibownr(maxbox,3)
@@ -876,7 +1071,12 @@ c
       if(nsgo.gt.0) then
       il=ilis+indexs
       ih=il+nsgo-1
+      if(npack.eq.0) then
       call ga_put(ga_is,il,ih,jlis,jhis,isl(isfr,1),msa)
+      else
+      call sp_pack(ih-il+1,isl(isfr,1),islp(isfr,1))
+      call ga_put(ga_is,il,ih,jlis,jlis+npack-1,islp(isfr,1),msa)
+      endif
       call ga_put(ga_s,il,ih,jls,jls+2,xs(isfr,1),msa)
       call ga_put(ga_s,il,ih,jls+3,jls+5,vs(isfr,1),msa)
       if(iguide.gt.0) then
@@ -963,7 +1163,12 @@ c
       ih=ilis+isto-1
       jl=jlis
       jh=jhis
+      if(npack.eq.0) then
       call ga_get(ga_is,il,ih,jlis,jhis,isl(nsstay+1,1),msa)
+      else
+      call ga_get(ga_is,il,ih,jlis,jlis+npack-1,islp(nsstay+1,1),msa)
+      call sp_unpack(ih-il+1,isl(nsstay+1,1),islp(nsstay+1,1))
+      endif
       call ga_get(ga_s,il,ih,jls,jls+2,xs(nsstay+1,1),msa)
       call ga_get(ga_s,il,ih,jls+3,jls+5,vs(nsstay+1,1),msa)
       if(iguide.gt.0) then
@@ -1449,7 +1654,7 @@ c
 c
       call sp_gtxpbl(ibbl,lhandl,local,
      + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
-     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,
+     + isl,int_mb(i_pack),xs,ps,psp,isfr,isto,jsfr,jsto,
      + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself,.true.)
 c
       return
@@ -1471,14 +1676,14 @@ c
 c
       call sp_gtxpbl(ibbl,lhandl,local,
      + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
-     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,
+     + isl,int_mb(i_pack),xs,ps,psp,isfr,isto,jsfr,jsto,
      + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself,.false.)
 c
       return
       end
       subroutine sp_gtxpbl(ibbl,lhandl,local,
      + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
-     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,
+     + isl,islp,xs,ps,psp,isfr,isto,jsfr,jsto,
      + lbbl,ipl,jpl,lself,lpp)
 c
       implicit none
@@ -1487,7 +1692,7 @@ c
 #include "global.fh"
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
-      integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwl(mwm,miw2),isl(msa,mis2),islp(msa,npack)
       real*8 xw(mwm,3,mwa),xs(msa,3)
       real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
       real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
@@ -1495,7 +1700,7 @@ c
       integer ipl(mbox,mip2),jpl(mbox,mip2)
       logical lself,local,lpp
 c
-      integer i,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
+      integer i,j,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
 c
       if(ibbl.le.0.or.ibbl.gt.nbbl)
      + call errquit('Index to lbbl out of range',ibbl)
@@ -1593,7 +1798,13 @@ c
       if(nsaloc+nsnon.gt.msa)
      + call errquit('Dimension msa too small',nsaloc+nsnon)
       call ga_distribution(ga_is,jnode,il,ih,jl,jh)
+      if(npack.eq.0) then
       call ga_get(ga_is,il+jsfr-1,il+jsto-1,jl,jh,isl(nsaloc+1,1),msa)
+      else
+      call ga_get(ga_is,il+jsfr-1,il+jsto-1,jl,jl+npack-1,
+     + islp(nsaloc+1,1),msa)
+      call sp_unpack(jsto-jsfr+1,isl(nsaloc+1,1),islp(nsaloc+1,1))
+      endif
       call ga_distribution(ga_s,jnode,il,ih,jl,jh)
       call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl,jl+2,
      + xs(nsaloc+1,1),msa)

@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.12 1999-11-26 17:25:15 d3j191 Exp $
+c $Id: sp_common.fh,v 1.13 1999-12-15 00:44:15 d3j191 Exp $
 c
 c
       real*8 zero,half,one
@@ -58,10 +58,11 @@ c
       integer i_ipl,l_ipl,i_jpl,l_jpl
       integer ga_ip,ga_iw,ga_w,ga_is,ga_s,ga_iwz,ga_isz
       integer i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb
-      integer i_rng,l_rng
+      integer i_rng,l_rng,i_pack,l_pack
       integer i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
       common/sd_ptr/i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr,
      + i_ipl,l_ipl,i_jpl,l_jpl,ga_ip,ga_iw,ga_w,ga_is,ga_s,
+     + i_pack,l_pack,
      + ga_iwz,ga_isz,
      + i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb,i_rng,l_rng,
      + i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
@@ -69,12 +70,14 @@ c
       real*8 rshort,rlong,rbox,box(3),boxh(3),bsize,vlat(3,3),vlati(3,3)
       real*8 bxmin,bymin,bzmin,tsyncp,factld,third
       integer npbtyp,nbxtyp,neighb(27,2),loadb,lbpair,npprev,ntwin,nldup
-      integer nbbdif,ipairf,ipairt,iguide,idebug
+      integer nbbdif,ipairf,ipairt,iguide,idebug,npack
+      integer misl(mis2),nbits(mis2),ipack(mis2)
       integer lfnsyn,nfsync,lfndbg
       logical lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
       common/sd_var/rshort,rlong,rbox,box,boxh,bsize,vlat,vlati,
      + bxmin,bymin,bzmin,tsyncp,factld,third,
      + npbtyp,nbxtyp,neighb,loadb,lbpair,npprev,ntwin,nldup,nbbdif,
-     + lfnsyn,nfsync,ipairf,ipairt,iguide,idebug,lfndbg,
+     + lfnsyn,nfsync,ipairf,ipairt,iguide,idebug,npack,lfndbg,
+     + misl,nbits,ipack,
      + lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
 c
