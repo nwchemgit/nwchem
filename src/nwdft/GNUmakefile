@@ -1,11 +1,11 @@
-#$Id: GNUmakefile,v 1.21 1996-07-26 16:33:29 d3g681 Exp $
+#$Id: GNUmakefile,v 1.22 1996-08-12 19:18:29 gutowski Exp $
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ = nwdft.o
 
    LIBRARY = libnwdft.a
    LIB_DEFINES = -DDFT_TIMER
-   SUBDIRS = input_dft scf_dft coulomb xc util 3d 
+   SUBDIRS = input_dft scf_dft coulomb xc util 
 LIB_INCLUDES = -I./include
 
 
