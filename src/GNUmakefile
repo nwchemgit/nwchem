@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.35 1995-12-06 18:03:57 mg141 Exp $
+# $Id: GNUmakefile,v 1.36 1996-01-12 01:53:27 d3g681 Exp $
 
 include config/makefile.h
 
@@ -34,6 +34,14 @@ link nwchem_link:    nwchem.o stubs.o
 #
 test nwchem_test:	nwchem.o stubs.o
 	$(LINK.f) -o nwchem_test nwchem.o stubs.o $(LIBS)
+	/bin/rm -f nwchem.o
+	$(INSTALL)
+
+#
+# This for linking profiled version
+#
+prof nwchem_prof:	nwchem.o stubs.o
+	$(LINK.f) -p -o nwchem_prof nwchem.o stubs.o $(LIBS)
 	/bin/rm -f nwchem.o
 	$(INSTALL)
 
