@@ -1,15 +1,23 @@
       Subroutine dft_fitcd( rtdb,AO_bas_han, CD_bas_han,geom,
      &     CD_coef,  nbf_cd,
-     &     iga_cdinv, iga_dens, nTotEl, IOLGC,itol2e,
+     &     g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
      &     Ecoul1)
       
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+      implicit none
+      
 c****
 c**** nwchem handles
 c****
       integer AO_bas_han, CD_bas_han,geom,rtdb
-      integer iga_dens       ! GA DM handle
+      integer g_dens       ! GA DM handle
+      integer g_cdinv
+      integer nTotEl
+      integer itol2e
+      integer nbf_cd
+      double precision Ecoul1
+c-->  Charge Density Expansion Coefficients
+      
+      double precision CD_coef(nbf_cd)
 c**** 
       Logical LResult,IOLGC, doesit, isit
       
@@ -25,15 +33,26 @@ c****
 #include "msgids.fh"
 
       double precision F(2)
-      double precision fac
+      double precision fac,THRESHOLD,Pmat_max,ERI_est,Q,AZ,alpha,
+     ,     rho_int
+      integer nproc,me,nbf_ao,MXnshbf_ao,MXnshbf_cd,nshells_ao,
+     ,     nshells_cd,ischw1,icount,Nao2,n1,n2,ishc,ifirstc,ilastc,
+     ,     nshbfc,ishd,ifirstd, ilastd,nshbfd,istart,
+     ,     ishp,ifirstp,ilastp,nshbfp,Nint,nscr,
+     ,     max1e,nscr1e,j,next,i,mscratch_2e3c,
+     ,     ifirst,ilast,nshbf,maxg,ish,lmiss
+      integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
+     ,     lscr,iscr
+      double precision dabsmax,ddot
+      integer nxtask
+      external dabsmax,ddot,nxtask
       
 #if defined(DFT_TIMER)
+      integer nsh_blocks,niter,ntasks
+      double precision schw1
 #include "timer.fh"
 #endif
       
-c-->  Charge Density Expansion Coefficients
-      
-      Dimension CD_coef(nbf_cd)
 c     
 c     Fit electronic charge density. The fitting coefficients are obtained by 
 c     solving the normal equations for a standard linear least squares problem.
@@ -113,7 +132,7 @@ c
 C
 c           Gather the needed density matrix elements.
 c
-            call ga_get(iga_dens,
+            call ga_get(g_dens,
      *           ifirstd,ilastd,
      *           ifirstc,ilastc,
      *           dbl_mb(igvec),nshbfd)
@@ -224,9 +243,9 @@ c     Compute the Lagrange Multiplier, alpha.
 c     
       if(IOLGC) then
         call gacrea(geom,CD_bas_han,
-     &       nbf_cd,nbf_cd,'CD 2cERInv',iga_cdinv,'row')
+     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
         if(me.eq.0)
-     &       call dft_invio('CDI',iga_cdinv,nbf_cd,'READ',lmiss)
+     &       call dft_invio('CDI',g_cdinv,nbf_cd,'READ',lmiss)
         call ga_sync
       endif
 #if defined(DFT_TIMER)
@@ -243,7 +262,7 @@ c
       do j=1,nbf_cd
         if (j.eq.next) then
           next=nxtval(nproc)+1
-          call get_col(iga_cdinv,
+          call get_col(g_cdinv,
      *         nbf_cd,j,Dbl_MB(iscr))
           AZ=ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
           F(1)=F(1)+AZ*DBL_MB(iTvec+j-1)
@@ -265,7 +284,7 @@ c
         if (j.eq.next) then
           next=nxtval(nproc)+1
           AZ=DBL_MB(iTvec+j-1)+alpha*DBL_MB(icgtf+j-1)
-          call get_col(iga_cdinv,
+          call get_col(g_cdinv,
      *         nbf_cd,j,Dbl_MB(iscr))
           call daxpy(nbf_cd,AZ,DBL_MB(iscr),1,CD_Coef,1)
         endif
@@ -288,7 +307,7 @@ c
       rewind 79
       endif
       call ga_sync
-      if(IOLGC) call gadest(iga_cdinv)
+      if(IOLGC) call gadest(g_cdinv)
 c
 c     calculation of Ecoul1
 c

@@ -1,14 +1,22 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
-     &     iga_vc, Ecoul2, nbf_cd, iga_2ceri,IOLGC,itol2e)
-C$Id: dft_fitvc.F,v 1.4 1995-10-17 08:54:41 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-      
+     &     g_vc, Ecoul2, nbf_cd, g_2ceri,IOLGC,itol2e)
+C$Id: dft_fitvc.F,v 1.5 1995-12-20 03:10:17 og845 Exp $
+      implicit none
+            
 c****
 c**** nwchem handles
 c****
       integer rtdb, geom, AO_bas_han, CD_bas_han
+      integer g_vc    ! GA handle for V Coulomb [output]
+      integer g_2ceri ! GA handle for repulsion int. [input]
+      integer nbf_cd    ! no. CD functions [input]
+      double precision Ecoul2 ! [output]
+      integer itol2e ! bi-el int tolerance [input]
 c**** 
+c      
+c-->  Charge Density Expansion Coefficients
+c      
+      double precision CD_coef(nbf_cd)
 
       Logical LResult,IOLGC
       
@@ -20,19 +28,30 @@ c****
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
+#include "schwarz.fh"
 
 #if defined(DFT_TIMER)
 #include "timer.fh"
 #endif
-c      
-c-->  Charge Density Expansion Coefficients
-c      
-      Dimension CD_coef(nbf_cd)
 c     
 c     Compute the fitted Coulomb potential. The fitting coefficients are
 c     obtained by solving the normal equations for a standard linear least
 c     squares problem.
-c     
+c
+      integer MXshbf_ao,nshells_ao,nshells_cd,MXshbf_cd
+      integer me,nproc,i1,ishp,ishbf,lshbf,lmiss,ischw1,ischw2,
+     ,     icount,Nao2,i,nERI,maxg,mscratch_2e3c,nscr,
+     ,     n1,n2,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
+     ,     nshbfd,nfunz,ifirstp,ilastp,Nint,niter,next,nsh_blocks,
+     ,     ntasks,nshbf_cd
+      integer lcd_shell,icd_shell,lgvec,igvec,lsvec,isvec,
+     ,     lsvec2,isvec2,iERI,lERI,lscr,iscr
+      double precision THRESHOLD,CD_coef_max,shmax,
+     ,     Vcoul_est,ERI_est,schw1,schw2
+      integer nxtask
+      double precision ddot
+      external ddot,nxtask
+c
 #if defined(DFT_TIMER)
       call ga_sync
       call t_stat(10,-1)
@@ -88,9 +107,9 @@ c
   205 continue
       if(IOLGC) then
         call gacrea(geom,CD_bas_han,
-     &       nbf_cd,nbf_cd,'CD 2cERI',iga_2ceri,'row')
+     &       nbf_cd,nbf_cd,'CD 2cERI',g_2ceri,'row')
         if(me.eq.0)
-     &       call dft_invio('CD',iga_2ceri,nbf_cd,'READ',lmiss)
+     &       call dft_invio('CD',g_2ceri,nbf_cd,'READ',lmiss)
         call ga_sync
       endif
 c      
@@ -99,7 +118,6 @@ c
       ischw1 = 0
       ischw2 = 0
       
-      nproc  = ga_nnodes()
       icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
 c      
 c     check for zero ... must be at least 1
@@ -117,7 +135,7 @@ c
       nscr    = mscratch_2e3c
       LResult = MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr)
 
-      call ga_zero(iga_vc)
+      call ga_zero(g_vc)
       n1 = nxtask(nproc,icount)
       n2 = 0
 c
@@ -191,7 +209,7 @@ c
 c             Scatter the computed values of Vcoul.
 c          
               call sca_lab_mat(AO_bas_han,ishc,ishd,nshbfc,nshbfd,
-     &             iga_vc,DBL_MB(isvec),dbl_mb(isvec2))
+     &             g_vc,DBL_MB(isvec),dbl_mb(isvec2))
 
             n1 = nxtask(nproc,icount)
 
@@ -232,7 +250,7 @@ c
       do i=1,nbf_cd
         if(i.eq.next) then
           next=nxtval(nproc)+1
-          call get_col(iga_2ceri,nbf_cd,i,DBL_MB(iscr))
+          call get_col(g_2ceri,nbf_cd,i,DBL_MB(iscr))
           Ecoul2 = Ecoul2+ddot(
      *         nbf_cd,CD_coef,1,Dbl_MB(iscr),1)*CD_coef(i)
         endif
@@ -241,7 +259,7 @@ c
       next=nxtval(-nproc)
       
       Ecoul2=Ecoul2*0.5D0
-      if(IOLGC) call gadest(iga_2ceri)
+      if(IOLGC) call gadest(g_2ceri)
       call ga_dgop(Msg_Ecoul2,Ecoul2,1,'+')
       LResult = MA_Pop_Stack(lscr)
 c      

@@ -1,17 +1,26 @@
       Subroutine dft_getvc( rtdb,geom,AO_bas_han,CD_bas_han,
-     &                     CD_coef,iga_vc,Ecoul,nbf_cd,
-     &                     iVcoul_opt,iga_2ceri,iga_dens,IOLGC,itol2e)
+     &                     CD_coef,g_vc,Ecoul,nbf_cd,
+     &                     iVcoul_opt,g_2ceri,g_dens,IOLGC,itol2e)
 
-C$Id: dft_getvc.F,v 1.3 1995-10-17 08:54:44 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-      logical IOLGC
+C$Id: dft_getvc.F,v 1.4 1995-12-20 03:10:19 og845 Exp $
+      implicit none
+      
 
 c****
 c**** nwchem handles
 c****
       integer rtdb, geom, AO_bas_han, CD_bas_han
-c**** 
+      integer nbf_cd
+      integer g_vc
+      integer g_2ceri
+      integer g_dens(2)
+      integer itol2e
+      double precision Ecoul
+      integer iVcoul_opt
+c
+c     Charge Density Expansion Coefficients
+c
+      double precision CD_coef(nbf_cd)
 #include "bas.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
@@ -19,10 +28,8 @@ c****
 #include "global.fh"
 #include "tcgmsg.fh"
 
-c
-c     Charge Density Expansion Coefficients
-c
-      Dimension CD_coef(nbf_cd),iga_dens(2)
+      logical IOLGC
+      double precision tol2e,Ecoul2
 
 c     
 c     This driver routine solves for the Coulomb potential (Vcoul) by one of the
@@ -38,23 +45,22 @@ c******************************************************************************
 
 c       Compute the Coulomb potential via evaluation of the AO set of 4-ctr ERIs.
         tol2e=10.d0**(-itol2e)
-        call ga_zero(iga_vc)
-        call rhf_fock_2e(geom, AO_bas_han, iga_dens(1), iga_vc, tol2e,
+        call ga_zero(g_vc)
+        call rhf_fock_2e(geom, AO_bas_han, g_dens(1), g_vc, tol2e,
      &       .true., .false., .false.)
         call ga_sync
 c
 c       Compute the Coulomb energy.
 c
-        Ecoul = 0.5d0*ga_ddot(iga_dens(1),iga_vc)
+        Ecoul = 0.5d0*ga_ddot(g_dens(1),g_vc)
 
       else if( iVcoul_opt.eq.1 )then
 c       Compute the Coulomb potential via a LSQ fitting procedure.
         call dft_fitvc( rtdb, geom, AO_bas_han, CD_bas_han,
-     &       CD_coef,iga_vc,Ecoul2,nbf_cd,iga_2ceri,IOLGC,itol2e)
+     &       CD_coef,g_vc,Ecoul2,nbf_cd,g_2ceri,IOLGC,itol2e)
 c
 c       Compute the Coulomb energy.
 c
-c        Ecoul1 = 0.5D0*ga_ddot(iga_dens,iga_vc)
         Ecoul = Ecoul - Ecoul2 
 
       else if( iVcoul_opt.eq.2 )then

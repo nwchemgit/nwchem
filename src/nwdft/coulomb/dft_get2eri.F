@@ -1,21 +1,25 @@
-      Subroutine dft_get2eri(CD_bas_han,iga_2ceri,geom)
+      Subroutine dft_get2eri(CD_bas_han,g_2ceri,geom)
 
-C$Id: dft_get2eri.F,v 1.2 1995-10-17 08:54:43 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-
-      Logical LResult
-
-c****
-c**** nwchem handles
-c****
+C$Id: dft_get2eri.F,v 1.3 1995-12-20 03:10:18 og845 Exp $
+      implicit none
       integer CD_bas_han, geom
+      integer g_2ceri
 c**** 
 #include "bas.fh"
 
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+      
+      Logical LResult
+      integer nshells_cd,MXnshbf_cd,me,nproc,icount,MXint,
+     ,     maxg,mscratch_2e2c,n1,n2,Nint,
+     ,     ishp,ifirstp,ilastp,nshp,
+     ,     ishq,ifirstq,ilastq,nshq
+      integer lbuf,ibuf,lscr,iscr,lvec,ivec
+      integer nxtask
+      external nxtask
+
 
 c--   > Electron Repulsion Integrals
 
@@ -31,7 +35,7 @@ c******************************************************************************
       end if
 c     Initialize ERI.
       call ga_sync
-      call ga_zero(iga_2ceri)
+      call ga_zero(g_2ceri)
 c     Allocate scratch space.
 
       me  = ga_nodeid()
@@ -75,7 +79,7 @@ c     niter  = (nshells_cd*(nshells_cd+1))/2
 
 c           Re-order.  
             call sca_lab_mat( CD_bas_han,ishp,ishq,nshp,nshq,
-     &                        iga_2ceri,DBL_MB(ibuf),DBL_MB(ivec))
+     &                        g_2ceri,DBL_MB(ibuf),DBL_MB(ivec))
 
             n1 = nxtask(nproc,icount)
 
