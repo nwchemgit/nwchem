@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.21 2003-10-19 03:30:58 d3j191 Exp $
+c $Id: pre_links.F,v 1.22 2003-10-31 03:12:01 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -117,12 +117,12 @@ c
       do 101 j=1,nshort
       lseq(4,i+1)=lseq(4,i)
       if(latm(5,ishort(j)).eq.0.or.latm(5,ishort(j)).gt.1) then
-      latm(5,ishort(j))=4
+      latm(5,ishort(j))=2
       else
       call md_abort('inconsistent links',9999)
       endif
       if(latm(5,jshort(j)).eq.0.or.latm(5,jshort(j)).gt.1) then
-      latm(5,jshort(j))=3
+      latm(5,jshort(j))=1
       else
       call md_abort('inconsistent links',9999)
       endif
