@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.30 2004-05-05 19:33:51 bylaska Exp $
+* $Id: cpsdv5.F,v 1.31 2004-05-24 14:43:28 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -190,15 +190,87 @@
       mapping = control_mapping()
 
 
-      ierr = 0 
-      if ((np.gt.(control_ngrid(3)))) then
-        if (taskid.eq.MASTER)
-     >     write(6,*) 'Error: the number of processors must ',
+      !**** Make sure ngrid is consistent with mapping ***
+      ierr = 0
+      if (mapping.eq.1) then
+        if ((np.gt.ngrid(3)).or.(ngrid(2).ne.ngrid(3))) then
+          if (taskid.eq.MASTER) then
+            write(6,*) 'Error: the number of processors must ',
+     >                 ' be in the range ( 1 ...ngrid(3)=',
+     >                   ngrid(3),')'
+           write(6,*) ' and ngrid(2) == ngrid(3), ',
+     >                ' ngrid(2)=',ngrid(2),
+     >                ' ngrid(3)=',ngrid(3)
+          end if
+          ierr=100
+          value = .false.
+          go to 9000
+        end if
+        if (mod(ngrid(1),2).ne.0) then
+          if (taskid.eq.MASTER) then
+           write(6,*)
+     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
+           write(6,*) 'Error: ngrid(1)=',ngrid(1)
+          end if
+          ierr=100
+          value = .false.
+          go to 9000
+        end if
+      end if
+      if (mapping.eq.2) then
+        if (np.gt.(ngrid(2)*ngrid(3))) then
+          if (taskid.eq.MASTER) then
+           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
+     >                ' (ngrid(1)/2+1)*ngrid(2),',
+     >                ' (ngrid(1)/2+1)*ngrid(3))'
+           write(6,*) 'Error: np > ngrid(2)*ngrid(3)'
+           write(6,*) 'Error: the number of processors must ',
      >                 ' be in the range ( 1 ...',
-     >                   control_ngrid(3),')'
-        ierr=100
-        value = .false.
-        go to 9000
+     >                   ngrid(2)*ngrid(3),')'
+          end if
+          ierr=100
+          value = .false.
+          go to 9000
+        end if
+        if (np.gt.((ngrid(1)/2+1)*ngrid(2))) then
+          if (taskid.eq.MASTER) then
+           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
+     >                ' (ngrid(1)/2+1)*ngrid(2),',
+     >                ' (ngrid(1)/2+1)*ngrid(3))'
+           write(6,*) 'Error: np > (ngrid(1)/2+1)*ngrid(2)'
+           write(6,*) 'Error: the number of processors must ',
+     >                 ' be in the range ( 1 ...',
+     >                   (ngrid(1)/2+1)*ngrid(2),')'
+          end if
+          ierr=100
+          value = .false.
+          go to 9000
+        end if
+        if (np.gt.((ngrid(1)/2+1)*ngrid(3))) then
+          if (taskid.eq.MASTER) then
+           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
+     >                ' (ngrid(1)/2+1)*ngrid(2),',
+     >                ' (ngrid(1)/2+1)*ngrid(3))'
+           write(6,*) 'Error: np > (ngrid(1)/2+1)*ngrid(3)'
+           write(6,*) 'Error: the number of processors must ',
+     >                 ' be in the range ( 1 ...',
+     >                   (ngrid(1)/2+1)*ngrid(3),')'
+          end if
+          ierr=100
+          value = .false.
+          go to 9000
+        end if
+        if (mod(ngrid(1),2).ne.0) then
+          if (taskid.eq.MASTER) then
+           write(6,*)
+     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
+           write(6,*) 'Error: ngrid(1)=',ngrid(1)
+          end if
+          ierr=100
+          value = .false.
+          go to 9000
+        end if
+
       end if
 
 
