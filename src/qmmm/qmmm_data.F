@@ -4,10 +4,114 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_data.fh"
+#include "qmmm_params.fh"
 #include "rtdb.fh"
 
       integer irtdb
+c
+      character*32 tag
+      character*32 pname
+      character*32 optimize
+      character*32 interface
+      real*8 eatoms,qatoms
+      logical xyz,xyzq,fixlinks,fixqm
+      integer linkatm,bq_exclude
 
+      pname = "qmmm_data_init: "
+      eatoms = 0.0d0
+      fixlinks = .false.
+      fixqm = .false.
+      linkatm=qmmm_halogen
+      bq_exclude=qmmm_hydrogen
+      optimize='qm'
+      interface='qm'
+c
+      call util_print_centered(6,"QMMM Parameters",32,.true.)
+
+c     initialize rtdb parameters
+      tag = "qmmm:uqmatm"
+      if (.not.rtdb_get(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) then
+        write(*,*) pname//"Warning! qm reference energy is set to", 
+     >             eatoms
+        if (.not.rtdb_put(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) 
+     >      call errquit(pname//'failed to store eatoms',0,
+     >       RTDB_ERR)
+      end if
+
+      tag = "qmmm:fixlinks"
+      write(*,*) "doing "//tag
+      if (.not.rtdb_get(irtdb,tag,mt_log,1,fixlinks)) then
+        if (.not.rtdb_put(irtdb,tag,mt_log,1,fixlinks)) 
+     >      call errquit(pname//'failed to store fixlinks',0,
+     >       RTDB_ERR)
+
+       end if
+
+      tag = "qmmm:xyz"
+      write(*,*) "doing "//tag
+      if (.not.rtdb_get(irtdb,tag,mt_log,1,xyz)) then
+        if (.not.rtdb_put(irtdb,tag,mt_log,1,xyz)) 
+     >      call errquit(pname//'failed to store xyz',0,
+     >       RTDB_ERR)
+
+       end if
+
+      tag = "qmmm:xyzq"
+      write(*,*) "doing "//tag
+      if (.not.rtdb_get(irtdb,tag,mt_log,1,xyzq)) then
+        if (.not.rtdb_put(irtdb,tag,mt_log,1,xyzq)) 
+     >      call errquit(pname//'failed to store xyzq',0,
+     >       RTDB_ERR)
+
+       end if
+
+      tag ="qmmm:fixqm" 
+      write(*,*) "doing "//tag
+      if (.not.rtdb_get(irtdb,tag,mt_log,1,fixqm)) then
+        if (.not.rtdb_put(irtdb,tag,mt_log,1,fixqm)) 
+     >      call errquit(pname//'failed to store fixqm',0,
+     >       RTDB_ERR)
+
+       end if
+
+      tag ="qmmm:bq_exclude" 
+      write(*,*) "doing "//tag
+      if (.not.rtdb_get(irtdb,tag,mt_int,1,bq_exclude)) then
+        if (.not.rtdb_put(irtdb,tag,mt_int,1,bq_exclude)) 
+     >      call errquit(pname//'failed to store bq_exclude',0,
+     >       RTDB_ERR)
+
+       end if
+
+      tag ="qmmm:linkatm" 
+      write(*,*) "doing "//tag
+      if (.not.rtdb_get(irtdb,tag,mt_int,1,linkatm)) then
+        if (.not.rtdb_put(irtdb,tag,mt_int,1,linkatm)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+
+       end if
+     
+      tag ="qmmm:interface"
+      write(*,*) "doing "//tag
+      if (.not.rtdb_cget(irtdb,tag,1,interface)) then
+        if (.not.rtdb_cput(irtdb,tag,1,interface)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+
+       end if
+
+      tag ="qmmm:optimize"
+      write(*,*) "doing "//tag
+      if (.not.rtdb_cget(irtdb,tag,1,optimize)) then
+        if (.not.rtdb_cput(irtdb,tag,1,optimize)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+
+       end if
+
+20    FORMAT(A32,A16,F12.6)
+21    FORMAT(A32,A16,L2)
 
       call mm_get_tot_nqm(nqm)
       call mm_get_tot_nlink(nlink)

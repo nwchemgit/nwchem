@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.24 2004-10-12 19:10:22 marat Exp $
+c $Id: qmmm.F,v 1.25 2004-10-13 23:38:43 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -26,6 +26,9 @@ c     --------------------------------------------
 
       if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
      $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
+
+      call qmmm_print_header(irtdb)
+      call qmmm_print_params(irtdb)
 
       return
       end
@@ -231,5 +234,91 @@ c
       call qmmm_geom_finish(rtdb)
 
       end
-
-
+c
+c      subroutine qmmm_print_header(irtdb)
+c      implicit none
+cc
+c#include "mafdecls.fh"
+c#include "errquit.fh"
+c#include "qmmm_data.fh"
+c#include "qmmm_params.fh"
+c#include "rtdb.fh"
+c
+c      integer irtdb
+cc
+c      character*32 tag
+c      character*32 pname
+c      character*32 optimize
+c      character*32 interface
+c      real*8 eatoms,qatoms
+c      logical xyz,xyzq,fixlinks,fixqm
+c      integer linkatm,bq_exclude
+c
+c      
+c      pname = "qmmm_print_header:"
+c      call util_print_centered(6,"QM/MM Interface Parameters",32,.true.)
+c
+c      tag = "qmmm:uqmatm"
+c      if (.not.rtdb_get(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) then
+c           call errquit(pname//'failed to get '//tag,0,
+c     >       RTDB_ERR)
+c      end if
+c      write(6,20) "reference energy",tag,eatoms
+c
+c      tag = "qmmm:fixlinks"
+c      if (.not.rtdb_get(irtdb,tag,mt_log,1,fixlinks)) then
+c           call errquit(pname//'failed to get '//tag,0,
+c     >       RTDB_ERR)
+c      end if
+c      write(6,21) "fixed link bonds",tag,fixlinks
+c
+c
+c      tag ="qmmm:fixqm" 
+c      if (.not.rtdb_get(irtdb,tag,mt_log,1,fixqm)) then
+c           call errquit(pname//'failed to store fixqm',0,
+c     >       RTDB_ERR)
+c       end if
+c      write(6,21) "fixed qm region",tag,fixqm
+c
+c      tag ="qmmm:bq_exclude" 
+c      if (.not.rtdb_get(irtdb,tag,mt_int,1,bq_exclude)) then
+c           call errquit(pname//'failed to store bq_exclude',0,
+c     >       RTDB_ERR)
+c      end if
+c      if(bq_exclude.eq.qmmm_hydrogen) then
+c        write(6,22) "excluded bq's",tag,"hydrogens bonded to link atoms"
+c      else if(bq_exclude.eq.qmmm_all_atoms) then
+c        write(6,22) "excluded bq's",tag,"all"
+c      else if(bq_exclude.eq.qmmm_no_atoms) then
+c        write(6,22) "excluded bq's",tag,"none"
+c      else
+c        call errquit(pname//'invalid bq_exclude',0,RTDB_ERR)
+c      end if
+c      
+c      tag ="qmmm:linkatm" 
+c      if (.not.rtdb_get(irtdb,tag,mt_int,1,linkatm)) then
+c           call errquit(pname//'failed to store'//tag,0,
+c     >       RTDB_ERR)
+c       end if
+c      if(linkatm.eq.qmmm_hydrogen) then
+c        write(6,22) "link atom type",tag,"hydrogens"
+c      else if(linkatm.eq.qmmm_halogen) then
+c        write(6,22) "link atom type",tag,"halogens"
+c      else
+c        call errquit(pname//'invalid link atom type',0,RTDB_ERR)
+c      end if
+c
+c      tag ="qmmm:optimize"
+c      if (.not.rtdb_cget(irtdb,tag,1,optimize)) then
+c           call errquit(pname//'failed to store'//tag,0,
+c     >       RTDB_ERR)
+c      end if
+c      write(6,22) "optimization region",tag,optimize
+c
+c20    FORMAT(A,T24,A,T46,F12.6)
+c21    FORMAT(A,T24,A,T46,L3)
+c22    FORMAT(A,T24,A,T46,A)
+c
+c
+c      end
+c
