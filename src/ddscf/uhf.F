@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.32 1997-02-17 17:53:55 d3g681 Exp $
+C$Id: uhf.F,v 1.33 1997-03-19 23:17:49 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -65,7 +65,7 @@ c
             write(6,*)
          end if
          write(6,2) scftype, energy, eone, etwo, enrep, 
-     $        sz, s2, s2-sz*(sz+1), uhf_time
+     $        sz, sz*(sz+1), s2, uhf_time
  2       format(//
      $        '       Final ',a4,' results '/
      $        '       ------------------ '//
@@ -74,8 +74,8 @@ c
      $        '      Two electron energy =', f20.12/
      $        ' Nuclear repulsion energy =', f20.12//
      $        '                       Sz =', f12.4/
-     $        '                      S^2 =', f12.4/
-     $        '            Contamination =', f12.4//
+     $        '                 Sz(Sz+1) =', f12.4/
+     $        '                      S^2 =', f12.4//
      $        '        Time for solution =', f9.1,'s'//)
          call util_flush(6)
          call ecce_print1('total energy', mt_dbl, energy, 1)
@@ -179,7 +179,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.32 1997-02-17 17:53:55 d3g681 Exp $
+C     $Id: uhf.F,v 1.33 1997-03-19 23:17:49 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -458,7 +458,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.32 1997-02-17 17:53:55 d3g681 Exp $
+C$Id: uhf.F,v 1.33 1997-03-19 23:17:49 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -549,7 +549,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.32 1997-02-17 17:53:55 d3g681 Exp $
+c     $Id: uhf.F,v 1.33 1997-03-19 23:17:49 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1035,7 +1035,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.32 1997-02-17 17:53:55 d3g681 Exp $
+C$Id: uhf.F,v 1.33 1997-03-19 23:17:49 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
