@@ -1,0 +1,189 @@
+NWChem Version 4.6 Release Notes
+(Also available at 
+http://www.emsl.pnl.gov/docs/nwchem/release-notes/release.notes.4.6.html)
+
+NOTE: These release notes are not a substitute for reading the User Manual!
+They are meant to give a thumbnail sketch of the new capabilities and bug
+fixes that are available in NWChem Version 4.6. When there is a conflict
+between the release notes and the User Manual, the User Manual takes
+precedence. 
+
+The changes for version 4.6 are listed at the bottom of this file.
+
+Several new major capabilities are available in NWChem, including several new
+modules. The new modules are: 
+
+o CCSD(T) and CCSD[T] for closed- and open-shell systems with Abelian symmetry
+  (contributed by Alex Auer, University of Waterloo)
+o EOM-CCSD, EOM-CCSDT, EOM-CCSDTQ for excitation energies, transition
+  moments, and excited-state dipole moments of closed- and open-shell
+  systems
+o CCSD, CCSDT, CCSDTQ for dipole moments of closed- and open-shell
+  systems
+o Constraints module that is capable of freezing atom positions and 
+  restraining bond lengths during optimization.
+
+For each of these capabilities, the user is referred to the User
+Manual for more information. 
+
+Additional major additions to the capabilities include: 
+o van Leeuwen-Baerends potential for DFT and TDDFT
+o Casida-Salahub asymptotic correction for DFT and TDDFT
+o A new self-contained asymptotic correction for B3LYP DFT and TDDFT
+o A new density functional TPSS, energy term only
+o Added the functional HCTH/407+ 
+o A new keyword in TCE to allow/suppress recomputing the Fock
+  matrix.  This is useful for one-component relativistic CI/CC/MBPT/EOM-CC
+o Two new I/O algorithms (DRA and GA+EAF) in TCE
+o QHOP proton hopping method in MD
+o Charmm force field (Urey-Bradley)
+
+Again, for each of these capabilities, the user is referred to the User Manual 
+for more information. 
+
+Listed below are the other major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the User Manual. 
+
+
+Basis:
+  o BUG FIX: Iodine Stuttgart Large Core ECP to conform to the one 
+    published by Bergner et. al. (Mol. Phys. 1993)
+  o Definition of PERMANENT_DEF_DIR, SCRATCH_DEF_DIR
+    NWCHEM_BASIS_LIBRARY_PATH at compile time is gone. These
+    environmental variables will be ignored. Compilation automatically
+    stops if the NWCHEM_TOP name is longer than 65 chars.
+
+BLAS:
+  o Introduce faster dgemm (with more aggressive blocking)
+
+CCSD(T):
+  o Improved memory allocation
+  o BUG FIX: TOL2E convergence parameter is now properly handled
+
+COSMO:
+  o BUG FIX: Mass was used for radius in ECP calculations.
+
+DFT:
+  o Better handling of exponential underflow speeds up certain
+    platforms.
+  o Implemented GA mirroring to address network latency issues
+    (activated by set dft:xcreplicated t)
+  o Speed improvement by introducing more aggressive screening for
+    basis functions evaluations and grid partitioning weights
+  o Added pstat profiling
+  o In-core coulomb algorithm: improved output
+  o XC grid restructuring for getting fault-tolerance in gradients;
+    added "grid nodisk" keyword for skipping I/O operation for grid
+  o Increased limit for grid size
+  o BUG FIX: The final vectors are now printed when requested
+  o BUG FIX: Bq atoms with different charges are no longer considered to 
+    be different atom types
+  o BUG FIX: Fix associated with VWN functional
+  o BUG FIX: d4d group was causing loss of weights normalization
+ 
+
+Geometry:
+  o BUG FIX: geometries containing bqs were causing the autosym
+    module to crash
+  o BUG FIX: autosym was not correctly detecting the degeneracy of the
+    moments of inertia
+
+Hessian:
+  o BUG FIX: Fixes associated with linear dependencies.
+  o CPHF SCF residual error termination is now set to 1d-2 (was 1d-4)
+
+
+Input:
+  o Default memory increased from 200 mb to 400 mb
+
+Integrals: 
+  o Performances improvements in the McMurchie-Davidson algorithm
+  o BUG FIX: increased limpair value to address "getmem memory
+    overflow" problem
+
+MD:
+  o Molecule-based periodic boundary conditions
+  o Revised file formats for frg, sgm and top files
+  o Radius of gyration and diffusion coefficient are optional properties
+  o Reduced memory allocation for work arrays
+  o Prefetching using non-blocking communication
+  o Option to aid in membrane setup
+  o Trajectories recorded in multiple files
+  o Redesign cell-cell list to avoid most common 'lbbl errors'
+  o Multiple parameter databases
+  o Mixed parameter definitions
+  o Improved performance in prepare module for very large systems
+
+MP2:
+  o Added scratchdisk keyword to limit disk usage on a per process base
+
+NBO:
+  o BUG FIX: title writing turned off since requires risky character
+    to integer conversion that breaks many compilers
+  o BUG FIX: Intel compiler 8.0 was crashing on Hollerith characters
+
+Numerical gradient:
+  o BUG FIX: atoms list was corrupted when symmetry is on
+
+NWPW:
+  o Pseudoptential library: NWCHEM_NWPW_LIBRARY_PATH is gone in a
+    similar fashion to what happened to Gaussian basis
+    library. Compilation automatically stops if the NWCHEM_TOP name is
+    longer than 65 chars.
+  o BUG FIX: ELF generation in pspw_dplot fixed.
+  o Mulliken projection now uses pseudoatomic orbitals
+  o Automatic grid conversion 
+  o Preliminary version of HGH pseudopotentials 
+  o PSPW: virtual orbital calculations 
+  o Car-Parrinello: geometry constraints
+  o BAND: Monkhorst-Pack k-point generation 
+  o BAND: LMBFGS minimizer
+  o PAW: free space boundary conditions 
+  o Performances improvements in the non-local pseudopotential 
+    and orthogonalility calculations
+
+Properties:
+  o Ecce support added for NMR properties
+
+
+QMD:
+  o Released restriction on theory type that can be used in the computation.
+
+Rtdb:
+  o Added option to store rtdb in memory (-DDB_INMEM). This option
+    creates a dummy .db file, therefore restart will not work.
+
+SELCI:
+  o Now runs on 64 bit platforms
+
+SCF:
+  o BUG FIX: Linear dependency is accounted for in vector projections
+  o BUG FIX: vectors "lock" was causing hang-ups in certain parallel
+    runs.
+  o Got rid of hard-wired limit of 10,000 basis functions.
+
+TDDFT:
+  o BUG FIX: Fixed S**2 expectation value when frozen core is used
+
+Util:
+  o BUG FIX: made the interface to LSF to estimate wall-time
+    remaining more fault-tolerant
+  o I/O on system with inhomogeneous disk sizes is made more robust
+
+New Platform added:
+  o Mac OSX 10.3 with GNU (gcc and g77 3.4) and IBM (xlf) compilers
+  o Cray X1
+  o Opteron Linux with GNU, Portland Group and PathScale compilers.
+  o Linux ppc64 with IBM compilers
+  o INTERIX platform using the Windows Services For Unix
+    (http://www.microsoft.com/windows/sfu/default.asp) 
+
+New compiler support:
+  o Intel fortran compiler version 8.0 for IA32 and IA64
+  o Use of g77 version 3.3 (3.3.1, 3.3.2 and 3.3.3) is supported, but
+    not recommended. We had to put in place version fix for this
+    compiler (e.g. http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13037)
+    g77 3.1.x 3.2.x and 3.4 are known to work
+   
+
