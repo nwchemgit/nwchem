@@ -50,7 +50,7 @@ class Xrtdb:
     self.text=Text(frame,bd=2,relief="sunken",height=1,width=35)
 
     self.listbox.bind("<ButtonRelease-1>", func=self.select) 
-    #self.listbox.bind("<Double-ButtonRelease-1>",func=self.selectdouble)
+    self.listbox.bind("<Double-ButtonRelease-1>",func=self.selectdouble)
 
     self.button.pack(fill=X)
     self.text.pack(fill=X)
@@ -148,7 +148,16 @@ class Xrtdb:
                                "Delete \t- deletes selected entry.\n"
                                "Edit \t- edits selected entry, optional save.\n"
                                "New \t- makes new entry, prompts for type+name.\n"
-                               "Help \t- this is all that there is.",
+                               "Help \t- this is all that there is.\n"
+                               "\n"
+                               "Single click on item to select it.\n"
+                               "Double click on item to edit it.\n"
+                               "\n"
+                               "When editing\n"
+                               "\t- enter one value per line.\n"
+                               "\t- use true/false for logicals.\n"
+                               "\t- use 'e' in floating point exponents.\n"
+                               "\t- character strings are terminated at EOL.",
                           buttons=["Done"])
     dialog.go()    
   
@@ -161,6 +170,10 @@ class Xrtdb:
     except NWChemError:
       self.set_text("Failed to get info for %s" % name)
       self.selection_clear()
+
+  def selectdouble(self,event):
+    self.select(event)
+    self.edit()
 
   def selection_clear(self):
     self.listbox.select_clear(0,"end")
@@ -177,16 +190,6 @@ class Xrtdb:
     self.text.delete("0.0","end")
     self.text.insert("0.0",string)
 
-  def write_tmpfile(self, values, ma_type):
-    import types
-    tmpfile = open('xrtdbtmp.txt','w+')
-    if (type(values) == type([])):
-      for value in values:
-        tmpfile.write(self.value_to_string(value,ma_type)+'\n')
-    else:
-       tmpfile.write(self.value_to_string(values,ma_type)+'\n')
-    tmpfile.close()
-
   def edit_tmpfile(self):
     import os
     if (os.system('emacs xrtdbtmp.txt')):
@@ -199,6 +202,16 @@ class Xrtdb:
     except:
       pass
 
+  def write_tmpfile(self, values, ma_type):
+    import types
+    tmpfile = open('xrtdbtmp.txt','w+')
+    if (type(values) == type([])):
+      for value in values:
+        tmpfile.write(self.value_to_string(value,ma_type)+'\n')
+    else:
+       tmpfile.write(self.value_to_string(values,ma_type)+'\n')
+    tmpfile.close()
+
   def read_tmpfile(self, ma_type):
     import string
     result = []
@@ -206,16 +219,19 @@ class Xrtdb:
 
     line = tmpfile.readline()
     while (line):
-      for value in string.split(line):
-         if (value):
-           try:
-             result.append(self.string_to_value(string.strip(value),ma_type))
-           except:
-             typename = self.ma_type_name(ma_type)
-             self.set_text("'%s' is not a valid %s" % (value,typename))
-             self.selection_clear()
-             tmpfile.close()
-             raise "Invalid type"
+      if (string.split(line)):
+        for value in string.split(line):
+           if (value):
+             try:
+               result.append(self.string_to_value(string.strip(value),ma_type))
+             except:
+               typename = self.ma_type_name(ma_type)
+               self.set_text("'%s' is not a valid %s" % (value,typename))
+               self.selection_clear()
+               tmpfile.close()
+               raise "Invalid type"
+      else:
+        result.append(" ")
       line = tmpfile.readline()
     tmpfile.close()
     return result
