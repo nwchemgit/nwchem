@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.9 2000-01-05 00:25:53 windus Exp $
+* $Id: task_hessian.F,v 1.10 2000-08-09 17:09:54 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -77,7 +77,8 @@ c
 
       prefix = theory ! Most common
 
-      if (analytic.and.inp_compare(.false.,theory,'scf')) then
+      if ((analytic.and.inp_compare(.false.,theory,'scf')).or.
+     $    (analytic.and.inp_compare(.false.,theory,'dft'))) then
         numerical = .false.
       endif
 c
