@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.125 2002-06-04 21:23:01 d3j191 Exp $
+c $Id: md_start.F,v 1.126 2002-06-04 21:22:50 d3j191 Exp $
 c
       implicit none
 c
@@ -1334,31 +1334,31 @@ c
  1227 format(' 27 : PME Charge Grid Retrieval')
  1228 format(' 28 : PME Reverse 3D-pFFT')
  1229 format(' 29 : PME Energy Evaluation')
- 1230 format(' 20 : PME Synchronization')
- 1231 format(' 21 : PME Forward 3D-pFFT')
- 1232 format(' 22 : PME Synchronization')
- 1233 format(' 23 : Local Coordinates Retrieval')
- 1234 format(' 24 : Local Forces Evaluation')
- 1235 format(' 25 : Local Force Accumulation')
+ 1230 format(' 30 : PME Synchronization')
+ 1231 format(' 31 : PME Forward 3D-pFFT')
+ 1232 format(' 32 : PME Synchronization')
+ 1233 format(' 33 : Local Coordinates Retrieval')
+ 1234 format(' 34 : Local Forces Evaluation')
+ 1235 format(' 35 : Local Force Accumulation')
  1236 format(' 36 : Non-Local Coordinates Retrieval')
  1237 format(' 37 : Non-Local Forces Evaluation')
  1238 format(' 38 : Non-Local Force Accumulation')
  1239 format(' 39 : PME Wait')
- 1240 format(' 30 : PME Forces Evaluation')
- 1241 format(' 31 : PME Forces Communication')
- 1242 format(' 32 : Synchronization')
- 1243 format(' 33 : SPACE Finalization')
- 1244 format(' 34 : QM/MM Forces Evaluation')
- 1245 format(' 35 : Forces Normalization')
+ 1240 format(' 40 : PME Forces Evaluation')
+ 1241 format(' 41 : PME Forces Communication')
+ 1242 format(' 42 : Synchronization')
+ 1243 format(' 43 : SPACE Finalization')
+ 1244 format(' 44 : QM/MM Forces Evaluation')
+ 1245 format(' 45 : Forces Normalization')
  1246 format(' 46 : Guided MD Forces')
  1247 format(' 47 : MD Time Step')
  1248 format(' 48 : SHAKE')
  1249 format(' 49 : CAFE Finalization')
- 1250 format(' 40 : Center of Mass Motion Removal')
- 1251 format(' 41 : SPACE Update')
- 1252 format(' 42 : Property Evaluation')
- 1253 format(' 43 : Property Recording')
- 1254 format(' 44 : TOTAL TIME PER STEP')
+ 1250 format(' 50 : Center of Mass Motion Removal')
+ 1251 format(' 51 : SPACE Update')
+ 1252 format(' 52 : Property Evaluation')
+ 1253 format(' 53 : Property Recording')
+ 1254 format(' 54 : TOTAL TIME PER STEP')
 c          
       endif
       if(itest.gt.0) then
