@@ -60,3 +60,9 @@ task scf
 task scf gradient
 
 task scf gradient numerical
+
+relativistic
+  douglas-kroll dk3full
+end
+
+task scf
