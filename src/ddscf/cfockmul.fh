@@ -1,7 +1,12 @@
-      integer im, jm, lm
-      common /cfockmul/ im(0:255), jm(0:255), lm(0:255)
+      integer maxim, maxim1
+      parameter (maxim = 2048)
+      parameter (maxim1=maxim-1)
+      integer im, jm, lm, im1
+      common /cfockmul/ im(0:maxim1), jm(0:maxim1), lm(0:maxim1),
+     $     im1(1:maxim)
 c
 c     im(i) = i*idim ... set by fock_init_cmul for EVERY new block
+c     im1(i) = (i-1)*nbf ... set by fock_init_rep_cmul
 c
 c     used to eliminate integer multiplication in the fock build
 c

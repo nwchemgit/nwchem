@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.8 1996-01-25 01:13:49 rg240 Exp $
+C$Id: rohf.F,v 1.9 1996-05-14 18:00:05 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -85,7 +85,7 @@ C
          if ( .NOT. bas_numcont(basis, nshells) ) Call ErrQuit(
      $        'rohf: problem with call to bas_numcont', basis)
          call schwarz_print(natoms, nshells)
-      Endif
+      endif
 C
       if (ga_nodeid() .eq. 0) then
          if (util_print('final evals', print_default)) then
@@ -118,10 +118,63 @@ c
          call ga_print(g_movecs)
       endif
 c
+      if (util_print('mulliken', print_high)) then
+         call rohf_mulliken()
+      endif
+c
 c     Clean up common blocks and allocated data and return
 c
       call rohf_tidy
 c
       rohf = converged
+c
+      end
+      subroutine rohf_mulliken
+      implicit none
+#include "cscf.fh"
+#include "global.fh"
+c
+      integer g_cdens, g_odens, g_over
+c
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
+c     First analyze the total density
+c
+      g_cdens = ga_create_atom_blocked(geom, basis, 'rohf_mull:cdens')
+      g_over  = ga_create_atom_blocked(geom, basis, 'rohf_mull:over')
+      call ga_zero(g_cdens)
+      call ga_zero(g_over)
+      call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
+c
+      if (nopen .gt. 0) then
+         g_odens = ga_create_atom_blocked(geom, basis,'rohf_mull:odens')
+         call ga_zero(g_odens)
+      else
+         g_odens = 0            ! Invalid handle
+      endif
+      call rohf_dens(g_movecs, nbf, nclosed, nopen, g_cdens, g_odens)
+      if (nopen .gt. 0)
+     $     call ga_dadd(1.0d0, g_cdens, 1.0d0, g_odens, g_cdens)
+c
+      write(6,*)
+      call util_print_centered(6,
+     $     'Mulliken analysis of the total density', 20,.true.)
+      write(6,*)
+      call mull_pop(geom, basis, g_cdens, g_over)
+c      
+c     Do the open shell(s)
+c
+      if (nopen .gt. 0) then
+         write(6,*)
+         call util_print_centered(6,
+     $        'Mulliken analysis of the open-shell density', 20,.true.)
+         write(6,*)
+         call mull_pop(geom, basis, g_odens, g_over)
+         if (.not. ga_destroy(g_odens)) call errquit('rohf_mull: ga?',0)
+      endif
+c
+      if (.not. ga_destroy(g_over)) call errquit('rohf_mull: ga?',0)
+      if (.not. ga_destroy(g_cdens)) call errquit('rohf_mull: ga?',0)
 c
       end

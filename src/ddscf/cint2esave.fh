@@ -1,0 +1,4 @@
+#ifdef SOLARIS
+c     needed with -stackvar option
+      save ibuf, labels4
+#endif

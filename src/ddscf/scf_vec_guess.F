@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.5 1996-04-19 23:54:47 rg240 Exp $
+C     $Id: scf_vec_guess.F,v 1.6 1996-05-14 18:00:11 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -8,6 +8,7 @@ C     $Id: scf_vec_guess.F,v 1.5 1996-04-19 23:54:47 rg240 Exp $
 #include "bas.fh"
 #include "rtdb.fh"
 #include "cscf.fh"
+#include "cfock.fh"
 c
 c     Form guess vectors on disk for SCF wavefunctions
 c
@@ -22,6 +23,7 @@ c
       character*255 title_vecs, bas_vecs
       integer nbf_vecs, nsets, nmo_vecs(2)
       logical status
+      double precision tolguess
 c
 c     externals
 c
@@ -73,8 +75,13 @@ c
          if (movecs_in .eq. 'atomic') then
             call guess_dens(rtdb, geom, basis, g_aodens)
          endif
+         if (owritefile) then
+            tolguess = tol2e
+         else
+            tolguess = 1e-5
+         endif
          call rhf_dens_to_mo(rtdb, geom, basis, 2*nclosed+nopen,
-     $        nbf, nmo, tol2e,
+     $        nbf, nmo, tolguess,
      $        g_aodens, g_movecs, oskel, dbl_mb(k_eval))
 c
          if (scftype .eq. 'UHF') then
@@ -203,9 +210,14 @@ c     Orthogonalize all input/guess vectors ... do not mix the occupied
 c     with the virtuals.  For the hcore/atomic guess we will have done a
 c     diagonalization so there is no need to orthog. again.
 c
+c     Also record if this is a restart or a startup.
+c
       if (.not. (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore')) then
+         movecs_guess = 'restart'
          call ga_orthog_mos(basis, g_movecs)
          if (scftype .eq. 'UHF') call ga_orthog_mos(basis, g_movecs(2))
+      else
+         movecs_guess = 'start'
       endif
 c
 c     Generate correct occupation numbers

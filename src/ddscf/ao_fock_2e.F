@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.7 1995-12-16 06:19:44 d3g681 Exp $
+c$Id: ao_fock_2e.F,v 1.8 1996-05-14 17:59:49 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -41,6 +41,10 @@ c
       logical status
       logical int2e_test_mem
       external int2e_test_mem
+c
+*      call ao_replicated( geom, basis, nfock, jfac, kfac,
+*     $                    tol2e, oskel, vg_dens, vg_fock )
+*      if (.true.) return
 c     
 c     allocate necessary local temporary arrays on the stack
 c     

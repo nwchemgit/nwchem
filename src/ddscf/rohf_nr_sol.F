@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_nr_sol.F,v 1.2 1996-03-13 22:22:59 d3g681 Exp $
+C     $Id: rohf_nr_sol.F,v 1.3 1996-05-14 18:00:07 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -10,6 +10,7 @@ C     $Id: rohf_nr_sol.F,v 1.2 1996-03-13 22:22:59 d3g681 Exp $
 #include "cscfps.fh"
 #include "util.fh"
 #include "cscf.fh"
+#include "cfock.fh"
 c     
 c     Solve the ROHF equations using a hybrid NR/PCG method
 c     
@@ -39,6 +40,9 @@ c
       logical converged
       logical oprint_parm, oprint_conv, oprint_eval, oprint_vecs
       logical oprint_ls
+c
+      double precision tol2e_save ! Used with variable integral tolerance
+      double precision eprec_tol
 c     
 c     Functions
 c     
@@ -64,7 +68,7 @@ c
       oprint_ls   = util_print('line search', print_high)
       oprint_vecs = util_print('intermediate vectors', print_debug)
       oprint_eval = util_print('intermediate evals', print_debug)
-c     
+c
       if (ga_nodeid().eq.0.and. oprint_parm) then
          write(6,1) gnorm_tol, maxiter, tol2e
          if (ouser_changed_conv) write(6,11) shifts, nr_gswitch
@@ -74,7 +78,7 @@ c
      $        1x,'        Quadratically convergent ROHF',//,
      $        1x,'Convergence threshold     :',9x,1p,e10.3,0p,/,
      $        1x,'Maximum no. of iterations :',9x,i4,/,
-     $        1x,'Integral*density screening:',9x,1p,e10.3,0p)
+     $        1x,'Final Fock-matrix accuracy:',9x,1p,e10.3,0p)
  11      format(/,
      $        1x,'PCG initial level shift   :',9x,f10.3,/,
      $        1x,'PCG change shift at maxg  :',9x,f10.3,/,
@@ -87,6 +91,16 @@ c
      $        1x,'----------------------------------------------',/)
          call util_flush(6)
       endif
+c
+c     Only use low accuracy for startup jobs
+c
+      tol2e_save = tol2e
+      if (.not. (owritefile .or. movecs_guess.eq.'restart')) then
+         tol2e = max(1d-6,tol2e) ! Initial low accuracy
+      endif
+      gnorm = 0.0d0             ! So is not undefined
+      eprec_tol = 100.0d0*tol2e     ! To avoid noise in line search
+      eprec = eprec_tol
 c     
 c     PCG iterative loop
 c     
@@ -104,6 +118,8 @@ c
             call rohf_step_energy(rtdb, step, g_search,
      $           eone, etwo, enrep, energy, g_grad)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
+            eprec = max(gnorm*0.01d0, eprec_tol) ! Aovid noise in LS
+*            write(6,*) ' EPREC ', eprec
             goto 10
 c     
          else if (mode .eq. 'precondition') then
@@ -122,6 +138,28 @@ c     updated MO coefficients.
 c     
             call rohf_rotate_movecs(step, g_search)
             converged = gnorm .lt. gnorm_tol
+            if (tol2e .ne. tol2e_save) then
+c
+c     Switch of variable screening will happen in the middle of a line
+c     search so must ensure that we have sufficient precision in the
+c     energy so that the line
+c     search does not fail.  Also must allow for quadratic convergence.
+c     
+               converged = .false. ! Only converge with high precision
+               if (gnorm .le. max(10.0d0*sqrt(gnorm_tol),1.5d-2)) then
+                  tol2e = tol2e_save
+                  if (util_print('parameters', print_high) .and.
+     $                 ga_nodeid() .eq. 0) then
+                     write(6,2310)
+ 2310                format(/' Partial convergence attained - ',
+     $                    'enabling accurate Fock-build'/)
+                     call util_flush(6)
+                  endif
+               endif
+            else
+c    Reset eprec AFTER we have got a new start at the accurate tolerance
+               eprec_tol = 100.0d0*tol2e     ! To avoid noise in line search
+            endif
             if ((iter.le.maxiter).and.(.not. converged)) then
                if (mod(iter,5).eq.0) 
      $              call ga_orthog_mos(basis, g_movecs)

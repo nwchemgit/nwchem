@@ -7,7 +7,7 @@
 #include "util.fh"
 #include "cscfps.fh"
 c
-c     $Id: fock_2e_file.F,v 1.4 1996-01-11 23:56:30 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.5 1996-05-14 17:59:56 d3g681 Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -143,4 +143,50 @@ c
      $        kfac, fik, tmp )
       end if
 c     
+      end
+      subroutine fock_2e_rep_from_file(geom, basis, nfock, nbf,
+     $     jfac, kfac, tol2e, oskel, dens, fock)
+      implicit none
+#include "util.fh"
+#include "cscfps.fh"
+      integer geom, basis
+      integer nfock, nbf
+      double precision jfac(nfock), kfac(nfock)
+      double precision tol2e
+      logical oskel
+      double precision dens(nfock,nbf*nbf), fock(nfock,nbf*nbf)
+c
+      double precision den_tol, denmax
+      integer ilo, jlo, klo, llo
+      integer ihi, jhi, khi, lhi, i, j
+c
+      logical int2e_get_bf_range, int2e_file_read
+      external int2e_get_bf_range, int2e_file_read
+      integer idamax
+      external idamax
+c
+      denmax = 0.0d0
+      do i = 1, nfock
+         j = idamax(nbf*nbf, dens(i,1), nfock)
+         denmax = max(denmax, abs(dens(i,j)))
+      end do
+      denmax = denmax*5.0       ! Reproduce atomic screening for water!
+      den_tol = min(1d-5,tol2e/denmax) ! Threshold to screen integs only
+      call fock_init_cmul(nbf,nbf,nbf) ! lookup table for f build
+c
+c     Loop over blocks of integral labels
+c
+ 10   if (int2e_get_bf_range(ilo,ihi,jlo,jhi,klo,khi,llo,lhi)) then
+         if (ilo.ne.1 .or. jlo.ne.1 .or. klo.ne.1 .or. llo.ne.1)
+     $        call errquit('not a replicated file?',0)
+         if (ihi.ne.nbf .or. jhi.ne.nbf .or. khi.ne.nbf.or. lhi.ne.nbf)
+     $        call errquit('not a replicated file?',0)
+c
+         call int2e_file_rep_fock(nfock, nbf,
+     $        jfac, kfac, den_tol, dens, fock)
+c
+         goto 10
+c     
+      end if
+c
       end

@@ -1,5 +1,5 @@
 c
-c$Id: cfock.fh,v 1.14 1995-12-29 02:04:09 vg038 Exp $
+c$Id: cfock.fh,v 1.15 1996-05-14 17:59:52 d3g681 Exp $
 c
       integer task_bf         ! Chunking parameter for density matrix
       integer filesize        ! Max integral file size in doubles
@@ -14,7 +14,14 @@ c
       logical oerilabel       ! True if using labels with ERI's
       character*255 int2efilename    ! Stub for integral file name
 c
+      integer maxquartet        ! Blocking ... max request size
+      integer maxpair           ! Blocking ... max pair block size
+      integer maxeri            ! Blocking ... eri buffer size
+      integer maxscr            ! Blocking ... scratch size
+      double precision intacc   ! Accuracy of integrals, 0.0 for variable
+c
       common/cfock/
+     $     intacc,
      $     task_bf,
      $     filesize,
      $     memsize,
@@ -24,6 +31,7 @@ c
      $     dovecs,
      $     g_vecs,
      $     first_atoms, incomplete_atoms,
+     $     maxquartet, maxpair, maxeri, maxscr,
      $     oerilabel
       common/ccfock/int2efilename
 c

@@ -11,6 +11,7 @@
       integer cachesize, filesize
       double precision precision_arg
       logical orestart
+#include "cint2esave.fh"
 c
 c     Open file returning CHEMIO filehandle (not yet)
 c     Return true on success, false on failure
@@ -111,6 +112,7 @@ c
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "msgids.fh"
+#include "cint2esave.fh"
 c
       if (file_opened) close(unitno)
 c
@@ -146,6 +148,7 @@ c
       implicit none
 #include "cint2efile.fh"
 #include "inp.fh"
+#include "cint2esave.fh"
 c
 c     rewind the file ready to read integrals ... hide any header.
 c
@@ -181,7 +184,9 @@ c     Reads do not change n_in_rec.
 c
       logical int2e_buf_write
       external int2e_buf_write
-#include "bitops.fh"
+#include "bitops_decls.fh"
+#include "cint2esave.fh"
+#include "bitops_funcs.fh"
 c
       int2e_set_bf_range = .true.
 c
@@ -259,6 +264,7 @@ c     Hard fail for any other errors.
 c
       logical int2e_buf_read
       external int2e_buf_read
+#include "cint2esave.fh"
 c
       int2e_get_bf_range = .true.
 c
@@ -330,6 +336,7 @@ c
       external int2e_buf_write, int2e_file_write_big
 c
       integer ind
+#include "cint2esave.fh"
 #include "itri.fh"
 c
       int2e_file_write = .true.
@@ -387,6 +394,7 @@ c
       double precision part, absg, g
       logical int2e_buf_write
       external int2e_buf_write
+#include "cint2esave.fh"
 c
       g = gg                    ! Do not modify arguments
       int2e_file_write_big = .true.
@@ -443,6 +451,7 @@ c
       integer ibase, jbase, kbase, lbase
       logical int2e_buf_read
       external int2e_buf_read
+#include "cint2esave.fh"
 c
       int2e_file_read = .true.
       nints = 0
@@ -508,6 +517,7 @@ c
       integer neri
       logical int2e_buf_read
       external int2e_buf_read
+#include "cint2esave.fh"
 c
 c     While (integrals available) read buffers
 c
@@ -532,11 +542,54 @@ c
  1000 continue
 c
       end
+      subroutine int2e_file_rep_fock(nfock, nbf, jfac, kfac,
+     $     tol2e, dens, fock)
+     $     
+      implicit none
+#include "cint2efile.fh"
+c
+c     Add the integrals directly from the IO buffer into the
+c     fock matrices.  This routine eliminates repeated calls
+c     to int2e_file_read which causes unecessary cache flushes
+c     from redundent data movement.  Works for the current
+c     range of indices.  See fock_2e_file.F for usage.
+c
+      integer nbf, nfock
+      double precision tol2e, jfac(*), kfac(*)
+      double precision dens(nfock,nbf*nbf), fock(nfock,nbf*nbf)
+c
+      integer neri
+      logical int2e_buf_read
+      external int2e_buf_read
+#include "cint2esave.fh"
+c
+c     While (integrals available) read buffers
+c
+ 10   if (next_value .gt. n_in_rec) then
+         if (.not. int2e_buf_read()) goto 1000 ! EOF
+      end if
+      if (next_value .gt. n_in_rec) call errquit('i2effb: uh?', 0)
+      if (nleft_in_range .le. 0) goto 1000 ! end of range
+c
+      neri = nleft_in_range
+c
+      call fock_2e_rep_mod_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels(1,next_value), values(next_value), dens, fock)
+c
+      nleft_in_range = nleft_in_range - neri
+      next_value = next_value + neri
+c     
+      goto 10
+c
+ 1000 continue
+c
+      end
       logical function int2e_buf_write()
       implicit none
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
+#include "cint2esave.fh"
 c
 c     Opening of file, allocation of buffer and writing of
 c     info message are all now deferred until the first
@@ -602,6 +655,7 @@ c
       implicit none
 #include "cint2efile.fh"
 #include "mafdecls.fh"
+#include "cint2esave.fh"
 c
       call int2e_buf_clear
       if (cur_rec .gt. n_rec_in_file) then
@@ -645,6 +699,7 @@ c
       subroutine int2e_buf_clear()
       implicit none
 #include "cint2efile.fh"
+#include "cint2esave.fh"
 c
 c     empty the integral buffer ... only the null count of integrals
 c     in the currnt range in the buffer is present and it is zero
@@ -665,7 +720,9 @@ c
 #include "mafdecls.fh"
 c
       integer i, nint_per_dbl, ind, v1, v2, mask, two31
-#include "bitops.fh"
+#include "bitops_decls.fh"
+#include "cint2esave.fh"
+#include "bitops_funcs.fh"
 c
       nint_per_dbl = ma_sizeof(mt_dbl, 1, mt_int)
 c
@@ -707,7 +764,9 @@ c
 #include "mafdecls.fh"
 c
       integer i, nint_per_dbl, ind, v1, v2, two31
-#include "bitops.fh"
+#include "bitops_decls.fh"
+#include "cint2esave.fh"
+#include "bitops_funcs.fh"
 c
       nint_per_dbl = ma_sizeof(mt_dbl, 1, mt_int)
 c
@@ -746,7 +805,9 @@ c
 c
       integer n
 c
-#include "bitops.fh"
+#include "bitops_decls.fh"
+#include "cint2esave.fh"
+#include "bitops_funcs.fh"
 c
       n = labels(1,cntr_ptr)
       labels(1,cntr_ptr) = iand(rshift(n,16),255)
@@ -761,7 +822,9 @@ c
 #include "cint2efile.fh"
 c     
       integer i, j, k, l
-#include "bitops.fh"
+#include "bitops_decls.fh"
+#include "cint2esave.fh"
+#include "bitops_funcs.fh"
 c
       i = labels(1,cntr_ptr)
       j = labels(2,cntr_ptr)
@@ -788,7 +851,7 @@ c
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "sym.fh"
+#include "geom.fh"
 #include "cfock.fh"
 #include "msgids.fh"
 c     
@@ -805,10 +868,11 @@ c     memsize>0 or filesize>0 means already enabled.
 c     
       logical int2e_file_open
       external int2e_file_open
-      integer nbf, avail, mem2, max2e
+      integer nbf, avail, mem2, max2e, natom, natom_unique
       double precision nq
       logical ofirst
       data ofirst /.true./      ! If first call to this routine
+#include "cint2esave.fh"
 c     
       int2e_test_mem = .false.
       if (memsize.ne.0 .or. filesize.ne.0) return
@@ -833,9 +897,13 @@ c     apart from a 10% fluctuation
 c
       if (.not. bas_numbf(basis, nbf))
      $     call errquit('int2e: bad bas',0)
+      if (.not. geom_ncent_unique(geom, natom_unique)) call errquit
+     $     ('int2e_test_mem: bad geom handle?',0)
+      if (.not. geom_ncent(geom, natom)) call errquit
+     $     ('int2e_test_mem: bad geom handle?',0)
 c     
       nq = 0.125d0 * dble(nbf+1)**4 
-      nq = nq / (sym_number_ops(geom)+1)
+      nq = nq * (dble(natom_unique) / dble(natom))
       nq = nq / ga_nnodes()
       nq = nq * 1.1d0 + 2*(rec_len_in_dbl+1) ! Fudge factors for safety
 c

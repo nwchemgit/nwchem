@@ -19,6 +19,7 @@ c     trans      = Translated basis set name
 c     title      = Job title
 c     movecs_in  = Name of input movecs file
 c     movecs_out = Name of output movecs file
+c     movecs_guess=Name of source of guess orbtials (=movecs_in initially)
 c     scftype    = type of SCF (UHF/ROHF)
 c
 c     charge     = nett charge on system
@@ -72,6 +73,7 @@ c
       logical oskel, oadapt, oinitialized, olagr, odiis, olock
       integer pflg, pflg_prev, maxiter, iter, g_movecs
       character*255 movecs_in, movecs_out, title, trans
+      character*8 movecs_guess
       character*4 scftype
       integer l_eval, k_eval, l_occ, k_occ
       integer nriscf, riscf_basis
@@ -99,6 +101,7 @@ c
 c     Characters
 c
       common /ccscf/ 
-     $     movecs_in, movecs_out, trans, title, scftype
+     $     movecs_in, movecs_out, movecs_guess,
+     $     trans, title, scftype
 
      

@@ -196,7 +196,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.25 1996-03-13 22:23:07 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.26 1996-05-14 18:00:09 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -217,10 +217,15 @@ c
             maxiter = 20        ! UHF not yet QC
          endif
       endif
-      if (.not. rtdb_get(rtdb, 'scf:tol2e',
-     $     MT_DBL, 1, tol2e)) tol2e = 1.0d-7
       if (.not.rtdb_get(rtdb, 'scf:thresh',
      $     MT_DBL, 1, gnorm_tol)) gnorm_tol = 1.d-4
+c
+c     Ensure that the default integral selection is sufficient
+c     for the request accuracy of the SCF.  However, allow user override.
+c
+      if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) then
+	 tol2e = min(1.0d-7,gnorm_tol*1d-2)
+      endif
 c
       if (rtdb_get(rtdb, 'scf:level shift info', MT_DBL, 6,shifts))then
          ouser_changed_conv = .true.
@@ -256,20 +261,17 @@ c
 c
       integer chunktmp
       logical orestart
-c
       logical int2e_file_open
       external int2e_file_open
+c
+c     Load balancing information
 c
       if (rtdb_get(rtdb, 'scf:task_bf',
      $     MT_INT, 1, chunktmp)) then
          task_bf = chunktmp
-         if (ga_nodeid().eq.0 .and.
-     $        util_print('information',print_default)) then
-            write(6,2) task_bf
- 2          format(/'Setting fock-build task_bf to', i4)
-            call util_flush(6)
-         endif
       endif
+c
+c     Integral caching/file information
 c
       if (.not. rtdb_get(rtdb, 'int2e:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
@@ -285,7 +287,7 @@ c
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
          if (.not. int2e_file_open(int2efilename, memsize, filesize,
-     $        tol2e*0.01d0, orestart))
+     $        tol2e*0.1d0, orestart))
      $        call errquit('get_fock_param: opening aoints?', 0)
          if (orestart) then
             oreadfile = .true.
@@ -294,10 +296,35 @@ c
          endif
       endif
 c
+c     Blocking integral interface
+c
+      if (.not. rtdb_get(rtdb, 'fock:maxquartet',
+     $     MT_INT, 1, maxquartet)) maxquartet = 10000
+      if (.not. rtdb_get(rtdb, 'fock:maxpair',
+     $     MT_INT, 1, maxquartet)) maxpair = sqrt(dble(maxquartet))
+      if (.not. rtdb_get(rtdb, 'fock:maxeri',
+     $     MT_INT, 1, maxeri)) maxeri = 1296*100 ! 100 d(6) quartets
+      if (.not. rtdb_get(rtdb, 'fock:maxscr',
+     $     MT_INT, 1, maxscr)) maxscr = 0 ! <=0 implies use texas estimate
+      if (.not. rtdb_get(rtdb, 'fock:intacc',
+     $     MT_DBL, 1, intacc)) intacc = 0.0d0 ! Default is variable
+c
 c  Use labels by default
 c
       if (.not. rtdb_get( rtdb, 'int2e:uselabels',  MT_LOG, 1,
      $                    oerilabel)) oerilabel = .true.
+c
+      if (ga_nodeid().eq.0 .and.
+     $     util_print('information',print_high)) then
+         write(6,2) task_bf, maxquartet, maxeri, maxscr, intacc
+ 2       format(/
+     $        ' Setting fock-build task_bf   :', i8/
+     $        '                    maxquartet:', i8/
+     $        '                    maxeri    :', i8/
+     $        '                    maxscr    :', i8/
+     $        '                    intacc    :', 1p,d8.1/)
+         call util_flush(6)
+      endif
 c
       end
       subroutine scf_tidy(rtdb)

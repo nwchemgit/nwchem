@@ -1,6 +1,6 @@
       subroutine rohf_k2cf(basis, nbf, nmo, nclosed, nopen,
      $                     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.8 1996-04-19 16:12:13 rg240 Exp $
+C     $Id: rohf_k2cf.F,v 1.9 1996-05-14 18:00:06 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -33,23 +33,16 @@ c
 *      call ga_orthog_mos(basis, g_result)
 c
       end
-
-
-
-
-
-
-
-c
-c  
-c  Generate U = exp(K)
-c  K is the antisymmetric matrix form of k
-c
       subroutine rohf_k2u( basis, nbf, nmo, nclosed, nopen,
      $                     g_kvec, g_u )
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+c
+c  
+c  Generate U = exp(K)
+c  K is the antisymmetric matrix form of k
+c
 c     
 c     Arguments
 c
@@ -117,4 +110,3 @@ c     Get a unitary 2nd order approximation to exp(K)
 c     
       call matrix_exp(g_u )
       end
-

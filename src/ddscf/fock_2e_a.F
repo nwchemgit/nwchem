@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.20 1996-01-10 16:44:51 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.21 1996-05-14 17:59:54 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -20,7 +20,7 @@ c     see scf_init for input of task_chunks etc.
      $     blocks, nblock)
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.20 1996-01-10 16:44:51 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.21 1996-05-14 17:59:54 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -87,8 +87,9 @@ c
 c     Empirically observe that to compute the fock matrix/energy
 c     to an accuracy of t need to screen on density*integrals
 c     to a precision of about 10^-2*t
+c     THIS IS NO LONGER NECESSARY
 c     
-      den_tol = max(tol2e*0.01d0,1.0d-300) ! To avoid a hard zero
+      den_tol = max(tol2e*0.1d0,1.0d-300) ! To avoid a hard zero
 c
       ijk_prev(1,1) = -1
       ijk_prev(2,1) = -1

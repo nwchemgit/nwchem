@@ -8,10 +8,25 @@ c     Fock-build kernels
 c
       integer i
 c
-      do i = 0,255
+      do i = 0,maxim1
          lm(i) = ldim*i
          jm(i) = jdim*i
          im(i) = idim*i
+      enddo
+c
+      end
+      subroutine fock_init_rep_cmul(nbf)
+      implicit none
+#include "cfockmul.fh"
+      integer nbf
+c
+c     Initialize array to eliminate integer multiplication in
+c     Fock-build kernels ... replicated version
+c
+      integer i
+c
+      do i = 1,nbf
+         im1(i) = (i-1)*nbf
       enddo
 c
       end
@@ -22,7 +37,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -128,7 +143,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -200,7 +215,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -280,7 +295,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -366,7 +381,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -466,7 +481,7 @@ c!!
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -553,7 +568,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -613,7 +628,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -681,7 +696,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -755,7 +770,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -829,4 +844,671 @@ c
          ind4 = ind4 + 4
       end do
 c
+      end
+      subroutine fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, ilab, jlab, klab, llab, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+c     Add scaled labelled integrals into fock matrix blocks ... 
+c     symmetrization will be needed later.
+c     
+c     The _rep_ routines assume that each process has the entire 
+c     fock matrix and that we are not adding into distinct patches
+c     of the matrix.  We also must add in the j/k scaling factors.
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer ilab(neri),jlab(neri),klab(neri),llab(neri)
+      double precision eri(neri)
+      double precision fock(nfock,nbf*nbf), dens(nfock,nbf*nbf)
+      double precision jfac(nfock), kfac(nfock)
+c     
+      integer i, j, k, l, ind, v
+      integer ij, lk, ik, li, lj, jk
+      double precision g, gk, gj
+c
+      if (nfock .eq. 1) then
+         call fock_2e_rep_1_label(nfock, nbf, jfac, kfac, tol2e,
+     $        neri, ilab, jlab, klab, llab, eri, dens, fock)
+         return
+      else if (nfock .eq. 2) then
+         call fock_2e_rep_2_label(nfock, nbf, jfac, kfac, tol2e,
+     $        neri, ilab, jlab, klab, llab, eri, dens, fock)
+         return
+      elseif (nfock .eq. 3) then
+         call fock_2e_rep_3_label(nfock, nbf, jfac, kfac, tol2e,
+     $        neri, ilab, jlab, klab, llab, eri, dens, fock)
+         return
+      else if (nfock .eq. 4) then
+         call fock_2e_rep_4_label(nfock, nbf, jfac, kfac, tol2e,
+     $        neri, ilab, jlab, klab, llab, eri, dens, fock)
+         return
+      endif
+c     
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            i = ilab(ind)
+            j = jlab(ind)
+            k = klab(ind)
+            l = llab(ind)
+*debug
+*            if (i.le.0 .or. i.gt.nbf) call errquit(' i bad', i)
+*            if (j.le.0 .or. j.gt.nbf) call errquit(' j bad', j)
+*            if (l.le.0 .or. l.gt.nbf) call errquit(' l bad', l)
+*            if (k.le.0 .or. k.gt.nbf) call errquit(' k bad', k)
+*
+            ij = i + im1(j)
+            lj = l + im1(j)
+            lk = l + im1(k)
+            ik = i + im1(k)
+            jk = j + im1(k)
+            li = l + im1(i)
+c
+            do v = 1, nfock
+               gj = g*jfac(v)
+               gk = g*kfac(v)
+               fock(v,ij) = fock(v,ij) + gj*dens(v,lk)
+               fock(v,lk) = fock(v,lk) + gj*dens(v,ij)
+               fock(v,ik) = fock(v,ik) + gk*dens(v,lj)
+               fock(v,li) = fock(v,li) + gk*dens(v,jk)
+               fock(v,lj) = fock(v,lj) + gk*dens(v,ik)
+               fock(v,jk) = fock(v,jk) + gk*dens(v,li)
+            end do
+         end if
+      end do
+c     
+      end
+      subroutine fock_2e_rep_1_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, ilab, jlab, klab, llab, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+c     Add scaled labelled integrals into fock matrix blocks ... 
+c     symmetrization will be needed later.
+c     
+c     The _rep_ routines assume that each process has the entire 
+c     fock matrix and that we are not adding into distinct patches
+c     of the matrix.  We also must add in the j/k scaling factors.
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer ilab(neri),jlab(neri),klab(neri),llab(neri)
+      double precision eri(neri)
+      double precision fock(*), dens(*)
+      double precision jfac, kfac
+c     
+      integer i, j, k, l, ind
+      integer ij, kl, ik, il, jl, jk
+      double precision g, gk, gj, fij, fkl, fik, fil, fjl, fjk
+c     
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            gj = g*jfac
+            gk = g*kfac
+c
+            i = ilab(ind)
+            j = jlab(ind)
+            k = klab(ind)
+            l = llab(ind)
+c
+c
+c     Logic behind this choice is that indices vary mostly with
+c     i>=j and k>=l with kl varying fastest ... improved cache hits?
+c     If change this mapping must change overwrite logic below
+c
+            ij = im1(i) + j
+            kl = im1(k) + l
+            if (ij .eq. kl) gj = gj + gj
+c
+c     Using overwrite logic ... separates stores/loads, and enables
+c     partial pipelining of */+ pairs ... at least in principle
+c
+            fij = fock(ij) + gj*dens(kl)
+            fkl = fock(kl) + gj*dens(ij)
+            if (i .eq. j) gk = gk + gk
+            fock(ij) = fij
+            fock(kl) = fkl
+c
+            if (k .eq. l) gk = gk + gk
+c
+            ik = im1(i) + k
+            il = im1(i) + l
+            jl = im1(j) + l
+            jk = im1(j) + k
+c
+            fik = fock(ik) + gk*dens(jl)
+            fil = fock(il) + gk*dens(jk)
+            fjk = fock(jk) + gk*dens(il)
+            fjl = fock(jl) + gk*dens(ik)
+            fock(ik) = fik
+            fock(il) = fil
+            fock(jl) = fjl
+            fock(jk) = fjk
+c
+c     Code without overwrite logic
+c
+c$$$            fock(ij) = fock(ij) + gj*dens(kl)
+c$$$            fock(kl) = fock(kl) + gj*dens(ij)
+c$$$            fock(ik) = fock(ik) + gk*dens(jl)
+c$$$            fock(il) = fock(il) + gk*dens(jk)
+c$$$            fock(jl) = fock(jl) + gk*dens(ik)
+c$$$            fock(jk) = fock(jk) + gk*dens(il)
+         end if
+      end do
+c     
+      end
+      subroutine fock_2e_rep_2_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, ilab, jlab, klab, llab, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+c     Add scaled labelled integrals into fock matrix blocks ... 
+c     symmetrization will be needed later.
+c     
+c     The _rep_ routines assume that each process has the entire 
+c     fock matrix and that we are not adding into distinct patches
+c     of the matrix.  We also must add in the j/k scaling factors.
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer ilab(neri),jlab(neri),klab(neri),llab(neri)
+      double precision eri(neri)
+      double precision fock(nfock,nbf*nbf), dens(nfock,nbf*nbf)
+      double precision jfac(nfock), kfac(nfock)
+c     
+      integer i, j, k, l, ind
+      integer ij, lk, ik, li, lj, jk
+      double precision g, gk1, gj1, gk2, gj2
+c     
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            i = ilab(ind)
+            j = jlab(ind)
+            k = klab(ind)
+            l = llab(ind)
+c
+            ij = i + im1(j)
+            lj = l + im1(j)
+            lk = l + im1(k)
+            ik = i + im1(k)
+            jk = j + im1(k)
+            li = l + im1(i)
+c
+            gj1 = g*jfac(1)
+            gk1 = g*kfac(1)
+            fock(1,ij) = fock(1,ij) + gj1*dens(1,lk)
+            fock(1,lk) = fock(1,lk) + gj1*dens(1,ij)
+            fock(1,ik) = fock(1,ik) + gk1*dens(1,lj)
+            fock(1,li) = fock(1,li) + gk1*dens(1,jk)
+            fock(1,lj) = fock(1,lj) + gk1*dens(1,ik)
+            fock(1,jk) = fock(1,jk) + gk1*dens(1,li)
+c
+            gj2 = g*jfac(2)
+            gk2 = g*kfac(2)
+            fock(2,ij) = fock(2,ij) + gj2*dens(2,lk)
+            fock(2,lk) = fock(2,lk) + gj2*dens(2,ij)
+            fock(2,ik) = fock(2,ik) + gk2*dens(2,lj)
+            fock(2,li) = fock(2,li) + gk2*dens(2,jk)
+            fock(2,lj) = fock(2,lj) + gk2*dens(2,ik)
+            fock(2,jk) = fock(2,jk) + gk2*dens(2,li)
+         end if
+      end do
+c     
+      end
+      subroutine fock_2e_rep_3_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, ilab, jlab, klab, llab, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+c     Add scaled labelled integrals into fock matrix blocks ... 
+c     symmetrization will be needed later.
+c     
+c     The _rep_ routines assume that each process has the entire 
+c     fock matrix and that we are not adding into distinct patches
+c     of the matrix.  We also must add in the j/k scaling factors.
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer ilab(neri),jlab(neri),klab(neri),llab(neri)
+      double precision eri(neri)
+      double precision fock(nfock,nbf*nbf), dens(nfock,nbf*nbf)
+      double precision jfac(nfock), kfac(nfock)
+c     
+      integer i, j, k, l, ind
+      integer ij, lk, ik, li, lj, jk
+      double precision g, gk1, gj1, gk2, gj2, gk3, gj3
+c     
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            i = ilab(ind)
+            j = jlab(ind)
+            k = klab(ind)
+            l = llab(ind)
+c
+            ij = i + im1(j)
+            lj = l + im1(j)
+            lk = l + im1(k)
+            ik = i + im1(k)
+            jk = j + im1(k)
+            li = l + im1(i)
+c
+            gj1 = g*jfac(1)
+            gk1 = g*kfac(1)
+            fock(1,ij) = fock(1,ij) + gj1*dens(1,lk)
+            fock(1,lk) = fock(1,lk) + gj1*dens(1,ij)
+            fock(1,ik) = fock(1,ik) + gk1*dens(1,lj)
+            fock(1,li) = fock(1,li) + gk1*dens(1,jk)
+            fock(1,lj) = fock(1,lj) + gk1*dens(1,ik)
+            fock(1,jk) = fock(1,jk) + gk1*dens(1,li)
+c
+            gj2 = g*jfac(2)
+            gk2 = g*kfac(2)
+            fock(2,ij) = fock(2,ij) + gj2*dens(2,lk)
+            fock(2,lk) = fock(2,lk) + gj2*dens(2,ij)
+            fock(2,ik) = fock(2,ik) + gk2*dens(2,lj)
+            fock(2,li) = fock(2,li) + gk2*dens(2,jk)
+            fock(2,lj) = fock(2,lj) + gk2*dens(2,ik)
+            fock(2,jk) = fock(2,jk) + gk2*dens(2,li)
+c
+            gj3 = g*jfac(3)
+            gk3 = g*kfac(3)
+            fock(3,ij) = fock(3,ij) + gj3*dens(3,lk)
+            fock(3,lk) = fock(3,lk) + gj3*dens(3,ij)
+            fock(3,ik) = fock(3,ik) + gk3*dens(3,lj)
+            fock(3,li) = fock(3,li) + gk3*dens(3,jk)
+            fock(3,lj) = fock(3,lj) + gk3*dens(3,ik)
+            fock(3,jk) = fock(3,jk) + gk3*dens(3,li)
+         end if
+      end do
+c     
+      end
+      subroutine fock_2e_rep_4_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, ilab, jlab, klab, llab, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+c     Add scaled labelled integrals into fock matrix blocks ... 
+c     symmetrization will be needed later.
+c     
+c     The _rep_ routines assume that each process has the entire 
+c     fock matrix and that we are not adding into distinct patches
+c     of the matrix.  We also must add in the j/k scaling factors.
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer ilab(neri),jlab(neri),klab(neri),llab(neri)
+      double precision eri(neri)
+      double precision fock(nfock,nbf*nbf), dens(nfock,nbf*nbf)
+      double precision jfac(nfock), kfac(nfock)
+c     
+      integer i, j, k, l, ind
+      integer ij, lk, ik, li, lj, jk
+      double precision g, gk1, gj1, gk2, gj2, gk3, gj3, gk4, gj4
+c     
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            i = ilab(ind)
+            j = jlab(ind)
+            k = klab(ind)
+            l = llab(ind)
+c
+            ij = i + im1(j)
+            lj = l + im1(j)
+            lk = l + im1(k)
+            ik = i + im1(k)
+            jk = j + im1(k)
+            li = l + im1(i)
+c
+            gj1 = g*jfac(1)
+            gk1 = g*kfac(1)
+            fock(1,ij) = fock(1,ij) + gj1*dens(1,lk)
+            fock(1,lk) = fock(1,lk) + gj1*dens(1,ij)
+            fock(1,ik) = fock(1,ik) + gk1*dens(1,lj)
+            fock(1,li) = fock(1,li) + gk1*dens(1,jk)
+            fock(1,lj) = fock(1,lj) + gk1*dens(1,ik)
+            fock(1,jk) = fock(1,jk) + gk1*dens(1,li)
+c
+            gj2 = g*jfac(2)
+            gk2 = g*kfac(2)
+            fock(2,ij) = fock(2,ij) + gj2*dens(2,lk)
+            fock(2,lk) = fock(2,lk) + gj2*dens(2,ij)
+            fock(2,ik) = fock(2,ik) + gk2*dens(2,lj)
+            fock(2,li) = fock(2,li) + gk2*dens(2,jk)
+            fock(2,lj) = fock(2,lj) + gk2*dens(2,ik)
+            fock(2,jk) = fock(2,jk) + gk2*dens(2,li)
+c
+            gj3 = g*jfac(3)
+            gk3 = g*kfac(3)
+            fock(3,ij) = fock(3,ij) + gj3*dens(3,lk)
+            fock(3,lk) = fock(3,lk) + gj3*dens(3,ij)
+            fock(3,ik) = fock(3,ik) + gk3*dens(3,lj)
+            fock(3,li) = fock(3,li) + gk3*dens(3,jk)
+            fock(3,lj) = fock(3,lj) + gk3*dens(3,ik)
+            fock(3,jk) = fock(3,jk) + gk3*dens(3,li)
+c
+            gj4 = g*jfac(4)
+            gk4 = g*kfac(4)
+            fock(4,ij) = fock(4,ij) + gj4*dens(4,lk)
+            fock(4,lk) = fock(4,lk) + gj4*dens(4,ij)
+            fock(4,ik) = fock(4,ik) + gk4*dens(4,lj)
+            fock(4,li) = fock(4,li) + gk4*dens(4,jk)
+            fock(4,lj) = fock(4,lj) + gk4*dens(4,ik)
+            fock(4,jk) = fock(4,jk) + gk4*dens(4,li)
+         end if
+      end do
+c     
+      end
+      subroutine fock_2e_rep_mod_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+c     Add scaled labelled integrals into fock matrix blocks ... 
+c     symmetrization will be needed later.
+c
+c     MOD routines again use label(4,*) and indices are
+c     offset from zero.
+c     
+c     The _rep_ routines assume that each process has the entire 
+c     fock matrix and that we are not adding into distinct patches
+c     of the matrix.  We also must add in the j/k scaling factors.
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer labels(4,neri)
+      double precision eri(neri)
+      double precision fock(nfock,0:nbf*nbf-1), dens(nfock,0:nbf*nbf-1)
+      double precision jfac(nfock), kfac(nfock)
+c     
+      integer i, j, k, l, ind, v
+      integer ij, lk, ik, li, lj, jk
+      double precision g, gk, gj
+c
+      if (nfock .eq. 1) then
+         call fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+         return
+      else if (nfock .eq. 2) then
+         call fock_2e_rep_mod_2_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+         return
+      else if (nfock .eq. 4) then
+         call fock_2e_rep_mod_4_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+         return
+      endif
+c
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            i = labels(1,ind)
+            j = labels(2,ind)
+            k = labels(3,ind)
+            l = labels(4,ind)
+*     debug
+*            if (i.lt.0 .or. i.ge.nbf) call errquit(' i bad', i)
+*            if (j.lt.0 .or. j.ge.nbf) call errquit(' j bad', j)
+*            if (l.lt.0 .or. l.ge.nbf) call errquit(' l bad', l)
+*            if (k.lt.0 .or. k.ge.nbf) call errquit(' k bad', k)
+
+            ij = i + im(j)      ! im NOT im1 since go from 0
+            lj = l + im(j)
+            lk = l + im(k)
+            ik = i + im(k)
+            jk = j + im(k)
+            li = l + im(i)
+c
+            do v = 1, nfock
+               gj = g*jfac(v)
+               gk = g*kfac(v)
+               fock(v,ij) = fock(v,ij) + gj*dens(v,lk)
+               fock(v,lk) = fock(v,lk) + gj*dens(v,ij)
+               fock(v,ik) = fock(v,ik) + gk*dens(v,lj)
+               fock(v,li) = fock(v,li) + gk*dens(v,jk)
+               fock(v,lj) = fock(v,lj) + gk*dens(v,ik)
+               fock(v,jk) = fock(v,jk) + gk*dens(v,li)
+            end do
+         end if
+      end do
+c     
+      end
+      subroutine fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer labels(4,neri)
+      double precision eri(neri)
+      double precision fock(0:*), dens(0:*)
+      double precision jfac, kfac
+c     
+      integer i, j, k, l, ind
+      integer ij, ik, jk, kl, il, jl
+      double precision g, gk, gj, fij, fkl, fik, fil, fjl, fjk
+c
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            gj = g*jfac
+            gk = g*kfac
+            i = labels(1,ind)
+            j = labels(2,ind)
+            k = labels(3,ind)
+            l = labels(4,ind)
+*     debug
+*            if (i.lt.0 .or. i.ge.nbf) call errquit(' i bad', i)
+*            if (j.lt.0 .or. j.ge.nbf) call errquit(' j bad', j)
+*            if (l.lt.0 .or. l.ge.nbf) call errquit(' l bad', l)
+*            if (k.lt.0 .or. k.ge.nbf) call errquit(' k bad', k)
+c
+c     Logic behind this choice is that indices vary mostly with
+c     i>=j and k>=l with kl varying fastest ... improved cache hits?
+c     If change this mapping must change overwrite logic below
+c
+            ij = im(i) + j      ! NOT im1 since go from 0
+            kl = im(k) + l
+            if (ij .eq. kl) gj = gj + gj
+c
+c     Using overwrite logic ... separates stores/loads, and enables
+c     partial pipelining of */+ pairs ... at least in principle
+c
+            fij = fock(ij) + gj*dens(kl)
+            fkl = fock(kl) + gj*dens(ij)
+            if (i .eq. j) gk = gk + gk
+            fock(ij) = fij
+            fock(kl) = fkl
+c
+            if (k .eq. l) gk = gk + gk
+c
+            ik = im(i) + k
+            il = im(i) + l
+            jl = im(j) + l
+            jk = im(j) + k
+c
+            fik = fock(ik) + gk*dens(jl)
+            fil = fock(il) + gk*dens(jk)
+            fjk = fock(jk) + gk*dens(il)
+            fjl = fock(jl) + gk*dens(ik)
+            fock(ik) = fik
+            fock(il) = fil
+            fock(jl) = fjl
+            fock(jk) = fjk
+c
+c     Code without overwrite logic
+c
+c$$$            fock(ij) = fock(ij) + gj*dens(kl)
+c$$$            fock(kl) = fock(kl) + gj*dens(ij)
+c$$$            fock(ik) = fock(ik) + gk*dens(jl)
+c$$$            fock(il) = fock(il) + gk*dens(jk)
+c$$$            fock(jl) = fock(jl) + gk*dens(ik)
+c$$$            fock(jk) = fock(jk) + gk*dens(il)
+         end if
+      end do
+c     
+      end
+      subroutine fock_2e_rep_mod_2_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer labels(4,neri)
+      double precision eri(neri)
+      double precision fock(2,0:*), dens(2,0:*)
+      double precision jfac(*), kfac(*)
+c     
+      integer i, j, k, l, ind
+      integer ij, ik, jk, kl, il, jl
+      double precision g, gk1, gj1, gj2, gk2
+c
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            i = labels(1,ind)
+            j = labels(2,ind)
+            k = labels(3,ind)
+            l = labels(4,ind)
+c
+            ij = im(i) + j      ! NOT im1 since go from 0
+            ik = im(i) + k
+            il = im(i) + l
+            jl = im(j) + l
+            jk = im(j) + k
+            kl = im(k) + l
+c
+            gj1 = g*jfac(1)
+            gk1 = g*kfac(1)
+            fock(1,ij) = fock(1,ij) + gj1*dens(1,kl)
+            fock(1,kl) = fock(1,kl) + gj1*dens(1,ij)
+            fock(1,ik) = fock(1,ik) + gk1*dens(1,jl)
+            fock(1,il) = fock(1,il) + gk1*dens(1,jk)
+            fock(1,jl) = fock(1,jl) + gk1*dens(1,ik)
+            fock(1,jk) = fock(1,jk) + gk1*dens(1,il)
+c
+            gj2 = g*jfac(2)
+            gk2 = g*kfac(2)
+            fock(2,ij) = fock(2,ij) + gj2*dens(2,kl)
+            fock(2,kl) = fock(2,kl) + gj2*dens(2,ij)
+            fock(2,ik) = fock(2,ik) + gk2*dens(2,jl)
+            fock(2,il) = fock(2,il) + gk2*dens(2,jk)
+            fock(2,jl) = fock(2,jl) + gk2*dens(2,ik)
+            fock(2,jk) = fock(2,jk) + gk2*dens(2,il)
+         end if
+      end do
+c     
+      end
+      subroutine fock_2e_rep_mod_4_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer labels(4,neri)
+      double precision eri(neri)
+      double precision fock(4,0:*), dens(4,0:*)
+      double precision jfac(*), kfac(*)
+c     
+      integer i, j, k, l, ind
+      integer ij, ik, jk, kl, il, jl
+      double precision g, gk1, gj1, gj2, gk2, gj3, gk3, gj4, gk4
+c
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            i = labels(1,ind)
+            j = labels(2,ind)
+            k = labels(3,ind)
+            l = labels(4,ind)
+c
+            ij = im(i) + j      ! NOT im1 since go from 0
+            ik = im(i) + k
+            il = im(i) + l
+            jl = im(j) + l
+            jk = im(j) + k
+            kl = im(k) + l
+c
+            gj1 = g*jfac(1)
+            gk1 = g*kfac(1)
+            fock(1,ij) = fock(1,ij) + gj1*dens(1,kl)
+            fock(1,kl) = fock(1,kl) + gj1*dens(1,ij)
+            fock(1,ik) = fock(1,ik) + gk1*dens(1,jl)
+            fock(1,il) = fock(1,il) + gk1*dens(1,jk)
+            fock(1,jl) = fock(1,jl) + gk1*dens(1,ik)
+            fock(1,jk) = fock(1,jk) + gk1*dens(1,il)
+c
+            gj2 = g*jfac(2)
+            gk2 = g*kfac(2)
+            fock(2,ij) = fock(2,ij) + gj2*dens(2,kl)
+            fock(2,kl) = fock(2,kl) + gj2*dens(2,ij)
+            fock(2,ik) = fock(2,ik) + gk2*dens(2,jl)
+            fock(2,il) = fock(2,il) + gk2*dens(2,jk)
+            fock(2,jl) = fock(2,jl) + gk2*dens(2,ik)
+            fock(2,jk) = fock(2,jk) + gk2*dens(2,il)
+c
+            gj3 = g*jfac(3)
+            gk3 = g*kfac(3)
+            fock(3,ij) = fock(3,ij) + gj3*dens(3,kl)
+            fock(3,kl) = fock(3,kl) + gj3*dens(3,ij)
+            fock(3,ik) = fock(3,ik) + gk3*dens(3,jl)
+            fock(3,il) = fock(3,il) + gk3*dens(3,jk)
+            fock(3,jl) = fock(3,jl) + gk3*dens(3,ik)
+            fock(3,jk) = fock(3,jk) + gk3*dens(3,il)
+c
+            gj4 = g*jfac(4)
+            gk4 = g*kfac(4)
+            fock(4,ij) = fock(4,ij) + gj4*dens(4,kl)
+            fock(4,kl) = fock(4,kl) + gj4*dens(4,ij)
+            fock(4,ik) = fock(4,ik) + gk4*dens(4,jl)
+            fock(4,il) = fock(4,il) + gk4*dens(4,jk)
+            fock(4,jl) = fock(4,jl) + gk4*dens(4,ik)
+            fock(4,jk) = fock(4,jk) + gk4*dens(4,il)
+         end if
+      end do
+c     
       end

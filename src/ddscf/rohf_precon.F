@@ -38,7 +38,6 @@ c
 c
       call ga_maxelt(g_grad, max_grad)
       gnorm = sqrt(ga_ddot(g_grad, g_grad))
-      eprec = max(gnorm*0.01d0, tol2e*100.0d0) ! Approx precision available
 c
  30   continue
 c
