@@ -1,5 +1,5 @@
       subroutine util_flush(unit)
-C$Id: util_flush.F,v 1.17 1999-10-08 22:19:31 edo Exp $
+C$Id: util_flush.F,v 1.18 2004-11-30 03:35:23 edo Exp $
       implicit none
 #include "stdio.fh"
       integer unit
@@ -10,6 +10,9 @@ c
     defined(SOLARIS)  || \
     defined(CRAY_T3D) || defined(CRAY_T3E) || defined(IBM)||defined(LINUX)
       call flush(unit)
+#endif
+#ifdef PSCALE
+      call util_cflush()
 #endif
 #if defined(SGI)
       if (unit.eq.luout) then
