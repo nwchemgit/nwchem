@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.58 1999-03-13 04:14:36 edo Exp $
+#$Id: GNUmakefile,v 1.59 1999-08-12 00:24:55 edo Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(TARGET),SGITFP)
 ifeq ($(TARGET),CRAY-T3D)
@@ -11,7 +11,6 @@ ifeq ($(TARGET),CRAY-T3D)
 	dft_gather.o	dft_scatter.o \
 	get_col.o	\
 	dft_header.o	\
-	pertbl.o	\
 	sca_lab_mat.o	\
 	dft_second.o	\
 	dft_tstamp.o	\
@@ -25,7 +24,6 @@ else
 	get_col.o	\
 	dft_header.o	\
 	dft_invio.o		\
-	pertbl.o	\
 	dft_gather.o	sca_lab_mat.o	dft_scatter.o	\
 	dft_second.o	\
 	dft_tstamp.o	\
@@ -47,7 +45,6 @@ else
 #	get_col.o	\
 #	dft_header.o	\
 #	dft_invio.o		\
-#	pertbl.o	\
 #	dft_gather.o	sca_lab_mat.o	dft_scatter.o	\
 #	dft_second.o	\
 #	dft_tstamp.o	\
@@ -72,7 +69,6 @@ else
 	movecs_log.o \
 	nbf_to_mbf.o \
 	new_eval_gb.o \
-	pertbl.o \
 	sca_lab_mat.o dft_utilmap.o
 
 endif
