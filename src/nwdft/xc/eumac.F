@@ -3,13 +3,12 @@
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
-      Dimension r(1),w(1)
+      Dimension r(*),w(*)
 c
 c Definition of Euler-Maclaurin numerical quadrature points and weights
 c for radial integrals.
 c
 c***************************************************************************
-
       nr = nr+1
 
       fmn = dble(rm)/dble(nr)
@@ -18,7 +17,7 @@ c***************************************************************************
 
        qi = dble(i)/dble(nr)
        ri = alpha*(qi/(1.D0 - qi))**rm
-       wi = fmn*(ri**3)/(qi*(1.D0 - qi))
+       wi = fmn*(ri*ri*ri)/(qi*(1.D0 - qi))
 
        r(i) = ri
        w(i) = wi
