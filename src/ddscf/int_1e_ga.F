@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.24 2000-04-17 21:57:27 zzhang Exp $
+C$Id: int_1e_ga.F,v 1.25 2000-04-19 18:20:48 zzhang Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -141,7 +141,7 @@ c
 c
 c     In-core caching
 c
-      ocache = .false.
+c      ocache = .false.
       if (ocache .and. (ibas.eq.bas1) .and. (jbas.eq.bas1)) then
 *         if (ga_nodeid().eq.0) then
 *           call ga_summarize(1)
