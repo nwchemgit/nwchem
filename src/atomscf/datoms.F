@@ -132,7 +132,7 @@ c
                   if (type .eq. -1) then
                      ispdf = igen ! 1/2 = s/p
                   else
-                     ispdf = type
+                     ispdf = type + 1
                   endif
 c     
                   nbc(ispdf) = nbc(ispdf) + 1
@@ -208,7 +208,7 @@ c..
             zn = charge
             znps = charge
 c     
-            call atomd(.false.,iwrite,znps,ic,isymax,hatom,
+            call atomd(oprin,iwrite,znps,ic,isymax,hatom,
      +           pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +           cvec, copn, smin, qmin, transf, cc, nbb)
 c..   
@@ -223,7 +223,7 @@ c..
 c..   
       if (ga_nodeid().eq.0) then
          write (iwrite,6010) toteng
-         call flush_output()
+         call util_flush(iwrite)
       endif
 c..   
       return

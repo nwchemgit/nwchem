@@ -27,7 +27,7 @@ c
       integer iwrite
       logical oprinv
       integer l2
-      integer nb, no, ntr, nsq
+      integer no, ntr, nsq
       integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
       integer ih, idc, idos, idt, idold, iss, ic, icopn, ismin
       integer iqmin, itransf, icc, last, memq, l_scr, k_scr

@@ -6,7 +6,7 @@ c
 c
       logical oprin
       integer iwr, nbb, isymax
-      integer ic(6,*)
+      integer ic(4,*)
       real *8  pcap(*), qcap(*), fc(*), fo(*), s(*), u(*), t(*)
       real *8  h(*), dc(*), dos(*), dt(*), dold(*), ss(*), hatom(*)
       real *8  c(*),copn(*),smin(nbb,*),qmin(nbb,*),transf(*),cc(*)
