@@ -1,0 +1,22 @@
+echo
+title "ch4+ mpw1k from S. Parthiban and J.M.L. Martin JCP 114,6014-6029 (2001)"
+start dft_mpw1k
+
+geometry
+ C      -0.17835627    -0.07079230     0.00000000
+ H       0.60168160    -0.93456635     0.00000000
+ H      -0.51729906    -1.18414149     0.00000000
+ H      -0.28986450     0.42953812     0.94477639
+ H      -0.28986450     0.42953812    -0.94477639
+end
+charge 1d0
+basis
+* library cc-pvtz
+end
+
+dft
+xc  mpw91 0.572d0 hfexch .428d0 perdew91
+mult 2
+end
+
+task dft optimize
