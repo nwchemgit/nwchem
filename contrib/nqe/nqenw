@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: nqenw,v 1.2 1998-07-29 21:34:29 d3e129 Exp $
+# $Id: nqenw,v 1.3 1998-08-04 18:35:10 d3g681 Exp $
 #
 
 onintr interrupted
@@ -272,10 +272,15 @@ endif
 set REQUEST_NAME = `basename $NQE_JOB .job`
 
 
-# Remove ~ since nqe will not expand it
-set THEINPUT = `echo $INPUT | sed -e "s,~,$PWDHOME,"`
+# Remove ~ since poe will not expand it
+
+# Mmmm ... I suspect that simply echoing is enuf for the shell
+# to expand the tilde ... sed is not needed ? (rjh)
+
+set THEINPUT  = `echo $INPUT | sed -e "s,~,$PWDHOME,"`
 set THEOUTPUT = `echo $OUTPUT | sed -e "s,~,$PWDHOME,"`
-set THE_NQE_ERR = `echo $NQE_ERR | sed -e "s,~,$PWDHOME,"`
+set THEERR    = `echo $NQE_ERR | sed -e "s,~,$PWDHOME,"`
+
 # Remove the .err off of the error file so the jobid can be appended
 # set NQE_ERR = $NQE_ERR:r
 
@@ -296,7 +301,7 @@ cat <<EOF > $NQE_JOB
 #QSUB -lt 3600   # per process limit 
 #QSUB -q $QUEUE
 #QSUB -o $THEOUTPUT
-#QSUB -e $THE_NQE_ERR
+#QSUB -e $THEERR
 #QSUB -l p_mpp_t=$TIME
 #QSUB -l mpp_t=$TIME
 #QSUB -l mpp_p=$NPROC
@@ -350,7 +355,7 @@ endif
 # will not attempt to use the same name
 ############################################################################
 
-touch $OUTPUT
+touch $THEOUTPUT
 
 ############################################################################
 # Normal shell script exit here
