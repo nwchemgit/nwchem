@@ -4,7 +4,7 @@ C     progress_report -- Give the user a progress report for time-
 C     consuming operations
 C
 C REVISION
-C     $Id: prog_report.F,v 1.1 1995-12-13 01:36:56 d3g681 Exp $
+C     $Id: prog_report.F,v 1.2 1996-05-26 20:54:00 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine Progress_Report(LUN, Msg)
@@ -23,6 +23,7 @@ C LOCAL VARIABLES
       Character*50 Date
 C
       If (GA_NodeID() .eq. 0) then
+         Date = ' '
          Call Util_Date( Date )
          Write (LUN, 9000) Msg, Date(:LNBlnk(Date))
          Call Util_Flush(LUN)
