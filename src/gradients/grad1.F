@@ -8,6 +8,7 @@
 #include "global.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "rtdb.fh"
 
       dimension frc ( 3, nat ), idatom(2), scr(lscr)
       dimension H ( lbuf ), 
@@ -21,6 +22,7 @@
       character*16 name
 
       iproc = nodeid()
+      status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       pointforce = rtdb_get(rtdb,'gradients:point', MT_LOG, 1,point) 
       pointforce = (pointforce .and. point)
 
