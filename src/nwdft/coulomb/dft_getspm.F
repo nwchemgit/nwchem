@@ -1,15 +1,24 @@
-      Subroutine dft_getspm(geom,lmax,iga_dens,AO_bas_han)
+      Subroutine dft_getspm(geom,lmax,finest,iga_dens,basis)
 
-C$Id: dft_getspm.F,v 1.4 1995-10-17 08:54:43 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C$Id: dft_getspm.F,v 1.5 1995-10-25 23:45:56 og845 Exp $
+      implicit none
+      integer lmax               ! max value of ang momentum
+      integer iga_dens           ! GA handle for DM
+      integer basis              ! basis handle
+      integer finest             ! finest level for CMM
+      integer  geom
+C
+C     local
+C
+      double precision centerl(3),q
+      double precision total_nuc_charge
       Logical LResult
-      
-c**** 
-c**** nwchem handles
-c**** 
-      integer  geom, AO_bas_han
-      double precision centerl(3)
+      integer natoms,iatom
+      integer max_at_bf,max_at_bf2
+      integer lcoord,icoord,lcharge,icharge,itags,ltags
+      integer ldipole,idipole,lPmat,iPmat
+      integer lxcrd,ixcrd,lycrd,iycrd,lzcrd,izcrd
+      integer i,ihi,istart,ilo,icent
 
 #include "bas.fh"
 #include "geom.fh"
@@ -67,7 +76,7 @@ c****
 
         max_at_bf = 0
         do iatom = 1, natoms
-          if (.not. bas_ce2bfr(AO_bas_han, iatom, ilo, ihi))
+          if (.not. bas_ce2bfr(basis, iatom, ilo, ihi))
      $         call errquit('quadvxc0: bas_ce2bfr failed', iatom)
           max_at_bf = max(max_at_bf, ihi-ilo+1)
         enddo
@@ -77,7 +86,7 @@ c****
      &       iPmat))
      &       call errquit('dft_scf: push_get failed',74)
 
-        call dft_genspm(lmax,iga_dens,AO_bas_han,
+        call dft_genspm(lmax,iga_dens,basis,
      &       natoms,centerl,dbl_MB(iPmat),max_at_bf,
      &       DBL_MB(icharge),DBL_MB(idipole))
 c
@@ -106,8 +115,8 @@ c
 c
 c       call to CMM code
 c
-c       call ???(natoms,dbl_mb(ixcrd),dbl_mb(iycrd),dbl_mb(izcrd),
-c     & dbl_mb(icharge)
+C        call cmm_cmm(natoms,dbl_mb(ixcrd),dbl_mb(iycrd),dbl_mb(izcrd),
+C     &       dbl_mb(icharge),finest)
 
         LResult = MA_Pop_Stack(lzcrd)
         LResult = MA_Pop_Stack(lycrd)
