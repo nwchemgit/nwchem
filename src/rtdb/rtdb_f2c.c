@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.14 1999-05-28 17:43:30 d3g681 Exp $*/
+/*$Id: rtdb_f2c.c,v 1.15 1999-05-29 01:13:51 d3g681 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -25,6 +25,9 @@ int fortchar_to_string(const char *f, int flen, char *buf, const int buflen)
   while (flen-- && fstring[flen] == ' ')
     ;
 
+  if (flen < 0) flen=0;		/* Empty strings break use of strtok 
+				   since consecutive separators are
+				   treated as one */
   if ((flen+1) >= buflen)
     return 0;			/* Won't fit */
 
@@ -36,6 +39,9 @@ int fortchar_to_string(const char *f, int flen, char *buf, const int buflen)
   while (flen-- && f[flen] == ' ')
     ;
 
+  if (flen < 0) flen=0;		/* Empty strings break use of strtok 
+				   since consecutive separators are
+				   treated as one */
   if ((flen+1) >= buflen)
     return 0;			/* Won't fit */
 
