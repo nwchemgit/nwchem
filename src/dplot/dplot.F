@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.8 1999-06-16 00:10:16 d3e129 Exp $
+* $Id: dplot.F,v 1.9 1999-11-10 03:47:33 edo Exp $
 *
       Implicit None
 *     
@@ -221,6 +221,7 @@ c
       If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
          Write(Out_Unit,*)Title(1:Lth_Tit)
          Write(Out_Unit,*)'(1F15.10)'
+!         Write(Out_Unit,*)'(1D20.10)'
       End If
 *
 *---- Get the geometry
@@ -425,6 +426,7 @@ c
          Do i = 1, nGrid
             Sum = Sum + Dbl_mb(k_Vls-1+i)
             Write(Out_Unit,'(f15.10)')Dbl_mb(k_Vls-1+i)
+!            Write(Out_Unit,'(D20.10)')Dbl_mb(k_Vls-1+i)
          End Do
          AppCh = Sum*Volume
          If (What.eq.'DENSITY') Then
@@ -512,6 +514,9 @@ c      Call GADest(g_Vec(1))
 *
 *---- Normal termination
       DPlot = .TRUE.
+
+      If (.not.Bas_destroy(AO_Bas_Han,'ao basis'))
+     &   Call ErrQuit('DPlot: Bas_destroy failed',0)
       Return
 *
 *---- Error exit
