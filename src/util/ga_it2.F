@@ -1,5 +1,6 @@
-      subroutine product(g_x, g_Ax)
+      subroutine test_product(acc,g_x, g_Ax)
       implicit none
+      double precision acc
       integer g_x, g_Ax
 c
       integer g_a
@@ -11,10 +12,11 @@ c
       call ga_dgemm('n', 'n', n, nvec, n, 1.0d0, g_A, g_x, 0.0d0, g_Ax)
 c
       end
-      subroutine precond(g_x)
+      subroutine test_precond(g_x,shift)
       implicit none
 #include "global.fh"
       integer g_x
+      double precision shift
       integer n, nvec, type
       integer i, ivec
       double precision x
@@ -24,7 +26,7 @@ c
          do ivec = 1, nvec
             do i = 1, n
                call ga_get(g_x, i, i, ivec, ivec, x, 1)
-               x = x / dble(i)
+               x = x / (dble(i) - shift)
                call ga_put(g_x, i, i, ivec, ivec, x, 1)
             end do
          end do
@@ -39,7 +41,7 @@ c
       integer n, nvec, maxsub, maxiter
       parameter (n=5000, nvec=100)
       integer g_x, g_b
-      external precond, product
+      external test_precond, test_product
 c
       integer g_a
       common /testme/ g_a
@@ -68,7 +70,7 @@ c
       call ga_sync()
 c
       call ga_copy(g_b, g_x)
-      call precond(g_x)
+      call test_precond(g_x,0.0d0)
 c
 ****      call ga_get(g_a, 1, n, 1, n, a, n)
 ****      call ga_get(g_b, 1, n, 1, nvec, b, n)
@@ -76,16 +78,14 @@ c
 ****      write(6,*) ' info ', info
 ****      call ga_put(g_x, 1, n, 1, nvec, b, n)
 c
-      call ga_lkain(g_x, g_b, product, precond, 1d-6, maxsub, 
+      call ga_lkain(g_x, g_b, test_product, test_precond, 1d-6, maxsub, 
      $     maxiter,.true.,.true.)
       call ga_summarize(0)
       call ma_summarize_allocated_blocks()
       call errquit('done',0)
 c
       end
-      subroutine ga_lkain(
-     $     g_x, g_b,
-     $     product, precond, 
+      subroutine ga_lkain(g_x, g_b, product, precond, 
      $     tol, mmaxsub, maxiter, odiff, oprint)
       implicit none
 #include "mafdecls.fh"
@@ -104,13 +104,15 @@ c
 c
 c     Solves the linear equations A(X)=0 for multiple vectors.
 c
-c     call product(g_x, g_Ax)
-c     . where g_x contains the vectors and g_Ax should be filled
-c     . with the product vectors.  The no. of vectors (columns) in
+c     call product(acc,g_x, g_Ax)
+c     . acc is the accuracy trequired for each element of the product
+c     . g_x contains the vectors and g_Ax should be filled
+c     .     with the product vectors.  The no. of vectors (columns) in
 c     . g_x might differ from the no. of vectors input to ga_lkain().
 c
-c     call precond(g_x)
-c     . apply preconditioning directly to the vectors in g_x
+c     call precond(g_x,shift)
+c     . apply preconditioning directly to the vectors in g_x with the
+c     . optional shift (not used here but used by the diagonalizer)
 c
 c     On input g_x should contain an initial guess.  It returns the
 c     solution.
@@ -119,15 +121,17 @@ c     maxsub should be at least 3*nvec and can be beneficially increased
 c     to about 10*nvec.
 c
 c     Needs to be extended to store the sub-space vectors out-of-core
+c     at least while the product() routine is being executed.
 c
       integer iter, n, nvec, nsub, isub, type, maxsub
       integer g_y, g_Ay, g_Ax, g_r, g_a, g_bb, g_c, g_xold, g_Axold
-      double precision rmax
+      double precision rmax, acc
       logical converged
       logical odebug
 c
       odebug = util_print('debug lsolve', print_never) .and. 
      $     ga_nodeid().eq.0
+      acc = 0.01d0*tol
 c
       call ga_inquire(g_x, type, n, nvec)
       maxsub = mmaxsub          ! So don't modify input scalar arg
@@ -178,7 +182,7 @@ c
          if (odiff) then
             call ga_add(1.0d0, g_x, -1.0d0, g_xold,  g_x)
          end if
-         call product(g_x, g_Ax)
+         call product(acc,g_x, g_Ax)
          if (odiff) then
             call ga_add(1.0d0, g_Ax, 1.0d0, g_Axold, g_Ax)
             call ga_add(1.0d0, g_x,  1.0d0, g_xold,  g_x)
@@ -199,8 +203,8 @@ c
             converged = .true.
             goto 100
          end if
-         call precond(g_Ax)
-         call precond(g_r)
+         call precond(g_Ax,0.0d0)
+         call precond(g_r,0.0d0)
 c
 c     Copy the vectors to the subspace work area
 c
@@ -237,7 +241,7 @@ c     realistic examples (maxsub << n) there is only a little
 c     advantage and in the precence of real noise in the products
 c     screening with a realistic threshold is important.
 c
-         call ga_svd_solve_seq(g_a,g_bb,g_c,tol*1d-2)
+         call ga_svd_solve_seq(g_a,g_bb,g_c,acc)
          if (odebug) call ga_print(g_c)
 c
 c     Form and add the correction, in parts, onto the solution
