@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.57 2000-01-25 20:14:23 mg201 Exp $
+c $Id: int_init.F,v 1.58 2000-02-04 01:05:53 mg201 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -53,6 +53,8 @@ c
      &    nesc_1e_approx = .false.
       if (.not. rtdb_get(rtdb,'ss_one_cent',mt_log,1,ss_one_cent))
      &    ss_one_cent = .false.
+      if (.not. rtdb_get(rtdb,'do_ssss',mt_log,1,do_ssss)) 
+     &    do_ssss = .false.
 c
 c     Setup array with basis sets from bases
 c

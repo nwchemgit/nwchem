@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.21 2000-01-25 19:58:27 mg201 Exp $
+c $Id: apiP.fh,v 1.22 2000-02-04 01:05:04 mg201 Exp $
 c
 c common block that holds memory information
 c
@@ -62,13 +62,14 @@ c
       logical atomic_nesc    ! NESC with atomic 4-spinors, ie no -ve energy states
       logical nesc_1e_approx ! Rel approx for 1e integrals; 2e approx with bare 1/r12
       logical ss_one_cent    ! Rel approx for 2e integrals, only do SS 1-center density
+      logical do_ssss        ! toggle computation of SSSS integrals
 c
       integer lc_bsh    ! large component basis set handle
       integer sc_bsh    ! small component basis set handle 
       integer ao_bsh    ! copy of ao basis set handle 
 c
       common /dmd_log/dyall_mod_dir,atomic_nesc,nesc_1e_approx,
-     &    ss_one_cent
+     &    ss_one_cent,do_ssss
       common /dmd_bsh/lc_bsh,sc_bsh,ao_bsh
 c
 c Douglas-Kroll settings for the API
