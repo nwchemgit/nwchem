@@ -1,4 +1,4 @@
-c $Id: zeroint.f,v 1.3 1997-06-06 21:12:31 pg481 Exp $
+c $Id: zeroint.f,v 1.4 2002-10-01 00:10:07 edo Exp $
 c* This is used to substitute ZERO in Buffers when some
 c* of quartets do not appear First time (they are neglected)
 c*
@@ -318,32 +318,39 @@ cccc  subroutine zerout(nbls,nbls2,ngcd, idxnot, azero,l1,l2,i1,i2)
       subroutine zerout(narr,nbls,nbls2,ngcd, idxnot, azero,l1,l2,i1,i2)
       implicit real*8 (a-h,o-z)
       dimension idxnot(*)
-      dimension azero(narr,nbls,l1,l2,ngcd)
+c2002 dimension azero(narr,nbls,l1,l2,ngcd)
+      dimension azero(nbls,l1,l2,ngcd,narr)
 c     
       if (ngcd .gt. 1) then
+       do iarr=1,narr
          do iqu=1,ngcd
             do kl=i2,l2
                do ij=i1,l1
                   do i=1,nbls2
                      ijkl=idxnot(i)
-                     do iarr=1,narr
-                        azero(iarr,ijkl,ij,kl,iqu)=0.0d0
-                     enddo
+c................... do iarr=1,narr
+c...................    azero(iarr,ijkl,ij,kl,iqu)=0.0d0
+                        azero(ijkl,ij,kl,iqu,iarr)=0.0d0
+c................... enddo
                   enddo
                enddo
             enddo
          enddo
+       enddo
       else
+       do iarr=1,narr
          do kl=i2,l2
             do ij=i1,l1
                do i=1,nbls2
                   ijkl=idxnot(i)
-                  do iarr=1,narr
-                     azero(iarr,ijkl,ij,kl,1)=0.0d0
-                  enddo
+c................ do iarr=1,narr
+c................    azero(iarr,ijkl,ij,kl,1)=0.0d0
+                     azero(ijkl,ij,kl,1,iarr)=0.0d0
+c................ enddo
                enddo
             enddo
          enddo
+       enddo
       endif
 c     
       end

@@ -1,4 +1,4 @@
-* $Id: derivat.f,v 1.5 1999-07-29 01:05:48 d3e129 Exp $
+* $Id: derivat.f,v 1.6 2002-10-01 00:10:07 edo Exp $
 c===================================================================
 c This file contains all dintegral derivatives routines :
 c for nmr/giao integral derivatives
@@ -711,7 +711,8 @@ c
       common /logic11/ npxyz(3,1)
 c
 cccc  dimension buf2(4,nbls,lnijr,lnklr,ngcd) OR buf2(10,etc.)
-      dimension buf2(ndim,nbls,lnijr,lnklr,ngcd)
+c2002 dimension buf2(ndim,nbls,lnijr,lnklr,ngcd)
+      dimension buf2(nbls,lnijr,lnklr,ngcd,ndim)
       dimension deriv(9,nbls,lnij,lnkl,ngcd),der00(nbls,lnij,lnkl,ngcd)
       dimension xab(nbls,3)
 c-------------------------------------------------------------------
@@ -781,33 +782,33 @@ c
       do 225 iqu=1,ngcd
         do 250 ijkl=1,nbls
 c---------------
-        two_a_x=buf2(2,ijkl,ijpx,kl,iqu) 
-        two_a_y=buf2(2,ijkl,ijpy,kl,iqu) 
-        two_a_z=buf2(2,ijkl,ijpz,kl,iqu) 
+        two_a_x=buf2(ijkl,ijpx,kl,iqu,2) 
+        two_a_y=buf2(ijkl,ijpy,kl,iqu,2) 
+        two_a_z=buf2(ijkl,ijpz,kl,iqu,2) 
 c
-        two_b_0=buf2(3,ijkl,ij,kl,iqu) 
-        two_b_x=buf2(3,ijkl,ijpx,kl,iqu) 
-        two_b_y=buf2(3,ijkl,ijpy,kl,iqu) 
-        two_b_z=buf2(3,ijkl,ijpz,kl,iqu)
+        two_b_0=buf2(ijkl,ij,kl,iqu,3) 
+        two_b_x=buf2(ijkl,ijpx,kl,iqu,3) 
+        two_b_y=buf2(ijkl,ijpy,kl,iqu,3) 
+        two_b_z=buf2(ijkl,ijpz,kl,iqu,3)
 c
-        two_c_x=buf2(4,ijkl,ij,klpx,iqu) 
-        two_c_y=buf2(4,ijkl,ij,klpy,iqu) 
-        two_c_z=buf2(4,ijkl,ij,klpz,iqu) 
+        two_c_x=buf2(ijkl,ij,klpx,iqu,4) 
+        two_c_y=buf2(ijkl,ij,klpy,iqu,4) 
+        two_c_z=buf2(ijkl,ij,klpz,iqu,4) 
 c
 c---------------
-        der00(ijkl,ij,kl,iqu)=buf2(1,ijkl,ij,kl,iqu)
+        der00(ijkl,ij,kl,iqu)=buf2(ijkl,ij,kl,iqu,1)
 c---------------
 c--X deriv.
 c
         if(n_ab_x.gt.0) then
-           x_n_ab=n_ab_x*buf2(1,ijkl,ijmx,kl,iqu)
+           x_n_ab=n_ab_x*buf2(ijkl,ijmx,kl,iqu,1)
            deriv(1,ijkl,ij,kl,iqu)=two_a_x - x_n_ab
         else
            deriv(1,ijkl,ij,kl,iqu)=two_a_x
         endif
         deriv(2,ijkl,ij,kl,iqu)=two_b_x + xab(ijkl,1)*two_b_0
         if(n_cd_x.gt.0) then
-           x_n_cd=n_cd_x*buf2(1,ijkl,ij,klmx,iqu)
+           x_n_cd=n_cd_x*buf2(ijkl,ij,klmx,iqu,1)
            deriv(3,ijkl,ij,kl,iqu)=two_c_x - x_n_cd
         else
            deriv(3,ijkl,ij,kl,iqu)=two_c_x
@@ -816,14 +817,14 @@ c---------------
 c--Y deriv.
 c
         if(n_ab_y.gt.0) then
-           y_n_ab=n_ab_y*buf2(1,ijkl,ijmy,kl,iqu)
+           y_n_ab=n_ab_y*buf2(ijkl,ijmy,kl,iqu,1)
            deriv(4,ijkl,ij,kl,iqu)=two_a_y - y_n_ab
         else
            deriv(4,ijkl,ij,kl,iqu)=two_a_y
         endif
         deriv(5,ijkl,ij,kl,iqu)=two_b_y + xab(ijkl,2)*two_b_0
         if(n_cd_y.gt.0) then
-           y_n_cd=n_cd_y*buf2(1,ijkl,ij,klmy,iqu)
+           y_n_cd=n_cd_y*buf2(ijkl,ij,klmy,iqu,1)
            deriv(6,ijkl,ij,kl,iqu)=two_c_y - y_n_cd
         else
            deriv(6,ijkl,ij,kl,iqu)=two_c_y
@@ -832,14 +833,14 @@ c---------------
 c--Z deriv.
 c
         if(n_ab_z.gt.0) then
-           z_n_ab=n_ab_z*buf2(1,ijkl,ijmz,kl,iqu)
+           z_n_ab=n_ab_z*buf2(ijkl,ijmz,kl,iqu,1)
            deriv(7,ijkl,ij,kl,iqu)=two_a_z - z_n_ab
         else
            deriv(7,ijkl,ij,kl,iqu)=two_a_z
         endif
         deriv(8,ijkl,ij,kl,iqu)=two_b_z + xab(ijkl,3)*two_b_0
         if(n_cd_z.gt.0) then
-           z_n_cd=n_cd_z*buf2(1,ijkl,ij,klmz,iqu)
+           z_n_cd=n_cd_z*buf2(ijkl,ij,klmz,iqu,1)
            deriv(9,ijkl,ij,kl,iqu)=two_c_z - z_n_cd
         else
            deriv(9,ijkl,ij,kl,iqu)=two_c_z
@@ -1135,7 +1136,8 @@ c
       common /logic10/ nmxyz(3,1)
       common /logic11/ npxyz(3,1)
 c
-      dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+      dimension buf2(nbls,lnijr,lnklr,ngcd,10)
 cccc  dimension der0(nbls,lnij,lnkl,ngcd)        these two are constracted
 cccc  dimension der1(9,nbls,lnij,lnkl,ngcd)      when first_der is called
       dimension der2(45,nbls,lnij,lnkl,ngcd)
@@ -1387,7 +1389,7 @@ c=================================================================
       common /logic10/ nmxyz(3,1)
       common /logic11/ npxyz(3,1)
 c
-      dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+      dimension buf2(nbls,lnijr,lnklr,ngcd,10)
       dimension der2(45,nbls,lnij,lnkl,ngcd)
 c
       do 200 kl=nfu(nqkl)+1,lnkl
@@ -1433,16 +1435,16 @@ c       two_a_mi_pj=buf2(2,ijkl,ij_mi_pj, kl,iqu)
 c       two_a_pi_mj=buf2(2,ijkl,ij_pi_mj, kl,iqu) 
 c       two_0_mi_mj=buf2(1,ijkl,ij_mi_mj, kl,iqu) 
 c
-      der=buf2(8,ijkl,ij_pi_pj, kl,iqu) 
+      der=buf2(ijkl,ij_pi_pj, kl,iqu,8) 
 c
       if(ij_mi_pj.gt.0) then
-         der=der-n_ij_00_i*buf2(2,ijkl,ij_mi_pj, kl,iqu) 
+         der=der-n_ij_00_i*buf2(ijkl,ij_mi_pj, kl,iqu,2) 
       endif
       if(ij_pi_mj.gt.0) then
-         der=der-n_ij_pi_j*buf2(2,ijkl,ij_pi_mj, kl,iqu) 
+         der=der-n_ij_pi_j*buf2(ijkl,ij_pi_mj, kl,iqu,2) 
       endif
       if(ij_mi_mj.gt.0) then
-         der=der+n_ij_00_i*n_ij_mi_j*buf2(1,ijkl,ij_mi_mj, kl,iqu)
+         der=der+n_ij_00_i*n_ij_mi_j*buf2(ijkl,ij_mi_mj, kl,iqu,1)
       endif
 c
       der2(nder_aa,ijkl,ij,kl,iqu)=der
@@ -1463,7 +1465,8 @@ c=================================================================
       common /logic10/ nmxyz(3,1)
       common /logic11/ npxyz(3,1)
 c
-      dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+      dimension buf2(nbls,lnijr,lnklr,ngcd,10)
       dimension der2(45,nbls,lnij,lnkl,ngcd)
 c
       do 200 kl=nfu(nqkl)+1,lnkl
@@ -1504,15 +1507,15 @@ c       two_c_mi_pj=buf2( 4,ijkl,ij,kl_mi_pj,iqu)
 c       two_c_pi_mj=buf2( 4,ijkl,ij,kl_pi_mj,iqu) 
 c       two_0_mi_mj=buf2( 1,ijkl,ij,kl_mi_mj,iqu) 
 c
-      der=buf2(10,ijkl,ij,kl_pi_pj,iqu) 
+      der=buf2(ijkl,ij,kl_pi_pj,iqu,10) 
       if(kl_mi_pj.gt.0) then
-        der=der-n_kl_00_i*buf2(4,ijkl,ij,kl_mi_pj,iqu) 
+        der=der-n_kl_00_i*buf2(ijkl,ij,kl_mi_pj,iqu,4) 
       endif
       if(kl_pi_mj.gt.0) then
-        der=der-n_kl_pi_j*buf2(4,ijkl,ij,kl_pi_mj,iqu) 
+        der=der-n_kl_pi_j*buf2(ijkl,ij,kl_pi_mj,iqu,4) 
       endif
       if(kl_mi_mj.gt.0) then
-        der=der+n_kl_00_i*n_kl_mi_j*buf2(1,ijkl,ij,kl_mi_mj,iqu) 
+        der=der+n_kl_00_i*n_kl_mi_j*buf2(ijkl,ij,kl_mi_mj,iqu,1) 
       endif
 c
       der2(nder_cc,ijkl,ij,kl,iqu)=der
@@ -1533,7 +1536,8 @@ c=================================================================
       common /logic10/ nmxyz(3,1)
       common /logic11/ npxyz(3,1)
 c
-      dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+      dimension buf2(nbls,lnijr,lnklr,ngcd,10)
       dimension der2(45,nbls,lnij,lnkl,ngcd)
       dimension xab(nbls,3)
 ctest
@@ -1556,12 +1560,12 @@ c       four_b_pj  =buf2(9,ijkl,ij_pj   , kl,iqu)
 c       four_b_0   =buf2(9,ijkl,ij      , kl,iqu) 
 c       two_b_0    =buf2(3,ijkl,ij      , kl,iqu) 
 c
-      der=                  buf2(9,ijkl,ij_pi_pj,kl,iqu) 
-     *              +xab(ijkl,jcart)*buf2(9,ijkl,ij_pi,kl,iqu) 
-     *              +xab(ijkl,icart)*buf2(9,ijkl,ij_pj,kl,iqu) 
-     *   +xab(ijkl,icart)*xab(ijkl,jcart)*buf2(9,ijkl,ij,kl,iqu) 
+      der=                  buf2(ijkl,ij_pi_pj,kl,iqu,9) 
+     *              +xab(ijkl,jcart)*buf2(ijkl,ij_pi,kl,iqu,9) 
+     *              +xab(ijkl,icart)*buf2(ijkl,ij_pj,kl,iqu,9) 
+     *   +xab(ijkl,icart)*xab(ijkl,jcart)*buf2(ijkl,ij,kl,iqu,9) 
 
-      if(jcart.eq.icart) der=der-buf2(3,ijkl,ij,kl,iqu) 
+      if(jcart.eq.icart) der=der-buf2(ijkl,ij,kl,iqu,3) 
 c
       der2(nder_bb,ijkl,ij,kl,iqu)=der
 c
@@ -1591,7 +1595,8 @@ c=================================================================
       common /logic10/ nmxyz(3,1)
       common /logic11/ npxyz(3,1)
 c
-      dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+      dimension buf2(nbls,lnijr,lnklr,ngcd,10)
       dimension der2(45,nbls,lnij,lnkl,ngcd)
       dimension xab(nbls,3)
 ctest
@@ -1626,15 +1631,15 @@ c
 c       two_b_mi_pj=buf2(3,ijkl,ij_mi_pj, kl,iqu) 
 c       two_b_mi   =buf2(3,ijkl,ij_mi   , kl,iqu) 
 c
-      der=                buf2(5,ijkl,ij_pi_pj, kl,iqu) 
-     *         +xab(ijkl,jcart)*buf2(5,ijkl,ij_pi   , kl,iqu) 
+      der=                buf2(ijkl,ij_pi_pj, kl,iqu,5) 
+     *         +xab(ijkl,jcart)*buf2(ijkl,ij_pi, kl,iqu,5) 
 c
       if(n_ij_i.gt.0) then
         if(ij_mi_pj.gt.0) then
-          der=der-n_ij_i*buf2(3,ijkl,ij_mi_pj, kl,iqu) 
+          der=der-n_ij_i*buf2(ijkl,ij_mi_pj, kl,iqu,3) 
         endif
         if(ij_mi   .gt.0) then
-          der=der -n_ij_i*xab(ijkl,jcart)*buf2(3,ijkl,ij_mi , kl,iqu) 
+          der=der -n_ij_i*xab(ijkl,jcart)*buf2(ijkl,ij_mi , kl,iqu,3) 
         endif
       endif
 c
@@ -1666,7 +1671,8 @@ c=================================================================
       common /logic10/ nmxyz(3,1)
       common /logic11/ npxyz(3,1)
 c
-      dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+      dimension buf2(nbls,lnijr,lnklr,ngcd,10)
       dimension der2(45,nbls,lnij,lnkl,ngcd)
 ctest
 c     write(6,60) icart,jcart,nder_ac
@@ -1694,16 +1700,16 @@ c       two_c_mi_pj=buf2(4,ijkl,ij_mi,kl_pj,iqu)
 c       two_a_pi_mj=buf2(2,ijkl,ij_pi,kl_mj,iqu) 
 c       two_0_mi_mj=buf2(1,ijkl,ij_mi,kl_mj,iqu) 
 c
-      der=buf2(6,ijkl,ij_pi,kl_pj,iqu) 
+      der=buf2(ijkl,ij_pi,kl_pj,iqu,6) 
       if(n_ij_i.gt.0 .and. ij_mi.gt.0) then
-        der=der-n_ij_i*buf2(4,ijkl,ij_mi,kl_pj,iqu) 
+        der=der-n_ij_i*buf2(ijkl,ij_mi,kl_pj,iqu,4) 
       endif
       if(n_kl_j.gt.0 .and. kl_mj.gt.0) then
-        der=der-n_kl_j*buf2(2,ijkl,ij_pi,kl_mj,iqu) 
+        der=der-n_kl_j*buf2(ijkl,ij_pi,kl_mj,iqu,2) 
       endif
       if(n_ij_i.gt.0 .and. n_kl_j.gt.0) then
 cccc    if(ij_mi.gt.0 .and. kl_mj.gt.0) then
-        der=der+n_ij_i*n_kl_j*buf2(1,ijkl,ij_mi,kl_mj,iqu) 
+        der=der+n_ij_i*n_kl_j*buf2(ijkl,ij_mi,kl_mj,iqu,1) 
 cccc    endif
       endif
 c
@@ -1739,7 +1745,8 @@ c=================================================================
       common /logic10/ nmxyz(3,1)
       common /logic11/ npxyz(3,1)
 c
-      dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
+      dimension buf2(nbls,lnijr,lnklr,ngcd,10)
       dimension der2(45,nbls,lnij,lnkl,ngcd)
       dimension xab(nbls,3)
 c
@@ -1762,13 +1769,13 @@ c       two_b_pi_mj=buf2(3,ijkl,ij_pi,kl_mj,iqu)
 c       two_b_0i_mj=buf2(3,ijkl,ij   ,kl_mj,iqu) 
 c
 c
-      der=                buf2(7,ijkl,ij_pi,kl_pj,iqu) 
-     *  + xab(ijkl,icart)*buf2(7,ijkl,ij   ,kl_pj,iqu)
+      der=                buf2(ijkl,ij_pi,kl_pj,iqu,7) 
+     *  + xab(ijkl,icart)*buf2(ijkl,ij   ,kl_pj,iqu,7)
 c
       if(n_kl_j.gt.0 .and. kl_mj.gt.0) then
           der=der
-     *    - n_kl_j*(                  buf2(3,ijkl,ij_pi,kl_mj,iqu) 
-     *              + xab(ijkl,icart)*buf2(3,ijkl,ij   ,kl_mj,iqu) )
+     *    - n_kl_j*(                  buf2(ijkl,ij_pi,kl_mj,iqu,3) 
+     *              + xab(ijkl,icart)*buf2(ijkl,ij   ,kl_mj,iqu,3) )
      *      
       endif
 c

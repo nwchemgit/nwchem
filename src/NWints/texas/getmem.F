@@ -1,4 +1,4 @@
-c $Id: getmem.F,v 1.6 2001-11-14 23:54:05 edo Exp $
+c $Id: getmem.F,v 1.7 2002-10-01 00:10:07 edo Exp $
 c
       subroutine getmem(amount,addr)
 c  this subroutine reserves amount space in the common block 
@@ -113,7 +113,7 @@ cc>> 1  ' memory overflow request no., amount needed',nreq,ixx)
       end if
 c
 #if defined(CRAY)  ||defined(EXT_INT)
-      call dfill(amount, 0.0d0, bl(addr), 1)
+      call dcopy(amount, 0.0d0, 0, bl(addr), 1)
 #endif
 c
 c>>d     write(*,*) 'allocation request no=',nreq,'addr=',addr,

@@ -1,4 +1,4 @@
-* $Id: gencon.f,v 1.7 1999-07-29 01:05:48 d3e129 Exp $
+* $Id: gencon.f,v 1.8 2002-10-01 00:10:07 edo Exp $
 c===================================================================
 c kw, 1998 : the indgc(nbls) array is not used anymore 
 c===================================================================
@@ -470,7 +470,8 @@ c
 c
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
-      dimension buf2(4,nbls,lt1,lt2,ngcd)
+c2002 dimension buf2(4,nbls,lt1,lt2,ngcd)
+      dimension buf2(nbls,lt1,lt2,ngcd,4)
       dimension gcoef(nbls,ngcd)
       dimension gc_ax(nbls,ngcd),gc_bx(nbls,ngcd),gc_cx(nbls,ngcd)
       data zero /0.d0/
@@ -492,15 +493,15 @@ c
                     ijkl=indx(i)
                     xint=xt1(i,ij,kl)
                     if(abs(xint).gt.zero) then
-                       buf2(1,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)
-                       buf2(2,ijkl,ij,kl,iqu)=xint*gc_ax(ijkl,iqu)
-                       buf2(3,ijkl,ij,kl,iqu)=xint*gc_bx(ijkl,iqu)
-                       buf2(4,ijkl,ij,kl,iqu)=xint*gc_cx(ijkl,iqu)
+                       buf2(ijkl,ij,kl,iqu,1)=xint*gcoef(ijkl,iqu)
+                       buf2(ijkl,ij,kl,iqu,2)=xint*gc_ax(ijkl,iqu)
+                       buf2(ijkl,ij,kl,iqu,3)=xint*gc_bx(ijkl,iqu)
+                       buf2(ijkl,ij,kl,iqu,4)=xint*gc_cx(ijkl,iqu)
                     else
-                       buf2(1,ijkl,ij,kl,iqu)=zero
-                       buf2(2,ijkl,ij,kl,iqu)=zero
-                       buf2(3,ijkl,ij,kl,iqu)=zero
-                       buf2(4,ijkl,ij,kl,iqu)=zero
+                       buf2(ijkl,ij,kl,iqu,1)=zero
+                       buf2(ijkl,ij,kl,iqu,2)=zero
+                       buf2(ijkl,ij,kl,iqu,3)=zero
+                       buf2(ijkl,ij,kl,iqu,4)=zero
                     endif
                  enddo
               enddo
@@ -516,13 +517,13 @@ c...... region I
                     ijkl=indx(i)
                     xint=xt1(i,ij,kl)
                     if(abs(xint).gt.zero) then
-                       buf2(1,ijkl,ij,kl,iqu)=buf2(1,ijkl,ij,kl,iqu)
+                       buf2(ijkl,ij,kl,iqu,1)=buf2(ijkl,ij,kl,iqu,1)
      *                                        + xint*gcoef(ijkl,iqu)
-                       buf2(2,ijkl,ij,kl,iqu)=buf2(2,ijkl,ij,kl,iqu)
+                       buf2(ijkl,ij,kl,iqu,2)=buf2(ijkl,ij,kl,iqu,2)
      *                                        + xint*gc_ax(ijkl,iqu)
-                       buf2(3,ijkl,ij,kl,iqu)=buf2(3,ijkl,ij,kl,iqu)
+                       buf2(ijkl,ij,kl,iqu,3)=buf2(ijkl,ij,kl,iqu,3)
      *                                        + xint*gc_bx(ijkl,iqu)
-                       buf2(4,ijkl,ij,kl,iqu)=buf2(4,ijkl,ij,kl,iqu)
+                       buf2(ijkl,ij,kl,iqu,4)=buf2(ijkl,ij,kl,iqu,4)
      *                                        + xint*gc_cx(ijkl,iqu)
                     endif
                  enddo
@@ -537,7 +538,7 @@ c...... region II
                     ijkl=indx(i)
                     xint=xt1(i,ij,kl)
                     if(abs(xint).gt.zero) then
-                       buf2(4,ijkl,ij,kl,iqu)=buf2(4,ijkl,ij,kl,iqu)
+                       buf2(ijkl,ij,kl,iqu,4)=buf2(ijkl,ij,kl,iqu,4)
      *                                        + xint*gc_cx(ijkl,iqu)
                     endif
                  enddo
@@ -552,9 +553,9 @@ c...... region III
                     ijkl=indx(i)
                     xint=xt1(i,ij,kl)
                     if(abs(xint).gt.zero) then
-                       buf2(2,ijkl,ij,kl,iqu)=buf2(2,ijkl,ij,kl,iqu)
+                       buf2(ijkl,ij,kl,iqu,2)=buf2(ijkl,ij,kl,iqu,2)
      *                                        + xint*gc_ax(ijkl,iqu)
-                       buf2(3,ijkl,ij,kl,iqu)=buf2(3,ijkl,ij,kl,iqu)
+                       buf2(ijkl,ij,kl,iqu,3)=buf2(ijkl,ij,kl,iqu,3)
      *                                        + xint*gc_bx(ijkl,iqu)
                     endif
                  enddo

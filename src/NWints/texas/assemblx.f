@@ -1,4 +1,4 @@
-* $Id: assemblx.f,v 1.11 2002-09-23 17:56:43 windus Exp $
+* $Id: assemblx.f,v 1.12 2002-10-01 00:10:05 edo Exp $
 c----------------------------------------------------------------
 c All routines of the type name_2 are used when 
 c          IROUTE=2
@@ -262,7 +262,8 @@ c-----------------------------------------------------------------------
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
-      dimension buf2(4,nbls,lt1,lt2)
+c2002 dimension buf2(4,nbls,lt1,lt2)
+      dimension buf2(nbls,lt1,lt2,4)
 c-----------------------------------------------------------
 c               buf2(1,nbls,lt1,lt2) - ordinary contraction
 c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
@@ -275,10 +276,10 @@ c
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(1,ijkl,ij,kl)=xt1(i,ij,kl)
-               buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aax(i)
-               buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbx(i)
-               buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccx(i)
+               buf2(ijkl,ij,kl,1)=xt1(i,ij,kl)
+               buf2(ijkl,ij,kl,2)=xt1(i,ij,kl)*aax(i)
+               buf2(ijkl,ij,kl,3)=xt1(i,ij,kl)*bbx(i)
+               buf2(ijkl,ij,kl,4)=xt1(i,ij,kl)*ccx(i)
                enddo
             enddo
          enddo
@@ -286,7 +287,7 @@ c
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccx(i)
+               buf2(ijkl,ij,kl,4)=xt1(i,ij,kl)*ccx(i)
                enddo
             enddo
          enddo
@@ -294,8 +295,8 @@ c
             do ij=nfu(nsij)+1,nfu(nsij+1)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aax(i)
-               buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbx(i)
+               buf2(ijkl,ij,kl,2)=xt1(i,ij,kl)*aax(i)
+               buf2(ijkl,ij,kl,3)=xt1(i,ij,kl)*bbx(i)
                enddo
             enddo
          enddo
@@ -305,10 +306,10 @@ c
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(1,ijkl,ij,kl)=buf2(1,ijkl,ij,kl)+xt1(i,ij,kl)
-               buf2(2,ijkl,ij,kl)=buf2(2,ijkl,ij,kl)+xt1(i,ij,kl)*aax(i)
-               buf2(3,ijkl,ij,kl)=buf2(3,ijkl,ij,kl)+xt1(i,ij,kl)*bbx(i)
-               buf2(4,ijkl,ij,kl)=buf2(4,ijkl,ij,kl)+xt1(i,ij,kl)*ccx(i)
+               buf2(ijkl,ij,kl,1)=buf2(ijkl,ij,kl,1)+xt1(i,ij,kl)
+               buf2(ijkl,ij,kl,2)=buf2(ijkl,ij,kl,2)+xt1(i,ij,kl)*aax(i)
+               buf2(ijkl,ij,kl,3)=buf2(ijkl,ij,kl,3)+xt1(i,ij,kl)*bbx(i)
+               buf2(ijkl,ij,kl,4)=buf2(ijkl,ij,kl,4)+xt1(i,ij,kl)*ccx(i)
                enddo
             enddo
          enddo
@@ -316,7 +317,7 @@ c
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(4,ijkl,ij,kl)=buf2(4,ijkl,ij,kl)+xt1(i,ij,kl)*ccx(i)
+               buf2(ijkl,ij,kl,4)=buf2(ijkl,ij,kl,4)+xt1(i,ij,kl)*ccx(i)
                enddo
             enddo
          enddo
@@ -324,8 +325,8 @@ c
             do ij=nfu(nsij)+1,nfu(nsij+1)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(2,ijkl,ij,kl)=buf2(2,ijkl,ij,kl)+xt1(i,ij,kl)*aax(i)
-               buf2(3,ijkl,ij,kl)=buf2(3,ijkl,ij,kl)+xt1(i,ij,kl)*bbx(i)
+               buf2(ijkl,ij,kl,2)=buf2(ijkl,ij,kl,2)+xt1(i,ij,kl)*aax(i)
+               buf2(ijkl,ij,kl,3)=buf2(ijkl,ij,kl,3)+xt1(i,ij,kl)*bbx(i)
                enddo
             enddo
          enddo
@@ -349,7 +350,8 @@ c-----------------------------------------------------------------------
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
-      dimension buf2(4,nbls,lt1,lt2)
+c2002 dimension buf2(4,nbls,lt1,lt2)
+      dimension buf2(nbls,lt1,lt2,4)
 c-----------------------------------------------------------
 c               buf2(1,nbls,lt1,lt2) - ordinary contraction
 c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
@@ -361,25 +363,25 @@ c
          do kl=nfu(nqkl)+1,nfu(nskl)
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
-               buf2(1,i,ij,kl)=xt1(i,ij,kl)
-               buf2(2,i,ij,kl)=xt1(i,ij,kl)*aax(i)
-               buf2(3,i,ij,kl)=xt1(i,ij,kl)*bbx(i)
-               buf2(4,i,ij,kl)=xt1(i,ij,kl)*ccx(i)
+               buf2(i,ij,kl,1)=xt1(i,ij,kl)
+               buf2(i,ij,kl,2)=xt1(i,ij,kl)*aax(i)
+               buf2(i,ij,kl,3)=xt1(i,ij,kl)*bbx(i)
+               buf2(i,ij,kl,4)=xt1(i,ij,kl)*ccx(i)
                enddo
             enddo
          enddo
          do kl=nfu(nskl)+1,nfu(nskl+1)
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
-               buf2(4,i,ij,kl)=xt1(i,ij,kl)*ccx(i)
+               buf2(i,ij,kl,4)=xt1(i,ij,kl)*ccx(i)
                enddo
             enddo
          enddo
          do kl=nfu(nqkl)+1,nfu(nskl)
             do ij=nfu(nsij)+1,nfu(nsij+1)
                do i=1,nbls1
-               buf2(2,i,ij,kl)=xt1(i,ij,kl)*aax(i)
-               buf2(3,i,ij,kl)=xt1(i,ij,kl)*bbx(i)
+               buf2(i,ij,kl,2)=xt1(i,ij,kl)*aax(i)
+               buf2(i,ij,kl,3)=xt1(i,ij,kl)*bbx(i)
                enddo
             enddo
          enddo
@@ -388,25 +390,25 @@ c
          do kl=nfu(nqkl)+1,nfu(nskl)
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
-               buf2(1,i,ij,kl)=buf2(1,i,ij,kl)+xt1(i,ij,kl)
-               buf2(2,i,ij,kl)=buf2(2,i,ij,kl)+xt1(i,ij,kl)*aax(i)
-               buf2(3,i,ij,kl)=buf2(3,i,ij,kl)+xt1(i,ij,kl)*bbx(i)
-               buf2(4,i,ij,kl)=buf2(4,i,ij,kl)+xt1(i,ij,kl)*ccx(i)
+               buf2(i,ij,kl,1)=buf2(i,ij,kl,1)+xt1(i,ij,kl)
+               buf2(i,ij,kl,2)=buf2(i,ij,kl,2)+xt1(i,ij,kl)*aax(i)
+               buf2(i,ij,kl,3)=buf2(i,ij,kl,3)+xt1(i,ij,kl)*bbx(i)
+               buf2(i,ij,kl,4)=buf2(i,ij,kl,4)+xt1(i,ij,kl)*ccx(i)
                enddo
             enddo
          enddo
          do kl=nfu(nskl)+1,nfu(nskl+1)
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
-               buf2(4,i,ij,kl)=buf2(4,i,ij,kl)+xt1(i,ij,kl)*ccx(i)
+               buf2(i,ij,kl,4)=buf2(i,ij,kl,4)+xt1(i,ij,kl)*ccx(i)
                enddo
             enddo
          enddo
          do kl=nfu(nqkl)+1,nfu(nskl)
             do ij=nfu(nsij)+1,nfu(nsij+1)
                do i=1,nbls1
-               buf2(2,i,ij,kl)=buf2(2,i,ij,kl)+xt1(i,ij,kl)*aax(i)
-               buf2(3,i,ij,kl)=buf2(3,i,ij,kl)+xt1(i,ij,kl)*bbx(i)
+               buf2(i,ij,kl,2)=buf2(i,ij,kl,2)+xt1(i,ij,kl)*aax(i)
+               buf2(i,ij,kl,3)=buf2(i,ij,kl,3)+xt1(i,ij,kl)*bbx(i)
                enddo
             enddo
          enddo
@@ -433,7 +435,8 @@ c
 c
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1),expo(nbls1,6)
 C
-      dimension buf2(10,nbls,lt1,lt2)
+c2002 dimension buf2(10,nbls,lt1,lt2)
+      dimension buf2(nbls,lt1,lt2,10)
 c
 c               buf2(1,nbls,lt1,lt2) - ordinary contraction
 c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
@@ -468,42 +471,42 @@ c
         kl2=nfu(nskl-1)
         kl3=nfu(nskl)
         kl4=nfu(nskl+1)
-c-------
-        IF(FIRSTC) THEN
+c------------------------------------------------
+        IF (FIRSTC) THEN
            do kl=kl1+1,kl2
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(1,ijkl,IJ,KL)=  XT1(i,IJ,KL)
-                 buf2(2,ijkl,IJ,KL)=XT1(i,IJ,KL)*aax(i)
-                 buf2(3,ijkl,IJ,KL)=XT1(i,IJ,KL)*bbx(i)
-                 buf2(4,ijkl,IJ,KL)=XT1(i,IJ,KL)*ccx(i)
-                 buf2(5,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,1)
-                 buf2(6,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,2)
-                 buf2(7,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,3)
-                 buf2(8,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,4)
-                 buf2(9,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,5)
-                 buf2(10,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,6)
+                 buf2(ijkl,IJ,KL,1)=XT1(i,IJ,KL)
+                 buf2(ijkl,IJ,KL,2)=XT1(i,IJ,KL)*aax(i)
+                 buf2(ijkl,IJ,KL,3)=XT1(i,IJ,KL)*bbx(i)
+                 buf2(ijkl,IJ,KL,4)=XT1(i,IJ,KL)*ccx(i)
+                 buf2(ijkl,IJ,KL,5)=XT1(i,IJ,KL)*expo(i,1)
+                 buf2(ijkl,IJ,KL,6)=XT1(i,IJ,KL)*expo(i,2)
+                 buf2(ijkl,IJ,KL,7)=XT1(i,IJ,KL)*expo(i,3)
+                 buf2(ijkl,IJ,KL,8)=XT1(i,IJ,KL)*expo(i,4)
+                 buf2(ijkl,IJ,KL,9)=XT1(i,IJ,KL)*expo(i,5)
+                 buf2(ijkl,IJ,KL,10)=XT1(i,IJ,KL)*expo(i,6)
                  enddo
               enddo
               do ij=ij2+1,ij3
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(2,ijkl,IJ,KL)=XT1(i,IJ,KL)*aax(i)
-                 buf2(3,ijkl,IJ,KL)=XT1(i,IJ,KL)*bbx(i)
-                 buf2(5,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,1)
-                 buf2(6,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,2)
-                 buf2(7,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,3)
-                 buf2(8,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,4)
-                 buf2(9,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,5)
+                 buf2(ijkl,IJ,KL,2)=XT1(i,IJ,KL)*aax(i)
+                 buf2(ijkl,IJ,KL,3)=XT1(i,IJ,KL)*bbx(i)
+                 buf2(ijkl,IJ,KL,5)=XT1(i,IJ,KL)*expo(i,1)
+                 buf2(ijkl,IJ,KL,6)=XT1(i,IJ,KL)*expo(i,2)
+                 buf2(ijkl,IJ,KL,7)=XT1(i,IJ,KL)*expo(i,3)
+                 buf2(ijkl,IJ,KL,8)=XT1(i,IJ,KL)*expo(i,4)
+                 buf2(ijkl,IJ,KL,9)=XT1(i,IJ,KL)*expo(i,5)
                  enddo
               enddo
               do ij=ij3+1,ij4
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(5,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,1)
-                 buf2(8,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,4)
-                 buf2(9,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,5)
+                 buf2(ijkl,IJ,KL,5)=XT1(i,IJ,KL)*expo(i,1)
+                 buf2(ijkl,IJ,KL,8)=XT1(i,IJ,KL)*expo(i,4)
+                 buf2(ijkl,IJ,KL,9)=XT1(i,IJ,KL)*expo(i,5)
                  enddo
               enddo
            enddo
@@ -511,17 +514,17 @@ c-------
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(4,ijkl,IJ,KL)=XT1(i,IJ,KL)*ccx(i)
-                 buf2(6,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,2)
-                 buf2(7,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,3)
-                 buf2(10,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,6)
+                 buf2(ijkl,IJ,KL,4)=XT1(i,IJ,KL)*ccx(i)
+                 buf2(ijkl,IJ,KL,6)=XT1(i,IJ,KL)*expo(i,2)
+                 buf2(ijkl,IJ,KL,7)=XT1(i,IJ,KL)*expo(i,3)
+                 buf2(ijkl,IJ,KL,10)=XT1(i,IJ,KL)*expo(i,6)
                  enddo
               enddo
               do ij=ij2+1,ij3
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(6,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,2)
-                 buf2(7,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,3)
+                 buf2(ijkl,IJ,KL,6)=XT1(i,IJ,KL)*expo(i,2)
+                 buf2(ijkl,IJ,KL,7)=XT1(i,IJ,KL)*expo(i,3)
                  enddo
               enddo
            enddo
@@ -529,7 +532,7 @@ c-------
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(10,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(i,6)
+                 buf2(ijkl,IJ,KL,10)=XT1(i,IJ,KL)*expo(i,6)
                  enddo
               enddo
            enddo
@@ -539,36 +542,36 @@ c-------
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-              buf2(1,ijkl,IJ,KL)=buf2(1,ijkl,IJ,KL)+XT1(i,IJ,KL)
-            buf2(2,ijkl,IJ,KL)=buf2(2,ijkl,IJ,KL)+XT1(i,IJ,KL)*aax(i)
-            buf2(3,ijkl,IJ,KL)=buf2(3,ijkl,IJ,KL)+XT1(i,IJ,KL)*bbx(i)
-            buf2(4,ijkl,IJ,KL)=buf2(4,ijkl,IJ,KL)+XT1(i,IJ,KL)*ccx(i)
-            buf2(5,ijkl,IJ,KL)=buf2(5,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,1)
-            buf2(6,ijkl,IJ,KL)=buf2(6,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,2)
-            buf2(7,ijkl,IJ,KL)=buf2(7,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,3)
-            buf2(8,ijkl,IJ,KL)=buf2(8,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,4)
-            buf2(9,ijkl,IJ,KL)=buf2(9,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,5)
-          buf2(10,ijkl,IJ,KL)=buf2(10,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,6)
+           buf2(ijkl,IJ,KL,1)=buf2(ijkl,ij,kl,1)+XT1(i,IJ,KL)
+           buf2(ijkl,IJ,KL,2)=buf2(ijkl,ij,kl,2)+XT1(i,IJ,KL)*aax(i)
+           buf2(ijkl,IJ,KL,3)=buf2(ijkl,ij,kl,3)+XT1(i,IJ,KL)*bbx(i)
+           buf2(ijkl,IJ,KL,4)=buf2(ijkl,ij,kl,4)+XT1(i,IJ,KL)*ccx(i)
+           buf2(ijkl,IJ,KL,5)=buf2(ijkl,ij,kl,5)+XT1(i,IJ,KL)*expo(i,1)
+           buf2(ijkl,IJ,KL,6)=buf2(ijkl,ij,kl,6)+XT1(i,IJ,KL)*expo(i,2)
+           buf2(ijkl,IJ,KL,7)=buf2(ijkl,ij,kl,7)+XT1(i,IJ,KL)*expo(i,3)
+           buf2(ijkl,IJ,KL,8)=buf2(ijkl,ij,kl,8)+XT1(i,IJ,KL)*expo(i,4)
+           buf2(ijkl,IJ,KL,9)=buf2(ijkl,ij,kl,9)+XT1(i,IJ,KL)*expo(i,5)
+          buf2(ijkl,IJ,KL,10)=buf2(ijkl,ij,kl,10)+XT1(i,IJ,KL)*expo(i,6)
                  enddo
               enddo
               do ij=ij2+1,ij3
                  do i=1,nbls1
                  ijkl=indx(i)
-            buf2(2,ijkl,IJ,KL)=buf2(2,ijkl,IJ,KL)+XT1(i,IJ,KL)*aax(i)
-            buf2(3,ijkl,IJ,KL)=buf2(3,ijkl,IJ,KL)+XT1(i,IJ,KL)*bbx(i)
-            buf2(5,ijkl,IJ,KL)=buf2(5,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,1)
-            buf2(6,ijkl,IJ,KL)=buf2(6,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,2)
-            buf2(7,ijkl,IJ,KL)=buf2(7,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,3)
-            buf2(8,ijkl,IJ,KL)=buf2(8,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,4)
-            buf2(9,ijkl,IJ,KL)=buf2(9,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,5)
+           buf2(ijkl,IJ,KL,2)=buf2(ijkl,ij,kl,2)+XT1(i,IJ,KL)*aax(i)
+           buf2(ijkl,IJ,KL,3)=buf2(ijkl,ij,kl,3)+XT1(i,IJ,KL)*bbx(i)
+           buf2(ijkl,IJ,KL,5)=buf2(ijkl,ij,kl,5)+XT1(i,IJ,KL)*expo(i,1)
+           buf2(ijkl,IJ,KL,6)=buf2(ijkl,ij,kl,6)+XT1(i,IJ,KL)*expo(i,2)
+           buf2(ijkl,IJ,KL,7)=buf2(ijkl,ij,kl,7)+XT1(i,IJ,KL)*expo(i,3)
+           buf2(ijkl,IJ,KL,8)=buf2(ijkl,ij,kl,8)+XT1(i,IJ,KL)*expo(i,4)
+           buf2(ijkl,IJ,KL,9)=buf2(ijkl,ij,kl,9)+XT1(i,IJ,KL)*expo(i,5)
                  enddo
               enddo
               do ij=ij3+1,ij4
                  do i=1,nbls1
                  ijkl=indx(i)
-            buf2(5,ijkl,IJ,KL)=buf2(5,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,1)
-            buf2(8,ijkl,IJ,KL)=buf2(8,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,4)
-            buf2(9,ijkl,IJ,KL)=buf2(9,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,5)
+           buf2(ijkl,IJ,KL,5)=buf2(ijkl,ij,kl,5)+XT1(i,IJ,KL)*expo(i,1)
+           buf2(ijkl,IJ,KL,8)=buf2(ijkl,ij,kl,8)+XT1(i,IJ,KL)*expo(i,4)
+           buf2(ijkl,IJ,KL,9)=buf2(ijkl,ij,kl,9)+XT1(i,IJ,KL)*expo(i,5)
                  enddo
               enddo
            enddo
@@ -576,17 +579,17 @@ c-------
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-            buf2(4,ijkl,IJ,KL)=buf2(4,ijkl,IJ,KL)+XT1(i,IJ,KL)*ccx(i)
-            buf2(6,ijkl,IJ,KL)=buf2(6,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,2)
-            buf2(7,ijkl,IJ,KL)=buf2(7,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,3)
-          buf2(10,ijkl,IJ,KL)=buf2(10,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,6)
+           buf2(ijkl,IJ,KL,4)=buf2(ijkl,ij,kl,4)+XT1(i,IJ,KL)*ccx(i)
+           buf2(ijkl,IJ,KL,6)=buf2(ijkl,ij,kl,6)+XT1(i,IJ,KL)*expo(i,2)
+           buf2(ijkl,IJ,KL,7)=buf2(ijkl,ij,kl,7)+XT1(i,IJ,KL)*expo(i,3)
+          buf2(ijkl,IJ,KL,10)=buf2(ijkl,ij,kl,10)+XT1(i,IJ,KL)*expo(i,6)
                  enddo
               enddo
               do ij=ij2+1,ij3
                  do i=1,nbls1
                  ijkl=indx(i)
-            buf2(6,ijkl,IJ,KL)=buf2(6,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,2)
-            buf2(7,ijkl,IJ,KL)=buf2(7,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,3)
+           buf2(ijkl,IJ,KL,6)=buf2(ijkl,ij,kl,6)+XT1(i,IJ,KL)*expo(i,2)
+           buf2(ijkl,IJ,KL,7)=buf2(ijkl,ij,kl,7)+XT1(i,IJ,KL)*expo(i,3)
                  enddo
               enddo
            enddo
@@ -594,7 +597,7 @@ c-------
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-          buf2(10,ijkl,IJ,KL)=buf2(10,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(i,6)
+          buf2(ijkl,IJ,KL,10)=buf2(ijkl,ij,kl,10)+XT1(i,IJ,KL)*expo(i,6)
                  enddo
               enddo
            enddo
@@ -2019,7 +2022,8 @@ c-----------------------------------------------------------------------
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
-      dimension buf2(4,nbls,lt1,lt2)
+c2002 dimension buf2(4,nbls,lt1,lt2)
+      dimension buf2(nbls,lt1,lt2,4)
 c-----------------------------------------------------------
 c               buf2(1,nbls,lt1,lt2) - ordinary contraction
 c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
@@ -2036,10 +2040,10 @@ c
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(1,ijkl,ij,kl)=xt1(i,ij,kl)
-               buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aaxi
-               buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbxi
-               buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccxi
+               buf2(ijkl,ij,kl,1)=xt1(i,ij,kl)
+               buf2(ijkl,ij,kl,2)=xt1(i,ij,kl)*aaxi
+               buf2(ijkl,ij,kl,3)=xt1(i,ij,kl)*bbxi
+               buf2(ijkl,ij,kl,4)=xt1(i,ij,kl)*ccxi
                enddo
             enddo
          enddo
@@ -2047,7 +2051,7 @@ c
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccxi
+               buf2(ijkl,ij,kl,4)=xt1(i,ij,kl)*ccxi
                enddo
             enddo
          enddo
@@ -2055,8 +2059,8 @@ c
             do ij=nfu(nsij)+1,nfu(nsij+1)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aaxi
-               buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbxi
+               buf2(ijkl,ij,kl,2)=xt1(i,ij,kl)*aaxi
+               buf2(ijkl,ij,kl,3)=xt1(i,ij,kl)*bbxi
                enddo
             enddo
          enddo
@@ -2066,10 +2070,10 @@ c
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(1,ijkl,ij,kl)=buf2(1,ijkl,ij,kl)+xt1(i,ij,kl)
-               buf2(2,ijkl,ij,kl)=buf2(2,ijkl,ij,kl)+xt1(i,ij,kl)*aaxi
-               buf2(3,ijkl,ij,kl)=buf2(3,ijkl,ij,kl)+xt1(i,ij,kl)*bbxi
-               buf2(4,ijkl,ij,kl)=buf2(4,ijkl,ij,kl)+xt1(i,ij,kl)*ccxi
+               buf2(ijkl,ij,kl,1)=buf2(ijkl,ij,kl,1)+xt1(i,ij,kl)
+               buf2(ijkl,ij,kl,2)=buf2(ijkl,ij,kl,2)+xt1(i,ij,kl)*aaxi
+               buf2(ijkl,ij,kl,3)=buf2(ijkl,ij,kl,3)+xt1(i,ij,kl)*bbxi
+               buf2(ijkl,ij,kl,4)=buf2(ijkl,ij,kl,4)+xt1(i,ij,kl)*ccxi
                enddo
             enddo
          enddo
@@ -2077,7 +2081,7 @@ c
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(4,ijkl,ij,kl)=buf2(4,ijkl,ij,kl)+xt1(i,ij,kl)*ccxi
+               buf2(ijkl,ij,kl,4)=buf2(ijkl,ij,kl,4)+xt1(i,ij,kl)*ccxi
                enddo
             enddo
          enddo
@@ -2085,8 +2089,8 @@ c
             do ij=nfu(nsij)+1,nfu(nsij+1)
                do i=1,nbls1
                ijkl=indx(i)
-               buf2(2,ijkl,ij,kl)=buf2(2,ijkl,ij,kl)+xt1(i,ij,kl)*aaxi
-               buf2(3,ijkl,ij,kl)=buf2(3,ijkl,ij,kl)+xt1(i,ij,kl)*bbxi
+               buf2(ijkl,ij,kl,2)=buf2(ijkl,ij,kl,2)+xt1(i,ij,kl)*aaxi
+               buf2(ijkl,ij,kl,3)=buf2(ijkl,ij,kl,3)+xt1(i,ij,kl)*bbxi
                enddo
             enddo
          enddo
@@ -2110,7 +2114,8 @@ c-----------------------------------------------------------------------
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
-      dimension buf2(4,nbls,lt1,lt2)
+c2002 dimension buf2(4,nbls,lt1,lt2)
+      dimension buf2(nbls,lt1,lt2,4)
 c-----------------------------------------------------------
 c               buf2(1,nbls,lt1,lt2) - ordinary contraction
 c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
@@ -2126,25 +2131,25 @@ c
          do kl=nfu(nqkl)+1,nfu(nskl)
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
-               buf2(1,i,ij,kl)=xt1(i,ij,kl)
-               buf2(2,i,ij,kl)=xt1(i,ij,kl)*aaxi
-               buf2(3,i,ij,kl)=xt1(i,ij,kl)*bbxi
-               buf2(4,i,ij,kl)=xt1(i,ij,kl)*ccxi
+               buf2(i,ij,kl,1)=xt1(i,ij,kl)
+               buf2(i,ij,kl,2)=xt1(i,ij,kl)*aaxi
+               buf2(i,ij,kl,3)=xt1(i,ij,kl)*bbxi
+               buf2(i,ij,kl,4)=xt1(i,ij,kl)*ccxi
                enddo
             enddo
          enddo
          do kl=nfu(nskl)+1,nfu(nskl+1)
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
-               buf2(4,i,ij,kl)=xt1(i,ij,kl)*ccxi
+               buf2(i,ij,kl,4)=xt1(i,ij,kl)*ccxi
                enddo
             enddo
          enddo
          do kl=nfu(nqkl)+1,nfu(nskl)
             do ij=nfu(nsij)+1,nfu(nsij+1)
                do i=1,nbls1
-               buf2(2,i,ij,kl)=xt1(i,ij,kl)*aaxi
-               buf2(3,i,ij,kl)=xt1(i,ij,kl)*bbxi
+               buf2(i,ij,kl,2)=xt1(i,ij,kl)*aaxi
+               buf2(i,ij,kl,3)=xt1(i,ij,kl)*bbxi
                enddo
             enddo
          enddo
@@ -2153,25 +2158,25 @@ c
          do kl=nfu(nqkl)+1,nfu(nskl)
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
-               buf2(1,i,ij,kl)=buf2(1,i,ij,kl)+xt1(i,ij,kl)
-               buf2(2,i,ij,kl)=buf2(2,i,ij,kl)+xt1(i,ij,kl)*aaxi
-               buf2(3,i,ij,kl)=buf2(3,i,ij,kl)+xt1(i,ij,kl)*bbxi
-               buf2(4,i,ij,kl)=buf2(4,i,ij,kl)+xt1(i,ij,kl)*ccxi
+               buf2(i,ij,kl,1)=buf2(i,ij,kl,1)+xt1(i,ij,kl)
+               buf2(i,ij,kl,2)=buf2(i,ij,kl,2)+xt1(i,ij,kl)*aaxi
+               buf2(i,ij,kl,3)=buf2(i,ij,kl,3)+xt1(i,ij,kl)*bbxi
+               buf2(i,ij,kl,4)=buf2(i,ij,kl,4)+xt1(i,ij,kl)*ccxi
                enddo
             enddo
          enddo
          do kl=nfu(nskl)+1,nfu(nskl+1)
             do ij=nfu(nqij)+1,nfu(nsij)
                do i=1,nbls1
-               buf2(4,i,ij,kl)=buf2(4,i,ij,kl)+xt1(i,ij,kl)*ccxi
+               buf2(i,ij,kl,4)=buf2(i,ij,kl,4)+xt1(i,ij,kl)*ccxi
                enddo
             enddo
          enddo
          do kl=nfu(nqkl)+1,nfu(nskl)
             do ij=nfu(nsij)+1,nfu(nsij+1)
                do i=1,nbls1
-               buf2(2,i,ij,kl)=buf2(2,i,ij,kl)+xt1(i,ij,kl)*aaxi
-               buf2(3,i,ij,kl)=buf2(3,i,ij,kl)+xt1(i,ij,kl)*bbxi
+               buf2(i,ij,kl,2)=buf2(i,ij,kl,2)+xt1(i,ij,kl)*aaxi
+               buf2(i,ij,kl,3)=buf2(i,ij,kl,3)+xt1(i,ij,kl)*bbxi
                enddo
             enddo
          enddo
@@ -2199,7 +2204,8 @@ c
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
       dimension expo(6)
 C
-      dimension buf2(10,nbls,lt1,lt2)
+c2002 dimension buf2(10,nbls,lt1,lt2)
+      dimension buf2(nbls,lt1,lt2,10)
 c
 c               buf2(1,nbls,lt1,lt2) - ordinary contraction
 c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
@@ -2216,6 +2222,9 @@ c end for second derivatives
 c-------
 c multiply exponents :
 c
+          aax1=aax(1)
+          bbx1=bbx(1)
+          ccx1=ccx(1)
           expo(1)=aax(1)*bbx(1)
           expo(2)=aax(1)*ccx(1)
           expo(3)=bbx(1)*ccx(1)
@@ -2232,42 +2241,42 @@ c
         kl2=nfu(nskl-1)
         kl3=nfu(nskl)
         kl4=nfu(nskl+1)
-c-------
-        IF(FIRSTC) THEN
+c------------------------------------------------
+        IF (FIRSTC) THEN
            do kl=kl1+1,kl2
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(1,ijkl,IJ,KL)=  XT1(i,IJ,KL)
-                 buf2(2,ijkl,IJ,KL)=XT1(i,IJ,KL)*aax(1)
-                 buf2(3,ijkl,IJ,KL)=XT1(i,IJ,KL)*bbx(1)
-                 buf2(4,ijkl,IJ,KL)=XT1(i,IJ,KL)*ccx(1)
-                 buf2(5,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(1)
-                 buf2(6,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(2)
-                 buf2(7,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(3)
-                 buf2(8,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(4)
-                 buf2(9,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(5)
-                 buf2(10,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(6)
+                 buf2(ijkl,IJ,KL,1)=XT1(i,IJ,KL)
+                 buf2(ijkl,IJ,KL,2)=XT1(i,IJ,KL)*aax1
+                 buf2(ijkl,IJ,KL,3)=XT1(i,IJ,KL)*bbx1
+                 buf2(ijkl,IJ,KL,4)=XT1(i,IJ,KL)*ccx1
+                 buf2(ijkl,IJ,KL,5)=XT1(i,IJ,KL)*expo(1)
+                 buf2(ijkl,IJ,KL,6)=XT1(i,IJ,KL)*expo(2)
+                 buf2(ijkl,IJ,KL,7)=XT1(i,IJ,KL)*expo(3)
+                 buf2(ijkl,IJ,KL,8)=XT1(i,IJ,KL)*expo(4)
+                 buf2(ijkl,IJ,KL,9)=XT1(i,IJ,KL)*expo(5)
+                 buf2(ijkl,IJ,KL,10)=XT1(i,IJ,KL)*expo(6)
                  enddo
               enddo
               do ij=ij2+1,ij3
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(2,ijkl,IJ,KL)=XT1(i,IJ,KL)*aax(1)
-                 buf2(3,ijkl,IJ,KL)=XT1(i,IJ,KL)*bbx(1)
-                 buf2(5,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(1)
-                 buf2(6,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(2)
-                 buf2(7,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(3)
-                 buf2(8,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(4)
-                 buf2(9,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(5)
+                 buf2(ijkl,IJ,KL,2)=XT1(i,IJ,KL)*aax1
+                 buf2(ijkl,IJ,KL,3)=XT1(i,IJ,KL)*bbx1
+                 buf2(ijkl,IJ,KL,5)=XT1(i,IJ,KL)*expo(1)
+                 buf2(ijkl,IJ,KL,6)=XT1(i,IJ,KL)*expo(2)
+                 buf2(ijkl,IJ,KL,7)=XT1(i,IJ,KL)*expo(3)
+                 buf2(ijkl,IJ,KL,8)=XT1(i,IJ,KL)*expo(4)
+                 buf2(ijkl,IJ,KL,9)=XT1(i,IJ,KL)*expo(5)
                  enddo
               enddo
               do ij=ij3+1,ij4
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(5,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(1)
-                 buf2(8,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(4)
-                 buf2(9,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(5)
+                 buf2(ijkl,IJ,KL,5)=XT1(i,IJ,KL)*expo(1)
+                 buf2(ijkl,IJ,KL,8)=XT1(i,IJ,KL)*expo(4)
+                 buf2(ijkl,IJ,KL,9)=XT1(i,IJ,KL)*expo(5)
                  enddo
               enddo
            enddo
@@ -2275,17 +2284,17 @@ c-------
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(4,ijkl,IJ,KL)=XT1(i,IJ,KL)*ccx(1)
-                 buf2(6,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(2)
-                 buf2(7,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(3)
-                 buf2(10,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(6)
+                 buf2(ijkl,IJ,KL,4)=XT1(i,IJ,KL)*ccx1
+                 buf2(ijkl,IJ,KL,6)=XT1(i,IJ,KL)*expo(2)
+                 buf2(ijkl,IJ,KL,7)=XT1(i,IJ,KL)*expo(3)
+                 buf2(ijkl,IJ,KL,10)=XT1(i,IJ,KL)*expo(6)
                  enddo
               enddo
               do ij=ij2+1,ij3
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(6,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(2)
-                 buf2(7,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(3)
+                 buf2(ijkl,IJ,KL,6)=XT1(i,IJ,KL)*expo(2)
+                 buf2(ijkl,IJ,KL,7)=XT1(i,IJ,KL)*expo(3)
                  enddo
               enddo
            enddo
@@ -2293,7 +2302,7 @@ c-------
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-                 buf2(10,ijkl,IJ,KL)=XT1(i,IJ,KL)*expo(6)
+                 buf2(ijkl,IJ,KL,10)=XT1(i,IJ,KL)*expo(6)
                  enddo
               enddo
            enddo
@@ -2303,36 +2312,36 @@ c-------
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-              buf2(1,ijkl,IJ,KL)=buf2(1,ijkl,IJ,KL)+XT1(i,IJ,KL)
-              buf2(2,ijkl,IJ,KL)=buf2(2,ijkl,IJ,KL)+XT1(i,IJ,KL)*aax(1)
-              buf2(3,ijkl,IJ,KL)=buf2(3,ijkl,IJ,KL)+XT1(i,IJ,KL)*bbx(1)
-              buf2(4,ijkl,IJ,KL)=buf2(4,ijkl,IJ,KL)+XT1(i,IJ,KL)*ccx(1)
-              buf2(5,ijkl,IJ,KL)=buf2(5,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(1)
-              buf2(6,ijkl,IJ,KL)=buf2(6,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(2)
-              buf2(7,ijkl,IJ,KL)=buf2(7,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(3)
-              buf2(8,ijkl,IJ,KL)=buf2(8,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(4)
-              buf2(9,ijkl,IJ,KL)=buf2(9,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(5)
-            buf2(10,ijkl,IJ,KL)=buf2(10,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(6)
+           buf2(ijkl,IJ,KL,1)=buf2(ijkl,ij,kl,1)+XT1(i,IJ,KL)
+           buf2(ijkl,IJ,KL,2)=buf2(ijkl,ij,kl,2)+XT1(i,IJ,KL)*aax1
+           buf2(ijkl,IJ,KL,3)=buf2(ijkl,ij,kl,3)+XT1(i,IJ,KL)*bbx1
+           buf2(ijkl,IJ,KL,4)=buf2(ijkl,ij,kl,4)+XT1(i,IJ,KL)*ccx1
+           buf2(ijkl,IJ,KL,5)=buf2(ijkl,ij,kl,5)+XT1(i,IJ,KL)*expo(1)
+           buf2(ijkl,IJ,KL,6)=buf2(ijkl,ij,kl,6)+XT1(i,IJ,KL)*expo(2)
+           buf2(ijkl,IJ,KL,7)=buf2(ijkl,ij,kl,7)+XT1(i,IJ,KL)*expo(3)
+           buf2(ijkl,IJ,KL,8)=buf2(ijkl,ij,kl,8)+XT1(i,IJ,KL)*expo(4)
+           buf2(ijkl,IJ,KL,9)=buf2(ijkl,ij,kl,9)+XT1(i,IJ,KL)*expo(5)
+          buf2(ijkl,IJ,KL,10)=buf2(ijkl,ij,kl,10)+XT1(i,IJ,KL)*expo(6)
                  enddo
               enddo
               do ij=ij2+1,ij3
                  do i=1,nbls1
                  ijkl=indx(i)
-              buf2(2,ijkl,IJ,KL)=buf2(2,ijkl,IJ,KL)+XT1(i,IJ,KL)*aax(1)
-              buf2(3,ijkl,IJ,KL)=buf2(3,ijkl,IJ,KL)+XT1(i,IJ,KL)*bbx(1)
-              buf2(5,ijkl,IJ,KL)=buf2(5,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(1)
-              buf2(6,ijkl,IJ,KL)=buf2(6,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(2)
-              buf2(7,ijkl,IJ,KL)=buf2(7,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(3)
-              buf2(8,ijkl,IJ,KL)=buf2(8,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(4)
-              buf2(9,ijkl,IJ,KL)=buf2(9,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(5)
+           buf2(ijkl,IJ,KL,2)=buf2(ijkl,ij,kl,2)+XT1(i,IJ,KL)*aax1
+           buf2(ijkl,IJ,KL,3)=buf2(ijkl,ij,kl,3)+XT1(i,IJ,KL)*bbx1
+           buf2(ijkl,IJ,KL,5)=buf2(ijkl,ij,kl,5)+XT1(i,IJ,KL)*expo(1)
+           buf2(ijkl,IJ,KL,6)=buf2(ijkl,ij,kl,6)+XT1(i,IJ,KL)*expo(2)
+           buf2(ijkl,IJ,KL,7)=buf2(ijkl,ij,kl,7)+XT1(i,IJ,KL)*expo(3)
+           buf2(ijkl,IJ,KL,8)=buf2(ijkl,ij,kl,8)+XT1(i,IJ,KL)*expo(4)
+           buf2(ijkl,IJ,KL,9)=buf2(ijkl,ij,kl,9)+XT1(i,IJ,KL)*expo(5)
                  enddo
               enddo
               do ij=ij3+1,ij4
                  do i=1,nbls1
                  ijkl=indx(i)
-              buf2(5,ijkl,IJ,KL)=buf2(5,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(1)
-              buf2(8,ijkl,IJ,KL)=buf2(8,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(4)
-              buf2(9,ijkl,IJ,KL)=buf2(9,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(5)
+           buf2(ijkl,IJ,KL,5)=buf2(ijkl,ij,kl,5)+XT1(i,IJ,KL)*expo(1)
+           buf2(ijkl,IJ,KL,8)=buf2(ijkl,ij,kl,8)+XT1(i,IJ,KL)*expo(4)
+           buf2(ijkl,IJ,KL,9)=buf2(ijkl,ij,kl,9)+XT1(i,IJ,KL)*expo(5)
                  enddo
               enddo
            enddo
@@ -2340,17 +2349,17 @@ c-------
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-              buf2(4,ijkl,IJ,KL)=buf2(4,ijkl,IJ,KL)+XT1(i,IJ,KL)*ccx(1)
-              buf2(6,ijkl,IJ,KL)=buf2(6,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(2)
-              buf2(7,ijkl,IJ,KL)=buf2(7,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(3)
-            buf2(10,ijkl,IJ,KL)=buf2(10,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(6)
+           buf2(ijkl,IJ,KL,4)=buf2(ijkl,ij,kl,4)+XT1(i,IJ,KL)*ccx1
+           buf2(ijkl,IJ,KL,6)=buf2(ijkl,ij,kl,6)+XT1(i,IJ,KL)*expo(2)
+           buf2(ijkl,IJ,KL,7)=buf2(ijkl,ij,kl,7)+XT1(i,IJ,KL)*expo(3)
+          buf2(ijkl,IJ,KL,10)=buf2(ijkl,ij,kl,10)+XT1(i,IJ,KL)*expo(6)
                  enddo
               enddo
               do ij=ij2+1,ij3
                  do i=1,nbls1
                  ijkl=indx(i)
-              buf2(6,ijkl,IJ,KL)=buf2(6,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(2)
-              buf2(7,ijkl,IJ,KL)=buf2(7,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(3)
+           buf2(ijkl,IJ,KL,6)=buf2(ijkl,ij,kl,6)+XT1(i,IJ,KL)*expo(2)
+           buf2(ijkl,IJ,KL,7)=buf2(ijkl,ij,kl,7)+XT1(i,IJ,KL)*expo(3)
                  enddo
               enddo
            enddo
@@ -2358,7 +2367,7 @@ c-------
               do ij=ij1+1,ij2
                  do i=1,nbls1
                  ijkl=indx(i)
-            buf2(10,ijkl,IJ,KL)=buf2(10,ijkl,IJ,KL)+XT1(i,IJ,KL)*expo(6)
+          buf2(ijkl,IJ,KL,10)=buf2(ijkl,ij,kl,10)+XT1(i,IJ,KL)*expo(6)
                  enddo
               enddo
            enddo
