@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.1 1995-04-05 19:51:51 d3g681 Exp $
+C$Id: uhf.F,v 1.2 1995-04-06 20:11:17 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -141,7 +141,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.1 1995-04-05 19:51:51 d3g681 Exp $
+C     $Id: uhf.F,v 1.2 1995-04-06 20:11:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -209,7 +209,7 @@ c
          write(6,1) gnorm_tol, maxiter, tol2e, shifts, nr_gswitch
  1       format(//,
      $        1x,'----------------------------------------------',/
-     $        1x,'        Quadratically convergent UHF',//,
+     $        1x,'    Not yet quadratically convergent UHF',//,
      $        1x,'Convergence threshold     :',9x,1p,e10.2,0p,/,
      $        1x,'Maximum no. of iterations :',9x,i4,/,
      $        1x,'Integral*density screening:',9x,1p,e10.2,0p,//,
@@ -403,7 +403,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.1 1995-04-05 19:51:51 d3g681 Exp $
+C$Id: uhf.F,v 1.2 1995-04-06 20:11:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -489,7 +489,7 @@ c
 #include "cscf.fh"
 #include "util.fh"
 c     
-c     $Id: uhf.F,v 1.1 1995-04-05 19:51:51 d3g681 Exp $
+c     $Id: uhf.F,v 1.2 1995-04-06 20:11:17 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -507,8 +507,10 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical odebug
-      data jfac / 2.0d0, 0.0d0, 2.0d0, 0.0d0/
-      data kfac / 0.0d0, 2.0d0, 0.0d0, 2.0d0/
+      data jfac / 1.0d0, 0.0d0, 1.0d0, 0.0d0/
+      data kfac / 0.0d0, 1.0d0, 0.0d0, 1.0d0/
+*      data jfac / 2.0d0, 0.0d0, 2.0d0, 0.0d0/
+*      data kfac / 0.0d0, 2.0d0, 0.0d0, 2.0d0/
 c     
 c     Check
 c     
@@ -815,7 +817,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.1 1995-04-05 19:51:51 d3g681 Exp $
+C$Id: uhf.F,v 1.2 1995-04-06 20:11:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

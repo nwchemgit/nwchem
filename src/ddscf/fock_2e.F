@@ -2,7 +2,7 @@
       subroutine fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: fock_2e.F,v 1.3 1995-03-31 01:35:07 d3g681 Exp $
+c$Id: fock_2e.F,v 1.4 1995-04-06 20:11:08 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -125,10 +125,10 @@ c
       call ga_sync()
 c     
 c     fock_2e_a stuffs contributions into both the lower and upper
-c     triangles ... need to symmetrize and multiply by 2
+c     triangles ... need to symmetrize
 c
       do i=1,nfock
-        call ga_dscal(vg_fock(i), 2.0d0)
+        call ga_dscal(vg_fock(i), 4.0d0)
         if (.not. oskel) call ga_symmetrize(vg_fock(i))
       end do
 c

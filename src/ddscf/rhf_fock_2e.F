@@ -17,12 +17,12 @@ c
       double precision jfac(2), kfac(2)
 
       if (ocoul) then
-         jfac(1) = 2.d0
+         jfac(1) = 1.d0
       else
          jfac(1) = 0.d0
       endif
       if (oexch) then
-         kfac(1) = -1.d0
+         kfac(1) = -0.5d0
       else
          kfac(1) = 0.d0
       endif
