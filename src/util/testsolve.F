@@ -8,10 +8,10 @@ c
       integer dim, n, g_a, g_b, g_soln, g_resid, i, j, iter, g_v
       integer iter_solve
       common /info/ n, g_a
-      integer nroot
-      parameter (dim = 128, nroot=3)
-      double precision col(dim), acc(nroot), tol, scale
-      double precision eval(nroot)
+      integer nroot, heap
+      parameter (dim = 1024, nroot=3)
+      double precision col(dim), acc(nroot), tol, scale, sum
+      double precision eval(nroot), used, junk
       double precision evals(dim)
       double precision drandm
       external drandm, ga_iter_lsolve, ga_iter_diag
@@ -19,10 +19,16 @@ c
 c
       n = dim
       call pbeginf
-      if (.not. ma_init(MT_DBL, 100000, 100000)) call errquit
+      heap = max(8, (dim-1)/nnodes()+1)
+      heap = dim*(heap + 2)
+      heap = heap * 1.1
+      if (.not. ma_init(MT_DBL, heap, heap)) call errquit
      $     ('test: ma_init?', 0)
       status = ma_set_auto_verify(.true.)
       call ga_initialize()
+      write(6,*) ga_nodeid(), ' initialized'
+      call util_flush(6)
+      call ga_sync()
 c
 
 *      call testpcg
@@ -30,11 +36,16 @@ c
 c     
 c     create the arrays to test the linear equation solver
 c
-      status = ga_create(MT_DBL, n, n, 'test:v', 1, 1, g_v)
+*      status = ga_create(MT_DBL, n, n, 'test:v', 1, 1, g_v)
       status = ga_create(MT_DBL, n, n, 'test:a', 1, 1, g_a)
-      status = ga_create(MT_DBL, n, 1, 'test:soln', 1, 1, g_soln)
-      status = ga_create(MT_DBL, n, 1, 'test:b', 1, 1, g_b)
-      status = ga_create(MT_DBL, n, 1, 'test:resid', 1, 1, g_resid)
+      write(6,*) ga_nodeid(), ' created'
+      call util_flush(6)
+      call ga_sync()
+
+*      status = ga_create(MT_DBL, n, 1, 'test:soln', 1, 1, g_soln)
+*      status = ga_create(MT_DBL, n, 1, 'test:b', 1, 1, g_b)
+*      status = ga_create(MT_DBL, n, 1, 'test:resid', 1, 1, g_resid)
+      junk = drandm(ga_nodeid()*37*2 + 1)
       do i = ga_nodeid()+1, n, ga_nnodes()
          if (i .le. 3) then
             scale = 0.1d0
@@ -50,17 +61,40 @@ c
          call ga_put(g_a, i, i, i, n, col(i), 1)
       enddo
 c
-      if (ga_nodeid().eq.0) write(6,*) ' before '
-      call ga_print(g_a)
+      used = -tcgtime()
       call ga_orthog(g_a, -999999, .false.)
-      if (ga_nodeid().eq.0) write(6,*) ' after '
-      call ga_print(g_a)
-      call ga_dgemm('t','n',n,n,n,1.0d0,g_a, g_a, 0.0d0, g_v)
-      if (ga_nodeid().eq.0) write(6,*) ' identity'
-      call ga_print(g_v)
+      used = (used + tcgtime())
+      if (ga_nodeid().eq.0) then
+         write(6,*) ' new used ', used
+         call util_flush(6)
+      endif
+*      call ga_dgemm('t','n',n,n,n,1.0d0,g_a, g_a, 0.0d0, g_v)
+*      call ga_get_diagonal(g_v, col)
+*      sum = ga_ddot(g_v, g_v)
+*      if (ga_nodeid().eq.0) then
+*         write(6,*) ' diagonal ', sum
+*         call util_flush(6)
+*      endif
       call ga_sync()
-      call ffflush(6)
-      call ga_sync()
+c
+c     Add small amount of ranom noise in and call iterative orthog
+c
+      do i = ga_nodeid()+1, n, ga_nnodes()
+         call ga_get(g_a, 1, n, i, i, col(1), 1)
+         do j = 1, n
+            col(j) = col(j) + 1.d-2*(drandm(0)-0.5d0)
+         enddo
+         call ga_put(g_a, 1, n, i, i, col(1), 1)
+      enddo
+c
+      used = -tcgtime()
+      call ga_iter_orthog(-1, g_a, .false., .false.)
+      used = (used + tcgtime())
+      if (ga_nodeid().eq.0) then
+         write(6,*) ' old used ', used
+         call util_flush(6)
+      endif
+c      
       goto 10000
 c
       if (ga_nodeid() .eq. 0) then
