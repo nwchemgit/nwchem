@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.11 2002-05-16 21:33:36 bylaska Exp $
+* $Id: pspw_sic.F,v 1.12 2002-05-24 00:27:45 bylaska Exp $
 *
 
 *     *************************
@@ -55,6 +55,13 @@
      >                      'pspw:SIC_solver_type',
      >                      mt_int,1,solver_type)) 
      >       solver_type = 1
+
+         if (.not. rtdb_get(rtdb,
+     >                      'pspw:SIC_xc_parameter',
+     >                       mt_dbl,1,xc_parameter))
+     >       xc_parameter = 1.0d0
+ 
+
 
 *        **** initialize coulomb_screened ****
          if (solver_type.eq.1) then
@@ -234,6 +241,14 @@
      >                      dbl_mb(xce(1)))
            end if
 
+*          **** apply the xc_parameter ****
+           call D3dB_r_SMul(1,xc_parameter,
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xcp(1)))
+           call D3dB_r_SMul(1,xc_parameter,
+     >                      dbl_mb(xce(1)),
+     >                      dbl_mb(xce(1)))
+
 *          **** get exchange-correlation energy ****
            call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(xce(1)),exc)
            call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(xcp(1)),pxc)
@@ -389,6 +404,14 @@ c     >                            dbl_mb(dn(1)))
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
            end if
+
+*          **** apply the xc_parameter ****
+           call D3dB_r_SMul(1,xc_parameter,
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xcp(1)))
+           call D3dB_r_SMul(1,xc_parameter,
+     >                      dbl_mb(xce(1)),
+     >                      dbl_mb(xce(1)))
 
 *          **** get exchange-correlation energy ****
            call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(xce(1)),exc)
