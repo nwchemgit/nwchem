@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.17 1997-07-15 19:56:20 d3h449 Exp $
+c     $Id: scf_vec_guess.F,v 1.18 1997-07-25 17:58:03 d3g681 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c     oskel         = if true use symmetry in fock building
 c     oadapt        = if true force symmetry on the MOs
 c     oinitialized  = true if initialized
 c
-      integer geom, basis, nopen, nclosed, nelec, nbf, nmo
+      integer geom, basis, nopen, nclosed, nbf, nmo
       integer nalpha, nbeta
       double precision tol2e
       logical oskel, oadapt, oinitialized
@@ -57,7 +57,7 @@ c
 #include "bas.fh"
 #include "rtdb.fh"
 c#include "cscf.fh"
-c#include "cfock.fh"
+#include "cfock.fh"
 c
 c     Form guess vectors on disk for SCF wavefunctions
 c
@@ -140,15 +140,23 @@ c
 c     Since the caching of integrals may be turned on automagically
 c     we always need to use the full integral precision in the starting 
 c     guess
-*         if (owritefile) then
-*            tolguess = tol2e
-*         else
-*            tolguess = 1e-5
-*         endif
-         tolguess = tol2e
+c
+c     Modified by RJH so that unless writing of integrals has been
+c     forced on, it will do a quick and dirty initial guess and
+c     not store any integrals at all.
+c
+         if (owritefile) then
+            tolguess = tol2e
+         else
+            call fock_force_direct(rtdb)
+            tolguess = 1e-4
+         endif
+*         write(6,*) ' tolguess', tolguess
          call rhf_dens_to_mo(rtdb, geom, basis, 2*nclosed+nopen,
      &        nbf, nmo, tolguess,
      &        g_dens(1), g_movecs, oskel, dbl_mb(k_eval))
+c
+         if (.not. oreadfile) call scf_get_fock_param(rtdb,tol2e)
 c
          if (scftype .eq. 'UHF') then
             call ga_copy(g_movecs(1),g_movecs(2))
