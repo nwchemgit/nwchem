@@ -2,7 +2,7 @@
      &                     CD_coef,g_vc,Ecoul,nbf_cd,
      &                     iVcoul_opt,g_2ceri,g_dens,IOLGC,itol2e)
 
-C$Id: dft_getvc.F,v 1.4 1995-12-20 03:10:19 og845 Exp $
+C$Id: dft_getvc.F,v 1.5 1995-12-27 23:33:18 og845 Exp $
       implicit none
       
 
@@ -44,7 +44,7 @@ c******************************************************************************
       if( iVcoul_opt.eq.0 )then
 
 c       Compute the Coulomb potential via evaluation of the AO set of 4-ctr ERIs.
-        tol2e=10.d0**(-itol2e)
+        tol2e=10.d0**(-itol2e)*100.
         call ga_zero(g_vc)
         call rhf_fock_2e(geom, AO_bas_han, g_dens(1), g_vc, tol2e,
      &       .true., .false., .false.)
