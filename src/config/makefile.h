@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.171 1996-09-25 22:22:10 mdupuis Exp $
+# $Id: makefile.h,v 1.172 1996-09-26 00:02:31 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -67,10 +67,10 @@ endif
 # wrapper for the normal tcgmsg library.
 
 ifdef USE_MPI
-NW_CORE_SUBDIRS = include basis geom global inp input \
+NW_CORE_SUBDIRS = include basis geom global inp input chemio \
 	ma pstat rtdb tcgmsg-mpi task symmetry util $(CORE_SUBDIRS_EXTRA)
 else
-NW_CORE_SUBDIRS = include basis geom global inp input \
+NW_CORE_SUBDIRS = include basis geom global inp input chemio \
 	ma pstat rtdb tcgmsg task symmetry util $(CORE_SUBDIRS_EXTRA)
 endif
 
@@ -223,7 +223,7 @@ ifeq ($(TARGET),SUN)
 
     DEFINES = -DSUN
 
-       CORE_LIBS = -lutil -lglobal -llapack -lblas
+       CORE_LIBS =  -lutil -lchemio -lglobal -llapack -lblas
 endif
 
 ifeq ($(TARGET),SOLARIS)
@@ -237,7 +237,7 @@ ifeq ($(TARGET),SOLARIS)
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
      RANLIB = echo
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = echo $@ is built
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on the stack which seems a good thing
@@ -258,7 +258,7 @@ ifeq ($(TARGET),SOLARIS)
 
   LDOPTIONS = -xildoff
 
-       CORE_LIBS = -lutil -lglobal -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
       EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl
 
@@ -339,7 +339,7 @@ ifeq ($(TARGET),CRAY-T3D)
 
                LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
 
-            CORE_LIBS = -lglobal -lpeigs -llapack -lblas
+            CORE_LIBS =  -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 
      EXPLICITF = TRUE
              FCONVERT = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
@@ -364,7 +364,7 @@ ifeq ($(TARGET),KSR)
 
 #       LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
         LIBPATH += -L/home2/d3g270/peigs1.1.1 -L/home/d3g681/TCGMSG_DISTRIB
-       CORE_LIBS = -lglobal -lutil -lpeigs \
+       CORE_LIBS = -lglobal -lutil -lchemio -lpeigs \
                    -lksrlapk -lksrblas -llapack2 -lblas2  
       EXTRA_LIBS = -para -lrpc
 endif
@@ -404,7 +404,7 @@ FVECTORIZE = -O2 -Minline=1000 # -Mvect
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
        LIBPATH  += -L/home/delilah11/gifann/lib
-       CORE_LIBS = -lglobal -lutil \
+       CORE_LIBS = -lglobal -lchemio -lutil \
 	           -lpeigs_paragon -llapack $(LIBDIR)/liblapack.a -lkmath 
       EXTRA_LIBS = -nx
 endif
@@ -432,7 +432,7 @@ FVECTORIZE = -O4 		# -Mvect corrupts lapack for large vectors
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
         LIBPATH += -L/home/delilah11/gifann/lib
-       CORE_LIBS = -lglobal -lutil -lglobal -lpeigs_delta\
+       CORE_LIBS = -lglobal -lutil -lchemio -lglobal -lpeigs_delta\
    	            $(LIBDIR)/liblapack.a -llapack -lblas
       EXTRA_LIBS = -node
 endif
@@ -496,7 +496,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
  COPTIMIZE = -O
 
     DEFINES = -DSGI -DSGITFP -DLongInteger
-  CORE_LIBS = -lutil -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
 endif
 
 
@@ -520,7 +520,7 @@ ifeq ($(TARGET),SGI)
  FOPTIMIZE = -O2
  COPTIMIZE = -O2
 
-       CORE_LIBS = -lutil -lglobal -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
       EXTRA_LIBS = -lmalloc 
 endif
 
@@ -585,7 +585,7 @@ endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
 
-       CORE_LIBS = -lglobal -lutil -llapack -lblas\
+       CORE_LIBS = -lglobal -lchemio -lutil -llapack -lblas\
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
 	      -brename:.ddot_,.ddot \
@@ -671,7 +671,7 @@ ifeq ($(TARGET),SP1)
 # Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
 #
 #  LIBPATH += -L/sphome/harrison/peigs2.0
-  CORE_LIBS = -lglobal -lutil -lpeigs -llapack
+  CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -llapack
 
    USE_ESSL = YES
 ifdef USE_ESSL
@@ -744,7 +744,8 @@ ifeq ($(TARGET),DECOSF)
              COPTIMIZE = -O
 
                DEFINES = -DDECOSF -DLongInteger
-             CORE_LIBS = -lutil -lglobal -llapack -lblas
+             CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+            EXTRA_LIBS = -laio -lpthreads 
 endif
 
 
@@ -770,7 +771,7 @@ ifeq ($(TARGET),LINUX)
 
   LDOPTIONS = -g
      LINK.f = gcc $(LDFLAGS)
-  CORE_LIBS = -lutil -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
  EXTRA_LIBS = -lf2c -lm
 
         CPP = gcc -E -nostdinc -undef -P
