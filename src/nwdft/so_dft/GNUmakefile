@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 2000-04-17 22:12:23 edo Exp $
+# $Id: GNUmakefile,v 1.3 2000-04-18 00:31:12 edo Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -16,9 +16,7 @@
 	vectors_so.o grad_dens_so.o grad1_so.o \
 	diis_driver_so.o diis_bsolve_so.o diis_bld12_so.o\
 	diis_core_so.o diis_hamwgt_so.o \
-	diis_refvec_so.o zspsvx.o zlacpy.o zsptrf.o \
-	zsprfs.o zsprfs.o zsptrs.o zlansp.o zspcon.o \
-	zgeru.o zspr.o izamax.o zspmv.o zlacon.o \
+	diis_refvec_so.o izamax.o \
 	dzsum1.o izmax1.o movecs_anal_so.o \
 	sym_mo_adapt_so.o sym_char_tab_so.o scf_sym_adap_so.o \
 	sym_mo_ap_op_so.o sym_op_clsfy_so.o ga_orth_mos_so.o  \

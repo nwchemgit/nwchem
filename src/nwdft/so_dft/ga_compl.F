@@ -1,4 +1,5 @@
       subroutine edo_diag_compl(g_ar, g_ac, g_vr, g_vc, eval)
+c     $Id: ga_compl.F,v 1.2 2000-04-18 00:31:12 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

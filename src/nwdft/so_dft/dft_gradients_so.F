@@ -1,6 +1,5 @@
       subroutine dft_gradients_so(rtdb)
-c
-C $$
+c     $Id: dft_gradients_so.F,v 1.2 2000-04-18 00:31:12 edo Exp $
 c
 c calculate energy gradients with respect to nuclear coordinates
 c modified from scf version for use in DFT gradients
