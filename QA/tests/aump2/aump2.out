@@ -1,0 +1,1016 @@
+ 
+Processor list
+ 
+sw1307
+sw1308
+sw1309
+sw1310
+sw1311
+sw1312
+sw1313
+sw1314
+sw1315
+sw1316
+sw1601
+sw1602
+sw1603
+sw1604
+sw1605
+sw1606
+sw1607
+sw1608
+sw1609
+sw1610
+sw1611
+sw1612
+sw1613
+sw1614
+sw1615
+sw1616
+sw1701
+sw1702
+sw1703
+sw1704
+sw1705
+sw1706
+
+ 
+Wed Jul  8 14:40:11 PDT 1998
+copyexe used 0.650 seconds
+ argument  1 = /u/d3g681/jobs/aump2.nw
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 3.2
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                         COPYRIGHT (C) 1994, 1995, 1996, 1997
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+              Job information
+              ---------------
+
+    hostname  = et1307.nwmpp1.emsl.pnl.gov
+    program   = /scratch/nwchem
+    date      = Wed Jul  8 14:40:23 1998
+
+    compiled  = Wed Jul  8 10:53:24 PDT 1998
+    source    = /u/d3g681/nwchem
+    input     = /u/d3g681/jobs/aump2.nw
+    prefix    = Au+.
+    data base = ./Au+.db
+    status    = startup
+    nproc     =   32
+    time left =  28774s
+
+
+            Memory information
+            ------------------
+
+    heap      =    8847361 doubles =     70.8 Mbytes
+    stack     =    2949121 doubles =     23.6 Mbytes
+    global    =   11796491 doubles =     94.4 Mbytes (within heap+stack)
+    total     =   11796482 doubles =     94.4 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = /scratch
+ 
+              Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
+              -----------------------------------------------------
+ 
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Au                  79.0000      .00000000      .00000000      .00000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      Au               196.966600
+ 
+
+ Effective nuclear repulsion energy (a.u.)        .0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .0000000000      .0000000000
+ 
+      Symmetry information
+      --------------------
+ 
+ Group name             D2h       
+ Group number             26
+ Group order               8
+ No. of unique centers     1
+ 
+      Symmetry unique atoms
+ 
+     1
+ 
+                 ECP       "ecp basis" -> ""
+                      -----
+    ECP Basis is spherical, 5d, 7f, 9g ... 
+  Au (Gold) Replaces    60 electrons
+  ----------------------------------
+          R-exponent    Exponent     Coefficients 
+         ------------ ------------------------------------------------------------
+  1 U-s      2.00       13.205100     426.709840
+  1 U-s      2.00        6.602550      35.938820
+ 
+  2 U-p      2.00       10.452020     261.161020
+  2 U-p      2.00        5.226010      26.626280
+ 
+  3 U-d      2.00        7.851100     124.756830
+  3 U-d      2.00        3.925550      15.772260
+ 
+  4 U-f      2.00        4.789800      30.568470
+  4 U-f      2.00        2.394910       5.183770
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+               Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =   131
+  atoms           =     1
+  closed shells   =     9
+  open shells     =     0
+  charge          =   1.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./Au+.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Au                      user specified             35      131   11s10p8d3f2g1h
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        ag         33
+        au          5
+        b1g        12
+        b1u        19
+        b2g        12
+        b2u        19
+        b3g        12
+        b3u        19
+ 
+
+ Forming initial guess at      24.1s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:        -194.59408349
+
+ Renormalizing density from    19.00 to   18
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     489.451832
+ 1-e energy   =     388.694056
+ 2-e energy   =     100.757776
+ HOMO         =      -1.291045
+ LUMO         =      -1.106897
+ 
+ 
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+ 
+
+ !! scf_movecs_sym_adapt:   92 vectors were symmetry contaminated
+
+  Symmetry fudging
+
+ !! scf_movecs_sym_adapt:   60 vectors were symmetry contaminated
+
+  Numbering of irreducible representations: 
+ 
+     1 ag          2 au          3 b1g         4 b1u         5 b2g     
+     6 b2u         7 b3g         8 b3u     
+ 
+  Orbital symmetries:
+ 
+     1 ag          2 b3u         3 b2u         4 b1u         5 b2g     
+     6 b3g         7 ag          8 b1g         9 ag         10 ag      
+    11 b3u        12 b2u        13 b1u        14 ag         15 ag      
+    16 b1g        17 b2g        18 b3g        19 ag      
+ 
+
+ Starting SCF solution at      54.3s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-06
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-08
+ ----------------------------------------------
+
+
+ Integral file          = /scratch/Au+.aoints.00
+ Record size in doubles =  32769        No. of integs per rec  =  21844
+ Max. records in memory =      8        Max. records in file   =   8392
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ #quartets = 1.988D+05 #integrals = 3.640D+06 #direct =   .0% #cached =100.0%
+
+
+File balance: exchanges=    48  moved=    27  time=    .0
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1     -132.8845889196  1.03D+01  2.87D+00    108.9
+                 2     -134.6460233493  7.09D-01  2.14D-01    112.9
+                 3     -134.6825437118  3.14D-01  8.89D-02    115.8
+                 4     -134.6843335126  3.44D-03  8.56D-04    121.8
+                 5     -134.6843340439  5.71D-06  1.62D-06    127.5
+                 6     -134.6843340439  1.73D-08  4.89D-09    132.2
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =   -134.684334043866
+      One-electron energy =   -233.466922651842
+      Two-electron energy =     98.782588607976
+ Nuclear repulsion energy =       .000000000000
+
+        Time for solution =     81.8s
+
+
+ 
+       Symmetry analysis of molecular orbitals - final
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 ag          2 au          3 b1g         4 b1u         5 b2g     
+     6 b2u         7 b3g         8 b3u     
+ 
+  Orbital symmetries:
+ 
+     1 ag          2 b3u         3 b2u         4 b1u         5 ag      
+     6 b1g         7 b2g         8 b3g         9 ag         10 ag      
+    11 b3u        12 b2u        13 b1u        14 ag         15 ag      
+    16 b1g        17 ag         18 b2g        19 b3g     
+ 
+             Final eigenvalues
+             -----------------
+
+              1      
+    1   -5.0081
+    2   -3.0370
+    3   -3.0370
+    4   -3.0370
+    5    -.7664
+    6    -.7664
+    7    -.7664
+    8    -.7664
+    9    -.7664
+   10    -.2738
+   11    -.1241
+   12    -.1241
+   13    -.1241
+   14    -.0832
+   15    -.0460
+   16    -.0460
+   17    -.0460
+   18    -.0460
+   19    -.0460
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector    2  Occ=2.000000D+00  E=-3.036992D+00  Symmetry=b3u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24       .691291  1 Au px                18      -.358797  1 Au px         
+    21       .309698  1 Au px                27       .220256  1 Au px         
+ 
+ Vector    3  Occ=2.000000D+00  E=-3.036992D+00  Symmetry=b2u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25       .691291  1 Au py                19      -.358797  1 Au py         
+    22       .309698  1 Au py                28       .220256  1 Au py         
+ 
+ Vector    4  Occ=2.000000D+00  E=-3.036992D+00  Symmetry=b1u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26       .691291  1 Au pz                20      -.358797  1 Au pz         
+    23       .309698  1 Au pz                29       .220256  1 Au pz         
+ 
+ Vector    5  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    61       .500455  1 Au d  2              66       .345318  1 Au d  2       
+    56       .273447  1 Au d  2       
+ 
+ Vector    6  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=b1g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    57       .500457  1 Au d -2              62       .345319  1 Au d -2       
+    52       .273449  1 Au d -2       
+ 
+ Vector    7  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=b2g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    60       .500457  1 Au d  1              65       .345319  1 Au d  1       
+    55       .273449  1 Au d  1       
+ 
+ Vector    8  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=b3g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    58       .500457  1 Au d -1              63       .345319  1 Au d -1       
+    53       .273449  1 Au d -1       
+ 
+ Vector    9  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    59       .500455  1 Au d  0              64       .345318  1 Au d  0       
+    54       .273447  1 Au d  0       
+ 
+ Vector   10  Occ=0.000000D+00  E=-2.737631D-01  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7       .534858  1 Au s                  8       .451885  1 Au s          
+     4      -.439693  1 Au s                  2       .338801  1 Au s          
+     5      -.179639  1 Au s                  6       .170929  1 Au s          
+ 
+ Vector   11  Occ=0.000000D+00  E=-1.240633D-01  Symmetry=b3u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36       .475151  1 Au px                39       .326236  1 Au px         
+    33       .273921  1 Au px         
+ 
+ Vector   12  Occ=0.000000D+00  E=-1.240633D-01  Symmetry=b2u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    37       .475151  1 Au py                40       .326236  1 Au py         
+    34       .273921  1 Au py         
+ 
+ Vector   13  Occ=0.000000D+00  E=-1.240633D-01  Symmetry=b1u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38       .475151  1 Au pz                41       .326236  1 Au pz         
+    35       .273921  1 Au pz         
+ 
+ Vector   14  Occ=0.000000D+00  E=-8.315755D-02  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10       .989237  1 Au s                  8      -.568065  1 Au s          
+     7      -.281727  1 Au s                  9       .247978  1 Au s          
+     4       .157285  1 Au s          
+ 
+ Vector   15  Occ=0.000000D+00  E=-4.596356D-02  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    81      1.035266  1 Au d  2       
+ 
+ Vector   16  Occ=0.000000D+00  E=-4.596356D-02  Symmetry=b1g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    77      1.035266  1 Au d -2       
+ 
+ Vector   17  Occ=0.000000D+00  E=-4.596356D-02  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    79      1.035266  1 Au d  0       
+ 
+ Vector   18  Occ=0.000000D+00  E=-4.596356D-02  Symmetry=b2g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80      1.035266  1 Au d  1       
+ 
+ Vector   19  Occ=0.000000D+00  E=-4.596356D-02  Symmetry=b3g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    78      1.035266  1 Au d -1       
+ 
+ Vector   20  Occ=0.000000D+00  E=-4.114152D-02  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      2.625479  1 Au s                 11     -2.483015  1 Au s          
+     8      -.295336  1 Au s                  7      -.274571  1 Au s          
+ 
+ Vector   21  Occ=0.000000D+00  E=-4.037265D-02  Symmetry=b2u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    40      1.704342  1 Au py                37     -1.480350  1 Au py         
+    31      -.204256  1 Au py         
+ 
+ Vector   22  Occ=0.000000D+00  E=-4.037265D-02  Symmetry=b3u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39      1.704342  1 Au px                36     -1.480350  1 Au px         
+    30      -.204256  1 Au px         
+ 
+ Vector   23  Occ=0.000000D+00  E=-4.037265D-02  Symmetry=b1u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    41      1.704342  1 Au pz                38     -1.480350  1 Au pz         
+    32      -.204256  1 Au pz         
+ 
+ Vector   24  Occ=0.000000D+00  E= 1.843183D-03  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      8.129307  1 Au s                 10     -7.410495  1 Au s          
+     8     -3.954529  1 Au s                 11      2.790947  1 Au s          
+     7       .778871  1 Au s                  6      -.513723  1 Au s          
+     5       .275756  1 Au s          
+ 
+ Vector   25  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=b1g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    72      1.754774  1 Au d -2              77     -1.130510  1 Au d -2       
+    67      -.375168  1 Au d -2       
+ 
+ Vector   26  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    76      1.754774  1 Au d  2              81     -1.130510  1 Au d  2       
+    71      -.375168  1 Au d  2       
+ 
+ Vector   27  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=b2g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    75      1.754774  1 Au d  1              80     -1.130510  1 Au d  1       
+    70      -.375168  1 Au d  1       
+ 
+ Vector   28  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=b3g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    73      1.754774  1 Au d -1              78     -1.130510  1 Au d -1       
+    68      -.375168  1 Au d -1       
+ 
+ Vector   29  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    74      1.754774  1 Au d  0              79     -1.130510  1 Au d  0       
+    69      -.375168  1 Au d  0       
+ 
+ Vector   30  Occ=0.000000D+00  E= 1.134408D-01  Symmetry=b3u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      3.449203  1 Au px                33     -2.928930  1 Au px         
+    39     -1.465915  1 Au px                30       .678850  1 Au px         
+    24       .293066  1 Au px                27      -.224024  1 Au px         
+ 
+ Vector   31  Occ=0.000000D+00  E= 1.134408D-01  Symmetry=b2u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    37      3.449203  1 Au py                34     -2.928930  1 Au py         
+    40     -1.465915  1 Au py                31       .678850  1 Au py         
+    25       .293066  1 Au py                28      -.224024  1 Au py         
+ 
+ Vector   32  Occ=0.000000D+00  E= 1.134408D-01  Symmetry=b1u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38      3.449203  1 Au pz                35     -2.928930  1 Au pz         
+    41     -1.465915  1 Au pz                32       .678850  1 Au pz         
+    26       .293066  1 Au pz                29      -.224024  1 Au pz         
+ 
+ Vector   33  Occ=0.000000D+00  E= 1.657851D-01  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8     11.273819  1 Au s                  9     -9.477172  1 Au s          
+     7     -7.531369  1 Au s                 10      4.977360  1 Au s          
+     6      2.351631  1 Au s                 11     -1.378540  1 Au s          
+     5      -.762507  1 Au s                  4       .701169  1 Au s          
+     2      -.194479  1 Au s          
+ 
+ Vector   34  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    71      2.204840  1 Au d  2              76     -1.705734  1 Au d  2       
+    66      -.753111  1 Au d  2              81       .618145  1 Au d  2       
+    56      -.181088  1 Au d  2       
+ 
+ Vector   35  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=b1g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    67      2.204840  1 Au d -2              72     -1.705735  1 Au d -2       
+    62      -.753111  1 Au d -2              77       .618145  1 Au d -2       
+    52      -.181088  1 Au d -2       
+ 
+ Vector   36  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=b2g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    70      2.204840  1 Au d  1              75     -1.705735  1 Au d  1       
+    65      -.753111  1 Au d  1              80       .618145  1 Au d  1       
+    55      -.181088  1 Au d  1       
+ 
+ Vector   37  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=b3g
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    68      2.204840  1 Au d -1              73     -1.705735  1 Au d -1       
+    63      -.753111  1 Au d -1              78       .618145  1 Au d -1       
+    53      -.181088  1 Au d -1       
+ 
+ Vector   38  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=ag
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    69      2.204840  1 Au d  0              74     -1.705734  1 Au d  0       
+    64      -.753111  1 Au d  0              79       .618145  1 Au d  0       
+    54      -.181088  1 Au d  0       
+ 
+ Vector   39  Occ=0.000000D+00  E= 5.011874D-01  Symmetry=b3u
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   102       .997352  1 Au f  3       
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 Au  19    18.00    .05  -.52   .33  1.71   .42   .02  -.01   .00   .00   .00   .00   .00   .03  -.68  1.34  4.07  1.16   .09  -.01   .00   .00   .00  -.25  1.86  4.77
+  2.97   .64   .00   .00   .00   .00   .00   .00   .00   .00
+
+ Parallel integral file used     182 records with       0 large values
+
+                   NWChem MP2 Semi-direct Energy/Gradient Module
+                   ---------------------------------------------
+ 
+ 
+               Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
+ 
+ 
+
+ Read molecular orbitals from ./Au+.movecs
+
+  Basis functions       =    131
+  Molecular orbitals    =    131
+  Frozen core           =      0
+  Frozen virtuals       =      0
+  Active alpha occupied =      9
+  Active beta occupied  =      9
+  Active alpha virtual  =    122
+  Active beta virtual   =    122
+  Use MO symmetry       = T
+  Use skeleton AO sym   = T
+
+
+ GA uses MA = T    GA memory limited = F
+
+ Available: local mem=  11563443 global mem=         0 local disk=257036800.
+   1 passes of   9:      2901740                     0               326302.
+ 
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at      173.0s
+Node 0 wrote      2.5 Mb in       .0 s     Agg I/O rate:    NaNQ Mb/s
+ Done moints_semi at      548.5s
+ Done maket at      550.1s
+ Done multipass loop at      550.2s
+
+
+          -------------------------------------------
+          SCF energy                -134.684334043866
+          Correlation energy           -.677993809104
+          Total MP2 energy          -135.362327852970
+          -------------------------------------------
+
+ -----------------------
+ Performance information
+ -----------------------
+
+ Timer overhead =  8.00D-06 seconds/call
+
+                                   Nr. of calls                 CPU time (s)              Wall time (s)  
+                             -------------------------      ---------------------      ---------------------
+ Name                        Min        Avg        Max      Min      Avg      Max      Min      Avg      Max
+ mp2: moints                   1          1          1 3.71E+02 3.75E+02 3.75E+02   3.76E+02 3.76E+02 3.76E+02
+ mp2: maket                    1          1          1  1.3      1.6      1.6        1.6      1.6      1.6    
+ mp2: total                    1          1          1 4.03E+02 4.06E+02 4.07E+02   4.07E+02 4.07E+02 4.07E+02
+
+ The average no. of pstat calls per process was 3.00D+00 with a timing overhead of 2.40D-05s
+
+
+ Task  times  cpu:      543.0s     wall:      549.5s
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+               Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =   131
+  atoms           =     1
+  closed shells   =     9
+  open shells     =     0
+  charge          =   1.00
+  wavefunction    = RHF 
+  input vectors   = ./Au+.movecs
+  output vectors  = ./Au+.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Au                      user specified             35      131   11s10p8d3f2g1h
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        ag         33
+        au          5
+        b1g        12
+        b1u        19
+        b2g        12
+        b2u        19
+        b3g        12
+        b3u        19
+ 
+
+  The SCF is already converged 
+
+         Total SCF energy =   -134.684334043866
+
+
+ Read molecular orbitals from ./Au+.movecs
+
+                          Direct MP2
+                          ----------
+          Basis functions:                      131
+          Shells:                                35
+          Block length:                          32
+          Active occupied range:             1 -  9
+          Active virtual range:             10 -131
+          MO coefficients read from:  ./Au+.movecs             
+          Operator matrices in core:             45
+          AO passes required:                     1
+          Use AO Integral blocking
+          Twofold algorithm used
+
+     Pass:    1     Index range:    1  -    9     Time:     81.04
+
+
+          -------------------------------------------
+          SCF energy                -134.684334043866
+          Correlation energy           -.677993809104
+          Total MP2 energy          -135.362327852970
+          -------------------------------------------
+
+
+          Total MP2 time:         102.38
+
+ Task  times  cpu:      105.0s     wall:      105.2s
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+               Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =   131
+  atoms           =     1
+  closed shells   =     9
+  open shells     =     0
+  charge          =   1.00
+  wavefunction    = RHF 
+  input vectors   = ./Au+.movecs
+  output vectors  = ./Au+.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Au                      user specified             35      131   11s10p8d3f2g1h
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        ag         33
+        au          5
+        b1g        12
+        b1u        19
+        b2g        12
+        b2u        19
+        b3g        12
+        b3u        19
+ 
+
+  The SCF is already converged 
+
+         Total SCF energy =   -134.684334043866
+
+
+ Read molecular orbitals from ./Au+.movecs
+
+ 
+ 
+                   Four-Index Transformation
+                   -------------------------
+          Number of basis functions:            131
+          Number of shells:                      35
+          Number of occupied orbitals:            9
+          Number of occ. correlated orbitals:     9
+          Block length:                          16
+          Superscript MO index range:        1 -  9
+          Subscript MO index range:          1 -131
+          MO coefficients read from:  ./Au+.movecs             
+          Number of operator matrices in core:   90
+          Half-transformed integrals produced
+ 
+     Pass:    1     Index range:    1  -    9     Time:    110.46
+ ------------------------------------------
+ MP2 Energy (coupled cluster initial guess)
+ ------------------------------------------
+ Reference energy:           -134.684334043866102
+ MP2 Corr. energy:              -.677993809103580
+ Total MP2 energy:           -135.362327852969685
+
+
+ ****************************************************************************
+              the segmented parallel titan ccsd program: 32 nodes
+ ****************************************************************************
+
+
+
+
+ level of theory    ccsd(t)
+ number of core         0
+ number of occupied     9
+ number of virtual    122
+ number of deleted      0
+ total functions      131
+ number of shells      35
+ basis label          566
+
+
+
+   ***** ccsd parameters *****
+   iprt   =     0
+   convi  =  .100E-05
+   maxit  =    20
+   mxvec  =     5
+ memory 11418558
+  file_read_ga: failed to open ./Au+.t2
+  Failed reading restart vector from ./Au+.t2
+  Using MP2 initial guess vector 
+
+
+-------------------------------------------------------------------------
+ iter     correlation     delta       rms       T2     Non-T2      Main
+             energy      energy      error      ampl     ampl      Block
+                                                time     time      time
+-------------------------------------------------------------------------
+   1      -.6420739922 -6.421D-01  3.178D-01   169.46      .04   163.22
+   2      -.6552098614 -1.314D-02  1.391D-01   169.47      .02   163.23
+   3      -.6540437985  1.166D-03  3.020D-03   168.37      .03   163.10
+   4      -.6542434792 -1.997D-04  1.598D-03   169.10      .03   163.19
+   5      -.6543757057 -1.322D-04  7.228D-04   169.44      .03   163.24
+   6      -.6543564408  1.926D-05  4.326D-04   169.37      .03   163.20
+   7      -.6543542335  2.207D-06  4.061D-05   169.41      .03   163.18
+   8      -.6543546161 -3.826D-07  3.962D-05   172.14      .03   165.89
+   9      -.6543546763 -6.022D-08  2.282D-06   168.54      .03   163.24
+  10      -.6543547184 -4.213D-08  2.196D-06   169.54      .03   163.23
+  11      -.6543547311 -1.270D-08  7.577D-08   169.98      .03   163.76
+                  *************converged*************
+-------------------------------------------------------------------------
+
+ -----------
+ CCSD Energy
+ -----------
+ Reference energy:            -134.684334043866102
+ CCSD corr. energy:              -.654354731113251
+ Total CCSD energy:           -135.338688774979346
+ memory 11036505
+
+
+*********triples calculation*********
+
+nkpass= 1; nvpass=  1; memdrv=  611830; memtrn= 4400205; memavail=11035399
+ memory available/node                11035399
+ total number of virtual orbitals       122
+ number of virtuals per integral pass   122
+ number of integral evaluations           1
+ number of occupied per triples pass      9
+ number of triples passes                 1
+
+ commencing integral evaluation        1
+ Time for integral evaluation pass     1   149.12
+ Time for triples evaluation pass      1   231.47
+
+ pseudo-e(mp4)   -.20388563010252E-01
+ pseudo-e(mp5)    .23839122339290E-03
+        e(t)     -.20150171786859E-01
+
+ --------------
+ CCSD(T) Energy
+ --------------
+ Reference energy:                    -134.684334043866102
+
+ CCSD corr. energy:                      -.654354731113251
+ T(CCSD) corr. energy:                   -.020388563010252
+ Total CCSD+T(CCSD) energy:           -135.359077337989589
+
+ CCSD corr. energy:                      -.654354731113251
+ (T) corr. energy:                       -.020150171786859
+ Total CCSD(T) energy:                -135.358838946766213
+ 
+ routine      calls  cpu(0)   cpu-min  cpu-ave  cpu-max   i/o 
+ aoccsd          1     5.36     5.36     5.36     5.36     .00
+ iterdrv         1    16.18    16.18    16.20    16.24     .00
+ pampt          11     3.81     3.80     3.81     3.81     .00
+ t2pm           11     1.73     1.72     1.73     1.73     .00
+ sxy            11  1699.16  1696.69  1706.53  1742.77     .00
+ t2eri      163170    32.22     9.88    28.40    32.95     .00
+ idx1       163170    48.94    40.73    47.05    53.06     .00
+ idx2          259    10.85     2.75     9.98    11.73     .00
+ idx34          11     1.24      .00     1.05     1.27     .00
+ ht2pm          11     2.94     2.94     2.94     2.94     .00
+ itm            11    57.55    57.55    57.56    57.56     .00
+ pdiis          11      .19      .13      .16      .19     .00
+ triples         1   149.86   149.86   149.86   149.86     .00
+ trpdrv          1    14.75    12.44    17.16    19.99     .00
+ dovvv        3150   115.54   113.07   114.51   116.94     .00
+ doooo        3150    10.17     9.88    10.11    10.75     .00
+ tengy        2835    90.76    87.95    89.44    91.97     .00
+ Total              2261.26  2260.99  2261.87  2266.24     .00
+
+ Task  times  cpu:     2383.9s     wall:     2402.9s
+
+ Summary of allocated global arrays 
+ ----------------------------------
+
+   No active global arrays
+  
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  553      553     1.92e+05 2.24e+04 1.83e+05    0        0        0     
+bytes total:             2.28e+09 1.29e+08 5.09e+08 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            2.07e+09 5.53e+07 4.45e+08 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 11719528 bytes
+Number of requests serviced: 361921
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        49	        29
+	current total bytes		         0	         0
+	maximum total bytes		  13566468	  37346916
+	maximum total K-bytes		     13567	     37347
+	maximum total M-bytes		        14	        38
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 3.1" (1997), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; Clark, T.; 
+            Clerc, D.; Dachsel, H.; Deegan, M.; Dupuis, M.;Dyall, K.; 
+            Fann, G.; Fruchtl, H.; Gutowski, M.; Harrison, R.; Hess, A.;
+            Jaffe, J.; Kendall, R.; Kobayashi, R.; Kutteh, R.; Lin, Z.; 
+            Littlefield, R.; Long, X.; Meng, B.; Nichols, J.; Nieplocha, J.; 
+            Rendall, A.; Stave, M.; Straatsma, T.;Taylor, H.; Thomas, G.; 
+            Wolinski, K.; Wong, A.; "NWChem, A Computational Chemistry 
+            Package for Parallel Computers, Version 3.1" (1997),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+                                    REFERENCES
+                                    ----------
+
+            Where appropriate, please cite the following reference(s) 
+            when publishing results obtained with NWChem:
+
+
+     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
+        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
+        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
+        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
+        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
+
+
+
+ Total times  cpu:     3032.5s     wall:     3059.7s
+0.7u 0.7s 51:12 0% 91+289k 0+0io 27pf+0w
+Wed Jul  8 15:31:24 PDT 1998

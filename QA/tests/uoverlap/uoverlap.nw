@@ -1,0 +1,44 @@
+
+
+#From various tests on Si2H6 MP2 gradients (aug-TZ basis) and the following
+#Uranium input I think that the default (standard) integral accuracy needs
+#to be increased.  I would recommend 10^-15 being standard, though I only
+#tested the following with an accuracy of 10^-20 (by hacking int_acc_std).
+
+#The following input gives spurious zero overlap eigenvalues with the
+#default integral accuracy of 1e-20.  Increasing to 10^-20 fixes it.
+
+
+#For robust convergence start U6+ from the converged Rn solution
+
+start u6
+
+title; U6+
+
+set int:cando_txs f
+
+geometry; symmetry d2h
+ Rn 0 0 0 
+end
+
+basis spherical
+ Rn library bert file /u/d3g681/jobs/bert.bas
+end
+
+scf
+  vectors atomic
+end
+
+task scf
+
+charge 6
+
+geometry; symmetry d2h
+ U 0 0 0 
+end
+
+basis spherical
+ U library bert file /u/d3g681/jobs/bert.bas
+end
+
+task scf

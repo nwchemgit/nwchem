@@ -1,0 +1,32 @@
+# This input exposed bug in freeze core atomic for centers with ECPs
+
+start Au+(H2O)2 
+title; Au+(H2O)2, H2O aVTZ using optimal MP2/aVDZ geometry
+
+charge 1  # Overall +1 charge
+
+geometry units angstrom
+
+symmetry group C2
+
+Au      0.0         0.0         0.009361
+O       0.0         2.036904    0.009358
+H       0.125560    2.461223   -0.856506
+H      -0.776831    2.461225    0.411874
+end
+
+basis  spherical 
+  Au library LANL2DZ_ECP
+  H  library 6-31g
+  O  library 6-31g
+end
+
+ecp spherical
+  Au library LANL2DZ_ECP
+end
+
+mp2 
+ freeze core atomic
+end
+
+task mp2         # Perform a single point MP2

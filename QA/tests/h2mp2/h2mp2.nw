@@ -1,0 +1,25 @@
+title; H2 MP2 gradient at this geometry exposed bug in shell pair ordering
+
+start h2o
+
+geometry units au
+  H      0.00000000   -1.43042809   -1.10715266
+  H      0.00000000    1.93042809   -1.60715266
+end
+
+basis
+  H library 6-31g
+  O library 6-31g
+end
+
+set tng:fivept t
+set tng:delta 0.03
+
+mp2; print backtenergy; end
+
+task mp2 gradient
+
+mp2; print none; end
+
+task mp2 gradient numerical
+

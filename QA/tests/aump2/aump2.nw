@@ -1,0 +1,113 @@
+
+# Orginal problem was stupid MP2 energies that disagreed 
+# between MP2 and CCSD modules.  Cannot reproduce problem
+# but it seems good to compare all three.  Note that the
+# MP2 energy would also probably expose the old Texas instability.
+
+start Au+
+title; Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
+
+charge 1
+
+geometry units bohr    
+
+symmetry group D2h
+  Au      0.0       0.0            0.0
+end
+
+basis  spherical noprint
+Au S
+129.60054   -0.00012
+58.909335   -0.00260
+26.776970    0.04516
+12.171350   -0.35345
+Au S
+  5.5324319   1.0000000
+Au S
+  2.5144742   1.0000000
+Au S
+  1.1430645   1.0000000
+Au S
+  0.5195747   1.0000000
+Au S
+  0.2361703   1.0000000
+Au S
+  0.1073501   1.0000000
+Au S
+  0.0487955   1.0000000
+Au S
+  0.0221798   1.0000000
+Au S
+  0.0100817   1.0000000
+Au S
+  0.0045826   1.0000000
+Au P
+  29.06354    1.0000000
+Au P
+  12.80332    1.0000000
+Au P
+  5.640230    1.0000000
+Au P
+  2.484683    1.0000000
+Au P
+  1.094574    1.0000000
+Au P
+  0.482191    1.0000000
+Au P
+  0.212419    1.0000000
+Au P
+  0.093577    1.0000000
+Au P
+  0.041223    1.0000000
+Au P
+  0.018160    1.0000000
+Au D
+  12.56373    1.0000000
+Au D
+  5.149070    1.0000000
+Au D
+  2.110275    1.0000000
+Au D
+  0.864867    1.0000000
+Au D
+  0.354454    1.0000000
+Au D
+  0.145268    1.0000000
+Au D
+  0.059536    1.0000000
+Au D
+  0.024400    1.0000000
+Au F
+  1.8900000   1.0000000
+Au F
+  0.6300000   1.0000000
+Au F
+  0.2100000   1.0000000
+Au G
+  3.4000000   1.0000000
+Au G
+  1.2000000   1.0000000
+Au H
+  2.0000000   1.0000000
+end
+
+ECP Print spherical
+Au nelec 60 # ECP replaces 60 electrons
+Au s # s-g potential
+2   13.205100    426.70984
+2    6.602550     35.93882
+Au p # p-g potential
+2   10.452020    261.16102
+2    5.226010     26.62628
+Au d # d-g potential
+2   7.851100     124.75683
+2    3.925550      15.77226
+Au f # f-g potential
+2    4.789800      30.56847
+2    2.394910       5.18377
+end
+
+task mp2
+task direct_mp2
+task ccsd(t)     # Perform a single point CCSD(T) calculation
+
