@@ -1,5 +1,5 @@
 C
-C $Id: hess_restart.F,v 1.8 2002-03-06 20:57:27 windus Exp $
+C $Id: hess_restart.F,v 1.9 2003-07-18 23:19:38 windus Exp $
 C
       subroutine hess_restart(rtdb, restr)
 c
@@ -97,7 +97,8 @@ c
 c  Read hessian and dipole derivative from disk and broadcast
 c
       if(ga_nodeid().eq.0) then
-         call hess_read()
+         call hess_read(ncent, dbl_mb(k_exy))
+         call ddip_read(ncent, dbl_mb(k_dder))
       endif
       call ga_brdcst(msg_hess_exy+MSGDBL, dbl_mb(k_exy), 
      &               mdtob(n3xyz2), 0)

@@ -1,5 +1,5 @@
       subroutine hess_wrt
-*     $Id: hess_wrt.F,v 1.3 2002-03-06 19:50:58 windus Exp $
+*     $Id: hess_wrt.F,v 1.4 2003-07-18 23:19:38 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "hess_info.fh"
@@ -19,21 +19,23 @@ c
       return
       end
 c
-      subroutine hess_read
+      subroutine hess_read(nxyz, e_xyz)
       implicit none
 #include "mafdecls.fh"
-#include "hess_info.fh"
 #include "stdio.fh"
 c
+      integer nxyz, nvar2, n3xyz
       integer l_exyt, k_exyt, nhesst, iii
       double precision dbl_tmp
-      character*255 filehess,fileddipole
-      logical dipole_file_exists
+      double precision e_xyz(nxyz*3,nxyz*3)
+      character*255 filehess
 c
-c This routine reads the hessian and dipole derivative terms
-c from disk.  This was essentially taken from stepper/vib_vib.F.
+c This routine reads the hessian from disk.  This was essentially 
+c taken from stepper/vib_vib.F.
 c
-      if (.not.ma_push_get(MT_DBL,n3xyz2,'hessian: triangle exy',
+      n3xyz = 3 * nxyz
+      nvar2 = n3xyz * n3xyz
+      if (.not.ma_push_get(MT_DBL,nvar2,'hessian: triangle exy',
      &     l_exyt,k_exyt))
      &     call errquit('hess_read: cannot allocate',555)
       nhesst = n3xyz*(n3xyz+1)/2
@@ -45,9 +47,39 @@ c
         dbl_mb(k_exyt+iii) = dbl_tmp
       enddo
       close(unit=69,status='keep')
-      call vib_dsquar(dbl_mb(k_exyt),dbl_mb(k_exy),n3xyz,n3xyz)
+      call vib_dsquar(dbl_mb(k_exyt),e_xyz,n3xyz,n3xyz)
       if (.not.ma_pop_stack(l_exyt))
      *   call errquit('hess_read: cannot deallocate Exyt',555)
+c
+      return
+c
+99900 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit('hess_read: error opening file: "filehess"',911)
+99901 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit('hess_read: error reading file: "filehess"',911)
+99902 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit
+     & ('hess_read: unexpected EOF when reading file: "filehess"',911)
+c
+      end
+c
+      subroutine ddip_read(nxyz, ddipder)
+      implicit none
+#include "mafdecls.fh"
+#include "hess_info.fh"
+#include "stdio.fh"
+c
+      integer nxyz, iii
+      double precision dbl_tmp
+      double precision ddipder(nxyz*9)
+      character*255 fileddipole
+      logical dipole_file_exists
+c
+c This routine reads the dipole derivative terms
+c from disk.  This was essentially taken from stepper/vib_vib.F.
 c
       call util_file_name('fd_ddipole',.false., .false.,fileddipole)
       dipole_file_exists = .false.
@@ -55,9 +87,9 @@ c
       if (dipole_file_exists) then
         open(unit=70,file=fileddipole,form='formatted',status='old',
      &      err=89900,access='sequential')
-        do iii = 0,((3*n3xyz)-1)
+        do iii = 1, 9*nxyz
           read(70,*,err=89901,end=89902) dbl_tmp
-          dbl_mb(k_dder+iii) = dbl_tmp
+          ddipder(iii) = dbl_tmp
         enddo
         close(unit=70,status='keep')
       endif
@@ -75,15 +107,5 @@ c
       call errquit
      & ('hess_read: unexpected EOF when reading file: "fileddipole"',
      &   811)
-99900 continue
-      write(luout,*)'hess_file => ',filehess
-      call errquit('hess_read: error opening file: "filehess"',911)
-99901 continue
-      write(luout,*)'hess_file => ',filehess
-      call errquit('hess_read: error reading file: "filehess"',911)
-99902 continue
-      write(luout,*)'hess_file => ',filehess
-      call errquit
-     & ('hess_read: unexpected EOF when reading file: "filehess"',911)
 c
       end
