@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, nmo, geom, basis, g_vecs,iset)
-C$Id: movecs_proj.F,v 1.16 2002-07-03 20:56:20 d3k958 Exp $
+C$Id: movecs_proj.F,v 1.17 2003-06-11 20:41:00 bert Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -231,7 +231,8 @@ c      call ga_dgemm('n','n',nbf,old_nbf,old_nbf,one,g_over,
      $     ('movecs_project: ma ran #', nbf)
       temp = util_random(ga_nodeid()*314159+1)
 c      do i = old_nbf+1+ga_nodeid(), nbf, ga_nnodes()
-      do i = old_nbf+1+ga_nodeid(), nmo, ga_nnodes()
+cbert      do i = old_nbf+1+ga_nodeid(), nmo, ga_nnodes()
+       do i = old_nmo(1)+1+ga_nodeid(), nmo, ga_nnodes()
 *         write(6,*) ' Randomizing ', i
 *         call util_flush(6)
          do j = 1, nbf
