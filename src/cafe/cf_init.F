@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.58 2001-02-12 21:52:39 d3j191 Exp $
+c $Id: cf_init.F,v 1.59 2001-05-23 03:20:03 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -260,6 +260,8 @@ c
      + call errquit('Failed to allocate xpmf',0)
       if(.not.ma_push_get(mt_dbl,12*numpmf,'ypmf',l_ypmf,i_ypmf))
      + call errquit('Failed to allocate ypmf',0)
+      if(.not.ma_push_get(mt_dbl,4*numpmf,'wpmf',l_wpmf,i_wpmf))
+     + call errquit('Failed to allocate wpmf',0)
       endif
       call cf_rdpmf(lfntop,int_mb(i_ipmf),int_mb(i_jpmf),dbl_mb(i_rpmf))
       if(me.eq.0) then
