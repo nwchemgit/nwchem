@@ -49,7 +49,6 @@ htoa:	htoa.o
 	$(FC) -o $@ $^
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(makeh.o):	./implicit.fh $(INCDIR)/global.fh ./ciinfo.fh ./cbuff.fh 
 $(LIBRARY_PATH)(upkcon.o):	./bitops.fh 
 $(LIBRARY_PATH)(tester.o):	./mptr.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(stool.o):	$(INCDIR)/global.fh ./cselcifiles.fh 
@@ -59,15 +58,15 @@ $(LIBRARY_PATH)(select.o):	./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./cselcif
 $(LIBRARY_PATH)(selci.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cselcifiles.fh 
 $(LIBRARY_PATH)(restk.o):	./cselcifiles.fh 
 $(LIBRARY_PATH)(restin.o):	$(INCDIR)/global.fh ./cselcifiles.fh 
+$(LIBRARY_PATH)(readh.o):	./implicit.fh 
 $(LIBRARY_PATH)(rdhint.o):	./implicit.fh 
 $(LIBRARY_PATH)(rdhead.o):	./implicit.fh ./cselcifiles.fh ./ciinfo.fh 
-$(LIBRARY_PATH)(readh.o):	./implicit.fh 
 $(LIBRARY_PATH)(putinb.o):	./implicit.fh ./cbuff.fh 
 $(LIBRARY_PATH)(ptidy.o):	./implicit.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(prtri.o):	./implicit.fh 
 $(LIBRARY_PATH)(popcnt32.o):	./cbits.fh ./bitops.fh 
-$(LIBRARY_PATH)(pkcon.o):	./bitops.fh 
 $(LIBRARY_PATH)(pconls.o):	./implicit.fh ./ciinfo.fh 
+$(LIBRARY_PATH)(pkcon.o):	./bitops.fh 
 $(LIBRARY_PATH)(ointer.parthack.o):	./bitops.fh 
 $(LIBRARY_PATH)(ointer.mod.o):	./bitops.fh 
 $(LIBRARY_PATH)(ointer.o):	./bitops.fh 
@@ -80,6 +79,7 @@ $(LIBRARY_PATH)(mkdele.o):	./implicit.fh
 $(LIBRARY_PATH)(makhdb.o):	./stfunc.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(makehs.o):	./stfunc.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(makehd.o):	./stfunc.fh ./implicit.fh ./ciinfo.fh 
+$(LIBRARY_PATH)(makeh.o):	./implicit.fh $(INCDIR)/global.fh ./ciinfo.fh ./cbuff.fh 
 $(LIBRARY_PATH)(makef.o):	./stfunc.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(loadw.o):	./implicit.fh 
 $(LIBRARY_PATH)(loadg.o):	./implicit.fh ./ciinfo.fh ./bitops.fh 
