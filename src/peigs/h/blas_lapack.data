@@ -1,5 +1,5 @@
 *
-* $Id: blas_lapack.data,v 1.6 2000-05-05 23:18:24 edo Exp $
+* $Id: blas_lapack.data,v 1.7 2000-05-10 22:25:46 edo Exp $
 *
 #ifdef DECOSF
       double precision DLAMCHE, DLAMCHP, DLAMCHS, DLAMCHU, DLAMCHB
@@ -66,6 +66,15 @@
       data DLAMCHB/2.D0/
       data DLAMCHS/2.2250738585072014D-308/
       data DLAMCHU/2.22507385850720138D-308/
+#endif
+#ifdef RS600064
+      double precision DLAMCHE, DLAMCHP, DLAMCHS, DLAMCHU, DLAMCHB
+      real SLAMCHE, SLAMCHP, SLAMCHS, SLAMCHU, SLAMCHB
+      data DLAMCHE/1.1102230246251565D-16/
+      data DLAMCHP/1.1102230246251565D-16/
+      data DLAMCHB/2.D0/
+      data DLAMCHS/2.2250738585072014D-308/
+      data DLAMCHU/2.2250738585072014D-308/
 #endif
 
 #ifdef i860

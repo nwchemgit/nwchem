@@ -1,5 +1,5 @@
 /*
- $Id: blas_lapack.h,v 1.15 2000-05-05 23:18:24 edo Exp $
+ $Id: blas_lapack.h,v 1.16 2000-05-10 22:25:46 edo Exp $
   c defines */
 #define NO_EVEC 0
 
@@ -129,6 +129,24 @@
   depsilon  0.5960464478E-07 
   dbase   2.000000000     
   dsafeulp  0.1175494351E-37 
+  */
+#endif
+#ifdef RS600064
+
+/* rs6000 64 -bit*/
+
+#define DLAMCHE (DoublePrecision ) 1.1102230246251565E-16
+#define DLAMCHP (DoublePrecision ) 1.1102230246251565E-16
+#define DLAMCHB (DoublePrecision ) 2.e0
+#define DLAMCHS (DoublePrecision ) 2.2250738585072014-308
+#define DLAMCHU (DoublePrecision ) 2.2250738585072014-308
+
+
+/*
+   depsilon      1.1102230246251565E-16
+      dbase      2.0000000000000000E+00
+   dsafeulp      2.2250738585072014-308
+ dlamch(u)       2.2250738585072014-308
   */
 #endif
 #ifdef i860
