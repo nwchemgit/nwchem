@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.34 2002-07-14 05:15:44 edo Exp $
+C$Id: dft_densm.F,v 1.35 2003-05-05 17:45:44 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -149,7 +149,7 @@ c
             write(LuOut,1688) ssmear,
      ,             efermi(1),tdots,(i,ntot(i),i=1,ipol)
  1688       format(' sigma= ',d7.2,
-     ,             ' eFermi= ',f8.5,' T*S= ',f9.6,
+     ,             ' eFermi= ',f8.5,' T*S= ',1p,e9.2,
      ,           2(' nel(',i1,')=',f8.2)/) 
 C            write(LuOut,1723) (focc(i),i=1,nbf*ipol)
 C 1723       format(' Foccs ',(
