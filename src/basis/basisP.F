@@ -419,4 +419,23 @@ c
 c
       return
       end
-
+      integer function nbf_from_type(type)
+c
+c function that returns the number of basis functions in a shell (not contraction)
+c based on the type.  
+c  types 0->S, 1->P, 2->D, 3->F etc. -1->SP -2->SPD
+c
+      implicit none
+c:: passed
+      integer type
+c:
+      if (type.ge.0) then 
+        nbf_from_type = (type+1)*(type+2)/2
+      else if (type.eq.-1) then
+        nbf_from_type = 4
+      else if (type.eq.-2) then
+        nbf_from_type = 10
+      else 
+        call errquit('basP func:nbf_from_type: bad cont type',type)
+      endif
+      end

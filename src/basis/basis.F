@@ -559,7 +559,9 @@ c function declarations
 c
 c::function
 c:bas
+      integer nbf_from_type
       logical bas_check_handle
+      external nbf_from_type
       external bas_check_handle
 c
 c
@@ -752,7 +754,7 @@ c contraction -> basis function range map
 c
       iu_cont = ibs_cn2ucn(1,basis)
       nbf     = infbs_cont(CONT_TYPE,iu_cont,basis)
-      nbf     = (nbf+1)*(nbf+2)/2
+      nbf     = nbf_from_type(nbf)
       nbf     = nbf*infbs_cont(CONT_NGEN,iu_cont,basis)
 
       ibs_cn2bfr(1,1,basis) = 1
@@ -763,15 +765,9 @@ c
       do 00700 i = 2,ncont_tot_gb(basis)
         iu_cont = ibs_cn2ucn(i,basis)
 c
-        nbf     = infbs_cont(CONT_TYPE,iu_cont,basis)
-        if (nbf .eq. -1) then
-           nbf = 4
-        else if (nbf .ge. 0) then
-           nbf     = (nbf+1)*(nbf+2)/2
-           nbf     = nbf*infbs_cont(CONT_NGEN,iu_cont,basis)
-        else
-           call errquit('bas_rtdb_load: bad cont type', nbf)
-        endif
+        nbf = infbs_cont(CONT_TYPE,iu_cont,basis)
+        nbf = nbf_from_type(nbf)
+        nbf = nbf*infbs_cont(CONT_NGEN,iu_cont,basis)
 c
         ibs_cn2bfr(1,i,basis) = ibs_cn2bfr(2,(i-1),basis) + 1
         ibs_cn2bfr(2,i,basis) = ibs_cn2bfr(1,i,basis) + nbf - 1
@@ -782,6 +778,7 @@ c
 00700 continue
 c
 c build high angular momentum of this loaded <basis|geom> pair
+c note angular_bs(*) initialized in block data function
 c
       do 00800 i = 1, ncont_tot_gb(basis)
         iu_cont = ibs_cn2ucn(i,basis)
