@@ -38,9 +38,9 @@ title "case s3b: fe(co)5 --- Semi-direct SCF ... 50% caching"
 scf; vectors atomic; semidirect memsize 0 filesize 200000; end
 task scf
 
-title "case s3c: fe(co)5 --- Semi-direct SCF ... 25% caching"
-scf; vectors atomic; semidirect memsize 0 filesize 100000; end
-task scf
+#title "case s3c: fe(co)5 --- Semi-direct SCF ... 25% caching"
+#scf; vectors atomic; semidirect memsize 0 filesize 100000; end
+#task scf
 
 title "case s4: fe(co)5 --- Fully-direct SCF"
 scf; vectors atomic; direct; end
