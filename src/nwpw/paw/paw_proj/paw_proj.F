@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.12 2002-09-13 00:11:56 marat Exp $
+* $Id: paw_proj.F,v 1.13 2003-01-14 18:18:07 edo Exp $
 *
 
 !**************************************************
@@ -434,8 +434,9 @@
       call BRDCST(9+MSGINT,nbasis,mitob(msglen),MASTER)
       
       call D3dB_nfft3d(1,nfft3d)
-      value =           MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      value = value.and.MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     .MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not.value) call errquit('paw_proj_read: push stack',0)
 
       do ii=1,nbasis

@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.13 2002-09-18 23:33:23 bylaska Exp $
+* $Id: paw_sd.F,v 1.14 2003-01-14 18:18:07 edo Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -631,7 +631,8 @@
  1141 FORMAT(5X,I2,': ',A2,'  ion charge:',F4.1,'  core charge:',F4.1)
 
  1143 FORMAT(12x,' augmentation sphere radius  :',F6.3)
- 1144 FORMAT(12x,' compensation sigma          :',F6.3,' (',F6.3,' smooth)')
+ 1144 FORMAT(12x,' compensation sigma          :',F6.3,
+     .   ' (',F6.3,' smooth)')
 
  1150 FORMAT(12x,' total number of projectors  :',I3)
 
