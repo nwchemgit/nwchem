@@ -1,7 +1,7 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.10 2000-04-10 17:16:08 hvd Exp $
+* $Id: bas_blasP.F,v 1.11 2000-08-04 01:16:03 bert Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
@@ -198,6 +198,99 @@ c
 c
 c     Done
 c
+      end
+*.....................................................................
+      logical function bas_num_uce(basisin,nucent)
+      implicit none
+#include "mafdecls.fh"
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+#include "bas_exndcf_dec.fh"
+#include "stdio.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin, nucent 
+c::local
+      integer basis
+c
+#include "bas_exndcf_sfn.fh"
+c
+      bas_num_uce = bas_check_handle(basisin,'bas_getu_coeff')
+      if (.not.bas_num_uce) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+      nucent = infbs_head(HEAD_NTAGS,basis)
+c
+      bas_num_uce = .true.
+c
+      return
+      end
+*.....................................................................
+      logical function bas_uce2cnr(basisin,ucenter,ifirst,ilast)
+      implicit none
+#include "mafdecls.fh"
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+#include "bas_exndcf_dec.fh"
+#include "stdio.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin, ucenter, ifirst, ilast
+c::local
+      integer basis
+c
+#include "bas_exndcf_sfn.fh"
+c
+      bas_uce2cnr = bas_check_handle(basisin,'bas_getu_coeff')
+      if (.not.bas_uce2cnr) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+      ifirst = infbs_tags(TAG_FCONT,ucenter,basis)
+      ilast = infbs_tags(TAG_LCONT,ucenter,basis)
+c
+      bas_uce2cnr = .true.
+c
+      return
+      end
+*.....................................................................
+      logical function bas_uce_tag(basisin,ucent,tagout)
+      implicit none
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "geobasmapP.fh"
+#include "bas_ibs_dec.fh"
+c::-function
+      logical bas_check_handle
+      external bas_check_handle
+c::-passed
+      integer basisin
+      integer ucent
+      character*(*) tagout
+c::-local
+      integer basis
+      integer len_tagout
+#include "bas_ibs_sfn.fh"
+c
+      bas_uce_tag = bas_check_handle(basisin,'bas_cont_tag')
+      if (.not.bas_uce_tag) return
+
+      basis = basisin + Basis_Handle_Offset
+
+      len_tagout = len(tagout)
+      tagout = bs_tags(ucent,basis)(1:len_tagout)
+      bas_uce_tag = .true.
       end
 *.....................................................................
       logical function bas_getu_coeff(basisin,icont,coeff)
