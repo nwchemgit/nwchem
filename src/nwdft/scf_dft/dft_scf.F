@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.107 1998-09-11 23:47:02 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.108 1998-09-15 00:31:04 d3h449 Exp $
 c     
       implicit none
 c
@@ -36,7 +36,7 @@ c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-      logical oprint, oprint_sym
+      logical oprint
       double precision Exc(2), rms(2), derr(2), n3c_dbl_r, availm_r
       integer noc(2), nmo(2), icall(2)
       integer n3c_dbl, n3c_int, n_batch
@@ -64,7 +64,7 @@ c
       integer itol_min, iAOacc_min
       double precision tol_rho_min, tol_rho_max
       integer nao2_max, batch_max, icount
-      integer npol, nprint
+      integer npol
       integer leneval, lcd_coef, icd_coef
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
@@ -114,7 +114,7 @@ c
       double precision dft_dencvg, dft_time
       external dft_dencvg
       double precision homo, lumo, homo_lumo_gap
-      integer stat1, stat2, l_ir, k_ir
+      integer l_ir, k_ir
       logical last_time_energy
       logical check_shift, lmaxov_sv
       character*7 name
@@ -1453,19 +1453,6 @@ c
             call util_flush(LuOut)
          endif
       endif
-      if (oadapt)then
-         nprint = min(noc(1)+10,nbf_ao)
-         if (util_print('all vector symmetries', print_high))then
-            nprint = nbf_ao
-            oprint_sym = util_print('final vector symmetries',
-     &           print_default)
-            call scf_movecs_sym_adapt(ao_bas_han, g_movecs,
-     &           oprint_sym, nprint, '- alpha', .false., 1)
-            if (ipol.eq.2)
-     &         call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), 
-     &         oprint_sym, nprint, '- beta', .false., 1)
-         endif
-      endif
       if (oprint_final_vecs)then
          call ga_print(g_movecs)
          if (ipol.eq.2)call ga_print(g_movecs(2))
@@ -1473,47 +1460,20 @@ c
 c     
 c     ECCE printout
 c     
-c     requested?
-      stat1 = 0
-c
-      call ecce_print_control(stat1, stat2) ! stat2 set to print status
-      stat1 = stat2
-      call ecce_print_control(stat1, stat2) ! restore previous setting
-c
-c     we need the value from process 0
-c
-      call ga_brdcst(12321, stat1, ma_sizeof(mt_int,1,mt_byte), 0)
-      if (stat1 .eq. 1)then
-c
-         if (oadapt)then
-            call scf_movecs_sym_adapt(ao_bas_han, g_movecs(1),
-     &                                .false., nbf_ao, '- alpha',
-     &                                .true., int_mb(k_ir))
-         else
-            call ifill (nbf_ao, 1, int_mb(k_ir), 1)
-         endif
-         call movecs_ecce(nbf_ao, nmo, 1, min(noc(1)+20,nmo(1)), 
-     $                    dbl_mb(k_eval(1)),
-     &                    dbl_mb(k_occ), int_mb(k_ir), 
-     &                    g_movecs(1), 'dft', 'alpha')
-         if (ipol.eq.2)then ! spin-unrestricted
-            if (oadapt)then
-               call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2),
-     &                                   .false., nbf_ao, '- alpha',
-     &                                   .true., int_mb(k_ir))
-            endif
-            call movecs_ecce(nbf_ao, nmo, 1, min(noc(1)+20,nmo(1)),
-     $                       dbl_mb(k_eval(2)),
-     &                       dbl_mb(k_occ+nbf_ao), int_mb(k_ir), 
-     &                       g_movecs(2), 'dft', 'alpha')
-         endif
-         call ecce_print1 ('total energy', mt_dbl, (Etold+Enuc), 1)
-         call ecce_print1 ('nuclear repulsion energy', mt_dbl, Enuc, 1)
-         call ecce_print1 ('coulomb energy', mt_dbl, Ecoul, 1)
-         call ecce_print1 ('exchange energy', mt_dbl, Exc(1), 1)
-         if (nexc.gt. 1)then
-            call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
-         endif
+      call movecs_ecce(nbf_ao, nmo, 1, nmo(1), dbl_mb(k_eval(1)),
+     &                 dbl_mb(k_occ), int_mb(k_ir), 
+     &                 g_movecs(1), 'dft', 'alpha')
+      if (ipol.eq.2)then ! spin-unrestricted
+         call movecs_ecce(nbf_ao, nmo, 1, nmo(2), dbl_mb(k_eval(2)),
+     &                    dbl_mb(k_occ+nbf_ao), int_mb(k_ir+nbf_ao), 
+     &                    g_movecs(2), 'dft', 'beta')
+      endif
+      call ecce_print1 ('total energy', mt_dbl, (Etold+Enuc), 1)
+      call ecce_print1 ('nuclear repulsion energy', mt_dbl, Enuc, 1)
+      call ecce_print1 ('coulomb energy', mt_dbl, Ecoul, 1)
+      call ecce_print1 ('exchange energy', mt_dbl, Exc(1), 1)
+      if (nexc.gt. 1)then
+         call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
       endif
       if (.not.ma_pop_stack(l_ir))
      &   call errquit('dft_scf: cannot pop stack',0)
