@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.74 1994-11-05 01:43:00 og845 Exp $
+# $Id: makefile.h,v 1.75 1994-11-05 03:41:51 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -358,13 +358,36 @@ ifeq ($(TARGET),IBM)
   FOPTIMIZE = -O3
   COPTIMIZE = -O
 
-    DEFINES = -DIBM -DEXTNAM
+    DEFINES = -DIBM -DEXTNAM 
 
-       LIBS = -L$(LIBDIR) $(LIBPATH) \
+       LIBS = /usr/lib/libblas.a /msrc/apps/lib/liblapack.a -L$(LIBDIR) $(LIBPATH) \
               -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
 	      -lstepper -lmoints \
               -lguess -lglobal -lutil \
-	      -ltcgmsg -llapack -lblas
+	      -ltcgmsg -llapack -lblas\
+	      -brename:.times_,.times \
+	      -brename:.dpotri_,.dpotri \
+	      -brename:.dsyrk_,.dsyrk \
+	      -brename:.dasum_,.dasum \
+	      -brename:.daxpy_,.daxpy \
+	      -brename:.dcopy_,.dcopy \
+	      -brename:.ddot_,.ddot \
+	      -brename:.dgemm_,.dgemm \
+	      -brename:.dgemv_,.dgemv \
+	      -brename:.dgesv_,.dgesv \
+	      -brename:.dgetrf_,.dgetrf \
+	      -brename:.dgetrs_,.dgetrs \
+	      -brename:.dpotrf_,.dpotrf \
+	      -brename:.dnrm2_,.dnrm2 \
+	      -brename:.dscal_,.dscal \
+	      -brename:.dlamch_,.dlamch \
+	      -brename:.dlarnv_,.dlarnv \
+	      -brename:.dlagts_,.dlagts \
+	      -brename:.dlagtf_,.dlagtf \
+	      -brename:.lsame_,.lsame \
+	      -brename:.dspsvx_,.dspsvx \
+	      -brename:.xerbla_,.xerbla \
+	      -brename:.idamax_,.idamax 
 
  EXPLICITF = TRUE
 #
