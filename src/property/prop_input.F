@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.5 1998-03-05 23:06:29 mdupuis Exp $
+* $Id: prop_input.F,v 1.6 1999-07-10 09:47:14 d3e129 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -131,6 +131,30 @@ c
       elseif ( inp_compare(.false., 'dipole', test)) then
          dipole  = 0
       elseif ( inp_compare(.false., 'nbofile', test)) then
+         nbofile = 1
+      elseif ( inp_compare(.false., 'all', test)) then
+         iglo = 0
+         iglo = 1
+         giao = 0
+         boyslocalization = 0
+         boyslocalization = 1
+         stoneanalysis  = 0
+         stoneanalysis  = 1
+         spindensitymap = 0
+         spindensity    = 0
+         electrondensitymap = 0
+         electrondensity    = 0
+         efieldgradmap   = 0
+         efieldgrad      = 0
+         efieldmap       = 0
+         efield          = 0
+         esp             = 0
+         spinpopulation  = 0
+         spinpopulation  = 1
+         mulliken  = 0
+         octupole  = 0
+         quadrupole  = 0
+         dipole  = 0
          nbofile = 1
 c             
       elseif ( inp_compare(.false., 'end', test)) then
