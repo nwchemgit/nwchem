@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.26 1996-08-19 15:24:35 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.27 1996-09-19 01:17:44 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -48,10 +48,17 @@ c
        external moints_numoper
        integer moints_occrange
        external moints_occrange
+       logical scf
+       external scf
 c
        data g_coul,g_exch/-1,-1/
        data charge/0.d0/
        data ohalf/.false./
+c
+       if (.not. scf(rtdb)) then
+          direct_mp2 = .false.
+          return
+       endif
 c
        direct_mp2 = .true.
 c

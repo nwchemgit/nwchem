@@ -118,7 +118,7 @@ c
 c
 c
       double precision beffect, q4
-      integer nshq, kl, neri, neritotal, ieri, nblksiz
+      integer nshq, neri, neritotal, ieri, nblksiz
       integer ii, jj, kk, ll, ksh, lsh
       integer ilen, jlen, klen
       logical more
@@ -213,7 +213,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.18 1996-07-25 00:06:54 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.19 1996-09-19 01:17:46 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -340,7 +340,6 @@ c
       integer kblo, kbhi, lblo, lbhi
       double precision ssbb(lblo:lbhi,kblo:kbhi,jbflo:jbfhi,ibflo:ibfhi)
 c
-      integer i
       integer mxshq, imem
       integer k_tmp, l_tmp
       integer k_iv, k_jv, k_kv, k_lv
@@ -425,7 +424,7 @@ c
 c
 c
       double precision beffect, q4
-      integer nshq, kl, neri, neritotal, ieri, nblksiz
+      integer nshq,  neri, neritotal, ieri, nblksiz
       integer ii, jj, kk, ll, ksh, lsh
       integer ilen, jlen, klen
       logical more
@@ -522,7 +521,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.18 1996-07-25 00:06:54 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.19 1996-09-19 01:17:46 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1078,7 +1077,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.18 1996-07-25 00:06:54 rg240 Exp $
+C$Id: moints_aux2.F,v 1.19 1996-09-19 01:17:46 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1122,7 +1121,7 @@ C$Id: moints_aux2.F,v 1.18 1996-07-25 00:06:54 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.18 1996-07-25 00:06:54 rg240 Exp $
+c$$$C$Id: moints_aux2.F,v 1.19 1996-09-19 01:17:46 d3g681 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
