@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_comp.F,v 1.2 2003-02-15 00:42:33 marat Exp $
+c $Id: paw_pot_comp.F,v 1.3 2003-02-15 01:29:46 marat Exp $
 c
 
 !**************************************************
@@ -132,7 +132,7 @@ c     !*** calculate the size and indexing ***
           if ( m.eq.(mi-mj)) then
              i_mtr = i_mtr0-1+i+(j-1)*nb+l*nb2
              i_cp  = i_cp0-1+(njlm+lj+mj+1)+
-     >                (nilm+li+mi)*paw_proj_nbasis(in)
+     >                (nilm+li+mi)*paw_proj_nbasis(ia)
              i_qlm = i_qlm0 + ilm
 
              tmp_comp_pot = dbl_mb(paw_comp_pot_matrix(1)+i_mtr)*
