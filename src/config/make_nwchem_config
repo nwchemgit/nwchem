@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.48 1996-10-04 21:47:09 d3g681 Exp $
+# $Id: make_nwchem_config,v 1.49 1996-10-19 00:08:55 d3e129 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -66,7 +66,8 @@ MODULES := $(patsubst plane_wave,plane_wave nwdft,$(MODULES) )
 MODULES := $(patsubst oimp2,oimp2 rimp2 moints,$(MODULES) )
 
 MODULES := $(patsubst vib,vib stepper gradients,$(MODULES) )
-MODULES := $(patsubst stepper,stepper driver gradients,$(MODULES) )
+MODULES := $(patsubst driver, driver gradients,$(MODULES) )
+MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
 MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
 
@@ -152,7 +153,7 @@ STUBROUTINES := $(patsubst ideaz,mdmain md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst cphf,cphf mjdtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vib,vib_vib,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst driver,drv_opt,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst driver,drv_opt optdrv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwargos,nwargos arg_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
