@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.27 1999-07-27 17:25:31 windus Exp $
+c $Id: int_spcart.F,v 1.28 1999-10-26 21:55:37 mg201 Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -2543,7 +2543,7 @@ c
 *     &    stop ' spcart_cart_overlap '
       call hf1(xyz,zeta,coef,1,1,lval,
      &    xyz,zeta,coef,1,1,lval,
-     &    xyz,double_dummy,1,
+     &    xyz,double_dummy,double_dummy,1,
      &    overlap,double_dummy,double_dummy,
      &    (rankov*rankov),
      &    .true.,.false.,.false.,.false.,
@@ -2573,7 +2573,7 @@ c
 *      write(6,*)' calling hf1 '
       call hf1(xyz,zeta,coef,1,1,lval,
      &    xyz,zeta,coef,1,1,lval,
-     &    xyz,double_dummy,1,
+     &    xyz,double_dummy,double_dummy,1,
      &    overlap,double_dummy,double_dummy,
      &    (rankov*rankov),
      &    .true.,.false.,.false.,.false.,
