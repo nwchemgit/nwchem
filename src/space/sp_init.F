@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.97 2001-11-19 17:14:43 d3j191 Exp $
+c $Id: sp_init.F,v 1.98 2001-11-21 17:27:44 d3j191 Exp $
 c
       implicit none
 c
@@ -2707,8 +2707,8 @@ c
  1001 format(2f12.6,1pe12.5,1x,2a10)
       write(lfntrj,1002) ((vlat(i,j),j=1,3),i=1,3)
  1002 format(3f12.6)
-      write(lfntrj,1003) lxw,lvw,lxs,lvs,nwm,nwa,nsa,lfw,lfs
- 1003 format(4l1,3i10,2l1)
+      write(lfntrj,1003) lxw,lvw,lfw,lxs,lvs,lfs,nwm,nwa,nsa
+ 1003 format(6l1,3i10)
 c
       if((lxw.or.lvw.or.lfw).and.nwm.gt.0) then
       number=0
