@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.10 2001-01-18 22:18:48 d3j191 Exp $
+c $Id: ana_covar.F,v 1.11 2002-05-03 14:19:42 d3j191 Exp $
 c
       implicit none
 c
@@ -8,6 +8,17 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 #include "global.fh"
+c
+      if(me.eq.0) then
+      write(*,1000) (ma_sizeof(mt_dbl,3*nsel,mt_byte)+
+     + ma_sizeof(mt_int,6*nsel,mt_byte))/104857,
+     + ma_inquire_avail(mt_byte)/1048576,
+     + ma_sizeof(mt_dbl,18*nsel*nsel/np,mt_byte)/1048576,
+     + ga_memory_avail()/1048576
+ 1000 format(/,' Memory   Required    Available',//,
+     + '   ma   ',2i10,' MB',/,
+     + '   ga   ',2i10,' MB',/)
+      endif
 c
 c     create nsel x nsel global array covariance matrix
 c
@@ -27,8 +38,8 @@ c
      + call errquit('Failed to allocate memory for ord',me)
 c
       if(me.eq.0) then
-      write(*,1000) 3*nsel
- 1000 format(' Memory allocated for covariance ',i5)
+      write(*,1002) 3*nsel
+ 1002 format(' Memory allocated for covariance ',i5)
       endif
 c
       return
