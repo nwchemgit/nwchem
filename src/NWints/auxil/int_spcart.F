@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.15 1997-03-25 20:13:03 d3e129 Exp $
+c $Id: int_spcart.F,v 1.16 1997-03-31 23:26:49 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, *
@@ -1715,7 +1715,22 @@ c
 *.............................!   transformation (cart/half/spherical)
 c:: local
       integer ngen_rc
+      logical problem_sp
       ngen_rc = ngen_r*ngen_c
+c... more error checking
+      problem_sp = (type_r.eq.-1).and.(ngen_r.gt.1)
+      problem_sp = problem_sp.or.((type_c.eq.-1).and.(ngen_c.gt.1))
+      if (problem_sp) then
+        write(6,*)' spcart_tran1e: sp function error '
+        write(6,*)' sp function block passed with more ',
+     &      'than one general contraction: ',
+     &      'this is not allowed in NWChem'
+        write(6,*)' type r',type_r
+        write(6,*)' ngen r',ngen_r
+        write(6,*)' type c',type_c
+        write(6,*)' ngen c',ngen_c
+        call errquit('spcart_tran1e: fatal error',911)
+      endif
 c
       if (type_r.lt.2.and.type_c.lt.2) then
 c.................................. neither c or r need to be transformed 
@@ -1841,6 +1856,7 @@ c
       logical print           ! [input} print integrals at each stage of the
 *.............................!   transformation (cart/half/spherical)
 *::local
+      logical problem_sp
       integer ngen_ij, sxi, sxj, ssi, ssj
 c
 *rak:      write(6,*)' bra2etran '
@@ -1849,6 +1865,20 @@ c
 *rak:      write(6,*)'bra2: type_j, type_i :',type_j, type_i
 *rak:      write(6,*)'bra2: ngen_j, ngen_i :',ngen_j, ngen_i
 *rak:      write(6,*)'bra2: ndim_ket       :',ndim_ket
+c... more error checking
+      problem_sp = (type_j.eq.-1).and.(ngen_j.gt.1)
+      problem_sp = problem_sp.or.((type_i.eq.-1).and.(ngen_i.gt.1))
+      if (problem_sp) then
+        write(6,*)' spcart_bra2etran: sp function error '
+        write(6,*)' sp function block passed with more ',
+     &      'than one general contraction: ',
+     &      'this is not allowed in NWChem'
+        write(6,*)' type j',type_j
+        write(6,*)' ngen j',ngen_j
+        write(6,*)' type i',type_i
+        write(6,*)' ngen i',ngen_i
+        call errquit('spcart_bra2etran: fatal error',911)
+      endif
 c
       ngen_ij = ngen_i*ngen_j
       sxi = nbf_xi*ngen_i
@@ -1986,6 +2016,7 @@ c
       logical print           ! [input} print integrals at each stage of the
 *.............................!   transformation (cart/half/spherical)
 *::local
+      logical problem_sp
       integer ngen_kl, sxl, sxk, ssl, ssk
 c
 *rak:      write(6,*)' ket2etran '
@@ -1994,6 +2025,21 @@ c
 *rak:      write(6,*)'ket2: type_l, type_k :',type_l, type_k
 *rak:      write(6,*)'ket2: ngen_l, ngen_k :',ngen_l, ngen_k
 *rak:      write(6,*)'ket2: ndim_bra       :',ndim_bra
+c... more error checking
+      problem_sp = (type_l.eq.-1).and.(ngen_l.gt.1)
+      problem_sp = problem_sp.or.((type_k.eq.-1).and.(ngen_k.gt.1))
+      if (problem_sp) then
+        write(6,*)' spcart_ket2etran: sp function error '
+        write(6,*)' sp function block passed with more ',
+     &      'than one general contraction: ',
+     &      'this is not allowed in NWChem'
+        write(6,*)' type l',type_l
+        write(6,*)' ngen l',ngen_l
+        write(6,*)' type k',type_k
+        write(6,*)' ngen k',ngen_k
+        call errquit('spcart_ket2etran: fatal error',911)
+      endif
+c
 c
       ngen_kl = ngen_l * ngen_k
       sxl = nbf_xl*ngen_l
