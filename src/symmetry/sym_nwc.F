@@ -22,7 +22,7 @@ c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint)
-C$Id: sym_nwc.F,v 1.10 1996-07-15 22:07:02 gutowski Exp $
+C$Id: sym_nwc.F,v 1.11 1996-08-22 21:42:37 d3e863 Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
@@ -123,6 +123,14 @@ c
      $     Byte_MB(iatags), int_mb(idatom), dbl_mb(icoord),
      $     lmscr, imscr, nops)
 c
+c ... sloppy way for the moment to fix units for 2-d case
+c
+      if(itype.eq.2) then
+         do i=1,nareal
+            coords(3,i,geom)=coords(3,i,geom)*angstrom_to_au
+         enddo
+      endif
+c
 c---> print gmat,amat,vol evaluated by geom_nd routines
 c
 c
@@ -131,65 +139,65 @@ c
 c
 c--> Print Amatrix, G matrix, volume for 3-d and 2-d cells.
 c
-      if(itype.eq.3) then
-         write(*,9)
-         do 513 i=1,3
-            write(*,15) (amatrix(i,j,geom), j=1,3)
- 513     continue
+c      if(itype.eq.3) then
+c         write(*,9)
+c         do 513 i=1,3
+c            write(*,15) (amatrix(i,j,geom), j=1,3)
+c 513     continue
 c
-         write(*,21)
-         do 517 i=1,3
-            write(*,15) (amatrix_inv(i,j,geom), j=1,3)
- 517     continue
+c         write(*,21)
+c         do 517 i=1,3
+c            write(*,15) (amatrix_inv(i,j,geom), j=1,3)
+c 517     continue
 c
-         write(*,10)
-         do 130 i=1,3
-            write(*,15) (metric_matrix(i,j,geom), j=1,3)
- 130     continue
+c         write(*,10)
+c         do 130 i=1,3
+c            write(*,15) (metric_matrix(i,j,geom), j=1,3)
+c 130     continue
 c
-         write(*,17) volume_direct(geom)
+c         write(*,17) volume_direct(geom)
 c
-      elseif(itype.eq.2) then
-         write(*,9)
-         do 630 i=1,3
-            write(*,15) (amatrix(i,j,geom), j=1,3)
- 630     continue
-         write(*,21)
-         do 631 i=1,3
-            write(*,15) (amatrix_inv(i,j,geom), j=1,3)
- 631     continue
+c      elseif(itype.eq.2) then
+c         write(*,9)
+c         do 630 i=1,3
+c            write(*,15) (amatrix(i,j,geom), j=1,3)
+c 630     continue
+c         write(*,21)
+c         do 631 i=1,3
+c            write(*,15) (amatrix_inv(i,j,geom), j=1,3)
+c 631     continue
 c     
-         write(*,10)
-         do 640 i=1,3
-            write(*,15) (metric_matrix(i,j,geom), j=1,3)
- 640     continue
+c         write(*,10)
+c         do 640 i=1,3
+c            write(*,15) (metric_matrix(i,j,geom), j=1,3)
+c 640     continue
 c     
-         write(*,18) volume_direct(geom)
-      endif
+c         write(*,18) volume_direct(geom)
+c      endif
 c
 c--> Print cartesian coordinates of unit cell.
 c
-      if(itype.eq.3) then
-        write(*,30)
-        l=0
-        do 510 i=1,nareal
-           write(*,20) i,tags(i,geom),(coords(j,i,geom), j=1,3)
-           l=l+3
- 510    continue
-         write(*,14)
+c      if(itype.eq.3) then
+c        write(*,30)
+c        l=0
+c        do 510 i=1,nareal
+c           write(*,20) i,tags(i,geom),(coords(j,i,geom), j=1,3)
+c           l=l+3
+c 510    continue
+c         write(*,14)
 c   convert z-coords of slab to bohr from angstroms         
-      elseif(itype.eq.2) then
-         do i=1,nareal
-            coords(3,i,geom)=coords(3,i,geom)*angstrom_to_au
-         enddo
-         write(*,30)
-         l=0
-         do 512 i=1,nareal
-            write(*,20) i,tags(i,geom),(coords(j,i,geom), j=1,3)
-            l=l+3
- 512     continue
-         write(*,14)
-      endif
+c      elseif(itype.eq.2) then
+c         do i=1,nareal
+c            coords(3,i,geom)=coords(3,i,geom)*angstrom_to_au
+c         enddo
+c         write(*,30)
+c         l=0
+c         do 512 i=1,nareal
+c            write(*,20) i,tags(i,geom),(coords(j,i,geom), j=1,3)
+c            l=l+3
+c 512     continue
+c         write(*,14)
+c      endif
 c
 c--> final clean up of memory: gensym and dosymops activities
 c
