@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.108 1999-06-12 18:37:52 d3g681 Exp $
+C     $Id: geom_input.F,v 1.109 1999-06-14 19:13:03 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -4924,7 +4924,7 @@ c
       double precision xsave(max_nzvar) ! Save starting coords for recovery
 c
       integer l_bi, k_bi, i, ipass,nat, ncart, nzvar
-      double precision err, err1, xmax
+      double precision err1, xmax
       logical oprint, geom_print_zmatrix
       logical geom_zmt_get_nzvar, geom_compute_zmatrix
       double precision bohr, deg
