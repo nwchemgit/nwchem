@@ -7,7 +7,7 @@ start lys
 
 echo
 
-task shell "cp lys0.rst lys_qmmm.rst"
+task shell "cp lys0.rst lys_em.rst"
 
 # A basis set must be defined for the QM part 
 
@@ -30,7 +30,7 @@ end
 
 
 md
- system lys_qmmm
+ system lys_em
  sd 200   init 0.01   min 0.00001   max 0.05
  cutoff 1.9   qmmm 1.0
  memory 15000
