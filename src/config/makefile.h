@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.128 1995-11-20 21:26:35 gg502 Exp $
+# $Id: makefile.h,v 1.129 1995-11-22 18:09:04 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -355,7 +355,11 @@ ifeq ($(TARGET),SGITFP)
 # SGI power challenge
 #
 # CORE_SUBDIRS_EXTRA are those machine specific libraries required 
-
+#
+# TPS 95/11/22:
+# Optimization options const_copy_limit=18000, global_limit=18000 and fprop_limit=1200 added to
+# FOPTIMIZE to allow full optimization of the MD module nwArgos on SGI Power Indigo^2
+#
   CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
          CC = cc
@@ -367,7 +371,7 @@ ifeq ($(TARGET),SGITFP)
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 
- FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3
+ FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=18000:global_limit=18000:fprop_limit=1200 -TENV:X=3
 FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
 
  COPTIMIZE = -O
