@@ -43,12 +43,19 @@ the DFT module are:
 
 
   XC [[acm] [b3lyp] [beckehandh] \
+     [becke97]  [becke97-1] [hcth] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
+      [xperdew91 [nonlocal] <real prefactor default 1.0>] \
+      [xpbe96 [nonlocal] <real prefactor default 1.0>] \
+      [gill96 [nonlocal] <real prefactor default 1.0>] \
+      [xhcth  <real prefactor default 1.0>] \
       [lyp <real prefactor default 1.0>] \
       [perdew81 <real prefactor default 1.0>] \
       [perdew86 [nonlocal] <real prefactor default 1.0>] \
       [perdew91 [nonlocal] <real prefactor default 1.0>] \
+      [cpbe96 [nonlocal] <real prefactor default 1.0>] \
+      [chcth  <real prefactor default 1.0>] \
       [pw91lda <real prefactor default 1.0>] \
       [slater <real prefactor default 1.0>] \
       [vwn_1 <real prefactor default 1.0>] \
@@ -164,12 +171,19 @@ has the same effect.
 \section{{\tt XC} and {\tt DECOMP} --- Exchange-Correlation Potentials}
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] \
+     [becke97]  [becke97-1] [hcth] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
+      [xperdew91 [nonlocal] <real prefactor default 1.0>] \
+      [xpbe96 [nonlocal] <real prefactor default 1.0>] \
+      [gill96 [nonlocal] <real prefactor default 1.0>] \
+      [xhcth  <real prefactor default 1.0>] \
       [lyp <real prefactor default 1.0>] \
       [perdew81 <real prefactor default 1.0>] \
       [perdew86 [nonlocal] <real prefactor default 1.0>] \
       [perdew91 [nonlocal] <real prefactor default 1.0>] \
+      [cpbe96 [nonlocal] <real prefactor default 1.0>] \
+      [chcth  <real prefactor default 1.0>] \
       [pw91lda <real prefactor default 1.0>] \
       [slater <real prefactor default 1.0>] \
       [vwn_1 <real prefactor default 1.0>] \
@@ -212,21 +226,53 @@ the user.  The following sections describe these options.
 
 \subsection{Optional Exchange Functionals}
 
-There are two exchange functionals in addition to the default exchange
-functional.  These are the Becke gradient-corrected functional (see A.D.~Becke, 
-J.~Chem.~Phys.~88, 3098 (1988)), and the Hartree-Fock exact exchange.
+There are six exchange functionals in addition to the default exchange
+functional.  These are 
+\begin{itemize}
 
-The Becke gradient-corrected functional is invoked by specifying the input
-line,
+\item the Becke 1998 gradient-corrected functional (see A.D.~Becke, 
+ J. Chem. Phys. {\bf 88}, 3098 (1988)), is invoked by specifying
+
 \begin{verbatim}
    XC becke88
 \end{verbatim}
 
-The Hartree-Fock exact exchange functional, (which has $O(N^4)$
-computation expense), is invoked by specifying the input line,
+\item the Perdew 1991 gradient-corrected exchange functional (J.P. Perdew,
+  J.A.~Chevary, S.H.~Vosko, K.A.~Jackson, M.R.~Pederson, D.J.~Singh
+  and C.~Fiolhais, Phys. Rev. B {\bf 46}, 6671 (1992)), is invoked by specifying
+
+\begin{verbatim}
+   XC xperdew91
+\end{verbatim}
+
+\item the Perdew-Burke-Ernzerhof gradient-corrected exchange functional \\
+ (J.P.~Perdew, K.~Burke and M.~Ernzerhof, Physical Review Letters
+{\bf 77}, 3865 (1996); {\bf 78}, 1396 (1997))), is invoked by specifying
+
+\begin{verbatim}
+   XC xpbe96
+\end{verbatim}
+
+\item the Gill 1996 gradient-corrected exchange functional (P.W.Gill , Mol. Phys. {\bf 89}, 433 (1996)), is invoked by specifying
+
+\begin{verbatim}
+   XC gill96
+\end{verbatim}
+
+\item the Hamprecht-Cohen-Tozer-Handy  gradient-corrected exchange 
+functional
+(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
+    J. Chem. Phys. {\bf 109}, 6264 (1998))
+\begin{verbatim}
+   XC xhcth
+\end{verbatim}
+
+\item The Hartree-Fock exact exchange functional, (which has $O(N^4)$
+computation expense), is invoked by specifying
 \begin{verbatim}
    XC HFexch
 \end{verbatim}
+\end{itemize}
 
 Note that the user also has the ability to include only the local or
 nonlocal contributions of a given functional.  In addition the user
@@ -325,6 +371,22 @@ appropriate citation.
    XC perdew91
 \end{verbatim}
 
+\item the Perdew-Burke-Ernzerhof gradient-corrected correlation functional \\
+ (J.P.~Perdew, K.~Burke and M.~Ernzerhof, Physical Review Letters
+{\bf 77}, 3865 (1996); {\bf 78}, 1396 (1997))), is invoked by specifying
+
+\begin{verbatim}
+   XC cpbe96
+\end{verbatim}
+
+\item the Hamprecht-Cohen-Tozer-Handy  gradient-corrected correlation 
+functional
+(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
+    J. Chem. Phys. {\bf 109}, 6264 (1998))
+\begin{verbatim}
+   XC chcth
+\end{verbatim}
+
 \item LYP gradient-corrected functional; C.~Lee, W.~Yang and
    R.~G.~Parr, Phys.~Rev.~B {\bf 37}, 785 (1988).  Note that this
   is a local and nonlocal functional but cannot be conveniently split
@@ -394,6 +456,16 @@ a_X \Delta E^{\rm Becke88}_{X} + (1-a_C)E^{\rm \verb+VWN_1_RPA+}_C + a_C E^{LYP}
 & &{\rm where } \\
 a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \end{eqnarray*}
+
+The keyword \verb+becke97+ specifies that the exchange-correlation energy
+defined in the "Becke V" paper: A.D.Becke,
+J. Chem. Phys., {\bf 107}, 8554 (1997)
+
+The keyword \verb+becke97-1+ specifies that the exchange-correlation energy
+derived by Handy et al by re-fitting the Becke 1997 functional
+(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
+    J. Chem. Phys. {\bf 109}, 6264 (1998))
+
 
 
 \section{{\tt ITERATIONS} --- Number of SCF iterations}
