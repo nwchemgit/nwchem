@@ -2,10 +2,9 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.4 2000-01-06 00:43:02 edo Exp $
+C$Id: grid_ssw.F,v 1.5 2000-01-26 00:36:16 edo Exp $
 c
       implicit none
-#include "xc_erftab.fh"
 #include "cdft.fh"
 
 c
@@ -28,25 +27,13 @@ c
       double precision mu, nu,radwgh
       double precision x, y, z, x0i, y0i, z0i
       double precision sk
-      double precision  toll_scr,eps,rag 
+      double precision  toll_scr,rag 
       logical inotA,jnota
 c
       integer iw
-      double precision ass,distnc,distnn,wsum,
-     ,ass_erf1,ass_erf2,ass_ssf,ass_erf3
-
-c
-c     SSF original 0.64d0 value for polynomial function
-c
-#if defined(SGI) || defined(DECOSF)||defined(WIN32)
-      double precision derfc
-#else
-      double precision erfc
-#endif
-      parameter(ass_ssf=0.64d0,ass_erf1=.875d0,ass_erf2=0.77d0,
-     ,ass_erf3=0.70d0,
-     ,     eps=0.02d0,
-     ,     toll_scr=1d-14)
+      double precision ass,distnc,distnn,wsum
+      parameter (toll_scr=1d-14)
+#include "xc_erftab.fh"
 c     
 c     RE Stratmann, GE Scuseria, MJ Frisch, Chem Phys Lett 257, 213 (1996)
 c     Evaluate Stratman space partitioning weight. Then, incorporate it
@@ -148,35 +135,9 @@ c
                   sk= (table(1,ipoint) + nu*(table(2,ipoint) + 
      $                 nu*table(3,ipoint)))
                   if(mu.lt.0d0) sk=1d0-sk
-#if defined(SGI) || defined(DECOSF) || defined(WIN32)
-                elseif(iw.eq.1) then
-                  mu=mu/(1d0-mu*mu)
-                  mu=mu/(0.34d0)
-                  sk=0.5d0*derfc(mu)
-                elseif(iw.eq.2) then
-                  mu=mu/(1d0-mu*mu)**2
-                  mu=mu/(0.34d0)
-                  sk=0.5d0*derfc(mu)
-                elseif(iw.eq.3) then
-                  mu=mu/(1d0-mu*mu)**3
-                  mu=mu/(0.34d0)
-                  sk=0.5d0*derfc(mu)
+                else
+                  sk=erfn(mu,iw)
                 endif
-#else
-                elseif(iw.eq.1) then
-                  mu=mu/(1d0-mu*mu)
-                  mu=mu/(0.34d0)
-                  sk=0.5d0*erfc(mu)
-                elseif(iw.eq.2) then
-                  mu=mu/(1d0-mu*mu)**2
-                  mu=mu/(0.34d0)
-                  sk=0.5d0*erfc(mu)
-                elseif(iw.eq.3) then
-                  mu=mu/(1d0-mu*mu)**3
-                  mu=mu/(0.34d0)
-                  sk=0.5d0*erfc(mu)
-                endif
-#endif
                 p(i) = p(i)*sk
                 p(j) = p(j)*(1d0 - sk)
               endif

@@ -48,6 +48,11 @@ c
       if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
      &   job_grid_acc))
      &   call errquit('rad_trunc: rtdb_get failed', 911)
+c
+c   accuracy must be at least 10-7
+c
+      job_grid_acc=min(job_grid_acc,1d-7)
+      
       call grid_rtrunc0(zprim,job_grid_acc,
      ,     int_mb(k_ics),int_mb(k_ldiff),dbl_mb(k_minexp))
       
@@ -221,7 +226,7 @@ c
             endif
             if(abs(s_max).gt.ov_trunc) then
                write(0,*) ' atom ',iat,' - neighbor  & S ',jat,s_max
-               range=grid_rnegl(l_iat+l(jat)+2,exp_iat+expo(jat),
+               range=grid_rnegl(l_iat+l(jat),exp_iat+expo(jat),
      .              my_acc) 
 c
 c     bit to add from gaussian product formula
@@ -243,8 +248,8 @@ cedo     .              expo(jat),shift_2g
                endif
             endif
          enddo
-         write(0,1234)' zmin = ',exp_iat*expo(iat_diff),
-     ,        ' lprod = ',l_iat*l(iat_diff),
+         write(0,1234)' zmin = ',exp_iat+expo(iat_diff),
+     ,        ' lprod = ',l_iat+l(iat_diff),
      ,        ' range = ',range_max, ' acc ',my_acc
          return
  1234          format(A,f15.9,A,I3,A,f12.2,A,d10.2)
@@ -290,7 +295,8 @@ c
             do  iprimo = 1,nprimo
                min_exp = min(zprim(iprimo),min_exp)
             enddo
-            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
+C            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
+            range = grid_rnegl(l+l, min_exp+min_exp, job_grid_acc)
             if(range.gt.range_max) then
                range_max =  range
                cs(iat)=icset

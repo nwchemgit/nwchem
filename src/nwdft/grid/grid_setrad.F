@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.17 2000-01-14 21:49:05 edo Exp $
+c$Id: grid_setrad.F,v 1.18 2000-01-26 00:36:16 edo Exp $
 c
       implicit none
 c      
@@ -142,11 +142,11 @@ c
                 range_mk=dble(rad_cutoff(1,itype))
                   call xc_tarad(int(znuc_atom_type(itype)), 
      ,                 rpts(1,itype), rwghts(1,itype), 
-     &                 nrad(itype),range_mk,'chebyshr')
+     &                 nrad(itype),0d0,'chebyshr',range_mk)
                else
                   call xc_tarad(int(znuc_atom_type(itype)), 
      ,                 rpts(1,itype), rwghts(1,itype), 
-     &                 nrad(itype),0d0,'chebyshe')
+     &                 nrad(itype),0d0,'chebyshe',0d0)
                endif
             elseif(radgrid.eq.'gausslag') then
                call grid_gausslag(nrad(itype), rpts(1,itype), 
@@ -210,8 +210,14 @@ c
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
 
           elseif(wradgrid.eq.2) then
-             range_mk=dble(rad_cutoff(1,itype))
+             if(tol_reset) then
+                range_mk=dble(rad_cutoff(1,itype))
+             else
+                range_mk=bsrad_atom_type(itype)
+             endif
              znint=int(znuc_atom_type(itype))
+cedo             if(ga_nodeid().eq.0.and.oprint) write(Luout,*)
+cedo     .            ' Murakn itype cutoff ',itype,range_mk
              call xc_murakn(
      .            znint,
      .            rpts(1,itype), 
