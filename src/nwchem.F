@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.88 1996-08-27 22:40:16 d3g681 Exp $
+c     $Id: nwchem.F,v 1.89 1996-09-17 02:21:52 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -105,7 +105,7 @@ c
 10001    continue
 c
       else
-#ifndef KSR
+#if !(defined(KSR) || defined(IBM))
          close(5)
 #endif
       endif
