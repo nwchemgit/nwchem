@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.13 1997-03-25 16:50:39 d3g681 Exp $
+#$Id: GNUmakefile,v 1.14 1999-06-02 04:19:12 d3e129 Exp $
 #
 # This directory is a central repository for all include
 # files.  The makefile in each subdirectory should contain
@@ -16,7 +16,7 @@ includes:
 	done
 
 include_stamp sngl_to_dbl dbl_to_sngl:
-	echo Nothing to be done
+	@echo Nothing to be done
 
 # In this directory, clean does not do anything -- we only want get rid of
 # up the include files if there's a serious cleanup.
