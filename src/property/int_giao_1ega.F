@@ -1,6 +1,6 @@
       subroutine int_giao_1ega(ibas,jbas,g,integ_type,xyzpt,nat,
      &                         oskel)
-C$Id: int_giao_1ega.F,v 1.2 2004-12-03 21:50:20 bert Exp $
+C$Id: int_giao_1ega.F,v 1.3 2004-12-06 20:15:36 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -34,14 +34,14 @@ c
       parameter (mone=-1, two=2)
       integer nshell_i, nshell_j
       integer ishell, jshell, iproc, nproc, mem1, max1e
-      integer ijshell, ilo, ihi, jlo, jhi, idim, ilen, jlen
+      integer ijshell, ilo, ihi, jlo, jhi, ilen, jlen
       integer l_buf, l_scr
       integer k_buf, k_scr
       integer alo(3), ahi(3), ld(2)
       integer type
       logical odoit
       double precision q2
-      integer i, j, nblocks
+      integer nblocks
 c
       logical odbug
       logical osome

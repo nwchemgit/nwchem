@@ -10,7 +10,7 @@ c
       integer geom, basis, g_dens, g_fock
       double precision tol2e
 c
-      integer nshell, maxang, blen, lend, leri, i
+      integer nshell, maxang, blen, lend, leri
       integer l_eri,k_eri,l_scr,k_scr
 c
       integer       k_d_kl,  k_d_ik,  k_d_jl,  k_d_il,  k_d_jk, 
@@ -109,18 +109,16 @@ c
       double precision tol2e      ! [input] Integral screening threshold
       integer nshell              ! [input] Number of shells
 c
-      integer  next, nint, ijklblock
-      double precision scale
+      integer  next, ijklblock
 c
       integer nxtask, task_size
       external nxtask
 c
       integer ish, jsh, ksh, lsh, idim, jdim, kdim, ldim
       integer ibflo, ibfhi, jbflo, jbfhi, kbflo, kbfhi, lbflo, lbfhi
-      double precision smax
       logical ieqj, keql
 c
-      integer nproc,i,j
+      integer nproc
 c     
 c     smax  = schwarz_max()
 c     call int_acc_std()

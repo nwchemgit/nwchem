@@ -1,7 +1,7 @@
       subroutine hnd_sdfc(rtdb,geom,basis,vectors,nclosed,nopen,nvirt,
      &                    nbf,nmo,pairlist,translate,ipairs,unique,
      &                    i_pert,i_resp,tensor,coords,nfc,nsd,nsdfc)
-c $Id: hnd_sdfc.F,v 1.1 2004-12-03 21:50:20 bert Exp $
+c $Id: hnd_sdfc.F,v 1.2 2004-12-06 20:15:36 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -29,30 +29,23 @@ c
       double precision coords(3,i_pert+i_resp) ! [input] coordinates of unique atoms
       double precision nfc, nsd, nsdfc         ! [input] prefactors for the three terms
 c
-      integer ixy, ix, iy, iz, iatom, iocc, ifld, ivir, ioff
+      integer ixy, ix, iy, iz, ifld
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
       integer dlo(3), dhi(3)
       integer g_fca, g_fcb, g_sda, g_sdb, ii
-      integer g_s10,g_h01,g_h11,g_d1(3),g_rhs,g_fock,g_u(2)
-      integer g_tmp, i, j, ij, i_total
-      double precision atn, qnuc, tol2e, val, isotr, aniso
-      double precision jfac(3),kfac(3),a(6),axs(3,3),eig(3),gyro(3)
-      character*8 scftyp
-      character*16 tag
-      character*32 element
+      integer g_d1(3),g_rhs,g_u(2)
+      integer i, j, i_total
+      double precision tol2e
       character*256 cphf_rhs, cphf_sol
-      character*2 symbol
 c
       logical  cphf2, file_write_ga, file_read_ga, cphf
       external cphf2, file_write_ga, file_read_ga, cphf
 c
-      logical     oskel, status
-      double precision betae, fac, value, valuea, valueb
+      logical     oskel
+      double precision valuea, valueb
       data tol2e   /1.0d-16/
 c
-      double precision lightspeed, mtobohr, masselec, hbar, gfactor
-      double precision autohz, aumass, massprot, cinau, alpha
-      double precision alphasq, hzunit,pifac, froth
+      double precision pifac, froth
 c
       integer ilist(3,3)
       data ilist /1,4,5, 4,2,6, 5,6,3/

@@ -1,5 +1,5 @@
       subroutine hnd_giaox(rtdb,basis,geom)
-c $Id: hnd_giaox.F,v 1.4 2004-11-15 20:28:25 bert Exp $
+c $Id: hnd_giaox.F,v 1.5 2004-12-06 20:15:36 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -17,7 +17,7 @@ c
       integer geom    ! [input] geometry handle
 c
       integer nclosed(2), nopen(2), nvirt(2), ndens, nbf, nmo
-      integer sh_atom, ixy, ix, iy, iatom, iocc, ifld, ivir, ioff
+      integer sh_atom, ixy, ix, iy, iatom, iocc, ifld, ioff
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
       integer dlo(3), dhi(3)
       integer l_occ, k_occ, l_eval, k_eval
@@ -25,8 +25,8 @@ c
       integer l_xyz, k_xyz, l_zan, k_zan
       integer l_tmp, k_tmp
       integer g_dens(3), g_s10, g_h01, g_h11, g_d1, g_rhs, g_fock, g_u
-      integer vectors(2), geomnew, g_tmp, i, j, ij
-      double precision atn, qnuc, tol2e, val, isotr, aniso
+      integer vectors(2), geomnew, i, j, ij
+      double precision atn, tol2e, val, isotr, aniso
       double precision jfac(3),kfac(3),a(6),axs(3,3),eig(3)
       character*8 scftyp
       character*16 tag

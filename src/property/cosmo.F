@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.8 2004-10-02 05:12:05 edo Exp $
+* $Id: cosmo.F,v 1.9 2004-12-06 20:15:35 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -189,7 +189,7 @@ c
       logical status
       logical cosmo
 c
-      integer iat, nfield, nrad, irad 
+      integer iat, nrad
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer l_rad, k_rad, l_costag, k_costag, l_coszan, k_coszan
       integer l_coscoor, k_coscoor
@@ -577,7 +577,6 @@ c
       dimension numpps(  mxfac,mxatm)
       dimension   apex(3,mxapx)
 c
-      data zero /0.0d+00/
       parameter (bohr=0.529177249d+00)
       logical    some
       logical    out
@@ -1663,7 +1662,7 @@ c
       integer basis
       integer geom, itype_wfn
       double precision ecos
-      integer vectors(2), iter, nclosed(2), nopen(2)
+      integer vectors(2), nclosed(2), nopen(2)
 
       logical dbug, out, some
       character*8 scfruntyp

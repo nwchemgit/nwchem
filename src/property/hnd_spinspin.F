@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.1 2004-12-03 21:50:20 bert Exp $
+c $Id: hnd_spinspin.F,v 1.2 2004-12-06 20:15:36 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -17,22 +17,18 @@ c
       integer geom    ! [input] geometry handle
 c
       integer nclosed(2), nopen(2), nvirt(2), ndens, nbf, nmo
-      integer ixy, ix, iy, iatom, iocc, ifld, ivir, ioff
+      integer ixy
       integer icom_atom, ipairs, i_pert, i_resp
-      integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
       integer l_occ, k_occ, l_eval, k_eval
-      integer l_dia, k_dia, l_para, k_para
       integer l_xyz, k_xyz, l_zan, k_zan, l_tr, k_tr
-      integer l_pr, k_pr, l_un, k_un, l_data, k_data, ii
-      integer g_dens(3), vectors(2), geomnew, i, j, ij, i_off
+      integer l_pr, k_pr, l_un, k_un, l_data, k_data
+      integer g_dens(3), vectors(2), geomnew, i, j, i_off
       integer isonra, isonrb
-      double precision atn, qnuc, tol2e, val, isotr, aniso, znuc
-      double precision jfac(3),kfac(3),a(6),axs(3,3),eig(3),gyro(3)
+      double precision atn, isotr, aniso, znuc
       character*8 scftyp
       character*16 tag, tagi, tagj
       character*32 element
       character*2 symbola, symbolb
-      character*256 cphf_rhs, cphf_sol
 c
       logical  cphf2, file_write_ga, file_read_ga, cphf, atom_gfac
       external cphf2, file_write_ga, file_read_ga, cphf, atom_gfac
