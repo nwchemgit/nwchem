@@ -516,7 +516,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 	  mgs_3( &csiz, vecZ, &mapZ[c1], &bb1, &bn, &Zvec, &first, first_buf, iscratch, dscrat);
 	itime = 0;
       }
-  }
+    }
     
 #ifdef DEBUG1
     fprintf(stderr, " clustrxx3 me = %d before send/rec \n", me );
@@ -544,9 +544,9 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
         dscrat += nvecs * xblksiz;
 
 #ifdef DEBUG1
-  fprintf(stderr, " me = %d Just before mxread 2 isize = %d nvecs = %d \n", me, isize, nvecs );
+	fprintf(stderr, " me = %d Just before mxread 2 isize = %d nvecs = %d \n", me, isize, nvecs );
 #endif
-  
+	
         ival = mxread_( first_buf, &isize, &recv_from, &itype );
       }
       

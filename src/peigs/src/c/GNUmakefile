@@ -1,7 +1,8 @@
 include ../../../config/makefile.h
 include ../../DEFS
 
-COBJ  = mgscs.o \
+COBJ  = clustrfix.o \
+	mgscs.o \
 	pscale.o \
 	clustrxx5.o \
 	clustrxx4.o \
@@ -72,8 +73,9 @@ COBJ  = mgscs.o \
 	 inv_it5.o \
 	inv_it3.o \
 	peigs_tldlfact.o \
-	clustrf4.o \
 	clustrf5.o
+
+#	clustrf4.o \
 #
 #	inv_it3.o
 #	 inv_it4.o 
@@ -180,7 +182,7 @@ conjug.o:	conjug.c
 		$(peigs_CC) $(OPTC) -c conjug.c 
 
 pmmLUL.o:	pmmLUL.c
-		$(peigs_CC) $(OPTC) -c pmmLUL.c 
+		$(peigs_CC) $(OPTC) -c pmmLUL.c
 
 pmmLSL.o:	pmmLSL.c
 		$(peigs_CC) $(OPTC) -c pmmLSL.c 

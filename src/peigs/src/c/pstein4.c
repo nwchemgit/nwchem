@@ -169,7 +169,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   extern void     pdiff();
   extern void gsum01(), gmax00();
   extern void bbcast00(), tresid();
-  extern Integer       fil_mapvec_();
+  extern Integer       fil_mapvec_(), clustrfix_();
   
 /*
  *  ---------------------------------------------------------------
@@ -442,12 +442,26 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   nacluster = 0;
   numclstr = 0;
   isize = 0;
+  /*
   isize = clustrf4_(&msize, dplus, lplus, &neigval,
 		    eval, mapZ, vecZ, iblock, nsplit, isplit,
 		    clustr_info,
 		    &numclstr, icsplit, i_scrat);
-  nacluster = numclstr;
+		    */
 
+  isize = clustrfix_(msize, dd, ee, neigval, eval, iblock, *nsplit, isplit,
+		     &numclstr, clustr_info );
+
+
+  /*
+  for ( ii = 0; ii < 4*numclstr; ii++ ){
+    printf(" me = %d ii %d clustrf_info %d \n", me, ii, clustr_info[ii]);
+  }
+  */
+    
+
+  nacluster = numclstr;
+  
   
   if ( isize < 0 ){
     *info = -99;

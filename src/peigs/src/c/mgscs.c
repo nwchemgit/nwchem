@@ -103,7 +103,7 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   p_t_v;              /* p'v */
   
   DoublePrecision w, temp_factor;     /* temp vars */
-  DoublePrecision *HH_vec, *workMX, t, *ptr;
+  DoublePrecision *HH_vec, *workMX, t, *ptr, syncco[1];
 
   Integer me;                    /* my node number */
   
@@ -235,15 +235,23 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
 	break;
     }
   }
-
+  
   if ( column_indx != 1 )
     return 0;
-
+  
 #ifdef DEBUG7
-      printf(" me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
-      fflush(stdout);
+  printf(" me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
+  fflush(stdout);
 #endif
 
+  /*
+  syncco[0] = 0.0e0;
+  gsum00( (char *) syncco, 1, 5, 10, mapA[c1], n_procs, proclist, work);
+  */
+  
+  
+
+  
   
   column_indx = ii;
   csize = bn - b1 + 1 ;
@@ -255,23 +263,31 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
       dscal_( &csize, &t, ptr, &IONE);
       dcopy_( &csize, &vecA[column_indx][b1], &IONE, work, &IONE);
       column_indx++;
-      bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision), i+100, mapA[i], n_procs, proclist);
+      bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision),
+		i+1, mapA[i], n_procs, proclist);
     }
-	else
-	bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision), i+100, 
-mapA[i], n_procs, proclist);
-
+    else
+      bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision), i+1, 
+		mapA[i], n_procs, proclist);
+    
     
     
     k = column_indx ;
     for ( j = i+1; j <= cn; j++ ){
       if ( mapA[j] == me ) {
 	t = -ddot_( &csize, work, &IONE, &vecA[k][b1], &IONE);
+	if ( FABS(t) > DLAMCHE )
 	daxpy_( &csize, &t, work, &IONE, &vecA[k][b1], &IONE);
 	k++;
       }
     }
   }
+
+  /*
+  syncco[0] = 0.0e0;
+  gsum00( (char *) syncco, 1, 5, 10, mapA[c1], n_procs, proclist, work);
+  */
+
   
   return 0;
 }

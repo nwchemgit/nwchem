@@ -127,11 +127,11 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
   *clustr_info, *nacluster, *icsplit, *iscratch;
      DoublePrecision *d, *e, *w, **vecZ;
      /*
-	       this routine finds the cluster information for symmetric tridiagonal matrices
-	       
-	       on input:
-	       
-	       n = dimension of the matrix
+       this routine finds the cluster information for symmetric tridiagonal matrices
+       
+       on input:
+       
+       n = dimension of the matrix
        d = array of n DoublePrecision; diagonal of the tridiagonal matrices
        e = array of n DoublePrecision; e[0] is junk -- left over from eispack--should remove
        super-diagonal of the tridiagonal matrices; 
@@ -182,7 +182,7 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
   
   DoublePrecision tmp, *eval, sep, eps;
   DoublePrecision onenrm, pertol;
-  DoublePrecision xjm, eps1;
+  DoublePrecision xjm, eps;
   DoublePrecision ortol, xj, sepfine;
   
   Integer clustr_check();
@@ -221,20 +221,6 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
   *nacluster = I_ZERO;
   max_clustr_size = I_ZERO;
   
-  /*
-      Compute reorthogonalization criterion.  
-
-      ASSUMES eigenvalues
-      are accurate relative to norm(T), where T is the full
-      tridiagonal matrix, but not necessarily relative to norm(Ti)
-      if norm(Ti) < norm(T), where Ti is one of the submatrices into 
-      which T breaks (as per isplit, nsplit).  If eigenvalues in block
-      Ti are always accurate relative to norm(Ti), then ortol should be
-      based on norm(Ti) rather than norm(T) (the commented out computation
-      of ortol latter in the code was used to do this before even though
-      the eigenvalues weren't really accurate relative to norm(Ti). ).
-  */
-  
   msize = *n;
   onenrm = ffabs( d[0] ) + ffabs( e[1] );
   for (i = 1; i < msize-1; ++i) {
@@ -245,47 +231,14 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
   onenrm = MAX(onenrm, tmp);
   
   ortol = onenrm * (DoublePrecision ) 1.e-3 ;
-
+  
   /*
     sepfine = MAX(1000., (DoublePrecision) msize)*DLAMCHE;
     sepfine = sepfine*MAX(ortol, 1.);
-  */
+    */
   
-  c_ptr = iscratch;
-  nn_proc = reduce_list2( num_eig, mapZ, c_ptr);
-  
-  iflag = -1;
-  for ( j = 0; j < nn_proc; j++ ){
-    if ( c_ptr[j] == me ) {
-      iflag = j;
-      break;
-    }
-  }    
-  
-  
-  k = 0;
-  imax = -1;
-  imin = -1;
-  
-  for ( j = 0; j < iflag; j++ ) {
-    imax = count_list(c_ptr[j], mapZ, &num_eig);
-    k += imax;
-  }	
-
-  if ( iflag == -1 ){
-    imin = -1;
-    imax = -1;
-  }
-  else {
-    imin = k;
-    imax = k + count_list( me, mapZ, &num_eig) - 1;
-  }
-
-
-
-
   c_ptr = &clustr_info[0];
-
+  
   
   /*
     cluster information
@@ -294,6 +247,7 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
   for ( j = 0; j <  4 * msize; j++ )
     c_ptr[j] = -1;
   c_ptr = &clustr_info[0];
+  eps = DLAMCHE;
   
   /*
     should have the same error messages as lapack
@@ -354,89 +308,55 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
     fprintf(stderr, " got here 1 me = %d \n", me );
 #endif
 
-    if ( blksiz > 1 ) {
-      /*
-	Compute reorthogonalization criterion and stopping criterion
-	Gershgorin radius
-	
-	should use pointers or loop unrooling here to speed things up; this is a O(n) operation
-	so things aren't that expensive
-	
-      */
-      
+    if ( blksiz == 2 ) {
+      j1 = beg_of_block;
+      jn = end_of_block;
+      if ( w[j1] == w[jn] ) {
+	*(c_ptr++) = j1;
+	*(c_ptr++) = jn;
+	*(c_ptr++) = b1;
+	*(c_ptr++) = bn;
+	num_cls++;
+	max_clustr_size = MAX( 2, max_clustr_size);
+      }
+      else
+	if ( ffabs(w[j1] - w[jn])/max(fabs(w[j] < max(100.e0, (DoublePrecision) msize)*eps))) {
+	  *(c_ptr++) = j1;
+	  *(c_ptr++) = jn;
+	  *(c_ptr++) = b1;
+	  *(c_ptr++) = bn;
+	  num_cls++;
+	  max_clustr_size = MAX( 2, max_clustr_size);
+	}
+	else {
+	  *(c_ptr++) = j1;
+	  *(c_ptr++) = j1;
+	  *(c_ptr++) = b1;
+	  *(c_ptr++) = bn;
+	  num_cls++;
+	  *(c_ptr++) = jn;
+	  *(c_ptr++) = jn;
+	  *(c_ptr++) = b1;
+	  *(c_ptr++) = bn;
+	  num_cls++;
+	  max_clustr_size = MAX( 1, max_clustr_size);
+	}
+    }
+
+    if ( blksiz > 2 ) {
       /*
        *  This is how one would compute ortol if the eigenvalues of block i
        *  of T, Ti, were accurate relative to norm(Ti).
        */
-
-      /*
-      imin = b1-1;
-      imax = bn+1;
-      */
       
-      /*
-      if ( b1 != bn ) {
-	onenrm = ffabs( d[b1] ) + ffabs( e[b1+1] );
-	tmp = ffabs(d[bn]) + ffabs(e[bn]);
-	onenrm = MAX(onenrm, tmp);
-	if ( bn < *n-1 ){
-	  for (i = b1 + 1; i < bn; ++i) {
-	    tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
-	    onenrm = MAX(onenrm, tmp);
-	  }}
-	else {
-	  for (i = b1 + 1; i < *n-1; ++i) {
-	    tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
-	    onenrm = MAX(onenrm, tmp);
-	  }
-	  tmp = ffabs(d[msize-1]) + ffabs(e[msize-1]);
-	  onenrm = MAX(onenrm, tmp);
-	}
-      }
-      else
-	onenrm = ffabs(d[msize-1]) + ffabs(e[msize-1]);
-
-	ortol = onenrm * (DoublePrecision ) 1.e-3 ;
-	*/
-      
-
-      
-#ifdef DEBUG1
-      fprintf(stderr, " got here 2 me = %d \n", me );
-#endif
-      
-      
-      /*
-	Loop through eigenvalues of block nblk.
-      */
-      
-      jblk = 0;
       for (j = beg_of_block; j < ( end_of_block + 1) ; ++j) {
-	++jblk;
 	xj = w[j];
-	
-	/*
-	  If eigenvalues j and j-1 are too close, add a relatively small
-	  perturbation.  If the eigenvalues are not in increasing 
-	  order in the block, exit.
-	*/
-	
-	if (jblk > 1) {
-	  eps1 = ffabs((DoublePrecision) eps * xj);
-	  if ((xj - w[j-1]) < (DoublePrecision) -eps1) {
-	    /*
-	     *info = -5;
-	     i__3 = -(*info);
-	     xerbla_("DSTEIN", &i__3);
-	     xerbla_("DSTEIN", &i__3);
-	     */
-	    fprintf(stderr, " Error in ordering eigenvalues: -5 error clustrf me = %d \n", me );
-	    return(-5);
-	  }
-	  sep = xj - xjm;
-	}
-	/*
-	  eval[j] = xj;
+	xj1 = w[j+1];
+	xj2 = w[j+2];
+	if ( 
+      }
+      /*
+	eval[j] = xj;
 	*/
 	
 #ifdef DEBUG1
@@ -448,14 +368,14 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
 	
 	/*
 	  tight cluster
-	*/
+	  */
 	
 	if ( jblk > 1 )  {            /* jblk > 1 */
 	  sep = ffabs(xj - xjm);
 	  if ( sep >= MAX(ffabs(xj),ffabs(xjm))* (DoublePrecision) 1.e-3*onenrm) {
 	    /*
 	      if ( sep >= (DoublePrecision) 1.e-3*onenrm) {
-	    */
+	      */
 #ifdef DEBUG1
 	    fprintf(stderr, " got here 4 me = %d \n", me );
 #endif
@@ -488,11 +408,9 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
 	
 	if ( j == end_of_block ) {
 	  if ( clustr_check(clustrptr, end_of_block, imin, imax) == 1 ) {
-	    
 #ifdef DEBUG1
 	    fprintf(stderr, " got here 5 me = %d \n", me );
 #endif
-	    
 	    *(c_ptr++) = clustrptr;
 	    *(c_ptr++) = end_of_block;
 	    *(c_ptr++) = b1;
@@ -516,7 +434,7 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
     }
   }
   
-/*
+  /*
   ime = -1;
   for ( ii = 0; ii < *n; ii++ ){
   if ( mapZ[ii] == me ){
