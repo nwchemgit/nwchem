@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.4 1994-06-20 18:23:49 gg502 Exp $
+# $Id: GNUmakefile,v 1.5 1994-07-14 21:35:45 gg502 Exp $
 
 
 OBJ =		rimp2_v_e2.o	rimp2_mk_vmhalf.o \
@@ -10,7 +10,8 @@ OBJ =		rimp2_v_e2.o	rimp2_mk_vmhalf.o \
 		dgezer.o	dgecop.o	lnblnk.o \
 		dgewr.o		atoi.o		indint.o \
 		int_2c_ga.o	ga_matpow.o	xf3ci_step12a.o \
-		max_v_diagonal.o
+		max_v_diagonal.o	rimp2_get_param.o \
+		rimp2_timers.o
 
 LIBRARY =	librimp2.a
 
