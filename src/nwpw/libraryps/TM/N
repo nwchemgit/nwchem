@@ -1,0 +1,17 @@
+[lmax] -1
+[locp] -1
+[rlocal] 1.0
+ <atom>
+ N 
+  0.700000E+01  0.140000E+02   1   2
+   1   0  0.200000E+01
+   2   0  0.200000E+01
+   2   1  0.300000E+01
+ <end>
+ <solver> pauli                     <end>
+ <pseudopotential> troullier-martins         <end>
+ <rcut>
+   0  1.120000
+   1  1.120000
+   2  0.603100
+ <end>
