@@ -992,8 +992,10 @@ int rtdb_seq_ma_get(const int handle, const char *name, int *ma_type,
   /* Retrieve the type info from the data base */
 
   if (!rtdb_seq_get_info(handle, name, ma_type, nelem, date)) {
+    /*
     (void) fprintf(stderr, "rtdb_seq_ma_get: get info failed for \"%s\" in %s\n",
 		   name, rtdb[handle].filename);
+                   */
     return 0;
   }
 
