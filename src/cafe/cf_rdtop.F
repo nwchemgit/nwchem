@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.24 2001-11-14 04:10:59 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.25 2002-01-23 14:43:13 bjohnson Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -157,7 +157,7 @@ c      snam(i)=stemp
 c      if(j.gt.nsm) nsm=j
       totchg=totchg+cf_charge(m)
    10 continue
-      if(scaleq.ge.zero) call cf_scaleq(iqfr,iqto,scaleq)
+      if(scaleq.ge.zero) call cf_scaleq(iqfr,iqto)
       idata(4)=0
       do 11 i=1,nbt
       read(lfntop,1018,end=9997,err=9998) (idata(j),j=1,3),
