@@ -34,6 +34,7 @@ information is generally available in the User Manual.
 Task level directives: 
 
   o Addition of RELATIVISTIC directive to control evaluation of relativistic integrals.
+  o BUG FIX: Task shell is now working under Linux.
 
 Initial orbital Guess: 
 
