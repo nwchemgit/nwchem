@@ -1,7 +1,7 @@
       subroutine rohf_hessv_1e( basis, geom, nmo, nclosed, nopen,
      $     g_fcv, g_fpv, g_fcp,
      $     g_x, g_ax)
-C     $Id: rohf_h1e.F,v 1.3 1996-07-12 01:55:55 d3g681 Exp $
+C     $Id: rohf_h1e.F,v 1.4 1997-04-06 20:55:26 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -43,8 +43,10 @@ c
 c
       do ivec = 1, nvec
          call ga_zero(g_tmp1)
-         call ga_copy_patch('n', g_x, 1, (nvir*nclosed), ivec, ivec,
-     $        g_tmp1, voff, nmo, 1, nclosed )
+         call ga_vec_to_mat(g_tmp1, voff, nmo, 1, nclosed, 
+     $                      g_x, 1, ivec)
+*         call ga_copy_patch('n', g_x, 1, (nvir*nclosed), ivec, ivec,
+*     $        g_tmp1, voff, nmo, 1, nclosed )
          call ga_zero(g_tmp2)
          call ga_matmul_patch('n','n',four,zero,
      $        g_fcv, voff, nmo, voff, nmo,
@@ -142,22 +144,28 @@ c
 c     
          xend = nclosed*nvir
 c
-         call ga_dadd_patch( one, g_tmp2, voff, nmo, 1, nclosed,
-     $        one, g_ax, 1, xend, ivec, ivec,
-     $        g_ax, 1, xend, ivec, ivec)
+         call ga_mat_to_vec(g_tmp2, voff, nmo, 1, nclosed,
+     $       g_ax, 1, ivec, 1.0d0, '+')
+*         call ga_dadd_patch( one, g_tmp2, voff, nmo, 1, nclosed,
+*     $        one, g_ax, 1, xend, ivec, ivec,
+*     $        g_ax, 1, xend, ivec, ivec)
 c
          if (nopen .gt. 0) then
             xoff = xend + 1
             xend = xend + nopen*nvir
 *
-            call ga_dadd_patch( one, g_tmp2, voff, nmo, ooff, oend,
-     $           one, g_ax, xoff, xend, ivec, ivec,
-     $           g_ax, xoff, xend, ivec, ivec)
+            call ga_mat_to_vec(g_tmp2, voff, nmo, ooff, oend,
+     $         g_ax, xoff, ivec, 1.0d0, '+')
+*            call ga_dadd_patch( one, g_tmp2, voff, nmo, ooff, oend,
+*     $           one, g_ax, xoff, xend, ivec, ivec,
+*     $           g_ax, xoff, xend, ivec, ivec)
             xoff = xend + 1
             xend = xend + nopen*nclosed
-            call ga_dadd_patch( one, g_tmp2, ooff, oend, 1, nclosed,
-     $           one, g_ax, xoff, xend, ivec, ivec,
-     $           g_ax, xoff, xend, ivec, ivec)
+            call ga_mat_to_vec(g_tmp2, ooff, oend, 1, nclosed,
+     $         g_ax, xoff, ivec, 1.0d0, '+')
+*            call ga_dadd_patch( one, g_tmp2, ooff, oend, 1, nclosed,
+*     $           one, g_ax, xoff, xend, ivec, ivec,
+*     $           g_ax, xoff, xend, ivec, ivec)
          endif
       enddo
 c

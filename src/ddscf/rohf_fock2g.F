@@ -19,7 +19,7 @@ c
       subroutine rohf_fock2grad( nmo, nclosed, nopen,
      $     g_fcv, g_fpv, g_fcp,
      $     g_grad)
-C     $Id: rohf_fock2g.F,v 1.6 1996-08-06 05:33:01 d3g681 Exp $
+C     $Id: rohf_fock2g.F,v 1.7 1997-04-06 20:55:25 d3g681 Exp $
       implicit none
 #include "global.fh"
       integer nmo, nclosed, nopen ! [input] Occupation and number of mos
@@ -36,19 +36,25 @@ c
 c     
       call ga_zero(g_grad)
       xend = nclosed*nvir
-      call ga_copy_patch('n', g_fcv, voff, nmo, 1, nclosed,
-     $     g_grad, 1, xend, 1, 1 )
+      call ga_mat_to_vec(g_fcv, voff, nmo, 1, nclosed, g_grad, 1, 1,
+     $    0.0d0, '=')
+*      call ga_copy_patch('n', g_fcv, voff, nmo, 1, nclosed,
+*     $     g_grad, 1, xend, 1, 1 )
       call ga_dscal_patch(g_grad, 1, xend, 1, 1, 4.d0 )
       if (nopen .gt. 0) then
          xoff = xend + 1
          xend = xend + nopen*nvir
-         call ga_copy_patch('n', g_fpv, voff, nmo, ooff, oend,
-     $        g_grad, xoff, xend, 1, 1 )
+         call ga_mat_to_vec(g_fpv, voff, nmo, ooff, oend,
+     $      g_grad, xoff, 1, 0.0d0, '=')
+*         call ga_copy_patch('n', g_fpv, voff, nmo, ooff, oend,
+*     $        g_grad, xoff, xend, 1, 1 )
          call ga_dscal_patch(g_grad, xoff, xend, 1, 1, 2.d0 )
          xoff = xend + 1
          xend = xend + nopen*nclosed
-         call ga_copy_patch('n', g_fcp, ooff, oend, 1, nclosed,
-     $        g_grad, xoff, xend, 1, 1 )
+         call ga_mat_to_vec(g_fcp, ooff, oend, 1, nclosed,
+     $      g_grad, xoff, 1, 0.0d0, '=')
+*         call ga_copy_patch('n', g_fcp, ooff, oend, 1, nclosed,
+*     $        g_grad, xoff, xend, 1, 1 )
          call ga_dscal_patch(g_grad, xoff, xend, 1, 1, 2.d0 )
       endif
 c
