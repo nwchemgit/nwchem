@@ -1,6 +1,5 @@
-      subroutine fock_2e( geom1, ao_basis, nfock, jfac, kfac,
-     $     tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.13 2000-04-27 20:05:53 zzhang Exp $
+      subroutine fock_2e( geom1, ao_basis, nfock, facj, fack,
+     $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -17,8 +16,8 @@ c     !!! BGJ test !!!
 
       integer geom1, ao_basis        ! [input] parameter handles
       integer nfock                  ! [input] number of Fock matrices
-      double precision jfac(nfock)   ! [input] Coulomb prefactor
-      double precision kfac(nfock)   ! [input] exchange prefactor
+      double precision facj(nfock)   ! [input] Coulomb prefactor
+      double precision fack(nfock)   ! [input] exchange prefactor
       double precision tol2e1        ! [input] integral selection threshold
       logical oskel1                 ! [input] toggle skeleton Fock matrix
       integer vg_dens(nfock)         ! [input] array of handles to densities
@@ -27,12 +26,22 @@ c     !!! BGJ test !!!
 c     !!! BGJ test !!!
       integer ifock
       integer g_xc(100) ! Assume no more than 100 fock matrices !!!
+      double precision kfac(4), jfac(4)
       integer ga_create_atom_blocked
       integer vg_fockc
       external ga_create_atom_blocked
       logical xc_active, jfit
 c     !!! BGJ test !!!
 
+c
+c     Make local copy of J and K prefactors in case we need to manipulate them
+c
+      if (nfock .gt. 4) then
+         call errquit('Dimensioning assumption incorrect in fock_2e',0)
+      endif
+      call dcopy(nfock, fack, 1, kfac, 1)
+      call dcopy(nfock, facj, 1, jfac, 1)
+c
 c     !!! BGJ test !!!
 c
 c     See if XC is active for this call
@@ -41,21 +50,22 @@ c
      &     xc_active)) xc_active = .false.
       if (bgj_print().gt.0)
      &   write(*,*)'*** fock_2e: xc_active ',xc_active
-
-c     Set K contribution to 0 for DFT - not good enough in general,
-c     e.g. for hybrids, but will do for testing pure DFT.
+c
+c     Set K contribution to be correct even for pure DFT and hybrids
 c
       if (xc_active .and. bgj_have_xc()) then
+         call dscal(nfock, bgj_kfac(), kfac, 1)
          if (bgj_print().gt.0)
-     &      write(*,*)'*** fock_2e: zeroing kfac ',kfac
-         call dfill(nfock, 0.0d0, kfac, 1)
+     &      write(*,*)'*** fock_2e: set kfac to ',
+     &        (kfac(ifock),ifock=1,nfock)
       endif
 c
 c     Determine whether J fitting is involved
 c
-c      jfit = bgj_have_j_fit().and.(jfac(1).ne.0d0)
-      jfit=.false.
-
+      jfit = bgj_have_j_fit().and.(jfac(1).ne.0d0)
+c !!! Edo commented this out before since it caused bugs - ask him about
+c !!! it when it is necessary to turn back on for J fit CPKS
+      jfit = .false.
 c     !!! BGJ test !!!
       if (jfit) then
 c
@@ -63,8 +73,11 @@ c     get the HF exchange part (must be replaced by DFT X)
 c
          vg_fockc = ga_create_atom_blocked
      $        (geom1, ao_basis, 'fock_2e: vg_fockc')
+         if (bgj_print().gt.0)
+     &      write(*,*)'*** fock_2e: jfit case - original jfac = ',
+     &        jfac(1)
          jfac(1)=0d0
-         kfac(1)=-0.5d0
+         kfac(1)=-0.5d0*bgj_kfac()
          call ao_fock_2e( geom1, ao_basis, 1, jfac, kfac,
      $        tol2e1, oskel1, vg_dens, vg_fock, asym )
 
@@ -75,19 +88,14 @@ c
      .      call errquit('fock_2e: problem destroying test array',1)
          return
       else if (nriscf.gt.1) then
-        call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
-     $       jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
-      else if (nriscf.eq.1) then
-        if (rifock) then
-          call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
-     $         jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
-        else
-          call ao_fock_2e( geom1, ao_basis, nfock, jfac, kfac,
-     $          tol2e1, oskel1, vg_dens, vg_fock,asym )
-        endif
+         call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
+     $        jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
+      else if (nriscf.eq.1 .and. rifock) then
+         call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
+     $        jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
       else
-          call ao_fock_2e( geom1, ao_basis, nfock, jfac, kfac,
-     $        tol2e1, oskel1, vg_dens, vg_fock, asym )
+         call ao_fock_2e( geom1, ao_basis, nfock, jfac, kfac,
+     $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
       endif
 
 c     !!! BGJ test !!!
@@ -107,6 +115,7 @@ c      write(*,*)'*** fock_2e: nfock =',nfock
       do ifock = 1, nfock
          g_xc(ifock) = ga_create_atom_blocked
      $        (geom1, ao_basis, 'fock_2e:BGJ XC test')
+         call ga_zero(g_xc(ifock))
       enddo
 
       call fock_xc(nfock, vg_dens, g_xc)
