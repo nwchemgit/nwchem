@@ -16,8 +16,9 @@ c
 c     The lattice angles are input in Degrees
 c***********************************************************************
       subroutine geom_3d(geom,c2au)
-C$Id: geom_3d.F,v 1.6 1997-03-30 21:11:58 d3g681 Exp $
+C$Id: geom_3d.F,v 1.7 1997-09-25 05:55:42 gutowski Exp $
       implicit none
+#include "global.fh"
 #include "inp.fh"
 #include "geom.fh"
 #include "geomP.fh"
@@ -25,6 +26,7 @@ c
       double precision deter3
       external deter3
       integer geom,i,j,iang
+      integer me
 *      integer indx(3)
       double precision c2au
       double precision cdist(3),cang(3),gmat(3,3),amat(3,3),dperm,vol
@@ -34,6 +36,8 @@ c
       parameter(rad=57.295779513082343d0)
 c
       pi=acos(0.0d0)*2.0d0
+c
+      me  = ga_nodeid()
 c
 c--> get direct space lattice vectors
 c
@@ -74,8 +78,10 @@ c
 *      do 245 i=1,3
 *        dperm=dperm*gmat(i,i)
 *  245 continue
-      write(6,*)
-      write(6,*) ' !!!!!!!!!  THIS CODE NEEDS TESTING !!!!!!!!!! '
+      if (me.eq.0) then 
+        write(6,*)
+        write(6,*) ' !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! '
+      endif
       dperm = deter3(gmat)
 *
       vol=dsqrt(dperm)             
