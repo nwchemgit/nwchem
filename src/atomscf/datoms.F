@@ -1,7 +1,7 @@
       subroutine datoms(geom, basis, hatom, g_dens, oprin,
      + pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      + cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener)
-C$Id: datoms.F,v 1.14 1996-05-14 00:19:44 d3g681 Exp $
+C$Id: datoms.F,v 1.15 1996-06-28 22:56:22 gutowski Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -247,6 +247,9 @@ c
      +           pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +           cvec, copn, smin, qmin, transf, cc, nbb,
      +           element, tag)
+*** added by ZL
+            call atom_eig_vec(znps,iat,cc,nsym,ncsh,nosh,nccup,nbc)
+***
 c..   
 c
 c     loop thru atoms with the same tag and add in energy and density
@@ -292,6 +295,9 @@ c
          write (iwrite,6010) toteng
          call util_flush(iwrite)
       endif
+*** added by ZL
+            call basis_map(geom,basis)
+***
 c
       return
  6010 format(' Sum of atomic energies: ',f20.8)
