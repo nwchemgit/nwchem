@@ -1,5 +1,5 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in )
-C     $Id: ccsd_driver.F,v 2.14 1997-04-14 06:34:53 gg502 Exp $
+C     $Id: ccsd_driver.F,v 2.15 1997-05-01 18:10:54 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -346,8 +346,8 @@ C
           EMP2 = zip
           Call GA_Distribution(G_EPair, GA_NodeID(),
      $       Alo, AHi, IJLo, IJHi)
-          If ( ALo .ne. 1 .OR. AHi .ne. 1) Call ErrQuit(
-     $       'CCSD: Internal error: G_EPair has wrong shape', AHi-ALo+1)
+*          If ( ALo .ne. 1 .OR. AHi .ne. 1) Call ErrQuit(
+*     $       'CCSD: Internal error: G_EPair has wrong shape', AHi-ALo+1)
 C
 C         GA_Access gets upset if there is nothing local
 C
