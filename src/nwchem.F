@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.97 1997-03-05 23:15:13 d3g681 Exp $
+c     $Id: nwchem.F,v 1.98 1997-03-18 00:29:02 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -452,7 +452,5 @@ c
 c     Below here back to parallel execution
 c
 10101 call util_file_print_dirs()
-c
-      call util_flush(6)
 c
       end
