@@ -1,3 +1,4 @@
+* $Id: stpr_clean.fh,v 1.2 1996-06-22 00:54:12 d3e129 Exp $
       double precision thrcln
       parameter (thrcln=1.0d-06)
 *     DATA THRCLN/1.D-6/
