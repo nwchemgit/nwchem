@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.12 1997-11-15 00:45:58 d3e129 Exp $
+c     $Id: task_optimize.F,v 1.13 1998-02-26 01:20:49 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -76,9 +76,6 @@ c
          status = .false.
       else
          if (ousedriver) then
-            modsad = 0
-            if (.not. rtdb_put(rtdb,'driver:modsad',mt_int,1,modsad))
-     $           call errquit('task_saddle: rtdb corrupt?', 0)
             status = drv_opt(rtdb)
          else
             ts   = .false.
@@ -120,7 +117,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.12 1997-11-15 00:45:58 d3e129 Exp $
+c     $Id: task_optimize.F,v 1.13 1998-02-26 01:20:49 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
