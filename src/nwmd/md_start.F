@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.153 2003-10-27 19:06:56 d3j191 Exp $
+c $Id: md_start.F,v 1.154 2003-10-30 23:57:55 d3j191 Exp $
 c
       implicit none
 c
@@ -1266,9 +1266,7 @@ c
 c     open recording file
 c
       if(me.eq.0) then
-      if(nfnewf.gt.0) then
       call md_fopen(.false.)
-      endif
 c
       if(ntype.eq.3) then
       open(unit=lfngib,file=filgib(1:index(filgib,' ')-1),
