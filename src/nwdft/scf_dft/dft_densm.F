@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.35 2003-05-05 17:45:44 edo Exp $
+C$Id: dft_densm.F,v 1.36 2003-05-28 20:32:59 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -41,6 +41,7 @@ c
       double precision one,x,xb
       double precision util_erfc
       external util_erfc
+      integer nocsave(2)
       logical dft_checkdg
       external dft_checkdg
       parameter (zero=0.d0,toll=1.d-9,one=1.d0,
@@ -97,6 +98,11 @@ c
      .             toll)
               efermi(2)=efermi(1)
            endif
+         else
+           if(spinset.and.ipol.eq.2) then
+              nocsave(1)=noc(1)
+              nocsave(2)=noc(2)
+           endif
          endif
          do isp=1,ipol
             ntot(isp)=0.d0
@@ -149,15 +155,20 @@ c
             write(LuOut,1688) ssmear,
      ,             efermi(1),tdots,(i,ntot(i),i=1,ipol)
  1688       format(' sigma= ',d7.2,
-     ,             ' eFermi= ',f8.5,' T*S= ',1p,e9.2,
+     ,             ' eFermi= ',f8.5,' T*S= ',1p,e9.2,0p,
      ,           2(' nel(',i1,')=',f8.2)/) 
 C            write(LuOut,1723) (focc(i),i=1,nbf*ipol)
 C 1723       format(' Foccs ',(
          endif
          endif
          if(spinset.and.ipol.eq.2) then
-            noc(1)=nint(ntot(1))
-            if(ipol.eq.2) noc(2)=nint(ntot(2))
+            if(search0) then
+               noc(1)=nint(ntot(1))
+               if(ipol.eq.2) noc(2)=nint(ntot(2))
+            else
+              noc(1)=nocsave(1)
+              noc(2)=nocsave(2)
+            endif
          endif
       endif
       return
