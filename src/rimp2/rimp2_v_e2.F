@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.4 1994-08-15 14:59:08 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.5 1994-08-25 20:28:05 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO, NOcc, NVir,
@@ -92,7 +92,9 @@ C LOCAL VARIBLES
       Double Precision DenIJ, Den, Fact, EPair
       Logical Status, PermSym
       Integer Junk
-      Integer G_bigI, ILo, IHi, NI, G_bigJ, JLo, JHi, NJ, G_bigA
+      Integer G_bigI, ILo, IHi, NI, G_bigJ, JLo, JHi, NJ, G_bigA, G_BigB
+      Integer IALo, IAHi, JBLo, JBHi, MyILo, MyIHi, MyJLo, MyJHi
+      Integer Offset, BBot, BTop, ABot, ATop
 c$$$      Double precision ChkSum, MxElem
 C
       Call GA_Sync
@@ -332,145 +334,208 @@ C
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
+                  If ( .NOT. GA_Create( MT_Dbl, NI*NVir(ISpin),
+     $               NJ*NVir(JSpin), 'Temporary matrix big B', MinChunk,
+     $               MinChunk, G_bigB) ) then
+                     Write (LuErr, *) ' Unable to allocate big B'
+                     RIMP2_V_E2 = .FALSE.
+                     Return
+                  EndIf
                   Call PStat_Off( PS_Create)
 C
+C                 ********************************************
+C                 * Form the B matrix, which is related to A *
+C                 ********************************************
+C                 Term          A                  B
+C                 RHF        (IA|JB)     2 (IA|JB) - (IB|JA)
+C                 UHF AA     (IA|JB)       (IA|JB) - (IB|JA)
+C                 UHF Ab     (IA|jb)       (IA|jb) 
+C                 UHF bb     (ia|jb)       (ia|jb) - (ib|ja)
 C
+C                 So in every case except UHF Ab, we can initialize
+C                 B with A transpose, but on a block-wise basis.
+C
+                  Call PStat_On( PS_form_ab)
+                  If ( ISpin .eq. JSpin) then
+                     Call GA_Zero(G_bigB)
+C
+C                    NOTE: the operations in here are SIMD, so are
+C                    not as parallel as one might like. This could
+C                    be optimized away by creating a specialized
+C                    routine to do the whole thing, but we'll wait
+C                    and see if there is a problem.
+C
+                     Do I = ILo, IHi
+C
+C                       Use permutational symmetry if possible
+C                       (already know that ISpin .eq. JSpin)
+C                       
+                        If ( ILo .eq. JLo .AND. IHi .eq. JHi) then
+                           JTop2 = I
+                        Else
+                           JTop2 = JHi
+                        EndIf
+C
+                        Do J = JLo, JTop2
+C
+C                          Copy from an IJ block of A to the 
+C                          coresponding IJ block of B, but with
+C                          transposition.
+C
+                           Call GA_Copy_Patch('T',
+     $                        G_bigA, (I-ILo)*NVir(ISpin)+1,
+     $                                (I-ILo+1)*NVir(ISpin),
+     $                                (J-JLo)*NVir(JSpin)+1,
+     $                                (J-JLo+1)*NVir(JSpin),
+     $                        G_bigB, (I-ILo)*NVir(ISpin)+1,
+     $                                (I-ILo+1)*NVir(ISpin),
+     $                                (J-JLo)*NVir(JSpin)+1,
+     $                                (J-JLo+1)*NVir(JSpin) )
+                        EndDo
+                     EndDo
+C
+C                    In all of these cases, we also have to scale B
+C                    by -1 and add some multiple of A to it,
+C                    2 for RHF, 1 for UHF.
+C
+                     Fact = Dble( 3 - TopSpin)
+                     Call GA_DAdd( Fact, G_bigA, -FP_One, G_bigB,
+     $                  G_bigB)
+                  Else
+C
+C                    For the mimxed-spin case, its just a straight copy
+C
+                     Call GA_Copy( G_bigA, G_bigB)
+                  EndIf
+                  Call PStat_Off( PS_form_ab)
+C
+C                 ***************************
+C                 * Apply denominators to B *
+C                 ***************************
+C                 Each processor does this on the panel of B it owns.
+C
+                  Call PStat_On( PS_denom)
+                  Call GA_Distribution( G_bigB, Proc, IAlo, IAhi,
+     $               JBlo, JBhi)
+C
+C                 GA_Access doesn't like it if we request a bogus
+C                 patch (as might be returned if this node has no data
+C                 on it).
+C
+                  If ( (IAhi-IAlo+1) * (JBHi-JBLo+1) .ne. 0) then
+C
+C                    Figure out what these correspond to in more 
+C                    basic terms
+C
+                     ALo = Mod( IALo, NVir(ISpin) )
+                     If ( ALo .eq. 0) ALo = NVir(ISpin)
+                     AHi = Mod( IAHi, NVir(ISpin) )
+                     If ( AHi .eq. 0) AHi = NVir(ISpin)
+C
+                     BLo = Mod( JBLo, NVir(JSpin) )
+                     If ( BLo .eq. 0) BLo = NVir(JSpin)
+                     BHi = Mod( JBHi, NVir(JSpin) )
+                     If ( BHi .eq. 0) BHi = NVir(JSpin)
+C
+                     MyILo = Int( (IALo-1) / NVir(ISpin) ) + 1
+                     MyIHi = Int( (IAHi-1) / NVir(ISpin) ) + 1
+C
+                     MyJLo = Int( (JBLo-1) / NVir(JSpin) ) + 1
+                     MyJHi = Int( (JBHi-1) / NVir(JSpin) ) + 1
+C
+                     Call GA_Access( G_bigB, IAlo, IAhi, JBlo, JBhi,
+     $                        H_B, LDB)
+C
+                     Offset = -1
+                     Do J = MyJLo, MyJHi
+C
+C                       First and last J might not cover the whole range
+C
+                        BBot = 1
+                        BTop = NVir(JSpin)
+                        If ( J .eq. MyJLo) then
+                           BBot = BLo
+                        ElseIf (J .eq. MyJHi) then
+                           BTop = BHi
+                        EndIf
+C
+                        Do B = BBot, BTop
+C
+                           Do I = MyILo, MyIHi
+C                          
+C                             Form half of the denominator
+C
+                              DenIJ = Eig(I+ILo-1, ISpin)
+     $                           + Eig(J+JLo-1, JSpin)
+C
+C                             As for B, A doesn't always cover the whole
+C                             range
+C
+                              ABot = 1
+                              ATop = NVir(ISpin)
+                              If ( I .eq. MyILo) then
+                                 ABot = ALo
+                              ElseIf (I .eq. MyIHi) then
+                                 ATop = AHi
+                              EndIf
+C
+                              Do A = ABot, ATop
+                                 Offset = Offset + 1
+C
+                                 Den = DenIJ
+     $                              - Eig( NOcc(ISpin) + A, ISpin)
+     $                              - Eig( NOcc(JSpin) + B, JSpin)
+C
+                                 Dbl_MB( H_B + Offset )
+     $                              =  Dbl_MB( H_B + Offset ) / Den
+C
+                              EndDo ! A
+                           EndDo ! I
+                           Offset = Offset + LDB - (IAhi - IAlo + 1)
+C
+                        EndDo ! B
+                     EndDo ! J
+C
+                     Call GA_Release_Update( G_bigB, IAlo, IAhi,
+     $                  JBlo, JBhi)
+                  EndIf
+                  Call PStat_Off( PS_denom)
+C
+C                 ***********************
+C                 * Form IJ pair energy *
+C                 ***********************
+C                 Contract the integrals in A with the denominatorified 
+C                 integrals in B. Put it into the matrix of 
+C                 contributions by spin case because that breakdown is 
+C                 sometimes interesting to people. 
+C
+C                 NOTE: The dot products in this section are SIMD,
+C                 which limits the available parallelism.  It might
+C                 be necessary to write a special routine to do it.
+C
+                  Call PStat_On(PS_PrEn)
                   Do I = ILo, IHi
 C
 C                    Use permutational symmetry if possible
-C                    
+C                       
                      If ( ISpin .eq. JSpin .AND. ILo .eq. JLo
      $                  .AND. IHi .eq. JHi) then
                         JTop2 = I
                      Else
                         JTop2 = JHi
                      EndIf
-C
+C                    
                      Do J = JLo, JTop2
+                           EPair = GA_DDot_Patch(
+     $                        G_bigA, 'N', (I-ILo)*NVir(ISpin)+1,
+     $                                     (I-ILo+1)*NVir(ISpin),
+     $                                     (J-JLo)*NVir(JSpin)+1,
+     $                                     (J-JLo+1)*NVir(JSpin),
+     $                        G_bigB, 'N', (I-ILo)*NVir(ISpin)+1,
+     $                                     (I-ILo+1)*NVir(ISpin),
+     $                                     (J-JLo)*NVir(JSpin)+1,
+     $                                     (J-JLo+1)*NVir(JSpin) )
 C
-                        Call PStat_On( PS_form_ab)
-                        Call GA_Copy_Patch('N', G_bigA,
-     $                     (I-ILo)*NVir(ISpin)+1, (I-ILo+1)*NVir(ISpin),
-     $                     (J-JLo)*NVir(JSpin)+1, (J-JLo+1)*NVir(JSpin),
-     $                     G_A, 1, NVir(ISpin), 1, NVir(JSpin))
-C
-                        Call GA_Copy( G_A, G_B)
-C
-c$$$                        ChkSum = GA_DASum_Patch( G_A, 1, NVir(ISpin),
-c$$$     $                     1, NVir(JSpin))
-c$$$                        If ( GA_NodeID() .eq. 0)
-c$$$     $                     Write (LuOut, 9100) 'A', I, J, ChkSum
-c$$$ 9100                   Format(1X, 'RIMP2_V_E2: ', A,
-c$$$     $                     ' Integral block (', I5, ',', I5,
-c$$$     $                     ') checksum ', F30.15)
-c$$$                        MxElem = GA_DAMax_Patch( G_A, 1, NVir(ISpin),
-c$$$     $                     1, NVir(JSpin))
-c$$$                        If ( GA_NodeID() .eq. 0)
-c$$$     $                     Write (LuOut, 9110) 'A', I, J, MxElem
-c$$$ 9110                   Format(1X, 'RIMP2_V_E2: ', A,
-c$$$     $                     ' Integral block (', I5, ',', I5,
-c$$$     $                     ') maximum ', F30.15)
-c$$$C
-C
-C                       *************************************************
-C                       * Make B into what is needed by pure spin cases *
-C                       *************************************************
-C                       For mixed spin UHF B = A, but for others we need
-C                       to do some more manipulation.
-C
-                        If ( ISpin .eq. JSpin) then
-C
-C                          B <-- 0.5 ( A + A')
-C
-                           Call GA_Symmetrize( G_B)
-C
-C                          UHF: B <-- 2 A - 2 B = 2 A - (A + A') =   A - A'
-C                          RHF: B <-- 3 A - 2 B = 3 A - (A + A') = 2 A - A'
-C
-                           Fact = Dble( 4 - TopSpin )
-                           Call GA_DAdd( Fact, G_A, -FP_Two, G_B, G_B)
-                        EndIf
-                        Call PStat_Off( PS_form_ab)
-c$$$C
-c$$$                        ChkSum = GA_DASum_Patch( G_B, 1, NVir(ISpin),
-c$$$     $                     1, NVir(JSpin))
-c$$$                        If ( GA_NodeID() .eq. 0)
-c$$$     $                     Write (LuOut, 9100) 'B', I, J, ChkSum
-c$$$                        MxElem = GA_DAMax_Patch( G_B, 1, NVir(ISpin),
-c$$$     $                     1, NVir(JSpin))
-c$$$                        If ( GA_NodeID() .eq. 0)
-c$$$     $                     Write (LuOut, 9110) 'B', I, J, MxElem
-C
-C                       So now we have the following for a particular IJ:
-C                       Term          A                  B
-C                       RHF        (IA|JB)     2 (IA|JB) - (IB|JA)
-C                       UHF AA     (IA|JB)       (IA|JB) - (IB|JA)
-C                       UHF Ab     (IA|jb)       (IA|kb) 
-C                       UHF bb     (ia|jb)       (ia|jb) - (ib|ja)
-C
-C                       ***************************
-C                       * Apply denominators to B *
-C                       ***************************
-C                       Each processor does this on the panel of B it owns.
-C
-                        Call PStat_On( PS_denom)
-                        Call GA_Distribution( G_B, Proc, Alo, Ahi,
-     $                     Blo, Bhi)
-C
-C                       GA_Access doesn't like it if we request a bogus
-C                       patch (as might be returned if this node has no data
-C                       on it).
-C
-                        If ( (Ahi-Alo+1) * (BHi-BLo+1) .ne. 0) then
-C
-C                          Form half of the denominator
-C
-                           DenIJ = Eig(I, ISpin) + Eig(J, JSpin)
-C
-                           Call GA_Access( G_B, Alo, Ahi, Blo, Bhi,
-     $                        H_B, LDB)
-C
-                           AB = -1
-                           Do B = Blo, Bhi
-                              Do A = Alo, Ahi
-                                 AB = AB + 1
-C                          
-                                 Den = DenIJ
-     $                              - Eig( NOcc(ISpin) + A, ISpin)
-     $                              - Eig( NOcc(JSpin) + B, JSpin)
-C
-                                 Dbl_MB( H_B + AB )
-     $                              =  Dbl_MB( H_B + AB ) / Den
-C
-                              EndDo
-                              AB = AB + LDB - (Ahi - Alo + 1)
-                           EndDo
-C
-                           Call GA_Release_Update( G_B, Alo, Ahi,
-     $                        Blo, Bhi)
-                        EndIf
-                        Call PStat_Off( PS_denom)
-c$$$C
-c$$$                        ChkSum = GA_DASum_Patch( G_B, 1, NVir(ISpin),
-c$$$     $                     1, NVir(JSpin))
-c$$$                        If ( GA_NodeID() .eq. 0)
-c$$$     $                     Write (LuOut, 9100) 'Denom B', I, J, ChkSum
-c$$$                        MxElem = GA_DAMax_Patch( G_B, 1, NVir(ISpin),
-c$$$     $                     1, NVir(JSpin))
-c$$$                        If ( GA_NodeID() .eq. 0)
-c$$$     $                     Write (LuOut, 9110) 'Denom B', I, J, MxElem
-C
-C                       ***********************
-C                       * Form IJ pair energy *
-C                       ***********************
-C                       Contract the integrals in A with the denominatorified 
-C                       integrals in B. Put it into the matrix of 
-C                       contributions by spin case because that breakdown is 
-C                       sometimes interesting to people. 
-C
-                        Call PStat_On(PS_PrEn)
-                        EPair = GA_DDot( G_A, G_B)
-                        Call PStat_Off(PS_PrEn)
                         If ( PermSym .AND. I .ne. J) then
                            Contrib( ISpin, JSpin)
      $                        = Contrib( ISpin, JSpin) + FP_Two * EPair
@@ -486,6 +551,7 @@ C
 C                       
                      EndDo      ! J
                   EndDo         ! I
+                  Call PStat_Off(PS_PrEn)
 C
 C                 Free up these matrices -- the space can be reused for
 C                 the J integral matrix, and their sizes may change when
@@ -498,6 +564,11 @@ C
                   EndIf
                   If ( .NOT. GA_Destroy( G_A) ) then
                      Write (LuErr, *) ' Unable to free A'
+                     RIMP2_V_E2 = .FALSE.
+                     Return
+                  EndIf
+                  If ( .NOT. GA_Destroy( G_bigB) ) then
+                     Write (LuErr, *) ' Unable to free big B'
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
