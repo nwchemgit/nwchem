@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq)
 c
-c $Id: qmmm_main.F,v 1.4 2002-02-08 21:10:40 d3j191 Exp $
+c $Id: qmmm_main.F,v 1.5 2002-02-09 05:49:43 d3j191 Exp $
 c
       implicit none
 c
@@ -264,6 +264,8 @@ c
 c
       do 5 i=1,ndim
       call cf_num2tag(inum(i),t(i))
+      if(iand(ndx(i),lqhigh).ne.0)
+     + t(i)=t(i)(1:index(t(i),' ')-1)//'_H'
       if(iand(ndx(i),lqlink).ne.0)
      + t(i)=t(i)(1:index(t(i),' ')-1)//'_L'
       if(iand(ndx(i),lquant).ne.0.and.iand(ndx(i),lqsoft).ne.0)

@@ -3,7 +3,7 @@
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
      + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt)
 c
-c     $Id: pre_modify.F,v 1.10 2002-02-09 04:36:48 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.11 2002-02-09 05:48:17 d3j191 Exp $
 c
       implicit none
 c
@@ -165,6 +165,22 @@ c
    12 continue
       if(.not.foundit) call errquit('Atom not found for quantum',0)
       endif
+      if(card(21:23).eq.'QTM') then
+      if(util_print('where',print_default)) then
+      write(lfnout,2015) isgm,aname,mset
+ 2015 format(' modify atom ',i5,':',a6,' set',i2,' high level quantum ')
+      endif
+      foundit=.false.
+      do 112 i=1,natm
+      if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
+      foundit=.true.
+      do 113 j=1,3
+      if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='H'
+  113 continue
+      endif
+  112 continue
+      if(.not.foundit) call errquit('Atom not found for quantum',0)
+      endif
       endif
 c
 c     segment modifications
@@ -212,6 +228,19 @@ c
       endif
    18 continue
       endif
+      if(card(21:23).eq.'QTM') then
+      if(util_print('where',print_default)) then
+      write(lfnout,2018) isgm,mset
+ 2018 format(' modify segment ',i5,' set',i2,' high level quantum ')
+      endif
+      do 118 i=1,natm
+      if(latm(5,i).eq.isgm) then
+      do 119 j=1,3
+      if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='H'
+  119 continue
+      endif
+  118 continue
+      endif
       endif
 c
       if(card(1:6).eq.'update') then
@@ -219,8 +248,10 @@ c
       n=0
       m=0
       do 51 i=1,nbndt
-      if(catm(j+1,lbnd(1,i))(6:6).ne.'Q'.or.
-     + catm(j+1,lbnd(2,i))(6:6).ne.'Q') then
+      if((catm(j+1,lbnd(1,i))(6:6).ne.'Q'.and.
+     + catm(j+1,lbnd(1,i))(6:6).ne.'H').or.
+     + (catm(j+1,lbnd(2,i))(6:6).ne.'Q'.and.
+     + catm(j+1,lbnd(2,i))(6:6).ne.'H')) then
       n=n+1
       do 52 k=1,6
       if(k.le.4) lbnd(k,n)=lbnd(k,i)
@@ -234,9 +265,12 @@ c
       n=0
       m=0
       do 53 i=1,nangt
-      if(catm(j+1,lang(1,i))(6:6).ne.'Q'.or.
-     + catm(j+1,lang(2,i))(6:6).ne.'Q'.or.
-     + catm(j+1,lang(3,i))(6:6).ne.'Q') then
+      if((catm(j+1,lang(1,i))(6:6).ne.'Q'.and.
+     + catm(j+1,lang(1,i))(6:6).ne.'H').or.
+     + (catm(j+1,lang(2,i))(6:6).ne.'Q'.and.
+     + catm(j+1,lang(2,i))(6:6).ne.'H').or.
+     + (catm(j+1,lang(3,i))(6:6).ne.'Q'.and.
+     + catm(j+1,lang(3,i))(6:6).ne.'H')) then
       n=n+1
       do 54 k=1,6
       if(k.le.5) lang(k,n)=lang(k,i)
@@ -250,10 +284,14 @@ c
       n=0
       m=0
       do 55 i=1,ndiht
-      if(catm(j+1,ldih(1,i))(6:6).ne.'Q'.or.
-     + catm(j+1,ldih(2,i))(6:6).ne.'Q'.or.
-     + catm(j+1,ldih(3,i))(6:6).ne.'Q'.or.
-     + catm(j+1,ldih(4,i))(6:6).ne.'Q') then
+      if((catm(j+1,ldih(1,i))(6:6).ne.'Q'.and.
+     + catm(j+1,ldih(1,i))(6:6).ne.'H').or.
+     + (catm(j+1,ldih(2,i))(6:6).ne.'Q'.and.
+     + catm(j+1,ldih(2,i))(6:6).ne.'H').or.
+     + (catm(j+1,ldih(3,i))(6:6).ne.'Q'.and.
+     + catm(j+1,ldih(3,i))(6:6).ne.'H').or.
+     + (catm(j+1,ldih(4,i))(6:6).ne.'Q'.and.
+     + catm(j+1,ldih(4,i))(6:6).ne.'H')) then
       n=n+1
       do 56 k=1,9
       ldih(k,n)=ldih(k,i)
@@ -272,10 +310,14 @@ c
       n=0
       m=0
       do 58 i=1,nimpt
-      if(catm(j+1,limp(1,i))(6:6).ne.'Q'.or.
-     + catm(j+1,limp(2,i))(6:6).ne.'Q'.or.
-     + catm(j+1,limp(3,i))(6:6).ne.'Q'.or.
-     + catm(j+1,limp(4,i))(6:6).ne.'Q') then
+      if((catm(j+1,limp(1,i))(6:6).ne.'Q'.and.
+     + catm(j+1,limp(1,i))(6:6).ne.'H').or.
+     + (catm(j+1,limp(2,i))(6:6).ne.'Q'.and.
+     + catm(j+1,limp(2,i))(6:6).ne.'H').or.
+     + (catm(j+1,limp(3,i))(6:6).ne.'Q'.and.
+     + catm(j+1,limp(3,i))(6:6).ne.'H').or.
+     + (catm(j+1,limp(4,i))(6:6).ne.'Q'.and.
+     + catm(j+1,limp(4,i))(6:6).ne.'H')) then
       n=n+1
       do 59 k=1,9
       limp(k,n)=limp(k,i)

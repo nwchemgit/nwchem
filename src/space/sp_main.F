@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.71 2002-02-08 22:18:31 d3j191 Exp $
+c $Id: sp_main.F,v 1.72 2002-02-09 05:49:03 d3j191 Exp $
 c
       implicit none
 c
@@ -401,7 +401,7 @@ c
 c
 #include "sp_common.fh"
 c
-      logical cf_quantuma
+      integer cf_quantuma
       external cf_quantuma
 c
       integer numsa
@@ -410,8 +410,10 @@ c
       integer i
 c
       do 1 i=1,numsa
-      if(cf_quantuma(isl(i,lsatt)))
+      if(cf_quantuma(isl(i,lsatt)).ge.1)
      + isl(i,lsdyn)=ior(isl(i,lsdyn),lquant)
+      if(cf_quantuma(isl(i,lsatt)).eq.2)
+     + isl(i,lsdyn)=ior(isl(i,lsdyn),lqhigh)
     1 continue
 c
       return

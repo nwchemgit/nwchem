@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.127 2002-02-08 15:47:50 d3j191 Exp $
+c $Id: cf_main.F,v 1.128 2002-02-09 05:49:27 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2880,7 +2880,7 @@ c
 c
       return
       end
-      logical function cf_quantuma(i)
+      integer function cf_quantuma(i)
 c
       implicit none
 c
@@ -2892,7 +2892,7 @@ c
 c
       integer i
 c
-      cf_quantuma=cf_atotyp(int_mb(i_typ),i).eq.1
+      cf_quantuma=cf_atotyp(int_mb(i_typ),i)
 c
       return
       end

@@ -1,6 +1,6 @@
       logical function pre_parcnv(icomb,latt,patt,catt,matt,natt)
 c
-c $Id: pre_parcnv.F,v 1.6 2000-04-12 17:21:25 d3j191 Exp $
+c $Id: pre_parcnv.F,v 1.7 2002-02-09 05:48:17 d3j191 Exp $
 c
       implicit none
 c
@@ -80,13 +80,13 @@ c
       patt(2,2,j,i)=0.0d0
     7 continue
       endif
-      if(catt(1,i)(6:6).eq.'Q') then
+      if(catt(1,i)(6:6).eq.'Q'.or.catt(1,i)(6:6).eq.'H') then
       patt(1,1,i,i)=0.0d0
       patt(1,2,i,i)=0.0d0
       patt(2,1,i,i)=0.0d0
       patt(2,2,i,i)=0.0d0
       do 8 j=1,natt
-      if(catt(1,j)(6:6).eq.'Q') then
+      if(catt(1,j)(6:6).eq.'Q'.or.catt(1,j)(6:6).eq.'H') then
       patt(1,1,i,j)=0.0d0
       patt(1,2,i,j)=0.0d0
       patt(2,1,i,j)=0.0d0

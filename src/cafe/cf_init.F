@@ -6,7 +6,7 @@
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
      + mropti)
-c $Id: cf_init.F,v 1.71 2002-01-17 18:46:01 d3j191 Exp $
+c $Id: cf_init.F,v 1.72 2002-02-09 05:49:27 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -544,6 +544,7 @@ c
       num(ia,i)=numa(i)
       ityp(ia,i)=0
       if(nam(ia,i)(6:6).eq.'Q') ityp(ia,i)=1
+      if(nam(ia,i)(6:6).eq.'H') ityp(ia,i)=2
     1 continue
       wgt(ia,4)=wgti(3)-wgti(2)
       wgt(ia,5)=wgti(2)

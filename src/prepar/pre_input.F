@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.95 2002-02-02 04:29:26 d3j191 Exp $
+c $Id: pre_input.F,v 1.96 2002-02-09 05:48:17 d3j191 Exp $
 c
       implicit none
 c
@@ -492,6 +492,12 @@ c
  6706 format('atom ',a,t19,i1,' qtm ')
       nummod=nummod+1
       goto 3312
+      endif
+      if(inp_compare(.false.,'quantum_high',item)) then
+      write(67,6717) (atom(1:index(atom,' ')-1),mset(i),i=1,nset)
+ 6717 format('atom ',a,t19,i1,' QTM ')
+      nummod=nummod+1
+      goto 3312
       else
       call errquit('pre_input: atom',9999)
       endif
@@ -534,6 +540,12 @@ c
       if(inp_compare(.false.,'quantum',item)) then
       write(67,6709) (isgm,mset(i),i=1,nset)
  6709 format('segment ',i5,t19,i1,' qtm ')
+      nummod=nummod+1
+      goto 3313
+      endif
+      if(inp_compare(.false.,'quantum_high',item)) then
+      write(67,6718) (isgm,mset(i),i=1,nset)
+ 6718 format('segment ',i5,t19,i1,' QTM ')
       nummod=nummod+1
       goto 3313
       else
