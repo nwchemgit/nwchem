@@ -1,0 +1,7 @@
+      integer im, jm, lm
+      common /cfockmul/ im(0:255), jm(0:255), lm(0:255)
+c
+c     im(i) = i*idim ... set by fock_init_cmul for EVERY new block
+c
+c     used to eliminate integer multiplication in the fock build
+c

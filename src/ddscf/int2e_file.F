@@ -483,6 +483,50 @@ c
       return
 c
       end
+      subroutine int2e_file_fock_block(nfock, tol2e,
+     $           dij, dik, dli, djk, dlj, dlk,
+     $           fij, fik, fli, fjk, flj, flk)
+      implicit none
+#include "cint2efile.fh"
+c
+c     Add the integrals directly from the IO buffer into the
+c     fock matrices.  This routine eliminates repeated calls
+c     to int2e_file_read which causes unecessary cache flushes
+c     from redundent data movement.  Works for the current
+c     range of indices.  See fock_2e_file.F for usage.
+c
+      integer nfock
+      double precision tol2e
+      double precision dij(*),dik(*),dli(*),djk(*),dlj(*),dlk(*)
+      double precision fij(*),fik(*),fli(*),fjk(*),flj(*),flk(*)
+c
+      integer neri
+      logical int2e_buf_read
+      external int2e_buf_read
+c
+c     While (integrals available) read buffers
+c
+ 10   if (next_value .gt. n_in_rec) then
+         if (.not. int2e_buf_read()) goto 1000 ! EOF
+      end if
+      if (next_value .gt. n_in_rec) call errquit('i2effb: uh?', 0)
+      if (nleft_in_range .le. 0) goto 1000 ! end of range
+c
+      neri = nleft_in_range
+c
+      call fock_2e_mod_label(nfock, tol2e, neri, 
+     $     labels(1,next_value), values(next_value),
+     $     dij, dik, dli, djk, dlj, dlk, 
+     $     fij, fik, fli, fjk, flj, flk )
+c
+      nleft_in_range = nleft_in_range - neri
+      next_value = next_value + neri
+c     
+      goto 10
+c
+ 1000 continue
+c
+      end
       logical function int2e_buf_write()
       implicit none
 #include "cint2efile.fh"

@@ -7,7 +7,7 @@
 #include "util.fh"
 #include "cscfps.fh"
 c
-c     $Id: fock_2e_file.F,v 1.3 1996-01-11 07:44:46 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.4 1996-01-11 23:56:30 d3g681 Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -32,16 +32,17 @@ c
       integer vg_dens(nfock)
       integer vg_fock(nfock)
 c
-      integer maxints
-      parameter (maxints = 16381) ! A nice prime number
-      integer i(maxints), j(maxints), k(maxints), l(maxints)
-      double precision g(maxints)
+*      integer maxints
+*      parameter (maxints = 16381) ! A nice prime number
+*      integer i(maxints), j(maxints), k(maxints), l(maxints)
+*      double precision g(maxints)
       double precision den_tol, denmax, dtol2e
       integer ilo, jlo, klo, llo
       integer ihi, jhi, khi, lhi
       integer ijk_prev(3,2)
-      integer nints, blklen
-      logical more
+      integer blklen
+*      logical more
+*      integer nints
 c
       logical int2e_get_bf_range, int2e_file_read
       external int2e_get_bf_range, int2e_file_read
@@ -89,28 +90,30 @@ c
 c
          dtol2e = min(1d-7, den_tol/max(1d-10,denmax))
 c     
-c     Loop over batches of integrals in this block
-c     
- 20      if (oscfps) call pstat_on(ps_intio)
-         more = int2e_file_read(maxints, nints, i, j, k, l, g)
-         if (oscfps) call pstat_off(ps_intio)
-c
-         if (more) then
-c
-            if (util_print('int2efile read', print_never))
-     $           call print_integ_list(nints, i, j, k, l, g)
-c
-            if (oscfps) call pstat_on(ps_fock_add)
-            call fock_2e_label(nfock, dtol2e,
-     $           nints, i, j, k, l, g,
-     $           ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
+         call int2e_file_fock_block(nfock, dtol2e,
      $           dij, dik, dli, djk, dlj, dlk,
      $           fij, fik, fli, fjk, flj, flk)
-            if (oscfps) call pstat_off(ps_fock_add)
 c
-            goto 20
-c
-         end if
+c$$$ 20      if (oscfps) call pstat_on(ps_intio)
+c$$$         more = int2e_file_read(maxints, nints, i, j, k, l, g)
+c$$$         if (oscfps) call pstat_off(ps_intio)
+c$$$c
+c$$$         if (more) then
+c$$$c
+c$$$            if (util_print('int2efile read', print_never))
+c$$$     $           call print_integ_list(nints, i, j, k, l, g)
+c$$$c
+c$$$            if (oscfps) call pstat_on(ps_fock_add)
+c$$$            call fock_2e_label(nfock, dtol2e,
+c$$$     $           nints, i, j, k, l, g,
+c$$$     $           ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
+c$$$     $           dij, dik, dli, djk, dlj, dlk,
+c$$$     $           fij, fik, fli, fjk, flj, flk)
+c$$$            if (oscfps) call pstat_off(ps_fock_add)
+c$$$c
+c$$$            goto 20
+c$$$c
+c$$$         end if
 c     
 c     Update F blocks
 c     

@@ -35,7 +35,8 @@ c
       integer n_in_buf          ! n_in_rec info for this buf
       integer pad               ! Padding for 32 bit machines
 c
-      parameter (n_per_rec = 8192)
+*      parameter (n_per_rec = 8192)
+      parameter (n_per_rec = 32768)
       parameter (unitno = 98)
 c
       common/cint2ebuf/
