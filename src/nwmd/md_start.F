@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.86 2000-11-07 01:06:20 d3j191 Exp $
+c $Id: md_start.F,v 1.87 2001-01-04 19:29:23 d3j191 Exp $
 c
       implicit none
 c
@@ -1358,14 +1358,26 @@ c
       write(lfnout,1021) tmpext,tmprlx,tmsrlx
  1021 format(/,' Isothermal ensemble external temperature ',
      + f12.6,' K',/,
-     + ' Temperature relaxation time solvent ',f12.6,' ps',/,
-     + ' Temperature relaxation time solute  ',f12.6,' ps')
+     + ' Temperature relaxation time solvent      ',f12.6,' ps',/,
+     + ' Temperature relaxation time solute       ',f12.6,' ps')
       endif
       if(ipscal.ne.0) then
       write(lfnout,1023) prsext,prsrlx,compr
  1023 format(' Isobaric ensemble external pressure ',1pe12.5,' Pa',/,
      + ' Pressure relaxation time ',0pf12.6,' ps',/,
      + ' Compressebility ',1pe12.5,' m**2/N')
+      endif
+      if(iguide.gt.0) then
+      write(lfnout,1038) fguide,tguide
+ 1038 format(/,' Self-guided molecular dynamics with force coupling of',
+     + f8.5,' and relaxation time of',f8.5,' ps')
+      endif
+      if(mdalgo.eq.1) then
+      write(lfnout,1039)
+ 1039 format(/,' Leap-frog integration')
+      else
+      write(lfnout,1040)
+ 1040 format(/,' Leap-frog integration (Brown-Clarke)')
       endif
       endif
 c
