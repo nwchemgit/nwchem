@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.162 1996-07-29 18:49:19 mg141 Exp $
+# $Id: makefile.h,v 1.163 1996-07-31 23:05:39 d3h325 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -535,7 +535,7 @@ ifeq ($(TARGET),IBM)
 # -qstrict -qhot
   COPTIMIZE = -O
 
-    DEFINES = -DIBM -DEXTNAM
+    DEFINES = -DIBM -DAIX -DEXTNAM
 ifdef USE_ESSL
    DEFINES += -DESSL
 endif
@@ -623,7 +623,7 @@ ifeq ($(TARGET),SP1)
   FOPTIMIZE = -O
   COPTIMIZE = -O
 
-    DEFINES = -DSP1 -DEXTNAM -DPARALLEL_DIAG
+    DEFINES = -DSP1 -DAIX -DEXTNAM -DPARALLEL_DIAG
 #
 # Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
 #
