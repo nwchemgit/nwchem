@@ -35,13 +35,19 @@ c     integer ma_type           [input]
 c     integer nelem             [input]
 c     <ma_type>array(nelem)     [input]
 c
+c     logical function rtdb_get_info(handle, name, ma_type, nelem, date)
+c     integer handle            [input]
+c     character *(*) name       [input]
+c     integer ma_type           [output]
+c     integer nelem             [output]
+c     character*26 date         [output]
+c
 c     logical function rtdb_get(handle, name, ma_type, nelem, array)
 c     integer handle            [input]
 c     character *(*) name       [input]
 c     integer ma_type           [input]
 c     integer nelem             [input]
 c     <ma_type>array(nelem)     [output]
-c     integer len               [output]
 c
 c     logical function rtdb_ma_get(handle, name, ma_type, nelem, ma_handle)
 c     integer handle            [input]
@@ -79,7 +85,7 @@ c
       logical rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
      $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info,
      $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel
-C$Id: rtdb.fh,v 1.3 1995-02-02 23:22:06 d3g681 Exp $
+C$Id: rtdb.fh,v 1.4 1995-06-28 20:49:51 d3g681 Exp $
       external rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
      $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info,
      $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel
