@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.382 2002-02-19 02:39:55 edo Exp $
+# $Id: makefile.h,v 1.383 2002-02-20 23:03:43 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -19,7 +19,7 @@
 # For development tree 
 RELEASE := 
 # For current release tree
-#RELEASE := 3.1
+#RELEASE := 4.1
 
 #
 
@@ -820,8 +820,7 @@ ifeq ($(TARGET),IBM)
 # IBM AIX
 #
 
-    CORE_SUBDIRS_EXTRA = lapack
-#blas
+    CORE_SUBDIRS_EXTRA = lapack blas
          FC = xlf
          CC = xlc
     ARFLAGS = urs
@@ -844,9 +843,10 @@ ifeq ($(TARGET),IBM)
     DEFINES = -DIBM -DAIX -DEXTNAME
 ifdef USE_ESSL
    DEFINES += -DESSL
+   CORE_LIBS += -lessl
 endif
 
-       LIBPATH += -L/usr/lib -L/msrc/apps/lib
+       LIBPATH += -L/usr/lib 
 
        CORE_LIBS +=  -llapack $(BLASOPT) -lblas \
 	      -brename:.daxpy_,.daxpy \
@@ -904,9 +904,6 @@ endif
 #
 
 ##comment out from dtrmm_ inclusive
-#ifdef USE_ESSL
-#       CORE_LIBS += -lessl
-#endif
 
   EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
@@ -925,7 +922,7 @@ ifeq ($(TARGET),IBM64)
          CC = xlc
     ARFLAGS = -X 64 urs 
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 11 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -939,12 +936,15 @@ ifeq ($(TARGET),IBM64)
        LIBPATH += -L/usr/lib -L/lib 
 ifdef USE_INTEGER4
    FOPTIONS += -qintsize=4
-   CORE_LIBS += -lessl -llapack -lblas
+   ifdef USE_ESSL
+      DEFINES += -DESSL
+      CORE_LIBS += -lessl 
+   endif
 else
    FOPTIONS += -qintsize=8 
    DEFINES  += -DEXT_INT 
-   CORE_LIBS += -llapack $(BLASOPT) -lblas
 endif
+   CORE_LIBS += -llapack $(BLASOPT) -lblas
 
 
   EXPLICITF = TRUE
