@@ -1,5 +1,5 @@
       subroutine schwarz_init(geom, basis)
-C$Id: schwarz_init.F,v 1.18 1996-10-04 21:48:22 d3g681 Exp $
+C$Id: schwarz_init.F,v 1.19 1997-07-25 17:53:32 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -107,17 +107,18 @@ c
      $                    mem2, dbl_mb(k_scr), max2e, dbl_mb(k_g))
                      sh_max = 0.0d0
                      numint = idim*jdim*idim*jdim
-* this for old max method
+* this for old max method which is not rotationally invariant
+* so can break symmetry
 *                     do integ = 0, numint-1
 *                        sh_max = max(sh_max, abs(dbl_mb(k_g+integ)))
 *                     enddo
 *                     sh_max = sqrt(sh_max)
-* this for new rms method
+* this for new rms method that is invariant
                      do integ = 0, numint-1
                         sh_max = sh_max + dbl_mb(k_g+integ)**2
                      enddo
                      sh_max = sqrt(sqrt(sh_max))
-*
+c
                      at_max = max(at_max, sh_max)
 c     
 c     insert sh_max into the compressed shell array
