@@ -30,6 +30,11 @@ static double **D;
 static double *g;
 static double *c;
 
+void paw_init_paw_scattering_set()
+{
+ paw_scattering_initialized = False;
+}
+
 void paw_init_paw_scattering()
 {
 
@@ -56,6 +61,36 @@ void paw_init_paw_scattering()
   paw_scattering_initialized = True;
 
 }
+
+void paw_end_paw_scattering()
+{
+
+  int nbasis;
+  int Ngrid;
+
+  if (paw_scattering_initialized)
+  {
+    Ngrid  = paw_N_LogGrid();
+    nbasis = paw_get_nbasis();
+
+    paw_dealloc_LogGrid(u);
+    paw_dealloc_LogGrid(u_prime);
+  
+    paw_dealloc_2d_array(nbasis,Ngrid,w);
+    paw_dealloc_2d_array(nbasis,Ngrid,w_prime);
+  
+    paw_dealloc_1d_array(g);
+    paw_dealloc_1d_array(c);
+  
+    paw_dealloc_2d_array(nbasis,nbasis,A);
+    paw_dealloc_2d_array(nbasis,nbasis,B);
+    paw_dealloc_2d_array(nbasis,nbasis,D);
+    paw_scattering_initialized = False;
+  }
+  
+}
+
+
 /****************************************
 
 ****************************************/
@@ -102,6 +137,7 @@ void paw_solve_paw_scattering(int l, double r, double e, double* psi,double* psi
   
   paw_Zero_LogGrid(u);
   paw_Zero_LogGrid(u_prime);
+
   
   paw_R_Schrodinger_Fixed_E(
     l,

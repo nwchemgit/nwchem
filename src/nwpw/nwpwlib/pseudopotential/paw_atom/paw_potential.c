@@ -17,6 +17,7 @@
 #include "paw_hartree.h"
 #include "paw_ion.h"
 #include "paw_utilities.h"
+#include "paw_sdir.h"
 
 double    *Vi;
 
@@ -442,6 +443,7 @@ void paw_generate_pseudopot()
   double* V_comp;
   double *rgrid;
   FILE *fp;
+  char data_filename[300];
 
   if( !(paw_projectors_are_done()) )
   {
@@ -507,10 +509,15 @@ void paw_generate_pseudopot()
 
   }
 
-  fp = fopen("density","w");
+  if (paw_debug())
+  {
+  sprintf(data_filename,"%sdensity",paw_sdir());
+  fp = fopen(data_filename,"w");
 
   for(k=0;k<Ngrid;++k)
   fprintf(fp,"%f  %f   %f\n",rgrid[k],rho[k] - rho_ps[k],V_pseudo[k]);
+  fclose(fp);
+  }
 
   paw_dealloc_LogGrid(full_density);
   paw_dealloc_LogGrid(full_ps_density);
@@ -574,18 +581,20 @@ void paw_print_paw_potential_to_file(char* atom_name)
   int *prin_n;
   int * orb_l;
   double *rgrid;
-  char data_filename[30];
-  char script_filename[30];
+  char data_filename[300];
+  char script_filename[300];
   char nl_name[20];
   FILE *fp;
 
+  if (paw_debug())
+  {
   Ngrid = paw_N_LogGrid();
   rgrid = paw_r_LogGrid();
 
   prin_n = paw_get_pointer_paw_n_array();
   orb_l  = paw_get_pointer_paw_l_array();
 
-  sprintf(data_filename,"%s_pot.dat",atom_name);
+  sprintf(data_filename,"%s%s_pot.dat",paw_sdir(),atom_name);
   fp = fopen(data_filename,"w+");
 
   for (k=0; k<=Ngrid-1; k++)
@@ -603,7 +612,7 @@ void paw_print_paw_potential_to_file(char* atom_name)
 
   fclose(fp);
 
-  sprintf(script_filename,"%s_ref_pot.plt",atom_name);
+  sprintf(script_filename,"%s%s_ref_pot.plt",paw_sdir(),atom_name);
 
   fp = fopen(script_filename,"w+");
 
@@ -625,7 +634,7 @@ void paw_print_paw_potential_to_file(char* atom_name)
   fclose(fp);
 
 
-  sprintf(script_filename,"%s_loc_pot.plt",atom_name);
+  sprintf(script_filename,"%s%s_loc_pot.plt",paw_sdir(),atom_name);
 
   fp = fopen(script_filename,"w+");
 
@@ -653,7 +662,7 @@ void paw_print_paw_potential_to_file(char* atom_name)
 
     sprintf(nl_name,"%d%s",prin_n[i],paw_spd_Name(orb_l[i]));
 
-    sprintf(script_filename,"%s_%s_pot.plt",atom_name,nl_name);
+    sprintf(script_filename,"%s%s_%s_pot.plt",paw_sdir(),atom_name,nl_name);
 
     fp = fopen(script_filename,"w+");
 
@@ -675,6 +684,7 @@ void paw_print_paw_potential_to_file(char* atom_name)
     fprintf(fp,"pause -1\n");
     fclose(fp);
 
+  }
   }
 }
 

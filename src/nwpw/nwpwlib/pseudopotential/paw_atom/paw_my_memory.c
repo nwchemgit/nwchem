@@ -86,7 +86,7 @@ void   paw_dealloc_2d_array(int n1,int n2,double** array)
 {
   int     i;
 
-  for(i=0;i<n2;i++)
+  for(i=0;i<n1;i++)
     free(array[i]);
 
   free(array);

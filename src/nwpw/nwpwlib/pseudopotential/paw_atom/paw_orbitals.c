@@ -21,6 +21,7 @@
 #include   "paw_hartree.h"
 #include   "paw_kinetic_energy.h"
 #include   "paw_ion.h"
+#include   "paw_sdir.h"
 
 static int   Nvalence;
 static int   Nvirt;
@@ -574,8 +575,8 @@ void paw_print_orbitals_to_file(char* atom_name)
   int k;
   int Ngrid;
   double *rgrid;
-  char data_filename[30];
-  char script_filename[30];
+  char data_filename[300];
+  char script_filename[300];
   char nl_name[20];
   char title[20];
   FILE *fp;
@@ -583,8 +584,9 @@ void paw_print_orbitals_to_file(char* atom_name)
   Ngrid = paw_N_LogGrid();
   rgrid = paw_r_LogGrid();
 
-  sprintf(data_filename,"%s_orb.dat",atom_name);
-
+  if (paw_debug())
+  {
+  sprintf(data_filename,"%s%s_orb.dat",paw_sdir(),atom_name);
   fp = fopen(data_filename,"w+");
 
 
@@ -598,16 +600,12 @@ void paw_print_orbitals_to_file(char* atom_name)
         fprintf(fp,"\t%le",psi[i][k]); 
             
       } 
-
-
     fprintf(fp,"\n"); 
-
   }
-
   fclose(fp);
 
   /* all orbitals gnu script file */
-  sprintf(script_filename,"%s_all_orb.plt",atom_name);
+  sprintf(script_filename,"%s%s_all_orb.plt",paw_sdir(),atom_name);
 
   fp = fopen(script_filename,"w+");
 
@@ -656,7 +654,7 @@ void paw_print_orbitals_to_file(char* atom_name)
   {
     sprintf(nl_name,"%d%s",n[i],paw_spd_Name(l[i]));
 
-    sprintf(script_filename,"%s_%s_orb.plt",atom_name,nl_name);
+    sprintf(script_filename,"%s%s_%s_orb.plt",paw_sdir(),atom_name,nl_name);
 
     fp = fopen(script_filename,"w+");
 
@@ -687,6 +685,7 @@ void paw_print_orbitals_to_file(char* atom_name)
     fclose(fp);
 
   } 
+  }
 }
 
 

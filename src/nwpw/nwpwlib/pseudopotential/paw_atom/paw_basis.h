@@ -10,7 +10,9 @@ extern void paw_init_paw_basis(
                            double*
                            );
 
-extern void  paw_solve_pseudo_orbitals( );
+extern void paw_end_paw_basis();
+
+extern void  paw_solve_pseudo_orbitals();
 
 extern void paw_generate_pseudo_orbitals();
 

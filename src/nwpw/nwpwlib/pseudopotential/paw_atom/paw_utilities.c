@@ -3,6 +3,7 @@
 #include        <string.h>
 #include       "paw_utilities.h"
 #include       "paw_my_memory.h"
+#include       "paw_sdir.h"
 
 static  char    word[50];
 
@@ -56,7 +57,7 @@ int paw_find_word(char* my_word, FILE *fp)
   
   if (w==NIL)
   {
-    printf("warning: %s section not found\n",my_word);
+    if (paw_debug()) printf("warning: %s section not found\n",my_word);
     return 1;
   }
   else

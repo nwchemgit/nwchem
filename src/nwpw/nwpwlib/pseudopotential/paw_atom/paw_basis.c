@@ -24,6 +24,7 @@
 #include   "paw_basis.h"
 #include   "paw_scattering.h"
 #include   "paw_atom.h"
+#include   "paw_sdir.h"
 
 static int nbasis;
 static int  max_orb_l;
@@ -294,6 +295,60 @@ void paw_init_paw_basis(
 
 }
 
+void paw_end_paw_basis()
+{
+  int i;
+
+
+  for (i = 0; i < nbasis; ++i)
+  {
+    paw_dealloc_LogGrid(phi0[i]);
+    paw_dealloc_LogGrid(phi[i]);
+    paw_dealloc_LogGrid(phi_prime[i]);
+
+    paw_dealloc_LogGrid(phi_ps0[i]);
+    paw_dealloc_LogGrid(phi_ps[i]);
+    paw_dealloc_LogGrid(phi_ps_prime[i]);
+
+    paw_dealloc_LogGrid(phi_ps0_prime[i]);
+
+    paw_dealloc_LogGrid(phi0_prime[i]);
+
+    paw_dealloc_LogGrid( prj_ps[i]);
+    paw_dealloc_LogGrid(prj_ps0[i]);
+
+    paw_dealloc_LogGrid(psi_ps[i]);
+    paw_dealloc_LogGrid( psi_ps_prime[i]);
+  }
+  free(phi);
+  free(phi0);
+  free(phi_prime);
+  free(phi_ps0); 
+  free(phi_ps0_prime);
+  free(phi0_prime);  
+  free(phi_ps);     
+  free(phi_ps_prime);
+  free(prj_ps);     
+  free(prj_ps0);   
+  free(psi_ps);  
+  free(psi_ps_prime); 
+
+  /*
+  free(delta_ekin);
+  free(orb_type);
+  free(prin_n_ps);
+  free(l_counter); 
+  free(i_r_orbital);
+  free(fill);  
+  free(e);      
+  free(e_ps);    
+  free(log_deriv);
+  */
+  paw_dealloc_LogGrid(rho);
+  paw_dealloc_LogGrid(rho_ps);
+
+}
+
 
 /****************************************
  Function name	  : solve_pseudo_orbitals
@@ -319,7 +374,7 @@ void paw_generate_pseudo_orbitals()
   double  *f;
   double norm;
   
-  char    output[15];
+  char    output[300];
   FILE   *fp;
   
   Ngrid     = paw_N_LogGrid();
@@ -392,12 +447,12 @@ void paw_generate_pseudo_orbitals()
     /*report on convergence status*/
     if(converged && (status))
     {
-      printf("\n%d%d pseudo orbital with the eigenvalue=%f has been found\n", 
+      if (paw_debug()) printf("\n%d%d pseudo orbital with the eigenvalue=%f has been found\n", 
         prin_n[i], orb_l[i], e_ps[i]);
     }
     else
     {
-      printf("Unable to find %d%d orbital\n ", 
+      if (paw_debug()) printf("Unable to find %d%d orbital\n ", 
         prin_n[i], orb_l[i]);
     }
     
@@ -424,20 +479,19 @@ void paw_generate_pseudo_orbitals()
   
   
   
+  if (paw_debug())
+  {
   for (i = 0; i <= nbasis-1; ++i)
   {
-    sprintf(output, "%s%d%d", "test",prin_n[i],orb_l[i]);
-    
+    sprintf(output, "%s%s%d%d", paw_sdir(),"test",prin_n[i],orb_l[i]);
     fp = fopen(output, "w+");
     for (k = 0; k < Ngrid; k++)
     {
-      
       fprintf(fp, "%f\t%f\t%f\n", rgrid[k], phi[i][k],phi_ps[i][k]);
       
-      
     }
-    
     fclose(fp);
+  }
   }
   
   pseudo_orbitals_done = True;
@@ -496,6 +550,7 @@ void paw_generate_pseudo_orbitals()
 
     delta_ekin[i] = (int)(100*f1/f2);
 
+    if (paw_debug()) 
     printf("kinetic energy of the %d%s orbital was reduced by %d%s\n",
                 prin_n[i],paw_spd_Name(orb_l[i]),delta_ekin[i],"%");
   }
@@ -555,6 +610,7 @@ void    paw_generate_projectors()
     }
   }
 
+  if (paw_debug())
   printf("paw basis is orthogonal to within %le \n",norm_error);
 
   projectors_done = True;  
@@ -576,7 +632,7 @@ void    paw_generate_projectors_vanderbilt()
   double *rgrid;
   double **b;
   double **prj_ps0;
-  char  output[15];
+  char  output[300];
   FILE  *fp;
   
 
@@ -606,14 +662,16 @@ void    paw_generate_projectors_vanderbilt()
     for (k = 0; k < Ngrid; ++k)     
       prj_ps[i][k] = (V_ref[k] - V[k])*phi_ps[i][k];
 
-    sprintf(output, "%s_%d%d", "p", prin_n[i],orb_l[i]);
+    if (paw_debug())
+    {
+    sprintf(output, "%s%s_%d%d", paw_sdir(),"p",prin_n[i],orb_l[i]);
     fp = fopen(output, "w+");
     for (k = 0; k < Ngrid; ++k)
     {
       fprintf(fp, "%le\t  %le\t %le \n", rgrid[k], prj_ps[i][k],(V_ref[k] - V[k]));
     }
-    
     fclose(fp);
+    }
     
     
   }
@@ -696,7 +754,7 @@ void    paw_generate_projectors_vanderbilt()
       exit(99);
     }
 
-    printf("prj_ps norm=%le\n",norm);
+    if (paw_debug()) printf("prj_ps norm=%le\n",norm);
     
     for(k = 0; k < Ngrid; ++k)
       prj_ps[i][k] = prj_ps[i][k]/norm;
@@ -776,7 +834,7 @@ void    paw_generate_projectors_blochl()
   double **L_inv;
   double **U_inv;
   double **test_matrix;
-  char  output[15];
+  char  output[300];
   FILE  *fp;
   
 
@@ -810,15 +868,16 @@ void    paw_generate_projectors_blochl()
     for (k = 0; k < Ngrid; ++k)     
       prj_ps[i][k] = (V_ref[k] - V[k])*phi_ps[i][k];
 
-    sprintf(output, "%s_%d%d", "p", prin_n[i],orb_l[i]);
+    if (paw_debug())
+    {
+    sprintf(output, "%s%s_%d%d", paw_sdir(),"p",prin_n[i],orb_l[i]);
     fp = fopen(output, "w+");
     for (k = 0; k < Ngrid; ++k)
     {
       fprintf(fp, "%le\t  %le\t %le \n", rgrid[k], prj_ps[i][k],(V_ref[k] - V[k]));
     }
-    
     fclose(fp);
-    
+    }
     
   }
   
@@ -975,6 +1034,7 @@ void    paw_generate_projectors_blochl()
       tr_matrix[i][j] = U_inv[i][j];
     }
   }
+  if (paw_debug())
   printf("derivative=%f\n",phi_ps_prime[0][0]/(rgrid[0]*paw_log_amesh_LogGrid()));
 
 }
@@ -986,7 +1046,7 @@ void    paw_generate_projectors_blochl()
  Author     		  : Marat Valiev
  Date & Time		  : 5/15/00
 ****************************************/
-void paw_solve_pseudo_orbitals( )
+void paw_solve_pseudo_orbitals()
 {
   
   int i;
@@ -1010,6 +1070,7 @@ void paw_solve_pseudo_orbitals( )
     paw_solve_paw_scattering(orb_l[i], 3*r_orbital[i], e_ps[i], psi_ps[i],psi_ps_prime[i]);
     
 
+    if (paw_debug())
     printf("%d%s log derivative   %le  %le \n",prin_n[i],paw_spd_Name(orb_l[i]),
       psi_ps_prime[i][i_end_point]/(psi_ps[i][i_end_point]*rgrid[i_end_point]*paw_log_amesh_LogGrid()),
       phi0_prime[i][i_end_point]/(phi0[i][i_end_point]*rgrid[i_end_point]*paw_log_amesh_LogGrid()));
@@ -1089,8 +1150,8 @@ void paw_print_basis_to_file(char* atom_name)
   int k;
   int Ngrid;
   double *rgrid;
-  char data_filename[30];
-  char script_filename[30];
+  char data_filename[300];
+  char script_filename[300];
   char nl_name[20];
   char title[20];
   FILE *fp;
@@ -1098,7 +1159,9 @@ void paw_print_basis_to_file(char* atom_name)
   Ngrid = paw_N_LogGrid();
   rgrid = paw_r_LogGrid();
   
-  sprintf(data_filename,"%s_paw.dat",atom_name);
+  if (paw_debug())
+  {
+  sprintf(data_filename,"%s%s_paw.dat",paw_sdir(),atom_name);
   fp = fopen(data_filename,"w+");
   
   for (k=0; k<=Ngrid-1; k++)
@@ -1108,12 +1171,8 @@ void paw_print_basis_to_file(char* atom_name)
     for (i=0; i<=nbasis-1; i++)
       fprintf(fp,"\t%le \t%le \t%le ",phi[i][k],phi_ps[i][k],prj_ps[i][k]); 
     
-    
-    
     fprintf(fp,"\n"); 
-    
   }
-  
   fclose(fp);
   
   
@@ -1122,9 +1181,7 @@ void paw_print_basis_to_file(char* atom_name)
   {
     
     sprintf(nl_name,"%d%s",prin_n[i],paw_spd_Name(orb_l[i]));
-    
-    sprintf(script_filename,"%s_%s_paw.plt",atom_name,nl_name);
-    
+    sprintf(script_filename,"%s%s_%s_paw.plt",paw_sdir(),atom_name,nl_name);
     fp = fopen(script_filename,"w+");
     
     fprintf(fp,"set data style lines \n"); 
@@ -1150,6 +1207,7 @@ void paw_print_basis_to_file(char* atom_name)
     fclose(fp);
     
   } 
+  }
 }
 
 /****************************************
@@ -1166,8 +1224,8 @@ void paw_print_basis_test_to_file(char* atom_name)
   int k;
   int Ngrid;
   double *rgrid;
-  char data_filename[30];
-  char script_filename[30];
+  char data_filename[300];
+  char script_filename[300];
   char nl_name[20];
   char title[20];
   FILE *fp;
@@ -1175,7 +1233,10 @@ void paw_print_basis_test_to_file(char* atom_name)
   Ngrid = paw_N_LogGrid();
   rgrid = paw_r_LogGrid();
   
-  sprintf(data_filename,"%s_test.dat",atom_name);
+  if (paw_debug())
+  {
+  sprintf(data_filename,"%s%s_test.dat",paw_sdir(),atom_name);
+  printf("data_filename: %s\n",data_filename);
   fp = fopen(data_filename,"w+");
   
   for (k=0; k<=Ngrid-1; k++)
@@ -1200,8 +1261,9 @@ void paw_print_basis_test_to_file(char* atom_name)
     
     sprintf(nl_name,"%d%s",prin_n[i],paw_spd_Name(orb_l[i]));
     
-    sprintf(script_filename,"%s_%s_test.plt",atom_name,nl_name);
+    sprintf(script_filename,"%s%s_%s_test.plt",paw_sdir(),atom_name,nl_name);
     
+    printf("script_filename: %s \n",script_filename);
     fp = fopen(script_filename,"w+");
     
     fprintf(fp,"set data style lines \n"); 
@@ -1226,6 +1288,7 @@ void paw_print_basis_test_to_file(char* atom_name)
     fclose(fp);
     
   } 
+  }
 }
 
 int paw_get_nbasis()
@@ -1382,8 +1445,8 @@ void paw_scattering_test(double e1,double e2,int number_points ,int l, double r 
   double log_amesh;
 
   //char output[30];
-  char data_filename[30];
-  char script_filename[30];
+  char data_filename[300];
+  char script_filename[300];
   
   Ngrid = paw_N_LogGrid();
   rgrid = paw_r_LogGrid();
@@ -1429,7 +1492,9 @@ void paw_scattering_test(double e1,double e2,int number_points ,int l, double r 
 
   }
 
-  sprintf(data_filename,"%s_%s_scat_test.dat", paw_get_atom_name(),paw_spd_Name(l));
+  if (paw_debug())
+  {
+  sprintf(data_filename,"%s%s_%s_scat_test.dat", paw_sdir(),paw_get_atom_name(),paw_spd_Name(l));
   fp = fopen(data_filename,"w+");
   
   for (k=0; k<=number_points-1; k++)
@@ -1437,11 +1502,10 @@ void paw_scattering_test(double e1,double e2,int number_points ,int l, double r 
     fprintf(fp,"%le\t%le\t%le\n", e3[k],log_grid_ae[k],log_grid_paw[k]); 
         
   }
-  
   fclose(fp);
     
-  sprintf(script_filename,"%s_%s_scat_test.plt", paw_get_atom_name(),paw_spd_Name(l));
-  
+  sprintf(script_filename,"%s%s_%s_scat_test.plt", paw_sdir(),paw_get_atom_name(),paw_spd_Name(l));
+  printf("script_filename: %s\n",script_filename); 
   fp = fopen(script_filename,"w+");
   
   fprintf(fp,"set data style lines \n"); 
@@ -1461,6 +1525,7 @@ void paw_scattering_test(double e1,double e2,int number_points ,int l, double r 
   fprintf(fp,"\n");
   fprintf(fp,"pause -1\n"); 
   fclose(fp);
+  }
     
 
 }

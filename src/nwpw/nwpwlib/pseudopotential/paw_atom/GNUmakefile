@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2004-10-14 00:26:32 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2004-10-14 21:55:48 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -26,6 +26,7 @@
 		paw_my_constants.o \
 		paw_utilities.o \
 		paw_output.o \
+		paw_sdir.o \
 		paw_my_memory.o
        
 

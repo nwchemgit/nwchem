@@ -10,11 +10,11 @@
 #include   "paw_comp_charge.h"
 #include   "paw_my_constants.h"
 #include   "paw_potential.h"
+#include   "paw_sdir.h"
 
 
 void paw_generate_basis_file(char *outfile)
 {
-  char    output[15];
   char*   atom_name;
   FILE    *fp;
   int     i;
@@ -67,7 +67,7 @@ void paw_generate_basis_file(char *outfile)
   
   /* output the basis file */
   /*sprintf(output, "%s_basis", atom_name);*/
-  printf("outfile: %s\n",outfile);
+  if (paw_debug()) printf("paw basis file generated: %s\n",outfile);
   fp = fopen(outfile, "w+");
   
   fprintf(fp,"%15.11e\n",rgrid[0]);

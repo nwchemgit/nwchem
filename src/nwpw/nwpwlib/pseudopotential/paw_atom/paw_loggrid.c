@@ -7,6 +7,7 @@
 #include        "paw_loggrid.h"
 #include        "paw_utilities.h"
 #include        "paw_my_memory.h"
+#include        "paw_sdir.h"
 
 /***********************/
 /* LogGrid data structure */
@@ -50,7 +51,7 @@ void  paw_init_LogGrid_from_file( double Z, FILE *fp)
   strcpy(input,"<grid>");
   if(paw_find_word(input,fp) != 0)
   {
-    printf("Using default parameters\n");
+    if (paw_debug()) printf("Using default parameters\n");
     Lmax=25.0;
     amesh=1.005;
     log_amesh = log(amesh);

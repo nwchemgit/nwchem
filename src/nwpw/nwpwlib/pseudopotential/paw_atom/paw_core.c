@@ -9,6 +9,7 @@
 #include        "paw_orbitals.h"
 #include        "paw_basis.h"
 #include        "paw_atom.h"
+#include        "paw_sdir.h"
 
 
 
@@ -42,6 +43,7 @@ void  paw_set_core()
   double *paw_basis_density;
   FILE *fp;
   double *rgrid;
+  char output[200];
 
   Ngrid = paw_N_LogGrid();
 
@@ -60,15 +62,20 @@ void  paw_set_core()
   paw_Zero_LogGrid(ps_core_density);
   ps_core_charge = paw_Integrate_LogGrid(ps_core_density);
 
-  printf("core_charge = %f\n",core_charge);
-  printf("ps_core_charge = %f\n",ps_core_charge);
-  printf("core kinetic energy = %f\n",core_kin_energy);
+  if (paw_debug()) printf("core_charge = %f\n",core_charge);
+  if (paw_debug()) printf("ps_core_charge = %f\n",ps_core_charge);
+  if (paw_debug()) printf("core kinetic energy = %f\n",core_kin_energy);
 
-  fp = fopen("core","w");
+  if (paw_debug())
+  {
+  sprintf(output, "%s%s", paw_sdir(),"core");
+  fp = fopen(output,"w");
   
   rgrid = paw_r_LogGrid();
   for(k=0;k<Ngrid;++k)
   fprintf(fp,"%f  %f\n",rgrid[k],core_density[k]);
+  fclose(fp);
+  }
 
 }
 

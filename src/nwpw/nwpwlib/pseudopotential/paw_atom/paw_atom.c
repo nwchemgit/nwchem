@@ -14,6 +14,7 @@
 #include   "paw_hartree.h"
 #include   "paw_ion.h"
 #include   "paw_kinetic_energy.h"
+#include   "paw_sdir.h"
 
 static char     *atom_name;
 static double   Zion;
@@ -50,6 +51,7 @@ void   paw_init_atom(char* atom, char *infile)
   }
   else
   {
+    if (paw_debug())
     printf("atom input file %s was found\n", infile);
   }
 
@@ -140,7 +142,8 @@ void   paw_solve_atom()
     + E_exchange   
     + E_correlation;
 
-  printf("total energy = %f\n", Total_E);
+  if (paw_debug())
+    printf("total energy = %f\n", Total_E);
 
   paw_print_atom();
 
@@ -158,11 +161,13 @@ void   paw_solve_atom()
 void   paw_print_atom()
 {
   
-  char output[15];
+  char output[300];
   FILE *fp;
   
   
-  sprintf(output,"%s_out",atom_name);
+  if (paw_debug())
+  {
+  sprintf(output,"%s%s_out",paw_sdir(),atom_name);
   fp = fopen(output,"w+");
   
   fprintf(fp,"####################################################\n");   
@@ -195,6 +200,7 @@ void   paw_print_atom()
 
   fclose(fp);
   
+  }
  
   
 } /* print_Atom */
@@ -283,6 +289,7 @@ void   paw_init_paw_atom(char *infile)
   }
   else
   {
+    if (paw_debug())
     printf("reading paw basis parameters \n");
   }
 
@@ -347,7 +354,7 @@ void   paw_init_paw_atom(char *infile)
   strcpy(input,"<nodal_constraint>");
   if(paw_find_word(input,fp) != 0)
   {
-    printf(" nodal_constraint will be set to \"on\" \n");
+    if (paw_debug()) printf(" nodal_constraint will be set to \"on\" \n");
     strcpy(nodal_constraint,"off");
   }
   else
@@ -360,7 +367,7 @@ void   paw_init_paw_atom(char *infile)
   strcpy(input,"<projector_method>");
   if(paw_find_word(input,fp) != 0)
   {
-    printf(" <projector_method> will be set to Vanderbilt \n");
+    if (paw_debug()) printf(" <projector_method> will be set to Vanderbilt \n");
     strcpy(projector_method,"vanderbilt");
   }
   else
@@ -415,13 +422,15 @@ void paw_solve_paw_atom(char *infile)
 
 
   paw_generate_matrix_elements();
-  paw_solve_pseudo_orbitals( );
+  paw_solve_pseudo_orbitals();
 
+  if (paw_debug) 
+  {
   paw_print_paw_atom();
-
   paw_print_basis_to_file(atom_name);
   paw_print_paw_potential_to_file(atom_name);
   paw_print_basis_test_to_file(atom_name);
+  }
 
   if( (fp  = fopen(infile, "r" )) == NULL )
   {
@@ -432,7 +441,7 @@ void paw_solve_paw_atom(char *infile)
   strcpy(input,"<scattering_test>");
   if(paw_find_word(input,fp) != 0)
   {
-    printf(" scattering test will not be performed \n");
+    if (paw_debug()) printf(" scattering test will not be performed \n");
   }
   else
   {
@@ -456,7 +465,7 @@ void paw_solve_paw_atom(char *infile)
 
 
   }
-
+  fclose(fp);
 
 
 }
@@ -471,10 +480,12 @@ void paw_solve_paw_atom(char *infile)
 void   paw_print_paw_atom()
 {
 
-  char output[15];
+  char output[300];
   FILE *fp;
 
-  sprintf(output,"%s_paw",atom_name);
+  if (paw_debug())
+  {
+  sprintf(output,"%s%s_paw",paw_sdir(),atom_name);
   fp = fopen(output,"w+");
 
   fprintf(fp,"####################################################\n");
@@ -506,5 +517,7 @@ void   paw_print_paw_atom()
   paw_print_core_information(fp);
 
   fclose(fp);
+
+  }
 
 }

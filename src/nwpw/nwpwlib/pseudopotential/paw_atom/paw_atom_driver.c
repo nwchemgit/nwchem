@@ -1,5 +1,5 @@
 /*
- $Id: paw_atom_driver.c,v 1.1 2004-10-14 00:26:32 bylaska Exp $
+ $Id: paw_atom_driver.c,v 1.2 2004-10-14 21:55:48 bylaska Exp $
 */
 
 #include <math.h>
@@ -134,19 +134,23 @@ Integer *n3;
    atom_out[m3] = '\0';
 
 
+    paw_set_sdir(sdir_name,m9);
+    paw_set_debug(debug);
+    paw_init_paw_scattering_set();
     
-    printf("\ninitializing atom parameters\n");
+    if (debug) printf("\ninitializing atom parameters\n");
     paw_init_atom(atom_out,infile);
     
-    printf("\nentering the selfconsistent loop\n");
+    if (debug) printf("\nentering the selfconsistent loop\n");
     paw_solve_atom();
     paw_print_atom();
 
     paw_init_paw_atom(infile);
-
     paw_solve_paw_atom(infile);
-
     paw_generate_basis_file(outfile);
+  
+    paw_end_paw_scattering();
+    paw_end_paw_basis();
 
 }
 
