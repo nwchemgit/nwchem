@@ -337,15 +337,17 @@ void pscale_( job, n, lb, ub, jjjlb, jjjub, abstol,
    peigs_scale = 1.0e0;
    for ( il=0; il < msize; il++ ){
      peigs_scale = max(ffabs(d[i]), peigs_scale);
-     if ( d[il] <= 0.0e0 ){
-       idummy = -1;
-       peigs_shift = -(dummy + DLAMCHE) ;
-     }
    }
    
    for ( il=1; il < msize; il++ ){
      peigs_scale = max(ffabs(e[il]), peigs_scale);
    }
+   
+   if ( peigs_leig <= 0.0e0 ){
+     idummy = -1;
+     peigs_shift = -(onenrm + DLAMCHE) ;
+   }
+
    
    if ( idummy == -1 ) {
      for ( il=0; il < msize; il++ ){
@@ -355,7 +357,7 @@ void pscale_( job, n, lb, ub, jjjlb, jjjub, abstol,
    
    dummy = 1.0e0/peigs_scale;
    for ( il = 0; il < msize; il++ ){
-     d[il ] *= dummy;
+     d[il] *= dummy;
      e[il] *= dummy;
    }
    *info = 0;
