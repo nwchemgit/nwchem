@@ -264,20 +264,24 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.12 1997-11-09 19:15:03 d3g681 Exp $
+C$Id: util_file_name.F,v 1.13 1999-06-30 22:48:36 d3e129 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
 #include "cfileprefix.fh"
+#include "util.fh"
+#include "stdio.fh"
       character*(*) input_filename ! [input]
       character*(*) rtdb_name   ! [output]
       logical ostartup           ! [output]
       logical ocontinue          ! [output]
 c
-      character*255 ecce_file_name
+      character*(nw_max_path_len) ecce_file_name
+      character*(nw_max_path_len) a_temporary_file
       logical status, odirective, echo
+      logical bad_permanent_dir, bad_scratch_dir
       integer nkeys, istart, iend
       parameter (nkeys = 7)
       character*16 keys(nkeys), field
@@ -383,6 +387,52 @@ c
       call util_char_ga_brdcst(Msg_startup, file_prefix, 0)
       call util_char_ga_brdcst(Msg_startup, scratch_dir, 0)
       call util_char_ga_brdcst(Msg_startup, permanent_dir, 0)
+*
+* now confirm (on each node) that scratch_dir and permanent_dir can have files
+*
+      call ga_sync()
+*check permanent directory
+      call util_file_name('dir_check_p',.false.,.true.,a_temporary_file)
+      open(unit=42,file=a_temporary_file,status='new',err=91101)
+      close(unit=42,status='delete')
+      call util_file_unlink(a_temporary_file)
+      bad_permanent_dir = .false.
+      goto 91111
+91101 bad_permanent_dir = .true.
+91111 continue
+*check scratch directory
+      call util_file_name('dir_check_s',.true.,.true.,a_temporary_file)
+      open(unit=43,file=a_temporary_file,status='new',err=91102)
+      close(unit=43,status='delete')
+      call util_file_unlink(a_temporary_file)
+      bad_scratch_dir = .false.
+      goto 91122
+91102 bad_scratch_dir = .true.
+91122 continue
+*
+      if (bad_permanent_dir) then
+        iend = inp_strlen(permanent_dir)
+        write(luout,*)' could not open a file in permanent directory: ',
+     &      permanent_dir(1:iend)
+      endif
+      if (bad_scratch_dir) then
+        iend = inp_strlen(scratch_dir)
+        write(luout,*)' could not open a file in scratch directory: ',
+     &      scratch_dir(1:iend)
+      endif
+      if (bad_permanent_dir.and.bad_scratch_dir) then
+        write(luout,*)
+     &      ' Both permanent and scratch directory not accessible'
+        call errquit('******** Fatal Error ********',911)
+      else if (bad_permanent_dir) then
+        call errquit
+     &      ('Fatal Error: permanent directory not accessible',911)
+      else if (bad_scratch_dir) then
+        call errquit
+     &      ('Fatal Error: scratch directory not accessible',911)
+      else
+        return
+      endif
 c
       end
       subroutine input_default_file_prefix(input_file_name,file_prefix)
