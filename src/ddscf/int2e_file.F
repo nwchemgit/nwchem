@@ -17,10 +17,6 @@ c
 c     Currently does not allow for restart ... but will soon.
 c
       call util_pname(filename, actualname)
-      open(unitno,
-     $     file=actualname,
-     $     status='unknown',
-     $     form='unformatted')
 c
       otrace = util_print('int2edebug',print_debug)
       oinfo  = util_print('int2einfo', print_default) .and.
@@ -34,6 +30,7 @@ c
 c
 c     Initialize common
 c
+      file_opened = .false.
       cur_rec = 1
       n_rec_in_file = 1
       rec_len_in_dbl = n_per_rec + ma_sizeof(mt_int, 1, mt_dbl)
@@ -90,7 +87,7 @@ c
 #include "inp.fh"
 #include "mafdecls.fh"
 c
-      close(unitno)
+      if (file_opened) close(unitno)
 c
       if (oinfo) then
          write(6,1) n_rec_in_file, nlarge
@@ -472,6 +469,13 @@ c
          call dcopy(rec_len_in_dbl, buf, 1, 
      $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1)
       else
+         if (.not. file_opened) then
+            open(unitno,
+     $           file=actualname,
+     $           status='unknown',
+     $           form='unformatted')
+            file_opened = .true.
+         endif
          call swrite(unitno, buf, rec_len_in_dbl)
       endif
 c
