@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.22 2001-08-07 19:43:35 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.23 2001-08-10 21:16:17 d3j191 Exp $
 c
       implicit none
 c
@@ -162,6 +162,7 @@ c
 c
       read(lfncmd,1101,end=9,err=9997) card
  1101 format(a)
+      print*,card
 c
       if(util_print('where',print_high)) then
       write(lfnout,1099) card
@@ -203,14 +204,15 @@ c
       numpmf=numpmf+1
       if(numpmf.gt.maxpmf) call errquit('Increase maxpmf',maxpmf)
       ipmf(numpmf,1)=0
-      if(card(5:8).eq.'dist') ipmf(numpmf,1)=1
-      if(card(5:8).eq.'angl') ipmf(numpmf,1)=2
-      if(card(5:8).eq.'tors') ipmf(numpmf,1)=3
-      if(card(5:8).eq.'impr') ipmf(numpmf,1)=4
-      if(card(5:8).eq.'line') ipmf(numpmf,1)=5
-      if(card(5:8).eq.'plan') ipmf(numpmf,1)=6
-      if(card(5:8).eq.'base') ipmf(numpmf,1)=7
-      read(card(9:76),'(5i5,2f12.6,2e12.5)')
+      if(card(5:7).eq.'dis') ipmf(numpmf,1)=1
+      if(card(5:7).eq.'ang') ipmf(numpmf,1)=2
+      if(card(5:7).eq.'tor') ipmf(numpmf,1)=3
+      if(card(5:7).eq.'imp') ipmf(numpmf,1)=4
+      if(card(5:7).eq.'lin') ipmf(numpmf,1)=5
+      if(card(5:7).eq.'pla') ipmf(numpmf,1)=6
+      if(card(5:7).eq.'bas') ipmf(numpmf,1)=7
+      print*,card
+      read(card(8:80),'(5i5,2f12.6,2e12.5)')
      + iopt(numpmf),(ipmf(numpmf,i),i=2,5),(rpmf(numpmf,i),i=1,4)
       endif
 c
