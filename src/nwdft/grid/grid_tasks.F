@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.36 2001-12-14 19:33:50 edo Exp $
+c$Id: grid_tasks.F,v 1.37 2003-01-17 05:04:05 edo Exp $
 c
       implicit none
 c
@@ -60,18 +60,13 @@ c     Grid_pts caching/file information (from scf_get_info)
 c
       if (.not. rtdb_get(rtdb, 'grid:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
-!      write(0,*) ' filesize ',filesize
       if (.not. rtdb_get(rtdb, 'grid:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
-!      write(0,*) ' memsize ',memsize
 c
 c     The opening routine will put the .pid on the grid_pts filename
 c     (hence even tho' parallel file, open as sequential)
 c
-      if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
-     $   call util_file_name('gridpts',.true.,.false.,gridfilename)
-      if (.not. rtdb_cput(rtdb, 'grid:filename', 1, gridfilename)) 
-     $   call errquit('grid_tasks: trouble putting gridfilename', 0)
+      call util_file_name('gridpts',.true.,.false.,gridfilename)
 c
       oreadfile = .false.
       owritefile= .false.

@@ -13,7 +13,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      .     l3d,triplet)
 c
-c$Id: grid_quadvw.F,v 1.32 2003-01-09 23:16:51 edo Exp $
+c$Id: grid_quadvw.F,v 1.33 2003-01-17 05:04:05 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -91,10 +91,7 @@ c
 c     The opening routine will put the .pid on the grid_pts filename
 c     (hence even tho' parallel file, open as sequential)
 c
-Cedo      if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
         call util_file_name('gridpts',.true.,.false.,gridfilename)
-      if (.not. rtdb_cput(rtdb, 'grid:filename', 1, gridfilename)) 
-     $   call errquit('grid_tasks: trouble putting gridfilename', 0)
 c
       oreadfile = .false.
       owritefile= .false.

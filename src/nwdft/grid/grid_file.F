@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.48 2002-02-15 00:44:19 edo Exp $
+* $Id: grid_file.F,v 1.49 2003-01-17 05:04:05 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -200,8 +200,6 @@ cedo           write(6,*) ' enucs ',enuc,enuc_in
      $        call errquit('grfile: rewinding gridpts?',1)
          file_opened=.false.
          filedump_opened=.false.
-!         if (eaf_close(fd) .ne. 0) 
-!     $        write(0,*)'grid_file_close: eaf_close failed',0
          ierr=eaf_open(actualname, eaf_rw, fd)
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr,errmsg)
@@ -662,13 +660,10 @@ c
 c
       if (file_opened) return
       oreopen=.false.
-!      write(LuOut,*)' file_opened: ', file_opened
       if (.not. rtdb_get(rtdb, 'grid:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
-!      write(0,*)' filesize: ', filesize
       if (.not. rtdb_get(rtdb, 'grid:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
-!      write(0,*)' memsize: ', memsize
       if (filesize.lt.0 .and. memsize.lt.0) return
 c
 c     Determine if we should automatically run an in-core calculation
@@ -686,7 +681,6 @@ c
       else
          memsize = memsize/8
       endif
-!      write(0,*) ' mems ',memsize
       avail = MA_inquire_avail(mt_dbl)
 !      write(LuOut,*) ' 1 avail ', avail
       if (ga_uses_ma() .and. ga_memory_limited()) 
@@ -724,11 +718,10 @@ c
 !      localmemsize=avail/4
 !      write(LuOut,*)' localme ', localmemsize
 c
-      if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
-     $        call errquit('grid_file: opening gridpts?', 0)
       if (localmemsize.gt.0 .or. filesize.ge.0) then
          if(.not.geom_nuc_rep_energy(geom, enuc)) 
      .        call errquit(' gridtestmem: enucrep failed ',0)
+        call util_file_name('gridpts',.true.,.false.,gridfilename)
          if (.not. grid_file_open(enuc,gridfilename, 
      $        localmemsize, filesize))
      $        call errquit('grid_test_mem: grid_file_open failed',0)
@@ -832,10 +825,6 @@ c
          values(1,ptr_cube)=values(1,ptr_cube)+1d0
 !            write(0,'(A,i4,4F16.9)') 
 !     .           ' FF ',n_in_rec,
-cedo            write(ga_nodeid(),'(A,4F16.9)') 
-cedo     .           ' FF ',
-cedo     ,        aqbuf(1,ind),aqbuf(2,ind),aqbuf(3,ind),
-cedo     .              aqbuf(4,ind)
          values(1,n_in_rec)   = aqbuf(1,ind)
          values(2,n_in_rec)   = aqbuf(2,ind)
          values(3,n_in_rec)   = aqbuf(3,ind)
@@ -880,10 +869,7 @@ c
       nctr = cur_rec_ctr
       nqpts = n_in_rec - 1
       rad =cur_rec_rad
-c      write(0,*) ' rad ',rad
       nsub_out=nsubb
-c      write(0,*) ' nsub_o ',nsub_out
-c      write(0,*) ' nqpts ',nqpts
 c
       if (otrace) then
          write(LuOut,*) ' grid_file read: nqpts,nctr,n_in_rec,',
@@ -943,8 +929,7 @@ c
       if(.not.geom_nuc_rep_energy(geom, Enuc)) 
      .     call errquit(' gridquad: enucrep failed ',0)
       grid_reopen=.false.
-      if(.not.rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
-     . return
+        call util_file_name('gridpts',.true.,.false.,gridfilename)
       oreopen=.true.
       grid_reopen=
      .     grid_file_open(enuc,
