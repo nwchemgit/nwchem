@@ -1,4 +1,4 @@
-c $Id: hess_pxfy.F,v 1.6 2002-01-03 15:41:23 windus Exp $
+c $Id: hess_pxfy.F,v 1.7 2002-01-16 17:21:38 windus Exp $
 c
       subroutine hess_pxfy(hess, g_sol, g_rhs, oactive, ncent,
      &     restr, vlen)
@@ -55,10 +55,6 @@ c
                bhi(2) = jindex
                deltah = nga_ddot_patch(g_sol, 'n', alo, ahi,
      $                                 g_rhs, 'n', blo, bhi)
-               write(6,*) 'deltah for i,j ',deltah,ipert,jpert
-c              if (restr) then
-c                 deltah = deltah * 2.d0
-c              endif
                if (ipert .ne. jpert) then
                   hess(ipert,jpert) = hess(ipert,jpert) - deltah
                   hess(jpert,ipert) = hess(jpert,ipert) - deltah

@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.21 2002-01-14 20:40:51 edo Exp $
+c $Id: shell_fock_build.F,v 1.22 2002-01-16 17:21:38 windus Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -1059,24 +1059,6 @@ c
       call nga_add_patch(mone,g_fock,alo,ahi,
      &                   one,g_fock2,blo,bhi,
      &                    g_fock2,blo,bhi)
-c
-c  Add coulomb of opposite spin
-c
-c     alo(1) = 1       ! Alpha added to Beta
-c     ahi(1) = noffset
-c     blo(1) = noffset + 1
-c     bhi(1) = nfock
-c     call nga_add_patch(one,g_fock,alo,ahi,
-c    &                   mone,g_fock2,blo,bhi,
-c    &                    g_fock2,blo,bhi)
-c
-c     alo(1) = noffset*2 + 1    ! Beta added to Alpha
-c     ahi(1) = noffset*3
-c     blo(1) = 1
-c     bhi(1) = noffset
-c     call nga_add_patch(one,g_fock,alo,ahi,
-c    &                   mone,g_fock2,blo,bhi,
-c    &                    g_fock2,blo,bhi)
 c
 c  Now get rid of g_fock and assign the new one (g_fock2) to g_fock
 c
