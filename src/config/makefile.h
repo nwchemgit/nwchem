@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.430 2003-10-22 16:59:54 edo Exp $
+# $Id: makefile.h,v 1.431 2003-10-23 01:42:40 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1259,6 +1259,9 @@ ifeq ($(LINUXCPU),x86)
  endif
   ifeq ($(_FC),ifc)
   FOPTIONS   =  -align    -mp1 -w -g -vec_report3
+  ifdef  USE_GPROF
+    FOPTIONS += -qp
+  endif
     _IFCV8= $(shell ifc -v  2>&1|egrep 8|awk ' /8.0/  {print "Y"}')
     ifeq ($(_IFCV8),Y)
       DEFINES+= -DIFCV8
@@ -1414,6 +1417,9 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
        endif	
         ITANIUMNO = $(shell   cat /proc/cpuinfo | egrep family | head -1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
         FOPTIONS   +=   -auto -align  -w  -ftz  $(ITANIUMNO)
+        ifdef  USE_GPROF
+          FOPTIONS += -qp
+        endif
         FDEBUG = -g -O2
         DEFINES  +=   -DIFCLINUX
 #        FVECTORIZE =  -O2 -hlo -pad -mP2OPT_hlo_level=2 
@@ -1488,14 +1494,25 @@ endif
 
     ifeq ($(_CPU),ppc64)
       ifeq ($(FC),xlf)
-        FOPTIONS  =  -q64 -qextname -qfixed -qnosave -qsmallstack  -qalign
+        FOPTIONS  =  -q64 -qextname -qfixed -qnosave   -qalign=4k
         FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192
-        FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
+        ifdef  USE_GPROF
+          FOPTIONS += -pg
+        endif
+        FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qfloat=rsqrt:fltint
+#        FVECTORIZE = -O5 -qhot -qfloat=fltint 
         FDEBUG= -O2 -g
         EXPLICITF = TRUE
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
         DEFINES  +=   -DXLFLINUX
         CPP=/usr/bin/cpp  -P -C -traditional
+#    LDOPTIONS = -v #-F/home/eapra/nwchem/src/xlf.cfg:edo
+#ld with SLES 8 broken. Needed snapshot from binutils
+     ifdef USE_GPROF
+LINK.f = /home/eapra/bin/ld   -L/home/eapra/nwchem/lib/LINUX64 -L/home/eapra/nwchem/src/tools/lib/LINUX64 /opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib/gcrt1.o -L/opt/ibmcmp/xlf/8.1/lib64 -L/opt/ibmcmp/xlsmp/1.3/lib64 -L/opt/ibmcmp/xlf/8.1/lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlsmp/1.3/../../lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 $(LDFLAGS) 
+      else
+LINK.f = /home/eapra/bin/ld   -L/home/eapra/nwchem/lib/LINUX64 -L/home/eapra/nwchem/src/tools/lib/LINUX64 /opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib/crt1.o -L/opt/ibmcmp/xlf/8.1/lib64 -L/opt/ibmcmp/xlsmp/1.3/lib64 -L/opt/ibmcmp/xlf/8.1/lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlsmp/1.3/../../lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 $(LDFLAGS) 
+      endif
         ifdef USE_INTEGER4
           FOPTIONS += -qintsize=4
         else
@@ -1506,13 +1523,13 @@ endif
         COPTIONS  +=  -q64 -qlanglvl=extended
       endif
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
-    LDOPTIONS = -v
     endif
 
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
    EXTRA_LIBS += -lpthread -ldl
 endif
+EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
 
 endif
 
