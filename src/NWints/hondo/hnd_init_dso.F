@@ -1,6 +1,6 @@
       subroutine int_init_dso(maxbuf,maxscr,basis,npt)
 c
-c $Id: hnd_init_dso.F,v 1.1 2004-12-03 22:36:10 bert Exp $
+c $Id: hnd_init_dso.F,v 1.2 2004-12-19 18:24:16 bert Exp $
 c
       implicit none
 c
@@ -34,7 +34,7 @@ c
 c
 c     Calculate maximum buffer needed
 c
-      maxbuf = lmax*(lmax+1)*lmax*(lmax+1)/4*npt*(npt-1)*9
+      maxbuf = lmax*(lmax+1)*lmax*(lmax+1)/4*npt*9
 c
 c     Calculate maximum scratch space needed
 c
