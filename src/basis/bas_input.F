@@ -167,7 +167,7 @@ c
       integer cont_max          ! Max. no. of contractions
       integer prim_max          ! Max. no. of primitives
       parameter (nltypes = 7, nsptypes = 2, nopts = 2)
-      parameter (cont_max = 20, prim_max = 20)
+      parameter (cont_max = 30, prim_max = 30)
       double precision expnt(prim_max), coeff(prim_max,cont_max)
       character*1 ltypes(nltypes)
       character*2 sptypes(nsptypes)
