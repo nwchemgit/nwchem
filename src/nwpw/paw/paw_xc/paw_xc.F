@@ -1,6 +1,12 @@
-!$Id: paw_xc.F,v 1.6 2003-02-19 01:02:04 marat Exp $
+!$Id: paw_xc.F,v 1.7 2003-02-19 01:10:46 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.6  2003/02/19 01:02:04  marat
+!finished generation of exch-corr
+!tested only with l=0 with exchange only
+!
+!MV
+!
 !Revision 1.5  2003/02/18 01:57:31  marat
 !generated atomic exc energies.
 !there is a difference between paw and nwchem
@@ -391,13 +397,14 @@ c        write(*,*) "paw_exc: rho_do_ps(1)",dbl_mb(rho_ps(1)+n_s)
         write(*,*) "paw_exc: rho_up_ae(1)+core",dbl_mb(rho_ae(1))
        
 *       *** find exchange-correlation on spher grid ***
-        call paw_dirac_x(n_s,ic,paw_xc_ispin,
+c        call paw_dirac_x(n_s,ic,paw_xc_ispin,
+        call paw_vosko(n_s,ic,paw_xc_ispin,
      >                 dbl_mb(rho_ae(1)),        
      >                 dbl_mb(vxc_ae(1)),        
      >                 dbl_mb(exc_ae(1)),        
      >                 dbl_mb(xc_temp(1)) )       
 
-        call paw_dirac_x(n_s,ic,paw_xc_ispin,
+        call paw_vosko(n_s,ic,paw_xc_ispin,
      >                 dbl_mb(rho_ps(1)),        
      >                 dbl_mb(vxc_ps(1)),        
      >                 dbl_mb(exc_ps(1)),        

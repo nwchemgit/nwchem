@@ -1,5 +1,5 @@
 *
-* $Id: paw_vosko.F,v 1.2 2003-02-18 01:57:31 marat Exp $
+* $Id: paw_vosko.F,v 1.3 2003-02-19 01:10:46 marat Exp $
 *
 
       subroutine paw_vosko(n2ft3d,ng,ispin,dn,xcp,xce,x)
@@ -50,7 +50,8 @@
 
 *     square root of wigner radius
       do 100 k=1,ng
-        rho=dn(k,1)+dn(k,ispin)+dncut
+c        rho=dn(k,1)+dn(k,ispin)+dncut
+        rho=dn(k,1)+dn(k,2)+dncut
         x(k)=crs/rho**one6th
   100 continue
 
