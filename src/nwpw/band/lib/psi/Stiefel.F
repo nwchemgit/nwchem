@@ -1,5 +1,5 @@
 *
-* $Id: Stiefel.F,v 1.3 2001-12-17 23:31:12 bylaska Exp $
+* $Id: Stiefel.F,v 1.4 2002-01-15 00:33:08 bylaska Exp $
 *
 
 
@@ -437,7 +437,7 @@
       end do
       end do
 
-      if (np.gt.1) call C3dB_Vector_Sumall(4*n*n*nbrill,Q)
+      if (np.gt.1) call C3dB_Vector_SumAll(4*n*n*nbrill,Q)
       return
       end
 
@@ -510,9 +510,9 @@
       n1(2) = ne(1)+1
       n2(2) = ne(1)+ne(2)
 
+      call dcopy(2*nbrill,0.0d0,0,MM,1)
       do nb=1,nbrill
       do ms=1,ispin
-         MM(ms,nb) = 0.0d0
          do j=n1(ms),n2(ms)
             call Cram_cc_idot(nb,A(1,j,nbrill),B(1,j,nbrill),sum)
             MM(ms,nb) = MM(ms,nb) + sum
@@ -520,7 +520,7 @@
       end do
       end do
 
-      if (np.gt.1) call C3dB_Vector_Sumall(2*nbrill,MM)
+      if (np.gt.1) call C3dB_Vector_SumAll(2*nbrill,MM)
       return
       end
 
