@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.4 2002-01-08 23:10:26 bylaska Exp $
+* $Id: D3dB-new.F,v 1.5 2002-01-08 23:15:25 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1943,7 +1943,7 @@ c     integer i2_start(NFFT3+1)
 #ifdef TCGMSG
                dum = 99
                dum_msglen = 1
-               call SND(9+MSGINT,dum,mitob(dum_msglen),rcv_proc,1)
+               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                       source,rcv_proc,1)
 #endif
@@ -1973,7 +1973,7 @@ c     integer i2_start(NFFT3+1)
 #ifdef TCGMSG
                dum_msglen = 1
                call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
-     >                       source,rcv_proc,1)
+     >                       dest,rcv_proc,1)
                call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
 #endif
             end if
