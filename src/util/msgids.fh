@@ -135,6 +135,12 @@ c
       integer mrg_i18
       integer mrg_i19
       integer mrg_i20
+      integer mrg_i21
+      integer mrg_i22
+      integer mrg_i23
+      integer mrg_i24
+      integer mrg_i25
+      integer mrg_i50
 c
       integer mre_000
       integer mre_001
@@ -557,4 +563,10 @@ c
       parameter(mre_009=msg_ftn_base-290) ! esp_grid
       parameter(mre_010=msg_ftn_base-291) ! esp_grid
       parameter(mre_050=msg_ftn_base-331) ! esp_grid
-
+c
+      parameter(mrg_i21=msg_ftn_base-332) ! arg_rdstrt
+      parameter(mrg_i22=msg_ftn_base-333) ! arg_rdstrt
+      parameter(mrg_i23=msg_ftn_base-334) ! arg_rdstrt
+      parameter(mrg_i24=msg_ftn_base-335) ! arg_wrstrt
+      parameter(mrg_i25=msg_ftn_base-336) ! arg_wrstrt
+      parameter(mrg_i50=msg_ftn_base-361) ! arg_wrstrt
