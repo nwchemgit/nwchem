@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.17 2002-01-20 23:49:22 bylaska Exp $
+* $Id: band_minimizer.F,v 1.18 2002-01-21 00:49:46 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -50,7 +50,7 @@
       logical newpsi
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
-      integer i,k,ia,nion
+      integer i,k,ia,nion,vers,nbrillioun
   
 
 
@@ -105,8 +105,11 @@
       external cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
       character*2 cpsp_atom
       external    cpsp_atom
-      integer  cpsi_ispin,cpsi_ne
-      external cpsi_ispin,cpsi_ne
+      integer  cpsi_ispin,cpsi_ne,psi_get_version
+      external cpsi_ispin,cpsi_ne,psi_get_version
+      logical  pspw_reformat_c_wvfnc
+      external pspw_reformat_c_wvfnc
+    
 
 
 *****************************|  PROLOGUE  |****************************
@@ -198,16 +201,25 @@
       call cphafac()
       call cphafac_k()
 
-
 *     **** read in wavefunctions and initialize psi ****
       if (.not.psi_filefind()) then
         call cpsi_new()
         newpsi = .true.
+
       else
         newpsi = .false.
+
+*       **** convert from pspw format to band format ****
+        vers = psi_get_version()
+        if ((vers.eq.3).or.(vers.eq.4)) then
+           nbrillioun = brillioun_nbrillioun()
+           newpsi = .true.
+           if (taskid.eq.MASTER) then
+             value= pspw_reformat_c_wvfnc(nbrillioun)
+           end if
+        end if
       end if
       value = cpsi_initialize()
-      newpsi = .true.
 
 
 *     **** electron and geodesic data structures ****
@@ -300,7 +312,7 @@
 
          write(6,1270)
          write(6,1280) control_time_step(),control_fake_mass()
-         write(6,1290) control_tole(),control_tolc(),control_tolr()
+         write(6,1290) control_tole(),control_tolc()
          write(6,1300)
          call util_flush(6)
       end if
@@ -506,7 +518,7 @@
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
-     &        ' (density)',E12.3,' (ion)')
+     &        ' (density)')
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)
