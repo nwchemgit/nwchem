@@ -1,6 +1,6 @@
       subroutine esp_wrtinp
 c
-c $Id: esp_wrtinp.F,v 1.1 1997-10-06 23:00:37 d3j191 Exp $
+c $Id: esp_wrtinp.F,v 1.2 1997-10-07 23:41:46 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
   604 format(' Number of grid points is',t45,i12)
 c
       write(6,605) cau2nm*rcut
-  605 format(' Grid range beyond van der Waals spheres',t45,f12.6,' nm')
+  605 format(' Grid range',t45,f12.6,' nm')
 c
       write(6,606) cau2nm*spac
   606 format(' Grid spacing',t45,f12.6,' nm')
@@ -54,22 +54,23 @@ c
 c
       if(irest.eq.1) then
       write(6,610) resa
-  610 format(' Harmonic restraints fit to zero charge with weight',
-     + f12.6)
+  610 format(' Harmonic restraint to zero charge',/,
+     + '    with scaling',t30,f12.6,/)
       endif
 c
       if(irest.eq.2) then
       write(6,611) resa,resb,maxit,toler
-  611 format(' Hyperbolic restraints fit to zero charge with weights',
-     + f12.6,' and ',f12.6,/,
-     + t25,'maximum number of iterations',i5,/,
-     + t25,'tolerance',f12.6)
+  611 format(' Hyperbolic restraint to zero charge',/,
+     + '    with scaling',t30,f12.6,/,
+     + '         tightness',t30,f12.6,/,
+     + '         maximum iterations',t30,i5,/,
+     + '         tolerance',t30,f12.6,/)
       endif
 c
       if(irest.gt.0) then
       if(ihfree.gt.0) then
       write(6,612)
-  612 format(' Hydrogen atoms excluded from restraints')
+  612 format(/,' Hydrogen atoms are excluded from the restraints')
       endif
       endif
 c

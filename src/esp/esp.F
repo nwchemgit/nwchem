@@ -1,6 +1,6 @@
       logical function esp(irtdb0)
 c
-c $Id: esp.F,v 1.2 1997-10-07 18:09:43 d3j191 Exp $
+c $Id: esp.F,v 1.3 1997-10-07 23:41:36 d3j191 Exp $
 c
       implicit none
 c
@@ -56,20 +56,20 @@ c     do the fitting
 c
       call esp_fit(dbl_mb(igptr),dbl_mb(ivptr),dbl_mb(ixptr),
      + dbl_mb(iqptr),dbl_mb(iaptr),dbl_mb(ibptr),dbl_mb(icptr),
-     + dbl_mb(iakptr),dbl_mb(iqkptr),int_mb(inptr))
+     + dbl_mb(iakptr),dbl_mb(iqkptr),int_mb(inptr),dbl_mb(iqfptr))
 c
 c     calculate the electrical moments
 c
-      call esp_elemom(dbl_mb(ixptr),dbl_mb(iqptr))
+      call esp_elemom(dbl_mb(ixptr),dbl_mb(iqfptr))
 c
 c     calculate rms deviation
 c
-      call esp_rms(dbl_mb(ixptr),dbl_mb(iqptr),dbl_mb(igptr),
+      call esp_rms(dbl_mb(ixptr),dbl_mb(iqfptr),dbl_mb(igptr),
      + dbl_mb(ivptr))
 c
 c     write results
 c
-      call esp_out(byte_mb(itptr),dbl_mb(ixptr),dbl_mb(iqptr),
+      call esp_out(byte_mb(itptr),dbl_mb(ixptr),dbl_mb(iqfptr),
      + dbl_mb(igptr),dbl_mb(ivptr))
 c
 c     deallocate memory

@@ -1,6 +1,6 @@
-      subroutine esp_elemom(x,q)
+      subroutine esp_elemom(x,qf)
 c
-c $Id: esp_elemom.F,v 1.2 1997-10-07 18:09:46 d3j191 Exp $
+c $Id: esp_elemom.F,v 1.3 1997-10-07 23:41:40 d3j191 Exp $
 c
       implicit none
 c
@@ -10,11 +10,12 @@ c
 #include "geom.fh"
 #include "mafdecls.fh"
 c
-      real*8 x(3,natoms),q(natoms)
+      real*8 x(3,natoms),qf(ndim,4)
 c
-      integer i,ix
+      integer i,ix,j
       real*8 qm,qp,xm(3),xp(3)
 c
+      do 3 j=1,nf
       qm=zero
       qp=zero
       do 1 ix=1,3
@@ -22,22 +23,23 @@ c
       xp(ix)=zero
     1 continue
       do 2 i=1,natoms
-      if(q(i).lt.zero) then
-      qm=qm+q(i)
-      xm(1)=xm(1)+q(i)*x(1,i)
-      xm(2)=xm(2)+q(i)*x(2,i)
-      xm(3)=xm(3)+q(i)*x(3,i)
+      if(qf(i,j).lt.zero) then
+      qm=qm+qf(i,j)
+      xm(1)=xm(1)+qf(i,j)*x(1,i)
+      xm(2)=xm(2)+qf(i,j)*x(2,i)
+      xm(3)=xm(3)+qf(i,j)*x(3,i)
       else
-      qp=qp+q(i)
-      xp(1)=xp(1)+q(i)*x(1,i)
-      xp(2)=xp(2)+q(i)*x(2,i)
-      xp(3)=xp(3)+q(i)*x(3,i)
+      qp=qp+qf(i,j)
+      xp(1)=xp(1)+qf(i,j)*x(1,i)
+      xp(2)=xp(2)+qf(i,j)*x(2,i)
+      xp(3)=xp(3)+qf(i,j)*x(3,i)
       endif
     2 continue
-      dipmom=half*(qp-qm)*
+      dipmom(j)=half*(qp-qm)*
      + dsqrt((xp(1)/qp-xm(1)/qm)*(xp(1)/qp-xm(1)/qm)+
      +       (xp(2)/qp-xm(2)/qm)*(xp(2)/qp-xm(2)/qm)+
      +       (xp(3)/qp-xm(3)/qm)*(xp(3)/qp-xm(3)/qm))
+    3 continue
 c
       return
       end

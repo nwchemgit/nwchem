@@ -1,6 +1,6 @@
       subroutine esp_malloc
 c
-c $Id: esp_malloc.F,v 1.1 1997-10-06 23:00:35 d3j191 Exp $
+c $Id: esp_malloc.F,v 1.2 1997-10-07 23:41:43 d3j191 Exp $
 c
       implicit none
 c
@@ -17,9 +17,10 @@ c
 c
 c     allocate memory:
 c
-c     l_t itptr 't' : 16*natoms : atomic tags
-c     l_x ixptr 'x' :  3*natoms : atomic coordinates
-c     l_q iqptr 'q' :    natoms : atomic charges
+c     l_t itptr 't'    : 16*natoms : atomic tags
+c     l_x ixptr 'x'    :  3*natoms : atomic coordinates
+c     l_q iqptr 'q'    :    natoms : atomic charges
+c     l_qf iqfptr 'qf' :  4*natoms : fitted atomic charges
 c
       ndim=natoms+nconst
       if(.not.ma_push_get(mt_byte,natoms*16,'t',l_t,itptr))
@@ -30,6 +31,8 @@ c
      + call errquit('esp: ma_push_get q failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'qk',l_qk,iqkptr))
      + call errquit('esp: ma_push_get qk failed',me)
+      if(.not.ma_push_get(mt_dbl,4*ndim,'qf',l_qf,iqfptr))
+     + call errquit('esp: ma_push_get qf failed',me)
       if(.not.ma_push_get(mt_int,natoms,'n',l_n,inptr))
      + call errquit('esp: ma_push_get n failed',me)
 c
