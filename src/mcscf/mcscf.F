@@ -31,6 +31,7 @@ c
        double precision thresh, lshift0
        double precision eone, etwo, energy, enrep
        double precision tol2e, gnorm, xx
+       double precision ttotal, torb, tci, ttmp
        logical oconj
        logical oskel
        logical oorbsolve
@@ -119,14 +120,15 @@ c
  900     format(/,27x,14('='),/
      $            28x,'Direct MCSCF',/
      $            27x,14('='),/)
-         write(6,901) nclosed, nact, nactel, multip, orlen,
+         write(6,901) nbf, nclosed, nact, nactel, multip, orlen,
      $                (nclosed*nvir),(nact*nvir),(nclosed*nact)
- 901     format(18x,35('-'),/
-     $          20x,'Inactive shells:',10x,i5,/
+ 901     format(18x,35('-'),/,
+     $          20x,'Basis functions:',10x,i5,/,
+     $          20x,'Inactive shells:',10x,i5,/,
      $          20x,'Active shells:',12x,i5,/,
      $          20x,'Active electrons:',9x,i5,/,
      $          20x,'Multiplicity:',13x,i5,/,
-     $          20x,'Orbital rotations:',8x,i5,/
+     $          20x,'Orbital rotations:',8x,i5,/,
      $          25x,'Inact - Virt',9x,i5,/,
      $          25x,'Act - Virt',11x,i5,/,
      $          25x,'Inact - Act',10x,i5,/,
@@ -216,6 +218,9 @@ c
 c  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
 c
+       torb = 0.d0
+       tci = 0.d0
+       ttotal = util_cpusec()
        do iter=1,maxiter
          if (oprinfo) write(6,996) iter
  996     format(/,10x,'%%%%% Iteration ',i3,' %%%%%',/)
@@ -233,12 +238,14 @@ c
 c
 c  CI solver
 c
+         ttmp = util_cpusec()
          if (omcscfprof) call pstat_on(ps_ci)
          call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                       nsym, int_mb(k_sym), dbl_mb(k_evals),
      $                       g_hcore, g_coul, dbl_mb(k_dm1),
      $                       dbl_mb(k_dm2), .true., .false. )
          if (omcscfprof) call pstat_off(ps_ci)
+         tci = tci + util_cpusec() - ttmp
 c
 c  Orbital solver
 c
@@ -249,6 +256,7 @@ c
            pfac = 1.d0
          endif
          if (oorbsolve) then
+           ttmp = util_cpusec()
            if (omcscfprof) call pstat_on(ps_orb)
            call mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                          oskel, int_mb(k_sym), dbl_mb(k_dm1),
@@ -257,16 +265,18 @@ c
      $                          dbl_mb(k_evals), eone, etwo, gnorm,
      $                          g_movecs )
            if (omcscfprof) call pstat_off(ps_orb)
+           torb = torb + util_cpusec() - ttmp
          else
            if (oprinfo) write(6,221)
  221       format('Orbital solve skipped')
          endif
          energy = eone + etwo + enrep
          if (oprinfo) write(6,927) iter,energy,gnorm
- 927     format(//,10x,'####',i5,5x,f20.12,5x,e12.5)
+ 927     format(//,10x,'####',i5,5x,f22.14,5x,e16.9)
          if (gnorm.lt.thresh) goto 27
        enddo
  27    continue
+       ttotal = util_cpusec() - ttotal
        if (oprinfo) then
          if (gnorm.lt.thresh) then
            write(6,928)
@@ -275,6 +285,8 @@ c
            write(6,929)
  929       format(//,5x,'--- maximum iterations reached ---')
          endif
+         write(6,930) torb, tci, ttotal
+ 930     format(15x,'== MCSCF Timing:',3(5x,f14.3))
        endif
 c
 c  Transform to natural orbitals
@@ -303,6 +315,7 @@ c
          if (.not.ma_pop_stack(l_tmp))
      $     call errquit('mcscf: cannot pop local MO',0)
        endif
+       GOTO 403
 c
 c  Resolve secular eqn with natural orbitals
 c
@@ -321,6 +334,7 @@ c
 c
 c  Save natural orbitals to disk
 c
+ 403   CONTINUE
       call mcscf_movecs_write( rtdb, basis, nbf, dbl_mb(k_occ),
      $                         dbl_mb(k_evals), g_movecs )
 c
@@ -365,7 +379,7 @@ c
 c  ------ End of regular MCSCF module      ------
 c  ------ Remainder are debugging sections ------
 c
-
+       goto 401
 c
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -476,10 +490,6 @@ c$$$     $                        g_grad )
 c
 c  Free temporaries for debugging section
 c
-       if (.not.ga_destroy(g_exch))
-     $      call errquit('rohf_head: cannot destroy exchange',0)
-       if (.not.ga_destroy(g_coul))
-     $      call errquit('rohf_head: cannot destroy Coulomb',0)
        if (.not.ga_destroy(g_grad))
      $      call errquit('rohf_head: cannot destroy gradient',0)
        if (.not.ga_destroy(g_prod))
@@ -580,6 +590,7 @@ c              Final Cleanup
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
+ 401   continue
        call mcscf_profile_tidy()
        call scf_tidy()
        call schwarz_tidy()
@@ -597,6 +608,10 @@ c
      $      call errquit('mcscf: cannot pop stack?',0)
        if (.not.ma_pop_stack(l_evals))
      $      call errquit('mcscf: cannot pop stack?',0)
+       if (.not.ga_destroy(g_exch))
+     $      call errquit('rohf_head: cannot destroy exchange',0)
+       if (.not.ga_destroy(g_coul))
+     $      call errquit('rohf_head: cannot destroy Coulomb',0)
        if (.not.ga_destroy(g_movecs))
      $      call errquit('mcscf: cannot destroy MO vectors',0)
 c
