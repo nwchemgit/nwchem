@@ -25,11 +25,11 @@ c
       integer k_buf, k_scr
       integer type
 c
-      if (inp_compare(integ_type, 'kinetic', .false.)) then
+      if (inp_compare(.false., integ_type, 'kinetic')) then
          type = 1
-      else if (inp_compare(integ_type, 'potential', .false.)) then
+      else if (inp_compare(.false., integ_type, 'potential')) then
          type = 2
-      else if (inp_compare(integ_type, 'overlap', .false.)) then
+      else if (inp_compare(.false., integ_type, 'overlap')) then
          type = 3
       else
          write(6,*) ' integ_type = ', integ_type

@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.15 1994-04-26 18:43:19 d3e129 Exp $
+# $Id: makefile.h,v 1.16 1994-04-26 19:40:49 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -51,7 +51,6 @@ endif
 # The include directory should be first so that the include
 # files are all present and correct before any compilation
 #
-#
 
     SUBDIRS = include develop global db NWints rtdb basis inp util \
               geom input ma tcgmsg $(SUBDIRS_EXTRA)
@@ -78,7 +77,7 @@ endif
 #                                                        #
 ##########################################################
 
-# !!!! Only the SUN version is up to date !!!!!
+# !!!! Only the SUN and KSR versions are up to date !!!!!
 
 ifeq ($(TARGET),SUN)
 #
@@ -110,9 +109,42 @@ ifeq ($(TARGET),SUN)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lnwints \
+              -ltest -lddscf -lnwints \
               -linput -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
-	      -lutil -lblas -lma -ltcgmsg
+	      -lutil -lma -ltcgmsg -llapack -lblas
+
+  EXPLICITF = FALSE
+endif
+
+ifeq ($(TARGET),KSR)
+#
+# KSR running OSF
+#
+         FC = f77
+         CC = cc
+         AR = ar
+     RANLIB = echo
+      SHELL = /bin/sh
+       MAKE = make
+  MAKEFLAGS = -j 20
+    INSTALL = echo $@ is built
+
+       FOPT = -g -r8 -u
+   FOPT_REN = $(FOPT)
+       COPT = -g
+     FLDOPT = $(FOPT)
+     CLDOPT = $(COPT)
+  INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
+
+    DEFINES = -DKSR  -DLongInteger $(LIB_DEFINES) 
+     FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
+     CFLAGS = $(COPT) $(INCLUDES) $(DEFINES)
+    ARFLAGS = rcv
+
+       LIBS = -L$(LIBDIR) $(LIBPATH) \
+              -ltest -lddscf -lnwints \
+              -linput -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
+	      -lutil -lma -ltcgmsg -llapack -lblas -para -lrpc
 
   EXPLICITF = FALSE
 endif

@@ -34,9 +34,9 @@ c
      $     ('rhf_fock_2e: geom_ncent failed', 0)
       max_at_bf = 0
       do iatom = 1, natoms
-         if (.not. bas_ce2cnr(basis, iatom, ilo, ihi))
-     $        call errquit('rhf_fock_2e: bas_ce2cnr failed', iatom)
-         maxd = max(max_at_bf, ihi-ilo+1)
+         if (.not. bas_ce2bfr(basis, iatom, ilo, ihi))
+     $        call errquit('rhf_fock_2e: bas_ce2bfr failed', iatom)
+         max_at_bf = max(max_at_bf, ihi-ilo+1)
       enddo
       maxd = max_at_bf**2
 c     

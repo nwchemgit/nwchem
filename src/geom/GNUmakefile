@@ -3,6 +3,8 @@
  LIBRARY = libgeom.a
  HEADERS = geom.fh geomP.fh
 
+ USES_BLAS = geom.F
+
 include ../config/makefile.h
 include ../config/makelib.h
 

@@ -3,6 +3,8 @@
        LIBRARY = libbasis.a
    LIB_TARGETS = testbasis testbasis.o
 
+     USES_BLAS = basis.F basisP.F
+
 include ../config/makefile.h
 include ../config/makelib.h
 

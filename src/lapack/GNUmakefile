@@ -7,16 +7,22 @@ include ../config/makefile.h
 # Determine if single or double precision is required
 #
 
-       VPATH = double
+       VPATH = double:single
 
+ifeq ($(TARGET),SUN)
+       PRECISION = double
+endif
+ifeq ($(TARGET),IBM)
+       PRECISION = double
+endif
 ifeq ($(TARGET),KSR)
-       VPATH = single   
+       PRECISION = single   
 endif
 ifeq ($(TARGET),CRAY)
-       VPATH = single
+       PRECISION = single
 endif
 
-ifeq ($(VPATH),double)
+ifeq ($(PRECISION),double)
          OBJ = dlabrd.o   dlarfb.o   dlasv2.o   dormlq.o \
                dbdsqr.o   dlacon.o   dlarfg.o   dorg2r.o   dormqr.o \
                dgebd2.o   dlacpy.o   dlarft.o   dorgbr.o   dspcon.o \

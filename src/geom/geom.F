@@ -272,9 +272,9 @@ c
 c     Determine if system is periodic or if external fields are applied
 c     
       oefield(geom) = 
-     $     ddot(3, efield(1,geom), 1, efield(1,geom), 1) .gt. 0.0d0
+     $     sdot(3, efield(1,geom), 1, efield(1,geom), 1) .gt. 0.0d0
       operiodic(geom) = 
-     $     ddot(9, latvec(1,1,geom), 1, latvec(1,1,geom), 1) .gt. 0.0d0
+     $     sdot(9, latvec(1,1,geom), 1, latvec(1,1,geom), 1) .gt. 0.0d0
 c
 c     compute effective nuclear repulsion energy, dipole and
 c     interaction with external fields
@@ -285,7 +285,7 @@ c
       geom_rtdb_load = .true.
 c     
       end
-      double precision function geom_compute_values(geom)
+      subroutine geom_compute_values(geom)
       implicit none
 #include "geomP.fh"
 #include "util.fh"
@@ -320,7 +320,7 @@ c
 c
 c     add in interaction of nuclear dipole with external field
 c
-      e = e + ddot(3, ndipole(1,geom), 1, efield(1,geom), 1)
+      e = e + sdot(3, ndipole(1,geom), 1, efield(1,geom), 1)
 c
       erep(geom) = e
 c

@@ -21,13 +21,13 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-      implicit double precision (a-h,o-z)
+      implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
-      dimension z(rowdim,coldim)
-      dimension asa(3)
-      data column/8hcolumn   /,asa/8h          ,8h00000000  ,
-     1     8h--------  /,blank/8h          /
+      double precision z(rowdim,coldim), zero
+      character*8 asa(3), column, ctl, blank
+      data column/'column'   /,asa/' ','00000000'  ,
+     1     '--------'  /,blank/' '/
       data kcol/8/
       data zero/0.d00/
       do 11 i=rowlow,rowhi

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.4 1994-04-26 04:54:52 d3e129 Exp $
+# $Id: GNUmakefile,v 1.5 1994-04-26 19:42:06 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -14,6 +14,8 @@ endif
               print_center.o util_flush.o $(BLAS) $(EXTRA_OBJ) 
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh
+
+    USES_BLAS = util.fh
 
 include ../config/makelib.h
 

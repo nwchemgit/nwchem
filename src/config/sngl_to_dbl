@@ -1,0 +1,12 @@
+#!/bin/csh
+
+set sed_script = {$NWCHEM_TOP}/src/config/sngl_to_dbl.sed
+
+set sufx = .dbl
+
+foreach file ($argv)
+
+  echo converting $file to double precision
+  sed -f $sed_script < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file
+
+end

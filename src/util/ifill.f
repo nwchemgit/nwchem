@@ -1,6 +1,6 @@
       subroutine ifill(n,val,a,ia)
-      implicit integer (a-z)
-      dimension a(*)
+      implicit none
+      integer n, val, a(*), ia, i
 c
 c     initialise integer precision array to scalar value
 c

@@ -1,9 +1,9 @@
       subroutine int_l1eall(i_basis, j_basis, ish, jsh, zerotol,
      &       ilab, jlab, lstv, S, T, V, lscr, scr, numstv) 
-c $Id: int_l1eall.F,v 1.3 1994-04-09 15:46:27 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.4 1994-04-26 19:40:23 d3g681 Exp $
+      implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
-      implicit none
 c::external subroutines used
 c dcopy
 c errquit
@@ -53,11 +53,11 @@ c
       jbas  = j_basis + BASIS_HANDLE_OFFSET
 c
       iscrS = 1
-      call dcopy(lstv,S,1,scr(iscrS),1)
+      call scopy(lstv,S,1,scr(iscrS),1)
       iscrT = iscrS + lstv
-      call dcopy(lstv,T,1,scr(iscrT),1)
+      call scopy(lstv,T,1,scr(iscrT),1)
       iscrV = iscrT + lstv
-      call dcopy(lstv,V,1,scr(iscrV),1)
+      call scopy(lstv,V,1,scr(iscrV),1)
 c
       numstv = 0
       icount = 0

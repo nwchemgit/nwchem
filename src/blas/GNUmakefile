@@ -7,16 +7,22 @@ include ../config/makefile.h
 # Determine if single or double precision is required
 #
 
-       VPATH = double
+     VPATH = double:single
 
+ifeq ($(TARGET),SUN)
+       PRECISION = double
+endif
+ifeq ($(TARGET),IBM)
+       PRECISION = double
+endif
 ifeq ($(TARGET),KSR)
-       VPATH = single   
+       PRECISION = single   
 endif
 ifeq ($(TARGET),CRAY)
-       VPATH = single
+       PRECISION = single
 endif
 
-ifeq ($(VPATH),double)
+ifeq ($(PRECISION),double)
          OBJ =  ddot.o    dnrm2.o    dspr.o    idamax.o \
                 dasum.o   dgemm.o    drot.o    dswap.o    lsame.o \
                 daxpy.o   dgemv.o    dscal.o   dtrmm.o    xerbla.o \

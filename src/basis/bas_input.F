@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.5 1994-04-04 20:20:19 d3e129 Exp $
+c $Id: bas_input.F,v 1.6 1994-04-26 19:40:36 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -147,9 +147,9 @@ c
       end
       subroutine bas_input_body(basis, osegment)
       implicit none
-#include "inp.fh"
 #include "bas.fh"
 #include "geom.fh"
+#include "inp.fh"
       integer basis             ! [input]
       logical osegment          ! [input]
 c
@@ -262,9 +262,9 @@ c
       end
       subroutine bas_input_cont(basis, osegment, tag, l_value)
       implicit none
-#include "inp.fh"
 #include "bas.fh"
 #include "geom.fh"
+#include "inp.fh"
 c::functions
       logical bas_add_ucnt
       external bas_add_ucnt
@@ -376,7 +376,6 @@ c
       end
       subroutine bas_tag_lib(basis, osegment, tag, standard, filename)
       implicit none
-#include "inp.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "inp.fh"

@@ -25,6 +25,9 @@
       logical int_normalize
       external int_normalize
 c
+      call scf(rtdb)
+      return
+c
       call ieeetrap
 c
       if (.not. geom_create(geom, geom_name))

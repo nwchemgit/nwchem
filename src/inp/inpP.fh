@@ -1,9 +1,9 @@
 c
 c     Private header file for free format input routines
 c
-      implicit real*8 (a-h,p-w), integer (i-n), logical (o)
-      implicit character *8 (z),character *1 (x)
-      implicit character *4 (y)
+**      implicit real*8 (a-h,p-w), integer (i-n), logical (o)
+**      implicit character *8 (z),character *1 (x)
+**      implicit character *4 (y)
 c
       integer max_width         ! Maximum input width of an input line
       integer max_field         ! Maximum no. of fields in an input line
@@ -21,6 +21,7 @@ c
       common /inp_workc / ia, ja, tmp, errmsg, 
      $     xcomm, xsplit, xback, xquote, xblnk, xtab
 c
+      integer iread, iwrite
       integer jrec              ! No. of current field
       integer jump              ! No. of fields in current line
       integer istrt             ! Start of fields
@@ -33,6 +34,7 @@ c
       integer nerr              ! ????
       logical oswit             ! True if EOF has beeen detected
       integer ierrpos           ! Input char position where error was detected
+      integer nstart
 c
       common /inp_work/ jrec, jump, 
      $     istrt(max_field), inumb(max_field),iwidth,nend(max_field),

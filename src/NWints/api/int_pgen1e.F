@@ -1,9 +1,9 @@
       subroutine int_pgen1e(msg, i_basis, j_basis, ish, jsh, 
      &       ilab, jlab, l1e, Gen1e)
-c $Id: int_pgen1e.F,v 1.1 1994-04-08 15:59:46 d3e129 Exp $
+c $Id: int_pgen1e.F,v 1.2 1994-04-26 19:40:28 d3g681 Exp $
+      implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
-      implicit none
 c
 c::external subroutines used
 c dcopy

@@ -24,6 +24,7 @@ c
       subroutine inp_init(ir,iw)
       implicit none
 #include "inpP.fh"
+      integer ir, iw
 c     
       iread = ir
       iwrite = iw
@@ -60,6 +61,8 @@ c
       implicit none
 #include "inpP.fh"
       integer ivalue
+      integer inp_n_field
+      external inp_n_field
 c     
 c     set field to be read next (ivalue=0,...,inp_n_field())
 c     
@@ -100,8 +103,14 @@ c     the number of fields is stored in jump, the starting point of a
 c     field in istrt(i) and the number of characters in that field
 c     in inumb(i).
 c     
+      character*1 xprev
+      integer lenja, i, k, mark, j, nbegin, nfini, length
+      integer inp_strlen, jwidth
+      logical inp_compare
+      external inp_strlen, inp_compare
       integer ncol(max_field)
       logical ois_ws            ! Inline funtion  
+      character*1 xtest
       ois_ws(xtest) = (xtest.eq.xblnk .or. xtest.eq.xtab)
 c     
       nline=nline+1
@@ -290,6 +299,8 @@ c
       subroutine inp_errout
       implicit none
 #include "inpP.fh"
+      integer length, inp_strlen, i
+      external inp_strlen
       character*1 xpt, xstp
       data xpt,xstp/'*', '.'/
 c     
@@ -299,7 +310,7 @@ c
       if (errmsg .ne. ' ') then
          length = inp_strlen(errmsg)
          write(iwrite, 40) input_line, errmsg(1:length)
- 40      format('input error at line', i5,': ', a)
+ 40      format(' input error at line', i5,': ', a)
 c
          jrec=-1
          write(iwrite,50)ia(1:iwidth)
@@ -327,6 +338,7 @@ c
       logical function inp_a(a)
       implicit none
 #include "inpP.fh"
+      integer i1, i2, length
       character*(*) a
 c     
 c     Return field as character string, minus any enclosing quotes
@@ -366,7 +378,7 @@ c
       logical function inp_a_trunc(a)
       implicit none
 #include "inpP.fh"
-      character*1 xblnk, xquote
+      integer i1, i2, length
       character*(*) a
 c     
 c     Return field as character string, minus any enclosing quotes
@@ -399,6 +411,10 @@ c
       implicit none
 #include "inpP.fh"
       double precision ten, buf
+      integer i1, i2, ie2, isign, ie, iexp, ie1, ibuff, i, j
+      integer n, ifact, ist, nstrt, i, j
+      character*1 xtemp
+      logical orep
       character*1 xchar(15)
       data xchar /'0','1','2','3','4','5','6','7','8','9'
      1     ,'+','-','.','e','d'/
@@ -471,6 +487,8 @@ c
       implicit none
 #include "inpP.fh"
       character*1 xchar(12)
+      integer n, ifact, ist, nstrt, i, j
+      character*1 xtemp
       integer jbuf
       data xchar /'0','1','2','3','4','5','6','7','8','9'
      1     ,'+','-'/
@@ -592,6 +610,7 @@ c
       integer len
       logical ois_ws
       intrinsic len
+      character*1 xtest
       ois_ws(xtest) = (xtest.eq.xblnk .or. xtest.eq.xtab)
 c
       do i = len(a),1,-1

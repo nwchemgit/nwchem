@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.1.1.1 1994-03-29 06:44:24 d3g681 Exp $
+# $Id: makelib.h,v 1.2 1994-04-26 19:40:50 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -16,6 +16,9 @@
 # 7) optionally define LIB_INCLUDES as any additional includes 
 # 8) include ../config/makelib.h
 # 9) define any additional targets (e.g., test programs)
+# 10)if the directory contains references to fortran BLAS
+#    define USES_BLAS to be the list of FORTRAN files that
+#    need converting (e.g., ddot -> sdot)
 #
 # E.g.
 #
@@ -27,6 +30,7 @@
 #  LIB_TARGETS = test.o test.x
 #  LIB_DEFINES = -DGOODBYE="\"Have a nice day\""
 # LIB_INCLUDES = -I../testdir
+#    USES_BLAS = test.f
 #
 # include ../config/makelib.h
 #
@@ -49,6 +53,16 @@ include_stamp:	$(HEADERS)
 else
 include_stamp:
 	touch include_stamp
+endif
+
+ifdef USES_BLAS
+sngl_to_dbl:
+	$(CNFDIR)/sngl_to_dbl $(USES_BLAS)
+dbl_to_sngl:
+	$(CNFDIR)/dbl_to_sngl $(USES_BLAS)
+else
+sngl_to_dbl dbl_to_sngl:
+	echo $@ : no conversion necessary
 endif
 
 clean:

@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.3 1994-04-08 16:03:31 d3e129 Exp $
+# $Id: GNUmakefile,v 1.4 1994-04-26 19:40:22 d3g681 Exp $
 
 LIBRARY = libnwints.a
 
@@ -22,6 +22,9 @@ INTSP_OBJ = ints_sp/genr70.o ints_sp/init70.o ints_sp/qout70.o \
             ints_sp/sinfo.o ints_sp/sp0000.o ints_sp/sp0001.o \
             ints_sp/sp0011.o ints_sp/sp0101.o ints_sp/sp0111.o \
             ints_sp/sp1111.o ints_sp/tabgen.o 
+
+USES_BLAS = ./api/int_l1eall.F ./api/int_l2e4c.F ./api/int_lgen1e.F \
+            ./api/int_pgen1e.F ./api/int_l2e2c.F ./api/int_l2e3c.F
 
 DERIV_OBJ  = 
 
@@ -52,6 +55,16 @@ intlibs:
 		echo Making $$intdir objects ; \
 		(cd $$intdir; $(MAKE)) || exit 1 ; \
 	done
+
+ifdef USES_BLAS
+sngl_to_dbl:
+	$(CNFDIR)/sngl_to_dbl $(USES_BLAS)
+dbl_to_sngl:
+	$(CNFDIR)/dbl_to_sngl $(USES_BLAS)
+else
+sngl_to_dbl dbl_to_sngl:
+	echo $@ : no conversion necessary
+endif
 
 clean:
 	/bin/rm -f $(LIBRARY) $(OBJ) core include_stamp $(LIB_TARGETS)

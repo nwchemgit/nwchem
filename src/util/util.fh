@@ -1,2 +1,2 @@
-      double precision ddot
-      external ddot
+      double precision sdot
+      external sdot

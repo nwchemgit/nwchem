@@ -1,15 +1,27 @@
 
-# $Id: GNUmakefile,v 1.2 1994-04-01 22:36:11 d3g681 Exp $
+# $Id: GNUmakefile,v 1.3 1994-04-26 19:40:16 d3g681 Exp $
 
 include config/makefile.h
+
+#
+# This should be the first target so that a simple make builds
+# the entire world
+#
 
 nwchem:	libraries
 	$(MAKE) nwchem.o
 	$(FC) $(FFLAGS) -o $@ nwchem.o $(LIBS)
 	$(INSTALL)
+#
+# This to link only and avoid tedious subdir makes
+#
+
+nwchem_link:    nwchem.o
+	$(FC) $(FFLAGS) -o nwchem nwchem.o $(LIBS)
+	$(INSTALL)
 
 # This dependency so that includes which are made by libraries rule
-# are updated before nwchem is linked
+# are updated before nwchem is compiled
 
 libraries:
 	for dir in $(SUBDIRS); do \
@@ -32,6 +44,13 @@ realclean:	clean
 	done
 	/bin/rm -f $(LIBDIR)/*.a $(BINDIR)/*
 	/bin/rm -f *.db
+
+sngl_to_dbl dbl_to_sngl:
+	for dir in $(SUBDIRS); do \
+		echo Making $@ in $$dir ; \
+		(cd $$dir; $(MAKE) $@) || exit 1 ; \
+	done
+        
 
 #
 # This rule to make necessary directories

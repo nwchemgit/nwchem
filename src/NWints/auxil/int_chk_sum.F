@@ -1,5 +1,5 @@
       subroutine int_chk_sum(basisin)
-c $Id: int_chk_sum.F,v 1.1 1994-04-08 16:00:47 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.2 1994-04-26 19:40:30 d3g681 Exp $
       implicit none
 #include "mafdecls.h"
 #include "bas.fh"
@@ -288,7 +288,7 @@ c
         if (printem) then
           l4 = isym4(i,j,k,l)
           write(6,10001)l4,i,j,k,l,x
-10001    format(i8,4(i4,1x)5x,'eri = ',1pde20)
+10001    format(i8,4(i4,1x),5x,'eri = ',1pd20.10)
        endif
         x2    = x*x
         denom = 1.0d00 + x2
