@@ -2,7 +2,7 @@
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,izmat,zmat,mzmat,nzmat,
      + fils)
 c
-c $Id: pre_frgrd.F,v 1.9 2003-08-01 06:40:12 d3j191 Exp $
+c $Id: pre_frgrd.F,v 1.10 2003-08-01 23:35:55 d3j191 Exp $
 c
 c     function to read dimensions from a frg file
 c
@@ -58,6 +58,7 @@ c
 c
       do 101 i=1,nparms
       read(lfn,1000) fils(i)
+      print*,fils(i)
   101 continue
 c
       do 2 i=1,natm
