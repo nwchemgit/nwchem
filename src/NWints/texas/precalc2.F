@@ -19,7 +19,7 @@ c---------------------------------------
 c---------------------------------------
 c get : nij_uniqe=no of unique pairs and the pointer to the list
 c
-      call get_uniq(ibl,nij_uniqe,ij_uniqe_p,bl)
+c10   call get_uniq(ibl,nij_uniqe,ij_uniqe_p,bl)
 c
 c nij_uniqe = number of uniqe pairs in ibl block of pairs
 c (no of present pairs)
@@ -65,7 +65,7 @@ c
 c---------------------------------------
       call txs_second(tprec2b)
 c---------------------------------------
-      call get_uniq(kbl,nkl_uniqe,kl_uniqe_p,bl)
+c10   call get_uniq(kbl,nkl_uniqe,kl_uniqe_p,bl)
 c---------------------------------------
       call dimenij(kbl,inx,nkl_uniqe,nblock1,kldim,klcont)
 c---------------------------------------
@@ -283,11 +283,6 @@ c
 c
       dimension bl(*), inx(12,*)
 c---------------------------------------------------------------
-c get unique pairs :
-c
-c     call get_uniq(ibl,nij_uniqe,ij_uniqe_p,bl)
-c     call get_uniq(kbl,nkl_uniqe,kl_uniqe_p,bl)
-c---------------------------------------------------------------
 c precalculations for pairs ij
 c
       call precal2x_1(iabprim,ijdim,iapb,i1apb,isab)
@@ -309,11 +304,11 @@ c for abnia
 c----------------------------------------
 c precalculations for pairs kl
 c
-      if(kbl.eq.ibl) then
-          kabprim=iabprim
-          kldim  =ijdim
-      endif
-      if(npkl.ne.0) then
+c10   if(kbl.eq.ibl) then
+c10       kabprim=iabprim
+c10       kldim  =ijdim
+c10   endif
+c10   if(npkl.ne.0) then
           call precal2x_1(kabprim,kldim,icpd,i1cpd,iscd)
 c
           lpartot=lpartot+1
@@ -330,9 +325,9 @@ c for cdnia
             call precal2b_1(mmax1,lckl,bl(i1cpd), bl(icdnia),
      *                      nkl_uniqe,bl(kl_uniqe_p))
          endif
-      else
-          call precdiag
-      endif
+c10   else
+c10       call precdiag
+c10   endif
 c----------------------------------------
 c for habcd
 c
@@ -796,7 +791,7 @@ c
          estim=esti1*esti2*abpcdr
          if(estim.gt.epsr) then
             coef12=coef1*coef2
-            if(ndiag.eq.0) coef12=coef12*par268
+c10         if(ndiag.eq.0) coef12=coef12*par268
             ijkl1=ijkl1+1
             index(ijkl1)=ijklp
 c
@@ -902,7 +897,7 @@ c
          estim=esti1*esti2*abpcdr
          if(estim.gt.epsr) then
             coef12=coef1*coef2
-            if(ndiag.eq.0) coef12=coef12*par268
+c10         if(ndiag.eq.0) coef12=coef12*par268
             ijkl1=ijkl1+1
             index(ijkl1)=ijklp
 c
@@ -1378,11 +1373,6 @@ c
 c
       dimension bl(*), inx(12,*)
 c---------------------------------------------------------------
-c get unique pairs :
-c
-c     call get_uniq(ibl,nij_uniqe,ij_uniqe_p,bl)
-c     call get_uniq(kbl,nkl_uniqe,kl_uniqe_p,bl)
-c---------------------------------------------------------------
 c precalculations for pairs ij
 c
       call precal2x_2(iabprim,lcij,iapb,i1apb,isab)
@@ -1403,11 +1393,11 @@ c for abnia
 c----------------------------------------
 c precalculations for pairs kl
 c
-      if(kbl.eq.ibl) then
-          kabprim=iabprim
-          kldim  =ijdim
-      endif
-      if(npkl.ne.0) then
+c10   if(kbl.eq.ibl) then
+c10       kabprim=iabprim
+c10       kldim  =ijdim
+c10   endif
+c10   if(npkl.ne.0) then
           call precal2x_2(kabprim,lckl,icpd,i1cpd,iscd)
 c
           lpartot=lpartot+1
@@ -1424,9 +1414,9 @@ c for cdnia
          if(mmax.gt.2) then
             call precal2b_2(mmax1,lckl, bl(i1cpd),bl(icdnia))
          endif
-      else
-          call precdiag
-      endif
+c10   else
+c10       call precdiag
+c10   endif
 c----------------------------------------
 c for habcd
 c
@@ -1874,7 +1864,7 @@ c
          estim=esti1*esti2*abpcdr
          if(estim.gt.epsr) then
             coef12=coef1*coef2
-            if(ndiag.eq.0) coef12=coef12*par268
+c10         if(ndiag.eq.0) coef12=coef12*par268
             ijkl1=ijkl1+1
             index(ijkl1)=ijklp
 c
@@ -1966,7 +1956,7 @@ c
          estim=esti1*esti2*abpcdr
          if(estim.gt.epsr) then
             coef12=coef1*coef2
-            if(ndiag.eq.0) coef12=coef12*par268
+c10         if(ndiag.eq.0) coef12=coef12*par268
             ijkl1=ijkl1+1
             index(ijkl1)=ijklp
 c     

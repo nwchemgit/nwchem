@@ -219,8 +219,8 @@ c----------------------------------------------------------------
       ncall_pnl=ncall_pnl+1
       nqrts_pnl=nqrts_pnl+nquart
 ctest
-c      write(6,*)' call no=',ncall_pnl,' scratch size=',l_blscr
-c----------------------------------------------------------------
+c     write(6,*)
+c    * ' call no=',ncall_pnl,' nquart=',nquart,' nq_tot=',nqrts_pnl
 c----------------------------------------------------------------
 c if use_r is true replace current coordinates by Ra-Rd
 c
@@ -237,6 +237,10 @@ c
       call txs_setup(bl,inx,ncs,leri,
      *               nquart,icspnl,jcspnl,kcspnl,lcspnl,labels,
      *               more_int)
+ctest
+c       call texas_terminate()
+c       stop 'stopped by kw after txs_setup'
+ctest
 c
 c 11 calls to getmem 
 c 12 calls to getmem
@@ -244,7 +248,7 @@ c if(.not.labels) +1 call to getmem
 c----------------------------------------------------------------
 c if this pnl-request is too big (too many integrals at once) 
 c
-      npart_pnl=npart_pnl+(isplit+1)
+cccc  npart_pnl=npart_pnl+(isplit+1)
       if( isplit.gt.0 ) then
           more_int=.true.
           nsplit=0
@@ -285,9 +289,11 @@ c
 c
       if(.not.more_int) then
          if(.not.labels) then
-            call retmem(13)
+c10         call retmem(13)
+            call retmem(11)
          else
-            call retmem(12)
+c10         call retmem(12)
+            call retmem(10)
          endif
 c----------------------------------------------------------------
 c if use_r is true return original coordinates 
@@ -471,24 +477,21 @@ c
      *                    bl(iqorder),ngcont)
 c       1 call to getmem
       endif
-c--------------------------------------------------------
-c update number of pairs from TXS to current PNL (NPAR) :
-c
-      call uniq_pairs(bl,nbl2,bl(npard),
-     *     bl(ijblock),bl(klblock),bl(ijpres2),bl(klpres2),
-     *     bl(isblsize),bl(isblqrts) )
-c       2 call to getmem
 c---------------------------------------------------------
+c calculate the pointer to the block's quartets 
+c (to eliminate calcul. in the get_nbls_pnl routine)
+c
+      call memo1_int(nsupblk,isblpoint)
+      call supblks_point(nsupblk,bl(isblsize),bl(isblpoint))
+c--------------------------------------------------------
 c check current sizes of super-blocks against maximum sizes
 c and available size of integral's buffer (leri):
 c (maximum sizes calculated in blksizer (spec_block.f) )
 c
       call memo1_int(nsupblk,isbl_part)
-c
-      call supblks_split(bl(mxsize),leri,inx,
-     *                   bl(nblock1),nbl2,
-     *     bl(ijpres2),bl(klpres2),bl(isblsize),bl(isbl_part),
-     *     more_int)
+      call supblks_split(bl(mxsize),leri,inx, bl(nblock1),nbl2,
+     *        bl(isblqrts),bl(isblpoint),
+     *        bl(ijpres2),bl(klpres2),bl(isblsize),bl(isbl_part))
 c---------------------------------------------------------
 c calculate the size of the request and split it if needed
 c
@@ -500,12 +503,6 @@ c
 c
       call retmem(1)
       call memo1_int(isplit+2, isbl_split)
-c---------------------------------------------------------
-c calculate the pointer to the block's quartets 
-c (to eliminate calcul. in the get_nbls_pnl routine)
-c
-      call memo1_int(nsupblk,isblpoint)
-      call supblks_point(nsupblk,bl(isblsize),bl(isblpoint))
 c--------------------------------------------------------
       end
 c==================================================================
@@ -939,21 +936,25 @@ c
 c
       end
 c=====================================================================
-      subroutine supblks_split(maxsize,leri,inx,
-     *                         nblock1,nbl2,
-     *                         ijpres2,klpres2,isbl_s,isbl_part,
-     *                         more_int)
+      subroutine supblks_split(maxsize,leri,inx, nblock1,nbl2,
+     *                         isbl_q,isbl_point,
+     *                         ijpres2,klpres2,isbl_s,isbl_part)
 c--------------------------------------------------------------------
 c this routine is called for every new PNL request i.e when
 c more_int=.false.
 c--------------------------------------------------------------------
-      logical more_int
+      implicit real*8 (a-h,o-z)
+c this is maximum pairs allowed ; must be: maxpar.le.limpair
+      common /max_pairs/ maxpar   
+      common /intlim/ limxmem,limblks,limpair
+c
       common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
       dimension maxsize(*)
       dimension inx(12,*),nblock1(*)
       dimension isbl_s(*) ! dimension nbl2*(nbl2+1)/2  num of super-blks
       dimension ijpres2(*),klpres2(*)  ! dimension nquart
       dimension isbl_part(*)  ! dimension nbl2*(nbl2+1)/2
+      dimension isbl_q(*), isbl_point(*)
 c---------------------------------------------------------------------
 c for derivatives of all kinds :
       common /memmax/ ispblx, maxme1,iforwhat
@@ -973,6 +974,15 @@ c---------------------------------------------------------------------
             isbl_part(isupb)=1
             isbl_size=isbl_s(isupb)
             if(isbl_size.gt.0) then
+c--new
+               ipoint=isbl_point(isupb)
+c
+c find all (different) pairs in Ibl,Kbl : only an estimate
+c
+               call diff_pairs_1(ijpres2,klpres2,
+     *                           isbl_size,isbl_q,ipoint,
+     *                           nij_diff,nkl_diff)
+c--new
                maxm_size=maxsize(isupb)
                call get_ics_jcs(nblock1,kbl,1,kcs1,lcs1)
                icont_kl=(inx(4,kcs1)+1)*(inx(4,lcs1)+1)
@@ -980,7 +990,6 @@ c---------------------------------------------------------------------
                integ1=integ_ij*integ_kl
 c
                integ1=integ1*n_times  ! derivatives
-c
                integ=integ1*maxm_size
 c
 c first re-define maximum size according to leri :
@@ -994,11 +1003,47 @@ c split each super-block in parts if its current pnl-size is greater
 c than maximum-size allowed :
 c
                maxm_size=maxsize(isupb)
-               if(isbl_size.gt.maxm_size) then
-                  nparts=isbl_size/maxm_size
-                  nrem=mod(isbl_size,maxm_size)
-                  if(nrem.gt.0) nparts=nparts+1
+c----------------------------------------------
+c              if(isbl_size.gt.maxm_size) then
+c                 nparts=isbl_size/maxm_size
+c                 nrem=mod(isbl_size,maxm_size)
+c                 if(nrem.gt.0) nparts=nparts+1
+c                 isbl_part(isupb)=nparts
+c              endif
+c----------------------------------------------
+c
+ctest print
+c              write(6,*)'block=',isupb,' size=',isbl_size,
+c    *                              ' max_size=',maxm_size,
+c    *       ' pairs: limit=',limpair,
+c    *               ' diff=',nij_diff,nkl_diff
+c
+ctest print
+c
+               if(isbl_size.gt.maxm_size .or.
+     *            nij_diff .gt.maxpar   .or.
+     *            nkl_diff .gt.maxpar       ) then
+c
+                  npq=isbl_size/maxm_size
+                  np1=nij_diff/maxpar
+                  np2=nkl_diff/maxpar
+                  nrq=mod(isbl_size,maxm_size)
+                  nr1=mod(nij_diff,maxpar)
+                  nr2=mod(nkl_diff,maxpar)
+                  if(nrq.gt.0) npq=npq+1
+                  if(nr1.gt.0) np1=np1+1
+                  if(nr2.gt.0) np2=np2+1
+c
+                  nparts=max(npq,np1,np2)
                   isbl_part(isupb)=nparts
+c
+                  nqrts=isbl_size/nparts
+                  if(nquarts.le.0) nqrts=1
+                  maxsize(isupb)=nqrts
+c
+ctest
+c                write(6,*)'npq,np1,np2=',npq,np1,np2,' nparts=',nparts
+ctest
                endif
             endif
    10    continue
@@ -1041,6 +1086,9 @@ c
          isbl_size=isbl_s(isupb)
          nparts=isbl_part(isupb)
          if(isbl_size.eq.0) go to 60
+ctest
+cc       write(6,*)'block=',isupb,' size=',isbl_size,' nparts=',nparts
+ctest
 c
            iq1=isbl_q(ipoint+1)
            ijcs1=ijpres2(iq1)
@@ -1067,8 +1115,7 @@ c
                  integrals=integrals+integ
               endif
            else 
-c  splitting inside of one super-block :
-c force splitting :
+c  splitting inside of one super-block : force splitting :
               integrals=leri
               itotal=itotal+nparts
               isplit=isplit+1
@@ -1082,6 +1129,8 @@ c
          isbl_split(0)=1
          isbl_split(isplit+1)=isblast+1
 c
+c---------------------------------------------------------
+         npart_pnl=npart_pnl+itotal+1    
 c---------------------------------------------------------
 ccc   if( isplit.gt.0 ) then
 ccc    if(ncall_pnl.eq.3) then
@@ -1099,8 +1148,7 @@ c=====================================================================
       subroutine supblks_point(nsupblk,isbl_size,isbl_point)
       dimension isbl_size(*), isbl_point(*)
 c
-c calculates the pointer to block's quartets 
-c    - iq=isbl_q(IPOINT+iqp)
+c calculates the pointer to block's quartets : iq=isbl_q(IPOINT+iqp)
 c
          ipoint=0
          isbl_point(1)=0
@@ -1472,4 +1520,33 @@ c
       jcs=jshell+jcs_b -1
 c
       end
-c-----------------------------------------------------------------
+c==================================================================
+      subroutine diff_pairs_1(ijpres2,klpres2,
+     *                       isbl_size,isbl_q,ipoint,
+     *                       nij_diff,nkl_diff)
+      dimension ijpres2(*),klpres2(*), isbl_q(*)
+c
+      ij_prev=-1
+      kl_prev=-1
+      ij=0
+      kl=0
+      do iqp=1,isbl_size
+         iq=isbl_q(ipoint+iqp)
+         if(iq.gt.0) then
+            ijcs=ijpres2(iq)
+            if(ijcs.ne.ij_prev) then
+               ij=ij+1
+               ij_prev=ijcs
+            endif
+            klcs=klpres2(iq)
+            if(klcs.ne.kl_prev) then
+               kl=kl+1
+               kl_prev=klcs
+            endif
+         endif
+      enddo
+c
+      nij_diff=ij
+      nkl_diff=kl
+c
+      end

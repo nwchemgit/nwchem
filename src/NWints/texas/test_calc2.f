@@ -9,13 +9,9 @@ c
 c-----------------------------------
 c ordinary four center two-electron integrals
 c-----------------------------------
-c     parameter (leri= 2 000 000) 
-c     parameter (nquart=1000)
-c     parameter(l_blscr=3 000 000)
       parameter (leri= 100 000) 
-ccc   parameter (nquart=1000)
-      parameter (nquart=1000)
-      parameter(l_blscr= 500 000)
+      parameter (nquart=10 000)
+      parameter(l_blscr=1 000 000)
 c-----------------------------------
       common /multi_basis/ num_bas_1,num_bas_2,num_bas_3,
      *                     ncs_bas_1,ncs_bas_2,ncs_bas_3,
@@ -39,6 +35,7 @@ c-------------------------
 c--------------------------------------------------------------
       write(6,*) '-------------------------------'
       write(6,*) '***   ENTERING TEST_CENT4   ***'
+      write(6,*) 'predic. l_blsize=',l_blsize,' used  l_blscr=',l_blscr
       write(6,*) '-------------------------------'
 c--------------------------------------------------------------
       call txs_second(tcal1)
@@ -104,66 +101,7 @@ c
       ijkl=0
       ijsh=0
       ish=0
-c------------------TEST---------------
-c------------------TEST---------------
-c
-c               nqrt=1
-c                 ics(nqrt)=4   
-c                 jcs(nqrt)=3
-c                 kcs(nqrt)=2
-c                 lcs(nqrt)=1
-c                    ncalls=ncalls+1
-c                    write(6,*)'* texas_hf called ',ncalls,' time *'
-c                    call texas_hf2_m(ij_basis,ics,jcs,kl_basis,kcs,lcs,
-c    *                     nqrt,q4,.false.,
-c    *                     ra,rb,rc,rd,.false., eri,leri,
-c    *                     icf,jcf,kcf,lcf,integ_n0,.true.,
-c??? *                     icf,jcf,kcf,lcf,integ_n0,.false.,
-c    *                     more_int,blscr,l_blscr,0.0d0,'scfd_int')
-ccc  *                     more_int,blscr,l_blscr,0.0d0,'der1_int')
-ccc  *                     more_int,blscr,l_blscr,0.0d0,'der2_int')
-c       call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
-ccc     call print_int2(ncall,eri,leri,ics,jcs,kcs,lcs,integ_n0,
-ccc  *                      nqrt)
-c
-                nqrt=1
-                  ics(nqrt)=4   
-                  jcs(nqrt)=3
-                  kcs(nqrt)=2
-                  lcs(nqrt)=1
-                     ncalls=ncalls+1
-                     write(6,*)'* texas_hf called ',ncalls,' time *'
-                     call texas_hf2_m(ij_basis,ics,jcs,kl_basis,kcs,lcs,
-     *                     nqrt,q4,.false.,
-     *                     ra,rb,rc,rd,.false., eri,leri,
-ctest*                     icf,jcf,kcf,lcf,integ_n0,.true.,
-     *                     icf,jcf,kcf,lcf,integ_n0,.false.,
-ccc  *                     more_int,blscr,l_blscr,0.0d0,'scfd_int')
-     *                     more_int,blscr,l_blscr,0.0d0,'der1_int')
-ccc  *                     more_int,blscr,l_blscr,0.0d0,'der2_int')
-ccc     call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
-c
-                nqrt=1
-                  ics(nqrt)=4   
-                  jcs(nqrt)=3
-                  kcs(nqrt)=2
-                  lcs(nqrt)=1
-                     ncalls=ncalls+1
-                     write(6,*)'* texas_hf called ',ncalls,' time *'
-                     call texas_hf2_m(ij_basis,ics,jcs,kl_basis,kcs,lcs,
-     *                     nqrt,q4,.false.,
-     *                     ra,rb,rc,rd,.false., eri,leri,
-ctest*                     icf,jcf,kcf,lcf,integ_n0,.true.,
-     *                     icf,jcf,kcf,lcf,integ_n0,.false.,
-ccc  *                     more_int,blscr,l_blscr,0.0d0,'scfd_int')
-ccc  *                     more_int,blscr,l_blscr,0.0d0,'der1_int')
-     *                     more_int,blscr,l_blscr,0.0d0,'der2_int')
-ccc     call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
-c
-       RETURN
-c
-c------------------TEST---------------
-c------------------TEST---------------
+c-------------------------
       nqrt=0
       do 100 ish1=ish_b,ish_e
       ish=ish+1
@@ -202,7 +140,7 @@ CCC  *                     nqrt,q4,use_q4,
 ccc  *                     more_int,blscr,l_blscr,0.0d0,'der1_int')
 ccc  *                     more_int,blscr,l_blscr,0.0d0,'der2_int')
 c
-        call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
+ccc     call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sums(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
                      integrals=integrals+integ_n0
                      if(more_int) go to 451
@@ -223,7 +161,7 @@ CCC  *                     nqrt,q4,use_q4,
      *                     more_int,blscr,l_blscr,0.0d0,'scfd_int')
 ccc  *                     more_int,blscr,l_blscr,0.0d0,'der1_int')
 ccc  *                     more_int,blscr,l_blscr,0.0d0,'der2_int')
-        call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
+cccccc  call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sums(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
                      integrals=integrals+integ_n0
                      if(more_int) go to 452

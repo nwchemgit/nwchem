@@ -63,8 +63,6 @@ c===============================================================
      *           nblock1,nblock1_back,npard,mxsize,    ! output
      *                   nbl1,nbl2,nbl4)               ! output
       implicit real*8 (a-h,o-z)
-c May96 :to be used in txs_scratch_siz2 routine to estimate memory :
-      common /max_pairs/ maxpar
       common /route/ iroute
 c save sizes :
       common /memor1_S/ npard_S,mxsize_S,nblock1_S,nblock1_back_S
@@ -79,14 +77,13 @@ c------------------------------------------------
 c make blocks of single shells :
 c
       call blk_shells(ncs,inx,iroute,datnuc,datbas,
-     *                bl(nblock1),nbl1,nbl2,nbl4,maxpar)
+     *                bl(nblock1),nbl1,nbl2,nbl4)
 c
 c output : nblock1(i-1)+1  : first shell in i-blck1   
 c output : nblock1(i)      : last  shell in i-blck1   
 c output : nbl1 - number of blocks of shells
 c output : nbl2 - number of blocks of shell-pairs 
 c output : nbl4 - number of blocks of shell-quartets
-c output : maxpar-maximum number of pairs in blokcs of pairs
 c------------------------------------------------
 c make nblock1_back(*) array
 c
@@ -131,6 +128,8 @@ c and HESSIAN  derivatives.
 c-----------------------------------------------------------
       implicit real*8 (a-h,o-z)
       logical firstd
+c this is maximum pairs ALLOWED ; must be: maxpar.le.limpair
+      common /max_pairs/ maxpar   
 c
 c absolute limits 
       common /intlim/ limxmem,limblks,limpair
@@ -148,6 +147,51 @@ c
       dimension mxsize(*)
 c
 c-----------------------------------------------------
+c total memory allowed for texas (limxmem) should be
+c decreased here by an amount needed latter in txs_setup
+c (roughly = 2*nbl2 + 4*nbl4 + 4*nqrt_pnl_request)
+c
+      nbl4=nbl2*(nbl2+1)/2
+      mem_txsetup= 4*10000+2*nbl2+4*nbl4 
+      mem_txsetup=mem_txsetup/intsize + 11   ! 11 allocations
+c
+      limxmem_here=limxmem - mem_txsetup
+c
+      if(limxmem.le.0) then
+        write(6,*)'memory limit for texas will be more likely exceeded'
+        limxmem_here=limxmem
+      endif
+c-----------------------------------------------------
+c Total memory needed for one block :
+c
+c iroute=1:
+c
+c          memory=7
+c                +ijpar*mem2ij+klpar*mem2kl+nquart*(3+mem4)
+c
+c and additional ij- or kl-terms
+c
+c                +ijpar*(3*lcij + 3*nfha*lcij)
+c          or
+c                +klpar*(3*lckl + 3*nfha*lckl) 
+c
+c-----------------------------------------------------
+c iroute=2:
+c
+c          memory=7
+c                +ijpar*mem2ij+klpar*mem2kl+nquart*(3+mem4)
+c
+c and additional ij- or kl-terms  
+c
+c                +ijpar*(1*lcij)
+c                +klpar*(1*lckl)
+c
+c and the constant part
+c
+c                +4*(ngcd+1) + 3*nfha
+c                + lci+lcj+lcij + mmax1*lcij
+c                + lck+lcl+lckl + mmax1*lckl
+c-----------------------------------------------------
 c  iforwhat shows what the Blockin2 routins are called for :
 c  1) for ordinary two-el.integrals (ifor=1)
 c  2) for GIAO two-el. derivatives  (ifor=2)
@@ -156,190 +200,300 @@ c  4) for second derivatives        (ifor=4)
 c
 c  This is used to send info about memory to the Calcint2
 c-----------------------------------------------------
-c  Sets up the MXSIZE(*) array 
+c  Set up the MXSIZE(*) array, find MAXPAR (allowed)
 c
-c
+      maxpar_allowed=1 000 000
+      max_111=0    ! memory for 1-ij,1-kl & 1-ijkl in a block 
       nblsmax=0
       nblsmin=1 000 000   
-      maxme1=0
-      nbloks=0     ! counter of all blocks
+      maxme1=0     ! output: maximum memory needed for a block
+      maxqrt=0     ! output: overall maximum number of quartets
+c                            to be handled at once
+c
       nbl12=0      ! counter of super-blocks
       do 100 ibl=1,nbl2
-      ijpar=npar(ibl)
-cnew  only first pair in a block:
-      call get_ics_jcs(nblock1,ibl,  1  ,ics1,jcs1)
+         ijpar_all=npar(ibl)
 c
-      itype=inx(12,ics1)
-      jtype=inx(12,jcs1)
-      itype1=itype
-      jtype1=jtype
-      if(itype.gt.4) itype1=itype-1
-      if(jtype.gt.4) jtype1=jtype-1
-      if(itype1.gt.5) itype1=itype1-1
-      if(jtype1.gt.5) jtype1=jtype1-1
-      nfij=lenn(itype1)*lenn(jtype1)
+cnew     only first pair in a block:
+         call get_ics_jcs(nblock1,ibl,  1  ,ics1,jcs1)
 c
-      lci=inx(5,ics1)-inx(1,ics1)
-      lcj=inx(5,jcs1)-inx(1,jcs1)
+         itype=inx(12,ics1)
+         jtype=inx(12,jcs1)
+         itype1=itype
+         jtype1=jtype
+         if(itype.gt.4) itype1=itype-1
+         if(jtype.gt.4) jtype1=jtype-1
+         if(itype1.gt.5) itype1=itype1-1
+         if(jtype1.gt.5) jtype1=jtype1-1
+         nfij=lenn(itype1)*lenn(jtype1)
 c
-      ngci=inx(4,ics1)
-      ngcj=inx(4,jcs1)
+         lci=inx(5,ics1)-inx(1,ics1)
+         lcj=inx(5,jcs1)-inx(1,jcs1)
 c
-      do 100 kbl=1,ibl     
-      nbl12=nbl12+1
+         ngci=inx(4,ics1)
+         ngcj=inx(4,jcs1)
 c
-      klpar=npar(kbl)
+         do 100 kbl=1,ibl     
+            nbl12=nbl12+1
+c
+            klpar_all=npar(kbl)
+c
 cnew
-      call get_ics_jcs(nblock1,kbl,  1  ,kcs1,lcs1)
+            call get_ics_jcs(nblock1,kbl,  1  ,kcs1,lcs1)
 c
-      ktype=inx(12,kcs1)
-      ltype=inx(12,lcs1)
+            ktype=inx(12,kcs1)
+            ltype=inx(12,lcs1)
 c
-      ktype1=ktype
-      ltype1=ltype
-      if(ktype.gt.4)  ktype1=ktype-1
-      if(ltype.gt.4)  ltype1=ltype-1
-      if(ktype1.gt.5) ktype1=ktype1-1
-      if(ltype1.gt.5) ltype1=ltype1-1
-      nfkl=lenn(ktype1)*lenn(ltype1)
-      nfijkl=nfij*nfkl
+            ktype1=ktype
+            ltype1=ltype
+            if(ktype.gt.4)  ktype1=ktype-1
+            if(ltype.gt.4)  ltype1=ltype-1
+            if(ktype1.gt.5) ktype1=ktype1-1
+            if(ltype1.gt.5) ltype1=ltype1-1
+            nfkl=lenn(ktype1)*lenn(ltype1)
+            nfijkl=nfij*nfkl
 c 
-      lck=inx(5,kcs1)-inx(1,kcs1)
-      lcl=inx(5,lcs1)-inx(1,lcs1)
+            lck=inx(5,kcs1)-inx(1,kcs1)
+            lcl=inx(5,lcs1)-inx(1,lcs1)
 c
-      ngck=inx(4,kcs1)
-      ngcl=inx(4,lcs1)
+            ngck=inx(4,kcs1)
+            ngcl=inx(4,lcs1)
 c-------------------------------------------------
-      nquart_all=ijpar*klpar
-      if(ibl.eq.kbl) nquart_all=ijpar*(ijpar+1)/2
+c total number of pairs in ibl & kbl blocks of pairs 
 c
-c maximum pairs allowed by the input limit 
-c for pairs/pair-block
+c maximum pairs allowed by the input limit for pairs/pair-block
 c
-      ijpar_lim=ijpar
-      klpar_lim=klpar
-      if(ijpar.gt.limpair) ijpar_lim=limpair
-      if(klpar.gt.limpair) klpar_lim=limpair
+            ijpar_lim=limpair
+            klpar_lim=limpair
 c
-c     if(ibl.eq.kbl) nquart_lim=ijpar_lim*(ijpar_lim+1)/2
+c           if(ibl.eq.kbl) nquart_lim=ijpar_lim*(ijpar_lim+1)/2
 c
-      nquart_lim=ijpar_lim*klpar_lim
-c
-      nquart=min(nquart_all,nquart_lim)
-c
-      ijpar=ijpar_lim
-      klpar=klpar_lim
-c
-ctest
-c     write(6,*) 'blksizer:block=',nbl12,
-c    *  ' nquart_all=',nquart_all,' nquart_lim=',nquart_lim
-ctest
+            nquart_lim=ijpar_lim*klpar_lim
 c-------------------------------------------------
-c maximum block-size allowed by the cache size
+c maximum block-size (number of quartets) allowed by the cache size
 c
-      maxsize=       icache /nfijkl
-      if(maxsize.eq.0) maxsize=1
+c...        maxsize= icache /nfijkl
+c...        if(maxsize.eq.0) maxsize=1
+c
+            nquart_cache= icache /nfijkl
+            if(nquart_cache.eq.0) nquart_cache=1
 c
 c maximum block-size allowed by the input limit 
-c for quartets/block
+c......     if(maxsize.gt.limblks) maxsize=limblks
 c
-      if(maxsize.gt.limblks) maxsize=limblks
+            nquart_inp=limblks
 c
 c maximum block-size according to the current task
 c i.e. to the number of quartets of the same type
 c
-      mxsize(nbl12)=min(maxsize,nquart)
-c------------------------------------------------
-c calculate maximum memory needed for one block :
-c 1) for ordinary two-el.integrals (ifor=1)
-c 2) for GIAO two-el. derivatives  (ifor=2)
-c 3) for gradient derivatives      (ifor=3)
-c 4) for second derivatives        (ifor=4)
-c------------------------------------------------
+            nquart_all=ijpar_all*klpar_all
+            if(ibl.eq.kbl) nquart_all=ijpar_all*(ijpar_all+1)/2
 c
-      IF( iroute.eq.1 ) THEN
-        call blksize1(ibl,kbl,ijpar,klpar,itype1,jtype1,ktype1,ltype1,
-     *                lci,lcj,lck,lcl, ngci,ngcj,ngck,ngcl,
-     *                memor2,memor2ij,memor2kl,memor4,iforwhat)
-      ELSE
-        call blksize2(ibl,kbl,ijpar,klpar,itype1,jtype1,ktype1,ltype1,
-     *                lci,lcj,lck,lcl, ngci,ngcj,ngck,ngcl,
-     *                memor2,memor2ij,memor2kl,memor4,iforwhat)
-      ENDIF
-c     write(6,*)'block=',nbl12,'  memor2,memor2ij,memor2kl,memor4 =',
-c    *                            memor2,memor2ij,memor2kl,memor4
-c-------------------------------------------------
-      ikbl=0       !counter of blocks belonging to one super-block
-      maxmem=0
-      maxqrt=0
-      ikbl=ikbl+1  !always =1 for pnl
-c-------------------------------------------------
-c put the upper limit on the maxmem :
-c-->  mqrt1=memor2ij+memor2kl+memor4
-c memory for ONE quartet and one pair in block2 :
+            maxsize=min(nquart_all  ,nquart_lim,
+     *                  nquart_cache,nquart_inp)
 c
-      mqrt1=memor2ij+memor2kl+ memor4
-      if(mqrt1.ge.limxmem) then
-        write(6,*)'A block with only one quartet needs more memory than'
-        write(6,*)'the upper limit for a whole block given in the input'
-        write(6,*)'input data =',limxmem,' request for 1 quart.=',mqrt1
+c------------------------------------------------
+ctest
+c     write(6,*) 'blksizer:block=',nbl12,
+c    *  ' all pairs=',ijpar_all,klpar_all,
+c    *  ' lim pairs=',ijpar_lim,klpar_lim,
+c    *  ' nquart_all=',nquart_all,' nquart_lim=',nquart_lim
+ctest
+c-------------------------------------------------
+c calculate memory needed for one ij-, one kl-pair 
+c and for one quartet in a given block :
+c
+            IF( iroute.eq.1 ) THEN
+              call blksize1(itype1,jtype1,ktype1,ltype1,
+     *                lci,lcj,lck,lcl, ngci,ngcj,ngck,ngcl,
+     *                memor_const,memor2ij,memor2kl,memor4,iforwhat)
+c
+            ELSE
+              call blksize2(itype1,jtype1,ktype1,ltype1,
+     *                lci,lcj,lck,lcl, ngci,ngcj,ngck,ngcl,
+     *                memor_const,memor2ij,memor2kl,memor4,iforwhat)
+            ENDIF
+ctest
+c     write(6,*)'block=',nbl12,'  memorC,memor2ij,memor2kl,memor4 =',
+c    *                       memor_const,memor2ij,memor2kl,memor4
+c-------------------------------------------------
+c total memory can be now expressed as:
+c
+c memory = memor_const +ijpar*memor2ij +klpar*memor2kl +nqrts*memor4 
+c
+c use this formula for memory estimation 
+c-------------------------------------------------
+c check limxmem versus memor_const :
+c
+      if(memor_const.gt.limxmem) then
+        write(6,*)'not enough memory allowed by limxmem'
+        write(6,*)'     memor_const .gt. limxmem'
+        write(6,*)'program stoped in the Blksizer routine'
+        call errquit('texas:blksizer', 0)
+      endif
+c-------------------------------------------------
+c check if there is enough memory (limxmem) to handle only 
+c ONE ij-pair , ONE kl-pair and ONE quartet :
+c
+c memory for 1 ij-pair, 1 kl-pair and 1 quartet in this quartet-block
+c
+      memory_111= memor_const +memor2ij +memor2kl +memor4 
+      if(memory_111.ge.limxmem) then
+        write(6,*)'A block with only 1 ij-pair, 1 kl-pair and 1 quartet'
+        write(6,*)'requires more memory than the input-upper-limit     '
+        write(6,*)'input limit =',limxmem,' requested =',memory_111
         write(6,*)'     Change the value of LIMXMEM '
         write(6,*)'program stoped in the Blksizer routine'
         call errquit('texas:blksizer', 0)
-cccc     stop 'blksizer'
       endif
-c----------------------------------------------
-c redefine maximum block-szie according to the memory limit :
 c
-      memorx=ijpar*memor2ij+klpar*memor2kl+ mxsize(nbl12)*memor4
-      if(memorx.gt.limxmem) then
-         mxqrts=(limxmem-ijpar*memor2ij-klpar*memor2kl)/memor4
-         if(mxqrts.le.0) mxqrts=1
-         if(mxqrts.gt.limblks) mxqrts=limblks
-c        write(6,*)' blksizer : sup-blk=',nbl12,' full size=',
-c    *   nquart_all   ,' memory needed=',memorx,' memory limit=',limxmem
-c        write(6,*)' max.size changed from ',mxsize(nbl12),' to',mxqrts
-         mxsize(nbl12)=mxqrts
-      endif
-c----------------------------------------------
+      if(memory_111.gt.max_111) max_111=memory_111
+c-------------------------------------------------
+c assume scf scenario : ijpar=klpar, nquart=ijpar*klpar
+c
+c limxmem=memor_const + x*(memor2ij+memor2kl)+x*x *memor4
+c
+      b  =dble(memor2ij+memor2kl)
+      bb =b*b
+      ac4=dble( 4*memor4)*dble(memor_const-limxmem_here) 
+      a2 =dble( 2*memor4 )
+c
+      x=( sqrt(bb-ac4)-b )/a2
+      if(x.le.0.d0) x=1.d0
+c
+      ijpar=int(x)
+      klpar=ijpar
+      nquart=ijpar*klpar
+c
+      ijpar_s=ijpar
+      klpar_s=klpar
+      nquart_s=nquart
+ctest
+c     memory_scf=memor_const+ijpar*memor2ij+klpar*memor2kl+nquart*memor4
+c     write(6,*)' scf scenario: ij,kl,nq=',ijpar,klpar,nquart,
+c    *                        ' memory  =',memory_scf
+ctest
+c-------------------------------------------------
+c assume nnn scenario : ij=kl=nquart=x 
+c
+c limxmem=memor_const + x*(memor2ij+memor2kl+memor4)
+c
+      x=dble(limxmem_here-memor_const)/dble(memor2ij+memor2kl+memor4)
+c
+      ijpar=int(x)
+      klpar=ijpar
+      nquart=klpar
+ctest
+c     memory_nnn=memor_const+ijpar*memor2ij+klpar*memor2kl+nquart*memor4
+c     write(6,*)' nnn scenario: ij,kl,nq=',ijpar,klpar,nquart,
+c    *                        ' memory  =',memory_nnn
+ctest
+c
+      ijpar_n=ijpar
+      klpar_n=klpar
+      nquart_n=nquart
+c-------------------------------------------------
+c assume mp2 scenario : a few (1) ij and a lot of kl, nq=kl
+c
+c limxmem=memor_const + memor2ij + x*memor2kl +x*memor4
+c
+c     x=dble(limxmem_here-memor_const - memor2ij)/dble(memor2kl+memor4)
+c
+c     ijpar=1
+c     klpar=int(x)
+c     nquart=klpar
+c
+c     ijpar_m=ijpar
+c     klpar_m=klpar
+c     nquart_m=nquart
+ctest
+c     memory_mp2=memor_const+      memor2ij+klpar*memor2kl+nquart*memor4
+c23456789.123456789.123456789.123456789.123456789.123456789.123456789.12
+c     write(6,*)' mp2 scenario: ij,kl,nq=',ijpar,klpar,nquart,
+c    *                        ' memory  =',memory_mp2
+c-------------------------------------------------
+c try to average the SCF & MP2 estimates :
+c take average nquart=sqrt(nquart_scf * nquart_mp2) and find nij=nkl
+c
+c     xquart_ave=sqrt( dble(nquart_s*nquart_m) )
+c     nquart_ave=int(xquart_ave)
+c
+c limxmem=memor_const + x*(memor2ij+memor2kl)+nquart_av*memor4
+c
+c     x=dble(limxmem_here-memor_const-nquart_ave*memor4)
+c     x=x/dble(memor2ij+memor2kl)
+c     if(x.le.0.d0) x=1.d0
+c
+c     ijpar_ave=int(x)
+c     klpar_ave=ijpar_ave
+ctest
+c     memory_ave= memor_const + ijpar_ave*memor2ij
+c    *                        + klpar_ave*memor2kl
+c    *                        + nquart_ave*memor4
+c     write(6,*)
+c    *    ' AV1 scenario: ij,kl,nq=',ijpar_ave,klpar_ave,nquart_ave,
+c    *                  ' memory  =',memory_ave
+c-------------------------------------------------
+c try to average the SCF & NNN estimates :
+c take average nquart=sqrt(nquart_scf * nquart_nnn) and find nij=nkl
+c
+      xquart_ave=sqrt( dble(nquart_s*nquart_n) )
+      nquart_ave=int(xquart_ave)
+c
+c limxmem=memor_const + x*(memor2ij+memor2kl)+nquart_av*memor4
+c
+      x=dble(limxmem_here-memor_const-nquart_ave*memor4)
+      x=x/dble(memor2ij+memor2kl)
+      if(x.le.0.d0) x=1.d0
+c
+      ijpar_ave=int(x)
+      klpar_ave=ijpar_ave
+      memory_ave= memor_const + ijpar_ave*memor2ij
+     *                        + klpar_ave*memor2kl
+     *                        + nquart_ave*memor4
+ctest
+c     write(6,*)
+c    *    ' AV2 scenario: ij,kl,nq=',ijpar_ave,klpar_ave,nquart_ave,
+c    *                  ' memory  =',memory_ave
+c-------------------------------------------------
+c setup as allowed by memory limit obtained above :
+c
+      ijpar_mem =ijpar_ave
+      klpar_mem =klpar_ave
+      nquart_mem=nquart_ave
+      memory_mem=memory_ave
+c-------------------------------------------------
+c final set up for maximum size of a block and number of pairs
+c
+      ijpar=min(ijpar_lim,ijpar_mem)
+      klpar=min(klpar_lim,klpar_mem)
+      max_par=max(ijpar,klpar)
+c
+      if(max_par.lt.maxpar_allowed) maxpar_allowed=max_par
+c
+      nquart=min( maxsize, nquart_mem )
+      mxsize(nbl12)=nquart
       if(mxsize(nbl12).gt.maxqrt) maxqrt=mxsize(nbl12)
-c----------------------------------------------
-      memory=ijpar*memor2ij+klpar*memor2kl+ mxsize(nbl12)*memor4
-c----------------------------------------------
-c MEMORY is the memory needed for pairs and quartets in a block
-c it is also necessary to take into account a memory reserved
-c already for prec2ij and prec2kl as well as memory in Blockin4:
 c
-      if(intsize.ne.1) then
-        memin4=7*(ikbl/intsize+1) +  maxqrt+2*( maxqrt/intsize +1 )
-      else
-        memin4=7*ikbl+3*maxqrt
-      endif
-c----------------------------------------------
-      memory=memory+memor2 + memin4
-c----------------------------------------------
-      if(memory.gt.maxmem) then
-         ijpax=ijpar
-         klpax=klpar
-         nblsx=mxsize(nbl12)
-         maxmem=memory
-      endif
-c----------------------------------------------
-c select a super-block with maximum memory requirement for ONE block
+ctest
+c     write(6,*)
+c    *    'Last scenario: ij,kl,nq=',ijpar_ave,klpar_ave,nquart_ave,
+c    *                  ' memory  =',memory_ave,' max_par=',max_par
+ctest
+c-------------------------------------------------
+c-------------------------------------------------
+c-------------------------------------------------
+c-------------------------------------------------
+c-------------------------------------------------
+      memory=memory_mem
 c
-      nbloks=nbloks+ikbl
+      maxmem=memory
+c----------------------------------------------
+c select a super-block with maximum memory requirement 
+c
       if(maxmem.gt.maxme1) then
          maxme1=maxmem
          ispblx=nbl12
-c        remember also : 
-         m2  =memor2 
-         min4=memin4
-         m2ij=memor2ij
-         m2kl=memor2kl
-         m4  =memor4
-         ijpay=ijpax
-         klpay=klpax
-         nblsy=nblsx
       endif
 c--------------
 c Select a super-block with the maximum & minimum block-size :
@@ -354,6 +508,11 @@ c
       endif
 c--------------
   100 continue
+c
+c final maximum paris/block allowed (used in splitting):
+c
+      maxpar=maxpar_allowed
+c
 c-----------------------------------------------------------
       IF(nprint.gt.0) THEN
 c
@@ -372,33 +531,30 @@ c
       pairs=dble(npairs)
       quart=pairs*(pairs+1)/2
       write(8,*)
-      write(8,497) nbl12,nbloks,quart,nblsmax,ispblq
-     *                                    ,nblsmin,ispblm
-  497 format(/' Number of Super-Blocks of Contracted Quartets =',i15/
-     *        ' Total number of Blocks of Contracted Quartets =',i15/
+      write(8,497) nbl12,quart,nblsmax,ispblq,nblsmin,ispblm,
+     *             maxpar
+  497 format(/' Total number of Blocks of Contracted Quartets =',i15/
      *        ' Total number of contracted shell quartets     =',f16.0/
      *        ' maximum block-size =',i7,'  in S-block =',i6/ 
-     *        ' minimum block-size =',i7,'  in S-block =',i6/)
+     *        ' minimum block-size =',i7,'  in S-block =',i6/ 
+     *        ' maximum pair/block =',i7,'  allowed overall'/)
 c
       ENDIF
 c-----------------------------------------------------------
       end
 c===============================================================
-      subroutine blksize1(ibl,kbl,ijpar,klpar,ityp,jtyp,ktyp,ltyp,
+      subroutine blksize1(ityp,jtyp,ktyp,ltyp,
      *                    lcix,lcjx,lckx,lclx, ngcix,ngcjx,ngckx,ngclx,
-     *                    memory2,memor2ij,memor2kl,memory4,ifor)
+     *                    memorcon,memor2ij,memor2kl,memor4,ifor)
       implicit real*8 (a-h,o-z)
       character*4 where
 c----------------------------------------------------------------------
-c  Calculates a memory needed in a Super-block for :
-c   1) prec2ij and prec2kl (called for each super-block)
-c                                     - memory2
+c  Calculates  memory needed in a Super-block for :
 c
-c  for each block in a super-block calculates :
-c
-c   2) memory needed for ONE pair ij  - memor2ij
-c   3) memory needed for ONE pair kl  - memor2kl
-c   4) memory needed for ONE quartet  - memory4
+c   1) memory needed for ONE pair ij  - memor2ij
+c   2) memory needed for ONE pair kl  - memor2kl
+c   3) memory needed for ONE quartet  - memor4
+c   4) memory which is constant in a block - memorcon
 c   
 c----------------------------------------------------------------------
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
@@ -486,35 +642,28 @@ c
       ngckl=(ngck+1)*(ngcl+1)
       ngcd =ngcij*ngckl
 c----------------------------------------------------------------------
-c Memory reserved for the WHOLE super-block in prec2ij,prec2kl :
+c Memory reserved for in prec2ij,prec2kl :
 c
-      mem2ij=3*ijpar*lcij
-      mem2kl=3*klpar*lckl
-c
-      if(kbl.ne.ibl) then 
-         memory2=mem2ij+mem2kl
-      else
-         memory2=mem2ij
-      endif
-c
-c----------------------------------------------------------------------
-      nfumax=nfu(mmax)
-      if(nsij.ge.nskl) then
-         nfha=nfumax*klpar*lckl
-      else
-         nfha=nfumax*ijpar*lcij
-      endif
+      memor2ij_add=3*lcij
+      memor2kl_add=3*lckl
 c----------------------------------------------------------------------
 c as allocated in memo5c_1 :
 c
-      memory2=memory2 + 3*nfha 
+      nfumax=nfu(mmax)
+      if(nsij.ge.nskl) then
+         memor2kl_add=memor2kl_add + 3*nfumax*lckl
+      else
+         memor2ij_add=memor2ij_add + 3*nfumax*lcij
+      endif
+c
+c memor2ij_add & memor2kl_add are proportional to the ijpar & klpar
 c----------------------------------------------------------------------
 c Memory for the ONE pair ij,kl and ONE quartet in a Super-block is :
 c
       ijpar1=1
       klpar1=1
       nbls1=1
-c------
+c----------------------------------------------------------------------
 c pair-precalculations:
 c
       call in5a(ijpar1,mmax1, memprij)
@@ -556,27 +705,29 @@ c    2. Precalc4 + Assemble+Amshift    proportional to NBLS
 c-----
       mem1 = mempre4+memtrob+memasse
       mem2 = mempre4+memasse+memamsh
+      memor4=max(mem1,mem2)
+c----------------------------------------------------------------------
+c final output :
 c
-c------------------------
-      memory4 =max(mem1,mem2)
-c------------------------
+      memorcon=7
+      memor2ij=memor2ij + memor2ij_add
+      memor2kl=memor2kl + memor2kl_add
+      memor4  =memor4 + 3
+c----------------------------------------------------------------------
       end
 c===============================================================
-      subroutine blksize2(ibl,kbl,ijpar,klpar,ityp,jtyp,ktyp,ltyp,
+      subroutine blksize2(ityp,jtyp,ktyp,ltyp,
      *                    lcix,lcjx,lckx,lclx, ngcix,ngcjx,ngckx,ngclx,
-     *                    memory2,memor2ij,memor2kl,memory4,ifor)
+     *                    memorcon,memor2ij,memor2kl,memor4,ifor)
       implicit real*8 (a-h,o-z)
       character*4 where
 c----------------------------------------------------------------------
-c  Calculates a memory needed in a Super-block for :
-c   1) prec2ij and prec2kl (called for each super-block)
-c                                     - memory2
+c  Calculates  memory needed in a Super-block for :
 c
-c  for each block in a super-block calculates :
-c
-c   2) memory needed for ONE pair ij  - memor2ij
-c   3) memory needed for ONE pair kl  - memor2kl
-c   4) memory needed for ONE quartet  - memory4
+c   1) memory needed for ONE pair ij  - memor2ij
+c   2) memory needed for ONE pair kl  - memor2kl
+c   3) memory needed for ONE quartet  - memor4
+c   4) memory which is constant in a block - memorcon
 c   
 c----------------------------------------------------------------------
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
@@ -591,11 +742,6 @@ c----------------------------------------------------------------------
       common /logic2/ len(1)
       common /logic3/ lensm(1)
 c----------------------------------------------------------------------
-c ifor=1   for ordinary two-el.integrals
-c ifor=2   for NMR GIAO integral derivatives
-c ifor=3   for gradient integral derivatives (first  derivatives)
-c ifor=4   for hessian  integral derivatives (second derivatives)
-c
       where='    '
       if(ifor.eq.2) where='shif'
       if(ifor.eq.3) where='forc'
@@ -613,7 +759,7 @@ c----------------------------------------------------------------------
       ngcl=ngclx
 c----------------------------------------------------------------------
 c set up commons /obarai/ and /shell/
-c for subroutines in4a,in4b 
+c for routines in4a,in4b 
 c
       NQI=NDEGE(ITYP)
       NQJ=NDEGE(JTYP)
@@ -664,17 +810,17 @@ c
       ngckl=(ngck+1)*(ngcl+1)
       ngcd =ngcij*ngckl
 c----------------------------------------------------------------------
-c Memory reserved for the WHOLE super-block in prec2ij,prec2kl :
+c Memory reserved in prec2ij,prec2kl :
 c
-      mem2ij=(ijpar+2)*lcij
-      mem2kl=(klpar+2)*lckl
+c     mem2ij=(ijpar+2)*lcij
+c     mem2kl=(klpar+2)*lckl
 c
-      if(kbl.ne.ibl) then 
-         memory2=mem2ij+mem2kl
-      else
-         memory2=mem2ij
-      endif
+c     memory2=mem2ij+mem2kl
 c
+      memor2ij_add=lcij
+      memor2kl_add=lckl
+c
+      memorcon=2*lcij + 2*lckl
 c----------------------------------------------------------------------
 c Memory for the ONE pair ij,kl and ONE quartet in a Super-block is :
 c----------------------------------------------------------------------
@@ -692,7 +838,7 @@ c
         memcoij=memcoij+ngcij*lcij
         memcokl=memcokl+ngckl*lckl
       endif
-      memcons=memcoij+memcokl
+      memorcon=memorcon + memcoij+memcokl
 c------------------------
       memor2ij=memprij
       memor2kl=memprkl
@@ -718,11 +864,7 @@ c constant (not prop. to nbls):
 c
       nfumax=nfu(mmax)
       nfha=nfumax*max(lcij,lckl)
-      memcons=memcons+(4*(ngcd+1)+3*nfha)
-c------------------------
-c add constant part of requested memory to memory2
-c
-      memory2=memory2 + memcons
+      memorcon=memorcon+(4*(ngcd+1)+3*nfha)
 c------------------------
 c quartet-trobsa,assemble:
 c
@@ -735,7 +877,6 @@ c
       call in4b(nbls1,memamsh,where)
 c------------------------
 c
-cMay96memamsh=memamsh+3   ! convert in amshift 
       memamsh=memamsh+6   ! convert in amshift 
       if(ngcd.gt.1) then 
          memgenc=(ngcij+ngckl+ngcd*lnij*lnkl)
@@ -749,15 +890,20 @@ c    2. Precalc4 + Assemble+Amshift    proportional to NBLS
 c-----
       mem1 = mempre4+memtrob+memasse
       mem2 = mempre4+memasse+memamsh
+      memor4=max(mem1,mem2) 
+c----------------------------------------------------------------------
+c final output :
 c
-c------------------------
-      memory4 =max(mem1,mem2)
+      memorcon=memorcon + 7
+      memor2ij=memor2ij+memor2ij_add
+      memor2kl=memor2kl+memor2kl_add
+      memor4  =memor4 + 3
 c------------------------
       end
 c===============================================================
 c
 c This set of routines named in... is called from
-c the blksize1 subroutine in oreder to estimate
+c the blksize1 routine in oreder to estimate
 c the memory request for a given Super-block  
 c and use it latter to set up the block-size .
 c==============================================================
@@ -1665,7 +1811,7 @@ c
 c
 c===============================================================
       subroutine blk_shells(ncs,inx,iroute,datnuc,datbas,
-     *                      nblock1,nbl1,nbl2,nbl4,maxpar)
+     *                      nblock1,nbl1,nbl2,nbl4)
       implicit real*8 (a-h,o-z)
       logical txs93,txs95, cond1,cond2,cond3,cond4,cond5
       common /intlim/ limxmem,limblks,limpair
@@ -1736,30 +1882,10 @@ c
       nblock1(iexch+1)=ncs
 c
 c---------------------------------------------
-c number of shell-blocks:
 c
-      nbl1=iexch+1
-c---------------------------------------------
-c find maximum number of pairs per block of pairs :
-c
-      maxshell=0
-      do ibl=1,nbl1
-         icsb=nblock1(ibl-1)+1
-         icse=nblock1(ibl)
-         ishell=icse-icsb+1
-         do jbl=1,ibl
-            jcsb=nblock1(jbl-1)+1
-            jcse=nblock1(jbl)
-            jshell=jcse-jcsb+1
-            ijshell=ishell*jshell
-            if(jbl.eq.ibl) ijshell=ishell*(ishell+1)/2
-            if(ijshell.gt.maxshell) maxshell=ijshell
-         enddo
-      enddo
-c
-      nbl2=nbl1*(nbl1+1)/2
-      nbl4=nbl2*(nbl2+1)/2
-      maxpar=maxshell
+      nbl1=iexch+1              ! number of shlell-blocks
+      nbl2=nbl1*(nbl1+1)/2      ! number of pair-blocks
+      nbl4=nbl2*(nbl2+1)/2      ! number of quart-blocks
 c---------------------------------------------
 ctest only
 c     write(6,*)' nbl1=',nbl1

@@ -1,4 +1,4 @@
-c $Id: prepint.f,v 1.10 1997-06-06 21:12:16 pg481 Exp $
+c $Id: prepint.f,v 1.11 1997-06-13 22:24:44 pg481 Exp $
 cccc  subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
       subroutine prepint2(bl,    inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,maxprice,scftype)
@@ -116,7 +116,7 @@ c
       common /time2/ terint,ttrans
       common /time3/ tzeroi,tspeci
       common /time4/ tderiv
-      common /time5/ tcheck,tmap4u
+      common /time5/ tcheck,tuniq2,tmap4u
 c
       data zero /0.d0/
 c
@@ -138,6 +138,7 @@ ctime
         tderiv=zero
 c
         tcheck=zero   
+        tuniq2=zero   
         tmap4u=zero
 ctime
       else
@@ -147,9 +148,9 @@ c
      *                             ttrobs,tassem,tderiv,tamshf,ttrans,
      *               terint,tspeci,
      *               tblock+tprec2+terint+tspeci,      ! calculation
-     *                             tmap4u,tcheck,tdesti,
-     *               tmap4u+tcheck+tdesti,             ! interface
-     *               tblock+tprec2+terint+tspeci + tmap4u+tcheck+tdesti 
+     *                             tuniq2,tmap4u,tcheck,tdesti,
+     *               tuniq2+tmap4u+tcheck+tdesti,      ! interface
+     *       tblock+tprec2+terint+tspeci + tuniq2+tmap4u+tcheck+tdesti 
   120 format(
      *       '========================================================'/
      *       '                                                        '/
@@ -175,6 +176,7 @@ c
      *       '========================================================'/
      *       'CALCULATION TIME=',f10.1,'   (pure texas calculations)  '/
      *       '========================================================'/
+     *       '                             time for uniq_pa=',f10.1/   
      *       '                             time for map2uni=',f10.1/   
      *       '                             time for checkio=',f10.1/   
      *       '                             time for destiny=',f10.1/   

@@ -357,31 +357,9 @@ c**********************************************************
 c
   203 continue
 c
-      IF(ndiag.eq.0) THEN
-         if(first) then
-              do 204 icx=1,lnijkl
-              do 204 i=1,nbls1
-              xint=buf1(i,icx)
-              ijkl=index(i)
-              ngcq=indgc(ijkl)
-                do 2041 iqu=1,ngcq
-                buf(ijkl,icx,iqu)=xint*gcoef(ijkl,iqu)
- 2041           continue
-  204       continue
-            first=.false.
-         else
-              do 205 icx=1,lnijkl
-              do 205 i=1,nbls1
-              xint=buf1(i,icx)
-              ijkl=index(i)
-              ngcq=indgc(ijkl)
-                do 2051 iqu=1,ngcq
-                buf(ijkl,icx,iqu)=buf(ijkl,icx,iqu)+xint*gcoef(ijkl,iqu)
- 2051           continue
-  205         continue
-         endif
-      ELSE
-c non-diagonal case : ngcq=ngcd (always)
+c non-diagonal and diagonal cases are not distinguished anymore
+c ngcq=ngcd (always)
+c
          if(first) then
               do 304 iqu=1,ngcd
               do 304 icx=1,lnijkl
@@ -400,7 +378,6 @@ c non-diagonal case : ngcq=ngcd (always)
                 buf(ijkl,icx,iqu)=buf(ijkl,icx,iqu)+xint*gcoef(ijkl,iqu)
   305         continue
          endif
-      ENDIF
 c
 c release memory
 c
@@ -437,15 +414,14 @@ c
 c--------------------------------------------------------
 c for ordinary scf integrals:
 c
-cccc  if(where.eq.'buff') then
       if(where.eq.'buff' .or. where.eq.'shif') then
-         if(ndiag.eq.0) then
-           call asselg_d(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
-     *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) )
-         else
+c10      if(ndiag.eq.0) then
+c10        call asselg_d(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
+c10  *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) )
+c10      else
            call asselg_n(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
      *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) )
-         endif
+c10      endif
       endif
 c
 c--------------------------------------------------------
@@ -453,15 +429,15 @@ c for gradient integral derivatives:
 c
       if(where.eq.'forc') then
          ibut2=ibuf
-         if(ndiag.eq.0) then
-           call asselg_d_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibut2),
-     *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) ,
-     *                   bl(iaax),bl(ibbx),bl(iccx))
-         else
+c10      if(ndiag.eq.0) then
+c10        call asselg_d_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibut2),
+c10  *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) ,
+c10  *                   bl(iaax),bl(ibbx),bl(iccx))
+c10      else
            call asselg_n_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibut2),
      *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) ,
      *                   bl(iaax),bl(ibbx),bl(iccx))
-         endif
+c10      endif
       endif
 c
 c--------------------------------------------------------

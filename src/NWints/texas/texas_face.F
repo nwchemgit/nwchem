@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.37 1997-06-09 22:36:16 d3g681 Exp $
+c $Id: texas_face.F,v 1.38 1997-06-13 22:24:50 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -111,6 +111,12 @@ c
       write(8,*)'           LEAVING TEXAS-INTEGRAL PROGRAM'
       write(8,*)'           Statistics of memory in blscr :'
       write(8,*)'                                               '
+ctest ??????
+c     write(8,*)' max number of allocations =',nreque_bl
+c     write(8,*)' max number of marks       =',nmark_bl
+c     write(8,*)' max memory used overall   =',maxmem_bl,' (high water)'
+c     write(8,*)' total memory available    =',memtot_bl
+ctest ??????
       write(8,*)' max number of allocations =',nall_peak
       write(8,*)' max number of marks       =',mark_peak
       write(8,*)' max memory used overall   =',mem_peak,' (high water)'
@@ -1248,10 +1254,7 @@ c
 c                   ! option name is LIMI (3 numbers)
 c...
       limxmem=2 000 000 ! limit for memory/block
-*      limblks=    5 000 ! limit for quartet-block-size
-*      limpair=      500 ! limit for pair-block-size
-*     interim values until pair limits are properly fixed
-      limblks=    1 000 ! limit for quartet-block-size
+      limblks=    5 000 ! limit for quartet-block-size
       limpair=    1 000 ! limit for pair-block-size
 c
       if (rtdb_get(rtdb,'int:txs:limi',MT_INT,3,rtdblim)) then
@@ -1328,11 +1331,10 @@ c output :
 c number of blocks of shells is : nbl1  
 c number of blocks of pairs  is : nbl2  
 c number of blocks of quarts is : nbl4  
-c maximum number of pairs in a block2 is : maxpar
 c
       call blk_shells(ncs,inx,iroute,datnuc,datbas,
-     *                ishell_blk,nbl1,nbl2,nbl4,maxpar)
-      call get_memory2(iprint,iroute,ncs,nbl1,nbl2,nbl4, maxpar,memory2)
+     *                ishell_blk,nbl1,nbl2,nbl4)
+      call get_memory2(iprint,iroute,ncs,nbl1,nbl2,nbl4,memory2)
 c--------------------------------------------------------
       ntxs_scr_size= memory2
 c-------------------------------------------------------
@@ -1363,13 +1365,14 @@ c the last term appears only for a request without labels, assume
 c 3**4 * (pppp)=> 6561 or 1* ffff => 10000
 c----------------------------------------------------------------------
       common /cpu/ intsize,iacc,icache,memreal
+      common /intlim/ limxmem,limblks,limpair
       common /memmax/ ispblx, maxmem1,iforwhat
       common /memor1b/ nbl2
 c transfered from blockin2 only to estimate memory here 
-      common /max_pairs/ maxpar    
+      common /max_pairs/ maxpar   
+c this is maximum pairs allowed ; must be: maxpar.le.limpair
 c
-c memory common for use in TEXAS_MEMORY(m_static,nquarts,m_dynam)
-c routines
+c memory common for use in TEXAS_MEMORY(m_static,nquarts,m_dynam) sub.
 c
       common /txs_memory/ mem_stat
 c
@@ -1394,9 +1397,6 @@ c
       enddo
       nolab4=nolab**4
 c
-ctest
-ccc   write(6,*)' ngc*size term=',nolab,nolab4
-c
       maxme2=4*nquarts + 2*nbl2 + 4*nbl4 + nolab4
 c
 c dynamic memory :
@@ -1409,30 +1409,20 @@ c
 c
       maxme2_dyna= maxme2_dyna/intsize + 4
 c------------------------------------------------
-c memory reserved in uniq_pairs:
-c in a request with "nquarts" quartets the total number of
-c pairs can be NPAIRS=2*sqrt(nquarts) (ij-pairs + kl-pairs).
-c These pairs may belong to maximum NPAIRS pair-blocks.Each
-c of these pair-blocks can have maximum MAXPAR pairs. Hence,
-c memory needed for pair-blocks in uniq_pairs is
+c memory reserved in uniq_pairs: two allocations
+c napr(ibl) and npar(kbl)
 c
-      nbl2_max=2*sqrt(dble(nquarts))
-c
-      maxme3=min(nbl2,nbl2_max)*maxpar + nbl2
-c
-c dynamic memory :
-c
-      maxme3_dyna=min(nbl2,nbl2_max)*maxpar 
+      maxme3=2*(maxpar/intsize + 1)
 c------------------------------------------------
 c final memory estimate :
 c
 c here:
 c
-      maxmem_scr=       maxme1+maxme2+maxme3
+      maxmem_scr = maxme1+maxme2+maxme3
 c
 c total:
 c
-      maxmem_tot=maxmem_scr + maxmem_bl
+      maxmem_tot = maxmem_scr + maxmem_bl
 c
       l_blsize=maxmem_tot
 c
@@ -1441,7 +1431,7 @@ c Separate memory indepent of the size of the PNL request
 c
 c dynamic (request dependent) :
 c
-      mem_dyna= maxme2_dyna + maxme3_dyna
+      mem_dyna= maxme2_dyna 
 c
 c static (basis set dependent, request independent) :
 c
@@ -1474,7 +1464,6 @@ c===============================================================
       subroutine texas_memory(m_static,nquarts,m_dynam)
       implicit real*8 (a-h,o-z)
       common /memor1b/ nbl2
-      common /max_pairs/ maxpar    
       common /txs_memory/ mem_stat
 c------------------------------------------------
 c INPUT : nquarts 
@@ -1484,11 +1473,7 @@ c------------------------------------------------
 c dynamic memory :
 c
       maxme2_dyna=4*nquarts
-c
-      nbl2_max=2*sqrt(dble(nquarts))
-      maxme3_dyna=min(nbl2,nbl2_max)*maxpar 
-c
-      mem_dyna= maxme2_dyna + maxme3_dyna
+      mem_dyna= maxme2_dyna 
 c
       m_dynam=mem_dyna
 c------------------------------------------------
@@ -1823,7 +1808,7 @@ c IFORWHAT is used only in blksize1 & blksize2
 c
       end
 c==================================================================
-      subroutine get_memory2(iprint,iroute,ncs,nbl1,nbl2,nbl4,maxpar,
+      subroutine get_memory2(iprint,iroute,ncs,nbl1,nbl2,nbl4,
      *                       memory2)
       common /cpu/ intsize,iacc,icache,memreal
 c-------------------------------------------------------------------
@@ -1860,7 +1845,6 @@ c
         write(8,*)' number of shell-blocks        :',nbl1 
         write(8,*)' number of pair -blocks        :',nbl2 
         write(8,*)' number of quart-blocks        :',nbl4 
-        write(8,*)' maximum number of pairs/block :',maxpar    
         write(8,*)' MEMORY ESTIMATION FOR SCRATCH1:',memory2
         write(8,*)' '
       endif
