@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.9 2004-08-17 23:20:40 marat Exp $
+c $Id: mm_interface.F,v 1.10 2004-08-27 22:26:59 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -196,10 +196,10 @@ c
       external cf_element
 c
       bq_exclude = qmmm_get_bq_exclude()
+      write(*,*) "qmmm: bq_exclude,qmmm_all_atoms",
+     >  bq_exclude,qmmm_all_atoms 
       nbq=0
       do i=1,nsa
-         write(*,*) "isdt(i),iand(isdt(i),lquant),isz(i)",
-     >     isdt(i),iand(isdt(i),lquant),isz(i)
          if(iand(isdt(i),lqsoft).ne.0) then
            if(bq_exclude.eq.qmmm_hydrogen.and.cf_element(isat(i)).eq.1)
      >     isz(i)=0
@@ -210,6 +210,8 @@ c
      >    iand(isdt(i),lqlink).eq.0) then
         if(isz(i).gt.0) nbq=nbq+1
         end if
+        write(*,*) "isdt(i),iand(isdt(i),lquant),isz(i)",
+     >     isdt(i),iand(isdt(i),lquant),iand(isdt(i),lqsoft),isz(i)
       end do
 
       end
@@ -367,9 +369,7 @@ c     local variables
       endif
       end do
 
-      write(*,*) "before dgop",nt
-      call ga_dgop(msg_qmmm_cbqs,c,3*ioq,'+')
-      write(*,*) "after dgop"
+      call ga_dgop(msg_qmmm_cbqs,c,3*nt,'+')
       call ga_dgop(msg_qmmm_qbqs,q,nt,'+')
 
       end
@@ -413,8 +413,6 @@ c     local variables
       call mm_get_pwz(pwz)
       call mm_get_pxw(pxw)
       
-      write(*,*) "mwm,mwa,nwm",mwm,mwa,nwm
-
       np=ga_nnodes()
 
       if(.not.ma_push_get(mt_int,np,'off',l_off,i_off))
@@ -532,8 +530,8 @@ c     local variables
       endif
       end do
 
-c      call ga_dgop(msg_qmmm_cbqw,c,3*nt,'+')
-c      call ga_dgop(msg_qmmm_qbqw,q,nt,'+')
+      call ga_dgop(msg_qmmm_cbqw,c,3*nt,'+')
+      call ga_dgop(msg_qmmm_qbqw,q,nt,'+')
 
       write(48,*) nt
       write(48,*) "  "

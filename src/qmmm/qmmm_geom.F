@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.5 2004-08-17 23:20:41 marat Exp $
+c $Id: qmmm_geom.F,v 1.6 2004-08-27 22:26:59 marat Exp $
 c
 c
       subroutine qmmm_create_qm_geom(irtdb)
@@ -54,6 +54,12 @@ c     local variables
       if(.not.geom_masses_set(igeom,nqm,dbl_mb(i_m)))
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
+ 
+c     print geometry
+c     -------------
+      call util_print_centered(6,"QM/MM geometry", 36, .true.)
+      if(.not.geom_print(igeom))
+     +    call errquit('qmmm: Failed to print geometry',0)
 
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
@@ -90,13 +96,20 @@ c     local variables
       integer i_c_all,h_c_all
       integer i_t_all,h_t_all
       integer i_m_all,h_m_all
+      logical nobq
       double precision charge
+
+      if (.not. rtdb_get(irtdb,'qmmm:remove_bq',mt_log,1,nobq)) then
+        nobq=.false.
+      end if
  
 c
 c     load bq information (coord and charges)
 c     into qmmm common arrays from md module
 c     --------------------------------------
-      call qmmm_load_bq()
+      if(.not.nobq) then
+         call qmmm_load_bq()
+      end if
 
       nqm   = qmmm_get_nqm()
       nbq   = qmmm_get_nbq()
@@ -104,7 +117,10 @@ c     --------------------------------------
 
 c     nothing to do if no bq's
 c     -----------------------
-      if(nbq.eq.0) return
+c      if(nbq.eq.0) then
+c        write(*,*) "qmmm: no bq charges were found"
+c        return
+c      end if
 
       i_ind = qmmm_get_i_ai()
       i_num = qmmm_get_i_num()
@@ -179,6 +195,9 @@ c    --------------------------------------
       if(.not.geom_masses_set(igeom,ntot,dbl_mb(i_m_all)))
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
+
+      if(.not.geom_print_xyzq(igeom,67))
+     +    call errquit('qmmm: Failed to print geometry',0)
 
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)

@@ -65,13 +65,17 @@ c
       endif
 c
       if(token.eq.'link') then
-      if(.not.inp_a(token)) call errquit('qmmm_input: no link atom',0,
-     &       INPUT_ERR)
-      if(token.eq.'hydrogen') then
-      linkatm=qmmm_hydrogen
-      goto 2
-      endif
-      call errquit('qmmm_input: invalid link atom',0, INPUT_ERR)
+        if(.not.inp_a(token)) call errquit('qmmm_input: no link atom',0,
+     &         INPUT_ERR)
+        if(token.eq.'hydrogen') then
+          linkatm=qmmm_hydrogen
+          goto 2
+        elseif(token.eq.'halogen') then
+          linkatm=qmmm_halogen
+          goto 2
+        else
+          call errquit('qmmm_input: invalid link atom',0, INPUT_ERR)
+        endif
       endif
 c
       if(token.eq.'bq_exclude') then

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq.F,v 1.3 2004-08-17 23:20:40 marat Exp $
+c $Id: qmmm_bq.F,v 1.4 2004-08-27 22:26:59 marat Exp $
 c
 c
 
@@ -30,10 +30,10 @@ c     get total number of solute and
 c     solvent Bq's from MM and save them
 c     -----------------------------
       call mm_get_tot_nbqs(nbqs)
-      call qmmm_set_nbqw(nbqw)
+      call qmmm_set_nbqs(nbqs)
 
       call mm_get_tot_nbqw(nbqw)
-      call qmmm_set_nbqs(nbqs)
+      call qmmm_set_nbqw(nbqw)
 c      
 c     this is a total number of bq's (nbqs+nbqw)
 c     ------------------------------------------
@@ -41,7 +41,9 @@ c     ------------------------------------------
 c
 c     exit if no bq's
 c     ---------------
+      write(*,*) "debug: nbq", nbq,nbqs,nbqw
       if(nbq.eq.0) return
+
 c
 c     allocate memory for coord and charges
 c     -------------------------------------

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.9 2004-08-17 23:20:40 marat Exp $
+c $Id: qmmm.F,v 1.10 2004-08-27 22:26:59 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -77,6 +77,8 @@ c
       logical qmmm_energy
 c     local variables
       logical status
+      logical do_qm, do_mm
+      logical mm_only, qm_only
       character*255 theory
       double precision energy
       double precision mm_energy
@@ -84,7 +86,24 @@ c     local variables
 c     external functions
       logical  task_energy_doit
       external task_energy_doit
+      
+      do_qm=.true.
+      do_mm=.true.
 
+      if (.not. rtdb_get(rtdb,'qmmm:mm_only',mt_log,1,mm_only)) then
+        mm_only=.false.
+      end if
+      if (.not. rtdb_get(rtdb,'qmmm:qm_only',mt_log,1,qm_only)) then
+        qm_only=.false.
+      end if
+      if(mm_only) then
+       do_mm=.true.
+       do_qm=.false.
+      end if
+      if(qm_only) then
+       do_qm=.true.
+       do_mm=.false.
+      end if
 
       call qmmm_create_bq_geom(rtdb)
 
@@ -96,10 +115,7 @@ c     QM energy calculation
 c     --------------------
       status = task_energy_doit(rtdb,theory,energy)
       
-      if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
-     $     call errquit('qmmm: failed storing energy', 0, RTDB_ERR)
-
-      call qmmm_restore_qm_geom(rtdb)
+c      call qmmm_restore_qm_geom(rtdb)
  
 c     update QM coordinates for MM module
 c     very important!!!
@@ -110,8 +126,6 @@ c     single point MM calculation
 c     ----------------------------------
        call mm_task_sp()
 
-      write(*,*) "qmmm_energy 3"
-
 c     combine QM and MM energies
 c     -------------------------
       if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
@@ -121,7 +135,13 @@ c     -------------------------
      $     call errquit('qmmm: failed getting  ref energy', 0, RTDB_ERR)
 
       mm_energy = mm_energy/cau2kj + 0.5d0*eatoms
-      write(*,*) "qmmm energy",energy,mm_energy,energy+mm_energy,eatoms
+      if(mm_only) then
+        energy=0.0d0
+      end if
+      if(qm_only) then
+        mm_energy=0.0d0
+      end if
+
       energy = energy + mm_energy
 
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
@@ -148,6 +168,8 @@ c
       logical qmmm_gradient
       logical status
       logical task_gradient_doit
+      logical do_qm, do_mm
+      logical mm_only, qm_only
       external task_gradient_doit
       character*255 theory
       double precision energy
@@ -159,6 +181,24 @@ c
       integer nqm
       integer ntot
 c
+      do_qm=.true.
+      do_mm=.true.
+
+      if (.not. rtdb_get(rtdb,'qmmm:mm_only',mt_log,1,mm_only)) then
+        mm_only=.false.
+      end if
+      if (.not. rtdb_get(rtdb,'qmmm:qm_only',mt_log,1,qm_only)) then
+        qm_only=.false.
+      end if
+      if(mm_only) then
+       do_mm=.true.
+       do_qm=.false.
+      end if
+      if(qm_only) then
+       do_qm=.true.
+       do_mm=.false.
+      end if
+
 
       status = .true.
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
@@ -200,6 +240,14 @@ c     ----------------------------------
      &                   int_mb(i_ai),
      &                   dbl_mb(i_gmm))
 
+      if(mm_only) then
+        call dfill(3*nqm,0,dbl_mb(i_g),1)
+      end if
+      if(qm_only) then
+        call dfill(3*nqm,0,dbl_mb(i_gmm),1)
+      end if
+
+
       call daxpy(3*nqm,cau2nm/cau2kj,dbl_mb(i_gmm),1,dbl_mb(i_g),1)
 
       if(.not.rtdb_put(rtdb,'qmmm:gradient',mt_dbl,3*nqm,dbl_mb(i_g)))
@@ -212,14 +260,19 @@ c     ----------------------------------
      $     call errquit('qmmm: failed getting  ref energy', 0, RTDB_ERR)
 
       mm_energy = mm_energy/cau2kj + 0.5d0*eatoms
-      energy = energy + mm_energy
+      if(mm_only) then
+        energy=0.0d0
+      end if
+      if(qm_only) then
+        mm_energy=0.0d0
+      end if
 
-      write(*,*) "qmmm energy",energy,mm_energy
+      energy = energy + mm_energy
 
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
 
-      call qmmm_restore_qm_geom(rtdb)
+c      call qmmm_restore_qm_geom(rtdb)
 
       if(.not.ma_free_heap(h_gmm))
      & call errquit('qmmm g: Failed to deallocate heap',nqm,
