@@ -1,6 +1,6 @@
       subroutine drfti1 (n,wa,ifac)
 *
-* $Id: drfti1.F,v 1.3 1997-11-04 10:07:31 d3e129 Exp $
+* $Id: drfti1.F,v 1.4 2000-10-25 22:50:10 windus Exp $
 *
       double precision wa(1), arg, argh, argld, fi, tpi
       integer ifac(1), ntryh(4)
@@ -10,6 +10,7 @@ c
       nl = n
       nf = 0
       j = 0
+      ntry = 4   ! take care of compiler warning
 c
   101 j = j+1
       if (j.le.4) ntry = ntryh(j)

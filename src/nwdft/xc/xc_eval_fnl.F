@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.17 2000-07-27 16:22:27 bjohnson Exp $
+c     $Id: xc_eval_fnl.F,v 1.18 2000-10-25 22:50:14 windus Exp $
 c
       implicit none
 c
@@ -67,6 +67,9 @@ c
 C
 C     hcth , becke97s functionals
 C
+      nx = 4       ! take care of compiler warnings
+      nc = 13
+
       dohcth=.false.
       if (abs(xfac(4)).gt.eps.or.abs(cfac(13)).gt.eps)then
          whichf='hcth'

@@ -6,7 +6,7 @@
      &    bERI,Nint,canAB,canCD,canPQ,dryrun,
      &    W0,maxW0)
       Implicit None
-C $Id: hf2d.F,v 1.14 2000-02-04 01:20:48 mg201 Exp $
+C $Id: hf2d.F,v 1.15 2000-10-25 22:50:04 windus Exp $
 #include "global.fh"
 #include "apiP.fh"
       Logical canAB,canCD,canPQ,dryrun
@@ -239,6 +239,7 @@ c Assign pointers to scratch space.
         
       end if
       
+      MaxMem = 1   ! take care of compiler warnings
       if (dryrun) then
         MaxMem = i_left + (maxW0-(i_right-1))
         NPP = NPA*NPB

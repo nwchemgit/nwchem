@@ -4,7 +4,7 @@
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr,zerotol,int_type)
 *
-* $Id: texas_hf.F,v 1.34 1998-12-15 02:35:06 d3g681 Exp $
+* $Id: texas_hf.F,v 1.35 2000-10-25 22:50:07 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -1471,6 +1471,7 @@ c=====================================================================
       common /type_inited/ iforinit  ! use here & in texas_face.F
       common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
 c
+      irequest = 1                   ! take care of compiler warnings
       if(int_type.eq.'scfd_int') then 
          where='buff'
          irequest=1

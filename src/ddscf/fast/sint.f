@@ -1,5 +1,5 @@
 *
-* $Id: sint.f,v 1.2 1999-07-29 00:53:57 d3e129 Exp $
+* $Id: sint.f,v 1.3 2000-10-25 22:50:09 windus Exp $
 *
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C
@@ -247,6 +247,7 @@ C FFTPACK 5.0 auxiliary routine
 C
       NL = N
       NF = 0
+      NTRY = 0
       J = 0
   101 J = J + 1
       IF (J-4) 102,102,103

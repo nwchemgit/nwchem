@@ -4,7 +4,7 @@
      .     nq_orig,nq,
      &                       iandex)
 c
-C     $Id: dftg_beckew.F,v 1.11 2000-07-10 23:02:43 edo Exp $
+C     $Id: dftg_beckew.F,v 1.12 2000-10-25 22:50:10 windus Exp $
 c
       implicit none
 c
@@ -50,6 +50,7 @@ C     if (TOLL.lt.1000.) return
 C     
 C     see where ictr is in the reduced list
 C     
+      ictr_reduc = 1        ! take care of compiler warnings
       do i = 1, bcenters
          if (iandex(i).eq.ictr(1))then
             ictr_reduc=i

@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.16 2000-07-21 20:40:42 edo Exp $
+c$Id: xc_hcth.F,v 1.17 2000-10-25 22:50:15 windus Exp $
 c
       Implicit none
 c
@@ -316,6 +316,7 @@ C     Initialise
       IF (rhoa .LT. tol_rho.and.rhob.lt.tol_rho) RETURN
 Cfah numerical cutoff: if the density is too low, its contribution is 
 Cfah neglectable. 
+      nofunc = 1               ! take care of compiler warnings
       do n=1,numfunc
         if(functional.eq.funcnam(n)) nofunc=n
       enddo

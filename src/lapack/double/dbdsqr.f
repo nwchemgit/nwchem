@@ -16,7 +16,7 @@
 *     ..
 *
 c
-* $Id: dbdsqr.f,v 1.3 1997-03-17 21:23:09 d3e129 Exp $
+* $Id: dbdsqr.f,v 1.4 2000-10-25 22:50:11 windus Exp $
 c
 *  Purpose
 *  =======
@@ -324,6 +324,8 @@ c
      $   D( M ) = ZERO
       SMAX = ABS( D( M ) )
       SMIN = SMAX
+*  The following line is to get rid of compiler warnings.
+      LL = 0
       DO 60 LLL = 1, M
          LL = M - LLL
          IF( LL.EQ.0 )
@@ -380,7 +382,9 @@ c
 *
 *     If working on new submatrix, choose shift direction
 *     (from larger end diagonal element towards smaller)
+*     The following line is to take care of compiler warnings.
 *
+      IDIR = 2
       IF( LL.GT.OLDM .OR. M.LT.OLDLL ) THEN
          IF( ABS( D( LL ) ).GE.ABS( D( M ) ) ) THEN
 *

@@ -1,5 +1,5 @@
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: sym_sym.F,v 1.6 1997-11-07 01:45:19 d3e129 Exp $
+C$Id: sym_sym.F,v 1.7 2000-10-25 22:50:16 windus Exp $
       implicit none
 #include "global.fh"
 #include "geom.fh"
@@ -233,6 +233,7 @@ c
             else if (itype .eq. -1) then
                i_nbf_per_sh = 1
             else
+               i_nbf_per_sh = 0   ! to get rid of compiler warning
                call errquit('sym_sym2: invalid shell type', itype)
             end if
             do jcn = jcnlo, jcnhi
@@ -247,6 +248,7 @@ c
                else if (jtype .eq. -1) then
                   j_nbf_per_sh = 1
                else
+                  j_nbf_per_sh = 0  ! to get rid of compiler warning
                   call errquit('sym_sym2: invalid shell type', jtype)
                end if
 c

@@ -1,5 +1,5 @@
 *
-* $Id: wrkspc2.F,v 1.6 2000-01-31 19:26:41 d3g270 Exp $
+* $Id: wrkspc2.F,v 1.7 2000-10-25 22:50:11 windus Exp $
 *
 *======================================================================
 *
@@ -86,6 +86,7 @@ c
  20   CONTINUE
 c
 c     
+      nelebk = 2*n1          ! satisfy compiler warnings
       if ( job .eq. 1 ) then
          nelebk = 2*n1
          m2 = n2

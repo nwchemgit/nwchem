@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis, g_alpha, g_beta, g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.5 2000-10-23 15:52:41 windus Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.6 2000-10-25 22:50:14 windus Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -57,6 +57,7 @@ c
 c        call ga_print(g_s)
       endif
       if(me.eq.0) then
+        jbig = 1         ! take care of compiler warnings
         do i = 1, nbf
 c
 c         get row of g_s 

@@ -1,6 +1,6 @@
       SUBROUTINE ZHER2 ( UPLO, N, ALPHA, X, INCX, Y, INCY, A, LDA )
 *
-* $Id: zher2.f,v 1.2 1997-03-17 21:21:58 d3e129 Exp $
+* $Id: zher2.f,v 1.3 2000-10-25 22:50:08 windus Exp $
 *
 *     .. Scalar Arguments ..
       COMPLEX*16         ALPHA
@@ -143,7 +143,12 @@
 *
 *     Set up the start points in X and Y if the increments are not both
 *     unity.
+*     The next 4 lines are to satisfy compiler warnings.
 *
+      JX = 1
+      JY = 1
+      KX = 1
+      KY = 1
       IF( ( INCX.NE.1 ).OR.( INCY.NE.1 ) )THEN
          IF( INCX.GT.0 )THEN
             KX = 1

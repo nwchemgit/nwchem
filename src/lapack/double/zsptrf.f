@@ -1,6 +1,6 @@
       SUBROUTINE ZSPTRF( UPLO, N, AP, IPIV, INFO )
 c     
-c     $Id: zsptrf.f,v 1.1 2000-04-18 00:22:40 edo Exp $
+c     $Id: zsptrf.f,v 1.2 2000-10-25 22:50:12 windus Exp $
 c     
 *
 *  -- LAPACK routine (version 3.0) --
@@ -163,6 +163,10 @@ c
 *
       ALPHA = ( ONE+SQRT( SEVTEN ) ) / EIGHT
 *
+*     The following 2 lines are to take care of compiler warnings.
+*
+      IMAX = 1
+      KPC  = 1
       IF( UPPER ) THEN
 *
 *        Factorize A as U*D*U' using the upper triangle of A

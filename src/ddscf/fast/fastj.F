@@ -1,6 +1,6 @@
       subroutine fastj(rtdb, basis, g_dens, eps, data)
 *
-* $Id: fastj.F,v 1.12 2000-10-23 15:51:43 windus Exp $
+* $Id: fastj.F,v 1.13 2000-10-25 22:50:09 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -1269,6 +1269,10 @@ c
       call xlm_coeff_inv(lmax2,d,dinv)
       call dfill(35,0.0d0,obin,1)
       call dfill(35,0.0d0,tbin,1)
+c
+      ngx = 1         ! get rid of compiler warnings
+      ngy = 1
+      ngz = 1
 c
 c     Get the data
 c

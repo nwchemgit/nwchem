@@ -2,7 +2,7 @@
      &     nroot,irange,nrange,iwpt,
      &     noconfi,ioconf,nintpo,nconmx,ncold)
 *
-* $Id: stool.F,v 1.6 1997-10-31 23:42:29 d3e129 Exp $
+* $Id: stool.F,v 1.7 2000-10-25 22:50:16 windus Exp $
 *
       implicit real*8 (a-h,o-z), integer(i-n)
 c     
@@ -43,7 +43,11 @@ c
       node0 = pmap(0)
 c     
 c     check existence of file
+c     The following two lines are to take care of compiler warnings.
 c     
+      ifile  = 1
+      idfile = 2
+
       if (me.eq.master) then
          icall = icall + 1
          ifile  = 1

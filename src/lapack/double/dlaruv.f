@@ -14,7 +14,7 @@
 *     ..
 *
 c
-* $Id: dlaruv.f,v 1.3 1997-03-17 21:24:11 d3e129 Exp $
+* $Id: dlaruv.f,v 1.4 2000-10-25 22:50:11 windus Exp $
 c
 *  Purpose
 *  =======
@@ -334,6 +334,13 @@ c
       I2 = ISEED( 2 )
       I3 = ISEED( 3 )
       I4 = ISEED( 4 )
+*
+*   The following lines are to take care of compiler warnings
+*
+      IT1 = ISEED( 1 )
+      IT2 = ISEED( 2 )
+      IT3 = ISEED( 3 )
+      IT4 = ISEED( 4 )
 *
       DO 10 I = 1, MIN( N, LV )
 *

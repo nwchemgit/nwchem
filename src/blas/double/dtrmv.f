@@ -1,6 +1,6 @@
       SUBROUTINE DTRMV ( UPLO, TRANS, DIAG, N, A, LDA, X, INCX )
 *
-* $Id: dtrmv.f,v 1.3 1997-03-17 21:21:30 d3e129 Exp $
+* $Id: dtrmv.f,v 1.4 2000-10-25 22:50:08 windus Exp $
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, LDA, N
@@ -151,7 +151,9 @@
 *
 *     Set up the start point in X if the increment is not unity. This
 *     will be  ( N - 1 )*INCX  too small for descending loops.
+*     The next line is to satifsy compiler warnings.
 *
+      KX = 1
       IF( INCX.LE.0 )THEN
          KX = 1 - ( N - 1 )*INCX
       ELSE IF( INCX.NE.1 )THEN

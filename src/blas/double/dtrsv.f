@@ -1,6 +1,6 @@
       SUBROUTINE DTRSV ( UPLO, TRANS, DIAG, N, A, LDA, X, INCX )
 *
-* $Id: dtrsv.f,v 1.2 1997-03-17 21:21:33 d3e129 Exp $
+* $Id: dtrsv.f,v 1.3 2000-10-25 22:50:08 windus Exp $
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, LDA, N
@@ -154,7 +154,9 @@
 *
 *     Set up the start point in X if the increment is not unity. This
 *     will be  ( N - 1 )*INCX  too small for descending loops.
+*     The next line is to satisfy compiler warnings.
 *
+      KX = 1
       IF( INCX.LE.0 )THEN
          KX = 1 - ( N - 1 )*INCX
       ELSE IF( INCX.NE.1 )THEN

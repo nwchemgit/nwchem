@@ -1,4 +1,4 @@
-* $Id: spec_block.F,v 1.25 2000-05-05 21:11:12 edo Exp $
+* $Id: spec_block.F,v 1.26 2000-10-25 22:50:06 windus Exp $
 c===============================================================
 c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
 c kw 22.05.97 : nasize(*)has been eleminated. 
@@ -240,7 +240,9 @@ c
 c
       xblks_txs=0
 c
-      nbl12=0      ! counter of super-blocks
+      memory_111 = 0  ! take care of compiler warnings
+c
+      nbl12=0         ! counter of super-blocks
       do 100 ibl=1,nbl2
          ijpar_all=npar(ibl)
 c

@@ -1,5 +1,5 @@
       subroutine edo_diag_compl(g_ar, g_ac, g_vr, g_vc, eval)
-c     $Id: ga_compl.F,v 1.2 2000-04-18 00:31:12 edo Exp $
+c     $Id: ga_compl.F,v 1.3 2000-10-25 22:50:14 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -246,6 +246,7 @@ c
 c     write(0,*) ' k eval ',k,eval(k)
          enddo
          istart=0
+         imazz = 2              ! take care of compiler warnings
          do k = 1,n
             loop1=.false.
             if(int_mb(-1+adrmz+k).eq.myproc) loop1=.true.

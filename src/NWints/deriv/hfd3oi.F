@@ -5,7 +5,7 @@
      &    Cxyz,Cprims,Ccoef,NPC,NCC,Lc,
      &    d3OI,Nintin,
      &    DryRun,W0,maxW0)
-* $Id: hfd3oi.F,v 1.1 1997-01-21 07:40:56 d3e129 Exp $
+* $Id: hfd3oi.F,v 1.2 2000-10-25 22:50:05 windus Exp $
       implicit none
 #include "stdio.fh"
 *
@@ -89,6 +89,8 @@
         stop ' hfd3oi: fatal error '
       endif
       
+      MaxMem = i_used  ! take care of compiler warnings
+
       if (DryRun) then
         MaxMem = i_used
         Nabc = NPA*NPB*NPC

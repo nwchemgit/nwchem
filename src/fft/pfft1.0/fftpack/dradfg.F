@@ -10,10 +10,10 @@ C****************************************************************
 C      
       subroutine dradfg (ido,ip,l1,idl1,cc,c1,c2,ch,ch2,wa)
 *      
-* $Id: dradfg.F,v 1.7 2000-10-23 15:51:52 windus Exp $
+* $Id: dradfg.F,v 1.8 2000-10-25 22:50:10 windus Exp $
 *      
 *      
-* $Id: dradfg.F,v 1.7 2000-10-23 15:51:52 windus Exp $
+* $Id: dradfg.F,v 1.8 2000-10-25 22:50:10 windus Exp $
 *      
       double precision cc(ido,ip,l1), c1(ido,l1,ip), c2(idl1,ip),
      1  ch(ido,l1,ip), ch2(idl1,ip), wa(1), ai1, ai2, ar1, ar1h, ar2,
@@ -135,6 +135,7 @@ c
          end do
       endif
       k5 = iand(max0(((l1 + 1 - j1)/2),0),3)
+      j4 = 0        ! take care of compiler warnings
       do k = 1, k5
          j4 = 0
       end do

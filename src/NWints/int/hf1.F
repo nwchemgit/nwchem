@@ -3,7 +3,7 @@
      &               Cxyz,zan,exinv,ncenters,
      &               bO2I,bKEI,bNAI,Nints,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.18 2000-05-26 19:49:16 mg201 Exp $
+c $Id: hf1.F,v 1.19 2000-10-25 22:50:06 windus Exp $
       Implicit none
       integer NPA,NCA,La,NPB,NCB,Lb,ncenters,Nints,maxW0
       logical O2I,KEI,NAI,canAB
@@ -135,6 +135,7 @@ c Assign pointers to scratch space.
       i_ESp   = (maxW0+1) - 3*(NPA*NPB)
       i_right = i_ESp
 
+      MaxMem = 1    ! take care of compiler warnings
       if( DryRun )then
 
         MaxMem = i_left + (maxW0 - (i_right-1))
@@ -186,6 +187,10 @@ C      write (LuOut,*) 'before hfmke'
 
       i_Ep   = i_IPAIRp + 2*(NPA*NPB)
       i_ptr  = i_Ep     + 3*NPP*(MXD+1)*lprod
+
+      i_prim_ints = i_ptr            ! take care of compiler warnings
+      i_half_ints = i_prim_ints + NPP
+
       if (gencon) then
         i_prim_ints = i_ptr
         i_half_ints = i_prim_ints + NPP

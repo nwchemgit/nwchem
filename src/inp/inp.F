@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.38 2000-08-02 01:23:20 bjohnson Exp $
+C$Id: inp.F,v 1.39 2000-10-25 22:50:11 windus Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -155,6 +155,8 @@ c
       character*1 xtest
 c
       ois_ws(xtest) = (xtest.eq.xblnk .or. xtest.eq.xtab)
+c
+      inp_read = .false.  ! First assume things will not work
 c
 c     
  1    nline=nline+1

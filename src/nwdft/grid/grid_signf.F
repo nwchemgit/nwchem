@@ -2,7 +2,7 @@
      &                      xyz,xyzm,ctr_quad, rad_quad,
      &                       zprim, iandex,iatype_pt_chg)
 c
-C$Id: grid_signf.F,v 1.4 2000-07-10 23:00:19 edo Exp $
+C$Id: grid_signf.F,v 1.5 2000-10-25 22:50:14 windus Exp $
 c
       implicit none
 c      
@@ -102,6 +102,7 @@ c        if (zmin*r_arg.lt.acc_sigf) then
       enddo
  2001 continue
       enddo
+      ctr_out = 1                ! take care of compiler warnings
       do ictr = 1, mcenters_scr
         ic1=iandex(ictr)
         xyzm(1,ictr) = xyzm(1,ic1)

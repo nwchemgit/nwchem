@@ -1,5 +1,5 @@
 *
-* $Id: moints_aodisk.F,v 1.20 1998-08-19 18:33:52 rg240 Exp $
+* $Id: moints_aodisk.F,v 1.21 2000-10-25 22:50:13 windus Exp $
 *
 c
 c  Set of routines to cache AO integrals for the 4-index
@@ -1530,6 +1530,9 @@ c
       rp       = 1
       hdrp     = 2
       blkinfo(2) = 0
+      ilen = 0
+      jlen = 0
+
  100  stat = eaf_read(fd, fptr, iorec, recbytes )
       if (stat.eq.0) then
         fptr = fptr + recbytes

@@ -5,7 +5,7 @@
      &    b3nai,b3nai_sz,nint,
      &    DryRun,Scr,lscr)
 c
-c $Id: hf3pot.F,v 1.3 1998-05-05 21:49:05 d3e129 Exp $
+c $Id: hf3pot.F,v 1.4 2000-10-25 22:50:06 windus Exp $
 c
       implicit none
 c:: includes
@@ -94,6 +94,9 @@ c
       endif
 c
 c.. determine actual product pairs to be kept. 
+c   The following line is to take care of compiler warnings.
+c
+      maxmem = i_top
       if (DryRun) then
         maxmem = i_top
         Nabc = NPA*NPB*NPC

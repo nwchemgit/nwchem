@@ -1,4 +1,4 @@
-* $Id: test_calc2.f,v 1.9 1999-07-29 01:05:49 d3e129 Exp $
+* $Id: test_calc2.f,v 1.10 2000-10-25 22:50:07 windus Exp $
 c=================================================================
 c Only for test calculations :
 c
@@ -56,13 +56,13 @@ c-------------------------
 c total number of cont.shell quartets :
 c
 c ij 
-      if(num_bas_ij.eq.num_bas_1) then
+c     if(num_bas_ij.eq.num_bas_1) then  ! take care of compiler warnings
          ish_b=1
          ish_e=ncs_bas_1
          jsh_b=1
          jsh_e=ncs_bas_1
          ij_shell=ncs_bas_1*(ncs_bas_1 + 1)/2
-      endif
+c     endif
       if(num_bas_ij.eq.num_bas_2) then
          ish_b=ncs_bas_1+1
          ish_e=ncs_bas_2
@@ -72,13 +72,13 @@ c ij
          ij_shell=n_shell*(n_shell+1)/2
       endif
 c kl 
-      if(num_bas_kl.eq.num_bas_1) then
+c     if(num_bas_kl.eq.num_bas_1) then  ! take care of compiler warnings
          ksh_b=1
          ksh_e=ncs_bas_1
          lsh_b=1
          lsh_e=ncs_bas_1
          kl_shell=ncs_bas_1*(ncs_bas_1 + 1)/2
-      endif
+c     endif
       if(num_bas_kl.eq.num_bas_2) then
          ksh_b=ncs_bas_1+1
          ksh_e=ncs_bas_2
@@ -398,13 +398,13 @@ c total number of cont.shell quartets :
 c (I 0 | K 0)
 c
 c ij 
-      if(num_bas_ij.eq.num_bas_1) then
+c     if(num_bas_ij.eq.num_bas_1) then   ! take care of compiler warnings
          ish_b=1
          ish_e=ncs_bas_1
          jsh_b=1
          jsh_e=ncs_bas_1
          ij_shell=ncs_bas_1
-      endif
+c     endif
       if(num_bas_ij.eq.num_bas_2) then
          ish_b=ncs_bas_1+1
          ish_e=ncs_bas_2
@@ -422,13 +422,13 @@ c ij
          ij_shell=n_shell
       endif
 c kl 
-      if(num_bas_kl.eq.num_bas_1) then
+c     if(num_bas_kl.eq.num_bas_1) then   ! take care of compiler warnings
          ksh_b=1
          ksh_e=ncs_bas_1
          lsh_b=1
          lsh_e=ncs_bas_1
          kl_shell=ncs_bas_1
-      endif
+c     endif
       if(num_bas_kl.eq.num_bas_2) then
          ksh_b=ncs_bas_1+1
          ksh_e=ncs_bas_2
@@ -678,13 +678,13 @@ c total number of cont.shell quartets :
 c (I 0 | K L)
 c
 c ij 
-      if(num_bas_ij.eq.num_bas_1) then
+c     if(num_bas_ij.eq.num_bas_1) then   ! take care of compiler warnings
          ish_b=1
          ish_e=ncs_bas_1
          jsh_b=1
          jsh_e=ncs_bas_1
          ij_shell=ncs_bas_1
-      endif
+c     endif
       if(num_bas_ij.eq.num_bas_2) then
          ish_b=ncs_bas_1+1
          ish_e=ncs_bas_2
@@ -694,13 +694,13 @@ c ij
          ij_shell=n_shell
       endif
 c kl 
-      if(num_bas_kl.eq.num_bas_1) then
+c     if(num_bas_kl.eq.num_bas_1) then   ! take care of compiler warnings
          ksh_b=1
          ksh_e=ncs_bas_1
          lsh_b=1
          lsh_e=ncs_bas_1
          kl_shell=ncs_bas_1*(ncs_bas_1 + 1)/2
-      endif
+c     endif
       if(num_bas_kl.eq.num_bas_2) then
          ksh_b=ncs_bas_1+1
          ksh_e=ncs_bas_2
@@ -930,13 +930,13 @@ c total number of cont.shell quartets :
 c (I J | K 0)
 c
 c ij 
-      if(num_bas_ij.eq.num_bas_1) then
+c     if(num_bas_ij.eq.num_bas_1) then   ! take care of compiler warnings
          ish_b=1
          ish_e=ncs_bas_1
          jsh_b=1
          jsh_e=ncs_bas_1
          ij_shell=ncs_bas_1*(ncs_bas_1+1)/2
-      endif
+c     endif
       if(num_bas_ij.eq.num_bas_2) then
          ish_b=ncs_bas_1+1
          ish_e=ncs_bas_2
@@ -946,13 +946,13 @@ c ij
          ij_shell=n_shell*(n_shell+1)/2
       endif
 c kl 
-      if(num_bas_kl.eq.num_bas_1) then
+c     if(num_bas_kl.eq.num_bas_1) then   ! take care of compiler warnings
          ksh_b=1
          ksh_e=ncs_bas_1
          lsh_b=1
          lsh_e=ncs_bas_1
          kl_shell=ncs_bas_1
-      endif
+c     endif
       if(num_bas_kl.eq.num_bas_2) then
          ksh_b=ncs_bas_1+1
          ksh_e=ncs_bas_2

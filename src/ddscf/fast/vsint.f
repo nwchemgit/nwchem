@@ -1,6 +1,6 @@
       SUBROUTINE VSINT(M,N,X,XT,MDIMX,WSAVE)
 *
-* $Id: vsint.f,v 1.3 1999-07-29 00:53:58 d3e129 Exp $
+* $Id: vsint.f,v 1.4 2000-10-25 22:50:09 windus Exp $
 *
       implicit double precision (a-h, o-z)
 C***BEGIN PROLOGUE  VSINT
@@ -966,6 +966,7 @@ C     VRFFTPK, VERSION 1, AUGUST 1985
 C
       DIMENSION       WA(N)      ,FAC(15)    ,NTRYH(4)
       DATA NTRYH(1),NTRYH(2),NTRYH(3),NTRYH(4)/4,2,3,5/
+      NTRY = 0
       NL = N
       NF = 0
       J = 0

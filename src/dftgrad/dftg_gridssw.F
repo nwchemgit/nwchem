@@ -4,7 +4,7 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     whichfunc,lscreen)
 c
-C$Id: dftg_gridssw.F,v 1.5 2000-10-19 01:27:13 edo Exp $
+C$Id: dftg_gridssw.F,v 1.6 2000-10-25 22:50:10 windus Exp $
 c
       implicit none
       logical grid_written
@@ -50,7 +50,10 @@ c     RE Stratmann, GE Scuseria, MJ Frisch, Chem Phys Lett 257, 213 (1996)
 c     Evaluate Stratman space partitioning weight. Then, incorporate it
 c     with weights from the single-center quadratures to form the total 
 c     multi-center quadrature weight.
+c     The following 2 lines are to satisfy compiler warnings.
 c     
+      NN = 1
+      iw = 0
       asqrtpi=1d0/sqrt(4*datan(1d0))
       call dfill(nq*3*nctrs_pruned, 0.d0, dzeta, 1)
       call dfill(nq, 0.d0, zeta, 1)

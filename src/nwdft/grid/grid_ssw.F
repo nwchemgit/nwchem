@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.10 2000-06-08 02:06:28 edo Exp $
+C$Id: grid_ssw.F,v 1.11 2000-10-25 22:50:14 windus Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -39,7 +39,10 @@ c     RE Stratmann, GE Scuseria, MJ Frisch, Chem Phys Lett 257, 213 (1996)
 c     Evaluate Stratman space partitioning weight. Then, incorporate it
 c     with weights from the single-center quadratures to form the total 
 c     multi-center quadrature weight.
-c     
+c     The following 2 lines are to satisfy compiler warnings.
+c
+      NN = 1
+      iw = 0
       if(whichfunc.eq.'ssf ') then
         ass=ass_ssf
         iw=0

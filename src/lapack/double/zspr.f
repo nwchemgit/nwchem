@@ -1,6 +1,6 @@
       SUBROUTINE ZSPR( UPLO, N, ALPHA, X, INCX, AP )
 c     
-c     $Id: zspr.f,v 1.1 2000-04-18 00:22:39 edo Exp $
+c     $Id: zspr.f,v 1.2 2000-10-25 22:50:12 windus Exp $
 c     
 *
 *  -- LAPACK auxiliary routine (version 3.0) --
@@ -123,7 +123,9 @@ c
      $   RETURN
 *
 *     Set the start point in X if the increment is not unity.
+*     The following line is to take care of compiler warnings.
 *
+      KX = 1
       IF( INCX.LE.0 ) THEN
          KX = 1 - ( N-1 )*INCX
       ELSE IF( INCX.NE.1 ) THEN

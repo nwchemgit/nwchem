@@ -15,7 +15,7 @@
 *     ..
 *
 c
-* $Id: dorml2.f,v 1.3 1997-03-17 21:24:54 d3e129 Exp $
+* $Id: dorml2.f,v 1.4 2000-10-25 22:50:12 windus Exp $
 c
 *  Purpose
 *  =======
@@ -163,6 +163,10 @@ c
          I3 = -1
       END IF
 *
+*  The following 2 lines are to take care of compiler warnings.
+*
+      IC = 1
+      JC = 1
       IF( LEFT ) THEN
          NI = N
          JC = 1

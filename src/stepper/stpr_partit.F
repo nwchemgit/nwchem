@@ -4,7 +4,7 @@
      &       ATMASS, CMASS, TENIN, ENERGY,
      &       CONVGE, CONVGG, CONVGGM,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.8 1998-04-21 06:57:29 mdupuis Exp $
+c $Id: stpr_partit.F,v 1.9 2000-10-25 22:50:16 windus Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK, BCKSTP, RPATH, TROUB
@@ -510,7 +510,10 @@ C
       ENDIF
 C
 C     Find NMODE
+C     The following 2 lines are to satisfy compiler warnings.
 C
+      NMIN = 0
+      NPLUS = 2
       IF (TS.OR.STD) THEN
         ICOUNT = 0
         DO 362 I = 1,NINTER

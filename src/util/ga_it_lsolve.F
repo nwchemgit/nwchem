@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.12 2000-10-23 16:24:09 windus Exp $
+C$Id: ga_it_lsolve.F,v 1.13 2000-10-25 22:50:16 windus Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -139,6 +139,7 @@ c
          call ga_precond_project(g_soln, zero, precond, g_w)
       end if
 c
+      converged = .false.       ! get rid of compiler warning
       nsub = 1                  ! Points to next free subspace vector
       do iter = 1, maxiter
 c

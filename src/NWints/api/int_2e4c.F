@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.38 2000-06-06 23:54:14 mg201 Exp $
+c $Id: int_2e4c.F,v 1.39 2000-10-25 22:50:03 windus Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -178,6 +178,13 @@ c... stat nw
 c... stat rel
       status_rel = dyall_mod_dir .and. .not.nesc_1e_approx
      &    .and. (brain .eq. ketin) .and. (brain .eq. ao_bsh)
+c
+c  The following 4 lines are to take care of compiler warnings.
+c
+      i_rel = .false.
+      j_rel = .false.
+      k_rel = .false.
+      l_rel = .false.
       if (status_rel) then
 c
 c     get basis set handles; relativistic integral option valid

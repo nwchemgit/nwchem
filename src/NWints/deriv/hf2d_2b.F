@@ -5,7 +5,7 @@
      &    Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
      &    bERI,Nint,canAB,canCD,canPQ,dryrun,
      &    W0,maxW0)
-C $Id: hf2d_2b.F,v 1.2 1995-02-08 21:27:22 d3e129 Exp $
+C $Id: hf2d_2b.F,v 1.3 2000-10-25 22:50:04 windus Exp $
       Implicit None
       Logical canAB,canCD,canPQ,dryrun
       
@@ -40,6 +40,11 @@ c... do first block
       b_cof = b_exp + npb1      ! coeff block
       k0s  = b_cof + npb1*NCB   ! start of scratch
       maxw0new = maxw0 - k0s    ! new scratch size
+
+      mem1add = k0s             ! take care of compiler warnings
+      mem1    = mem1add
+      mem2add = mem1
+
       if (dryrun) then
         mem1add = k0s
       else

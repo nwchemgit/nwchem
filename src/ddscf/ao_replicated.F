@@ -1,7 +1,7 @@
       subroutine ao_replicated(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c     
-c     $Id: ao_replicated.F,v 1.40 2000-10-23 15:51:39 windus Exp $
+c     $Id: ao_replicated.F,v 1.41 2000-10-25 22:50:09 windus Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -295,6 +295,9 @@ c
       integer nxtask
       external nxtask
 c     
+      next = 1          ! take care of compiler warnings
+      incomplete_top = 0
+c
       if (oscfps) call pstat_on(ps_fock_2e)
 c
       oprint = util_print('ao_replicated',print_never)

@@ -1,6 +1,6 @@
       SUBROUTINE DSPR  ( UPLO, N, ALPHA, X, INCX, AP )
 *
-* $Id: dspr.f,v 1.3 1997-03-17 21:21:07 d3e129 Exp $
+* $Id: dspr.f,v 1.4 2000-10-25 22:50:08 windus Exp $
 *
 *     .. Scalar Arguments ..
       DOUBLE PRECISION   ALPHA
@@ -119,7 +119,9 @@
      $   RETURN
 *
 *     Set the start point in X if the increment is not unity.
+*     Added next line to take care of compiler warning.
 *
+      KX = 1
       IF( INCX.LE.0 )THEN
          KX = 1 - ( N - 1 )*INCX
       ELSE IF( INCX.NE.1 )THEN

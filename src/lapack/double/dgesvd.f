@@ -16,7 +16,7 @@
 *     ..
 *
 c
-* $Id: dgesvd.f,v 1.3 1997-03-17 21:23:24 d3e129 Exp $
+* $Id: dgesvd.f,v 1.4 2000-10-25 22:50:11 windus Exp $
 c
 *  Purpose
 *  =======
@@ -204,7 +204,11 @@ c
 *       as well as the preferred amount for good performance.
 *       NB refers to the optimal block size for the immediately
 *       following subroutine, as returned by ILAENV.)
+*       The following 2 lines are to take care of compiler warnings.
 *
+      BDSPAC = 3*N
+      MAXWRK = 1
+      WRKBL  = 1
       IF( INFO.EQ.0 .AND. LWORK.GE.1 .AND. M.GT.0 .AND. N.GT.0 ) THEN
          IF( M.GE.N ) THEN
 *
@@ -590,6 +594,8 @@ c
          CALL DLASCL( 'G', 0, 0, ANRM, BIGNUM, M, N, A, LDA, IERR )
       END IF
 *
+*  The following line is to take care of compiler warnings.
+      IE = 1
       IF( M.GE.N ) THEN
 *
 *        A has at least as many rows as columns. If A has sufficiently

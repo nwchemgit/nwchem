@@ -1,5 +1,5 @@
 *
-* $Id: mcfftr.F,v 1.2 1997-11-04 10:07:41 d3e129 Exp $
+* $Id: mcfftr.F,v 1.3 2000-10-25 22:50:10 windus Exp $
 *
 *======================================================================
 *
@@ -55,6 +55,8 @@
       CALL FFTI( IDIR, ISIGN, N2, WORK( IDWORK ) )
 
       NOTFST = .FALSE.
+
+      JOUT = 1                 ! satisfy compiler warnings
 
       DO 500 I2 = 1, NSETS
 

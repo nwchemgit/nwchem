@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.14 1999-04-29 00:24:27 edo Exp $
+C $Id: ecp_gradient.F,v 1.15 2000-10-25 22:50:05 windus Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -133,12 +133,12 @@ C $Id: ecp_gradient.F,v 1.14 1999-04-29 00:24:27 edo Exp $
      &    'Mismatch of integral count in ecp_gradient',99)
       if (sphcart .ne. 0) call errquit(
      &    'Do your own spherical transformation, lazy bum!',99)
-      if (DryRun) then
-        max_type1 = 0
-        max_type2 = 0
-      else
-        call dfill (n_int*n_blk*3*n_cent,zero,ecp_grads,1)
-      end if
+
+      max_type1 = 0     ! take care of compiler warnings
+      max_type2 = 0
+
+      if (.not.DryRun)
+     &  call dfill (n_int*n_blk*3*n_cent,zero,ecp_grads,1)
 *
 *   Set up pointers to scratch space for coefficients multiplied by 
 *   exponents and for integrals with shifted l values

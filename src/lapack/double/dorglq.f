@@ -13,7 +13,7 @@
 *     ..
 *
 c
-* $Id: dorglq.f,v 1.3 1997-03-17 21:24:42 d3e129 Exp $
+* $Id: dorglq.f,v 1.4 2000-10-25 22:50:12 windus Exp $
 c
 *  Purpose
 *  =======
@@ -140,6 +140,9 @@ c
          END IF
       END IF
 *
+*  The following line is to take care of compiler warnings.
+*
+      KI = 1
       IF( NB.GE.NBMIN .AND. NB.LT.K .AND. NX.LT.K ) THEN
 *
 *        Use blocked code after the last block.

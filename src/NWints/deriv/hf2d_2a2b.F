@@ -5,7 +5,7 @@
      &      Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
      &      bERI,Nint,canAB,canCD,canPQ,dryrun,
      &      W0,maxW0)
-C $Id: hf2d_2a2b.F,v 1.2 1995-02-08 21:27:21 d3e129 Exp $
+C $Id: hf2d_2a2b.F,v 1.3 2000-10-25 22:50:04 windus Exp $
       Implicit None
       Logical canAB,canCD,canPQ,dryrun
       
@@ -45,6 +45,15 @@ c... do first of 4 blocks  (a1|b1|*)
       b_cof  = b_exp + npb1
       k0s    = b_cof + npb1*NCB
       maxw0new = maxw0 - k0s
+
+      mem1    = k0s         ! take care of compiler warnings
+      mem2    = k0s
+      mem3    = k0s
+      mem1add = mem1
+      mem2add = mem2
+      mem3add = mem3
+      mem4add = mem3
+
       if (dryrun) then
         mem1add = k0s
       else

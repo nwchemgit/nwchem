@@ -1,5 +1,5 @@
       subroutine jacod(f,v,nb,nb1,nb2,nmin,nmax,big,jbig,maxao)
-C$Id: jacod.F,v 1.4 2000-10-23 23:37:44 windus Exp $
+C$Id: jacod.F,v 1.5 2000-10-25 22:50:07 windus Exp $
       implicit none
 c.......................................................................
 c      f is the matrix to be diagonalized. f is stored triangular
@@ -28,6 +28,8 @@ c
       ib = 0 
       iaa = 0
       ibb = 0
+      ieaa = 1
+      ieab = 1
 c
       if (nb.eq.1) then
          v(1) = 1.0d0

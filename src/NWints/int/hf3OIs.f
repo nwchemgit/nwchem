@@ -3,7 +3,7 @@
      &                  Cxyz,Cprims,Ccoef,NPC,Lc,
      &                  b3OI,Nint,TriDiag,
      &                  DryRun,W0,maxW0)
-c $Id: hf3OIs.f,v 1.2 1994-04-04 20:31:02 d3e129 Exp $
+c $Id: hf3OIs.f,v 1.3 2000-10-25 22:50:06 windus Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -47,6 +47,8 @@ c Assign pointers to scratch space.
        stop
 
       end if
+
+      MaxMem = i_top    ! take care of compiler warnings
 
       if( DryRun )then
 

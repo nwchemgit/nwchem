@@ -4,7 +4,7 @@
      &       Cxyz,zan,exinv,ncenters,
      &       bO2I,bKEI,bNAI,Nint,
      &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0)
-c $Id: hf1d.F,v 1.11 1999-10-26 22:31:43 mg201 Exp $
+c $Id: hf1d.F,v 1.12 2000-10-25 22:50:04 windus Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -124,6 +124,7 @@ c Assign pointers to scratch space.
  
       end if
  
+      MaxMem = 1    ! take care of compiler warnings
       if (dryrun) then
         MaxMem = i_left + (maxW0 - (i_right-1))
         NPP = NPA*NPB

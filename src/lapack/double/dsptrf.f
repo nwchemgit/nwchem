@@ -15,7 +15,7 @@
 *     ..
 *
 c
-* $Id: dsptrf.f,v 1.3 1997-03-17 21:25:11 d3e129 Exp $
+* $Id: dsptrf.f,v 1.4 2000-10-25 22:50:12 windus Exp $
 c
 *  Purpose
 *  =======
@@ -150,6 +150,10 @@ c
 *
       ALPHA = ( ONE+SQRT( SEVTEN ) ) / EIGHT
 *
+*     The following 2 lines are to take care of compiler warnings.
+*
+      IMAX = 1
+      KPC = 1
       IF( UPPER ) THEN
 *
 *        Factorize A as U*D*U' using the upper triangle of A

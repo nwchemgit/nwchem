@@ -5,7 +5,7 @@
      &    Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
      &    bERI,Nint,canAB,canCD,canPQ,dryrun,
      &    W0,maxW0)
-C $Id: hf2d_all.F,v 1.1 1998-02-27 07:08:37 d3e129 Exp $
+C $Id: hf2d_all.F,v 1.2 2000-10-25 22:50:05 windus Exp $
       Implicit None
       Logical canAB,canCD,canPQ,dryrun
       
@@ -47,7 +47,7 @@ c
       ngsize = nint*12
       memscr = ngsize + 1
       maxw0new = MaxW0 - ngsize
-      if (dryrun) mem_need = 0
+      mem_need = 0
       if (.not.dryrun) call dfill(ngsize,0.0d00,bERI,1)
       do a_p = 1, NPA
         do b_p = 1,NPB
@@ -132,7 +132,7 @@ c
       ngsize = nint*12
       memscr = ngsize + 1
       maxw0new = MaxW0 - ngsize
-      if (dryrun) mem_need = 0
+      mem_need = 0
       if (.not.dryrun) call dfill(ngsize,0.0d00,bERI,1)
       do apl = 1, NPA, ba
         aph = min( NPA, (apl+ba-1))

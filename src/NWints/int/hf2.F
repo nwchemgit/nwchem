@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.20 2000-06-01 21:06:13 mg201 Exp $
+c $Id: hf2.F,v 1.21 2000-10-25 22:50:06 windus Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -99,6 +99,7 @@ c Assign pointers to scratch space.
       i_ESp   = (maxW0+1) - 3*(NPA*NPB)
       i_right = i_ESp
 
+      MaxMem = 1   ! take care of compiler warnings
       if (DryRun) then
         MaxMem = i_left + (maxW0 - (i_right-1))
         NPP = NPA*NPB
