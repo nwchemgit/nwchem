@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 1997-11-04 10:07:40 d3e129 Exp $
+# $Id: GNUmakefile,v 1.8 1999-06-09 00:49:58 d3e129 Exp $
 #
 #======================================================================
 #
@@ -67,7 +67,8 @@ OBJ_OPTIMIZE=	blktrn.o \
 		mcfftr.o \
 		mrfftr.o \
 		pfft1i.o \
-		pfft1.o
+		pfft1.o \
+		wrkspc2.o
 
 USES_BLAS = drain.F fillup.F
 include ../../../config/makefile.h
