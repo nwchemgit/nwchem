@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.7 2004-05-05 19:33:50 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.8 2004-05-16 05:38:07 edo Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.7  2004/05/05 19:33:50  bylaska
+* hilbert mapping added....EJB
+*
 * Revision 1.6  2004/03/15 15:17:41  bylaska
 * Restructuring for 2d Hilbert mapping.
 *
@@ -669,7 +672,7 @@
            icount_shift = icount_shift + 1
            end do
   100      continue
-#ifdef FUJITSU_SOLARIS
+#if defined(FUJITSU_SOLARIS) || defined(__crayx1)
            backspace 31
 #endif
          else

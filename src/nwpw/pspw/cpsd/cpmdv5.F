@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.39 2004-05-05 19:33:51 bylaska Exp $
+* $Id: cpmdv5.F,v 1.40 2004-05-16 05:38:07 edo Exp $
 *
 
 ***********************************************************************
@@ -573,7 +573,7 @@
            icount_shift = icount_shift + 1
            end do
   100      continue
-#ifdef FUJITSU_SOLARIS
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
            backspace 31
 #endif
          else

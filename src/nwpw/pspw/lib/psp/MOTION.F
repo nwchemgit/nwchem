@@ -1,5 +1,5 @@
 *
-* $Id: MOTION.F,v 1.5 2003-02-27 21:17:43 bert Exp $
+* $Id: MOTION.F,v 1.6 2004-05-16 05:38:07 edo Exp $
 
 *  Note - The format of the MOTION file was changed on 5-8-2002.
 *
@@ -68,7 +68,7 @@
              read(19,*,ERR=30,END=30) ch_tmp
            end do
  30        continue
-#ifdef FUJITSU_SOLARIS
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
            backspace 19
 #endif
 
