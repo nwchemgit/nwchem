@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.132 2000-04-10 16:30:11 hvd Exp $
+C     $Id: geom_input.F,v 1.133 2000-05-04 17:32:52 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -7,6 +7,7 @@ C     $Id: geom_input.F,v 1.132 2000-04-10 16:30:11 hvd Exp $
 #include "tcgmsg.fh"
 #include "rtdb.fh"
 #include "nwc_const.fh"
+#include "mafdecls.fh"
       integer rtdb              ! [input]
 c     
       character*255 field       ! for character input
@@ -22,6 +23,9 @@ c
       logical ozmatrix
       logical oautoz
       logical oautosym
+      logical ocosmo
+      logical oready
+      logical odbug
       logical ocenter
       logical found_cart
       logical ofinite, oatomfinite
@@ -508,6 +512,39 @@ c
      &     call errquit
      &     ('geom_input: geom_verify_coords failed',911)
 c     
+c     ----- process -cosmo- input ... check if rtdb is ready -----
+c
+      odbug =.false.
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(ocosmo) then
+            oready=.true.
+            if(odbug) then
+               write(Luout,*) 'in geom_input , ready is = ',oready
+            endif
+         else
+            oready=.false.
+            if(odbug) then
+               write(Luout,*) 'in geom_input , ready is = ',oready
+            endif
+         endif
+      else
+         oready=.false.
+         if(odbug) then
+            write(Luout,*) 'in geom_input , ready is = ',oready
+         endif
+      endif
+c
+c     ----- if ready ... initialize -cosmo- -----
+c
+      if(oready) then
+         call cosmo_initialize(rtdb)
+      else
+         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
+     $        call errquit('cosmo_input: rtdb_put failed',0)
+      endif
+c
+c     almost done
+c
       if (.not. geom_destroy(geom))
      $     call errquit('geom_input: geom_destroy failed', 0)
 c     
