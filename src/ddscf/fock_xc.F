@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      ,     nmat, g_dens, g_xc,scftype)
 c
-c     $Id: fock_xc.F,v 1.13 2001-06-21 18:52:26 zzhang Exp $
+c     $Id: fock_xc.F,v 1.14 2001-11-16 02:08:33 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -23,7 +23,7 @@ c
       character*4 scftype       ! [in]
       integer nmat              ! [input] number of XC matrices
       integer g_dens(nmat)      ! [input] array of handles to densities
-      integer g_xc(nmat)        ! [input] array of handles to XC matrices
+      integer g_xc              ! [input] array of handles to XC matrices
       integer calc_type         ! [input] type of XC matrix calculation
 c                               !  *** from rtdb
 c                               !  ******* !!! document here !!!
@@ -108,16 +108,6 @@ c
       else
          k_g_dens_scf = k_g_dens_local
       endif
-#if 0
-c     !!! Comment out initialization so fock_xc will accumulate
-c     !!! for storage efficiency
-c
-c     Initialize XC matrices
-c
-      do imat = 1, nmat
-         call ga_zero(g_xc(imat))
-      enddo
-#endif
 c
 c     Prepare to call xc_quadv0
 c
@@ -151,7 +141,7 @@ c
       call grid_quadv0_gen(rtdb, 
      ,         int_mb(k_g_dens_local),g_xc,nexc_dum,
      &     rho_n_dum, Exc_dum,
-     &     nmat, calc_type ,tdum)
+     &     nmat, calc_type ,tdum,.true.)
       else
       call xc_quadv0_gen(rtdb, nExc_dum, g_xc, int_mb(k_g_dens_local),
      &     g_wght_dum, g_xyz_dum, g_nq_dum, wght_GA_dum, Exc_dum,
@@ -179,10 +169,8 @@ c
       call grid_cleanup(rtdb, .true.)
 c
       if (bgj_print() .gt. 0) then
-         do imat = 1, nmat
-            write(*,*)'XC matrix',imat,' at end of fock_xc:'
-            call ga_print(g_xc(imat))
-         enddo
+         write(*,*)'XC matrix',imat,' at end of fock_xc:'
+         call ga_print(g_xc)
          write(*,*)'--------Leaving fock_xc-------------'
       endif
       return
