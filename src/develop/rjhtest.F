@@ -22,6 +22,10 @@
       double precision eri(256), xi(3), xj(3), xk(3), xl(3)
       double precision qi, qj, qk, ql
       character*16 tagi, tagj, tagk, tagl
+      logical int_normalize
+      external int_normalize
+c
+      call ieeetrap
 c
       if (.not. geom_create(geom, geom_name))
      $     call errquit('print_integs: geom_create failed?', 0)
@@ -32,9 +36,15 @@ c
       if (.not. bas_create(basis, basis_name))
      $     call errquit('print_integs: basis create failed', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
-     $      call errquit('print_integs: basis load failed', 0)
+     $     call errquit('print_integs: basis load failed', 0)
+      write(6,*) ' basis before normalization '
       if (.not. bas_print(basis))
-     $      call errquit('print_integs: basis print failed', 0)
+     $     call errquit('print_integs: basis print failed', 0)
+      if (.not. int_normalize(basis))
+     $     call errquit('print_integs: normalize failed', 0)
+      write(6,*) ' basis after normalization '
+      if (.not. bas_print(basis))
+     $     call errquit('print_integs: basis print failed', 0)
       if (.not. gbs_map_print(basis))
      $     call errquit('print_integs: gbs_map_print failed', 0)
 c
@@ -102,7 +112,9 @@ c
                                     do k = klo, khi
                                        do l = llo, lhi
                                           ijkl = ijkl + 1
-                                          write(6,1) i,j,k,l,eri(ijkl)
+                                          if (abs(eri(ijkl)) .gt. 1e-6)
+     $                                         write(6,1) i,j,k,l,
+     $                                         eri(ijkl)
                                        enddo
                                     enddo
                                  enddo
@@ -116,7 +128,7 @@ c
          enddo
       enddo
 c
- 1    format(4i6,f20.10)
+ 1    format(4i6,f20.9)
 
 
       if (.not. geom_destroy(geom))
