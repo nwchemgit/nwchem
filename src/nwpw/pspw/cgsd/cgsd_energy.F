@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.37 2003-04-26 02:42:15 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.38 2003-07-20 00:56:36 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -168,14 +168,17 @@ c#include "rtdb.fh"
 *     **** but skip if doing an SIC calculations   ****
       call psi_spin_density(en)
       call psi_1gen_hml()
+
       call psi_diagonalize_hml()
 
       if (.not.pspw_SIC()) then
        !call psi_diagonalize_hml()
-
        call psi_1rotate2()
        call psi_2to1()
+      else
+       call psi_1gen_hml()
       end if
+ 
 
 *     **** geometrical center and center of mass of the cluster ****
       call center_geom(cx,cy,cz)
@@ -268,7 +271,6 @@ c#include "rtdb.fh"
          end if
 
 *        **** write out KS eigenvalues ****
-         
            write(luout,1500)
            NN=psi_ne(1)-psi_ne(2)
            EV=27.2116
