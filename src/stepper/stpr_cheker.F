@@ -3,7 +3,7 @@
      &       CONVGE, CONVGG,
      &       TRUSTI,TRUST,TRUSTO,SOLD,NNEG,NWALK,
      &       BCKSTP,CNVGRD)
-c $Id: stpr_cheker.F,v 1.5 1996-10-22 21:42:05 d3h449 Exp $
+c $Id: stpr_cheker.F,v 1.6 1996-10-22 23:05:20 d3h449 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD
 #include "chow.fh"
@@ -96,9 +96,9 @@ C
         ELSE
           IF(BCKSTP)THEN
             WRITE(6,*)'  Backstep in progress; trust radius ',
-     $            'set to one-tenth of previous step length.'
+     $            'set to one-quarter of previous step length.'
             TRUSTO = TRUST
-            TRUST = 0.1d0*SOLD
+            TRUST = 0.25d0*SOLD
           ELSE
             TRUST = TRUSTI
             TRUSTO = TRUSTI
