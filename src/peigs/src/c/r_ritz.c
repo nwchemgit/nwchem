@@ -49,8 +49,8 @@ void r_ritz_(n, d, e, eval, map, evec, scratch, info)
       
       /*
 	scratch = T.vec
-      */
-
+	*/
+      
       
       val1 = ddot_(&msize, scratch, &IONE, &evec[ptr][0], &IONE);
       
@@ -64,8 +64,11 @@ void r_ritz_(n, d, e, eval, map, evec, scratch, info)
 	*/
       
       if ( fabs(eval[i]) > 1.e-16 ) {
-	val =fabs(val1 - eval[i])/fabs(eval[i]);
-	if ( val > 1.e-8 ){
+	/*
+	  should do an absolute norm here since that is all bisection can do
+	  */
+	val =fabs(val1 - eval[i]);
+	if ( val > 1.e-13 ){
 	  printf(" PeIGS rayleigh estimates r-ritz i %d eval error val = %20.16f, eval %20.16f rel_error %20.16f \n", i, val1, eval[i], val);
 	  *info = -100;
 	  return;
