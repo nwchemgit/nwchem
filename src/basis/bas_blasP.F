@@ -1,7 +1,7 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.6 1999-03-15 22:58:39 d3e129 Exp $
+* $Id: bas_blasP.F,v 1.7 1999-03-15 22:59:29 d3e129 Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
@@ -47,19 +47,19 @@ c
       oIs_ecp = Is_ECP_in(basis)
       oIs_so  = Is_SO_in(basis)
 c
-*rak:      if (oIs_ecp.and.l_value.eq.(-1)) then
-*rak:        do i = 1,nprim
-*rak:          if (int(rex(i)).eq.0) then
-*rak:            write(luout,*)'This version of nwchem does not support ',
-*rak:     &          'local potentials with an r-exponent of 0'
-*rak:            call util_flush(luout)
-*rak:            write(luout,*)'This should be fixed in a future release',
-*rak:     &          ' of NWChem'
-*rak:            call util_flush(luout)
-*rak:            call errquit(' {ecp}bas_input fatal error ',911)
-*rak:          endif
-*rak:        enddo
-*rak:      endif
+*Ul with rexp=0 :      if (oIs_ecp.and.l_value.eq.(-1)) then
+*Ul with rexp=0 :        do i = 1,nprim
+*Ul with rexp=0 :          if (int(rex(i)).eq.0) then
+*Ul with rexp=0 :            write(luout,*)'This version of nwchem does not support ',
+*Ul with rexp=0 :     &          'local potentials with an r-exponent of 0'
+*Ul with rexp=0 :            call util_flush(luout)
+*Ul with rexp=0 :            write(luout,*)'This should be fixed in a future release',
+*Ul with rexp=0 :     &          ' of NWChem'
+*Ul with rexp=0 :            call util_flush(luout)
+*Ul with rexp=0 :            call errquit(' {ecp}bas_input fatal error ',911)
+*Ul with rexp=0 :          endif
+*Ul with rexp=0 :        enddo
+*Ul with rexp=0 :      endif
 c
 c     adds a new general contraction on the specified tag.  If the
 c     tag is not present it will also add that by calling bas_add_utag
