@@ -574,7 +574,7 @@ c
       integer nrec, ind
       logical ocase, inp_compare
       character*(*) test, array(*)
-      integer i, l, inp_strlen
+      integer i, j, l, inp_strlen
       external inp_compare, inp_strlen
 c
       l = inp_strlen(test)
@@ -586,6 +586,11 @@ c
             if (inp_match) then
                inp_match = .false. ! Ambiguity
                ind = 0
+c
+               write(6,1) test(1:l), (array(j),j=1,nrec)
+ 1             format('inp: ambiguous match for ', a,', in:'/
+     $              100(1x,a/))
+c
                return
             else
                inp_match = .true. ! First match
