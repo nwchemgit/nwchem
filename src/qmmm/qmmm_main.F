@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.21 2004-10-19 20:01:49 marat Exp $
+c $Id: qmmm_main.F,v 1.22 2004-11-24 22:57:51 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -27,7 +27,6 @@ c
 c
       character*32 tag
       character*32 interface
-c      character*32 optimization
       character*255 theory
       logical qmmm_init
       character*32 pname
@@ -44,6 +43,7 @@ c
       logical task_gradient_doit
       external task_gradient_doit
       double precision norm
+      integer nbqs, nbqw
 
       pname = 'qmmm_forces'
       if(qmmm_print_debug()) 
@@ -64,23 +64,6 @@ c
      >      call errquit(pname//'failed to get'//tag,0,
      >       RTDB_ERR)
 
-
-c      if (.not. rtdb_cget(inrtdb,'qmmm:optimization',1,optimization))
-c     $     call errquit('qmmm_forces: failed to get qmmm:optimization',
-c     &       0,RTDB_ERR)
-c
-c      fixqm = .false.
-c      interface = "qm"
-c      if (optimization.eq.'all') then
-c         fixqm = .false.
-c         interface = "mm"
-c      else if (optimization.eq.'mm') then
-c         fixqm = .true.
-c         interface = "mm"
-c      else if (optimization.eq.'qm') then
-c         fixqm = .false.
-c         interface = "qm"
-c      endif
 c
       if(interface.eq.'qm') then
       if(qmmm_print_debug())
@@ -94,10 +77,13 @@ c
  
       call qmmm_create_bq_geom(inrtdb)
  
-      nqm  = qmmm_get_nqm()
-      nbq  = qmmm_get_nbqs()
+      nqm   = qmmm_get_nqm()
+      nbq   = qmmm_get_nbq ()
+      nbqs  = qmmm_get_nbqs()
+      nbqw  = qmmm_get_nbqw()
       ntot = nqm+nbq
-      i_ai = qmmm_get_i_ai()
+
+      i_ai  = qmmm_get_i_ai()
       i_ibq = qmmm_get_i_ibq()
 
       if(.not.ma_alloc_get(MT_DBL, 3*ntot, 'qmmm grad array',
@@ -135,6 +121,12 @@ c
       call mm_get_solute_force_bq(nbq,
      >                               int_mb(i_ibq),
      >                               dbl_mb(i_gbq))
+
+
+      call mm_get_solvent_force(nbqw,
+     >                          int_mb(i_ibq+nbqs),
+     >                          dbl_mb(i_gbq+3*nbqs))
+
 
 
       norm = 0.0d0

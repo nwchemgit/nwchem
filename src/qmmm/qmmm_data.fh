@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_data.fh,v 1.14 2004-11-12 20:14:30 marat Exp $
+c $Id: qmmm_data.fh,v 1.15 2004-11-24 22:57:51 marat Exp $
 c
       logical master
       logical fixlinks
@@ -7,6 +7,7 @@ c
       integer nqm,nlink
       integer i_ai,h_ai
       integer i_lai,h_lai
+      integer i_act,h_act
       integer i_c,h_c
       integer i_q,h_q
       integer i_m,h_m
@@ -26,6 +27,7 @@ c
      &                 nlink,
      &                 i_ai,h_ai,
      &                 i_lai,h_lai,
+     &                 i_act,h_act,
      &                 i_atn,h_atn,
      &                 i_c,h_c,
      &                 i_m,h_m,

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.33 2004-11-12 22:25:25 marat Exp $
+c $Id: qmmm_geom.F,v 1.34 2004-11-24 22:57:51 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -21,6 +21,7 @@ c     local variables
       integer i_t
       integer i_m
       integer i_ind
+      integer i_act
       integer i_lind
       integer i_num
       integer i_q
@@ -36,12 +37,21 @@ c     local variables
       nqm   = qmmm_get_nqm()
       nlink = qmmm_get_nlink()
       i_ind = qmmm_get_i_ai()
+      i_act = qmmm_get_i_act()
       i_lind = qmmm_get_i_lai()
       i_num = qmmm_get_i_num()
       i_c   = qmmm_get_i_c()
       i_q   = qmmm_get_i_q()
       i_t   = qmmm_get_i_t()
       i_m   = qmmm_get_i_m()
+
+c
+c     activate all atoms by default
+c     -----------------------------
+      do i=1,nqm
+        log_mb(i_act+i-1)=.true.
+      end do
+
 
       call mm_get_solute_geom_quant(nqm,
      >                 int_mb(i_ind),
@@ -51,13 +61,13 @@ c     local variables
      >                 dbl_mb(i_m))
 
 
+      do i=1,nqm
+        int_mb(i_num+i-1)=int(dbl_mb(i_q+i-1))
+      end do
 c
 c     adjust link atom names and
 c     basis set if needed
 c     --------------------------
-      do i=1,nqm
-        int_mb(i_num+i-1)=int(dbl_mb(i_q+i-1))
-      end do
       if(nlink.gt.0) then
        call qmmm_link_atoms(nlink,
      >                      nqm,
@@ -69,8 +79,8 @@ c     --------------------------
      >                      dbl_mb(i_m))
 
        if(ga_nodeid().eq.0) then
-         write(*,*) "link list"
-         write(*,*) (int_mb(i_lind+i-1),i=1,nlink)
+         write(*,*) "link bond list"
+         write(*,*) (int_mb(i_lind+i-1),i=1,2*nlink)
        end if
 
       end if
@@ -87,32 +97,39 @@ c     --------------------------
         end do
       end if
 
-      if(.not.geom_create(igeom,'geometry'))
-     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+      if(qmmm_fixlinks() .and. nlink.gt.0) then
 
-      if(.not.geom_cart_set(igeom,nqm,byte_mb(i_t),
-     + dbl_mb(i_c),dbl_mb(i_q)))
-     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
+c        namespace = "qmmm-cons"
+c        if(.not. rtdb_cput(irtdb,"constraints" , 1, namespace)) then
+c           call errquit('qmmm: Failed constraints',0,0)
+c        end if
 
-      if(.not.geom_masses_set(igeom,nqm,dbl_mb(i_m)))
-     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
-      call geom_compute_values(igeom)
- 
-      if(qmmm_master()) then
-        write(6,'(//)')
-        call util_print_centered(6,
-     >   "Initial QMMM geometry (qm region only)",
-     >              36, .true.)
-        if(.not.geom_print_xyz(igeom,6))
-     +      call errquit('qmmm: Failed to print geometry',0)
+        do i=1,2*nlink
+          i1=int_mb(i_lind+i-1)
+          log_mb(i_act+i1-1)=.false.
+        end do
+
+        write(*,*) "list of active atoms"
+        do i=1,nqm
+          write(*,*) i, log_mb(i_act+i-1)
+        end do
+
+c        call cons_add_fixed_atoms(namespace,2*nlink,
+c     >                            int_mb(i_lind),irtdb)
+c     
+c        do i=nqm-nlink+1,nqm
+c          i1=qmmm_geom_heavy_neighbor(i,nqm,int_mb(i_num),dbl_mb(i_c))
+c          tmp(1) = i
+c          tmp(2) = i1
+c          call cons_add_fixed_atoms(namespace,2,tmp,irtdb)
+c        end do
+c        call cons_info_fixed_atoms(namespace,irtdb)
+c        call cons_activate(namespace,irtdb)
       end if
 
-      if(.not.geom_rtdb_store(irtdb,igeom,'qm_geometry'))
-     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+      call  qmmm_create_qm_geom(irtdb)
 
-       if(.not.geom_destroy(igeom))
-     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
-       
+      
       if(.not.rtdb_cput(irtdb,'geometry',1,'qm_geometry'))
      + call errquit('qmmm: to store geom name to rtdb',0, RTDB_ERR)
 
@@ -139,22 +156,6 @@ c
         end if
       end if
 
-      if(qmmm_fixlinks() .and. nlink.gt.0) then
-
-        namespace = "qmmm-cons"
-        if(.not. rtdb_cput(irtdb,"constraints" , 1, namespace)) then
-           call errquit('qmmm: Failed constraints',0,0)
-        end if
-     
-        do i=nqm-nlink+1,nqm
-          i1=qmmm_geom_heavy_neighbor(i,nqm,int_mb(i_num),dbl_mb(i_c))
-          tmp(1) = i
-          tmp(2) = i1
-          call cons_add_fixed_atoms(namespace,2,tmp,irtdb)
-        end do
-        call cons_info_fixed_atoms(namespace,irtdb)
-        call cons_activate(namespace,irtdb)
-      end if
 
        call qmmm_print_pdb(nqm,"-qm.pdb",
      >                    dbl_mb(i_c),
@@ -162,6 +163,86 @@ c
      >                    byte_mb(i_t))
 
 
+      end
+
+      subroutine qmmm_create_qm_geom(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "global.fh"
+      integer irtdb
+c
+      integer i
+      integer icent
+      integer i_c
+      integer i_t
+      integer i_q
+      integer i_m
+      integer i_ind
+      integer nact
+      integer nqm
+      integer i_act
+      integer igeom
+      character*32 pname
+
+      pname = "qmmm_create_qm_geom"
+
+      nqm   = qmmm_get_nqm()
+      i_ind = qmmm_get_i_ai()
+      i_act = qmmm_get_i_act()
+      i_c   = qmmm_get_i_c()
+      i_q   = qmmm_get_i_q()
+      i_t   = qmmm_get_i_t()
+      i_m   = qmmm_get_i_m()
+
+c    
+c     count number of active atoms
+c     ---------------------------
+      nact = 0
+      do i=1,nqm
+       if(log_mb(i_act+i-1)) nact = nact + 1
+      end do
+
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit(pname//': Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_ncent_set(igeom, nact))
+     + call errquit(pname//': Failed ncent ',0, GEOM_ERR)
+
+      icent = 0
+      do i=1,nqm
+        if(log_mb(i_act+i-1)) then
+          icent = icent + 1
+          if(.not.geom_cent_set(igeom, icent,byte_mb(i_t+16*(i-1)),
+     +      dbl_mb(i_c+3*(i-1)),dbl_mb(i_q+i-1)))
+     +      call errquit(pname//':Failed to initialize geometry',
+     +                  0, GEOM_ERR)
+
+          if(.not.geom_mass_set(igeom,icent,dbl_mb(i_m+i-1)))
+     +     call errquit(pname//': to initialize masses',0, GEOM_ERR)
+
+        end if
+      end do
+ 
+      call geom_compute_values(igeom)
+
+      if(ga_nodeid().eq.0) then
+        call util_print_centered(6,"initial QMMM geometry",
+     >              36, .true.)
+        if(.not.geom_print_pdb(igeom,6))
+     +    call errquit('qmmm: Failed to print pdb geometry',0)
+      end if
+
+
+      if(.not.geom_rtdb_store(irtdb,igeom,'qm_geometry'))
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+ 
       end
 
       subroutine qmmm_get_all_coord_qm(irtdb)
@@ -314,23 +395,23 @@ c     -----------------------
 c    --------------------------------------
 c    get qm coordinates out of geometry
 c    --------------------------------------
-      if(.not.geom_create(igeom,'geometry'))
-     + call errquit(pname//' Failed to create geometry',0, GEOM_ERR)
-
-      if(.not.geom_rtdb_load(irtdb,igeom,'geometry')) then
-          if(.not.geom_print(igeom,irtdb))
-     +    call errquit('Failed to print geometry',0, GEOM_ERR)
-      call errquit(pname//'Failed to load geometry',0, GEOM_ERR)
-      end if
-
-      if(.not.geom_rtdb_store(irtdb,igeom,'qm_geometry'))
-     + call errquit(pname//'Failed to store geometry',0, GEOM_ERR)
-
-      if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c))) 
-     >    call errquit(pname//"geom_cart_coords_get",0,0)
-
-       if(.not.geom_destroy(igeom))
-     + call errquit(pname//'Failed to destroy geometry',0, GEOM_ERR)
+c      if(.not.geom_create(igeom,'geometry'))
+c     + call errquit(pname//' Failed to create geometry',0, GEOM_ERR)
+c
+c      if(.not.geom_rtdb_load(irtdb,igeom,'geometry')) then
+c          if(.not.geom_print(igeom,irtdb))
+c     +    call errquit('Failed to print geometry',0, GEOM_ERR)
+c      call errquit(pname//'Failed to load geometry',0, GEOM_ERR)
+c      end if
+c
+c      if(.not.geom_rtdb_store(irtdb,igeom,'qm_geometry'))
+c     + call errquit(pname//'Failed to store geometry',0, GEOM_ERR)
+c
+c      if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c))) 
+c     >    call errquit(pname//"geom_cart_coords_get",0,0)
+c
+c       if(.not.geom_destroy(igeom))
+c     + call errquit(pname//'Failed to destroy geometry',0, GEOM_ERR)
 
 
 c    --------------------------------------
@@ -671,7 +752,7 @@ c     ----------
 #include "qmmm.fh"
       integer nl
       integer n
-      integer lind(nl)
+      integer lind(2*nl)
       double precision inum(n)
       double precision q(n)
       double precision c(3,n)
@@ -697,6 +778,8 @@ c     ---------------
       if(h_link) then
       do i=n-nl+1,n
         i1=qmmm_geom_heavy_neighbor(i,n,inum,c)
+        il=il+1
+        lind(il)=i
         il=il+1
         lind(il)=i1
         do k=1,3
@@ -880,12 +963,23 @@ c     local variables
       integer irtdb
 c     local variables
       integer nqm
+      integer ncent
+      integer icent
+      integer i
+      integer k
+
 
       integer igeom
       integer i_c
+      integer i_act
+      integer i_ctmp,h_ctmp
+      character*32 pname
+
+      pname = "qmmm_get_qm_coord_qm"
 
       nqm   = qmmm_get_nqm()
       i_c   = qmmm_get_i_c()
+      i_act = qmmm_get_i_act()
 
 c    --------------------------------------
 c    get qm coordinates out of geometry
@@ -893,11 +987,42 @@ c    --------------------------------------
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
+      if(.not.rtdb_cput(irtdb,'geometry',1,'qm_geometry'))
+     + call errquit('qmmm: to store geom name to rtdb',0, RTDB_ERR)
+
       if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
-      if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c))) 
+      if(.not. geom_ncent(igeom, ncent) ) 
+     >    call errquit("qmmm:geom_ncent",0,0)
+
+      if(.not.ma_push_get(mt_dbl,3*ncent,'ctmp',h_ctmp,i_ctmp))
+     + call errquit( pname//'Failed to allocate memory for ctmp',
+     + 3*ncent, MA_ERR)
+
+      if(.not. geom_cart_coords_get(igeom,dbl_mb(i_ctmp))) 
      >    call errquit("qmmm:geom_cart_coords_get",0,0)
+
+      icent = 0
+      do i=1,nqm
+        if(log_mb(i_act+i-1)) then
+          icent = icent + 1
+          do k=1,3
+            dbl_mb(i_c+3*(i-1)+k-1) = dbl_mb(i_ctmp+3*(icent-1)+k-1)
+          end do
+        end if
+      end do
+
+      write(*,*) "qmmm_get_qm_coord_qm"
+      do i=1,nqm
+        write(*,*) (dbl_mb(i_c+3*(i-1)+k-1),k=1,3)
+      end do
+
+
+      if(.not.ma_pop_stack(h_ctmp))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack c_tmp',ncent,
+     &       MA_ERR)
 
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
@@ -914,12 +1039,22 @@ c    --------------------------------------
       integer irtdb
 c     local variables
       integer nqm
+      integer ncent
+      integer icent
+      integer i
+      integer k
 
       integer igeom
       integer i_c
+      integer i_act
+      integer i_ctmp,h_ctmp
+      character*32 pname
+
+      pname = "qmmm_push_qm_coord_qm"
 
       nqm   = qmmm_get_nqm()
       i_c   = qmmm_get_i_c()
+      i_act = qmmm_get_i_act()
 
 c    --------------------------------------
 c    get qm coordinates out of geometry
@@ -927,11 +1062,36 @@ c    --------------------------------------
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
+      if(.not.rtdb_cput(irtdb,'geometry',1,'qm_geometry'))
+     + call errquit('qmmm: to store geom name to rtdb',0, RTDB_ERR)
+
       if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
-      if(.not. geom_cart_coords_set(igeom,dbl_mb(i_c))) 
+      if(.not. geom_ncent(igeom, ncent) ) 
+     >    call errquit("qmmm:geom_ncent",0,0)
+
+      if(.not.ma_push_get(mt_dbl,3*ncent,'ctmp',h_ctmp,i_ctmp))
+     + call errquit( pname//'Failed to allocate memory for ctmp',
+     + 3*ncent, MA_ERR)
+
+      icent = 0
+      do i=1,nqm
+        if(log_mb(i_act+i-1)) then
+          icent = icent + 1
+          do k=1,3
+            dbl_mb(i_ctmp+3*(icent-1)+k-1) = dbl_mb(i_c+3*(i-1)+k-1)
+          end do
+        end if
+      end do
+
+      if(.not. geom_cart_coords_set(igeom,dbl_mb(i_ctmp))) 
      >    call errquit("qmmm:geom_cart_coords_get",0,0)
+
+      if(.not.ma_pop_stack(h_ctmp))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack c_tmp',ncent,
+     &       MA_ERR)
 
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('Failed to store geometry',0, GEOM_ERR)
