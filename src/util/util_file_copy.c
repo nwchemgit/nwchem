@@ -1,19 +1,18 @@
 /*
- $Id: util_file_copy.c,v 1.3 1998-06-16 17:18:23 d3g681 Exp $
+ $Id: util_file_copy.c,v 1.4 1998-07-25 00:26:28 d3e129 Exp $
  */
 
 #include <stdio.h>
 #ifdef CRAY
 #include <fortran.h>
 #endif
+#include "global.h"
 
 #ifdef CRAY
 int fortchar_to_string(_fcd, int, char *, const int);
 #else
 int fortchar_to_string(const char *, int, char *, const int);
 #endif
-
-void ga_error(const char *, long);
 
 void util_file_copy(const char *input, const char *output)
 /*
