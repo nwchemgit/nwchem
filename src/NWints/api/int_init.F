@@ -1,5 +1,5 @@
       subroutine int_init(nbas, bases)
-c $Id: int_init.F,v 1.5 1994-04-09 15:46:26 d3e129 Exp $
+c $Id: int_init.F,v 1.6 1994-06-02 18:47:25 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -36,7 +36,9 @@ c
      &         call errquit('int_init: angm error',angm)
         ang2use = max(ang2use,angm)
 00300 continue
-      call defNxyz(ang2use)
+c.      call defNxyz(ang2use)
+c.. for derivatives
+      call defNxyz(ang2use+1)
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
