@@ -1,4 +1,4 @@
-% $Id: qmmm.tex,v 1.9 2002-03-04 23:57:57 d3j191 Exp $
+% $Id: qmmm.tex,v 1.10 2003-04-11 14:10:05 d3j191 Exp $
 
 \label{sec:qmmm}
 
@@ -82,6 +82,14 @@ the particular QM method being utilized.  Therefor, the determination
 of the QM separated atom energy (``eatoms'') is left to the user.
 There is no default for this and the input {\bf must} be present for a
 QM/MM simulation.  
+
+\item
+\begin{verbatim}
+qatoms < real qatoms>
+\end{verbatim}
+
+This input directive is used to specify the total charge on the set
+of quantum atoms.
 
 \item
 \begin{verbatim}
