@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.145 2001-11-08 01:10:21 edo Exp $
+C     $Id: geom_input.F,v 1.146 2001-12-18 00:52:27 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2869,10 +2869,11 @@ c
 c
       ir=LuIN 
       iw=LuOut 
+      nat=ncenter
       if(some) then
          write(iw,9999)
          if(dbug) then
-            do i=1,nat    
+            do i=1,nat  
                write(iw,9998) i,charge(i),
      1                        coords(1,i),coords(2,i),coords(3,i),
      2                        tags(i)
@@ -2880,7 +2881,6 @@ c
          endif
       endif
 c
-      nat=ncenter
       do i=1,ncenter
          atmlab(i)=tags(i)
          zan(i)=     charge(i) 
@@ -3077,8 +3077,10 @@ C
       COMPLEX*16  QZERO
       COMPLEX*16  QDUMX,QDUMY,QDUMZ
       COMPLEX*16  QDUMI,QDUMJ
+      character*16 atmlab
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLNUC/NUC(MXATOM)
+      common/hnd_mollab/atmlab(mxatom)
       DIMENSION IEQU(MXATOM)
       DIMENSION   QX(MXORDR),  QY(MXORDR),  QZ(MXORDR)
       DIMENSION XMAG(MXORDR),YMAG(MXORDR),ZMAG(MXORDR)
@@ -3113,7 +3115,8 @@ c     DATA TENM02 /1.0D-02/
       DATA TENM04 /1.0D-04/
       DATA TENM05 /1.0D-05/
       DATA EPS    /1.01D+00/
-C
+      logical sameatm
+      sameatm(JAT,IAT)=ATMLAB(JAT).EQ.ATMLAB(IAT)
       big=dlamch('o')**(0.125d0)
       QZERO=cmplx(ZERO,ZERO)
          PI=    FOUR*ATAN(ONE)
@@ -3199,7 +3202,7 @@ C
          DO IAT=1,NAT
             INVERS=.FALSE.
             DO JAT=1,NAT
-               IF(NUC(JAT).EQ.NUC(IAT).AND..NOT.INVERS) THEN
+               IF(sameatm(JAT,IAT).AND..NOT.INVERS) THEN
                   DX=C1(1,IAT)+C1(1,JAT)
                   DY=C1(2,IAT)+C1(2,JAT)
                   DZ=C1(3,IAT)+C1(3,JAT)
@@ -3237,7 +3240,7 @@ C
                DISTI=SQRT(DUM)
                IF(DISTI.GT.THREQUIV) THEN
                   DO JAT=1,NAT
-                     IF(NUC(JAT).EQ.NUC(IAT).AND.JAT.NE.IAT) THEN
+                     IF(sameatm(JAT,IAT).AND.JAT.NE.IAT)THEN
                         DUM=C1(1,JAT)**2+C1(2,JAT)**2+C1(3,JAT)**2
                         DISTJ=SQRT(DUM)
                         IF(ABS(DISTJ-DISTI).LT.THREQUIV) THEN
@@ -3715,7 +3718,7 @@ C
          DO IAT=1,NAT
             PRPAXS=.FALSE.
             DO JAT=1,NAT
-               IF(NUC(JAT).EQ.NUC(IAT).AND..NOT.PRPAXS) THEN
+               IF(sameatm(JAT,IAT).AND..NOT.PRPAXS) THEN
                   QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))
                   RR=ABS(QDUMI)
                   QDUMI=CMPLX(COS(THETA),SIN(THETA))*QDUMI
@@ -3743,7 +3746,7 @@ C
          DO IAT=1,NAT
             IMPAXS=.FALSE.
             DO JAT=1,NAT
-               IF(NUC(JAT).EQ.NUC(IAT).AND..NOT.IMPAXS) THEN
+               IF(sameatm(JAT,IAT).AND..NOT.IMPAXS) THEN
                   QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))
                   RR=ABS(QDUMI)
                   QDUMI=CMPLX(COS(THETA),SIN(THETA))*QDUMI
@@ -3933,7 +3936,7 @@ c
             endif
 c
 
-            call check_c2_perp(symc2x,symc2y,c2,nuc,
+            call check_c2_perp(symc2x,symc2y,c2,atmlab,
      1                         nat,threquiv)
           endif
         enddo
@@ -3986,7 +3989,7 @@ C
       DO IAT=1,NAT
          INVERS=.FALSE.
          DO JAT=1,NAT
-            IF(NUC(JAT).EQ.NUC(IAT).AND..NOT.INVERS) THEN
+            IF(sameatm(JAT,IAT).AND..NOT.INVERS) THEN
                DX=C3(1,IAT)+C3(1,JAT)
                DY=C3(2,IAT)+C3(2,JAT)
                DZ=C3(3,IAT)+C3(3,JAT)
@@ -4014,7 +4017,7 @@ C
       DO IAT=1,NAT
          MIRROR=.FALSE.
          DO JAT=1,NAT
-            IF(NUC(JAT).EQ.NUC(IAT).AND..NOT.MIRROR) THEN
+            IF(sameatm(JAT,IAT).AND..NOT.MIRROR) THEN
                DX=C3(1,IAT)+C3(1,JAT)
                DY=C3(2,IAT)-C3(2,JAT)
                DZ=C3(3,IAT)-C3(3,JAT)
@@ -4036,7 +4039,7 @@ C
       DO IAT=1,NAT
          MIRROR=.FALSE.
          DO JAT=1,NAT
-            IF(NUC(JAT).EQ.NUC(IAT).AND..NOT.MIRROR) THEN
+            IF(sameatm(JAT,IAT).AND..NOT.MIRROR) THEN
                DX=C3(1,IAT)-C3(1,JAT)
                DY=C3(2,IAT)+C3(2,JAT)
                DZ=C3(3,IAT)-C3(3,JAT)
@@ -4058,7 +4061,7 @@ C
       DO IAT=1,NAT
          MIRROR=.FALSE.
          DO JAT=1,NAT
-            IF(NUC(JAT).EQ.NUC(IAT).AND..NOT.MIRROR) THEN
+            IF(sameatm(JAT,IAT).AND..NOT.MIRROR) THEN
                DX=C3(1,IAT)-C3(1,JAT)
                DY=C3(2,IAT)-C3(2,JAT)
                DZ=C3(3,IAT)+C3(3,JAT)
@@ -5817,7 +5820,7 @@ c
 
       end
 c
-      subroutine check_c2_perp(symc2x,symc2y,c2,nuc,
+      subroutine check_c2_perp(symc2x,symc2y,c2,atmlab,
      1                         nat,threquiv)
 c
 c     check for a c2 axis perpendicular to the z axis
@@ -5825,9 +5828,10 @@ c
       implicit none
 #include "stdio.fh"
 c
-      integer nat, i, j, k, iat, jat, iaxis, nuc(nat)
+      integer nat, i, j, k, iat, jat, iaxis
       logical symc2x, symc2y, prpaxs, proper(2)
       logical some, dbug
+      character*16 atmlab(*)
       double precision theta, c2(3,nat)
       double precision pi, rr, dd, dz
       double precision threquiv
@@ -5853,7 +5857,7 @@ c
         DO IAT=1,NAT
            PRPAXS=.FALSE.
            DO JAT=1,NAT
-              IF(NUC(JAT).EQ.NUC(IAT).AND..NOT.PRPAXS) THEN
+              IF(atmlab(JAT).EQ.atmlab(IAT).AND..NOT.PRPAXS) THEN
                  QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))
                  RR=ABS(QDUMI)
                  QDUMI=CMPLX(COS(THETA),SIN(THETA))*QDUMI
