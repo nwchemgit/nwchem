@@ -1,5 +1,5 @@
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.12 1994-09-22 13:34:05 d3e129 Exp $
+c $Id: int_init.F,v 1.13 1994-09-23 00:23:20 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -151,6 +151,7 @@ c
 #include "pstat.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "global.fh"
 c
       integer rtdb  ! rtdb handle
 c
@@ -162,7 +163,8 @@ c
         int_time_level = intt_lvl_tmp
       endif
       status = rtdb_parallel(rtdb_status)
-      write(6,*)' integral timing at level ',int_time_level
+      if (ga_nodeid().eq.0)
+     &    write(6,*)' integral timing at level ',int_time_level
       if (int_time_level.gt.0) o_int_time = .true.
 c
 c.. allocate pstat handles
@@ -206,6 +208,7 @@ c
 c
       if (o_int_time) call pstat_print_all()
       o_int_time = .false.
+      status = .true.
       if (int_time_level.ge.1) then
         status = pstat_free(intt_hf1)
         status = status .and. pstat_free(intt_hf2)
