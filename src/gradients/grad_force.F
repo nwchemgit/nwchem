@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.59 2004-04-15 22:44:42 marat Exp $
+c     $Id: grad_force.F,v 1.60 2004-04-21 18:19:53 marat Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -1035,8 +1035,6 @@ c
 c**** list of active atoms ****
       if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type, 
      $     nactive, l_actlist)) then
-         if(ga_nodeid().eq.0) write(*,*) "geometry:actlist handle1",
-     >        l_actlist
          if (.not. ma_get_index(l_actlist, k_actlist))
      $        call errquit('grad_act_at: ma_get_inded failed',l_actlist,
      &       MA_ERR)
