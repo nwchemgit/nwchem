@@ -1,12 +1,13 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.18 2000-09-11 15:34:35 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.19 2001-01-18 21:03:27 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 #include "mafdecls.fh"
 #include "msgids.fh"
+#include "util.fh"
 c
       real*8 x(msa,3),w(mwm,mwa,3)
       integer ix(msa)
@@ -54,8 +55,10 @@ c
       endif
       if(nwm.gt.mwm)
      + call errquit('Restart file not compatible with trajectory',nwm)
-c      write(*,'(f12.6,3i10,1x,4l1)')
-c     + time,inwm,inwa,nsa,lxw,lvw,lsx,lsv
+      if(util_print('frames_read',print_debug)) then
+      write(*,'(a,f12.6,3i10,1x,4l1)')
+     + ' Frame read:',time,inwm,inwa,nsa,lxw,lvw,lsx,lsv
+      endif
 c      read(lfntrj,1003) lxw,lvw,lsx,lsv
  1003 format(4l1,3i10)
       if(nsa.gt.msa) call errquit('Error in trj 1',0)
