@@ -1,6 +1,6 @@
       subroutine ana_groups(card,sgmnam,imol,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.8 2002-06-25 18:13:14 d3j191 Exp $
+c $Id: ana_groups.F,v 1.9 2002-06-25 22:43:10 d3j191 Exp $
 c
       implicit none
 c
@@ -22,17 +22,12 @@ c
       if(ngroups.gt.maxgrp) call errquit('Increase maxgrp',maxgrp)
 c
       if(card(1:6).eq.'groups') then
-      read(card(8:53),1000) (igroups(ngroups,i),i=1,2),
-     + (igroups(ngroups,i),i=5,6),
-     + (rgroups(ngroups,i),i=1,2)
- 1000 format(2i7,i5,i3,2f12.6)
-      else
       read(card(8:67),1001) (igroups(ngroups,i),i=1,6),
      + (rgroups(ngroups,i),i=1,2)
  1001 format(4i7,i5,i3,2f12.6)
       endif
 c
-      filgrp=card(54:80)
+      filgrp=card(68:80)
       if(filgrp(1:1).ne.' ') then
       open(unit=lfngrp,file=filgrp(1:index(filgrp,' ')-1),
      + form='formatted',status='unknown')
@@ -50,7 +45,7 @@ c
       end
       subroutine ana_group(card,sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: ana_groups.F,v 1.8 2002-06-25 18:13:14 d3j191 Exp $
+c $Id: ana_groups.F,v 1.9 2002-06-25 22:43:10 d3j191 Exp $
 c
       implicit none
 c

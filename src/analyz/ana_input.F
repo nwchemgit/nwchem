@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.57 2002-06-25 18:13:14 d3j191 Exp $
+c $Id: ana_input.F,v 1.58 2002-06-25 22:43:10 d3j191 Exp $
 c
       implicit none
 c
@@ -432,7 +432,7 @@ c
      + call errquit('Error in groups definition',4)
       write(lfncmd,1022) isel,jsel,ksel,lsel,iopt,ipbc,rsel,rval,
      + item(1:index(item,' ')-1)
- 1022 format('Groups ',4i7,i5,i3,2f12.6,a)
+ 1022 format('groups ',4i7,i5,i3,2f12.6,a)
       numcmd=numcmd+1
       goto 2
       endif

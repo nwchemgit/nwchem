@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.78 2002-06-25 18:13:14 d3j191 Exp $
+c $Id: ana_task.F,v 1.79 2002-06-25 22:43:10 d3j191 Exp $
 c
       implicit none
 c
@@ -421,7 +421,7 @@ c
 c     atom groups directives
 c     ----------------------
 c
-      if(card(1:6).eq.'groups'.or.card(1:6).eq.'Groups') then
+      if(card(1:6).eq.'groups') then
       call ana_groups(card,byte_mb(i_snam),int_mb(i_imol),
      + int_mb(i_isel),dbl_mb(i_wt),dbl_mb(i_xref))
       goto 1
