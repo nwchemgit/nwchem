@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.27 1996-05-20 22:55:57 og845 Exp $
+C$Id: dft_scf.F,v 1.28 1996-06-20 00:23:35 d3h449 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -270,10 +270,10 @@ C        if (ga_uses_ma()) avail = avail - ga_memory_avail()
           write (LuOut,*) ' CANNOT HOLD  INTS in core'
           write(LuOut,*) ' add ',n3c_dbl-avail,
      , ' doubles to keep ints in core '
+        elseif(incore.and.me.eq.0) then
+          write (LuOut,*) ' Coulomb component computed incore.'
         endif
-
       endif
-
 c
 c     set initial coulomb acc to 1e-5
 c
