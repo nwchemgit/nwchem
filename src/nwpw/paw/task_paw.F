@@ -1,5 +1,5 @@
 *
-* $Id: task_paw.F,v 1.3 2002-07-12 21:23:45 marat Exp $
+* $Id: task_paw.F,v 1.4 2002-07-30 21:21:43 marat Exp $
 *
 
       logical function task_paw(rtdb)
@@ -49,6 +49,10 @@ c
        call init_paw_basis(2,(/"h","o"/))
        call init_paw_kin_matrix()
        call init_paw_ion_matrix()
+       call init_paw_vloc_matrix()
+       call init_paw_core_matrix()
+
+      call dealloc_paw_basis_data()
         write(*,*)  ">>>> PAW Parallel Module - steepest_descent <<<<"
       end if
 
@@ -72,6 +76,7 @@ c
  9999 continue
       dummy = rtdb_parallel(.true.)
       task_paw = value
+      
 
       return
       end
