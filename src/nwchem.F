@@ -16,6 +16,8 @@ c     open the rtdb first so that can get memory directive out of that
 c     if it is not in the input
 c
       call input_mem_size(stack, heap)
+      stack = -1
+      heap = -1
 c
 c     Initialize local memory allocator
 c
@@ -63,6 +65,9 @@ c     Figure out if this is a start/restart and what the database
 c     and file prefix are
 c
       call input_start_opt(rtdb_name, file_prefix, startup)
+      rtdb_name = 'h2o.db'
+      file_prefix = 'h2o'
+      startup = .false.
 c
 c     Actually open the database and insert the file_prefix
 c
@@ -114,7 +119,6 @@ c
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         
          goto (10, 20, 30, 40) ind
 c
          write(6,*) ' Unimplemented task ', 

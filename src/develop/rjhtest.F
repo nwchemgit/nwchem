@@ -1,7 +1,8 @@
       subroutine rjhtest(rtdb)
       implicit none
       integer rtdb
-      call print_integs(rtdb, 'geometry','mo basis')
+*      call print_integs(rtdb, 'geometry','mo basis')
+      call scf(rtdb)
       end
       subroutine print_integs(rtdb, geom_name, basis_name)
       implicit none
@@ -25,12 +26,7 @@
       logical int_normalize
       external int_normalize
 c
-      call scf(rtdb)
-      return
-c
-#if defined(SUN)
-      call ieeetrap
-#endif
+*      call ieeetrap
 c
       if (.not. geom_create(geom, geom_name))
      $     call errquit('print_integs: geom_create failed?', 0)

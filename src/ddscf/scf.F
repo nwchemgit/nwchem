@@ -113,24 +113,23 @@ c
 c     Extract high level info from the data-base setting defaults
 c
 c     
-*      if (.not. rtdb_cget(rtdb, 'title', 1, title))
-*     $     title = ' '
-*      if (.not. geom_create(geom, 'geometry'))
-*     $     call errquit('scf: geom_create?', 0)
-*      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-*     $     call errquit('scf: no geometry ', 0)
-*      if (.not. bas_create(basis, 'mo basis'))
-*     $     call errquit('scf: bas_create?', 0)
-*      if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
-*     $     call errquit('scf: no mo basis ', 0)
-      basis = -999
+      if (.not. rtdb_cget(rtdb, 'title', 1, title))
+     $     title = ' '
+      if (.not. geom_create(geom, 'geometry'))
+     $     call errquit('scf: geom_create?', 0)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     $     call errquit('scf: no geometry ', 0)
+      if (.not. bas_create(basis, 'mo basis'))
+     $     call errquit('scf: bas_create?', 0)
+      if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
+     $     call errquit('scf: no mo basis ', 0)
 *      if (.not. context_rtdb_match(rtdb, 'mo vector file', movecs))
 *     $     movecs = file_prefix_name('movecs')
-*      movecs = 'movecs'
-*      if (.not. context_rtdb_match(rtdb, 'input mo vector file',
-*     $     movecs_in)) movecs_in = movecs
-*      if (.not. context_rtdb_match(rtdb, 'output mo vector file',
-*     $     movecs_in)) movecs_out = movecs_in
+      movecs = 'movecs'
+      if (.not. context_rtdb_match(rtdb, 'input mo vector file',
+     $     movecs_in)) movecs_in = movecs
+      if (.not. context_rtdb_match(rtdb, 'output mo vector file',
+     $     movecs_in)) movecs_out = movecs_in
 c
 c     Figure out the numer of electrons from the required total
 c     charge and the sum of nuclear charges
@@ -153,12 +152,12 @@ c
             write(6,*)
             write(6,*)
          endif
-*         if (.not. geom_print(geom)) call errquit('scf: geom_print ?',0)
+         if (.not. geom_print(geom)) call errquit('scf: geom_print ?',0)
          write(6,1) charge, 'rhf'
  1       format(/
      $        '  charge          = ', f6.2/
      $        '  wavefunction    = ', a/)
-*         if (.not. bas_print(basis)) call errquit('scf: bas_print ?',0)
+         if (.not. bas_print(basis)) call errquit('scf: bas_print ?',0)
          call util_flush(6)
       endif
 c     
