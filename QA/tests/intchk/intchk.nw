@@ -1,0 +1,500 @@
+#  What works in NWCHEM
+#                         energy                      derivatives 
+#                 1e     2e(McDav)   2e(texas)  1e   2e(McDav)  2e(texas)
+# sp shells       yes      no          yes      no     no         no
+# spherical       yes      yes         yes      yes    yes        yes
+# general cont.   yes      no          yes      no     no         yes 
+#
+# not sp shells and general contractions do not work together in texas
+#
+# test cases this input covers
+#
+#  sp shells   spherical   general contractions  test case basis set name 
+#    no           no             no                  nsp_cart_ngc         
+#    no           no             yes                 nsp_cart_gc          
+#    no           yes            no                  nsp_sph_ngc          
+#    no           yes            yes                 nsp_sph_gc           
+#    yes          no             no                  sp_cart_ngc          
+#    yes          no             not with sp         sp_cart_gc           
+#    yes          yes            no                  sp_sph_ngc           
+#    yes          yes            not with sp         sp_sph_gc            
+#    
+#  test case basis set name    energy  gradient (both txs/McDav)  tasks              
+#      nsp_cart_ngc              yes     yes        yes            2 grad      1,2
+#      nsp_cart_gc               yes     no         no             1 energy    3       
+#      nsp_sph_ngc               yes     yes        yes            2 grad      4,5      
+#      nsp_sph_gc                yes     no         no             1 energy    6      
+#      sp_cart_ngc               yes     no         no             1 energy    7
+#      sp_cart_gc                no      no         no             
+#      sp_sph_ngc                yes     no         no             1 energy    8
+#      sp_sph_gc                 no      no         no             
+#
+# total of 8 tasks
+#
+
+title; test case for integral methods
+
+start intchk
+
+memory heap 30 mb stack 60 mb global 20 mb
+
+basis "nsp_cart_ngc" print segment cartesian
+C  S
+  0.1675097360D+02   0.56376    -0.14469 
+  0.2888377460D+01   0.69771    -0.31014 
+  0.6904575040D+00  -0.27058     0.37936 
+C  S
+  0.1813976910D+00 1.0
+C  P
+  0.1675097360D+02 0.01728   0.56124
+  0.2888377460D+01 0.12274   0.14810
+  0.6904575040D+00 0.46512   0.02086 
+C  P
+  0.1813976910D+00 1.0
+C  D
+  0.8000000000D+00 0.60130  -0.59826
+  0.41            -4.46009   2.22179 
+C  F
+  0.1000000000D+01 1.0
+C  G
+  0.610000000      1.0
+O  S
+  0.1842936330D+02   0.74080    -0.22131 
+  0.4047420810D+01   0.32649    -0.18875 
+  0.1093836980D+01  -0.01862    -0.32132 
+O  S
+  0.2906290230D+00 1.0
+O  P
+  0.1842936330D+02  0.03817  0.40991 
+  0.4047420810D+01  0.19664  0.18120
+  0.1093836980D+01  0.44177  0.03455 
+O  P
+  0.2906290230D+00 1.0
+O  D
+  0.8000000000D+00 0.01199  0.69309
+  0.42             0.17729  0.05585    
+O  F
+  0.1100000000D+01 1.0
+O  G
+  0.620000000      1.0
+H  S
+  0.1873113696D+02   0.01273     0.02297 
+  0.2825394365D+01   0.09086    -0.00804 
+  0.6401216923D+00   0.37128     1.35954 
+H  S
+  0.1612777588D+00 1.0
+H  P
+  0.6401216923D+00 1.0
+end
+
+basis "nsp_cart_gc" print nosegment cartesian
+C  S
+  0.1675097360D+02   0.56376    -0.14469 
+  0.2888377460D+01   0.69771    -0.31014 
+  0.6904575040D+00  -0.27058     0.37936 
+C  S
+  0.1813976910D+00 1.0
+C  P
+  0.1675097360D+02 0.01728   0.56124
+  0.2888377460D+01 0.12274   0.14810
+  0.6904575040D+00 0.46512   0.02086 
+C  P
+  0.1813976910D+00 1.0
+C  D
+  0.8000000000D+00 0.60130  -0.59826
+  0.41            -4.46009   2.22179 
+C  F
+  0.1000000000D+01 1.0
+C  G
+  0.610000000      1.0
+O  S
+  0.1842936330D+02   0.74080    -0.22131 
+  0.4047420810D+01   0.32649    -0.18875 
+  0.1093836980D+01  -0.01862    -0.32132 
+O  S
+  0.2906290230D+00 1.0
+O  P
+  0.1842936330D+02  0.03817  0.40991 
+  0.4047420810D+01  0.19664  0.18120
+  0.1093836980D+01  0.44177  0.03455 
+O  P
+  0.2906290230D+00 1.0
+O  D
+  0.8000000000D+00 0.01199  0.69309
+  0.42             0.17729  0.05585    
+O  F
+  0.1100000000D+01 1.0
+O  G
+  0.620000000      1.0
+H  S
+  0.1873113696D+02   0.01273     0.02297 
+  0.2825394365D+01   0.09086    -0.00804 
+  0.6401216923D+00   0.37128     1.35954 
+H  S
+  0.1612777588D+00 1.0
+H  P
+  0.6401216923D+00 1.0
+end
+
+basis "nsp_sph_ngc" print segment spherical
+C  S
+  0.1675097360D+02   0.56376    -0.14469 
+  0.2888377460D+01   0.69771    -0.31014 
+  0.6904575040D+00  -0.27058     0.37936 
+C  S
+  0.1813976910D+00 1.0
+C  P
+  0.1675097360D+02 0.01728   0.56124
+  0.2888377460D+01 0.12274   0.14810
+  0.6904575040D+00 0.46512   0.02086 
+C  P
+  0.1813976910D+00 1.0
+C  D
+  0.8000000000D+00 0.60130  -0.59826
+  0.41            -4.46009   2.22179 
+C  F
+  0.1000000000D+01 1.0
+C  G
+  0.610000000      1.0
+O  S
+  0.1842936330D+02   0.74080    -0.22131 
+  0.4047420810D+01   0.32649    -0.18875 
+  0.1093836980D+01  -0.01862    -0.32132 
+O  S
+  0.2906290230D+00 1.0
+O  P
+  0.1842936330D+02  0.03817  0.40991 
+  0.4047420810D+01  0.19664  0.18120
+  0.1093836980D+01  0.44177  0.03455 
+O  P
+  0.2906290230D+00 1.0
+O  D
+  0.8000000000D+00 0.01199  0.69309
+  0.42             0.17729  0.05585    
+O  F
+  0.1100000000D+01 1.0
+O  G
+  0.620000000      1.0
+H  S
+  0.1873113696D+02   0.01273     0.02297 
+  0.2825394365D+01   0.09086    -0.00804 
+  0.6401216923D+00   0.37128     1.35954 
+H  S
+  0.1612777588D+00 1.0
+H  P
+  0.6401216923D+00 1.0
+end
+
+
+basis "nsp_sph_gc" print nosegment spherical
+C  S
+  0.1675097360D+02   0.56376    -0.14469 
+  0.2888377460D+01   0.69771    -0.31014 
+  0.6904575040D+00  -0.27058     0.37936 
+C  S
+  0.1813976910D+00 1.0
+C  P
+  0.1675097360D+02 0.01728   0.56124
+  0.2888377460D+01 0.12274   0.14810
+  0.6904575040D+00 0.46512   0.02086 
+C  P
+  0.1813976910D+00 1.0
+C  D
+  0.8000000000D+00 0.60130  -0.59826
+  0.41            -4.46009   2.22179 
+C  F
+  0.1000000000D+01 1.0
+C  G
+  0.610000000      1.0
+O  S
+  0.1842936330D+02   0.74080    -0.22131 
+  0.4047420810D+01   0.32649    -0.18875 
+  0.1093836980D+01  -0.01862    -0.32132 
+O  S
+  0.2906290230D+00 1.0
+O  P
+  0.1842936330D+02  0.03817  0.40991 
+  0.4047420810D+01  0.19664  0.18120
+  0.1093836980D+01  0.44177  0.03455 
+O  P
+  0.2906290230D+00 1.0
+O  D
+  0.8000000000D+00 0.01199  0.69309
+  0.42             0.17729  0.05585    
+O  F
+  0.1100000000D+01 1.0
+O  G
+  0.620000000      1.0
+H  S
+  0.1873113696D+02   0.01273     0.02297 
+  0.2825394365D+01   0.09086    -0.00804 
+  0.6401216923D+00   0.37128     1.35954 
+H  S
+  0.1612777588D+00 1.0
+H  P
+  0.6401216923D+00 1.0
+end
+
+basis "sp_cart_ngc" print nosegment cartesian
+C  SP
+  0.1675097360D+02   0.56376  0.01728
+  0.2888377460D+01   0.69771  0.12274
+  0.6904575040D+00  -0.27058  0.46512
+C  SP
+  0.1675097360D+02  -0.14469  0.56124 
+  0.2888377460D+01  -0.31014  0.14810 
+  0.6904575040D+00   0.37936  0.02086 
+C  SP
+  0.1813976910D+00 1.0 1.0
+C  D
+  0.8000000000D+00  0.60130
+  0.41             -4.46009
+C  D
+  0.8000000000D+00 -0.59826
+  0.41              2.22179 
+C  F
+  0.1000000000D+01 1.0
+C  G
+  0.610000000      1.0
+O  SP
+  0.1842936330D+02   0.74080  0.03817
+  0.4047420810D+01   0.32649  0.19664
+  0.1093836980D+01  -0.01862  0.44177
+O  SP
+  0.1842936330D+02  -0.22131  0.40991 
+  0.4047420810D+01  -0.18875  0.18120 
+  0.1093836980D+01  -0.32132  0.03455 
+O  SP
+  0.2906290230D+00 1.0 1.0
+O  D
+  0.8000000000D+00 0.01199
+  0.42             0.17729
+O  D
+  0.8000000000D+00 0.69309
+  0.42             0.05585    
+O  F
+  0.1100000000D+01 1.0
+O  G
+  0.620000000      1.0
+H  S
+  0.1873113696D+02   0.01273
+  0.2825394365D+01   0.09086
+  0.6401216923D+00   0.37128
+H  S
+  0.1873113696D+02   0.02297 
+  0.2825394365D+01  -0.00804 
+  0.6401216923D+00   1.35954 
+H  S
+  0.1612777588D+00 1.0
+H  P
+  0.6401216923D+00 1.0
+end
+basis "sp_sph_ngc" print nosegment spherical
+C  SP
+  0.1675097360D+02   0.56376  0.01728
+  0.2888377460D+01   0.69771  0.12274
+  0.6904575040D+00  -0.27058  0.46512
+C  SP
+  0.1675097360D+02  -0.14469  0.56124 
+  0.2888377460D+01  -0.31014  0.14810 
+  0.6904575040D+00   0.37936  0.02086 
+C  SP
+  0.1813976910D+00 1.0 1.0
+C  D
+  0.8000000000D+00  0.60130
+  0.41             -4.46009
+C  D
+  0.8000000000D+00 -0.59826
+  0.41              2.22179 
+C  F
+  0.1000000000D+01 1.0
+C  G
+  0.610000000      1.0
+O  SP
+  0.1842936330D+02   0.74080  0.03817
+  0.4047420810D+01   0.32649  0.19664
+  0.1093836980D+01  -0.01862  0.44177
+O  SP
+  0.1842936330D+02  -0.22131  0.40991 
+  0.4047420810D+01  -0.18875  0.18120 
+  0.1093836980D+01  -0.32132  0.03455 
+O  SP
+  0.2906290230D+00 1.0 1.0
+O  D
+  0.8000000000D+00 0.01199
+  0.42             0.17729
+O  D
+  0.8000000000D+00 0.69309
+  0.42             0.05585    
+O  F
+  0.1100000000D+01 1.0
+O  G
+  0.620000000      1.0
+H  S
+  0.1873113696D+02   0.01273
+  0.2825394365D+01   0.09086
+  0.6401216923D+00   0.37128
+H  S
+  0.1873113696D+02   0.02297 
+  0.2825394365D+01  -0.00804 
+  0.6401216923D+00   1.35954 
+H  S
+  0.1612777588D+00 1.0
+H  P
+  0.6401216923D+00 1.0
+end
+
+geometry print
+C   0.00000000     0.00000000    -0.49605616
+O   0.00000000     0.00000000     0.68022911
+H   0.00000000     0.92724885    -1.08515798
+H   0.00000000    -0.92724885    -1.08515798
+end
+
+task version
+#mytask 1 of 10: nsp_cart_ngc with texas
+set "ao basis" "nsp_cart_ngc"
+scf;thresh 1.0e-6;vectors input atomic;end
+set int:txs:limxmem integer 4000000
+task scf gradient
+
+#mytask 2 of 10: nsp_cart_ngc without texas
+unset int:*
+unset scf:*
+set "int:cando_txs" logical false
+scf;thresh 1.0e-6;vectors input atomic;end
+task scf gradient
+
+#mytask 3 of 10: nsp_cart_gc only with texas
+unset int:*
+unset scf:*
+set "ao basis" "nsp_cart_gc"
+scf;thresh 1.0e-6;vectors input atomic;end
+task scf energy
+
+#mytask 4 of 10: nsp_sph_ngc with texas
+unset int:*
+unset scf:*
+set "ao basis" "nsp_sph_ngc"
+set int:txs:limxmem integer 4000000
+scf;thresh 1.0e-6;vectors input atomic;end
+task scf gradient
+
+#mytask 5 of 10: nsp_sph_ngc wihtout texas
+unset int:*
+unset scf:*
+scf;thresh 1.0e-6;vectors input atomic;end
+set "int:cando_txs" logical false
+task scf gradient
+
+#mytask 6 of 10: nsp_sph_gc only with texas
+unset int:*
+unset scf:*
+set "ao basis" "nsp_sph_gc"
+scf;thresh 1.0e-6;vectors input atomic;end
+task scf energy
+
+#mytask 7 of 10: sp_cart_ngc only with texas
+unset int:*
+unset scf:*
+set "ao basis" "sp_cart_ngc"
+scf;thresh 1.0e-6;vectors input atomic;end
+task scf energy
+
+#mytask 8 of 10: sp_sph_ngc only with texas
+unset int:*
+unset scf:*
+set "ao basis" "sp_sph_ngc"
+task scf energy
+
+eof
+enter
+
+#:sp and gc do not work in texas:--basis "sp_cart_gc" print nosegment cartesian
+#:sp and gc do not work in texas:--C  SP
+#:sp and gc do not work in texas:--  0.1675097360D+02   0.56376  0.01728
+#:sp and gc do not work in texas:--  0.2888377460D+01   0.69771  0.12274
+#:sp and gc do not work in texas:--  0.6904575040D+00  -0.27058  0.46512
+#:sp and gc do not work in texas:--C  SP
+#:sp and gc do not work in texas:--  0.1675097360D+02  -0.14469  0.56124 
+#:sp and gc do not work in texas:--  0.2888377460D+01  -0.31014  0.14810 
+#:sp and gc do not work in texas:--  0.6904575040D+00   0.37936  0.02086 
+#:sp and gc do not work in texas:--C  SP
+#:sp and gc do not work in texas:--  0.1813976910D+00 1.0 1.0
+#:sp and gc do not work in texas:--C  D
+#:sp and gc do not work in texas:--  0.8000000000D+00 0.60130  -0.59826
+#:sp and gc do not work in texas:--  0.41            -4.46009   2.22179 
+#:sp and gc do not work in texas:--C  F
+#:sp and gc do not work in texas:--  0.1000000000D+01 1.0
+#:sp and gc do not work in texas:--C  G
+#:sp and gc do not work in texas:--  0.610000000      1.0
+#:sp and gc do not work in texas:--O  SP
+#:sp and gc do not work in texas:--  0.1842936330D+02   0.74080  0.03817
+#:sp and gc do not work in texas:--  0.4047420810D+01   0.32649  0.19664
+#:sp and gc do not work in texas:--  0.1093836980D+01  -0.01862  0.44177
+#:sp and gc do not work in texas:--O  SP
+#:sp and gc do not work in texas:--  0.1842936330D+02  -0.22131  0.40991 
+#:sp and gc do not work in texas:--  0.4047420810D+01  -0.18875  0.18120 
+#:sp and gc do not work in texas:--  0.1093836980D+01  -0.32132  0.03455 
+#:sp and gc do not work in texas:--O  SP
+#:sp and gc do not work in texas:--  0.2906290230D+00 1.0 1.0
+#:sp and gc do not work in texas:--O  D
+#:sp and gc do not work in texas:--  0.8000000000D+00 0.01199  0.69309
+#:sp and gc do not work in texas:--  0.42             0.17729  0.05585    
+#:sp and gc do not work in texas:--O  F
+#:sp and gc do not work in texas:--  0.1100000000D+01 1.0
+#:sp and gc do not work in texas:--O  G
+#:sp and gc do not work in texas:--  0.620000000      1.0
+#:sp and gc do not work in texas:--H  S
+#:sp and gc do not work in texas:--  0.1873113696D+02   0.01273     0.02297 
+#:sp and gc do not work in texas:--  0.2825394365D+01   0.09086    -0.00804 
+#:sp and gc do not work in texas:--  0.6401216923D+00   0.37128     1.35954 
+#:sp and gc do not work in texas:--H  S
+#:sp and gc do not work in texas:--  0.1612777588D+00 1.0
+#:sp and gc do not work in texas:--H  P
+#:sp and gc do not work in texas:--  0.6401216923D+00 1.0
+#:sp and gc do not work in texas:--end
+#:sp and gc do not work in texas:--basis "sp_sph_gc" print nosegment spherical
+#:sp and gc do not work in texas:--C  SP
+#:sp and gc do not work in texas:--  0.1675097360D+02   0.56376  0.01728
+#:sp and gc do not work in texas:--  0.2888377460D+01   0.69771  0.12274
+#:sp and gc do not work in texas:--  0.6904575040D+00  -0.27058  0.46512
+#:sp and gc do not work in texas:--C  SP
+#:sp and gc do not work in texas:--  0.1675097360D+02  -0.14469  0.56124 
+#:sp and gc do not work in texas:--  0.2888377460D+01  -0.31014  0.14810 
+#:sp and gc do not work in texas:--  0.6904575040D+00   0.37936  0.02086 
+#:sp and gc do not work in texas:--C  SP
+#:sp and gc do not work in texas:--  0.1813976910D+00 1.0 1.0
+#:sp and gc do not work in texas:--C  D
+#:sp and gc do not work in texas:--  0.8000000000D+00 0.60130  -0.59826
+#:sp and gc do not work in texas:--  0.41            -4.46009   2.22179 
+#:sp and gc do not work in texas:--C  F
+#:sp and gc do not work in texas:--  0.1000000000D+01 1.0
+#:sp and gc do not work in texas:--C  G
+#:sp and gc do not work in texas:--  0.610000000      1.0
+#:sp and gc do not work in texas:--O  SP
+#:sp and gc do not work in texas:--  0.1842936330D+02   0.74080  0.03817
+#:sp and gc do not work in texas:--  0.4047420810D+01   0.32649  0.19664
+#:sp and gc do not work in texas:--  0.1093836980D+01  -0.01862  0.44177
+#:sp and gc do not work in texas:--O  SP
+#:sp and gc do not work in texas:--  0.1842936330D+02  -0.22131  0.40991 
+#:sp and gc do not work in texas:--  0.4047420810D+01  -0.18875  0.18120 
+#:sp and gc do not work in texas:--  0.1093836980D+01  -0.32132  0.03455 
+#:sp and gc do not work in texas:--O  SP
+#:sp and gc do not work in texas:--  0.2906290230D+00 1.0 1.0
+#:sp and gc do not work in texas:--O  D
+#:sp and gc do not work in texas:--  0.8000000000D+00 0.01199  0.69309
+#:sp and gc do not work in texas:--  0.42             0.17729  0.05585    
+#:sp and gc do not work in texas:--O  F
+#:sp and gc do not work in texas:--  0.1100000000D+01 1.0
+#:sp and gc do not work in texas:--O  G
+#:sp and gc do not work in texas:--  0.620000000      1.0
+#:sp and gc do not work in texas:--H  S
+#:sp and gc do not work in texas:--  0.1873113696D+02   0.01273     0.02297 
+#:sp and gc do not work in texas:--  0.2825394365D+01   0.09086    -0.00804 
+#:sp and gc do not work in texas:--  0.6401216923D+00   0.37128     1.35954 
+#:sp and gc do not work in texas:--H  S
+#:sp and gc do not work in texas:--  0.1612777588D+00 1.0
+#:sp and gc do not work in texas:--H  P
+#:sp and gc do not work in texas:--  0.6401216923D+00 1.0
+#:sp and gc do not work in texas:--end
