@@ -10,7 +10,7 @@
       end
       logical function drdy_nwchem(rtdb)
 *
-* $Id: drdy.F,v 1.4 2001-01-19 17:43:11 windus Exp $
+* $Id: drdy.F,v 1.5 2001-03-28 23:56:01 windus Exp $
 *
 C
 C DRDYNWChem - DiRect DYnamics with the NWChem electronic structure code
@@ -166,7 +166,7 @@ C  Sort data along reaction path and rewrite file30
 C
         Call drdy_sort(lhead,jop,lsad,ns,1)
       endif
-      write (fu6,*) 'drdy_NWChem has finished corretly, bye !'
+      write (fu6,*) 'drdy_NWChem has finished correctly, bye !'
       call drdy_synch(DRDY_CODE_DONE,'drdy 2')
 99999 continue
 *      call setdbg(0)
