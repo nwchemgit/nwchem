@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.111 2001-10-11 18:55:39 d3j191 Exp $
+c $Id: md_main.F,v 1.112 2001-11-02 16:06:13 d3j191 Exp $
 c
       implicit none
 c
@@ -1178,6 +1178,14 @@ c
       mdstep=mdstep+1
       stime=stime+tstep
 c
+c     debug code
+c
+      if(idebug.gt.0) then
+      write(lfndbg,'(a,i5,f12.6)') 'Timestep ',mdstep,stime
+      endif
+c
+c     end debug code
+c
       if(tann2.gt.0.and.tmpext1.ne.tmpext2.and.tann1.lt.tann2)then
       if(stime.gt.tann1.and.stime.lt.tann2) then
       tmpext=((tann2-stime)*tmpext1+(stime-tann1)*tmpext2)/(tann2-tann1)
@@ -2157,7 +2165,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.111 2001-10-11 18:55:39 d3j191 Exp $
+c $Id: md_main.F,v 1.112 2001-11-02 16:06:13 d3j191 Exp $
 c
       implicit none
 c
