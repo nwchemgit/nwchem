@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.17 2003-10-17 22:58:38 carlfahl Exp $
+* $Id: vib_wrtfreq.F,v 1.18 2004-05-11 23:39:06 edo Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -370,7 +370,7 @@ C
       end do
 
       call geom_momint0(geom,dbl_mb(r1(1)),natoms,meig,mtensor,.true.,
-     .     .false.)
+     .     .false.,.false.)
 
       if (.not. MA_pop_stack(r1(2)))
      >  call errquit('vib_geom_parameters_set: pop stack',3, MA_ERR)
