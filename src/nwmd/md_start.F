@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.130 2002-06-26 20:31:39 d3j191 Exp $
+c $Id: md_start.F,v 1.131 2002-06-26 20:43:57 d3j191 Exp $
 c
       implicit none
 c
@@ -1254,7 +1254,7 @@ c
      + form='formatted',status='unknown')
       endif
       if(ntype.eq.2.and.iprpmf.ne.0) then
-      open(unit=lfnpmf,file=filpmf(1:index(filpmf,' ')-1),
+      open(unit=iabs(lfnpmf),file=filpmf(1:index(filpmf,' ')-1),
      + form='formatted',status='unknown')
       endif
       if(nftime.gt.0) then

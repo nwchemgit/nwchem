@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.137 2002-06-26 20:31:39 d3j191 Exp $
+c $Id: md_main.F,v 1.138 2002-06-26 20:43:56 d3j191 Exp $
 c
       implicit none
 c
@@ -1080,6 +1080,7 @@ c     data gathering
 c
       lequi=.false.
       lprpmf=iprpmf.ne.0
+      if(lprpmf) lfnpmf=-iabs(lfnpmf)
       do 2 idacq=kdacq+1,mdacq
 c
       call md_timer_init()
@@ -2466,7 +2467,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.137 2002-06-26 20:31:39 d3j191 Exp $
+c $Id: md_main.F,v 1.138 2002-06-26 20:43:56 d3j191 Exp $
 c
       implicit none
 c
