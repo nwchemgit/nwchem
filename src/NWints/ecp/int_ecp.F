@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.29 2005-01-21 19:13:23 bert Exp $
+* $Id: int_ecp.F,v 1.30 2005-01-21 19:45:11 edo Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -462,7 +462,7 @@ c
       if (indx_grad.eq.0) then
          mem_ecp=mem_ecp*mem_ecp
       elseif (indx_grad.eq.1) then
-         mem_ecp=mem_ecp*mem_ecp*3
+         mem_ecp=mem_ecp*mem_ecp*3*ncenters
       else
          mem_ecp=mem_ecp*mem_ecp*3*3*(ncenters*(ncenters-1)/2+ncenters)
       endif
