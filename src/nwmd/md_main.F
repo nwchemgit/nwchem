@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.63 2000-02-23 18:52:55 d3j191 Exp $
+c $Id: md_main.F,v 1.64 2000-02-29 19:24:35 windus Exp $
 c
       implicit none
 c
@@ -348,7 +348,7 @@ c
       integer iwa,iwm,isa,ix,inner
       logical ltr,ldone
       real*8 alpha,beta1,beta2,beta3,beta4,beta5,gamma,zeta
-      real*8 dx,ecgnew,eqrs,ecgold,ecgdif,edt,dxf,edif
+      real*8 dx,ecgnew,eqrs,ecgold,ecgdif,edt,dxf
       real*8 dxsmax,dxwmax,fnorm1,fnorm2,ypa,ypb,pnorm,dxstep
       real*8 dxmax,dxfi,ecg0,ecg1,ecg2,epcgw,epcgsw,epcgs
       character*1 cqrs
@@ -813,7 +813,6 @@ c
       if(.not.ldone) goto 100
 c
       ecgdif=edt
-      edif=edif+edt
 c
       return
       end
