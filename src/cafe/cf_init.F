@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.60 2001-06-26 21:09:29 d3j191 Exp $
+c $Id: cf_init.F,v 1.61 2001-07-03 17:34:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1583,24 +1583,28 @@ c
 c
       return
       end
-      subroutine cf_print_top(lfnout)
+      subroutine cf_print_top(lfnout,npatom,nptopw,nptops)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer lfnout
+      integer lfnout,npatom,nptopw,nptops
 c
       if(me.eq.0) then
       write(lfnout,1000)
  1000 format(/,' TOPOLOGY')
 c
+      if(npatom.ne.0) then
       call cf_print_atypes(lfnout,byte_mb(i_nam),int_mb(i_num),
      + dbl_mb(i_mas),dbl_mb(i_vdw))
       call cf_print_ctypes(lfnout,dbl_mb(i_chg))
+      endif
 c      call cf_print_solvent(lfnout)
+      if(nptops.ne.0) then
       call cf_print_solute(lfnout,int_mb(i_imul))
+      endif
       endif
 c
       return

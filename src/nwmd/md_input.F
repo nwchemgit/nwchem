@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.37 2001-05-09 18:22:13 d3j191 Exp $
+c $Id: md_input.F,v 1.38 2001-07-03 17:34:36 d3j191 Exp $
 c
       implicit none
 c
@@ -970,21 +970,20 @@ c
       npatom=1
       goto 1
       endif
+  503 continue
+      if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'solvent',item)) then
       nptopw=1
-      goto 502
+      goto 503
       endif
       if(inp_compare(.false.,'solute',item)) then
       nptops=1
-      goto 502
+      goto 503
       endif
       if(inp_compare(.false.,'nonbond',item)) then
       npatom=1
-      goto 502
+      goto 503
       endif
-      nptopw=1
-      nptops=1
-      npatom=1
       goto 501
       endif
       goto 3

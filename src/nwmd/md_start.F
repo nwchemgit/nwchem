@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.91 2001-06-26 21:10:38 d3j191 Exp $
+c $Id: md_start.F,v 1.92 2001-07-03 17:34:36 d3j191 Exp $
 c
       implicit none
 c
@@ -49,7 +49,7 @@ c
 c     print topology information
 c     --------------------------
 c
-      call cf_print_top(lfnout)
+      call cf_print_top(lfnout,npatom,nptopw,nptops)
 c
       msm=max(1,nsm)
       msf=max(1,nsf)
