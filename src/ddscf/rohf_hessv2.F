@@ -2,16 +2,20 @@
       implicit none
 #include "crohf.fh"
 #include "cscf.fh"
+#include "stdio.fh"
+#include "util.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.7 2002-01-11 20:30:40 edo Exp $
+c     $Id: rohf_hessv2.F,v 1.8 2002-01-16 01:37:13 edo Exp $
 c
       integer g_x, g_ax
       double precision acc
 c     
       integer gtype,grow,gcol,growp,gcolp
+      logical oprint
 c     
 c     Check
 c     
+      oprint= util_print('rohf_hessv2',print_debug)
       if (crohf_init_flag.ne.1)
      $     call errquit('rohf_hessv: ROHF internal block invalid',0)
       call ga_inquire(g_x,gtype,grow,gcol)
@@ -45,7 +49,7 @@ c
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.7 2002-01-11 20:30:40 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.8 2002-01-16 01:37:13 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -112,7 +116,7 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.7 2002-01-11 20:30:40 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.8 2002-01-16 01:37:13 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -120,6 +124,7 @@ C     $Id: rohf_hessv2.F,v 1.7 2002-01-11 20:30:40 edo Exp $
 #include "cscfps.fh"
 #include "rtdb.fh"
 #include "bgj.fh"
+#include "stdio.fh"
 c     
 c     Return the ROHF orbital 2e-Hessian vector product, g_ax = A * g_x
 c     
@@ -148,6 +153,7 @@ c
       double precision tol2e
       logical odebug
       logical cphf_tddft 
+      logical oprint
 c
       integer dims(3), chunk(3), alo(3), ahi(3), blo(2), bhi(2)
       integer ga_create_atom_blocked
@@ -160,6 +166,7 @@ c
       parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0)
 *      data jfac / 1.0d0, 1.0d0, 0.0d0/
 *      data kfac /-0.5d0,-0.5d0, 0.5d0/
+      oprint= util_print('rohf_hessv2',print_debug)
       xc_xfac1=bgj_kfac()
       cphf_tddft = .false.
 c
@@ -322,8 +329,12 @@ c
 c
          alo(1) = ivec
          ahi(1) = ivec
-         write(6,*) 'before the first copy_patch'
-         call flush(6)
+         if(oprint) then
+            if(ga_nodeid().eq.0) then
+               write(luout,*) 'before the first copy_patch'
+               call util_flush(luout)
+            endif
+         endif
          call nga_copy_patch('N',g_dcv,blo,bhi,g_dens,alo,ahi)
          if (nopen .gt. 0) then
 c Note that this is NOT correct!
@@ -332,7 +343,9 @@ c Note that this is NOT correct!
          endif
       enddo
 c
-      call ga_print(g_dens)
+         if(oprint) then
+            call ga_print(g_dens)
+         endif
       if (.not. ga_destroy(g_tmp1)) call errquit('rohf_h2e: GA?',0)
       if (.not. ga_destroy(g_tmp2)) call errquit('rohf_h2e: GA?',0)
       if (.not. ga_destroy(g_dcv)) call errquit('rohf_h2e: GA?',0)
@@ -348,14 +361,18 @@ c
      &     g_fock))
      &   call errquit('rohf_h2e: could not allocate g_fock',555)
       call ga_zero(g_fock)
-      write(6,*) 'after the zero of g_fock'
-      call flush(6)
+      if(oprint.and.ga_nodeid().eq.0) then
+         write(luout,*) 'after the zero of g_fock'
+         call util_flush(luout)
+      endif
 c
       call shell_fock_build(geom, basis, 0, nfock, 
      $     dbl_mb(k_jfac), dbl_mb(k_kfac),
      $     tol2e, g_dens, g_fock,.true.)
-      write(6,*) 'after the shell_fock_build'
-      call flush(6)
+      if(oprint.and.ga_nodeid().eq.0) then
+         write(luout,*) 'after the shell_fock_build'
+         call util_flush(luout)
+      endif
 c     
       if (oskel) 
      $   call errquit('rohf_h2e2: no way',0)
@@ -371,8 +388,10 @@ c
          ifock = ifock + 1      ! History ... copy into tmp arrays
          alo(1) = ivec
          ahi(1) = ivec
-         write(6,*) 'before the second copy_patch'
-         call flush(6)
+         if(oprint.and.ga_nodeid().eq.0) then
+            write(luout,*) 'before the second copy_patch'
+            call flush(luout)
+         endif
          call nga_copy_patch('N',g_fock,alo,ahi,g_tmp1,blo,bhi)
          call nga_copy_patch('N',g_dens,alo,ahi,g_dcv,blo,bhi)
          if (nopen .gt. 0) then 
