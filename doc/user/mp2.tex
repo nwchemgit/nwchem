@@ -286,7 +286,7 @@ RHF or UHF in this case.
 % obviously must be UHF in this case.
 
 The \verb+SET+ directive for a similar case, but this time using
-the beta-spin SCF orbtials for both correlated spin cases, is as follows,
+the beta-spin SCF orbitals for both correlated spin cases, is as follows,
 \begin{verbatim}
   set "mp2:reference spin mapping" 2 2
 \end{verbatim}
@@ -414,6 +414,16 @@ Both of these options follow the notation used in O.~Vahtras, J~Alml\"of,
 and M.~W.~Feyereisen, {\em Chem. Phys. Lett.} {\bf 213}, 514--518
 (1993).  Note that the input for the string \verb+approx+ is case sensitive.
 
+Construction of the RI fit requires the inversion of a matrix of
+fitting basis integrals which is carried out via diagonalization.  If
+the fitting basis includes near linear dependencies, there will be
+small eigenvalues which can ultimately lead to non-physical RI-MP2
+correlation energies.  Retention of small eigenvalues can be
+controlled by the directive
+
+\begin{verbatim}
+  set "mp2:fit min eval" <real mineval default 1.0e-8>
+\end{verbatim}
 
 %  The \verb+"S"+ approximation will also be supported eventually.
 
