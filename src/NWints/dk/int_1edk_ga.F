@@ -1,5 +1,5 @@
-      subroutine int_1edk_ga(basis_in, g_in, type, oskel)
-c $Id: int_1edk_ga.F,v 1.7 1999-11-03 00:35:33 bert Exp $
+      subroutine int_1edk_ga(basis_in, g_in, type, kskel)
+c $Id: int_1edk_ga.F,v 1.8 1999-11-09 20:19:06 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -20,7 +20,7 @@ c     There are three forms of Douglas-Kroll that are or can be used:
 c     1. Free-particle projection operators, similar to Foldy-Wouthuysen 
 c        transformation.
 c     2. External potential projection operators without pxVp terms 
-c        (vn2 approximation).
+c        (vn2 approximation). This is also Bernd Hess' implementation.
 c     3. External potential projection operators, i.e  complete Douglas-Kroll.
 c
 c     Method:
@@ -43,6 +43,7 @@ c
       integer basis_in          ! [input] basis sets for which integrals are computed
       integer g_in              ! [output] GA handle to array of final integrals
       integer type              ! [input] type of integral, 1=kinetic, 2=potential
+      logical oskel,kskel       ! [input] Skeleton integrals, yes or no?
 c     
 c     local variables
 c     
@@ -65,14 +66,16 @@ c
       integer iloop             
       integer basis_array(2)
 c
-      double precision c,c2  ! Speed of light c (in au) plus c^2 
+      double precision c, c2    ! Speed of light c (in au) plus c^2 
 c
-      logical oskel
-c     
-      c=137.0359895d0
-      c2=c*c
+c     c = 137.0359895d0
+      c = 137.0360000d0
+      c2 = c*c
 c
-      call ga_sync()
+c     At this point we set oskel to false. Having symmetry and oskel is true 
+c     lead to NWChem hanging, no progress and no crash!
+c
+      oskel = .false.
 c
 c     Create an uncontracted basis from basis_in
 c
@@ -95,6 +98,7 @@ c     Create DKg_a of nbf*nbf to store integrals of uncontracted basis
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA D-K',1,1,DKg_a))
      $     call errquit('int_1edk_ga: ga_create failed GA D-K',0)
+      call ga_zero(DKg_a)
 c
 c     Create a temp g_a of nbf*nbf as temp/help matrix array
 c
@@ -129,12 +133,12 @@ c
       if (.not. ma_push_get(MT_DBL,nbf,'psquared',p2m_a,p2Im_a))
      $     call errquit('int_1edk_ga: ma_push_get failed psquared',0)
       call ga_diag(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
-c     call ga_diag_std(Tg_a,Ug_a,dbl_mb(p2Im_a))
       if (.not. ga_destroy(Tg_a)) 
      $     call errquit('int_1edk_ga: ga_destroy Tg_a',0)
       call dscal(nbf,2.0d0,dbl_mb(p2Im_a),1)
 c
 c     Construct vector E from eigenvalues: E = Sqrt(p^2 c^2 + c^4)
+c                                            = c*Sqrt(p^2 + c^2)
 c
       if (.not. ma_push_get(MT_DBL,nbf,'Evector',Em_a,EIm_a))
      $     call errquit('int_1edk_ga: ma_push_get failed Evector',0)
@@ -143,7 +147,7 @@ c
    10 continue
 c
 c     Construct vector A from E: A = Sqrt((E+c^2)/2E) and
-c               vector K from E: K = Sqrt(c/(E+c^2))
+c               vector K from E: K = c/(E+c^2)
 c
       if (.not. ma_push_get(MT_DBL,nbf,'Avector',Am_a,AIm_a))
      $     call errquit('int_1edk_ga: ma_push_get failed Avector',0)
@@ -260,10 +264,10 @@ c
    30 continue
       call ga_copy(Vdg_a,tempg_a)
       call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_scale_lh(tempg_a,dbl_mb(KIm_a))
       call ga_zero(tmpg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vg_a,0.0d0,
      $              tmpg_a)
-      call ga_scale_lh(tmpg_a,dbl_mb(KIm_a))
       call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
       call ga_dadd(1.0d0,DKg_a,-1.0d0,tmpg_a,DKg_a)
 c
@@ -272,10 +276,10 @@ c     (Same intermediate array as Term 1)
 c
       call ga_copy(Vdg_a,tempg_a)
       call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_scale_rh(tempg_a,dbl_mb(KIm_a))
       call ga_zero(tmpg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Vg_a,tempg_a,0.0d0,
      $              tmpg_a)
-      call ga_scale_rh(tmpg_a,dbl_mb(KIm_a))
       call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
       call ga_dadd(1.0d0,DKg_a,-1.0d0,tmpg_a,DKg_a)
 c
@@ -447,7 +451,7 @@ c
       call ga_copy(Vg_a,tempg_a)
       call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
       call ga_zero(tmpg_a)
-      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Vg_a,tempg_a,0.0d0,
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vg_a,0.0d0,
      $              tmpg_a)
       call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
       call ga_scale_rh(tmpg_a,dbl_mb(EIm_a))
