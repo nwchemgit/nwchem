@@ -4,7 +4,7 @@
      &                  cetobfr, natoms,
      &                  g_movecs, noc,  totsic, i_degen, n_levels)
 c
-C$Id: xc_sic.F,v 1.15 2001-05-11 02:12:17 edo Exp $
+C$Id: xc_sic.F,v 1.16 2002-05-08 21:39:14 edo Exp $
 c
       implicit none
 c      
@@ -189,7 +189,7 @@ c
               Exc_orb(1) = 0.0d0
               Exc_orb(2) = 0.0d0
               if (oprint_time)call dft_tstamp
-     &                           ('Before call to xc_quadv0.')
+     &                           ('Before call to grid_quadv0.')
               sic_orb_spin = isp
               sic_orb_index = 0
               rho_n = 0.0d00
@@ -200,10 +200,6 @@ c
               endif
               call grid_quadv0(rtdb, g_sic_dens, g_vxc_orb, 
      ,           nexc,rho_n,  Exc_orb,edodumm)
-!              call xc_quadv0(rtdb, nExc, g_vxc_orb, g_sic_dens,
-!     &                       g_wght, g_xyz, g_nq, wght_GA, Exc_orb,
-!     &                       rho_n, rdens_atom,
-!     &                       cetobfr, natoms)
 c
 c   Exc_orb(1) is the exchange-correlation energy by orbital
 c
@@ -227,10 +223,8 @@ c
               sic_orb_spin = isp
               sic_orb_index = 1
               rho_n = 0.0d00
-              call xc_quadv0(rtdb, nExc, g_vxc_orb, g_dens,
-     &                       g_wght, g_xyz,g_nq, wght_GA, Exc_orb,
-     &                       rho_n, rdens_atom, 
-     &                       cetobfr, natoms)
+              call grid_quadv0(rtdb,   g_dens, g_vxc_orb,
+     &                       nexc,rho_n, Exc_orb,edodumm)
               sic_orb_index = 0
               ij = noc(isp) - Int_MB(i_degen(isp)) + 1
               elem_j = size_mat + 1
@@ -273,7 +267,7 @@ c
                  ipol=1
               end if
               if (oprint_time)call dft_tstamp
-     &                             (' After call to xc_quadv0.')
+     &                             (' After call to grid_quadv0.')
    90       continue
   100     continue
 c
