@@ -98,7 +98,7 @@ c
        if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
      $      tol2e = 1.d-12                                                   ! Redundant recovered later
        if (.not.rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
-     $      oe2approx = .false.
+     $      oe2approx = .true.
 c
 c  Get electron and spin multiplicity (NB: for info only)
 c  Active elec and multiplicity must be set --- no defaults
