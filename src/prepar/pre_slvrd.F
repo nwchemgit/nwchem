@@ -1,7 +1,7 @@
       logical function pre_slvrd(lfnslv,filslv,xw,vw,mwm,mwa,nwm,nwa,
      + box)
 c
-c $Id: pre_slvrd.F,v 1.3 2000-01-10 19:47:39 d3j191 Exp $
+c $Id: pre_slvrd.F,v 1.4 2000-01-10 21:36:42 d3j191 Exp $
 c
       implicit none
 c
@@ -47,8 +47,8 @@ c
       if(nwm.ne.mwm) goto 9998
       if(nsa.ne.0) goto 9998
 c
-      do 3 i=1,nwm
-      read(lfnslv,1007) ((xw(i,j,k),j=1,3),(vw(i,j,k),j=1,3),k=1,nwa)
+      do 3 k=1,nwm
+      read(lfnslv,1007) ((xw(i,j,k),i=1,3),(vw(i,j,k),i=1,3),j=1,nwa)
  1007 format(2x,6f13.8)
       read(lfnslv,1000) cdum
     3 continue
