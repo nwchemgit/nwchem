@@ -80,7 +80,7 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
     xLabel.setBackground(Color.yellow);
     
-    addComponent(header,propPane,0,3,2,1,1,1,
+    addComponent(header,propPane,0,3,1,1,10,10,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
     pList.addMouseListener(this);
 
@@ -100,8 +100,12 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
       public void actionPerformed(ActionEvent e){ 
 	setVisible(false); }});
 
-    addComponent(header,prp_plot,2,2,8,8,10,10,
+    addComponent(header,prp_plot,2,2,5,2,10,10,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+
+    prp_plot.init();
+    prp_plot.resize(500,500);
+    prp_plot.setTitle("Property Viewer");
 
     plotButton.addActionListener(this);
     plotpButton.addActionListener(this);

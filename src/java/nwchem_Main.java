@@ -63,6 +63,12 @@ class nwchem_Main extends JFrame implements ActionListener, WindowListener {
     JMenu view = new JMenu("View");
     menubar.add(view);
     view.add(rasmol = new JMenuItem("Rasmol"));
+    rasmol.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+	System.out.println("RASMOL Coordinate Viewer");
+	nwchem_Rasmol rasmol_View = new nwchem_Rasmol();
+	rasmol_View.setVisible(true);
+      }});
     view.add(gopmol = new JMenuItem("gOpenMol"));
     view.add(proper = new JMenuItem("property"));
     proper.addActionListener(new ActionListener(){
