@@ -2,40 +2,24 @@
      &                      l_degen, i_degen, noc)
       implicit none
 c     
-c     $Id: xc_sicutil.F,v 1.3 2000-04-25 09:25:47 jolguin Exp $
+c     $Id: xc_sicutil.F,v 1.4 2000-04-28 17:55:11 jolguin Exp $
 c     
 #include "rtdb.fh"
 #include "mafdecls.fh"
-#include "stdio.fh"
 #include "global.fh"
 #include "util.fh"
       integer l_degen, i_degen(2), noc(2), tot_oc
       integer rtdb ! [in]
-      logical oprint ! [in]
       integer test_sic,condfukui,exact_pot ! [out]
 c
-      integer me
 c
-      me=ga_nodeid()
-      oprint =util_print('SIC information', print_high)
       if (.not. rtdb_get(rtdb, 'dft:test_sic', mt_int, 1,
      &     test_sic))test_sic = 0
       if (.not. rtdb_get(rtdb, 'dft:condfukui', mt_int, 1,
      &   condfukui)) condfukui = 0
       if (.not. rtdb_get(rtdb, 'dft:exact_pot', mt_int, 1,
      &   exact_pot)) exact_pot = 0
-      if (me.eq.0.and.oprint)then
-         if (test_sic.eq.1) then
-            write(LuOut,*) ' SIC perturbative approximation is used'
-         elseif (test_sic.eq.2) then
-            write(LuOut,*) ' SIC+OEP and NO localization'
-         elseif (test_sic.eq.4) then
-            write(LuOut,*) ' SIC+OEP and localization in the SCF'
-         else
-            write(LuOut,*) ' unidentified SIC/OEP option '
-         end if
-      end if
-      if (test_sic.ne.0) then
+      if (test_sic.eq.2.or.test_sic.eq.4) then
         tot_oc = noc(1) + noc(2)
         if (.not.MA_Push_Get(MT_Int, tot_oc, 'degen_homo',
      &     l_degen, i_degen(1)))
