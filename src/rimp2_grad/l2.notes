@@ -1,0 +1,28 @@
+Alternative implementations for L2 contraction
+
+1) multiply-based
+
+DRAs: guaranteed single pass through 3 DRAs totaling
+	NAct*(NCor+2*NAct+NVir)*NFit		elements
+
+GAs: no rearrangement necessary
+
+matrix multiplications:
+	NAct*(NCor+NAct+NVir)*NVir*NFit		flops
+	3*NAct*(NCor+NAct+NVir)*NVir*NFit	elements moved
+	nr of message depends on blocking
+
+2) ddot-based
+
+DRAs: possibly multiple passes (dep on memory) through some DRAs, totalling
+	NAct*(NCor+(NPass+1)*NAct+NVir)*NFit	elements
+                   ^^^^^^^^^
+
+GAs: must rearrange first two indices of both GAs
+	NAct*(NCor+(NPass+1)*NAct+NVir)*NFit	elements moved
+	at least 3*NProc
+
+ddot: one array always local; assume other never local
+	NAct*(NCor+NAct+NVir)*NVit*NFit		flops
+	NAct*(NCor+NAct+NVir)*NVir*NFit 	elements moved
+	(NCor+NAct+NVir)*NProc			messages

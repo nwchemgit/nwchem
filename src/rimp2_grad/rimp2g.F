@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.6 1998-07-13 02:38:10 bernhold Exp $
+C$Id: rimp2g.F,v 1.7 1998-07-14 16:18:37 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -383,7 +383,8 @@ C     * Gradient *
 C     ************
 C
       If ( DoGrad ) then
-         Call RIMP2_Driver_G(TopSpin, NFrzOcc, NAct, NVir, FitBas)
+         Call RIMP2_Driver_G(MaxSpin, TopSpin, NFrzOcc, NAct, NVir,
+     $        FitBas, FN_Int, FN_Gam, BraKetSame)
       EndIf
 C
 C     ***********
