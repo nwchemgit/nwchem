@@ -1,9 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-02-06 06:08:01 marat Exp $
+# $Id: GNUmakefile,v 1.2 2003-02-19 23:41:16 marat Exp $
 #
 
-          OBJ =  paw_spher_func.o
-          HEADERS = paw_spher_func.fh 
+          OBJ =  paw_spher_func.o paw_double_factorial.o paw_gamma_function.o \
+                           paw_hypergeom1F1.o
+          HEADERS = paw_spher_func.fh paw_gamma_function.fh paw_hypergeom.fh \
+                              paw_double_factorial.fh
 
 
       LIBRARY =	libpaw.a

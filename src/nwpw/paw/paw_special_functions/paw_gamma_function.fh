@@ -1,0 +1,11 @@
+!$Id: paw_gamma_function.fh,v 1.1 2003-02-19 23:41:16 marat Exp $
+!
+!$Log: not supported by cvs2svn $
+
+      double precision paw_ln_gamma 
+      double precision paw_gamma 
+      double precision paw_gammp 
+      external paw_ln_gamma 
+      external paw_gamma 
+      external paw_gammp 
+
