@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.28 1997-03-31 21:48:20 d3e129 Exp $
+c $Id: exact_mem.F,v 1.29 1997-05-22 21:03:23 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -12,14 +12,20 @@ c:tex-
 ***********************************************************************
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
-      subroutine exact_mem(bases,nbas)
+      subroutine exact_mem(rtdb,bases,nbas)
 c:tex-\end{verbatim}
       implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
 #include "bas.fh"
 #include "apiP.fh"
 c
+c:: functions
+      logical api_is_ecp_basis
+      external api_is_ecp_basis
 c:: passed
 c:tex-\begin{verbatim}
+      integer rtdb        ! [input] the RTDB handle
       integer nbas        ! [input] number of basis sets
       integer bases(nbas) ! [input] basis set handles
 c:tex-\end{verbatim}
@@ -30,36 +36,49 @@ c:: local
       integer lmem_2e2c, lsz_2e2c
       integer ibas,jbas, kbas
       integer lsz_3ov,lmem_3ov
+      logical o_do_full
 c
+c
+c check to see if a full memory check is needed
+c
+      if (.not.(rtdb_get(rtdb,'int:full_mem',Mt_Log,1,o_do_full)))
+     &    o_do_full = .false.
 c
 c... ensure that mem_2e{432}c memory reqirements are zero
 c
       call int_mem_zero()
 c
       do 00100 ibas = 1,nbas
-        do 00200 jbas = 1,ibas
+        if (.not.api_is_ecp_basis(bases(ibas))) then
+          do 00200 jbas = 1,ibas
+            if (.not.api_is_ecp_basis(bases(jbas))) then
 c.... 2e 4 center
-#if defined(API_DEBUG)
-          call emem_2e4c_full
-     &        (bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
-#else
-          call emem_2e4c(bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
-#endif
-          mem_2e4c = max(mem_2e4c, lmem_2e4c)
-          isz_2e4c = max(isz_2e4c, lsz_2e4c)
+              if (o_do_full) then
+                call emem_2e4c_full
+     &              (bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
+              else
+                call emem_2e4c
+     &              (bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
+              endif
+              mem_2e4c = max(mem_2e4c, lmem_2e4c)
+              isz_2e4c = max(isz_2e4c, lsz_2e4c)
 c.... 2e 3 center
-          call emem_2e3c(bases(ibas),bases(jbas),lsz_2e3c,lmem_2e3c)
-          mem_2e3c = max(mem_2e3c, lmem_2e3c)
-          isz_2e3c = max(isz_2e3c, lsz_2e3c)
+              call emem_2e3c
+     &            (bases(ibas),bases(jbas),lsz_2e3c,lmem_2e3c)
+              mem_2e3c = max(mem_2e3c, lmem_2e3c)
+              isz_2e3c = max(isz_2e3c, lsz_2e3c)
 c.... 2e 2 center
-          call emem_2e2c(bases(ibas),bases(jbas),lsz_2e2c,lmem_2e2c)
-          mem_2e2c = max(mem_2e2c, lmem_2e2c)
-          isz_2e2c = max(isz_2e2c, lsz_2e2c)
+              call emem_2e2c
+     &            (bases(ibas),bases(jbas),lsz_2e2c,lmem_2e2c)
+              mem_2e2c = max(mem_2e2c, lmem_2e2c)
+              isz_2e2c = max(isz_2e2c, lsz_2e2c)
 c.... 1e
-          call emem_1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
-          mem_1e = max(mem_1e, lmem_1e)
-          isz_1e = max(isz_1e, lsz_1e)
-00200   continue
+              call emem_1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
+              mem_1e = max(mem_1e, lmem_1e)
+              isz_1e = max(isz_1e, lsz_1e)
+            endif
+00200     continue
+        endif
 00100 continue
 c
 c.. need extra memory for H1 call externalized by int_mem_h1
@@ -223,12 +242,6 @@ c
 00200   continue
 00100 continue
 c
-*_old_code:      if (.not.bas_nbf_cn_max(ibasin,nbfimax))
-*_old_code:     &       call errquit('emem_3ov:bas_nbf_cn_max error ibasin',2)
-*_old_code:      if (.not.bas_nbf_cn_max(jbasin,nbfjmax))
-*_old_code:     &       call errquit('emem_3ov:bas_nbf_cn_max error jbasin',2)
-*_old_code:      if (.not.bas_nbf_cn_max(kbasin,nbfkmax))
-*_old_code:     &       call errquit('emem_3ov:bas_nbf_cn_max error kbasin',2)
       call int_nbf_max(ibasin,nbfimax)
       if (ibasin.eq.jbasin) then
         nbfjmax = nbfimax
@@ -338,10 +351,6 @@ c
 00200   continue
 00100 continue
 c
-*_old_code:      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-*_old_code:     &       call errquit('emem_1e:bas_nbf_cn_max error ',2)
-*_old_code:      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-*_old_code:     &       call errquit('emem_1e:bas_nbf_cn_max error ',2)
       call int_nbf_max(brain,max_nbf_bra)
       if (ketin.eq.brain) then
         max_nbf_ket = max_nbf_bra
@@ -530,11 +539,6 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
 00200   continue
 00100 continue
 c
-*_old_code:      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-*_old_code:     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
-*_old_code:      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-*_old_code:     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
-c
       call int_nbf_max(brain,max_nbf_bra)
       if (ketin.eq.brain) then
         max_nbf_ket = max_nbf_bra
@@ -648,11 +652,6 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
 c
 00200   continue
 00100 continue
-c
-*_old_code:      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-*_old_code:     &       call errquit('emem_2e3c:bas_nbf_cn_max error ',2)
-*_old_code:      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-*_old_code:     &       call errquit('emem_2e3c:bas_nbf_cn_max error ',2)
 c
       call int_nbf_max(brain,max_nbf_bra)
       if (ketin.eq.brain) then
@@ -770,11 +769,6 @@ c
 00200   continue
 00100 continue
 c
-*_old_code:      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-*_old_code:     &       call errquit('emem_2e2c:bas_nbf_cn_max error ',2)
-*_old_code:      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-*_old_code:     &       call errquit('emem_2e2c:bas_nbf_cn_max error ',2)
-c
       call int_nbf_max(brain,max_nbf_bra)
       if (ketin.eq.brain) then
         max_nbf_ket = max_nbf_bra
@@ -801,7 +795,6 @@ c:tex-primarily as a debugging tool
 c:tex-
 ***********************************************************************
 c:tex-{\it Syntax:}
-#if defined(API_DEBUG)
 c:tex-\begin{verbatim}
       subroutine emem_2e4c_full(brain, ketin, maxg, memsize)
 c:tex-\end{verbatim}
@@ -824,16 +817,23 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, jbc, kbc, lbc
+      integer kbc_end
       integer memdum
       integer i_type, j_type, k_type, l_type
       integer i_prim, j_prim, k_prim, l_prim
       integer i_gen,  j_gen,  k_gen,  l_gen
       integer max_nbf_bra,max_nbf_ket
 c
+      integer approx_maxg
+      integer approx_memsize
+c
       logical bra_cando_sp
       logical ket_cando_sp
+      double precision factor
 c
 #include "bas_exndcf_sfn.fh"
+c
+      call emem_2e4c(brain,ketin,approx_maxg, approx_memsize)
 c
       memsize = 0
       maxg = 0
@@ -843,6 +843,9 @@ c
 c
       bra_ucont = infbs_head(HEAD_NCONT,bra)
       ket_ucont = infbs_head(HEAD_NCONT,ket)
+c
+      write(6,*)' bra basis ',bs_name(bra)(1:len_bs_name(bra))
+      write(6,*)' ket basis ',bs_name(ket)(1:len_bs_name(ket))
 c
 *error checking
       if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
@@ -875,7 +878,13 @@ c
           endif
           bra_cando_sp = cando_sp_u(brain,ibc,jbc)
 c
-          do 00300 kbc = 1, jbc
+          if (bra.eq.ket) then
+            kbc_end = jbc
+          else
+            kbc_end = ket_ucont
+          endif
+c
+          do 00300 kbc = 1, kbc_end
             k_type = infbs_cont(CONT_TYPE,kbc,ket)
             k_prim = infbs_cont(CONT_NPRIM,kbc,ket)
             k_gen  = infbs_cont(CONT_NGEN,kbc,ket)
@@ -908,7 +917,9 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &              dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
      &              .false.,.true., dbl_mb(mb_exndcf(1,1)),
      &              memdum)
+#if defined(API_DEBUG)
               write(luout,*)' coul ',ibc,jbc,kbc,lbc,memdum
+#endif
               memsize = max(memsize,memdum)
 c
               memdum = 9 000 000
@@ -925,22 +936,16 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &              dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
      &              .false., .true., dbl_mb(mb_exndcf(1,1)),
      &              memdum)
-              write(luout,*)' exch ',ibc,jbc,kbc,lbc,memdum
               memsize = max(memsize,memdum)
+#if defined(API_DEBUG)
+              write(luout,*)' exch ',ibc,jbc,kbc,lbc,memdum
               write(luout,*)' full ',memsize
+#endif
 00201         continue
 00400       continue
 00300     continue
 00200   continue
 00100 continue
-c
-*_old_code:      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-*_old_code:     &       call errquit('emem_2e4c_full:bas_nbf_cn_max error ',2)
-*_old_code:      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-*_old_code:     &       call errquit('emem_2e4c_full:bas_nbf_cn_max error ',2)
-*_old_code:c
-*_old_code:      maxg = max_nbf_bra*max_nbf_bra
-*_old_code:      maxg = maxg*max_nbf_ket*max_nbf_ket
 c
       call int_nbf_max(brain,max_nbf_bra)
       if (ketin.eq.brain) then
@@ -950,11 +955,17 @@ c
       endif
       maxg = max_nbf_bra*max_nbf_bra*max_nbf_ket*max_nbf_ket
 c
-      write(6,'(a,i10)')'emem_2e4c_full: memsize =',memsize
+      factor = dble(maxg)/dble(approx_maxg)
+      write(6,'(a,i10)')'emem_2e4c     : maxg    =',approx_maxg
       write(6,'(a,i10)')'emem_2e4c_full: maxg    =',maxg
+      write(6,'(a,f10.3)')'             maxg factor =',factor
+      factor = dble(memsize)/dble(approx_memsize)
+      write(6,'(a,i10)')'emem_2e4c     : memsize =',approx_memsize
+      write(6,'(a,i10)')'emem_2e4c_full: memsize =',memsize
+      write(6,'(a,f10.3)')'          memsize factor =',factor
+      call util_flush(6)
 c
       end
-#endif
 ***********************************************************************
 c:tex-% Part of the API internal routines.
 c:tex-\subsubsection{int\_nbf\_max}
@@ -1035,4 +1046,19 @@ c:tex-
       init_int   = 0   ! integral initialization flag
       init_intd  = 0   ! derivative initialization flag
 c
+      end
+      logical function api_is_ecp_basis(basisin)
+      implicit none
+#include "basdeclsP.fh"
+#include "basP.fh"
+      integer basisin ! [input] basis set handle
+c
+      integer basis
+c
+      basis = basisin + basis_handle_offset
+      if (infbs_head(Head_ECP,basis).eq.1) then
+        api_is_ecp_basis = .true.
+      else
+        api_is_ecp_basis = .false.
+      endif
       end

@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.16 1997-05-01 15:45:37 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.17 1997-05-22 21:03:24 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -12,16 +12,22 @@ c:tex-
 ***********************************************************************
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
-      subroutine exactd_mem(bases,nbas)
+      subroutine exactd_mem(rtdb,bases,nbas)
 c:tex-\end{verbatim}
       implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
 #include "bas.fh"
 #include "apiP.fh"
 #include "stdio.fh"
 c
+c:: functions
+      logical api_is_ecp_basis
+      external api_is_ecp_basis
 c:: passed
 c:tex-\begin{verbatim}
-      integer nbas ! [input] number of basis sets
+      integer rtdb        ! [input] the RTDB handle
+      integer nbas        ! [input] number of basis sets
       integer bases(nbas) ! [input} array of basis set handles
 c:tex-\end{verbatim}
 c:: local
@@ -29,31 +35,48 @@ c:: local
       integer lsz_2e4c, lsz_1e
       integer ibas,jbas
       integer nbfmax, nbf
+      logical o_do_full
+c
+c check to see if a full memory check is needed
+c
+      if (.not.(rtdb_get(rtdb,'int:full_mem',Mt_Log,1,o_do_full)))
+     &    o_do_full = .false.
 c
       call int_mem_zero()
 c
       nbfmax = 0
       do 00100 ibas = 1,nbas
-        call int_nbf_max(bases(ibas),nbf)
-        nbfmax = max(nbfmax,nbf)
-        do 00200 jbas = 1,ibas
+        if (.not.api_is_ecp_basis(bases(ibas))) then
+          call int_nbf_max(bases(ibas),nbf)
+          nbfmax = max(nbfmax,nbf)
+          do 00200 jbas = 1,ibas
+            if (.not.api_is_ecp_basis(bases(jbas))) then
 c.... nbfmax for 2e3c and 2e4c
-          if (bases(jbas).ne.bases(ibas)) then
-            call int_nbf_max(bases(ibas),nbf)
-            nbfmax = max(nbfmax,nbf)
-          endif
+              if (bases(jbas).ne.bases(ibas)) then
+                call int_nbf_max(bases(ibas),nbf)
+                nbfmax = max(nbfmax,nbf)
+              endif
+              if (o_do_full) then
+c.... 2e 4 center full computation
+                call emem_d2e4c_full
+     &              (bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
+              else
 c.... 2e 4 center
-          call emem_d2e4c(bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
-          mem_2e4c = max(mem_2e4c, lmem_2e4c)
-          isz_2e4c = max(isz_2e4c, lsz_2e4c)
+                call emem_d2e4c
+     &              (bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
+              endif
+              mem_2e4c = max(mem_2e4c, lmem_2e4c)
+              isz_2e4c = max(isz_2e4c, lsz_2e4c)
 c.... 1e
-          call emem_d1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
-          mem_1e = max(mem_1e, lmem_1e)
-          isz_1e = max(isz_1e, lsz_1e)
+              call emem_d1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
+              mem_1e = max(mem_1e, lmem_1e)
+              isz_1e = max(isz_1e, lsz_1e)
 *debug:          write(luout,*)' ibas|jbas ', ibas, '|', jbas
 *debug:          write(luout,*)' mem_2e4c: ',mem_2e4c
 *debug:          write(luout,*)' mem_1e  : ',mem_1e
-00200   continue
+            endif
+00200     continue
+        endif
 00100 continue
 c
 c tmp for ecp derivatives
@@ -426,6 +449,176 @@ c
 *debug:      write(6,'(a,i10)')'emem_d2e4c: memsize =',memsize
 *debug:      write(6,'(a,i10)')'emem_d2e4c: maxg    =',maxg
 *debug:      write(6,*)' factor =',factor
+c
+      end
+c:tex-% part of the API Internal Routines
+c:tex-\subsubsection{emem\_d2e4c\full}
+c:tex-This routine determines the maximum buffer and scratch size for 
+c:tex-the given basis sets to compute 2 electron derivative integrals.  
+c:tex-The logic used is similar to that of the integral routine.  
+c:tex-This routine should not be called by application code. 
+c:tex-this routine computes the complete memory requirements using
+c:tex-an $O(N^4$) algorithm
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine emem_d2e4c_full(brain, ketin, maxg, memsize)
+c:tex-\end{verbatim}
+      implicit none
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+#include "geomP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
+#include "stdio.fh"
+c::functions
+      integer int_unint
+      external int_unint
+c::passed
+c:tex-\begin{verbatim}
+      integer brain   ! [input] bra basis set handle
+      integer ketin   ! [input] ket basis set handle
+      integer maxg    ! [output] max size of 2e integrals buffer
+      integer memsize ! [output] max size of scratch space for 2e integral evaluation
+c:tex-\end{verbatim}
+c::local
+      integer approx_maxg
+      integer approx_memsize
+c
+      integer bra, bra_ucont, bra_geom, max_nbf_bra
+      integer ket, ket_ucont, ket_geom, max_nbf_ket, ket_lim
+      integer ibc, i_type, i_prim, i_gen, i_atom
+      integer jbc, j_type, j_prim, j_gen, j_atom
+      integer kkc, k_type, k_prim, k_gen, k_atom
+      integer lkc, l_type, l_prim, l_gen, l_atom
+      integer memdum, nint
+      double precision factor
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+      call emem_d2e4c(brain,ketin,approx_maxg,approx_memsize)
+      memsize = 0
+      maxg = 0
+c
+      bra = brain + BASIS_HANDLE_OFFSET
+      ket = ketin + BASIS_HANDLE_OFFSET
+c
+      write(6,*)' bra basis ',bs_name(bra)(1:len_bs_name(bra))
+      write(6,*)' ket basis ',bs_name(ket)(1:len_bs_name(ket))
+c
+      bra_ucont = infbs_head(HEAD_NCONT,bra)
+      ket_ucont = infbs_head(HEAD_NCONT,ket)
+c
+      bra_geom  = ibs_geom(bra)
+      ket_geom  = ibs_geom(ket)
+      if (bra_geom.ne.ket_geom) then
+        write(luout,*)'emem_d2e4c: two different geometries for',
+     &         ' derivatives?'
+        call errquit('emem_d2e4c: geom error ',911)
+      endif
+c
+      do ibc = 1, bra_ucont
+c
+        i_type = infbs_cont(CONT_TYPE ,ibc,bra)
+        i_prim = infbs_cont(CONT_NPRIM,ibc,bra)
+        i_gen  = infbs_cont(CONT_NGEN ,ibc,bra)
+        i_atom = (sf_ibs_cn2ce(ibc,bra))
+        if (i_gen.gt.1) then
+          i_gen = 1
+        endif
+        if (i_type.lt.0) then
+          i_type = abs(i_type)
+          i_gen  = 1
+        endif
+        do jbc = 1, bra_ucont
+          j_type = infbs_cont(CONT_TYPE ,jbc,bra)
+          j_prim = infbs_cont(CONT_NPRIM,jbc,bra)
+          j_gen  = infbs_cont(CONT_NGEN ,jbc,bra)
+          j_atom = (sf_ibs_cn2ce(jbc,bra))
+          if (j_gen.gt.1) then
+            j_gen = 1
+          endif
+          if (j_type.lt.0) then
+            j_type = abs(j_type)
+            j_gen  = 1
+          endif
+c
+          if (bra.eq.ket) then
+            ket_lim = bra_ucont
+          else
+            ket_lim = ket_ucont
+          endif
+c
+          do kkc = 1, ket_lim
+            k_type = infbs_cont(CONT_TYPE ,kkc,ket)
+            k_prim = infbs_cont(CONT_NPRIM,kkc,ket)
+            k_gen  = infbs_cont(CONT_NGEN ,kkc,ket)
+            k_atom = (sf_ibs_cn2ce(kkc,ket))
+            if (k_gen.gt.1) then
+              k_gen = 1
+            endif
+            if (k_type.lt.0) then
+              k_type = abs(k_type)
+              k_gen  = 1
+            endif
+            do lkc = 1, ket_lim
+              l_type = infbs_cont(CONT_TYPE ,lkc,ket)
+              l_prim = infbs_cont(CONT_NPRIM,lkc,ket)
+              l_gen  = infbs_cont(CONT_NGEN ,lkc,ket)
+              l_atom = (sf_ibs_cn2ce(lkc,ket))
+              if (l_gen.gt.1) then
+                l_gen = 1
+              endif
+              if (l_type.lt.0) then
+                l_type = abs(l_type)
+                l_gen  = 1
+              endif
+c
+              memdum = 15 000 000
+              nint = int_unint(brain,ibc,brain,jbc,ketin,kkc,ketin,lkc)
+              call hf2d(
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),
+     &            i_prim, i_gen, i_type, i_atom,
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),
+     &            j_prim, j_gen, j_type, j_atom,
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),
+     &            k_prim, k_gen, k_type, k_atom,
+     &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),
+     &            l_prim, l_gen, l_type, l_atom,
+     &            dbl_mb(mb_exndcf(1,1)), nint, .false., .false.,
+     &            .false.,.true.,dbl_mb(mb_exndcf(1,1)), memdum)
+              memsize = max(memsize,memdum)
+            enddo
+          enddo
+        enddo
+      enddo
+c
+      call int_nbf_max(brain,max_nbf_bra)
+      if (ketin.eq.brain) then
+        max_nbf_ket = max_nbf_bra
+      else
+        call int_nbf_max(ketin,max_nbf_ket)
+      endif
+      maxg = max_nbf_bra*max_nbf_bra
+      maxg = maxg*max_nbf_ket*max_nbf_ket
+      maxg = maxg*12
+      memsize = max(memsize,maxg)
+      factor = dble(maxg)/dble(approx_maxg)
+      write(6,'(a,i10)')  'emem_d2e4c     : maxg    =',approx_maxg
+      write(6,'(a,i10)')  'emem_d2e4c_full: maxg    =',maxg
+      write(6,'(a,f10.3)')'             maxg factor =',factor
+      factor = dble(memsize)/dble(approx_memsize)
+      write(6,'(a,i10)')  'emem_d2e4c     : memsize =',approx_memsize
+      write(6,'(a,i10)')  'emem_d2e4c_full: memsize =',memsize
+      write(6,'(a,f10.3)')'          memsize factor =',factor
+      call util_flush(6)
 c
       end
 
