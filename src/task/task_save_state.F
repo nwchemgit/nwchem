@@ -1,7 +1,7 @@
       logical function task_save_state(rtdb,suffix)
-*
-* $Id: task_save_state.F,v 1.7 2000-01-05 00:25:53 windus Exp $
-*
+*     
+*     $Id: task_save_state.F,v 1.8 2000-11-04 19:26:44 d3g681 Exp $
+*     
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"
@@ -33,13 +33,15 @@ c     Output ... function value T/F on success/failure
 c     
       logical status
       character*32 theory
-      character*(nw_max_path_len) vectors, name
-      logical oexist, oprint
+      character*(nw_max_path_len) vectors, name, done(3)
+      character*8 methods(3)
+      logical oexist, oprint, odone
+      integer nmethods, method, i
 c     
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task_save_state: theory not specified',0)
       oprint = util_print('task_save_state',print_default)
-c
+c     
       if (ga_nodeid() .eq. 0) then
          status = rtdb_parallel(.false.)
          if (oprint) then
@@ -48,44 +50,78 @@ c
             call util_flush(6)
          endif
 c     
-c     Get the name of the input MO vector file ... look for 
-c     "theory:input vectors" otherwise use the default
+c     Save the MO vector file ... rather than trying to figure out
+c     which theory generated the MO vectors just save all MO vectors
+c     known by theories that generate MOs (currently SCF, DFT and MCSCF)
+c     or the default name.  Also, don't complain if they are not there.
 c     
-         name = ' '
-         write(name,'(a,'':input vectors'')') 
-     $        theory(1:inp_strlen(theory))
-         if (rtdb_cget(rtdb,name,1,vectors)) then
-c     
-c     Default is overriden ... save the filename in the database as 
-c     "theory:vectors <suffix>"
-c     
-            name = ' '
-            write(name,'(a,'':vectors '',a)') 
-     $           theory(1:inp_strlen(theory)),
-     $           suffix(1:inp_strlen(suffix))
-            if (.not. rtdb_cput(rtdb,name,1,vectors)) call errquit
-     $           ('task_save_state: rtdb corrupt',0)
+         if ( inp_compare(.false.,'scf',theory) .or.
+     $        inp_compare(.false.,'dft',theory) .or.
+     $        inp_compare(.false.,'mcscf',theory) ) then
+            nmethods = 1
+            methods(1) = theory
          else
-            call util_file_name('movecs',.false.,.false.,vectors)
-         endif
+            nmethods = 3
+            methods(1) = 'scf'
+            methods(2) = 'dft'
+            methods(3) = 'mcscf'
+         end if
+         do method = 1, nmethods
+            write(name,'(a,'':input vectors'')') 
+     $           methods(method)(1:inp_strlen(methods(method)))
+            done(method) = ' ' 
+            if (rtdb_cget(rtdb,name,1,vectors)) then
+               call util_file_name_resolve(vectors, .false.)
+               done(i) = vectors
+               odone = .false.
+               do i = 1, method-1
+                  odone = odone .or. inp_compare(.true.,done(i),vectors)
+               end do
+               if (.not. odone) then
+                  inquire(file=vectors,exist=oexist)
+                  if (oexist) then
+                     name = ' '
+                     write(name,'(a,''.'',a)') 
+     $                    vectors(1:inp_strlen(vectors)),
+     $                    suffix(1:inp_strlen(suffix))
+                     call util_file_name_resolve(name, .false.)
+                     if (oprint) then
+                        write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+                        call util_flush(6)
+                     endif
+                     call util_file_copy(vectors, name)
+                  end if
+               end if
+            end if
+         end do
 c     
-c     Copy the file to <filename>.<suffix>
+c     Also do the default name
 c     
-         name = ' '
-         write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
-     $        suffix(1:inp_strlen(suffix))
-         call util_file_copy(vectors, name)
+         call util_file_name('movecs',.false.,.false.,vectors)
+         call util_file_name_resolve(vectors, .false.)
+         odone = .false.
+         do i = 1, nmethods
+            odone = odone .or. inp_compare(.true.,done(i),vectors)
+         end do
+         if (.not. odone) then
+            inquire(file=vectors,exist=oexist)
+            if (oexist) then
+               name = ' '
+               write(name,'(a,''.'',a)') 
+     $              vectors(1:inp_strlen(vectors)),
+     $              suffix(1:inp_strlen(suffix))
+               call util_file_name_resolve(name, .false.)
+               if (oprint) then
+                  write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+                  call util_flush(6)
+               endif
+               call util_file_copy(vectors, name)
+            end if
+         end if
 c     
-         if (oprint) then
-            write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
-            call util_flush(6)
-         endif
-c
+c     Selci and MCSCF have CI vectors
+c     
          if (theory.eq.'mcscf' .or. theory.eq.'selci') then
-c     
-c     Also need to save the CI vectors for MCSCF.  Don't know if
-c     the selci used SCF or MCSCF.
-c     
             call util_file_name('civec',.false.,.false.,vectors)
             inquire(file=vectors,exist=oexist)
             if (oexist) then
@@ -99,9 +135,8 @@ c
                endif
             endif
          endif
-c
-         if (theory.eq.'ccsd' .or. theory.eq.'ccsd(t)'
-     $        .or. theory.eq.'ccsd+t(ccsd)') then
+c     
+         if (theory(1:4).eq.'ccsd') then
 c     
 c     Also need to save the CCSD amplitudes
 c     
@@ -118,7 +153,7 @@ c
                endif
             endif
          endif
-c
+c     
          if (theory .eq. 'selci') then
 c     
 c     Also need to save the CI vectors, and ciconf file (moints?)
@@ -132,7 +167,7 @@ c
                write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
                call util_flush(6)
             endif
-c
+c     
             call util_file_name('ciconf',.false.,.false.,vectors)
             name = ' '
             write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
@@ -143,14 +178,14 @@ c
                call util_flush(6)
             endif
          endif
-c
+c     
          if (oprint) then
             write(6,*)
             call util_flush(6)
          endif
          status = rtdb_parallel(.true.)
       endif
-c
+c     
       call ga_sync()
 c     
       task_save_state = .true.
@@ -162,60 +197,101 @@ c
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
+#include "tcgmsg.fh"
       integer rtdb              ! [input]
       character*(*) suffix      ! [input]
 c     
 c     See comments in task_save_state
 c     
-      logical status
+      logical ignore, status
       character*32 theory
-      character*(nw_max_path_len) vectors, name
-      logical oexist, oprint
+      character*(nw_max_path_len) vectors, name, done(3)
+      character*8 methods(3)
+      logical oexist, oprint, odone
+      integer nmethods, method, i
 c     
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task_restore_state: theory not specified',0)
       oprint = util_print('task_restore_state',print_high)
+c
+      status = .true.           ! Set to false if there was nothing to restore
 c     
       if (ga_nodeid() .eq. 0) then
-         status = rtdb_parallel(.false.)
+         ignore = rtdb_parallel(.false.)
          if (oprint) then
             write(6,1) theory(1:inp_strlen(theory)), suffix
  1          format(/' Restoring state for ',a, ' with suffix ', a)
             call util_flush(6)
          endif
 c     
-c     Get original MOvecs name from the database entry 
-c     "theory:vectors <suffix>" or use the default if this is not present.
+c     Restore the MO vector file ... rather than trying to figure out
+c     which theory generated the MO vectors just save all MO vectors
+c     known by theories that generate MOs (currently SCF, DFT and MCSCF)
+c     or the default name.  Also, don't complain if they are not there.
 c     
-         name = ' '
-         write(name,'(a,'':vectors '',a)') 
-     $        theory(1:inp_strlen(theory)),
-     $        suffix(1:inp_strlen(suffix))
-         if (rtdb_cget(rtdb,name,1,vectors)) then
-c     
-c     Set the entry in the database for the input vectors since it was
-c     set when we saved state and is therefore probably not the default
-c     
-            name = ' '
-            write(name,'(a,'':input vectors'')') 
-     $           theory(1:inp_strlen(theory))
-            if (.not. rtdb_cput(rtdb,name,1,vectors)) call errquit
-     $           ('task_restore_state: rtdb corrupt',0)
+         if ( inp_compare(.false.,'scf',theory) .or.
+     $        inp_compare(.false.,'dft',theory) .or.
+     $        inp_compare(.false.,'mcscf',theory) ) then
+            nmethods = 1
+            methods(1) = theory
          else
-            call util_file_name('movecs',.false.,.false.,vectors)
-         endif
+            nmethods = 3
+            methods(1) = 'scf'
+            methods(2) = 'dft'
+            methods(3) = 'mcscf'
+         end if
+         do method = 1, nmethods
+            write(name,'(a,'':input vectors'')') 
+     $           methods(method)(1:inp_strlen(methods(method)))
+            done(method) = ' ' 
+            if (rtdb_cget(rtdb,name,1,vectors)) then
+               call util_file_name_resolve(vectors, .false.)
+               done(i) = vectors
+               odone = .false.
+               do i = 1, method-1
+                  odone = odone .or. inp_compare(.true.,done(i),vectors)
+               end do
+               if (.not. odone) then
+                  name = ' '
+                  write(name,'(a,''.'',a)') 
+     $                 vectors(1:inp_strlen(vectors)),
+     $                 suffix(1:inp_strlen(suffix))
+                  call util_file_name_resolve(name, .false.)
+                  inquire(file=name,exist=oexist)
+                  if (oexist) then
+                     if (oprint) then
+                        write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+                        call util_flush(6)
+                     endif
+                     call util_file_copy(name, vectors)
+                  end if
+               end if
+            end if
+         end do
 c     
-c     Now make the name of the backup file and copy back to the original
+c     Also do the default name
 c     
-         name = ' '
-         write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
-     $        suffix(1:inp_strlen(suffix))
-         call util_file_copy(name, vectors)
-c     
-         if (oprint) then
-            write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
-            call util_flush(6)
-         endif
+         call util_file_name('movecs',.false.,.false.,vectors)
+         call util_file_name_resolve(vectors, .false.)
+         odone = .false.
+         do i = 1, nmethods
+            odone = odone .or. inp_compare(.true.,done(i),vectors)
+         end do
+         if (.not. odone) then
+            name = ' '
+            write(name,'(a,''.'',a)') 
+     $           vectors(1:inp_strlen(vectors)),
+     $           suffix(1:inp_strlen(suffix))
+            call util_file_name_resolve(name, .false.)
+            inquire(file=name,exist=oexist)
+            if (oexist) then
+               if (oprint) then
+                  write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+                  call util_flush(6)
+               endif
+               call util_file_copy(name, vectors)
+            end if
+         end if
 c
          if (theory.eq.'mcscf' .or. theory.eq.'selci') then
 c     
@@ -263,33 +339,41 @@ c
             name = ' '
             write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
      $           suffix(1:inp_strlen(suffix))
-            call util_file_copy(name, vectors)
-            if (oprint) then
-               write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
-               call util_flush(6)
-            endif
-c
-            call util_file_name('ciconf',.false.,.false.,vectors)
-            name = ' '
-            write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
-     $           suffix(1:inp_strlen(suffix))
-            call util_file_copy(name, vectors)
-            if (oprint) then
-               write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
-               call util_flush(6)
+            inquire(file=name,exist=oexist)
+            if (oexist) then
+               call util_file_copy(name, vectors)
+               if (oprint) then
+                  write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+                  call util_flush(6)
+               endif
+               call util_file_name('ciconf',.false.,.false.,vectors)
+               name = ' '
+               write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $              suffix(1:inp_strlen(suffix))
+               call util_file_copy(name, vectors)
+               if (oprint) then
+                  write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+                  call util_flush(6)
+               endif
+            else
+               if (oprint) write(6,*) name(1:inp_strlen(name)),
+     $              ' does not exist'
+               status = .false.
+               goto 555
             endif
          endif
 c
-         if (oprint) then
+ 555     if (oprint) then
             write(6,*)
             call util_flush(6)
          endif
-         status = rtdb_parallel(.true.)
+         ignore = rtdb_parallel(.true.)
       endif
 c     
       call ga_sync()
+      call ga_brdcst(88, status, mitob(1), 0)
 c     
-      task_restore_state = .true.
+      task_restore_state = status
 c     
       end
       logical function task_delete_state(rtdb,suffix)
