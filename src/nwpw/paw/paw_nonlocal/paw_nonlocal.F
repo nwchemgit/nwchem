@@ -1,5 +1,5 @@
 *
-* $Id: paw_nonlocal.F,v 1.6 2003-03-03 20:34:52 marat Exp $
+* $Id: paw_nonlocal.F,v 1.7 2003-03-04 22:16:24 marat Exp $
 *
 
 !**************************************************
@@ -71,6 +71,9 @@
      >                           "paw_Gop_static",paw_Gop_static)
       if (.not.value) call errquit('paw_nonlocal_init: alloc heap',1)
 
+      do ii=1,paw_Gop_static(3)
+         dcpl_mb(paw_Gop_static(1)+ii-1)=dcmplx(0.0,0.0)
+      end do
 
       !*** set the static part of the nonlocal operator ****
       call paw_kin_matrix_ptr(ke_ptr)
@@ -93,12 +96,14 @@
                li = paw_basis_orb_l(i,ia)
                do mi=-li,li
               
+                if(mi.eq.mj) then
                  indx = ptr + (j-1)*basis_nbasis + (i-1)
                  dcpl_mb(paw_Gop_static(1)+indx_m) 
      >               = dbl_mb(ke_ptr  +indx)
      >               + dbl_mb(ion_ptr +indx)
      >               + dbl_mb(core_ptr+indx)
      >               - dbl_mb(vloc_ptr+indx)
+                 end if
 
                  indx_m = indx_m + 1
                end do !*mi*
@@ -158,6 +163,7 @@
 #include "paw_geom.fh" 
 
       !*** local variables ***
+      integer k
       integer ii,ia,n,nion,nbasis,nlm,nlm1
       integer i_nbasis,indx,indx1,indx_m
       integer coeff_ptr
@@ -169,15 +175,21 @@
       call paw_mult_pot_ptr(mult_ptr)
       call paw_comp_pot_ptr(comp_ptr)
 
+c      do k=1,paw_Gop_u(3)
+c       dcpl_mb(paw_Gop_u(1)+k-1)= 
+c     >       dcpl_mb(paw_Gop_static(1)+k-1) +
+c     >       dcpl_mb(hartree_ptr+k-1) 
+c       end do
+
       call dcopy(2*paw_Gop_size,
      >           dcpl_mb(paw_Gop_static(1)),1,
      >           dcpl_mb(paw_Gop_u(1)),1)
       call daxpy(2*paw_Gop_size,1.0d0,
      >           dcpl_mb(hartree_ptr),1,
      >           dcpl_mb(paw_Gop_u(1)),1)
-c      call daxpy(2*paw_Gop_size,1.0d0,
-c     >           dcpl_mb(mult_ptr),1,
-c     >           dcpl_mb(paw_Gop_u(1)),1)
+      call daxpy(2*paw_Gop_size,1.0d0,
+     >           dcpl_mb(mult_ptr),1,
+     >           dcpl_mb(paw_Gop_u(1)),1)
       call daxpy(2*paw_Gop_size,1.0d0,
      >           dcpl_mb(comp_ptr),1,
      >           dcpl_mb(paw_Gop_u(1)),1)
