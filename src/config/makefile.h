@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.457 2004-04-28 00:02:19 edo Exp $
+# $Id: makefile.h,v 1.458 2004-04-28 00:14:56 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1516,7 +1516,7 @@ endif
         DEFINES  +=   -DCHKUNDFLW
         FVECTORIZE   = -fast  -fastsse  -O4   -Mipa=fast
         FDEBUG = -g -O0
-        DEFINES  +=   -DPGLINUX
+        DEFINES  += -DPGLINUX
 #        LDOPTIONS += -g  -Wl,-export-dynamic 
       endif
       ifeq ($(FC),pathf90)
@@ -1530,7 +1530,7 @@ endif
         FVECTORIZE  = -O3 -OPT:Ofast -fno-math-errno
         DEFINES  += -DCHKUNDFLW
         FDEBUG = -g -O0
-        DEFINES  += -DPGLINUX
+        DEFINES  += -DPSCALE
         LDOPTIONS = -Wl,--warn-once   -Wl,--relax
 #        LDOPTIONS += -static
       endif
