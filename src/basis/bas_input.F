@@ -99,10 +99,10 @@ c
 *         write(6,*) ' Integral code requires segmentation'
 *         osegment = .true.
 *      endif
-      if (standard .ne. ' ') then
-         write(6,*) ' Standard basis ', standard(1:inp_strlen(standard))
-         call errquit('bas_input: standard basis set not yet' ,0)
-      endif
+*      if (standard .ne. ' ') then
+*         write(6,*) ' Standard basis ', standard(1:inp_strlen(standard))
+*         call errquit('bas_input: standard basis set not yet' ,0)
+*      endif
       if (ospherical) call errquit
      $     ('bas_input: spherical harmonics not yet', 0)
 c
@@ -112,7 +112,10 @@ c
       if (.not. bas_create(basis, name))
      $     call errquit('bas_input: failed to create basis', 0)
 c
-c     Here will soon process reading standard basis sets
+c     Process standard basis sets directive ... not yet done
+c
+      if (standard .ne. ' ') call errquit
+     $     ('bas_input: specify standard basis sets per tag', 0)
 c
 c     Now left with reading in from the input additional specifications
 c     for basis functions or standard sets on specific tags
@@ -161,24 +164,20 @@ c     end basis
 c     
       character*16 tag
       character*16 cont_type
+      character*255 field, standard, filename
       integer nltypes           ! No. of known angular momentum types
       integer nsptypes          ! No. of known sp type shells
       integer nopts             ! No. of options
-      integer cont_max          ! Max. no. of contractions
-      integer prim_max          ! Max. no. of primitives
       parameter (nltypes = 7, nsptypes = 2, nopts = 2)
-      parameter (cont_max = 30, prim_max = 30)
-      double precision expnt(prim_max), coeff(prim_max,cont_max)
       character*1 ltypes(nltypes)
       character*2 sptypes(nsptypes)
       character*8 opts(nopts)
       integer spvalues(nsptypes)
-      integer l_value, ngen, iprim, nprim, i, ind
+      integer l_value, ind
       data ltypes /'s','p','d','f','g','h','i'/
       data sptypes / 'sp', 'l '/
       data spvalues/  -1 , -1 /
       data opts / 'library', 'file' /
-      
 c
 c     Input a new line
 c
@@ -188,6 +187,8 @@ c
 c     Start parsing current line
 c
  20   call inp_set_field(0)
+      standard = ' '            ! Must reset these for every tag
+      filename = ' '
       if (.not. inp_a(tag)) goto 10000
 c
       if (inp_compare(.false., 'end', tag)) goto 9000 ! End of basis directive
@@ -204,85 +205,41 @@ c
 c     The contraction is an sp-type shell
 c     
          l_value = spvalues(ind)
-      else if (inp_match(nopts, .false., cont_type, opts, ind)) then
-c     
-c     It is actually an option to input a standard basis
-c     
-c     Don't bother parsing this yet
-c     
-         call errquit('bas_input_body: no standard basis sets yet',0)
-c
-         goto 10                ! Process the next input line
-c     
       else
 c     
-c     Only god and the user knows what was intended
+c     It might be an option
 c     
-         goto 10000
+         call inp_prev_field
+ 22      if (inp_a(field)) then
+            if (inp_match(nopts, .false., field, opts, ind)) then
+               goto (24, 26) ind
+c     
+c     library
+c     
+ 24            if (.not. inp_a(standard)) goto 10000
+               goto 22
+c     
+c     file
+c     
+ 26            if (.not. inp_a(filename)) goto 10000
+               goto 22
+            else
+               goto 10000       ! Unknown option
+            endif
+         endif
+      endif
+c
+c     Line with tag on has been parsed ... either a standard set
+c     or explicit input
+c
+      if (standard .ne. ' ') then
+         call bas_tag_lib(basis, osegment, tag, standard, filename)
+         goto 10
       endif
 c
 c     Fall thru to here to read in a set of contraction coefficients
 c
-      if (.not. inp_read()) goto 10000
-c
-      ngen = inp_n_field() - 1
-      if (ngen .lt. 1) goto 10000
-      if (ngen .gt. cont_max) call errquit
-     $     ('bas_input_body: too many contractions - increase cont_max',
-     $     cont_max)
-c
-      do iprim = 1, prim_max
-c
-         if (.not. inp_f(expnt(iprim))) then
-c     
-c     If cannot read the first field as an exponent then 
-c     it is the end of this contraction
-c     
-            goto 30
-         else
-            if ((inp_n_field()-1) .ne. ngen) then
-               write(6,*) ' bas_input_body: no. of coefficients?'
-               goto 10000
-            endif
-            do i= 1, ngen
-               if (.not. inp_f(coeff(iprim,i))) then
-                  write(6,*) ' bas_input_body: failed reading ',
-     $                 'coefficient'
-                  goto 10000
-               endif
-            enddo
-            if (.not. inp_read()) goto 10000
-         endif
-      enddo
-      call errquit('bas_input_body: too many primitives in contraction',
-     $     prim_max)
- 30   nprim = iprim-1
-      if (nprim .le. 0) call errquit('bas_input_body: no primitives?',
-     $     nprim)
-c
-c     Now have tag, contraction type, no. of contractions, no. of prims,
-c     exponents, coeffs.  Shove this lot into the basis set.
-c
-c     bas_add_ucnt -> adds a new general contraction on the specified tag.
-c     If the tag is not present it will also add that.
-c
-      if (osegment) then
-c
-c     Add contractions one-at-a-time to force segmentation
-c
-         do i = 1, ngen
-            if (.not. bas_add_ucnt(basis, tag, l_value, 1, nprim, 
-     $           expnt, coeff(1,i), prim_max)) call errquit
-     $           ('bas_input_body: bas_add_ucnt failed!!', 0)
-         enddo
-      else
-c
-c     Add as a single general contraction
-c
-         if (.not. bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
-     $        expnt, coeff, prim_max)) call errquit
-     $        ('bas_input_body: bas_add_ucnt failed!!', 0)
-      endif
+      call bas_input_cont(basis, osegment, tag, l_value)
 c
 c     Have already read in the next line ... parse it
 c
@@ -302,5 +259,225 @@ c
       call errquit('bas_input_body: format error in the input', 0)
 c
       end
-
-
+      subroutine bas_input_cont(basis, osegment, tag, l_value)
+      implicit none
+#include "inp.fh"
+#include "bas.fh"
+#include "geom.fh"
+      integer basis             ! [input]
+      logical osegment          ! [input]
+      character*16 tag          ! [input]
+      integer l_value           ! [input]
+c
+      integer ngen, iprim, nprim, i
+      integer cont_max          ! Max. no. of contractions
+      integer prim_max          ! Max. no. of primitives
+      logical status
+      parameter (cont_max = 30, prim_max = 30)
+      double precision expnt(prim_max), coeff(prim_max,cont_max)
+c
+c     The SUBSEQUENT lines contain coefficients and exponents
+c     for a contraction ... read them in and add the contraction to the
+c     basis set, segmenting if required.  The input file is left
+c     positioned having read the end directive
+c
+      if (.not. inp_read()) goto 10000
+c
+      ngen = inp_n_field() - 1
+      if (ngen .lt. 1) goto 10000
+      if (ngen .gt. cont_max) call errquit
+     $     ('bas_input_cont: too many contractions - increase cont_max',
+     $     cont_max)
+      if (l_value.eq.-1 .and. ngen.ne.2) call errquit
+     $     ('bas_input_cont: sp shell requires exactly 2 coeffs',ngen)
+c
+      do iprim = 1, prim_max
+c
+         if (.not. inp_f(expnt(iprim))) then
+c     
+c     If cannot read the first field as an exponent then 
+c     it is the end of this contraction
+c     
+            goto 30
+         else
+            if ((inp_n_field()-1) .ne. ngen) then
+               write(6,*) ' bas_input_cont: no. of coefficients?'
+               goto 10000
+            endif
+            do i= 1, ngen
+               if (.not. inp_f(coeff(iprim,i))) then
+                  write(6,*) ' bas_input_cont: failed reading ',
+     $                 'coefficient'
+                  goto 10000
+               endif
+            enddo
+            if (.not. inp_read()) goto 10000
+         endif
+      enddo
+      call errquit('bas_input_cont: too many primitives in contraction',
+     $     prim_max)
+ 30   nprim = iprim-1
+      if (nprim .le. 0) call errquit('bas_input_cont: no primitives?',
+     $     nprim)
+c
+c     Now have tag, contraction type, no. of contractions, no. of prims,
+c     exponents, coeffs.  Shove this lot into the basis set.
+c
+c     bas_add_ucnt -> adds a new general contraction on the specified tag.
+c     If the tag is not present it will also add that.
+c
+      status = .true.
+      if (osegment) then
+c     
+c     Add contractions one-at-a-time to force segmentation
+c     
+         if (l_value .ne. -1) then
+c     simple shell
+            do i = 1, ngen
+               status = status .and.
+     $              bas_add_ucnt(basis, tag, l_value, 1, nprim, 
+     $              expnt, coeff(1,i), prim_max)
+            enddo
+         else
+c     sp shell
+            status = status .and.
+     $           bas_add_ucnt(basis, tag, 0, 1, nprim, 
+     $           expnt, coeff(1,1), prim_max)
+            status = status .and.
+     $           bas_add_ucnt(basis, tag, 1, 1, nprim, 
+     $           expnt, coeff(1,2), prim_max)
+         endif
+      else
+c     
+c     Add as a single general contraction or sp shell
+c     
+         status = status .and.
+     $        bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
+     $        expnt, coeff, prim_max)
+      endif
+      if (.not. status) call errquit
+     $        ('bas_input_cont: bas_add_ucnt failed!!', 0)
+c
+      return
+c
+10000 write(6,1)
+ 1    format(' basis contraction format is:'/
+     $       '       tag <contraction type>'/
+     $       '           <exponent> <contraction coefficients>'/
+     $       '           ... '/
+     $       ' end basis')
+      call errquit('bas_input_body: format error in the input', 0)
+c
+      end
+      subroutine bas_tag_lib(basis, osegment, tag, standard, filename)
+      implicit none
+#include "inp.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "inp.fh"
+      integer basis             ! [input] basis handle
+      logical osegment          ! [input] segment if true
+      character*16 tag          ! [input] tag
+      character*(*) standard    ! [input] name of standard basis set
+      character*(*) filename    ! [input] name of library file
+c
+      character*2 symbol
+      character*16 element
+      character*30 string
+      character*4 cont_type
+      integer atn, lenn
+      integer nltypes           ! No. of known angular momentum types
+      integer nsptypes          ! No. of known sp type shells
+      parameter (nltypes = 7, nsptypes = 2)
+      character*1 ltypes(nltypes)
+      character*2 sptypes(nsptypes)
+      character*255 field
+      logical status
+      integer spvalues(nsptypes)
+      integer l_value, ind
+      data ltypes /'s','p','d','f','g','h','i'/
+      data sptypes / 'sp', 'l '/
+      data spvalues/  -1 , -1 /
+c
+c     Try to read in a standard basis set for the atom type
+c     associated with this tag
+c
+c     Note that this routine temporarily resets the inp package
+c     to read from a different file.  This has the effect of messing
+c     up line counts and discarding the remainder of the current
+c     input line.
+c
+c     Translate tag to symbol of atom and assemble a search string of
+c     the form 'basis <symbol>_<basis name>'
+c
+      if (.not. geom_tag_to_element(tag, symbol, element, atn))
+     $     call errquit('bas_tag_lib: tag does not refer to an atom', 0)
+*     write(6,*) ' tag, symbol, element, atn '
+*     write(6,*) tag,' ', symbol, ' ',element, ' ',atn
+      string = symbol
+      lenn = inp_strlen(string)
+      string(lenn+1:lenn+1) = '_'
+      string(lenn+2:) = standard
+      call inp_lcase(string)
+*     write(6,*) ' searching for basis ', string(1:inp_strlen(string))
+c
+c     Open the library file and try to locate the basis
+c
+      if (filename .eq. ' ') filename = 'library'
+      open(33, file=filename, status='old', err=1000)
+      call inp_init(33,6)
+ 33   if (inp_search(.false., 'basis')) then
+         status = inp_a(field)
+         if (inp_a(field)) then
+            if (inp_compare(.false., string, field)) goto 34
+         else
+            goto 35
+         endif
+         goto 33
+      endif
+ 35   write(6,*) ' bas_tag_lib: failed to locate ', string
+      call errquit('bas_tag_lib: no such basis available', 0)
+ 34   continue                  ! success
+c
+c     Now read the basis for this magical atom type in using
+c     the given tag
+c
+ 10   if (.not. inp_read()) call errquit
+     $     ('bas_tag_lib: premature EOF', 0)
+c     
+c     Start parsing current line
+c     
+ 20   call inp_set_field(0)
+      if (.not. inp_a(field)) goto 10000
+c     
+      if (inp_compare(.false., 'end', field)) goto 9000 ! End
+      if (.not. inp_a(cont_type)) goto 10000
+      if (inp_match(nltypes, .false., cont_type, ltypes, ind)) then
+c     
+c     The contraction is a simple shell
+c     
+         l_value = ind - 1
+      else if (inp_match(nsptypes, .false., cont_type,sptypes,ind)) then
+c     
+c     The contraction is an sp-type shell
+c     
+         l_value = spvalues(ind)
+      else
+         call errquit('bas_tag_lib: invalide shell type?', 0)
+      endif
+c
+c     Have tag and l_value ... read in the contraction coeffcients
+c
+      call bas_input_cont(basis, osegment, tag, l_value)
+      goto 20
+c
+ 9000 close(33)
+      call inp_init(5,6)        ! reset input to be from unit 5
+      return
+c
+ 1000 write(6,*) ' bas_tag_lib: looking for ', tag, standard, filename
+      call errquit('bas_tag_lib: failed to open basis library', 0)
+c
+10000 call errquit('bas_tag_lib: problem with library format?', 0)
+c
+      end
