@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icntoce, icntobfr, icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.7 2000-02-28 20:11:47 d3j191 Exp $
+c     $Id: fukui.F,v 1.8 2000-03-08 01:57:47 edo Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
@@ -456,9 +456,9 @@ c
            write(LuOut,'("      Coulomb Integrals = ",f10.4)') e_coul
            write(LuOut,'("      XC Integrals = ",f10.4)') e_xc
            write(LuOut,'("      XC Diff. Energy = ",f10.4)') diff_Exc
-           write(6,'("      Low Multiplicity = ",f7.4" a.u.")')
+           write(6,'("      Low Multiplicity = ",f7.4," a.u.")')
      &                                         low_mult
-           write(6,'("                       = ",f7.2" eV")')
+           write(6,'("                       = ",f7.2," eV")')
      &                                         low_mult*27.211
            write(LuOut,*) ' ------------------------------------'
         end if
@@ -499,7 +499,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s, string)
 
-C$Id: fukui.F,v 1.7 2000-02-28 20:11:47 d3j191 Exp $
+C$Id: fukui.F,v 1.8 2000-03-08 01:57:47 edo Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -659,7 +659,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.7 2000-02-28 20:11:47 d3j191 Exp $
+C$Id: fukui.F,v 1.8 2000-03-08 01:57:47 edo Exp $
 c
       implicit none
 c      
