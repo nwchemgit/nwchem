@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.32 1996-10-01 18:50:52 d3e129 Exp $
+C     $Id: geom_input.F,v 1.33 1996-10-07 18:45:33 mdupuis Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -3930,10 +3930,10 @@ C
 C
       NUMOOP=0
       DO MOOPA=1,MXOOPA
-         ICON=IJKLOP(1,MKLOP)
-         JCON=IJKLOP(2,MKLOP)
-         KCON=IJKLOP(3,MKLOP)
-         LCON=IJKLOP(4,MKLOP)
+         ICON=IJKLOP(1,MOOPA)
+         JCON=IJKLOP(2,MOOPA)
+         KCON=IJKLOP(3,MOOPA)
+         LCON=IJKLOP(4,MOOPA)
          IF(ICON.GT.0.AND.JCON.GT.0.AND.
      1      KCON.GT.0.AND.LCON.GT.0     ) THEN
             NUMOOP=NUMOOP+1
