@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.15 2000-08-02 21:41:53 d3g681 Exp $
+ $Id: nwchem_wrap.c,v 1.16 2000-08-02 23:01:31 d3g681 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -145,10 +145,12 @@ static PyObject *wrap_rtdb_close(PyObject *self, PyObject *args)
 
 static PyObject *wrap_pass_handle(PyObject *self, PyObject *args)
 {
-   if (!(PyArg_Parse(args, "i", &rtdb_handle))) {
+  int inthandle;
+   if (!(PyArg_Parse(args, "i", &inthandle))) {
       PyErr_SetString(PyExc_TypeError, "Usage: pass_handle(rtdb_handle)");
       return NULL;
    }
+   rtdb_handle = inthandle;
    Py_INCREF(Py_None);
    return Py_None;
 }
@@ -205,12 +207,14 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
       } 
       
       if (PyTuple_Size(args) == 3) {
+	int intma_type;
 	option_obj = PyTuple_GetItem(args, 2);      /* get optional type */
-	if (!(PyArg_Parse(option_obj, "i", &ma_type))) {
+	if (!(PyArg_Parse(option_obj, "i", &intma_type))) {
 	  PyErr_SetString(PyExc_TypeError, 
 			  "Usage: rtdb_put(value or values,[optional type])");
 	  return NULL;
 	}
+	ma_type = intma_type;
       }
       
       if (ma_type != MT_CHAR) {
@@ -228,9 +232,9 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
 	int_array = array;
 	for (i = 0; i < list_len; i++) {
 	  if (list) 
-	    PyArg_Parse(PyList_GetItem(obj, i), "i", int_array+i);
+	    int_array[i] = PyInt_AS_LONG(PyList_GetItem(obj, i));
 	  else 
-	    PyArg_Parse(obj, "i", int_array+i);
+	    int_array[i] = PyInt_AS_LONG(obj);
 	}
 	break;
 	
