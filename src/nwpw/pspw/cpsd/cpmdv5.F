@@ -13,7 +13,7 @@
 
       logical function cpmdv5(rtdb)
 *
-* $Id: cpmdv5.F,v 1.15 2002-02-13 20:02:07 edo Exp $
+* $Id: cpmdv5.F,v 1.16 2002-02-27 22:00:46 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -508,7 +508,7 @@
 
 
       if (taskid.eq.MASTER) call current_second(cpu2)
-      if (taskid.eq.MASTER) CALL nwpw_MESSAGE(2)
+      if (taskid.eq.MASTER) CALL nwpw_message(6)
       it_in  = control_it_in()
       it_out = control_it_out()
       icount = 0
@@ -604,7 +604,7 @@
       if (mulliken) call Orb_End()
 
 
-      if (taskid.eq.MASTER) CALL nwpw_MESSAGE(3)
+      if (taskid.eq.MASTER) CALL nwpw_message(3)
       if (taskid.eq.MASTER) call current_second(cpu3)
 
 
@@ -906,7 +906,7 @@
          write(6,*) '  density                    : ', nwpw_timing(11)
          write(6,*) '  allocate and deallocate    : ', nwpw_timing(12)
          write(6,*)
-         CALL nwpw_MESSAGE(4)
+         CALL nwpw_message(4)
       end if 
 
 

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.8 2002-02-27 19:05:21 bylaska Exp $
+c $Id: pspw_charge.F,v 1.9 2002-02-27 22:00:46 bylaska Exp $
 c
   
 ***********************************************************
@@ -536,7 +536,7 @@ c
               verf = util_erf(yerf)
               v    = epsilon*q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
      >                          - verf)/r**3
-     >             + depsilon*q*verf/r
+     >             + depsilon*q*verf/r**2
             else
               v = 0.0d0
             end if
