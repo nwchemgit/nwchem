@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.33 1998-10-20 23:44:24 windus Exp $
+c $Id: cando_sp.F,v 1.34 1999-01-22 00:50:21 windus Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -374,6 +374,7 @@ c
 c this routine does not check the shell and int_init
 c because it is only called by routines that do this.
 c
+#include "apiP.fh"
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -389,16 +390,24 @@ c:tex-\end{verbatim}
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function
 c:tex-for all 1e permutations and multiple basis sets.
 c::local
-      integer basis, mytype, ucont
+      integer basis, mytype, ucont, ngen
 c
 c
 #include "bas_ibs_sfn.fh"
+c
+      if (user_cando_hnd) then
+        cando_hnd_1e = def_cando_hnd
+        return
+      endif
 c
       cando_hnd_1e = .true.
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
 c check shell range
+c also check for general contractions which the code doesn't
+c currently handle
+c
       if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
      $     call errquit('cando_hnd_1e: bad ish =', ish)
       if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
@@ -407,20 +416,25 @@ c.... check ish
       if (ish.gt.0) then
         ucont  = (sf_ibs_cn2ucn(ish,basis))
         mytype = infbs_cont(CONT_TYPE,ucont,basis)
-        cando_hnd_1e = cando_hnd_1e .and.(mytype.ge.-1)
+        ngen = infbs_cont(CONT_NGEN,ucont,basis)
+        cando_hnd_1e = cando_hnd_1e .and. (mytype.ge.0) .and.
+     $     (mytype.le.4) .and. (ngen.eq.1)
       endif
 c
 c.... check jsh
       if (jsh.gt.0) then
         ucont  = (sf_ibs_cn2ucn(jsh,basis))
         mytype = infbs_cont(CONT_TYPE,ucont,basis)
-        cando_hnd_1e = cando_hnd_1e .and.(mytype.ge.-1)
+        ngen = infbs_cont(CONT_NGEN,ucont,basis)
+        cando_hnd_1e = cando_hnd_1e .and. (mytype.ge.0) .and.
+     $     (mytype.le.4) .and. (ngen.eq.1)
       endif
 c
-c Temporary to check if the other code is working O.K.
+c for now the code does not work with ECPs
+c this may be added later.
 c
-      cando_hnd_1e = .false.
-
+      if (any_ecp) cando_hnd_1e = .false.
+c
       end
 ***********************************************************************
 c:tex-% part of API application interface
@@ -616,7 +630,7 @@ c
 c:tex-% part of API application interface
 c:tex-\subsection{int\_app\_unset\_no\_hnd}
 c:tex-This routine resets the current user setting for the hondo
-c:tex-integral code and that was stored by int\_app\_set\_no\_hnd by
+c:tex-integral code that was stored by int\_app\_set\_no\_hnd by
 c:tex-setting the cando_hnd flag on the RTDB to the state prior to
 c:tex-turning hondo integrals off.  This is for applications that have
 c:tex-problems using the hondo integrals.
