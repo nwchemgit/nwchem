@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.12 1995-10-17 08:54:24 d3g681 Exp $
+#$Id: GNUmakefile,v 1.13 1995-10-25 20:35:35 og845 Exp $
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ = nwdft.o
@@ -10,6 +10,7 @@
    HEADERS = \
       include/timer.fh   \
       include/quad.fh  \
+      include/cdft.fh  \
       include/dimensions.fh  
 
 
@@ -25,6 +26,7 @@ include ../config/makelib.h
 nwdft.o:  \
       include/timer.fh   \
       include/quad.fh  \
+      include/cdft.fh  \
       include/dimensions.fh  
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 bas.fh :	 $(INCDIR)/context.fh 

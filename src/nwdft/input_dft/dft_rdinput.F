@@ -1,7 +1,7 @@
-      Subroutine dft_rdinput( rtdb, geom, AO_bas_han, CD_bas_han,
-     &                    XC_bas_han, iconst, nconst )
+      Subroutine dft_rdinput( rtdb, 
+     &                     iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.7 1995-10-17 08:54:48 d3g681 Exp $
+C$Id: dft_rdinput.F,v 1.8 1995-10-25 20:35:08 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -13,7 +13,6 @@ c
 c
 c     new stuff
       integer rtdb                                    ! [input] database handle
-      integer geom, AO_bas_han, CD_bas_han, XC_bas_han ! geom, basis handles
       integer bases(3)
       character*255 title
       integer ncenters
@@ -26,6 +25,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
+#include "cdft.fh"
 #include "rtdb.fh"
 #include "context.fh"
 #include "msgids.fh"

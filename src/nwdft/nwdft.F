@@ -2,14 +2,14 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.18 1995-10-17 08:54:25 d3g681 Exp $
+C$Id: nwdft.F,v 1.19 1995-10-25 20:38:01 og845 Exp $
       implicit real*8 (a-h,o-z)
       logical LResult
       logical CDFIT,XCFIT
 c****
 c**** nwchem handles
 c****
-      integer rtdb, geom, AO_bas_han, CD_bas_han, XC_bas_han
+      integer rtdb
 c     
 c-->  Include standard input and memory checking common structures.
 c     
@@ -27,6 +27,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "context.fh"
+#include "cdft.fh"
 c     
 c>>>  
 c     
@@ -46,8 +47,8 @@ c
 c-->  Gather input from all available resources e.g. input unit,
 c     old checkpoint files, etc.
 c
-      call dft_rdinput(rtdb, geom, AO_bas_han, 
-     &             CD_bas_han, XC_bas_han, Int_MB(ickcon), 200)
+      call dft_rdinput(rtdb, 
+     &             Int_MB(ickcon), 200)
 c     
 c--> determine system type (molecule, polymer,surface,crystal)
 c    if no system type exists in db --> default = molecular case     
@@ -56,8 +57,8 @@ c
      &    itype = 0
 c
       if(itype.eq.0) then
-        call dft_main0d(rtdb,  geom, AO_bas_han, 
-     &       CD_bas_han, XC_bas_han, Int_MB(ickcon), 200)
+        call dft_main0d(rtdb, 
+     &       Int_MB(ickcon), 200)
       elseif(itype.eq.3) then
         if(.not. geom_ncent(geom,ncent))
      &     call errquit('nwdft: ncent get failed',0)
