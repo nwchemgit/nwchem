@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.7 2002-01-15 01:48:42 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.8 2002-01-15 01:53:01 bylaska Exp $                       
 *
 
 ****#define DEBUG
@@ -227,10 +227,8 @@ c              scale = sum3/sum0
 
 c      Eold = cpsi_geodesic_energy(0.0d0)
 c     Eold = cpsi_geodesic_energy(0.0d0)
-c     Enew = E0
-c     tmin = 0.0d0
 #ifdef DEBUG
-      Enew = 0.0d0
+      Enew = E0
       tmin = 0.0d0
 #endif
 #ifndef DEBUG
