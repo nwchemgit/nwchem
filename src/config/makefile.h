@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.35 1994-07-14 21:23:27 gg502 Exp $
+# $Id: makefile.h,v 1.36 1994-07-19 00:45:18 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -10,11 +10,8 @@
 # TOPDIR points to your top-level directory that contains
 # src, lib, config, ... (SRCDIR, etc., are derived from TOPDIR)
 #
-# Either do a setenv for NWCHEM_TOP or define NWCHEM_TOP here
-# ... it is preferable to do the setenv then this file is indep of
-# who is using it.
+# Do a setenv for NWCHEM_TOP to be the top level directory
 #
-#  NWCHEM_TOP = /home5/vg038/nwchem
 
 ifndef NWCHEM_TOP
 # This variable must be defined ... the next line will cause an error
@@ -29,12 +26,8 @@ endif
      CNFDIR = $(TOPDIR)/src/config
 
 #
-# Define TARGET to be the machine you wish to build for
+# Do a setenv for NWCHEM_TARGET to be the machine you wish to build for
 # (one of SUN, IPSC, IBM, KSR)
-#
-# Either do a setenv for NWCHEM_TARGET or define it here
-# ... it is preferable to do the setenv then this file is independent
-# ... of who is using it!!!
 #
 
 ifndef NWCHEM_TARGET

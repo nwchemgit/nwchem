@@ -3,7 +3,7 @@
 set sed_script = {$NWCHEM_TOP}/src/config/dbl_to_sngl.sed
 set sed_script2 = {$NWCHEM_TOP}/src/config/dbl_to_sngl.2.sed
 
-set sufx = .sngl
+set sufx = .dbl
 
 foreach file ($argv)
 
