@@ -1,6 +1,6 @@
       Subroutine dft_getspm(geom,lmax,finest,iga_dens,basis)
 
-C$Id: dft_getspm.F,v 1.9 1996-10-18 00:53:00 d3h449 Exp $
+C$Id: dft_getspm.F,v 1.10 1997-02-17 17:57:56 d3g681 Exp $
       implicit none
       integer lmax               ! max value of ang momentum
       integer iga_dens           ! GA handle for DM
@@ -55,7 +55,7 @@ c****
         centerl(3) = centerl(3) + q*dbl_mb(icoord+3*icent+2)
       enddo 
       if(.not. geom_nuc_charge(geom,total_nuc_charge)) call errquit
-     &  ('dft_mpole:dft_nuc_mpole: geom_nuc_charge failed',20)
+     &  ('dft_getspm: geom_nuc_charge failed',20)
 
       centerl(1) = centerl(1)/total_nuc_charge
       centerl(2) = centerl(2)/total_nuc_charge
