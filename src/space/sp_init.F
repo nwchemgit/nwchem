@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.129 2004-02-24 06:24:56 d3j191 Exp $
+c $Id: sp_init.F,v 1.130 2004-02-24 15:17:52 d3j191 Exp $
 c
       implicit none
 c
@@ -2666,7 +2666,7 @@ c
       write(lfn,1003) i-1,ltemp(1,1)
  1003 format(2i7)
       do 6 j=1,ltemp(1,1)
-      write(lfn,1004) (ltemp(j+1,k),k=1,mbb2)
+      write(lfn,1004) (ltemp(j+1,k),k=1,4)
  1004 format(8i10)
     6 continue
       endif
@@ -2766,7 +2766,7 @@ c
       ltemp(1,1)=node
       ltemp(1,2)=nbl
       do 4 j=1,nbl
-      read(lfn,1004) (ltemp(j+1,k),k=1,mbb2)
+      read(lfn,1004) (ltemp(j+1,k),k=1,4)
  1004 format(8i10)
       if(mbb2.gt.4) then
       do 44 k=5,mbb2
