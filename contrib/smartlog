@@ -1,0 +1,301 @@
+#!/usr/bin/env perl
+#
+#   This script can be used to run the  cvs log
+#   command and extract comments made by a specific user
+#   after a specific date.
+#
+#   To use this script, first run
+#
+#        ./smartlog -u <username> -d <yyyy-mm-dd> or <yyyy/mm/dd>
+#
+#   to create a listing of all comments. If this is done in
+#   a high level directory, it will take some time to complete.
+#   The date can be in either the format
+#   yyyy-mm-dd or yyyy/mm/dd.  
+#
+#   The script outputs two files.  The first file is name cvs.log and contains
+#   the output of the cvs log command.  The second file is name cvs.out
+#   contains the output of the comments made by a specific user after 
+#   a specific date.
+
+################################################################################
+$FILENAME = "smartlog";
+#
+#
+$SYNTAX = "$FILENAME [-h] [-u <username>] [-d <yyyy-mm-dd> or <yyyy/mm/dd>]";
+#
+$DESCRIPTION = <<EOT;
+    [-h]                                   Display usage.
+    [-u username]                          To specify a different user other than the current user.
+    [-d <yyyy-mm-dd> or <yyyy/mm/dd>]      Listing of all comments made by the user <username> after the date <date>.
+EOT
+################################################################################
+
+use Getopt::Std;
+
+# retrieve options
+if (!getopts('hu:d:')) {
+    print "$SYNTAX\n";
+    exit;
+}
+
+if ( $opt_h ) {
+    print "$SYNTAX\n\n$DESCRIPTION\n";
+    exit;
+}
+
+if ( $opt_u ){
+   $me = $opt_u;
+}
+else{
+   $me = `whoami`;
+   chop($me);
+} 
+
+if( $opt_d ){
+  $start_date = $opt_d;
+}
+
+$status = `cvs log > cvs.log`;
+if($?){
+  print "Unable to run cvs log command.\n";
+  print "Please check to make sure the CVSROOT environment\n"; 
+  print "variable is set or that the cvs executable is in your path.\n";
+  exit 1;
+}
+
+$start_year = 0;
+$start_month = 0;
+$start_day = 0;
+if ($start_date =~ /\s*(\d+)\/0*(\d+)\/0*(\d+)\s*/ ||
+    $start_date =~ /\s*(\d+)-0*(\d+)-0*(\d+)\s*/) {
+   $start_year = $1;
+   $start_month = $2;
+   $start_day = $3;
+}
+
+$break;
+$header = "";
+$comment = "";
+$output = "";
+$mycomment = "";
+$is_me = 0;
+$is_since = 0;
+$is_header = 1;
+$is_comment = 0;
+
+%commentlog = ();
+%filelog = ();
+
+open(CVSLOG, "cvs.log") or die "Unable to open cvs.log file.  Did cvs log command run correctly?\n";
+
+while (<CVSLOG>) {
+  if ($is_header != 0) {
+    if (/-------/) {
+      $is_header = 0;                                  #read through the file til we get to the first --------
+      $is_comment = 1;
+      $break = $_;
+    }
+    else {
+      if(/RCS file/){
+        
+        $filename = $_;
+        
+        if( $filename =~ /(devroot\/\S*)/ ){           #if the file is from the Ecce tree
+          $filename = $1;
+        }
+        elsif ( $filename =~ /(src\/\S*)/ ){            #if the file is from the NWChem tree
+          $filename = $1;
+        }
+        else{                                           #don't know what tree the file is from, use the full filename
+        }
+        chop($filename);
+      }
+      else{
+        $header .= $_;
+      }
+    }
+  }
+  else {
+    if (/=======/) {
+      $header = "";
+      $mycomment = "";
+      $comment = "";
+      $is_me = 0;
+      $is_since = 0;
+      $is_header = 1;
+      $is_comment = 0;
+    }
+    elsif (/------/) {
+      if ($is_me != 0 && $is_since != 0) {
+        @mycomment = split(/\n/, $comment);
+                
+        $revision = shift(@mycomment);
+        
+        if($revision =~ /revision\s+(\S*)/){
+          $revision = $1;
+        }
+        
+        $filedata = shift(@mycomment);
+        
+        if($filedata =~ /date:\s+(\d+\/0*\d+\/0*\d+\s+\d+:\d+:\d+)/){
+          $date = $1;
+        }
+        
+        if($filedata =~ /author:\s+(\w+)/){
+          $author = $1;
+        }
+        
+        if($filedata =~ /lines:\s+(\+\d+\s-\d+)/){
+          $lines = $1;
+        }
+        
+        $mycomment = join("\n", @mycomment);
+        $filedata = $filename . $revision . "\t" . $date . "\t" . $author . "\t" . $lines . "\n";
+        
+                
+        if ( $filelog{$filedata} ){
+          $fileog{$filedata} .= $mycomment;
+        }
+        else{
+          $filelog{$filedata} = $mycomment;
+        }
+        
+                        
+        if ( $commentlog{$mycomment} ){
+          $commentlog{$mycomment} .= $filedata;
+        }
+        else{
+          $commentlog{$mycomment} = $filedata;
+        }
+      }
+      $is_me = 0;
+      $is_since = 0;
+      $comment = "";
+      $mycomment = "";
+      @mycomment = "";
+      $revision = "";
+      $date = "";
+      $author = "";
+      $lines = "";
+      $filedata = "";
+    }
+    else {
+      if (/$me/) {
+        $is_me = 1;
+      }
+      if (/date:\s+(\d+)\/0*(\d+)\/0*(\d+)/) {
+        $cyear = $1;
+        $cmonth = $2;
+        $cday = $3;
+        if ($cyear > $start_year) {
+          $is_since = 1;
+        }
+        elsif ($cyear == $start_year) {
+          if ($cmonth > $start_month) {
+            $is_since = 1;
+          }
+          elsif ($cmonth == $start_month) {
+            if ($cday >= $start_day) {
+              $is_since = 1;
+            }
+          }
+        }
+      }
+      $comment .= $_;
+     }
+  } 
+}
+
+close(CVSLOG);
+$begin = 0;
+$isduplicate = 0;
+@dcomment = "";
+
+foreach $file (sort keys(%filelog)){
+  
+  $file_key = $filelog{$file};
+  @fname = split(/,/, $file);
+  
+  if ($old_fname eq $fname[0]){
+    $isduplicate = &Find_Duplicates($file_key, @dcomment);
+    if($isduplicate == 0){
+      print $fname[1];
+    }
+  }else{
+    
+    if ($begin == 1){
+      print "\n==================================";
+      print "=========================\n\n";
+    }else{
+      $begin = 1;
+    }
+            
+    print "File:  ";
+    print $fname[0];
+    print "\n";
+    print $break;
+    print $fname[1];
+  }
+  
+  $record = $commentlog{$file_key};
+  $isduplicate = &Find_Duplicates($file_key, @dcomment);
+  
+  @file_record = split(/\n/, $record);
+  $rlength = @file_record;
+  
+  for($i=0; $i < $rlength; $i++){
+    @frecord= split(/,/, $file_record[$i]);
+    $/ = "\n";
+    chomp($fname[1]);
+    if($frecord[0] eq $fname[0]){
+      
+      if($frecord[1] ne $fname[1]){
+        if( $isduplicate == 0 ){
+          print $frecord[1];
+          print "\n";
+        }
+      }
+    }else{
+      if( $isduplicate == 0){
+        print "file:   ";
+        print $frecord[0];
+        print "   ";
+        print $frecord[1];
+        print "\n";
+      }
+    }
+  }
+  if($isduplicate == 0){
+    print $file_key;
+    push (@dcomment, $file_key);
+    print "\n";
+    print $break;
+  }
+  $old_fname = $fname[0];      
+}
+
+
+$status = `rm cvs.log`;
+if($?){
+  print "Unable to remove cvs.log file.\n";
+  print "File will need to be removed manually.\n";
+}
+
+
+sub Find_Duplicates{
+  
+  $my_found = 0;
+  my ($my_comment, @my_dcomment) = @_;
+  #$my_found = grep (/$my_comment/, @my_dcomment);
+  $dlength = @my_dcomment;
+  for($k = 0; $k < $dlength; $k++){
+    if($my_comment eq $my_dcomment[$k]){
+      $my_found = 1;
+    }
+  }
+      
+  return $my_found;
+}
+
+
