@@ -17,6 +17,11 @@ includes:
 include_stamp sngl_to_dbl dbl_to_sngl:
 	echo Nothing to be done
 
-realclean clean:
-	/bin/rm -f *.h *.fh
-	/bin/rm -f *~ \#*\#
+# In this directory, clean does not do anything -- we only want get rid of
+# up the include files if there's a serious cleanup.
+
+clean:
+
+realclean:
+	$(RM) *.h *.fh
+	$(RM) *~ \#*\#
