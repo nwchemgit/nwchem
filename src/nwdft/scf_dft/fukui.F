@@ -1,7 +1,7 @@
       Subroutine fukui(geom, nbf_ao, AO_bas_han, g_movecs,
      &                 noc, k_eval,  ipol, oskel, tol2e)
 c     
-c     $Id: fukui.F,v 1.4 1999-10-07 16:10:03 jolguin Exp $
+c     $Id: fukui.F,v 1.5 1999-10-13 03:43:53 d3j191 Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
@@ -191,7 +191,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s, string)
 
-C$Id: fukui.F,v 1.4 1999-10-07 16:10:03 jolguin Exp $
+C$Id: fukui.F,v 1.5 1999-10-13 03:43:53 d3j191 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -336,7 +336,7 @@ c
      $         symbol = 'X'
           if (ish2.ge.ish1) then
              write(LuOut,2) iat,symbol,nint(qnuc),qatom(iat) 
- 2           format(1x,i4,1x,a2,i4,1x,f10.4,)
+ 2           format(1x,i4,1x,a2,i4,1x,f10.4)
           endif
         enddo
       endif
