@@ -2,7 +2,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa)
 c
-c $Id: pre_misfit.F,v 1.6 1998-09-11 15:14:39 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.7 1998-09-17 22:05:17 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
       integer i,ic,j,nn,nndx(10),nnn,nnndx(10),nm,miss
       real*8 d(3),c(3),p(3),t(3),r,dr,dd,px(3),pn(3),pz(3),pw(3)
       real*8 xmax(3),xmin(3),dx(3),dist2,gdist,gdist2,angle
-      integer ix,iy,iz,k,imax,imin,ngrid,iwm,isa,iwm2,iwa
+      integer ix,iy,iz,k,imax,imin,ngrid,iwm,isa,iwm2,iwa,num
 c
       gdist2=gdist*gdist
 c
@@ -63,13 +63,12 @@ c
       if(idsb(1,j).eq.nndx(1)) then
       nnn=nnn+1
       nnndx(nnn)=idsb(2,j)
-      dr=cdsb(j)
       endif
       if(idsb(2,j).eq.nndx(1)) then
       nnn=nnn+1
       nnndx(nnn)=idsb(1,j)
-      dr=cdsb(j)
       endif
+      if(idsb(1,j).eq.i.or.idsb(2,j).eq.i) dr=cdsb(j)
     3 continue
 c
 c     count the number of missing atoms
@@ -82,76 +81,111 @@ c
 c     if j is only missing atom
 c
       if(nm.eq.1) then
+      c(1)=xs(1,nndx(1))
+      c(2)=xs(2,nndx(1))
+      c(3)=xs(3,nndx(1))
       d(1)=0.0d0
       d(2)=0.0d0
       d(3)=0.0d0
+      num=0
       do 5 j=1,nnn
       if(nnndx(j).ne.i) then
       d(1)=d(1)+xs(1,nnndx(j))
       d(2)=d(2)+xs(2,nnndx(j))
       d(3)=d(3)+xs(3,nnndx(j))
+      num=num+1
       endif
     5 continue
-      d(1)=(d(1)/dble(nnn-1))-xs(1,nndx(1))
-      d(2)=(d(2)/dble(nnn-1))-xs(2,nndx(1))
-      d(3)=(d(3)/dble(nnn-1))-xs(3,nndx(1))
+      d(1)=d(1)/dble(num)-c(1)
+      d(2)=d(2)/dble(num)-c(2)
+      d(3)=d(3)/dble(num)-c(3)
       r=sqrt(d(1)*d(1)+d(2)*d(2)+d(3)*d(3))
-      if(r.lt.0.0001)
-     + call errquit('pre_misfit: vector too small',9999)
-      xs(1,i)=xs(1,nndx(1))-dr*d(1)/r
-      xs(2,i)=xs(2,nndx(1))-dr*d(2)/r
-      xs(3,i)=xs(3,nndx(1))-dr*d(3)/r
+      if(r.lt.0.0001) call errquit('pre_misfit: vector too small',9001)
+      xs(1,i)=c(1)-dr*d(1)/r
+      xs(2,i)=c(2)-dr*d(2)/r
+      xs(3,i)=c(3)-dr*d(3)/r
       isfnd(i)=1
       endif
 c
 c     if j is one of two missing atoms
 c
       if(nm.eq.2) then
+      c(1)=xs(1,nndx(1))
+      c(2)=xs(2,nndx(1))
+      c(3)=xs(3,nndx(1))
       d(1)=0.0d0
       d(2)=0.0d0
       d(3)=0.0d0
       ic=0
+      num=0
       do 6 j=1,nnn
       if(nnndx(j).ne.i.and.isfnd(nnndx(j)).eq.1) then
       d(1)=d(1)+xs(1,nnndx(j))
       d(2)=d(2)+xs(2,nnndx(j))
       d(3)=d(3)+xs(3,nnndx(j))
       ic=nnndx(j)
+      num=num+1
       endif
     6 continue
-      if(nnn.eq.3) then
-      t(1)=(d(1)/dble(nnn-2))-xs(1,nndx(1))
-      t(2)=(d(2)/dble(nnn-2))-xs(2,nndx(1))
-      t(3)=(d(3)/dble(nnn-2))-xs(3,nndx(1))
-      d(1)=t(1)-0.1d0*t(2)
-      d(2)=t(2)+0.1d0*t(1)
-      d(3)=t(3)
+      d(1)=d(1)/dble(num)-c(1)
+      d(2)=d(2)/dble(num)-c(2)
+      d(3)=d(3)/dble(num)-c(3)
       r=sqrt(d(1)*d(1)+d(2)*d(2)+d(3)*d(3))
-      if(r.lt.0.0001)
-     + call errquit('pre_misfit: vector too small',9999)
-      xs(1,i)=xs(1,nndx(1))-dr*d(1)/r
-      xs(2,i)=xs(2,nndx(1))-dr*d(2)/r
-      xs(3,i)=xs(3,nndx(1))-dr*d(3)/r
+      if(r.lt.0.0001) call errquit('pre_misfit: vector too small',9002)
+      d(1)=dr*d(1)/r
+      d(2)=dr*d(2)/r
+      d(3)=dr*d(3)/r
+      if(nnn.eq.3) then
+      if(abs(d(1)).lt.abs(d(2)).and.abs(d(1)).lt.abs(d(3))) then
+      t(1)=c(1)
+      t(2)=d(3)+c(2)
+      t(3)=-d(2)+c(3)
+      else if(abs(d(2)).lt.abs(d(1)).and.abs(d(2)).lt.abs(d(3))) then
+      t(1)=d(3)+c(1)
+      t(2)=c(2)
+      t(3)=-d(1)+c(3)
+      else
+      t(1)=d(2)+c(1)
+      t(2)=-d(1)+c(2)
+      t(3)=c(3)
+      endif
+      d(1)=d(1)+c(1)
+      d(2)=d(2)+c(2)
+      d(3)=d(3)+c(3)
+      angle=2.094395102d0
+      call rotate(c,t,angle,d,p)
+      xs(1,i)=p(1)
+      xs(2,i)=p(2)
+      xs(3,i)=p(3)
       isfnd(i)=1
       else
-      c(1)=xs(1,ic)-d(1)/dble(nnn-2)
-      c(2)=xs(2,ic)-d(2)/dble(nnn-2)
-      c(3)=xs(3,ic)-d(3)/dble(nnn-2)
-      t(1)=(d(1)/dble(nnn-2))-xs(1,nndx(1))
-      t(2)=(d(2)/dble(nnn-2))-xs(2,nndx(1))
-      t(3)=(d(3)/dble(nnn-2))-xs(3,nndx(1))
-      p(1)=t(2)*c(3)-c(2)*t(3)
-      p(2)=t(3)*c(1)-c(3)*t(1)
-      p(3)=t(1)*c(2)-c(1)*t(2)
-      d(1)=p(1)+t(1)
-      d(2)=p(2)+t(2)
-      d(3)=p(3)+t(3)
-      r=sqrt(d(1)*d(1)+d(2)*d(2)+d(3)*d(3))
-      if(r.lt.0.0001)
-     + call errquit('pre_misfit: vector too small',9999)
-      xs(1,i)=xs(1,nndx(1))-dr*d(1)/r
-      xs(2,i)=xs(2,nndx(1))-dr*d(2)/r
-      xs(3,i)=xs(3,nndx(1))-dr*d(3)/r
+      d(1)=d(1)+c(1)
+      d(2)=d(2)+c(2)
+      d(3)=d(3)+c(3)
+      r=sqrt((xs(1,ic)-c(1))**2+(xs(2,ic)-c(2))**2+(xs(3,ic)-c(3))**2)
+      if(r.lt.0.0001) call errquit('pre_misfit: vector too small',9004)
+      t(1)=dr*(xs(1,ic)-c(1))/r+c(1)
+      t(2)=dr*(xs(2,ic)-c(2))/r+c(2)
+      t(3)=dr*(xs(3,ic)-c(3))/r+c(3)
+      angle=1.570796327d0
+      call rotate(c,d,angle,t,p)
+      d(1)=d(1)-c(1)
+      d(2)=d(2)-c(2)
+      d(3)=d(3)-c(3)
+      t(1)=t(1)-c(1)
+      t(2)=t(2)-c(2)
+      t(3)=t(3)-c(3)
+      c(1)=d(2)*t(3)-t(2)*d(3)+xs(1,nndx(1))
+      c(2)=d(3)*t(1)-t(3)*d(1)+xs(2,nndx(1))
+      c(3)=d(1)*t(2)-t(1)*d(2)+xs(3,nndx(1))
+      d(1)=xs(1,nndx(1))
+      d(2)=xs(2,nndx(1))
+      d(3)=xs(3,nndx(1))
+      angle=3.141592654d0
+      call rotate(d,c,angle,p,t)
+      xs(1,i)=t(1)
+      xs(2,i)=t(2)
+      xs(3,i)=t(3)
       isfnd(i)=1
       endif
       endif
@@ -159,52 +193,59 @@ c
 c     if j is one of three missing atoms
 c
       if(nm.eq.3) then
+      c(1)=xs(1,nndx(1))
+      c(2)=xs(2,nndx(1))
+      c(3)=xs(3,nndx(1))
       d(1)=0.0d0
       d(2)=0.0d0
       d(3)=0.0d0
       ic=0
+      num=0
       do 7 j=1,nnn
       if(nnndx(j).ne.i.and.isfnd(nnndx(j)).eq.1) then
       d(1)=d(1)+xs(1,nnndx(j))
       d(2)=d(2)+xs(2,nnndx(j))
       d(3)=d(3)+xs(3,nnndx(j))
       ic=nnndx(j)
+      num=num+1
       endif
     7 continue
-      if(nnn.eq.4) then
-      t(1)=(d(1)/dble(nnn-2))-xs(1,nndx(1))
-      t(2)=(d(2)/dble(nnn-2))-xs(2,nndx(1))
-      t(3)=(d(3)/dble(nnn-2))-xs(3,nndx(1))
-      d(1)=t(1)-0.1d0*t(2)
-      d(2)=t(2)+0.1d0*t(1)
-      d(3)=t(3)
+      d(1)=d(1)/dble(num)-c(1)
+      d(2)=d(2)/dble(num)-c(2)
+      d(3)=d(3)/dble(num)-c(3)
       r=sqrt(d(1)*d(1)+d(2)*d(2)+d(3)*d(3))
-      if(r.lt.0.0001)
-     + call errquit('pre_misfit: vector too small',9999)
-      xs(1,i)=xs(1,nndx(1))-dr*d(1)/r
-      xs(2,i)=xs(2,nndx(1))-dr*d(2)/r
-      xs(3,i)=xs(3,nndx(1))-dr*d(3)/r
+      if(r.lt.0.0001) call errquit('pre_misfit: vector too small',9005)
+      d(1)=dr*d(1)/r
+      d(2)=dr*d(2)/r
+      d(3)=dr*d(3)/r
+      if(nnn.eq.4) then
+      if(abs(d(1)).lt.abs(d(2)).and.abs(d(1)).lt.abs(d(3))) then
+      t(1)=c(1)
+      t(2)=d(3)+c(2)
+      t(3)=-d(2)+c(3)
+      else if(abs(d(2)).lt.abs(d(1)).and.abs(d(2)).lt.abs(d(3))) then
+      t(1)=d(3)+c(1)
+      t(2)=c(2)
+      t(3)=-d(1)+c(3)
+      else
+      t(1)=d(2)+c(1)
+      t(2)=-d(1)+c(2)
+      t(3)=c(3)
+      endif
+      d(1)=d(1)+c(1)
+      d(2)=d(2)+c(2)
+      d(3)=d(3)+c(3)
+      angle=1.910633236d0
+      call rotate(c,t,angle,d,p)
+      xs(1,i)=p(1)
+      xs(2,i)=p(2)
+      xs(3,i)=p(3)
       isfnd(i)=1
       else
-      c(1)=xs(1,ic)-d(1)/dble(nnn-2)
-      c(2)=xs(2,ic)-d(2)/dble(nnn-2)
-      c(3)=xs(3,ic)-d(3)/dble(nnn-2)
-      t(1)=(d(1)/dble(nnn-2))-xs(1,nndx(1))
-      t(2)=(d(2)/dble(nnn-2))-xs(2,nndx(1))
-      t(3)=(d(3)/dble(nnn-2))-xs(3,nndx(1))
-      p(1)=t(2)*c(3)-c(2)*t(3)
-      p(2)=t(3)*c(1)-c(3)*t(1)
-      p(3)=t(1)*c(2)-c(1)*t(2)
-      d(1)=p(1)+t(1)
-      d(2)=p(2)+t(2)
-      d(3)=p(3)+t(3)
-      r=sqrt(d(1)*d(1)+d(2)*d(2)+d(3)*d(3))
-      if(r.lt.0.0001)
-     + call errquit('pre_misfit: vector too small',9999)
-      xs(1,i)=xs(1,nndx(1))-dr*d(1)/r
-      xs(2,i)=xs(2,nndx(1))-dr*d(2)/r
-      xs(3,i)=xs(3,nndx(1))-dr*d(3)/r
-      isfnd(i)=1
+c
+c     three missing hydrogens from atom with other than 4 neighbors
+c
+      call errquit('pre_misfit: case not implemented',9999)
       endif
       endif
 c

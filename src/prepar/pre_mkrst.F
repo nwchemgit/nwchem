@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain)
 c
-c $Id: pre_mkrst.F,v 1.21 1998-09-11 20:47:35 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.22 1998-09-17 22:05:18 d3j191 Exp $
 c
       implicit none
 c
@@ -481,7 +481,8 @@ c
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filpdb
       len=index(filpdb,' ')-1
-      if(.not.pre_wrtpdb(lfnpdb,filnam,iopt,int_mb(i_num),dbl_mb(i_mas),
+      if(.not.pre_wrtpdb(lfnout,lfnpdb,filnam,iopt,
+     + int_mb(i_num),dbl_mb(i_mas),
      + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
      + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam))

@@ -1,15 +1,18 @@
-      logical function pre_wrtpdb(lfnpdb,filpdb,iopt,num,amass,mat,
+      logical function pre_wrtpdb(lfnout,lfnpdb,filpdb,iopt,
+     + num,amass,mat,
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam)
 c
-c $Id: pre_wrtpdb.F,v 1.3 1998-09-11 20:47:38 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.4 1998-09-17 22:05:18 d3j191 Exp $
 c
       implicit none
+c
+#include "util.fh"
 c
       character*2 pre_atnam
       external pre_atnam
 c
-      integer lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
+      integer lfnout,lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
       character*255 filpdb
       integer num(mat),isat(msa),isgm(msa)
       character*16 cwa(mwa),csa(msa)
@@ -76,6 +79,12 @@ c
 c
 c
       close(unit=lfnpdb)
+c
+      if(util_print('files',print_default)) then
+      write(lfnout,2000) filpdb(1:length)
+ 2000 format(' Created pdb',t40,a,/)
+      endif
+c
       pre_wrtpdb=.true.
       return
 c
