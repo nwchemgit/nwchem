@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.46 1995-11-13 16:57:30 d3g681 Exp $
+# $Id: GNUmakefile,v 1.47 1995-11-15 01:01:11 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -61,7 +61,7 @@
 		int2e_file.F fock_2e_shell_to_labels.F fock_2e_a.F \
 		rhf_dens_to_mo.F scf.F schwarz_init.F vectors.F \
 		movecs_project.F fock_2e_b.F rohf.F rohf_nr_solve.F \
-		rohf_search_precond.F scf_vectors_guess.F \
+		rohf_search_precond.F \
 		fock_2e_from_file.F rohf_fock.F rohf_hessv_2e.F \
 		scf_get_info.F ao_fock_2e.F
 
