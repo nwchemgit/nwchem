@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.25 1997-04-19 21:38:00 d3g681 Exp $
+C$Id: opt_drv.F,v 1.26 1997-04-28 22:17:51 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -16,6 +16,7 @@ C$Id: opt_drv.F,v 1.25 1997-04-19 21:38:00 d3g681 Exp $
 c
       call util_print_push
       call util_print_rtdb_load(rtdb, 'driver')
+      call ecce_print_module_entry('driver')
       if (util_print("brdcst", print_never)) call setdbg(1)
 c
       dbug=.false.
@@ -32,6 +33,12 @@ c
       idriver=0
 c
       drv_opt = hnd_optx(rtdb,idriver)
+c
+      if (drv_opt) then
+         call ecce_print_module_exit('driver', 'ok')
+      else
+         call ecce_print_module_exit('driver', 'failed')
+      endif
 c
       if (util_print("brdcst", print_never)) call setdbg(0)
       call util_print_pop
@@ -84,6 +91,8 @@ c                mxcoor=max(mxcart,mxzmat)
       data one    /1.0d+00/
       data alphmn /0.4d+00/
       data alphmx /2.5d+00/
+c
+      hnd_optx = .false.
 c
       dbug=.false.  
       some=.false.
