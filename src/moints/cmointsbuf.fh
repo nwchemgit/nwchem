@@ -1,0 +1,9 @@
+      integer buflen 
+      parameter (buflen = 1024) ! MUST MATCH MAIN PROGRAM
+      double precision fbuf  ! integral values
+      integer plab           ! packed labels
+      integer n_in_rec, pad  ! # in record and padding
+      common/cmointsbuf/fbuf(buflen),plab(buflen),n_in_rec,pad
+c
+c  !!! DIMENSION OF PLAB ASSUMES 32 BIT INTEGER
+c
