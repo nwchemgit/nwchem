@@ -1,7 +1,7 @@
       subroutine tddft_epsilon(ivector,g_trials,g_prod_s,
      1  ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
 c
-c $Id: tddft_epsilon.F,v 1.3 2002-04-12 22:55:52 sohirata Exp $
+c $Id: tddft_epsilon.F,v 1.4 2002-04-16 01:46:28 sohirata Exp $
 c
 c Add (epsilon_a-epsilon_i) contribution to the product vector.
 c This subroutine is explicitly parallelized.
@@ -42,6 +42,7 @@ c Add (epsilon_a-epsilon_i)*trial vector diagonal elements
 c --------------------------------------------------------
 c
       iproc=ga_nodeid()
+      call ga_sync()
       do i=1,ipol
         call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
         if ((jlo.gt.ivector).or.(jhi.lt.ivector))

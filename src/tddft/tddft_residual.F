@@ -2,9 +2,9 @@
      1  ntrials,tda,g_trials,g_prod_p,g_prod_m,apbvec,apbval,
      2  ambvec,residual_1,residual_2,g_residuals_1,g_residuals_2,
      3  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
-     4  nconverged,nnewtrials)
+     4  nconverged,nnewtrials,nresiduals)
 c
-c $Id: tddft_residual.F,v 1.4 2002-04-14 00:42:52 sohirata Exp $
+c $Id: tddft_residual.F,v 1.5 2002-04-16 01:46:28 sohirata Exp $
 c
 c Calculate the residual vector and create a new trial
 c vector, if convergence is not achieved.
@@ -39,6 +39,7 @@ c
 #include "stdio.fh"
 c
       integer nroots           ! Number of roots sought
+      integer nresiduals       ! Number of residual vectors
       integer nbf_ao           ! Number of AO basis functions
       integer ipol             ! = 1 (RDFT); =2 (UDFT)
       integer nocc(2)          ! Number of occupied orbitals
@@ -54,8 +55,8 @@ c
       double precision apbvec(ntrials,ntrials)   ! (X+Y)
       double precision ambvec(ntrials,ntrials)   ! (X-Y)
       double precision apbval(ntrials)  ! (A-B)^(1/2)(A+B)(A-B)^(1/2) eigenvalues
-      double precision residual_1(nroots) ! Norm of the residual vectors 1
-      double precision residual_2(nroots) ! Norm of the residual vectors 2
+      double precision residual_1(nresiduals) ! Norm of the residual vectors 1
+      double precision residual_2(nresiduals) ! Norm of the residual vectors 2
       double precision thresh  ! Convergence threshold for Davidson iteration
       double precision valsav(nroots)   ! Excitation energies from previous iteration
       double precision maxresidual      ! Max Norm of the residual vectors
@@ -95,7 +96,7 @@ c
 c
 c Form X
 c
-          do n=1,nroots
+          do n=1,min(nresiduals,ntrials)
             do m=1,ntrials
               call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
      1                           1.0d0,g_residuals_1(i),1,nov(i),n,n,
@@ -128,7 +129,7 @@ c
 c
 c Form (X+Y) and (X-Y)
 c
-          do n=1,nroots
+          do n=1,min(nresiduals,ntrials)
             do m=1,ntrials
               call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
      1                           1.0d0,g_residuals_1(i),1,nov(i),n,n,
@@ -164,7 +165,7 @@ c ---------------------------------
 c Compute norms of residual vectors
 c ---------------------------------
 c
-      do n=1,nroots
+      do n=1,min(nresiduals,ntrials)
         residual_1(n)=0.0d0
         do i=1,ipol
           residual_1(n)=residual_1(n)+ga_ddot_patch
@@ -235,15 +236,18 @@ c Create new trial vectors
 c ------------------------
 c
       nnewtrials=ntrials
-      do n=1,nroots
+      do n=1,min(nresiduals,ntrials)
+        if ((n.gt.nroots).and.(apbval(n)-apbval(nroots).gt.1.0d-4))
+     1    continue
         if (residual_1(n).gt.thresh) then
-          if (ntrials.gt.maxvecs) call errquit
-     1      ('Out of memory',ntrials)
+          if (nnewtrials.ge.maxvecs) call errquit
+     1      ('Out of memory',nnewtrials)
+          call ga_sync()
           do i=1,ipol
             call ga_distribution
      1        (g_residuals_1(i),iproc,ilo,ihi,jlo,jhi)
             if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
-     1        ('tddft_epsilon: an internal error detected',0)
+     1        ('tddft_residual: an internal error detected',0)
             do l=ilo,ihi
               k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
               j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
@@ -291,18 +295,21 @@ c
 c Full linear response may generate another set of new trial vectors
 c
       if (.not.tda) then
-        do n=1,nroots
+        do n=1,min(nresiduals,ntrials)
+        if ((n.gt.nroots).and.(apbval(n)-apbval(nroots).gt.1.0d-4))
+     1    continue
           if (residual_2(n).gt.thresh) then
-            if (ntrials.gt.maxvecs) call errquit
-     1        ('Out of memory',ntrials)
+            if (nnewtrials.ge.maxvecs) call errquit
+     1        ('Out of memory',nnewtrials)
 c
 c Scale by 1/{w(epsilon_a-epsilon_i)^(1/2)}
 c
+            call ga_sync()
             do i=1,ipol
               call ga_distribution
      1          (g_residuals_2(i),iproc,ilo,ihi,jlo,jhi)
               if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
-     1          ('tddft_epsilon: an internal error detected',0)
+     1          ('tddft_residual: an internal error detected',0)
               do l=ilo,ihi
                 k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
                 j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1

@@ -1,7 +1,7 @@
       subroutine tddft_subspace(ipol,nocc,nmo,nfc,nfv,g_trials,
      1  g_prod_p,g_prod_m,ntrials,tda,apb,amb)
 c
-c $Id: tddft_subspace.F,v 1.3 2002-04-12 22:55:52 sohirata Exp $
+c $Id: tddft_subspace.F,v 1.4 2002-04-16 01:46:28 sohirata Exp $
 c
 c Form subspace representation of (A+B) and (A-B) matrices
 c using trial and product vectors.  The elements of (A+B)
@@ -79,6 +79,7 @@ c
         enddo
       enddo
       iproc=ga_nodeid()
+      call ga_sync()
       do i=1,ipol
         call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
         if ((jlo.gt.1).or.(jhi.lt.ntrials))
@@ -110,6 +111,7 @@ c
           enddo
         endif
       enddo
+      call ga_sync()
 c
 c -----------------------------------------------------------------
 c Now we accumulate the local contributions to form the full matrix
@@ -131,6 +133,7 @@ c
       call ga_get(g_apb_tmp,1,ntrials,1,ntrials,apb,ntrials)
       if (.not.tda)
      1  call ga_get(g_amb_tmp,1,ntrials,1,ntrials,amb,ntrials)
+      call ga_sync()
       if (.not.ga_destroy(g_apb_tmp)) call errquit
      1  ('tddft_subspace: failed to destroy g_apb_tmp',0)
       if (.not.tda) then
