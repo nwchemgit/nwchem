@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.49 2002-12-23 19:34:25 edo Exp $
+$Id: INSTALL,v 1.50 2003-01-27 23:26:45 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -639,9 +639,10 @@ defined this series of variables (that you can set in autoexec.bat):
 
 set NWCHEM_TOP=c:\nwchem
 set NWCHEM_TARGET=WIN32
-set MPI_INCLUDE=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\INCLUDE
-set MPI_LIB=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\lib
-set NWCHEM_EXTRA_LIBS=%MPI_LIB%\mpich.lib
+
+set MPI_INCLUDE=c:\PROGRA~1\ARGONN~1\MPICH.NT.1.2.3\SDK\INCLUDE
+set MPI_LIB=c:\PROGRA~1\ARGONN~1\MPICH.NT.1.2.3\SDK\lib
+set NWCHEM_EXTRA_LIBS=c:\PROGRA~1\ARGONN~1\MPICH.NT.1.2.3\SDK\lib\mpich.lib
 
 To start the compilation, start the Microsoft makefile utility from the 
 top level source directory by typing 
