@@ -1,6 +1,6 @@
       logical function line_search(nstep, max_nstep, energies,
      $     gradients, steps, eacc, tol, oprint)
-C$Id: line_search.F,v 1.10 1997-04-10 02:06:21 d3g681 Exp $
+C$Id: line_search.F,v 1.11 1999-06-28 16:07:52 d3g681 Exp $
       implicit none
 #include "util.fh"
 c
@@ -106,14 +106,20 @@ c
             call util_flush(6)
  4          format(20x,'Energy increase :',f23.8,' backtrack')
          endif
-         ls_step = (step_low - step1) * 0.5d0
+c
+c     The next factor was 0.5 but this can lead to a cycle being
+c     formed by constantly backtracking and then restricting 
+c     the step (it also has a factor of 0.5).  Hence, 1/3
+c     which is relatively prime.
+c
+         ls_step = (step_low - step1) / 3d0
          if ((step1 - step_low + ls_step)*g_low .gt. 0) then
             if (oprint) then
                write(6, 41) g_low
                call util_flush(6)
  41            format(20x,'On wrong side of minimum energy point ',f6.2)
-               ls_step = step_low - step1 - 0.1d0*g_low
             endif
+            ls_step = step_low - step1 - 0.1d0*g_low
          endif
       else
 c     
