@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.54 2000-07-10 23:02:43 edo Exp $
+# $Id: GNUmakefile,v 1.55 2000-08-24 23:57:13 edo Exp $
 #
 
-   OBJ = dft_grad_top.o  dftg_force.o \
+   OBJ = dft_grad_top.o \
          dftg_getxc.o dft_gradients.o \
          grad_dft.o      dftg_quadv0.o     \
          dftg_getcden.o  dftg_getxden.o dftg_gridpart.o\
@@ -11,7 +11,7 @@
                   dftg_grad2.o dftg_hf_x.o dint_block_j.o j_nucder_gen.o  \
                   dftg_beckew.o dftg_wderiv.o  dftg_gridssw.o 
 
-   USES_BLAS = dftg_cdfit.F dftg_quadv0a.F dftg_quadv0b.F dftg_wderiv.F j_nucder_gen.F dft_gradients.F dftg_force.F  dftg_gridv0a.F dftg_gridv0b.F
+   USES_BLAS = dftg_cdfit.F dftg_quadv0a.F dftg_quadv0b.F dftg_wderiv.F j_nucder_gen.F dft_gradients.F   dftg_gridv0a.F dftg_gridv0b.F
 
 LIB_INCLUDES = -I../nwdft/include -I../nwdft/grid
 
