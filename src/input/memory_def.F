@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.14 2000-05-16 20:43:02 edo Exp $
+C     $Id: memory_def.F,v 1.15 2000-06-14 21:57:18 windus Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -58,11 +58,12 @@ C
 #elif defined(LINUX) || defined(WIN32)
 *
 *     parameter ( Total_Dflt = 16777216) ! 128 MB (linux)
-*     Parameter ( Total_Dflt = 11796480) ! 90 MB  (linux)
-      Parameter ( Total_Dflt = 8388608)  ! 64 MB  (linux)
+      Parameter ( Total_Dflt = 11796480) ! 90 MB  (linux)
+*     Parameter ( Total_Dflt = 8388608)  ! 64 MB  (linux)
 *     Parameter ( Total_Dflt = 4194304)  ! 32 MB  (linux)
 #elif defined(SUN) || defined(SOLARIS) || defined(HPUX)
-      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sun or solaris)
+*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sun or solaris)
+      Parameter ( Total_Dflt = 28311552) ! 216 MB on 256 MB node(sun or solaris)
 #elif defined(CRAY_T3E)
 C
 *too large   Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
@@ -93,13 +94,17 @@ C     an upper limit on memory usage on the Delta, unfortunately.
 C
       Parameter (Total_Dflt = 917504 ) ! 7 MB on a 16 MB node (delta)
 #elif defined(SGITFP)
-      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgitfp)
+*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgitfp)
+      Parameter ( Total_Dflt = 28311552) ! 216 MB on 256 MB node (sgitfp)
 #elif defined(DECOSF)
-      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node (decosf)
+*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (decosf)
+      Parameter ( Total_Dflt = 28311552) ! 216 MB on 256 MB node (decosf)
 #elif defined(SGI) && ! defined(SGITFP)
-      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node (sgi)
+*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgi)
+      Parameter ( Total_Dflt = 28311552) ! 216 MB on 256 MB node (sgi)
 #elif defined(IBM) 
-      Parameter ( Total_Dflt =  11796480) ! 90 MB on 128 MB node (ibm)
+*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (ibm)
+      Parameter ( Total_Dflt = 28311552) ! 216 MB on 256 MB node (ibm)
 #endif
 C
 C     Fraction of total memory which goes into each memory category
