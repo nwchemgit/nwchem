@@ -1,0 +1,26 @@
+c
+c     $Id: perfm.fh,v 1.1 2004-10-11 19:39:05 edo Exp $
+c
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "pstat.fh"
+#include "inp.fh"
+#include "stdio.fh"
+#include "msgids.fh"
+#ifdef USE_PAPI
+#include "fpapi.h"
+#define PAPI_FPINS 1
+      integer*4 retval,iret
+      real*4 proc_time,  real_time
+      real*4 mflops
+      integer*8 flpins
+      integer*8 fpcompopsexe
+      integer*8 uso, usn,values(10)
+      integer nativees,es,ll,nevents
+      character*32 eventname(10)
+      character*(PAPI_MAX_STR_LEN) papi_errstr
+      common/perfm_papi/uso,eventname,
+     ,	es,nevents
+#endif
