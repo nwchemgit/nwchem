@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.6 1997-10-03 17:08:57 mg201 Exp $
+* $Id: atscf_ecp.F,v 1.7 1997-11-14 08:23:42 d3e129 Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
@@ -369,11 +369,16 @@ c
         irexp = infbs_cont(Cont_Irexp,nn,ecp)
         if ((nn_off+nprim-1).gt.sz_zetac) call errquit
      &  ('atscf_ecp_build_hatom: too many exponents/coefficents',911)
-        call dcopy(nprim,dbl_mb(mb_exndcf(iexp,ecp)),1,
-     &      zeta_c(nn_off),1)
-        call dcopy(nprim,dbl_mb(mb_exndcf(icfp,ecp)),1,
-     &      coef_c(nn_off),1)
-        call ecp_get_n3(dbl_mb(mb_exndcf(irexp,ecp)),nprim,n0,n1,n2)
+*rak:        call dcopy(nprim,dbl_mb(mb_exndcf(iexp,ecp)),1,
+*rak:     &      zeta_c(nn_off),1)
+*rak:        call dcopy(nprim,dbl_mb(mb_exndcf(icfp,ecp)),1,
+*rak:     &      coef_c(nn_off),1)
+        call ecp_get_n3(
+     &      zeta_c(nn_off),
+     &      dbl_mb(mb_exndcf(iexp,ecp)),
+     &      coef_c(nn_off),
+     &      dbl_mb(mb_exndcf(icfp,ecp)),
+     &      dbl_mb(mb_exndcf(irexp,ecp)),nprim,n0,n1,n2)
         n_prim_c(0,type) = n0
         n_prim_c(1,type) = n1
         n_prim_c(2,type) = n2

@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,indx_grad)
-* $Id: int_ecp.F,v 1.10 1997-10-03 17:11:02 mg201 Exp $
+* $Id: int_ecp.F,v 1.11 1997-11-14 08:24:07 d3e129 Exp $
       implicit none
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
@@ -340,15 +340,15 @@ c
      &    ecp_ints,sz_ints,
      &    scr,lscr,dryrun)
       implicit none
-*rak:#include "basP.fh"
-*rak:#include "basdeclsP.fh"
-*rak:#include "geobasmapP.fh"
-*rak:#include "mafdecls.fh"
-*rak:#include "bas_exndcf_dec.fh"
-*rak:#include "bas_ibs_dec.fh"
-*rak:#include "ecp_nwc.fh"
-*rak:#include "geom.fh"
-*rak:*
+*should be deleted:#include "basP.fh"
+*should be deleted:#include "basdeclsP.fh"
+*should be deleted:#include "geobasmapP.fh"
+*should be deleted:#include "mafdecls.fh"
+*should be deleted:#include "bas_exndcf_dec.fh"
+*should be deleted:#include "bas_ibs_dec.fh"
+*should be deleted:#include "ecp_nwc.fh"
+*should be deleted:#include "geom.fh"
+*should be deleted:*
       integer basisina ! [input] basis set handle a center
       integer basisinb ! [input] basis set handle b center
       integer ecpidin  ! [input] ecp handle
@@ -359,82 +359,82 @@ c
       double precision ecp_ints(sz_ints) ! [output] ecp integrals
       double precision scr(lscr)         ! [scratch] array
       logical dryrun   ! [input] compute vs calculate memory requirements.
-*rak:*
-*rak:      integer basisa ! lexical basis index center a
-*rak:      integer basisb ! lexical basis index center b
-*rak:      integer ecpid  ! lexical ecp index
-*rak:      integer geo_bas, geo_ecp, geoma, geomb, geom ! geometry handles 
-*rak:      integer ucont
-*rak:      integer la, npa, nga, iea, ica
-*rak:      integer lb, npb, ngb, ieb, icb
-*rak:*
-*rak:#include "bas_exndcf_sfn.fh"
-*rak:#include "bas_ibs_sfn.fh"
-*rak:*
-*rak:      basisa = basisina + BASIS_HANDLE_OFFSET
-*rak:      basisb = basisinb + BASIS_HANDLE_OFFSET
-*rak:      ecpid  = ecpidin  + BASIS_HANDLE_OFFSET
-*rak:*
-*rak:      geo_bas = ibs_geom(basisa)
-*rak:      geo_ecp = ibs_geom(ecpid)
-*rak:      if (geo_bas.eq.geo_ecp) then
-*rak:        geoma = geo_bas
-*rak:      else
-*rak:        write(6,*)' basis and ecp loaded with different geometries'
-*rak:        write(6,*)' geo_bas: ',geo_bas
-*rak:        write(6,*)' geo_ecp: ',geo_ecp
-*rak:        call errquit(' int_ecp: error ',911)
-*rak:      endif
-*rak:      geo_bas = ibs_geom(basisb)
-*rak:      geo_ecp = ibs_geom(ecpid)
-*rak:      if (geo_bas.eq.geo_ecp) then
-*rak:        geomb = geo_bas
-*rak:      else
-*rak:        write(6,*)' basis and ecp loaded with different geometries'
-*rak:        write(6,*)' geo_bas: ',geo_bas
-*rak:        write(6,*)' geo_ecp: ',geo_ecp
-*rak:        call errquit(' int_ecp: error ',911)
-*rak:      endif
-*rak:      if (geoma.ne.geomb) call errquit
-*rak:     &    (' different geometries for a and b center??',911)
-*rak:*
-*rak:      geom = geoma  ! use a
-*rak:*
-*rak:      ucont = sf_ibs_cn2ucn(sha,basisa)
-*rak:      La  = infbs_cont(CONT_TYPE,ucont,basisa)
-*rak:      Npa = infbs_cont(CONT_NPRIM,ucont,basisa)
-*rak:      Nga = infbs_cont(CONT_NGEN,ucont,basisa)
-*rak:      iea = infbs_cont(CONT_IEXP,ucont,basisa)
-*rak:      ica = infbs_cont(CONT_ICFP,ucont,basisa)
-*rak:
-*rak:      ucont = sf_ibs_cn2ucn(shb,basisb)
-*rak:      Lb  = infbs_cont(CONT_TYPE,ucont,basisb)
-*rak:      Npb = infbs_cont(CONT_NPRIM,ucont,basisb)
-*rak:      Ngb = infbs_cont(CONT_NGEN,ucont,basisb)
-*rak:      ieb = infbs_cont(CONT_IEXP,ucont,basisb)
-*rak:      icb = infbs_cont(CONT_ICFP,ucont,basisb)
-*rak:c
-*rak:      call ecp_integral(
-*rak:     &    xyza,
-*rak:     &    dbl_mb(mb_exndcf(iea,basisa)),
-*rak:     &    dbl_mb(mb_exndcf(ica,basisa)),
-*rak:     &    Npa,Nga,La,
-*rak:     &    xyzb,
-*rak:     &    dbl_mb(mb_exndcf(ieb,basisb)),
-*rak:     &    dbl_mb(mb_exndcf(icb,basisa)),
-*rak:     &    Npb,Ngb,Lb,
-*rak:     &    dbl_mb(k_xyzecp),
-*rak:     &    dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
-*rak:     &    int_mb(k_ecp_nprim_c),
-*rak:     &    int_mb(k_ecp_ncoef_c),
-*rak:     &    int_mb(k_ecp_ind_c),
-*rak:     &    int_mb(k_ecp_ntot_c),
-*rak:     &    n_zeta_c,
-*rak:     &    int_mb(k_ecp_l_c),
-*rak:     &    n_ecp,l_ecp,
-*rak:     &    0,ecp_ints,sz_ints,
-*rak:     &    dryrun,scr,lscr)
-*rak:*
+*should be deleted:*
+*should be deleted:      integer basisa ! lexical basis index center a
+*should be deleted:      integer basisb ! lexical basis index center b
+*should be deleted:      integer ecpid  ! lexical ecp index
+*should be deleted:      integer geo_bas, geo_ecp, geoma, geomb, geom ! geometry handles 
+*should be deleted:      integer ucont
+*should be deleted:      integer la, npa, nga, iea, ica
+*should be deleted:      integer lb, npb, ngb, ieb, icb
+*should be deleted:*
+*should be deleted:#include "bas_exndcf_sfn.fh"
+*should be deleted:#include "bas_ibs_sfn.fh"
+*should be deleted:*
+*should be deleted:      basisa = basisina + BASIS_HANDLE_OFFSET
+*should be deleted:      basisb = basisinb + BASIS_HANDLE_OFFSET
+*should be deleted:      ecpid  = ecpidin  + BASIS_HANDLE_OFFSET
+*should be deleted:*
+*should be deleted:      geo_bas = ibs_geom(basisa)
+*should be deleted:      geo_ecp = ibs_geom(ecpid)
+*should be deleted:      if (geo_bas.eq.geo_ecp) then
+*should be deleted:        geoma = geo_bas
+*should be deleted:      else
+*should be deleted:        write(6,*)' basis and ecp loaded with different geometries'
+*should be deleted:        write(6,*)' geo_bas: ',geo_bas
+*should be deleted:        write(6,*)' geo_ecp: ',geo_ecp
+*should be deleted:        call errquit(' int_ecp: error ',911)
+*should be deleted:      endif
+*should be deleted:      geo_bas = ibs_geom(basisb)
+*should be deleted:      geo_ecp = ibs_geom(ecpid)
+*should be deleted:      if (geo_bas.eq.geo_ecp) then
+*should be deleted:        geomb = geo_bas
+*should be deleted:      else
+*should be deleted:        write(6,*)' basis and ecp loaded with different geometries'
+*should be deleted:        write(6,*)' geo_bas: ',geo_bas
+*should be deleted:        write(6,*)' geo_ecp: ',geo_ecp
+*should be deleted:        call errquit(' int_ecp: error ',911)
+*should be deleted:      endif
+*should be deleted:      if (geoma.ne.geomb) call errquit
+*should be deleted:     &    (' different geometries for a and b center??',911)
+*should be deleted:*
+*should be deleted:      geom = geoma  ! use a
+*should be deleted:*
+*should be deleted:      ucont = sf_ibs_cn2ucn(sha,basisa)
+*should be deleted:      La  = infbs_cont(CONT_TYPE,ucont,basisa)
+*should be deleted:      Npa = infbs_cont(CONT_NPRIM,ucont,basisa)
+*should be deleted:      Nga = infbs_cont(CONT_NGEN,ucont,basisa)
+*should be deleted:      iea = infbs_cont(CONT_IEXP,ucont,basisa)
+*should be deleted:      ica = infbs_cont(CONT_ICFP,ucont,basisa)
+*should be deleted:
+*should be deleted:      ucont = sf_ibs_cn2ucn(shb,basisb)
+*should be deleted:      Lb  = infbs_cont(CONT_TYPE,ucont,basisb)
+*should be deleted:      Npb = infbs_cont(CONT_NPRIM,ucont,basisb)
+*should be deleted:      Ngb = infbs_cont(CONT_NGEN,ucont,basisb)
+*should be deleted:      ieb = infbs_cont(CONT_IEXP,ucont,basisb)
+*should be deleted:      icb = infbs_cont(CONT_ICFP,ucont,basisb)
+*should be deleted:c
+*should be deleted:      call ecp_integral(
+*should be deleted:     &    xyza,
+*should be deleted:     &    dbl_mb(mb_exndcf(iea,basisa)),
+*should be deleted:     &    dbl_mb(mb_exndcf(ica,basisa)),
+*should be deleted:     &    Npa,Nga,La,
+*should be deleted:     &    xyzb,
+*should be deleted:     &    dbl_mb(mb_exndcf(ieb,basisb)),
+*should be deleted:     &    dbl_mb(mb_exndcf(icb,basisa)),
+*should be deleted:     &    Npb,Ngb,Lb,
+*should be deleted:     &    dbl_mb(k_xyzecp),
+*should be deleted:     &    dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
+*should be deleted:     &    int_mb(k_ecp_nprim_c),
+*should be deleted:     &    int_mb(k_ecp_ncoef_c),
+*should be deleted:     &    int_mb(k_ecp_ind_c),
+*should be deleted:     &    int_mb(k_ecp_ntot_c),
+*should be deleted:     &    n_zeta_c,
+*should be deleted:     &    int_mb(k_ecp_l_c),
+*should be deleted:     &    n_ecp,l_ecp,
+*should be deleted:     &    0,ecp_ints,sz_ints,
+*should be deleted:     &    dryrun,scr,lscr)
+*should be deleted:*
       call errquit('int_ecp called why?',911)
       end
       subroutine int_ecp_build_ecp_ptrs(ecpidin,
@@ -535,13 +535,22 @@ c
             irexp = infbs_cont(CONT_IREXP,iucont,ecpid)
             if ((p_nprim+nprim).gt.nz_ecp) call errquit
      &          ('int_ecp_build_ecp_ptrs:too many coefficients',911)
-            call dcopy(nprim,
-     &          dbl_mb(mb_exndcf(iexp,ecpid)),1,
-     &          c_exp(p_nprim+1),1)
-            call dcopy(nprim,
-     &          dbl_mb(mb_exndcf(icfp,ecpid)),1,
-     &          c_coef(p_nprim+1),1)
-            call ecp_get_n3(dbl_mb(mb_exndcf(irexp,ecpid)),
+*:debugn3:            write(6,*)'iexp,icfp,irexp',iexp,icfp,irexp
+*:debugn3:            write(6,*)' ecp exp before'
+*:debugn3:            call output (dbl_mb(mb_exndcf(iexp,ecpid)),
+*:debugn3:     &          1,nprim,1,1,nprim,1,1)
+*:debugn3:            write(6,*)' ecp coef before'
+*:debugn3:            call output (dbl_mb(mb_exndcf(icfp,ecpid)),
+*:debugn3:     &          1,nprim,1,1,nprim,1,1)
+*:debugn3:            write(6,*)' grexp before'
+*:debugn3:            call output (dbl_mb(mb_exndcf(irexp,ecpid)),
+*:debugn3:     &          1,nprim,1,1,nprim,1,1)
+            call ecp_get_n3(
+     &          c_exp((p_nprim+1)),
+     &          dbl_mb(mb_exndcf(iexp,ecpid)),
+     &          c_coef((p_nprim+1)),
+     &          dbl_mb(mb_exndcf(icfp,ecpid)),
+     &          dbl_mb(mb_exndcf(irexp,ecpid)),
      &          nprim,n0,n1,n2)
             n_prim_C(0,type,num_ecp) = n0
             n_prim_C(1,type,num_ecp) = n1
@@ -646,31 +655,70 @@ c
       enddo
       write(6,*)' print_ecp_ptrs: finish'
       end
-      subroutine ecp_get_n3(rexp,nprim,new0,new1,new2)
+      subroutine ecp_get_n3(
+     &    c_exp,
+     &    ecp_exp,
+     &    c_coef,
+     &    ecp_coef,
+     &    grexp,
+     &    nprim,new0,new1,new2)
       implicit none
 c
+c data structures in the ecp code assume all 0 exponents, all 1 exponents
+c and all 2 exponents are contiguous.  Not enforced in the input.
+c 
+c
       integer nprim, new0, new1, new2
-      double precision rexp(nprim)
+      double precision c_exp(nprim)
+      double precision ecp_exp(nprim)
+      double precision c_coef(nprim)
+      double precision ecp_coef(nprim)
+      double precision grexp(nprim)
 c
-      integer i, ival
+      integer i, j, ival, iptr
+      integer new(0:2)
 c
-      new0 = 0
-      new1 = 0
-      new2 = 0
-      do i = 1,nprim
-        ival = int(rexp(i) + 0.00002d00)
-        if      (ival.eq.0) then
-          new0 = new0 + 1
-        else if (ival.eq.1) then
-          new1 = new1 + 1
-        else if (ival.eq.2) then
-          new2 = new2 + 1
-        else
-          write(6,*)' ival    = ',ival
-          write(6,*)' rexp(i) = ',rexp(i)
-          call errquit('ecp_get_n3: r-exponent not equal to 0,1,2',911)
-        endif
+c assumes no general contraction in the ecp basis
+c
+*:debugn3:      write(6,*)' '
+*:debugn3:      write(6,*)'-----------------------------------------------------'
+*:debugn3:      write(6,*)' ecp exp '
+*:debugn3:      call output (ecp_exp,1,nprim,1,1,nprim,1,1)
+*:debugn3:      write(6,*)' ecp coef '
+*:debugn3:      call output (ecp_coef,1,nprim,1,1,nprim,1,1)
+*:debugn3:      write(6,*)' grexp '
+*:debugn3:      call output (grexp,1,nprim,1,1,nprim,1,1)
+      call ifill(3,0,new,1)
+      iptr = 0
+      do i = 0,2
+        do j = 1,nprim
+          ival = int(grexp(j) + 0.00002d00)
+*:debugn3:          write(6,*)' i, j, ival ',i, j, ival
+          if (ival.lt.0.or.ival.gt.2) then
+            write(6,*)' ival    = ',ival
+            write(6,*)' grexp(j) = ',grexp(j)
+            call errquit
+     &          ('ecp_get_n3: r-exponent not equal to 0,1,2',911)
+          endif
+          if (ival.eq.i) then
+            new(i) = new(i) + 1
+            iptr = iptr + 1
+*:debugn3:            write(6,*)' i, j, ival,iptr,new ',i, j, ival,iptr,new
+            c_exp(iptr) = ecp_exp(j)
+            c_coef(iptr) = ecp_coef(j)
+          endif
+        enddo
       enddo
+*:debugn3:      write(6,*) ' iprt after loop,nprim ',iptr,nprim
+      new0 = new(0)
+      new1 = new(1)
+      new2 = new(2)
+*:debugn3:      write(6,*)' c_exp  '
+*:debugn3:      call output (c_exp,1,nprim,1,1,nprim,1,1)
+*:debugn3:      write(6,*)' c_coef  '
+*:debugn3:      call output (c_coef,1,nprim,1,1,nprim,1,1)
+*:debugn3:      write(6,*)'-----------------------------------------------------'
+*:debugn3:      write(6,*)' '
 c
       end
       block data ecp_init_bd
