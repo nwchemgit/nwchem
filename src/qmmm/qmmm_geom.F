@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.40 2004-12-08 02:52:02 marat Exp $
+c $Id: qmmm_geom.F,v 1.41 2004-12-08 19:59:00 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -595,7 +595,7 @@ c     ----------
       integer nl
       integer n
       integer lind(2*nl)
-      double precision inum(n)
+      integer inum(n)
       double precision q(n)
       double precision c(3,n)
       character*16 t(n)
@@ -660,7 +660,7 @@ c     ---------------
 #include "qmmm.fh"
       integer nl
       integer n
-      double precision inum(n)
+      integer inum(n)
       double precision q(n)
       double precision c(3,n)
       character*16 t(n)
@@ -778,7 +778,6 @@ c     -------------------------
            rql(k) = rq(k)-rl(k)
         end do
         l_ql=dnrm2(3,rql,1)
-        write(*,*) "link-bond distance",l_ql*0.529
         a = 1.0d0/(l_ql*0.529)
         do k=1,3
            rh(k) = rq(k) - rql(k)*a
@@ -800,7 +799,7 @@ c     -------------------------
       integer nl
       integer n
       integer lind(2*nl)
-      double precision inum(n)
+      integer inum(n)
       double precision c(3,n)
 
 c     local variables
@@ -838,7 +837,14 @@ c
       external qmmm_geom_distance
       integer i1,j
       double precision r,rmin
+      character*32 pname
+   
+      pname = "qmmm_geom_heavy_neighbor"
 
+      write(*,*) pname, (atn(i1),i1=1,ntot)
+
+
+      j = -1
       rmin=1000.0d0
       do i1=1,ntot
         if(atn(i1).ne.1) then
@@ -851,6 +857,9 @@ c
           endif
         endif
       end do
+      if(j.eq.-1) 
+     > call errquit(pname//' failed to find  a link',0, 0)
+
       qmmm_geom_heavy_neighbor=j
 
       end
