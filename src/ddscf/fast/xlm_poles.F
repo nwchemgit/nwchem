@@ -2140,7 +2140,7 @@ c
      .d37, d38, d39, d40, d41, d42
       if (thetasign .gt. 0.0d0) then
 *      if (l + 1 .gt. 0) then
-         j1 = and(l + 1,3)
+         j1 = iand(l + 1,3)
          do mp = 1, j1
             m4 = iand(max0(l + 1,0),3)
             do m = 1, m4
@@ -2184,7 +2184,7 @@ c
          end do
 *      endif
 *      if (l .gt. 0) then
-         j2 = and(l,3)
+         j2 = iand(l,3)
          do mp = 1, j2
             m2 = iand(max0(l,0),3)
             do m = 1, m2
@@ -2230,7 +2230,7 @@ c
 *      endif
       else
 *      if (l + 1 .gt. 0) then
-         j3 = and(l + 1,3)
+         j3 = iand(l + 1,3)
          do m = 1, j3
             qq1 = qq(m-1)
             mp2 = iand(max0(l + 1,0),3)
@@ -2275,7 +2275,7 @@ c
          end do
 *      endif
 *      if (l .gt. 0) then
-         j4 = and(l,3)
+         j4 = iand(l,3)
          do m = 1, j4
             qq6 = qq(m-1-l)
             mp1 = iand(max0(l,0),3)
