@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb, ratom)
 c
-c     $Id: dft_inpana.F,v 1.33 1997-10-29 10:50:50 d3e129 Exp $
+c     $Id: dft_inpana.F,v 1.34 1997-11-05 00:17:27 d3h449 Exp $
 c
 c*********************************************************************
 c     
@@ -438,7 +438,7 @@ c
                write(LuOut,9140)
             endif
             if (nquad_task.ne.1)then
-               write(LuOut,9141)
+               write(LuOut,9141)nquad_task
             endif
          endif
          if (oprint_convergence)then     
@@ -536,7 +536,7 @@ c
  9139 format(10x,'Spatial weights used: Delley. ')
  9140 format(10x,'Spatial weights used: Becke. ')
  9141 format(10x,'Parallel task size associated with evaluation of ',/,
-     &           'grid based components has been modified to: ',i2)
+     &       10x,'grid based components has been modified to: ',i2)
  9142 format(10x,'Angular quadrature: Gauss-Legendre. ')
  9143 format(10x,'Angular quadrature: Lebedev. ')
  9144 format(10x,'Tag',14x,'B.-S. Rad.',1x,'Rad. Pts.',1x,'Ang. Pts.',/,
