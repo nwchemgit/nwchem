@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.175 2004-12-30 00:00:49 edo Exp $
+C     $Id: geom_input.F,v 1.176 2005-01-03 21:40:17 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -101,6 +101,7 @@ c
       ocenter = .true.
       ofinite = .false.
       threquiv = 1d-2
+      format = 'xyz'
 c     
       found_ang2au_conv = .false.
       found_au2ang_conv = .false.
