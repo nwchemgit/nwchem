@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop.F,v 1.23 2003-02-24 21:05:00 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.24 2003-02-24 21:58:59 marat Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.23  2003/02/24 21:05:00  bylaska
+*  $Log: added to cvs output....EJB
+*
 
 
 
@@ -518,12 +521,11 @@ c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
       E(4) = ehartr
 
 *     *** coulomb contributions 
-*      WARNING!!!!
-*      contributions from compensation charges are missing here
       E(5) = eion_atom + ecore_atom + ehartree_atom +
      >       ecore_ion_atom + ecore_self_atom +
      >       paw_mult_energy_atom_self() +
      >       paw_mult_energy_atom_comp() 
+
       E(6)=paw_mult_energy_atom_mult()
       
 *     *** exch-correlation
