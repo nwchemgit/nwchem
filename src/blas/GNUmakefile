@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.22 1997-03-17 21:20:40 d3e129 Exp $
+#$Id: GNUmakefile,v 1.23 1997-03-18 00:04:17 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -76,7 +76,8 @@ OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
                 zdotc.o      zdscal.o     zgemm.o      zgemv.o        \
                 zgerc.o      zhemm.o      zhemv.o      zher2.o        \
                 zher2k.o     zherk.o      zscal.o      zswap.o        \
-                ztrmm.o      ztrmv.o      ztrsm.o      ztrsv.o
+                ztrmm.o      ztrmv.o      ztrsm.o      ztrsv.o        \
+                xerbla.o
 
 else
 #######################################################################
@@ -91,7 +92,8 @@ OBJ_OPTIMIZE =  sasum.o      saxpy.o      scopy.o      sdot.o         \
                 cdotc.o      csscal.o     cgemm.o      cgemv.o        \
                 cgerc.o      chemm.o      chemv.o      cher2.o        \
                 cher2k.o     cherk.o      cscal.o      cswap.o        \
-                ctrmm.o      ctrmv.o      ctrsm.o      ctrsv.o
+                ctrmm.o      ctrmv.o      ctrsm.o      ctrsv.o        \
+                xerbla.o
 endif
 ifeq ($(TARGET),CRAY-T3D)
 OBJ_OPTIMIZE = idamax.o

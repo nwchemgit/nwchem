@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.29 1997-03-17 21:20:42 d3e129 Exp $
+#$Id: GNUmakefile,v 1.30 1997-03-18 00:04:35 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -47,7 +47,7 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dspsvx.o      dsptrf.o      dsptrs.o       dsteqr.o     \
                dsterf.o      dsyev.o       dsygs2.o       dsygst.o     \
                dsygv.o       dsytd2.o      dsytrd.o       dtrtri.o     \
-               ilaenv.o      lsamen.o      xerbla.o                    \
+               ilaenv.o      lsamen.o                                  \
                zheev.o       zhegs2.o      zhegst.o       zhegv.o      \
                zhetd2.o      zhetrd.o      zlacgv.o       zladiv.o     \
                zlanhe.o      zlarf.o       zlarfb.o       zlarfg.o     \
@@ -76,7 +76,7 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                sspsvx.o      ssptrf.o      ssptrs.o       ssteqr.o     \
                ssterf.o      ssyev.o       ssygs2.o       ssygst.o     \
                ssygv.o       ssytd2.o      ssytrd.o       strtri.o     \
-               ilaenv.o      lsamen.o      xerbla.o                    \
+               ilaenv.o      lsamen.o                                  \
                cheev.o       chegs2.o      chegst.o       chegv.o      \
                chetd2.o      chetrd.o      clacgv.o       cladiv.o     \
                clanhe.o      clarf.o       clarfb.o       clarfg.o     \
