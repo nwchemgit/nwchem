@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.63 1996-02-08 08:47:40 d3g681 Exp $
+c     $Id: nwchem.F,v 1.64 1996-02-12 20:03:20 d3g681 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -101,6 +101,9 @@ c
 c     Read the input and open the RTDB
 c
       call start(rtdb)
+c
+      if (util_print('debug tcgmsg',print_never)) 
+     $     call setdbg(1)
 c
 c     Call driver routine to do something useful
 c
