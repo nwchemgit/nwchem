@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.11 1996-10-06 20:14:33 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.12 1996-11-05 06:04:14 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -259,9 +259,9 @@ c
          ir = i1
 c     
 c     Only need to project if it was mixed ... but check to high
-c     precision not against the user tolerance
+c     precision (1d-10) not against the user tolerance
 c
-         if (v2 .gt. 1d-9) then
+         if (v2 .gt. 1d-20) then ! Note that V2 is the square of the coeff
 c
 c     Apply the projection operator ... again, note that
 c     in the case of complex conjugate representations we
