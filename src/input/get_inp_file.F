@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.5 2000-05-10 22:11:13 edo Exp $
+C     $Id: get_inp_file.F,v 1.6 2000-05-15 22:57:12 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -16,17 +16,22 @@ c
 #if defined(CRAY)
       integer ilen,ierror
 #endif
-#if defined(EXT_INT)
-      integer*4 arg, nargs
+#if defined(EXT_INT) && !defined(HPUX64)
+      integer*4 arg, nargs,firstarg,iargc
 #else
-      integer arg, nargs
+      integer arg, nargs,firstarg,iargc
 #endif
       integer l
-      integer iargc
       external iargc
+#if defined(HPUX64)
+      firstarg=2
+#else
+      firstarg=1
+#endif
+
 c     
       nargs = iargc()
-      do arg = 1, nargs
+      do arg = firstarg, nargs
 #if defined(CRAY)
          call pxfgetarg(arg,test,ilen,ierror)
 #else 
