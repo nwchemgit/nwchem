@@ -3,7 +3,7 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
-C     $Id: aoccsd2.F,v 2.25 1999-06-16 00:10:12 d3e129 Exp $
+C     $Id: aoccsd2.F,v 2.26 2002-12-05 06:37:33 windus Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -122,7 +122,7 @@ c
       if (iam.eq.0)then
       write(6,1001)nodes
  1001 format(//,1x,76(1h*),/,14x,
-     &       'the segmented parallel titan ccsd program:',
+     &       'the segmented parallel ccsd program:',
      &       i3,' nodes',/,1x,76(1h*),//)
       endif
       if (iam.eq.0)then
