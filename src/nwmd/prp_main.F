@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.59 2001-08-01 16:45:19 d3j191 Exp $
+c $Id: prp_main.F,v 1.60 2001-08-10 14:52:58 d3j191 Exp $
 c
       implicit none
 c
@@ -180,6 +180,7 @@ c
       p(79)=timer_wall(2)
       p(80)=timer_wall(3)
       if(me.eq.0) p(81)=timer_wall(3)
+      if(me.eq.0) then
       p(82)=virt(1,1)
       p(83)=virt(1,2)
       p(84)=virt(1,3)
@@ -210,6 +211,7 @@ c
       p(109)=box(1)
       p(110)=box(2)
       p(111)=box(3)
+      endif
 c
       maxp=isprop
       it=isprop
