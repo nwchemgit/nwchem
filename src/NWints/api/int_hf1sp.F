@@ -3,7 +3,7 @@
      &       xyzj,expj,coefj, j_nprim, j_ngen, Lj,
      &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       dryrun,scr,lscr,msg)
-c $Id: int_hf1sp.F,v 1.2 1994-06-29 05:50:18 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.3 1994-08-01 19:00:38 d3e129 Exp $
       implicit none
 #include "apispP.fh"
 #include "mafdecls.fh"
@@ -79,7 +79,7 @@ c________________________________ (P|P)
      &         ,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
         call spfix1(li,lj,int_mb(kspscat),
-     &         2,int_mb(kszspa),2,int_mb(kszspb),
+     &         int_mb(kszspa),int_mb(kszspb),
      &         scr,lscr,doS,doT,doV,S,T,V)
         return
       elseif (Li.eq.-1) then
@@ -127,7 +127,7 @@ c________________________________ (X|P)
      &         dryrun,scr,lscr)
 c
         call spfix1(li,lj,int_mb(kspscat),
-     &         1,int_mb(kszspa),2,int_mb(kszspb),
+     &         int_mb(kszspa),int_mb(kszspb),
      &         scr,lscr,doS,doT,doV,S,T,V)
         return
       endif
@@ -136,7 +136,7 @@ c
 c
       end
       subroutine spfix1(li,lj,iscat,
-     &       nbi,iszi,nbj,iszj,
+     &       iszi,iszj,
      &       scr,lscr,doS,doT,doV,S,T,V)
       implicit none
 c
@@ -146,13 +146,14 @@ c::passed
       integer Lj
       integer lscr
       integer iscat(*)
-      integer nbi,nbj,iszi(*),iszj(*)
+      integer iszi(*),iszj(*)
       double precision scr(lscr)
       logical doS,doT,doV
       double precision S(*), T(*), V(*)
 c
       integer sizei,sizej
       integer ii,jj,nint
+      integer nbi,nbj
 c
       if (li.lt.0) then
         nbi = abs(li) + 1
