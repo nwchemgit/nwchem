@@ -1,4 +1,5 @@
       subroutine hnd_mulken(rtdb,basis,geom)
+* $Id: hnd_mulken.F,v 1.2 2004-09-30 04:05:10 edo Exp $
       implicit double precision (a-h,o-z)
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -14,6 +15,7 @@
       logical status
       integer g_s, g_spin, g_p, g_ps, atn
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
+      integer bf_offset,sh_offset
       character*3 scftyp
       character symbol*2, symbolj*2, tag*16, element*20, thedens*10
       character*1 types(8)
