@@ -1,5 +1,7 @@
       logical function pre_boxsiz(xw,mwm,mwa,nwm,nwa,xs,msa,nsa,box)
 c
+c $Id: pre_boxsiz.F,v 1.2 1998-04-29 18:35:12 d3j191 Exp $
+c
       implicit none
 c
       integer mwm,mwa,nwm,nwa,msa,nsa

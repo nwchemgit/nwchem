@@ -21,3 +21,4 @@ Apr 23 1998	 Fix several errors
 	         Write restart routine
 		 Read geometry object routine
 Apr 28 1998      Add remaining options
+Apr 29 1998      Bug fixes and Id's in all files

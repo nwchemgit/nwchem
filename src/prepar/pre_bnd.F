@@ -1,5 +1,7 @@
       logical function pre_bnd(xatm,latm,matm,ilo,ihi,lbnd,mbnd,nbnd)
 c
+c $Id: pre_bnd.F,v 1.3 1998-04-29 18:35:12 d3j191 Exp $
+c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
 c     

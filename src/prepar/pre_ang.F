@@ -1,5 +1,7 @@
       logical function pre_ang(lbnd,mbnd,nbnd,lang,mang,nang)
 c
+c $Id: pre_ang.F,v 1.2 1998-04-29 18:35:11 d3j191 Exp $
+c
 c     function to extend the list of angles from a list of bonds
 c     
 c     in  : lbnd(2,mbnd) = list of bond indices

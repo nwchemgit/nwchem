@@ -1,5 +1,7 @@
       logical function pre_charge(irtdb,source,jlo,ilo,ihi,jhi,
-     + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd)
+     + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
+c
+c $Id: pre_charge.F,v 1.9 1998-04-29 18:35:13 d3j191 Exp $
 c
       implicit none
 c
@@ -28,10 +30,10 @@ c     out : qatm(matm)        = guestimated atomic partial charges
 c
       character*80 source
       integer irtdb,jlo,ilo,ihi,jhi
-      integer matm,natm
+      integer matm,natm,maxscf
       integer latm(5,matm)
       character*6 catm(3,matm)
-      real*8 xatm(3,matm),qatm(matm)
+      real*8 xatm(3,matm),qatm(matm),qscale
       integer mbnd,nbnd
       integer lbnd(2,mbnd)
 c
@@ -39,7 +41,7 @@ c
       integer igeom2,nout,icon(100),ncon,nconst,irest
       real*8 rcon
       character*16 tag
-      real*8 coord(3),chrge
+      real*8 coord(3),chrge,qsum
 c
       do 1 i=1,matm
       qatm(i)=0.0d0
@@ -50,7 +52,7 @@ c
       goto 100
       endif
 c
-      if(ihi-ilo+1.gt.20) goto 200
+      if(ihi-ilo+1.gt.maxscf) goto 200
 c
       if(.not.geom_create(igeom2,'geometry'))
      + call errquit('pre_charge: geom_create failed',9999)
@@ -137,13 +139,20 @@ c
       if(.not.geom_rtdb_load(irtdb,igeom2,'resp:geometry'))
      + call errquit('pre_charge: geom_rtdb_load failed',0)
       endif
+      qsum=0.0d0
       do 9 i=1,nout
       if(.not.geom_cent_get(igeom2,i,tag,coord,chrge))
      + call errquit('pre_charge: geom_cent_get failed',i)
       qatm(ilo+i-1)=chrge
+      qsum=qsum+chrge
     9 continue
       if(.not.geom_destroy(igeom2))
      + call errquit('pre_charge: geom_destroy failed',9999)
+      if(abs(qsum).lt.1.0d-5) then
+      do 10 i=1,nout
+      qatm(ilo+i-1)=qscale*qatm(ilo+i-1)
+   10 continue
+      endif
       pre_charge=.true.
       return
 c

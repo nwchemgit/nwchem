@@ -1,6 +1,8 @@
       logical function pre_center(xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
      + xs,msa,nsa)
 c
+c $Id: pre_center.F,v 1.7 1998-04-29 18:35:12 d3j191 Exp $
+c
       implicit none
 c
       integer mwa,mwm,nwa,nwm,msa,nsa,mwmc,nwmc

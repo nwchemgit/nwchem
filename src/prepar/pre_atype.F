@@ -2,7 +2,9 @@
      + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6)
-* $Id: pre_atype.F,v 1.6 1998-04-28 23:10:45 d3j191 Exp $
+c
+c $Id: pre_atype.F,v 1.7 1998-04-29 18:35:12 d3j191 Exp $
+c
       implicit none
 c
 c     in  : lfnpar            = atom types file number
@@ -186,6 +188,16 @@ c
    15 continue
    14 continue
 c
+      do 39 i=jlo,jhi
+      if(ltyp(1,i).eq.3) then
+      if(ltyp(3,i).eq.0) then
+      ltyp(1,i)=2
+      else
+      ltyp(1,i)=0
+      endif
+      endif
+   39 continue
+c
 c     read the atom type data
 c     -----------------------
 c
@@ -287,11 +299,12 @@ c     determine the atom types
 c     ------------------------
 c
       if(lprint.ge.5)
-     +write(lfnout,'(a4,5i5)') (catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
+     + write(lfnout,'(a4,5i5)') (catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
 c
       do 38 i=ilo,ihi
       if(lprint.ge.5)
-     + write(lfnout,'(a,a4,5i5)') 'Atom ',catm(2,i),(ltyp(j,i),j=1,5)
+     + write(lfnout,'(a,a4,6i5)') 'Atom ',catm(2,i),latm(2,i),
+     + (ltyp(j,i),j=1,5)
       if(latm(2,i).gt.0) then
       do 19 j=1,ntype
       iatnum=itype(1,j)
@@ -326,17 +339,32 @@ c           3    match aliphatic ring
 c           4    match aromatic ring
 c           5    match explicit number of neighbors
 c
+      if(lprint.ge.5) then
+      write(lfnout,'(a,a4,6i5,1x,6l1)') 'Type ',atype(j)(1:4),iatnum,
+     + itype(2,j),itype(3,j),itype(4,j),nhydr,itype(5,j),
+     + iatnum.eq.latm(2,i),
+     + (itype(2,j).eq.0.or.itype(2,j).eq.ltyp(1,i)),
+     + (itype(3,j).eq.0.or.itype(3,j).eq.ltyp(2,i).or.
+     +   (itype(3,j).eq.1.and.ltyp(2,i).gt.0)),
+     + (itype(4,j).eq.0.or.itype(4,j).eq.ltyp(3,i).or.
+     +   (itype(4,j).eq.1.and.ltyp(3,i).gt.0)),
+     + (nhydr.eq.0.or.(nhydr.eq.5.and.ltyp(4,i).eq.0).or.
+     +   nhydr.eq.ltyp(4,i)),
+     + (itype(5,j).eq.0.or.itype(5,j).eq.ltyp(5,i))
+      endif
+c
       if(iatnum.eq.latm(2,i).and.
      + (nhydr.eq.0.or.(nhydr.eq.5.and.ltyp(4,i).eq.0).or.
-     +   nhydr.eq.ltyp(4,j)).and.
+     +   nhydr.eq.ltyp(4,i)).and.
      + (itype(2,j).eq.0.or.itype(2,j).eq.ltyp(1,i)).and.
      + (itype(3,j).eq.0.or.itype(3,j).eq.ltyp(2,i).or.
      +   (itype(3,j).eq.1.and.ltyp(2,i).gt.0)).and.
      + (itype(4,j).eq.0.or.itype(4,j).eq.ltyp(3,i).or.
      +   (itype(4,j).eq.1.and.ltyp(3,i).gt.0)).and.
      + (itype(5,j).eq.0.or.itype(5,j).eq.ltyp(5,i))) then
+c
       if(lprint.ge.5)
-     + write(lfnout,'(a,a4)') 'Type ',atype(j)(1:4)
+     + write(lfnout,'(10x,a)') 'try'
 c
 c     initialize skip vectors for neighbor atoms : skipa(1:neighbors)
 c     ----------------------- for atom type cond : skipt(1:3)
