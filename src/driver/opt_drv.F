@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.72 1999-06-12 15:29:02 d3g681 Exp $
+C$Id: opt_drv.F,v 1.73 1999-06-12 18:38:18 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -823,6 +823,8 @@ c     ----- parameters for optimization driver -----
 c     
       if (.not. rtdb_get(rtdb,'driver:trust',mt_dbl,1,trust))
      $     trust=0.3d0
+      if (.not. rtdb_get(rtdb,'driver:eprec',mt_dbl,1,eprec))
+     $     eprec=1d-6
       if (.not. rtdb_get(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
      $     gmax_tol = 0.00045d0
       if (.not. rtdb_get(rtdb,'driver:grms_tol',mt_dbl,1,grms_tol))
@@ -896,7 +898,7 @@ c
          if(.not.geom_zmt_get_izfrz(geom,izfrz,nzfrz))
      $        call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
       endif
-      if (ga_nodeid().eq.0)  then
+      if (oprint) then
          write(6,9996) gmax_tol,nptopt,linopt,inhess,modupd,
      $        modsad,moddir, sadstp, source, oqstep
  9996    format(' optimization convergence threshold    (cvgopt) = ',
@@ -912,10 +914,6 @@ c
      7        ' source of zmatrix                              =   ',a8/
      8        ' line search in internals              (oqstep) =    ',
      $        l1)
-      endif
-c     
-      if ((ga_nodeid().eq.0) .and.
-     $     util_print('information', print_low))  then
          write(6,9994)
  9994    format(/,10x,19(1h-),
      1        /,10x,'Energy Minimization',

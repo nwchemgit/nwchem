@@ -24,16 +24,35 @@ c
          return
 c
       else if(inp_compare(.false.,'cvgopt',field) .or. 
+     $        inp_compare(.false.,'gmax',field) .or.
      $        inp_compare(.false.,'thresh',field)) then
          if(.not. inp_f(gmax_tol))
      $        call errquit('driver_input: cvgopt/thresh',911)
          if (.not. rtdb_put(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
      $        call errquit('driver_input: rtdb put failed',0)
 c
-      else if(inp_compare(.false.,'sadstp',field)) then
-         if(.not. inp_f(sadstp)) 
-     $        call errquit('driver_input: sadstp',911)
-         if (.not. rtdb_put(rtdb,'driver:sadstp',mt_dbl,1,sadstp))
+      else if(inp_compare(.false.,'grms',field)) then
+         if(.not. inp_f(grms_tol))
+     $        call errquit('driver_input: grms',911)
+         if (.not. rtdb_put(rtdb,'driver:grms_tol',mt_dbl,1,grms_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'xrms',field)) then
+         if(.not. inp_f(xrms_tol))
+     $        call errquit('driver_input: xrms',911)
+         if (.not. rtdb_put(rtdb,'driver:xrms_tol',mt_dbl,1,xrms_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'smax',field)) then
+         if(.not. inp_f(smax_tol))
+     $        call errquit('driver_input: smax',911)
+         if (.not. rtdb_put(rtdb,'driver:smax_tol',mt_dbl,1,smax_tol))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'eprec',field)) then
+         if(.not. inp_f(eprec))
+     $        call errquit('driver_input: eprec',911)
+         if (.not. rtdb_put(rtdb,'driver:eprec',mt_dbl,1,eprec))
      $        call errquit('driver_input: rtdb put failed',0)
 c
       else if(inp_compare(.false.,'trust',field)) then

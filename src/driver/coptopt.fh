@@ -21,9 +21,6 @@ c
 *note:  max_nvar should be .eq. max(max_nzvar,max_cart)
       parameter (max_nvar = max_cart)
 c
-      double precision eprec    ! Precision for energy comparisons
-      parameter (eprec = 1d-6)
-c      
 c     zmatrix info will only be set if zcoord is true
 c
 c     nvar is the no. of variables in the optimization which
@@ -35,6 +32,7 @@ c     nindep is the number of independent variables but this
 c     is not actually used in the optimizer.
 c
       double precision 
+     $     eprec,               ! [user|auto] precision in the energy
      $     trust,               ! [user] trust radius for spectral step
      $     gmax_tol,            ! [user] tolerance for max internal gradient
      $     grms_tol,            ! [user] tolerance for rms internal gradient
@@ -71,7 +69,7 @@ c
 c
       common/cdrv_optopt/
 c     doubles
-     $     trust, gmax_tol, grms_tol, xrms_tol, smax_tol, 
+     $     eprec, trust, gmax_tol, grms_tol, xrms_tol, smax_tol, 
      $     sadstp, zvarsign, 
 c     integers
      $     nptopt,inhess,linopt,modupd,moddir, modsad, 
