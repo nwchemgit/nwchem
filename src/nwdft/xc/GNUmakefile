@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.61 2000-04-20 00:02:05 edo Exp $
+# $Id: GNUmakefile,v 1.62 2000-04-25 01:47:09 zzhang Exp $
 
-	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o
+	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o 
 	OBJ_OPTIMIZE = \
 	a_dist.o \
 	eumac.o \
