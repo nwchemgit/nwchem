@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.42 2001-11-27 02:20:19 edo Exp $
+* $Id: grid_file.F,v 1.43 2001-12-22 01:21:41 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -242,14 +242,18 @@ c
              call errquit('grid_file_close: free heap?',0)
           endif
       end if
-      if(filedump_opened) then
-         write(gr_unit,99,err=199) max_file_rec
- 99      format(I72)
-         write(gr_unit,99,err=199) max_cache_rec
-         write(gr_unit,99,err=199) n_rec_in_file
-         write(gr_unit,'(L1)',err=199) file_opened
-         rewind(gr_unit)
-         close(gr_unit)
+      if(okeep) then
+         if(filedump_opened) then
+            write(gr_unit,99,err=199) max_file_rec
+ 99         format(I72)
+            write(gr_unit,99,err=199) max_cache_rec
+            write(gr_unit,99,err=199) n_rec_in_file
+            write(gr_unit,'(L1)',err=199) file_opened
+            rewind(gr_unit)
+            close(gr_unit)
+         endif
+      else
+         close(gr_unit,status='delete')
       endif
 c
          call ga_igop(msg_grid_stat1, n_rec_in_file, 1, '+')
