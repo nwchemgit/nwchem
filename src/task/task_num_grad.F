@@ -4,7 +4,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.25 2000-01-05 00:25:53 windus Exp $
+* $Id: task_num_grad.F,v 1.26 2000-05-22 23:32:07 bert Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -37,7 +37,7 @@ C
 C
       task_num_grad = num_grad(rtdb, task_energy,
      $   ename(1:inp_strlen(ename)), gname(1:inp_strlen(gname)),
-     $   theory(1:inp_strlen(theory)), .false.)
+     $   theory(1:inp_strlen(theory)), .true.)
 c
       end
       logical function num_grad(rtdb, func, ename, gname, theory,
