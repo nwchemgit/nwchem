@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.15 1996-01-26 23:57:22 rg240 Exp $
+c  $Id: moints_2x.F,v 1.16 1996-07-15 18:46:48 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -26,7 +26,7 @@ c
      $                            g_movecs,
      $                            g_coul, ocoul,
      $                            g_exch, oexch,
-     $                            blen )
+     $                            blen, oblk )
        implicit none
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -50,6 +50,7 @@ c
        integer g_exch                         ! Exchange operator
        logical ocoul,oexch                    ! Type selection
        integer blen                           ! Blocking length
+       logical oblk                           ! Toggle blocked AO ints
 c
 c  Local variables
 c
@@ -134,9 +135,14 @@ c
      $                                 'movecs cols',l_mo,k_mo)
        call ga_get(g_movecs,1,nbf,1,nbf,dbl_mb(k_mo),nbf)
 c
-c  Integrals allocation
+c  AO ints allocation
 c
-       call int_mem_2e4c(max2e, mem2)
+       if (oblk) then
+         call intb_mem_2e4c( max2e, mem2 )
+         max2e = min( max2e, maxbfsh*maxbfsh*blen*blen )
+       else
+         call int_mem_2e4c( max2e, mem2)
+       endif
        status = ma_push_get(MT_DBL, max2e,'moints: buf', l_eri, k_eri)
        status = ma_push_get(MT_DBL, mem2, 'moints: scr', l_iscr, k_iscr)
 c
@@ -222,10 +228,19 @@ c
                    tz = tcgtime()
                    call moints_gblk( basis, ish, jsh, kshlo, kshhi,
      $                               lshlo, lshhi, schw_ij, tol2e,
-     $                               max2e, dbl_mb(k_eri), mem2,
-     $                               dbl_mb(k_iscr), ilen, jlen,
+     $                               max2e, dbl_mb(k_eri),
+     $                               mem2, dbl_mb(k_iscr),
+     $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               kbflo, kbfhi, lbflo, lbfhi,
-     $                               dbl_mb(k_ssbb), osym )
+     $                               dbl_mb(k_ssbb), osym, oblk )
+
+c$$$                   call moints_gblk( basis, ish, jsh, kshlo, kshhi,
+c$$$     $                               lshlo, lshhi, schw_ij, tol2e,
+c$$$     $                               max2e, dbl_mb(k_eri), mem2,
+c$$$     $                               dbl_mb(k_iscr), ilen, jlen,
+c$$$     $                               kbflo, kbfhi, lbflo, lbfhi,
+c$$$     $                               dbl_mb(k_ssbb), osym )
+
                    tint = tint + tcgtime() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    if (lb.ne.kb) then
@@ -346,8 +361,8 @@ c  Coulomb term
 c
        if (ocoul) then
          tz = tcgtime()
-c$$$         if (util_print('coulomb half integral',print_debug))
-c$$$     $      call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
+         if (util_print('coulomb half integral',print_debug))
+     $      call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
          call moints_Jtrf34( g_coul, occ_start, mo1_lo, mo1_hi,
      $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )

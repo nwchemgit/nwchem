@@ -96,7 +96,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.19 1996-07-02 21:02:58 rg240 Exp $
+c  $Id: moints_semi.F,v 1.20 1996-07-15 18:47:06 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -118,14 +118,6 @@ c  |<------------------------------------------------------------->
 c
 c
 c  nnbf:  triangle of basis functions (with sparsity) <= (nbf*(nbf+1))/2
-
-
-
-
-
-
-
-
 c  nvirl: number of virtual indices this processor owns ~nvir/nproc
 c  nseg:  length of occupied segment
 c    
@@ -133,8 +125,8 @@ c
 c
 c
        subroutine moints_semi( basis, tol2e, ocoul, oexch,
-     $                         oseglo, oseghi,
-     $                         olo, ohi, vlo, vhi, g_movecs )
+     $                         oseglo, oseghi, olo, ohi,
+     $                         vlo, vhi, g_movecs, oblk )
        implicit none
 #include "tcgmsg.fh"
 #include "mafdecls.fh"
@@ -150,6 +142,7 @@ c
        integer olo, ohi                       ! [input]  Correlated occupied index range
        integer vlo, vhi                       ! [input]  Virtual index range
        integer g_movecs                       ! [input]  MO coefficients
+       integer oblk                           ! [input]  Toggle AO integral blocking
 c
        integer l_gmap, k_gmap
        integer l_shmap, k_shmap
@@ -327,7 +320,7 @@ c
        call moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
      $                     oseglo, oseghi, olo, ohi, vlo, vhi,
      $                     polo, pohi, pvlo, pvhi, ocoul, oexch,
-     $                     osym, kunit, junit, int_mb(k_shmap),
+     $                     osym, oblk, kunit, junit, int_mb(k_shmap),
      $                     blksiz, ngrp, int_mb(k_gmap),
      $                     int_mb(k_gloc), nnbf, int_mb(k_iopass),
      $                     int_mb(k_rlen), g_movecs, g_jbuf,
@@ -379,7 +372,7 @@ c
        subroutine moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
      $                           oseglo, oseghi, olo, ohi, vlo, vhi,
      $                           polo, pohi, pvlo, pvhi,
-     $                           ocoul, oexch, osym,
+     $                           ocoul, oexch, osym, oblk,
      $                           kunit, junit, shmap, blksiz,
      $                           ngrp, gmap, gloc, nnbf, iopass,
      $                           rlen, g_movecs, g_jbuf, g_kbuf )
@@ -407,6 +400,7 @@ c
        logical ocoul                          ! [input] Toggle Coulomb
        logical oexch                          ! [input] Toggle exchange
        logical osym                           ! [input] Toggle symmetry
+       logical oblk                           ! [input] Toggle AO integral blocking
        integer junit, kunit                   ! [input] Unit numbers for IO
        integer shmap(nsh)                     ! [input] Map for shells
        integer blksiz                         ! [input] Blocksize
@@ -549,10 +543,11 @@ c
                    lblen = gr_len(ngrp,gmap,lb,lbflo,lbfhi)
                    call moints_gblk( basis, ish, jsh, kshlo, kshhi,
      $                               lshlo, lshhi, schw_ij, tol2e,
-     $                               max2e, dbl_mb(k_eri), mem2,
-     $                               dbl_mb(k_iscr), ilen, jlen,
+     $                               max2e, dbl_mb(k_eri),
+     $                               mem2, dbl_mb(k_iscr),
+     $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               kbflo, kbfhi, lbflo, lbfhi,
-     $                               dbl_mb(k_ssbb), osym )
+     $                               dbl_mb(k_ssbb), osym, oblk )
                    if (lb.ne.kb) then
                      call moints_blktr( ilen, jlen, kblen, lblen,
      $                                  dbl_mb(k_ssbb),

@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.44 1996-07-11 21:23:08 rg240 Exp $
+C$Id: mointdriver.F,v 1.45 1996-07-15 18:46:46 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -37,6 +37,7 @@ c
        integer g_coul, g_exch, g_epair
        integer i, j, ij, ii, ipass
        logical oexch, ocoul, osym, oprint, status, ohalf, omemprint
+       logical oblk
        double precision emp2, e2pair
        double precision tpass, tmp2
        double precision tol2e
@@ -157,6 +158,8 @@ c Get Block-length
 c
        if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,
      $      1,blen)) blen = 10
+       if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,
+     $      1,oblk)) oblk = .false.
 c
 c Initialise integrals and screening
 c
@@ -237,6 +240,14 @@ c
            write(6,958)
  958       format(10x,'Half-transformed integrals not produced')
          endif
+         if (oblk) then
+           write(6,961)
+ 961       format(10x,'Use blocked AO integrals')
+         else
+           write(6,962)
+ 962       format(10x,'Use single quartet AO integrals')
+         endif
+           
          write(6,*)
          call util_flush(6)
        endif
@@ -263,13 +274,13 @@ c
      $                         oseg_lo, oseg_hi,
      $                         vir_lo, vir_hi, g_vecs,
      $                         g_coul, ocoul, g_exch, oexch,
-     $                         blen )
+     $                         blen, oblk )
        else
          call moints_build_2x( basis,  ohalf, osym, occ_lo,
      $                         oseg_lo, oseg_hi,
      $                         vir_lo, vir_hi, g_vecs,
      $                         g_coul, ocoul, g_exch, oexch,
-     $                         blen )
+     $                         blen, oblk )
        endif
 c
 c Evaluate and store pair energies
@@ -334,6 +345,7 @@ c
 c
        if (ocoul) status = ga_destroy(g_coul)
        if (oexch) status = ga_destroy(g_exch)
+C       goto 444          !skip semi-direct code
 c
 c ---------------------------
 c  Test semi-direct routine
@@ -357,7 +369,7 @@ c
        oseg_hi = min((oseg_lo + 1),occ_hi)
 c
        call moints_semi( basis, tol2e, ocoul, oexch, oseg_lo, oseg_hi,
-     $                  occ_lo, occ_hi, vir_lo, vir_hi, g_vecs )
+     $                  occ_lo, occ_hi, vir_lo, vir_hi, g_vecs, oblk )
        status = ma_push_get(MT_DBL, (nbf*nbf), 'mos', l_x, k_x )
        call ga_get(g_vecs,1,nbf,1,nbf,dbl_mb(k_x),nbf)
        if (oexch)
@@ -394,6 +406,7 @@ c
 c
 c
 c
+ 444   continue
        status = ga_destroy(g_epair)
        status = ma_pop_stack(l_evals)
        call schwarz_tidy()

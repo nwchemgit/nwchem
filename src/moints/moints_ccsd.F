@@ -147,12 +147,13 @@ c
                 do lb=1,kb
                   call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
                   lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
-                  call moints_gblk( basis, ish, jsh, kshlo, kshhi,
-     $                              lshlo, lshhi, schw_ij, tol2e,
-     $                              max2e, dbl_mb(k_eri), mem2,
-     $                              dbl_mb(k_iscr), ilen, jlen,
-     $                              kbflo, kbfhi, lbflo, lbfhi,
-     $                              dbl_mb(k_ssbb), osym )
+                   call moints_gblk( basis, ish, jsh, kshlo, kshhi,
+     $                               lshlo, lshhi, schw_ij, tol2e,
+     $                               max2e, dbl_mb(k_eri),
+     $                               mem2, dbl_mb(k_iscr),
+     $                               ibflo, ibfhi, jbflo, jbfhi,
+     $                               kbflo, kbfhi, lbflo, lbfhi,
+     $                               dbl_mb(k_ssbb), osym, .false. )
                   if (lb.ne.kb) then
                     call moints_blktr( ilen, jlen, kblen, lblen,
      $                                 dbl_mb(k_ssbb),

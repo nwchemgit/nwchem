@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.11 1996-02-02 01:59:50 rg240 Exp $
+c  $Id: moints_6x.F,v 1.12 1996-07-15 18:46:52 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -33,7 +33,7 @@ c
      $                            g_movecs,
      $                            g_coul, ocoul,
      $                            g_exch, oexch,
-     $                            blen )
+     $                            blen, oblk )
        implicit none
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -56,6 +56,7 @@ c
        integer g_exch                         ! Exchange operator
        logical ocoul,oexch                    ! Type selection
        integer blen                           ! Blocking length
+       logical oblk                           ! Toggle AO blocking
 c
 c Local variables
 c
@@ -139,7 +140,12 @@ c
 c
 c  Integrals allocation
 c
-       call int_mem_2e4c(max2e, mem2)
+       if (oblk) then
+         call intb_mem_2e4c( max2e, mem2 )
+         max2e = min( max2e, maxbfsh*maxbfsh*blen*blen )
+       else
+         call int_mem_2e4c( max2e, mem2)
+       endif
        status = ma_push_get(MT_DBL, max2e,'moints: buf', l_eri, k_eri)
        status = ma_push_get(MT_DBL, mem2, 'moints: scr', l_iscr, k_iscr)
 c
@@ -228,10 +234,11 @@ c
                    call moints6x_gblkk( basis, ish, jsh, kshlo, kshhi,
      $                                  lshlo, lshhi, schw_ij, tol2e,
      $                                  max2e, dbl_mb(k_eri), mem2,
-     $                                  dbl_mb(k_iscr), ilen, jlen,
+     $                                  dbl_mb(k_iscr),
+     $                                  ibflo, ibfhi, jbflo, jbfhi,
      $                                  kbflo, kbfhi, lbflo, lbfhi,
      $                                  dbl_mb(k_ssbb),
-     $                                  dbl_mb(k_ssbbt) )
+     $                                  dbl_mb(k_ssbbt), oblk )
                    tint = tint + tcgtime() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    tz = tcgtime()
@@ -305,10 +312,11 @@ c
                      tz = tcgtime()
                      call moints_gblk( basis, ish, jsh, kshlo, kshhi,
      $                                 lshlo, lshhi, schw_ij, tol2e,
-     $                                 max2e, dbl_mb(k_eri), mem2,
-     $                                 dbl_mb(k_iscr), ilen, jlen,
+     $                                 max2e, dbl_mb(k_eri),
+     $                                 mem2, dbl_mb(k_iscr),
+     $                                 ibflo, ibfhi, jbflo, jbfhi,
      $                                 kbflo, kbfhi, lbflo, lbfhi,
-     $                                 dbl_mb(k_ssbb), osym )
+     $                                 dbl_mb(k_ssbb), osym, oblk )
                      tint = tint + tcgtime() - tz
                      flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                      if (lb.ne.kb) then
@@ -499,26 +507,116 @@ c
 
 
 
-      subroutine moints6x_gblkk( basis, ish, jsh, kshlo, kshhi,
-     $                         lshlo, lshhi, schw_ij, tol2e,
-     $                         max2e, eri, mem2, iscr, ilen,
-     $                         jlen, kblo, kbhi, lblo, lbhi,
-     $                         sbsb, sbsbt )
+
+c
+c  Generate AO integrals in suitable form
+c  exchange transformation:
+c  Branch according to block or non-block
+c  scheme
+c
+c
+      subroutine moints6x_gblkk( basis, ish, jsh,
+     $                           kshlo, kshhi, lshlo, lshhi,
+     $                           schw_ij, tol2e, erilen, eri,
+     $                           scrlen, iscr,
+     $                           ibflo, ibfhi, jbflo, jbfhi,
+     $                           kblo, kbhi, lblo, lbhi,
+     $                           sbsb, sbsbt, oblk )
+      implicit none
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "schwarz.fh"
+      integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
+      integer erilen, scrlen
+      double precision schw_ij, tol2e, eri(erilen), iscr(scrlen)
+      integer ibflo, ibfhi, jbflo, jbfhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision sbsb(lblo:lbhi,kblo:kbhi,jbflo:jbfhi,ibflo:ibfhi)
+      double precision sbsbt(kblo:kbhi,lblo:lbhi,
+     $                       jbflo:jbfhi,ibflo:ibfhi)
+      logical oblk
+c
+      integer mxshq, imem
+      integer k_tmp, l_tmp
+      integer k_iv, k_jv, k_kv, k_lv
+      integer k_il, k_jl, k_kl, k_ll
+c
+
+
+      if (.not.(oblk)) then
+        call moints6x_gblkk_sq( basis, ish, jsh,
+     $                          kshlo, kshhi, lshlo, lshhi,
+     $                          schw_ij, tol2e, erilen, eri,
+     $                          scrlen, iscr,
+     $                          ibflo, ibfhi, jbflo, jbfhi,
+     $                          kblo, kbhi, lblo, lbhi,
+     $                          sbsb, sbsbt )
+      else
+        mxshq = (kshhi - kshlo + 1)*(lshhi - lshlo + 1)
+        imem = 4*mxshq + 4*erilen
+        if (.not. ma_push_get(MT_INT, imem, 'gblk tmp',l_tmp, k_tmp))
+     $     call errquit('moints6x_gblkk: no memory for labels',imem)
+        k_iv = k_tmp
+        k_jv = k_tmp + mxshq
+        k_kv = k_tmp + 2*mxshq
+        k_lv = k_tmp + 3*mxshq
+        k_il = k_tmp + 4*mxshq
+        k_jl = k_tmp + 4*mxshq + erilen
+        k_kl = k_tmp + 4*mxshq + 2*erilen
+        k_ll = k_tmp + 4*mxshq + 3*erilen
+        call moints6x_gblkk_mq( basis, ish, jsh,
+     $                          kshlo, kshhi, lshlo, lshhi,
+     $                          schw_ij, tol2e, erilen, eri,
+     $                          scrlen, iscr,
+     $                          ibflo, ibfhi, jbflo, jbfhi,
+     $                          kblo, kbhi, lblo, lbhi,
+     $                          sbsb, sbsbt, mxshq,
+     $                          int_mb(k_iv), int_mb(k_jv),
+     $                          int_mb(k_kv), int_mb(k_lv),
+     $                          int_mb(k_il), int_mb(k_jl),
+     $                          int_mb(k_kl), int_mb(k_ll) )
+        if (.not.ma_pop_stack(l_tmp))
+     $    call errquit('moints6x_gblkk: failed to pop',0)
+      endif
+      return
+      end
+
+
+
+
+
+c
+c This version uses single shell 
+c quartet AO integrals.
+c
+      subroutine moints6x_gblkk_sq( basis, ish, jsh,
+     $                              kshlo, kshhi, lshlo, lshhi,
+     $                              schw_ij, tol2e, erilen, eri,
+     $                              scrlen, iscr,
+     $                              ibflo, ibfhi, jbflo, jbfhi,
+     $                              kblo, kbhi, lblo, lbhi,
+     $                              sbsb, sbsbt )
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
       integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
-      integer max2e, mem2
-      double precision schw_ij, tol2e, eri(*), iscr(*)
-      integer ilen, jlen, kblo, kbhi, lblo, lbhi
-      double precision sbsb(lblo:lbhi,kblo:kbhi,jlen,ilen)
-      double precision sbsbt(kblo:kbhi,lblo:lbhi,jlen,ilen)
+      integer erilen, scrlen
+      double precision schw_ij, tol2e, eri(erilen), iscr(scrlen)
+      integer ibflo, ibfhi, jbflo, jbfhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision sbsb(lblo:lbhi,kblo:kbhi,jbflo:jbfhi,ibflo:ibfhi)
+      double precision sbsbt(kblo:kbhi,lblo:lbhi,
+     $                       jbflo:jbfhi,ibflo:ibfhi)
 c
+      integer ilen, jlen
       integer ksh, lsh, kbflo, kbfhi, lbflo, lbfhi, ltop
       integer klen, llen, kblen, lblen, bsize, k1, k2, j, i
       logical status
-
- 
+c
+c
+c
+      ilen = ibfhi - ibflo + 1
+      jlen = jbfhi - jbflo + 1
       kblen = kbhi - kblo + 1
       lblen = lbhi - lblo + 1
       bsize = kblen*lblen*ilen*jlen
@@ -536,24 +634,24 @@ C        do lsh=lshlo,lshhi
           if (schwarz_shell(ish,ksh)*
      $        schwarz_shell(jsh,lsh).ge.tol2e) then
             call int_2e4c(basis, ish, ksh, basis, jsh, lsh,
-     $                    mem2, iscr, max2e, eri )
+     $                    scrlen, iscr, erilen, eri )
             call moints6x_eri2blkk(ilen, jlen, klen, llen,
-     $                             eri, sbsb(lbflo,kbflo,1,1),
+     $                             eri, sbsb(lbflo,kbflo,jbflo,ibflo),
      $                             lblen, kblen )
           endif
           if (schwarz_shell(ish,lsh)*
      $        schwarz_shell(jsh,ksh).ge.tol2e) then
             call int_2e4c(basis, ish, lsh, basis, jsh, ksh,
-     $                    mem2, iscr, max2e, eri )
+     $                    scrlen, iscr, erilen, eri )
             call moints6x_eri2blkk(ilen, jlen, llen, klen,
-     $                             eri, sbsbt(kbflo,lbflo,1,1),
+     $                             eri, sbsbt(kbflo,lbflo,jbflo,ibflo),
      $                             kblen, lblen )
           endif
         enddo
       enddo
       if (kshlo.eq.lshlo) then
-        do i=1,ilen
-          do j=1,jlen
+        do i=ibflo,ibfhi
+          do j=jbflo,jbfhi
             do k1=kblo,kbhi
               do k2=kblo,k1-1
                 sbsb(k1,k2,j,i) = sbsbt(k1,k2,j,i)
@@ -563,9 +661,166 @@ C        do lsh=lshlo,lshhi
           enddo
         enddo
       endif
-
+c
+c
+c
       return
       end
+
+
+
+
+
+
+c
+c  This uses multiple quartets at a time
+c  AO integrals with labels
+c
+c
+c
+      subroutine moints6x_gblkk_mq( basis, ish, jsh,
+     $                              kshlo, kshhi, lshlo, lshhi,
+     $                              schw_ij, tol2e, erilen, eri,
+     $                              scrlen, iscr,
+     $                              ibflo, ibfhi, jbflo, jbfhi,
+     $                              kblo, kbhi, lblo, lbhi,
+     $                              sbsb, sbsbt, mxshq,
+     $                              ishv, jshv, kshv, lshv,
+     $                              ilab, jlab, klab, llab )
+      implicit none
+#include "bas.fh"
+#include "schwarz.fh"
+      integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
+      integer erilen, scrlen
+      double precision schw_ij, tol2e, eri(erilen), iscr(scrlen)
+      integer ibflo, ibfhi, jbflo, jbfhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision sbsb(lblo:lbhi,kblo:kbhi,jbflo:jbfhi,ibflo:ibfhi)
+      double precision sbsbt(kblo:kbhi,lblo:lbhi,
+     $                       jbflo:jbfhi,ibflo:ibfhi)
+      integer mxshq
+      integer ishv(mxshq), jshv(mxshq), kshv(mxshq), lshv(mxshq)
+      integer ilab(erilen), jlab(erilen), klab(erilen), llab(erilen)
+c
+      integer bsize, ieri, neri, neritotal, nshq
+      integer ii, jj, kk, ll
+      double precision beffect, q4
+      logical use_q4, more
+      data use_q4/.false./
+      data q4/1.d0/
+c
+      logical intb_2e4c, intb_init4c
+      external intb_2e4c, intb_init4c
+c
+c
+c
+      neritotal = 0
+      bsize = (kbhi - kblo + 1)*(lbhi - lblo + 1)*
+     $        (ibfhi - ibflo + 1)*(jbfhi - jbflo + 1)
+      call dfill(bsize,0.d0,sbsb,1)
+      call dfill(bsize,0.d0,sbsbt,1)
+c
+c
+c  First time around   ( I K | J L ) type
+c
+c  Fill out shell arrays with interacting quartet labels
+c        
+      nshq = 0
+      do kk=kshlo,kshhi
+        do ll=lshlo,lshhi
+          if ((schwarz_shell(ish,kk)*schwarz_shell(jsh,ll))
+     $                .ge.tol2e) then
+            if (nshq.eq.mxshq)
+     $         call errquit('moints6x_gblkk: internal error',0)
+            nshq = nshq + 1
+            kshv(nshq) = kk
+            lshv(nshq) = ll
+          endif
+        enddo
+      enddo
+      call ifill( nshq, ish, ishv, 1 )
+      call ifill( nshq, jsh, jshv, 1 )
+c
+c  Prepare texas for shell block
+c
+      if (.not. intb_init4c( basis, ishv, kshv, basis, jshv, lshv,
+     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $   call errquit('moints6x_gblkk: intb_init4c failed',0)
+c
+c  Get some batch of integrals
+c
+ 100  more = intb_2e4c( basis, ishv, kshv, basis, jshv, lshv,
+     $                  nshq, q4, use_q4, tol2e, .false.,
+     $                  ilab, klab, jlab, llab,
+     $                  eri, erilen, neri, scrlen, iscr )
+c
+c  Unpack labels and assign to integrals
+c
+      if (neri.gt.0) then
+        neritotal = neritotal + neri
+        do ieri=1,neri
+          ii = ilab(ieri)
+          kk = klab(ieri)
+          jj = jlab(ieri)
+          ll = llab(ieri)
+          sbsb(ll,kk,jj,ii) = eri(ieri)
+        enddo
+        if (more) goto 100
+      endif
+c
+c
+c  Second time around   ( I L | J K ) type
+c
+c  Fill out shell arrays with interacting quartet labels
+c        
+      nshq = 0
+      do kk=kshlo,kshhi
+        do ll=lshlo,lshhi
+          if ((schwarz_shell(ish,ll)*schwarz_shell(jsh,kk))
+     $                .ge.tol2e) then
+            if (nshq.eq.mxshq)
+     $         call errquit('moints6x_gblkk: internal error',0)
+            nshq = nshq + 1
+            kshv(nshq) = kk
+            lshv(nshq) = ll
+          endif
+        enddo
+      enddo
+      call ifill( nshq, ish, ishv, 1 )
+      call ifill( nshq, jsh, jshv, 1 )
+c
+c  Prepare texas for shell block
+c
+      if (.not. intb_init4c( basis, ishv, lshv, basis, jshv, kshv,
+     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $   call errquit('moints6x_gblkk: intb_init4c failed',0)
+c
+c  Get some batch of integrals
+c
+ 200  more = intb_2e4c( basis, ishv, lshv, basis, jshv, kshv,
+     $                  nshq, q4, use_q4, tol2e, .false.,
+     $                  ilab, llab, jlab, klab,
+     $                  eri, erilen, neri, scrlen, iscr )
+c
+c  Unpack labels and assign to integrals
+c
+      if (neri.gt.0) then
+        neritotal = neritotal + neri
+        do ieri=1,neri
+          ii = ilab(ieri)
+          ll = llab(ieri)
+          jj = jlab(ieri)
+          kk = klab(ieri)
+          sbsbt(kk,ll,jj,ii) = eri(ieri)
+        enddo
+        if (more) goto 200
+      endif
+c
+c
+c
+      return
+      end
+
 
 
 
