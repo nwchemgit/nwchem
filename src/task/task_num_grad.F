@@ -253,6 +253,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       integer rtdb, geom
       integer natoms
       double precision coords(*),ncoords(*),vec(*), grad(*), q(*)
@@ -261,6 +262,7 @@ c
       double precision energy   ! [output]
 c
       integer i, natoms3
+      logical status
       logical task_energy, task_restore_state
       external task_energy, task_restore_state
 c
@@ -281,7 +283,15 @@ c
 c
       if (.not. task_restore_state(rtdb,'numg'))
      $     call errquit('task_num_grad: restore state failed',0)
-      fd_step_energy = task_energy(rtdb)
+      status = task_energy(rtdb)
+      fd_step_energy = status
+      if ((.not. status) .and. (ga_nodeid().eq.0)) then
+         write(6,*) 
+         write(6,*) ' task_num_grad: !! displaced energy failed'
+         write(6,*)
+         call util_flush(6)
+      endif
+      if (.not. status) return
 c
       if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, energy))
      $     call errquit('task_num_grad: no energy in database',0)
