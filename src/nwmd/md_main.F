@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.199 2005-02-15 01:50:43 marat Exp $
+c $Id: md_main.F,v 1.200 2005-02-15 18:52:44 d3j191 Exp $
 c
       implicit none
 c
@@ -378,8 +378,7 @@ c
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
-      if(lqmmm) 
-     >   call qmmm_print_energy1(irtdb,epot,uqmmm)
+      if(lqmmm) call qmmm_print_energy1(irtdb,epot,uqmmm)
 c
       epsd=epot
       epsdw=epotw
@@ -524,8 +523,7 @@ c
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
-      if(lqmmm) 
-     >  call qmmm_print_energy1(irtdb,epot,uqmmm)
+      if(lqmmm) call qmmm_print_energy1(irtdb,epot,uqmmm)
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -2780,7 +2778,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.199 2005-02-15 01:50:43 marat Exp $
+c $Id: md_main.F,v 1.200 2005-02-15 18:52:44 d3j191 Exp $
 c
       implicit none
 c
