@@ -229,7 +229,6 @@ c
 c
 c  J & K build routines
 c
-       write(6,*)'MADE IT HERE'
        call moints_build_2xz( basis, occ_lo, oseg_lo, oseg_hi,
      $                        nmo_lo, nmo_hi, g_vecs,
      $                        g_coul, ocoul, g_exch, oexch,
@@ -352,9 +351,6 @@ c
       if (.not.status) call errquit('moints: cannot pop stack?',0)
       status = ga_destroy(g_vecs)
       call int_terminate()
-      if (ga_nodeid().eq.0) then
-        call MA_summarize_allocated_blocks()
-      endif
       call ga_sync()
 c
       return
