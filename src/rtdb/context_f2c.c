@@ -1,4 +1,4 @@
-/*$Id: context_f2c.c,v 1.7 2000-02-29 19:15:40 windus Exp $*/
+/*$Id: context_f2c.c,v 1.8 2001-05-04 19:53:45 edo Exp $*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,7 +11,11 @@
 #include "context.h"
 
 typedef long logical;		/* Equivalent C type to FORTRAN logical */
+#ifdef EXT_INT
 typedef long integer;		/* Equivalent C type to FORTRAN integer */
+#else
+typedef int integer;		/* Equivalent C type to FORTRAN integer */
+#endif
 #define FORTRAN_TRUE  ((logical) 1)
 #define FORTRAN_FALSE ((logical) 0)
 
