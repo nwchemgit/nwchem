@@ -13,9 +13,11 @@ c     For locations of 2nd derivatives of functionals in array
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
-C$Id: xc_dirac.F,v 1.10 1998-10-13 02:13:48 bjohnson Exp $
+C$Id: xc_dirac.F,v 1.11 2000-04-11 16:40:39 hvd Exp $
 c
       Implicit none
+c
+#include "stdio.fh"
 c
       integer nq, ipol
       double precision fac, Ex
@@ -65,7 +67,7 @@ c
 c        ======> SPIN-RESTRICTED <======
 c
 #ifdef SECOND_DERIV
-c         write(6,*)'xc_dirac called: restricted'
+c         write(LuOut,*)'xc_dirac called: restricted'
 #endif
          do 10 n = 1, nq
             if (abs(rho(n,1)).gt.tol_rho)then
@@ -90,12 +92,13 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
 #ifdef SECOND_DERIV
-c         write(6,*)'xc_dirac called: unrestricted'
+c         write(LuOut,*)'xc_dirac called: unrestricted'
 #endif
          do 20 n = 1,nq
             if (abs(rho(n,1)).gt.tol_rho)then
                if (rho(n,2).lt.0.d0.or.rho(n,3).lt.0.d0)then
-                  write(6,*)' n, nq, rho(n,1), rho(n,2), rho(n,3): ',
+                  write(LuOut,*)
+     &                      ' n, nq, rho(n,1), rho(n,2), rho(n,3): ',
      &                        n, nq, rho(n,1), rho(n,2), rho(n,3)
                   call errquit(' negative density ',911)
                endif
@@ -115,7 +118,7 @@ c              Guard against case of no beta electrons, e.g. H atom
                if (ldew)func(n) = func(n) + ( rho32*rho(n,2) + 
      &                                        rho33*rho(n,3)   )*P4*fac
                Exp = Exp + (rho32*rho(n,2)+rho33*rho(n,3))*qwght(n)
-c      write(6,*)'from xc_dirac ; rho32, rho33, qwght(n): ',
+c      write(LuOut,*)'from xc_dirac ; rho32, rho33, qwght(n): ',
 c     &                           rho32, rho33, qwght(n)
             endif
    20    continue
@@ -123,7 +126,7 @@ c
          Ex = Ex + P4*Exp*fac
 c
       endif
-c      write(6,*)'from xc_dirac ; p4, exp, fac, Ex: ', 
+c      write(LuOut,*)'from xc_dirac ; p4, exp, fac, Ex: ', 
 c     &                           p4, exp, fac, Ex
       return
       end

@@ -11,11 +11,12 @@ c
      &                       ipol, nq, GRAD, xform_Cmat)
 #endif
 c
-C$Id: setACmat.F,v 1.12 1999-03-04 14:18:56 bjohnson Exp $
+C$Id: setACmat.F,v 1.13 2000-04-11 16:40:39 hvd Exp $
 c
       implicit none
 c
 #include "dft2drv.fh"
+#include "stdio.fh"
 c !!! BGJ test
 #include "bgj.fh"
 c !!! BGJ test
@@ -43,21 +44,21 @@ c
 c
 #if 0
       if (bgj_print() .gt. 1) then
-      write(6,*) ' setACmat: AMAT in'
+      write(LuOut,*) ' setACmat: AMAT in'
       call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
       if (grad) then
-         write(6,*) ' setACmat: CMAT in'
+         write(LuOut,*) ' setACmat: CMAT in'
          call output(cmat, 1, nq, 1, 3, nq, 3, 1)
       endif
 #ifdef SECOND_DERIV
-      write(6,*) ' setACmat_d2: AMAT2 in'
+      write(LuOut,*) ' setACmat_d2: AMAT2 in'
       call output(amat2, 1, nq, 1, NCOL_AMAT2, nq, NCOL_AMAT2, 1)
       if (grad) then
-         write(6,*) ' setACmat_d2: CMAT2 in'
+         write(LuOut,*) ' setACmat_d2: CMAT2 in'
          call output(cmat2, 1, nq, 1, NCOL_CMAT2, nq, NCOL_CMAT2, 1)
       endif
 #endif
-      write(6,*) ' setACmat: qwght'
+      write(LuOut,*) ' setACmat: qwght'
       call output(qwght, 1, nq, 1, 1, nq, 1, 1)
       endif
 #endif
@@ -107,10 +108,10 @@ c
       endif
 #if 0
       if (bgj_print() .gt. 1) then
-      write(6,*) ' setACmat: AMAT out'
+      write(LuOut,*) ' setACmat: AMAT out'
       call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
       if (grad) then
-         write(6,*) ' setACmat: CMAT out ',xform_Cmat
+         write(LuOut,*) ' setACmat: CMAT out ',xform_Cmat
          call output(cmat, 1, nq, 1, 3*ipol, nq, 3*ipol, 1)
       endif
       endif
@@ -130,10 +131,10 @@ c
       endif
 #if 0
       if (bgj_print() .gt. 1) then
-      write(6,*) ' setACmat_d2: AMAT2 out'
+      write(LuOut,*) ' setACmat_d2: AMAT2 out'
       call output(amat2, 1, nq, 1, NCOL_AMAT2, nq, NCOL_AMAT2, 1)
       if (grad) then
-         write(6,*) ' setACmat_d2: CMAT2 out'
+         write(LuOut,*) ' setACmat_d2: CMAT2 out'
          call output(cmat2, 1, nq, 1, NCOL_CMAT2, nq, NCOL_CMAT2, 1)
       endif
       endif

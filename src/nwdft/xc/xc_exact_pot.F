@@ -168,7 +168,7 @@ c
         if (me.eq.0)then
           write(LuOut,*) ' Lamda = ',lamda
           do isp = 1, ipol
-            write(6,*) ' Restriction = ',Ecoul_aux(isp)
+            write(LuOut,*) ' Restriction = ',Ecoul_aux(isp)
             write(LuOut,*) (dbl_mb(k_eval(isp)+i-1),i=1,noc(1)+3)
           end do
         end if
