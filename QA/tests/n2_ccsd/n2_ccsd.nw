@@ -1,0 +1,47 @@
+echo
+
+
+start n2
+
+# Optimize the structure of N2 at MP2, CCSD and CCSD(T)
+# Note that there are not (yet) analytic derivatives for
+# CCSD or CCSD(T) so this proceeds by finite difference
+# of the energy.
+
+geometry 
+  symmetry d2h
+  n 0 0 -0.5
+  n 0 0  0.5
+end
+
+#print low
+
+basis spherical
+  n library cc-pvdz
+end
+
+scf
+  lock
+end
+
+mp2
+  freeze core atomic
+print high
+end
+
+ccsd
+  freeze core atomic
+  thresh 1e-7
+end
+
+driver
+clear
+end
+task mp2 optimize
+
+task ccsd optimize
+
+task ccsd(t) optimize
+
+
+  
