@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.11 1999-06-22 05:57:43 d3e129 Exp $
+* $Id: vib_vib.F,v 1.12 1999-07-02 23:32:02 d3e129 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -256,6 +256,11 @@ c
      &      dbl_mb(iegvec),dbl_mb(iegval),
      &      dbl_mb(icoord),dbl_mb(iscr),
      &      dbl_mb(iscr+nat3),dbl_mb(iscr+(2*nat3)))
+* compute thermodynamic properties from frequencies
+        call vib_thermo(rtdb,natom,nat3,
+     &      dbl_mb(iegval),
+     &      dbl_mb(imass),
+     &      dbl_mb(icoord))
       endif
 c
       if (first_pass) then

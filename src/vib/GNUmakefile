@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.12 1999-06-22 05:57:42 d3e129 Exp $
+# $Id: GNUmakefile,v 1.13 1999-07-02 23:32:01 d3e129 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = vib_callg.o
            OBJ = vib_bcalc.o \
@@ -30,7 +30,8 @@
                  vib_wrtfreq.o \
                  vib_zmatin.o \
                  vib_intense.o \
-                 vib_istep.o 
+                 vib_istep.o \
+		 vib_thermo.o
 
        LIBRARY = libvib.a
    LIB_TARGETS = 
