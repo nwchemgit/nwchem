@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.13 1999-07-12 17:25:33 d3e129 Exp $
+* $Id: vib_vib.F,v 1.14 1999-07-23 19:53:02 d3e129 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -28,6 +28,7 @@
       COMMON /cvib_HESS/ NATOM,NAT3,NHESS,NHESST    ! hessian information
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "rtdb.fh"
 c:: passed
       integer rtdb             ! [input] rtdb handle
       character*(*) hess_file  ! [input] name of file storing lower triangular packed hessian
@@ -48,6 +49,7 @@ c
       logical first_pass
       character*255 dipole_file
       logical dipole_file_exists
+      logical animation_on
 c
       first_pass = .true.
 *... check input logic 
@@ -252,16 +254,29 @@ C
 c
       if (.not.first_pass) then
 * if any negative eigenvalues print out steps in their direction
-        call vib_istep(rtdb,nat3,natom,
-     &      dbl_mb(iegvec),dbl_mb(iegval),
-     &      dbl_mb(icoord),dbl_mb(iscr),
-     &      dbl_mb(iscr+nat3),dbl_mb(iscr+(2*nat3)))
+        call vib_istep(
+     &        rtdb,nat3,natom,
+     &        dbl_mb(iegvec),dbl_mb(iegval),
+     &        dbl_mb(icoord),dbl_mb(iscr),
+     &        dbl_mb(iscr+nat3),dbl_mb(iscr+(2*nat3)))
+
+        if(.not.rtdb_get(rtdb,'vib:animate',mt_log,1,animation_on)) then
+          animation_on = .false. ! no animation
+        endif
+        write(luout,*)'vib:animation ', animation_on
+          
+        if (animation_on)
+     &        call vib_modestep(
+     &        rtdb,nat3,natom,
+     &        dbl_mb(iegvec),dbl_mb(iegval),
+     &        dbl_mb(icoord),dbl_mb(iscr),
+     &        dbl_mb(iscr+nat3),dbl_mb(iscr+(2*nat3)))
 * compute thermodynamic properties from frequencies
         call vib_thermo(rtdb,natom,nat3,
-     &      dbl_mb(iegval),
-     &      dbl_mb(imass),
-     &      dbl_mb(icoord),
-     &      dbl_mb(iscr))            
+     &        dbl_mb(iegval),
+     &        dbl_mb(imass),
+     &        dbl_mb(icoord),
+     &        dbl_mb(iscr))            
       endif
 c
       if (first_pass) then
