@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.41 2003-11-20 01:46:47 nwchem Exp $
+C     $Id: ccsd_driver.F,v 2.42 2003-12-19 18:38:00 edo Exp $
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -10,10 +10,11 @@ C     $Id: ccsd_driver.F,v 2.41 2003-11-20 01:46:47 nwchem Exp $
 #include "geom.fh"
 #include "rtdb.fh"
 #include "schwarz.fh"
-#include "stdio.fh"
-#include "util.fh"
 #include "inp.fh"
 #include "msgids.fh"
+#include "ccsd_len.fh"
+#include "stdio.fh"
+#include "util.fh"
 c
 c
 c
@@ -44,7 +45,6 @@ C
        Integer MaxBfSh
        Character*80 CC_Theory
        character*20 scftype_vecs
-#include "ccsd_len.fh"
 c
        integer maxit,iprt,ncor,ndel,l_mo,k_mo, l_scr,k_scr
        Double Precision Convi, Tol2E
@@ -61,7 +61,7 @@ c
        external moints_occrange
        logical int_normalize
        external int_normalize,ccsd_drivacc
-       logical ccsd_drivacc
+       logical ccsd_drivacc,oprint
 c
        double precision zip
        data zip/0.0d00/
@@ -74,6 +74,7 @@ capr
        data algo/'twofold'/
 capr
        Me = GA_NodeID()
+       oprint = util_print('meminfo',print_debug)
 c
        status = bas_numbf(basis, nbf)
        status = status.and.bas_numcont(basis,nsh)
@@ -175,8 +176,10 @@ c
 c
 c Maximum number of operator matrices we can allocate
 c
-       call ga_summarize(.true.)
-       call ma_summarize_allocated_blocks()
+       if(oprint) then
+          call ga_summarize(.true.)
+          call ma_summarize_allocated_blocks()
+       endif
        nocct = (nocc_correl*(nocc_correl+1))/2
        if ((ocoul).and.(oexch)) nocct = 2*nocct
 c
