@@ -1,6 +1,6 @@
-      subroutine raktest(rtdb)
+      logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.60 1996-10-11 10:06:53 d3e129 Exp $
+c $Id: raktest.F,v 1.61 1996-10-21 06:49:58 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -56,6 +56,7 @@ c
       goto 00001
 c
 00001 continue
+      raktest = .true.
       end
       subroutine raktest_geomwrt(rtdb)
       implicit none
