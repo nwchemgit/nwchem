@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.20 1996-01-19 07:32:25 d3g681 Exp $
+#$Id: GNUmakefile,v 1.21 1996-03-06 23:17:35 rg240 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -46,13 +46,17 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 ifeq ($(TARGET),CRAY-T3D)
-  FNOOPT = -dp -Ccray-t3d -Wf"-o noscalar,jump,noieeedivide"
+  FNOOPT = -g -dp -Ccray-t3d -Wf"-o noscalar,jump,noieeedivide"
 $(LIBRARY_PATH)(dosymops.o):  dosymops.f
 	$(FC) -c $(FNOOPT) $^
 $(LIBRARY_PATH)(sym_mo_ap_op.o):  sym_mo_ap_op.F
 	$(FCONVERT)
 	$(FC) -c $(FNOOPT) sym_mo_ap_op.f
 	@/bin/rm -f sym_mo_ap_op.f
+$(LIBRARY_PATH)(sym_mo_adapt.o):  sym_mo_adapt.F
+	$(FCONVERT)
+	$(FC) -c $(FNOOPT) sym_mo_adapt.f
+	@/bin/rm -f sym_mo_adapt.f
 endif
              
 
