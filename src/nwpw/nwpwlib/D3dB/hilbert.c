@@ -1,10 +1,12 @@
 /* hilbert.c -
+$Id: hilbert.c,v 1.2 2004-04-20 22:02:35 edo Exp $
    Author - Eric Bylaska
 
    This file contains 2d hilbert mapping routines
 
 */
 
+#include <stdio.h>
 #include "typesf2c.h"
 #include "olist.h"
 

@@ -1,4 +1,5 @@
 /* olist.c -
+$Id: olist.c,v 1.2 2004-04-20 22:02:35 edo Exp $
    Author - Eric Bylaska
 
    This file contains an ordered list data structure.
@@ -6,6 +7,7 @@
 */
 
 #include	<stdio.h>
+#include	<stdlib.h>
 #include	"olist.h"
 
 void	create_olist(olist,size)

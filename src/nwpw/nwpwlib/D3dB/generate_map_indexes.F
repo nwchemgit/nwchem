@@ -1,6 +1,6 @@
 
 *
-* $Id: generate_map_indexes.F,v 1.1 2004-04-20 17:52:52 bylaska Exp $
+* $Id: generate_map_indexes.F,v 1.2 2004-04-20 22:02:35 edo Exp $
 *
 
 *     ***********************************
@@ -24,7 +24,7 @@
       !**** local variables ****
       logical value
       integer i,j,k,q,p
-      integer np,nq1,nq2,rmdr1
+      integer nq1,nq2,rmdr1
       integer indx_proc(2),indx_q(2)
 
       !**** allocate temporary space ****
