@@ -1,4 +1,4 @@
-c  $Id: hnd_util.F,v 1.3 2003-02-07 19:31:10 bert Exp $
+c  $Id: hnd_util.F,v 1.4 2003-02-07 23:10:14 bert Exp $
 c
 c  These are a bunch of utility routines that were in hessian/rhf_hessian.F
 c  that were moved here since the hessian code no longer depends on them.
@@ -305,6 +305,7 @@ C
 C
 C     ----- PRINT OUT A TRIANGULAR MATRIX -----
 C
+      COMMON/HND_IOFILE/IR,IW,IP
       DIMENSION D(1),DD(10)
       character*8 LAB
       DIMENSION LAB(1)
