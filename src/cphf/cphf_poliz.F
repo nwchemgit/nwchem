@@ -16,7 +16,8 @@
       double precision eone,etwo,enrep,energy,pol
       integer g_grad,g_x,g_y,g_z,g_tmp,g_work
       integer max_iter,max_sub
-      double precision accuracy,precond_acc,precond_iter
+      double precision accuracy,precond_acc
+      integer precond_iter
       logical ga_iter_lsolve
       external ga_iter_lsolve
       external rohf_hessv_precond, rohf_hessv
