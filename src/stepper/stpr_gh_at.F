@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.17 1998-12-11 23:35:22 windus Exp $
+*     $Id: stpr_gh_at.F,v 1.18 1999-01-19 23:50:04 d3e129 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -50,6 +50,8 @@ c::   local
       integer time_taskg, print_level
       double precision xyz(3), chg
       double precision pdipole(3), mdipole(3)
+      integer date_len
+      character*40 date_string
       character*255 tmpname
       character*16 tag_name
       character*40 new_geom_name
@@ -373,8 +375,14 @@ c
           ignore_status = rtdb_parallel(.false.)
           if(whoiam.eq.master) then
             if (o_directions) then
-              write(luout,*)' iatom = ',iatom, ' ixyz = ',
-     &            ixyz,' plus '
+              call util_date(date_string)
+              date_len = inp_strlen(date_string)
+              write(luout,
+     &            '(1x,a5,i4,1x,a4,i2,a3,1x,a10,f10.1,6x,a5,a27)')
+     &            'atom:',iatom,
+     &            'xyz:',ixyz,'(+)',
+     &            'wall time:',util_wallsec(),
+     &            'date:',date_string(1:date_len)
               call util_flush(luout)
             endif
 c     
@@ -458,8 +466,14 @@ c
      &          3,pdipole)) dipole_okay = .false.
 c     
             if (o_directions) then
-              write(luout,*)
-     &            ' iatom = ',iatom, ' ixyz = ',ixyz,' minus'
+              call util_date(date_string)
+              date_len = inp_strlen(date_string)
+              write(luout,
+     &            '(1x,a5,i4,1x,a4,i2,a3,1x,a10,f10.1,6x,a5,a27)')
+     &            'atom:',iatom,
+     &            'xyz:',ixyz,'(-)',
+     &            'wall time:',util_wallsec(),
+     &            'date:',date_string(1:date_len)
               call util_flush(luout)
             endif
 c
