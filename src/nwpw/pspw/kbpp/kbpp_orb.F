@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_orb.F,v 1.2 2001-11-30 00:56:04 bylaska Exp $
+* $Id: kbpp_orb.F,v 1.3 2001-11-30 23:52:04 bylaska Exp $
 *
 *     **************************************
 *     *                                    *
@@ -144,7 +144,7 @@
       nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
 
       value = value.and.MA_alloc_get(mt_dbl,nsize*(lmmax),
-     >                        'aorbs',aorbs_hndl, aorbs_indx)
+     >                        'aorbs',aorbs_hndl,aorbs_indx)
       value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
 
@@ -211,17 +211,29 @@
       end if
 
 *     **** normalize atomic orbitals ****
+      unitg(1,1) = unita(2,2)*unita(3,3) - unita(3,2)*unita(2,3)
+      unitg(2,1) = unita(3,2)*unita(1,3) - unita(1,2)*unita(3,3)
+      unitg(3,1) = unita(1,2)*unita(2,3) - unita(2,2)*unita(1,3)
+      unitg(1,2) = unita(2,3)*unita(3,1) - unita(3,3)*unita(2,1)
+      unitg(2,2) = unita(3,3)*unita(1,1) - unita(1,3)*unita(3,1)
+      unitg(3,2) = unita(1,3)*unita(2,1) - unita(2,3)*unita(1,1)
+      unitg(1,3) = unita(2,1)*unita(3,2) - unita(3,1)*unita(2,2)
+      unitg(2,3) = unita(3,1)*unita(1,2) - unita(1,1)*unita(3,2)
+      unitg(3,3) = unita(1,1)*unita(2,2) - unita(2,1)*unita(1,2)
       omega = unita(1,1)*unitg(1,1)
-     >      + unita(2,1)*unitg(2,1)
-     >      + unita(3,1)*unitg(3,1)
+     >       + unita(2,1)*unitg(2,1)
+     >       + unita(3,1)*unitg(3,1)
+      omega = dabs(omega)
 
+
+
+
+      if (taskid.eq.MASTER) then
 
       do k=1,nsize*lmmax
        dbl_mb(aorbs_indx+k-1) = dbl_mb(aorbs_indx+k-1)/dsqrt(omega)
       end do
 
-
-      if (taskid.eq.MASTER) then
       call util_file_name_noprefix(formatted_filename,
      >                    .false.,
      >                    .false.,

@@ -26,8 +26,9 @@
       integer taskid,MASTER
       parameter (MASTER=0)
 
-      logical value
+      logical value,found
       integer nion,npsp,k
+      character    dum
       character*30 filename
       character*255 id,full_filename
 
@@ -75,7 +76,18 @@
       call util_file_name_noprefix(filename,.false.,.false.,
      >                    full_filename)
       if (taskid.eq.MASTER) then
-        open(unit=33,file=full_filename,form='formatted')
+        inquire(file=full_filename,exist=found)
+        if (found) then
+          open(unit=33, file=full_filename,form='formatted',
+     >         status='old')
+           do while (found)
+             read(18,*,end=100) dum
+           end do
+  100      continue
+        else
+          open(unit=33,file=full_filename,form='formatted',
+     >         status='new')
+        end if
       end if
 
       return

@@ -1,5 +1,5 @@
 *
-* $Id: psi_new.F,v 1.1 2001-11-28 21:09:55 bylaska Exp $
+* $Id: psi_new.F,v 1.2 2001-11-30 23:52:05 bylaska Exp $
 *
 
 *     ***********************************
@@ -15,6 +15,7 @@
 
 
 *    *** local variables ***
+      logical success
       real*8  icharge,tcharge,t
       integer mult,x
       integer ispin,ne(2)
@@ -37,6 +38,8 @@
       external control_totalcharge
       real*8   ion_totalcharge
       external ion_totalcharge
+      logical  lcao_wvfnc
+      external lcao_wvfnc
 
       filename = control_input_psi()
       version = 3
@@ -70,12 +73,21 @@
          ne(2) = (t-x)/2
       end if
 
-      call wvfnc_new(filename,
-     >               version,
-     >               ngrid,
-     >               unita,
-     >               ispin,
-     >               ne)
+      success =  lcao_wvfnc(.true.,2,
+     >                      filename,
+     >                      version,
+     >                      ngrid,
+     >                      unita,
+     >                      ispin,
+     >                      ne)
+
+      if (.not.success)
+     >   call wvfnc_new(filename,
+     >                  version,
+     >                  ngrid,
+     >                  unita,
+     >                  ispin,
+     >                  ne)
 
 
       return

@@ -6,14 +6,16 @@
 *     ***************************
       subroutine xyz_init()
 *
-* $Id: xyz.F,v 1.2 2001-10-26 02:28:22 bylaska Exp $
+* $Id: xyz.F,v 1.3 2001-11-30 23:52:03 bylaska Exp $
 *
       implicit none 
 
       integer   MASTER
       parameter (MASTER=0)
 
-      integer taskid,l
+      logical found
+      integer taskid
+      character dum
       character*30 filename
       character*255 full_filename
 
@@ -30,8 +32,19 @@
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                       full_filename)
-         l = index(filename,' ') - 1
-         open(unit=18,file=full_filename,form='formatted')
+         inquire(file=full_filename,exist=found)
+
+         if (found) then
+           open(unit=18,file=full_filename,form='formatted',
+     >          status='old')
+           do while (found)
+           read(18,*,end=100) dum
+           end do
+  100      continue
+         else
+           open(unit=18,file=full_filename,form='formatted',
+     >           status='new')
+         end if
       end if
 
 
