@@ -4,7 +4,7 @@ c     Some will evolve into generally useful routines
 c
 c     BGJ - 8/98
 c
-c     $Id: bgj.F,v 1.7 2001-11-20 00:20:32 edo Exp $
+c     $Id: bgj.F,v 1.8 2002-01-17 02:38:03 edo Exp $
 c
 
 c
@@ -365,8 +365,12 @@ c
 #include "../nwdft/include/cdft.fh"
       integer noc(2)
       double precision c
+      logical dontcare
 c
       if (ipol .eq. 2) then
+         if(.not.rtdb_get(bgj_rtdb,'dft:dontcare',mt_log, 1,dontcare))
+     .        dontcare=.false.
+         if(dontcare) return
          if (.not. rtdb_get(bgj_rtdb, 'dft:noc', mt_int, 2, noc))
      $        call errquit('bgj_check_xc_u2d: rtdb_get of noc failed',0) 
          if (noc(1) .eq. noc(2)) then
