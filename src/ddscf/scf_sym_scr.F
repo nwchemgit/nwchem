@@ -2,6 +2,7 @@
      $                          g_v, ivoff, oprint, maxelt)
       implicit none
 #include "global.fh"
+#include "mafdecls.fh"
       integer nclosed, nopen, nvir ! [input] No. of MOs in each space
       integer irs(*) ! [input] symmetry of each MO
       integer g_v    ! [input/output] rotation vector to screen
@@ -16,9 +17,13 @@ c     Vector is assumed to hold (nclosed+nopen)*nvir + nclosed*nopen
 c
       integer i, a, ioff
       double precision test
-      double precision buf(10000)  ! temporary while debugging
+      integer l_buf, k_buf
       double precision tmp(2)
       integer nmixed 
+c
+      if (.not. ma_push_get(mt_dbl, nclosed+nopen+nvir, 
+     $     'scf_sym_screen', l_buf, k_buf)) 
+     $     call errquit('scf_sym_screen: ma?',nclosed+nopen+nvir)
 c
       call ga_sync
 c
@@ -27,32 +32,35 @@ c
       do i = 1+ga_nodeid(),nclosed+nopen,ga_nnodes()
         if ((nclosed+nopen)*nvir .gt. 0) then
           ioff = 1+(i-1)*nvir + ivoff
-          call ga_get(g_v, ioff, ioff+nvir-1, 1, 1, buf, 1)
+          call ga_get(g_v, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_buf), 1)
           do a=1,nvir
             if (irs(i).ne.irs(a+nclosed+nopen)) then
-               test = abs(buf(a))
+               test = abs(dbl_mb(k_buf-1+a))
                maxelt = max(maxelt,test)
-               buf(a) = 0.0d0
+               dbl_mb(k_buf-1+a) = 0.0d0
                if (test.gt.1d-6) nmixed = nmixed + 1
             endif
           enddo
-          call ga_put(g_v, ioff, ioff+nvir-1, 1, 1, buf, 1)
+          call ga_put(g_v, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_buf), 1)
         endif
 c
         if (i.le.nclosed .and. nopen*nclosed.gt.0) then
           ioff = 1+(nclosed+nopen)*nvir+(i-1)*nopen + ivoff
-          call ga_get(g_v, ioff, ioff+nopen-1, 1, 1, buf, 1)
+          call ga_get(g_v, ioff, ioff+nopen-1, 1, 1, dbl_mb(k_buf), 1)
           do a=1,nopen
             if (irs(i).ne.irs(a+nclosed)) then
-               test = abs(buf(a))
+               test = abs(dbl_mb(k_buf-1+a))
                maxelt = max(maxelt,test)
-               buf(a) = 0.0d0
+               dbl_mb(k_buf-1+a) = 0.0d0
                if (test.gt.1d-2) nmixed = nmixed + 1
             endif
           enddo
-          call ga_put(g_v, ioff, ioff+nopen-1, 1, 1, buf, 1)
+          call ga_put(g_v, ioff, ioff+nopen-1, 1, 1, dbl_mb(k_buf), 1)
         endif
       enddo
+c
+      if (.not. ma_pop_stack(l_buf))
+     $     call errquit('scf_sym_screen: ma?',-1)
       call ga_sync
 c
       tmp(1) = nmixed

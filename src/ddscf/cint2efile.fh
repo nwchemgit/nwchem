@@ -43,8 +43,12 @@ c
       integer pad               ! Padding for 32 bit machines
 c
 *      parameter (buffer_size = 16) ! About the minimum
-*      parameter (buffer_size = 8192)
+#ifdef CRAY-T3D
+c     save on memory since have only physical memory
+      parameter (buffer_size = 8192)
+#else
       parameter (buffer_size = 32768)
+#endif
 c
       common/cint2ebuf/
      $     buf(buffer_size),
