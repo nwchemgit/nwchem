@@ -1,13 +1,5 @@
 \label{sec:geom}
 
-\Large
-% comments follow
-WARNING -- I have substantially re-written this section, and may have
-guessed wrong on the more obscure points.  Someone (preferably the original
-author), should read this draft and correct the more egregious 
-errors. -- J.M. Cuta
-\normalsize
-
 The \verb+GEOMETRY+ directive is used to define specific geometry objects
 for a calculation or series of calculations.  The input for this directive
 allows the user to define the geometry of the molecule(s) to be considered
@@ -25,22 +17,14 @@ calculation.
 The form of the \verb+GEOMETRY+ directive is as follows;
 
 \begin{verbatim}
-  GEOMETRY [<string name default geometry>] [zmat]\
+  GEOMETRY [<string name default geometry>] \
            [units <string units default bohr>] \
            [bqbq] \
            [print [xyz] || noprint]
     
     [SYMMETRY GROUP <string group_name> [print]]
 
-    <string tag> <real x> <real y> <real z> \
-        [charge <real charge>] [mass <real mass>] [ghost]
-    ...
-
-    <string tag> < list_of_Z-matrix_variales> [ghost]
-    ...
-
-    <string tag> <list_of_frozen_variables>
-    ...
+    <geometry specification (cartesian or Z-matrix)>
 
   END
 \end{verbatim}
@@ -68,7 +52,9 @@ consists of three main sections;
 \item basic information to identify the geometry object in the code and
 define how it will be processed
 \item input to identify the symmetry group for the molecule
-\item input to specify the geometric locations of the atoms in the molecule
+\item input to specify the geometric locations of the atoms in the
+  molecule (cartesian coordinates or Z-matrix)
+
 \end{itemize}
 
 The input options and keywords for each of these sections are
@@ -81,23 +67,15 @@ the object, specify the geometry input format, decide how to treat dummy
 centers in the geometry, and tell the code what to do about printing 
 the geometry information.
 
-The default in the code is to specify the geometry using
-Cartesian coordinates, but the user has the option of specifying
-the geometry for some (or all) of the atoms using a Z-matrix-like format
-(see Section \ref{sec:Z-matrix}).
-This option is flagged by specifying the keyword \verb+zmat+ on the
-first line of the directive.  If this keyword is omitted, the geometry
-input must be specified using Cartesian coordinates (see section 
-\ref{sec:cart}).
-
 The default \verb+name+ for a geometry object is the string \verb+geometry+,
 and most modules in the code look for an object with this name.  
 The user can redirect the module to a different geometry object by assigning
 the string \verb+geomery+ to \verb+name+ using the \verb+SET+ directive 
 (see Section \ref{sec:set}).  The default for the geometry input unit
-is \verb+bohr+, and this is the working unit for such distances in the code.
-However, the geometric coordinates can be supplied in \verb+au+ or 
-\verb+angstrom+ by specifying the appropriate keyword on the directive.
+is \verb+bohr+ (or \verb+au+), and this is the working unit for such
+distances in the code.
+However, the geometric coordinates can be supplied in 
+\verb+angstrom+ by specifying this keyword in the directive.
 (Note: The conversion factor used in the code to convert from Angstr\"{o}m 
 to Bohr is $1.8897265$.)
 
@@ -152,7 +130,8 @@ must be identified on a line of the following form;
 
 \end{verbatim}
 
-The string \verb+tag+ is the name of the atom or center.  The string is limited to
+The string \verb+tag+ is the name of the atom or center.  The string
+is limited to 
 16 characters, and must correspond to the
 name of an atom in one of the basis sets defined for the calculation.
 Atoms or centers with the same \verb+tag+ will use the same basis set in
@@ -166,16 +145,8 @@ begins with the letters \verb+bq+.  An atom must have basis functions
 associated with it, and so must all centers.  If the keyword \verb+bqbq+
 is specified, dummy centers must also have basis functions.
 
-\Large
-***
-Shall we tell the users what a dummy center is, and the difference
-between a 'center' and an atom?  Or do we assume they were all born
-knowing this?  Also might want to explain 'ghost' atoms here...
-***
-\normalsize
-
-The xyz coordinates of the atom in the molecule, relative to some origin
-(***shall we tell them where it is?***) are specified as real numbers 
+The xyz coordinates of the atom in the molecule
+are specified as real numbers 
 following the string \verb+tag+.  The user also has the option of 
 specifying the charge of the atom (or center) and its mass.  
 
@@ -192,16 +163,9 @@ see Section
 \ref{sec:charge}) to determine the total number of electrons in the system.
 
 The default mass for an atom is taken to be the mass of its highest naturally
-occuring isotope.  If the user wishes to model some other isotope of the
+occurring isotope.  If the user wishes to model some other isotope of the
 element, its mass must be defined explicitly by specifying the keyword 
-\verb+mass+ and entering the appropriate value for \verb+mass+.  
-
-\Large
-(***shall
-we tell them the units to use for mass?  Or is this something everybody
-already knows?***)
-\normalsize
-
+\verb+mass+ and entering the appropriate value for \verb+mass+. 
 
 %  Each line in the body of the directive specifies the name or tag, and
 % the coordinates of one center or atom.  The charge associated with the
@@ -247,31 +211,38 @@ already knows?***)
 \subsection{Z-matrix input}
 \label{sec:Z-matrix}
 
-Specifying the keyword \verb+zmat+ on the \verb+GEOMETRY+ directive allows
+Using the 
+
+\begin{verbatim}
+    [zmt
+    <string tag> <Z-matrix coordinate specification> [ghost]
+
+    <list of active variables>
+
+    <list of frozen variables>
+
+    zend]
+\end{verbatim}
+
+allows
 the user to specify the structure of the molecule by means of its Z-matrix.
 However, it is also possible to enter the coordinates of some of the atoms using
-cartesian coordinates, even when the keyword \verb+zmat+ has been specified.
+cartesian coordinates, even in the \verb+[zmt ... zend]+ environment.
 The code is able to distinguish between
 the two types of input by means of the input following the string \verb+tag+
 for the particular atom.  If the Z-matrix input is specified for the atom,
 the input consists of pairs numbers that define connectivity indices and 
 bond length, bond angle, or torsion angle.  If the
 input is in Cartesian coordinates, the input consists of three real numbers
-defining the x,y,z coordinates of the atom.  However, when the \verb+zmat+
-keyword is specified, any Cartesian coordinate input (i.e., x,y,z, coordinates)
-must be specified in {\AA}ngstr{\o}ms, regardless of the entry specified
+defining the x,y,z coordinates of the atom.  However, the x,y,z coordinates
+must be specified in {\AA}ngstr{\"o}ms, regardless of the entry specified
 for \verb+units+.
 
 The keyword \verb+ghost+ is used to denote a 'ghost' atom in the molecular
 geometry.  A 'ghost' atom is like an ordinary atom in that it has its 
 associated basis set, but it is assumed to have a nuclear charge of zero.
-This is a useful property for such things as calculations to assess basis set
-superposition error.  
-
-\Large
-(***How does this differ from setting the \verb+charge+
-to zero in the Cartesian coordinates input option?***)
-\normalsize
+This is a useful property for such things as counterpoise calculations to assess basis set
+superposition error. 
 
 % If the \verb+GEOMETRY+ directive contains the \verb+zmat+ keyword, the
 % structure of the molecule is defined by means of its Z-matrix, or
@@ -306,20 +277,6 @@ to zero in the Cartesian coordinates input option?***)
 The input supplied for the atoms describing the molecule by means of its
 Z-matrix requires the following sequential approach.
 
-\Large
-\verb+*****************+
-Questions we might want to answer at this point;
-\begin{itemize}
-\item Is there a particular starting point for the Z-matrix of a molecule,
-or can the user pick any old atom?
-\item Is there a required order in which the atoms of a molecule must be
-entered?
-\item What about molecules with multiple bonds?
-\item What is a ghost?  (Same as a center?  Or something else?)
-\end{itemize}
-\verb+****************+
-\normalsize
-
 \begin{enumerate}
 
    \item $<$atom$>$ [ghost]
@@ -330,7 +287,7 @@ entered?
     the name of the atom at it appears in the basis set.  This is usually 
     the chemical symbol for the atom.
     However, if the atom is a 'dummy center', the chemical symbol must
-    be preceeded by \verb+x+ or \verb+bq+. (The keyword 'ghost' is required
+    be preceded by \verb+x+ or \verb+bq+. (The keyword 'ghost' is required
     only when specifying that the atom is to be defined as a 'ghost' atom.)
 
    \item $<$atom$>$ $<$i1$>$ $<$blength$>$ [ghost]
@@ -349,7 +306,7 @@ entered?
     and the same element appears more than once in the molecule, a number
     must be added to the {\tt atom} string of the Z-matrix input for
     subsequent appearances of that element in the molecule, to ensure 
-    a unique \verb+tag+ for each occcurance.)
+    a unique \verb+tag+ for each occurance.)
 
    \item $<$atom$>$ $<$i1$>$ $<$blength$>$ $<$i2$>$ $<$alpha$>$ [ghost]
 
@@ -388,8 +345,9 @@ makes with the plane of the bond between atom {\tt i1} and atom {\tt i2}
 %        {\tt i3}', or perhaps a second bond angle, 'this atom-atom i1-atom {\t%t i3}'
     \item [$\bullet$]  {\tt beta}  is  the dihedral angle between
 this atom and the plane containing atom {\tt i1} and atom {\tt i2} and atom 
-        {\tt i3}; alternatively, it defines a second bond angle for this atom, between this atom 
-and the plane of the two atoms atom {\tt i1} and atom {\tt i3}.  
+        {\tt i3}; alternatively, it defines a second bond angle for
+        this atom, between this atom and the plane of the two atoms
+        atom {\tt i1} and atom {\tt i3}.  
 Which alternative is selected depends on the value specified for {\tt i4}, as explained below. 
 %    \item [$\bullet$]  {\tt i4} defines the nature of {\tt beta}.  If
 %{\tt beta} is a dihedral
@@ -401,7 +359,8 @@ Which alternative is selected depends on the value specified for {\tt i4}, as ex
 {\tt beta} is interpreted as a dihedral
         angle.  (This is the default.)  If {\tt i4} is entered as +1 or -1, {\tt beta} 
 is interpreted as a second bond angle.  (The sign of {\tt i4} specifies the 
-direction of the bond angle ***relative to what?***).
+direction of the bond angle relative to the plane described by the
+three reference atoms).
     \end{itemize}
 
 %  \item Line no.\ 4  is repeated for each remaining atom. A blank line
@@ -450,12 +409,12 @@ direction of the bond angle ***relative to what?***).
 The Z-matrix variables {\tt blength}, {\tt alpha}, and {\tt beta} can be
 entered either as numeric values or symbolic strings, or as a mixture of
 the two types for a given atom.   The end of the Z-matrix input for the 
-molecule is signalled by a blank line in the directive, and all symbolic 
+molecule is signaled by a blank line in the directive, and all symbolic 
 definitions for the variables must be supplied following that blank line.
 The list of symbolic definitions is terminated with another blank line.
 If there are no symbolic definitions for the Z-matrix input (that is,  
 all of the bond lengths, angles, and torsions are specified by their 
-numeric values), then the end of the Z-matrix data is signalled by entering
+numeric values), then the end of the Z-matrix data is signaled by entering
 two blank lines in the directive; one to indicate the end of the Z-matrix 
 input, and the other to indicate the end of the symbolic definitions.
 
@@ -466,11 +425,11 @@ have any of its geometric parameters changed in the course of an optimization
 or other calculation that would change the geometry of a molecule.  
 The ability to actually use this feature
 for atoms defined by means of the Z-matrix input does not exist in NWChem
-as yet, but the input option has been included to ensure compatibilty with
+as yet, but the input option has been included to ensure compatibility with
 other codes.  Only atoms that have been specified using Cartesian coordinates
 can retain their geometry parameters at the specified input values.  This
 is accomplished by means of the optional 'active atoms' list (refer to Section
-\ref{activeatoms}).
+\ref{sec:activeatoms}).
 
 If the user wishes to specify a set of {\bf frozen} variables, however,
 % (we won't ask why...)
@@ -495,15 +454,15 @@ the definitions of the symbolic strings used by the Z-matrix.
 The \verb+GEOMETRY+ directive for this example is as follows;
 
 \begin{verbatim}
- geometry zmat
+ zmt
    C 
    C 1 CC 
    H 1 CH1 2 HCH1 
-   H 1 CH2 2 HCH2 3 TOR1 +1 
-   H 1 CH3 2 HCH3 3 TOR2 -1 
-   F 2 CF1 1 CCF1 3 TOR3  0 
-   F 2 CF2 1 CCF2 6 FCH1  1 
-   F 2 CF3 1 CCF3 6 FCH2 -1
+   H 1 CH2 2 HCH2 3  TOR1  0 
+   H 1 CH3 2 HCH3 3 -TOR2  0 
+   F 2 CF1 1 CCF1 3  TOR3  0 
+   F 2 CF2 1 CCF2 6  FCH1  1 
+   F 2 CF3 1 CCF3 6  FCH2 -1
 
    CC   = 1.4888 
    CH1  = 1.0790 
@@ -525,7 +484,7 @@ The \verb+GEOMETRY+ directive for this example is as follows;
    FCH1 = 106.7846 
    FCH2 = 106.7842
 
- end   
+ zend   
 \end{verbatim}
 
 %   The  separation  of the symbolic definitions into two groups is what
@@ -538,13 +497,6 @@ In this example, the symbolic strings listed after the first blank line
 (which signals the end of the Z-matrix input for the molecule) are defined
 with the values listed ({\tt CC= 1.4888}, {\tt CH1 = 1.0790}, etc.).  The
 second blank line forces the symbolic definitions starting with {\tt HCH1
-= 10428} to be {\bf frozen}.
-\Large
-\verb+***************************+
-What does the code actually do with this input, since the {\bf frozen}
-feature is not active?  Does it go ahead and use the specified values
-for {\tt HCH1} through {\tt FCH2}, and change them as required by the
-calculation?  Or are those strings defined some other way, and the
-{\bf frozen} assignments ignored?
-\verb+***************************+
-\normalsize
+= 10428} to be {\bf frozen}. Currently this has no effect on the
+program, but is included for compatibility with other codes.
+
