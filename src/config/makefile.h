@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.146 1996-03-20 18:32:54 d3h325 Exp $
+# $Id: makefile.h,v 1.147 1996-04-16 00:08:35 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -399,6 +399,20 @@ ifeq ($(TARGET),SGITFP)
 # TPS 96/01/14:
 # Increased const_copy_limit and global_limit to 18500
 #
+# RJH ... from Roberto ... on the R10k TENV=3 may cause very expensive
+#     interrupts (he recommends 1 when we go to 10K, but 3 is good for 8k)
+#     ... also going to 10K use -SWP:if_conversion=OFF
+#     ... in going to 6.1/2 then should also set -SWP:*ivdep*=ON/OFF
+#         (default changed from agressive to conservative and we want
+#         the agressive)
+#     ... sometimes the default KAP parameters are best (only for critical
+#         routines)
+#     ... -dr=AKC forces it to recognize all compiler directives (C=CRAY
+#         not on by default) ... can put everywhere.
+#     ... on -WK also add -r=3 (level of reduction) even with -o=1
+#     ... could benefit from -Wk on FOPTIMIZE ... actually have it on now.
+#     ... roundoff/ieee only modify pipelining which happens only at O3
+#
   CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
      RANLIB = echo
@@ -408,8 +422,8 @@ ifeq ($(TARGET),SGITFP)
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 
- FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=18500:global_limit=18500:fprop_limit=1750 -TENV:X=3
-FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
+ FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=18500:global_limit=18500:fprop_limit=1750 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
 
  COPTIMIZE = -O
 
