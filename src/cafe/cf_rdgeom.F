@@ -1,5 +1,5 @@
       subroutine cf_rdgeom(snam)
-c $Id: cf_rdgeom.F,v 1.5 2000-04-04 23:03:57 d3j191 Exp $
+c $Id: cf_rdgeom.F,v 1.6 2000-07-13 19:08:19 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -193,10 +193,10 @@ c
 c
 c      call ga_brdcst(mcf_66,byte_mb(i_snam),16*nsatot,0)
 c
-      if(lanal) then
-      call ana_select(byte_mb(i_snam))
-      call ana_initx()
-      endif
+c      if(lanal) then
+c      call ana_select(byte_mb(i_snam))
+c      call ana_initx()
+c      endif
 c
       itemp(1)=nwc
       itemp(2)=nsc

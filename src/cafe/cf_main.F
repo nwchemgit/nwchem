@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.66 2000-06-13 06:11:27 d3j191 Exp $
+c $Id: cf_main.F,v 1.67 2000-07-13 19:08:19 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1332,7 +1332,7 @@ c
       ip(2)=2
       ip(3)=0
       call cf_fsb(1,it,1,2,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.)
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Bond: ',rv,(ft(3,j),j=1,3)
       if(me.eq.0) epmf=epmf+rv(2)
       do 9 j=1,2
@@ -1364,7 +1364,7 @@ c
       ip(3)=3
       ip(4)=0
       call cf_fsh(1,it,1,3,ip,rpmf(1,1,i),rv,3,4,ign,iml,idt,ich,chg,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.)
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
       if(me.eq.0) epmf=epmf+rv(2)
       do 14 j=1,3
@@ -1533,7 +1533,7 @@ c
       call cf_fsb(nmult(1),ixmul(ix),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),imul(1,4),dbl_mb(i_chg),
-     + xmul,fmul,ess,.true.,.true.,me.eq.0)
+     + xmul,fmul,ess,.true.,.true.,me.eq.0,dbl_mb(i_sti))
       endif
 c
       if(nmult(2).gt.0) then
@@ -1541,7 +1541,7 @@ c
       call cf_fsh(nmult(2),ixmul(ix),mht(2),mhp(2),
      + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),imul(1,4),dbl_mb(i_chg),
-     + xmul,fmul,ess,.true.,.true.,me.eq.0)
+     + xmul,fmul,ess,.true.,.true.,me.eq.0,dbl_mb(i_sti))
       endif
 c
       if(nmult(3).gt.0) then
@@ -1549,7 +1549,7 @@ c
       call cf_fsd(nmult(3),ixmul(ix),mdt(2),mdp(2),
      + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),
-     + xmul,fmul,ess,.true.,.true.,me.eq.0)
+     + xmul,fmul,ess,.true.,.true.,me.eq.0,dbl_mb(i_sti))
       endif
 c
       if(nmult(4).gt.0) then
@@ -1557,7 +1557,7 @@ c
       call cf_fso(nmult(4),ixmul(ix),mit(2),mip(2),
      + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),
-     + xmul,fmul,ess,.true.,.true.,me.eq.0)
+     + xmul,fmul,ess,.true.,.true.,me.eq.0,dbl_mb(i_sti))
       endif
 c
       do 3 i=1,nmul

@@ -1,4 +1,4 @@
-c $Id: cf_forces.fh,v 1.13 2000-06-08 22:26:05 d3j191 Exp $
+c $Id: cf_forces.fh,v 1.14 2000-07-13 19:08:19 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,lpbcs,
      + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
@@ -195,8 +195,8 @@ c
      + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
      + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
      + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
-     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),dbl_mb(i_sti),
-     + dbl_mb(i_smr5),dbl_mb(i_smr6))   
+     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),
+     + dbl_mb(i_smr5),dbl_mb(i_smr6))
 #elif defined(CAFE_FORCES)
       call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
      + isq1,isfr,nsloc,
@@ -219,7 +219,7 @@ c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
 #if defined(CAFE_POLARIZATION)
-      call cf_fsw(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
+      call cf_fpsw(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
      + isq1,jsfr,nsnon,
      + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
@@ -228,7 +228,7 @@ c
      + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
      + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
      + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
-     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),dbl_mb(i_sti),
+     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),
      + dbl_mb(i_smr5),dbl_mb(i_smr6))   
 #elif defined(CAFE_FORCES)
       call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
@@ -252,7 +252,7 @@ c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
 #if defined(CAFE_POLARIZATION)
-      call cf_fss(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
+      call cf_fpss(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
      + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + int_mb(i_ias),int_mb(i_s2i1),
@@ -261,7 +261,7 @@ c
      + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
      + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
      + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),int_mb(i_s1i4),
-     + int_mb(i_s1i5),dbl_mb(i_smr5),dbl_mb(i_smr6),dbl_mb(i_sti),
+     + int_mb(i_s1i5),dbl_mb(i_smr5),dbl_mb(i_smr6),
      + dbl_mb(i_smr5),dbl_mb(i_smr6))   
 #elif defined(CAFE_FORCES)
       call cf_fss(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
