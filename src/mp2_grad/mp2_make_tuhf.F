@@ -146,12 +146,14 @@ c
                      eaa=eaa+t*t*denom
                      ia_jb(j)=t
                   enddo
-                  counta=sym_hi_oa(symj)-sym_lo_oa(symj)+1
-                  call putwa(tunita,ia_jb(sym_lo_oa(symj)),
-     $                 tunitptra,counta,ierr)
-                  if(ierr.ne.0)call errquit(
-     $                 'problem with writing t_a in make_t',ierr)
-                  tunitptra=tunitptra+counta
+                  if(task.eq.'gradient')then
+                     counta=sym_hi_oa(symj)-sym_lo_oa(symj)+1
+                     call putwa(tunita,ia_jb(sym_lo_oa(symj)),
+     $                    tunitptra,counta,ierr)
+                     if(ierr.ne.0)call errquit(
+     $                    'problem with writing t_a in make_t',ierr)
+                     tunitptra=tunitptra+counta
+                  endif
                endif
             enddo
             do b=nvb_lo,nvb_hi
@@ -167,15 +169,18 @@ c
                      denom=eval_a(a_a)+eval_b(b)
      $                    -eval_a(i)-eval_b(j)
                      t=ia_jb(j)/denom
+                     if(abs(t).lt.1d-12)t=0.0d0
                      eab=eab+t*t*denom
                      ia_jb(j)=t
                   enddo
-                  countb=sym_hi_ob(symj)-sym_lo_ob(symj)+1
-                  call putwa(tunitb,ia_jb(sym_lo_ob(symj)),
-     $                 tunitptrb,countb,ierr)
-                  if(ierr.ne.0)call errquit(
-     $                 'problem with writing t_b in make_t',ierr)
-                  tunitptrb=tunitptrb+countb
+                  if(task.eq.'gradient')then
+                     countb=sym_hi_ob(symj)-sym_lo_ob(symj)+1
+                     call putwa(tunitb,ia_jb(sym_lo_ob(symj)),
+     $                    tunitptrb,countb,ierr)
+                     if(ierr.ne.0)call errquit(
+     $                    'problem with writing t_b in make_t',ierr)
+                     tunitptrb=tunitptrb+countb
+                  endif
                endif
             enddo
          enddo
