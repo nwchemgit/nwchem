@@ -22,10 +22,10 @@ include_stamp:	./h/blas_lapack.h
 cleanF:
 	@echo " not done here"
 clean:
-	(cd ./src/c; make clean)
-	(cd ./src/f77; make clean)
-	(cd ./comm; make clean)
-	(cd ./ctof; make clean)
+	(cd ./src/c; $(MAKE) clean)
+	(cd ./src/f77; $(MAKE) clean)
+	(cd ./comm; $(MAKE) clean)
+	(cd ./ctof; $(MAKE) clean)
 	rm -f peigs_stamp.$(TARGET) include_stamp
 
 realclean: clean
