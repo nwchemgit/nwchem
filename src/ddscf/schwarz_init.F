@@ -58,6 +58,10 @@ c     scratch space needed for 2-electron routines
 c     
       status = ma_push_get(MT_DBL, max2e, 'fock_2e: buf', l_g, k_g)
       status = ma_push_get(MT_DBL, mem2, 'fock_2e: scr', l_scr, k_scr)
+c
+c     make sure that the integrals are being evaluated to sufficient precision
+c
+      call int_sp_acc(1.0d-22)
 c     
       sch_max = 0.0d0
       ijat  = 0
@@ -155,5 +159,9 @@ c
 c     zero counts for screening information
 c
       call ifill(nscreen, 0, iscreen, 1)
+c
+c     Restore normal accuracy for integral evaluation
+c
+      call int_sp_acc(1.0d-11)
 c
       end
