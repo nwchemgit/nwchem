@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.20 1999-09-28 17:47:18 windus Exp $
+* $Id: int_ecp.F,v 1.21 2001-12-28 02:34:45 edo Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -337,7 +337,7 @@ c
         inp = infbs_cont(cont_nprim,iuc,bas_id)
         ing = infbs_cont(cont_ngen,iuc,bas_id)
         il  = infbs_cont(cont_type,iuc,bas_id) 
-        do j_cont = 1,basis_ncont
+        do j_cont = i_cont,basis_ncont
 *          if (.not.bas_print(basis_handle)) stop ' error'
 *          if (.not.gbs_map_print(basis_handle)) stop ' error '
           jc = sf_ibs_cn2ce(j_cont,bas_id)
