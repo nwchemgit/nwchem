@@ -10,8 +10,9 @@ long and complicated when presented in its general form, as follows,
 \begin{verbatim}
   GEOMETRY [<string name default geometry>] \
            [units <string units default angstrom>] \
-           [bqbq] \
            [print [xyz] || noprint] \
+           [center || nocenter] \
+           [bqbq] \
            [autoz]
     
     [SYMMETRY [GROUP] <string group_name> [print]]
@@ -20,7 +21,7 @@ long and complicated when presented in its general form, as follows,
     ... ]
 
     [ZMATRIX || ZMT || ZMAT
-         <string tagn> <list_of_zmatrix_variables> [ghost]
+         <string tagn> <list_of_zmatrix_variables>
          ... ]
 
          [VARIABLES
@@ -118,6 +119,12 @@ the output associated with the geometry.  In addition, the keyword
 \verb+print+ may
 be qualifed by the additional keyword \verb+xyz+, which specifies
 that the coordinates should be printed in the XYZ format of XMol.
+
+\item \verb+center+ and \verb+nocenter+ -- complimentary keyword pair
+  to enable or disable translation of the center of nuclear charge of
+  the users input molecular coordinates to the origin.  With the
+  origin at this position all three components of the nuclear dipole
+  are zero.  The default is to move the origin.
 
 % \subsubsection*{{\tt AUTOZ}}
 \item \verb+autoz+ -- keyword to specify that the geometry 
@@ -273,20 +280,20 @@ The values supplied for the coordinates must be in the units specified
 by the value of the variable \verb+<units>+ on the first line of
 the \verb+GEOMETRY+ directive input.
 
-The cartesian coordinate input line also contains
-the optional keywords \verb+charge+ and \verb+mass+, which allow
-the user to specify the charge of the atom (or center) and its mass.
-The default charge for an atom is its atomic number, adjusted for the
-presence of ECPs (see Section \ref{sec:ecp}).  In order to specify a
-different value for the charge on a particular atom, the user must
-enter the keyword \verb+charge+, followed by the desired charge entered
-for the variable \verb+<charge>+.
+The cartesian coordinate input line also contains the optional
+keywords \verb+charge+ and \verb+mass+, which allow the user to
+specify the charge of the atom (or center) and its mass (in atomic
+mass units).  The default charge for an atom is its atomic number,
+adjusted for the presence of ECPs (see Section \ref{sec:ecp}).  In
+order to specify a different value for the charge on a particular
+atom, the user must enter the keyword \verb+charge+, followed by the
+desired charge entered for the variable \verb+<charge>+.
 
-The default mass for an atom is taken to be the mass of its most abundant
-naturally occurring isotope.  If the user wishes to model some other
-isotope of the element, its mass must be defined explicitly by
-specifying the keyword \verb+mass+, followed by the mass of the isotope
-entered for the variable \verb+<mass>+.
+The default mass for an atom is taken to be the mass of its most
+abundant naturally occurring isotope.  If the user wishes to model
+some other isotope of the element, its mass must be defined explicitly
+by specifying the keyword \verb+mass+, followed by the mass (in atomic
+mass units) of the isotope entered for the variable \verb+<mass>+.
 
 The geometry of the system can be entirely specified by Cartesian coordinates,
 by supplying a \verb+<tag>+ line of the type described above.  The user has
@@ -309,7 +316,7 @@ compound \verb+ZMATRIX+
 directive is as follows;
 \begin{verbatim}
     [ZMATRIX || ZMT || ZMAT
-         <string tagn> <list_of_zmatrix_variables> [ghost]
+         <string tagn> <list_of_zmatrix_variables> 
          ... ]
 
          [VARIABLES
@@ -552,7 +559,7 @@ internal coordinates.  These are arranged as follows:
 \item The third center is placed in the z-x plane.
 \end{itemize}
 
-\subsection{{\tt ZCOORD} --- Defining internal coordinates for {\tt AUTOZ}}
+\subsection{{\tt ZCOORD} --- Forcing internal coordinates}
 \label{sec:zcoord}
 
 Specifying the keyword \verb+AUTOZ+ on the first line of the \verb+GEOMETRY+

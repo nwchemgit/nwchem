@@ -16,7 +16,7 @@ are ignored.
 The following subsections describe each of the start-up directives in detail,
 noting all keywords, options, required input, and defaults.
 
-\subsection{{\tt START}, {\tt CONTINUE} and {\tt RESTART} Directives}
+\subsection{{\tt START}, {\tt CONTINUE} and {\tt RESTART} --- Startup mode}
 \label{sec:start}
 
 A {\tt START}, or {\tt CONTINUE}, or {\tt RESTART} directive is
@@ -37,11 +37,15 @@ following format;
 The \verb+START+ directive indicates that the calculation is one in
 which the database is to be created.  Any relevent information that
 already exists in a previous database of the same name is destroyed.
-The string variable{\tt <file\_prefix>} will be used as the prefix when naming
-any files created in the course of the calculation.  If the user does
-not specify an entry for {\tt <file\_prefix>} on the \verb+START+
-directive (or omits the \verb+START+ directive altogether), the code
-assigns the the file prefix of the input file itself to {\tt <file\_prefix>}.  
+The string variable{\tt <file\_prefix>} will be used as the prefix
+when naming any files created in the course of the calculation.  If
+the user does not specify an entry for {\tt <file\_prefix>} on the
+\verb+START+ directive (or omits the \verb+START+ directive
+altogether), the code uses the basename of the input file as the file
+prefix (i.e., the name of the input file with any directory
+information and the last ``dot-prefix'' removed.  E.g., the input file
+name \verb+/home/dave/job.2.in+ yields \verb+job.2+ as the file
+prefix.).
 
 The user also has the option of
 specifying a unique name for the database, using the keyword {\tt
@@ -125,7 +129,7 @@ the code behaves as if the input file contained the directive,
 \end{verbatim}
 
 
-\subsection{{\tt SCRATCH\_DIR} and {\tt PERMANENT\_DIR} Directives}
+\subsection{{\tt SCRATCH\_DIR} and {\tt PERMANENT\_DIR} --- File directories}
 \label{sec:dirs}
 
 % This is a startup directive (section \ref{sec:inputstructure}).
@@ -149,23 +153,6 @@ specific names must be specified for both local and shared file
 systems, while on the KSR it is useful to specify scratch file directories
 with automated striping across processors with round-robin allocation.
 SMP clusters have both requirements.  
-
-The anticipated usage of the
-EMSL IBM SP has NWChem executing in \verb+scratch+ with all files
-being created there by default.  Files to be saved for restart {\em
-  must} be either explicitly redirected or copied.  This has the
-advantages of minimizing very expensive network traffic on shared-file
-systems and also reduces the amount of data stored in the limited
-shared-file space.  However, this manual copying fails if the job
-crashes or runs out of time, so it may be preferable to automatically
-store {\em small} restart files directly to a persistent file space.
-
-\Large
-**Do we need to tell them 'anticipated' usage for the EMSL machine?  It
-could serve as another example, or we could delete this paragraph
-entirely.  Or we could put in the
-'actual' usage, once it is known.***
-\normalsize
 
 The \verb+SCRATCH_DIR+ and \verb+PERMANENT_DIR+ directives have
 identical format and capability, and enable the user to specify a
@@ -227,7 +214,7 @@ given list of directories;
 \end{verbatim}
 \end{itemize}
 
-\subsection{{\tt MEMORY} Directive}
+\subsection{{\tt MEMORY} --- Control of memory limits}
 
 This is a start-up directive that allows the user to specify the
 amount of memory that NWChem can use for the job.  If this directive
@@ -365,7 +352,7 @@ Sun             & 48 \\
 \end{tabular}
 \end{table}
 
-\subsection{{\tt ECHO} Directive}
+\subsection{{\tt ECHO} --- Print input file}
 \label{sec:echo}
 
 This start-up directive is provided as a convenient means to include a
@@ -380,7 +367,7 @@ keywords, arguments, or options, and consists of the single line,
 The \verb+ECHO+ directive is processed only
 once, by Process 0 when the input file is read.
 
-\subsection{{\tt TITLE} Directive}
+\subsection{{\tt TITLE} --- Specify job title}
 
 This top-level directive allows the user to identify a job or series of 
 jobs that use a
@@ -411,7 +398,7 @@ Alternatively, since a semicolon can be used to denote the end an input line
 The title is stored in the database and will be used in all subsequent
 tasks/jobs until redefined in the input.
 
-\subsection{{\tt PRINT} and {\tt NOPRINT} Directives}
+\subsection{{\tt PRINT} and {\tt NOPRINT} --- Print control}
 \label{sec:printcontrol}
 
 The \verb+PRINT+ and \verb+NOPRINT+ directives allow the user to
@@ -497,7 +484,7 @@ of its calling layer.  (Users should send their preferences for these
 defaults via email to \verb+nwchem-support@emsl+, for consideration in
 future releases of the code.)
 
-\subsection{{\tt SET} Directive}
+\subsection{{\tt SET} --- Enter data in the RTDB}
 \label{sec:set}
 
 This top-level directive allows the user to enter data directly into the
@@ -568,7 +555,7 @@ Additional examples of applications of this
 directive can be found in the sample input files (see Section 
 \ref{sec:realsample}), including examples of its usage with basis sets.
 
-\subsection{{\tt UNSET} Directive}
+\subsection{{\tt UNSET} --- Delete data in the RTDB}
 \label{sec:unset}
 
 This directive gives the user a way to delete simple entries from the
@@ -602,7 +589,7 @@ deleting all database entries beginning with \verb+scf:+, using the directive,
   unset scf:*
 \end{verbatim}
 
-\subsection{{\tt STOP} Directive}
+\subsection{{\tt STOP} --- Terminate processing}
 
 This top-level directive provides a convenient way of verifying 
 an input file without actually running the calculation.  It consists 
@@ -615,7 +602,7 @@ of the single line,
 As soon as this directive is encountered, all processing ceases and
 the calculation terminates with an error condition.
 
-\subsection{{\tt TASK} Directive}
+\subsection{{\tt TASK} --- Perform a task}
 \label{sec:task}
 
 The \verb+TASK+ directive is used to tell the code what to do with the
@@ -811,7 +798,7 @@ executing all but the simplest commands, it is usually much easier to
 put the shell script in a file and execute the file from within
 NWChem.
 
-\subsection{{\tt CHARGE} Directive}
+\subsection{{\tt CHARGE} --- Total system charge}
 \label{sec:charge}
 
 This is an optional top-level directive that allows the user to specify

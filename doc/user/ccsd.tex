@@ -27,7 +27,7 @@ regardless of the actual level of theory desired (specified with the
 \verb+TASK+ directive).  The following directives are recognized
 within the \verb+CCSD+ group.
 
-\subsubsection{MAXITER}
+\subsubsection{{\tt MAXITER} --- Maximum number of iterations}
 
 The maximum number of iterations is set to 20 by default.  This should
 be quite enough for most calculations, although particularly
@@ -37,7 +37,7 @@ troublesome cases may require an increase.
   MAXITER  <integer maxiter default 20>
 \end{verbatim}
 
-\subsubsection{THRESH}
+\subsubsection{{\tt THRESH} --- Convergence threshold}
 
 Controls the convergence threshold for the iterative part of the
 calculation.  Both the RMS error in the amplitudes {\em and} the
@@ -47,7 +47,7 @@ change in energy must be less than $10^{-{\tt thresh}}$.
   THRESH  <integer thresh default 6>
 \end{verbatim}
 
-\subsubsection{DIISBAS}
+\subsubsection{{\tt DIISBAS} --- DIIS subspace dimension}
 
 Specifies the maximum size of the subspace used in DIIS convergence
 acceleration.  Note that DIIS requires the amplitudes and errors be
@@ -63,7 +63,7 @@ storage are being considered, but have not yet been implemented.}
   DIISBAS  <integer diisbas default 5>
 \end{verbatim}
 
-\subsubsection{IPRT}
+\subsubsection{{\tt IPRT} --- Debug printing}
 
 This directive controls the level of output from the code, mostly to
 facilitate debugging and the like.  The larger the value, the more

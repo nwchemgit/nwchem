@@ -125,6 +125,7 @@ calculation.  It is thus advisable when specifying \verb+ADAPT OFF+ to
 also specify \verb+SYM OFF+ (Section \ref{sec:sym}).
 
 \subsection{{\tt TOL2E} --- integral screening threshold}
+\label{sec:tol2e}
 
 \begin{verbatim}
   TOL2E <real tol2e default 0.01*$thresh$>
@@ -391,6 +392,7 @@ The following sets the maximum no. of SCF iterations to 50
 \end{verbatim}
 
 \subsection{{\tt RI} --- resolution of the identity approximation}
+\label{sec:riscf}
 
 The resolution of the identity (RI) approximation (using the
 V-approximation of Alml\"{o}f and Vahtras) is automatically invoked if
@@ -669,7 +671,7 @@ reliably with the default options for a wide variety of molecules.  In
 addition it should be guaranteed to converge sufficient iterations for
 any system.  Please report significant convergence problems to
 \verb+nwchem+-\verb+support@+\-\verb+emsl.pnl.gov+, including the
-input file. If we do not know about problems we cannot fix them.
+input file. 
 
 % An understanding of the output of the SCF program and the options
 % controlling convergence requires some knowledge of the convergence

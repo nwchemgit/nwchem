@@ -11,7 +11,7 @@ on a specified set of grid points using the molecular orbitals
 from SCF or DFT calculation. An input file to the {\em Insight}
 program is then generated. Different sub-directives are described below.
 
-\subsection{Title}
+\subsection{{\tt TITLE} --- Title for {\em Insight}}
 
 \begin{verbatim}
   TITLE
@@ -21,9 +21,7 @@ program is then generated. Different sub-directives are described below.
 This sub-directive specifies a title line for the generated
 input to the {\em Insight} program. Only one line is allowed.
 
-
-
-\subsection{LimitXYZ}
+\subsection{{\tt LIMITXYZ} --- Plot limits}
 
 \begin{verbatim}
   LIMITXYZ [units <string Units default angstrom>]
@@ -39,7 +37,7 @@ along each direction. The known names for \verb+Units+ are
 
 
 
-\subsection{Spin}
+\subsection{{\tt SPIN} --- Density to be plotted}
 
 \begin{verbatim}
   SPIN <string Spin default total>
@@ -52,7 +50,7 @@ $\alpha$ and $\beta$ electron densities.
 
 
 
-\subsection{Output}
+\subsection{{\tt OUTPUT} --- Filename for {\em Insight}}
 
 \begin{verbatim}
   OUTPUT <string File_Name default dplot>
@@ -64,7 +62,7 @@ standard NWCHEM output (LuOut).
 
 
 
-\subsection{Vectors}
+\subsection{{\tt VECTORS} --- MO vector file name}
 
 \begin{verbatim}
   VECTORS <string File_Name default movecs> [<string File_Name2>]
@@ -77,7 +75,7 @@ files have to match.
 
 
 
-\subsection{Where}
+\subsection{{\tt WHERE} --- Density evaluation}
 
 \begin{verbatim}
   WHERE <string Where default grid>
@@ -92,8 +90,7 @@ the position of the nuclei and written to the NWChem output) and
 \verb+g++\verb+n+ (both).
 
 
-
-\subsection{Orbitals}
+\subsection{{\tt ORBITAL} --- Orbital sub-space}
 
 \begin{verbatim}
   ORBITALS [<string Option default density>]
