@@ -1,5 +1,5 @@
 /*
- $Id: util_file_copy.c,v 1.7 2000-09-19 21:49:36 bjohnson Exp $
+ $Id: util_file_copy.c,v 1.8 2000-12-02 01:39:52 edo Exp $
  */
 
 #include <stdio.h>
@@ -8,6 +8,7 @@
 #define FATR
 #endif
 #include "global.h"
+#include "typesf2c.h"
 
 #if defined(CRAY) || defined(USE_FCD)
 int fortchar_to_string(_fcd, int, char *, const int);
@@ -81,7 +82,7 @@ void util_file_parallel_copy(const char *input, const char *output)
 
     while (1) {
       char buf[8192];
-      int nread, msgnread=44,msgbuf=45,msglen=sizeof(int),node0=0;
+      Integer nread, msgnread=44,msgbuf=45,msglen=sizeof(int),node0=0;
       if (ga_nodeid_() == 0)
 	nread = fread(buf, 1, sizeof(buf), fin);
       ga_brdcst_(&msgnread, &nread, &msglen, &node0);
