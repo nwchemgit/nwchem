@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.27 1997-02-17 20:52:39 d3g681 Exp $
+#$Id: GNUmakefile,v 1.28 1997-03-04 17:15:11 d3g681 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -11,6 +11,7 @@ OBJ_OPTIMIZE = sym_sh_pair.o sym_sym.o \
                sym_mo_ap_op.o sym_bas_op.o
 OBJ =     dosymops.o \
           gensym.o \
+          sym_vec_sym.o \
           ludcmp.o \
           mprint.o \
           opprint.o \
