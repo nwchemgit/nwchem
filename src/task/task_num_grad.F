@@ -5,7 +5,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.31 2003-10-17 22:58:26 carlfahl Exp $
+* $Id: task_num_grad.F,v 1.32 2004-04-29 21:31:53 edo Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -424,6 +424,9 @@ c
 c
       integer i, natoms3
       logical status
+      double precision scale
+      integer sym_number_ops,nops
+      external sym_number_ops
       logical task_restore_state
       external task_restore_state
 c
@@ -434,6 +437,18 @@ c
          ncoords(i) = coords(i) + delta*vec(i)
       enddo
       call sym_grad_symmetrize(geom, ncoords) ! Paranoid enforcement
+c
+c     Apply system and symmetry info to the list of
+c     unique centers build mapping tables set up coord lists
+c     
+      if (.not. geom_get_user_scale(geom,scale))
+     $     call errquit('tnumgr: failed getting user scale',0,
+     &       GEOM_ERR)
+c
+      nops = sym_number_ops(geom)
+      call sym_nwc(geom,rtdb,natoms3,.false.,scale,1d-2,nops,
+     &     .false.)
+
 c
       if (.not. geom_cart_set(geom, natoms, tags, ncoords, q))
      $     call errquit('num_grad: bad geom',0, GEOM_ERR)
