@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.107 2001-12-20 02:57:11 bert Exp $
+c $Id: basis.F,v 1.108 2002-01-11 00:26:16 bert Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -171,6 +171,10 @@ c
      $      infbs_tags(1,1,basis), 1)
       call ifill(ndbs_ucont*nucont_bsmx, 0,
      $      infbs_cont(1,1,basis), 1)
+      do ii = 1,ntags_bsmx
+         bs_stdname(ii,basis) = ' '
+         bs_tags(ii,basis) = ' '
+      enddo
       do ii = 1,nbasis_assoc_max
         name_assoc(ii,basis) = ' '
       enddo
@@ -1230,7 +1234,7 @@ c:: local
       character*256 tmp
       logical rtdb_status
       integer h_tmp, k_tmp, h_new, k_new
-      integer iunique, uniquecent, istar 
+      integer iunique, uniquecent, istar , ntag_read
       integer istart, iexcpt, ilen, junique
       integer array(nw_max_unq_tags)
       logical oIsexcept
@@ -1268,15 +1272,21 @@ c
       tmp = 'basis:'//bs_trans(basis)(1:len_bs_trans(basis))
       lentmp = inp_strlen(tmp) + 1
 c
-      tmp(lentmp:) = ' ' 
-      tmp(lentmp:) = ':bs_tags'
-      rtdb_status = rtdb_status .and.
+      tmp(lentmp:) = ' '
+      tmp(lentmp:) = ':bs_nr_tags'
+      rtdb_status = rtdb_status .and. 
+     &              rtdb_get(rtdb,tmp,mt_int,1,ntag_read)
+      if (ntag_read .gt. 0) then
+         tmp(lentmp:) = ' ' 
+         tmp(lentmp:) = ':bs_tags'
+         rtdb_status = rtdb_status .and.
      &       rtdb_cget(rtdb, tmp, ntags_bsmx, bs_tags(1,basis))
 c
-      tmp(lentmp:) = ' ' 
-      tmp(lentmp:) = ':bs_stdname'
-      rtdb_status = rtdb_status .and.
+         tmp(lentmp:) = ' ' 
+         tmp(lentmp:) = ':bs_stdname'
+         rtdb_status = rtdb_status .and.
      &       rtdb_cget(rtdb, tmp, ntags_bsmx, bs_stdname(1,basis))
+      endif
 c
       tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':assoc ecp name'
@@ -2162,12 +2172,19 @@ c
       status = .true.
       status = status.and.bas_rtdb_add(rtdb,name)
       tmp(lentmp:) = ' ' 
-      tmp(lentmp:) = ':bs_tags'
-      status = status .and. rtdb_cput(rtdb,tmp,ntagsin,tagsin)
+      tmp(lentmp:) = ':bs_nr_tags'
+      status = status .and. rtdb_put(rtdb,tmp,mt_int,1,0)
+      if (ntagsin .gt. 0) then
+         tmp(lentmp:) = ' ' 
+         tmp(lentmp:) = ':bs_tags'
+         status = status .and. rtdb_cput(rtdb,
+     &            tmp,ntagsin,tagsin)
 
-      tmp(lentmp:) = ' ' 
-      tmp(lentmp:) = ':bs_stdname'
-      status = status .and. rtdb_cput(rtdb,tmp,ntagsin,stdnamein)
+         tmp(lentmp:) = ' ' 
+         tmp(lentmp:) = ':bs_stdname'
+         status = status .and. rtdb_cput(rtdb,
+     &            tmp,ntagsin,stdnamein)
+      endif
       
       tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':assoc ecp name'
