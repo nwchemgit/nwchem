@@ -1,6 +1,7 @@
-#$Id: GNUmakefile,v 1.44 2001-08-28 00:54:37 edo Exp $
+#$Id: GNUmakefile,v 1.45 2002-02-15 02:41:39 edo Exp $
 
  LIBRARY = libnwcutil.a
+
 
   OBJ_OPTIMIZE = geom_hnd.o
 
@@ -10,8 +11,10 @@
  HEADERS = geom.fh geomP.fh
 
  USES_BLAS = geom.F geom_input.F geom_print_ecce.F geom_hnd.F
-
 include ../config/makefile.h
 include ../config/makelib.h
 
 
+  ifeq ($(FC),ifc)
+	    FOPTIONS += -save
+  endif
