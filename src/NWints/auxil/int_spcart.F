@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.5 1996-02-14 22:24:54 d3e129 Exp $
+c $Id: int_spcart.F,v 1.6 1996-03-11 18:17:40 d3e129 Exp $
 * 
 * initialization of spherical to cartesean tranformation array
 *... stored on heap.  
@@ -1325,4 +1325,305 @@ c
      &                       bin11*dt11_4
 00200   continue
 00100 continue
+      end
+      subroutine spcart_tran1e(
+     &    buf, scr,
+     &    nbf_xr,nbf_xc,type_r,
+     &    nbf_sr,nbf_sc,type_c,
+     &    print)
+      implicit none
+#include "stdio.fh"
+c
+c routine that transforms a 1e cartesian block buf_cart(nbf_xr,nbf_xc) to 
+c    a spherical block buf_sph(nbf_sr,nbf_sc) 
+c  
+c  x --> implies cartesian
+c  s --> implies spherical
+c  r --> implies row
+c  c --> implies column
+c 
+c  remember that a Ov block for ish and jsh is 
+c      from the integral api Ov(jbf_lo:jbf_hi,ibf_lo,ibf_hi)
+c      
+      integer nbf_xr, nbf_xc  ! [input] size of cartesian block
+      integer nbf_sr, nbf_sc  ! [input] size of spherical block
+      integer type_r, type_c  ! [input] angular momentem for r and c
+      double precision buf(*) ! [input/output] cartesian block on input
+*.............................!   and spherical block on output      
+      double precision scr(*) ! [scratch] use to hold half transformed block
+      logical print           ! [input} print integrals at each stage of the
+*.............................!   transformation (cart/half/spherical)
+c
+      if (type_r.lt.2.and.type_c.lt.2) then
+c.................................. neither c or r need to be transformed 
+c                                   (X,Y) X is s, p, or l and Y is s, p, or l
+        if (print) then
+          write(luout,*)
+     &        ' cartesian matrix and spherical matrix the same '
+          call output(buf,1,nbf_xr,1,nbf_xc,nbf_xr,nbf_xc,1)
+        endif
+c
+      elseif (type_r.lt.2.and.type_c.ge.2) then
+c.................................. c needs to be transformed
+* print cartesian matrix  
+* buf is buf(spherical,cartesian)
+        if (print) then
+          write(luout,*)' cartesian matrix '
+          call output(buf,1,nbf_xr,1,nbf_xc,nbf_xr,nbf_xc,1)
+        endif
+* scr is buf(spherical,cartesian) ! copy it
+        call dcopy((nbf_xr*nbf_xc),buf,1,scr,1)
+        if (nbf_xr.ne.nbf_sr) call errquit
+     &      ('spcart_tran1e: nbf_xr.ne.nbf_sr  (xr-sr) =',
+     &      (nbf_xr-nbf_sr))
+        call spcart_a_s(scr,buf,nbf_sr,type_c,.false.)
+        if (print) then
+          write(luout,*)' spherical matrix '
+          call output(buf,1,nbf_sr,1,nbf_sc,nbf_sr,nbf_sc,1)
+        endif
+      elseif (type_r.ge.2.and.type_c.lt.2) then
+c.................................. r needs to be transformed
+* print cartesian matrix  
+* buf is buf(cartesian,cartesian)
+        if (print) then
+          write(luout,*)' cartesian matrix '
+          call output(buf,1,nbf_xr,1,nbf_xc,nbf_xr,nbf_xc,1)
+        endif
+* scr is buf(spherical,cartesian) ! copy it
+        call dcopy((nbf_xr*nbf_xc),buf,1,scr,1)
+        if (nbf_xc.ne.nbf_sc) call errquit
+     &      ('spcart_tran1e: nbf_xc.ne.nbf_sc  (xc-sc) =',
+     &      (nbf_xc-nbf_sc))
+        call spcart_s_a(scr,buf,nbf_sc,type_r,.false.)
+        if (print) then
+          write(luout,*)' spherical matrix '
+          call output(buf,1,nbf_sr,1,nbf_sc,nbf_sr,nbf_sc,1)
+        endif
+      elseif (type_r.ge.2.and.type_c.ge.2) then
+c.................................. both r and c need to be transformed
+* print cartesian matrix  
+* buf is buf(cartesian,cartesian)
+        if (print) then
+          write(luout,*)' cartesian matrix '
+          call output(buf,1,nbf_xr,1,nbf_xc,nbf_xr,nbf_xc,1)
+        endif
+*
+*... buf(xr,xc) -> scr(xr,sc) : scr is half transformed matrix
+        call spcart_a_s(buf,scr,nbf_xr,type_c,.false.)
+* print half transformed matrix
+        if (print) then
+          write(luout,*)' half cartesian half spherical matrix '
+          call output(scr,1,nbf_xr,1,nbf_sc,nbf_xr,nbf_sc,1)
+        endif
+*
+*... scr(xr,sc) -> buf(sr,sc)
+        call spcart_s_a(scr,buf,nbf_sc,type_r,.false.)
+* print spherical block
+        if (print) then
+          write(luout,*)' half cartesian half spherical matrix '
+          call output(buf,1,nbf_sr,1,nbf_sc,nbf_sr,nbf_sc,1)
+        endif
+      else
+        write(luout,*) ' case not possible '
+        call errquit('spcart_tran1e: should never get here ?? ',911)
+      endif
+c
+      end
+      subroutine spcart_bra2etran(
+     &    buf, scr,
+     &    nbf_xj,nbf_xi,
+     &    nbf_sj,nbf_si,
+     &    type_j,type_i,
+     &    ndim_ket,
+     &    print)
+      implicit none
+#include "stdio.fh"
+c
+c routine that transforms a 2e cartesian block buf_cart(nbf_xr,nbf_xc,ndim_ket) to 
+c    a spherical block buf_sph(nbf_sr,nbf_sc,ndim_ket) 
+c  
+c  x --> implies cartesian
+c  s --> implies spherical
+c 
+c  remember that a 2e block for ish jsh for any k/l sh is 
+c      from the integral api ERI(ndim_ket,jbf_lo:jbf_hi,ibf_lo,ibf_hi)
+c
+c row-j col-i
+c
+c  blockin(ndim_ket,jxR,ixR)*trans = blockout(ndim_ket,jsR,isR)
+c      
+c
+      integer nbf_xj, nbf_xi  ! [input] size of cartesian block
+      integer nbf_sj, nbf_si  ! [input] size of spherical block
+      integer type_j, type_i  ! [input] angular momentem for j and i
+      integer ndim_ket
+      double precision buf(*) ! [input/output] cartesian block on input
+*.............................!   and spherical block on output      
+      double precision scr(*) ! [scratch] use to hold half transformed block
+      logical print           ! [input} print integrals at each stage of the
+*.............................!   transformation (cart/half/spherical)
+c
+      if (type_j.lt.2.and.type_i.lt.2) then
+c.................................. neither i or j need to be transformed 
+c                                   (X,Y) X is s, p, or l and Y is s, p, or l
+        if (print) then
+          write(luout,*)
+     &        ' cartesian matrix and spherical matrix the same '
+          count = 1
+          do iket = 1,ndim_ket
+            do jr = 1,nbf_xj
+              do ir = 1,nbf_xi
+                write(luout,10000)iket,jr,ir,count,buf(count)
+                count = count + 1
+              enddo
+            enddo
+          enddo
+        endif
+*.......make this pretty later
+*rak:c  buf has integrals
+*rak:c  scr has slices of buf
+*rak:        if (print) then
+*rak:          write(luout,*)
+*rak:     &        ' cartesian matrix and spherical matrix the same '
+*rak:          do iket = 0,(ndim_ket-1)
+*rak:            scr_count = 0
+*rak:            do cc = 1,nbf_xi 
+*rak:              do rr = 1,nbf_xj
+*rak:                offset = ndim_ket*scr_count + 1
+*rak:                scr_count = scr_count + 1
+*rak:                scr(scr_count) = buf(offset)
+*rak:              enddo
+*rak:            enddo
+*rak:          enddo
+*rak:          call output(scr,1,nbf_xj,1,nbf_xi,nbf_xj,nbf_xi,1)
+*rak:        endif
+      elseif (type_j.lt.2.and.type_i.ge.2) then
+*...................ERI(ndim_ket,jbf_lo:jbf_hi,ibf_lo,ibf_hi)
+c.................................. i needs to be transformed
+* print cartesian matrix  
+* buf is buf(ndim_ket,spherical,cartesian)
+        if (print) then
+          write(luout,*)' (ket:spherical:cartesian) matrix '
+          count = 1
+          do iket = 1,ndim_ket
+            do jr = 1,nbf_sj
+              do ir = 1,nbf_xi
+                write(luout,10000)iket,jr,ir,count,buf(count)
+                count = count + 1
+              enddo
+            enddo
+          enddo
+        endif
+* scr is buf(ndim_ket,j_spherical,i_cartesian) ! copy it
+*...................ERI(ndim_ket,jbf_lo:jbf_hi,ibf_lo,ibf_hi)
+        call dcopy((ndim_ket*nbf_sj*nbf_xi),buf,1,scr,1)
+        if (nbf_xj.ne.nbf_sj) call errquit
+     &      ('spcart_bra2etran: nbf_xj.ne.nbf_sj  (xj-sj) =',
+     &      (nbf_xj-nbf_sj))
+        call spcart_a_s(scr,buf,(ndim_ket*nbf_sj),type_i,.false.)
+        if (print) then
+          write(luout,*)' (ket:spherical:shperical) matrix '
+          count = 1
+          do iket = 1,ndim_ket
+            do jr = 1,nbf_sj
+              do ir = 1,nbf_si
+                write(luout,10000)iket,jr,ir,count,buf(count)
+                count = count + 1
+              enddo
+            enddo
+          enddo
+        endif
+      elseif (type_j.ge.2.and.type_i.lt.2) then
+*...................ERI(ndim_ket,jbf_lo:jbf_hi,ibf_lo,ibf_hi)
+c.................................. j needs to be transformed
+* print cartesian matrix  
+* buf is buf(ndim_ket,j_cartesian,i_spherical)
+        if (print) then
+          write(luout,*)' (ket:cartesian:spherical) matrix '
+          count = 1
+          do iket = 1,ndim_ket
+            do jr = 1,nbf_xj
+              do ir = 1,nbf_si
+                write(luout,10000)iket,jr,ir,count,buf(count)
+                count = count + 1
+              enddo
+            enddo
+          enddo
+        endif
+* buf is buf(ndim_ket,j_cartesian,i_spherical)
+* scr is buf(ndim_ket,j_cartesian,i_spherical) ! copy it
+        call dcopy((ndim_ket*nbf_xj*nbf_si),buf,1,scr,1)
+        if (nbf_xi.ne.nbf_si) call errquit
+     &      ('spcart_bra2etran: nbf_xc.ne.nbf_sc  (xi-si) =',
+     &      (nbf_xi-nbf_si))
+        call spcart_a_s_b(scr,buf,ndim_ket,nbf_si,type_j,.false.)
+        if (print) then
+          write(luout,*)' (ket:spherical:spherical) matrix '
+          count = 1
+          do iket = 1,ndim_ket
+            do jr = 1,nbf_sj
+              do ir = 1,nbf_si
+                write(luout,10000)iket,jr,ir,count,buf(count)
+                count = count + 1
+              enddo
+            enddo
+          enddo
+        endif
+      elseif (type_j.ge.2.and.type_i.ge.2) then
+*...................ERI(ndim_ket,jbf_lo:jbf_hi,ibf_lo,ibf_hi)
+c........................ both j and i need to be transformed
+* print cartesian matrix  
+* buf is buf(ndim_ket,j_cartesian,i_cartesian)
+        if (print) then
+          write(luout,*)' (ket:cartesian:cartesian) matrix '
+          count = 1
+          do iket = 1,ndim_ket
+            do jr = 1,nbf_xj
+              do ir = 1,nbf_xi
+                write(luout,10000)iket,jr,ir,count,buf(count)
+                count = count + 1
+              enddo
+            enddo
+          enddo
+        endif
+*
+*... buf(ndim_ket,xj,xi) -> scr(xj,si) : scr is half transformed matrix
+        call spcart_a_s(buf,scr,(ndim_ket*nbf_xj),type_i,.false.)
+* print half transformed matrix
+        if (print) then
+          write(luout,*)' (ket:cartesian:spherical) matrix '
+          count = 1
+          do iket = 1,ndim_ket
+            do jr = 1,nbf_xj
+              do ir = 1,nbf_si
+                write(luout,10000)iket,jr,ir,count,scr(count)
+                count = count + 1
+              enddo
+            enddo
+          enddo
+        endif
+*
+*... scr(xj,si) -> buf(sj,si)
+        call spcart_a_s_b(scr,buf,ndim_ket,nbf_si,type_j,.false.)
+* print spherical block
+        if (print) then
+          write(luout,*)' (ket:spherical:spherical) matrix '
+          count = 1
+          do iket = 1,ndim_ket
+            do jr = 1,nbf_sj
+              do ir = 1,nbf_si
+                write(luout,10000)iket,jr,ir,count,buf(count)
+                count = count + 1
+              enddo
+            enddo
+          enddo
+        endif
+c
+      else
+        write(luout,*) ' case not possible '
+        call errquit('spcart_bra2etran: should never get here ?? ',911)
+      endif
+c
+10000 format('<ket=',i7,'|j=',i6,'|i=',i6,':count=',i10,
+     &    '> =',1pdf20.10)
       end

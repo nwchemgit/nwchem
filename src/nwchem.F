@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.69 1996-03-07 02:25:39 d3e129 Exp $
+c     $Id: nwchem.F,v 1.70 1996-03-11 18:17:28 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -277,8 +277,8 @@ c
       character*255 task_name
       integer ntasks, ind
       logical status 
-      logical scf
-      external scf
+      logical scf, task_check_sum
+      external scf, task_check_sum
       parameter (ntasks = 25)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
@@ -372,7 +372,7 @@ c
 c     
 c     integral check sum
 c     
- 100     call task_check_sum(rtdb)
+ 100     status = task_check_sum(rtdb)
          goto 1000
 c     
 c     dft

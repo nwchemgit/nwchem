@@ -1,9 +1,10 @@
-      subroutine task_check_sum(rtdb)
-C$Id: do_chk_sum.F,v 1.3 1996-01-05 02:00:11 d3e129 Exp $
+      logical function task_check_sum(rtdb)
+C$Id: do_chk_sum.F,v 1.4 1996-03-11 18:17:36 d3e129 Exp $
       implicit none
       integer rtdb
 c
       call do_int_chk_sum(rtdb,'geometry','ao basis',1.0d-10)
+      task_check_sum = .true.
       end
       subroutine do_int_chk_sum(rtdb,geom_name, basis_name, tol2e)
       implicit none
