@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.29 2003-02-15 00:29:21 marat Exp $
+* $Id: paw_sd.F,v 1.30 2003-02-16 21:42:11 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -209,7 +209,9 @@
 
 *     **** allocate paw data structure and read in paw basis into it ****
       write(*,*) "generating PAW basis - debug"
+      value = MA_set_auto_verify(.true.)
       call init_paw_basis()
+      call init_paw_density()
       call init_paw_kin_matrix()
       call init_paw_ion_matrix()
       call init_paw_vloc_matrix()
@@ -280,7 +282,7 @@
 
       !**** intialize overlap coefficient data structure ***
       call phafac()
-      call paw_ovlp_init(ne)
+      call paw_ovlp_init(ispin,ne)
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
       call paw_comp_charge_update()
