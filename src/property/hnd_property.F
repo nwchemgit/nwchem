@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.7 1998-04-21 21:43:51 mdupuis Exp $
+* $Id: hnd_property.F,v 1.8 1998-04-23 19:13:43 mdupuis Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -20,8 +20,6 @@ c
 c
       logical  int_normalize
       external int_normalize
-      logical  bas_is_spherical
-      external bas_is_spherical
 
       integer rtdb              ! [input] database handle
       integer geom, basis       ! handles
