@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-12-13 03:49:54 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2003-04-07 23:23:51 windus Exp $
 #
 
  OBJ_OPTIMIZE = \
-            ion.o
+            ion_ion.o
 
 
 
