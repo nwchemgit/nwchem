@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.53 1999-12-09 23:54:26 bert Exp $
+c $Id: int_init.F,v 1.54 1999-12-10 01:47:21 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -22,6 +22,7 @@ c:tex-\end{verbatim}
 #include "nwc_const.fh"
 #include "int_nbf.fh"
 #include "util.fh"
+#include "rel_consts.fh"
 c
 c This routine is a wrapper around the original int_init which is now
 c called int_init_org. The reason for this extension is related to the
@@ -85,10 +86,12 @@ c
 00004    call bas_create_uncont(rtdb,bases(ibas),'auto D-K basis',
      $      dk_fitbas)
 c
-c        Set possibily an alternative speed of light
+c        Set possibily an alternative speed of light, otherwise take
+c        constant from Ken Dyall's list of constants.
 c
+         call rel_init_con
          if (.not. rtdb_get(rtdb,'doug_kroll:clight',MT_DBL,1,
-     $      dk_clight)) dk_clight = 137.0359895d0
+     $      dk_clight)) dk_clight = cau
 c
 c        Add fitting basis set to list of loaded basis sets for int_init
 c
