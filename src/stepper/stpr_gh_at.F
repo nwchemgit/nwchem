@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.7 1996-08-29 17:23:05 d3g681 Exp $
+*     $Id: stpr_gh_at.F,v 1.8 1996-11-01 00:02:14 vg038 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -15,6 +15,7 @@
 #include "msgids.fh"
 #include "inp.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "cstprfiles.fh"
 c::   functions
       logical stpr_check_genat_restart
@@ -97,9 +98,13 @@ c     set no xyz options
      $     no_y = .false.
       if (.not.rtdb_get(rtdb,'vib:no_z',mt_log,1,no_z))
      $     no_z = .false.
-      if (no_x) write(luout,*)' stpr_gen_hess_at: no X steps taken '
-      if (no_y) write(luout,*)' stpr_gen_hess_at: no Y steps taken '
-      if (no_z) write(luout,*)' stpr_gen_hess_at: no Z steps taken '
+      if ( whoiam .eq. master ) then
+        if (util_print('directions', print_medium)) then
+          if (no_x) write(luout,*)' stpr_gen_hess_at: no X steps taken'
+          if (no_y) write(luout,*)' stpr_gen_hess_at: no Y steps taken'
+          if (no_z) write(luout,*)' stpr_gen_hess_at: no Z steps taken'
+        endif
+      endif
 c     all nodes work here 
       restart = .false.
       restart = stpr_check_genat_restart(iatom_start,ixyz_start)
@@ -171,10 +176,12 @@ c
       else
          xyz_pass = .false.
          if (whoiam.eq.master) then
-            write(luout,*)' **** gen_hess restart ****'
-            write(luout,*)' iatom_start = ',iatom_start
-            write(luout,*)' ixyz_start  = ',ixyz_start
-            call util_flush(luout)
+           if (util_print('restart', print_low)) then
+             write(luout,*)' **** gen_hess restart ****'
+             write(luout,*)' iatom_start = ',iatom_start
+             write(luout,*)' ixyz_start  = ',ixyz_start
+             call util_flush(luout)
+           endif
          endif
       endif
       do 00100 iatom = iatom_start,nat
@@ -199,8 +206,11 @@ c
             if (ixyz.eq.3 .and. no_z) goto 00199
             ignore_status = rtdb_parallel(.false.)
             if(whoiam.eq.master) then
-               write(luout,*)' iatom = ',iatom, ' ixyz = ',
-     $              ixyz,' plus '
+              if (util_print('directions', print_high)) then
+                write(luout,*)' iatom = ',iatom, ' ixyz = ',
+     $               ixyz,' plus '
+                call util_flush(luout)
+              endif
 c     
 c     master node only
 c     
@@ -219,7 +229,7 @@ c
 c     
 c     copy modified geometry and store on rtdb
 c     
-               write(tmpname,'(i3,1x,i1,1x,a5)')iatom,ixyz,'plus '
+               write(tmpname,'(i3,1x,i1,1x,a5)')iatom,ixyz,'plus'
                new_geom_name = 'reference '//tmpname(1:11)
                if (.not.
      $              geom_rtdb_store(rtdb,geom,new_geom_name))
@@ -256,8 +266,12 @@ c
      $              rank_hess,dbl_mb(k_gradp)))
      $              call errquit('stpr_gen_hess_at: rtdb_get failed',21)
 c     
-               write(luout,*)' iatom = ',iatom, ' ixyz = ',ixyz,' minus'
-c     
+               if (util_print('directions', print_medium)) then
+                 write(luout,*)
+     $                ' iatom = ',iatom, ' ixyz = ',ixyz,' minus'
+                 call util_flush(luout)
+               endif
+c
 c     master node only
 c     
                if (.not.geom_create(geom,'reference')) call errquit
@@ -340,12 +354,16 @@ c     assumes zeroed hessian prior to fd computations
 c     
             call stpr_gen_set_diag(dbl_mb(k_hess),rank_hess)  
          endif
-         write(luout,*)' finite difference hessian delta = ',delta
-         call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
-     $        rank_hess,rank_hess,1)
+         if (util_print('hessian', print_low)) then
+           write(luout,*)' finite difference hessian delta = ',delta
+           call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
+     $          rank_hess,rank_hess,1)
+         endif
          call stpr_wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,FILEHESS)
-         write(luout,*)' triangle hessian written to ',
-     $        FILEHESS(1:inp_strlen(FILEHESS))
+         if (util_print('inforamation', print_medium)) then
+           write(luout,*)' triangle hessian written to ',
+     $          FILEHESS(1:inp_strlen(FILEHESS))
+         endif
 c     
 c     set "geometry" to "geometry"
 c     
