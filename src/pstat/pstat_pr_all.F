@@ -1,5 +1,5 @@
       Subroutine PStat_Print_All
-C$Id: pstat_pr_all.F,v 1.2 2003-07-03 22:37:30 edo Exp $
+C$Id: pstat_pr_all.F,v 1.3 2003-07-04 02:44:11 d3j191 Exp $
       Implicit NONE
 C
 #include "pstatP.fh"
@@ -97,7 +97,7 @@ c
          call util_flush(stdout)
       endif
 C
- 9010 Format(A9, 1X, 3(I5,1X), 1X,1P, 3(1XG7.2E1), 1X, 4(1X,G7.2E1))
+ 9010 Format(A9, 1X, 3(I5,1X), 1X,1P, 3(1X,G7.2E1), 1X, 4(1X,G7.2E1))
  9011 Format(/1p,' The average no. of pstat calls per process was',
      $     d9.2,/' with a timing overhead of',d9.2,'s'/)
 C
