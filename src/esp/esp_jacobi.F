@@ -1,6 +1,6 @@
       subroutine esp_jacobi(a)
 c
-c $Id: esp_jacobi.F,v 1.1 1997-10-09 15:46:59 d3j191 Exp $
+c $Id: esp_jacobi.F,v 1.2 1998-08-24 19:45:52 d3j191 Exp $
 c
       implicit none
 c
@@ -56,7 +56,7 @@ c
       t=a(i,j)/h
       else
       theta=half*h/a(i,j)
-      t=1./(abs(theta)+sqrt(1.+theta**2))
+      t=one/(abs(theta)+sqrt(one+theta**2))
       if(theta.lt.zero)t=-t
       endif
       c=1./sqrt(1+t**2)

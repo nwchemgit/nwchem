@@ -22,3 +22,7 @@ Aug 08 1998     destroy geometries on rtdb before storing new
 Aug 13 1998	bug fixes, extr printout
 
 Aug 18 1998	changes in memory allocation
+
+Aug 21 1998	destroy geometry object in esp_dalloc
+
+Aug 24 1998     change 1. into one

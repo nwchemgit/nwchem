@@ -1,6 +1,6 @@
       subroutine esp_dalloc
 c
-c $Id: esp_dalloc.F,v 1.2 1997-10-07 23:41:39 d3j191 Exp $
+c $Id: esp_dalloc.F,v 1.3 1998-08-24 19:45:52 d3j191 Exp $
 c
       implicit none
 c
@@ -46,6 +46,8 @@ c
 c
       if(.not.bas_destroy(ibasis))
      + call errquit('esp: bas_destroy failed',me)
+      if(.not.geom_destroy(igeom))
+     + call errquit('esp: geom_destroy failed',me)
 c
       return
       end
