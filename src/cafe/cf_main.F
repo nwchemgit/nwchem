@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.163 2003-10-21 19:01:58 d3j191 Exp $
+c $Id: cf_main.F,v 1.164 2003-11-18 23:25:55 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1319,7 +1319,7 @@ c
       return
       end
       subroutine cf_collapse(ncoll,fcoll,nums,numw,ismol,
-     + xs,xsm,fs,xwm,xw,fw)
+     + xs,xsm,tsm,fs,xwm,xw,fw)
 c
       implicit none
 c
@@ -1329,26 +1329,45 @@ c
       integer ncoll,numw,nums
       integer ismol(msa)
       real*8 fcoll
-      real*8 xsm(msm,3),xs(msa,3),fs(msa,3)
+      real*8 xsm(msm,3),xs(msa,3),fs(msa,3),tsm(msm,3)
       real*8 xwm(mwm,3),xw(mwm,3,mwa),fw(mwm,3,mwa)
 c
       integer i,j,k,ki,kf
+      real*8 d
 c
       ki=1
       kf=3
       if(ncoll.eq.1) ki=3
       if(ncoll.eq.2) kf=2
 c
+      do 5 i=1,msm
+      if(ncoll.eq.1) then
+      d=one/sqrt(xsm(i,1)**2+xsm(i,2)**2+xsm(i,3)**2)
+      else
+      d=one/sqrt(xsm(i,1)**2+xsm(i,2)**2)
+      endif
+      tsm(i,1)=xsm(i,1)*d
+      tsm(i,2)=xsm(i,2)*d
+      tsm(i,3)=xsm(i,3)*d
+    5 continue
+c
       do 1 k=ki,kf
       do 2 i=1,nums
-      fs(i,k)=fs(i,k)-fcoll*xsm(ismol(i),k)
+      fs(i,k)=fs(i,k)-fcoll*tsm(ismol(i),k)
     2 continue
-      do 3 j=1,nwa
-      do 4 i=1,numw
-      fw(i,k,j)=fw(i,k,j)-fcoll*xwm(i,k)
-    4 continue
-    3 continue
     1 continue
+      do 4 i=1,numw
+      if(ncoll.eq.1) then
+      d=one/sqrt(xwm(i,1)**2+xwm(i,2)**2+xwm(i,3)**2)
+      else
+      d=one/sqrt(xwm(i,1)**2+xwm(i,2)**2)
+      endif
+      do 3 j=1,nwa
+      do 6 k=ki,kf
+      fw(i,k,j)=fw(i,k,j)-fcoll*d*xwm(i,k)
+    6 continue
+    3 continue
+    4 continue
 c
       return
       end

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.154 2003-10-30 23:57:55 d3j191 Exp $
+c $Id: md_start.F,v 1.155 2003-11-18 23:26:00 d3j191 Exp $
 c
       implicit none
 c
@@ -111,6 +111,8 @@ c
      + call md_abort('Failed to allocate memory for xwcr',0)
       if(.not.ma_push_get(mt_dbl,3*msm,'xsm',l_xsm,i_xsm))
      + call md_abort('Failed to allocate memory for xsm',0)
+      if(.not.ma_push_get(mt_dbl,3*msm,'tsm',l_tsm,i_tsm))
+     + call md_abort('Failed to allocate memory for tsm',0)
       if(.not.ma_push_get(mt_dbl,3*msm,'xsm',l_xsmp,i_xsmp))
      + call md_abort('Failed to allocate memory for xsmp',0)
       if(.not.ma_push_get(mt_dbl,8*msm,'gsm',l_gsm,i_gsm))
