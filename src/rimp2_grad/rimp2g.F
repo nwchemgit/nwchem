@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.8 1998-07-14 21:41:49 bernhold Exp $
+C$Id: rimp2g.F,v 1.9 1998-07-16 19:59:50 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -16,9 +16,11 @@ C
 #include "dra.fh"
 #include "inp.fh"
 C
+C EXTERNAL ROUTINES
       Logical  Int_Normalize, RIMP2_Driver_XF, RIMP2_Driver_E
       External Int_Normalize, RIMP2_Driver_XF, RIMP2_Driver_E
 C
+C CONSTANTS
       Integer MaxSpin
       Parameter (MaxSpin = 2)
 C
@@ -31,7 +33,7 @@ C
       Integer MxTBatch, MxEBatch(2)
 C
       Logical DoGrad, BraKetSame
-      Parameter (DoGrad = .TRUE., BraKetSame = .TRUE.)
+c$$$      Parameter (DoGrad = .TRUE., BraKetSame = .FALSE.)
 C
       Character*(*) Def_Int, Def_MOVec, Def_Gam3
       Parameter (Def_Int = '3ci', Def_MOVec = 'movecs',
@@ -43,16 +45,19 @@ C
       Character*(*) My_Ctx
       Parameter (My_Ctx = 'mp2')
 C
+C LOCAL VARIABLES
       Integer AOBas, FitBas, Bases(2), Geom
       Integer NAOBF, TopSpin, NFit, RefNAO, NFrzOcc, NFrzVir
       Integer ALo(MaxSpin), AHi(MaxSpin), ILo(MaxSpin), IHi(MaxSpin)
-      Integer NFrz(MaxSpin), NAct(MaxSpin), NVir(MaxSpin)
-      Integer I, Me
+      Integer NFrzO(MaxSpin), NAct(MaxSpin), NVir(MaxSpin),
+     $     NFrzV(MaxSpin)
+      Integer I, P, Me
       Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner, MinEVal
       Character*(80) FNInt, Approx, FNGam3
       Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
-      Logical Status
+      Character*255 String1
+      Logical Status, KeepFrz
       Character*(1) Mem_Opt
       Integer G_P2(MaxSpin)
 C
@@ -71,21 +76,25 @@ C
       Integer D_Int(MaxSpin, 2, 2), D_Gam(MaxSpin)
       Character*80 FN_Int(MaxSpin, 2, 2), FN_Gam(MaxSpin)
 C
+C     Range specifications for transformations
+C        1   = lower/upper limit
+C        2   = index 1/2
+C        3+ = as in D_Int, D_Gam 1+
+C
+      Integer IntRange(2, 2, MaxSpin, 2, 2), GamRange(2, 2, MaxSpin)
+C
 C     Print controls
 C
       Logical PrInfo
 C
-      Integer MaxDASiz, TotDASiz, Size, SizeB, NrDA
+      Double precision MaxDASiz, TotDASiz
+      Integer NrDA
 C
-      Data NFrz/0, 0/
-C
-C     Initialize this module
+C     ******************
+C     * Initialization *
+C     ******************
 C
       Status = .TRUE.
-C
-C     For debugging purposes
-C
-      Call IFill(MaxSpin*2*2, -99352, D_Int, 1)
 C
       Call RIMP2G_PStat_Init
       Call PStat_On( PS_Overall)
@@ -96,22 +105,28 @@ C     Get necessary info from database
 C
       Call Util_Print_Push
       Call Util_Print_RTDB_Load(RTDB, My_Ctx)
-      PrInfo = Util_Print('information', Print_Low)
+C
+      If ( .NOT. RTDB_Get(RTDB, 'mp2:rimp2 gradient', MT_Log, 1,
+     $     DoGrad) ) DoGrad = .FALSE.
+      If ( .NOT. RTDB_Get(RTDB, 'mp2:rimp2 braketsame', MT_Log, 1,
+     $     BraKetSame) ) BraKetSame = .TRUE.
+      Write (LuOut, *) 'DoGrad, BraKetSame = ', DoGrad, BraKetSame
 C
       If (.NOT. RTDB_CGet(RTDB, 'title', 1, JobTitle)) JobTitle = ' '
 C
-C     *****************
-C     * Module header *
-C     *****************
+      PrInfo = Util_Print('information', Print_Low) .AND. (Me .eq. 0)
 C
-      If ( Me .eq. 0 .AND. PrInfo) then
-C
+      If ( PrInfo) then
          Call Util_Print_Centered(LuOut,
      $      'NWChem RI-MP2 Energy/Gradient Module', 40, .TRUE.)
          If ( JobTitle .ne. ' ') Call Util_Print_Centered( LuOut,
      $      JobTitle, 40, .FALSE.)
          Write (LuOut, '(//)')
       EndIf
+C
+C     *************************************************
+C     * Start creating & initializing data structures *
+C     *************************************************
 C
       Status = Status .AND. Geom_Create( Geom, Geom_Name)
       Status = Status .AND. Geom_RTDB_Load( RTDB, Geom, Geom_Name)
@@ -144,9 +159,21 @@ C
       Status = Status .AND. Bas_Name(AOBas, AOName, AONameT)
       Status = Status .AND. Bas_Name(FitBas, FitName, FitNameT)
 C
+C     *********************
+C     * Get SCF reference *
+C     *********************
+C     For the time being, we must keep frozen orbitals if we're doing
+C     gradients, but otherwise we don't _need_ them, so we drop them.
+C
+      KeepFrz = DoGrad
       Call Corr_Mk_Ref(RTDB, My_Ctx, Geom, RefNAO, TopSpin, NMO,
      $     G_AOXF, MinChunk, MinChunk, MaxSpin, H_Occ, H_EVal,
-     $     NFrzOcc, NFrzVir, .False.)
+     $     NFrzOcc, NFrzVir, KeepFrz)
+C
+      String1 = 'RIMP2G: gradients support frozen core only, '
+     $     // 'not frozen virtuals.'
+      If ( DoGrad .AND. (NFrzVir .ne. 0) ) Call ErrQuit(
+     $     String1(:Inp_StrLen(String1)), NFrzVir)
 C
       If (RefNAO .ne. NAOBF) Call ErrQuit(
      $     'RIMP2G: Incompatible reference AO basis size', RefNAO-NAOBF)
@@ -156,28 +183,73 @@ C
       If ( .NOT. MA_Get_Index(H_EVal, I_EVal) ) Call ErrQuit(
      $     'RIMP2G: Failed to get index for eval vector', H_EVal)
 C
-C     Determine ranges to transform.
+C     Count number of frozen/active occupied/virtual.
+C
+C     Corr_Mk_Ref does not support separate freeze directives by
+C     spin, but in the rest of the code, we can easily handle that
+C     to make the transition here.
+C
+C     IMPORTANT NOTE: If .NOT. KeepFrz, then the frozen orbitals have been
+C     removed from the occupation vector (and other quantities), but
+C     NFrzOcc and NFrzVir can be non-zero because they are meant for
+C     reporting to the user.  For the time being, we can setup the new
+C     NFrzO and NFrzV arrays to the correct values for the code, while
+C     NFrzOcc and NFrzVir continue to carry the original information
+C     which can be reported to the user.
 C
       Do I = 1, TopSpin
+         If ( KeepFrz) then
+            NFrzO(i) = NFrzOcc
+            NFrzV(i) = NFrzVir
+         Else
+            NFrzO(i) = 0
+            NFrzV(i) = 0
+         EndIf
+         NAct(I) = 0
+         NVir(I) = 0
+C
+         Do P = 1, NMO(I)
+            If ( Dbl_MB( I_Occ+MxNCorBF*(I-1)+P-1 ) .ne. 0.0d0 ) then
+               NAct(I) = NAct(I) + 1
+            Else
+               NVir(I) = NVir(I) + 1
+            EndIf
+         EndDo
+C
+C        If the Occ array includes the frozen orbitals, we've overcounted
+C        for NAct and NVir.
+C
+         If ( KeepFrz ) then
+            NAct(I) = NAct(I) - NFrzO(i)
+            NVir(I) = NVir(I) - NFrzV(i)
+         EndIf
+C
          Call Occ_Ranges( NMO(I), Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
      $      ILo(I), IHi(I), ALo(I), AHi(I) )
       EndDo
+      Write (6, *) 'NFrzO, NAct, NVir, NFrzV = ',
+     $     NFrzO, NAct, NVir, NFrzV
 C
       If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
      $   'RIMP2G: Unable to free local array H_Occ', H_Occ)
 C
-C     Prepare DRA sizes and names
+C     ******************************
+C     * Prepare file names & sizes *
+C     ******************************
+C     We have enough info to do this now, though most of it doesn't
+C     get used for quite some time.  However PrInfo will print
+C     largest and total, so the user has some idea what to expect.
 C
-      Call RIMP2_Prep_DRA(TopSpin, ILo, IHi, ALo, AHi, NFit,
-     $     DoGrad, BraKetSame, NrDA, MaxDASiz, TotDASiz,
+      Call RIMP2_Prep_DRA(MaxSpin, TopSpin, NFrzO, NAct, NVir,
+     $     NFrzV, NFit, DoGrad, BraKetSame, NrDA, MaxDASiz, TotDASiz,
      $     FNInt(:Inp_StrLen(FNInt)), FNGam3(:Inp_StrLen(FNGam3)),
-     $     FN_Int, FN_Gam)
+     $     FN_Int, FN_Gam, IntRange, GamRange)
 C
 C     **********************************************
 C     * Print out calculation information for user *
 C     **********************************************
 C
-      If ( Me .eq. 0 .AND. PrInfo) then
+      If ( PrInfo) then
 C
          Write (LuOut, '(A)') 
          Call Banner(LuOut, 'RI-MP2 Calculation Information', '-',
@@ -203,7 +275,7 @@ C
      $           Approx(:Inp_StrLen(Approx)), '(symmetric)'
          Else
             Write (LuOut, 8505) 'RI integral approximation:',
-     $           Approx(:Inp_StrLen(Approx)), '(assymetric)'
+     $           Approx(:Inp_StrLen(Approx)), '(asymmetric)'
          EndIf
          Write (LuOut, 8510) 'Threshold for Schwarz screening:', Thresh
          Write (LuOut, 8510)
@@ -227,11 +299,12 @@ C
             Write (LuOut, 8505) 'Base file suffixes:', 
      $           FNInt(:Inp_StrLen(FNInt))
          EndIf
-         Write (LuOut, 8530) 'Largest file (MB):',
-     $        Dble(MaxDASiz)/Megabyte
-         Write (LuOut, 8530) 'Total disk space (MB):',
-     $        Dble(TotDASiz)/Megabyte
+         Write (LuOut, 8530) 'Largest file (MB):', MaxDASiz/Megabyte
+         Write (LuOut, 8530) 'Total disk space (MB):', TotDASiz/Megabyte
          Write (LuOut, *)
+C
+C        If user requests, this is the place to dump out a lot of
+C        additional information
 C
          if (util_print('geometry',print_high)) then
             if (.not. geom_print(geom))
@@ -290,8 +363,10 @@ C
 C
       Status = Status .AND.
      $   RIMP2_Driver_XF( RTDB, Geom, AOBas, FitBas, TopSpin,
-     $     MaxSpin, D_Int, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
-     $     MinEVal, Approx, G_AOXF, FN_Int, BraKetSame, DoGrad)
+     $     MaxSpin, D_Int, NFrzO, NAct, NVir, NFrzV, KeepFrz,
+     $     ALo, AHi, ILo, IHi, MxTBatch,
+     $     Thresh, MinEVal, Approx, G_AOXF, FN_Int, BraKetSame, DoGrad,
+     $     IntRange)
 C
 C     Finished with the AO transformation
 C
@@ -313,9 +388,6 @@ C
          ALo(I) = 1
          IHi(I) = IHi(I) - ILo(I) + 1
          ILo(I) = 1
-C
-         NAct(I) = IHi(I)
-         NVir(I) = AHi(I)
       EndDo
 C
 C     Create matrix to hold spin case breakdown of E(2)
@@ -332,7 +404,7 @@ C
       Status = .TRUE.
       Status = Status .AND.
      $   RIMP2_Driver_E( MaxSpin, BraKetSame, FN_Int, D_Int, FN_Gam,
-     $     D_Gam, TopSpin, NMO, NFrzOcc, IHi, AHi, NFit,
+     $     D_Gam, TopSpin, NMO, NFrzO, NAct, NVir, NFit,
      $     FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
      $     CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2), DoGrad, G_P2)
 C

@@ -3,7 +3,7 @@ C NAME
 C     rimp2_l2 -- Compute RI-MP2 L2 Lagrangian term
 C
 C REVISION
-C     $Id: l2.F,v 1.1 1998-07-14 16:18:35 bernhold Exp $
+C     $Id: l2.F,v 1.2 1998-07-16 19:59:49 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_L2(NFrzO, NAct, NVir, NFit, D_Int_ai,
@@ -98,7 +98,28 @@ C
 C        Assemble Int(pi,D) from Int(ai,D) and Int(ji,D) using
 C        the g_Gam GA as scratch space.
 C
-C        First, read Int(ai,D) into g_Gam 
+C        First, read Int(mi,D) into g_Int as one patch
+C
+         If ( DRA_Read_Section(.FALSE.,
+     $        G_Int, 1,                  NI*(NAct+NFrzO), 1, NFit,
+     $        D_Int_ij, (ILo-1)*(NAct+NFrzO)+1, IHi*(NAct+NFrzO),
+     $        1, NFit, ReqI) .ne. 0)
+     $        Call ErrQuit('RIMP2_L2: Error reading integrals', ILo)
+         If ( DRA_Wait(ReqI) .ne. 0) Call ErrQuit(
+     $        'RIMP2_L2: Error from DRA_Wait on integrals', 1)
+C
+C        Now copy blockwise into proper locations in g_Int.  Start
+C        at the bottom and work up to avoid overwriting.  Data layout
+C        guarantees that ga_copy_patch_dp can be used in this context.
+C
+         Do I = IHi - ILo + 1, 1, -1
+            Call GA_Copy_Patch_DP('N',
+     $           g_Int, (I-1)*(NAct+NFrzO)+1, I*(NAct+NFrzO), 1, NFit,
+     $           g_Int, (I-1)*NAll+1, (I-1)*NAll+NFrzO+NAct,  1, NFit)
+         EndDo                  ! I
+         Call GA_Sync
+C
+C        Next, read Int(ai,D) into g_Gam 
 C
          If ( DRA_Read_Section(.FALSE.,
      $        G_Gam, 1,                  NI*NVir, 1, NFit,
@@ -113,23 +134,6 @@ C
             Call GA_Copy_Patch_DP('N',
      $           g_Gam, (I-1)*NVir+1,            I*NVir, 1, NFit,
      $           g_Int, (I-1)*NAll+NFrzO+NAct+1, I*NAll, 1, NFit)
-         EndDo                  ! I
-C
-C        Next, read Int(ji,D) into g_Gam 
-C
-         If ( DRA_Read_Section(.FALSE.,
-     $        G_Gam, 1,                  NI*NAct, 1, NFit,
-     $        D_Int_ij, (ILo-1)*NAct+1, IHi*NAct, 1, NFit, ReqI) .ne. 0)
-     $        Call ErrQuit('RIMP2_L2: Error reading integrals', ILo)
-         If ( DRA_Wait(ReqI) .ne. 0) Call ErrQuit(
-     $        'RIMP2_L2: Error from DRA_Wait on integrals', 1)
-C
-C        Now copy blockwise into proper locations in g_Int
-C
-         Do I = 1, IHi - ILo + 1
-            Call GA_Copy_Patch_DP('N',
-     $           g_Gam, (I-1)*NAct+1, I*NAct,                1, NFit,
-     $           g_Int, (I-1)*NAll+1, (I-1)*NAll+NFrzO+NAct, 1, NFit)
          EndDo                  ! I
 C
 C        Now we can finally read in the actual Gamma block

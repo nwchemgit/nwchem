@@ -3,28 +3,25 @@ C NAME
 C     RIMP2_G_IJ -- Evaluate RI-MP2 gradient contributions for IJ batch
 C
 C REVISION
-C     $Id: g_ij.F,v 1.2 1998-07-13 02:38:09 bernhold Exp $
+C     $Id: g_ij.F,v 1.3 1998-07-16 19:59:48 bernhold Exp $
 C
 C SYNOPSIS
-      Subroutine RIMP2_G_IJ(TopSpin, SameSpin, ILo, IHi, NVirI,
-     $   JLo, JHi, NVirJ, OccEigI, OccEigJ, VirEigI, VirEigJ,
-     $   G_I, KeepI, G_J, KeepJ, G_T2, KeepT2, G_PairE,
-     $   NoccI, ISpin, NOccJ, JSpin, G_P2, SpinLabel, D_Gam3,
-     $     BraKetSame, D_Int)
+      Subroutine RIMP2_G_IJ(TopSpin, SameSpin, NFrzI, ILo, IHi, NVirI,
+     $     NFrzJ, JLo, JHi, NVirJ, G_I, KeepI, G_J, KeepJ, G_T2,
+     $     KeepT2, G_PairE, NoccI, ISpin, NOccJ, JSpin, G_P2,
+     $     SpinLabel, D_Gam3, BraKetSame, D_Int)
       Implicit NONE
 C
       Integer TopSpin  ![in] RHF=1 UHF=2
       Logical SameSpin ![in] I and J have same spin
+      Integer NFrzI    ![in] Nr of frozen occupied I orbitals
       Integer ILo      ![in] Lower limit of I in current batch
       Integer IHi      ![in] Upper limit of I in current batch
       Integer NVirI    ![in] Number of virtuals in I spin case
+      Integer NFrzJ    ![in] Nr of frozen occupied J orbitals
       Integer JLo      ![in] Lower limit of J in current batch
       Integer JHi      ![in] Upper limit of J in current batch
       Integer NVirJ    ![in] Number of virtuals in J spin case
-      Double Precision OccEigI(*)      ![in] Occ eigenvalues for I's spin
-      Double Precision OccEigJ(*)      ![in] Occ eigenvalues for J's spin
-      Double Precision VirEigI(NVirI)  ![in] Vir eigenvalues for I's spin
-      Double Precision VirEigJ(NVirJ)  ![in] Vir eigenvalues for I's spin
       Integer G_I      ![in]  3c2e integrals for I
       Logical KeepI    ![in]  Keep G_I around for caller
       Integer G_J      ![in]  3c2e integrals for J
@@ -89,7 +86,7 @@ c$$$      PrPrgRpt = Util_Print('progress reports', Print_Default)
 C
 C     Compute P^{(2)}_{ab} contributions
 C
-      Vir1 = NOccI+1
+      Vir1 = NFrzI+NOccI+1
       Call RIMP2_P2AB(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
      $   NVirJ, .FALSE., G_T2, G_P2(ISpin), Vir1)
 C
@@ -97,7 +94,7 @@ C     If this is the mixed spin case, we must also get the contribution
 C     to the beta density.
 C
       If ( TopSpin .eq. 2 .AND. .NOT. SameSpin) then
-         Vir1 = NOccJ+1
+         Vir1 = NFrzJ+NOccJ+1
          Call RIMP2_P2AB(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
      $      NVirJ, .TRUE., G_T2, G_P2(JSpin), Vir1)
       EndIf
@@ -106,7 +103,7 @@ c$$$     $   '       P(2)_{ab} done')
 C
 C     Compute P^{(2)}_{ij} contributions
 C
-      Occ1 = 1
+      Occ1 = NFrzI+1
       Call RIMP2_P2ij(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
      $   NVirJ, .FALSE., G_T2, G_P2(ISpin), Occ1)
 C
@@ -114,7 +111,7 @@ C     If this is the mixed spin case, we must also get the contribution
 C     to the beta density.
 C
       If ( TopSpin .eq. 2 .AND. .NOT. SameSpin) then
-         Occ1 = 1
+         Occ1 = NFrzJ+1
          Call RIMP2_P2ij(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
      $      NVirJ, .TRUE., G_T2, G_P2(JSpin), Occ1)
       EndIf
@@ -130,13 +127,14 @@ C
      $   NVirJ, G_I, G_J, G_T2, D_Gam3(ISpin), .FALSE., D_Int )
 C
 C     If this is the mixed spin case, we must also get the contribution
-C     to the beta version.
+C     to the beta version.  In case we have to read integrals, shift
+C     J range to account for frozen orbitals
 C
       If ( TopSpin .eq. 2 .AND. .NOT. SameSpin) then
 C
-         Call RIMP2_Gamma3(.FALSE., IJTri, JLo, JHi, NVirJ, ILo, IHi,
-     $        NVirI, G_J, G_I, G_T2, D_Gam3(JSpin), .NOT. BraKetSame,
-     $        D_Int)
+         Call RIMP2_Gamma3(.FALSE., IJTri, JLo, JHi, NVirJ,
+     $        NFrzI+ILo, NFrzI+IHi, NVirI, G_J, G_I, G_T2,
+     $        D_Gam3(JSpin), .NOT. BraKetSame, D_Int)
       EndIf
 c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
 c$$$     $   '       G(D,ia) intermediate done')

@@ -3,22 +3,30 @@ C NAME
 C     RIMP2_Driver_XF -- Three-center integral transformation driver for RI-MP2
 C
 C REVISION
-C     $Id: driver_xf.F,v 1.2 1998-07-13 02:38:08 bernhold Exp $
+C     $Id: driver_xf.F,v 1.3 1998-07-16 19:59:48 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_XF(RTDB, Geom, AOBas,
-     $     FitBas,  TopSpin, Maxspin1, D_Int, ALo, AHi, ILo, IHi,
+     $     FitBas,  TopSpin, MaxSpin, D_Int,
+     $     NFrzO, NAct, NVir, NFrzV, KeepFrz,
+     $     ALo, AHi, ILo, IHi, 
      $   NILimit, Neglect, MinEVal, Approx, G_C, FN_Int,
-     $     BraKetSame, DoGrad)
+     $     BraKetSame, DoGrad, IntRange)
       Implicit NONE
       Integer RTDB, Geom, AOBas, FitBas, TopSpin, NILimit
       Integer ALo(TopSpin), AHi(TopSpin), ILo(TopSpin), IHi(TopSpin)
       Double precision Neglect, MinEVal
       Character*(*) Approx
-      Integer G_C(TopSpin), MaxSpin1, D_Int(MaxSpin1, 2, 2)
-      Character*(*) FN_Int(MaxSpin1, 2, 2)
+      Integer G_C(TopSpin), MaxSpin, D_Int(MaxSpin, 2, 2)
+      Character*(*) FN_Int(MaxSpin, 2, 2)
       Logical BraKetSame
       Logical DoGrad
+      Integer NFrzO ![in]
+      Integer NAct(TopSpin) ![in]
+      Integer NVir(TopSpin) ![in]
+      Integer NFrzV(TopSpin) ![in]
+      Logical KeepFrz ![in]
+      Integer IntRange(2, 2, MaxSpin, 2, 2) ![in]
 C
 C ARGUMENTS
 C     AOBas     Handle for AO basis [IN]
@@ -42,31 +50,30 @@ C     Approx    RI approximation choice [IN]
 C     G_C       Handles for transformation matrices [IN]
 C
 C DESCRIPTION
-C     Integrals generated based on input settings:
+C     Integrals generated based on inputs computed in RIMP2_Prep_DRA
 C
-C     BraKetSame   DoGrad   D_Int()   Integrals
+c$$$C     BraKetSame   DoGrad   D_Int()   Integrals
+c$$$C
+c$$$C     T            F        *, 1, 1   (ai|D')
+c$$$C                           *, 2, 1      -
+c$$$C                           *, 1, 2      -
+c$$$C                           *, 2, 2      -
+c$$$C
+c$$$C     F            F        *, 1, 1   (ai|D)
+c$$$C                           *, 2, 1   (ai|D")
+c$$$C                           *, 1, 2      -
+c$$$C                           *, 2, 2      -
+c$$$C
+c$$$C     T            T        *, 1, 1   (ap|D')
+c$$$C                           *, 2, 1      -
+c$$$C                           *, 1, 2   (ij|D')
+c$$$C                           *, 2, 2      -
+c$$$C
+c$$$C     F            T        *, 1, 1   (ap|D)
+c$$$C                           *, 2, 1   (ap|D")
+c$$$C                           *, 1, 2   (ij|D)
+c$$$C                           *, 2, 2   (ij|D")
 C
-C     T            F        *, 1, 1   (ai|D')
-C                           *, 2, 1      -
-C                           *, 1, 2      -
-C                           *, 2, 2      -
-C
-C     F            F        *, 1, 1   (ai|D)
-C                           *, 2, 1   (ai|D")
-C                           *, 1, 2      -
-C                           *, 2, 2      -
-C
-C     T            T        *, 1, 1   (ap|D')
-C                           *, 2, 1      -
-C                           *, 1, 2   (ij|D')
-C                           *, 2, 2      -
-C
-C     F            T        *, 1, 1   (ap|D)
-C                           *, 2, 1   (ap|D")
-C                           *, 1, 2   (ij|D)
-C                           *, 2, 2   (ij|D")
-
-
 C MEMORY USE
 C     Brief use of NAOBF local memory.
 C     Creates several large global arrays for use in the transformation
@@ -87,8 +94,8 @@ C INCLUDE FILES
 #include "dra.fh"
 C
 C EXTERNAL ROUTINES
-      Logical GA_Create_One_By_Shells, XForm_3cInts
-      External GA_Create_One_By_Shells, XForm_3cInts
+      Logical GA_Create_One_By_Shells, XForm_3cIntsG
+      External GA_Create_One_By_Shells, XForm_3cIntsG
 C
       Logical Mk_Fit_XF
       External Mk_Fit_XF
@@ -106,8 +113,8 @@ C
       Integer MinChunk
       Parameter ( MinChunk = 64 )
 C
-      Integer MaxSpin
-      Parameter (MaxSpin = 2)
+      Integer MyMaxSpin
+      Parameter (MyMaxSpin = 2)
 C
 C LOCAL VARIABLES
 C
@@ -122,9 +129,9 @@ C
       Character*3 XFFit
       Integer Class, K, BraKet, N1, N2, NPass
       Logical PrInfo, PrPrgRpt
-C
-      Integer Lim1(MaxSpin, 2, 2, 2)
-      Integer Lim2(Maxspin, 2, 2, 2)
+c$$$C
+c$$$      Integer Lim1(MyMaxSpin, 2, 2, 2)
+c$$$      Integer Lim2(MyMaxSpin, 2, 2, 2)
 C
 C STATEMENT FUNCTIONS
       Character*1 SpinItoA
@@ -132,71 +139,71 @@ C STATEMENT FUNCTIONS
 C
 C     Sanity check
 C
-      If ( MaxSpin1 .ne. MaxSpin ) Call ErrQuit(
+      If ( MyMaxSpin .ne. MaxSpin ) Call ErrQuit(
      $     'RIMP2_Driver_XF: MaxSpin does not match parent routine',
-     $     MaxSpin1)
+     $     MyMaxSpin)
 C
       NPass = 0
       PrInfo =   Util_Print('information', Print_Low)
       PrPrgRpt = Util_Print('progress reports', Print_Default)
-C
-C     Initialize transformation ranges to 0:-1 (zero trip loop)
-C
-      Call IFill(Maxspin*2*2,  0, Lim1(1, 1, 1, 1), 1)
-      Call IFill(Maxspin*2*2, -1, Lim1(1, 1, 1, 2), 1)
-      Call IFill(Maxspin*2*2,  0, Lim2(1, 1, 1, 1), 1)
-      Call IFill(Maxspin*2*2, -1, Lim2(1, 1, 1, 2), 1)
-C
-C     Evaluate transformation ranges for different integral files
-C
-C     First 3 indices for Lim1 and Lim2 are like D_Int and FN_Int:
-C     1= Spin, 2=Bra/Ket, 3=Class
-C     while the 4th is the lower and upper limit of the range to
-C     be transformed.
-C
-      Do ISpin = 1, TopSpin
-         If ( DoGrad) then
-C
-C           (ap|D)
-C
-            Lim1(ISpin, 1, 1, 1) = ALo(ISpin)
-            Lim1(ISpin, 1, 1, 2) = AHi(ISpin)
-C
-            Lim2(ISpin, 1, 1, 1) = ILo(ISpin)
-            Lim2(ISpin, 1, 1, 2) = AHi(ISpin)
-C
-C           (ij|D)
-C
-            Lim1(ISpin, 1, 2, 1) = ILo(ISpin)
-            Lim1(ISpin, 1, 2, 2) = IHi(ISpin)
-C
-            Lim2(ISpin, 1, 2, 1) = ILo(ISpin)
-            Lim2(ISpin, 1, 2, 2) = IHi(ISpin)
-
-         Else
-C
-C           (ai|D)
-C
-            Lim1(ISpin, 1, 1, 1) = ALo(ISpin)
-            Lim1(ISpin, 1, 1, 2) = AHi(ISpin)
-C
-            Lim2(ISpin, 1, 1, 1) = ILo(ISpin)
-            Lim2(ISpin, 1, 1, 2) = IHi(ISpin)
-         EndIf
-      EndDo
-C
-C     Integrals may not be split symmetrically.  Sizes & ranges are 
-C     identical, of course.  We _don't_ need the ket integrals for
-C     class=2
-C
-      If ( .NOT. BraKetSame ) then
-         Do ISpin = 1, TopSpin
-            Do K = 1, 2
-               Lim1(ISpin, 2, 1, K) = Lim1(ISpin, 1, 1, K)
-               Lim2(ISpin, 2, 1, K) = Lim2(ISpin, 1, 1, K)
-            EndDo
-         EndDo
-      EndIf
+c$$$C
+c$$$C     Initialize transformation ranges to 0:-1 (zero trip loop)
+c$$$C
+c$$$      Call IFill(Maxspin*2*2,  0, Lim1(1, 1, 1, 1), 1)
+c$$$      Call IFill(Maxspin*2*2, -1, Lim1(1, 1, 1, 2), 1)
+c$$$      Call IFill(Maxspin*2*2,  0, Lim2(1, 1, 1, 1), 1)
+c$$$      Call IFill(Maxspin*2*2, -1, Lim2(1, 1, 1, 2), 1)
+c$$$C
+c$$$C     Evaluate transformation ranges for different integral files
+c$$$C
+c$$$C     First 3 indices for Lim1 and Lim2 are like D_Int and FN_Int:
+c$$$C     1= Spin, 2=Bra/Ket, 3=Class
+c$$$C     while the 4th is the lower and upper limit of the range to
+c$$$C     be transformed.
+c$$$C
+c$$$      Do ISpin = 1, TopSpin
+c$$$         If ( DoGrad) then
+c$$$C
+c$$$C           (ap|D)
+c$$$C
+c$$$            Lim1(ISpin, 1, 1, 1) = ALo(ISpin)
+c$$$            Lim1(ISpin, 1, 1, 2) = AHi(ISpin)
+c$$$C
+c$$$            Lim2(ISpin, 1, 1, 1) = ILo(ISpin)
+c$$$            Lim2(ISpin, 1, 1, 2) = AHi(ISpin)
+c$$$C
+c$$$C           (ij|D)
+c$$$C
+c$$$            Lim1(ISpin, 1, 2, 1) = ILo(ISpin)
+c$$$            Lim1(ISpin, 1, 2, 2) = IHi(ISpin)
+c$$$C
+c$$$            Lim2(ISpin, 1, 2, 1) = ILo(ISpin)
+c$$$            Lim2(ISpin, 1, 2, 2) = IHi(ISpin)
+c$$$
+c$$$         Else
+c$$$C
+c$$$C           (ai|D)
+c$$$C
+c$$$            Lim1(ISpin, 1, 1, 1) = ALo(ISpin)
+c$$$            Lim1(ISpin, 1, 1, 2) = AHi(ISpin)
+c$$$C
+c$$$            Lim2(ISpin, 1, 1, 1) = ILo(ISpin)
+c$$$            Lim2(ISpin, 1, 1, 2) = IHi(ISpin)
+c$$$         EndIf
+c$$$      EndDo
+c$$$C
+c$$$C     Integrals may not be split symmetrically.  Sizes & ranges are 
+c$$$C     identical, of course.  We _don't_ need the ket integrals for
+c$$$C     class=2
+c$$$C
+c$$$      If ( .NOT. BraKetSame ) then
+c$$$         Do ISpin = 1, TopSpin
+c$$$            Do K = 1, 2
+c$$$               Lim1(ISpin, 2, 1, K) = Lim1(ISpin, 1, 1, K)
+c$$$               Lim2(ISpin, 2, 1, K) = Lim2(ISpin, 1, 1, K)
+c$$$            EndDo
+c$$$         EndDo
+c$$$      EndIf
 C
       If ( PrInfo .or. PrPrgRpt .AND. GA_NodeID() .eq. 0) then
          If ( DoGrad ) then
@@ -342,10 +349,10 @@ c$$$         EndIf
 C
 C              Sizes for this batch
 C
-               N1 = Lim1(ISpin, BraKet, Class, 2)
-     $              - Lim1(ISpin, BraKet, Class, 1) + 1
-               N2 = Lim2(ISpin, BraKet, Class, 2)
-     $              - Lim2(ISpin, BraKet, Class, 1) + 1
+               N1 = IntRange(2, 1, ISpin, BraKet, Class)
+     $              - IntRange(1, 1, ISpin, BraKet, Class) + 1
+               N2 = IntRange(2, 2, ISpin, BraKet, Class)
+     $              - IntRange(1, 2, ISpin, BraKet, Class) + 1
 C
 C              If there is real work to do, do it!
 C
@@ -357,17 +364,17 @@ C
                   If ( PrPrgRpt ) then
                      If ( BraKet .eq. 1) then
                         Write ( String1, 9100) 
-     $                       Lim1(ISpin, BraKet, Class, 1),
-     $                       Lim1(ISpin, BraKet, Class, 2),
-     $                       Lim2(ISpin, BraKet, Class, 1),
-     $                       Lim2(ISpin, BraKet, Class, 2),
+     $                       IntRange(1, 1, ISpin, BraKet, Class),
+     $                       IntRange(2, 1, ISpin, BraKet, Class),
+     $                       IntRange(1, 2, ISpin, BraKet, Class),
+     $                       IntRange(2, 2, ISpin, BraKet, Class),
      $                       SpinLabel
                      Else
                         Write ( String1, 9105) 
-     $                       Lim1(ISpin, BraKet, Class, 1),
-     $                       Lim1(ISpin, BraKet, Class, 2),
-     $                       Lim2(ISpin, BraKet, Class, 1),
-     $                       Lim2(ISpin, BraKet, Class, 2),
+     $                       IntRange(1, 1, ISpin, BraKet, Class),
+     $                       IntRange(2, 1, ISpin, BraKet, Class),
+     $                       IntRange(1, 2, ISpin, BraKet, Class),
+     $                       IntRange(2, 2, ISpin, BraKet, Class),
      $                       SpinLabel
                      EndIf
                      Call Util_Sqz_Spc(String1)
@@ -409,26 +416,27 @@ C
                   XFFit = 'YES'
                   If ( (.NOT. BraKetSame) .AND. BraKet .eq. 1)
      $                 XFFit = 'NO'
-
-
+C
                   If ( (Approx .eq. 'SVS')
      $            .OR. (Approx .eq. 'S' .and. BraKet .eq. 2) ) then
-                     If ( .NOT. XForm_3cInts(RTDB, Geom, 'OVERLAP',
-     $                    AOBas, FitBas, Lim1(ISpin, BraKet, Class, 1),
-     $                    Lim1(ISpin, BraKet, Class, 2), 
-     $                    Lim2(ISpin, BraKet, Class, 1),
-     $                    Lim2(ISpin, BraKet, Class, 2), 
+                     If ( .NOT. XForm_3cIntsG(RTDB, Geom, 'OVERLAP',
+     $                    AOBas, FitBas,
+     $                    IntRange(1, 1, ISpin, BraKet, Class),
+     $                    IntRange(2, 1, ISpin, BraKet, Class), 
+     $                    IntRange(1, 2, ISpin, BraKet, Class),
+     $                    IntRange(2, 2, ISpin, BraKet, Class), 
      $                    G_C(ISpin), XFFit, G_V, 'DISK', G_Out,
      $                    D_Int(ISpin, BraKet, Class), Thresh ) )
      $                    Call ErrQuit(
      $                    'RIMP2_Driver_XF: transformation failed', 0)
                   ElseIf ( (Approx .eq. 'V')
      $                .OR. (Approx .eq. 'S' .and. BraKet .eq. 1) ) then
-                     If ( .NOT. XForm_3cInts(RTDB, Geom, 'ERI',
-     $                    AOBas, FitBas, Lim1(ISpin, BraKet, Class, 1),
-     $                    Lim1(ISpin, BraKet, Class, 2), 
-     $                    Lim2(ISpin, BraKet, Class, 1),
-     $                    Lim2(ISpin, BraKet, Class, 2), 
+                     If ( .NOT. XForm_3cIntsG(RTDB, Geom, 'ERI',
+     $                    AOBas, FitBas,
+     $                    IntRange(1, 1, ISpin, BraKet, Class),
+     $                    IntRange(2, 1, ISpin, BraKet, Class), 
+     $                    IntRange(1, 2, ISpin, BraKet, Class),
+     $                    IntRange(2, 2, ISpin, BraKet, Class), 
      $                    G_C(ISpin), XFFit, G_V, 'DISK', G_Out,
      $                    D_Int(ISpin, BraKet, Class), Thresh ) )
      $                    Call ErrQuit(

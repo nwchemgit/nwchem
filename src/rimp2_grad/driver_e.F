@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_E -- Master routine for RI-MP2 energy evaluation
 C
 C REVISION
-C     $Id: driver_e.F,v 1.3 1998-07-14 21:41:47 bernhold Exp $
+C     $Id: driver_e.F,v 1.4 1998-07-16 19:59:47 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_DRIVER_E(MaxSpin, BraKetSame, FN_Int,
@@ -16,7 +16,7 @@ C
       Logical BraKetSame
       Integer TopSpin, NMO(TopSpin), NFit, FitBas,
      $   IBlock, JBlock, LDEig, G_P2(TopSpin)
-      Integer NFrzO, NOcc(TopSpin), NVir(TopSpin)
+      Integer NFrzO(TopSpin), NOcc(TopSpin), NVir(TopSpin)
       Double precision Eig(LDEig, TopSpin), Contrib(TopSpin, TopSpin)
       Double precision E2
       Character*(*) Mem_Opt
@@ -356,12 +356,15 @@ C
      $                  '(', I5, ':', I5, ',', I5, ':', I5, ')')
                   EndIf
 C
-C                 Get the I and J integrals
+C                 Get the I and J integrals.  Use the NFrzO offsets
+C                 to make sure we get the right ones
 C
                   Call RIMP2_IJ_Int(ISpin .eq. JSpin .AND.
      $                 D_Int(ISpin, 1, 1) .eq. D_Int(JSpin, 2, 1),
-     $                 D_Int(ISpin, 1, 1), ILo, IHi, NVir(ISpin),
-     $                 D_Int(JSpin, 2, 1), JLo, JHi, NVir(JSpin),
+     $                 D_Int(ISpin, 1, 1), ILo+NFrzO(ISpin),
+     $                 IHi+NFrzO(ISpin), NVir(ISpin),
+     $                 D_Int(JSpin, 2, 1), JLo+NFrzO(JSpin),
+     $                 JHi+NFrzO(JSpin), NVir(JSpin),
      $                 FitBas, NFit, G_bigI, ReqI, G_bigJ, ReqJ)
 C
 C                 Do energy stuff for this IJ batch.  
@@ -369,10 +372,11 @@ C                 Keep 3c integrals & t if we're doing gradients.
 C                 Don't keep 4c integrals ever.
 C
                   Call RIMP2_E_IJ(TopSpin, ISpin .eq. JSpin,
-     $               ILo, IHi, NVir(ISpin), JLo, JHi, NVir(JSpin),
-     $               Eig(1, ISpin), Eig(1, JSpin),
-     $               Eig(1+NOcc(ISpin), ISpin),
-     $               Eig(1+NOcc(JSpin), JSpin), 
+     $                 ILo, IHi, NVir(ISpin), JLo, JHi, NVir(JSpin),
+     $                 Eig(1+NFrzO(ISpin), ISpin),
+     $                 Eig(1+NFrzO(JSpin), JSpin),
+     $                 Eig(1+NFrzO(ISpin)+NOcc(ISpin), ISpin),
+     $                 Eig(1+NFrzO(JSpin)+NOcc(JSpin), JSpin), 
      $               G_bigI, DoGrad, G_bigJ, DoGrad,
      $               G_Int, .FALSE., G_T2, DoGrad,
      $               G_PairE(ISpin + JSpin - 1),
@@ -387,18 +391,16 @@ C                 t no longer needed.
 C
                   If ( DoGrad ) then
                      Call RIMP2_G_IJ(TopSpin, ISpin .eq. JSpin,
-     $                  ILo, IHi, NVir(ISpin), JLo, JHi, NVir(JSpin),
-     $                  Eig(1, ISpin), Eig(1, JSpin),
-     $                  Eig(1+NOcc(ISpin), ISpin),
-     $                  Eig(1+NOcc(JSpin), JSpin), 
-     $                  G_bigI, .FALSE., G_bigJ, .FALSE.,
-     $                  G_T2, .FALSE., G_PairE(ISpin + JSpin - 1),
-     $               NOcc(ISpin), ISpin, NOcc(JSpin), JSpin, G_P2,
-     $               SpinLabel(:Inp_StrLen(SpinLabel)), D_Gam,
+     $                    NFrzO(ISpin), ILo, IHi, NVir(ISpin),
+     $                    NFrzO(JSpin), JLo, JHi, NVir(JSpin),
+     $                    G_bigI, .FALSE., G_bigJ, .FALSE.,
+     $                    G_T2, .FALSE., G_PairE(ISpin + JSpin - 1),
+     $                    NOcc(ISpin), ISpin, NOcc(JSpin), JSpin, G_P2,
+     $                    SpinLabel(:Inp_StrLen(SpinLabel)), D_Gam,
      $                    BraKetSame, D_Int(JSpin, 1, 1) )
-                  If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $                 '       Gradient terms done')
-C
+                     If ( PrPrgRpt ) Call Progress_Report(LuOut,
+     $                    '       Gradient terms done')
+C     
                   EndIf         ! Gradient-only section
 C                 
                EndDo            ! J (blocks)
@@ -476,7 +478,7 @@ C
             Call RIMP2_t_Stats_Print(TopN,
      $           Int_MB(I_TopN_Ind(ISpin+JSpin-1) ),
      $           Dbl_MB(I_TopN_Val(ISpin+JSpin-1) ),
-     $           NFrzO, NFrzO, NOcc(ISpin), NOcc(JSpin),
+     $           0, 0, NOcc(ISpin), NOcc(JSpin),
      $           SpinLabel(:Inp_StrLen(SpinLabel)) )
 C
             Call RIMP2_t_Stats_Term(TopN, H_TopN_Ind(ISpin+JSpin-1),

@@ -3,108 +3,233 @@ C NAME
 C     rimp2_prep_dra -- Setup DRA sizes and names
 C
 C REVISION
-C     $Id: prep_dra.F,v 1.1 1998-07-06 21:10:23 bernhold Exp $
+C     $Id: prep_dra.F,v 1.2 1998-07-16 19:59:50 bernhold Exp $
 C
 C SYNOPSIS
-      Subroutine RIMP2_Prep_DRA(TopSpin, ILo, IHi, ALo, AHi, NFit,
-     $     DoGrad, BraKetSame, NrDRA, MaxSiz, TotSiz,
-     $     BaseNameI, BaseNameG, NameI, NameG)
+      Subroutine RIMP2_Prep_DRA(MaxSpin, TopSpin, NFrzO, NAct, NVir,
+     $     NFrzV, NFit, DoGrad, BraKetSame, NrDRA, MaxSiz, TotSiz,
+     $     BaseNameI, BaseNameG, NameI, NameG, IntRange, GamRange)
       Implicit NONE
+C
+      Integer MaxSpin ![in]
       Integer TopSpin ![in]
-      Integer ILo(TopSpin) ![in]
-      Integer IHi(TopSpin) ![in]
-      Integer ALo(TopSpin) ![in]
-      Integer AHi(TopSpin) ![in]
+      Integer NFrzO(TopSpin) ![in]
+      Integer NAct(TopSpin) ![in]
+      Integer NVir(TopSpin) ![in]
+      Integer NFrzV(TopSpin) ![in]
       Integer NFit ![in]
       Logical DoGrad ![in]
       Logical BraKetSame ![in]
       Integer NrDRA ![out]
-      Integer MaxSiz ![out]
-      Integer TotSiz ![out]
+      Double precision MaxSiz ![out]
+      Double precision TotSiz ![out]
       Character*(*) BaseNameI ![in]
       Character*(*) BaseNameG ![in]
-      Character*(*) NameI(TopSpin, 2, 2) ![out]
+      Character*(*) NameI(MaxSpin, 2, 2) ![out]
       Character*(*) NameG(TopSpin) ![out]
+      Integer IntRange(2, 2, MaxSpin, 2, 2) ![out]
+      Integer GamRange(2, 2, MaxSpin) ![out]
 C
 C DESCRIPTION
+C     Prepare names, sizes, and transformation limits for DRAs
+C
+C     BraKetSame   DoGrad   D_Int()   Integrals
+C
+C     T            F        *, 1, 1   (ai|D')
+C                           *, 2, 1      -
+C                           *, 1, 2      -
+C                           *, 2, 2      -
+C
+C     F            F        *, 1, 1   (ai|D)
+C                           *, 2, 1   (ai|D")
+C                           *, 1, 2      -
+C                           *, 2, 2      -
+C
+C     T            T        *, 1, 1   (ap|D')
+C                           *, 2, 1      -
+C                           *, 1, 2   (mi|D')   (m = C+A)
+C                           *, 2, 2      -
+C
+C     F            T        *, 1, 1   (ap|D)
+C                           *, 2, 1   (ap|D")
+C                           *, 1, 2   (mi|D)    (m = C+A)
+C                           *, 2, 2   (mi|D")   (m = C+A)
+C
+C                           D_Gam()   Gamma
+C                           *         (ai|D)
 C
 C EXTERNAL ROUTINES
 C
 C INCLUDE FILES
 #include "mafdecls.fh"
 #include "inp.fh"
+#include "util.fh"
+#include "global.fh"
+#include "stdio.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C CONSTANTS
+      Integer MyMaxSpin
+      Parameter (MyMaxSpin = 2)
+C
 C LOCAL VARIABLES
-      Integer Size, SizeB
-      Integer NrTypes, I
+      Double precision Size, SizeB
+      Integer NrTypes, I, J, K, C, A, V, N1, N2
       Integer ISpin, IType
       Character*80 Tmp
+      Logical PrFilInfo
 C
 C STATEMENT FUNCTIONS
       Character*1 SpinItoA
       SpinItoA(ISpin) = Char( ISpin + IChar('a') - 1 )
+      Character*1 ItoA
+      ItoA(I) = Char( I + IChar('0') )
 C
-C     *************************************
-C     * Integral transformation (to disk) *
-C     *************************************
-C     Compute largest and total DRA sizes (in bytes)
+      If ( TopSpin .gt. MyMaxSpin ) Call ErrQuit(
+     $     'RIMP2_Prep_DRA: fatal program error: TopSpin > MyMaxSpin',
+     $     MyMaxSpin)
+C
+C     Initialize transformation ranges to 0:-1 (zero trip loop)
+C
+      Call IFill(1*2*MaxSpin*2*2,  0, IntRange(1, 1, 1, 1, 1), 2)
+      Call IFill(1*2*MaxSpin*2*2, -1, IntRange(2, 1, 1, 1, 1), 2)
+      Call IFill(1*2*MaxSpin,      0, GamRange(1, 1, 1), 2)
+      Call IFill(1*2*MaxSpin,     -1, GamRange(2, 1, 1), 2)
+C
+      PrFilInfo = Util_Print('file details', Print_Debug)
+     $     .AND. (GA_NodeID() .eq. 0)
+C
+      If ( PrFilInfo ) Write (LuOut, 9000)
+C
+ 9000 Format(/1X, 'Disk File Information',
+     $     /1X, 'Spin', 1X, 'Bra/Ket', 1X, 'Class', 13X, 'Size (B)',
+     $     3X, 'Name')
+ 9010 Format(1X, I4, 1X, I7, 1X, I5, 1X, F20.0, 3X, A)
+ 9020 Format(1X, I4, 7X,  A, 5X,  A, 1X, F20.0, 3X, A)
+ 9030 Format(1X, I4, 7X,  A, 1X, I5, 1X, F20.0, 3X, A)
+ 9040 Format(1X, 4X, 1X, 7X, 1X, 5X, 1X, F20.0, 3X, A)
+C
+C     Drive everything off of the transformation ranges
+C
+C     First two indices correspond to lower/upper limit of range
+C     for index 1/2 of the 3c-integrals.  Remaining indices are
+C     exactly like D_Int/D_Gam (spin, bra/ket, class)
+C
+      Do ISpin = 1, TopSpin
+         C = NFrzO(ISpin)
+         A = NAct(ISpin)
+         V = NVir(ISpin)
+C
+         If ( DoGrad) then
+C
+C           (ap|D)
+C
+            IntRange(1, 1, ISpin, 1, 1) = C+A+1
+            IntRange(2, 1, ISpin, 1, 1) = C+A+V
+C
+            IntRange(1, 2, ISpin, 1, 1) =     1
+            IntRange(2, 2, ISpin, 1, 1) = C+A+V
+C
+C           (mi|D)
+C
+            IntRange(1, 1, ISpin, 1, 2) =   1
+            IntRange(2, 1, ISpin, 1, 2) = C+A
+C
+            IntRange(1, 2, ISpin, 1, 2) = C+1
+            IntRange(2, 2, ISpin, 1, 2) = C+A
+C
+C           Gamma: (ai|D)
+C
+            GamRange(1, 1, ISpin) = C+A+1
+            GamRange(2, 1, ISpin) = C+A+V
+C
+            GamRange(1, 2, ISpin) = C+1
+            GamRange(2, 2, ISpin) = C+A
+         Else                   ! DoGrad
+C
+C           (ai|D)
+C
+            IntRange(1, 1, ISpin, 1, 1) = C+A+1
+            IntRange(2, 1, ISpin, 1, 1) = C+A+V
+C
+            IntRange(1, 2, ISpin, 1, 1) = C+1
+            IntRange(2, 2, ISpin, 1, 1) = C+A
+         EndIf                  ! DoGrad
+C
+C        Integrals may not be split symmetrically.  Sizes & ranges
+c        are identical, of course.  We _don't_ need the ket integrals
+C        for class=2
+C
+         If ( .NOT. BraKetSame ) then
+            Do J = 1, 2
+               Do K = 1, 2
+                  IntRange(J, K, ISpin, 2, 1)
+     $                 = IntRange(J, K, ISpin, 1, 1)
+               EndDo            ! K
+            EndDo               ! J
+         EndIf                  ! .NOT. BraKetSame
+C
+      EndDo                     ! ISpin
+C
+C     Generate sizes and names
 C
       NrDRA = 0
       MaxSiz = 0
       TotSiz = 0
-      Do I = 1, TopSpin
-         Size =  (IHi(i)-ILo(i)+1) * (AHi(i)-ALo(i)+1) * NFit
-         SizeB = MA_SizeOf(MT_Dbl, Size, MT_Byte)
-         MaxSiz = Max( MaxSiz, SizeB)
+      Do ISpin = 1, TopSpin
+         Do J = 1, 2            ! Bra/Ket
+            Do K = 1, 2         ! Class
+               N1 = IntRange(2, 1, ISpin, J, K)
+     $              - IntRange(1, 1, ISpin, J, K) + 1
+               N2 = IntRange(2, 2, ISpin, J, K)
+     $              - IntRange(1, 2, ISpin, J, K) + 1
+               Size = Dble(N1) * Dble(N2) * Dble(NFit)
+               SizeB = MA_SizeOf(MT_Dbl, 1, MT_Byte) * Size
 C
-         TotSiz = TotSiz + SizeB
-         NrDRA = NrDRA + 1
+               If ( Size .gt. 0 ) then
+                  MaxSiz = Max( MaxSiz, SizeB)
+                  TotSiz = TotSiz + SizeB
+                  NrDRA = NrDRA + 1
 C
-         Tmp = BaseNameI(:Inp_StrLen(BaseNameI)) // '-ab'
-     $        // SpinItoA(I)
-         Call Util_File_Name(Tmp, .TRUE., .FALSE., NameI(I, 1, 1) )
+                  Tmp = BaseNameI(:Inp_StrLen(BaseNameI))
+     $                 // SpinItoA(ISpin) // ItoA(J) // ItoA(K)
+                  Call Util_File_Name(Tmp, .TRUE., .FALSE.,
+     $                 NameI(ISpin, J, K) )
 C
-C        If the bra and ket integrals are not equivalent, we'll
-C        have two instead of one (same size, though).
+                  If (PrFilInfo) Write (LuOut, 9010) ISpin, J, K, SizeB,
+     $               NameI(ISpin, J, K)(:Inp_StrLen(NameI(ISpin, J, K)))
+               Else
+                  NameI(ISpin, J, K) = ' '
+               EndIf
+            EndDo               ! Class (K)
+         EndDo                  ! Bra/Ket (J)
 C
-         If ( BraKetSame ) then
-            NameI(I, 2, 1) = NameI(I, 1, 1)
-         Else
-            TotSiz = TotSiz + SizeB
-            NrDRA = NrDRA + 1
+C        Handle Gammas too, which have only spin cases
 C
-            Tmp = BaseNameI(:Inp_StrLen(BaseNameI)) // '-ak'
-     $           // SpinItoA(I)
-            Call Util_File_Name(Tmp, .TRUE., .FALSE., NameI(I, 2, 1) )
-         EndIf
+         N1 = GamRange(2, 1, ISpin)
+     $        - GamRange(1, 1, ISpin) + 1
+         N2 = GamRange(2, 2, ISpin)
+     $        - GamRange(1, 2, ISpin) + 1
+         Size = Dble(N1) * Dble(N2) * Dble(NFit)
+         SizeB = MA_SizeOf(MT_Dbl, 1, MT_Byte) * Size
 C
-         If ( DoGrad ) then
-C
-C           If we're doing gradients, we'll also be storing the 
-C           "3-index MO Gamma", which is the same size as above, but
-C           comes in only one "type".
-C
-            TotSiz = TotSiz + SizeB
-            NrDRA = NrDRA + 1
-C
-            Tmp = BaseNameG(:Inp_StrLen(BaseNameG)) // '-'
-     $           // SpinItoA(I)
-            Call Util_File_Name(Tmp, .TRUE., .FALSE., NameG(I) )
-C
-C           We also need to do the (ij|D) integrals.  Also only one
-C           "type" but a different size from above.
-C
-            Size =  (IHi(i)-ILo(i)+1) * (IHi(i)-ILo(i)+1) * NFit
-            SizeB = MA_SizeOf(MT_Dbl, Size, MT_Byte)
+         If ( Size .gt. 0 ) then
             MaxSiz = Max( MaxSiz, SizeB)
             TotSiz = TotSiz + SizeB
             NrDRA = NrDRA + 1
 C
-            Tmp = BaseNameI(:Inp_StrLen(BaseNameI)) // '-i'
-     $           // SpinItoA(I)
-            Call Util_File_Name(Tmp, .TRUE., .FALSE., NameI(I, 1, 2) )
+            Tmp = BaseNameG(:Inp_StrLen(BaseNameG))
+     $           // SpinItoA(ISpin)
+            Call Util_File_Name(Tmp, .TRUE., .FALSE., NameG(ISpin) )
+C
+            If (PrFilInfo) Write (LuOut, 9020) ISpin, '-', '-', SizeB,
+     $           NameG(ISpin)(:Inp_StrLen(NameG(ISpin)))
+         Else
+            NameG(ISpin) = ' '
          EndIf
-      EndDo
+      EndDo                     ! ISpin
+C
+      Write (LuOut, 9040) MaxSiz, 'Maximum File Size'
+      Write (LuOut, 9040) TotSiz, 'Total File Size'
 C
       Return
       End

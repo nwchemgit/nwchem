@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_L -- Form Lagrangian terms & their contributions elsewhere
 C
 C REVISION
-C     $Id: mk_l.F,v 1.2 1998-07-14 21:41:49 bernhold Exp $
+C     $Id: mk_l.F,v 1.3 1998-07-16 19:59:49 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_L(TopSpin, NFrzO, NAct, NVir, NFit,
@@ -142,8 +142,8 @@ C
 C
 C           L(iy) = -L1(yi)
 C
-            Call GA_Copy_Patch('T', g_L1(ISpin), 1,   C,   C+1, C+A,
-     $                              g_L(ISpin),  C+1, C+A, 1,   C   )
+            Call GA_Copy_Patch('T', g_L1(ISpin), 1,   C,   1, A,
+     $                              g_L(ISpin),  C+1, C+A, 1, C   )
             Call GA_Scale_Patch(g_L(ISpin), C+1, C+A, 1, C, -1.0d0 )
 C
 C           L(ay) = L2(ay) + L3(ay) + L4(ay)
@@ -194,8 +194,8 @@ C
             A = NAct(ISpin)
             V = NVir(ISpin)
 C
-            Call GA_Copy_Patch('T', g_L1(ISpin), 1,   C,   C+1, C+A,
-     $                              g_P2(ISpin), C+1, C+A, 1,   C)
+            Call GA_Copy_Patch('T', g_L1(ISpin), 1,   C,   1, A,
+     $                              g_P2(ISpin), C+1, C+A, 1, C)
             Call GA_Scale_Patch(g_P2(ISpin), C+1, C+A, 1, C, 0.5d0 )
 C
             If ( Util_Print('partial p2', Print_Debug) )
