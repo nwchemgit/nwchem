@@ -228,3 +228,54 @@ c
      $                g_movecs, g_movecs, 0.d0, g_cdens )
        return
        end
+
+
+
+
+
+
+
+
+
+
+      subroutine mcscf_symmetrize_2pdm( nact, dm2, dmsy2 )
+      implicit none
+      integer nact
+      double precision dm2(nact,nact,nact,nact)
+      double precision dmsy2(nact,nact,nact,nact)
+      integer i,j,k,l
+      
+      do i=1,nact
+        do j=1,nact
+          do k=1,nact
+            do l=1,nact
+              dmsy2(i,j,k,l) = 0.5d0*(dm2(i,j,k,l) + dm2(i,j,l,k))
+            enddo
+          enddo
+        enddo
+      enddo
+      return
+      end
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

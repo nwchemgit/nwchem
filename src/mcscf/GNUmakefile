@@ -20,9 +20,8 @@
 		mcscf_orb.o \
 		mcscf_precond.o \
 		mcscf_rohf_modens.o \
+		mcscf_debug.o \
 		linesrch.o \
-		debug_crap.o \
-		rrrrr.o \
 		check_moblocked.o \
 	        diagfill_patch.o
 

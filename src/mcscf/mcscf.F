@@ -19,7 +19,6 @@ c
        integer l_evals, k_evals
        integer l_dm1, k_dm1, l_dm2, k_dm2
        integer l_dm1old, k_dm1old
-       INTEGER L_HESS, K_HESS
        integer g_movecs, g_coul, g_exch
        integer g_h
        integer g_conj, g_gradold
@@ -29,22 +28,25 @@ c
        integer g_grad, g_prod, g_x
        integer nGrad, vlen
        integer mo_lo, mo_hi
-       integer pflg, i, iter, maxiter
+       integer i, iter, maxiter
        integer voff, aoff, aend
        INTEGER OSYM(40)
        double precision pfac, d1over
-       double precision eone, etwo, ekin, energy, enrep
-       double precision tol2e, lshift, gnorm
+       double precision eone, etwo, energy, enrep
+       double precision tol2e, gnorm
        DOUBLE PRECISION CRAP(1000)
        logical oconj
-       logical status
 c
+C       INTEGER L_HESS, K_HESS
+C       INTEGER PFLG
+C       DOUBLE PRECISION EKIN
+C       DOUBLE PRECISION LSHIFT
+C       LOGICAL STATUS
 c
        integer ga_create_atom_blocked, ga_create_JKblocked
        external ga_create_atom_blocked, ga_create_JKblocked
        INTEGER MCSCF_ROHF_DEN2OCC
        EXTERNAL MCSCF_ROHF_DEN2OCC
-       double precision mcscf_pdmov
 c
 c Get w.f. parameters
 c
@@ -139,7 +141,7 @@ c
 c$$$       PRINT*,'<<<<<<<< STARTING MO VECTORS >>>>>>>>>>'
 c$$$       PRINT*
 c$$$       CALL GA_GET(G_MOVECS,1,NBF,1,NBF,CRAP,NBF)
-c$$$       CALL MAT_PRINT(NBF,NBF,CRAP,NBF)
+c$$$       CALL MOINTS_MATPRINT(NBF,NBF,CRAP,NBF)
 c$$$       PRINT*
 c
 c
@@ -166,8 +168,6 @@ c
            call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                         dbl_mb(k_evals), g_h, g_coul,
      $                         dbl_mb(k_dm1), dbl_mb(k_dm2) )
-c$$$           d1over = mcscf_pdmov(nact,dbl_mb(k_dm1),dbl_mb(k_dm1old))
-c$$$           WRITE(6,'(A,5X,E12.2)') 'PDM new/old difference',d1over
          endif
 c
 c  Orbital solver
@@ -195,7 +195,7 @@ c$$$         CALL GRAD_PRINT( nbf, nclosed, nact, g_gradold )
          PRINT*,'<<<<<<<< FINAL MO VECTORS >>>>>>>>>>'
          PRINT*
          CALL GA_GET(G_MOVECS,1,NBF,1,NBF,CRAP,NBF)
-         CALL MAT_PRINT(NBF,NBF,CRAP,NBF)
+         CALL MOINTS_MATPRINT(NBF,NBF,CRAP,NBF)
          PRINT*
        ENDIF
 c
@@ -251,18 +251,17 @@ c
 c
 c  Print 1-PDM
 c 
-C       CALL ZAP_ONEPDM(NACT,DBL_MB(K_DM1))
        IF (GA_NODEID().EQ.0) THEN
          PRINT*
          PRINT*,'<<<<<<< 1PDM DENSITY MATRIX >>>>>>>>>'
-         CALL MAT_PRINT( NACT, NACT, DBL_MB(K_DM1) )
+         CALL MOINTS_MATPRINT( NACT, NACT, DBL_MB(K_DM1) )
          PRINT*
-         PRINT*,'<<<<<<< 2PDM DENSITY MATRIX >>>>>>>>>'
-         CALL TWOPDM_PRINT(NACT,DBL_MB(K_DM2))
-         PRINT*
-         PRINT*,'<<<<<<< SYMMETRIZED 2PDM DENSITY MATRIX >>>>>>>>>' 
-         CALL SYMMTRIZE_2PDM( NACT, DBL_MB(K_DM2), CRAP )
-         CALL TWOPDM_PRINT(NACT,CRAP)
+c$$$         PRINT*,'<<<<<<< 2PDM DENSITY MATRIX >>>>>>>>>'
+c$$$         CALL MCSCF_TWOPDM_PRINT(NACT,DBL_MB(K_DM2))
+c$$$         PRINT*
+c$$$         PRINT*,'<<<<<<< SYMMETRIZED 2PDM DENSITY MATRIX >>>>>>>>>' 
+c$$$         CALL MCSCF_SYMMETRIZE_2PDM( NACT, DBL_MB(K_DM2), CRAP )
+c$$$         CALL MCSCF_TWOPDM_PRINT(NACT,CRAP)
        ENDIF
 c
 c  Energy trace routine
@@ -541,7 +540,8 @@ c
        integer g_x, g_prod
 c
 c
-       integer l_hv, k_hv, l_hy, k_hy, l_hd, k_hd
+C       INTEGER L_HD, K_HD
+       integer l_hv, k_hv, l_hy, k_hy
        integer nvir, incr, xoff, i, j, ii
        double precision xx
 
@@ -687,126 +687,3 @@ c
      $      call errquit('rohf: damn',0)
        return
        end
-
-
-
-
-
-
-
-       subroutine zap_twopdm(n,dm2)
-       implicit none
-       integer n
-       double precision dm2(n,n,n,n)
-       integer i,j,k,l
-       
-       return
-       do i=1,n
-c$$$         dm2(i,i,i,i) = 0.d0
-         do j=1,n
-           do k=1,n
-             do l=1,n
-               if ((i.ne.k).or.(j.ne.l)) then
-                 dm2(i,j,k,l) = 0.d0
-               endif
-             enddo
-           enddo
-         enddo
-       enddo
-       return
-       end
-
-
-
-       subroutine twopdm_print(n,dm2)
-       implicit none
-       integer n
-       double precision dm2(n,n,n,n)
-       double precision TOL
-       integer i,j,k,l,ltop
-       data TOL/1.d-8/
-      
-       do i=1,n
-         do j=1,i
-           do k=1,i
-             ltop = k
-             if (k.gt.j) ltop = j
-             do l=1,ltop
-               if (abs(dm2(i,j,k,l)).gt.TOL) then
-                 write(6,771) i,j,k,l,dm2(i,j,k,l)
- 771             format(4i5,f18.10)
-               endif
-             enddo
-           enddo
-         enddo
-       enddo
-       return
-       end
-
-      
-
-
-      subroutine zap_onepdm(n,dm1)
-      implicit none
-      integer n
-      double precision dm1(n,n)
-      integer i,j
-      
-c$$$      do i=1,n
-c$$$        do j=1,i-1
-c$$$          dm1(i,j) = 0.d0
-c$$$          dm1(j,i) = 0.d0
-c$$$        enddo
-c$$$      enddo
-      return
-      end
-
-
-
-
-
-
-      double precision function mcscf_pdmov( nact, dm1, dm1old )
-      implicit none
-      integer nact
-      double precision dm1(nact,nact)
-      double precision dm1old(nact,nact)
-      integer i,j,nn
-      double precision xx, dnrm2
-      
-      nn = nact*nact
-      call daxpy(nn,-1.d0,dm1,1,dm1old,1)
-      xx = dnrm2(nn,dm1old,1)
-      call dcopy(nn,dm1,1,dm1old,1)
-      mcscf_pdmov = sqrt(xx)
-      return
-      end
-
-      
-
-      
-
-
-
-
-
-      subroutine symmtrize_2pdm( nact, dm2, dmsy2 )
-      implicit none
-      integer nact
-      double precision dm2(nact,nact,nact,nact)
-      double precision dmsy2(nact,nact,nact,nact)
-      integer i,j,k,l
-      
-      do i=1,nact
-        do j=1,nact
-          do k=1,nact
-            do l=1,nact
-              dmsy2(i,j,k,l) = 0.5d0*(dm2(i,j,k,l) + dm2(i,j,l,k))
-            enddo
-          enddo
-        enddo
-      enddo
-      return
-      end
-
-      
