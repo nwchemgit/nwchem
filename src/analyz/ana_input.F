@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.16 2000-03-24 22:04:19 d3j191 Exp $
+c $Id: ana_input.F,v 1.17 2000-04-27 16:11:25 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
       real*8 timoff,rsel,rtag,rcut
-      logical lref,lfil
+      logical lref,lfil,lsol
 c
       if(ga_nodeid().eq.0) then
       call util_print_centered(6,'Analysis Input Module',40,.true.)
@@ -132,11 +132,21 @@ c     -------------------
 c
       if(inp_compare(.false.,'copy',item)) then
       if(.not.inp_a(filcop)) call errquit('Error in copy',0)
+      lsol=.false.
+      if(filcop(1:6).eq.'solute') then
+      if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      lsol=.true.
+      endif
       if(index(filcop,'.').le.0)
      + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
       if(filcop.eq.filtrj) call errquit('File name conflict',0)
+      if(lsol) then
       write(lfncmd,1004) filcop(1:index(filcop,' ')-1)
- 1004 format('copy   ',a)
+ 1004 format('copys  ',a)
+      else
+      write(lfncmd,1024) filcop(1:index(filcop,' ')-1)
+ 1024 format('copy   ',a)
+      endif
       numcmd=numcmd+1
       goto 2
       endif
@@ -146,11 +156,21 @@ c     ------------------------------------
 c
       if(inp_compare(.false.,'super',item)) then
       if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      lsol=.false.
+      if(filcop(1:6).eq.'solute') then
+      if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      lsol=.true.
+      endif
       if(index(filcop,'.').le.0)
      + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
       if(filcop.eq.filtrj) call errquit('File name conflict',0)
+      if(lsol) then
       write(lfncmd,1005) filcop(1:index(filcop,' ')-1)
- 1005 format('super  ',a)
+ 1005 format('supers ',a)
+      else
+      write(lfncmd,1025) filcop(1:index(filcop,' ')-1)
+ 1025 format('super  ',a)
+      endif
       numcmd=numcmd+1
       goto 2
       endif

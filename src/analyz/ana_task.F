@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.19 2000-03-24 17:53:07 d3j191 Exp $
+c $Id: ana_task.F,v 1.20 2000-04-27 16:11:25 d3j191 Exp $
 c
       implicit none
 c
@@ -49,6 +49,7 @@ c
       lfnvec=88
       lfnmin=89
       lfnmax=90
+      lsonly=.false.
 c
       ifrfr=1
       ifrto=1
@@ -282,7 +283,8 @@ c
 c     copy frames
 c     -----------
 c
-      if(card(1:6).eq.'copy  ') then
+      if(card(1:6).eq.'copy  '.or.card(1:6).eq.'copys ') then
+      lsonly=card(1:6).eq.'copys '
       read(card(8:80),'(a)') filcop
       i=index(filcop,'.')
       fmt=filcop(i+1:i+3)
@@ -316,6 +318,7 @@ c
       close(unit=lfncop)
       write(*,'(/,a,i10,a,a)') ' Copied ',nwrit,' frames to ',
      + filcop(1:index(filcop,' ')-1)
+      lsonly=.false.
       endif
 c
       goto 1
@@ -324,7 +327,8 @@ c
 c     super frames
 c     -----------
 c
-      if(card(1:6).eq.'super ') then
+      if(card(1:6).eq.'super '.or.card(1:6).eq.'supers') then
+      lsonly=card(1:6).eq.'supers'
       read(card(8:80),'(a)') filsup
       i=index(filsup,'.')
       fmt=filsup(i+1:i+3)
@@ -361,6 +365,7 @@ c
       close(unit=lfnsup)
       write(*,'(/,a,i10,a,a)') ' Superimposed ',nwrit,' frames to ',
      + filcop(1:index(filcop,' ')-1)
+      lsonly=.false.
       endif
 c
       goto 1
