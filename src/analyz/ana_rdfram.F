@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.12 2000-05-25 22:53:32 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.13 2000-05-25 23:02:47 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,7 @@ c
       real*8 x(msa,3),w(mwm,mwa,3)
       integer ix(msa)
 c
-      character*80 card
+      character*108 card
       integer i,j,k,lq
       character*255 fname
       character*3 cnum
@@ -36,8 +36,16 @@ c
       if(timp.lt.timr) timoff=time
       time=timp+timoff
       timr=timp
-      read(lfntrj,1002) box
- 1002 format(f12.6,/,12x,f12.6,/,24x,f12.6)
+      read(lfntrj,1000) card
+      if(card(42:42).eq.'.') then
+      read(card,1012) box
+ 1012 format(f12.6,36x,f12.6,36x,f12.6)
+      else
+      read(card,1002) box(1)
+ 1002 format(f12.6)
+      read(lfntrj,1022) box(2),box(3)
+ 1022 format(12x,f12.6,/,24x,f12.6)
+      endif
       read(lfntrj,1003) lxw,lvw,lsx,lsv,nwm,nwa,nsa
  1003 format(4l1,3i10)
       if(nsa.gt.msa) call errquit('Error in trj 1',0)
