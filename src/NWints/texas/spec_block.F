@@ -1,4 +1,4 @@
-* $Id: spec_block.F,v 1.33 2003-10-17 22:54:11 carlfahl Exp $
+* $Id: spec_block.F,v 1.34 2004-09-13 19:50:47 edo Exp $
 c===============================================================
 c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
 c kw 22.05.97 : nasize(*)has been eleminated. 
@@ -576,7 +576,7 @@ c===============================================================
      *                    lcix,lcjx,lckx,lclx, ngcix,ngcjx,ngckx,ngclx,
      *                    memorcon,memor2ij,memor2kl,memor4,ifor)
       implicit real*8 (a-h,o-z)
-      character*4 where
+      character*8 where
 c----------------------------------------------------------------------
 c  Calculates  memory needed in a Super-block for :
 c
@@ -761,7 +761,7 @@ c===============================================================
      *                    lcix,lcjx,lckx,lclx, ngcix,ngcjx,ngckx,ngclx,
      *                    memorcon,memor2ij,memor2kl,memor4,ifor)
       implicit real*8 (a-h,o-z)
-      character*4 where
+      character*8 where
 c----------------------------------------------------------------------
 c  Calculates  memory needed in a Super-block for :
 c
@@ -965,7 +965,7 @@ c the memory request for a given Super-block
 c and use it latter to set up the block-size .
 c==============================================================
       subroutine in4a(nbls,memasse,memtrob,where)
-      character*4 where
+      character*8 where
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
@@ -1160,7 +1160,7 @@ c
 c
 c==============================================================
       subroutine in4b(nbls,memamsh,where)
-      character*4 where
+      character*8 where
 c--
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,

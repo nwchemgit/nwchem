@@ -1,4 +1,4 @@
-c $Id: amshift.f,v 1.8 2002-10-09 18:54:54 pg481 Exp $
+c $Id: amshift.f,v 1.9 2004-09-13 19:50:47 edo Exp $
 c----------------------------------------------------
 C*
 C*  THESE ROUTINES SHIFT THE ANGULAR MOMENTUM
@@ -29,7 +29,7 @@ c
       subroutine amshift(bl,nbls,l01,l02,npij,npkl,ngcd)
       implicit real*8 (a-h,o-z)
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c
       common /cpu/ intsize,iacc,icache,memreal
@@ -1427,7 +1427,7 @@ c***********************************************************
       implicit real*8 (a-h,o-z)
 ctest
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 ctest
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp

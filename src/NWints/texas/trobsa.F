@@ -1,4 +1,4 @@
-* $Id: trobsa.F,v 1.6 2002-05-03 00:39:21 edo Exp $
+* $Id: trobsa.F,v 1.7 2004-09-13 19:50:48 edo Exp $
 c=======================================================================
 c     For the set of NBLS1 quartets of primitive shells I,J,K,L
 c  (where NBLS1 is already reduced after some integrals have
@@ -766,7 +766,7 @@ c========================
       IMPLICIT REAL*8 (A-H,O-Z)
 cnmr
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c
       common /tracy/ kbeg,kend,i0b,i0e,kp
@@ -845,7 +845,7 @@ c========================
       IMPLICIT REAL*8 (A-H,O-Z)
 cnmr
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 cnmr
       common /tracy/ kbeg,kend,i0b,i0e,kp
@@ -936,7 +936,7 @@ c========================
       subroutine trac34_1(wt0,l01,l02,nbls,wt2,mem2, p1234, abcd,habcd)
       IMPLICIT REAL*8 (A-H,O-Z)
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c
       common /tracy/ ibeg,iend,k0b,k0e,ip
@@ -1006,7 +1006,7 @@ c========================
       subroutine trac34_2(wt0,l01,l02,nbls,wt2,mem2, p1234, abcd,habcd)
       IMPLICIT REAL*8 (A-H,O-Z)
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c
       common /tracy/ ibeg,iend,k0b,k0e,ip
@@ -1513,7 +1513,7 @@ c=================================================================
       subroutine how_2_shift(stable,nsij,nskl,mmax,mmax1,immax1,
      $     kmmax1,lobsa)
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
       logical stable 
       common/shell/lshellt,lshelij,lshelkl,lhelp,lcas2(4),lcas3(4)

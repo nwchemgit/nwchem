@@ -1,4 +1,4 @@
-* $Id: shells.f,v 1.3 1999-07-29 01:05:49 d3e129 Exp $
+* $Id: shells.f,v 1.4 2004-09-13 19:50:47 edo Exp $
 c--------------------------------------------------------------------
       subroutine txs_shells(inx,ics1,jcs1,kcs1,lcs1)
       common /types/itype,jtype,ktype,ltype,itype1,jtype1,ktype1,ltype1 
@@ -81,7 +81,7 @@ c
       end
 c-----------------------------------------------
       subroutine iobara(ityp,jtyp,ktyp,ltyp,where)
-      character*4 where
+      character*8 where
 c
 c Set up the OBARAI, SHELL and LCASES commons :
 c

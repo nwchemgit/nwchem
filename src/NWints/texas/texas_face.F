@@ -6,7 +6,7 @@ c
 c
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.73 2003-10-17 22:54:11 carlfahl Exp $
+c $Id: texas_face.F,v 1.74 2004-09-13 19:50:47 edo Exp $
       implicit real*8 (a-h,o-z)
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -835,7 +835,7 @@ c2002 subroutine txsarrag(rtdb, nq_init, l_blsize)
       integer rtdb
       character*8 int_type
       character*11 scftype
-      character*4 where
+      character*8 where
 c----------------------------------------------------------------
       logical cent2,cent3,cent4
       common /what_was_calc/ cent2,cent3,cent4
@@ -2009,7 +2009,7 @@ c==================================================================
       subroutine initialized_task(int_type)
       character*8 int_type
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
       common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
       common /type_inited/ iforinit  ! use here & in texas_hf.F

@@ -1,4 +1,4 @@
-* $Id: assemblx.f,v 1.12 2002-10-01 00:10:05 edo Exp $
+* $Id: assemblx.f,v 1.13 2004-09-13 19:50:47 edo Exp $
 c----------------------------------------------------------------
 c All routines of the type name_2 are used when 
 c          IROUTE=2
@@ -13,7 +13,7 @@ c
       common /route/ iroute
 c
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c     common /logic4/ nfu(1)
 c
@@ -124,7 +124,7 @@ c===============================================================
       logical firstc
 cnmr
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 cnmr
 C
@@ -624,7 +624,7 @@ c----------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       logical firstc,firstx
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
       common /logic4/ nfu(1)
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
@@ -1036,7 +1036,7 @@ c***************
       implicit real*8 (a-h,o-z)
       logical firstc
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 C********************************
 C
@@ -1122,7 +1122,7 @@ c***************
       implicit real*8 (a-h,o-z)
       logical firstc
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 C********************************
 C
@@ -1208,7 +1208,7 @@ c***************
       implicit real*8 (a-h,o-z)
       logical firstc
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 C********************************
 C
@@ -1293,7 +1293,7 @@ c***************
       implicit real*8 (a-h,o-z)
       logical firstc
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 C********************************
 C
@@ -1383,7 +1383,7 @@ c---------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       logical firstc,firstx
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
       common /logic4/ nfu(1)
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
@@ -1756,7 +1756,7 @@ c================================================================
       implicit real*8 (a-h,o-z)
       logical firstc
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
@@ -1823,7 +1823,7 @@ c===========================================================
       implicit real*8 (a-h,o-z)
       logical firstc
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
@@ -1889,7 +1889,7 @@ c===============================================================
       implicit real*8 (a-h,o-z)
       logical firstc
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
@@ -1954,7 +1954,7 @@ c===============================================================
       implicit real*8 (a-h,o-z)
       logical firstc
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)

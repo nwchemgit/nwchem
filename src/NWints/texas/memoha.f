@@ -1,4 +1,4 @@
-* $Id: memoha.f,v 1.8 1999-07-29 01:05:48 d3e129 Exp $
+* $Id: memoha.f,v 1.9 2004-09-13 19:50:47 edo Exp $
 c====================================================================
 c kw Feb. 18,1994
 c there is the new subroutine memo5 (memory handling for pairs)
@@ -55,7 +55,7 @@ c********
       double precision bl(*)
 c nmr deriv
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c--
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
@@ -420,7 +420,7 @@ c********
       double precision bl(*)
 c nmr deriv
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c--
       common/obarai/
@@ -593,7 +593,7 @@ c OR 13 or 14 if where='forc'
 c------------------------------------------
 c for gradient derivatives:
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c
       common /cpu/ intsize,iacc,icache,memreal
@@ -668,7 +668,7 @@ c Memory handling for right-hand pairs:
 c------------------------------------------
 c for gradient derivatives:
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c
       common /memor5x/ ieab,iecd

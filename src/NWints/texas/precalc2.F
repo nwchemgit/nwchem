@@ -1,4 +1,4 @@
-* $Id: precalc2.F,v 1.31 2003-01-06 04:13:30 edo Exp $
+* $Id: precalc2.F,v 1.32 2004-09-13 19:50:47 edo Exp $
 c--------------------------------------------------------------------
       subroutine prec2ij(ibl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)
@@ -1408,7 +1408,7 @@ c
 c
 c for gradient derivatives only :
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c
       COMMON /types/itype,jtype,ktype,ltype,ityp,jtyp,ktyp,ltyp
@@ -2443,7 +2443,7 @@ c===================================================================
 c 1000 above is enough for contractions as long as 31 (31*31=961)
 c
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c
       common/obarai/

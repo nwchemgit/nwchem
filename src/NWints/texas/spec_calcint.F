@@ -1,4 +1,4 @@
-* $Id: spec_calcint.F,v 1.1 2003-10-17 22:24:28 carlfahl Exp $
+* $Id: spec_calcint.F,v 1.2 2004-09-13 19:50:47 edo Exp $
 c===================================================================
       subroutine calcint2(bl,inx, q4,use_q4,
      *                    lab1,lab2,lab3,lab4,fockmat,
@@ -8,7 +8,7 @@ c===================================================================
       logical firstd
       logical use_q4
       character*11 scftype
-      character*4 where
+      character*8 where
 c----------------------------------------------------------------
 c The variable where shows the type of calculated integrals:
 c     where.eq.'buff'  - for ordinary two-el. integrals
@@ -58,7 +58,7 @@ c
       logical firstd
       logical use_q4
       character*11 scftype
-      character*4 where
+      character*8 where
 c----------------------------------------------------------------
 c where is 'disk' or 'fock' for SCF : non -,semi- and full-direct
 c It can be extanded for special purposes :
@@ -217,7 +217,7 @@ c===================================================================
 #include "errquit.fh"
       integer ncfunct(*)        ! txs to pnl basis map
       logical use_q4
-      character*4 where
+      character*8 where
 c----------------------------------------------------------------
 c nbls_size = full pnl-size
 c maxsize   = maximum size (can be smaller than above)
@@ -282,7 +282,7 @@ c
       integer map_txs_pnl(*)        ! txs to pnl basis map = ncfunct
       logical first,firstd
       logical use_q4
-      character*4 where
+      character*8 where
 c------------------------------------------------------
       common /route/ iroute
 c------------------------------------------------------
@@ -781,7 +781,7 @@ c character variable WHERE is needed for derivatives only
 c
       implicit real*8 (a-h,o-z)
       logical first
-      character*4 where
+      character*8 where
 c
       common /primij/ iabprim, ijdim ,ijpar1 
       common /primkl/ kabprim, kldim ,klpar1 
@@ -1339,7 +1339,7 @@ c character variable WHERE is needed for derivatives only
 c
       implicit real*8 (a-h,o-z)
       logical first
-      character*4 where
+      character*8 where
 c
       common /primij/ iabprim, ijdim ,ijpar1 
       common /primkl/ kabprim, kldim ,klpar1 

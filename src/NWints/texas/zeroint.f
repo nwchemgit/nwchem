@@ -1,4 +1,4 @@
-c $Id: zeroint.f,v 1.4 2002-10-01 00:10:07 edo Exp $
+c $Id: zeroint.f,v 1.5 2004-09-13 19:50:48 edo Exp $
 c* This is used to substitute ZERO in Buffers when some
 c* of quartets do not appear First time (they are neglected)
 c*
@@ -10,7 +10,7 @@ c*
       implicit real*8 (a-h,o-z)
 c
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
       common /logic4/ nfu(1)
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)

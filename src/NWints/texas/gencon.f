@@ -1,4 +1,4 @@
-* $Id: gencon.f,v 1.8 2002-10-01 00:10:07 edo Exp $
+* $Id: gencon.f,v 1.9 2004-09-13 19:50:47 edo Exp $
 c===================================================================
 c kw, 1998 : the indgc(nbls) array is not used anymore 
 c===================================================================
@@ -327,7 +327,7 @@ C....................................................................
       subroutine assemblg(bl,firstc,nbls,nbls1,l01,l02,ngcd,igcoet)
       implicit real*8 (a-h,o-z)
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
 c
       logical firstc

@@ -4,7 +4,7 @@
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr,zerotol,int_type)
 *
-* $Id: texas_hf.F,v 1.37 2003-10-17 22:54:11 carlfahl Exp $
+* $Id: texas_hf.F,v 1.38 2004-09-13 19:50:47 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -1475,7 +1475,7 @@ c=====================================================================
       character*8 int_type
       character*27 type_i,type_r
       character*11 scftype
-      character*4 where
+      character*8 where
       common /runtype/ scftype,where
       common /type_inited/ iforinit  ! use here & in texas_face.F
       common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
