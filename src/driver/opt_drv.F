@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.47 1998-04-07 23:40:11 mdupuis Exp $
+C$Id: opt_drv.F,v 1.48 1998-04-14 19:12:57 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -80,7 +80,8 @@ c                mxcoor=max(mxcart,mxzmat)
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       common/hnd_optrun/npts,nserch,nupdat,cvged
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad
+     1                                                     modsad,
+     2                  convggm,convgg,convge,maxiter
       common/hnd_optsad/sadstp
       common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optfun/e,eg(mxcart)
@@ -516,11 +517,13 @@ c
       logical  opt_input
       logical  dbug
       integer  ir, iw
-      double precision cvgopt
+      double precision cvgopt,convggm,convgg,convge
       double precision sadstp
       integer nptopt,inhess,linopt,modupd,moddir,modsad
+      integer maxiter
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad
+     1                                                     modsad,
+     2                  convggm,convgg,convge,maxiter
       common/hnd_optsad/sadstp
       common/hnd_iofile/ir,iw
 c
@@ -530,14 +533,18 @@ c
 c
       if(dbug) then
          write(iw,*) 'in driver_input, before rtdb_put'
-         write(iw,*) 'cvgopt',cvgopt
-         write(iw,*) 'nptopt',nptopt
-         write(iw,*) 'linopt',linopt
-         write(iw,*) 'inhess',inhess
-         write(iw,*) 'modupd',modupd
-         write(iw,*) 'modsad',modsad
-         write(iw,*) 'moddir',moddir
-         write(iw,*) 'sadstp',sadstp
+         write(iw,*) 'cvgopt ',cvgopt
+         write(iw,*) 'nptopt ',nptopt
+         write(iw,*) 'linopt ',linopt
+         write(iw,*) 'inhess ',inhess
+         write(iw,*) 'modupd ',modupd
+         write(iw,*) 'modsad ',modsad
+         write(iw,*) 'moddir ',moddir
+         write(iw,*) 'sadstp ',sadstp
+         write(iw,*) 'maxiter',maxiter
+         write(iw,*) 'convggm',convggm
+         write(iw,*) 'convgg ',convgg
+         write(iw,*) 'convge ',convge
       endif
 c
       opt_input=.true.
@@ -558,20 +565,32 @@ c
      &    rtdb_put(rtdb,'driver:modsad',mt_int,1,modsad)
       status=status.and.
      &    rtdb_put(rtdb,'driver:sadstp',mt_dbl,1,sadstp)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:convggm',mt_dbl,1,convggm)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:convgg',mt_dbl,1,convgg)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:convge',mt_dbl,1,convge)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:maxiter',mt_int,1,maxiter)
       if(.not.status) then
          call errquit('driver_input : rtdb_put failed',911)
       endif
 c
       if(dbug) then
          write(iw,*) 'in driver_input, after  rtdb_put'
-         write(iw,*) 'cvgopt',cvgopt
-         write(iw,*) 'nptopt',nptopt
-         write(iw,*) 'linopt',linopt
-         write(iw,*) 'inhess',inhess
-         write(iw,*) 'modupd',modupd
-         write(iw,*) 'modsad',modsad
-         write(iw,*) 'moddir',moddir
-         write(iw,*) 'sadstp',sadstp
+         write(iw,*) 'cvgopt ',cvgopt
+         write(iw,*) 'nptopt ',nptopt
+         write(iw,*) 'linopt ',linopt
+         write(iw,*) 'inhess ',inhess
+         write(iw,*) 'modupd ',modupd
+         write(iw,*) 'modsad ',modsad
+         write(iw,*) 'moddir ',moddir
+         write(iw,*) 'sadstp ',sadstp
+         write(iw,*) 'maxiter',maxiter
+         write(iw,*) 'convggm',convggm
+         write(iw,*) 'convgg ',convgg
+         write(iw,*) 'convge ',convge
       endif
 c
       return
@@ -591,7 +610,8 @@ c                mxcoor=max(mxcart,mxzmat)
       logical       dbug
       common/hnd_iofile/ir,iw
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad
+     1                                                     modsad,
+     2                  convggm,convgg,convge,maxiter
       common/hnd_optsad/sadstp
       common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
 c
@@ -613,6 +633,10 @@ c
       do i=1,mxatom
          iatfrz(i)=0
       enddo
+c
+      convggm=cvgopt
+      convgg =1.0d-01
+      convge =1.0d-03
 c
 c     ----- read values from input -----
 c
@@ -655,10 +679,19 @@ c
          else
             if(inp_compare(.false.,'cvgopt',field)) then
                if(inp_f(dum)) then
-                  cvgopt=dum
+                  cvgopt =dum
+                  convggm=cvgtol
                   go to 10
                else
                   call errquit('hnd_opt_input: cvgopt',911)
+               endif
+            elseif(inp_compare(.false.,'convggm',field)) then
+               if(inp_f(dum)) then
+                  cvgopt =dum
+                  convggm=cvgtol
+                  go to 10
+               else
+                  call errquit('hnd_opt_input: convggm',911)
                endif
             elseif(inp_compare(.false.,'sadstp',field)) then
                if(inp_f(dum)) then
@@ -669,10 +702,19 @@ c
                endif
             elseif(inp_compare(.false.,'nptopt',field)) then
                if(inp_i(idum)) then
-                  nptopt=idum
+                  nptopt =idum
+                  maxiter=nptopt
                   go to 10
                else
                   call errquit('hnd_opt_input: nptopt',911)
+               endif
+            elseif(inp_compare(.false.,'maxiter',field)) then
+               if(inp_i(idum)) then
+                  nptopt =idum
+                  maxiter=nptopt
+                  go to 10
+               else
+                  call errquit('hnd_opt_input: maxiter',911)
                endif
             elseif(inp_compare(.false.,'linopt',field)) then
                if(inp_i(idum)) then
@@ -721,13 +763,17 @@ c
   100 continue
       if(dbug) then
          write(iw,*) 'in hnd_opt_input, after reading the input'
-         write(iw,*) 'cvgopt',cvgopt
-         write(iw,*) 'nptopt',nptopt
-         write(iw,*) 'linopt',linopt
-         write(iw,*) 'inhess',inhess
-         write(iw,*) 'modupd',modupd
-         write(iw,*) 'modsad',modsad
-         write(iw,*) 'moddir',moddir
+         write(iw,*) 'cvgopt ',cvgopt
+         write(iw,*) 'nptopt ',nptopt
+         write(iw,*) 'linopt ',linopt
+         write(iw,*) 'inhess ',inhess
+         write(iw,*) 'modupd ',modupd
+         write(iw,*) 'modsad ',modsad
+         write(iw,*) 'moddir ',moddir
+         write(iw,*) 'maxiter',maxiter
+         write(iw,*) 'convggm',convggm
+         write(iw,*) 'convgg ',convgg
+         write(iw,*) 'convge ',convge
       endif
 c
       return
@@ -746,7 +792,8 @@ c
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad
+     1                                                     modsad,
+     2                  convggm,convgg,convge,maxiter
       common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optvar/zcoord,ncoord,mcoord
       common/hnd_zmtpar/nzmat,nzvar,nvar
@@ -789,7 +836,8 @@ c
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad
+     1                                                     modsad,
+     2                  convggm,convgg,convge,maxiter
 c
       if( ga_nodeid().eq.0) then
          write(iw,9999) gmax,cvgopt,gmax0
