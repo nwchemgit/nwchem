@@ -21,7 +21,7 @@ realclean:
 mxsubs.o : 	mxsubs.cpp
 	       	rm -f mxsubs.f
 		$(CPP) -I$(HDIR) < mxsubs.cpp > mxsubs.f
-		$(FC) $(MPI_INCLUDE) -c -o mxsubs.o mxsubs.f
+		$(FC) -c -o mxsubs.o mxsubs.f
 
 mxbrod.o :	mxbrod.cpp
 	       	rm -f mxbrod.f
