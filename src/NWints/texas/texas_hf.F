@@ -1,6 +1,286 @@
-c $Id: texas_hf.F,v 1.16 1996-09-19 01:04:45 d3g681 Exp $
-c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
+     *                       q4, use_q4,
+     *                       ra,rb,rc,rd,use_r,
+     *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
+     *                       more_int,blscr,l_blscr,zerotol)
+      implicit none
+#include "mafdecls.fh"
+#include "bas.fh"
+c
+      integer ij_basis, ish(*), jsh(*), kl_basis, ksh(*), lsh(*)
+      integer nquart
+      double precision q4(*)
+      logical use_q4
+      double precision ra(*), rb(*), rc(*), rd(*)
+      logical use_r
+      double precision eri(*)
+      integer leri
+      integer icf(*), jcf(*), kcf(*), lcf(*)
+      integer integ_n0
+      logical labels
+      logical more_int
+      double precision blscr(*)
+      integer l_blscr
+      double precision zerotol
+c
+      integer k_g, l_g, k_lab, l_lab, lablen
+      integer ilo, ihi, idim, k_i, ishs
+      integer jlo, jhi, jdim, k_j, jshs
+      integer klo, khi, kdim, k_k, kshs
+      integer llo, lhi, ldim, k_l, lshs
+c     
+c     Wrapper around texas_hf2 so that ONLY ever call texas
+c     for integrals with labels but can still support the PNL
+c     1-shell-at-a-time all-integrals no-labels interface
+c
+*      write(6,*) ' texas hf ', labels
+      if (labels) then
+         call texas_hf2_m2(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
+     *        q4, use_q4,
+     *        ra,rb,rc,rd,use_r,
+     *        eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
+     *        more_int,blscr,l_blscr,zerotol)
+      else
+c
+         if (nquart.ne.1) call errquit
+     $        ('texas: no-labels for 1 quartet only',nquart)
+         if (.not. bas_cn2bfr(ij_basis, ish, ilo, ihi))
+     $        call errquit('texas_hf: bad basis?', ij_basis)
+         if (.not. bas_cn2bfr(ij_basis, jsh, jlo, jhi))
+     $        call errquit('texas_hf: bad basis?', ij_basis)
+         if (.not. bas_cn2bfr(kl_basis, ksh, klo, khi))
+     $        call errquit('texas_hf: bad basis?', kl_basis)
+         if (.not. bas_cn2bfr(kl_basis, lsh, llo, lhi))
+     $        call errquit('texas_hf: bad basis?', kl_basis)
+c
+         idim = (ihi - ilo + 1)
+         jdim = (jhi - jlo + 1)
+         kdim = (khi - klo + 1)
+         ldim = (lhi - llo + 1)
+         lablen = idim*jdim*kdim*ldim
+         if (leri .lt. lablen) call errquit('texas: leri < lablen',leri)
+c
+         if (.not. ma_push_get(mt_int, 4*lablen , 'texas_hf: labels',
+     $        l_lab, k_lab)) call errquit
+     $        ('texas_hf: insufficient memory for labels?', lablen)
+         if (.not. ma_push_get(mt_dbl, lablen , 'texas_hf: labels',
+     $        l_g, k_g)) call errquit
+     $        ('texas_hf: insufficient memory for eri?', lablen)
+c
+         k_i = k_lab
+         k_j = k_i + lablen
+         k_k = k_j + lablen
+         k_l = k_k + lablen
+c
+         ishs = ish(1)          ! Save since texas reorders
+         jshs = jsh(1)
+         kshs = ksh(1)
+         lshs = lsh(1)
+c
+         int_mb(k_i) = -99999999
+c
+         call texas_hf2_m2(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
+     *        q4, use_q4,
+     *        ra,rb,rc,rd,use_r,
+     *        dbl_mb(k_g), lablen,
+     $        int_mb(k_i),int_mb(k_j),int_mb(k_k),int_mb(k_l),
+     $        integ_n0, .true.,
+     *        more_int, blscr, l_blscr, 0.0d0)
+c
+         if (.not. ma_verify_allocator_stuff())
+     $        call errquit('texas_labels corrupted ma 1', 0)
+c
+         call dfill(lablen, 0.0d0, eri, 1)
+c
+         call texas_pnl_nolabels(
+     $        ishs, jshs, kshs, lshs,
+     $        ilo, jlo, klo, llo,
+     $        ihi, jhi, khi, lhi,
+     $        integ_n0, 
+     $        dbl_mb(k_g), 
+     $        int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
+     $        eri)
+c
+         if (.not. ma_verify_allocator_stuff())
+     $        call errquit('texas_labels corrupted ma 2', 0)
+c
+         if (.not. ma_pop_stack(l_g)) call errquit
+     $        ('texas_hf: pop stack failed', 0)
+         if (.not. ma_pop_stack(l_lab)) call errquit
+     $        ('texas_hf: pop stack failed', 0)
+c
+      endif
+c
+      end
+      subroutine texas_pnl_nolabels(
+     $     ish, jsh, ksh, lsh,
+     $     ilo, jlo, klo, llo,
+     $     ihi, jhi, khi, lhi,
+     $     integ_n0, 
+     $     gg, ii, jj, kk, ll,
+     $     eri)
+      implicit none
+      integer ish, jsh, ksh, lsh
+      integer ilo, jlo, klo, llo
+      integer ihi, jhi, khi, lhi
+      integer integ_n0
+      double precision gg(*)
+      integer ii(*), jj(*), kk(*), ll(*)
+      double precision eri(llo:lhi, klo:khi, jlo:jhi, ilo:ihi)
+c     
+      integer integ, i, j, k, l
+      logical oij, okl, oikjl
+      double precision g, tmp
+c     
+      oij = ish.eq.jsh
+      okl = ksh.eq.lsh
+      oikjl = ish.eq.ksh .and. jsh.eq.lsh
+*      write(6,*) ' oij, okl, oikjl ', oij, okl, oikjl
+c     
+      do integ = 1, integ_n0
+         i = ii(integ)
+         j = jj(integ)
+         k = kk(integ)
+         l = ll(integ)
+         g = gg(integ)
+         eri(l,k,j,i) = g
+      enddo
+c
+c     All the following loops are really only necessary for
+c     generally contracted shells but don't hurt if we do
+c     them for all shells?
+c     
+c$$$      if (oij) then
+c$$$         do integ = 1, integ_n0
+c$$$            i = ii(integ)
+c$$$            j = jj(integ)
+c$$$            k = kk(integ)
+c$$$            l = ll(integ)
+c$$$            g = gg(integ)
+c$$$            eri(l,k,i,j) = g
+c$$$         enddo
+c$$$         if (okl) then
+c$$$            do integ = 1, integ_n0
+c$$$               i = ii(integ)
+c$$$               j = jj(integ)
+c$$$               k = kk(integ)
+c$$$               l = ll(integ)
+c$$$               g = gg(integ)
+c$$$               eri(k,l,i,j) = g
+c$$$            enddo
+c$$$         endif
+c$$$      endif
+c$$$c     
+c$$$      if ((.not. oij) .and. okl) then
+c$$$         do integ = 1, integ_n0
+c$$$            i = ii(integ)
+c$$$            j = jj(integ)
+c$$$            k = kk(integ)
+c$$$            l = ll(integ)
+c$$$            g = gg(integ)
+c$$$            eri(k,l,j,i) = g
+c$$$         enddo
+c$$$      endif
+c$$$c     
+c$$$      if (oikjl) then
+c$$$         do integ = 1, integ_n0
+c$$$            i = ii(integ)
+c$$$            j = jj(integ)
+c$$$            k = kk(integ)
+c$$$            l = ll(integ)
+c$$$            g = gg(integ)
+c$$$            eri(j,i,l,k) = g
+c$$$         enddo
+c$$$c     
+c$$$         if (oij) then
+c$$$            do integ = 1, integ_n0
+c$$$               i = ii(integ)
+c$$$               j = jj(integ)
+c$$$               k = kk(integ)
+c$$$               l = ll(integ)
+c$$$               g = gg(integ)
+c$$$               eri(i,j,l,k) = g
+c$$$            enddo
+c$$$            if (okl) then
+c$$$               do integ = 1, integ_n0
+c$$$                  i = ii(integ)
+c$$$                  j = jj(integ)
+c$$$                  k = kk(integ)
+c$$$                  l = ll(integ)
+c$$$                  g = gg(integ)
+c$$$                  eri(i,j,k,l) = g
+c$$$               enddo
+c$$$            endif
+c$$$         endif
+c$$$c     
+c$$$         if ((.not. oij) .and. okl) then
+c$$$            do integ = 1, integ_n0
+c$$$               i = ii(integ)
+c$$$               j = jj(integ)
+c$$$               k = kk(integ)
+c$$$               l = ll(integ)
+c$$$               g = gg(integ)
+c$$$               eri(j,i,k,l) = g
+c$$$            enddo
+c$$$         endif
+c$$$      endif
+c
+      if (oij) then
+         do i = ilo, ihi
+            do j = jlo, jhi
+               do k = klo, khi
+                  do l = llo, lhi
+                     tmp = (eri(l,k,j,i) + eri(l,k,i,j))*.5d0
+                     eri(l,k,j,i) = tmp
+                     eri(l,k,i,j) = tmp
+                  enddo
+               enddo
+            enddo
+         enddo
+      endif
+      if (okl) then
+         do i = ilo, ihi
+            do j = jlo, jhi
+               do k = klo, khi
+                  do l = llo, lhi
+                     tmp = (eri(l,k,j,i) + eri(k,l,j,i))*.5d0
+                     eri(k,l,j,i) = tmp
+                     eri(l,k,j,i) = tmp
+                  enddo
+               enddo
+            enddo
+         enddo
+      endif
+      if (oikjl) then
+         do i = ilo, ihi
+            do j = jlo, jhi
+               do k = klo, khi
+                  do l = llo, lhi
+                     tmp = (eri(l,k,j,i) + eri(j,i,l,k))*.5d0
+                     eri(j,i,l,k) = tmp
+                     eri(l,k,j,i) = tmp
+                  enddo
+               enddo
+            enddo
+         enddo
+      endif
+c
+c$$$      write(6,*) ' ish, jsh, ksh, lsh ', ish, jsh, ksh, lsh
+c$$$      do i = ilo, ihi
+c$$$         do j = jlo, jhi
+c$$$            do k = klo, khi
+c$$$               do l = llo, lhi
+c$$$ 1                format(4i6,f20.6)
+c$$$                  write(6,1) i, j, k, l, eri(l,k,j,i)
+c$$$               enddo
+c$$$            enddo
+c$$$         enddo
+c$$$      enddo
+c     
+      end
+c $Id: texas_hf.F,v 1.17 1996-10-10 20:35:05 d3g681 Exp $
+c=================================================================
+      subroutine texas_hf2_m2(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
      *                       ra,rb,rc,rd,use_r,
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
