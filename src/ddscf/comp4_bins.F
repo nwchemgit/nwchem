@@ -1,12 +1,15 @@
       subroutine comp4_bins(m, n, nb_per_i)
-C$Id: comp4_bins.F,v 1.4 1995-02-02 23:11:28 d3g681 Exp $
+C$Id: comp4_bins.F,v 1.5 1995-03-01 19:55:52 d3g681 Exp $
       implicit none
 c
       integer m(*)              ! Array holding info compressed to 4 bits
       integer n                 ! Bin the first n entries
       integer nb_per_i          ! No. of bytes per integer
 c
-      integer v,vv,vvv                 ! Value after compression
+#if defined(CRAY)
+      integer vv,vvv            ! Temporaries for CRAY
+#endif
+      integer v                 ! Value after compression
       integer index, nbits, i
       integer bins(0:15)
       double precision fast(0:15)

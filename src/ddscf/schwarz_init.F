@@ -1,5 +1,5 @@
       subroutine schwarz_init(geom, basis)
-C$Id: schwarz_init.F,v 1.13 1995-02-02 23:12:11 d3g681 Exp $
+C$Id: schwarz_init.F,v 1.14 1995-03-01 19:56:03 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -164,7 +164,7 @@ c
       if (.not. ma_pop_stack(l_scr)) call errquit('schwarz_init: pop',0)
       if (.not. ma_pop_stack(l_g)) call errquit('schwarz_init: pop', 1)
 c
-      if (ga_nodeid().eq.0 .and. util_print('schwarz',print_default)) 
+      if (ga_nodeid().eq.0 .and. util_print('schwarz',print_high)) 
      $     then
          write(6,2) natri, nshtri
  2       format(/
