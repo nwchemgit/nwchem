@@ -1,5 +1,5 @@
       subroutine sym_apply_op(geom, opnum, r, r1)
-C$Id: sym_apply_op.F,v 1.2 1995-02-02 23:23:18 d3g681 Exp $
+C$Id: sym_apply_op.F,v 1.3 1995-04-10 22:42:30 d3g681 Exp $
       implicit none
 c
 #include "mafdecls.h"
@@ -18,8 +18,8 @@ c
         enddo
       enddo
 c
-      write(6,*) ' sym_apply_op r ', r
-      write(6,*) ' sym_apply_op op', opnum
-      write(6,*) ' sym_apply_op r1', r1
+*      write(6,*) ' sym_apply_op r ', r
+*      write(6,*) ' sym_apply_op op', opnum
+*      write(6,*) ' sym_apply_op r1', r1
 c
       end

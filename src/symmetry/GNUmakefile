@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.8 1995-02-02 23:23:10 d3g681 Exp $
+#$Id: GNUmakefile,v 1.9 1995-04-10 22:42:28 d3g681 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -26,6 +26,7 @@ OBJ =     dosymops.o \
           sym_symmetrize.o \
           sym_geom_project.o \
           sym_test.o \
+          sym_inv_op.o \
           wrcell.o
 
 
