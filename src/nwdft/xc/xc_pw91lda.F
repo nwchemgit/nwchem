@@ -4,7 +4,7 @@ c     This has the same form as VWN functional V, only with a different
 c     form for the parameterized functionals of rs.  The VWN V code is
 c     reused.
 *
-* $Id: xc_pw91lda.F,v 1.10 2000-07-27 16:22:28 bjohnson Exp $
+* $Id: xc_pw91lda.F,v 1.11 2001-06-11 20:29:27 edo Exp $
 *
 #ifndef SECOND_DERIV
       Subroutine xc_pw91lda(tol_rho, fac, lfac, nlfac, rho, Amat, nq,
@@ -97,7 +97,7 @@ c
 c        ======> SPIN-RESTRICTED <======
 c
          do 100 n = 1, nq
-            if (abs(rho(n,1)).lt.tol_rho)goto 100
+            if (rho(n,1).lt.tol_rho)goto 100
 c
             rhoval = rho(n,1)
             rs = p0*rhoval**(-onethird)
@@ -165,7 +165,7 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 200 n = 1, nq
-            if (abs(rho(n,1)).lt.tol_rho)goto 200
+            if (rho(n,1).lt.tol_rho)goto 200
 c
             rhoval = rho(n,1)
             rs = p0*rhoval**(-onethird)

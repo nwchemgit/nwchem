@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,check_deg)
-C$Id: dft_densm.F,v 1.24 2001-05-11 02:12:17 edo Exp $
+C$Id: dft_densm.F,v 1.25 2001-06-11 20:29:27 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -132,7 +132,7 @@ c
          if(ga_nodeid().eq.0) then 
             write(LuOut,1688) efermi,tdots,(i,ntot(i),i=1,ipol)
  1688       format(' eFermi = ',f10.6,' T*S = ',f10.6,
-     ,           2(' nel(',i1,') = ',f9.5)/) 
+     ,           2(' nel(',i1,')= ',f12.5)/) 
 C            write(LuOut,1723) (focc(i),i=1,nbf*ipol)
 C 1723       format(' Foccs ',(
          endif

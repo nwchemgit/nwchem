@@ -3,7 +3,7 @@ c     General implementation of VWN functionals
 c
 c     BGJ (4/00)
 *
-* $Id: xc_vwn_a.fh,v 1.4 2001-05-24 01:02:54 edo Exp $
+* $Id: xc_vwn_a.fh,v 1.5 2001-06-11 20:29:27 edo Exp $
 *
 c     Meanings of macros used in constructing different VWN parameterizations
 c     The determining macro FNL_VWN_xxx is set in the .F file
@@ -209,7 +209,7 @@ c
 c        ======> SPIN-RESTRICTED <======
 c
          do 100 n = 1, nq
-            if (abs(rho(n,1)).lt.tol_rho)goto 100
+            if (rho(n,1).lt.tol_rho)goto 100
 c
             rhoval = rho(n,1)
             if(rhoval.gt.tol_rho) then
@@ -279,7 +279,8 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 200 n = 1, nq
-            if (abs(rho(n,1)).lt.tol_rho)goto 200
+            if (rho(n,1).lt.tol_rho)goto 200
+!            if (abs(rho(n,1)).lt.tol_rho)goto 200
 c
             rhoval = rho(n,1)
             if(rhoval.gt.tol_rho) then

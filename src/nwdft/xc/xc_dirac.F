@@ -13,7 +13,7 @@ c     For locations of 2nd derivatives of functionals in array
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
-C$Id: xc_dirac.F,v 1.15 2001-04-12 18:00:22 edo Exp $
+C$Id: xc_dirac.F,v 1.16 2001-06-11 20:29:27 edo Exp $
 c
       Implicit none
 c
@@ -71,7 +71,7 @@ c         write(LuOut,*)'xc_dirac called: restricted'
 #endif
          do 10 n = 1, nq
             if (abs(rho(n,1)).gt.tol_rho)then
-               rho13 = rho(n,1)**one_third
+               rho13=abs(rho(n,1))**one_third*sign(1d0,rho(n,1))
                Amat(n,1) = Amat(n,1) + rho13
 #ifdef SECOND_DERIV
                Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + rho13/rho(n,1)

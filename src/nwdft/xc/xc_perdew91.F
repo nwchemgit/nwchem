@@ -2,7 +2,7 @@
      &                       Amat, Cmat, nq, ipol, Ec, qwght, 
      ,     ldew, ffunc)
 c
-c     $Id: xc_perdew91.F,v 1.29 2001-05-11 21:01:18 edo Exp $
+c     $Id: xc_perdew91.F,v 1.30 2001-06-11 20:29:27 edo Exp $
 c
       Implicit none
 c
@@ -111,7 +111,7 @@ c        ======> SPIN-RESTRICTED <======
 c
          do 10 n = 1, nq
             rhoval = rho(n,1)
-            if (abs(rhoval).le.tol_rho)goto 10
+            if (rhoval.le.tol_rho)goto 10
             arho = 1.d0/rhoval
             rho13  = rhoval**ONE3
             rs = rsfact/rho13
@@ -282,7 +282,7 @@ c
             rho_t(1) = rho(n,1)
             rho_t(2) = rho(n,2)
             rho_t(3) = rho(n,3)
-            if (abs(rhoval).le.tol_rho) goto 20
+            if (rhoval.le.tol_rho) goto 20
             arho = 1.d0/rhoval
             rho13  = rhoval**ONE3
             rs = rsfact/rho13
