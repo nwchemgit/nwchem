@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.36 2003-02-17 22:42:05 marat Exp $
+* $Id: paw_sd.F,v 1.37 2003-02-18 02:02:52 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -490,19 +490,24 @@
          open(unit=17,file=full_filename,form='formatted')
       end if
 
+
 *     **** check total number of electrons ****
+
+      !*** comp charge ****
+      call D3dB_r_dsum(1,dbl_mb(dn_cmp_smooth(1)),sum1)
+      sum1 = sum1*lattice_omega()
+     >      /dble(ngrid(1)*ngrid(2)*ngrid(3))
+
+      !*** psi charge ****
       do ms =1,ispin
          call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
-         en(ms) = sumall*lattice_omega()
+         en(ms) = ne(ms) + 0.5d0*sum1
+     >          + sumall*lattice_omega()
      >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
       end do
-      call D3dB_r_dsum(1,dbl_mb(dn_cmp_smooth(1)),sumall)
-      write(*,*) "sumall       :",sumall
-      write(*,*) "dn_cmp_smooth:",sumall*lattice_omega()
-     >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
 
       if (taskid.eq.MASTER) then
-         write(17,1320) (en(ms),ms=1,ispin)
+         write(17,1320) en(1),en(ispin)
       end if
 
 *     **** comparison between hamiltonian an lambda matrix ****

@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.13 2003-02-17 21:18:59 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.14 2003-02-18 02:02:52 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -273,6 +273,7 @@
      >             move,dbl_mb(fion(1)))
 
         
+
 *       ************************************
 *       **** do a steepest descent step ****
 *       ************************************
