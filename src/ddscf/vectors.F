@@ -100,6 +100,7 @@ c
 #include "msgids.fh"
 #include "cscfps.fh"
 #include "inp.fh"
+#include "util.fh"
 c
       character*(*) filename
       integer iset              ! No. (1,2) of set of vectors to read
@@ -164,7 +165,8 @@ c
       endif
 c
       movecs_read = ok .eq. 1
-      if (ga_nodeid() .eq. 0) then
+      if (ga_nodeid() .eq. 0 .and. 
+     $     util_print('vectors i/o', print_default)) then
          write(6,22) filename(1:inp_strlen(filename))
  22      format(/' Read molecular orbitals from ',a/)
          call util_flush(6)
@@ -199,6 +201,7 @@ c
 #include "inp.fh"
 #include "msgids.fh"
 #include "cscfps.fh"
+#include "util.fh"
 c
 c     Temporary routine
 c
@@ -261,7 +264,8 @@ c
  10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
 c
       movecs_write = ok .eq. 1
-      if (ga_nodeid() .eq. 0) then
+      if (ga_nodeid() .eq. 0 .and.
+     $     util_print('vectors i/o', print_default)) then
          write(6,22) filename(1:inp_strlen(filename))
  22      format(/' Wrote molecular orbitals to ',a/)
          call util_flush(6)
@@ -291,13 +295,16 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
 c
       integer rtdb, g_vecs
 c
       integer type, nelem, handle, index
       integer l_veci, k_veci, l_vecj, k_vecj, dim1, dim2
       integer pair, i, j
+      logical oprint
 c
+      oprint = util_print('mo guess', print_default)
       if (.not. rtdb_ma_get(rtdb, 'scf:swap', type, nelem, 
      $     handle)) return
       if (.not. ma_get_index(handle,index)) call errquit
@@ -307,7 +314,7 @@ c
 c
       call ga_sync()
       if (ga_nodeid() .eq. 0) then
-         write(6,*)
+         if (oprint) write(6,*)
          call ga_inquire(g_vecs, type, dim1, dim2)
          if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_veci, k_veci))
      $        call errquit('movecs_swap: no scratch space', dim1)
@@ -316,7 +323,7 @@ c
          do pair = 1, nelem, 2
             i = int_mb(index+pair-1)
             j = int_mb(index+pair  )
-            write(6,1) i, j
+            if (oprint) write(6,1) i, j
  1          format(' Swapping orbitals ', 2i5)
             if (i.lt.0 .or. i.gt.dim2) call errquit
      $           ('movecs_swap: invalid vector ', i)
@@ -329,7 +336,7 @@ c
             call ga_put(g_vecs, 1, dim1, j, j, dbl_mb(k_veci), 1)
 c     
          enddo
-         call util_flush(6)
+         if (oprint) call util_flush(6)
          if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0)
          if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0)
       endif
@@ -342,8 +349,3 @@ c
       if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0)
 c
       end
-
-
-            
-      
-      

@@ -7,6 +7,7 @@
 #include "global.fh"
 #include "geom.fh"
 #include "msgids.fh"
+#include "util.fh"
 c
       integer geom, basis       ! [input] handles
 c
@@ -162,7 +163,8 @@ c
       if (.not. ma_pop_stack(l_scr)) call errquit('schwarz_init: pop',0)
       if (.not. ma_pop_stack(l_g)) call errquit('schwarz_init: pop', 1)
 c
-      if (ga_nodeid().eq.0) then
+      if (ga_nodeid().eq.0 .and. util_print('schwarz',print_default)) 
+     $     then
          write(6,2) natri, nshtri
  2       format(/
      $        ' Schwarz integral screening summary '/

@@ -10,6 +10,7 @@
 #include "pstat.fh"
 #include "cscfps.fh"
 #include "cskeleton.fh"
+#include "util.fh"
 c
 c     RHF module.
 c
@@ -19,83 +20,6 @@ c     Currently performs closed shell ground state RHF calculation
 c     but will at some point be extended to include ROHF and UHF, locking
 c     of orbitals to converge excited states ..
 c
-c     Parameters passed in the rtdb
-c
-c       'geometry' -> name of geometry to use for the calculation
-c                     (defaults to 'geometry')
-c
-c       'mo basis' -> name of basis set to use for the calculation
-c                     (defaults to 'mo basis')
-c
-c       'scftype' -> name of function to use (rhf,rohf,uhf)
-c                    (defaults to rhf currently)
-c                    (more detailed info will be needed for rohf and uhf)
-c                    (open shells, coupling, multiplicity, ...)
-c
-c       'charge' -> net charge on the system (double)
-c                   (defaults to zero)
-c
-c       'title' -> title for the calculation
-c                  (defaults to ' ')
-c
-c       'convergence' -> required convergence threshold ... largest element
-c                        of gradient vector (defaults to 10^-4).
-c
-c       'input mo vector file' -> name of file to look for input mo vectors
-c                             (defaults to value of 'mo vector file')
-c
-c       'output mo vector file' -> name of file to look for output mo vectors
-c                               (defaults to value of 'input mo vector file')
-c
-c       'mo vector file' -> generic source/sink of mo vectors
-c                           (defaults to <prefix>.movec)
-c
-c       'energy' -> final energy (stores final converged energy)
-c
-c       'converged' -> true/false if calculation converged OK
-c
-c       'integral accuracy' -> Screening threshold for integrals.
-c                              Defaults to being determined from 
-c                              'wavefunction accuracy'
-c
-c       'wavefunction convergence' -> Convergence thre
-c
-c       'wavefunction accuracy' -> text description of required accuracy
-c                                  for the wavefunction.  This is a
-c                                  parameter that is understood by all
-c                                  modules.
-c                               Low -> result is suitable for starting
-c                                      guess for subsequent calculation
-c                               Medium -> Energy converged to at least
-c                                         10^-6 au
-c                               High -> Energy accurate to accuracy of the
-c                                       integrals and wavefunction accurate 
-c                                       to at least 1 part in 10^-6
-c                   
-c
-c       'print level' -> text description of required output level.
-c                        This is a parameter that is understood by all modules.
-c                        None   -> no output except to report problems
-c                        Low    -> Module name + 
-c                                  brief summary of results
-c                        Medium -> Module name +
-c                                  title + 
-c                                  brief description of the calculation + 
-c                                  brief convergence information +
-c                                  detailed summary of results + 
-c                                  brief timing information
-c                        High   -> Module name + 
-c                                  title + 
-c                                  detailed description of calculation + 
-c                                  detailed convergence information + 
-c                                  detailed listing of results +
-c                                  detailed timing information
-c                        Debug  -> Print anything appropriate to finding bugs
-c
-c
-c       Other options (fock-build method, ...)
-c       are managed in the lower subroutines
-c
       integer rtdb              ! [input] database handle
       integer geom, basis       ! handles
       logical converged
@@ -103,6 +27,7 @@ c
       character*255 name, title, trans
       double precision energy
       double precision charge
+      logical oprint
 c
       character*255 movecs_in, movecs_out
       logical rhf
@@ -120,6 +45,8 @@ c
       call scf_pstat_init(rtdb)
 c
 c     Extract high level info from the data-base setting defaults
+c
+      oprint = util_print('information',print_low) ! Need to also push print level
 c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
@@ -168,7 +95,8 @@ c
 c     Eventually print level will be under input control. For now
 c     print verbosely
 c 
-      if (ga_nodeid() .eq. 0) then
+      
+      if (ga_nodeid() .eq. 0 .and. oprint) then
          call util_print_centered(6, 'NWCHEM SCF Module', 40, .true.)
          write(6,*)
          write(6,*)
