@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.9 2002-06-29 12:42:57 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.10 2003-07-28 23:45:57 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -23,7 +23,7 @@
       integer ispin,ne(2),nemax
       integer psi2(2),dn(2),psir(2)
       real*8  cpu1,cpu2
-      real*8  position_tolerance
+      real*8  position_tolerance,origin(3)
       character*8 tag
 
 *     **** external functions ****
@@ -79,6 +79,15 @@
      >      position_tolerance = 0.0d0
 
 
+*     **** get origin ****
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:origin',
+     >               mt_dbl,3,origin)) then
+        origin(1) = 0.0d0 
+        origin(2) = 0.0d0 
+        origin(3) = 0.0d0 
+      end if
+
 *     **** read control file ****
       value = control_read(4,rtdb)
       ngrid(1) = control_ngrid(1)
@@ -126,6 +135,7 @@
 *     *****  read psi2 wavefunctions ****
       call psi_read(ispin,ne,dcpl_mb(psi2(1)))
 
+
 *     **** allocate other variables *****
       value = value.and.
      >        MA_alloc_get(mt_dbl,(4*nfft3d),
@@ -152,6 +162,8 @@
          write(6,1121) control_boundry(),control_version()
          write(6,1220) ne(1),ne(ispin),' ( fourier space)'
          write(6,1225) position_tolerance
+         write(6,1226) origin
+
          write(6,1230)
          write(6,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
@@ -181,6 +193,32 @@
         call util_flush(6)
       end if
 
+
+      !**** translate system if origin is not zero ****
+      if ((origin(1).ne. 0.0d0).or.
+     >    (origin(2).ne. 0.0d0).or .
+     >    (origin(3).ne. 0.0d0) )     then
+
+        if (taskid.eq.MASTER) then
+          write(*,*) "...translating origin..."
+          write(*,*) 
+          write(*,*) 
+        end if
+
+        origin(1) = -origin(1) !* translate system by -origin *
+        origin(2) = -origin(2)
+        origin(3) = -origin(3)
+
+        call ion_translate(origin)
+        call psi_translate(origin,
+     >                     npack1,(ne(1)+ne(2)),
+     >                     dcpl_mb(psi2(1)))
+
+        call phafac()  !** recompute phase factors **
+
+      end if
+
+
       call dplot_gen_psi_dn(ispin,ne,
      >                npack1,nfft3d,nemax,
      >                dcpl_mb(psi2(1)),
@@ -204,6 +242,7 @@
       if (control_version().eq.4) call coulomb2_end()
       call ke_end()
       call ion_write(rtdb)  !*** can also use call ion_destroy()????
+      !call ion_destroy(rtdb)  
       call ion_end()
       call mask_end()
       call Pack_end()
@@ -247,6 +286,8 @@
  1130 FORMAT(5X,' electron spin        = ',A)
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
  1225 FORMAT(/' position tolerance = ',E12.6)
+ 1226 FORMAT(/5x,'      origin=<',3f8.3,' >')
+
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
  1241 FORMAT(5x,' lattice: a1=<',3f8.3,' >')
@@ -1088,3 +1129,62 @@ c     if (.not. value) call errquit('closing geometry',0)
       return
       end
       
+
+*     ********************************
+*     *                              *
+*     *        psi_translate         *
+*     *                              *
+*     ********************************
+      subroutine psi_translate(trans,npack1,nemax,psi)
+      implicit none
+      real*8 trans(3)
+      integer npack1,nemax
+      complex*16 psi(npack1,nemax)
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      logical value
+      integer n,nion
+      integer exi(2),rion(2)
+
+*     **** external functions ****
+      integer  ion_nion
+      real*8   lattice_unita
+      external ion_nion
+      external lattice_unita
+
+      nion  = ion_nion()
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,3*nion,'rion', rion(2), rion(1))
+      if (.not. value) call errquit('psi_translate:push stack',0)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(rion(1)),1)
+
+      dbl_mb(rion(1)  ) = trans(1)
+     >                  - (   lattice_unita(1,1)
+     >                      + lattice_unita(1,2)
+     >                      + lattice_unita(1,3) )/2.0d0
+      dbl_mb(rion(1)+1) = trans(2)
+     >                  - (   lattice_unita(2,1)
+     >                      + lattice_unita(2,2)
+     >                      + lattice_unita(2,3) )/2.0d0
+      dbl_mb(rion(1)+2) = trans(3)
+     >                  - (   lattice_unita(3,1)
+     >                      + lattice_unita(3,2)
+     >                      + lattice_unita(3,3) )/2.0d0
+      call phafac_rion(dbl_mb(rion(1)))
+      call strfac_pack(1,1,dcpl_mb(exi(1)))
+      
+ 
+      do n=1,nemax
+        call Pack_cc_Mul(1,dcpl_mb(exi(1)),psi(1,n),psi(1,n))
+        !call Pack_cc_conjgMul(1,dcpl_mb(exi(1)),psi(1,n),psi(1,n))
+      end do
+
+
+      value =           MA_pop_stack(rion(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) call errquit('psi_translate:pop stack',1)
+      return
+      end

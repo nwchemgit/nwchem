@@ -1,6 +1,14 @@
 c
-c $Id: pspw_dplot_input.F,v 1.6 2002-12-10 01:37:23 bylaska Exp $
+c $Id: pspw_dplot_input.F,v 1.7 2003-07-28 23:45:57 bylaska Exp $
 c
+
+
+*     *****************************************************
+*     *                                                   *
+*     *                   pspw_dplot_input                *
+*     *                                                   *
+*     *****************************************************
+
       subroutine pspw_dplot_input(rtdb)
       implicit none
 #include "inp.fh"
@@ -10,7 +18,7 @@ c
       integer rtdb
 c
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 8)
+      parameter (num_dirs = 9)
       character*22 dirs(num_dirs)
       data dirs / 'vectors',
      >            'density',
@@ -19,6 +27,7 @@ c
      >            'elf',
      >            '2d_grid',
      >            '3d_grid',
+     >            'origin',
      >            'end'/
 
       integer num_dnames          ! No. of density directives
@@ -76,7 +85,7 @@ c
      >           'pspw_dplot_input: unknown directive', 0)
 
 
-      goto ( 100,  200, 300, 400, 500, 600,700,
+      goto ( 100,  200, 300, 400, 500, 600,700,800,
      >      9999) ind
       call errquit(
      >      'pspw_dplot_input: unimplemented directive', ind)
@@ -321,6 +330,24 @@ c
      >    'pspw_dplot_input: 3d_grid failed to read', 0)
 
       goto 10
+
+
+c
+c translate_origin
+c
+ 800  value =            inp_f(o(1))
+      value =  value.and.inp_f(o(2))
+      value =  value.and.inp_f(o(3))
+
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:origin',
+     >                           mt_dbl,3,o)
+
+      if (.not. value)
+     >   call errquit(
+     >    'pspw_dplot_input: translate_origin failed to read', 0)
+
+      goto 10
+
 
  9999 continue
 
