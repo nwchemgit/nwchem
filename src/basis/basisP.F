@@ -1,6 +1,7 @@
+
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
-c $Id: basisP.F,v 1.10 1994-07-29 22:36:13 d3e129 Exp $
+c $Id: basisP.F,v 1.11 1994-12-31 07:19:26 og845 Exp $
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -467,22 +468,6 @@ c
       return
       end
 c......................................................................
-      block data basis_data
-c
-c Block data structure to initialize the common block variables in the
-c  internal basis set object data structures
-c
-      implicit none
-#include "basP.fh"
-c     
-      data nbasis_rtdb /0/
-      data bsactive /nbasis_bsmx*.false./
-      data angular_bs /nbasis_bsmx*-565/
-      data nbfmax_bs /nbasis_bsmx*-565/
-      data bsversion /1.10d00/
-c     
-      end
-c......................................................................
       integer function nbf_from_ucont(ucont,basisin)
 c
 c function that returns the number of basis functions in a contraction
@@ -520,3 +505,5 @@ c
         call errquit('nbf_from_ucont: bad cont type',type)
       endif
       end
+
+

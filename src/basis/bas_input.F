@@ -1,5 +1,6 @@
+
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.12 1994-12-29 07:04:55 og845 Exp $
+c $Id: bas_input.F,v 1.13 1994-12-31 07:19:25 og845 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -7,6 +8,21 @@ c $Id: bas_input.F,v 1.12 1994-12-29 07:04:55 og845 Exp $
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "inp.fh"
+c
+c      block data basis_data
+c
+c Block data structure to initialize the common block variables in the
+c  internal basis set object data structures
+c
+#include "basP.fh"
+c     
+      data nbasis_rtdb /0/
+      data bsactive /nbasis_bsmx*.false./
+      data angular_bs /nbasis_bsmx*-565/
+      data nbfmax_bs /nbasis_bsmx*-565/
+      data bsversion /1.10d00/
+c     
+c      end
 c
 c     basis [<name>] [library <standard set>] [file <filename>] \
 c           [spherical|cartesian] [segment||nosegment] [print]
@@ -489,3 +505,5 @@ c
 10000 call errquit('bas_tag_lib: problem with library format?', 0)
 c
       end
+
+
