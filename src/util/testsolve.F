@@ -17,7 +17,7 @@ c
 c
       n = dim
       call pbeginf
-      if (.not. ma_init(MT_DBL, 500000, 500000)) call errquit
+      if (.not. ma_init(MT_DBL, 100000, 100000)) call errquit
      $     ('test: ma_init?', 0)
       status = ma_set_auto_verify(.true.)
       call ga_initialize()
@@ -63,9 +63,14 @@ c
       call output(evals, 1, n, 1, 1, n, 1, 1)
       tol = 0.0001d0
       eval = 0.0d0
+c
+      status = ga_destroy(g_soln)
+      status = ga_create(MT_DBL, n, 3, 'test:soln', 1, 1, g_soln)
+      call ga_zero(g_soln)
       do iter = 1, 3
-         if (ga_iter_diag(n, 40, 10, tol, test_precond,
-     $        test_product, .true., g_soln, eval, acc, iter_solve)) then
+         if (ga_iter_diag(n, 3, 40, 10, tol, test_precond,
+     $        test_product, .true., 0.0d0,
+     $        g_soln, eval, acc, iter_solve)) then
             if (ga_nodeid() .eq. 0) write(6,*) ' OK'
          else
             if (ga_nodeid() .eq. 0) write(6,*) ' not OK'
@@ -115,11 +120,17 @@ c
       double precision function drandm(iflag)
       implicit none
       integer iflag
+#ifdef KSR
       integer irandm
       external irandm
       double precision scale
       parameter(scale=1.0d0/2147483647.0d0)
       drandm = scale*irandm(iflag)
+#else
+      double precision drand
+      external drand
+      drandm = drand(iflag)
+#endif
       end
       subroutine testpcg
       implicit none
