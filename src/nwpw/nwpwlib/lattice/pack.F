@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.8 2002-08-13 23:24:13 bylaska Exp $
+* $Id: pack.F,v 1.9 2003-02-20 18:40:20 bylaska Exp $
 *
 
 
@@ -1450,4 +1450,35 @@ c      end do
 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_c_setzero         *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_c_setzero(nb,vzero,A)
+      implicit none
+      integer    nb
+      real*8     vzero
+      complex*16 A(*)
+
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i,p,q,taskid
+
+      call Parallel_taskid(taskid)
+      call D3dB_ktoqp(1,1,q,p)
+      if (p.eq.taskid) A(1) = vzero
+
+      return
+      end
+
 
