@@ -11,7 +11,7 @@ c
 c
       end
       subroutine guess_dens_gen(rtdb, geom, basis, odens, g_dens, eatom)
-C$Id: denat.F,v 1.13 1996-10-21 16:43:48 d3g681 Exp $
+C$Id: denat.F,v 1.14 1996-10-21 17:49:01 vg038 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -25,7 +25,7 @@ C$Id: denat.F,v 1.13 1996-10-21 16:43:48 d3g681 Exp $
 #include "stdio.fh"
       integer rtdb              ! Run Time Data Base Handle
       integer geom, basis       ! Handles
-      integer odens             ! [input] If true make the density
+      logical odens             ! [input] If true make the density
       integer g_dens            ! GA returns superposition of atomic densities
       double precision eatom    ! returns sum of atomic SCF energies
 c
