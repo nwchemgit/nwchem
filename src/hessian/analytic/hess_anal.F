@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.13 2002-01-31 00:54:36 windus Exp $
+C $Id: hess_anal.F,v 1.14 2002-02-05 00:33:57 windus Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -29,7 +29,7 @@ C
 
       integer restr, junk
       integer ps_total, ps_onedd, ps_nucdd, ps_twodd, ps_cphf
-      logical oprint, ohessprof
+      logical oprintsome, oprint, ohessprof
       logical task_energy
       logical bgj_get_scf_method, hess_check
       external task_energy
@@ -63,6 +63,8 @@ c  information for hess)
 c
       call util_print_push
       call util_print_rtdb_load(rtdb,'hess')
+      oprintsome = util_print('hess-follow',print_low)
+      oprintsome = oprintsome .and. (ga_nodeid().eq.0)
       oprint = util_print('hess_follow',print_high)
       oprint = oprint .and. (ga_nodeid().eq.0)
 c
@@ -119,6 +121,8 @@ c
       call nucdd_cont(rtdb)
       if (ohessprof) call pstat_off(ps_nucdd)
       call hess_restart(rtdb,1)
+      if (oprintsome) write(LuOut,*) 'HESSIAN: the one electron ',
+     $  'contributions are done'
 c
 c  Get the two-electron second derivative contributions
 c
@@ -127,6 +131,8 @@ c
       call twodd_cont(rtdb)
       if (ohessprof) call pstat_off(ps_twodd)
       call hess_restart(rtdb,2)
+      if (oprintsome) write(LuOut,*) 'HESSIAN: the two electron ',
+     $  'contributions are done'
 c
 c  solve the CPSCF problem
 c
@@ -134,6 +140,8 @@ c
       if (ohessprof) call pstat_on(ps_cphf)
       call hess_cphf(rtdb)
       if (ohessprof) call pstat_off(ps_cphf)
+      if (oprintsome) write(LuOut,*) 'HESSIAN: the CPHF ',
+     $  'contributions are done'
 c
 c  dump hessian with the final result
 c
@@ -168,7 +176,8 @@ c
       endif
       call util_print_pop
 c
-      if (oprint) write(LuOut,*) 'HESS: DONE'
+      if (oprintsome) write(LuOut,*) 'HESSIAN: the Hessian ',
+     $  'is done'
       hess_anal = .true.
       return 
       end
