@@ -7,7 +7,7 @@
      + ldbg,idbg)
 c
 c
-c $Id: sp_init.F,v 1.43 1999-11-26 20:13:07 d3j191 Exp $
+c $Id: sp_init.F,v 1.44 1999-12-15 07:31:23 d3j191 Exp $
 c
       implicit none
 c
@@ -190,6 +190,8 @@ c
  3000 format(i5)
       endif
       endif
+c
+      write(*,'(a,i5)') 'integers are ',8*ma_sizeof(mt_int,1,mt_byte)
 c
       call ga_sync()
 c
