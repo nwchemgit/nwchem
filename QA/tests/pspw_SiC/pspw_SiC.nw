@@ -34,5 +34,5 @@ set nwpw:minimizer 2
 #set nwpw:lmbfgs_size 1
 #set nwpw:precondition .false.
 
-task cg_pspw energy
+task pspw energy
 

@@ -1,5 +1,5 @@
 c
-c $Id: cgsd_input.F,v 1.7 2002-01-04 23:20:01 bylaska Exp $
+c $Id: cgsd_input.F,v 1.8 2002-01-15 19:43:41 bylaska Exp $
 c
       subroutine cgsd_input(rtdb)
       implicit none
@@ -118,7 +118,7 @@ c
 *     **** used by task_save_state ****
 *     *********************************
       ind = index(input_wavefunction_filename,' ') - 1
-      value = value.and.rtdb_cput(rtdb,'cg_pspw:input vectors',
+      value = value.and.rtdb_cput(rtdb,'pspw:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
       if (.not.value) 
      >  call errquit('cgsd_input: failed to write input vectors',0)
@@ -408,7 +408,7 @@ c
 *     *********************************
       ind = index(input_wavefunction_filename,' ') - 1
       value = value.and.
-     >        rtdb_cput(rtdb,'cg_pspw:input vectors',
+     >        rtdb_cput(rtdb,'pspw:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
 
       ind = index(output_wavefunction_filename,' ') - 1

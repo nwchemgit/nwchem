@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.5 2002-01-04 23:19:59 bylaska Exp $
+c $Id: nwpw_input.F,v 1.6 2002-01-15 19:43:41 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -259,7 +259,7 @@ c
 *     *********************************
       ind = index(input_wavefunction_filename,' ') - 1
       value = value.and.
-     >        rtdb_cput(rtdb,'cg_pspw:input vectors',
+     >        rtdb_cput(rtdb,'pspw:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
      >   .and.rtdb_cput(rtdb,'band:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
@@ -469,7 +469,7 @@ c
 c
 c     vectors; get input vectors, output vectors, initial guess, etc.
 c
- 3600 call nwpw_vectors_input(rtdb,'cg_pspw')
+ 3600 call nwpw_vectors_input(rtdb,'pspw')
 
       goto 10
 

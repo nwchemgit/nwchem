@@ -1,6 +1,6 @@
       logical function update_unitcell(rtdb)
 *
-* $Id: update_unitcell.F,v 1.1 2001-08-30 00:25:11 edo Exp $
+* $Id: update_unitcell.F,v 1.2 2002-01-15 19:43:41 bylaska Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -19,7 +19,7 @@
       double precision stress(3,3)
 
 *     **** cell: stuff ****
-      value = rtdb_get(rtdb,'cg_pspw:stress',mt_dbl,9,stress)
+      value = rtdb_get(rtdb,'pspw:stress',mt_dbl,9,stress)
       value = value.and.
      >        rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)
       l = index(cell_name,' ') - 1

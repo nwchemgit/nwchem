@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.14 2002-01-04 23:20:01 bylaska Exp $
+* $Id: cgsdv5.F,v 1.15 2002-01-15 19:43:41 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -367,15 +367,15 @@ c     end if
 *     **** output energy, dipole, and gradient to rtdb for use ****
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
-      value = rtdb_put(rtdb,'cg_pspw:energy',mt_dbl,1,EV)
+      value = rtdb_put(rtdb,'pspw:energy',mt_dbl,1,EV)
       value = value.and.
-     >        rtdb_put(rtdb,'cg_pspw:dipole',mt_dbl,
+     >        rtdb_put(rtdb,'pspw:dipole',mt_dbl,
      >                 3,dipole)
       value = value.and.
-     >        rtdb_put(rtdb,'cg_pspw:stress',mt_dbl,
+     >        rtdb_put(rtdb,'pspw:stress',mt_dbl,
      >                 9,stress)
       value = value.and.
-     >        rtdb_put(rtdb,'cg_pspw:gradient',mt_dbl,
+     >        rtdb_put(rtdb,'pspw:gradient',mt_dbl,
      >                 3*nion,dbl_mb(fion(1)))
       if (.not. value) call errquit('cgsdv5: error writing rtdb',0)
       value = MA_pop_stack(fion(2))
