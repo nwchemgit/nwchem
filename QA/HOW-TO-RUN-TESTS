@@ -1,3 +1,4 @@
+ $Id: HOW-TO-RUN-TESTS,v 1.2 2001-01-29 19:51:48 windus Exp $
 The Quality Assurance (QA) tests are designed to test most of
 the functionality of NWChem.  As such, it is useful to run at least
 some of the tests when first installing NWChem at a site.  It is
@@ -16,7 +17,7 @@ Here are some steps and notes on running the QA tests:
    you want to use, e.g.
 
    % setenv NWCHEM_EXECUTABLE \
-   % $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem
+     $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem
 
 2) If you compiled without MPI (this is the default way to build NWChem),
    you will need to:
@@ -25,13 +26,12 @@ Here are some steps and notes on running the QA tests:
       location of the parallel program, e.g.
 
       % setenv PARALLEL_PATH \
-      % $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/parallel
+        $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/parallel
 
    b) Run the QM tests sequentially using the doqmtests script.  Note
       that you may want to comment out the largest tests at the bottom
       of the doqmtests file on slower machines or machines without much
-      memory.  Also, files will be placed in the $NWCHEM_TOP/QA/testoutputs
-      directory.  You may wish to clean out th
+      memory.
 
       % doqmtests >& doqmtests.log &
 
@@ -57,7 +57,7 @@ Here are some steps and notes on running the QA tests:
 
    f) Run most of the molecular dynamics (MD) tests using the runtest.md
       script.  Note that this script assumes that you have a /tmp directory
-      and that you want to use 2 processes.  Both of these may be changes.
+      and that you want to use 2 processes.  Both of these may be changed.
 
       % runtest.md >& runtest.md.log &
 
