@@ -1,4 +1,4 @@
-C $Id: ecp_radint1.F,v 1.3 1997-08-19 23:33:01 mg201 Exp $
+C $Id: ecp_radint1.F,v 1.4 1999-03-04 19:31:16 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_radint1 (p_min,p_max,l_lo,l_min,l_max,m_count,
@@ -179,11 +179,11 @@ C $Id: ecp_radint1.F,v 1.3 1997-08-19 23:33:01 mg201 Exp $
         do m = 1,m_count
           if (debug_addresses) write (LuOut,*) 'm,mm',m,mm
           if (debug_addresses) write (LuOut,*) 'm_lo,m_hi',m_lo,m_hi
-          if (debug_arrays) call ecp_matpr (Qa(1,1,j),1,nc_ab,l_lo,
+          if (debug_arrays) call ecp_matpr (Qa(1,l_lo,j),1,nc_ab,l_lo,
      &        l_max,1,nc_ab,mm-1,l_max,'Qa before recursion','E',81,5)
           call ecp_down_m (m_lo,m_hi,nc_ab,ai,Qa(1,mm,j),Qa(1,mm-1,j),
      &        Qa(1,mm,j))
-          if (debug_arrays) call ecp_matpr (Qa(1,1,j),1,nc_ab,l_lo,
+          if (debug_arrays) call ecp_matpr (Qa(1,l_lo,j),1,nc_ab,l_lo,
      &        l_max,1,nc_ab,mm,l_max,'Qa after recursion','E',81,5)
           if (debug_addresses) write (LuOut,*) 'ind_l,inc_l',ind_l,inc_l
           ll = m-m_skip
