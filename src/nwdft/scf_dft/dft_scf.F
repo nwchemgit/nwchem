@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.84 1997-07-21 20:23:19 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.85 1997-08-21 06:49:08 gutowski Exp $
 c     
       implicit none
 c
@@ -642,7 +642,7 @@ c
       call ga_sync
       rms(1) = 0.d0
       rms(2) = 0.d0
-      homo_lumo_gap = 100.0d0
+      homo_lumo_gap = 200.0d0
       do ispin = 1, ipol
 c     
 c        Add V xc to Fock Matrix
@@ -755,8 +755,13 @@ c
 c     
 c        Check HOMO/LUMO gap.
 c     
-         homo = Dbl_MB(k_eval(ispin)+noc(ispin)-1)
-         lumo = Dbl_MB(k_eval(ispin)+noc(ispin))
+         if(noc(ispin).gt.0) then
+           homo = Dbl_MB(k_eval(ispin)+noc(ispin)-1)
+           lumo = Dbl_MB(k_eval(ispin)+noc(ispin))
+         else
+           homo=-100.0d0
+           lumo=100.0d0
+         endif
          homo_lumo_gap = min(homo_lumo_gap, (lumo - homo))
 c     
 c        If levelshifting then tidy up.
