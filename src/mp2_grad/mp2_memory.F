@@ -19,24 +19,29 @@
       integer nshpairlocal,nshpair,batch_size,shmax
       integer nbfpairlocal,nbfpair
 c     
+      call mp2_backt_info(basis,tol2e,.false.,nshpair,nshpairlocal,
+     $     nbfpair,nbfpairlocal,shmax,
+     $     shdim,shlo,shpairs,shpairslocal,map)
+c     
       nnbf=nbf*(nbf+1)/2
       nva_local=(nva-1)/ga_nnodes()+1
+c     
       k_file_size=nnbf*batch_size*nva_local
       t_file_size=(nob*nvb+noa*nva)*batch_size*nva_local
-      p_file_size=nnbf*nbf*batch_size
+      p_file_size=nbfpairlocal*nbf*batch_size
       if(task.eq.'energy')then
          max_file=k_file_size
       else
          max_file=max(k_file_size+t_file_size,t_file_size+p_file_size)
       endif
-      call mp2_backt_info(basis,tol2e,.false.,nshpair,nshpairlocal,
-     $     nbfpair,nbfpairlocal,shmax,
-     $     shdim,shlo,shpairs,shpairslocal,map)
+c     
       if(task.eq.'energy')then
          max_ga=2*nbf*nbf+noa*nva+nob*nvb
       else
          max_ga=6*nbf*nbf+max(noa*nva+nob*nvb,nbfpair*nva)
       endif
+      max_ga = max_ga / ga_nnodes()
+c     
       call int_init(rtdb,1,basis)
       call intd_init(rtdb,1,basis)
       call int_mem_2e4c(leng, lenscr)
@@ -57,7 +62,11 @@ c
      $        +batch_size*nbf+lenscr+lenscrd+leng+lengd)
       endif
 c     
-*      call intd_terminate
+*     call intd_terminate
       call int_terminate
+c
+      max_ga = max_ga * 1.1d0    ! 10% for safety
+      max_ma = max_ma * 1.1d0
+      max_file = max_file * 1.1d0
 c     
       end

@@ -117,6 +117,10 @@ c
       else
          avail_ga=0
       endif
+      call ga_igop(11,avail_ma,1,'min')
+      call ga_igop(12,avail_ga,1,'min')
+      call ga_igop(13,avail_file,1,'min')
+c
       oprint_mem = util_print('multipass',print_default) .and. 
      $     ga_nodeid().eq.0
       if (oprint_mem) then
