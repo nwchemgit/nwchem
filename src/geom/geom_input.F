@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.79 1998-06-15 22:18:25 d3g681 Exp $
+C     $Id: geom_input.F,v 1.80 1998-06-23 07:15:27 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -9325,7 +9325,7 @@ C
       DATA FOUR   /4.0D+00/
       DATA TENM02 /1.0D-02/
       DATA TENM04 /1.0D-04/
-      DATA TENM06 /1.0D-06/
+      DATA TENM05 /1.0D-05/
       DATA TEN06  /1.0D+06/
       DATA EPS    /1.01D+00/
 C
@@ -9670,8 +9670,8 @@ C
          IF(SOME) THEN
             WRITE(IW,*) '2-FOLD DEGENERATE MOMENTS OF INERTIA'
          ENDIF
-         IF(ABS(EIG(2)-EIG(1)).LT.TENM06) KAXIS=3
-         IF(ABS(EIG(2)-EIG(3)).LT.TENM06) KAXIS=1
+         IF(ABS(EIG(2)-EIG(1)).LT.TENM05) KAXIS=3
+         IF(ABS(EIG(2)-EIG(3)).LT.TENM05) KAXIS=1
          IF(OUT) THEN
             WRITE(IW,*) 'KAXIS = ',KAXIS
          ENDIF
@@ -9679,7 +9679,7 @@ C
             DUM=C1(1,IAT)*C1(1,IAT)+C1(2,IAT)*C1(2,IAT)+    
      1                              C1(3,IAT)*C1(3,IAT)      
             DUM=SQRT(DUM)
-            IF(DUM.GT.TENM06) THEN
+            IF(DUM.GT.TENM05) THEN
                IF(OUT) THEN
                   WRITE(IW,*) 
      1         '-DUM- NEW FRAME DEFINED FROM ATOM -IAT- ',IAT,DUM
@@ -9694,7 +9694,7 @@ C
                DIRZ=DIRZ-TMP*AXS(3,KAXIS)
                TMP=DIRX*DIRX+DIRY*DIRY+DIRZ*DIRZ
                TMP=SQRT(TMP)
-               IF(TMP.GT.TENM06) THEN
+               IF(TMP.GT.TENM05) THEN
                   IF(OUT) THEN
                      WRITE(IW,*) 
      1         '-TMP- NEW FRAME DEFINED FROM ATOM -IAT- ',IAT,TMP
