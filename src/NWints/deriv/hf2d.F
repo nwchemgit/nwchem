@@ -3,7 +3,7 @@
      &                Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
      &                Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
      &                bERI,Nint,canAB,canCD,canPQ,W0,maxW0)
-c $Id: hf2d.F,v 1.3 1994-06-02 20:33:15 d3e129 Exp $
+c $Id: hf2d.F,v 1.4 1994-06-07 00:31:18 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -379,10 +379,12 @@ c Define the derivative indices.
       inder3(2,1) = 0
       inder3(3,1) = 0
 
-      call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dR),
-     &            W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
-     &            MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
-     &            canAB,canCD,canPQ)
+      if (ictra.ne.ictrb) then
+        call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dR),
+     &         W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
+     &         MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
+     &         canAB,canCD,canPQ)
+      endif
 
 c Integral derivatives wrt S.
 
@@ -414,10 +416,12 @@ c Define the derivative indices.
       inder3(2,3) = 0
       inder3(3,3) = 1
 
-      call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dS),
-     &            W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
-     &            MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
-     &            canAB,canCD,canPQ)
+      if (ictrc.ne.ictrd) then
+        call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dS),
+     &         W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
+     &         MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
+     &         canAB,canCD,canPQ)
+      endif
 
 #if defined(MSS_TIMER)
                      call second(t2)
@@ -458,11 +462,15 @@ c Transform to obtain derivatives wrt (A,B,C,D).
                      call second(t1)
 #endif
 
-      call hf2PRtoAB(W0(i_dP),W0(i_dR),bERI(1,1),bERI(1,4),
-     &               W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ff),NPP,NPQ,Nint*3)
+      call hf2PRtoAB(
+     &      W0(i_dP),W0(i_dR),bERI(1,1),bERI(1,4),
+     &      W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ff),NPP,NPQ,Nint*3,
+     &      ictra,ictrb)
 
-      call hf2QStoCD(W0(i_dQ),W0(i_dS),bERI(1,7),bERI(1,10),
-     &               W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ff),NPP,NPQ,Nint*3)
+      call hf2QStoCD(
+     &       W0(i_dQ),W0(i_dS),bERI(1,7),bERI(1,10),
+     &       W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ff),NPP,NPQ,Nint*3,
+     &       ictrc,ictrd)
 
 #if defined(MSS_TIMER)
                      call second(t2)
