@@ -2,7 +2,7 @@
      .     iandex, ncenters, func, 
      &                       d_qwght, force, oactive,  nactive)
 *
-* $Id: dftg_wderiv.F,v 1.5 1999-11-08 23:15:27 edo Exp $
+* $Id: dftg_wderiv.F,v 1.6 2000-04-18 00:35:29 edo Exp $
 *
       Implicit none
 c
@@ -28,16 +28,23 @@ c
 c     local
 c
       integer iat, i
+      double precision out(3)
 c
       do i = 1, ncenters
          iat = iandex(i)
          if(iat.ne.ictr)then
-           if (oactive(iat)) 
-     &          call dgemv('n', 3, nq, 1.d0, d_qwght(1,1,i), 3, 
-     &          func, 1, 1.d0, force(1,iat), 1)
-           if (oactive(ictr)) 
-     &          call dgemv('n', 3, nq, -1.d0, d_qwght(1,1,i), 3, 
-     &          func, 1, 1.d0, force(1,ictr), 1)
+            call dgemv('n', 3, nq, 1.d0, d_qwght(1,1,i), 3, 
+     &           func, 1, 0d0, out, 1)
+           if (oactive(iat)) then
+              force(1,iat)=force(1,iat)+out(1)
+              force(2,iat)=force(2,iat)+out(2)
+              force(3,iat)=force(3,iat)+out(3)
+           endif
+           if (oactive(ictr)) then
+              force(1,ictr)=force(1,ictr)-out(1)
+              force(2,ictr)=force(2,ictr)-out(2)
+              force(3,ictr)=force(3,ictr)-out(3)
+           endif
          endif
       enddo
 c

@@ -8,7 +8,7 @@ c
      &                       nactive, rdens_atom, cntoce, cntobfr,
      &                       cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.4 2000-04-15 01:24:22 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.5 2000-04-18 00:35:28 edo Exp $
 c
       implicit none      
 c
@@ -35,7 +35,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cntoce, cntobfr, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.4 2000-04-15 01:24:22 edo Exp $
+c $Id: dftg_gridv0.F,v 1.5 2000-04-18 00:35:28 edo Exp $
 c     
       implicit none      
 c
@@ -88,10 +88,14 @@ c
      &        ltags, itags
       logical do_force, do_hess, do_cpks_r
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat, len_Dmat
-      integer lzzz,  izzz, lff, iff, lppp, ippp
+      integer lzzz,  izzz, lff, iff, lppp, ippp,k_bp,l_bp
       integer libf_ao, iibf_ao,k_curatoms,l_curatoms
       integer lrchi_atom, irchi_atom,
      &        lrdelchi_atom, irdelchi_atom
+      integer  l_drhonuc, k_drhonuc,l_ddelrhonuc, k_ddelrhonuc,
+     ,     l_d2scr, k_d2scr,lscr,iscr,lrscr,irscr
+      integer nscr,icrad,iprad,iang
+      integer llmax, MXcont, max_elem_ang_scr,nxang
       integer nxtask
       external nxtask
 c     
@@ -285,7 +289,112 @@ c !!! BGJ - probably don't need to allocate some of this if .not.do_force
      &     (' dftg_gridv0: not enough stack',13)
       if (.not.MA_push_get(MT_INT, natoms, 'curatoms',
      &     l_curatoms, k_curatoms)) call
-     &     errquit('dftg_gridv0a: cant allocate curatoms',1)
+     &     errquit('dftg_gridv0: cant allocate curatoms',1)
+      if (.not.MA_push_get(MT_INT, natoms*n_per_rec, 'bp',
+     &     l_bp, k_bp)) call
+     &     errquit('dftg_gridv0: cant allocate bp',1)
+      if (do_hess .or. do_cpks_r) then
+c     
+c     Set up space for derivatives of density wrt significant nuclei
+c
+         if (.not.MA_push_get(MT_DBL, ipol*n_per_rec*3*nactive,
+     &        'drhonuc', l_drhonuc, k_drhonuc)) call
+     &        errquit('dftg_gridv0a: cannot allocate drhonuc',1)
+         if (grad) then
+            if (.not.MA_push_get(MT_DBL,
+     &           ipol*3*n_per_rec*3*nactive, 'ddelrhonuc',
+     &           l_ddelrhonuc, k_ddelrhonuc)) call
+     &           errquit('dftg_gridv0: cant alloc ddelrhonuc',
+     &           1)
+         endif
+         if(do_hess) then
+            if (.not.MA_push_get(mt_dbl, 15*n_per_rec, 'd2scr',
+     &           l_d2scr, k_d2scr)) call errquit
+     &           ('dftg_gridv0: not enough stack for d2scr',0)
+         endif
+      endif
+c    
+c     compute scratch space for int_eval_gbsets
+c    
+c
+c     Define the number of basis functions in the AO Gaussian basis set.
+c
+      if (.not. bas_ncontr_cn_max(ao_bas_han, MXcont))
+     &   call errquit('Exiting in dftg_quadv0.',1)
+      if (.not. bas_high_angular(AO_bas_han, NXang))
+     &   call errquit('exiting in dftg_quadv0.',7)
+      llMAX=((NXang+2)*(NXang+1))/2
+c scratch for eval_func
+      if (NXang .ge. 3)then
+         max_elem_ang_scr = 28
+      elseif (NXang .ge. 1)then
+         max_elem_ang_scr = 9
+      else 
+         max_elem_ang_scr = 3
+      endif 
+      max_elem_ang_scr=max_elem_ang_scr*llMAX
+
+      if (der3chi) then
+c     
+c     Allocate scratch space.
+c     mxcont is used here instead of NXprim as in new_eval_gbsets
+c     this is correct, but sometimes fails, hence the choice
+c     in new_eval_gsets.  here, the length is also doubled...
+c     
+         icrad = 1              ! contracted radial parts
+         iprad = icrad + 4*n_per_rec*MXcont ! primitive radial parts
+         iang  = iprad          ! also angular parts
+c     
+c     note 4*NXprim for longer primitive and contracted radial
+c     scratch storage
+c     
+         nscr=iang+max(4*n_per_rec*NXprim,max_elem_ang_scr*n_per_rec)
+c     
+      else if (hesschi)then
+c     
+c     Allocate scratch space.
+c     mxcont is used here instead of NXprim as in new_eval_gbsets
+c     this is correct, but sometimes fails, hence the choice
+c     in new_eval_gsets.  here, the length is also doubled...
+c     
+         icrad = 1              ! contracted radial parts
+         iprad = icrad + 3*n_per_rec*MXcont ! primitive radial parts
+         iang  = iprad          ! also angular parts
+c     
+c     note 3*NXprim for longer primitive and contracted radial
+c     scratch storage
+c     
+         nscr=iang+max(3*n_per_rec*NXprim,max_elem_ang_scr*n_per_rec)
+c     
+      elseif (gradchi)then
+c     
+c     Allocate scratch space.
+c     
+         icrad = 1
+         iprad = icrad + 2*n_per_rec*NXprim
+         iang  = iprad
+         nscr  = iang+max(2*n_per_rec*NXprim,9*n_per_rec*llMAX) - 1
+         nscr = 2*nscr
+      else 
+c
+c                 Allocate scratch space.
+         
+         icrad = 1
+         iprad = icrad + n_per_rec*NXprim
+         iang  = iprad
+         nscr  = iang  + max(n_per_rec*NXprim,6*n_per_rec*llMAX) 
+     &        - 1
+         nscr = 2*nscr
+c     
+      endif 
+c     
+      if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
+     &     call errquit
+     &     (' exiting in dftg_gridv0: insuff stack',12)
+      if (.not.MA_Push_Get(mt_dbl,n_per_rec,'rho scr',
+     &     lrscr,irscr))call errquit
+     &     ('dftg_gridv0: cannot allocate rho scr',13)
+      
 c
       call dftg_gridv0a(rtdb, iga_dens,ldew,
      &                   ncoef_max, NXprim, max_at_bf,
@@ -301,7 +410,9 @@ c
      &                   dbl_mb(irq), dbl_mb(irq0), dbl_mb(ihh),
      ,     int_mb(iibf_ao),int_mb(k_curatoms),
      ,     dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),dbl_mb(ippp),
-     ,     dbl_mb(iff),dbl_mb(izzz),
+     ,     dbl_mb(iff),dbl_mb(izzz),dbl_mb(k_bp),
+     .     dbl_mb(k_drhonuc),dbl_mb(k_ddelrhonuc),dbl_mb(k_d2scr),
+     .     dbl_mb(iscr),nscr,dbl_mb(irscr),
      &                   force, hess, g_rhs, do_force, do_hess,
      &                   do_cpks_r, natoms, oactive, nactive,
      &                   rdens_atom,  cntobfr, cetobfr)

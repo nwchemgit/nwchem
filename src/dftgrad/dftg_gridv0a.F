@@ -5,13 +5,14 @@
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh,  
-     .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
+     .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,bp,
+     .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
      ,     force, hess, g_rhs, do_force,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cntobfr,
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.5 2000-04-15 01:24:23 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.6 2000-04-18 00:35:28 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -65,7 +66,10 @@ c
       double precision ccoef(ncoef_max), expo(NXprim)
       double precision rq(n_per_rec,natoms)
       double precision rq0(natoms)
-c
+      double precision bp(*)
+      double precision drhonuc(*),ddelrhonuc(*),d2scr(*),
+     ,     iscr(*),rscr(*)
+      integer nscr ! [in]
 c     external
 c
       double precision ddot
@@ -84,7 +88,6 @@ c
       integer iqsh
       integer me
       integer  nbf_max
-      integer NXang, llmax, MXcont, max_elem_ang_scr
       integer nbf_ao_mxnbf_ce2
       double precision acc_AO_gauss 
       double precision Ex, Ec, rho_int,rad
@@ -104,23 +107,6 @@ c
 c
 c     Determine the XC energy functionals.
 c
-c
-c     Define the number of basis functions in the AO Gaussian basis set.
-c
-      if (.not. bas_ncontr_cn_max(ao_bas_han, MXcont))
-     &   call errquit('Exiting in dftg_quadv0.',1)
-      if (.not. bas_high_angular(AO_bas_han, NXang))
-     &   call errquit('exiting in dftg_quadv0.',7)
-      llMAX=((NXang+2)*(NXang+1))/2
-c scratch for eval_func
-      if (NXang .ge. 3)then
-         max_elem_ang_scr = 28
-      elseif (NXang .ge. 1)then
-         max_elem_ang_scr = 9
-      else 
-         max_elem_ang_scr = 3
-      endif 
-      max_elem_ang_scr=max_elem_ang_scr*llMAX
 c
       if (.not.bas_nbf_cn_max(AO_bas_han, nbf_max))
      &   call errquit('exiting in dftg_quadv0.',7)
@@ -187,7 +173,6 @@ c
          call grid_repack(dbl_mb(irqbuf), qxyz, qwght, nqpts,
      ,          rad,istep)
          if(nqpts.eq.0) goto 110
-
          call dftg_gridv0b(nqpts,rad,ictr_buf,iga_dens,
      &                         ncoef_max, NXprim, max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
@@ -195,9 +180,10 @@ c
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
-     .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
+     .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,bp,
+     .        drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
      ,     force, hess, g_rhs, do_force,
-     ,     llmax,max_elem_ang_scr,nbf_ao_mxnbf_ce2,mxcont,
+     ,     nbf_ao_mxnbf_ce2,
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,npol,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 

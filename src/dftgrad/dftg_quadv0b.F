@@ -4,7 +4,7 @@
      &                         PPP, F, zzz, hh, g_dens, force, 
      &                         oactive, nactive)
 *
-* $Id: dftg_quadv0b.F,v 1.4 1997-11-04 10:12:16 d3e129 Exp $
+* $Id: dftg_quadv0b.F,v 1.5 2000-04-18 00:35:28 edo Exp $
 *
       Implicit none
 c
@@ -46,6 +46,7 @@ c
       logical ldo
       integer iat, n, ispin, mu, mmu, nu, ilast, ifirst
       double precision C1, C2, C3, z1, z2, z3, DC, fatto
+      double precision out(3)
       double precision two
       parameter(two=2.d0)
 c
@@ -110,12 +111,18 @@ c
                            zzz(3,nu) = zzz(3,nu) + z3
                         enddo
                      endif
-                     if (oactive(iat))
-     &                  call dgemv('n',3,mbf_ao,-two,zzz,3,F,1,1.d0,
-     &                             force(1,iat),1)
-                     if (ldew.and.oactive(ictr))
-     &                  call dgemv('n',3,mbf_ao,two,zzz,3,F,1,1.d0,
-     &                  force(1,ictr),1)
+                     call dgemv('n',3,mbf_ao,-two,zzz,3,F,1,0d0,
+     &                             out,1)
+                     if (oactive(iat))then
+                        force(1,iat)=force(1,iat)+out(1)
+                        force(2,iat)=force(2,iat)+out(2)
+                        force(3,iat)=force(3,iat)+out(3)
+                     endif
+                     if (ldew.and.oactive(ictr)) then
+                        force(1,ictr)=force(1,ictr)-out(1)
+                        force(2,ictr)=force(2,ictr)-out(2)
+                        force(3,ictr)=force(3,ictr)-out(3)
+                     endif
                   enddo
                enddo
             endif
