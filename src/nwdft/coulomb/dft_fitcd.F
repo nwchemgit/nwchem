@@ -4,7 +4,7 @@
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.30 1999-06-16 00:10:26 d3e129 Exp $
+* $Id: dft_fitcd.F,v 1.31 1999-08-25 18:50:11 edo Exp $
 *
       implicit none
 c
@@ -120,7 +120,7 @@ c
 c     Parallelize the loop over the products of AO shells.
 c      
       ischw1 = 0
-      call ga_sync
+cedo      call ga_sync
       icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
       icount = max(1,icount)
 c      
@@ -415,7 +415,7 @@ c
   241 continue
 c
       n1 = nxtask(-nproc,icount)
-      call ga_sync
+cedo      call ga_sync
 c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
@@ -529,7 +529,7 @@ c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
            if(lmiss.ne.0)call errquit
      &     (' dft_fitcd; dft_invio - abnormal read of CDI ',0)
         endif
-        call ga_sync
+cedo        call ga_sync
         if(me.eq.0.and.oprint_ioinfo)then
           write(6,*)' g_cdinv = ', g_cdinv
           call ga_print(g_cdinv)
@@ -562,12 +562,12 @@ c
         endif
       enddo
       next = nxtval(-nproc)
-      call ga_sync
+cedo      call ga_sync
       call ga_dgop(Msg_Lagrange,F,2,'+')
-      call ga_sync
+cedo      call ga_sync
       alpha = (Q - F(1))/F(2)
 c         write(*,*)'F alpha',f(1),f(2),alpha
-      call ga_sync
+cedo      call ga_sync
 c      call dft_tstamp(' in dft_cdfit before qfrc')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
@@ -579,7 +579,7 @@ c     Initialize the CD_coef vector.
       
       call dfill(nbf_cd,0.D0,CD_coef,1)
 c
-      call ga_sync
+cedo      call ga_sync
 c      call dft_tstamp(' in dft_cdfit before cdco')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
@@ -594,7 +594,7 @@ c
       enddo
       next = nxtval(-nproc)
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd,'+')
-      call ga_sync
+cedo      call ga_sync
 #else
 c
 c     Multiply T and cgtf by S**(-1) and store
@@ -625,11 +625,11 @@ c
         endif
       enddo
       next = nxtval(-nproc)
-      call ga_sync
+cedo      call ga_sync
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd*nfit,'+')
 c!!! What Msg should be here? !!!
       call ga_dgop(Msg_Tcgtf,dbl_mb(iTcgtf),nbf_cd,'+')
-      call ga_sync
+cedo      call ga_sync
 c
 c     Apply constraint correction to fits
 c
@@ -683,7 +683,7 @@ c     write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
 c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
          endif
       enddo
-      call ga_sync
+cedo      call ga_sync
 c      if (derfit) then
 c         write(*,*)'Fit coefficients:'
 c         call output(cd_coef, 1, nbf_cd, 1, nfit, nbf_cd, nfit, 1)
@@ -699,7 +699,7 @@ c
      &     call errquit('dft_fitcd: geom_ncent failed',73)      
       if (.not.MA_Push_Get(MT_Dbl,natoms,'qatom',lqatom,iqatom))
      &   call errquit('dft_fitcd: cannot allocate qatom',0)
-      if (.not.MA_Push_Get(MT_Dbl,nshells_cd,'qshell_cd',lqshell_cd,
+      if (.not.MA_Push_Get(MT_Dbl,nshells_cd,'qshell_cd',lqshell_cd, 
      &   iqshell_cd))
      &   call errquit('dft_fitcd: cannot allocate qshell_cd',0)
       if (.not.MA_Push_Get(MT_Int,nshells_cd*natoms,'qshtyp_cd',
@@ -722,7 +722,7 @@ c
       if (.not.ma_pop_stack(lqatom))
      &   call errquit('dft_fitcd: cannot pop stack',3)
 c
-      call ga_sync
+cedo      call ga_sync
 c      call dft_tstamp(' in dft_cdfit after  mull')
       endif                     ! .not.derfit
 c
@@ -867,7 +867,7 @@ c            endif
             qatom(iat) = qatom(iat) + qshell(ish)
          enddo
       enddo
-      call ga_sync
+cedo      call ga_sync
       call ga_dgop(Msg_Mull1, qatom, natoms,'+')
       call ga_dgop(Msg_Mull2, qshell, nshells,'+')
       call ga_igop(Msg_Mull1, shell_types, nshells*natoms,'+')
