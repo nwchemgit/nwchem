@@ -6,7 +6,7 @@
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
      + irenum,invert)
 c
-c $Id: pre_wrtpdb.F,v 1.37 2002-01-30 21:08:26 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.38 2002-01-31 23:05:40 d3j191 Exp $
 c
       implicit none
 c
@@ -492,15 +492,15 @@ c
       nats=nats+1
 c
       if(i.le.nwmc) then
-      x(1)=xw(1,j,i)
-      x(2)=xw(2,j,i)
-      x(3)=xw(3,j,i)
-      y(1)=xw(1,j,i)
-      y(2)=xw(2,j,i)
-      y(3)=xw(3,j,i)
-      v(1)=vw(1,j,i)
-      v(2)=vw(2,j,i)
-      v(3)=vw(3,j,i)
+      x(1)=xwc(1,j,i)
+      x(2)=xwc(2,j,i)
+      x(3)=xwc(3,j,i)
+      y(1)=xwc(1,j,i)
+      y(2)=xwc(2,j,i)
+      y(3)=xwc(3,j,i)
+      v(1)=vwc(1,j,i)
+      v(2)=vwc(2,j,i)
+      v(3)=vwc(3,j,i)
       else
       x(1)=xw(1,j,i-nwmc)
       x(2)=xw(2,j,i-nwmc)
