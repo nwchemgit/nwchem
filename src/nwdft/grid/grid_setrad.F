@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.32 2000-10-26 19:34:40 edo Exp $
+c$Id: grid_setrad.F,v 1.33 2003-05-21 00:27:32 edo Exp $
 c
       implicit none
 c      
@@ -26,7 +26,6 @@ c
      .     k_2l,l_2l,k_2ex,l_2ex,k_2g,l_2g
       double precision braggmult
       double precision midpoint,range_max,range_mk
-      double precision lindh_acc
       logical  grid_on_file
       me=ga_nodeid()
 c
@@ -69,9 +68,6 @@ c
          wradgrid=4
       elseif(radgrid.eq.'gcinterv') then
          wradgrid=5
-      elseif(radgrid.eq.'rlindh') then
-         llind=.true.
-         wradgrid=6
       elseif(radgrid.eq.'chebyshev') then
          wradgrid=7
       elseif(radgrid.eq.'legendre') then
@@ -88,12 +84,13 @@ c
      &        call errquit('grid_setrad: cannot allocate 2l',0)
          if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2ex,k_2ex))
      &        call errquit('grid_setrad: cannot allocate 2e',1)
+         if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2g,k_2g))
+     &        call errquit('grid_setrad: cannot allocate 2e',2)
       else
          k_2l=0
          k_2ex=0
+         k_2g=0
       endif
-         if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2g,k_2g))
-     &        call errquit('grid_setrad: cannot allocate 2e',2)
 
       if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
      &   call errquit('grid_setrad: cannot allocate expo',0)
@@ -105,8 +102,6 @@ c
       if (.not.ma_pop_stack(lexpo))
      &   call errquit('grid_setrad: cannot pop stack expo',1)
 
-      if (.not. rtdb_get(rtdb, 'dft:lindh_acc', mt_dbl, 
-     ,     1, lindh_acc)) lindh_acc=1d-17
 c
 c     Define the Euler-Maclaurin radial quadrature points and weights.
 c
@@ -139,12 +134,6 @@ c
                if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',
      .              lexpo,iexpo))
      &              call errquit('grid_setrad: cant alloc expo',0)
-cedo            call grid_roland(
-cedo     ,              rpts(1,itype),rwghts(1,itype),nrad(itype),
-cedo     ,              ityp2ctr(itype),dbl_mb(iexpo),
-cedo     .              dbl_mb(k_2ex+itype-1),dbl_mb(k_2g+itype-1),
-cedo     ,              int_mb(k_2l+itype-1),
-cedo     ,              mxrad,rad_cutoff(1,itype),lindh_acc)
             if (.not.ma_pop_stack(lexpo))
      &           call errquit('grid_setrad: cannot pop stack',2)
 
@@ -253,9 +242,9 @@ cedo     .            ' Murakn itype cutoff ',itype,range_mk
          endif
   100 continue
 
-      if (.not.ma_pop_stack(l_2g))
-     &     call errquit('grid_setrad: cannot pop stack',5)
       if(llind) then
+         if (.not.ma_pop_stack(l_2g))
+     &        call errquit('grid_setrad: cannot pop stack',5)
          if (.not.ma_pop_stack(l_2ex))
      &        call errquit('grid_setrad: cannot pop stack',3)
          if (.not.ma_pop_stack(l_2l))
