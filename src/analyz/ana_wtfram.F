@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel)
 c
-c $Id: ana_wtfram.F,v 1.9 2000-04-27 16:11:25 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.10 2000-04-28 18:02:50 d3j191 Exp $
 c
       implicit none
 c
@@ -164,6 +164,7 @@ c
       endif
 c
       if(fmt.eq.'frm') then
+      if(lsx) then
       write(iunit,7001)
  7001 format(/,'Geometry {')
       do 9 i=1,nsa
@@ -172,6 +173,7 @@ c
     9 continue
       write(iunit,7003)
  7003 format('}')
+      endif
       endif
 c
       endif

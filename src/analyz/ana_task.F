@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.20 2000-04-27 16:11:25 d3j191 Exp $
+c $Id: ana_task.F,v 1.21 2000-04-28 18:02:50 d3j191 Exp $
 c
       implicit none
 c
@@ -348,7 +348,7 @@ c
       if(ana_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
       nread=nread+1
       if(nread.lt.ifrfr) goto 3
-      if(nframe.eq.(nframe/ifrsk)*ifrsk) then
+      if(nframe.eq.(nframe/ifrsk)*ifrsk.and.lsx) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1)
@@ -364,7 +364,7 @@ c
       write(*,'(a)') ' Closing trj file '
       close(unit=lfnsup)
       write(*,'(/,a,i10,a,a)') ' Superimposed ',nwrit,' frames to ',
-     + filcop(1:index(filcop,' ')-1)
+     + filsup(1:index(filsup,' ')-1)
       lsonly=.false.
       endif
 c
