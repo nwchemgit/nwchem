@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.16 1994-04-26 19:40:49 d3g681 Exp $
+# $Id: makefile.h,v 1.17 1994-04-26 21:33:12 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -52,7 +52,7 @@ endif
 # files are all present and correct before any compilation
 #
 
-    SUBDIRS = include develop global db NWints rtdb basis inp util \
+    SUBDIRS = include ddscf develop global db NWints rtdb basis inp util \
               geom input ma tcgmsg $(SUBDIRS_EXTRA)
 #
 # Define LIBPATH to be paths for libraries that you are linking in
