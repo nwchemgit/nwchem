@@ -15,6 +15,9 @@
 		detci_sigma.F \
 		detci_spin.F
 
+#  LIB_DEFINES = -DDETCI_DENSSERIAL
+  LIB_DEFINES = -DDETCI_DENSAB
+
 
 include ../../config/makefile.h
 include ../../config/makelib.h
