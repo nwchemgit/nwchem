@@ -11,6 +11,7 @@ c
       integer level             ! [input]
       character*(*) message     ! [input]
       integer status            ! [input]
+      external error_data
 c
 c     Central error handling facility
 c

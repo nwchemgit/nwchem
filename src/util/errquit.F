@@ -10,7 +10,7 @@ c
       write(6,1)
  1    format(1x,72('-'))
       write(6, 2) string, icode
- 2    format(1x,a,i)
+ 2    format(1x,a,i4)
       write(6,1)
       call inp_errout
       write(6,1)

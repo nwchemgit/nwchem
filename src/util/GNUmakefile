@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.24 1994-12-12 07:20:46 d3g681 Exp $
+# $Id: GNUmakefile,v 1.25 1994-12-29 06:50:59 og845 Exp $
 
 include ../config/makefile.h
 
@@ -14,7 +14,8 @@ endif
 
    LIB_TARGETS = testsolve
 
-#OBJ_OPTIMIZE= ga_orthog.o 
+OBJ_OPTIMIZE= ga_matpow.o 
+
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \
               util_hostname.o util_date.o \
@@ -26,7 +27,7 @@ endif
 	      fortchar.o sequential_output.o ga_mat2col.o \
 	      banner.o $(BLAS) $(EXTRA_OBJ) 
     LIBRARY = libutil.a
-    HEADERS = util.fh itri.fh msgids.fh
+    HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh
 
     USES_BLAS = util.fh ga_iter_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F

@@ -3,10 +3,13 @@
 #ifndef IPSC
 #include <sys/time.h>
 #endif
-
+#ifdef CRAY
+#define util_date_ UTIL_DATE
+#endif
 extern int string_to_fortchar(char *, int, const char *);
   
-void util_date_(char *date, int dlen)
+void util_date_(date)
+     char *date;
 /*
   Routine to return to FORTRAN the current date in 
   same format as the C routine ctime.
@@ -16,9 +19,27 @@ void util_date_(char *date, int dlen)
   call util_date(date)
 */
 {
+#ifdef CRAY
+  char farray[256];
+  int len,i;
+#endif
+  int nlen = 26;
+
   time_t t = time((time_t *) 0);
   char *tmp = ctime(&t);
   tmp[24] = 0;
   
-  (void) string_to_fortchar(date, dlen, tmp);
+#ifdef CRAY
+  len = strlen(tmp);
+
+  for (i=0; i<len; i++)
+    farray[i] = tmp[i];
+  for (i=len; i<nlen; i++)
+    farray[i] = ' ';
+  strcpy( date, tmp);
+#else
+  (void) string_to_fortchar(date, nlen, tmp);
+#endif
 }
+
+

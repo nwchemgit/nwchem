@@ -1,0 +1,18 @@
+#ifndef _stdio_fh_
+#define _stdio_fh_
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C NAME
+C     stdio -- define logical units for standard I/O
+C
+C REVISION
+C     stdio.fh,v 1.1 1994/06/14 21:54:36 gg502 Exp
+C
+C NOTES
+C     Common block must be initialized with stdio_init.fh in the main
+C     program. stdio_term.fh should be used to wrap up standard I/O
+C     usage.
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      Integer LUIn, LUOut, LUErr
+      Common /StdIO_Units/ LuIn, LuOut, LuErr
+
+#endif /* _stdio_fh */

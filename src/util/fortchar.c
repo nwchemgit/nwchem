@@ -1,5 +1,5 @@
 /* Name munging to handle the various conventions for Fortran-C interfacing */
-#if (defined(CRAY) || defined(ARDENT))
+#if (defined(XMP) || defined(ARDENT))
 #   define FCSND_  FCSND
 #   define FCRCV_  FCRCV
 #else
@@ -17,9 +17,9 @@
 
 #include "sndrcv.h"  /* TCGMSG send & receive function prototypes */
 #include <string.h>
-#ifdef _CRAY
+#ifdef _XMP
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
-#endif /* _CRAY */
+#endif /* _XMP */
 
 #define MAX(a,b) (((a) >= (b)) ? (a) : (b))
 #define MIN(a,b) (((a) <= (b)) ? (a) : (b))
@@ -30,30 +30,30 @@
  **/
 
 
-#ifdef _CRAY
+#ifdef _XMP
 void FCSND_(type, fcd, node, sync)
      long *type;
      _fcd *fcd;
      long *node;
      long *sync;
-#else /* _CRAY */
+#else /* _XMP */
 void FCSND_(type, fstring, node, sync, flength)
      long *type;
-     char *fstring;
      long *node;
      long *sync;
+     char *fstring;
      long flength; /* Length of fstring, implicitly passed by FORTRAN */
-#endif /* _CRAY */
+#endif /* _XMP */
 {
     char cstring[FC_MAXLEN];
     long fpos, clength, lenbuf=sizeof cstring;
-#ifdef _CRAY
+#ifdef _XMP
     char	*fstring;	/* FORTRAN string */
     long	flength;	/* length of fstring */
 
     fstring = _fcdtocp(fcd);
     flength = _fcdlen(fcd);
-#endif /* _CRAY */
+#endif /* _XMP */
 	    
     /* If the Fortran string is too long it is sent in chunks */
     fpos = 0;
@@ -79,7 +79,7 @@ void FCSND_(type, fstring, node, sync, flength)
     }
 }
 
-#ifdef _CRAY
+#ifdef _XMP
 void FCRCV_(type, fcd, flength, nodeselect, nodefrom, sync)
      long *type;
      _fcd *fcd;
@@ -87,7 +87,8 @@ void FCRCV_(type, fcd, flength, nodeselect, nodefrom, sync)
      long *nodeselect;
      long *nodefrom;
      long *sync;
-#else /* _CRAY */
+     integer fsize;
+#else /* _XMP */
 void FCRCV_(type, fstring, flength, nodeselect, nodefrom, sync, fsize)
      long *type;
      char *fstring;
@@ -100,13 +101,13 @@ void FCRCV_(type, fstring, flength, nodeselect, nodefrom, sync, fsize)
 {
     char cstring[FC_MAXLEN];
     long i, clength, lenbuf=sizeof cstring;
-#ifdef _CRAY
+#ifdef _XMP
     char	*fstring;	/* FORTRAN string */
     long	flength;	/* length of fstring */
 
     fstring = _fcdtocp(fcd);
     fsize = _fcdlen(fcd);
-#endif /* _CRAY */
+#endif /* _XMP */
 	    
     /* Collect the text, which may be broken into multiple messages */
     *flength = 0;
