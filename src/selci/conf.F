@@ -476,7 +476,7 @@ c$doit asis
                irefo(ipt+j) = irefo(ipto+j)
  30         continue
             if (mod(ns,2).ne.mod(multi-1,2) .or. ns.lt.multi-1) then
-               call selci_wrtcon(ifllog, iocc, norbs)
+               call selci_wrtcon(6, iocc, norbs)
                call errquit('conf: a reference has invalid ns',i)
             endif
             ipt = ipt + nintpo
