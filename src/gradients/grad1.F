@@ -1,6 +1,6 @@
       subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc, 
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
-     $                   max_at_bf )
+     $                   max_at_bf, rtdb )
 
       implicit real*8 (a-h,o-z)
 
@@ -16,6 +16,7 @@
      $          crd1(3), crd2(3)
 
       integer g_dens, g_wdens, basis, geom
+      integer rtdb
 
       logical status, pointforce, point
 
