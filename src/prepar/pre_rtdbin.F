@@ -3,7 +3,7 @@
      + newtop,newseq,newrst,icount,mgrid,gdist,mnoe,maxscf,qscale,
      + altloc,chain,icyren,model,nxlnk,mdold,ignore,scount)
 c
-c $Id: pre_rtdbin.F,v 1.17 1999-11-04 22:53:08 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.18 1999-12-10 23:53:29 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -58,8 +58,8 @@ c
       if(.not.rtdb_cget(irtdb,'prep:slvnam',1,slvnam)) slvnam='HOH'
       if(.not.rtdb_cget(irtdb,'prep:slvmdl',1,slvmdl)) slvmdl=' '
 c
-      mdold=1
-      if(.not.rtdb_get(irtdb,'md:mdold',mt_int,1,mdold)) mdold=1
+      mdold=0
+      if(.not.rtdb_get(irtdb,'md:mdold',mt_int,1,mdold)) mdold=0
 c
       if(.not.rtdb_get(irtdb,'prep:newtop',mt_int,1,newtop)) newtop=0
       if(.not.rtdb_get(irtdb,'prep:newseq',mt_int,1,newseq)) newseq=0

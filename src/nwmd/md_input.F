@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.9 1999-10-28 15:04:28 d3j191 Exp $
+c $Id: md_input.F,v 1.10 1999-12-10 23:52:56 d3j191 Exp $
 c
       implicit none
 c
@@ -39,8 +39,8 @@ c
 c
 #include "bitops.fh"
 c
-      mdold=1
-      if(.not.rtdb_get(irtdb,'md:mdold',mt_int,1,mdold)) mdold=1
+      mdold=0
+      if(.not.rtdb_get(irtdb,'md:mdold',mt_int,1,mdold)) mdold=0
       if(mdold.ne.0) then
       call arg_input(irtdb)
       return

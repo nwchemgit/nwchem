@@ -1,6 +1,6 @@
       logical function nwmd(irtdb0)
 c
-c $Id: nwmd.F,v 1.5 1999-06-16 16:54:13 d3j191 Exp $
+c $Id: nwmd.F,v 1.6 1999-12-10 23:52:56 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       irtdb=irtdb0
 c
       mdold=1
-      if(.not.rtdb_get(irtdb,'md:mdold',mt_int,1,mdold)) mdold=1
+      if(.not.rtdb_get(irtdb,'md:mdold',mt_int,1,mdold)) mdold=0
       if(mdold.ne.0) then
       nwmd=nwargos(irtdb0)
       return
