@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.25 1994-09-19 20:01:21 d3g681 Exp $
+c $Id: raktest.F,v 1.26 1994-09-19 23:50:44 d3e129 Exp $
 #include "global.fh"
       integer rtdb
 c::functions
@@ -43,12 +43,15 @@ c
 #include "bas.fh"
 #include "rtdb.fh"
 #include "context.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "msgids.fh"
 c::functions
 c::passed
       integer rtdb
       double precision delta
 c::local
-      integer whoiam,printnode
+      integer whoiam, master
       integer geom,geom_ref, geom_delta
       integer nat, rank_hess
       integer basis
@@ -56,148 +59,185 @@ c::local
       integer h_gradp, k_gradp ! handle/index for delta gradient
       integer h_hess, k_hess ! handle/index for hessian matrix
       integer iatom, ixyz
+      logical ignore_status
       double precision xyz(3), chg
       character*16 tag_name
       character*255 mo_basis, fd_basis
 c
       whoiam = ga_nodeid()
-      printnode = 0
+      master = 0
+      ignore_status = rtdb_parallel(.false.)
+      if (whoiam.eq.master) then
 c
 c.. create/load reference geometry
-      if (.not.geom_create(geom,'geometry')) call errquit
-     &    ('gen_apphess_at:geom_create failed?',1)
-      if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('gen_apphess_at:geom_rtdb_load failed?',2)
-*:debug      if (whoiam.eq.printnode) then
-*:debug        if (.not.geom_print(geom)) call errquit
-*:debug     &      ('gen_apphess_at:geom_print failed?',911)
-*:debug      endif
+        if (.not.geom_create(geom,'geometry')) call errquit
+     &      ('gen_apphess_at:geom_create failed?',1)
+        if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &      ('gen_apphess_at:geom_rtdb_load failed?',2)
 c..  get the number of atoms
-      if (.not. geom_ncent(geom,nat)) call errquit
-     &    ('gen_apphess_at:geom_ncent failed?',3)
+        if (.not. geom_ncent(geom,nat)) call errquit
+     &      ('gen_apphess_at:geom_ncent failed?',3)
 c
 c.. copy reference geometry and store on rtdb
-      if (.not.geom_create_copy(geom,geom_ref,'reference'))
-     &    call errquit
-     &    ('gen_apphess_at:geom_create_copy failed?',4)
-      if (.not.
-     &    geom_rtdb_store(rtdb,geom_ref,'reference'))
-     &    call errquit('gen_apphess_at: geom_rtdb_store failed',5)
-*:debug      if (whoiam.eq.printnode) then
-*:debug        if (.not.geom_print(geom_ref)) call errquit
-*:debug     &      ('gen_apphess_at:geom_print failed?',911)
-*:debug      endif
+        if (.not.geom_create_copy(geom,geom_ref,'reference'))
+     &      call errquit
+     &      ('gen_apphess_at:geom_create_copy failed?',4)
+        if (.not.
+     &      geom_rtdb_store(rtdb,geom_ref,'reference'))
+     &      call errquit('gen_apphess_at: geom_rtdb_store failed',5)
 c.. destroy incore copy of reference geometry
 c
-      if(.not.geom_destroy(geom_ref)) call errquit
-     &    ('gen_apphess_at: geom_destroy failed?',6)
+        if(.not.geom_destroy(geom_ref)) call errquit
+     &      ('gen_apphess_at: geom_destroy failed?',6)
+c
+c.. determine what fd basis name is
+c
+        if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
+     &      mo_basis = 'mo basis'
+        if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
+     &      fd_basis = 'fd basis'
 c
 c.. try to load "fd basis"
 c.. create basis hangle
-      if(.not.bas_create(basis,'fd basis')) call errquit
-     &    ('gen_apphess_at: bas_create failed?',7)
-      if(bas_rtdb_load(rtdb,geom,basis,'fd basis')) then
-        continue
-      else
-        write(6,*)' fd basis not defined.  Default -> sto3g'
-        stop ' tmp stop '
+        if(.not.bas_create(basis,'fd basis')) call errquit
+     &      ('gen_apphess_at: bas_create failed?',7)
+        if(bas_rtdb_load(rtdb,geom,basis,'fd basis')) then
+          continue
+        else
+c...  if fd basis not defined use current mo_basis
+          fd_basis = mo_basis
+        endif
+c
+        if (.not.rtdb_cput(rtdb,'mo basis',1,fd_basis)) call errquit
+     &      ('gen_apphess_at: rtdb_cpu failed?',8)
+c
+        if (.not.(bas_destroy(basis).and.
+     &      geom_destroy(geom))) call errquit
+     &      ('gen_apphess_at: {geom,bas}_destroy failed?',9)
+c all nodes work here 
       endif
 c
-      if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
-     &    mo_basis = 'mo basis'
-      if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
-     &    fd_basis = 'fd basis'
-      if (.not.rtdb_cput(rtdb,'mo basis',1,fd_basis)) call errquit
-     &    ('gen_apphess_at: rtdb_cpu failed?',8)
+c..      broadcast number of atoms
 c
-      if (.not.(bas_destroy(basis).and.
-     &    geom_destroy(geom))) call errquit
-     &    ('gen_apphess_at: {geom,bas}_destroy failed?',9)
+      call ga_brdcst(Msg_RAK+MSGINT, nat, mitob(1), 0)
+c
+      call ga_sync()
+c
+      ignore_status = rtdb_parallel(.true.)
+c      
       call scf_gradient(rtdb)
-      rank_hess = 3*nat
-      if (.not. MA_Push_Get(MT_DBL,rank_hess,
-     &    'cent nuclear gradient vector',
-     &    h_grad0,k_grad0)) call errquit
-     &    ('gen_apphess_at: ma_push_get failed?',10)
-      if (.not. MA_Push_Get(MT_DBL,rank_hess,
-     &    'delta nuclear gradient vector',
-     &    h_gradp,k_gradp)) call errquit
-     &    ('gen_apphess_at: ma_push_get failed?',11)
-      if (.not. MA_Push_Get(MT_DBL,(rank_hess*rank_hess),
-     &    'nuclear hessian matrix',
-     &    h_hess,k_hess)) call errquit
-     &    ('gen_apphess_at: ma_push_get failed?',12)
 c
-      call dfill((rank_hess*rank_hess),0.0d00,
-     &    dbl_mb(k_hess),1)
+      ignore_status = rtdb_parallel(.false.)
+c      
+      call ga_sync()
+      if (whoiam.eq.master) then
+        rank_hess = 3*nat
+        if (.not. MA_Push_Get(MT_DBL,rank_hess,
+     &      'cent nuclear gradient vector',
+     &      h_grad0,k_grad0)) call errquit
+     &      ('gen_apphess_at: ma_push_get failed?',10)
+        if (.not. MA_Push_Get(MT_DBL,rank_hess,
+     &      'delta nuclear gradient vector',
+     &      h_gradp,k_gradp)) call errquit
+     &      ('gen_apphess_at: ma_push_get failed?',11)
+        if (.not. MA_Push_Get(MT_DBL,(rank_hess*rank_hess),
+     &      'nuclear hessian matrix',
+     &      h_hess,k_hess)) call errquit
+     &      ('gen_apphess_at: ma_push_get failed?',12)
+c
+        call dfill((rank_hess*rank_hess),0.0d00,
+     &      dbl_mb(k_hess),1)
 c
 c.. get central gradient
-      if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
-     &    rank_hess,dbl_mb(k_grad0)))
-     &    call errquit('gen_apphess_at: rtdb_get failed',13)
+        if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
+     &      rank_hess,dbl_mb(k_grad0)))
+     &      call errquit('gen_apphess_at: rtdb_get failed',13)
 c
+      endif
+      call ga_sync()
+      call util_flush(6)
       do 00100 iatom = 1,nat
         do 00200 ixyz = 1,3
-          if (.not.geom_create(geom_ref,'reference')) call errquit
-     &        ('gen_apphess_at:geom_create failed?',14)
-          if (.not.geom_rtdb_load(rtdb,geom_ref,'reference'))
-     &        call errquit
-     &        ('gen_apphess_at:geom_rtdb_load failed?',15)
-          if (.not.geom_cent_get(geom_ref,iatom,tag_name,xyz,chg))
-     &        call errquit
-     &        ('gen_apphess_at:geom_cent_get failed?',16)
-          xyz(ixyz) = xyz(ixyz) + delta
-          if (.not.geom_cent_set(geom_ref,iatom,tag_name,xyz,chg))
-     &        call errquit
-     &        ('gen_apphess_at:geom_cent_get failed?',17)
+          if(whoiam.eq.master) then
+            if (.not.geom_create(geom_ref,'reference')) call errquit
+     &          ('gen_apphess_at:geom_create failed?',14)
+            if (.not.geom_rtdb_load(rtdb,geom_ref,'reference'))
+     &          call errquit
+     &          ('gen_apphess_at:geom_rtdb_load failed?',15)
+            if (.not.geom_cent_get(geom_ref,iatom,tag_name,xyz,chg))
+     &          call errquit
+     &          ('gen_apphess_at:geom_cent_get failed?',16)
+            xyz(ixyz) = xyz(ixyz) + delta
+            if (.not.geom_cent_set(geom_ref,iatom,tag_name,xyz,chg))
+     &          call errquit
+     &          ('gen_apphess_at:geom_cent_get failed?',17)
 c.. copy modified geometry and store on rtdb
-          if (.not.geom_create_copy(geom_ref,geom_delta,'geometry'))
-     &        call errquit
-     &        ('gen_apphess_at:geom_create_copy failed?',18)
-          if (.not.
-     &        geom_rtdb_store(rtdb,geom_delta,'geometry'))
-     &        call errquit('gen_apphess_at: geom_rtdb_store failed',19)
-          if (.not.geom_destroy(geom_ref))
-     &        call errquit('gen_apphess_at: geom_destroy failed?',20)
-          if (.not.geom_destroy(geom_delta))
-     &        call errquit('gen_apphess_at: geom_destroy failed?',20)
+            if (.not.geom_create_copy(geom_ref,geom_delta,'geometry'))
+     &          call errquit
+     &          ('gen_apphess_at:geom_create_copy failed?',18)
+            if (.not.
+     &          geom_rtdb_store(rtdb,geom_delta,'geometry'))
+     &          call errquit
+     &          ('gen_apphess_at: geom_rtdb_store failed',19)
+            if (.not.geom_destroy(geom_ref))
+     &          call errquit('gen_apphess_at: geom_destroy failed?',20)
+            if (.not.geom_destroy(geom_delta))
+     &          call errquit('gen_apphess_at: geom_destroy failed?',20)
+          endif
+          call ga_sync()
+          ignore_status = rtdb_parallel(.true.)
           call scf_gradient(rtdb)
-          if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
-     &        rank_hess,dbl_mb(k_gradp)))
-     &        call errquit('gen_apphess_at: rtdb_get failed',21)
-          call fd_cdupd_hess(dbl_mb(k_hess),dbl_mb(k_grad0),
-     &        dbl_mb(k_gradp),delta,nat,iatom,ixyz)
+          ignore_status = rtdb_parallel(.false.)
+          call ga_sync()
+          if (whoiam.eq.master) then
+            if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
+     &          rank_hess,dbl_mb(k_gradp)))
+     &          call errquit('gen_apphess_at: rtdb_get failed',21)
+            call fd_cdupd_hess(dbl_mb(k_hess),dbl_mb(k_grad0),
+     &          dbl_mb(k_gradp),delta,nat,iatom,ixyz)
+          endif
 00200   continue
 00100 continue
 c
-      write(6,*)' finite difference hessian delta = ',delta
-      call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
-     &    rank_hess,rank_hess,1)
-      call wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,'new_fd_hess')
-      write(6,*)' triangle hessian written to new_fd_hess'
-      
-c
+      if (whoiam.eq.master) then
+        write(6,*)' finite difference hessian delta = ',delta
+        call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
+     &      rank_hess,rank_hess,1)
+        call wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,'new_fd_hess')
+        write(6,*)' triangle hessian written to new_fd_hess'
+        
 c.. redefine mo basis to it's original setting
-      if (.not.rtdb_cput(rtdb,'mo basis',1,mo_basis)) call errquit
-     &    ('gen_apphess_at: rtdb_cpu failed?',22)
+        if (.not.rtdb_cput(rtdb,'mo basis',1,mo_basis)) call errquit
+     &      ('gen_apphess_at: rtdb_cpu failed?',22)
 c.. reinstate reference geometry as current geometry
-      if (.not.geom_create(geom_ref,'reference')) call errquit
-     &    ('gen_apphess_at:geom_create failed?',23)
-      if (.not.geom_rtdb_load(rtdb,geom_ref,'reference')) call errquit
-     &    ('gen_apphess_at:geom_rtdb_load failed?',24)
+        if (.not.geom_create(geom_ref,'reference')) call errquit
+     &      ('gen_apphess_at:geom_create failed?',23)
+        if (.not.geom_rtdb_load(rtdb,geom_ref,'reference'))
+     &      call errquit
+     &      ('gen_apphess_at:geom_rtdb_load failed?',24)
 c.. copy reference geometry and store on rtdb
-      if (.not.geom_create_copy(geom_ref,geom,'geometry'))
-     &    call errquit
-     &    ('gen_apphess_at:geom_create_copy failed?',25)
-      if (.not.
-     &    geom_rtdb_store(rtdb,geom,'geometry'))
-     &    call errquit('gen_apphess_at: geom_rtdb_store failed',26)
+        if (.not.geom_create_copy(geom_ref,geom,'geometry'))
+     &      call errquit
+     &      ('gen_apphess_at:geom_create_copy failed?',25)
+        if (.not.
+     &      geom_rtdb_store(rtdb,geom,'geometry'))
+     &      call errquit('gen_apphess_at: geom_rtdb_store failed',26)
 c.. destroy incore copy of reference and geometry geometries
 c
-      if(.not.geom_destroy(geom))
-     &    call errquit('gen_apphess_at: geom_destroy failed?',27)
-      if(.not.geom_destroy(geom_ref))
-     &    call errquit('gen_apphess_at: geom_destroy failed?',27)
+        if(.not.geom_destroy(geom))
+     &      call errquit('gen_apphess_at: geom_destroy failed?',27)
+        if(.not.geom_destroy(geom_ref))
+     &      call errquit('gen_apphess_at: geom_destroy failed?',27)
+        if(.not.ma_pop_stack(h_hess)) call errquit
+     &      ('gen_apphess_at: ma_pop_stack(h_hess) failed?',27)
+        if(.not.ma_pop_stack(h_gradp)) call errquit
+     &      ('gen_apphess_at: ma_pop_stack(h_gradp) failed?',27)
+        if(.not.ma_pop_stack(h_grad0)) call errquit
+     &      ('gen_apphess_at: ma_pop_stack(h_grad0) failed?',27)
+
+      endif
+      call ga_sync()
+      ignore_status = rtdb_parallel(.true.)
       gen_apphess_at = .true.
       end
       subroutine wrt_fd_from_sq(hess,rank_hess,filename)
