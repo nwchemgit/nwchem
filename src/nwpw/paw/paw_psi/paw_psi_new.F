@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi_new.F,v 1.1 2003-09-25 02:10:05 bylaska Exp $
+* $Id: paw_psi_new.F,v 1.2 2004-02-23 16:37:32 bylaska Exp $
 *
 
 *     ***********************************
@@ -66,7 +66,7 @@
       tcharge = control_totalcharge()
       icharge = ion_totalcharge()
       t = icharge - tcharge       !** total number of electrons **
-      x = NINT(t+0.5d0)
+      x = t
       xx = x
 
 

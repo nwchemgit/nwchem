@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.13 2004-02-22 18:56:37 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.14 2004-02-23 16:37:32 bylaska Exp $
 c
 
 !**************************************************
@@ -230,7 +230,7 @@ c
       call Pack_npack(1,npack1)
 
 *    **** neede to change Grsm_ggm_dot for unrestricted calculations ***
-      call Grsm_ggm2_sym_dot(npack1,ne,    
+      call Grsm_ggm2_dot(npack1,ne,    
      >                  psi1,psi2,
      >                  Sij,n)
 
@@ -282,6 +282,101 @@ c
      > call errquit('paw_overlap_matrix_gen: error popping stack',0,0)
       return
       end
+
+
+!*************************************************
+!
+!   name :   paw_overlap_sym_matrix_gen
+!
+!
+!   purpose : computes S = overlap1 + overlap2
+!
+!   created : 2/10/2003
+!
+!*************************************************
+      subroutine paw_overlap_sym_matrix_gen(n,ne,psi1,psi2,Sij)
+      implicit none
+      integer    n,ne
+      complex*16 psi1(*),psi2(*)
+      real*8     Sij(n,n)
+
+#include "mafdecls.fh"
+#include "paw_ma.fh"
+#include "paw_basis.fh"
+#include "paw_proj.fh"
+#include "paw_geom.fh"
+#include "paw_ovlp_data.fh"
+#include "paw_overlap_matrix.fh"
+
+      !*** local variables ***
+      logical ok
+      integer npack1,indxr,indxs,indx
+      integer i,j,ii,ia,a,b,ma,mb,la,lb,r,s
+      integer nbasis,basis_nbasis,nion,ii_shift
+      integer matrx_ptr
+      integer c1(2),c2(2),ct(2)
+
+
+      !*** calculate overlap1 ****
+
+      call Pack_npack(1,npack1)
+
+*    **** neede to change Grsm_ggm_dot for unrestricted calculations ***
+      call Grsm_ggm2_sym_dot(npack1,ne,
+     >                  psi1,psi2,
+     >                  Sij,n)
+
+      !*** allocate space from stack ****
+      ok = MA_push_get(mt_dcpl,ne*total_nbasis,'c1',c1(2),c1(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,ne*total_nbasis,'c2',c2(2),c2(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
+      if (.not.ok)
+     > call errquit('paw_overlap_matrix_gen: out of stack memory',0,0)
+
+      !*** calculate overlap2 ****
+
+      !**** ct_r^a(j) = Sum(rs) (q_rs^a)*c_s^a(j) ****
+      call paw_ovlp_calc_coef(ne,psi2,dcpl_mb(c2(1)))
+      call  paw_overlap_pv_gen(ne,total_nbasis,
+     >          dcpl_mb(c2(1)),
+     >          dcpl_mb(ct(1)))
+
+
+      !**** S(i,j) = Sum(i,j,r) dconjg( c1_r^a(i) ) * ct_r^a(j) ****
+      call paw_ovlp_calc_coef(ne,psi1,dcpl_mb(c1(1)))
+      ii_shift = 0
+      nion = ion_nion()
+      do ii=1,nion
+        ia     = ion_katm(ii)
+        nbasis = paw_proj_nbasis(ia)
+        do r=1,nbasis
+           do i=1,ne
+           do j=1,ne
+             indxr = (r-1+ii_shift)*ne + (i-1)
+             indxs = (r-1+ii_shift)*ne + (j-1)
+
+             Sij(i,j) = Sij(i,j)
+     >                + dconjg(dcpl_mb(c1(1)+indxr))
+     >                 *dcpl_mb(ct(1)+indxs)
+           end do
+           end do
+        end do
+        ii_shift = ii_shift+nbasis
+      end do
+
+
+      ok =        MA_pop_stack(ct(2))
+      ok = ok.and.MA_pop_stack(c2(2))
+      ok = ok.and.MA_pop_stack(c1(2))
+      if (.not.ok)
+     > call errquit('paw_overlap_matrix_gen: error popping stack',0,0)
+      return
+      end
+
+
+
 
 
 !*************************************************

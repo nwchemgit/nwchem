@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.7 2003-10-24 18:45:59 bylaska Exp $
+* $Id: paw_psi.F,v 1.8 2004-02-23 16:37:32 bylaska Exp $
 *
 
 
@@ -144,7 +144,7 @@
 
 
 *       ***** compute the overlap matrices ****
-        call paw_overlap_matrix_gen(n,ne(ms),
+        call paw_overlap_sym_matrix_gen(n,ne(ms),
      >                          psi2(1,n1(ms)),
      >                          psi2(1,n1(ms)),
      >                          tmp(A))
@@ -152,14 +152,14 @@
      >                          psi1(1,n1(ms)),
      >                          psi2(1,n1(ms)),
      >                          tmp(B))
-        call paw_overlap_matrix_gen(n,ne(ms),
+        call paw_overlap_sym_matrix_gen(n,ne(ms),
      >                          psi1(1,n1(ms)),
      >                          psi1(1,n1(ms)),
      >                          tmp(C))
 
 
         call paw_psi_gen_Ba_Bs(n,ne(ms),tmp(B),tmp(Bs),tmp(Ba))
-        call paw_psi_gen_UD(n,ne(ms),tmp(Bs),tmp(D))
+        call paw_psi_gen_UD(n,ne(ms),tmp(Bs),tmp(D),lmbda)
 
 
         call paw_psi_gen_X(n,ne(ms),tmp(st1),tmp(st2),
@@ -233,17 +233,18 @@
 *     *        paw_psi_gen_UD           *
 *     *                                 *
 *     ***********************************
-      subroutine paw_psi_gen_UD(n_max,n,Bs,D)
+      subroutine paw_psi_gen_UD(n_max,n,Bs,D,work)
       implicit none
       integer n_max,n
       real*8 Bs(n_max,n)
       real*8 D(n_max,n)
+      real*8 Work(n_max,n)
 
       !*** local variables ***
       integer ierr
 
       !call eigen(n_max,n,Bs,D,D(1,2))
-      call DSYEV('V','U',n,Bs,n_max, D,D(1,2),n_max*(n-1),ierr)
+      call DSYEV('V','U',n,Bs,n_max, D,Work,2*n_max*n_max,ierr)
       return
       end
 

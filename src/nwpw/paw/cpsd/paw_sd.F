@@ -1,7 +1,12 @@
 *
-* $Id: paw_sd.F,v 1.66 2004-02-22 18:56:37 bylaska Exp $
+* $Id: paw_sd.F,v 1.67 2004-02-23 16:37:32 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.66  2004/02/22 18:56:37  bylaska
+* Input and io changes for simulation_cell
+* Grsm_ggm2_sym_dot routine used in paw_overlap_matrix_gen
+* ...EBJ
+*
 * Revision 1.65  2004/02/10 04:27:25  edo
 * spellinggggggggggggg
 *
@@ -754,7 +759,7 @@
       do ms=1,ispin
          do i=n1(ms),n2(ms)
             ii = i-n1(ms)+1
-            do j=i,n2(ms)
+            do j=n1(ms),n2(ms)
                jj = j-n1(ms)+1
                call paw_overlap_matrix_gen(1,1,
      >                          dcpl_mb(psi1(1)+(i-1)*npack1),
@@ -985,8 +990,8 @@ c         write(6,1498) virial
 *:::::::::::::::::::::::::::  format  :::::::::::::::::::::::::::::::::
  1000 FORMAT(10X,'****************************************************')
  1010 FORMAT(10X,'*                                                  *')
- 1020 FORMAT(10X,'*           PAW microcluster calculation           *')
- 1030 FORMAT(10X,'*     [     steepest descent minimization   ]      *')
+ 1020 FORMAT(10X,'*        NWPW PAW microcluster calculation         *')
+ 1030 FORMAT(10X,'*     [    steepest descent minimization   ]       *')
  1035 FORMAT(10x,'*     [ NorthWest Chemistry implementation ]       *')
  1040 FORMAT(10X,'*            version #1.00   08/01/02              *')
  1041 FORMAT(10X,'*    Authors: Marat Valiev and Eric J. Bylaska     *')

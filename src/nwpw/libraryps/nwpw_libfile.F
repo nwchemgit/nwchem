@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.9 2004-01-28 01:30:17 bylaska Exp $
+* $Id: nwpw_libfile.F,v 1.10 2004-02-23 16:37:31 bylaska Exp $
 *
 
 *
@@ -75,18 +75,28 @@ c
 
 *     **** library for paw ****
       if (flag.eq.2) then
-        if (hprint) then
-         write(luout,*)' library file name is: <',
-     &     libname(1:inp_strlen(libname)),
-     &     'library2/', element, '_basis','>'
-         write(luout,*) ' '
-        end if
 
+        rtdb = control_rtdb()
         l = index(element,' ')  -1
         if (l.lt.1) l = 2
+        rtdb_name = element(1:l)//':paw_library'
+        if (.not.rtdb_cget(rtdb,rtdb_name,1,library_name))
+     >    library_name = 'paw_default'
+
+        ind = index(library_name,' ')  -1
+        library = library_name(1:ind)//'/'
+        ind = index(library,' ')  -1
+
         filename=
-     > libname(1:inp_strlen(libname))
-     > //'/library2/'//element(1:l)//'_basis'
+     >   libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
+     >   //'_basis'
+
+        if (hprint) then
+        write(luout,*)
+     >   ' library file name is: ',filename(1:inp_strlen(filename))
+        write(luout,*)
+        end if
+
 
 *     **** library for pspw and band ****
       else
@@ -102,7 +112,8 @@ c
         library = library_name(1:ind)//'/'
         ind = index(library,' ')  -1
 
-        filename=libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
+        filename=
+     >   libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
 
         if (hprint) then
         write(luout,*)
