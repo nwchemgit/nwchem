@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.172 2003-08-20 16:04:22 d3j191 Exp $
+c $Id: md_main.F,v 1.173 2003-09-22 22:49:09 d3j191 Exp $
 c
       implicit none
 c
@@ -1922,8 +1922,8 @@ c
 c
 c     initialize cafe
 c
-      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-     + dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esa))
+      call cf_init(stime,lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),
+     + eww,dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esa))
 c
       if(lpair) call md_zinit(int_mb(i_iwz),int_mb(i_isz))
 c
@@ -2222,11 +2222,11 @@ c
       ldone=.true.
       call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
       endif
-c      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-c     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
-c     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
-      call cf_init2(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-     + dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esa))
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
+c      call cf_init2(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+c     + dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esa))
       goto 100
       endif
       endif
@@ -2631,7 +2631,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.172 2003-08-20 16:04:22 d3j191 Exp $
+c $Id: md_main.F,v 1.173 2003-09-22 22:49:09 d3j191 Exp $
 c
       implicit none
 c

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.159 2003-08-19 21:02:01 d3j191 Exp $
+c $Id: cf_main.F,v 1.160 2003-09-22 22:49:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1348,7 +1348,7 @@ c
 c
       return
       end
-      subroutine cf_extern(stime,nums,fs,isq,numw,fw)
+      subroutine cf_extern(stimei,nums,fs,isq,numw,fw)
 c
       implicit none
 c
@@ -1357,14 +1357,16 @@ c
 c
       integer nums,numw
       integer isq(msa)
-      real*8 stime,fs(msa,3),fw(mwm,3,mwa)
+      real*8 stimei,fs(msa,3),fw(mwm,3,mwa)
 c
-      call cf_external_field(stime,nums,fs,isq,numw,fw,int_mb(i_iwq),
+      stime=stimei
+c
+      call cf_external_field(nums,fs,isq,numw,fw,int_mb(i_iwq),
      + dbl_mb(i_chg))
 c
       return
       end
-      subroutine cf_external_field(stime,nums,fs,isq,numw,fw,iwq,chg)
+      subroutine cf_external_field(nums,fs,isq,numw,fw,iwq,chg)
 c
       implicit none
 c
@@ -1373,7 +1375,7 @@ c
 c
       integer nums,numw
       integer isq(msa),iwq(mwa)
-      real*8 stime,fs(msa,3),fw(mwm,3,mwa),chg(mqt,mqp,mset)
+      real*8 fs(msa,3),fw(mwm,3,mwa),chg(mqt,mqp,mset)
 c
       integer i,j,k
       real*8 efield,q,df

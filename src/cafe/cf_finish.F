@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.19 2003-08-18 16:40:52 d3j191 Exp $
+c $Id: cf_finish.F,v 1.20 2003-09-22 22:49:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -31,6 +31,10 @@ c
       endif
 c
       if(nhop.gt.0) then
+      if(.not.ma_pop_stack(l_timhop))
+     + call errquit('Failed to deallocate timhop',0)
+      if(.not.ma_pop_stack(l_lsthop))
+     + call errquit('Failed to deallocate lsthop',0)
       if(.not.ma_pop_stack(l_pda))
      + call errquit('Failed to deallocate pda',0)
       if(.not.ma_pop_stack(l_uda))

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.148 2003-08-19 21:02:06 d3j191 Exp $
+c $Id: md_start.F,v 1.149 2003-09-22 22:49:09 d3j191 Exp $
 c
       implicit none
 c
@@ -47,7 +47,7 @@ c
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl,nbias,mropt,includ,ltwin,
-     + nseq,i_lseq,nfhop,rhop,ndums,ipbtyp,lfnhop)
+     + nseq,i_lseq,nfhop,rhop,thop,ndums,ipbtyp,lfnhop)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
@@ -914,6 +914,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',92)
      + call errquit('md_rtdbin: rtdb_get failed',98)
       if(.not.rtdb_get(irtdb,'md:rhop',mt_dbl,1,rhop))
      + call errquit('md_rtdbin: rtdb_get failed',98)
+      if(.not.rtdb_get(irtdb,'md:thop',mt_dbl,1,thop))
+     + call errquit('md_rtdbin: rtdb_get failed',98)
       if(.not.rtdb_get(irtdb,'md:iguide',mt_int,1,iguide))
      + call errquit('md_rtdbin: rtdb_get failed',98)
       if(.not.rtdb_get(irtdb,'md:nopack',mt_int,1,nopack))
@@ -1683,7 +1685,9 @@ c
       write(lfnout,3001) nfhop
  3001 format(' Frequency hopping attempts ',t55,i5)
       write(lfnout,3002) rhop
- 3002 format(' Donor-acceptor cutoff distance',t55,f12.6)
+ 3002 format(' Donor-acceptor cutoff distance',t55,f12.6,' nm')
+      write(lfnout,3003) thop
+ 3003 format(' Minimum time before backhop',t55,f12.6,' ps')
 c
       endif
 c

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.74 2003-08-19 23:20:37 d3j191 Exp $
+c $Id: md_common.fh,v 1.75 2003-09-22 22:49:09 d3j191 Exp $
 c
 c     parameters
 c
@@ -122,7 +122,7 @@ c
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0(6),shift1(6),
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
      + xfvect(3),xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
-     + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop
+     + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop
       integer nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
@@ -152,7 +152,7 @@ c
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0,shift1,
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
      + xfvect,xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
-     + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,
+     + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop,
      + nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,

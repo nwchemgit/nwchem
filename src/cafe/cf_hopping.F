@@ -1,7 +1,7 @@
-      logical function cf_hopping(stime,issgm,isgan,ishop,
+      logical function cf_hopping(stimei,issgm,isgan,ishop,
      + xs,nsaloc,lfnhop)
 c
-c $Id: cf_hopping.F,v 1.9 2003-09-22 15:34:58 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.10 2003-09-22 22:49:12 d3j191 Exp $
 c
       implicit none
 c
@@ -16,9 +16,11 @@ c
       integer issgm(msa),nsaloc,isgan(msa),ishop(msa)
       integer lfnhop
       real*8 xs(msa,3)
-      real*8 stime
+      real*8 stimei
 c
       integer i_itmp,l_itmp,i_dtmp,l_dtmp
+c
+      stime=stimei
 c
       if(lpair.and.nhop.gt.0) then
       lhop=.true.
@@ -40,9 +42,10 @@ c
       if(.not.ma_push_get(mt_int,nldat,'itmp',l_itmp,i_itmp))
      + call errquit('Failed to allocate itmp',me)
 c
-      cf_hopping=cf_hop(stime,int_mb(i_lseq),issgm,
+      cf_hopping=cf_hop(int_mb(i_lseq),issgm,
      + int_mb(i_lda),dbl_mb(i_rda),dbl_mb(i_uda),
-     + int_mb(i_itmp),dbl_mb(i_dtmp),isgan,ishop,xs,nsaloc,lfnhop)
+     + int_mb(i_itmp),dbl_mb(i_dtmp),isgan,ishop,xs,nsaloc,lfnhop,
+     + int_mb(i_lsthop),dbl_mb(i_timhop))
 c
       if(.not.ma_pop_stack(l_itmp))
      + call errquit('Failed to deallocate itmp',me)
@@ -146,8 +149,8 @@ c      endif
 ctest
       return
       end
-      logical function cf_hop(stime,lseq,issgm,lda,rda,uda,ndx,pda,
-     + isgan,ishop,xs,nsaloc,lfnhop)
+      logical function cf_hop(lseq,issgm,lda,rda,uda,ndx,pda,
+     + isgan,ishop,xs,nsaloc,lfnhop,lsthop,timhop)
 c
       implicit none
 c
@@ -160,9 +163,10 @@ c
       integer lseq(mseq),issgm(msa)
       integer lda(10,*),nsaloc,isgan(msa),ishop(msa)
       real*8 rda(5,*),uda(4,*),pda(*),xs(msa,3),x(3)
-      real*8 stime
       integer lfnhop
       integer ndx(*)
+      integer lsthop(2,*)
+      real*8 timhop(*)
 c
       integer i,j,k,ndxrel
       real*8 dprob,drand
@@ -236,6 +240,10 @@ c
       cf_hop=.false.
       do 7 i=1,nldat
       if(pda(i).gt.0.5d0) then
+      nhops=nhops+1
+      lsthop(1,nhops)=lda(3,i)
+      lsthop(2,nhops)=lda(8,i)
+      timhop(nhops)=stime
       lseq(lda(3,i))=lda(4,i)
       lseq(lda(8,i))=lda(9,i)
       do 8 j=1,nsaloc

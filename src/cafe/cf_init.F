@@ -5,9 +5,9 @@
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
-     + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,ndumsi,ipbtpi,
-     + lfnhop)
-c $Id: cf_init.F,v 1.94 2003-08-20 16:04:24 d3j191 Exp $
+     + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
+     + ipbtpi,lfnhop)
+c $Id: cf_init.F,v 1.95 2003-09-22 22:49:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -19,7 +19,7 @@ c
       character*(*) filtop
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,nipmf,npgi
-      real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq,rhopi
+      real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq,rhopi,thopi
       integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl,incl
       integer nfhopi,ipbtpi
       real*8 rcs,rcl,rqm,compr,delta,fpmf
@@ -60,6 +60,8 @@ c
       mdalgo=mdalg
       includ=incl
       ipbtyp=ipbtpi
+c
+      nhops=0
 c
       lfree=ntype.eq.3
 c
@@ -194,6 +196,7 @@ c
 c
       rhop=rhopi
       rhop2=rhop*rhop
+      thop=thopi
       nfhop=nfhopi
       nseq=nseqi
       mseq=nseqi
@@ -273,6 +276,10 @@ c
      + call errquit('Failed to allocate uda',0)
       if(.not.ma_push_get(mt_dbl,nhop*3,'pda',l_pda,i_pda))
      + call errquit('Failed to allocate pda',0)
+      if(.not.ma_push_get(mt_int,nhop*30,'lsthop',l_lsthop,i_lsthop))
+     + call errquit('Failed to allocate lsthop',0)
+      if(.not.ma_push_get(mt_dbl,nhop*15,'timhop',l_timhop,i_timhop))
+     + call errquit('Failed to allocate timhop',0)
       endif
 c
 c     potential of mean force
@@ -1480,7 +1487,8 @@ c
 c
       return
       end
-      subroutine cf_init(lp,llng,bx,vl,vli,zwi,zs,eww,esw,ess,fss,esa)
+      subroutine cf_init(stimei,lp,llng,bx,vl,vli,zwi,zs,
+     + eww,esw,ess,fss,esa)
 c     + vw,vwt,vs,vst,zwi,zs,eww,esw,ess)
 c
 c     in r*8 : bx(3) : box dimensions
@@ -1495,12 +1503,15 @@ c      real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),vs(msa,3),vst(msa,3)
       real*8 bx(3),vl(3,3),vli(3,3),zwi(3,3,2),zs(msf,3,3,2)
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2)
       real*8 fss(msf,msf,3,2)
-      real*8 esa(nsa,2)
+      real*8 esa(nsa,2),stimei
       logical lp,llng
 c
       integer i,j,k,l,m
 c
 c     initialize pme flags
+c
+      stime=stimei
+      if(nhops.gt.0) call cf_hopinit(int_mb(i_lsthop),dbl_mb(i_timhop))
 c
       if(ipme.gt.0) then
       call pme_flag(0,0,me)
@@ -1619,6 +1630,30 @@ c
       call cf_binit(dbl_mb(i_rang(2)),numh(2),2)
       call cf_binit(dbl_mb(i_rdih(2)),numd(2),2)
       call cf_binit(dbl_mb(i_rimp(2)),numi(2),2)
+c
+      return
+      end
+      subroutine cf_hopinit(lsthop,timhop)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lsthop(2,*)
+      real*8 timhop(*)
+c
+      integer i,n
+c
+      n=nhops
+      nhops=0
+      do 1 i=1,n
+      if(stime-timhop(i).le.thop) then
+      nhops=nhops+1
+      lsthop(1,nhops)=lsthop(1,i)
+      lsthop(2,nhops)=lsthop(2,i)
+      timhop(nhops)=timhop(i)
+      endif
+    1 continue
 c
       return
       end

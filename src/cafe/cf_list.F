@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.23 2003-08-07 00:24:42 d3j191 Exp $
+c $Id: cf_list.F,v 1.24 2003-09-22 22:49:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -351,7 +351,7 @@ c
       subroutine cf_lss(lself,lpbc,lpbcs,xs,iga,idt,igr,isgm,iss,ish,
      + isz,
      + isfr,isto,jsfr,jsto,nlocs,mpairs,npairs,lssjpt,lssin,lssj,list,
-     + rwx,rw,ndxt,nt,ndxx,nx,lda,rda,lseq)
+     + rwx,rw,ndxt,nt,ndxx,nx,lda,rda,lseq,lsthop)
 c
       implicit none
 c
@@ -367,7 +367,7 @@ c
       integer lssj(*),lssjpt(nlocs,2),lssin(nlocs,2)
       integer list(msa,3),iga(msa),igr(msa),idt(msa),iss(msa),isz(msa)
       integer ish(msa),isgm(msa)
-      integer lseq(mseq)
+      integer lseq(mseq),lsthop(2,*)
       logical lself,lpbc,lpbcs
 c
       integer isafr,isfr,isato,isto,jsafr,jsfr,jsato,jsto
@@ -583,6 +583,11 @@ c     temporary change to exclude same to same protonation state
 c
       if(lseq(isgm(idon)).ne.lseq(isgm(iacc))) then
 ctmp
+c
+      do 226 i=1,nhops
+      if(lsthop(1,i).eq.iacc.and.lsthop(2,i).eq.idon) goto 227
+  226 continue
+c
       call qhop_asite(msa,xs,idon,iga(idon),isgm(idon),lseq(isgm(idon)),
      + iacc,iga(iacc),isgm(iacc),lseq(isgm(iacc)),xacc,idoff,iaoff)
       nlda=nlda+1
@@ -605,6 +610,9 @@ c     + iacc,iga(iacc),isgm(iacc),lseq(isgm(iacc)),sqrt(rw(jsa))
       rda(3,nlda)=xacc(3)
       rda(4,nlda)=xacc(4)
       rda(5,nlda)=xacc(5)
+c
+  227 continue
+c
       endif
       endif
 ctmp

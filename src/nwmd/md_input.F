@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.74 2003-08-08 15:11:38 d3j191 Exp $
+c $Id: md_input.F,v 1.75 2003-09-22 22:49:09 d3j191 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
       real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide,rfix,fcoll
-      real*8 tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop
+      real*8 tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop
       character*12 afix
 c
       integer i,mtimes,len
@@ -152,6 +152,7 @@ c
       iprop=0
       nfhop=0
       rhop=0.35d0
+      thop=0.020d0
 c      ifix=0
 c      iunfix=0
       numfix=0
@@ -635,6 +636,7 @@ c
       if(inp_compare(.false.,'qhop',item)) then
       if(.not.inp_i(nfhop)) nfhop=10
       if(.not.inp_f(rhop)) rhop=0.35d0
+      if(.not.inp_f(thop)) thop=0.02d0
       goto 2
       endif
 c
@@ -1797,6 +1799,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfhop',mt_int,1,nfhop))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:rhop',mt_dbl,1,rhop))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:thop',mt_dbl,1,thop))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:iguide',mt_int,1,iguide))
      + call errquit('md_input: rtdb_put failed',0)
