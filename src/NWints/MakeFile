@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.5 2003-01-24 19:36:17 edo Exp $	
+#	$Id: MakeFile,v 1.6 2003-01-24 19:59:43 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -10,7 +10,6 @@ OBJ =          $(OBJDIR)\intgrl_input.obj
 
 HEADERS =      api\int_tim.fh \
                api\apiP.fh \
-               seint\se_defs.fh \
                api\int_nbf.fh \
                auxil\spcartP.fh \
                hondo\hnd_whermt.fh \
