@@ -1,5 +1,9 @@
 
 from nwchem import *
+INT = 1010
+CHAR = 1000
+LOGICAL = 1011
+DBL = 1013
 from Tkinter import *
 import signal
 
