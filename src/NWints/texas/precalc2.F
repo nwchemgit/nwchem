@@ -1,5 +1,5 @@
       subroutine prec2ij(ibl, bl,inx,npar,nbl2, iis,jjs,ijbl)
-c $Id: precalc2.F,v 1.10 1996-06-27 22:33:35 d3g681 Exp $
+c $Id: precalc2.F,v 1.11 1996-07-10 00:34:11 rg240 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -236,6 +236,7 @@ ctest
 c
 cccc  do 100 ijpar=1,nparij
 cccc  ijcs=ijbl(ibl,ijpar)
+      call zeroit(abprim,(nparij*ijcont*3))
       do 100 ij_u =1,nij_uniqe
       ijcs=ij_uniqe(ij_u)
       ijpar=map(ijcs)
@@ -491,6 +492,10 @@ c
 c---------------
 c precalculations for the pairs IJ :
 c
+      call zeroit(xab,(npij*3))
+      call zeroit(aaa,(npij*lcii))
+      call zeroit(bbb,(npij*lcjj))
+
 cccc  ijpar=0
 cccc  do 100 ijp=nijbeg,nijend
 cccc  ijpar=ijpar+1
@@ -667,6 +672,7 @@ c
          do 151 js1=1,lcjj
          ijs1=ijs1+1
          do 151 ijpar=1,npij
+
             txab(ijpar,1,ijs1)=-bbb(ijpar,js1)*xab(ijpar,1)
             txab(ijpar,2,ijs1)=-bbb(ijpar,js1)*xab(ijpar,2)
             txab(ijpar,3,ijs1)=-bbb(ijpar,js1)*xab(ijpar,3)
@@ -678,6 +684,7 @@ c center23:
                txab(ijpar,3,ijs1)=zero
             endif
   151    continue
+         
       else
          ijs1=0
          do 152 is1=1,lcii
