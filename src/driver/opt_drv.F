@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.34 1997-06-26 17:39:51 mdupuis Exp $
+C$Id: opt_drv.F,v 1.35 1997-07-02 17:06:14 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -93,7 +93,7 @@ c                mxcoor=max(mxcart,mxzmat)
 c
       hnd_optx = .false.
 c
-      dbug=.false.  
+      dbug=.false.
       some=.false.
       some=some.or.dbug
       if (ga_nodeid().eq.0.or.some)  then
@@ -157,6 +157,9 @@ c
       excess=.false.
       zcoord=.false.
       zcoord=nzmat.gt.0
+      if(dbug)  then
+         write(iw,*) 'nzmat,zcoord = ',nzmat,zcoord    
+      endif
       if(zcoord) then
          call geom_zmt_icoord(rtdb,geom)
          ncart =3*nat
@@ -1192,6 +1195,7 @@ C
       CHARACTER*8   ERRMSG
       logical DRIVER_OPT_PUT_HESS
       external DRIVER_OPT_PUT_HESS
+      LOGICAL DBUG
       LOGICAL OUT
       LOGICAL SOME
       COMMON/HND_IOFILE/IR,IW
@@ -1208,7 +1212,9 @@ C
       DATA ZERO   /0.0D+00/
       DATA HDIAGX /0.5D+00/
 C
+      DBUG=.FALSE.
       OUT =.FALSE.
+      OUT =OUT.OR.DBUG
       SOME=.FALSE.
       SOME=SOME.OR.OUT    
 C
