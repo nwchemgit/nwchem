@@ -1,6 +1,6 @@
       Subroutine xc_murakn(znumber,r,w,nr,range,lreset)
 
-C$Id: xc_murakn.F,v 1.4 1999-12-30 21:18:50 edo Exp $
+C$Id: xc_murakn.F,v 1.5 2000-01-06 00:41:35 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -14,7 +14,6 @@ c
       double precision fmn,qi,ri,wi,alpha
       double precision range ! max extent of basis f
 c
-      double precision wsum
       logical lreset
 c
 c Definition of Euler-Maclaurin numerical quadrature points and weights
@@ -24,11 +23,11 @@ c ME Mura and PJ Knowles, J Chem Phys 104, 9848 (1996)
 c
 c***************************************************************************
       nr = nr+1
-      if(lreset) then
-         alpha=-range/log(1d0-(nr/(1d0+nr))**3)
-      else
+cedo      if(lreset) then
+cedo         alpha=-range/log(1d0-(nr/(1d0+nr))**3)
+cedo      else
          alpha=5d0
-      endif
+cedo      endif
       fmn = rm/dble(nr)
 
       do 10 i = 1,nr-1

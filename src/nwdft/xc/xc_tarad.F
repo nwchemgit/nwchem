@@ -1,6 +1,6 @@
       subroutine xc_tarad(znumber,r,w,nr,origin,which)
 
-C$Id: xc_tarad.F,v 1.3 1999-08-10 22:58:01 edo Exp $
+C$Id: xc_tarad.F,v 1.4 2000-01-06 00:41:36 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -33,6 +33,7 @@ c
 c***************************************************************************
       zeta=1.d0
       if(znumber.lt.37) zeta = zetad(znumber)
+      write(0,*) ' zz ',znumber,zeta
 
       if(which.eq.'chebyshe') then
       do  i = 1,nr

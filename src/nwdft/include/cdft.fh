@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.36 1999-12-17 17:24:33 edo Exp $
+C$Id: cdft.fh,v 1.37 2000-01-06 00:41:08 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -107,14 +107,14 @@ c
      &     rpts, rwghts, aratio, costheta, sintheta, cosphi, sinphi,
      &     awghts, qrot, wa_leb, za_leb
       logical 
-     &     iatype_pt_chg,leb
+     &     iatype_pt_chg,leb,do_interp
       integer 
      &     iqshell, nqshells, nqmax, nrad, nang, ntheta, nphi, 
      &     iatype,ityp2ctr, iqrot, ntypes,
      &     max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq, nq_chunk,
      &     rad_cutoff,task_list,n_tot_tasks,red_iqsh,
      &     nradin, nangin, 
-     &     accqrin,ngridin
+     &     accqrin,ngridin,wradgrid
 c
       integer MX_l_ang, IAC_MAX, MAX_CHUNK
 c
@@ -132,6 +132,7 @@ c
       integer l_nxyz,k_nxyz ! MA handler
       double precision l_rect
       parameter (mxpt_rect=800,l_rect=4d0)
+      character*10 radgrid
 c
       Common /quad/
 c
@@ -147,7 +148,7 @@ c
 c
 c     Logicals
 c
-     & iatype_pt_chg(dft_max_cent), leb,
+     & iatype_pt_chg(dft_max_cent), leb, do_interp,
 c
 c     Integers
 c
@@ -159,5 +160,14 @@ c
      & red_iqsh(MXqshells,MAX_CHUNK),
      & nradin(dft_ntags_bsmx), nangin(dft_ntags_bsmx), 
      & accqrin(dft_ntags_bsmx),grtagin(dft_ntags_bsmx),ngridin,
-     . l_nxyz,k_nxyz,ityp2ctr(dft_ntags_bsmx)
+     . l_nxyz,k_nxyz,ityp2ctr(dft_ntags_bsmx),wradgrid,
+c
+c     char
+c
+     .     radgrid
+      character*10 radgrids(6)
+      data radgrids /'eumac','murakn','tarad','gausslag','gcinterv',
+     ,'rlindh'/
+      logical xc_interp
+      external xc_interp
 
