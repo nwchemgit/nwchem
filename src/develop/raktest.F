@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.71 1997-06-19 05:55:45 d3e129 Exp $
+c $Id: raktest.F,v 1.72 1997-06-25 18:07:35 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -122,7 +122,7 @@ c
 
         if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
      &      call errquit
-     &      ('stpr_walk: geom_rtdb_store (of copy) failed',911)
+     &      ('raktest_geomwrt: geom_rtdb_store (of copy) failed',911)
         write(luout,*)' stored geometry ',new_geom_name
       enddo
       end
