@@ -1,3 +1,4 @@
+
 c
 c   MCSCF Secular solution front-end
 c
@@ -10,6 +11,7 @@ c
 #include "rtdb.fh"
 #include "bas.fh"
 #include "geom.fh"
+#include "util.fh"
 #include "detciP.fh"
 #include "detci.fh"
 #include "mcscfprof.fh"
@@ -31,7 +33,7 @@ c
 c
 #ifdef OLD_DAVIDSON
       integer mxworkvec
-      parameter(mxworkvec=24)
+      parameter(mxworkvec=10)
 #else
       integer mxworkvec
       parameter(mxworkvec=5)
@@ -56,6 +58,7 @@ c
       character*10 vstr
       character*10 civec_in
       logical civec_saved
+      logical odebugpr
 c
       external dummy_mxv
       external dummy_precon
@@ -66,14 +69,18 @@ c
 c
       save hasprint
       data hasprint/0/
-      data citol/1.e-7/
+      data citol/1.e-8/
       data maxiter/30/
       data civec_in/'civec'/
 c
 c
+      call util_print_push
+      call util_print_rtdb_load(rtdb, 'ci')
       iprint = 1
       if (hasprint.ne.0) iprint = 0
       hasprint = hasprint + 1
+      odebugpr = (ga_nodeid().eq.0).and.
+     $           (util_print('mcscfci',print_debug))
 c
 c   Retrieve spin-related info from database
 c
@@ -169,7 +176,8 @@ c
       if ((omcscfprof).and.(ociprof)) call pstat_on(ps_cidiag)
 #ifdef OLD_DAVIDSON
       call detci_dvddiag0( detci_sigma, detci_ciprecon, mxworkvec,
-     $                     1.d-12, ciener, g_wvec, g_civec, oprint )
+     $                     maxiter, citol, ciener, g_wvec, g_civec,
+     $                     oprint )
 #else
       call detci_dvddiag( detci_sigma, detci_ciprecon, maxiter,
      $                    citol, oprint, g_civec, g_wvec(1), g_wvec(2),
@@ -177,9 +185,17 @@ c
 #endif
       if ((omcscfprof).and.(ociprof)) call pstat_off(ps_cidiag)
 c
+c   Free work vectors ASAP
+c
+      do i=1,mxworkvec
+        if (.not.ga_destroy(g_wvec(i)))
+     $    call errquit('mcscf_cisolve: cannot destroy CI vector',0)
+      enddo
+c
 c   Print out converged ground state CI vector
 c
-      if (ociprint) call detci_print( g_civec, 2.d-2 )
+      if ((ociprint).or.(odebugpr))
+     $  call detci_print( g_civec, 2.d-2 )
 c
 c   Check symmetry contamination of soln vector
 c
@@ -199,6 +215,11 @@ c
       if ((omcscfprof).and.(ociprof)) call pstat_on(ps_cidens)
       call detci_density( g_civec, dm1, dm2 )
       if ((omcscfprof).and.(ociprof)) call pstat_off(ps_cidens)
+      if (odebugpr) then
+        write(6,771)
+ 771    format(/,5x,'One particle density matrix')
+        call moints_matprintx(nact,nact,dm1)
+      endif
 c
 c   Save CI vector for restart
 c
@@ -209,10 +230,6 @@ c   Release CI vectors
 c
       if (.not.ga_destroy(g_civec))
      $   call errquit('mcscf_cisolve: cannot destroy CI vector',0)
-      do i=1,mxworkvec
-        if (.not.ga_destroy(g_wvec(i)))
-     $    call errquit('mcscf_cisolve: cannot destroy CI vector',0)
-      enddo
 c
 c   Release DetCI internals
 c
@@ -224,6 +241,7 @@ c
      $  call errquit('mcscf_cisolve: cannot pop stack',0)
       if (.not.ma_pop_stack(l_h1))
      $  call errquit('mcscf_cisolve: cannot pop stack',0)
+      call util_print_pop
 c
 c
       return
