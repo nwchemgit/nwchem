@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.5 2004-12-01 02:03:11 edo Exp $
+C$Id: util_sgroup.F,v 1.6 2004-12-01 18:00:57 edo Exp $
       logical function util_sgstart(rtdb)
       implicit none
 #include "stdio.fh"
@@ -32,15 +32,16 @@ c
       else
          ngroups=2
       endif
-      call util_sgrtdb(rtdb,rtdb_fname,grtdbname,parallel)
 c
 c    Create groups
 c   
       write(luout,*) 'Creating groups'
       if(gosmp) then
          call util_sggosmp()
+         call util_sgrtdb(rtdb,rtdb_fname,grtdbname,parallel)
          util_sgstart=.true.
       else
+         call util_sgrtdb(rtdb,rtdb_fname,grtdbname,.true.)
          call util_sggoidle(util_sgstart)
       endif
       sgactive=util_sgstart
@@ -111,6 +112,7 @@ c
       integer ii
       logical ortdbstate,ortdbstate2,status
       character*256 scratchrtdb,cmd,cmd1
+      character*10 pname
       integer util_system
       external util_system
 c
@@ -131,13 +133,16 @@ c
 c
 c     do a copy of rtdb to scratch_dir for each SMP node
 c
-            call util_file_name('sg_db', .true., .false., 
+         write(pname,333) mygroup
+ 333       format('sg_db.',i4.4)
+
+            call util_file_name(pname, .true., .false., 
      $           scratchrtdb)
 c
-c     am I proc 0 of a SMP node ?
+c     assuming we are already in subgroups ...
+c     am I proc 0 of a subgroup ?
 c
-         if(ga_cluster_procid(ga_cluster_nodeid(),0).
-     $        eq.ga_nodeid()) then
+         if(ga_nodeid().eq.0) then
 c
 c     test if world rtdb is around
 c
