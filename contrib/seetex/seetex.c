@@ -1,5 +1,5 @@
 /*---------------------------------------------------------*\
-$Id: seetex.c,v 1.4 1997-05-28 07:07:48 d3e129 Exp $
+$Id: seetex.c,v 1.5 1997-05-28 07:24:52 d3e129 Exp $
 \*---------------------------------------------------------*/
 
 /*------------------------------------------------------------*\
@@ -200,9 +200,11 @@ void put_line_strip(char *line,FILE *id)
   if (!strncmp(ptmp,"*:tex-begin",(size_t) 11)) return;
   if (!strncmp(ptmp,"*:tex-end",(size_t) 9)) return;
   if (!strncmp(ptmp,"*:tex-cvsid",(size_t) 11)) 
-    { (void) fprintf(id,"%%\n%% $Id: seetex.c,v 1.4 1997-05-28 07:07:48 d3e129 Exp $\n%%\n"); return;}
+    { (void) fprintf(id,"%%\n%% $");
+      (void) fprintf(id,"Id$\n%%\n"); return;}
   if (!strncmp(ptmp,"c:tex-cvsid",(size_t) 11)) 
-    { (void) fprintf(id,"%%\n%% $Id: seetex.c,v 1.4 1997-05-28 07:07:48 d3e129 Exp $\n%%\n"); return;}
+    { (void) fprintf(id,"%%\n%% $");
+      (void) fprintf(id,"Id$\n%%\n"); return;}
   if (!strncmp(ptmp,"*:tex-",(size_t) 6)) ptmp += 6;
   if (!strncmp(ptmp,"c:tex-",(size_t) 6)) ptmp += 6;
   (void) fprintf(id,"%s\n",ptmp);
@@ -222,9 +224,11 @@ void put_line_strip_check(char *line,FILE *id)
   if (!strncmp(ptmp,"*:tex-begin",(size_t) 11)) return;
   if (!strncmp(ptmp,"*:tex-end",(size_t) 9)) return;
   if (!strncmp(ptmp,"*:tex-cvsid",(size_t) 11)) 
-    { (void) fprintf(id,"%%\n%% $Id: seetex.c,v 1.4 1997-05-28 07:07:48 d3e129 Exp $\n%%\n"); return;}
+    { (void) fprintf(id,"%%\n%% $");
+      (void) fprintf(id,"Id$\n%%\n"); return;}
   if (!strncmp(ptmp,"c:tex-cvsid",(size_t) 11)) 
-    { (void) fprintf(id,"%%\n%% $Id: seetex.c,v 1.4 1997-05-28 07:07:48 d3e129 Exp $\n%%\n"); return;}
+    { (void) fprintf(id,"%%\n%% $");
+      (void) fprintf(id,"Id$\n%%\n"); return;}
   if (!strncmp(ptmp,"*:tex-",(size_t) 6)) 
       {ptmp += 6;print_it++;}
   if (!strncmp(ptmp,"c:tex-",(size_t) 6))
