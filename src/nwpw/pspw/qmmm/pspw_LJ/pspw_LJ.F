@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.6 2001-11-02 00:49:45 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.7 2002-02-27 23:56:26 bylaska Exp $
 c
 
 *     *************************
@@ -434,10 +434,10 @@ c
 
 *     **** local variables ****
       real*8 xo,yo,zo,d2
-      real*8 e,s
+      real*8 ee,ss
      
-      e = dsqrt(e1*e2)
-      s = dsqrt(s1*s2)
+      ee = (e1*e2)
+      ss = (s1*s2)
 
       xo = r2(1)-r1(1)
       yo = r2(2)-r1(2)
@@ -446,7 +446,7 @@ c
       d2 = (xo*xo + yo*yo + zo*zo)
         
 
-      LJ_Repulsion = 4.0d0*e * ((s*s/d2)**6 - (s*s/d2)**3)    
+      LJ_Repulsion = 4.0d0*ee * ((ss/d2)**6 - (ss/d2)**3)    
       return 
       end
 
@@ -466,25 +466,24 @@ c
       real*8 f2(3)
 
 *     **** local variables ****
-      real*8 xo,yo,zo,d0,d2
+      real*8 xo,yo,zo,d2
       real*8 der
-      real*8 e,s,fx,fy,fz
+      real*8 ee,ss,fx,fy,fz
      
-      e = dsqrt(e1*e2)
-      s = dsqrt(s1*s2)
+      ee = (e1*e2)
+      ss = (s1*s2)
 
       xo = r2(1)-r1(1)
       yo = r2(2)-r1(2)
       zo = r2(3)-r1(3)
   
       d2 = (xo*xo + yo*yo + zo*zo)
-      d0 = dsqrt(d2)
 
-      der = (4.0d0*e/d0) * ( -12.0d0*(s*s/d2)**6 
-     >                       +  6.0d0*(s*s/d2)**3 ) 
-      fx = -(xo/d0)*der
-      fy = -(yo/d0)*der
-      fz = -(zo/d0)*der  
+      der = (4.0d0*ee/d2) * ( -12.0d0*(ss/d2)**6 
+     >                       +  6.0d0*(ss/d2)**3 ) 
+      fx = -(xo)*der
+      fy = -(yo)*der
+      fz = -(zo)*der  
 
       f2(1) = f2(1) + fx
       f2(2) = f2(2) + fy
