@@ -513,12 +513,14 @@ volume will be increased after solvation.
 
 \begin{verbatim}
 read (rst | pdb) <string filename>
-write (rst | [solute] pdb | xyz) <string filename>
+write (rst | [solute [<integer nsolvent>]] pdb | xyz) <string filename>
 \end{verbatim}
 
 These directives read and write the file \verb+filename+ in the specified
-format. The \verb+solute+ option instructs to write out solute coordinates
-only. Reading and then writing the same restart file will cause the
+format. The \verb+solute+ option instructs to write out the coordinates
+for solute and all, or if specified the first \verb+nsolvent+, crystal solvent 
+molecules only. 
+Reading and then writing the same restart file will cause the
 sub-block size information to be lost. If this information needs to be
 retained a shell copy command needs to be used.
 
