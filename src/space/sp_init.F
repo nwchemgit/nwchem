@@ -1,4 +1,5 @@
-      subroutine sp_start(lfntop,filtop,lfnrst,filrst,lsyn,filsyn,nsyn,
+      subroutine sp_start(lfntop,filtop,lfnrst,filrst,
+     + lsyn,filsyn,nsyn,
      + rsht,rlng,rinp,
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
      + npbt,nbxt,boxt,vlatt,lpbc,
@@ -7,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.96 2001-11-18 06:32:57 d3j191 Exp $
+c $Id: sp_init.F,v 1.97 2001-11-19 17:14:43 d3j191 Exp $
 c
       implicit none
 c
@@ -329,24 +330,24 @@ c      nbz=npz
 c      endif
 c
       if(nbxin.eq.0) then
+      nred(1)=0
+      nred(2)=0
+      nred(3)=0
       if(nbx.gt.npx.and.mod(nbx,npx).gt.0) then
       nbx=(nbx/npx)*npx
-      write(*,2000)
- 2000 format(' Reduced number of sub-boxes in x-dimension')
+      nred(1)=nbx
       endif
       endif
       if(nbyin.eq.0) then
       if(nby.gt.npy.and.mod(nby,npy).gt.0) then
       nby=(nby/npy)*npy
-      write(*,2001)
- 2001 format(' Reduced number of sub-boxes in y-dimension')
+      nred(2)=nby
       endif
       endif
       if(nbzin.eq.0) then
       if(nbz.gt.npz.and.mod(nbz,npz).gt.0) then
       nbz=(nbz/npz)*npz
-      write(*,2002)
- 2002 format(' Reduced number of sub-boxes in z-dimension')
+      nred(3)=nbz
       endif
       endif
 c
@@ -2137,13 +2138,32 @@ c
       write(lfnout,1001) np,npx,npy,npz
  1001 format(' Processor count ',i5,' =',i5,' x',i5,' x',i5)
       write(lfnout,1002) nbx*nby*nbz,nbx,nby,nbz
- 1002 format(' Box count       ',i5,' =',i5,' x',i5,' x',i5)
+ 1002 format(' Cell count      ',i5,' =',i5,' x',i5,' x',i5)
 c
       if(mod(nbx,npx)+mod(nby,npy)+mod(nbz,npz).ne.0) then
       write(lfnout,1003)
- 1003 format(/,' WARNING: Inefficient distribution of boxes over ',
+ 1003 format(/,' WARNING: Inefficient distribution of cells over ',
      + 'processors')
       endif
+c
+      write(lfnout,1004) bxmin,bymin,bzmin
+ 1004 format(/,' Minimum cell size ',f12.6,2(' x',f12.6))
+c
+      if(nred(1)+nred(2)+nred(3).gt.0) then
+      write(lfnout,1005)
+ 1005 format(/,' Warning: ',/)
+      if(nred(1).gt.0) write(lfnout,1006) 'x',nred(1)
+      if(nred(2).gt.0) write(lfnout,1006) 'y',nred(2)
+      if(nred(3).gt.0) write(lfnout,1006) 'z',nred(3)
+ 1006 format(' Reduced number of cells in ',a,'-dimension: ',i5)
+      endif
+c
+      if(nable.eq.1) write(lfnout,1007)
+ 1007 format(/,' Read previous box pair list',/)
+c
+      if(nable.eq.2) write(lfnout,1008)
+ 1008 format(/,' Unable to read previous box pair list',/)
+c
       endif
 c
       if(.not.ma_push_get(mt_int,3*np,'lcnt',l_lcnt,i_lcnt))
@@ -2492,8 +2512,8 @@ c
 c
       if(.not.ma_push_get(mt_int,(mbbl+1)*mbb2,'ltmp',l_ltmp,i_ltmp))
      + call errquit('Failed to allocate memory for ltmp',0)
-      sp_rdrest=sp_rrest(lfn,fil,int_mb(i_bb),int_mb(i_ltmp),mbbl+1,
-     + boxsiz)
+      sp_rdrest=sp_rrest(lfn,fil,int_mb(i_bb),int_mb(i_ltmp),
+     + mbbl+1,boxsiz)
       if(.not.ma_pop_stack(l_ltmp))
      + call errquit('Failed to deallocate ltmp',0)
 c
@@ -2583,13 +2603,11 @@ c
 c
     3 continue
 c
-      if(me.eq.0) write(*,8000)
- 8000 format(/,' Read previous box pair list',/)
+      nable=1
       sp_rrest=.true.
       return
  9998 continue
-      if(me.eq.0) write(*,8001)
- 8001 format(/,' Unable to read previous box pair list',/)
+      nable=2
       sp_rrest=.false.
       return
  9999 continue

@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.67 2001-11-15 19:00:17 d3j191 Exp $
+c $Id: sp_main.F,v 1.68 2001-11-19 17:14:43 d3j191 Exp $
 c
       implicit none
 c
@@ -77,7 +77,7 @@ c
 c
       return
       end
-      subroutine sp_pack_init(isl,numsa,iwl,numwm)
+      subroutine sp_pack_init(isl,numsa,iwl,numwm,lfnout)
 c
       implicit none
 c
@@ -86,7 +86,7 @@ c
 #include "msgids.fh"
 #include "bitops.fh"
 c
-      integer isl(msa,mis2),numsa,iwl(mwm,miw2),numwm
+      integer isl(msa,mis2),numsa,iwl(mwm,miw2),numwm,lfnout
 c
       integer i,j,k,intsiz
 c
@@ -183,13 +183,17 @@ c
    14 continue
 c
       if(me.eq.0) then
-      write(*,'(a,i2,a,14i4)') ' Packing solute in  ',npack,
+      write(lfnout,1001)
+ 1001 format(/,' DATA PACKING',/)
+      write(lfnout,1002) ' Packing solute in  ',npack,
      + ' integers : ',(ipack(i),i=1,npack)
-      write(*,'(14x,a,14i4)') ' significant bits : ',
+ 1002 format(a,i2,a,14i4)
+      write(lfnout,1003) ' significant bits : ',
      + (nbits(i),i=1,mis2)
-      write(*,'(a,i2,a,14i4)') ' Packing solvent in ',npackw,
+ 1003 format(14x,a,14i4)
+      write(lfnout,1002) ' Packing solvent in ',npackw,
      + ' integers : ',(ipackw(i),i=1,npackw)
-      write(*,'(14x,a,14i4)') ' significant bits : ',
+      write(lfnout,1003) ' significant bits : ',
      + (nbitw(i),i=1,miw2)
       endif
 c
