@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.33 1995-12-22 01:39:12 d3e129 Exp $
+# $Id: GNUmakefile,v 1.34 1995-12-27 20:19:39 d3e129 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -70,7 +70,7 @@ $(LIBRARY_PATH)(int_nint.o):	 $(INCDIR)/bas.fh
 $(LIBRARY_PATH)(int_pgen1e.o):	 $(INCDIR)/geobasmapP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(int_projpole.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh ./apiP.fh 
 $(LIBRARY_PATH)(int_term.o):	 $(INCDIR)/mafdecls.fh ./apispP.fh ./apiP.fh 
-$(LIBRARY_PATH)(intb_2e4c.o):	 $(INCDIR)/stdio.fh ./numb_qP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
+$(LIBRARY_PATH)(intb_2e4c.o):	 $(INCDIR)/stdio.fh ./numb_qP.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(intb_init4c.o):	 ./numb_qP.fh 
 $(LIBRARY_PATH)(intd_1eh1.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(intd_1eov.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
