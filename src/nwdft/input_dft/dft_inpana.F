@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c     
 c*********************************************************************
       subroutine dft_inpana(rtdb)
-C     $Id: dft_inpana.F,v 1.21 1997-03-05 07:34:15 d3h449 Exp $
+C     $Id: dft_inpana.F,v 1.22 1997-03-18 01:18:10 d3h449 Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
@@ -33,7 +33,7 @@ c
       if(me.eq.0 .and. util_print('information', print_low)) 
      $     call dft_header('Input analysis')
 c     
-c--   >  Determine number of electrons in system.
+c     Determine number of electrons in system.
 c     
       if (.not. geom_nuc_charge(geom, anucl_charg))
      $     call errquit('scf: geom_nuc_charge failed', 0)
@@ -41,9 +41,9 @@ c
       ichg = idint(1.000001d0 * rcharge) ! avoid bad truncation
       nel = int(anucl_charg+EPSILON) - ichg
 c     
-c--   >  Check to see if calculation type is allowed.
+c     Check to see if calculation type is allowed.
 c     
-c--   >  Even number of electrons required for RHF.
+c     Even number of electrons required for RHF.
 c     
       even=mod(nel,2).eq.0
 c     
@@ -53,7 +53,7 @@ c
       
       noc(2)=0
 c     
-c--   >  Calculate number of occupied orbitals.
+c     Calculate number of occupied orbitals.
 c     
       if(ipol.eq.1)then
          noc1 = nel/2
@@ -71,8 +71,8 @@ C
          noc1  = noc(1) + noc(2)
       endif
 c     
-c--   >  Check to see if there are enough electrons for this
-c--   >  value of the multiplicity.
+c     Check to see if there are enough electrons for this
+c     value of the multiplicity.
 c     
       if(noc(2).lt.0)then
          call errquit('dft: #electrons not valid for multiplicity',mult)
@@ -80,11 +80,10 @@ c
 c**** 
 c**** write noc (consistent with definition in ddscf) to rtdb
 c**** 
-
       if (.not. rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc))
      $     call errquit('inpana: rtdb_put of noc failed', 0) 
 c     
-c--   >  Write new data to checkpoint file.
+c     Write new data to checkpoint file.
 c     
 c     Analyze any user specified XC functionals ... set if none
 c     

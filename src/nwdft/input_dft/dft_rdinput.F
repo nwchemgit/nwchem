@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.37 1997-03-05 07:34:17 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.38 1997-03-18 01:18:11 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -657,8 +657,8 @@ c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      &     title = ' '
 c
-c     end lines from ddscf/scf
-c     
+c     Define the contracted Gaussian functions for the AO basis set.
+c
       if (.not. bas_create(AO_bas_han, 'ao basis'))
      &     call errquit('rdinput: bas_create?',80)
 
@@ -672,12 +672,9 @@ c
       if (.not. bas_numbf(AO_bas_han, nbf))
      &     call errquit('rdinput:rdinput:',86)
       nbf_ao = nbf
-c**** 
-c       
-c     Broadcast AO basis set to all nodes.
-c****
+c
 c     Define the contracted Gaussian functions for the CD basis set.
-
+c
       if (.not. bas_create(CD_bas_han, 'cd basis'))
      &   call errquit('rdinput: bas_create?',102)
       CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
@@ -694,7 +691,9 @@ c     Define the contracted Gaussian functions for the CD basis set.
         CD_bas_han=-99999
         nbf_cd=0
       endif
-c       
+c
+c     Define the contracted Gaussian functions for the XC basis set.
+c
       if (.not. bas_create(XC_bas_han, 'xc basis'))
      &   call errquit('rdinput: bas_create?',124)
       XCFIT=bas_rtdb_load(rtdb, geom, XC_bas_han, 'xc basis')

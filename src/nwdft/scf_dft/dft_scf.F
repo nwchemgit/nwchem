@@ -1,21 +1,21 @@
-      logical function dft_scf(rtdb,
-     $     Etold,Enuc,iVcoul_opt,iVxc_opt,
-     $     iter,
-     $     g_dens,g_movecs,g_vxc,
-     $     g_fock,g_svecs,isvals,
-     $     g_cdinv,g_xcinv,g_2ceri)
+      logical function dft_scf(rtdb, 
+     $     Etold, Enuc, iVcoul_opt, iVxc_opt, 
+     $     iter, 
+     $     g_dens, g_movecs, g_vxc, 
+     $     g_fock, g_svecs, isvals, 
+     $     g_cdinv, g_xcinv, g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.65 1997-03-06 20:01:38 d3h449 Exp $
+C     $Id: dft_scf.F,v 1.66 1997-03-18 01:18:17 d3h449 Exp $
 c     
       implicit none
       integer rtdb              ! [input]
-      double precision Etold,Enuc
+      double precision Etold, Enuc
       integer iVcoul_opt
       integer iVxc_opt
       integer iter
-      integer g_dens(*),g_movecs(*),g_vxc(*),
-     $     g_fock,g_svecs,isvals,
-     $     g_cdinv,g_xcinv,g_2ceri, g_scr
+      integer g_dens(*), g_movecs(*), g_vxc(*), 
+     $     g_fock, g_svecs, isvals, 
+     $     g_cdinv, g_xcinv, g_2ceri, g_scr
 c     
 #include "bas.fh"
 #include "geom.fh"
@@ -35,11 +35,11 @@ c
       logical oprint, oprint_sym
       double precision Exc(2), rms(2), derr(2), n3c_dbl_r, availm_r
       double precision energy
-      integer noc(2),nmo(2),icall(2)
-      integer n3c_dbl,n3c_int,n_batch
+      integer noc(2), nmo(2), icall(2)
+      integer n3c_dbl, n3c_int, n_batch
       integer avail, availm
       integer iwhat_max
-      integer l_3cwhat,k_3cwhat,l_3cERI,k_3cERI
+      integer l_3cwhat, k_3cwhat, l_3cERI, k_3cERI
       integer dft_n3cint, n_semi_bufs, fd
       external dft_n3cint
       double precision dft_n3cdbl
@@ -49,29 +49,29 @@ c
       Double Precision rmoments(3) ! dipole
       integer lmax              ! CMM
       integer finest            ! CMM
-      integer natoms,nTotEl
-      integer l_occ,k_occ
+      integer natoms, nTotEl
+      integer l_occ, k_occ
       integer i, j, iw
-      integer me,nproc
-      integer g_tmp,g_fockt,g_s,g_wght,g_xyz
-      integer nheap,nsets,nstack
-      integer ispin,nxang,idone
+      integer me, nproc
+      integer g_tmp, g_fockt, g_s, g_wght, g_xyz
+      integer nheap, nsets, nstack
+      integer ispin, nxang, idone
       integer nexc
       integer iswitc
-      integer itol_max,iaoacc_max
+      integer itol_max, iaoacc_max
       integer mxshbf_ao, nao2_max, batch_max, nshells_ao, icount
-      integer idmtot,nshells,nprint
-      integer leneval,lcd_coef,icd_coef
-      double precision ecoul,ecore,aaz
-      double precision pp,delta
-      double precision anucl_charg,anel
-      double precision anoca,anocb,onempp
-      double precision etnew,tol2e
+      integer idmtot, nshells, nprint
+      integer leneval, lcd_coef, icd_coef
+      double precision ecoul, ecore, aaz
+      double precision pp, delta
+      double precision anucl_charg, anel
+      double precision anoca, anocb, onempp
+      double precision etnew, tol2e
 c     convergence declarations
-      double precision rlshift_input,rlshift_def
-      integer ndamp_input,ndamp_def
+      double precision rlshift_input, rlshift_def
+      integer ndamp_input, ndamp_def
       character*10 start_10c, NA_10c, asap_10c
-      character*10 strng1,strng2,strng3,strng4,strng5,strng6
+      character*10 strng1, strng2, strng3, strng4, strng5, strng6
 c     
 c     Note, damping, levelshifting, and diising logicals
 c     are used to turn on/off these procedures per
@@ -80,19 +80,19 @@ c     nolevelshifting, and nodiis are specified and held
 c     for the entire convergence sequence.
 c     
       logical diising, damping, levelshifting
-      logical keep_damp_on,keep_levl_on,keep_diis_on
-      Logical LResult,IOLGC,mulliken,do_gradients,lSPM
-      logical converged,wght_GA
-      logical oprint_parm,oprint_conv,oprint_vecs,
-     $     oprint_eval ,oprint_syma,oprint_time,
-     $     oprint_info,oprint_tol,oprint_final_vecs,
+      logical keep_damp_on,keep_levl_on, keep_diis_on
+      Logical LResult, IOLGC, mulliken, do_gradients, lSPM
+      logical converged, wght_GA
+      logical oprint_parm, oprint_conv, oprint_vecs, 
+     $     oprint_eval, oprint_syma, oprint_time, 
+     $     oprint_info, oprint_tol, oprint_final_vecs, 
      $     oprint_energy_step, oprint_intermediate_fock
-      integer itol_min,iAOacc_min
-      double precision zero,onem,one
-      parameter(zero=0.d0,one=1.d0,onem=-one)
-      parameter(itol_min=6,iAOacc_min=15)
-      double precision dft_dencvg,dabssum,dft_time
-      external dft_dencvg,dabssum
+      integer itol_min, iAOacc_min
+      double precision zero, onem, one
+      parameter(zero=0.d0, one=1.d0, onem=-one)
+      parameter(itol_min=6, iAOacc_min=15)
+      double precision dft_dencvg, dabssum, dft_time
+      external dft_dencvg, dabssum
       double precision homo, lumo, homo_lumo_gap
       integer stat1, stat2, l_ir, k_ir
       logical status, last_time, last_time_vecs, last_time_energy
