@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.37 2002-05-04 20:04:22 d3g681 Exp $
+C$Id: geom.fh,v 1.38 2003-01-30 01:10:43 bert Exp $
       logical geom_disable_zmatrix
       logical geom_check_cent
       logical geom_rtdb_load
@@ -45,6 +45,8 @@ cnew ones
       logical geom_volume_get
       logical geom_efield_set
       logical geom_efield_get
+      logical geom_efc_cart_get
+      logical geom_efc_cart_set
       logical geom_latvec_get
       logical geom_include_bqbq
       logical geom_set_bqbq
@@ -139,6 +141,8 @@ cnew ones
       external geom_volume_get
       external geom_uniquecent_get
 c
+      external geom_efc_cart_get
+      external geom_efc_cart_set
       external geom_efield_set
       external geom_efield_get
       external geom_latvec_get

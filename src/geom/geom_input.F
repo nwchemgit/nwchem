@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.154 2003-01-28 17:45:40 edo Exp $
+C     $Id: geom_input.F,v 1.155 2003-01-30 01:10:43 bert Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -23,7 +23,6 @@ c
       logical ozmatrix
       logical oautoz
       logical oautosym
-      logical ocosmo
       logical oready
       logical odbug
       logical osome
@@ -539,47 +538,7 @@ c     almost done
 c
       if (.not. geom_destroy(geom))
      $     call errquit('geom_input: geom_destroy failed', 0)
-c     
-c     ----- process -cosmo- input ... check if rtdb is ready -----
 c
-      odbug =.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(Luout,*) 'in geom_input , ',
-     &                     'cosmo flag is     on -rtdb-'
-         endif
-         if(ocosmo) then
-            oready=.true.
-            if(odbug) then
-               write(Luout,*) 'in geom_input , ready is = ',oready
-            endif
-         else
-            oready=.false.
-            if(odbug) then
-               write(Luout,*) 'in geom_input , ready is = ',oready
-            endif
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'in geom_input , ',
-     &                     'cosmo flag is not on -rtdb-'
-         endif
-         oready=.false.
-         if(odbug) then
-            write(Luout,*) 'in geom_input , ready is = ',oready
-         endif
-      endif
-c
-c     ----- if ready ... initialize -cosmo- -----
-c
-      if(oready) then
-         osome=.true.
-         call cosmo_initialize(rtdb,osome)
-      else
-         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
-     $        call errquit('cosmo_input: rtdb_put failed',0)
-      endif
-c     
 c     done
       
 c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
