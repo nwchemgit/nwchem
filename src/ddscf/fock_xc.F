@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.30 2005-02-15 02:05:03 edo Exp $
+c     $Id: fock_xc.F,v 1.31 2005-02-15 17:55:38 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -205,6 +205,8 @@ c     -----------------------
 c     calc_type = 1 or 3 or 4
 c     -----------------------
 #ifdef NO3D
+      if (.not.MA_alloc_Get(MT_int,2,'XCDens',lgxcd,igxcd))
+     &   call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
          int_mb(igxcd)=g_dens(1)
          if(ndens.eq.2) int_mb(igxcd+1)=g_dens(3)
 #else
@@ -344,19 +346,20 @@ c
       if(l3d) then
 #ifdef NO3D
          do i=1,dims(1)
-cold         if (.not. ga_destroy(g_dens_xc(i)))
          if (.not. ga_destroy(int_mb(igxcd+i-1)))
      &      call errquit('fock_xc: could not destroy g_dens_xc',0,
      &       GA_ERR)
          enddo
-      if (.not.ma_free_heap(lgxcd))
-     &   call errquit('fockxc: cannot pop stack',0, MA_ERR)
 #else
          if (.not. ga_destroy(g_dens_xc))
      &      call errquit('fock_xc: could not destroy g_dens_xc',0,
      &       GA_ERR)
 #endif
       endif
+#ifdef NO3D
+      if (.not.ma_free_heap(lgxcd))
+     &   call errquit('fockxc: cannot pop stack',0, MA_ERR)
+#endif
       if(ndens.eq.2)  then
 c
 c     need to go from 2nfock ga to 4nfock (and sign flip)
