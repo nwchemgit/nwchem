@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.28 2001-06-13 01:46:20 edo Exp $
+c     $Id: dft_input.F,v 1.29 2002-02-22 01:01:05 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -77,8 +77,6 @@ c
 c     dft;
 c             
   300 ipol=1
-      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
-     &   call errquit('dft_input: rtdb_put failed', 300)
 c
       goto 10
 c
@@ -184,8 +182,6 @@ c
 c     odft;
 c             
  1500 ipol=2
-      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
-     &   call errquit('dft_input: rtdb_put failed', 1500)
 c
       goto 10
 c
@@ -272,6 +268,8 @@ c
 c     end;
 c             
  9999 continue
+      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
+     &   call errquit('dft_input: rtdb_put failed', 300)
       return 
 10000 write(6,10001)
 10001 format(/' fon [alpha|beta] orbitals <norb> electrons <nelec>'/)
