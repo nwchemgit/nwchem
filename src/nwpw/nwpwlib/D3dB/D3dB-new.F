@@ -1,8 +1,8 @@
-#define TCGMSG
+c  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.20 2003-10-31 22:34:36 bylaska Exp $
+* $Id: D3dB-new.F,v 1.21 2004-03-14 14:36:25 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -399,14 +399,10 @@ c     p = p_map(k)
 c     implicit none
       real*8  sum
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#endif
+
 
       integer MASTER
       parameter (MASTER=0)
@@ -417,18 +413,11 @@ c     msglen = 8
       msglen = 1
 
       sumt = sum
-#ifdef MPI
-c     call mp_combine(sumt,sumall,msglen,d_vadd,allgrp)
-      call MPI_REDUCE(sumt,sumall,msglen,MPI_DOUBLE_PRECISION,
-     >                       MPI_SUM,MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(sumall,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
       call GA_DGOP(9+MSGDBL,sumt,1,'+')
 c     call DGOP(9+MSGDBL,sumt,1,'+')
       sumall=sumt
-#endif
+
 
       sum = sumall
       return
@@ -445,14 +434,10 @@ c     call DGOP(9+MSGDBL,sumt,1,'+')
 c     implicit none
       integer  sum
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#endif
+
 
       integer MASTER
       parameter (MASTER=0)
@@ -463,17 +448,10 @@ c     msglen = 8
       msglen = 1
 
       sumt = sum
-#ifdef MPI
-c     call mp_combine(sumt,sumall,msglen,d_vadd,allgrp)
-      call MPI_REDUCE(sumt,sumall,msglen,MPI_INTEGER,
-     >                       MPI_SUM,MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(sumall,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
       call GA_IGOP(9+MSGINT,sumt,1,'+')
       sumall=sumt
-#endif
+
 
       sum = sumall
       return
@@ -1620,16 +1598,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-      integer msgtype,status
-#endif
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -1652,14 +1625,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
                call dcopy((nx(nb)+2)*ny(nb),tmp,1,A(index),1)
             else
                msglen = (nx(nb)/2+1)*ny(nb)
-#ifdef MPI
-               msgtype= 33
-               call MPI_SEND(tmp,msglen,MPI_DOUBLE_COMPLEX,
-     >                       p_to,msgtype,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
                call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
-#endif
+
             end if
          end do
 
@@ -1671,16 +1639,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
                msglen = (nx(nb)/2+1)*ny(nb)
                source  = MASTER
-#ifdef MPI
-               msgtype = 33
-               call MPI_RECV(tmp,msglen,MPI_DOUBLE_COMPLEX,
-     >                       source,msgtype,MPI_COMM_WORLD,
-     >                       status,mpierr)
-#endif
-#ifdef TCGMSG
+
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                  source,rcv_proc,1)
-#endif
+
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                call dcopy((nx(nb)+2)*ny(nb),tmp,1,A(index),1)
@@ -1691,9 +1653,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     **** wait ****
       call ga_sync()
-#ifdef MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
-#endif
 
       return
       end
@@ -1708,16 +1667,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-      integer msgtype,status
-#endif
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -1748,14 +1702,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
               
             else
                msglen = (nx(nb))*ny(nb)
-#ifdef MPI
-               msgtype= 33
-               call MPI_SEND(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       p_to,msgtype,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
                call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
-#endif
+
             end if
          end do
 
@@ -1767,16 +1716,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
                msglen = (nx(nb))*ny(nb)
                source  = MASTER
-#ifdef MPI
-               msgtype = 33
-               call MPI_RECV(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       source,msgtype,MPI_COMM_WORLD,
-     >                       status,mpierr)
-#endif
-#ifdef TCGMSG
+
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
-#endif
 
                do j=1,ny(nb)
                   index = (q-1)*(nx(nb)+2)*ny(nb) 
@@ -1794,9 +1736,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     **** wait ****
       call ga_sync()
-#ifdef MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
-#endif
       return
       end
 
@@ -1810,16 +1749,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-      integer msgtype,status
-#endif
-#ifdef TCGMSG
+
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
 
       
 *     *** local variables ***
@@ -1843,14 +1777,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
                call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
             else
                msglen = (nx(nb)/2+1)*ny(nb)
-#ifdef MPI
-               msgtype= 33
-               call MPI_SEND(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       p_to,msgtype,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
                call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
-#endif
+
             end if
          end do
 
@@ -1862,16 +1791,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
                msglen = (nx(nb)/2+1)*ny(nb)
                source  = MASTER
-#ifdef MPI
-               msgtype = 33
-               call MPI_RECV(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       source,msgtype,MPI_COMM_WORLD,
-     >                       status,mpierr)
-#endif
-#ifdef TCGMSG
+
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
-#endif
+
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
@@ -1880,11 +1803,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          end do
       end if
 
+
 *     **** wait ****
       call ga_sync()
-#ifdef MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
-#endif
       return
       end
 
@@ -2210,7 +2131,7 @@ c     integer i2_start(NFFT3+1)
       common / trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
 
 
-      include 'mpif.h'
+#include "mpif.h"
       integer mpierr
 
 *     **** local variables ***
@@ -2802,16 +2723,11 @@ c     integer i2_start(NFFT3+1)
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-      integer msgtype
-#endif
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -2839,19 +2755,13 @@ c     integer i2_start(NFFT3+1)
                msglen  = (nx(nb)/2+1)*ny(nb)
                status  = msglen
                source  = p_from
-#ifdef MPI
-               msgtype = 33
-               call MPI_RECV(tmp,msglen,MPI_DOUBLE_COMPLEX,
-     >                       source,msgtype,MPI_COMM_WORLD,
-     >                       status,mpierr)
-#endif
-#ifdef TCGMSG
+
                dum = 99
                dum_msglen = 1
                call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                       source,rcv_proc,1)
-#endif
+
             end if
 
             call dwrite(iunit,tmp,(nx(nb)+2)*ny(nb)) 
@@ -2870,17 +2780,12 @@ c     integer i2_start(NFFT3+1)
 
                msglen  = (nx(nb)/2+1)*ny(nb)
                dest    = MASTER
-#ifdef MPI
-               msgtype = 33
-               call MPI_SEND(tmp,msglen,MPI_DOUBLE_COMPLEX,
-     >                       dest,msgtype,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
                dum_msglen = 1
                call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
      >                       dest,rcv_proc,1)
                call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
-#endif
+
             end if
 
          end do
@@ -2888,9 +2793,6 @@ c     integer i2_start(NFFT3+1)
 
 *     **** wait ****
       call ga_sync()
-#ifdef MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
-#endif
 
       return
       end
@@ -2905,16 +2807,11 @@ c     integer i2_start(NFFT3+1)
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-      integer msgtype
-#endif
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -2945,16 +2842,10 @@ c     integer i2_start(NFFT3+1)
                msglen  = (nx(nb))*ny(nb)
                status  = msglen
                source  = p_from
-#ifdef MPI
-               msgtype = 33
-               call MPI_RECV(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       source,msgtype,MPI_COMM_WORLD,
-     >                       status,mpierr)
-#endif
-#ifdef TCGMSG
+
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
-#endif
+
             end if
 
             call dwrite(iunit,tmp,(nx(nb))*ny(nb)) 
@@ -2977,14 +2868,9 @@ c     integer i2_start(NFFT3+1)
 
                msglen  = (nx(nb))*ny(nb)
                dest    = MASTER
-#ifdef MPI
-               msgtype = 33
-               call MPI_SEND(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       dest,msgtype,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
                call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-#endif
+
             end if
 
          end do
@@ -2992,9 +2878,6 @@ c     integer i2_start(NFFT3+1)
 
 *     **** wait ****
       call ga_sync()
-#ifdef MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
-#endif
       return
       end
 
@@ -3009,16 +2892,11 @@ c     integer i2_start(NFFT3+1)
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-      integer msgtype
-#endif
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -3046,19 +2924,13 @@ c     integer i2_start(NFFT3+1)
                msglen  = (nx(nb)/2+1)*ny(nb)
                status  = msglen
                source  = p_from
-#ifdef MPI
-               msgtype = 33
-               call MPI_RECV(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       source,msgtype,MPI_COMM_WORLD,
-     >                       status,mpierr)
-#endif
-#ifdef TCGMSG
+
                dum = 99
                dum_msglen = 1
                call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
-#endif
+
             end if
 
             call dwrite(iunit,tmp,(nx(nb)/2+1)*ny(nb)) 
@@ -3077,17 +2949,12 @@ c     integer i2_start(NFFT3+1)
 
                msglen  = (nx(nb)/2+1)*ny(nb)
                dest    = MASTER
-#ifdef MPI
-               msgtype = 33
-               call MPI_SEND(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       dest,msgtype,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
                dum_msglen = 1
                call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
      >                       dest,rcv_proc,1)
                call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-#endif
+
             end if
 
          end do
@@ -3095,9 +2962,6 @@ c     integer i2_start(NFFT3+1)
 
 *     **** wait ****
       call ga_sync()
-#ifdef MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
-#endif
 
       return
       end
@@ -3119,16 +2983,11 @@ c     integer i2_start(NFFT3+1)
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-      integer msgtype
-#endif
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -3159,16 +3018,10 @@ c     integer i2_start(NFFT3+1)
                msglen  = (nx(nb))*ny(nb)
                status  = msglen
                source  = p_from
-#ifdef MPI
-               msgtype = 33
-               call MPI_RECV(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       source,msgtype,MPI_COMM_WORLD,
-     >                       status,mpierr)
-#endif
-#ifdef TCGMSG
+
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
-#endif
+
             end if
 
 c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
@@ -3195,23 +3048,15 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
 
                msglen  = (nx(nb))*ny(nb)
                dest    = MASTER
-#ifdef MPI
-               msgtype = 33
-               call MPI_SEND(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       dest,msgtype,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
                call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-#endif
+
             end if
 
          end do
       end if
 
 *     **** wait ****
-#ifdef MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
-#endif
       return
       end
 
@@ -3232,16 +3077,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-      integer msgtype
-#endif
-#ifdef TCGMSG
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -3267,17 +3106,11 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
                  msglen  = 1
                  status  = msglen
                  source  = p_from
-#ifdef MPI
-                 msgtype = 33
-                 call MPI_RECV(tmp(k),msglen,MPI_DOUBLE_PRECISION,
-     >                         source,msgtype,MPI_COMM_WORLD,
-     >                         status,mpierr)
-#endif
-#ifdef TCGMSG
+
                  call SND(9+MSGINT,idum,mitob(msglen),source,1)
                  call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
      >                         source,rcv_proc,1)
-#endif
+
               end if
             end do
             write(iunit,'(6E13.5)') (tmp(k), k=1,nz(nb))
@@ -3300,16 +3133,11 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
 
                  msglen  = 1
                  dest    = MASTER
-#ifdef MPI
-                 msgtype = 33
-                 call MPI_SEND(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       dest,msgtype,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
                  call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
      >                         dest,rcv_proc,1)
                  call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-#endif
+
               end if
             end do
 
@@ -3318,9 +3146,6 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
       end if
 
 *     **** wait ****
-#ifdef MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
-#endif
       return
       end
 
@@ -3340,16 +3165,11 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-      integer msgtype
-#endif
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -3378,16 +3198,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
                msglen  = (nx(nb))
                status  = msglen
                source  = p_from
-#ifdef MPI
-               msgtype = 33
-               call MPI_RECV(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       source,msgtype,MPI_COMM_WORLD,
-     >                       status,mpierr)
-#endif
-#ifdef TCGMSG
+
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
-#endif
+
             end if
 
 c           **** call dwrite(iunit,tmp,(nx(nb))) ****
@@ -3411,14 +3225,9 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
                msglen  = (nx(nb))
                dest    = MASTER
-#ifdef MPI
-               msgtype = 33
-               call MPI_SEND(tmp,msglen,MPI_DOUBLE_PRECISION,
-     >                       dest,msgtype,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
                call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-#endif
+
             end if
 
          end do
@@ -3426,9 +3235,6 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       end if
 
 *     **** wait ****
-#ifdef MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
-#endif
       return
       end
 
@@ -4467,15 +4273,9 @@ c     implicit none
 
 #include "mafdecls.fh"
 
-
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#endif
+
 
 
       logical value
@@ -4497,20 +4297,11 @@ c     implicit none
 
       msglen = n
 
-#ifdef MPI
-      call dcopy(n,0.0d0,0,dbl_mb(sumall(1)),1)
-      call MPI_REDUCE(sum,dbl_mb(sumall(1)),msglen,
-     >                     MPI_DOUBLE_PRECISION,
-     >                     MPI_SUM,MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(dbl_mb(sumall(1)),msglen,
-     >                     MPI_DOUBLE_PRECISION,
-     >                     MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
       call dcopy(n,sum,1,dbl_mb(sumall(1)),1)
       call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-#endif
+
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))
@@ -4529,21 +4320,17 @@ c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 
       subroutine D3dB_Vector_ISumAll(n,sum)
 c     implicit none
-#include "errquit.fh"
       integer n
       integer  sum(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#endif
+
 
 
       integer MASTER
@@ -4563,19 +4350,10 @@ c     implicit none
 
       msglen = n
 
-#ifdef MPI
-      call icopy(n,0.0d0,0,int_mb(sumall(1)),1)
-      call MPI_REDUCE(sum,int_mb(sumall(1)),msglen,
-     >                     MPI_INTEGER,
-     >                     MPI_SUM,MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(int_mb(sumall(1)),msglen,
-     >                     MPI_INTEGER,
-     >                     MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
+
       call icopy(n,sum,1,int_mb(sumall(1)),1)
       call GA_IGOP(9+MSGINT,int_mb(sumall(1)),n,'+')
-#endif
+
 
       call icopy(n,int_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))
@@ -4694,7 +4472,6 @@ c      end
       end
 
 
-#ifdef TCGMSG
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_timereverse_init	*
@@ -4703,10 +4480,10 @@ c      end
 
       subroutine D3dB_c_timereverse_init(nb)
       implicit none
-#include "errquit.fh"
       integer nb
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
@@ -5010,26 +4787,6 @@ c     integer i2_start(NFFT3+1)
       if (.not.value) call errquit('error freeing heap',0, MA_ERR)
       return
       end
-
-
-
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

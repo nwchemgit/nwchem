@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2003-10-26 20:47:24 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2004-03-14 14:36:26 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = D3dB-new.o
@@ -13,9 +13,6 @@
   LIB_DEFINES = 
 
 
-ifeq ($(USE_MLIB),y)
-  FOPTIONS += -DMLIB
-endif
 
 include ../../../config/makefile.h
 ifeq ($(FC),pgf90)
@@ -24,3 +21,14 @@ ifeq ($(FC),pgf90)
 endif
 include ../../../config/makelib.h
 
+
+ifeq ($(USE_MLIB),y)
+  FOPTIONS += -DMLIB
+endif
+
+ifeq ($(USE_MPI),y)
+  FOPTIONS += -DMPI
+  LIB_INCLUDES += -I$(MPI_INCLUDE)
+else
+  FOPTIONS += -DTCGMSG
+endif
