@@ -1,10 +1,12 @@
-#$Id: GNUmakefile,v 1.45 2000-01-11 19:59:14 d3g681 Exp $
+#$Id: GNUmakefile,v 1.46 2000-03-02 19:43:50 d3h449 Exp $
 
        OBJ = rjhtest.o raktest.o raktest_semi.o debtest.o raktestc.o \
              rak18.o rak19.o rak20.o rak21.o rak22.o rak23.o rak24.o \
              rak25.o rak26.o rak27.o rak28.o rak29.o rak30.o rak31.o\
-             kgdtest.o jantest.o \
+             kgdtest.o \
              jvltest.o gaussq_netlib.o rjhtrans.o cct_UHF.o
+
+       OBJ_OPTIMIZE = jantest.o 
 
    LIBRARY = libtest.a
 

@@ -23,7 +23,8 @@ c
       integer nmo, g_tmp, l_occ, k_occ,
      $     l_eval, k_eval, l_mos, k_mos, l_most, k_most
       integer nocc, nvirt, nopen, nclosed, nso, noso
-      integer l_t, k_t, l_t2, k_t2
+      integer l_t, k_t, l_t2, k_t2, l_f, k_f
+      integer l_t1, k_t1, l_r1, k_r1
       logical int_normalize
       external int_normalize
 c     
@@ -60,7 +61,7 @@ c
      $     call errquit('nopen?',0)
       if (nopen .ne. 0) call errquit('asjdlfkadjsl',0)
       nvirt= nmo - nocc
-      write(6,*) ' No. of closed shells       ', nclosed
+      write(6,*) ' No. of closed shells       ', nocc
       write(6,*) ' No. of molecular orbitals: ', nmo
       write(6,*) ' No. of basis functions:    ', nbf
 c
@@ -96,8 +97,8 @@ c
       if (.not. ma_push_get(mt_dbl,nbf**4,'aoint',l_aoint,k_aoint))
      $     call errquit('allocation of AO integrals failed',nbf**4)
       call jan_all_ao_integrals(rtdb,basis,nbf,'dirac',dbl_mb(k_aoint))
-      call jan_debug_print('AOINTS',dbl_mb(k_aoint), nbf,  nbf,  nbf,
-     $     nbf)
+c     call jan_debug_print('AOINTS',dbl_mb(k_aoint), nbf,  nbf,  nbf,
+c    $     nbf)
 c
 c     Make all MO integrals in Dirac order
 c
@@ -109,8 +110,8 @@ c
      $     nmo, nmo, nmo, nmo,
      $     dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most), 
      $     dbl_mb(k_moint), 'Dirac')
-      call jan_debug_print('MOINTS',dbl_mb(k_moint), nmo,  nmo,  nmo,
-     $     nmo)
+c      call jan_debug_print('MOINTS',dbl_mb(k_moint), nmo,  nmo,  nmo,
+c     $     nmo)
 c
 c     do some incore cc
 c     set nso=2*nmo, noso=2*nocc
@@ -121,8 +122,15 @@ c
      $     call errquit('allocation of t amplitudes failed',nso**4)
       if (.not. ma_push_get(mt_dbl,nso**4,'t2 amps',l_t2,k_t2))
      $     call errquit('allocation of t2 amplitudes failed',nso**4)
-      call ccsd_incore(dbl_mb(k_aoint), dbl_mb(k_moint), 
+      if (.not. ma_push_get(mt_dbl,nmo**2,'Fock Matrix',l_f,k_f))
+     $     call errquit('allocation of t2 amplitudes failed',nmo**2)
+      if (.not. ma_push_get(mt_dbl,nso**2,'t1 amps',l_t1,k_t1))
+     $     call errquit('allocation of t1 amplitudes failed',nso**2)
+      if (.not. ma_push_get(mt_dbl,nso**2,'t1 resi',l_r1,k_r1))
+     $     call errquit('allocation of t1 residual failed',nso**2)
+      call ccsd_incore(rtdb, basis, dbl_mb(k_aoint), dbl_mb(k_moint), 
      &                 dbl_mb(k_eval), dbl_mb(k_t), dbl_mb(k_t2),
+     &                 dbl_mb(k_f), dbl_mb(k_t1), dbl_mb(k_r1),
      &                 nbf, nmo, nocc, nso, noso)
 c
 c     Tidy up
@@ -412,7 +420,8 @@ c
             do r = 1, s
                do q = 1, n2
                   do p = 1, n1
-                     tmp = full(p,q,r,s) - full(q,p,s,r)
+cwrong                     tmp = full(p,q,r,s) - full(q,p,s,r)
+                     tmp = full(p,q,r,s) - full(p,q,s,r)
                      full(p,q,r,s) = tmp
                      full(p,q,s,r) =-tmp
                   enddo
@@ -681,10 +690,10 @@ c
       end do
 c
       end
-      subroutine ccsd_incore(g_ao, g_mo, e, t, t2, 
-     &                       nbf, nmo, nocc, nso, noso)
+      subroutine ccsd_incore(rtdb, basis, g_ao, g_mo, e, r2, t2, fock, 
+     &                       t1, r1, nbf, nmo, nocc, nso, noso)
       implicit none
-      integer nbf, nmo, nocc, nso, noso
+      integer rtdb, basis, nbf, nmo, nocc, nso, noso
 c
 c     nbf = number of basis functions
 c     nmo = number of molecular orbitals
@@ -696,9 +705,12 @@ c     toy coupled cluster program based on the green book
 c
       double precision g_ao(nbf,nbf,nbf,nbf)
       double precision g_mo(nmo,nmo,nmo,nmo)
-      double precision e(nmo)
-      double precision t(nso,nso,nso,nso)
+      double precision e(nmo), fock(nmo,nmo)
+      double precision r2(nso,nso,nso,nso)
       double precision t2(nso,nso,nso,nso)
+      double precision t1(nso,nso)
+      double precision r1(nso,nso)
+      integer n
 c
 c     cc stuff (greek indices denote occupied spin-orbitals)
 c     cc stuff (r, s, t, u, ... denote unoccupied spin-orbitals)
@@ -706,24 +718,76 @@ c
       write(6,*)' nbf, nmo, nocc, nso, noso: ',
      &            nbf, nmo, nocc, nso, noso
 c
+c     Initially fill the Fock matrix with diagonal elements only 
+c
+      call dfill(nmo**2, 0.0d0, fock, 1) 
+      do n = 1, nmo
+        fock(n,n) = e(n)
+      enddo
+c      write(6,*) ' Fock Matrix'
+c      call output(fock,1,nmo,1,nmo,nmo,nmo,1)
+c
 c     First generate an initial guess for t2
 c
-      call dfill(nso**4, 0.0d0, t, 1) 
+      call dfill(nso**4, 0.0d0, r2, 1) 
       call dfill(nso**4, 0.0d0, t2, 1) 
-
-      call t2_init(g_mo, e, t, nmo, nso, noso)
+      call dfill(nso**2, 0.0d0, r1, 1) 
+      call dfill(nso**2, 0.0d0, t1, 1) 
+c
+c      call t2_init(g_mo, e, t, nmo, nso, noso)
+c      write(6,*)' T2 initial guess. '
+c      call writet2(t,nso)
+c      call correlation(g_mo,t,nmo,nso,noso)
+c
 c
 c     next put this guess into t2 expression keeping all terms linear in t2
 c
-      call t2_l(g_mo, e, t, t2, nmo, nso, noso)
+c      call t2_l_gb(g_mo, e, t, t2, nmo, nso, noso)
+c      do n = 1, 3
+c      call dfill(nso**4, 0.0d0, t2, 1) 
+c      call t2_l_rjh(g_mo, t, t2, fock, nmo, nso, noso)
+c      call t2_update_rjh(g_mo, t, t2, fock, nmo, nso, noso)
+c      write(6,*)' T2 with linear terms. '
+c      call writet2(t,nso)
+c      call correlation(g_mo,t,nmo,nso,noso)
+c      enddo
 c
 c     next put this into t2 expression keeping all terms
 c
-      call dcopy(nso**4, t2, 1, t, 1)
-      call dfill(nso**4, 0.0d0, t2, 1) 
-      call t2_l_q(g_mo, e, t, t2, nmo, nso, noso)
+      do n = 1, 100
+         call dfill(nso**4, 0.0d0, r2, 1) 
+         call dfill(nso**2, 0.0d0, r1, 1) 
+c         call t2_l_q_gb(g_mo, e, t, t2, nmo, nso, noso)
+c         call t2_l_rjh(g_mo, t, t2, fock, nmo, nso, noso)
 c
-c how did we lose symmetry in t2?????
+c        Generate delta T1 
+c
+         call t1_rjh(g_mo, r1, t2, fock, nmo, nso, noso)
+c
+c        Generate delta T2
+c
+         call t2_l_q_rjh(g_mo, t2, r2, fock, nmo, nso, noso)
+c
+c        Update T1
+c
+         call t1_update_rjh(g_mo, t1, r1, fock, nmo, nso, noso)
+c         write(6,*)' T1: '
+c         call writet1(t1,nso)
+c
+c        Update T2
+c
+         call t2_update_rjh(g_mo, t2, r2, fock, nmo, nso, noso)
+c         write(6,*)' T2 with quadratic terms. '
+c         call writet2(t2,nso)
+c
+c        Compute Energy expression
+c
+         call correlation(g_mo,t1,t2,nmo,nso,noso)
+c
+c        Use T1 to transform 1e- and 2e- ints
+c
+         call get_new_f_g(rtdb, basis, fock, g_mo, t1, nso, nmo)
+      enddo
 c
       return
       end
@@ -755,29 +819,29 @@ c get spatial orbital and whether alpha or beta spin
          m_orb = (m-1)/2 + 1
          m_spin = 0
          if ((m-2*m_orb).ne.0)m_spin = 1
-         write(6,*)' m, m_orb, m_spin: ',
-     &               m, m_orb, m_spin
+c         write(6,*)' m, m_orb, m_spin: ',
+c     &               m, m_orb, m_spin
          do n = noso+1, nso
             n_orb = (n-1)/2 + 1
             n_spin = 0
             if ((n-2*n_orb).ne.0)n_spin = 1
-            write(6,*)' n, n_orb, n_spin: ',
-     &                  n, n_orb, n_spin
+c            write(6,*)' n, n_orb, n_spin: ',
+c     &                  n, n_orb, n_spin
             do alpha = 1, noso
                alpha_orb = (alpha-1)/2 + 1
                alpha_spin = 0
                if ((alpha-2*alpha_orb).ne.0)alpha_spin = 1
-               write(6,*)' alpha, alpha_orb, alpha_spin: ',
-     &                     alpha, alpha_orb, alpha_spin
+c               write(6,*)' alpha, alpha_orb, alpha_spin: ',
+c     &                     alpha, alpha_orb, alpha_spin
                do beta = 1, noso
                   beta_orb = (beta-1)/2 + 1
                   beta_spin = 0
                   if ((beta-2*beta_orb).ne.0)beta_spin = 1
-                  write(6,*)' beta, beta_orb, beta_spin: ',
-     &                        beta, beta_orb, beta_spin
+c                  write(6,*)' beta, beta_orb, beta_spin: ',
+c     &                        beta, beta_orb, beta_spin
 c
-                  denom = e(m_orb)+e(n_orb)-e(alpha_orb)-e(beta_orb)
-                  write(6,*)' denom: ', denom
+                  denom = -e(m_orb)-e(n_orb)+e(alpha_orb)+e(beta_orb)
+c                  write(6,*)' denom: ', denom
                   g=0.0d0
                   if (m_spin.eq.alpha_spin.and.n_spin.eq.beta_spin)then
                      g = g_mo(m_orb,n_orb,alpha_orb,beta_orb)
@@ -785,20 +849,17 @@ c
                   if (m_spin.eq.beta_spin.and.n_spin.eq.alpha_spin)then
                      g = g - g_mo(m_orb,n_orb,beta_orb,alpha_orb)
                   endif
-                  write(6,*)' g:',g
+c                  write(6,*)' g:',g
                   t(m,n,alpha,beta) = g/denom
-                  write(6,*)' m,n,alpha,beta,t(m,n,alpha,beta):',
-     &                        m,n,alpha,beta,t(m,n,alpha,beta)
+c                  write(6,*)' m,n,alpha,beta,t(m,n,alpha,beta):',
+c     &                        m,n,alpha,beta,t(m,n,alpha,beta)
                enddo
             enddo
          enddo
       enddo
-      write(6,*)' Initial Guess for T2 '
-      call writet(t,nso)
-      call correlation(g_mo,t,nmo,nso,noso)
       return
       end
-      subroutine t2_l(g_mo, e, t, t2, nmo, nso, noso)
+      subroutine t2_l_gb(g_mo, e, t, t2, nmo, nso, noso)
       implicit none
       integer nmo, nso, noso
       double precision g_mo(nmo,nmo,nmo,nmo)
@@ -839,7 +900,7 @@ c get spatial orbital and whether alpha or beta spin
                   beta_spin = 0
                   if ((beta-2*beta_orb).ne.0)beta_spin = 1
                   denom = e(m_orb)+e(n_orb)-e(alpha_orb)-e(beta_orb)
-                  write(6,*)' denom: ', denom
+c                  write(6,*)' denom: ', denom
                   g=0.0d0
                   if (m_spin.eq.alpha_spin.and.n_spin.eq.beta_spin)then
                      g = g_mo(m_orb,n_orb,alpha_orb,beta_orb)
@@ -847,7 +908,7 @@ c get spatial orbital and whether alpha or beta spin
                   if (m_spin.eq.beta_spin.and.n_spin.eq.alpha_spin)then
                      g = g - g_mo(m_orb,n_orb,beta_orb,alpha_orb)
                   endif
-                  write(6,*)' g:',g
+c                  write(6,*)' g:',g
                   t2(m,n,alpha,beta) = g
 c
                   do p = noso+1, nso
@@ -866,7 +927,7 @@ c
                         if (m_spin.eq.q_spin.and.n_spin.eq.p_spin)then
                            g = g - g_mo(m_orb,n_orb,q_orb,p_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
      &                                       g*t(p,q,alpha,beta)
 c
@@ -893,7 +954,7 @@ c
                            g = g - 
      &                     g_mo(gamma_orb,delta_orb,beta_orb,alpha_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
      &                                       g*t(m,n,gamma,delta)
 c
@@ -918,7 +979,7 @@ c
      &                      n_spin.eq.beta_spin)then
                            g = g - g_mo(gamma_orb,n_orb,p_orb,beta_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) + 
      &                                       g*t(m,p,alpha,gamma)
 c
@@ -931,7 +992,7 @@ c
      &                      m_spin.eq.beta_spin)then
                            g = g - g_mo(gamma_orb,m_orb,p_orb,beta_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
      &                                       g*t(n,p,alpha,gamma)
 c
@@ -944,7 +1005,7 @@ c
      &                      n_spin.eq.alpha_spin)then
                            g = g - g_mo(gamma_orb,n_orb,p_orb,alpha_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
      &                                       g*t(m,p,beta,gamma)
 c
@@ -957,24 +1018,24 @@ c
      &                      m_spin.eq.alpha_spin)then
                            g = g - g_mo(gamma_orb,m_orb,p_orb,alpha_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) + 
      &                                       g*t(n,p,beta,gamma)
                      enddo
                   enddo
                   t2(m,n,alpha,beta) = t2(m,n,alpha,beta)/denom
-                  write(6,*)' t2(m,n,alpha,beta):',
-     &                        t2(m,n,alpha,beta)
+c                  write(6,*)' t2(m,n,alpha,beta):',
+c     &                        t2(m,n,alpha,beta)
                enddo
             enddo
          enddo
       enddo
-      write(6,*)' T2 with linear terms. '
-      call writet(t2,nso)
-      call correlation(g_mo,t2,nmo,nso,noso)
+c      write(6,*)' T2 with linear terms. '
+c      call writet2(t2,nso)
+c      call correlation(g_mo,t2,nmo,nso,noso)
       return
       end
-      subroutine t2_l_q(g_mo, e, t, t2, nmo, nso, noso)
+      subroutine t2_l_q_gb(g_mo, e, t, t2, nmo, nso, noso)
       implicit none
       integer nmo, nso, noso
       double precision g_mo(nmo,nmo,nmo,nmo)
@@ -1015,7 +1076,7 @@ c get spatial orbital and whether alpha or beta spin
                   beta_spin = 0
                   if ((beta-2*beta_orb).ne.0)beta_spin = 1
                   denom = e(m_orb)+e(n_orb)-e(alpha_orb)-e(beta_orb)
-                  write(6,*)' denom: ', denom
+c                  write(6,*)' denom: ', denom
                   g=0.0d0
                   if (m_spin.eq.alpha_spin.and.n_spin.eq.beta_spin)then
                      g = g_mo(m_orb,n_orb,alpha_orb,beta_orb)
@@ -1023,7 +1084,7 @@ c get spatial orbital and whether alpha or beta spin
                   if (m_spin.eq.beta_spin.and.n_spin.eq.alpha_spin)then
                      g = g - g_mo(m_orb,n_orb,beta_orb,alpha_orb)
                   endif
-                  write(6,*)' g:',g
+c                  write(6,*)' g:',g
                   t2(m,n,alpha,beta) = g
 c
                   do p = noso+1, nso
@@ -1042,7 +1103,7 @@ c
                         if (m_spin.eq.q_spin.and.n_spin.eq.p_spin)then
                            g = g - g_mo(m_orb,n_orb,q_orb,p_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
      &                                       g*t(p,q,alpha,beta)
 c
@@ -1069,7 +1130,7 @@ c
                            g = g - 
      &                     g_mo(gamma_orb,delta_orb,beta_orb,alpha_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
      &                                       g*t(m,n,gamma,delta)
 c
@@ -1094,7 +1155,7 @@ c
      &                      n_spin.eq.beta_spin)then
                            g = g - g_mo(gamma_orb,n_orb,p_orb,beta_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) + 
      &                                       g*t(m,p,alpha,gamma)
 c
@@ -1107,7 +1168,7 @@ c
      &                      m_spin.eq.beta_spin)then
                            g = g - g_mo(gamma_orb,m_orb,p_orb,beta_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
      &                                       g*t(n,p,alpha,gamma)
 c
@@ -1120,7 +1181,7 @@ c
      &                      n_spin.eq.alpha_spin)then
                            g = g - g_mo(gamma_orb,n_orb,p_orb,alpha_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
      &                                       g*t(m,p,beta,gamma)
 c
@@ -1133,7 +1194,7 @@ c
      &                      m_spin.eq.alpha_spin)then
                            g = g - g_mo(gamma_orb,m_orb,p_orb,alpha_orb)
                         endif
-                        write(6,*)' g:',g
+c                        write(6,*)' g:',g
                         t2(m,n,alpha,beta) = t2(m,n,alpha,beta) + 
      &                                       g*t(n,p,beta,gamma)
                      enddo
@@ -1165,7 +1226,7 @@ c
      &                            delta_spin.eq.p_spin)then
                           g = g - g_mo(gamma_orb,delta_orb,q_orb,p_orb)
                               endif
-                              write(6,*)' g:',g
+c                              write(6,*)' g:',g
 c                                 
                               t2(m,n,alpha,beta) = t2(m,n,alpha,beta) + 
      &                      g*(t(p,q,alpha,beta)*t(m,n,gamma,delta) - 
@@ -1180,18 +1241,18 @@ c
                      enddo
                   enddo
                   t2(m,n,alpha,beta) = t2(m,n,alpha,beta)/denom
-                  write(6,*)' t2(m,n,alpha,beta):',
-     &                        t2(m,n,alpha,beta)
+c                  write(6,*)' t2(m,n,alpha,beta):',
+c     &                        t2(m,n,alpha,beta)
                enddo
             enddo
          enddo
       enddo
-      write(6,*)' T2 with all terms. '
-      call writet(t2,nso)
-      call correlation(g_mo,t2,nmo,nso,noso)
+c      write(6,*)' T2 with all terms. '
+c      call writet2(t2,nso)
+c      call correlation(g_mo,t2,nmo,nso,noso)
       return
       end
-      subroutine writet(t,len)
+      subroutine writet2(t,len)
       implicit none
       integer len, i, j, k, l
       double precision t(len,len,len,len)
@@ -1207,11 +1268,24 @@ c
       enddo
       return
       end
-      subroutine correlation(g_mo,t,nmo,nso,noso)
+      subroutine writet1(t,len)
+      implicit none
+      integer len, i, j
+      double precision t(len,len)
+      do i = 1, len
+         do j = 1, len
+            if (abs(t(i,j)).gt.1d-6)
+     &         write(6,*)i,j,t(i,j)
+         enddo
+      enddo
+      return
+      end
+      subroutine correlation(g_mo,t1,t2,nmo,nso,noso)
       implicit none
       integer nmo, nso, noso
       double precision g_mo(nmo,nmo,nmo,nmo)
-      double precision t(nso,nso,nso,nso)
+      double precision t2(nso,nso,nso,nso)
+      double precision t1(nso,nso)
       double precision g, e2
 c occupied orbitals
       integer alpha, beta
@@ -1228,7 +1302,7 @@ c get spatial orbital and whether alpha or beta spin
          m_orb = (m-1)/2 + 1
          m_spin = 0
          if ((m-2*m_orb).ne.0)m_spin = 1
-         do n = noso+1, m-1
+         do n = noso+1, nso
             n_orb = (n-1)/2 + 1
             n_spin = 0
             if ((n-2*n_orb).ne.0)n_spin = 1
@@ -1236,7 +1310,7 @@ c get spatial orbital and whether alpha or beta spin
                alpha_orb = (alpha-1)/2 + 1
                alpha_spin = 0
                if ((alpha-2*alpha_orb).ne.0)alpha_spin = 1
-               do beta = 1, alpha-1
+               do beta = 1, noso
                   beta_orb = (beta-1)/2 + 1
                   beta_spin = 0
                   if ((beta-2*beta_orb).ne.0)beta_spin = 1
@@ -1248,8 +1322,10 @@ c
                   if (m_spin.eq.alpha_spin.and.n_spin.eq.beta_spin)then
                      g = g - g_mo(beta_orb,alpha_orb,n_orb,m_orb)
                   endif
-                  write(6,*)' g:',g
-                  e2 = e2 + g*t(m,n,alpha,beta)
+c                 write(6,*)' g:',g
+                  e2 = e2 - 0.25d0*g*(t2(m,n,alpha,beta)+
+     &                                t1(m,alpha)*t1(n,beta) -
+     &                                t1(n,alpha)*t1(m,beta))
 c
                enddo
             enddo
@@ -1259,3 +1335,921 @@ c
 c
       return
       end
+      subroutine t2_l_rjh(g_mo, t, t2, fock, nmo, nso, noso)
+      implicit none
+      integer nmo, nso, noso
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision fock(nmo,nmo)
+      double precision t(nso,nso,nso,nso)
+      double precision t2(nso,nso,nso,nso)
+      double precision g, f_t, denom
+c occupied orbitals
+      integer i, j, k, l, m, n
+      integer i_orb, j_orb, k_orb, l_orb, m_orb, n_orb
+      integer i_spin, j_spin, k_spin, l_spin, m_spin, n_spin
+c unoccupied orbitals
+      integer a, b, c, d, e, f
+      integer a_orb, b_orb, c_orb, d_orb, e_orb, f_orb
+      integer a_spin, b_spin, c_spin, d_spin, e_spin, f_spin
+c
+c     put t into t2 expression keeping all terms linear in t2
+c
+      do e = noso+1, nso
+c get spatial orbital and whether alpha or beta spin
+         e_orb = (e-1)/2 + 1
+         e_spin = 0
+         if ((e-2*e_orb).ne.0)e_spin = 1
+         do f = noso+1, nso
+            f_orb = (f-1)/2 + 1
+            f_spin = 0
+            if ((f-2*f_orb).ne.0)f_spin = 1
+            do m = 1, noso
+               m_orb = (m-1)/2 + 1
+               m_spin = 0
+               if ((m-2*m_orb).ne.0)m_spin = 1
+               do n = 1, noso
+                  n_orb = (n-1)/2 + 1
+                  n_spin = 0
+                  if ((n-2*n_orb).ne.0)n_spin = 1
+c
+                  g=0.0d0
+                  if (e_spin.eq.m_spin.and.f_spin.eq.n_spin)then
+                     g = g_mo(e_orb,f_orb,m_orb,n_orb)
+                  endif
+                  if (e_spin.eq.n_spin.and.f_spin.eq.m_spin)then
+                     g = g - g_mo(e_orb,f_orb,n_orb,m_orb)
+                  endif
+c                  write(6,*)' g:',g
+                  t2(e,f,m,n) = g
+c
+                  do a = noso+1, nso
+                     a_orb = (a-1)/2 + 1
+                     a_spin = 0
+                     if ((a-2*a_orb).ne.0)a_spin = 1
+                     f_t = 0.0d0
+                     if (f_spin.eq.a_spin)then
+                        f_t = fock(f_orb,a_orb)
+                     endif
+                     t2(e,f,m,n) = t2(e,f,m,n) + 
+     &                          f_t*t(e,a,m,n)
+                     f_t = 0.0d0
+                     if (e_spin.eq.a_spin)then
+                        f_t = fock(e_orb,a_orb)
+                     endif
+                     t2(e,f,m,n) = t2(e,f,m,n) - 
+     &                          f_t*t(f,a,m,n)
+                  enddo
+c
+                  do i = 1, noso
+                     i_orb = (i-1)/2 + 1
+                     i_spin = 0
+                     if ((i-2*i_orb).ne.0)i_spin = 1
+                     f_t = 0.0d0
+                     if (i_spin.eq.n_spin)then
+                        f_t = fock(i_orb,n_orb)
+                     endif
+                     t2(e,f,m,n) = t2(e,f,m,n) -
+     &                          f_t*t(e,f,m,i)
+                     f_t = 0.0d0
+                     if (i_spin.eq.m_spin)then
+                        f_t = fock(i_orb,m_orb)
+                     endif
+                     t2(e,f,m,n) = t2(e,f,m,n) +
+     &                          f_t*t(e,f,n,i)
+                  enddo
+c
+                  do a = noso+1, nso
+                     a_orb = (a-1)/2 + 1
+                     a_spin = 0
+                     if ((a-2*a_orb).ne.0)a_spin = 1
+                     do i = 1, noso
+                        i_orb = (i-1)/2 + 1
+                        i_spin = 0
+                        if ((i-2*i_orb).ne.0)i_spin = 1
+                        g=0.0d0
+                        if (i_spin.eq.a_spin.and.f_spin.eq.n_spin)then
+                           g = g_mo(i_orb,f_orb,a_orb,n_orb)
+                        endif
+                        if (i_spin.eq.n_spin.and.a_spin.eq.f_spin)then
+                           g = g - g_mo(i_orb,f_orb,n_orb,a_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        t2(e,f,m,n) = t2(e,f,m,n) +
+     &                             g*t(e,a,m,i)
+c ef flip
+                        g=0.0d0
+                        if (i_spin.eq.a_spin.and.e_spin.eq.n_spin)then
+                           g = g_mo(i_orb,e_orb,a_orb,n_orb)
+                        endif
+                        if (i_spin.eq.n_spin.and.a_spin.eq.e_spin)then
+                           g = g - g_mo(i_orb,e_orb,n_orb,a_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        t2(e,f,m,n) = t2(e,f,m,n) -
+     &                             g*t(f,a,m,i)
+c mn flip
+                        g=0.0d0
+                        if (i_spin.eq.a_spin.and.f_spin.eq.m_spin)then
+                           g = g_mo(i_orb,f_orb,a_orb,m_orb)
+                        endif
+                        if (i_spin.eq.m_spin.and.a_spin.eq.f_spin)then
+                           g = g - g_mo(i_orb,f_orb,m_orb,a_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        t2(e,f,m,n) = t2(e,f,m,n) -
+     &                             g*t(e,a,n,i)
+c ef+mn flip
+                        g=0.0d0
+                        if (i_spin.eq.a_spin.and.e_spin.eq.m_spin)then
+                           g = g_mo(i_orb,e_orb,a_orb,m_orb)
+                        endif
+                        if (i_spin.eq.m_spin.and.a_spin.eq.e_spin)then
+                           g = g - g_mo(i_orb,e_orb,m_orb,a_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        t2(e,f,m,n) = t2(e,f,m,n) +
+     &                             g*t(f,a,n,i)
+                     enddo
+                  enddo
+c
+                  do i = 1, noso
+                     i_orb = (i-1)/2 + 1
+                     i_spin = 0
+                     if ((i-2*i_orb).ne.0)i_spin = 1
+                     do j = 1, noso
+                        j_orb = (j-1)/2 + 1
+                        j_spin = 0
+                        if ((j-2*j_orb).ne.0)j_spin = 1
+                        g=0.0d0
+                        if (i_spin.eq.m_spin.and.j_spin.eq.n_spin)then
+                           g = g_mo(i_orb,j_orb,m_orb,n_orb)
+                        endif
+                        if (i_spin.eq.n_spin.and.j_spin.eq.m_spin)then
+                           g = g - g_mo(i_orb,j_orb,n_orb,m_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        t2(e,f,m,n) = t2(e,f,m,n) +
+     &                             0.5d0*g*t(e,f,i,j)
+                     enddo
+                  enddo
+                  do a = noso+1, nso
+                     a_orb = (a-1)/2 + 1
+                     a_spin = 0
+                     if ((a-2*a_orb).ne.0)a_spin = 1
+                     do b = noso+1, nso
+                        b_orb = (b-1)/2 + 1
+                        b_spin = 0
+                        if ((b-2*b_orb).ne.0)b_spin = 1
+                        g=0.0d0
+                        if (e_spin.eq.a_spin.and.f_spin.eq.b_spin)then
+                           g = g_mo(e_orb,f_orb,a_orb,b_orb)
+                        endif
+                        if (e_spin.eq.b_spin.and.f_spin.eq.a_spin)then
+                           g = g - g_mo(e_orb,f_orb,b_orb,a_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        t2(e,f,m,n) = t2(e,f,m,n) +
+     &                             0.5d0*g*t(a,b,m,n)
+                     enddo
+                  enddo
+               enddo
+            enddo
+         enddo
+      enddo
+c      write(6,*)' t2(e,f,m,n) L residual:'
+c      call writet2(t2,nso)
+      return
+      end
+      subroutine t2_l_q_rjh(g_mo, t2, r2, fock, nmo, nso, noso)
+      implicit none
+      integer nmo, nso, noso
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision fock(nmo,nmo)
+      double precision r2(nso,nso,nso,nso)
+      double precision t2(nso,nso,nso,nso)
+      double precision g, f_t, denom
+c occupied orbitals
+      integer i, j, k, l, m, n
+      integer i_orb, j_orb, k_orb, l_orb, m_orb, n_orb
+      integer i_spin, j_spin, k_spin, l_spin, m_spin, n_spin
+c unoccupied orbitals
+      integer a, b, c, d, e, f
+      integer a_orb, b_orb, c_orb, d_orb, e_orb, f_orb
+      integer a_spin, b_spin, c_spin, d_spin, e_spin, f_spin
+c
+c     put t2 into r2 expression keeping all terms quadratic in t2
+c
+      do e = noso+1, nso
+c get spatial orbital and whether alpha or beta spin
+         e_orb = (e-1)/2 + 1
+         e_spin = 0
+         if ((e-2*e_orb).ne.0)e_spin = 1
+         do f = noso+1, nso
+            f_orb = (f-1)/2 + 1
+            f_spin = 0
+            if ((f-2*f_orb).ne.0)f_spin = 1
+            do m = 1, noso
+               m_orb = (m-1)/2 + 1
+               m_spin = 0
+               if ((m-2*m_orb).ne.0)m_spin = 1
+               do n = 1, noso
+                  n_orb = (n-1)/2 + 1
+                  n_spin = 0
+                  if ((n-2*n_orb).ne.0)n_spin = 1
+c
+                  g=0.0d0
+                  if (e_spin.eq.m_spin.and.f_spin.eq.n_spin)then
+                     g = g_mo(e_orb,f_orb,m_orb,n_orb)
+                  endif
+                  if (e_spin.eq.n_spin.and.f_spin.eq.m_spin)then
+                     g = g - g_mo(e_orb,f_orb,n_orb,m_orb)
+                  endif
+c                  write(6,*)' g:',g
+                  r2(e,f,m,n) = g
+c
+                  do a = noso+1, nso
+                     a_orb = (a-1)/2 + 1
+                     a_spin = 0
+                     if ((a-2*a_orb).ne.0)a_spin = 1
+                     f_t = 0.0d0
+                     if (f_spin.eq.a_spin)then
+                        f_t = fock(f_orb,a_orb)
+                     endif
+                     r2(e,f,m,n) = r2(e,f,m,n) + 
+     &                          f_t*t2(e,a,m,n)
+                     f_t = 0.0d0
+                     if (e_spin.eq.a_spin)then
+                        f_t = fock(e_orb,a_orb)
+                     endif
+                     r2(e,f,m,n) = r2(e,f,m,n) - 
+     &                          f_t*t2(f,a,m,n)
+                  enddo
+c
+                  do i = 1, noso
+                     i_orb = (i-1)/2 + 1
+                     i_spin = 0
+                     if ((i-2*i_orb).ne.0)i_spin = 1
+                     f_t = 0.0d0
+                     if (i_spin.eq.n_spin)then
+                        f_t = fock(i_orb,n_orb)
+                     endif
+                     r2(e,f,m,n) = r2(e,f,m,n) -
+     &                          f_t*t2(e,f,m,i)
+                     f_t = 0.0d0
+                     if (i_spin.eq.m_spin)then
+                        f_t = fock(i_orb,m_orb)
+                     endif
+                     r2(e,f,m,n) = r2(e,f,m,n) +
+     &                          f_t*t2(e,f,n,i)
+                  enddo
+c
+                  do a = noso+1, nso
+                     a_orb = (a-1)/2 + 1
+                     a_spin = 0
+                     if ((a-2*a_orb).ne.0)a_spin = 1
+                     do i = 1, noso
+                        i_orb = (i-1)/2 + 1
+                        i_spin = 0
+                        if ((i-2*i_orb).ne.0)i_spin = 1
+                        g=0.0d0
+                        if (i_spin.eq.a_spin.and.f_spin.eq.n_spin)then
+                           g = g_mo(i_orb,f_orb,a_orb,n_orb)
+                        endif
+                        if (i_spin.eq.n_spin.and.a_spin.eq.f_spin)then
+                           g = g - g_mo(i_orb,f_orb,n_orb,a_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        r2(e,f,m,n) = r2(e,f,m,n) +
+     &                             g*t2(e,a,m,i)
+c ef flip
+                        g=0.0d0
+                        if (i_spin.eq.a_spin.and.e_spin.eq.n_spin)then
+                           g = g_mo(i_orb,e_orb,a_orb,n_orb)
+                        endif
+                        if (i_spin.eq.n_spin.and.a_spin.eq.e_spin)then
+                           g = g - g_mo(i_orb,e_orb,n_orb,a_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        r2(e,f,m,n) = r2(e,f,m,n) -
+     &                             g*t2(f,a,m,i)
+c mn flip
+                        g=0.0d0
+                        if (i_spin.eq.a_spin.and.f_spin.eq.m_spin)then
+                           g = g_mo(i_orb,f_orb,a_orb,m_orb)
+                        endif
+                        if (i_spin.eq.m_spin.and.a_spin.eq.f_spin)then
+                           g = g - g_mo(i_orb,f_orb,m_orb,a_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        r2(e,f,m,n) = r2(e,f,m,n) -
+     &                             g*t2(e,a,n,i)
+c ef+mn flip
+                        g=0.0d0
+                        if (i_spin.eq.a_spin.and.e_spin.eq.m_spin)then
+                           g = g_mo(i_orb,e_orb,a_orb,m_orb)
+                        endif
+                        if (i_spin.eq.m_spin.and.a_spin.eq.e_spin)then
+                           g = g - g_mo(i_orb,e_orb,m_orb,a_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        r2(e,f,m,n) = r2(e,f,m,n) +
+     &                             g*t2(f,a,n,i)
+                     enddo
+                  enddo
+c
+                  do i = 1, noso
+                     i_orb = (i-1)/2 + 1
+                     i_spin = 0
+                     if ((i-2*i_orb).ne.0)i_spin = 1
+                     do j = 1, noso
+                        j_orb = (j-1)/2 + 1
+                        j_spin = 0
+                        if ((j-2*j_orb).ne.0)j_spin = 1
+                        g=0.0d0
+                        if (i_spin.eq.m_spin.and.j_spin.eq.n_spin)then
+                           g = g_mo(i_orb,j_orb,m_orb,n_orb)
+                        endif
+                        if (i_spin.eq.n_spin.and.j_spin.eq.m_spin)then
+                           g = g - g_mo(i_orb,j_orb,n_orb,m_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        r2(e,f,m,n) = r2(e,f,m,n) +
+     &                             0.5d0*g*t2(e,f,i,j)
+                     enddo
+                  enddo
+                  do a = noso+1, nso
+                     a_orb = (a-1)/2 + 1
+                     a_spin = 0
+                     if ((a-2*a_orb).ne.0)a_spin = 1
+                     do b = noso+1, nso
+                        b_orb = (b-1)/2 + 1
+                        b_spin = 0
+                        if ((b-2*b_orb).ne.0)b_spin = 1
+                        g=0.0d0
+                        if (e_spin.eq.a_spin.and.f_spin.eq.b_spin)then
+                           g = g_mo(e_orb,f_orb,a_orb,b_orb)
+                        endif
+                        if (e_spin.eq.b_spin.and.f_spin.eq.a_spin)then
+                           g = g - g_mo(e_orb,f_orb,b_orb,a_orb)
+                        endif
+c                        write(6,*)' g:',g
+                        r2(e,f,m,n) = r2(e,f,m,n) +
+     &                             0.5d0*g*t2(a,b,m,n)
+                     enddo
+                  enddo
+c
+                  do i = 1, noso
+                     i_orb = (i-1)/2 + 1
+                     i_spin = 0
+                     if ((i-2*i_orb).ne.0)i_spin = 1
+                     do j = 1, noso
+                        j_orb = (j-1)/2 + 1
+                        j_spin = 0
+                        if ((j-2*j_orb).ne.0)j_spin = 1
+                        do a = noso+1, nso
+                           a_orb = (a-1)/2 + 1
+                           a_spin = 0
+                           if ((a-2*a_orb).ne.0)a_spin = 1
+                           do b = noso+1, nso
+                              b_orb = (b-1)/2 + 1
+                              b_spin = 0
+                              if ((b-2*b_orb).ne.0)b_spin = 1
+                              g=0.0d0
+                              if (i_spin.eq.a_spin.and.
+     &                            j_spin.eq.b_spin)then
+                                 g = g_mo(i_orb,j_orb,a_orb,b_orb)
+                              endif
+                              if (i_spin.eq.b_spin.and.
+     &                            j_spin.eq.a_spin)then
+                                 g = g - g_mo(i_orb,j_orb,b_orb,a_orb)
+                              endif
+c                              write(6,*)' g:',g
+                              r2(e,f,m,n) = r2(e,f,m,n) +
+     &                             0.5d0*g* ( t2(f,b,j,n)*t2(e,a,i,m) -
+     &                                        t2(e,b,j,n)*t2(f,a,i,m) -
+     &                                        t2(f,b,j,m)*t2(e,a,i,n) +
+     &                                        t2(e,b,j,m)*t2(f,a,i,n) -
+     &                                        t2(f,b,m,n)*t2(e,a,i,j) +
+     &                                        t2(e,b,m,n)*t2(f,a,i,j) -
+     &                                        t2(e,f,m,i)*t2(a,b,n,j) +
+     &                                        t2(e,f,n,i)*t2(a,b,m,j) +
+     &                                  0.5d0*t2(e,f,i,j)*t2(a,b,m,n) )
+ 
+                           enddo
+                        enddo
+                     enddo
+                  enddo
+               enddo
+            enddo
+         enddo
+      enddo
+c      write(6,*)' t2(e,f,m,n) L+Q residual:'
+c      call writet2(r2,nso)
+      return
+      end
+      subroutine t2_update_rjh(g_mo, t2, r2, fock, nmo, nso, noso)
+      implicit none
+      integer nmo, nso, noso
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision fock(nmo,nmo)
+      double precision t2(nso,nso,nso,nso)
+      double precision r2(nso,nso,nso,nso)
+      double precision g, denom, r2norm
+c occupied orbitals
+      integer i, j, k, l, m, n
+      integer i_orb, j_orb, k_orb, l_orb, m_orb, n_orb
+      integer i_spin, j_spin, k_spin, l_spin, m_spin, n_spin
+c unoccupied orbitals
+      integer a, b, c, d, e, f
+      integer a_orb, b_orb, c_orb, d_orb, e_orb, f_orb
+      integer a_spin, b_spin, c_spin, d_spin, e_spin, f_spin
+      double precision ddot
+      external ddot
+c
+c     update t with delta t (in t2)
+c
+      do e = noso+1, nso
+c get spatial orbital and whether alpha or beta spin
+         e_orb = (e-1)/2 + 1
+         e_spin = 0
+         if ((e-2*e_orb).ne.0)e_spin = 1
+         do f = noso+1, nso
+            f_orb = (f-1)/2 + 1
+            f_spin = 0
+            if ((f-2*f_orb).ne.0)f_spin = 1
+            do m = 1, noso
+               m_orb = (m-1)/2 + 1
+               m_spin = 0
+               if ((m-2*m_orb).ne.0)m_spin = 1
+               do n = 1, noso
+                  n_orb = (n-1)/2 + 1
+                  n_spin = 0
+                  if ((n-2*n_orb).ne.0)n_spin = 1
+c
+                  denom = fock(e_orb,e_orb) + fock(f_orb,f_orb) -
+     &                    fock(m_orb,m_orb) - fock(n_orb,n_orb)
+c                 write(6,*)' denom: ', denom
+c
+                  t2(e,f,m,n) = t2(e,f,m,n) - r2(e,f,m,n)/denom
+               enddo
+            enddo
+         enddo
+      enddo
+      r2norm =  ddot(nso**4,r2,1,r2,1)
+      write(6,*)' r2norm = ', r2norm
+      return
+      end
+      subroutine t1_rjh(g_mo, r1, t2, fock, nmo, nso, noso)
+      implicit none
+      integer nmo, nso, noso
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision fock(nmo,nmo)
+      double precision r1(nso,nso)
+      double precision t2(nso,nso,nso,nso)
+      double precision g, f_t, denom
+c occupied orbitals
+      integer i, j, k, l, m, n
+      integer i_orb, j_orb, k_orb, l_orb, m_orb, n_orb
+      integer i_spin, j_spin, k_spin, l_spin, m_spin, n_spin
+c unoccupied orbitals
+      integer a, b, c, d, e, f
+      integer a_orb, b_orb, c_orb, d_orb, e_orb, f_orb
+      integer a_spin, b_spin, c_spin, d_spin, e_spin, f_spin
+c
+c     put t into t2 expression keeping all terms linear in t2
+c
+c      write(6,*)' debug inside t1_rjh '
+c      call jan_debug_print('MOINTS', g_mo, nmo, nmo,  
+c     $                      nmo, nmo)
+c      write(6,*)' T2 with quadratic terms. '
+c      call writet2(t2,nso)
+c      write(6,*) ' Fock Matrix'
+c      call output(fock,1,nmo,1,nmo,nmo,nmo,1)
+c
+      do e = noso+1, nso
+c get spatial orbital and whether alpha or beta spin
+         e_orb = (e-1)/2 + 1
+         e_spin = 0
+         if ((e-2*e_orb).ne.0)e_spin = 1
+         do m = 1, noso
+            m_orb = (m-1)/2 + 1
+            m_spin = 0
+            if ((m-2*m_orb).ne.0)m_spin = 1
+c
+            r1(e,m) = 0.0d0
+            if (e_spin.eq.m_spin)then
+               r1(e,m) = fock(e_orb,m_orb)
+            endif
+c
+            do j = 1, noso
+               j_orb = (j-1)/2 + 1
+               j_spin = 0
+               if ((j-2*j_orb).ne.0)j_spin = 1
+               do b = noso+1, nso
+                  b_orb = (b-1)/2 + 1
+                  b_spin = 0
+                  if ((b-2*b_orb).ne.0)b_spin = 1
+c
+                  f_t = 0.0d0
+                  if (j_spin.eq.b_spin)then
+                     f_t = fock(j_orb,b_orb)
+                  endif
+c
+                  r1(e,m) = r1(e,m) + f_t*t2(e,b,m,j)
+c
+                  do i = 1, noso
+                     i_orb = (i-1)/2 + 1
+                     i_spin = 0
+                     if ((i-2*i_orb).ne.0)i_spin = 1
+c
+                     g=0.0d0
+                     if (i_spin.eq.m_spin.and.j_spin.eq.b_spin)then
+                        g = g_mo(i_orb,j_orb,m_orb,b_orb)
+                     endif
+                     if (i_spin.eq.b_spin.and.j_spin.eq.m_spin)then
+                        g = g - g_mo(i_orb,j_orb,b_orb,m_orb)
+                     endif
+
+c                     write(6,*)' e,m,j,b,i,g:',e,m,j,b,i,g
+c
+                     r1(e,m) = r1(e,m) - 0.5d0*g*t2(e,b,i,j)
+c
+                  enddo
+               enddo
+            enddo
+            do b = noso+1, nso
+               b_orb = (b-1)/2 + 1
+               b_spin = 0
+               if ((b-2*b_orb).ne.0)b_spin = 1
+c
+               do i = 1, noso
+                  i_orb = (i-1)/2 + 1
+                  i_spin = 0
+                  if ((i-2*i_orb).ne.0)i_spin = 1
+c
+                  do a = noso+1, nso
+                     a_orb = (a-1)/2 + 1
+                     a_spin = 0
+                     if ((a-2*a_orb).ne.0)a_spin = 1
+                     g=0.0d0
+                     if (i_spin.eq.a_spin.and.e_spin.eq.b_spin)then
+                        g = g_mo(i_orb,e_orb,a_orb,b_orb)
+                     endif
+                     if (i_spin.eq.b_spin.and.e_spin.eq.a_spin)then
+                        g = g - g_mo(i_orb,e_orb,b_orb,a_orb)
+                     endif
+c
+c                     write(6,*)' g:',g
+c
+                     r1(e,m) = r1(e,m) + 0.5d0*g*t2(a,b,i,m)
+c
+                  enddo
+               enddo
+            enddo
+         enddo
+      enddo
+c      write(6,*)' t1(e,m) residual:'
+c      call writet1(r1,nso)
+      return
+      end
+      subroutine t1_update_rjh(g_mo, t1, r1, fock, nmo, nso, noso)
+      implicit none
+      integer nmo, nso, noso
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision fock(nmo,nmo)
+      double precision r1(nso,nso)
+      double precision t1(nso,nso)
+      double precision g, denom, r1norm
+c occupied orbitals
+      integer i, j, k, l, m, n
+      integer i_orb, j_orb, k_orb, l_orb, m_orb, n_orb
+      integer i_spin, j_spin, k_spin, l_spin, m_spin, n_spin
+c unoccupied orbitals
+      integer a, b, c, d, e, f
+      integer a_orb, b_orb, c_orb, d_orb, e_orb, f_orb
+      integer a_spin, b_spin, c_spin, d_spin, e_spin, f_spin
+      double precision ddot
+      external ddot
+c
+c     update t with delta t (in t2)
+c
+      do e = noso+1, nso
+c get spatial orbital and whether alpha or beta spin
+         e_orb = (e-1)/2 + 1
+         e_spin = 0
+         if ((e-2*e_orb).ne.0)e_spin = 1
+         do m = 1, noso
+            m_orb = (m-1)/2 + 1
+            m_spin = 0
+            if ((m-2*m_orb).ne.0)m_spin = 1
+c
+            denom = fock(e_orb,e_orb) - fock(m_orb,m_orb)
+c            write(6,*)' denom: ', denom
+c
+            t1(e,m) = t1(e,m) - r1(e,m)/denom
+         enddo
+      enddo
+      r1norm =  ddot(nso**2,r1,1,r1,1)
+      write(6,*)' r1norm = ', r1norm
+      return
+      end
+      subroutine jan_h(
+     $     rtdb, basis,
+     $     n1, n2,
+     $     lda1, lda2,
+     $     c1t, c2t,
+     $     h)
+      implicit none
+#include "bas.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+      integer rtdb, basis
+      integer lda1, lda2, n1, n2
+      double precision c1t(lda1, n1), c2t(lda2, n2)
+      double precision h(n1, n2)
+c
+c     Return hij = sum(kl) c1t(i,k) hAO(k,l) c2t(j,l)
+c
+c     Note that the transposed MO coeffs are passed in 
+c     to be compatible with jan_full_transform
+c
+      integer geom, nbf, g_tmp
+      integer l_tmp1, k_tmp1, l_tmp2, k_tmp2
+c
+      call int_init(rtdb, 1, basis)
+      if (.not. bas_geom(basis, geom))
+     $     call errquit('jan_transform: basis ', basis)
+      call schwarz_init(geom, basis)
+      if (.not. bas_numbf(basis, nbf))
+     $     call errquit('jan_h: nbf',basis)
+c
+      if (.not. ma_push_get(mt_dbl, nbf*nbf,'tmp1', l_tmp1, k_tmp1))
+     $     call errquit('tmp1', nbf*nbf)
+      if (.not. ma_push_get(mt_dbl, nbf*nbf,'tmp2', l_tmp2, k_tmp2))
+     $     call errquit('tmp2', nbf*nbf)
+c
+      if (.not. ga_create(mt_dbl, nbf, nbf, 'tmp', 1, 1, g_tmp))
+     &     call errquit('scf_v_g: tmp', 0)
+      call ga_zero(g_tmp)
+      call int_1e_ga(basis, basis, g_tmp, 'kinetic', .false.)
+      call int_1e_ga(basis, basis, g_tmp, 'potential', .false.)
+      call ga_get(g_tmp, 1, nbf, 1, nbf, dbl_mb(k_tmp1), nbf)
+      if (.not. ga_destroy(g_tmp)) call errquit('ga?',0)
+c
+      call dgemm('n', 'n', n1, nbf, nbf, 
+     $     1.0d0, c1t, lda1, dbl_mb(k_tmp1), nbf, 
+     $     0.0d0, dbl_mb(k_tmp2), n1)
+      call dgemm('n', 't', n1, n2, nbf,
+     $     1.0d0, dbl_mb(k_tmp2), n1, c2t, lda2,
+     $     0.0d0, h, n1)
+c
+c      write(6,*) ' Transformed H'
+c      call output(h, 1, n1, 1, n2, n1, n2, 1)
+c
+      call schwarz_tidy()
+      call int_terminate
+c
+      if (.not. ma_chop_stack(l_tmp1)) call errquit('ma',0)
+c
+      return
+      end
+      subroutine uccsdtest_lambda(nbf, nmo, no, nv, 
+     $        t1, ct, pt, ht, work)
+      implicit none
+c
+      integer nbf, nmo, no, nv
+      double precision t1(nv, no)
+      double precision ct(nmo, nbf)
+      double precision pt(nmo, nbf)
+      double precision ht(nmo, nbf)
+      double precision work(nmo, nmo)
+c
+      integer i, a
+c
+c     Particle transformation
+c
+c      write(6,*) ' INPUT MOS'
+c      call output(ct, 1, nmo, 1, nbf, nmo, nbf, 1)
+      call dfill(nmo*nmo, 0.0d0, work, 1)
+      call dfill(nmo, 1.0d0, work, nmo+1)
+      do i = 1, no
+         do a = 1, nv
+            work(i,a+no) = work(i,a+no) - t1(a,i)
+         end do
+      end do
+c      write(6,*) ' pure PARTICLE'
+c      call output(work, 1, nmo, 1, nmo, nmo, nbf, 1)
+      call dgemm('t','n',nmo,nbf,nmo,
+     $     1.0d0, work, nmo, ct, nmo, 
+     $     0.0d0, pt, nmo)
+c      write(6,*) ' PARTICLE'
+c      call output(pt, 1, nmo, 1, nbf, nmo, nbf, 1)
+c
+c     Hole transformation
+c
+      call dfill(nmo*nmo, 0.0d0, work, 1)
+      call dfill(nmo, 1.0d0, work, nmo+1)
+      do i = 1, no
+         do a = 1, nv
+            work(a+no,i) = work(a+no,i) + t1(a,i)
+         end do
+      end do
+c      write(6,*) ' pure HOLE'
+c      call output(work, 1, nmo, 1, nmo, nmo, nbf, 1)
+      call dgemm('t','n',nmo,nbf,nmo,
+     $     1.0d0, work, nmo, ct, nmo, 
+     $     0.0d0, ht, nmo)
+c      write(6,*) ' HOLE'
+c      call output(ht, 1, nmo, 1, nbf, nmo, nbf, 1)
+c
+      end
+      subroutine get_new_f_g(rtdb, basis, fock, g_mo, t1, nso, nmo)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "inp.fh"
+      integer rtdb
+c
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision fock(nmo,nmo)
+      double precision t1(nso,nso)
+      integer basis, nbf
+      character*255 movecs      ! Name of movector file
+      character*80 title, name_of_basis, scftype
+      integer nbf_file, nsets, nmo_file(2)
+      logical movecs_read, movecs_read_header
+      external movecs_read, movecs_read_header
+c
+      integer nmo, g_tmp, l_occ, k_occ,
+     $     l_eval, k_eval, l_mos, k_mos, l_most, k_most
+      integer nocc, nvirt, nopen, nclosed, nso, noso
+      integer l_t, k_t, l_t2, k_t2, l_f, k_f
+      integer l_t1, k_t1, l_r1, k_r1
+      integer l_pmost, k_pmost, l_hmost, k_hmost
+      integer l_work, k_work, l_h, k_h
+      integer l_t1_vomos, k_t1_vomos
+      logical int_normalize
+      external int_normalize
+c
+c     Read the MO vectors and evals from a RHF calculation
+c
+      call util_file_name('movecs',.false.,.false.,movecs)
+      if (.not. movecs_read_header(movecs, title, name_of_basis,
+     $     scftype, nbf_file, nsets, nmo_file, 2)) call errquit
+     $     ('jantest: failed to read movecs header',911)
+c      write(6,*) ' Read movecs header from ', movecs
+c      write(6,*) ' Job title :                ', 
+c     $     title(1:inp_strlen(title))
+c      write(6,*) ' Basis name:                ', 
+c     $     name_of_basis(1:inp_strlen(name_of_basis))
+      nmo = nmo_file(1)
+      if (.not. rtdb_get(rtdb, 'scf:nclosed', mt_int, 1, nocc))
+     $     call errquit('nocc?',0)
+      if (.not. rtdb_get(rtdb, 'scf:nopen', mt_int, 1, nopen))
+     $     call errquit('nopen?',0)
+      if (nopen .ne. 0) call errquit('asjdlfkadjsl',0)
+      if (.not. bas_numbf(basis, nbf)) call errquit
+     $     ('scf_init: basis info',0)
+      nvirt= nmo - nocc
+c      write(6,*) ' No. of closed shells       ', nocc
+c      write(6,*) ' No. of molecular orbitals: ', nmo
+c      write(6,*) ' No. of basis functions:    ', nbf
+c
+      if (.not. ga_create(mt_dbl, nbf, nmo, 'tmp', 0, 0, g_tmp))
+     &     call errquit('scf_v_g: tmp', 0)
+      if (.not. ma_push_get(mt_dbl, nbf,'occ',l_occ, k_occ))
+     $     call errquit('ma occ', nbf)
+      if (.not. ma_push_get(mt_dbl, nbf,'eval',l_eval, k_eval))
+     $     call errquit('ma eval', nbf)
+      if (.not. ma_push_get(mt_dbl, nbf*nbf,'mos', l_mos, k_mos))
+     $     call errquit('ma mos', nbf*nbf)
+      if (.not. ma_push_get(mt_dbl, nbf*nbf,'mos', l_most, k_most))
+     $     call errquit('ma mos', nbf*nbf)
+c
+      if (.not. movecs_read(movecs, 1, dbl_mb(k_occ), dbl_mb(k_eval), 
+     $     g_tmp)) call errquit('movecs_read of amos failed ',0)
+      call ga_get(g_tmp, 1, nbf, 1, nmo, dbl_mb(k_mos), nbf)
+      call util_transpose(dbl_mb(k_mos),nbf,dbl_mb(k_most),nmo,
+     $     nbf,nmo)
+c
+c      write(6,*) ' Orbital eigenvalues '
+c      call output(dbl_mb(k_eval),1,nmo,1,1,nmo,1,1)
+c      write(6,*) ' MOs'
+c      call output(dbl_mb(k_mos),1,nbf,1,nmo,nbf,nmo,1)
+c      write(6,*) ' MOs T'
+c      call output(dbl_mb(k_most),1,nmo,1,nbf,nmo,nbf,1)
+c
+      if (.not. ga_destroy(g_tmp)) call errquit(' ga bad?',0)
+c
+c     Transform MO integrals in Dirac order to new T1 bases
+c
+      if (.not. ma_push_get(mt_dbl, nbf*nbf,'pmost', l_pmost, k_pmost))
+     $     call errquit('ma pmost', nbf*nbf)
+      if (.not. ma_push_get(mt_dbl, nbf*nbf,'hmost', l_hmost, k_hmost))
+     $     call errquit('ma hmost', nbf*nbf)
+      if (.not. ma_push_get(mt_dbl, nbf*nbf,'work', l_work, k_work))
+     $     call errquit('ma work', nbf*nbf)
+      if (.not. ma_push_get(mt_dbl, nbf*nbf,'1e-', l_h, k_h))
+     $     call errquit('ma h', nbf*nbf)
+      if (.not. ma_push_get(mt_dbl, nvirt*nocc,'t1_vomos', 
+     $     l_t1_vomos, k_t1_vomos))
+     $     call errquit('ma t1_vomos', nvirt*nocc)
+      call pack_t1(t1, dbl_mb(k_t1_vomos), nso, nmo, nocc, nvirt) 
+      call uccsdtest_lambda(nbf, nmo, nocc, nvirt, 
+     $                      dbl_mb(k_t1_vomos), dbl_mb(k_most), 
+     $                      dbl_mb(k_pmost), 
+     $                      dbl_mb(k_hmost), dbl_mb(k_work))
+c
+c      write(6,*) ' P mos'
+c      call output(dbl_mb(k_pmost), 1, nmo, 1, nmo, nmo, nmo, 1)
+c
+c      write(6,*) ' H mos'
+c      call output(dbl_mb(k_hmost), 1, nmo, 1, nmo, nmo, nmo, 1)
+c
+      call jan_h(rtdb, basis, nmo, nmo, nmo, nmo,
+     $           dbl_mb(k_pmost), dbl_mb(k_hmost), dbl_mb(k_h))
+      call jan_full_transform(
+     $     rtdb, basis, 
+     $     nmo, nmo, nmo, nmo,
+     $     nmo, nmo, nmo, nmo,
+     $     dbl_mb(k_pmost), dbl_mb(k_pmost), dbl_mb(k_hmost),
+     $     dbl_mb(k_hmost), g_mo, 'Dirac')
+c      call jan_debug_print('MOINTS', g_mo, nmo, nmo,  
+c     $                      nmo, nmo)
+      call build_f(fock, g_mo, dbl_mb(k_h), nmo, nocc)
+c
+c     Tidy up
+c
+      if (.not. ma_chop_stack(l_occ)) call errquit(' ma chop?', 0)
+c
+      return
+c
+      end
+      subroutine pack_t1(t1, t1_vomos, nso, nmo, nocc, nvirt)
+      implicit none
+c
+      integer nso, nmo, nocc, nvirt
+      integer i, j, i_orb, j_orb, i_so, j_so
+      double precision t1_vomos(nvirt, nocc)
+      double precision t1(nso,nso)
+c
+c      write(6,*)' t1 from pack_t1 '
+c      do i = 1, nso
+c         do j = 1, nso
+c            if (abs(t1(i,j)).gt.1d-6)
+c     &         write(6,*)i,j,t1(i,j)
+c         enddo
+c      enddo
+c
+      call dfill(nvirt*nocc, 0.0d0, t1_vomos, 1)
+c
+      do i = 1, nvirt
+         do j = 1, nocc
+            i_orb = nocc + i
+            j_orb = j
+            i_so = 2*(i_orb-1)+1
+            j_so = 2*(j_orb-1)+1
+            t1_vomos(i,j) = t1(i_so,j_so)
+         enddo
+      enddo
+c      write(6,*)' t1_vomos '
+c      do i = 1, nvirt
+c         do j = 1, nocc
+c            if (abs(t1_vomos(i,j)).gt.1d-6)
+c     &         write(6,*)i,j,t1_vomos(i,j)
+c         enddo
+c      enddo
+      return
+      end
+      subroutine build_f(fock, g_mo, h_mo, nmo, nocc)
+      implicit none
+c
+      integer nmo, nocc
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision fock(nmo,nmo), h_mo(nmo,nmo)
+c
+c     fij = hij + 2*<ik|jk> - <ik|kj>
+c
+      integer i, j, k
+c
+      call dfill(nmo*nmo, 0.0d0, fock, 1)
+c
+      do j = 1, nmo
+         do i = 1, nmo
+            fock(i,j) = h_mo(i,j)
+            do k = 1, nocc
+               fock(i,j) = fock(i,j) + 2.0d0*g_mo(i,k,j,k)
+     &                               - g_mo(i,k,k,j)
+            end do
+         end do
+      end do
+c
+c      write(6,*) ' FOCK'
+c      call output(fock, 1, nmo, 1, nmo, nmo, nmo, 1)
+c
+      return
+      end
+
