@@ -1,4 +1,4 @@
-c $Id: et_input.F,v 1.6 2002-03-27 22:16:51 d3k958 Exp $
+c $Id: et_input.F,v 1.7 2003-01-10 18:25:59 d3k958 Exp $
       subroutine et_input(rtdb)
       implicit none
 c
@@ -9,7 +9,7 @@ c
 c     
       integer rtdb, method_2e
       character*255 test
-      double precision tol2e
+      double precision tol2e, switch2e
 c
  100  if (.not. inp_read()) call errquit('et_input: inp_read failed',0)
 c
@@ -28,7 +28,7 @@ c     ----------------------------
       else if (inp_compare(.false.,'vectors', test)) then
          call et_vecs_input(rtdb,'et')
 c 
-         goto 100
+      goto 100
 c
 c     screening tolerances are read
 c     -----------------------------
@@ -38,7 +38,7 @@ c     -----------------------------
          if (.not. rtdb_put(rtdb,'et:tol2e', MT_DBL, 1, tol2e))
      $        call errquit('et_input: rtdb_put of tol2e failed',0)
 c 
-         goto 100
+      goto 100
 c
 c     choice of 2e method is read
 c     ---------------------------
@@ -55,8 +55,20 @@ c
          if (.not. rtdb_put(rtdb,'et:method_2e', MT_INT, 1, method_2e))
      $        call errquit('et_input: rtdb_put of method_2e failed',0)
 c
-         goto 100
+      goto 100
 c
+c     By default, the fock builder is used for the 2e contribution
+c     unless the overlap is really small, then the other method is
+c     used.  'switch2e' sets the overlap value which determines when
+c     the more accurate 2e routine is used.
+c     ---------------------------
+      else if (inp_compare(.false.,'switch2e', test)) then
+         if (.not. inp_f(switch2e)) call errquit
+     $        ('et_input: switch2e <thresh>',0)
+         if (.not. rtdb_put(rtdb,'et:switch2e', MT_DBL, 1, switch2e))
+     $        call errquit('et_input: rtdb_put of switch2efailed',0)
+c 
+      goto 100
 c
 c     end of input block
 c     -------------------

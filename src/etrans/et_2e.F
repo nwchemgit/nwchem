@@ -1,4 +1,4 @@
-c     $Id: et_2e.F,v 1.11 2003-01-10 00:02:47 d3k958 Exp $
+c     $Id: et_2e.F,v 1.12 2003-01-10 18:25:59 d3k958 Exp $
       subroutine et_2e(rtdb,nbf,basis,geom,max2e,mem2,tol2e,
      &                 g_pa,g_pb,omega2)
       implicit none
@@ -58,28 +58,28 @@ c
 c     get the maximum value of the alpha and beta densities
 c     ====================================================
 c
-      num = 1 
-      do i = 1,nbf
-      do j = 1,nbf
-        density(num) = pa(i,j)
-        num=num+1
-      enddo
-      enddo
-c
-      maxPa = dabsmax(nbf*nbf,density)
-c
-      num = 1 
-      do i = 1,nbf
-      do j = 1,nbf
-        density(num) = pb(i,j)
-        num=num+1
-      enddo
-      enddo
-c
-      maxPb = dabsmax(nbf*nbf,density)
-c
-      denmax = max(maxPa,maxPb)
-      denmax = denmax*denmax
+c      num = 1 
+c      do i = 1,nbf
+c      do j = 1,nbf
+c        density(num) = pa(i,j)
+c        num=num+1
+c      enddo
+c      enddo
+cc
+c      maxPa = dabsmax(nbf*nbf,density)
+cc
+c      num = 1 
+c      do i = 1,nbf
+c      do j = 1,nbf
+c        density(num) = pb(i,j)
+c        num=num+1
+c      enddo
+c      enddo
+cc
+c      maxPb = dabsmax(nbf*nbf,density)
+cc
+c      denmax = max(maxPa,maxPb)
+c      denmax = denmax*denmax
 c
 c     initialize omega2 and establish 2e and scr arrays
 c     ================================================
@@ -109,17 +109,17 @@ c
       if (ga_nodeid().eq.0) then
       write(LuOut,*)
       write(LuOut,*)'Start two-electron contribution,  H2(RP)...'
-      write(LuOut,1212)'Density screening tolerance   ',':',tol2e
-      write(LuOut,1212)'Largest value of alpha density',':',maxPa
-      write(LuOut,1212)'Largest value of beta density ',':',maxPb
-      write(LuOut,1212)'Largest two-electron integral ',':',smax
-      write(LuOut,*)
+c      write(LuOut,1212)'Density screening tolerance   ',':',tol2e
+c      write(LuOut,1212)'Largest value of alpha density',':',maxPa
+c      write(LuOut,1212)'Largest value of beta density ',':',maxPb
+c      write(LuOut,1212)'Largest two-electron integral ',':',smax
+c      write(LuOut,*)
       endif
-      call util_flush(6) 
 c     
 c     begin loop over shells
 c     ======================
 c     
+      call ga_sync()
       shellnum = 0
       nproc = ga_nnodes()
       next = nxtask(nproc,1)

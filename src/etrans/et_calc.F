@@ -3,7 +3,7 @@
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.16 2003-01-10 00:02:47 d3k958 Exp $
+* $Id: et_calc.F,v 1.17 2003-01-10 18:25:59 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -44,7 +44,7 @@ c
       double precision prod(2)
       double precision Sba,omega1
       double precision detu(2),detv(2),detprod,omega2
-      double precision Haa,Hbb,Hba,val, dum
+      double precision Haa,Hbb,Hba,val, dum, switch2e
 
       me=ga_nodeid()
 
@@ -610,10 +610,22 @@ c Two methods are available. One uses the scf fock builder (method_2e=1),
 c the other uses et_2e (method_2e=2). et_2e is more accurate, but much more
 c time consuming and should only be used for very small systems, or very 
 c weakly interacting systems (with small overlap), or for debugging purposes.
+c
+c The magnitude of the overlap dictates which method should be used. The user
+c can set the point at which the program switches to et_2e by setting the
+c parameter 'switch2e'.
 c ------------------------------------------------------------------------
 c
+      if (.not.rtdb_get(rtdb,'et:switch2e',MT_DBL,1,switch2e)) then
+       switch2e = 1.0d-12  !still testing this value.
+      endif
+c
       if (.not.rtdb_get(rtdb,'et:method_2e',MT_INT,1,method_2e)) then
-       method_2e = 1  !default uses fock builder for omega2
+        if (dabs(Sba).ge.switch2e) then
+          method_2e = 1
+        else
+          method_2e = 2
+        endif
       endif
 c
       if (method_2e.EQ.1) then
