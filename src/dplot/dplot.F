@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.24 2003-01-11 05:29:33 edo Exp $
+* $Id: dplot.F,v 1.25 2003-01-15 02:19:36 edo Exp $
 *
       Implicit None
 *     
@@ -396,9 +396,14 @@ c
       If (What.ne.'CHARGES') Then
          Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
      &                       nSet,nSetTri,g_Dns(1),g_Vec(1),
-     &                       Dbl_mb(k_Grid),Dbl_mb(k_Vls),g_Vls,
+     &                       Dbl_mb(k_Grid),Dbl_mb(k_Vls),
+     .        no_of_spacings,
      &                       What,Spin,Int_mb(k_Orb))
-      call ga_maxelt(g_vls,maxelt)
+         maxelt=0d0
+         do i=1,ngrid
+            maxelt=max(maxelt,abs(dbl_mb(k_vls+i-1)))
+         enddo
+!      call ga_maxelt(g_vls,maxelt)
       if(iproc.eq.0) write(luout,*) ' max element ',maxelt
       Else
          LResult = MA_Push_Get(MT_Dbl,(nAtom+1)**2,'AMt',l_AMt,k_AMt)
@@ -427,9 +432,10 @@ c
       End If
 *
 *---- Print out the values of the density matrix to the output
+      if(what.eq.'CHARGES') then
       Call GA_Get(g_Vls,1,nPoint,1,1,Dbl_mb(k_Vls),nPoint)
       Call GA_Sync
-*
+      endif
       call dplot_dump(lgaussian,out_unit,iproc,luout,
      ,     where,what,
      ,     title(1:Lth_Tit),

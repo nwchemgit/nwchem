@@ -1,9 +1,10 @@
       SubRoutine Create_Contour(rtdb,geom,AO_bas_han,nbf,nGrid,
      &                          nSet,nSetTri,g_Dns,g_Vec,
-     &                          Grid,Values,g_Vls,
+     &                          Grid,Values,
+     .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.23 2003-01-11 05:29:33 edo Exp $
+* $Id: create_contour.F,v 1.24 2003-01-15 02:19:36 edo Exp $
 *
       Implicit None
 *
@@ -23,7 +24,7 @@
       Integer rtdb,Geom,AO_Bas_Han,nbf,nshells_ao
 
 *---- Arguments of a Create_Contour call
-      Integer nGrid,nSet,nSetTri,g_Dns,g_Vec(2),g_Vls,Orb_No
+      Integer nGrid,nSet,nSetTri,g_Dns,g_Vec(2),Orb_No
       Double Precision Grid(3,nGrid),Values(nGrid)
       Character*8 What,Spin
 *---- Geometry variables
@@ -45,8 +46,9 @@
       Integer   lthB
       Integer l_FMat,k_FMat,l_PMat,k_PMat,l_BMat,k_BMat,
      &        l_MOVec,k_MOVec
+      integer no_of_spacings(3)
 *---- Other variables
-      Integer j,iOff,iProc,nProc,nGrPP,lthPP,iOffG,
+      Integer j,iOff,me,nodes,nGrPP,
      .     k_ibf,l_ibf,lrchi_atom, irchi_atom,
      .       k_cetobfr,l_cetofbr,
      .     k_rdat,l_rdat,lcntoce, icntoce, 
@@ -54,9 +56,10 @@
      .     iscr,lscr,nscr,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2
       integer lbas_cent_info, ibas_cent_info,
      &     lbas_cset_info, ibas_cset_info,
-     &     ldocset, idocset,i
-      integer avail,nstep,ii,ioffg_s,ngrpp_s,needed,jj,
-     .     ngrpp_end
+     &     ldocset, idocset
+      integer ii,ioffg
+      integer nxtval,next
+      external nxtval
 
             
 
@@ -66,34 +69,12 @@
 *
       DeBug = util_print('dplot', print_high)
       GRAD  = .False.
-      iProc = ga_nodeid()
-      nProc = ga_nnodes()
+      me = ga_nodeid()
+      nodes = ga_nnodes()
 *
 ***      Call dcopy(nGrid,0.0d0,0,Values,1)
       call dfill(ngrid, 0.0d0, values, 1)
 
-*---- Share the grid points among processes
-      lthPP = nGrid/nProc
-      If (lthPP*nProc.ne.nGrid) Then
-         lthPP = lthPP + 1
-         nGrPP  = lthPP
-         If (iProc.eq.nProc-1) nGrPP = nGrid - (nProc-1)*lthPP
-      Else
-         nGrPP = lthPP
-      End If
-      iOffG = iProc*lthPP+1
-      ngrpp_end=ioffg+ngrpp
-      If (nGrPP.eq.0) GoTo 9999
-*
-      If (DeBug . and . iProc.eq.0) Then
-         Write(LuOut,*)
-         Write(LuOut,*)'        nBF = ',nBF
-         Write(LuOut,*)'      nGrid = ',nGrid
-         Write(LuOut,*)'      nProc = ',nProc
-         Write(LuOut,*)'      iProc = ',iProc
-         Write(LuOut,*)'      nGrPP = ',nGrPP
-         Write(LuOut,*)
-      End If
 *
 *---- Evaluate distances between each center and the grid points (use
 *     QDist from the NWDFT module)
@@ -111,7 +92,7 @@
      &   Dbl_mb(k_xyz),Dbl_mb(k_charge)))
      &   Call ErrQuit('C_C: Geom_Cart_Get failed',0)
 *
-      If (DeBug . and . iProc.eq.0) Then
+      If (DeBug . and . me.eq.0) Then
          Write(LuOut,*)' nAtom      = ',nAtom
          Write(LuOut,*)' Atomic labels and coordinates:'
          Do iAtom = 1, nAtom
@@ -135,7 +116,7 @@ c
      &   Call ErrQuit('C_C: Bas_nBF_CN_Max failed',0)
       if(.not.bas_numcont(ao_bas_han,nshells_ao))
      .     call errquit(' stop in basnuc',11)
-      If (DeBug . and . iProc.eq.0) Then
+      If (DeBug . and . me.eq.0) Then
          Write(LuOut,*)' nbf_ao_mxprim     = ',nbf_ao_mxprim
          Write(LuOut,*)' nBF_Max    = ',nBF_Max
       End If
@@ -155,7 +136,7 @@ c
      &     ldocset, idocset))
      &     call errquit('grid_quadv0a: cannot allocate docset',
      .     nshells_ao)
-      If (DeBug . and . iProc.eq.0) Write(LuOut,*)' mBF        = ',mBF
+      If (DeBug . and . me.eq.0) Write(LuOut,*)' mBF        = ',mBF
 
       if (.not.MA_Push_Get(mt_int, 3*natom, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
@@ -208,41 +189,35 @@ c
       LResult = MA_Push_Get(MT_Dbl,      nAtom,'rq0',l_rq0,k_rq0)
       Call ErrMem(LResult,'C_C: Failed to allocate rq0',0)
 c
-c     make it in pieces that use 60% of  MA
+c     make stride equal 5x z- grid length
 c
-      avail = MA_inquire_avail(mt_dbl)*50/100
-      needed=ngrpp*(nbf*10/9+natom*10/9+nbf_ao_mxnbf_ce)
-      nstep=int(dble(needed)/dble(avail))
-      nstep=max(nstep,1)
-#ifdef DEBUG
-!      nstep=5
-#endif
-      ngrpp_s=nint(dble(ngrpp)/(nstep))
-      lth1=ngrpp_s*nbf*10/9
-      if(debug.and.iproc.eq.0) then
-         write(luout,*) ' no. doubles avail ',avail,' nstep ',nstep
-         write(luout,*) ' length ',lth1
-      endif
-      LResult = MA_Push_Get(MT_Dbl,ngrpp_s*natom*10/9,'rq', l_rq, k_rq)
+      ngrpp=(no_of_spacings(3)+1)
+      if(ngrpp.lt.2) ngrpp=(no_of_spacings(2)+1)
+      lth1=ngrpp*nbf
+      LResult = MA_Push_Get(MT_Dbl,ngrpp*natom,'rq', l_rq, k_rq)
       Call ErrMem(LResult,'C_C: Failed to allocate rq',0)
       if(.not.MA_Push_Get(MT_Dbl,lth1,'Scr1',l_Scr1,k_Scr1))
      .   Call errquit('C_C: Failed to allocate Scr1',lth1)
-      lthB = nbf_ao_mxnbf_ce*ngrpp_s
+      lthB = nbf_ao_mxnbf_ce*ngrpp
       LResult = MA_Push_Get(MT_dbl,lthB,'BMat',l_BMat,k_BMat)
       Call ErrMem(LResult,'C_C: Failed to allocate BMat',0)
+      ii=-1
+      ioffg=1-ngrpp
 C
-      do 123 ii=1,nstep
-         ioffg_s=ioffg+(ii-1)*ngrpp_s
-         if(ii.eq.nstep) ngrpp_s = ngrpp_end - ioffg_s
+      next=nxtval(nodes)
+ 122  ioffg=ioffg+ngrpp
+      ii=ii+1
+      if(ii.ne.next) goto 122
+      if(ioffg+ngrpp.lt.ngrid) then
          If (DeBug ) Then
-            write(luout,14)  iproc,ii,
-     ,           ioffg_s,ngrpp_s,ngrpp_end
+            write(luout,14)  me,ii,
+     ,           ioffg,ngrpp,ngrid
  14         format(' me= ',i3,' step# ',i3,' offset: ',i7,
-     .           ' stride ',i7,' total  ',i7)
+     .           ' stride ',i7, ' end ',i7)
          endif
          Call QDist(Dbl_mb(k_rq0),Dbl_mb(k_rq),
-     .        Grid(1,ioffg_s),Dbl_mb(k_xyz),
-     &        ngrpp_s,nAtom)
+     .        Grid(1,ioffg),Dbl_mb(k_xyz),
+     &        ngrpp,nAtom)
          Call oldnBF_to_mBF(AO_Bas_Han,dbl_mb(k_rq0),
      &        mBF,nAtom,
      &        Int_mb(k_iniz),Int_mb(k_ifin),
@@ -250,27 +225,11 @@ C
      &        Dbl_mb(k_Expo),nbf_ao_mxprim,
      .        log_mb(idocset),Acc_AO_Gauss)
          if(mbf.eq.0) goto 123
-#ifdef DEBUG
-         do jj=1,ngrpp_s
-         write(0,2) ioffg_s+jj-1,grid(1,ioffg_s+jj-1),
-     .           dbl_mb(k_rq+jj-1)
- 2       format(I3,' galue ',2E20.12)
-         enddo
-#endif
          call xc_eval_basis(ao_bas_han, 0, dbl_mb(k_scr1),
      &        0,0,0,
-     ,        Dbl_mb(k_rq), Grid(1,iOffG_s),Dbl_mb(k_xyz),
-     ,        ngrpp_s, natom, int_mb(k_iniz), log_mb(idocset), 
+     ,        Dbl_mb(k_rq), Grid(1,iOffg),Dbl_mb(k_xyz),
+     ,        ngrpp, natom, int_mb(k_iniz), log_mb(idocset), 
      .        int_mb(ibas_cent_info), int_mb(ibas_cset_info))
-#ifdef DEBUG
-         do jj=1,ngrpp_s
-         write(0,3) ioffg_s+jj-1,
-     .           dbl_mb(k_scr1+jj-1),
-     .           grid(1,ioffg_s+jj-1),grid(2,ioffg_s+jj-1),
-     .           grid(3,ioffg_s+jj-1)
-         enddo
- 3       format(I3,' gralue ',4(2X,E18.12))
-#endif
 
 *---- Matrix Scr1(nGrid,nBF) contains HOPEFULY!!! the values of basis
 *     each function at a given set of points. The value of the density
@@ -287,51 +246,50 @@ C
 *
          call dcopy(nbf_ao_mxnbf_ce2, 0.0d0,0,dbl_mb(k_Fmat), 1)
          call dcopy(nbf_ao_mxnbf_ce2,0.0d0,0,dbl_mb(k_Pmat), 1)
-         call dcopy(nbf_ao_mxnbf_ce*ngrpp_s,0.0d0,0,dbl_mb(k_Bmat),1)
+         call dcopy(nbf_ao_mxnbf_ce*ngrpp,0.0d0,0,dbl_mb(k_Bmat),1)
          call dcopy(natom, 0.0d0, 0,dbl_mb(irchi_atom), 1)
 c
-         call util_rmsatbf(ngrpp_s, natom,
+         call util_rmsatbf(ngrpp, natom,
      .        int_mb(k_iniz),int_mb(k_ifin),
      ,        dbl_mb(k_scr1),dbl_mb(irchi_atom))
 
          call xc_rhogen(TOLL,AO_Bas_Han,g_Dns,
-     &                  nbf_ao_mxnbf_ce,nAtom,1,ngrpp_s,nBF,mBF,
+     &                  nbf_ao_mxnbf_ce,nAtom,1,ngrpp,nBF,mBF,
      &                  .false.,.false.,
      &                  Dbl_mb(k_FMat),Dbl_mb(k_PMat),
      &                  Dbl_mb(k_BMat),
      &                  Dbl_mb(k_Scr1),0,Int_mb(k_ibf),
      &                  Int_mb(k_iniz),Int_mb(k_ifin),
-     &                  Values(iOffG_s),0,
+     &                  Values(iOffg),0,
      &              dbl_mb(irchi_atom), 0,
      &              dbl_mb(k_rdat), int_mb(k_cetobfr),1d0)
 *------- Deallocate Scratch memory needed by xc_rhogen
       Else
 *------- Get the values of the orbital at the grid points
 *
-         Call PhiGen(Dbl_mb(k_Scr1),Dbl_mb(k_MOVec),Values(iOffg_s),
-     &               ngrpp_s,nBF,g_Vec(1),nSet,Spin,Orb_No,
+         Call PhiGen(Dbl_mb(k_Scr1),Dbl_mb(k_MOVec),Values(iOffg),
+     &               ngrpp,nBF,g_Vec(1),nSet,Spin,Orb_No,
      &        mbf,int_mb(k_ibf))
       End If
  123  continue
+      next=nxtval(nodes)
+      goto 122
+      endif
+
 *
-  111 Continue
       if(.not.MA_chop_Stack(l_xyz))
      .  Call errquit('C_C: Failed to deallocate xyz',0)
 *
 *---- Put values into the global array and synchronize
-      Call GA_Put(g_Vls,iOffG,iOffG+nGrPP-1,1,1,Values(iOffG),nGrPP)
+      next=nxtval(-nodes)
+      call ga_dgop(1964,values,ngrid,'+')
  9999 Continue
       if(.not.ma_free_heap(l_tags)) then
          call Ma_summarize_allocated_blocks()
          call errquit(' cc: heap',0)
       endif
-      Call GA_Sync
 *
-*---- Normal termination
       Return
-*
-*---- Error exit
-      Call ErrQuit('Create_Contour: Failed to open output file',0)
       End
 *
 *-----------------------------------------------------------------------
