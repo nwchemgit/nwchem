@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.20 2002-08-13 23:24:15 bylaska Exp $
+* $Id: psi.F,v 1.21 2002-08-22 21:19:36 bylaska Exp $
 *
 
 *     ***************************
@@ -1401,6 +1401,27 @@ c    >                            dcpl_mb(dng1(1)))
 
       return
       end
+
+*     ***********************************
+*     *					*
+*     *		rho_1semicore_stress 	*
+*     *					*
+*     ***********************************
+      subroutine rho_1semicore_stress(stress)
+      implicit none
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** not finished ****
+      call semicore_euv(dbl_mb(rho1(1)),stress)
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*

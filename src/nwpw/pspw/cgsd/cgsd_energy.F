@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.29 2002-08-13 23:24:14 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.30 2002-08-22 21:19:36 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -567,15 +567,10 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
       call daxpy(9,1.0d0,tstress,1,stress,1)
       call write_stress(tstress,"ke")
 
-
 *     **** Coulomb energy component : dE_Coul/dhuv ****
       call psi_1coulomb_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
       call write_stress(tstress,"coulomb")
-
-*     **** Core-correction Coulomb energy component : dE_core/dhuv ****
-*     call electron_semicore_stress(tstress)
-*     call daxpy(9,1.0d0,tstress,1,stress,1)
 
 *     **** Local pseudo energy component : dE_local/dhuv ****
       call dng_1vlocal_stress(tstress)
@@ -591,6 +586,10 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 *     **** xc energy component : dE_xc/dhuv ****
       call dcopy(9,0.0d0,0,tstress,1)
       call rho_1exc_stress(tstress)
+
+*     **** Core-correction Coulomb energy component : dE_core/dhuv ****
+*     call rho_1semicore_stress(tstress)
+*     call daxpy(9,1.0d0,tstress,1,stress,1)
 
       call daxpy(9,1.0d0,tstress,1,stress,1)
       call write_stress(tstress,"xc")
