@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.51 2000-06-09 17:18:32 d3j191 Exp $
+c $Id: sp_main.F,v 1.52 2000-07-27 17:15:01 d3j191 Exp $
 c
       implicit none
 c
@@ -788,8 +788,8 @@ c
 #include "sp_common.fh"
 c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 arg_nint
-      external arg_nint
+      real*8 util_nint
+      external util_nint
 #endif
 c
       real*8 xs(msa,3)
@@ -834,7 +834,7 @@ c
       if(npbtyp.ne.0) then
       if(abs(xcgx).gt.boxh(1)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xcgx=xcgx-arg_nint(xcgx*boxi(1))*box(1)
+      xcgx=xcgx-util_nint(xcgx*boxi(1))*box(1)
 #else
       xcgx=xcgx-nint(xcgx*boxi(1))*box(1)
 #endif
@@ -842,7 +842,7 @@ c
       endif
       if(abs(xcgy).gt.boxh(2)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xcgy=xcgy-arg_nint(xcgy*boxi(2))*box(2)
+      xcgy=xcgy-util_nint(xcgy*boxi(2))*box(2)
 #else
       xcgy=xcgy-nint(xcgy*boxi(2))*box(2)
 #endif
@@ -850,7 +850,7 @@ c
       endif
       if(abs(xcgz).gt.boxh(3)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xcgz=xcgz-arg_nint(xcgz*boxi(3))*box(3)
+      xcgz=xcgz-util_nint(xcgz*boxi(3))*box(3)
 #else
       xcgz=xcgz-nint(xcgz*boxi(3))*box(3)
 #endif
@@ -1002,8 +1002,8 @@ c
       integer itemps,nfold
       logical lend
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 arg_nint
-      external arg_nint
+      real*8 util_nint
+      external util_nint
 #endif
 c
       boxi(1)=one/box(1)
@@ -1591,7 +1591,7 @@ c
       if(npbtyp.ne.0) then
       if(abs(xscx).gt.boxh(1)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xscx=xscx-arg_nint(xscx*boxi(1))*box(1)
+      xscx=xscx-util_nint(xscx*boxi(1))*box(1)
 #else
       xscx=xscx-nint(xscx*boxi(1))*box(1)
 #endif
@@ -1599,7 +1599,7 @@ c
       endif
       if(abs(xscy).gt.boxh(2)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xscy=xscy-arg_nint(xscy*boxi(2))*box(2)
+      xscy=xscy-util_nint(xscy*boxi(2))*box(2)
 #else
       xscy=xscy-nint(xscy*boxi(2))*box(2)
 #endif
@@ -1607,7 +1607,7 @@ c
       endif
       if(abs(xscz).gt.boxh(3)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xscz=xscz-arg_nint(xscz*boxi(3))*box(3)
+      xscz=xscz-util_nint(xscz*boxi(3))*box(3)
 #else
       xscz=xscz-nint(xscz*boxi(3))*box(3)
 #endif

@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.23 2000-07-13 19:07:22 d3j191 Exp $
+c $Id: util_md.F,v 1.24 2000-07-27 17:15:18 d3j191 Exp $
 c
       implicit none
 c
@@ -1432,3 +1432,10 @@ c      corerr=ratio*stderr
 cc
       return
       end
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      integer function util_nint(x)
+      real*8 x
+      arg_nint=nint(x)
+      return
+      end
+#endif

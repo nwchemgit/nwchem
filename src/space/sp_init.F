@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld)
 c
 c
-c $Id: sp_init.F,v 1.74 2000-07-14 19:53:44 d3j191 Exp $
+c $Id: sp_init.F,v 1.75 2000-07-27 17:15:01 d3j191 Exp $
 c
       implicit none
 c
@@ -510,8 +510,8 @@ c
       logical lforces
 c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 arg_nint
-      external arg_nint
+      real*8 util_nint
+      external util_nint
 #endif
 c
       lpbc9=.true.
@@ -796,7 +796,7 @@ c
       if(npbtyp.ne.0) then
       if(abs(xt(ix)).gt.boxh(ix)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xt(ix)=xt(ix)-arg_nint(xt(ix)*boxi(ix))*box(ix)
+      xt(ix)=xt(ix)-util_nint(xt(ix)*boxi(ix))*box(ix)
 #else
       xt(ix)=xt(ix)-nint(xt(ix)*boxi(ix))*box(ix)
 #endif
