@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.23 2001-05-09 17:51:06 d3j191 Exp $
+* $Id: task_input.F,v 1.24 2001-08-22 19:00:02 bylaska Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -98,6 +98,9 @@ c
          else if (inp_compare(.false.,test,
      >                        'cell_optimize')) then
             operation='cell_optimize'
+         else if (inp_compare(.false.,test,
+     >                        'pspw_dplot')) then
+            operation='pspw_dplot'
          else if (theory .eq. ' ') then
             theory = test
             call inp_lcase(theory)
