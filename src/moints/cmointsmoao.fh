@@ -20,6 +20,8 @@ c
       DOUBLE PRECISION MOAO_CUMUL
       INTEGER MOAO_NREC
 c
+      integer moao_fd
+      integer moao_fptr
 c
 c
       common/moints_moao/moao_ipass,
@@ -39,6 +41,10 @@ c
      $                   MOAO_CUMUL,
      $                   moao_touch,
      $                   moao_eof,
-     $                   moao_fname
+     $                   moao_fname,
+     &                   moao_fd,
+     &                   moao_fptr
+
+
       
       
