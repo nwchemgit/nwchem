@@ -23,8 +23,8 @@ c               atoms are in the final (full) coordinate list.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine dosymops(symops,nops,coords,tags,nata,itype,
      &     tags_new,coords_new,nareal,nat,cdist,cang,iasym_order,
-     $     charge, charge_new, mass, mass_new)
-C$Id: dosymops.F,v 1.1 1998-08-05 16:01:42 d3g681 Exp $
+     $     charge, charge_new, mass, mass_new, threquiv)
+C$Id: dosymops.F,v 1.2 1999-06-14 23:24:00 windus Exp $
 *rak typed everyting
       implicit none
 #include "util.fh"
@@ -32,9 +32,9 @@ c
 c has to be a .F file since print_debug is in the include definition and
 c with the implicit real*8 it was of type real not integer
 c
-      double precision tol
+      double precision tol, threquiv
       integer maxops, iodat
-      parameter (tol=1.0d-02,maxops=192,iodat=11)
+      parameter (maxops=192,iodat=11)
 c
       integer nata, nat
       integer nops, itype, nareal
@@ -50,6 +50,10 @@ c
       integer i, j, k, l, ii, ll,
      &    ipcord, ipt, nauniq, iopnum, im, iop
       double precision sum, dx, dy, dz, x, y, z 
+c
+c     set tolerance
+c
+      tol = threquiv
 c
 c     Modified below (RJH) so that can send in a list with symmetry
 c     equivalent atoms and not generate redundant ones and also

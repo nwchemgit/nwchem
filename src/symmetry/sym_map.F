@@ -1,6 +1,6 @@
       subroutine sym_map(itype, tags, symops, nops, nareal, map, xnew,
-     &     acord, oprint, ilbl)
-C$Id: sym_map.F,v 1.7 1998-07-08 22:56:08 d3g681 Exp $
+     &     acord, oprint, ilbl, threquiv)
+C$Id: sym_map.F,v 1.8 1999-06-14 23:24:01 windus Exp $
       implicit none
 c
       integer itype
@@ -9,7 +9,8 @@ c
       integer nops
       integer maxops
       double precision tol
-      parameter(maxops=192,tol=1.0d-03)
+      double precision threquiv
+      parameter(maxops=192)
       double precision symops(maxops*3,4),xnew(nops,3),acord(3,nareal)
 c     
       integer map(nops,nareal)
@@ -46,6 +47,10 @@ c
             map(iop,i) = 0
          enddo
       enddo
+c
+c     set tolerance
+c
+      tol=threquiv
 c     
 c     symops*coordinates
 c     

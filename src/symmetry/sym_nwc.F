@@ -21,8 +21,8 @@ c                                          A.C.H. 5/12/94
 c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
-      subroutine sym_nwc(geom,rtdb,nata,oprint,scale)
-C$Id: sym_nwc.F,v 1.14 1998-08-03 23:12:47 d3g681 Exp $
+      subroutine sym_nwc(geom,rtdb,nata,oprint,scale,threquiv)
+C$Id: sym_nwc.F,v 1.15 1999-06-14 23:24:01 windus Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
@@ -75,7 +75,7 @@ c
      &     itype,Byte_MB(iatags),Dbl_MB(icoord),nareal,nata*(nops+1),
      $     cdist,cang,Int_MB(idatom), 
      $     charge(1,geom), charge_new, geom_mass(1,geom),
-     $     mass_new)
+     $     mass_new, threquiv)
 c
       if(nareal.gt.max_cent) then
         write(6,*)' Too many atoms, increase max_cent in ',
@@ -110,7 +110,7 @@ c
 c
       call sym_map(itype, Byte_MB(iatags), sym_ops(1,1,geom),
      $     nops, nareal, Int_Mb(imscr),Dbl_Mb(ixnew),Dbl_Mb(icoord),
-     $     oprint,INT_MB(ilbl))
+     $     oprint,INT_MB(ilbl), threquiv)
 c
       LResult = MA_Pop_Stack(llbl)
       if (nops .gt. 0) then
