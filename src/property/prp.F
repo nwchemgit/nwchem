@@ -3490,7 +3490,8 @@ C     ----- PRINT ANALYSIS -----
 C
       if (ga_nodeid().eq.0) WRITE(IW,9997)
       DO I =1,NAT
-         WRITE(IW,9996) I,ANAM(I),BNAM(I),V(I),F(I),B(I,I),SB(I),FV(I)
+         if (ga_nodeid().eq.0)
+     & WRITE(IW,9996) I,ANAM(I),BNAM(I),V(I),F(I),B(I,I),SB(I),FV(I)
       ENDDO
 C
       RETURN
