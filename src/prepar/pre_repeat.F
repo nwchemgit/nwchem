@@ -1,8 +1,8 @@
-      logical function pre_repeat(card,drep,
+      logical function pre_repeat(card,drep,box,
      + csa,isat,isgm,xs,vs,msa,nsa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_repeat.F,v 1.5 2000-01-26 19:42:51 d3j191 Exp $
+c $Id: pre_repeat.F,v 1.6 2000-02-14 18:41:55 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
       integer isat(msa),isgm(msa)
       character*16 csa(msa)
       real*8 xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
-      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),drep(3)
+      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),drep(3),box(3)
       character*80 card
 c
       integer i,j,k,imin(3),jmin(3)
@@ -21,6 +21,14 @@ c
       logical done
 c
       read(card(23:34),'(f12.6)') touch
+c
+      if(touch.le.0.0d0.and.box(1).gt.0.0d0.and.
+     + box(2).gt.0.0d0.and.box(3).gt.0.0d0) then
+      drep(1)=box(1)
+      drep(2)=box(2)
+      drep(3)=box(3)
+      return
+      endif
 c
       do 1 k=1,3
       ddx(k)=touch
