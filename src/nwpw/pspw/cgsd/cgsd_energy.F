@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.41 2003-10-20 16:40:01 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.42 2003-11-07 02:17:37 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -184,7 +184,7 @@ c#include "rtdb.fh"
        call psi_1rotate2()
        call psi_2to1()
       else
-       call psi_1gen_hml()
+       call psi_1gen_hml_g()
       end if
  
 
@@ -271,8 +271,10 @@ c#include "rtdb.fh"
          if (pspw_SIC()) then
            write(luout,1331)
            do ms=1,psi_ispin()
+             do j=1,psi_ne(ms)
              do i=1,psi_ne(ms)
-               write(luout,1341) ms,i,i,psi_hml(ms,i,i)
+               write(luout,1341) ms,i,j,psi_hml(ms,i,j)
+             end do
              end do
            end do
 
