@@ -67,7 +67,7 @@ c
       if (.not. ma_push_get(mt_dbl, natoms, 'tng: charge',
      $     l_q, k_q)) call errquit
      $     ('task_num_grad: insufficient memory (5) ', natoms)
-      if (.not. ma_push_get(mt_dbl, natoms3, 'tng: tags',
+      if (.not. ma_push_get(mt_byte, natoms*16, 'tng: tags',
      $     l_t, k_t)) call errquit
      $     ('task_num_grad: insufficient memory (6) ', natoms)
       if (.not. ma_push_get(mt_dbl, natoms3*natoms3, 'tng: temp',
