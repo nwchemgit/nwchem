@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.5 1995-03-12 21:05:13 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.6 1995-03-17 06:52:41 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -254,6 +254,8 @@ c
 c
 c Evaluate mp2 correction from pair energies
 c
+       if (.not. rtdb_get(rtdb, 'scf:energy', MT_DBL, 1, scf_energy))
+     $      scf_energy = 0.0d0
        if (ga_nodeid().eq.0) then
          npairs = (nocc_correl*(nocc_correl+1))/2
          status = ma_push_get(MT_DBL, npairs, 'Pair energies',
@@ -274,8 +276,6 @@ c$$$ 997     format(//,15x,'MP2 Pair Energies',/)
 c$$$         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
 c$$$ 998     format(8f10.5)
 c
-         if (.not. rtdb_get(rtdb, 'scf:energy', MT_DBL, 1, scf_energy))
-     $        scf_energy = 0.0d0
          write(6,999) scf_energy, emp2, scf_energy+emp2
  999     format(//,15x,43('-'),
      $          /,15x,'SCF energy         ',f24.12,
