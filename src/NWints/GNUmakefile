@@ -1,6 +1,7 @@
 
-# $Id: GNUmakefile,v 1.14 1994-08-15 03:19:43 gg502 Exp $
+# $Id: GNUmakefile,v 1.15 1994-08-15 04:49:34 d3e129 Exp $
 
+HEADERS = api/int_tim.fh api/apiP.fh
 LIBRARY = libnwints.a
 
 include ../config/makefile.h
@@ -87,3 +88,10 @@ clean:
 
 realclean:	clean
 	/bin/rm -f *~ \#*\#
+
+debug:
+	$(MAKE) 'DEFINES = -DSUN -DINT_TIMING'
+debugopt:
+	$(MAKE) 'FOPT=-O3 -Nl99' 'DEFINES = -DSUN -DINT_TIMING'
+opt:
+	$(MAKE) 'FOPT=-O3 -Nl99' 'DEFINES = -DSUN'
