@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.91 2001-11-27 22:23:08 edo Exp $
+# $Id: DEFS,v 1.92 2002-02-14 00:34:15 edo Exp $
 #
 #======================================================================
 #
@@ -507,14 +507,14 @@ endif
 endif
 endif
 
-ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX CYGNUS))
+ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX CYGWIN CYGNUS))
 #
 # Linux running on an x86 using f77 on f2c
 #
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
 peigs_CPU = PENTIUM
-ifeq ($(peigs_TARGET),CYGNUS)
+ifeq ($(peigs_TARGET), CYGNUS CYGWIN)
 peigs_CC += -DLINUX
 peigs_CPP += -DLINUX
 endif

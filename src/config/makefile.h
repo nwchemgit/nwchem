@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.377 2002-01-25 18:22:20 bert Exp $
+# $Id: makefile.h,v 1.378 2002-02-14 00:34:14 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1152,7 +1152,7 @@ endif
 endif
 
 
-ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
+ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
 #
 #
 # Linux or Cygwin under Windows running on an x86 using g77
@@ -1182,6 +1182,9 @@ endif
 ifeq ($(LINUXCPU),x86) 
   ifeq ($(TARGET),CYGNUS)
     DEFINES += -DCYGNUS
+  endif
+  ifeq ($(TARGET),CYGWIN)
+    DEFINES += -DCYGWIN -DCYGNUS
   endif
   
   _CPU = $(shell uname -m  )
