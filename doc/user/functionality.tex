@@ -1,0 +1,29 @@
+\label{sec:functionality}
+
+Current functionality includes:
+\begin{itemize}
+\item Self Consistent Field or Hartree Fock energy and analytic
+  gradients (RHF, UHF, high-spin ROHF).  Analytic second derivatives
+  under development.
+\item Gaussian Density Functional Theory (DFT) energy and analytic
+  gradients with many local and non-local exchange-correlation potentials
+\item MP2 semi-direct energy and analytic gradients for RHF and UHF
+  references (frozen core under development).  Direct MP2 energy (RHF
+  only) and resolution of the identity (RI) integral approximation MP2
+  (RHF and UHF).
+\item Coupled-cluster (RHF) with linear triples (gradients under
+  development).
+\item Complete active space SCF (CASSCF) energy (gradients under
+  development).
+\item Selected-CI with perturbation correction energy.
+\item First derivatives for all methods by numerical difference of the
+  energy if analytic derivative is not available.
+\item Second derivatives by numerical difference of gradients if
+  analytic seconds are not available.
+\item Geometry Optimization (Minimization and Transition State) for
+  all methods.
+\item Generation of the electron density file for the {\em Insight}
+      graphical program.
+\item Interface to the natural bond orbital package.
+\item Interface to the COLUMBUS multi-reference CI package.
+\end{itemize}

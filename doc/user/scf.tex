@@ -1,13 +1,9 @@
-\label{SCF}
-\Large
-***
-It would be really nice if someone could supply a '25-words-or-less'
-description of the SCF program right here.
-***
-\normalsize
+\label{SCF} 
 
-The SCF program is invoked in NWChem 
-by specifying the keyword \verb+scf+ on the compound directive,
+The NWChem self-consistent field (SCF) module computes closed-shell
+restricted Hartree-Fock (RHF), restricted high-spin open-shell
+Hartree-Fock (ROHF) and spin-unrestricted Hatree-FOck (UHF)
+wavefunctions.
 
 \begin{verbatim}
   SCF
@@ -52,7 +48,7 @@ total charge on the system and the nuclear charges of the
 specific atoms (which are by default their atomic numbers
 adjusted for the presence of ECPs, unless specified
 explicitly by input on the \verb+GEOMETRY+ directive -- see Section 
-\ref{sec:geometry}).  The total charge on the system is zero by default, 
+\ref{sec:geom}).  The total charge on the system is zero by default, 
 unless specified at
 some value by input on the \verb+CHARGE+ directive -- see Section 
 \ref{sec:toplevel}).
@@ -1170,6 +1166,7 @@ Section \ref{sec:nrswitch} above.)
 
 
 \subsection{Printing Information from the SCF Module}
+\label{sec:scfprint}
 
 All output from the SCF module is controlled using the \verb+PRINT+
 directive described in Section \ref{sec:printcontrol}.  The following 
