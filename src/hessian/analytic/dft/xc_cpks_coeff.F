@@ -4,7 +4,7 @@ c     making multiple XC matrices for CPKS
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_cpks_coeff.F,v 1.7 2002-03-22 02:29:47 sohirata Exp $
+c     $Id: xc_cpks_coeff.F,v 1.8 2005-02-23 03:15:00 edo Exp $
 c
 c     2/02 So Hirata --- added a code for triplet excitation or
 c     instability calculation and the corresponding logical argu-
@@ -71,6 +71,7 @@ c           (DFT instability check ... NYI)
 c
             if (.not. GRAD) then
 c
+CDIR$ NEXTSCALAR
                do n = 1, nq
                   pz(1) = prho(n,1,ipert)
                   pz(2) = prho(n,2,ipert)
@@ -82,6 +83,7 @@ c
 c
             else
 c
+CDIR$ NEXTSCALAR
                do n = 1, nq
 c
 c                 Perturbed functional parameters
@@ -180,6 +182,7 @@ c           (DFT triplet instability check ... NYI)
 c
             if (.not. GRAD) then
 c
+CDIR$ NEXTSCALAR
                do n = 1, nq
                   prho(n,1,ipert) =(Amat2(n,D2_RA_RA)-Amat2(n,D2_RA_RB))
      &                            * prho(n,1,ipert)
@@ -187,6 +190,7 @@ c
 c
             else
 c
+CDIR$ NEXTSCALAR
                do n = 1, nq
 c
 c                 Perturbed functional parameters
@@ -242,6 +246,7 @@ c           (DFT singlet instability check ... NYI)
 c
             if (.not. GRAD) then
 c
+CDIR$ NEXTSCALAR
                do n = 1, nq
                   prho(n,1,ipert) =(Amat2(n,D2_RA_RA)+Amat2(n,D2_RA_RB))
      &                            * prho(n,1,ipert)
@@ -249,6 +254,7 @@ c
 c
             else
 c
+CDIR$ NEXTSCALAR
                do n = 1, nq
 c
 c                 Perturbed functional parameters
