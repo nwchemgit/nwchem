@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.20 2000-04-11 10:08:38 hvd Exp $
+* $Id: grid_file.F,v 1.21 2000-04-18 00:33:12 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -91,10 +91,10 @@ c
          if (scratchdir(1:sdlen) .eq. actualname(1:sdlen)) then
             availkb = util_scratch_dir_avail_for_me()
          else
+            write(LuOut,*) ' non-SCRATCH ', availkb
             if (eaf_stat(actualname, availkb, fstype) .ne. 0)
      $           call errquit
      $           ('grid_file_open:unable to stat available disk',0)
-            write(LuOut,*) ' non-SCRATCH ', availkb
          endif
 c
          max_file_rec = nint((0.95*1024.0d0*availkb) / 
