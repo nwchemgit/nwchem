@@ -1,8 +1,8 @@
       subroutine grad_dens (geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
-     $     movecs, omp2, pdm2, coeff)
+     $     movecs, omp2, pdm2, coeff,lsmear)
 
-c     $Id: grad_dens.F,v 1.9 1999-02-14 17:53:02 d3g681 Exp $
+c     $Id: grad_dens.F,v 1.10 1999-06-16 00:59:56 edo Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -35,15 +35,17 @@ C     movecs (and Lagrangian in ROHF case) on disk
                                 ! or second-order contributions (MP2)
 
 C     local variables
-      integer nocc, l_ind, k_ind, l_ind2, k_ind2, g_vecs, g_vecs2, i
+      integer nocc, l_ind, k_ind, l_ind2, k_ind2, g_vecs, g_vecs2, i,
+     .     g_tmp,g_tmp2, itmpm, ltmpm, nocca,noccb,mxnoc
       double precision zero, one, mone, two, mtwo
-      logical status
+      logical status,lsmear
 
       parameter ( mtwo = -2.D0 )
       parameter ( mone = -1.D0 )
       parameter ( zero =  0.D0 )
       parameter ( one  =  1.D0 )
       parameter ( two  =  2.D0 )
+
 
 C     get MO vectors from file (taken from Roberts scf_movecs_read)
 
@@ -66,6 +68,40 @@ C     energy-weighted density
 
 C     create eigenvalue diagonal matrix
          nocc = nclosed
+      if(lsmear) then
+c
+c     smearing, therefore check new nocs
+c
+      if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
+     &   call errquit('dftgforce: failed to alloc tmpm',0)
+	
+          g_tmp = ga_create_atom_blocked(geom, basis,
+     &         'frac vecs')
+          call ga_zero(g_tmp)
+          do i = ga_nodeid()+1, nbf, ga_nnodes()
+            if(occ(i).gt.1.d-9) then
+              call get_col(g_vecs, nbf, i, DBL_MB(itmpm))
+              call dscal(nbf, occ(i)*0.5d0, DBL_MB(itmpm), 1)
+              call put_col(g_tmp, nbf, i, DBL_MB(itmpm))
+           endif
+        enddo
+        do i=1,nbf 
+           if(occ(i).gt.1.d-9) nocc=i
+        enddo
+        if (.not.ma_pop_stack(ltmpm))
+     &   call errquit('dftg_force: cannot pop stack',0)
+        if(nocc.gt.nclosed) then
+           if(.not.ga_destroy ( g_eigen_diag )) call errquit(
+     (          'grad_dens: cannot destroy eigendiag',11)
+           if (.not. ga_create(mt_dbl, nocc, nocc,'eigen_diag', 
+     ,          1, nocc, g_eigen_diag)) 
+     ,          call errquit('gradients: ga diags?',nocca*nocca)
+           call ga_zero(g_eigen_diag)
+        endif
+        nclosed=nocc
+      else
+         g_tmp=g_vecs
+      endif
          if (ga_nodeid() .eq. 0) then
             status = MA_alloc_get(MT_INT, nocc, 'indices', l_ind, k_ind)
             status = MA_alloc_get(MT_INT, nocc, 'indices',l_ind2,k_ind2)
@@ -81,7 +117,7 @@ C     create eigenvalue diagonal matrix
 
 C     multiply to weighted density
          call ga_matmul_patch ('n','n', two, zero,
-     $        g_vecs,       1, nbf,  1, nocc,
+     $        g_tmp,       1, nbf,  1, nocc,
      $        g_eigen_diag, 1, nocc, 1, nocc,
      $        g_dens(1),    1, nbf,  1, nocc )
          call ga_matmul_patch ('n','t', one, zero,
@@ -99,11 +135,10 @@ C     use g_dens(3) as buffer
 
 C     density matrix
          call ga_matmul_patch('n', 't', 2.0d0, 0.0d0,
-     $        g_vecs,    1, nbf, 1, nclosed,
-     $        g_vecs,    1, nclosed, 1, nbf,
+     $        g_tmp,    1, nbf, 1, nocc,
+     $        g_vecs,    1, nocc, 1, nbf,
      $        g_dens(1), 1, nbf, 1, nbf)
          call ga_symmetrize(g_dens(1))
-
          if ( omp2 ) then
 C     g_dens(1) = D(HF+(2))     for 1-el. contribution
 C     g_dens(2) = D(HF)         for 2-el. contr.
@@ -166,48 +201,116 @@ C     (same as in ddscf (I think...))
 C     energy-weighted density
 
 C     create eigenvalue diagonal matrix
-         nocc = nclosed + nopen ! == nalpha
+         nocca = nclosed + nopen ! == nalpha
+         noccb = nclosed         ! nbeta
+      if(lsmear) then
+c
+c     smearing, therefore check new nocs
+c
+      if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
+     &   call errquit('dftgforce: failed to alloc tmpm',0)
+	
+          g_tmp = ga_create_atom_blocked(geom, basis,
+     &         'frac vecs')
+          call ga_zero(g_tmp)
+          do i = ga_nodeid()+1, nbf, ga_nnodes()
+            if(occ(i).gt.1.d-9) then
+              call get_col(g_vecs, nbf, i, DBL_MB(itmpm))
+              call dscal(nbf, occ(i), DBL_MB(itmpm), 1)
+              call put_col(g_tmp, nbf, i, DBL_MB(itmpm))
+           endif
+        enddo
+        do i=1,nbf 
+           if(occ(i).gt.1.d-9) nocca=i
+        enddo
+        do i=nbf+1,nbf*2 
+           if(occ(i).gt.1.d-9) noccb=i-nbf
+        enddo
+        if (.not.ma_pop_stack(ltmpm))
+     &   call errquit('dftg_force: cannot pop stack',0)
+      
+      else
+         g_tmp=g_vecs
+      endif
+        if(nocca.gt.nopen+nclosed) then
+           if(.not.ga_destroy ( g_eigen_diag )) call errquit(
+     (          'grad_dens: cannot destroy eigendiag',11)
+           if (.not. ga_create(mt_dbl, nocca, nocca,'eigen_diag', 
+     ,          1, nocca, g_eigen_diag)) 
+     ,          call errquit('gradients: ga diags?',nocca*nocca)
+           call ga_zero(g_eigen_diag)
+        endif
          if (ga_nodeid() .eq. 0) then
-            status = MA_alloc_get(MT_INT, nocc, 'indices', l_ind, k_ind)
-            status = MA_alloc_get(MT_INT, nocc, 'indices',l_ind2,k_ind2)
-            do i=1, nocc
+            mxnoc=max(nocca,noccb)
+            status=MA_alloc_get(MT_INT,mxnoc, 'indices', l_ind, k_ind)
+            status=MA_alloc_get(MT_INT,mxnoc, 'indices',l_ind2,k_ind2)
+            do i=1, nocca
                int_mb( k_ind+i-1 ) = i
                int_mb( k_ind2+i-1 ) = i
             end do
             call ga_scatter ( g_eigen_diag, evals, int_mb(k_ind),
-     $           int_mb(k_ind2), nocc )
+     $           int_mb(k_ind2), nocca)
          end if
 
 C     multiply to weighted density
          call ga_matmul_patch ('n','n', one, zero,
-     $        g_vecs,       1, nbf,  1, nocc,
-     $        g_eigen_diag, 1, nocc, 1, nocc,
-     $        g_dens(1),    1, nbf,  1, nocc )
+     $        g_tmp,       1, nbf,  1, nocca,
+     $        g_eigen_diag, 1, nocca, 1, nocca,
+     $        g_dens(1),    1, nbf,  1, nocca )
          call ga_matmul_patch ('n','t', one, zero,
-     $        g_dens(1),    1, nbf,  1, nocc,
-     $        g_vecs,       1, nocc, 1, nbf,
+     $        g_dens(1),    1, nbf,  1, nocca,
+     $        g_vecs,       1, nocca, 1, nbf,
      $        g_wdens,      1, nbf,  1, nbf )
 
-         nocc = nclosed         ! nbeta
+      if(lsmear) then
+c
+c     smearing, therefore check new nocs
+c
+      if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
+     &   call errquit('dftgforce: failed to alloc tmpm',0)
+	
+          g_tmp2 = ga_create_atom_blocked(geom, basis,
+     &         'frac vecs')
+          call ga_zero(g_tmp2)
+          do i = ga_nodeid()+1, nbf, ga_nnodes()
+            if(occ(i).gt.1.d-9) then
+              call get_col(g_vecs2, nbf, i, DBL_MB(itmpm))
+              call dscal(nbf, occ(i+nbf), DBL_MB(itmpm), 1)
+              call put_col(g_tmp2, nbf, i, DBL_MB(itmpm))
+           endif
+        enddo
+        if (.not.ma_pop_stack(ltmpm))
+     &   call errquit('dftg_force: cannot pop stack',0)
+        if(noccb.gt.nclosed) then
+           if(.not.ga_destroy ( g_eigen_diag )) call errquit(
+     (          'grad_dens: cannot destroy eigendiag',11)
+           if (.not. ga_create(mt_dbl, noccb, noccb,'eigen_diag', 
+     ,          1, noccb, g_eigen_diag)) 
+     ,          call errquit('gradients: ga diags?',noccb*noccb)
+           call ga_zero(g_eigen_diag)
+        endif
+      else
+         g_tmp2=g_vecs2
+      endif
          if (ga_nodeid() .eq. 0) then
-            do i=1, nocc
+            do i=1, noccb
                int_mb( k_ind+i-1 ) = i
                int_mb( k_ind2+i-1 ) = i
             end do
             call ga_scatter ( g_eigen_diag, evals(nbf+1), int_mb(k_ind),
-     $           int_mb(k_ind2), nocc )
+     $           int_mb(k_ind2), noccb )
             status = MA_free_heap ( l_ind )
             status = MA_free_heap ( l_ind2 )
          end if
 
 C     multiply to weighted density and add to spin up part
          call ga_matmul_patch ('n','n', one, zero,
-     $        g_vecs2,      1, nbf,  1, nocc,
-     $        g_eigen_diag, 1, nocc, 1, nocc,
-     $        g_dens(1),    1, nbf,  1, nocc )
+     $        g_tmp2,      1, nbf,  1, noccb,
+     $        g_eigen_diag, 1, noccb, 1, noccb,
+     $        g_dens(1),    1, nbf,  1, noccb )
          call ga_matmul_patch ('n','t', one, one,
-     $        g_dens(1),    1, nbf,  1, nocc,
-     $        g_vecs2,      1, nocc, 1, nbf,
+     $        g_dens(1),    1, nbf,  1, noccb,
+     $        g_vecs2,      1, noccb, 1, nbf,
      $        g_wdens,      1, nbf,  1, nbf )
          call ga_symmetrize(g_wdens)
 
@@ -225,12 +328,12 @@ C     use g_dens(3) as buffer
 C     density matrix
 C     D_up and D_down (or and b)
          call ga_matmul_patch('n', 't', 1.0d0, 0.0d0,
-     $        g_vecs,    1, nbf,           1, nopen+nclosed,
-     $        g_vecs,    1, nopen+nclosed, 1, nbf,
+     $        g_tmp,    1, nbf,           1, nocca,
+     $        g_vecs,    1, nocca, 1, nbf,
      $        g_dens(1), 1, nbf,           1, nbf)
          call ga_matmul_patch('n', 't', 1.0d0, 0.0d0,
-     $        g_vecs2,      1, nbf,     1, nclosed,
-     $        g_vecs2,      1, nclosed, 1, nbf,
+     $        g_tmp2,      1, nbf,     1, noccb,
+     $        g_vecs2,      1, noccb, 1, nbf,
      $        g_vecs,       1, nbf,     1, nbf)
 
          if ( .not. omp2 ) then
@@ -320,6 +423,12 @@ c
 c     
 
       status = ga_destroy ( g_vecs )
+      if(lsmear) then
+      status = ga_destroy ( g_tmp )
+      if ( scftype .eq. 'UHF' ) then
+         status = ga_destroy ( g_tmp2 )
+      end if
+      endif
       if ( scftype .eq. 'UHF' ) then
          status = ga_destroy ( g_vecs2 )
       end if
