@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_kain.F,v 1.2 2003-10-24 18:48:03 marat Exp $                       
+*     $Id: nwpw_kain.F,v 1.3 2004-12-06 20:03:24 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -23,7 +23,7 @@
       max_m = max_m0
       nsize = nsize0
 
-      call nwpw_list_start(2*max_m,nsize)
+      call nwpw_list_start(1,2*max_m,nsize)
 
       call dcopy(max_list*max_list,0.0d0,0,B,1)
       call dcopy(max_list,0.0d0,0,d,1)
@@ -34,7 +34,7 @@
       d(1) = 1.0d0
 
       m = 1
-      call nwpw_list_store(2*m,rho_in)
+      call nwpw_list_store(1,2*m,rho_in)
       return
       end
 
@@ -74,14 +74,14 @@
 
 
 *     **** rho(2*m) = rho_in - rho(2*m) ****
-      call nwpw_list_ptr(2*m,fm_ptr)
+      call nwpw_list_ptr(1,2*m,fm_ptr)
       call daxpy(nsize,(-1.0d0),rho_in,1,dbl_mb(fm_ptr),1)
       call dscal(nsize,(-1.0d0),dbl_mb(fm_ptr),1)
-      call nwpw_list_store(2*m-1,rho_in)
+      call nwpw_list_store(1,2*m-1,rho_in)
 
 *     **** compute B matrix and d ****
       do i=1,m-1
-         call nwpw_list_ptr(2*i-1,x_ptr)
+         call nwpw_list_ptr(1,2*i-1,x_ptr)
 
          !*** dx = x_i -x_m ****
          call dcopy(nsize,dbl_mb(x_ptr),1,  dbl_mb(dx_ptr),1)
@@ -93,7 +93,7 @@
          d(i) = sum
 
          do j=i,m-1
-            call nwpw_list_ptr(2*j,f_ptr)
+            call nwpw_list_ptr(1,2*j,f_ptr)
  
             !***  df_j = f_j - f_m ***
             call dcopy(nsize,dbl_mb(f_ptr),1,dbl_mb(df_ptr),1)
@@ -123,8 +123,8 @@
       call dcopy(nsize,rho_in,1,rho_out,1)
       call daxpy(nsize,(-1.0d0),dbl_mb(fm_ptr),1,rho_out,1)
       do i=1,m-1
-         call nwpw_list_ptr(2*i-1,x_ptr)
-         call nwpw_list_ptr(2*i,  f_ptr)
+         call nwpw_list_ptr(1,2*i-1,x_ptr)
+         call nwpw_list_ptr(1,2*i,  f_ptr)
 
          !*** dx = x_i -x_m ****
          call dcopy(nsize,dbl_mb(x_ptr),1,  dbl_mb(dx_ptr),1)
@@ -145,7 +145,7 @@
       else
          call nwpw_kain_shift()
       end if
-      call nwpw_list_store(2*m,rho_in)
+      call nwpw_list_store(1,2*m,rho_in)
      
       value =           MA_Pop_stack(df_mptr)
       value = value.and.MA_Pop_stack(dx_mptr)
@@ -168,8 +168,8 @@
 *     **** local variables ****
       integer i,j
 
-      call nwpw_list_shift()
-      call nwpw_list_shift()
+      call nwpw_list_shift(1)
+      call nwpw_list_shift(1)
       do j=1,m-2
       do i=1,m-2
         B(i,j) = B(i+1,j+1)

@@ -1,9 +1,19 @@
 *
-* $Id: psi.F,v 1.56 2004-11-29 16:05:21 bylaska Exp $
+* $Id: psi.F,v 1.57 2004-12-06 20:03:25 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.56  2004/11/29 16:05:21  bylaska
+* Finite difference stresses added to PSPW, BAND, and PAW modules.
+*    - This is currently the default for BAND and PAW
+* Fixed the analytic unrestricted gga stress term in PSPW.
+* Fixed unrestricted optimization for minimizers 1 and 2 in the PSPW and PAW modules.
+* Partial implementation of analytic stress in BAND module.
+*    - kinetic, ewald, and coulomb stresses have been implemented
+*
+* ....EJB
+*
 * Revision 1.55  2004/11/08 01:32:49  bylaska
 *
 * Unrestricted and closed-shell restricted Hartree-Fock has been implemented into pspw.
@@ -1066,9 +1076,13 @@
 
 *    This routine (approximately) diagonalizes the KS matrix.
 *
-      subroutine psi_KS_update(psi_number,precondition,maxerror)
+      subroutine psi_KS_update(psi_number,
+     >                         ks_algorithm,
+     >                         precondition,
+     >                         maxerror)
       implicit none
       integer psi_number
+      integer ks_algorithm
       logical precondition
       real*8 maxerror
         
@@ -1112,9 +1126,16 @@
 
 
 
+          if (ks_algorithm.eq.1) then
+          call psi_KS_update_orb2(psi_number,precondition,maxit_orb,
+     >                         maxerror,
+     >                         0.1d0,i,error_out)
+          else
           call psi_KS_update_orb(psi_number,precondition,maxit_orb,
      >                         maxerror,
      >                         0.1d0,i,error_out)
+          end if
+
           call current_second(tim2)
 c          write(*,*) "outeriteration ",j,"orbital ",i,
 c     >               " time=",(tim2-tim1)
@@ -1299,6 +1320,157 @@ c     >           theta
       error_out = dabs(e0-eold)
       return
       end
+
+
+
+
+*     ***********************************
+*     *				        *
+*     *	     psi_KS_update_orb2	        *
+*     *				        *
+*     ***********************************
+
+*    This routine performs a RMM-DIIS KS update on orbital i
+*
+      subroutine psi_KS_update_orb2(psi_number,
+     >                             precondition,maxiteration,
+     >                             maxerror,perror,i,
+     >                             error_out)
+      implicit none
+      integer psi_number
+      logical precondition
+      integer maxiteration
+      real*8  maxerror,perror 
+      integer i
+      real*8 error_out
+      
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical value,done,oneloop
+      integer it
+      real*8 sigma,e0,eold,error0
+      real*8 lambda
+      integer r1(2),g1(2)
+      integer psi_ptr
+
+      if (psi_number.eq.1) then
+         psi_ptr=psi1(1)
+      else 
+         psi_ptr=psi2(1)
+      end if
+
+      call Parallel_taskid(taskid)
+
+*     **** allocate memory ****
+      value =            MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      value = value.and. MA_push_get(mt_dcpl,npack1,'g1',g1(2),g1(1))
+      if (.not. value) call errquit(
+     >     'psi_KS_update_orb2: out of stack memory',0, MA_ERR)
+
+*     **** set lambda ***
+      lambda = 0.1d0
+
+
+*     *** calculate residual (steepest descent) direction for a single band ***
+      call psi_get_gradient_orb(psi_number,i,dcpl_mb(g1(1)))
+      call Pack_cc_dot(1,
+     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                 dcpl_mb(g1(1)),
+     >                 e0)
+      call Pack_cc_dot(1,
+     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                 sigma)
+      e0 = e0/sigma
+      call Pack_c_SMul(1,e0,
+     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                 dcpl_mb(r1(1)))
+      call Pack_cc_daxpy(1,(-1.0d0),
+     >                 dcpl_mb(g1(1)),
+     >                 dcpl_mb(r1(1)))
+      
+        !write(*,*) "i=",i,"it=",0, " eig=",e0,sigma
+
+*     ***** rmmdiis start *****
+      call pspw_rmmdiis_start(lambda,
+     >                        dcpl_mb(r1(1)),
+     >                        dcpl_mb(psi_ptr+(i-1)*npack1))
+
+
+      done = .false.
+      error0 = 0.0d0 
+      it = 0
+ 2    continue
+
+         it = it + 1
+         eold = e0
+
+*        *** calculate residual (steepest descent) direction for a single band ***
+         call psi_get_gradient_orb(psi_number,i,dcpl_mb(g1(1)))
+         call Pack_cc_dot(1,
+     >                    dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                    dcpl_mb(g1(1)),
+     >                    e0)
+         call Pack_cc_dot(1,
+     >                    dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                    dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                    sigma)
+         e0 = e0/sigma
+         call Pack_c_SMul(1,(e0),
+     >                    dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                    dcpl_mb(r1(1)))
+         call Pack_cc_daxpy(1,(-1.0d0),
+     >                    dcpl_mb(g1(1)),
+     >                    dcpl_mb(r1(1)))
+         !e0 = -e0
+        !write(*,*) "i=",i,"it=",it, " eig=",e0,sigma,dabs(e0-eold)
+
+         done = ((it.gt.maxiteration) 
+     >           .or.
+     >           (dabs(e0-eold).lt.maxerror))
+
+         if (done) go to 4
+
+*        ***** rmmdiis update *****
+         call pspw_rmmdiis(lambda,
+     >                     dcpl_mb(r1(1)),
+     >                     dcpl_mb(psi_ptr+(i-1)*npack1))
+
+      go to 2
+
+*     ***** normalize psi ****
+ 4    call Pack_cc_dot(1,
+     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                 sigma)
+      call Pack_c_SMul(1,(1.0d0/dsqrt(sigma)),
+     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                 dcpl_mb(psi_ptr+(i-1)*npack1))
+
+
+*     **** release stack memory ****
+      value =           MA_pop_stack(g1(2))
+      value = value.and.MA_pop_stack(r1(2))
+      if (.not. value) call errquit(
+     >     'psi_KS_update_orb2: popping stack memory',1, MA_ERR)
+      error_out = dabs(e0-eold)
+
+c       write(*,*) "i=",i,"iterations=",it," eig=",e0,
+c     >            " error=",error_out,
+c     >            lambda
+      return
+      end
+
+
+
+
+
 
 
 

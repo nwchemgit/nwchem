@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_Grsm_list.F,v 1.7 2003-10-17 22:57:22 carlfahl Exp $ 
+*     $Id: pspw_Grsm_list.F,v 1.8 2004-12-06 20:03:25 bylaska Exp $ 
 *
       subroutine pspw_Grsm_list_start()
       implicit none
@@ -41,9 +41,9 @@
 
       subroutine pspw_Grsm_list_end()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "pspw_Grsm_list_common.fh"
 
 *     **** local variables ****

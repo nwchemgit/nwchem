@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_diis.F,v 1.6 2003-12-03 00:26:47 bylaska Exp $                       
+*     $Id: nwpw_diis.F,v 1.7 2004-12-06 20:03:24 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -22,7 +22,7 @@
       max_m = max_m0
       nsize = nsize0
 
-      call nwpw_list_start(2*max_m,nsize)
+      call nwpw_list_start(1,2*max_m,nsize)
       call nwpw_diis_reset(rho_in)
 
       return
@@ -54,7 +54,7 @@
       d(1) = 1.0d0
 
       m = 1
-      call nwpw_list_store(2*m,rho_in)
+      call nwpw_list_store(1,2*m,rho_in)
       return
       end
 
@@ -94,13 +94,13 @@
 
 
 *     **** rho(2*m) = rho_in - rho(2*m) ****
-      call nwpw_list_ptr(2*m,rr_ptr)
+      call nwpw_list_ptr(1,2*m,rr_ptr)
       call daxpy(nsize,(-1.0d0),rho_in,1,dbl_mb(rr_ptr),1)
       call dscal(nsize,(-1.0d0),dbl_mb(rr_ptr),1)
 
 
 *     **** store v_in in rho(2*m-1) ***
-      call nwpw_list_store(2*m-1,v_in)
+      call nwpw_list_store(1,2*m-1,v_in)
 
 *     **** update B matrix ****
       sum = ddot(nsize,dbl_mb(rr_ptr),1,dbl_mb(rr_ptr),1)
@@ -110,7 +110,7 @@
       diis_error = sum
 
       do i=1,m-1
-         call nwpw_list_ptr(2*i,gg_ptr)
+         call nwpw_list_ptr(1,2*i,gg_ptr)
          sum = ddot(nsize,dbl_mb(gg_ptr),1,dbl_mb(rr_ptr),1)
          call D3dB_SumAll(sum)
          B(i+1,m+1) = sum
@@ -219,7 +219,7 @@ c    >           "   info=",info,"   rcond=",rcond
       do i=1,m-1
          sum = sum + c(i+1)
          !write(*,*) i+1,c(i+1),sum
-         call nwpw_list_ptr(2*i-1, gg_ptr)
+         call nwpw_list_ptr(1,2*i-1, gg_ptr)
          call daxpy(nsize,c(i+1),dbl_mb(gg_ptr),1,v_out,1)
       end do
 
@@ -229,7 +229,7 @@ c    >           "   info=",info,"   rcond=",rcond
       else
          call nwpw_diis_shift()
       end if
-      call nwpw_list_store(2*m,rho_in)
+      call nwpw_list_store(1,2*m,rho_in)
      
       return 
       end
@@ -249,8 +249,8 @@ c    >           "   info=",info,"   rcond=",rcond
 *     **** local variables ****
       integer i,j
 
-      call nwpw_list_shift()
-      call nwpw_list_shift()
+      call nwpw_list_shift(1)
+      call nwpw_list_shift(1)
       do j=2,m
       do i=2,m
         B(i,j) = B(i+1,j+1)
@@ -277,8 +277,8 @@ c    >           "   info=",info,"   rcond=",rcond
       integer i,j
 
       !*** remove k residual and density ***
-      call nwpw_list_remove(2*k)
-      call nwpw_list_remove(2*k-1)
+      call nwpw_list_remove(1,2*k)
+      call nwpw_list_remove(1,2*k-1)
 
       !**** remove k row ****
       do i=k,m
@@ -317,8 +317,8 @@ c    >           "   info=",info,"   rcond=",rcond
       real*8  tmp
 
       !*** swap  k and l residual and density ***
-      call nwpw_list_swap(2*k,  2*l)
-      call nwpw_list_swap(2*k-1,2*l-1)
+      call nwpw_list_swap(1,2*k,  2*l)
+      call nwpw_list_swap(1,2*k-1,2*l-1)
 
 
       !**** swap k and l rows ****
@@ -363,11 +363,11 @@ c    >           "   info=",info,"   rcond=",rcond
 
       !**** Gram-Schmidt ****
       do i=m,2,-1
-        call nwpw_list_ptr(2*i,  ri_ptr)
-        call nwpw_list_ptr(2*i-1,vi_ptr)
+        call nwpw_list_ptr(1,2*i,  ri_ptr)
+        call nwpw_list_ptr(1,2*i-1,vi_ptr)
         do j= i-1, 1,-1
-          call nwpw_list_ptr(2*j,  rj_ptr)
-          call nwpw_list_ptr(2*j-1,vj_ptr)
+          call nwpw_list_ptr(1,2*j,  rj_ptr)
+          call nwpw_list_ptr(1,2*j-1,vj_ptr)
           sum  = ddot(nsize,dbl_mb(rj_ptr),1,dbl_mb(ri_ptr),1)
           sum1 = ddot(nsize,dbl_mb(rj_ptr),1,dbl_mb(rj_ptr),1)
           call D3dB_SumAll(sum)
@@ -385,22 +385,22 @@ c    >           "   info=",info,"   rcond=",rcond
       !*** remove small residuals ***
       n = m
       do i=n-1,1,-1
-        call nwpw_list_ptr(2*i,  ri_ptr)
+        call nwpw_list_ptr(1,2*i,  ri_ptr)
         sum1 = ddot(nsize,dbl_mb(ri_ptr),1,dbl_mb(ri_ptr),1)
         call D3dB_SumAll(sum1)
         write(*,*) "sum1:",i,sum1
         if (sum1.lt.1.0d-3) then
-           call nwpw_list_remove(2*i)
-           call nwpw_list_remove(2*i-1)
+           call nwpw_list_remove(1,2*i)
+           call nwpw_list_remove(1,2*i-1)
            m = m - 1
         end if
       end do
 
       !*** regenerate B ***
       do j=1,m
-         call nwpw_list_ptr(2*j,rj_ptr)
+         call nwpw_list_ptr(1,2*j,rj_ptr)
          do i=j,m
-           call nwpw_list_ptr(2*i,ri_ptr)
+           call nwpw_list_ptr(1,2*i,ri_ptr)
            sum = ddot(nsize,dbl_mb(ri_ptr),1,dbl_mb(rj_ptr),1)
            call D3dB_SumAll(sum)
            B(i+1,j+1) = sum

@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.24 2004-11-14 23:31:48 bylaska Exp $
+c $Id: nwpw_input.F,v 1.25 2004-12-06 20:03:23 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 63)
+      parameter (num_dirs = 66)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -78,6 +78,9 @@ c
      >            'occupations',
      >            'expand_cell',
      >            'mapping',
+     >            'cg',
+     >            'lmbfgs',
+     >            'scf',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -93,6 +96,7 @@ c
        logical mulliken,allow_translation
        integer ispin,multiplicity
        integer nx,ny,nz
+       integer ks_algorithm,scf_algorithm
        
 
 *     ***** initializations ****
@@ -126,7 +130,7 @@ c
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,
-     >       4100,4200,4300,4400,4500,
+     >       4100,4200,4300,4400,4500,4600,4700,4800,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -663,6 +667,92 @@ c
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 4500, RTDB_ERR)
       goto 10
+
+c
+c  CG minimizer
+c
+ 4600 nx = 1
+ 4601 if (.not.inp_a(zone_name)) goto 4602
+       if (inp_compare(.false.,zone_name,'stiefel'))  nx=4
+       if (inp_compare(.false.,zone_name,'grassman')) nx=1
+      go to 4601
+
+ 4602 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,nx))
+     >  call errquit('nwpw_input: error writing to rtdb',4600,RTDB_ERR)
+
+      goto 10
+
+c
+c  LMBFGS minimizer
+c
+ 4700 nx=2
+ 4701 if (.not.inp_a(zone_name)) goto 4702
+       if (inp_compare(.false.,zone_name,'stiefel'))  nx=7
+       if (inp_compare(.false.,zone_name,'grassman')) nx=2
+      go to 4701
+
+ 4702 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,nx))
+     >  call errquit('nwpw_input: error writing to rtdb',4700,RTDB_ERR)
+
+      goto 10
+
+
+c
+c  SCF minimizer
+c
+ 4800 if (.not.inp_a(zone_name)) goto 4801
+       if (inp_compare(.false.,zone_name,'cg')) then
+         if(.not.rtdb_put(rtdb,'nwpw:ks_algorithm',mt_int,1,0))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'rmm-diis')) then
+         if(.not.rtdb_put(rtdb,'nwpw:ks_algorithm',mt_int,1,1))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'simple')) then
+         if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,0))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'anderson')) then
+         if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,1))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'diis')) then
+         if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,2))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'alpha')) then
+          if (.not.inp_f(alpha)) 
+     >      call errquit('nwpw_input: error reading scf alpha',
+     >                   4800,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,'nwpw:ks_alpha',mt_dbl,1,alpha))
+     >    call errquit('nwpw_input: error writing to rtdb',
+     >                 4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'iterations')) then
+          if (.not.inp_i(nx)) 
+     >      call errquit('nwpw_input: error reading iterations',
+     >                   4800,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,'nwpw:ks_maxit_orb',mt_int,1,nx))
+     >    call errquit('nwpw_input: error writing to rtdb',
+     >                 4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'outer_iterations')) then
+          if (.not.inp_i(nx)) 
+     >      call errquit('nwpw_input: error reading iterations',
+     >                   4800,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,'nwpw:ks_maxit_orbs',mt_int,1,nx))
+     >    call errquit('nwpw_input: error writing to rtdb',
+     >                 4800,RTDB_ERR)
+       end if
+
+      goto 4800
+
+ 4801 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,5))
+     >  call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+
+      goto 10
+
 
 
 ************************************************************************

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.22 2004-11-29 16:05:18 bylaska Exp $
+# $Id: GNUmakefile,v 1.23 2004-12-06 20:03:24 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -27,7 +27,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F  matrix.f nwpw_diis.F nwpw_kain.F nwpw_scf_mixing.F kerker_G.F
+    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F
 
   LIB_DEFINES = 
 

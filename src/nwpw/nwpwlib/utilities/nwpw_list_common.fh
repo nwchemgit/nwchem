@@ -1,13 +1,19 @@
 c
-c     $Id: nwpw_list_common.fh,v 1.2 2003-12-13 21:07:40 bylaska Exp $
+c     $Id: nwpw_list_common.fh,v 1.3 2004-12-06 20:03:24 bylaska Exp $
 c
+      integer max_num_lists
+      parameter (max_num_lists=2)
+
       integer max_list
       parameter (max_list=80)
-      logical ondisk
-      integer grsm_mem(2,max_list)
-      integer indx(max_list),nsize,size_list
-      character*20 tag_list(max_list)
-      character*20 tag_list2(max_list)
+
+      logical ondisk(max_num_lists)
+      integer grsm_mem(2,max_list,max_num_lists)
+      integer indx(max_list,max_num_lists)
+      integer nsize(max_num_lists)
+      integer size_list(max_num_lists)
+      character*20 tag_list(max_list,max_num_lists)
+      character*20 tag_list2(max_list,max_num_lists)
       common / nwpw_list_block / indx,grsm_mem,
      >                           tag_list,tag_list2,
      >                           nsize,size_list,

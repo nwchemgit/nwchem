@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.15 2004-05-14 17:43:30 edo Exp $
+# $Id: GNUmakefile,v 1.16 2004-12-06 20:03:25 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -19,7 +19,7 @@
 		v_psi_new.o \
 		psi_history.o \
 		psi_write_filename.o \
-		psi_read_filename.o
+		psi_read_filename.o 
 
 
 

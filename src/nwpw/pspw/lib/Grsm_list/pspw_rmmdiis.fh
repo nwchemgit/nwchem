@@ -1,0 +1,14 @@
+*
+*     $Id: pspw_rmmdiis.fh,v 1.1 2004-12-06 20:03:25 bylaska Exp $
+*
+
+      integer nmax,lwork
+      parameter (nmax=10)
+      parameter (lwork=3*nmax-1)
+      real*8 eig(nmax)
+      real*8 alpha(nmax*nmax)
+      real*8 S(nmax*nmax)
+      real*8 work(lwork)
+
+      integer npack1,nsize,max_m,m
+      common / rmmdiis_common / alpha,S,work,eig,npack1,nsize,max_m,m

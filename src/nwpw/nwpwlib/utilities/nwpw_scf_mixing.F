@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_scf_mixing.F,v 1.1 2003-12-13 21:07:40 bylaska Exp $                       
+*     $Id: nwpw_scf_mixing.F,v 1.2 2004-12-06 20:03:24 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -26,15 +26,15 @@
       ispin = ispin0
 
       if (algorithm.eq.0) then
-        call nwpw_list_start(2,nsize)
+        call nwpw_list_start(1,2,nsize)
         call nwpw_scf_mixing_reset(rho_in)
       end if
       if (algorithm.eq.1) then
-        call nwpw_list_start(8,nsize)
+        call nwpw_list_start(1,8,nsize)
         call nwpw_scf_mixing_reset(rho_in)
       end if
       if (algorithm.eq.2) then
-        call nwpw_list_start((5+(2*max_m)),nsize)
+        call nwpw_list_start(1,(5+(2*max_m)),nsize)
         call nwpw_scf_mixing_reset(rho_in)
         w0 = 0.01d0
       end if
@@ -57,7 +57,7 @@
 #include "mafdecls.fh"
 #include "nwpw_scf_mixing.fh"
 
-      call nwpw_list_end()
+      call nwpw_list_end(1)
       
 
       return
@@ -84,7 +84,7 @@
 #include "nwpw_scf_mixing.fh"
 
       m = 1
-      call nwpw_list_store(1,rho_in)
+      call nwpw_list_store(1,1,rho_in)
       return
       end
 
@@ -122,8 +122,8 @@
 
 *     **** simple mixing ****
       if (algorithm.eq.0) then
-         call nwpw_list_ptr(1,rr_ptr)
-         call nwpw_list_ptr(2,ff_ptr)
+         call nwpw_list_ptr(1,1,rr_ptr)
+         call nwpw_list_ptr(1,2,ff_ptr)
          call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(ff_ptr),1)  ! f = vm
          call daxpy(nsize,(-1.0d0),vout, 1,dbl_mb(ff_ptr),1)  ! f = f-vout = vm-vout
          call dscal(nsize,(-1.0d0),dbl_mb(ff_ptr),1)          ! f = -f = vout-vm
@@ -139,14 +139,14 @@
 
 *     **** Anderson mixing ****
       if (algorithm.eq.1) then
-         call nwpw_list_ptr(1,V0)
-         call nwpw_list_ptr(2,V1)
-         call nwpw_list_ptr(3,Vout0)
-         call nwpw_list_ptr(4,Vout1)
-         call nwpw_list_ptr(5,F0)
-         call nwpw_list_ptr(6,F1)
-         call nwpw_list_ptr(7,Vbar0)
-         call nwpw_list_ptr(8,Vbar0)
+         call nwpw_list_ptr(1,1,V0)
+         call nwpw_list_ptr(1,2,V1)
+         call nwpw_list_ptr(1,3,Vout0)
+         call nwpw_list_ptr(1,4,Vout1)
+         call nwpw_list_ptr(1,5,F0)
+         call nwpw_list_ptr(1,6,F1)
+         call nwpw_list_ptr(1,7,Vbar0)
+         call nwpw_list_ptr(1,8,Vbar0)
 
          if (m.eq.1) then
            !**** vout0 = vout ****
@@ -221,11 +221,11 @@
 
 *     **** Johnson mixing ****
       if (algorithm.eq.2) then
-         call nwpw_list_ptr(1,V0)
-         call nwpw_list_ptr(2,V1)
-         call nwpw_list_ptr(3,F0)
-         call nwpw_list_ptr(4,F1)
-         call nwpw_list_ptr(5,dV)
+         call nwpw_list_ptr(1,1,V0)
+         call nwpw_list_ptr(1,2,V1)
+         call nwpw_list_ptr(1,3,F0)
+         call nwpw_list_ptr(1,4,F1)
+         call nwpw_list_ptr(1,5,dV)
 
          if (m.eq.1) then
 
@@ -263,8 +263,8 @@
            scf_error = dsqrt(scf_error)          
 
            !*** dF = dF(m-1), U = U(m-1) ***
-           call nwpw_list_ptr((5+m-1),dF)
-           call nwpw_list_ptr((5+max_m  +m-1),U)
+           call nwpw_list_ptr(1,(5+m-1),dF)
+           call nwpw_list_ptr(1,(5+max_m  +m-1),U)
 
            !**** dF = (F1-F0) ****
            call dcopy(nsize,dbl_mb(F1),1,dbl_mb(dF),1)
@@ -281,7 +281,7 @@
 
            !**** Define A,c and B ****
            do i=1,m-1
-              call nwpw_list_ptr((5+i),dFi)
+              call nwpw_list_ptr(1,(5+i),dFi)
               sum0 = ddot(nsize,dbl_mb(dFi),1,dbl_mb(dF),1)
               sum1 = ddot(nsize,dbl_mb(dFi),1,dbl_mb(F1),1)
               call D3dB_SumAll(sum0)
@@ -331,7 +331,7 @@
            call daxpy(nsize,alpha,dbl_mb(F0),1,dbl_mb(V1),1)   
 
            do i=1,m-1
-              call nwpw_list_ptr((5+max_m +i),U)
+              call nwpw_list_ptr(1,(5+max_m +i),U)
               call daxpy(nsize,(d(i)),dbl_mb(U),1,dbl_mb(V1),1)   
            end do
 
@@ -348,8 +348,8 @@
              end do
 
               !*** Shift dF and U  ****
-              call nwpw_list_shift_range((5+1),(5+max_m))
-              call nwpw_list_shift_range((5+max_m+1),(5+2*max_m))
+              call nwpw_list_shift_range(1,(5+1),(5+max_m))
+              call nwpw_list_shift_range(1,(5+max_m+1),(5+2*max_m))
            end if
 
            call dcopy(nsize,dbl_mb(V1),1,vnew,1)

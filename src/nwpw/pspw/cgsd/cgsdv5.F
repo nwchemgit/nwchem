@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.54 2004-11-29 16:05:20 bylaska Exp $
+* $Id: cgsdv5.F,v 1.55 2004-12-06 20:03:25 bylaska Exp $
 *
 
 ***********************************************************************
@@ -126,12 +126,17 @@
       external  pspw_charge_found,ion_q_FixIon
       integer  control_minimizer,control_scf_algorithm
       external control_minimizer,control_scf_algorithm
+      integer  control_ks_algorithm
+      external control_ks_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
       logical  control_print
       external control_print
       integer  control_mapping
       external control_mapping
+      integer  control_ks_maxit_orb,control_ks_maxit_orbs
+      external control_ks_maxit_orb,control_ks_maxit_orbs
+
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -401,7 +406,11 @@ c     value = psi_initialize()
          write(6,1290) control_tole(),control_tolc()
          if (minimizer.eq.5) then
            write(6,1291)
-           write(6,1292)
+           if (control_ks_algorithm().eq.0) 
+     >       write(6,1292) "conjugate gradient"
+           if (control_ks_algorithm().eq.1) 
+     >       write(6,1292) "rmm-diis"
+           write(6,1295) control_ks_maxit_orb(),control_ks_maxit_orbs()
            if (control_scf_algorithm().eq.0) 
      >       write(6,1293) "simple mixing"
            if (control_scf_algorithm().eq.1) 
@@ -684,9 +693,11 @@ c     end if
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')
- 1292 FORMAT(5X, ' Kohn-Sham algorithm  = conjugate gradient')
- 1293 FORMAT(5X, ' scf algorithm        = ',A)
- 1294 FORMAT(5X, ' scf mixing parameter =',F7.4)
+ 1292 FORMAT(5X, ' Kohn-Sham algorithm  = ',A)
+ 1293 FORMAT(5X, ' SCF algorithm        = ',A)
+ 1294 FORMAT(5X, ' SCF mixing parameter =',F7.4)
+ 1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
+     >           ' (',I3,' outer)')
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)

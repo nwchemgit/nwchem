@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.16 2004-11-08 01:32:48 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.17 2004-12-06 20:03:25 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -53,7 +53,8 @@ c
 
 
 *     **** external functions ****
-      integer  control_ispin,control_scf_algorithm
+      logical control_print
+      integer  control_ispin,control_scf_algorithm,control_ks_algorithm
       integer  control_it_in,control_it_out,psi_ne,control_version
       real*8   control_tole,control_tolc,control_ks_alpha
       real*8   rho_error,psi_1energy,psi_error
@@ -66,8 +67,8 @@ c
       real*8   ewald_e,ion_ion_e
       real*8   psi_1eorbit
    
-      external control_ispin,control_scf_algorithm,control_print
-      logical control_print
+      external control_print
+      external control_ispin,control_scf_algorithm,control_ks_algorithm
       external control_it_in,control_it_out,psi_ne,control_version
       external control_tole,control_tolc,control_ks_alpha
       external rho_error,psi_1energy,psi_error
@@ -190,13 +191,19 @@ c
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
      >                5,ispin,n2ft3d,dbl_mb(vall_out(1)))
 
+*     **** iniitialize RMM-DIIS ****
+      if (control_ks_algorithm().eq.1) call pspw_rmmdiis_init(5)
+
 
 *     ***** diis loop ****
       it   = 0
  2    it   = it + 1
       
 *     **** diaganolize KS matrix ****
-      call psi_KS_update(1,precondition,ks_deltae)
+      call psi_KS_update(1,
+     >                   control_ks_algorithm(),
+     >                   precondition,
+     >                   ks_deltae)
 
       call rho_1to2()
       Eold = Enew
@@ -326,6 +333,7 @@ c
 
 *     **** free memory ****
       call nwpw_scf_mixing_end()
+      if (control_ks_algorithm().eq.1) call pspw_rmmdiis_end()
       value =           MA_pop_stack(rho_in(2))
       value = value.and.MA_pop_stack(vall_junk(2))
       value = value.and.MA_pop_stack(vall_out(2))

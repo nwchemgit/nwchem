@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.62 2004-12-02 15:07:34 bylaska Exp $
+* $Id: control.F,v 1.63 2004-12-06 20:03:24 bylaska Exp $
 *
 
 *     ***********************************
@@ -400,6 +400,10 @@ c
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 0
 
+      if (.not.rtdb_get(rtdb,'nwpw:ks_algorithm',
+     >                  mt_int,1,ks_algorithm))
+     >   scf_algorithm = 0
+
 *     **** set maxit_orb maxit_orbs ***
       if (.not.rtdb_get(rtdb,
      >      'nwpw:ks_maxit_orb',mt_int,1,maxit_orb))
@@ -554,6 +558,9 @@ c
       if (.not.rtdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 0
+      if (.not.rtdb_get(rtdb,'nwpw:ks_algorithm',
+     >                  mt_int,1,ks_algorithm))
+     >   ks_algorithm = 0
 
 *     **** set maxit_orb maxit_orbs ***
       if (.not.rtdb_get(rtdb,
@@ -1112,6 +1119,19 @@ c     >                  1,output_wavefunction_filename)
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *         control_ks_algorithm   *
+*     *                                 *
+*     ***********************************
+      integer function control_ks_algorithm()
+      implicit none
+
+#include "control.fh"
+
+      control_ks_algorithm = ks_algorithm
+      return
+      end
 
 
 *     ***********************************
