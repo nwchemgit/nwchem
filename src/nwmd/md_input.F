@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.28 2000-08-10 20:35:49 d3j191 Exp $
+c $Id: md_input.F,v 1.29 2000-09-06 16:39:25 d3j191 Exp $
 c
       implicit none
 c
@@ -263,6 +263,13 @@ c
       endif
 c
       if(inp_compare(.false.,'nodes',item)) then
+      if(.not.inp_i(npx)) call errquit('md_input: error npx',0)
+      if(.not.inp_i(npy)) call errquit('md_input: error npy',0)
+      if(.not.inp_i(npz)) call errquit('md_input: error npz',0)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'procs',item)) then
       if(.not.inp_i(npx)) call errquit('md_input: error npx',0)
       if(.not.inp_i(npy)) call errquit('md_input: error npy',0)
       if(.not.inp_i(npz)) call errquit('md_input: error npz',0)
@@ -630,6 +637,10 @@ c
       endif
       if(inp_compare(.false.,'fft',item)) then
       if(.not.inp_i(imfft)) call errquit('md_input : error fft',13)
+      goto 251
+      endif
+      if(inp_compare(.false.,'procs',item)) then
+      if(.not.inp_i(nodpme)) call errquit('md_input : error procs',13)
       goto 251
       endif
       if(inp_compare(.false.,'nodes',item)) then
