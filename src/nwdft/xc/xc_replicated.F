@@ -1,6 +1,6 @@
       subroutine xc_rep_init(rtdb, geom, basis, nbf_ao,ipol,goforit)
 c
-C$Id: xc_replicated.F,v 1.3 2003-06-06 23:23:07 edo Exp $
+C$Id: xc_replicated.F,v 1.4 2003-06-07 00:40:57 edo Exp $
 c
       implicit none
 c      
@@ -18,7 +18,7 @@ c
 c
       integer xcrep_glob,ii
       logical xcreplicated_l,oprint
-      integer plist,dims(2),nblock(2),l_map,k_map
+      integer plist,dims(2),nblock(2),l_map,k_map,procsmp
 c
       oprint = util_print('xcreplicated', print_high)
 c
@@ -53,12 +53,13 @@ c
             plist=ga_mirror_config()
             dims(1)=nbf_ao
             dims(2)=nbf_ao
-            if(.not.ma_push_get(MT_int,ga_cluster_nnodes()*2,
+            procsmp=ga_cluster_nprocs(ga_cluster_nodeid())
+            if(.not.ma_push_get(MT_int,procsmp*2,
      .           'ga block maps',l_map,k_map)) then
                call errquit('xcrepl: not enough local mem',
-     .              ga_cluster_nnodes()*2)
+     .              procsmp*2)
                endif
-            call util_atom_blocked(ga_cluster_nnodes(),
+            call util_atom_blocked(procsmp,
      .           geom, basis, int_mb(k_map), nblock)
 
 c
@@ -66,7 +67,7 @@ c     compress map array
 c
             do ii=0,nblock(2)-1
                int_mb(k_map+nblock(1)+ii)=
-     =              int_mb(k_map+ga_cluster_nnodes()+ii)
+     =              int_mb(k_map+procsmp+ii)
             enddo
             xcreplicated_l=nga_create_irreg_config(MT_DBL, 2, dims,
      .           'replicated xc GA',
@@ -115,7 +116,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc)
 c
-C$Id: xc_replicated.F,v 1.3 2003-06-06 23:23:07 edo Exp $
+C$Id: xc_replicated.F,v 1.4 2003-06-07 00:40:57 edo Exp $
 c
       implicit none
 c      
