@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.196 2001-11-01 01:26:25 edo Exp $
+c     $Id: dft_scf.F,v 1.197 2001-11-02 01:36:27 edo Exp $
 c     
       implicit none
 c
@@ -134,7 +134,7 @@ c
       character*7 vecs_or_dens
       character*255 basis_name, basis_trans,blob
 
-      integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,nstdis,
+      integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,
      .     l_gdiis,k_gdiis,ipolmod
       logical dft_mem3c
       external dft_mem3c
@@ -152,12 +152,21 @@ c
       double precision egas
       double precision esol
       double precision ecosmo,dft_cosmoe,dft_cosmoadde
+c
+c     slow switching of annealing
+c
+      double precision s_rabuck,ss,smear_in
+      integer nn,nss
+      s_rabuck(nn,ss,nss)=ss*exp((1d0/(nss-1d0))*
+     *     log(1d-10/ss)*(nn-1d0))
+      integer n_rabuck
+      logical rabuck_act
       external dft_cosmoe,dft_cosmoadde
 
 
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
-     ,     ncanorg,g_gmovecs(2),nmo_out
+     ,     ncanorg,g_gmovecs(2)
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
@@ -199,9 +208,14 @@ c
 c     check if smearing is on
 c
       ssmear=0.d0
-      nstdis=1
+      n_rabuck=0
+      rabuck_act=.false.
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear))then
+      if (rtdb_get(rtdb, 'dft:n_rabuck', mt_int, 1,
+     &   n_rabuck))then
+         smear_in=ssmear
+         endif
       endif
       if (rtdb_get(rtdb, 'dft:fon', mt_log, 1,
      &   fon))then
@@ -697,22 +711,40 @@ c
 c
          call ga_symmetrize(g_focks(ispin))
       enddo
-         if (diising)then
+      if (diising)then
 c     
-c           DIIS step taken here.
+c     DIIS step taken here.
 c     
-            if (oprint_time)
-     &           call dft_tstamp(' calling diis driver ')
-            nstdis=nstdis+1
+         if (oprint_time)
+     &        call dft_tstamp(' calling diis driver ')
+         if(n_rabuck.ne.0) then
+            ssmear=s_rabuck(iter,smear_in,n_rabuck)
+            if(iter.eq.n_rabuck.
+     .           and.diising) then
+c     reset diis
+               if(me.eq.0) write(LuOut,*) 
+     .              ' smear off - resetting Diis'
+               call diis_driver(toll_s, derr,  ipol, icall, nfock, 
+     &              nbf_ao, geom, ao_bas_han, g_focks, 
+     &              g_dens, g_tmp, g_svecs, svals, 
+     &              diising, nodiis,int_mb(k_gdiis),
+     ,              lkeeps,g_s12m,g_s12p,.true.)
+               rabuck_act=.false.
+!               goto 2002
+            endif
+            
+            rabuck_act=ssmear.gt.1d-9
+         endif
             call diis_driver(toll_s, derr,  ipol, 
      &           icall, nfock, nbf_ao, geom, 
      &           ao_bas_han, g_focks, g_dens, 
      &           g_tmp, g_svecs, svals, diising, 
      &           nodiis,int_mb(k_gdiis),lkeeps,
-     .           g_s12m,g_s12p)
+     .           g_s12m,g_s12p,.false.)
             if (oprint_time)
      &           call dft_tstamp(' called diis driver ')
          endif
+ 2002    continue
 c     
 #if defined(DFT_TIMER)
          call dft_second(tp4)
@@ -808,15 +840,11 @@ c
      &   call errquit('dft_scf: cannot pop stack',33)
             if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
             if(diising) then
-            icall(1) = -1
-            nstdis=1
             call diis_driver(toll_s, derr,  ipol, icall, nfock, 
      &                       nbf_ao, geom, ao_bas_han, g_focks, 
      &                       g_dens, g_tmp, g_svecs, svals, 
      &                       diising, nodiis,int_mb(k_gdiis),
-     ,           lkeeps,g_s12m,g_s12p)
-            icall(1) = 0
-            icall(2) = 0
+     ,           lkeeps,g_s12m,g_s12p,.true.)
             endif
       endif
          etnew=etnew+tdots
@@ -959,18 +987,6 @@ c
       endif
 c     
       iter = iter + 1
-cedo      if(ssmear.gt.1d-9.and.mod(nstdis,30).eq.0) then
-cedo            if(me.eq.0) write(LuOut,*) ' resetting Diis',nstdis
-cedo            icall(1) = -1
-cedo            nstdis=1
-cedo            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
-cedo     &                       nbf_ao, geom, ao_bas_han, g_fock, 
-cedo     &                       g_dens(1), g_tmp, g_svecs, isvals, 
-cedo     &                       diising, nodiis,int_mb(k_gdiis),
-cedo     ,           lkeeps,g_s12m,g_s12p)
-cedo            icall(1) = 0
-cedo            icall(2) = 0
-cedo         endif
 c     
 c     Check convergence parameters.
 c     
@@ -984,7 +1000,7 @@ c
 c     
       if ((delta.lt.levlon.and.delta.gt.levloff).or.
      &    (iter.le.ncysh))then
-         if (homo_lumo_gap.lt.hl_tol)then
+         if (homo_lumo_gap.lt.hl_tol.and.ssmear.lt.1d-9)then
             levelshifting = .true.
             rlshift = rlshift_input
             if (check_shift)then
@@ -1156,15 +1172,11 @@ c     ----- reset convergence aids -----
 c
          iter  =1
          if(diising) then
-            icall(1) = -1
-            nstdis=1
             call diis_driver(toll_s, derr,  ipol, icall, nfock,
      &                       nbf_ao, geom, ao_bas_han, g_focks,
      &                       g_dens, g_tmp, g_svecs, svals,
      &                       diising, nodiis,int_mb(k_gdiis),
-     ,           lkeeps,g_s12m,g_s12p)
-            icall(1) = 0
-            icall(2) = 0
+     ,           lkeeps,g_s12m,g_s12p,.true.)
          endif
          damping=.true.
          if(damping) then
@@ -1264,11 +1276,10 @@ c
 c     Shut down DIIS.
 c     
       if (icall(1).gt.0)then
-         icall(1) = -1
          call diis_driver(toll_s, derr(1),  ipol, icall, nfock, 
      &                 nbf_ao, geom, ao_bas_han, g_focks, g_dens(1), 
      &                    g_tmp, g_svecs, svals, diising, nodiis,
-     .        int_mb(k_gdiis),lkeeps,g_s12m,g_s12p)
+     .        int_mb(k_gdiis),lkeeps,g_s12m,g_s12p,.true.)
          if (.not. MA_free_heap(l_gdiis))
      .        call errquit(' dft_scf:cannot popstack',111)
       endif

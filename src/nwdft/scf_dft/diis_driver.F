@@ -1,9 +1,9 @@
       Subroutine diis_driver(toll_s, derr, ipol, icall, MXhist, 
      &                       nbf, geom, AO_bas_han, g_focks, g_dens, 
      &                       g_tmp, g_svecs, svals, diis, nodiis,
-     .     g_diis,keeps,g_s12m,g_s12p)
+     .     g_diis,keeps,g_s12m,g_s12p,reset)
 c
-C$Id: diis_driver.F,v 1.23 2001-10-05 20:39:43 edo Exp $
+C$Id: diis_driver.F,v 1.24 2001-11-02 01:36:27 edo Exp $
 c
       implicit none
 c      
@@ -22,6 +22,7 @@ c
       double precision derr(2) ! Diis error norm [output]
       double precision toll_s
       integer lpulay, npulay, ipulay
+      logical reset
       Save lpulay, npulay, ipulay, nhist
 c
 #include "mafdecls.fh"
@@ -48,13 +49,21 @@ c
 c
 c     Use the DIIS scheme to accelerate convergence.
 c     
+      if(reset) then
+         if( icall(1).eq.0 ) return
+         icall(1) = -1
+      endif
       if (icall(1).lt.0 )then
          if (.not.MA_Free_Heap(lpulay))
      &      call errquit('diis_driver: cannot free heap',0)
          do i=1,2*mxhist*ipol
             if (.not. ga_destroy(g_diis(i))) call errquit
-     &           ('diis_driver: could not destroy g_diis', 0)
+     &           ('diis_driver: could not destroy g_diis', i)
          enddo
+         if(reset) then
+            icall(1) = 0
+            icall(2) = 0
+         endif
          return
       endif
       me = ga_nodeid()

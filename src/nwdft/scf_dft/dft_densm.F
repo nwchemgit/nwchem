@@ -3,7 +3,7 @@
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon)
-C$Id: dft_densm.F,v 1.27 2001-06-13 01:46:22 edo Exp $
+C$Id: dft_densm.F,v 1.28 2001-11-02 01:36:27 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -44,7 +44,7 @@ c
       double precision one,x,xb
       logical dft_checkdg
       external dft_checkdg
-      parameter (zero=0.d0,toll=1.d-12,one=1.d0,
+      parameter (zero=0.d0,toll=1.d-9,one=1.d0,
      ,   kbau=1.d0,eps=1.d-4)
 c
       sqrtpi=sqrt(acos(-1d0))
@@ -138,9 +138,11 @@ c
          enddo
          tdots=tdots-cksum*ssmear*0.5d0*rhfuhf
          if(ga_nodeid().eq.0) then 
-            write(LuOut,1688) efermi,tdots,(i,ntot(i),i=1,ipol)
- 1688       format(' eFermi = ',f10.6,' T*S = ',f10.6,
-     ,           2(' nel(',i1,')= ',f12.5)/) 
+            write(LuOut,1688) ssmear,
+     ,             efermi,tdots,(i,ntot(i),i=1,ipol)
+ 1688       format(' sigma= ',d7.2,
+     ,             ' eFermi= ',f8.5,' T*S= ',f9.6,
+     ,           2(' nel(',i1,')=',f8.2)/) 
 C            write(LuOut,1723) (focc(i),i=1,nbf*ipol)
 C 1723       format(' Foccs ',(
          endif
