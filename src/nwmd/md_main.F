@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.121 2002-02-25 03:46:11 d3j191 Exp $
+c $Id: md_main.F,v 1.122 2002-03-02 00:53:31 d3j191 Exp $
 c
       implicit none
 c
@@ -1407,6 +1407,21 @@ c
      + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
       call timer_stop(57)
 c
+c     recalculate velocities
+c
+      call cf_veloc(nwmloc,dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),
+     + nsaloc,dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs))
+c
+c     velocity scaling to preset temperature
+c
+      if(frequency(mdstep,nfgaus)) then
+      call cf_vscale(tgauss,nwmloc,nsaloc,
+     + dbl_mb(i_vw),dbl_mb(i_vwt),dbl_mb(i_vs),dbl_mb(i_vst),
+     + int_mb(i_iw+(lwdyn-1)*mwm),
+     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
+      if(iand(ivopt,1).eq.1) nfgaus=0
+      endif
+c
 c     coordinate scaling
 c
       call timer_start(58)
@@ -1444,15 +1459,6 @@ c
       if(frequency(mdstep,nfslow)) then
       call cf_slow(dbl_mb(i_vw),nwmloc,dbl_mb(i_vs),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
-      endif
-c
-c     velocity scaling to preset temperature
-c
-      if(frequency(mdstep,nfgaus)) then
-      call cf_vscale(tgauss,nwmloc,nsaloc,
-     + dbl_mb(i_vw),dbl_mb(i_vs),int_mb(i_iw+(lwdyn-1)*mwm),
-     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
-      if(iand(ivopt,1).eq.1) nfgaus=0
       endif
       call timer_stop(59)
       call timer_start(60)
@@ -2243,7 +2249,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.121 2002-02-25 03:46:11 d3j191 Exp $
+c $Id: md_main.F,v 1.122 2002-03-02 00:53:31 d3j191 Exp $
 c
       implicit none
 c
@@ -2398,3 +2404,4 @@ c
 c
       return
       end
+

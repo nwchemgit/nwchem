@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.133 2002-02-27 14:44:54 d3j191 Exp $
+c $Id: cf_main.F,v 1.134 2002-03-02 00:53:19 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -952,7 +952,6 @@ c
       if(mdalgo.eq.1) then
       do 2 j=1,3
       do 3 i=1,numw
-      vw(i,j,k)=(xw(i,j,k)-yw(i,j,k))*tstepi
       vwt(i,j,k)=half*(vw(i,j,k)+vwt(i,j,k))
       vvsum=vvsum+vwt(i,j,k)*vwt(i,j,k)
     3 continue
@@ -960,7 +959,6 @@ c
       else
       do 4 j=1,3
       do 5 i=1,numw
-      vw(i,j,k)=(xw(i,j,k)-yw(i,j,k))*tstepi
       vvsum=vvsum+vw(i,j,k)*vw(i,j,k)
     5 continue
     4 continue
@@ -1052,14 +1050,12 @@ c
       do 1 j=1,3
       if(mdalgo.eq.1) then
       do 2 i=1,nums
-      vs(i,j)=(xs(i,j)-ys(i,j))*tstepi
       vst(i,j)=half*(vs(i,j)+vst(i,j))
       esk(isfrc(i))=esk(isfrc(i))+
      + half*wgt(isat(i),iset)*vst(i,j)*vst(i,j)
     2 continue
       else
       do 3 i=1,nums
-      vs(i,j)=(xs(i,j)-ys(i,j))*tstepi
       esk(isfrc(i))=esk(isfrc(i))+half*wgt(isat(i),iset)*vs(i,j)*vs(i,j)
     3 continue
       endif
@@ -1989,7 +1985,8 @@ c
 c
       return
       end
-      subroutine cf_vscale(tgauss,numw,nums,vw,vs,iwdt,isdt,isat)
+      subroutine cf_vscale(tgauss,numw,nums,vw,vwt,vs,vst,iwdt,
+     + isdt,isat)
 c
       implicit none
 c
@@ -1998,17 +1995,17 @@ c
 c
       real*8 tgauss
       integer numw,nums
-      real*8 vw(mwm,3,mwa),vs(msa,3)
+      real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),vs(msa,3),vst(msa,3)
       integer iwdt(mwm),isdt(msa),isat(msa)
 c
       call cf_vscal(tgauss,
-     + numw,nums,vw,vs,iwdt,isdt,int_mb(i_iwa),
+     + numw,nums,vw,vwt,vs,vst,iwdt,isdt,int_mb(i_iwa),
      + isat,dbl_mb(i_mas))
 c
       return
       end
       subroutine cf_vscal(tgauss,
-     + numw,nums,vw,vs,iwdt,isdt,iwat,isat,wgt)
+     + numw,nums,vw,vwt,vs,vst,iwdt,isdt,iwat,isat,wgt)
 c
       implicit none
 c
@@ -2018,7 +2015,8 @@ c
 c
       real*8 tgauss
       integer numw,nums
-      real*8 vw(mwm,3,mwa),vs(msa,3),wgt(mat,6)
+      real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),vs(msa,3),vst(msa,3)
+      real*8 wgt(mat,6)
       integer iwdt(mwm),isdt(msa),iwat(mwa),isat(msa)
 c
       real*8 ekwcg,ekscg,tempgw,tempgs,gaufcw,gaufcs,ekcg(2)
@@ -2033,6 +2031,7 @@ c
       do 2 iwa=1,nwa
       do 3 ix=1,3
       vw(iwm,ix,iwa)=zero
+      vwt(iwm,ix,iwa)=zero
     3 continue
     2 continue
       else
@@ -2049,6 +2048,7 @@ c
       if(isdt(isa).ne.0) then
       do 6 ix=1,3
       vs(isa,ix)=zero
+      vst(isa,ix)=zero
     6 continue
       else
       ekscg=ekscg+wgt(isat(isa),iset)*(vs(isa,1)*vs(isa,1)+
@@ -2079,6 +2079,7 @@ c
       do 8 ix=1,3
       do 9 iwm=1,numw
       vw(iwm,ix,iwa)=gaufcw*vw(iwm,ix,iwa)
+      vwt(iwm,ix,iwa)=vw(iwm,ix,iwa)
     9 continue
     8 continue
     7 continue
@@ -2089,6 +2090,7 @@ c
       do 10 ix=1,3
       do 11 isa=1,nums
       vs(isa,ix)=gaufcs*vs(isa,ix)
+      vst(isa,ix)=vs(isa,ix)
    11 continue
    10 continue
       endif
@@ -3589,6 +3591,38 @@ c
       esa(ioop(i,3),2)=esa(ioop(i,3),2)+fourth*roop(i,2)
       esa(ioop(i,4),2)=esa(ioop(i,4),2)+fourth*roop(i,2)
     1 continue
+c
+      return
+      end
+      subroutine cf_veloc(numw,xw,yw,vw,nums,xs,ys,vs)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa)
+      real*8 xs(msa,3),ys(msa,3),vs(msa,3)
+      integer numw,nums
+c
+      integer i,j,k
+c
+      if(numw.gt.0) then
+      do 1 k=1,mwa
+      do 2 j=1,3
+      do 3 i=1,numw
+      vw(i,j,k)=(xw(i,j,k)-yw(i,j,k))*tstepi
+    3 continue
+    2 continue
+    1 continue
+      endif
+c
+      if(nums.gt.0) then
+      do 4 j=1,3
+      do 5 i=1,nums
+      vs(i,j)=(xs(i,j)-ys(i,j))*tstepi
+    5 continue
+    4 continue
+      endif
 c
       return
       end
