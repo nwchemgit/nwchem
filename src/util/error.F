@@ -34,7 +34,9 @@ c
 #ifdef TCGMSG
          call parerr(status)
 #endif
-#ifdef DELTA
+#if defined(PARAGON)
+	Call Kill(0, 9)
+#elif defined(DELTA)
          call killproc(-1,0)
 #elif defined(IPSC)
          call killcube(-1,-1)
