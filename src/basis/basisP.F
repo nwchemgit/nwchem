@@ -1,6 +1,6 @@
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
-c $Id: basisP.F,v 1.4 1994-04-26 19:40:39 d3g681 Exp $
+c $Id: basisP.F,v 1.5 1994-04-26 19:46:14 d3g681 Exp $
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -107,10 +107,10 @@ c
 c
 c     Copy real data over
 c
-      call scopy(nprim, expnt, 1, exndcf(free,ind), 1)
+      call dcopy(nprim, expnt, 1, exndcf(free,ind), 1)
       free = free + nprim
       do i = 1, ngen
-         call scopy(nprim, coeffs(1,i), 1, exndcf(free,ind), 1)
+         call dcopy(nprim, coeffs(1,i), 1, exndcf(free,ind), 1)
          free = free + nprim
       enddo
 *      write(6,*) ' expnt input ', nprim
@@ -197,7 +197,7 @@ c
 c
       myexptr = infbs_cont(CONT_IEXP,myucont,basis)
       myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      call scopy(myprim,exndcf(myexptr,basis),1,exp,1)
+      call dcopy(myprim,exndcf(myexptr,basis),1,exp,1)
 c
       bas_getu_exponent = .true.
 c
@@ -309,7 +309,7 @@ c
       mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
       myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
       mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-      call scopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
+      call dcopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
 c
       bas_getu_coeff = .true.
 c
@@ -360,7 +360,7 @@ c
         write(6,*)' stored nprim: ',myprim
         return
       endif
-      call scopy(nexp,exp,1,exndcf(myexptr,basis),1)
+      call dcopy(nexp,exp,1,exndcf(myexptr,basis),1)
 c
       bas_setu_exponent = .true.
 c
@@ -414,7 +414,7 @@ c
         write(6,*)' stored nprim*ngen: ',(myprim*mygen)
         return
       endif
-      call scopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
+      call dcopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
 c
       bas_setu_coeff = .true.
 c

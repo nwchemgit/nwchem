@@ -1,6 +1,6 @@
       subroutine int_l1eall(i_basis, j_basis, ish, jsh, zerotol,
      &       ilab, jlab, lstv, S, T, V, lscr, scr, numstv) 
-c $Id: int_l1eall.F,v 1.4 1994-04-26 19:40:23 d3g681 Exp $
+c $Id: int_l1eall.F,v 1.5 1994-04-26 19:46:01 d3g681 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -53,11 +53,11 @@ c
       jbas  = j_basis + BASIS_HANDLE_OFFSET
 c
       iscrS = 1
-      call scopy(lstv,S,1,scr(iscrS),1)
+      call dcopy(lstv,S,1,scr(iscrS),1)
       iscrT = iscrS + lstv
-      call scopy(lstv,T,1,scr(iscrT),1)
+      call dcopy(lstv,T,1,scr(iscrT),1)
       iscrV = iscrT + lstv
-      call scopy(lstv,V,1,scr(iscrV),1)
+      call dcopy(lstv,V,1,scr(iscrV),1)
 c
       numstv = 0
       icount = 0

@@ -12,7 +12,7 @@ includes:
 		(cd $(SRCDIR)/$$dir; $(MAKE) include_stamp) ; \
 	done
 
-include_stamp:
+include_stamp sngl_to_dbl dbl_to_sngl:
 	echo Nothing to be done
 
 realclean clean:

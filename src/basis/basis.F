@@ -1,5 +1,5 @@
       block data basis_data
-c $Id: basis.F,v 1.9 1994-04-26 19:40:38 d3g681 Exp $
+c $Id: basis.F,v 1.10 1994-04-26 19:46:12 d3g681 Exp $
 c
 c Block data structure to initialize the common block variables in the
 c  internal basis set object data structures
@@ -1369,7 +1369,7 @@ c
 c
       myexptr = infbs_cont(CONT_IEXP,myucont,basis)
       myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      call scopy(myprim,exndcf(myexptr,basis),1,exp,1)
+      call dcopy(myprim,exndcf(myexptr,basis),1,exp,1)
 c
       bas_get_exponent = .true.
 c
@@ -1502,7 +1502,7 @@ c
       mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
       myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
       mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-      call scopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
+      call dcopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
 c
       bas_get_coeff = .true.
 c
@@ -1553,7 +1553,7 @@ c
         write(6,*)' stored nprim: ',myprim
         return
       endif
-      call scopy(nexp,exp,1,exndcf(myexptr,basis),1)
+      call dcopy(nexp,exp,1,exndcf(myexptr,basis),1)
 c
       bas_set_exponent = .true.
 c
@@ -1607,7 +1607,7 @@ c
         write(6,*)' stored nprim*ngen: ',(myprim*mygen)
         return
       endif
-      call scopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
+      call dcopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
 c
       bas_set_coeff = .true.
 c

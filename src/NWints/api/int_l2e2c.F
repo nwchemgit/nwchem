@@ -1,7 +1,7 @@
       subroutine int_l2e2c(brain, ish, ketin, jsh, 
      &       zerotol, leri, eri, nint, ilab, jlab, 
      &       lscr, scr)
-c $Id: int_l2e2c.F,v 1.2 1994-04-26 19:40:24 d3g681 Exp $
+c $Id: int_l2e2c.F,v 1.3 1994-04-26 19:46:02 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -54,7 +54,7 @@ c
       endif
 c
 c copy eri's to scr
-      call scopy(leri,eri,1,scr,1)
+      call dcopy(leri,eri,1,scr,1)
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET

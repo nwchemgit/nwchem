@@ -1,6 +1,6 @@
       subroutine int_lgen1e(i_basis, j_basis, ish, jsh, zerotol,
      &       ilab, jlab, l1e, Gen1e, lscr, scr, numgen) 
-c $Id: int_lgen1e.F,v 1.4 1994-04-26 19:40:27 d3g681 Exp $
+c $Id: int_lgen1e.F,v 1.5 1994-04-26 19:46:05 d3g681 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -38,7 +38,7 @@ c
       jbas  = j_basis + BASIS_HANDLE_OFFSET
       ijbas = ibas .eq. jbas
 c
-      call scopy(l1e,Gen1e,1,scr,1)
+      call dcopy(l1e,Gen1e,1,scr,1)
 c
       numgen = 0
       icount = 0
