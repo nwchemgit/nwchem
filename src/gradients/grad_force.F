@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.22 1997-04-07 21:49:32 d3j191 Exp $
+c     $Id: grad_force.F,v 1.23 1997-04-10 02:04:25 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -625,15 +625,6 @@ C     default: print the total forces
      $        24X,'gradient',/,6X,2(1X,(3(10X,A1))))
  2000    format(1X,I3,1X,A4,2(1X,3(1X,F10.6)))
          call util_flush(luout)
-      endif
-
-C     forces for ECCE
-      if (ga_nodeid() .eq. 0) then
-         gnorm = grad_norm(dbl_mb(k_force), nat)
-         gmax  = grad_max(dbl_mb(k_force), nat)
-         call ecce_print2('gradients', mt_dbl,dbl_mb(k_force),3,3,nat)
-         call ecce_print1('gradient norm', mt_dbl, gnorm, 1)
-         call ecce_print1('gradient max',  mt_dbl, gmax,  1)
       endif
 
 C     print timing information
