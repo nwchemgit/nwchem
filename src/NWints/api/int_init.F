@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.44 1999-10-26 22:25:42 mg201 Exp $
+c $Id: int_init.F,v 1.45 1999-11-02 22:21:37 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -215,6 +215,17 @@ c
         if (.not. int_rel_init(rtdb,nbas,bases)) call errquit
      &      ('int_init: int_rel_init failed ',911)
       end if
+c
+c Initialize the Douglas-Kroll variables
+c
+c form_type: 1. Free-particle projection operators
+c            2. External potential projection operators without pxVp integrals
+c            3. Complete spin-free Douglas-Kroll (i.e. including pxVp)
+c
+      if (.not. rtdb_get(rtdb,'doug_kroll',MT_LOG,1,doug_kroll)) 
+     $    doug_kroll = .false.
+      if (.not. rtdb_get(rtdb,'doug_kroll:type',MT_INT,1,
+     $   form_type)) form_type = 1
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
