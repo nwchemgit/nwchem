@@ -727,6 +727,7 @@ c
 #include "global.fh"
 #include "sym.fh"
 #include "cfock.fh"
+#include "msgids.fh"
 c     
       integer geom              ! [input]
       integer basis             ! [input]
@@ -760,7 +761,7 @@ c
       mem2 = max(mem2,max2e)
       avail = avail - 5*max2e - mem2
       avail = avail - 100000
-      call ga_igop(12, avail, 1, 'min')
+      call ga_igop(msg_int2e_file, avail, 1, 'min')
 c
 c     Assume that for the small systems for which can hold the
 c     integrals, that there is no sparsity except for symmetry.

@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.1 1995-12-13 01:28:21 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.2 1995-12-13 19:47:39 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -7,6 +7,7 @@ C$Id: sym_mo_adapt.F,v 1.1 1995-12-13 01:28:21 d3g681 Exp $
 #include "sym.fh"
 #include "global.fh"
 #include "util.fh"
+#include "msgids.fh"
       integer basis             ! [input]
       double precision thresh   ! [input]
       integer g_vecs            ! [input]
@@ -289,8 +290,8 @@ c
       enddo
 c     
       call ga_sync
-      call ga_igop(1, nmixed, 1, '+')
-      call ga_igop(1, irs, nbf, '+')
+      call ga_igop(msg_sym_1, nmixed, 1, '+')
+      call ga_igop(msg_sym_2, irs, nbf, '+')
       call ga_sync
 c     
       if (.not. ga_destroy(g_s)) call errquit('sym_mos_ad: ga?',0)
