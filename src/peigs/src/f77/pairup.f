@@ -29,8 +29,8 @@
 *
 *======================================================================
       subroutine pairup(n, me, iter, ipair)
-      integer n, me, iter, ipair
       implicit none
+      integer n, me, iter, ipair
 c
 c
 c     one of many ways of generating maximally overlapped pairs

@@ -1,4 +1,8 @@
       integer function selci_popcnt32(i)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      integer i
+      selci_popcnt32 = popcnt(i)
+#else
 #include "cbits.fh"
       byte i(4)
 c
@@ -13,8 +17,19 @@ c
       selci_popcnt32 = ipopcb(ind1) + ipopcb(ind2) +
      $     ipopcb(ind3) + ipopcb(ind4)
 c
+#endif
       end
       subroutine selci_vpop32(n, input, output)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      integer n
+      integer input(*)
+      integer output(*)
+      integer i
+c
+      do i = 1,n
+        output(i) = popcnt(input(i))
+      enddo
+#else
       implicit integer(a-z)
 #include "cbits.fh"
 c
@@ -28,9 +43,16 @@ c
          i4 = i4 + 4
  10   continue
 c
+#endif
       end
       integer function selci_leadz32(i)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      integer i
+      selci_leadz32 = leadz(i)
+#else
+c
 #include "cbits.fh"
+c
       byte i(4)
 c
 c     leading zero bit count for 32 bit word on sun ... must
@@ -52,7 +74,13 @@ c
       endif
       selci_leadz32 = m
 c
+#endif
+c
       end
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      subroutine inibit
+      end
+#else
       subroutine inibit
 #include "cbits.fh"
       byte ib(4)
@@ -98,6 +126,7 @@ c      write(6,*) ' leadzb '
 c      write(6,1) (i,leadzb(i),i=-128,127)
 c
       end
+#endif
 *mdc*else
 *      subroutine inibit
 *      end

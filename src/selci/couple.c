@@ -116,7 +116,7 @@ static void PrintMatrix(const double *u, int mcol, int mrow,
     (void) printf("\n\n");
     
     
-    uu = u;
+    uu = (double *)u;
     nnrow = nrow;
     while(nnrow--) {
       
