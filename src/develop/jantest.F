@@ -228,6 +228,7 @@ c
       double precision zerotol
       logical omulliken
 c
+      omulliken = .false.   ! avoids compiler warning
       if (order .eq. 'mulliken') then
          omulliken = .true.
       else if (order .eq. 'dirac') then
@@ -333,6 +334,8 @@ C
       logical ochargecloud, oasym
       character*8 side
 c
+      ochargecloud = .false.   ! avoids compiler warning
+      oasym = .false.          ! avoids compiler warning
       if (inp_compare(.false.,order,'chargecloud')) then
          ochargecloud = .true.
          oasym = .false.
@@ -857,7 +860,6 @@ c
       double precision w(nso,nso,nso,noso,noso,noso)
       double precision v(nso,nso,nso,noso,noso,noso)
       double precision g, et
-      integer n
 c occupied orbitals
       integer i, j, k, l, m, n
       integer i_orb, j_orb, k_orb, l_orb, m_orb, n_orb
