@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.164 2003-10-21 22:44:31 edo Exp $
+C     $Id: geom_input.F,v 1.165 2003-10-28 19:54:48 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -2487,7 +2487,8 @@ C
      1                                YYLST(1,2),
      2                                ZZLST(1,2),NAT)
             IF(.NOT.STATUS) THEN
-               CALL ERRQUIT('GEOM_LST_PUT_COORD : PUT FAILED',911)
+               CALL ERRQUIT('GEOM_LST_PUT_COORD : PUT FAILED',
+     9              911, 0)
             ENDIF
             IF(ILST.EQ.1) THEN
                DO IAT=1,NAT
@@ -2584,7 +2585,8 @@ C
             STATUS=GEOM_LST_GET_COORD(XXLST(1,2),
      1                                YYLST(1,2),ZZLST(1,2),NAT,ILST)
             IF(.NOT.STATUS) THEN
-               CALL ERRQUIT('GEOM_LST_GET_COORD : GET FAILED',911)
+               CALL ERRQUIT('GEOM_LST_GET_COORD : GET FAILED',
+     9              911,0)
             ENDIF
             WRITE(IW,8888) WRDXYZ
             DO IAT=1,NAT

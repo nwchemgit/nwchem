@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.43 2003-10-17 22:55:06 carlfahl Exp $
+* $Id: geom_hnd.F,v 1.44 2003-10-28 19:54:48 edo Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -535,7 +535,7 @@ C
       IF( ABS(EQVAL-PIDEG).LT.TOL) EQVAL=PIDEG
       GO TO 220
   200 CONTINUE
-      CALL ERRQUIT('HND_BEND: ROUNDOFF ERROR',0)
+      CALL ERRQUIT('HND_BEND: ROUNDOFF ERROR',0,0)
   220 CONTINUE
       RETURN
       END
@@ -3250,7 +3250,7 @@ C
       WRITE(IW,9998) ERRMSG
       WRITE(IW,9997)
 C
-      CALL ERRQUIT(' CALLS IT QUIT FROM HND_HNDERR ',0)
+      CALL ERRQUIT(' CALLS IT QUIT FROM HND_HNDERR ',0,0)
  9999 FORMAT(/,1X,72(1H-),/,31X,11HJOB STOPPED)
  9998 FORMAT(/,1X,9A8)
  9997 FORMAT(/,1X,72(1H-))
