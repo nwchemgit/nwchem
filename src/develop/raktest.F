@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.82 1998-09-03 23:51:37 d3e129 Exp $
+c $Id: raktest.F,v 1.83 1998-09-25 19:01:26 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -9,8 +9,8 @@ c $Id: raktest.F,v 1.82 1998-09-03 23:51:37 d3e129 Exp $
 c::functions
       logical task_computeSld, task_printsoints, task_pderiv
       external task_computeSld, task_printsoints, task_pderiv
-      logical task_dddd, task_accy
-      external task_dddd, task_accy
+      logical task_dddd, task_accy, raktask_intdd
+      external task_dddd, task_accy, raktask_intdd
 c::passed
       integer rtdb          ! rtdb handle
 c::local
@@ -26,95 +26,115 @@ c
       call ga_sync()
       call ga_sync()
       me = ga_nodeid()
-      goto (
-     &    00010,00020,00030,00040,00050,00060,00070,00080,
-     &    00090, 00100, 00110, 00120, 00130, 00140, 00150,
-     &    00160, 00170, 00180, 00190, 00200, 00210, 00220) raktask
 c
-      if (me.eq.0) then
-        write(luout,*)' default raktest task '
-        write(luout,*)' test semi empirical interface '
+      if (raktask.eq.0) then    !...................................   0
+        if (me.eq.0) then
+          write(luout,*)' default raktest task '
+          write(luout,*)' test semi empirical interface '
+        endif
+        call raktest_semi(rtdb)
+        raktest = .true.
+      else if (raktask.eq.1) then !.................................   1
+        if (me.eq.0)write(luout,*)' raktest task 1 stepper test'
+        call raktest_stpr(rtdb)
+        raktest = .true.
+      else if (raktask.eq.2) then !.................................   2
+        if (me.eq.0)write(luout,*)' raktest task 2 check int_init'
+        call raktest_init(rtdb)
+        raktest = .true.
+      else if (raktask.eq.3) then !.................................   3
+        if (me.eq.0)write(luout,*)' raktest task 3 check intd_init'
+        call raktest_initd(rtdb)
+        raktest = .true.
+      else if (raktask.eq.4) then !.................................   4
+        if (me.eq.0)write(luout,*)' raktest check 3ctr nai'
+        call raktest_3ctr(rtdb)
+        raktest = .true.
+      else if (raktask.eq.5) then !.................................   5
+        if (me.eq.0)write(luout,*)' test of general contraction code '
+        call raktest_gc(rtdb)
+        raktest = .true.
+      else if (raktask.eq.6) then !.................................   6
+        if (me.eq.0)write(luout,*)' test of orbital printing code '
+        call raktest_printorb(rtdb)
+        raktest = .true.
+      else if (raktask.eq.7) then !.................................   7
+        if (me.eq.0)write(luout,*)' test of writing geom objects out '
+        call raktest_geomwrt(rtdb)
+        raktest = .true.
+      else if (raktask.eq.8) then !.................................   8
+        if (me.eq.0)write(luout,*)' test of spcart stuff '
+        call raktest_spcart(rtdb)
+        raktest = .true.
+      else if (raktask.eq.9) then !.................................   9
+        if (me.eq.0)write(luout,*)' test of spcart stuff all in one'
+        call raktest_test9(rtdb)
+        raktest = .true.
+      else if (raktask.eq.10) then !................................. 10
+        if (me.eq.0)write(luout,*)' test of ecp stuff '
+        call raktest_ecp(rtdb)
+        raktest = .true.
+      else if (raktask.eq.11) then !................................. 11
+        if (me.eq.0)write(luout,*)' bug in integrals test '
+        call raktest_bug(rtdb)
+        raktest = .true.
+      else if (raktask.eq.12) then !................................. 12
+        if (me.eq.0)write(luout,*)' geometry printing routines '
+        call raktest_geomprt(rtdb)
+        raktest = .true.
+      else if (raktask.eq.13) then !................................. 13
+        if (me.eq.0)write(luout,*)' test 3 center derivatives '
+        call raktest_3cd(rtdb)
+        raktest = .true.
+      else if (raktask.eq.14) then !................................. 14
+        if (me.eq.0)write(luout,*)' test derivative overlap '
+        call raktest_ovd(rtdb)
+        raktest = .true.
+      else if (raktask.eq.15) then !................................. 15
+        if (me.eq.0)write(luout,*)
+     &      ' test blocking 2e derivative integral interface'
+        call raktest_bd2e(rtdb)
+        raktest = .true.
+      else if (raktask.eq.16) then !................................. 16
+        if (me.eq.0)write(luout,*)' raktest: disk test code '
+        call raktest_diskspeed(rtdb)
+        raktest = .true.
+      else if (raktask.eq.17) then !................................. 17
+        if (me.eq.0)write(luout,*)
+     &      ' raktest: compare 2e integrals from nwchem & texas'
+        call raktest_2ecompare(rtdb)
+        raktest = .true.
+      else if (raktask.eq.18) then !................................. 18
+        if (me.eq.0)write(luout,*)
+     &      ' raktest: compute overlap and linear dependence '
+        raktest = task_computeSld(rtdb)
+      else if (raktask.eq.19) then !................................. 19
+        if (me.eq.0)write(luout,*)
+     &      ' raktest: task print SO integrals '
+        raktest = task_printSOints(rtdb)
+      else if (raktask.eq.20) then !................................. 20
+        if (me.eq.0)write(luout,*)
+     &      ' raktest: task test periodic deriv '
+        raktest = task_pderiv(rtdb)
+      else if (raktask.eq.21) then !................................. 21
+        if (me.eq.0)write(luout,*)
+     &      ' raktest: task test dddd bug'
+        raktest = task_dddd(rtdb)
+      else if (raktask.eq.22) then !................................. 22
+        if (me.eq.0)write(luout,*)
+     &      ' raktest: accuracy test for ints/grads '
+        raktest = task_accy(rtdb)
+      else if (raktask.eq.23) then !................................. 23
+        if (me.eq.0)write(luout,*)
+     &      ' raktest: second derivative code '        
+        raktest = raktask_intdd(rtdb)
+      else
+        if (me.eq.0) then
+          write(luout,*)' unknown raktask number :',raktask
+          call errquit('raktest: fatal error',911)
+        endif
       endif
-      call raktest_semi(rtdb)
-      goto 00001
 c
-00010 if (me.eq.0)write(luout,*)' raktest task 1 stepper test'
-      call raktest_stpr(rtdb)
-      goto 00001
-00020 if (me.eq.0)write(luout,*)' raktest task 2 check int_init'
-      call raktest_init(rtdb)
-      goto 00001
-00030 if (me.eq.0)write(luout,*)' raktest task 3 check intd_init'
-      call raktest_initd(rtdb)
-      goto 00001
-00040 if (me.eq.0)write(luout,*)' raktest check 3ctr nai'
-      call raktest_3ctr(rtdb)
-      goto 00001
-00050 if (me.eq.0)write(luout,*)' test of general contraction code '
-      call raktest_gc(rtdb)
-      goto 00001
-00060 if (me.eq.0)write(luout,*)' test of orbital printing code '
-      call raktest_printorb(rtdb)
-      goto 00001
-00070 if (me.eq.0)write(luout,*)' test of writing geom objects out '
-      call raktest_geomwrt(rtdb)
-      goto 00001
-00080 if (me.eq.0)write(luout,*)' test of spcart stuff '
-      call raktest_spcart(rtdb)
-      goto 00001
-00090 if (me.eq.0)write(luout,*)' test of spcart stuff all in one'
-      call raktest_test9(rtdb)
-      goto 00001
-00100 if (me.eq.0)write(luout,*)' test of ecp stuff '
-      call raktest_ecp(rtdb)
-      goto 00001
-00110 if (me.eq.0)write(luout,*)' bug in integrals test '
-      call raktest_bug(rtdb)
-      goto 00001
-00120 if (me.eq.0)write(luout,*)' geometry printing routines '
-      call raktest_geomprt(rtdb)
-      goto 00001
-00130 if (me.eq.0)write(luout,*)' test 3 center derivatives '
-      call raktest_3cd(rtdb)
-      goto 00001
-00140 if (me.eq.0)write(luout,*)' test derivative overlap '
-      call raktest_ovd(rtdb)
-      goto 00001
-00150 if (me.eq.0)write(luout,*)
-     &    ' test blocking 2e derivative integral interface'
-      call raktest_bd2e(rtdb)
-      goto 00001
-00160 if (me.eq.0)write(luout,*)' raktest: disk test code '
-      call raktest_diskspeed(rtdb)
-      goto 00001
-00170 if (me.eq.0)write(luout,*)
-     &    ' raktest: compare 2e integrals from nwchem & texas'
-      call raktest_2ecompare(rtdb)
-      goto 00001
-00180 if (me.eq.0)write(luout,*)
-     &    ' raktest: compute overlap and linear dependence '
-      raktest = task_computeSld(rtdb)
-      goto 00002
-00190 if (me.eq.0)write(luout,*)
-     &    ' raktest: task print SO integrals '
-      raktest = task_printSOints(rtdb)
-      goto 00002
-00200 if (me.eq.0)write(luout,*)
-     &    ' raktest: task test periodic deriv '
-      raktest = task_pderiv(rtdb)
-      goto 00002
-00210 if (me.eq.0)write(luout,*)
-     &    ' raktest: task test dddd bug'
-      raktest = task_dddd(rtdb)
-      goto 00002
-00220 if (me.eq.0)write(luout,*)
-     &    ' raktest: accuracy test for ints/grads '
-      raktest = task_accy(rtdb)
-      goto 00002
-c
-00001 continue
-      raktest = .true.
-00002 continue
       end
       subroutine raktest_geomwrt(rtdb)
       implicit none
@@ -5326,4 +5346,4 @@ c
       endif
       init_int = 1
       end
-      
+
