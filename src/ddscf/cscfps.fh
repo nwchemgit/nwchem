@@ -1,13 +1,13 @@
+C$Id: cscfps.fh,v 1.5 1995-03-01 01:18:19 d3g681 Exp $
 c
 c     pstat handles for the SCF code
 c
       integer ps_fock_2e, ps_int_1e, ps_solve, ps_search,
      $     ps_matexp, ps_total, ps_int_2e, ps_diag, ps_fock_add,
-     $     ps_vecio, ps_orthog
-C$Id: cscfps.fh,v 1.4 1995-02-02 23:11:32 d3g681 Exp $
+     $     ps_vecio, ps_orthog, ps_int_dip
       logical oscfps            ! True if gathering stats
       common /cscfps/ oscfps,
      $     ps_fock_2e, ps_int_1e, ps_solve, ps_search,
      $     ps_matexp, ps_total, ps_int_2e, ps_diag, ps_fock_add,
-     $     ps_vecio, ps_orthog
+     $     ps_vecio, ps_orthog, ps_int_dip
 c

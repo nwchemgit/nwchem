@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.21 1995-02-02 23:11:46 d3g681 Exp $
+# $Id: GNUmakefile,v 1.22 1995-03-01 01:18:21 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -31,7 +31,7 @@
               rhf_do_canon.F \
               rhf_energy.F rhf_fock_2e.F rhf_hessv.F rhf_nr_solve.F 
 
-HEADERS = schwarz.fh
+HEADERS = schwarz.fh cscfps.fh
 
 include ../config/makefile.h
 include ../config/makelib.h

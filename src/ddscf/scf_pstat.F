@@ -1,6 +1,6 @@
       block data dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.12 1995-02-02 23:12:08 d3g681 Exp $
+C$Id: scf_pstat.F,v 1.13 1995-03-01 01:18:25 d3g681 Exp $
       data oscfps /.false./     ! So that other codes don't break
 c
       end
@@ -51,6 +51,9 @@ c
       if (.not. pstat_allocate('scf: total', pstat_qstat, 0, junk,
      $     ps_total)) call errquit('scf: scf_pstat_init', 0)
 c
+      if (.not. pstat_allocate('scf: dipole', pstat_qstat, 0, junk,
+     $     ps_int_dip)) call errquit('scf: scf_pstat_init', 0)
+c
       call pstat_on(ps_total)
       oscfps = .true.
 c
@@ -78,6 +81,7 @@ c
          if (.not. pstat_free(ps_diag))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_vecio))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_total))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_int_dip))call errquit('scf_pstat?', 0)
 c
       endif
 c
