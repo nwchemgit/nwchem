@@ -5,14 +5,14 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(rtdb)
-C$Id: dft_inpana.F,v 1.16 1996-12-30 21:54:54 d3h449 Exp $
+C$Id: dft_inpana.F,v 1.17 1997-01-03 17:53:38 d3h449 Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
       Integer rtdb    !  runtime database handle
       integer me,ichg,nel
       integer noc1
-      integer n
+      integer n, na, nb
       double precision anucl_charg, ckfac
       double precision EPSILON
       character*9 local_c, nonlocal_c, nineb_c
@@ -121,7 +121,11 @@ c-->    Write to output.
 c
         write(LuOut,8150)ncenters
 c
-        write(LuOut,8200)nel,noc(1),noc(2),ichg,mult
+        na = noc(1)
+        nb = noc(2)
+        if(ipol.eq.1)nb = noc(1)
+c
+        write(LuOut,8200)nel,na,nb,ichg,mult
 c
         write(LuOut,9000)
 c     
