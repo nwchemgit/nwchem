@@ -5,7 +5,7 @@
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.7 1995-06-28 04:49:32 og845 Exp $
+C$Id: dft_scf.F,v 1.8 1995-07-19 23:22:18 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
@@ -191,9 +191,9 @@ c
 c     Figure input/output MO vectors ... all this should be
 c     context sensitive but that design is incomplete.
 c     
-      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+      if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
      $     movecs_in = 'movecs'
-      if (.not. rtdb_cget(rtdb, 'scf:output vectors', 1, movecs_out))
+      if (.not. rtdb_cget(rtdb, 'dft:output vectors', 1, movecs_out))
      $     movecs_out = ' '
       if (movecs_out.eq.' ') then
             movecs_out = movecs_in
