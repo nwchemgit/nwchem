@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.3 1999-12-11 05:44:55 d3j191 Exp $
+c $Id: ana_task.F,v 1.4 1999-12-13 19:59:55 d3j191 Exp $
 c
       implicit none
 c
@@ -183,7 +183,7 @@ c
       close(unit=lfntrj)
 c
       if(me.eq.0) then
-      write(*,'(/,a,i10.a)') ' Copied ',nwrit,' frames to ',
+      write(*,'(/,a,i10,a,a)') ' Copied ',nwrit,' frames to ',
      + filcop(1:index(filcop,' ')-1)
       endif
 c
@@ -227,7 +227,7 @@ c
 c
 c
       if(me.eq.0) then
-      write(*,'(/,a,i10.a)') ' Superimposed ',nwrit,' frames to ',
+      write(*,'(/,a,i10,a,a)') ' Superimposed ',nwrit,' frames to ',
      + filcop(1:index(filcop,' ')-1)
       endif
 c
