@@ -1629,12 +1629,18 @@ c
 c
       if(me.eq.0) then
       write(lfnout,1000)
- 1000 format(/,' SPACIAL DECOMPOSITION',/)
+ 1000 format(/,' DOMAIN DECOMPOSITION',/)
 c
       write(lfnout,1001) np,npx,npy,npz
  1001 format(' Processor count ',i5,' =',i5,' x',i5,' x',i5)
       write(lfnout,1002) nbx*nby*nbz,nbx,nby,nbz
  1002 format(' Box count       ',i5,' =',i5,' x',i5,' x',i5)
+c
+      if(mod(nbx,npx)+mod(nby,npy)+mod(nbz,npz).ne.0) then
+      write(lfnout,1003)
+ 1003 format(/,' WARNING: Inefficient distribution of boxes over ',
+     + 'processors')
+      endif
       endif
 c
       if(.not.ma_push_get(mt_int,3*np,'lcnt',l_lcnt,i_lcnt))
