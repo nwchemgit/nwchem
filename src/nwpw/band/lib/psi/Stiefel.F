@@ -1,5 +1,5 @@
 *
-* $Id: Stiefel.F,v 1.4 2002-01-15 00:33:08 bylaska Exp $
+* $Id: Stiefel.F,v 1.5 2002-01-15 00:57:08 bylaska Exp $
 *
 
 
@@ -475,7 +475,7 @@
       do nb=1,nbrill
       do ms=1,ispin
          indx = ms + (nb-1)*2
-         sum = sum + brillioun_weight(nb)*dbl_mb(tmp1(1)+indx)
+         sum = sum + brillioun_weight(nb)*dbl_mb(tmp1(1)+indx-1)
       end do
       end do
 
