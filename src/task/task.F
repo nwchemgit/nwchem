@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.16 1997-05-14 01:16:00 d3g681 Exp $
+* $Id: task.F,v 1.17 1997-10-06 23:01:02 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -30,6 +30,7 @@ c
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
+      logical esp
       logical  task_energy, task_gradient, task_optimize, task_freq
       logical  task_hessian, task_saddle
       logical  task_qmmm
@@ -40,6 +41,7 @@ c
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian
       external task_version
+      external esp
 c
       if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
@@ -109,6 +111,8 @@ c
             status = moints_full(rtdb)
          else if (inp_compare(.false.,'dplot', theory)) then
             status = dplot(rtdb)
+         elseif(inp_compare(.false.,'esp',theory)) then
+          status=esp(rtdb)
          else
             operation = 'energy' ! No matching specialized operation
             goto 100            !  execute the default generic operation
