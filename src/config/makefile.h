@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.498 2005-02-05 00:15:28 edo Exp $
+# $Id: makefile.h,v 1.499 2005-02-08 01:37:53 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1368,13 +1368,15 @@ endif
 
   ifeq ($(LINUXCPU),ppc)
 # this are for PowerPC
+# Tested on SLES 9
+# Feb 7th 2005
+# xlf v9.1
+# xlc v7.0 
+# gcc-3.2.3-42 
     ifeq ($(FC),xlf)
       FOPTIONS  = -q32  -qextname -qfixed 
       FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsigtrap -qxlf77=leadzero
-      FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
-      ifdef RSQRT
-        FOPTIMIZE  += -qfloat=rsqrt:fltint
-      endif
+      FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qfloat=fltint
       FDEBUG= -O2 -g
       EXPLICITF = TRUE
       DEFINES  +=   -DXLFLINUX
@@ -1390,7 +1392,7 @@ endif
       COPTIONS   = -Wall
       COPTIMIZE  = -g -O2
     endif
-    LDOPTIONS += -v
+    LDOPTIONS += -Wl,--relax #-v
   endif
 
 
@@ -1419,12 +1421,6 @@ ifeq ($(LINUXCPU),x86)
   endif
 endif
 #EXTRA_LIBS +=-lefence # link against Electricfence
-ifeq ($(LINUXCPU),ppc)
-  EXTRA_LIBS += -lm
-    ifeq ($(FC),xlf)
-      LINK.f   = xlf_r -Wl,-Bstatic $(LDFLAGS) 
-    endif
-endif
 
 
 CORE_LIBS += -llapack $(BLASOPT) -lblas
@@ -1694,9 +1690,6 @@ endif
           LDOPTIONS += -pg
         endif
         FOPTIMIZE= -O3 -qstrict -qarch=auto -qtune=auto -qcache=auto -qfloat=fltint 
-        ifdef RSQRT
-          FOPTIMIZE  += -qfloat=rsqrt:fltint
-        endif
         FDEBUG= -O2 -g
         EXPLICITF = TRUE
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
