@@ -207,13 +207,19 @@ c-----------------------------------------------------
 c  Set up the MXSIZE(*) & MXPAIR(*) arrays, find MAXPAR (allowed)
 c
       max_111=0    ! memory for 1-ij,1-kl & 1-ijkl in a block 
-      nparmax=0
-      nparmin=1 000 000   
-      nblsmax=0
-      nblsmin=1 000 000   
       maxme1=0     ! output: maximum memory needed for a block
+c
       maxqrt=0     ! output: overall maximum number of quart/block
       maxpar=0     ! output: overall maximum number of pairs/block
+c
+      minqrt=1 000 000
+      minpar=1 000 000
+c
+      maxpar_4_mem=0
+      maxqrt_4_mem=0
+c
+      minpar_4_mem=1 000 000
+      minqrt_4_mem=1 000 000
 c
       nbl12=0      ! counter of super-blocks
       do 100 ibl=1,nbl2
@@ -269,10 +275,14 @@ c
             ijpar_inp=limpair
             klpar_inp=limpair
 c
-            ijpar_lim=min(ijpar_all,ijpar_inp)
-            klpar_lim=min(klpar_all,klpar_inp)
+c>>>>>      ijpar_lim=min(ijpar_all,ijpar_inp)
+c>>>>>      klpar_lim=min(klpar_all,klpar_inp)
 c
-            maxpair=max(ijpar_lim,klpar_lim)
+            npairs_all=max(ijpar_all,klpar_all)
+c
+c>>>>>      maxpair=max(ijpar_lim,klpar_lim)
+c
+            maxpair=limpair
 c-------------------------------------------------
 c maximum block-size (number of quartets) allowed by the cache size
 c
@@ -289,7 +299,9 @@ c
             nquart_all=ijpar_all*klpar_all
             if(ibl.eq.kbl) nquart_all=ijpar_all*(ijpar_all+1)/2
 c
-            maxsize=min(nquart_all,nquart_cache,nquart_inp)
+c>>>>>>     maxsize=min(nquart_all,nquart_cache,nquart_inp)
+c
+            maxsize=min(           nquart_cache,nquart_inp)
 c
 c-------------------------------------------------
 c calculate memory needed for one ij-, one kl-pair 
@@ -413,9 +425,9 @@ c-------------------------------------------------
 c there is another setup arising from cache size and input's
 c given limits (limblks & limpair) which are as follows :
 c
-c     maxpair ( min of ijpar_lim, klpar_lim )  for pairs number
+c     maxpair ( limpair )            for pairs number
 c and 
-c     maxsize              for quartets number
+c     maxsize (min of cache,limblks) for quartets number
 c
 c if above maxsize is smaller than nquart_mem then
 c number of pairs/block can be increased what is important
@@ -463,28 +475,46 @@ C      endif
 C
 c-------------------------------------------------
 c
-c final set up for maximum size of a block and number of pairs
+c final setup for maximum quartets/block & paris/block 
+c as used in splitting procedure (request_split routine)
 c
       npairs=min( maxpair, npairs_mem )
       nquart=min( maxsize, nquart_mem )
 c
-c final memory for a block 
-c
-      memory=memor_const + npairs*(memor2ij + memor2kl)+ nquart*memor4
-c
-c final maximum quartets/block & paris/block allowed (used in splitting):
-c
       mxpair(nbl12)=npairs
       mxsize(nbl12)=nquart
 c
+c for memory,however, use min(nquart_all,nquart) & min(npairs_all,npairs)
+c
+      npairs_4_mem=min(npairs_all,npairs)
+      nquart_4_mem=min(nquart_all,nquart)
+c
+      memory=memor_const + npairs_4_mem*(memor2ij + memor2kl)
+     *                   + nquart_4_mem*memor4
+c
+c-------------------------------------------------
       if(nquart.le.0) then
          write(6,*)'nonpositive  max_size=',nquart,' in block=',nbl12
          call errquit('texas:blksizer line=',507 )
       endif
+c-------------------------------------------------
 c
-      if(mxpair(nbl12).gt.maxpar) maxpar=mxpair(nbl12)
-      if(mxsize(nbl12).gt.maxqrt) maxqrt=mxsize(nbl12)
+c>>>  if(mxpair(nbl12).gt.maxpar) maxpar=mxpair(nbl12)
+c>>>  if(mxsize(nbl12).gt.maxqrt) maxqrt=mxsize(nbl12)
 c
+c max & min for splitting :
+c
+      if(npairs      .gt.maxpar      ) maxpar      =npairs       
+      if(nquart      .gt.maxqrt      ) maxqrt      =nquart       
+      if(npairs      .lt.minpar      ) minpar      =npairs       
+      if(nquart      .lt.minqrt      ) minqrt      =nquart       
+c
+c max & min for memory alloc. :
+c
+      if(npairs_4_mem.gt.maxpar_4_mem) maxpar_4_mem=npairs_4_mem 
+      if(nquart_4_mem.gt.maxqrt_4_mem) maxqrt_4_mem=nquart_4_mem 
+      if(npairs_4_mem.lt.minpar_4_mem) minpar_4_mem=npairs_4_mem 
+      if(nquart_4_mem.lt.minqrt_4_mem) minqrt_4_mem=nquart_4_mem 
 c-------------------------------------------------
       maxmem=memory
 c-------------------------------------------------
@@ -493,28 +523,6 @@ c
       if(maxmem.gt.maxme1) then
          maxme1=maxmem
          ispblx=nbl12
-      endif
-c-------------------------------------------------
-c Select a super-block with the maximum & minimum block-size :
-c
-      if(maxqrt.gt.nblsmax) then
-         nblsmax=maxqrt
-         ispblq=nbl12
-      endif
-      if(maxqrt.lt.nblsmin) then
-         nblsmin=maxqrt
-         ispblm=nbl12
-      endif
-c-------------------------------------------------
-c Select a super-block with the maximum & minimum pairs/block:
-c
-      if(maxpar.gt.nparmax) then
-         nparmax=maxpar
-         ispblp=nbl12
-      endif
-      if(maxpar.lt.nparmin) then
-         nparmin=maxpar
-         ispblr=nbl12
       endif
 c-------------------------------------------------
   100 continue
@@ -541,16 +549,32 @@ c
       pairs=dble(npairs)
       quart=pairs*(pairs+1)/2
       write(8,497) nbl12,quart,
-     *             nblsmax,ispblq,
-     *             nblsmin,ispblm,
-     *             nparmax,ispblp,
-     *             nparmin,ispblr 
+     *             maxqrt,
+c>>  *             minqrt,
+     *             maxpar,
+c>>  *             minpar,
+     *             maxqrt_4_mem,
+c>>  *             minqrt_4_mem,
+     *             maxpar_4_mem 
+c>>  *             minpar_4_mem 
+c
   497 format(/'  number of Blocks of Contracted Quartets =',i15/
      *        '  number of contracted shell quartets     =',f16.0/
-     *        '  maximum quart/block=',i7,'  in S-block =',i6/ 
-     *        '  minimum quart/block=',i7,'  in S-block =',i6/ 
-     *        '  maximum pairs/block=',i7,'  in S-block =',i6/ 
-     *        '  minimum pairs/block=',i7,'  in S-block =',i6/)
+c    *        '  maximum quart/block=',i7,'  in S-block =',i6/ 
+c    *        '  minimum quart/block=',i7,'  in S-block =',i6/ 
+c    *        '  maximum pairs/block=',i7,'  in S-block =',i6/ 
+c    *        '  minimum pairs/block=',i7,'  in S-block =',i6/ 
+     *        '  ...........................................'/ 
+     *        '  maximum quart/block for split =',i6/   
+c>>  *        '  minimum quart/block for split =',i6/   
+     *        '  maximum pairs/block for split =',i6/   
+c>>  *        '  minimum pairs/block for split =',i6/   
+     *        '  ...........................................'/ 
+     *        '  maximum quart/block for memor =',i6/   
+c>>  *        '  minimum quart/block for memor =',i6/   
+     *        '  maximum pairs/block for memor =',i6/ 
+c>>  *        '  minimum pairs/block for memor =',i6/
+     *        '  ...........................................') 
 c
       ENDIF
 c-----------------------------------------------------------

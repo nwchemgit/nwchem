@@ -1482,9 +1482,7 @@ c ijblock - pair-block               ![input]
 c ijpar   - a pair in that block     ![input]
 c ics,jcs : shells                   ![output]
 c--------------------------------------------------
-cccc  dimension nblock1(0:nbl1)
-      dimension nblock1(0:*   )
-c
+      dimension nblock1(0:*   )      !    nblock1(0:nbl1)
 c
       call get_ij_half(ijblock, iblock,jblock)
 c
@@ -1508,65 +1506,6 @@ c                                                      1 to jncrem)
 c
       ics=ishell+ics_b -1
       jcs=jshell+jcs_b -1
-c
-      end
-c==================================================================
-      subroutine diff_pairs_1(ijpres2,klpres2,
-     *                       isbl_size,isbl_q,ipoint,
-     *                       nij_diff,nkl_diff)
-      dimension ijpres2(*),klpres2(*), isbl_q(*)
-c
-      ij_prev=-1
-      kl_prev=-1
-      ij=0
-      kl=0
-      do iqp=1,isbl_size
-         iq=isbl_q(ipoint+iqp)
-         if(iq.gt.0) then
-            ijcs=ijpres2(iq)
-            if(ijcs.ne.ij_prev) then
-               ij=ij+1
-               ij_prev=ijcs
-            endif
-            klcs=klpres2(iq)
-            if(klcs.ne.kl_prev) then
-               kl=kl+1
-               kl_prev=klcs
-            endif
-         endif
-      enddo
-c
-      nij_diff=ij
-      nkl_diff=kl
-c
-      end
-c==================================================================
-      subroutine print_pairs (ijpres2,klpres2,
-     *                       isbl_size,isbl_q,ipoint)
-      dimension ijpres2(*),klpres2(*), isbl_q(*)
-c
-      ij_prev=-1
-      kl_prev=-1
-      ij=0
-      kl=0
-      do iqp=1,isbl_size
-         iq=isbl_q(ipoint+iqp)
-         if(iq.gt.0) then
-            ijcs=ijpres2(iq)
-            if(ijcs.ne.ij_prev) then
-               ij=ij+1
-               ij_prev=ijcs
-            endif
-            klcs=klpres2(iq)
-            if(klcs.ne.kl_prev) then
-               kl=kl+1
-               kl_prev=klcs
-            endif
-            write(6,*)'iqp=',iqp,' ijcs,klcs=',ijcs,klcs
-         endif
-      enddo
-c
-      write(6,*)' nij_diff=',ij,' nkl_diff=',kl
 c
       end
 c==================================================================
