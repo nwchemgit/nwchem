@@ -27,6 +27,9 @@ int nw_inp_from_string(int rtdb, const char *input)
       if (fwrite(input, 1, strlen(input), file) != strlen(input)) {
 	ga_error("nw_inp_from_string: failed to write to temp.nw\n",0);
       }
+      if (fwrite("\n", 1, 1, file) != 1) {
+	ga_error("nw_inp_from_string: failed to write to temp.nw\n",0);
+      }
 
       (void) fclose(file);
     }
