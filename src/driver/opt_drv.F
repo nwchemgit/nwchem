@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.62 1999-05-25 19:02:41 d3e129 Exp $
+C$Id: opt_drv.F,v 1.63 1999-05-27 17:50:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -71,6 +71,8 @@ c
       logical       zcoord
       logical       rstart
       logical       excess
+      logical       zmatrix     ! True if user specified zmatrix
+      character*8   source
       character*255 opt_hess_fil
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
@@ -78,7 +80,7 @@ c
       parameter (mxcoor=1500)
 c                mxcoor=max(mxcart,mxzmat)
 c
-      logical geom_zmt_get_varinfo
+      logical geom_zmt_get_varinfo, geom_zmt_get_source
       character*8 zvarname(mxcoor),test
       double precision zvarsign(mxcoor)
 
@@ -183,11 +185,31 @@ c
            endif
       endif
 c
+c
+c     ----- get going ... -----
+c
+      if (.not. geom_create(geom, 'geometry'))
+     &       call errquit('hnd_opt: geom_create?', 911)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     &       call errquit('hnd_opt: no geometry ', 911)
+      if (.not. geom_cart_get(geom, ncent, atmlab, c, zan))
+     &       call errquit('hnd_opt: geom_get ', 911)
+       nat = ncent
+      if(.not.geom_zmt_get_nizmat(geom,nzmat))
+     &       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
+      zcoord  = nzmat.gt.0      ! zmatrix from either autoz or user
+c
+      if (.not.geom_zmt_get_source(geom,source))
+     $     call errquit('hnd_optx: zmat source ',geom)
+      zmatrix = (source .eq. 'user') ! zmatrix from user
+      if (.not. zmatrix) oqstep = .false.
+      if (nzvar .ne. nvar) oqstep = .false.
+c
       if (util_print('information', print_low) .and. 
      $     (ga_nodeid().eq.0.or.dbug))  then
          write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
      1                                       modsad,moddir,
-     2                                       sadstp, oqstep
+     2                                       sadstp, source, oqstep
       endif
 c
       nzfrz=0
@@ -210,37 +232,16 @@ c
          endif
       endif
 c
-c     ----- get going ... -----
-c
-      if (.not. geom_create(geom, 'geometry'))
-     &       call errquit('hnd_opt: geom_create?', 911)
-      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &       call errquit('hnd_opt: no geometry ', 911)
-      if (.not. geom_cart_get(geom, ncent, atmlab, c, zan))
-     &       call errquit('hnd_opt: geom_get ', 911)
-       nat = ncent
-      if(.not.geom_zmt_get_nizmat(geom,nzmat))
-     &       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
-c
 c     ----- frozen coordinates ? if so .... -----
 c
-      status = rtdb_parallel(.false.)
-      if(ga_nodeid().eq.0) then
-         if(.not.geom_zmt_get_nzfrz(geom,nzfrz)) then
-            nzfrz=0
-         else
-            if(.not.geom_zmt_get_izfrz(geom,izfrz,nzfrz)) then
-               call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
-            endif
-         endif
-         call ga_brdcst(24+msgint,nzfrz,mitob(1     ),0)
-         call ga_brdcst(25+msgint,izfrz,mitob(mxcoor),0)
+      if(.not.geom_zmt_get_nzfrz(geom,nzfrz)) then
+         nzfrz=0
       else
-         call ga_brdcst(24+msgint,nzfrz,mitob(1     ),0)
-         call ga_brdcst(25+msgint,izfrz,mitob(mxcoor),0)
+         if(.not.geom_zmt_get_izfrz(geom,izfrz,nzfrz)) then
+            call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
+         endif
       endif
-      call ga_sync()
-      status = rtdb_parallel(.true.)
+c
       if ((ga_nodeid().eq.0.or.dbug) .and.
      $     util_print('information', print_low)) then
          if(nzfrz.gt.0) then
@@ -251,11 +252,11 @@ c
          else
             write(iw,9991)
          endif
-         if (nzvar .gt. 0 .and. oqstep) then
+         if (zmatrix) then
             if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
      $           call errquit('hnd_optx: varinfo?',0)
             write(6,*)
-            write(6,*) 'names of Z-matrix variables '
+            write(6,*) '  names of Z-matrix variables '
             do i = 1, nzvar, 5
                write(6,5432) (j,zvarname(j),j=i,min(nzvar,i+4))
  5432          format(1x,5(i4,1x,a8,2x))
@@ -263,6 +264,8 @@ c
             write(6,*)
             write(6,*) 'variables with the same non-blank name',
      $           ' are constrained to be equal'
+            if (.not. oqstep) write(6,*) 'constraints will be not be',
+     $           ' exact since qstep is not used'
             write(6,*)
             do i = 1, nzvar
                if (zvarname(i).ne.' ') then
@@ -291,9 +294,6 @@ c
                   endif
                endif
             enddo
-         else if (nzvar .gt. 0) then
-            write(6,*) 'constraints will be not be exact since ',
-     $           'qstep is not used'
          endif
       endif
 c
@@ -308,7 +308,6 @@ c           mcoord = 3*nat
 c
       rstart=.false.
       excess=.false.
-      zcoord=nzmat.gt.0
       if(zcoord) then
          call geom_zmt_icoord(rtdb,geom)
          ncart =3*nat
@@ -433,7 +432,7 @@ c
       endif
 c
       if(zcoord) call hnd_opt_tfds(rtdb,geom)               
-      if (zcoord .and. (ncoord.eq.nzvar) .and. oqstep) then
+      if (oqstep) then
          call hnd_opt_search_lin_int(rtdb,geom,rstart,excess)
       else
          call hnd_opt_search_lin(rtdb,geom,rstart,excess)
@@ -498,10 +497,15 @@ c
          write(iw,9998)
          if (.not. geom_print(geom)) call errquit
      $        ('hnd_opt_drv: geom_print?',0)
+      endif
+      if ((dbug) .and. util_print('geometry',print_low))  then
          if (zcoord)  then 
-            call hnd_zmtprt(geom)
+            call hnd_zmtprt(geom) ! Must be called in parallel
             write(6,*)
          endif
+      endif
+      if ((ga_nodeid().eq.0.or.dbug)
+     $     .and. util_print('geometry',print_low))  then
          if (util_print('bonds',print_default)) then
             if (.not.geom_print_distances(geom)) call errquit(
      &           'hnd_opt_drv: geom_print_distances failed',911)
@@ -532,6 +536,7 @@ c
      5       ' optimization to saddle point          (modsad) = ',i4,/,
      6       ' initial eigen-mode followed to saddle (moddir) = ',i4,/,
      7       ' maximum step size to saddle           (sadstp) = ',f6.2/
+     7       ' source of zmatrix                              =   ',a8/
      8       ' line search in internals              (oqstep) =    ',l1)
  9995 format(' maximum number of energy points reached. stop',
      1       ' currently -nptopt- = ',i5)
