@@ -155,19 +155,22 @@ basis set.  These may be used as follows
   end
 \end{verbatim}
 
-A default location/path of the NWChem basis set libraries is provided on 
-installation of the code, but a different path can be defined by specifying 
-the keyword \verb+file+, and one can explicitly name the file to be accessed
+A default path of the NWChem basis set libraries is provided on installation 
+of the code, but a different path can be defined by specifying the keyword 
+\verb+file+, and one can explicitly name the file to be accessed
 for the basis functions. For example,
 \begin{verbatim}
   basis
     o  library 3-21g file /usr/d3g681/nwchem/library
-    si library 3-21g file /usr/d3g681/nwchem/library
+    si library 6-31g file /usr/d3g681/nwchem/libraries/
   end
 \end{verbatim}
-This directive tells the code to use the basis sets \verb+3-21g+ in
-the file {\tt /usr/\-d3g681/\-nwchem/\-library} for atoms \verb+o+ and
-\verb+si+, rather than look for them in the default librares.
+This directive tells the code to use the basis set \verb+3-21g+ in
+the file {\tt /usr/\-d3g681/\-nwchem/\-library} for atom \verb+o+ and
+to use the basis set \verb+6-31g+ in the directory 
+{\tt /usr/\-d3g681/\-nwchem/\-libraries/} for atom \verb+si+, rather 
+than look for them in the default libraries. When a directory is defined 
+the code will search for the basis set in a file with the name {\tt 6-31g}.
 
 The ``*'' tag can be used to efficiently define basis set input directives 
 for large numbers of atoms. For example,
@@ -251,19 +254,7 @@ Section \ref{sec:dyall-mod-dir} for more details.  Subsequent lines define
 the primitive function exponents and contraction coefficients.  General
 contractions are specified by including multiple columns of coefficients.
 
-For example, the following \verb+BASIS+ directive augments the Dunning
-cc-pvdz basis set for the water molecule with a diffuse s-shell on
-oxygen:
-\begin{verbatim}
-  basis spherical nosegment
-    oxygen library cc-pvdz
-    hydrogen library cc-pvdz
-    oxygen s
-      0.01 1.0
-  end
-\end{verbatim}
-
-This is equivalent to the following explicit specification:
+The following example defines basis sets for the water molecule:
 \begin{verbatim}
   basis spherical nosegment
     oxygen s
@@ -298,9 +289,31 @@ This is equivalent to the following explicit specification:
           0.7270    1.000000
     oxygen s
           0.01      1.0
+    hydrogen s
+          0.02974   1.0
+    hydrogen p
+          0.141      1.0
   end
 \end{verbatim}
 
 
+\section{Combinations of library and explicit basis set input}
+The user can use a mixture of library basis and explicit basis set
+input to define the basis sets used on the various atoms.
 
+For example, the following \verb+BASIS+ directive augments the Dunning
+cc-pvdz basis set for the water molecule with a diffuse s-shell on
+oxygen and adds the aug-cc-pVDZ diffuse functions onto the hydrogen.
+\begin{verbatim}
+  basis spherical nosegment
+    oxygen library cc-pvdz
+    hydrogen library cc-pvdz
+    oxygen s
+      0.01 1.0
+    hydrogen library "aug-cc-pVDZ Diffuse"
+  end
+\end{verbatim}
+
+The resulting basis set defined is identical to the one defined above 
+in the explicit basis set input.
 
