@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.6 1994-04-09 15:46:25 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.7 1994-06-29 05:50:16 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -52,7 +52,7 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
       shells_ok = shells_ok .and. int_chk_sh(ketin,lsh)
       if (.not.shells_ok)
-     &       call errquit('int_l2e4c: invalid contraction/shell',0)
+     &       call errquit('int_2e4c: invalid contraction/shell',0)
 c
 c     define center information required 
 c

@@ -3,7 +3,7 @@
      &       xyzj,expj,coefj, j_nprim, j_ngen, Lj,
      &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       dryrun,scr,lscr,msg)
-c $Id: int_hf1sp.F,v 1.1 1994-06-07 00:29:58 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.2 1994-06-29 05:50:18 d3e129 Exp $
       implicit none
 #include "apispP.fh"
 #include "mafdecls.fh"
@@ -132,8 +132,7 @@ c
         return
       endif
       write(6,*)'int_hf1sp called by ',msg
-      call errquit('int_hf1sp: not finished',911)
-      stop ' okedokee'
+      call errquit('int_hf1sp: unknown case finished',911)
 c
       end
       subroutine spfix1(li,lj,iscat,

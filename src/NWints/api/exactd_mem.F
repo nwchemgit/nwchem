@@ -1,5 +1,5 @@
       subroutine exactd_mem(bases,nbas)
-c $Id: exactd_mem.F,v 1.2 1994-06-23 00:17:19 vg038 Exp $
+c $Id: exactd_mem.F,v 1.3 1994-06-29 05:50:11 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -23,10 +23,10 @@ c
         do 00200 jbas = 1,ibas
 c.... nbfmax for 2e3c and 2e4c
            if (.not.bas_nbf_cn_max(bases(ibas),nbftest))
-     &          call errquit('exact_mem:bas_nbf_cn_max error ',1)
+     &          call errquit('exactd_mem:bas_nbf_cn_max error ',1)
            nbfmax = max(nbfmax,nbftest)
            if (.not.bas_nbf_cn_max(bases(jbas),nbftest))
-     &          call errquit('exact_mem:bas_nbf_cn_max error ',2)
+     &          call errquit('exactd_mem:bas_nbf_cn_max error ',2)
            nbfmax = max(nbfmax,nbftest)
 c.... 2e 4 center
            call emem_d2e4c(bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
@@ -175,7 +175,7 @@ c
       if (bra_geom.ne.ket_geom) then
         write(6,*)'emem_d1e: two different geometries for',
      &         ' derivatives??'
-        call errquit('emem_d1e: geom error ',911)
+        call errquit('emem_d2e4c: geom error ',911)
       endif
 c
       nat = ncenter(bra_geom)
@@ -257,9 +257,9 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
 00100 continue
 c
       if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+     &       call errquit('emem_d2e4c:bas_nbf_cn_max error ',2)
       if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+     &       call errquit('emem_d2e4c:bas_nbf_cn_max error ',2)
 c
       maxg = max_nbf_bra*max_nbf_bra
       maxg = maxg*max_nbf_ket*max_nbf_ket

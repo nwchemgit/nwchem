@@ -1,5 +1,5 @@
       subroutine intd_init(nbas,bases)
-c $Id: intd_init.F,v 1.1 1994-06-11 00:41:15 d3e129 Exp $
+c $Id: intd_init.F,v 1.2 1994-06-29 05:50:20 d3e129 Exp $
 c
 c Initializes integral derivative code 
 c
@@ -35,7 +35,7 @@ c
       ang2use = -1
       do 00300 ibas = 1,nbas
         if(.not.bas_high_angular(bases(ibas),angm))
-     &         call errquit('int_init: angm error',angm)
+     &         call errquit('intd_init: angm error',angm)
         ang2use = max(ang2use,angm)
 00300 continue
 c.. for first derivatives add 1
