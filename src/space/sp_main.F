@@ -1475,6 +1475,8 @@ c
 c
       if(loadb.eq.0) return
 c
+      if(.not.ma_verify_allocator_stuff())
+     + call errquit('Problems in sp_balanc at 1',me)
       if(.not.ma_push_get(mt_int,np,'nod',l_nod,i_nod))
      + call errquit('Failed to allocate nod',me)
       if(.not.ma_push_get(mt_int,np,'lst',l_lst,i_lst))
@@ -1483,9 +1485,13 @@ c
      + call errquit('Failed to allocate nen',me)
       if(.not.ma_push_get(mt_dbl,np,'dlb',l_dlb,i_dlb))
      + call errquit('Failed to allocate dlb',me)
+      if(.not.ma_verify_allocator_stuff())
+     + call errquit('Problems in sp_balanc at 2',me)
 c
       call sp_dldbal(syntim,int_mb(i_nod),int_mb(i_lst),int_mb(i_nen),
      + int_mb(i_bb),dbl_mb(i_dlb))
+      if(.not.ma_verify_allocator_stuff())
+     + call errquit('Problems in sp_balanc at 3',me)
 c
       if(.not.ma_pop_stack(l_dlb))
      + call errquit('Failed to deallocate dlb',me)
@@ -1495,11 +1501,15 @@ c
      + call errquit('Failed to deallocate lst',me)
       if(.not.ma_pop_stack(l_nod))
      + call errquit('Failed to deallocate nod',me)
+      if(.not.ma_verify_allocator_stuff())
+     + call errquit('Problems in sp_balanc at 4',me)
 c
       if(sp_diffbb(dbl_mb(i_boxs),int_mb(i_rng))) then
       call sp_numbb(int_mb(i_iown),dbl_mb(i_boxs))
       call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
       endif
+      if(.not.ma_verify_allocator_stuff())
+     + call errquit('Problems in sp_balanc at 5',me)
 c
       return
       end
