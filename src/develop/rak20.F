@@ -1,6 +1,6 @@
       logical function task_pderiv(rtdb)
 *
-* $Id: rak20.F,v 1.2 1998-05-12 18:12:11 d3e129 Exp $
+* $Id: rak20.F,v 1.3 1998-05-21 09:42:05 d3e129 Exp $
 *
 ***********************************************************************
 * This is about the nuclear coordinate derivatives of multicenter 
@@ -535,6 +535,7 @@ c
                 do ixyz = 1,3
                   do i = ilo, ihi
                     do j = jlo, jhi
+*buffer is <jlo:jhi, ilo:ihi, 1:3, 2>
                       ovc(i,j,ixyz,watom(atom)) = buf(cnt)
                       ovc(j,i,ixyz,watom(atom)) = buf(cnt)
                       cnt = cnt + 1
