@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.33 2000-07-19 18:34:39 edo Exp $
+c     $Id: scf_vec_guess.F,v 1.34 2001-10-05 23:50:22 edo Exp $
 c
       implicit none
 c
@@ -88,9 +88,7 @@ c
 c
       if (owritefile) then
          tolguess = tol2e
-      else if (inp_compare(.false., 'DFT', calling_module))then
-         tolguess = 1d-5
-      else
+      else 
          tolguess = 1d-7        ! 1e-5 broke too many large basis SCFs
       endif
       status = rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess)
