@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.38 1999-12-02 23:05:48 bert Exp $
+c $Id: exact_mem.F,v 1.39 1999-12-09 01:29:53 bert Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -84,11 +84,6 @@ c.... 1e
               call emem_1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
               mem_1e = max(mem_1e, lmem_1e)
               isz_1e = max(isz_1e, lsz_1e)
-c.... p.Vp one-electron ints for Douglas-Kroll
-              if (doug_kroll) call emem_1e_pvp(bases(ibas),
-     $             bases(jbas), lsz_1e, lmem_1e, 1)
-              mem_1e = max(mem_1e, lmem_1e)
-              isz_1e = max(isz_1e, lsz_1e)
             endif
 00200     continue
         endif
@@ -101,6 +96,14 @@ c
         mem_1e = max(mem_1e, lmem_1e)
         isz_1e = max(isz_1e, lsz_1e)
       end if
+c
+c.. Memory for Douglas-Kroll integrals
+c
+      if (doug_kroll) then
+         call emem_1e_dk(dk_fitbas,dk_fitbas,lsz_1e, lmem_1e)
+         mem_1e = max(mem_1e, lmem_1e)
+         isz_1e = max(isz_1e, lsz_1e)
+      endif
 c
 c.. need extra memory for H1 call externalized by int_mem_h1
 c
@@ -393,6 +396,47 @@ c
 #endif
 c
       end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsection{emem\_1e\_dk}
+c:tex-This routine computes the memory for the requested type of  
+c:tex-Douglas-Kroll integrals for the given fitting basis sets.
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
+c:tex-
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine emem_1e_dk(brain, ketin, max1e, memsize)
+c:tex-\end{verbatim}
+      implicit none
+#include "apiP.fh"
+c::passed
+c:tex-\begin{verbatim}
+      integer brain   ! [input] bra basis set handle
+      integer ketin   ! [input] ket basis set handle
+      integer max1e   ! [output] max size of 1e integrals buffer
+      integer memsize ! [output] max size of scratch space for 1e integral evaluation
+c:tex-\end{verbatim}
+c::local
+      integer lsz_1e, lmem_1e
+c
+      max1e = 0
+      memsize = 0
+      call emem_1e(brain, ketin, lsz_1e, lmem_1e)
+      max1e = max(max1e, lmem_1e)
+      memsize = max(memsize, lsz_1e)
+      call emem_1e_pvp(brain, ketin, lsz_1e, lmem_1e, 1)
+      max1e = max(max1e, lmem_1e)
+      memsize = max(memsize, lsz_1e)
+      if (dk_form_type .eq. 3) then
+         call emem_1e_pvp(brain, ketin, lsz_1e, lmem_1e, 3)
+         max1e = max(max1e, lmem_1e)
+         memsize = max(memsize, lsz_1e)
+      endif
+c
+      end
+c
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsection{emem\_1e\_rel}
