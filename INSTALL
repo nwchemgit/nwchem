@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.27 2000-11-09 19:59:34 windus Exp $
+$Id: INSTALL,v 1.28 2000-11-14 18:25:15 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -21,6 +21,9 @@ installation before beginning.  The sections for this guide are
                                   performance
    Point of Contact Users      -  required reading for the site's point of
                                   contact (usually the one doing the build)
+   Using a new version of GA   -  only for people that want to try out the
+                                  latest version of GA
+   Troubleshooting             -  if you have build problems
 
 SOURCE CODE PROTECTION:
 ----------------------
@@ -465,3 +468,95 @@ attachment of input and output files via a simple browsing mechanism.
 Use of this tool will greatly facilitate any support you may need for
 using NWChem.
 
+
+USING A NEW VERSION OF GA:
+--------------------------
+Occasionally, bugs in NWChem are associated with the Global Array tools
+(http://www.emsl.pnl.gov:2080/docs/global/ga.html).  To compile the latest
+version of GA, following these steps:
+
+   1) Get a new version of GA at the above URL.
+
+   2) Untar it into a temporary directory (for this example, lets call it
+      /tmp) using the instructions on the GA download web page.
+
+   3) % cd $NWCHEM_TOP/src/tools
+
+   4) % mv GNUmakefile ../GNUmakefile.tools
+
+   5) % rm -r *   (Make sure you are in the tools directory before doing this!)
+
+   6) Copy the new GA files into the tools directory.  For example,
+      % cp -R /tmp/g/* .
+
+   7) % mv ../GNUmakefile.tools GNUmakefile
+
+   8) If all of your environmental variables are set, start with step 5 of
+      the Basic Build Instructions.  If they are not set, start with step 2.
+
+
+TROUBLESHOOTING:
+----------------
+
+Here are some tips for "common" problems when compiling NWChem.  If you have
+read through the installation guide and followed the directions carefully
+and you are still having problems, please send your make.log file to
+nwchem-support@emsl.pnl.gov along with information about your machine and
+the environment variables that you have set.  If you have modified any of
+the files in the NWChem source tree, we need to know this, but do not
+expect that we will be able to help you.
+
+   1) Check the "Known Bugs" and "FAQ" page at our web site
+      http://www.emsl.pnl.gov/pub/docs/nwchem
+
+   2) "make nwchem_config" gives an error message like 
+      "Not a recognized command".
+
+      You probably don't have GNU make.  Go back to step 1 in the Basic
+      Build Instructions.
+
+   3) I get an error about clock skew and some directories are not compiled.
+
+      Some platforms have problems where the parallel make sees time lags.
+      This can be solved by several different methods:
+
+      A) Perform multiple make commands at the $NWCHEM_TOP/src level.
+
+      B) If you know which directories need to be compiled, just type 
+         "make" in those directories.  The type "make link" in the
+         $NWCHEM_TOP/src directory.
+
+      C) Another solution is to edit the $NWCHEM_TOP/src/config/makefile.h 
+         file, find the section relating to your $NWCHEM_TARGET, and edit 
+         the MAKEFILES line so that the number after -j is a "1".
+
+         i.e. MAKEFLAGS = -j 1 --no-print-directory
+
+   4) I accidently performed the "make dbl_to_sngl" command and now
+      the code won't compile.
+
+      You will need to run "make sngl_to_dbl" in the $NWCHEM_TOP/src
+      directory.  You will also need to type "make realclean" and start
+      over at step 5 in the Basic Build Instructions.
+
+   5) I accidently built for the wrong $NWCHEM_TARGET and need to start
+      over.
+
+      You will need to clean up all of the files associated with the
+      previous build.  So, type "make realclean" in the $NWCHEM_TOP/src
+      directory.  Then start at step 4 in the Basic Build Instructions,
+      setting the environment variables with the values that you want.
+
+   6) I am getting a "Word too long" errors when compiling.
+
+      This sometimes happens when the system shell being used is ksh.
+      The solution is to
+      
+      A) Edit the $NWCHEM_TOP/src/config/makelib.h file, and take out
+         the lines that have LOCKFILE in them.
+
+      B) Then, edit the $NWCHEM_TOP/src/config/makefile.h file, find the 
+         section relating to your $NWCHEM_TARGET, and edit 
+         the MAKEFILES line so that the number after -j is a "1".
+
+         i.e. MAKEFLAGS = -j 1 --no-print-directory
