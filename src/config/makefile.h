@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.106 1995-04-11 03:03:04 og845 Exp $
+# $Id: makefile.h,v 1.107 1995-04-11 18:40:28 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -221,7 +221,7 @@ ifeq ($(TARGET),CRAY-T3D)
               INSTALL = @echo $@ is built
         OUTPUT_OPTION = 
 
-                   FC = /mpp/bin/new/cf77 
+                   FC = /mpp/bin/cf77 
                   CPP = /mpp/lib/cpp -P  -N
              FOPTIONS = -Wf"-dp" -Ccray-t3d
              COPTIONS = -Tcray-t3d
@@ -236,9 +236,8 @@ ifeq ($(TARGET),CRAY-T3D)
 			-Dbin=NWints/int/defNxyz.o \
 			-Dbin=basis/basis.o \
 			-Dbin=basis/basisP.o \
-			-Dbin=ddscf/rhf_fock_2e_a.o \
-			-Dbin=ddscf/scf_pstat.o \
 			-Dbin=ddscf/fock_2e_a.o \
+			-Dbin=ddscf/scf_pstat.o \
 			-Dbin=geom/geom.o \
 			-Dbin=inp/inp.o \
 			-Dbin=util/ga_iter_project.o \
