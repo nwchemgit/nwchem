@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.199 1997-02-03 19:46:05 d3j191 Exp $
+# $Id: makefile.h,v 1.200 1997-02-06 15:53:01 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -854,8 +854,7 @@ ifeq ($(TARGET),DECOSF)
             EXTRA_LIBS = -laio -lpthreads 
 endif
 
-
-ifeq ($(TARGET),LINUX)
+ifeq ($(TARGET),LINUX_F2C)
 #
 # Linux running on an x86 using f77 on f2c
 #
@@ -885,6 +884,33 @@ ifeq ($(TARGET),LINUX)
    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
+endif
+
+ifeq ($(TARGET),LINUX)
+#
+# Linux using g77
+#
+
+       NICE = nice
+      SHELL := $(NICE) /bin/sh
+    CORE_SUBDIRS_EXTRA = blas lapack
+         FC = g77
+         CC = g77
+     RANLIB = ranlib
+  MAKEFLAGS = -j 1 --no-print-directory
+    INSTALL = @echo $@ is built
+
+   FOPTIONS = -Wall -m486 -fno-second-underscore
+   COPTIONS = -Wall -m486
+  FOPTIMIZE = -O2
+  COPTIMIZE = -O2
+
+    DEFINES = -DLINUX -DNEED_LOC
+
+  LDOPTIONS = -g -L$(LIBDIR)
+     LINK.f = gcc $(LDFLAGS)
+  CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+ EXTRA_LIBS = -lf2c -lm
 endif
 
 ###################################################################
