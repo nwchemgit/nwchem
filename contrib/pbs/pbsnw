@@ -1,0 +1,393 @@
+#!/bin/csh 
+#
+# This works for the Alpha cluster at the Scalable Computing Laboratory
+# at Ames Laboratory.  We are running PBS 2.2  Some site specific 
+# customization will be required for other installations. 
+#
+# Ricky A. Kendall
+# Computational Scientist
+# Scalable Computing Laboratory
+# Ames Laboratory
+# Ames, IA 50011
+# rickyk@ameslab.gov
+#
+# $Id: pbsnw,v 1.1 2000-02-23 21:52:27 d3e129 Exp $
+#
+
+onintr interrupted
+
+############################################################################
+# Determine the default NWChem and parallel executable.  
+# .  if NWCHEM_EXECUTABLE is defined use that if it exists
+# .  else if NWCHEM_TOP is defined use the version in that tree if it exists
+# .  else use the automatic build.
+############################################################################
+
+
+if ($?PBSNW_NWCHEM_EXE) then
+#:debug:
+  echo "resolved from environment variable PBSNW_NWCHEM_EXE"
+  set NWCHEM = $PBSNW_NWCHEM_EXE
+  if (-e $NWCHEM) goto got_default_executable
+endif
+if ($?NWCHEM_EXECUTABLE) then
+#:debug:
+  echo "resolved from environment variable NWCHEM_EXECUTABLE"
+  set NWCHEM = $NWCHEM_EXECUTABLE
+  if (-e $NWCHEM) goto got_default_executable
+endif
+#rak#if ($?NWCHEM_TOP) then
+#rak##:debug:
+#rak#  echo "resolved from environment variable NWCHEM_TOP"
+#rak#  set NWCHEM = $NWCHEM_TOP/bin/DECOSF/nwchem
+#rak#  if (-e $NWCHEM) goto got_default_executable
+#rak#endif
+set NWCHEM = /usr/local/bin/nwchem
+if (! -e $NWCHEM) set NWCHEM = "no-default-available-for-nwchem"
+got_default_executable:
+#
+if ($?PBSNW_PARALLEL_EXE) then
+#:debug:
+  echo "resolved from environment variable PBSNW_PARALLEL_EXE"
+  set PARALLEL = $PBSNW_PARALLEL_EXE
+  if (-e $PARALLEL) goto got_default_parallel_executable
+endif
+set PARALLEL = /usr/local/bin/parallel
+if (! -e $PARALLEL) set PARALLEL = "no-default-available-for-parallel"
+got_default_parallel_executable:
+
+############################################################################
+# Determine the full path to the current directory.  This must
+# constructed to be machine independent so refer it to the login directory
+# using tilde for brevity of output (hence the control of globbing and
+# avoiding double quotes when testing for existence.
+############################################################################
+
+pushd $HOME >& /dev/null
+set PWDHOME = `pwd`
+popd >& /dev/null
+set noglob
+set FULLPATH = `pwd | sed -e "s,$PWDHOME,~,"`
+unset noglob
+
+############################################################################
+# Other miscellaneous defaults
+############################################################################
+
+set BIGMEM = 'Yes'
+set TIME = "1:00:00"
+set NPROC = 1
+
+############################################################################
+# If there are no arguments then prompt for data, otherwise
+# process the input line arguments
+############################################################################
+
+if ($#argv == 0) then
+
+# Get INPUT, OUTPUT, NPROC, TIME, BIGMEM
+
+  set INTERACTIVE = 1
+  echo " "
+  echo "NWChem interactive PBS submission"
+  echo "-------------------------------------------"
+  echo " "
+
+  again2:
+  set DEFAULTINPUT = "$FULLPATH/nwchem.nw"
+  echo -n "Input file name ($DEFAULTINPUT): "
+  set INPUT = "$<"
+  if ("null$INPUT" == "null") set INPUT = "$DEFAULTINPUT"
+#
+  set TEST = "$FULLPATH/$INPUT"
+  if (-f $TEST) then
+     set INPUT = "$TEST"
+  else if (-f $TEST.nw) then
+     set INPUT = "$TEST.nw"
+  endif
+  if (! -f $INPUT) then
+    echo "  unable to locate input file $INPUT"
+    goto again2
+  endif
+
+# Construct an output filename that does not already exist
+
+  set noglob
+  set OUTPUT = `dirname $INPUT`/`basename $INPUT .nw`.out
+  unset noglob
+  @ i = 1
+  while (-e $OUTPUT) 
+    echo " $OUTPUT already exists ... trying again"
+    set noglob
+    set OUTPUT = `dirname $INPUT`/`basename $INPUT .nw`.$i.out
+    unset noglob
+    @ i ++
+  end
+
+  echo -n "Full path for output ($OUTPUT): "
+  set TEST = "$<"
+  if ("null$TEST" != "null") set OUTPUT = "$TEST"
+
+  echo -n "Number of processes (4): "
+  set NPROC = "$<"
+  if ("null$NPROC" == "null") set NPROC = 4
+
+  echo -n "Time limit (48:00:00): "
+  set TIME = "$<"
+  if ("null$TIME" == "null") set TIME = "48:00:00"
+
+  echo -n "PBS bigmem required ($BIGMEM): "
+  set TEST = "$<"
+  if ("null$TEST" != "null") set BIGMEM = "$TEST"
+
+  again1:
+  echo -n "NWChem executable ($NWCHEM): "
+  set TEST = "$<"
+  if ("null$TEST" == "null") then
+    # default
+  else if (-f $FULLPATH/$TEST) then
+    set NWCHEM = "$FULLPATH/$TEST"
+  else if (-f $TEST) then
+    set NWCHEM = "$TEST"
+  else
+    echo "  cannot locate $TEST"
+    goto again1
+  endif
+  if (! -f $NWCHEM) then
+    echo "  cannot locate $NWCHEM"
+    goto again1
+  endif
+
+else
+
+##################################################################################################
+# Non-interactive ... pbsnw input [-accnt accnt_no] [-procs nproc] [-queue queue] [-time time]
+##################################################################################################
+
+  if ("null$1" == "null-help" || "null$1" == "nullhelp") then
+    goto usage
+  endif
+
+  if (! -e $NWCHEM) then
+    echo " NWChem executable '$NWCHEM' not found.  Try setting "
+    echo " the default executable with (for csh/tcsh)"
+    echo "   setenv NWCHEM_EXECUTABLE full-path-for-nwchem"
+    exit 1
+  endif
+
+  set INPUT = "$1"
+  if ("null$INPUT" == "null") set INPUT = "nwchem.nw"
+  set TEST = "$FULLPATH/$INPUT"
+  if (-f $TEST) then
+     set INPUT = "$TEST"
+  else if (-f $TEST.nw) then
+     set INPUT = "$TEST.nw"
+  endif
+  if (! -f $INPUT) then
+    echo "  Unable to locate input file $INPUT"
+    exit 1
+  endif
+
+  set noglob
+  set OUTPUT = `dirname $INPUT`/`basename $INPUT .nw`.out
+  unset noglob
+  @ i = 1
+  while (-e $OUTPUT) 
+    echo " $OUTPUT already exists ... trying again"
+    set noglob
+    set OUTPUT = `dirname $INPUT`/`basename $INPUT .nw`.$i.out
+    unset noglob
+    @ i ++
+  end
+
+  shift
+
+# Process remaining optional arguments
+
+  while ($#argv) 
+    set key = "$1"
+    shift
+    if (! $#argv) then
+      goto usage
+    endif
+    set value = "$1"
+    shift
+
+    if ("null$key" == "null-time") then
+      set TIME = "$value"
+    else if ("null$key" == "null-bigmem") then
+      set BIGMEM = "$value"
+    else if ("null$key" == "null-procs") then
+      set NPROC = "$value"
+    else
+      echo " unknown option: $key"
+      exit 1
+    endif
+  end
+endif
+
+############################################################################
+# Finally know everything.  Determine name of file for the job and error
+# output, print info out and confirm before submission if interactive
+############################################################################
+
+set noglob
+set PBS_ERR = `dirname $OUTPUT`/`basename $OUTPUT .out`.err
+set PBS_JOB = `dirname $OUTPUT`/`basename $OUTPUT .out`.job
+set PBS_LOG = `dirname $OUTPUT`/`basename $OUTPUT .out`.log
+unset noglob
+
+echo " "
+echo " NPROC   = $NPROC"
+echo " BIGMEM  = $BIGMEM"
+echo " TIME    = $TIME"
+echo " INPUT   = $INPUT"
+echo " OUTPUT  = $OUTPUT"
+echo " ERROR   = $PBS_ERR"
+echo " JOB     = $PBS_JOB"
+echo " LOGFILE = $PBS_LOG"
+echo " NWCHEM  = $NWCHEM"
+echo " "
+
+if ($?INTERACTIVE) then
+  echo -n "OK? (yes): "
+  set TEST = "$<"
+  if ("null$TEST" == "null" || "null$TEST" == "nully" || "null$TEST" == "nullyes") then
+    # OK
+  else
+    echo "  job submission aborted"
+    exit 1
+  endif
+endif
+############################################################################
+# get request name
+############################################################################
+set REQUEST_NAME_FULL = `basename $PBS_JOB .job`
+set REQUEST_NAME = `echo $REQUEST_NAME_FULL | /bin/colrm 16`
+
+# Remove ~ since PBS will not expand it
+
+#
+set THEINPUT  = `echo $INPUT | sed -e "s,~,$PWDHOME,"`
+set THEOUTPUT = `echo $OUTPUT | sed -e "s,~,$PWDHOME,"`
+set THEERR    = `echo $PBS_ERR | sed -e "s,~,$PWDHOME,"`
+set THELOG    = `echo $PBS_LOG | sed -e "s,~,$PWDHOME,"`
+
+############################################################################
+# set PBS memory/proc line for -l argument
+############################################################################
+
+if (null$BIGMEM == 'nully' || null$BIGMEM == 'nullY' || null$BIGMEM == 'nullyes' || null$BIGMEM == 'nullYes' || null$BIGMEM == 'nullYES') then
+  set NPROCMEM = "${NPROC}:bigmem,mem=512mb"
+else
+  set NPROCMEM = "${NPROC},mem=128mb"
+endif
+############################################################################
+# Put the job into the file $PBS_JOB so the user can refer to it
+############################################################################
+
+cat <<EOF > $PBS_JOB
+#!/bin/csh -x
+#PBS -m be
+#PBS -l nodes=${NPROCMEM},walltime=$TIME
+#PBS -S /bin/csh 
+#PBS -r n
+#PBS -o $THELOG
+#PBS -e $THEERR
+#PBS -N $REQUEST_NAME
+
+############################################################################
+# Work in the system scratch directory for the PBS job 
+#                      --- faster and more reliable and easily cleaned up :)
+# specific to installation at Ames.
+############################################################################
+
+cd /scr/\$PBS_JOBID
+
+############################################################################
+# Set up parallel procfile 
+############################################################################
+if (-e \$PBS_NODEFILE) then
+   set nodelist = (\`cat \$PBS_NODEFILE\`)
+   touch nwchem.p;rm -f nwchem.p;touch nwchem.p
+   foreach node (\$nodelist)
+      echo "$LOGNAME \$node 1 $NWCHEM /scr/\$PBS_JOBID" >> nwchem.p
+   end
+   cat nwchem.p
+else
+  echo " no PBS nodefile "
+  exit 1
+endif
+
+############################################################################
+# copy the input file locally
+############################################################################
+cp $THEINPUT ./nwchem.nw
+cat nwchem.nw
+
+############################################################################
+# Actually run the job with parallel
+############################################################################
+
+echo "Start date:\`date\`"
+if ($NPROC == 1) then
+   /usr/bin/time $NWCHEM >& $THEOUTPUT
+else
+   /usr/bin/time $PARALLEL nwchem >& $THEOUTPUT
+endif
+echo " End  date:\`date\`"
+
+############################################################################
+# End of the job script
+############################################################################
+EOF
+
+############################################################################
+# Submit the job to PBS and display brief queue information
+############################################################################
+
+
+qsub $PBS_JOB
+if ($status != 0) then
+  echo "  qsub failed"
+  exit 1
+endif
+
+#qstat -a
+
+############################################################################
+# Touch the output file so that subsequent job submissions
+# will not attempt to use the same name
+############################################################################
+
+touch $THEOUTPUT
+
+############################################################################
+# Normal shell script exit here
+############################################################################
+
+exit 0
+
+
+############################################################################
+# If interrupted jump here
+############################################################################
+
+interrupted:
+	echo " interrupted"
+	exit 1
+
+############################################################################
+# Print usage information
+############################################################################
+
+usage:
+    echo " pbsnw usage: "
+    echo "   1) use with no arguments for interactive prompts"
+    echo "   2) pbsnw filename [-procs nproc] [-bigmem {Yes|No} ] [-time time]"
+    echo "   3) pbsnw -help ... prints this information"  
+    echo " "
+    echo "   Input filenames may be specified without any trailing .nw and"
+    echo "   either relative to the current directory or with an absolute path."
+    echo " "
+    exit 1
