@@ -1,4 +1,4 @@
-% $Id: interface.tex,v 1.2 2000-11-20 22:31:30 windus Exp $
+% $Id: interface.tex,v 1.3 2001-02-06 08:16:09 windus Exp $
 \label{sec:interface}
 
 NWChem has interfaces to several different packages which are listed below.
@@ -62,4 +62,288 @@ end
 task nbo 
 
 \end{verbatim}
+
+\section{DIRDYVTST --- DIRect Dynamics for Variational Transition State Theory}
+\label{sec:dirdyvtst}
+
+by Bruce C. Garrett,\\
+Environmental Molecular Sciences Laboratory\\
+Pacific Northwest Laboratory, Richland, Washington\\
+\\
+Yao-Yuan Chuang and Donald G. Truhlar\\
+Department of Chemistry and Super Computer Institute,\\
+University of Minnesota, MN 55455-0431\\
+\\
+and interfaced to NWChem by\\
+\\
+Ricky A. Kendall,\\
+Scalable Computing Laboratory\\
+Ames Laboratory and Iowa State University, Ames, IA 50011\\
+\\
+Theresa L. Windus\\
+Environmental Molecular Sciences Laboratory\\
+Pacific Northwest Laboratory, Richland, Washington
+
+\subsection{Introduction}
+
+This program prepares the file30 input for \verb+POLYRATE+ from NWChem
+electronic structure calculations of energies, gradients and Hessians at the 
+reactant, product, and saddle point geometries and along the minimum
+energy path.  Cartesian geometries for the reactants, products, and 
+saddle points need to be input to this program; optimization of 
+geometries is not performed in this program.  Note that \verb+DIRDYVTST+ is
+based on the \htmladdnormallink{DIRDYGAUSS program} 
+{http://comp.chem.umn.edu/dirdyg/}
+and is similar to two other programs: \htmladdnormallink{DDUTILITIES}
+{http://comp.chem.umn.edu/ddutil/} and \htmladdnormallink{GAUSSRATE}
+{http://comp.chem.umn.edu/gaussrate/}.
+
+Notes about the code:
+
+Input.  The code has been written to parallel, as much as possible,
+the \verb+POLYRATE+ code.  
+
+Output.  There one default output file for each \verb+DIRDYVTST+ run - .file30.
+
+Integrators.  Currently the Euler and three Page-McIver (PM) methods 
+are implemented.  The PM methods are the local quadratic approximation 
+(LQA), the corrected LQA (CLQA), and the cubic (CUBE) algorithm.
+The PM methods are implemented so that the Hessian can be reused at
+intermediate steps at which only the gradient is updated.  
+
+
+\subsection{Files}
+
+Test runs are located in directories in \verb+$NWCHEM_TOP/QA/tests+.  Test 
+runs are available for three systems: $H + H_2$, $OH + H_2$, and $OH + C_2H_4$.
+
+
+\subsection{Detailed description of the input}
+
+The input consists of keywords for NWChem and keywords related to \verb+POLYRATE+
+input.  The first set of inputs are for NWChem with the general input block
+of the form:
+
+\begin{verbatim}
+  DIRDYVTST [autosym [real tol default 1d-2] | noautosym]
+    [THEORY <string theory> [basis <string basis default "ao basis">] \
+                         [ecp <string ecp>] [input <string input>]]
+    [SPTHEORY <string theory> [basis <string basis default "ao basis">] \
+                         [ecp <string ecp>] [input <string input>]]
+    ...
+  END
+\end{verbatim}
+
+\subsubsection{Use of symmetry}
+The use of symmetry in the calculation is controlled by the keyword
+\verb+autosym | noautosym+ which is used as described in the geometry
+directive (see Section \ref{sec:geom}).  However, in this case
+\verb+autosym+ is on by default.  A couple words of warning here.
+The tolerance related to \verb+autosym+ can cause problems when taking the
+initial step off of the transition state.  If the tolerance is too large and
+the initial step relatively small,
+the resulting geometry will be close to a higher symmetry than is really 
+wanted and the molecule will be symmetrized into the higher symmetry.
+To check this, the code prints out the symmetry at each geometry along the 
+path.  It is up to the user to check the symmetry and make sure that
+it is the required one.  In preverse cases, the user may need to turn
+\verb+autosym+ off (\verb+noautosym+) if changing the tolerance doesn't
+produce the desired results.
+
+\subsubsection{Basis specification}
+The basis name on the theory or sptheory directive is that
+specified on a basis set directive (see Section \ref{sec:basis}) and
+{\em not} the name of a standard basis in the library.  If not
+specified, the basis set for the sptheory defaults to the
+theory basis which defaults to \verb+"ao basis"+.  
+
+\subsubsection{Effective core potentials}
+If an effective core potential is specified in the usual fashion (see
+Section \ref{sec:ecp}) outside of the \verb+DIRDYVTST+ input then this will be
+used in all calculations.  If an alternative ECP name (the name
+specified on the ECP directive in the same manner as done for basis
+sets) is specified on one of the theory directives, then this ECP will
+be used in preference for that level of theory.
+
+\subsubsection{General input strings}
+
+For many purposes, the ability to specify the theory, basis and
+effective core potential is adequate.  All of the options for each
+theory are determined from their independent input blocks.  However,
+if the same theory (e.g., DFT) is to be used with different options
+for theory and sptheory, then the general input strings must
+be used.  These strings are processed as NWChem input each time the
+theoretical calculation is invoked.  The strings may contain any NWChem
+input, except for options pertaining to \verb+DIRDYVTST+ and the task directive.
+The intent is that the strings be used just to control the options
+pertaining to the theory being used.
+
+A word of caution.  Be sure to check that the options are producing
+the desired results.  Since the NWChem database is persistent,
+the input strings should fully define the calculation you wish to have happen.
+
+For instance, if the theory model is DFT/B3LYP/6-311g** and the
+sptheory model is DFT/LDA/3-21g, the \verb+DIRDYVTST+ input might look like this
+\begin{verbatim}
+    dirdyvtst
+      theory  dft basis 3-21g    input "dft\; xc\; end"
+      sptheory dft basis 6-311g** input "dft\; xc b3lyp\; end"
+      ....
+    end
+\end{verbatim}
+The empty \verb+XC+ directive restores the default LDA
+exchange-correlation option (see Section \ref{sec:xc}).  Note that
+semi-colons and other quotation marks inside the input string must be
+preceded by a backslash to avoid special interpretation.
+
+\subsubsection{POLYRATE related options}
+
+These keyword options are simlar to the \verb+POLYRATE+ input format, except there
+are no ENERGETICS, OPTIMIZATION, SECOND, TUNNELING, and RATE sections.
+
+\paragraph{GENERAL section}
+
+
+The GENERAL section has the following format:
+
+\begin{verbatim}
+*GENERAL
+  [TITLE <string title>]
+  ATOMS
+    <integer num> <string tag> [<real mass>]
+    ...
+  END
+  [SINGLEPOINT]
+  [SAVEFILE (vecs || hess || spc)
+\end{verbatim}
+
+  Descriptions
+  
+    TITLE is a keyword that allows user to input a description of
+              the calculation.  In this version, the user can only have a 
+              single-line description.
+
+              For example: 
+                          TITLE Calculation of D + HCl reaction
+
+    ATOMS is a list keyword that is used to input a list of 
+              the atoms.  It is similar to \verb+POLYRATE+ in that the order of the 
+              atom and the atomic symbol are required in a single line.  If
+              isotope of the element is considered then the atomic mass is 
+              required in units of amu.
+
+              For example:
+\begin{verbatim}
+                          ATOMS
+                            1     H     2.014
+                            2     H 
+                            3     Cl
+                          END
+\end{verbatim}
+
+    SINGLEPOINT is a keyword that specifies that a single
+	      point calculation is to be performed at the optimized 
+	      geometries.  The type of single point calculation is 
+	      specified in the \verb+sptheory+ line.
+
+    SAVEFILE is a keyword that specifies that NWChem files
+	      are to be saved. Allowed values of variable input to
+	      SAVEFILE are vecs, hess, and spc for saving the files 
+	      base theory movecs, base theory hessian and singlepoint
+          calculation movecs.
+             
+\paragraph{REACT1, REACT2, PROD1, PROD2, and START sections}
+
+These sections have the following format:
+\begin{verbatim}
+*(REACT1 || REACT2 || PROD1 || PROD2 || START)
+  GEOM
+    <integer num> <real x y z>
+    ...
+  END
+  SPECIES (ATOMIC || LINRP || NONLINRP || LINTS || NONLINTS default NONLINRP)
+\end{verbatim}
+
+  REACT1 and REACT2 are input for each of the reactants and PROD1 and PROD2
+  are input for each of the products.  REACT1 and PROD1 are required.  START
+  is the input for the transition state if one exists.
+
+  Descriptions
+
+    GEOM is a list keyword that indicates the geometry of the molecule
+              in Cartesian coordinates with atomic unit.
+
+              For example:
+\begin{verbatim}
+                          GEOM
+                             1      0.0     0.0     0.0
+                             2      0.0     0.0     1.5
+                          END 
+\end{verbatim}
+
+    SPECIES is a variable keyword that indicates the type of the 
+              molecule.  Options are: ATOMIC, LINRP, NONLINRP, LINTS, and
+              NONLINTS.
+
+              For example:
+                          SPECIES  atomic
+
+\paragraph{PATH section}
+
+The Path section has the format:
+
+\begin{verbatim}
+*PATH
+  [SCALEMASS <real scalemass default 1.0>]
+  [SSTEP <real sstep default 0.01>]
+  [SSAVE <real ssave default 0.1>]
+  [SHESS <real shess default SSAVE>]
+  [SLP <real slp default 1.0>]
+  [SLM <real slm default -1.0>]
+  [SIGN Reactant]
+  [INTEGRA (EULER || LQA || CLQA || CUBE default EULER)]
+  [PRINTFREQ (on || off default off)]
+\end{verbatim}
+
+  Descriptions
+
+    SCALEMASS is a variable keyword that indicates the arbitrary
+              mass (in amu) used for mass-scaled Cartesian coordinates. 
+              This is the variable called mu in published papers.  Normally,
+              this is taken as either 1.0 amu or, for bimolecular reactions,
+              as the reduced mass of relative translation of the reactants.
+      
+    SSTEP is a variable keyword that indicates the numerical step
+              size (in bohrs) for the gradient grid.  This is the step
+              size for following the minimum energy path.
+
+    SSAVE is a variable keyword that indicates the numerical step
+              size (in bohrs) for saving the Hessian grid. At each
+              save point the potential and its first and second
+              derivatives are recalculated and written to the fort.30
+              file. For example, if SSTEP=0.01 and SSAVE=0.1, then the
+              potential information is written to fort.30 every 10
+              steps along the gradient grid.
+
+    SHESS is a variable keyword that indicates the numerical step
+              size (in bohrs) for recomputing the Hessian when using a
+              Page-McIver integrator (e.g., LQA, CLQA, or CUBE).  For
+              Euler integration SHESS = SSAVE. For intermediate points
+              along the gradient grid, the Hessian matrix from the
+              last Hessian calculation is reused.  For example, if
+              SSTEP=0.01 and SHESS=0.05, then the Hessian matrix is
+              recomputed every 5 steps along the gradient grid.
+
+    SLP is a variable keyword that indicates the positive limit of 
+              the reaction coordinate (in bohrs).
+
+    SLM is a variable keyword that indicates the negative limit of 
+              the reaction coordinate (in bohrs).
+
+    INTEGRA is a variable keyword that indicates the integration
+              method used to follow the reaction path.  Options are: EULER,
+              LQA, CLQA, and CUBE.
+
+    PRINTFREQ is a variable keyword that indicates that projected
+              frequencies and eigenvectors will be printed along the MEP.
 
