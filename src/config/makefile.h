@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.449 2004-03-10 17:16:55 edo Exp $
+# $Id: makefile.h,v 1.450 2004-04-20 17:19:37 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1362,7 +1362,7 @@ ifeq ($(LINUXCPU),x86)
       endif
       EXTRA_LIBS += #-static
     else
-#  LDOPTIONS = -g -Xlinker -export-dynamic 
+  LDOPTIONS = -Xlinker --export-dynamic 
 #  LDOPTIONS = --Xlinker -O -Xlinker -static
       EXTRA_LIBS += -lm
     endif
@@ -1492,6 +1492,8 @@ endif
       MAKEFLAGS = -j 2 --no-print-directory
       COPTIMIZE = -O1
       FC=pgf90
+      
+      USE_LIB64 = y #for python linking
 
       ifeq ($(FC),pgf90)
         FOPTIONS   +=    -Mrecursive -Mdalign -Mllalign -Kieee 
@@ -1501,7 +1503,7 @@ endif
         FVECTORIZE   = -fast  -fastsse  -O4   -Mipa=fast
         FDEBUG = -g -O0
         DEFINES  +=   -DPGLINUX
-        LDOPTIONS =   #-g77libs   
+#        LDOPTIONS += -g  -Wl,-export-dynamic 
       endif
       ifeq ($(FC),g77)
 #        FOPTIONS  +=  -fno-globals# -Wno-globals # 
@@ -1528,6 +1530,9 @@ endif
         COPTIONS  +=   -march=k8 -mtune=k8
       endif
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+ifeq ($(BUILDING_PYTHON),python)
+   EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl
+endif
 endif
 
     ifeq ($(_CPU),ppc64)
@@ -1768,7 +1773,11 @@ errorpython2:
 	@echo " subdirs <$(NWSUBDIRS)>"
 	@exit 1
 endif
+ifdef USE_LIB64
+CORE_LIBS += -L$(PYTHONHOME)/lib64/python$(PYTHONVERSION)/config -lpython$(PYTHONVERSION)
+else
 CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
+endif
 endif
 
 ###################################################################
