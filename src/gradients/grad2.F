@@ -7,7 +7,7 @@
      $  nproc, nat, scr, lscr, buf, lbuf, tol2e,
      $  s34, oactive, oskel, scftype, omp2,
      $  pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,maxsh,nopen,nbf)
-c     $Id: grad2.F,v 1.20 1997-02-07 22:06:12 d3g681 Exp $
+c     $Id: grad2.F,v 1.21 1997-03-04 21:04:11 d3g681 Exp $
 
       implicit none
 c     
@@ -432,6 +432,21 @@ C     2el. integral derivatives
                            den2 = half *(d_ij(ip1,ip2)*d_kl(ip3,ip4))
      $                       - eigh *(d_ik(ip1,ip3) * d_jl(ip2,ip4)
      $                       +  d_il(ip1,ip4) * d_jk(ip2,ip3))
+c
+c     The following may be uncommented to print out the integrals
+c
+*                           if (abs(buf(icount)) .gt. 1d-9) then
+*                              write(6,111) 
+*     $                             idatom(i), icart, 
+*     $                             ip1+iab1f-1,
+*     $                             ip2+iab2f-1,
+*     $                             ip3+iab3f-1,
+*     $                             ip4+iab4f-1,
+*     $                             buf(icount)
+* 111                          format(' atom=',i2,', xyz=',i2,', ijkl=',
+*     $                             4i3,', d(ij|kl)/dq=',1p,d16.8)
+*                           endif
+c
                            dE = dE + den2 * buf(icount)
                            icount = icount + 1
                           end do
