@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.285 1999-06-21 20:12:57 d3h325 Exp $
+# $Id: makefile.h,v 1.286 1999-06-22 19:13:25 bylaska Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -120,6 +120,8 @@ endif
 # The core libraries are usually rather platform-dependent and are
 # specified below.  Use of MPI requires substituting the tcgmsg-mpi
 # wrapper for the normal tcgmsg library.
+# MPLIB - represents the name of mpi library
+MPILIB = -lmpi
 
 #JN: under the new structure, tools should be listed first as
 # their header files are needed for dependency analysis of
@@ -784,7 +786,7 @@ ifeq ($(TARGET),IBM)
          CC = xlc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -882,7 +884,7 @@ ifeq ($(TARGET),SP)
          CC = mpcc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 7 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -988,10 +990,10 @@ ifeq ($(TARGET),LAPI)
          CC = mpcc_r
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 7 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
-
+     MPILIB = 
 LARGE_FILES = YES
 
 ifeq ($(NWCHEM_TARGET_CPU),604)
@@ -1282,7 +1284,7 @@ ifdef USE_MPI
    ifdef MPI_LIB
        LIBPATH += -L$(MPI_LIB)
    endif
-   CORE_LIBS += -ltcgmsg-mpi -lmpi 
+   CORE_LIBS += -ltcgmsg-mpi $(MPILIB)
 else
     CORE_LIBS += -ltcgmsg
 endif
