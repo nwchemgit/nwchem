@@ -281,6 +281,8 @@ c
 #include "inp.fh"
 #include "util.fh"
 
+*#include "global.fh"
+*      integer node
 c     
       integer rtdb              ! [input]
       integer geom              ! [input]
@@ -372,7 +374,7 @@ c
      $     rtdb_get(rtdb, tmp, mt_int, 1, sym_num_ops(geom))
       tmp(k:) = ':operators'
       status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, sym_num_ops(geom)*3*4,
+     $     rtdb_get(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
      $     sym_ops(1,1,geom))
       tmp(k:) = ':map_atoms'
       status = status .and. 
@@ -406,6 +408,17 @@ c
 c
       active(geom) = .true.
       geom_rtdb_load = .true.
+c
+*      do node = 0, ga_nnodes()-1
+*         call ga_sync
+*         if (ga_nodeid() .eq. node) then
+*            write(6,*) ' node ', ga_nodeid()
+*            call sym_print_all(geom, .true., .true., .true., .true.)
+*            call util_flush(6)
+*         endif
+*         call ga_sync
+*      enddo
+         
 c     
       end
       subroutine geom_compute_values(geom)
@@ -559,7 +572,7 @@ c
      $     rtdb_put(rtdb, tmp, mt_int, 1, sym_num_ops(geom))
       tmp(k:) = ':operators'
       status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, sym_num_ops(geom)*3*4,
+     $     rtdb_put(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
      $     sym_ops(1,1,geom))
       tmp(k:) = ':map_atoms'
       status = status .and. 
