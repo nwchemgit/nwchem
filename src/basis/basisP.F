@@ -1,6 +1,6 @@
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
-c $Id: basisP.F,v 1.5 1994-04-26 19:46:14 d3g681 Exp $
+c $Id: basisP.F,v 1.6 1994-05-05 17:44:42 d3e129 Exp $
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -159,6 +159,93 @@ c
       bs_tags(itag,basis) = tag
 c
       end
+      subroutine bas_err_info(info)
+      implicit none
+#include "basP.fh"
+c     
+      character*(*) info        ! [input]
+      integer bas,basin
+      integer nbas
+      logical status
+c     
+c     For internal use of the basis set routines only: print out
+c     info of known basis sets to aid in diagnosing a problem
+c     
+c::function
+      logical bas_print
+      external bas_print
+c
+      nbas = 0
+      do 00100 bas = 1, nbasis_bsmx
+        if (bsactive(bas)) nbas = nbas + 1
+00100 continue
+      write(6,'(1x,a,a,i2)')
+     &       info, ': open basis sets:',nbas
+c
+      nbas = 0
+      do 00200 bas = 1, nbasis_bsmx
+        if (bsactive(bas)) then
+          basin = bas - BASIS_HANDLE_OFFSET
+          status = bas_print(basin)
+        endif
+00200 continue
+c
+      if (nbasis_rtdb .gt. 0) then
+        write(6,'(1x,a,a,i3)')
+     &         info,': basis sets in current rtdb ',nbasis_rtdb
+        do 00300 bas = 1, nbasis_rtdb
+          write(6,'(1x,a,1x,i3,3x,a,1x,a)')
+     &           'number:',bas,
+     &           'basis set name:',
+     &           bs_names_rtdb(bas)(1:len_bs_rtdb(bas))
+00300   continue
+      endif
+c     
+      end
+c
+      logical function bas_getu_coeff(basisin,icont,coeff)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont 
+      double precision coeff(*)
+c::local
+      integer basis, myucont, icontmax
+      integer mycoeffptr, myprim, mygen
+c
+      bas_getu_coeff = bas_check_handle(basisin,'bas_getu_coeff')
+      if (.not.bas_getu_coeff) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+      icontmax = infbs_head(HEAD_NCONT,basis)
+      myucont  = icont
+c
+      bas_getu_coeff = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_getu_coeff)) then
+        write(6,*)' bas_getu_coeff: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
+      call dcopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
+c
+      bas_getu_coeff = .true.
+c
+      return
+      end
 c
 c
       logical function bas_getu_exponent(basisin,icont,exp)
@@ -200,6 +287,111 @@ c
       call dcopy(myprim,exndcf(myexptr,basis),1,exp,1)
 c
       bas_getu_exponent = .true.
+c
+      return
+      end
+c
+      logical function bas_setu_coeff(basisin,icont,coeff,ncoeff)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont, ncoeff
+      double precision coeff(ncoeff)
+c::local
+      integer basis, myucont, icontmax
+      integer mycoeffptr, myprim, mygen
+c
+      bas_setu_coeff = bas_check_handle(basisin,'bas_setu_coeff')
+      if (.not.bas_setu_coeff) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+      icontmax = infbs_head(HEAD_NCONT,basis)
+      myucont  = icont
+c
+      bas_setu_coeff = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_setu_coeff)) then
+        write(6,*)' bas_setu_coeff: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
+c
+      bas_setu_coeff = ncoeff .eq. (myprim*mygen)
+      if(.not.bas_setu_coeff) then
+        write(6,*)' bas_setu_coeff: ERROR '
+        write(6,*)' input and stored number of coefficients ',
+     &         '(nprim*ngen) differ '
+        write(6,*)' input  nprim*ngen: ',ncoeff
+        write(6,*)' stored nprim*ngen: ',(myprim*mygen)
+        return
+      endif
+      call dcopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
+c
+      bas_setu_coeff = .true.
+c
+      return
+      end
+      logical function bas_setu_exponent(basisin,icont,exp,nexp)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont, nexp
+      double precision exp(nexp)
+c::local
+      integer basis, myucont, icontmax
+      integer myprim,myexptr
+c
+      bas_setu_exponent = bas_check_handle(basisin,'bas_setu_exponent')
+      if (.not.bas_setu_exponent) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+
+      icontmax = infbs_head(HEAD_NCONT,basis)
+      myucont = icont
+
+      bas_setu_exponent = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_setu_exponent)) then
+        write(6,*)' bas_setu_exponent: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      bas_setu_exponent = myprim.eq.nexp
+      if (.not.bas_setu_exponent) then
+        write(6,*)' bas_setu_exponent: ERROR '
+        write(6,*)' input and stored number of exponents ',
+     &         '(nprim) differ '
+        write(6,*)' input  nprim: ',nexp
+        write(6,*)' stored nprim: ',myprim
+        return
+      endif
+      call dcopy(nexp,exp,1,exndcf(myexptr,basis),1)
+c
+      bas_setu_exponent = .true.
 c
       return
       end
@@ -271,154 +463,19 @@ c
       bas_unumcont = .true.
       return
       end
+      block data basis_data
 c
-      logical function bas_getu_coeff(basisin,icont,coeff)
+c Block data structure to initialize the common block variables in the
+c  internal basis set object data structures
+c
       implicit none
 #include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin, icont 
-      double precision coeff(*)
-c::local
-      integer basis, myucont, icontmax
-      integer mycoeffptr, myprim, mygen
-c
-      bas_getu_coeff = bas_check_handle(basisin,'bas_getu_coeff')
-      if (.not.bas_getu_coeff) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-c
-      icontmax = infbs_head(HEAD_NCONT,basis)
-      myucont  = icont
-c
-      bas_getu_coeff = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_getu_coeff)) then
-        write(6,*)' bas_getu_coeff: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-      call dcopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
-c
-      bas_getu_coeff = .true.
-c
-      return
-      end
-      logical function bas_setu_exponent(basisin,icont,exp,nexp)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin, icont, nexp
-      double precision exp(nexp)
-c::local
-      integer basis, myucont, icontmax
-      integer myprim,myexptr
-c
-      bas_setu_exponent = bas_check_handle(basisin,'bas_setu_exponent')
-      if (.not.bas_setu_exponent) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-
-      icontmax = infbs_head(HEAD_NCONT,basis)
-      myucont = icont
-
-      bas_setu_exponent = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_setu_exponent)) then
-        write(6,*)' bas_setu_exponent: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      bas_setu_exponent = myprim.eq.nexp
-      if (.not.bas_setu_exponent) then
-        write(6,*)' bas_setu_exponent: ERROR '
-        write(6,*)' input and stored number of exponents ',
-     &         '(nprim) differ '
-        write(6,*)' input  nprim: ',nexp
-        write(6,*)' stored nprim: ',myprim
-        return
-      endif
-      call dcopy(nexp,exp,1,exndcf(myexptr,basis),1)
-c
-      bas_setu_exponent = .true.
-c
-      return
-      end
-c
-      logical function bas_setu_coeff(basisin,icont,coeff,ncoeff)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin, icont, ncoeff
-      double precision coeff(ncoeff)
-c::local
-      integer basis, myucont, icontmax
-      integer mycoeffptr, myprim, mygen
-c
-      bas_setu_coeff = bas_check_handle(basisin,'bas_setu_coeff')
-      if (.not.bas_setu_coeff) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-c
-      icontmax = infbs_head(HEAD_NCONT,basis)
-      myucont  = icont
-c
-      bas_setu_coeff = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_setu_coeff)) then
-        write(6,*)' bas_setu_coeff: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-c
-      bas_setu_coeff = ncoeff .eq. (myprim*mygen)
-      if(.not.bas_setu_coeff) then
-        write(6,*)' bas_setu_coeff: ERROR '
-        write(6,*)' input and stored number of coefficients ',
-     &         '(nprim*ngen) differ '
-        write(6,*)' input  nprim*ngen: ',ncoeff
-        write(6,*)' stored nprim*ngen: ',(myprim*mygen)
-        return
-      endif
-      call dcopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
-c
-      bas_setu_coeff = .true.
-c
-      return
+c     
+      data nbasis_rtdb /0/
+      data bsactive /nbasis_bsmx*.false./
+      data angular_bs /nbasis_bsmx*-565/
+      data bsversion /1.00d00/
+c     
       end
       integer function nbf_from_ucont(ucont,basisin)
 c

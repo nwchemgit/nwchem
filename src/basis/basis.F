@@ -1,19 +1,5 @@
-      block data basis_data
-c $Id: basis.F,v 1.11 1994-05-03 00:19:23 d3g681 Exp $
-c
-c Block data structure to initialize the common block variables in the
-c  internal basis set object data structures
-c
-      implicit none
-#include "basP.fh"
-c     
-      data nbasis_rtdb /0/
-      data bsactive /nbasis_bsmx*.false./
-      data angular_bs /nbasis_bsmx*-565/
-      data bsversion /1.00d00/
-c     
-      end
       logical function bas_version()
+c $Id: basis.F,v 1.12 1994-05-05 17:44:40 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1148,49 +1134,6 @@ c
 c
       return
       end
-      subroutine bas_err_info(info)
-      implicit none
-#include "basP.fh"
-c     
-      character*(*) info        ! [input]
-      integer bas,basin
-      integer nbas
-      logical status
-c     
-c     For internal use of the basis set routines only: print out
-c     info of known basis sets to aid in diagnosing a problem
-c     
-c::function
-      logical bas_print
-      external bas_print
-c
-      nbas = 0
-      do 00100 bas = 1, nbasis_bsmx
-        if (bsactive(bas)) nbas = nbas + 1
-00100 continue
-      write(6,'(1x,a,a,i2)')
-     &       info, ': open basis sets:',nbas
-c
-      nbas = 0
-      do 00200 bas = 1, nbasis_bsmx
-        if (bsactive(bas)) then
-          basin = bas - BASIS_HANDLE_OFFSET
-          status = bas_print(basin)
-        endif
-00200 continue
-c
-      if (nbasis_rtdb .gt. 0) then
-        write(6,'(1x,a,a,i3)')
-     &         info,': basis sets in current rtdb ',nbasis_rtdb
-        do 00300 bas = 1, nbasis_rtdb
-          write(6,'(1x,a,1x,i3,3x,a,1x,a)')
-     &           'number:',bas,
-     &           'basis set name:',
-     &           bs_names_rtdb(bas)(1:len_bs_rtdb(bas))
-00300   continue
-      endif
-c     
-      end
       logical function bas_rtdb_in(rtdb)
       implicit none
 #include "basP.fh"
@@ -1277,6 +1220,25 @@ c
 c
       return
       end
+      logical function bas_ce2bfr(basis, icent, ibflo, ibfhi)
+      implicit none
+      integer basis             ! [input] handle
+      integer icent             ! [input] no. of center
+      integer ibflo, ibfhi      ! [output] range of functions on center
+c
+      integer cnlo, cnhi, tmp
+      logical status
+      logical bas_ce2cnr, bas_cn2bfr
+      external bas_ce2cnr, bas_cn2bfr
+c
+      status = .true.
+      status = status .and. bas_ce2cnr(basis, icent, cnlo, cnhi)
+      status = status .and. bas_cn2bfr(basis, cnlo, ibflo, tmp)
+      status = status .and. bas_cn2bfr(basis, cnhi, tmp, ibfhi)
+c
+      bas_ce2bfr = status
+c
+      end
       logical function bas_ce2cnr(basisin,center,ifirst,ilast)
       implicit none
 #include "basP.fh"
@@ -1316,24 +1278,27 @@ c
 c
       return
       end
-      logical function bas_ce2bfr(basis, icent, ibflo, ibfhi)
+c
+      logical function bas_numbf(basisin,nbf)
       implicit none
-      integer basis             ! [input] handle
-      integer icent             ! [input] no. of center
-      integer ibflo, ibfhi      ! [output] range of functions on center
+#include "basP.fh"
+#include "geobasmapP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin,nbf
+c::local
+      integer basis
 c
-      integer cnlo, cnhi, tmp
-      logical status
-      logical bas_ce2cnr, bas_cn2bfr
-      external bas_ce2cnr, bas_cn2bfr
-c
-      status = .true.
-      status = status .and. bas_ce2cnr(basis, icent, cnlo, cnhi)
-      status = status .and. bas_cn2bfr(basis, cnlo, ibflo, tmp)
-      status = status .and. bas_cn2bfr(basis, cnhi, tmp, ibfhi)
-c
-      bas_ce2bfr = status
-c
+      nbf = -6589
+      bas_numbf = bas_check_handle(basisin,'bas_numbf')
+      if (.not. bas_numbf) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+      nbf = nbf_tot_gb(basis)
+      bas_numbf = .true.
+      return
       end
       logical function bas_get_exponent(basisin,icont,exp)
       implicit none
@@ -1447,28 +1412,6 @@ c
       numcont = ncont_tot_gb(basis)
 
       bas_numcont = .true.
-      return
-      end
-c
-      logical function bas_numbf(basisin,nbf)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c::passed
-      integer basisin,nbf
-c::local
-      integer basis
-c
-      nbf = -6589
-      bas_numbf = bas_check_handle(basisin,'bas_numbf')
-      if (.not. bas_numbf) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-      nbf = nbf_tot_gb(basis)
-      bas_numbf = .true.
       return
       end
 c      
@@ -1619,4 +1562,3 @@ c
 c
       return
       end
-
