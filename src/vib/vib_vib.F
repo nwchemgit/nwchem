@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.5 1997-04-11 09:26:48 d3e129 Exp $
+* $Id: vib_vib.F,v 1.6 1997-04-11 23:58:53 d3e129 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -39,7 +39,7 @@ c:: passed
 c
       logical status
 c
-      integer i_core, h_core, iii, idum, ivc, itot
+      integer i_core, h_core, iii, ioldlabs, ivc, itot
       integer nels, npri, ihess, icoord, ihesst, ihesstcp,
      &    ihessp, iegval, iegvec
       integer imass, iscr, i10, i20, i30, i40
@@ -120,7 +120,9 @@ C
       I20      =  I10    + NELS
       I30      =  I20    + NAT3*NAT3 ! Space to represent internal coord. Hessian
       I40      =  I30    + NAT3*NAT3 !
-      ITOT     =  I40    + 8*NAT3    !
+      ioldlabs =  I40    + 8*NAT3    !
+      ivc      =  ioldlabs + 2*natom + 1
+      itot     =  ivc + 6*nat3
 c
 c read/load hessian and form triangle/square as needed
 c
@@ -172,12 +174,9 @@ C
 C Read in user input and tape10 arrays.  NO INPUT REQUIRED NOW
 C      Note: ! scratch pointer for atom charges (real NAT words)
 C              and atom lables (real 2*nat words)
-      IDUM=ITOT+1
-      IVC=ITOT+2*NATOM+1 ! actually an integer, but real length used
-      ITOT=IVC+6*NAT3
       call vib_rdinp(
      &    dbl_mb(ihess),dbl_mb(ihesst),dbl_mb(icoord),
-     &    dbl_mb(imass),dbl_mb(iscr),  dbl_mb(idum),
+     &    dbl_mb(imass),dbl_mb(iscr),  dbl_mb(ioldlabs),
      &    dbl_mb(i10),nels,projec,zerope,hesout,intern,
      &    rtdb,first_pass)
       if (projec) then
