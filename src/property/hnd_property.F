@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.13 2003-10-17 22:57:58 carlfahl Exp $
+* $Id: hnd_property.F,v 1.14 2004-07-21 17:28:27 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -74,18 +74,11 @@ c
 c
 c     call hondo property calculation routines
 c
-      if(.not.bas_is_spherical(basis)) then
-        if (.not.bas_any_gcorsp(basis)) then
+      if (.not.bas_any_gcorsp(basis)) then
           call hnd_propty ( rtdb, basis, geom )
-        else
-          write(luout,99991)
-        endif
       else
-         write(luout,99992)
+          write(luout,99991)
       endif
-c
-c property is done. destroy basis and geometry handles  
-c (e.g., preserve the memory available to other modules!!)
 c
       if (.not.(
      &    (bas_destroy(basis))
@@ -104,8 +97,5 @@ c
 99991 format(' property routines lifted from -hondo- do not handle',
      &       ' sp functions or general contractions ... .',/,
      &       ' please use the "segment" keyword on the basis set ',/,
-     &       ' skip and continue ')
-99992 format(' property routines lifted from -hondo- do not handle',
-     &       ' spherical basis sets ... .',/,
      &       ' skip and continue ')
       end
