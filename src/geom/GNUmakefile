@@ -1,10 +1,10 @@
-#$Id: GNUmakefile,v 1.42 1999-06-28 18:00:50 d3g681 Exp $
+#$Id: GNUmakefile,v 1.43 2000-11-27 19:06:31 bjohnson Exp $
 
  LIBRARY = libutil.a
 
-  OBJ_OPTIMIZE = geom_hnd.o
+  OBJ_OPTIMIZE =
 
-     OBJ = geom.o geom_input.o geom_input2.o geom_3d.o geom_2d.o geom_1d.o geom_numcore.o \
+     OBJ = geom_hnd.o geom.o geom_input.o geom_input2.o geom_3d.o geom_2d.o geom_1d.o geom_numcore.o \
            geom_checksum.o geom_print_ecce.o 
 #geom_hnd.o
 
