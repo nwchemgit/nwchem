@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.5 1995-11-02 21:27:40 gg502 Exp $
+C$Id: rohf.F,v 1.6 1995-11-15 20:05:27 gg502 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -72,17 +72,16 @@ c
      $        '        Time for solution =', f9.1,'s'//)
          call util_flush(6)
       endif
-c
+C
+      if (util_print('schwarz',print_high)) then
+         if ( .NOT. geom_ncent(geom, natoms) ) Call ErrQuit(
+     $        'rohf: problem with call to geom_ncent', geom)
+         if ( .NOT. bas_numcont(basis, nshells) ) Call ErrQuit(
+     $        'rohf: problem with call to bas_numcont', basis)
+         call schwarz_print(natoms, nshells)
+      Endif
+C
       if (ga_nodeid() .eq. 0) then
-C
-         if (util_print('schwarz',print_high)) then
-            if ( .NOT. geom_ncent(geom, natoms) ) Call ErrQuit(
-     $         'rohf: problem with call to geom_ncent', geom)
-            if ( .NOT. bas_numcont(basis, nshells) ) Call ErrQuit(
-     $         'rohf: problem with call to bas_numcont', basis)
-            call schwarz_print(natoms, nshells)
-         Endif
-C
          if (util_print('final evals', print_default)) then
             call util_print_centered(6,'Final eigenvalues',20,.true.)
             call output(dbl_mb(k_eval),
