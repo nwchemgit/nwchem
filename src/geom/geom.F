@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.112 2002-01-16 23:59:07 windus Exp $
+C$Id: geom.F,v 1.113 2002-01-17 01:55:25 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2104,6 +2104,7 @@ c
          center(i) = center(i)/amass
       enddo    
 c
+      geom_center_of_mass=.true.
       return
       end
       logical function geom_nuc_rep_energy(geom, energy)
