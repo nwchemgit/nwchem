@@ -1,4 +1,4 @@
-Title "QM/MM of Lys monomer"
+title "QM/MM of Lys monomer"
 
 
 memory total 1000 Mb
@@ -7,21 +7,14 @@ start lys_qmmm
 
 echo
 
-# A basis set must be defined for the QM part 
-
-basis "ao basis" 
-  O library "6-31G*"
-  H library "6-31G*"
-  C library "6-31G*"
-  N library "6-31G*"
-  F library "6-31G*"
-END
-
-
-# There is a net charge on NH3 group
 charge 1.0
 
-# Specify any SCF details
+task shell "cp lys0.rst lys_em.rst"
+
+basis "ao basis" 
+  * library "6-31G*"
+end
+
 dft
  iterations 100
 end
@@ -31,21 +24,21 @@ clear
 maxiter 30
 end
 
-
 md
  system lys_em
- sd 50   init 0.01   min 0.00001   max 0.05
- cg 30   init 0.01   min 1.0E-8    cy 10
+ sd 200   init 0.01   min 0.00001   max 0.05
  cutoff 1.9   qmmm 1.8
  memory 15000
 end
 
 qmmm
- eatoms -95
+ eatoms -85
+ bq_exclude none
  link halogen
+ optimization qm
+ link_ecp auto
 end
 
-task shell "cp lys0.rst lys_em.rst"
 
 # Run QM/MM optimization.
 task qmmm dft optimize
