@@ -1,6 +1,6 @@
       subroutine ana_tag(card,sgmnam,x)
 c
-c $Id: ana_tag.F,v 1.4 2000-01-24 23:16:27 d3j191 Exp $
+c $Id: ana_tag.F,v 1.5 2000-03-16 20:45:38 d3j191 Exp $
 c
       implicit none
 c
@@ -31,7 +31,6 @@ c
       real*8 x(nsa,3)
 c
       integer i,j,k,itag
-      character*255 filtag,fpref
       integer is,js,it
       character*5 cs,ct
       real*8 rtag,rtag2,r2

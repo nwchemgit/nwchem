@@ -1,6 +1,6 @@
       subroutine ana_init(nsai,msai,ltask)
 c
-c $Id: ana_init.F,v 1.7 1999-12-21 00:51:27 d3j191 Exp $
+c $Id: ana_init.F,v 1.8 2000-03-16 20:45:38 d3j191 Exp $
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c
-      integer nsai,msai,indx
+      integer nsai,msai
       logical ltask
 c
 c     determine me and np

@@ -1,6 +1,6 @@
       subroutine ana_select(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_select.F,v 1.4 1999-12-10 23:54:47 d3j191 Exp $
+c $Id: ana_select.F,v 1.5 2000-03-16 20:45:38 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,6 @@ c
       real*8 x(nsa,3)
 c
       integer i,j,k
-      character*255 select,fpref
       integer is,js,it
       character*5 cs,ct
       real*8 rtag,rtag2,r2

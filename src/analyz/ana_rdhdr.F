@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.6 2000-01-24 23:16:27 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.7 2000-03-16 20:45:38 d3j191 Exp $
 c
       implicit none
 c
@@ -9,9 +9,8 @@ c
       character*16 wnam,sgmnam(msa)
       character*80 card
       character*255 fname
-      integer i,na,lq
+      integer i,lq
       character*3 cnum
-      character*1 cdum
 c
       integer ib,jb,nsb
 c

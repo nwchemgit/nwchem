@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.5 2000-01-25 19:53:35 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.6 2000-03-16 20:45:38 d3j191 Exp $
 c
       implicit none
 c
@@ -12,10 +12,9 @@ c
       integer ix(msa)
 c
       character*80 card
-      integer i,j,k,na,lq
+      integer i,j,k,lq
       character*255 fname
       character*3 cnum
-      character*1 cdum
 c
       logical succes
       real*8 timp

@@ -1,6 +1,6 @@
       subroutine ana_inirms(xref,xrms,wt)
 c
-c $Id: ana_inirms.F,v 1.1 1998-12-29 18:01:02 d3j191 Exp $
+c $Id: ana_inirms.F,v 1.2 2000-03-16 20:45:37 d3j191 Exp $
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 c
       real*8 xref(nsa,3),xrms(nsa),wt(nsa)
 c
-      integer i,j
+      integer i
 c
       do 1 i=1,nsa
       xrms(i)=zero

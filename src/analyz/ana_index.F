@@ -31,6 +31,7 @@ c
     1 continue
 c
       call errquit('Error in atom name',1)
+      ana_index=0
 c
       return
       end

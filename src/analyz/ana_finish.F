@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.7 2000-01-24 23:16:26 d3j191 Exp $
+c $Id: ana_finish.F,v 1.8 2000-03-16 20:45:37 d3j191 Exp $
 c
       implicit none
 c
@@ -69,7 +69,7 @@ c
       integer isel(nsa)
       real*8 xrms(nsa)
 c
-      integer i,j,n
+      integer i,n
       real*8 arms
 c
 c     report results

@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.11 2000-03-16 20:27:41 d3j191 Exp $
+c $Id: ana_task.F,v 1.12 2000-03-16 20:45:38 d3j191 Exp $
 c
       implicit none
 c
@@ -21,6 +21,7 @@ c
       real*8 rms0,rms1,val
       character*3 fmt
       logical active
+      logical rmsdev
 c
       logical ana_rdfram
       integer ana_index
@@ -57,10 +58,13 @@ c
 c
       lsel=.false.
       active=.false.
+      rmsdev=.false.
 c
       nave=0
       time=0.0d0
       timr=0.0d0
+c
+      ifr=1
 c
       if(me.eq.0) then
       if(.not.rtdb_cget(irtdb,'ana:filcmd',1,filcmd))
@@ -148,6 +152,14 @@ c
       endif
       call ana_select(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
      + dbl_mb(i_xref))
+      goto 1
+      endif
+c
+c     root mean square deviation
+c     --------------------------
+c
+      if(card(1:6).eq.'rmsdev') then
+      rmsdev=.true.
       goto 1
       endif
 c
@@ -351,22 +363,47 @@ c
       nread=nread+1
       if(nread.lt.ifrfr) goto 10
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
+c
+c     evaluate bond lenghts
+c
       do 11 i=1,nbnds
       rbnds(i)=ana_bond(dbl_mb(i_xdat),msa,
      + ibnds(i,1),ibnds(i,2))
    11 continue
+c
+c     evaluate angles
+c
       do 13 i=1,nangs
       rangs(i)=ana_angle(dbl_mb(i_xdat),msa,
      + iangs(i,1),iangs(i,2),iangs(i,3))
    13 continue
+c
+c     evaluate torsions
+c
       do 14 i=1,ntors
       rtors(i)=ana_torsion(dbl_mb(i_xdat),msa,
      + itors(i,1),itors(i,2),itors(i,3),itors(i,4))
    14 continue
+c
+c     write bonded interaction values to file
+c
       write(lfncop,2323) time,(rbnds(i),i=1,nbnds),(rangs(i),i=1,nangs),
      + (rtors(i),i=1,ntors)
  2323 format(5f12.6)
       nwrit=nwrit+1
+c
+c     root mean square deviation
+c
+      if(rmsdev) then
+      if(np.gt.1) then
+      call ana_rmsdev(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,
+     + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms))
+      else
+      call ana_rmsdev(dbl_mb(i_xdat),int_mb(i_idat),nsa,
+     + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms))
+      endif
+      endif
+c
       endif
       nframe=nframe+1
       if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 10
@@ -385,6 +422,7 @@ c
       nangs=0
       ntors=0
       nimps=0
+      rmsdev=.false.
 c
       goto 1
       endif

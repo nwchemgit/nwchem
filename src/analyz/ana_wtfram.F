@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w)
 c
-c $Id: ana_wtfram.F,v 1.4 1999-10-25 17:44:27 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.5 2000-03-16 20:45:38 d3j191 Exp $
 c
       implicit none
 c
@@ -13,10 +13,7 @@ c
       character*16 sgmnam(msa)
 c
       character*10 today,now
-      character*80 card
-      integer i,j,k,na,nsatmp,lq
-      character*4 cnum
-      character*255 fname
+      integer i,j,k
       character*2 elemnt
 c
       character*1 cdummy

@@ -1,6 +1,6 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag)
 c
-c $Id: ana_wthdr.F,v 1.6 2000-01-24 23:16:27 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.7 2000-03-16 20:45:38 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
 c
       character*80 label
 c
-      integer i,ib,j,jb,nsb,lq,lr
+      integer i,ib,j,jb,nsb,lq
       logical binary
 c
       character*1 cdummy

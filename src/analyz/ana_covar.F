@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.2 1999-12-11 05:44:55 d3j191 Exp $
+c $Id: ana_covar.F,v 1.3 2000-03-16 20:45:37 d3j191 Exp $
 c
       implicit none
 c
@@ -8,8 +8,6 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 #include "global.fh"
-c
-      integer il,ih,jl,jh
 c
 c     create nsel x nsel global array covariance matrix
 c
@@ -30,7 +28,7 @@ c
       end
       subroutine ana_edfinal()
 c
-c $Id: ana_covar.F,v 1.2 1999-12-11 05:44:55 d3j191 Exp $
+c $Id: ana_covar.F,v 1.3 2000-03-16 20:45:37 d3j191 Exp $
 c
       implicit none
 c
@@ -113,15 +111,14 @@ c
       integer isel(nsa)
 c
 c
-      integer i,j,k,ii,ia,ib,ix
-      integer il,ih,jl,jh
+      integer i,j,k
 c
       val=0.0d0
-      ii=0
+      k=0
       do 1 i=1,nsel
       do 2 j=1,3
-      ii=ii+1
-      val=(x(ndx(i),j)-xa(ndx(i),j))*vct(ii)
+      k=k+1
+      val=(x(ndx(i),j)-xa(ndx(i),j))*vct(k)
     2 continue
     1 continue
 c
