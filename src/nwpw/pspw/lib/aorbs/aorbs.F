@@ -1,0 +1,514 @@
+
+*
+* $Id: aorbs.F,v 1.1 2002-01-14 21:14:15 bylaska Exp $
+*
+
+#define TCGMSG
+
+*     ***********************************
+*     *									*
+*     *	 	     aorbs_init				*
+*     *									*
+*     ***********************************
+      logical function aorbs_init()      
+      implicit none
+
+#include "mafdecls.fh"
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+*     **** local variables ****
+      integer npack1,nion
+      logical value
+
+*     **** external functions *****
+      integer  ion_nkatm,ion_nion
+      external ion_nkatm,ion_nion
+ 
+
+      call Pack_npack(1,npack1)
+      nion   = ion_nion()
+      nkatmx = ion_nkatm()
+
+      value = MA_alloc_get(mt_dbl,(norbs_max*nkatmx*npack1),
+     >                    'aorbs',aorbs(2),aorbs(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nkatmx),'lmmax',lmmax(2),lmmax(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nkatmx),'lmax',lmax(2),lmax(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nkatmx),'locp',locp(2),locp(1))
+
+
+
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >                    'lmaorb',lmaorb(2),lmaorb(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >                    'iaaorb',iaaorb(2),iaaorb(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >                    'iiaorb',iiaorb(2),iiaorb(1))
+
+      if (value) 
+     >  call dcopy(norbs_max*nkatmx*npack1,0.0d0,0,dbl_mb(aorbs(1)),1)
+      aorbs_init = value
+      return
+      end
+
+
+*     ***********************************
+*     *									*
+*     *	 	     aorbs_end				*
+*     *									*
+*     ***********************************
+      subroutine aorbs_end()      
+      implicit none
+
+#include "mafdecls.fh"
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+*     **** local variables ****
+      logical value
+
+      value = MA_free_heap(aorbs(2))
+      value = MA_free_heap(lmmax(2))
+      value = MA_free_heap(lmax(2))
+      value = MA_free_heap(locp(2))
+      value = MA_free_heap(lmaorb(2))
+      value = MA_free_heap(iaaorb(2))
+      value = MA_free_heap(iiaorb(2))
+
+      return
+      end
+
+
+*     ***********************************
+*     *									*
+*     *	 	     aorbs_norbs			*
+*     *									*
+*     ***********************************
+
+      integer function aorbs_norbs(ia)
+      implicit none
+      integer  ia
+
+#include "mafdecls.fh"
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+      aorbs_norbs = int_mb(lmmax(1)+ia-1)
+      return
+      end
+
+
+*     ***********************************
+*     *									*
+*     *	 	   aorbs_nbasis				*
+*     *									*
+*     ***********************************
+      integer function aorbs_nbasis()
+      implicit none
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+      aorbs_nbasis = ibasis
+      return
+      end
+
+*     ***********************************
+*     *									*
+*     *	 	   aorbs_normalize  		*
+*     *									*
+*     ***********************************
+      subroutine aorbs_normalize()
+      implicit none
+
+#include "mafdecls.fh"
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+*     **** local variables ****
+      integer n,lm,ia,npack1
+      real*8  sum
+
+      call Pack_npack(1,npack1)
+
+*     **** Normalize atomic orbitals in k space *****
+      do n=1,ibasis
+         lm = int_mb(lmaorb(1)+n-1)
+         ia = int_mb(iaaorb(1)+n-1)
+         call Pack_tt_dot(1,
+     >                    dbl_mb(aorbs(1) 
+     >                          + (lm-1)*npack1
+     >                          + (ia-1)*npack1*norbs_max),
+     >                    dbl_mb(aorbs(1) 
+     >                          + (lm-1)*npack1
+     >                          + (ia-1)*npack1*norbs_max),
+     >                    sum)
+         sum = 1.0d0/dsqrt(sum)
+         call Pack_t_SMul(1,sum,
+     >                    dbl_mb(aorbs(1) 
+     >                          + (lm-1)*npack1
+     >                          + (ia-1)*npack1*norbs_max),
+     >                    dbl_mb(aorbs(1) 
+     >                          + (lm-1)*npack1
+     >                          + (ia-1)*npack1*norbs_max))
+      end do
+
+      return
+      end
+
+*     ***********************************
+*     *									*
+*     *	 	   aorbs_weight				*
+*     *									*
+*     ***********************************
+      real*8 function aorbs_weight(n)
+      implicit none
+      integer n          ! basis number
+
+#include "mafdecls.fh"
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+*     **** local variables ****
+      integer ia
+      real*8 zv,zcount
+
+*     **** external functions ****
+      real*8   psp_zv
+      external psp_zv
+
+      ia     = int_mb(iaaorb(1)+n-1)
+      zcount = int_mb(lmmax(1)+ia-1)
+      zv     = psp_zv(ia)
+
+      aorbs_weight = (zv/zcount)
+      return
+      end
+
+*     ***********************************
+*     *									*
+*     *	 	   aorbs_aorb  				*
+*     *									*
+*     ***********************************
+
+      subroutine aorbs_aorb(n,aorb)
+      implicit none
+      integer n          ! basis number
+      complex*16 aorb(*) ! return orbital
+
+#include "mafdecls.fh"
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+*     **** local variables ****
+      logical value
+      integer lm,ia,ii
+      integer nfft3d,npack1
+      integer exi(2)
+
+*     **** external functions ****
+      logical  is_sORd
+      external is_sORd
+
+
+      call D3dB_nfft3d(1,nfft3d)
+      call Pack_npack(1,npack1)
+
+      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      if (.not. value) call errquit('aorbs_aorb:out of heap memory',0)
+
+*     **** structure factor ****
+      lm = int_mb(lmaorb(1)+n-1)
+      ia = int_mb(iaaorb(1)+n-1)
+      ii = int_mb(iiaorb(1)+n-1)
+      call strfac(ii,dcpl_mb(exi(1)))
+      call Pack_c_pack(1,dcpl_mb(exi(1)))
+
+*     **** phase factor does not matter therefore ****
+*     **** (-i)^l is the same as (i)^l in the     ****
+*     **** Rayleigh scattering formula            ****
+
+*     *** current function is s or d ****
+      if (is_sORd(lm,int_mb(lmax(1)+ia-1),
+     >                   int_mb(locp(1)+ia-1))
+     >        ) then
+         call Pack_tc_Mul(1,dbl_mb(aorbs(1) 
+     >                          + (lm-1)*npack1
+     >                          + (ia-1)*npack1*norbs_max),
+     >                   dcpl_mb(exi(1)),
+     >                   aorb)
+
+*     *** current function is p or f ****
+      else
+         call Pack_itc_Mul(1,dbl_mb(aorbs(1)
+     >                           +(lm-1)*npack1
+     >                           +(ia-1)*npack1*norbs_max),
+     >                   dcpl_mb(exi(1)),
+     >                   aorb)
+      end if
+
+
+      value = MA_pop_stack(exi(2))
+      if (.not. value) call errquit('aorbs_aorb:freeing heap memory',0)
+
+      return 
+      end
+
+
+*     ***********************************
+*     *									*
+*     *	 	   aorbs_read  				*
+*     *									*
+*     ***********************************
+      subroutine aorbs_read(fname,
+     >                      version,
+     >                       nfft,unita,
+     >						 atom,
+     >                       lmmax,lmax,locp,
+     >                       npack1,aorbs,
+     >                       tmp,tmp2,
+     >                       ierr)
+      implicit none 
+      character*20 fname
+      integer version
+      integer nfft(3)
+      real*8  unita(3,3)
+      character*2 atom
+      integer lmmax,lmax,locp
+      integer npack1
+      real*8 aorbs(npack1,*)
+      complex*16 tmp(*)
+      real*8     tmp2(*)
+      integer ierr
+
+#ifdef TCGMSG
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#endif
+
+*    *** local variables ***
+      integer MASTER,taskid
+      parameter(MASTER=0)
+      integer n,l
+      integer msglen
+      integer iatom(2)
+      character*255 full_filename
+
+
+      call Parallel_taskid(taskid)
+*     **** open fname binary file ****
+      if (taskid.eq.MASTER) then
+         call util_file_name_noprefix(fname,.false.,
+     >                             .false.,
+     >                       full_filename)
+         l = index(full_filename,' ') - 1
+         call openfile(5,full_filename,l,'r',l)
+         call iread(5,version,1)
+         call iread(5,nfft,3)
+         call dread(5,unita,9)
+         call cread(5,atom,2)
+         call iread(5,lmax,1)
+         call iread(5,locp,1)
+         lmmax=(lmax+1)**2 - (2*locp+1)
+      end if
+
+
+*     **** send header data to all processors ****
+#ifdef TCGMSG
+      msglen = 1
+      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
+      msglen = 3
+      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
+      msglen = 9
+      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
+
+      iatom(1) = ichar(atom(1:1))
+      iatom(2) = ichar(atom(2:2))
+      msglen = 2
+      call BRDCST(9+MSGCHR,iatom,mitob(msglen),MASTER)
+      atom(1:1) = char(iatom(1))
+      atom(2:2) = char(iatom(2))
+
+      msglen = 1
+      call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
+      lmmax=(lmax+1)**2 - (2*locp+1)
+
+#endif
+
+*     **** read in aorb 3d blocks ****
+      do n=1,lmmax
+         call D3dB_t_read(1,5,tmp2,tmp)
+         call Pack_t_pack(1,tmp2)
+         call Pack_t_Copy(1,tmp2,aorbs(1,n))
+      end do
+
+
+*     *** close fname binary file ***
+      if (taskid.eq.MASTER) then
+c       close(11)
+         call closefile(5)
+      end if
+
+      ierr = 0
+      return
+      end
+
+*     ***********************************
+*     *									*
+*     *	 	  aorbs_readall  				*
+*     *									*
+*     ***********************************
+
+      logical function aorbs_readall()
+      implicit none
+      
+#include "mafdecls.fh"
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+*     **** local variables ****
+      integer ngp(3),version,nfft3d,npack1
+      integer ia,l,lm,ii,icount
+      real*8 unita(3,3)
+      integer tmp(2),tmp2(2),ierr
+      logical value,found,correct_box,value2
+      character*2  atom
+      character*4  element
+      character*20 fname
+
+*     **** parallel i/o variable ****
+      integer MASTER,taskid
+      parameter(MASTER=0)
+
+*     **** external functions ****
+      logical      nwpw_filefind
+      integer      control_ngrid
+      real*8       control_unita
+      character*12 control_boundry
+      character*2  ion_atom
+      external     nwpw_filefind
+      external     control_ngrid
+      external     control_unita
+      external     control_boundry
+      external     ion_atom
+      integer      ion_nion,ion_katm
+      external     ion_nion,ion_katm
+      
+
+      call D3dB_nfft3d(1,nfft3d)
+      call Pack_npack(1,npack1)
+      call Parallel_taskid(taskid)
+
+      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
+      if (.not. value) go to 9000
+
+      value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) go to 9000
+
+*     **** read pseudopotentials ****
+      do ia=1,nkatmx
+
+*      **** define formatted aorb name ****
+       element = '    '
+       element = ion_atom(ia)
+       l = index(element,' ') - 1
+       fname = element(1:l)//'.aorb'
+        
+
+       found = .false.
+       do while (.not.found)
+
+         if (nwpw_filefind(fname)) then
+            call aorbs_read(fname,
+     >                  version,
+     >                  ngp,unita,
+     >                  atom,
+     >                  int_mb(lmmax(1)+ia-1),
+     >                  int_mb(lmax(1)+ia-1),
+     >                  int_mb(locp(1)+ia-1),
+     >                  npack1,
+     >                  dbl_mb(aorbs(1)+ (ia-1)*npack1*norbs_max),
+     >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
+     >                  ierr)
+
+           if (ierr.gt.0) then
+              value = .false.
+              go to 9000
+           end if
+
+*          **************************************************************
+*          ***** logic for finding out if psp is correctly formatted ****
+*          **************************************************************
+           correct_box = .true.
+           if ( (ngp(1).ne.control_ngrid(1)) .or.
+     >       (ngp(2).ne.control_ngrid(2)) .or.
+     >       (ngp(3).ne.control_ngrid(3)) .or. 
+     >       (unita(1,1).ne.control_unita(1,1)) .or.
+     >       (unita(2,1).ne.control_unita(2,1)) .or.
+     >       (unita(3,1).ne.control_unita(3,1)) .or.
+     >       (unita(1,2).ne.control_unita(1,2)) .or.
+     >       (unita(2,2).ne.control_unita(2,2)) .or.
+     >       (unita(3,2).ne.control_unita(3,2)) .or.
+     >       (unita(1,3).ne.control_unita(1,3)) .or.
+     >       (unita(2,3).ne.control_unita(2,3)) .or.
+     >       (unita(3,3).ne.control_unita(3,3))) then
+              correct_box = .false.
+              if (taskid.eq.MASTER) then
+              write(6,*) "atomic orbitals are not correctly formatted:",
+     >                    fname
+              end if
+           end if
+           if (correct_box) found = .true.
+
+         end if
+
+*        **** generate formatted pseudopotential atom.aorb *****
+         if (.not.found) then
+             call aorbs_formatter_auto(ion_atom(ia))
+         end if
+
+       end do !***do while ****
+
+
+      end do
+
+*     ***********************************************
+*     **** set up the index for the atomic basis ****
+*     ***********************************************
+      icount = 0
+      do ii=1,ion_nion()
+         ia = ion_katm(ii)
+
+         do lm=1,int_mb(lmmax(1)+ia-1)
+            icount = icount + 1
+
+            int_mb(lmaorb(1)+icount-1)  = lm
+            int_mb(iaaorb(1)+icount-1)  = ia
+            int_mb(iiaorb(1)+icount-1)  = ii
+         end do
+      end do
+      ibasis = icount
+      call aorbs_normalize()
+
+ 9000 value2 = MA_pop_stack(tmp2(2))
+      value2 = MA_pop_stack(tmp(2))
+      
+
+      aorbs_readall = value
+      return
+      end
+

@@ -1,0 +1,23 @@
+
+*
+* $Id: aorbs.fh,v 1.1 2002-01-14 21:14:15 bylaska Exp $
+*
+
+*     **** AORBS common block ****
+c     real*8     aorbs(nfft3d,16,nkatmx)
+c     integer    norbs(nkatmx)
+
+      integer    aorbs(2)
+      integer    lmmax(2),lmax(2),locp(2)
+      integer    lmaorb(2)
+      integer    iaaorb(2)
+      integer    iiaorb(2)
+      integer    ibasis
+      integer    nkatmx
+
+      common / aorbs_block / aorbs,lmmax,lmax,locp,
+     >                       lmaorb,iaaorb,iiaorb,
+     >                       ibasis,nkatmx
+      integer norbs_max
+      parameter (norbs_max=16)
+
