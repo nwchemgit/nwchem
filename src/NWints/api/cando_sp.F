@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.36 1999-07-14 00:28:38 d3e129 Exp $
+c $Id: cando_sp.F,v 1.37 2000-05-02 19:51:40 mg201 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -141,18 +141,14 @@ c.... check ish
       if (ish.gt.0) then
         ucont  = (sf_ibs_cn2ucn(ish,basis))
         mytype = infbs_cont(CONT_TYPE,ucont,basis)
-        mygen  = infbs_cont(CONT_NGEN,ucont,basis)
         cando_nw = cando_nw .and.(mytype.gt.-1) 
-        cando_nw = cando_nw .and.(mygen.eq.1)
       endif
 c
 c.... check jsh
       if (jsh.gt.0) then
         ucont  = (sf_ibs_cn2ucn(jsh,basis))
         mytype = infbs_cont(CONT_TYPE,ucont,basis)
-        mygen  = infbs_cont(CONT_NGEN,ucont,basis)
         cando_nw = cando_nw .and.(mytype.gt.-1)
-        cando_nw = cando_nw .and.(mygen.eq.1)
       endif
 c
       end
