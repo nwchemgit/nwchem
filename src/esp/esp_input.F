@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.3 1998-04-21 21:45:17 d3j191 Exp $
+c $Id: esp_input.F,v 1.4 1998-04-27 23:45:07 d3j191 Exp $
 c
       implicit none
 c
@@ -258,10 +258,10 @@ c
       if(factor.le.0.0d0) call errquit('illegal value for factor',0)
       if(probe.le.0.0d0) call errquit('illegal value for probe',0)
 c
-      do 5 i=1,107
-      radius(i)=factor*(radius(i)+probe)
-    5 continue
-c
+      if(.not.rtdb_put(irtdb,'esp:probe',mt_dbl,1,probe))
+     + call errquit('esp: rtdb_put rcut failed',0)
+      if(.not.rtdb_put(irtdb,'esp:factor',mt_dbl,1,factor))
+     + call errquit('esp: rtdb_put rcut failed',0)
       if(.not.rtdb_put(irtdb,'esp:rcut',mt_dbl,1,rcut))
      + call errquit('esp: rtdb_put rcut failed',0)
       if(.not.rtdb_put(irtdb,'esp:spac',mt_dbl,1,spac))

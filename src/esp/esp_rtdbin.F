@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.3 1998-04-27 22:58:58 d3j191 Exp $
+c $Id: esp_rtdbin.F,v 1.4 1998-04-27 23:45:08 d3j191 Exp $
 c
       implicit none
 c
@@ -13,6 +13,9 @@ c
 c
       logical int_normalize
       external int_normalize
+c
+      real*8 factor,probe
+      integer i
 c
 c     get input from rtdb
 c
@@ -48,6 +51,9 @@ c
 c     
 c     get cutoff radius and gridspacing
 c
+      if(.not.rtdb_get(irtdb,'esp:probe',mt_dbl,1,probe)) probe=0.07d0
+      if(.not.rtdb_get(irtdb,'esp:factor',mt_dbl,1,factor))
+     +  factor=1.45d0
       if(.not.rtdb_get(irtdb,'esp:rcut',mt_dbl,1,rcut)) rcut=0.5d0
       if(.not.rtdb_get(irtdb,'esp:spac',mt_dbl,1,spac)) spac=0.1d0
       if(.not.rtdb_get(irtdb,'esp:radius',mt_dbl,107,radius)) then
@@ -187,6 +193,10 @@ c
       spac=cnm2au*spac
 c
       nconst=nconst+1
+c
+      do 1 i=1,107
+      radius(i)=factor*(radius(i)+probe)
+    1 continue
 c
       return
       end

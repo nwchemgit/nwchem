@@ -12,3 +12,4 @@ Apr 21 1998	print under util_print contol
          	put fitted charges onto rtdb
 
 Apr 27 1998	defaults without esp input block
+                move probe/factor to esp_rtdbin
