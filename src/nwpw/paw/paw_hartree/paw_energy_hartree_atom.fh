@@ -1,0 +1,6 @@
+!$Id: paw_energy_hartree_atom.fh,v 1.1 2003-02-20 01:00:11 marat Exp $
+!
+!
+!
+      double precision paw_energy_hartree_atom
+      external paw_energy_hartree_atom

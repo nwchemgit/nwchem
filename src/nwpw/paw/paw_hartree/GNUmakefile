@@ -1,9 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-02-13 20:23:03 marat Exp $
+# $Id: GNUmakefile,v 1.2 2003-02-20 01:00:11 marat Exp $
 #
 
-          OBJ = paw_matrix_hartree.o paw_pot_hartree.o
-          HEADERS = 
+          OBJ = paw_matrix_hartree.o paw_pot_hartree.o \
+                          paw_energy_hartree_atom.o
+          HEADERS = paw_energy_hartree_atom.fh
 
 
       LIBRARY =	libpaw.a
