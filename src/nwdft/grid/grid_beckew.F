@@ -1,7 +1,7 @@
       Subroutine grid_beckew(xyzw, xyz,  rq, p, ictr, nq,iscr,
-     , ncenters_scr)
+     , ncenters_scr,indx)
 c
-C$Id: grid_beckew.F,v 1.5 2000-03-17 22:44:43 edo Exp $
+C$Id: grid_beckew.F,v 1.6 2001-03-08 03:01:24 edo Exp $
 c
       implicit none
 c
@@ -10,6 +10,7 @@ c
       integer nq      
       double precision xyzw(4,nq), xyz(3,*)
       integer iscr(*)
+      integer indx(*)
       integer ncenters_scr
 c
       integer ictr
@@ -50,14 +51,15 @@ c
    20 continue
 c
       do 50 i = 1, ncenters_scr
-c         iind = iandex(i)
-         iind = i
+         iind = indx(i)
+!         iind = i
+
          iti = iatype(iind)
          istep = (iind*(iind-1))/2
          do 40 j = 1, i
 c
             if (i.eq.j) goto 40
-            jind = j
+            jind = indx(j)
 c
             rrij = 1.0d0/sqrt(  (xyz(1,i) - xyz(1,j))**2 +
      &                                (xyz(2,i) - xyz(2,j))**2 +

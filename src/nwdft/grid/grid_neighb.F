@@ -1,7 +1,7 @@
       Subroutine grid_neighb_list(x, xyzm,  nctrs_scr,
-     ,     ictr)
+     ,     ictr,indx)
 c
-C$Id: grid_neighb.F,v 1.1 1999-05-01 17:28:10 edo Exp $
+C$Id: grid_neighb.F,v 1.2 2001-03-08 03:01:24 edo Exp $
 c
 c     xc_neighb_list removes point charges and centers far away
 c     from the current integration center.
@@ -11,6 +11,7 @@ c
 #include "cdft.fh"
 c
       integer nctrs_scr
+      integer indx(*) ! [in/out]
 c
 c     Cartesian Coordinates
 c
@@ -42,6 +43,7 @@ c
             xyzm(1,j) = xyzm(1,j+1)
             xyzm(2,j) = xyzm(2,j+1)
             xyzm(3,j) = xyzm(3,j+1)
+            indx(j)=indx(j+1)
          enddo
          nctrs_scr = nctrs_scr - 1
          i = i - 1
@@ -49,5 +51,9 @@ c
          ictr=i
       endif
       if(i.lt.nctrs_scr) goto 123
+      write(0,*) ' neigh ic ',ictr,' nc ',nctrs_scr
+      do i=1,nctrs_scr
+         write(0,*) ' i w ',i,xyzm(1,i),xyzm(2,i),xyzm(3,i)
+      enddo
       return
       end

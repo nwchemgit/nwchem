@@ -1,8 +1,8 @@
       Subroutine grid_ssw(xyzw, xyz, Rij, rq, p, ictr, 
      &                     nctrs_pruned, nq, 
-     &                     iscr, whichfunc)
+     &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.11 2000-10-25 22:50:14 windus Exp $
+C$Id: grid_ssw.F,v 1.12 2001-03-08 03:01:25 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -17,6 +17,7 @@ c
       double precision Rij(*) !interatomic distances [input]
       integer ictr
       integer iscr(*)
+      integer indx(*)
       character*4 whichfunc ! [input]
       double precision p(*)
       double precision rq(nq,*)  ! sum of p(n) [ output]
@@ -68,7 +69,7 @@ c      toll=max((tol_rho*1d-5),1d-33)
           rq(n,i) = sqrt(x*x + y*y + z*z) 
         enddo
       enddo
-      call a_dist(xyz, Rij, nctrs_pruned)
+      call a_dist(xyz, Rij, nctrs_pruned,.false.)
       AA=ictr
       distnn=1.d+10
       x0i=xyz(1,AA)
@@ -157,7 +158,12 @@ c
         do i = 1, nctrs_pruned
           wsum=wsum+p(i)
         enddo
-        xyzw(4,n) = p(AA)*xyzw(4,n)/wsum
+        if(wsum.ne.0) then
+           xyzw(4,n) = p(AA)*xyzw(4,n)/wsum
+        else
+           call errquit(' ssw : wsum .eq.0 ',0)
+!           xyzw(4,n) =0d0
+        endif
    30   continue
       enddo
       call grid_compress(nq,xyzw,iscr,toll_scr)

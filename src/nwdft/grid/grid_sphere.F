@@ -1,6 +1,6 @@
       logical function grid_insidesp(fnxyz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.14 2000-04-26 23:29:09 edo Exp $
+c$Id: grid_sphere.F,v 1.15 2001-03-08 03:01:24 edo Exp $
 c
       implicit none
       integer fnxyz ! [in]
@@ -311,7 +311,11 @@ c
       integer function grid_nxyz(rad,l_rect)
       implicit none
       double precision rad,l_rect
-      grid_nxyz=nint((rad+rad)/l_rect)
+      if(rad.gt.1d-9) then
+         grid_nxyz=nint((rad+rad)/l_rect)
+      else
+         grid_nxyz=0d0
+      endif
       return
       end
       integer function grid_nsub4(nxyz)

@@ -17,7 +17,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf)
 c
-c$Id: grid_quadv0b.F,v 1.17 2000-10-17 21:21:04 edo Exp $
+c$Id: grid_quadv0b.F,v 1.18 2001-03-08 03:01:24 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -72,7 +72,7 @@ c
          mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
      &        ictr_buf,rad,xyz,qxyz,nqpts,
      &        ibf_ao, docset, iniz, ifin, expo, 
-     &        minexp,ldiff,acc_ao_gauss)
+     &        minexp,ldiff,acc_ao_gauss,iatype_pt_chg)
          if (mbf_ao.eq.0) return
       else
       if (.not.bas_numcont(AO_bas_han, ncontrset))

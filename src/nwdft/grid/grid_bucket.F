@@ -1,6 +1,6 @@
       subroutine grid_buckinit(rtdb)
 c
-c$Id: grid_bucket.F,v 1.17 2000-07-21 01:46:58 edo Exp $
+c$Id: grid_bucket.F,v 1.18 2001-03-08 03:01:24 edo Exp $
 c
       implicit none
 c     
@@ -23,7 +23,8 @@ c
       external grid_nsub4
       external grid_ncubes,grid_lcube,grid_nxyz
       integer max_xyz
-      parameter (max_xyz=80000)
+      double precision eps
+      parameter (max_xyz=80000,eps=1d-9)
       logical oprint
 c
       oprint = util_print('quadrature', print_high)
@@ -67,16 +68,20 @@ c
       endif 
 c
       do i=1,ntypes
-         lcube(i)=grid_lcube(dble(rad_cutoff(1,i)))
-         nxyz=grid_nxyz(dble(rad_cutoff(1,i)),lcube(i))
-         shft=0
-         if(sub4) then
-            nsub4=grid_nsub4(nxyz)
-            shft=nsub4**3
+         if(abs(rad_cutoff(1,i)).gt.eps) then
+            lcube(i)=grid_lcube(dble(rad_cutoff(1,i)))
+            nxyz=grid_nxyz(dble(rad_cutoff(1,i)),lcube(i))
+            shft=0
+            if(sub4) then
+               nsub4=grid_nsub4(nxyz)
+               shft=nsub4**3
+            endif
+            ncubes_type(i)=grid_ncubes(dble(rad_cutoff(1,i)),
+     ,           .false.,dum,lcube(i))
+            ncubesmx=max(ncubesmx,ncubes_type(i))
+         else
+            ncubes_type(i)=0
          endif
-         ncubes_type(i)=grid_ncubes(dble(rad_cutoff(1,i)),
-     ,        .false.,dum,lcube(i))
-         ncubesmx=max(ncubesmx,ncubes_type(i))
       enddo
       if(ntypes*ncubesmx.gt.max_xyz) then
          l_cube=l_cube*2d0
