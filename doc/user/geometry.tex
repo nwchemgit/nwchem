@@ -17,12 +17,13 @@ and complicated when presented in its general form, as follows:
            [bqbq] \
            [autosym [real tol default 1d-2]] \
            [autoz || noautoz] \
-           [adjust]
+           [adjust] \
+           [(nuc || nucl || nucleus) <string nucmodel>]
     
     [SYMMETRY [group] <string group_name> [print] \
            [tol <real tol default 1d-2>]]
 
-    <string tag> <real x y z> [charge <real charge>] [mass <real mass>]
+    <string tag> <real x y z> [charge <real charge>] [mass <real mass>] [finite]
     ... ]
 
     [ZMATRIX || ZMT || ZMAT
@@ -81,7 +82,8 @@ As described above, the first line of the directive has the general form,
            [center || nocenter] \
            [autosym [real tol default 1d-2]] \
            [autoz || noautoz] \
-           [adjust]
+           [adjust] \
+           [(nuc || nucl || nucleus) <string nucmodel>]
 \end{verbatim}
     
 All of the keywords and input on this line are optional.  The following
@@ -169,6 +171,18 @@ list describes  all options and their defaults.
   not possible to define new centers or to modify the point
   group using this keyword.  See Section \ref{sec:zcoord} for 
   an example of its usage.
+
+\item \verb+nucleus+ -- keyword to specify the default model for the nuclear
+  charge distribution. The following values are recognized:
+\begin{itemize}
+\item \verb+point+ or \verb+pt+ --- point nuclear charge distribution. This
+  is the default.
+\item \verb+finite+ or \verb+fi+ --- finite nuclear charge distribution
+  with a Gaussian shape. The RMS radius of the Gaussian is determined from
+  the nuclear mass number $A$ by the expression 
+  $r_{\rm RMS} = 0.836*A^{1/3}+0.57$ fm.
+\end{itemize}
+
 \end{itemize}
 
 The following examples illustrate some of the various options that the
@@ -260,7 +274,7 @@ appeared above (e.g, Section \ref{sec:realsample}). Each center
 \begin{verbatim}
 
     <string tag> <real x y z> \
-        [charge <real charge>] [mass <real mass>]
+        [charge <real charge>] [mass <real mass>] [nucleus <string nucmodel>]
 
 \end{verbatim}
 
@@ -314,20 +328,29 @@ supplied for the coordinates must be in the units specified by the
 value of the variable \verb+<units>+ on the first line of the
 \verb+GEOMETRY+ directive input.
 
-The Cartesian coordinate input line also contains the optional
-keywords \verb+charge+ and \verb+mass+, which allow the user to
-specify the charge of the atom (or center) and its mass (in atomic
-mass units).  The default charge for an atom is its atomic number,
-adjusted for the presence of ECPs (see Section \ref{sec:ecp}).  In
-order to specify a different value for the charge on a particular
-atom, the user must enter the keyword \verb+charge+, followed by the
-desired value for the variable \verb+<charge>+.
+The Cartesian coordinate input line also contains the optional keywords
+\verb+charge+, \verb+mass+ and \verb+nucleus+, which allow the user to
+specify the charge of the atom (or center) and its mass (in atomic mass
+units), and the nuclear model.  The default charge for an atom is
+its atomic number, adjusted for the presence of ECPs (see Section
+\ref{sec:ecp}).  In order to specify a different value for the charge on a
+particular atom, the user must enter the keyword \verb+charge+, followed by
+the desired value for the variable \verb+<charge>+.
 
-The default mass for an atom is taken to be the mass of its most
-abundant naturally occurring isotope.  To model
-some other isotope of the element, its mass must be defined explicitly
-by specifying the keyword \verb+mass+, followed by the value (in
+The default mass for an atom is taken to be the mass of its most abundant
+naturally occurring isotope or of the isotope with the longest half-life.
+To model some other isotope of the element, its mass must be defined
+explicitly by specifying the keyword \verb+mass+, followed by the value (in
 atomic mass units) for the variable \verb+<mass>+.
+
+The default nuclear model is a point nucleus. The keyword \verb+nucleus+ (or
+\verb+nucl+ or \verb+nuc+) followed by the model name \verb+<nucmodel>+ 
+overrides this default. Allowed values of \verb+<nucmodel>+ are \verb+point+ or
+\verb+pt+ and \verb+finite+ or \verb+fi+. The \verb+finite+ option is
+a nuclear model with a Gaussian shape. The RMS radius of the Gaussian is
+determined by the atomic mass number via the formula $r_{\rm RMS} = 0.836*
+A^{1/3} + 0.57$ fm.  The mass number $A$ is derived from the variable
+\verb+<mass>+.
 
 The geometry of the system can be specified entirely in Cartesian
 coordinates by supplying a \verb+<tag>+ line of the type described
