@@ -1,4 +1,4 @@
-c     $Id: band_stress.F,v 1.1 2004-11-29 16:05:16 bylaska Exp $
+c     $Id: band_stress.F,v 1.2 2004-12-18 20:16:39 bylaska Exp $
 
       logical function band_stress(rtdb)
       implicit none
@@ -12,7 +12,7 @@ c     $Id: band_stress.F,v 1.1 2004-11-29 16:05:16 bylaska Exp $
 
 *     **** external functions ****
       logical  band_minimizer,band_stress_numerical
-      external band_minimizer,band_mstress_numerical
+      external band_minimizer,band_stress_numerical
 
       if (.not.
      >  rtdb_get(rtdb,'nwpw:stress_numerical',mt_log,1,numerical))
