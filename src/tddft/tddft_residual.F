@@ -4,7 +4,7 @@
      3  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
      4  nconverged,nnewtrials)
 c
-c $Id: tddft_residual.F,v 1.3 2002-04-12 22:55:52 sohirata Exp $
+c $Id: tddft_residual.F,v 1.4 2002-04-14 00:42:52 sohirata Exp $
 c
 c Calculate the residual vector and create a new trial
 c vector, if convergence is not achieved.
@@ -254,7 +254,7 @@ c
           enddo
           call ga_sync()
 c
-c Schmitt orthogonalize against other trial vectors
+c Schmidt orthogonalize against other trial vectors
 c
           do m=1,nnewtrials
             r=0.0d0
@@ -313,7 +313,7 @@ c
             enddo
             call ga_sync()
 c
-c Schmitt orthogonalize against other trial vectors
+c Schmidt orthogonalize against other trial vectors
 c
             do m=1,nnewtrials
               r=0.0d0

@@ -1,7 +1,7 @@
       subroutine tddft_diagon(ntrials,tda,apb,apbvec,
      1  apbval,amb,ambvec,ambval)
 c
-c $Id: tddft_diagon.F,v 1.2 2002-04-12 22:55:52 sohirata Exp $
+c $Id: tddft_diagon.F,v 1.3 2002-04-14 00:42:52 sohirata Exp $
 c
 c Diagonalize the subspace representation of (A-B) and
 c (A-B)^(1/2)(A+B)(A-B)^(1/2) matrices and return the
@@ -73,7 +73,7 @@ c
         call tddft_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
      1    apbval,dummy1,dummy2,1,apbvec,ntrials,
      2    dbl_mb(k_work3),10*ntrials,info)
-        call tddft_schmitt(ntrials,apbvec)
+        call tddft_schmidt(ntrials,apbvec)
         call tddft_sort(ntrials,apbval,apbvec,'A')
         if (util_print('diagonization',print_debug)) then
           if (nodezero) then
@@ -98,7 +98,7 @@ c
         call tddft_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
      1    ambval,dummy1,dummy2,1,ambvec,ntrials,
      2    dbl_mb(k_work3),10*ntrials,info)
-        call tddft_schmitt(ntrials,ambvec)
+        call tddft_schmidt(ntrials,ambvec)
         call tddft_sort(ntrials,ambval,ambvec,'A')
         if (util_print('diagonization',print_debug)) then
           if (nodezero) then
@@ -152,7 +152,7 @@ c
         call tddft_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
      1    apbval,dummy1,dummy2,1,apbvec,ntrials,
      2    dbl_mb(k_work3),10*ntrials,info)
-        call tddft_schmitt(ntrials,apbvec)
+        call tddft_schmidt(ntrials,apbvec)
         call tddft_sort(ntrials,apbval,apbvec,'A')
         do i=1,ntrials
           if (apbval(i).lt.0.0d0) then
