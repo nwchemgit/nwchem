@@ -145,7 +145,7 @@ ccccc
      &                               p_lamda, incre, g_tmp_exact,
      &                               g_addit_exact, g_movecs_aux,
      &                               g_movecs, iter, k_eval,
-     &                               Ecoul_aux, noc)
+     &                               Ecoul_aux, noc, split)
 c
       implicit none
 c
