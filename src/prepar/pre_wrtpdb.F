@@ -6,7 +6,7 @@
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
      + irenum,invert)
 c
-c $Id: pre_wrtpdb.F,v 1.39 2002-02-02 04:29:26 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.40 2002-02-28 21:07:57 d3j191 Exp $
 c
       implicit none
 c
@@ -203,7 +203,7 @@ c
       ioff=inum
 c      if(filmrg(1:1).ne.' ') then
 c      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
-      if(ioff.lt.0) call errquit('Error in pre_merge',0)
+      if(ioff.lt.0) call errquit('Error 2 in pre_merge',0)
       endif
 c
       if(iropt.le.1) then
