@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.101 1997-10-12 14:15:05 d3g681 Exp $
+c     $Id: nwchem.F,v 1.102 1997-10-13 18:48:13 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, * 
@@ -436,15 +436,31 @@ C
 c
       call util_print_centered(6, 'Memory information', 20, .true.)
 c
-      write(6,3) heap, stack, global, GStatus, total, cstatus,
-     $     fstatus
+*old:      write(6,3) heap, stack, global, GStatus, total, cstatus,
+*old:     $     fstatus
+*old: 3    format(/
+*old:     $     '    heap      = ', i10,' doubles'/
+*old:     $     '    stack     = ', i10,' doubles'/
+*old:     $     '    global    = ', i10,' doubles ', A/
+*old:     $     '    total     = ', i10,' doubles'/
+*old:     $     '    verify    = ', a3/
+*old:     $     '    hardfail  = ', a3//)
+      write(6,3)
+     &    heap,((dble(heap)*8.0d-06)),
+     &    stack,((dble(stack)*8.0d-06)),
+     &    global,((dble(global)*8.0d-06)),
+     &    GStatus,
+     &    total,((dble(total)*8.0d-06)),
+     &    cstatus,
+     &    fstatus
  3    format(/
-     $     '    heap      = ', i10,' doubles'/
-     $     '    stack     = ', i10,' doubles'/
-     $     '    global    = ', i10,' doubles ', A/
-     $     '    total     = ', i10,' doubles'/
-     $     '    verify    = ', a3/
-     $     '    hardfail  = ', a3//)
+     $     '    heap      = ', i10,' doubles',' = ',f10.1,' Mbytes',/,
+     $     '    stack     = ', i10,' doubles',' = ',f10.1,' Mbytes',/,
+     $     '    global    = ', i10,' doubles',' = ',f10.1,' Mbytes',/,
+     &     '       ------------> ',A,/,
+     $     '    total     = ', i10,' doubles',' = ',f10.1,' Mbytes',/,
+     $     '    verify    = ', a3,/,
+     $     '    hardfail  = ', a3,//)
 c
       call util_print_centered(6, 'Directory information', 20, .true.)
       write(6,*)
