@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.44 1998-03-20 06:53:05 mdupuis Exp $
+C$Id: opt_drv.F,v 1.45 1998-03-22 22:33:15 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -2393,7 +2393,7 @@ c
             write(iw,*) 'in -search_dir- , cartesian hessian = '
             call hnd_prsq(x(i10),ndimx,ndimx,ndim1)
          endif
-         call hnd_opt_eckart(x(i10),x(i20),x(i30),x(i40),ndim1)
+c--      call hnd_opt_eckart(x(i10),x(i20),x(i30),x(i40),ndim1)
       endif
 c
 c     --- search direction (quasi-newton or augmented hessian) ---
