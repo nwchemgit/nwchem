@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.35 2000-05-02 22:01:47 bert Exp $
+C$Id: vectors.F,v 1.36 2001-06-29 01:52:41 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -673,7 +673,62 @@ c
  1002 call errquit('movecs_converged: error closing file',0)
 c
       end
-      
+      logical function file_read_ga_info(fname,
+     $     title, nrow, ncol)
+      implicit none
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "inp.fh"
+c
+      character*(*) fname
+      character*(*) title
+      integer nrow, ncol
+c
+c     Read the header info from the dumb file_ga file
+c
+      integer unitno                 ! Unit no. for writing
+      parameter (unitno = 86)
+      integer len1, ok
+c
+      ok = 1
+      if (ga_nodeid() .eq. 0) then
+         open(unitno, status='old', form='unformatted',
+     $        file=fname, err=1000)
+         read(unitno, err=1001) len1
+         read(unitno, err=1001) title(1:len1)
+         read(unitno, err=1001) nrow, ncol
+         close(unitno,err=1002)
+         goto 10
+c
+ 1000    write(6,*) ' file_read_ga_info: failed to open ',
+     $        fname(1:inp_strlen(fname))
+         call util_flush(6)
+         ok = 0
+         goto 10
+c     
+ 1001    write(6,*) ' file_read_ga_info: failing reading from ',
+     $        fname(1:inp_strlen(fname))
+         call util_flush(6)
+         ok = 0
+         close(unitno,err=1002)
+         goto 10
+c     
+ 1002    write(6,*) ' file_read_ga_info: failed to close',
+     $        fname(1:inp_strlen(fname))
+         call util_flush(6)
+         ok = 0
+         goto 10
+      end if
+c
+ 10   call ga_sync()
+      call ga_brdcst(1, ok, mitob(1), 0) ! Propagate status
+      call ga_brdcst(2, nrow, mitob(1), 0)
+      call ga_brdcst(3, ncol, mitob(1), 0)
+      call util_char_ga_brdcst(4, title, 0)
+c
+      file_read_ga_info = ok .eq. 1
+c
+      end
       logical function file_write_ga_patch(fname, g_a, 
      $     ilo, ihi, jlo, jhi)
       implicit none
