@@ -28,7 +28,9 @@ c
       call scf(rtdb)
       return
 c
+#if defined(SUN)
       call ieeetrap
+#endif
 c
       if (.not. geom_create(geom, geom_name))
      $     call errquit('print_integs: geom_create failed?', 0)
