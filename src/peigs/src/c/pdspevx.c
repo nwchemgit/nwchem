@@ -1,5 +1,5 @@
 /*
- $Id: pdspevx.c,v 1.37 2000-03-22 00:20:34 d3g270 Exp $
+ $Id: pdspevx.c,v 1.38 2000-03-22 21:45:47 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -1045,9 +1045,9 @@ for ( iii = 0; iii < msize; iii++)
       gsum00( (char *) syncco, 1, 5, 12, mapA[0], nn_proc, proclist, d_scrat);
 
       /*
-printf(" me = %d just after pstein4 %d \n", me, *info );
-      r_ritz_( &msize, dd, &ee[1], eval, mapZ, vecZ, d_scrat);
-*/
+	printf(" me = %d just after pstein4 %d \n", me, *info );
+	r_ritz_( &msize, dd, &ee[1], eval, mapZ, vecZ, d_scrat);
+	*/
       
       
 #ifdef DEBUG7
@@ -1097,10 +1097,11 @@ printf(" me = %d just after pstein4 %d \n", me, *info );
 
     syncco[0] = 0.0e0;
     gsum00( (char *) syncco, 1, 5, 14, mapA[0], nn_proc, proclist, d_scrat);
-
-	r_ritz_( &msize, dd, &ee[1], eval, mapZ, vecZ, d_scrat, info);
-	if ( *info != 0 )
-	  return;
+#ifdef BIGTEST
+    r_ritz_( &msize, dd, &ee[1], eval, mapZ, vecZ, d_scrat, info);
+    if ( *info != 0 )
+      return;
+#endif
     
     if (nvecsQ + nvecsZ > 0) {
       mxm25( &msize, &msize, vecQ, mapQ, &msize, vecZ, mapZ, vecZ, i_scrat, d_scrat);
