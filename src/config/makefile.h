@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.194 1997-01-15 17:47:09 d3j191 Exp $
+# $Id: makefile.h,v 1.195 1997-01-15 18:46:35 twclark Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -778,7 +778,7 @@ endif
 ifdef USE_ESSL
    DEFINES += -DESSL
 # renames not needed for 4.1.  Still are for 3.2.
- CORE_LIBS += -lessl 
+ CORE_LIBS += -lessl -lpesslp2 -lblacsp2 -lesslp2
 #	      -brename:.daxpy_,.daxpy \
 #	      -brename:.dgesv_,.dgesv \
 #	      -brename:.dcopy_,.dcopy \
