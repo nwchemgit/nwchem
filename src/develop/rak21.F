@@ -371,7 +371,7 @@ c
                 if (.not.intb_init4c(
      &              basis,tish,tjsh,
      &              basis,tksh,tlsh,1,
-     &              q4,.false.,lscr,,scr,nint,dummy)) stop 'error'
+     &              q4,.false.,lscr,scr,nint,dummy)) stop 'error'
 00100           continue
               endif
             enddo
