@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.12 1996-09-19 01:09:10 d3g681 Exp $
+c$Id: ao_fock_2e.F,v 1.13 1997-03-25 19:10:02 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -39,8 +39,8 @@ c
       integer l_atmp, k_atmp
       integer l_block, k_block, nblock, maxblock
       logical status
-      logical int2e_test_mem, int2e_buf_write
-      external int2e_test_mem, int2e_buf_write
+      logical int2e_test_mem, int2e_buf_write, int2e_file_rewind
+      external int2e_test_mem, int2e_buf_write, int2e_file_rewind
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('ao_replicated: bas_numbf failed', 0)
@@ -76,7 +76,10 @@ c     k_* are the offsets corrsponding to the l_* handles
 c
 c     If reading/writing to/from cache/file then rewind
 c
-      if (oreadfile .or. owritefile) call int2e_file_rewind
+      if (oreadfile .or. owritefile) then
+         if (.not. int2e_file_rewind()) call errquit
+     $        ('ao_fock_2e: failed rewinding integral file',0)
+      endif
 c
 c     Halve exchange factor to conform to internal definition
 c

@@ -145,7 +145,7 @@ c
       if (.not. ma_pop_stack(l_mp)) call errquit('multipole: ma?',0)
 c     
       end
-      logical function geom_nuc_mpole(geom, center, lmax,
+      subroutine geom_nuc_mpole(geom, center, lmax,
      &     moments, len_moments)
       implicit none
 #include "geom.fh"
@@ -197,8 +197,6 @@ c
          end do
       end do
 c
-      geom_nuc_mpole = .true.
-c     
       end 
 
 

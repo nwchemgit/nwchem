@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.21 1997-03-22 00:10:49 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.22 1997-03-25 19:10:03 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -40,8 +40,8 @@ c
       parameter (tdim = 10000)  ! Max no. of distinct pair types
       integer l_plist, k_plist, l_ps, k_ps, l_pinfo, k_pinfo
       logical status
-      logical int2e_test_mem, int2e_buf_write
-      external int2e_test_mem, int2e_buf_write
+      logical int2e_test_mem, int2e_buf_write, int2e_file_rewind
+      external int2e_test_mem, int2e_buf_write, int2e_file_rewind
       double precision tol2e_local
 c
       if (.not. geom_ncent(geom, natom)) call errquit
@@ -64,7 +64,10 @@ c
 c
 c     If reading/writing to/from cache/file then rewind
 c     
-      if (oreadfile .or. owritefile) call int2e_file_rewind
+      if (oreadfile .or. owritefile) then
+         if (.not. int2e_file_rewind()) call errquit
+     $        ('ao_replicated: failed rewinding integral file',0)
+      endif
 c     
 c     Halve exchange factor to conform to internal definition
 c     

@@ -23,7 +23,9 @@ c
       parameter (maxproc = 2048)
       integer info(2,0:maxproc-1) ! 1=node#, 2=nrec
       logical int2e_packed_buf_read, int2e_packed_buf_write
+     $     , int2e_file_rewind
       external int2e_packed_buf_read, int2e_packed_buf_write
+     $     , int2e_file_rewind
       logical oprint, odebug
       intrinsic mod
 c     
@@ -186,7 +188,8 @@ c
          call util_flush(6)
       endif
 c
-      call int2e_file_rewind
+      if (.not. int2e_file_rewind()) call errquit
+     $     ('int2e_file_balance: failed rewind integral file', 0)
       call ga_sync()
 c
 #endif
