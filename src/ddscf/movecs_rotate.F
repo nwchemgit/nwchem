@@ -1,5 +1,5 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs)
-C$Id: movecs_rotate.F,v 1.4 2002-12-04 19:36:15 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.5 2002-12-04 22:06:53 d3k958 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -9,14 +9,14 @@ C$Id: movecs_rotate.F,v 1.4 2002-12-04 19:36:15 d3k958 Exp $
 #include "util.fh"
 #include "geom.fh"
 c
-c     Rotate the MO's calculated for a particular geometry to the current geometry
-c     using the symmetry routine sym_bas_rot.
+c     Rotate the MO's calculated at an old geometry to the active geometry.
+c     Syntax: vectors input rotate geomname filename
 c
       integer rtdb, geom, basis, g_vecs(2)
       integer iset, nset ! [in] 1 = rhf, 2 = uhf (2 sets_
       integer file_nbf, nbf, i, j, nmo, nsets
       character*80 geomname, basisname, filename, title
-      character*80 rotate(2), name(100) !max_geom=100 
+      character*80 rotate(2) !max_geom=100 
       character*20 scftype
       character*16 atom_tags
       double precision cold(3,1000), cact(3,1000) ! max # atoms
@@ -29,10 +29,9 @@ c
       double precision xmid, ymid, zmid, norm
       double precision xrot, yrot, zrot
       double precision zan(1000) ! max # atoms
-      double precision theta
       integer l_occ, k_occ, l_evals, k_evals, g_c, g_v
       integer l_a, k_a, l_b, k_b
-      integer ngeom, len, leng, oldgeom, nat
+      integer oldgeom, nat
       logical movecs_read_header, movecs_read
       external movecs_read_header, movecs_read
       logical int_normalize
@@ -41,36 +40,42 @@ c
 c
       oprint = util_print('mo guess', print_default)
       oprint_info = (ga_nodeid() .eq. 0 .and. oprint)
-      
-      if (oprint_info) then
-         write(6,*)
-         call util_print_centered(6,'Orbital rotation guess',15,
-     $        .true.)
-         call util_flush(6)
-      endif
-
+c      
       if (.not. rtdb_cget(rtdb, 'vectors:rotate', 2, rotate))
      $     call errquit('movecs_rotate: no file/geometry', 0)
       geomname = rotate(1)
       filename = rotate(2)
 c
+      if (oprint_info) then
+         write(6,*)
+         call util_print_centered(6,'Orbital rotation guess',15,
+     $        .true.)
+         write(6,1)
+     $        filename(1:inp_strlen(filename)),
+     $        geomname(1:inp_strlen(geomname))
+ 1       format(/
+     $        ' input vectors filename    = ',a/
+     $        ' input vectors geometry    = ',a/)
+         call util_flush(6)
+      endif
+
 c     -------------------------------------------------
 c     get cartesian coordinates for the active geometry
 c     -------------------------------------------------
        if (.not.geom_cart_get(geom,nat,atom_tags,cact,zan))
      $     call errquit('movecs_rotate: geom_cart_get', 0)
 c
-c     ---------------------
-c     get the old geometry 
-c     ---------------------
+c     ----------------------------------------------
+c     get cartesian coordinates for the old geometry
+c     ----------------------------------------------
 c
       if (.not. geom_create(oldgeom, geomname))
      $     call errquit('movecs_rotate: cant create oldgeom', 0)
 c
-       if (.not.geom_rtdb_load(rtdb, oldgeom, geomname))
+      if (.not.geom_rtdb_load(rtdb, oldgeom, geomname))
      $     call errquit('movecs_rotate: cant load geometry', 0)
 c
-       if (.not.geom_cart_get(oldgeom,nat,atom_tags,cold,zan))
+      if (.not.geom_cart_get(oldgeom,nat,atom_tags,cold,zan))
      $     call errquit('movecs_rotate: geom_cart_get', 0)
 c
        if (ga_nodeid().eq.0) then
@@ -88,11 +93,14 @@ c
 c
 c     ----------------------------------------------------------
 c     calculate the 3x3 rotation matrix which transforms the old
-c     geometry into the active geometry
+c     geometry into the active geometry.  Literature reference:
+c     S. K. Kearsley, "On the Orthogonal Transformation Used for
+c     Structural Comparisons", Acta Crystallographica Section A,
+c     45, 208-210 (1989).  Adapted from Tinker routine quatfit.f
 c     ----------------------------------------------------------
 c
-c     find the centroid of the old and active geometries
-c     and translate it to the origin
+c     Find the centroid of the old and active geometries
+c     and translate it to the origin.
 c
         xmid = 0.0d0
         ymid = 0.0d0
@@ -113,8 +121,8 @@ c
            z2(i) = z2(i) - zmid
         end do
 c
-c     now repeat for the first structure, note
-c     that this centroid position gets returned
+c     Repeat for the first structure.
+c     This centroid position is saved.
 c
         xmid = 0.0d0
         ymid = 0.0d0
@@ -135,8 +143,8 @@ c
            z1(i) = z1(i) - zmid
         end do
 c
-c  now use the quaternion-based method to achieve the best fit
-c  superposition of the two sets of coordinates
+c     Use the quaternion-based method to achieve the best fit
+c     superposition of the two sets of coordinates.
 c
         xxyx = 0.0d0
         xxyy = 0.0d0
@@ -204,7 +212,7 @@ c
         q(3) = v(3,4)
         q(4) = v(4,4)
 c
-c     assemble rotation matrix that superimposes the molecules
+c     Assemble the rotation matrix that superimposes the molecules.
 c
         rot(1,1) = q(1)**2 + q(2)**2 - q(3)**2 - q(4)**2
         rot(2,1) = 2.0d0 * (q(2) * q(3) - q(1) * q(4))
@@ -221,7 +229,6 @@ c
 c
    4  format(3F12.6)
       if (oprint_info)   then
-        write(6,*)
         call util_print_centered(6,'Rotation matrix',15,.true.)
           do i = 1,3
             write(6,4) rot(i,1), rot(i,2), rot(i,3)
@@ -229,6 +236,8 @@ c
       endif
       call ga_sync()
 c
+c  for error checking:
+c  -------------------
 c     rotate second molecule to best fit with first molecule
 c
 c      if (ga_nodeid().eq.0) then
@@ -253,7 +262,7 @@ c
      $    call errquit('movecs_rotate: could not destroy g_v',0)
 c
 c     ---------------------------------------------
-c     read in vectors calculated with old geometry
+c     Read in vectors calculated at the old geometry.
 c     ---------------------------------------------
 c
       call util_file_name_resolve(filename, .false.)
@@ -299,7 +308,6 @@ c
       if (.not. ma_push_get(mt_dbl, nbf, 'vectors out', l_b, k_b))
      $     call errquit('sym_movecs_apply_rot: ma?', nbf)
 c
- 11      format(2f12.6)
       call ga_sync()
 c
       if (ga_nodeid().eq.0) then
@@ -314,15 +322,14 @@ c
          call ga_get(g_vecs(iset),1,nbf,j,j,dbl_mb(k_a),1)
          call sym_movecs_apply_rot(basis, rot, dbl_mb(k_a), dbl_mb(k_b))
          call ga_put(g_vecs(iset),1,nbf,j,j,dbl_mb(k_b),1)
-c
-         write(6,*)
-         write(6,*)'mo# ',j
-         do i = 1,nbf
-         write (6,11) dbl_mb(k_a+i-1),  dbl_mb(k_b+i-1)
-         enddo
+c         write(6,*)
+c         write(6,*)'mo# ',j
+c         do i = 1,nbf
+c         write (6,11) dbl_mb(k_a+i-1),  dbl_mb(k_b+i-1)
+c         enddo
         enddo
 c
-        enddo
+        enddo   !iset
 c
       endif
       call ga_sync()
@@ -332,12 +339,13 @@ c
       if (.not. ma_pop_stack(l_a)) call errquit
      $     ('movecs_rotate: ma pop', 0)
 c
+ 11   format(2f12.6)
       return 
       end
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.4 2002-12-04 19:36:15 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.5 2002-12-04 22:06:53 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -348,8 +356,9 @@ C$Id: movecs_rotate.F,v 1.4 2002-12-04 19:36:15 d3k958 Exp $
       double precision v(*)          ! [input]
       double precision t(*)          ! [output]
 c
-c     Apply the group operation op to the vector of basis function
-c     coefficients in v(*), returning the result in t(*)
+c     Apply the rotation matrix to the vector of basis function
+c     coefficients in v(*), returning the result in t(*).
+c     Adapted from ../symmetry/sym_mo_ap_of.F
 c
       integer nbf, nbf_per_sh
       integer geom
@@ -465,7 +474,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.4 2002-12-04 19:36:15 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.5 2002-12-04 22:06:53 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -479,7 +488,8 @@ c
       logical otransform   ! [input]  transform to spherical basis
 c     
 c     Return the transformation matrices for basis functions
-c     under the specified group operation.
+c     under the specified rotation matrix.  Adapted from
+c     ../symmetry/syb_bas_op.F
 c     
 c     NOTE that the identity operation is NOT included
 c     
