@@ -16,8 +16,6 @@ modules. The new modules are:
   o HESSIAN: This module controls the analytic hessian calculation.
   o DIRDYVTST: The DIRect Dynamics for Variational Transition State Theory.
   o BAND: Prototype Band structure code.
-  o 
-  o 
 
 For each of these capabilities, the user is referred to the User Manual for more
 information. 
@@ -26,6 +24,8 @@ Additional major additions to the capabilities include:
 
   o The AUTOSYM directive in the GEOMETRY group is now ON by default, except
     for atoms.
+  o Third order Douglas-Kroll from Kimihiko Hirao's gorup at the University
+    of Tokyo.
   o NBO 5.0 is now available.
   o A limited memory BFGS minimization has been added to the PSPW code.
   o New density functionals, B97-2, HCTC P1/4, OPTX, and OPTC, have been added.
@@ -34,8 +34,9 @@ Additional major additions to the capabilities include:
   o A new SCF convergence scheme based on fractional occupation numbers has
     been implemented in DFT (with keyword SMEAR).
   o DFT allows fixed fractional occupation numbers via a keyword FON.
+  o Charge density fitting calculations has improved performance.
   o Wildcard "*" can be used in basis set, ECP, SO basis set input.
-  o 
+  o Input for the PSPW module is more "user-friendly".
 
 Again, for each of these capabilities, the user is referred to the User Manual 
 for more information. 
@@ -53,14 +54,10 @@ Top level directives:
   o BUG FIX: Problems on some platforms with a title longer than 80
     characters has been fixed.
   o BUG FIX: TASK SHELL now returns properly for DECOSF.
-  o The amount of memory (in MB) per node that is consumed by OS may 
-    now be supplied.
 
 Initial orbital Guess: 
 
   o Maximum number of fragment systems has been increased to 60.
-  o 
-  o 
 
 Basis Sets: 
 
@@ -94,6 +91,7 @@ DFT:
   o A new SCF convergence scheme based on fractional occupation numbers has
     been implemented (with keyword SMEAR).
   o Allows fixed fractional occupation numbers via a keyword FON.
+  o Charge density fitting calculations has improved performance.
   o The default value of the Schwartz screening tolerance has been raised from
     1E-10 to 1E-8 (accCoul = 8).
   o Threshold for level shifting has been decreased from 0.05 to 0.01.
@@ -120,6 +118,11 @@ DFT:
     adding relativistic operators or COSMO) in the subsequent calculation
     the vectors are assumed to be converged. This is not correct as the 
     Hamiltonian changed. 
+  o KNOWN PROBLEM: In a sequence of calculations in one input deck (using
+    the same geometry and basis set) if the Hamiltonian gets changed (by
+    adding relativistic operators or COSMO) in the subsequent calculation
+    the vectors are assumed to be converged. This is not correct as the 
+    Hamiltonian changed. 
 
 SCF: 
 
@@ -134,15 +137,13 @@ SCF:
 COSMO:
   
   o By default, induced charges will not be re-scaled (ifscrn = 2).
-  o BUG FIX: Make COSMO gradients always go numerically.
+  o BUG FIX: Make COSMO gradients will now always be computed numerically.
   o KNOWN PROBLEM: No ECP can be used with COSMO.
   o KNOWN PROBLEM: No spherical Gaussian basis set can be used with COSMO.
 
 Driver: 
 
   o BUG FIX: Insufficient internal variable errors have been minimized.
-  o 
-  o 
 
 Properties: 
 
@@ -155,19 +156,20 @@ MP2:
 
   o Singlet and triplet pair contributions to MP2 correlation energies are
     now printed separately. 
-  o BUG FIX: Problem with numerical gradients of direct MP2 energies has been
+  o BUG FIX: Problem with numerical gradients for direct MP2 energies has been
     fixed.
-  o 
+
+RI-MP2:
+
+  o Improved performance with new data parallel routines.
 
 MCSCF:
 
-  o BUG FIX: bjg_get_scf_method error has been eliminated.
+  o BUG FIX: bgj_get_scf_method error has been eliminated.
 
 Hessian and Frequencies: 
 
   o BUG FIX: ANIMATE directive is now processed correctly.
-  o 
-  o 
 
 PSPW:
 
@@ -228,7 +230,6 @@ DPLOT:
   o BUG FIX: Vectors directive now picks up the vectors correctly.
   o BUG FIX: Negative spin densities are now correctly calculated for
     DFT wavefunctions.
-  o 
 
 PYTHON:
 
@@ -241,11 +242,12 @@ Tests, manuals and misc script changes:
   o Updated User's Manual to reflect new and modified functionality in
     NWChem. 
   o QA tests have been updated to reflect the new functionality.
-  o contrib/getmem.nwchem script bugs have been fixed.
   o The program contrib/hessian/makerestart has been added to create the
     *.fdrst file from the *.hessian and *.fd_ddipole files for numerical
     hessian restarts.
-  o 
+  o The amount of memory (in MB) per node that is consumed by the OS may 
+    now be supplied to the contrib/getmem.nwchem script.  Several small bugs
+    in this script have also been fixed.
 
 Tools:
   o BUG FIX: MPICH does not cause segmentation violations with RedHat 7.1.
