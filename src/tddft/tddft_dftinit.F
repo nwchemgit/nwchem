@@ -1,6 +1,6 @@
       subroutine tddft_dftinit(rtdb,oskel,oadapt)
 c
-c $Id: tddft_dftinit.F,v 1.1 2002-03-22 02:10:36 sohirata Exp $
+c $Id: tddft_dftinit.F,v 1.2 2002-06-21 17:13:40 sohirata Exp $
 c
 c Set various parameters for DFT calculations for the 
 c ground state in the context of TDDFT calculations.
@@ -23,6 +23,13 @@ c
       integer rtdb             ! Runtime database handle
       logical oskel            ! Use of symmetry in Fock build
       logical oadapt           ! Symmetry adaptation of orbitals
+      logical dummy
+c
+c --------------------------------------------
+c Unset the converged flag of ground-state DFT
+c --------------------------------------------
+c
+      dummy=rtdb_delete(rtdb,'dft:converged')
 c
 c ---------------------
 c Geometry and symmetry

@@ -2,7 +2,7 @@
      1  g_prod_p,g_prod_m,g_buffer1,d_trials,d_prod_p,d_prod_m,
      2  ivector,ntrials,nproducts,tda,algorithm)
 c
-c $Id: tddft_dump.F,v 1.3 2002-04-28 19:09:13 sohirata Exp $
+c $Id: tddft_dump.F,v 1.4 2002-06-21 17:13:40 sohirata Exp $
 c
 c Print all current trial and product vectors for debug
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
@@ -54,38 +54,40 @@ c
         nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
       if (ivector.le.ntrials) then
-        if (nodezero.and.((algorithm.eq.1).or.(algorithm.eq.2))) then
-          write(LuOut,*)
-          write(LuOut,9000) ivector
-          if (ivector.le.nproducts) then
-            if (.not.tda) then
-              write(LuOut,9030)
+        if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+          if (nodezero) then
+            write(LuOut,*)
+            write(LuOut,9000) ivector
+            if (ivector.le.nproducts) then
+              if (.not.tda) then
+                write(LuOut,9030)
+              else
+                write(LuOut,9020)
+              endif
             else
-              write(LuOut,9020)
+              write(LuOut,9010)
             endif
-          else
-            write(LuOut,9010)
-          endif
-          do i=1,ipol
-            l=0
-            do j=nfc(i)+1,nocc(i)
-              do k=nocc(i)+1,nmo(i)-nfv(i)
-                l=l+1
-                call ga_get(g_trials(i),l,l,ivector,ivector,t,1)
-                if (ivector.le.nproducts) then
-                  call ga_get(g_prod_p(i),l,l,ivector,ivector,p,1)
-                  if (.not.tda) then
-                    call ga_get(g_prod_m(i),l,l,ivector,ivector,q,1)
-                    write(LuOut,9040) i,j,k,t,p,q
+            do i=1,ipol
+              l=0
+              do j=nfc(i)+1,nocc(i)
+                do k=nocc(i)+1,nmo(i)-nfv(i)
+                  l=l+1
+                  call ga_get(g_trials(i),l,l,ivector,ivector,t,1)
+                  if (ivector.le.nproducts) then
+                    call ga_get(g_prod_p(i),l,l,ivector,ivector,p,1)
+                    if (.not.tda) then
+                      call ga_get(g_prod_m(i),l,l,ivector,ivector,q,1)
+                      write(LuOut,9040) i,j,k,t,p,q
+                    else
+                      write(LuOut,9040) i,j,k,t,p
+                    endif
                   else
-                    write(LuOut,9040) i,j,k,t,p
+                    write(LuOut,9040) i,j,k,t
                   endif
-                else
-                  write(LuOut,9040) i,j,k,t
-                endif
+                enddo
               enddo
             enddo
-          enddo
+          endif
         else
           if (nodezero) then
             write(LuOut,*)

@@ -1,7 +1,7 @@
       subroutine tddft_finalize(geom,ao_bas_han,ipol,g_movecs,
-     1  l_evl,k_evl,l_occ,k_occ)
+     1  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs)
 c
-c $Id: tddft_finalize.F,v 1.1 2002-03-22 02:10:36 sohirata Exp $
+c $Id: tddft_finalize.F,v 1.2 2002-06-21 17:13:40 sohirata Exp $
 c
 c Destroy handles for clean exit of TDDFT module.
 c Written by So Hirata, Feb 2002.
@@ -23,6 +23,7 @@ c
       integer g_movecs(2)      ! GA handle for MO vectors
       integer l_evl,k_evl      ! MA handles for eigenvalues (AB)
       integer l_occ,k_occ      ! MA handles for occupancies (AB)
+      integer l_irs(2),k_irs(2)! MA handles for occupancies (AB)
       integer ipol             ! =1 (RDFT); =2 (UDFT)
       integer i
 c --------
@@ -41,6 +42,10 @@ c ----------
       do i=1,ipol
         if (.not.ga_destroy(g_movecs(i))) call errquit
      1    ('tddft_finalize: failed to destroy g_movecs',0)
+      enddo
+      do i=ipol,1,-1
+        if (.not.ma_pop_stack(l_irs(i))) call errquit
+     1    ('tddft_finalize: failed to deallocate irs',0)
       enddo
       if (.not.ma_pop_stack(l_occ)) call errquit
      1  ('tddft_finalize: failed to deallocate occ',0)

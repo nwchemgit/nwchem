@@ -1,6 +1,6 @@
       logical function tddft_energy(rtdb)
 c
-c $Id: tddft_energy.F,v 1.6 2002-04-28 19:09:13 sohirata Exp $
+c $Id: tddft_energy.F,v 1.7 2002-06-21 17:13:40 sohirata Exp $
 c 
 c Main routine for TDDFT excitation energy calculations.
 c
@@ -71,7 +71,8 @@ c
       integer maxvecs          ! Maximum number of trial vectors
       integer maxiter          ! Maximum number of Davidson iterations
       integer target           ! Target excited state
-      integer targetsym        ! Symmetry of target excited state
+      character*4 targetsym    ! Symmetry of target excited state
+      logical symmetry         ! Symmetry restriction
       double precision tol2e   ! 2-e integral tolerance
       integer nov(2)           ! Number of occupied virtual pairs
       integer g_trials(2)      ! GA handle for trial vectors (XY)
@@ -85,6 +86,7 @@ c
       integer g_movecs(2)      ! GA handle for MO vectors
       integer l_evl,k_evl      ! MA handles for eigenvalues (AB)
       integer l_occ,k_occ      ! MA handles for occupancies (AB)
+      integer l_irs(2),k_irs(2)! MA handles for irreps (AB)
       integer ntrials          ! Current number of trial vectors
       integer nproducts        ! Current number of product vectors
       double precision thresh  ! Convergence threshold for Davidson iteration
@@ -115,11 +117,6 @@ c
         return
       endif
       tddft_energy=.false.
-c
-c -------------------
-c Print utility start
-c -------------------
-c
       call util_print_push
       call util_print_rtdb_load(rtdb,'tddft')
 c
@@ -132,8 +129,8 @@ c
      2  xname,cname,xcname,xfac,cfac,lxfac,nlxfac,lcfac,nlcfac,xccomb,
      3  lhf,ldft,lhybrid,lhasdft,lhashf,
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
-     5  maxiter,target,targetsym,algorithm,g_movecs,
-     6  l_evl,k_evl,l_occ,k_occ,mult)
+     5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
+     6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult)
 c
 c ----------------------------------------------------
 c Determine memory size and alter maxvecs if necessary
@@ -215,12 +212,6 @@ c -----------------------------------------------------
 c Iterative solution of TDDFT matrix eigenvalue problem
 c -----------------------------------------------------
 c
-c Here we first initialize 2-e integral evaluators
-c
-      call int_init(rtdb,1,ao_bas_han)
-      call schwarz_init(geom,ao_bas_han)
-      call scf_get_fock_param(rtdb,tol2e)
-c
 c Set parameters for fock_xc if lhasdft
 c
       if (lhasdft) then
@@ -246,9 +237,10 @@ c
 c
 c Generate initial guess trial vectors
 c
-          call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1      nroots,maxvecs,g_trials,g_buffer1,d_trials,
-     2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm)
+          call tddft_iguess(rtdb,geom,nbf_ao,ipol,nocc,nmo,nfc,nfv,
+     1      nroots,maxvecs,g_trials,g_buffer1,g_buffer2,d_trials,
+     2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
+     3      targetsym,symmetry,l_irs,k_irs,tda)
           if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
@@ -266,7 +258,7 @@ c
      2      g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
      3      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      4      tda,oskel,.true.,.false.,tol2e,xfac(1),lhashf,thresh,
-     5      maxiter,target,targetsym,algorithm,mult)
+     5      maxiter,target,targetsym,algorithm,mult,l_irs,k_irs)
         endif
 c
 c -------------------
@@ -277,9 +269,10 @@ c
 c
 c Generate initial guess trial vectors
 c
-          call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1      nroots,maxvecs,g_trials,g_buffer1,d_trials,
-     2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm)
+          call tddft_iguess(rtdb,geom,nbf_ao,ipol,nocc,nmo,nfc,nfv,
+     1      nroots,maxvecs,g_trials,g_buffer1,g_buffer2,d_trials,
+     2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
+     3      targetsym,symmetry,l_irs,k_irs,tda)
           if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
@@ -297,7 +290,7 @@ c
      2      g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
      3      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      4      tda,oskel,.false.,.true.,tol2e,xfac(1),lhashf,thresh,
-     5      maxiter,target,targetsym,algorithm,mult)
+     5      maxiter,target,targetsym,algorithm,mult,l_irs,k_irs)
         endif
 c
 c ------------
@@ -308,9 +301,10 @@ c
 c
 c Generate initial guess trial vectors
 c
-        call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1    nroots,maxvecs,g_trials,g_buffer1,d_trials,
-     2    g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm)
+        call tddft_iguess(rtdb,geom,nbf_ao,ipol,nocc,nmo,nfc,nfv,
+     1    nroots,maxvecs,g_trials,g_buffer1,g_buffer2,d_trials,
+     2    g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
+     3    targetsym,symmetry,l_irs,k_irs,tda)
         if (util_print('trial vectors',print_debug)) then
           do i=1,ntrials
             call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
@@ -326,7 +320,7 @@ c
      2    g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
      3    g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      4    tda,oskel,.false.,.false.,tol2e,xfac(1),lhashf,thresh,
-     5    maxiter,target,targetsym,algorithm,mult)
+     5    maxiter,target,targetsym,algorithm,mult,l_irs,k_irs)
       endif
 c
 c And we close the 2-e integral evaluators
@@ -358,7 +352,7 @@ c
       if (rtdb_get(rtdb,'tddft:energy',mt_dbl,1,energy))
      1  tddft_energy=.true.
       call tddft_finalize(geom,ao_bas_han,ipol,g_movecs,l_evl,k_evl,
-     1  l_occ,k_occ)
+     1  l_occ,k_occ,l_irs,k_irs)
       if ((algorithm.eq.1).or.(algorithm.eq.2)) then
         do i=1,ipol
           if (.not.ga_destroy(g_trials(i))) call errquit

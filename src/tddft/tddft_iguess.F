@@ -1,8 +1,9 @@
-      subroutine tddft_iguess(rtdb,nbf_ao,ipol,
-     1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_buffer1,d_trials,
-     2  g_movecs,evl,ntrials,nproducts,algorithm)
+      subroutine tddft_iguess(rtdb,geom,nbf_ao,ipol,
+     1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_buffer1,g_buffer2,
+     2  d_trials,g_movecs,evl,ntrials,nproducts,algorithm,targetsym,
+     3  symmetry,l_irs,k_irs,tda)
 c
-c $Id: tddft_iguess.F,v 1.5 2002-04-28 19:09:13 sohirata Exp $
+c $Id: tddft_iguess.F,v 1.6 2002-06-21 17:13:41 sohirata Exp $
 c
 c Generate simple initial guess vectors. First sorts 
 c the eigenvalue differences (epsilon_a - epsilon_i).
@@ -27,6 +28,7 @@ c
 #include "dra.fh"
 c
       integer rtdb             ! Runtime database handle
+      integer geom             ! Geometry handle
       integer nbf_ao           ! Number of AO basis functions
       integer ipol             ! =1 (restricted), =2 (unrestricted)
       integer nocc(2)          ! Number of alpha, beta electrons
@@ -36,14 +38,21 @@ c
       integer maxvecs          ! Maximum number of trial vectors
       integer g_trials(2)      ! GA handle for trial vectors
       integer g_buffer1(2)     ! GA handle for buffer vectors
+      integer g_buffer2(2)     ! GA handle for buffer vectors
       integer d_trials(2)      ! DRA handle for trial vectors
       integer g_movecs(2)      ! GA handle for MO eigenvectors
       double precision evl(nbf_ao,2)   ! Eigenvalues
       integer ntrials          ! Current number of trial vectors
       integer nproducts        ! Current number of product vectors
       integer algorithm        ! Algorithm
+      character*4 targetsym    ! Target root irrep
+      logical symmetry         ! Symmetry restriction
+      integer l_irs(2),k_irs(2)! Irreps
+      logical tda              ! True if Tamm-Dancoff approximation
 c
+      integer buf              ! Number of extra initial sorted eval diffs
       double precision tiny,huge,swap
+      parameter (buf=0)        ! Right now it is turned off
       parameter (tiny=1.0d-6)  ! Tolerance for judging near degeneracy
       parameter (huge=1.0d99)  ! A number greater than eigenvalue differences
       integer nov(2)           ! Number of occupied-virtual pairs
@@ -53,37 +62,158 @@ c
       integer l_sortp,k_sortp  ! MA handles for work array
       integer l_sorta,k_sorta  ! MA handles for work array
       integer l_t(2),k_t(2)    ! MA handles for work array
+      integer l_irrep,k_irrep  ! MA handles for work array
+      integer isym,jsym
+      character*4 oname
       integer i,j,k,l,m,n
       logical nodezero
       integer request
       integer dummy
+      logical found
+      character*80 vector
+      logical vector_exists
+      integer ipol_verify
+      integer nroots_verify
+      integer nov_verify(2)
+      logical tda_verify
+      double precision r
 c
       nodezero=(ga_nodeid().eq.0)
+      do i=1,ipol
+        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
+      enddo
+      if (ipol.eq.1) nov(2)=0
+c
+c ---------------------------------------
+c Read initial guess from a file (if any)
+c ---------------------------------------
+c
+      if (.not.rtdb_cget(rtdb,'tddft:vector',1,vector))
+     1  call errquit('tddft_iguess: failed to read vector',0)
+      if (vector.ne.'') then
+        inquire(file=vector,exist=vector_exists)
+        if (vector_exists) then
+          open(unit=69,file=vector,form='formatted',status='old',
+     1    err=90000,access='sequential')
+          rewind(69)
+          read(69,*,err=90000) tda_verify
+          read(69,*,err=90000) ipol_verify
+          read(69,*,err=90000) nroots_verify
+          read(69,*,err=90000) nov_verify(1),nov_verify(2)
+          if ((ipol.eq.ipol_verify).and.
+     1        (nroots.le.nroots_verify).and.
+     2        (nov(1).eq.nov_verify(1)).and.
+     3        (nov(2).eq.nov_verify(2))) then
+c
+c Read from a file
+c
+            if (tda_verify) then
+              ntrials=nroots
+            else
+              ntrials=2*nroots
+            endif
+            do i=1,ipol
+              do n=1,ntrials
+                do m=1,nov(i)
+                  read(69,*) r
+                  if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                    call ga_put(g_trials(i),m,m,n,n,r,1)
+                  else
+                    call ga_put(g_buffer1(i),m,m,1,1,r,1)
+                  endif
+                enddo
+                if ((algorithm.eq.3).or.(algorithm.eq.4)) then
+                  dummy=dra_write_section
+     1              (.false.,g_buffer1(i),1,nov(i),1,1,
+     2              d_trials(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                endif
+              enddo
+            enddo
+            nproducts=0
+c
+c Orthonormalize
+c
+            do i=1,ipol
+              do n=1,ntrials
+                if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                  r=ga_ddot_patch(g_trials(i),'N',1,nov(i),n,n,
+     1                            g_trials(i),'N',1,nov(i),n,n)
+                else
+                  dummy=dra_read_section(.false.,g_buffer1(i),
+     1            1,nov(i),1,1,d_trials(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                  r=ga_ddot_patch(g_buffer1(i),'N',1,nov(i),1,1,
+     1                            g_buffer1(i),'N',1,nov(i),1,1)
+                endif
+                if (r.eq.0.0d0) call errquit
+     1            ('tddft_iguess: unable to normalize',0)
+                r=1.0d0/dsqrt(r)
+                if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                  call ga_scale_patch(g_trials(i),1,nov(i),n,n,r)
+                else
+                  call ga_scale_patch(g_buffer1(i),1,nov(i),1,1,r)
+                  dummy=dra_write_section(.false.,g_buffer1(i),
+     1            1,nov(i),1,1,d_trials(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                endif
+                if (n.ne.ntrials) then
+                  do m=n+1,ntrials
+                    if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                      r=ga_ddot_patch(g_trials(i),'N',1,nov(i),n,n,
+     1                                g_trials(i),'N',1,nov(i),m,m)
+                      call ga_add_patch(1.0d0,g_trials(i),1,nov(i),m,m,
+     1                                  -r,   g_trials(i),1,nov(i),n,n,
+     2                                        g_trials(i),1,nov(i),m,m)
+                    else
+                      dummy=dra_read_section(.false.,g_buffer1(i),
+     1                1,nov(i),1,1,d_trials(i),1,nov(i),n,n,request)
+                      dummy=dra_wait(request)
+                      dummy=dra_read_section(.false.,g_buffer2(i),
+     1                1,nov(i),1,1,d_trials(i),1,nov(i),m,m,request)
+                      dummy=dra_wait(request)
+                      r=ga_ddot_patch(g_buffer1(i),'N',1,nov(i),1,1,
+     1                                g_buffer2(i),'N',1,nov(i),1,1)
+                      call ga_add_patch(1.0d0,g_buffer2(i),1,nov(i),1,1,
+     1                                  -r,   g_buffer1(i),1,nov(i),1,1,
+     2                                        g_buffer2(i),1,nov(i),1,1)
+                      dummy=dra_write_section(.false.,g_buffer2(i),
+     1                1,nov(i),1,1,d_trials(i),1,nov(i),m,m,request)
+                      dummy=dra_wait(request)
+                    endif
+                  enddo
+                endif
+              enddo
+            enddo
+            write(LuOut,1010) vector
+            return
+          endif
+        endif
+      endif
+ 1010 format(/,2x,'Initial guess read from ',a20)
 c
 c --------------------
 c Allocate work arrays
 c --------------------
 c
-      do i=1,ipol
-        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
-      enddo
-      if (ipol.eq.1) nov(2)=0
+90000 if (vector.ne.'') write(LuOut,1000) 
+ 1000 format(/,2x,'Unable to retrieve initial guess from a file')
       if (.not.ma_push_get(mt_dbl,nov(1)+nov(2),
      1  'eigenvalue differences',l_ediff,k_ediff)) call errquit
      2  ('tddft_iguess: failed to allocate ediff',0)
 c Consider nroots+20 smallest eigenvalue differences
 c Extra 20 are there in case the nroots-th vector is degenarate
 c In case of degenaracy, we must increase nroots
-      if (.not.ma_push_get(mt_int,nroots+20,'occupied index',
+      if (.not.ma_push_get(mt_int,nroots+buf,'occupied index',
      1  l_sorto,k_sorto)) call errquit
      2  ('tddft_iguess: failed to allocate sorto',0)
-      if (.not.ma_push_get(mt_int,nroots+20,'virtual index',
+      if (.not.ma_push_get(mt_int,nroots+buf,'virtual index',
      1  l_sortv,k_sortv)) call errquit
      2  ('tddft_iguess: failed to allocate sortv',0)
-      if (.not.ma_push_get(mt_int,nroots+20,'spin index',
+      if (.not.ma_push_get(mt_int,nroots+buf,'spin index',
      1  l_sortp,k_sortp)) call errquit
      2  ('tddft_iguess: failed to allocate sortp',0)
-      if (.not.ma_push_get(mt_int,nroots+20,'composite index',
+      if (.not.ma_push_get(mt_int,nroots+buf,'composite index',
      1  l_sorta,k_sorta)) call errquit
      2  ('tddft_iguess: failed to allocate sorta',0)
       do i=1,ipol
@@ -91,6 +221,9 @@ c In case of degenaracy, we must increase nroots
      1    l_t(i),k_t(i))) call errquit
      2    ('tddft_iguess: failed to allocate t',0)
       enddo
+      if (.not.ma_push_get(mt_int,nroots+buf,'irrep',
+     1  l_irrep,k_irrep)) call errquit
+     2  ('tddft_iguess: failed to allocate irrep',0)
 c
 c ----------------------------------
 c Compute orbital energy differences
@@ -106,28 +239,55 @@ c
         enddo
       enddo
 c
-c --------------------------------------------
-c Find 2*nroot smallest eigenvalue differences
-c --------------------------------------------
+c ------------------------------
+c Compute the ground state irrep
+c ------------------------------
 c
-      n=min(nroots+20,nov(1)+nov(2))
+      isym=1
+      if (ipol.eq.2) then
+        do i=1,ipol
+c here we are just getting ground state symmetry ...
+c ... frozen cores are irrelevant
+          do j=1,nocc(i)
+            isym=ieor(isym-1,int_mb(k_irs(i)+j-1)-1)+1
+          enddo
+        enddo
+      endif
+      call sym_irrepname(geom,isym,oname)
+      if (nodezero.and.util_print('initial guess',print_debug))
+     1  write(LuOut,*) 'Ground state symmetry ',oname
+c
+c ------------------------------------------
+c Find nroot smallest eigenvalue differences
+c ------------------------------------------
+c
+      n=min(nroots+buf,nov(1)+nov(2))
       do m=1,n
         swap=huge
         l=0
+        found=.false.
         do i=1,ipol
           do j=nfc(i)+1,nocc(i)
             do k=nocc(i)+1,nmo(i)-nfv(i)
+              jsym=ieor(isym-1,int_mb(k_irs(i)+j-1)-1)+1
+              jsym=ieor(jsym-1,int_mb(k_irs(i)+k-1)-1)+1
+              call sym_irrepname(geom,jsym,oname)
               l=l+1
-              if (dbl_mb(k_ediff+l-1).lt.swap) then
+              if (((.not.symmetry).or.(targetsym.eq.oname))
+     1          .and.(dbl_mb(k_ediff+l-1).lt.swap)) then
                 int_mb(k_sorto+m-1)=j
                 int_mb(k_sortv+m-1)=k
                 int_mb(k_sortp+m-1)=i
                 int_mb(k_sorta+m-1)=l
+                int_mb(k_irrep+m-1)=jsym
                 swap=dbl_mb(k_ediff+l-1)
+                found=.true.
               endif
             enddo
           enddo
         enddo
+        if (.not.found) call errquit
+     1    ('tddft_iguess: too many roots requested',nroots)
         dbl_mb(k_ediff+int_mb(k_sorta+m-1)-1)=huge+huge
       enddo
 c
@@ -141,8 +301,9 @@ c
         write(LuOut,9010)
         write(LuOut,9020)
         do m=1,n
+          call sym_irrepname(geom,int_mb(k_irrep+m-1),oname)
           write(LuOut,9030) m,int_mb(k_sortp+m-1),
-     1      int_mb(k_sorto+m-1),int_mb(k_sortv+m-1),
+     1      int_mb(k_sorto+m-1),int_mb(k_sortv+m-1),oname,
      2      evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1)),
      3      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)),
      4      evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1))-
@@ -151,9 +312,9 @@ c
         write(LuOut,9020)
       endif
  9000 format(i5,' smallest eigenvalue differences')
- 9010 format('  No. Spin  Occ  Vir    E(Vir)    E(Occ)   E(Diff)')
- 9020 format('--------------------------------------------------')
- 9030 format(4i5,3f10.5)
+ 9010 format('  No. Spin  Occ  Vir  Irrep   E(Vir)    E(Occ)   E(Diff)')
+ 9020 format('--------------------------------------------------------')
+ 9030 format(4i5,1x,a4,1x,3f10.5)
 c
 c --------------------------------------------------------
 c Check if nroots is too large, if so, reduce it
@@ -168,28 +329,28 @@ c
         if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
      1    call errquit('tddft_iguess: failed writing to rtdb',0)
       else if (nroots.lt.nov(1)+nov(2)) then
-        i=nroots
-   10   continue
-        if (evl(int_mb(k_sortv+i),int_mb(k_sortp+i))-
-     1      evl(int_mb(k_sorto+i),int_mb(k_sortp+i))-
-     2      evl(int_mb(k_sortv+i-1),int_mb(k_sortp+i-1))+
-     3      evl(int_mb(k_sorto+i-1),int_mb(k_sortp+i-1))
-     4      .lt.tiny) then
-          i=i+1
-          if (i.ge.n) call errquit
-     1      ('tddft_iguess: increase nroots',nroots)
-        else
-          goto 20
-        endif
-        goto 10
-   20   continue
-        if (i.gt.nroots) then
-          if (nodezero.and.util_print('initial guess',print_default))
-     1      write(LuOut,9050) nroots,i
-          nroots=i
-          if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
-     1      call errquit('tddft_iguess: failed writing to rtdb',0)
-        endif
+c       i=nroots
+c  10   continue
+c       if (evl(int_mb(k_sortv+i),int_mb(k_sortp+i))-
+c    1      evl(int_mb(k_sorto+i),int_mb(k_sortp+i))-
+c    2      evl(int_mb(k_sortv+i-1),int_mb(k_sortp+i-1))+
+c    3      evl(int_mb(k_sorto+i-1),int_mb(k_sortp+i-1))
+c    4      .lt.tiny) then
+c         i=i+1
+c         if (i.ge.n) call errquit
+c    1      ('tddft_iguess: increase nroots',nroots)
+c       else
+c         goto 20
+c       endif
+c       goto 10
+c  20   continue
+c       if (i.gt.nroots) then
+c         if (nodezero.and.util_print('initial guess',print_default))
+c    1      write(LuOut,9050) nroots,i
+c         nroots=i
+c         if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
+c    1      call errquit('tddft_iguess: failed writing to rtdb',0)
+c       endif
       endif
  9040 format(10x,'Number of roots decreased from  ',i8,' to ',i4)
  9050 format(10x,'Number of roots increased from  ',i8,' to ',i4)
@@ -227,6 +388,8 @@ c ------
 c Return
 c ------
 c
+      if (.not.ma_pop_stack(l_irrep)) call errquit 
+     1  ('tddft_iguess: failed to deallocate irrep',0)
       do i=ipol,1,-1
         if (.not.ma_pop_stack(l_t(i))) call errquit
      1    ('tddft_iguess: failed to deallocate t',0)

@@ -5,7 +5,7 @@
      4  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
      5  nconverged,nnewtrials,nresiduals,algorithm)
 c
-c $Id: tddft_residual.F,v 1.6 2002-04-28 19:09:13 sohirata Exp $
+c $Id: tddft_residual.F,v 1.7 2002-06-21 17:13:41 sohirata Exp $
 c
 c Calculate the residual vector and create a new trial
 c vector, if convergence is not achieved.
@@ -19,7 +19,7 @@ c
 c (X+Y) and (X-Y) are bi-orthonormalized
 c
 c R1 = (A+B)(X+Y) - w(X-Y)
-c R2 = (A+B)(X-Y) - w(X+Y)
+c R2 = (A-B)(X-Y) - w(X+Y)
 c
 c Some parts are explicitly parallelized, taking into account 
 c the specific distribution (see the ga_create calls for g_residuals_1
@@ -299,7 +299,7 @@ c
      1    continue
         if (residual_1(n).gt.thresh) then
           if (nnewtrials.ge.maxvecs) call errquit
-     1      ('Out of memory',nnewtrials)
+     1      ('tddft_residual: out of memory',nnewtrials)
           call ga_sync()
           do i=1,ipol
             call ga_distribution
@@ -384,7 +384,7 @@ c
      1    continue
           if (residual_2(n).gt.thresh) then
             if (nnewtrials.ge.maxvecs) call errquit
-     1        ('Out of memory',nnewtrials)
+     1        ('tddft_residual: out of memory',nnewtrials)
 c
 c Scale by 1/{w(epsilon_a-epsilon_i)^(1/2)}
 c

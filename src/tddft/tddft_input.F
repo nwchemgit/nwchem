@@ -1,6 +1,6 @@
       subroutine tddft_input(rtdb)
 c
-c $Id: tddft_input.F,v 1.5 2002-04-28 19:09:13 sohirata Exp $
+c $Id: tddft_input.F,v 1.6 2002-06-21 17:13:41 sohirata Exp $
 c
 c Input parser for TDDFT called by input/input_parse.F.
 c Also sets default values for input parameters.
@@ -9,7 +9,7 @@ c
 c     TDDFT
 c        [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
 c                 [virtual <integer nfzv default 0>]]
-c        [(TDA||NOTDA) default NOTDA]
+c        [(CIS||RPA) default RPA]
 c        [NROOTS <integer nroots default 1>]
 c        [MAXVECS <integer maxvecs default 1000>]
 c        [(SINGLET||NOSINGLET) default SINGLET]
@@ -17,8 +17,10 @@ c        [(TRIPLET||NOTRIPLET) default TRIPLET]
 c        [THRESH <double thresh default 1e-4>]
 c        [MAXITER <integer maxiter default 100>]
 c        [TARGET <integer target default 1>]
-c        [TARGETSYM <integer targetsym default 0>]
+c        [TARGETSYM <character targetsym default 'none'>]
+c        [SYMMETRY]
 c        [ALGORITHM <integer algorithm default 1>]
+c        [VECTOR <character vector default jobname'.tddft']
 c        [PRINT (none||low||medium||high||debug)
 c          <string list_of_names ...>]
 c     END
@@ -30,11 +32,13 @@ c
 #include "stdio.fh"
       integer rtdb
       character*20 test
-      integer nroots,maxvecs,maxiter,target,targetsym,algorithm
+      integer nroots,maxvecs,maxiter,target,algorithm
+      character*4 targetsym
+      character*80 vector
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
-      logical tda
+      logical tda,symmetry
       double precision thresh
 c
 c ------------------
@@ -45,7 +49,7 @@ c     FREEZE (Frozen cores/virtuals)
 c
 c     no action is taken
 c
-c     TDA (Tamm-Dancoff approximation)
+c     CIS (Tamm-Dancoff approximation)
 c
       tda=.false.
       if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
@@ -95,15 +99,27 @@ c
 c
 c     TARGETSYM (the irrep of the target excited state)
 c
-      targetsym=0
-      if (.not.rtdb_put(rtdb,'tddft:targetsym',mt_int,1,targetsym))
+      targetsym='none'
+      if (.not.rtdb_cput(rtdb,'tddft:targetsym',1,targetsym))
+     1  call errquit('tddft_input: failed writing to rtdb',0)
+c
+c     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
+c
+      symmetry=.false.
+      if (.not.rtdb_put(rtdb,'tddft:symmetry',mt_log,1,symmetry))
      1  call errquit('tddft_input: failed writing to rtdb',0)
 c
 c     ALGORITHM (algorithm: =1 incore-multiple fock build; =2: incore-single fock build
 c                           =3 disk-multiple fock build;   =4: disk-single fock build)
 c
-      algorithm=1
+      algorithm=0
       if (.not.rtdb_put(rtdb,'tddft:algorithm',mt_int,1,algorithm))
+     1  call errquit('tddft_input: failed writing to rtdb',0)
+c
+c     VECTOR (filename for solution vectors)
+c
+      vector=''
+      if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
      1  call errquit('tddft_input: failed writing to rtdb',0)
 c
 c ----------
@@ -120,16 +136,16 @@ c
       if (inp_compare(.false.,test,'freeze')) then
         call freeze_input(rtdb,'tddft')
 c
-c     TDA (Tamm-Dancoff approximation)
+c     CIS (Tamm-Dancoff approximation)
 c
-      else if (inp_compare(.false.,test,'tda')) then
+      else if (inp_compare(.false.,test,'cis')) then
         tda=.true.
         if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
      1    call errquit('tddft_input: failed writing to rtdb',0)
 c
-c     NOTDA (Full linear response)
+c     RPA (Full linear response)
 c
-      else if (inp_compare(.false.,test,'notda')) then
+      else if (inp_compare(.false.,test,'rpa')) then
         tda=.false.
         if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
      1    call errquit('tddft_input: failed writing to rtdb',0)
@@ -222,14 +238,19 @@ c
 c     TARGETSYM (the symmetry of the target excited state)
 c
       else if (inp_compare(.false.,test,'targetsym')) then
-        if (.not.inp_i(targetsym)) then
+        if (.not.inp_a(targetsym)) then
           write(LuOut,*) 'tddft_input: targetsym value not found; ',
      1      'no symmetry information will be used in specifying target'
-          targetsym=0
+          targetsym='none'
         endif
-        if ((targetsym.lt.0).or.(targetsym.gt.8)) call errquit
-     1    ('tddft_input: an illegal value for targetsym',targetsym)
-        if (.not.rtdb_put(rtdb,'tddft:targetsym',mt_int,1,targetsym))
+        if (.not.rtdb_cput(rtdb,'tddft:targetsym',1,targetsym))
+     1    call errquit('tddft_input: failed writing to rtdb',0)
+c
+c     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
+c
+      else if (inp_compare(.false.,test,'symmetry')) then
+        symmetry=.true.
+        if (.not.rtdb_put(rtdb,'tddft:symmetry',mt_log,1,symmetry))
      1    call errquit('tddft_input: failed writing to rtdb',0)
 c
 c     ALGORITHM (algorithm: =1 incore-multiple fock build; =2: incore-single fock build
@@ -238,10 +259,21 @@ c
       else if (inp_compare(.false.,test,'algorithm')) then
         if (.not.inp_i(algorithm)) then
           write(LuOut,*) 'tddft_input: algorithm value not found; ',
-     1      'default value of 1 will be used'
-          algorithm=1
+     1      'an optimal choice will be made later'
+          algorithm=0
         endif
         if (.not.rtdb_put(rtdb,'tddft:algorithm',mt_int,1,algorithm))
+     1    call errquit('tddft_input: failed writing to rtdb',0)
+c
+c     VECTOR (filename for solution vectors)
+c
+      else if (inp_compare(.false.,test,'vector')) then
+        if (.not.inp_a(vector)) then
+          write(LuOut,*) 'tddft_input: filename not found; ',
+     1      'default name will be used'
+          call util_file_name('tddft',.false.,.false.,vector)
+        endif
+        if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
      1    call errquit('tddft_input: failed writing to rtdb',0)
 c
 c     PRINT

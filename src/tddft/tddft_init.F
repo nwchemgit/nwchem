@@ -3,10 +3,10 @@
      2  xname,cname,xcname,xfac,cfac,lxfac,nlxfac,lcfac,nlcfac,xccomb,
      3  lhf,ldft,lhybrid,lhasdft,lhashf,
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
-     5  maxiter,target,targetsym,algorithm,g_movecs,
-     6  l_evl,k_evl,l_occ,k_occ,mult)
+     5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
+     6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult)
 c
-c $Id: tddft_init.F,v 1.5 2002-04-28 19:09:13 sohirata Exp $
+c $Id: tddft_init.F,v 1.6 2002-06-21 17:13:41 sohirata Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -38,6 +38,7 @@ c
       integer nocc(2)          ! Number of alpha, beta electrons
       integer nmo(2)           ! Number of alpha, beta orbitals
       integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
+      integer nmix(2)          ! Number of symmetry contaminations
       character*255 movecs_out ! MO vector file name
       character*255 title      ! Title
       character*255 basisname  ! Basis set name
@@ -66,17 +67,22 @@ c
       double precision thresh  ! Convergence threshold for Davidson iteration
       integer maxiter          ! Maximum number of Davidson iterations
       integer target           ! Target excited state
-      integer targetsym        ! Symmetry of target excited state
+      character*4 targetsym    ! Symmetry of target excited state
+      logical symmetry         ! True if symmetry restriction
       integer algorithm        ! =1 multiple fock build; =2: conventional
       integer g_movecs(2)      ! GA handle for MO vectors
       integer l_evl,k_evl      ! MA handles for eigenvalues (AB)
       integer l_occ,k_occ      ! MA handles for occupancies (AB)
+      integer l_irs(2),k_irs(2)! MA handles for irreps (AB)
       integer mult             ! Ground state spin multiplicity
+      character*80 vector      ! CI vector filename
 c
       character*3 onoff1,onoff2
       integer i,j,n
+      integer g_work
       double precision a
       character*18 ctype
+      character*4 oname
       integer itol2e
       logical nodezero
       logical dummy
@@ -170,32 +176,83 @@ c -----------
       if (.not.rtdb_get(rtdb,'tddft:frozen virtual',
      1  mt_int,1,nfv(1))) nfv(1) = 0
       if (ipol.eq.2) nfv(2) = nfv(1)
-      if (.not.rtdb_get(rtdb,'tddft:nroots',mt_int,1,nroots))
-     1  call errquit('tddft_init: failed to read nroots',0)
-      if (.not.rtdb_get(rtdb,'tddft:maxvecs',mt_int,1,maxvecs))
-     1  call errquit('tddft_init: failed to read maxvecs',0)
-      if (.not.rtdb_get(rtdb,'tddft:tda',mt_log,1,tda))
-     1  call errquit('tddft_init: failed to read tda',0)
-      if (.not.rtdb_get(rtdb,'tddft:singlet',mt_log,1,singlet))
-     1  call errquit('tddft_init: failed to read singlet',0)
-      if (.not.rtdb_get(rtdb,'tddft:triplet',mt_log,1,triplet))
-     1  call errquit('tddft_init: failed to read triplet',0)
-      if (.not.rtdb_get(rtdb,'tddft:thresh',mt_dbl,1,thresh))
-     1  call errquit('tddft_init: failed to read thresh',0)
-      if (.not.rtdb_get(rtdb,'tddft:maxiter',mt_int,1,maxiter))
-     1  call errquit('tddft_init: failed to read maxiter',0)
-      if (.not.rtdb_get(rtdb,'tddft:target',mt_int,1,target))
-     1  call errquit('tddft_init: failed to read target',0)
-      if (.not.rtdb_get(rtdb,'tddft:targetsym',mt_int,1,targetsym))
-     1  call errquit('tddft_init: failed to read targetsym',0)
-      if (.not.rtdb_get(rtdb,'tddft:algorithm',mt_int,1,algorithm))
-     1  call errquit('tddft_init: failed to read algorithm',0)
+      if (.not.rtdb_get(rtdb,'tddft:nroots',mt_int,1,nroots)) then
+        nroots=1
+        if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
+     1  call errquit('tddft_init: failed to write nroots',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tddft:maxvecs',mt_int,1,maxvecs)) then
+        maxvecs=1000
+        if (.not.rtdb_put(rtdb,'tddft:maxvecs',mt_int,1,maxvecs))
+     1  call errquit('tddft_init: failed to write maxvecs',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tddft:tda',mt_log,1,tda)) then
+        tda=.false.
+        if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
+     1  call errquit('tddft_init: failed to write tda',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tddft:singlet',mt_log,1,singlet)) then
+        singlet=.true.
+        if (.not.rtdb_put(rtdb,'tddft:singlet',mt_log,1,singlet))
+     1  call errquit('tddft_init: failed to write singlet',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tddft:triplet',mt_log,1,triplet)) then
+        triplet=.true.
+        if (.not.rtdb_put(rtdb,'tddft:triplet',mt_log,1,triplet))
+     1  call errquit('tddft_init: failed to write triplet',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tddft:thresh',mt_dbl,1,thresh)) then
+        thresh=1.0d-4
+        if (.not.rtdb_put(rtdb,'tddft:thresh',mt_dbl,1,thresh))
+     1  call errquit('tddft_init: failed to write thresh',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tddft:maxiter',mt_int,1,maxiter)) then
+        maxiter=1000
+        if (.not.rtdb_put(rtdb,'tddft:maxiter',mt_int,1,maxiter))
+     1  call errquit('tddft_init: failed to write maxiter',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tddft:target',mt_int,1,target)) then
+         target=1
+        if (.not.rtdb_put(rtdb,'tddft:target',mt_int,1,target))
+     1  call errquit('tddft_init: failed to write target',0)
+      endif
+      if (.not.rtdb_cget(rtdb,'tddft:targetsym',1,targetsym)) then
+        targetsym='none'
+        if (.not.rtdb_cput(rtdb,'tddft:targetsym',1,targetsym))
+     1  call errquit('tddft_init: failed to write targetsym',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tddft:symmetry',mt_log,1,symmetry)) then
+        symmetry=.false.
+        if (.not.rtdb_put(rtdb,'tddft:symmetry',mt_log,1,symmetry))
+     1  call errquit('tddft_init: failed to write symmetry',0)
+      endif
+      if ((symmetry).and.(targetsym.eq.'none')) then
+        symmetry=.false.
+        if (.not.rtdb_put(rtdb,'tddft:symmetry',mt_log,1,symmetry))
+     1    call errquit('tddft_init: failed to write symmetry',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tddft:algorithm',mt_int,1,algorithm)) then
+        algorithm=0
+        if (.not.rtdb_put(rtdb,'tddft:algorithm',mt_int,1,algorithm))
+     1  call errquit('tddft_init: failed to write algorithm',0)
+      endif
+      if (.not.rtdb_cget(rtdb,'tddft:vector',1,vector)) then
+        vector=''
+        if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
+     1  call errquit('tddft_init: failed to write vector',0)
+      endif
 c ----------------------
 c 2-e integral tolerance
 c ----------------------
       if (.not.rtdb_get(rtdb,'dft:itol2e',mt_int,1,itol2e))
      1  call errquit('tddft_init: failed to read itol2e',0)
       tol2e=10.0d0**(-itol2e)
+c ----------------------
+c Initialize integrators
+c ----------------------
+      call int_init(rtdb,1,ao_bas_han)
+      call schwarz_init(geom,ao_bas_han)
+      call scf_get_fock_param(rtdb,tol2e)
 c --------------------------
 c Determine calculation type
 c --------------------------
@@ -283,6 +340,32 @@ c -------------------------------------
           call ga_print(g_movecs(i))
         endif
       enddo
+c ---------------------------------------
+c Determine symmetry (irreps) of orbitals
+c ---------------------------------------
+      do i=1,ipol
+c
+c We re-symmetry-adapt the MO's to get irreps information
+c Make sure not to alter g_movecs
+c
+        if (.not.ma_push_get(mt_int,nbf_ao,'irreps',
+     1    l_irs(i),k_irs(i))) call errquit
+     2    ('tddft_init: failed to allocate irs',0)
+        if (.not.ga_duplicate(g_movecs(i),g_work,'Work')) call errquit
+     1    ('tddft_init: failed to duplicate g_movecs',0)
+        call ga_copy(g_movecs(i),g_work)
+        call sym_movecs_adapt(ao_bas_han,1.0d-8,g_work,
+     1    int_mb(k_irs(i)),nmix(i))
+        if (.not.ga_destroy(g_work)) call errquit
+     1    ('tddft_init: failed to destroy g_work',0)
+        if (nodezero.and.util_print('MO vectors',print_debug)) then
+          write(LuOut,*) 'Spin ',i
+          do j=1,nbf_ao
+            call sym_irrepname(geom,int_mb(k_irs(i)+j-1),oname)
+            write(LuOut,*) ' orbital',j,oname
+          enddo
+        endif
+      enddo
 c --------------
 c Adjust maxvecs
 c --------------
@@ -310,13 +393,6 @@ c -------------
      1  print_default)) then
         call util_print_centered
      1    (LuOut,'General Information',20,.true.)
-        if (ipol.eq.1) then
-          write(LuOut,9010)
-          write(LuOut,9030) nocc(1)*2,nocc(1),nocc(1)
-        else if (ipol.eq.2) then
-          write(LuOut,9020)
-          write(LuOut,9030) nocc(1)+nocc(2),nocc(1),nocc(2)
-        endif
         if (ipol.eq.1) then
           write(LuOut,9410) nmo(1)*2,nmo(1),nmo(1)
         else if (ipol.eq.2) then
@@ -386,16 +462,28 @@ c -------------
         call util_print_centered
      1    (LuOut,'TDDFT Information',20,.true.)
         write(LuOut,9000) ctype  
-        write(LuOut,9060) nroots
-        write(LuOut,9120) target
-        if (targetsym.eq.0) then
-          write(LuOut,9160)
-        else
-          write(LuOut,9150) targetsym
+        if (ipol.eq.1) then
+          if ((singlet).and.(.not.triplet)) write(LuOut,9080)
+          if ((triplet).and.(.not.singlet)) write(LuOut,9090)
+          if ((singlet).and.(triplet)) write(LuOut,9170)
+          write(LuOut,9030) nocc(1)*2,nocc(1),nocc(1)
+        else if (ipol.eq.2) then
+          write(LuOut,9020)
+          write(LuOut,9030) nocc(1)+nocc(2),nocc(1),nocc(2)
         endif
+        write(LuOut,9060) nroots
         write(LuOut,9070) maxvecs
         write(LuOut,9130) maxiter
-        if (algorithm.eq.1) then
+        write(LuOut,9120) target
+        write(LuOut,9150) targetsym
+        if (symmetry) then
+          write(LuOut,9160) 'on '
+        else
+          write(LuOut,9160) 'off'
+        endif
+        if (algorithm.eq.0) then
+          write(LuOut,9140) 'Optimal'
+        else if (algorithm.eq.1) then
           write(LuOut,9140) 'Incore multiple tensor contraction'
         else if (algorithm.eq.2) then
           write(LuOut,9140) 'Incore single tensor contraction'
@@ -406,13 +494,14 @@ c -------------
         else
           write(LuOut,9140) 'Unknown'
         endif
-        if ((ipol.eq.1).and.(singlet)) write(LuOut,9080)
-        if ((ipol.eq.1).and.(triplet)) write(LuOut,9090)
         write(LuOut,9110) thresh
       endif
-      call util_flush(LuOut)
+      if (nodezero) call util_flush(LuOut)
  9000 format(3x,'       Calculation type : ',a18)
- 9010 format(3x,'      Wavefunction type : Restricted')
+ 9080 format(3x,'      Wavefunction type : Restricted singlets')
+ 9090 format(3x,'      Wavefunction type : Restricted triplets')
+ 9170 format(3x,
+     1'      Wavefunction type : Restricted singlets & triplets')
  9020 format(3x,'      Wavefunction type : Unrestricted')
  9030 format(3x,'       No. of electrons :',2x,i4,/,
      1       3x,'        Alpha electrons :',2x,i4,/,
@@ -428,16 +517,14 @@ c -------------
  9040 format(3x,'     Use of symmetry is : ',a3,/,
      1       3x,'   Symmetry adaption is : ',a3)
  9050 format(3x,' Number of AO functions :',2x,i4)
- 9060 format(3x,'           No. of roots :',2x,i8)
- 9070 format(3x,'       Max subspacesize :',2x,i8)
- 9080 format(3x,'Singlet excited states will be sought')
- 9090 format(3x,'Triplet excited states will be sought')
+ 9060 format(3x,'           No. of roots :',2x,i4)
+ 9070 format(3x,'       Max subspacesize :',2x,i4)
  9100 format(3x,'      Schwarz screening : ',d8.2)
  9110 format(3x,'     Davidson threshold : ',d8.2)
- 9120 format(3x,'            Target root :',2x,i8)
- 9150 format(3x,'        Target symmetry :',2x,i8)
- 9160 format(3x,'        Target symmetry : not specified')
- 9130 format(3x,'         Max iterations :',2x,i8)
+ 9120 format(3x,'            Target root :',2x,i4)
+ 9150 format(3x,'        Target symmetry :',1x,a4)
+ 9160 format(3x,'   Symmetry restriction :',1x,a3)
+ 9130 format(3x,'         Max iterations :',2x,i4)
  9140 format(3x,'              Algorithm : ',a)
  9300 format(3x,a40)
  9310 format(3x,a40,1x,f6.2,1x,a9)
