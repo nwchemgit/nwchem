@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.51 2000-09-05 16:28:29 d3j191 Exp $
+c $Id: prp_main.F,v 1.52 2000-10-25 17:16:23 d3j191 Exp $
 c
       implicit none
 c
@@ -263,16 +263,7 @@ c
       p(it)=timer_wall(2)
       endif
 c
-c      if(nsm.gt.0) then
-      nprop=0
-      do 137 i=1,maxpro
-      if(lp(i)) then
-      nprop=nprop+1
-      ixp(nprop)=i
-      endif
-  137 continue
       maxp=it
-c      endif
 c
       endif
 c
@@ -293,15 +284,15 @@ c
       endif
 c
       if(p(98).ne.0) then
-         p(98)=(p(98)-p(97))/p(98)
+      p(98)=(p(98)-p(97))/p(98)
       endif
 c
       if(temp.eq.0d0) then
-         p(38)=0d0
-         p(39)=0d0
+      p(38)=0d0
+      p(39)=0d0
       else
-         p(38)=exp(-p(36)/(rgas*temp))
-         p(39)=exp(-p(37)/(rgas*temp))
+      p(38)=exp(-p(36)/(rgas*temp))
+      p(39)=exp(-p(37)/(rgas*temp))
       endif
 c
       if(nwm.gt.0) then
@@ -428,7 +419,7 @@ c
       tfact=one/(t2sumt-fact*tsumt*tsumt)
       do 15 i=1,nprop
       j=ixp(i)
-      write(lfnout,2001) pronam(j)(1:39),
+      if(lp(j)) write(lfnout,2001) pronam(j)(1:39),
      + psum(j)*facs,sqrt(abs((p2sum(j)-psum(j)*psum(j)*facs)*facs)),
      + (pslop(j)-facs*psum(j)*tsum)*tfacs,
      + psumt(j)*fact,sqrt(abs((p2sumt(j)-psumt(j)*psumt(j)*fact)*fact)),
@@ -463,7 +454,7 @@ c
  1000 format(/,' SINGLE POINT PROPERTIES',t110,2a10,/)
       do 1  i=1,nprop
       j=ixp(i)
-      write(lfnout,1001) pronam(j)(1:39),p(j),pronam(j)(40:50)
+      if(lp(j)) write(lfnout,1001) pronam(j)(1:39),p(j),pronam(j)(40:50)
  1001 format(1x,a39,t41,1pe12.5,1x,a11)
     1 continue
 c
@@ -837,7 +828,9 @@ c
       integer i,nprp
 c
       read(lfnmri) nderiv,nda,nprp,nsum,nsumt,ndec
-      if(nprop.ne.nprp) call errquit('Number of properties changed',0)
+      if(nprop.ne.nprp) then
+      call errquit('Number of properties changed',0)
+      endif
       read(lfnmri) deriv
       read(lfnmri) (dfr(i),i=1,nda)
       read(lfnmri) tsum,t2sum,tsumt,t2sumt
