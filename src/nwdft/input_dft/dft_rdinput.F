@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.29 1997-02-19 18:41:04 gutowski Exp $
+C$Id: dft_rdinput.F,v 1.30 1997-02-20 10:04:42 d3e129 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -835,6 +835,7 @@ c****
         bases(1) = AO_bas_han
       endif
 c
+      call int_app_set_no_texas(rtdb)
       call int_init(rtdb, i3, bases)
 c
       return
