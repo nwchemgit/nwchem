@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.45 1994-08-15 17:48:07 d3g681 Exp $
+# $Id: makefile.h,v 1.46 1994-08-18 17:15:48 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -133,7 +133,7 @@ ifeq ($(TARGET),KSR)
   MAKEFLAGS = -j 40
     INSTALL = echo $@ is built
 
-       FOPT = -g -r8 
+       FOPT = -g -r8
 # -u
    FOPT_REN = $(FOPT)
        COPT = -g
@@ -149,11 +149,10 @@ ifeq ($(TARGET),KSR)
        LIBS = -L$(LIBDIR) $(LIBPATH) -L/home/d3g681/TCGMSG_DISTRIB \
               -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
               -linput -lguess -lgeom -lbasis -lutil \
-              -lglobal -lpeigs -lksrlapk -lksrblas -llapack2 -lblas2 \
+              -lglobal /home2/d3g270/lib/libpeigs.a \
+	      -lksrlapk -lksrblas -llapack2 -lblas2 \
               -lrtdb -ldb -linp -lpstat \
 	      -lutil -lma -ltcgmsg -para -lrpc
-#-llapack -lblas -lksrblas -lksrlapk
-
 
   EXPLICITF = FALSE
 endif
@@ -225,7 +224,7 @@ ifeq ($(TARGET),DELTA)
   FOPT_REN = -O1 -Knoieee -Mquad -Mreentrant -Mrecursive -Mnosave -node
       COPT = -g -Knoieee -Mreentrant -node
   INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
-   DEFINES = -DNX -DIPSC -DNO_BCOPY  $(LIB_DEFINES)
+   DEFINES = -DNX -DIPSC -DNO_BCOPY  -D__IPSC__ $(LIB_DEFINES)
     FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
     CFLAGS = $(COPT) $(INCLUDES) $(DEFINES)
  MAKEFLAGS = -j 2
