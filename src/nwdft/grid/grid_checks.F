@@ -17,8 +17,8 @@ c      parameter (nptstot=mxrad*mxangpp)
       double precision s_err,s_err0
       double precision rij
       double precision range_a,range_b,delta_a,delta_b,
-     .     range_a0,range_b0, value,value_ex
-      integer maxrad,nrada,nradb,nanga,nangb,nanga0,nangb0,
+     .     range_a0,range_b0, value,value_ex,maxrad
+      integer nrada,nradb,nanga,nangb,nanga0,nangb0,
      ,     deltara,deltarb,dum,niter,mxiter,nrada0,nradb0
       parameter(maxrad=131d0,mxiter=2)
       logical grid_nangl,grid_nradl,grid_incang,grid_incrad
