@@ -266,6 +266,7 @@ c
 c Vector of orbital indices except create/annih indices
 c Initialize pointer vector
 c
+              call ifill(norb,0,oidx,1)
               nidx = 0
               do i=1,norb
                 if ((i.ne.ak).and.(i.ne.al)) then
@@ -287,9 +288,20 @@ c                 kl
 c
 c Push indices into gather/scatter arrays
 c
+c Note: special case when nela = norb then
+c
+c       E  !RHS> = 0   for k != l  
+c        kl
+c
+c thus ne_kl = 0
 c     
-              if (nela.gt.1) then
-                ne_kl = 0
+              ne_kl = 0
+              if (nela.eq.1) then
+                ne_kl = 1
+                vrhs(i) = al
+                vlhs(i) = ak
+                vphase(i) = 1
+              else if ((norb.ne.nela).or.(al.eq.ak)) then
                 iii = 0
  101            continue
                 iii = iii + 1
@@ -307,11 +319,6 @@ c
      $                                         ataba, lelv)
                 endif
                 if (detci_getnextelv(nidx,(nela-1),ip)) goto 101
-              else
-                ne_kl = 1
-                vrhs(i) = al
-                vlhs(i) = ak
-                vphase(i) = 1
               endif
               tstr = tstr + util_cpusec() - tx
               tx = util_cpusec()

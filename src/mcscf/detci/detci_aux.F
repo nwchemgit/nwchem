@@ -126,14 +126,16 @@ c
 
       detci_elv2str = 1
       isym = 1
-      do iel=1,nel
-        iorb = elv(iel)
-        isym = MULX(isym,osym(iorb))
-        wght = arctab(iorb,iel,isym)
+      if (nel.gt.0) then
+        do iel=1,nel
+          iorb = elv(iel)
+          isym = MULX(isym,osym(iorb))
+          wght = arctab(iorb,iel,isym)
 C        if (wght.eq.-1) stop 116
-        detci_elv2str = detci_elv2str + wght
-      enddo
-      detci_elv2str = detci_elv2str + arctab(1,1,isym)
+          detci_elv2str = detci_elv2str + wght
+        enddo
+        detci_elv2str = detci_elv2str + arctab(1,1,isym)
+      endif
       
       return
       end
@@ -978,11 +980,15 @@ c
 c
 c  slo > shi is possible for no orbital of symmetry ksym
 c
-      slo = atab(1,1,ksym) + 1
-      if (ksym.eq.nsym) then
-        shi = nstr
-      else
-        shi = atab(1,1,ksym+1)
+      slo = 0
+      shi = 0
+      if (nel.gt.0) then
+        slo = atab(1,1,ksym) + 1
+        if (ksym.eq.nsym) then
+          shi = nstr
+        else
+          shi = atab(1,1,ksym+1)
+        endif
       endif
       
       return

@@ -448,8 +448,20 @@ c        |LHS> = E  |RHS>
 c                 kl
 c
 c   Put indices into gather/scatter arrays
+c   Note: special case when nela = norb then
 c
-            if (nela.gt.1) then
+c       E  !RHS> = 0   for k != l  
+c        kl
+c
+c   thus ne_kl = 0
+c     
+            ne_kl = 0
+            if (nela.eq.1) then
+              ne_kl = 1
+              vrhs(i) = aj
+              vlhs(i) = ai
+              vphase(i) = 1
+            else if ((norb.ne.nela).or.(ai.eq.aj)) then
  101          continue
               ne_kl = ne_kl + 1
               iph = 1
@@ -463,11 +475,6 @@ c
               vlhs(ne_kl) = detci_elv2str(norb,nela,nsym,osym,
      $                                    ataba,lelv)
               if (detci_getnextelv(nidx,(nela-1),ip)) goto 101
-            else
-              ne_kl = 1
-              vrhs(i) = aj
-              vlhs(i) = ai
-              vphase(i) = 1
             endif
 c
 c   Gather in left and right CI columns

@@ -101,7 +101,7 @@ c
       nekla = detci_binomial((norb-1),(nela-1))
       neklb = detci_binomial((norb-1),(nelb-1))
       civlen = nstra*nstrb
-      mseg = (10*ga_nnodes())/min(nexa,nexb)
+      mseg = (10*ga_nnodes())/max(min(nexa,nexb),1)
       mseg = min(mseg, 20)
       MSEG = 1                                       ! Delete for better parallel effeciency
 c
@@ -558,7 +558,7 @@ c
       nstrb = detci_binomial( cdetci_norb, cdetci_nelb )
       nekla = detci_binomial( (cdetci_norb-1), (cdetci_nela-1) )
       neklb = detci_binomial( (cdetci_norb-1), (cdetci_nelb-1) )
-      mseg = (10*ga_nnodes())/min(nexa,nexb)
+      mseg = (10*ga_nnodes())/max(min(nexa,nexb),1)
       mseg = min(mseg, 20)
       MSEG = 1                                 ! Delete for better parallel effeciency
 c                                              ! mseg = number of simultaneous F string contructed
