@@ -12,7 +12,7 @@ basis
   h library 3-21g
 end
 
-scf; print low; end
+scf; print low; thresh 1e-6; end
 driver; nptopt 100; end
 
 title; Pyrolysis of ethylformate -> Formic acid + ethylene
