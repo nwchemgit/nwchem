@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.43 1994-08-04 20:18:39 d3g681 Exp $
+# $Id: makefile.h,v 1.44 1994-08-06 09:39:19 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -197,7 +197,7 @@ ifeq ($(TARGET),PARAGON)
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
        LIBS = -L/home/delilah11/gifann/lib $(LIBPATH) -L$(LIBDIR)\
-              -ltest -lddscf -lrimp2 -lnwints -lgradients -lstepper -lmoints \
+              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
               -linput -lguess -lgeom -lbasis -lutil \
               -lglobal -llapack -lpeigs_paragon \
               -lrtdb -ldb -linp -lpstat \
@@ -274,9 +274,9 @@ ifeq ($(TARGET),IBM)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lnwints -lstepper\
-              -linput -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
-	      -lutil -lma -ltcgmsg -llapack -lblas
+              -ltest -lrimp2 -lgradients -lddscf -lmoints -lnwints -lstepper\
+              -linput -lguess -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
+	      -lpstat -lutil -lma -ltcgmsg -llapack -lblas
 
  EXPLICITF = TRUE
 #
