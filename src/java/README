@@ -1,0 +1,20 @@
+Requirements for the NWChem java gui:
+
+1. JAVA 1.2 in PATH
+2. PTOLEMY environment variable pointing to ptolemy.plot.jar
+3. $(NWCHEM_TOP)/lib/classes in CLASSPATH
+
+To compile type 'make' in $(NWCHEM_TOP)/src/java. This copies the
+class files to ${NWCHEM_TOP)/lib/classes
+
+To run type 'java nwchem'
+
+
+
+The gui can be made to run with JAVA 1.1.7:
+
+1. JAVA 1.1.7 or better in CLASSPATH
+2. PTOLEMY environment variable pointing to ptolemy.plot.jar
+3. SWING environment variable pointing to swingall.jar
+4. $(NWCHEM_TOP)/lib/classes in CLASSPATH
+5. Modify javacheck to accept JAVA 1.1
