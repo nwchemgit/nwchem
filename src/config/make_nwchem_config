@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.106 1999-06-28 22:34:10 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.107 1999-06-29 23:49:28 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -112,7 +112,7 @@ MODULES := $(patsubst plane_wave,plane_wave nwdft,$(MODULES) )
 MODULES := $(patsubst oimp2,oimp2 rimp2 moints,$(MODULES) )
 
 MODULES := $(patsubst vib,vib stepper driver gradients,$(MODULES) )
-MODULES := $(patsubst driver, driver gradients,$(MODULES) )
+MODULES := $(patsubst driver, driver stepper gradients,$(MODULES) )
 MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
 MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
