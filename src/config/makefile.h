@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.165 1996-08-19 15:15:13 d3g681 Exp $
+# $Id: makefile.h,v 1.166 1996-08-27 22:57:25 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -253,6 +253,8 @@ ifeq ($(TARGET),SOLARIS)
   COPTIMIZE = -g -O2
    LIBPATH += -L/usr/ucblib
     DEFINES = -DSOLARIS
+
+  LDOPTIONS = -xildoff
 
        CORE_LIBS = -lutil -lglobal -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
