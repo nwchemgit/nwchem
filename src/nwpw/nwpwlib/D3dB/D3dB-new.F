@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.12 2003-02-14 22:59:39 bylaska Exp $
+* $Id: D3dB-new.F,v 1.13 2003-03-21 23:42:07 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -3576,16 +3576,18 @@ c     implicit none
 #endif
 
 
+      logical value
       integer MASTER
       parameter (MASTER=0)
       integer msglen
-      logical value
 
 *     **** temporary workspace ****
-      integer sumall(2)
+      integer sumall(2),np
 
 
+      call Parallel_np(np)
       call nwpw_timing_start(2)
+      if (np.gt.1) then
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
@@ -3611,6 +3613,7 @@ c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))
 
+      end if
       call nwpw_timing_end(2)
       return
       end

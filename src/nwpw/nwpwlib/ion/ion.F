@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.19 2003-03-15 01:40:52 bylaska Exp $
+* $Id: ion.F,v 1.20 2003-03-21 23:42:08 bylaska Exp $
 *
 
 *     ***************************
@@ -84,7 +84,8 @@
 *     *****************************************************
         value = geom_rtdb_delete(rtdb,'pspwgeometry')
       if ((control_code().eq.1).or.
-     >    (control_code().eq.2)) then
+     >    (control_code().eq.2).or.
+     >    (control_code().eq.6)) then
         value = geom_rtdb_store(rtdb,geom,'pspwgeometry')
       end if
       value = geom_destroy(geom)
@@ -95,7 +96,8 @@
 *     **** update rtdb if md or steepest descent code  ****
 *     *****************************************************
       if ((control_code().eq.1).or.
-     >    (control_code().eq.2)) then
+     >    (control_code().eq.2).or.
+     >    (control_code().eq.6)) then
 
 
 *       *****************************************

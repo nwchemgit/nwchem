@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.17 2003-01-25 00:46:15 bylaska Exp $
+* $Id: electron.F,v 1.18 2003-03-21 23:42:08 bylaska Exp $
 *
 
 
@@ -835,7 +835,7 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
       do ms=1,ispin
          shift = (ms-1)*ne(1)*ne(1)
          n     = ne(ms)
-         call Grsm_ggm_dot(npack1,n,
+         call Grsm_ggm_sym_dot(npack1,n,
      >                     psi_k(1+(ms-1)*ne(1)*npack1),
      >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
      >                     hml(shift+1))
@@ -871,7 +871,7 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
       do ms=1,ispin
          shift = (ms-1)*ne(1)*ne(1)
          n     = ne(ms)
-         call Grsm_ggm_dot(npack1,n,
+         call Grsm_ggm_sym_dot(npack1,n,
      >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
      >                     psi_k(1+(ms-1)*ne(1)*npack1),
      >                     hmlt(shift+1))

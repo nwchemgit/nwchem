@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.4 2003-03-19 00:33:52 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.5 2003-03-21 23:42:08 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -115,6 +115,7 @@ c
       tolc  = control_tolc()
       precondition = control_precondition()
       ispin = control_ispin()
+      
       call D3dB_n2ft3d(1,n2ft3d)
 
 *     **** allocate rho_in and rho_out ****
@@ -185,7 +186,7 @@ c        call psi_2to1()
       call electron_gen_vall()
       call electron_get_vall(dbl_mb(vall_in(1))) !call psi_get_density(1,dbl_mb(vall_in(1)))
 
-      if (dabs(deltae).lt.1.0d-3) then
+      if (dabs(deltae).lt.1.0d-2) then
         call nwpw_diis(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)),deltav)
         !call nwpw_kain(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)))
 
@@ -223,8 +224,10 @@ c        call psi_2to1()
 
 
       !**** set ks_deltae ****
-      ks_deltae = 0.001*dabs(deltae)
+      ks_deltae = 0.001d0*dabs(deltae)
       if (ks_deltae.lt.tole) ks_deltae = tole
+      if (ks_deltae.gt.1.0d-4) ks_deltae = 1.0d-4
+
 
       precondition = precondition.and.(dabs(deltae).gt.100*tole)
 

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.27 2002-06-25 19:51:25 bylaska Exp $
+* $Id: cgsdv5.F,v 1.28 2003-03-21 23:42:08 bylaska Exp $
 *
 
 ***********************************************************************
@@ -334,7 +334,7 @@ c     value = psi_initialize()
          end if
          write(6,1270)
          write(6,1280) control_time_step(),control_fake_mass()
-         write(6,1290) control_tole(),control_tolc(),control_tolr()
+         write(6,1290) control_tole(),control_tolc()
          write(6,1300)
          call util_flush(6)
       end if
@@ -571,7 +571,7 @@ c     end if
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
-     &        ' (density)',E12.3,' (ion)')
+     &        ' (density)')
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)

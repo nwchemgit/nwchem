@@ -1,5 +1,5 @@
 *
-* $Id: c_ewald.F,v 1.1 2001-12-13 03:53:32 bylaska Exp $
+* $Id: c_ewald.F,v 1.2 2003-03-21 23:42:07 bylaska Exp $
 *
       integer function c_ewald_ncut()
       implicit none 
@@ -243,9 +243,9 @@
       end
 
 *     ***********************************
-*     *				        			*
-*     *				c_ewald_e				*
-*     *				        			*
+*     *				        *
+*     *		c_ewald_e		*
+*     *				        *
 *     ***********************************
       real*8 function c_ewald_e()
       implicit none

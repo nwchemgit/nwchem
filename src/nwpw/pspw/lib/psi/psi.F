@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.25 2003-03-19 00:34:22 bylaska Exp $
+* $Id: psi.F,v 1.26 2003-03-21 23:42:08 bylaska Exp $
 *
 
 
@@ -25,9 +25,13 @@
       integer i,j,neall,maxit_orb,maxit_orbs
       real*8 error,error_out
 
+*     **** external functions ****
+      integer  control_ks_maxit_orb,control_ks_maxit_orbs
+      external control_ks_maxit_orb,control_ks_maxit_orbs
+
       neall = ne(1)+ne(2)
-      maxit_orb  = 3   !*** should be read from rtdb ***
-      maxit_orbs = 2   !*** should be read from rtdb ***
+      maxit_orb  = control_ks_maxit_orb()   !*** should be read from rtdb ***
+      maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
       j = 0
  2    j = j+1
         error = 0.0d0
@@ -126,6 +130,7 @@
      >           .or.
      >           ((percent_error.lt.perror)
      >           .and.(dabs(e0-eold).lt.maxerror)))
+
          if (done) go to 4
 
          call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
@@ -413,8 +418,17 @@
 #include "psi.fh"
 
 *     **** local variables ****
-      integer n,psi_ptr
-      real*8  x
+      logical ok
+      integer n,psi_ptr,np
+      integer x(2)
+
+      call Parallel_np(np)
+
+*     **** allocate stack memory ****
+      ok = MA_push_get(mt_dbl,ne(1),'x',x(2),x(1))
+      if (.not.ok) 
+     > call errquit('psi_project_out_orb: out of stack memory',0)
+
 
       if (psi_number.eq.1) then
          psi_ptr=psi1(1)
@@ -422,14 +436,22 @@
          psi_ptr=psi2(1)
       end if
 
-*     **** spin up orbital **** - not very efficient code, needs to be fixed.
+*     **** spin up orbital **** 
       if (i.le.ne(1)) then
         do n=1,(ne(1))
         !if (n.ne.i) then
-           call Pack_cc_dot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
-     >                      Horb,x)
-           x = -x
-           call Pack_cc_daxpy(1,x,
+           call Pack_cc_idot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
+     >                      Horb,
+     >                      dbl_mb(x(1)+n-1))
+        !end if
+        end do     
+
+        if (np.gt.1)
+     >    call D3dB_Vector_SumAll(ne(1),dbl_mb(x(1)))
+
+        do n=1,(ne(1))
+        !if (n.ne.i) then
+           call Pack_cc_daxpy(1,(-dbl_mb(x(1)+n-1)),
      >                        dcpl_mb(psi_ptr+(n-1)*npack1),
      >                        Horb) 
         !end if
@@ -439,15 +461,28 @@
       else       
         do n=(ne(1)+1),(ne(1)+ne(2))
         !if (n.ne.i) then
-           call Pack_cc_dot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
-     >                      Horb,x)
-           x = -x
-           call Pack_cc_daxpy(1,x,
+           call Pack_cc_idot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
+     >                      Horb,
+     >                      dbl_mb(x(1)+n-ne(1)-1))
+        !end if
+        end do     
+
+        if (np.gt.1)
+     >   call D3dB_Vector_SumAll(ne(2),dbl_mb(x(1)))
+
+        do n=(ne(1)+1),(ne(1)+ne(2))
+        !if (n.ne.i) then
+           call Pack_cc_daxpy(1,(-dbl_mb(x(1)+n-ne(1)-1)),
      >                        dcpl_mb(psi_ptr+(n-1)*npack1),
      >                        Horb) 
         !end if
         end do     
       end if
+
+*     **** release stack memory ****
+      ok = MA_pop_stack(x(2))
+      if (.not. ok) 
+     > call errquit('psi_project_out_orb: poping stack memory',0)
  
       return
       end
