@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.206 1997-02-19 19:52:19 mdupuis Exp $
+# $Id: makefile.h,v 1.207 1997-02-25 22:40:54 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -124,6 +124,7 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #  EXPLICITF = undefined if the Fortran compiler runs .F files thru .f
 #              Otherwise set it to anything and define FCONVERT to be a 
 #              command to make $< (which will be a .F file) into $*.f
+#
 #   FCONVERT = command to convert a .F into a .f 
 #
 #  LDOPTIONS = additional options to be passed to the linker (LDFLAGS is
@@ -211,7 +212,6 @@ ifeq ($(TARGET),SOLARIS)
 #
 # setenv PURECOV 1
 # FLINT = 1
-#  FLINT = 1
 #
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
@@ -328,8 +328,8 @@ ifeq ($(TARGET),CRAY-T3D)
 
             CORE_LIBS =  -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 
-     EXPLICITF = TRUE
-             FCONVERT = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
+      EXPLICITF     = TRUE
+      FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
 endif
 
 
@@ -358,7 +358,8 @@ ifeq ($(TARGET),CRAY-T3E)
 
             CORE_LIBS = -lchemio -lglobal -llapack -lblas
 
-             FCONVERT = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
+      FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
+      EXPLICITF     = TRUE
 endif
 
 ifeq ($(TARGET),KSR)
@@ -450,8 +451,8 @@ FVECTORIZE = -O4 		# -Mvect corrupts lapack for large vectors
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
         LIBPATH += -L/home/delilah11/gifann/lib
-       CORE_LIBS = -lglobal -lutil -lchemio -lglobal -lpeigs_delta\
-   	            $(LIBDIR)/liblapack.a -llapack -lblas
+       CORE_LIBS = -lglobal -lutil -lchemio -lglobal -lpeigs_delta \
+		   $(LIBDIR)/liblapack.a -llapack -lblas
       EXTRA_LIBS = -node
 endif
 
@@ -931,24 +932,24 @@ MKDIR = mkdir
 
 ifndef FLINT
 
-ifdef EXPLICITF
-#
-# Needed on machines where FCC does not preprocess .F files
-# with CPP to get .f files
-#
-.SUFFIXES:	
-.SUFFIXES:	.o .s .F .f .c
-
-.F.o:	
-	@echo Converting $*.F '->' $*.f
-	@$(FCONVERT)
-	$(FC) -c $(FFLAGS) $*.f
-	@$(RM) $*.f
-
-.F.f:
-	@echo Converting $*.F '->' $*.f
-	@$(FCONVERT)
-endif
+#-- redundant -- will be removed later -- rak: ifdef EXPLICITF
+#-- redundant -- will be removed later -- rak: #
+#-- redundant -- will be removed later -- rak: # Needed on machines where FCC does not preprocess .F files
+#-- redundant -- will be removed later -- rak: # with CPP to get .f files
+#-- redundant -- will be removed later -- rak: #
+#-- redundant -- will be removed later -- rak: .SUFFIXES:	
+#-- redundant -- will be removed later -- rak: .SUFFIXES:	.o .s .F .f .c
+#-- redundant -- will be removed later -- rak: 
+#-- redundant -- will be removed later -- rak: .F.o:	
+#-- redundant -- will be removed later -- rak: 	@echo Converting $*.F '->' $*.f
+#-- redundant -- will be removed later -- rak: 	@$(FCONVERT)
+#-- redundant -- will be removed later -- rak: 	$(FC) -c $(FFLAGS) $*.f
+#-- redundant -- will be removed later -- rak: 	@$(RM) $*.f
+#-- redundant -- will be removed later -- rak: 
+#-- redundant -- will be removed later -- rak: .F.f:
+#-- redundant -- will be removed later -- rak: 	@echo Converting $*.F '->' $*.f
+#-- redundant -- will be removed later -- rak: 	@$(FCONVERT)
+#-- redundant -- will be removed later -- rak: endif
 # 
 # More explicit rules to avoid infinite recursion, to get dependencies, and
 # for efficiency.  CRAY does not like -o with -c.
@@ -957,23 +958,16 @@ endif
 ifdef EXPLICITF
 	@echo Converting $< '->' $*.f
 	@$(FCONVERT)
-ifeq ($(TARGET),CRAY-T3D)
 	$(FC) -c $(FFLAGS) $*.f
-else
-	$(FC) -c $(FFLAGS) -o $% $*.f
-endif
+ifndef NWCHEM_KEEPF
 	@/bin/rm -f $*.f
+endif
 else
 	$(FC) -c $(FFLAGS) $(CPPFLAGS) $<
 endif
 
 (%.o):	%.f
-ifeq ($(TARGET),CRAY-T3D)
 	$(FC) -c $(FFLAGS) $<
-else
-	$(FC) -c $(FFLAGS) -o $% $<
-endif
-endif
 
 (%.o):	%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
@@ -982,8 +976,9 @@ endif
 
 # Preceding line has a tab to make an empty rule
 
-
-ifdef FLINT
+# else for ifndef Flint
+else
+#        -------------
 
 .F.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
 
