@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.7 1999-04-29 18:41:59 d3j191 Exp $
+c $Id: util_md.F,v 1.8 1999-05-06 19:33:49 d3j191 Exp $
 c
       implicit none
 c
@@ -748,7 +748,8 @@ c
 c
       return
       end
-      subroutine error(iopt,data,ndata,aver,drift,stderr,corerr,ratio)
+      subroutine error(lauto,lapprox,lenacf,data,ndata,
+     + aver,drift,stderr,corerr,ratio)
 c
       implicit none
 c
@@ -756,10 +757,13 @@ c
       parameter(zero=0.0d0)
       parameter(one=1.0d0)
 c
-      integer iopt,ndata
+#include "mafdecls.fh"
+c
+      logical lauto,lapprox
+      integer ndata,lenacf
       real*8 data(ndata),aver,drift,stderr,corerr,ratio
 c
-      integer i
+      integer i,i_acf,l_acf
       real*8 dsum,ddsum,dtsum,tsum,ttsum,dstep
 c
 c      integer nacf,kapprx(15),iapprx,klarge
@@ -820,6 +824,147 @@ c
 c
       corerr=stderr
       ratio=one
+c
+      if(.not.lauto) return
+c
+      if(.not.ma_push_get(mt_dbl,lenacf,'acf',l_acf,i_acf))
+     + call errquit('Failed to allocate memory for acf',0)
+c
+      call auto_corr(data,ndata,aver,dbl_mb(i_acf),lenacf,ratio)
+c
+      if(.not.ma_pop_stack(l_acf))
+     + call errquit('Failed to deallocate memory for acf',0)
+c
+      corerr=ratio*stderr
+c
+      return
+      end
+      subroutine auto_corr(data,ndata,aver,acf,lacf,ratio)
+c
+      implicit none
+c
+      real*8 zero,half,one,two
+      parameter(zero=0.0d0)
+      parameter(half=5.0d-1)
+      parameter(one=1.0d0)
+      parameter(two=2.0d0)
+c
+      integer ndata,lacf,nacf
+      real*8 data(ndata),acf(lacf),aver,ratio
+c
+      integer i,j,nacf
+      real*8 dsum,dvar
+c
+      nacf=min(ndata,lacf)
+c
+      dsum=zero
+      do 1 i=1,ndata
+      dsum=dsum+(data(i)-aver)**2
+    1 continue
+      dvar=dble(ndata)/dsum
+      do 2 i=1,nacf-1
+      dsum=zero
+      do 3 j=1,ndata-i
+      dsum=dsum+(data(j)-aver)*(data(i+j)-aver)
+    3 continue
+      acf(i)=dvar*(dsum/dble(ndata-i))*(one-dble(i-1)/dble(ndata-2))
+    2 continue
+c
+      ratio=half
+      do 4 i=1,nacf-1
+      ratio=ratio+(one-(dble(i)/dble(ndata))**2)*abs(acf(i))
+    4 continue
+      ratio=sqrt(two*abs(ratio))
+      if(ratio.lt.one) ratio=one
+c
+      lacf=nacf
+c
+      return
+      end
+      subroutine acf_approx(acf,acfapp,lacf)
+c
+      implicit none
+c
+      integer lacf
+      real*8 acf(lacf),acfapp(lacf)
+c
+c      integer kapprox(15)
+c
+c      rfact=two*sqrt(dble(klarge))/dble(nacfa-1)
+c      wsum1=zero
+c      wsum2=zero
+c      warg=zero
+c      do 5 i=1,nacfa-1
+c      acf(i)=abs(acf(i))
+c      if(acf(i).gt.zero) then
+c      wterm=exp(weight*dble(nacfa-i)/dble(nacfa-1))
+c      wsum1=wsum1+wterm
+c      wsum2=wsum2+wterm*log(acf(i))/(rfact*dble(i))
+c      endif
+c    5 continue
+c      if(abs(wsum1).gt.small) warg=wsum2/wsum1
+c      do 55 i=1,nacfa-1
+c      acf(i)=acf(i)-exp(warg*dble(i)*rfact)
+c   55 continue
+c      nfunc=iapprx
+c      if(nfunc.le.0) nfunc=15
+c      do 6 k=1,nfunc
+c      do 7 l=1,nfunc
+c      cdap(k,l)=zero
+c      do 8 m=1,nacfa-1
+c      xappm=dble(m)*rfact
+c      cdawgt=exp(weight*dble(nacfa-m)/dble(nacfa-1))
+c      cdap(k,l)=cdap(k,l)+cdawgt*exp((-xappm)*xappm)*
+c     + approx(k)*approx(l)*(xappm**(kapprx(k)+kapprx(l)))
+c    8 continue
+c      cdaq(k,l)=cdap(k,l)
+c    7 continue
+c    6 continue
+c      do 9 i=1,nfunc
+c      cdad(i)=zero
+c      do 10 j=1,nacfa-1
+c      xappj=dble(j)*rfact
+c      cdawgt=exp(weight*dble(nacfa-j)/dble(nacfa-1))
+c      cdad(i)=cdad(i)+cdawgt*exp((-half)*xappj*xappj)*
+c     + acf(j)*approx(i)*(xappj**kapprx(i))
+c   10 continue
+c    9 continue
+c      do 11 k=1,nfunc
+c      do 12 i=k,nfunc
+c      cdaq(i,k)=cdap(i,k)
+c      do 13 l=1,k-1
+c      cdaq(i,k)=cdaq(i,k)-cdaq(i,l)*cdaq(l,k)
+c   13 continue
+c   12 continue
+c      do 14 i=k+1,nfunc
+c      cdaq(k,i)=cdap(k,i)
+c      do 15 l=1,k-1
+c      cdaq(k,i)=cdaq(k,i)-cdaq(k,l)*cdaq(l,i)
+c   15 continue
+c      cdaq(k,i)=cdaq(k,i)/cdaq(k,k)
+c   14 continue
+c   11 continue
+c      do 16 j=1,nfunc
+c      cdac(j)=cdad(j)
+c      do 17 i=1,j-1
+c      cdac(j)=cdac(j)-cdaq(j,i)*cdac(i)
+c   17 continue
+c      cdac(j)=cdac(j)/cdaq(j,j)
+c   16 continue
+c      do 18 k=1,nfunc
+c      j=nfunc+1-k
+c      do 19 i=j+1,nfunc
+c      cdac(j)=cdac(j)-cdaq(j,i)*cdac(i)
+c   19 continue
+c   18 continue
+c      do 20 i=1,nacfa-1
+c      xappi=dble(i)*rfact
+c      acf(i)=exp(warg*xappi)
+c      do 21 j=1,nfunc
+c      acf(i)=acf(i)+exp((-half)*xappi*xappi)*
+c     + approx(j)*cdac(j)*(xappi**kapprx(j))
+c   21 continue
+c   20 continue
 c
 c     autocorrelation function upto lag min(nacf,ndata)
 c
@@ -930,12 +1075,11 @@ c      do 22 i=1,nacfa-1
 c      ratio=ratio+(one-(dble(i)/dble(ndata))**2)*abs(acf(i))
 c   22 continue
 c      ratio=sqrt(two*abs(ratio))
+c      if(ratio.lt.one) ratio=one
 c      endif
 cc
-c      if(ratio.lt.one) ratio=one
 cc
 c      corerr=ratio*stderr
 cc
       return
       end
-
