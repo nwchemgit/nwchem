@@ -2,7 +2,7 @@
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang)
 c
-c $Id: qhop_setup.F,v 1.3 2003-08-11 19:43:18 d3j191 Exp $
+c $Id: qhop_setup.F,v 1.4 2003-08-12 11:12:29 d3j191 Exp $
 c
       implicit none
 c
@@ -21,6 +21,30 @@ c
       integer lang(5,mang)
       real*8 rang(nparms,2,mang)
 c
+c     original dimensions
+c
+      maxseq=5000
+      mxseq=30
+      maxpar=10000
+      mxar=mxseq*30
+c
+c     allocate memory for parameter arrays
+c
+      if(.not.ma_push_get(mt_int,2*maxseq,'iptseq',l_ptseq,i_ptseq))
+     + call errquit('Failed to allocate iptseq',0)
+      if(.not.ma_push_get(mt_int,mxseq,'iptarat',l_ptarat,i_ptarat))
+     + call errquit('Failed to allocate iptarat',0)
+      if(.not.ma_push_get(mt_int,4*mxar,'iarat',l_iarat,i_iarat))
+     + call errquit('Failed to allocate iarat',0)
+      if(.not.ma_push_get(mt_dbl,2*mxar,'racs',l_racs,i_racs))
+     + call errquit('Failed to allocate racs',0)
+      if(.not.ma_push_get(mt_int,maxpar,'iptpar',l_ptpar,i_ptpar))
+     + call errquit('Failed to allocate iptpar',0)
+      if(.not.ma_push_get(mt_dbl,31*maxpar,'par',l_par,i_par))
+     + call errquit('Failed to allocate par',0)
+c
+      lqhopmem=.true.
+c
       call qhop_setup2(lfnhdb,lfnhop,filhop,
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang,
@@ -38,7 +62,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_setup.F,v 1.3 2003-08-11 19:43:18 d3j191 Exp $
+c $Id: qhop_setup.F,v 1.4 2003-08-12 11:12:29 d3j191 Exp $
 c
       implicit none
 c

@@ -1,4 +1,4 @@
-c $Id: pre_common.fh,v 1.2 2003-07-31 04:09:31 d3j191 Exp $
+c $Id: pre_common.fh,v 1.3 2003-08-12 11:12:26 d3j191 Exp $
 c
 c     general parameters
 c
@@ -45,4 +45,6 @@ c
 c
       integer lfnmst
       common/pre_lfn/lfnmst
-
+c
+      logical lqhopmem
+      common/pre_log/lqhopmem
