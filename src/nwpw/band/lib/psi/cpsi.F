@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.9 2002-01-18 01:54:31 bylaska Exp $
+* $Id: cpsi.F,v 1.10 2002-01-20 23:49:22 bylaska Exp $
 *
 
 
@@ -642,11 +642,12 @@ c      end if
       end
 
 
-*     ***********************************
-*     *					*
-*     *		cpsi_1force              *
-*     *					*
-*     ***********************************
+*     ***********************
+*     *						*
+*     *		cpsi_1force     *
+*     *						*
+*     ***********************
+
       subroutine cpsi_1force(fion)
       implicit none
       real*8 fion(3,*)
@@ -655,7 +656,7 @@ c      end if
 #include "cpsi_common.fh"
 
 *     *** what about semicore???****
-c      call csp_f_vlocal(dcpl_mb(dng1(1)),fion)
+      call cpsp_f_vlocal(dcpl_mb(dng1(1)),fion)
       call cpsp_f_vnonlocal(ispin,
      >                 ne,
      >                 dcpl_mb(psi1(1)),

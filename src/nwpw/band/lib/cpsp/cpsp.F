@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.11 2002-01-15 03:24:30 bylaska Exp $
+* $Id: cpsp.F,v 1.12 2002-01-20 23:49:21 bylaska Exp $
 *
 
 #define TCGMSG
@@ -382,7 +382,7 @@ c     cpsp_rc = rc(i,ia)
      >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('cpsp_f_vlocal:pushing stack',0)
       G(1)  = G_indx(1)
       G(2)  = G_indx(2)
       G(3)  = G_indx(3)
@@ -419,11 +419,12 @@ c     cpsp_rc = rc(i,ia)
  
       end do
       value = MA_pop_stack(Gz(2))
-      value = MA_pop_stack(Gy(2))
-      value = MA_pop_stack(Gx(2))
-      value = MA_pop_stack(xtmp(2))
-      value = MA_pop_stack(vtmp(2))
-      value = MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(Gy(2))
+      value = value.and.MA_pop_stack(Gx(2))
+      value = value.and.MA_pop_stack(xtmp(2))
+      value = value.and.MA_pop_stack(vtmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) call errquit('cpsp_f_vlocal:popping stack',1)
 
       call nwpw_timing_end(5)
       return 
@@ -484,10 +485,10 @@ c     cpsp_rc = rc(i,ia)
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nn,'zsw1',zsw1(2),zsw1(1))
+      if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0)
 
       if (move) then
-        value = value.and.
-     >          MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+        value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
         value = value.and.
      >          MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
         value = value.and.
@@ -496,7 +497,7 @@ c     cpsp_rc = rc(i,ia)
      >          MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
         value = value.and.
      >        MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
-        if (.not. value) call errquit('out of stack memory',0)
+        if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1)
         G(1)  = G_indx(1)
         G(2)  = G_indx(2)
         G(3)  = G_indx(3)
@@ -521,8 +522,6 @@ c     cpsp_rc = rc(i,ia)
            call cstrfac_k(ii,nb,cxr)
            call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
 
-c       write(*,*) "cxr:",nb,ii,cxr
-
 
 *       **** structure factor and local pseudopotential ****
 
@@ -536,7 +535,6 @@ c       write(*,*) "cxr:",nb,ii,cxr
            if (is_sORd(l,int_mb(lmax(1)+ia-1),
      >                   int_mb(locp(1)+ia-1))
      >        ) then
-c            write(*,*) "in s"
 
               call Cram_rc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
      >                           +(nb-1)*nfft3d*lmmax_max
@@ -546,7 +544,6 @@ c            write(*,*) "in s"
 
 *          *** current function is p or f ****
            else
-c            write(*,*) "in p"
               call Cram_irc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
      >                           +(nb-1)*nfft3d*lmmax_max
      >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
@@ -561,7 +558,6 @@ c            write(*,*) "in p"
      >                      dcpl_mb(vtmp(1)),
      >                      dcpl_mb(zsw1(1)))
 
-c         write(*,*) "zsw1:",l,nb,ii,dcpl_mb(zsw1(1))
 
           do n=1,nn
           
@@ -620,24 +616,24 @@ c         write(*,*) "zsw1:",l,nb,ii,dcpl_mb(zsw1(1))
        
         
         end do
-c       write(*,*)
-c       write(*,*)
         end do
 
       end do
 
       if (move) then
         value = MA_pop_stack(sum(2))
-        value = MA_pop_stack(Gz(2))
-        value = MA_pop_stack(Gy(2))
-        value = MA_pop_stack(Gx(2))
-        value = MA_pop_stack(xtmp(2))
+        value = value.and.MA_pop_stack(Gz(2))
+        value = value.and.MA_pop_stack(Gy(2))
+        value = value.and.MA_pop_stack(Gx(2))
+        value = value.and.MA_pop_stack(xtmp(2))
+        if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',2)
       end if
 
       value = MA_pop_stack(zsw1(2))
-      value = MA_pop_stack(vtmp(2))
-      value = MA_pop_stack(tmp4(2))
-      value = MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(vtmp(2))
+      value = value.and.MA_pop_stack(tmp4(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',3)
 
       call nwpw_timing_end(6)
 
@@ -662,35 +658,40 @@ c       write(*,*)
 #include "cpsp_common.fh"
 
 
-
 *     *** local variables ***
-      integer nfft3d,G(3),npack1
-      integer i,ii,ia,l,n,nn
-      real*8  omega
-      complex*16 ctmp
-      integer exi(2),vtmp(2),xtmp(2),sw1(2),sum(2)
+      integer nfft3d,G(3),npack1,nbrill,neall
+      integer i,ii,ia,l,n,nn,nb
+      real*8  omega,weight
+      complex*16 ctmp,cxr
+      integer exi(2),vtmp(2),xtmp(2),zsw1(2),sum(2)
       integer Gx(2),Gy(2),Gz(2)
       logical value
 
 *     **** external functions ****
       logical  is_sORd
-      integer  ion_nion,ion_katm,G_indx
-      real*8   lattice_omega
+      integer  ion_nion,ion_katm,G_indx,brillioun_nbrillioun
+      real*8   lattice_omega,brillioun_weight
       external is_sORd
-      external ion_nion,ion_katm,G_indx
-      external lattice_omega
+      external ion_nion,ion_katm,G_indx,brillioun_nbrillioun
+      external lattice_omega,brillioun_weight
+
 
       call nwpw_timing_start(6)
       
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
+      neall = ne(1)+ne(2)
+      nbrill = brillioun_nbrillioun()
       call C3dB_nfft3d(1,nfft3d)
-      call Cram_npack(1,npack1)
+
       value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+     >        MA_push_get(mt_dcpl,nn,'zsw1',zsw1(2),zsw1(1))
+      if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0)
+
+      value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
       value = value.and.
@@ -698,30 +699,36 @@ c       write(*,*)
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn,'sw1',sw1(2),sw1(1))
-      value = value.and.
      >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1)
       G(1)  = G_indx(1)
       G(2)  = G_indx(2)
       G(3)  = G_indx(3)
 
-*     **** define Gx,Gy and Gz in packed space ****
-      call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-      call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-      call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-      call Cram_r_pack(1,dbl_mb(Gx(1)))
-      call Cram_r_pack(1,dbl_mb(Gy(1)))
-      call Cram_r_pack(1,dbl_mb(Gz(1)))
-
       omega = lattice_omega()
 
-      do ii=1,ion_nion()
-        ia=ion_katm(ii)
+      do nb = 1,nbrill
+        call Cram_npack(nb,npack1)
+        weight = brillioun_weight(nb)
+
+*       **** define Gx,Gy and Gz in packed space ****
+        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+        call Cram_r_pack(nb,dbl_mb(Gx(1)))
+        call Cram_r_pack(nb,dbl_mb(Gy(1)))
+        call Cram_r_pack(nb,dbl_mb(Gz(1)))
+
+        do ii=1,ion_nion()
+          ia=ion_katm(ii)
+
+          call cstrfac(ii,dcpl_mb(exi(1)))
+          call Cram_c_pack(nb,dcpl_mb(exi(1)))
+          call cstrfac_k(ii,nb,cxr)
+          call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+
 
 *       **** structure factor and local pseudopotential ****
-        call cstrfac(ii,dcpl_mb(exi(1)))
-        call Cram_c_pack(1,dcpl_mb(exi(1)))
 
         do l=1,int_mb(lmmax(1)+ia-1)
 
@@ -733,88 +740,92 @@ c       write(*,*)
            if (is_sORd(l,int_mb(lmax(1)+ia-1),
      >                   int_mb(locp(1)+ia-1))
      >        ) then
-              call Cram_rc_Mul(1,dbl_mb(vnl(1)+(l -1)*npack1
-     >                           +(ia-1)*npack1*lmmax_max),
+
+              call Cram_rc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
+     >                           +(nb-1)*nfft3d*lmmax_max
+     >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
 
 *          *** current function is p or f ****
            else
-              do i=1,npack1
-                 dcpl_mb(vtmp(1)+i-1) 
-     >                     = dbl_mb(vnl(1) + (i-1)
-     >                                     + (l-1)*npack1
-     >                          + (ia-1)*npack1*lmmax_max)
-     >                * dcmplx(-dimag(dcpl_mb(exi(1)+i-1)),
-     >                          dble(dcpl_mb(exi(1)+i-1)))
-              end do
+              call Cram_irc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
+     >                           +(nb-1)*nfft3d*lmmax_max
+     >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
+     >                        dcpl_mb(exi(1)),
+     >                        dcpl_mb(vtmp(1)))
            end if
 
+
 *         **** do kleinman-bylander multiplication ****
-          call Cram_cc_nzdot(1,nn,
-     >                      psi1,
+          call Cram_cc_nzdot(nb,nn,
+     >                      psi1(1+(nb-1)*neall*nfft3d),
      >                      dcpl_mb(vtmp(1)),
-     >                      dbl_mb(sw1(1)))
+     >                      dcpl_mb(zsw1(1)))
+
 
           do n=1,nn
-             dbl_mb(sw1(1)+n-1) = dbl_mb(sw1(1)+n-1)
+             dcpl_mb(zsw1(1)+n-1) = dconjg(dcpl_mb(zsw1(1)+n-1))
+             dcpl_mb(zsw1(1)+n-1) = dcpl_mb(zsw1(1)+n-1)
      >                      /(omega*dbl_mb(vnlnrm(1)
      >                         +(l-1)+(ia-1)*lmmax_max))
- 
           end do
 
-          
           do n=1,nn
              if (ispin.eq.1) 
-     >         dbl_mb(sw1(1)+n-1)=2.0d0*dbl_mb(sw1(1)+n-1)
+     >         dcpl_mb(zsw1(1)+n-1)=2.0d0*dcpl_mb(zsw1(1)+n-1)
 
-               do i=1,npack1
-                  ctmp = psi1(i+(n-1)*npack1)
-     >                 *dconjg(dcpl_mb(vtmp(1)+i-1))
-                  dbl_mb(xtmp(1)+i-1) = dimag(ctmp)
-               end do
+             do i=1,npack1
+                ctmp = psi1(i+(n-1)*nfft3d+(nb-1)*neall*nfft3d)
+     >               *dconjg(dcpl_mb(vtmp(1)+i-1))
+     >               *dconjg(dcpl_mb(zsw1(1)+n-1))
+                dbl_mb(xtmp(1)+i-1) = dimag(ctmp)
+             end do
 
-               call Cram_rr_idot(1,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),
+             call Cram_rr_idot(nb,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),
      >                            dbl_mb(sum(1)+3*(n-1)))
-               call Cram_rr_idot(1,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),
-     >                           dbl_mb(sum(1)+1+3*(n-1)))
-               call Cram_rr_idot(1,dbl_mb(Gz(1)),dbl_mb(xtmp(1)),
-     >                           dbl_mb(sum(1)+2+3*(n-1)))
-
+             call Cram_rr_idot(nb,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),
+     >                         dbl_mb(sum(1)+1+3*(n-1)))
+             call Cram_rr_idot(nb,dbl_mb(Gz(1)),dbl_mb(xtmp(1)),
+     >                         dbl_mb(sum(1)+2+3*(n-1)))
           end do
 
           call C3dB_Vector_Sumall(3*(nn),dbl_mb(sum(1)))
   
           do n=1,nn
              fion(1,ii) = fion(1,ii) 
-     >                  + 2.0d0*dbl_mb(sw1(1)+n-1)
-     >                         *dbl_mb(sum(1)+3*(n-1))
+     >                  + 2.0d0*weight*dbl_mb(sum(1)+3*(n-1))
              fion(2,ii) = fion(2,ii) 
-     >                  + 2.0d0*dbl_mb(sw1(1)+n-1)
-     >                         *dbl_mb(sum(1)+1+3*(n-1))
+     >                  + 2.0d0*weight*dbl_mb(sum(1)+1+3*(n-1))
              fion(3,ii) = fion(3,ii) 
-     >                  + 2.0d0*dbl_mb(sw1(1)+n-1)
-     >                         *dbl_mb(sum(1)+2+3*(n-1))
+     >                  + 2.0d0*weight*dbl_mb(sum(1)+2+3*(n-1))
           end do
        
         
-        end do
+        end do !** l **
+        end do !** ii **
 
-      end do
+      end do !** nb ***
 
       value = MA_pop_stack(sum(2))
-      value = MA_pop_stack(sw1(2))
-      value = MA_pop_stack(Gz(2))
-      value = MA_pop_stack(Gy(2))
-      value = MA_pop_stack(Gx(2))
-      value = MA_pop_stack(xtmp(2))
-      value = MA_pop_stack(vtmp(2))
-      value = MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(Gz(2))
+      value = value.and.MA_pop_stack(Gy(2))
+      value = value.and.MA_pop_stack(Gx(2))
+      value = value.and.MA_pop_stack(xtmp(2))
+      if (.not.value) call errquit('cpsp_f_vnonlocal:popping stack',2)
+
+      value = MA_pop_stack(zsw1(2))
+      value = value.and.MA_pop_stack(vtmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) call errquit('cpsp_f_vnonlocal:popping stack',3)
 
       call nwpw_timing_end(6)
+      
 
       return 
       end
+
+
 
       subroutine cpsp_read(fname,
      >                       version,

@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.18 2002-01-16 22:28:23 bylaska Exp $
+* $Id: cgsdv5.F,v 1.19 2002-01-20 23:49:22 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -133,7 +133,6 @@
          write(6,1020)
          write(6,1010)
          write(6,1030)
-         write(6,1031)
          write(6,1010)
          write(6,1035)
          write(6,1010)
@@ -480,9 +479,8 @@ c     end if
 *:::::::::::::::::::::::::::  format  :::::::::::::::::::::::::::::::::
  1000 FORMAT(10X,'****************************************************')
  1010 FORMAT(10X,'*                                                  *')
- 1020 FORMAT(10X,'*     Car-Parrinello microcluster calculation      *')
- 1030 FORMAT(10X,'*     [     conjugate gradient minimization   ]    *')
- 1031 FORMAT(10X,'*     [   (Grassman manifold implementation)  ]    *')
+ 1020 FORMAT(10X,'*               NWPW PSPW Calculation              *')
+ 1030 FORMAT(10X,'*     [   (Grassman manifold implementation)  ]    *')
  1035 FORMAT(10x,'*      [ NorthWest Chemistry implementation ]      *')
  1040 FORMAT(10X,'*            version #5.00   06/01/00              *')
  1041 FORMAT(10X,'*    This code was developed by Eric J. Bylaska,   *')

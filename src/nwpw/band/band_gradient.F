@@ -1,13 +1,14 @@
 c
-c     $Id: band_gradient.F,v 1.1 2001-11-16 22:53:12 bylaska Exp $
+c     $Id: band_gradient.F,v 1.2 2002-01-20 23:49:20 bylaska Exp $
 c
 
       logical function band_gradient(rtdb)
       implicit none
       integer rtdb
+      logical  band_minimizer
+      external band_minimizer
 
-      write(*,*) "band gradient not implemented"
-      band_gradient = .true.
+      band_gradient = band_minimizer(rtdb,1)
       return
       end
 

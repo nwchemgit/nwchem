@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.16 2002-01-16 20:51:13 bylaska Exp $
+* $Id: band_minimizer.F,v 1.17 2002-01-20 23:49:22 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -331,11 +331,13 @@
       dipole(3) = 0.0d0
 
 *     ****  calculate gradient ***
-      nion = 3
-
+      nion = ion_nion()
       value = MA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
       if (.not. value) call errquit('out of stack memory',0)
+
+      call c_cgsd_energy_gradient(dbl_mb(fion(1)))
+      call dscal(3*nion,(-1.0d0),dbl_mb(fion(1)),1)
      
 
 *     **** calculate the stress tensor ****
