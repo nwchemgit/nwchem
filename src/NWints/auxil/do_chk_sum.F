@@ -1,5 +1,5 @@
       logical function task_check_sum(rtdb)
-C$Id: do_chk_sum.F,v 1.8 2000-02-04 00:51:31 mg201 Exp $
+C$Id: do_chk_sum.F,v 1.9 2000-02-04 20:15:55 mg201 Exp $
       implicit none
       integer rtdb
 c
@@ -95,7 +95,7 @@ c
 c
 c normalize basis set
 c
-      if (.not.int_normalize(basis,rtdb))
+      if (.not.int_normalize(rtdb,basis))
      &       call errquit('do_int_chk_sum: basis norm. failed', 0)
 *--      if (.not.int_norm_2c(basis))
 *--     &       call errquit('do_int_chk_sum: basis norm. failed', 0)
@@ -124,7 +124,7 @@ c
 c
 c normalize basis set
 c
-      if (.not.int_normalize(basis,rtdb))
+      if (.not.int_normalize(rtdb,basis))
      &       call errquit('do_int_chk_sum: basis norm. failed', 0)
 *--      if (.not.int_norm_2c(basis))
 *--     &       call errquit('do_int_chk_sum: basis norm. failed', 0)

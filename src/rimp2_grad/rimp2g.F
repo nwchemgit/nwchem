@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.19 2000-02-04 01:46:03 mg201 Exp $
+C$Id: rimp2g.F,v 1.20 2000-02-04 20:14:05 mg201 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -140,12 +140,12 @@ C
 C
       Status = Status .AND. Bas_Create( AOBas, AOBasName)
       Status = Status .AND. Bas_RTDB_Load( RTDB, Geom, AOBas, AOBasName)
-      Status = Status .AND. Int_Normalize( AOBas,RTDB)
+      Status = Status .AND. Int_Normalize( RTDB,AOBas)
 C
       Status = Status .AND. Bas_Create( FitBas, FitBasName)
       Status = Status .AND. Bas_RTDB_Load( RTDB, Geom, FitBas,
      $   FitBasName)
-      Status = Status .AND. Int_Normalize( FitBas, RTDB)
+      Status = Status .AND. Int_Normalize( RTDB, FitBas)
 C
 C     Get other controls -- threshold for neglect of integrals, etc.
 C

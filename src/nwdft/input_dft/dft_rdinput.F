@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.70 2000-02-04 01:47:39 mg201 Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.71 2000-02-04 20:10:37 mg201 Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -591,7 +591,7 @@ c
      &   call errquit('rdinput: bas_create?', 86)
       if (.not. bas_rtdb_load(rtdb, geom, AO_bas_han, 'ao basis'))
      &   call errquit('rdinput: no ao basis ', 86)
-      if (.not. int_normalize(AO_bas_han,rtdb))
+      if (.not. int_normalize(rtdb,AO_bas_han))
      &   call errquit('rdinput: int_normalize failed', 86)
       if (.not. bas_numbf(AO_bas_han, nbf))
      &   call errquit('rdinput: basis set error:', 86)
@@ -652,7 +652,7 @@ c
      &   call errquit('rdinput: bas_create?',124)
       XCFIT=bas_rtdb_load(rtdb, geom, XC_bas_han, 'xc basis')
       if (XCFIT)then
-         if (.not. int_normalize(XC_bas_han,rtdb))
+         if (.not. int_normalize(rtdb,XC_bas_han))
      &      call errquit('rdinput: int_normalize failed', 208)
          if (.not. bas_numbf(XC_bas_han, nbf_xc))
      &      call errquit('rdinput: basis set error:', 86)
