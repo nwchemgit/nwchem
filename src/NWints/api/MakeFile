@@ -1,8 +1,8 @@
 #
-#	$Id: MakeFile,v 1.6 2000-05-04 17:02:37 windus Exp $	
+#	$Id: MakeFile,v 1.7 2000-11-25 15:40:46 bjohnson Exp $	
 #
 
-!MESSAGE *** Unresolved issues in this nmake file ***
+#!MESSAGE *** Unresolved issues in this nmake file ***
 
 OBJ_OPTIMIZE = $(OBJDIR)\int_hf1sp.obj \
                $(OBJDIR)\int_l2e4c.obj \

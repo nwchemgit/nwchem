@@ -1,8 +1,8 @@
 #
-#	$Id: MakeFile,v 1.10 2000-10-27 17:51:38 edo Exp $	
+#	$Id: MakeFile,v 1.11 2000-11-25 15:42:45 bjohnson Exp $	
 #
 
-!MESSAGE *** Unresolved issues in this nmake file ***
+#!MESSAGE *** Unresolved issues in this nmake file ***
 
 SUBDIRS = md5
 

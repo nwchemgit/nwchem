@@ -1,8 +1,8 @@
 #
-#	$Id: MakeFile,v 1.2 1999-11-14 02:59:22 d3g681 Exp $	
+#	$Id: MakeFile,v 1.3 2000-11-25 15:40:47 bjohnson Exp $	
 #
 
-!MESSAGE *** Unresolved issues in this nmake file ***
+#!MESSAGE *** Unresolved issues in this nmake file ***
 
 SUBDIRS = api int auxil ints_sp deriv texas ecp hondo dk rel
 

@@ -1,8 +1,8 @@
 #
-#	$Id: MakeFile,v 1.5 2000-07-18 18:25:23 edo Exp $	
+#	$Id: MakeFile,v 1.6 2000-11-25 15:42:43 bjohnson Exp $	
 #
 
-!MESSAGE *** Unresolved issues in this nmake file ***
+#!MESSAGE *** Unresolved issues in this nmake file ***
 
 COBJ =         $(OBJDIR)\clustrfix.obj \
                $(OBJDIR)\pdcomplex.obj \
@@ -92,7 +92,7 @@ LIBRARY = peigs.lib
 !IF 0
 
 #
-# $Id: MakeFile,v 1.5 2000-07-18 18:25:23 edo Exp $
+# $Id: MakeFile,v 1.6 2000-11-25 15:42:43 bjohnson Exp $
 #
 
 include ../../DEFS

@@ -1,8 +1,8 @@
 #
-#	$Id: MakeFile,v 1.3 2000-08-02 15:27:19 bjohnson Exp $	
+#	$Id: MakeFile,v 1.4 2000-11-25 15:42:45 bjohnson Exp $	
 #
 
-!MESSAGE *** Unresolved issues in this nmake file ***
+#!MESSAGE *** Unresolved issues in this nmake file ***
 
 BLAS =         $(OBJDIR)\mxma.obj
 
