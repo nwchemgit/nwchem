@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.5 1996-10-18 23:45:43 mg201 Exp $
+C $Id: ecp_gradient.F,v 1.6 1996-10-19 00:02:34 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -340,8 +340,10 @@ C        end if
 *         Increment angular momentum on centre A
 *
           call ecp_local (mem,DryRun,
-     &        xyz_A,zeta_A,scr(i_xca),n_prim_A,n_cont_A,n_cart_A,l_A+1,
-     &        xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,n_cart_B,l_B,
+     &        xyz_A,zeta_A,scr(i_xca),
+     &        n_prim_A,n_cont_A,n_cartp_A,l_A+1,
+     &        xyz_B,zeta_B,coef_B,
+     &        n_prim_B,n_cont_B,n_cart_B,l_B,
      &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
      &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
      &        scr(i_lp),scr(i_scr),memscr,
@@ -377,8 +379,10 @@ C        end if
 *
           if (l_A .gt. 0) then
             call ecp_local (mem,DryRun,
-     &          xyz_A,zeta_A,coef_A,n_prim_A,n_cont_A,n_cart_A,l_A-1,
-     &          xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,n_cart_B,l_B,
+     &          xyz_A,zeta_A,coef_A,
+     &          n_prim_A,n_cont_A,n_cartm_A,l_A-1,
+     &          xyz_B,zeta_B,coef_B,
+     &          n_prim_B,n_cont_B,n_cart_B,l_B,
      &          xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
      &          zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
      &          scr(i_lm),scr(i_scr),memscr,
