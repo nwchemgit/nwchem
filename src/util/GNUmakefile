@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.118 2000-07-25 17:03:57 d3j191 Exp $
+# $Id: GNUmakefile,v 1.119 2000-08-01 19:58:42 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -10,47 +10,61 @@ else
    LIB_DEFINES += -DJOBTIMEPATH=\"$(BINDIR)\"
 endif
 
+# The packing routines have been modified so that they work
+# for all combinations of 32-bit, 64-bit, big-endian, little-endian
+
+# The old HAVE_FORTRAN_BYTE/INTEGER2 macros have been replaced with 
+# BYTE_SHORT_PACKING to indicate that packing should use integer*1/*2 
+# rather than the shift/and/or loops which are used if this macro
+# is not defined.  This is because all machines have the short
+# integers and the packing routines should now work everywhere
+# (though some machines may be faster doing the shifts).
+
 ifeq ($(TARGET),SOLARIS64)
+# This assumes f90 ... use -DINTEGER_1=byte for f77
   EXTRA_OBJ = ieeetrap.o
-  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
+  LIB_DEFINES += -DINTEGER_1='integer*1' -DBYTE_SHORT_PACKING  
 endif
 ifeq ($(TARGET),SOLARIS)
   EXTRA_OBJ = ieeetrap.o
-#  SPEECH = YES
-  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
+  LIB_DEFINES += -DINTEGER_1='byte' -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),SUN)
   EXTRA_OBJ = ieeetrap.o
-#  SPEECH = YES
-  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
+  LIB_DEFINES += -DINTEGER_1='byte' -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),SP)
   EXTRA_OBJ = ibm_cputime.o
-  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
   LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
 endif
 
 ifeq ($(TARGET),LAPI)
   EXTRA_OBJ = ibm_cputime.o
-  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
   LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
 endif
 
 ifeq ($(TARGET),IBM)
   EXTRA_OBJ = ibm_cputime.o
-  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
+
 ifeq ($(TARGET),IBM64)
-  EXTRA_OBJ = ibm_cputime.o
+  EXTRA_OBJ = ibm_cputime.o 
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
+
 ifeq ($(TARGET),HPUX64)
   EXTRA_OBJ = util_erfc.o
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 #
 # If you want to turn traps on for LINUX uncomment this line. That is it.
 #  EXTRA_OBJ += linux_gnu_trap.o
@@ -58,18 +72,22 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
 endif
 
 ifeq ($(TARGET),PGLINUX)
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o
 endif
 
 ifeq ($(TARGET),HPUX)
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
   EXTRA_OBJ = util_hp_extra.o
 endif
 
 ifeq ($(TARGET),KSR)
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
   EXTRA_OBJ = ksr_cputime.o
 endif
 
 ifeq ($(TARGET),DECOSF)
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
   EXTRA_OBJ = dec_fpe.o
 endif
 
@@ -77,20 +95,9 @@ ifeq ($(TARGET),FUJITSU_VPP)
    LIB_DEFINES = -Wp,-DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
                  -Wp,-DPERM_DEF_DIR=$(PERM_DEF_DIR) \
                  -Wp,-DBINDIR=\"$(BINDIR)\" \
-                 -Wp,-DHAVE_FORTRAN_INTEGER2,-DHAVE_FORTRAN_BYTE
+                 -Wp,-DBYTE_SHORT_PACKING \
+                 -Wp,-DINTEGER_1=byte
 endif
-
-#ifeq ($(TARGET),SGITFP)
-#       BLAS = dfill.o ifill.o mabyte_fill.o
-#       EXTRA_OBJ = rsg.o
-#else
-#  ifeq ($(TARGET),SGI_N32)
-#       BLAS = dfill.o ifill.o mabyte_fill.o
-#       EXTRA_OBJ = rsg.o
-#  else
-#       BLAS = dfill.o ifill.o rsg.o mabyte_fill.o
-#  endif
-#endif
 
        BLAS = dfill.o ifill.o rsg.o mabyte_fill.o
 

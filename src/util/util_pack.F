@@ -1,126 +1,61 @@
-#ifdef HAVE_FORTRAN_INTEGER2
-      subroutine util_pack_16(nunpacked, packed, unpacked)
-*
-* $Id: util_pack.F,v 1.14 1999-08-07 23:34:28 d3g681 Exp $
-*
-      implicit none
-      integer nunpacked
-      integer*2 packed(*), unpacked(2,*)
-c
-      integer i
-c
-      do i = 1, nunpacked
-         packed(i) = unpacked(2,i)
-      enddo
-c
-      end
-      subroutine util_unpack_16(nunpacked, packed, unpacked)
-      implicit none
-      integer nunpacked
-      integer*2 packed(*), unpacked(2,*)
-c
-      integer i
-c
-      do i = 1, nunpacked
-         unpacked(1,i) = 0
-         unpacked(2,i) = packed(i)
-      enddo
-c
-      end
-#else
-      subroutine util_pack_16(nunpacked, packed, unpacked)
+      subroutine util_pack_info(bytes_per_int, obigendian)
       implicit none
 #include "mafdecls.fh"
+      integer bytes_per_int
+      logical obigendian
 c
-c     pack 16 bit integers ... n must be a multiple of 4
+      integer longw
+      integer*2 shortw(4)
+      equivalence (longw,shortw)
 c
-      integer nunpacked, packed(*), unpacked(*)
-      integer npacked_per_int
-      integer i, ij, kl, ijkl, ind
-#include "bitops.fh"
-c
-      npacked_per_int = ma_sizeof(mt_int, 1, mt_byte) / 2
-c
-      if (npacked_per_int .eq. 2) then
-         ind = 1
-         do i = 1, nunpacked, 2
-            packed(ind) = ior(lshift(unpacked(i),16),unpacked(i+1))
-            ind = ind + 1
-         enddo
-      else if (npacked_per_int .eq. 4) then
-         ind = 1
-         do i = 1, nunpacked, 4
-            ij = ior(lshift(unpacked(i  ),16),unpacked(i+1))
-            kl = ior(lshift(unpacked(i+2),16),unpacked(i+3))
-            ijkl = ior(lshift(ij,32),kl)
-            packed(ind) = ijkl
-            ind = ind + 1
-         enddo
-      else
-         call errquit('util_pack_16: funny integer length',
-     $        npacked_per_int)
-      endif
+      shortw(1) = 0
+      longw = 1
+      obigendian = .not. (shortw(1) .eq. 1)
+c     
+      bytes_per_int = ma_sizeof(mt_int, 1, mt_byte)
 c
       end
-      subroutine util_unpack_16(nunpacked, packed, unpacked)
-      implicit none
-#include "mafdecls.fh"
-c
-c     unpack 16 bit integers ... n must be a multiple of 4.
-c
-      integer nunpacked, packed(*), unpacked(*)
-c
-      integer npacked_per_int
-      integer i, ij, ijkl, ind
-#include "bitops.fh"
-c
-      npacked_per_int = ma_sizeof(mt_int, 1, mt_byte) / 2
-c
-      if (npacked_per_int .eq. 2) then
-         ind = 1
-         do i = 1, nunpacked/2
-            ij = packed(i)
-            unpacked(ind)   = iand(rshift(ij,16),65535)
-            unpacked(ind+1) = iand(ij,65535)
-            ind = ind + 2
-         enddo
-      else if (npacked_per_int .eq. 4) then
-         ind = 1
-         do i = 1, nunpacked/4
-            ijkl = packed(i)
-            unpacked(ind  ) = iand(rshift(ijkl,48),65535)
-            unpacked(ind+1) = iand(rshift(ijkl,32),65535)
-            unpacked(ind+2) = iand(rshift(ijkl,16),65535)
-            unpacked(ind+3) = iand(ijkl,65535)
-            ind = ind + 4
-         enddo
-      else
-         call errquit('util_unpack_16: funny integer length',
-     $        npacked_per_int)
-      endif
-c
-      end
-#endif
-#ifdef HAVE_FORTRAN_BYTE
+#ifdef BYTE_SHORT_PACKING
       subroutine util_pack_8(nunpacked, packed, unpacked)
       implicit none
       integer nunpacked
-      byte unpacked(4,*)
-      byte packed(*)
+      INTEGER_1 packed(*), unpacked(*)
 c
-      integer i
+      integer i, i1, bytes_per_int
+      logical obigendian
+c
+      call util_pack_info(bytes_per_int, obigendian)
+c
+      if (obigendian) then
+         i1 = bytes_per_int
+      else
+         i1 = 1
+      endif
 c
       do i = 1, nunpacked
-         packed(i) = unpacked(4,i)
+         packed(i) = unpacked(i1)
+         i1 = i1 + bytes_per_int
       enddo
 c
       end
       subroutine util_unpack_8(nunpacked, packed, unpacked)
       implicit none
       integer nunpacked
-      byte packed(*), unpacked(4,*)
+      INTEGER_1 packed(*), unpacked(*)
 c
-      integer i, ilo, ihi, ndo
+      integer i, i1, ilo, ihi, ndo, base
+      integer bytes_per_int
+      logical obigendian
+c
+      call util_pack_info(bytes_per_int, obigendian)
+c
+      if (obigendian) then
+         i1   = bytes_per_int
+         base = bytes_per_int - 1
+      else
+         i1   = 1
+         base = 0
+      endif
 c
 c     This routine has been tweaked for IBM P2SC for which
 c     the slow clock and high memory bandwidth does not
@@ -129,9 +64,67 @@ c
       do ilo = 1, nunpacked, 32768       ! 128 K cache
          ihi = min(nunpacked, ilo+32768-1)
          ndo = ihi - ilo + 1
-         call ifill(ndo, 0, unpacked(1,ilo), 1)
+         call ifill(ndo, 0, unpacked(i1-base), 1)
          do i = ilo, ihi
-            unpacked(4,i) = packed(i)
+            unpacked(i1) = packed(i)
+            i1 = i1 + bytes_per_int
+         enddo
+      enddo
+c
+      end
+      subroutine util_pack_16(nunpacked, packed, unpacked)
+*
+* $Id: util_pack.F,v 1.15 2000-08-01 19:58:42 d3g681 Exp $
+*
+      implicit none
+      integer nunpacked
+      integer*2 packed(*), unpacked(*)
+c
+      integer i, i2
+      integer bytes_per_int, shorts_per_int
+      logical obigendian
+c
+      call util_pack_info(bytes_per_int, obigendian)
+      shorts_per_int = bytes_per_int/2
+c
+      if (obigendian) then
+         i2 = shorts_per_int
+      else
+         i2 = 1
+      endif
+      do i = 1, nunpacked
+         packed(i) = unpacked(i2)
+         i2 = i2 + shorts_per_int
+      enddo
+c
+      end
+      subroutine util_unpack_16(nunpacked, packed, unpacked)
+      implicit none
+      integer nunpacked
+      integer*2 packed(*), unpacked(*)
+c
+      integer i, i2, ilo, ihi, ndo, base
+      integer bytes_per_int, shorts_per_int
+      logical obigendian
+c
+      call util_pack_info(bytes_per_int, obigendian)
+      shorts_per_int = bytes_per_int/2
+c
+      if (obigendian) then
+         i2   = shorts_per_int
+         base = shorts_per_int - 1
+      else
+         i2   = 1
+         base = 0
+      endif
+c
+      do ilo = 1, nunpacked, 32768       ! 128 K cache
+         ihi = min(nunpacked, ilo+32768-1)
+         ndo = ihi - ilo + 1
+         call ifill(ndo, 0, unpacked(i2-base), 1)
+         do i = ilo, ihi
+            unpacked(i2) = packed(i)
+            i2 = i2 + shorts_per_int
          enddo
       enddo
 c
@@ -222,6 +215,78 @@ c
          enddo
       else
          call errquit('util_unpack_8 funny integer length',
+     $        npacked_per_int)
+      endif
+c
+      end
+      subroutine util_pack_16(nunpacked, packed, unpacked)
+      implicit none
+#include "mafdecls.fh"
+c
+c     pack 16 bit integers ... n must be a multiple of 4
+c
+      integer nunpacked, packed(*), unpacked(*)
+      integer npacked_per_int
+      integer i, ij, kl, ijkl, ind
+#include "bitops.fh"
+c
+      npacked_per_int = ma_sizeof(mt_int, 1, mt_byte) / 2
+c
+      if (npacked_per_int .eq. 2) then
+         ind = 1
+         do i = 1, nunpacked, 2
+            packed(ind) = ior(lshift(unpacked(i),16),unpacked(i+1))
+            ind = ind + 1
+         enddo
+      else if (npacked_per_int .eq. 4) then
+         ind = 1
+         do i = 1, nunpacked, 4
+            ij = ior(lshift(unpacked(i  ),16),unpacked(i+1))
+            kl = ior(lshift(unpacked(i+2),16),unpacked(i+3))
+            ijkl = ior(lshift(ij,32),kl)
+            packed(ind) = ijkl
+            ind = ind + 1
+         enddo
+      else
+         call errquit('util_pack_16: funny integer length',
+     $        npacked_per_int)
+      endif
+c
+      end
+      subroutine util_unpack_16(nunpacked, packed, unpacked)
+      implicit none
+#include "mafdecls.fh"
+c
+c     unpack 16 bit integers ... n must be a multiple of 4.
+c
+      integer nunpacked, packed(*), unpacked(*)
+c
+      integer npacked_per_int
+      integer i, ij, ijkl, ind
+#include "bitops.fh"
+c
+      npacked_per_int = ma_sizeof(mt_int, 1, mt_byte) / 2
+c
+      if (npacked_per_int .eq. 2) then
+         ind = 1
+         do i = 1, nunpacked/2
+            ij = packed(i)
+            unpacked(ind)   = iand(rshift(ij,16),65535)
+            unpacked(ind+1) = iand(ij,65535)
+            ind = ind + 2
+         enddo
+      else if (npacked_per_int .eq. 4) then
+         ind = 1
+         do i = 1, nunpacked/4
+            ijkl = packed(i)
+            unpacked(ind  ) = iand(rshift(ijkl,48),65535)
+            unpacked(ind+1) = iand(rshift(ijkl,32),65535)
+            unpacked(ind+2) = iand(rshift(ijkl,16),65535)
+            unpacked(ind+3) = iand(ijkl,65535)
+            ind = ind + 4
+         enddo
+      else
+         call errquit('util_unpack_16: funny integer length',
      $        npacked_per_int)
       endif
 c
