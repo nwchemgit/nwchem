@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.133 1995-12-01 18:40:19 rg240 Exp $
+# $Id: makefile.h,v 1.134 1995-12-12 23:55:47 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -366,6 +366,11 @@ ifeq ($(TARGET),SGITFP)
 # Optimization options const_copy_limit=18000, global_limit=18000 and fprop_limit=1200 added to
 # FOPTIMIZE to allow full optimization of the MD module nwArgos on SGI Power Indigo^2
 #
+# TPS 95/12/12:
+# Increased fprop_limit to 1750
+# Removed -j 12 from MAKEFLAGS
+# Added -lutil to core libraries
+#
   CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
          CC = cc
@@ -373,17 +378,17 @@ ifeq ($(TARGET),SGITFP)
      RANLIB = echo
 
     INSTALL = @echo nwchem is built
-  MAKEFLAGS = -j 12 --no-print-directory
+  MAKEFLAGS = --no-print-directory
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 
- FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=18000:global_limit=18000:fprop_limit=1200 -TENV:X=3
+ FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=18000:global_limit=18000:fprop_limit=1750 -TENV:X=3
 FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
 
  COPTIMIZE = -O
 
     DEFINES = -DSGI -DSGITFP -DLongInteger
-  CORE_LIBS = -lglobal -ltcgmsg -llapack -lblas
+  CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas
 endif
 
 
