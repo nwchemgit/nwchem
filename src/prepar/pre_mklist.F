@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,lmat,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.11 1998-07-14 15:47:28 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.12 1998-08-10 17:24:27 d3j191 Exp $
 c
       implicit none
 c
@@ -172,6 +172,7 @@ c
       lang(2,nang)=lbnd(1,i)
       lang(3,nang)=lbnd(2,j)
       lang(4,nang)=0
+      lang(5,nang)=0
       else
       if(lbnd(2,i).eq.lbnd(1,j)) then
       if(nang.ge.mang) call errquit('increase mang',9999)
@@ -180,6 +181,7 @@ c
       lang(2,nang)=lbnd(2,i)
       lang(3,nang)=lbnd(2,j)
       lang(4,nang)=0
+      lang(5,nang)=0
       else
       if(lbnd(1,i).eq.lbnd(2,j)) then
       if(nang.ge.mang) call errquit('increase mang',9999)
@@ -188,6 +190,7 @@ c
       lang(2,nang)=lbnd(1,i)
       lang(3,nang)=lbnd(1,j)
       lang(4,nang)=0
+      lang(5,nang)=0
       else
       if(lbnd(2,i).eq.lbnd(2,j)) then
       if(nang.ge.mang) call errquit('increase mang',9999)
@@ -196,6 +199,7 @@ c
       lang(2,nang)=lbnd(2,i)
       lang(3,nang)=lbnd(1,j)
       lang(4,nang)=0
+      lang(5,nang)=0
       endif
       endif
       endif
