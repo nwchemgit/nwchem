@@ -10,6 +10,7 @@
 #include "stdio.fh"
 #include "sym.fh"
 #include "cmp2ps.fh"
+#include "msgids.fh"
       character*8 task
       integer num_oa_sym(0:7),num_va_sym(0:7)    
       integer num_ob_sym(0:7),num_vb_sym(0:7)
@@ -409,59 +410,61 @@ c
      $        noa,nva,nob,nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $        dbl_mb(k_eval_a),dbl_mb(k_eval_b),
      $        g_p_tot_a,g_p_tot_b,scftype)
-c$$$  call mp2_make_dip_mom(g_p_tot_a,g_p_tot_b,basis,rtdb,nbf,
-c$$$  $        g_vecs_a,g_vecs_b)
+
+         call ga_dgop(1,dbl_mb(k_grad),3*natoms,'+')
+         if(ga_nodeid().eq.0)then
+           do i=1, 3*natoms
+             dbl_mb(k_grad+i-1) = -dbl_mb(k_grad+i-1)
+           enddo
+           status=rtdb_parallel(.false.)
+           if(.not.rtdb_put(rtdb,'mp2:nonseparable gradient',mt_dbl,
+     $          3*natoms,dbl_mb(k_grad)))
+     $          call errquit(
+     $          'semi_dir_mp2:failed to store gradient in rtdb',0)
+           status=rtdb_parallel(.true.)
+         endif
+c     
 c...  
 c...  call to Herbert's stuff
 c...  
-         if(scftype.eq.'RHF')then
-            if(.not.rtdb_cput(rtdb,'scf:scftype',1,'UHF'))
-     $           call errquit('could not put scftype',1)
-         endif
-c     
          call pstat_on(ps_sep)
          call grad_force(rtdb,basis,geom,movecs) 
          call pstat_off(ps_sep)
 c     
-         if(scftype.eq.'RHF')then
-            if(.not.rtdb_cput(rtdb,'scf:scftype',1,'RHF'))
-     $           call errquit('could not put scftype',1)
-         endif
-c     
-         call ga_dgop(1,dbl_mb(k_grad),3*natoms,'+')
-         if(ga_nodeid().eq.0)then
-            if (util_print('nonsepgrad',print_high)) then
-               write(6,*)
-               write(6,*) ' Non-separable gradient'
-               write(6,*)
-               write(6,*) '       X              Y              Z'
-               write (luout,1000) (dbl_mb(k_grad+i),i=0,3*natoms-1)
- 1000          format (1000(3(F14.8,1X)/))
-               call util_flush(6)
-            endif
-            status=rtdb_parallel(.false.)
-            if(.not.rtdb_ma_get(rtdb,'mp2:scf+separable gradient',
-     $           junk1,junk2,l_grad2))
-     $           call errquit('could not get gradient from rtdb',1)
-            if(.not.ma_get_index(l_grad2,k_grad2))
-     $           call errquit('frc2?',0)
-c
-            if (util_print('gradient',print_low)) then
-               write(6,*)
-               write(6,*) ' Total MP2 gradient '
-               write(6,*)
-               write(6,*) '       X              Y              Z'
-               write (luout,1000) (-dbl_mb(k_grad+i)+dbl_mb(k_grad2+i),
-     $              i=0,3*natoms-1)
-               call util_flush(6)
-            endif
-            if(.not.rtdb_put(rtdb,'mp2:gradient',mt_dbl,
-     $           3*natoms,dbl_mb(k_grad)))
-     $           call errquit(
-     $           'semi_dir_mp2:failed to store gradient in rtdb',0)
-            status=rtdb_parallel(.true.)
-            if(.not.ma_free_heap(l_grad2))call errquit('ma frc2',0)
-         endif
+c$$$         call ga_dgop(1,dbl_mb(k_grad),3*natoms,'+')
+c$$$         if(ga_nodeid().eq.0)then
+c$$$            if (util_print('nonsepgrad',print_high)) then
+c$$$               write(6,*)
+c$$$               write(6,*) ' Non-separable gradient'
+c$$$               write(6,*)
+c$$$               write(6,*) '       X              Y              Z'
+c$$$               write (luout,1000) (dbl_mb(k_grad+i),i=0,3*natoms-1)
+c$$$ 1000          format (1000(3(F14.8,1X)/))
+c$$$               call util_flush(6)
+c$$$            endif
+c$$$            status=rtdb_parallel(.false.)
+c$$$            if(.not.rtdb_ma_get(rtdb,'mp2:scf+separable gradient',
+c$$$     $           junk1,junk2,l_grad2))
+c$$$     $           call errquit('could not get gradient from rtdb',1)
+c$$$            if(.not.ma_get_index(l_grad2,k_grad2))
+c$$$     $           call errquit('frc2?',0)
+c$$$c
+c$$$            if (util_print('gradient',print_low)) then
+c$$$               write(6,*)
+c$$$               write(6,*) ' Total MP2 gradient '
+c$$$               write(6,*)
+c$$$               write(6,*) '       X              Y              Z'
+c$$$               write (luout,1000) (-dbl_mb(k_grad+i)+dbl_mb(k_grad2+i),
+c$$$     $              i=0,3*natoms-1)
+c$$$               call util_flush(6)
+c$$$            endif
+c$$$            if(.not.rtdb_put(rtdb,'mp2:gradient',mt_dbl,
+c$$$     $           3*natoms,dbl_mb(k_grad)))
+c$$$     $           call errquit(
+c$$$     $           'semi_dir_mp2:failed to store gradient in rtdb',0)
+c$$$            status=rtdb_parallel(.true.)
+c$$$            if(.not.ma_free_heap(l_grad2))call errquit('ma frc2',0)
+c$$$         endif
 c     
          if(.not.ga_destroy(g_rhs))call errquit(
      $        'could not destroy g_rhs',1)
