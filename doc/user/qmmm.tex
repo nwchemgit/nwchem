@@ -1,0 +1,60 @@
+% $Id: qmmm.tex,v 1.1 1997-02-24 19:40:47 d3e129 Exp $
+
+\label{sec:qmmm}
+
+Combined or hybrid Quantum Mechanics and Molecular Mechanics (QM/MM)
+is a simulation methodology that is about 15 years old but in all the
+literature there are cautions that calibration computations must be
+done to validate the model for each particular chemical system
+studied.  This is not a black box style computation and the NWChem
+users are warned that without calibration QM/MM may not give the
+appropriate results\footnote{c.f., Singh and Kollman, J. Comp. Chem.
+  {\bf 7}, 718 (1986); M.~J.~Field, P.~A.~Bash and M.~Karplus, J.
+  Comp. Chem. {\bf 11}, 700, (1990); J. Gao, ``Methods and
+  Applications of Combined Quantum Mechanical and Molecular Mechanical
+  Potentials.'' In {\it Reviews in Computational Chemistry};
+  K.~B.~Lipkowitz, D.~B.~Boyd, Eds.; VCH Publishers: New York, 199X;
+  Vol. 7, pp 119-185 (1995); and M. A. Thompson and G. K. Schenter, J.
+  Phys. Chem {\bf 99} 6374 (1995) }.  Thus all users have been warned!
+
+The QM/MM module in NWChem is driven by the molecular dynamics module
+(nwArgos).  This module currently works for any QM method that has
+analytic gradients.  The input for this requires the definition of
+chemical system vi the same interface that is used by the nwARGOS
+module (c.f. Section \ref{sec:NWargos}).  The extensions to this
+interface include the definition of ``Quantum'' atoms and ``Link''
+where appropriate.  The QM information must be present in the
+traditional NWChem input deck except for the geometry\footnote{Any
+  geometry information in the traditional form will be ignored}.  The
+geometrical information will be constructed automatically by nwARGOS.
+For dynamics and free energy simulations the input is again identical
+to that for nwARGOS with limitations on the kinds of simulations that
+can be done.
+
+The QM/MM module is envoked with the task directive where the
+``theory'' is QMMM.  The recognized operations on the QM/MM theory
+directive are energy, optimize, and dynamics.
+
+\begin{verbatim}
+  TASK QMMM (energy || optimize || dynamics)
+\end{verbatim}
+
+The compound input directive to set the scope of the QM/MM simulation
+is: 
+\begin{verbatim}
+  QMMM
+    ...
+  END
+\end{verbatim}
+
+and \verb+QMMM+ includes the additional subdirectives that the user
+may specify for the particular simulation.  These options are:
+
+\subsection{QM method}
+\begin{verbatim}
+QMETH <string (SCF || DFT || MP2 || MCSCF) default SCF>
+\end{verbatim}
+
+
+
+
