@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.5 1995-01-24 03:12:16 pg511 Exp $
+# $Id: make_nwchem_config,v 1.6 1995-01-25 00:07:29 pg511 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -107,7 +107,7 @@ STUBROUTINES = $(EXCLUDED_SUBDIRS)
 STUBROUTINES := $(patsubst NWints,task_check_sum,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst dftgrad, dft_grad_top grad_dft nwdft,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst dftgrad,dft_grad_top grad_dft dft_optimize,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,rjhtest raktest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,scf_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest,$(STUBROUTINES) )
