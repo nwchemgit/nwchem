@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.6 2002-03-28 18:34:56 edo Exp $
+* $Id: cphf_solve2.F,v 1.7 2003-06-25 23:20:11 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -13,6 +13,7 @@
 #include "sym.fh"
 #include "util.fh"
 #include "cscf.fh"
+#include "stdio.fh"
 c!!! BGJ
 #include "bgj.fh"
 c!!! BGJ
@@ -142,18 +143,18 @@ c
       pflg=2
       max_precond_sub = 20
       if (oprint) then
-         write(6,170) scftype
+         write(luout,170) scftype
  170     format('    scftype = ',a)
          if (scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
-            write(6,171) nclosed, nopen
+            write(luout,171) nclosed, nopen
  171        format('    nclosed = ', i4/
      $             '      nopen = ', i4)
          else
-            write(6,172) nalpha, nbeta
+            write(luout,172) nalpha, nbeta
  172        format('     nalpha = ', i4/
      $             '      nbeta = ', i4)
          endif
-         write(6,173) vlen, nvec, precond_tol, max_precond_iter
+         write(luout,173) vlen, nvec, precond_tol, max_precond_iter
  173     format('  variables = ', i8/
      $          '  num. vecs = ', i8/
      $          '  tolerance = ', 1p,d9.1,0p/
@@ -197,12 +198,14 @@ c
       residual = sqrt(ga_ddot(g_work, g_work))
       if (residual .gt. 1d-4) then
          if (ga_nodeid() .eq. 0) then
-            write(6,*) ' SCF residual = ', residual
+            write(luout,*) ' WARNING: SCF residual = ', residual
             call util_flush(6)
          endif
+         if(residual .gt.1d-2) then
          call ga_sync()
          call errquit('cphf_solve:the available MOs do not satisfy'//
      $        ' the SCF equations',0)
+         endif
       endif
 c
       if (.not. ga_destroy(g_work)) call errquit('cphf_solve:ga?',0)
@@ -250,7 +253,7 @@ c !!! BGJ
 c !!! BGJ
 c
 c     if (oprint_conv) then
-c        write(6,174) precond_acc, precond_iter
+c        write(luout,174) precond_acc, precond_iter
 c174     format(/' CPHF converged to ',1p,d9.1,0p,' in ',i4,' iters'/)
 c        call util_flush(6)
 c     endif
@@ -262,7 +265,7 @@ c$$$  $        g_grad,g_work,precond_acc,precond_iter))
 c$$$  $        call errquit('cphf did not converge',1)
 c$$$  pol=ga_ddot(g_work,g_grad)
 c$$$  if(ga_nodeid().eq.0)then
-c$$$  write(6,911) pol
+c$$$  write(luout,911) pol
 c$$$  911        format(//,15x,40('-'),
 c$$$  $           /,15x,'UHF Polarizability is:',f16.6,
 c$$$  $           /,15x,40('-'),/)
