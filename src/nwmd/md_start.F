@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.150 2003-10-19 03:30:57 d3j191 Exp $
+c $Id: md_start.F,v 1.151 2003-10-21 19:02:02 d3j191 Exp $
 c
       implicit none
 c
@@ -47,7 +47,7 @@ c
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl,nbias,mropt,includ,ltwin,
-     + nseq,i_lseq,nfhop,rhop,thop,ndums,ipbtyp,lfnhop)
+     + nseq,i_lseq,nfhop,rhop,thop,ndums,ipbtyp,lfnhop,iradgy)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
@@ -929,6 +929,10 @@ c     + call md_abort('md_rtdbin: rtdb_get failed',92)
       if(.not.rtdb_get(irtdb,'md:mlambd',mt_int,1,mlambd))
      + call md_abort('md_rtdbin: rtdb_get failed',89)
       if(.not.rtdb_get(irtdb,'md:includ',mt_int,1,includ))
+     + call md_abort('md_rtdbin: rtdb_get failed',89)
+      if(.not.rtdb_get(irtdb,'md:iradgy',mt_int,1,iradgy))
+     + call md_abort('md_rtdbin: rtdb_get failed',89)
+      if(.not.rtdb_get(irtdb,'md:idifco',mt_int,1,idifco))
      + call md_abort('md_rtdbin: rtdb_get failed',89)
 c
       if(.not.rtdb_get(irtdb,'md:fguide',mt_dbl,1,fguide))

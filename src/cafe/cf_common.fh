@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.46 2003-09-23 14:17:12 d3j191 Exp $
+c $Id: cf_common.fh,v 1.47 2003-10-21 19:01:58 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -102,7 +102,7 @@ c
      + i_lseq,i_lda,l_lda,i_rda,l_rda,i_uda,l_uda,i_pda,l_pda,
      + i_lsthop,l_lsthop,i_timhop,l_timhop
 c
-      integer ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl
+      integer ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl,iradgy
       integer ngc,ngl,nfrdf,ifstep,ngrww,ireact,mset,iset,npener
       integer lpww,lpsw,lpss,ngrsw,ngrss,nrwrec
       integer isolvo,npww,npsw,npss,ipme,morder,ngx,ngy,ngz,ngmax
@@ -133,8 +133,8 @@ c
      + temp,tempw,temps,factmp,factmw,factms,scalew,scales,ewk,ek,edrs,
      + ewkc,eskc,facpsc,pscale,ewc,epmf,virial,field,fvect,ffreq,totchg,
      + prx,z,ekc,scaleq,ubias,facpmf,rhop,rhop2,thop,stime,
-     + ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl,mset,iset,nfhop,ipbtyp,
-     + ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,ipme,lpww,lpsw,
+     + ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl,iradgy,mset,iset,nfhop,
+     + ipbtyp,ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,ipme,lpww,lpsw,
      + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,nbias,mropt,
      + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,noshak,
      + itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npmfi,npgdec,

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.76 2003-10-19 03:30:57 d3j191 Exp $
+c $Id: md_input.F,v 1.77 2003-10-21 19:02:02 d3j191 Exp $
 c
       implicit none
 c
@@ -32,7 +32,7 @@ c
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
-      integer iprop,iprpmf,nfhop,ipbtyp
+      integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -190,6 +190,8 @@ c      iunfix=0
       istart=0
       ncoll=0
       ipbtyp=1
+      iradgy=0
+      idifco=0
       fcoll=1.0d0
       rsgm=-1.0d0
 c
@@ -986,6 +988,20 @@ c     hessian
 c
       if(inp_compare(.false.,'hessian',item)) then
       ihess=1
+      goto 2
+      endif
+c
+c     radius of gyration
+c
+      if(inp_compare(.false.,'radius_gyration',item)) then
+      iradgy=1
+      goto 2
+      endif
+c
+c     diffusion coefficients
+c
+      if(inp_compare(.false.,'diffusion',item)) then
+      idifco=1
       goto 2
       endif
 c
@@ -1819,6 +1835,10 @@ c     + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:mlambd',mt_int,1,mlambd))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:includ',mt_int,1,includ))
+     + call md_abort('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:iradgy',mt_int,1,iradgy))
+     + call md_abort('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:idifco',mt_int,1,idifco))
      + call md_abort('md_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'md:fguide',mt_dbl,1,fguide))

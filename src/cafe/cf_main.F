@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.162 2003-10-19 03:30:56 d3j191 Exp $
+c $Id: cf_main.F,v 1.163 2003-10-21 19:01:58 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -252,6 +252,8 @@ c
 c
       if(np.gt.0) call ga_dgop(mcf_36,xsm,3*msm,'+')
 c
+      if(iradgy.gt.0) then
+c
       if(isfr.gt.0.and.isfr.le.isto) then
 c
       do 5 i=isfr,isto
@@ -277,6 +279,8 @@ c
     8 continue
       gsm(i,4,1)=sqrt(gsm(i,4,1)/gsm(i,4,2))
     9 continue
+c
+      endif
 c
       return
       end

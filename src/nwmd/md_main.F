@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.175 2003-10-20 22:18:06 d3j191 Exp $
+c $Id: md_main.F,v 1.176 2003-10-21 19:02:02 d3j191 Exp $
 c
       implicit none
 c
@@ -1636,7 +1636,8 @@ c
 c
 c     subtract center of mass coordinates from reference coordinates
 c
-      call md_addref(.false.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
+      if(idifco.gt.0)
+     + call md_addref(.false.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
      + dbl_mb(i_xsm),dbl_mb(i_xscr),dbl_mb(i_dsr))
 c
       call timer_stop(5)
@@ -1747,13 +1748,17 @@ c     center of mass coordinates
 c
       call timer_start(52)
 c
+      if(idifco.gt.0.or.
+     + frequency(mdstep,nfcntr).or.frequency(mdstep,nfslow)) then
+c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
 c     add center of mass coordinates from reference coordinates
 c
-      call md_addref(.true.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
+      if(idifco.gt.0)
+     + call md_addref(.true.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
      + dbl_mb(i_xsm),dbl_mb(i_xscr),dbl_mb(i_dsr))
 c
 c     center solute in box
@@ -1768,6 +1773,8 @@ c
       if(frequency(mdstep,nfslow)) then
       call cf_slow(dbl_mb(i_vw),nwmloc,dbl_mb(i_vs),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
+      endif
+c
       endif
       call timer_stop(52)
       call timer_start(53)
@@ -2632,7 +2639,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.175 2003-10-20 22:18:06 d3j191 Exp $
+c $Id: md_main.F,v 1.176 2003-10-21 19:02:02 d3j191 Exp $
 c
       implicit none
 c
