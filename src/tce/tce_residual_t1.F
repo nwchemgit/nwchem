@@ -1,6 +1,6 @@
       subroutine tce_residual_t1(d_r1,k_r1_offset,residual)
 c
-c $Id: tce_residual_t1.F,v 1.8 2004-05-06 07:13:25 edo Exp $
+c $Id: tce_residual_t1.F,v 1.9 2004-05-06 08:08:42 edo Exp $
 c
       implicit none
 #include "global.fh"
@@ -23,8 +23,6 @@ c
       integer next
       integer nxtval
       external nxtval
-      double precision ddot
-      external ddot
       logical nodezero
 c
 c     =====================

@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.14 2004-05-06 07:09:15 edo Exp $                       
+c     $Id: bybminimize.F,v 1.15 2004-05-06 08:07:54 edo Exp $                       
 c
 
 *  ************************************************************
@@ -105,8 +105,6 @@ c
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
       external psi_1_noupdate_energy,psi_eigenvalue
-      double precision ddot
-      external ddot
    
       Ein = E(1)
       call Parallel_taskid(taskid)

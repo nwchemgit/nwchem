@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.14 2004-03-09 21:25:57 bylaska Exp $
+# $Id: GNUmakefile,v 1.15 2004-05-06 08:07:54 edo Exp $
 #
  OBJ_OPTIMIZE = \
 		cgsd_input.o \
@@ -28,7 +28,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = cgsdv5.F cgsd_energy.F
+    USES_BLAS = cgsdv5.F cgsd_energy.F bybminimize.F
 
   LIB_DEFINES = 
   LIB_INCLUDES = -I../../nwpwlib/include
