@@ -83,11 +83,11 @@ c
                 write(6,*) ' SUPERBLOCK: ', spina, spinc, alo, blo, clo,
      $               energy(spina,spinc)
 c               
-                total = total + energy(spina, spinc)
               end do
             end do
           end do
           write(6,*) ' ENERGY ', spina, spinc, energy(spina,spinc)
+          total = total + energy(spina, spinc)
         end do
       end do
 c
