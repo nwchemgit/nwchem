@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.39 1999-11-18 18:19:03 bert Exp $
+c     $Id: grad_force.F,v 1.40 1999-12-10 01:30:01 bert Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -468,6 +468,8 @@ c     at the same time the construction of the complex Douglas-Kroll
 c     integral derivatives is avoided.
 c
       if (doug_kroll) then
+c
+         call intd_terminate()
 c
 c        Write density to file for use by Douglas-Kroll energy routine
 c
