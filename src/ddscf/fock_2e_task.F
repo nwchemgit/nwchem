@@ -12,7 +12,7 @@
 #include "bas.fh"
 #include "cfock.fh"
 c
-c     $Id: fock_2e_task.F,v 1.5 1995-11-03 20:41:55 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.6 1995-11-17 01:07:21 d3g681 Exp $
 c
 c     Given an atomic quartet, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -80,7 +80,7 @@ c
          if (owritefile) then
             dtol2e = den_tol
          else
-            dtol2e = den_tol / denmax
+            dtol2e = min(1.0d-5, den_tol/denmax)
          endif
 c     
 c     Construct these Fock atom-blocks
