@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.73 2000-05-15 18:27:54 edo Exp $
+# $Id: DEFS,v 1.74 2000-06-12 16:27:36 edo Exp $
 #
 #======================================================================
 #
@@ -426,6 +426,16 @@ peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL -P -DDECOSF
 peigs_CODEOBJ = DBLE
 peigs_CC  += -D${peigs_CPU}  -DSTD_DBL -O3 -DDECOSF -tune host -arch host
 peigs_FC += -O4  -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DDECOSF -tune host -arch host
+endif
+
+ifeq ($(peigs_TARGET),LINUX64)
+#alpha with /tcgmsg
+peigs_CPU  = ALPHA
+peigs_COMM = TCGMSG
+peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL 
+peigs_CODEOBJ = DBLE
+peigs_CC  +=  -DSTD_DBL -O1 -tune host -arch host 
+peigs_FC +=  -O1 -DLINUX64  -DSTD_DBL  -D$(peigs_COMM) -DLINUX -tune host -arch host
 endif
 
 ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX CYGNUS))
