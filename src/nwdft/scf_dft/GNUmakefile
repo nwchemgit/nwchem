@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.37 1999-06-16 01:00:36 edo Exp $
+# $Id: GNUmakefile,v 1.38 1999-06-16 16:28:07 edo Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -26,7 +26,6 @@
 	diis_hamwgt.o \
 	diis_refvec.o
 	OBJ=\
-	dft_hermite.o \
 	dft_swapab.o \
 	dft_scf.o \
 
