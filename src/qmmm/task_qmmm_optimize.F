@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.2 2004-10-18 23:10:19 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.3 2004-10-19 20:01:49 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -8,6 +8,7 @@ c     $Id: task_qmmm_optimize.F,v 1.2 2004-10-18 23:10:19 marat Exp $
 #include "global.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "qmmm.fh"
       integer rtdb
       double precision cpu, wall
 c     
@@ -22,7 +23,8 @@ c
 c
       pname = "task_qmmm_optimize"
 c
-      write(*,*) "in " //pname, ga_nodeid()
+      if(qmmm_print_debug())
+     >  write(*,*) "in " //pname, ga_nodeid()
 c
       if (.not. rtdb_cget(rtdb, 'qmmm:optimization', 1, optimization))
      $     call errquit('qmmm_optimize: failed ',0,0)
@@ -37,8 +39,6 @@ c
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      +     call errquit('task_optimize: failed rtdb_cget task:theory',0,
      &       RTDB_ERR)
-
-      write(*,*) ga_nodeid(), "optimization ",optimization
 
       if (optimization.eq.'all') then
          call md_em()

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.30 2004-10-18 23:55:38 marat Exp $
+c $Id: qmmm.F,v 1.31 2004-10-19 20:01:49 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -18,10 +18,15 @@ c
 c
       character*32 pname
 c
+      call qmmm_print_header(irtdb)
+c
       pname = "qmmm_init"
 
-
-      write(*,*) ga_nodeid(),"in "//pname
+      call util_print_push() 
+      call util_print_rtdb_load(irtdb, 'qmmm')
+c
+      if(qmmm_print_debug()) 
+     >  write(*,*) ga_nodeid(),"in "//pname
     
       qmmm_init = .true.
 
@@ -34,10 +39,10 @@ c     --------------------------------------------
       if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
      $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
 
-      call qmmm_print_header(irtdb)
-      call qmmm_print_params(irtdb)
+c      call qmmm_print_params(irtdb)
 
-      write(*,*) ga_nodeid(),"out "//pname
+      if(qmmm_print_debug()) 
+     >  write(*,*) ga_nodeid(),"out "//pname
 
       return
       end
@@ -84,6 +89,7 @@ c
       call qmmm_data_release()
       call qmmm_bq_data_dealloc()
 
+      call util_print_pop() 
       qmmm_end = .true.
       return
       end

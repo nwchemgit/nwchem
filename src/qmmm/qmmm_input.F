@@ -138,6 +138,13 @@ c
      >       RTDB_ERR)
         goto 2
       endif
+c     
+c     print level 
+c     -------------------
+      if (inp_compare(.false.,'print', token)) then
+         call util_print_input(rtdb, "qmmm")
+         go to 2
+      end if
 c
       if (token.eq.'end') then
         return

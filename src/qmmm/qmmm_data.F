@@ -33,6 +33,10 @@ c
       link_ecp = "auto"
 c
 c     initialize rtdb parameters
+      if(master)
+     > call util_print_centered(6,
+     >    "QM/MM Interface Parameters",32,.true.)
+
       tag = "qmmm:uqmatm"
       if (.not.rtdb_get(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) then
         write(*,*) pname//"Warning! qm reference energy is set to", 
@@ -41,6 +45,8 @@ c     initialize rtdb parameters
      >      call errquit(pname//'failed to store eatoms',0,
      >       RTDB_ERR)
       end if
+      if(master) 
+     > write(6,20) "reference energy",tag,eatoms
 
       tag = "qmmm:fixlinks"
       if (.not.rtdb_get(irtdb,tag,mt_log,1,fixlinks)) then
@@ -49,6 +55,8 @@ c     initialize rtdb parameters
      >       RTDB_ERR)
 
        end if
+      if(master)
+     > write(6,21) "fixed link bonds",tag,fixlinks
 
       tag ="qmmm:bq_exclude" 
       if (.not.rtdb_get(irtdb,tag,mt_int,1,bq_exclude)) then
@@ -57,6 +65,18 @@ c     initialize rtdb parameters
      >       RTDB_ERR)
 
        end if
+      if(master) then
+        if(bq_exclude.eq.qmmm_hydrogen) then
+          write(6,22) "excluded bq's",tag,
+     >                 "hydrogens bonded to link atoms"
+        else if(bq_exclude.eq.qmmm_all_atoms) then
+          write(6,22) "excluded bq's",tag,"all"
+        else if(bq_exclude.eq.qmmm_no_atoms) then
+          write(6,22) "excluded bq's",tag,"none"
+        else
+          call errquit(pname//'invalid bq_exclude',0,RTDB_ERR)
+        end if
+      end if
 
       tag ="qmmm:linkatm" 
       if (.not.rtdb_get(irtdb,tag,mt_int,1,linkatm)) then
@@ -64,6 +84,15 @@ c     initialize rtdb parameters
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
 
+       end if
+       if(master) then
+         if(linkatm.eq.qmmm_hydrogen) then
+           write(6,22) "link atom type",tag,"hydrogens"
+         else if(linkatm.eq.qmmm_halogen) then
+           write(6,22) "link atom type",tag,"halogens"
+         else
+           call errquit(pname//'invalid link atom type',0,RTDB_ERR)
+         end if
        end if
      
       tag ="qmmm:optimization"
@@ -79,10 +108,12 @@ c     initialize rtdb parameters
      >       RTDB_ERR)
 
        end if
+      if (master) 
+     >  write(6,22) "optimization region",tag,optimization
 
       tag ="qmmm:link_ecp"
       if (.not.rtdb_cget(irtdb,tag,1,link_ecp)) then
-        if (.not.rtdb_cput(irtdb,tag,1,link_ecp)) 
+       if (.not.rtdb_cput(irtdb,tag,1,link_ecp)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
 
@@ -92,12 +123,17 @@ c     initialize rtdb parameters
      >       RTDB_ERR)
 
        end if
+      if (master) 
+     >  write(6,22) "ecp on link atoms",tag,link_ecp
 
       fixqm = .false.
       interface='qm'
 
+      tag='task:operation'
       if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
+      if (master) 
+     >  write(6,22) "operation",tag,operation
 c
       if (inp_compare(.false., 'optimize', operation)) then
         if (optimization.eq.'all') then
@@ -121,13 +157,20 @@ c
       if (.not.rtdb_put(irtdb,tag,mt_log,1,fixqm)) 
      >      call errquit(pname//'failed to store fixqm',0,
      >       RTDB_ERR)
+      if (master) 
+     >  write(6,21) "fixed qm region",tag,fixqm
 
 
       tag ="qmmm:interface"
       if (.not.rtdb_cput(irtdb,tag,1,interface)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
+      if (master) 
+     >  write(6,22) "interface api",tag,interface
 
+      if (master) 
+     >  write(6,23) 
+       
 
       call mm_get_tot_nqm(nqm)
       call mm_get_tot_nlink(nlink)
@@ -152,6 +195,12 @@ c     ----------------------------------------------------
        if (.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,link_atom))
      + call errquit('qmmm_data_init: qmmm:linkatm',link_atom,
      &       RTDB_ERR)
+
+
+20    FORMAT(1X,A,T24,A,T46,F12.6)
+21    FORMAT(1X,A,T24,A,T46,L3)
+22    FORMAT(1X,A,T24,A,T46,A)
+23    FORMAT(1X,54("-"),//)
 
 
       end
@@ -412,6 +461,7 @@ c     -------------------
       implicit none
 #include "qmmm_data.fh"
 #include "util.fh"
+#include "global.fh"
 
       logical qmmm_print_default
       character*(*) name
@@ -420,7 +470,23 @@ c
 
       oprint = util_print(name, print_default)
 
-      qmmm_print_default = oprint .and. master
+      qmmm_print_default = oprint .and. (ga_nodeid().eq.0)
+
+      end 
+
+      function qmmm_print_debug()
+      implicit none
+#include "qmmm_data.fh"
+#include "util.fh"
+#include "global.fh"
+
+      logical qmmm_print_debug
+c 
+      logical oprint
+
+      oprint = util_print("debug_info", print_debug)
+
+      qmmm_print_debug = oprint .and. (ga_nodeid().eq.0)
 
       end 
 

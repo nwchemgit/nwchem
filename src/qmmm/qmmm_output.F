@@ -1,8 +1,8 @@
 c
-c $Id: qmmm_output.F,v 1.6 2004-10-19 01:33:28 marat Exp $
+c $Id: qmmm_output.F,v 1.7 2004-10-19 20:01:49 marat Exp $
 c
 c
-      subroutine qmmm_print_header(irtdb)
+      subroutine qmmm_print_header()
       implicit none
 c
 #include "mafdecls.fh"
@@ -11,28 +11,32 @@ c
 #include "qmmm_params.fh"
 #include "rtdb.fh"
 #include "qmmm.fh"
+#include "global.fh"
 
       integer irtdb
 c
       character*32 pname
       character*48 string
 
-      if(.not.qmmm_master()) return
+      if(ga_nodeid().eq.0) then
       
-      pname = "qmmm_print_header:"
-      string = "     NWChem QM/MM Interface Module"
-      call banner(6, 
-     >    string,
-     >    "*", .true. , .false., .true.)
-      string = " "
-      call banner(6, 
-     >    string,
-     >    "*", .false., .false., .true.)
+        string = "     NWChem QM/MM Interface Module"
+        call banner(6, 
+     >      string,
+     >      "*", .true. , .false., .true.)
+        string = " "
+        call banner(6, 
+     >      string,
+     >      "*", .false., .false., .true.)
 
-      string = "     Developed Marat Valiev 2004"
-      call banner(6, 
-     >    string,
-     >    "*", .false., .true., .true.)
+        string = "     Developed Marat Valiev 2004"
+        call banner(6, 
+     >      string,
+     >      "*", .false., .true., .true.)
+        
+      end if
+      
+      call util_flush(6)
 
       end
 
@@ -76,29 +80,13 @@ c
            call errquit(pname//'failed to store bq_exclude',0,
      >       RTDB_ERR)
       end if
-      if(bq_exclude.eq.qmmm_hydrogen) then
-        write(6,22) "excluded bq's",tag,"hydrogens bonded to link atoms"
-      else if(bq_exclude.eq.qmmm_all_atoms) then
-        write(6,22) "excluded bq's",tag,"all"
-      else if(bq_exclude.eq.qmmm_no_atoms) then
-        write(6,22) "excluded bq's",tag,"none"
-      else
-        call errquit(pname//'invalid bq_exclude',0,RTDB_ERR)
-      end if
-      
+c
       tag ="qmmm:linkatm" 
       if (.not.rtdb_get(irtdb,tag,mt_int,1,linkatm)) then
            call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
        end if
-      if(linkatm.eq.qmmm_hydrogen) then
-        write(6,22) "link atom type",tag,"hydrogens"
-      else if(linkatm.eq.qmmm_halogen) then
-        write(6,22) "link atom type",tag,"halogens"
-      else
-        call errquit(pname//'invalid link atom type',0,RTDB_ERR)
-      end if
-
+c
       tag ="qmmm:optimization"
       if (.not.rtdb_cget(irtdb,tag,1,optimization)) then
            call errquit(pname//'failed to store'//tag,0,
@@ -158,6 +146,7 @@ c
 #include "qmmm_data.fh"
 #include "qmmm_params.fh"
 #include "rtdb.fh"
+#include "qmmm.fh"
 
       integer irtdb
 c
@@ -180,7 +169,8 @@ c
       if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
-c      call util_print_centered(6,"QM/MM Energy",0,.true.)
+      if(.not.qmmm_master()) return
+
       write(*,19) 
       write(*,21) "QM/MM Energy"
       write(*,19) 

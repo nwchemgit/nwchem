@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.25 2004-10-18 23:55:38 marat Exp $
+c $Id: qmmm_geom.F,v 1.26 2004-10-19 20:01:49 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -96,6 +96,8 @@ c     ------------------------
 c
       if(link_ecp.eq."auto") then
         if(qmmm_halogen_link()) then
+          if(qmmm_master()) 
+     >      write(*,*) "Setting up ecp basis set on psedo-carbon links"
           basis_name = "qmmm_zhang_6-31Gs_ecp"
           nb = inp_strlen(basis_name)
           basis_string='ecp; F_L library "'//basis_name(1:nb)//'"; end'
@@ -221,7 +223,9 @@ c     local variables
       character*32 pname
 
       pname = "qmmm_create_bq_geom"
-      write(*,*) " in "//pname
+
+      if(qmmm_print_debug())
+     > write(*,*) " in "//pname
 
       if (.not. rtdb_get(irtdb,'qmmm:remove_bq',mt_log,1,nobq)) then
         nobq=.false.
@@ -242,7 +246,8 @@ c     --------------------------------------
 c     nothing to do if no bq's
 c     -----------------------
       if(nbq.eq.0) then
-        write(*,*) "qmmm: no bq charges were found"
+      if(qmmm_print_debug())
+     > write(*,*) "qmmm: no bq charges were found"
         return
       end if
 

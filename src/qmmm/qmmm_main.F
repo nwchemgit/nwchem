@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.20 2004-10-15 21:44:46 marat Exp $
+c $Id: qmmm_main.F,v 1.21 2004-10-19 20:01:49 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -46,7 +46,8 @@ c
       double precision norm
 
       pname = 'qmmm_forces'
-      write(*,*) "in "//pname
+      if(qmmm_print_debug()) 
+     >  write(*,*) "in "//pname
       if (.not. rtdb_get(inrtdb,'qmmm:init',mt_log,1,qmmm_init))
      $     qmmm_init=.false.
 
@@ -82,7 +83,8 @@ c         interface = "qm"
 c      endif
 c
       if(interface.eq.'qm') then
-        write(*,*) "interface qm"
+      if(qmmm_print_debug())
+     > write(*,*) "exiting out of qmmm_forces since interface is set qm"
         energy = 0
         return
       end if
@@ -145,7 +147,8 @@ c
         end do
       end if
       norm = sqrt(norm)
-      write(*,*) "qnorm",norm
+      if(qmmm_print_debug())
+     > write(*,*) "qnorm",norm
       if(.not.rtdb_put(inrtdb,'qmmm:gradient',mt_dbl,
      >                 3*nqm,dbl_mb(i_gqm)))
      +   call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)
@@ -157,7 +160,8 @@ c
          norm = norm + dbl_mb(i_gbq+i-1)*dbl_mb(i_gbq+i-1)
       end do
       norm = sqrt(norm/nbq)
-      write(*,*) "bqnorm",norm
+      if(qmmm_print_debug())
+     > write(*,*) "bqnorm",norm
 
 
       call mm_set_solute_force_quant(nqm,
@@ -172,7 +176,8 @@ c
 
       call qmmm_restore_qm_geom(inrtdb)
 
-      write(*,*) "out "//pname
+      if(qmmm_print_debug())
+     > write(*,*) "out "//pname
 
       if(.not.ma_free_heap(h_gbq))
      & call errquit(pname//'gbq: Failed to deallocate heap',nqm,

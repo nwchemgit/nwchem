@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.23 2004-10-09 00:23:50 marat Exp $
+c $Id: mm_interface.F,v 1.24 2004-10-19 20:01:49 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1152,7 +1152,8 @@ c     mm local variables
 
       pname = " mm_set_solute_force_quant"
 
-      write(*,*) "in "//pname
+      if(qmmm_print_debug())
+     >  write(*,*) "in "//pname
 
       if(link) then
       call mm_set_solute_force_gen(nt,mm_quant_link,ai,g)
@@ -1218,7 +1219,8 @@ c     local variables
       character*32 pname
 
       pname = "mm_set_solute_force_gen"
-      write(*,*) "in "//pname
+      if(qmmm_print_debug())
+     > write(*,*) "in "//pname
 
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsa)
@@ -1232,7 +1234,6 @@ c     local variables
               if(int_mb(psl+i-1).eq.ai(j)) then
                  do k=1,3
                    dbl_mb(pfs+(i-1)+(k-1)*msa)=-g(k,j)*cau2kj/cau2nm
-                   write(*,*) dbl_mb(pfs+(i-1)+(k-1)*msa),g(k,j)
                  end do
               end if
             end do
@@ -1266,7 +1267,8 @@ c     local variables
 
       pname = "mm_get_solute_force_gen"
 
-      write(*,*) "in "//pname
+      if(qmmm_print_debug())
+     > write(*,*) "in "//pname
 
       call dfill(3*nt,0.0d0,g,1)
 
@@ -1282,7 +1284,6 @@ c     local variables
               if(int_mb(psl+i-1).eq.ai(j)) then
                  do k=1,3
                    g(k,j)=-dbl_mb(pfs+(i-1)+(k-1)*msa)*cau2nm/cau2kj
-                   write(*,*) g(k,j)
                  end do
               end if
             end do
