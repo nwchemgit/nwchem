@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.23 2002-02-27 19:05:20 bylaska Exp $
+* $Id: cgsdv5.F,v 1.24 2002-03-05 03:47:34 bylaska Exp $
 *
 
 ***********************************************************************
@@ -525,7 +525,7 @@ c     end if
  1180 FORMAT(/' position of ions (au):')
  1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
  1191 FORMAT(5X, I4, A3, ' (',3F11.5,
-     >       ' ) - atomic mass= ',F6.3,' - fixed')
+     >       ' ) - atomic mass= ',F7.3,' - fixed')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of active electrons: spin up=',I3,

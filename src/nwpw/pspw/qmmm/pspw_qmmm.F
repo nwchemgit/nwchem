@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.17 2002-03-05 01:49:31 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.18 2002-03-05 03:47:36 bylaska Exp $
 c
 
 ***********************************************************
@@ -988,7 +988,7 @@ c     >                                   n2ft3d,rgrid,Vqm)
 
 *     **********************************
 *     *	                               *
-*     *     pspw_qmmm_Energy_ionMM     *
+*     *     pspw_qmmm_Energy_QMMM_Q    *
 *     *                                *
 *     **********************************
 
@@ -996,7 +996,7 @@ c     >                                   n2ft3d,rgrid,Vqm)
 *  interaction energy between the QM subsystem's
 * ions and the MM subsystem.
 
-      real*8 function pspw_qmmm_Energy_ionMM()
+      real*8 function pspw_qmmm_Energy_QMMM_Q()
       implicit none
 
 #include "mafdecls.fh"
@@ -1008,13 +1008,13 @@ c     >                                   n2ft3d,rgrid,Vqm)
       external pspw_Q_Energy_IonMM
 
 
-      pspw_qmmm_Energy_ionMM = pspw_Q_Energy_IonMM()
+      pspw_qmmm_Energy_QMMM_Q = pspw_Q_Energy_IonMM()
       return
       end
 
 *     **********************************
 *     *	                               *
-*     *     pspw_qmmm_Energy_QMMM      *
+*     *     pspw_qmmm_Energy_QMMM_LJ   *
 *     *                                *
 *     **********************************
 
@@ -1022,7 +1022,7 @@ c     >                                   n2ft3d,rgrid,Vqm)
 * dispersion and repulsion energy between the
 * QM subsystem and the MM subsystem.
 
-      real*8 function pspw_qmmm_Energy_QMMM()
+      real*8 function pspw_qmmm_Energy_QMMM_LJ()
       implicit none
 
 #include "mafdecls.fh"
@@ -1034,21 +1034,20 @@ c     >                                   n2ft3d,rgrid,Vqm)
       real*8   pspw_LJ_Energy_IonMM
       external pspw_LJ_Energy_IonMM
 
-      pspw_qmmm_Energy_QMMM = pspw_LJ_Energy_IonMM()
+      pspw_qmmm_Energy_QMMM_LJ = pspw_LJ_Energy_IonMM()
       return
       end
 
 *     **********************************
 *     *	                               *
-*     *     pspw_qmmm_Energy_MMMM      *
+*     *     pspw_qmmm_Energy_MMMM_Q    *
 *     *                                *
 *     **********************************
 
 *  This function returns the electrostatic
-* and Lenard-Jones (LJ) dispersion and repulsion 
 * energy between the QM subsystem and the MM subsystem.
 
-      real*8 function pspw_qmmm_Energy_MMMM()
+      real*8 function pspw_qmmm_Energy_MMMM_Q()
       implicit none
 
 #include "mafdecls.fh"
@@ -1057,13 +1056,40 @@ c     >                                   n2ft3d,rgrid,Vqm)
 #include "pspw_qmmm.fh"
 
 *     **** external functions ****
-      real*8   pspw_LJ_Energy_MM,pspw_Q_Energy_MM
-      external pspw_LJ_Energy_MM,pspw_Q_Energy_MM
+      real*8   pspw_Q_Energy_MM
+      external pspw_Q_Energy_MM
 
-      pspw_qmmm_Energy_MMMM = pspw_LJ_Energy_MM()
-     >                      + pspw_Q_Energy_MM()
+      pspw_qmmm_Energy_MMMM_Q = pspw_Q_Energy_MM()
       return
       end
+
+
+*     **********************************
+*     *                                *
+*     *     pspw_qmmm_Energy_MMMM_LJ   *
+*     *                                *
+*     **********************************
+
+*  This function returns the Lenard-Jones (LJ) dispersion and repulsion
+* energy between the QM subsystem and the MM subsystem.
+
+      real*8 function pspw_qmmm_Energy_MMMM_LJ()
+      implicit none
+
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+*     **** external functions ****
+      real*8   pspw_LJ_Energy_MM
+      external pspw_LJ_Energy_MM
+
+      pspw_qmmm_Energy_MMMM_LJ = pspw_LJ_Energy_MM()
+      return
+      end
+
+
 
 *     **********************************
 *     *	                               *

@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.8 2002-02-16 19:26:35 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.9 2002-03-05 03:47:35 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -94,17 +94,19 @@ c     real*8     fion(3,natmx)
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found,pspw_charge_found
       real*8   pspw_qmmm_ke
-      real*8   pspw_qmmm_Energy_ionMM
-      real*8   pspw_qmmm_Energy_QMMM
-      real*8   pspw_qmmm_Energy_MMMM
+      real*8   pspw_qmmm_Energy_QMMM_Q
+      real*8   pspw_qmmm_Energy_QMMM_LJ
+      real*8   pspw_qmmm_Energy_MMMM_Q
+      real*8   pspw_qmmm_Energy_MMMM_LJ
       real*8   pspw_qmmm_Energy_pol
       real*8   pspw_qmmm_Energy_vib
       real*8   pspw_qmmm_Energy_cav
       external pspw_qmmm_found,pspw_charge_found
       external pspw_qmmm_ke
-      external pspw_qmmm_Energy_ionMM
-      external pspw_qmmm_Energy_QMMM
-      external pspw_qmmm_Energy_MMMM
+      external pspw_qmmm_Energy_QMMM_Q
+      external pspw_qmmm_Energy_QMMM_LJ
+      external pspw_qmmm_Energy_MMMM_Q
+      external pspw_qmmm_Energy_MMMM_LJ
       external pspw_qmmm_Energy_pol
       external pspw_qmmm_Energy_vib
       external pspw_qmmm_Energy_cav
@@ -592,9 +594,10 @@ c     real*8     fion(3,natmx)
 
 *     ******** QM/MM energies ******
       if (pspw_qmmm_found()) then
-         e_ionmm = pspw_qmmm_Energy_ionMM()
-         e_qmmm  = pspw_qmmm_Energy_QMMM()
-         e_mmmm  = pspw_qmmm_Energy_MMMM()
+         e_ionmm = pspw_qmmm_Energy_QMMM_Q()
+         e_qmmm  = pspw_qmmm_Energy_QMMM_LJ()
+         e_mmmm  = pspw_qmmm_Energy_MMMM_Q()
+     >           + pspw_qmmm_Energy_MMMM_LJ()
          e_pol   = pspw_qmmm_Energy_pol()
          e_vib   = pspw_qmmm_Energy_vib()
          e_cav   = pspw_qmmm_Energy_cav()

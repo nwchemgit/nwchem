@@ -1,5 +1,5 @@
 c
-c $Id: switching_charge.F,v 1.9 2002-03-05 01:49:32 bylaska Exp $
+c $Id: switching_charge.F,v 1.10 2002-03-05 03:47:36 bylaska Exp $
 c
 
 ***********************************************************
@@ -45,7 +45,7 @@ c
           write(*,1171) s_sigma
       end if
  1170 FORMAT(/' Electrostatic point charges used:')
- 1171 FORMAT(5X, '- (sigma)    = (',3E11.3,' )  ')
+ 1171 FORMAT(5X, '- sigma = (',E11.3,' )  ')
 
 
       call Truncating_Function_init(rtdb)
@@ -105,8 +105,8 @@ c
       call Pack_c_unpack(0,dbl_mb(xtmp(1)))
       call D3dB_cr_fft3b(1,dbl_mb(xtmp(1)))
 
-*     **** debug ****
-      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
+c*     **** debug ****
+c      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 
 *     **** Tall*Vqm ****
       call D3dB_rr_Mul(1,Vqm,dbl_mb(xtmp(1)),Vqm)
@@ -221,8 +221,8 @@ c
       call Pack_c_unpack(0,dbl_mb(xtmp(1)))
       call D3dB_cr_fft3b(1,dbl_mb(xtmp(1)))
 
-*     **** debug ****
-      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
+c*     **** debug ****
+c      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 
       do j=1,nion
          x = pspw_qmmm_rion(1,j)

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.18 2002-03-03 21:47:17 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.19 2002-03-05 03:47:34 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -22,7 +22,7 @@ c     $Id: cgsd_energy.F,v 1.18 2002-03-03 21:47:17 bylaska Exp $
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2)
-      real*8  E(20)
+      real*8  E(30)
 
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
@@ -165,9 +165,18 @@ c        call pspw_charge_Print(6)
          if (pspw_qmmm_found()) then
             write(luout,1431)
             write(luout,1432)
-            write(luout,1433) (E(1)-E(11)-E(12)-E(13)-E(14)-E(15)),
-     >         (E(1)-E(11)-E(12)-E(13)-E(14)-E(15))/ion_nion()
+            write(luout,1433) 
+     >(E(1)-E(11)-E(12)-E(13)-E(14)-E(15)-E(16)-E(17)-E(18)),
+     >(E(1)-E(11)-E(12)-E(13)-E(14)-E(15)-E(16)-E(17)-E(18))
+     > /ion_nion()
          end if
+         if (pspw_charge_found()) then
+            write(luout,1431)
+            write(luout,1432)
+            write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
+     >         (E(1)-E(19)-E(20)-E(21))/ion_nion()
+         end if
+
          write(luout,1440) E(2),E(2)/neall
          write(luout,1450) E(3),E(3)/neall
          write(luout,1460) E(4),E(4)/neall
@@ -188,18 +197,26 @@ c        call pspw_charge_Print(6)
         if (pspw_qmmm_found()) then
             write(luout,1700)
             write(luout,1701)
-            write(luout,1702) E(11)
-            write(luout,1703) E(12)
-            write(luout,1704) E(13)
-            write(luout,1705) E(14)
-            write(luout,1706) E(15)
+            write(luout,1702) E(11)+E(12)+E(13)
+            write(luout,1707) E(11)
+            write(luout,1708) E(12)
+            write(luout,1709) E(13)
+
+            write(luout,1703) E(14)+E(15)
+            write(luout,1710) E(14)
+            write(luout,1711) E(15)
+
+            write(luout,1704) E(16)
+            write(luout,1705) E(17)
+            write(luout,1706) E(18)
          end if
         if (pspw_charge_found()) then
             write(luout,1800)
             write(luout,1801)
-            write(luout,1802) E(16)
-            write(luout,1803) E(17)
-            write(luout,1804) E(18)
+            write(luout,1805) E(19)+E(20)+E(21)
+            write(luout,1802) E(19)
+            write(luout,1803) E(20)
+            write(luout,1804) E(21)
         end if
 
 
@@ -266,17 +283,24 @@ c        call pspw_charge_Print(6)
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')
- 1702 FORMAT( ' QM/MM energy           :',E19.10)
- 1703 FORMAT( ' MM/MM energy           :',E19.10)
- 1704 FORMAT( ' MM Polarization energy :',E19.10)
- 1705 FORMAT( ' MM Vibration energy    :',E19.10)
- 1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
+ 1702 FORMAT( ' QM/MM energy                     :',E19.10)
+ 1703 FORMAT(/' MM/MM energy                     :',E19.10)
+ 1704 FORMAT(/' MM Polarization energy           :',E19.10)
+ 1705 FORMAT( ' MM Vibration energy              :',E19.10)
+ 1706 FORMAT( ' (QM+MM)/Cavity energy            :',E19.10)
+ 1707 FORMAT( ' - MM Charge Field/QM Electron    :',E19.10)
+ 1708 FORMAT( ' - MM Charge Field/QM Ion         :',E19.10)
+ 1709 FORMAT( ' - MM LJ/QM LJ                    :',E19.10)
+ 1710 FORMAT( ' - MM Charge Field/MM Charge Field:',E19.10)
+ 1711 FORMAT( ' - MM LJ/MM LJ                    :',E19.10)
 
  1800 FORMAT(/' Charge Field Energies')
  1801 FORMAT( ' ---------------------')
- 1802 FORMAT( ' Charge Field/Electron    :',E19.10)
- 1803 FORMAT( ' Charge Field/Ion         :',E19.10)
- 1804 FORMAT( ' Charge Field/Charge Field:',E19.10)
+ 1802 FORMAT( ' - Charge Field/Electron    :',E19.10)
+ 1803 FORMAT( ' - Charge Field/Ion         :',E19.10)
+ 1804 FORMAT( ' - Charge Field/Charge Field:',E19.10)
+ 1805 FORMAT( ' Charge Field Energy        :',E19.10)
+   
       end
 
 *     *******************************

@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.12 2002-02-25 02:11:33 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.13 2002-03-05 03:47:34 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -45,6 +45,8 @@ c
       logical value
       integer neall,npack1
       real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+      real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
+
 
 
 
@@ -82,16 +84,18 @@ c
 
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found
-      real*8   pspw_qmmm_Energy_ionMM
-      real*8   pspw_qmmm_Energy_QMMM
-      real*8   pspw_qmmm_Energy_MMMM
+      real*8   pspw_qmmm_Energy_QMMM_Q
+      real*8   pspw_qmmm_Energy_QMMM_LJ
+      real*8   pspw_qmmm_Energy_MMMM_Q
+      real*8   pspw_qmmm_Energy_MMMM_LJ
       real*8   pspw_qmmm_Energy_pol
       real*8   pspw_qmmm_Energy_vib
       real*8   pspw_qmmm_Energy_cav
       external pspw_qmmm_found
-      external pspw_qmmm_Energy_ionMM
-      external pspw_qmmm_Energy_QMMM
-      external pspw_qmmm_Energy_MMMM
+      external pspw_qmmm_Energy_QMMM_Q
+      external pspw_qmmm_Energy_QMMM_LJ
+      external pspw_qmmm_Energy_MMMM_Q
+      external pspw_qmmm_Energy_MMMM_LJ
       external pspw_qmmm_Energy_pol
       external pspw_qmmm_Energy_vib
       external pspw_qmmm_Energy_cav
@@ -267,32 +271,40 @@ c     call dng_2to1()
       if (pspw_qmmm_found()) then
 
 *        **** get QM/MM  energies ****
-         e_ionmm = pspw_qmmm_Energy_ionMM()
-         e_qmmm  = pspw_qmmm_Energy_QMMM()
-         e_mmmm  = pspw_qmmm_Energy_MMMM()
+         e_qmmm_e   = psi_1v_field()
+         e_qmmm_q   = pspw_qmmm_Energy_QMMM_Q()
+         e_qmmm_lj  = pspw_qmmm_Energy_QMMM_LJ()
+
+         e_mmmm_q  = pspw_qmmm_Energy_MMMM_Q()
+         e_mmmm_lj = pspw_qmmm_Energy_MMMM_LJ()
+
          e_pol   = pspw_qmmm_Energy_pol()
          e_vib   = pspw_qmmm_Energy_vib()
          e_cav   = pspw_qmmm_Energy_cav()
 
-         E(1) = E(1) + e_ionmm
-     >               + e_qmmm
-     >               + e_mmmm
+         E(1) = E(1) + e_qmmm_q
+     >               + e_qmmm_lj
+     >               + e_mmmm_q
+     >               + e_mmmm_lj
      >               + e_pol
      >               + e_vib
      >               + e_cav
-         E(11) = e_qmmm
-         E(12) = e_mmmm
-         E(13) = e_pol
-         E(14) = e_vib
-         E(15) = e_cav
+         E(11) = e_qmmm_e
+         E(12) = e_qmmm_q
+         E(13) = e_qmmm_lj
+         E(14) = e_mmmm_q
+         E(15) = e_mmmm_lj
+         E(16) = e_pol
+         E(17) = e_vib
+         E(18) = e_cav
       end if
 
 *     **** get pspw_charge energies ****
       if (pspw_charge_found()) then
-         E(16)  = psi_1v_field()
-         E(17)  = pspw_charge_Energy_ion()
-         E(18)  = pspw_charge_Energy_charge()
-         E(1)   = E(1) + E(17) + E(18)
+         E(19)  = psi_1v_field()
+         E(20)  = pspw_charge_Energy_ion()
+         E(21)  = pspw_charge_Energy_charge()
+         E(1)   = E(1) + E(20) + E(21)
       end if
 
       return
