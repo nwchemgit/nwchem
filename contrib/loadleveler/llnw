@@ -1,0 +1,377 @@
+#!/bin/csh
+
+# $Id: llnw,v 1.1 1998-10-22 18:00:24 d3e129 Exp $
+
+onintr interrupted
+
+############################################################################
+# Determine the default NWChem executable.  
+# .  if NWCHEM_EXECUTABLE is defined use that if it exists
+# .  else if NWCHEM_TOP is defined use the version in that tree if it exists
+# .  else use the build by Rick
+############################################################################
+
+if ($?NWCHEM_EXECUTABLE) then
+  set NWCHEM = $NWCHEM_EXECUTABLE
+  if (-e $NWCHEM) goto got_default_executable
+endif
+if ($?NWCHEM_TOP && $?NWCHEM_TARGET) then
+  set NWCHEM = $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem
+  if (-e $NWCHEM) goto got_default_executable
+endif
+set NWCHEM = ~nwchem/bin/nwchem
+if (! -e $NWCHEM) set NWCHEM = "no-default-available"
+got_default_executable:
+
+############################################################################
+# Determine the full path to the current directory.  This must
+# constructed to be machine independent so refer it to the login directory
+# using tilde for brevity of output (hence the control of globbing and
+# avoiding double quotes when testing for existence.
+############################################################################
+
+pushd $HOME >& /dev/null
+set PWDHOME = `pwd`
+popd >& /dev/null
+set noglob
+set FULLPATH = `pwd | sed -e "s,$PWDHOME,~,"`
+unset noglob
+
+############################################################################
+# Other miscellaneous defaults
+############################################################################
+
+set TIME = "1:00:00"
+set NPROC = 1
+set QUEUE = batch
+set ACCOUNT = " "
+if ($?ACCOUNT_NO) then
+  set ACCOUNT = $ACCOUNT_NO
+endif
+
+############################################################################
+# If there are no arguments then prompt for data, otherwise
+# process the input line arguments
+############################################################################
+
+if ($#argv == 0) then
+
+# Get INPUT, OUTPUT, NPROC, TIME, QUEUE
+
+  set INTERACTIVE = 1
+  echo " "
+  echo "NWChem interactive load leveller submission"
+  echo "-------------------------------------------"
+  echo " "
+
+  again2:
+  set DEFAULTINPUT = "$FULLPATH/nwchem.nw"
+  echo -n "Input file name ($DEFAULTINPUT): "
+  set INPUT = "$<"
+  if ("$INPUT" == "") set INPUT = "$DEFAULTINPUT"
+# See if we need to prepend the full path
+  set TEST = "$FULLPATH/$INPUT"
+  if (-f $TEST) then
+     set INPUT = "$TEST"
+  else if (-f $TEST.nw) then
+     set INPUT = "$TEST.nw"
+  endif
+  if (! -f $INPUT) then
+    echo "  unable to locate input file $INPUT"
+    goto again2
+  endif
+
+# Construct an output filename that does not already exist
+
+  set noglob
+  set OUTPUT = `dirname $INPUT`/`basename $INPUT .nw`.out
+  unset noglob
+  @ i = 1
+  while (-e $OUTPUT) 
+    echo " $OUTPUT already exists ... trying again"
+    set noglob
+    set OUTPUT = `dirname $INPUT`/`basename $INPUT .nw`.$i.out
+    unset noglob
+    @ i ++
+  end
+
+  echo -n "Full path for output ($OUTPUT): "
+  set TEST = "$<"
+  if ("$TEST" != "") set OUTPUT = "$TEST"
+
+  echo -n "Number of processes (1): "
+  set NPROC = "$<"
+  if ("$NPROC" == "") set NPROC = 1
+
+  echo -n "Time limit (1:00:00): "
+  set TIME = "$<"
+  if ("$TIME" == "") set TIME = "1:00:00"
+
+  echo -n "Account to charge ($ACCOUNT): "
+  set TEST = "$<"
+  if ("$TEST" != "") set ACCOUNT = "$TEST"
+
+#  if ($NPROC <= 3) then
+#    set QUEUE = small
+#  else
+#    set QUEUE = large
+#  endif
+  
+  echo -n "Load Leveller queue ($QUEUE): "
+  set TEST = "$<"
+  if ("$TEST" != "") set QUEUE = "$TEST"
+
+
+  again1:
+  echo -n "NWChem executable ($NWCHEM): "
+  set TEST = "$<"
+  if ("$TEST" == "") then
+    # default
+  else if (-f $FULLPATH/$TEST) then
+    set NWCHEM = "$FULLPATH/$TEST"
+  else if (-f $TEST) then
+    set NWCHEM = "$TEST"
+  else
+    echo "  cannot locate $TEST"
+    goto again1
+  endif
+  if (! -f $NWCHEM) then
+    echo "  cannot locate $NWCHEM"
+    goto again1
+  endif
+
+else
+
+############################################################################
+# Non-interactive ... llnw input [-accnt accnt_no] [-procs nproc] [-queue queue] [-time time]
+############################################################################
+
+  if ("$1" == "-help" || "$1" == "help") then
+    goto usage
+  endif
+
+  if (! -e $NWCHEM) then
+    echo " NWChem executable '$NWCHEM' not found.  Try setting "
+    echo " the default executable with (for csh)"
+    echo "   setenv NWCHEM_EXECUTABLE full-path-for-nwchem"
+    exit 1
+  endif
+
+  set INPUT = "$1"
+  if ("$INPUT" == "") set INPUT = "nwchem.nw"
+  set TEST = "$FULLPATH/$INPUT"
+  if (-f $TEST) then
+     set INPUT = "$TEST"
+  else if (-f $TEST.nw) then
+     set INPUT = "$TEST.nw"
+  endif
+  if (! -f $INPUT) then
+    echo "  Unable to locate input file $INPUT"
+    exit 1
+  endif
+
+  set noglob
+  set OUTPUT = `dirname $INPUT`/`basename $INPUT .nw`.out
+  unset noglob
+  @ i = 1
+  while (-e $OUTPUT) 
+    echo " $OUTPUT already exists ... trying again"
+    set noglob
+    set OUTPUT = `dirname $INPUT`/`basename $INPUT .nw`.$i.out
+    unset noglob
+    @ i ++
+  end
+
+  shift
+
+# Process remaining optional arguments
+
+  while ($#argv) 
+    set key = "$1"
+    shift
+    if (! $#argv) then
+      goto usage
+    endif
+    set value = "$1"
+    shift
+
+    if ("$key" == "-time") then
+      set TIME = "$value"
+    else if ("$key" == "-queue") then
+      set QUEUE = "$value"
+#      echo "! With the Maui scheduler only the queue named BATCH can be used"
+    else if ("$key" == "-procs") then
+      set NPROC = "$value"
+    else if ("$key" == "-accnt") then
+      set ACCOUNT = "$value"
+    else
+      echo " unknown option: $key"
+      exit 1
+    endif
+  end
+endif
+
+############################################################################
+# Finally know everything.  Determine name of file for the job and error
+# output, print info out and confirm before submission if interactive
+############################################################################
+
+set noglob
+set LLERR = `dirname $OUTPUT`/`basename $OUTPUT .out`.err
+set LLJOB = `dirname $OUTPUT`/`basename $OUTPUT .out`.job
+unset noglob
+
+echo " "
+echo " NPROC   = $NPROC"
+echo " TIME    = $TIME"
+echo " QUEUE   = $QUEUE"
+echo " INPUT   = $INPUT"
+echo " OUTPUT  = $OUTPUT"
+echo " ERROR   = $LLERR"
+echo " JOB     = $LLJOB"
+echo " NWCHEM  = $NWCHEM"
+echo " ACCOUNT = $ACCOUNT"
+echo " "
+
+if ($?INTERACTIVE) then
+  echo -n "OK? (yes): "
+  set TEST = "$<"
+  if ("$TEST" == "" || "$TEST" == "y" || "$TEST" == "yes") then
+    # OK
+  else
+    echo "  job submission aborted"
+    exit 1
+  endif
+endif
+
+# Remove ~ since poe will not expand it
+set THEINPUT = `echo $INPUT | sed -e "s,~,$PWDHOME,"`
+# Remove the .err off of the error file so the jobid can be appended
+set LLERR = $LLERR:r
+
+############################################################################
+# Put the job into the file $LLJOB so the user can refer to it
+############################################################################
+
+cat <<EOF > $LLJOB
+#!/bin/csh -x
+# @ job_type         =    parallel
+# @ class            =    $QUEUE
+# @ requirements     =    (Adapter == "hps_user")
+# @ input            =    /dev/null
+# @ output           =    $OUTPUT
+# @ error            =    $LLERR.\$(jobid).err
+# @ environment      =    COPY_ALL; MP_EUILIB=us ; MP_CSS_INTERRUPT=yes; MP_INFOLEVEL=3; MP_EUIDEVICE=css0; MP_PULSE=0; MP_SINGLE_THREAD=yes; MP_WAIT_MODE=yield; restart=no
+# @ min_processors   =    $NPROC
+# @ max_processors   =    $NPROC
+# @ wall_clock_limit =    $TIME
+# @ cpu_limit        =    $TIME
+# @ account_no       =    $ACCOUNT
+# @ queue
+#
+# This gives good MPI performance on few nodes but hangs on many nodes
+#MP_WAIT_MODE=yield;
+
+############################################################################
+# Work in the local scratch directory --- faster and more reliable
+############################################################################
+
+cd /scratch
+
+# /scratch should be cleared, but just to be sure do it here and at the end
+#/bin/rm -rf /scratch/*
+
+############################################################################
+# Set up environment variables for the POE collective commands
+############################################################################
+
+echo " "
+echo "List of current environment variables:"
+env
+echo " "
+echo "List of the libraries being used by the executable"
+dump -H $NWCHEM
+
+setenv WCOLL /scratch/wcoll.\$\$
+
+# This is convoluted to avoid exceeding limit on comand line length
+env LOADL_PROCESSOR_LIST | \\
+	sed -e 's/\\.nwmpp1\\.emsl\\.pnl\\.gov//g' | \\
+		sed -e 'y/ /\\n/' > \$WCOLL
+echo " "
+echo Processor list
+echo " "
+cat \$WCOLL
+echo " "
+
+cp $NWCHEM /scratch/nwchem
+
+############################################################################
+# Actually run the job
+############################################################################
+
+cat << EOFcat > poe.commands
+/u1/d3g681/bin/copyexe /scratch/nwchem
+/scratch/nwchem $THEINPUT
+quit
+EOFcat
+
+date
+time poe -procs $NPROC -newjob yes -cmdfile poe.commands
+date
+
+
+############################################################################
+# End of the job script
+############################################################################
+EOF
+
+############################################################################
+# Submit the job to load leveller and display brief queue information
+############################################################################
+
+llsubmit $LLJOB
+
+if ($status != 0) then
+  echo "  llsubmit failed"
+  exit 1
+endif
+
+llq
+
+############################################################################
+# Touch the output file so that subsequent job submissions
+# will not attempt to use the same name
+############################################################################
+
+touch $OUTPUT
+
+############################################################################
+# Normal shell script exit here
+############################################################################
+
+exit 0
+
+
+############################################################################
+# If interrupted jump here
+############################################################################
+
+interrupted:
+	echo " interrupted"
+	exit 1
+
+############################################################################
+# Print usage informatio
+############################################################################
+
+usage:
+    echo " llnw usage: "
+    echo "   1) use with no arguments for interactive prompts"
+    echo "   2) llnw filename [-accnt accnt_no] [-procs nproc] [-queue queue] [-time time]"
+    echo "   3) llnw -help ... prints this information"  
+    echo " "
+    echo "   Input filenames may be specified without any trailing .nw and"
+    echo "   either relative to the current directory or with an absolute path."
+    echo " "
+    exit 1
