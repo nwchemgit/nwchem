@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.14 2002-02-25 02:11:33 bylaska Exp $
+* $Id: ion.F,v 1.15 2002-02-26 20:06:37 bylaska Exp $
 *
 
 *     ***************************
@@ -603,6 +603,22 @@ c     call ion_shift()
       ion_mmexist = mmexist
       return
       end
+
+*     ***************************
+*     *							*
+*     *		ion_nionall
+*     *							*
+*     ***************************
+      integer function ion_nionall()
+      implicit none
+
+      integer nion
+      common / ion_nionall_block / nion
+
+      ion_nionall = nion
+      return
+      end
+
 
 *     ***************************
 *     *							*

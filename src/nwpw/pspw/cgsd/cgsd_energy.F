@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.15 2002-02-25 02:11:33 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.16 2002-02-26 20:06:38 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -291,13 +291,13 @@ c        call pspw_charge_Print(6)
 
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
-      logical     control_allow_translation
+      logical     control_allow_translation,ion_q_FixIon
       character*2 ion_aname,pspw_qmmm_aname,pspw_charge_aname
       integer     ion_katm,ion_nion,control_version
       integer     pspw_qmmm_nion,pspw_charge_nion
       real*8      ion_rion,pspw_qmmm_rion,pspw_charge_rion
       external psp_semicore,pspw_qmmm_found,pspw_charge_found
-      external control_allow_translation
+      external control_allow_translation,ion_q_FixIon
       external ion_aname,pspw_qmmm_aname,pspw_charge_aname
       external ion_katm,ion_nion,control_version
       external pspw_qmmm_nion,pspw_charge_nion
@@ -330,6 +330,9 @@ c        call pspw_charge_Print(6)
          call rho_1Fmm(G1(1,nion1+1))
       end if
 
+*     **** remove ion forces using ion_FixIon ****
+      call ion_FixIon(G1)
+
       if (.not.allow_translation) then
         call center_F_mass(G1,fmx,fmy,fmz)
         do i=1,nion
@@ -355,15 +358,26 @@ c        call pspw_charge_Print(6)
         write(luout,1304)
         write(luout,1410)
         write(luout,1420)
-        write(luout,1190)(i,ion_aname(I),
-     >                  (ion_rion(K,I),K=1,3),I=1,ion_nion())
+        do I=1,ion_nion()
+          if (ion_q_FixIon(I)) then
+           write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3)
+          else
+           write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3)
+          end if
+        end do
+    
 
 *       **** print out charge positions ***
         if (pspw_charge_found()) then
           do i=1,pspw_charge_nion()
             i1 = ion_nion() + i
+            if (ion_q_FixIon(i1)) then
+            write(luout,1191) i1,pspw_charge_aname(i),
+     >                    (pspw_charge_rion(K,i),K=1,3)
+            else
             write(luout,1190) i1,pspw_charge_aname(i),
      >                    (pspw_charge_rion(K,i),K=1,3)
+            end if
           end do
         end if
 
@@ -371,8 +385,13 @@ c        call pspw_charge_Print(6)
         if (pspw_qmmm_found()) then
           do i=1,pspw_qmmm_nion()
             i1 = ion_nion() + pspw_charge_nion() + i
+            if (ion_q_FixIon(i1)) then
+            write(luout,1191) i1,pspw_qmmm_aname(i),
+     >                    (pspw_qmmm_rion(K,i),K=1,3)
+            else
             write(luout,1190) i1,pspw_qmmm_aname(i),
      >                    (pspw_qmmm_rion(K,i),K=1,3)
+            end if
           end do
         end if
 
@@ -407,6 +426,7 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 
       return
  1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
+ 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - fixed')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'========================')
  1301 FORMAT(  '= Gradient calculation =')

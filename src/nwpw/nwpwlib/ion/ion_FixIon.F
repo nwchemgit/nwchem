@@ -25,14 +25,14 @@
       logical found
 
 *     **** external functions ****
-      integer  ion_nion
-      external ion_nion
+      integer  ion_nionall
+      external ion_nionall
 
 *     *** initialize the  number of constraints ****
       count = 0
 
-*     **** get the nions ****
-      nion = ion_nion()
+*     **** get the nions, including charges and qmmm ****
+      nion = ion_nionall()
 
 *     **** constraints have been imposed 
       if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,

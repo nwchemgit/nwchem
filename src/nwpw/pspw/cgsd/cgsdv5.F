@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.21 2002-02-25 02:11:33 bylaska Exp $
+* $Id: cgsdv5.F,v 1.22 2002-02-26 20:06:39 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -108,8 +108,8 @@
       external ion_TotalCharge
       logical   psi_filefind
       external  psi_filefind
-      logical   pspw_charge_found
-      external  pspw_charge_found
+      logical   pspw_charge_found,ion_q_FixIon
+      external  pspw_charge_found,ion_q_FixIon
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -223,11 +223,17 @@ c     value = psi_initialize()
       call electron_init()
       call geodesic_init()
 
+
+
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
 
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
+
+*     **** initialize linesearching ****
       call linesearch_init()
 
 
@@ -275,10 +281,15 @@ c         ENDIF
          write(6,1160)
          write(6,1170) (psp_atom(K),ion_natm(K),K=1,psp_npsp())
          write(6,1180)
-         write(6,1190) (I,ion_aname(I),
-     >                  (ion_rion(K,I),K=1,3),
-     >                  ion_amass(I)/1822.89d0,
-     >                 I=1,ion_nion())
+         do I=1,ion_nion()
+           if (ion_q_FixIon(I)) then
+           write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
+           else
+           write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
+           end if
+         end do
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
@@ -424,6 +435,7 @@ c     end if
       call pspw_qmmm_end()
       call ion_end()
       call psp_end()
+      call ion_end_FixIon()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
 
@@ -512,6 +524,8 @@ c     end if
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' position of ions (au):')
  1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
+ 1191 FORMAT(5X, I4, A3, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F6.3,' - fixed')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of active electrons: spin up=',I3,
