@@ -1,7 +1,7 @@
       logical function movecs_read_header_so
      $    (filename, title, basis_name, 
      $     scftype, nbf)
-C$Id: vectors_so.F,v 1.4 2000-10-23 15:52:46 windus Exp $
+C$Id: vectors_so.F,v 1.5 2002-02-06 20:06:21 bert Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -810,7 +810,7 @@ c
 c
       end
       logical function spinor_guess(filename)
-C$Id: vectors_so.F,v 1.4 2000-10-23 15:52:46 windus Exp $
+C$Id: vectors_so.F,v 1.5 2002-02-06 20:06:21 bert Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -830,12 +830,15 @@ c
 c
       ok = 0
       if (ga_nodeid() .eq. 0) then
-         open(unitno, status='old', form='unformatted', file=filename,
-     $        err=1000)
-         read(unitno, err=1001, end=2001) ! SKIP convergence info
-         read(unitno, err=1001, end=2001) scftype20
-         close(unitno, err=1002)
-         if(scftype20.eq.'sodft')ok = 1
+         if(filename.ne.'atomic'.and.
+     $      filename.ne.'fragment'.and.filename.ne.'hcore') then
+            open(unitno, status='old', form='unformatted', 
+     $           file=filename,err=1000)
+            read(unitno, err=1001, end=2001) ! SKIP convergence info
+            read(unitno, err=1001, end=2001) scftype20
+            close(unitno, err=1002)
+            if(scftype20.eq.'sodft')ok = 1
+          endif
       endif
 c
  10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
