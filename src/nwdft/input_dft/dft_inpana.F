@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb, ratom)
 c
-c     $Id: dft_inpana.F,v 1.38 1998-08-20 23:52:17 d3e129 Exp $
+c     $Id: dft_inpana.F,v 1.39 1999-01-29 21:05:02 d3h449 Exp $
 c
 c*********************************************************************
 c     
@@ -31,7 +31,7 @@ c
       integer n, na, nb
       integer nshells
       integer ictr
-      double precision ratom(ntypes), bsr
+      double precision ratom(ntypes), bsr, radang
       double precision anucl_charg, ckfac, t1, r1
       double precision ictr_coord(3), ictr_chg
       character*3 on_off_1, on_off_2
@@ -438,9 +438,12 @@ c
    40          continue
                bsr = ratom(n)*AUTOANG
                if (iangquad.eq.0)then
-                  write(LuOut,9137)tag,bsr,nrad(n),nang(n),2*nang(n)
+                  radang = dble(nint(autoang*dble(rad_cutoff(1,n))))
+                  write(LuOut,9137)tag,bsr,nrad(n),radang,
+     &                nang(n),2*nang(n)
                else
-                  write(LuOut,9138)tag,bsr,nradpts,nang_leb_pts
+                  write(LuOut,9138)tag,bsr,nradpts,radang,
+     &                nang_leb_pts
                endif
             enddo
             if (no_prune)then
@@ -514,8 +517,10 @@ c
      &         (LuOut,'Screening Tolerance Information',20,.true.)
             t1 = 10.d0**(-itol2e)
             r1 = dble(irqmax)
+c            write(LuOut,9372)tol_rho, iaoacc, icdacc, ixcacc, t1,  
+c     &                    r1, radius
             write(LuOut,9372)tol_rho, iaoacc, icdacc, ixcacc, t1,  
-     &                    r1, radius
+     &                    radius
             call util_flush(LuOut)
          endif
       endif
@@ -555,8 +560,8 @@ c
  9130 format(10x,'A Charge density fitting basis will be used.')
  9135 format(10x,'Grid used for XC integration:  ',a)
  9136 format(10x,'Radial quadrature: Euler-MacLaurin. ')
- 9137 format(10x,a16,2x,f6.2,6x,i3,6x,i2,1x,'*',1x,i2)
- 9138 format(10x,a16,2x,f6.2,6x,i3,8x,i4)
+ 9137 format(10x,a16,2x,f6.2,6x,i3,6x,f6.1,3x,i2,1x,'*',1x,i2)
+ 9138 format(10x,a16,2x,f6.2,6x,i3,8x,f6.1,3x,2x,i4)
  9139 format(10x,'Spatial weights used: Delley. ')
  9140 format(10x,'Spatial weights used: Becke. ')
  9141 format(10x,'Parallel task size associated with evaluation of ',/,
@@ -565,8 +570,10 @@ c
      &           'nq_chunk = ',i4)
  9142 format(10x,'Angular quadrature: Gauss-Legendre. ')
  9143 format(10x,'Angular quadrature: Lebedev. ')
- 9144 format(10x,'Tag',14x,'B.-S. Rad.',1x,'Rad. Pts.',1x,'Ang. Pts.',/,
-     &       10x,'---',14x,'----------',1x,'---------',1x,'---------')
+ 9144 format(10x,'Tag',14x,'B.-S. Rad.',1x,'Rad. Pts.',1x,'Rad. Cut.',
+     &        1x,'Ang. Pts.',/,
+     &       10x,'---',14x,'----------',1x,'---------',1x,'---------',
+     &        1x,'---------')
  9223 format(10x,a40)
  9224 format(10x,a40,1x,f6.2,1x,a9)
  8150 format(10x,'No. of atoms     :',2x,i4)
@@ -575,12 +582,18 @@ c
      &       10x,'  Beta electrons :',2x,i4,/,
      &       10x,'Charge           :',2x,i4,/,
      &       10x,'Spin multiplicity:',2x,i4)
+c 9372 format(10x,'Density screening/tol_rho: ',d8.2,/,
+c     &       10x,'AO Gaussian exp screening on grid/accAOfunc: ',i3,/,
+c     &       10x,'CD Gaussian exp screening on grid/accCDfunc: ',i3,/,
+c     &       10x,'XC Gaussian exp screening on grid/accXCfunc: ',i3,/,
+c     &       10x,'Schwarz screening/accCoul: ',d8.2,/,
+c     &       10x,'Max radial quadrature (shell size)/accQrad(au): '
+c     &          ,d8.2,/,
+c     &       10x,'Spatial weight screening/radius(au): ',d8.2,/)
  9372 format(10x,'Density screening/tol_rho: ',d8.2,/,
      &       10x,'AO Gaussian exp screening on grid/accAOfunc: ',i3,/,
      &       10x,'CD Gaussian exp screening on grid/accCDfunc: ',i3,/,
      &       10x,'XC Gaussian exp screening on grid/accXCfunc: ',i3,/,
      &       10x,'Schwarz screening/accCoul: ',d8.2,/,
-     &       10x,'Max radial quadrature (shell size)/accQrad(au): '
-     &          ,d8.2,/,
      &       10x,'Spatial weight screening/radius(au): ',d8.2,/)
       end
