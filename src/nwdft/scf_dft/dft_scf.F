@@ -5,12 +5,12 @@
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.6 1995-05-19 00:22:50 og845 Exp $
+C$Id: dft_scf.F,v 1.7 1995-06-28 04:49:32 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
       logical converged,XCFIT,wght_GA
-      parameter(itol_min=5,iAOacc_min=15)
+      parameter(itol_min=6,iAOacc_min=15)
       
 c**** 
 c**** nwchem handles
@@ -41,10 +41,11 @@ c****
 
       Integer lSbn2
       Dimension iSbn2(2)
-      Character*255 movecs_out
+      Character*255 movecs_out,movecs_in
       character*255 title_vecs, basis_vecs
       Character*255 name, trans 
       Double Precision rmoments(3)  ! dipole
+      logical ltight ! if TRUE always tight computing tolerances
 c-----------------------------------------------------------------------
 c     
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
@@ -72,6 +73,8 @@ c     Define various constants.
 c     
       iDMtot = (ipol*(ipol+1))/2
 c     
+      if (.not. rtdb_get(rtdb, 'dft:tight', mt_log, 1, ltight))
+     $     ltight=.false.
       if (.not. rtdb_get(rtdb, 'dft:iguess', mt_int, 1, iguess))
      &     call errquit('dft: rtdb_get failed',1) 
       if (.not. rtdb_get(rtdb, 'dft:imull', mt_int, 1, imull))
@@ -84,8 +87,13 @@ c
 c     set initial coulomb acc to 1e-5
 c
       iswitc=0
-      itol2e=min(itol_min,itol_max)
-      iAOacc=min(iAOacc_min,iAOacc_max)
+      if(ltight) then
+        itol2e=itol_max
+        iAOacc=iAOacc_max
+      else
+        itol2e=min(itol_min,itol_max)
+        iAOacc=min(iAOacc_min,iAOacc_max)
+      endif
       mulliken=.false.
       if(imull.eq.1) mulliken=.true.
       itrscf  = iconst(8)
@@ -179,14 +187,21 @@ c****
         iSbn2(2) = iSbn2(1) + nbf_ao
       endif 
 
-      if (.not. rtdb_cget(rtdb, 'dft:output vectors',
-     &     1, movecs_out)) then
-        movecs_out = "movecs"
-      endif 
+c
+c     Figure input/output MO vectors ... all this should be
+c     context sensitive but that design is incomplete.
+c     
+      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+     $     movecs_in = 'movecs'
+      if (.not. rtdb_cget(rtdb, 'scf:output vectors', 1, movecs_out))
+     $     movecs_out = ' '
+      if (movecs_out.eq.' ') then
+            movecs_out = movecs_in
+      endif
 c
 C  get MO vectors from file
 c
-      LResult = movecs_read_header(movecs_out, title_vecs, basis_vecs,
+      LResult = movecs_read_header(movecs_in, title_vecs, basis_vecs,
      &     nbf_vecs, nsets, nmo_read, 2)
       if(Lresult.and.
      &     (ipol.eq.nsets).and.
@@ -201,7 +216,7 @@ c****
 c****     get orbitals (i.e. fock eigenvectors) and fock eigenvalues
 c****     
           LResult = LResult .and.
-     &         movecs_read(movecs_out, ispin, dbl_mb(k_occ),
+     &         movecs_read(movecs_in, ispin, dbl_mb(k_occ),
      &         dbl_mb(iSbn2(ispin)), iga_evecs(ispin))
           call ga_orthog_mos(AO_bas_han, iga_evecs(ispin))
           if(LResult)
@@ -265,12 +280,10 @@ c
         if(ipol.eq.2) then
           call ga_copy(iga_dens(1),iga_dens(2))
           rb=dble(noc(2))/dble(nTotEl)
-C          if(me.eq.0) write(6,*) ' rb ',rb
           call ga_dscal(iga_dens(2),rb)
         endif
         if(ichg.ne.0) then
           afact=dble(ntotEl)/dble(ntotEl+ichg)
-C          if(me.eq.0) write(6,*) ' afact ',afact
           call ga_dscal(iga_dens(1),afact)
           if(ipol.eq.2) call ga_dscal(iga_dens(2),afact)
         endif
@@ -516,7 +529,10 @@ c
 #endif    
 c         
           delta=abs(etold-etnew)
-        if(delta.lt.1.d-5) then
+C
+C         set tighter conditions when de < 1.e-4
+C
+        if(delta.lt.1.d-4) then
 c
 c         set  coulomb acc to input parameter
 c
@@ -777,15 +793,15 @@ c****
      &         call errquit('rhf: movec_write failed', 0)
           call ga_sync()
           if(me.eq.0) then
-            write (6,*) 'Alpha Eigenvalues: '
-            write (6,'(5x,4(e14.4))')
+            write (LuOut,*) 'Alpha Eigenvalues: '
+            write (LuOut,'(5x,4(e14.4))')
      &           (dbl_mb(ISbn2(1)+ii),ii=0,nbf_ao-1)
-            write (6,*) 
+            write (LuOut,*) 
             if ( ipol.eq.2 ) then
-              write (6,*) 'Beta Eigenvalues: '
-              write (6,'(5x,4(e14.4))')
+              write (LuOut,*) 'Beta Eigenvalues: '
+              write (LuOut,'(5x,4(e14.4))')
      &             (dbl_mb(ISbn2(2)+ii),ii=0,nbf_ao-1)
-              write (6,*) 
+              write (LuOut,*) 
           endif 
           endif
           LResult = MA_Pop_Stack(l_occ)
@@ -868,12 +884,7 @@ c
      $     ('dft: context_prefix failed', 0)
       if (.not. rtdb_put(rtdb, name, MT_LOG, 1, converged)) 
      *     call errquit('dft: failed to store converged in rtdb', 0)
-c
-c     Overwrite the input movecs option with where the final movecs
-c     ended up so that a restart automatically picks them up
 c     
-      if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_out))
-     $     call errquit('dft:rtdb_cput failed dft:input vectors',0)
 c-----------------------------------------------------------------------
 
       return
