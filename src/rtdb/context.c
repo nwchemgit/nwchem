@@ -138,7 +138,7 @@ static void context_print()
 
 int context_prefix(const char *name, char *result, int result_len)
 {
-  if ((strlen(name)+strlen(context)) > result_len) {
+  if ((strlen(name)+strlen(context)+1) > result_len) {
     fprintf(stderr, "constant_prefix: result too short\n");
     return 0;
   }
