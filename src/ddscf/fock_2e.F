@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, mfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.27 2002-02-19 02:10:37 edo Exp $
+c$Id: fock_2e.F,v 1.28 2002-03-29 01:24:36 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -164,7 +164,7 @@ c
       if(nfock.ne.1.and.nfock.ne.4) call errquit(
      '     '    fock_2e: unexpected nfock value = ',nfock)
       call fock_xc(geom1, nbf,ao_basis,
-     ,     nfock, vg_dens, g_xc,.false.,.false.)
+     ,     nfock, vg_dens, g_xc,.false.)
       ffac=1d0
       if (xc_active) then
          odft=nfock.eq.4

@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.26 2002-03-22 02:27:19 sohirata Exp $
+c $Id: shell_fock_build.F,v 1.27 2002-03-29 01:24:00 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -786,7 +786,7 @@ c
       call ga_zero(g_xc)
 
       call fock_xc(geom, nbf,basis,
-     ,      ndens,  g_dens, g_xc,.true.,.true.)
+     ,      ndens,  g_dens, g_xc,.true.)
       call ga_add(1d0, g_xc, 1.0d0, g_fock,
      &     g_fock)
       if (oprint) then
