@@ -48,7 +48,8 @@ c
 c
 c     start the property API
 c
-      call prp_start(lfnout,lfnprp,nfoutp,nfstat,nfprop,
+      call prp_start(nserie,lfnrst,filrst,lfnout,lfnprp,
+     + nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,
      + iewald.ne.0,nwm,msf,nsf,mpe)
 c
@@ -143,7 +144,6 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 c
-      character*7 restart
       character*20 theory,operat
       logical lstate,lstart,lrstrt,lcont
       integer igt,igr,nbytes,ibl,iun
@@ -409,6 +409,10 @@ c
       nfkirk=0
       nkirk=0
       nfhbo=0
+      drdf=0.0d0
+c
+      lenhis=0
+      lendis=0
 c
       nfsync=0
 c
@@ -974,19 +978,6 @@ c
       tlwsha=tlwsha*tlwsha
       tlssha=tlssha*tlssha
 c
-c     determine when never comes
-c
-      if(ntype.eq.3) then
-      never=mequi+mdacq+1
-      if(mrun.gt.0) never=mrun*(mequi+mdacq)+1
-      else 
-      if(ntype.eq.1) then
-      never=msdit+mcgit+1
-      else
-      never=99999
-      endif
-      endif
-c
 c     handle zero frequencies
 c
       iint=0
@@ -1023,19 +1014,7 @@ c
 c
 c     get variables from restart file if not initial run
 c
-      if(nserie.gt.0) then
-      open(unit=lfnrst,file=filrst(1:index(filrst,' ')-1),
-     + form='formatted',status='old')
-      rewind(lfnrst)
-    2 continue
-      read(lfnrst,'(a7)',end=9) restart
-      if(restart.ne.'restart') goto 2
-c
-c     read input data here
-c
-      close(unit=lfnrst)
-    9 continue
-      endif
+      if(nserie.gt.0) call md_rdrest(lfnrst,filrst)
 c
       endif
 c
@@ -1086,6 +1065,132 @@ c
  1001 format(/,' Title ',t10,a,t110,2a10,/,t10,a,/,t10,a)
 c
       endif
+c
+      return
+      end
+      subroutine md_rdrest(lfn,fil)
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      integer lfn
+      character*255 fil
+c
+      character*13 string
+c
+      if(me.eq.0) then
+      open(unit=lfn,file=fil(1:index(fil,' ')-1),
+     + status='old',form='formatted',err=9999)
+      rewind(lfn)
+c
+    1 continue
+      read(lfn,1000,end=9997) string
+ 1000 format(a13)
+      if(string.ne.'restart input') goto 1
+      read(lfn,1001,end=9998,err=9998) ntype,mdtype
+ 1001 format(11i7)
+      read(lfn,1001) nfpair,nflong
+      read(lfn,1001) lwtype,lstype,nfrest
+      if(nserie.eq.1) then
+      read(lfn,1002) krun,kequi,kdacq,mrun,mequi,mdacq,ldacq
+ 1002 format(7i7)
+      else
+      read(lfn,1002) krun,kequi,kdacq
+      endif
+      read(lfn,1003) stime,tstep
+ 1003 format(2f12.6)
+      read(lfn,1004) rshort,rlong
+ 1004 format(2f12.6)
+      read(lfn,1005) mshitw,tlwsha
+      read(lfn,1005) mshits,tlssha
+ 1005 format(i7,f12.6)
+      read(lfn,1006) ipscal,prsext,prsrlx,compr
+ 1006 format(i5,e12.5,f12.6,e12.5)
+      read(lfn,1007) itscal,tmpext,tmprlx,tmsrlx
+ 1007 format(i5,3f12.6)
+      read(lfn,1008) nfgaus,ivropt,tgauss,iseed
+ 1008 format(2i7,f12.6,i12)
+      read(lfn,1009) nfoutp,nfstat,nfprop
+ 1009 format(11i7)
+      read(lfn,1009) ibinar,iformt
+      read(lfn,1009) nfcoor,nfscoo,nfvelo,nfsvel
+      read(lfn,1009) nffree
+      read(lfn,1009) nfcntr,nfslow
+      read(lfn,1010) nfrdf,numrdf,ngc,ngr,ngl,ngrww,ngrsw,ngrss
+ 1010 format(8i7)
+      read(lfn,1011) rrdf,drdf
+ 1011 format(2f12.6)
+      read(lfn,1012) numdis,lendis
+ 1012 format(2i7)
+      read(lfn,1013) numhis,lenhis
+ 1013 format(11i7)
+      read(lfn,1014) nfdip,ndip,rdip
+ 1014 format(2i7,f12.6)
+      read(lfn,1015) nfkirk,nkirk,rkirk
+ 1015 format(2i7,f12.6)
+      endif
+c
+ 9997 continue
+      if(me.eq.0) close(unit=lfn)
+      return
+c
+ 9998 continue
+      call errquit('Unable to read restart file',me)
+      return
+ 9999 continue
+      call errquit('Unable to open restart file',me)
+      return
+      end
+      subroutine md_wtrest(lfn)
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      integer lfn
+c
+      if(me.ne.0) return
+c
+      write(lfn,1000)
+ 1000 format('restart input')
+      write(lfn,1001) ntype,mdtype
+ 1001 format(11i7)
+      write(lfn,1001) nfpair,nflong
+      write(lfn,1001) lwtype,lstype,nfrest
+      write(lfn,1002) irun,iequi,idacq,mrun,mequi,mdacq,ldacq
+ 1002 format(11i7)
+      write(lfn,1003) stime,tstep
+ 1003 format(2f12.6)
+      write(lfn,1004) rshort,rlong
+ 1004 format(2f12.6)
+      write(lfn,1005) mshitw,tlwsha
+      write(lfn,1005) mshits,tlssha
+ 1005 format(i7,f12.6)
+      write(lfn,1006) ipscal,prsext,prsrlx,compr
+ 1006 format(i5,e12.5,f12.6,e12.5)
+      write(lfn,1007) itscal,tmpext,tmprlx,tmsrlx
+ 1007 format(i5,3f12.6)
+      write(lfn,1008) nfgaus,ivropt,tgauss,iseed
+ 1008 format(2i7,f12.6,i12)
+      write(lfn,1009) nfoutp,nfstat,nfprop
+ 1009 format(11i7)
+      write(lfn,1009) ibinar,iformt
+      write(lfn,1009) nfcoor,nfscoo,nfvelo,nfsvel
+      write(lfn,1009) nffree
+      write(lfn,1009) nfcntr,nfslow
+      write(lfn,1010) nfrdf,numrdf,ngc,ngr,ngl,ngrww,ngrsw,ngrss
+ 1010 format(8i7)
+      write(lfn,1011) rrdf,drdf
+ 1011 format(2f12.6)
+      write(lfn,1012) numdis,lendis
+ 1012 format(2i7)
+      write(lfn,1013) numhis,lenhis
+ 1013 format(11i7)
+      write(lfn,1014) nfdip,ndip,rdip
+ 1014 format(2i7,f12.6)
+      write(lfn,1015) nfkirk,nkirk,rkirk
+ 1015 format(2i7,f12.6)
 c
       return
       end

@@ -31,7 +31,7 @@ c
       real*8 tempw,temps,stime,esk(msf),ewk
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
 c
-      integer i,j,k,it,maxp
+      integer i,j,k,it
       character*10 pdate,ptime
       real*8 facs,fact,tfacs,tfact
 c

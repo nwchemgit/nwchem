@@ -1,4 +1,4 @@
-      subroutine prp_start(iout,iprp,nf1,nf2,nf3,
+      subroutine prp_start(nserie,lfn,fil,iout,iprp,nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,
      + nwm,msfi,nsfi,mpei)
 c
@@ -7,8 +7,9 @@ c
 #include "prp_common.fh"
 #include "global.fh"
 c
-      integer iout,iprp,nwm,msfi,nsfi,mpei,nf1,nf2,nf3
+      integer nserie,lfn,iout,iprp,nwm,msfi,nsfi,mpei,nf1,nf2,nf3
       logical lcf,lsp,ltwn,lpol,lpme
+      character*255 fil
 c
       integer i,j,it
 c
@@ -263,5 +264,78 @@ c
 c
       lhdr=.false.
 c
+      if(nserie.gt.0) call prp_rdrest(lfn,fil)
+c
+      return
+      end
+      subroutine prp_wtrest(lfn)
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      integer lfn
+c
+      integer i
+c
+      if(me.ne.0) return
+c
+      write(lfn,1000)
+ 1000 format('restart properties')
+      write(lfn,1001) maxp,nsum,nsumt
+ 1001 format(3i7)
+      write(lfn,1002) tsum,t2sum,tsumt,t2sumt
+ 1002 format(4e20.12)
+      write(lfn,1003) (psum(i),i=1,maxp)
+      write(lfn,1003) (p2sum(i),i=1,maxp)
+      write(lfn,1003) (pslop(i),i=1,maxp)
+      write(lfn,1003) (psumt(i),i=1,maxp)
+      write(lfn,1003) (p2sumt(i),i=1,maxp)
+      write(lfn,1003) (pslopt(i),i=1,maxp)
+ 1003 format(4e20.12)
+c
+      return
+      end
+      subroutine prp_rdrest(lfn,fil)
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      integer lfn
+      character*255 fil
+c
+      character*18 string
+      integer i
+c
+      if(me.ne.0) return
+c
+      open(unit=lfn,file=fil(1:index(fil,' ')-1),
+     + status='old',form='formatted',err=9999)
+      rewind(lfn)
+c
+    1 continue
+      read(lfn,1000,end=9998) string
+ 1000 format(a18)
+      if(string.ne.'restart properties') goto 1
+c
+      read(lfn,1001) maxp,nsum,nsumt
+ 1001 format(3i7)
+      read(lfn,1002) tsum,t2sum,tsumt,t2sumt
+ 1002 format(4e20.12)
+      read(lfn,1003) (psum(i),i=1,maxp)
+      read(lfn,1003) (p2sum(i),i=1,maxp)
+      read(lfn,1003) (pslop(i),i=1,maxp)
+      read(lfn,1003) (psumt(i),i=1,maxp)
+      read(lfn,1003) (p2sumt(i),i=1,maxp)
+      read(lfn,1003) (pslopt(i),i=1,maxp)
+ 1003 format(4e20.12)
+c
+      return
+ 9998 continue
+      call errquit('Unable to read restart file',me)
+      return
+ 9999 continue
+      call errquit('Unable to open restart file',me)
       return
       end

@@ -1478,7 +1478,7 @@ c
 c
       return
       end
-      subroutine sp_wtrst(lfnr,filrst,pres,temp,tempw,temps,
+      subroutine sp_wtrst(lfnrst,filrst,pres,temp,tempw,temps,
      + iwl,xw,vw,xwcr,isl,xs,vs,
      + ipl,nb,ibw,bxw,bvw,brw,ibs,bxs,bvs)
 c
@@ -1504,12 +1504,7 @@ c
       integer ils,ihs,jls,jhs
       character*10 rdate,rtime
 c
-      lfnrst=55
-c
       if(me.eq.0) then
-c
-c      open(unit=lfnrst,file='restart.file',form='formatted',
-c     + status='unknown',err=9999)
 c
       call swatch(rdate,rtime)
 c
@@ -1539,7 +1534,7 @@ c
       nwmn=ipl(1,2)
       if(nwmn.gt.0) then
       call ga_distribution(ga_iw,node,ili,ihi,jli,jhi)
-      call ga_get(ga_iw,ili,ili+nwmn-1,jli,jli+lwgmn-1,iwl,mwm)
+      call ga_get(ga_iw,ili,ili+nwmn-1,jli,jli+lwdyn-1,iwl,mwm)
       call ga_distribution(ga_w,node,ilw,ihw,jlw,jhw)
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw,jlw+3*mwa-1,xw,mwm)
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+3*mwa,jlw+6*mwa-1,vw,mwm)
@@ -1584,7 +1579,7 @@ c
       nsan=ipl(2,2)
       if(nsan.gt.0) then
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
-      call ga_get(ga_is,ili,ili+nsan-1,jli,jli+lsgan-1,isl,msa)
+      call ga_get(ga_is,ili,ili+nsan-1,jli,jli+lsdyn-1,isl,msa)
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)

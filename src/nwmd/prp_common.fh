@@ -4,10 +4,10 @@ c
       parameter(tiny=1.0d-10)
       parameter(one=1.0d0)
 c
-      integer me,np,lfnout,lfnprp,nsf,msf,mpe,nfoutp,nfstat,nfprop
+      integer me,np,lfnout,lfnprp,nsf,msf,mpe,nfoutp,nfstat,nfprop,maxp
 c
       common/prp_dim/me,np,lfnout,lfnprp,nsf,msf,mpe,nfoutp,nfstat,
-     + nfprop
+     + nfprop,maxp
 c
       logical lcafe,lspac,ltwin,lhdr
       common/prp_log/lcafe,lspac,ltwin,lhdr

@@ -170,9 +170,7 @@ c
 c
       cqrs=' '
       if(frequency(isdit,nfqrs)) then
-      call sp_wrtrst(lfnqrs,filqrs,pres,temp,tempw,temps,
-     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      call md_wrtrst(lfnqrs,filqrs)
       cqrs='*'
       endif
 c
@@ -232,7 +230,7 @@ c
       logical frequency
       external frequency
 c
-      integer iequi
+      integer iequi,idacq
 c
 c     equilibration
 c
@@ -242,7 +240,7 @@ c
 c
 c     data gathering
 c
-      do 2 iequi=kdacq+1,mdacq
+      do 2 idacq=kdacq+1,mdacq
       call timer_start(1)
 c
       call md_newton()
@@ -250,10 +248,7 @@ c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme)
 c
-      if(frequency(mdstep,nfrest))
-     + call sp_wrtrst(lfnrst,filrst,pres,temp,tempw,temps,
-     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst)
 c
       call timer_stop(1)
     2 continue
@@ -266,6 +261,46 @@ c
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
+c
+      logical frequency
+      external frequency
+c
+      do 1 irun=krun+1,mrun
+c
+c     read mri
+c
+cx      call rdmri
+c
+c     initialize parameters
+c
+      call cf_lambda(irun)
+c
+c     equilibration
+c
+      do 2 iequi=kequi+1,mequi
+      call md_newton()
+    2 continue
+c
+c     property initialization
+c
+cx    call prp_init
+c
+c     data gathering
+c
+      do 3 idacq=kdacq+1,mdacq
+      call timer_start(1)
+c
+      call md_newton()
+c
+      call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme)
+c
+      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst)
+c
+      call timer_stop(1)
+    3 continue
+c
+    1 continue
 c
       return
       end
@@ -541,4 +576,36 @@ c
 c
       return
       end
-
+      subroutine md_wrtrst(lfn,fil)
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfn
+      character*255 fil
+c
+      if(me.eq.0) then
+      open(unit=lfn,file=filrst(1:index(filrst,' ')-1),
+     + form='formatted',status='unknown',err=9999)
+      endif
+c
+      call sp_wrtrst(lfn,fil,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+c
+      call md_wtrest(lfn)
+c
+      call prp_wtrest(lfn)
+c
+      if(me.eq.0) then
+      close(unit=lfn)
+      endif
+c
+      return
+c
+ 9999 continue
+      call errquit('Unable to open restart for writing',me)
+      return
+      end
