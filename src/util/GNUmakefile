@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.140 2001-09-25 20:57:25 windus Exp $
+# $Id: GNUmakefile,v 1.141 2001-11-09 23:10:51 windus Exp $
 
 include ../config/makefile.h
 
@@ -157,6 +157,7 @@ endif
               get_density.o moeig_read.o\
               util_debug.o \
               util_erf.o  \
+              ga_it2.o \
               $(EXTRA_OBJ)
 
 #nxtval_ga.o 
