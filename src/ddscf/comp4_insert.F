@@ -1,5 +1,5 @@
       subroutine comp4_insert(m, i, s, nb_per_i)
-C$Id: comp4_insert.F,v 1.6 1995-11-03 20:41:53 d3g681 Exp $
+C$Id: comp4_insert.F,v 1.7 1996-06-27 22:42:28 d3g681 Exp $
       implicit none
 c
       integer m(*)              ! Array holding info compressed to 4 bits
@@ -14,20 +14,26 @@ c
 #endif
 #include "bitops.fh"      
 c
-c     Map value to log10 with range 4,...,-11 and values outside
-c     of this range mapped to nearest limit
+c     Map value to log10 with range 1,...,-14 and values outside
+c     of this range mapped to nearest limit.
 c
-      if (abs(s) .le. 1.0d-11) then
-         v = -11
-      else if (abs(s) .ge. 1.0d4) then
-         v = 4
+c     Previously rounded values inside range to nearest integer log value,
+c     however, since we use the data for screening, it's better to
+c     always round up so that we preserve the upper bound properties
+c     of the screening.
+c
+      if (abs(s) .le. 1.0d-14) then
+         v = -14
+      else if (abs(s) .ge. 1.0d1) then
+         v = 1
       else
-         v = nint(log10(abs(s)))
+*     v = nint(log10(abs(s)))  ! round to nearest
+         v = int(log10(abs(s)) + 0.99d0) ! round up
       endif
 c
-c     Finally shift +4,...,-11, to 15,...,0
+c     Finally shift +1,...,-14, to 15,...,0
 c
-      v = v + 11
+      v = v + 14
 c
 c     Now which integer holds this and how many bits must v be shifted
 c     before ORing in the value

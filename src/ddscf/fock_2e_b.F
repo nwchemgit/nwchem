@@ -1,11 +1,12 @@
-      subroutine fock_2e_b( basis, nfock, sijkl, tol2e, q4,
+      subroutine fock_2e_b( basis, nfock, sijkl, tol2e,
+     $     dentol, q4,
      $     iat, jat, kat, lat, 
      $     ilo, jlo, klo, llo,
      $     ihi, jhi, khi, lhi,
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_b.F,v 1.9 1996-01-10 15:58:26 d3g681 Exp $
+c     $Id: fock_2e_b.F,v 1.10 1996-06-27 22:42:31 d3g681 Exp $
 c
 c     Called by fock_2e_task once density matrix blocks have 
 c     been fetched.
@@ -17,10 +18,12 @@ c
 #include "cfock.fh"
 #include "util.fh"
 #include "cscfps.fh"
+c
+c     WARNING ... this piece of code will soon retire forever.
 c     
       integer basis
       integer nfock
-      double precision tol2e
+      double precision tol2e, dentol
       double precision sijkl
       double precision q4
       integer iat, jat, kat, lat
@@ -80,7 +83,7 @@ c
      $     ('fock_2e_b: bas_ce to cnr/bfr failed', 0)
 c
       if (owritefile) then
-         dtol2e = tol2e
+         dtol2e = min(tol2e,dentol)
       else
 c     
 c     Density screening
@@ -90,7 +93,7 @@ c
      $        ibflo, jbflo, kbflo, lbflo, ibfhi, jbfhi, kbfhi, lbfhi,
      $        dij, dik, dli, djk, dlj, dlk, denmax)
          if (sijkl*denmax .lt. tol2e) return
-         dtol2e = tol2e
+         dtol2e = dentol
       endif
 c
       iscreen(3) = iscreen(3) + 1

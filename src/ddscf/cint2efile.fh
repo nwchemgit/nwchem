@@ -23,6 +23,9 @@ c
       integer max_file_rec      ! Max no. of records to put in file
       integer max_cache_rec     ! Max no. of records to put in cache
       logical file_opened       ! True if a physical file is open
+      integer lab_pack_len      ! Length of packed labels (8/16 bits)
+      integer laboff            ! Integer offset of packed labels in ibuf
+      integer nint_per_dbl      ! No. of integers per double precision
 c
       integer range(4,2)        ! Current bf range (i/j/k/l,lo/hi)
       integer nleft_in_range    ! No. of ints to be processed in range
@@ -68,7 +71,10 @@ c
      $     range,
      $     nleft_in_range,
      $     cntr_ptr,
-     $     nlarge
+     $     nlarge,
+     $     lab_pack_len,
+     $     laboff,
+     $     nint_per_dbl
 c
       common/ccintinfo/
      $     actualname

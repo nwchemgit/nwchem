@@ -1,9 +1,11 @@
 c
-c$Id: cfock.fh,v 1.15 1996-05-14 17:59:52 d3g681 Exp $
+c$Id: cfock.fh,v 1.16 1996-06-27 22:42:22 d3g681 Exp $
 c
       integer task_bf         ! Chunking parameter for density matrix
       integer filesize        ! Max integral file size in doubles
       integer memsize         ! Max integral cache size in doubles
+      logical onoblock        ! True if not using blocked integrals
+      logical oreplicated     ! True if using replicated data algorithm
       logical oreadfile       ! True if file/cache being read from
       logical owritefile      ! True if writing integrals to file
       logical dovecs          ! use of MO vectors for ri fock build
@@ -32,6 +34,6 @@ c
      $     g_vecs,
      $     first_atoms, incomplete_atoms,
      $     maxquartet, maxpair, maxeri, maxscr,
-     $     oerilabel
+     $     oerilabel, oreplicated, onoblock
       common/ccfock/int2efilename
 c

@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_nr_sol.F,v 1.3 1996-05-14 18:00:07 d3g681 Exp $
+C     $Id: rohf_nr_sol.F,v 1.4 1996-06-27 22:42:45 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -95,7 +95,8 @@ c
 c     Only use low accuracy for startup jobs
 c
       tol2e_save = tol2e
-      if (.not. (owritefile .or. movecs_guess.eq.'restart')) then
+      if (.not. (nelec.eq.1 .or. owritefile .or. 
+     $     movecs_guess.eq.'restart')) then
          tol2e = max(1d-6,tol2e) ! Initial low accuracy
       endif
       gnorm = 0.0d0             ! So is not undefined

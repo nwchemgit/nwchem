@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.19 1996-01-27 19:46:56 d3g681 Exp $
+C$Id: uhf.F,v 1.20 1996-06-27 22:42:56 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -143,6 +143,10 @@ c
 c
       cuhf_vlen = nalpha*(nmo-nalpha) + nbeta*(nmo-nbeta)
 c
+c     Special case for no degrees of freedom ... avoid breaking GA
+c
+      if (cuhf_vlen .eq. 0) cuhf_vlen = 1
+c
       if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_init: Falpha',
      $     1, 1, cuhf_g_falpha)) call errquit('uhf_init: Fa', 0)
       if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_init: Fbeta',
@@ -167,7 +171,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.19 1996-01-27 19:46:56 d3g681 Exp $
+C     $Id: uhf.F,v 1.20 1996-06-27 22:42:56 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -435,7 +439,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.19 1996-01-27 19:46:56 d3g681 Exp $
+C$Id: uhf.F,v 1.20 1996-06-27 22:42:56 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -454,7 +458,7 @@ c
       integer nocc, nvir, nocc1, ioff
       integer g_kmat
       integer i, l_tmp, k_tmp, iset
-      double precision mone, one, zero
+      double precision mone, one, zero, maxk
       parameter(mone=-1.0d0, one=1.0d0, zero=0.0d0)
 c     
       call ga_sync()
@@ -479,20 +483,26 @@ c
 c     form k-matrix from vector
 c
          call ga_zero(g_kmat)
-         do i=ga_nodeid()+1,nocc,ga_nnodes()
-            call ga_get(g_kvec, ioff+1+(i-1)*nvir, ioff+i*nvir, 1, 1,
-     $           dbl_mb(k_tmp), 1)
-            call ga_put(g_kmat, nocc1, nmo, i, i,
-     $           dbl_mb(k_tmp), 1)
-            call dscal(nvir, mone, dbl_mb(k_tmp), 1)
-            call ga_put(g_kmat, i, i, nocc1, nmo,
-     $           dbl_mb(k_tmp), 1)
-         end do
+         if (nvir*nocc .gt.0) then
+            do i=ga_nodeid()+1,nocc,ga_nnodes()
+               call ga_get(g_kvec, ioff+1+(i-1)*nvir, ioff+i*nvir, 1, 1,
+     $              dbl_mb(k_tmp), 1)
+               call ga_put(g_kmat, nocc1, nmo, i, i,
+     $              dbl_mb(k_tmp), 1)
+               call dscal(nvir, mone, dbl_mb(k_tmp), 1)
+               call ga_put(g_kmat, i, i, nocc1, nmo,
+     $              dbl_mb(k_tmp), 1)
+            end do
+         endif
 c
 c     Make near zeoes exactly zero so that sparsity tests in the
-c     matrix multiply work well
+c     matrix multiply work well.  Can't screen with too large
+c     a value since this breaks symmetry in non-abelian groups.
+c     Must also allow value to tend to zero to allow for tight
+c     convergence.
 c
-         call ga_screen(g_kmat, 1d-12)
+         call ga_maxelt(g_kmat, maxk)
+         call ga_screen(g_kmat, min(maxk*1d-2,1d-12))
 c
 c     Exponentiate the matrix and apply the rotation
 c
@@ -520,7 +530,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.19 1996-01-27 19:46:56 d3g681 Exp $
+c     $Id: uhf.F,v 1.20 1996-06-27 22:42:56 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -568,8 +578,12 @@ c     Make the densites and build the fock matrices
 c
       call ga_dgemm('n', 't', nbf, nbf, nalpha, one, g_vecs(1),
      $     g_vecs(1), zero, g_a_dens)
-      call ga_dgemm('n', 't', nbf, nbf, nbeta, one, g_vecs(2),
-     $     g_vecs(2), zero, g_b_dens)
+      if (nbeta .gt. 0) then
+         call ga_dgemm('n', 't', nbf, nbf, nbeta, one, g_vecs(2),
+     $        g_vecs(2), zero, g_b_dens)
+      else
+         call ga_zero(g_b_dens)
+      endif
 c
 c     Since UHF can break spatial symmetry by localizing the orbitals
 c     the densities may not be totally symmetric, but since the Hamiltonian
@@ -642,6 +656,10 @@ c
          write(6,*) ' exchang energies', e_a_exch, e_b_exch
          call util_flush(6)
       endif
+      if (odebug) then
+         call ga_print(g_a_coul)
+         call ga_print(g_a_exch)
+      endif
 c
 c     Form energies and AO fock matrices
 c
@@ -696,7 +714,6 @@ c
       endif
 c
 c     Free up dead global arrays
-c
 c
       if (.not. ga_destroy(g_a_dens)) call errquit('uhf_e: destroy',0)
       if (.not. ga_destroy(g_b_dens)) call errquit('uhf_e: destroy',0)
@@ -838,18 +855,20 @@ c
       ibase = 1
       do iset = 1, 2
          nvir = nmo - nocc(iset)
-         call ga_get_diagonal(g_f(iset), dbl_mb(k_diag))
-c
-         do i = ga_nodeid()+1, nocc(iset), ga_nnodes()
-            ioff = (i-1)*nvir + ibase
-            call ga_get(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
-            do j=1,nvir
-               denominator = 2.d0*(diag(j+nocc(iset)) - diag(i)) + shift
-               if (denominator .lt. 0.1d0) denominator = 0.1d0
-               dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+         if (nvir .gt. 0) then
+            call ga_get_diagonal(g_f(iset), dbl_mb(k_diag))
+c     
+            do i = ga_nodeid()+1, nocc(iset), ga_nnodes()
+               ioff = (i-1)*nvir + ibase
+               call ga_get(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
+               do j=1,nvir
+                  denominator = 2.d0*(diag(j+nocc(iset))-diag(i))+shift
+                  if (denominator .lt. 0.1d0) denominator = 0.1d0
+                  dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+               end do
+               call ga_put(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
             end do
-            call ga_put(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
-         end do
+         endif
          ibase = ibase + nocc(1)*(nmo-nocc(1))
       end do
 c
@@ -894,7 +913,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.19 1996-01-27 19:46:56 d3g681 Exp $
+C$Id: uhf.F,v 1.20 1996-06-27 22:42:56 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -951,13 +970,14 @@ c
 c     
 c     occ-occ piece
 c
-            call rohf_canon_subspace(g_fock, g_u,
-     $           dbl_mb(k_eval+ioff),
+            if (nocc(iset) .gt. 0) call rohf_canon_subspace
+     $           (g_fock, g_u, dbl_mb(k_eval+ioff),
      $           1, nocc(iset))
 c
 c     virt-virt piece
 c     
-            call rohf_canon_subspace(g_fock, g_u,
+            if (nmo-nocc(iset) .gt. 0)
+     $           call rohf_canon_subspace(g_fock, g_u,
      $           dbl_mb(k_eval+ioff+nocc(iset)),
      $           nocc(iset)+1, nmo)
 

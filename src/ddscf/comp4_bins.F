@@ -1,5 +1,5 @@
       subroutine comp4_bins(m, n, nb_per_i)
-C$Id: comp4_bins.F,v 1.6 1995-11-03 20:41:51 d3g681 Exp $
+C$Id: comp4_bins.F,v 1.7 1996-06-27 22:42:24 d3g681 Exp $
       implicit none
 c
       integer m(*)              ! Array holding info compressed to 4 bits
@@ -14,9 +14,9 @@ c
       integer bins(0:15)
       double precision fast(0:15)
 #include "bitops_decls.fh"
-      data fast/0.0d0, 1.0d-10, 1.0d-9, 1.0d-8, 1.0d-7, 1.0d-6,
-     $     1.0d-5, 1.0d-4, 1.0d-3, 1.0d-2, 1.0d-1, 1.0d0, 1.0d1,
-     $     1.0d2, 1.0d3, 1.0d4/
+      data fast/0.0d0, 1.0d-13, 1.0d-12, 1.0d-11, 1.0d-10, 1.0d-9,
+     $     1.0d-8, 1.0d-7, 1.0d-6, 1.0d-5, 1.0d-4, 1.0d-3, 1.0d-2,
+     $     1.0d-1, 1.0d0, 1.0d1/
 #include "bitops_funcs.fh"
 c
       do i = 0, 15

@@ -34,6 +34,7 @@ c
 c
 c     Initialize common
 c
+      lab_pack_len = 8
       file_opened = .false.
       nlarge = 0
       cur_rec = 1
@@ -46,16 +47,18 @@ c     work out dynamic ranges and scaling for integral compression
 c
       precision = precision_arg
       ocompress = precision .gt. 1d-10
+*      write(6,*) ' precision, ocompress ', precision, ocompress
+c
       if (ocompress) then
          scale = 1.0d0/precision
          maxvalue = 2147483647*precision ! Max value compreses to 2^31-1
-         n_per_rec = buffer_size
       else
          scale = 1.0d0
          maxvalue = 1.0d99
-         n_per_rec = 2*(buffer_size/3)
-         n_per_rec = n_per_rec - mod(n_per_rec,2) ! Make it even
-      endif
+      end if
+c
+      nint_per_dbl = ma_sizeof(mt_dbl, 1, mt_int)
+      call int2e_packing_info()
 c
 c     Figure out sizes
 c
@@ -63,14 +66,14 @@ c
          max_cache_rec = cachesize/rec_len_in_dbl
       else
          max_cache_rec = 0
-      endif
+      end if
       if (filesize .gt. 0) then
          max_file_rec = filesize/rec_len_in_dbl
       else if (filesize .eq. 0) then
          max_file_rec = 2048    ! Default max size 
       else 
          max_file_rec = 0
-      endif
+      end if
 c
 c     Figure out the size of an existing file
 c
@@ -90,12 +93,13 @@ c
          goto 1010
  1011    call errquit('int2e_file_open: error reading file',0)
  1012    rewind unitno
+         call ga_igop(555, n_rec_in_file, 1, '+')
          if (oinfo) then
             write(6,1020) n_rec_in_file
  1020       format(/' Opened integral file with',i6,' records'/)
             call util_flush(6)
-         endif
-      endif
+         end if
+      end if
 c
 c     defer allocation of memory until the first write otherwise
 c     this memory is sitting around during the initial guess routines
@@ -104,6 +108,51 @@ c
       k_cache = -1
 c
       int2e_file_open = .true.
+c
+      end
+      subroutine int2e_packing_info
+      implicit none
+#include "cint2efile.fh"
+c
+c     Given lab_pack_len, nint_per_dbl, and ocompress
+c     determine n_per_rec and laboff
+c
+      if (lab_pack_len .eq. 8) then
+         if (ocompress) then
+c     value=32bits labels=32bits
+            n_per_rec = buffer_size
+         else
+c     value=64bits labels=32bits
+            n_per_rec = 2*(buffer_size/3)
+         end if
+      else if (lab_pack_len .eq. 16) then
+         if (ocompress) then
+c     value=32bits labels=64bits
+            n_per_rec = 2*(buffer_size/3)
+         else
+c     value=64bits labels=64bits
+            n_per_rec = (buffer_size/2)
+         end if
+      else
+         call errquit('int2e_file_open: bad lab_pack_len', lab_pack_len)
+      endif
+      n_per_rec = n_per_rec - mod(n_per_rec,2) ! Make it even
+c
+      if (nint_per_dbl .eq. 2) then
+         if (ocompress) then
+            laboff = n_per_rec + 1
+         else
+            laboff = 2*n_per_rec + 1
+         endif
+      else if (nint_per_dbl .eq. 1) then
+         if (ocompress) then
+            laboff = n_per_rec/2 + 1
+         else
+            laboff = n_per_rec + 1
+         endif
+      else
+         call errquit('int2e_mem_size: nint_per_dbl?', nint_per_dbl)
+      endif
 c
       end
       logical function int2e_file_close()
@@ -124,7 +173,7 @@ c
      $        ' Closing integral file ... used ',i6,' records with ',
      $        i6,' large values'/)
          call util_flush(6)
-      endif
+      end if
       cur_rec = 0
       n_rec_in_file = 0
       call int2e_buf_clear
@@ -132,7 +181,7 @@ c
       if (max_cache_rec .gt. 0) then
          if (.not. ma_free_heap(l_cache))
      $        call errquit('int2e_file_close: free heap?',0)
-      endif
+      end if
       max_cache_rec = 0
 c
       if (otrace) then
@@ -200,6 +249,25 @@ c
          int2e_set_bf_range = int2e_buf_write()
          if (.not. int2e_set_bf_range) return
       end if
+      if (lab_pack_len .eq. 8) then
+         if ((ihi-ilo).ge.255 .or. (jhi-jlo).ge.255 .or.
+     $        (khi-klo).ge.255 .or. (lhi-llo).ge.255) then
+c
+c     The default of 8 bits is not enough.  If first write reset to 16
+c
+            if (cur_rec.eq.1 .and. n_rec_in_file.eq.1 .and.
+     $           next_value.eq.2) then
+               lab_pack_len = 16
+               call int2e_packing_info()
+            else
+               write(6,*) cur_rec, n_rec_in_file, next_value
+               call errquit('int2e_set_bf_range: more than 255',0)
+            endif
+         endif
+      endif
+c
+c     Leave packing here at 8 bits even if are doing 16 bit
+c     packing ... just for simplicity
 c
 c     Pack the previous counter into three 8 bit integers
 c
@@ -304,7 +372,7 @@ c
          write(6,*) ' int2e_file: get range cntr_ptr', cntr_ptr
          call util_flush(6)
          call errquit('int2e_file_get_bf_range: invalid', 0)
-      endif
+      end if
 c
       range(1,1) = ilo
       range(2,1) = jlo
@@ -377,7 +445,7 @@ c
             labels(3,n_in_rec) = k(ind) - range(3,1)
             labels(4,n_in_rec) = l(ind) - range(4,1)
             values(n_in_rec)   = g(ind)
-         endif
+         end if
       end do
 c
       end
@@ -422,7 +490,7 @@ c
          values(n_in_rec)   = part
 c
          goto 10
-      endif
+      end if
 c
       end
       logical function int2e_file_read(maxints, nints, i, j, k, l, g)
@@ -477,14 +545,14 @@ c
             k(loop+nints) = labels4(2+nv4) + kbase
             l(loop+nints) = labels4(3+nv4) + lbase
             nv4= nv4 + 4
-         enddo
+         end do
          nints = nints + ncopy
          nfree = nfree - ncopy
          nleft_in_range = nleft_in_range - ncopy
          next_value = next_value + ncopy
 c
          goto 10
-      endif
+      end if
 c
  1000 if (nints .eq. 0) int2e_file_read = .false.
 c
@@ -548,6 +616,8 @@ c
       implicit none
 #include "cint2efile.fh"
 c
+c     Replicated data version of above routine
+c
 c     Add the integrals directly from the IO buffer into the
 c     fock matrices.  This routine eliminates repeated calls
 c     to int2e_file_read which causes unecessary cache flushes
@@ -598,16 +668,19 @@ c
       if (cur_rec .eq. 1) then
          if (oinfo) then
             write(6,20) actualname(1:inp_strlen(actualname)),
-     $           rec_len_in_dbl,max_cache_rec,max_file_rec, ocompress
+     $           rec_len_in_dbl,n_per_rec,max_cache_rec,max_file_rec,
+     $           lab_pack_len, ocompress
  20         format(/
      $           ' Integral file          = ', a/
-     $           ' Record size in doubles = ', i6/
-     $           ' Max. records in memory = ', i6/
+     $           ' Record size in doubles = ', i6,7x,
+     $           ' No. of integs per rec  = ', i6/
+     $           ' Max. records in memory = ', i6,7x,
      $           ' Max. records in file   = ', i6/
+     $           ' No. of bits per label  = ', i6,7x,
      $           ' Compression            = ', l1/)
             call util_flush(6)
-         endif
-      endif
+         end if
+      end if
 c
 c     should test here for overflowing the file/memory cache
 c
@@ -623,8 +696,8 @@ c
                write(6,*) ' Failed to allocate cache ... disabling'
                max_cache_rec = 0
                goto 10          ! Dirty ... go back and try again
-            endif
-         endif
+            end if
+         end if
          call dcopy(rec_len_in_dbl, buf, 1, 
      $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1)
       else
@@ -634,9 +707,9 @@ c
      $           status='unknown',
      $           form='unformatted')
             file_opened = .true.
-         endif
+         end if
          call swrite(unitno, buf, rec_len_in_dbl)
-      endif
+      end if
 c
       if (otrace) then
          write(6,2) n_in_rec, cur_rec, n_rec_in_file+1
@@ -674,7 +747,7 @@ c
      $        buf, 1)
       else
          call sread(unitno, buf, rec_len_in_dbl)
-      endif
+      end if
       call int2e_buf_unpack()
 c
 c     Extract the count of values in the current range in this buffer
@@ -719,12 +792,11 @@ c
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 c
-      integer i, nint_per_dbl, ind, v1, v2, mask, two31
+      integer i, ind, v1, v2, mask, two31
 #include "bitops_decls.fh"
 #include "cint2esave.fh"
 #include "bitops_funcs.fh"
 c
-      nint_per_dbl = ma_sizeof(mt_dbl, 1, mt_int)
 c
 c     Copy count
 c
@@ -734,12 +806,10 @@ c     Copy compressed values and labels
 c
       if (.not. ocompress) then
          call dcopy(n_per_rec, buf, 1, values, 1)
-         call util_unpack_8(4*n_per_rec, buf(n_per_rec+1), labels)
       else if (nint_per_dbl .eq. 2) then
          do i = 1, n_per_rec
-            values(i) = precision * ibuf(i)
-         enddo
-         call util_unpack_8(4*n_per_rec, ibuf(n_per_rec+1), labels)
+            values(i) = precision * dfloat(ibuf(i))
+         end do
       else if (nint_per_dbl .eq. 1) then
          ind = 1
          mask  = lshift(1,32)-1  ! 2^32 - 1
@@ -747,14 +817,21 @@ c
          do i = 1, n_per_rec/2
             v1 = iand(rshift(ibuf(i),32),mask) - two31
             v2 = iand(ibuf(i),mask) - two31
-            values(ind  ) = precision*v1
-            values(ind+1) = precision*v2
+            values(ind  ) = precision*dfloat(v1)
+            values(ind+1) = precision*dfloat(v2)
             ind = ind + 2
-         enddo
-         call util_unpack_8(4*n_per_rec, ibuf(n_per_rec/2+1), labels)
+         end do
       else
          call errquit('int2e_buf_unpack: wierd nint_per_dbl',
      $        nint_per_dbl)
+      end if
+c
+      if (lab_pack_len .eq. 8) then
+         call util_unpack_8(4*n_per_rec, ibuf(laboff), labels)
+      else if (lab_pack_len .eq. 16) then
+         call util_unpack_16(4*n_per_rec, ibuf(laboff), labels)
+      else
+         call errquit('int2e_buf_unpack: lab_pack_len?', lab_pack_len)
       endif
 c
       end
@@ -763,27 +840,23 @@ c
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 c
-      integer i, nint_per_dbl, ind, v1, v2, two31
+      integer i, ind, v1, v2, two31, laboff
 #include "bitops_decls.fh"
 #include "cint2esave.fh"
 #include "bitops_funcs.fh"
-c
-      nint_per_dbl = ma_sizeof(mt_dbl, 1, mt_int)
 c
 c     Copy count
 c
       n_in_buf = n_in_rec
 c
-c     Copy compressed values and labels 
+c     Optionally compress values
 c
       if (.not. ocompress) then
          call dcopy(n_per_rec, values, 1, buf, 1)
-         call util_pack_8(4*n_per_rec, buf(n_per_rec+1), labels)
       else if (nint_per_dbl .eq. 2) then
          do i = 1, n_per_rec
             ibuf(i) = nint(values(i)*scale)
-         enddo
-         call util_pack_8(4*n_per_rec, ibuf(n_per_rec+1), labels)
+         end do
       else if (nint_per_dbl .eq. 1) then
          ind = 1
          two31 = lshift(1,31)-1
@@ -792,10 +865,19 @@ c
             v2 = nint(values(ind+1)*scale) + two31
             ibuf(i) = ior(lshift(v1,32),v2)
             ind = ind + 2
-         enddo
-         call util_pack_8(4*n_per_rec, ibuf(n_per_rec/2+1), labels)
+         end do
       else
          call errquit('int2e_buf_pack: wierd nint_per_dbl',nint_per_dbl)
+      end if
+c
+c     Always compress labels
+c
+      if (lab_pack_len .eq. 8) then
+         call util_pack_8(4*n_per_rec, ibuf(laboff), labels)
+      else if (lab_pack_len .eq. 16) then
+         call util_pack_16(4*n_per_rec, ibuf(laboff), labels)
+      else
+         call errquit('int2e_buf_pack: bad lab_pack_len', lab_pack_len)
       endif
 c
       end
@@ -841,7 +923,7 @@ c
          call errquit
      $     ('int2e_buf_cntr_unpack: invalid count', 
      $     labels(1,cntr_ptr))
-      endif
+      end if
 c
       end
       logical function int2e_test_mem(geom, basis, tol2e)
@@ -918,7 +1000,7 @@ c
          write(6,1) nq-avail
  1       format(/' Provide',1p,d9.2,' more words/process to ',
      $        'cache all integrals in memory'/)
-      endif
+      end if
 c
       ofirst = .false.
 c

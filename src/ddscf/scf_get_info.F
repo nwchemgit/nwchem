@@ -196,7 +196,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.26 1996-05-14 18:00:09 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.27 1996-06-27 22:42:51 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -309,9 +309,14 @@ c
       if (.not. rtdb_get(rtdb, 'fock:intacc',
      $     MT_DBL, 1, intacc)) intacc = 0.0d0 ! Default is variable
 c
+      if (.not. rtdb_get(rtdb, 'fock:replicated',
+     $     mt_log, 1, oreplicated)) oreplicated = .true.
+      if (.not. rtdb_get(rtdb, 'fock:noblock',
+     $     mt_log, 1, onoblock)) onoblock = .false.
+c
 c  Use labels by default
 c
-      if (.not. rtdb_get( rtdb, 'int2e:uselabels',  MT_LOG, 1,
+      if (.not. rtdb_get( rtdb, 'fock:uselabels',  MT_LOG, 1,
      $                    oerilabel)) oerilabel = .true.
 c
       if (ga_nodeid().eq.0 .and.

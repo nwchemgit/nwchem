@@ -2,7 +2,7 @@
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hxx.F,v 1.2 1996-01-19 07:29:14 d3g681 Exp $
+C     $Id: rohf_hxx.F,v 1.3 1996-06-27 22:42:42 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -32,7 +32,7 @@ c
 
       if (pflg .gt. 1) then
          call rohf_hessv_2e( basis, geom, nbf, nmo, nclosed, nopen,
-     $        g_movecs, oskel, g_x, min(1.0d-6,acc),
+     $        g_movecs, oskel, g_x, acc, ! was min(1d-6,acc)
      $        g_ax )
       endif
 

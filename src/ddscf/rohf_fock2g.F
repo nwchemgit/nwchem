@@ -9,7 +9,7 @@
       subroutine rohf_fock2grad( nmo, nclosed, nopen,
      $     g_fcv, g_fpv, g_fcp,
      $     g_grad)
-C     $Id: rohf_fock2g.F,v 1.4 1996-04-16 03:17:36 d3g681 Exp $
+C     $Id: rohf_fock2g.F,v 1.5 1996-06-27 22:42:40 d3g681 Exp $
       implicit none
 #include "global.fh"
       integer nmo, nclosed, nopen ! [input] Occupation and number of mos
@@ -48,12 +48,11 @@ c
 c     Cannot screen with a large number (greater than accuracy in integrals) 
 c     since in a non-abelian group we could break symmetry ... either
 c     screen with a small threshold or screen with a large one and then
-c     enforce symmetry (which is expensive in high order groups)
+c     enforce symmetry (which is expensive in high order groups).
+c     Also, threshold must tend to zero for high convergence.
 c
-*      call ga_maxelt(g_grad, tol)
-*      tol = max(1d-12,min(1d-6,abs(tol)**2))
-      tol = 1d-12
-*      write(6,*) ' screening grad with ', tol
+      call ga_maxelt(g_grad, tol)
+      tol = min(tol*1d-2,1d-12)
       call ga_screen(g_grad, tol)
 c     
       end

@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.6 1996-05-14 18:00:11 d3g681 Exp $
+C     $Id: scf_vec_guess.F,v 1.7 1996-06-27 22:42:54 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -75,11 +75,16 @@ c
          if (movecs_in .eq. 'atomic') then
             call guess_dens(rtdb, geom, basis, g_aodens)
          endif
-         if (owritefile) then
-            tolguess = tol2e
-         else
-            tolguess = 1e-5
-         endif
+c
+c     Since the caching of integrals may be turned on automagically
+c     we always need to use the full integral precision in the starting 
+c     guess
+*         if (owritefile) then
+*            tolguess = tol2e
+*         else
+*            tolguess = 1e-5
+*         endif
+         tolguess = tol2e
          call rhf_dens_to_mo(rtdb, geom, basis, 2*nclosed+nopen,
      $        nbf, nmo, tolguess,
      $        g_aodens, g_movecs, oskel, dbl_mb(k_eval))

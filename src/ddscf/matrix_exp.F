@@ -1,5 +1,5 @@
       subroutine matrix_exp(g_k)
-C$Id: matrix_exp.F,v 1.8 1995-10-21 19:39:29 d3g681 Exp $
+C$Id: matrix_exp.F,v 1.9 1996-06-27 22:42:38 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -27,6 +27,7 @@ c
      $     zero = 0.0d0)
       integer power
       integer dummy_basis
+      integer ilo, ihi, jlo, jhi ! Used to speed extraction of diagonals
 c
       dummy_basis = -1          ! Not used but passed to ga_iter_orthog
 c
@@ -38,6 +39,14 @@ c
      $     1, 1, g_tmp1)) call errquit('mat_exp:ga_create?',nbf)
       if (.not. ga_create(MT_DBL, nbf, nbf, 'mat_exp:tmp2',
      $     1, 1, g_tmp2)) call errquit('mat_exp:ga_create?',nbf)
+c
+c     Determine range of local diagonal values ... assume same for tmp1/2
+c
+      call ga_distribution(g_tmp1, ga_nodeid(), ilo, ihi, jlo, jhi)
+      if (ilo.gt.0 .and. jlo.gt.0) then
+         ilo = max(ilo,jlo)
+         ihi = min(ihi,jhi)
+      endif
 c     
 c     Determine how to scale the matrix
 c     
@@ -60,7 +69,7 @@ c     1 + K/3 -> g_tmp1
 c     
       call ga_copy(g_k, g_tmp1)
       call ga_dscal(g_tmp1, third)
-      do i = ga_nodeid()+1, nbf, ga_nnodes()
+      do i = ilo, ihi
          call ga_get(g_tmp1, i, i, i, i, tmp, 1)
          tmp = tmp + one
          call ga_put(g_tmp1, i, i, i, i, tmp, 1)
@@ -70,7 +79,7 @@ c     1 + K/2 * g_tmp1 -> g_tmp2
 c     
       call ga_dgemm('n', 'n', nbf, nbf, nbf, half, g_k, g_tmp1,
      $     zero, g_tmp2)
-      do i = ga_nodeid()+1, nbf, ga_nnodes()
+      do i = ilo, ihi
          call ga_get(g_tmp2, i, i, i, i, tmp, 1)
          tmp = tmp + one
          call ga_put(g_tmp2, i, i, i, i, tmp, 1)
@@ -80,7 +89,7 @@ c     1 + K*g_tmp2 -> g_k
 c     
       call ga_dgemm('n', 'n', nbf, nbf, nbf, one, g_k, g_tmp2,
      $     zero, g_tmp1)
-      do i = ga_nodeid()+1, nbf, ga_nnodes()
+      do i = ilo, ihi
          call ga_get(g_tmp1, i, i, i, i, tmp, 1)
          tmp = tmp + one
          call ga_put(g_tmp1, i, i, i, i, tmp, 1)

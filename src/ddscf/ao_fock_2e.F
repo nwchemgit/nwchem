@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.10 1996-05-16 17:04:16 d3e129 Exp $
+c$Id: ao_fock_2e.F,v 1.11 1996-06-27 22:42:17 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -30,8 +30,8 @@ c
 c     
 c     local variables
 c     
-      integer natoms, maxd, ablklen, nshb
-      integer i
+      integer natoms, maxd, ablklen, nshb, nbf, maxg, lenscr
+      integer i, mem_rep
       integer l_dij, l_dik, l_dli, l_djk, l_dlj, l_dlk
       integer l_fij, l_fik, l_fli, l_fjk, l_flj, l_flk
       integer k_dij, k_dik, k_dli, k_djk, k_dlj, k_dlk
@@ -42,9 +42,27 @@ c
       logical int2e_test_mem
       external int2e_test_mem
 c
-c      call ao_replicated( geom, basis, nfock, jfac, kfac,
-c     $                    tol2e, oskel, vg_dens, vg_fock )
-c      if (.true.) return
+      if (.not. bas_numbf(basis, nbf)) call errquit
+     $     ('ao_replicated: bas_numbf failed', 0)
+      if (.not. geom_ncent(geom, natoms)) call errquit
+     $     ('ao_fock_2e: geom_ncent failed', 0)
+c
+c     Default is replicated data.  This can be overridden by setting
+c     'fock:replicated' as false.  It is also overriden here when the
+c     replicated data algorithm would exceed memory requirements
+c
+      call int_mem_2e4c(maxg, lenscr)
+      mem_rep = nbf*nbf*(2*nfock + 2) + maxeri*5 + lenscr
+      if (owritefile) mem_rep = mem_rep + max(0,memsize)
+      if (oreplicated) then
+         oreplicated = (mem_rep .lt. ma_inquire_avail(mt_dbl))
+      endif
+c
+      if (oreplicated) then
+         call ao_replicated( geom, basis, nfock, jfac, kfac,
+     $        tol2e, oskel, vg_dens, vg_fock )
+         return
+      endif
 c     
 c     allocate necessary local temporary arrays on the stack
 c     
@@ -53,8 +71,6 @@ c     l_d** ... ** block of density matrix
 c     l_f** ... ** block of fock matrix
 c     
 c     k_* are the offsets corrsponding to the l_* handles
-c
-      if (oscfps) call pstat_on(ps_fock_2e)
 c
 c     If reading/writing to/from cache/file then rewind
 c
@@ -177,8 +193,6 @@ c
 c     Reset exchange factors
 c
       call dscal(nfock, 2.d0, kfac, 1)
-c
-      if (oscfps) call pstat_off(ps_fock_2e)
 c
 c     Disable writing integrals to cache/file and enable reading for
 c     next call if we were just writing.  Also flush trailing block.

@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.21 1996-05-14 17:59:54 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.22 1996-06-27 22:42:31 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -20,7 +20,7 @@ c     see scf_init for input of task_chunks etc.
      $     blocks, nblock)
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.21 1996-05-14 17:59:54 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.22 1996-06-27 22:42:31 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -49,20 +49,19 @@ c
       integer vg_fock(nfock)
       integer blocks(2,*)
       integer nblock
-c     
 c
       double precision ncomputed
       common/crap/ncomputed
 c
       integer natoms, nproc, ijkl, next
-      integer ib, jb, kb, lb, lbhi
+      integer ib, jb, kb, lb, lbhi, i
       integer iatlo, jatlo, katlo, latlo
       integer iathi, jathi, kathi, lathi
       integer ijk_prev(3,2)     ! (i/j/k, lo/hi)
       integer blklen
       double precision sij, smax, skl ! schwarz info
-      double precision den_tol  ! Density screen tolerance ( tol2e *  factor )
-      logical otest, otestij
+      double precision denmax, dentol, temp, integ_acc
+      logical otest
       double precision schwarz_atom_block
       external schwarz_atom_block
       logical sym_atom_block_pair, sym_atom_block_quartet
@@ -71,6 +70,32 @@ c
       integer nxtask
       external nxtask
       external cfock_data ! For T3D linker
+c
+c     Figure out the threshold on which to screen just integrals
+c     by dividing by maximum density matrix element.  10x for safety
+c     since really wanted max over atomic blocks
+c
+      denmax = 1d-10            ! To avoid a hard zero
+      do i = 1, nfock
+         call ga_maxelt(vg_dens(i), temp)
+         denmax = max(temp, denmax)
+      enddo
+      dentol = min(1d-3,tol2e/(10.0d0*denmax)) ! Thresh to screen integs only
+*      write(6,*) ' dentol ', dentol
+c
+c     There is a BIG speed gain from agressive reduction of accuracy
+c     in the actual computation of the integrals. However, the screening
+c     on primitive integrals is done on radial prefactors not using
+c     the Schwarz inequality, hence the extra factor of 0.1d0
+c     (also tried 0.01 on C12H14 but was more expensive with no gain)
+c     
+      if (intacc .eq. 0.0d0) then
+         integ_acc = min(1d-6,max(0.1d0*dentol,1d-15)) ! Variable
+      else
+         integ_acc = intacc     ! User controlled
+      endif
+      call int_acc_set(integ_acc)
+*      write(6,*) ' integ_acc ', integ_acc
 c
 c     How many atoms are there?
 c     
@@ -84,13 +109,6 @@ c     How many processors are there?
 c     
       nproc = ga_nnodes()
 c     
-c     Empirically observe that to compute the fock matrix/energy
-c     to an accuracy of t need to screen on density*integrals
-c     to a precision of about 10^-2*t
-c     THIS IS NO LONGER NECESSARY
-c     
-      den_tol = max(tol2e*0.1d0,1.0d-300) ! To avoid a hard zero
-c
       ijk_prev(1,1) = -1
       ijk_prev(2,1) = -1
       ijk_prev(3,1) = -1
@@ -121,14 +139,11 @@ c
             jatlo = blocks(1,jb)
             jathi = blocks(2,jb)
             sij = schwarz_atom_block(iatlo,iathi,jatlo,jathi)
-            otestij = sij*smax .ge. tol2e
 *
 *     Cannot use symmetry of pairs since the blocking of atoms means
 *     that we may have (kl) > (ij).
 *
-*            if (otestij .and. oskel) otestij = sym_atom_block_pair
-*     $           (geom, iatlo, iathi, jatlo, jathi)
-            if (otestij) then
+            if (sij*smax .ge. dentol) then
                do kb = ib, 1, -1
                   katlo = blocks(1,kb)
                   kathi = blocks(2,kb)
@@ -138,7 +153,7 @@ c
                      latlo = blocks(1,lb)
                      lathi = blocks(2,lb)
                      skl = schwarz_atom_block(katlo,kathi,latlo,lathi)
-                     otest = (sij*skl) .gt. tol2e
+                     otest = (sij*skl) .gt. dentol
                      if (otest .and. oskel) otest=sym_atom_block_quartet
      $                    (geom, iatlo, iathi, jatlo, jathi, 
      $                       katlo, kathi, latlo, lathi)
@@ -155,7 +170,7 @@ c
      $                       jfac, kfac, 
      $                       dij, dik, dli, djk, dlj, dlk,
      $                       fij, fik, fli, fjk, flj, flk,
-     $                       tmp, tol2e, den_tol)
+     $                       tmp, tol2e, dentol)
 c
                         next = nxtask(nproc, 1)
                      end if
@@ -190,31 +205,6 @@ c
       call ga_sync()
 c     
       end
-      logical function sym_atom_block_pair(geom, 
-     $     iatlo, iathi, jatlo, jathi)
-      implicit none
-#include "sym.fh"
-      integer geom
-      integer iatlo, iathi, jatlo, jathi
-c
-      double precision q2
-      integer iat, jat, jhi
-      logical status, oij
-c
-      status = .false.
-      oij = iatlo .eq. jatlo
-      do iat = iatlo, iathi
-         jhi = jathi
-         if (oij) jhi = iat
-         do jat = jatlo, jhi
-            status = sym_atom_pair(geom, iat, jat, q2)
-            if (status) goto 10
-         enddo
-      enddo
-c
- 10   sym_atom_block_pair = status
-c
-      end
       logical function sym_atom_block_quartet(geom, 
      $     iatlo, iathi, jatlo, jathi, katlo, kathi, latlo, lathi)
       implicit none
@@ -225,6 +215,9 @@ c
       integer iat, jat, kat, lat, lattop, jattop, kattop
       double precision q4
       logical otest, oij, okl, oikjl
+c
+c     Given a quartet of ranges of atoms, determin if there are any
+c     interactions that are symmetry unique.
 c
       oij   = iatlo.eq.jatlo
       okl   = katlo.eq.latlo
@@ -262,6 +255,8 @@ c
       integer iat, jat, jhi
       double precision s
       logical oij
+c
+c     Given a pair of atom ranges return the max interaction
 c
       s = 0.0d0
       oij = iatlo .eq. jatlo

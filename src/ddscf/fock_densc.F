@@ -4,7 +4,7 @@
      $     dij, dik, dli, djk, dlj, dlk, denmax)
       implicit none
 c     
-c     $Id: fock_densc.F,v 1.1 1995-12-13 01:25:02 d3g681 Exp $
+c     $Id: fock_densc.F,v 1.2 1996-06-27 22:42:34 d3g681 Exp $
 c     
       integer nfock
       integer i1, j1, k1, l1, i2, j2, k2, l2
@@ -18,7 +18,7 @@ c
       double precision dlj(nfock, l1:l2, j1:j2)
       double precision dlk(nfock, l1:l2, k1:k2)
 c     
-      integer if, i, j, k, l
+      integer ifock, i, j, k, l
       double precision sum
 c     
 c     Return the maximum value over the density matrices
@@ -28,11 +28,11 @@ c
 c     Should put in better code for nfock != 1 (but it usually is)
 c
       denmax = 0.0d0
-      do if = 1, nfock          ! Assumption is nfock is usually one
+      do ifock = 1, nfock          ! Assumption is nfock is usually one
          sum = 0.0d0
          do j = jlo, jhi
             do i = ilo, ihi
-               sum = sum + abs(dij(if,i,j))
+               sum = sum + abs(dij(ifock,i,j))
             enddo
          enddo
          denmax = max(denmax, sum)
@@ -40,7 +40,7 @@ c
          sum = 0.0d0
          do k = klo, khi
             do i = ilo, ihi
-               sum = sum + abs(dik(if,i,k))
+               sum = sum + abs(dik(ifock,i,k))
             enddo
          enddo
          denmax = max(denmax, sum)
@@ -48,7 +48,7 @@ c
          sum = 0.0d0
          do i = ilo, ihi
             do l = llo, lhi
-               sum = sum + abs(dli(if,l,i))
+               sum = sum + abs(dli(ifock,l,i))
             enddo
          enddo
          denmax = max(denmax, sum)
@@ -56,7 +56,7 @@ c
          sum = 0.0d0
          do k = klo, khi
             do j = jlo, jhi
-               sum = sum + abs(djk(if,j,k))
+               sum = sum + abs(djk(ifock,j,k))
             enddo
          enddo
          denmax = max(denmax, sum)
@@ -64,7 +64,7 @@ c
          sum = 0.0d0
          do j = jlo, jhi
             do l = llo, lhi
-               sum = sum + abs(dlj(if,l,j))
+               sum = sum + abs(dlj(ifock,l,j))
             enddo
          enddo
          denmax = max(denmax, sum)
@@ -72,7 +72,7 @@ c
          sum = 0.0d0
          do k = klo, khi
             do l = llo, lhi
-               sum = sum + abs(dlk(if,l,k))
+               sum = sum + abs(dlk(ifock,l,k))
             enddo
          enddo
          denmax = max(denmax, sum)

@@ -1,5 +1,5 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.3 1996-01-19 07:29:07 d3g681 Exp $
+C$Id: rohf_canon.F,v 1.4 1996-06-27 22:42:40 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -48,24 +48,21 @@ c
 c
 c     closed-closed piece
 c
-         call rohf_canon_subspace(g_fock, g_u, dbl_mb(k_eval),
-     $        1, nclosed)
-c
-         if (nopen .gt. 0) then
+         if (nclosed .gt. 0) call rohf_canon_subspace
+     $        (g_fock, g_u, dbl_mb(k_eval), 1, nclosed)
 c
 c     open-open piece
 c
-            call rohf_canon_subspace(g_fock, g_u,
-     $           dbl_mb(k_eval+nclosed),
-     $           nclosed+1, nclosed+nopen)
-         endif
+         if (nopen .gt. 0) call rohf_canon_subspace
+     $        (g_fock, g_u, dbl_mb(k_eval+nclosed),
+     $        nclosed+1, nclosed+nopen)
 c     
 c     virt-virt piece
 c     
-         call rohf_canon_subspace(g_fock, g_u,
+         if (nmo-nclosed-nopen .gt. 0)
+     $        call rohf_canon_subspace(g_fock, g_u,
      $        dbl_mb(k_eval+nclosed+nopen),
      $        nclosed+nopen+1, nmo)
-
       endif
 c
       if (oscfps) call pstat_off(ps_diag)

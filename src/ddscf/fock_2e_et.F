@@ -91,8 +91,10 @@ c     atom quartets ... this is the task size in atom quartets
 c     necessary to get about 100 tasks per process, taking into
 c     account sparsity and symmetry.  Constrain this so that
 c     a block is not larger than 128 so that we do not use 
-c     too much memory and so that a given block does not 
-c     exceed 256.
+c     too much memory.  Have a profound problem if there is
+c     more than 255 functions on a single atom.
+c
+c     Also have the limit of 10 atoms per block.
 c
       task_bf = min(task_bf,128,nbf)
       if (task_bf.eq.-1 .or. task_bf.gt.nbf) then
@@ -122,21 +124,26 @@ c
       integer task_bf
       integer blocks(2,*), nblock, maxblock
 c
-      integer iat, n, iatlo, i
+      integer iat, n, iatlo, i, na, nnext
       logical firstprint
       data firstprint /.true./  ! So that only print once per job
 c
       nblock = 0
-      n = 0
+      n = 0                     ! No. of bf in block
+      na = 0                    ! No. of at in block
       iatlo = 1
       do iat = 1, nat
+         na = na + 1
          n = n + bfr(2,iat) - bfr(1,iat) + 1
-         if (n .ge. task_bf) then
+         nnext = n
+         if (iat.lt.nat) nnext = n + bfr(2,iat+1) - bfr(1,iat+1) + 1
+         if (nnext.gt.task_bf .or. na.ge.10) then
             nblock = nblock + 1
             blocks(1,nblock) = iatlo
             blocks(2,nblock) = iat
             iatlo = iat + 1
             n = 0
+            na= 0
          endif
       enddo
       if (n .gt. 0) then

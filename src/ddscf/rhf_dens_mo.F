@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.5 1996-04-19 23:54:46 rg240 Exp $
+C     $Id: rhf_dens_mo.F,v 1.6 1996-06-27 22:42:39 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -24,7 +24,6 @@ c
       logical oprint, osplit, oskel
       integer g_fock, g_over, g_hcore, g_tmp, g_mofock, g_u
       integer nocc
-      integer i,j
       double precision escf, eone, etwo, enrep, dens_norm
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -76,7 +75,7 @@ c
       call int_1e_ga(basis, basis, g_hcore,'kinetic', oskel)
       call int_1e_ga(basis, basis, g_hcore,'potential', oskel)
 c     
-      if (abs(dens_norm) .gt. 1d-2)
+      if (nelec.gt.1 .and. abs(dens_norm) .gt. 1d-2)
      $     call rhf_fock_2e(geom, basis, g_dens, g_fock, tol2e,
      &     .true., .true., oskel)
 c     
@@ -137,13 +136,15 @@ c$$$  osplit = abs(evals(nocc)-evals(nocc+1)).lt.1.0e-3
          write(6,*)
          call util_print_centered(6, 'Non-variational initial energy',
      $        20, .true.)
-         write(6,901) escf, eone, etwo, evals(nocc), evals(nocc+1)
+         write(6,901) escf, eone, etwo, evals(nocc)
+         if (nmo.ne.1)  write(6,9011) evals(nocc+1)
+         write(6,*)
  901     format(/
      $        ' Total energy = ',f14.6/
      $        ' 1-e energy   = ',f14.6/
      $        ' 2-e energy   = ',f14.6/
-     $        ' HOMO         = ',f14.6/
-     $        ' LUMO         = ',f14.6/)
+     $        ' HOMO         = ',f14.6)
+ 9011    format(' LUMO         = ',f14.6)
 c     
 c$$$  if (osplit) then
 c$$$  write(6,902)

@@ -1,6 +1,6 @@
       subroutine rohf_hdiag_scale( nmo, nclosed, nopen, lshift,
      $     g_fcv, g_fpv, g_fcp, g_x )
-C     $Id: rohf_hscale.F,v 1.2 1996-01-19 07:29:13 d3g681 Exp $
+C     $Id: rohf_hscale.F,v 1.3 1996-06-27 22:42:41 d3g681 Exp $
       implicit none
 c
 #include "global.fh"
@@ -72,18 +72,20 @@ c
 c
 c     Scale closed-virtual piece
 c
-      do i = ga_nodeid()+1, nclosed, ga_nnodes()
-         ioff = (i-1)*nvir + 1
-         call ga_get(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
-         do j=1,nvir
-            denominator = 4.d0*(fcv(j+vbase) - fcv(i+cbase)) + lshift
-            if (denominator .lt. 0.1d0) denominator = 0.1d0
-            dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+      if (nvir*nclosed .gt. 0) then
+         do i = ga_nodeid()+1, nclosed, ga_nnodes()
+            ioff = (i-1)*nvir + 1
+            call ga_get(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
+            do j=1,nvir
+               denominator = 4.d0*(fcv(j+vbase) - fcv(i+cbase)) + lshift
+               if (denominator .lt. 0.1d0) denominator = 0.1d0
+               dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+            enddo
+            call ga_put(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
          enddo
-         call ga_put(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
-      enddo
+      endif
 c
-      if (nopen .gt. 0) then
+      if (nvir*nopen .gt. 0) then
 c     
 c     Scale open-virtual piece
 c     
@@ -97,9 +99,11 @@ c
             enddo
             call ga_put(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
          enddo
+      endif
 c     
 c     Scale closed-open piece
 c     
+      if (nclosed*nopen .gt. 0) then
          do i = ga_nodeid()+1, nclosed, ga_nnodes()
             ioff = (nclosed+nopen)*nvir + (i-1)*nopen + 1
             call ga_get(g_x, ioff, ioff+nopen-1, 1, 1, dbl_mb(k_x),1)

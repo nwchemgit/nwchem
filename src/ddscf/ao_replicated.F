@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.2 1996-05-18 01:04:46 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.3 1996-06-27 22:42:18 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -42,13 +42,10 @@ c
       external int2e_test_mem
       double precision tol2e_local
 c
-      if (oscfps) call pstat_on(ps_fock_2e)
-c
       if (.not. geom_ncent(geom, natom)) call errquit
      $     ('ao_fock_2e: geom_ncent failed', 0)
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('ao_replicated: bas_numbf failed', 0)
-c     
 c     
 c     If we can hold all of the integrals in core then we should
 c     do this ... i.e., the default should be semi-direct, though
@@ -62,7 +59,7 @@ c
          owritefile = int2e_test_mem(geom, basis,
      $     min(tol2e*0.1d0,1d-8))
          if (owritefile) tol2e_local = min(tol2e,1d-8)
-      endif
+      end if
 c     
 c     If reading/writing to/from cache/file then rewind
 c     
@@ -173,8 +170,6 @@ c     Reset exchange factors
 c     
       call dscal(nfock, 2.d0, kfac, 1)
 c     
-      if (oscfps) call pstat_off(ps_fock_2e)
-c     
 c     Disable writing integrals to cache/file and enable reading for
 c     next call if we were just writing.  Also flush trailing block.
 c     
@@ -195,6 +190,9 @@ c
 #include "global.fh"
 #include "cfock.fh"
 #include "sym.fh"
+#include "cscfps.fh"
+#include "util.fh"
+#include "mafdecls.fh"
 c     
       integer geom, basis
       integer nfock
@@ -226,27 +224,44 @@ c
       integer  iat, jat, kat, lat, imat
       double precision q2, qq4, qjunk, sijkl, denmax, dijkl
       double precision dentol, integ_acc
-c     
-      integer cntoce(255)       ! Map from contractions to centers
-      integer cetobfr(2,255)    ! Map from centers to bf range
+      character*80 buff
+c
+      integer l_ijtype, k_ijtype
+c
+      integer ntreq
+      double precision nqdone, nidone
+      common/fred/nqdone, nidone, ntreq
+c
+      integer cnmax, cemax
+      parameter (cnmax=1024, cemax=1024) ! Max no. of shells and centers
+      integer cntoce(cnmax)     ! Map from contractions to centers
+      integer cetobfr(2,cemax)  ! Map from centers to bf range
 c
       integer next, current, nproc
+c
+      logical oprint
 c     
       logical int2e_set_bf_range
       external int2e_set_bf_range
       integer nxtask
       external nxtask
 c     
+      if (oscfps) call pstat_on(ps_fock_2e)
+c
+      oprint = util_print('ao_replicated',print_never)
+c
       call fock_init_rep_cmul(nbf) ! lookup table for f build
       if (owritefile) then
          if (.not. int2e_set_bf_range(
      $        1,nbf,1,nbf,1,nbf,1,nbf)) call errquit
      $        ('fock_2e_rep: set range failed',0)
-      endif
+      end if
       if (.not. geom_ncent_unique(geom, natom_unique)) call errquit
      $     ('fock_2e_rep: bad geom handle?',0)
       if ( .not. bas_numcont(basis, nsh) ) call errquit(
      $     'ao_fock_2e: problem with call to bas_numcont', basis)
+      if (natom .gt. cemax) call errquit('fock_2e_rep: cemax',natom)
+      if (nsh .gt. cnmax)   call errquit('fock_2e_rep: cnmax',nsh)
 c     
 c     Build maps (for speed) and construct density matrix over atoms
 c     
@@ -258,20 +273,21 @@ c
          if (.not. bas_ce2bfr(basis,iat,cetobfr(1,iat),cetobfr(2,iat)))
      $        call errquit('ao_rep: bad basis', 0)
       end do
-*     write(6,*) ' cntoce ', (cntoce(ish),ish=1,nsh)
-*     write(6,*) ' cetobfr(1,*) ', (cetobfr(1,iat),iat=1,natom)
-*     write(6,*) ' cetobfr(2,*) ', (cetobfr(2,iat),iat=1,natom)
       call dfill(natom*natom,0.0d0,rdens,1)
       do imat = 1, nfock
          call util_mat_reduce(nbf, natom, cetobfr, dens(1,imat), 
      $        rdens, 'abssum')
       end do
+*      write(6,*) ' RDENS'
+*      call output(rdens,1,natom,1,natom,natom,natom,1)
       denmax = 0.0d0
       do iat = 1, natom
          do jat = 1, iat
             denmax = max(denmax,rdens(jat,iat))
          end do
       end do
+      if (owritefile) denmax = max(denmax,10.0d0)
+c
       dentol = min(1d-3,tol2e/denmax) ! Threshold to screen integs only
 c     
 c     There is a BIG speed gain from agressive reduction of accuracy
@@ -284,10 +300,10 @@ c
          integ_acc = min(1d-6,max(0.1d0*dentol,1d-15)) ! Variable
       else
          integ_acc = intacc     ! User controlled
-      endif
+      end if
       call int_acc_set(integ_acc)
-*     write(6,111) dentol, integ_acc
-*     111  format(1x,1p,' dentol=',d8.1,'  integ_acc=',d8.1)
+*      write(6,111) dentol, integ_acc
+* 111  format(1x,1p,' FRED  dentol=',d8.1,'  integ_acc=',d8.1)
 c     
 c     assume a dense integral list but with symmetry and figure out
 c     no. of pairs per pair block dividing quartets between processors
@@ -296,18 +312,38 @@ c
       nshpair = nsh*(nsh+1)/2
       max_p   = sqrt(
      $     dfloat(nshpair)**2*dfloat(natom_unique)) / 
-     $     dfloat(natom*ga_nnodes()
-     $     )
+     $     dfloat(natom)
+      if (ga_nnodes() .gt. 1) then
+         max_p = max_p/sqrt(10.0d0*ga_nnodes()) ! 10 tasks per processor
+      end if
       max_p   = min(nint(sqrt(dfloat(qdim))),max_p)
       max_p   = max(10,max_p)
-      max_p   = min(maxquartet, max_p) ! Enforce user maximum limit
-*     write(6,*) ' max_p ', max_p
 c     
 c     generate info about the pairs
 c     
-      call fock_pairs(basis, max_p, .true., 1, natom, 1, natom, 
-     $     dentol, plist, ps, pinfo, ntype)
-*     write(6,*) ' ntype ', ntype
+      if (.not. ma_push_get(mt_int, nsh*(nsh+1)/2, 'fock2e_rep',
+     $     l_ijtype, k_ijtype)) call errquit
+     $     ('fock_2e_rep: ma failed', nsh*(nsh+1)/2)
+ 10   call fock_pairs(basis, max_p, .true., 1, natom, 1, natom, 
+     $     dentol, plist, ps, pinfo, tdim, ntype, int_mb(k_ijtype))
+c
+c     Figure out no. of tasks to do on each request to the
+c     shared counter.  Memory permitting we want this to be 
+c     close to 1.
+c
+      task_bf = ntype*ntype/(10*ga_nnodes())
+      if (max_p .lt. nint(sqrt(dfloat(qdim))) .and.
+     $     task_bf .ge. 4) then
+         max_p = min(nint(sqrt(dfloat(qdim))),2*max_p)
+         goto 10
+      end if
+      if (oprint .and. ga_nodeid().eq.0) then
+         write(6,*) ' max_p ', max_p, ' ntype ', ntype,
+     $     ' task_bf ',task_bf
+         call util_flush(6)
+      end if
+      if (.not. ma_pop_stack(l_ijtype))
+     $     call errquit('fock_2e_rep: ma?',0)
 c     
 c     loop over pair blocks and compute integrals ... want most expensive
 c     integrals first, hence outer loop over ijklt ... assume that
@@ -318,9 +354,14 @@ c     list of quartets, but we need the conventional 'canonical'
 c     unique list to use petite-list symmetry.
 c     
       nproc = ga_nnodes()
-      next = nxtask(nproc, 1)
+      next = nxtask(nproc, task_bf)
       current = 0
       nq = 0
+c
+      nqdone = 0
+      nidone = 0
+      ntreq  = 1
+c
       do ijklt = 2*ntype, 2, -1
          do ijt = min(ntype,ijklt-1), max(1,ijklt-ntype), -1
             if (next .eq. current) then
@@ -330,10 +371,6 @@ c
                   jsh = plist(2,ij)
                   iat = cntoce(ish)
                   jat = cntoce(jsh)
-*     if (oskel) then
-*     if (.not. sym_atom_pair(geom, iat, jat, qjunk)) 
-*     $                 goto 100
-*     end if
                   q2  = 1.0d0
                   if (ish .eq. jsh) q2 = 0.5d0
                   do kl = pinfo(1,klt),pinfo(2,klt)
@@ -344,7 +381,7 @@ c
                      lat = cntoce(lsh)
 c     schwarz screening
                      sijkl = ps(ij)*ps(kl)
-                     if (sijkl*denmax .lt. tol2e) goto 200 ! Next kl
+                     if (sijkl .lt. dentol) goto 200 ! Next kl
 c     enforce canonical indices
                      if (ish.lt.ksh) then
                         goto 200 ! Next kl
@@ -371,39 +408,48 @@ c     density screening
                      end if
 c     kl diagonal
                      if (ksh.eq.lsh) qq4 = qq4*0.5d0
-c     do it!
-                     if (nq .eq. qdim) then
-                        call fock_rep_txs(basis, nfock, nbf,
-     $                       jfac, kfac, dentol, dens, fock, 
-     $                       nq, ijkl(1,1), ijkl(1,2), ijkl(1,3),
-     $                       ijkl(1,4), q4)
-                        nq = 0
+c     save it for later
+                     if (nq .lt. qdim) then
+                        nq = nq + 1
+                        ijkl(nq,1) = ish
+                        ijkl(nq,2) = jsh
+                        ijkl(nq,3) = ksh
+                        ijkl(nq,4) = lsh
+                        q4(nq)     = qq4
+                     else
+                        call errquit('ao_replicated: qdim/max_p?',nq)
                      end if
-                     nq = nq + 1
-                     ijkl(nq,1) = ish
-                     ijkl(nq,2) = jsh
-                     ijkl(nq,3) = ksh
-                     ijkl(nq,4) = lsh
-                     q4(nq)     = qq4
  200              end do        ! Next KL pair
  100           end do           ! Next IJ pair
-               next = nxtask(nproc,1)
-            endif
-            current = current + 1
 c     
-c     Empty out interactions for this type ... significant performance gain
+c     Empty out interactions for this type
 c     
-            if (nq .gt. 0) then
-               call fock_rep_txs(basis, nfock, nbf,
-     $              jfac, kfac, dentol, dens, fock, 
-     $              nq, ijkl(1,1), ijkl(1,2), ijkl(1,3),
-     $              ijkl(1,4), q4)
-               nq = 0
+               if (nq .gt. 0) then
+                  nqdone = nqdone + nq
+                  call fock_rep_txs(basis, nfock, nbf,
+     $                 jfac, kfac, dentol, dens, fock, 
+     $                 nq, ijkl(1,1), ijkl(1,2), ijkl(1,3),
+     $                 ijkl(1,4), q4)
+                  nq = 0
+               end if
+               next = nxtask(nproc,task_bf)
+               ntreq = ntreq + 1
             end if
+            current = current + 1
          end do                 ! Next IJ type
       end do                    ! Next IJKL type
 c     
+      if (oscfps) call pstat_off(ps_fock_2e)
       next = nxtask(-nproc,1)
+c
+      if (oprint) then
+         call begin_seq_output
+         buff = ' '
+         write(buff,99) ga_nodeid(), ntreq, nqdone, nidone
+ 99      format(i4,': tasks=',i4,1p,': nqdone=',d9.1,': neri=',d9.1)
+         call write_seq(6,buff)
+         call end_seq_output
+      end if
 c     
 c     done
 c     
@@ -440,6 +486,10 @@ c
       logical more
 c
       integer maxg
+c
+      integer ntreq
+      double precision nqdone, nidone
+      common/fred/nqdone, nidone, ntreq
 c     
       logical int2e_file_write, intb_2e4c, intb_init4c
       external int2e_file_write, intb_2e4c, intb_init4c
@@ -456,7 +506,7 @@ c
          call int_mem_2e4c(maxg, lenscr)
       else
          lenscr = maxscr
-      endif
+      end if
       leneri = maxeri
       lenlab = 4*maxeri
 c
@@ -464,8 +514,11 @@ c
          write(6,11) nq, lenscr, leneri
  11      format(' nq=',i6,', lenscr=',i8,', leneri=',i8)
          call util_flush(6)
-      endif
-c     
+      end if
+c 
+c     Could make this more intelligent so that if run out
+c     of space request a smaller amount
+c
       if (.not. ma_push_get(mt_dbl, leneri, 'eri', l_eri, k_eri))
      $     call errquit('fock_rep_txs: no room for eri',leneri)
       if (.not. ma_push_get(mt_dbl, lenscr, 'scr', l_scr, k_scr))
@@ -488,6 +541,8 @@ c
      $     dbl_mb(k_eri), leneri, neri, lenscr, dbl_mb(k_scr))
 c     
       if (neri .eq. 0) goto 100 ! Free memory before going home
+c
+      nidone = nidone + neri
 c     
 c     Cache integrals if desired
 c     
@@ -508,7 +563,7 @@ c
       if (more) then
          if (util_print('fock_rep_txs', print_never)) then
             write(6,*) ' Texas has split the request '
-         endif
+         end if
          goto 50
       end if
 c     
@@ -522,25 +577,26 @@ c
       end
       subroutine fock_pairs(basis, max_p, oij, 
      $     iatlo, iathi, jatlo, jathi, 
-     $     tol2e, ijlist, sij, ijinfo, nt_ij)
+     $     tol2e, ijlist, sij, ijinfo, max_ij, nt_ij, ijtype)
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
 #include "util.fh"
 #include "global.fh"
       integer basis
-      integer max_p
+      integer max_p, max_ij
       logical oij
       integer iatlo, iathi, jatlo, jathi
-      integer ijlist(2,*), ijinfo(2,*), nt_ij
+      integer ijlist(2,*), ijinfo(2,max_ij), nt_ij
       double precision sij(*)
+      integer ijtype(*)
 c     
       integer junk
       integer nij, ij, ijt, i, j, jtop, prev, spch
       integer jlo, jhi, jnprim, jngen, jt, jtype
       integer ilo, ihi, inprim, ingen, it, itype
       double precision smax, test, tol2e
-      integer ijtype(255*255), n_in_b, old_nt
+      integer n_in_b, old_nt
       integer iuat, juat        ! Unique atom numbers
 c
       integer thetype
@@ -574,7 +630,7 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
             itype = -1
          else if (itype.eq.1) then
             itype = 0
-         endif
+         end if
          it = thetype(iuat,itype,inprim,ingen)
          jtop = jhi
          if (oij) jtop = i
@@ -592,7 +648,7 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
                   jtype = -1
                else if (jtype.eq.1) then
                   jtype = 0
-               endif
+               end if
                jt = thetype(juat,jtype,jnprim,jngen)
                nij           = nij + 1
                ijlist(1,nij) = i
@@ -605,29 +661,6 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
 c     
       call fock_pair_sort(nij,ijlist,ijtype)
 c     
-c     Split blocks by type only
-c     
-c$$$  nt_ij = 0
-c$$$  prev = -99999999
-c$$$  do ij = 1, nij
-c$$$  if (ijtype(ij) .ne. prev) then
-c$$$  if (nt_ij .ne. 0) ijinfo(2,nt_ij) = ij-1
-c$$$  nt_ij = nt_ij + 1
-c$$$  ijinfo(1,nt_ij) = ij
-c$$$  prev = ijtype(ij)
-c$$$  end if
-c$$$  end do
-c$$$  ijinfo(2,nt_ij) = nij
-c     
-c     Split blocks by size only
-c     
-c$$$  nt_ij = 0
-c$$$  do ij = 1, nij, max_p
-c$$$  nt_ij = nt_ij + 1
-c$$$  ijinfo(1,nt_ij) = ij
-c$$$  ijinfo(2,nt_ij) = min(nij,ij + max_p - 1)
-c$$$  end do
-c     
 c     Split pair blocks on type boundaries with regard to size
 c     (first do type only then combine)
 c     
@@ -638,6 +671,8 @@ c
          if (ijtype(ij).ne.prev .or. n_in_b.ge.max_p) then
             if (nt_ij .ne. 0) ijinfo(2,nt_ij) = ij-1
             nt_ij = nt_ij + 1
+            if (nt_ij .gt. max_ij) call errquit
+     $           ('fock_pairs: dimension failure', nt_ij)
             ijinfo(1,nt_ij) = ij
             prev = ijtype(ij)
             n_in_b = 0
@@ -646,12 +681,13 @@ c
       end do
       ijinfo(2,nt_ij) = nij
 c
-      if (util_print('fock pairs', print_debug)) then
+      if (util_print('fock pairs', print_debug)
+     $     .and. ga_nodeid().eq.0) then
          write(6,*) ' Before combining, #pair blocks = ', nt_ij
          do ijt = 1, nt_ij
             write(6,*) ' ij type ', ijt, ijinfo(1,ijt),ijinfo(2,ijt)
-         enddo
-      endif
+         end do
+      end if
 c     
       old_nt = nt_ij
       nt_ij = 1
@@ -662,6 +698,8 @@ c
             ijinfo(2,nt_ij) = ijinfo(2,ijt)
          else
             nt_ij = nt_ij + 1
+            if (nt_ij .gt. max_ij) call errquit
+     $           ('fock_pairs: dimension failure(2)', nt_ij)
             ijinfo(1,nt_ij) = ijinfo(1,ijt)
             ijinfo(2,nt_ij) = ijinfo(2,ijt)
             n_in_b = (ijinfo(2,ijt)-ijinfo(1,ijt)+1)
@@ -677,7 +715,8 @@ c
          sij(ij) = schwarz_shell(i,j)
       end do
 c     
-      if (util_print('fock pairs', print_debug)) then
+      if (util_print('fock pairs', print_debug) .and.
+     $     ga_nodeid().eq.0) then
          write(6,*) ' After combining, #pair blocks = ', nt_ij
          do ijt = 1, nt_ij
             write(6,*) ' ij type ', ijt, ijinfo(1,ijt),ijinfo(2,ijt)
@@ -702,7 +741,6 @@ c
       end if
 c     
       end
-c     
       subroutine fock_pair_sort(n,ijlist,ijtype)
       implicit integer (a-z)
       dimension ijlist(2,n), ijtype(n)
@@ -809,8 +847,8 @@ c
       do i = 1, nfock
          do j = 1, nbf*nbf
             new(i,j) = old(j,i)
-         enddo
-      enddo
+         end do
+      end do
 c
       end
       subroutine scf_fock_reorder(nfock, nbf, old, new)
@@ -823,7 +861,7 @@ c
       do i = 1, nfock
          do j = 1, nbf*nbf
             new(j,i) = old(i,j)
-         enddo
-      enddo
+         end do
+      end do
 c
       end
