@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.11 1995-12-12 22:18:23 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.12 1996-01-26 21:50:20 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -423,7 +423,8 @@ c
           aa = (aa1*(aa1-1))/2 + aa2 - aoff
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_coul,rlo,rhi,aa,aa,k_local,ld)
-            call moints_Jtrf34a( nbf, c, dbl_mb(k_local), tmp )
+            call moints_Jtrf34a( nbf, vlo, vhi, c,
+     $                           dbl_mb(k_local), tmp )
             if (osym) call moints_sym_zero(nbf, 1, nbf, syms, a1, a2,
      $                                     dbl_mb(k_local))
             call ga_release(g_coul,rlo,rhi,aa,aa)
@@ -437,15 +438,15 @@ c
 
 
 
-      subroutine moints_Jtrf34a( nbf, c, x, tmp )
+      subroutine moints_Jtrf34a( nbf, vlo, vhi, c, x, tmp )
       implicit none
-      integer nbf
+      integer nbf, vlo, vhi
       double precision c(nbf,nbf)
       double precision x(nbf,nbf)
       double precision tmp(nbf,nbf)
+      integer i, j, nv
 
-      integer i, j
-
+      nv = vhi - vlo + 1
       do i=1,nbf
         do j=1,i
           tmp(j,i) = x(j,i)
@@ -453,17 +454,12 @@ c
         enddo
       enddo
 
-      call dgemm('t','n',nbf,nbf,nbf,1.d0,c,nbf,tmp,nbf,
-     $           0.d0,x,nbf)
-      call dgemm('n','n',nbf,nbf,nbf,1.d0,x,nbf,c,nbf,
-     $           0.d0,tmp,nbf)
+      call dgemm('t','n',nv,nbf,nbf,1.d0,c(1,vlo),nbf,tmp,nbf,
+     $           0.d0,x,nv)
+      call dgemm('n','n',nv,nv,nbf,1.d0,x,nv,c(1,vlo),nbf,
+     $           0.d0,tmp,nv)
 
-      do i=1,nbf
-        do j=1,nbf
-          x(j,i) = tmp(j,i)
-        enddo
-      enddo
-
+      call dcopy((nv*nv),tmp,1,x,1)
       return
       end
 
@@ -537,7 +533,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.11 1995-12-12 22:18:23 rg240 Exp $
+C$Id: moints_aux2.F,v 1.12 1996-01-26 21:50:20 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -581,7 +577,7 @@ C$Id: moints_aux2.F,v 1.11 1995-12-12 22:18:23 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.11 1995-12-12 22:18:23 rg240 Exp $
+c$$$C$Id: moints_aux2.F,v 1.12 1996-01-26 21:50:20 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
