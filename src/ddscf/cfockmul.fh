@@ -1,8 +1,8 @@
 *
-* $Id: cfockmul.fh,v 1.3 1997-11-07 11:35:07 d3e129 Exp $
+* $Id: cfockmul.fh,v 1.4 2000-07-14 23:47:57 bert Exp $
 *
       integer maxim, maxim1
-      parameter (maxim = 2048)
+      parameter (maxim = nw_max_nbf)
       parameter (maxim1=maxim-1)
       integer im, jm, lm, im1
       common /cfockmul/ im(0:maxim1), jm(0:maxim1), lm(0:maxim1),
