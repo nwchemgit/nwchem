@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.149 2002-01-05 01:14:35 bert Exp $
+C     $Id: geom_input.F,v 1.150 2002-01-10 23:40:34 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -3124,9 +3124,9 @@ C
       DIMENSION C4AXS(3)
       DIMENSION S4AXS(3)
       DIMENSION ERRMSG(3)
-      double precision big,deter3
+      double precision big,deter3,check_row
       external deter3
-      logical sameatm,ngotax(3)
+      logical sameatm
       EQUIVALENCE (DEGNR3,CUBIC)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-MOLOPS-'/
       DATA ZERO   /0.0D+00/
@@ -3288,9 +3288,6 @@ C           C4 AXES FOR -O - GROUP
 C           C4 AXES FOR -Oh- GROUP
 C
          NAXM=0
-         ngotax(1)=.true.
-         ngotax(2)=.true.
-         ngotax(3)=.true.
          DO IAT=1,NAT
             IF(IEQU(IAT).EQ.IAT) THEN
                DO JAT=1,NAT
@@ -3431,23 +3428,31 @@ C
                         ENDIF
                         GOTONE=.FALSE.
                         DO IAXIS=1,3
-                           if(ngotax(iaxis)) then
                               IF((GRPTH.AND.
      1                             C2AXS(IAXIS)                 ).OR. 
      2                             (GRPOH.AND.
      3                             C2AXS(IAXIS).AND.C4AXS(IAXIS))) THEN
                                  NAXM=NAXM+1
-c                                IF(NAXM.EQ.1) THEN
-c                                GOTONE=.TRUE.
-c                                ENDIF
-                                 IF(NAXM.LE.3) THEN
+c
+c     check if you are adding an existing row
+c
+                                 gotone=.false.
+                                 do j=1,3
+                                    check_row=0d0
+                                    do i=1,3
+                                       check_row=check_row+
+     +                                      abs(axs(i,iaxis)-axM(i,j))
+                                    enddo
+                                    if(check_row.lt.1d-2) gotone=.true.
+                                 enddo
+                                 IF(NAXM.LE.3.and.(.not.gotone)) THEN
                                     DO I=1,3
                                        AXM(I,NAXM)=AXS(I,IAXIS)
                                     ENDDO
-                                    ngotax(iaxis)=.false.
+                                    else
+                                       naxm=naxm-1
                                  ENDIF
                               ENDIF
-                           endif
                         ENDDO
                      ELSE
                         GRPTD=.FALSE.
@@ -3461,7 +3466,6 @@ c                                ENDIF
                            WRITE(IW,*) 'T , TD , O = ',
      1                                  GRPT,GRPTD,GRPO
                         ENDIF
-c                       GOTONE=.FALSE.
                         DO IAXIS=1,3
                            IF((GRPO .AND.
      1                         (C2AXS(IAXIS).AND.C4AXS(IAXIS))).OR.
@@ -3470,9 +3474,6 @@ c                       GOTONE=.FALSE.
      4                        (GRPT .AND.
      5                         (C2AXS(IAXIS)                 ))) THEN
                               NAXM=NAXM+1
-c                             IF(NAXM.EQ.1) THEN
-c                                GOTONE=.TRUE.
-c                             ENDIF
                               IF(NAXM.LE.3) THEN
                                  DO I=1,3
                                     AXM(I,NAXM)=AXS(I,IAXIS)
@@ -3517,7 +3518,7 @@ C
          AXS(1,3)=AXS(2,1)*AXS(3,2)-AXS(2,2)*AXS(3,1)
          AXS(2,3)=AXS(3,1)*AXS(1,2)-AXS(3,2)*AXS(1,1)
          AXS(3,3)=AXS(1,1)*AXS(2,2)-AXS(1,2)*AXS(2,1)
-         if(deter3(AXS).le.0.99d0.or.deter3(AXS).gt.1.1d0) then
+         if(abs(deter3(AXS)-1d0).gt.1d-2) then
             groupname='C1'
             write(IW,*) ' WARNING: autosym failed! '
             return
