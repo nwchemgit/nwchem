@@ -1,7 +1,3 @@
-Things to follow up on
-----------------------
-o Frozen orbitals do not work for energies.
-
 Wish list of additional features
 -------------------------------
 o convergence of amplitudes should be measured with residuals,
@@ -9,8 +5,9 @@ o convergence of amplitudes should be measured with residuals,
 o Norms of amplitudes & related measures
 o Largest amplitudes
 o CCD (because its there)
-o Compression and/or GA storage of iterates for DIIS
+o Out of core DIIS
 o Control to switch off DIIS entirely
+o AO-driven stuff should use Texas blocking interface
 
 Notable changes to code
 -----------------------
@@ -29,3 +26,12 @@ o /len/ turned into ccsd_len.fh include file
 o /debug/ turned into ccsd_debug.fh include file
 o Implicit NONE in all routines
 o Default convergence threshold 1.0e-8 --> 1.0e-6 at suggestion of RJH
+o All routines have RCS/CVS $Id: NOTES,v 2.4 1997-06-05 16:26:18 gg502 Exp $
+o Triple transformation now uses Texas blocking [ATW]
+o DIIS storage compressed (using permutational symmetry) [RK]
+o Frozen orbitals work for energies [RK]
+o Convergence threshold changed from integer to real (to conform with
+  the rest of NWChem)
+o Tol2E made user input parameter. NOTE: Effects only 3-/4-virtual
+  terms and triples, which are "AO based".  MOINTS transformations
+  used elsewhere still have hard-wired 1.0e-12 value!
