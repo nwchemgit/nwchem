@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.36 2005-04-01 02:38:54 marat Exp $
+C$Id: int_1e_ga.F,v 1.37 2005-04-01 08:39:08 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -58,7 +58,6 @@ c
       if (inp_compare(.false., integ_type1, 'kinetic')) then
          type = 1
       else if (inp_compare(.false., integ_type1, 'potential')) then
-         write(*,*) "found potential"
          type = 2
       else if (inp_compare(.false., integ_type1, 'overlap')) then
          type = 3
@@ -190,7 +189,6 @@ c
       else if (inp_compare(.false., integ_type, 'cos_chg_pot'))then 
          type = 6 
       else if (inp_compare(.false., integ_type, 'bq_pot'))then 
-         write(*,*) "integ_type",integ_type
          type = 7 
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
