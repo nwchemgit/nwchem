@@ -1,10 +1,11 @@
-C $Id: ecp_gradient.F,v 1.8 1997-09-05 22:25:18 d3e129 Exp $
+C $Id: ecp_gradient.F,v 1.9 1997-10-03 01:39:44 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
      &    xyz_A,zeta_A,coef_A,n_prim_A,n_cont_A,l_A,i_c_A,
      &    xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,l_B,i_c_B,
-     &    xyz_C,zeta_C,coef_C,n_prim_C,n_coef_C,ind_C,n_tot_C,n_zeta_C,
+     &    xyz_C,zeta_C,coef_C,n_prim_C,n_colc_C,
+     &    ind_z,ind_c,n_zeta_C,n_coef_C,
      &    l_C,i_cent_C,n_C,l_ecp_max,
      &    sphcart,csco,lcsco,
      &    ecp_grads,n_int,n_cent,
@@ -37,16 +38,15 @@ C $Id: ecp_gradient.F,v 1.8 1997-09-05 22:25:18 d3e129 Exp $
 *                    power of r, l value and ECP centre. The highest   *
 *                    l value is for the local part, thus the second    *
 *                    dimension is l_ecp_max+2 (or 0:l_ecp_max+1)       *
-*   n_coef_C (inp) - array of number of coefficients for each l value  *
+*   n_colc_C (inp) - array of number of coefficients for each l value  *
 *                    and ECP centre. This is n_prim_C summed over the  *
 *                    first dimension.                                  *
-*   ind_C (inp) - array of addresses of first coefficient/exponent for *
-*                 each l value and ECP centre. This is the progressive *
-*                 sum of n_coef_C                                      *
-*   n_tot_C (inp) - total number of coefficients for each ECP centre.  *
-*                   This is n_coef_C summed over the first dimension.  *
-*   n_zeta_C (inp) - total number of ECP exponents/coefficients. This  *
-*                    is n_tot_C summed over centres.                   *
+*   ind_z (inp) - array of addresses of first exponent for each l      *
+*                 value and ECP centre.                                *
+*   ind_c (inp) - array of addresses of first coefficient for each l   *
+*                 value and ECP centre.                                *
+*   n_zeta_C (inp) - total number of ECP exponents.                    *
+*   n_coef_C (inp) - total number of ECP coefficients.                 *
 *   l_C (inp) - maximum angular momentum of projectors on centres C    *
 *   i_cent_C (inp) - indices of ECP centres C                          *
 *   n_C (inp) - number of ECP centres C                                *
@@ -72,15 +72,18 @@ C $Id: ecp_gradient.F,v 1.8 1997-09-05 22:25:18 d3e129 Exp $
 ************************************************************************
       implicit none
 #include "stdio.fh"
-      integer i,j,k,l,n,
-     &    n_prim_A,n_cont_A,l_A,i_c_A,n_prim_B,n_cont_B,l_B,i_c_B,i_c_C,
-     &    n_zeta_C,n_C,l_ecp_max,n_int,n_blk,n_cent,sphcart,lscr,ibug
+      integer i,j,k,l,
+     &    n_prim_A,n_cont_A,l_A,i_c_A,
+     &    n_prim_B,n_cont_B,l_B,i_c_B,
+     &    n_zeta_C,n_coef_C,n_C,i_c_C,l_ecp_max,
+     &    n_int,n_blk,n_cent,sphcart,lscr,ibug
 Ctest
       parameter (n_blk=1)
 Cend
-      integer n_prim_C(0:2,-1:l_ecp_max,n_C),
-     &    n_coef_C(-1:l_ecp_max,n_C),ind_C(-1:l_ecp_max,n_C),
-     &    n_tot_C(n_C),l_C(n_C),i_cent_C(n_C)
+      integer n_prim_C(0:2,-1:l_ecp_max,n_C*2),
+     &    n_colc_C(-1:l_ecp_max,n_C*2),
+     &    ind_z(-1:l_ecp_max,n_C*2),ind_c(-1:l_ecp_max,n_C*2),
+     &    l_C(n_C),i_cent_C(n_C)
       integer i_scr,i_s,i_zeta,i_zeta0,i_zeta1,
      &    i_xca,i_xcb,i_lm,i_lp,
      &    mem,max_loc,max_type1,max_type2,memscr,
@@ -97,7 +100,7 @@ Cend
      &    scr(lscr),ecp_grads(n_int*n_blk,3,n_cent)
       double precision 
      &    X_AC,Y_AC,Z_AC,R_AC,X_BC,Y_BC,Z_BC,R_BC,
-     &    tiny,tol,zero,one
+     &    tol,zero,one
       double precision csco(lcsco)
       character*4 dbyd(3)
       character*12 printhead
@@ -191,7 +194,6 @@ Cend
      &    'coordinate array','E',78,4)
       if (debug_gen) write (LuOut,*) 'Number of ECP centers =',n_C
       do i = 1,n_C
-        n = n_tot_C(i)
         l = l_C(i)
         i_c_C = i_cent_C(i)
         if (debug_gen) write (LuOut,*) 'ECP center',i
@@ -224,20 +226,6 @@ Cend
         i_zeta1 = i_zeta+n_prim_C(0,-1,i)
         i_zeta0 = i_zeta1+n_prim1
 *
-C        if (debug_arrays) then
-C          write (LuOut,*) 'Parameters of ECP'
-C          write (LuOut,*) '   n_tot_C',n_tot_C(i)
-C          call ecp_matpi (n_prim_C,0,2,-1,l_ecp_max,0,2,0,l_C,
-C     &        'n_prim_C',81,15)
-C          call ecp_matpi (ind_C,-1,l_ecp_max,1,1,0,l_C,1,1,
-C     &        'ind_C',81,15)
-C          call ecp_matpi (n_coef_C,-1,l_ecp_max,1,1,0,l_C,1,1,
-C     &        'n_coef_C',81,15)
-C          call ecp_matpr (zeta_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
-C     &        'zeta_C','E',78,4)
-C          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
-C     &        'coef_C','E',78,4)
-C        end if
 *
 *       Derivatives wrt centre B
 *       ========================
@@ -262,8 +250,8 @@ C        end if
      &          scr(i_xcb),zeta_B,
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &          coef_A,zeta_A,
-     &          l_ecp_max,n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
-     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          l_ecp_max,n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
      &          tol,0,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpb,n_blk,.false.,ibug/10)
@@ -274,8 +262,8 @@ C        end if
      &          scr(i_xcb),zeta_B,
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &          coef_A,zeta_A,
-     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
-     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
      &          tol,sphcart,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpb,n_blk,ibug/10)
@@ -299,8 +287,8 @@ C        end if
      &            coef_B,zeta_B,
      &            R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &            coef_A,zeta_A,
-     &            l_ecp_max,n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
-     &            n_zeta_C,coef_C,zeta_C,0,2,
+     &            l_ecp_max,n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
      &            tol,0,scr(i_scr),memscr,
      &            csco,lcsco,
      &            scr(i_lm),n_intmb,n_blk,.false.,ibug/10)
@@ -311,8 +299,8 @@ C        end if
      &            coef_B,zeta_B,
      &            R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &            coef_A,zeta_A,
-     &            l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
-     &            n_zeta_C,coef_C,zeta_C,0,2,
+     &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
      &            tol,sphcart,scr(i_scr),memscr,
      &            csco,lcsco,
      &            scr(i_lm),n_intmb,n_blk,ibug/10)
@@ -360,8 +348,8 @@ C        end if
      &          scr(i_xca),zeta_A,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
      &          coef_B,zeta_B,
-     &          l_ecp_max,n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
-     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          l_ecp_max,n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
      &          tol,0,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpa,n_blk,.true.,ibug/10)
@@ -372,8 +360,8 @@ C        end if
      &          coef_B,zeta_B,
      &          R_AC,X_AC,Y_AC,Z_AC,l_A+1,n_prim_A,n_cont_A,
      &          scr(i_xca),zeta_A,
-     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
-     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
      &          tol,sphcart,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpa,n_blk,ibug/10)
@@ -399,8 +387,8 @@ C        end if
      &            coef_A,zeta_A,
      &            R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
      &            coef_B,zeta_B,
-     &            l_ecp_max,n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
-     &            n_zeta_C,coef_C,zeta_C,0,2,
+     &            l_ecp_max,n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
      &            tol,0,scr(i_scr),memscr,
      &            csco,lcsco,
      &            scr(i_lm),n_intma,n_blk,.true.,ibug/10)
@@ -411,8 +399,8 @@ C        end if
      &            coef_B,zeta_B,
      &            R_AC,X_AC,Y_AC,Z_AC,l_A-1,n_prim_A,n_cont_A,
      &            coef_A,zeta_A,
-     &            l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
-     &            n_zeta_C,coef_C,zeta_C,0,2,
+     &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
      &            tol,sphcart,scr(i_scr),memscr,
      &            csco,lcsco,
      &            scr(i_lm),n_intma,n_blk,ibug/10)
