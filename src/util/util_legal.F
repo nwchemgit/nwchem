@@ -1,12 +1,12 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.25 2002-02-08 00:25:37 windus Exp $
-*---------------------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001  *
-*         Pacific Northwest National Laboratory,                *
-*         Battelle Memorial Institute.                          *
-*---------------------------------------------------------------*
-*------------> All Rights Reserved <----------------------------*
-*---------------------------------------------------------------*
+* $Id: util_legal.F,v 1.26 2002-02-19 20:29:32 windus Exp $
+*--------------------------------------------------------------------*
+* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002 *
+*              Pacific Northwest National Laboratory,                *
+*              Battelle Memorial Institute.                          *
+*--------------------------------------------------------------------*
+*-----------------> All Rights Reserved <----------------------------*
+*--------------------------------------------------------------------*
 c
 c routine to print legal disclaimer to stdout
 c
@@ -22,7 +22,10 @@ c
       center_pt = 40
 c
       call util_print_centered(luout,
-     & 'COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001',
+     & 'COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, ',
+     &    center_pt+1, FF)
+      call util_print_centered(luout,
+     & '1999, 2000, 2001, 2002',
      &    center_pt+1, FF)
       call util_print_centered(luout,
      &    '    Pacific Northwest National Laboratory, ',
@@ -154,7 +157,7 @@ c
      &    /,12x,
      &    'Computational Chemistry Package for Parallel Computers, ',
      &    /,12x,
-     &    'Version 4.0.1" (2001), ',
+     &    'Version 4.1" (2002), ',
      &    'Pacific Northwest National Laboratory,',
      &    /,12x,
      &    'Richland, Washington 99352-0999, USA.'
@@ -181,7 +184,7 @@ c
      + 12x,'"NWChem, A Computational Chemistry Package for Parallel ',
      &    'Computers, ',
      &    /,12x,
-     &    'Version 4.0.1" (2001),',
+     &    'Version 4.1" (2002),',
      &    /,22x,'Pacific Northwest National Laboratory,',
      &    /,22x,'Richland, Washington 99352-0999, USA.'
      &    /,/)
