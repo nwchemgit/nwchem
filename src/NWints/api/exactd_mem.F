@@ -1,5 +1,5 @@
       subroutine exactd_mem(bases,nbas)
-c $Id: exactd_mem.F,v 1.6 1994-08-05 20:06:09 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.7 1995-02-07 00:49:22 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -36,6 +36,9 @@ c.... 1e
            call emem_d1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
            mem_1e = max(mem_1e, lmem_1e)
            isz_1e = max(isz_1e, lsz_1e)
+           write(6,*)' ibas|jbas ', ibas, '|', jbas
+           write(6,*)' mem_2e4c: ',mem_2e4c
+           write(6,*)' mem_1e  : ',mem_1e
 00200   continue
 00100 continue
 c     
@@ -45,10 +48,10 @@ c
 c
 c... 2e3c and 2e2c use same scratch space so the maxg is the only thing that changes      
 c
-*      isz_2e3c = nbfmax**3
-*      isz_2e2c = nbfmax**2
-*      mem_2e3c = mem_2e4c
-*      mem_2e2c = mem_2e4c
+      isz_2e3c = nbfmax**3
+      isz_2e2c = nbfmax**2
+      mem_2e3c = mem_2e4c
+      mem_2e2c = mem_2e4c
 c
       end
       subroutine emem_d1e(brain, ketin, max1e, memsize)
@@ -116,7 +119,7 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 9 000 000
+          memdum = 15 000 000
           nint = int_unint(brain,ibc,ketin,ikc,0,0,0,0)
           call hf1d(
      &         exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
@@ -204,7 +207,7 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 9 000 000
+          memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
           nint = int_unint(brain,ibc,brain,ibc,ketin,ikc,ketin,ikc)
           call hf2d(
@@ -215,17 +218,17 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &           exndcf,nint,.false.,.false.,.false.,
      &           .true.,exndcf,memdum)
 *rak:-start-debug
-*rak:          write(6,*)
-*rak:          write(6,*)'===============================================',
-*rak:     &        '================================='
-*rak:          write(6,10000)ibc,ibc,ikc,ikc,
-*rak:     &        bra_prim,bra_prim,ket_prim,ket_prim,
-*rak:     &        nint,memdum
-*rak:10000     format(1x,'<',4(i4),'>(',4(i3),') nint=',i10,' memory =',i10)
+          write(6,*)
+          write(6,*)'===============================================',
+     &        '================================='
+          write(6,10000)ibc,ibc,ikc,ikc,
+     &        bra_prim,bra_prim,ket_prim,ket_prim,
+     &        nint,memdum
+10000     format(1x,'<',4(i4),'>(',4(i3),') nint=',i10,' memory =',i10)
 *rak:-end-debug
           memsize = max(memsize,memdum)
 c
-          memdum = 9 000 000
+          memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
           nint = int_unint(brain,ibc,brain,ibc,ketin,ikc,ketin,ikc)
           call hf2d(
@@ -236,14 +239,14 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &           exndcf,nint,.false.,.false.,.false.,
      &           .true.,exndcf,memdum)
 *rak:-start-debug
-*rak:          write(6,10000)ibc,ikc,ibc,ikc,
-*rak:     &        bra_prim,ket_prim,bra_prim,ket_prim,
-*rak:     &        nint,memdum
+          write(6,10000)ibc,ikc,ibc,ikc,
+     &        bra_prim,ket_prim,bra_prim,ket_prim,
+     &        nint,memdum
 *rak:-end-debug
           memsize = max(memsize,memdum)
 c
           if (bra.eq.ket) then
-            memdum = 9 000 000
+            memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
             nint = int_unint(brain,ibc,brain,ibc,brain,ibc,ketin,ikc)
             call hf2d(
@@ -254,13 +257,13 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
      &             exndcf,nint,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
 *rak:-start-debug
-*rak:          write(6,10000)ibc,ibc,ibc,ikc,
-*rak:     &        bra_prim,bra_prim,bra_prim,ket_prim,
-*rak:     &        nint,memdum
+          write(6,10000)ibc,ibc,ibc,ikc,
+     &        bra_prim,bra_prim,bra_prim,ket_prim,
+     &        nint,memdum
 *rak:-end-debug
             memsize = max(memsize,memdum)
 c
-            memdum = 9 000 000
+            memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
             nint = int_unint(brain,ibc,ketin,ikc,ketin,ikc,ketin,ikc)
             call hf2d(
@@ -271,11 +274,11 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
      &             exndcf,nint,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
 *rak:-start-debug
-*rak:          write(6,10000)ibc,ikc,ikc,ikc,
-*rak:     &        bra_prim,ket_prim,ket_prim,ket_prim,
-*rak:     &        nint,memdum
-*rak:          write(6,*)'===============================================',
-*rak:     &        '================================='
+          write(6,10000)ibc,ikc,ikc,ikc,
+     &        bra_prim,ket_prim,ket_prim,ket_prim,
+     &        nint,memdum
+          write(6,*)'===============================================',
+     &        '================================='
 *rak:-end-debug
             memsize = max(memsize,memdum)
           endif
