@@ -15,7 +15,7 @@ c     .  [NOPRINT]
 c     .  [VECTORS <string filename default scf-output-vectors> \
 c     .    [swap [(alpha||beta)] <integer pair-list>] ]
 c     .  [RIAPPROX <string riapprox default V>]
-c     .  [FILE3C <string filename default $file_prefix$.mo3cint">]
+c     .  [FILE3C <string filename default "$file_prefix$.mo3cint">]
 c     END
 c
       character*20 test, riapprox
