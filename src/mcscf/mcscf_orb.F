@@ -1,11 +1,11 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.13 1996-04-05 22:12:43 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.14 1996-04-09 22:14:22 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
      $                           nact, oskel, orbsym, dm1, dm2,
-     $                           g_coul, g_exch, oconj, pfac,
+     $                           g_coul, g_exch, g_jact, oconj, pfac,
      $                           g_conj, g_gradold, g_hcore, orbe,
      $                           eone, etwo, gnorm, g_movecs )
        implicit none
@@ -27,6 +27,7 @@ c
        double precision dm2(*)                         ! [input] 2-PDM
        integer g_coul                                  ! [input] Coulomb operator
        integer g_exch                                  ! [input] Exchange operator
+       integer g_jact                                  ! [input] (pt|vu) Integrals
        logical oconj                                   ! [input] Conjugacy toggle
        double precision pfac                           ! [input/output] Conj projection factor
        integer g_conj                                  ! [input] Conjugacy vector
@@ -116,10 +117,17 @@ c
 c
 c  Compute Fock matrices and gradients
 c
+#ifdef APPROX_E2
+       call mcscf_fock_z( geom, basis, nbf, nclosed, nact,
+     $                    oskel, tol2e, dm1, dm2,
+     $                    g_movecs, g_jact, eone, etwo,
+     $                    g_ifock, g_afock, g_gfock )
+#else
        call mcscf_fock( geom, basis, nbf, nclosed, nact,
      $                  oskel, tol2e, dm1, dm2,
      $                  g_movecs, g_coul, eone, etwo,
      $                  g_ifock, g_afock, g_gfock )
+#endif
        call mcscf_gfock2grad( nbf, nclosed, nact, g_gfock, g_grad )
        call mcscf_vsymm_chk( nbf, nclosed, nact, orbsym,
      $                       g_grad, .true., .false., maxx )
@@ -128,12 +136,15 @@ c
        gnorm0 = gnorm
        eone = eone + enrep
        energy = eone + etwo
+c$$$       write(6,922) energy,gnorm
+c$$$ 922   format(//,10x,'####',10x,f22.14,5x,e16.9)
 c
 c  Precompute 1e-Hessian diagonal
 c
        call mcscf_hdiag( nbf, nclosed, nact, pflg, dm1, dm2,
      $                   g_coul, g_exch, g_ifock,
      $                   g_afock, g_gfock, g_hdiag )
+C       CALL GA_ROWPRINT( '1e Hessian diagonal', G_HDIAG )
 c
 c  RHS = -Gradient
 c
@@ -151,35 +162,43 @@ c
 c
 c  Check on vanishing/negative Hessian diagonals
 c
-       hmax = -10.d0
-       hmin = 10.d0
-       ismall = 0
-       do i=ga_nodeid()+1,vlen,ga_nnodes()
-         call ga_get(g_hdiag,i,i,1,1,yy,1)
-         yy = yy + lshift
-         hmax = max(hmax,yy)
-         hmin = min(hmin,yy)
-         if (abs(yy).lt.0.05d0) ismall = ismall + 1
-       enddo
-       call ga_sync()
-       call ga_dgop(Msg_HessMin,hmin,1,'min')
-       call ga_dgop(Msg_HessMax,hmax,1,'max')
-       if (hmin.lt.0.1d0) then
+       if (pflg.gt.1) then
+         hmax = -10.d0
+         hmin = 10.d0
+         ismall = 0
          do i=ga_nodeid()+1,vlen,ga_nnodes()
            call ga_get(g_hdiag,i,i,1,1,yy,1)
-           yy = yy + lshift - hmin + 0.1d0
+           yy = yy + lshift
+           hmax = max(hmax,yy)
+           hmin = min(hmin,yy)
+           if (abs(yy).lt.0.05d0) ismall = ismall + 1
+         enddo
+         call ga_sync()
+         call ga_dgop(Msg_HessMin,hmin,1,'min')
+         call ga_dgop(Msg_HessMax,hmax,1,'max')
+         if (hmin.lt.0.1d0) then
+           do i=ga_nodeid()+1,vlen,ga_nnodes()
+             call ga_get(g_hdiag,i,i,1,1,yy,1)
+             yy = yy + lshift - hmin + 0.1d0
+             call ga_put(g_hdiag,i,i,1,1,yy,1)
+           enddo
+         endif
+         call ga_sync()
+         call ga_igop(Msg_ChkMO,ismall,1,'+')
+         if ((ga_nodeid().eq.0).and.(ismall.gt.0)) then
+           write(6,112) ismall
+ 112       format('Warning:',i5,' Hessian diagonals < 0.05d0')
+         endif
+         if (ga_nodeid().eq.0) write(6,113) hmax,hmin
+ 113     format('Hessian spectrum:',2e12.2)
+       else
+         do i=ga_nodeid()+1,vlen,ga_nnodes()
+           call ga_get(g_hdiag,i,i,1,1,yy,1)
+           yy = yy + lshift
            call ga_put(g_hdiag,i,i,1,1,yy,1)
          enddo
        endif
-       call ga_sync()
-       call ga_igop(Msg_ChkMO,ismall,1,'+')
-       if ((ga_nodeid().eq.0).and.(ismall.gt.0)) then
-         write(6,112) ismall
- 112     format('Warning:',i5,' Hessian diagonals < 0.05d0')
-       endif
-       if (ga_nodeid().eq.0) write(6,113) hmax,hmin
- 113   format('Hessian spectrum:',2e12.2)
-c$$$       CALL GA_ROWPRINT(' HESSIAN DIAG ', g_hdiag )
+C       CALL GA_ROWPRINT(' Scaled Hessian Diag ', G_HDIAG )
 c
 c  Precondition
 c
@@ -228,17 +247,15 @@ c
 c
 c   Regenerate J, (also K if doing stepci)
 c
+#ifndef APPROX_E2         
          oexch = ostepci
          if (omcscfprof) call pstat_on(ps_4index)
          call moints_build_2x( basis, ohalf, oskel,
      $                         molo, molo, mohi, 1, nbf,
      $                         g_newvecs, g_coul, ocoul,
      $                         g_exch, oexch, blen )
-c$$$         call moints_build_6x( basis, oskel,
-c$$$     $                         molo, molo, mohi, 1, nbf,
-c$$$     $                         g_newvecs, g_coul, ocoul,
-c$$$     $                         g_exch, .true., 16 )
          if (omcscfprof) call pstat_off(ps_4index)
+#endif
 c
 c   Resolve secular eqn for each step?
 c
@@ -254,10 +271,17 @@ c
 c
 c   New energy and gradient
 c
+#ifdef APPROX_E2         
+         call mcscf_fock_z( geom, basis, nbf, nclosed, nact,
+     $                    oskel, tol2e, dm1, dm2,
+     $                    g_newvecs, g_jact, eone, etwo,
+     $                    g_ifock, g_afock, g_gfock )
+#else
          call mcscf_fock( geom, basis, nbf, nclosed, nact,
      $                    oskel, tol2e, dm1, dm2,
      $                    g_newvecs, g_coul, eone, etwo,
      $                    g_ifock, g_afock, g_gfock )
+#endif
          call mcscf_gfock2grad( nbf, nclosed, nact, g_gfock, g_grad )
          av(iter) = alpha
          eev(iter) = eone + enrep + etwo
@@ -285,20 +309,27 @@ c
        call ga_copy(g_newvecs, g_movecs )
        gnorm = sqrt(ga_ddot(g_grad, g_grad))
 c
-c  Update Exchange operator if necessary
+c  Update Coulomb and Exchange operator
 c
-       if (.not.(ostepci)) then
          if (omcscfprof) call pstat_on(ps_4index)
+#ifdef APPROX_E2         
+         call moints_mcscf_2x(basis, molo, mohi, 1, nbf,
+     $                        g_movecs, g_coul, .true.,
+     $                        g_exch, .true., g_jact, .true.,
+     $                        blen )
+         call mcscf_fock_z( geom, basis, nbf, nclosed, nact,
+     $                      oskel, tol2e, dm1, dm2,
+     $                      g_movecs, g_jact, eone, etwo,
+     $                      g_ifock, g_afock, g_gfock )
+#else
+       if (.not.(ostepci)) then
          call moints_build_2x( basis, ohalf, oskel,
      $                         molo, molo, mohi, 1, nbf,
      $                         g_movecs, g_coul, .false.,
      $                         g_exch, .true., blen )
-c$$$         call moints_build_6x( basis, oskel,
-c$$$     $                         molo, molo, mohi, 1, nbf,
-c$$$     $                         g_movecs, g_coul, .true.,
-c$$$     $                         g_exch, .false., 16 )
-         if (omcscfprof) call pstat_off(ps_4index)
        endif
+#endif
+       if (omcscfprof) call pstat_off(ps_4index)
 c
 c  Clean-up
 c
@@ -327,7 +358,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.13 1996-04-05 22:12:43 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.14 1996-04-09 22:14:22 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch

@@ -19,14 +19,14 @@ c
       double precision hlp(1000000)
       integer i,j,nocc,nnocc
       logical odofock, odoao, odomo
-      data odofock, odoao, odomo/.true.,.true.,.true./
+      data odofock, odoao, odomo/.true.,.false.,.false./
 c     
       call dfill((orlen*orlen),0.d0,h,1)
       nocc = nclosed + nact
       nnocc = (nocc*(nocc+1))/2
 c
 c  1e fock section:
-c
+c     
       if (odofock) then
         call ga_get(g_ifock,1,nbf,1,nbf,xx,nbf)
         call ga_get(g_afock,1,nbf,1,nbf,yy,nbf)

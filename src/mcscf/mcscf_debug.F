@@ -127,7 +127,7 @@ c$$$
          write(6,909) text
  909     format(/,a)
          write(6,910) (dbl_mb(k_tmp+i-1),i=1,vlen)
- 910     format(8F16.12)
+ 910     format(8F16.11)
          if (.not.ma_pop_stack(l_tmp))
      $     call errquit('ga_rowprint: cannot pop stack',0)
        endif

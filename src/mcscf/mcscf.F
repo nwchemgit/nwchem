@@ -21,6 +21,7 @@ c
        integer l_dm1, k_dm1, l_dm2, k_dm2
        integer l_tmp, k_tmp
        integer g_movecs, g_coul, g_exch
+       integer g_jact
        integer g_conj, g_gradold, g_hcore
        integer g_afock, g_ifock, g_gfock
        integer g_grad, g_prod, g_x
@@ -30,7 +31,7 @@ c
        integer blen
        double precision pfac
        double precision thresh, lshift0
-       double precision eone, etwo, energy, enrep
+       double precision eone, etwo, energy, enrep, etrace
        double precision tol2e, gnorm, xx
        double precision ttotal, torb, tci, ttmp
        logical oconj
@@ -216,16 +217,19 @@ c
 c
 c   Initial 4-Index Tranformation
 c
-c$$$       if (omcscfprof) call pstat_on(ps_4index)
+#ifdef APPROX_E2
+       g_jact = ga_create_JKblocked(noper,nbf,nbf,'Half Coulomb Oper')
+       call moints_mcscf_2x(basis, mo_lo, mo_hi, 1, nbf,
+     $                      g_movecs, g_coul, .true.,
+     $                      g_exch, .true., g_jact, .true.,
+     $                      blen )
+#else
+
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .true., blen )
-c$$$       call moints_build_6x( basis, oskel,
-c$$$     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
-c$$$     $                       g_movecs, g_coul, .true.,
-c$$$     $                       g_exch, .true., blen )
-c$$$       if (omcscfprof) call pstat_off(ps_4index)
+#endif
 c
 c
 c  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -268,10 +272,10 @@ c
            if (omcscfprof) call pstat_on(ps_orb)
            call mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                          oskel, int_mb(k_sym), dbl_mb(k_dm1),
-     $                          dbl_mb(k_dm2), g_coul, g_exch, oconj,
-     $                          pfac, g_conj, g_gradold, g_hcore,
-     $                          dbl_mb(k_evals), eone, etwo, gnorm,
-     $                          g_movecs )
+     $                          dbl_mb(k_dm2), g_coul, g_exch, g_jact,
+     $                          oconj, pfac, g_conj, g_gradold,
+     $                          g_hcore, dbl_mb(k_evals), eone,
+     $                          etwo, gnorm, g_movecs )
            if (omcscfprof) call pstat_off(ps_orb)
            torb = torb + util_cpusec() - ttmp
          else
@@ -297,8 +301,9 @@ c
  929       format(//,5x,'--- maximum iterations reached ---')
          endif
          write(6,930) torb, tci, ttotal
- 930     format(15x,'== MCSCF Timing:',3(5x,f14.3))
+ 930     format(5x,'== MCSCF Timing:',3(5x,f14.3),/,)
        endif
+       GOTO 403
 c
 c   Transform to natural orbitals
 c
@@ -326,7 +331,6 @@ c
          if (.not.ma_pop_stack(l_tmp))
      $     call errquit('mcscf: cannot pop local MO',0)
        endif
-       GOTO 403
 c
 c  Resolve secular eqn with natural orbitals
 c
@@ -379,17 +383,16 @@ c
 c  ------ End of regular MCSCF module      ------
 c  ------ Remainder are debugging sections ------
 c
-       goto 401
 c
 c         Check energy trace
 c     
        call mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                    oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
      $                    g_movecs, g_coul, eone, etwo )
-       energy = eone + etwo + enrep
+       etrace = eone + etwo + enrep
        if (util_print('trace energy',print_default)) then
-         if (oprinfo) write(6,674) energy
- 674     format(/,20x,'<<<<<<<< trace energy: ',f20.10,' >>>>>>>',/)
+         if (oprinfo) write(6,674) etrace
+ 674     format(20x,'Trace Energy: ',f20.14)
        endif
 c
 c
@@ -399,7 +402,12 @@ c              MCSCF Hessian vector product Test Section
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
-c  Allocate MO matrices
+c  Refresh saved MO vectors 
+c
+c$$$       call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
+c$$$     $                       dbl_mb(k_evals), g_movecs )
+c
+c  Allocate Fock matrices
 c
        if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,1,g_afock))
      $      call errquit('mcscf: cannot allocate active Fock',0)
@@ -419,10 +427,17 @@ c
        call ga_zero(g_grad)
        call ga_zero(g_x)
        call ga_zero(g_prod)
-       call moints_build_6x( basis, oskel,
+#ifdef APPROX_E2
+       call moints_mcscf_2x(basis, mo_lo, mo_hi, 1, nbf,
+     $                      g_movecs, g_coul, .true.,
+     $                      g_exch, .true., g_jact, .true.,
+     $                      blen )
+#else
+       call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., 16 )
+     $                       g_exch, .true., blen )
+#endif
 c
 c
        call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
@@ -440,23 +455,32 @@ c$$$ 773   format(/,10x,'Finite diff gradient norm:',e12.4,/)
 c
 c  MCSCF Fock matrices and gradient
 c
+#ifdef APPROX_E2
+       call mcscf_fock_z( geom, basis, nbf, nclosed, nact,
+     $                  oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
+     $                  g_movecs, g_jact, eone, etwo,
+     $                  g_ifock, g_afock, g_gfock )
+       call mcscf_gfock2grad( nbf, nclosed, nact, g_gfock, g_grad )
+       call ga_rowprint( ' ==== New Gradient ====', g_grad )
+#endif
        call mcscf_fock( geom, basis, nbf, nclosed, nact,
      $                  oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
      $                  g_movecs, g_coul, eone, etwo,
      $                  g_ifock, g_afock, g_gfock )
        call mcscf_gfock2grad( nbf, nclosed, nact, g_gfock, g_grad )
-       call mcscf_vsymm_chk( nbf, nclosed, nact, int_mb(k_sym),
-     $                       g_grad, .true., .true., xx)
-c$$$       call ga_rowprint( ' ==== Gradient ====', g_grad )
+       if (util_print('final gradient',print_debug)) then
+         call ga_rowprint( ' ==== Gradient ====', g_grad )
+       endif
        gnorm = sqrt(ga_ddot(g_grad,g_grad))
        energy = eone + etwo + enrep
-       if (oprinfo) then
-         write(6,772) gnorm
- 772     format(/,10x,'Final gradient norm:',e12.4,/)
+       if (util_print('fock energy',print_default)) then
+         if (oprinfo) write(6,675) energy
+ 675     format(20x,'Fock Energy:  ',f20.14)
        endif
-       if (oprinfo) write(6,675) energy
- 675   format(/,20x,'<<<<<<<< fock energy: ',f20.10,' >>>>>>>',/)
-
+       if (util_print('final gradient norm',print_default)) then
+         if (oprinfo) write(6,676) gnorm
+ 676     format(20x,'Gradient norm:',e20.4)
+       endif
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c         
@@ -464,22 +488,22 @@ c        Explicit Hessian contruction and Eigenvalues Section
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
-       if (orlen.le.hdim) then
-         call makeJK( basis, nbf, nclosed, nact, g_movecs )
-         call dfill((orlen*orlen),0.d0,hh,1)
-         call hmat( nbf, nclosed, nact, orlen, dbl_mb(k_dm1),
-     $              dbl_mb(k_dm2), g_ifock, g_afock, g_gfock,
-     $              g_coul, g_exch, hh)
-
-         write(6,951) 
- 951     format('Hessian diagonal')
-         write(6,222) (hh((i-1)*orlen+i),i=1,orlen)
- 222     format(10f12.6)
-         call dsyev('V','L',orlen,hh,orlen,ev,scr,(4*hdim),info)
-         write(6,953)
- 953     format('Hessian eigenvalues')
-         write(6,222) (ev(i),i=1,orlen)
-       endif
+c$$$       if (orlen.le.hdim) then
+c$$$         call makeJK( basis, nbf, nclosed, nact, g_movecs )
+c$$$         call dfill((orlen*orlen),0.d0,hh,1)
+c$$$         call hmat( nbf, nclosed, nact, orlen, dbl_mb(k_dm1),
+c$$$     $              dbl_mb(k_dm2), g_ifock, g_afock, g_gfock,
+c$$$     $              g_coul, g_exch, hh)
+c$$$
+c$$$         write(6,951) 
+c$$$ 951     format('Hessian diagonal')
+c$$$         write(6,222) (hh((i-1)*orlen+i),i=1,orlen)
+c$$$ 222     format(8f16.11)
+c$$$         call dsyev('V','L',orlen,hh,orlen,ev,scr,(4*hdim),info)
+c$$$         write(6,953)
+c$$$ 953     format('Hessian eigenvalues')
+c$$$         write(6,222) (ev(i),i=1,orlen)
+c$$$       endif
 c
 c
 c  Make explicit Hessian matrix from vector products
@@ -607,7 +631,9 @@ c
        call schwarz_tidy()
        call int_terminate()
        if (.not.bas_destroy(basis))
-     $   call errquit('cannot free basis handle',0)
+     $   call errquit('mcscf: cannot free basis handle',0)
+       if (.not.geom_destroy(geom))
+     $   call errquit('mcscf: cannot destory geom handle', 0)
 c
        if (.not.ma_pop_stack(l_sym))
      $      call errquit('mcscf: cannot pop stack?',0)
@@ -620,9 +646,13 @@ c
        if (.not.ma_pop_stack(l_evals))
      $      call errquit('mcscf: cannot pop stack?',0)
        if (.not.ga_destroy(g_exch))
-     $      call errquit('rohf_head: cannot destroy exchange',0)
+     $      call errquit('mcscf: cannot destroy exchange',0)
        if (.not.ga_destroy(g_coul))
-     $      call errquit('rohf_head: cannot destroy Coulomb',0)
+     $      call errquit('mcscf: cannot destroy Coulomb',0)
+#ifdef APPROX_E2
+       if (.not.ga_destroy(g_jact))
+     $      call errquit('mcscf: cannot destroy Jact',0)
+#endif
        if (.not.ga_destroy(g_movecs))
      $      call errquit('mcscf: cannot destroy MO vectors',0)
 c
