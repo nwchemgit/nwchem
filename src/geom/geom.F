@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.93 1999-10-14 23:10:38 d3g681 Exp $
+C$Id: geom.F,v 1.94 1999-10-15 22:46:01 d3g681 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -149,9 +149,9 @@ c
          else
             if (ngeom_rtdb .gt. 0) write(6,3)
  3          format(
-     $           2x,5x,2x,'Name',28x,2x,'Natoms',2x,
+     $           1x,4x,2x,'Name',28x,2x,'Natoms',2x,
      $           'Last Modified',/,
-     $           2x,5x,2x,32('-'),2x,6('-'),2x,24('-'))
+     $           1x,4x,2x,32('-'),2x,6('-'),2x,24('-'))
             do geom = 1, ngeom_rtdb
                key = ' '
                write(key,'(''geometry:'',a,'':ncenter'')')
@@ -169,7 +169,7 @@ c
                endif
                name32 = names_rtdb(geom)(1:lenr(geom))
                write(6,4) geom, name32, natom, date
- 4             format(2x,i5,2x,a32,2x,i6,2x,a26)
+ 4             format(1x,i4,2x,a32,2x,i6,2x,a26)
             end do
             if (ngeom_rtdb .gt. 0) then
                if (.not. rtdb_cget(rtdb,'geometry',1,key)) 
@@ -204,7 +204,7 @@ c
       ngeom_rtdb = 0
       if (rtdb_get(rtdb, 'geometry:ngeom', mt_int, 1, ngeom_rtdb))
      $     then
-         if (.not. rtdb_cget(rtdb, 'geometry:names', max_geom,
+         if (.not. rtdb_cget(rtdb, 'geometry:names', ngeom_rtdb,
      $        names_rtdb)) then
             write(6,*) 'geom_rtdb_in: rtdb corrupt'
          else
@@ -231,7 +231,7 @@ c
       geom_rtdb_out  =
      $     rtdb_put(rtdb, 'geometry:ngeom', mt_int, 1, ngeom_rtdb)
      $     .and.
-     $     rtdb_cput(rtdb, 'geometry:names', max_geom, names_rtdb)
+     $     rtdb_cput(rtdb, 'geometry:names', ngeom_rtdb, names_rtdb)
       if (.not. geom_rtdb_out) 
      $     write(6,*) ' geom_rtdb_out: rtdb is corrupt '
 c     
@@ -910,7 +910,7 @@ c
 c
 c     insert translated name into list of known geometries
 c
-      s = s .and. geom_rtdb_add(rtdb, name)
+      s = s .and. geom_rtdb_add(rtdb, trans(geom))
 c
 c     check that all rtdb operations were successful
 c
