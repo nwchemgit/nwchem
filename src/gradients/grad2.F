@@ -10,7 +10,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi)
-c     $Id: grad2.F,v 1.23 1997-06-24 15:56:21 d3g681 Exp $
+c     $Id: grad2.F,v 1.24 1997-06-24 23:24:54 d3g681 Exp $
       implicit none
 #include "sym.fh"
 #include "global.fh"
@@ -90,10 +90,10 @@ C-------------------------local variables-----------------------------
       
       integer ibflo_prev, jbflo_prev, kbflo_prev ! for caching
       
-      logical oij, okl, oikjl, ouhf, orohf, omcscf, omore, odoit
+      logical oij, okl, oikjl, ouhf, orohf, omcscf, omore
       logical intbd_init4c, intbd_2e4c
       external intbd_init4c, intbd_2e4c
-c
+c     
       smax  = schwarz_max()
       q4max = 8.0d0*(sym_number_ops(geom) + 1)*100.0d0 ! 100 for max(psum)
 
@@ -112,9 +112,9 @@ c     MCSCF is the same as RHF except for the 2pdm piece
       task_size = nshblocks*(nshblocks+1)/2
       task_size = task_size*(task_size+1)/2
       task_size = max(1,task_size/(20*nproc))
-c
+c     
 c     Parallel loop over quartets of reordered shell blocks
-c
+c     
       ijklblock = 0
       next = nxtask(nproc,task_size)
       do ishblock = nshblocks, 1, -1
@@ -176,7 +176,7 @@ c
      $                    jshblock.eq.lshblock
 c     
                      nq = 0
-c
+c     
                      do iish = ishlo, ishhi
                         atoms(1)=bftoat(bfmap(shbflo(iish)))
                         iilo = shbflo(iish)-ibflo+1
@@ -190,86 +190,89 @@ c
                            jjhi = shbfhi(jjsh)-jbflo+1
                            jsh = shmap(jjsh)
                            sij = schwarz_shell(ish,jsh)
-                           if (sij*smax*q4max .ge. tol2e) then
-                              kshtop = kshhi
-                              if (oikjl) kshtop = iish
-                              do kksh = kshlo, kshtop
-                                 atoms(3)=bftoat(bfmap(shbflo(kksh)))
-                                 kklo = shbflo(kksh)-kbflo+1
-                                 kkhi = shbfhi(kksh)-kbflo+1
-                                 ksh = shmap(kksh)
-                                 lshtop = lshhi
-                                 if (okl) lshtop = kksh
-                                 if (oikjl .and. iish.eq.kksh) 
-     $                                lshtop = jjsh
-                                 do llsh = lshlo, lshtop
-                                    atoms(4)=bftoat(bfmap(shbflo(llsh)))
-                                    lllo = shbflo(llsh)-lbflo+1
-                                    llhi = shbfhi(llsh)-lbflo+1
-                                    lsh = shmap(llsh)
+                           if (sij*smax*q4max .lt. tol2e) goto 100 ! Next jjsh
+                           kshtop = kshhi
+                           if (oikjl) kshtop = iish
+                           do kksh = kshlo, kshtop
+                              atoms(3)=bftoat(bfmap(shbflo(kksh)))
+                              kklo = shbflo(kksh)-kbflo+1
+                              kkhi = shbfhi(kksh)-kbflo+1
+                              ksh = shmap(kksh)
+                              lshtop = lshhi
+                              if (okl) lshtop = kksh
+                              if (oikjl .and. iish.eq.kksh) 
+     $                             lshtop = jjsh
+                              do llsh = lshlo, lshtop
+                                 atoms(4)=bftoat(bfmap(shbflo(llsh)))
+                                 lllo = shbflo(llsh)-lbflo+1
+                                 llhi = shbfhi(llsh)-lbflo+1
+                                 lsh = shmap(llsh)
 c     
-c     Check on sparsity, symmetry and active list
-c
-                                    sijkl = sij*schwarz_shell(ksh,lsh)
-c
-                                    scale = 1.0d0
-                                    odoit = (sijkl*q4max .gt. tol2e)
-                                    if (odoit .and. oskel) then
-                                       odoit = sym_atom_quartet(geom,
-     $                                      atoms(1), atoms(2),
-     $                                      atoms(3), atoms(4), scale)
-                                    end if
-                                    if (odoit) then
-                                       odoit =
-     $                                      oactive(atoms(1)) .or.
-     $                                      oactive(atoms(2)) .or.
-     $                                      oactive(atoms(3)) .or.
-     $                                      oactive(atoms(4))
-                                    end if
-                                    if (odoit) then
-                                       if (.not.oij .or. ish.ne.jsh) 
-     $                                      scale = scale*2.0d0
-                                       if (.not.okl .or. ksh.ne.lsh) 
-     $                                      scale = scale*2.0d0
-                                       if (.not.oikjl .or. ish.ne.ksh 
-     $                                      .or. jsh.ne.lsh) 
-     $                                      scale = scale*2.0d0
-c
+c     Check on sparsity, symmetry, active list, single center
+c     
+                                 sijkl = sij*schwarz_shell(ksh,lsh)
+c     
+                                 if (sijkl*q4max .lt. tol2e) goto 200 ! next llsh
+                                 scale = 1.0d0
+                                 if (oskel) then
+                                    if (.not. sym_atom_quartet(geom,
+     $                                   atoms(1), atoms(2), atoms(3), 
+     $                                   atoms(4), scale)) goto 200
+                                 endif
+                                 if (.not. (
+     $                                oactive(atoms(1)) .or.
+     $                                oactive(atoms(2)) .or.
+     $                                oactive(atoms(3)) .or.
+     $                                oactive(atoms(4)))) goto 200
+                                 if (
+     $                                atoms(1).eq.atoms(2) .and.
+     $                                atoms(2).eq.atoms(3) .and.
+     $                                atoms(3).eq.atoms(4)) goto 200
+c     
+c     Scale according to permutation symmetry of the shell labels
+c     
+                                 if (.not.oij .or. ish.ne.jsh) 
+     $                                scale = scale*2.0d0
+                                 if (.not.okl .or. ksh.ne.lsh) 
+     $                                scale = scale*2.0d0
+                                 if (.not.oikjl .or. ish.ne.ksh 
+     $                                .or. jsh.ne.lsh) 
+     $                                scale = scale*2.0d0
+c     
 c     Make the twopdm just for the current shell block.  Note that
 c     pdm2d will have holes with junk in it for quartets we did not
 c     compute ... cannot zero this since it will be too expensive.
 c     
-                                       call grad_make_twopdm(
-     $                                      omp2,ouhf,orohf,omcscf,
-     $                                      d_ij,  d_kl,  d_ik,  
-     $                                      d_jl,  d_il,  d_jk,
-     $                                      d_ij2, d_kl2, d_ik2,
-     $                                      d_jl2, d_il2, d_jk2, 
-     $                                      d_ij3, d_kl3, d_ik3, 
-     $                                      d_jl3, d_il3, d_jk3, 
-     $                                      d_ij4, d_kl4, d_ik4,
-     $                                      d_jl4, d_il4, d_jk4, 
-     $                                      blen, 
-     $                                      iilo, jjlo, kklo, lllo,
-     $                                      iihi, jjhi, kkhi, llhi,
-     $                                      pdm2d, psum)
-c
+                                 call grad_make_twopdm(
+     $                                omp2,ouhf,orohf,omcscf,
+     $                                d_ij,  d_kl,  d_ik,  
+     $                                d_jl,  d_il,  d_jk,
+     $                                d_ij2, d_kl2, d_ik2,
+     $                                d_jl2, d_il2, d_jk2, 
+     $                                d_ij3, d_kl3, d_ik3, 
+     $                                d_jl3, d_il3, d_jk3, 
+     $                                d_ij4, d_kl4, d_ik4,
+     $                                d_jl4, d_il4, d_jk4, 
+     $                                blen, 
+     $                                iilo, jjlo, kklo, lllo,
+     $                                iihi, jjhi, kkhi, llhi,
+     $                                pdm2d, psum)
+c     
 c     Final screening including magnitude of the density
-c
-                                       sijkl = sijkl*psum*scale
-                                       if (sijkl .gt. tol2e) then
-                                          nq = nq + 1
-                                          q4(nq) = scale
-                                          list(nq,1) = ish
-                                          list(nq,2) = jsh
-                                          list(nq,3) = ksh
-                                          list(nq,4) = lsh
-                                       end if
-                                    end if
-                                 end do
-                              end do
-                           end if
-                        end do
+c     
+                                 sijkl = sijkl*psum*scale
+                                 if (sijkl .gt. tol2e) then
+                                    nq = nq + 1
+                                    q4(nq) = scale
+                                    list(nq,1) = ish
+                                    list(nq,2) = jsh
+                                    list(nq,3) = ksh
+                                    list(nq,4) = lsh
+                                 endif
+c     
+ 200                          end do ! next llsh
+                           end do
+ 100                    end do  ! next jjsh
                      end do
 
                      numq = numq + nq
@@ -288,8 +291,8 @@ c
      $                    labels(1,1),labels(1,2), 
      $                    labels(1,3), labels(1,4), 
      $                    eri, leri, nint, lscr, scr)
-c
-*                     write(6,*) ' nint ', nint, omore
+c     
+*     write(6,*) ' nint ', nint, omore
 c     
                      if (nint .gt. 0) then
                         do integ = 1, nint
@@ -297,19 +300,19 @@ c
                            j = labels(integ,2)
                            k = labels(integ,3)
                            l = labels(integ,4)
-*                           write(6,*) ' b ' ,i,j,k,l
+*     write(6,*) ' b ' ,i,j,k,l
                            atoms(1) = bftoat(i)
                            atoms(2) = bftoat(j)
                            atoms(3) = bftoat(k)
                            atoms(4) = bftoat(l)
-*                           write(6,*) ' a ' ,atoms
+*     write(6,*) ' a ' ,atoms
                            i = rbfmap(i) - ibflo + 1
                            j = rbfmap(j) - jbflo + 1
                            k = rbfmap(k) - kbflo + 1
                            l = rbfmap(l) - lbflo + 1
-*                           write(6,*) ' c ', i,j,k,l
+*     write(6,*) ' c ', i,j,k,l
                            p = pdm2d(l,k,j,i)
-*                           write(6,*) ' p ', p
+*     write(6,*) ' p ', p
                            do iiat = 1, 4
                               iat = atoms(iiat)
                               frc(1,iat) =  frc(1,iat) + 
@@ -322,7 +325,7 @@ c
                         end do
                      end if
                      if (omore) goto 10
-c
+c     
                      next = nxtask(nproc,task_size)
                   end if
 c     
@@ -334,7 +337,7 @@ c
       end do
       next = nxtask(-nproc,task_size)
       call ga_sync()
-c
+c     
       write(6,*) ' numq ', numq
 c     
       end
