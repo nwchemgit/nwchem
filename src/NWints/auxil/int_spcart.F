@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.37 2004-08-02 07:27:49 edo Exp $
+c $Id: int_spcart.F,v 1.38 2004-08-02 21:28:15 bert Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -1989,7 +1989,7 @@ c: passed
       integer ndima  ! [input] leading dimension of block
       integer ngls   ! [input] general contraction length of ls block
       double precision blockin (ndima,21,ngls)   ! [input] matrix 
-      double precision blockout(-5:5,ndima,ngls) ! [output] matrix 
+      double precision blockout(ndima,-5:5,ngls) ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
       logical print_info ! [input] print info
 c: local
@@ -2119,31 +2119,31 @@ c
           bin20 = blockin(20,g,i)
           bin21 = blockin(21,g,i)
 c
-          blockout(-5,g,i) = bin2*dt2_m5  + bin7*dt7_m5   +
+          blockout(i,-5,g) = bin2*dt2_m5  + bin7*dt7_m5   +
      &                       bin16*dt16_m5
-          blockout(-4,g,i) = bin5*dt5_m4  + bin12*dt12_m4 
-          blockout(-3,g,i) = bin2*dt2_m3  + bin7*dt7_m3   +
+          blockout(i,-4,g) = bin5*dt5_m4  + bin12*dt12_m4 
+          blockout(i,-3,g) = bin2*dt2_m3  + bin7*dt7_m3   +
      &                       bin9*dt9_m3  + bin16*dt16_m3 +
      &                       bin18*dt18_m3
-          blockout(-2,g,i) = bin5*dt5_m2  + bin12*dt12_m2 +
+          blockout(i,-2,g) = bin5*dt5_m2  + bin12*dt12_m2 +
      &                       bin14*dt14_m2
-          blockout(-1,g,i) = bin2*dt2_m1  + bin7*dt7_m1   +
+          blockout(i,-1,g) = bin2*dt2_m1  + bin7*dt7_m1   +
      &                       bin9*dt9_m1  + bin16*dt16_m1 +
      &                       bin18*dt18_m1+ bin20*dt20_m1
-          blockout( 0,g,i) = bin3*dt3_0   + bin8*dt8_0    +
+          blockout(i, 0,g) = bin3*dt3_0   + bin8*dt8_0    +
      &                       bin10*dt10_0 + bin17*dt17_0  +
      &                       bin19*dt19_0 + bin21*dt21_0
-          blockout( 1,g,i) = bin1*dt1_1   + bin4*dt4_1    +
+          blockout(i, 1,g) = bin1*dt1_1   + bin4*dt4_1    +
      &                       bin6*dt6_1   + bin11*dt11_1  +
      &                       bin13*dt13_1 + bin15*dt15_1
-          blockout( 2,g,i) = bin3*dt3_2   + bin10*dt10_2  +
+          blockout(i, 2,g) = bin3*dt3_2   + bin10*dt10_2  +
      &                       bin17*dt17_2 + bin19*dt19_2
-          blockout( 3,g,i) = bin1*dt1_3   + bin4*dt4_3    +
+          blockout(i, 3,g) = bin1*dt1_3   + bin4*dt4_3    +
      &                       bin6*dt6_3   + bin11*dt11_3  +
      &                       bin13*dt13_3
-          blockout( 4,g,i) = bin3*dt3_4   + bin8*dt8_4    +
+          blockout(i, 4,g) = bin3*dt3_4   + bin8*dt8_4    +
      &                       bin17*dt17_4
-          blockout( 5,g,i) = bin1*dt1_5   + bin4*dt4_5    +
+          blockout(i, 5,g) = bin1*dt1_5   + bin4*dt4_5    +
      &                       bin11*dt11_5
         enddo
       enddo
