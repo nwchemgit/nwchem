@@ -1,4 +1,4 @@
-C $Id: rel_pot2.F,v 1.5 2003-10-17 22:54:09 carlfahl Exp $
+C $Id: rel_pot2.F,v 1.6 2004-12-03 22:37:35 bert Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pot2}
 c:tex-This routine assembles the relativistic (small-small) potential 
@@ -113,16 +113,16 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
       else
         if (lscr .lt. i_free-1) call errquit 
      &      ('Insufficient memory in rel_pot',99, MEM_ERR)
-        call dfill (np,zero,scr(i_grdp),1)
+        call dcopy (np,zero,0,scr(i_grdp),1)
         call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cA,Vpp,Vpm,
      &      scr(i_grdp),n_allp_B,ibug/10)
-        call dfill (nm,zero,scr(i_grdm),1)
+        call dcopy (nm,zero,0,scr(i_grdm),1)
         if (l_B .gt. 0) call ecp_grad_a (l_A,np_A,n_A,nm_A,n_ca,
      &      Vmp,Vmm,scr(i_grdm),n_allm_B,ibug/10)
-        call dfill (nn,zero,scr,1)
+        call dcopy (nn,zero,0,scr,1)
         call ecp_grad_a (l_b,np_b,n_b,nm_b,n_cb*n_all_A*3,
      &      scr(i_grdp),scr(i_grdm),scr,n_x,ibug/10)
-        call dfill (nints*ntyp,zero,Vrel,1)
+        call dcopy (nints*ntyp,zero,0,Vrel,1)
 *
 *   Return with derivative integrals only
 *

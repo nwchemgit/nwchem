@@ -1,4 +1,4 @@
-C $Id: rel_pot.F,v 1.12 2003-10-17 22:54:09 carlfahl Exp $
+C $Id: rel_pot.F,v 1.13 2004-12-03 22:37:35 bert Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pot}
 c:tex-This routine assembles the relativistic (small-small) potential 
@@ -114,22 +114,22 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
       else
         if (lscr .lt. i_free-1) call errquit 
      &      ('Insufficient memory in rel_pot',99, MEM_ERR)
-        call dfill (np,zero,scr(i_grdp),1)
+        call dcopy (np,zero,0,scr(i_grdp),1)
         call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cont_A,Vpp,Vpm,
      &      scr(i_grdp),n_allp_B,ibug/10)
         if (debug_arrays)  call ecp_matpr (scr(i_grdp),1,n_allp_b,
      &      1,n_all_a*3,1,n_allp_b,1,n_all_a*3,'Grad A +','E',120,6)
-        call dfill (nm,zero,scr(i_grdm),1)
+        call dcopy (nm,zero,0,scr(i_grdm),1)
         if (l_B .gt. 0) call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cont_A,
      &      Vmp,Vmm,scr(i_grdm),n_allm_B,ibug/10)
         if (debug_arrays)  call ecp_matpr (scr(i_grdp),1,n_allp_b,
      &      1,n_all_a*3,1,n_allp_b,1,n_all_a*3,'Grad A -','E',120,6)
-        call dfill (nn,zero,scr,1)
+        call dcopy (nn,zero,0,scr,1)
         call ecp_grad_b (l_B,np_b,n_b,nm_b,n_cont_B,
      &      scr(i_grdp),scr(i_grdm),scr(i_scr),n_all_a*3,ibug/10)
         if (debug_arrays)  call ecp_matpr (scr(i_scr),1,n_all_b,
      &      1,n_all_a*9,1,n_all_b,1,n_all_a*9,'Gradients','E',120,6)
-        call dfill (nints*ntyp,zero,Vrel,1)
+        call dcopy (nints*ntyp,zero,0,Vrel,1)
 *
 *   Return with derivative integrals only
 *
