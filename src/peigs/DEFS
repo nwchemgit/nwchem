@@ -346,6 +346,7 @@ ifeq ($(peigs_TARGET),LINUX)
 #
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
+peigs_CPU = PENTIUM
 #
 # on the hpcc? laptops add /usr/lib/gcc-lib/i486-linux/2.7.0 to your path
 # or make link from /usr/bin
