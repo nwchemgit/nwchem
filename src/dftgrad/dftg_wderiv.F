@@ -1,7 +1,8 @@
-      Subroutine dftg_wderiv(ictr, nat, nq, iandex, ncenters, func, 
+      Subroutine dftg_wderiv(ictr, nat, nq_orig, nq, 
+     .     iandex, ncenters, func, 
      &                       d_qwght, force, oactive,  nactive)
 *
-* $Id: dftg_wderiv.F,v 1.4 1998-03-24 22:59:09 d3h449 Exp $
+* $Id: dftg_wderiv.F,v 1.5 1999-11-08 23:15:27 edo Exp $
 *
       Implicit none
 c
@@ -13,12 +14,12 @@ c
 c     compute the product \delta w(j)*func(j)
 c
       integer ictr
-      integer nat, nq
+      integer nat, nq,nq_orig
       Integer nactive
       logical oactive(nat)
       integer iandex(*), ncenters
       double precision func(*)          ! func value [input]
-      double precision d_qwght(3,nq,*)  ! w deriv [input]
+      double precision d_qwght(3,nq_orig,*)  ! w deriv [input]
 c     
 c     force vector
 c     
