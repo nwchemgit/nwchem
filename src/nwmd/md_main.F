@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.32 1999-08-26 14:37:24 d3j191 Exp $
+c $Id: md_main.F,v 1.33 1999-08-28 02:13:15 d3j191 Exp $
 c
       implicit none
 c
@@ -958,13 +958,16 @@ c
       logical frequency
       external frequency
 c
-      external timer_wall
-      real*8 timer_wall
+      external timer_wall,timer_wall_average
+      real*8 timer_wall,timer_wall_average
 c
-      real*8 dxmax
+      real*8 dxmax,wallt
 c
       mdstep=mdstep+1
       stime=stime+tstep
+c
+      wallt=timer_wall(3)
+      call timer_start(3)
 c
 c     reassign velocities
 c
@@ -994,7 +997,12 @@ c
 c
 c     dynamic load balancing
 c
-      call sp_balanc(stime,timer_wall(2))
+      if(itload.eq.0) then
+      call sp_balanc(stime,timer_wall(4),wallt)
+      else
+      call sp_balanc(stime,timer_wall_average(4),wallt)
+      endif
+      call timer_reset(4)
 c
 c     atom redistribution
 c
@@ -1069,6 +1077,8 @@ c
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),nsaloc)
 c
       lfirst=.false.
+c
+      call timer_stop(3)
 c
       return
       end
@@ -1172,7 +1182,9 @@ c
       call md_fclass(iwl,isl,xw,xwm,xs,fw,fs)
 c
       call timer_start(2)
+      call timer_start(4)
       call ga_sync()
+      call timer_stop(4)
       call timer_stop(2)
 c
       call sp_final(fw,fs,lpair,int_mb(i_iwz),int_mb(i_isz))
