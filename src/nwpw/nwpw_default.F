@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.7 2003-01-09 22:26:33 bylaska Exp $
+c $Id: nwpw_default.F,v 1.8 2003-04-25 23:13:03 bylaska Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -15,6 +15,9 @@ c
       character*30 cell_name,zone_name
       character*30 input_wavefunction_filename
       character*30 output_wavefunction_filename
+      character*30 input_ewavefunction_filename
+      character*30 output_ewavefunction_filename
+
       character*30 exchange_correlation
       double precision fake_mass,time_step,rcut
       integer loop(2),npsp,ncut
@@ -37,6 +40,8 @@ c
       zone_name             = 'zone_default'
       call util_file_prefix('movecs',input_wavefunction_filename)
       call util_file_prefix('movecs',output_wavefunction_filename)
+      call util_file_prefix('emovecs',input_ewavefunction_filename)
+      call util_file_prefix('emovecs',output_ewavefunction_filename)
       exchange_correlation         = 'vosko'
       frac_coord                   = .false.
       mulliken                     = .false.
@@ -95,6 +100,11 @@ c
      >        rtdb_cput(rtdb,'band:input_wavefunction_filename',
      >                    1,input_wavefunction_filename(1:ind))
 
+      ind = index(input_ewavefunction_filename,' ') - 1
+      value = value.and.
+     >        rtdb_cput(rtdb,'cgsd:input_ewavefunction_filename',
+     >                    1,input_ewavefunction_filename(1:ind))
+
 *     *********************************
 *     **** used by task_save_state ****
 *     *********************************
@@ -119,6 +129,11 @@ c
       value = value.and.
      >        rtdb_cput(rtdb,'band:output vectors',
      >                    1,output_wavefunction_filename(1:ind))
+
+      ind = index(output_ewavefunction_filename,' ') - 1
+      value = value.and.
+     >        rtdb_cput(rtdb,'cgsd:output_ewavefunction_filename',
+     >                    1,output_ewavefunction_filename(1:ind))
 
       value = value.and.
      >        rtdb_put(rtdb,'cgsd:fractional_coordinates',mt_log,1,
