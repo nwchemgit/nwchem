@@ -4,6 +4,7 @@ c     2nd derivative terms on and off to help with debugging.  When
 c     the code is stable they can be removed.
 c
 #if 1
+#define TERM_0A
 #define TERM_1A
 #define TERM_1B
 #define TERM_2B
@@ -15,19 +16,21 @@ c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_d2expl.F,v 1.4 1999-01-04 04:01:53 bjohnson Exp $
+c     $Id: xc_d2expl.F,v 1.5 1999-05-08 13:13:14 bjohnson Exp $
 c
       Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Bmat, Cmat, Cmat2,
      &     Dmat, F, Pmat, ff, s, chi, delchi, heschi, d3chi, curatoms,
-     &     ncuratoms, ipol, nq, nbf, max_at_bf, GRAD, basis, natoms,
-     &     iniz, ifin, rho, delrho, g_dens, hess, ibf, rchi_atom,
-     &     rdelchi_atom, rdens_atom, cetobfr)
+     &     ncuratoms, ipol, nq, nbf, max_at_bf, GRAD0, basis, natoms,
+     &     iniz, ifin, drho, ddelrho, delrho, g_dens, hess, ibf,
+     &     rchi_atom, rdelchi_atom, rdens_atom, cetobfr)
 c
 #include "dft2drv.fh"
 c
       implicit none
 c
-      Logical GRAD
+c!!! BGJ test
+      logical GRAD, grad0
+c!!! BGJ test
       integer basis
       integer max_at_bf ! [input]
       integer ipol  ! [input]
@@ -40,8 +43,12 @@ c
 c
 c     Explicit first derivatives of density wrt current nuclei [input]
 c
-      double precision rho(nq,ipol,3,ncuratoms),
-     &                 delrho(nq,3,ipol,3,ncuratoms)
+      double precision drho(nq,ipol,3,ncuratoms),
+     &                 ddelrho(nq,3,ipol,3,ncuratoms) ! destroyed
+c
+c     Spin density gradients
+c
+      double precision delrho(nq,3,ipol) ! [input]
 c
       integer g_dens(ipol) ! GA handle for density matrices [input]
 c
@@ -49,7 +56,7 @@ c     Hessian matrix (updated)
 c
       double precision hess(3,natoms,3,natoms) ! [input/output]
 c
-      double precision scr(2,3,nq,ipol) ! Scratch matrix [input]
+      double precision scr(nq,5,3) ! Scratch matrix [input]
       double precision rchi_atom(natoms)
       double precision rdelchi_atom(natoms)
       double precision rdens_atom(natoms,natoms,ipol)
@@ -59,7 +66,7 @@ c
       double precision F(max_at_bf*max_at_bf)    ! scratch vector
       double precision ff(nq,3), s(nq)   ! scratch arrays
 c
-c     Sampling Matrices for the XC Functional Derivatives
+c     Sampling Matrices for the XC Functional Derivatives [destroyed]
 c
       double precision Amat(nq,ipol), Cmat(nq,3,ipol),
      &                 Amat2(nq,NCOL_AMAT2), Cmat2(nq,NCOL_CMAT2)
@@ -86,9 +93,10 @@ c
       integer iat, inizia, ifinia, nbfia, nnia, ifirst, ilast, idim
       integer jat, inizja, ifinja, nbfja, nnja, jfirst, jlast, jdim
       integer ii, mu, nu, icount
-      integer ind2(2,2)
       integer n
-      double precision a21, a22, aaa, fdchix, fdchiy, fdchiz,
+      double precision a11, a12, a22, c13, c14, c15, c23, c24, c25,
+     &                 c33, c34, c35, c44, c45, c55, dgaa, dgab, dgbb,
+     &                 aaa, fdchix, fdchiy, fdchiz,
      &                 ccc1, ccc2, ccc3
       double precision T(3,3)
       integer idir, jdir
@@ -121,37 +129,311 @@ c
 c     where "p" represents a density parameter in the set
 c     { ra, rb, gaa, gab, gbb }, and the i, j indices run over this set
 c
-c     First step: terms involving functional second derivatives
-c                 and density parameter first derivatives
+c!!! BGJ test
+#if 1
+      GRAD = grad0
+#else
+      GRAD = .false.
+#endif
+c!!! BGJ test
+c     For restricted, combine correction factors for total densities
+c     with the functional 2nd derivatives
 c
-c     Indices for 2nd derivs of functionals
+      if (ipol.eq.1) then
+         do n = 1, nq
+            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) * 0.25d0
+            Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB) * 0.25d0
+         enddo
+         if (GRAD) then
+            do n = 1, nq
+               Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) * 0.125d0
+               Cmat2(n,D2_RA_GAB) = Cmat2(n,D2_RA_GAB) * 0.125d0
+               Cmat2(n,D2_RA_GBB) = Cmat2(n,D2_RA_GBB) * 0.125d0
+               Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) * 0.0625d0
+               Cmat2(n,D2_GAA_GAB) = Cmat2(n,D2_GAA_GAB) * 0.0625d0
+               Cmat2(n,D2_GAA_GBB) = Cmat2(n,D2_GAA_GBB) * 0.0625d0
+               Cmat2(n,D2_GAB_GAB) = Cmat2(n,D2_GAB_GAB) * 0.0625d0
+            enddo
+         endif
+      endif
 c
-      ind2(1,1) = D2_RA_RA
-      ind2(2,1) = D2_RA_RB
-      ind2(1,2) = D2_RA_RB
-      ind2(2,2) = D2_RB_RB
+c     First step: separable part of gamma 2nd derivative contribution,
+c                 done here before ddelrho is overwritten and Cmat is
+c                 transformed
+c     !!! This could be made more efficient with some extra scratch space
+#ifdef TERM_0A
+      if (.not.GRAD) goto 99
+c
+      do 10 iat = 1, natoms
+         iatcur = curatoms(iat)
+c     !!! are quadratic loops necessary?
+         if (iatcur.eq.0) goto 10
+c
+         do 20 jat = 1, iat
+            jatcur = curatoms(jat)
+c     !!! are quadratic loops necessary?
+            if (jatcur.eq.0) goto 20
+c
+            call dfill(9,0.d0,T,1)
+            if (ipol.eq.1) then
+               do jdir = 1, 3
+                  do idir = 1, 3
+                     do n = 1, nq
+c
+c     Scale fnl derivs by 1/2 and leave out factor of 2 in dot
+c     to account for total densities
+c
+                        c33 = Cmat(n,D1_GAA,1) + Cmat(n,D1_GAB,1)*0.5d0
+                        T(idir,jdir) = T(idir,jdir)
+     &     + c33*(ddelrho(n,1,1,idir,iatcur)*ddelrho(n,1,1,jdir,jatcur)
+     &          + ddelrho(n,2,1,idir,iatcur)*ddelrho(n,2,1,jdir,jatcur)
+     &          + ddelrho(n,3,1,idir,iatcur)*ddelrho(n,3,1,jdir,jatcur))
+                     enddo
+                  enddo
+               enddo
+            else
+               do jdir = 1, 3
+                  do idir = 1, 3
+                     do n = 1, nq
+                        c33 = Cmat(n,D1_GAA,1)*2d0
+                        c44 = Cmat(n,D1_GAB,1)
+                        c55 = Cmat(n,D1_GBB,1)*2d0
+                        T(idir,jdir) = T(idir,jdir)
+     &     + c33*(ddelrho(n,1,1,idir,iatcur)*ddelrho(n,1,1,jdir,jatcur)
+     &          + ddelrho(n,2,1,idir,iatcur)*ddelrho(n,2,1,jdir,jatcur)
+     &          + ddelrho(n,3,1,idir,iatcur)*ddelrho(n,3,1,jdir,jatcur))
+     &     + c44*(ddelrho(n,1,1,idir,iatcur)*ddelrho(n,1,2,jdir,jatcur)
+     &          + ddelrho(n,2,1,idir,iatcur)*ddelrho(n,2,2,jdir,jatcur)
+     &          + ddelrho(n,3,1,idir,iatcur)*ddelrho(n,3,2,jdir,jatcur)
+     &          + ddelrho(n,1,2,idir,iatcur)*ddelrho(n,1,1,jdir,jatcur)
+     &          + ddelrho(n,2,2,idir,iatcur)*ddelrho(n,2,1,jdir,jatcur)
+     &          + ddelrho(n,3,2,idir,iatcur)*ddelrho(n,3,1,jdir,jatcur))
+     &     + c55*(ddelrho(n,1,2,idir,iatcur)*ddelrho(n,1,2,jdir,jatcur)
+     &          + ddelrho(n,2,2,idir,iatcur)*ddelrho(n,2,2,jdir,jatcur)
+     &          + ddelrho(n,3,2,idir,iatcur)*ddelrho(n,3,2,jdir,jatcur))
+                     enddo
+                  enddo
+               enddo
+            endif
+c
+c           Update Hessian block(s)
+c
+            do jdir = 1,3
+               do idir = 1,3
+                  hess(idir,iat,jdir,jat) = hess(idir,iat,jdir,jat)
+     &                                    + T(idir,jdir)
+                  if (iat.ne.jat) then
+                     hess(jdir,jat,idir,iat) = hess(jdir,jat,idir,iat)
+     &                                       + T(idir,jdir)
+                  endif
+               enddo
+            enddo
+c
+ 20      continue
+ 10   continue
+ 99   continue
+#endif
+c
+c     Second step: terms involving functional second derivatives
+c                  and density parameter first derivatives
 c
 #ifdef TERM_1A
+#if 0
+      write(6,*) ' xc_d2expl: AMAT2'
+      call output(amat2, 1, nq, 1, NCOL_AMAT2, nq, NCOL_AMAT2, 1)
+      if (GRAD) then
+         write(6,*) ' xc_d2expl: CMAT2'
+         call output(cmat2, 1, nq, 1, NCOL_CMAT2, nq, NCOL_CMAT2, 1)
+      endif
+#endif
       do 100 iat = 1, natoms
          iatcur = curatoms(iat)
 c     !!! are quadratic loops necessary?
          if (iatcur.eq.0) goto 100
 c
-c        Pre-combine derivatives of density wrt iat with derivatives
-c        of functional
+         if (GRAD) then
 c
-         do ii = 1, ipol
+c           Transform delrho derivatives into gamma derivatives,
+c           storing the result back in ddelrho
+c
+            if (ipol.eq.1) then
+               do idir = 1, 3
+                  do n = 1, nq
+                    dgaa =(delrho(n,1,1)*ddelrho(n,1,1,idir,iatcur)
+     &                   + delrho(n,2,1)*ddelrho(n,2,1,idir,iatcur)
+     &                   + delrho(n,3,1)*ddelrho(n,3,1,idir,iatcur))*2d0
+                    ddelrho(n,1,1,idir,iatcur) = dgaa
+                  enddo
+               enddo
+            else
+               do idir = 1, 3
+                  do n = 1, nq
+                    dgaa =(delrho(n,1,1)*ddelrho(n,1,1,idir,iatcur)
+     &                   + delrho(n,2,1)*ddelrho(n,2,1,idir,iatcur)
+     &                   + delrho(n,3,1)*ddelrho(n,3,1,idir,iatcur))*2d0
+                    dgab = delrho(n,1,1)*ddelrho(n,1,2,idir,iatcur)
+     &                   + delrho(n,2,1)*ddelrho(n,2,2,idir,iatcur)
+     &                   + delrho(n,3,1)*ddelrho(n,3,2,idir,iatcur)
+     &                   + delrho(n,1,2)*ddelrho(n,1,1,idir,iatcur)
+     &                   + delrho(n,2,2)*ddelrho(n,2,1,idir,iatcur)
+     &                   + delrho(n,3,2)*ddelrho(n,3,1,idir,iatcur)
+                    dgbb =(delrho(n,1,2)*ddelrho(n,1,2,idir,iatcur)
+     &                   + delrho(n,2,2)*ddelrho(n,2,2,idir,iatcur)
+     &                   + delrho(n,3,2)*ddelrho(n,3,2,idir,iatcur))*2d0
+                    ddelrho(n,1,1,idir,iatcur) = dgaa
+                    ddelrho(n,2,1,idir,iatcur) = dgab
+                    ddelrho(n,3,1,idir,iatcur) = dgbb
+                  enddo
+               enddo
+            endif
+         endif
+c
+c        Pre-combine derivatives of density parameters wrt iat
+c        with derivatives of functional
+c
+         if (ipol.eq.1) then
             do n = 1, nq
-               a21 = Amat2(n,ind2(1,ii))
-               a22 = Amat2(n,ind2(2,ii))
-               scr(1,1,n,ii) = a21 * rho(n,ii,1,iatcur)
-               scr(2,1,n,ii) = a22 * rho(n,ii,1,iatcur)
-               scr(1,2,n,ii) = a21 * rho(n,ii,2,iatcur)
-               scr(2,2,n,ii) = a22 * rho(n,ii,2,iatcur)
-               scr(1,3,n,ii) = a21 * rho(n,ii,3,iatcur)
-               scr(2,3,n,ii) = a22 * rho(n,ii,3,iatcur)
+               a11 = (Amat2(n,D2_RA_RA) + Amat2(n,D2_RA_RB))*2d0
+               scr(n,1,1) = a11 * drho(n,1,1,iatcur)
+               scr(n,1,2) = a11 * drho(n,1,2,iatcur)
+               scr(n,1,3) = a11 * drho(n,1,3,iatcur)
             enddo
-         enddo
+            if (GRAD) then
+               do n = 1, nq
+                  c13 = (Cmat2(n,D2_RA_GAA) + Cmat2(n,D2_RA_GAB)
+     &                 + Cmat2(n,D2_RA_GBB))*2d0
+                  c33 = (Cmat2(n,D2_GAA_GAA) + Cmat2(n,D2_GAA_GBB))*2d0
+     &                 + Cmat2(n,D2_GAA_GAB)*4d0 + Cmat2(n,D2_GAB_GAB)
+c
+c     The local coefficients get some extra contributions
+c
+                  scr(n,1,1) = scr(n,1,1)
+     &                       + c13 * ddelrho(n,1,1,1,iatcur)
+                  scr(n,1,2) = scr(n,1,2)
+     &                       + c13 * ddelrho(n,1,1,2,iatcur)
+                  scr(n,1,3) = scr(n,1,3)
+     &                       + c13 * ddelrho(n,1,1,3,iatcur)
+c
+c     Now for the GC coefficients
+c
+                  scr(n,3,1) = c13 * drho(n,1,1,iatcur)
+     &                       + c33 * ddelrho(n,1,1,1,iatcur)
+                  scr(n,3,2) = c13 * drho(n,1,2,iatcur)
+     &                       + c33 * ddelrho(n,1,1,2,iatcur)
+                  scr(n,3,3) = c13 * drho(n,1,3,iatcur)
+     &                       + c33 * ddelrho(n,1,1,3,iatcur)
+               enddo
+            endif
+         else
+            do n = 1, nq
+               a11 = Amat2(n,D2_RA_RA)
+               a12 = Amat2(n,D2_RA_RB)
+               a22 = Amat2(n,D2_RB_RB)
+               scr(n,1,1) = a11 * drho(n,1,1,iatcur)
+     &                    + a12 * drho(n,2,1,iatcur)
+               scr(n,2,1) = a12 * drho(n,1,1,iatcur)
+     &                    + a22 * drho(n,2,1,iatcur)
+               scr(n,1,2) = a11 * drho(n,1,2,iatcur)
+     &                    + a12 * drho(n,2,2,iatcur)
+               scr(n,2,2) = a12 * drho(n,1,2,iatcur)
+     &                    + a22 * drho(n,2,2,iatcur)
+               scr(n,1,3) = a11 * drho(n,1,3,iatcur)
+     &                    + a12 * drho(n,2,3,iatcur)
+               scr(n,2,3) = a12 * drho(n,1,3,iatcur)
+     &                    + a22 * drho(n,2,3,iatcur)
+            enddo
+            if (GRAD) then
+               do n = 1, nq
+                  c13 = Cmat2(n,D2_RA_GAA)
+                  c14 = Cmat2(n,D2_RA_GAB)
+                  c15 = Cmat2(n,D2_RA_GBB)
+                  c23 = Cmat2(n,D2_RB_GAA)
+                  c24 = Cmat2(n,D2_RB_GAB)
+                  c25 = Cmat2(n,D2_RB_GBB)
+                  c33 = Cmat2(n,D2_GAA_GAA)
+                  c34 = Cmat2(n,D2_GAA_GAB)
+                  c35 = Cmat2(n,D2_GAA_GBB)
+                  c44 = Cmat2(n,D2_GAB_GAB)
+                  c45 = Cmat2(n,D2_GAB_GBB)
+                  c55 = Cmat2(n,D2_GBB_GBB)
+c
+c     The local coefficients get some extra contributions
+c
+                  scr(n,1,1) = scr(n,1,1)
+     &                       + c13 * ddelrho(n,1,1,1,iatcur)
+     &                       + c14 * ddelrho(n,2,1,1,iatcur)
+     &                       + c15 * ddelrho(n,3,1,1,iatcur)
+                  scr(n,2,1) = scr(n,2,1)
+     &                       + c23 * ddelrho(n,1,1,1,iatcur)
+     &                       + c24 * ddelrho(n,2,1,1,iatcur)
+     &                       + c25 * ddelrho(n,3,1,1,iatcur)
+                  scr(n,1,2) = scr(n,1,2)
+     &                       + c13 * ddelrho(n,1,1,2,iatcur)
+     &                       + c14 * ddelrho(n,2,1,2,iatcur)
+     &                       + c15 * ddelrho(n,3,1,2,iatcur)
+                  scr(n,2,2) = scr(n,2,2)
+     &                       + c23 * ddelrho(n,1,1,2,iatcur)
+     &                       + c24 * ddelrho(n,2,1,2,iatcur)
+     &                       + c25 * ddelrho(n,3,1,2,iatcur)
+                  scr(n,1,3) = scr(n,1,3)
+     &                       + c13 * ddelrho(n,1,1,3,iatcur)
+     &                       + c14 * ddelrho(n,2,1,3,iatcur)
+     &                       + c15 * ddelrho(n,3,1,3,iatcur)
+                  scr(n,2,3) = scr(n,2,3)
+     &                       + c23 * ddelrho(n,1,1,3,iatcur)
+     &                       + c24 * ddelrho(n,2,1,3,iatcur)
+     &                       + c25 * ddelrho(n,3,1,3,iatcur)
+c
+c     Now for the GC coefficients
+c
+                  scr(n,3,1) = c13 * drho(n,1,1,iatcur)
+     &                       + c23 * drho(n,2,1,iatcur)
+     &                       + c33 * ddelrho(n,1,1,1,iatcur)
+     &                       + c34 * ddelrho(n,2,1,1,iatcur)
+     &                       + c35 * ddelrho(n,3,1,1,iatcur)
+                  scr(n,4,1) = c14 * drho(n,1,1,iatcur)
+     &                       + c24 * drho(n,2,1,iatcur)
+     &                       + c34 * ddelrho(n,1,1,1,iatcur)
+     &                       + c44 * ddelrho(n,2,1,1,iatcur)
+     &                       + c45 * ddelrho(n,3,1,1,iatcur)
+                  scr(n,5,1) = c15 * drho(n,1,1,iatcur)
+     &                       + c25 * drho(n,2,1,iatcur)
+     &                       + c35 * ddelrho(n,1,1,1,iatcur)
+     &                       + c45 * ddelrho(n,2,1,1,iatcur)
+     &                       + c55 * ddelrho(n,3,1,1,iatcur)
+                  scr(n,3,2) = c13 * drho(n,1,2,iatcur)
+     &                       + c23 * drho(n,2,2,iatcur)
+     &                       + c33 * ddelrho(n,1,1,2,iatcur)
+     &                       + c34 * ddelrho(n,2,1,2,iatcur)
+     &                       + c35 * ddelrho(n,3,1,2,iatcur)
+                  scr(n,4,2) = c14 * drho(n,1,2,iatcur)
+     &                       + c24 * drho(n,2,2,iatcur)
+     &                       + c34 * ddelrho(n,1,1,2,iatcur)
+     &                       + c44 * ddelrho(n,2,1,2,iatcur)
+     &                       + c45 * ddelrho(n,3,1,2,iatcur)
+                  scr(n,5,2) = c15 * drho(n,1,2,iatcur)
+     &                       + c25 * drho(n,2,2,iatcur)
+     &                       + c35 * ddelrho(n,1,1,2,iatcur)
+     &                       + c45 * ddelrho(n,2,1,2,iatcur)
+     &                       + c55 * ddelrho(n,3,1,2,iatcur)
+                  scr(n,3,3) = c13 * drho(n,1,3,iatcur)
+     &                       + c23 * drho(n,2,3,iatcur)
+     &                       + c33 * ddelrho(n,1,1,3,iatcur)
+     &                       + c34 * ddelrho(n,2,1,3,iatcur)
+     &                       + c35 * ddelrho(n,3,1,3,iatcur)
+                  scr(n,4,3) = c14 * drho(n,1,3,iatcur)
+     &                       + c24 * drho(n,2,3,iatcur)
+     &                       + c34 * ddelrho(n,1,1,3,iatcur)
+     &                       + c44 * ddelrho(n,2,1,3,iatcur)
+     &                       + c45 * ddelrho(n,3,1,3,iatcur)
+                  scr(n,5,3) = c15 * drho(n,1,3,iatcur)
+     &                       + c25 * drho(n,2,3,iatcur)
+     &                       + c35 * ddelrho(n,1,1,3,iatcur)
+     &                       + c45 * ddelrho(n,2,1,3,iatcur)
+     &                       + c55 * ddelrho(n,3,1,3,iatcur)
+               enddo
+            endif
+         endif
 c
          do 200 jat = 1, iat
             jatcur = curatoms(jat)
@@ -159,39 +441,109 @@ c     !!! are quadratic loops necessary?
             if (jatcur.eq.0) goto 200
 c
             call dfill(9,0.d0,T,1)
-            do ii = 1, ipol
-c
-c     !!! Should work for restricted, but could be made more efficient
-c     !!! by saving a multiply when ipol = 1 - probably not too important
-c
+            if (ipol.eq.1) then
                do n = 1, nq
-                  T(1,1) = T(1,1) + scr(1,1,n,ii) * rho(n,   1,1,jatcur)
-     &                            + scr(2,1,n,ii) * rho(n,ipol,1,jatcur)
-                  T(2,1) = T(2,1) + scr(1,2,n,ii) * rho(n,   1,1,jatcur)
-     &                            + scr(2,2,n,ii) * rho(n,ipol,1,jatcur)
-                  T(3,1) = T(3,1) + scr(1,3,n,ii) * rho(n,   1,1,jatcur)
-     &                            + scr(2,3,n,ii) * rho(n,ipol,1,jatcur)
-                  T(1,2) = T(1,2) + scr(1,1,n,ii) * rho(n,   1,2,jatcur)
-     &                            + scr(2,1,n,ii) * rho(n,ipol,2,jatcur)
-                  T(2,2) = T(2,2) + scr(1,2,n,ii) * rho(n,   1,2,jatcur)
-     &                            + scr(2,2,n,ii) * rho(n,ipol,2,jatcur)
-                  T(3,2) = T(3,2) + scr(1,3,n,ii) * rho(n,   1,2,jatcur)
-     &                            + scr(2,3,n,ii) * rho(n,ipol,2,jatcur)
-                  T(1,3) = T(1,3) + scr(1,1,n,ii) * rho(n,   1,3,jatcur)
-     &                            + scr(2,1,n,ii) * rho(n,ipol,3,jatcur)
-                  T(2,3) = T(2,3) + scr(1,2,n,ii) * rho(n,   1,3,jatcur)
-     &                            + scr(2,2,n,ii) * rho(n,ipol,3,jatcur)
-                  T(3,3) = T(3,3) + scr(1,3,n,ii) * rho(n,   1,3,jatcur)
-     &                            + scr(2,3,n,ii) * rho(n,ipol,3,jatcur)
+                  T(1,1) = T(1,1) + scr(n,1,1) * drho(n,1,1,jatcur)
+                  T(2,1) = T(2,1) + scr(n,1,2) * drho(n,1,1,jatcur)
+                  T(3,1) = T(3,1) + scr(n,1,3) * drho(n,1,1,jatcur)
+                  T(1,2) = T(1,2) + scr(n,1,1) * drho(n,1,2,jatcur)
+                  T(2,2) = T(2,2) + scr(n,1,2) * drho(n,1,2,jatcur)
+                  T(3,2) = T(3,2) + scr(n,1,3) * drho(n,1,2,jatcur)
+                  T(1,3) = T(1,3) + scr(n,1,1) * drho(n,1,3,jatcur)
+                  T(2,3) = T(2,3) + scr(n,1,2) * drho(n,1,3,jatcur)
+                  T(3,3) = T(3,3) + scr(n,1,3) * drho(n,1,3,jatcur)
                enddo
-            enddo
+               if (GRAD) then
+                  do n = 1, nq
+                     T(1,1) = T(1,1)
+     &                      + scr(n,3,1) * ddelrho(n,1,1,1,jatcur)
+                     T(2,1) = T(2,1)
+     &                      + scr(n,3,2) * ddelrho(n,1,1,1,jatcur)
+                     T(3,1) = T(3,1)
+     &                      + scr(n,3,3) * ddelrho(n,1,1,1,jatcur)
+                     T(1,2) = T(1,2)
+     &                      + scr(n,3,1) * ddelrho(n,1,1,2,jatcur)
+                     T(2,2) = T(2,2)
+     &                      + scr(n,3,2) * ddelrho(n,1,1,2,jatcur)
+                     T(3,2) = T(3,2)
+     &                      + scr(n,3,3) * ddelrho(n,1,1,2,jatcur)
+                     T(1,3) = T(1,3)
+     &                      + scr(n,3,1) * ddelrho(n,1,1,3,jatcur)
+                     T(2,3) = T(2,3)
+     &                      + scr(n,3,2) * ddelrho(n,1,1,3,jatcur)
+                     T(3,3) = T(3,3)
+     &                      + scr(n,3,3) * ddelrho(n,1,1,3,jatcur)
+                  enddo
+               endif
+            else
+               do n = 1, nq
+                  T(1,1) = T(1,1) + scr(n,1,1) * drho(n,1,1,jatcur)
+     &                            + scr(n,2,1) * drho(n,2,1,jatcur)
+                  T(2,1) = T(2,1) + scr(n,1,2) * drho(n,1,1,jatcur)
+     &                            + scr(n,2,2) * drho(n,2,1,jatcur)
+                  T(3,1) = T(3,1) + scr(n,1,3) * drho(n,1,1,jatcur)
+     &                            + scr(n,2,3) * drho(n,2,1,jatcur)
+                  T(1,2) = T(1,2) + scr(n,1,1) * drho(n,1,2,jatcur)
+     &                            + scr(n,2,1) * drho(n,2,2,jatcur)
+                  T(2,2) = T(2,2) + scr(n,1,2) * drho(n,1,2,jatcur)
+     &                            + scr(n,2,2) * drho(n,2,2,jatcur)
+                  T(3,2) = T(3,2) + scr(n,1,3) * drho(n,1,2,jatcur)
+     &                            + scr(n,2,3) * drho(n,2,2,jatcur)
+                  T(1,3) = T(1,3) + scr(n,1,1) * drho(n,1,3,jatcur)
+     &                            + scr(n,2,1) * drho(n,2,3,jatcur)
+                  T(2,3) = T(2,3) + scr(n,1,2) * drho(n,1,3,jatcur)
+     &                            + scr(n,2,2) * drho(n,2,3,jatcur)
+                  T(3,3) = T(3,3) + scr(n,1,3) * drho(n,1,3,jatcur)
+     &                            + scr(n,2,3) * drho(n,2,3,jatcur)
+               enddo
+               if (GRAD) then
+                  do n = 1, nq
+                     T(1,1) = T(1,1)
+     &                      + scr(n,3,1) * ddelrho(n,1,1,1,jatcur)
+     &                      + scr(n,4,1) * ddelrho(n,2,1,1,jatcur)
+     &                      + scr(n,5,1) * ddelrho(n,3,1,1,jatcur)
+                     T(2,1) = T(2,1)
+     &                      + scr(n,3,2) * ddelrho(n,1,1,1,jatcur)
+     &                      + scr(n,4,2) * ddelrho(n,2,1,1,jatcur)
+     &                      + scr(n,5,2) * ddelrho(n,3,1,1,jatcur)
+                     T(3,1) = T(3,1)
+     &                      + scr(n,3,3) * ddelrho(n,1,1,1,jatcur)
+     &                      + scr(n,4,3) * ddelrho(n,2,1,1,jatcur)
+     &                      + scr(n,5,3) * ddelrho(n,3,1,1,jatcur)
+                     T(1,2) = T(1,2)
+     &                      + scr(n,3,1) * ddelrho(n,1,1,2,jatcur)
+     &                      + scr(n,4,1) * ddelrho(n,2,1,2,jatcur)
+     &                      + scr(n,5,1) * ddelrho(n,3,1,2,jatcur)
+                     T(2,2) = T(2,2)
+     &                      + scr(n,3,2) * ddelrho(n,1,1,2,jatcur)
+     &                      + scr(n,4,2) * ddelrho(n,2,1,2,jatcur)
+     &                      + scr(n,5,2) * ddelrho(n,3,1,2,jatcur)
+                     T(3,2) = T(3,2)
+     &                      + scr(n,3,3) * ddelrho(n,1,1,2,jatcur)
+     &                      + scr(n,4,3) * ddelrho(n,2,1,2,jatcur)
+     &                      + scr(n,5,3) * ddelrho(n,3,1,2,jatcur)
+                     T(1,3) = T(1,3)
+     &                      + scr(n,3,1) * ddelrho(n,1,1,3,jatcur)
+     &                      + scr(n,4,1) * ddelrho(n,2,1,3,jatcur)
+     &                      + scr(n,5,1) * ddelrho(n,3,1,3,jatcur)
+                     T(2,3) = T(2,3)
+     &                      + scr(n,3,2) * ddelrho(n,1,1,3,jatcur)
+     &                      + scr(n,4,2) * ddelrho(n,2,1,3,jatcur)
+     &                      + scr(n,5,2) * ddelrho(n,3,1,3,jatcur)
+                     T(3,3) = T(3,3)
+     &                      + scr(n,3,3) * ddelrho(n,1,1,3,jatcur)
+     &                      + scr(n,4,3) * ddelrho(n,2,1,3,jatcur)
+     &                      + scr(n,5,3) * ddelrho(n,3,1,3,jatcur)
+                  enddo
+               endif
+            endif
 c
-c     Restricted calculations need a factor of 2 to account for the
-c     beta contribution, but since for restricted the density evaluator
-c     computes *total* densities, a factor of 1/2 * 1/2 is needed to
-c     correct for this, giving a net factor of 1/2.
+c     For restricted we must correct for the densities being *total*
+c     densities, calling for a factor of 1/2 * 1/2 - a factor of 2 was
+c     left out in combining the functional derivatives above, leaving
+c     a factor of 1/2 remaining.
 c
-            if (ipol.eq.1) call dscal(9,0.5d0,T,1)
+c!!!            if (ipol.eq.1) call dscal(9,0.5d0,T,1)
 c
 c           Update Hessian block(s)
 c
@@ -210,21 +562,31 @@ c
  100  continue
 #endif
 c
-c     Second step: terms involving functional first derivatives
-c                  and density parameter second derivatives
+c     Third step: remaining terms involving functional first derivatives
+c                 and density parameter second derivatives
+c
+c     We now need Cmat in the delrho form
+c
+      if (GRAD) call transform_Cmat(delrho, Cmat, ipol, nq)
 c
       A_MAX = dabsmax(nq*ipol,Amat)
       C_MAX = dabsmax(nq*3*ipol,Cmat)
       AC_MAX = max(A_MAX,C_MAX)
 c
-c      write(6,*) ' xc_d2expl: AMAT '
-c      call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
-c      write(6,*) ' xc_d2expl: CMAT '
-c      call output(cmat, 1, 3*nq, 1, ipol, 3*nq, ipol, 1)
-c      write(6,*) ' xc_d2expl: chi '
-c      call output(chi, 1, nq, 1, nbf, nq, nbf, 1)
-c      write(6,*) ' xc_d2expl: delchi '
-c      call output(delchi, 1, 3*nq, 1, nbf, 3*nq, nbf, 1)
+#if 0
+      write(6,*) ' xc_d2expl: AMAT '
+      call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
+      if (GRAD) then
+         write(6,*) ' xc_d2expl: CMAT '
+         call output(cmat, 1, nq, 1, 3*ipol, nq, 3*ipol, 1)
+      endif
+      write(6,*) ' xc_d2expl: chi '
+      call output(chi, 1, nq, 1, nbf, nq, nbf, 1)
+      if (GRAD) then
+         write(6,*) ' xc_d2expl: delchi '
+         call output(delchi, 1, nq, 1, 3*nbf, nq, 3*nbf, 1)
+      endif
+#endif
 c
 c     Screening is accomplished by:  p(r) <= |Xi(r)|*|Xj(r)|*|Dij|
 c     Xi(r) is screened on desired accuracy/max(|Xj(r)|)*max(|Dij|)
