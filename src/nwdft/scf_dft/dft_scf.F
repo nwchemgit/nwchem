@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.106 1998-09-10 21:13:32 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.107 1998-09-11 23:47:02 d3h449 Exp $
 c     
       implicit none
 c
@@ -96,7 +96,8 @@ c
      &        oprint_eval, oprint_syma, oprint_time, 
      &        oprint_info, oprint_tol, oprint_final_vecs, 
      &        oprint_energy_step, oprint_intermediate_fock,
-     &        oprint_3c2e, oprint_interm_overlap, oprint_interm_S2
+     &        oprint_3c2e, oprint_interm_overlap, oprint_interm_S2,
+     &        oprint_conv_details
       double precision zero, onem, one
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
 c
@@ -134,6 +135,8 @@ c
       oprint_parm = util_print('parameters', print_default)
       oprint_3c2e = util_print('3c 2e integrals', print_default)
       oprint_conv = util_print('convergence', print_default)
+      oprint_conv_details = util_print('convergence details', 
+     &                                 print_high)
       oprint_vecs = util_print('intermediate vectors', print_high)
       oprint_eval = util_print('intermediate evals', print_high)
       oprint_syma = util_print('interm vector symm', print_high)
@@ -581,7 +584,7 @@ c
       last_time_energy = .false.
 c
  1000 continue
-      if (me.eq.0 .and. oprint_conv)
+      if (me.eq.0 .and. oprint_conv_details)
      &   write(LuOut,124)damping, levelshifting, diising
  124  format(10x,' DAMPING=',l1,' LEVELSHIFTING=',l1,
      &           ' DIISING=',l1)
@@ -905,7 +908,7 @@ c        Keep orbital ordering according to principle
 c        of maximum overlap with previous iteration.
 c     
          if (lmaxov)then
-            if (me.eq.0 .and. oprint_conv)
+            if (me.eq.0 .and. oprint_conv_details)
      &         write(LuOut,3224)homo, lumo
             call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
      &                     g_fock, g_movecs(ispin), g_tmp)
@@ -920,7 +923,7 @@ c
                  lumo = min(lumo,(Dbl_MB(k_eval(ispin)+i-1)))
               enddo
             endif
-            if (me.eq.0 .and. oprint_conv)
+            if (me.eq.0 .and. oprint_conv_details)
      &         write(LuOut,3224)homo, lumo
          endif
  3224    format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2)
@@ -929,7 +932,7 @@ c
 c        determine homo-lumo gap 
 c
          homo_lumo_gap = min(homo_lumo_gap, (lumo-homo-rlshift))
-         if (me.eq.0 .and. oprint_conv)
+         if (me.eq.0 .and. oprint_conv_details)
      &      write(LuOut,4224)homo,lumo,rlshift, homo_lumo_gap
  4224    format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
      &              ' RLSHIFT = ',f6.2,' HL_GAP = ',f6.2)
@@ -1150,7 +1153,7 @@ c
             if (check_shift)then
                if (lumo .lt. homo)then
                   levelshifting = .false.
-                  if (me.eq.0 .and. oprint_conv)
+                  if (me.eq.0 .and. oprint_conv_details)
      &               write(LuOut,2224)homo, lumo
                endif
             endif
@@ -1193,7 +1196,8 @@ c
       lmaxov = lmaxov_sv
       if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
          lmaxov = .false.
-         if (me.eq.0 .and. oprint_conv)write(LuOut,224)homo, lumo
+         if (me.eq.0 .and. oprint_conv_details)
+     &      write(LuOut,224)homo, lumo
  224     format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
      &        /,10x,'Significant orbital reordering with',
      &        ' maximum overlap',
