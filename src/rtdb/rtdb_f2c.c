@@ -11,7 +11,7 @@ typedef long integer;		/* Equivalent C type to FORTRAN integer */
 #define FORTRAN_FALSE ((logical) 0)
 
 
-static int fortchar_to_string(const char *f, int flen, char *buf, 
+int fortchar_to_string(const char *f, int flen, char *buf, 
 			      const int buflen)
 {
   while (flen-- && f[flen] == ' ')
@@ -28,7 +28,7 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
   return 1;
 }
 
-static int string_to_fortchar(char *f, int flen, const char *buf)
+int string_to_fortchar(char *f, int flen, const char *buf)
 {
   int len = strlen(buf), i;
 
