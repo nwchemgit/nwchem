@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.11 2002-12-27 17:45:00 d3k958 Exp $
+C     $Id: vectors_inp.F,v 1.12 2002-12-27 19:06:40 d3k958 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -25,12 +25,15 @@ c     filename movecs (which is searched for by the application)
 c     
 c     vectors output filename
 c     
-      integer num_dirs, ind
+      integer num_dirs, ind, i
       parameter (num_dirs = 10)
       character*8 dirs(num_dirs)
       integer max_swap
       parameter (max_swap = 50)
       integer swap(max_swap), nswap, itest, mlen
+      integer max_reorder
+      parameter (max_reorder = 1000)  ! same as in ../include/nwc_const.fh: nw_max_atom =1000)
+      integer reorder(max_reorder), nreorder
       character*255 test, vectors_in, vectors_out
       integer maxfrag
       parameter (maxfrag = 60)
@@ -131,20 +134,20 @@ c
 c ================================================================
 c     reorder <list containing new order of atoms>
 c
- 550  nswap = 0
+ 550  nreorder = 0
  551  if (.not. inp_i(itest)) then
 c
 c     Have hit end of pair list ... EOL or another directive
 c
-         if (nswap.le.0) call errquit
-     $        ('vectors_input: invalid no. of nuclei to swap', nswap)
+         if (nreorder.le.0) call errquit
+     $     ('vectors_input: invalid no. of nuclei to reorder', nreorder)
 c
-         if (.not. rtdb_put(rtdb, 'reorder', mt_int, nswap,swap))
-     $        call errquit('vectors_input: put of reorder?', nswap)
+         if (.not. rtdb_put(rtdb, 'reorder', mt_int, nreorder,reorder))
+     $        call errquit('vectors_input: put of reorder?', nreorder)
          goto 10
       else
-         swap(nswap+1) = itest
-         nswap = nswap + 1
+         reorder(nreorder+1) = itest
+         nreorder = nreorder + 1
          goto 551
       endif
 c
