@@ -2,7 +2,7 @@
      &                       Amat, Cmat, nq, ipol, Ec, qwght, 
      ,     ldew, ffunc)
 c
-c     $Id: xc_perdew91.F,v 1.31 2001-07-09 20:37:39 edo Exp $
+c     $Id: xc_perdew91.F,v 1.32 2001-12-17 23:44:37 edo Exp $
 c
       Implicit none
 c
@@ -301,6 +301,8 @@ c
             dsqgamma = max(dsqrt(gammaval),tol_rho)
             drho = rho(n,2) - rho(n,3)
             zeta = drho*arho
+            if(zeta.lt.-1d0) zeta=-1d0
+            if(zeta.gt.1d0) zeta=1d0
 c         
 c           C(n)
 c         

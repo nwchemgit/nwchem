@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ec, qwght,
      &                    ldew,ffunc)     
 c
-c$Id: xc_pbe96.F,v 1.10 2001-12-11 18:41:57 edo Exp $
+c$Id: xc_pbe96.F,v 1.11 2001-12-17 23:44:37 edo Exp $
 c
       Implicit none
 c
@@ -278,6 +278,8 @@ c
             dsqgamma = max(dsqrt(gammaval),tol_rho)
             drho = rho(n,2) - rho(n,3)
             zeta = drho*arho
+            if(zeta.lt.-1d0) zeta=-1d0
+            if(zeta.gt.1d0) zeta=1d0
             egas = 0.d0
             dp81drho(1) = 0.d0
             dp81drho(2) = 0.d0

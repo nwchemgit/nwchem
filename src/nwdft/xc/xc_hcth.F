@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.23 2001-11-21 01:57:13 edo Exp $
+c$Id: xc_hcth.F,v 1.24 2001-12-17 23:44:37 edo Exp $
 c
       Implicit none
 c
@@ -614,7 +614,7 @@ Cfah with the various powers of u.
       u_cbb = 0.2D0*s_b2/(1.D0+0.2D0*s_b2) 
 
       u_cab = 0.006D0*s_avg2/(1.d0+0.006D0*s_avg2)
-      if(rhoa.ne.0) then
+      if(rhoa.gt.0) then
          rsa = ((3.d0/Pi)**(1.D0/3.D0)*
      -        (1.d0/rhoa)**(1.D0/3.D0))/
      -        2**(2.D0/3.D0)
@@ -638,7 +638,7 @@ Cfah with the various powers of u.
 C     
 C     pw91 LDA Ecorr
 C
-         if(rhoa.ne.0d0) then
+         if(rhoa.gt.0d0) then
             e_crsb1 = e_crs1(rsb12,rsb,rsb32,rsb21)
             de_crsb1_by_drsb =  decrsdrs(rsb,rsb12,rsb21,rsb32)
          else
@@ -651,7 +651,7 @@ C
      -        rhob**(8.D0/3.D0))**2)
          du_cbb_by_dzb = (2*0.2D0*zb*rhob**(8.D0/3.D0))/
      -        (0.2D0*zb**2 + rhob**(8.D0/3.D0))**2
-         if(rhoa.ne.0d0) then
+         if(rhoa.gt.0d0) then
          du_cab_by_drhoa = (-16*0.006D0*za*za*rhoa**(5.D0/3.D0)*
      -        rhob**(16.D0/3.D0))/
      -        (3.d0*(0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
@@ -703,6 +703,8 @@ C
       rsab21 = rsab**2.D0
 
       zeta = (rhoa-rhob)/rho
+      if(zeta.lt.-1d0) zeta=-1d0
+      if(zeta.gt.1d0) zeta=1d0
 
       if(abs(1d0-zeta).gt.eps) then
          fzeta = (-2.d0 + sign(1d0,1.d0 - zeta)*(abs(1.d0 - zeta))**
@@ -716,7 +718,7 @@ C
 C     
 C     pw91 LDA Ecorr
 C
-      if(rhoa.ne.0d0) then
+      if(rhoa.gt.0d0) then
          e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
          e_crsab1 = e_crs1(rsab12,rsab,rsab32,rsab21)
          e_crsab0 = -0.062182d0*dlog(1.d0 +
@@ -747,7 +749,7 @@ C
       e_caa = rhoa*e_crsa1
       e_cbb = rhob*e_crsb1
       e_cab = rho*e_crsabzeta - rhoa*e_crsa1 - rhob*e_crsb1
-      if(rhoa.ne.0d0) then
+      if(rhoa.gt.0d0) then
          du_caa_by_drhoa = (-1.6D0*za*za*rhoa**(5.D0/3.D0))/
      -        (3.*(0.2D0*za*za + 
      -        rhoa**(8.D0/3.D0))**2)
@@ -841,7 +843,7 @@ Cfah -     0.006D0*za**2*rhob**(8.D0/3.D0) +
 Cfah -     2*rhoa**(8.D0/3.D0)*
 Cfah -      rhob**(8.D0/3.D0))**3 
 
-      if(rhoa.ne.0) then
+      if(rhoa.gt.0) then
          drsa_by_drhoa = drsbydrh(rhoa)
       else
          drsa_by_drhoa =0d0
@@ -888,7 +890,7 @@ Cfah -      rhob**(8.D0/3.D0))**3
      -   dlog(1.d0 + 16.0818243221511d0/
      -      (3.5876*rsab + 7.595699999999999d0*rsab12 + 
      -        0.49294d0*rsab21 + 1.6382d0*rsab32))
-      if(rhoa.ne.0) then
+      if(rhoa.gt.0) then
          de_crsa1_by_drsa = decrsdrs(rsa,rsa12,rsa21,rsa32)
          de_crsab1_by_drsab = decrsdrs(rsab,rsab12,rsab21,rsab32)
       else
