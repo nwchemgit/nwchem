@@ -1,6 +1,6 @@
       subroutine tce_mo1e(g_ao1e,d_mo1e)
 c
-c $Id: tce_mo1e.F,v 1.9 2003-09-16 21:50:12 sohirata Exp $
+c $Id: tce_mo1e.F,v 1.10 2003-10-19 00:52:08 sohirata Exp $
 c
 c     Spin-spatial-symmetry blocked Fock matrix transformations.
 c
@@ -12,6 +12,7 @@ c
 #include "util.fh"
 #include "sym.fh"
 #include "sf.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer g_ao1e(2)           ! AO Fock matrices
       integer l_ao1e,k_ao1e       ! AO Fock matrices
@@ -46,7 +47,7 @@ c
         enddo
       enddo
       if (.not.ma_push_get(mt_dbl,sf_size,'MO Fock',
-     1  l_mo1e,k_mo1e)) call errquit('tce_mo1e: MA problem',3)
+     1  l_mo1e,k_mo1e)) call errquit('tce_mo1e: MA problem',3,MA_ERR)
 c
 c     ==============
 c     Transformation
@@ -66,15 +67,17 @@ c
             offset_g1 = int_mb(k_offset+g1b-1)*nbf
             offset_g2 = int_mb(k_offset+g2b-1)*nbf
             if (.not.ma_push_get(mt_dbl,range_g1*nbf,'Work',
-     1        l_work,k_work)) call errquit('tce_mo1e: MA problem',0)
+     1        l_work,k_work)) call errquit('tce_mo1e: MA problem',0,
+     2        MA_ERR)
             if (.not.ma_push_get(mt_dbl,nbf*nbf,'AO Fock',
-     1        l_ao1e,k_ao1e)) call errquit('tce_mo1e: MA problem',1)
+     1        l_ao1e,k_ao1e)) call errquit('tce_mo1e: MA problem',1,
+     2        MA_ERR)
             call ga_get(g_ao1e(spin),1,nbf,1,nbf,dbl_mb(k_ao1e),nbf)
             call dgemm('T','N',range_g1,nbf,nbf,1.0d0,
      1        dbl_mb(k_movecs_sorted+offset_g1),nbf,dbl_mb(k_ao1e),
      2        nbf,0.0d0,dbl_mb(k_work),range_g1)
             if (.not.ma_pop_stack(l_ao1e))
-     1        call errquit('tce_mo1e: MA problem',2)
+     1        call errquit('tce_mo1e: MA problem',2,MA_ERR)
             call dgemm('N','N',range_g1,range_g2,nbf,1.0d0,
      1        dbl_mb(k_work),range_g1,
      2        dbl_mb(k_movecs_sorted+offset_g2),nbf,
@@ -83,7 +86,7 @@ c
      1        call ma_print(dbl_mb(k_mo1e+sf_offset),
      2        range_g1,range_g2,'Spin symmetry block of Fock')
             if (.not.ma_pop_stack(l_work))
-     1        call errquit('tce_mo1e: MA problem',5)
+     1        call errquit('tce_mo1e: MA problem',5,MA_ERR)
             sf_offset = sf_offset + range_g1 * range_g2
           endif
           endif
@@ -105,11 +108,11 @@ c
         call sf_print(d_mo1e,sf_size)
       endif
       if (.not.ma_pop_stack(l_mo1e))
-     1  call errquit('tce_mo1e: MA problem',6)
+     1  call errquit('tce_mo1e: MA problem',6,MA_ERR)
       if (.not.ga_destroy(g_ao1e(1)))
-     1  call errquit('tce_mo1e: GA problem',2)
+     1  call errquit('tce_mo1e: GA problem',2,GA_ERR)
       if (.not.ga_destroy(g_ao1e(2)))
-     1  call errquit('tce_mo1e: GA problem',3)
+     1  call errquit('tce_mo1e: GA problem',3,GA_ERR)
       return
       end
 
@@ -127,6 +130,7 @@ c
 #include "util.fh"
 #include "sym.fh"
 #include "sf.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer l_mo1e,k_mo1e       ! MO Fock matrices
       integer sf_size,sf_offset   ! SF size and offset
@@ -158,7 +162,7 @@ c
         enddo
       enddo
       if (.not.ma_push_get(mt_dbl,sf_size,'MO Fock',
-     1  l_mo1e,k_mo1e)) call errquit('tce_mo1e: MA problem',3)
+     1  l_mo1e,k_mo1e)) call errquit('tce_mo1e: MA problem',3,MA_ERR)
 c
 c     ==============
 c     Transformation
@@ -209,6 +213,6 @@ c
         call sf_print(d_mo1e,sf_size)
       endif
       if (.not.ma_pop_stack(l_mo1e))
-     1  call errquit('tce_mo1e: MA problem',6)
+     1  call errquit('tce_mo1e: MA problem',6,MA_ERR)
       return
       end

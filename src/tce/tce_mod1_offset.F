@@ -1,6 +1,6 @@
       subroutine tce_mod1_offset(l_d1_offset,k_d1_offset,size)
 c
-c $Id: tce_mod1_offset.F,v 1.1 2003-07-25 17:56:57 sohirata Exp $
+c $Id: tce_mod1_offset.F,v 1.2 2003-10-19 00:52:09 sohirata Exp $
 c 
       implicit none
 #include "global.fh"
@@ -8,6 +8,7 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer l_d1_offset
       integer k_d1_offset
@@ -22,7 +23,7 @@ c
       Nb = noab + nvab
       if (.not.ma_push_get(mt_int,Nb*Nb,'d1 offset',
      1  l_d1_offset,k_d1_offset))
-     2  call errquit('tce_mod1_offset: MA problem',0)
+     2  call errquit('tce_mod1_offset: MA problem',0,MA_ERR)
       size = 0
       do g1b = 1,Nb
         do g2b = 1,Nb

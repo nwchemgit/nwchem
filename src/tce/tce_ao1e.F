@@ -1,6 +1,6 @@
       subroutine tce_ao1e_shellfockbuild(rtdb,g_ao1e)
 c
-c $Id: tce_ao1e.F,v 1.5 2003-07-25 17:56:55 sohirata Exp $
+c $Id: tce_ao1e.F,v 1.6 2003-10-19 00:52:05 sohirata Exp $
 c
 c     Returns a GA handle for AO Fock matrix.
 c
@@ -13,6 +13,7 @@ c
 #include "bas.fh"
 #include "schwarz.fh"
 #include "sym.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer rtdb               ! Run-time database
       integer g_ao1e(2)          ! GA handle for AO Fock matrices
@@ -44,15 +45,16 @@ c     Allocate g_ao1e, g_dens, g_hcore
 c     ================================
 c
       if (.not.ga_create(mt_dbl,nbf,nbf,'alpha AO Fock',
-     1  -1,-1,g_ao1e(1))) call errquit('tce_ao1e: GA problem',0)
+     1  -1,-1,g_ao1e(1))) call errquit('tce_ao1e: GA problem',0,GA_ERR)
       if (.not.ga_create(mt_dbl,nbf,nbf,'beta AO Fock',
-     1  -1,-1,g_ao1e(2))) call errquit('tce_ao1e: GA problem',1)
+     1  -1,-1,g_ao1e(2))) call errquit('tce_ao1e: GA problem',1,GA_ERR)
       do i=1,ipol
         if (.not.ga_create(mt_dbl,nbf,nbf,'AO density',
-     1    -1,-1,g_dens(i))) call errquit('tce_ao1e: GA problem',2)
+     1    -1,-1,g_dens(i))) call errquit('tce_ao1e: GA problem',2,
+     2    GA_ERR)
       enddo
       if (.not.ga_create(mt_dbl,nbf,nbf,'AO H core',
-     1  -1,-1,g_hcore)) call errquit('tce_ao1e: GA problem',3)
+     1  -1,-1,g_hcore)) call errquit('tce_ao1e: GA problem',3,GA_ERR)
 c
 c     =====================
 c     Make density matrices
@@ -92,10 +94,10 @@ c
       ichunk(3)=-1
       if (.not.nga_create(mt_dbl,3,idim,'Work density matrix',
      1  ichunk,g_ndens)) call errquit
-     2  ('tce_ao1e: failed to create g_ndens',0)
+     2  ('tce_ao1e: failed to create g_ndens',0,GA_ERR)
       if (.not.nga_create(mt_dbl,3,idim,'Work Fock matrix',
      1  ichunk,g_nfock)) call errquit
-     2  ('tce_ao1e: failed to create g_nfock',0)
+     2  ('tce_ao1e: failed to create g_nfock',0,GA_ERR)
       do i=1,ipol
         alo(1)=1
         ahi(1)=nbf
@@ -156,15 +158,15 @@ c     Deallocate
 c     ==========
 c
       if (.not.ga_destroy(g_hcore))
-     1  call errquit('tce_ao1e: failed to destroy g_hcore',0)
+     1  call errquit('tce_ao1e: failed to destroy g_hcore',0,GA_ERR)
       do i=1,ipol
         if (.not.ga_destroy(g_dens(i)))
-     1  call errquit('tce_ao1e: failed to destroy g_aodens',0)
+     1  call errquit('tce_ao1e: failed to destroy g_aodens',0,GA_ERR)
       enddo
       if (.not.ga_destroy(g_ndens))
-     1  call errquit('tce_ao1e: failed to destroy g_ndens',0)
+     1  call errquit('tce_ao1e: failed to destroy g_ndens',0,GA_ERR)
       if (.not.ga_destroy(g_nfock))
-     1  call errquit('tce_ao1e: failed to destroy g_nfock',0)
+     1  call errquit('tce_ao1e: failed to destroy g_nfock',0,GA_ERR)
 c
 c     ======
 c     Return
@@ -172,7 +174,7 @@ c     ======
 c
       do i = 1, ipol
         if (.not.ga_destroy(g_movecs(i)))
-     1    call errquit('tce_ao1e: GA problem',0)
+     1    call errquit('tce_ao1e: GA problem',0,GA_ERR)
       enddo
       return
       end
@@ -189,6 +191,7 @@ c
 #include "bas.fh"
 #include "schwarz.fh"
 #include "sym.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer rtdb               ! Run-time database
       integer g_ao1e(2)          ! GA handle for AO Fock matrices
@@ -210,18 +213,20 @@ c     Allocate g_ao1e, g_dens, g_hcore
 c     ================================
 c
       if (.not.ga_create(mt_dbl,nbf,nbf,'alpha AO Fock',
-     1  -1,-1,g_ao1e(1))) call errquit('tce_ao1e: GA problem',0)
+     1  -1,-1,g_ao1e(1))) call errquit('tce_ao1e: GA problem',0,GA_ERR)
       if (.not.ga_create(mt_dbl,nbf,nbf,'beta AO Fock',
-     1  -1,-1,g_ao1e(2))) call errquit('tce_ao1e: GA problem',1)
+     1  -1,-1,g_ao1e(2))) call errquit('tce_ao1e: GA problem',1,GA_ERR)
       do i=1,4
         if (.not.ga_create(mt_dbl,nbf,nbf,'AO density',
-     1    -1,-1,g_dens(i))) call errquit('tce_ao1e: GA problem',2)
+     1    -1,-1,g_dens(i))) call errquit('tce_ao1e: GA problem',2,
+     2    GA_ERR)
         if (.not.ga_create(mt_dbl,nbf,nbf,'AO Fock',
-     1    -1,-1,g_fock(i))) call errquit('tce_ao1e: GA problem',3)
+     1    -1,-1,g_fock(i))) call errquit('tce_ao1e: GA problem',3,
+     2    GA_ERR)
         call ga_zero(g_fock(i))
       enddo
       if (.not.ga_create(mt_dbl,nbf,nbf,'AO H core',
-     1  -1,-1,g_hcore)) call errquit('tce_ao1e: GA problem',4)
+     1  -1,-1,g_hcore)) call errquit('tce_ao1e: GA problem',4,GA_ERR)
 c
 c     =====================
 c     Make density matrices
@@ -295,12 +300,12 @@ c     Deallocate
 c     ==========
 c
       if (.not.ga_destroy(g_hcore))
-     1  call errquit('tce_ao1e: failed to destroy g_hcore',0)
+     1  call errquit('tce_ao1e: failed to destroy g_hcore',0,GA_ERR)
       do i=1,4
         if (.not.ga_destroy(g_dens(i)))
-     1  call errquit('tce_ao1e: failed to destroy g_dens',0)
+     1  call errquit('tce_ao1e: failed to destroy g_dens',0,GA_ERR)
         if (.not.ga_destroy(g_fock(i)))
-     1  call errquit('tce_ao1e: failed to destroy g_fock',0)
+     1  call errquit('tce_ao1e: failed to destroy g_fock',0,GA_ERR)
       enddo
 c
 c     ======

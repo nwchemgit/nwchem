@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.28 2003-08-01 22:59:52 sohirata Exp $
+c $Id: tce_init.F,v 1.29 2003-10-19 00:52:07 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -15,6 +15,7 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
 #include "dra.fh"
 c
@@ -35,6 +36,7 @@ c
       integer nclosed, nopen
       double precision a
       character*60 ctype
+      character*20 cperturbative
       integer itol2e
       logical nodezero
       logical dummy
@@ -67,9 +69,9 @@ c     ---------------------
 c
       bytes = ma_sizeof(mt_dbl,1,mt_byte)
       if (.not.geom_create(geom,'geometry'))
-     1  call errquit('tce_init: geom_create failed',0)
+     1  call errquit('tce_init: geom_create failed',0,GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
-     1  call errquit('tce_init: no geometry found',0)
+     1  call errquit('tce_init: no geometry found',0,GEOM_ERR)
       if (.not.rtdb_get(rtdb,'dft:skeleton',mt_log,1,oskel)) then
         oskel=sym_number_ops(geom).gt.0
       endif
@@ -77,22 +79,23 @@ c
         oadapt=sym_number_ops(geom).gt.0
       endif
       if (.not.sym_abelian_group(geom))
-     1  call errquit('tce_init: non-Abelian symmetry not permitted',0)
+     1  call errquit('tce_init: non-Abelian symmetry not permitted',0,
+     2  GEOM_ERR)
 c
 c     ---------
 c     Basis set
 c     ---------
 c
       if (.not.bas_create(ao_bas_han,'ao basis'))
-     1  call errquit('tce_init: bas_create failed',0)
+     1  call errquit('tce_init: bas_create failed',0,BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,ao_bas_han,'ao basis'))
-     1  call errquit('tce_init: no ao basis found',0)
+     1  call errquit('tce_init: no ao basis found',0,BASIS_ERR)
       if (.not.int_normalize(rtdb,ao_bas_han))
-     1  call errquit('tce_init: int_normalize failed',0)
+     1  call errquit('tce_init: int_normalize failed',0,INT_ERR)
       if (.not.bas_numbf(ao_bas_han,nbf))
-     1  call errquit('tce_init: failed to read nbf',0)
+     1  call errquit('tce_init: failed to read nbf',0,BASIS_ERR)
       if (.not.bas_numcont(ao_bas_han,nshells))
-     1  call errquit('tce_init: failed to read nshells',0)
+     1  call errquit('tce_init: failed to read nshells',0,BASIS_ERR)
 c
 c     ----------
 c     MO vectors
@@ -100,10 +103,10 @@ c     ----------
 c
       if (reference.eq.0) then
         if (.not.rtdb_cget(rtdb,'dft:output vectors',1,movecs_out))
-     1    call errquit('tce_init: no final MO found',0)
+     1    call errquit('tce_init: no final MO found',0,RTDB_ERR)
       else if (reference.eq.1) then
         if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
-     1    call errquit('tce_init: no final MO found',0)
+     1    call errquit('tce_init: no final MO found',0,RTDB_ERR)
       endif
 c
 c     ------------------------------------------------------
@@ -113,11 +116,11 @@ c
       if (reference.eq.0) then
         rohf = .false.
         if (.not.rtdb_get(rtdb,'dft:ipol',mt_int,1,ipol))
-     1    call errquit('tce_init: failed to read ipol',0)
+     1    call errquit('tce_init: failed to read ipol',0,RTDB_ERR)
         if (.not.rtdb_get(rtdb,'dft:noc',mt_int,2,nocc))
-     1    call errquit('tce_init: failed to read nocc',0)
+     1    call errquit('tce_init: failed to read nocc',0,RTDB_ERR)
         if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
-     1    call errquit('tce_init: failed to read mult',0)
+     1    call errquit('tce_init: failed to read mult',0,RTDB_ERR)
         if (ipol.eq.1) then
           restricted = .true.
         else
@@ -125,14 +128,14 @@ c
         endif
       else if (reference.eq.1) then
         if (.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nclosed))
-     1    call errquit('tce_init: failed to read nclosed',0)
+     1    call errquit('tce_init: failed to read nclosed',0,RTDB_ERR)
         if (.not.rtdb_get(rtdb,'scf:nopen',mt_int,1,nopen))
-     1    call errquit('tce_init: failed to read nopen',0)
+     1    call errquit('tce_init: failed to read nopen',0,RTDB_ERR)
         nocc(1) = nclosed + nopen
         nocc(2) = nclosed
         mult = nopen
         if(.not.rtdb_cget(rtdb,'scf:scftype',1,hftype))
-     1    call errquit('tce_init: failed to read scftype',0)
+     1    call errquit('tce_init: failed to read scftype',0,RTDB_ERR)
         if (hftype.eq.'RHF') then
           restricted = .true.
           rohf = .false.
@@ -154,9 +157,9 @@ c     --------------
 c
       if (reference.eq.0) then
         if (.not.rtdb_get(rtdb,'dft:xfac',mt_dbl,numfunc,xfac))
-     1    call errquit('tce_init: failed to read xfac',0)
+     1    call errquit('tce_init: failed to read xfac',0,RTDB_ERR)
         if (.not.rtdb_get(rtdb,'dft:cfac',mt_dbl,numfunc,cfac))
-     1    call errquit('tce_init: failed to read cfac',0)
+     1    call errquit('tce_init: failed to read cfac',0,RTDB_ERR)
       else if (reference.eq.1) then
         do i = 1,numfunc
           xfac(i) = 0.0d0
@@ -169,7 +172,8 @@ c     TCE input
 c     ---------
 c
       if(.not. geom_freeze(rtdb, geom, 'tce', nfc(1))) then
-         call errquit('tce_init: failed to get number of cores', 0)
+         call errquit('tce_init: failed to get number of cores',0,
+     1   GEOM_ERR)
       endif
 
       if (ipol.eq.2) nfc(2) = nfc(1)
@@ -180,56 +184,67 @@ c
         module='tce'
       endif
       if (.not.rtdb_cget(rtdb,'tce:model',1,model))
-     1  call errquit('tce_init: no theory specified',0)
+     1  call errquit('tce_init: no theory specified',0,RTDB_ERR)
+      if (.not.rtdb_cget(rtdb,'tce:perturbative',1,perturbative)) then
+        perturbative = 'none'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1  call errquit('tce_init: failed to write perturbative',0,
+     2  RTDB_ERR)
+      endif
       if (.not.rtdb_get(rtdb,'tce:thresh',mt_dbl,1,thresh)) then
         thresh = 1.0d-6
         if (.not.rtdb_put(rtdb,'tce:thresh',mt_dbl,1,thresh))
-     1  call errquit('tce_init: failed to write thresh',0)
+     1  call errquit('tce_init: failed to write thresh',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:maxiter',mt_int,1,maxiter)) then
         maxiter = 100
         if (.not.rtdb_put(rtdb,'tce:maxiter',mt_int,1,maxiter))
-     1  call errquit('tce_init: failed to write maxiter',0)
+     1  call errquit('tce_init: failed to write maxiter',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:ioalg',mt_int,1,ioalg)) then
         ioalg = 2
         if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
-     1  call errquit('tce_init: failed to write ioalg',0)
+     1  call errquit('tce_init: failed to write ioalg',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:diis',mt_int,1,diis)) then
         diis = 5
         if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
-     1  call errquit('tce_init: failed to write diis',0)
+     1  call errquit('tce_init: failed to write diis',0,RTDB_ERR)
       endif
       if (diis .gt. maxdiis) then
         diis = maxdiis
         if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
-     1  call errquit('tce_init: failed to write diis',0)
+     1  call errquit('tce_init: failed to write diis',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:nroots',mt_int,1,nroots)) then
         nroots = 0
         if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
-     1  call errquit('tce_init: failed to write nroots',0)
+     1  call errquit('tce_init: failed to write nroots',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:target',mt_int,1,target)) then
          target=1
         if (.not.rtdb_put(rtdb,'tce:target',mt_int,1,target))
-     1  call errquit('tce_init: failed to write target',0)
+     1  call errquit('tce_init: failed to write target',0,RTDB_ERR)
       endif
       if (.not.rtdb_cget(rtdb,'tce:targetsym',1,targetsym)) then
         targetsym='none'
         if (.not.rtdb_cput(rtdb,'tce:targetsym',1,targetsym))
-     1  call errquit('tce_init: failed to write targetsym',0)
+     1  call errquit('tce_init: failed to write targetsym',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:symmetry',mt_log,1,symmetry)) then
         symmetry=.false.
         if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
-     1  call errquit('tce_init: failed to write symmetry',0)
+     1  call errquit('tce_init: failed to write symmetry',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:left',mt_log,1,left)) then
+        left=.false.
+        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1  call errquit('tce_init: failed to write left',0,RTDB_ERR)
       endif
       if ((symmetry).and.(targetsym.eq.'none')) then
         symmetry=.false.
         if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
-     1    call errquit('tce_init: failed to write symmetry',0)
+     1    call errquit('tce_init: failed to write symmetry',0,RTDB_ERR)
       endif
 c
 c     ----------------------
@@ -238,7 +253,7 @@ c     ----------------------
 c
       if (reference.eq.0) then
         if (.not.rtdb_get(rtdb,'dft:itol2e',mt_int,1,itol2e))
-     1    call errquit('tce_init: failed to read itol2e',0)
+     1    call errquit('tce_init: failed to read itol2e',0,RTDB_ERR)
         tol2e=10.0d0**(-itol2e)
       else if (reference.eq.1) then
         if (.not.rtdb_get(rtdb,'scf:tol2e',mt_dbl,1,tol2e))
@@ -260,86 +275,112 @@ c
         if ((a.gt.1.0d-8).or.(dabs(xfac(1)-1.0d0)).gt.1.0d-8)
      1    write(LuOut,9500)
       endif
+      if ((perturbative.ne.'none').and.(model.ne.'ccsd'))
+     1  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
+      cperturbative = 'none'
       if (model.eq.'ccd') then
         ctype='Coupled-cluster doubles'
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'uccd'))
-     3    call errquit('tce_init: ucc/uccd module overridden',0)
+     3    call errquit('tce_init: ucc/uccd module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'lccd') then
         ctype='Linearized coupled-cluster doubles'
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'ulccd'))
-     3    call errquit('tce_init: ucc/ulccd module overridden',0)
+     3    call errquit('tce_init: ucc/ulccd module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'ccsd') then
-        ctype='Coupled-cluster singles & doubles'
+        if (perturbative.eq.'none') then
+          ctype='Coupled-cluster singles & doubles'
+        else if (perturbative.eq.'(t)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = '(T)'
+        else if (perturbative.eq.'[t]') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = '[T] or +T(CCSD)'
+        endif
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
-     2      (module.ne.'uccsd'))
-     3    call errquit('tce_init: ucc/uccsd module overridden',0)
+     2      (module.ne.'uccsd').and.
+     3      (module.ne.'uccsd(t)').and.
+     4      (module.ne.'uccsd[t]'))
+     5    call errquit('tce_init: ucc/uccsd module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'lccsd') then
         ctype='Linearized coupled-cluster singles & doubles'
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'ulccsd'))
-     3    call errquit('tce_init: ucc/ulccsd module overridden',0)
+     3    call errquit('tce_init: ucc/ulccsd module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'ccsdt') then
         ctype='Coupled-cluster singles, doubles, & triples'
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'uccsdt'))
-     3    call errquit('tce_init: ucc/uccsdt module overridden',0)
+     3    call errquit('tce_init: ucc/uccsdt module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'ccsdtq') then
         ctype='Coupled-cluster singles, doubles, triples, & quadruples'
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'uccsdtq'))
-     3    call errquit('tce_init: ucc/uccsdtq module overridden',0)
+     3    call errquit('tce_init: ucc/uccsdtq module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'qcisd') then
         ctype='Quadratic configuration interaction singles & doubles'
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'uqcisd'))
-     3    call errquit('tce_init: ucc/uqcisd module overridden',0)
+     3    call errquit('tce_init: ucc/uqcisd module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'cisd') then
         ctype='Configuration interaction singles & doubles'
         if ((module.ne.'tce').and.
      1      (module.ne.'uci').and.
      2      (module.ne.'ucisd'))
-     3    call errquit('tce_init: uci/ucisd module overridden',0)
+     3    call errquit('tce_init: uci/ucisd module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'cisdt') then
         ctype='Configuration interaction singles, doubles, & triples'
         if ((module.ne.'tce').and.
      1      (module.ne.'uci').and.
      2      (module.ne.'ucisdt'))
-     3    call errquit('tce_init: uci/ucisdt module overridden',0)
+     3    call errquit('tce_init: uci/ucisdt module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'cisdtq') then
         ctype='Configuration interaction singles through quadruples'
         if ((module.ne.'tce').and.
      1      (module.ne.'uci').and.
      2      (module.ne.'ucisdtq'))
-     3    call errquit('tce_init: uci/ucisdtq module overridden',0)
+     3    call errquit('tce_init: uci/ucisdtq module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'mbpt2') then
         ctype='Second-order tensor many-body perturbation theory'
         if ((module.ne.'tce').and.
      1      (module.ne.'umbpt').and.
      2      (module.ne.'umbpt2'))
-     3    call errquit('tce_init: umbpt/umbpt2 module overridden',0)
+     3    call errquit('tce_init: umbpt/umbpt2 module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'mbpt3') then
         ctype='Third-order tensor many-body perturbation theory'
         if ((module.ne.'tce').and.
      1      (module.ne.'umbpt').and.
      2      (module.ne.'umbpt3'))
-     3    call errquit('tce_init: umbpt/umbpt3 module overridden',0)
+     3    call errquit('tce_init: umbpt/umbpt3 module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'mbpt4') then
         ctype='Fourth-order tensor many-body perturbation theory'
         if ((module.ne.'tce').and.
      1      (module.ne.'umbpt').and.
      2      (module.ne.'umbpt4'))
-     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0)
+     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
+     4    UNKNOWN_ERR)
       else
-        call errquit('tce_init: unknown theory',0)
+        call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
       endif
 c
 c     -------------------------------------
@@ -349,19 +390,19 @@ c
       do i=1,ipol
         if (.not.ma_push_get(mt_dbl,nbf,'eigenvalues',
      1    l_evl(i),k_evl(i))) call errquit
-     2    ('tce_init: failed to allocate evl',0)
+     2    ('tce_init: failed to allocate evl',0,MA_ERR)
         if (.not.ma_push_get(mt_dbl,nbf,'occupancy',
      1    l_occ(i),k_occ(i))) call errquit
-     2    ('tce_init: failed to allocate occ',0)
+     2    ('tce_init: failed to allocate occ',0,MA_ERR)
         if (.not.ma_push_get(mt_int,nbf,'irreps',
      1    l_irs(i),k_irs(i))) call errquit
-     2    ('tce_init: failed to allocate irs',0)
+     2    ('tce_init: failed to allocate irs',0,MA_ERR)
       enddo
       if (.not.movecs_read_header(movecs_out,title,basisname,
      1  scftype,nbf_verify,ipol_verify,nmo,2)) call errquit
-     2  ('tce_init: failed to read MO file header',0)
+     2  ('tce_init: failed to read MO file header',0,RTDB_ERR)
       if (nbf.ne.nbf_verify) call errquit
-     1  ('tce_init: corrupted MO vectors',0)
+     1  ('tce_init: corrupted MO vectors',0,RTDB_ERR)
       if (rohf) nmo(2) = nmo(1)
       do i=1,ipol
         g_movecs(i)=ga_create_atom_blocked
@@ -375,7 +416,8 @@ c
         else
           if (.not.movecs_read(movecs_out,i,
      1      dbl_mb(k_occ(i)),dbl_mb(k_evl(i)),g_movecs(i)))
-     2      call errquit('tce_init: failed to read MO vectors',0)
+     2      call errquit('tce_init: failed to read MO vectors',0,
+     3      RTDB_ERR)
         endif
         if (util_print('MO vectors',print_debug)) then
           if (nodezero) call ma_print(dbl_mb(k_evl(i)),
@@ -388,11 +430,11 @@ c
       if (reference.eq.0) then
         if (.not.rtdb_get(rtdb,'dft:alpha irreps',mt_int,
      1    nbf,int_mb(k_irs(1))))
-     2    call errquit('tce_init: no alpha irreps found',0)
+     2    call errquit('tce_init: no alpha irreps found',0,RTDB_ERR)
       else if (reference.eq.1) then
         if (.not.rtdb_get(rtdb,'scf:alpha irreps',mt_int,
      1    nbf,int_mb(k_irs(1))))
-     2    call errquit('tce_init: no alpha irreps found',1)
+     2    call errquit('tce_init: no alpha irreps found',1,RTDB_ERR)
       endif
       do i=1,nbf
         if (oadapt) then
@@ -405,7 +447,7 @@ c
         if (reference.eq.0) then
           if (.not.rtdb_get(rtdb,'dft:beta irreps',mt_int,
      1      nbf,int_mb(k_irs(2))))
-     2      call errquit('tce_init: no beta irreps found',0)
+     2      call errquit('tce_init: no beta irreps found',0,RTDB_ERR)
         else if (reference.eq.1) then
           if (rohf) then
             do j = 1,nbf
@@ -414,7 +456,7 @@ c
           else
             if (.not.rtdb_get(rtdb,'scf:beta irreps',mt_int,
      1        nbf,int_mb(k_irs(2))))
-     2        call errquit('tce_init: no beta irreps found',1)
+     2        call errquit('tce_init: no beta irreps found',1,RTDB_ERR)
           endif
         endif
         do i=1,nbf
@@ -441,7 +483,8 @@ c
       if (ioalg.eq.5) then
         if (dra_init(max_files,1.0d11,1.0d11,
      1    dfloat(buffer_size)*dfloat(bytes)).ne.0)
-     2    call errquit('tce_init: dra initialization failed',0)
+     2    call errquit('tce_init: dra initialization failed',0,
+     3    DISK_ERR)
       endif
 c
 c     -------------
@@ -551,6 +594,7 @@ c
         call util_print_centered
      1    (LuOut,'Correlation Information',20,.true.)
         write(LuOut,9000) ctype  
+        write(LuOut,9230) cperturbative
         write(LuOut,9130) maxiter
         write(LuOut,9110) thresh
         if (diis .gt. 0) then
@@ -566,6 +610,11 @@ c
             write(LuOut,9210) 'on '
           else
             write(LuOut,9210) 'off'
+          endif
+          if (left) then
+            write(LuOut,9220) 'on '
+          else
+            write(LuOut,9220) 'off'
           endif
         endif
         if (ioalg.eq.0) then
@@ -583,12 +632,13 @@ c
         else if (ioalg.eq.6) then
           write(LuOut,9140) 'GA/EAF Replicated Algorithm'
         else
-          call errquit('tce_init: unknown I/O scheme',ioalg)
+          call errquit('tce_init: unknown I/O scheme',ioalg,CAPMIS_ERR)
         endif
       endif
       if (nodezero) call util_flush(LuOut)
  9200 format(3x,'   Number of processors :',2x,i4)
  9000 format(3x,'       Calculation type : ',a)
+ 9230 format(3x,'Perturbative correction : ',a)
  9010 format(3x,'      Wavefunction type : ',a)
  9030 format(3x,'       No. of electrons :',2x,i4,/,
      1       3x,'        Alpha electrons :',2x,i4,/,
@@ -615,6 +665,7 @@ c
  9180 format(3x,'            Target root :',2x,i4)
  9190 format(3x,'        Target symmetry :',1x,a4)
  9210 format(3x,'   Symmetry restriction :',1x,a3)
+ 9220 format(3x,'Dipole & oscillator str :',1x,a3)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
  9500 format(/,2x,

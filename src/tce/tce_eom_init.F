@@ -1,6 +1,6 @@
       subroutine tce_eom_init
 c
-c $Id: tce_eom_init.F,v 1.1 2003-07-25 17:56:56 sohirata Exp $
+c $Id: tce_eom_init.F,v 1.2 2003-10-19 00:52:06 sohirata Exp $
 c
 c     Initializes file handle holders
 c
@@ -9,6 +9,14 @@ c
       integer i
 c
       do i = 1,maxtrials
+        xc1_exist(i)  = .false.
+        yc1_exist(i)  = .false.
+        xc2_exist(i)  = .false.
+        yc2_exist(i)  = .false.
+        xc3_exist(i)  = .false.
+        yc3_exist(i)  = .false.
+        xc4_exist(i)  = .false.
+        yc4_exist(i)  = .false.
         x1_exist(i)  = .false.
         y1_exist(i)  = .false.
         x2_exist(i)  = .false.

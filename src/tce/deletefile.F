@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.11 2003-09-16 21:50:11 sohirata Exp $
+c $Id: deletefile.F,v 1.12 2003-10-19 00:52:03 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -12,6 +12,7 @@ c
 #include "sf.fh"
 #include "eaf.fh"
 #include "dra.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer d_sf
       integer d_temp
@@ -30,7 +31,8 @@ c
       if (ioalg.eq.0) then
         if (parallel) call ga_sync()
         if (nfiles.eq.0)
-     1    call errquit('deletefile: there is no file',nfiles)
+     1    call errquit('deletefile: there is no file',nfiles,
+     2    UNKNOWN_ERR)
         used = .false.
         do i = 1,nfiles
           if (filehandles(i).eq.d_sf) then
@@ -40,7 +42,8 @@ c
           endif
         enddo
         if (.not.used)
-     1    call errquit('deletefile: there is no such file',d_sf)
+     1    call errquit('deletefile: there is no such file',d_sf,
+     2    UNKNOWN_ERR)
         if (j.lt.nfiles) then
           do i = j+1,nfiles
             filehandles(i-1) = filehandles(i)
@@ -61,7 +64,8 @@ c
         if (parallel) call ga_sync()
       else if (ioalg.eq.1) then
         if (nfiles.eq.0)
-     1    call errquit('deletefile: there is no file',nfiles)
+     1    call errquit('deletefile: there is no file',nfiles,
+     2    UNKNOWN_ERR)
         used = .false.
         do i = 1,nfiles
           if (filehandles(i).eq.d_sf) then
@@ -71,7 +75,8 @@ c
           endif
         enddo
         if (.not.used)
-     1    call errquit('deletefile: there is no such file',d_sf)
+     1    call errquit('deletefile: there is no such file',d_sf,
+     2    UNKNOWN_ERR)
         if (j.lt.nfiles) then
           do i = j+1,nfiles
             filehandles(i-1) = filehandles(i)
@@ -86,7 +91,7 @@ c
           call ga_sync()
         else
           if (eaf_close(d_sf).ne.0)
-     1      call errquit('deletefile: eaf problem',0)
+     1      call errquit('deletefile: eaf problem',0,DISK_ERR)
           call util_file_unlink(filename)
         endif
         nfiles = nfiles - 1
@@ -97,19 +102,20 @@ c
         endif
       else if (ioalg.eq.2) then
         if (.not.ga_destroy(d_sf))
-     1    call errquit('deletefile: GA problem',0)
+     1    call errquit('deletefile: GA problem',0,GA_ERR)
       else if (ioalg.eq.3) then
         if (parallel) then
           call ga_sync()
           if (sf_open(d_sf).ne.0)
-     1      call errquit('deletefile: sf problem',0)
+     1      call errquit('deletefile: sf problem',0,DISK_ERR)
         endif
         if (sf_destroy(d_sf).ne.0)
-     1    call errquit('deletefile: sf problem',1)
+     1    call errquit('deletefile: sf problem',1,DISK_ERR)
         if (parallel) call ga_sync()
       else if (ioalg.eq.4) then
         if (nfiles.eq.0)
-     1    call errquit('deletefile: there is no file',nfiles)
+     1    call errquit('deletefile: there is no file',nfiles,
+     2    UNKNOWN_ERR)
         used = .false.
         do i = 1,nfiles
           if (filehandles(i).eq.d_sf) then
@@ -119,7 +125,8 @@ c
           endif
         enddo
         if (.not.used)
-     1    call errquit('deletefile: there is no such file',d_sf)
+     1    call errquit('deletefile: there is no such file',d_sf,
+     2    UNKNOWN_ERR)
         if (j.lt.nfiles) then
           do i = j+1,nfiles
             filehandles(i-1) = filehandles(i)
@@ -127,7 +134,7 @@ c
           enddo
         endif
         if (eaf_close(d_sf).ne.0)
-     1    call errquit('deletefile: eaf problem',0)
+     1    call errquit('deletefile: eaf problem',0,DISK_ERR)
         call util_file_unlink(filename)
         nfiles = nfiles - 1
         if (nodezero.and.util_print('files',print_debug)) then
@@ -138,12 +145,12 @@ c
       else if (ioalg.eq.5) then
         if (fileisga(d_sf)) then
           if (.not.ga_destroy(filehandles(d_sf)))
-     1      call errquit('deletefile: GA problem',0)
+     1      call errquit('deletefile: GA problem',0,GA_ERR)
         else
           if (dra_open(filenames(d_sf),DRA_R,d_temp).ne.0)
-     1      call errquit('deletefile: dra problem',0)
+     1      call errquit('deletefile: dra problem',0,DISK_ERR)
           if (dra_delete(d_temp).ne.0)
-     1      call errquit('deletefile: dra problem',1)
+     1      call errquit('deletefile: dra problem',1,DISK_ERR)
         endif
         filehandles(d_sf) = 2**30
         if (d_sf.eq.nfiles) nfiles = nfiles - 1
@@ -153,12 +160,12 @@ c
         if (fileisga(d_sf)) then
           if (.not.ga_destroy(filehandles(d_sf))) then
             write(LuOut,9010) filehandles(d_sf),filenames(d_sf)
-            call errquit('deletefile: GA problem',0)
+            call errquit('deletefile: GA problem',0,GA_ERR)
           endif
         else
           if (eaf_close(filehandles(d_sf)).ne.0) then
             write(LuOut,9010) filehandles(d_sf),filenames(d_sf)
-            call errquit('deletefile: eaf problem',0)
+            call errquit('deletefile: eaf problem',0,DISK_ERR)
           endif
           call util_file_unlink(filenames(d_sf))
         endif

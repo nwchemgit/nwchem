@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.10 2003-09-16 21:50:12 sohirata Exp $
+c $Id: tce_mo2e.F,v 1.11 2003-10-19 00:52:08 sohirata Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -14,6 +14,7 @@ c
 #include "schwarz.fh"
 #include "sym.fh"
 #include "sf.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer rtdb                 ! Run-time database
       logical nodezero             ! True if node zero
@@ -61,7 +62,7 @@ c
       sf_size_pqrs = 0
       pq_packed_off = 0
       if (.not.ma_push_get(mt_int,Nb*Nb,'pqboff',l_pqboff,k_pqboff))
-     1  call errquit('tce_mo2e: MA problem',11)
+     1  call errquit('tce_mo2e: MA problem',11,MA_ERR)
       do pb = 1,Nb
         do qb = pb,Nb
           do rb = 1,Nb
@@ -94,7 +95,7 @@ c     Allocate work arrays
 c     ====================
 c
       if (.not.ma_push_get(mt_dbl,sf_size_kl,'kl',l_kl,k_kl))
-     1  call errquit('tce_mo2e: MA problem',1)
+     1  call errquit('tce_mo2e: MA problem',1,MA_ERR)
 c
 c     ============
 c     Loop over pq
@@ -113,7 +114,7 @@ c
             sf_size_pq = int_mb(k_range+pb-1)*int_mb(k_range+qb-1)
             if (.not.ma_push_get(mt_dbl,sf_size_pq*sf_size_kl,
      1        'pqkl packed',l_pqkl_packed,k_pqkl_packed))
-     2        call errquit('tce_mo2e: MA problem',2)
+     2        call errquit('tce_mo2e: MA problem',2,MA_ERR)
             do kl = 1,sf_size_kl
               call get_block(d_ao2e,dbl_mb(k_pqkl_packed
      1          +(kl-1)*sf_size_pq),sf_size_pq,(kl-1)*pq_packed_off
@@ -132,10 +133,10 @@ c
                   sf_size_rs = r_range * s_range
                   if (.not.ma_push_get(mt_dbl,s_range*nbf,
      1              'sl',l_sl,k_sl))
-     2              call errquit('tce_mo2e: MA problem',3)
+     2              call errquit('tce_mo2e: MA problem',3,MA_ERR)
                   if (.not.ma_push_get(mt_dbl,sf_size_pq*sf_size_rs,
      1              'rs',l_pqrs,k_pqrs))
-     2              call errquit('tce_mo2e: MA problem',4)
+     2              call errquit('tce_mo2e: MA problem',4,MA_ERR)
                   pq = 0
                   pqoff = 0
                   do p = 1,int_mb(k_range+pb-1)
@@ -172,16 +173,16 @@ c
      1              sf_size_pq*sf_size_rs,int_mb(k_2e_offset
      2              +(((pb-1)*Nb+qb-1)*Nb+rb-1)*Nb+sb-1))
                   if (.not.ma_pop_stack(l_pqrs)) 
-     1              call errquit('tcc_mo2e: MA problem',5)
+     1              call errquit('tcc_mo2e: MA problem',5,MA_ERR)
                   if (.not.ma_pop_stack(l_sl)) 
-     1              call errquit('tcc_mo2e: MA problem',6)
+     1              call errquit('tcc_mo2e: MA problem',6,MA_ERR)
                 endif
                 endif
                 endif
               enddo
             enddo
             if (.not.ma_pop_stack(l_pqkl_packed)) 
-     1        call errquit('tcc_mo2e: MA problem',3)
+     1        call errquit('tcc_mo2e: MA problem',3,MA_ERR)
             next = nxtval(nprocs)
           endif
           count = count + 1
@@ -194,9 +195,9 @@ c     Deallocate
 c     ==========
 c
       if (.not.ma_pop_stack(l_kl)) 
-     1  call errquit('tcc_mo2e: MA problem',10)
+     1  call errquit('tcc_mo2e: MA problem',10,MA_ERR)
       if (.not.ma_pop_stack(l_pqboff)) 
-     1  call errquit('tcc_mo2e: MA problem',12)
+     1  call errquit('tcc_mo2e: MA problem',12,MA_ERR)
       if (nodezero.and.util_print('time',print_debug)) then
         write(LuOut,8000) 'createfile   ', cpusecs(1), cpusecs(51)
         write(LuOut,8000) 'deletefile   ', cpusecs(2), cpusecs(52)
@@ -211,7 +212,7 @@ c     Debug only
 c
 c     if (.not.ma_push_get(mt_dbl,sf_size_pqrs,
 c    1  'mo2e',l_debug,k_debug))
-c    2  call errquit('tce_mo2e: MA problem',-1)
+c    2  call errquit('tce_mo2e: MA problem',-1,MA_ERR)
 c     call get_block(d_mo2e,dbl_mb(k_debug),sf_size_pqrs,0)
 c     pqrs = 0
 c     do pb = 1,Nb
@@ -245,7 +246,7 @@ c         enddo
 c       enddo
 c     enddo
 c     if (.not.ma_pop_stack(l_debug)) 
-c    1  call errquit('tcc_mo2e: MA problem',7)
+c    1  call errquit('tcc_mo2e: MA problem',7,MA_ERR)
 c9100 format(4i3,f20.10)
 c
 c     ======

@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.12 2003-09-16 21:50:11 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.13 2003-10-19 00:52:06 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -13,6 +13,7 @@ c
 #include "bas.fh"
 #include "schwarz.fh"
 #include "sf.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer rtdb                 ! Run-time database
       logical nodezero             ! True if node zero
@@ -82,14 +83,14 @@ c
         write(LuOut,*) 'Abort: 2 GB file size limit will be exceeded'
         write(LuOut,*) 'Use GA/SF scheme or OS large file support'
         write(LuOut,*) '--------------------------------------------'
-        call errquit('tce_ao2e: abort',0)
+        call errquit('tce_ao2e: abort',0,UNKNOWN_ERR)
       endif
       if (dbl_size .gt. 2.0d0*1024.0d0**3) then
         write(LuOut,*) '---------------------------------------------'
         write(LuOut,*) 'Abort: 32 bit integer overflow is anticipated'
         write(LuOut,*) 'Use a machine with a 64 bit operating system'
         write(LuOut,*) '---------------------------------------------'
-        call errquit('tce_ao2e: abort',0)
+        call errquit('tce_ao2e: abort',0,UNKNOWN_ERR)
       endif
 #endif
       sf_size_kl = nbf**2
@@ -110,17 +111,18 @@ c     =======================
 c
       call int_mem_2e4c(work1,work2)
       if (.not.ma_push_get(mt_dbl,work1,'work1',l_work1,k_work1))
-     1  call errquit('tce_ao2e: MA problem',0)
+     1  call errquit('tce_ao2e: MA problem',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,work2,'work2',l_work2,k_work2))
-     1  call errquit('tce_ao2e: MA problem',1)
+     1  call errquit('tce_ao2e: MA problem',1,MA_ERR)
       if (.not.ma_push_get(mt_dbl,nbf*nbf,'ij',l_ij,k_ij))
-     1  call errquit('tce_ao2e: MA problem',4)
+     1  call errquit('tce_ao2e: MA problem',4,MA_ERR)
       if (.not.ma_push_get(mt_dbl,N*nbf,'pj',l_pj,k_pj))
-     1  call errquit('tce_ao2e: MA problem',5)
+     1  call errquit('tce_ao2e: MA problem',5,MA_ERR)
       if (.not.ma_push_get(mt_dbl,N*N,'pq',l_pq,k_pq))
-     1  call errquit('tce_ao2e: MA problem',6)
+     1  call errquit('tce_ao2e: MA problem',6,MA_ERR)
       if (.not.ma_push_get(mt_dbl,sf_size_pq,'pq_packed',
-     1  l_pq_packed,k_pq_packed)) call errquit('tce_ao2e: MA problem',7)
+     1  l_pq_packed,k_pq_packed)) call errquit('tce_ao2e: MA problem',7,
+     2  MA_ERR)
 c
 c     ================
 c     Loop over shells
@@ -135,14 +137,16 @@ c
             if (util_print('ao2e',print_debug))
      1        write(LuOut,9190) lsh,ksh,ga_nodeid()
             if (.not.bas_cn2bfr(ao_bas_han,ksh,klo,khi))
-     1        call errquit('tce_ao2e: basis fn range problem',0)
+     1        call errquit('tce_ao2e: basis fn range problem',0,
+     2        BASIS_ERR)
             krange = khi - klo + 1
             if (.not.bas_cn2bfr(ao_bas_han,lsh,llo,lhi))
-     1        call errquit('tce_ao2e: basis fn range problem',1)
+     1        call errquit('tce_ao2e: basis fn range problem',1,
+     2        BASIS_ERR)
             lrange = lhi - llo + 1
             if (.not.ma_push_get(mt_dbl,sf_size_kl*krange*lrange,
      1        'ao2e',l_ijkl,k_ijkl))
-     2        call errquit('tce_ao2e: MA problem',18)
+     2        call errquit('tce_ao2e: MA problem',18,MA_ERR)
             do ijkl = 1,sf_size_kl*krange*lrange
               dbl_mb(k_ijkl+ijkl-1) = 0.0d0
             enddo
@@ -151,10 +155,12 @@ c
                 if (schwarz_shell(ish,ksh)*schwarz_shell(jsh,lsh) 
      1            .ge. tol2e) then
                   if (.not.bas_cn2bfr(ao_bas_han,ish,ilo,ihi))
-     1              call errquit('tce_ao2e: basis fn range problem',2)
+     1              call errquit('tce_ao2e: basis fn range problem',2,
+     2              BASIS_ERR)
                   irange = ihi - ilo + 1
                   if (.not.bas_cn2bfr(ao_bas_han,jsh,jlo,jhi))
-     1              call errquit('tce_ao2e: basis fn range problem',3)
+     1              call errquit('tce_ao2e: basis fn range problem',3,
+     2              BASIS_ERR)
                   jrange = jhi - jlo + 1
                   call int_2e4c(ao_bas_han,ish,ksh,ao_bas_han,jsh,lsh,
      1              work2,dbl_mb(k_work2),work1,dbl_mb(k_work1))
@@ -208,7 +214,7 @@ c
               enddo
             enddo
             if (.not.ma_pop_stack(l_ijkl)) 
-     1        call errquit('tce_ao2e: MA problem',16)
+     1        call errquit('tce_ao2e: MA problem',16,MA_ERR)
             next = nxtval(nprocs)
           endif
           count = count + 1
@@ -222,17 +228,17 @@ c     Deallocate
 c     ==========
 c
       if (.not.ma_pop_stack(l_pq_packed)) 
-     1  call errquit('tcc_ao2e: MA problem',8)
+     1  call errquit('tcc_ao2e: MA problem',8,MA_ERR)
       if (.not.ma_pop_stack(l_pq)) 
-     1  call errquit('tcc_ao2e: MA problem',9)
+     1  call errquit('tcc_ao2e: MA problem',9,MA_ERR)
       if (.not.ma_pop_stack(l_pj)) 
-     1  call errquit('tcc_ao2e: MA problem',10)
+     1  call errquit('tcc_ao2e: MA problem',10,MA_ERR)
       if (.not.ma_pop_stack(l_ij)) 
-     1  call errquit('tcc_ao2e: MA problem',11)
+     1  call errquit('tcc_ao2e: MA problem',11,MA_ERR)
       if (.not.ma_pop_stack(l_work2)) 
-     1  call errquit('tcc_ao2e: MA problem',14)
+     1  call errquit('tcc_ao2e: MA problem',14,MA_ERR)
       if (.not.ma_pop_stack(l_work1)) 
-     1  call errquit('tcc_ao2e: MA problem',15)
+     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
       if (nodezero.and.util_print('time',print_debug)) then
         write(LuOut,8000) 'createfile   ', cpusecs(1), cpusecs(51)
         write(LuOut,8000) 'deletefile   ', cpusecs(2), cpusecs(52)

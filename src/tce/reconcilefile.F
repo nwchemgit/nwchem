@@ -1,6 +1,6 @@
       subroutine reconcilefile(d_sf,size)
 c
-c $Id: reconcilefile.F,v 1.7 2003-08-05 00:37:53 sohirata Exp $
+c $Id: reconcilefile.F,v 1.8 2003-10-19 00:52:05 sohirata Exp $
 c
 c     Accumulate local distributed files and update all files
 c     with the one accumulated file
@@ -13,6 +13,7 @@ c
 #include "sf.fh"
 #include "eaf.fh"
 #include "dra.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer d_sf
       integer d_temp
@@ -23,7 +24,6 @@ c
       integer i
       logical nodezero
       logical parallel
-      integer request
 c 
       nodezero = (ga_nodeid().eq.0)
       parallel = (ga_nnodes().gt.1)
@@ -40,17 +40,19 @@ c
       else if ((ioalg.eq.4).or.
      1        ((ioalg.eq.6).and.(.not.fileisga(d_sf)))) then
         if (parallel) then
-          if (nodezero.and.util_print('reconcilefile',print_debug))
-     1      write(LuOut,9220) d_sf,filehandles(d_sf)
+          if (util_print('reconcilefile',print_debug))
+     1      write(LuOut,9190) ga_nodeid(),d_sf,size
           if (nodezero.and.(ioalg.eq.6)) write(LuOut,9230)
-          nblocks = size/buffer_size + 1
-          blocksize = size/nblocks + 1
+          nblocks = size/buffer_size
+          if (nblocks*buffer_size.lt.size) nblocks = nblocks + 1
+          blocksize = size/nblocks
+          if (nblocks*blocksize.lt.size) blocksize = blocksize + 1
           if (.not.ga_create(mt_dbl,blocksize,1,'temporary',
      1      -1,1,g_temp))
-     2      call errquit('reconcilefile: GA problem',0)
+     2      call errquit('reconcilefile: GA problem',0,GA_ERR)
           if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
      1      l_temp,k_temp))
-     2      call errquit('reconcilefile: MA problem',0)
+     2      call errquit('reconcilefile: MA problem',0,MA_ERR)
           do i = 1,nblocks
             call ga_zero(g_temp)
             call get_block(d_sf,dbl_mb(k_temp),
@@ -63,9 +65,9 @@ c
           enddo
           call ga_sync()
           if (.not.ga_destroy(g_temp))
-     1      call errquit('reconcilefile: GA problem',0)
+     1      call errquit('reconcilefile: GA problem',0,GA_ERR)
           if (.not.ma_pop_stack(l_temp))
-     1      call errquit('reconcilefile: MA problem',1)
+     1      call errquit('reconcilefile: MA problem',1,MA_ERR)
           if (nodezero.and.util_print('reconcilefile',print_debug))
      1      call filesummary
         endif
@@ -74,26 +76,28 @@ c
       else if ((ioalg.eq.6).and.fileisga(d_sf)) then
         call ga_sync()
         if (eaf_open(filenames(d_sf), EAF_RW, d_temp).ne.0)
-     1    call errquit('reconcilefile: eaf problem',0)
+     1    call errquit('reconcilefile: eaf problem',0,DISK_ERR)
         if (nodezero.and.util_print('reconcilefile',print_debug))
      1    write(LuOut,9210) d_sf,filehandles(d_sf),d_temp
-        nblocks = size/buffer_size + 1
-        blocksize = size/nblocks + 1
+        nblocks = size/buffer_size
+        if (nblocks*buffer_size.lt.size) nblocks = nblocks + 1
+        blocksize = size/nblocks
+        if (nblocks*blocksize.lt.size) blocksize = blocksize + 1
         if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
      1    l_temp,k_temp))
-     2    call errquit('reconcilefile: MA problem',0)
+     2    call errquit('reconcilefile: MA problem',0,MA_ERR)
         do i = 1,nblocks
           call ga_get(filehandles(d_sf),(i-1)*blocksize+1,
      1      min(size,i*blocksize),1,1,dbl_mb(k_temp),1)
           if (eaf_write(d_temp,dfloat(bytes)*dfloat((i-1)*blocksize),
      1      dbl_mb(k_temp),
      2      bytes*(min(size,i*blocksize)-(i-1)*blocksize)).ne.0)
-     3      call errquit('reconcilefile: eaf problem',7)
+     3      call errquit('reconcilefile: eaf problem',7,DISK_ERR)
         enddo
         if (.not.ma_pop_stack(l_temp))
-     1    call errquit('reconcilefile: MA problem',1)
+     1    call errquit('reconcilefile: MA problem',1,MA_ERR)
         if (.not.ga_destroy(filehandles(d_sf)))
-     1    call errquit('reconcilefile: GA problem',0)
+     1    call errquit('reconcilefile: GA problem',0,GA_ERR)
         filehandles(d_sf) = d_temp
         fileisga(d_sf) = .false.
         if (nodezero.and.util_print('reconcilefile',print_debug))
@@ -107,7 +111,7 @@ c
  9200 format(1x,'        offset:',i10,' size:',i10)
  9210 format(/,1x,'Reconcile file: logical handle:',i10,
      1            ' GA handle:',i10,' EAF handle:',i10)
- 9220 format(/,1x,'Reconcile file: logical handle:',i10,
+ 9220 format(/,1x,i3,' reconcile file: logical handle:',i10,
      1            ' EAF handle:',i10)
  9230 format(/,1x,'Warning: EAF reconciliation in GA/EAF algorithm')
       return

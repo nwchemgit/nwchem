@@ -1,6 +1,6 @@
       subroutine tce_residual_t3(d_r3,k_r3_offset,residual)
 c
-c $Id: tce_residual_t3.F,v 1.6 2003-09-16 21:50:12 sohirata Exp $
+c $Id: tce_residual_t3.F,v 1.7 2003-10-19 00:52:09 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -8,6 +8,7 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer d_r3
       integer p1b
@@ -35,7 +36,7 @@ c     =====================
 c
       nodezero = (ga_nodeid().eq.0)
       if (.not.ga_create(mt_dbl,1,1,'residual',1,1,g_residual))
-     1  call errquit('tce_residual_t3: GA problem',0)
+     1  call errquit('tce_residual_t3: GA problem',0,GA_ERR)
       residual = 0.0d0
       call ga_put(g_residual,1,1,1,1,residual,1)
       call ga_sync()
@@ -96,7 +97,8 @@ c
      5                     * int_mb(k_range+h6b-1)
                       if (.not.ma_push_get(mt_dbl,size,'r3',
      1                  l_r3,k_r3))
-     2                  call errquit('tce_residual_t3: MA problem',0)
+     2                  call errquit('tce_residual_t3: MA problem',0,
+     3                  MA_ERR)
                       call get_block(d_r3,dbl_mb(k_r3),size,
      1                  int_mb(k_r3_offset+(((((p1b-noab-1)*nvab
      2                  +p2b-noab-1)*nvab+p3b-noab-1)*noab
@@ -109,7 +111,8 @@ c
                       call ga_acc(g_residual,1,1,1,1,
      1                              residual,1,factor)
                       if (.not.ma_pop_stack(l_r3))
-     1                  call errquit('tce_residual_t3: MA problem',1)
+     1                  call errquit('tce_residual_t3: MA problem',1,
+     2                  MA_ERR)
                     endif
                     endif
                     endif
@@ -127,6 +130,6 @@ c
       call ga_get(g_residual,1,1,1,1,residual,1)
       residual = 0.5d0*dsqrt(residual)
       if (.not.ga_destroy(g_residual))
-     1  call errquit('tce_residual_t3: GA problem',1)
+     1  call errquit('tce_residual_t3: GA problem',1,GA_ERR)
       return
       end

@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.16 2003-08-05 00:37:53 sohirata Exp $
+# $Id: tce.py,v 1.17 2003-10-19 00:52:05 sohirata Exp $
 
 import string
 import types
@@ -1390,6 +1390,8 @@ class Tensor:
       newcode.add("headers",newline)
       newline = '#include "sym.fh"'
       newcode.add("headers",newline)
+      newline = '#include "errquit.fh"'
+      newcode.add("headers",newline)
       newline = '#include "tce.fh"'
       newcode.add("headers",newline)
  
@@ -1478,14 +1480,14 @@ class Tensor:
       newcode.add("integers","l_b")
       newcode.add("integers","k_b")
       newline = string.join(["IF (.not.MA_PUSH_GET(mt_dbl,dim0,'noname',l_b,k_b)) CALL ERRQUIT('",\
-                             subroutinename,"',",repr(errquit),")"],"")
+                             subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
       errquit = errquit + 1
       newcode.add("integers","l_a")
       newcode.add("integers","k_a")
       newline = string.join(["IF (.not.MA_PUSH_GET(mt_dbl,dim0,'noname',l_a,k_a)) CALL ERRQUIT('",\
-                             subroutinename,"',",repr(errquit),")"],"")
+                             subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
       errquit = errquit + 1
@@ -1606,11 +1608,11 @@ class Tensor:
       newline = string.join(["CALL PUT_BLOCK(",arguments,")"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
-      newline = string.join(["IF (.not.MA_POP_STACK(l_a)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),")"],"")
+      newline = string.join(["IF (.not.MA_POP_STACK(l_a)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
       errquit = errquit + 1
-      newline = string.join(["IF (.not.MA_POP_STACK(l_b)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),")"],"")
+      newline = string.join(["IF (.not.MA_POP_STACK(l_b)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
       errquit = errquit + 1
@@ -1650,6 +1652,8 @@ class Tensor:
       newcode.add("headers",newline)
       newline = '#include "sym.fh"'
       newcode.add("headers",newline)
+      newline = '#include "errquit.fh"'
+      newcode.add("headers",newline)
       newline = '#include "tce.fh"'
       newcode.add("headers",newline)
  
@@ -1681,7 +1685,7 @@ class Tensor:
       if (arguments == ""):
          arguments = "1"
       newline = string.join(["IF (.not.MA_PUSH_GET(mt_int,",arguments,",'noname',l_a_offset,k_a_offset)) CALL ERRQUIT('",\
-                             subroutinename,"',",repr(errquit),")"],"")
+                             subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
       errquit = errquit + 1
@@ -3202,6 +3206,8 @@ class ElementaryTensorContraction:
       newcode.add("headers",newline)
       newline = '#include "sym.fh"'
       newcode.add("headers",newline)
+      newline = '#include "errquit.fh"'
+      newcode.add("headers",newline)
       newline = '#include "tce.fh"'
       newcode.add("headers",newline)
 
@@ -3549,14 +3555,14 @@ class ElementaryTensorContraction:
       newcode.add("integers","l_a_sort")
       newcode.add("integers","k_a_sort")
       newline = string.join(["IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a_sort,k_a_sort)) CALL ERRQUIT('",\
-                             subroutinename,"',",repr(errquit),")"],"")
+                             subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
       errquit = errquit + 1
       newcode.add("integers","l_a")
       newcode.add("integers","k_a")
       newline = string.join(["IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('",\
-                             subroutinename,"',",repr(errquit),")"],"")
+                             subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
       errquit = errquit + 1
@@ -3747,7 +3753,7 @@ class ElementaryTensorContraction:
             newcode.pointer = newcode.pointer + 1
 
       newcode.pointer = newcode.getamark(1) + 1
-      newline = string.join(["IF (.not.MA_POP_STACK(l_a)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),")"],"")
+      newline = string.join(["IF (.not.MA_POP_STACK(l_a)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
       errquit = errquit + 1
@@ -3757,14 +3763,14 @@ class ElementaryTensorContraction:
          newcode.add("integers","l_b_sort")
          newcode.add("integers","k_b_sort")
          newline = string.join(["IF (.not.MA_PUSH_GET(mt_dbl,dimb,'noname',l_b_sort,k_b_sort)) CALL ERRQUIT('",\
-                                subroutinename,"',",repr(errquit),")"],"")
+                                subroutinename,"',",repr(errquit),",MA_ERR)"],"")
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          errquit = errquit + 1
          newcode.add("integers","l_b")
          newcode.add("integers","k_b")
          newline = string.join(["IF (.not.MA_PUSH_GET(mt_dbl,dimb,'noname',l_b,k_b)) CALL ERRQUIT('",\
-                                subroutinename,"',",repr(errquit),")"],"")
+                                subroutinename,"',",repr(errquit),",MA_ERR)"],"")
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          errquit = errquit + 1
@@ -3956,7 +3962,7 @@ class ElementaryTensorContraction:
                newcode.pointer = newcode.pointer + 1
 
          newcode.pointer = newcode.getamark(2) + 1
-         newline = string.join(["IF (.not.MA_POP_STACK(l_b)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),")"],"")
+         newline = string.join(["IF (.not.MA_POP_STACK(l_b)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),",MA_ERR)"],"")
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          errquit = errquit + 1
@@ -4171,10 +4177,10 @@ class ElementaryTensorContraction:
          newcode.add("integers","k_c_sort")
          if (three):
             newline = string.join(["IF (.not.MA_PUSH_GET(mt_dbl,dima_sort*dimb_sort,'noname',l_c_sort,k_c_sort)) CALL ERRQUIT('",\
-                                   subroutinename,"',",repr(errquit),")"],"")
+                                   subroutinename,"',",repr(errquit),",MA_ERR)"],"")
          else:
             newline = string.join(["IF (.not.MA_PUSH_GET(mt_dbl,dima_sort,'noname',l_c_sort,k_c_sort)) CALL ERRQUIT('",\
-                                   subroutinename,"',",repr(errquit),")"],"")
+                                   subroutinename,"',",repr(errquit),",MA_ERR)"],"")
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          errquit = errquit + 1
@@ -4188,10 +4194,10 @@ class ElementaryTensorContraction:
       newcode.add("integers","k_c")
       if (three):
          newline = string.join(["IF (.not.MA_PUSH_GET(mt_dbl,dima_sort*dimb_sort,'noname',l_c,k_c)) CALL ERRQUIT('",\
-                                subroutinename,"',",repr(errquit),")"],"")
+                                subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       else:
          newline = string.join(["IF (.not.MA_PUSH_GET(mt_dbl,dima_sort,'noname',l_c,k_c)) CALL ERRQUIT('",\
-                                subroutinename,"',",repr(errquit),")"],"")
+                                subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
       errquit = errquit + 1
@@ -4434,25 +4440,25 @@ class ElementaryTensorContraction:
          newcode.pointer = newcode.pointer + 1
 
       newcode.pointer = newcode.getamark(3) + 1
-      newline = string.join(["IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),")"],"")
+      newline = string.join(["IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),",MA_ERR)"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
       errquit = errquit + 1
       if (three):
-         newline = string.join(["IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),")"],"")
+         newline = string.join(["IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),",MA_ERR)"],"")
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          errquit = errquit + 1
-         newline = string.join(["IF (.not.MA_POP_STACK(l_b_sort)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),")"],"")
+         newline = string.join(["IF (.not.MA_POP_STACK(l_b_sort)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),",MA_ERR)"],"")
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          errquit = errquit + 1
-         newline = string.join(["IF (.not.MA_POP_STACK(l_a_sort)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),")"],"")
+         newline = string.join(["IF (.not.MA_POP_STACK(l_a_sort)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),",MA_ERR)"],"")
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          errquit = errquit + 1
       else:
-         newline = string.join(["IF (.not.MA_POP_STACK(l_a_sort)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),")"],"")
+         newline = string.join(["IF (.not.MA_POP_STACK(l_a_sort)) CALL ERRQUIT('",subroutinename,"',",repr(errquit),",MA_ERR)"],"")
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          errquit = errquit + 1
@@ -6291,6 +6297,8 @@ class OperationTree:
       newcode.add("headers",newline)
       newline = '#include "util.fh"'
       newcode.add("headers",newline)
+      newline = '#include "errquit.fh"'
+      newcode.add("headers",newline)
       newline = '#include "tce.fh"'
       newcode.add("headers",newline)
       
@@ -6409,10 +6417,10 @@ class OperationTree:
             newcode.statements.insert(0,newline)
             newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
             newcode.statements.insert(0,newline)
-            newline = string.join(["CALL DRATOGA(",d_b,")"],"")
-            newcode.statements.insert(0,newline)
-            newline = string.join(["CALL DRATOGA(",d_a,")"],"")
-            newcode.statements.insert(0,newline)
+#           newline = string.join(["CALL DRATOGA(",d_b,")"],"")
+#           newcode.statements.insert(0,newline)
+#           newline = string.join(["CALL DRATOGA(",d_a,")"],"")
+#           newcode.statements.insert(0,newline)
             callee = sister.tensors[0].fortran77y(globaltargetindexes,types,name)
             callees.add(callee)
             argument = string.join([d_a,",",k_a_offset],"")
@@ -6420,10 +6428,10 @@ class OperationTree:
             argument = string.join([argument,",",d_c,",",k_c_offset],"")
             newline = string.join(["CALL ",name,"(",argument,")"],"")
             newcode.statements.insert(0,newline)
-            newline = string.join(["CALL GATODRA(",d_a,")"],"")
-            newcode.statements.insert(0,newline)
-            newline = string.join(["CALL GATODRA(",d_b,")"],"")
-            newcode.statements.insert(0,newline)
+#           newline = string.join(["CALL GATODRA(",d_a,")"],"")
+#           newcode.statements.insert(0,newline)
+#           newline = string.join(["CALL GATODRA(",d_b,")"],"")
+#           newcode.statements.insert(0,newline)
             newline = string.join(["CALL RECONCILEFILE(",d_c,",",size_c,")"],"")
             newcode.statements.insert(0,newline)
  
@@ -6543,13 +6551,13 @@ class OperationTree:
                callees.add(callee)
                createfile = 0
             newcode.statements.insert(0,child.fortran77a(name,globaltargetindexes,types,callees))
-            newline = string.join(["CALL DRATOGA(",d_c,")"],"")
-            newcode.statements.insert(0,newline)
-            if (d_b):
-               newline = string.join(["CALL DRATOGA(",d_b,")"],"")
-               newcode.statements.insert(0,newline)
-            newline = string.join(["CALL DRATOGA(",d_a,")"],"")
-            newcode.statements.insert(0,newline)
+#           newline = string.join(["CALL DRATOGA(",d_c,")"],"")
+#           newcode.statements.insert(0,newline)
+#           if (d_b):
+#              newline = string.join(["CALL DRATOGA(",d_b,")"],"")
+#              newcode.statements.insert(0,newline)
+#           newline = string.join(["CALL DRATOGA(",d_a,")"],"")
+#           newcode.statements.insert(0,newline)
             if (child.contraction.tensors[1].type == "i"):
                newline = string.join(["CALL RECONCILEFILE(",d_a,",",size_a,")"],"")
                newcode.statements.insert(0,newline)
@@ -6563,23 +6571,23 @@ class OperationTree:
             argument = string.join([argument,",",d_c,",",k_c_offset],"")
             newline = string.join(["CALL ",name,"(",argument,")"],"")
             newcode.statements.insert(0,newline)
-            newline = string.join(["CALL GATODRA(",d_a,")"],"")
-            newcode.statements.insert(0,newline)
-            if (d_b):
-               newline = string.join(["CALL GATODRA(",d_b,")"],"")
-               newcode.statements.insert(0,newline)
-            newline = string.join(["CALL GATODRA(",d_c,")"],"")
-            newcode.statements.insert(0,newline)
+#           newline = string.join(["CALL GATODRA(",d_a,")"],"")
+#           newcode.statements.insert(0,newline)
+#           if (d_b):
+#              newline = string.join(["CALL GATODRA(",d_b,")"],"")
+#              newcode.statements.insert(0,newline)
+#           newline = string.join(["CALL GATODRA(",d_c,")"],"")
+#           newcode.statements.insert(0,newline)
             if (child.contraction.tensors[1].type == "i"):
                newline = string.join(["CALL DELETEFILE(",d_a,")"],"")
                newcode.statements.insert(0,newline)
-               newline = string.join(["IF (.not.MA_POP_STACK(",l_a_offset,")) CALL ERRQUIT('",subroutinename,"',-1)"],"")
+               newline = string.join(["IF (.not.MA_POP_STACK(",l_a_offset,")) CALL ERRQUIT('",subroutinename,"',-1,MA_ERR)"],"")
                newcode.statements.insert(0,newline)
             if (d_b):
                if (child.contraction.tensors[2].type == "i"):
                   newline = string.join(["CALL DELETEFILE(",d_b,")"],"")
                   newcode.statements.insert(0,newline)
-                  newline = string.join(["IF (.not.MA_POP_STACK(",l_b_offset,")) CALL ERRQUIT('",subroutinename,"',-1)"],"")
+                  newline = string.join(["IF (.not.MA_POP_STACK(",l_b_offset,")) CALL ERRQUIT('",subroutinename,"',-1,MA_ERR)"],"")
                   newcode.statements.insert(0,newline)
 
       if (self.sisters):
@@ -6593,7 +6601,7 @@ class OperationTree:
             name = string.join([subroutinename,"_r_",repr(counter)],"")
             newline = string.join(["CALL DELETEFILE(",d_c,")"],"")
             newcode.statements.insert(0,newline)
-            newline = string.join(["IF (.not.MA_POP_STACK(",l_c_offset,")) CALL ERRQUIT('",subroutinename,"',-1)"],"")
+            newline = string.join(["IF (.not.MA_POP_STACK(",l_c_offset,")) CALL ERRQUIT('",subroutinename,"',-1,MA_ERR)"],"")
             newcode.statements.insert(0,newline)
  
       newcode.reverse()
@@ -8777,7 +8785,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.16 2003-08-05 00:37:53 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.17 2003-10-19 00:52:05 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)

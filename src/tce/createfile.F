@@ -1,6 +1,6 @@
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.15 2003-09-16 21:50:11 sohirata Exp $
+c $Id: createfile.F,v 1.16 2003-10-19 00:52:03 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -12,6 +12,7 @@ c
 #include "sf.fh"
 #include "eaf.fh"
 #include "dra.fh"
+#include "errquit.fh"
 #include "tce.fh"
       character*(*) filename
       integer d_sf
@@ -21,17 +22,26 @@ c
       logical nodezero
       logical parallel
       logical used
-      integer request
 c
-      cpusecs(1) = cpusecs(1) - util_cpusec()
-      cpusecs(51) = cpusecs(51) - util_wallsec()
       nodezero = (ga_nodeid().eq.0)
       parallel = (ga_nnodes().gt.1)
+      cpusecs(1) = cpusecs(1) - util_cpusec()
+      cpusecs(51) = cpusecs(51) - util_wallsec()
+      if (size.eq.0) then
+        if (nodezero.and.util_print('files',print_high)) then
+          write(LuOut,*) '*************** Warning ***************'
+          write(LuOut,*) ' Create file size is zero. Calculation'
+          write(LuOut,*) ' will continue by increasing the size.'
+          write(LuOut,*) ' Use of a larger basis set is advised.'
+        endif
+        size = 1
+      endif
       if (ioalg.eq.0) then
         if (nodezero.and.util_print('files',print_debug))
      1    write(LuOut,9000) size,filename(1:40)
         if (nfiles.eq.max_files)
-     1    call errquit('createfile: exceeded max_files',nfiles)
+     1    call errquit('createfile: exceeded max_files',nfiles,
+     2    UNKNOWN_ERR)
         do d_sf = 10,max_files+9
           used = .false.
           do i = 1,nfiles
@@ -44,7 +54,7 @@ c
             goto 100
           endif
         enddo
-        call errquit('createfile: file problem',0)
+        call errquit('createfile: file problem',0,UNKNOWN_ERR)
   100   continue
         if (nodezero.and.util_print('files',print_debug)) then
           do i = 1,nfiles
@@ -69,7 +79,8 @@ c
         if (parallel) then
           call ga_sync()
           if (nfiles.eq.max_files)
-     1      call errquit('createfile: exceeded max_files',nfiles)
+     1      call errquit('createfile: exceeded max_files',nfiles,
+     2      UNKNOWN_ERR)
           do d_sf = 10,max_files+9
             used = .false.
             do i = 1,nfiles
@@ -82,12 +93,12 @@ c
               goto 110
             endif
           enddo
-          call errquit('createfile: file problem',0)
+          call errquit('createfile: file problem',0,UNKNOWN_ERR)
   110     continue
           if (eaf_open(filename, EAF_RW, d_temp).ne.0)
-     1      call errquit('createfile: eaf problem',0)
+     1      call errquit('createfile: eaf problem',0,DISK_ERR)
           if (eaf_close(d_temp).ne.0)
-     1      call errquit('createfile: eaf problem',1)
+     1      call errquit('createfile: eaf problem',1,DISK_ERR)
           if (nodezero.and.util_print('files',print_debug)) then
             do i = 1,nfiles
               write(LuOut,9010) filehandles(i),filenames(i)(1:40)
@@ -95,32 +106,34 @@ c
           endif
         else
           if (nfiles.eq.max_files)
-     1      call errquit('createfile: exceeded max_files',nfiles)
+     1      call errquit('createfile: exceeded max_files',nfiles,
+     2      UNKNOWN_ERR)
           if (eaf_open(filename, EAF_RW, d_sf).ne.0)
-     1      call errquit('createfile: eaf problem',0)
+     1      call errquit('createfile: eaf problem',0,DISK_ERR)
           nfiles = nfiles + 1
           filehandles(nfiles) = d_sf
           filenames(nfiles) = filename
         endif
         call tce_zero(d_sf,size)
       else if (ioalg.eq.2) then
+        if (nodezero.and.util_print('files',print_debug))
+     1    write(LuOut,9000) size,filename(1:40)
         if (.not.ga_create(mt_dbl,size,1,filename,
      1    -1,1,d_sf)) then
           write(LuOut,*) ' available GA memory ',
      1    ga_memory_avail(),' bytes'
-          call errquit ('createfile: failed ga_create size=',size)
+          call errquit ('createfile: failed ga_create size=',size,
+     1      GA_ERR)
         endif
-        if (nodezero.and.util_print('files',print_debug))
-     1    write(LuOut,9010) d_sf,filename(1:40)
         call tce_zero(d_sf,size)
       else if (ioalg.eq.3) then
         if (parallel) call ga_sync()
         if (sf_create(filename,dfloat(bytes)*dfloat(size),
      1      dfloat(bytes)*dfloat(size),1.0d4,d_sf).ne.0)
-     2    call errquit('createfile: sf problem',0)
+     2    call errquit('createfile: sf problem',0,DISK_ERR)
         if (parallel) then
           if (sf_close(d_sf).ne.0)
-     1      call errquit('createfile: sf problem',1)
+     1      call errquit('createfile: sf problem',1,DISK_ERR)
           call ga_sync()
         endif
         if (nodezero.and.util_print('files',print_debug))
@@ -128,9 +141,10 @@ c
         call tce_zero(d_sf,size)
       else if (ioalg.eq.4) then
         if (nfiles.eq.max_files)
-     1    call errquit('createfile: exceeded max_files',nfiles)
+     1    call errquit('createfile: exceeded max_files',nfiles,
+     2    UNKNOWN_ERR)
         if (eaf_open(filename, EAF_RW, d_sf).ne.0)
-     1    call errquit('createfile: eaf problem',0)
+     1    call errquit('createfile: eaf problem',0,DISK_ERR)
         nfiles = nfiles + 1
         filehandles(nfiles) = d_sf
         filenames(nfiles) = filename
@@ -139,10 +153,11 @@ c
         call tce_zero(d_sf,size)
       else if (ioalg.eq.5) then
         if (nfiles.eq.max_files)
-     1    call errquit('createfile: exceeded max_files',nfiles)
+     1    call errquit('createfile: exceeded max_files',nfiles,
+     2    UNKNOWN_ERR)
         if (.not.ga_create(mt_dbl,size,1,filename,
      1    -1,1,d_temp))
-     2    call errquit ('createfile: ga problem',1)
+     2    call errquit ('createfile: ga problem',1,GA_ERR)
         call ga_zero(d_temp)
         nfiles = nfiles + 1
         filehandles(nfiles) = d_temp
@@ -152,10 +167,11 @@ c
         d_sf = nfiles
       else if (ioalg.eq.6) then
         if (nfiles.eq.max_files)
-     1    call errquit('createfile: exceeded max_files',nfiles)
+     1    call errquit('createfile: exceeded max_files',nfiles,
+     2    UNKNOWN_ERR)
         if (.not.ga_create(mt_dbl,size,1,filename,
      1    -1,1,d_temp))
-     2    call errquit ('createfile: ga problem',1)
+     2    call errquit ('createfile: ga problem',1,GA_ERR)
         nfiles = nfiles + 1
         filehandles(nfiles) = d_temp
         filenames(nfiles) = filename

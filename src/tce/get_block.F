@@ -1,6 +1,6 @@
       subroutine get_block(d_file,array,size,offset)
 c
-c $Id: get_block.F,v 1.13 2003-08-05 00:37:52 sohirata Exp $
+c $Id: get_block.F,v 1.14 2003-10-19 00:52:05 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -9,6 +9,7 @@ c
 #include "eaf.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer d_file
       integer d_f
@@ -28,7 +29,7 @@ c
          write(LuOut,9000) ga_nodeid(),d_file,size,offset
       endif
       if (offset .eq. -1)
-     1  call errquit('get_block: illegal offset',0)
+     1  call errquit('get_block: illegal offset',0,UNKNOWN_ERR)
       if (ioalg.eq.0) then
         used = .false.
         do i = 1,nfiles
@@ -37,7 +38,8 @@ c
             used = .true.
           endif
         enddo
-        if (.not.used) call errquit('get_block: invalid handle',d_file)
+        if (.not.used) call errquit('get_block: invalid handle',d_file,
+     1    UNKNOWN_ERR)
         if (parallel) then
           call ga_lock(0)
           open(d_file,file=filenames(j),access='direct',recl=bytes)
@@ -61,17 +63,17 @@ c
           filename = filenames(j)
           call ga_lock(0)
           if (eaf_open(filename, EAF_RW, d_f).ne.0)
-     1      call errquit('get_block: eaf problem',1)
+     1      call errquit('get_block: eaf problem',1,DISK_ERR)
           if (eaf_read(d_f,dfloat(bytes)*dfloat(offset),
      1      array,bytes*size).ne.0)
-     2      call errquit('get_block: eaf problem',2)
+     2      call errquit('get_block: eaf problem',2,DISK_ERR)
           if (eaf_close(d_f).ne.0)
-     1      call errquit('get_block: eaf problem',4)
+     1      call errquit('get_block: eaf problem',4,DISK_ERR)
           call ga_unlock(0)
         else
           if (eaf_read(d_file,dfloat(bytes)*dfloat(offset),
      1      array,bytes*size).ne.0)
-     2      call errquit('get_block: eaf problem',5)
+     2      call errquit('get_block: eaf problem',5,DISK_ERR)
         endif
       else if (ioalg.eq.2) then
         call ga_get(d_file,offset+1,offset+size,1,1,
@@ -80,22 +82,22 @@ c
         if (parallel) then
           call ga_lock(0)
           if (sf_open(d_file).ne.0)
-     1      call errquit('get_block: sf problem',0)
+     1      call errquit('get_block: sf problem',0,DISK_ERR)
         endif
         if (sf_read(d_file,dfloat(bytes)*dfloat(offset),
      1    dfloat(bytes)*dfloat(size),array,request).ne.0)
-     2    call errquit('get_block: sf problem',1)
+     2    call errquit('get_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
-     1    call errquit('get_block: sf problem',2)
+     1    call errquit('get_block: sf problem',2,DISK_ERR)
         if (parallel) then
           if (sf_close(d_file).ne.0)
-     1      call errquit('get_block: sf problem',3)
+     1      call errquit('get_block: sf problem',3,DISK_ERR)
           call ga_unlock(0)
         endif
       else if (ioalg.eq.4) then
         if (eaf_read(d_file,dfloat(bytes)*dfloat(offset),
      1    array,bytes*size).ne.0)
-     2    call errquit('get_block: eaf problem',7)
+     2    call errquit('get_block: eaf problem',7,DISK_ERR)
       else if (ioalg.eq.5) then
         if (fileisga(d_file)) then
           call ga_get(filehandles(d_file),offset+1,offset+size,1,1,
@@ -103,7 +105,8 @@ c
         else
           write(LuOut,*) 'filehandles = ',d_file,filehandles(d_file)
           write(LuOut,*) 'filename = ',filenames(d_file)
-          call errquit('get_block: a read request from DRA',1)
+          call errquit('get_block: a read request from DRA',1,
+     1      UNKNOWN_ERR)
         endif
       else if (ioalg.eq.6) then
         if (fileisga(d_file)) then
@@ -114,7 +117,7 @@ c
      1      dfloat(bytes)*dfloat(offset),array,bytes*size).ne.0) then
             write(LuOut,*) 'filehandles = ',d_file,filehandles(d_file)
             write(LuOut,*) 'filename = ',filenames(d_file)
-            call errquit('get_block: eaf problem',1)
+            call errquit('get_block: eaf problem',1,DISK_ERR)
           endif
         endif
       endif

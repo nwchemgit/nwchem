@@ -1,6 +1,6 @@
-#$Id: GNUmakefile,v 1.1 2003-09-16 21:51:04 sohirata Exp $
+#$Id: GNUmakefile,v 1.2 2003-10-19 00:53:41 sohirata Exp $
 
-ifndef CCSDTQ_LAMBDA
+ifndef CCSDTQ
 OBJ_OPTIMIZE = \
 ccsdtq_lambda1.o\
 ccsdtq_lambda2.o\
@@ -963,7 +963,7 @@ ccsdtq_lambda2_31_1_1.o\
 OFFSET_ccsdtq_lambda2_31_1_1.o\
 ccsdtq_lambda2_31_2.o\
 ccsdtq_lambda2_31_2_1.o\
-OFFSET_ccsdtq_lambda2_31_2_1.o \
+OFFSET_ccsdtq_lambda2_31_2_1.o\
 ccsdtq_lambda3_1.o\
 ccsdtq_lambda3_2.o\
 ccsdtq_lambda3_2_1.o\
@@ -1156,10 +1156,10 @@ LIBRARY = libtce.a
 
 USES_BLAS = 
 
-ifndef CCSDTQ_LAMBDA
+ifndef CCSDTQ
 LIB_DEFINES = -DDEBUG_PRINT
 else
-LIB_DEFINES = -DDEBUG_PRINT -DCCSDTQ_LAMBDA
+LIB_DEFINES = -DDEBUG_PRINT -DCCSDTQ
 endif
 #
 # Possible #defines

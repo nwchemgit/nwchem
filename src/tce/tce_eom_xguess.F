@@ -2,7 +2,7 @@
      1  size_x1,size_x2,size_x3,size_x4,
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 c
-c $Id: tce_eom_xguess.F,v 1.2 2003-08-05 00:37:54 sohirata Exp $
+c $Id: tce_eom_xguess.F,v 1.3 2003-10-19 00:52:06 sohirata Exp $
 c
 c     Generates initial trial vectors that are all singly excited 
 c     determinants within the same irrep_x
@@ -13,6 +13,7 @@ c
 #include "mafdecls.fh"
 #include "sym.fh"
 #include "tce.fh"
+#include "errquit.fh"
 #include "util.fh"
       logical needx1
       logical needx2
@@ -43,7 +44,7 @@ c     Determine threshold
 c
       nodezero = (ga_nodeid().eq.0)
       if (.not.ma_push_get(mt_dbl,maxtrials,'diff',l_diff,k_diff))
-     1  call errquit('tce_eom_xguess: MA problem',0)
+     1  call errquit('tce_eom_xguess: MA problem',0,MA_ERR)
       call dfill(maxtrials,1.0d99,dbl_mb(k_diff),1)
       ivec = 0
       do p1b = noab+1,noab+nvab
@@ -83,7 +84,7 @@ c
       goto 100
   110 continue
       if (.not.ma_pop_stack(l_diff))
-     1  call errquit('tce_eom_xguess: MA problem',1)
+     1  call errquit('tce_eom_xguess: MA problem',1,MA_ERR)
 c
 c     Make trial X1
 c
@@ -97,7 +98,7 @@ c
      1      irrep_x) then
           size = int_mb(k_range+p1b-1) * int_mb(k_range+h3b-1)
           if (.not.ma_push_get(mt_dbl,size,'x1',l_x1,k_x1))
-     1      call errquit('tce_eom_xguess: MA problem',2)
+     1      call errquit('tce_eom_xguess: MA problem',2,MA_ERR)
           ivec = 0
           do p1 = 1,int_mb(k_range+p1b-1)
             do h3 = 1,int_mb(k_range+h3b-1)
@@ -109,46 +110,55 @@ c
               call dfill(size,0.0d0,dbl_mb(k_x1),1)
               dbl_mb(k_x1+ivec-1) = 1.0d0
               if (nxtrials.gt.maxtrials) call errquit
-     1          ('tce_eom_xguess: problem too large',nxtrials)
+     1          ('tce_eom_xguess: problem too large',nxtrials,
+     2          CALC_ERR)
               if (needx1) then
                 call tce_filenameindexed(nxtrials,'x1',filename)
                 call createfile(filename,x1(nxtrials),size_x1)
-                call dratoga(x1(nxtrials))
                 call put_block(x1(nxtrials),dbl_mb(k_x1),size,
      1            int_mb(k_x1_offset+(p1b-noab-1)*noab+h3b-1))
                 call gatodra(x1(nxtrials))
+                call gatoeaf(x1(nxtrials))
                 x1_exist(nxtrials) = .true.
               endif
               if (needx2) then
                 call tce_filenameindexed(nxtrials,'x2',filename)
                 call createfile(filename,x2(nxtrials),size_x2)
+                call gatodra(x2(nxtrials))
+                call gatoeaf(x2(nxtrials))
                 x2_exist(nxtrials) = .true.
               endif
               if (needx3) then
                 call tce_filenameindexed(nxtrials,'x3',filename)
                 call createfile(filename,x3(nxtrials),size_x3)
+                call gatodra(x3(nxtrials))
+                call gatoeaf(x3(nxtrials))
                 x3_exist(nxtrials) = .true.
               endif
               if (needx4) then
                 call tce_filenameindexed(nxtrials,'x4',filename)
                 call createfile(filename,x4(nxtrials),size_x4)
+                call gatodra(x4(nxtrials))
+                call gatoeaf(x4(nxtrials))
                 x4_exist(nxtrials) = .true.
               endif
               endif
             enddo
           enddo
           if (.not.ma_pop_stack(l_x1))
-     1      call errquit('tce_eom_xguess: MA problem',3)
+     1      call errquit('tce_eom_xguess: MA problem',3,MA_ERR)
           endif
           endif
           endif
         enddo
       enddo
-      write(LuOut,9000) nxtrials
       if (nxtrials.lt.nroots_reduced)
-     1  call errquit('there is a bug in the program',0)
-      if (nroots.gt.nroots_reduced) then
-        write(LuOut,9010) nroots, nroots_reduced
+     1  call errquit('there is a bug in the program',0,UNKNOWN_ERR)
+      if (nodezero) then
+        write(LuOut,9000) nxtrials
+        if (nroots.gt.nroots_reduced) then
+          write(LuOut,9010) nroots, nroots_reduced
+        endif
       endif
       return
  9000 format(/,1x,'No. of initial right vectors ',i4)

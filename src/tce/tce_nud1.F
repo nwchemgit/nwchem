@@ -1,6 +1,6 @@
       subroutine tce_nud1(dipole)
 c
-c $Id: tce_nud1.F,v 1.1 2003-07-25 17:56:57 sohirata Exp $
+c $Id: tce_nud1.F,v 1.2 2003-10-19 00:52:09 sohirata Exp $
 c
 c     Computes nuclear contributions of dipole moments
 c
@@ -12,6 +12,7 @@ c
 #include "util.fh"
 #include "sym.fh"
 #include "sf.fh"
+#include "errquit.fh"
 #include "tce.fh"
       double precision dipole(3)       ! Total dipole moments
       integer natoms                   ! Number of atoms
@@ -27,11 +28,11 @@ c
 c
       nodezero = (ga_nodeid().eq.0)
       if (.not.geom_ncent(geom,natoms))
-     1  call errquit('tce_nud1: geom_ncent failed',0)
+     1  call errquit('tce_nud1: geom_ncent failed',0,GEOM_ERR)
       if (natoms.gt.10000)
-     1  call errquit('tce_nud1: too many atoms',natoms)
+     1  call errquit('tce_nud1: too many atoms',natoms,GEOM_ERR)
       if (.not.geom_cart_get(geom,natoms,tag,center,charge))
-     1  call errquit('tce_nud1: geom_cart_get failed',0)
+     1  call errquit('tce_nud1: geom_cart_get failed',0,GEOM_ERR)
       dipole(1) = 0.0d0
       dipole(2) = 0.0d0
       dipole(3) = 0.0d0

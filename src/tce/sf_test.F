@@ -1,6 +1,6 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.11 2003-09-16 21:50:11 sohirata Exp $
+c $Id: sf_test.F,v 1.12 2003-10-19 00:52:05 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -10,6 +10,8 @@ c
 #include "eaf.fh"
 #include "dra.fh"
 #include "stdio.fh"
+#include "msgids.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer d_test
       integer size
@@ -18,6 +20,7 @@ c
       logical nodezero
       character*255 filename
       double precision cpu, wall
+      double precision ga_dble, ma_dble
       integer sizes(4)
       data sizes/100000,1000000,10000000,100000000/
 c
@@ -44,7 +47,7 @@ c     Coherency
 c
       size = ga_nnodes()
       if (.not.ma_push_get(mt_dbl,size,'sf',l_sf,k_sf))
-     1  call errquit('sf_test: MA problem',0)
+     1  call errquit('sf_test: MA problem',0,MA_ERR)
       call tce_filename('filetest',filename)
       call createfile(filename,d_test,size)
       dbl_mb(k_sf) = dfloat(ga_nodeid()+1)
@@ -53,34 +56,44 @@ c
       call get_block(d_test,dbl_mb(k_sf),size,0)
       do i = 1,size
         if (dbl_mb(k_sf+i-1) .ne. dfloat(i))
-     1    call errquit('sf_test failed',i)
+     1    call errquit('sf_test failed',i,UNKNOWN_ERR)
       enddo
       if (.not.ma_pop_stack(l_sf))
-     1  call errquit('sf_test: MA problem',1)
+     1  call errquit('sf_test: MA problem',1,MA_ERR)
       if (nodezero.and.util_print('sf',print_default))
      1  write(LuOut,9010)
       call deletefile(d_test)
 c
 c     Performance
 c
-      if (util_print('performance',print_debug)) then
-        if (nodezero) write(LuOut,9020)
-        do i = 1,4
-          size = sizes(i)
-          cpu  = -util_cpusec()
-          wall = -util_wallsec()
-          call tce_filename('filetest',filename)
-          call createfile(filename,d_test,size)
-          call reconcilefile(d_test,size)
-          call deletefile(d_test)
-          cpu  = cpu  + util_cpusec()
-          wall = wall + util_wallsec()
-          if (nodezero) then
-            write(LuOut,9030) cpu, wall, size
-            call util_flush(LuOut)
-          endif
-        enddo
+      ga_dble = dfloat(ga_memory_avail()) / dfloat(bytes)
+      ma_dble = dfloat(ma_inquire_avail(mt_dbl))
+      call ga_dgop(msg_tcemem,ga_dble,1,'+')
+      if (ga_uses_ma()) then
+        available = int(ga_dble)/2
+      else
+        available = int(ma_dble)
       endif
+c     if (util_print('performance',print_debug)) then
+c       if (nodezero) write(LuOut,9020)
+c       do i = 1,4
+c         size = sizes(i)
+c         if (size .le. ga_dble) then
+c           cpu  = -util_cpusec()
+c           wall = -util_wallsec()
+c           call tce_filename('filetest',filename)
+c           call createfile(filename,d_test,size)
+c           call reconcilefile(d_test,size)
+c           call deletefile(d_test)
+c           cpu  = cpu  + util_cpusec()
+c           wall = wall + util_wallsec()
+c           if (nodezero) then
+c             write(LuOut,9030) cpu, wall, size
+c             call util_flush(LuOut)
+c           endif
+c         endif
+c       enddo
+c     endif
  9000 format(/,1x,
      1 'Global files accessible by all nodes assumed')
  9100 format(/,1x,

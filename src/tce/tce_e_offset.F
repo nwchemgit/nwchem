@@ -1,6 +1,6 @@
       subroutine tce_e_offset(l_e_offset,k_e_offset,size)
 c
-c $Id: tce_e_offset.F,v 1.1 2002-10-18 23:42:07 sohirata Exp $
+c $Id: tce_e_offset.F,v 1.2 2003-10-19 00:52:06 sohirata Exp $
 c 
       implicit none
 #include "global.fh"
@@ -8,6 +8,7 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer l_e_offset
       integer k_e_offset
@@ -17,7 +18,7 @@ c
       nodezero = (ga_nodeid().eq.0)
       if (.not.ma_push_get(mt_int,1,'e offset',
      1  l_e_offset,k_e_offset))
-     2  call errquit('tce_e_offset: MA problem',0)
+     2  call errquit('tce_e_offset: MA problem',0,MA_ERR)
       int_mb(k_e_offset) = 0
       size = 1
       if (nodezero.and.util_print('offset',print_debug)) then

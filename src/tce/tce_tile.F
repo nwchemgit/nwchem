@@ -1,6 +1,6 @@
-      subroutine tce_tile
+      subroutine tce_tile(rtdb)
 c
-c $Id: tce_tile.F,v 1.14 2003-01-08 22:59:14 sohirata Exp $
+c $Id: tce_tile.F,v 1.15 2003-10-19 00:52:10 sohirata Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -17,11 +17,13 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
 c
+      integer rtdb
       double precision ga_dble
       double precision ma_dble
-      integer isize
+      integer isize,jsize
       double precision size
       integer sym
       integer any, hole, particle
@@ -153,13 +155,18 @@ c
         size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))
       else
-        call errquit("tce_tile: the model NYI",0)
+        call errquit("tce_tile: the model NYI",0,CAPMIS_ERR)
+      endif
+      if (nodezero) write(LuOut,*)
+      if (rtdb_get(rtdb,'tce:tilesize',mt_int,1,jsize)) then
+        isize = jsize
+        if (nodezero) write(LuOut,9050)
       endif
       if (nodezero.and.util_print('tile',print_default)) then
-        write(LuOut,*)
         write(LuOut,9040) isize
       endif
  9040 format(1x,'Maximum block size',i10,' doubles')
+ 9050 format(1x,'Maximum block size supplied by input')
 c
 c     ================================================
 c     Reorder the orbitals in the ha, hb, pa, pb order
@@ -168,19 +175,19 @@ c
       if (.not.ma_push_get(mt_dbl,nbf*(nmo(1)-nfv(1)-nfc(1)
      1  +nmo(ipol)-nfv(ipol)-nfc(ipol)),"sorted MO coeffs",
      2  l_movecs_sorted,k_movecs_sorted))
-     3  call errquit("tce_tile: MA problem",0)
+     3  call errquit("tce_tile: MA problem",0,MA_ERR)
       if (.not.ma_push_get(mt_int,nmo(1)-nfv(1)-nfc(1)
      1  +nmo(ipol)-nfv(ipol)-nfc(ipol),"sorted spins",
      2  l_spin_sorted,k_spin_sorted))
-     3  call errquit("tce_tile: MA problem",1)
+     3  call errquit("tce_tile: MA problem",1,MA_ERR)
       if (.not.ma_push_get(mt_int,nmo(1)-nfv(1)-nfc(1)
      1  +nmo(ipol)-nfv(ipol)-nfc(ipol),"sorted irs",
      2  l_irs_sorted,k_irs_sorted))
-     3  call errquit("tce_tile: MA problem",2)
+     3  call errquit("tce_tile: MA problem",2,MA_ERR)
       if (.not.ma_push_get(mt_dbl,nmo(1)-nfv(1)-nfc(1)
      1  +nmo(ipol)-nfv(ipol)-nfc(ipol),"sorted evl",
      2  l_evl_sorted,k_evl_sorted))
-     3  call errquit("tce_tile: MA problem",3)
+     3  call errquit("tce_tile: MA problem",3,MA_ERR)
       nirreps = sym_number_ops(geom) + 1
       if (nodezero.and.util_print('tile',print_debug)) then
         write(LuOut,*) "Number of irreps = ",nirreps
@@ -325,15 +332,17 @@ c
 c     Allocate tiling related arrays
 c
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Spin of blocks",
-     1  l_spin,k_spin)) call errquit("tce_tile: MA problem",4)
+     1  l_spin,k_spin)) call errquit("tce_tile: MA problem",4,MA_ERR)
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Symmetry of blocks",
-     1  l_sym,k_sym)) call errquit("tce_tile: MA problem",5)
+     1  l_sym,k_sym)) call errquit("tce_tile: MA problem",5,MA_ERR)
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Range of blocks",
-     1  l_range,k_range)) call errquit("tce_tile: MA problem",6)
+     1  l_range,k_range)) call errquit("tce_tile: MA problem",6,MA_ERR)
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Offset of blocks",
-     1  l_offset,k_offset)) call errquit("tce_tile: MA problem",7)
+     1  l_offset,k_offset)) call errquit("tce_tile: MA problem",7,
+     2  MA_ERR)
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"alpha-izer",
-     1  l_alpha,k_alpha)) call errquit("tce_tile: MA problem",8)
+     1  l_alpha,k_alpha)) call errquit("tce_tile: MA problem",8,
+     2  MA_ERR)
       j = 0
       do i = 1,noa+nob+nva+nvb
         int_mb(k_spin+i-1)=spin_tmp(i)
@@ -399,10 +408,11 @@ c       write(LuOut,*) " Jacobi can diverge even when the "
 c       write(LuOut,*) " theory is intrinsically invariant"
 c     endif
 c     if (.not.ma_push_get(mt_dbl,n*n,"Unitary",
-c    1  l_unitary,k_unitary)) call errquit("tce_tile: MA problem",-1)
+c    1  l_unitary,k_unitary)) call errquit("tce_tile: MA problem",-1,
+c    2  MA_ERR)
 c     if (.not.ma_push_get(mt_dbl,nbf*n,"rotated MO coeffs",
 c    2  l_movecs_rotated,k_movecs_rotated))
-c    3  call errquit("tce_tile: MA problem",-2)
+c    3  call errquit("tce_tile: MA problem",-2,MA_ERR)
 c     call ma_print(dbl_mb(k_movecs_sorted),nbf,n,
 c    1  "Original MO coeffs")
 c
@@ -440,9 +450,9 @@ c    1  "Unitary rotation")
 c     call ma_print(dbl_mb(k_movecs_sorted),nbf,n,
 c    1  "Rotated MO coeffs")
 c     if (.not.ma_pop_stack(l_movecs_rotated))
-c    1  call errquit("tce_tile: MA problem",-3)
+c    1  call errquit("tce_tile: MA problem",-3,MA_ERR)
 c     if (.not.ma_pop_stack(l_unitary))
-c    1  call errquit("tce_tile: MA problem",-4)
+c    1  call errquit("tce_tile: MA problem",-4,MA_ERR)
 c
 c     ========
 c     Test end

@@ -1,6 +1,6 @@
       subroutine tce_tidy(rtdb)
 c
-c $Id: tce_tidy.F,v 1.8 2003-08-05 00:37:55 sohirata Exp $
+c $Id: tce_tidy.F,v 1.9 2003-10-19 00:52:10 sohirata Exp $
 c
 c     Terminate TCE modulem.
 c
@@ -16,6 +16,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "tce.fh"
+#include "errquit.fh"
 #include "dra.fh"
 c
       integer rtdb             ! RTDB handle
@@ -33,19 +34,19 @@ c
       endif
       do i=ipol,1,-1
         if (.not.ma_pop_stack(l_irs(i))) call errquit
-     1    ('tce_tidy: MA problem',1)
+     1    ('tce_tidy: MA problem',1,MA_ERR)
         if (.not.ma_pop_stack(l_occ(i))) call errquit
-     1    ('tce_tidy: MA problem',2)
+     1    ('tce_tidy: MA problem',2,MA_ERR)
         if (.not.ma_pop_stack(l_evl(i))) call errquit
-     1    ('tce_tidy: MA problem',3)
+     1    ('tce_tidy: MA problem',3,MA_ERR)
       enddo
       if (.not.geom_destroy(geom))
-     1  call errquit('tce_tidy: geom_destroy failed',0)
+     1  call errquit('tce_tidy: geom_destroy failed',0,GEOM_ERR)
       if (.not.bas_destroy(ao_bas_han))
-     1  call errquit('tce_tidy: bas_destroy failed',0)
+     1  call errquit('tce_tidy: bas_destroy failed',0,BASIS_ERR)
       if (ioalg.eq.5) then
         if (dra_terminate().ne.0)
-     1  call errquit('tce_tidy: dra termination failed',0)
+     1  call errquit('tce_tidy: dra termination failed',0,DISK_ERR)
       endif
       call fock_2e_tidy(rtdb)
       call int_terminate()

@@ -1,6 +1,6 @@
       subroutine tce_mo2e_offset(l_2e_offset,k_2e_offset,size)
 c
-c $Id: tce_mo2e_offset.F,v 1.2 2002-11-20 06:01:33 sohirata Exp $
+c $Id: tce_mo2e_offset.F,v 1.3 2003-10-19 00:52:08 sohirata Exp $
 c 
       implicit none
 #include "global.fh"
@@ -8,6 +8,7 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer l_2e_offset
       integer k_2e_offset
@@ -22,7 +23,7 @@ c
       Nb = noab + nvab
       if (.not.ma_push_get(mt_int,Nb**4,'2e offset',
      1  l_2e_offset,k_2e_offset))
-     2  call errquit('tce_mo2e_offset: MA problem',0)
+     2  call errquit('tce_mo2e_offset: MA problem',0,MA_ERR)
       size = 0
       do g1b = 1,Nb
         do g2b = g1b,Nb

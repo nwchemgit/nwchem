@@ -1,6 +1,6 @@
       subroutine tce_residual_t1(d_r1,k_r1_offset,residual)
 c
-c $Id: tce_residual_t1.F,v 1.6 2003-09-16 21:50:12 sohirata Exp $
+c $Id: tce_residual_t1.F,v 1.7 2003-10-19 00:52:09 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -8,6 +8,7 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer d_r1
       integer p1b
@@ -30,7 +31,7 @@ c     =====================
 c
       nodezero = (ga_nodeid().eq.0)
       if (.not.ga_create(mt_dbl,1,1,'residual',1,1,g_residual))
-     1  call errquit('tce_residual_t1: GA problem',0)
+     1  call errquit('tce_residual_t1: GA problem',0,GA_ERR)
       residual = 0.0d0
       call ga_put(g_residual,1,1,1,1,residual,1)
       call ga_sync()
@@ -51,7 +52,7 @@ c
             if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1)).eq.0) then
               size = int_mb(k_range+p1b-1) * int_mb(k_range+h2b-1)
               if (.not.ma_push_get(mt_dbl,size,'r1',l_r1,k_r1))
-     1          call errquit('tce_residual_t1: MA problem',0)
+     1          call errquit('tce_residual_t1: MA problem',0,MA_ERR)
               call get_block(d_r1,dbl_mb(k_r1),size,
      1          int_mb(k_r1_offset+(p1b-noab-1)*noab+h2b-1))
               if (nodezero.and.util_print('residual',
@@ -60,7 +61,7 @@ c
               residual = ddot(size,dbl_mb(k_r1),1,dbl_mb(k_r1),1)
               call ga_acc(g_residual,1,1,1,1,residual,1,1.0d0)
               if (.not.ma_pop_stack(l_r1))
-     1          call errquit('tce_residual_t1: MA problem',1)
+     1          call errquit('tce_residual_t1: MA problem',1,MA_ERR)
             endif
             endif
             endif
@@ -74,6 +75,6 @@ c
       call ga_get(g_residual,1,1,1,1,residual,1)
       residual = 0.5d0*dsqrt(residual)
       if (.not.ga_destroy(g_residual))
-     1  call errquit('tce_residual_t1: GA problem',1)
+     1  call errquit('tce_residual_t1: GA problem',1,GA_ERR)
       return
       end

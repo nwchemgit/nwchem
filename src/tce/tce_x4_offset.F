@@ -1,6 +1,6 @@
       subroutine tce_x4_offset(l_x4_offset,k_x4_offset,size)
 c
-c $Id: tce_x4_offset.F,v 1.1 2003-07-25 17:56:58 sohirata Exp $
+c $Id: tce_x4_offset.F,v 1.2 2003-10-19 00:52:10 sohirata Exp $
 c 
       implicit none
 #include "global.fh"
@@ -8,6 +8,7 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer l_x4_offset
       integer k_x4_offset
@@ -22,7 +23,7 @@ c
      1   write(LuOut,9000)
       if (.not.ma_push_get(mt_int,(nvab**4)*(noab**4),'x4 offset',
      1  l_x4_offset,k_x4_offset))
-     2  call errquit('tce_x4_offset: MA problem',0)
+     2  call errquit('tce_x4_offset: MA problem',0,MA_ERR)
       do i = 1,(nvab**4)*(noab**4)
         int_mb(k_x4_offset+i-1) = -1
       enddo
@@ -105,14 +106,14 @@ c
         write(LuOut,*) 'Abort: 2 GB file size limit will be exceeded'
         write(LuOut,*) 'Use GA/SF scheme or OS large file support'
         write(LuOut,*) '--------------------------------------------'
-        call errquit('tce_x4_offset: abort',0)
+        call errquit('tce_x4_offset: abort',0,UNKNOWN_ERR)
       endif
       if (dbl_size .gt. 2.0d0*1024.0d0**3) then
         write(LuOut,*) '---------------------------------------------'
         write(LuOut,*) 'Abort: 32 bit integer overflow is anticipated'
         write(LuOut,*) 'Use a machine with a 64 bit operating system'
         write(LuOut,*) '---------------------------------------------'
-        call errquit('tce_x4_offset: abort',0)
+        call errquit('tce_x4_offset: abort',0,UNKNOWN_ERR)
       endif
 #endif
  9000 format(/,1x,'x4 offsets')

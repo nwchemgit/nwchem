@@ -1,6 +1,6 @@
       subroutine sf_print(sf_handle,size)
 c
-c $Id: sf_print.F,v 1.8 2003-08-05 00:37:53 sohirata Exp $
+c $Id: sf_print.F,v 1.9 2003-10-19 00:52:05 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -8,18 +8,25 @@ c
 #include "util.fh"
 #include "sf.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer sf_handle
       integer size
       integer l_sf,k_sf
       integer i
+      logical wasdra
       double precision checksum
 c
       if (.not.ma_push_get(mt_dbl,size,'sf',l_sf,k_sf))
-     1  call errquit('sf_print: MA problem',0)
-      call dratoga(sf_handle)
+     1  call errquit('sf_print: MA problem',0,DISK_ERR)
+      if (.not.fileisga(sf_handle)) then
+        call dratoga(sf_handle)
+        wasdra = .true.
+      else
+        wasdra = .false.
+      endif
       call get_block(sf_handle,dbl_mb(k_sf),size,0)
-      call gatodra(sf_handle)
+      if (wasdra) call gatodra(sf_handle)
       write(LuOut,9000) ga_nodeid()
 c     call ma_print(dbl_mb(k_sf),size,1,'Global file')
       write(LuOut,9020)
@@ -34,7 +41,7 @@ c     call ma_print(dbl_mb(k_sf),size,1,'Global file')
       enddo
       write(LuOut,9010) checksum
       if (.not.ma_pop_stack(l_sf))
-     1  call errquit('sf_print: MA problem',0)
+     1  call errquit('sf_print: MA problem',0,MA_ERR)
  9000 format(/,1x,'Node = ',i3)
  9010 format(1x,'Checksum = ',f15.10)
  9020 format(1x,'---------------')

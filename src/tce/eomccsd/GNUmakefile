@@ -1,6 +1,6 @@
-#$Id: GNUmakefile,v 1.1 2003-09-16 21:54:05 sohirata Exp $
+#$Id: GNUmakefile,v 1.2 2003-10-19 00:57:11 sohirata Exp $
 
-OBJ_OPTIMIZE = eomccsd_x1.o eomccsd_x2.o eomccsd_y1.o eomccsd_y2.o
+OBJ_OPTIMIZE = eomccsd_x1.o eomccsd_x2.o eomccsd_y1.o eomccsd_y2.o eomccsd_density1.o eomccsd_denominator.o
 
 LIB_INCLUDES = -I../include
 
