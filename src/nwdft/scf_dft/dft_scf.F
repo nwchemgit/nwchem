@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.178 2001-04-11 23:09:29 edo Exp $
+c     $Id: dft_scf.F,v 1.179 2001-04-17 00:50:54 edo Exp $
 c     
       implicit none
 c
@@ -102,7 +102,7 @@ c
      &        oprint_info, oprint_tol, oprint_final_vecs, 
      &        oprint_energy_step, oprint_intermediate_fock,
      &        oprint_3c2e, oprint_interm_overlap, oprint_interm_S2,
-     &        oprint_conv_details, oprint_sic
+     &        oprint_conv_details, oprint_sic,oprintinertia
       double precision zero, onem, one
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
 c
@@ -174,6 +174,8 @@ c
      &                                      print_high)
       oprint_final_vecs = util_print('final vectors', print_high)
       oprint_sic = util_print('SIC information', print_high)
+      oprintinertia = util_print('inertia', print_default).and.
+     . ga_nodeid().eq.0                                                         
       me = ga_nodeid()
       nproc = ga_nnodes()
 c
@@ -1457,7 +1459,7 @@ c
 c     computation of moments
 c
       if (natoms .gt. 1) then
-         call geom_momint(geom)
+         if(oprintinertia)call geom_momint(geom)
          call dft_mpole(rtdb, ao_bas_han, ipol, g_dens(1), g_dens(2))
       endif
 c     
