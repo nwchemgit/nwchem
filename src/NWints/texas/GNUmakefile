@@ -1,5 +1,7 @@
-# $Id: GNUmakefile,v 1.21 1996-07-08 23:29:53 rg240 Exp $
+# $Id: GNUmakefile,v 1.22 1996-07-10 18:15:23 d3g681 Exp $
  
+USE_TEXAS = YEP
+
 ifeq ($(USE_TEXAS),YEP)
       LIB_DEFINES = -DUSE_TEXAS
   OBJ_OPTIMIZE = texas_face.o\
@@ -53,5 +55,5 @@ removeobj:
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(texas_hf.o):	$(INCDIR)/mafdecls.fh 
 $(LIBRARY_PATH)(texas_face.o):	$(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/bas_ibs_sfn.fh $(INCDIR)/bas_ibs_dec.fh $(INCDIR)/bas_exndcf_sfn.fh $(INCDIR)/bas_exndcf_dec.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh $(INCDIR)/apiP.fh 
-$(LIBRARY_PATH)(spec_block.o):	$(INCDIR)/mafdecls.fh 
 $(LIBRARY_PATH)(precalc2.o):	$(INCDIR)/mafdecls.fh 
+$(LIBRARY_PATH)(spec_block.o):	$(INCDIR)/mafdecls.fh 

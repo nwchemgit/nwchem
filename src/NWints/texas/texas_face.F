@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.19 1996-07-10 10:12:39 d3e129 Exp $
+c $Id: texas_face.F,v 1.20 1996-07-10 18:15:25 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -138,15 +138,22 @@ c
 *rak:      write(6,*)'t h_txs_basnuc ',h_txs_basnuc 
 *rak:      write(6,*)'t h_txs_mapp1  ',h_txs_mapp1
 *rak:      write(6,*)'t h_txs_mapp2  ',h_txs_mapp2  
-      if (.not.MA_free_heap(h_txs_basnuc))
+      if (h_txs_basnuc .ne. -1) then
+         if (.not.MA_free_heap(h_txs_basnuc))
      &        call errquit('texas_terminate: failed ?', 911)
-      if (.not.MA_free_heap(h_txs_mapp1 ))
+      endif
+      if (h_txs_mapp1 .ne. -1) then
+         if (.not.MA_free_heap(h_txs_mapp1 ))
      &        call errquit('texas_terminate: failed ?', 911)
-      if (.not.MA_free_heap(h_txs_mapp2 ))
+      endif
+      if (h_txs_mapp2 .ne. -1) then
+         if (.not.MA_free_heap(h_txs_mapp2 ))
      &        call errquit('texas_terminate: failed ?', 911)
-      if (.not.MA_free_heap(h_txs_prep2 ))
+      endif
+      if (h_txs_prep2 .ne. -1) then
+         if (.not.MA_free_heap(h_txs_prep2 ))
      &        call errquit('texas_terminate: failed ?', 911)
-
+      endif
 c
       h_txs_basnuc = -1
       h_txs_mapp1  = -1 
@@ -241,6 +248,7 @@ c
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "apiP.fh"
+#include "global.fh"
 c::functions
 c::passed
       integer rtdb ! rtdb handle
@@ -287,13 +295,11 @@ c     leri=614656
 c----------------------------------------------------------------------
 c
       rtdb_copy = rtdb
-      if (nbas.gt.1) then
-        write(6,*)' warning '
+      if (nbas.gt.1 .and. ga_nodeid().eq.0) then
         write(6,*)
-     &  ' texas can only handle 1 basis today/tommorrow/and Tuesday'
-        write(6,*)' using the first basis passed as THE basis.'
-        write(6,*)' '
-        write(6,*)' Krys is working on the fix '
+        write(6,*)' !! warning: texas can only handle one basis set'
+        write(6,*)
+        call util_flush(6)
       endif
 c
       basis = bases(1) ! only one basis in texas
