@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.27 2003-07-17 19:44:24 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.28 2003-08-06 02:52:39 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -288,7 +288,8 @@ c
       idata(16)=nxs
       idata(17)=mset
       idata(18)=nparms
-      call ga_brdcst(mcf_01,idata,18*numbi,0)
+      idata(19)=nhop
+      call ga_brdcst(mcf_01,idata,19*numbi,0)
       natyps=idata(1)
       nqtyps=idata(2)
       nbw=idata(3)
@@ -307,6 +308,7 @@ c
       nxs=idata(16)
       mset=idata(17)
       nparms=idata(18)
+      nhop=idata(19)
 c
 c     initialize on nodes other than 0
 c
