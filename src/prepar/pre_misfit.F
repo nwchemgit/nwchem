@@ -2,7 +2,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.13 1999-11-30 03:54:16 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.14 1999-12-12 17:36:07 d3j191 Exp $
 c
       implicit none
 c
@@ -147,11 +147,11 @@ c
       d(2)=dr*d(2)/r
       d(3)=dr*d(3)/r
       if(nnn.eq.3) then
-      if(abs(d(1)).lt.abs(d(2)).and.abs(d(1)).lt.abs(d(3))) then
+      if(abs(d(1)).le.abs(d(2)).and.abs(d(1)).le.abs(d(3))) then
       t(1)=c(1)
       t(2)=d(3)+c(2)
       t(3)=-d(2)+c(3)
-      elseif(abs(d(2)).lt.abs(d(1)).and.abs(d(2)).lt.abs(d(3))) then
+      elseif(abs(d(2)).le.abs(d(1)).and.abs(d(2)).le.abs(d(3))) then
       t(1)=d(3)+c(1)
       t(2)=c(2)
       t(3)=-d(1)+c(3)
@@ -230,11 +230,11 @@ c
       d(2)=dr*d(2)/r
       d(3)=dr*d(3)/r
       if(nnn.eq.4) then
-      if(abs(d(1)).lt.abs(d(2)).and.abs(d(1)).lt.abs(d(3))) then
+      if(abs(d(1)).le.abs(d(2)).and.abs(d(1)).le.abs(d(3))) then
       t(1)=c(1)
       t(2)=d(3)+c(2)
       t(3)=-d(2)+c(3)
-      elseif(abs(d(2)).lt.abs(d(1)).and.abs(d(2)).lt.abs(d(3))) then
+      elseif(abs(d(2)).le.abs(d(1)).and.abs(d(2)).le.abs(d(3))) then
       t(1)=d(3)+c(1)
       t(2)=c(2)
       t(3)=-d(1)+c(3)
