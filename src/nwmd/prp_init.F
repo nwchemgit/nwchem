@@ -3,7 +3,7 @@
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp)
 c
-c $Id: prp_init.F,v 1.16 1999-10-21 20:02:52 d3j191 Exp $
+c $Id: prp_init.F,v 1.17 1999-10-21 21:13:30 d3j191 Exp $
 c
       implicit none
 c
@@ -195,7 +195,7 @@ c
       pronam( 96)='Energy distance restraints                  kJ/mol'
       pronam( 97)='Synchronization time                             s'
       lp(97)=ntype.ge.1
-      pronam( 98)='Efficiency                                        '
+      pronam( 98)='Efficiency load balancing                         '
       lp(98)=ntype.ge.1
 c
       isprop=98
