@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.305 1999-11-19 00:26:11 d3h325 Exp $
+# $Id: makefile.h,v 1.306 1999-12-29 18:28:26 d3g270 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -997,7 +997,8 @@ endif
 
 # IMPORTANT:  These renames are necessary if you try to link against
 # a copy of PeIGS built for MPI instead of TCGMSG. (Not recommended, 
-# see INSTALL)
+# see INSTALL...this is because of possible incompatibilities of C and fortran
+# underscore symbols and seems to be a problem with older peigs versions... )
 # mpipriv is a common block used in MPICH's implementation of MPI.  It
 # is critical that this common block is renamed correctly because
 # the linker will not detect any problems (there will be separate
