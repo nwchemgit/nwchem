@@ -44,6 +44,7 @@ dft
   noio
   convergence nolevelshifting nodamping
   print "dft timings"
+  tolerances acccoul 10
 end
  
 basis "ao basis" cartesian print segment
