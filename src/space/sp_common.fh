@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.48 2004-04-20 15:08:36 d3j191 Exp $
+c $Id: sp_common.fh,v 1.49 2004-04-21 16:17:49 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -61,16 +61,16 @@ c
       parameter(lqsoft=64)
       parameter(lqhigh=128)
 c
-      integer me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,nsf,
-     + npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,msm,
-     + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,nserie,
-     + nbxin,nbyin,nbzin,nred(3),nable,icntrl,mseq,nseq,ndums,icbbl,
-     + nbget,ibget,madbox
-      common/sd_dim/me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,
-     + nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
-     + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,nserie,msm,
-     + nbxin,nbyin,nbzin,nred,nable,icntrl,mseq,nseq,ndums,icbbl,nbget,
-     + ibget,madbox
+      integer me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwmg,mwa,msa,
+     + msag,nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,
+     + nbbl,msm,nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,
+     + nserie,nbxin,nbyin,nbzin,nred(3),nable,icntrl,mseq,nseq,ndums,
+     + icbbl,nbget,ibget,madbox
+      common/sd_dim/me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwmg,mwa,
+     + msa,msag,nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,
+     + mbbl,nbbl,nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,
+     + nserie,msm,nbxin,nbyin,nbzin,nred,nable,icntrl,mseq,nseq,ndums,
+     + icbbl,nbget,ibget,madbox
 c
       integer i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr
       integer i_ipl,l_ipl,i_jpl,l_jpl,i_xscr,l_xscr

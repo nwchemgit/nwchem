@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.136 2004-04-20 19:46:49 d3j191 Exp $
+c $Id: sp_init.F,v 1.137 2004-04-21 16:17:49 d3j191 Exp $
 c
       implicit none
 c
@@ -322,9 +322,9 @@ c
       bsize=max(rshort+half*rsgm,half*(rlong+half*rsgm),rbox)
 c
       if(util_print('distribution',print_debug)) then
-      write(lfnout,2001)
+      if(me.eq.0) write(lfnout,2001)
  2001 format(/,' Distribution information',/)
-      write(lfnout,2002) rshort,rsgm,rlong,rbox,box,bsize
+      if(me.eq.0) write(lfnout,2002) rshort,rsgm,rlong,rbox,box,bsize
  2002 format(' Short range cutoff',t35,f12.6,/,
      + ' Segment size',t35,f12.6,/,' Long range cutoff',t35,f12.6,/,
      + ' Box size rbox',t35,f12.6,//,' Box dimension',t35,3f12.6,//,
@@ -342,7 +342,7 @@ c
       nbz=max(1,nbz,npz)
 c
       if(util_print('distribution',print_debug)) then
-      write(lfnout,2003) nbx,nby,nbz
+      if(me.eq.0) write(lfnout,2003) nbx,nby,nbz
  2003 format(' Initial cell distribution',t35,3i5)
       endif
 c
@@ -369,7 +369,7 @@ c
       endif
 c
       if(util_print('distribution',print_debug)) then
-      write(lfnout,2004) nbx,nby,nbz
+      if(me.eq.0) write(lfnout,2004) nbx,nby,nbz
  2004 format(' Final cell distribution',t35,3i5,/)
       endif
 c
@@ -378,7 +378,7 @@ c
       bzmin=bsize/dble(int((dble(nbz)*bsize)/box(3))+1)
 c
       if(util_print('distribution',print_debug)) then
-      write(lfnout,2005) bxmin,bymin,bzmin
+      if(me.eq.0) write(lfnout,2005) bxmin,bymin,bzmin
  2005 format(' Minimum cell size',t35,3f12.6)
       endif
 c
@@ -448,17 +448,32 @@ c
       if(np.gt.1) call ga_igop(msp_07,mbox,1,'max')
 c
       mwa=max(1,nwa)
+      msag=max(1,(mbox-30+madbox)*((nwm*nwa+nsa)/nbtot+1)+1)
       msa=max(1,msa,(mbox-30+madbox)*((nwm*nwa+nsa)/nbtot+1)+1)
+      mwmg=max(1,msag/mwa+1)
       mwm=max(1,mwm,msa/mwa+1)
 c
       msa=min(msa,2*nsa+1)
       mwm=min(mwm,2*nwm+1)
+      msag=min(msag,2*nsa+1)
+      mwmg=min(mwmg,2*nwm+1)
 c
 c      if(nbget.ne.0) hiero
 c
       if(lnode0) then
       msa=nsa+1
       mwm=nwm+1
+      msag=nsa+1
+      mwmg=nwm+1
+      endif
+c
+      if(util_print('distribution',print_default)) then
+      if(me.eq.0) then
+      write(lfnout,2006) mwm,mwmg
+ 2006 format(' Dimension solvent local:',i7,', global:',i7)
+      write(lfnout,2007) msa,msag
+ 2007 format(' Dimension solute local: ',i7,', global:',i7)
+      endif
       endif
 c
       return
@@ -522,24 +537,24 @@ c
       mwm=min(mwm,2*nwm+1)
       endif
 c
-      if(.not.ga_create(mt_int,np*mwm,miw2,'iw',mwm,miw2,ga_iw))
+      if(.not.ga_create(mt_int,np*mwmg,miw2,'iw',mwmg,miw2,ga_iw))
      + call md_abort('Failed to create global array iw',0)
       isize=6+12*mwa
       if(lpola) isize=6+18*mwa
       if(lpola.and.lfree) isize=6+30*mwa
-      if(.not.ga_create(mt_dbl,np*mwm,isize,'w',mwm,isize,ga_w))
+      if(.not.ga_create(mt_dbl,np*mwmg,isize,'w',mwmg,isize,ga_w))
      + call md_abort('Failed to create global array w',0)
-      if(.not.ga_create(mt_int,np*msa,mis2,'is',msa,mis2,ga_is))
+      if(.not.ga_create(mt_int,np*msag,mis2,'is',msag,mis2,ga_is))
      + call md_abort('Failed to create global array is',0)
       isize=39
       if(lpola) isize=45
       if(lpola.and.lfree) isize=57
-      if(.not.ga_create(mt_dbl,np*msa,isize,'s',msa,isize,ga_s))
+      if(.not.ga_create(mt_dbl,np*msag,isize,'s',msag,isize,ga_s))
      + call md_abort('Failed to create global array s',0)
 c
-      if(.not.ga_create(mt_int,np*mwm,1,'iwz',mwm,1,ga_iwz))
+      if(.not.ga_create(mt_int,np*mwmg,1,'iwz',mwmg,1,ga_iwz))
      + call md_abort('Failed to create global array iwz',0)
-      if(.not.ga_create(mt_int,np*msa,1,'isz',msa,1,ga_isz))
+      if(.not.ga_create(mt_int,np*msag,1,'isz',msag,1,ga_isz))
      + call md_abort('Failed to create global array isz',0)
 c
       return
