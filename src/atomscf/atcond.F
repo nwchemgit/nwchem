@@ -1,4 +1,5 @@
       subroutine atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps)
+C$Id: atcond.F,v 1.2 1995-02-02 18:36:27 d3g681 Exp $
       implicit none
 c.......................................................................
 c     
