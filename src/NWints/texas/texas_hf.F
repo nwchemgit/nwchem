@@ -1,6 +1,7 @@
-c $Id: texas_hf.F,v 1.3 1995-11-29 02:14:37 d3e129 Exp $
+c $Id: texas_hf.F,v 1.4 1995-12-22 01:24:45 d3e129 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
+     *                       q4, use_q4,
      *                       ra,rb,rc,rd,use_r,
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr)
@@ -24,6 +25,8 @@ c PNL scratch for calculations replacing our bl() and its size :
 c PNL requested set of contracted shell quartets :
       integer ij_basis, kl_basis
       integer nquart,ish(nquart),jsh(nquart),ksh(nquart),lsh(nquart)
+      logical use_q4
+      double precision q4(nquart)
 c returning integral's indeces :
       integer icf(*),jcf(*),kcf(*),lcf(*), integ_n0
       integer leri
