@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.137 2004-04-21 16:17:49 d3j191 Exp $
+c $Id: sp_init.F,v 1.138 2004-04-21 20:09:52 d3j191 Exp $
 c
       implicit none
 c
@@ -321,7 +321,7 @@ c
 c
       bsize=max(rshort+half*rsgm,half*(rlong+half*rsgm),rbox)
 c
-      if(util_print('distribution',print_debug)) then
+      if(util_print('distribution',print_default)) then
       if(me.eq.0) write(lfnout,2001)
  2001 format(/,' Distribution information',/)
       if(me.eq.0) write(lfnout,2002) rshort,rsgm,rlong,rbox,box,bsize
@@ -341,9 +341,11 @@ c
       nby=max(1,nby,npy)
       nbz=max(1,nbz,npz)
 c
-      if(util_print('distribution',print_debug)) then
-      if(me.eq.0) write(lfnout,2003) nbx,nby,nbz
+      if(util_print('distribution',print_default)) then
+      if(me.eq.0) then
+      write(lfnout,2003) nbx,nby,nbz
  2003 format(' Initial cell distribution',t35,3i5)
+      endif
       endif
 c
       if(nbxin.eq.0) then
@@ -368,18 +370,22 @@ c
       endif
       endif
 c
-      if(util_print('distribution',print_debug)) then
-      if(me.eq.0) write(lfnout,2004) nbx,nby,nbz
+      if(util_print('distribution',print_default)) then
+      if(me.eq.0) then
+      write(lfnout,2004) nbx,nby,nbz
  2004 format(' Final cell distribution',t35,3i5,/)
+      endif
       endif
 c
       bxmin=bsize/dble(int((dble(nbx)*bsize)/box(1))+1)
       bymin=bsize/dble(int((dble(nby)*bsize)/box(2))+1)
       bzmin=bsize/dble(int((dble(nbz)*bsize)/box(3))+1)
 c
-      if(util_print('distribution',print_debug)) then
-      if(me.eq.0) write(lfnout,2005) bxmin,bymin,bzmin
+      if(util_print('distribution',print_default)) then
+      if(me.eq.0) then
+      write(lfnout,2005) bxmin,bymin,bzmin
  2005 format(' Minimum cell size',t35,3f12.6)
+      endif
       endif
 c
       endif
@@ -458,8 +464,6 @@ c
       msag=min(msag,2*nsa+1)
       mwmg=min(mwmg,2*nwm+1)
 c
-c      if(nbget.ne.0) hiero
-c
       if(lnode0) then
       msa=nsa+1
       mwm=nwm+1
@@ -469,10 +473,11 @@ c
 c
       if(util_print('distribution',print_default)) then
       if(me.eq.0) then
-      write(lfnout,2006) mwm,mwmg
- 2006 format(' Dimension solvent local:',i7,', global:',i7)
-      write(lfnout,2007) msa,msag
- 2007 format(' Dimension solute local: ',i7,', global:',i7)
+      write(lfnout,2006) mbox-30,madbox,nbtot
+ 2006 format(/,' ARRAY DIMENSION INFORMATION',//,
+     + ' Number cells per processor:  ',i7,/,
+     + ' Number of buffer cells:      ',i7,/,
+     + ' Total number of cells:       ',i7)
       endif
       endif
 c
@@ -527,14 +532,32 @@ c
 #include "sp_common.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
 c
       integer isize
 c
       if(nbget.ne.0) then
-      msa=max(1,msa,nrempr*(mbox-30)*((nwm*nwa+nsa)/nbtot+1)+1)
+      msa=max(1,msa,(mbox-30+nrempr+madbox)*((nwm*nwa+nsa)/nbtot+1)+1)
       mwm=max(1,mwm,msa/mwa+1)
       msa=min(msa,2*nsa+1)
       mwm=min(mwm,2*nwm+1)
+      endif
+c
+      if(util_print('distribution',print_default)) then
+      if(me.eq.0) then
+      if(nbget.ne.0) then
+      write(lfnout,2005) nrempr
+ 2005 format(' Number of remote cell pairs: ',i7)
+      if(nbget.gt.0) then
+      write(lfnout,2006) nbget
+ 2006 format(' Number of prefetch cells:    ',i7)
+      endif
+      endif
+      write(lfnout,2007) mwm,mwmg
+ 2007 format(' Dimension solvent local:     ',i7,', global:',i7)
+      write(lfnout,2008) msa,msag
+ 2008 format(' Dimension solute local:      ',i7,', global:',i7)
+      endif
       endif
 c
       if(.not.ga_create(mt_int,np*mwmg,miw2,'iw',mwmg,miw2,ga_iw))
@@ -1872,6 +1895,8 @@ c
       implicit none
 c
 #include "sp_common.fh"
+#include "global.fh"
+#include "msgids.fh"
 c
       integer ibownr(maxbox,3),lbbl(mbbl,mbb2)
       real*8 boxsiz(maxbox,3)
@@ -2055,12 +2080,11 @@ c
       if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
 c
       nrempr=0
-      if(nbget.ne.0) then
-      do 9 i=2,nbbl
-      if(lbbl(i,1).ne.me.and.lbbl(i,1).ne.lbbl(i-1,1)) nrempr=nrempr+1
- 9    continue
+      if(nbget.ne.0.and.np.gt.1) then
+      nrempr=nbbl-nbbloc
+      call ga_igop(msp_29,nrempr,1,'max')
+      nrempr=min(2*nrempr,nrempr+25)
       endif
-      nrempr=min(2*nrempr,np)
 c
       if(iand(idebug,2).eq.2) then
       write(lfndbg,8000) (i,(lbbl(i,j),j=1,3),i=1,nbbl)
