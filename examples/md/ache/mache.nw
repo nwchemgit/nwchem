@@ -3,7 +3,7 @@ memory heap 1 mb stack 512 mb global 12 mb
 start job
 
 prepare
- system mache_xx
+ system mache_md
 end
 
 task prepare
