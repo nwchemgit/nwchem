@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.4 2000-04-26 23:29:11 edo Exp $
+C$Id: xc_exso.F,v 1.5 2000-04-27 20:26:44 zzhang Exp $
 c
       implicit none
 c      
@@ -52,20 +52,20 @@ c      Exc(2)=0.d0
          write(*,*)' rtdb, Exc, nExc: ',rtdb, Exc, nExc
          write(*,*)' Fock XC matrix entering xc_getv: '
       endif
-!      call ga_print(g_fockso(1))
-!      call ga_print(g_fockso(2))
-!      call ga_print(g_densso(1))
-!      call ga_print(g_densso(2))
+      if(oprint_intermediate_xc)then
+         call ga_print(g_fockso(1))
+         call ga_print(g_fockso(2))
+         call ga_print(g_densso(1))
+         call ga_print(g_densso(2))
+      endif
 c
       if (abs(xfac(1)).gt.1e-8)then
          call ga_inquire(g_densso(1),type,nao,nao)
          nao=nao/2
-         if(me.eq.0)write(*,*)"nao=", nao
 c     
 c     Compute the exact exchange potential (as in Hartree-Fock calculations).
 c     
          tol2e=10.d0**(-itol2e)
-         if(me.eq.0)write(*,*)"xfac(1),tol2e",xfac(1),tol2e  
          call ga_sync
          if (oprint_time)call dft_tstamp(' Before call to fock_2e. ')
 c
@@ -83,28 +83,36 @@ c
          call ga_zero(g_jk(2))
          call ga_zero(g_jk(3))
          call ga_zero(g_jk(4))
+         jfac(1)=zero
+         jfac(2)=zero
+         jfac(3)=zero
+         jfac(4)=zero
+         kfac(1)=zero
+         kfac(2)=one
+         kfac(3)=zero
+         kfac(4)=one 
 c
 c     Im(Kaa) and Im(Kbb) (g_dens(1) and g_dens(2))
 c
-         if(me.eq.0)write(*,*)"before aabbi" 
          call ga_dens_aabbi(g_dens, g_densso, nao)
-         if(me.eq.0)write(*,*)"after aabbi" 
          g_d(1)  = g_dens(1)
          g_d(2)  = g_dens(1)
          g_d(3)  = g_dens(2)
          g_d(4)  = g_dens(2)
-         call ga_print(g_dens(1))
-         call ga_print(g_dens(2))
+         if(oprint_intermediate_xc)then 
+            call ga_print(g_dens(1))
+            call ga_print(g_dens(2))
+         endif
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
-     &        tol2e, oskel, g_d(1), g_jk(1))
-         exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy (i.i=-1)
+     &        tol2e, oskel, g_d(1), g_jk(1), .true.)
+         exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy (i.i=-1)
      $        onem*ga_ddot(g_dens(1),g_jk(2)) +
      $        onem*ga_ddot(g_dens(2),g_jk(4)))
          call ga_dadd_patch(1.0d0,g_fockso(2),1,nao,1,nao, 
-     &                   -xfac(1),g_jk(2),    1,nao,1,nao,
+     &                    xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(2),1,nao,1,nao)
          call ga_dadd_patch(1.0d0,g_fockso(2),nao+1,2*nao,nao+1,2*nao, 
-     &                   -xfac(1),g_jk(4),    1,nao,1,nao,
+     &                    xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(2),nao+1,2*nao,nao+1,2*nao)
 c
          if (oprint_intermediate_xc)then
@@ -125,15 +133,15 @@ c
          g_d(3)  = g_dens(2)
          g_d(4)  = g_dens(2)
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
-     &        tol2e, oskel, g_d(1), g_jk(1))
+     &        tol2e, oskel, g_d(1), g_jk(1), .true.)
          exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy 
-     $        ga_ddot(g_dens(1),g_jk(2)) +
+     $        ga_ddot(g_dens(1),g_jk(2)) -
      $        onem*ga_ddot(g_dens(2),g_jk(4)))
          call ga_dadd_patch(1.0d0,g_fockso(1),1,nao,nao+1,2*nao, 
      &                   -xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(1),1,nao,nao+1,2*nao)
          call ga_dadd_patch(1.0d0,g_fockso(2),1,nao,nao+1,2*nao, 
-     &                   -xfac(1),g_jk(4),    1,nao,1,nao,
+     &                    xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(2),1,nao,nao+1,2*nao)
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kab) and Im(Kab):'
@@ -154,15 +162,15 @@ c
          g_d(3)  = g_dens(2)
          g_d(4)  = g_dens(2)
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
-     &        tol2e, oskel, g_d(1), g_jk(1))
+     &        tol2e, oskel, g_d(1), g_jk(1), .true.)
          exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy 
-     $        ga_ddot(g_dens(1),g_jk(2)) +
+     $        ga_ddot(g_dens(1),g_jk(2)) -
      $        onem*ga_ddot(g_dens(2),g_jk(4)))
          call ga_dadd_patch(1.0d0,g_fockso(1),nao+1,2*nao,1,nao, 
      &                   -xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(1),nao+1,2*nao,1,nao)
          call ga_dadd_patch(1.0d0,g_fockso(2),nao+1,2*nao,1,nao, 
-     &                   -xfac(1),g_jk(4),    1,nao,1,nao,
+     &                    xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(2),nao+1,2*nao,1,nao)
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kba) and Im(Kba):'
