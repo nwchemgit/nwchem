@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.447 2004-02-11 02:39:54 edo Exp $
+# $Id: makefile.h,v 1.448 2004-02-20 08:37:56 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1115,11 +1115,14 @@ endif
 
   ifeq ($(FC),xlf)
     XLFMAC=y
-    FOPTIONS = -qextname -qfixed -qnosave -qsmallstack -qalign=4k
+    FOPTIONS = -qextname -qfixed -qnosave  -qalign=4k
     FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
-    FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
-    FDEBUG= -O2 -g
-    DEFINES  +=-DXLFLINUX
+    FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qcache=auto
+    FOPTIMIZE+=  -qfloat=rsqrt:fltint:nostrictnmaf 
+    FOPTIMIZE+=  -qipa=level=1 -qunroll=yes 
+    FVECTORIZE = -O5 -qhot -qalias=std -qfloat=rsqrt:fltint:nostrictnmaf  
+    FDEBUG= -O2 
+    DEFINES  +=-DXLFLINUX -DCHKUNDFLW
      FOPTIONS += $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
   else
     FDEBUG= -O1 -g
@@ -1538,7 +1541,7 @@ endif
         FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto  -qcache=auto
         FOPTIMIZE+=  -qfloat=rsqrt:fltint:nostrictnmaf 
         FOPTIMIZE+=  -qipa=level=1
-        FVECTORIZE = -O5 -qhot -qfloat=fltint -qalias=std -qfloat=rsqrt:fltint:nostrictnmaf 
+        FVECTORIZE = -O5 -qhot -qalias=std -qfloat=rsqrt:fltint:nostrictnmaf 
         FDEBUG= -O2 -g
         EXPLICITF = TRUE
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
