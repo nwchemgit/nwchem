@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.12 1999-11-17 19:08:28 bert Exp $
+c $Id: int_1edk_ga.F,v 1.13 1999-11-17 19:15:45 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -42,7 +42,7 @@ c     arguments
 c     
       integer basis_in          ! [input] basis sets for which integrals are computed
       integer g_in              ! [output] GA handle to array of final integrals
-      integer type              ! [input] type of integral, 1=kinetic, 2=potential
+      integer type              ! [input] type of int, 1=kinetic, 2=potential, 3=both
       logical oskel,kskel       ! [input] Skeleton integrals, yes or no?
 c     
 c     local variables
