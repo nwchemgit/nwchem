@@ -1,6 +1,6 @@
       Logical Function ccsd(rtdb)
        implicit none
-C     $Id: ccsd.F,v 2.8 1997-10-18 20:14:31 d3g681 Exp $
+C     $Id: ccsd.F,v 2.9 1997-12-08 18:38:22 d3g681 Exp $
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -12,7 +12,7 @@ c
 c
        integer rtdb                        ! [input] database handle
        integer geom, basis
-       logical status
+       logical status, oconverged
        character*255 title
        character*255 movecs_in
        double precision threshscf
@@ -62,7 +62,7 @@ c ------NEW AO CCSD CODE
 c
       call qstat_init()
 c
-      Call ccsd_driver( rtdb, geom, basis, movecs_in )
+      Call ccsd_driver( rtdb, geom, basis, movecs_in, oconverged)
 C
       If ( .NOT. Geom_Destroy(Geom) )
      $   Call ErrQuit('CCSD: Failed to destroy geometry', Geom)
@@ -71,10 +71,15 @@ C
 c
 c
 c
-       ccsd = .TRUE.
-       call ecce_print_module_exit('ccsd', 'ok')
-       Call Util_Print_pop
-       Return
+       ccsd = oconverged
+       if (oconverged) then
+          call ecce_print_module_exit('ccsd', 'ok')
+       else
+          call ecce_print_module_exit('ccsd', 'failed')
+       endif
+c
+       call util_print_pop
+c
        end
 
 

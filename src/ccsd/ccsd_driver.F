@@ -1,5 +1,6 @@
-       subroutine ccsd_driver( rtdb, geom, basis, movecs_in )
-C     $Id: ccsd_driver.F,v 2.22 1997-11-14 19:25:44 d3g681 Exp $
+       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
+     $     oconverged)
+C     $Id: ccsd_driver.F,v 2.23 1997-12-08 18:38:23 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -17,8 +18,7 @@ c
        integer rtdb                        ! [input] database handle
        integer geom, basis
        character*255 movecs_in
-c
-c
+       logical oconverged
 c
        character*255 title_vecs, basis_vecs
        double precision nuclear_charge, charge
@@ -440,7 +440,7 @@ c
      &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),
      &            blen,g_ncoul,g_nexch, RefEner,
-     $   CC_Theory, RTDB, MaxVec, Geom, Tol2E)
+     $   CC_Theory, RTDB, MaxVec, Geom, Tol2E, oconverged)
       status = ma_pop_stack(l_mo)
       if (.not.ga_destroy(g_nexch))
      &    call errquit('ga_dest g_nexch fail',0)

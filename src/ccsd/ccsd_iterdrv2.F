@@ -4,8 +4,8 @@
      &                        bbkp,bb,g_t2,g_ht2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
-     $     refener, Tol2E)
-C     $Id: ccsd_iterdrv2.F,v 2.15 1997-11-14 00:06:49 d3g681 Exp $
+     $     refener, Tol2E, oconverged)
+C     $Id: ccsd_iterdrv2.F,v 2.16 1997-12-08 18:38:23 d3g681 Exp $
       implicit none
 #include "util.fh"
 c
@@ -15,6 +15,7 @@ c
       Double Precision Thre, Tol2E
       double precision time_iter_start
       integer time_prev_iter
+      logical oconverged        ! Return convergence status
 c
        double precision cmo(nbf,nbf),eorb(nbf),t1(*),
      &                  ht1(*),scra(*),scrb(*),
@@ -134,7 +135,9 @@ c
      $     nvir, lhoov, offt2))
      $     call errquit('ccsd: failed saving vector for restart',0)
 c
+      oconverged = .false.
       if (dabs(rms).lt.thre.and.dabs(deccsd).lt.thre)then
+         oconverged = .true.
         if (iam.eq.0)write(6,1236)
  1236   format(18x,'*************converged*************',18x,
      &         /,73('-'),/)

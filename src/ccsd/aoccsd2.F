@@ -1,9 +1,9 @@
       subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,
      &                  convi,iprt,cmo,eorb,blen,
      &                  g_ncoul, g_nexch, RefEner,
-     $   CC_Theory, rtdb, mxvec, geom, Tol2e)
+     $   CC_Theory, rtdb, mxvec, geom, Tol2e, oconverged)
       implicit none
-C     $Id: aoccsd2.F,v 2.22 1997-11-14 00:06:48 d3g681 Exp $
+C     $Id: aoccsd2.F,v 2.23 1997-12-08 18:38:22 d3g681 Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -11,6 +11,7 @@ c
       Double Precision RefEner, Convi, Tol2E
       Character*(*) CC_Theory
       Integer RTDB, geom
+      logical oconverged
 c
 #include "ccsd_len.fh"
 #include "tcgmsg.fh"
@@ -196,7 +197,8 @@ c
      &                  dbl_mb(k_bbkp),dbl_mb(k_bb),
      &                  g_t2,g_ht2,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
-     &                  int_mb(k_tk),offt2,nvp1, refener, Tol2E)
+     &                  int_mb(k_tk),offt2,nvp1, refener, Tol2E, 
+     $     oconverged)
 c
       call ga_sync
 c
@@ -452,7 +454,9 @@ C
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C
+c
+      if (.not. oconverged) goto 999
+c
 C     Do we continue to the triples or not?
 C     Note: task_energy expects ccsd:energy as a marker of successful
 C     completion.  Therefore, we don't want to write it unless we
