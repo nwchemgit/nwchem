@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.216 1997-02-28 22:45:22 d3e129 Exp $
+# $Id: makefile.h,v 1.217 1997-03-05 23:19:23 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -170,7 +170,7 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
           CDEBUG = -g
               AR = ar
 
-ifndef SCRATCH_DIR
+ifndef SCRATCH_DEF_DIR
  SCRATCH_DEF_DIR = "'.'"
 endif
 ifndef PERM_DEF_DIR
@@ -640,7 +640,7 @@ ifeq ($(TARGET),IBM)
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-   FOPTIONS = -qEXTNAME -qalign=4k -qnosave
+   FOPTIONS = -qEXTNAME -qnosave -qalign=4k 
 # -qinitauto=FF
    COPTIONS = 
 # -qstrict required with -O3 (according to Edo)
@@ -733,11 +733,17 @@ ifeq ($(TARGET),SP1)
         CPP = /usr/lib/cpp -P
 
   LDOPTIONS = 
-   FOPTIONS = -qEXTNAME
+   FOPTIONS = -qEXTNAME -qnosave
    COPTIONS = 
-  FOPTIMIZE = -O
+  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
   COPTIMIZE = -O
-
+#ifdef P2SC
+# These from George from Frank Johnson 
+  FOPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
+        -qcache=type=i:level=1:size=32:line=128
+  COPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
+        -qcache=type=i:level=1:size=32:line=128
+#endif
     DEFINES = -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
 #
 # Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
