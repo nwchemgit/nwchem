@@ -25,9 +25,9 @@ c
 c
       else if(inp_compare(.false.,'cvgopt',field) .or. 
      $        inp_compare(.false.,'thresh',field)) then
-         if(.not. inp_f(cvgopt))
+         if(.not. inp_f(gmax_tol))
      $        call errquit('driver_input: cvgopt/thresh',911)
-         if (.not. rtdb_put(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt))
+         if (.not. rtdb_put(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
      $        call errquit('driver_input: rtdb put failed',0)
 c
       else if(inp_compare(.false.,'sadstp',field)) then
@@ -37,7 +37,7 @@ c
      $        call errquit('driver_input: rtdb put failed',0)
 c
       else if(inp_compare(.false.,'trust',field)) then
-         if(.not. inp_f(sadstp)) 
+         if(.not. inp_f(trust)) 
      $        call errquit('driver_input: trust',911)
          if (.not. rtdb_put(rtdb,'driver:trust',mt_dbl,1,trust))
      $        call errquit('driver_input: rtdb put failed',0)

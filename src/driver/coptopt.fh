@@ -22,7 +22,7 @@ c
       parameter (max_nvar = max_cart)
 c
       double precision eprec    ! Precision for energy comparisons
-      parameter (eprec = 1d-5)
+      parameter (eprec = 1d-6)
 c      
 c     zmatrix info will only be set if zcoord is true
 c
@@ -36,7 +36,10 @@ c     is not actually used in the optimizer.
 c
       double precision 
      $     trust,               ! [user] trust radius for spectral step
-     $     cvgopt,              ! [user] convergence on max(g)
+     $     gmax_tol,            ! [user] tolerance for max internal gradient
+     $     grms_tol,            ! [user] tolerance for rms internal gradient
+     $     xrms_tol,            ! [user] tolerance for rms cartesian step
+     $     smax_tol,            ! [user] tolerance for max internal step
      $     sadstp,              ! [user] step in search for saddle point
      $     zvarsign(max_nzvar)  ! sign of zmatrix variables
       integer 
@@ -68,7 +71,8 @@ c
 c
       common/cdrv_optopt/
 c     doubles
-     $     trust, cvgopt, sadstp, zvarsign, 
+     $     trust, gmax_tol, grms_tol, xrms_tol, smax_tol, 
+     $     sadstp, zvarsign, 
 c     integers
      $     nptopt,inhess,linopt,modupd,moddir, modsad, 
      $     nat, ncart, nzmat, nzvar, nvar, nindep, izmat, nzfrz, izfrz,
