@@ -1,5 +1,5 @@
 *
-* $Id: coptopt.fh,v 1.10 1999-07-28 00:41:51 d3e129 Exp $
+* $Id: coptopt.fh,v 1.11 2002-05-04 20:03:36 d3g681 Exp $
 *
 c
 c     Defintions of /coptopt/ and /coptimize/
@@ -49,12 +49,15 @@ c
      $     moddir,              ! [user] +/- mode for initial saddle step
      $     vardir,              ! [user] +/- var  for initial saddle step
      $     modsad,              ! [user] 0=minim, 1=saddle
-     $     nat,                 ! no. of atoms
+     $     nat,                 ! no. of atoms (+ 3 pretend if ostress)
+     $     nat_real,            ! no. of real atoms (i.e., no cell param)
      $     ncart,               ! no. of cartesians = 3*nat
      $     nzmat,               ! no. of zmatrix integers
      $     nzvar,               ! no. of zmatrix variables
      $     nvar,                ! no. of redundant or cartesian variables
      $     nzfrz,               ! no. of frozen zmatrix variables
+     $     isystype,            ! system type (mol, poly, slab, crys)
+     $     nactive,             ! no. of active atoms (cartesian constraints)
      $     izmat(max_izmat),    ! zmatrix integers
      $     izfrz(max_nzvar)     ! list of frozen variables
 c
@@ -65,7 +68,9 @@ c
      $     zcoord,              ! autoz/zmatrix being used
      $     zmatrix,             ! user specified zmatrix being used
      $     oprint,              ! print information
-     $     odebug               ! print debug data
+     $     odebug,              ! print debug data
+     $     ostress,             ! include stress
+     $     oactive(max_cent)    ! active atom flags
 c
       character*8
      $     zvarname(max_nzvar) ! name of user specified zmatrix variables
@@ -78,9 +83,11 @@ c     doubles
      $     sadstp, zvarsign, 
 c     integers
      $     nptopt, inhess, linopt, modupd, moddir, vardir, modsad, 
-     $     nat, ncart, nzmat, nzvar, nvar, izmat, nzfrz, izfrz,
+     $     nat, nat_real, ncart, nzmat, nzvar, nvar, izmat, nzfrz, 
+     $     izfrz, isystype, nactive,
 c     logicals
-     $     ofirstneg, opcg, oqstep, zcoord, zmatrix, oprint, odebug
+     $     ofirstneg, opcg, oqstep, zcoord, zmatrix, oprint, odebug,
+     $     ostress, oactive
 c     characters
       common/ccdrv_optopt/
      $     zvarname, xyz

@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.92 2001-01-03 00:47:27 d3g681 Exp $
+* $Id: opt_drv.F,v 1.93 2002-05-04 20:03:36 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -14,7 +14,7 @@
 c     
       integer rtdb
 c     
-      integer geom, geomi, i
+      integer geom, geomi, i, iat
       integer istep
       logical converged, status
       double precision start    ! Tracks time used in last step
@@ -53,14 +53,27 @@ c
 c
          if (.not. task_gradient(rtdb))
      $        call errquit('driver: task_gradient failed',0)
-         if (.not. rtdb_get(rtdb, 'task:gradient', mt_dbl, ncart,
-     $        gx)) call errquit('driver: could not get gradient',0)
+         call opt_get_grad(rtdb,geom) ! Into gx
          if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
      $        call errquit('driver: could not get energy',0)
 c
 c     Disable printing to ecce of movecs after first point
 c
-      call movecs_ecce_print_off()
+         call movecs_ecce_print_off()
+c     
+c     Zero the gradient associated with atoms frozen in cartesians
+c     
+         if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
+            do iat = 1, nat
+               if (.not. oactive(iat)) then
+                  do i = 1, 3
+                     write(6,*) ' Zeroing constrained gradient', 
+     $                    iat, i, gx((iat-1)*3+i)
+                     gx((iat-1)*3+i) = 0.0
+                  end do
+               end if
+            end do
+         end if
 c     
 c     If necessary transform gradient to internal coordinates
 c     
@@ -292,11 +305,11 @@ c
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),natom
       integer nnzmat, nnzvar, nnvar
       common/hnd_zmtpar/nnzmat,nnzvar,nnvar
-      double precision hscale, ascale, bscale, tscale
+      double precision hscale, ascale, bscale, tscale, amat(3,3)
 c
       integer l_hess, k_hess, l_zmat, k_zmat, l_izmat, k_izmat, i, j
-      integer l_c, k_c, l_t, k_t, nactive, iat
-      logical old_hessian, oactive(mxatom)
+      integer l_c, k_c, l_t, k_t, iat
+      logical old_hessian
       character*16 atom_tags(mxatom)
 c
       nnzmat = nzmat
@@ -332,6 +345,18 @@ c     Cartesians are easy
 c
          call dfill(nvar**2, 0.0d0, dbl_mb(k_hess), 1)
          call dfill(nvar, 0.5d0, dbl_mb(k_hess), nvar+1)
+         if (isystype .ne. 0) then
+            if (.not. geom_amatrix_get(geom, amat))
+     $           call errquit('geom_frac_to_cart: a', 0)
+            do iat = 1, nat_real
+               do i = 1, 3
+                  dbl_mb(k_hess + (iat-1)*3 + (i-1) +
+     $                 ((iat-1)*3 + (i-1))*nat*3) = 0.5*amat(i,i)**2
+               end do
+            end do
+            write(6,*) ' The initial hessian '
+            call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+         end if
       else
 c
 c     Internals.
@@ -426,8 +451,7 @@ c
          call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
       endif
 c
-      call grad_active_atoms(rtdb, nat, oactive, nactive)
-      if (nactive .ne. nat) then
+      if (nactive .ne. nat_real) then
 c     
 c     We are in cartesian coordinates and some have been frozen.
 c     Since there is no redundancy or coupling we just need
@@ -874,6 +898,7 @@ c
       logical geom_zmt_get_source, geom_zmtmak, geom_zmt_get_nizmat,
      $     geom_zmt_get_nzvar, geom_zmt_get_nzfrz, geom_compute_zmatrix,
      $     geom_zmt_get_izfrz, geom_zmt_get_varinfo
+      logical opt_geom_cart_coords_get
 c     
       call util_print_push
       call util_print_rtdb_load(rtdb, 'driver')
@@ -992,6 +1017,8 @@ c
             modupd = 2          ! PSB update for saddle point
          endif
       endif
+      if (.not. rtdb_get(rtdb,'includestress',mt_log,1,ostress))
+     $     ostress = .false.
 c
 c     Force sensible options
 c
@@ -1026,6 +1053,9 @@ c
      &     call errquit('hnd_opt: no geometry ', 911)
       if (.not. geom_ncent(geom,nat))
      $     call errquit('hnd_opt: natoms?',nat)
+      call grad_active_atoms(rtdb, nat, oactive, nactive)
+      if (.not. geom_systype_get(geom, isystype))
+     $     call errquit('driver: systype?',0)
 c     
 c     Zmatrix info
 c     
@@ -1082,16 +1112,26 @@ c
      1           /,10x,'Transition State Search',
      2           /,10x,23('-'),/)
          endif
+         if (ostress) then
+            write(6,*) ' INCLUDING STRESS !!!!!!!!!!!!!!!!'
+            if (isystype.eq.0) call errquit('NOT A PERIODIC SYSTEM',0)
+         endif
          call util_flush(6)
       endif
 c     
 c     Nvar is the no. of variables in the optimization
+c
+c     If we are optimizing the unit cell parameters then we pretend
+c     there there are 3 more atoms which will parameterize the
+c     unit cell.
 c     
+      nat_real = nat
+      if (ostress) nat = nat + 3
       ncart = 3*nat
       if (zcoord) then
          nvar = nzvar
       else
-         nvar = 3*nat
+         nvar = ncart
       endif
 c     
 c     ----- frozen coordinates ? if so .... -----
@@ -1212,7 +1252,8 @@ c
          if (.not. geom_compute_zmatrix(geom, sp))
      $        call errquit('driver: zmatrix?',0)
       else
-         if (.not. geom_cart_coords_get(geom, sp))
+c     FRACTIONAL?
+         if (.not. opt_geom_cart_coords_get(geom, sp))
      $        call errquit('driver: geom?',0)
       endif
 c     
@@ -1315,7 +1356,7 @@ c     value for the line search parameter alpha.
 c
 c     Only alpha and ds() are modified.
 c
-      integer i
+      integer i, iat
 *     integer info
       integer l_hess, k_hess, l_work, k_work, lenwork
       double precision  e(max_nvar) ! Hessian eigenvalues
@@ -1456,6 +1497,20 @@ c
 c     Enforce symmetry
 c
       call driver_symmetrize_step(geom)
+c
+c     Enforce frozen atoms in cartesians
+c
+      if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
+         do iat = 1, nat
+            if (.not. oactive(iat)) then
+               do i = 1, 3
+                  write(6,*) ' Zeroing constrained cartesian', 
+     $                 iat, i, ds((iat-1)*3+i)
+                  ds((iat-1)*3+i) = 0.0
+               end do
+            end if
+         end do
+      end if
 c
 c     Restriction of the overall step based on
 c     
@@ -1805,10 +1860,13 @@ c
       double precision aenergy
       logical task_energy
       external task_energy
+      logical opt_geom_cart_coords_get
+      logical opt_geom_cart_coords_set
 c
 c     Get original coordinates so can restore them
 c
-      if (.not. geom_cart_coords_get(geom, xold))
+c     FRACTIONAL?
+      if (.not. opt_geom_cart_coords_get(geom, xold))
      $     call errquit('driver_energy_step: coordinates?',geom)
 c
 c     Take the step
@@ -1824,7 +1882,8 @@ c
 c      
 c     Restore the starting geometry
 c
-      if (.not. geom_cart_coords_set(geom, xold))
+c     FRACTIONAL?
+      if (.not. opt_geom_cart_coords_set(geom, xold))
      $     call errquit('driver_energy_step: coordinates?',geom)
       if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
      $     call errquit('driver_energy_step: grs?',geom)
@@ -1850,10 +1909,13 @@ c     first-order step.
 c
       double precision xold(max_cart), xnew(max_cart), err
       integer i, l_bi, k_bi
+      logical opt_geom_cart_coords_get
+      logical opt_geom_cart_coords_set
 c
 c     Get original coordinates
 c
-      if (.not. geom_cart_coords_get(geom, xold))
+c     FRACTIONAL?
+      if (.not. opt_geom_cart_coords_get(geom, xold))
      $     call errquit('driver_energy_step: coordinates?',geom)
 c
 c     Take the step
@@ -1879,9 +1941,10 @@ c
 c
 c     Now take the step for real in internals
 c
+c     FRACTIONAL?
          call geom_update_cart_from_int(geom, ds, alpha, err)
 c
-*         if (.not. geom_cart_coords_set(geom, xnew))
+*         if (.not. opt_geom_cart_coords_set(geom, xnew))
 *     $        call errquit('driver_energy_step: coordinates?',geom)
       else
          do i = 1, ncart
@@ -1891,7 +1954,8 @@ c
          do i = 1, ncart
             xnew(i) = xold(i) + xnew(i)
          enddo
-         if (.not. geom_cart_coords_set(geom, xnew))
+c     FRACTIONAL?
+         if (.not. opt_geom_cart_coords_set(geom, xnew))
      $        call errquit('driver_energy_step: coordinates?',geom)
       endif
 c
@@ -2054,9 +2118,11 @@ c
       integer i, j, k, l_pmat, k_pmat, i3, ma_type, nelem
       character*26 date
       integer ind
+      logical opt_geom_cart_coords_get
       ind(i,j) = k_pmat + i-1 + (j-1)*ncart
 c     
-      if (.not. geom_cart_coords_get(geom, coords))
+c     FRACTIONAL?
+      if (.not. opt_geom_cart_coords_get(geom, coords))
      $     call errquit('driver_cart_pmat: geom?',geom)
 c     
 c     Construct normalized vectors in work in the direction
@@ -2127,11 +2193,12 @@ c
       call geom_hnd_put_data('b^-1', dbl_mb(k_pmat), ncart**2)
       call geom_hnd_put_data('c', dbl_mb(k_pmat), ncart**2)
 c     
-      if (rtdb_get_info(rtdb, 'geometry:actlist', ma_type, 
-     $     nelem, date)) then
+      if ( rtdb_get_info(rtdb, 'geometry:actlist', ma_type, 
+     $     nelem, date) .or.
+     $     isystype .ne. 0) then
 c     
-c     Some atoms are frozen so don't have invariance ... 
-c     also store unit matrix for P.
+c     Some atoms are frozen or we have a periodic system so don't have
+c     invariance ...  also store unit matrix for P.
 c     
          call geom_hnd_put_data('p', dbl_mb(k_pmat), ncart**2)
 c     
@@ -2770,6 +2837,8 @@ c     1) dx = dq*B-1
 c     2) symmetrize dx
 c     3) dq = dx*B
 c
+      if (ostress) return       ! Yikes!
+c
       if (.not. ma_push_get(mt_dbl, ncart*nvar,'binv',l_bi, k_bi))
      $     call errquit('driver_sym: memory for binv', ncart*nvar)
       call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nvar)
@@ -2810,6 +2879,7 @@ c
       logical geom_compute_zmatrix
       double precision bohr, deg
       integer i
+      logical opt_geom_cart_coords_get
 c
       if (odebug) then
          write(6,*) ' Expected ds '
@@ -2820,7 +2890,8 @@ c
          if (.not. geom_compute_zmatrix(geom, sp)) ! New coordinates into sp()
      $        call errquit('driver: zmatrix?',0)
       else
-         if (.not. geom_cart_coords_get(geom, sp))
+c     FRACTIONAL?
+         if (.not. opt_geom_cart_coords_get(geom, sp))
      $        call errquit('driver: geom?',0)
       endif
       do i = 1, nvar 
@@ -2836,6 +2907,99 @@ c
       if (odebug) then
          write(6,*) ' Actual ds '
          call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
+      endif
+c
+      end
+      logical function opt_geom_cart_coords_get(geom, coords)
+      implicit none
+#include "geom.fh"
+#include "nwc_const.fh"
+#include "coptopt.fh"
+      integer geom
+      double precision coords(*)
+c
+c     If we are doing a periodic system and not using internals
+c     then we want the fractional coordinates.  Otherwise cartesian.
+c
+c     If we are including stress append the amatrix
+c
+      if (.not. geom_cart_coords_get(geom, coords))
+     $     call errquit('driver: geom cart?',0)
+c
+      if (isystype.ne.0 .and. (.not. zcoord)) then
+         write(6,*) ' CONVERTING CART TO FRAC'
+         if (.not. geom_cart_to_frac(geom, coords))
+     $           call errquit('driver: frac_to_cart?',0)
+      endif
+c
+      if (ostress) then
+         if (.not. geom_amatrix_get(geom, coords(3*nat_real+1)))
+     $        call errquit('driver: failed to get amatrix',0)
+      endif
+c
+      opt_geom_cart_coords_get = .true.
+c
+      end
+      logical function opt_geom_cart_coords_set(geom, coords)
+      implicit none
+#include "geom.fh"
+#include "nwc_const.fh"
+#include "coptopt.fh"
+      integer geom
+      double precision coords(*)
+c
+c     If we are doing a periodic system and not using internals
+c     then we want the fractional coordinates.  Otherwise cartesian.
+c
+      logical geom_amatrix_set
+      external geom_amatrix_set
+c
+      if (isystype.ne.0 .and. (.not. zcoord)) then
+         write(6,*) ' CONVERTING FRAC_TO_CART'
+         if (.not. geom_frac_to_cart(geom, coords))
+     $           call errquit('driver: frac_to_cart?',0)
+      endif
+      if (.not. geom_cart_coords_set(geom, coords))
+     $     call errquit('driver: geom cart?',0)
+      if (isystype.ne.0 .and. (.not. zcoord)) then
+         if (.not. geom_cart_to_frac(geom, coords))
+     $        call errquit('driver: frac_to_cart?',0)
+      endif
+      if (ostress) then
+         if (.not. geom_amatrix_set(geom, coords(3*nat_real+1)))
+     $        call errquit('driver: failed to set amatrix',0)
+      endif
+c
+      opt_geom_cart_coords_set = .true.
+c
+      end
+      subroutine opt_get_grad(rtdb,geom)
+      implicit none
+#include "mafdecls.fh"
+#include "util.fh"
+#include "nwc_const.fh"
+#include "coptopt.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+      integer rtdb, geom
+c
+c     Get the gradient.
+c     
+c     If the optimization is supposed to be happening in fractional
+c     coordinates convert the gradients from cartesians.
+c
+c     If we are including stress append the cell param gradients
+c     
+      if (.not. rtdb_get(rtdb, 'task:gradient', mt_dbl, ncart,
+     $     gx)) call errquit('driver: could not get gradient',0)
+      if (isystype .ne. 0) then
+         if (.not. geom_frac_to_cart(geom, gx))
+     $        call errquit('driver: frac_to_cart?',0)
+      end if
+      if (ostress) then
+         if (.not. rtdb_get(rtdb, 'cg_pspw:stress', mt_dbl, 9,
+     $        gx(ncart+1))) call errquit
+     $        ('driver: could not get stress',0)
       endif
 c
       end
