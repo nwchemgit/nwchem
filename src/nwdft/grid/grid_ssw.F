@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.14 2002-07-30 21:11:18 edo Exp $
+C$Id: grid_ssw.F,v 1.15 2002-08-02 21:39:26 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -25,11 +25,11 @@ c
 c
       integer i, j,   ij
       integer  AA,NN
-      double precision mu, nu,radwgh
+      double precision mu, radwgh
       double precision x, y, z, x0i, y0i, z0i
       double precision sk
       double precision  toll_scr,rag 
-      logical inotA,jnota
+      logical inotA
 c
       integer iw,n,n1,n2
       double precision ass,distnc,distnn,wsum
@@ -104,7 +104,7 @@ c
 c       compute mu_AN
 c
       distnn=(ass-eps)*sqrt(distnn)
-      do n=nq,1,-1
+      do n=nq,n1,-1
          if ((rq(n,AA)-rq(n,nn)).gt.distnn) then
             xyzw(4,n)=0
          else
@@ -112,64 +112,65 @@ c
             goto 32
          endif
       enddo
+c     all outside
+      return
 32     continue
 c
         do n=n1,n2
-        call dfill(nctrs_pruned,1.d0,p,1)
-        do  i = 2, nctrs_pruned
-          inota=i.ne.AA
-          ij = (i*(i-1))/2
-          rag=rq(n,i)
-
-          do  j = 1, i-1
-             ij=ij+1
-             mu = (rag - rq(n,j))*Rij(ij)
-             if (mu.gt.(ass-eps)) then
-                p(i)=0.d0
-             elseif (mu.lt.-(ass-eps)) then
-                p(j)=0.d0
-             else
+           call dcopy(nctrs_pruned,1.d0,0,p,1)
+           do  i = 2, nctrs_pruned
+              inota=i.ne.AA
+              ij = (i*(i-1))/2
+              rag=rq(n,i)
+              
+              do  j = 1, i-1
+                 ij=ij+1
+                 mu = (rag - rq(n,j))*Rij(ij)
+                 if (mu.gt.(ass-eps)) then
+                    p(i)=0.d0
+                 elseif (mu.lt.-(ass-eps)) then
+                    p(j)=0.d0
+                 else
 #if !defined(IFCLINUX)
-                if(inota.and. j.ne.AA) then
+                    if(inota.and. j.ne.AA) then
 c     
 c     use interpolation for erfs
 c
-                   sk=erf1c(mu)
-                   if(mu.lt.0d0) then
-                      p(j) = p(j)*sk
-                      p(i) = p(i)*(1d0 - sk)
-                   else
-                      p(i) = p(i)*sk
-                      p(j) = p(j)*(1d0 - sk)
-                   endif
-                else
+                       sk=erf1c(mu)
+                       if(mu.lt.0d0) then
+                          p(j) = p(j)*sk
+                          p(i) = p(i)*(1d0 - sk)
+                       else
+                          p(i) = p(i)*sk
+                          p(j) = p(j)*(1d0 - sk)
+                       endif
+                    else
 #endif
-                   sk=erf1(mu)
-                   p(i) = p(i)*sk
-                   p(j) = p(j)*(1d0 - sk)
+                       sk=erf1(mu)
+                       p(i) = p(i)*sk
+                       p(j) = p(j)*(1d0 - sk)
 #if !defined(IFCLINUX)
-                endif
+                    endif
 #endif
-              endif
-            enddo ! end loop over j
-          enddo   ! end loop over i
+                 endif
+              enddo             ! end loop over j
+           enddo                ! end loop over i
 
 c       
 c       compute sum of partitioning weights for normalization
 c       
 c       
-        wsum=0.d0
-        do i = 1, nctrs_pruned
-          wsum=wsum+p(i)
+           wsum=0.d0
+           do i = 1, nctrs_pruned
+              wsum=wsum+p(i)
+           enddo
+           if(wsum.ne.0) then
+              xyzw(4,n) = p(AA)*xyzw(4,n)/wsum
+           else
+              call errquit(' ssw : wsum .eq.0 ',0)
+                                !           xyzw(4,n) =0d0
+           endif
         enddo
-        if(wsum.ne.0) then
-           xyzw(4,n) = p(AA)*xyzw(4,n)/wsum
-        else
-           call errquit(' ssw : wsum .eq.0 ',0)
-!           xyzw(4,n) =0d0
-        endif
-   30   continue
-      enddo
       call grid_compress(nq,xyzw,iscr,toll_scr)
         
       return
