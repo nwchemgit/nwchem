@@ -75,7 +75,7 @@ c	double precision work(isize)
       me = nodeid()
       nproc = nnodes()
 
-c     if (me.EQ.0) print*,' ENTER FFT ',nd1,nd2,nd3,' isign=',isign
+c      if (me.EQ.0) print*,' ENTER FFT ',nd1,nd2,nd3,' isign=',isign
 
 c --- calculate constants ----
       n123 = nd1*nd2*nd3
@@ -122,15 +122,13 @@ c pfft1.0/comm/chk3d.f. Apparently, a buffer of size 10,000/nbyted
 c is needed in the communication routines there. (Also see peigs/src/comm.)
 c                v doesn't always work, but gets through chk3d.F
 c     nrealscr = MAX(nd2,MAX(nd3,10000) + nproc
-      nrealscr = MAX(n123,10000) + nproc
-
+      nrealscr = MAX(2*n123/(nproc),10000) + nproc + 20
         
       if (rwrklen.NE.0.AND.iwrklen.NE.0) then
         mamem = 0 
       else
         mamem = 1 
       endif
-
       if(mamem.EQ.1.AND.
      .         (nrealscr.GT.ma_nrealscr.OR.initSCRATCH.EQ.0))then
 c free previous space if present 
@@ -151,7 +149,7 @@ c free previous space if present
 c integer scratch depends on the number of processes. Assume, therefore,
 c it will not change during the course of a run. (see pfft1.0/pfft/chk3d.F)
       if (mamem.EQ.1.AND.initSCRATCH.EQ.0) then
-        ma_nintscr = 2*nproc+1
+        ma_nintscr = 2*nproc+100
         nwords = MA_inquire_heap(MT_INT)
         if (nwords.LT.ma_nintscr) then
            call errquit('nwfft3d: insufficient heap for iscratch',0)
