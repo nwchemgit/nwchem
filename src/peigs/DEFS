@@ -68,7 +68,7 @@ peigs_COMM = TCGMSG
 peigs_CPP  = $(CPP) -I$(peigs_HDIR) -D$(peigs_CPU) -D$(peigs_COMM) -D$(peigs_TARGET_definition)
 
 #ifdef EXPLICITF
-peigs_FCONVERT = $(FCONVERT) -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} -D${peigs_TARGET_definition} -DCRAY_T3D
+peigs_FCONVERT = $(FCONVERT) -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} -D${peigs_TARGET_definition}
 #endif
 
 # The following are customizations for each machine
@@ -99,7 +99,7 @@ peigs_CPU = ALPHA
 #
 peigs_TARGET_definition = CRAY_T3E
 peigs_CODEOBJ = SINGLE
-peigs_CC +=  -DSTD_DBL -DCRAY_T3D
+peigs_CC +=  -DSTD_DBL
 peigs_NODE = uniproc
 peigs_COMM = TCGMSG
 peigs_FC += $(FOPTIMIZE) -e 0 -DCRAY_T3D
