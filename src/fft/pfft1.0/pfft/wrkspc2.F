@@ -1,5 +1,5 @@
 *
-* $Id: wrkspc2.F,v 1.3 1999-06-14 19:17:59 d3g270 Exp $
+* $Id: wrkspc2.F,v 1.4 1999-06-22 16:50:29 d3g270 Exp $
 *
 *======================================================================
 *
@@ -123,11 +123,7 @@ c
       nele = nelebk * max(n2*mmax, n3*nmax)
 c     
       lwork = 2*max(nele, lwork)
-      liwork = 2*liwork
+      liwork = max(2*liwork, 3*naproc)
 c     
       RETURN
       END
-
-
-
-
