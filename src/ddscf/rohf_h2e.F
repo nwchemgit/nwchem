@@ -1,6 +1,6 @@
       subroutine rohf_hessv_2e( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_h2e.F,v 1.6 2001-06-21 18:55:06 zzhang Exp $
+C     $Id: rohf_h2e.F,v 1.7 2002-03-28 18:36:31 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -35,7 +35,6 @@ c
       integer g_dcv,  g_dcp,  g_dpv
       double precision tol2e
       logical odebug
-      logical cphf_tddft 
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -46,11 +45,6 @@ c
       parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0)
 *      data jfac / 1.0d0, 1.0d0, 0.0d0/
 *      data kfac /-0.5d0,-0.5d0, 0.5d0/
-      cphf_tddft = .false.
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
-     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
-         cphf_tddft = .false.
-      endif      
 c     
 c     This get's cleaned up a lot when the Fock build accepts
 c     a single multiple dimension GA for its input.
@@ -236,7 +230,7 @@ c     Add the Fock matrices together overwriting the density
 c     matrices to form the results above
 c     
          call ga_copy(g_tmp1, g_dcv)
-         if(.not.cphf_tddft)call ga_dscal(g_dcv, two)
+         call ga_dscal(g_dcv, two)
          if (nopen .gt. 0) then
             call ga_dadd(one,  g_dcv,  one, g_tmp2, g_dcv)
             call ga_dadd(half, g_dcv, half, g_tmp3, g_dpv)
@@ -245,34 +239,18 @@ c
 c     
 c     Closed-Virtual bit
 c     
-         if(cphf_tddft)then
-            call ga_matmul_patch('n','n',one,zero,
-     $           g_dcv, 1, nbf, 1, nbf,
-     $           g_movec, 1, nbf, 1, nclosed,
-     $           g_tmp1, 1, nbf, 1, nclosed )
-            call ga_matmul_patch('t','n',one,zero,
-     $           g_movec, voff, nmo, 1, nbf, 
-     $           g_tmp1, 1, nbf, 1, nclosed,
-     $           g_tmp2, 1, nvir, 1, nclosed )
-         else
-           call ga_matmul_patch('n','n',two,zero,
-     $           g_dcv, 1, nbf, 1, nbf,
-     $           g_movec, 1, nbf, 1, nclosed,
-     $           g_tmp1, 1, nbf, 1, nclosed )
-            call ga_matmul_patch('t','n',one,zero,
-     $           g_movec, voff, nmo, 1, nbf, 
-     $           g_tmp1, 1, nbf, 1, nclosed,
-     $           g_tmp2, 1, nvir, 1, nclosed )
-         endif
+         call ga_matmul_patch('n','n',two,zero,
+     $        g_dcv, 1, nbf, 1, nbf,
+     $        g_movec, 1, nbf, 1, nclosed,
+     $        g_tmp1, 1, nbf, 1, nclosed )
+         call ga_matmul_patch('t','n',one,zero,
+     $        g_movec, voff, nmo, 1, nbf, 
+     $        g_tmp1, 1, nbf, 1, nclosed,
+     $        g_tmp2, 1, nvir, 1, nclosed )
          xoff = 1
          xend = nvir*nclosed
-         if(cphf_tddft)then
-            call ga_mat_to_vec(g_tmp2, 1, nvir, 1, nclosed,
-     $       g_ax, xoff, ivec, one, '+')
-         else
-            call ga_mat_to_vec(g_tmp2, 1, nvir, 1, nclosed,
-     $           g_ax, xoff, ivec, four, '+')
-         endif
+         call ga_mat_to_vec(g_tmp2, 1, nvir, 1, nclosed,
+     $        g_ax, xoff, ivec, four, '+')
 *         call ga_dadd_patch( four, g_tmp2, 1, nvir, 1, nclosed,
 *     $        one, g_ax, xoff, xend, ivec, ivec,
 *     $        g_ax, xoff, xend, ivec, ivec )

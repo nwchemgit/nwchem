@@ -5,7 +5,7 @@
 #include "stdio.fh"
 #include "util.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.9 2002-01-16 15:52:01 windus Exp $
+c     $Id: rohf_hessv2.F,v 1.10 2002-03-28 18:36:31 edo Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -49,7 +49,7 @@ c
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.9 2002-01-16 15:52:01 windus Exp $
+C     $Id: rohf_hessv2.F,v 1.10 2002-03-28 18:36:31 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -65,28 +65,9 @@ c
       double precision acc
       double precision lshift
       integer g_x, g_ax, vlen, nvec, g_tmp, gtype
-      logical cphf_tddft 
-      cphf_tddft = .false.
-c
-c This is a bogus way of handling this!
-c
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
-     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
-         cphf_tddft = .false.
-      endif      
       call ga_zero(g_ax)
       if (pflg.gt.2 .or. pflg.le.0) then
          call errquit('rohf_hessv_xx: pflg invalid ', pflg)
-      endif
-      if(cphf_tddft)then
-         call ga_inquire(g_ax,gtype,vlen,nvec)
-         if (vlen.ne.((nmo-nclosed)*nclosed))
-     $        call errquit('rohf_hxx: invalid vector length',0)
-         if (.not. ga_create(MT_DBL, vlen, nvec, 'tddft_precond: tmp',
-     $        1, 0, g_tmp)) call errquit('diag', 0)
-         call ga_copy(g_x, g_tmp)
-         call tddft_scale(g_tmp, g_tmp, .false.)
-         goto 200               ! skip 1e part
       endif
       if (pflg .gt. 0) then
          call ga_dadd( lshift, g_x, 0.d0, g_ax, g_ax )
@@ -96,27 +77,16 @@ c
       endif
  200  continue
       if (pflg .gt. 1) then
-         if(cphf_tddft)then
-            call rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
-     $           g_movecs, oskel, g_tmp, acc, ! was min(1d-6,acc)
-     $           g_ax ) 
-         else
-            call rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
-     $           g_movecs, oskel, g_x, acc, ! was min(1d-6,acc)
-     $           g_ax )
-         endif
+         call rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
+     $        g_movecs, oskel, g_x, acc, ! was min(1d-6,acc)
+     $        g_ax )
       endif
 c
-      if(cphf_tddft)then
-         call tddft_scale(g_tmp, g_ax, .true.)
-         if(.not.ga_destroy(g_tmp))
-     &        call errquit("uhf_hessv: destroy g_tmp?", 0)
-      endif
 c     
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.9 2002-01-16 15:52:01 windus Exp $
+C     $Id: rohf_hessv2.F,v 1.10 2002-03-28 18:36:31 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -152,7 +122,6 @@ c
       integer g_dcv,  g_dcp,  g_dpv, g_dens, g_fock
       double precision tol2e
       logical odebug
-      logical cphf_tddft 
       logical oprint
 c
       integer dims(3), chunk(3), alo(3), ahi(3), blo(2), bhi(2)
@@ -168,14 +137,6 @@ c
 *      data kfac /-0.5d0,-0.5d0, 0.5d0/
       oprint= util_print('rohf_hessv2',print_debug)
       xc_xfac1=bgj_kfac()
-      cphf_tddft = .false.
-c
-c This is a bogus way of handling this!
-c
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
-     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
-         cphf_tddft = .false.
-      endif      
 c     
 c     This get's cleaned up a lot when the Fock build accepts
 c     a single multiple dimension GA for its input.
@@ -408,7 +369,7 @@ c     Add the Fock matrices together overwriting the density
 c     matrices to form the results above
 c     
          call ga_copy(g_tmp1, g_dcv)
-         if(.not.cphf_tddft)call ga_dscal(g_dcv, two)
+         call ga_dscal(g_dcv, two)
          if (nopen .gt. 0) then
             call ga_dadd(one,  g_dcv,  one, g_tmp2, g_dcv)
             call ga_dadd(half, g_dcv, half, g_tmp3, g_dpv)
@@ -417,34 +378,18 @@ c
 c     
 c     Closed-Virtual bit
 c     
-         if(cphf_tddft)then
-            call ga_matmul_patch('n','n',one,zero,
-     $           g_dcv, 1, nbf, 1, nbf,
-     $           g_movec, 1, nbf, 1, nclosed,
-     $           g_tmp1, 1, nbf, 1, nclosed )
-            call ga_matmul_patch('t','n',one,zero,
-     $           g_movec, voff, nmo, 1, nbf, 
-     $           g_tmp1, 1, nbf, 1, nclosed,
-     $           g_tmp2, 1, nvir, 1, nclosed )
-         else
-           call ga_matmul_patch('n','n',two,zero,
-     $           g_dcv, 1, nbf, 1, nbf,
-     $           g_movec, 1, nbf, 1, nclosed,
-     $           g_tmp1, 1, nbf, 1, nclosed )
-            call ga_matmul_patch('t','n',one,zero,
-     $           g_movec, voff, nmo, 1, nbf, 
-     $           g_tmp1, 1, nbf, 1, nclosed,
-     $           g_tmp2, 1, nvir, 1, nclosed )
-         endif
+         call ga_matmul_patch('n','n',two,zero,
+     $        g_dcv, 1, nbf, 1, nbf,
+     $        g_movec, 1, nbf, 1, nclosed,
+     $        g_tmp1, 1, nbf, 1, nclosed )
+         call ga_matmul_patch('t','n',one,zero,
+     $        g_movec, voff, nmo, 1, nbf, 
+     $        g_tmp1, 1, nbf, 1, nclosed,
+     $        g_tmp2, 1, nvir, 1, nclosed )
          xoff = 1
          xend = nvir*nclosed
-         if(cphf_tddft)then
-            call ga_mat_to_vec(g_tmp2, 1, nvir, 1, nclosed,
-     $       g_ax, xoff, ivec, one, '+')
-         else
-            call ga_mat_to_vec(g_tmp2, 1, nvir, 1, nclosed,
-     $           g_ax, xoff, ivec, four, '+')
-         endif
+         call ga_mat_to_vec(g_tmp2, 1, nvir, 1, nclosed,
+     $        g_ax, xoff, ivec, four, '+')
 *         call ga_dadd_patch( four, g_tmp2, 1, nvir, 1, nclosed,
 *     $        one, g_ax, xoff, xend, ivec, ivec,
 *     $        g_ax, xoff, xend, ivec, ivec )

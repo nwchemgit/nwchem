@@ -1,6 +1,6 @@
       subroutine uhf_hessv(acc, g_x, g_ax)
 *
-* $Id: uhf_hessv.F,v 1.8 2001-06-27 21:14:00 edo Exp $
+* $Id: uhf_hessv.F,v 1.9 2002-03-28 18:36:32 edo Exp $
 *
       implicit none
 #include "cuhf.fh"
@@ -16,17 +16,11 @@ c
       integer g_ax              ! [input] handle to output products
 c
       integer gtype, vlen, nvec, nvecp, g_tmp
-      logical cphf_tddft 
-      cphf_tddft = .false.
 c
 c     Multiply a set of vectors by the level-shifted UHF hessian.
 c     
 c     Check dimensions
 c     
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
-     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
-         cphf_tddft = .false.
-      endif      
 c      if (cuhf_init_flag.ne.1)
       if(.not.cuhf_init_flag)
      $     call errquit('uhf_hessv: UHF internal block invalid',0)
@@ -41,13 +35,6 @@ c      if (cuhf_init_flag.ne.1)
 c
       call ga_zero(g_ax)
 *      write(6,*) ' lshift ', lshift
-      if(cphf_tddft)then
-         if (.not. ga_create(MT_DBL, vlen, nvec, 'tddft_precond: tmp',
-     $        1, 0, g_tmp)) call errquit('diag', 0)
-         call ga_copy(g_x, g_tmp)
-         call tddft_scale(g_tmp, g_tmp, .false.)
-         goto 200   ! skip 1e part
-      endif
       if (lshift .ne. 0.0d0)
      $     call ga_dadd( lshift, g_x, 0.d0, g_ax, g_ax )
 c     
@@ -56,16 +43,7 @@ c
  200  continue
 c
       if (pflg .gt. 1)then 
-         if(cphf_tddft)then
-            call uhf_hessv_2e(acc, g_tmp, g_ax, nvec)
-         else
-            call uhf_hessv_2e(acc, g_x, g_ax, nvec)
-         endif
-      endif
-      if(cphf_tddft)then
-         call tddft_scale(g_tmp, g_ax, .true.)
-         if(.not.ga_destroy(g_tmp))
-     &        call errquit("uhf_hessv: destroy g_tmp?", 0)
+         call uhf_hessv_2e(acc, g_x, g_ax, nvec)
       endif
 c
       end
@@ -185,8 +163,6 @@ c      logical ga_create_atom_blocked
       external ga_create_atom_blocked
       double precision zero, one, mone, four
       parameter (zero=0.0d0, one=1.0d0, mone=-1.0d0, four=4.0d0)
-      logical cphf_tddft
-      cphf_tddft = .false.
 c
 c     First allocated arrays and build the AO densities.
 c     This will be cleaner when we restructure the fock build to take
@@ -194,10 +170,6 @@ c     a single density array argument rather than an array of arrays
 c
 c      write(*,*)"in uhf_hessv, g_x"
 c      call ga_print(g_x)
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
-     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
-         cphf_tddft = .false.
-      endif
       do iset = 1, 2
          if (iset .eq. 1) then
             isetoff = 0
@@ -349,22 +321,14 @@ c
      $             g_vecs, vbase, nmo, 1, nbf,
      $             g_tmp1, 1, nbf, 1, nocc,
      $             g_tmp2, 1, nvir, 1, nocc)
-              if(cphf_tddft)then
-                 call ga_dadd_patch(
-     $                2.0d0, g_tmp2, 1, nvir, 1, nocc,
-     $                one, g_ax, istart, iend, ivec, ivec,
-     $                g_ax, istart, iend, ivec, ivec)
-              else 
-                 call ga_dadd_patch(
+              call ga_dadd_patch(
      $                four, g_tmp2, 1, nvir, 1, nocc,
      $                one, g_ax, istart, iend, ivec, ivec,
      $                g_ax, istart, iend, ivec, ivec)
-              endif
            endif
 c     
 c     Different spin
 c
-           if(cphf_tddft)goto 200
            if (nocc_diff*nvir_diff .gt. 0) then
               call ga_matmul_patch('n', 'n', one, zero,
      $             g_j, 1, nbf, 1, nbf,
@@ -374,18 +338,11 @@ c
      $             g_vecs_diff, vbase_diff, nmo, 1, nbf,
      $             g_tmp3, 1, nbf, 1, nocc_diff,
      $             g_tmp4, 1, nvir_diff, 1, nocc_diff)
-              if(cphf_tddft) then
-              call ga_dadd_patch(
-     $             one, g_tmp4, 1, nvir_diff, 1, nocc_diff,
-     $             one, g_ax, istart_diff, iend_diff, ivec, ivec,
-     $             g_ax, istart_diff, iend_diff, ivec, ivec)
-           else
               call ga_dadd_patch(
      $             four, g_tmp4, 1, nvir_diff, 1, nocc_diff,
      $             one, g_ax, istart_diff, iend_diff, ivec, ivec,
      $                  g_ax, istart_diff, iend_diff, ivec, ivec)
-           endif
-c              write(*,*)"g_ax: differet spin, iset = ", iset
+c     write(*,*)"g_ax: differet spin, iset = ", iset
 c              call ga_print(g_ax)
            endif
  200       continue
