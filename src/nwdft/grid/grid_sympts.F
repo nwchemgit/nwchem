@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.17 2001-12-14 19:33:50 edo Exp $
+c$Id: grid_sympts.F,v 1.18 2001-12-14 20:27:04 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -47,7 +47,7 @@ c
       if (.not.MA_chop_stack(l_gridscr)) call errquit(
      '     '     grid_sympt: free stack failed',1)
       if(l_symops(1).ne.-999) then
-      if (.not.MA_pop_stack(l_symops(1))) call errquit(
+      if (.not.MA_chop_stack(l_symops(1))) call errquit(
      '     '     grid_sympt: free stack failed',2)
       endif
       return
@@ -60,6 +60,7 @@ c
 #include "cdft.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 c      
       logical dosympts ! [in]
       integer iang ! [input]
@@ -135,9 +136,12 @@ c
             enddo
 cedo         write(6,'(A,I4),A,1PE20.12)') '         final nq ',nq_left
             wsum=wsum*pifact
-            if(abs(wsum-1d0).gt.1d-6) call errquit(
+            if(abs(wsum-1d0).gt.1d-6) then
+              write(LuOut,*) 'ww ',abs(wsum-1d0)
+               call errquit(
      '           'grid_sympts: lost weights normaliz ',
      ,           log10((abs(wsum-1d0))))
+            endif
          endif
          iang_done=iang
       endif
