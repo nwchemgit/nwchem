@@ -1,12 +1,11 @@
       SUBROUTINE SLASR( SIDE, PIVOT, DIRECT, M, N, C, S, A, LDA )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: slasr.f,v 1.2 1995-02-02 23:17:48 d3g681 Exp $
       CHARACTER          DIRECT, PIVOT, SIDE
       INTEGER            LDA, M, N
 *     ..
@@ -14,6 +13,9 @@ C$Id: slasr.f,v 1.2 1995-02-02 23:17:48 d3g681 Exp $
       REAL               A( LDA, * ), C( * ), S( * )
 *     ..
 *
+c
+* $Id: slasr.f,v 1.3 1997-03-17 21:27:40 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

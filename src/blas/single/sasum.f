@@ -1,12 +1,15 @@
       real function sasum(n,sx,incx)
+*
+* $Id: sasum.f,v 1.3 1997-03-17 21:22:19 d3e129 Exp $
+*
 c
 c     takes the sum of the absolute values.
 c     uses unrolled loops for increment equal to one.
 c     jack dongarra, linpack, 3/11/78.
 c     modified 3/93 to return if incx .le. 0.
+c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C$Id: sasum.f,v 1.2 1995-02-02 23:10:11 d3g681 Exp $
-      real sx(1),stemp
+      real sx(*),stemp
       integer i,incx,m,mp1,n,nincx
 c
       sasum = 0.0e0

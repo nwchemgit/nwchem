@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.21 1997-02-17 20:51:29 d3g681 Exp $
+#$Id: GNUmakefile,v 1.22 1997-03-17 21:20:40 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -64,24 +64,34 @@ ifdef FVECTORIZE
 endif
 
 ifeq ($(PRECISION),double)
-OBJ_OPTIMIZE =  ddot.o    dnrm2.o    dspr.o    idamax.o \
-                dasum.o   dgemm.o    drot.o    dswap.o    lsame.o \
-                daxpy.o   dgemv.o    dscal.o   dtrmm.o \
-                dcopy.o   dger.o     dspmv.o   dtrmv.o    dtrsm.o \
-                dsyrk.o   dsyr2k.o   dsymm.o   dtrsv.o    dsyr2.o \
-		dsymv.o \
-                dznrm2.o zaxpy.o zcopy.o zdotc.o zdscal.o zgemm.o \
-                zgemv.o  zgerc.o zhemm.o zhemv.o zher2.o  zher2k.o \
-                zherk.o  zscal.o zswap.o ztrmm.o ztrmv.o  ztrsm.o  \
-                ztrsv.o  dcabs1.o
+#######################################################################
+#               ########     ########     ########     ########     
+OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
+                dgemm.o      dgemv.o      dger.o       dnrm2.o        \
+                drot.o       dscal.o      dspmv.o      dspr.o         \
+                dswap.o      dsymm.o      dsymv.o      dsyr2.o        \
+                dsyr2k.o     dsyrk.o      dtrmm.o      dtrmv.o        \
+                dtrsm.o      dtrsv.o      dznrm2.o     idamax.o       \
+                lsame.o      zaxpy.o      dcabs1.o     zcopy.o        \
+                zdotc.o      zdscal.o     zgemm.o      zgemv.o        \
+                zgerc.o      zhemm.o      zhemv.o      zher2.o        \
+                zher2k.o     zherk.o      zscal.o      zswap.o        \
+                ztrmm.o      ztrmv.o      ztrsm.o      ztrsv.o
 
 else
-OBJ_OPTIMIZE =  sdot.o    snrm2.o    sspr.o    isamax.o \
-                sasum.o   sgemm.o    srot.o    sswap.o    lsame.o \
-                saxpy.o   sgemv.o    sscal.o   strmm.o    xerbla.o \
-                scopy.o   sger.o     sspmv.o   strmv.o    strsm.o \
-                ssyrk.o   ssyr2k.o   ssymm.o   strsv.o    ssyr2.o \
-		ssymv.o 
+#######################################################################
+#               ########     ########     ########     ########     
+OBJ_OPTIMIZE =  sasum.o      saxpy.o      scopy.o      sdot.o         \
+                sgemm.o      sgemv.o      sger.o       snrm2.o        \
+                srot.o       sscal.o      sspmv.o      sspr.o         \
+                sswap.o      ssymm.o      ssymv.o      ssyr2.o        \
+                ssyr2k.o     ssyrk.o      strmm.o      strmv.o        \
+                strsm.o      strsv.o      scnrm2.o     isamax.o       \
+                lsame.o      caxpy.o                   ccopy.o        \
+                cdotc.o      csscal.o     cgemm.o      cgemv.o        \
+                cgerc.o      chemm.o      chemv.o      cher2.o        \
+                cher2k.o     cherk.o      cscal.o      cswap.o        \
+                ctrmm.o      ctrmv.o      ctrsm.o      ctrsv.o
 endif
 ifeq ($(TARGET),CRAY-T3D)
 OBJ_OPTIMIZE = idamax.o

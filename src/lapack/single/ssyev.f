@@ -1,9 +1,9 @@
       SUBROUTINE SSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
 *
-*  -- LAPACK driver routine (version 1.1) --
+*  -- LAPACK driver routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993 
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
       CHARACTER          JOBZ, UPLO
@@ -13,6 +13,9 @@
       REAL               A( LDA, * ), W( * ), WORK( * )
 *     ..
 *
+c
+* $Id: ssyev.f,v 1.2 1997-03-17 21:28:37 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -51,7 +54,7 @@
 *  W       (output) REAL array, dimension (N)
 *          If INFO = 0, the eigenvalues in ascending order.
 *
-*  WORK    (workspace) REAL array, dimension (LWORK)
+*  WORK    (workspace/output) REAL array, dimension (LWORK)
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER
@@ -74,7 +77,7 @@
 *     ..
 *     .. Local Scalars ..
       LOGICAL            LOWER, WANTZ
-      INTEGER            IINFO, IMAX, INDE, INDTAU, INDWRK, ISCALE, J,
+      INTEGER            IINFO, IMAX, INDE, INDTAU, INDWRK, ISCALE,
      $                   LLWORK, LOPT
       REAL               ANRM, BIGNUM, EPS, RMAX, RMIN, SAFMIN, SIGMA,
      $                   SMLNUM
@@ -85,7 +88,8 @@
       EXTERNAL           LSAME, SLAMCH, SLANSY
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           SORGTR, SSCAL, SSTEQR, SSTERF, SSYTRD, XERBLA
+      EXTERNAL           SLASCL, SORGTR, SSCAL, SSTEQR, SSTERF, SSYTRD,
+     $                   XERBLA
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX, SQRT
@@ -150,17 +154,8 @@
          ISCALE = 1
          SIGMA = RMAX / ANRM
       END IF
-      IF( ISCALE.EQ.1 ) THEN
-         IF( LOWER ) THEN
-            DO 10 J = 1, N
-               CALL SSCAL( N-J+1, SIGMA, A( J, J ), 1 )
-   10       CONTINUE
-         ELSE
-            DO 20 J = 1, N
-               CALL SSCAL( J, SIGMA, A( 1, J ), 1 )
-   20       CONTINUE
-         END IF
-      END IF
+      IF( ISCALE.EQ.1 )
+     $   CALL SLASCL( UPLO, 0, 0, ONE, SIGMA, N, N, A, LDA, INFO )
 *
 *     Call SSYTRD to reduce symmetric matrix to tridiagonal form.
 *

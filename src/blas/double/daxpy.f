@@ -1,11 +1,14 @@
       subroutine daxpy(n,da,dx,incx,dy,incy)
+*
+* $Id: daxpy.f,v 1.3 1997-03-17 21:20:45 d3e129 Exp $
+*
 c
 c     constant times a vector plus a vector.
 c     uses unrolled loops for increments equal to one.
 c     jack dongarra, linpack, 3/11/78.
+c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C$Id: daxpy.f,v 1.2 1995-02-02 23:09:39 d3g681 Exp $
-      double precision dx(1),dy(1),da
+      double precision dx(*),dy(*),da
       integer i,incx,incy,ix,iy,m,mp1,n
 c
       if(n.le.0)return

@@ -1,13 +1,12 @@
       SUBROUTINE SORMQR( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC,
      $                   WORK, LWORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993 
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: sormqr.f,v 1.2 1995-02-02 23:18:02 d3g681 Exp $
       CHARACTER          SIDE, TRANS
       INTEGER            INFO, K, LDA, LDC, LWORK, M, N
 *     ..
@@ -16,6 +15,9 @@ C$Id: sormqr.f,v 1.2 1995-02-02 23:18:02 d3g681 Exp $
      $                   WORK( LWORK )
 *     ..
 *
+c
+* $Id: sormqr.f,v 1.3 1997-03-17 21:28:17 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -78,7 +80,7 @@ C$Id: sormqr.f,v 1.2 1995-02-02 23:18:02 d3g681 Exp $
 *  LDC     (input) INTEGER
 *          The leading dimension of the array C. LDC >= max(1,M).
 *
-*  WORK    (workspace) REAL array, dimension (LWORK)
+*  WORK    (workspace/output) REAL array, dimension (LWORK)
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER

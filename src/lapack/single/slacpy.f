@@ -1,12 +1,11 @@
       SUBROUTINE SLACPY( UPLO, M, N, A, LDA, B, LDB )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: slacpy.f,v 1.2 1995-02-02 23:17:29 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            LDA, LDB, M, N
 *     ..
@@ -14,6 +13,9 @@ C$Id: slacpy.f,v 1.2 1995-02-02 23:17:29 d3g681 Exp $
       REAL               A( LDA, * ), B( LDB, * )
 *     ..
 *
+c
+* $Id: slacpy.f,v 1.3 1997-03-17 21:27:00 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

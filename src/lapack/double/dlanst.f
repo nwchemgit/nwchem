@@ -13,6 +13,9 @@
       DOUBLE PRECISION   D( * ), E( * )
 *     ..
 *
+c
+* $Id: dlanst.f,v 1.2 1997-03-17 21:23:53 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

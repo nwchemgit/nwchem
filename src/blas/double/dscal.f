@@ -1,12 +1,15 @@
       subroutine  dscal(n,da,dx,incx)
+*
+* $Id: dscal.f,v 1.3 1997-03-17 21:21:02 d3e129 Exp $
+*
 c
 c     scales a vector by a constant.
 c     uses unrolled loops for increment equal to one.
 c     jack dongarra, linpack, 3/11/78.
 c     modified 3/93 to return if incx .le. 0.
+c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C$Id: dscal.f,v 1.2 1995-02-02 23:09:48 d3g681 Exp $
-      double precision da,dx(1)
+      double precision da,dx(*)
       integer i,incx,m,mp1,n,nincx
 c
       if( n.le.0 .or. incx.le.0 )return

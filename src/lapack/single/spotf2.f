@@ -6,7 +6,6 @@
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: spotf2.f,v 1.2 1995-02-02 23:18:03 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, LDA, N
 *     ..
@@ -14,6 +13,9 @@ C$Id: spotf2.f,v 1.2 1995-02-02 23:18:03 d3g681 Exp $
       REAL               A( LDA, * )
 *     ..
 *
+c
+* $Id: spotf2.f,v 1.3 1997-03-17 21:28:19 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

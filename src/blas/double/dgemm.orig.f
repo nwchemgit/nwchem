@@ -1,7 +1,9 @@
       SUBROUTINE DGEMM ( TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
      $                   BETA, C, LDC )
+*
+* $Id: dgemm.orig.f,v 1.2 1997-03-17 21:20:53 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
-C$Id: dgemm.orig.f,v 1.1 1995-10-10 06:07:31 d3g681 Exp $
       CHARACTER*1        TRANSA, TRANSB
       INTEGER            M, N, K, LDA, LDB, LDC
       DOUBLE PRECISION   ALPHA, BETA

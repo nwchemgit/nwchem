@@ -1,18 +1,20 @@
       SUBROUTINE SORG2R( M, N, K, A, LDA, TAU, WORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: sorg2r.f,v 1.2 1995-02-02 23:17:53 d3g681 Exp $
       INTEGER            INFO, K, LDA, M, N
 *     ..
 *     .. Array Arguments ..
       REAL               A( LDA, * ), TAU( * ), WORK( * )
 *     ..
 *
+c
+* $Id: sorg2r.f,v 1.3 1997-03-17 21:27:56 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,12 +1,11 @@
       SUBROUTINE DLARNV( IDIST, ISEED, N, X )
 *
-*  -- LAPACK auxiliary routine (version 1.0b) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     October 31, 1992
+*     September 30, 1994 
 *
 *     .. Scalar Arguments ..
-C$Id: dlarnv.f,v 1.2 1995-02-02 23:16:12 d3g681 Exp $
       INTEGER            IDIST, N
 *     ..
 *     .. Array Arguments ..
@@ -14,6 +13,9 @@ C$Id: dlarnv.f,v 1.2 1995-02-02 23:16:12 d3g681 Exp $
       DOUBLE PRECISION   X( * )
 *     ..
 *
+c
+* $Id: dlarnv.f,v 1.3 1997-03-17 21:24:06 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -57,7 +59,7 @@ C$Id: dlarnv.f,v 1.2 1995-02-02 23:16:12 d3g681 Exp $
       INTEGER            LV
       PARAMETER          ( LV = 128 )
       DOUBLE PRECISION   TWOPI
-      PARAMETER          ( TWOPI = 6.28318530717958623199592D+0 )
+      PARAMETER          ( TWOPI = 6.2831853071795864769252867663D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I, IL, IL2, IV

@@ -1,6 +1,8 @@
       SUBROUTINE DSPR  ( UPLO, N, ALPHA, X, INCX, AP )
+*
+* $Id: dspr.f,v 1.3 1997-03-17 21:21:07 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
-C$Id: dspr.f,v 1.2 1995-02-02 23:09:50 d3g681 Exp $
       DOUBLE PRECISION   ALPHA
       INTEGER            INCX, N
       CHARACTER*1        UPLO

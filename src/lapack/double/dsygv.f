@@ -1,10 +1,10 @@
       SUBROUTINE DSYGV( ITYPE, JOBZ, UPLO, N, A, LDA, B, LDB, W, WORK,
      $                  LWORK, INFO )
 *
-*  -- LAPACK driver routine (version 1.1) --
+*  -- LAPACK driver routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
       CHARACTER          JOBZ, UPLO
@@ -14,6 +14,9 @@
       DOUBLE PRECISION   A( LDA, * ), B( LDB, * ), W( * ), WORK( * )
 *     ..
 *
+c
+* $Id: dsygv.f,v 1.2 1997-03-17 21:25:24 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -41,7 +44,7 @@
 *          = 'L':  Lower triangles of A and B are stored.
 *
 *  N       (input) INTEGER
-*          The order of the matrix A.  N >= 0.
+*          The order of the matrices A and B.  N >= 0.
 *
 *  A       (input/output) DOUBLE PRECISION array, dimension (LDA, N)
 *          On entry, the symmetric matrix A.  If UPLO = 'U', the
@@ -79,7 +82,7 @@
 *  W       (output) DOUBLE PRECISION array, dimension (N)
 *          If INFO = 0, the eigenvalues in ascending order.
 *
-*  WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK)
+*  WORK    (workspace/output) DOUBLE PRECISION array, dimension (LWORK)
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER

@@ -1,7 +1,9 @@
       SUBROUTINE DSYRK ( UPLO, TRANS, N, K, ALPHA, A, LDA,
      $                   BETA, C, LDC )
+*
+* $Id: dsyrk.f,v 1.5 1997-03-17 21:21:25 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
-C$Id: dsyrk.f,v 1.4 1995-02-02 23:09:52 d3g681 Exp $
       CHARACTER*1        UPLO, TRANS
       INTEGER            N, K, LDA, LDC
       DOUBLE PRECISION   ALPHA, BETA

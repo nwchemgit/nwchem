@@ -1,6 +1,6 @@
       SUBROUTINE SLAE2( A, B, C, RT1, RT2 )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -9,6 +9,9 @@
       REAL               A, B, C, RT1, RT2
 *     ..
 *
+c
+* $Id: slae2.f,v 1.2 1997-03-17 21:27:02 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -22,13 +25,13 @@
 *  =========
 *
 *  A       (input) REAL
-*          The (1,1) entry of the 2-by-2 matrix.
+*          The (1,1) element of the 2-by-2 matrix.
 *
 *  B       (input) REAL
-*          The (1,2) and (2,1) entries of the 2-by-2 matrix.
+*          The (1,2) and (2,1) elements of the 2-by-2 matrix.
 *
 *  C       (input) REAL
-*          The (2,2) entry of the 2-by-2 matrix.
+*          The (2,2) element of the 2-by-2 matrix.
 *
 *  RT1     (output) REAL
 *          The eigenvalue of larger absolute value.

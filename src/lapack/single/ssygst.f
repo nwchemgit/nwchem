@@ -1,9 +1,9 @@
       SUBROUTINE SSYGST( ITYPE, UPLO, N, A, LDA, B, LDB, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993 
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
@@ -13,6 +13,9 @@
       REAL               A( LDA, * ), B( LDB, * )
 *     ..
 *
+c
+* $Id: ssygst.f,v 1.2 1997-03-17 21:28:41 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -35,8 +38,6 @@
 *          = 2 or 3: compute U*A*U**T or L**T*A*L.
 *
 *  UPLO    (input) CHARACTER
-*          Specifies whether the upper or lower triangular part of the
-*          symmetric matrix A is stored, and how B has been factorized.
 *          = 'U':  Upper triangle of A is stored and B is factored as
 *                  U**T*U;
 *          = 'L':  Lower triangle of A is stored and B is factored as

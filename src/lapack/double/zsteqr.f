@@ -14,6 +14,9 @@
       COMPLEX*16         Z( LDZ, * )
 *     ..
 *
+c
+* $Id: zsteqr.f,v 1.2 1997-03-17 21:26:17 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,12 +1,11 @@
       SUBROUTINE DORGBR( VECT, M, N, K, A, LDA, TAU, WORK, LWORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: dorgbr.f,v 1.2 1995-02-02 23:16:26 d3g681 Exp $
       CHARACTER          VECT
       INTEGER            INFO, K, LDA, LWORK, M, N
 *     ..
@@ -14,13 +13,16 @@ C$Id: dorgbr.f,v 1.2 1995-02-02 23:16:26 d3g681 Exp $
       DOUBLE PRECISION   A( LDA, * ), TAU( * ), WORK( LWORK )
 *     ..
 *
+c
+* $Id: dorgbr.f,v 1.3 1997-03-17 21:24:38 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
-*  DORGBR generates one of the matrices Q or P**T determined by DGEBRD
-*  when reducing a real matrix A to bidiagonal form: A = Q * B * P**T.
-*  Q and P**T are defined as products of elementary reflectors H(i) or
-*  G(i) respectively.
+*  DORGBR generates one of the real orthogonal matrices Q or P**T
+*  determined by DGEBRD when reducing a real matrix A to bidiagonal
+*  form: A = Q * B * P**T.  Q and P**T are defined as products of
+*  elementary reflectors H(i) or G(i) respectively.
 *
 *  If VECT = 'Q', A is assumed to have been an M-by-K matrix, and Q
 *  is of order M:
@@ -56,11 +58,11 @@ C$Id: dorgbr.f,v 1.2 1995-02-02 23:16:26 d3g681 Exp $
 *          if VECT = 'P', N >= M >= min(N,K).
 *
 *  K       (input) INTEGER
-*          K >= 0.
 *          If VECT = 'Q', the number of columns in the original M-by-K
 *          matrix reduced by DGEBRD.
 *          If VECT = 'P', the number of rows in the original K-by-N
 *          matrix reduced by DGEBRD.
+*          K >= 0.
 *
 *  A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
 *          On entry, the vectors which define the elementary reflectors,
@@ -77,7 +79,7 @@ C$Id: dorgbr.f,v 1.2 1995-02-02 23:16:26 d3g681 Exp $
 *          reflector H(i) or G(i), which determines Q or P**T, as
 *          returned by DGEBRD in its array argument TAUQ or TAUP.
 *
-*  WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK)
+*  WORK    (workspace/output) DOUBLE PRECISION array, dimension (LWORK)
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER

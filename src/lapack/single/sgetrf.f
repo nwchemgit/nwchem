@@ -1,12 +1,11 @@
       SUBROUTINE SGETRF( M, N, A, LDA, IPIV, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993 
 *
 *     .. Scalar Arguments ..
-C$Id: sgetrf.f,v 1.2 1995-02-02 23:17:24 d3g681 Exp $
       INTEGER            INFO, LDA, M, N
 *     ..
 *     .. Array Arguments ..
@@ -14,6 +13,9 @@ C$Id: sgetrf.f,v 1.2 1995-02-02 23:17:24 d3g681 Exp $
       REAL               A( LDA, * )
 *     ..
 *
+c
+* $Id: sgetrf.f,v 1.3 1997-03-17 21:26:52 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

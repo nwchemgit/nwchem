@@ -13,6 +13,9 @@
       COMPLEX*16         T( LDT, * ), TAU( * ), V( LDV, * )
 *     ..
 *
+c
+* $Id: zlarft.f,v 1.2 1997-03-17 21:25:57 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,12 +1,11 @@
       SUBROUTINE DGETF2( M, N, A, LDA, IPIV, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     June 30, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: dgetf2.f,v 1.2 1995-02-02 23:15:50 d3g681 Exp $
       INTEGER            INFO, LDA, M, N
 *     ..
 *     .. Array Arguments ..
@@ -14,6 +13,9 @@ C$Id: dgetf2.f,v 1.2 1995-02-02 23:15:50 d3g681 Exp $
       DOUBLE PRECISION   A( LDA, * )
 *     ..
 *
+c
+* $Id: dgetf2.f,v 1.3 1997-03-17 21:23:27 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

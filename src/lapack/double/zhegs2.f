@@ -13,6 +13,9 @@
       COMPLEX*16         A( LDA, * ), B( LDB, * )
 *     ..
 *
+c
+* $Id: zhegs2.f,v 1.2 1997-03-17 21:25:39 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

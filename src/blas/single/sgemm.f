@@ -1,7 +1,9 @@
       SUBROUTINE SGEMM ( TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
      $                   BETA, C, LDC )
+*
+* $Id: sgemm.f,v 1.3 1997-03-17 21:22:28 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
-C$Id: sgemm.f,v 1.2 1995-02-02 23:10:15 d3g681 Exp $
       CHARACTER*1        TRANSA, TRANSB
       INTEGER            M, N, K, LDA, LDB, LDC
       REAL               ALPHA, BETA

@@ -1,10 +1,13 @@
       subroutine  drot (n,dx,incx,dy,incy,c,s)
+*
+* $Id: drot.f,v 1.3 1997-03-17 21:21:01 d3e129 Exp $
+*
 c
 c     applies a plane rotation.
 c     jack dongarra, linpack, 3/11/78.
+c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C$Id: drot.f,v 1.2 1995-02-02 23:09:47 d3g681 Exp $
-      double precision dx(1),dy(1),dtemp,c,s
+      double precision dx(*),dy(*),dtemp,c,s
       integer i,incx,incy,ix,iy,n
 c
       if(n.le.0)return

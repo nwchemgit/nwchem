@@ -1,4 +1,7 @@
       SUBROUTINE DSYR2 ( UPLO, N, ALPHA, X, INCX, Y, INCY, A, LDA )
+*
+* $Id: dsyr2.f,v 1.2 1997-03-17 21:21:22 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
       DOUBLE PRECISION   ALPHA
       INTEGER            INCX, INCY, LDA, N

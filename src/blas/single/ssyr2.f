@@ -1,4 +1,7 @@
       SUBROUTINE SSYR2 ( UPLO, N, ALPHA, X, INCX, Y, INCY, A, LDA )
+*
+* $Id: ssyr2.f,v 1.2 1997-03-17 21:22:49 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
       REAL               ALPHA
       INTEGER            INCX, INCY, LDA, N

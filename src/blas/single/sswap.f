@@ -1,11 +1,14 @@
       subroutine sswap (n,sx,incx,sy,incy)
+*
+* $Id: sswap.f,v 1.3 1997-03-17 21:22:42 d3e129 Exp $
+*
 c
 c     interchanges two vectors.
 c     uses unrolled loops for increments equal to 1.
 c     jack dongarra, linpack, 3/11/78.
+c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C$Id: sswap.f,v 1.2 1995-02-02 23:10:23 d3g681 Exp $
-      real sx(1),sy(1),stemp
+      real sx(*),sy(*),stemp
       integer i,incx,incy,ix,iy,m,mp1,n
 c
       if(n.le.0)return

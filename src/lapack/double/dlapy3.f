@@ -9,6 +9,9 @@
       DOUBLE PRECISION   X, Y, Z
 *     ..
 *
+c
+* $Id: dlapy3.f,v 1.2 1997-03-17 21:23:59 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

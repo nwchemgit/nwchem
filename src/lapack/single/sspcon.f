@@ -1,13 +1,12 @@
       SUBROUTINE SSPCON( UPLO, N, AP, IPIV, ANORM, RCOND, WORK, IWORK,
      $                   INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993 
 *
 *     .. Scalar Arguments ..
-C$Id: sspcon.f,v 1.2 1995-02-02 23:18:06 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, N
       REAL               ANORM, RCOND
@@ -17,6 +16,9 @@ C$Id: sspcon.f,v 1.2 1995-02-02 23:18:06 d3g681 Exp $
       REAL               AP( * ), WORK( * )
 *     ..
 *
+c
+* $Id: sspcon.f,v 1.3 1997-03-17 21:28:24 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,6 +1,6 @@
       SUBROUTINE SORG2L( M, N, K, A, LDA, TAU, WORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     February 29, 1992
@@ -12,6 +12,9 @@
       REAL               A( LDA, * ), TAU( * ), WORK( * )
 *     ..
 *
+c
+* $Id: sorg2l.f,v 1.2 1997-03-17 21:27:55 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,12 +1,11 @@
       SUBROUTINE SSPTRS( UPLO, N, NRHS, AP, IPIV, B, LDB, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993 
 *
 *     .. Scalar Arguments ..
-C$Id: ssptrs.f,v 1.2 1995-02-02 23:18:11 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, LDB, N, NRHS
 *     ..
@@ -15,6 +14,9 @@ C$Id: ssptrs.f,v 1.2 1995-02-02 23:18:11 d3g681 Exp $
       REAL               AP( * ), B( LDB, * )
 *     ..
 *
+c
+* $Id: ssptrs.f,v 1.3 1997-03-17 21:28:31 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,13 +1,12 @@
       SUBROUTINE DORMBR( VECT, SIDE, TRANS, M, N, K, A, LDA, TAU, C,
      $                   LDC, WORK, LWORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: dormbr.f,v 1.2 1995-02-02 23:16:31 d3g681 Exp $
       CHARACTER          SIDE, TRANS, VECT
       INTEGER            INFO, K, LDA, LDC, LWORK, M, N
 *     ..
@@ -16,6 +15,9 @@ C$Id: dormbr.f,v 1.2 1995-02-02 23:16:31 d3g681 Exp $
      $                   WORK( LWORK )
 *     ..
 *
+c
+* $Id: dormbr.f,v 1.3 1997-03-17 21:24:52 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -69,11 +71,11 @@ C$Id: dormbr.f,v 1.2 1995-02-02 23:16:31 d3g681 Exp $
 *          The number of columns of the matrix C. N >= 0.
 *
 *  K       (input) INTEGER
-*          K >= 0.
 *          If VECT = 'Q', the number of columns in the original
 *          matrix reduced by DGEBRD.
 *          If VECT = 'P', the number of rows in the original
 *          matrix reduced by DGEBRD.
+*          K >= 0.
 *
 *  A       (input) DOUBLE PRECISION array, dimension
 *                                (LDA,min(nq,K)) if VECT = 'Q'
@@ -100,7 +102,7 @@ C$Id: dormbr.f,v 1.2 1995-02-02 23:16:31 d3g681 Exp $
 *  LDC     (input) INTEGER
 *          The leading dimension of the array C. LDC >= max(1,M).
 *
-*  WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK)
+*  WORK    (workspace/output) DOUBLE PRECISION array, dimension (LWORK)
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER
@@ -178,10 +180,9 @@ C$Id: dormbr.f,v 1.2 1995-02-02 23:16:31 d3g681 Exp $
 *
 *     Quick return if possible
 *
-      IF( M.EQ.0 .OR. N.EQ.0 ) THEN
-         WORK( 1 ) = 1
-         RETURN
-      END IF
+      WORK( 1 ) = 1
+      IF( M.EQ.0 .OR. N.EQ.0 )
+     $   RETURN
 *
       IF( APPLYQ ) THEN
 *
@@ -193,7 +194,7 @@ C$Id: dormbr.f,v 1.2 1995-02-02 23:16:31 d3g681 Exp $
 *
             CALL DORMQR( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC,
      $                   WORK, LWORK, IINFO )
-         ELSE
+         ELSE IF( NQ.GT.1 ) THEN
 *
 *           Q was determined by a call to DGEBRD with nq < k
 *
@@ -226,7 +227,7 @@ C$Id: dormbr.f,v 1.2 1995-02-02 23:16:31 d3g681 Exp $
 *
             CALL DORMLQ( SIDE, TRANST, M, N, K, A, LDA, TAU, C, LDC,
      $                   WORK, LWORK, IINFO )
-         ELSE
+         ELSE IF( NQ.GT.1 ) THEN
 *
 *           P was determined by a call to DGEBRD with nq <= k
 *

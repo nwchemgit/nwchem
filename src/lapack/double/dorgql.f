@@ -1,9 +1,9 @@
       SUBROUTINE DORGQL( M, N, K, A, LDA, TAU, WORK, LWORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, K, LDA, LWORK, M, N
@@ -12,6 +12,9 @@
       DOUBLE PRECISION   A( LDA, * ), TAU( * ), WORK( LWORK )
 *     ..
 *
+c
+* $Id: dorgql.f,v 1.2 1997-03-17 21:24:43 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -50,7 +53,7 @@
 *          TAU(i) must contain the scalar factor of the elementary
 *          reflector H(i), as returned by DGEQLF.
 *
-*  WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK)
+*  WORK    (workspace/output) DOUBLE PRECISION array, dimension (LWORK)
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER

@@ -1,6 +1,6 @@
       SUBROUTINE DSYGS2( ITYPE, UPLO, N, A, LDA, B, LDB, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     February 29, 1992
@@ -13,6 +13,9 @@
       DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *     ..
 *
+c
+* $Id: dsygs2.f,v 1.2 1997-03-17 21:25:19 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

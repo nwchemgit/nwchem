@@ -1,5 +1,8 @@
       SUBROUTINE ZHER2K( UPLO, TRANS, N, K, ALPHA, A, LDA, B, LDB, BETA,
      $                   C, LDC )
+*
+* $Id: zher2k.f,v 1.2 1997-03-17 21:22:01 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
       CHARACTER          TRANS, UPLO
       INTEGER            K, LDA, LDB, LDC, N

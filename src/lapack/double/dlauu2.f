@@ -6,7 +6,6 @@
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: dlauu2.f,v 1.2 1995-02-02 23:16:22 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, LDA, N
 *     ..
@@ -14,6 +13,9 @@ C$Id: dlauu2.f,v 1.2 1995-02-02 23:16:22 d3g681 Exp $
       DOUBLE PRECISION   A( LDA, * )
 *     ..
 *
+c
+* $Id: dlauu2.f,v 1.3 1997-03-17 21:24:31 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

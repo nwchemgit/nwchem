@@ -1,13 +1,12 @@
       SUBROUTINE SSPSVX( FACT, UPLO, N, NRHS, AP, AFP, IPIV, B, LDB, X,
      $                   LDX, RCOND, FERR, BERR, WORK, IWORK, INFO )
 *
-*  -- LAPACK driver routine (version 1.1) --
+*  -- LAPACK driver routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993 
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: sspsvx.f,v 1.2 1995-02-02 23:18:09 d3g681 Exp $
       CHARACTER          FACT, UPLO
       INTEGER            INFO, LDB, LDX, N, NRHS
       REAL               RCOND
@@ -18,6 +17,9 @@ C$Id: sspsvx.f,v 1.2 1995-02-02 23:18:09 d3g681 Exp $
      $                   FERR( * ), WORK( * ), X( LDX, * )
 *     ..
 *
+c
+* $Id: sspsvx.f,v 1.3 1997-03-17 21:28:28 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -79,7 +81,7 @@ C$Id: sspsvx.f,v 1.2 1995-02-02 23:18:09 d3g681 Exp $
 *          columnwise in a linear array.  The j-th column of A is stored
 *          in the array AP as follows:
 *          if UPLO = 'U', AP(i + (j-1)*j/2) = A(i,j) for 1<=i<=j;
-*          if UPLO = 'L', AP(i + (j-1)*(2n-j)/2) = A(i,j) for j<=i<=n.
+*          if UPLO = 'L', AP(i + (j-1)*(2*n-j)/2) = A(i,j) for j<=i<=n.
 *          See below for further details.
 *
 *  AFP     (input or output) REAL array, dimension
@@ -132,19 +134,19 @@ C$Id: sspsvx.f,v 1.2 1995-02-02 23:18:09 d3g681 Exp $
 *          INFO > 0, and the solution and error bounds are not computed.
 *
 *  FERR    (output) REAL array, dimension (NRHS)
-*          The estimated forward error bounds for each solution vector
+*          The estimated forward error bound for each solution vector
 *          X(j) (the j-th column of the solution matrix X).
-*          If XTRUE is the true solution, FERR(j) bounds the magnitude
-*          of the largest entry in (X(j) - XTRUE) divided by the
-*          magnitude of the largest entry in X(j).  The quality of the
-*          error bound depends on the quality of the estimate of
-*          norm(inv(A)) computed in the code; if the estimate of
-*          norm(inv(A)) is accurate, the error bound is guaranteed.
+*          If XTRUE is the true solution corresponding to X(j), FERR(j)
+*          is an estimated upper bound for the magnitude of the largest
+*          element in (X(j) - XTRUE) divided by the magnitude of the
+*          largest element in X(j).  The estimate is as reliable as
+*          the estimate for RCOND, and is almost always a slight
+*          overestimate of the true error.
 *
 *  BERR    (output) REAL array, dimension (NRHS)
 *          The componentwise relative backward error of each solution
-*          vector X(j) (i.e., the smallest relative change in any
-*          entry of A or B that makes X(j) an exact solution).
+*          vector X(j) (i.e., the smallest relative change in
+*          any element of A or B that makes X(j) an exact solution).
 *
 *  WORK    (workspace) REAL array, dimension (3*N)
 *

@@ -6,7 +6,6 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
-C$Id: dpotri.f,v 1.2 1995-02-02 23:16:37 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, LDA, N
 *     ..
@@ -14,6 +13,9 @@ C$Id: dpotri.f,v 1.2 1995-02-02 23:16:37 d3g681 Exp $
       DOUBLE PRECISION   A( LDA, * )
 *     ..
 *
+c
+* $Id: dpotri.f,v 1.3 1997-03-17 21:25:03 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,6 +1,6 @@
       SUBROUTINE SLATRD( UPLO, N, NB, A, LDA, E, TAU, W, LDW )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -13,6 +13,9 @@
       REAL               A( LDA, * ), E( * ), TAU( * ), W( LDW, * )
 *     ..
 *
+c
+* $Id: slatrd.f,v 1.2 1997-03-17 21:27:49 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

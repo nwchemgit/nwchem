@@ -1,12 +1,11 @@
       SUBROUTINE SLASSQ( N, X, INCX, SCALE, SUMSQ )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: slassq.f,v 1.2 1995-02-02 23:17:49 d3g681 Exp $
       INTEGER            INCX, N
       REAL               SCALE, SUMSQ
 *     ..
@@ -14,6 +13,9 @@ C$Id: slassq.f,v 1.2 1995-02-02 23:17:49 d3g681 Exp $
       REAL               X( * )
 *     ..
 *
+c
+* $Id: slassq.f,v 1.3 1997-03-17 21:27:42 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,5 +1,8 @@
       SUBROUTINE ZTRMM ( SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA,
      $                   B, LDB )
+*
+* $Id: ztrmm.f,v 1.2 1997-03-17 21:22:07 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
       CHARACTER*1        SIDE, UPLO, TRANSA, DIAG
       INTEGER            M, N, LDA, LDB
@@ -31,7 +34,6 @@
 *
 *              SIDE = 'R' or 'r'   B := alpha*B*op( A ).
 *
-
 *           Unchanged on exit.
 *
 *  UPLO   - CHARACTER*1.
@@ -391,4 +393,3 @@
 *     End of ZTRMM .
 *
       END
-

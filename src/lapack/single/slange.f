@@ -1,12 +1,11 @@
       REAL             FUNCTION SLANGE( NORM, M, N, A, LDA, WORK )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: slange.f,v 1.2 1995-02-02 23:17:35 d3g681 Exp $
       CHARACTER          NORM
       INTEGER            LDA, M, N
 *     ..
@@ -14,6 +13,9 @@ C$Id: slange.f,v 1.2 1995-02-02 23:17:35 d3g681 Exp $
       REAL               A( LDA, * ), WORK( * )
 *     ..
 *
+c
+* $Id: slange.f,v 1.3 1997-03-17 21:27:12 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

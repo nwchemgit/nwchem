@@ -14,6 +14,9 @@
       COMPLEX*16         A( LDA, * ), TAU( * ), WORK( * )
 *     ..
 *
+c
+* $Id: zhetrd.f,v 1.2 1997-03-17 21:25:46 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

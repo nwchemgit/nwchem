@@ -12,6 +12,9 @@
       DOUBLE PRECISION   D( * ), E( * )
 *     ..
 *
+c
+* $Id: dsterf.f,v 1.3 1997-03-17 21:25:17 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

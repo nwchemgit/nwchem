@@ -1,18 +1,20 @@
       SUBROUTINE DGEQRF( M, N, A, LDA, TAU, WORK, LWORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: dgeqrf.f,v 1.2 1995-02-02 23:15:43 d3g681 Exp $
       INTEGER            INFO, LDA, LWORK, M, N
 *     ..
 *     .. Array Arguments ..
       DOUBLE PRECISION   A( LDA, * ), TAU( * ), WORK( LWORK )
 *     ..
 *
+c
+* $Id: dgeqrf.f,v 1.3 1997-03-17 21:23:20 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -44,7 +46,7 @@ C$Id: dgeqrf.f,v 1.2 1995-02-02 23:15:43 d3g681 Exp $
 *          The scalar factors of the elementary reflectors (see Further
 *          Details).
 *
-*  WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK)
+*  WORK    (workspace/output) DOUBLE PRECISION array, dimension (LWORK)
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER

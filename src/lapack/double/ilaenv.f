@@ -1,17 +1,19 @@
       INTEGER          FUNCTION ILAENV( ISPEC, NAME, OPTS, N1, N2, N3,
      $                 N4 )
 *
-*  -- LAPACK auxiliary routine (preliminary version) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     February 20, 1992
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: ilaenv.f,v 1.2 1995-02-02 23:16:44 d3g681 Exp $
       CHARACTER*( * )    NAME, OPTS
       INTEGER            ISPEC, N1, N2, N3, N4
 *     ..
 *
+c
+* $Id: ilaenv.f,v 1.3 1997-03-17 21:25:31 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -370,9 +372,9 @@ C$Id: ilaenv.f,v 1.2 1995-02-02 23:16:44 d3g681 Exp $
       ELSE IF( C2.EQ.'SY' ) THEN
          IF( C3.EQ.'TRF' ) THEN
             IF( SNAME ) THEN
-               NBMIN = 2
+               NBMIN = 8
             ELSE
-               NBMIN = 2
+               NBMIN = 8
             END IF
          ELSE IF( SNAME .AND. C3.EQ.'TRD' ) THEN
             NBMIN = 2

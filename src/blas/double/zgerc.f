@@ -1,4 +1,7 @@
       SUBROUTINE ZGERC ( M, N, ALPHA, X, INCX, Y, INCY, A, LDA )
+*
+* $Id: zgerc.f,v 1.2 1997-03-17 21:21:53 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
       COMPLEX*16         ALPHA
       INTEGER            INCX, INCY, LDA, M, N

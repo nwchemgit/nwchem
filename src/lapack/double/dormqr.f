@@ -1,13 +1,12 @@
       SUBROUTINE DORMQR( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC,
      $                   WORK, LWORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: dormqr.f,v 1.3 1995-02-02 23:16:34 d3g681 Exp $
       CHARACTER          SIDE, TRANS
       INTEGER            INFO, K, LDA, LDC, LWORK, M, N
 *     ..
@@ -16,6 +15,9 @@ C$Id: dormqr.f,v 1.3 1995-02-02 23:16:34 d3g681 Exp $
      $                   WORK( LWORK )
 *     ..
 *
+c
+* $Id: dormqr.f,v 1.4 1997-03-17 21:24:57 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -78,7 +80,7 @@ C$Id: dormqr.f,v 1.3 1995-02-02 23:16:34 d3g681 Exp $
 *  LDC     (input) INTEGER
 *          The leading dimension of the array C. LDC >= max(1,M).
 *
-*  WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK)
+*  WORK    (workspace/output) DOUBLE PRECISION array, dimension (LWORK)
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER
@@ -97,11 +99,7 @@ C$Id: dormqr.f,v 1.3 1995-02-02 23:16:34 d3g681 Exp $
 *
 *     .. Parameters ..
       INTEGER            NBMAX, LDT
-*
-* RJH: reduce system stack requirements
-*
-*     PARAMETER          ( NBMAX = 64, LDT = NBMAX+1 )
-      PARAMETER          ( NBMAX = 32, LDT = NBMAX+1 )
+      PARAMETER          ( NBMAX = 64, LDT = NBMAX+1 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            LEFT, NOTRAN

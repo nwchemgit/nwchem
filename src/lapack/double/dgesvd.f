@@ -1,13 +1,12 @@
       SUBROUTINE DGESVD( JOBU, JOBVT, M, N, A, LDA, S, U, LDU, VT, LDVT,
      $                   WORK, LWORK, INFO )
 *
-*  -- LAPACK driver routine (version 1.1) --
+*  -- LAPACK driver routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
       CHARACTER          JOBU, JOBVT
       INTEGER            INFO, LDA, LDU, LDVT, LWORK, M, N
 *     ..
@@ -16,6 +15,9 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                   VT( LDVT, * ), WORK( * )
 *     ..
 *
+c
+* $Id: dgesvd.f,v 1.3 1997-03-17 21:23:24 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -136,10 +138,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *     .. Local Scalars ..
       LOGICAL            WNTUA, WNTUAS, WNTUN, WNTUO, WNTUS, WNTVA,
      $                   WNTVAS, WNTVN, WNTVO, WNTVS
-      INTEGER            BLK, CHUNK, I, IE, IERR, IR, ISCL, ITAU, ITAUP,
-     $                   ITAUQ, IU, IWORK, LDWRKR, LDWRKU, MAXWRK,
-     $                   MINMN, MINWRK, MNTHR, NCU, NCVT, NRU, NRVT,
-     $                   WRKBL
+      INTEGER            BDSPAC, BLK, CHUNK, I, IE, IERR, IR, ISCL,
+     $                   ITAU, ITAUP, ITAUQ, IU, IWORK, LDWRKR, LDWRKU,
+     $                   MAXWRK, MINMN, MINWRK, MNTHR, NCU, NCVT, NRU,
+     $                   NRVT, WRKBL
       DOUBLE PRECISION   ANRM, BIGNUM, EPS, SMLNUM
 *     ..
 *     .. Local Arrays ..
@@ -205,6 +207,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
       IF( INFO.EQ.0 .AND. LWORK.GE.1 .AND. M.GT.0 .AND. N.GT.0 ) THEN
          IF( M.GE.N ) THEN
+*
+*           Compute space needed for DBDSQR
+*
+            BDSPAC = MAX( 3*N, 5*N-4 )
             IF( M.GE.MNTHR ) THEN
                IF( WNTUN ) THEN
 *
@@ -217,8 +223,9 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
                   IF( WNTVO .OR. WNTVAS )
      $               MAXWRK = MAX( MAXWRK, 3*N+( N-1 )*
      $                        ILAENV( 1, 'DORGBR', 'P', N, N, N, -1 ) )
-                  MAXWRK = MAX( MAXWRK, 5*N-4 )
-                  MINWRK = MAX( 4*N, 5*N-4 )
+                  MAXWRK = MAX( MAXWRK, BDSPAC )
+                  MINWRK = MAX( 4*N, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTUO .AND. WNTVN ) THEN
 *
 *                 Path 2 (M much larger than N, JOBU='O', JOBVT='N')
@@ -230,10 +237,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DGEBRD', ' ', N, N, -1, -1 ) )
                   WRKBL = MAX( WRKBL, 3*N+N*
      $                    ILAENV( 1, 'DORGBR', 'Q', N, N, N, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*N-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = MAX( N*N+WRKBL, N*N+M*N+N )
-                  MINWRK = MAX( 3*N+M, 5*N-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*N+M, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTUO .AND. WNTVAS ) THEN
 *
 *                 Path 3 (M much larger than N, JOBU='O', JOBVT='S' or
@@ -248,10 +255,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DORGBR', 'Q', N, N, N, -1 ) )
                   WRKBL = MAX( WRKBL, 3*N+( N-1 )*
      $                    ILAENV( 1, 'DORGBR', 'P', N, N, N, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*N-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = MAX( N*N+WRKBL, N*N+M*N+N )
-                  MINWRK = MAX( 3*N+M, 5*N-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*N+M, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTUS .AND. WNTVN ) THEN
 *
 *                 Path 4 (M much larger than N, JOBU='S', JOBVT='N')
@@ -263,10 +270,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DGEBRD', ' ', N, N, -1, -1 ) )
                   WRKBL = MAX( WRKBL, 3*N+N*
      $                    ILAENV( 1, 'DORGBR', 'Q', N, N, N, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*N-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = N*N + WRKBL
-                  MINWRK = MAX( 3*N+M, 5*N-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*N+M, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTUS .AND. WNTVO ) THEN
 *
 *                 Path 5 (M much larger than N, JOBU='S', JOBVT='O')
@@ -280,10 +287,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DORGBR', 'Q', N, N, N, -1 ) )
                   WRKBL = MAX( WRKBL, 3*N+( N-1 )*
      $                    ILAENV( 1, 'DORGBR', 'P', N, N, N, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*N-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = 2*N*N + WRKBL
-                  MINWRK = MAX( 3*N+M, 5*N-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*N+M, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTUS .AND. WNTVAS ) THEN
 *
 *                 Path 6 (M much larger than N, JOBU='S', JOBVT='S' or
@@ -298,10 +305,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DORGBR', 'Q', N, N, N, -1 ) )
                   WRKBL = MAX( WRKBL, 3*N+( N-1 )*
      $                    ILAENV( 1, 'DORGBR', 'P', N, N, N, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*N-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = N*N + WRKBL
-                  MINWRK = MAX( 3*N+M, 5*N-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*N+M, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTUA .AND. WNTVN ) THEN
 *
 *                 Path 7 (M much larger than N, JOBU='A', JOBVT='N')
@@ -313,10 +320,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DGEBRD', ' ', N, N, -1, -1 ) )
                   WRKBL = MAX( WRKBL, 3*N+N*
      $                    ILAENV( 1, 'DORGBR', 'Q', N, N, N, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*N-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = N*N + WRKBL
-                  MINWRK = MAX( 3*N+M, 5*N-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*N+M, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTUA .AND. WNTVO ) THEN
 *
 *                 Path 8 (M much larger than N, JOBU='A', JOBVT='O')
@@ -330,10 +337,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DORGBR', 'Q', N, N, N, -1 ) )
                   WRKBL = MAX( WRKBL, 3*N+( N-1 )*
      $                    ILAENV( 1, 'DORGBR', 'P', N, N, N, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*N-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = 2*N*N + WRKBL
-                  MINWRK = MAX( 3*N+M, 5*N-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*N+M, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTUA .AND. WNTVAS ) THEN
 *
 *                 Path 9 (M much larger than N, JOBU='A', JOBVT='S' or
@@ -348,10 +355,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DORGBR', 'Q', N, N, N, -1 ) )
                   WRKBL = MAX( WRKBL, 3*N+( N-1 )*
      $                    ILAENV( 1, 'DORGBR', 'P', N, N, N, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*N-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = N*N + WRKBL
-                  MINWRK = MAX( 3*N+M, 5*N-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*N+M, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                END IF
             ELSE
 *
@@ -368,10 +375,15 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
                IF( .NOT.WNTVN )
      $            MAXWRK = MAX( MAXWRK, 3*N+( N-1 )*
      $                     ILAENV( 1, 'DORGBR', 'P', N, N, N, -1 ) )
-               MAXWRK = MAX( MAXWRK, 5*N-4 )
-               MINWRK = MAX( 3*N+M, 5*N-4 )
+               MAXWRK = MAX( MAXWRK, BDSPAC )
+               MINWRK = MAX( 3*N+M, BDSPAC )
+               MAXWRK = MAX( MAXWRK, MINWRK )
             END IF
          ELSE
+*
+*           Compute space needed for DBDSQR
+*
+            BDSPAC = MAX( 3*M, 5*M-4 )
             IF( N.GE.MNTHR ) THEN
                IF( WNTVN ) THEN
 *
@@ -384,8 +396,9 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
                   IF( WNTUO .OR. WNTUAS )
      $               MAXWRK = MAX( MAXWRK, 3*M+M*
      $                        ILAENV( 1, 'DORGBR', 'Q', M, M, M, -1 ) )
-                  MAXWRK = MAX( MAXWRK, 5*M-4 )
-                  MINWRK = MAX( 4*M, 5*M-4 )
+                  MAXWRK = MAX( MAXWRK, BDSPAC )
+                  MINWRK = MAX( 4*M, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTVO .AND. WNTUN ) THEN
 *
 *                 Path 2t(N much larger than M, JOBU='N', JOBVT='O')
@@ -397,10 +410,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DGEBRD', ' ', M, M, -1, -1 ) )
                   WRKBL = MAX( WRKBL, 3*M+( M-1 )*
      $                    ILAENV( 1, 'DORGBR', 'P', M, M, M, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*M-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = MAX( M*M+WRKBL, M*M+M*N+M )
-                  MINWRK = MAX( 3*M+N, 5*M-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*M+N, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTVO .AND. WNTUAS ) THEN
 *
 *                 Path 3t(N much larger than M, JOBU='S' or 'A',
@@ -415,10 +428,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DORGBR', 'P', M, M, M, -1 ) )
                   WRKBL = MAX( WRKBL, 3*M+M*
      $                    ILAENV( 1, 'DORGBR', 'Q', M, M, M, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*M-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = MAX( M*M+WRKBL, M*M+M*N+M )
-                  MINWRK = MAX( 3*M+N, 5*M-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*M+N, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTVS .AND. WNTUN ) THEN
 *
 *                 Path 4t(N much larger than M, JOBU='N', JOBVT='S')
@@ -430,10 +443,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DGEBRD', ' ', M, M, -1, -1 ) )
                   WRKBL = MAX( WRKBL, 3*M+( M-1 )*
      $                    ILAENV( 1, 'DORGBR', 'P', M, M, M, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*M-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = M*M + WRKBL
-                  MINWRK = MAX( 3*M+N, 5*M-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*M+N, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTVS .AND. WNTUO ) THEN
 *
 *                 Path 5t(N much larger than M, JOBU='O', JOBVT='S')
@@ -447,10 +460,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DORGBR', 'P', M, M, M, -1 ) )
                   WRKBL = MAX( WRKBL, 3*M+M*
      $                    ILAENV( 1, 'DORGBR', 'Q', M, M, M, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*M-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = 2*M*M + WRKBL
-                  MINWRK = MAX( 3*M+N, 5*M-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*M+N, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTVS .AND. WNTUAS ) THEN
 *
 *                 Path 6t(N much larger than M, JOBU='S' or 'A',
@@ -465,10 +478,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DORGBR', 'P', M, M, M, -1 ) )
                   WRKBL = MAX( WRKBL, 3*M+M*
      $                    ILAENV( 1, 'DORGBR', 'Q', M, M, M, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*M-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = M*M + WRKBL
-                  MINWRK = MAX( 3*M+N, 5*M-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*M+N, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTVA .AND. WNTUN ) THEN
 *
 *                 Path 7t(N much larger than M, JOBU='N', JOBVT='A')
@@ -480,10 +493,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DGEBRD', ' ', M, M, -1, -1 ) )
                   WRKBL = MAX( WRKBL, 3*M+( M-1 )*
      $                    ILAENV( 1, 'DORGBR', 'P', M, M, M, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*M-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = M*M + WRKBL
-                  MINWRK = MAX( 3*M+N, 5*M-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*M+N, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTVA .AND. WNTUO ) THEN
 *
 *                 Path 8t(N much larger than M, JOBU='O', JOBVT='A')
@@ -497,10 +510,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DORGBR', 'P', M, M, M, -1 ) )
                   WRKBL = MAX( WRKBL, 3*M+M*
      $                    ILAENV( 1, 'DORGBR', 'Q', M, M, M, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*M-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = 2*M*M + WRKBL
-                  MINWRK = MAX( 3*M+N, 5*M-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*M+N, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                ELSE IF( WNTVA .AND. WNTUAS ) THEN
 *
 *                 Path 9t(N much larger than M, JOBU='S' or 'A',
@@ -515,10 +528,10 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
      $                    ILAENV( 1, 'DORGBR', 'P', M, M, M, -1 ) )
                   WRKBL = MAX( WRKBL, 3*M+M*
      $                    ILAENV( 1, 'DORGBR', 'Q', M, M, M, -1 ) )
-                  WRKBL = MAX( WRKBL, 5*M-4 )
+                  WRKBL = MAX( WRKBL, BDSPAC )
                   MAXWRK = M*M + WRKBL
-                  MINWRK = MAX( 3*M+N, 5*M-4 )
-                  MINWRK = MIN( MINWRK, MAXWRK )
+                  MINWRK = MAX( 3*M+N, BDSPAC )
+                  MAXWRK = MAX( MAXWRK, MINWRK )
                END IF
             ELSE
 *
@@ -535,8 +548,9 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
                IF( .NOT.WNTUN )
      $            MAXWRK = MAX( MAXWRK, 3*M+( M-1 )*
      $                     ILAENV( 1, 'DORGBR', 'Q', M, M, M, -1 ) )
-               MAXWRK = MAX( MAXWRK, 5*M-4 )
-               MINWRK = MAX( 3*M+N, 5*M-4 )
+               MAXWRK = MAX( MAXWRK, BDSPAC )
+               MINWRK = MAX( 3*M+N, BDSPAC )
+               MAXWRK = MAX( MAXWRK, MINWRK )
             END IF
          END IF
          WORK( 1 ) = MAXWRK
@@ -564,7 +578,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
       SMLNUM = SQRT( DLAMCH( 'S' ) ) / EPS
       BIGNUM = ONE / SMLNUM
 *
-*     Scale A if max entry outside range [SMLNUM,BIGNUM]
+*     Scale A if max element outside range [SMLNUM,BIGNUM]
 *
       ANRM = DLANGE( 'M', M, N, A, LDA, DUM )
       ISCL = 0
@@ -626,7 +640,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *              Perform bidiagonal QR iteration, computing right
 *              singular vectors of A in A if desired
-*              (Workspace: need 5*N-4)
+*              (Workspace: need BDSPAC)
 *
                CALL DBDSQR( 'U', N, NCVT, 0, 0, S, WORK( IE ), A, LDA,
      $                      DUM, 1, DUM, 1, WORK( IWORK ), INFO )
@@ -642,7 +656,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *              N left singular vectors to be overwritten on A and
 *              no right singular vectors to be computed
 *
-               IF( LWORK.GE.N*N+MAX( 4*N, 5*N-4 ) ) THEN
+               IF( LWORK.GE.N*N+MAX( 4*N, BDSPAC ) ) THEN
 *
 *                 Sufficient workspace for a fast algorithm
 *
@@ -708,7 +722,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                 Perform bidiagonal QR iteration, computing left
 *                 singular vectors of R in WORK(IR)
-*                 (Workspace: need N*N+5*N-4)
+*                 (Workspace: need N*N+BDSPAC)
 *
                   CALL DBDSQR( 'U', N, 0, N, 0, S, WORK( IE ), DUM, 1,
      $                         WORK( IR ), LDWRKR, DUM, 1,
@@ -753,7 +767,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                 Perform bidiagonal QR iteration, computing left
 *                 singular vectors of A in A
-*                 (Workspace: need 5*N-4)
+*                 (Workspace: need BDSPAC)
 *
                   CALL DBDSQR( 'U', N, 0, M, 0, S, WORK( IE ), DUM, 1,
      $                         A, LDA, DUM, 1, WORK( IWORK ), INFO )
@@ -766,7 +780,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *              N left singular vectors to be overwritten on A and
 *              N right singular vectors to be computed in VT
 *
-               IF( LWORK.GE.N*N+MAX( 4*N, 5*N-4 ) ) THEN
+               IF( LWORK.GE.N*N+MAX( 4*N, BDSPAC ) ) THEN
 *
 *                 Sufficient workspace for a fast algorithm
 *
@@ -840,7 +854,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 Perform bidiagonal QR iteration, computing left
 *                 singular vectors of R in WORK(IR) and computing right
 *                 singular vectors of R in VT
-*                 (Workspace: need N*N+5*N-4)
+*                 (Workspace: need N*N+BDSPAC)
 *
                   CALL DBDSQR( 'U', N, N, N, 0, S, WORK( IE ), VT, LDVT,
      $                         WORK( IR ), LDWRKR, DUM, 1,
@@ -913,7 +927,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 Perform bidiagonal QR iteration, computing left
 *                 singular vectors of A in A and computing right
 *                 singular vectors of A in VT
-*                 (Workspace: need 5*N-4)
+*                 (Workspace: need BDSPAC)
 *
                   CALL DBDSQR( 'U', N, N, M, 0, S, WORK( IE ), VT, LDVT,
      $                         A, LDA, DUM, 1, WORK( IWORK ), INFO )
@@ -928,7 +942,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 N left singular vectors to be computed in U and
 *                 no right singular vectors to be computed
 *
-                  IF( LWORK.GE.N*N+MAX( 4*N, 5*N-4 ) ) THEN
+                  IF( LWORK.GE.N*N+MAX( 4*N, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -988,7 +1002,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of R in WORK(IR)
-*                    (Workspace: need N*N+5*N-4)
+*                    (Workspace: need N*N+BDSPAC)
 *
                      CALL DBDSQR( 'U', N, 0, N, 0, S, WORK( IE ), DUM,
      $                            1, WORK( IR ), LDWRKR, DUM, 1,
@@ -1047,7 +1061,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of A in U
-*                    (Workspace: need 5*N-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', N, 0, M, 0, S, WORK( IE ), DUM,
      $                            1, U, LDU, DUM, 1, WORK( IWORK ),
@@ -1061,7 +1075,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 N left singular vectors to be computed in U and
 *                 N right singular vectors to be overwritten on A
 *
-                  IF( LWORK.GE.2*N*N+MAX( 4*N, 5*N-4 ) ) THEN
+                  IF( LWORK.GE.2*N*N+MAX( 4*N, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -1145,7 +1159,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of R in WORK(IU) and computing
 *                    right singular vectors of R in WORK(IR)
-*                    (Workspace: need 2*N*N+5*N-4)
+*                    (Workspace: need 2*N*N+BDSPAC)
 *
                      CALL DBDSQR( 'U', N, N, N, 0, S, WORK( IE ),
      $                            WORK( IR ), LDWRKR, WORK( IU ),
@@ -1217,7 +1231,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of A in U and computing right
 *                    singular vectors of A in A
-*                    (Workspace: need 5*N-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', N, N, M, 0, S, WORK( IE ), A,
      $                            LDA, U, LDU, DUM, 1, WORK( IWORK ),
@@ -1232,7 +1246,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 N left singular vectors to be computed in U and
 *                 N right singular vectors to be computed in VT
 *
-                  IF( LWORK.GE.N*N+MAX( 4*N, 5*N-4 ) ) THEN
+                  IF( LWORK.GE.N*N+MAX( 4*N, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -1302,7 +1316,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of R in WORK(IU) and computing
 *                    right singular vectors of R in VT
-*                    (Workspace: need N*N+5*N-4)
+*                    (Workspace: need N*N+BDSPAC)
 *
                      CALL DBDSQR( 'U', N, N, N, 0, S, WORK( IE ), VT,
      $                            LDVT, WORK( IU ), LDWRKU, DUM, 1,
@@ -1370,7 +1384,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of A in U and computing right
 *                    singular vectors of A in VT
-*                    (Workspace: need 5*N-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', N, N, M, 0, S, WORK( IE ), VT,
      $                            LDVT, U, LDU, DUM, 1, WORK( IWORK ),
@@ -1388,7 +1402,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 M left singular vectors to be computed in U and
 *                 no right singular vectors to be computed
 *
-                  IF( LWORK.GE.N*N+MAX( N+M, 4*N, 5*N-4 ) ) THEN
+                  IF( LWORK.GE.N*N+MAX( N+M, 4*N, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -1449,7 +1463,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of R in WORK(IR)
-*                    (Workspace: need N*N+5*N-4)
+*                    (Workspace: need N*N+BDSPAC)
 *
                      CALL DBDSQR( 'U', N, 0, N, 0, S, WORK( IE ), DUM,
      $                            1, WORK( IR ), LDWRKR, DUM, 1,
@@ -1513,7 +1527,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of A in U
-*                    (Workspace: need 5*N-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', N, 0, M, 0, S, WORK( IE ), DUM,
      $                            1, U, LDU, DUM, 1, WORK( IWORK ),
@@ -1527,7 +1541,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 M left singular vectors to be computed in U and
 *                 N right singular vectors to be overwritten on A
 *
-                  IF( LWORK.GE.2*N*N+MAX( N+M, 4*N, 5*N-4 ) ) THEN
+                  IF( LWORK.GE.2*N*N+MAX( N+M, 4*N, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -1612,7 +1626,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of R in WORK(IU) and computing
 *                    right singular vectors of R in WORK(IR)
-*                    (Workspace: need 2*N*N+5*N-4)
+*                    (Workspace: need 2*N*N+BDSPAC)
 *
                      CALL DBDSQR( 'U', N, N, N, 0, S, WORK( IE ),
      $                            WORK( IR ), LDWRKR, WORK( IU ),
@@ -1688,7 +1702,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of A in U and computing right
 *                    singular vectors of A in A
-*                    (Workspace: need 5*N-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', N, N, M, 0, S, WORK( IE ), A,
      $                            LDA, U, LDU, DUM, 1, WORK( IWORK ),
@@ -1703,7 +1717,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 M left singular vectors to be computed in U and
 *                 N right singular vectors to be computed in VT
 *
-                  IF( LWORK.GE.N*N+MAX( N+M, 4*N, 5*N-4 ) ) THEN
+                  IF( LWORK.GE.N*N+MAX( N+M, 4*N, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -1774,7 +1788,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of R in WORK(IU) and computing
 *                    right singular vectors of R in VT
-*                    (Workspace: need N*N+5*N-4)
+*                    (Workspace: need N*N+BDSPAC)
 *
                      CALL DBDSQR( 'U', N, N, N, 0, S, WORK( IE ), VT,
      $                            LDVT, WORK( IU ), LDWRKU, DUM, 1,
@@ -1846,7 +1860,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of A in U and computing right
 *                    singular vectors of A in VT
-*                    (Workspace: need 5*N-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', N, N, M, 0, S, WORK( IE ), VT,
      $                            LDVT, U, LDU, DUM, 1, WORK( IWORK ),
@@ -1932,7 +1946,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *              Perform bidiagonal QR iteration, if desired, computing
 *              left singular vectors in U and computing right singular
 *              vectors in VT
-*              (Workspace: need 5*N-4)
+*              (Workspace: need BDSPAC)
 *
                CALL DBDSQR( 'U', N, NCVT, NRU, 0, S, WORK( IE ), VT,
      $                      LDVT, U, LDU, DUM, 1, WORK( IWORK ), INFO )
@@ -1941,7 +1955,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *              Perform bidiagonal QR iteration, if desired, computing
 *              left singular vectors in U and computing right singular
 *              vectors in A
-*              (Workspace: need 5*N-4)
+*              (Workspace: need BDSPAC)
 *
                CALL DBDSQR( 'U', N, NCVT, NRU, 0, S, WORK( IE ), A, LDA,
      $                      U, LDU, DUM, 1, WORK( IWORK ), INFO )
@@ -1950,7 +1964,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *              Perform bidiagonal QR iteration, if desired, computing
 *              left singular vectors in A and computing right singular
 *              vectors in VT
-*              (Workspace: need 5*N-4)
+*              (Workspace: need BDSPAC)
 *
                CALL DBDSQR( 'U', N, NCVT, NRU, 0, S, WORK( IE ), VT,
      $                      LDVT, A, LDA, DUM, 1, WORK( IWORK ), INFO )
@@ -2009,7 +2023,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *              Perform bidiagonal QR iteration, computing left singular
 *              vectors of A in A if desired
-*              (Workspace: need 5*M-4)
+*              (Workspace: need BDSPAC)
 *
                CALL DBDSQR( 'U', M, 0, NRU, 0, S, WORK( IE ), DUM, 1, A,
      $                      LDA, DUM, 1, WORK( IWORK ), INFO )
@@ -2025,7 +2039,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *              M right singular vectors to be overwritten on A and
 *              no left singular vectors to be computed
 *
-               IF( LWORK.GE.M*M+MAX( 4*M, 5*M-4 ) ) THEN
+               IF( LWORK.GE.M*M+MAX( 4*M, BDSPAC ) ) THEN
 *
 *                 Sufficient workspace for a fast algorithm
 *
@@ -2094,7 +2108,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                 Perform bidiagonal QR iteration, computing right
 *                 singular vectors of L in WORK(IR)
-*                 (Workspace: need M*M+5*M-4)
+*                 (Workspace: need M*M+BDSPAC)
 *
                   CALL DBDSQR( 'U', M, M, 0, 0, S, WORK( IE ),
      $                         WORK( IR ), LDWRKR, DUM, 1, DUM, 1,
@@ -2139,7 +2153,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                 Perform bidiagonal QR iteration, computing right
 *                 singular vectors of A in A
-*                 (Workspace: need 5*M-4)
+*                 (Workspace: need BDSPAC)
 *
                   CALL DBDSQR( 'L', M, N, 0, 0, S, WORK( IE ), A, LDA,
      $                         DUM, 1, DUM, 1, WORK( IWORK ), INFO )
@@ -2152,7 +2166,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *              M right singular vectors to be overwritten on A and
 *              M left singular vectors to be computed in U
 *
-               IF( LWORK.GE.M*M+MAX( 4*M, 5*M-4 ) ) THEN
+               IF( LWORK.GE.M*M+MAX( 4*M, BDSPAC ) ) THEN
 *
 *                 Sufficient workspace for a fast algorithm
 *
@@ -2229,7 +2243,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 Perform bidiagonal QR iteration, computing left
 *                 singular vectors of L in U, and computing right
 *                 singular vectors of L in WORK(IR)
-*                 (Workspace: need M*M+5*M-4)
+*                 (Workspace: need M*M+BDSPAC)
 *
                   CALL DBDSQR( 'U', M, M, M, 0, S, WORK( IE ),
      $                         WORK( IR ), LDWRKR, U, LDU, DUM, 1,
@@ -2302,7 +2316,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 Perform bidiagonal QR iteration, computing left
 *                 singular vectors of A in U and computing right
 *                 singular vectors of A in A
-*                 (Workspace: need 5*M-4)
+*                 (Workspace: need BDSPAC)
 *
                   CALL DBDSQR( 'U', M, N, M, 0, S, WORK( IE ), A, LDA,
      $                         U, LDU, DUM, 1, WORK( IWORK ), INFO )
@@ -2317,7 +2331,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 M right singular vectors to be computed in VT and
 *                 no left singular vectors to be computed
 *
-                  IF( LWORK.GE.M*M+MAX( 4*M, 5*M-4 ) ) THEN
+                  IF( LWORK.GE.M*M+MAX( 4*M, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -2378,7 +2392,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                    Perform bidiagonal QR iteration, computing right
 *                    singular vectors of L in WORK(IR)
-*                    (Workspace: need M*M+5*M-4)
+*                    (Workspace: need M*M+BDSPAC)
 *
                      CALL DBDSQR( 'U', M, M, 0, 0, S, WORK( IE ),
      $                            WORK( IR ), LDWRKR, DUM, 1, DUM, 1,
@@ -2440,7 +2454,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                    Perform bidiagonal QR iteration, computing right
 *                    singular vectors of A in VT
-*                    (Workspace: need 5*M-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', M, N, 0, 0, S, WORK( IE ), VT,
      $                            LDVT, DUM, 1, DUM, 1, WORK( IWORK ),
@@ -2454,7 +2468,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 M right singular vectors to be computed in VT and
 *                 M left singular vectors to be overwritten on A
 *
-                  IF( LWORK.GE.2*M*M+MAX( 4*M, 5*M-4 ) ) THEN
+                  IF( LWORK.GE.2*M*M+MAX( 4*M, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -2538,7 +2552,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of L in WORK(IR) and computing
 *                    right singular vectors of L in WORK(IU)
-*                    (Workspace: need 2*M*M+5*M-4)
+*                    (Workspace: need 2*M*M+BDSPAC)
 *
                      CALL DBDSQR( 'U', M, M, M, 0, S, WORK( IE ),
      $                            WORK( IU ), LDWRKU, WORK( IR ),
@@ -2610,7 +2624,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, compute left
 *                    singular vectors of A in A and compute right
 *                    singular vectors of A in VT
-*                    (Workspace: need 5*M-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', M, N, M, 0, S, WORK( IE ), VT,
      $                            LDVT, A, LDA, DUM, 1, WORK( IWORK ),
@@ -2625,7 +2639,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 M right singular vectors to be computed in VT and
 *                 M left singular vectors to be computed in U
 *
-                  IF( LWORK.GE.M*M+MAX( 4*M, 5*M-4 ) ) THEN
+                  IF( LWORK.GE.M*M+MAX( 4*M, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -2695,7 +2709,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of L in U and computing right
 *                    singular vectors of L in WORK(IU)
-*                    (Workspace: need M*M+5*M-4)
+*                    (Workspace: need M*M+BDSPAC)
 *
                      CALL DBDSQR( 'U', M, M, M, 0, S, WORK( IE ),
      $                            WORK( IU ), LDWRKU, U, LDU, DUM, 1,
@@ -2763,7 +2777,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of A in U and computing right
 *                    singular vectors of A in VT
-*                    (Workspace: need 5*M-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', M, N, M, 0, S, WORK( IE ), VT,
      $                            LDVT, U, LDU, DUM, 1, WORK( IWORK ),
@@ -2781,7 +2795,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 N right singular vectors to be computed in VT and
 *                 no left singular vectors to be computed
 *
-                  IF( LWORK.GE.M*M+MAX( N+M, 4*M, 5*M-4 ) ) THEN
+                  IF( LWORK.GE.M*M+MAX( N+M, 4*M, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -2843,7 +2857,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                    Perform bidiagonal QR iteration, computing right
 *                    singular vectors of L in WORK(IR)
-*                    (Workspace: need M*M+5*M-4)
+*                    (Workspace: need M*M+BDSPAC)
 *
                      CALL DBDSQR( 'U', M, M, 0, 0, S, WORK( IE ),
      $                            WORK( IR ), LDWRKR, DUM, 1, DUM, 1,
@@ -2907,7 +2921,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *
 *                    Perform bidiagonal QR iteration, computing right
 *                    singular vectors of A in VT
-*                    (Workspace: need 5*M-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', M, N, 0, 0, S, WORK( IE ), VT,
      $                            LDVT, DUM, 1, DUM, 1, WORK( IWORK ),
@@ -2921,7 +2935,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 N right singular vectors to be computed in VT and
 *                 M left singular vectors to be overwritten on A
 *
-                  IF( LWORK.GE.2*M*M+MAX( N+M, 4*M, 5*M-4 ) ) THEN
+                  IF( LWORK.GE.2*M*M+MAX( N+M, 4*M, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -3006,7 +3020,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of L in WORK(IR) and computing
 *                    right singular vectors of L in WORK(IU)
-*                    (Workspace: need 2*M*M+5*M-4)
+*                    (Workspace: need 2*M*M+BDSPAC)
 *
                      CALL DBDSQR( 'U', M, M, M, 0, S, WORK( IE ),
      $                            WORK( IU ), LDWRKU, WORK( IR ),
@@ -3082,7 +3096,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of A in A and computing right
 *                    singular vectors of A in VT
-*                    (Workspace: need 5*M-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', M, N, M, 0, S, WORK( IE ), VT,
      $                            LDVT, A, LDA, DUM, 1, WORK( IWORK ),
@@ -3097,7 +3111,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                 N right singular vectors to be computed in VT and
 *                 M left singular vectors to be computed in U
 *
-                  IF( LWORK.GE.M*M+MAX( N+M, 4*M, 5*M-4 ) ) THEN
+                  IF( LWORK.GE.M*M+MAX( N+M, 4*M, BDSPAC ) ) THEN
 *
 *                    Sufficient workspace for a fast algorithm
 *
@@ -3167,7 +3181,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of L in U and computing right
 *                    singular vectors of L in WORK(IU)
-*                    (Workspace: need M*M+5*M-4)
+*                    (Workspace: need M*M+BDSPAC)
 *
                      CALL DBDSQR( 'U', M, M, M, 0, S, WORK( IE ),
      $                            WORK( IU ), LDWRKU, U, LDU, DUM, 1,
@@ -3239,7 +3253,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *                    Perform bidiagonal QR iteration, computing left
 *                    singular vectors of A in U and computing right
 *                    singular vectors of A in VT
-*                    (Workspace: need 5*M-4)
+*                    (Workspace: need BDSPAC)
 *
                      CALL DBDSQR( 'U', M, N, M, 0, S, WORK( IE ), VT,
      $                            LDVT, U, LDU, DUM, 1, WORK( IWORK ),
@@ -3325,7 +3339,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *              Perform bidiagonal QR iteration, if desired, computing
 *              left singular vectors in U and computing right singular
 *              vectors in VT
-*              (Workspace: need 5*M-4)
+*              (Workspace: need BDSPAC)
 *
                CALL DBDSQR( 'L', M, NCVT, NRU, 0, S, WORK( IE ), VT,
      $                      LDVT, U, LDU, DUM, 1, WORK( IWORK ), INFO )
@@ -3334,7 +3348,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *              Perform bidiagonal QR iteration, if desired, computing
 *              left singular vectors in U and computing right singular
 *              vectors in A
-*              (Workspace: need 5*M-4)
+*              (Workspace: need BDSPAC)
 *
                CALL DBDSQR( 'L', M, NCVT, NRU, 0, S, WORK( IE ), A, LDA,
      $                      U, LDU, DUM, 1, WORK( IWORK ), INFO )
@@ -3343,7 +3357,7 @@ C$Id: dgesvd.f,v 1.2 1995-02-02 23:15:47 d3g681 Exp $
 *              Perform bidiagonal QR iteration, if desired, computing
 *              left singular vectors in A and computing right singular
 *              vectors in VT
-*              (Workspace: need 5*M-4)
+*              (Workspace: need BDSPAC)
 *
                CALL DBDSQR( 'L', M, NCVT, NRU, 0, S, WORK( IE ), VT,
      $                      LDVT, A, LDA, DUM, 1, WORK( IWORK ), INFO )

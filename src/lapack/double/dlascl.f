@@ -1,12 +1,11 @@
       SUBROUTINE DLASCL( TYPE, KL, KU, CFROM, CTO, M, N, A, LDA, INFO )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: dlascl.f,v 1.2 1995-02-02 23:16:16 d3g681 Exp $
       CHARACTER          TYPE
       INTEGER            INFO, KL, KU, LDA, M, N
       DOUBLE PRECISION   CFROM, CTO
@@ -15,6 +14,9 @@ C$Id: dlascl.f,v 1.2 1995-02-02 23:16:16 d3g681 Exp $
       DOUBLE PRECISION   A( LDA, * )
 *     ..
 *
+c
+* $Id: dlascl.f,v 1.3 1997-03-17 21:24:15 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

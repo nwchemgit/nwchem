@@ -15,6 +15,9 @@
       COMPLEX*16         A( LDA, * ), B( LDB, * ), WORK( * )
 *     ..
 *
+c
+* $Id: zhegv.f,v 1.2 1997-03-17 21:25:41 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

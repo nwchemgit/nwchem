@@ -1,4 +1,7 @@
       double complex function zdotc(n,zx,incx,zy,incy)
+*
+* $Id: zdotc.f,v 1.2 1997-03-17 21:21:46 d3e129 Exp $
+*
 c
 c     forms the dot product of a vector.
 c     jack dongarra, 3/11/78.

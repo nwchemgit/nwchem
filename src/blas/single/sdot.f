@@ -1,11 +1,14 @@
       real function sdot(n,sx,incx,sy,incy)
+*
+* $Id: sdot.f,v 1.3 1997-03-17 21:22:26 d3e129 Exp $
+*
 c
 c     forms the dot product of two vectors.
 c     uses unrolled loops for increments equal to one.
 c     jack dongarra, linpack, 3/11/78.
+c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C$Id: sdot.f,v 1.2 1995-02-02 23:10:14 d3g681 Exp $
-      real sx(1),sy(1),stemp
+      real sx(*),sy(*),stemp
       integer i,incx,incy,ix,iy,m,mp1,n
 c
       stemp = 0.0e0

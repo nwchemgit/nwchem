@@ -13,6 +13,9 @@
       COMPLEX*16         X( * )
 *     ..
 *
+c
+* $Id: zlarfg.f,v 1.2 1997-03-17 21:25:56 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

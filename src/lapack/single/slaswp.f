@@ -1,12 +1,11 @@
       SUBROUTINE SLASWP( N, A, LDA, K1, K2, IPIV, INCX )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: slaswp.f,v 1.2 1995-02-02 23:17:51 d3g681 Exp $
       INTEGER            INCX, K1, K2, LDA, N
 *     ..
 *     .. Array Arguments ..
@@ -14,6 +13,9 @@ C$Id: slaswp.f,v 1.2 1995-02-02 23:17:51 d3g681 Exp $
       REAL               A( LDA, * )
 *     ..
 *
+c
+* $Id: slaswp.f,v 1.3 1997-03-17 21:27:46 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

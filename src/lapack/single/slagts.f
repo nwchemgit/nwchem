@@ -1,12 +1,11 @@
       SUBROUTINE SLAGTS( JOB, N, A, B, C, D, IN, Y, TOL, INFO )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: slagts.f,v 1.2 1995-02-02 23:17:32 d3g681 Exp $
       INTEGER            INFO, JOB, N
       REAL               TOL
 *     ..
@@ -15,6 +14,9 @@ C$Id: slagts.f,v 1.2 1995-02-02 23:17:32 d3g681 Exp $
       REAL               A( * ), B( * ), C( * ), D( * ), Y( * )
 *     ..
 *
+c
+* $Id: slagts.f,v 1.3 1997-03-17 21:27:08 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -75,11 +77,10 @@ C$Id: slagts.f,v 1.2 1995-02-02 23:17:32 d3g681 Exp $
 *
 *  Y       (input/output) REAL array, dimension (N)
 *          On entry, the right hand side vector y.
-*
 *          On exit, Y is overwritten by the solution vector x.
 *
 *  TOL     (input/output) REAL
-*          On entry with  JOB .lt. 0, TOL should be the minimum
+*          On entry, with  JOB .lt. 0, TOL should be the minimum
 *          perturbation to be made to very small diagonal elements of U.
 *          TOL should normally be chosen as about eps*norm(U), where eps
 *          is the relative machine precision, but if TOL is supplied as
@@ -89,9 +90,9 @@ C$Id: slagts.f,v 1.2 1995-02-02 23:17:32 d3g681 Exp $
 *          On exit, TOL is changed as described above, only if TOL is
 *          non-positive on entry. Otherwise TOL is unchanged.
 *
-*  INFO    (output)
+*  INFO    (output) INTEGER
 *          = 0   : successful exit
-*          .lt. 0: if INFO = -k, the kth argument had an illegal value
+*          .lt. 0: if INFO = -i, the i-th argument had an illegal value
 *          .gt. 0: overflow would occur when computing the INFO(th)
 *                  element of the solution vector x. This can only occur
 *                  when JOB is supplied as positive and either means

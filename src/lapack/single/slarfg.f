@@ -1,12 +1,11 @@
       SUBROUTINE SLARFG( N, ALPHA, X, INCX, TAU )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     February 29, 1992
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: slarfg.f,v 1.2 1995-02-02 23:17:41 d3g681 Exp $
       INTEGER            INCX, N
       REAL               ALPHA, TAU
 *     ..
@@ -14,6 +13,9 @@ C$Id: slarfg.f,v 1.2 1995-02-02 23:17:41 d3g681 Exp $
       REAL               X( * )
 *     ..
 *
+c
+* $Id: slarfg.f,v 1.3 1997-03-17 21:27:25 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -53,7 +55,7 @@ C$Id: slarfg.f,v 1.2 1995-02-02 23:17:41 d3g681 Exp $
 *          On exit, it is overwritten with the vector v.
 *
 *  INCX    (input) INTEGER
-*          The increment between elements of X. INCX <> 0.
+*          The increment between elements of X. INCX > 0.
 *
 *  TAU     (output) REAL
 *          The value tau.
@@ -97,7 +99,7 @@ C$Id: slarfg.f,v 1.2 1995-02-02 23:17:41 d3g681 Exp $
 *        general case
 *
          BETA = -SIGN( SLAPY2( ALPHA, XNORM ), ALPHA )
-         SAFMIN = SLAMCH( 'S' )
+         SAFMIN = SLAMCH( 'S' ) / SLAMCH( 'E' )
          IF( ABS( BETA ).LT.SAFMIN ) THEN
 *
 *           XNORM, BETA may be inaccurate; scale X and recompute them

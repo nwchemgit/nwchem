@@ -1,9 +1,9 @@
       SUBROUTINE DSYTRD( UPLO, N, A, LDA, D, E, TAU, WORK, LWORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
@@ -14,6 +14,9 @@
      $                   WORK( * )
 *     ..
 *
+c
+* $Id: dsytrd.f,v 1.2 1997-03-17 21:25:27 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -65,7 +68,7 @@
 *          The scalar factors of the elementary reflectors (see Further
 *          Details).
 *
-*  WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK)
+*  WORK    (workspace/output) DOUBLE PRECISION array, dimension (LWORK)
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER
@@ -191,7 +194,7 @@
 *              minimum value of NB, and reduce NB or force use of
 *              unblocked code by setting NX = N.
 *
-               NB = LWORK / LDWORK
+               NB = MAX( LWORK / LDWORK, 1 )
                NBMIN = ILAENV( 2, 'DSYTRD', UPLO, N, -1, -1, -1 )
                IF( NB.LT.NBMIN )
      $            NX = N

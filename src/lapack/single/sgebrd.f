@@ -1,13 +1,12 @@
       SUBROUTINE SGEBRD( M, N, A, LDA, D, E, TAUQ, TAUP, WORK, LWORK,
      $                   INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993 
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: sgebrd.f,v 1.2 1995-02-02 23:17:14 d3g681 Exp $
       INTEGER            INFO, LDA, LWORK, M, N
 *     ..
 *     .. Array Arguments ..
@@ -15,6 +14,9 @@ C$Id: sgebrd.f,v 1.2 1995-02-02 23:17:14 d3g681 Exp $
      $                   TAUQ( * ), WORK( LWORK )
 *     ..
 *
+c
+* $Id: sgebrd.f,v 1.3 1997-03-17 21:26:36 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -71,7 +73,7 @@ C$Id: sgebrd.f,v 1.2 1995-02-02 23:17:14 d3g681 Exp $
 *          The scalar factors of the elementary reflectors which
 *          represent the orthogonal matrix P. See Further Details.
 *
-*  WORK    (workspace) REAL array, dimension (LWORK)
+*  WORK    (workspace/output) REAL array, dimension (LWORK)
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER

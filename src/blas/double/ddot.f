@@ -1,11 +1,14 @@
       double precision function ddot(n,dx,incx,dy,incy)
+*
+* $Id: ddot.f,v 1.3 1997-03-17 21:20:51 d3e129 Exp $
+*
 c
 c     forms the dot product of two vectors.
 c     uses unrolled loops for increments equal to one.
 c     jack dongarra, linpack, 3/11/78.
+c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C$Id: ddot.f,v 1.2 1995-02-02 23:09:41 d3g681 Exp $
-      double precision dx(1),dy(1),dtemp
+      double precision dx(*),dy(*),dtemp
       integer i,incx,incy,ix,iy,m,mp1,n
 c
       ddot = 0.0d0

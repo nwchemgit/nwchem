@@ -1,12 +1,14 @@
       LOGICAL          FUNCTION LSAME( CA, CB )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+* $Id: lsame.f,v 1.3 1997-03-17 21:21:40 d3e129 Exp $
+*
+*
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     February 29, 1992 
+*     January 31, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: lsame.f,v 1.2 1995-02-02 23:09:58 d3g681 Exp $
       CHARACTER          CA, CB
 *     ..
 *
@@ -22,6 +24,8 @@ C$Id: lsame.f,v 1.2 1995-02-02 23:09:58 d3g681 Exp $
 *  CA      (input) CHARACTER*1
 *  CB      (input) CHARACTER*1
 *          CA and CB specify the single characters to be compared.
+*
+* =====================================================================
 *
 *     .. Intrinsic Functions ..
       INTRINSIC          ICHAR

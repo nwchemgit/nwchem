@@ -12,6 +12,9 @@
       COMPLEX*16         X( * )
 *     ..
 *
+c
+* $Id: zlacgv.f,v 1.2 1997-03-17 21:25:47 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

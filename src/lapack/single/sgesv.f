@@ -1,12 +1,11 @@
       SUBROUTINE SGESV( N, NRHS, A, LDA, IPIV, B, LDB, INFO )
 *
-*  -- LAPACK driver routine (version 1.1) --
+*  -- LAPACK driver routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993 
 *
 *     .. Scalar Arguments ..
-C$Id: sgesv.f,v 1.2 1995-02-02 23:17:19 d3g681 Exp $
       INTEGER            INFO, LDA, LDB, N, NRHS
 *     ..
 *     .. Array Arguments ..
@@ -14,6 +13,9 @@ C$Id: sgesv.f,v 1.2 1995-02-02 23:17:19 d3g681 Exp $
       REAL               A( LDA, * ), B( LDB, * )
 *     ..
 *
+c
+* $Id: sgesv.f,v 1.3 1997-03-17 21:26:45 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

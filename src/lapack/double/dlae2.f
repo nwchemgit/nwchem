@@ -9,6 +9,9 @@
       DOUBLE PRECISION   A, B, C, RT1, RT2
 *     ..
 *
+c
+* $Id: dlae2.f,v 1.3 1997-03-17 21:23:41 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

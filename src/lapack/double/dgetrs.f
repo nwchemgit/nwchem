@@ -1,12 +1,11 @@
       SUBROUTINE DGETRS( TRANS, N, NRHS, A, LDA, IPIV, B, LDB, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
-C$Id: dgetrs.f,v 1.2 1995-02-02 23:15:53 d3g681 Exp $
       CHARACTER          TRANS
       INTEGER            INFO, LDA, LDB, N, NRHS
 *     ..
@@ -15,6 +14,9 @@ C$Id: dgetrs.f,v 1.2 1995-02-02 23:15:53 d3g681 Exp $
       DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *     ..
 *
+c
+* $Id: dgetrs.f,v 1.3 1997-03-17 21:23:31 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,15 +1,17 @@
       SUBROUTINE DLAS2( F, G, H, SSMIN, SSMAX )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: dlas2.f,v 1.2 1995-02-02 23:16:15 d3g681 Exp $
       DOUBLE PRECISION   F, G, H, SSMAX, SSMIN
 *     ..
 *
+c
+* $Id: dlas2.f,v 1.3 1997-03-17 21:24:13 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -23,13 +25,13 @@ C$Id: dlas2.f,v 1.2 1995-02-02 23:16:15 d3g681 Exp $
 *  =========
 *
 *  F       (input) DOUBLE PRECISION
-*          The (1,1) entry of the 2-by-2 matrix.
+*          The (1,1) element of the 2-by-2 matrix.
 *
 *  G       (input) DOUBLE PRECISION
-*          The (1,2) entry of the 2-by-2 matrix.
+*          The (1,2) element of the 2-by-2 matrix.
 *
 *  H       (input) DOUBLE PRECISION
-*          The (2,2) entry of the 2-by-2 matrix.
+*          The (2,2) element of the 2-by-2 matrix.
 *
 *  SSMIN   (output) DOUBLE PRECISION
 *          The smaller singular value.
@@ -44,7 +46,7 @@ C$Id: dlas2.f,v 1.2 1995-02-02 23:16:15 d3g681 Exp $
 *  a few units in the last place (ulps), even in the absence of a guard
 *  digit in addition/subtraction.
 *
-*  In IEEE arithmetic, the code works correctly if one matrix entry is
+*  In IEEE arithmetic, the code works correctly if one matrix element is
 *  infinite.
 *
 *  Overflow will not occur unless the largest singular value itself
@@ -82,7 +84,7 @@ C$Id: dlas2.f,v 1.2 1995-02-02 23:16:15 d3g681 Exp $
       IF( FHMN.EQ.ZERO ) THEN
          SSMIN = ZERO
          IF( FHMX.EQ.ZERO ) THEN
-            SSMAX = ZERO
+            SSMAX = GA
          ELSE
             SSMAX = MAX( FHMX, GA )*SQRT( ONE+
      $              ( MIN( FHMX, GA ) / MAX( FHMX, GA ) )**2 )

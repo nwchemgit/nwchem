@@ -1,9 +1,9 @@
       SUBROUTINE SSTEQR( COMPZ, N, D, E, Z, LDZ, WORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993 
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
       CHARACTER          COMPZ
@@ -13,6 +13,9 @@
       REAL               D( * ), E( * ), WORK( * ), Z( LDZ, * )
 *     ..
 *
+c
+* $Id: ssteqr.f,v 1.2 1997-03-17 21:28:32 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -50,12 +53,10 @@
 *  Z       (input/output) REAL array, dimension (LDZ, N)
 *          On entry, if  COMPZ = 'V', then Z contains the orthogonal
 *          matrix used in the reduction to tridiagonal form.
-*          On exit, if  COMPZ = 'V', Z contains the orthonormal
-*          eigenvectors of the original symmetric matrix, and if
-*          COMPZ = 'I', Z contains the orthonormal eigenvectors of
-*          the symmetric tridiagonal matrix.  If an error exit is
-*          made, Z contains the eigenvectors associated with the
-*          stored eigenvalues.
+*          On exit, if INFO = 0, then if  COMPZ = 'V', Z contains the
+*          orthonormal eigenvectors of the original symmetric matrix,
+*          and if COMPZ = 'I', Z contains the orthonormal eigenvectors
+*          of the symmetric tridiagonal matrix.
 *          If COMPZ = 'N', then Z is not referenced.
 *
 *  LDZ     (input) INTEGER
@@ -78,27 +79,30 @@
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL               ZERO, ONE, TWO
-      PARAMETER          ( ZERO = 0.0, ONE = 1.0, TWO = 2.0 )
+      REAL               ZERO, ONE, TWO, THREE
+      PARAMETER          ( ZERO = 0.0E0, ONE = 1.0E0, TWO = 2.0E0,
+     $                   THREE = 3.0E0 )
       INTEGER            MAXIT
       PARAMETER          ( MAXIT = 30 )
 *     ..
 *     .. Local Scalars ..
-      INTEGER            I, ICOMPZ, II, J, JTOT, K, L, L1, LEND, LENDM1,
-     $                   LENDP1, LM1, M, MM, MM1, NM1, NMAXIT
-      REAL               B, C, EPS, F, G, P, R, RT1, RT2, S, TST
+      INTEGER            I, ICOMPZ, II, ISCALE, J, JTOT, K, L, L1, LEND,
+     $                   LENDM1, LENDP1, LENDSV, LM1, LSV, M, MM, MM1,
+     $                   NM1, NMAXIT
+      REAL               ANORM, B, C, EPS, EPS2, F, G, P, R, RT1, RT2,
+     $                   S, SAFMAX, SAFMIN, SSFMAX, SSFMIN, TST
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL               SLAMCH, SLAPY2
-      EXTERNAL           LSAME, SLAMCH, SLAPY2
+      REAL               SLAMCH, SLANST, SLAPY2
+      EXTERNAL           LSAME, SLAMCH, SLANST, SLAPY2
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           SLAE2, SLAEV2, SLARTG, SLASR, SLAZRO, SSWAP,
-     $                   XERBLA
+      EXTERNAL           SLAE2, SLAEV2, SLARTG, SLASCL, SLASET, SLASR,
+     $                   SLASRT, SSWAP, XERBLA
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC          ABS, MAX, SIGN
+      INTRINSIC          ABS, MAX, SIGN, SQRT
 *     ..
 *     .. Executable Statements ..
 *
@@ -134,20 +138,25 @@
      $   RETURN
 *
       IF( N.EQ.1 ) THEN
-         IF( ICOMPZ.GT.0 )
+         IF( ICOMPZ.EQ.2 )
      $      Z( 1, 1 ) = ONE
          RETURN
       END IF
 *
-*     Determine the unit roundoff for this environment.
+*     Determine the unit roundoff and over/underflow thresholds.
 *
       EPS = SLAMCH( 'E' )
+      EPS2 = EPS**2
+      SAFMIN = SLAMCH( 'S' )
+      SAFMAX = ONE / SAFMIN
+      SSFMAX = SQRT( SAFMAX ) / THREE
+      SSFMIN = SQRT( SAFMIN ) / EPS2
 *
 *     Compute the eigenvalues and eigenvectors of the tridiagonal
 *     matrix.
 *
       IF( ICOMPZ.EQ.2 )
-     $   CALL SLAZRO( N, N, ZERO, ONE, Z, LDZ )
+     $   CALL SLASET( 'Full', N, N, ZERO, ONE, Z, LDZ )
 *
       NMAXIT = N*MAXIT
       JTOT = 0
@@ -167,22 +176,54 @@
       IF( L1.LE.NM1 ) THEN
          DO 20 M = L1, NM1
             TST = ABS( E( M ) )
-            IF( TST.LE.EPS*( ABS( D( M ) )+ABS( D( M+1 ) ) ) )
+            IF( TST.EQ.ZERO )
      $         GO TO 30
+            IF( TST.LE.( SQRT( ABS( D( M ) ) )*SQRT( ABS( D( M+
+     $          1 ) ) ) )*EPS ) THEN
+               E( M ) = ZERO
+               GO TO 30
+            END IF
    20    CONTINUE
       END IF
       M = N
 *
    30 CONTINUE
       L = L1
+      LSV = L
       LEND = M
-      IF( ABS( D( LEND ) ).LT.ABS( D( L ) ) ) THEN
-         L = LEND
-         LEND = L1
-      END IF
+      LENDSV = LEND
       L1 = M + 1
+      IF( LEND.EQ.L )
+     $   GO TO 10
 *
-      IF( LEND.GE.L ) THEN
+*     Scale submatrix in rows and columns L to LEND
+*
+      ANORM = SLANST( 'I', LEND-L+1, D( L ), E( L ) )
+      ISCALE = 0
+      IF( ANORM.EQ.ZERO )
+     $   GO TO 10
+      IF( ANORM.GT.SSFMAX ) THEN
+         ISCALE = 1
+         CALL SLASCL( 'G', 0, 0, ANORM, SSFMAX, LEND-L+1, 1, D( L ), N,
+     $                INFO )
+         CALL SLASCL( 'G', 0, 0, ANORM, SSFMAX, LEND-L, 1, E( L ), N,
+     $                INFO )
+      ELSE IF( ANORM.LT.SSFMIN ) THEN
+         ISCALE = 2
+         CALL SLASCL( 'G', 0, 0, ANORM, SSFMIN, LEND-L+1, 1, D( L ), N,
+     $                INFO )
+         CALL SLASCL( 'G', 0, 0, ANORM, SSFMIN, LEND-L, 1, E( L ), N,
+     $                INFO )
+      END IF
+*
+*     Choose between QL and QR iteration
+*
+      IF( ABS( D( LEND ) ).LT.ABS( D( L ) ) ) THEN
+         LEND = LSV
+         L = LENDSV
+      END IF
+*
+      IF( LEND.GT.L ) THEN
 *
 *        QL Iteration
 *
@@ -192,9 +233,9 @@
          IF( L.NE.LEND ) THEN
             LENDM1 = LEND - 1
             DO 50 M = L, LENDM1
-               TST = ABS( E( M ) )
-               IF( TST.LE.EPS*( ABS( D( M ) )+ABS( D( M+1 ) ) ) )
-     $            GO TO 60
+               TST = ABS( E( M ) )**2
+               IF( TST.LE.( EPS2*ABS( D( M ) ) )*ABS( D( M+1 ) )+
+     $             SAFMIN )GO TO 60
    50       CONTINUE
          END IF
 *
@@ -226,7 +267,7 @@
             L = L + 2
             IF( L.LE.LEND )
      $         GO TO 40
-            GO TO 10
+            GO TO 140
          END IF
 *
          IF( JTOT.EQ.NMAXIT )
@@ -287,7 +328,7 @@
          L = L + 1
          IF( L.LE.LEND )
      $      GO TO 40
-         GO TO 10
+         GO TO 140
 *
       ELSE
 *
@@ -299,9 +340,9 @@
          IF( L.NE.LEND ) THEN
             LENDP1 = LEND + 1
             DO 100 M = L, LENDP1, -1
-               TST = ABS( E( M-1 ) )
-               IF( TST.LE.EPS*( ABS( D( M ) )+ABS( D( M-1 ) ) ) )
-     $            GO TO 110
+               TST = ABS( E( M-1 ) )**2
+               IF( TST.LE.( EPS2*ABS( D( M ) ) )*ABS( D( M-1 ) )+
+     $             SAFMIN )GO TO 110
   100       CONTINUE
          END IF
 *
@@ -333,7 +374,7 @@
             L = L - 2
             IF( L.GE.LEND )
      $         GO TO 90
-            GO TO 10
+            GO TO 140
          END IF
 *
          IF( JTOT.EQ.NMAXIT )
@@ -394,41 +435,68 @@
          L = L - 1
          IF( L.GE.LEND )
      $      GO TO 90
-         GO TO 10
+         GO TO 140
 *
       END IF
 *
-*     Set error -- no convergence to an eigenvalue after a total
-*     of N*MAXIT iterations.
+*     Undo scaling if necessary
 *
   140 CONTINUE
+      IF( ISCALE.EQ.1 ) THEN
+         CALL SLASCL( 'G', 0, 0, SSFMAX, ANORM, LENDSV-LSV+1, 1,
+     $                D( LSV ), N, INFO )
+         CALL SLASCL( 'G', 0, 0, SSFMAX, ANORM, LENDSV-LSV, 1, E( LSV ),
+     $                N, INFO )
+      ELSE IF( ISCALE.EQ.2 ) THEN
+         CALL SLASCL( 'G', 0, 0, SSFMIN, ANORM, LENDSV-LSV+1, 1,
+     $                D( LSV ), N, INFO )
+         CALL SLASCL( 'G', 0, 0, SSFMIN, ANORM, LENDSV-LSV, 1, E( LSV ),
+     $                N, INFO )
+      END IF
+*
+*     Check for no convergence to an eigenvalue after a total
+*     of N*MAXIT iterations.
+*
+      IF( JTOT.LT.NMAXIT )
+     $   GO TO 10
       DO 150 I = 1, N - 1
          IF( E( I ).NE.ZERO )
      $      INFO = INFO + 1
   150 CONTINUE
-      RETURN
+      GO TO 190
 *
 *     Order eigenvalues and eigenvectors.
 *
   160 CONTINUE
-      DO 180 II = 2, N
-         I = II - 1
-         K = I
-         P = D( I )
-         DO 170 J = II, N
-            IF( D( J ).LT.P ) THEN
-               K = J
-               P = D( J )
-            END IF
-  170    CONTINUE
-         IF( K.NE.I ) THEN
-            D( K ) = D( I )
-            D( I ) = P
-            IF( ICOMPZ.GT.0 )
-     $         CALL SSWAP( N, Z( 1, I ), 1, Z( 1, K ), 1 )
-         END IF
-  180 CONTINUE
+      IF( ICOMPZ.EQ.0 ) THEN
 *
+*        Use Quick Sort
+*
+         CALL SLASRT( 'I', N, D, INFO )
+*
+      ELSE
+*
+*        Use Selection Sort to minimize swaps of eigenvectors
+*
+         DO 180 II = 2, N
+            I = II - 1
+            K = I
+            P = D( I )
+            DO 170 J = II, N
+               IF( D( J ).LT.P ) THEN
+                  K = J
+                  P = D( J )
+               END IF
+  170       CONTINUE
+            IF( K.NE.I ) THEN
+               D( K ) = D( I )
+               D( I ) = P
+               CALL SSWAP( N, Z( 1, I ), 1, Z( 1, K ), 1 )
+            END IF
+  180    CONTINUE
+      END IF
+*
+  190 CONTINUE
       RETURN
 *
 *     End of SSTEQR

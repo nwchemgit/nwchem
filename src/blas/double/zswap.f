@@ -1,4 +1,7 @@
       subroutine  zswap (n,zx,incx,zy,incy)
+*
+* $Id: zswap.f,v 1.2 1997-03-17 21:22:06 d3e129 Exp $
+*
 c
 c     interchanges two vectors.
 c     jack dongarra, 3/11/78.

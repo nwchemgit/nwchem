@@ -13,6 +13,9 @@
       DOUBLE PRECISION   D( * )
 *     ..
 *
+c
+* $Id: dlasrt.f,v 1.2 1997-03-17 21:24:20 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

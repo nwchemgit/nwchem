@@ -1,10 +1,9 @@
-*
-************************************************************************
-*
       SUBROUTINE DTRSM ( SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA,
      $                   B, LDB )
+*
+* $Id: dtrsm.f,v 1.3 1997-03-17 21:21:32 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
-C$Id: dtrsm.f,v 1.2 1995-02-02 23:09:56 d3g681 Exp $
       CHARACTER*1        SIDE, UPLO, TRANSA, DIAG
       INTEGER            M, N, LDA, LDB
       DOUBLE PRECISION   ALPHA

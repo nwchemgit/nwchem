@@ -1,10 +1,13 @@
       subroutine srot (n,sx,incx,sy,incy,c,s)
+*
+* $Id: srot.f,v 1.3 1997-03-17 21:22:36 d3e129 Exp $
+*
 c
 c     applies a plane rotation.
 c     jack dongarra, linpack, 3/11/78.
+c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C$Id: srot.f,v 1.2 1995-02-02 23:10:19 d3g681 Exp $
-      real sx(1),sy(1),stemp,c,s
+      real sx(*),sy(*),stemp,c,s
       integer i,incx,incy,ix,iy,n
 c
       if(n.le.0)return

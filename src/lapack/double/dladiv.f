@@ -9,6 +9,9 @@
       DOUBLE PRECISION   A, B, C, D, P, Q
 *     ..
 *
+c
+* $Id: dladiv.f,v 1.2 1997-03-17 21:23:39 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

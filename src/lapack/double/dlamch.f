@@ -1,19 +1,17 @@
       DOUBLE PRECISION FUNCTION DLAMCH( CMACH )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
 *
-***** Modified by Jarek Nieplocha on 07.21.1993
-***** hardcoded constants can be used on the Sun platform
-***** see: .F and makefile files in LAPACK/INSTALL
-*
 *     .. Scalar Arguments ..
-C$Id: dlamch.f,v 1.2 1995-02-02 23:16:01 d3g681 Exp $
       CHARACTER          CMACH
 *     ..
 *
+c
+* $Id: dlamch.f,v 1.3 1997-03-17 21:23:48 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -76,18 +74,31 @@ C$Id: dlamch.f,v 1.2 1995-02-02 23:16:01 d3g681 Exp $
 *     ..
 *     .. Executable Statements ..
 *
-*********** constants for IBM/RS6000 ***************
-                EPS   = 1.11022302462515654D-16 
-                SFMIN = 2.225073858507202D-308
-                BASE  = 2.0000000000000
-                PREC  = 2.22044604925031308D-16
-                T     = 53.000000000000
-                RND   = 1.0000000000000
-                EMIN  = -1021.0000000000
-                RMIN  = 2.2250738585072013D-308 
-                EMAX  = 1024.0000000000 
-                RMAX  = 1.7976931348623157D+308 
-******************************************
+      IF( FIRST ) THEN
+         FIRST = .FALSE.
+         CALL DLAMC2( BETA, IT, LRND, EPS, IMIN, RMIN, IMAX, RMAX )
+         BASE = BETA
+         T = IT
+         IF( LRND ) THEN
+            RND = ONE
+            EPS = ( BASE**( 1-IT ) ) / 2
+         ELSE
+            RND = ZERO
+            EPS = BASE**( 1-IT )
+         END IF
+         PREC = EPS*BASE
+         EMIN = IMIN
+         EMAX = IMAX
+         SFMIN = RMIN
+         SMALL = ONE / RMAX
+         IF( SMALL.GE.SFMIN ) THEN
+*
+*           Use SMALL plus a bit, to avoid the possibility of rounding
+*           causing overflow when computing  1/sfmin.
+*
+            SFMIN = SMALL*( ONE+EPS )
+         END IF
+      END IF
 *
       IF( LSAME( CMACH, 'E' ) ) THEN
          RMACH = EPS
@@ -122,7 +133,7 @@ C$Id: dlamch.f,v 1.2 1995-02-02 23:16:01 d3g681 Exp $
 *
       SUBROUTINE DLAMC1( BETA, T, RND, IEEE1 )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -309,7 +320,7 @@ C$Id: dlamch.f,v 1.2 1995-02-02 23:16:01 d3g681 Exp $
 *
       SUBROUTINE DLAMC2( BETA, T, RND, EPS, EMIN, RMIN, EMAX, RMAX )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -568,7 +579,7 @@ C$Id: dlamch.f,v 1.2 1995-02-02 23:16:01 d3g681 Exp $
 *
       DOUBLE PRECISION FUNCTION DLAMC3( A, B )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -606,7 +617,7 @@ C$Id: dlamch.f,v 1.2 1995-02-02 23:16:01 d3g681 Exp $
 *
       SUBROUTINE DLAMC4( EMIN, START, BASE )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -690,7 +701,7 @@ C$Id: dlamch.f,v 1.2 1995-02-02 23:16:01 d3g681 Exp $
 *
       SUBROUTINE DLAMC5( BETA, P, EMIN, IEEE, EMAX, RMAX )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992

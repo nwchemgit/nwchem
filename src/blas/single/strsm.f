@@ -1,10 +1,9 @@
-*
-************************************************************************
-*
       SUBROUTINE STRSM ( SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA,
      $                   B, LDB )
+*
+* $Id: strsm.f,v 1.3 1997-03-17 21:23:05 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
-C$Id: strsm.f,v 1.2 1995-02-02 23:10:32 d3g681 Exp $
       CHARACTER*1        SIDE, UPLO, TRANSA, DIAG
       INTEGER            M, N, LDA, LDB
       REAL               ALPHA

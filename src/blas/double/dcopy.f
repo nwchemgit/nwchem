@@ -1,11 +1,14 @@
       subroutine  dcopy(n,dx,incx,dy,incy)
+*
+* $Id: dcopy.f,v 1.3 1997-03-17 21:20:49 d3e129 Exp $
+*
 c
 c     copies a vector, x, to a vector, y.
 c     uses unrolled loops for increments equal to one.
 c     jack dongarra, linpack, 3/11/78.
+c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C$Id: dcopy.f,v 1.2 1995-02-02 23:09:40 d3g681 Exp $
-      double precision dx(1),dy(1)
+      double precision dx(*),dy(*)
       integer i,incx,incy,ix,iy,m,mp1,n
 c
       if(n.le.0)return

@@ -1,5 +1,8 @@
       SUBROUTINE DSYMV ( UPLO, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
+*
+* $Id: dsymv.f,v 1.2 1997-03-17 21:21:20 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
       DOUBLE PRECISION   ALPHA, BETA
       INTEGER            INCX, INCY, LDA, N

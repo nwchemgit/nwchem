@@ -1,12 +1,11 @@
       SUBROUTINE DLAGTF( N, A, LAMBDA, B, C, TOL, D, IN, INFO )
 *
-*  -- LAPACK routine (version 1.0b) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: dlagtf.f,v 1.2 1995-02-02 23:15:58 d3g681 Exp $
       INTEGER            INFO, N
       DOUBLE PRECISION   LAMBDA, TOL
 *     ..
@@ -15,6 +14,9 @@ C$Id: dlagtf.f,v 1.2 1995-02-02 23:15:58 d3g681 Exp $
       DOUBLE PRECISION   A( * ), B( * ), C( * ), D( * )
 *     ..
 *
+c
+* $Id: dlagtf.f,v 1.3 1997-03-17 21:23:45 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -10,6 +10,9 @@
       INTEGER            N
 *     ..
 *
+c
+* $Id: lsamen.f,v 1.2 1997-03-17 21:25:33 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,6 +1,6 @@
       SUBROUTINE SSYTD2( UPLO, N, A, LDA, D, E, TAU, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -13,6 +13,9 @@
       REAL               A( LDA, * ), D( * ), E( * ), TAU( * )
 *     ..
 *
+c
+* $Id: ssytd2.f,v 1.2 1997-03-17 21:28:43 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

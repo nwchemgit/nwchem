@@ -1,6 +1,8 @@
       SUBROUTINE STRMV ( UPLO, TRANS, DIAG, N, A, LDA, X, INCX )
+*
+* $Id: strmv.f,v 1.3 1997-03-17 21:23:03 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
-C$Id: strmv.f,v 1.2 1995-02-02 23:10:29 d3g681 Exp $
       INTEGER            INCX, LDA, N
       CHARACTER*1        DIAG, TRANS, UPLO
 *     .. Array Arguments ..

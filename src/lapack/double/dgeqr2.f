@@ -1,18 +1,20 @@
       SUBROUTINE DGEQR2( M, N, A, LDA, TAU, WORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: dgeqr2.f,v 1.2 1995-02-02 23:15:42 d3g681 Exp $
       INTEGER            INFO, LDA, M, N
 *     ..
 *     .. Array Arguments ..
       DOUBLE PRECISION   A( LDA, * ), TAU( * ), WORK( * )
 *     ..
 *
+c
+* $Id: dgeqr2.f,v 1.3 1997-03-17 21:23:19 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

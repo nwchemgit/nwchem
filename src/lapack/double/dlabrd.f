@@ -1,13 +1,12 @@
       SUBROUTINE DLABRD( M, N, NB, A, LDA, D, E, TAUQ, TAUP, X, LDX, Y,
      $                   LDY )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: dlabrd.f,v 1.2 1995-02-02 23:15:54 d3g681 Exp $
       INTEGER            LDA, LDX, LDY, M, N, NB
 *     ..
 *     .. Array Arguments ..
@@ -15,6 +14,9 @@ C$Id: dlabrd.f,v 1.2 1995-02-02 23:15:54 d3g681 Exp $
      $                   TAUQ( * ), X( LDX, * ), Y( LDY, * )
 *     ..
 *
+c
+* $Id: dlabrd.f,v 1.3 1997-03-17 21:23:33 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

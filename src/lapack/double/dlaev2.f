@@ -1,15 +1,17 @@
       SUBROUTINE DLAEV2( A, B, C, RT1, RT2, CS1, SN1 )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: dlaev2.f,v 1.2 1995-02-02 23:15:57 d3g681 Exp $
       DOUBLE PRECISION   A, B, C, CS1, RT1, RT2, SN1
 *     ..
 *
+c
+* $Id: dlaev2.f,v 1.3 1997-03-17 21:23:43 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -27,14 +29,14 @@ C$Id: dlaev2.f,v 1.2 1995-02-02 23:15:57 d3g681 Exp $
 *  =========
 *
 *  A       (input) DOUBLE PRECISION
-*          The (1,1) entry of the 2-by-2 matrix.
+*          The (1,1) element of the 2-by-2 matrix.
 *
 *  B       (input) DOUBLE PRECISION
-*          The (1,2) entry and the conjugate of the (2,1) entry of the
-*          2-by-2 matrix.
+*          The (1,2) element and the conjugate of the (2,1) element of
+*          the 2-by-2 matrix.
 *
 *  C       (input) DOUBLE PRECISION
-*          The (2,2) entry of the 2-by-2 matrix.
+*          The (2,2) element of the 2-by-2 matrix.
 *
 *  RT1     (output) DOUBLE PRECISION
 *          The eigenvalue of larger absolute value.

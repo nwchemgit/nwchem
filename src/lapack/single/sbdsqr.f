@@ -1,13 +1,12 @@
       SUBROUTINE SBDSQR( UPLO, N, NCVT, NRU, NCC, D, E, VT, LDVT, U,
      $                   LDU, C, LDC, WORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, LDC, LDU, LDVT, N, NCC, NCVT, NRU
 *     ..
@@ -16,6 +15,9 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
      $                   VT( LDVT, * ), WORK( * )
 *     ..
 *
+c
+* $Id: sbdsqr.f,v 1.3 1997-03-17 21:26:32 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -30,7 +32,12 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
 *
 *  See "Computing  Small Singular Values of Bidiagonal Matrices With
 *  Guaranteed High Relative Accuracy," by J. Demmel and W. Kahan,
-*  LAPACK Working Note #3, for a detailed description of the algorithm.
+*  LAPACK Working Note #3 (or SIAM J. Sci. Statist. Comput. vol. 11,
+*  no. 5, pp. 873-912, Sept 1990) and
+*  "Accurate singular values and differential qd algorithms," by
+*  B. Parlett and V. Fernando, Technical Report CPAM-554, Mathematics
+*  Department, University of California at Berkeley, July 1992
+*  for a detailed description of the algorithm.
 *
 *  Arguments
 *  =========
@@ -56,10 +63,14 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
 *          On exit, if INFO=0, the singular values of B in decreasing
 *          order.
 *
-*  E       (input/output) REAL array, dimension (N-1)
-*          On entry, the (n-1) off-diagonal elements of the bidiagonal
-*          matrix B.
-*          On normal exit, E is destroyed.
+*  E       (input/output) REAL array, dimension (N)
+*          On entry, the elements of E contain the
+*          offdiagonal elements of the bidiagonal matrix whose SVD
+*          is desired. On normal exit (INFO = 0), E is destroyed.
+*          If the algorithm does not converge (INFO > 0), D and E
+*          will contain the diagonal and superdiagonal elements of a
+*          bidiagonal matrix orthogonally equivalent to the one given
+*          as input. E(N) is used for workspace.
 *
 *  VT      (input/output) REAL array, dimension (LDVT, NCVT)
 *          On entry, an N-by-NCVT matrix VT.
@@ -88,15 +99,15 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
 *          LDC >= max(1,N) if NCC > 0; LDC >=1 if NCC = 0.
 *
 *  WORK    (workspace) REAL array, dimension
-*                      (MAX( 1, 4*N-4 ))
-*          WORK is not referenced if NCVT = NRU = NCC = 0.
+*            2*N  if only singular values wanted (NCVT = NRU = NCC = 0)
+*            max( 1, 4*N-4 ) otherwise
 *
 *  INFO    (output) INTEGER
 *          = 0:  successful exit
 *          < 0:  If INFO = -i, the i-th argument had an illegal value
 *          > 0:  the algorithm did not converge; D and E contain the
 *                elements of a bidiagonal matrix which is orthogonally
-*                similar to the input matrix B;  if INFO = i, i 
+*                similar to the input matrix B;  if INFO = i, i
 *                elements of E have not converged to zero.
 *
 *  Internal Parameters
@@ -145,12 +156,12 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
 *     ..
 *     .. Local Scalars ..
       LOGICAL            ROTATE
-      INTEGER            I, IDIR, IROT, ISUB, ITER, IUPLO, J, JOB, LL,
-     $                   LLL, M, MAXIT, NM1, NM12, NM13, OLDLL, OLDM
-      REAL               ABSE, ABSS, COSL, COSR, CS, EPS, F, G, GAP,
-     $                   GMAX, H, MU, OLDCS, OLDSN, R, SHIFT, SIGMN,
-     $                   SIGMX, SINL, SINR, SLL, SMAX, SMIN, SMINL,
-     $                   SMINLO, SMINOA, SN, THRESH, TOL, TOLMUL, UNFL
+      INTEGER            I, IDIR, IROT, ISUB, ITER, IUPLO, J, LL, LLL,
+     $                   M, MAXIT, NM1, NM12, NM13, OLDLL, OLDM
+      REAL               ABSE, ABSS, COSL, COSR, CS, EPS, F, G, H, MU,
+     $                   OLDCS, OLDSN, R, SHIFT, SIGMN, SIGMX, SINL,
+     $                   SINR, SLL, SMAX, SMIN, SMINL, SMINLO, SMINOA,
+     $                   SN, THRESH, TOL, TOLMUL, UNFL
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
@@ -158,8 +169,8 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
       EXTERNAL           LSAME, SLAMCH
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           SLARTG, SLAS2, SLASR, SLASV2, SROT, SSCAL,
-     $                   SSWAP, XERBLA
+      EXTERNAL           SLARTG, SLAS2, SLASQ1, SLASR, SLASV2, SROT,
+     $                   SSCAL, SSWAP, XERBLA
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, MAX, MIN, REAL, SIGN, SQRT
@@ -200,11 +211,19 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
       IF( N.EQ.0 )
      $   RETURN
       IF( N.EQ.1 )
-     $   GO TO 190
+     $   GO TO 150
 *
 *     ROTATE is true if any singular vectors desired, false otherwise
 *
       ROTATE = ( NCVT.GT.0 ) .OR. ( NRU.GT.0 ) .OR. ( NCC.GT.0 )
+*
+*     If no singular vectors desired, use qd algorithm
+*
+      IF( .NOT.ROTATE ) THEN
+         CALL SLASQ1( N, D, E, WORK, INFO )
+         RETURN
+      END IF
+*
       NM1 = N - 1
       NM12 = NM1 + NM1
       NM13 = NM12 + NM1
@@ -213,8 +232,6 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
 *
       EPS = SLAMCH( 'Epsilon' )
       UNFL = SLAMCH( 'Safe minimum' )
-      TOLMUL = MAX( TEN, MIN( HNDRD, EPS**MEIGTH ) )
-      TOL = TOLMUL*EPS
 *
 *     If matrix lower bidiagonal, rotate to be upper bidiagonal
 *     by applying Givens rotations on the left
@@ -225,10 +242,8 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
             D( I ) = R
             E( I ) = SN*D( I+1 )
             D( I+1 ) = CS*D( I+1 )
-            IF( ROTATE ) THEN
-               WORK( I ) = CS
-               WORK( NM1+I ) = SN
-            END IF
+            WORK( I ) = CS
+            WORK( NM1+I ) = SN
    10    CONTINUE
 *
 *        Update singular vectors if desired
@@ -241,6 +256,13 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
      $                  LDC )
       END IF
 *
+*     Compute singular values to relative accuracy TOL
+*     (By setting TOL to be negative, algorithm will compute
+*     singular values to absolute accuracy ABS(TOL)*norm(input matrix))
+*
+      TOLMUL = MAX( TEN, MIN( HNDRD, EPS**MEIGTH ) )
+      TOL = TOLMUL*EPS
+*
 *     Compute approximate maximum, minimum singular values
 *
       SMAX = ABS( D( N ) )
@@ -249,6 +271,9 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
    20 CONTINUE
       SMINL = ZERO
       IF( TOL.GE.ZERO ) THEN
+*
+*        Relative accuracy desired
+*
          SMINOA = ABS( D( 1 ) )
          IF( SMINOA.EQ.ZERO )
      $      GO TO 40
@@ -261,38 +286,24 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
    30    CONTINUE
    40    CONTINUE
          SMINOA = SMINOA / SQRT( REAL( N ) )
+         THRESH = MAX( TOL*SMINOA, MAXITR*N*N*UNFL )
+      ELSE
+*
+*        Absolute accuracy desired
+*
+         THRESH = MAX( ABS( TOL )*SMAX, MAXITR*N*N*UNFL )
       END IF
 *
 *     Prepare for main iteration loop for the singular values
+*     (MAXIT is the maximum number of passes through the inner
+*     loop permitted before nonconvergence signalled.)
 *
       MAXIT = MAXITR*N*N
       ITER = 0
       OLDLL = -1
       OLDM = -1
-      IF( NCC.EQ.0 .AND. NRU.EQ.0 .AND. NCVT.EQ.0 ) THEN
 *
-*        No singular vectors desired
-*
-         JOB = 0
-      ELSE
-*
-*        Singular vectors desired
-*
-         JOB = 1
-      END IF
-      IF( TOL.GE.ZERO ) THEN
-*
-*        Relative accuracy desired
-*
-         THRESH = MAX( TOL*SMINOA, MAXIT*UNFL )
-      ELSE
-*
-*        Absolute accuracy desired
-*
-         THRESH = MAX( ABS( TOL )*SMAX, MAXIT*UNFL )
-      END IF
-*
-*     M points to last entry of unconverged part of matrix
+*     M points to last element of unconverged part of matrix
 *
       M = N
 *
@@ -303,9 +314,9 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
 *     Check for convergence or exceeding iteration count
 *
       IF( M.LE.1 )
-     $   GO TO 190
+     $   GO TO 150
       IF( ITER.GT.MAXIT )
-     $   GO TO 230
+     $   GO TO 190
 *
 *     Find diagonal block of matrix to work on
 *
@@ -368,7 +379,7 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
       END IF
 *
 *     If working on new submatrix, choose shift direction
-*     (from larger end diagonal entry towards smaller)
+*     (from larger end diagonal element towards smaller)
 *
       IF( LL.GT.OLDM .OR. M.LT.OLDLL ) THEN
          IF( ABS( D( LL ) ).GE.ABS( D( M ) ) ) THEN
@@ -413,24 +424,8 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
                MU = ABS( D( LLL+1 ) )*( MU / ( MU+ABS( E( LLL ) ) ) )
                SMINL = MIN( SMINL, MU )
    90       CONTINUE
-*
-*           If singular values only wanted, apply gap test to bottom
-*           end of matrix
-*
-            IF( JOB.EQ.0 ) THEN
-               GAP = SMINLO / SQRT( REAL( M-LL ) ) - ABS( D( M ) )
-               IF( GAP.GT.ZERO ) THEN
-                  ABSS = ABS( D( M ) )
-                  ABSE = ABS( E( M-1 ) )
-                  GMAX = MAX( GAP, ABSS, ABSE )
-                  IF( ( ABSE / GMAX )**2.LE.TOL*( GAP / GMAX )*
-     $                ( ABSS / GMAX ) ) THEN
-                     E( M-1 ) = ZERO
-                     GO TO 50
-                  END IF
-               END IF
-            END IF
          END IF
+*
       ELSE
 *
 *        Run convergence test in backward direction
@@ -458,23 +453,6 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
                MU = ABS( D( LLL ) )*( MU / ( MU+ABS( E( LLL ) ) ) )
                SMINL = MIN( SMINL, MU )
   100       CONTINUE
-*
-*           If singular values only wanted, apply gap test to top
-*           end of matrix
-*
-            IF( JOB.EQ.0 ) THEN
-               GAP = SMINLO / SQRT( REAL( M-LL ) ) - ABS( D( LL ) )
-               IF( GAP.GT.ZERO ) THEN
-                  ABSS = ABS( D( LL ) )
-                  ABSE = ABS( E( LL ) )
-                  GMAX = MAX( GAP, ABSS, ABSE )
-                  IF( ( ABSE / GMAX )**2.LE.TOL*( GAP / GMAX )*
-     $                ( ABSS / GMAX ) ) THEN
-                     E( LL ) = ZERO
-                     GO TO 50
-                  END IF
-               END IF
-            END IF
          END IF
       END IF
       OLDLL = LL
@@ -519,67 +497,42 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
          IF( IDIR.EQ.1 ) THEN
 *
 *           Chase bulge from top to bottom
+*           Save cosines and sines for later singular vector updates
 *
             CS = ONE
             OLDCS = ONE
+            CALL SLARTG( D( LL )*CS, E( LL ), CS, SN, R )
+            CALL SLARTG( OLDCS*R, D( LL+1 )*SN, OLDCS, OLDSN, D( LL ) )
+            WORK( 1 ) = CS
+            WORK( 1+NM1 ) = SN
+            WORK( 1+NM12 ) = OLDCS
+            WORK( 1+NM13 ) = OLDSN
+            IROT = 1
+            DO 110 I = LL + 1, M - 1
+               CALL SLARTG( D( I )*CS, E( I ), CS, SN, R )
+               E( I-1 ) = OLDSN*R
+               CALL SLARTG( OLDCS*R, D( I+1 )*SN, OLDCS, OLDSN, D( I ) )
+               IROT = IROT + 1
+               WORK( IROT ) = CS
+               WORK( IROT+NM1 ) = SN
+               WORK( IROT+NM12 ) = OLDCS
+               WORK( IROT+NM13 ) = OLDSN
+  110       CONTINUE
+            H = D( M )*CS
+            D( M ) = H*OLDCS
+            E( M-1 ) = H*OLDSN
 *
-*           Save cosines and sines if singular vectors desired
+*           Update singular vectors
 *
-            IF( ROTATE ) THEN
-*
-               CALL SLARTG( D( LL )*CS, E( LL ), CS, SN, R )
-               CALL SLARTG( OLDCS*R, D( LL+1 )*SN, OLDCS, OLDSN,
-     $                      D( LL ) )
-               WORK( 1 ) = CS
-               WORK( 1+NM1 ) = SN
-               WORK( 1+NM12 ) = OLDCS
-               WORK( 1+NM13 ) = OLDSN
-               IROT = 1
-               DO 110 I = LL + 1, M - 1
-                  CALL SLARTG( D( I )*CS, E( I ), CS, SN, R )
-                  E( I-1 ) = OLDSN*R
-                  CALL SLARTG( OLDCS*R, D( I+1 )*SN, OLDCS, OLDSN,
-     $                         D( I ) )
-                  IROT = IROT + 1
-                  WORK( IROT ) = CS
-                  WORK( IROT+NM1 ) = SN
-                  WORK( IROT+NM12 ) = OLDCS
-                  WORK( IROT+NM13 ) = OLDSN
-  110          CONTINUE
-               H = D( M )*CS
-               D( M ) = H*OLDCS
-               E( M-1 ) = H*OLDSN
-*
-*              Update singular vectors
-*
-               IF( NCVT.GT.0 )
-     $            CALL SLASR( 'L', 'V', 'F', M-LL+1, NCVT, WORK( 1 ),
-     $                        WORK( N ), VT( LL, 1 ), LDVT )
-               IF( NRU.GT.0 )
-     $            CALL SLASR( 'R', 'V', 'F', NRU, M-LL+1,
-     $                        WORK( NM12+1 ), WORK( NM13+1 ),
-     $                        U( 1, LL ), LDU )
-               IF( NCC.GT.0 )
-     $            CALL SLASR( 'L', 'V', 'F', M-LL+1, NCC,
-     $                        WORK( NM12+1 ), WORK( NM13+1 ),
-     $                        C( LL, 1 ), LDC )
-*
-            ELSE
-*
-               CALL SLARTG( D( LL )*CS, E( LL ), CS, SN, R )
-               CALL SLARTG( OLDCS*R, D( LL+1 )*SN, OLDCS, OLDSN,
-     $                      D( LL ) )
-               DO 120 I = LL + 1, M - 1
-                  CALL SLARTG( D( I )*CS, E( I ), CS, SN, R )
-                  E( I-1 ) = OLDSN*R
-                  CALL SLARTG( OLDCS*R, D( I+1 )*SN, OLDCS, OLDSN,
-     $                         D( I ) )
-  120          CONTINUE
-               H = D( M )*CS
-               D( M ) = H*OLDCS
-               E( M-1 ) = H*OLDSN
-*
-            END IF
+            IF( NCVT.GT.0 )
+     $         CALL SLASR( 'L', 'V', 'F', M-LL+1, NCVT, WORK( 1 ),
+     $                     WORK( N ), VT( LL, 1 ), LDVT )
+            IF( NRU.GT.0 )
+     $         CALL SLASR( 'R', 'V', 'F', NRU, M-LL+1, WORK( NM12+1 ),
+     $                     WORK( NM13+1 ), U( 1, LL ), LDU )
+            IF( NCC.GT.0 )
+     $         CALL SLASR( 'L', 'V', 'F', M-LL+1, NCC, WORK( NM12+1 ),
+     $                     WORK( NM13+1 ), C( LL, 1 ), LDC )
 *
 *           Test convergence
 *
@@ -589,64 +542,42 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
          ELSE
 *
 *           Chase bulge from bottom to top
+*           Save cosines and sines for later singular vector updates
 *
             CS = ONE
             OLDCS = ONE
+            CALL SLARTG( D( M )*CS, E( M-1 ), CS, SN, R )
+            CALL SLARTG( OLDCS*R, D( M-1 )*SN, OLDCS, OLDSN, D( M ) )
+            WORK( M-LL ) = CS
+            WORK( M-LL+NM1 ) = -SN
+            WORK( M-LL+NM12 ) = OLDCS
+            WORK( M-LL+NM13 ) = -OLDSN
+            IROT = M - LL
+            DO 120 I = M - 1, LL + 1, -1
+               CALL SLARTG( D( I )*CS, E( I-1 ), CS, SN, R )
+               E( I ) = OLDSN*R
+               CALL SLARTG( OLDCS*R, D( I-1 )*SN, OLDCS, OLDSN, D( I ) )
+               IROT = IROT - 1
+               WORK( IROT ) = CS
+               WORK( IROT+NM1 ) = -SN
+               WORK( IROT+NM12 ) = OLDCS
+               WORK( IROT+NM13 ) = -OLDSN
+  120       CONTINUE
+            H = D( LL )*CS
+            D( LL ) = H*OLDCS
+            E( LL ) = H*OLDSN
 *
-*           Save cosines and sines if singular vectors desired
+*           Update singular vectors
 *
-            IF( ROTATE ) THEN
-*
-               CALL SLARTG( D( M )*CS, E( M-1 ), CS, SN, R )
-               CALL SLARTG( OLDCS*R, D( M-1 )*SN, OLDCS, OLDSN, D( M ) )
-               WORK( M-LL ) = CS
-               WORK( M-LL+NM1 ) = -SN
-               WORK( M-LL+NM12 ) = OLDCS
-               WORK( M-LL+NM13 ) = -OLDSN
-               IROT = M - LL
-               DO 130 I = M - 1, LL + 1, -1
-                  CALL SLARTG( D( I )*CS, E( I-1 ), CS, SN, R )
-                  E( I ) = OLDSN*R
-                  CALL SLARTG( OLDCS*R, D( I-1 )*SN, OLDCS, OLDSN,
-     $                         D( I ) )
-                  IROT = IROT - 1
-                  WORK( IROT ) = CS
-                  WORK( IROT+NM1 ) = -SN
-                  WORK( IROT+NM12 ) = OLDCS
-                  WORK( IROT+NM13 ) = -OLDSN
-  130          CONTINUE
-               H = D( LL )*CS
-               D( LL ) = H*OLDCS
-               E( LL ) = H*OLDSN
-*
-*              Update singular vectors
-*
-               IF( NCVT.GT.0 )
-     $            CALL SLASR( 'L', 'V', 'B', M-LL+1, NCVT,
-     $                        WORK( NM12+1 ), WORK( NM13+1 ),
-     $                        VT( LL, 1 ), LDVT )
-               IF( NRU.GT.0 )
-     $            CALL SLASR( 'R', 'V', 'B', NRU, M-LL+1, WORK( 1 ),
-     $                        WORK( N ), U( 1, LL ), LDU )
-               IF( NCC.GT.0 )
-     $            CALL SLASR( 'L', 'V', 'B', M-LL+1, NCC, WORK( 1 ),
-     $                        WORK( N ), C( LL, 1 ), LDC )
-*
-            ELSE
-*
-               CALL SLARTG( D( M )*CS, E( M-1 ), CS, SN, R )
-               CALL SLARTG( OLDCS*R, D( M-1 )*SN, OLDCS, OLDSN, D( M ) )
-               DO 140 I = M - 1, LL + 1, -1
-                  CALL SLARTG( D( I )*CS, E( I-1 ), CS, SN, R )
-                  E( I ) = OLDSN*R
-                  CALL SLARTG( OLDCS*R, D( I-1 )*SN, OLDCS, OLDSN,
-     $                         D( I ) )
-  140          CONTINUE
-               H = D( LL )*CS
-               D( LL ) = H*OLDCS
-               E( LL ) = H*OLDSN
-*
-            END IF
+            IF( NCVT.GT.0 )
+     $         CALL SLASR( 'L', 'V', 'B', M-LL+1, NCVT, WORK( NM12+1 ),
+     $                     WORK( NM13+1 ), VT( LL, 1 ), LDVT )
+            IF( NRU.GT.0 )
+     $         CALL SLASR( 'R', 'V', 'B', NRU, M-LL+1, WORK( 1 ),
+     $                     WORK( N ), U( 1, LL ), LDU )
+            IF( NCC.GT.0 )
+     $         CALL SLASR( 'L', 'V', 'B', M-LL+1, NCC, WORK( 1 ),
+     $                     WORK( N ), C( LL, 1 ), LDC )
 *
 *           Test convergence
 *
@@ -660,121 +591,74 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
          IF( IDIR.EQ.1 ) THEN
 *
 *           Chase bulge from top to bottom
+*           Save cosines and sines for later singular vector updates
 *
             F = ( ABS( D( LL ) )-SHIFT )*
      $          ( SIGN( ONE, D( LL ) )+SHIFT / D( LL ) )
             G = E( LL )
-*
-*           Save cosines and sines if singular vectors desired
-*
-            IF( ROTATE ) THEN
-*
+            CALL SLARTG( F, G, COSR, SINR, R )
+            F = COSR*D( LL ) + SINR*E( LL )
+            E( LL ) = COSR*E( LL ) - SINR*D( LL )
+            G = SINR*D( LL+1 )
+            D( LL+1 ) = COSR*D( LL+1 )
+            CALL SLARTG( F, G, COSL, SINL, R )
+            D( LL ) = R
+            F = COSL*E( LL ) + SINL*D( LL+1 )
+            D( LL+1 ) = COSL*D( LL+1 ) - SINL*E( LL )
+            G = SINL*E( LL+1 )
+            E( LL+1 ) = COSL*E( LL+1 )
+            WORK( 1 ) = COSR
+            WORK( 1+NM1 ) = SINR
+            WORK( 1+NM12 ) = COSL
+            WORK( 1+NM13 ) = SINL
+            IROT = 1
+            DO 130 I = LL + 1, M - 2
                CALL SLARTG( F, G, COSR, SINR, R )
-               F = COSR*D( LL ) + SINR*E( LL )
-               E( LL ) = COSR*E( LL ) - SINR*D( LL )
-               G = SINR*D( LL+1 )
-               D( LL+1 ) = COSR*D( LL+1 )
+               E( I-1 ) = R
+               F = COSR*D( I ) + SINR*E( I )
+               E( I ) = COSR*E( I ) - SINR*D( I )
+               G = SINR*D( I+1 )
+               D( I+1 ) = COSR*D( I+1 )
                CALL SLARTG( F, G, COSL, SINL, R )
-               D( LL ) = R
-               F = COSL*E( LL ) + SINL*D( LL+1 )
-               D( LL+1 ) = COSL*D( LL+1 ) - SINL*E( LL )
-               G = SINL*E( LL+1 )
-               E( LL+1 ) = COSL*E( LL+1 )
-               WORK( 1 ) = COSR
-               WORK( 1+NM1 ) = SINR
-               WORK( 1+NM12 ) = COSL
-               WORK( 1+NM13 ) = SINL
-               IROT = 1
-               DO 150 I = LL + 1, M - 2
-                  CALL SLARTG( F, G, COSR, SINR, R )
-                  E( I-1 ) = R
-                  F = COSR*D( I ) + SINR*E( I )
-                  E( I ) = COSR*E( I ) - SINR*D( I )
-                  G = SINR*D( I+1 )
-                  D( I+1 ) = COSR*D( I+1 )
-                  CALL SLARTG( F, G, COSL, SINL, R )
-                  D( I ) = R
-                  F = COSL*E( I ) + SINL*D( I+1 )
-                  D( I+1 ) = COSL*D( I+1 ) - SINL*E( I )
-                  G = SINL*E( I+1 )
-                  E( I+1 ) = COSL*E( I+1 )
-                  IROT = IROT + 1
-                  WORK( IROT ) = COSR
-                  WORK( IROT+NM1 ) = SINR
-                  WORK( IROT+NM12 ) = COSL
-                  WORK( IROT+NM13 ) = SINL
-  150          CONTINUE
-               CALL SLARTG( F, G, COSR, SINR, R )
-               E( M-2 ) = R
-               F = COSR*D( M-1 ) + SINR*E( M-1 )
-               E( M-1 ) = COSR*E( M-1 ) - SINR*D( M-1 )
-               G = SINR*D( M )
-               D( M ) = COSR*D( M )
-               CALL SLARTG( F, G, COSL, SINL, R )
-               D( M-1 ) = R
-               F = COSL*E( M-1 ) + SINL*D( M )
-               D( M ) = COSL*D( M ) - SINL*E( M-1 )
+               D( I ) = R
+               F = COSL*E( I ) + SINL*D( I+1 )
+               D( I+1 ) = COSL*D( I+1 ) - SINL*E( I )
+               G = SINL*E( I+1 )
+               E( I+1 ) = COSL*E( I+1 )
                IROT = IROT + 1
                WORK( IROT ) = COSR
                WORK( IROT+NM1 ) = SINR
                WORK( IROT+NM12 ) = COSL
                WORK( IROT+NM13 ) = SINL
-               E( M-1 ) = F
+  130       CONTINUE
+            CALL SLARTG( F, G, COSR, SINR, R )
+            E( M-2 ) = R
+            F = COSR*D( M-1 ) + SINR*E( M-1 )
+            E( M-1 ) = COSR*E( M-1 ) - SINR*D( M-1 )
+            G = SINR*D( M )
+            D( M ) = COSR*D( M )
+            CALL SLARTG( F, G, COSL, SINL, R )
+            D( M-1 ) = R
+            F = COSL*E( M-1 ) + SINL*D( M )
+            D( M ) = COSL*D( M ) - SINL*E( M-1 )
+            IROT = IROT + 1
+            WORK( IROT ) = COSR
+            WORK( IROT+NM1 ) = SINR
+            WORK( IROT+NM12 ) = COSL
+            WORK( IROT+NM13 ) = SINL
+            E( M-1 ) = F
 *
-*              Update singular vectors
+*           Update singular vectors
 *
-               IF( NCVT.GT.0 )
-     $            CALL SLASR( 'L', 'V', 'F', M-LL+1, NCVT, WORK( 1 ),
-     $                        WORK( N ), VT( LL, 1 ), LDVT )
-               IF( NRU.GT.0 )
-     $            CALL SLASR( 'R', 'V', 'F', NRU, M-LL+1,
-     $                        WORK( NM12+1 ), WORK( NM13+1 ),
-     $                        U( 1, LL ), LDU )
-               IF( NCC.GT.0 )
-     $            CALL SLASR( 'L', 'V', 'F', M-LL+1, NCC,
-     $                        WORK( NM12+1 ), WORK( NM13+1 ),
-     $                        C( LL, 1 ), LDC )
-*
-            ELSE
-*
-               CALL SLARTG( F, G, COSR, SINR, R )
-               F = COSR*D( LL ) + SINR*E( LL )
-               E( LL ) = COSR*E( LL ) - SINR*D( LL )
-               G = SINR*D( LL+1 )
-               D( LL+1 ) = COSR*D( LL+1 )
-               CALL SLARTG( F, G, COSL, SINL, R )
-               D( LL ) = R
-               F = COSL*E( LL ) + SINL*D( LL+1 )
-               D( LL+1 ) = COSL*D( LL+1 ) - SINL*E( LL )
-               G = SINL*E( LL+1 )
-               E( LL+1 ) = COSL*E( LL+1 )
-               DO 160 I = LL + 1, M - 2
-                  CALL SLARTG( F, G, COSR, SINR, R )
-                  E( I-1 ) = R
-                  F = COSR*D( I ) + SINR*E( I )
-                  E( I ) = COSR*E( I ) - SINR*D( I )
-                  G = SINR*D( I+1 )
-                  D( I+1 ) = COSR*D( I+1 )
-                  CALL SLARTG( F, G, COSL, SINL, R )
-                  D( I ) = R
-                  F = COSL*E( I ) + SINL*D( I+1 )
-                  D( I+1 ) = COSL*D( I+1 ) - SINL*E( I )
-                  G = SINL*E( I+1 )
-                  E( I+1 ) = COSL*E( I+1 )
-  160          CONTINUE
-               CALL SLARTG( F, G, COSR, SINR, R )
-               E( M-2 ) = R
-               F = COSR*D( M-1 ) + SINR*E( M-1 )
-               E( M-1 ) = COSR*E( M-1 ) - SINR*D( M-1 )
-               G = SINR*D( M )
-               D( M ) = COSR*D( M )
-               CALL SLARTG( F, G, COSL, SINL, R )
-               D( M-1 ) = R
-               F = COSL*E( M-1 ) + SINL*D( M )
-               D( M ) = COSL*D( M ) - SINL*E( M-1 )
-               E( M-1 ) = F
-*
-            END IF
+            IF( NCVT.GT.0 )
+     $         CALL SLASR( 'L', 'V', 'F', M-LL+1, NCVT, WORK( 1 ),
+     $                     WORK( N ), VT( LL, 1 ), LDVT )
+            IF( NRU.GT.0 )
+     $         CALL SLASR( 'R', 'V', 'F', NRU, M-LL+1, WORK( NM12+1 ),
+     $                     WORK( NM13+1 ), U( 1, LL ), LDU )
+            IF( NCC.GT.0 )
+     $         CALL SLASR( 'L', 'V', 'F', M-LL+1, NCC, WORK( NM12+1 ),
+     $                     WORK( NM13+1 ), C( LL, 1 ), LDC )
 *
 *           Test convergence
 *
@@ -784,107 +668,62 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
          ELSE
 *
 *           Chase bulge from bottom to top
+*           Save cosines and sines for later singular vector updates
 *
             F = ( ABS( D( M ) )-SHIFT )*( SIGN( ONE, D( M ) )+SHIFT /
      $          D( M ) )
             G = E( M-1 )
-*
-*           Save cosines and sines if singular vectors desired
-*
-            IF( ROTATE ) THEN
-*
+            CALL SLARTG( F, G, COSR, SINR, R )
+            F = COSR*D( M ) + SINR*E( M-1 )
+            E( M-1 ) = COSR*E( M-1 ) - SINR*D( M )
+            G = SINR*D( M-1 )
+            D( M-1 ) = COSR*D( M-1 )
+            CALL SLARTG( F, G, COSL, SINL, R )
+            D( M ) = R
+            F = COSL*E( M-1 ) + SINL*D( M-1 )
+            D( M-1 ) = COSL*D( M-1 ) - SINL*E( M-1 )
+            G = SINL*E( M-2 )
+            E( M-2 ) = COSL*E( M-2 )
+            WORK( M-LL ) = COSR
+            WORK( M-LL+NM1 ) = -SINR
+            WORK( M-LL+NM12 ) = COSL
+            WORK( M-LL+NM13 ) = -SINL
+            IROT = M - LL
+            DO 140 I = M - 1, LL + 2, -1
                CALL SLARTG( F, G, COSR, SINR, R )
-               F = COSR*D( M ) + SINR*E( M-1 )
-               E( M-1 ) = COSR*E( M-1 ) - SINR*D( M )
-               G = SINR*D( M-1 )
-               D( M-1 ) = COSR*D( M-1 )
+               E( I ) = R
+               F = COSR*D( I ) + SINR*E( I-1 )
+               E( I-1 ) = COSR*E( I-1 ) - SINR*D( I )
+               G = SINR*D( I-1 )
+               D( I-1 ) = COSR*D( I-1 )
                CALL SLARTG( F, G, COSL, SINL, R )
-               D( M ) = R
-               F = COSL*E( M-1 ) + SINL*D( M-1 )
-               D( M-1 ) = COSL*D( M-1 ) - SINL*E( M-1 )
-               G = SINL*E( M-2 )
-               E( M-2 ) = COSL*E( M-2 )
-               WORK( M-LL ) = COSR
-               WORK( M-LL+NM1 ) = -SINR
-               WORK( M-LL+NM12 ) = COSL
-               WORK( M-LL+NM13 ) = -SINL
-               IROT = M - LL
-               DO 170 I = M - 1, LL + 2, -1
-                  CALL SLARTG( F, G, COSR, SINR, R )
-                  E( I ) = R
-                  F = COSR*D( I ) + SINR*E( I-1 )
-                  E( I-1 ) = COSR*E( I-1 ) - SINR*D( I )
-                  G = SINR*D( I-1 )
-                  D( I-1 ) = COSR*D( I-1 )
-                  CALL SLARTG( F, G, COSL, SINL, R )
-                  D( I ) = R
-                  F = COSL*E( I-1 ) + SINL*D( I-1 )
-                  D( I-1 ) = COSL*D( I-1 ) - SINL*E( I-1 )
-                  G = SINL*E( I-2 )
-                  E( I-2 ) = COSL*E( I-2 )
-                  IROT = IROT - 1
-                  WORK( IROT ) = COSR
-                  WORK( IROT+NM1 ) = -SINR
-                  WORK( IROT+NM12 ) = COSL
-                  WORK( IROT+NM13 ) = -SINL
-  170          CONTINUE
-               CALL SLARTG( F, G, COSR, SINR, R )
-               E( LL+1 ) = R
-               F = COSR*D( LL+1 ) + SINR*E( LL )
-               E( LL ) = COSR*E( LL ) - SINR*D( LL+1 )
-               G = SINR*D( LL )
-               D( LL ) = COSR*D( LL )
-               CALL SLARTG( F, G, COSL, SINL, R )
-               D( LL+1 ) = R
-               F = COSL*E( LL ) + SINL*D( LL )
-               D( LL ) = COSL*D( LL ) - SINL*E( LL )
+               D( I ) = R
+               F = COSL*E( I-1 ) + SINL*D( I-1 )
+               D( I-1 ) = COSL*D( I-1 ) - SINL*E( I-1 )
+               G = SINL*E( I-2 )
+               E( I-2 ) = COSL*E( I-2 )
                IROT = IROT - 1
                WORK( IROT ) = COSR
                WORK( IROT+NM1 ) = -SINR
                WORK( IROT+NM12 ) = COSL
                WORK( IROT+NM13 ) = -SINL
-               E( LL ) = F
-*
-            ELSE
-*
-               CALL SLARTG( F, G, COSR, SINR, R )
-               F = COSR*D( M ) + SINR*E( M-1 )
-               E( M-1 ) = COSR*E( M-1 ) - SINR*D( M )
-               G = SINR*D( M-1 )
-               D( M-1 ) = COSR*D( M-1 )
-               CALL SLARTG( F, G, COSL, SINL, R )
-               D( M ) = R
-               F = COSL*E( M-1 ) + SINL*D( M-1 )
-               D( M-1 ) = COSL*D( M-1 ) - SINL*E( M-1 )
-               G = SINL*E( M-2 )
-               E( M-2 ) = COSL*E( M-2 )
-               DO 180 I = M - 1, LL + 2, -1
-                  CALL SLARTG( F, G, COSR, SINR, R )
-                  E( I ) = R
-                  F = COSR*D( I ) + SINR*E( I-1 )
-                  E( I-1 ) = COSR*E( I-1 ) - SINR*D( I )
-                  G = SINR*D( I-1 )
-                  D( I-1 ) = COSR*D( I-1 )
-                  CALL SLARTG( F, G, COSL, SINL, R )
-                  D( I ) = R
-                  F = COSL*E( I-1 ) + SINL*D( I-1 )
-                  D( I-1 ) = COSL*D( I-1 ) - SINL*E( I-1 )
-                  G = SINL*E( I-2 )
-                  E( I-2 ) = COSL*E( I-2 )
-  180          CONTINUE
-               CALL SLARTG( F, G, COSR, SINR, R )
-               E( LL+1 ) = R
-               F = COSR*D( LL+1 ) + SINR*E( LL )
-               E( LL ) = COSR*E( LL ) - SINR*D( LL+1 )
-               G = SINR*D( LL )
-               D( LL ) = COSR*D( LL )
-               CALL SLARTG( F, G, COSL, SINL, R )
-               D( LL+1 ) = R
-               F = COSL*E( LL ) + SINL*D( LL )
-               D( LL ) = COSL*D( LL ) - SINL*E( LL )
-               E( LL ) = F
-*
-            END IF
+  140       CONTINUE
+            CALL SLARTG( F, G, COSR, SINR, R )
+            E( LL+1 ) = R
+            F = COSR*D( LL+1 ) + SINR*E( LL )
+            E( LL ) = COSR*E( LL ) - SINR*D( LL+1 )
+            G = SINR*D( LL )
+            D( LL ) = COSR*D( LL )
+            CALL SLARTG( F, G, COSL, SINL, R )
+            D( LL+1 ) = R
+            F = COSL*E( LL ) + SINL*D( LL )
+            D( LL ) = COSL*D( LL ) - SINL*E( LL )
+            IROT = IROT - 1
+            WORK( IROT ) = COSR
+            WORK( IROT+NM1 ) = -SINR
+            WORK( IROT+NM12 ) = COSL
+            WORK( IROT+NM13 ) = -SINL
+            E( LL ) = F
 *
 *           Test convergence
 *
@@ -911,8 +750,8 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
 *
 *     All singular values converged, so make them positive
 *
-  190 CONTINUE
-      DO 200 I = 1, N
+  150 CONTINUE
+      DO 160 I = 1, N
          IF( D( I ).LT.ZERO ) THEN
             D( I ) = -D( I )
 *
@@ -921,23 +760,23 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
             IF( NCVT.GT.0 )
      $         CALL SSCAL( NCVT, NEGONE, VT( I, 1 ), LDVT )
          END IF
-  200 CONTINUE
+  160 CONTINUE
 *
 *     Sort the singular values into decreasing order (insertion sort on
 *     singular values, but only one transposition per singular vector)
 *
-      DO 220 I = 1, N - 1
+      DO 180 I = 1, N - 1
 *
 *        Scan for smallest D(I)
 *
          ISUB = 1
          SMIN = D( 1 )
-         DO 210 J = 2, N + 1 - I
+         DO 170 J = 2, N + 1 - I
             IF( D( J ).LE.SMIN ) THEN
                ISUB = J
                SMIN = D( J )
             END IF
-  210    CONTINUE
+  170    CONTINUE
          IF( ISUB.NE.N+1-I ) THEN
 *
 *           Swap singular values and vectors
@@ -952,18 +791,18 @@ C$Id: sbdsqr.f,v 1.2 1995-02-02 23:17:12 d3g681 Exp $
             IF( NCC.GT.0 )
      $         CALL SSWAP( NCC, C( ISUB, 1 ), LDC, C( N+1-I, 1 ), LDC )
          END IF
-  220 CONTINUE
-      GO TO 250
+  180 CONTINUE
+      GO TO 210
 *
 *     Maximum number of iterations exceeded, failure to converge
 *
-  230 CONTINUE
+  190 CONTINUE
       INFO = 0
-      DO 240 I = 1, N - 1
+      DO 200 I = 1, N - 1
          IF( E( I ).NE.ZERO )
      $      INFO = INFO + 1
-  240 CONTINUE
-  250 CONTINUE
+  200 CONTINUE
+  210 CONTINUE
       RETURN
 *
 *     End of SBDSQR

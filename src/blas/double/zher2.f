@@ -1,4 +1,7 @@
       SUBROUTINE ZHER2 ( UPLO, N, ALPHA, X, INCX, Y, INCY, A, LDA )
+*
+* $Id: zher2.f,v 1.2 1997-03-17 21:21:58 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
       COMPLEX*16         ALPHA
       INTEGER            INCX, INCY, LDA, N

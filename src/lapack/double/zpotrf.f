@@ -13,6 +13,9 @@
       COMPLEX*16         A( LDA, * )
 *     ..
 *
+c
+* $Id: zpotrf.f,v 1.2 1997-03-17 21:26:16 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

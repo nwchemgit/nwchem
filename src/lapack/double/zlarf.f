@@ -14,6 +14,9 @@
       COMPLEX*16         C( LDC, * ), V( * ), WORK( * )
 *     ..
 *
+c
+* $Id: zlarf.f,v 1.2 1997-03-17 21:25:53 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

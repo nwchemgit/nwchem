@@ -1,13 +1,12 @@
       SUBROUTINE SORM2R( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC,
      $                   WORK, INFO )
 *
-*  -- LAPACK routine (version 1.1) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: sorm2r.f,v 1.2 1995-02-02 23:17:58 d3g681 Exp $
       CHARACTER          SIDE, TRANS
       INTEGER            INFO, K, LDA, LDC, M, N
 *     ..
@@ -15,6 +14,9 @@ C$Id: sorm2r.f,v 1.2 1995-02-02 23:17:58 d3g681 Exp $
       REAL               A( LDA, * ), C( LDC, * ), TAU( * ), WORK( * )
 *     ..
 *
+c
+* $Id: sorm2r.f,v 1.3 1997-03-17 21:28:10 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,4 +1,7 @@
       SUBROUTINE ZHERK( UPLO, TRANS, N, K, ALPHA, A, LDA, BETA, C, LDC )
+*
+* $Id: zherk.f,v 1.2 1997-03-17 21:22:03 d3e129 Exp $
+*
 *     .. Scalar Arguments ..
       CHARACTER          TRANS, UPLO
       INTEGER            K, LDA, LDC, N
@@ -328,4 +331,3 @@
 *     End of ZHERK .
 *
       END
-

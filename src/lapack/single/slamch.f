@@ -1,19 +1,17 @@
       REAL             FUNCTION SLAMCH( CMACH )
-* 
-*  -- LAPACK auxiliary routine (version 1.1) --
+*
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992 
 *
-***** Modified by Jarek Nieplocha on 07.21.1993
-***** hardcoded constants can be used on the Sun platform
-***** see: .F and makefile files in LAPACK/INSTALL
-*
 *     .. Scalar Arguments ..
-C$Id: slamch.f,v 1.2 1995-02-02 23:17:34 d3g681 Exp $
       CHARACTER          CMACH
 *     ..
 *
+c
+* $Id: slamch.f,v 1.3 1997-03-17 21:27:09 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -76,18 +74,31 @@ C$Id: slamch.f,v 1.2 1995-02-02 23:17:34 d3g681 Exp $
 *     ..
 *     .. Executable Statements ..
 *
-*********** constants for IBM/RS6000 ***************
-		EPS   = 5.960464478E-08
-		SFMIN = 1.175494351E-38
-		BASE  = 2.00000
-		PREC  = 1.192092896E-07 
-		T     = 24.0000
-		RND   = 1.0000
-		EMIN  = -125.000
-		RMIN  = 1.175494351E-38
-		EMAX  = 128.000
-		RMAX  = 3.402823466E+38	
-******************************************
+      IF( FIRST ) THEN
+         FIRST = .FALSE.
+         CALL SLAMC2( BETA, IT, LRND, EPS, IMIN, RMIN, IMAX, RMAX )
+         BASE = BETA
+         T = IT
+         IF( LRND ) THEN
+            RND = ONE
+            EPS = ( BASE**( 1-IT ) ) / 2
+         ELSE
+            RND = ZERO
+            EPS = BASE**( 1-IT )
+         END IF
+         PREC = EPS*BASE
+         EMIN = IMIN
+         EMAX = IMAX
+         SFMIN = RMIN
+         SMALL = ONE / RMAX
+         IF( SMALL.GE.SFMIN ) THEN
+*
+*           Use SMALL plus a bit, to avoid the possibility of rounding
+*           causing overflow when computing  1/sfmin.
+*
+            SFMIN = SMALL*( ONE+EPS )
+         END IF
+      END IF
 *
       IF( LSAME( CMACH, 'E' ) ) THEN
          RMACH = EPS
@@ -122,7 +133,7 @@ C$Id: slamch.f,v 1.2 1995-02-02 23:17:34 d3g681 Exp $
 *
       SUBROUTINE SLAMC1( BETA, T, RND, IEEE1 )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -309,7 +320,7 @@ C$Id: slamch.f,v 1.2 1995-02-02 23:17:34 d3g681 Exp $
 *
       SUBROUTINE SLAMC2( BETA, T, RND, EPS, EMIN, RMIN, EMAX, RMAX )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -568,7 +579,7 @@ C$Id: slamch.f,v 1.2 1995-02-02 23:17:34 d3g681 Exp $
 *
       REAL             FUNCTION SLAMC3( A, B )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -606,7 +617,7 @@ C$Id: slamch.f,v 1.2 1995-02-02 23:17:34 d3g681 Exp $
 *
       SUBROUTINE SLAMC4( EMIN, START, BASE )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -690,7 +701,7 @@ C$Id: slamch.f,v 1.2 1995-02-02 23:17:34 d3g681 Exp $
 *
       SUBROUTINE SLAMC5( BETA, P, EMIN, IEEE, EMAX, RMAX )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992

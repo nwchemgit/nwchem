@@ -12,6 +12,9 @@
       COMPLEX*16         A( LDA, * ), TAU( * ), WORK( LWORK )
 *     ..
 *
+c
+* $Id: zungql.f,v 1.2 1997-03-17 21:26:23 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

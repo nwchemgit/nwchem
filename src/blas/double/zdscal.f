@@ -1,4 +1,7 @@
       subroutine  zdscal(n,da,zx,incx)
+*
+* $Id: zdscal.f,v 1.2 1997-03-17 21:21:47 d3e129 Exp $
+*
 c
 c     scales a vector by a constant.
 c     jack dongarra, 3/11/78.

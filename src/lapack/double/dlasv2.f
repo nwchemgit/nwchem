@@ -1,15 +1,17 @@
       SUBROUTINE DLASV2( F, G, H, SSMIN, SSMAX, SNR, CSR, SNL, CSL )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
-C$Id: dlasv2.f,v 1.2 1995-02-02 23:16:20 d3g681 Exp $
       DOUBLE PRECISION   CSL, CSR, F, G, H, SNL, SNR, SSMAX, SSMIN
 *     ..
 *
+c
+* $Id: dlasv2.f,v 1.3 1997-03-17 21:24:24 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
@@ -28,13 +30,13 @@ C$Id: dlasv2.f,v 1.2 1995-02-02 23:16:20 d3g681 Exp $
 *  =========
 *
 *  F       (input) DOUBLE PRECISION
-*          The (1,1) entry of the 2-by-2 matrix.
+*          The (1,1) element of the 2-by-2 matrix.
 *
 *  G       (input) DOUBLE PRECISION
-*          The (1,2) entry of the 2-by-2 matrix.
+*          The (1,2) element of the 2-by-2 matrix.
 *
 *  H       (input) DOUBLE PRECISION
-*          The (2,2) entry of the 2-by-2 matrix.
+*          The (2,2) element of the 2-by-2 matrix.
 *
 *  SSMIN   (output) DOUBLE PRECISION
 *          abs(SSMIN) is the smaller singular value.
@@ -61,7 +63,7 @@ C$Id: dlasv2.f,v 1.2 1995-02-02 23:16:20 d3g681 Exp $
 *  output quantities are correct to within a few units in the last
 *  place (ulps).
 *
-*  In IEEE arithmetic, the code works correctly if one matrix entry is
+*  In IEEE arithmetic, the code works correctly if one matrix element is
 *  infinite.
 *
 *  Overflow will not occur unless the largest singular value itself
@@ -107,7 +109,7 @@ C$Id: dlasv2.f,v 1.2 1995-02-02 23:16:20 d3g681 Exp $
       HT = H
       HA = ABS( H )
 *
-*     PMAX points to the maximum absolute entry of matrix
+*     PMAX points to the maximum absolute element of matrix
 *       PMAX = 1 if F largest in absolute values
 *       PMAX = 2 if G largest in absolute values
 *       PMAX = 3 if H largest in absolute values

@@ -14,6 +14,9 @@
       COMPLEX*16         A( LDA, * ), TAU( * ), W( LDW, * )
 *     ..
 *
+c
+* $Id: zlatrd.f,v 1.2 1997-03-17 21:26:06 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *

@@ -1,6 +1,6 @@
       REAL             FUNCTION SLANSY( NORM, UPLO, N, A, LDA, WORK )
 *
-*  -- LAPACK auxiliary routine (version 1.1) --
+*  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     October 31, 1992
@@ -13,6 +13,9 @@
       REAL               A( LDA, * ), WORK( * )
 *     ..
 *
+c
+* $Id: slansy.f,v 1.2 1997-03-17 21:27:17 d3e129 Exp $
+c
 *  Purpose
 *  =======
 *
