@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.65 1997-04-18 21:54:12 d3e129 Exp $
+c $Id: basis.F,v 1.66 1997-04-19 18:50:42 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1580,10 +1580,13 @@ c
         enddo
         erep_save = erep(geom)
         call geom_compute_values(geom)
-        write(luout,*)
-     &      ' nuclear repulsion energy without ECP: ',erep_save
-        write(luout,*)
-     &      ' nuclear repulsion energy with    ECP: ',erep(geom)
+*
+*     cannot print this here
+*
+*        write(luout,*)
+*     &      ' nuclear repulsion energy without ECP: ',erep_save
+*        write(luout,*)
+*     &      ' nuclear repulsion energy with    ECP: ',erep(geom)
       endif
 *
       bas_geobas_build = .true.
