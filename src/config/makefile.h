@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.357 2001-04-27 17:39:43 edo Exp $
+# $Id: makefile.h,v 1.358 2001-05-04 23:57:09 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -923,6 +923,38 @@ ifeq ($(TARGET),IBM64)
 #
 endif
 
+ifeq ($(TARGET),IBM64_32)
+# 
+# IBM AIX 64-bit for integer*4
+#
+
+    CORE_SUBDIRS_EXTRA = lapack blas
+    #CORE_SUBDIRS_EXTRA = lapack 
+         FC = xlf
+         CC = xlc
+    ARFLAGS = -X 64 urs 
+     RANLIB = echo
+  MAKEFLAGS = -j 3 --no-print-directory
+    INSTALL = @echo $@ is built
+        CPP = /usr/lib/cpp -P
+
+   FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64 -qintsize=4 
+   COPTIONS = -q64
+  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto
+  FVECTORIZE = -O5 -qhot -qfloat=rsqrt:fltint:hssngl -NQ40000 -NT80000  -qarch=auto -qtune=auto 
+   COPTIMIZE = -O -qmaxmem=8192
+
+    DEFINES = -DIBM -DAIX -DEXTNAME 
+       LIBPATH += -L/usr/lib -L/lib 
+
+       #CORE_LIBS += -llapack $(BLASOPT) -lblas
+       CORE_LIBS += -lessl -llapack -lblas
+
+  EXPLICITF = TRUE
+  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+#
+endif
+
 ifeq ($(TARGET),LAPI)
 #
     CORE_SUBDIRS_EXTRA = lapack blas
@@ -1039,7 +1071,7 @@ ifeq ($(TARGET),LAPI64)
      MPILIB = 
 LARGE_FILES = YES
 
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi64_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi64_map
    LINK.f   = mpcc_r   $(LDFLAGS)
 
    FOPTIONS = -qEXTNAME -qnosave -q64 -qintsize=8 -qalign=4k 
