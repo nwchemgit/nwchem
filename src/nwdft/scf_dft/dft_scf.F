@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.201 2001-12-02 01:18:11 edo Exp $
+c     $Id: dft_scf.F,v 1.202 2001-12-06 02:19:49 edo Exp $
 c     
       implicit none
 c
@@ -215,6 +215,10 @@ c
       if (rtdb_get(rtdb, 'dft:n_rabuck', mt_int, 1,
      &   n_rabuck))then
          smear_in=ssmear
+c
+c n_rabuck=1 gives  a 1/0 
+c
+         if(n_rabuck.ne.0) n_rabuck=max(n_rabuck,2)
          endif
       endif
       if (rtdb_get(rtdb, 'dft:fon', mt_log, 1,
