@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.36 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_acc_def.F,v 1.37 2005-02-17 01:03:50 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -17,7 +17,7 @@ c
       integer rtdb
       integer num_gridtypes, grid_acc_index,jj,igridin
       parameter (num_gridtypes = 7)
-      logical oprint, oprint_grid,lgridin
+      logical oprint, oprint_grid,lgridin,qmmm_init
       character*2 symbol
       character*15 gridtypes(num_gridtypes)
       double precision grid_acc(num_gridtypes)
@@ -276,6 +276,12 @@ c
       oprint = util_print('quadrature', print_high)
       oprint_grid = util_print('griddebug', print_debug)
 c
+c     detect qmmm job
+c
+      if (.not. rtdb_get(rtdb,'qmmm:init',mt_log,1,qmmm_init))
+     $     qmmm_init=.false.
+
+c
 c     initialize iangquad for lebmed and lebfine case
 c
       iangquad=0
@@ -414,6 +420,23 @@ c hack for nbo
                endif
             endif
             if (i_atomic_number.eq.0)then
+c
+c     we do not bail out ONLY  when X atom (for Zmatrix)
+c     or when we are in a QMMM job
+c
+               if(iptr.ne.2.and.(.not.qmmm_init)) then
+               if(ga_nodeid().eq.0) then
+                  write(luout,*) ' *********************************'
+                  write(luout,*) ' * INPUT ERROR                   *'
+                  write(luout,*) ' * please define bq+element name *'
+                  write(luout,*) ' * in the geometry section       *'
+                  write(luout,*) ' * e.g. bqSi                     *'
+                  write(luout,*) ' *********************************'
+                  call util_flush(luout)
+               endif
+                    call errquit(
+     X              ' bq DFT atom with no atom type ',0,INPUT_ERR)
+               endif
                nrad(itype) = 0
                nang(itype) = 0
             else
