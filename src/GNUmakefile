@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.45 1997-01-17 00:08:21 d3e129 Exp $
+# $Id: GNUmakefile,v 1.46 1997-01-17 01:40:13 d3e129 Exp $
 
 include config/makefile.h
 
@@ -17,7 +17,7 @@ include config/makefile.h
 
 .PRECIOUS:	$(BINDIR)/nwchem nwchem
 all $(BINDIR)/nwchem nwchem:	directories libraries
-	@/bin/rm nwchem.o stubs.o
+	@/bin/rm -f nwchem.o stubs.o
 	$(MAKE) nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/nwchem
@@ -30,7 +30,7 @@ endif
 #
 
 link nwchem_link:    nwchem.o stubs.o
-	@/bin/rm nwchem.o stubs.o
+	@/bin/rm -f nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/nwchem
 endif
@@ -41,7 +41,7 @@ endif
 # This for linking version with profiling
 #
 prof profile:    nwchem.o stubs.o
-	@/bin/rm nwchem.o stubs.o
+	@/bin/rm -f nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f nwchem_prof
 endif
