@@ -6,7 +6,7 @@ start dft_feco5
 
 # There are 2 million integrals 
 
-geometry print units au
+geometry units au
   symmetry group d3h
 
   fe 0.0 0.0 0.0 
@@ -18,12 +18,12 @@ geometry print units au
   o 3.9810552 3.9810552 0.0 
 end
 
-basis "ao basis" segment print
+basis "ao basis" 
   o library "DZVP (DFT Orbital)"
   c library "DZVP (DFT Orbital)"
  fe library "DZVP (DFT Orbital)"
 end
-basis "cd basis" segment print
+basis "cd basis" 
   o library "DGauss A1 DFT Coulomb Fitting"
   c library "DGauss A1 DFT Coulomb Fitting"
  fe library "DGauss A1 DFT Coulomb Fitting"
@@ -46,7 +46,7 @@ end
 title ; case t21 --- Default DFT (energy) with Becke '88 and Perdew '91
 task dft energy
 
-basis "xc basis" segment print
+basis "xc basis" 
   o library "DGauss A1 DFT Exchange Fitting"
   c library "DGauss A1 DFT Exchange Fitting"
  fe library "DGauss A1 DFT Exchange Fitting"
