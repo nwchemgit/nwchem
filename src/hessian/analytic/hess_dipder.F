@@ -1,5 +1,5 @@
 C
-C  $Id: hess_dipder.F,v 1.4 2002-02-14 20:49:24 windus Exp $
+C  $Id: hess_dipder.F,v 1.5 2002-02-27 21:51:44 windus Exp $
 C
       subroutine hess_dipder(geom,basis,dder,g_dens,n3xyz,ncent)
       implicit none
@@ -374,7 +374,7 @@ c
      &              maxbuf, dbl_mb(k_buf),numint)
 c
                call hess_dip_in_g(g_dip, dbl_mb(k_buf),
-     &              dbl_mb(k_scr), ilo, ihi, jlo, jhi)
+     &              dbl_mb(k_scr), ilo, ihi, jlo, jhi, idim, jdim)
 c
             end if  ! mod parallel loop
          end do   ! jshell
@@ -412,7 +412,7 @@ c
       end
 c
       subroutine hess_dip_in_g(g_dip, buf, scr,
-     *   ilo, ihi, jlo, jhi)
+     *   ilo, ihi, jlo, jhi, idim, jdim)
       implicit none
 c
       integer g_dip          ! [output] dipole matrices
@@ -420,16 +420,18 @@ c
       integer ihi            ! [input] high i index
       integer jlo            ! [input] low j index
       integer jhi            ! [input] high j index
-      double precision buf(3,ilo:ihi,jlo:jhi)   ! [input] integrals
-      double precision scr(ilo:ihi,jlo:jhi)     ! [input] scratch space
+      integer idim           ! [input] i dimension
+      integer jdim           ! [input] j dimension
+      double precision buf(3,jdim,idim)   ! [input] integrals
+      double precision scr(idim,jdim)     ! [input] scratch space
 c
       integer i, j, xyz, nint
       integer lo(3), hi(3), ld(2)
 c
-      nint = (ihi-ilo+1) * (jhi-jlo+1)
+      nint = idim * jdim
 c
       ld(1) = 1
-      ld(2) = ihi-ilo+1
+      ld(2) = idim
       lo(2) = ilo
       hi(2) = ihi
       lo(3) = jlo
@@ -438,12 +440,12 @@ c
         lo(1) = xyz
         hi(1) = xyz
         call dfill(nint,0.0d0,scr,1)
-        do j = jlo, jhi ! gather proper integrals
-          do i = ilo, ihi
-            scr(i,j) = scr(i,j) + buf(xyz,i,j)
+        do j = 1, jdim ! gather proper integrals
+          do i = 1, idim
+            scr(i,j) = scr(i,j) + buf(xyz,j,i)
           enddo
         enddo
-        call nga_acc(g_dip,lo,hi,scr,ld,1.0d0)
+        call nga_put(g_dip,lo,hi,scr,ld)
       enddo
       return
       end
