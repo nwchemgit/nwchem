@@ -211,6 +211,7 @@ c
             write(6,*)
             call util_flush(6)
          endif
+**         call sym_test(geom)
       end if
 c
       if (.not. geom_rtdb_store(rtdb, geom, name))

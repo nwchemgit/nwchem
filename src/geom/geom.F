@@ -347,7 +347,7 @@ c     If loading into an old geometry free this memory
 c
          if (sym_center_map_handle(geom) .ne. -1) then
             if (.not. ma_free_heap(sym_center_map_handle(geom)))
-     $           call errquit('geom_destroy: free of atom map', 0)
+     $           call errquit('geom_rtdb_load: free of atom map', 0)
          end if
 c
          tmp(k:) = ':map_atoms'
@@ -674,6 +674,7 @@ c
       sym_center_map_handle(geom) = -1
       sym_center_map_index(geom) = 1
       group_name(geom) = 'C1'
+      sym_num_ops(geom) = 0
       user_units(geom) = 'a.u.'
 c
       do i = 1, 3
