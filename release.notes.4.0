@@ -31,8 +31,9 @@ Listed below are the other major and many minor changes for each module
 with significant changes. These descriptions are somewhat terse and more
 information is generally available in the User Manual. 
 
-Task level directives: 
+Top level directives:
 
+  o The continue directive is no longer supported.
   o Addition of RELATIVISTIC directive to control evaluation of relativistic integrals.
   o BUG FIX: Task shell is now working under Linux.
 
