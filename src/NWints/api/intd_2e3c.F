@@ -1,6 +1,6 @@
       subroutine intd_2e3c(brain, ish, ketin, jsh, ksh, 
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e3c.F,v 1.2 1996-01-22 21:46:45 d3e129 Exp $
+c $Id: intd_2e3c.F,v 1.3 1996-07-11 22:21:17 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -14,11 +14,6 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
-c
-*:need to fix:#if defined(INT_TIMING)
-*:need to fix:#include "int_tim.fh"
-*:need to fix:#include "pstat.fh"
-*:need to fix:#endif
 c
 c::external subroutines used
 c errquit
@@ -134,10 +129,6 @@ c
       ktype = infbs_cont(CONT_TYPE,ucont,ket) 
       katom = (sf_ibs_cn2ce(ksh,ket))
 c
-*:need to fix:#if defined(INT_TIMING)
-*:need to fix:      if(o_int_time.and.(int_time_level.ge.2))
-*:need to fix:     &   call pstat_on(intt_arr(intt_hf2d))
-*:need to fix:#endif
 c... new logic
       if (iatom.eq.jatom.and.jatom.eq.katom)then
         call dfill((nint*3*4),0.0d00,eri,1)
@@ -163,8 +154,4 @@ c
 c
       call intd_sum(eri,nint,idatom,iatom,iatom,jatom,katom)
 c
-*:need to fix:#if defined(INT_TIMING)
-*:need to fix:      if(o_int_time.and.(int_time_level.ge.2))
-*:need to fix:     &   call pstat_off(intt_arr(intt_hf2d))
-*:need to fix:#endif
       end

@@ -1,5 +1,5 @@
       subroutine intd_init(rtdb,nbas,bases)
-c $Id: intd_init.F,v 1.5 1995-02-08 21:25:18 d3e129 Exp $
+c $Id: intd_init.F,v 1.6 1996-07-11 22:21:19 d3e129 Exp $
 c
 c Initializes integral derivative code 
 c
@@ -66,9 +66,6 @@ c.. input memory in words should be scaled by 1/12 for same range
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
-#if defined(INT_TIMING)
-      call int_tim_init(rtdb)
-#endif
       call exactd_mem(bases,nbas)
       call sp_der_init(nbas,bases)
       call int_acc_std()

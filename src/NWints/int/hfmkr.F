@@ -1,5 +1,5 @@
       Subroutine hfmkr(R,IJK,PQ,NAB,Lp,Lp3)
-c $Id: hfmkr.F,v 1.4 1994-12-21 08:15:38 d3e129 Exp $
+c $Id: hfmkr.F,v 1.5 1996-07-11 22:21:27 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -7,10 +7,6 @@ c $Id: hfmkr.F,v 1.4 1994-12-21 08:15:38 d3e129 Exp $
       Dimension R(NAB,0:Lp,Lp3),IJK(0:Lp,0:Lp,0:Lp),PQ(NAB,3)
 
       Dimension Nxyz(3)
-#if defined(INT_TIMING)
-#include "int_tim.fh"
-#include "pstat.fh"      
-#endif
 c
 c Recursively define the auxiliary integrals needed for ERIs and NAIs.
 c
@@ -27,10 +23,6 @@ c         N,L,M,j        N,L,M-1,j+1          N,L,M-2,j+1
 c
 c******************************************************************************
 
-#if defined(INT_TIMING)
-      if(o_int_time.and.(int_time_level.ge.3))
-     &   call pstat_on(intt_arr(intt_hfmkr))
-#endif
 *rak:      if (Lp.le.1) then
 *rak:        call hfmkr_1(R,PQ,IJK,NAB,Lp,Lp3)
 *rak:        goto 00099
@@ -162,8 +154,4 @@ c******************************************************************************
   180 continue
 
 00099 continue
-#if defined(INT_TIMING)
-      if(o_int_time.and.(int_time_level.ge.3))
-     &   call pstat_off(intt_arr(intt_hfmkr))
-#endif
       end

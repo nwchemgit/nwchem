@@ -1,6 +1,6 @@
       subroutine intd_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri, idatom2)
-c $Id: intd_2e2c.F,v 1.3 1996-01-22 21:46:43 d3e129 Exp $
+c $Id: intd_2e2c.F,v 1.4 1996-07-11 22:21:16 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -14,10 +14,6 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
-*:need to fix:#if defined(INT_TIMING)
-*:need to fix:#include "int_tim.fh"
-*:need to fix:#include "pstat.fh"
-*:need to fix:#endif
 c
 c::external subroutines used
 c dcopy
@@ -120,10 +116,6 @@ c... new logic
         return
       endif
 c
-*:need to fix:#if defined(INT_TIMING)
-*:need to fix:      if(o_int_time.and.(int_time_level.ge.2))
-*:need to fix:     &   call pstat_on(intt_arr(intt_hf2d))
-*:need to fix:#endif
 c
       call hf2d(
      &       coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
@@ -145,10 +137,6 @@ c
       idatom2(1) = idatom(1)
       idatom2(2) = idatom(3)
 c
-*:need to fix:#if defined(INT_TIMING)
-*:need to fix:      if(o_int_time.and.(int_time_level.ge.2))
-*:need to fix:     &   call pstat_off(intt_arr(intt_hf2d))
-*:need to fix:#endif
       end
       subroutine intd_sum2c(eri,nint,idatom,iatom,jatom)
       implicit none

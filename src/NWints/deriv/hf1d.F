@@ -4,7 +4,7 @@
      &       Cxyz,zan,ncenters,
      &       bO2I,bKEI,bNAI,Nint,
      &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0)
-c $Id: hf1d.F,v 1.8 1995-11-03 20:41:11 d3g681 Exp $
+c $Id: hf1d.F,v 1.9 1996-07-11 22:21:22 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -33,11 +33,6 @@ c--> Scratch Space.
 
       Dimension W0(maxW0)
 
-#if defined(INT_TIMING)
-#include "int_tim.fh"
-#include "pstat.fh"
-#endif
-
       Data inder1/ 1,0,0,
      &             0,1,0,
      &             0,0,1 /
@@ -61,10 +56,6 @@ c      inder2(i,n), i=1-3:   d/dPx, d/dPy, d/dPz
 c                   i=4-6:   d/dRx, d/dRy, d/dRz
 c
 c******************************************************************************
-#if defined(INT_TIMING)
-      if((.not.dryrun).and.o_int_time.and.(int_time_level.ge.2))
-     &   call pstat_on(intt_arr(intt_hf1d))
-#endif
 
 *     call hf_print('hf1d: a shell',axyz,aprims,acoefs,npa,nca,la)
 *     call hf_print('hf1d: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
@@ -361,10 +352,5 @@ c   (2) the derivative wrt to the centers of the Gaussian functions.
 c Return the maximum amount of scratch space required by a "dry run".
 
       if( DryRun ) maxW0 = MaxMem
-c
-#if defined(INT_TIMING)
-      if((.not.dryrun).and.o_int_time.and.(int_time_level.ge.2))
-     &   call pstat_off(intt_arr(intt_hf1d))
-#endif
 c
       end

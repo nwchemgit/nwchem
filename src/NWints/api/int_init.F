@@ -1,5 +1,5 @@
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.23 1996-07-10 10:10:54 d3e129 Exp $
+c $Id: int_init.F,v 1.24 1996-07-11 22:21:15 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -136,9 +136,6 @@ c
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
-#if defined(INT_TIMING)
-      call int_tim_init(rtdb)
-#endif
       call exact_mem(bases,nbas)
       call sp_init(nbas,bases)
       call init70               ! To generate tables etc.
@@ -210,109 +207,5 @@ c
      &       hspscat,kspscat))
      &       call errquit('sp_init:ma_alloc_get scat failed',911)
       end
-#if defined(INT_TIMING)
-      subroutine int_tim_init(rtdb)
-      implicit none
-#include "int_tim.fh"
-#include "pstat.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "global.fh"
-c
-      integer rtdb  ! rtdb handle
-c
-      integer intt_lvl_tmp 
-      logical status, rtdb_status
-      external int_time_data
-c
-      rtdb_status = rtdb_parallel(.true.)
-      if(rtdb_get(rtdb,'int:time level',MT_INT,1,intt_lvl_tmp)) then
-        int_time_level = intt_lvl_tmp
-      endif
-      status = rtdb_parallel(rtdb_status)
-      if (ga_nodeid().eq.0)
-     &    write(6,*)' integral timing at level ',int_time_level
-      if (int_time_level.gt.0) o_int_time = .true.
-c
-c.. allocate pstat handles
-c
-      if (o_int_time.and.int_time_level.ge.1) then
-        status = Pstat_allocate('all one electron',
-     &      Pstat_Qstat,0,0,intt_arr(intt_hf1))
-        status = status .and. 
-     &      Pstat_allocate('all two electron',
-     &      Pstat_Qstat,0,0,intt_arr(intt_hf2))
-      endif
-      if (o_int_time.and.int_time_level.ge.2) then
-        status = status .and.
-     &      Pstat_allocate('one e- derivs   ',
-     &      Pstat_Qstat,0,0,intt_arr(intt_hf1d))
-        status = status .and. 
-     &      Pstat_allocate('two e- derivs   ',
-     &      Pstat_Qstat,0,0,intt_arr(intt_hf2d))
-      endif
-      if (o_int_time.and.int_time_level.ge.3) then
-        status = status .and.
-     &      Pstat_allocate('all hfmkr calls ',
-     &      Pstat_Qstat,0,0,intt_arr(intt_hfmkr))
-        status = status .and.
-     &      Pstat_allocate('all hfmke calls ',
-     &      Pstat_Qstat,0,0,intt_arr(intt_hfmke))
-        status = status .and. 
-     &      Pstat_allocate('incomplete gamma',
-     &      Pstat_Qstat,0,0,intt_arr(intt_igamma))
-      endif
-      if (.not.status) call errquit
-     &    ('int_tim_init: pstat allocate failed for something',911)
-c
-      end
-      subroutine int_tim_terminate()
-      implicit none
-#include "int_tim.fh"
-#include "pstat.fh"
-c
-      logical status
-c
-      if (o_int_time) call pstat_print_handles(intt_arr,num_intt)
-      o_int_time = .false.
-      status = .true.
-      if (int_time_level.ge.1) then
-        status = pstat_free(intt_arr(intt_hf1))
-        status = status .and. pstat_free(intt_arr(intt_hf2))
-      endif
-      if (int_time_level.ge.2) then
-        status = status .and. pstat_free(intt_arr(intt_hf1d))
-        status = status .and. pstat_free(intt_arr(intt_hf2d))
-      endif
-      if (int_time_level.ge.3) then
-        status = status .and. pstat_free(intt_arr(intt_hfmkr))
-        status = status .and. pstat_free(intt_arr(intt_hfmke))
-        status = status .and. pstat_free(intt_arr(intt_igamma))
-      endif
-      if (.not.status)
-     &    call errquit('int_tim_terminate: pstat_free failed?',911)
-c
-      end
-      block data int_time_data
-c
-c Block data structure to initialize the common block variables in the
-c  internal basis set object data structures
-c
-      implicit none
-#include "int_tim.fh"
-c     
-      data o_int_time /.false./
-      data int_time_level /0/
-      data intt_hf1       /1/
-      data intt_hf2       /2/
-      data intt_hf1d      /3/
-      data intt_hf2d      /4/
-      data intt_hfmkr     /5/
-      data intt_hfmke     /6/
-      data intt_igamma    /7/
-      data intt_arr /pnum_intt*0/
-      data num_intt       /pnum_intt/
-      end
-#endif
 
 

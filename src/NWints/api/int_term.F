@@ -1,5 +1,5 @@
       subroutine int_terminate()
-c $Id: int_term.F,v 1.1 1995-12-13 01:34:00 d3g681 Exp $
+c $Id: int_term.F,v 1.2 1996-07-11 22:21:16 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 c
@@ -22,9 +22,6 @@ c
 c      
       call sp_terminate()
       call texas_terminate()
-#if defined(INT_TIMING)
-      call int_tim_terminate()
-#endif
       end
       subroutine sp_terminate()
       implicit none
@@ -72,9 +69,6 @@ c.. parameters for int derivative (hf2d)
       numd_red       = 0
 c
       call sp_terminate()
-#if defined(INT_TIMING)
-      call int_tim_terminate()
-#endif
 c
       end
 

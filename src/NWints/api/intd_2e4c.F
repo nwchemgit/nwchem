@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.7 1996-01-22 21:46:46 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.8 1996-07-11 22:21:18 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -13,10 +13,6 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
-#if defined(INT_TIMING)
-#include "int_tim.fh"
-#include "pstat.fh"
-#endif
 c
 c::external subroutines used
 c errquit
@@ -155,10 +151,6 @@ c
       ltype = infbs_cont(CONT_TYPE,ucont,ket) 
       latom = (sf_ibs_cn2ce(lsh,ket))
 c
-#if defined(INT_TIMING)
-      if(o_int_time.and.(int_time_level.ge.2))
-     &   call pstat_on(intt_arr(intt_hf2d))
-#endif
 c... new logic
       if (iatom.eq.jatom.and.jatom.eq.katom.and.katom.eq.latom) then
         call dfill((nint*3*4),0.0d00,eri,1)
@@ -184,10 +176,6 @@ c
 c
       call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
 c
-#if defined(INT_TIMING)
-      if(o_int_time.and.(int_time_level.ge.2))
-     &   call pstat_off(intt_arr(intt_hf2d))
-#endif
       end
       subroutine intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
       implicit none

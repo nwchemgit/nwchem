@@ -1,5 +1,5 @@
       Subroutine hfmke(Axyz,Bxyz,alpha,ES,E,pf,nd,NPP,MXD,La,Lb)
-c $Id: hfmke.F,v 1.2 1994-09-25 08:04:36 d3e129 Exp $
+c $Id: hfmke.F,v 1.3 1996-07-11 22:21:25 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -19,10 +19,6 @@ c--> Hermite Linear Expansion Coefficients
 c--> Scratch Space
 
       Dimension pf(2,NPP)
-#if defined(INT_TIMING)
-#include "int_tim.fh"
-#include "pstat.fh"      
-#endif
 c
 c Define the linear expansion coefficients for the product of two CGF in
 c terms of HGF.
@@ -63,10 +59,6 @@ c
 c******************************************************************************
 
 c Compute the vector between the centers.
-#if defined(INT_TIMING)
-      if(o_int_time.and.(int_time_level.ge.3))
-     &   call pstat_on(intt_arr(intt_hfmke))
-#endif
 
       Rx = Axyz(1) - Bxyz(1)
       Ry = Axyz(2) - Bxyz(2)
@@ -606,8 +598,4 @@ c    ===>   Ip = Ia+Ib-1,Ia+Ib; Ia = Ia1,La; Ib = 1,Lb   <===
 
       end if
 
-#if defined(INT_TIMING)
-      if(o_int_time.and.(int_time_level.ge.3))
-     &   call pstat_off(intt_arr(intt_hfmke))
-#endif
       end

@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.53 1996-07-10 10:08:43 d3e129 Exp $
+c $Id: raktest.F,v 1.54 1996-07-11 22:21:33 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1451,20 +1451,12 @@ c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
 c--> Scratch Space.
 
       Dimension W0(maxW0)
-#if defined(INT_TIMING)
-#include "int_tim.fh"
-#include "pstat.fh"
-#endif
 c
 c Compute the overlap, kinetic energy, and nuclear attraction integrals for 
 c two shells of contracted Gaussians functions. This driver is NOT capable of 
 c evaluating integral derivatives.
 c
 c******************************************************************************
-#if defined(INT_TIMING)
-      if((.not.dryrun).and.o_int_time.and.(int_time_level.ge.1))
-     &   call pstat_on(intt_arr(intt_hf1))
-#endif
 #if defined(INTDEBUG)
       write(6,*)' inside hf1 '
       write(6,*)' npa,nca,la = ',npa,nca,la
@@ -1718,10 +1710,6 @@ c Assign scratch space.
 c Return the maximum amount of scratch space required by a "dry run".
 
       if( DryRun ) maxW0 = MaxMem
-#if defined(INT_TIMING)
-      if((.not.dryrun).and.o_int_time.and.(int_time_level.ge.1))
-     &   call pstat_off(intt_arr(intt_hf1))
-#endif
 c
       end
       Subroutine hfnaitmp(E,R0,IJK,Vab,Nint,NPP,
