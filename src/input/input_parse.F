@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.78 2004-04-15 23:43:14 marat Exp $
+C     $Id: input_parse.F,v 1.79 2004-10-19 19:34:37 marat Exp $
       implicit none
 #include "errquit.fh"
       integer rtdb              ! [input]
@@ -302,10 +302,10 @@ c
 c     Read input but found no task directive.  Not an error
 c     but is probably undesirable ... unless doing python loop
 c
-            write(LuOut,*) 
-            write(LuOut,*) ' ! warning: processed input with no task'
-            write(LuOut,*)
-            call util_flush(LuOut)
+c            write(LuOut,*) 
+c            write(LuOut,*) ' ! warning: processed input with no task'
+c            write(LuOut,*)
+c            call util_flush(LuOut)
          endif
       endif                     ! End node zero only
 c     
