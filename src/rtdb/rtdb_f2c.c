@@ -216,7 +216,7 @@ logical rtdb_ma_get_(const integer *handle, const char *name, integer *ma_type,
     return FORTRAN_FALSE;
   }
 
-  if (rtdb_ma_get(hbuf, nbuf, &typebuf, &handbuf, &nelbuf)) {
+  if (rtdb_ma_get(hbuf, nbuf, &typebuf, &nelbuf, &handbuf)) {
     *ma_type   = (integer) typebuf;
     *ma_handle = (integer) handbuf;
     *nelem     = (integer) nelbuf;
