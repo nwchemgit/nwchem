@@ -2,7 +2,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.18 2000-03-17 17:22:56 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.19 2000-03-18 00:08:53 d3j191 Exp $
 c
       implicit none
 c
@@ -44,7 +44,7 @@ c
       if(isfnd(i).ne.1) then
 c
       if(util_print('coordinates',print_debug)) then
-      write(lfnout,'(a,i7,5x,a16') 'Not found: atom ',i,csa(i)
+      write(lfnout,'(a,i7,5x,a16)') 'Not found: atom ',i,csa(i)
       endif
       nn=0
 c
