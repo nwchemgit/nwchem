@@ -12,7 +12,7 @@ c
      + form='formatted',status='new',err=9999)
 c
       do 1 i=1,natm
-      write(unit=lfntmp,1000) catm(1,i),catm(2,i)
+      write(lfntmp,1000) catm(1,i),catm(2,i)
  1000 format(2a6)
     1 continue
 c
