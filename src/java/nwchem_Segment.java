@@ -22,6 +22,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     JList sgmList = new JList(segmentList);
     JScrollPane sgmPane = new JScrollPane(sgmList);
 
+    DefaultListModel atomList = new DefaultListModel();
+    JList atmList = new JList(atomList);
+    JScrollPane atmPane = new JScrollPane(atmList);
+
     File[] files;
     String[] dirs = {" ", " ", " ", " "};
     SegmentDefinition[] sgmDef;
@@ -33,7 +37,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     JLabel toLabel = new JLabel("  To  ");
     boolean frBool = true;
 
+    boolean frRead=false, toRead=false;
+
     int frIndex, toIndex;
+    int atmNumber=0;
+    int[][] id;
     
     Segment ToSgm = new Segment();
     Segment FrSgm = new Segment();
@@ -58,6 +66,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	
 	sgmList.addMouseListener(this);
 	sgmList.setVisibleRowCount(15);
+
+	atmList.addMouseListener(this);
+	atmList.setVisibleRowCount(15);
 	
 	JButton doneButton = new JButton("Done");
 	
@@ -209,6 +220,22 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	}
     }
     
+    void atomListUpdate(){
+	header.remove(atmPane);
+	atomList.removeAllElements();
+	for(int i=0; i<atmNumber; i++){
+	    if(id[i][0]>=0 && id[i][1]>=0) {
+		atomList.addElement(FrSgm.atom[id[i][0]].Name+">"+ToSgm.atom[id[i][1]].Name);
+	    } else if(id[i][0]>=0 && id[i][1]<0) {
+		atomList.addElement(FrSgm.atom[id[i][0]].Name+"     ");
+	    } else {
+		atomList.addElement("     "+ToSgm.atom[id[i][1]].Name);
+	    }
+	};
+	addComponent(header,atmPane,1,1,2,1,2,2,GridBagConstraints.NONE,GridBagConstraints.CENTER);
+	header.validate();
+    };
+
     public void actionPerformed(ActionEvent e){}
     
     public void stateChanged(ChangeEvent e){}
@@ -240,9 +267,60 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		fileName=sgmDef[j].Dir+sgmDef[j].Name;
 		if(frBool){
 		    FrSgm.SegmentRead(fileName);
+		    frLabel.setText(" "+sgmDef[j].Name.substring(0,sgmDef[j].Name.indexOf(".sgm")));
+		    frRead=true;
 		} else {
 		    ToSgm.SegmentRead(fileName);
+		    toLabel.setText(" "+sgmDef[j].Name.substring(0,sgmDef[j].Name.indexOf(".sgm")));
+		    toRead=true;
 		};
+		if(frRead && !toRead){
+		    id = new int[FrSgm.numAtoms][2];
+		    atmNumber=0;
+		    for(int i=0; i<FrSgm.numAtoms; i++){
+			id[i][0]=i; id[i][1]=-1; atmNumber++;
+		    };
+		};
+		if(frRead && toRead){
+		    boolean[] frFnd = new boolean[FrSgm.numAtoms];
+		    for(int i=0; i<FrSgm.numAtoms; i++){frFnd[i]=false;};
+		    boolean[] toFnd = new boolean[ToSgm.numAtoms];
+		    for(int i=0; i<ToSgm.numAtoms; i++){toFnd[i]=false;};
+		    int num = FrSgm.numAtoms+ToSgm.numAtoms;
+		    id = new int[num][2];
+		    atmNumber=0;
+		    for(int i=0; i<num; i++){ id[i][0]=-1; id[i][1]=-1;};
+		    for(int i=0; i<FrSgm.numAtoms; i++){
+			if(!frFnd[i]){
+			    for(int k=0; k<ToSgm.numAtoms; k++){
+			    	if(!toFnd[k]){
+				    if(FrSgm.atom[i].Name.equals(ToSgm.atom[k].Name)){
+					id[atmNumber][0]=i; id[atmNumber][1]=k; atmNumber++; frFnd[i]=true; toFnd[k]=true;
+				    };
+			    	};
+			    };
+			};
+			if(!frFnd[i]){
+			    id[atmNumber][0]=i; atmNumber++; frFnd[i]=true;
+			};
+		    };
+		    for(int k=0; k<ToSgm.numAtoms; k++){
+			if(!toFnd[k]){
+			    id[atmNumber][1]=k; atmNumber++; toFnd[k]=true;
+			};
+		    };
+		};
+		atomListUpdate();
+	    };
+	    if(mouse.getSource()==atmList){
+		System.out.println(" Mouse event on atmList");
+		j=atmList.getSelectedIndex();
+		System.out.println(" Event index is "+j+" "+id[j][0]+" "+id[j][1]);
+	        if(id[j][0]>=0 && id[j][1]>=0){
+		    for(int k=atmNumber; k>j; k--){id[k][0]=id[k-1][0]; id[k][1]=id[k-1][1];};
+		    id[j][1]=-1; id[j+1][0]=-1;  atmNumber++;
+		};
+		atomListUpdate();
 	    };
 	};
 	if(mouse.getModifiers()==MouseEvent.BUTTON3_MASK){
@@ -268,3 +346,5 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     public void mouseExited(MouseEvent mouse){}
   
 }
+
+
