@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.30 1996-10-22 08:19:24 d3g681 Exp $
+c $Id: texas_face.F,v 1.31 1997-02-24 20:33:05 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -453,6 +453,7 @@ c
 c tmp fix for memory split
 c----------------------------------------------------------------------
       iszb_2e4c = isz_2e4c*100  ! 100* max single quartet size
+      l_blsize = l_blsize+(l_blsize*2/100) ! add 2% for bmeng bug
       memb_2e4c = l_blsize
       call texas_memory (txs_static,1,txs_dynam)
       mem_2e4c = max(mem_2e4c,txs_static+txs_dynam)
@@ -1012,6 +1013,7 @@ c
 *      ntxs_scr_size = ma_inquire_avail(mt_dbl)
 *
       lcore=ntxs_scr_size
+*rak:      write(6,*)' lcore = ',lcore
 c
       call retall
 c
@@ -1083,6 +1085,7 @@ c in the TXS-BL() :
 c
       call memstat(nreque_bl,nmark_bl,maxmem_bl,memtot_bl)
 c
+*rak:
       IF(IPRINT.gt.0) THEN
       write(8,*)'-----------------------------------------------'
       write(8,*)'   memory status after execution of prepint2   '
@@ -1092,6 +1095,7 @@ c
       write(8,*)' maximum memory used   =',maxmem_bl,'(high water)'
       write(8,*)' total memory available=',memtot_bl
       write(8,*)'-----------------------------------------------'
+*rak:
       ENDIF
 c------------------------------------
 c release memory allocated for prepint2 (& pair_in2) 
@@ -1131,12 +1135,14 @@ c
       call txs_scratch_siz2(iprint,nquart_pnl,maxmem_bl,l_blsize)
 c
 c------------------------------------
+*rak:
       IF(IPRINT.gt.0) THEN
       write(8,*)'   MEMORY REQUIREMENT FOR TEXAS-INTEGRAL PROGRAM'
       write(8,*)'   -----------------------------------------   '
       write(8,*)' maximum used in txs_arrag (+blocking) =',maxmem_bl 
       write(8,*)' MAXIMUM ESTIMATED FOR SCRATCH l_blsize=',l_blsize  
       write(8,*)'-----------------------------------------------'
+*rak:
       ENDIF
 c------------------------------------
       end
