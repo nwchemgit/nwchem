@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.61 2000-06-01 02:11:30 d3j191 Exp $
+c $Id: cf_main.F,v 1.62 2000-06-02 02:50:28 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1169,6 +1169,60 @@ c
 c
       fnorm=sqrt(fnorm)
       fmax=sqrt(fmax)
+c
+      return
+      end
+      subroutine cf_extern(stime,nums,fs,isq,numw,fw)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer nums,numw
+      integer isq(msa)
+      real*8 stime,fs(msa,3),fw(mwm,3,mwa)
+c
+      call cf_external_field(stime,nums,fs,isq,numw,fw,int_mb(i_iwq),
+     + dbl_mb(i_chg))
+c
+      return
+      end
+      subroutine cf_external_field(stime,nums,fs,isq,numw,fw,iwq,chg)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer nums,numw
+      integer isq(msa),iwq(mwa)
+      real*8 stime,fs(msa,3),fw(mwm,3,mwa),chg(mqt,mqp,6)
+c
+      integer i,j,k
+      real*8 efield,q,df
+c
+      efield=field*cos(2.0d-6*pi*ffreq*stime)
+c
+      if(numw.gt.0) then
+      do 1 k=1,nwa
+      q=chg(iwq(k),1,iset)*efield
+      do 2 j=1,3
+      df=q*fvect(j)
+      do 3 i=1,numw
+      fw(i,j,k)=fw(i,j,k)+df
+    3 continue
+    2 continue
+    1 continue
+      endif
+c
+      if(nums.gt.0) then
+      do 4 j=1,3
+      do 5 i=1,nums
+      fs(i,j)=fs(i,j)+chg(isq(i),1,iset)*efield*fvect(j)
+    5 continue
+    4 continue
+      endif
 c
       return
       end

@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.21 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_common.fh,v 1.22 2000-06-02 02:50:28 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -111,7 +111,7 @@ c
       real*8 q14fac,pi,twopi,qfac,alpha,pmetol,temp,tempw,temps,pres
       real*8 tstep,tstepi,wbox,tmpext,prsext,tmwrlx,tmsrlx,prsrlx,epmf
       real*8 factmp,factmw,factms,scalew,scales,ewk,ek,ewkc(3),eskc(3)
-      real*8 edrs
+      real*8 edrs,field,fvect(3),ffreq
       real*8 virial
       integer llww,lsww,llsw,lssw,llss,lsss
       logical llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lanal
@@ -122,7 +122,7 @@ c
      + q14fac,pi,twopi,qfac,alpha,pmetol,recip,volume,epme,vpme,tolsha,
      + tstep,tstepi,wbox,xbm,tmpext,prsext,tmwrlx,tmsrlx,prsrlx,pres,
      + temp,tempw,temps,factmp,factmw,factms,scalew,scales,ewk,ek,edrs,
-     + ewkc,eskc,facpsc,pscale,ewc,epmf,virial,
+     + ewkc,eskc,facpsc,pscale,ewc,epmf,virial,field,fvect,ffreq,
      + ntype,npbtyp,nbxtyp,iqmmm,lstype,iset,
      + ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,ipme,lpww,lpsw,
      + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,

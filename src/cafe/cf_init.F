@@ -4,8 +4,8 @@
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
-     + issscl,delta,nfanal,lpbc,npgi)
-c $Id: cf_init.F,v 1.49 2000-06-01 19:50:33 d3j191 Exp $
+     + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq)
+c $Id: cf_init.F,v 1.50 2000-06-02 02:50:28 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -17,7 +17,7 @@ c
       character*(*) filtop
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,npgi
-      real*8 spmet,step,tols,bx(3)
+      real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq
       integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal
       real*8 rcs,rcl,rqm,compr,delta
       integer iitmps,iiprss,iislow,nodpme,ntyp,idset,ipset1,ipset2
