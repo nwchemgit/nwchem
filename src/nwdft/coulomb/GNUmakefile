@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.30 2000-08-02 01:29:59 bjohnson Exp $
+# $Id: GNUmakefile,v 1.31 2002-02-11 21:17:52 edo Exp $
 ifeq ($(TARGET),SGITFP)
 # BEGIN_WIN32_IGNORE
       OBJ_OPTIMIZE = dft_getvc.o dft_n3c.o
@@ -35,7 +35,7 @@ endif
 
 
 
-      USES_BLAS = dft_fitcd.F dft_fitvc.F dft_genspm.F dft_3cincor.F
+      USES_BLAS = dft_fitcd.F dft_fitvc.F dft_genspm.F dft_3cincor.F dft_get2eri.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
