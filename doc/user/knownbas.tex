@@ -48,10 +48,8 @@ and \verb+sc+ for the small component:
     oxygen library cc-pvdz_pt_sf_fw
     oxygen library cc-pvdz_pt_sf_lc
 \end{verbatim} 
-At present, the correlation consistent dz, tz, qz and 5z basis sets are the 
-only ones which have have been recontracted to incorporate relativistic 
-effects of the Douglas-Kroll and DMD method, and these are available for 
-H, He, B--Ne, Al--Ar and Ga--Kr.
+Basis sets which are available with either the DmD or DK contractions are
+indicated in the list below.
 
 \sloppy
 Here is a list of known basis sets and effective core potentials along
@@ -218,19 +216,19 @@ with the elements included for each.
   H B C N O F Ne
 
 
-\item Basis Set \verb#"cc-pVDZ"# (number of atoms 14)  \newline 
+\item Basis Set \verb#"cc-pVDZ"# (number of atoms 14; has DmD, DK)  \newline 
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"cc-pVTZ"# (number of atoms 14)  \newline 
+\item Basis Set \verb#"cc-pVTZ"# (number of atoms 14; has DmD, DK)  \newline 
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"cc-pVQZ"# (number of atoms 14)  \newline 
+\item Basis Set \verb#"cc-pVQZ"# (number of atoms 14; has DmD, DK)  \newline 
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"cc-pV5Z"# (number of atoms 15)  \newline 
+\item Basis Set \verb#"cc-pV5Z"# (number of atoms 15; has DmD, DK)  \newline 
   H He Li B C N O F Ne Al Si P S Cl Ar
 
 
@@ -258,19 +256,19 @@ with the elements included for each.
   B C N O F Ne
 
 
-\item Basis Set \verb#"aug-cc-pVDZ"# (number of atoms 14)  \newline 
+\item Basis Set \verb#"aug-cc-pVDZ"# (number of atoms 14; has DmD, DK)  \newline 
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"aug-cc-pVTZ"# (number of atoms 14)  \newline 
+\item Basis Set \verb#"aug-cc-pVTZ"# (number of atoms 14; has DmD, DK)  \newline 
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"aug-cc-pVQZ"# (number of atoms 14)  \newline 
+\item Basis Set \verb#"aug-cc-pVQZ"# (number of atoms 14; has DmD, DK)  \newline 
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"aug-cc-pV5Z"# (number of atoms 14)  \newline 
+\item Basis Set \verb#"aug-cc-pV5Z"# (number of atoms 14; has DmD, DK)  \newline 
   H He B C N O F Ne Al Si P S Cl Ar
 
 
@@ -522,6 +520,47 @@ with the elements included for each.
 \item ECP \verb#"CRENBS ECP"# (number of atoms 50)  \newline 
   Sc Ti V Cr Mn Fe Co Ni Cu Zn Y Zr Nb Mo Tc Ru Rh Pd Ag Cd La Hf Ta W Re
  Os Ir Pt Au Hg Pb Bi Po At Rn Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
+
+
+\item Basis Set \verb#"dyall_relpvdz"# (number of atoms 18; DmD)  \newline 
+  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
+
+\item Basis Set \verb#"dyall_relrcpvdz"# (number of atoms 18; DmD)  \newline 
+  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
+
+\item Basis Set \verb#"dyall_relpcpvdz"# (number of atoms 18; DmD)  \newline 
+  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
+
+\item Basis Set \verb#"dyall_relapvdz"# (number of atoms 15; DmD)  \newline 
+  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
+
+\item Basis Set \verb#"dyall_relrcapvdz"# (number of atoms 15; DmD)  \newline 
+  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
+
+\item Basis Set \verb#"dyall_relpcapvdz"# (number of atoms 15; DmD)  \newline 
+  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
+
+\item Basis Set \verb#"dyall_reldz_aug"# (number of atoms 15)  \newline
+  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
+
+
+\item Basis Set \verb#"dyall_nrpvdz_fi"# (number of atoms 18)  \newline 
+  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
+
+\item Basis Set \verb#"dyall_nrrcpvdz_fi"# (number of atoms 18)  \newline 
+  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
+
+\item Basis Set \verb#"dyall_nrpcpvdz_fi"# (number of atoms 18)  \newline 
+  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
+
+\item Basis Set \verb#"dyall_nrapvdz_fi"# (number of atoms 15)  \newline 
+  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
+
+\item Basis Set \verb#"dyall_nrrcapvdz_fi"# (number of atoms 15)  \newline 
+  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
+
+\item Basis Set \verb#"dyall_nrpcapvdz_fi"# (number of atoms 15)  \newline 
+  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
 
 
 
