@@ -1,6 +1,6 @@
       subroutine hnd_efgmap(rtdb,basis,geom)
 c
-c $Id: hnd_efgmap.F,v 1.2 2004-07-22 19:37:23 bert Exp $
+c $Id: hnd_efgmap.F,v 1.3 2004-07-23 21:34:46 bert Exp $
 c
 c     This routine calculates the electric field gradient and 
 c     the orientation of the EFG for a given density at the
@@ -14,6 +14,8 @@ c
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "stdio.fh"
+#include "rtdb.fh"
+#include "cosmo.fh"
 c
       integer rtdb      ! [Input] rtdb  
       integer basis     ! [Input] Basis set
@@ -24,6 +26,7 @@ c
       integer iat, atn, nat, i, j, ij
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt, l_efgs, k_efgs
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
+      integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
       character*3 scftyp
       double precision xp, yp, zp, xn, yn, zn, zan
       double precision vec(3,3), eig(3), a(6)
@@ -108,27 +111,42 @@ c
   210    continue
 c
 c     ----- form -efc- contribution -----
-c           point charges !!!!
+c           from cosmo point charges !!!!
 c
-!        if(iefc.eq.keyefc) then
-!           do 220 i = 1,nefc
-!              xn = efcc(1,i) - xp
-!              yn = efcc(2,i) - yp
-!              zn = efcc(3,i) - zp
-!              rr =  sqrt(xn*xn + yn*yn + zn*zn)
-!              if (rr.lt.1.0d-3) then
-!                 write(luout,9993) xp,yp,zp,i
-!                 goto 220
-!              endif
-!              rr5=rr*rr*rr*rr*rr
-!              efgxx = efgxx - efcz(i)*xn*xn/rr5
-!              efgyy = efgyy - efcz(i)*yn*yn/rr5
-!              efgzz = efgzz - efcz(i)*zn*zn/rr5
-!              efgxy = efgxy - efcz(i)*xn*yn/rr5
-!              efgxz = efgxz - efcz(i)*xn*zn/rr5
-!              efgyz = efgyz - efcz(i)*yn*zn/rr5
-! 220       continue
-!        endif
+         if (cosmo_last) then
+            if (.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1,nefc))
+     &         call errquit('hnd_efgmap: rtdb get failed for nefc ',911,
+     &         RTDB_ERR)
+            if (.not.ma_push_get(mt_dbl,nefc*3,'efcc',l_efcc,k_efcc))
+     &         call errquit('hnd_efgmap: malloc k_efcc fail',911,ma_err)
+            if (.not.ma_push_get(mt_dbl,nefc,'efcz',l_efcz,k_efcz))
+     &         call errquit('hnd_efgmap: malloc k_efcz fail',911,ma_err)
+            if (.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,
+     &         dbl_mb(k_efcc))) call 
+     &         errquit('hnd_efgmap: rtdb get failed efcc',912,rtdb_err)
+            if (.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,nefc,
+     &         dbl_mb(k_efcz))) call 
+     &         errquit('hnd_efgmap: rtdb get failed efcz',913,rtdb_err)
+            do 220 i = 1,nefc
+               xn = dbl_mb(k_efcc+3*(i-1)  ) - xp
+               yn = dbl_mb(k_efcc+3*(i-1)+1) - yp
+               zn = dbl_mb(k_efcc+3*(i-1)+2) - zp
+               rr =  sqrt(xn*xn + yn*yn + zn*zn)
+               if (rr.lt.1.0d-3) then
+                  write(luout,9993) xp,yp,zp,i
+                  goto 220
+               endif
+               rr5=rr*rr*rr*rr*rr
+               efgxx = efgxx - dbl_mb(k_efcz+i-1)*xn*xn/rr5
+               efgyy = efgyy - dbl_mb(k_efcz+i-1)*yn*yn/rr5
+               efgzz = efgzz - dbl_mb(k_efcz+i-1)*zn*zn/rr5
+               efgxy = efgxy - dbl_mb(k_efcz+i-1)*xn*yn/rr5
+               efgxz = efgxz - dbl_mb(k_efcz+i-1)*xn*zn/rr5
+               efgyz = efgyz - dbl_mb(k_efcz+i-1)*yn*zn/rr5
+  220       continue
+            if (.not.ma_chop_stack(l_efcc)) call 
+     &         errquit('hnd_efgmap: chop stack l_efcc',913,ma_err)
+         endif
 c
          dbl_mb(k_efgs  +6*(iat-1)) = 2.0d0*efgxx - efgyy - efgzz
          dbl_mb(k_efgs+1+6*(iat-1)) = 2.0d0*efgyy - efgxx - efgzz

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.20 2004-07-21 17:28:26 bert Exp $
+# $Id: GNUmakefile,v 1.21 2004-07-23 21:34:45 bert Exp $
 #
 
 
@@ -29,11 +29,12 @@
 
    LIBRARY = libproperty.a
    LIB_DEFINES = 
-   LIB_INCLUDES = -I../nwdft/include
+
+    LIB_INCLUDES = -I../nwdft/include -I../ddscf
 
 USES_BLAS = 
 
-HEADERS = prop.fh
+HEADERS = prop.fh 
 
 include ../config/makefile.h
 include ../config/makelib.h

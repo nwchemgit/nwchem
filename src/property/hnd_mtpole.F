@@ -1,6 +1,6 @@
       subroutine hnd_mtpole(rtdb,basis,geom,mpole)
 c
-c $Id: hnd_mtpole.F,v 1.3 2004-07-22 23:40:10 bert Exp $
+c $Id: hnd_mtpole.F,v 1.4 2004-07-23 21:34:46 bert Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -17,6 +17,7 @@ c
 #include "stdio.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "cosmo.fh"
 c
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
@@ -34,15 +35,14 @@ c
       integer Nxyz(3)
       integer ncomp, iefc, nat, iat, icomp, i
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt
+      integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
       character*3 scftyp
       character*2  symbol
-      character*4  keyefc
       character*16 element, at_tag
       data octo    /0.711688d+00/
       data buck    /1.344911d+00/
       data debye   /2.54176568d+00/
-      data keyefc  /4h efc/
 c
       if (ga_nodeid().eq.0.and.mpole.eq.1) write(luout,2001)
       if (ga_nodeid().eq.0.and.mpole.eq.2) write(luout,3001)
@@ -107,18 +107,35 @@ c
      &                     dbl_mb(k_zanpt+iat-1) * cx * cy * cz
    60 continue
 c
-c     ----- -efc- contribution -----
+c     ----- form -efc- contribution -----
+c           from cosmo point charges !!!!
 c
-!     if(iefc.eq.keyefc) then
-!        do 70 icomp = 1, ncomp
-!        call getNxyz(2,icomp,Nxyz)
-!        do 70 iat=1,nefc
-!           cx = (efcc(1,iat)-cm(1))**Nxyz(1)
-!           cy = (efcc(2,iat)-cm(2))**Nxyz(2)
-!           cz = (efcc(3,iat)-cm(3))**Nxyz(3)
-!           mptval(icomp,2) = mptval(icomp,2) + efcz(iat) * cx * cy * cz
-!  70    continue
-!     endif
+      if (cosmo_last) then
+         if (.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1,nefc))
+     &      call errquit('hnd_mtpole: rtdb get failed for nefc ',911,
+     &      rtdb_err)
+         if (.not.ma_push_get(mt_dbl,nefc*3,'efcc',l_efcc,k_efcc))
+     &      call errquit('hnd_mtpole: malloc k_efcc fail',911,ma_err)
+         if (.not.ma_push_get(mt_dbl,nefc,'efcz',l_efcz,k_efcz))
+     &      call errquit('hnd_mtpole: malloc k_efcz fail',911,ma_err)
+         if (.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,
+     &      dbl_mb(k_efcc))) call
+     &      errquit('hnd_mtpole: rtdb get failed efcc',912,rtdb_err)
+         if (.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,nefc,
+     &      dbl_mb(k_efcz))) call
+     &      errquit('hnd_mtpole: rtdb get failed efcz',913,rtdb_err)
+         do 70 icomp = 1, ncomp
+            call getNxyz(2,icomp,Nxyz)
+            do 70 iat=1,nefc
+               cx = (dbl_mb(k_efcc+3*(i-1)  )-cm(1))**Nxyz(1)
+               cy = (dbl_mb(k_efcc+3*(i-1)+1)-cm(2))**Nxyz(2)
+               cz = (dbl_mb(k_efcc+3*(i-1)+2)-cm(3))**Nxyz(3)
+               mptval(icomp,2) = mptval(icomp,2) + 
+     &                           dbl_mb(k_efcz+iat-1)*cx*cy*cz
+   70    continue
+         if (.not.ma_chop_stack(l_efcc)) call
+     &      errquit('hnd_mtpole: chop stack l_efcc',913,ma_err)
+      endif
 c
 c     Print output for
 c     mpole = 1 : Dipole

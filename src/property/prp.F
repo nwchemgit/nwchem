@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.59 2004-07-23 20:52:58 bert Exp $
+* $Id: prp.F,v 1.60 2004-07-23 21:34:46 bert Exp $
 *
       subroutine hnd_propty(rtdb,basis,geom)
       implicit double precision (a-h,o-z)
@@ -54,8 +54,6 @@ c
       status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
       status=rtdb_get(rtdb,'prop:giao',MT_INT,1,nogiao)             !done
 c
-      nefc  =0
-      iefc  =iblk
       runtyp=blank
       wfntyp=scf  
       scftyp=rhf       

@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.1 2004-07-21 17:28:27 bert Exp $
+c $Id: hnd_elpmap.F,v 1.2 2004-07-23 21:34:46 bert Exp $
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.
@@ -12,6 +12,8 @@ c
 #include "nwc_const.fh"
 #include "stdio.fh"
 #include "geom.fh"
+#include "rtdb.fh"
+#include "cosmo.fh"
 c
       integer rtdb      ! [Input] rtdb        
       integer basis     ! [Input] Basis set
@@ -21,6 +23,7 @@ c
       character*16 element, at_tag
       integer iat, atn, nat, i, j, ij
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt, l_epot, k_epot
+      integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
       character*3 scftyp
       double precision xp, yp, zp, xn, yn, zn, zan
@@ -94,20 +97,36 @@ c
   210    continue
 c
 c     ----- form -efc- contribution -----
+c           from cosmo point charges !!!!
 c
-!        if(iefc.eq.keyefc) then
-!           do 220 i = 1,nefc
-!              xn = efcc(1,i) - xp
-!              yn = efcc(2,i) - yp
-!              zn = efcc(3,i) - zp
-!              rr =  sqrt(xn*xn + yn*yn + zn*zn)
-!              if (rr.lt.1.0d-3) then
-!                 write(luout,9993) xp,yp,zp,i
-!                 go to 210
-!              endif
-!              elpotn = elpotn + efcz(i)/rr
-! 220       continue
-!        endif
+         if (cosmo_last) then
+            if (.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1,nefc))
+     &         call errquit('hnd_elpmap: rtdb get failed for nefc ',911,
+     &         RTDB_ERR)
+            if (.not.ma_push_get(mt_dbl,nefc*3,'efcc',l_efcc,k_efcc))
+     &         call errquit('hnd_elpmap: malloc k_efcc fail',911,ma_err)
+            if (.not.ma_push_get(mt_dbl,nefc,'efcz',l_efcz,k_efcz))
+     &         call errquit('hnd_elpmap: malloc k_efcz fail',911,ma_err)
+            if (.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,
+     &         dbl_mb(k_efcc))) call
+     &         errquit('hnd_elpmap: rtdb get failed efcc',912,rtdb_err)
+            if (.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,nefc,
+     &         dbl_mb(k_efcz))) call
+     &         errquit('hnd_elpmap: rtdb get failed efcz',913,rtdb_err)
+            do 220 i = 1,nefc
+               xn = dbl_mb(k_efcc+3*(i-1)  ) - xp
+               yn = dbl_mb(k_efcc+3*(i-1)+1) - yp
+               zn = dbl_mb(k_efcc+3*(i-1)+2) - zp
+               rr =  sqrt(xn*xn + yn*yn + zn*zn)
+               if (rr.lt.1.0d-3) then
+                  write(luout,9993) xp,yp,zp,i
+                  go to 210
+               endif
+               elpotn = elpotn + dbl_mb(k_efcz+i-1)/rr
+  220       continue
+            if (.not.ma_chop_stack(l_efcc)) call
+     &         errquit('hnd_elpmap: chop stack l_efcc',913,ma_err)
+         endif
 c
          if (.not. geom_cent_tag(geom,iat,at_tag)) call
      &      errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
