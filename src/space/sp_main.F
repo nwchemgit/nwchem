@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.89 2004-01-31 18:44:42 d3j191 Exp $
+c $Id: sp_main.F,v 1.90 2004-02-24 06:24:56 d3j191 Exp $
 c
       implicit none
 c
@@ -975,15 +975,11 @@ c      xcgz=xcg(3)
       xcgx=xcgx+xs(jsa,1)
       xcgy=xcgy+xs(jsa,2)
       xcgz=xcgz+xs(jsa,3)
-c      write(*,'(i5,6f12.6)') jsa,xs(jsa,1),xs(jsa,2),xs(jsa,3),
-c     + xcgx,xcgy,xcgz
     2 continue
       factor=one/dble(isal-isaf+1)
-c      write(*,'(f12.6)') factor
       xcgx=factor*xcgx
       xcgy=factor*xcgy
       xcgz=factor*xcgz
-c      write(*,'(6f12.6)') xcgx,xcgy,xcgz,xcg
 cx
       xcgx=xcg(1)
       xcgy=xcg(2)
@@ -1290,7 +1286,7 @@ c
 c
 c     testcode
 c
-      if(idebug.eq.35) then
+      if(iand(idebug,8).eq.8) then
       if(iwl(iwm,lwnod).ne.me) write(lfndbg,'(a,3i5)')
      +  'Travel w fnd ',me,iwl(iwm,lwnod),iwl(iwm,lwgmn)
       endif
@@ -1444,7 +1440,7 @@ c
 c
 c     testcode
 c
-      if(idebug.eq.35) then
+      if(iand(idebug,8).eq.8) then
       if(iwl(iwm,lwnod).ne.me) write(lfndbg,'(a,3i5)')
      +  'Travel w snd ',me,iwl(iwm,lwnod),iwl(iwm,lwgmn)
       endif
@@ -1585,7 +1581,7 @@ c
 c
 c     testcode
 c
-      if(idebug.eq.35) then
+      if(iand(idebug,8).eq.8) then
       write(lfndbg,'(a,3i5)')
      +  ('Travel w rcv ',me,jnode,iwl(nwstay+k,lwgmn),k=1,nwnew)
       endif
@@ -2032,7 +2028,7 @@ c
 c
       return
       end
-      subroutine sp_prefetch(n,iwl,xw,isl,xs)
+      subroutine sp_prefetch_all(n,iwl,xw,isl,xs)
 c
       implicit none
 c
@@ -2052,8 +2048,71 @@ c
      + iwl,int_mb(i_packw),xw,pw,pwp,isl,int_mb(i_pack),xs,ps,psp,
      + .false.)
 c
+      icbbl=nbbl
+c
       return
       end
+      subroutine sp_prefetch(nbget,n,iwl,xw,isl,xs)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      integer nbget,n
+      integer iwl(mwm,miw2),isl(msa,mis2)
+      real*8 xw(mwm,3,mwa),xs(msa,3)
+      real*8 pw(2),ps(2)
+      real*8 pwp(2),psp(2)
+      logical lfetch,lnext
+      integer ibbl,nfetched
+c
+      n=nbbl
+      if(lqmd) n=0
+c
+      nfetched=0
+      if(nbget.lt.0) nbget=nbbl+1
+c
+      do 1 ibbl=1,nbbl
+      call sp_ibbl_prefetch(ibbl,int_mb(i_bb),int_mb(i_ipl),
+     + int_mb(i_jpl),iwl,int_mb(i_packw),xw,pw,pwp,isl,int_mb(i_pack),
+     + xs,ps,psp,.false.,lfetch,lnext)
+      icbbl=ibbl
+      if(lfetch) nfetched=nfetched+1
+      if(nfetched.ge.nbget.and..not.lnext) return
+ 1    continue
+c
+      return
+      end
+      subroutine sp_prefetch_next(iwl,xw,isl,xs)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      integer iwl(mwm,miw2),isl(msa,mis2)
+      real*8 xw(mwm,3,mwa),xs(msa,3)
+      real*8 pw(2),ps(2)
+      real*8 pwp(2),psp(2)
+      logical lfetch,lnext
+      integer ibbl,nfetched
+c
+      if(icbbl.ge.nbbl) return
+c
+      nfetched=0
+      do 1 ibbl=icbbl+1,nbbl
+      call sp_ibbl_prefetch(ibbl,int_mb(i_bb),int_mb(i_ipl),
+     + int_mb(i_jpl),iwl,int_mb(i_packw),xw,pw,pwp,isl,int_mb(i_pack),
+     + xs,ps,psp,.false.,lfetch,lnext)
+      icbbl=ibbl
+      if(lfetch) nfetched=nfetched+1
+      if(nfetched.gt.0.and..not.lnext) return
+ 1    continue
+c
+      return
+      end
+
       subroutine sp_prefetch_p(n,iwl,xw,pw,pwp,isl,xs,ps,psp)
 c
       implicit none
@@ -2093,8 +2152,8 @@ c
       logical lpp
 c
       integer ibbl,i,j,indexw,indexs,indx,jndx,nndexw,nndexs
-      integer jproc,jcell,icell
-      integer jcproc,jccell,iccell
+      integer jproc,jcell
+      integer jccell,iccell
       integer ih,il,jh,jl
       integer nsnon,nwnon
       integer jwfr,jwto,jsfr,jsto
@@ -2102,11 +2161,7 @@ c
       integer handle_ps,handle_pw,handle_psp,handle_pwp
       character*80 string
 c
-cx      call sp_lbbl_ind(lbbl,ipl,jpl)
-c
-      jcproc=-1
       jccell=-1
-      iccell=-1
       indexw=nwmloc+1
       indexs=nsaloc+1
       nndexw=indexw
@@ -2124,25 +2179,15 @@ c
 c
       jproc=lbbl(ibbl,1)
       jcell=lbbl(ibbl,2)
-      icell=lbbl(ibbl,3)
-c
-      if(iccell.ne.icell) then
-      iccell=icell
-      endif
 c
       if(jproc.eq.me) then
 c
-      if(jccell.ne.jcell) then
       jccell=jcell
-      endif
 c
       else
 c
-      if(jproc.ne.jcproc) then
-      jcproc=jproc
-      endif
-c
       if(jcell.ne.jccell) then
+c
       indexw=nndexw
       indexs=nndexs
 c
@@ -2218,7 +2263,7 @@ c
 c
     1 continue
 c
-      if(idebug.gt.0) then
+      if(iand(idebug,16).eq.16) then
       write(lfndbg,2000)
  2000 format(' Cell-cell list lbbl',/)
       write(lfndbg,2001) ((lbbl(i,j),j=1,18),i=1,nbbl)
@@ -2227,7 +2272,139 @@ c
 c
       return
       end
-      subroutine sp_nbwait(ibbl,lhandl,lself,lpbcs,
+      subroutine sp_ibbl_prefetch(ibbl,lbbl,ipl,jpl,
+     + iwl,iwlp,xw,pw,pwp,isl,islp,xs,ps,psp,lpp,lfetch,lnext)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+c
+      integer ibbl
+      integer lbbl(mbbl,mbb2),ipl(mbox,mip2),jpl(mbox,mip2)
+      integer iwl(mwm,miw2),iwlp(mwm,npackw)
+      integer isl(msa,mis2),islp(msa,npack)
+      real*8 xw(mwm,3,mwa),xs(msa,3)
+      real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
+      real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
+      logical lpp,lfetch,lnext
+c
+      integer i,j,indexw,indexs,indx,jndx,nndexw,nndexs
+      integer jproc,jcell
+      integer jccell,iccell
+      integer ih,il,jh,jl
+      integer nsnon,nwnon
+      integer jwfr,jwto,jsfr,jsto
+      integer handle_is,handle_iw,handle_s,handle_w
+      integer handle_ps,handle_pw,handle_psp,handle_pwp
+      character*80 string
+c
+      lfetch=.false.
+c
+      if(ibbl.eq.1) then
+      jccell=-1
+      else
+      jccell=lbbl(ibbl-1,2)
+      endif
+      indexw=lbbl(ibbl,5)
+      indexs=lbbl(ibbl,6)
+c
+      handle_iw=0
+      handle_is=0
+      handle_w=0
+      handle_s=0
+      handle_pw=0
+      handle_ps=0
+      handle_pwp=0
+      handle_psp=0
+c
+      jproc=lbbl(ibbl,1)
+      jcell=lbbl(ibbl,2)
+c
+      if(jproc.eq.me) then
+c
+      jccell=jcell
+c
+      else
+c
+      if(jcell.ne.jccell) then
+c
+      jwfr=lbbl(ibbl,11)
+      jwto=lbbl(ibbl,12)
+      jsfr=lbbl(ibbl,13)
+      jsto=lbbl(ibbl,14)
+c
+      if(jwfr.gt.0) then
+      nwnon=jwto-jwfr+1
+      if(indexw+nwnon.gt.mwm)
+     + call md_abort('Dimension mwm too small',indexw+nwnon)
+      call ga_distribution(ga_iw,jproc,il,ih,jl,jh)
+      if(npackw.eq.0) then
+      call ga_nbget(ga_iw,il+jwfr-1,il+jwto-1,jl,jh,
+     + iwl(indexw,1),mwm,handle_iw)
+      else
+      call ga_nbget(ga_iw,il+jwfr-1,il+jwto-1,jl,jl+npackw-1,
+     + iwlp(indexw,1),mwm,handle_iw)
+      endif
+      call ga_distribution(ga_w,jproc,il,ih,jl,jh)
+      call ga_nbget(ga_w,il+jwfr-1,il+jwto-1,jl,jl+3*mwa-1,
+     + xw(indexw,1,1),mwm,handle_w)
+      if(lpp) then
+      call ga_nbget(ga_w,il+jwfr-1,il+jwto-1,jl+12*mwa+3,jl+18*mwa+2,
+     + pw(indexw,1,1,1),mwm,handle_pw)
+      if(lfree) call ga_nbget(ga_w,il+jwfr-1,il+jwto-1,
+     + jl+18*mwa+3,jl+30*mwa+2,pwp(indexw,1,1,1,1),mwm,handle_pwp)
+      endif
+      lfetch=.true.
+      endif
+c
+      if(jsfr.gt.0) then
+      nsnon=jsto-jsfr+1
+      if(indexs+nsnon.gt.msa)
+     + call md_abort('Dimension msa too small (2)',indexs+nsnon)
+      call ga_distribution(ga_is,jproc,il,ih,jl,jh)
+      if(npack.eq.0) then
+      call ga_nbget(ga_is,il+jsfr-1,il+jsto-1,jl,jh,
+     + isl(indexs,1),msa,handle_is)
+      else
+      call ga_nbget(ga_is,il+jsfr-1,il+jsto-1,jl,jl+npack-1,
+     + islp(indexs,1),msa,handle_is)
+      endif
+      call ga_distribution(ga_s,jproc,il,ih,jl,jh)
+      call ga_nbget(ga_s,il+jsfr-1,il+jsto-1,jl,jl+2,
+     + xs(indexs,1),msa,handle_s)
+      if(lpp) then
+      call ga_nbget(ga_s,il+jsfr-1,il+jsto-1,jl+12,jl+14,
+     + ps(indexs,1,1),msa,handle_ps)
+      if(lfree) call ga_nbget(ga_s,il+jsfr-1,il+jsto-1,jl+15,jl+20,
+     + psp(indexs,1,1,1),msa,handle_psp)
+      endif
+      lfetch=.true.
+      endif
+c
+      endif
+c
+      jccell=jcell
+c
+      endif
+c
+      lbbl(ibbl,15)=handle_iw
+      lbbl(ibbl,16)=handle_w
+      lbbl(ibbl,17)=handle_is
+      lbbl(ibbl,18)=handle_s
+      lbbl(ibbl,19)=handle_pw
+      lbbl(ibbl,20)=handle_ps
+      lbbl(ibbl,21)=handle_pwp
+      lbbl(ibbl,22)=handle_psp
+c
+      lnext=.false.
+      if(ibbl.lt.nbbl) then
+      lnext=lbbl(ibbl+1,2).eq.lbbl(ibbl,2)
+      endif
+c
+      return
+      end
+      subroutine sp_nbwait(ibbl,lnew,lhandl,lself,lpbcs,
      + iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,iwl,isl)
 c
       implicit none
@@ -2238,16 +2415,16 @@ c
 c
       integer ibbl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,lhandl
       integer isl(msa,mis2),iwl(mwm,miw2)
-      logical lself,lpbcs
+      logical lself,lpbcs,lnew
 c
       lpbcs=lpbc9
-      call sp_nbwait2(ibbl,int_mb(i_bb),lhandl,lself,
+      call sp_nbwait2(ibbl,lnew,int_mb(i_bb),lhandl,lself,
      + iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,
      + iwl,int_mb(i_packw),isl,int_mb(i_pack))
 c
       return
       end
-      subroutine sp_nbwait2(ibbl,lbbl,lhandl,lself,
+      subroutine sp_nbwait2(ibbl,lnew,lbbl,lhandl,lself,
      + iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,iwl,iwlp,isl,islp)
 c
       implicit none
@@ -2260,11 +2437,13 @@ c
       integer lbbl(mbbl,mbb2)
       integer isl(msa,mis2),islp(msa,npack)
       integer iwl(mwm,miw2),iwlp(mwm,npackw)
-      logical lself
+      logical lself,lnew
       integer indexs,indexw
       integer handle_iw,handle_w,handle_is,handle_s
       integer handle_pw,handle_ps,handle_pwp,handle_psp
+      integer i
 c
+      lnew=.false.
       indexw=lbbl(ibbl,5)
       indexs=lbbl(ibbl,6)
       iwfr=lbbl(ibbl, 7)
@@ -2298,6 +2477,7 @@ c
       handle_psp=lbbl(ibbl,22)
 c
       if(handle_iw.ne.0.or.handle_w.ne.0) then
+      lnew=.true.
       call ga_nbwait(handle_iw)
       call ga_nbwait(handle_w)
       if(npackw.ne.0) then
@@ -2305,6 +2485,7 @@ c
       endif
       endif
       if(handle_is.ne.0.or.handle_s.ne.0) then
+      lnew=.true.
       call ga_nbwait(handle_is)
       call ga_nbwait(handle_s)
       if(npackw.ne.0) then
@@ -2312,10 +2493,12 @@ c
       endif
       endif
       if(handle_pw.ne.0.or.handle_ps.ne.0) then
+      lnew=.true.
       call ga_nbwait(handle_pw)
       call ga_nbwait(handle_ps)
       endif
       if(handle_pwp.ne.0.or.handle_psp.ne.0) then
+      lnew=.true.
       call ga_nbwait(handle_pwp)
       call ga_nbwait(handle_psp)
       endif
@@ -2400,18 +2583,34 @@ c
       integer lbbl(mbbl,mbb2),ipl(mbox,mip2),jpl(mbox,mip2)
 c
       integer ibbl,jproc,jcell,icell,jcproc,jccell,iccell
-      integer i,indx,jndx,il,ih,jl,jh
+      integer i,j,indx,jndx,il,ih,jl,jh,indexw,indexs,nndexw,nndexs
       character*80 string
 c
       jcproc=-1
       jccell=-1
       iccell=-1
+      indexw=nwmloc+1
+      indexs=nsaloc+1
+      nndexw=indexw
+      nndexs=indexs
 c
+c      if(iand(idebug,16).eq.16) then
+c      write(lfndbg,3000) ((lbbl(ibbl,i),i=1,3),ibbl=1,nbbl)
+c 3000 format(3i5)
+c      endif
       do 1 ibbl=1,nbbl
 c
       jproc=lbbl(ibbl,1)
       jcell=lbbl(ibbl,2)
       icell=lbbl(ibbl,3)
+      lbbl(ibbl, 5)=0
+      lbbl(ibbl, 6)=0
+      if(iand(idebug,16).eq.16) then
+      write(lfndbg,222) ibbl,nbbl,jproc,jcell,icell,jccell,iccell
+  222 format(7i5)
+      endif
+      do 234 j=1,3
+  234 continue
 c
 c     get indices for icell on the local node
 c
@@ -2421,8 +2620,10 @@ c
       if(ipl(30+i,1).eq.icell) indx=30+i
     2 continue
       if(indx.eq.0) then
+      do 232 j=1,3
+  232 continue
       write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
- 1000 format(/,'Cells on proc',i5,':',t20,20i5,/,(t20,20i5))
+ 1000 format(/,'Cells on proc',i5,' :',t20,20i5,/,(t20,20i5))
       write(string,1001) icell,me
  1001 format('SP0001: Could not find icell',i5,' on proc',i5)
       call md_abort(string,0)
@@ -2472,7 +2673,7 @@ c
       if(jpl(30+i,1).eq.jcell) jndx=30+i
     4 continue
       if(jndx.eq.0) then
-      if(idebug.gt.0) then
+      if(iand(idebug,16).eq.16) then
       write(lfndbg,1003) jcell,jproc
  1003 format('Could not find cell',i5,' on proc',i5,' in sp_lbbl')
       write(lfndbg,1004) jproc,(jpl(30+i,1),i=1,jpl(1,1))
@@ -2486,9 +2687,17 @@ c
  1006 format('SP0002: Could not find remote jcell',i5,' on proc',i5)
       call md_abort(string,me)
       endif
+      jccell=jcell
+c
+      indexw=nndexw
+      indexs=nndexs
+      if(jpl(jndx,2).gt.0) nndexw=indexw+jpl(jndx,3)-jpl(jndx,2)+1
+      if(jpl(jndx,4).gt.0) nndexs=indexs+jpl(jndx,5)-jpl(jndx,4)+1
 c
       endif
 c
+      lbbl(ibbl, 5)=indexw
+      lbbl(ibbl, 6)=indexs
       lbbl(ibbl,11)=jpl(jndx,2)
       lbbl(ibbl,12)=jpl(jndx,3)
       lbbl(ibbl,13)=jpl(jndx,4)
@@ -2497,6 +2706,9 @@ c
       endif
 c
     1 continue
+c
+      if(nndexw.gt.mwm) call md_abort('Increase dimension mwm ',nndexw)
+      if(nndexs.gt.msa) call md_abort('Increase dimension msa ',nndexs)
 c
       return
       end
@@ -2737,7 +2949,7 @@ c
       if(jpl(30+i,1).eq.jbox) ndx=30+i
     3 continue
       if(ndx.eq.0) then
-      if(idebug.gt.0) then
+      if(iand(idebug,4).eq.4) then
       write(lfndbg,8000) jbox,jnode
  8000 format('Could not find box',i5,' on node',i5,' in sp_gtxpbl')
       write(lfndbg,8001) jnode,(jpl(30+i,1),i=1,jpl(1,1))
@@ -2863,7 +3075,7 @@ c
       if(jpl(30+i,1).eq.jbox) ndx=30+i
     3 continue
       if(ndx.eq.0) then
-      if(idebug.gt.0) then
+      if(iand(idebug,4).eq.4) then
       write(lfndbg,8000) jbox,jnode
  8000 format('Could not find box',i5,' on node',i5,' in sp_acpbl')
       write(lfndbg,8001) jnode,(jpl(30+i,1),i=1,jpl(1,1))

@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.128 2004-02-24 03:21:36 d3j191 Exp $
+c $Id: sp_init.F,v 1.129 2004-02-24 06:24:56 d3j191 Exp $
 c
       implicit none
 c
@@ -891,10 +891,6 @@ c
      + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3),ibs(k,12)
  1011 format(i1,1x,6f13.8,i5)
       if(ibs(k,12).lt.0) ndums=ndums+1
-cx
-cx      write(*,1011)
-cx     + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3),ibs(k,12)
-cx 
       if(lforces) then
       read(lfnrst,1111,end=9997,err=9998) (bfs(k,j),j=1,3)
  1111 format(2x,6e13.6)
@@ -912,9 +908,6 @@ c 2009 format(16x,10i5)
       isndx(icount)=lasts
       endif
       ibs(k,3)=icount
-cx
-cx      write(*,2009) (ibs(k,j),j=1,10)
-cx
       if(nsmr.lt.ibs(k,2)) nsmr=ibs(k,2)
       if(nserie.eq.0) then
       if(nsf.lt.ibs(k,1)) nsf=ibs(k,1)
@@ -1017,7 +1010,6 @@ c
       isl(j,lshop)=0
       if(ibs(j,12).gt.0) isl(j,lshop)=ibs(j,12)*2
       if(ibs(j,12).lt.0) isl(j,lshop)=(-ibs(j,12))*2+1
-c      write(*,'(3i5)') j,ibs(j,12),isl(j,lshop)
       do 121 l=1,3
       xs(j,l)=bxs(j,l)
       vs(j,l)=bvs(j,l)
@@ -1174,7 +1166,7 @@ c
       ibownr(ibz,3)=((ibz-1)*npz)/nbz
       boxsiz(ibz,3)=(box(3)*dble(ibz))/dble(nbz)
     3 continue
-      if(idebug.eq.1) then
+      if(iand(idebug,1).eq.1) then
       write(lfndbg,8003) nbx,nby,nbz,maxbox,npx,npy,npz
  8003 format('ibownr in sp_decomp',7i5)
       write(lfndbg,8004) (ibownr(ibx,1),ibx=1,nbx)
@@ -1346,7 +1338,7 @@ c
     2 continue
     1 continue
 c
-      if(idebug.gt.0) then
+      if(iand(idebug,1).eq.1) then
       write(lfndbg,8003) nbx,nby,nbz,maxbox
  8003 format('ibownr in sp_initip',4i5)
       write(lfndbg,8004) (ibownr(ibx,1),ibx=1,nbx)
@@ -1356,7 +1348,7 @@ c
       write(lfndbg,8006) (ibownr(ibz,3),ibz=1,nbz)
  8006 format('ibownr z',/,(20i5))
       call util_flush(lfndbg)
-      if(idebug.gt.3) write(lfndbg,8002)
+      if(iand(idebug,2).eq.2) write(lfndbg,8002)
  8002 format('boxlist')
       endif
       nbiown=0
@@ -1365,7 +1357,7 @@ c
       do 5 ibz=1,nbz
       nrbox=((ibz-1)*nby+iby-1)*nbx+ibx-1
       nrnod=(ibownr(ibz,3)*npy+ibownr(iby,2))*npx+ibownr(ibx,1)
-      if(idebug.eq.1) then
+      if(iand(idebug,2).eq.2) then
       write(lfndbg,8001) ibx,iby,ibz,nrbox,nrnod
  8001 format(5i5)
       call util_flush(lfndbg)
@@ -1386,7 +1378,7 @@ c
       call ga_distribution(ga_ip,me,il,ih,jl,jh)
       call ga_put(ga_ip,il,ih,jl,jh,ipl,mbox)
 c
-      if(idebug.eq.3) then
+      if(iand(idebug,2).eq.2) then
       write(lfndbg,8000) (i,ipl(30+i,1),i=1,ipl(1,1))
  8000 format('ipl',/,(2i5))
       call util_flush(lfndbg)
@@ -1468,7 +1460,7 @@ c
       real*8 dx,dxtmp,dy,dytmp,dz,dztmp,dist2
       character*255 string
 c
-      if(idebug.gt.0) then
+      if(iand(idebug,2).eq.2) then
       write(lfndbg,'(a,i6)') 'boxsiz in sp_numbb'
       write(lfndbg,'(6f12.6)') (boxsiz(i,1),i=1,nbx)
       write(lfndbg,'(6f12.6)') (boxsiz(i,2),i=1,nby)
@@ -1828,7 +1820,7 @@ c
     7 continue
       if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
 c
-      if(idebug.gt.2) then
+      if(iand(idebug,2).eq.2) then
       write(lfndbg,8000) (i,(lbbl(i,j),j=1,3),i=1,nbbl)
  8000 format('lbbl',/,(4i5))
       call util_flush(lfndbg)

@@ -1,12 +1,14 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.160 2004-01-31 17:27:18 d3j191 Exp $
+c $Id: md_start.F,v 1.161 2004-02-24 06:24:53 d3j191 Exp $
 c
       implicit none
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+c
+      if(npg.gt.1) call md_partition
 c
       if(lqmd) call qmd_start()
 c
@@ -700,6 +702,8 @@ c
      + call md_abort('md_rtdbin: rtdb_get failed',5)
       if(.not.rtdb_get(irtdb,'md:npz',mt_int,1,npz))
      + call md_abort('md_rtdbin: rtdb_get failed',6)
+      if(.not.rtdb_get(irtdb,'md:npg',mt_int,1,npg))
+     + call md_abort('md_rtdbin: rtdb_get failed',6)
       if(.not.rtdb_get(irtdb,'md:mdalgo',mt_int,1,mdalgo))
      + call md_abort('md_rtdbin: rtdb_get failed',7)
       if(.not.rtdb_get(irtdb,'md:iset',mt_int,1,iset))
@@ -1126,8 +1130,6 @@ c
       lcont=istart.eq.2
       endif
 c
-c      print*,istart,lstart,lrstrt,lcont
-c
       if(lstart) then
       nserie=0
       else
@@ -1255,7 +1257,7 @@ c
       nbytes=8*nbytes
 #endif
       call ga_brdcst(mrg_d36,ptol,nbytes,0)
-      nbytes=6*ma_sizeof(mt_int,1,mt_byte)
+      nbytes=7*ma_sizeof(mt_int,1,mt_byte)
       call ga_brdcst(mrg_d37,npx,nbytes,0)
       endif
 c
@@ -1904,5 +1906,21 @@ c
  1255 format(' 55 : Restart File Update')
  1256 format(' 56 : TOTAL TIME PER STEP')
 c          
+      return
+      end
+      subroutine md_partition
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "global.fh"
+c
+      write(*,1000) npg
+ 1000 format(' The number of processor groups requested is ',i5)
+      write(*,1001) ga_pgroup_get_world()
+ 1001 format(' The world group handle is ',i5)
+      write(*,1002) ga_pgroup_get_default()
+ 1002 format(' The default group handle is ',i5)
+c
       return
       end

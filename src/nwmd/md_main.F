@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.188 2004-01-31 17:33:53 d3j191 Exp $
+c $Id: md_main.F,v 1.189 2004-02-24 06:24:52 d3j191 Exp $
 c
       implicit none
 c
@@ -2235,7 +2235,7 @@ c
       integer nbbl,i,j,k
       integer itcom1,itforc,itcom2
 c
-      logical lforce,ldone
+      logical lforce,ldone,lnew
 c
       local=.true.
       itcom1=33
@@ -2248,7 +2248,11 @@ c
       itforc=35
       call timer_start(33)
       if(ipolt.eq.0) then
-      call sp_prefetch(nbbl,iwl,xw,isl,xs)
+      if(nbget.lt.0) then
+      call sp_prefetch_all(nbbl,iwl,xw,isl,xs)
+      else
+      call sp_prefetch(nbget,nbbl,iwl,xw,isl,xs)
+      endif
       else
       call sp_prefetch_p(nbbl,iwl,xw,dbl_mb(i_pw),dbl_mb(i_pwp),
      + isl,xs,dbl_mb(i_ps),dbl_mb(i_psp))
@@ -2291,9 +2295,14 @@ c
       call timer_stop(itcom1)
       else
       call timer_start(34)
-      call sp_nbwait(ibbl,lhandl,lself,lpbcs,
+      call sp_nbwait(ibbl,lnew,lhandl,lself,lpbcs,
      + iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,iwl,isl)
       call timer_stop(34)
+      if(nbget.gt.0.and.lnew) then
+      call timer_start(33)
+      call sp_prefetch_next(iwl,xw,isl,xs)
+      call timer_stop(33)
+      endif
       endif
 c
       call timer_start(itforc)
@@ -2762,7 +2771,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.188 2004-01-31 17:33:53 d3j191 Exp $
+c $Id: md_main.F,v 1.189 2004-02-24 06:24:52 d3j191 Exp $
 c
       implicit none
 c

@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.45 2004-02-01 01:12:17 d3j191 Exp $
+c $Id: sp_common.fh,v 1.46 2004-02-24 06:24:56 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -67,11 +67,11 @@ c
       integer me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,nsf,
      + npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,msm,
      + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,nserie,
-     + nbxin,nbyin,nbzin,nred(3),nable,icntrl,mseq,nseq,ndums
+     + nbxin,nbyin,nbzin,nred(3),nable,icntrl,mseq,nseq,ndums,icbbl
       common/sd_dim/me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,
      + nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
      + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,nserie,msm,
-     + nbxin,nbyin,nbzin,nred,nable,icntrl,mseq,nseq,ndums
+     + nbxin,nbyin,nbzin,nred,nable,icntrl,mseq,nseq,ndums,icbbl
 c
       integer i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr
       integer i_ipl,l_ipl,i_jpl,l_jpl,i_xscr,l_xscr

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.82 2004-01-31 00:38:28 d3j191 Exp $
+c $Id: md_input.F,v 1.83 2004-02-24 06:24:52 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,7 @@ c
       integer nfvelo,nfsvel,nfprop,nffree,nfsync,iformt,madbox,loadb
       integer nfforc,nfwfor,nfsfor,npstat,nfesp,impfr,impto,nftri
       integer nflong,nfgaus,mropt,nfauto,nfconv,nffet,idebug,mpolit
-      integer npatom,nptopw,nptops,npx,npy,npz,nbx,nby,nbz,itrack
+      integer npatom,nptopw,nptops,npx,npy,npz,npg,nbx,nby,nbz,itrack
       integer ngx,ngy,ngz,numfix,ifix,noshak,nfslow,nfefld,nfsfld
       integer ngl,isetp1,isetp2,ifield,iapprx,nacfl,npxpct,imfft
       integer ireact,itemp,nscb,idscb(10),memlim,morder,isolvo,lfout6
@@ -62,6 +62,7 @@ c
       npx=0
       npy=0
       npz=0
+      npg=0
       includ=0
       itrack=0
       mdalgo=1
@@ -299,7 +300,7 @@ c
       endif
 c
       if(inp_compare(.false.,'prefetch',item)) then
-      nbget=1
+      if(.not.inp_i(nbget)) nbget=-1
       goto 2
       endif
 c
@@ -345,6 +346,11 @@ c
       if(.not.inp_i(npx)) call md_abort('md_input: error npx',0)
       if(.not.inp_i(npy)) call md_abort('md_input: error npy',0)
       if(.not.inp_i(npz)) call md_abort('md_input: error npz',0)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'groups',item)) then
+      if(.not.inp_i(npg)) call md_abort('md_input: error npg',0)
       goto 2
       endif
 c
@@ -1559,7 +1565,14 @@ c
       goto 2
       endif
       if(inp_compare(.false.,'debug',item)) then
-      if(.not.inp_i(idebug)) call md_abort('md_input: error debug',15)
+      if(.not.inp_i(i)) call md_abort('md_input: error debug',15)
+  555 continue
+      if(i.le.0) then
+      idebug=0
+      else
+      idebug=ior(idebug,2**(i-1))
+      endif
+      if(inp_i(i)) goto 555
       goto 2
       endif
       if(inp_compare(.false.,'test',item)) then
@@ -1635,6 +1648,8 @@ c
       if(.not.rtdb_put(irtdb,'md:npy',mt_int,1,npy))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:npz',mt_int,1,npz))
+     + call md_abort('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:npg',mt_int,1,npg))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:mdalgo',mt_int,1,mdalgo))
      + call md_abort('md_input: rtdb_put failed',0)
