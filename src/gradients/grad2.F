@@ -1,7 +1,8 @@
       subroutine grad2(d_ij,d_kl,d_ik,d_jl,d_il,d_jk,frc,g_dens,ldim,
-     $                 basis,nproc,nat, scr, lscr, buf, lbuf, tol2e )
+     $                 basis,nproc,nat, scr, lscr, buf, lbuf, tol2e,
+     $                 s34, oactive)
+c$Id: grad2.F,v 1.9 1995-02-03 01:01:52 vg038 Exp $
 
-C$Id: grad2.F,v 1.8 1995-02-02 23:14:51 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 
 #include "mafdecls.h"
@@ -17,11 +18,13 @@ C$Id: grad2.F,v 1.8 1995-02-02 23:14:51 d3g681 Exp $
 
       integer g_dens, basis
 
-      logical status, oij, okl,oikjl
+      logical status, oactive, oij, okl, oikjl, oschwarz12
 
-      dimension scr(lscr), buf(lbuf), frc ( 3, nat ), idatom(4)
+      dimension scr(lscr), buf(lbuf), frc ( 3, nat ), idatom(4),
+     $          s34(nat)
       dimension d_ij(ldim,ldim),d_kl(ldim,ldim),d_ik(ldim,ldim),
      $          d_jl(ldim,ldim),d_il(ldim,ldim),d_jk(ldim,ldim)
+      dimension oactive(nat)
 
       iproc = nodeid()
 
@@ -39,18 +42,29 @@ C$Id: grad2.F,v 1.8 1995-02-02 23:14:51 d3g681 Exp $
           endif
         endif
 #endif
+        do iat4 = 1, iat3
+          s34(iat4) = schwarz_atom(iat3,iat4) ! Precompute
+        enddo
+
         do 90, iat1 = iat3, 1, -1
           do 85, iat2 = iat1, 1, -1
-            if (schwarz_atom(iat1,iat2)*schwarz_max() .ge. tol2e) then
+
+            s12 = schwarz_atom(iat1,iat2)
+            oschwarz12 =(s12*schwarz_max().ge.tol2e)
+C
+C           TODO: CHECK HERE FOR SYMMETRY
+C
+            if (oschwarz12) then
               ihi4 = iat3
               if ( iat1.eq.iat3 ) ihi4 = iat2
               do 80, iat4 = ihi4, 1, -1
-                if ( schwarz_atom(iat1,iat2) * schwarz_atom(iat3,iat4) 
-     $               .ge. tol2e ) then
 
-              ijatom = ijatom + 1
-C             if (mod(ijatom, nproc) .eq. iproc) then
-              if ( next .eq. ijatom ) then
+C                 check if all atoms are inactive
+                  if ( .not.oactive(iat1) .and. .not.oactive(iat2) .and.
+     $                 .not.oactive(iat3) .and. .not.oactive(iat4) )
+     $                 goto 1020
+
+                if ( s12 * s34(iat4) .lt. tol2e ) goto 1020
 
                 status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
                 if (.not.status) 
@@ -65,6 +79,14 @@ C             if (mod(ijatom, nproc) .eq. iproc) then
                 if (.not.status) 
      $              call errquit('grad2: error with bas_ce2bfr',0)
 
+                if (iab1f.le.0 .or. iab2f.le.0 .or. iab3f.le.0 .or.
+     $               iab4f.le.0) then
+c     
+c     At least one center has no functions on it ... next atom
+c
+                   goto 1020
+                endif
+
                 status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
                 if (.not.status) 
      $              call errquit('grad2: error with bas_ce2cnr',0)
@@ -78,13 +100,8 @@ C             if (mod(ijatom, nproc) .eq. iproc) then
                 if (.not.status) 
      $              call errquit('grad2: error with bas_ce2cnr',0)
 
-                if (iab1f.le.0 .or. iab2f.le.0 .or. iab3f.le.0 .or.
-     $               iab4f.le.0) then
-c     
-c     At least one center has no functions on it ... next atom
-c
-                   goto 1010
-                endif
+              ijatom = ijatom + 1
+              if ( next .eq. ijatom ) then
 
 C            get density matrix blocks
              call get_dens ( d_ij, d_kl, d_ik, d_jl, d_il, d_jk, ldim,
@@ -172,10 +189,10 @@ C---------------------------------------------------------------------
                     endif         !schwarz
  70               continue
  75             continue
- 1010           next = nxtval(nproc)
-              endif
+                next = nxtval(nproc)
+              endif ! next
 
-                  endif
+ 1020             continue
  80             continue
  83           continue
             endif
@@ -185,3 +202,5 @@ C---------------------------------------------------------------------
       next = nxtval(-nproc)
       return
       end
+
+

@@ -1,8 +1,8 @@
       subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc, 
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb )
+c$Id: grad1.F,v 1.7 1995-02-03 01:01:51 vg038 Exp $
 
-C$Id: grad1.F,v 1.6 1995-02-02 23:14:50 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 
 #include "mafdecls.h"
