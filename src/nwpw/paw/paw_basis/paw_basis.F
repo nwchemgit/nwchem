@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.10 2003-01-30 19:08:55 edo Exp $
+* $Id: paw_basis.F,v 1.11 2003-01-30 21:10:00 bylaska Exp $
 *
 
 !**************************************************
@@ -80,15 +80,15 @@ c      !*** external functions ***
          dbl_mb(paw_basis_i_rgrid(it)) = dbl_mb(paw_basis_i_r1(it))
   
          do ir=1,int_mb(paw_basis_i_ngrid(it))-1
-          dbl_mb(paw_basis_i_rgrid(it)+ir)= 
-     =           amesh*dbl_mb(paw_basis_i_rgrid(it)+ir-1)
+          dbl_mb(paw_basis_i_rgrid(it)+ir)  = 
+     >           amesh*dbl_mb(paw_basis_i_rgrid(it)+ir-1)
          end do
          
          i_lo =  paw_basis_i_orb_l(it)
-	 i_hi =  paw_basis_i_orb_l(it) + 
-     +        int_mb(paw_basis_i_nbasis(it)) - 1
+	 i_hi =  paw_basis_i_orb_l(it)  
+     >        + int_mb(paw_basis_i_nbasis(it)) - 1
 	 int_mb(paw_basis_i_mult_l(it)) = 
-     =        2*dabsmax(i_hi-i_lo+1,int_mb(i_lo))
+     >        2*dabsmax(i_hi-i_lo+1,int_mb(i_lo))
            
       end do
 

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2002-08-13 22:01:10 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2003-01-30 21:14:12 bylaska Exp $
 #
 
           OBJ = paw_ovlp.o
@@ -9,7 +9,7 @@
 
    USES_BLAS = 
 
-  LIB_INCLUDES = -I../include/
+  LIB_INCLUDES = 
 
   LIB_DEFINES = 
 

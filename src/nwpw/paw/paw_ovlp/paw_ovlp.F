@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.11 2003-01-28 02:03:40 marat Exp $
+* $Id: paw_ovlp.F,v 1.12 2003-01-30 21:14:12 bylaska Exp $
 *
 
 !**************************************************
@@ -14,6 +14,7 @@
       implicit none
 
 #include "mafdecls.fh"
+#include "paw_proj.fh"
 #include "paw_ovlp.fh" 
   
 *     **** local variables ****
@@ -22,7 +23,6 @@
       integer nbasis,i2,i1,isgn,nion
 
 *     **** external functions ****
-#include "paw_proj.fh"
       integer  psi_ne
       integer  ion_nion,ion_natm,ion_nkatm,ion_katm
       external psi_ne

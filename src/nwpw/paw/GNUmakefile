@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.6 2003-01-24 19:35:43 marat Exp $
+# $Id: GNUmakefile,v 1.7 2003-01-30 21:14:11 bylaska Exp $
 #
-      SUBDIRS = cpsd paw_basis paw_utils paw_matrix paw_proj paw_ovlp \
-                paw_comp_charge
+      SUBDIRS = paw_geometry  paw_ma cpsd paw_basis paw_utils paw_proj paw_matrix paw_ovlp \
+                paw_comp_charge 
 
           OBJ = task_paw.o
 
@@ -11,7 +11,7 @@
 
    USES_BLAS = 
 
-  LIB_INCLUDES = -I./include
+  LIB_INCLUDES =
 
   LIB_DEFINES = 
 
