@@ -223,7 +223,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.37 2003-10-17 22:55:26 carlfahl Exp $
+C     $Id: moints_aux2.F,v 1.38 2005-01-14 22:08:51 edo Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -568,7 +568,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.37 2003-10-17 22:55:26 carlfahl Exp $
+C     $Id: moints_aux2.F,v 1.38 2005-01-14 22:08:51 edo Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1018,6 +1018,9 @@ c
 c
       integer nvir, clo, chi, rlo, rhi, my_id
       integer ofroz, a1, a2, aa1, aa2, aa, aoff, k_local, ld
+#ifdef BAD_GACCESS
+      integer l_local
+#endif
 
       ofroz = ostart - 1
       nvir = vhi - vlo + 1
@@ -1030,12 +1033,26 @@ c
           aa2 = a2 - ofroz
           aa = (aa1*(aa1-1))/2 + aa2 - aoff
           if ((aa.ge.clo).and.(aa.le.chi)) then
+#ifdef BAD_GACCESS
+      ld=rhi-rlo+1
+      if(.not.ma_push_get(MT_DBL,ld,
+     $  'scratch buff2x', l_local, k_local)) call
+     $  errquit('moints2x: pushget failed',0,0)
+            call ga_get(g_exch,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
+#else
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
+#endif
             call moints_Ktrf34a( otrp, nbf, qlo, qhi, vlo, vhi, c,
      $                           dbl_mb(k_local), tmp )
             if (osym) call moints_sym_zero(nbf, vlo, vhi, syms,
      $                                     a1, a2, dbl_mb(k_local))
+#ifdef BAD_GACCESS
+        call ga_put(g_exch,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
+      if(.not.ma_pop_stack(l_local)) call 
+     $  errquit('moints2x: popstack failed',0,0)
+#else
             call ga_release(g_exch,rlo,rhi,aa,aa)
+#endif
           endif
         enddo
       enddo
@@ -1101,6 +1118,9 @@ c
 c
       integer clo, chi, rlo, rhi, my_id
       integer ofroz, aoff, a1, a2, aa1, aa2, aa, k_local, ld
+#ifdef BAD_GACCESS
+      integer l_local
+#endif
 c
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
@@ -1112,12 +1132,26 @@ c
           aa2 = a2 - ofroz
           aa = (aa1*(aa1-1))/2 + aa2 - aoff
           if ((aa.ge.clo).and.(aa.le.chi)) then
+#ifdef BAD_GACCESS
+      ld=rhi-rlo+1
+      if(.not.ma_push_get(MT_DBL,ld,
+     $  'scratch buff2x', l_local, k_local)) call
+     $  errquit('moints2x: pushget failed',0,0)
+            call ga_get(g_coul,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
+#else
             call ga_access(g_coul,rlo,rhi,aa,aa,k_local,ld)
+#endif
             call moints_Jtrf34a( nbf, qlo, qhi, vlo, vhi, c,
      $                           dbl_mb(k_local), tmp )
             if (osym) call moints_sym_zero(nbf, vlo, vhi, syms,
      $                                     a1, a2, dbl_mb(k_local))
+#ifdef BAD_GACCESS
+        call ga_put(g_coul,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
+      if(.not.ma_pop_stack(l_local)) call 
+     $  errquit('moints2x: popstack failed',0,0)
+#else
             call ga_release(g_coul,rlo,rhi,aa,aa)
+#endif
           endif
         enddo
       enddo
@@ -1218,7 +1252,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.37 2003-10-17 22:55:26 carlfahl Exp $
+C$Id: moints_aux2.F,v 1.38 2005-01-14 22:08:51 edo Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1262,7 +1296,7 @@ C$Id: moints_aux2.F,v 1.37 2003-10-17 22:55:26 carlfahl Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.37 2003-10-17 22:55:26 carlfahl Exp $
+c$$$C$Id: moints_aux2.F,v 1.38 2005-01-14 22:08:51 edo Exp $
 c$$$       implicit none
 c$$$#include "errquit.fh"
 c$$$#include "global.fh"
