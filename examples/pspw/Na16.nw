@@ -1,0 +1,137 @@
+title; Na16
+
+start Na16
+
+memory global 12 mb stack 16 mb heap 10 mb
+
+geometry units au
+
+Na    -0.15943323E+01    0.11153736E+01    0.33246579E+01    0.0 0.0 0.0
+Na    -0.69414084E+01    0.59747775E+00   -0.53049805E+01    0.0 0.0 0.0
+Na    -0.45330812E+01   -0.98395187E+01    0.89119022E+00    0.0 0.0 0.0
+Na     0.79404323E+01   -0.67140095E+01   -0.87027807E+01    0.0 0.0 0.0
+Na     0.16794364E+01   -0.72446361E+01    0.36964519E+01    0.0 0.0 0.0
+Na     0.44240368E+01   -0.41100792E+01   -0.14657244E+01    0.0 0.0 0.0
+Na    -0.21435560E+01   -0.42065703E+01   -0.11325206E+01    0.0 0.0 0.0
+Na    -0.82312070E+01   -0.17767763E+01    0.47528156E+01    0.0 0.0 0.0
+Na     0.23675962E+01    0.99604819E+01   -0.16930765E+01    0.0 0.0 0.0
+Na     0.50933265E+01    0.47488100E+01    0.34564000E+00    0.0 0.0 0.0
+Na     0.42943871E+01    0.18933554E+01   -0.45150346E+01    0.0 0.0 0.0
+Na     0.43354038E+01   -0.11939888E+01    0.23746014E+01    0.0 0.0 0.0
+Na     0.76211214E+01    0.94614246E+01    0.29169773E+01    0.0 0.0 0.0
+Na    -0.82685253E+01    0.25225075E+01    0.51618463E+00    0.0 0.0 0.0
+Na    -0.50215120E+01    0.23840391E+01    0.86711051E+01    0.0 0.0 0.0
+Na    -0.16309455E+01    0.31238870E+01   -0.46708805E+01    0.0 0.0 0.0
+end
+
+
+PSPW 
+   PSP_GENERATOR
+      pseudopotential_filename: Na.psp
+      element: Na
+      charge: 11.0
+      mass_number: 23.0
+      solver_type: pauli
+      pseudopotential_type: hamann
+      atomic_filling: 3 1
+        1 s 2.0
+        2 s 2.0
+        2 p 6.0
+        3 s 1.0
+   END
+END
+task pspw psp_generator
+
+
+PSPW
+   SIMULATION_CELL
+      cell_name: small
+      boundry_conditions: periodic
+      lattice_vectors:
+         20.0  0.0  0.0 
+          0.0 20.0  0.0 
+          0.0  0.0 20.0 
+      ngrid: 16 16 16
+   END
+END
+
+PSPW
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: Na.psp
+      formatted_filename: Na.vpp
+      lmax: p
+   END
+END
+TASK PSPW PSP_FORMATTER
+
+PSPW
+   WAVEFUNCTION_INITIALIZER
+      restricted
+      up_filling: 8
+               0 0 0     0
+               1 0 0    -1
+               0 1 0    -1
+               0 0 1    -1
+               1 0 0     1
+               0 1 0     1
+               0 0 1     1
+               0 1 1     2
+      wavefunction_filename: na16.00.elc
+      cell_name: small
+   END 
+END
+TASK PSPW WAVEFUNCTION_INITIALIZER
+
+
+# *****************************************
+# **** Start Wavefunction optimization ****
+# *****************************************
+PSPW
+   STEEPEST_DESCENT
+      cell_name: small
+      formatted_filename: Na.vpp
+      input_wavefunction_filename:  na16.00.elc
+      output_wavefunction_filename: na16.00.elc
+      fake_mass: 400000.0d0
+      time_step: 251.8d0
+      loop: 100 100
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       12.0d0
+      wavefunction_cutoff: 12.0d0
+   END 
+END
+TASK PSPW STEEPEST_DESCENT
+
+
+# ********************************************
+# **** Start Car-Parrinello MD simulation ****
+# ********************************************
+pspw 
+   v_wavefunction_initializer
+      restricted
+      up_filling: 8
+      v_wavefunction_filename: na16.00.velc
+      cell_name: small
+   end 
+end
+task pspw v_wavefunction_initializer
+
+pspw 
+   Car-Parrinello
+      cell_name: small
+      formatted_filename: Na.vpp
+      input_wavefunction_filename:    na16.00.elc
+      output_wavefunction_filename:   na16.01.elc
+      input_v_wavefunction_filename:  na16.00.velc
+      output_v_wavefunction_filename: na16.01.velc
+      fake_mass: 800.0d0
+      time_step: 5.0d0
+      loop: 10 1000
+      scaling: 1.0d0 1.0d0
+      energy_cutoff:       12.0d0
+      wavefunction_cutoff: 12.0d0
+   end 
+end
+task pspw Car-Parrinello
+
