@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.19 2000-04-27 16:11:24 d3j191 Exp $
+c $Id: ana_common.fh,v 1.20 2000-05-01 18:46:30 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -19,10 +19,10 @@ c
       integer irmsd,lcop,lsup,ifrfr,ifrto,iscof,icopf,isupf
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
       integer ngx,ngy,ngz
-      integer nbnds,ibnds(mxbnds,2)
-      integer nangs,iangs(mxangs,3)
-      integer ntors,itors(mxtors,4)
-      integer nimps,iimps(mximps,4)
+      integer nbnds,ibnds(mxbnds,2,2)
+      integer nangs,iangs(mxangs,3,2)
+      integer ntors,itors(mxtors,4,2)
+      integer nimps,iimps(mximps,4,2)
       real*8 rbnds(mxtors)
       real*8 rangs(mxtors)
       real*8 rtors(mxtors)

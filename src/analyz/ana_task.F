@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.21 2000-04-28 18:02:50 d3j191 Exp $
+c $Id: ana_task.F,v 1.22 2000-05-01 18:46:30 d3j191 Exp $
 c
       implicit none
 c
@@ -23,9 +23,8 @@ c
       logical active
 c
       logical ana_rdfram
-      integer ana_index
       real*8 ana_bond,ana_angle,ana_torsion
-      external ana_rdfram,ana_index
+      external ana_rdfram
       external ana_bond,ana_angle,ana_torsion
 c
 c     set sequential access to rtdb
@@ -191,12 +190,12 @@ c
       if(me.eq.0) then
       do 7 i=1,2
       read(lfncmd,1000,end=9999) card
-      ibnds(it,i)=ana_index(card,byte_mb(i_snam))
+      call ana_index(card,byte_mb(i_snam),ibnds(it,i,1),ibnds(it,i,2))
     7 continue
-      write(*,'(2i5)') (ibnds(it,i),i=1,2)
+c      write(*,'(2i5)') (ibnds(it,i),i=1,2)
       endif
       call ga_brdcst(mag_d07,ibnds,
-     + 2*mxbnds*ma_sizeof(mt_int,1,mt_byte),0)
+     + 4*mxbnds*ma_sizeof(mt_int,1,mt_byte),0)
       goto 1
       endif
 c
@@ -211,12 +210,12 @@ c
       if(me.eq.0) then
       do 8 i=1,3
       read(lfncmd,1000,end=9999) card
-      iangs(it,i)=ana_index(card,byte_mb(i_snam))
+      call ana_index(card,byte_mb(i_snam),iangs(it,i,1),iangs(it,i,2))
     8 continue
-      write(*,'(3i5)') (iangs(it,i),i=1,3)
+c      write(*,'(3i5)') (iangs(it,i),i=1,3)
       endif
       call ga_brdcst(mag_d08,iangs,
-     + 3*mxangs*ma_sizeof(mt_int,1,mt_byte),0)
+     + 6*mxangs*ma_sizeof(mt_int,1,mt_byte),0)
       goto 1
       endif
 c
@@ -231,12 +230,12 @@ c
       if(me.eq.0) then
       do 9 i=1,4
       read(lfncmd,1000,end=9999) card
-      itors(it,i)=ana_index(card,byte_mb(i_snam))
+      call ana_index(card,byte_mb(i_snam),itors(it,i,1),itors(it,i,2))
     9 continue
-      write(*,'(4i5)') (itors(it,i),i=1,4)
+c      write(*,'(4i5)') (itors(it,i),i=1,4)
       endif
       call ga_brdcst(mag_d09,itors,
-     + 4*mxtors*ma_sizeof(mt_int,1,mt_byte),0)
+     + 8*mxtors*ma_sizeof(mt_int,1,mt_byte),0)
       goto 1
       endif
 c
@@ -251,12 +250,12 @@ c
       if(me.eq.0) then
       do 12 i=1,4
       read(lfncmd,1000,end=9999) card
-      iimps(it,i)=ana_index(card,byte_mb(i_snam))
+      call ana_index(card,byte_mb(i_snam),iimps(it,i,1),iimps(it,i,2))
    12 continue
-      write(*,'(4i5)') (iimps(it,i),i=1,4)
+c      write(*,'(4i5)') (iimps(it,i),i=1,4)
       endif
       call ga_brdcst(mag_d10,iimps,
-     + 4*mximps*ma_sizeof(mt_int,1,mt_byte),0)
+     + 8*mximps*ma_sizeof(mt_int,1,mt_byte),0)
       goto 1
       endif
 c
@@ -414,22 +413,24 @@ c
 c     evaluate bond lenghts
 c
       do 11 i=1,nbnds
-      rbnds(i)=ana_bond(dbl_mb(i_xdat),msa,
-     + ibnds(i,1),ibnds(i,2))
+      rbnds(i)=ana_bond(dbl_mb(i_xdat),msa,dbl_mb(i_wdat),mwm,mwa,
+     + ibnds(i,1,1),ibnds(i,1,2),ibnds(i,2,1),ibnds(i,2,2))
    11 continue
 c
 c     evaluate angles
 c
       do 13 i=1,nangs
-      rangs(i)=ana_angle(dbl_mb(i_xdat),msa,
-     + iangs(i,1),iangs(i,2),iangs(i,3))
+      rangs(i)=ana_angle(dbl_mb(i_xdat),msa,dbl_mb(i_wdat),mwm,mwa,
+     + iangs(i,1,1),iangs(i,1,2),iangs(i,2,1),iangs(i,2,2),
+     + iangs(i,3,1),iangs(i,3,2))
    13 continue
 c
 c     evaluate torsions
 c
       do 14 i=1,ntors
-      rtors(i)=ana_torsion(dbl_mb(i_xdat),msa,
-     + itors(i,1),itors(i,2),itors(i,3),itors(i,4))
+      rtors(i)=ana_torsion(dbl_mb(i_xdat),msa,dbl_mb(i_wdat),mwm,mwa,
+     + itors(i,1,1),itors(i,1,2),itors(i,2,1),itors(i,2,2),
+     + itors(i,3,1),itors(i,3,2),itors(i,4,1),itors(i,4,2))
    14 continue
 c
 c     write bonded interaction values to file

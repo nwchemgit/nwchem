@@ -1,4 +1,4 @@
-      integer function ana_index(card,sgmnam)
+      subroutine ana_index(card,sgmnam,ia,ja)
 c
       implicit none
 c
@@ -10,8 +10,14 @@ c
 c
       character*80 card,atom
       character*16 sgmnam(nsa)
+      integer ia,ja
 c
       integer i,j,k,isgm
+c
+      ia=0
+      ja=0
+c
+      if(card(1:1).ne.'W'.and.card(1:1).ne.'w') then
 c
       i=index(card,':')-1
       if(i.le.0) call errquit('Error in atom name',0)
@@ -24,14 +30,29 @@ c
       read(sgmnam(i)(12:16),'(i5)') k
       if(isgm.eq.k) then
       if(sgmnam(i)(6:5+j).eq.atom(1:j)) then
-      ana_index=i
+      ia=i
       return
       endif
       endif
     1 continue
 c
-      call errquit('Error in atom name',1)
-      ana_index=0
+      else
+c
+      i=index(card,':')-1
+      if(i.le.1) call errquit('Error in atom name',0)
+      read(card(2:i),'(i)') ia
+      atom=card(i+2:80)
+      j=index(atom,' ')-1
+      if(atom(1:1).eq.'_') atom(1:1)=' '
+c
+      do 2 i=1,nwa
+      if(wnam(i)(6:5+j).eq.atom(1:j)) then
+      ja=i
+      return
+      endif
+    2 continue
+c
+      endif
 c
       return
       end
