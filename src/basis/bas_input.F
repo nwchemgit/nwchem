@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.42 1998-07-06 18:45:03 d3e129 Exp $
+c $Id: bas_input.F,v 1.43 1998-08-14 22:37:54 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -258,6 +258,8 @@ c
 c
       if (.not. bas_rtdb_store(rtdb, name, basis)) call errquit
      $     ('bas_input: failed to store basis', 0)
+c
+      call bas_ecce_print_basis(basis,'bas_input')
 c
       if (.not. bas_do_destroy(basis)) call errquit
      $     ('bas_input: bas_destroy failed', 0)
@@ -578,9 +580,9 @@ c
 c     Add contractions one-at-a-time to force segmentation ... remove
 c     functions with zero coefficients
 c     
-        ostat_split = (l_value.ge.0).or.oIs_ecp
+        ostat_split = (l_value.ge.0).or.oIs_ecp.or.oIs_so
         if (ostat_split) then
-c     simple shell or all ecp shells
+c     simple shell or all ecp/so shells
           do i = 1, ngen
             nptmp = 0
             do j = 1, nprim
@@ -588,7 +590,7 @@ c     simple shell or all ecp shells
                 nptmp = nptmp + 1
                 ctmp(nptmp) = coeff(j,i)
                 etmp(nptmp) = expnt(j)
-                if (oIs_ecp) then
+                if (oIs_ecp.or.oIs_so) then
                   rex_okay =
      &                ((abs(rex(j)-0.0d00)).lt.1.0d-9).or.
      &                ((abs(rex(j)-1.0d00)).lt.1.0d-9).or.
@@ -1012,4 +1014,155 @@ c
       implicit none
 #include "baslibraryP.fh"
       call bas_library_file(user_library_name)
+      end
+*.....................................................................
+      subroutine bas_ecce_print_basis(basisin,module_id)
+      implicit none
+#include "basdeclsP.fh"
+#include "basP.fh"
+#include "ecpso_decP.fh"
+#include "bas_exndcf_dec.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+      logical ecp_get_num_elec
+      external ecp_get_num_elec
+      logical is_ecce_print_on
+      external is_ecce_print_on
+*
+* print basis set details to ecce output file
+*
+      integer basisin  ! [input] basis set handle
+      character*(*) module_id
+*
+      integer basis  ! lexical basis set index
+      character*128 myline  ! line for printing
+      integer ntags, itag
+      integer ncont, icont, fcont, lcont
+      integer nelec
+      logical oIs_ecp, oIs_so, oIs_basis
+      integer j
+      integer type, nprim, iprim, ngen, igen, iexp, icoef, irexp, bptr
+      character*2 stype
+      character*16 mytag
+      double precision bufl(32)
+#include "bas_exndcf_sfn.fh"
+#include "ecpso_sfnP.fh"
+*
+      if (is_ecce_print_on()) then
+*        write(6,*)' ecce print is on '
+        continue
+      else
+*        write(6,*)' ecce print is off '
+        return
+      endif
+      basis = basisin + Basis_Handle_Offset 
+      oIs_ecp = Is_ECP_in(basisin)
+      oIs_so  = Is_SO_in(basisin)
+      oIs_basis = (.not.(oIs_ecp.or.oIs_so))
+      call ecce_print_module_entry(module_id)
+      myline = 'b-a-d'
+      if (oIs_ecp)   myline = 'ecp   '
+      if (oIs_so)    myline = 'so    '
+      if (oIs_basis) myline = 'basis '
+*        
+*      write(6,*)'len basis',len_bs_name(basis)
+*      write(6,*)'len trans',len_bs_trans(basis)
+*
+      if (len_bs_trans(basis).eq.0) then
+        myline = myline(1:6)//'"'//
+     &      bs_name(basis)(1:len_bs_name(basis))//'"'
+      else
+        myline = myline(1:6)//'"'//
+     &      bs_trans(basis)(1:len_bs_trans(basis))//'"'
+      endif
+      call ecce_print_echo_string(myline)
+      ntags = infbs_head(Head_Ntags,basis)
+      do itag = 1,ntags
+        ncont = infbs_tags(Tag_Ncont,itag,basis)
+        fcont = infbs_tags(Tag_Fcont,itag,basis)
+        lcont = infbs_tags(Tag_Lcont,itag,basis)
+        if ((lcont-fcont+1).ne.ncont) then
+          write(luout,*)' Number of tag contractions strange '
+          write(luout,*)' First contraction: ',fcont
+          write(luout,*)' Last  contraction: ',lcont
+          write(luout,*)' computed number  : ',(lcont-fcont+1)
+          write(luout,*)' stored number    : ',ncont
+          call errquit(
+     &        'bas_ecce_print_basis: fatal error:ncont',911)
+          
+        endif
+        mytag = bs_tags(itag,basis)
+        if (oIs_ecp) then
+          if (.not.ecp_get_num_elec(basisin,mytag,nelec))
+     &        call errquit(
+     &        'bas_ecce_print_basis: fatal error:nelec',911)
+          if (nelec.gt.0) then
+             myline = ' '
+             write(myline,10000)mytag,nelec
+             call ecce_print_echo_string(myline)
+           endif
+        endif
+        do icont = fcont,lcont
+          type = infbs_cont(Cont_Type,icont,basis)
+          if (type.eq.-1.and.oIs_ecp) then
+            stype = 'ul'
+          elseif (type.eq.-1.and.oIs_basis) then
+            stype = 'sp'
+          elseif (type.eq.0) then
+            stype = 's'
+          elseif (type.eq.1) then
+            stype = 'p'
+          elseif (type.eq.2) then
+            stype = 'd'
+          elseif (type.eq.3) then
+            stype = 'f'
+          elseif (type.eq.4) then
+            stype = 'g'
+          elseif (type.eq.5) then
+            stype = 'h'
+          elseif (type.eq.6) then
+            stype = 'i'
+          else
+            call errquit(
+     &        'bas_ecce_print_basis: fatal error:stype',911)
+          endif
+          myline = ' '
+          write(myline,10001)mytag,stype
+          call ecce_print_echo_string(myline)
+          nprim = infbs_cont(Cont_Nprim,icont,basis)
+          ngen  = infbs_cont(Cont_Ngen,icont,basis)
+          iexp  = infbs_cont(Cont_Iexp,icont,basis)
+          icoef = infbs_cont(Cont_Icfp,icont,basis)
+          if (.not.oIs_basis) then
+            irexp = infbs_cont(Cont_Irexp,icont,basis)
+          endif
+          do iprim = 0,(nprim-1)
+            bptr = 1
+            if (.not.oIs_basis) then
+              bufl(bptr) = sf_exndcf((irexp+iprim),basis)
+              bptr = bptr + 1
+            endif
+            bufl(bptr) = sf_exndcf((iexp+iprim),basis)
+            bptr = bptr + 1
+            do igen = 0,(ngen-1)
+              bufl(bptr) = sf_exndcf((icoef+iprim+(igen*nprim)),basis)
+              bptr = bptr + 1
+            enddo
+            myline = ' '
+            if (.not.oIs_basis) then
+              write(myline,10002)(bufl(j),j=1,(ngen+2))
+            else
+              write(myline,10003)(bufl(j),j=1,(ngen+1))
+            endif
+            call ecce_print_echo_string(myline)
+          enddo
+        enddo
+      enddo
+      myline = 'end'
+      call ecce_print_echo_string(myline)
+      call ecce_print_module_exit(module_id, 'ok')
+10000 format(1x,a16,1x,'nelec',1x,i3)
+10001 format(1x,a16,1x,a2)
+10002 format(1x,f5.0,31(2x,1pe15.6))
+10003 format(31(2x,1pe15.6))
       end

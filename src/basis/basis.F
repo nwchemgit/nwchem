@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.84 1998-08-12 23:41:58 d3g681 Exp $
+c $Id: basis.F,v 1.85 1998-08-14 22:37:55 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1304,6 +1304,8 @@ c
         infbs_cont(CONT_ICFP, 0,basis) = k_tmp
         dbl_mb(mb_exndcf(k_tmp,basis)) = 1.0d00
         infbs_head(HEAD_EXCFPTR,basis) = k_tmp
+*
+        call bas_ecce_print_basis(basisin,'load_basis')
       endif
       end
 *.....................................................................
@@ -3877,7 +3879,7 @@ c
       logical bas_numcont, bas_continfo
       external bas_numcont, bas_continfo
 c::args
-C$Id: basis.F,v 1.84 1998-08-12 23:41:58 d3g681 Exp $
+C$Id: basis.F,v 1.85 1998-08-14 22:37:55 d3e129 Exp $
       integer basis_hand ! nwchem basis handle
       integer ncontr_max  ! max no of contractions for any contraction set
 c::locals
