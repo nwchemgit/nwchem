@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, oskel)
-c $Id: int_1edk_ga.F,v 1.2 1999-11-02 20:16:23 bert Exp $
+c $Id: int_1edk_ga.F,v 1.3 1999-11-02 21:57:56 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -72,7 +72,8 @@ c
 c     
 c     For now we set type to free-particle projection operators
 c
-      form_type = 1
+      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:type',MT_INT,1,
+     $   form_type)) form_type = 1
 c
       call ga_sync()
 c
