@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.398 2003-02-18 00:44:04 edo Exp $
+# $Id: makefile.h,v 1.399 2003-02-18 18:56:18 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -277,14 +277,14 @@ endif
 #
 # These options are set for WS5
 
-  ifeq ($(_CC),fcc)
+  ifeq ($(CC),fcc)
 #    Fujitsu SPARC systems (thanks to Herbert Fruchtl)
     COPTIONS = -Kdalign
     COPTIMIZE = -Kfast_GP=2
     DEFINES += -DFUJITSU_SOLARIS
   endif
 
-  ifeq ($(_FC),frt)
+  ifeq ($(FC),frt)
 #    Fujitsu SPARC systems (thanks to Herbert Fruchtl)
 # Fujitsu with Parallelnavi compilers
 # If using Fujitsu compilers on Sun hardware, replace -Kfast_GP=2 with
@@ -300,7 +300,7 @@ endif
    endif
 
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
-  ifeq ($(_FC),frt)
+  ifeq ($(FC),frt)
      CORE_LIBS +=  -llapack -lblas
   else
     LDOPTIONS = -xildoff
@@ -346,7 +346,7 @@ endif
   MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = echo $@ is built
 
-  ifeq ($(_CC),fcc)
+  ifeq ($(CC),fcc)
 #    Fujitsu SPARC systems (thanks to Herbert Fruchtl)
     COPTIONS = -Kdalign
     COPTIMIZE = -Kfast_GP=2
@@ -356,7 +356,7 @@ endif
    COPTIONS = -xarch=v9 -dalign
   endif
 
-  ifeq ($(_FC),frt)
+  ifeq ($(FC),frt)
 #    Fujitsu SPARC systems (thanks to Herbert Fruchtl)
 # Fujitsu with Parallelnavi compilers
 # If using Fujitsu compilers on Sun hardware, replace -Kfast_GP=2 with
@@ -383,7 +383,7 @@ endif
     endif
 
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
-  ifeq ($(_FC),frt)
+  ifeq ($(FC),frt)
     LDOPTIONS = -SSL2
     CORE_LIBS +=  -llapack -lblas
   else
