@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2001-11-29 02:02:57 edo Exp $
+# $Id: GNUmakefile,v 1.7 2001-11-29 02:20:58 edo Exp $
 #
 
 
@@ -10,7 +10,7 @@
 
   LIB_DEFINES =
 
-      SUBDIRS = pspw band nwpwlib library
+      SUBDIRS = pspw band nwpwlib libraryps
   LIB_INCLUDES = 
 
 
