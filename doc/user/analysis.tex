@@ -108,6 +108,17 @@ the specified trajectory files, use
 frames 200 400 10
 \end{verbatim}
 
+Solute coordinates of the reference set and ech subsequent frame
+read from a trajectory file are translated to have the center of
+geometry of the specified solute molecule at the center of the
+simulation box. After this translation all molecules are folded
+back into the box according to the periodic boundary conditions.
+The directive for this operation is
+
+\begin{verbatim}
+center [<integer imol>]
+\end{verbatim}
+
 To set hydrogen bond criteria:
 
 \begin{verbatim}
