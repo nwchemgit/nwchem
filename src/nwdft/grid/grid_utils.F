@@ -119,7 +119,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.8 1999-07-14 22:59:20 edo Exp $
+C$Id: grid_utils.F,v 1.9 1999-12-30 20:41:54 edo Exp $
 c
       implicit none
 c      
@@ -591,7 +591,7 @@ c     I(k) = [(k-1)*I(k-2) + r^(k-1)*exp(-alpha*r^2)]/(2*alpha)
 c
       integer i, ilo
       double precision value
-#if defined(SGI) || defined(DECOSF)
+#if defined(SGI) || defined(DECOSF) || defined(WIN32)
       double precision derfc
 #else
       double precision erfc
@@ -600,7 +600,7 @@ c
       ilo = mod(k,2)
 c
       if (ilo .eq. 0) then
-#if defined(SGI) || defined(DECOSF)
+#if defined(SGI) || defined(DECOSF) || defined(WIN32)
          value = 0.5d0*sqrt(4.0d0*atan(1.0d0)/alpha)*
      $        derfc(sqrt(alpha)*r)
 #else
@@ -621,7 +621,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq)
 c
-C$Id: grid_utils.F,v 1.8 1999-07-14 22:59:20 edo Exp $
+C$Id: grid_utils.F,v 1.9 1999-12-30 20:41:54 edo Exp $
 c
       implicit none
 c

@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.7 1999-12-29 21:43:09 edo Exp $
+c$Id: grid_setrad.F,v 1.8 1999-12-30 20:41:54 edo Exp $
 c
       implicit none
 c      
@@ -28,7 +28,7 @@ c
 c
       integer lexpo, iexpo, insh, lnsh
 c
-      integer n1,ninf,ndivide,mxnrad
+      integer n1,ninf,ndivide,mxnrad,zz
       double precision braggmult
       double precision midpoint,range_max,range_mk
       double precision lindh_acc
@@ -81,16 +81,7 @@ c
            if(radgrid.eq.'eumac') then
             call eumac(bsrad_atom_type(itype), rpts(1,itype), 
      &            rwghts(1,itype), nrad(itype), rm)
-            elseif(radgrid.eq.'murakn') then
-               if(tol_reset) then
-                  range_mk=range_max
-               else
-                  range_mk=dble(rad_cutoff(1,itype))
-               endif
-            call xc_murakn(int(znuc_atom_type(itype)), rpts(1,itype), 
-     &              rwghts(1,itype), nrad(itype),3d0,range_mk,
-     .              tol_reset)
-            elseif(radgrid.eq.'rlindh') then
+         elseif(radgrid.eq.'rlindh') then
                if(tol_reset) then
                   range_mk=range_max
                else
@@ -153,6 +144,12 @@ c     ,          midpoint)
             call xc_tarad(iatype(itype), rpts(n1+1,itype), 
      &       rwghts(n1+1,itype), ninf,midpoint,'chebyshe')
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
+          elseif(radgrid.eq.'murakn') then
+             zz=3d0
+            call xc_murakn(
+     .              rpts(1,itype),
+     &              rwghts(1,itype), nrad(itype),zz,range_mk,
+     .              tol_reset)
           elseif(radgrid.eq.'legleg') then
             n1=nrad(itype)*ndivide/16
             midpoint=bsrad_atom_type(itype)*braggmult
