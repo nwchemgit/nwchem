@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.10 2000-02-18 07:02:30 d3j191 Exp $
+c $Id: cf_shake.F,v 1.11 2000-03-15 20:51:04 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -423,7 +423,7 @@ c
       rbnd(isb,1)=sqrt(rsx1*rsx1+rsx2*rsx2+rsx3*rsx3)
       rbnd(isb,2)=zero
 c
-      if(iand(isdt(isa),mfixed).ne.lfixed.and.
+      if(iand(isdt(isa),mfixed).ne.lfixed.or.
      + iand(isdt(jsa),mfixed).ne.lfixed) then
 c
       bs=bnd(isb,1,iset)*bnd(isb,1,iset)
