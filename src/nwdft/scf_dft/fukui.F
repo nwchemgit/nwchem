@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icntoce, icntobfr, icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.10 2000-04-18 21:25:50 jolguin Exp $
+c     $Id: fukui.F,v 1.11 2000-04-24 18:50:45 edo Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
@@ -506,7 +506,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s, string)
 
-C$Id: fukui.F,v 1.10 2000-04-18 21:25:50 jolguin Exp $
+C$Id: fukui.F,v 1.11 2000-04-24 18:50:45 edo Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -666,7 +666,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.10 2000-04-18 21:25:50 jolguin Exp $
+C$Id: fukui.F,v 1.11 2000-04-24 18:50:45 edo Exp $
 c
       implicit none
 #include "stdio.fh"
@@ -853,49 +853,15 @@ c
         tot=tot+xfac(i)+cfac(i)
       enddo
 c
+      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+     &     grid_on_file))then
+         grid_on_file = .false.
+      endif
       if (abs(tot).gt.1e-8) then
-         if (iVxc_opt.eq.0) then
-c         
-c           Option A:  Compute via direct numerical quadrature.
-c         
-c           compute the integrated density (numerical)
-c 
-            if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &         grid_on_file))then
-               grid_on_file = .false.
-            endif
-            if (grid_on_file)then
-               call grid_quadv0(rtdb, g_dens, g_vxc, nexc,rho_n,  Exc)
-            else
-c
-!            if (oprint_time)call dft_tstamp('Before call to xc_quadv0.')
-            call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,g_xyz,g_nq, 
-     &                     wght_GA, Exc, rho_n, rdens_atom, cntoce,
-     &                     cntobfr, cetobfr, natoms)
-!            if (oprint_time)call dft_tstamp(' After call to xc_quadv0.')
-            endif
-c      write(LuOut,*)'from xc_getv; Exc(1), Exc(2): ',Exc(1), Exc(2)
-c
-c           Symmetrize Vxc?
-c
-c            if (oskel)then
-c               call sym_symmetrize(geom, AO_bas_han, .false., g_vxc(1))
-c               if (ipol.gt.1)then
-c                  call sym_symmetrize(geom, AO_bas_han, .false., 
-c     &                 g_vxc(2))
-c               endif
-c            endif
-c
-         elseif (iVxc_opt.eq.1 )then
-c         
-c           Option B:  Compute via a LSQ fitting procedure.
-c         
-c           Define the dimensions of the "T" matrix.
-c         
+         if(xcfit) then
             if (.not. bas_numbf(XC_bas_han,nbf_xc) )then
                call errquit('Exiting in getvxc.',1)
             endif
-c
             nTrows = nbf_xc
             nTcols = ipol
 c         
@@ -904,24 +870,44 @@ c
             if (.not.ma_push_get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,
      &         iTmat))call errquit('xc_getv: cannot allocate Tmat',0)
             call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
+         endif
+         if (grid_on_file)then
+            call grid_quadv0(rtdb, g_dens, g_vxc, nexc,rho_n,  Exc,
+     .           dbl_mb(itmat))
+         else
+         if (iVxc_opt.eq.0) then
+c         
+c           Option A:  Compute via direct numerical quadrature.
+c         
+c           compute the integrated density (numerical)
+c 
 c
-            if (oprint_time)call dft_tstamp('Before call to xc_quadv1.')
+            call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,g_xyz,g_nq, 
+     &                     wght_GA, Exc, rho_n, rdens_atom, cntoce,
+     &                     cntobfr, cetobfr, natoms)
+         elseif (iVxc_opt.eq.1 )then
+c         
+c           Option B:  Compute via a LSQ fitting procedure.
+c         
+c
+c
             call xc_quadv1(rtdb, Dbl_MB(iTmat), nExc, g_dens, Exc, 
      &                     rho_n, rdens_atom, cntoce, cntobfr, cetobfr, 
      &                     natoms)
-            if (oprint_time)call dft_tstamp(' After call to xc_quadv1.')
-c
+         endif
+      endif
+      if(xcfit) then
+c     
 c           symmetrize the "T" vector
-c
-            if (oskel)then
-               call sym_vec_symmetrize(geom, xc_bas_han, Dbl_MB(iTmat))
-               if (ipol.gt.1)then
-                  call sym_vec_symmetrize(geom, xc_bas_han, 
-     &                 Dbl_MB(iTmat+nbf_xc))
-               endif
+c     
+         if (oskel)then
+            call sym_vec_symmetrize(geom, xc_bas_han, Dbl_MB(iTmat))
+            if (ipol.gt.1)then
+               call sym_vec_symmetrize(geom, xc_bas_han, 
+     &              Dbl_MB(iTmat+nbf_xc))
             endif
+         endif
 c      
-            if (oprint_time)call dft_tstamp('Before call to xc_fitv.  ')
             call xc_fitv(Dbl_MB(iTmat), nTrows, nTcols,
      &                   g_vxc, g_xcinv, IOLGC)
             if (oprint_time)call dft_tstamp(' After call to xc_fitv.  ')

@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.157 2000-04-24 18:33:17 edo Exp $
+c     $Id: dft_scf.F,v 1.158 2000-04-24 18:50:45 edo Exp $
 c     
       implicit none
 c
@@ -577,8 +577,7 @@ c
      ,     iter, ecore, ecoul,exc,noc,rho_n,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     g_rho_exact,g_tmp_exact, g_addit_exact,
-     ,     oprint_time,
-     .     )
+     ,     oprint_time)
 c     
 c     Calculate the total electronic energy.
 c     
