@@ -292,64 +292,147 @@ should be adequate in most instances but it may be reduced to conserve
 memory for large systems or increased if convergence is poor.
 
 \subsection{Control of direct, semi-direct and disk-resident SCF}
+\label{sec:semidirect}
 
-By default all two-electron integrals are recomputed each iteration.
-It is also possible to compute integrals once and store them either in
-memory or on disk by specifying the amount of memory and disk to be
-devoted to this purpose.  It is intended that the program store
-integrals until the available memory/disk is filled up, and
-recompute any additional integrals.  This work is in progress and
-currently the code can do either fully direct calculations or
-fully memory/file cached calculations.  To enable caching of integrals
-several variables must be set in the database using the following
-directives
+The default behaviour of the SCF code is
+\begin{itemize}
+\item If all integrals can be stored in memory then integrals are
+  computed once and cached in memory. Otherwise,
+\item 95\% of the available disk space in the scratch directory
+  (section \ref{sec:dirs}) is assumed available for use
+  and as many integrals as possible are cached on disk (with no
+  memory being used for caching).  Some attempt is made to 
+  store the most expensive integrals in the cache.
+\item Note that no allowance is made for processes sharing
+  disks when computing available space.
+\item If not all integrals can be cached in memory or on disk,
+  then the additional integrals are recomputed in a semi-direct
+  fashion.
+\item Since many computer systems (e.g., the EMSL IBM SP) clears the
+  fast scratch space at the end of each job, and given the complexity
+  of restarting {\em parallel} semi-direct calculations the integral
+  file is deleted at the end of the calculation.  Under some
+  situations it is possible to restart from integrals on disk, but
+  this capability will not be made widely available until a later date.
+\end{itemize}
+
+On the IBM SP or any other computer with fast disks, local to each
+processor, semi-direct is the best behaviour and can result in {\em
+  quadratic speedup} as more processors are added.  On other machines,
+it may be necessary to limit the use of disk space, force the use of
+more memory for caching, change the default file names, or to use
+fully-direct SCF.
+
+The directive
 \begin{verbatim}
-  set int2e:memsize integer <integer memsize default 0>
-  set int2e:filesize integer <integer filesize default 0>
-  set int2e:filename integer \
-    <string filename default $file_prefix$.aoints>
+  DIRECT
+\end{verbatim}
+forces a fully-direct calculation with recomputation of the integrals
+as required.  More detailed control is provided with
+
+\begin{verbatim}
+   SEMIDIRECT [filesize <integer filesize = disksize>] 
+              [memsize  <integer memsize = available>]
+              [filename <string filename>]
+\end{verbatim}
+The \verb+filesize+ specifies the disk space to be used per process
+for storing integrals in 64-bit words.  Similarly, \verb+memsize+
+specifies the number of 64-bit words to be used per process for
+caching integrals in memory (if this memory is not available then the
+request it is repeatedly halved until the request is satisfied).  By
+default, the integral file is placed into the scratch directory
+(section \ref{sec:dirs}). The \verb+filename+ keyword permits this
+default to be overriden, however, it should be noted that the
+user-provided name has the process number appended to it (so that
+processes have distinct files) but otherwise is used unchanged by all
+processes.  Thus, it is not possible to use this keyword to use
+different disks for different processes.  Use the \verb+SCRATCH_DIR+
+(section \ref{sec:dirs}) directive for this purpose.  Some examples
+follow.
+
+These two directives accomplish the same effect (full recomputation of
+integrals)
+\begin{verbatim}
+  direct
+  semidirect filesize 0 memsize 0
 \end{verbatim}
 
-In this {\em interim} code state, it suffices to provide some
-examples.
-\begin{enumerate}
-\item To run a direct SCF with no caching of integrals either in
-  memory or on disk --- this is the default.
-\item To run a conventional SCF with all integrals stored on disk
-  specify any non-zero filesize, e.g.
+To disable use of memory for caching integrals and to limit disk
+usage by each process to 100 MW
 \begin{verbatim}
-  set int2e:filesize integer 1
+  semidirect memsize 0 filesize 200000000
 \end{verbatim}
-  Eventually, the filesize will be used by the semi-direct code to
-  specify the maximum number of integrals to be stored on disk, which
-  is the same as the maximum filesize in 64 bit words.
-\item To cache some integrals in memory with {\em all} additional
-  integrals stored on disk specify the amount of memory (in 64 bit
-  words) to be devoted to this purpose, e.g. to cache one million
-  integrals 
+
+
+\subsubsection{Integral file format and file sizes}
+
+The file format is rather complex since it accomodates a variety of
+packing and compression options and distribution of data.  We present
+sufficient detail here to understand the output and to use that
+information for estimating file sizes.
+
+If integrals are stored with a threshold of greater than $10^{-10}$,
+which is sufficient for nearly all purposes, then the integrals
+themselves are stored in a 32-bit fixed-point format (large integrals
+require special treatment).  Otherwise, the 64-bit floating-point
+values are stored.  If a replicated-data calculation is being run,
+then 8 bits are used for each basis function label, unless there are
+more than 256 functions, in which case 16 bits are used.  If
+distributed-data is being used, then the labels are always packed to
+8-bits (the distributed blocks always being less than 256).
+
+Thus, the number ($W$) of 64-bit words required to store $N$ integrals,
+may be computed as
+\begin{displaymath}
+  W = \left\{ \\
+      \begin{array}{c}
+        N \mbox{ , 8-bit labels and 32-bit values} \\
+        \frac{3}{2}N \mbox{ , 16-bit labels and 32-bit values} \\
+        \frac{3}{2}N \mbox{ , 8-bit labels and 64-bit values} \\
+        2N \mbox{ , 16-bit labels and 64-bit values} 
+      \end{array}
+      \right.
+\end{displaymath}
+The actual number is slightly bigger (less than one percent) than this
+due to booking keeping overhead, and the file itself is organized into
+fixed-size records.
+
+With at least the default print level, all semidirect (not direct)
+calculations will printout information similar to the following about
+the integral file and the number of integrals computed.
 \begin{verbatim}
-  set int2e:memsize integer 1000000
+ Integral file          = ./c6h6.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      3        Max. records in file   =      5
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+ #quartets = 2.0D+04  #integrals = 7.9D+05  direct = 63.6%  cached = 36.4%
 \end{verbatim}
-\item If storing integrals on disk, each process will open a file which
-  by default is named by appending to the file prefix (see
-  \ref{sec:start}) the string \verb+".aoints."+ followed by the
-  process number (padded on the left with sufficient zeroes so that
-  all numbers are of the same width and the highest numbered process
-  has no leading zeroes).  For instance, the default names for an 11
-  process calcuation on water would be \verb+"h2o.aoints.00"+,
-  \verb+"h2o.aoints.01"+, \ldots, \verb+"h2o.aoints.10"+.  These names
-  can be changed.  For instance, the input
+The file information relates just to process 0, but apart from the
+name, will be the same on all nodes.  The information about the number
+of integrals, etc., is a sum over all processes.
+
+When the integral file is closed, additional information is printed
 \begin{verbatim}
-  set int2e:filename /tmp/fred/ints
+------------------------------------------------------------
+EAF file 0: "./c6h6.aoints.0" size=262152 bytes
+------------------------------------------------------------
+               write      read    awrite     aread      wait
+               -----      ----    ------     -----      ----
+     calls:        6        12         0         0         0
+   data(b): 1.57e+06  3.15e+06  0.00e+00  0.00e+00
+   time(s): 1.09e-01  3.12e-02                      0.00e+00
+rate(mb/s): 1.44e+01  1.01e+02
+------------------------------------------------------------
+
+ Parallel integral file used       4 records with       0 large values
 \end{verbatim}
-  would result in files named \verb+"/tmp/fred/ints.00"+, \ldots,
-  \verb+"/tmp/fred/ints.10"+.  This is particularly useful on the IBM
-  SP and workstation clusters which have large and fast local disks
-  with uniform names.  On machines with non-uniform file naming
-  conventions (e.g., the KSR) there are scripts which will generate
-  the necessary links to make things appear uniform.  Contact
-  \verb+nwchem-support@emsl.pnl.gov+ for more information.
-\end{enumerate}
+The detailed file information relates just to process 0, but the 
+line below that indicates the total number of integral records stored
+by all processes.  
+
+This information may be used to optimize subsequent calculations.
+
 
 \subsection{Options controlling convergence}
 \label{sec:scfconv}
