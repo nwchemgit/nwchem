@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.7 2001-11-01 16:31:06 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.8 2001-11-01 18:58:44 bylaska Exp $
 c
 
 ***********************************************************
@@ -1027,15 +1027,37 @@ c     >                                   n2ft3d,rgrid,Vqm)
 *     *        pspw_qmmm_Fion          *
 *     *                                *
 *     **********************************
+
+*     This routine calculates the force on the QM ions.
+*
+*     Exit - fion: force on the QM ions
+*
+*     Uses - ion_nion
+*
+*     Author - Eric Bylaska
+
       subroutine pspw_qmmm_Fion(fion)
       implicit none
       real*8 fion(3,*)
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+      if (nion.gt.0) then
+
+*       **** get LJ forces ****
+        call pspw_LJ_Fion(fion)
+
+*       **** get Q forces ****
+        call pspw_Q_Fion(fion)
+      end if
+
       return
       end
      
 *     **********************************
 *     *                                *
-*     *        pspw_qmmm_Fmm           *
+*     *        pspw_qmmm_Fmm          *
 *     *                                *
 *     **********************************
       subroutine pspw_qmmm_Fmm(n2ft3d,rgrid,rho,dv,f_mm)
@@ -1046,5 +1068,23 @@ c     >                                   n2ft3d,rgrid,Vqm)
       real*8 dv
       real*8 f_mm(3,*)
 
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+      if (nion.gt.0) then
+
+*        **** get forces from model potential ****
+         if (qmmm_type.eq.1)
+     >      call Model_Potential_Fmm(n2ft3d,rgrid,rho,dv,f_mm)
+ 
+*        **** get forces from model charge ****
+
+*        **** get LJ forces ****
+         call pspw_LJ_Fmm(f_mm)
+
+*        **** get Q forces ****
+         call pspw_Q_Fmm(f_mm)
+
+      end if
       return
       end

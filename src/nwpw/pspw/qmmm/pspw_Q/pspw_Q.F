@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.5 2001-11-01 16:37:13 bylaska Exp $
+c $Id: pspw_Q.F,v 1.6 2001-11-01 18:58:47 bylaska Exp $
 c
 
 
@@ -290,34 +290,46 @@ c
 
 *     ***************************
 *     *							*
-*     *   pspw_Q_Force_MM	 	*
+*     *   	 pspw_Q_Fmm		 	*
 *     *							*
 *     ***************************
-      subroutine pspw_Q_Force_MM(f_mm)
+
+*     This routine calculates the force on the MM ions from the
+*   Point charge interaction with the MM and QM atoms and adds it
+*   to the MM ion force, f_mm.
+*
+*     Exit - f_mm: force on the MM ions
+*
+*     Uses - ion_nion,ion_rion
+*            pspw_qmmm_nion,pspw_qmmm_rion
+*
+*     Author - Eric Bylaska
+*
+      subroutine pspw_Q_Fmm(f_mm)
       implicit none
       real*8 f_mm(3,*)
 
 *     **** local variables ****
       real*8  qi,qj
-      real*8 ri(3),rj(3)
-      integer i,j,nion
+      real*8 ri(3),rj(3),fion(3)
+      integer i,j
 
 *     **** external functions ****
       logical  pspw_qmmm_different_frag
-      integer  pspw_qmmm_nion
-      real*8   pspw_qmmm_rion
+      integer  pspw_qmmm_nion,ion_nion
+      real*8   pspw_qmmm_rion,ion_rion
       external pspw_qmmm_different_frag
-      external pspw_qmmm_nion
-      external pspw_qmmm_rion
+      external pspw_qmmm_nion,ion_nion
+      external pspw_qmmm_rion,ion_rion
 
-      nion = pspw_qmmm_nion()
 
-      do i=1,nion
+*     **** forces from MM ions ****
+      do i=1,pspw_qmmm_nion()
          call pspw_Q_param_MM(i,qi)
          ri(1) = pspw_qmmm_rion(1,i)
          ri(2) = pspw_qmmm_rion(2,i)
          ri(3) = pspw_qmmm_rion(3,i)
-         do j=i+1,nion
+         do j=i+1,pspw_qmmm_nion()
            if (pspw_qmmm_different_frag(i,j)) then
              call pspw_Q_param_MM(j,qj)
              rj(1) = pspw_qmmm_rion(1,j)
@@ -329,23 +341,51 @@ c
          end do
       end do
 
+*     **** forces from QM ions ****
+      call dcopy(3,0.0d0,0,fion,1)
+      do i=1,ion_nion()
+         call pspw_Q_param_Ion(i,qi)
+         ri(1) = ion_rion(1,i)
+         ri(2) = ion_rion(2,i)
+         ri(3) = ion_rion(3,i)
+         do j=1,pspw_qmmm_nion()
+            call pspw_Q_param_MM(j,qj)
+            rj(1) = pspw_qmmm_rion(1,j)
+            rj(2) = pspw_qmmm_rion(2,j)
+            rj(3) = pspw_qmmm_rion(3,j)
+            call Q_Electrostatic_Force(ri,qi,fion,
+     >                                 rj,qj,f_mm(1,j))
+         end do
+      end do
+
       return
       end
 
 
 *     ***************************
 *     *							*
-*     *   pspw_Q_Force_IonMM 	*
+*     *       pspw_Q_Fion		*
 *     *							*
 *     ***************************
-      subroutine pspw_Q_Force_IonMM(fion,f_mm)
+
+*     This routine calculates the force on the QM ions from the
+*   Point charge interaction with the MM atoms and adds it
+*   to the QM ion force, fion.
+*
+*     Exit - fion: force on the QM ions
+*
+*     Uses - ion_nion,ion_rion
+*            pspw_qmmm_nion,pspw_qmmm_rion
+*
+*     Author - Eric Bylaska
+*
+      subroutine pspw_Q_Fion(fion)
       implicit none
       real*8 fion(3,*)
-      real*8 f_mm(3,*)
 
 *     **** local variables ****
       real*8  qi,qj
-      real*8 ri(3),rj(3)
+      real*8 ri(3),rj(3),f_mm(3)
       integer i,j,nion_ion,nion_mm
 
 *     **** external functions ****
@@ -357,6 +397,7 @@ c
       nion_mm  = pspw_qmmm_nion()
       nion_ion = ion_nion()
      
+      call dcopy(3,0.0d0,0,f_mm,1)
       do i=1,nion_ion
          call pspw_Q_param_Ion(i,qi)
          ri(1) = ion_rion(1,i)
@@ -368,7 +409,7 @@ c
             rj(2) = pspw_qmmm_rion(2,j)
             rj(3) = pspw_qmmm_rion(3,j)
             call Q_Electrostatic_Force(ri,qi,fion(1,i),
-     >                                 rj,qj,f_mm(1,j))
+     >                                 rj,qj,f_mm)
          end do
       end do
 

@@ -1,5 +1,5 @@
 c
-c $Id: model_potential.F,v 1.2 2001-11-01 16:37:09 bylaska Exp $
+c $Id: model_potential.F,v 1.3 2001-11-01 18:58:45 bylaska Exp $
 c
 
 *     **********************************
@@ -243,9 +243,6 @@ c
       real*8 q,d,d2,rcut
       real*8 sqrtpi
 
-      real*8 small
-      parameter (small=1.0d-8)
-
 *     **** external functions ****
       integer  pspw_qmmm_katm,pspw_qmmm_nion
       real*8   pspw_qmmm_rion,pspw_Q_zv_MM,util_erf
@@ -301,3 +298,107 @@ c
       end
 
 
+*     **********************************
+*     *	                               *
+*     *      Model_Potential_Fmm       *
+*     *                                *
+*     **********************************
+
+*     This routine calculates the force on the MM ions from the
+*   Model potential interaction with the QM density and adds it
+*   to the MM ion force, f_mm.
+*
+*     Exit - f_mm: force on the MM ions
+*
+*     Uses - pspw_qmmm_nion,pspw_qmmm_rion
+*
+*     Author - Eric Bylaska
+*
+      subroutine Model_Potential_Fmm(n2ft3d,rgrid,rho,dv,f_mm)
+      implicit none
+      integer n2ft3d
+      real*8  rgrid(3,*),rho(*)
+      real*8  dv
+
+      real*8 f_mm(3,*)
+
+#include "mafdecls.fh"
+
+***** Mode Potential common block *****
+#include "model_potential.fh"
+
+*     **** local variables ****
+      integer ii,i,k,ia
+      real*8  r1(3),ftmp(3),desr
+      real*8  x,y,z,d2,d
+      real*8  q,rcut,sqrtpi
+
+*     **** external functions ****
+      integer  pspw_qmmm_katm,pspw_qmmm_nion
+      real*8   pspw_qmmm_rion,pspw_Q_zv_MM,util_erf
+      external pspw_qmmm_katm,pspw_qmmm_nion
+      external pspw_qmmm_rion,pspw_Q_zv_MM,util_erf
+
+      sqrtpi = dsqrt(4.0d0*datan(1.0d0))
+      do ii=1,pspw_qmmm_nion()
+         r1(1) = pspw_qmmm_rion(1,ii)
+         r1(2) = pspw_qmmm_rion(2,ii)
+         r1(3) = pspw_qmmm_rion(3,ii)
+         ia =pspw_qmmm_katm(ii)
+
+         call dcopy(3,0.0d0,ftmp,1)
+
+*        **** Add the SR contribution ****
+         do i=1,Nbasis
+           if (int_mb(iatom(1)+i-1).eq.ia) then
+             do k=1,n2ft3d
+                x = (rgrid(1,k)-r1(1))
+                y = (rgrid(2,k)-r1(2))
+                z = (rgrid(3,k)-r1(3))
+                d2 = (x*x+y*y+z*z)
+
+                desr = dv*rho(k)
+     >                 * dbl_mb(coeff(1)+i-1)
+     >                 * dexp(-d2*dbl_mb(g(1)+i-1))
+     >                 * (-2.0d0*dbl_mb(g(1)+i-1))
+                ftmp(1) = ftmp(1) + x*desr
+                ftmp(2) = ftmp(2) + y*desr
+                ftmp(3) = ftmp(3) + z*desr
+             end do
+           end if
+         end do
+
+*        **** Add the LR contribution ****
+         q    = pspw_Q_zv_MM(ia)
+         rcut = dbl_mb(lr_cutoff(1)+ia-1)
+         if (abs(q).gt.0.0d0) then
+           do k=1,n2ft3d
+             x = (rgrid(1,k)-r1(1))
+             y = (rgrid(2,k)-r1(2))
+             z = (rgrid(3,k)-r1(3))
+             d = dsqrt(x*x+y*y+z*z)
+             if (d.gt.small) then
+                desr = dv*rho(k)*q
+     >                 * ((-2.0d0/sqrtpi)
+     >                     *(d/rcut)
+     >                     *dexp(-(d/rcut)**2)
+     >                   + util_erf((d/rcut)))
+     >                 /(d**3)
+                ftmp(1) = ftmp(1) + x*desr
+                ftmp(2) = ftmp(2) + y*desr
+                ftmp(3) = ftmp(3) + z*desr
+             end if
+           end do
+        end if
+
+
+*        **** add all force contributions and add to f_mm ****
+         call D3dB_Vector_SumAll(3,ftmp)
+         f_mm(1,ii) = f_mm(1,ii) + ftmp(1)
+         f_mm(2,ii) = f_mm(2,ii) + ftmp(2)
+         f_mm(3,ii) = f_mm(3,ii) + ftmp(3)
+
+      end do
+
+      return
+      end

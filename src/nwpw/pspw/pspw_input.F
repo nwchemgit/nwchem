@@ -1,7 +1,7 @@
+c
+c $Id: pspw_input.F,v 1.3 2001-11-01 18:58:44 bylaska Exp $
+c
       subroutine pspw_input(rtdb)
-c
-c $Id: pspw_input.F,v 1.2 2001-10-26 02:28:24 bylaska Exp $
-c
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
