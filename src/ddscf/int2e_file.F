@@ -7,10 +7,14 @@
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
+#include "eaf.fh"
       character*(*) filename
       integer cachesize, filesize
       double precision precision_arg
       logical orestart
+c
+      double precision length
+c
 #include "cint2esave.fh"
 c
 c     Open file returning CHEMIO filehandle (not yet)
@@ -84,21 +88,16 @@ c
 c     Figure out the size of an existing file
 c
       if (orestart) then
-         open(unitno,
-     $        file=actualname,
-     $        status='old',
-     $        form='unformatted',
-     $        err=1000)
-         goto 1001
- 1000    call errquit('int2e_file_open: restart failed',0)
- 1001    file_opened = .true.
+         if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
+     $        call errquit('int2e_file_open: eaf_open failed', 0)
+         file_opened = .true.
+         if (eaf_length(fd, length) .ne. 0) call errquit
+     $        ('int2e_file_open: unable to determine file length',0)
 c
-         n_rec_in_file = 0
- 1010    read(unitno, err=1011, end=1012)
-         n_rec_in_file = n_rec_in_file + 1
-         goto 1010
- 1011    call errquit('int2e_file_open: error reading file',0)
- 1012    rewind unitno
+         n_rec_in_file = length / (8*rec_len_in_dbl)
+         if ( (length/8 - dfloat(n_rec_in_file*rec_len_in_dbl)) .ne. 0)
+     $        call errquit('int2e_file: bad file length ', 0)
+c
          call ga_igop(555, n_rec_in_file, 1, '+')
          if (oinfo) then
             write(6,1020) n_rec_in_file
@@ -168,11 +167,18 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 #include "cint2esave.fh"
+#include "eaf.fh"
       logical okeep  ! [input] If true keep, otherwise delete
 c
       if (file_opened) then
-        close(unitno)
-        if (.not. okeep) call util_file_unlink(actualname)
+         if (oinfo) call eaf_print_stats(fd)
+         if (eaf_close(fd) .ne. 0) call errquit
+     $        ('int2e_file_close: eaf_close failed',0)
+         if (.not. okeep) then
+            if (eaf_delete(actualname) .ne. 0) call errquit
+     $           ('int2e_file_close: delete failed', 0)
+         endif
+         file_opened = .false.
       endif
 c
       call ga_igop(msg_int2e_stat1, n_rec_in_file, 1, '+')
@@ -180,7 +186,7 @@ c
       if (oinfo) then
          write(6,1) n_rec_in_file, nlarge
  1       format(/
-     $        ' Closing integral file ... used',i8,' records with',
+     $        ' Parallel integral file used',i8,' records with',
      $        i8,' large values'/)
          call util_flush(6)
       end if
@@ -211,7 +217,6 @@ c
 c
 c     rewind the file ready to read integrals ... hide any header.
 c
-      rewind unitno
       cur_rec = 1
       call int2e_buf_clear
 c
@@ -670,6 +675,7 @@ c
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "cint2esave.fh"
+#include "eaf.fh"
       logical oend           ! [input]
 c
 c     Write the integral buffer to disk.  For all but the
@@ -684,6 +690,7 @@ c     about the partial buffer that might be left.
 c
       integer nbitv             ! For pretty output
       integer maxrec
+      double precision offset
 c
 c     test for overflowing the file and memory cache
 c
@@ -739,16 +746,16 @@ c
      $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1)
       else
          if (.not. file_opened) then
-            open(unitno,
-     $           file=actualname,
-     $           status='unknown',
-     $           form='unformatted')
+            if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
+     $           call errquit('int2e_file_open: eaf_open failed', 0)
             file_opened = .true.
          end if
 c
 c     Should really detect failures in writing and return false
 c
-         call swrite(unitno, buf, rec_len_in_dbl)
+         offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec-1)
+         if (eaf_write(fd, offset, buf, 8*rec_len_in_dbl) .ne. 0)
+     $        call errquit('int2e_buf_write: write failed',0)
       end if
 c
       if (otrace) then
@@ -769,6 +776,9 @@ c
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 #include "cint2esave.fh"
+#include "eaf.fh"
+c
+      double precision offset
 c
       call int2e_buf_clear
       if (cur_rec .gt. n_rec_in_file) then
@@ -786,7 +796,9 @@ c
      $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1,
      $        buf, 1)
       else
-         call sread(unitno, buf, rec_len_in_dbl)
+         offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec-1)
+         if (eaf_read(fd, offset, buf, 8*rec_len_in_dbl) .ne. 0)
+     $        call errquit('int2e_buf_write: write failed',0)
       end if
       call int2e_buf_unpack()
 c
@@ -861,32 +873,39 @@ c
       subroutine int2e_file_reposition_truncate
       implicit none
 #include "cint2efile.fh"
+#include "eaf.fh"
 c
 c     Truncate file at the saved position.
 c
       integer target_rec
       logical int2e_buf_read
       external int2e_buf_read
+      double precision newfilelen
 c
 c     First load the desired record
 c     
-*  target_rec =  101 101
-*int2e_file: repositioned from   100 to   101
-
       target_rec = posinfo(3)
-      write(6,*) ' target_rec = ', target_rec, cur_rec
       if (target_rec.lt.1 .or. target_rec.gt. cur_rec) 
      $     call errquit('int2e_reposition : bad target', target_rec)
 c
       if (target_rec .ne. cur_rec) then
- 10     if (target_rec .ne. cur_rec) then
-           if (cur_rec .gt. max_cache_rec) backspace unitno
-           cur_rec = cur_rec - 1
-           goto 10
-        endif
-        if (.not. int2e_buf_read()) call errquit
-     $         ('int2e_reposition: failed reading record ', cur_rec)
-        if (cur_rec .gt. max_cache_rec) backspace unitno
+c
+c     Truncate the physical file as necessary
+c
+         if (cur_rec .gt. max_cache_rec) then
+            newfilelen = max(0.0d0,
+     $           8.0d0*rec_len_in_dbl*(target_rec-max_cache_rec))
+            if (eaf_truncate(fd, newfilelen) .ne. 0) call errquit
+     $           ('int2e_reposition: file truncate failed', 0)
+            n_rec_in_file = target_rec
+         endif
+c
+c     Read the record and leave the file positioned to write over it
+c
+         cur_rec = target_rec
+         if (.not. int2e_buf_read()) call errquit
+     $        ('int2e_reposition: failed reading record ', cur_rec)
+         cur_rec = target_rec
       endif
 c
       if (otrace) then

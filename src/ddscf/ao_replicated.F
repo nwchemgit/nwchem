@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.10 1996-09-19 01:09:14 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.11 1996-09-27 16:13:30 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -47,9 +47,8 @@ c
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('ao_replicated: bas_numbf failed', 0)
 c     
-c     If we can hold all of the integrals in core then we should
-c     do this ... i.e., the default should be semi-direct, though
-c     right now we must store all of the integrals.  However, 
+c     If we can hold most of the integrals in core then we should
+c     do this ... i.e., the default should be semi-direct. However,
 c     if we came in thinking that we were not going to store the
 c     integrals then tol2e might be set too high.  In which case
 c     reset it (locally)
@@ -61,21 +60,6 @@ c
          if (owritefile) tol2e_local = min(tol2e,1d-8)
       end if
 c
-c     If this is the first call for a potential semi-direct
-c     calculation then we must save the tol2e since 
-c     1) the definition of the tasks depends on the tolerance
-c     and we must have the same task definitions, and
-c     2) it's important to have the disk resident and recomputed
-c     integrals computed with consistent tolerances
-c
-      if (owritefile) semi_direct_tol2e = tol2e_local
-c
-c     If this is a subsequent call for semi-direct we must use
-c     the original tolerance
-c
-      if (oreadfile .and. incmax.ne.-1)
-     $     tol2e_local=semi_direct_tol2e
-c     
 c     If reading/writing to/from cache/file then rewind
 c     
       if (oreadfile .or. owritefile) call int2e_file_rewind
@@ -276,7 +260,7 @@ c
       integer cetobfr(2,cemax)  ! Map from centers to bf range
 c
       integer nops              ! No. of group operators = max value of q4
-      double precision dnops
+      double precision dnops, dentol_pairs
 c
       integer next, current, nproc, incomplete_top
 c
@@ -337,6 +321,12 @@ c
       if (owritefile) denmax = max(denmax,10.0d0)
 c
       dentol = min(dentolmax,tol2e/denmax) ! Threshold to screen integs only
+c
+c     If this is the first call for a potential semi-direct calculation 
+c     then we must save the tol2e since the definition of the tasks 
+c     depends on the tolerance and the tasks must be identical.
+c
+      if (owritefile) semi_direct_tol2e = dentol
 c     
 c     There is a BIG speed gain from agressive reduction of accuracy
 c     in the actual computation of the integrals. However, the screening
@@ -374,12 +364,19 @@ c
       end if
 c     
 c     generate info about the pairs
+c
+c     If not first call of semi-direct then MUST reuse the 
+c     old tol2e so that end up with consistent task definitions
 c     
+      dentol_pairs = dentol/dnops
+      if (oreadfile .and. incmax.ne.-1) 
+     $     dentol_pairs = semi_direct_tol2e/dnops
+c
       if (.not. ma_push_get(mt_int, nsh*(nsh+1)/2, 'fock2e_rep',
      $     l_ijtype, k_ijtype)) call errquit
      $     ('fock_2e_rep: ma failed', nsh*(nsh+1)/2)
  10   call fock_pairs(basis, max_p, .true., 1, natom, 1, natom, 
-     $     dentol/dnops, plist, ps, pinfo, tdim, ntype,
+     $     dentol_pairs, plist, ps, pinfo, tdim, ntype,
      $     int_mb(k_ijtype))
 c
 c     Figure out no. of tasks to do on each request to the
@@ -549,7 +546,10 @@ c
 c
 c     If semi-direct need to preserve dentol for consistency
 c
-         if (incmin .ne. -1) dentolmax = dentol
+c     REALLY?  This makes things much slower.  There must be
+c     a better way
+c
+*****         if (incmin .ne. -1) dentolmax = dentol
       endif
 c     
       if (oscfps) call pstat_off(ps_fock_2e)
@@ -757,6 +757,7 @@ c
       integer n_in_b, old_nt
       integer iuat, juat        ! Unique atom numbers
 c
+*      double precision price
       integer thetype
 #include "itri.fh"
 c     Below relies on #shperat<20, #uatoms<20, angmax<20, ngen<20.
@@ -913,6 +914,7 @@ c
             do ij = ijinfo(1,ijt),ijinfo(2,ijt)
                i = ijlist(1,ij)
                j = ijlist(2,ij)
+*               call get_int_price(i,j,i,j,price)
                if (.not. bas_continfo(basis,i,itype,inprim,ingen,spch))
      $              call errquit('fock_pairs: basis bad ',0)
                if (.not. bas_continfo(basis,j,jtype,jnprim,jngen,spch))
@@ -922,8 +924,9 @@ c
                if (.not. bas_cn2uce(basis,j,juat))
      $              call errquit('fock_pairs: basis corrupt ',0)
                write(6,11) ij,i,j,itype,jtype,inprim,jnprim,
-     $              ingen,jngen, iuat, juat
- 11            format(1x,i6,2x,2i3,2x,2i3,2x,2i3,2x,2i3,2x,2i3)
+     $              ingen,jngen, iuat, juat! , price
+ 11            format(1x,i6,2x,2i3,2x,2i3,2x,2i3,2x,2i3,2x,2i3,2x)
+*     $              1p,d9.2)
             end do
          end do
       end if
