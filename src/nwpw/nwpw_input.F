@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.1 2001-11-11 01:29:05 bylaska Exp $
+c $Id: nwpw_input.F,v 1.2 2001-11-16 22:53:11 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -11,7 +11,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 17)
+      parameter (num_dirs = 18)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -30,6 +30,7 @@ c
      >            'cell_optimize',
      >            'qmmm',
      >            'dplot',
+     >            'band',
      >            'end'/
 c
 c     Any input causes convergence flag to be deleted
@@ -51,6 +52,7 @@ c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800,
      >       900, 1000,1100,1200,1300,1400,1500,1600,
+     >       1700,
      >       9999) ind
       call errquit('pspw_input: unimplemented directive', ind)
 
@@ -156,6 +158,12 @@ c
 c dplot
 c
  1600 call pspw_dplot_input(rtdb) 
+      goto 10
+
+c
+c band
+c
+ 1700 call band_input(rtdb) 
       goto 10
 
 

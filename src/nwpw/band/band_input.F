@@ -1,0 +1,234 @@
+      subroutine band_input(rtdb)
+c
+c $Id: band_input.F,v 1.1 2001-11-16 22:53:12 bylaska Exp $
+c
+      implicit none
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c
+      integer rtdb
+      logical value
+c
+      integer ind               ! Index of matched directive
+      integer num_dirs          ! No. of known directives
+      parameter (num_dirs = 14)
+ 
+      character*30 dirs(num_dirs)
+      character*255 test
+
+      data dirs / 'cell_name:',
+     >            'vectors',
+     >            'fake_mass:',
+     >            'time_step:',
+     >            'loop:',
+     >            'tolerances:',
+     >            'energy_cutoff:',
+     >            'wavefunction_cutoff:',
+     >            'ewald_rcut:',
+     >            'ewald_ncut:',
+     >            'exchange_correlation:',
+     >            'mulliken',
+     >            'allow_translation',
+     >            'end'/
+
+       character*30 cell_name
+       character*30 input_wavefunction_filename
+       character*30 output_wavefunction_filename
+       character*30 exchange_correlation
+       double precision fake_mass,time_step,rcut
+       integer loop(2),ncut
+       double precision tolerances(3),ecut,wcut,fe
+       logical mulliken,allow_translation
+       
+
+*     *****************************************
+*     ***** add wavefunction names to rtdb ****
+*     *****************************************
+      call util_file_prefix('movecs',input_wavefunction_filename)
+      call util_file_prefix('movecs',output_wavefunction_filename)
+
+      ind = index(input_wavefunction_filename,' ') - 1
+      value = rtdb_cput(rtdb,'cgsd:input_wavefunction_filename',
+     >                    1,input_wavefunction_filename(1:ind))
+
+*     **** used by task_save_state ****
+      ind = index(input_wavefunction_filename,' ') - 1
+      value = rtdb_cput(rtdb,'cg_pspw:input vectors',
+     >                    1,input_wavefunction_filename(1:ind))
+
+      ind = index(output_wavefunction_filename,' ') - 1
+      value = rtdb_cput(rtdb,'cgsd:output_wavefunction_filename',
+     >                    1,output_wavefunction_filename(1:ind))
+
+
+*     ***** other initializations ****
+      cell_name             = ' '
+      exchange_correlation         = 'vosko'
+      mulliken                     = .false.
+      allow_translation            = .false.
+      fake_mass = 400000.0d0
+      time_step = 5.8d0
+      loop(1) = 10
+      loop(2) = 1
+      tolerances(1) = 1.0d-9
+      tolerances(2) = 1.0d-9
+      tolerances(3) = 1.0d-4
+      ecut=9000.0d0
+      wcut=9000.0d0
+      rcut = 0.0d0
+      ncut = 0
+
+ 10   if (.not. inp_read()) 
+     >     call errquit(
+     >           'cgsd_input: inp_read failed', 0)
+      if (.not. inp_a(test))
+     >     call errquit(
+     >           'cgsd_input: failed to read keyword', 0)
+      if (.not. inp_match(num_dirs, .false., test, dirs, ind))
+     >     call errquit(
+     >           'cgsd_input: unknown directive', 0)
+
+
+      goto ( 100, 200, 300, 400, 500, 600, 700, 800,
+     >       900,1000,1100,1200,1300,
+     >      9999) ind
+      call errquit(
+     >      'band_input: unimplemented directive', ind)
+
+
+c     
+c  cell_name
+c     
+ 100  if (.not. inp_a(cell_name))
+     >     call errquit(
+     >          'band_input: failed to read cell_name', 0)
+      goto 10
+
+
+c
+c  vectors
+c 
+ 200  write(*,*) "vectors_band_input(rtdb) not written yet"
+      goto 10
+
+c
+c  fake_mass
+c 
+ 300  if (.not. inp_f(fake_mass))
+     >     call errquit(
+     >          'band_input: failed to fake mass', 0)
+      goto 10
+ 
+c
+c  time_step
+c 
+ 400  if (.not. inp_f(time_step))
+     >     call errquit(
+     >          'band_input: failed to time step', 0)
+      goto 10
+ 
+ 
+c
+c  loop
+c 
+ 500  if (.not. inp_i(loop(1)))
+     >     call errquit(
+     >          'band_input: failed to read loop(1)', 0)
+      if (.not. inp_i(loop(2)))
+     >     call errquit(
+     >          'band_input: failed to read loop(2)', 0)
+      goto 10
+ 
+c
+c  tolerances
+c 
+ 600  if (.not. inp_f(fe)) goto 601
+      tolerances(1) = fe
+      if (.not. inp_f(fe)) goto 601
+      tolerances(2) = fe
+      if (.not. inp_f(fe)) goto 601
+      tolerances(3) = fe
+ 601  goto 10
+
+
+c
+c  energy_cutoff
+c 
+ 700  if (.not. inp_f(ecut))
+     >     call errquit(
+     >          'band_input: failed to read ndown', 0)
+      goto 10
+
+c
+c  wavefunction_cutoff
+c 
+ 800  if (.not. inp_f(wcut))
+     >     call errquit(
+     >          'band_input: failed to read ndown', 0)
+      goto 10
+
+c
+c  ewald_rcut
+c 
+ 900  if (.not. inp_f(rcut))
+     >     call errquit(
+     >          'band_input: failed to read rcut', 0)
+      goto 10
+
+c
+c  ewald_rcut
+c 
+ 1000 if (.not. inp_i(ncut))
+     >     call errquit(
+     >          'band_input: failed to read ncut', 0)
+      goto 10
+c
+c  exchange_correlation
+c 
+ 1100  if (.not. inp_a(exchange_correlation))
+     >     call errquit(
+     >          'band_input: failed to read exchange_correlation', 0)
+      goto 10
+
+c
+c  Mulliken
+c 
+ 1200 mulliken = .true.
+      goto 10
+c
+c  allow_translation
+c 
+ 1300 allow_translation = .true.
+      goto 10
+
+
+*     ***** add wavefunction to rtdb ****
+ 9999 continue
+      if (cell_name.eq.' ') 
+     >  call errquit('band_input: nead a cell_name', 0)
+
+
+      ind = index(cell_name,' ') - 1
+      value = rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
+
+
+      value = rtdb_put(rtdb,'band:mulliken',mt_log,1,
+     >                       mulliken)
+      value = rtdb_put(rtdb,'band:allow_translation',mt_log,1,
+     >                       allow_translation)
+      value = rtdb_put(rtdb,'band:fake_mass',mt_dbl,1,fake_mass)
+      value = rtdb_put(rtdb,'band:time_step',mt_dbl,1,time_step)
+      value = rtdb_put(rtdb,'band:loop',mt_int,2,loop)
+      value = rtdb_put(rtdb,'band:tolerances',mt_dbl,3,tolerances)
+      value = rtdb_put(rtdb,'band:ecut',mt_dbl,1,ecut)
+      value = rtdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
+      value = rtdb_put(rtdb,'band:rcut',mt_dbl,1,rcut)
+      value = rtdb_put(rtdb,'band:ncut',mt_int,1,ncut)
+      ind = index(exchange_correlation,' ') - 1
+      value = rtdb_cput(rtdb,'band:exchange_correlation',
+     >                    1,exchange_correlation(1:ind))
+
+      return
+      end
