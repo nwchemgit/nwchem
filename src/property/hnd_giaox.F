@@ -1,5 +1,5 @@
       subroutine hnd_giaox(rtdb,basis,geom)
-c $Id: hnd_giaox.F,v 1.3 2004-07-22 23:40:10 bert Exp $
+c $Id: hnd_giaox.F,v 1.4 2004-11-15 20:28:25 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -19,6 +19,7 @@ c
       integer nclosed(2), nopen(2), nvirt(2), ndens, nbf, nmo
       integer sh_atom, ixy, ix, iy, iatom, iocc, ifld, ivir, ioff
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
+      integer dlo(3), dhi(3)
       integer l_occ, k_occ, l_eval, k_eval
       integer l_dia, k_dia, l_para, k_para
       integer l_xyz, k_xyz, l_zan, k_zan
@@ -112,13 +113,13 @@ c
       call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
      &                      nclosed,nopen,nvirt)
 c
-c     Create U matrix of dimension (nmo,nmo,3) and zero
+c     Create U matrix of dimension (nbf,nmo,3) and zero
 c     Use ahi for dimension and ahi array for chunking/blocking
 c
-      alo(1) = nmo
+      alo(1) = nbf
       alo(2) = -1
       alo(3) = -1
-      ahi(1) = nmo
+      ahi(1) = nbf
       ahi(2) = nclosed(1)
       ahi(3) = 3
       if (.not.nga_create(MT_DBL,3,ahi,'U matrix',alo,g_u)) call 
@@ -207,15 +208,22 @@ c
       if (.not.nga_create(MT_DBL,3,clo,'Fock matrix',chi,g_fock)) call 
      &    errquit('hnd_giaox: nga_create failed g_fock',0,GA_ERR)
       if (.not.nga_create(MT_DBL,3,clo,'D10 matrix',chi,g_d1)) call 
-     &    errquit('hnd_giaox: nga_create failed g_u',0,GA_ERR)
+     &    errquit('hnd_giaox: nga_create failed g_d1',0,GA_ERR)
       call ga_zero(g_fock)
       call ga_zero(g_d1)
+      alo(1) = 1
+      alo(2) = 1
       blo(1) = 1
+      blo(2) = 1
       bhi(1) = nbf
       clo(2) = 1
       clo(3) = 1
       chi(2) = nbf
       chi(3) = nbf
+      dlo(1) = 1
+      dlo(2) = 1
+      dhi(1) = nbf
+      dhi(2) = nclosed(1)
 c
 c     Create "perturbed density matrix" for closed-closed g_u block
 c
@@ -226,19 +234,15 @@ c
          ahi(3) = ifld
          clo(1) = ifld
          chi(1) = ifld
-         alo(1) = 1
+         dlo(3) = ifld
+         dhi(3) = ifld
          ahi(1) = nmo
-         alo(2) = 1
          ahi(2) = nclosed(1)
-         blo(2) = 1
          bhi(2) = nmo 
          call nga_matmul_patch('n','n',1.0d0,0.0d0,vectors(1),blo,bhi,  
-     &                         g_u,alo,ahi,g_s10,alo,ahi)  
-         alo(2) = 1
-         ahi(2) = nmo
-         alo(1) = 1
+     &                         g_u,alo,ahi,g_s10,dlo,dhi)  
+         ahi(2) = nbf
          ahi(1) = nclosed(1)
-         blo(2) = 1
          bhi(2) = nclosed(1)
 c
 c     Minus sign as we subtract it from the RHS as we do not include 
@@ -408,12 +412,20 @@ c
       ahi(2) = nbf
       ahi(3) = 3
       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_d1)) call 
-     &    errquit('hnd_giaox: nga_create failed g_u',0,GA_ERR)
+     &    errquit('hnd_giaox: nga_create failed g_d1',0,GA_ERR)
 c
+      alo(1) = 1
+      alo(2) = 1
+      blo(1) = 1
+      blo(2) = 1
       clo(1) = 1
       chi(1) = nbf
       clo(2) = 1
       chi(2) = nbf
+      dlo(1) = 1
+      dlo(2) = 1
+      dhi(1) = nbf
+      dhi(2) = nclosed(1)
       do ifld = 1, 3
          alo(3) = ifld
          ahi(3) = ifld
@@ -421,27 +433,21 @@ c
          bhi(3) = ifld
          clo(3) = ifld
          chi(3) = ifld
-         blo(1) = 1
+         dlo(3) = ifld
+         dhi(3) = ifld
          bhi(1) = nbf
-         blo(2) = 1
          bhi(2) = nmo 
-         alo(1) = 1
          ahi(1) = nmo
-         alo(2) = 1
          ahi(2) = nclosed(1)
 c
 c     Make C1
 c
          call nga_matmul_patch('n','n',1.0d0,0.0d0,vectors(1),blo,bhi,  
-     &                         g_u,alo,ahi,g_d1,alo,ahi)  
-         call nga_copy_patch('n',g_d1,alo,ahi,g_u,alo,ahi)
-         blo(1) = 1
+     &                         g_u,alo,ahi,g_d1,dlo,dhi)  
+         call nga_copy_patch('n',g_d1,dlo,dhi,g_u,dlo,dhi)
          bhi(1) = nbf
-         blo(2) = 1
          bhi(2) = nclosed(1)
-         alo(1) = 1
          ahi(1) = nclosed(1)
-         alo(2) = 1
          ahi(2) = nbf
 c
 c     Make D1
