@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.3 1999-05-01 17:28:10 edo Exp $
+* $Id: grid_file.F,v 1.4 1999-05-05 00:38:47 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -690,4 +690,10 @@ c
 c
       return
 c
+      end
+      integer function grid_num_rec()
+      implicit none
+#include "cgridfile.fh"
+      grid_num_rec=n_rec_in_file
+      return
       end

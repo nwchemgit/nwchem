@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.3 1999-05-01 17:28:09 edo Exp $
+* $Id: cgridfile.fh,v 1.4 1999-05-05 00:38:47 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -39,6 +39,7 @@ c
       double precision buf2     ! Compressed buffer for IO only - ASYNC
       integer n_in_buf2         ! n_in_rec info for this buf    - ASYNC
       integer pad2              ! Padding for 32 bit machines   - ASYNC
+c
 c
 #ifdef CRAY_T3D
 c     save on memory since have only physical memory

@@ -2,7 +2,7 @@
      &                      xyz,xyzm,ctr_quad, rad_quad,
      &                       zprim, iandex)
 c
-C$Id: grid_signf.F,v 1.1 1999-05-01 17:28:11 edo Exp $
+C$Id: grid_signf.F,v 1.2 1999-05-05 00:38:48 edo Exp $
 c
       implicit none
 c      
@@ -98,6 +98,7 @@ c        if (zmin*r_arg.lt.acc_sigf) then
         xyzm(1,ictr) = xyzm(1,ic1)
         xyzm(2,ictr) = xyzm(2,ic1)
         xyzm(3,ictr) = xyzm(3,ic1)
+        if(ic1.eq.ctr_quad) ctr_quad=ictr
       enddo
       mcenters=mcenters_scr
       return

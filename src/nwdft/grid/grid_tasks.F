@@ -2,7 +2,7 @@
      &                      wqbuf, npts_per_task,
      &                      aqbuf, npts_per_ang)
 c
-c$Id: grid_tasks.F,v 1.3 1999-05-01 17:28:11 edo Exp $
+c$Id: grid_tasks.F,v 1.4 1999-05-05 00:38:48 edo Exp $
 c
       implicit none
 c
@@ -20,6 +20,8 @@ c
 #include "cdft.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
 c
       logical oreadfile, owritefile
       integer filesize, memsize
@@ -27,7 +29,11 @@ c
       character*4 whichf
 c
       integer iqsh, irsh, ictr, iang, npts_iqsh
-      integer nq
+      integer nq,n1,n2,nproc,lrchi,irchi,lrdelchi,irdelchi,
+     ,     lrchi_loc,irchi_loc,lrde_loc,irde_loc
+      integer nest_tsk,nrchi_task
+      integer nxtask
+      external nxtask
       logical leb,lssw
       logical grid_file_open
       external grid_file_open
@@ -44,6 +50,7 @@ c
 c     Open grid pts file
 c
       call grid_packing_info
+      nrchi_task=1
 c
 c     temp set gridfilename to gridpts
 c
@@ -97,8 +104,40 @@ C      call a_dist(coord, Dbl_MB(iRij), ncenters)
       if (.not.MA_Push_get(mt_dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
      &   call errquit('grid_tasks: cannot allocate rq',4)
 c
+c     estimate of ntask/node
+c
+      nproc=ga_nnodes()
+c
+c     is this too conservative or WRONG?
+c
+      nest_tsk=ncenters*1.2*nqshells/nproc
+c
+c     allocate rchi
+c
+      if (.not.MA_alloc_Get(MT_Dbl,nest_tsk,'rchi_atom',
+     &     lrchi,irchi))
+     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
+c
+      if (.not.MA_alloc_Get(MT_Dbl,nest_tsk,'rdchi_atom',
+     &     lrdelchi,irdelchi))
+     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
+      if (.not.MA_Push_Get(MT_Dbl,ncenters,'rchi_atom',
+     &     lrchi_loc,irchi_loc))
+     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
+c
+      if (.not.MA_Push_Get(MT_Dbl,ncenters,'rdchi_atom',
+     &     lrde_loc,irde_loc))
+     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
+      call dfill(nest_tsk, 0.0d0, dbl_mb(irchi), 1)
+      call dfill(nest_tsk, 0.0d0, dbl_mb(irdelchi), 1)
+      
+c
+      n1 = 0
+      n2 = nxtask(nproc,1)
       do 100 iqsh = 1, nqshells
 c
+         if (n1.eq.n2 )then
+
          irsh = qsh(1,iqsh)         
          ictr = qsh(2,iqsh)
          iang = qsh(3,iqsh)
@@ -115,6 +154,13 @@ c
          call grid_setspac(rtdb, coord, aqbuf, dbl_mb(irij), 
      &                     dbl_mb(irq), dbl_mb(ip), ictr, npts_iqsh,
      ,        lssw, whichf, dbl_mb(iexpo), rad)
+
+         if (nq.eq.0) then
+            n1 = n1 + 1
+            n2 = nxtask(nproc,1)
+            go to 100
+         endif
+         
 c
 c        since only generating symmetry unique quadrature 
 c        scale weights with symmetry factor if desired
@@ -125,13 +171,42 @@ c        now pack this aqbuf into the write buffer (write and update task counte
 c
          call grid_file_write(npts_iqsh, ictr, rad, aqbuf)
 c
+c     compute rchi and store it in memory
+c
+c coord redefined in setspac?
+c     WARNING: grid_rchi reorders aqbuf from (4,*) to (3,*)
+c
+         call grid_rchi(nrchi_task,npts_per_task,
+     ,        npts_iqsh,ictr, ncenters,
+     ,        dbl_mb(irchi),dbl_mb(irdelchi), 
+     ,        dbl_mb(irchi_loc),dbl_mb(irde_loc), 
+     ,        rad, aqbuf, coord, 
+     ,        dbl_mb(iexpo), dbl_mb(irq),dbl_mb(irij))
+
+c
+         n1 = n1 + 1
+         n2 = nxtask(nproc,1)
+c     
+      else
+c     
+         n1 = n1 + 1
+c     
+      endif
   100 continue
+
+      n1 = nxtask(-nproc,1)
 c
 c     Write last buffer of grid pts and close file     
 c
       nq = 1
       n_tot_tasks = 0 ! sets nctr to 0; writes last buf and returns #tasks
       call grid_file_write(nq, n_tot_tasks, rad, aqbuf)
+      call grid_rchi(nrchi_task,npts_per_task,
+     ,     0,ictr, ncenters,
+     ,     dbl_mb(irchi),dbl_mb(irdelchi), 
+     ,     dbl_mb(irchi_loc),dbl_mb(irde_loc), 
+     ,     rad, aqbuf, coord, 
+     ,     dbl_mb(iexpo), dbl_mb(irq),dbl_mb(irij))
       write(6,*)' n_tot_tasks = ', n_tot_tasks
 c  
 c      if (.not. grid_file_close(.true.))
@@ -140,6 +215,14 @@ c
 c
 c     clean up
 c
+      if (.not. MA_Pop_Stack(lrde_loc))
+     &   call errquit('grid_tasks: pop stack failed.',0)
+      if (.not. MA_Pop_Stack(lrchi_loc))
+     &   call errquit('grid_tasks: pop stack failed.',0)
+c      if (.not. MA_Pop_Stack(lrdelchi))
+c     &   call errquit('grid_tasks: pop stack failed.',0)
+c      if (.not. MA_Pop_Stack(lrchi))
+c     &   call errquit('grid_tasks: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lexpo))
      &   call errquit('grid_tasks: pop stack failed.',1)
       if (.not. MA_Pop_Stack(lp))
