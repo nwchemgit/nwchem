@@ -218,7 +218,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.31 1997-08-08 06:29:41 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.32 1997-09-01 17:38:08 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -559,7 +559,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.31 1997-08-08 06:29:41 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.32 1997-09-01 17:38:08 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -669,14 +669,14 @@ c
                enddo
             enddo
 c     
-            do k = klo, khi
-               do o = mo1_lo, mo1_hi
+            do o = mo1_lo, mo1_hi
+               do k = klo, khi
                   ssni(k,j,i,o) = ssni(k,j,i,o) + hlp(o,k)
                enddo
             enddo
             if (klo.ne.llo) then
-               do l = llo, lhi
-                  do o = mo1_lo, mo1_hi
+               do o = mo1_lo, mo1_hi
+                  do l = llo, lhi
                      ssni(l,j,i,o) = ssni(l,j,i,o) + hlp(o,l)
                   enddo
                enddo
@@ -1206,7 +1206,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.31 1997-08-08 06:29:41 d3g681 Exp $
+C$Id: moints_aux2.F,v 1.32 1997-09-01 17:38:08 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1250,7 +1250,7 @@ C$Id: moints_aux2.F,v 1.31 1997-08-08 06:29:41 d3g681 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.31 1997-08-08 06:29:41 d3g681 Exp $
+c$$$C$Id: moints_aux2.F,v 1.32 1997-09-01 17:38:08 d3g681 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"

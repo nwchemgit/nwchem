@@ -1,6 +1,6 @@
 
 c
-c  $Id: moints_semi.F,v 1.48 1997-08-19 17:18:47 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.49 1997-09-01 17:38:25 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -105,7 +105,7 @@ c
 c
 c  Memory arithmetic
 c
-       lmemreq = moints_lmem(basis, nocc, nvir, blen)
+       lmemreq = moints_lmem(basis, nseg, nvir, blen)
        if ((.not.ga_uses_ma()).and.(.not.(ga_memory_limited())))
      $   call errquit('moints_semi: cannot determine memory limit',0)
 c
