@@ -110,55 +110,56 @@ c     Get the movectors and symmetry block them
 c     
       if(.not.ga_create(mt_dbl,nbf,nbf,'alpha_vecs',nbf,1,
      $     g_vecs_a))call errquit('mp2_energy: ga_create failed',0)
-      if(scftype.eq.'UHF')then
+c      if(scftype.eq.'UHF')then
          if(.not.ga_create(mt_dbl,nbf,nbf,'beta_vecs',nbf,1,g_vecs_b))
      $        call errquit('mp2_energy: ga_create failed',0)
-      endif
+c      endif
       if(.not.ma_push_get(mt_dbl,nbf,'occ alpha',
      $     l_occ_a,k_occ_a))      
      $     call errquit('mp2_energy ma problem with alpha occ',1)
-      if(scftype.eq.'UHF')then
+c      if(scftype.eq.'UHF')then
          if(.not.ma_push_get(mt_dbl,nbf,'occ beta',
      $        l_occ_b,k_occ_b))
      $        call errquit('mp2_energy ma problem with beta occ',1)
-      endif
+c      endif
       if(.not.movecs_read_header(movecs,title_vecs,basis_vecs,
      $     nbf_vecs,nsets,nmo,2))
      $     call errquit('problem with movecs_read_header',1)
       if(.not.ma_push_get(mt_dbl,nbf,'alpha evals',
      $     l_eval_a,k_eval_a))
      $     call errquit('problem with ma for a evals',1)
-      if(scftype.eq.'UHF')then
+c      if(scftype.eq.'UHF')then
          if(.not.ma_push_get(mt_dbl,nbf,'beta evals',
      $        l_eval_b,k_eval_b))
      $        call errquit('problem with ma for b evals',1)
-      endif
+c      endif
       if(nbf.eq.nbf_vecs)then
-         if(.not.movecs_read(movecs,1,dbl_mb(k_occ_a),
-     $        dbl_mb(k_eval_a),g_vecs_a))
-     $        call errquit('could not read alpha vecs',1)
+            if(.not.movecs_read(movecs,1,dbl_mb(k_occ_a),
+     $           dbl_mb(k_eval_a),g_vecs_a))
+     $           call errquit('could not read alpha vecs',1)
          if(scftype.eq.'UHF')then
             if(.not.movecs_read(movecs,2,dbl_mb(k_occ_b),
      $           dbl_mb(k_eval_b),g_vecs_b))
      $           call errquit('could not read beta vecs',1)
          endif
       endif
-c     
+      if(scftype.eq.'RHF')call ga_copy(g_vecs_a,g_vecs_b)
+c
       if(.not.ma_push_get(mt_int,nbf,'irs_a',l_irs_a,k_irs_a))
      $     call errquit('scf_movecs_sym_adapt: memory?',nbf)
-      if(scftype.eq.'UHF')then
+c      if(scftype.eq.'UHF')then
          if(.not.ma_push_get(mt_int,nbf,'irs_b',l_irs_b,k_irs_b))
      $        call errquit('scf_movecs_sym_adapt: memory?',nbf)
-      endif
+c      endif
 c     
       call int_init (rtdb, 1, basis) ! Needed for overlap
 c     
       call sym_movecs_adapt(basis,1d-8,g_vecs_a,int_mb(k_irs_a),
      $     nmixed)
-      if(scftype.eq.'UHF')then
+c      if(scftype.eq.'UHF')then
          call sym_movecs_adapt(basis,1d-8,g_vecs_b,int_mb(k_irs_b),
      $        nmixed)      
-      endif
+c      endif
 c     
       call int_terminate()
 c     
@@ -166,8 +167,8 @@ c     Change irreps to start counting at 0
 c     
       do i=1,nbf
          int_mb(k_irs_a+i-1)=int_mb(k_irs_a+i-1)-1
-         if(scftype.eq.'UHF')
-     $        int_mb(k_irs_b+i-1)=int_mb(k_irs_b+i-1)-1
+c         if(scftype.eq.'UHF')
+             int_mb(k_irs_b+i-1)=int_mb(k_irs_b+i-1)-1
       enddo
 c     
       noa_lo=noa_frozen+1
@@ -177,7 +178,7 @@ c
       nva_hi=nbf-nva_frozen
       nmo2_a=nva_hi-nva_lo+1
       noper_a=noa_hi-noa_lo+1
-      if(scftype.eq.'UHF')then
+c      if(scftype.eq.'UHF')then
          nob_lo=nob_frozen+1
          nob_hi=nob
          nob_correl=nob_hi-noa_lo+1
@@ -185,14 +186,14 @@ c
          nvb_hi=nbf-nvb_frozen
          nmo2_b=nvb_hi-nvb_lo+1
          noper_b=nob_hi-nob_lo+1
-      endif
+c      endif
 c     
       if(.not.ma_push_get(mt_int,nbf,'map_a',l_map_a,k_map_a))
      $     call errquit('could not alloc map_a',1)
-      if(scftype.eq.'UHF')then
+c      if(scftype.eq.'UHF')then
          if(.not.ma_push_get(mt_int,nbf,'map_b',l_map_b,k_map_b))
      $        call errquit('could not alloc map_b',1)
-      endif
+c      endif
 c     
       if(.not.ma_push_get(mt_dbl,nbf,'work',l_work,k_work))
      $     call errquit('could not alloc work',1)
@@ -200,15 +201,15 @@ c
       call moints_vecs_sym_sort(g_vecs_a,nbf,noa_lo,noa_hi,
      $     int_mb(k_irs_a),int_mb(k_map_a),dbl_mb(k_work),num_oa_sym,
      $     sym_lo_oa,sym_hi_oa)
-      if(scftype.eq.'UHF')
-     $     call moints_vecs_sym_sort(g_vecs_b,nbf,nob_lo,nob_hi,
+c      if(scftype.eq.'UHF')
+          call moints_vecs_sym_sort(g_vecs_b,nbf,nob_lo,nob_hi,
      $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_ob_sym,
      $     sym_lo_ob,sym_hi_ob)
       call moints_vecs_sym_sort(g_vecs_a,nbf,nva_lo,nva_hi,
      $     int_mb(k_irs_a),int_mb(k_map_a),dbl_mb(k_work),num_va_sym,
      $     sym_lo_va,sym_hi_va)
-      if(scftype.eq.'UHF')
-     $     call moints_vecs_sym_sort(g_vecs_b,nbf,nvb_lo,nvb_hi,
+c      if(scftype.eq.'UHF')
+      call moints_vecs_sym_sort(g_vecs_b,nbf,nvb_lo,nvb_hi,
      $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_vb_sym,
      $     sym_lo_vb,sym_hi_vb)
 c     
@@ -216,13 +217,15 @@ c
       do i=noa_lo,nva_hi
          dbl_mb(k_eval_a-1+int_mb(k_map_a+i-1))=dbl_mb(k_work+i-1)
       enddo
-      if(scftype.eq.'UHF')then
+c      if(scftype.eq.'UHF')then
          call dcopy(nbf,dbl_mb(k_eval_b),1,dbl_mb(k_work),1)
          do i=nob_lo,nvb_hi
             dbl_mb(k_eval_b-1+int_mb(k_map_b+i-1))=dbl_mb(k_work+i-1)
          enddo
-      endif
+c      endif
 c     
+         call dfill(nbf,0.0d0,dbl_mb(k_eval_b),1)
+         call dcopy(nbf,dbl_mb(k_eval_a),1,dbl_mb(k_eval_b),1)
       if (.not. ma_pop_stack(l_work)) call errquit
      $     ('mp2_grad: ma failed popping workspace(1)', 0)
 c     
@@ -286,7 +289,7 @@ c
          call ga_zero(g_lai_b)
       endif
 c     
-      if(scftype.eq.'UHF')then
+c      if(scftype.eq.'UHF')then
          pass=1
          call mp2_grad_uhf(rtdb,g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
      $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
@@ -300,9 +303,11 @@ c
      $        g_w_ai_a,g_w_ai_b,g_lai_a,g_lai_b,
      $        dbl_mb(k_grad))
          pass=2
-         call mp2_grad_uhf(rtdb,g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
-     $        int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
-     $        num_ob_sym,num_vb_sym,g_vecs_a,noa_lo,noa_hi,nva_lo,
+c        if(scftype.eq.'UHF') 
+             call mp2_grad_uhf(rtdb,g_vecs_b,nob_lo,nob_hi,
+     $        nvb_lo,nvb_hi,int_mb(k_irs_b),sym_lo_ob,
+     $        sym_hi_ob,sym_lo_vb,sym_hi_vb,num_ob_sym,
+     $        num_vb_sym,g_vecs_a,noa_lo,noa_hi,nva_lo,
      $        nva_hi,int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,
      $        sym_hi_va,num_oa_sym,num_va_sym,dbl_mb(k_eval_b),
      $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,task,
@@ -311,7 +316,7 @@ c
      $        g_w_ij_b,g_w_ij_a,g_w_ab_b,g_w_ab_a,
      $        g_w_ai_b,g_w_ai_a,g_lai_b,g_lai_a,
      $        dbl_mb(k_grad))
-      endif
+c      endif
       if(.not.rtdb_put(rtdb,'semi_dir_mp2:energy',mt_dbl,1,e2))
      $     call errquit('could not stash the energy',1)
 c     
@@ -337,7 +342,7 @@ c
 c     
          if (.not. ma_pop_stack(l_work)) call errquit
      $        ('mp2_grad: ma failed popping workspace(2)', 0)
-c     
+c
          if(.not.cphf(rtdb))call errquit('could not do cphf',1)
 c...  the g_rhs now holds the solution         
          call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
@@ -365,7 +370,7 @@ c...  the g_rhs now holds the solution
      $        g_w_ai_a,g_w_ai_b,g_w_tot_a,g_w_tot_b,
      $        noa,nva,nob,nvb,nbf,g_vecs_a,g_vecs_b,g_rhs,
      $        dbl_mb(k_eval_a),dbl_mb(k_eval_b),
-     $        g_p_tot_a, g_p_tot_b)
+     $        g_p_tot_a,g_p_tot_b)
 c$$$  call mp2_make_dip_mom(g_p_tot_a,g_p_tot_b,basis,rtdb,nbf,
 c$$$  $        g_vecs_a,g_vecs_b)
 c...  
@@ -373,11 +378,21 @@ c...  call to Herbert's stuff
 c...  
 c$$$  call intd_init(rtdb,1,basis)
 c$$$  call schwarz_init(geom,basis)
-         call grad_force(rtdb,basis,geom,movecs) 
+         if(scftype.eq.'RHF')then
+            scftype='UHF'
+            if(.not.rtdb_cput(rtdb,'scf:scftype',1,scftype))
+     $           call errquit('could not put scftype',1)
+            call grad_force(rtdb,basis,geom,movecs) 
+            scftype='RHF'
+            if(.not.rtdb_cput(rtdb,'scf:scftype',1,scftype))
+     $           call errquit('could not put scftype',1)
+         endif
+         if(scftype.eq.'UHF')
+     $        call grad_force(rtdb,basis,geom,movecs)
 c$$$  call schwarz_tidy()
 c$$$  call intd_terminate()
 c     
-c    
+c     
          call ga_dgop(1,dbl_mb(k_grad),3*natoms,'+')
          if(ga_nodeid().eq.0)then
             write (luout,1000) (dbl_mb(k_grad+i),i=0,3*natoms-1)
@@ -394,7 +409,7 @@ c
             if(.not.rtdb_put(rtdb,'semi_dir_mp2:gradient',mt_dbl,
      $           3*natoms,dbl_mb(k_grad)))
      $           call errquit(
-     $           'semi_dir_mp2: failed storing gradient in rtdb',0)
+     $           'semi_dir_mp2:failed to store gradient in rtdb',0)
             status=rtdb_parallel(.true.)
             if(.not.ma_free_heap(l_grad2))call errquit('ma frc2',0)
          endif
