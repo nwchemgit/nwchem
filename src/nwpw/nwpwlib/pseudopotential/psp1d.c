@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: psp1d.c,v 1.6 2004-09-22 00:39:00 bylaska Exp $
+   $Id: psp1d.c,v 1.7 2004-12-30 04:42:30 bylaska Exp $
 */
 
 #include	<stdio.h>
@@ -72,7 +72,7 @@ static	int	Solver_Type      = Hamann;
 void	init_Psp(char *filename)
 {
    int	  p,p1,p2;
-   int	  ltmp;
+   int	  ltmp,semicore_type;
    double rctmp;
    char   *w,*tc;
    FILE	  *fp;
@@ -375,12 +375,32 @@ void	init_Psp(char *filename)
    }
    fclose(fp);
 
+   /* find the semicore_type */
+   semicore_type = 2;
+   fp = fopen(filename,"r+");
+   w = get_word(fp);
+   while ((w!=NIL) && (strcmp("<semicore_type>",w)!=0))
+      w = get_word(fp);
+   if (w!=NIL)
+   {
+      w = get_word(fp);
+      if (strcmp("quadratic",w)==0)   semicore_type = 0;
+      if (strcmp("louie",w)==0)       semicore_type = 1;
+      if (strcmp("fuchs",w)==0)       semicore_type = 2;
+   }
+   fclose(fp);
+
+
+
+
    /* generate non-zero rho_semicore */
    if (r_semicore > 0.0)
    {
-       printf("\n\n");
+      /*
+      printf("\n\n");
       printf("Generating non-zero semicore density\n");
-      generate_rho_semicore(rho_core_Atom(),r_semicore,rho_semicore);
+      */
+      generate_rho_semicore(semicore_type,rho_core_Atom(),r_semicore,rho_semicore);
       Derivative_LogGrid(rho_semicore,drho_semicore);
    }
 
