@@ -1,0 +1,62 @@
+start br2
+
+geometry
+ br 0  0   1.5
+ br 0  0  -1.5
+end
+
+basis spherical
+ br S; 574300. 1.0
+ br S; 89070. 1.0
+ br S; 20210. 1.0
+ br S; 5736. 1.0
+ br S; 1899. 1.0
+ br S; 698.7 1.0
+ br S; 277.8 1.0
+ br S; 115.2 1.0
+ br S; 35.97 1.0
+ br S; 15.5 1.0
+ br S; 4.771 1.0
+ br S; 2.077 1.0
+ br S; 0.4211 1.0
+ br S; 0.161 1.0
+ br S; 0.04 1.0
+ br S; 0.02 1.0
+ br P; 4406. 1.0
+ br P; 1042. 1.0
+ br P; 332.1 1.0
+ br P; 121.9 1.0
+ br P; 49.24 1.0
+ br P; 21.16 1.0
+ br P; 8.836 1.0
+ br P; 3.829 1.0
+ br P; 1.643 1.0
+ br P; 0.465 1.0
+ br P; 0.1427 1.0
+ br P; 0.04 1.0
+ br D; 108.4 1.0
+ br D; 30.71 1.0
+ br D; 10.66 1.0
+ br D; 3.851 1.0
+ br D; 1.317 1.0
+ br D; 0.33 1.0
+ br D; 0.13 1.0
+ br F; 0.555 1.0
+end
+
+relativistic
+ douglas-kroll dkh
+ clight 137.0360000d0
+end
+
+scf
+  thresh 1.0d-8
+end
+
+set tng:fivept t
+
+task scf
+
+task scf gradient
+
+task scf gradient numerical
