@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.33 2002-02-19 02:10:56 edo Exp $
+C $Id: hess_init.F,v 1.34 2002-02-23 02:12:50 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -297,7 +297,7 @@ c  these values should be reset after the calculation is done.
 c
        integer rtdb
        integer geomnew
-       double precision ithresh
+       double precision ithresh,tol_rho,tol_rho_rd
        logical whatever,grid_file_close,xc_got2nd      
        external xc_got2nd
        character*15 gridtype
@@ -371,6 +371,14 @@ c
          endif
          if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      $        call errquit('hessinit:rtdbcput failed',0)
+c
+c     set tol_rho to at least 1d-11 (it is 1d-10 otherwise)
+c
+         tol_rho=1d-11
+         if (rtdb_get(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho_rd))
+     .        tol_rho=min(tol_rho,tol_rho_rd)
+         if (.not.rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho)) 
+     .        call errquit(' hessinit: rtdbput failed ',11)
 c     
 c     kill symmetry for XC grid build
 c     
