@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.25 2003-01-31 04:44:13 sohirata Exp $
+c $Id: tce_init.F,v 1.26 2003-02-20 01:17:37 mhackler Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -167,16 +167,10 @@ c     ---------
 c     TCE input
 c     ---------
 c
-      if (rtdb_get(rtdb,'tce:frozen core:freeze by atoms',
-     1  mt_log,1,dummy)) then
-        if (.not.geom_num_core(geom,nfc(1)))
-     1    call errquit('tce_init: failed to get number of cores',0)
-      else if (rtdb_get(rtdb,'cc:frozen core',
-     1  mt_int,1,nfc(1))) then
-        continue
-      else
-        nfc(1) = 0
+      if(.not. geom_freeze(rtdb, geom, 'tce', nfc(1))) then
+         call errquit('tce_init: failed to get number of cores', 0)
       endif
+
       if (ipol.eq.2) nfc(2) = nfc(1)
       if (.not.rtdb_get(rtdb,'tce:frozen virtual',
      1  mt_int,1,nfv(1))) nfv(1) = 0

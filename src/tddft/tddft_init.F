@@ -6,7 +6,7 @@
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult)
 c
-c $Id: tddft_init.F,v 1.8 2003-01-17 20:22:12 sohirata Exp $
+c $Id: tddft_init.F,v 1.9 2003-02-20 01:16:32 mhackler Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -162,16 +162,10 @@ c --------------
 c -----------
 c TDDFT input
 c -----------
-      if (rtdb_get(rtdb,'tddft:frozen core:freeze by atoms',
-     1  mt_log,1,dummy)) then
-        if (.not.geom_num_core(geom,nfc(1)))
-     1    call errquit('tddft_init: failed to get number of cores',0)
-      else if (rtdb_get(rtdb,'tddft:frozen core',
-     1  mt_int,1,nfc(1))) then
-        continue
-      else
-        nfc(1) = 0
+      if(.not. geom_freeze(rtdb, geom, 'tddft', nfc(1))) then
+        call errquit('tddft_init: failed to get number of cores', 0)
       endif
+
       if (ipol.eq.2) nfc(2) = nfc(1)
       if (.not.rtdb_get(rtdb,'tddft:frozen virtual',
      1  mt_int,1,nfv(1))) nfv(1) = 0
