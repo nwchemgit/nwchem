@@ -26,12 +26,11 @@ clean:
 	(cd ./src/f77; $(MAKE) clean)
 	(cd ./comm; $(MAKE) clean)
 	(cd ./ctof; $(MAKE) clean)
-	rm -f peigs_stamp.$(TARGET) include_stamp
+#	rm -f peigs_stamp.$(TARGET) include_stamp
 
 realclean: clean
 	rm -f $(LIBDIR)/$(LIBRARY)
 	rm -f peigs_stamp.$(TARGET) include_stamp
-
 
 sngl_to_dbl dbl_to_sngl:
 	@echo No conversion necessary
@@ -43,16 +42,15 @@ depend:
 source:
 	@echo Nothing to be done for $@
 
-lib:	
+lib:
 	(cd ./src/c; $(MAKE))
 	(cd ./src/f77; $(MAKE))
 	(cd ./comm; $(MAKE))
 	(cd ./ctof; $(MAKE))
 	-rm -f libpeigs.a
-	$(peigs_AR) libpeigs.a comm/*.o ctof/*.o src/c/*.o src/f77/*.o
-	$(peigs_RANLIB) libpeigs.a
-	mv libpeigs.a $(LIBDIR)
-#	($(MAKE) clean)
+	$(peigs_AR) $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a comm/*.o ctof/*.o src/c/*.o src/f77/*.o
+	$(peigs_RANLIB) $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a
+	($(MAKE) clean)
 
 examples:
 	( cd example; $(MAKE) all )
