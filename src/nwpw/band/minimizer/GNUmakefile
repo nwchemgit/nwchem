@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2004-11-29 16:05:17 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2004-12-29 23:26:40 edo Exp $
 #
  OBJ_OPTIMIZE = \
 				band_minimizer.o \
@@ -19,7 +19,7 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = band_minimizer.F c_cgsd_energy.F c_cgsd_energy_gradient.F
+    USES_BLAS = band_minimizer.F c_cgsd_energy.F c_cgsd_energy_gradient.F c_bybminimize.F
                 
 
   LIB_DEFINES =
