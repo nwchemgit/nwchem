@@ -1,6 +1,6 @@
 
 c
-c  $Id: moints_semi.F,v 1.46 1997-08-13 19:22:42 rg240 Exp $
+c  $Id: moints_semi.F,v 1.47 1997-08-14 18:06:45 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -164,7 +164,7 @@ c
        endif
 c
        if (oprint_mem) 
-     $      write(6,900) lmemreq, nint(gmem/numnodes), mxrlen, blen
+     $      write(6,900) lmemreq, nint(gmem/numnodes), mxrlen
 900   format(/,'Semi-direct integral transformation',
      $     /,' Local Memory required:   ',i10,' words '
      $     /,' Global Memory remaining: ',i10,' words per node',
