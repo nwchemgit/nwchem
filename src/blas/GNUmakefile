@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.29 2001-12-31 20:57:58 windus Exp $
+#$Id: GNUmakefile,v 1.30 2002-01-04 00:13:26 d3g270 Exp $
 
 include ../config/makefile.h
 
@@ -47,6 +47,7 @@ OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
                 dswap.o      dsymm.o      dsymv.o      dsyr2.o        \
                 dsyr2k.o     dsyrk.o      dtrmm.o      dtrmv.o        \
                 dtrsm.o      dtrsv.o      dznrm2.o     idamax.o       \
+		izamax.o \
                 lsame.o      zaxpy.o      dcabs1.o     zcopy.o        \
                 zdotc.o      zdscal.o     zgemm.o      zgemv.o        \
                 zgerc.o      zhemm.o      zhemv.o      zher2.o        \
