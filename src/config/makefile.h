@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.157 1996-06-27 22:34:59 d3g681 Exp $
+# $Id: makefile.h,v 1.158 1996-07-15 18:07:10 gutowski Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -81,7 +81,7 @@ endif
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
-	plane_wave selci dplot mp2_grad nwaprep oimp2 property 
+	plane_wave selci dplot mp2_grad nwaprep oimp2 property gapss
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -90,8 +90,8 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints  \
                     -lstepper -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lddscf -lguess \
-                    -lvib -lutil -lrimp2 -lnwints -lideaz -lnwargos -ldplot \
-                    -lnwaprep -loimp2 -lproperty
+                    -lvib -lutil -lrimp2 -lnwints -lideaz -lnwargos \
+                    -ldplot -lnwaprep -loimp2 -lproperty -lgapss
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -564,6 +564,25 @@ endif
               -brename:.dsyr2_,.dsyr2 \
               -brename:.dtrsv_,.dtrsv \
               -brename:.dsymv_,.dsymv \
+              -brename:.dznrm2_,.dznrm2 \
+              -brename:.zaxpy_,.zaxpy \
+              -brename:.zcopy_,.zcopy \
+              -brename:.zdotc_,.zdotc \
+              -brename:.zdscal_,.zdscal \
+              -brename:.zgemm_,.zgemm \
+              -brename:.zgemv_,.zgemv \
+              -brename:.zgerc_,.zgerc \
+              -brename:.zhemm_,.zhemm \
+              -brename:.zhemv_,.zhemv \
+              -brename:.zher2_,.zher2 \
+              -brename:.zher2k_,.zher2k \
+              -brename:.zherk_,.zherk \
+              -brename:.zscal_,.zscal \
+              -brename:.zswap_,.zswap \
+              -brename:.ztrmm_,.ztrmm \
+              -brename:.ztrmv_,.ztrmv \
+              -brename:.ztrsm_,.ztrsm \
+              -brename:.ztrsv_,.ztrsv \
               -brename:.times_,.times
 #comment out from dtrmm_ inclusive
 ifdef USE_ESSL
