@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem Binary Builds
 ====================================================
-$Id: INSTALL.binbuilds,v 1.5 2000-12-21 20:05:47 windus Exp $
+$Id: INSTALL.binbuilds,v 1.6 2001-12-17 21:22:16 bert Exp $
 ----------------------------------------------------
 
 INSTALLING NWCHEM FOR GENERAL SITE USE: 
@@ -30,7 +30,7 @@ B) The ./bin directory contains the binaries used for the given build
 C) The ./classes directory has the Java class files for the NWChem
    support tool.  This is to be used by the designated point of
    contact at each site.  See the description below.
-D) The ./usr.local.lib.nwchem directory has the basis set library 
+D) The ./usr.local.lib.nwchem directory has the basis set libraries
    and the default amber and charmm parameter files used for 
    molecular dynamics simulations. 
 E) The ./etc directory has an executable c-shell script to generate a
