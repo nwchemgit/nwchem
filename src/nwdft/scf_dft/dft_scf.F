@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.202 2001-12-06 02:19:49 edo Exp $
+c     $Id: dft_scf.F,v 1.203 2001-12-07 17:36:48 edo Exp $
 c     
       implicit none
 c
@@ -165,8 +165,8 @@ c
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
-      s_rabuck(nn,ss,nss)=ss*exp((1d0/(nss-1d0))*
-     *     log(1d-10/ss)*(nn-1d0))
+      s_rabuck(nn,ss,nss,delta)=min(ss*exp((1d0/(nss-1d0))*
+     *     log(1d-10/ss)*(nn-1d0)),delta*5d-4)
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
@@ -208,6 +208,7 @@ c
 c     check if smearing is on
 c
       ssmear=0.d0
+      delta=1d20
       n_rabuck=0
       rabuck_act=.false.
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
@@ -722,7 +723,7 @@ c
          if (oprint_time)
      &        call dft_tstamp(' calling diis driver ')
          if(n_rabuck.ne.0) then
-            ssmear=s_rabuck(iter,smear_in,n_rabuck)
+            ssmear=s_rabuck(iter,smear_in,n_rabuck,delta)
             if(iter.eq.n_rabuck.
      .           and.diising) then
 c     reset diis

@@ -3,7 +3,7 @@
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon)
-C$Id: dft_densm.F,v 1.28 2001-11-02 01:36:27 edo Exp $
+C$Id: dft_densm.F,v 1.29 2001-12-07 17:36:44 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -269,6 +269,7 @@ C         endif
       double precision evals(nbf*ipol)
       integer ntotel 
       double precision ssmear
+      logical spinset
 #include "msgids.fh"
 c
       integer i
@@ -280,8 +281,8 @@ c
       double precision one,x,xb,rhfuhf,
      , fzeroa ,fzerob ,na,nb
       parameter(one=1.d0)
-      rhfuhf=2d0
-      if(ipol.eq.2) rhfuhf=1d0
+      spinset=.true.
+      rhfuhf=2d0/ipol
       fzeroa=0d0
       fzerob=0d0
       do i=1,nbf
