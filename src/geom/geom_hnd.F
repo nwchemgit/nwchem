@@ -1324,7 +1324,8 @@ C
       NINDEP=0
       NREDUN=0
       DO I=1,NZVAR
-         IF( ABS(E(I)).LE.TM08) THEN
+*     IF( ABS(E(I)).LE.TM08) THEN
+         IF( ABS(E(I)).LE.1d-3) THEN ! RJH. 1d-8 failed 1-torsion for acetone
             E(I)  =ZERO
             NREDUN=NREDUN+1
          ELSE
@@ -3998,6 +3999,7 @@ C
       ENDIF
 c     
       max_tor_per_bond = 1      ! Minimize torsions
+***      max_tor_per_bond = 100
 C     
 C     ----- TORSIONS -----
 C     
@@ -4046,7 +4048,7 @@ C
                            IF(LAT.NE.JAT) THEN
                               if ( iat.ne.jat .and. ! RJH from (h2o)5 test
      $                             iat.ne.kat .and. 
-     $                             iat.gt.lat .and. ! Was .ne.
+     $                             iat.ne.lat .and. ! Was .gt. before maxtor
      $                             jat.ne.kat .and.
      $                             jat.ne.lat .and.
      $                             kat.ne.lat) then
@@ -6186,7 +6188,6 @@ c
      $        status='old', err=100)
          if (odebug) write(6,*) ' READ  ', name, n
          read(32,err=101) m
-         write(6,*) ' m = ', m
          if (n .ne. m) goto 102
          call sread(32, a, n)
          close(32)
