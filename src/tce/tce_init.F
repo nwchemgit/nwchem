@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.22 2003-01-08 22:59:13 sohirata Exp $
+c $Id: tce_init.F,v 1.23 2003-01-29 17:36:25 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -44,6 +44,7 @@ c
       external movecs_read,movecs_read_header
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+      character*10 module
       character*8 multchar(8)
       data multchar/'singlet ','doublet ','triplet ','quartet ',
      1              'quintet ','sextet  ','septet  ','octet   '/
@@ -180,11 +181,11 @@ c
       if (.not.rtdb_get(rtdb,'tce:frozen virtual',
      1  mt_int,1,nfv(1))) nfv(1) = 0
       if (ipol.eq.2) nfv(2) = nfv(1)
-      if (.not.rtdb_cget(rtdb,'tce:model',1,model)) then
-        model='ccsd'
-        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
-     1  call errquit('tce_init: failed to write model',0)
+      if (.not.rtdb_cget(rtdb,'tce:module',1,module)) then
+        module='tce'
       endif
+      if (.not.rtdb_cget(rtdb,'tce:model',1,model))
+     1  call errquit('tce_init: no theory specified',0)
       if (.not.rtdb_get(rtdb,'tce:thresh',mt_dbl,1,thresh)) then
         thresh = 1.0d-6
         if (.not.rtdb_put(rtdb,'tce:thresh',mt_dbl,1,thresh))
@@ -241,30 +242,82 @@ c
       endif
       if (model.eq.'ccd') then
         ctype='Coupled-cluster doubles'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccd'))
+     3    call errquit('tce_init: ucc/uccd module overridden',0)
       else if (model.eq.'lccd') then
         ctype='Linearized coupled-cluster doubles'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'ulccd'))
+     3    call errquit('tce_init: ucc/ulccd module overridden',0)
       else if (model.eq.'ccsd') then
         ctype='Coupled-cluster singles & doubles'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccsd'))
+     3    call errquit('tce_init: ucc/uccsd module overridden',0)
       else if (model.eq.'lccsd') then
         ctype='Linearized coupled-cluster singles & doubles'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'ulccsd'))
+     3    call errquit('tce_init: ucc/ulccsd module overridden',0)
       else if (model.eq.'ccsdt') then
         ctype='Coupled-cluster singles, doubles, & triples'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccsdt'))
+     3    call errquit('tce_init: ucc/uccsdt module overridden',0)
       else if (model.eq.'ccsdtq') then
         ctype='Coupled-cluster singles, doubles, triples, & quadruples'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccsdtq'))
+     3    call errquit('tce_init: ucc/uccsdtq module overridden',0)
       else if (model.eq.'qcisd') then
         ctype='Quadratic configuration interaction singles & doubles'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uqcisd'))
+     3    call errquit('tce_init: ucc/uqcisd module overridden',0)
       else if (model.eq.'cisd') then
         ctype='Configuration interaction singles & doubles'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'uci').and.
+     2      (module.ne.'ucisd'))
+     3    call errquit('tce_init: uci/ucisd module overridden',0)
       else if (model.eq.'cisdt') then
         ctype='Configuration interaction singles, doubles, & triples'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'uci').and.
+     2      (module.ne.'ucisdt'))
+     3    call errquit('tce_init: uci/ucisdt module overridden',0)
       else if (model.eq.'cisdtq') then
         ctype='Configuration interaction singles through quadruples'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'uci').and.
+     2      (module.ne.'ucisdtq'))
+     3    call errquit('tce_init: uci/ucisdtq module overridden',0)
       else if (model.eq.'mbpt2') then
         ctype='Second-order tensor many-body perturbation theory'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'umbpt').and.
+     2      (module.ne.'umbpt2'))
+     3    call errquit('tce_init: umbpt/umbpt2 module overridden',0)
       else if (model.eq.'mbpt3') then
         ctype='Third-order tensor many-body perturbation theory'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'umbpt').and.
+     2      (module.ne.'umbpt3'))
+     3    call errquit('tce_init: umbpt/umbpt3 module overridden',0)
       else if (model.eq.'mbpt4') then
         ctype='Fourth-order tensor many-body perturbation theory'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'umbpt').and.
+     2      (module.ne.'umbpt4'))
+     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0)
       else
         call errquit('tce_init: unknown theory',0)
       endif

@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.11 2002-12-24 06:13:31 sohirata Exp $
+c $Id: tce_input.F,v 1.12 2003-01-29 17:36:25 sohirata Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -19,6 +19,25 @@ c        [PRINT (none||low||medium||high||debug)]
 c        [IO (fortran||c||ga||sf||replicated) default ga]
 c        [DIIS <integer diis 5>]
 c     END
+c
+c     TASK TCE ENERGY
+c
+c     ... or ...
+c
+c     UCCSDT or UCC
+c        [(DFT||HF||SCF) default HF]
+c        [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
+c                 [virtual <integer nfzv default 0>]]
+c        [THRESH <double thresh default 1e-6>]
+c        [MAXITER <integer maxiter default 100>]
+c        [PRINT (none||low||medium||high||debug)]
+c        [IO (fortran||c||ga||sf||replicated) default ga]
+c        [DIIS <integer diis 5>]
+c     END
+c
+c     TASK UCCSDT ENERGY
+c
+c     ... etc.
 c     
       implicit none
 #include "inp.fh"
@@ -29,11 +48,19 @@ c
       character*20 test
       integer maxiter
       character*10 model
+      character*10 module
       double precision thresh
       character*10 ioalgchar
       integer ioalg
       integer reference
       integer diis
+c
+c -------------------------------------
+c What input block are we dealing with?
+c -------------------------------------
+c
+      if (.not.rtdb_cget(rtdb,'tce:module',1,module))
+     1  call errquit('tce_input: failed reading from rtdb',0)
 c
 c ------------------
 c Set default values
@@ -51,9 +78,9 @@ c     no action is taken
 c
 c     MODEL (the name of CC model requested)
 c
-      model='ccsd' 
-      if (.not.rtdb_cput(rtdb,'tce:model',1,model))
-     1  call errquit('tce_input: failed writing to rtdb',0)
+c     model='ccsd' 
+c     if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+c    1  call errquit('tce_input: failed writing to rtdb',0)
 c
 c     THRESH (convergence threshold for Davidson iteration)
 c
@@ -115,69 +142,133 @@ c
 c     MODEL (the name of theory requested)
 c
       else if (inp_compare(.false.,test,'ccd')) then
+        if (module.eq.'tce') then
         model='ccd'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'lccd')) then
+        if (module.eq.'tce') then
         model='lccd'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'ccsd')) then
+        if (module.eq.'tce') then
         model='ccsd'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'lccsd')) then
+        if (module.eq.'tce') then
         model='lccsd'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'ccsdt')) then
+        if (module.eq.'tce') then
         model='ccsdt'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'ccsdtq')) then
+        if (module.eq.'tce') then
         model='ccsdtq'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'qcisd')) then
+        if (module.eq.'tce') then
         model='qcisd'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'cisd')) then
+        if (module.eq.'tce') then
         model='cisd'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'cisdt')) then
+        if (module.eq.'tce') then
         model='cisdt'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'cisdtq')) then
+        if (module.eq.'tce') then
         model='cisdtq'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'mbpt2')) then
+        if (module.eq.'tce') then
         model='mbpt2'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'mbpt3')) then
+        if (module.eq.'tce') then
         model='mbpt3'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'mbpt4')) then
+        if (module.eq.'tce') then
         model='mbpt4'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'mp2')) then
+        if (module.eq.'tce') then
         model='mbpt2'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'mp3')) then
+        if (module.eq.'tce') then
         model='mbpt3'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
       else if (inp_compare(.false.,test,'mp4')) then
+        if (module.eq.'tce') then
         model='mbpt4'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
+        else
+        call errquit('tce_input: multiple theory inputs',0)
+        endif
 c
 c     THRESH (convergence threshold for Davidson iteration)
 c
