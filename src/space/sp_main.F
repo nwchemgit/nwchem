@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.22 1999-09-20 15:04:15 d3j191 Exp $
+c $Id: sp_main.F,v 1.23 1999-09-21 22:02:00 d3j191 Exp $
 c
       implicit none
 c
@@ -1498,7 +1498,6 @@ c
       integer ibbl,lhandl
       real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
       real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
-      real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
       logical lpair
       integer iwz(mwm),isz(msa)
 c
