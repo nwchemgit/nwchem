@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.5 1997-09-05 22:25:19 d3e129 Exp $
+C $Id: ecp_integral.F,v 1.6 1997-09-30 21:05:41 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_integral (
@@ -17,15 +17,17 @@ C $Id: ecp_integral.F,v 1.5 1997-09-05 22:25:19 d3e129 Exp $
 *   xyz_A (inp) - coordinates of centre A                              *
 *   zeta_A (inp) - exponents of primitive gaussians on centre A        *
 *   coef_A (inp) - contraction coefficients on centre A                *
-*   l_A (inp) - angular momentum of functions on centre A              *
 *   n_prim_A (inp) - number of primitive gaussians on centre A         *
 *   n_cont_A (inp) - number of contracted functions on centre A        *
+*   l_A (inp) - angular momentum of functions on centre A              *
+*   i_c_A (inp) index of centre A in centre list                       *
 *   xyz_B (inp) - coordinates of centre B                              *
 *   zeta_B (inp) - exponents of primitive gaussians on centre B        *
 *   coef_B (inp) - contraction coefficients on centre B                *
-*   l_B (inp) - angular momentum of functions on centre B              *
 *   n_prim_B (inp) - number of primitive gaussians on centre B         *
 *   n_cont_B (inp) - number of contracted functions on centre B        *
+*   l_B (inp) - angular momentum of functions on centre B              *
+*   i_c_B (inp) index of centre B in centre list                       *
 *   xyz_C (inp) - coordinates of ECP centres C                         *
 *   zeta_C (inp) - array of exponents of primitive gaussians on all    *
 *                  centres C. These are stored in an array of single   *
