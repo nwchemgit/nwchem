@@ -1,5 +1,5 @@
 *
-* $Id: paw_mult.F,v 1.1 2003-02-16 23:41:47 bylaska Exp $
+* $Id: paw_mult.F,v 1.2 2003-02-17 01:06:23 bylaska Exp $
 *
 
 
@@ -83,7 +83,7 @@
       ok = ok.and.
      >     MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
       ok = ok.and.
-     >     MA_push_get(mt_dbl,npack0,'Ylm',Ylm(2),Ylm(1))
+     >     MA_push_get(mt_dcpl,npack0,'Ylm',Ylm(2),Ylm(1))
       if (.not.ok) 
      > call errquit("paw_mult_init: out of stack memory",2)
 
