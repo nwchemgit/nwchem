@@ -16,7 +16,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.55 1995-10-17 08:52:24 d3g681 Exp $
+c     $Id: nwchem.F,v 1.56 1995-10-25 02:59:23 rg240 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -224,7 +224,7 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 19)
+      parameter (ntasks = 20)
       character*10 task_list(ntasks)
       data task_list /'rjhtest',         ! 1
      $                'raktest',         ! 2
@@ -244,7 +244,8 @@ c
      $                'mjdtest',         ! 16
      $                'ccsd',            ! 17
      $                'freqscf',         ! 18
-     $                'freqdft'          ! 19
+     $                'freqdft',         ! 19
+     $                'mcscf'            ! 20
      $               /
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
@@ -256,7 +257,7 @@ c
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 110, 120, 130,
-     &         140, 150, 160, 170, 180, 190, 200)
+     &         140, 150, 160, 170, 180, 190, 200, 210)
      $   ind
 c
          write(6,*) ' Unimplemented task ', 
@@ -299,7 +300,7 @@ c
  70      call scf_optimize(rtdb)
          goto 1000
 c
-c     atwtest (4-index & MCSCF crap)
+c     atwtest (4-index)
 c
  80      call atwtest(rtdb)
          goto 1000
@@ -368,6 +369,11 @@ c
 c  DFT frequencies by finite difference (in stepper)
 c
   200    call dft_freq(rtdb)
+         goto 1000
+c
+c  MCSCF 
+c
+  210    call mcscf(rtdb)
          goto 1000
 c
       else
