@@ -1,20 +1,10 @@
       Subroutine PStat_On( Handle )
-C$Id: pstat_on.F,v 1.8 1995-05-22 22:31:28 vg038 Exp $
+C$Id: pstat_on.F,v 1.9 1995-10-10 06:14:47 d3g681 Exp $
       Implicit NONE
       Integer Handle
 C
 #include "pstatP.fh"
-#include "tcgmsg.fh"
-#if defined(SUN) || defined(SGI) || defined(SGITFP)
-#define ETIME
-      real*4 etime, tarray(2)
-      external etime
-#endif
-#if defined(IBM_USELESS)
-c     This timer has too large a granularity to be useful
-      double precision ibm_cputime
-      external ibm_cputime
-#endif
+#include "util.fh"
 C
       Double precision Zero
       Parameter (Zero = 0.0d0)
@@ -33,14 +23,8 @@ c
       EndIf
 C
       If ( PStat_Functions( Handle, PStat_QStat) ) then
-#if defined(ETIME)
-         PStat_Start_Times( Handle, 1 ) = dble(etime(tarray))
-#elif defined(IBM_USELESS)
-         PStat_Start_Times( Handle, 1 ) = ibm_cputime()
-#else
-         PStat_Start_Times( Handle, 1 ) = Zero
-#endif
-         PStat_Start_Times( Handle, 2 ) = TCGTime()
+         PStat_Start_Times( Handle, 1 ) = util_cpusec()
+         PStat_Start_Times( Handle, 2 ) = util_wallsec()
       EndIf
 C
       Return

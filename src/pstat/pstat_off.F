@@ -1,20 +1,10 @@
       Subroutine PStat_Off( Handle )
-C$Id: pstat_off.F,v 1.8 1995-05-22 22:31:27 vg038 Exp $
+C$Id: pstat_off.F,v 1.9 1995-10-10 06:14:47 d3g681 Exp $
       Implicit NONE
       Integer Handle
 C
 #include "pstatP.fh"
-#include "tcgmsg.fh"
-#if defined(SUN) || defined(SGI) || defined(SGITFP)
-#define ETIME
-      real*4 etime, tarray(2)
-      external etime
-#endif
-#if defined(IBM_USELESS)
-c     This timer has too large a granularity to be useful
-      double precision ibm_cputime
-      external ibm_cputime
-#endif
+#include "util.fh"
 C
       Double precision Zero
       Parameter (Zero = 0.0d0)
@@ -27,6 +17,8 @@ CHF  $     ('pstat_off: Timer not assigned', Handle)
       if (.not. status) return
 C
       If ( PStat_Unmatched_Starts( Handle ) .ne. 1  ) then
+         write(6,*) ' pstat_off: timer is not on ', pstat_name(handle)
+         call util_flush(6)
          Call ErrQuit('pstat_off: Timer is not on', Handle)
       Else
          PStat_Unmatched_Starts( Handle ) = 0
@@ -34,18 +26,10 @@ C
       EndIf
 C
       If ( PStat_Functions( Handle, PStat_QStat) ) then
-#if defined(ETIME)
          PStat_Times( Handle, 1 ) = PStat_Times( Handle, 1 )
-     $      + dble(etime(tarray)) - PStat_Start_Times( Handle, 1)
-#elif defined(IBM_USELESS)
-         PStat_Times( Handle, 1 ) = PStat_Times( Handle, 1 )
-     $      + ibm_cputime() - PStat_Start_Times( Handle, 1)
-#else
-         PStat_Times( Handle, 1 ) = PStat_Times( Handle, 1 )
-     $      + Zero - PStat_Start_Times( Handle, 1)
-#endif
+     $        + util_cpusec() - PStat_Start_Times( Handle, 1)
          PStat_Times( Handle, 2 ) = PStat_Times( Handle, 2 )
-     $      + TCGTime() - PStat_Start_Times( Handle, 2)
+     $        + util_wallsec() - PStat_Start_Times( Handle, 2)
       EndIf
 C
       Return
