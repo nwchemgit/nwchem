@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.36 2003-12-03 23:36:11 bylaska Exp $
+* $Id: cgsdv5.F,v 1.37 2003-12-08 21:56:50 bylaska Exp $
 *
 
 ***********************************************************************
@@ -21,6 +21,7 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "inp.fh"
 
 #include "nwpw_timing.fh"
       
@@ -116,8 +117,8 @@
       external  psi_filefind
       logical   pspw_charge_found,ion_q_FixIon
       external  pspw_charge_found,ion_q_FixIon
-      integer  control_minimizer,LEN_TRIM
-      external control_minimizer,LEN_TRIM
+      integer  control_minimizer
+      external control_minimizer
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -277,7 +278,7 @@ c     value = psi_initialize()
            write(6,1150) ia,psp_atom(ia),
      >                    psp_zv(ia),psp_lmax(ia)
            comment = psp_comment(ia)
-           i = LEN_TRIM(comment)
+           i = inp_strlen(comment)
            write(6,1157) comment(1:i)
            write(6,1158) psp_psp_type(ia)
            write(6,1152) psp_lmax(ia)
