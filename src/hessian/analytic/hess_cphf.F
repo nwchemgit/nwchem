@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.14 2000-08-14 23:14:40 windus Exp $
+C $Id: hess_cphf.F,v 1.15 2000-08-23 00:50:31 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -23,7 +23,7 @@ c
       integer g_vecs(2), g_modx
       integer g_wax(nw_max_atom*3)
       integer g_aa(nw_max_atom*3)
-      integer g_tmp, g_sol
+      integer g_tmp, g_tmp2, g_sol
       character*256 cphf_rhs, cphf_sol
       character*255 movecs
       logical hf_job, dbug, out
@@ -49,8 +49,6 @@ c
       endif
 
 c     ----- get nocc -----
-c     The code that depends on nocc will have to be changed to use nalpha and
-c     nbeta to handle UHF case (nalpha = nclosed in RHF case)
 c 
 
       if (ndens.eq.1) then  ! RHF case
@@ -63,7 +61,7 @@ c
 c     ----- define parameters -----
  
       nc   = n3xyz
-      nxyz = nc              ! substitue nc or nxyz for one or the other (later)
+      nxyz = nc          ! substitue nc or nxyz for one or the other (later)
       num  = nbf
       norb = num
       nc3  = nc * nc
@@ -104,7 +102,7 @@ c
       if (.not. movecs_read (movecs,1,dbl_mb(k_occ),dbl_mb(k_evals), 
      $     g_vecs(1)))
      $     call errquit('hess_cphf: could not read mo vectors', 110)
- 
+
       if (scftype .eq. 'UHF') then
          g_vecs(2) = ga_create_atom_blocked(geom, basis, 
      $       'uhf mo vectors')
@@ -222,7 +220,11 @@ c
      $                         g_rhs(ind),   1, num,  1, num )
 
          call ga_symmetrize(g_rhs(ind))
+         write(6,*) 'Ta after transform'
+         call ga_print(g_rhs(ind))
          call ga_dscal(g_rhs(ind),-pt5)
+         write(6,*) 'Ta after scaling'
+         call ga_print(g_rhs(ind))
 c
 c get contribution to wax, need to put into ga language 
 c try to do this a row at a time as a ga_add_patch
@@ -230,7 +232,7 @@ c
          do i = 1, nocc(ndns)
            write(6,*) 'index ',(ndns-1)*nbf+i
            call ga_add_patch(one,g_wax(ind),i,i,1,nvirt(ndns),
-     $       eight*dbl_mb(k_evals+(ndns-1)*nbf+i),g_rhs(ind),i,i,
+     $       eight*dbl_mb(k_evals+(ndns-1)*nbf+i-1),g_rhs(ind),i,i,
      $       nocc(ndns)+1, num,g_wax(ind),i,i,1,nvirt(ndns))
          enddo
          if (out) then
@@ -255,6 +257,12 @@ c
      &    log_mb(k_act),ncent,nocc(ndns),hf_job)
       enddo
 c
+c Print intermediate result
+c
+      write(6,*) 'Hessian after Ta*Tb contribution'
+      call flush(6)
+      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+c
 c  Get rid of some memory
 c
       if (.not.ma_pop_stack(l_evals)) call errquit
@@ -265,8 +273,10 @@ c adds to g_aa and g_wax.  Ta needs to be transformed back into the AO
 c basis, combined with the integrals, and then transformed back into the
 c MO basis.
 c
+      g_tmp =ga_create_atom_blocked ( geom, basis, 'temp' )
       do ndns = 1, ndens
       do ind = 1, nc
+        call ga_copy(g_rhs(ind),g_tmp)  ! copy Ta to temp
         call ga_matmul_patch ('n','n', 1.D0, 0.D0,
      $                g_vecs(1),    1, num,         1, nocc(ndns),
      $                g_rhs(ind),   1, nocc(ndns),  1, nocc(ndns),
@@ -293,6 +303,7 @@ c
         if (out) then
           write(6,*) 'Before the fock_2e call for ind ',ind
           write(6,*) 'nfock, jfact, kfact ',nfock, jfact, kfact
+          write(6,*) 'density like matrix before fock_2e'
           call flush(6)
           call ga_print(g_modx)
         endif
@@ -305,6 +316,9 @@ c
         call int_terminate()
         call schwarz_tidy()
 
+       write(6,*) 'fock matrix after fock_2e'
+       call flush(6)
+       call ga_print(g_rhs(ind))
         call ga_zero(g_modx) ! prepare for transformation
 
         call ga_matmul_patch ('t','n', 1.D0, 0.D0,
@@ -332,7 +346,28 @@ c
         call ga_add_patch(one,g_aa(ind), 1,nocc(ndns),1,nocc(ndns),
      $                    one,g_rhs(ind),1,nocc(ndns),1,nocc(ndns),
      $                        g_aa(ind), 1,nocc(ndns),1,nocc(ndns))
+        call ga_copy(g_tmp,g_rhs(ind))  ! copy temp to Ta
       enddo
+      enddo
+      if (.not.ga_destroy(g_tmp))
+     $  call errquit('hess_cphf: cannot destroy g_tmp',555)
+c
+c Print out intermediate results
+c
+      write(6,*) 'WAX after fock contribution'
+      call flush(6)
+      do ind = 1, nc
+        call ga_print(g_wax(ind))
+      enddo
+      write(6,*) 'AA after fock contribution'
+      call flush(6)
+      do ind = 1, nc
+        call ga_print(g_aa(ind))
+      enddo
+      write(6,*) 'g_rhs after fock contribution'
+      call flush(6)
+      do ind = 1, nc
+        call ga_print(g_rhs(ind))
       enddo
 c
 c Do wxy = wxy + sum(i)sum(j){Ta([i-1]*nocc+j,x)*AA([i-1]*nocc+j,y) +
@@ -346,6 +381,7 @@ c
       do jnd = 1, nc
         do ind = 1, nc
           dbl_mb(k_exy+ij) = 
+     $      dbl_mb(k_exy+ij) +
      $      ga_ddot_patch(g_rhs(ind),'N',1,nocc(ndns),1,nocc(ndns),
      $                    g_aa(jnd), 'N',1,nocc(ndns),1,nocc(ndns)) +
      $      ga_ddot_patch(g_rhs(jnd),'N',1,nocc(ndns),1,nocc(ndns),
@@ -356,6 +392,12 @@ c
       enddo
       write(6,*) 'k_exy after Ta*AA sum ',k_exy
       call flush(6)
+c
+c Print intermediate result
+c
+      write(6,*) 'Hessian after Ta*AA contribution'
+      call flush(6)
+      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
 c
 c get rid of some extra memory
 c
@@ -385,6 +427,9 @@ c
         if (.not.ga_create(MT_DBL,nvirt(ndns)*nocc(ndns),1,'cphf_tmp',
      $    0,0,g_tmp))
      $    call errquit('hess_cphf: could not create g_tmp',555)
+        if(.not.ga_create(MT_DBL,nvirt(ndns),nocc(ndns),'g_tmp2',
+     $     0,0,g_tmp2))
+     $     call errquit('hess_cphf:could not alloc tmp2 array',555) 
         if(.not.ga_create(MT_DBL,nocc(ndns),nvirt(ndns),'g_sol',
      $     0,0,g_sol))
      $     call errquit('hess_cphf:could not alloc sol array',555) 
@@ -394,6 +439,9 @@ c
         call ga_copy_patch('T',g_wax(ind),1,nocc(ndns),1,nvirt(ndns),
      $    g_tmp,1,nvirt(ndns)*nocc(ndns),1,1)   ! put into format for current cphf
 
+        write(6,*) 'g_wax_tr ',ind
+        call flush(6)
+        call ga_print(g_tmp)
         if(.not.file_write_ga(cphf_rhs,g_tmp)) call errquit
      $    ('hess_cphf:could not write cphf_rhs',ind)
 c
@@ -413,15 +461,24 @@ c
      $    ('hess_cphf:could not read cphf_rhs',ind)
         write(6,*) 'before the sol copy_patch ',ind
         call flush(6)
-        call ga_copy_patch('T',g_tmp,1,nvirt(ndns)*nocc(ndns),1,1,
-     $    g_sol,1,nocc(ndns),1,nvirt(ndns))
-      write(6,*) 'k_exy before hess_pxfy ',k_exy
+        call ga_print(g_tmp)
+        call ga_copy_patch('N',g_tmp,1,nvirt(ndns)*nocc(ndns),1,1,
+     $    g_tmp2,1,nvirt(ndns),1,nocc(ndns))
+      write(6,*) 'g_tmp2 ',ind
       call flush(6)
+      call ga_print(g_tmp2)
+        call ga_transpose(g_tmp2,g_sol)
+      write(6,*) 'k_exy before hess_pxfy ',k_exy
+      write(6,*) 'g_sol after CPHF for ind ',ind
+      call flush(6)
+      call ga_print(g_sol)
         call hess_pxfy(dbl_mb(k_exy),g_sol,g_wax,log_mb(k_act),ncent,
      $    ind, hf_job)
       enddo
         if (.not.ga_destroy(g_tmp)) call errquit
      $    ('cannot destroy g_tmp ',555)
+        if (.not.ga_destroy(g_tmp2)) call errquit
+     $    ('cannot destroy g_tmp2 ',555)
         if (.not.ga_destroy(g_sol)) call errquit
      $    ('cannot destroy g_sol ',555)
       enddo
@@ -429,6 +486,12 @@ c
 c Do final summation of the hessian to get result
 c
       call ga_dgop(msg_hess_exy,dbl_mb(k_exy),n3xyz2,'+') 
+c
+c Print intermediate result
+c
+      write(6,*) 'Hessian after CPHF contribution'
+      call flush(6)
+      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
 c
 c Get rid of some extra memory
 c
