@@ -30,7 +30,7 @@ c
       nat = ncenter(geom)
       call dscal(nat*3, 1.0d0/angstrom_to_au, coords(1,1,geom), 1)
       call ecce_print2('cartesian coordinates', mt_dbl,
-     $     coords, 3, 3, nat)
+     $     coords(1,1,geom), 3, 3, nat)
       call dscal(nat*3, angstrom_to_au, coords(1,1,geom), 1)
 c
       call ecce_print1('atomic charges', mt_dbl, charge(1,geom), nat)
