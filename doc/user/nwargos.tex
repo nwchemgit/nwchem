@@ -302,7 +302,14 @@ name of an available force field.
 The program \nwsgm\ only provides a template for a segment. It is
 often needed to make additional changes in this file. One important 
 restriction is that dihedral interactions may only involve atoms on 
-at most two segments.The format of a segment is
+at most two segments. The segment entries define three sets of
+parameters for each interaction. Free energy perturbations can be
+performed using set 1 for the generattion of the ensemble while using
+sets 2 and/or 3 as perturbations. Free energy multiconfiguration 
+thermodynamic integration and multistep thermodynamic perturbation
+calculations are performed by gradually changing the interactions in
+the system from parameter set 2 to parameter set 3.
+The format of a segment is
 \begin{center}
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
