@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.50 1998-07-27 04:08:34 d3e129 Exp $
+C$Id: opt_drv.F,v 1.51 1998-08-01 02:14:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -40,6 +40,7 @@ c
          call ecce_print_module_exit('driver', 'failed')
       endif
 c
+      call movecs_ecce_print_on() ! Restore MO printing
       if (util_print('brdcst', print_never)) call setdbg(0)
       call util_print_pop
 c
@@ -903,6 +904,10 @@ c
          call errquit('optimize: energy failed', 0)
       endif
 c
+c     Disable printing to ecce of movecs after first point
+c
+      call movecs_ecce_print_off()
+c
       return
  9999 format(1h1,' nserch',i3,//,'   point',I3)
  9998 format(' in opt_energy, e = ',f15.10)
@@ -949,6 +954,7 @@ c
       else
          call errquit('optimize: gradient failed', 0)
       endif
+      call movecs_ecce_print_off() ! Disable MO printing after first time
 c
       return
  9999 format(' in opt_gradient, eg = ')

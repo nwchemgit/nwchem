@@ -1,5 +1,5 @@
       integer function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.33 1998-04-21 06:57:32 mdupuis Exp $
+c     $Id: stpr_walk.F,v 1.34 1998-08-01 02:14:07 d3g681 Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -351,6 +351,12 @@ c
         endif
       endif
       value_stpr_walk = stpr_walk(rtdb)
+c
+c     Disable printing of movecs to ecce after the first step
+c     ... reenable at the end
+c
+      call movecs_ecce_print_off()
+c
       if (value_stpr_walk .eq. 0) then
         if (util_test_time_remaining(rtdb,grad_time)) then
           goto 00010
@@ -365,5 +371,7 @@ c
       else if (value_stpr_walk.eq.1) then
         stpr_walk_task = .true.
       endif
-*
+c
+      call movecs_ecce_print_on()
+c
       end
