@@ -13,7 +13,7 @@
 
       logical function cpmdv5(rtdb)
 *
-* $Id: cpmdv5.F,v 1.6 2001-11-26 21:34:22 bylaska Exp $
+* $Id: cpmdv5.F,v 1.7 2001-11-28 22:15:21 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -163,6 +163,10 @@
 
       real*8   control_Nose_Tr,Nose_Qr,control_Nose_Pr,Nose_Er0
       external control_Nose_Tr,Nose_Qr,control_Nose_Pr,Nose_Er0
+      logical      v_psi_filefind
+      external     v_psi_filefind
+
+
 
 
 *                            |************|
@@ -251,8 +255,15 @@
 
 
 
-*     *****  read psi2 and psi0 wavefunctions ****
+*     *****  read psi2 wavefunctions ****
       call psi_read(ispin,ne,dcpl_mb(psi2(1)))
+
+*     **** generate initial wavefunction velocities if it does not exist ****
+      if (.not.v_psi_filefind()) then
+        call v_psi_new(ispin,ne)
+      end if
+
+*     *****  read psi0 wavefunctions ****
       call v_psi_read(ispin,ne,dcpl_mb(psi1(1)))
       n1(1) = 1
       n2(1) = ne(1)

@@ -7,7 +7,7 @@
 
       subroutine psi_read(ispin,ne,psi2)
 *
-* $Id: psi_read.F,v 1.1 2001-08-30 00:33:15 edo Exp $
+* $Id: psi_read.F,v 1.2 2001-11-28 22:15:21 bylaska Exp $
 *
       implicit none 
       integer ispin,ne(2)
@@ -111,9 +111,7 @@ c     **** send header to all nodes ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
-         if (taskid.eq.MASTER) then
-            write(6,*) "Error reading psi"
-         end if
+        call errquit('Error reading wavefunctions', 0)
       end if
 
       if ( (unita(1,1).ne.control_unita(1,1)) .or.
@@ -125,10 +123,7 @@ c     **** send header to all nodes ****
      >     (unita(1,3).ne.control_unita(1,3)) .or.
      >     (unita(2,3).ne.control_unita(2,3)) .or.
      >     (unita(3,3).ne.control_unita(3,3)) ) then
-         if (taskid.eq.MASTER) then
-            write(6,*) "Error reading psi"
-         end if
-
+        call errquit('Error reading wavefunctions', 1)
       end if
 
 

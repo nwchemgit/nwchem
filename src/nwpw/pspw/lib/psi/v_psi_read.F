@@ -5,12 +5,12 @@
 *     *             			*
 *     ***********************************
 
-      subroutine v_psi_read(ispin,ne,psi2)
+      subroutine v_psi_read(ispin0,ne0,psi2)
 *
-* $Id: v_psi_read.F,v 1.1 2001-08-30 00:33:15 edo Exp $
+* $Id: v_psi_read.F,v 1.2 2001-11-28 22:15:21 bylaska Exp $
 *
       implicit none 
-      integer ispin,ne(2)
+      integer ispin0,ne0(2)
       double complex psi2(*)
 
 #include "mafdecls.fh"
@@ -25,6 +25,7 @@
 #endif
 
 *    *** local variables ***
+      integer ispin,ne(2)
       integer version,l
       integer nfft3d,npack1
       integer nfft(3)
@@ -122,11 +123,12 @@ c     **** send header to all nodes ****
      >     (unita(3,2).ne.control_unita(3,2)) .or.
      >     (unita(1,3).ne.control_unita(1,3)) .or.
      >     (unita(2,3).ne.control_unita(2,3)) .or.
-     >     (unita(3,3).ne.control_unita(3,3)) ) then
-         if (taskid.eq.MASTER) then
-            write(6,*) "Error reading v_psi"
-         end if
-
+     >     (unita(3,3).ne.control_unita(3,3)) .or.
+     >     (ispin     .ne.ispin0)             .or.
+     >     (ne(1)     .ne.ne0(1))             .or.
+     >     (ne(2)     .ne.ne0(2))  ) then
+         call errquit(
+     >      'Error reading wavefunction velocities', 0)
       end if
 
 

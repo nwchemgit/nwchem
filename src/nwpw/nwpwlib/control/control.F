@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.5 2001-11-28 21:09:17 bylaska Exp $
+* $Id: control.F,v 1.6 2001-11-28 22:15:20 bylaska Exp $
 *
 
 *     ***********************************
@@ -84,6 +84,10 @@
      >        rtdb_get(rtdb,'cpsd:rcut',mt_dbl,1,rcut)
       value = value.and.
      >        rtdb_get(rtdb,'cpsd:ncut',mt_int,1,ncut)
+      value = value.and.
+     >        rtdb_get(rtdb,'cpsd:mult',mt_int,1,multiplicity)
+      value = value.and.
+     >        rtdb_get(rtdb,'cpsd:ispin',mt_int,1,ispin)
 
       do i=1,npsp
         id = 'cpsd:psp'//CHAR(i)

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.8 2001-11-26 21:34:22 bylaska Exp $
+* $Id: cpsdv5.F,v 1.9 2001-11-28 22:15:21 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -145,6 +145,8 @@
       external     pspw_SIC,pspw_SIC_relaxed
       external     psp_semicore,control_Mulliken,pspw_qmmm_found
       external     psp_rcore,psp_ncore,psp_rlocal
+      logical      psi_filefind
+      external     psi_filefind
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -220,6 +222,22 @@
       call Pack_init()
       call Pack_npack(1,npack1)      
 
+ 
+*     **** read ions ****
+      value = ion_init(rtdb)
+      call center_geom(cx,cy,cz)
+      call center_mass(gx,gy,gz)
+
+
+*     **** allocate psp data structure and read in psedupotentials into it ****
+      call psp_init()
+      call psp_readall()
+
+*     **** generate initial wavefunction if it does not exist ****
+      if (.not.psi_filefind()) then
+        call psi_new()
+      end if
+
 *     ***** allocate psi2,and psi1 wavefunctions ****
       call psi_get_ne(ispin,ne)
       value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
@@ -256,9 +274,6 @@
          end if
       end if
 
-
-
-
 *     **** allocate other variables *****
       value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
       value = value.and.
@@ -277,16 +292,6 @@
      >                     'psir',psir(2),psir(1))
 
       if (.not. value) call errquit('out of heap memory',0)
-
-
-*     **** read ions ****
-      value = ion_init(rtdb)
-      call center_geom(cx,cy,cz)
-      call center_mass(gx,gy,gz)
-
-*     **** allocate psp data structure and read in psedupotentials into it ****
-      call psp_init()
-      call psp_readall()
 
 
 *     **** initialize G,mask,ke,and coulomb data structures ****

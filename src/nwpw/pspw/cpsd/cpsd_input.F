@@ -1,6 +1,6 @@
       subroutine cpsd_input(rtdb)
 c
-c $Id: cpsd_input.F,v 1.3 2001-11-26 21:51:24 bylaska Exp $
+c $Id: cpsd_input.F,v 1.4 2001-11-28 22:15:21 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -12,7 +12,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 17)
+      parameter (num_dirs = 20)
  
       character*30 dirs(num_dirs)
       character*255 test, id
@@ -33,6 +33,9 @@ c
      >            'exchange_correlation:',
      >            'fractional_coordinates',
      >            'mulliken',
+     >            'mult',
+     >            'dft',
+     >            'odft',
      >            'end'/
 
        character*30 cell_name
@@ -43,6 +46,9 @@ c
        double precision fake_mass,time_step,rcut
        integer loop(2),npsp,ncut
        double precision tolerances(3),ecut,wcut,fe
+       integer ispin,multiplicity
+
+
         
        
 
@@ -71,6 +77,9 @@ c     output_wavefunction_filename = ' '
       rcut = 0.0d0
       ncut = 0
       npsp = 0
+      ispin        = 1
+      multiplicity = 1
+
 
  10   if (.not. inp_read()) 
      >     call errquit(
@@ -85,9 +94,10 @@ c     output_wavefunction_filename = ' '
 
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
      >       1000,1100,1200,1300,1400,1500,1600,
+     >       1700,1800,1900,
      >      9999) ind
       call errquit(
-     >      'psp_formatter_input: unimplemented directive', ind)
+     >      'cpsd_input: unimplemented directive', ind)
 
 
 c     
@@ -230,6 +240,30 @@ c mullikent
 c
  1600 mulliken = .true.
       goto 10
+c
+c  multiplicity
+c
+ 1700 if (.not. inp_i(multiplicity))
+     >     call errquit(
+     >          'cgsd_input: failed to read mult', 0)
+      if (multiplicity.lt.1) then
+         multiplicity = 1
+         ispin        = 1
+      else if (multiplicity.gt.1) then
+         ispin        = 2
+      end if
+      goto 10
+c
+c  dft
+c
+ 1800 ispin = 1
+      goto 10
+c
+c  odft
+c
+ 1900 ispin = 2
+      goto 10
+
 
 
 *     ***** add wavefunction to rtdb ****
@@ -275,5 +309,7 @@ c
       value = rtdb_cput(rtdb,'cpsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
 
+      value = rtdb_put(rtdb,'cpsd:mult',mt_int,1,multiplicity)
+      value = rtdb_put(rtdb,'cpsd:ispin',mt_int,1,ispin)
       return
       end

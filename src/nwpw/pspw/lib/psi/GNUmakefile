@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2001-11-28 21:09:18 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2001-11-28 22:15:21 bylaska Exp $
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
 
@@ -15,7 +15,9 @@
 			v_psi_read.o \
             v_psi_write.o \
             psi_filefind.o \
-            psi_new.o 
+            psi_new.o \
+            v_psi_filefind.o \
+            v_psi_new.o 
 
 
 
