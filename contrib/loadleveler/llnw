@@ -44,7 +44,10 @@ set NPROC = 1
 set NTASK = 1
 set NNODE = 1
 set QUEUE = batch
-set ACCOUNT = " "
+set MDON = "n"
+set HOST = "SP"
+#set ACCOUNT = " "
+set ACCOUNT = $MP_ACCOUNT
 #if ($?ACCOUNT_NO) then
 #  set ACCOUNT = $ACCOUNT_NO
 #endif
@@ -124,9 +127,9 @@ if ($#argv == 0) then
   set TIME = "$<"
   if ("$TIME" == "") set TIME = "1:00:00"
 
-  echo -n "Account to charge: "
-  set TEST = "$<"
-  set ACCOUNT = "$TEST"
+  echo -n "Account to charge: ("$MP_ACCOUNT")"
+  set ACCOUNT = "$<"
+  if ("$ACCOUNT" == "") set ACCOUNT = $MP_ACCOUNT
   
   echo -n "Load Leveller queue ($QUEUE): "
   set TEST = "$<"
@@ -313,7 +316,7 @@ cat <<EOF1 > $LLJOB
 # @ error            =    $LLERR
 # @ wall_clock_limit =    $TIME
 # @ cpu_limit        =    $TIME
-# @ account          =    $ACCOUNT
+# @ account_no       =    $ACCOUNT
 # @ notification     =    complete
 EOF1
 if ("$HOST" == "SP") then
@@ -423,6 +426,8 @@ cat <<EOF5 >> $LLJOB
 
 cat << EOFcat > poe.commands
 EOF5
+endif
+echo "zzzzzzzzzzzzzzzzzzzzzzzz"
 if ("$HOST" == "SP") then
 cat <<EOFt8 >> $LLJOB
 /u2/nwchem/bin/copyexe $SCRATCHDIR/nwchem
@@ -472,7 +477,7 @@ llsubmit $LLJOB
 #  exit 1
 #endif
 
-llq
+llq 
 
 ############################################################################
 # Touch the output file so that subsequent job submissions
@@ -503,7 +508,7 @@ interrupted:
 usage:
     echo " llnw usage: "
     echo "   1) use with no arguments for interactive prompts"
-    echo "   2) llnw filename [-accnt accnt_no] [-procs nproc] [-tasks ntask] [-nnodes nnode]"
+    echo "   2) llnw filename [-accnt accnt_no] [-nprocs nproc] [-tasks ntask] [-nnodes nnode]"
     echo "                    [-queue queue] [-time time] [-mdon y/n]"
     echo "   3) llnw -help ... prints this information"  
     echo " "
