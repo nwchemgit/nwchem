@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.fh,v 1.2 2002-01-16 20:51:13 bylaska Exp $
+c $Id: pspw_charge.fh,v 1.3 2002-02-24 23:43:47 bylaska Exp $
 c
 
 *     ***** pspw_charge common block ************************************
@@ -7,9 +7,12 @@ c
       integer charge(2)
       integer nion
       integer charge_type,geom
-      common / pspw_charge / r1,         ! charge positions
-     >                     charge,       ! charges
-     >                     nion,         ! number charges
-     >                     charge_type,  ! 1-point charges, 2-model charge
-     >                     geom
+      real*8  s_d,s_rho,s_sigma
+      common / pspw_charge / 
+     > r1,          ! charge positions
+     > charge,      ! charges
+     > nion,        ! number charges
+     > charge_type, ! 1-point charges,2-switching charge,3-charge model
+     > s_d,s_rho,s_sigma, ! parameters for switching charge model 
+     > geom
 *     ******************************************************************

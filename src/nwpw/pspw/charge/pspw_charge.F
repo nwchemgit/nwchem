@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.5 2002-01-17 01:24:51 bylaska Exp $
+c $Id: pspw_charge.F,v 1.6 2002-02-24 23:43:47 bylaska Exp $
 c
 
 ***********************************************************
@@ -79,7 +79,27 @@ c
          if (.not. value) 
      >   call errquit('pspw_charge_init:error reading chargegeometry',0)
 
-        charge_type = 1
+*       **** set charge_type ****
+        if (.not.rtdb_get(rtdb,
+     >         'nwpw:charge_type',mt_int,1,charge_type))
+     >    charge_type = 1
+ 
+        if (charge_type.eq.2) then
+           if (.not.rtdb_get(rtdb,
+     >         'nwpw:charge_dielectric_d',mt_dbl,1,s_d))
+     >       s_d = 0.5d0/0.529177d0
+
+           if (.not.rtdb_get(rtdb,
+     >         'nwpw:charge_dielectric_rho',mt_dbl,1,s_rho))
+     >       s_rho = 2.5d0/0.529177d0
+
+           if (.not.rtdb_get(rtdb,
+     >         'nwpw:charge_rcut',mt_dbl,1,s_sigma))
+     >       s_sigma = 0.8d0/0.529177d0
+
+        end if
+      
+
       end if
 
       return
@@ -294,6 +314,13 @@ c
       call Parallel_taskid(taskid)
 
       if (taskid.eq.MASTER) then
+        if (charge_type.eq.1) then
+          write(unit,1160)   
+        end if
+        if (charge_type.eq.2) then
+          write(unit,1170)   
+          write(unit,1171) s_d,s_rho,s_sigma   
+        end if
         write(unit,1180)   
         do ii=1,nion
           write(unit,1190) ii,pspw_charge_aname(ii),
@@ -306,6 +333,9 @@ c
       end if
       return
 
+ 1160 format(/' Point charges used:')
+ 1170 format(/' Switching charges used:')
+ 1171 FORMAT(5X, '(d,rho,sigma) = (',3E11.3,' )  ')
  1180 FORMAT(/' position of point charges (au): ')
  1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - charge = ',F10.3)
       end
@@ -385,23 +415,57 @@ c
 
 *     ***** local variables ****
       integer ii,k
-      real*8 x1,y1,z1,q1,r
+      real*8 x1,y1,z1,q1,r,epsilon
+
+*     **** external functions ****
+      real*8   util_erf
+      external util_erf
+
 
       if (nion.gt.0) then
 
-         do ii=1,nion
-            x1 = dbl_mb(r1(1)+3*(ii-1))
-            y1 = dbl_mb(r1(1)+3*(ii-1)+1)
-            z1 = dbl_mb(r1(1)+3*(ii-1)+2)
-            q1 = dbl_mb(charge(1)+ii-1)
-            do k=1,n2ft3d
-              r = (rgrid(1,k)-x1)**2
-     >          + (rgrid(2,k)-y1)**2
-     >          + (rgrid(3,k)-z1)**2
-              r = dsqrt(r)
-              Vqm(k) = Vqm(k) - q1/r
-            end do
-         end do   
+*        **** point charges ****
+         if (charge_type.eq.1) then
+           do ii=1,nion
+              x1 = dbl_mb(r1(1)+3*(ii-1))
+              y1 = dbl_mb(r1(1)+3*(ii-1)+1)
+              z1 = dbl_mb(r1(1)+3*(ii-1)+2)
+              q1 = dbl_mb(charge(1)+ii-1)
+              do k=1,n2ft3d
+                r = (rgrid(1,k)-x1)**2
+     >            + (rgrid(2,k)-y1)**2
+     >            + (rgrid(3,k)-z1)**2
+                r = dsqrt(r)
+                Vqm(k) = Vqm(k) - q1/r
+              end do
+           end do   
+
+*        **** switching charge potential **** 
+         else if (charge_type.eq.2) then
+           do ii=1,nion
+              x1 = dbl_mb(r1(1)+3*(ii-1))
+              y1 = dbl_mb(r1(1)+3*(ii-1)+1)
+              z1 = dbl_mb(r1(1)+3*(ii-1)+2)
+              q1 = dbl_mb(charge(1)+ii-1)
+              do k=1,n2ft3d
+                r = (rgrid(1,k)-x1)**2
+     >            + (rgrid(2,k)-y1)**2
+     >            + (rgrid(3,k)-z1)**2
+                r = dsqrt(r)
+
+*               **** define dielectric switching function ****
+                if (r.le.s_d) then
+                   epsilon = 0.0d0
+                else if (r.lt.(s_d+s_rho)) then
+                   epsilon = 1.0d0-(1.0d0-(r-s_d)**2/s_rho**2)**2        
+                else
+                   epsilon = 1.0d0
+                end if
+
+                Vqm(k) = Vqm(k) - epsilon*q1*util_erf(r/s_sigma)/r
+              end do
+           end do   
+         end if
 
       end if
 
