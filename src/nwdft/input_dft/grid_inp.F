@@ -59,9 +59,11 @@ c
 c     
 c     delley; use delley spatial weights
 c             
-  100 ldelley = .true.
-      if (.not. rtdb_put(rtdb, 'dft:delley', mt_log, 1, ldelley))
-     &   call errquit('grid_inp: rtdb_put failed', 100)
+  100 continue
+C     ldelley = .true.
+       call errquit(' Delley weights no longer working', 100)
+c      if (.not. rtdb_put(rtdb, 'dft:delley', mt_log, 1, ldelley))
+c     &   call errquit('grid_inp: rtdb_put failed', 100)
 c
       goto 10
 c     
@@ -259,7 +261,7 @@ c
       endif
       goto 10
  1688       write(6,10001)
-10001 format(/,' grid [[delley], [becke], [gausleg], 
+10001 format(/,' grid [ [becke], [gausleg], 
      &       [lebedev ival ival], ',
      &       /,' [xcoarse], [coarse], [medium], [fine], [xfine], ',
      &       /,' [user ival ival], [store_wght], [nquad_task ival], ',
