@@ -1,0 +1,11 @@
+c
+c $Id: paw_spher_func.fh,v 1.1 2003-02-06 06:07:12 marat Exp $
+c
+c $Log: not supported by cvs2svn $
+
+      
+      
+      double precision legendre_lm
+      external legendre_lm
+      double precision theta_lm
+      external theta_lm
