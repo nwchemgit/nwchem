@@ -1,6 +1,6 @@
       logical function pre_center(xatm,latm,matm,jlo,ilo,ihi,jhi,
      + lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,lring,aring,
-     + mring,nring5,nring6)
+     + mring,nring3,nring4,nring5,nring6)
 c
 c     function to determine the center type
 c
@@ -37,7 +37,7 @@ c
       integer mring
       integer lring(6,mring)
       logical aring(mring)
-      integer nring5,nring6
+      integer nring3,nring4,nring5,nring6
       logical valid
 c
       integer i,j,k,l,li,lj
@@ -90,10 +90,79 @@ c
       endif
    26 continue
 c
+c     3 membered rings
+c     ----------------
+c
+      nring3=0
+      do 29 li=1,nang
+      do 30 lj=1,nbnd
+      if((lang(1,li).eq.lbnd(1,lj).and.lang(3,li).eq.lbnd(2,lj)).or.
+     + (lang(1,li).eq.lbnd(2,lj).and.lang(3,li).eq.lbnd(1,lj))) then
+      nring3=nring3+1
+      if(nring3.gt.mring)
+     +  call errquit('increase mring in pre_center',9999)
+      lring(1,nring3)=lang(1,li)
+      lring(2,nring3)=lang(2,li)
+      lring(3,nring3)=lang(3,li)
+      do 31 i=1,2
+      do 32 j=i+1,3
+      if(lring(i,nring3).gt.lring(j,nring3)) then
+      l=lring(i,nring3)
+      lring(i,nring3)=lring(j,nring3)
+      lring(j,nring3)=l
+      endif
+   32 continue
+   31 continue
+      do 33 i=1,nring3-1
+      do 34 j=1,3
+      if(lring(j,i).ne.lring(j,nring3)) goto 33
+   34 continue
+      nring3=nring3-1
+      goto 29
+   33 continue
+      endif
+   30 continue
+   29 continue
+c
+c     4 membered rings
+c     ----------------
+c
+      nring4=nring3
+      do 35 li=1,nang-1
+      do 36 lj=li+1,nang
+      if((lang(1,li).eq.lang(1,lj).and.lang(3,li).eq.lang(3,lj)).or.
+     + (lang(1,li).eq.lang(3,lj).and.lang(3,li).eq.lang(1,lj))) then
+      nring4=nring4+1
+      if(nring4.gt.mring)
+     +  call errquit('increase mring in pre_center',9999)
+      lring(1,nring4)=lang(1,li)
+      lring(2,nring4)=lang(2,li)
+      lring(3,nring4)=lang(3,li)
+      lring(4,nring4)=lang(2,lj)
+      do 37 i=1,3
+      do 38 j=i+1,4
+      if(lring(i,nring4).gt.lring(j,nring4)) then
+      l=lring(i,nring4)
+      lring(i,nring4)=lring(j,nring4)
+      lring(j,nring4)=l
+      endif
+   38 continue
+   37 continue
+      do 39 i=nring3+1,nring4-1
+      do 40 j=1,4
+      if(lring(j,i).ne.lring(j,nring4)) goto 39
+   40 continue
+      nring4=nring4-1
+      goto 35
+   39 continue
+      endif
+   36 continue
+   35 continue
+c
 c     5 membered rings
 c     ----------------
 c
-      nring5=0
+      nring5=nring4
       do 4 li=1,ndih
       do 5 lj=1,nang
       if((ldih(1,li).eq.lang(1,lj).and.ldih(4,li).eq.lang(3,lj)).or.
@@ -114,7 +183,7 @@ c
       endif
     8 continue
     7 continue
-      do 9 i=1,nring5-1
+      do 9 i=nring4+1,nring5-1
       do 10 j=1,5
       if(lring(j,i).ne.lring(j,nring5)) goto 9
    10 continue
@@ -161,10 +230,46 @@ c
    12 continue
    11 continue
 c
+c     select aromatic 3-membered rings
+c     --------------------------------
+c
+      do 41 i=1,nring3
+      aring(i)=.true.
+      do 42 j=1,3
+      valid=.false.
+      l=lring(j,i)
+c      if(latm(2,l).eq.6.and.latm(3,l).eq.3) valid=.true.
+c      if(latm(2,l).eq.7.and.latm(3,l).eq.3) valid=.true.
+c      if(latm(2,l).eq.7.and.latm(3,l).eq.2) valid=.true.
+      if(.not.valid) then
+      aring(i)=.false.
+      goto 41
+      endif
+   42 continue
+   41 continue
+c
+c     select aromatic 4-membered rings
+c     --------------------------------
+c
+      do 43 i=nring3+1,nring4
+      aring(i)=.true.
+      do 44 j=1,4
+      valid=.false.
+      l=lring(j,i)
+c      if(latm(2,l).eq.6.and.latm(3,l).eq.3) valid=.true.
+c      if(latm(2,l).eq.7.and.latm(3,l).eq.3) valid=.true.
+c      if(latm(2,l).eq.7.and.latm(3,l).eq.2) valid=.true.
+      if(.not.valid) then
+      aring(i)=.false.
+      goto 43
+      endif
+   44 continue
+   43 continue
+c
 c     select aromatic 5-membered rings
 c     --------------------------------
 c
-      do 18 i=1,nring5
+      do 18 i=nring4+1,nring5
       aring(i)=.true.
       do 19 j=1,5
       valid=.false.

@@ -5,3 +5,6 @@ Apr 15 1998	 Print control compliant with nwchem
 		 Bug fix in atom type generation
 		 Parameter checks
 Apr 16 1998	 Handle solvent
+Apr 17 1998	 Generalize ring identification to 3,4,5 and 6 membered rings
+		 Modified code to retrieve improper dihedral parameters
+		 Allow force field atom type file in dir_s, dir_x, dir_u and dir_t

@@ -7,8 +7,8 @@ c
       integer latm(5,matm),lbnd(2,mbnd),limp(4,mimp)
       character*80 ffield
 c
-      integer i,j,na
-      integer ia(10)
+      integer i,j,k,l,ltemp,na
+      integer ia(10),nia(10)
 c
       nimp=0
 c
@@ -30,6 +30,30 @@ c
       ia(na)=lbnd(1,j)
       endif
     2 continue
+c
+      nia(1)=0
+      nia(2)=0
+      nia(3)=0
+      do 54 k=1,nbnd
+      if(lbnd(1,k).eq.ia(1)) nia(1)=nia(1)+1
+      if(lbnd(2,k).eq.ia(1)) nia(1)=nia(1)+1
+      if(lbnd(1,k).eq.ia(2)) nia(2)=nia(2)+1
+      if(lbnd(2,k).eq.ia(2)) nia(2)=nia(2)+1
+      if(lbnd(1,k).eq.ia(3)) nia(3)=nia(3)+1
+      if(lbnd(2,k).eq.ia(3)) nia(3)=nia(3)+1
+   54 continue
+      do 55 k=1,2
+      do 56 l=2,3
+      if(nia(k).lt.nia(l)) then
+      ltemp=nia(k)
+      nia(k)=nia(l)
+      nia(l)=ltemp
+      ltemp=ia(k)
+      ia(k)=ia(l)
+      ia(l)=ltemp
+      endif
+   56 continue
+   55 continue
 c
 c     planar
 c
@@ -55,7 +79,7 @@ c
 c     aromatic ring
 c
       if(ffield(1:5).eq.'amber'.or.ffield(1:5).eq.'charm') then
-      if(latm(2,i).eq.4.and.na.eq.3) then
+      if(latm(2,i).ge.4.and.na.eq.3) then
       nimp=nimp+1
       limp(1,nimp)=i
       limp(2,nimp)=ia(1)

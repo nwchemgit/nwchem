@@ -26,7 +26,7 @@ c
     1 continue
 c
       do 2 i=1,nbnd
-      if(lbnd(3,i).lt.0.and.lbnd(3,i).gt.-7) then
+      if(lbnd(3,i).le.0.and.lbnd(3,i).gt.-7) then
       k=-lbnd(3,i)
       do 3 j=1,3
       if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 3
@@ -41,7 +41,7 @@ c
     2 continue
 c
       do 4 i=1,nang
-      if(lang(4,i).lt.0.and.lang(4,i).gt.-7) then
+      if(lang(4,i).le.0.and.lang(4,i).gt.-7) then
       k=-lang(4,i)
       do 5 j=1,3
       if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 3
@@ -57,7 +57,7 @@ c
     4 continue
 c
       do 6 i=1,ndih
-      if(ldih(5,i).lt.0.and.ldih(5,i).gt.-7) then
+      if(ldih(5,i).le.0.and.ldih(5,i).gt.-7) then
       k=-ldih(5,i)
       do 7 j=1,3
       if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 3
@@ -73,7 +73,7 @@ c
     6 continue
 c
       do 8 i=1,nimp
-      if(limp(5,i).lt.0.and.limp(5,i).gt.-7) then
+      if(limp(5,i).le.0.and.limp(5,i).gt.-7) then
       k=-limp(5,i)
       do 9 j=1,3
       if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 3

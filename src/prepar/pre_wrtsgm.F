@@ -55,7 +55,7 @@ c
       close(unit=lfnsgm)
 c
       if(lprint.ge.1) write(lfnout,1000) filsgm(1:length)
- 1000 format('SEGMENT FILE WRITTEN ',a)
+ 1000 format('CREATED SEGMENT FILE ',a)
 c
       pre_wrtsgm=.true.
       return

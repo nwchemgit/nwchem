@@ -129,10 +129,16 @@ c
 c
       if(nimpt.gt.nimp) then
       do 24 i=nimp+1,nimpt
+      if(ffield(1:5).eq.'amber') then
+      write(lfntop,1118) limp(2,i)-natm,limp(3,i)-natm,limp(1,i)-natm,
+     + limp(4,i)-natm,0,i-nimp
+      write(lfntop,1119) (limp(6+j,i),rimp(2*j-1,i),rimp(2*j,i),j=1,3)
+      else
       write(lfntop,1118) (limp(j,i)-natm,j=1,4),0,i-nimp
  1118 format(6i7)
       write(lfntop,1119) (0,rimp(2*j-1,i),rimp(2*j,i),j=1,3)
  1119 format(3(i3,0pf12.6,1pe12.5))
+      endif
    24 continue
       endif
 c
@@ -192,10 +198,15 @@ c
    13 continue
 c
       do 15 i=1,nimp
+      if(ffield(1:5).eq.'amber') then
+      write(lfntop,1018) limp(2,i),limp(3,i),limp(1,i),limp(4,i),0,i
+      write(lfntop,1019) (limp(6+j,i),rimp(2*j-1,i),rimp(2*j,i),j=1,3)
+      else
       write(lfntop,1018) (limp(j,i),j=1,4),0,i
  1018 format(6i7)
       write(lfntop,1019) (0,rimp(2*j-1,i),rimp(2*j,i),j=1,3)
  1019 format(3(i3,0pf12.6,1pe12.5))
+      endif
    15 continue
 c
       if(n3rd.gt.0) then
@@ -211,10 +222,6 @@ c
       endif
 c
       close(unit=lfntop)
-c
-c     write(lfntop,1007) natmw,nbndw,nangw,ndihw,nimpw
-c      write(lfntop,1008) natm,nbnd,nang,ndih,nimp
-c 1008 format(5i7)
 c
       pre_wrttop=.true.
       return

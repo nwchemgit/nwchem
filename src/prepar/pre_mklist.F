@@ -45,7 +45,7 @@ c
       real*8 wcorr(3)
 c
       integer i,j,k,l,link1,link2,isgm,jsgm,nb,na,nd,ni,nn,iatm,ia(10)
-      integer no,ndi,ltemp,igrp,ipgrp
+      integer no,ndi,ltemp,igrp,ipgrp,nia(3)
       real*8 rtemp
       character*255 filsgm
 c
@@ -272,12 +272,36 @@ c
       ia(nn)=lbnd(1,k)
       endif
    19 continue
+      nia(1)=0
+      nia(2)=0
+      nia(3)=0
+      do 54 k=1,nbnd
+      if(lbnd(1,k).eq.ia(1)) nia(1)=nia(1)+1
+      if(lbnd(2,k).eq.ia(1)) nia(1)=nia(1)+1
+      if(lbnd(1,k).eq.ia(2)) nia(2)=nia(2)+1
+      if(lbnd(2,k).eq.ia(2)) nia(2)=nia(2)+1
+      if(lbnd(1,k).eq.ia(3)) nia(3)=nia(3)+1
+      if(lbnd(2,k).eq.ia(3)) nia(3)=nia(3)+1
+   54 continue
+      do 55 k=1,2
+      do 56 l=2,3
+      if(nia(k).lt.nia(l)) then
+      ltemp=nia(k)
+      nia(k)=nia(l)
+      nia(l)=ltemp
+      ltemp=ia(k)
+      ia(k)=ia(l)
+      ia(l)=ltemp
+      endif
+   56 continue
+   55 continue
 c
 c     planar
 c
-      if(latm(2,iatm).eq.1.and.nn.eq.3) then
+      if(latm(4,iatm).eq.1.and.nn.eq.3) then
       nimp=nimp+1
-      limp(1,nimp)=i
+      if(nimp.ge.mimp) call errquit('increase mimp',9999)
+      limp(1,nimp)=iatm
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
@@ -286,9 +310,10 @@ c
 c
 c     chiral
 c
-      if((latm(2,iatm).eq.2.or.latm(2,iatm).eq.3).and.nn.eq.3) then
+      if((latm(4,iatm).eq.2.or.latm(4,iatm).eq.3).and.nn.eq.3) then
       nimp=nimp+1
-      limp(1,nimp)=i
+      if(nimp.ge.mimp) call errquit('increase mimp',9999)
+      limp(1,nimp)=iatm
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
@@ -298,9 +323,10 @@ c
 c     aromatic ring
 c
       if(ffield(1:5).eq.'amber'.or.ffield(1:5).eq.'charm') then
-      if(latm(2,iatm).eq.4.and.nn.eq.3) then
+      if(latm(4,iatm).eq.4.and.nn.eq.3) then
       nimp=nimp+1
-      limp(1,nimp)=i
+      if(nimp.ge.mimp) call errquit('increase mimp',9999)
+      limp(1,nimp)=iatm
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)

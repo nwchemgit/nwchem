@@ -259,7 +259,8 @@ c
 c
 c     generate fragment files for missing segments in dir_t
 c
-      if(.not.pre_mkfrg(lfnfrg,dir_t,lfntyp,filtyp,lfnout,lprint,
+      if(.not.pre_mkfrg(lfnfrg,lfntyp,filtyp,
+     + dir_s,dir_x,dir_u,dir_t,lfnout,lprint,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_xatm),dbl_mb(i_qatm),matm,natm,

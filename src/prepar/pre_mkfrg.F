@@ -1,4 +1,5 @@
-      logical function pre_mkfrg(iunit,dir_t,lfntyp,filtyp,
+      logical function pre_mkfrg(iunit,lfntyp,filtyp,
+     + dir_s,dir_x,dir_u,dir_t,
      + lfnout,lprint,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp)
@@ -44,7 +45,8 @@ c
       character*6 catm(3,matm)
       real*8 xatm(3,matm),qatm(matm)
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
-      character*255 dir_t,filtyp,filnam
+      character*255 filtyp,filnam
+      character*255 filpar,dir_s,dir_x,dir_u,dir_t
       integer lprint
 c
       integer len_t,length,len_f
@@ -52,7 +54,7 @@ c
       real*8 rshort
 c
       integer mtyp,i_ltyp,l_ltyp
-      integer nring5,nring6
+      integer nring3,nring4,nring5,nring6
 c
       integer i,j,k,isgm,natoms,ilo,ihi,iseq,jlo,jhi,ioff,ilist
       integer link1,link2,link3,link4,link5,link
@@ -86,15 +88,11 @@ c
 c
 c     find indices ilo : first atom of this segment
 c     ------------ ihi : last atom for this segment
-c                  jlo : first atom previous segment
-c                  jhi : last atom next segment
+c                  jlo : first atom
+c                  jhi : last atom
 c
       ilo=lseq(3,iseq)
       ihi=lseq(3,iseq+1)-1
-c      jlo=ilo
-c      if(iseq.gt.1) jlo=lseq(3,iseq-1)
-c      jhi=ihi
-c      if(iseq.lt.nseq) jhi=lseq(3,iseq+2)-1
 c
       if(ilist.eq.0) then
 c
@@ -152,7 +150,7 @@ c     ----------------------
 c
       if(.not.pre_center(xatm,latm,matm,jlo,ilo,ihi,jhi,
      + lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
-     + lring,aring,mring,nring5,nring6))
+     + lring,aring,mring,nring3,nring4,nring5,nring6))
      + call errquit('pre_center failed',9999)
 c
 c     memory allocation for work array ltyp
@@ -165,10 +163,10 @@ c
 c     determine atom types
 c     --------------------
 c
-      if(.not.pre_atype(lfnout,lprint,
-     + lfntyp,filtyp,latm,catm,matm,lbnd,mbnd,nbnd,
-     + jlo,ilo,ihi,jhi,
-     + int_mb(i_ltyp),mtyp,lring,aring,mring,nring5,nring6))
+      if(.not.pre_atype(lfnout,lprint,lfntyp,filtyp,
+     + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
+     + jlo,ilo,ihi,jhi,int_mb(i_ltyp),mtyp,lring,aring,mring,
+     + nring3,nring4,nring5,nring6))
      + call errquit('pre_atype failed',9999)
 c
 c     memory deallocation
@@ -206,7 +204,7 @@ c
  2002 format('$',a,/,i5)
       write(lfnout,3002) csgm(i)(1:length)
  3002 format(/,'FRAGMENT ',a,/,
-     + '  num nam  atype  link cntr  grp pgrp    charge  polarization',
+     + '  num name type   link cntr  grp pgrp    charge     polarizab',
      + /)
       do 6 j=ilo,ihi
       if(latm(2,j).gt.0) then
@@ -239,7 +237,7 @@ c
       close(unit=iunit)
 c
       write(lfnout,3005) filnam(1:len_f)
- 3005 format(/,'FRAGMENT FILE ',a,' CREATED')
+ 3005 format(/,'CREATED FRAGMENT FILE ',a)
 c
       lsgm(2,i)=-4
 c

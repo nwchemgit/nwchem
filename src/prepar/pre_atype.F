@@ -1,6 +1,7 @@
       logical function pre_atype(lfnout,lprint,lfntyp,filtyp,
-     + latm,catm,matm,lbnd,mbnd,nbnd,
-     + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,nring5,nring6)
+     + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
+     + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
+     + nring3,nring4,nring5,nring6)
 c
       implicit none
 c
@@ -27,22 +28,27 @@ c                4            = number of hydrogen neigbors
 c                5            = number of neighbors
 c                5+i          = index of i-th neighbor
 c
+      integer maty
+      parameter (maty=1000)
+c
       integer lfntyp,lfnout,lprint
       character*255 filtyp
+      character*255 filpar,dir_s,dir_x,dir_u,dir_t
+      character*255 filnam
       integer matm,mtyp
       integer latm(5,matm)
       character*6 catm(3,matm)
       integer mbnd,nbnd
       integer lbnd(2,mbnd)
       integer ltyp(15,jlo:jlo+mtyp-1)
-      integer mring,nring5,nring6
+      integer mring,nring3,nring4,nring5,nring6
       integer lring(6,mring)
       logical aring(mring)
       integer jlo,ilo,ihi,jhi
 c
-      integer i,j,k,kk,l,ll,m,ntype
-      character*4 atype(100)
-      integer itype(20,100)
+      integer i,j,k,kk,l,ll,m,ntype,lt,ld
+      character*4 atype(maty)
+      integer itype(20,maty)
       character*100 card
       integer iatnum,nhydr,nonh
       logical skipa(5),skipt(5),skipaa(5),skiptt(5)
@@ -143,21 +149,39 @@ c
 c     ring types
 c     ----------
 c
-      do 12 i=1,nring5
+      do 40 i=1,nring3
+      do 41 j=1,3
+      if(aring(i)) then
+      ltyp(3,lring(j,i))=10*ltyp(3,lring(j,i))+3
+      else
+      ltyp(2,lring(j,i))=10*ltyp(2,lring(j,i))+3
+      endif
+   41 continue
+   40 continue
+      do 42 i=nring3+1,nring4
+      do 43 j=1,4
+      if(aring(i)) then
+      ltyp(3,lring(j,i))=10*ltyp(3,lring(j,i))+4
+      else
+      ltyp(2,lring(j,i))=10*ltyp(2,lring(j,i))+4
+      endif
+   43 continue
+   42 continue
+      do 12 i=nring4+1,nring5
       do 13 j=1,5
       if(aring(i)) then
-      ltyp(3,lring(j,i))=ltyp(3,lring(j,i))+5
+      ltyp(3,lring(j,i))=10*ltyp(3,lring(j,i))+5
       else
-      ltyp(2,lring(j,i))=ltyp(2,lring(j,i))+5
+      ltyp(2,lring(j,i))=10*ltyp(2,lring(j,i))+5
       endif
    13 continue
    12 continue
       do 14 i=nring5+1,nring6
       do 15 j=1,6
       if(aring(i)) then
-      ltyp(3,lring(j,i))=ltyp(3,lring(j,i))+6
+      ltyp(3,lring(j,i))=10*ltyp(3,lring(j,i))+6
       else
-      ltyp(2,lring(j,i))=ltyp(2,lring(j,i))+6
+      ltyp(2,lring(j,i))=10*ltyp(2,lring(j,i))+6
       endif
    15 continue
    14 continue
@@ -165,21 +189,80 @@ c
 c     read the atom type data
 c     -----------------------
 c
-      l=index(filtyp,' ')-1
-      write(*,'(a,a)') 'TYPES FROM ',filtyp(1:l)
-      open(unit=lfntyp,file=filtyp(1:l),status='old',form='formatted',
-     + err=9999)
       ntype=0
+      lt=index(filtyp,' ')-1
+      ld=index(dir_s,' ')-1
+      l=ld+lt
+      filnam=dir_s(1:ld)//filtyp(1:lt)
+      open(unit=lfntyp,file=filnam(1:l),status='old',form='formatted',
+     + err=901)
+      write(*,'(a,a)') 'TYPES FROM ',filnam(1:l)
    16 continue
       read(lfntyp,1000,end=17,err=9999) card
  1000 format(a)
       if(card(1:1).eq.'#') goto 16
       ntype=ntype+1
+      if(ntype.gt.maty) call errquit('increase maty',9999)
       read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
- 1001 format(a4,i4,4i3,3(i4,i3,3i4))
+ 1001 format(a4,i4,i3,2i4,i3,3(i4,i3,3i4))
       goto 16
    17 continue
       close(unit=lfntyp)
+c
+  901 continue
+      lt=index(filtyp,' ')-1
+      ld=index(dir_x,' ')-1
+      l=ld+lt
+      filnam=dir_x(1:ld)//filtyp(1:lt)
+      open(unit=lfntyp,file=filnam(1:l),status='old',form='formatted',
+     + err=902)
+      write(*,'(a,a)') 'TYPES FROM ',filnam(1:l)
+  116 continue
+      read(lfntyp,1000,end=117,err=9999) card
+      if(card(1:1).eq.'#') goto 116
+      ntype=ntype+1
+      if(ntype.gt.maty) call errquit('increase maty',9999)
+      read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
+      goto 116
+  117 continue
+      close(unit=lfntyp)
+c
+  902 continue
+      lt=index(filtyp,' ')-1
+      ld=index(dir_u,' ')-1
+      l=ld+lt
+      filnam=dir_u(1:ld)//filtyp(1:lt)
+      open(unit=lfntyp,file=filnam(1:l),status='old',form='formatted',
+     + err=903)
+      write(*,'(a,a)') 'TYPES FROM ',filnam(1:l)
+  216 continue
+      read(lfntyp,1000,end=217,err=9999) card
+      if(card(1:1).eq.'#') goto 216
+      ntype=ntype+1
+      if(ntype.gt.maty) call errquit('increase maty',9999)
+      read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
+      goto 216
+  217 continue
+      close(unit=lfntyp)
+c
+  903 continue
+      lt=index(filtyp,' ')-1
+      ld=index(dir_t,' ')-1
+      l=ld+lt
+      filnam=dir_t(1:ld)//filtyp(1:lt)
+      open(unit=lfntyp,file=filnam(1:l),status='old',form='formatted',
+     + err=904)
+      write(*,'(a,a)') 'TYPES FROM ',filnam(1:l)
+  316 continue
+      read(lfntyp,1000,end=317,err=9999) card
+      if(card(1:1).eq.'#') goto 316
+      ntype=ntype+1
+      if(ntype.gt.maty) call errquit('increase maty',9999)
+      read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
+      goto 316
+  317 continue
+      close(unit=lfntyp)
+  904 continue
 c
 c     determine the atom types
 c     ------------------------
@@ -219,14 +302,10 @@ c
      + (nhydr.eq.0.or.(nhydr.eq.5.and.ltyp(4,j).eq.ltyp(5,j)).or.
      +   nhydr.eq.ltyp(4,j)).and.
      + (itype(2,j).eq.0.or.itype(2,j).eq.ltyp(1,i)).and.
-     + (itype(3,j).eq.0.or.
-     +   (itype(3,j).eq.1.and.ltyp(2,i).gt.0).or.
-     +   (itype(3,j).eq.13.and.(ltyp(2,i).eq.11.or.ltyp(2,i).eq.12)).or.
-     +   (itype(3,j).eq.ltyp(2,i))).and.
-     + (itype(4,j).eq.0.or.
-     +   (itype(4,j).eq.1.and.ltyp(3,i).gt.0).or.
-     +   (itype(4,j).eq.13.and.(ltyp(3,i).eq.11.or.ltyp(3,i).eq.12)).or.
-     +   (itype(4,j).eq.ltyp(3,i))).and.
+     + (itype(3,j).eq.0.or.itype(3,j).eq.ltyp(2,i).or.
+     +   (itype(3,j).eq.1.and.ltyp(2,i).gt.0)).and.
+     + (itype(4,j).eq.0.or.itype(4,j).eq.ltyp(3,i).or.
+     +   (itype(4,j).eq.1.and.ltyp(3,i).gt.0)).and.
      + (itype(5,j).eq.0.or.itype(5,j).eq.ltyp(5,i))) then
       if(lprint.ge.5)
      + write(lfnout,'(a,a4)') 'Type ',atype(j)(1:4)

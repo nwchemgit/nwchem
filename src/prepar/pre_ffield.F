@@ -31,7 +31,7 @@ c
       integer limp(9,mimp)
       real*8 rimp(6,mimp)
 c
-      integer i,j,length,nt,ng,latnum,mult
+      integer i,j,length,nt,ng,latnum,mult,ifnd
       character*80 card
       character*6 atyp1,atyp2,atyp3,atyp4,btyp1,btyp2,btyp3,btyp4
       real*8 rmass,p1,p2,p3,p4,pt1,pt2,pt3,pt4
@@ -344,31 +344,51 @@ c
       btyp3(1:5)=catm(1+j,limp(3,i))(1:5)
       btyp4(1:5)=catm(1+j,limp(4,i))(1:5)
 c
-      if(atyp1.eq.btyp1.and.(
-     + (atyp2.eq.btyp2.and.atyp3.eq.btyp3.and.atyp4.eq.btyp4).or.
-     + (atyp2.eq.'      '.and.atyp3.eq.btyp3.and.atyp4.eq.btyp4).or.
-     + (atyp2.eq.'      '.and.atyp3.eq.'      '.and.atyp4.eq.btyp4)
-     + )) then
-      limp(6+j,i)=mult
-      rimp(2*j-1,i)=p1 
-      rimp(2*j,i)=p2 
-      limp(5,i)=limp(5,i)-2**(j-1)
+      ifnd=0
+      if(atyp1.eq.btyp1) then
+      if(atyp2.eq.'      ') then
+      if(atyp3.eq.'      ') then
+      if(atyp4.eq.btyp4) ifnd=1
+      if(atyp4.eq.btyp3) ifnd=1
+      if(atyp4.eq.btyp2) ifnd=1
       else
-      if(atyp1.eq.btyp1.and.(
-     + (atyp2.eq.btyp3.and.atyp3.eq.btyp2.and.atyp4.eq.btyp4).or.
-     + (atyp2.eq.'      '.and.atyp3.eq.btyp2.and.atyp4.eq.btyp4).or.
-     + (atyp2.eq.btyp3.and.atyp3.eq.'      '.and.atyp4.eq.btyp4)
-     + )) then
+      if(atyp3.eq.btyp3.and.atyp4.eq.btyp4) ifnd=1
+      if(atyp3.eq.btyp4.and.atyp4.eq.btyp3) ifnd=1
+      if(atyp3.eq.btyp2.and.atyp4.eq.btyp4) ifnd=1
+      if(atyp3.eq.btyp4.and.atyp4.eq.btyp2) ifnd=1
+      if(atyp3.eq.btyp2.and.atyp4.eq.btyp3) ifnd=1
+      if(atyp3.eq.btyp3.and.atyp4.eq.btyp2) ifnd=1
+      endif
+      else
+      if(atyp3.eq.'      ') then
+      if(atyp2.eq.btyp3.and.atyp4.eq.btyp4) ifnd=1
+      if(atyp2.eq.btyp4.and.atyp4.eq.btyp3) ifnd=1
+      if(atyp2.eq.btyp2.and.atyp4.eq.btyp4) ifnd=1
+      if(atyp2.eq.btyp4.and.atyp4.eq.btyp2) ifnd=1
+      if(atyp2.eq.btyp2.and.atyp4.eq.btyp3) ifnd=1
+      if(atyp2.eq.btyp3.and.atyp4.eq.btyp2) ifnd=1
+      else
+      if(atyp2.eq.btyp2.and.atyp3.eq.btyp3.and.atyp4.eq.btyp4) ifnd=1
+      if(atyp2.eq.btyp3.and.atyp3.eq.btyp4.and.atyp4.eq.btyp2) ifnd=1
+      if(atyp2.eq.btyp4.and.atyp3.eq.btyp2.and.atyp4.eq.btyp3) ifnd=1
+      if(atyp2.eq.btyp3.and.atyp3.eq.btyp3.and.atyp4.eq.btyp4) ifnd=-1
+      if(atyp2.eq.btyp2.and.atyp3.eq.btyp4.and.atyp4.eq.btyp3) ifnd=-1
+      if(atyp2.eq.btyp4.and.atyp3.eq.btyp3.and.atyp4.eq.btyp2) ifnd=-1
+      endif
+      endif
+      endif
+c
+      if(ifnd.ne.0) then
       limp(6+j,i)=mult
-      rimp(2*j-1,i)=-p1 
+      rimp(2*j-1,i)=ifnd*p1 
       rimp(2*j,i)=p2 
       limp(5,i)=limp(5,i)-2**(j-1)
-      endif
       endif
 c
    20 continue
       endif
    19 continue
+      goto 18
       endif
 c
       goto 1

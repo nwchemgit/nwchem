@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.6 1998-04-16 19:04:32 d3j191 Exp $
+c $Id: prepar.F,v 1.7 1998-04-17 16:32:02 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -80,7 +80,7 @@ c     --------------------
 c
       len=index(ffield,' ')-1
       lend=index(dir_s,' ')-1
-      filtyp=dir_s(1:lend)//ffield(1:len)//'.typ '
+      filtyp=ffield(1:len)//'.typ '
       filpar=ffield(1:len)//'.par '
 c
       len=index(sysnam,' ')-1
