@@ -1,7 +1,7 @@
+#include "blas_lapackf.h"
       SUBROUTINE SSTEBZ3( RANGE1, ORDER1, N, VL, VU, IL, IU,
      $  ABSTOL, D, E, M, NSPLIT, W, IBLOCK, ISPLIT, 
      $  WORK, IWORK, INFO )
-#include "blas_lapackf.h"
 *
 *  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
