@@ -10,7 +10,7 @@
       implicit none
 #include "cscfps.fh"
 c
-c     $Id: fock_2e_cdf.F,v 1.1 1995-12-13 01:24:24 d3g681 Exp $
+c     $Id: fock_2e_cdf.F,v 1.2 1996-07-12 01:55:49 d3g681 Exp $
 c
 c     For the given ranges of i,j,k,l fetch the six blocks
 c     of the density matrices (ij,ik,il,jk,jl,kl) and accumulate
@@ -23,7 +23,7 @@ c     have not changed then nothing need be done for those
 c     blocks.
 c
 c     !! ijk_prev() must be preserved between calls and set
-c     to invalid basis funciton labels (-1) on the first call.
+c     to invalid basis function labels (-1) on the first call.
 c     
       integer ilo, jlo, klo, llo
       integer ihi, jhi, khi, lhi

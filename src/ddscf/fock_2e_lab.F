@@ -37,7 +37,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -143,7 +143,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -215,7 +215,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -295,7 +295,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -381,7 +381,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -481,7 +481,7 @@ c!!
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -568,7 +568,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -628,7 +628,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -696,7 +696,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -770,7 +770,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -848,7 +848,7 @@ c
       subroutine fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -880,7 +880,7 @@ c
          call fock_2e_rep_2_label(nfock, nbf, jfac, kfac, tol2e,
      $        neri, ilab, jlab, klab, llab, eri, dens, fock)
          return
-      elseif (nfock .eq. 3) then
+      else if (nfock .eq. 3) then
          call fock_2e_rep_3_label(nfock, nbf, jfac, kfac, tol2e,
      $        neri, ilab, jlab, klab, llab, eri, dens, fock)
          return
@@ -927,7 +927,7 @@ c
       subroutine fock_2e_rep_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1011,7 +1011,7 @@ c
       subroutine fock_2e_rep_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1074,7 +1074,7 @@ c
       subroutine fock_2e_rep_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1146,7 +1146,7 @@ c
       subroutine fock_2e_rep_4_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1227,7 +1227,7 @@ c
       subroutine fock_2e_rep_mod_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1260,6 +1260,10 @@ c
          return
       else if (nfock .eq. 2) then
          call fock_2e_rep_mod_2_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+         return
+      else if (nfock .eq. 3) then
+         call fock_2e_rep_mod_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
          return
       else if (nfock .eq. 4) then
@@ -1305,7 +1309,7 @@ c
       subroutine fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1385,7 +1389,7 @@ c
       subroutine fock_2e_rep_mod_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1438,10 +1442,75 @@ c
       end do
 c     
       end
+      subroutine fock_2e_rep_mod_3_label(nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer labels(4,neri)
+      double precision eri(neri)
+      double precision fock(3,0:*), dens(3,0:*)
+      double precision jfac(*), kfac(*)
+c     
+      integer i, j, k, l, ind
+      integer ij, ik, jk, kl, il, jl
+      double precision g, gk1, gj1, gj2, gk2, gj3, gk3
+c
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            i = labels(1,ind)
+            j = labels(2,ind)
+            k = labels(3,ind)
+            l = labels(4,ind)
+c
+            ij = im(i) + j      ! NOT im1 since go from 0
+            ik = im(i) + k
+            il = im(i) + l
+            jl = im(j) + l
+            jk = im(j) + k
+            kl = im(k) + l
+c
+            gj1 = g*jfac(1)
+            gk1 = g*kfac(1)
+            fock(1,ij) = fock(1,ij) + gj1*dens(1,kl)
+            fock(1,kl) = fock(1,kl) + gj1*dens(1,ij)
+            fock(1,ik) = fock(1,ik) + gk1*dens(1,jl)
+            fock(1,il) = fock(1,il) + gk1*dens(1,jk)
+            fock(1,jl) = fock(1,jl) + gk1*dens(1,ik)
+            fock(1,jk) = fock(1,jk) + gk1*dens(1,il)
+c
+            gj2 = g*jfac(2)
+            gk2 = g*kfac(2)
+            fock(2,ij) = fock(2,ij) + gj2*dens(2,kl)
+            fock(2,kl) = fock(2,kl) + gj2*dens(2,ij)
+            fock(2,ik) = fock(2,ik) + gk2*dens(2,jl)
+            fock(2,il) = fock(2,il) + gk2*dens(2,jk)
+            fock(2,jl) = fock(2,jl) + gk2*dens(2,ik)
+            fock(2,jk) = fock(2,jk) + gk2*dens(2,il)
+c
+            gj3 = g*jfac(3)
+            gk3 = g*kfac(3)
+            fock(3,ij) = fock(3,ij) + gj3*dens(3,kl)
+            fock(3,kl) = fock(3,kl) + gj3*dens(3,ij)
+            fock(3,ik) = fock(3,ik) + gk3*dens(3,jl)
+            fock(3,il) = fock(3,il) + gk3*dens(3,jk)
+            fock(3,jl) = fock(3,jl) + gk3*dens(3,ik)
+            fock(3,jk) = fock(3,jk) + gk3*dens(3,il)
+         end if
+      end do
+c     
+      end
       subroutine fock_2e_rep_mod_4_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.7 1996-05-14 17:59:57 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.8 1996-07-12 01:55:50 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"

@@ -970,7 +970,7 @@ c     and for 50,000 of misc. junk.
 c
       avail = MA_inquire_avail(mt_dbl)
       if (ga_uses_ma()) avail = avail - ga_memory_avail()
-      call int_mem_2e4c(max2e, mem2)
+      call intb_mem_2e4c(max2e, mem2)
       mem2 = max(mem2,max2e)
       avail = avail - 5*max2e - mem2
       avail = avail - 100000

@@ -1,6 +1,6 @@
       subroutine rohf_hdiag_scale( nmo, nclosed, nopen, lshift,
      $     g_fcv, g_fpv, g_fcp, g_x )
-C     $Id: rohf_hscale.F,v 1.3 1996-06-27 22:42:41 d3g681 Exp $
+C     $Id: rohf_hscale.F,v 1.4 1996-07-12 01:55:57 d3g681 Exp $
       implicit none
 c
 #include "global.fh"
@@ -42,9 +42,15 @@ c
       integer l_fpv, k_fpv
       integer l_x, k_x
       double precision fcv, fcp, fpv, denominator
-      fcv(i) = dbl_mb(k_fcv + i - 1)
+c
+      integer ivec, nvec, gtype, vlen
+c
+      fcv(i) = dbl_mb(k_fcv + i - 1) ! Statement function definitions
       fpv(i) = dbl_mb(k_fpv + i - 1)
       fcp(i) = dbl_mb(k_fcp + i - 1)
+c
+      call ga_inquire(g_x,gtype,vlen,nvec)
+
 c     
       nvir = nmo - nclosed - nopen
       cbase = 0                 ! Offsets into diagonals
@@ -72,49 +78,60 @@ c
 c
 c     Scale closed-virtual piece
 c
-      if (nvir*nclosed .gt. 0) then
-         do i = ga_nodeid()+1, nclosed, ga_nnodes()
-            ioff = (i-1)*nvir + 1
-            call ga_get(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
-            do j=1,nvir
-               denominator = 4.d0*(fcv(j+vbase) - fcv(i+cbase)) + lshift
-               if (denominator .lt. 0.1d0) denominator = 0.1d0
-               dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+      do ivec = 1, nvec
+         if (nvir*nclosed .gt. 0) then
+            do i = ga_nodeid()+1, nclosed, ga_nnodes()
+               ioff = (i-1)*nvir + 1
+               call ga_get(g_x, ioff, ioff+nvir-1, ivec, ivec,
+     $              dbl_mb(k_x),1)
+               do j=1,nvir
+                  denominator = 4.d0*(fcv(j+vbase) - fcv(i+cbase)) +
+     $                 lshift
+                  if (denominator .lt. 0.1d0) denominator = 0.1d0
+                  dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+               enddo
+               call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
+     $              dbl_mb(k_x),1)
             enddo
-            call ga_put(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
-         enddo
-      endif
-c
-      if (nvir*nopen .gt. 0) then
+         endif
+c     
+         if (nvir*nopen .gt. 0) then
 c     
 c     Scale open-virtual piece
 c     
-         do i = ga_nodeid()+1, nopen, ga_nnodes()
-            ioff = (nclosed+i-1)*nvir + 1
-            call ga_get(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
-            do j=1,nvir
-               denominator = 2.d0*(fpv(j+vbase) - fpv(i+obase)) + lshift
-               if (denominator .lt. 0.1d0) denominator = 0.1d0
-               dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+            do i = ga_nodeid()+1, nopen, ga_nnodes()
+               ioff = (nclosed+i-1)*nvir + 1
+               call ga_get(g_x, ioff, ioff+nvir-1, ivec, ivec,
+     $              dbl_mb(k_x),1)
+               do j=1,nvir
+                  denominator = 2.d0*(fpv(j+vbase) - fpv(i+obase)) +
+     $                 lshift
+                  if (denominator .lt. 0.1d0) denominator = 0.1d0
+                  dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+               enddo
+               call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
+     $              dbl_mb(k_x),1)
             enddo
-            call ga_put(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
-         enddo
-      endif
+         endif
 c     
 c     Scale closed-open piece
 c     
-      if (nclosed*nopen .gt. 0) then
-         do i = ga_nodeid()+1, nclosed, ga_nnodes()
-            ioff = (nclosed+nopen)*nvir + (i-1)*nopen + 1
-            call ga_get(g_x, ioff, ioff+nopen-1, 1, 1, dbl_mb(k_x),1)
-            do j=1,nopen
-               denominator = 2.d0*(fcp(j+obase) - fcp(i+cbase)) + lshift
-               if (denominator .lt. 0.1d0) denominator = 0.1d0
-               dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+         if (nclosed*nopen .gt. 0) then
+            do i = ga_nodeid()+1, nclosed, ga_nnodes()
+               ioff = (nclosed+nopen)*nvir + (i-1)*nopen + 1
+               call ga_get(g_x, ioff, ioff+nopen-1, ivec, ivec,
+     $              dbl_mb(k_x),1)
+               do j=1,nopen
+                  denominator = 2.d0*(fcp(j+obase) - fcp(i+cbase)) +
+     $                 lshift
+                  if (denominator .lt. 0.1d0) denominator = 0.1d0
+                  dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+               enddo
+               call ga_put(g_x, ioff, ioff+nopen-1, ivec, ivec,
+     $              dbl_mb(k_x),1)
             enddo
-            call ga_put(g_x, ioff, ioff+nopen-1, 1, 1, dbl_mb(k_x),1)
-         enddo
-      endif
+         endif
+      enddo
 c     
       if (nopen .gt. 0) then
          if (.not.ma_pop_stack(l_fpv))

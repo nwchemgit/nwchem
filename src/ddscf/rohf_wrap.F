@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.7 1996-06-27 22:42:49 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.7 1996-06-27 22:42:49 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.7 1996-06-27 22:42:49 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -91,7 +91,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.7 1996-06-27 22:42:49 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
 c
       integer g_vecs
       double precision energy
@@ -127,23 +127,25 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.7 1996-06-27 22:42:49 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
 c
       integer g_x, g_ax
       double precision acc
 c     
-      integer gtype,grow,gcol
+      integer gtype,grow,gcol,growp,gcolp
 c     
 c     Check
 c     
       if (crohf_init_flag.ne.1)
      $     call errquit('rohf_hessv: ROHF internal block invalid',0)
       call ga_inquire(g_x,gtype,grow,gcol)
-      if ((grow.ne.crohf_vlen).or.(gcol.ne.1))
+      if (grow.ne.crohf_vlen)
      $     call errquit('rohf_hessv: invalid vector length',0)
-      call ga_inquire(g_ax,gtype,grow,gcol)
-      if ((grow.ne.crohf_vlen).or.(gcol.ne.1))
+      call ga_inquire(g_ax,gtype,growp,gcolp)
+      if (growp.ne.crohf_vlen)
      $     call errquit('rohf_hessv: invalid vector length',0)
+      if (gcol.ne.gcolp)
+     $     call errquit('rohf_hessv: invalid no. of vectors',0)
 c     
 c     Call internal routine
 c     
@@ -169,7 +171,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.7 1996-06-27 22:42:49 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.8 1996-07-12 01:55:57 d3g681 Exp $
 c
       integer g_x
       double precision solveshift
@@ -183,7 +185,7 @@ c
      $     call errquit(
      $     'rohf_hessv_precond: ROHF internal block invalid',0)
       call ga_inquire(g_x,gtype,grow,gcol)
-      if ((grow.ne.crohf_vlen).or.(gcol.ne.1))
+      if (grow.ne.crohf_vlen)
      $     call errquit('rohf_hessv_precond: invalid vector length',0)
 c     
       crohf_lshift = lshift - solveshift

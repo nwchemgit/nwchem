@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.5 1996-07-10 10:09:58 d3e129 Exp $
+c     $Id: ao_replicated.F,v 1.6 1996-07-12 01:55:48 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -275,8 +275,8 @@ c
       end do
       call dfill(natom*natom,0.0d0,rdens,1)
       do imat = 1, nfock
-         call util_mat_reduce(nbf, natom, cetobfr, dens(1,imat), 
-     $        rdens, 'abssum')
+         call util_mat_reduce(nbf, natom, cetobfr, dens(imat,1), 
+     $        nfock, rdens, 'abssum')
       end do
 *      write(6,*) ' RDENS'
 *      call output(rdens,1,natom,1,natom,natom,natom,1)
@@ -796,13 +796,14 @@ c
       ijlist(2,i)=rrb2
       go to 10
       end
-      subroutine util_mat_reduce(n, nr, map, a, r, op)
+      subroutine util_mat_reduce(n, nr, map, a, lda, r, op)
       implicit none
 c     
       integer n                 ! Original size [input]
       integer nr                ! Reduced size  [input]
       integer map(2,nr)         ! map(1,*)=lo, map(2,*)=hi [input]
-      double precision a(n,n)   ! Original matrix [input]
+      integer lda               ! leading dimension of A (1 if square)
+      double precision a(lda, n,n)   ! Original matrix [input]
       double precision r(nr,nr) ! Reduced matrix [output]
       character*(*) op          ! Reduction operation
 c     
@@ -822,13 +823,13 @@ c
             if (op .eq. 'abssum') then
                do j = map(1,jr), map(2,jr)
                   do i = map(1,ir), map(2,ir)
-                     sum = sum + abs(a(i,j))
+                     sum = sum + abs(a(1,i,j))
                   end do
                end do
             else if (op .eq. 'absmax') then
                do j = map(1,jr), map(2,jr)
                   do i = map(1,ir), map(2,ir)
-                     sum = max(sum , abs(a(i,j)))
+                     sum = max(sum , abs(a(1,i,j)))
                   end do
                end do
             else
