@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist,scale,cpk)
 c
-c $Id: pre_wrtpov.F,v 1.6 2001-07-06 03:45:14 d3j191 Exp $
+c $Id: pre_wrtpov.F,v 1.7 2001-10-10 21:01:58 d3j191 Exp $
 c
       implicit none
 c
@@ -91,7 +91,12 @@ c
      + color(1:index(color,' ')-1)
       endif
  8001 format('sphere {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
-     + 3x,f12.6,/,'  texture { pigment { ',a,' } }',/,'}')
+     + 3x,f12.6,/,
+     + '  texture { pigment { ',a,' }',/,
+     + '            finish  { ambient 0.16 ',/,
+     + '                      diffuse 0.48 ',/,
+     + '                      phong 1.25 ',/,
+     + '                      phong_size 200 } }',/,'}')
       endif
     2 continue
       if(cpk.le.0.0d0) then
