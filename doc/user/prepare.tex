@@ -535,6 +535,14 @@ orient
 This directive orients the solute principal axes.
 
 \begin{verbatim}
+translate [atom | segment | molecule] \
+	 <integer itran> <integer itran> <real xtran(3)>
+\end{verbatim}
+
+This directive translates solute atoms in the indicated range by xtran,
+without checking for bas contacts in the resulting structure.
+
+\begin{verbatim}
 periodic
 \end{verbatim}
 
