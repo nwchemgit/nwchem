@@ -1,5 +1,6 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
+c $Id: cando_sp.F,v 1.3 1994-04-09 15:48:29 d3e129 Exp $
 c
 c a zero [i|j]sh means ignore this shell
 c this allows one function for all 1e and 2e permutations
