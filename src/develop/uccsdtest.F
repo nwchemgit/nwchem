@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.18 2000-05-19 19:01:56 d3h449 Exp $
+*     $Id: uccsdtest.F,v 1.19 2000-05-26 00:05:56 d3h449 Exp $
 *
       implicit none
 #include "global.fh"
@@ -36,7 +36,7 @@ c
      $     k_x1, k_x2, k_x3
       integer l_x, l_df, l_delta, k_x, k_df, k_delta, nvar
       integer iter, i
-      logical converged, t2_rd_test
+      logical converged, t2_rd_test, t2_mp2
       double precision xxx
 c
       double precision energyaaa, energybbb, energyaab, energybba
@@ -114,27 +114,27 @@ c
 c     Change the phase and order of some of the beta MOs so that they
 c     are different from alpha even for closed shell
 c
-      do i = 1, nmo, 2          ! Change phase of even MOs
-         call dscal(nbf, -1d0, dbl_mb(k_bmos+(i-1)*nbf), 1)
-      end do
-      do i = 2, nbeta, 2        ! Swap alternate beta occupied orbitals
-         call dcopy(nbf, dbl_mb(k_bmos+(i-1)*nbf), 1, dbl_mb(k_occ), 1) 
-         call dcopy(nbf, dbl_mb(k_bmos+(i-2)*nbf), 1, 
-     $        dbl_mb(k_bmos+(i-1)*nbf), 1)
-         call dcopy(nbf, dbl_mb(k_occ), 1, dbl_mb(k_bmos+(i-2)*nbf), 1)
-         xxx = dbl_mb(k_beval+i-1)
-         dbl_mb(k_beval+i-1) = dbl_mb(k_beval+i-2)
-         dbl_mb(k_beval+i-2) = xxx
-      end do
-      do i = nbeta+2, nmo, 2        ! Swap alternate beta virtual orbitals
-         call dcopy(nbf, dbl_mb(k_bmos+(i-1)*nbf), 1, dbl_mb(k_occ), 1) 
-         call dcopy(nbf, dbl_mb(k_bmos+(i-2)*nbf), 1, 
-     $        dbl_mb(k_bmos+(i-1)*nbf), 1)
-         call dcopy(nbf, dbl_mb(k_occ), 1, dbl_mb(k_bmos+(i-2)*nbf), 1)
-         xxx = dbl_mb(k_beval+i-1)
-         dbl_mb(k_beval+i-1) = dbl_mb(k_beval+i-2)
-         dbl_mb(k_beval+i-2) = xxx
-      end do
+c      do i = 1, nmo, 2          ! Change phase of even MOs
+c         call dscal(nbf, -1d0, dbl_mb(k_bmos+(i-1)*nbf), 1)
+c      end do
+c      do i = 2, nbeta, 2        ! Swap alternate beta occupied orbitals
+c         call dcopy(nbf, dbl_mb(k_bmos+(i-1)*nbf), 1, dbl_mb(k_occ), 1) 
+c         call dcopy(nbf, dbl_mb(k_bmos+(i-2)*nbf), 1, 
+c     $        dbl_mb(k_bmos+(i-1)*nbf), 1)
+c         call dcopy(nbf, dbl_mb(k_occ), 1, dbl_mb(k_bmos+(i-2)*nbf), 1)
+c         xxx = dbl_mb(k_beval+i-1)
+c         dbl_mb(k_beval+i-1) = dbl_mb(k_beval+i-2)
+c         dbl_mb(k_beval+i-2) = xxx
+c      end do
+c      do i = nbeta+2, nmo, 2        ! Swap alternate beta virtual orbitals
+c         call dcopy(nbf, dbl_mb(k_bmos+(i-1)*nbf), 1, dbl_mb(k_occ), 1) 
+c         call dcopy(nbf, dbl_mb(k_bmos+(i-2)*nbf), 1, 
+c     $        dbl_mb(k_bmos+(i-1)*nbf), 1)
+c         call dcopy(nbf, dbl_mb(k_occ), 1, dbl_mb(k_bmos+(i-2)*nbf), 1)
+c         xxx = dbl_mb(k_beval+i-1)
+c         dbl_mb(k_beval+i-1) = dbl_mb(k_beval+i-2)
+c         dbl_mb(k_beval+i-2) = xxx
+c      end do
 c
       write(6,*) ' Alpha eigenvalues '
       call output(dbl_mb(k_aeval),1,nmo,1,1,nmo,1,1)
@@ -485,6 +485,20 @@ c
       call jan_debug_print('Tbb',dbl_mb(k_t2bb), nvb, nvb, nob, nob)
       call jan_debug_print('Tab',dbl_mb(k_t2ab), nva, nvb, noa, nob)
 c
+c     write converged t1 and t2 to disk
+c
+      call write_t(
+     $     noa, nob, nva, nvb, 
+     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
+c
+ 3768 continue
+c
+      call read_t(
+     $     noa, nob, nva, nvb, 
+     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
+c
 c     Triples
 c
       call jan_full_transform(
@@ -516,15 +530,39 @@ c
      $     dbl_mb(k_bmos),dbl_mb(k_amos), 
      $     dbl_mb(k_iba), 'Dirac')
 c
-c  test amplitudes
+c  test amplitudes with mp2 t2's.
 c
-c$$$      call uccsdtest_mp2(
-c$$$     $     nmo,
-c$$$     $     noa, nob, nva, nvb, 
-c$$$     $     dbl_mb(k_aeval), dbl_mb(k_beval),
-c$$$     $     dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
-c$$$     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
-c$$$     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
+      if (.not. rtdb_get(rtdb, 'uccsdt:t2_mp2', mt_log, 
+     &   1, t2_mp2)) t2_mp2 = .false.
+      if (t2_mp2)then
+         write(6,*)' ************************************** '
+         write(6,*)' testing triples with mp2 t2 amplitudes '
+         write(6,*)' ************************************** '
+         call uccsdtest_mp2(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     dbl_mb(k_aeval), dbl_mb(k_beval),
+     $     dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
+c     
+         write(6,*) ' MP2 amplitudes'
+         call jan_debug_print('T1a',dbl_mb(k_t1a),  nva, noa, 1, 1)
+         call jan_debug_print('T1b',dbl_mb(k_t1b),  nvb, nob, 1, 1)
+         call jan_debug_print('Taa',dbl_mb(k_t2aa), nva, nva, noa, noa)
+         call jan_debug_print('Tbb',dbl_mb(k_t2bb), nvb, nvb, nob, nob)
+         call jan_debug_print('Tab',dbl_mb(k_t2ab), nva, nvb, noa, nob)
+c
+c        write mp2 t1 and t2 to disk
+c
+         call write_t(
+     $     noa, nob, nva, nvb, 
+     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
+c
+         write(6,*)' t1 and t2 amplitudes reset '
+c
+      endif
 c
       energyaaa = uccsdtest_triples_pure(
      $     nmo,
@@ -561,18 +599,6 @@ c
       write(6,*) energyaaa, energybbb
       write(6,*) energyaab, energybba
       write(6,*) energyaaa+energybbb+energyaab+energybba
-c
-      call write_t(
-     $     noa, nob, nva, nvb, 
-     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
-     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
-c
- 3768 continue
-c
-      call read_t(
-     $     noa, nob, nva, nvb, 
-     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
-     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
 c
       call uccsdt_initialize(nmo, noa, nob, nva, nvb, 
      $     dbl_mb(k_aeval), dbl_mb(k_beval),
@@ -2255,6 +2281,10 @@ c
       endif
       energy = 0.0d0
       energy2 = 0.0d0
+c
+c     debug: temp zero t1a
+c
+c      call dfill (nv_dim*no_dim, 0.0d0, t1a, 1)
 c
       write(6,*)' spin, nvblock(spin): ',
      &            spin, nvblock(spin)
@@ -5879,10 +5909,13 @@ c
       ierr = eaf_write(fd, offset, t1b, 8*nvb*nob) ! write t1b
       offset = offset + 8*nvb*nob
       ierr = eaf_write(fd, offset, t2aa, 8*(nva*noa)**2) ! write t2aa
+c      call jan_debug_print('t2aa', t2aa, nva, nva, noa, noa)
       offset = offset + 8*(nva*noa)**2
       ierr = eaf_write(fd, offset, t2bb, 8*(nvb*nob)**2) ! write t2bb
+c      call jan_debug_print('t2bb', t2bb, nvb, nvb, nob, nob)
       offset = offset + 8*(nvb*nob)**2
       ierr = eaf_write(fd, offset, t2ab, 8*nva*noa*nvb*nob) ! write t2ab
+c      call jan_debug_print('t2ab', t2ab, nva, nvb, noa, nob)
       if (ierr .ne. 0) then
          call eaf_errmsg(ierr, errmsg)
          write(6,*) ' IO offset ', offset
@@ -6015,6 +6048,7 @@ c
       do nva = 1, nv1
          do noa = 1, no1
             sv_buf(no1+nva,noa) = rd_buf(nva,noa)
+            sv_buf(noa,no1+nva) = rd_buf(nva,noa)
          end do
       end do
       return
@@ -6027,15 +6061,22 @@ c
       double precision rd_buf(nv1, nv2, no1, no2)
       double precision sv_buf(nbf, nbf, nbf, nbf)
       call dfill(nbf**4,0.0d0,sv_buf,1)
+c      call jan_debug_print('rd_buf', rd_buf, nv1, nv2, no1, no2)
       do nva = 1, nv1
          do nvb = 1, nv2
             do noa = 1, no1
                do nob = 1, no2
+c
                   sv_buf(no1+nva,no2+nvb,noa,nob) = 
      &                rd_buf(nva,nvb,noa,nob)
+c
+                  sv_buf(noa,nob,no1+nva,no2+nvb) = 
+     &                rd_buf(nva,nvb,noa,nob)
+c
                end do
             end do
          end do
       end do
+c      call jan_debug_print('sv_buf', sv_buf, nbf, nbf, nbf, nbf)
       return
       end
