@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.21 2003-06-30 18:38:45 bylaska Exp $
+* $Id: electron.F,v 1.22 2003-07-05 15:12:10 bylaska Exp $
 *
 
 
@@ -697,7 +697,7 @@ c      end
 
 *     **** no preconditioning ***
       do ms=1,ispin
-            shift1 = 1 + (ms-1)*npack1
+            shift1 = 1 + (ms-1)*ne(1)*npack1
             shift2 = 1 + (ms-1)*ne(1)*ne(1)
             n     = ne(ms)
 c           call Grsm_gmg_Mul(npack1,n,
