@@ -1,7 +1,7 @@
 
 LIBRARY = libdriver.a
 
-OBJ = opt_drv.o
+OBJ = opt_drv.o sad_drv.o
 
 
 include ../config/makefile.h

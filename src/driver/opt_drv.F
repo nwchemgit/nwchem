@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.11 1997-01-07 18:08:16 mdupuis Exp $
+C$Id: opt_drv.F,v 1.12 1997-02-06 18:58:55 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -34,6 +34,7 @@ c
       integer  rtdb
       integer  geom
       logical  status
+      logical  hnd_sadx
       logical  opt_input
       logical  some
       logical  dbug
@@ -51,7 +52,8 @@ c                mxcoor=max(mxcart,mxzmat)
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       common/hnd_optrun/npts,nserch,nupdat,cvged
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir
+      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
+     1                                                     modsad
       common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optfun/e,eg(mxcart)
       common/hnd_optvar/zcoord,ncoord,mcoord
@@ -84,6 +86,7 @@ c
             linopt=10
             inhess=0
             modupd=1
+            modsad=0
             do i=1,mxcoor
                icfrz(i)=0
             enddo
@@ -96,40 +99,54 @@ c
          call ga_brdcst( 3+msgint,linopt,mitob(1     ),0)
          call ga_brdcst( 4+msgint,inhess,mitob(1     ),0)
          call ga_brdcst( 5+msgint,modupd,mitob(1     ),0)
-         call ga_brdcst( 6+msgint,icfrz ,mitob(mxcoor),0)
-         call ga_brdcst( 7+msgint,iatfrz,mitob(mxatom),0)
+         call ga_brdcst( 6+msgint,modsad,mitob(1     ),0)
+         call ga_brdcst( 7+msgint,icfrz ,mitob(mxcoor),0)
+         call ga_brdcst( 8+msgint,iatfrz,mitob(mxatom),0)
       else
          call ga_brdcst( 1+msgdbl,cvgopt,mdtob(1     ),0)
          call ga_brdcst( 2+msgint,nptopt,mitob(1     ),0)
          call ga_brdcst( 3+msgint,linopt,mitob(1     ),0)
          call ga_brdcst( 4+msgint,inhess,mitob(1     ),0)
          call ga_brdcst( 5+msgint,modupd,mitob(1     ),0)
-         call ga_brdcst( 6+msgint,icfrz ,mitob(mxcoor),0)
-         call ga_brdcst( 7+msgint,iatfrz,mitob(mxatom),0)
+         call ga_brdcst( 6+msgint,modsad,mitob(1     ),0)
+         call ga_brdcst( 7+msgint,icfrz ,mitob(mxcoor),0)
+         call ga_brdcst( 8+msgint,iatfrz,mitob(mxatom),0)
       endif
       call ga_sync()
       status = rtdb_parallel(.true.) 
 c
       if (ga_nodeid().eq.0.or.dbug)  then
-         write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd
+         write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
+     1                                              modsad
+      endif
+c
+c     ----- branch to transition state search if demanded -----
+c
+      if(modsad.ne.0) then
+         hnd_optx=hnd_sadx(rtdb)
+         return
+      else
+         if (ga_nodeid().eq.0.or.some)  then
+            write(iw,9994)
+         endif
       endif
 c
 c     ----- get going ... -----
 c
       if (ga_nodeid().eq.0)  then
-         call ga_brdcst( 8+msgint,nzmat ,mitob(1     ),0)
-         call ga_brdcst( 9+msgint,nzvar ,mitob(1     ),0)
-         call ga_brdcst(10+msgint,nvar  ,mitob(1     ),0)
-         call ga_brdcst(11+msgint,nat   ,mitob(1     ),0)
-         call ga_brdcst(12+msgdbl,c     ,mdtob(mxcart),0)
-         call ga_brdcst(13+msgdbl,zan   ,mdtob(mxatom),0)
+         call ga_brdcst(11+msgint,nzmat ,mitob(1     ),0)
+         call ga_brdcst(12+msgint,nzvar ,mitob(1     ),0)
+         call ga_brdcst(13+msgint,nvar  ,mitob(1     ),0)
+         call ga_brdcst(14+msgint,nat   ,mitob(1     ),0)
+         call ga_brdcst(15+msgdbl,c     ,mdtob(mxcart),0)
+         call ga_brdcst(16+msgdbl,zan   ,mdtob(mxatom),0)
       else
-         call ga_brdcst( 8+msgint,nzmat ,mitob(1     ),0)
-         call ga_brdcst( 9+msgint,nzvar ,mitob(1     ),0)
-         call ga_brdcst(10+msgint,nvar  ,mitob(1     ),0)
-         call ga_brdcst(11+msgint,nat   ,mitob(1     ),0)
-         call ga_brdcst(12+msgdbl,c     ,mdtob(mxcart),0)
-         call ga_brdcst(13+msgdbl,zan   ,mdtob(mxatom),0)
+         call ga_brdcst(11+msgint,nzmat ,mitob(1     ),0)
+         call ga_brdcst(12+msgint,nzvar ,mitob(1     ),0)
+         call ga_brdcst(13+msgint,nvar  ,mitob(1     ),0)
+         call ga_brdcst(14+msgint,nat   ,mitob(1     ),0)
+         call ga_brdcst(15+msgdbl,c     ,mdtob(mxcart),0)
+         call ga_brdcst(16+msgdbl,zan   ,mdtob(mxatom),0)
       endif
 c
       rstart=.false.
@@ -308,10 +325,14 @@ c
      2       /,10x,22(1h-))
  9997 format(' in hnd_optx, nzvar,nvar,ncart,ncoord,mcoord = ',5i5)
  9996 format(' cvgopt = ',f10.6,/,' nptopt = ',i4,/,' linopt = ',i4,
-     1                          /,' inhess = ',i4,/,' modupd = ',i4,/)
- 9995 format(' too many points in geometry optimization. stop')
+     1                          /,' inhess = ',i4,/,' modupd = ',i4,
+     2                                            /,' modsad = ',i4)
+ 9995 format(' too many points in optimization. stop')
+ 9994 format(/,10x,19(1h-),
+     1       /,10x,'Energy Minimization',
+     2       /,10x,19(1h-),/)
       end
-      subroutine optdrv_input(rtdb)
+      subroutine driver_input(rtdb)
       implicit none
 #include "rtdb.fh"
 #include "global.fh"
@@ -325,7 +346,7 @@ c
       opt_input=.true.
       status=rtdb_put(rtdb,'driver:opt',mt_log,1,opt_input)
       if(.not.status) then
-         call errquit('optdrv_input : rtdb_put failed',911)
+         call errquit('driver_input : rtdb_put failed',911)
       endif
 c
       return
@@ -344,10 +365,11 @@ c                mxcoor=max(mxcart,mxzmat)
       logical       ready
       logical       dbug
       common/hnd_iofile/ir,iw
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir
+      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
+     1                                                     modsad
       common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
 c
-      dbug=.false.
+      dbug=.false. 
 c
 c     ----- default parameters for optimization driver -----
 c
@@ -356,6 +378,7 @@ c
       linopt=10
       inhess=0
       modupd=1
+      modsad=0
       do i=1,mxcoor
          icfrz(i)=0
       enddo
@@ -390,7 +413,7 @@ c
             write(iw,*) 'in hnd_opt_input, field = ',field
          endif
          if(.not.ready) then
-            if(inp_compare(.false.,'opt',field)) then
+            if(inp_compare(.false.,'driver',field)) then
                ready=.true.
                go to 10
             else
@@ -437,6 +460,13 @@ c
                else
                   call errquit('hnd_opt_input: modupd',911)
                endif
+            elseif(inp_compare(.false.,'modsad',field)) then
+               if(inp_i(idum)) then
+                  modsad=idum
+                  go to 10
+               else
+                  call errquit('hnd_opt_input: modsad',911)
+               endif
             endif
          endif
 c
@@ -449,6 +479,7 @@ c
          write(iw,*) 'linopt',linopt
          write(iw,*) 'inhess',inhess
          write(iw,*) 'modupd',modupd
+         write(iw,*) 'modsad',modsad
       endif
 c
       return
@@ -464,7 +495,8 @@ c
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir
+      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
+     1                                                     modsad
       common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optvar/zcoord,ncoord,mcoord
       common/hnd_zmtpar/nzmat,nzvar,nvar
@@ -502,7 +534,8 @@ c
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir
+      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
+     1                                                     modsad
 c
       if( ga_nodeid().eq.0) then
          write(iw,9999) gmax,cvgopt,gmax0
@@ -865,9 +898,9 @@ c
      &       call errquit('hnd_opt: no geometry ', 911)
          if (.not. geom_ncent(geom,nat))
      &       call errquit('hnd_opt: geom_ncent?',911)
-         call ga_brdcst(14+msgint,nat   ,mitob(1     ),0)
+         call ga_brdcst(21+msgint,nat   ,mitob(1     ),0)
       else
-         call ga_brdcst(14+msgint,nat   ,mitob(1     ),0)
+         call ga_brdcst(21+msgint,nat   ,mitob(1     ),0)
       endif
       call ga_sync()
       status = rtdb_parallel(.true.) 
@@ -920,13 +953,13 @@ c
          if(.not.
      &   geom_cart_get(geom,nat,atom_tags,c,zan))
      &   call errquit('hnd_opt_hss_init: geom_cart_get failed?',911)
-         call ga_brdcst(15+msgint,nat   ,mitob(1     ),0)
-         call ga_brdcst(16+msgdbl,c     ,mdtob(mxcart),0)
-         call ga_brdcst(17+msgdbl,zan   ,mdtob(mxatom),0)
+         call ga_brdcst(31+msgint,nat   ,mitob(1     ),0)
+         call ga_brdcst(32+msgdbl,c     ,mdtob(mxcart),0)
+         call ga_brdcst(33+msgdbl,zan   ,mdtob(mxatom),0)
       else
-         call ga_brdcst(15+msgint,nat   ,mitob(1     ),0)
-         call ga_brdcst(16+msgdbl,c     ,mdtob(mxcart),0)
-         call ga_brdcst(17+msgdbl,zan   ,mdtob(mxatom),0)
+         call ga_brdcst(31+msgint,nat   ,mitob(1     ),0)
+         call ga_brdcst(32+msgdbl,c     ,mdtob(mxcart),0)
+         call ga_brdcst(33+msgdbl,zan   ,mdtob(mxatom),0)
       endif
       call ga_sync()
       status = rtdb_parallel(.true.) 
@@ -945,11 +978,11 @@ c
      &      call errquit('hnd_opt_hss_init:zmt_get_zmat failed?',911)
             if(.not.geom_zmt_get_izmat(dbl_mb(k_izmat),nzmat))                 
      &      call errquit('hnd_opt_hss_init:zmt_get_izmat failed?',911)
-            call ga_brdcst(24+msgdbl,dbl_mb(k_zmat ),mdtob(nzvar),0)
-            call ga_brdcst(25+msgdbl,dbl_mb(k_izmat),mdtob(nzmat),0)
+            call ga_brdcst(41+msgdbl,dbl_mb(k_zmat ),mdtob(nzvar),0)
+            call ga_brdcst(42+msgdbl,dbl_mb(k_izmat),mdtob(nzmat),0)
          else
-            call ga_brdcst(24+msgdbl,dbl_mb(k_zmat ),mdtob(nzvar),0)
-            call ga_brdcst(25+msgdbl,dbl_mb(k_izmat),mdtob(nzmat),0)
+            call ga_brdcst(41+msgdbl,dbl_mb(k_zmat ),mdtob(nzvar),0)
+            call ga_brdcst(42+msgdbl,dbl_mb(k_izmat),mdtob(nzmat),0)
          endif
          call ga_sync()
          status=rtdb_parallel(.true.)
@@ -1581,9 +1614,9 @@ c
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=driver_opt_get_hess(x(j10),ndimq,ndim)     
-            call ga_brdcst(26+msgdbl,x(j10),mdtob(ndim*ndim),0)
+            call ga_brdcst(51+msgdbl,x(j10),mdtob(ndim*ndim),0)
          else
-            call ga_brdcst(26+msgdbl,x(j10),mdtob(ndim*ndim),0)
+            call ga_brdcst(51+msgdbl,x(j10),mdtob(ndim*ndim),0)
          endif
          call ga_sync()
          status=rtdb_parallel(.true.) 
@@ -1594,9 +1627,9 @@ c
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
-            call ga_brdcst(27+msgdbl,x(j20),mdtob(ndim*ndim),0)
+            call ga_brdcst(61+msgdbl,x(j20),mdtob(ndim*ndim),0)
          else
-            call ga_brdcst(27+msgdbl,x(j20),mdtob(ndim*ndim),0)
+            call ga_brdcst(61+msgdbl,x(j20),mdtob(ndim*ndim),0)
          endif
          call ga_sync()
          status=rtdb_parallel(.true.) 
@@ -1618,9 +1651,9 @@ c
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=driver_opt_get_hess(x(i10),ndimx,ndim1)       
-            call ga_brdcst(28+msgdbl,x(i10),mdtob(ndim1*ndim1),0)
+            call ga_brdcst(71+msgdbl,x(i10),mdtob(ndim1*ndim1),0)
          else
-            call ga_brdcst(28+msgdbl,x(i10),mdtob(ndim1*ndim1),0)
+            call ga_brdcst(71+msgdbl,x(i10),mdtob(ndim1*ndim1),0)
          endif
          call ga_sync()
          status=rtdb_parallel(.true.) 
@@ -1661,9 +1694,9 @@ c
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
-            call ga_brdcst(29+msgdbl,x(j20),mdtob(ndim*ndim),0)
+            call ga_brdcst(81+msgdbl,x(j20),mdtob(ndim*ndim),0)
          else
-            call ga_brdcst(29+msgdbl,x(j20),mdtob(ndim*ndim),0)
+            call ga_brdcst(81+msgdbl,x(j20),mdtob(ndim*ndim),0)
          endif
          call ga_sync()
          status=rtdb_parallel(.true.) 
@@ -1727,7 +1760,8 @@ C
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR
+      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
+     1                                                     MODSAD
       COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESVEC(NDIM,*),HESST(*),HESEIG(*)
       DIMENSION HESEDM(*),T(*),IA(*)
@@ -1836,7 +1870,8 @@ C
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR
+      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
+     1                                                     MODSAD
       COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESVEC(NDIM,*),HESST(*),HESEIG(*)
       DIMENSION HESEDM(*),T(*),IA(*)
@@ -2031,7 +2066,8 @@ C
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR
+      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
+     1                                                     MODSAD
       COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       COMMON/HND_OPTFUN/E,EG(MXCART)
 C
@@ -2301,7 +2337,8 @@ C
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED 
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR
+      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
+     1                                                     MODSAD
       COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       COMMON/HND_OPTFUN/E,EG(MXCART)
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
@@ -2371,15 +2408,15 @@ C
          STATUS=GEOM_RTDB_LOAD(RTDB,GEOM,'geometry')
          STATUS=GEOM_CART_GET(GEOM,NAT_NW,TAGS_NW,COORDS_NW,
      1                                            CHARGE_NW)
-         CALL GA_BRDCST(30+MSGINT,  NAT_NW ,MITOB(1    ),0)
-         CALL GA_BRDCST(31+MSGDBL,  TAGS_NW,   16*NCART ,0)
-         CALL GA_BRDCST(32+MSGDBL,COORDS_NW,MDTOB(NCART),0)
-         CALL GA_BRDCST(33+MSGDBL,CHARGE_NW,MDTOB(NCART),0)
+         CALL GA_BRDCST(91+MSGINT,  NAT_NW ,MITOB(1    ),0)
+         CALL GA_BRDCST(92+MSGDBL,  TAGS_NW,   16*NCART ,0)
+         CALL GA_BRDCST(93+MSGDBL,COORDS_NW,MDTOB(NCART),0)
+         CALL GA_BRDCST(94+MSGDBL,CHARGE_NW,MDTOB(NCART),0)
       ELSE
-         CALL GA_BRDCST(30+MSGINT,  NAT_NW ,MITOB(1    ),0)
-         CALL GA_BRDCST(31+MSGDBL,  TAGS_NW,   16*NCART ,0)
-         CALL GA_BRDCST(32+MSGDBL,COORDS_NW,MDTOB(NCART),0)
-         CALL GA_BRDCST(33+MSGDBL,CHARGE_NW,MDTOB(NCART),0)
+         CALL GA_BRDCST(91+MSGINT,  NAT_NW ,MITOB(1    ),0)
+         CALL GA_BRDCST(92+MSGDBL,  TAGS_NW,   16*NCART ,0)
+         CALL GA_BRDCST(93+MSGDBL,COORDS_NW,MDTOB(NCART),0)
+         CALL GA_BRDCST(94+MSGDBL,CHARGE_NW,MDTOB(NCART),0)
       ENDIF
       CALL GA_SYNC()
       STATUS=RTDB_PARALLEL(.TRUE.)
@@ -2713,11 +2750,11 @@ c
          if( ga_nodeid().eq.0) then
             status=driver_opt_get_hess(x(j10),ndimq,ndim) 
             status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
-            call ga_brdcst(35+msgdbl,x(j10),mdtob(ndim*ndim),0)
-            call ga_brdcst(36+msgdbl,x(j20),mdtob(ndim*ndim),0)
+            call ga_brdcst(101+msgdbl,x(j10),mdtob(ndim*ndim),0)
+            call ga_brdcst(102+msgdbl,x(j20),mdtob(ndim*ndim),0)
          else
-            call ga_brdcst(35+msgdbl,x(j10),mdtob(ndim*ndim),0)
-            call ga_brdcst(36+msgdbl,x(j20),mdtob(ndim*ndim),0)
+            call ga_brdcst(101+msgdbl,x(j10),mdtob(ndim*ndim),0)
+            call ga_brdcst(102+msgdbl,x(j20),mdtob(ndim*ndim),0)
          endif
          call ga_sync()
          status=rtdb_parallel(.true.)
@@ -2742,9 +2779,9 @@ c
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=driver_opt_get_hess(x(i10),ndimx,ndim)
-            call ga_brdcst(37+msgdbl,x(i10),mdtob(ndim*ndim),0)
+            call ga_brdcst(111+msgdbl,x(i10),mdtob(ndim*ndim),0)
          else
-            call ga_brdcst(37+msgdbl,x(i10),mdtob(ndim*ndim),0)
+            call ga_brdcst(111+msgdbl,x(i10),mdtob(ndim*ndim),0)
          endif
          call ga_sync()
          status=rtdb_parallel(.true.)
@@ -2786,9 +2823,9 @@ c
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
-            call ga_brdcst(38+msgdbl,x(j20),mdtob(ndim),0)
+            call ga_brdcst(121+msgdbl,x(j20),mdtob(ndim),0)
          else
-            call ga_brdcst(38+msgdbl,x(j20),mdtob(ndim),0)
+            call ga_brdcst(121+msgdbl,x(j20),mdtob(ndim),0)
          endif
          call ga_sync()
          status=rtdb_parallel(.true.)
@@ -2842,7 +2879,8 @@ c
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR
+      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
+     1                                                     MODSAD
       COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESSDX(*)
       DATA ZERO /0.0D+00/
