@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.92 1999-10-14 23:10:47 d3g681 Exp $
+c $Id: basis.F,v 1.93 1999-10-15 06:09:46 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -2311,6 +2311,7 @@ c
       return
       end
       subroutine bas_print_known_bases(rtdb)
+      implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -2318,16 +2319,16 @@ c
 #include "rtdb.fh"
 #include "inp.fh"
 #include "global.fh"
-      implicit none
       integer rtdb     ! [input] run time data base handle
 c     
 c     Print list of known basis sets
 c     
-      logical bas_rtdb_in, ignore
+      logical bas_rtdb_in
+      external bas_rtdb_in
+      logical ignore
       integer basis, ma_type, natom, nelem
       character*26 date
       character*32 name32
-      logical bas_rtdb_in, ignore
       character*128 key
       integer head_array(ndbs_head)
 c
