@@ -1,7 +1,7 @@
       logical function movecs_read_header_so
      $    (filename, title, basis_name, 
      $     scftype, nbf)
-C$Id: vectors_so.F,v 1.2 2000-06-02 20:44:52 zzhang Exp $
+C$Id: vectors_so.F,v 1.3 2000-10-14 06:46:29 zzhang Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -439,7 +439,7 @@ c
       mlen = inp_strlen(module)
 c
       name = ' '
-      write(name,'(a,a)') module(1:mlen),':swap'
+      write(name,'(a,a)') 'sodft',':swap'
       text = 'sodft'
       if (.not. rtdb_ma_get(rtdb, name, type, nelem, 
      $     handle)) goto 1000
@@ -813,7 +813,7 @@ c
 c
       end
       logical function spinor_guess(filename)
-C$Id: vectors_so.F,v 1.2 2000-06-02 20:44:52 zzhang Exp $
+C$Id: vectors_so.F,v 1.3 2000-10-14 06:46:29 zzhang Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"

@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.14 2000-06-08 00:42:30 zzhang Exp $
+c     $Id: dft_scf_so.F,v 1.15 2000-10-14 06:45:57 zzhang Exp $
 c     
       implicit none
 c     
@@ -11,7 +11,7 @@ c
       double precision Etold, Enuc, trace
       integer iVcoul_opt
       integer iVxc_opt
-      integer iter
+      integer iter, swap(20),no_swap, no_det, idet
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &     g_fock, g_svecs, isvals, 
      &     g_xcinv,  g_scr
@@ -38,7 +38,7 @@ c
       integer nTotOcc           ! nTotOcc: no. of (occupied maybe f.o.) mo's 
       logical fon 
       double precision scale 
-      integer kfon_occ, lfon_occ  
+      integer kfon_occ, lfon_occ
       integer ioff,joff
       logical det_eng 
 c
@@ -87,7 +87,7 @@ c
       integer natoms, nTotEl
 
       integer l_occ, k_occ
-      integer i, j,  i1
+      integer i, j,  i1, jstart 
       integer tot
       double precision vso(1,1)
       integer me, nproc
@@ -466,6 +466,19 @@ c
       if (rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
      &     spinor=spinor_guess(movecs_in)
       if(.not.spinor)then 
+         if (rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))then 
+            if (.not.rtdb_get(rtdb,'sodft:nmo_fon',mt_int,1,nmo_fon))
+     &           write(LuOut,*)"Warning: fractional occupation 
+     &           calculation specified without nmo_fon"
+            
+            if(.not. rtdb_get(rtdb,'sodft:nel_fon',mt_int,1,nel_fon))
+     &           write(LuOut,*)"Warning: fractional occupation 
+     &           calculation specified without nel_fon"  
+            anoca = noc(1)
+            anocb = noc(2)
+            noc(1)=(noc(1)+noc(2)-nel_fon)/2
+            noc(2)=(noc(1)+noc(2)-nel_fon)/2
+         endif
          call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &        basis_trans, movecs_in, movecs_out, 
      &        movecs_guess, scftype, nclosed, nopen, 
@@ -473,6 +486,10 @@ c
      &        k_ir, g_movecs, g_dens, 'density', 
      &        'dft', title, oskel, oadapt, 
      &        .true.) 
+         if (rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))then 
+            noc(1)=anoca
+            noc(2)=anocb
+         endif
 c     
 c     spinor occupancies
 c     
@@ -482,20 +499,47 @@ c
          enddo
 c     
 c     map initial guess movecs from spin-free calculations g_moso(1) 
-c     
-         nva=nbf_ao-noc(1)
-         call ga_dadd_patch(1.d0,g_movecs(1),1,nbf_ao,1,noc(1), 
-     $        0.d0, g_moso(1), 1, nbf_ao, 1, noc(1),
-     $        g_moso(1), 1, nbf_ao, 1, noc(1)) 
-         call ga_dadd_patch(1.d0, g_movecs(2),1,nbf_ao,1,noc(2), 
-     $        0.d0, g_moso(1),1+nbf_ao,nbf_mo,1+noc(1),nTotEl,
-     $        g_moso(1),1+nbf_ao,nbf_mo, 1+noc(1), nTotEl)
-         call ga_dadd_patch(1.d0,g_movecs(1),1,nbf_ao,noc(1)+1,nbf_ao, 
-     $        0.d0, g_moso(1),1,nbf_ao,nTotEl+1,nTotEl+nva,
-     $        g_moso(1),1,nbf_ao,nTotEl+1,nTotEl+nva)
-         call ga_dadd_patch(1.d0,g_movecs(2),1,nbf_ao,noc(2)+1,nbf_ao,
-     $        0.d0, g_moso(1),1+nbf_ao,nbf_mo,nTotEl+nva+1,nbf_mo,
-     $        g_moso(1),1+nbf_ao,nbf_mo,nTotEl+nva+1,nbf_mo)
+c     noc(1).ge.noc(2) is assumed
+c         
+         do i=1,min(noc(1),noc(2))
+            call ga_dadd_patch(1.d0,g_movecs(1),1,nbf_ao,i,i, 
+     $           0.d0,g_moso(1),1,nbf_ao,2*(i-1)+1,2*(i-1)+1,
+     $           g_moso(1),1,nbf_ao,2*(i-1)+1,2*(i-1)+1) 
+            call ga_dadd_patch(1.d0,g_movecs(2),1,nbf_ao,i,i, 
+     $           0.d0,g_moso(1),1+nbf_ao,nbf_mo,2*(i-1)+2,2*(i-1)+2,
+     $           g_moso(1),1+nbf_ao,nbf_mo,2*(i-1)+2,2*(i-1)+2)
+         enddo
+         do i=noc(2)+1,noc(1)
+            call ga_dadd_patch(1.d0,g_movecs(1),1,nbf_ao,i,i, 
+     $           0.d0,g_moso(1),1,nbf_ao,noc(2)+i,noc(2)+i,
+     $           g_moso(1),1,nbf_ao,noc(2)+i,noc(2)+i) 
+         enddo
+         do i=noc(2)+1,noc(1)
+            call ga_dadd_patch(1.d0,g_movecs(2),1,nbf_ao,i,i, 
+     $           0.d0,g_moso(1),1+nbf_ao,nbf_mo,noc(1)+i,noc(1)+i,
+     $           g_moso(1),1+nbf_ao,nbf_mo,noc(1)+i,noc(1)+i) 
+         enddo
+         do i=noc(1)+1,nbf_ao
+            call ga_dadd_patch(1.d0,g_movecs(1),1,nbf_ao,i,i, 
+     $           0.d0,g_moso(1),1,nbf_ao,2*(i-1)+1,2*(i-1)+1,
+     $           g_moso(1),1,nbf_ao,2*(i-1)+1,2*(i-1)+1) 
+            call ga_dadd_patch(1.d0,g_movecs(2),1,nbf_ao,i,i, 
+     $           0.d0,g_moso(1),1+nbf_ao,nbf_mo,2*(i-1)+2,2*(i-1)+2,
+     $           g_moso(1),1+nbf_ao,nbf_mo,2*(i-1)+2,2*(i-1)+2)
+         enddo
+c         nva=nbf_ao-noc(1)
+c         call ga_dadd_patch(1.d0,g_movecs(1),1,nbf_ao,1,noc(1), 
+c     $        0.d0, g_moso(1), 1, nbf_ao, 1, noc(1),
+c     $        g_moso(1), 1, nbf_ao, 1, noc(1)) 
+c         call ga_dadd_patch(1.d0, g_movecs(2),1,nbf_ao,1,noc(2), 
+c     $        0.d0, g_moso(1),1+nbf_ao,nbf_mo,1+noc(1),nTotEl,
+c     $        g_moso(1),1+nbf_ao,nbf_mo, 1+noc(1), nTotEl)
+c         call ga_dadd_patch(1.d0,g_movecs(1),1,nbf_ao,noc(1)+1,nbf_ao, 
+c     $        0.d0, g_moso(1),1,nbf_ao,nTotEl+1,nTotEl+nva,
+c     $        g_moso(1),1,nbf_ao,nTotEl+1,nTotEl+nva)
+c         call ga_dadd_patch(1.d0,g_movecs(2),1,nbf_ao,noc(2)+1,nbf_ao,
+c     $        0.d0, g_moso(1),1+nbf_ao,nbf_mo,nTotEl+nva+1,nbf_mo,
+c     $        g_moso(1),1+nbf_ao,nbf_mo,nTotEl+nva+1,nbf_mo)
       endif
       if(spinor)then 
 c     
@@ -532,30 +576,29 @@ c
      &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
       endif
 c
-      if (oadapt)then 
-         call scf_sym_adapt_so(ao_bas_han, g_moso,
-     &        oprint_syma, 2*nbf_ao, name,
-     &        .true., 
-     &        int_mb(k_ir))
-c         call ga_print(g_moso(1))
-c         call ga_print(g_moso(2))
-      endif      
+c      if (oadapt .and. spinor)then 
+c         call scf_sym_adapt_so(ao_bas_han, g_moso,
+c     &        oprint_syma, 2*nbf_ao, name,
+c     &        .true., 
+c     &        int_mb(k_ir))
+c      endif      
       
  1212 continue 
       
 c     
 c     Form Re and Im of density matrix
 c     
-      nmo_fon = 0 
-      nel_fon = 0 
-      nTotOcc = nTotEl + nmo_fon 
-      fon = .false.
+      if (.not.rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))
+     &    fon = .false.
+      if (.not.rtdb_get(rtdb,'sodft:nmo_fon',mt_int,1,nmo_fon))
+     &    nmo_fon = 0
+      if (.not.rtdb_get(rtdb,'sodft:nel_fon',mt_int,1,nel_fon))
+     &    nel_fon = 0
+c      write(*,*)"fon=,nmo_fon=,nel_fon=", fon,nmo_fon,nel_fon
+      nTotOcc = (nTotEl-nel_fon) + nmo_fon 
       if(fon)then 
-         nmo_fon = 6
-         nel_fon = 1  
-         nTotOcc = nTotEl + nmo_fon 
          avg_fon = dble(nel_fon)/dble(nmo_fon) 
-         do i = nTotEl+1, nTotOcc  
+         do i = (nTotEl-nel_fon)+1, nTotOcc  
             dbl_mb(i-1+k_occ) = avg_fon 
          enddo
       endif
@@ -565,9 +608,9 @@ c
       if(nmo_fon .ne. 0 .and. nel_fon .ne. 0 .and. fon)then 
          scale = sqrt(avg_fon)
          call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, nTotEl+1, nTotOcc, scale)
+     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
          call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, nTotEl+1, nTotOcc, scale)
+     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
       endif
       call dft_densm_so(g_densso, g_moso, nbf_ao, nTotOcc)
 c
@@ -576,9 +619,9 @@ c
       if(nmo_fon .ne. 0 .and. nel_fon .ne. 0 .and. fon)then 
          scale = 1.0d0/scale 
          call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, nTotEl+1, nTotOcc, scale)
+     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
          call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, nTotEl+1, nTotOcc, scale)
+     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
       endif
 c      
       call ga_zero(g_dens(1))
@@ -601,8 +644,8 @@ c
       if (movecs_guess.eq.'restart')then
          levelshifting = .true.
       else
-         levelshifting = .false.
-c         levelshifting = .true.
+c         levelshifting = .false.
+         levelshifting = .true.
 c     rlshift = 2.0
       endif
       iswitc = 0
@@ -689,6 +732,7 @@ c
 c
 
       det_eng = .false. 
+      idet = 0 
  1000 continue
       if (me.eq.0 .and. oprint_conv_details)
      &   write(LuOut,124)damping, levelshifting, diising
@@ -940,6 +984,7 @@ c
       if (nExc.eq.1)then
 c         write(*,*)"Ecore: ", Ecore, Ecoul, Exc(1)  
          Etnew = Ecore + Ecoul + Exc(1)
+         if(det_eng)goto 2001
       else
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
 c         write(*,*)"Ecore: ", Ecore, Ecoul, Exc(1), Exc(2)  
@@ -1275,9 +1320,9 @@ c
       if(nmo_fon .ne. 0 .and. nel_fon .ne. 0 .and. fon)then 
          scale = sqrt(avg_fon)
          call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, nTotEl+1, nTotOcc, scale)
+     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
          call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, nTotEl+1, nTotOcc, scale)
+     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
       endif
       call dft_densm_so(g_densso,g_moso,nbf_ao,nTotOcc) 
 c     
@@ -1286,9 +1331,9 @@ c
       if(nmo_fon .ne. 0 .and. nel_fon .ne. 0 .and. fon)then 
          scale = 1.0d0/scale 
          call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, nTotEl+1, nTotOcc, scale)
+     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
          call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, nTotEl+1, nTotOcc, scale)
+     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
       endif
 cso
 cso   g_dens(1)=Re(Daa)+Re(Dbb) and g_dens(2)=Re(Dbb)
@@ -1606,8 +1651,8 @@ c
  2001 continue 
       if (me.eq.0.and.oprint.and.det_eng)then
          write(LuOut,*)
-         call util_print_centered(LuOut,
-     &        'Calculation failed to converge', 20, .true.)
+c         call util_print_centered(LuOut,
+c     &        'Calculation failed to converge', 20, .true.)
          write(LuOut,*)
          dft_time = dft_time+util_cpusec()
          if (nexc.le.1)then
@@ -1637,58 +1682,76 @@ c
          call util_flush(LuOut)
       endif 
 c
-      if(det_eng)goto 2002 
+      if(.not.fon)goto 2002 
+      if(idet .eq. 0)then 
+         if (.not.rtdb_get(rtdb,'sodft:no_det',mt_int,1,no_det))
+     &        no_det = 0
+         if(.not.ma_push_get(mt_int,nmo_fon*no_det,'det',kfon_occ,
+     &        lfon_occ))
+     &        call errquit('cannot alloctate lfon_occ',0) 
+         if (.not.rtdb_get(rtdb,'sodft:occupancy',mt_int,
+     &        nmo_fon*no_det,int_mb(lfon_occ)))
+     &        call errquit('no occupancy specified',0)
+      endif
 c
 c     calculate the determinantal energy
 c
-      if(fon)then 
-         if(.not.ma_push_get(mt_int,nmo_fon,'det',kfon_occ,lfon_occ))
-     &        call errquit('cannot alloctate lfon_occ',0) 
-         int_mb(lfon_occ)=0
-         int_mb(lfon_occ+1)=0
-         int_mb(lfon_occ+2)=1
-         int_mb(lfon_occ+3)=0
-         int_mb(lfon_occ+4)=0
-         int_mb(lfon_occ+5)=0
-c
+ 2010 continue 
+      if(idet.eq.no_det)goto 2002    ! all determinant energies have been calculated
+      no_swap=0
+      jstart=nel_fon+1
+      do i = 1, nel_fon         ! the first nel_fon orbitals are occupied
+         if(int_mb(lfon_occ+idet*nmo_fon+i-1).eq.0)then 
+            no_swap=no_swap+1
+            swap((no_swap-1)*2+1)=nTotEl-nel_fon+i
+            do j = jstart, nmo_fon
+               if(int_mb(lfon_occ+idet*nmo_fon+j-1).eq.1)then
+                  swap((no_swap-1)*2+2)=nTotEl-nel_fon+j
+                  jstart = jstart + 1
+               endif
+            enddo
+         endif
+      enddo
+c     
 c     switch the mo order to match the determinantal occupancy 
 c     the first nel_fon fractionally occupied mo's should be those 
 c     occupied in the determinant. g_damp_so is used as tempary array
 c     to store the reordered mo's
-c
-         call ga_copy(g_moso(1), g_damp_so(1))
-         call ga_copy(g_moso(2), g_damp_so(2))
-         ioff = nTotEl + 1  
-         do i = 1, nel_fon
-            joff = nTotEl + 1  
-            do j= joff, nmo_fon 
-               if(int_mb(lfon_occ+joff-nTotEl-1).eq.1)then 
-                  call ga_get(g_moso(1),1,2*nbf,joff,joff,
-     &                 dbl_mb(ibuff),1)
-                  call ga_put(g_damp_so(1),1,2*nbf,ioff,ioff,
-     &                 dbl_mb(ibuff),1)
-                  call ga_get(g_moso(2),1,2*nbf,joff,joff,
-     &                 dbl_mb(ibuff),1)
-                  call ga_put(g_damp_so(2),1,2*nbf,ioff,ioff,
-     &                 dbl_mb(ibuff),1)
-               endif
-               joff=joff+1
-            enddo
-            ioff=ioff+1
-         enddo
+c     
+      do i = 1, no_swap
+         if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap((i-1)*2+1)))
+     &        call errquit('swap: failed to put nelem in rtdb', 0)
+         call movecs_swap_so(rtdb,'dft',scftype,g_moso,
+     &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
+      enddo
 c     
 c     form a new density matrix and calculate the corresponding energy 
-c
-         call dft_densm_so(g_densso,g_damp_so,nbf_ao,nTotEl+nel_fon) 
-         call ga_zero(g_dens(1))
-         call ga_zero(g_dens(2))
-         call ga_dens_sf(g_dens, g_densso(1), nbf_ao)
-         call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
-         call ga_sync
-         det_eng = .true. 
-         go to 1000 
+c     
+      call dft_densm_so(g_densso,g_moso,nbf_ao,nTotEl) 
+      call ga_zero(g_dens(1))
+      call ga_zero(g_dens(2))
+      call ga_dens_sf(g_dens, g_densso(1), nbf_ao)
+      call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
+      call ga_sync
+      det_eng = .true. 
+c     
+c     restore the orbital order 
+c     
+      do i = 1, no_swap
+         if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap((i-1)*2+1)))
+     &        call errquit('swap: failed to put nelem in rtdb', 0)
+         call movecs_swap_so(rtdb,'dft',scftype,g_moso,
+     &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
+      enddo
+      if(me .eq. 0)then 
+         write(LuOut, *)
+         write(Luout, *)"Determinant Occupancy: ", 
+     &        (int_mb(lfon_occ+idet*(nmo_fon)+i-1), i=1,nmo_fon)
+         write(LuOut, *)
       endif
-c
+      idet = idet + 1 
+      go to 1000 
+c     
  2002 continue
 c
       if(fon)then 
