@@ -1,9 +1,10 @@
       subroutine intp_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
      &       lscr, scr, leri, eri)
-c $Id: intp_2e3c.F,v 1.1 1995-03-14 09:46:44 d3e129 Exp $
+c $Id: intp_2e3c.F,v 1.2 1995-04-26 00:20:29 d3e129 Exp $
       implicit none
 c
-c basic api routine to generate a block of 3 center two electron integrals
+c basic api routine to generate a block of 3 center two 
+c  electron integrals
 c
 c eri = <bra_g(ish)|ket_g(jsh).ket_g(ksh)>
 c
@@ -13,6 +14,7 @@ c
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+#include "stdio.fh"
 c
 c::external subroutines used
 c errquit
@@ -27,8 +29,10 @@ c:: passed
       integer brain, ketin, lscr, leri
       integer ish,jsh,ksh
       double precision scr(lscr), eri(leri)
-      double precision Ri(3)  ! translation vector for ish center (fractional coordinates)
-      double precision Rj(3)  ! translation vector for jsh center (fractional coordinates)
+c translation vectors are in fractional coordinates !
+      double precision Ri(3)  ! translation vector for ish center 
+      double precision Rj(3)  ! translation vector for jsh center 
+
 c:: local
       logical shells_ok
       integer bra, ket 
@@ -36,8 +40,8 @@ c:: local
       integer Lp, p_prim, p_gen, p_iexp, p_icfp, p_cent
       integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
-      double precision xyz_new_i(3)  ! new coordinates for ish function center
-      double precision xyz_new_j(3)  ! new coordinates for jsh function center
+      double precision xyz_new_i(3)  ! new coordinates for ish function
+      double precision xyz_new_j(3)  ! new coordinates for jsh function
 c
       integer WarnP
       save WarnP
@@ -64,9 +68,10 @@ c
       cd_geom = ibs_geom(ket)
 c
       if (p_geom.ne.cd_geom.and.WarnP.eq.0) then
-        write(6,*)'intp_2e3c: WARNING: possible geometry inconsistency'
-        write(6,*)'bra geometry handle:',p_geom
-        write(6,*)'ket geometry handle:',cd_geom
+        write(luout,*)
+     &      'intp_2e3c: WARNING: possible geometry inconsistency'
+        write(luout,*)'bra geometry handle:',p_geom
+        write(luout,*)'ket geometry handle:',cd_geom
         WarnP = 1
       endif
 c
@@ -116,12 +121,12 @@ c............ dryrun
      &         .false., scr, lscr)
 c
       else
-        write(6,*)'intp_2e3c: could not do nw integrals'
-        write(6,*)' brain :',brain
-        write(6,*)' ketin :',ketin
-        write(6,*)' ish   :',ish
-        write(6,*)' jsh   :',jsh
-        write(6,*)' ksh   :',ksh
+        write(luout,*)'intp_2e3c: could not do nw integrals'
+        write(luout,*)' brain :',brain
+        write(luout,*)' ketin :',ketin
+        write(luout,*)' ish   :',ish
+        write(luout,*)' jsh   :',jsh
+        write(luout,*)' ksh   :',ksh
         call errquit('intp_2e3c: fatal error ',0)
       endif
       end

@@ -1,19 +1,21 @@
       subroutine intp_mpole(i_basis, ish, j_basis, jsh, R,
      &    lmax, centerl,
      &    lscr, scr, lmpint, MP)
-c $Id: intp_mpole.F,v 1.1 1995-01-15 07:50:21 d3e129 Exp $
+c $Id: intp_mpole.F,v 1.2 1995-04-26 00:20:31 d3e129 Exp $
 c
 c routine to compute multipole integrals up to level lmax with the
 c jsh translated by the fractional coordinate vector R.
 c The general form is <shell|pole|shell>
 c
-c  Intgrals are returned in shell blocks of <ish|L|jsh> L=0 to lmax
+c  Integrals are returned in shell blocks of <ish|L|jsh> L=0 to lmax
 c  one block for each L value.  
-c  for ish = p and L = 1 and jsh = p you would get (3*1*3)+(3*3*3)=36 integrals
-c  order would be <x|x>, <x|y>, <x|z>, <y|x> ... <z|z> (first nine)
-c   <x|x|x>, <x|x|y>, <x|x|z>, <x|y|x>, <x|y|y> ... <x|z|z> (second nine)
-c   <y|x|x>, <y|x|y>, <y|x|z>, <y|y|x>, <y|y|y> ... <y|z|z> (third nine)
-c   <z|x|x>, <z|x|y>, <z|x|z>, <z|y|x>, <z|y|y> ... <z|z|z> (fourth nine)
+c  for ish = p and L = 1 and jsh = p you would get:
+c      (3*1*3)+(3*3*3)=36 integrals
+c  order would be 
+c   <x|x>, <x|y>, <x|z>, <y|x> ... <z|z> (first nine)
+c   <x|x|x>, <x|x|y>, <x|x|z>, <x|y|x>, <x|y|y> ... <x|z|z> (2nd nine)
+c   <y|x|x>, <y|x|y>, <y|x|z>, <y|y|x>, <y|y|y> ... <y|z|z> (3rd nine)
+c   <z|x|x>, <z|x|y>, <z|x|z>, <z|y|x>, <z|y|y> ... <z|z|z> (rth nine)
 c
 c
       implicit none
@@ -22,6 +24,7 @@ c
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c
 c::functions
       logical int_chk_init
@@ -33,12 +36,16 @@ c::passed
       integer ish                 ! [input] i shell/contraction
       integer j_basis             ! [input] basis set handle for jsh
       integer jsh                 ! [input] j shell/contraction
-      double precision R(3)       ! [input] translation vector for j cont.
-      integer lmax                ! [input] maximum lvalue for multipole integrals in this batch
+c...     translation vectors are in fractional coordinates 
+      double precision R(3)       ! [input] translation vec on j cont.
+      integer lmax                ! [input] maximum lvalue for 
+*.......................................... multipole integrals 
+*.......................................... in this batch
       double precision centerl(3) ! [input] coordinates of multipole
       integer lscr                ! [input] length of scratch array
       double precision scr(lscr)  ! [input] scratch array
-      integer lmpint              ! [input/output] length of multipole integrals array
+      integer lmpint              ! [input/output] length of multipole 
+*................................................. integrals array
       double precision MP(lmpint) ! [output] multipole integrals
 c::local      
       logical shells_ok
@@ -90,17 +97,18 @@ c
       j_geom  = ibs_geom(jbas)
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
-        write(6,*)'intp_mpole: WARNING: possible geometry',
+        write(luout,*)'intp_mpole: WARNING: possible geometry',
      &      ' inconsistency'
-        write(6,*)'i_basis geometry handle:',i_geom
-        write(6,*)'j_basis geometry handle:',j_geom
+        write(luout,*)'i_basis geometry handle:',i_geom
+        write(luout,*)'j_basis geometry handle:',j_geom
         WarnP = 1
       endif
 c
       call intp_txyz(j_cent,j_geom,R,xyz_new)
 c
       if (i_gen.gt.1 .or. j_gen.gt.1) then
-        write(6,*)' hf3ois does not handle general contractions yet'
+        write(luout,*)
+     &      ' hf3ois does not handle general contractions yet'
         call errquit('intp_mpole: general contraction error ',911)
       endif
 c
@@ -112,8 +120,8 @@ c
         int_size  = lmpint - num_int
         num_int = num_int + l_int*ij_int
         if (num_int.gt.lmpint) then
-          write(6,*)' intp_mpole: lmpint  = ',lmpint
-          write(6,*)' intp_mpole: num_int = ',num_int
+          write(luout,*)' intp_mpole: lmpint  = ',lmpint
+          write(luout,*)' intp_mpole: num_int = ',num_int
           call errquit('intp_mpole: lmpint too small ',911)
         endif
         call hf3ois(
