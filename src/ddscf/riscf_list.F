@@ -1,5 +1,5 @@
       block data riscf_three_eri_list
-C$Id: riscf_list.F,v 1.8 1996-09-22 18:40:54 d3g681 Exp $
+C$Id: riscf_list.F,v 1.9 1996-10-03 23:54:45 vg038 Exp $
       implicit none
 #include "riscf.fh"
       data riscf_info / dim*0 /
@@ -108,7 +108,7 @@ C             < 0: delete all
       implicit none
 
 #include "riscf.fh"
-#ifdef RISCF_USE_DA
+#ifdef RISCF_USE_DRA
 #include "dra.fh"
 #endif
 
@@ -124,8 +124,8 @@ C       search entry
             if ( riscf_info(6,i) .eq. 0 ) then
               riscf_del_3c_ints = ga_destroy (handle)
             else
-#ifdef RISCF_USE_DA
-              riscf_del_3c_ints = ( da_delete(handle) .eq. 0 )
+#ifdef RISCF_USE_DRA
+              riscf_del_3c_ints = ( dra_delete(handle) .eq. 0 )
 #endif
             endif
             riscf_info(1,i) = 0
@@ -147,8 +147,8 @@ C       we did not find it
             if ( riscf_info(6,i) .eq. 0 ) then
               status = ga_destroy (riscf_info(3,i))
             else
-#ifdef RISCF_USE_DA
-              status = ( da_delete (riscf_info(3,i)) .eq. 0 )
+#ifdef RISCF_USE_DRA
+              status = ( dra_delete (riscf_info(3,i)) .eq. 0 )
 #endif
             endif
             if (.not. status ) then

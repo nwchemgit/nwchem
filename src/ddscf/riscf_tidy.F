@@ -1,10 +1,10 @@
       subroutine riscf_tidy ( geom, basis, riscf_basis )
-C$Id: riscf_tidy.F,v 1.4 1996-09-22 18:40:54 d3g681 Exp $
+C$Id: riscf_tidy.F,v 1.5 1996-10-03 23:54:46 vg038 Exp $
       implicit none
 
 #include "geom.fh"
 #include "bas.fh"
-#ifdef RISCF_USE_DA
+#ifdef RISCF_USE_DRA
 #include "dra.fh"
 #endif
 c
@@ -34,8 +34,8 @@ C     status = geom_destroy ( geom )
 C     if (.not.status)
 C     $     call errquit('riscf_tidy: failed to destroy geometry', 0)
 
-#ifdef RISCF_USE_DA
-      istat = da_terminate()
+#ifdef RISCF_USE_DRA
+      istat = dra_terminate()
 #endif
 
       return

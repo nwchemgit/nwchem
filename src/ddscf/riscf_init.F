@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.8 1996-09-22 18:40:53 d3g681 Exp $
+C$Id: riscf_init.F,v 1.9 1996-10-03 23:54:44 vg038 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -21,20 +21,25 @@ C
 #include "pstat.fh"
 #include "cscfps.fh"
 #include "stdio.fh"
-#ifdef RISCF_USE_DA
+#include "util.fh"
+#ifdef RISCF_USE_DRA
 #include "dra.fh"
 #endif
 
       integer rtdb, geom, ao_basis, ri_basis, g_Vsqrt, g_indx,
      $        bases(2), bfsquare
       double precision tol2e, MinEval
-      logical status, odisk, riscf_put_3c_ints, Mk_Fit_Xf
+      logical status, odisk
+
+      logical riscf_put_3c_ints, Mk_Fit_Xf, riscf_use_disk
 
       integer k_T_tmp, l_T_tmp, k_V_row, l_V_row, nsh, nsh_F, npair, 
      $     nsqhalf, nbf, Nff, lbuf, l_buf, k_buf, l_scr, k_scr, lscr,
-     $     max_bf_ao, max_bf_ri, g_three, istat
+     $     max_bf_ao, max_bf_ri, g_three, istat, nstore
 C     g_three is either GA or DA handle for transformed integrals
 C     (depending on odisk)
+
+      character*64 filename
 
 C     get basis set information
       status = bas_numbf (ao_basis, nbf)
@@ -59,8 +64,11 @@ C  get memory from integral API
 C     calculate V**(-1/2) with Daves routine
       MinEval = 1.D-8
       if (oscfps) call pstat_on(ps_vhalf)
-      if ( ga_nodeid().eq.0 ) then
-        call util_print_centered (LUOUT,'creating V**-1/2', 20, .false.)
+      if ( util_print('information',print_medium)) then
+        if ( ga_nodeid().eq.0 ) then
+          call util_print_centered (LUOUT,'creating V**-1/2', 20, 
+     $         .false.)
+        endif
       endif
       status = Mk_Fit_Xf('V', 'Y', ri_basis, MinEval, g_Vsqrt)
       if (oscfps) call pstat_off(ps_vhalf)
@@ -103,34 +111,54 @@ C     does this work for integer arrays?
       if (oscfps) call pstat_off(ps_index)
 
 C     disk-based method requested?
-      status = rtdb_get(rtdb, 'scf:ri_disk',MT_LOG, 1, odisk)
-      if ( .not. status ) odisk = .false.
+      status = rtdb_get(rtdb, 'scf:ri_store',MT_INT, 1, nstore)
+      if ( .not. status ) call errquit
+     $     ('no store option for RI in rtdb', 110)
+C     nstore = 1 : automatic choice based on memory size
+C       "    = 2 : in-core
+C       "    = 3 : disk based
+      if ( nstore .eq. 2 ) then
+        odisk = .false.
+      else if ( nstore .eq. 3 ) then
+        odisk = .true.
+      else if ( nstore .eq. 1 ) then
+        odisk = riscf_use_disk ( ao_basis, npair, nbf, Nff )
+      else
+        call errquit ('no store option for RI in rtdb', 110)
+      endif
 
  100  continue  ! jump back here after error message
       if ( odisk ) then
-#ifdef RISCF_USE_DA
+#ifdef RISCF_USE_DRA
         if ( ga_nodeid().eq.0 ) then
-          call util_print_centered (LUOUT,'using disk based algorithm', 
-     $         20, .false.)
+          if ( util_print('storage',print_medium) ) then
+            call util_print_centered(LUOUT,'using disk based algorithm', 
+     $           20, .false.)
+          endif
         endif
+
+C       create unique file name
+        call util_file_prefix ('3c-eri', filename )
 C       transformed 3-center integrals on disk
-        istat = da_init ( 10, 1.D10, 1.D10, 1.D7 ) 
+        istat = dra_init ( 10, 1.D10, 1.D10, 1.D7 ) 
 C         (max_arrays, max_array_size, total_disk_space, max_memory)
         if ( istat .ne. 0 ) 
      $       call errquit ('RI-SCF: error initializing CHEMIO', istat )
 
-        istat = da_create ( MT_DBL, npair, Nff, '3c-eri', '3c-eri', 
-     $       DA_RW, 1, npair, g_three )
+        istat = dra_create ( MT_DBL, npair, Nff, '3c-eri', filename, 
+     $       DRA_RW, 1, npair, g_three )
         if ( istat .ne. 0 ) 
      $       call errquit ('RI-SCF: can''t create global 3c-ERIs',istat)
 #else
         if ( ga_nodeid().eq.0 ) then
-          write (LUOUT,*)
-          call util_print_centered ( LUOUT, 'DISK ARRAYS NOT AVAILABLE', 
-     $         20, .true. )
-          call util_print_centered ( LUOUT, 'attempting in-core method', 
+          if ( util_print('storage',print_low) ) then
+            write (LUOUT,*)
+            call util_print_centered (LUOUT,'DISK ARRAYS NOT AVAILABLE', 
+     $           20, .true. )
+            call util_print_centered (LUOUT,'attempting in-core method', 
      $         20, .false. )
-          write (LUOUT,*)
+            write (LUOUT,*)
+          endif
         endif
 C       switch to in-core and jump back
         odisk = .false.
@@ -138,18 +166,24 @@ C       switch to in-core and jump back
 #endif
       else      ! in-core
         if ( ga_nodeid().eq.0 ) then
-          call util_print_centered (LUOUT,'using in-core algorithm', 
-     $         20, .false.)
+          if ( util_print('storage',print_low) ) then
+            call util_print_centered (LUOUT,'using in-core algorithm', 
+     $           20, .false.)
+            write (LUOUT,*)
+          endif
         endif
         status = ga_create ( MT_DBL, npair, Nff, '3c-eri', npair, 1, 
      $                      g_three )
+        if (.not.status) 
+     $       call errquit ('RI-SCF: can''t allocate 3c-eri array',110)
         call ga_zero (g_three)
       endif
-      write (LUOUT,*)
 
       if ( ga_nodeid().eq.0 ) then
-        call util_print_centered (LUOUT,'calculating 3-center integrals'
-     $       , 20, .false.)
+        if ( util_print('information',print_medium) ) then
+          call util_print_centered (LUOUT,
+     $         'calculating 3-center integrals', 20, .false.)
+        endif
       endif
 
       if (oscfps) call pstat_on(ps_transform)
@@ -162,9 +196,11 @@ C       switch to in-core and jump back
       if (oscfps) call pstat_off(ps_transform)
 
       if ( ga_nodeid().eq.0 ) then
-        call util_print_centered (LUOUT,'3-center integrals done'
-     $       , 20, .false.)
-        write (LUOUT,*)
+        if ( util_print('information',print_medium) ) then
+          call util_print_centered (LUOUT,'3-center integrals done'
+     $         , 20, .false.)
+          write (LUOUT,*)
+        endif
       endif
 
       status = riscf_put_3c_ints (ao_basis, ri_basis, g_three, g_indx, 
@@ -272,4 +308,63 @@ C     is there a way to do it in parallel?
       status = ma_free_heap (l_indx)
 
       return
+      end
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      logical function riscf_use_disk ( basis, npair, nbf, Nff )
+C     find out if there is enough memory to hold the 3-center integrals in
+C     core (=>false) or if disk based algorithm should be used (=>true)
+
+      implicit none
+
+#include "msgids.fh"
+#include "global.fh"
+#include "bas.fh"
+
+      integer basis, npair, nbf, Nff
+
+      integer mfree, mneeded, nnodes, mxbf
+      logical status
+
+      nnodes = ga_nnodes()
+
+      mfree = ga_memory_avail() / 8
+
+      if ( mfree .le. 0 ) then
+C       free memory cannot be determined
+C       we are conservative and choose the disk based algorithm
+        riscf_use_disk = .false.
+        return
+      endif
+
+C     global arrays in riscf, assuming n_t = 1
+      mfree = mfree - 2 * nbf * nbf / nnodes
+
+C     local arrays from MA
+      if ( ga_uses_ma() ) then
+C       l_three, l_sthree
+        status = bas_nbf_cn_max ( basis, mxbf )
+        if ( .not. status ) 
+     $     call errquit ('riscf_use_disk: error getting basis info',110)
+        mfree = mfree - nbf * mxbf
+
+C       scratch arrays for ga_dgemm: 3 * block size
+        mfree = mfree - 3 * 256 * 256
+      endif
+
+C     assume evenly distributed array: free space = min * nnodes
+      call ga_igop ( msg_riscf_mem, mfree, 1, 'min' )
+      mfree = mfree * nnodes
+
+C     size of the 3-center integral array
+      mneeded = npair * Nff
+
+C     don't use all the memory 
+C     (there are several O(nbf) arrrays unaccounted for)
+
+      if ( dble(mneeded) .gt. ( 0.8D0 * mfree ) ) then
+        riscf_use_disk = .true.
+      else
+        riscf_use_disk = .false.
+      endif
+
       end

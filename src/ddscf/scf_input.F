@@ -1,5 +1,5 @@
       subroutine scf_input(rtdb)
-C $Id: scf_input.F,v 1.4 1996-09-19 01:09:30 d3g681 Exp $
+C $Id: scf_input.F,v 1.5 1996-10-03 23:54:47 vg038 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -16,6 +16,7 @@ c
       character*5 scftype(1)
       double precision conv, shifts(6), tolnr, tol2e
       integer maxiter, poff, nopen, task_chunks, task_bf, maxsub
+      integer nriscf, ri_store
       data dirs /'thresh','maxiter','scftype','level','vectors',
      $     'nr', 'profile', 'print', 'noprint', 'tol2e',
      $     'noadapt', 'nopen', 'uhf', 'rohf', 'rhf', 
@@ -192,33 +193,34 @@ c
 c
 c     RI-SCF
 c
- 2300 if (inp_n_field().eq.1) then
-        if (.not. rtdb_put(rtdb,'scf:ri',MT_INT, 1, 2))
-     $     call errquit('scf_input: failed to store RI option',0)
-      else
+ 2300 continue
+C     set defaults
+      nriscf = 2
+      ri_store = 1
+      if (inp_n_field().gt.1) then
  2310   if (inp_a(test)) then
           if (inp_compare(.false., test, 'hessian')) then
-            if (.not. rtdb_put(rtdb,'scf:ri',MT_INT, 1, 1))
-     $           call errquit('scf_input: failed to store RI option',0)
+            nriscf = 1
+          else if (inp_compare(.false., test, 'full')) then
+            nriscf = 2
           else if (inp_compare(.false., test, 'preconverge')) then
-            if (.not. rtdb_put(rtdb,'scf:ri',MT_INT, 1, 3))
-     $           call errquit('scf_input: failed to store RI option',0)
-          else if (inp_compare(.false., test, 'disk')) then
-            if (.not. rtdb_put(rtdb,'scf:ri',MT_INT, 1, 2))
-     $           call errquit('scf_input: failed to store RI option',0)
-            if (.not. rtdb_put(rtdb,'scf:ri_disk',MT_log, 1, .true.))
-     $           call errquit('scf_input: failed to store RI option',0)
+            nriscf = 3
+          else if (inp_compare(.false., test, 'auto')) then
+            ri_store = 1
           else if (inp_compare(.false., test, 'memory')) then
-            if (.not. rtdb_put(rtdb,'scf:ri',MT_INT, 1, 2))
-     $           call errquit('scf_input: failed to store RI option',0)
-            if (.not. rtdb_put(rtdb,'scf:ri_disk',MT_log, 1, .false.))
-     $           call errquit('scf_input: failed to store RI option',0)
+            ri_store = 2
+          else if (inp_compare(.false., test, 'disk')) then
+            ri_store = 3
           else
             call errquit('scf_input: unknown RI option',0)
           endif
           goto 2310
         endif
       endif
+      if (.not. rtdb_put(rtdb,'scf:ri',MT_INT, 1, nriscf))
+     $     call errquit('scf_input: failed to store RI option',0)
+      if (.not. rtdb_put(rtdb,'scf:ri_store',MT_INT, 1, ri_store))
+     $     call errquit('scf_input: failed to store RI option',0)
 
         goto 10
 c

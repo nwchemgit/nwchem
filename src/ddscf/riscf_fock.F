@@ -1,6 +1,6 @@
       subroutine riscf_fock_2e(geom1, ao_basis, ri_basis, nfock,
      $     fcoul, fexch, tol2e1, oskeleton, g_dens, g_fock)
-C$Id: riscf_fock.F,v 1.9 1996-09-22 18:40:52 d3g681 Exp $
+C$Id: riscf_fock.F,v 1.10 1996-10-03 23:54:43 vg038 Exp $
 C     calculate the coulomb and exchange contribution to the Fock matrix 
 C     from the density matrix and the transformed three-center ERIs
 
@@ -14,7 +14,9 @@ C     from the density matrix and the transformed three-center ERIs
 #include "cscfps.fh"
 #include "cscf.fh"
 #include "cfock.fh"
-#ifdef RISCF_USE_DA
+#include "stdio.fh"
+#include "util.fh"
+#ifdef RISCF_USE_DRA
 #include "dra.fh"
 #endif
 
@@ -40,14 +42,18 @@ C     g_three can be GA or DA handle !!!
 
       logical odisk
 
+      character*64 message
+
       parameter (zero=0.0D0, one=1.0D0, mone=-1.D0)
 
       sq2 = sqrt(2.D0)
       if (oskeleton) then
         if (ga_nodeid().eq.0) then
-          write(6,*)
-          call util_print_centered(6,
-     $         'Symmetry not implemented in RI', 25, .true.)
+          if ( util_print('information',print_low) ) then
+            write(luout,*)
+            call util_print_centered(luout,
+     $           'Symmetry not implemented in RI', 25, .true.)
+          endif
         endif
       endif
 
@@ -74,8 +80,17 @@ C     get number of expansion functions to be processed at the same time
       else if ( scftype .eq. 'UHF' ) then
         nocc = MAX ( nalpha, nbeta )
       endif
-      n_t = riscf_nr_nu ( nbf, nocc )
+      n_t = riscf_nr_nu ( nbf, nsh, nocc, npair, ao_basis, dovecs, 
+     $     odisk )
       n_t = min ( n_t, Nff )
+      if (ga_nodeid().eq.0) then
+        if ( util_print('information',print_high) ) then
+          message = 'processing XXXXX expansion functions in one step'
+          write ( message(12:16),'(I5)') n_t
+          write(luout,*)
+          call util_print_centered(luout, message, 25, .true.)
+        endif
+      endif
 
 C     temporary arrays (local and global)
       status = bas_nbf_cn_max (ao_basis, mxbf)
@@ -92,6 +107,8 @@ C     block of square matrix
 C     full 3c square matrix (ij|t) (range of t fixed)
       status = ga_create (MT_DBL, n_t*nbf, nbf,'3c-eri square', 1, nbf, 
      $     g_sthree)
+      if (.not.status) 
+     $     call errquit ('riscf_fock: error creating 3c square', 110)
 C
       if (dovecs) then
 C       Ken Dyalls MO-vector method
@@ -100,14 +117,22 @@ C       Ken Dyalls MO-vector method
      $        call errquit ('Dyall method only for ROHF', 110)
         status = ga_create (MT_DBL, n_t*nbf, nocc, 'Dyall tmp 1',1, 
      $       nocc, g_x1)
+        if (.not.status) 
+     $       call errquit ('riscf_fock: error creating g_x1', 110)
         status = ga_create (MT_DBL, nbf, n_t*nocc, 'Dyall tmp 2',1, 
      $       nocc, g_x2)
+        if (.not.status) 
+     $       call errquit ('riscf_fock: error creating g_x2', 110)
       else
 C       intermediate array T
         status = ga_create (MT_DBL, n_t*nbf, nbf,'3c-eri tmp', 1, nbf,
      $       g_T)
+        if (.not.status) 
+     $       call errquit ('riscf_fock: error creating g_T', 110)
 C       scratch array for transposition of T-blocks
         status = ga_create (MT_DBL, nbf, nbf,'scr', 1, nbf, g_tr)
+        if (.not.status) 
+     $       call errquit ('riscf_fock: error creating g_tr', 110)
       endif
 
       nproc = ga_nnodes()
@@ -127,17 +152,21 @@ C       last (partial) loop not covered by Nff / n_t
       last_t = min ( nt, Nff )
 
       if ( odisk ) then
-#ifdef RISCF_USE_DA
+#ifdef RISCF_USE_DRA
 C       global arrays to store part of three-center integrals read from da
 C       two of them to read asynchronously
         status = ga_create (MT_DBL, npair, n_t,'3c-eri #1', 1, nbf, 
      $       g_three_io(1) )
+        if (.not.status) 
+     $       call errquit ('riscf_fock: error creating io array 1', 110)
         status = ga_create (MT_DBL, npair, n_t,'3c-eri #2', 1, nbf, 
      $       g_three_io(2) )
+        if (.not.status) 
+     $       call errquit ('riscf_fock: error creating io array 2', 110)
 
 C       and read the first block
         if (oscfps) call pstat_on(ps_riscf_read)
-        istat = da_read_section (.false., g_three_io(1), 
+        istat = dra_read_section (.false., g_three_io(1), 
      $                  1, npair, 1, last_t,
      $       g_three,   1, npair, 1, last_t, req(1) )
         if (oscfps) call pstat_off(ps_riscf_read)
@@ -160,7 +189,7 @@ C         create full square matrices of 3center ERIs for this t range
           t = (il-1)*n_t
 
           if ( odisk ) then
-#ifdef RISCF_USE_DA
+#ifdef RISCF_USE_DRA
             next_t = t + n_t
             iarray = mod(ic,2) + 1
 C           initialize next read
@@ -171,7 +200,7 @@ C           initialize next read
               ic = ic + 1
               iarray2 = mod(ic,2) + 1
               if (oscfps) call pstat_on(ps_riscf_read)
-              istat = da_read_section (.false., 
+              istat = dra_read_section (.false., 
      $             g_three_io(iarray2), 1, npair, 1, num_t,
      $             g_three,  1,  npair,     first_t, last_t, 
      $             req(iarray2) )
@@ -180,7 +209,7 @@ C           initialize next read
 
 C           finish this read
             if (oscfps) call pstat_on(ps_riscf_read)
-            istat = da_wait ( req(iarray) )
+            istat = dra_wait ( req(iarray) )
             if (oscfps) call pstat_off(ps_riscf_read)
 
             g_three_sq = g_three_io(iarray)
@@ -291,7 +320,7 @@ C     free the temporary arrays
         status = ga_destroy ( g_T )
       endif
       status = ga_destroy ( g_sthree )
-#ifdef RISCF_USE_DA
+#ifdef RISCF_USE_DRA
       if ( odisk ) then
         status = ga_destroy ( g_three_io(2) )
         status = ga_destroy ( g_three_io(1) )
@@ -301,29 +330,74 @@ C     free the temporary arrays
       return
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      integer function riscf_nr_nu ( nbf, nocc )
+      integer function riscf_nr_nu ( nbf, nsh, nocc, npair, basis, 
+     $     dovecs, odisk )
 C     calculate number of expansion functions to be processed in one ga_dgemm
 C     from the available memory
       implicit none
 #include "msgids.fh"
 #include "global.fh"
+#include "bas.fh"
 
-      integer nbf, nocc
+      integer nbf, nsh, nocc, npair, basis
+      logical dovecs, odisk
 
-      integer total, localmem, nvec, ndens
+      integer mfree, nvec, ndens, ndim, nnodes, mxbf
+      logical status
 
-      localmem = ga_memory_avail()
-      if ( localmem .lt. 0 ) then
+      nnodes = ga_nnodes()
+
+      mfree = ga_memory_avail() / 8
+
+      if ( mfree .lt. 0 ) then
 C       memory cannot be determined
         riscf_nr_nu = 10
-      else
-        call ga_igop ( msg_riscf_mem, localmem, 1, 'min' )
-        total = localmem / 8 * ga_nnodes()
-
-        ndens = ( total - nbf**2 ) / ( 2 * nbf**2 )
-        nvec  = total / ( nbf * ( nbf + 2 * nocc ) )
-        riscf_nr_nu = min ( nvec, ndens )
+        return
       endif
+
+      if ( .not. dovecs ) then
+C       g_tr
+        mfree = mfree - ( nbf * nbf / nnodes )
+      endif
+
+C     local arrays from MA
+      if ( ga_uses_ma() ) then
+C       l_indx
+        mfree = mfree - nsh
+C       l_three, l_sthree
+        status = bas_nbf_cn_max ( basis, mxbf )
+        if ( .not. status ) 
+     $     call errquit ('riscf_use_disk: error getting basis info',110)
+        mfree = mfree - 2 * nbf * mxbf
+
+C       scratch arrays for ga_dgemm: 3 * block size
+        mfree = mfree - 3 * 256 * 256
+      endif
+
+C     assume evenly distributed array: free space = min * nnodes
+      call ga_igop ( msg_riscf_mem, mfree, 1, 'min' )
+      mfree = mfree * nnodes
+
+C     arrays dimensioned with the result of this function
+C     g_sthree (and an internal copy in ga_ddot_patch)
+      ndim = 2 * nbf * nbf
+
+      if ( dovecs ) then
+C       g_x1, g_x2
+        ndim = ndim + ( 2 * nbf * nocc )
+      else
+C       g_T
+        ndim = ndim + ( nbf * nbf )
+      endif
+      if ( odisk ) then
+C       g_three_io(1:2)
+        ndim = ndim + ( 2 * npair )
+      endif
+
+C     don't be too greedy, leave 20%
+      mfree = mfree * 8 / 10
+
+      riscf_nr_nu = mfree / ndim
 
       return
       end
