@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi)
-c $Id: cf_init.F,v 1.47 2000-05-31 18:19:43 d3j191 Exp $
+c $Id: cf_init.F,v 1.48 2000-05-31 18:57:16 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1783,7 +1783,7 @@ c
       call swatch(pdate,ptime)
       write(lfnout,1000) rlam(1),ith,pdate,ptime
  1000 format(/' THERMODYNAMIC INTEGRATION, LAMBDA=',f10.5,
-     + 5x,24l2,t110,2a10)
+     + 5x,12l1,1x,12l1,t110,2a10)
       endif
 c
       rlambd=rlam(1)
