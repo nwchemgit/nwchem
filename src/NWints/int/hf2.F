@@ -4,7 +4,7 @@
      &               Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,
      &               bERI,Nint,canAB,canCD,canPQ,
      &               DryRun,W0,maxW0)
-
+c $Id: hf2.F,v 1.2 1994-05-24 21:56:00 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
