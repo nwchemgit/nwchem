@@ -1,4 +1,4 @@
-       OBJ = rjhtest.o raktest.o
+       OBJ = rjhtest.o raktest.o debtest.o
    LIBRARY = libtest.a
 
 include ../config/makefile.h
