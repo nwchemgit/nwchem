@@ -1,15 +1,15 @@
 #
-# $Id: GNUmakefile,v 1.47 2000-03-22 03:02:15 edo Exp $
+# $Id: GNUmakefile,v 1.48 2000-03-27 19:19:23 edo Exp $
 #
 
    OBJ = dft_grad_top.o  dftg_force.o \
          dftg_getxc.o dft_gradients.o \
          grad_dft.o      dftg_quadv0.o     \
          dftg_getcden.o  dftg_getxden.o  \
-         dftg_bal_sum.o
+         dftg_bal_sum.o dftg_gridv0a.o dftg_gridv0.o
    OBJ_OPTIMIZE = dftg_cdfit.o  dftg_quadv0a.o  dftg_quadv0b.o  dftg_ssw.o\
                   dftg_grad2.o dftg_hf_x.o dint_block_j.o j_nucder_gen.o  \
-                  dftg_beckew.o dftg_wderiv.o dftg_gridv0a.o dftg_gridv0.o
+                  dftg_beckew.o dftg_wderiv.o
 ifeq ($(NWCHEM_TARGET),SGITFP)
    OBJ = dftg_cdfit.o  dft_grad_top.o  dftg_force.o \
          dftg_getxc.o dft_gradients.o dftg_grad2.o \

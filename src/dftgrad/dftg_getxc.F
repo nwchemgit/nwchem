@@ -2,7 +2,7 @@
      &                      nactive, s34, rdens_atom, cntoce,
      &                      cntobfr, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.18 2000-03-22 03:02:16 edo Exp $
+* $Id: dftg_getxc.F,v 1.19 2000-03-27 19:19:24 edo Exp $
 *
       implicit none
 c      
@@ -30,6 +30,7 @@ c
 c!!! BGJ test !!!
 #include "bgj.fh"
 c!!! BGJ test !!!
+#include "cgridfile.fh"
 c 
       integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
      &        cetobfr(2,natom)
@@ -60,7 +61,7 @@ c
      &     grid_on_file))then
          grid_on_file = .false.
       endif
-      if(grid_on_file) then
+      if(grid_on_file.and.grid_written) then
          call dftg_gridv0(rtdb, iga_dens, force, natom, oactive, 
      &                    nactive, rdens_atom, cntoce,
      &                    cntobfr, cetobfr)

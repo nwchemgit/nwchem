@@ -9,7 +9,7 @@
      &                         nactive, rdens_atom, cntoce, cntobfr,
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.1 2000-03-22 03:02:17 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.2 2000-03-27 19:19:24 edo Exp $
 c     
       implicit none
       integer rtdb
@@ -393,12 +393,16 @@ c
 c              Pre-compute reduced Xi(r) and dXi(r) over atoms
 c                 reduce chi(nq,mbf_ao) to chi(natoms)
 c                 reduce delchi(nq,3,mbf_ao) to delchi(natoms)
-               call grid_rchi3(ntot_cube+1,
-     ,              irchi, irdelchi,
-     ,              nqpts, natoms,iniz,ifin,
-     ,              dbl_mb(ichi_ao),dbl_mb(idelchi_ao),
-     ,              dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
-     ,              grad)
+         call util_rmsatbf(nqpts, natoms,iniz,ifin,
+     ,           dbl_mb(ichi_ao),dbl_mb(irchi_atom))
+         if(grad) 
+     .        call util_rmsatbf(nqpts, natoms,iniz,ifin,
+     ,           dbl_mb(idelchi_ao),dbl_mb(irdelchi_atom))
+!               call grid_rchi3(ntot_cube+1,
+!     ,              nqpts, natoms,iniz,ifin,
+!     ,              dbl_mb(ichi_ao),dbl_mb(idelchi_ao),
+!     ,              dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
+!     ,              grad)
 c         
                if (.not.MA_Push_Get(mt_dbl, nqpts*natoms, 'bp', 
      &            lbp, ibp))call errquit
