@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.39 1996-07-26 16:23:35 d3g681 Exp $
+# $Id: make_nwchem_config,v 1.40 1996-07-26 20:24:49 d3g681 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -145,7 +145,7 @@ STUBROUTINES := $(patsubst nwdft,nwdft dft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gapss,gapss,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst oimp2,oimp2,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst stepper,stpr_walk scf_optimize dft_optimize stepper_input scf_freq dft_freq eopt,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst stepper,stpr_walk stepper_input stpr_gen_hess_at,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst symmetry,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ideaz,mdmain md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst cphf,cphf mjdtest,$(STUBROUTINES) )
