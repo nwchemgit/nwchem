@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.42 1999-02-14 04:45:21 d3g681 Exp $
+# $Id: GNUmakefile,v 1.43 1999-02-22 05:14:41 gutowski Exp $
 #
 
    OBJ = dft_grad_top.o  dftg_force.o \
@@ -11,7 +11,7 @@
                   dftg_grad2.o dftg_hf_x.o dint_block_j.o j_nucder_gen.o
 ifeq ($(NWCHEM_TARGET),SGITFP)
    OBJ = dftg_cdfit.o  dft_grad_top.o  dftg_force.o \
-         dftg_getxc.o       dftg_grad2.o \
+         dftg_getxc.o dft_gradients.o dftg_grad2.o \
          grad_dft.o      dftg_quadv0.o     \
          dftg_getcden.o  dftg_getxden.o\
          dftg_bal_sum.o dftg_hf_x.o dftg_quadv0a.o dftg_beckew.o dftg_wderiv.o\
