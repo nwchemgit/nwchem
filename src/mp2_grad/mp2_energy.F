@@ -47,7 +47,8 @@
       parameter(maxireps=20,maxops=120)
       integer k_junk,l_junk
       integer k_work,l_work
-      integer k_map,l_map
+      integer k_map_a,l_map_a
+      integer k_map_b,l_map_b
       intrinsic nint
       logical status
 c     
@@ -168,32 +169,36 @@ c
 c     
       if(.not.ma_push_get(mt_dbl,nbf,'work',l_work,k_work))
      $     call errquit('could not alloc work',1)
-      if(.not.ma_push_get(mt_int,nbf,'map',l_map,k_map))
-     $     call errquit('could not alloc map',1)
+      if(.not.ma_push_get(mt_int,nbf,'map_a',l_map_a,k_map_a))
+     $     call errquit('could not alloc map_a',1)
+      if(scftype.eq.'UHF')then
+         if(.not.ma_push_get(mt_int,nbf,'map_b',l_map_b,k_map_b))
+     $        call errquit('could not alloc map_b',1)
+      endif
       call moints_vecs_sym_sort(g_vecs_a,nbf,noa_lo,noa_hi,
-     $     int_mb(k_irs_a),int_mb(k_map),dbl_mb(k_work),num_oa_sym,
+     $     int_mb(k_irs_a),int_mb(k_map_a),dbl_mb(k_work),num_oa_sym,
      $     sym_lo_oa,sym_hi_oa)
       if(scftype.eq.'UHF')
      $     call moints_vecs_sym_sort(g_vecs_b,nbf,nob_lo,nob_hi,
-     $     int_mb(k_irs_b),int_mb(k_map),dbl_mb(k_work),num_ob_sym,
+     $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_ob_sym,
      $     sym_lo_ob,sym_hi_ob)
       call moints_vecs_sym_sort(g_vecs_a,nbf,nva_lo,nva_hi,
-     $     int_mb(k_irs_a),int_mb(k_map),dbl_mb(k_work),num_va_sym,
+     $     int_mb(k_irs_a),int_mb(k_map_a),dbl_mb(k_work),num_va_sym,
      $     sym_lo_va,sym_hi_va)
       if(scftype.eq.'UHF')
      $     call moints_vecs_sym_sort(g_vecs_b,nbf,nvb_lo,nvb_hi,
-     $     int_mb(k_irs_b),int_mb(k_map),dbl_mb(k_work),num_vb_sym,
+     $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_vb_sym,
      $     sym_lo_vb,sym_hi_vb)
       if(.not.ma_push_get(mt_dbl,nbf,'junk',l_junk,k_junk))
      $     call errquit('could not alloc junk',1)
       call dcopy(nbf,dbl_mb(k_eval_a),1,dbl_mb(k_junk),1)
       do i=noa_lo,nva_hi
-         dbl_mb(k_eval_a-1+int_mb(k_map+i-1))=dbl_mb(k_junk+i-1)
+         dbl_mb(k_eval_a-1+int_mb(k_map_a+i-1))=dbl_mb(k_junk+i-1)
       enddo
       if(scftype.eq.'UHF')then
          call dcopy(nbf,dbl_mb(k_eval_b),1,dbl_mb(k_junk),1)
          do i=nob_lo,nvb_hi
-            dbl_mb(k_eval_b-1+int_mb(k_map+i-1))=dbl_mb(k_junk+i-1)
+            dbl_mb(k_eval_b-1+int_mb(k_map_b+i-1))=dbl_mb(k_junk+i-1)
          enddo
       endif
 c     
