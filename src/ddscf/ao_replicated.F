@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.14 1996-10-06 20:12:35 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.15 1996-10-08 18:49:08 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -563,8 +563,8 @@ c
          neri_direct = 100.0*neri_direct/neri_done
          neri_cached = 100.0*neri_cached/neri_done
          write(6,109) nqdone, neri_done, neri_direct, neri_cached
- 109     format(/1p,' #quartets =',d8.1, '  #integrals =',d8.1,
-     $        0p,'  direct =',f5.1,'%  cached =',f5.1,'%'/)
+ 109     format(/1p,' #quartets =',d10.3, ' #integrals =',d10.3,
+     $        0p,' #direct =',f5.1,'% #cached =',f5.1,'%'/)
          call util_flush(6)
       endif
 c
