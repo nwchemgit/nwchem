@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.21 2004-09-30 06:46:30 marat Exp $
+c $Id: qmmm_geom.F,v 1.22 2004-09-30 17:21:28 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -107,40 +107,6 @@ c     --------------------------
         call cons_info_fixed_atoms(namespace,irtdb)
         call cons_activate(namespace,irtdb)
       end if
-
-      end
-
-      subroutine qmmm_get_qm_coord_qm(irtdb)
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "geom.fh"
-#include "rtdb.fh"
-#include "qmmm.fh"
-      integer irtdb
-c     local variables
-      integer nqm
-
-      integer igeom
-      integer i_c
-
-      nqm   = qmmm_get_nqm()
-      i_c   = qmmm_get_i_c()
-
-c    --------------------------------------
-c    get qm coordinates out of geometry
-c    --------------------------------------
-      if(.not.geom_create(igeom,'geometry'))
-     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
-
-      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
-     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
-
-      if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c))) 
-     >    call errquit("qmmm:geom_cart_coords_get",0,0)
-
-       if(.not.geom_destroy(igeom))
-     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
       end
 
@@ -816,4 +782,71 @@ c     local variables
 
       end
 
+      subroutine qmmm_get_qm_coord_qm(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+      integer irtdb
+c     local variables
+      integer nqm
+
+      integer igeom
+      integer i_c
+
+      nqm   = qmmm_get_nqm()
+      i_c   = qmmm_get_i_c()
+
+c    --------------------------------------
+c    get qm coordinates out of geometry
+c    --------------------------------------
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c))) 
+     >    call errquit("qmmm:geom_cart_coords_get",0,0)
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+
+      end
+
+      subroutine qmmm_push_qm_coord_qm(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+      integer irtdb
+c     local variables
+      integer nqm
+
+      integer igeom
+      integer i_c
+
+      nqm   = qmmm_get_nqm()
+      i_c   = qmmm_get_i_c()
+
+c    --------------------------------------
+c    get qm coordinates out of geometry
+c    --------------------------------------
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not. geom_cart_coords_set(igeom,dbl_mb(i_c))) 
+     >    call errquit("qmmm:geom_cart_coords_get",0,0)
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+
+      end
 
