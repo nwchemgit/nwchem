@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.13 1999-02-16 17:50:53 d3j191 Exp $
+c $Id: esp_esp.F,v 1.14 1999-05-28 17:58:16 d3j191 Exp $
 c
       implicit none
 c
@@ -30,6 +30,7 @@ c
       integer imin,nval,jshi
       real*8 dmin,fact
       character*10 today,now
+      logical ldummy(1)
 c
 c      integer lmax2, lencart, lenprod
 c      parameter (lmax2 = 2*3) ! Twice max angular momentum
@@ -93,7 +94,8 @@ c
       npts=ngto-ngfr+1
       call esp_getden(dns,jlo,jhi,ilo,ihi)
       call potential_from_shell_pair(ibasis,jsh,ish,dns,mbf,
-     + scrtol,dwk,diwk,6,npts,grid(1,ngfr),val(ngfr),fact)
+     + scrtol,dwk,diwk,6,npts,grid(1,ngfr),val(ngfr),fact,
+     + .false.,ldummy,1)
     4 continue
       call ga_dgop(mre_003,val,ngrid,'+')
       if(me.eq.0) then
