@@ -313,9 +313,9 @@ The default behaviour of the SCF code is
 \item If not all integrals can be cached in memory or on disk,
   then the additional integrals are recomputed in a semi-direct
   fashion.
-\item Since many computer systems (e.g., the EMSL IBM SP) clears the
+\item Since many computer systems (e.g., the EMSL IBM SP) clear the
   fast scratch space at the end of each job, and given the complexity
-  of restarting {\em parallel} semi-direct calculations the integral
+  of restarting {\em parallel} semi-direct calculations, the integral
   file is deleted at the end of the calculation.  Under some
   situations it is possible to restart from integrals on disk, but
   this capability will not be made widely available until a later date.
@@ -399,7 +399,7 @@ may be computed as
       \right.
 \end{displaymath}
 The actual number is slightly bigger (less than one percent) than this
-due to booking keeping overhead, and the file itself is organized into
+due to book-keeping overhead, and the file itself is organized into
 fixed-size records.
 
 With at least the default print level, all semidirect (not direct)
