@@ -17,7 +17,7 @@ and the factoring out of the spin-free terms. Both of these may be achieved
 using a transformation of the Dirac Hamiltonian known in general as a
 Foldy-Wouthuysen transformation. Unfortunately this transformation cannot be
 represented in closed form for a general potential, and must be
-approximated.  One popular approach is that originally forulated by Douglas
+approximated.  One popular approach is that originally formulated by Douglas
 and Kroll\footnote{M.~Douglas and N.~M.~Kroll, Ann. Phys. (N.Y.)  {\bf 82},
 89 (1974)} and developed by Hess\footnote{B.A.~Hess, Phys.~Rev.~A~{\bf 32},
 756 (1985); {\bf 33}, 3742 (1986)}. This approach decouples the positive and
@@ -102,7 +102,7 @@ The approximate methods described in this section are all based on Dyall's
 modified Dirac Hamiltonian. This Hamiltonian is entirely equivalent to the
 original Dirac Hamiltonian, and its solutions have the same properties.
 The modification is achieved by a transformation on the small component,
-extracting out $\sigma\cdot{\bf p}/2mc$. This gives the modified small
+extracting out \hbox{$\sigma\cdot{\bf p}/2mc$}. This gives the modified small
 component the same symmetry as the large component, and in fact it differs
 from the large component only at order $\alpha^2$.  The advantage of the
 modification is that the operators now resemble the operators of the
@@ -167,14 +167,14 @@ directives.  The large and small components should similarly be incorporated
 in basis sets named \verb+large component+ and \verb+small component+,
 respectively. For the two-electron approximation, only two basis sets are
 needed. These are the large component and the small component. The large component
-should be included in the verb+ao basis+ and the small component
+should be included in the \verb+ao basis+ and the small component
 is specified separately as \verb+small component+, as for the one-electron
 approximation. This means that the two approximations can {\it not} be run
 correctly without changing the \verb+ao basis+, and it is up to the user to
 ensure that the basis sets are correctly specified.
 
 There is one further requirement in the specification of the basis sets. In
-the ao basis, it is necessary to add the \verb+rel+ keyword either to the
+the \verb+ao basis+, it is necessary to add the \verb+rel+ keyword either to the
 tag line, or on the \verb+basis+ directive. The former marks the basis
 functions specified by the tag as relativistic, the latter marks the whole
 basis as relativistic. The marking is actually done at the unique shell
@@ -192,8 +192,9 @@ It should also be noted that the relativistic code will NOT work with basis
 sets that contain sp shells, nor will it work with ECPs. Both of these are
 tested and flagged as an error.
 
-Some examples follow. The first example sets up the data for a relativistic
-calculation on water, using the library basis sets.
+Some examples follow. The first example sets up the data for relativistic
+calculations on water with the one-electron approximation and the
+two-electron approximation, using the library basis sets.
 
 \begin{verbatim}
   basis "fw" rel
@@ -230,9 +231,6 @@ calculation on water, using the library basis sets.
   end
 
   task scf
-
-
-
 
 \end{verbatim}
 
