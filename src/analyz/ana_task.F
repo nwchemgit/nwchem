@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.54 2001-01-11 21:48:14 d3j191 Exp $
+c $Id: ana_task.F,v 1.55 2001-01-15 22:55:16 d3j191 Exp $
 c
       implicit none
 c
@@ -56,6 +56,8 @@ c
       lfnhis=92
       lfnepz=93
       lfngrp=94
+c
+      ltop=.false.
 c
       do 44 i=1,mhis
       idhis(i,3)=40+i
@@ -175,14 +177,12 @@ c
       if(card(1:6).eq.'topol ') then
       filtop=card(8:80)
       call ana_siztop()
-      if(ltop) then
       if(.not.ma_push_get(mt_int,7*msgm,'iram',l_iram,i_iram))
      + call errquit('Could not allocate iram',0)
       if(.not.ma_push_get(mt_int,msa,'imol',l_imol,i_imol))
      + call errquit('Could not allocate imol',0)
       call ana_rdtop(byte_mb(i_snam),dbl_mb(i_qdat),int_mb(i_iram),
      + int_mb(i_imol))
-      endif
 c
       if(me.eq.0) then
       if(ltop) then
@@ -1129,12 +1129,10 @@ c
 c
       if(active) call ana_edfinal()
 c
-      if(ltop) then
       if(.not.ma_pop_stack(l_imol))
      + call errquit('Could not deallocate imol',0)
       if(.not.ma_pop_stack(l_iram))
      + call errquit('Could not deallocate iram',0)
-      endif
 c
       call ana_finish(byte_mb(i_snam),.true.)
 c
