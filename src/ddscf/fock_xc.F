@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.21 2002-03-22 02:14:05 sohirata Exp $
+c     $Id: fock_xc.F,v 1.22 2003-09-11 16:04:05 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -81,7 +81,12 @@ c
 c     Get fock_xc variables
 c
       if (.not. rtdb_get(rtdb, 'fock_xc:calc_type', mt_int, 1,
-     &   calc_type).or.calc_type .eq. 0) then
+     &   calc_type)) then
+         if (oprint.and.ga_nodeid().eq.0)
+     &      write(luout,*)' fockxc: calc_type not set: setting to 1'
+         calc_type = 1
+      endif
+      if (calc_type .eq. 0) then
          if (oprint.and.ga_nodeid().eq.0)
      &      write(luout,*)' fockxc: calc_type not set: setting to 1'
          calc_type = 1
