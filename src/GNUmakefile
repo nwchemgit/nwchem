@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.5 1994-07-28 07:56:40 d3g681 Exp $
+# $Id: GNUmakefile,v 1.6 1994-08-15 17:46:34 d3g681 Exp $
 
 include config/makefile.h
 
@@ -18,6 +18,12 @@ nwchem:	libraries
 
 nwchem_link:    nwchem.o
 	$(FC) $(FLDOPT) -o nwchem nwchem.o $(LIBS)
+	$(INSTALL)
+#
+# This for linking test version
+#
+nwchem_test:	
+	$(FC) $(FLDOPT) -o nwchem_test nwchem.o $(LIBS)
 	$(INSTALL)
 
 # This dependency so that includes which are made by libraries rule
