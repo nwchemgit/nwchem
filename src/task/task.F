@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.61 2004-09-21 19:14:11 marat Exp $
+* $Id: task.F,v 1.62 2004-10-09 00:20:05 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -67,6 +67,9 @@ c
       external task_drdy
       external task_et
 c
+      logical task_qmmm_optimize
+      external task_qmmm_optimize
+c
       oprint_task_times = util_print('task time',print_default)
       task_wall = -util_wallsec()
       task_cpu  = -util_cpusec()
@@ -87,32 +90,13 @@ c
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
 c
-c for qmmm, nwmd will call appropriate task routines
+c     if neede initialize qmmm for the duration of the task
 c
       if (task_qmmm) then
-c        if (theory.eq.'nwmd'.or.theory.eq.'md')
-c     + call errquit('task:theory must be a QM method for QMMM',911,
-c     &       INPUT_ERR)
-c        status = nwmd(rtdb)
         status = qmmm_init(rtdb)
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
-              call errquit("failed qmmm_init", 0, CALC_ERR)
+              call errquit("failed to initialize qmmm", 0, CALC_ERR)
         end if
-c        if ((ga_nodeid().eq.0) .and. (.not. status)) then
-c          errmsg = ' '
-c          write(errmsg,'(''QMMM '',a,'' failed '')')
-c     &        theory(1:inp_strlen(theory))
-c          if (ga_nodeid().eq.0) then
-c            if (ignore) then
-c              write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
-c              call util_flush(6)
-c            else
-c              call errquit(errmsg, 0, CALC_ERR)
-c            endif
-c          endif
-c        endif
-c        call ga_sync()
-c        goto 99999
       endif
 c
       ocons = cons_active(rtdb)
@@ -204,7 +188,11 @@ c
       else if (inp_compare(.false., 'hessian', operation)) then
          status = task_hessian(rtdb)
       else if (inp_compare(.false., 'optimize', operation)) then
-         status = task_optimize(rtdb)
+         if(task_qmmm) then
+           status = task_qmmm_optimize(rtdb)
+         else
+           status = task_optimize(rtdb)
+         endif
       else if (inp_compare(.false., 'saddle', operation)) then
          status = task_saddle(rtdb)
       else if(inp_compare(.false.,'neb',operation)) then

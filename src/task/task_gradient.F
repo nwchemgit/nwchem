@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.43 2004-09-21 19:14:11 marat Exp $
+* $Id: task_gradient.F,v 1.44 2004-10-09 00:20:05 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -23,8 +23,8 @@ c
       integer i, k, ncent, nelem
       logical task_gradient_doit, oniom_gradient, geom_rtdb_ncent
       external task_gradient_doit, oniom_gradient, geom_rtdb_ncent
-      logical qmmm_gradient
-      external qmmm_gradient
+      logical  task_qmmm_gradient
+      external task_qmmm_gradient
       logical cons_active
       external cons_active
 c
@@ -54,7 +54,7 @@ c
      &    task_qmmm = .false.
 c
       if(task_qmmm) then
-         status = qmmm_gradient(rtdb)
+          status = task_qmmm_gradient(rtdb)
             if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
      $           call errquit('task_energy: no energy in rtdb?',0,
      &       RTDB_ERR)
@@ -62,6 +62,7 @@ c
      $           gradient))
      $           call errquit('task_gradient: no gradient in rtdb?',0,
      &       RTDB_ERR)
+             write(*,*) "qmmm:gradient"
       else if (theory .ne. 'oniom' .or. numerical) then
          status = task_gradient_doit(rtdb,theory,energy, gradient)
       else
@@ -142,7 +143,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.43 2004-09-21 19:14:11 marat Exp $
+* $Id: task_gradient.F,v 1.44 2004-10-09 00:20:05 marat Exp $
 *
       implicit none
 #include "errquit.fh"
