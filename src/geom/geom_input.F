@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.57 1997-03-11 22:40:54 mdupuis Exp $
+C     $Id: geom_input.F,v 1.58 1997-03-12 21:45:09 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -371,7 +371,6 @@ c
       double precision scale
 c
       double precision value
-      logical status
       parameter (nopt_system=4, ntokens=7)
       character*10 opt(nopt_system), tokens(ntokens)
       character*10 test
@@ -1159,13 +1158,10 @@ c
       common/hnd_zmt_fil/zmt_bmat_fil,zmt_binv_fil,
      1                   zmt_zsym_fil,zmt_zind_fil
 c
-      character*8 errmsg
       integer     ir
       integer     iw
       logical     dbug
       common/hnd_iofile/ir,iw
-      dimension errmsg(3)
-      data errmsg /'program ','stop in ','zmt_opn '/
 c
       logical opn_bmat
       logical opn_binv
@@ -1175,6 +1171,8 @@ c
       integer ift3
       integer ift4
       integer ift5
+      character*8 errmsg(3)
+      data errmsg /'program ','stop in ','zmt_opn '/
       data    ift2 /32/
       data    ift3 /33/
       data    ift4 /34/
@@ -1247,13 +1245,10 @@ c
       common/hnd_zmt_fil/zmt_bmat_fil,zmt_binv_fil,
      1                   zmt_zsym_fil,zmt_zind_fil
 c
-      character*8 errmsg
       integer     ir
       integer     iw
       logical     dbug
       common/hnd_iofile/ir,iw
-      dimension errmsg(3)
-      data errmsg /'program ','stop in ','zmt_cls '/
 c
       logical opn_bmat
       logical opn_binv
@@ -1263,6 +1258,8 @@ c
       integer ift3
       integer ift4
       integer ift5
+      character*8 errmsg(3)
+      data errmsg /'program ','stop in ','zmt_cls '/
       data    ift2 /32/
       data    ift3 /33/
       data    ift4 /34/
@@ -1298,9 +1295,6 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      integer ift2
-      data    ift2 /32/
-c
       integer      mxzmat
       integer      mxatom
       integer      mxcart
@@ -1319,6 +1313,9 @@ c                   mxcoor=max(mxcart,mxzmat)
       logical out
       common/hnd_iofile/ir,iw
       double precision bmat(mcart,nzvar)
+c
+      integer ift2
+      data    ift2 /32/
 c
       dbug=.false.
       out =.false.
@@ -1355,9 +1352,6 @@ c
 #include "rtdb.fh"
 #include "context.fh"
 #include "geomP.fh"
-c
-      integer ift2
-      data    ift2 /32/
 c     
       integer      mxzmat
       integer      mxatom
@@ -1377,6 +1371,9 @@ c                   mxcoor=max(mxcart,mxzmat)
       logical out
       common/hnd_iofile/ir,iw
       double precision bmat(mcart,nzvar)
+c
+      integer ift2
+      data    ift2 /32/
 c
       dbug=.false.
       out =.false.
@@ -1415,9 +1412,6 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      integer ift5
-      data    ift5 /35/
-c
       integer      mxzmat
       integer      mxatom
       integer      mxcart
@@ -1435,6 +1429,9 @@ c                   mxcoor=max(mxcart,mxzmat)
       logical out
       common/hnd_iofile/ir,iw
       double precision zsym(mzvar,mzvar)
+c
+      integer ift5
+      data    ift5 /35/
 c
       dbug=.false.
       out =.false.
@@ -1472,9 +1469,6 @@ c
 #include "rtdb.fh"
 #include "context.fh"
 #include "geomP.fh"
-c
-      integer ift5
-      data    ift5 /35/
 c     
       integer      mxzmat
       integer      mxatom
@@ -1493,6 +1487,9 @@ c                   mxcoor=max(mxcart,mxzmat)
       logical out 
       common/hnd_iofile/ir,iw
       double precision zsym(mzvar,mzvar)
+c
+      integer ift5
+      data    ift5 /35/
 c
       dbug=.false.
       out =.false.
@@ -1531,9 +1528,6 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      integer ift4
-      data    ift4 /34/
-c
       integer      mxzmat
       integer      mxatom
       integer      mxcart
@@ -1551,6 +1545,9 @@ c                   mxcoor=max(mxcart,mxzmat)
       logical out
       common/hnd_iofile/ir,iw
       double precision zind(mzvar,mzvar)
+c
+      integer ift4
+      data    ift4 /34/
 c
       dbug=.false.
       out =.false.
@@ -1588,9 +1585,6 @@ c
 #include "rtdb.fh"
 #include "context.fh"
 #include "geomP.fh"
-c
-      integer ift4
-      data    ift4 /34/
 c     
       integer      mxzmat
       integer      mxatom
@@ -1609,6 +1603,9 @@ c                   mxcoor=max(mxcart,mxzmat)
       logical out 
       common/hnd_iofile/ir,iw
       double precision zind(mzvar,mzvar)
+c
+      integer ift4
+      data    ift4 /34/
 c
       dbug=.false.
       out =.false.
@@ -1646,9 +1643,6 @@ c
 #include "rtdb.fh"
 #include "context.fh"
 #include "geomP.fh"
-c
-      integer ift3
-      data    ift3 /33/
 c     
       integer      mxzmat
       integer      mxatom
@@ -1668,6 +1662,9 @@ c                   mxcoor=max(mxcart,mxzmat)
       logical out
       common/hnd_iofile/ir,iw
       double precision binv(mcart,nzvar)
+c
+      integer ift3
+      data    ift3 /33/
 c
       dbug=.false.
       out =.false.
@@ -1705,9 +1702,6 @@ c
 #include "rtdb.fh"
 #include "context.fh"
 #include "geomP.fh"
-c
-      integer ift3
-      data    ift3 /33/
 c     
       integer      mxzmat
       integer      mxatom
@@ -1727,6 +1721,9 @@ c                   mxcoor=max(mxcart,mxzmat)
       logical out
       common/hnd_iofile/ir,iw
       double precision binv(mcart,nzvar)
+c
+      integer ift3
+      data    ift3 /33/
 c
       dbug=.false.
       out =.false.
@@ -1783,7 +1780,6 @@ c                   mxcoor=max(mxcart,mxzmat)
       integer      nuc
       integer      nat
       integer      geom
-      logical      geom_zmt_put_izmat          
       logical      dbug 
       logical      some 
       double precision coords
@@ -3420,7 +3416,6 @@ C
       LOGICAL     GEOM_ZMT_PUT_BINV 
       LOGICAL     GEOM_ZMT_GET_BMAT
       LOGICAL     GEOM_ZMT_PUT_ZIND
-      LOGICAL     GEOM_ZMT_GET_ZIND
       LOGICAL     GEOM_ZMT_GET_ZSYM
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
