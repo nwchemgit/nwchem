@@ -17,7 +17,9 @@ c
       integer max_cart
       parameter (max_cart = 3*max_cent)
       integer max_nvar
-      parameter (max_nvar = max(max_nzvar,max_cart))
+*     parameter (max_nvar = max(max_nzvar,max_cart))  ! max function call cannot be used in a parameter statement
+*note:  max_nvar should be .eq. max(max_nzvar,max_cart)
+      parameter (max_nvar = max_cart)
 c
       double precision eprec    ! Precision for energy comparisons
       parameter (eprec = 1d-5)
