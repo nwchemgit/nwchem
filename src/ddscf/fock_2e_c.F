@@ -11,7 +11,7 @@ c
      $                      dij, dik, dli, djk, dlj, dlk, 
      $                      fij, fik, fli, fjk, flj, flk )
 c
-c$Id: fock_2e_c.F,v 1.2 1995-03-14 02:27:51 rg240 Exp $
+c$Id: fock_2e_c.F,v 1.3 1995-03-14 20:27:44 rg240 Exp $
 c
       implicit none
 c     
@@ -37,6 +37,8 @@ c
       integer i, j, k, l, jtop, ktop, ltop
       logical oij, okl, oikjl
       integer v
+      double precision d_ij, d_jk, d_ik
+      double precision f_ij, f_jk, f_ik
       double precision g
 c
 c  Assume identical index ranges ==> identical shells
@@ -47,32 +49,68 @@ c
 c     
 c     Add into the fock matrix
 c     
-      do i = islo, ishi
-        jtop = jshi
-        if (oij) jtop = i
-        do j = jslo, jtop
-          ktop = kshi
-          if (oikjl) ktop = i
-          do k = kslo, ktop
-            ltop = lshi
-            if (okl) ltop = k
-            if (oikjl .and. k.eq.i) ltop = j
-            do l = lslo, ltop
-              g = eri(l,k,j,i)*q4_shell
-              if (abs(g) .ge. tol2e) then
-                do v=1,nfock
-                  fij(v,i,j) = fij(v,i,j) + g*dlk(v,l,k)
-                  flk(v,l,k) = flk(v,l,k) + g*dij(v,i,j)
-                  fik(v,i,k) = fik(v,i,k) + g*dlj(v,l,j)
-                  fli(v,l,i) = fli(v,l,i) + g*djk(v,j,k)
-                  flj(v,l,j) = flj(v,l,j) + g*dik(v,i,k)
-                  fjk(v,j,k) = fjk(v,j,k) + g*dli(v,l,i)
-                enddo
-              endif
+      if (nfock.gt.1) then
+        do i = islo, ishi
+          jtop = jshi
+          if (oij) jtop = i
+          do j = jslo, jtop
+            ktop = kshi
+            if (oikjl) ktop = i
+            do k = kslo, ktop
+              ltop = lshi
+              if (okl) ltop = k
+              if (oikjl .and. k.eq.i) ltop = j
+              do l = lslo, ltop
+                g = eri(l,k,j,i)*q4_shell
+                if (abs(g) .ge. tol2e) then
+                  do v=1,nfock
+                    fij(v,i,j) = fij(v,i,j) + g*dlk(v,l,k)
+                    flk(v,l,k) = flk(v,l,k) + g*dij(v,i,j)
+                    fik(v,i,k) = fik(v,i,k) + g*dlj(v,l,j)
+                    fli(v,l,i) = fli(v,l,i) + g*djk(v,j,k)
+                    flj(v,l,j) = flj(v,l,j) + g*dik(v,i,k)
+                    fjk(v,j,k) = fjk(v,j,k) + g*dli(v,l,i)
+                  enddo
+                endif
+              enddo
             enddo
           enddo
         enddo
-      enddo
+      else
+        do i = islo, ishi
+          jtop = jshi
+          if (oij) jtop = i
+          do j = jslo, jtop
+            d_ij = dij(1,i,j)
+            f_ij = 0.d0
+            ktop = kshi
+            if (oikjl) ktop = i
+            do k = kslo, ktop
+              d_jk = djk(1,j,k)
+              f_jk = 0.d0
+              d_ik = dik(1,i,k)
+              f_ik = 0.d0
+              ltop = lshi
+              if (okl) ltop = k
+              if (oikjl .and. k.eq.i) ltop = j
+              do l = lslo, ltop
+                g = eri(l,k,j,i)*q4_shell
+                if (abs(g) .ge. tol2e) then
+                  f_ij       = f_ij       + g * dlk(1,l,k)
+                  flk(1,l,k) = flk(1,l,k) + g * d_ij
+                  f_ik       = f_ik       + g * dlj(1,l,j)
+                  fli(1,l,i) = fli(1,l,i) + g * d_jk
+                  flj(1,l,j) = flj(1,l,j) + g * d_ik
+                  f_jk       = f_jk       + g * dli(1,l,i)
+                endif
+              enddo
+              fjk(1,j,k) = fjk(1,j,k) + f_jk
+              fik(1,i,k) = fik(1,i,k) + f_ik
+            enddo
+            fij(1,i,j) = fij(1,i,j) + f_ij
+          enddo
+        enddo
+      endif
 
       end
 
