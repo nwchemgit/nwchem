@@ -1,16 +1,16 @@
 *
-* $Id: control.fh,v 1.5 2002-01-12 00:16:35 edo Exp $
+* $Id: control.fh,v 1.6 2002-01-14 18:50:48 bylaska Exp $
 *
 
 *     **** control common block ****
 
-      integer MAXPSP
-      parameter (MAXPSP=50)
+c     integer MAXPSP
+c     parameter (MAXPSP=50)
       character*30 output_wavefunction_filename
       character*30 input_wavefunction_filename
       character*30 output_v_wavefunction_filename
       character*30 input_v_wavefunction_filename
-      character*20 pspnames(MAXPSP)
+c     character*20 pspnames(MAXPSP)
       character*30 xyz_filename
       character*12 boundry
       real*8      unita(3,3),tolerances(3),scaling(2)
@@ -29,7 +29,6 @@
      >                         ispin,multiplicity,
      >                         move,frac_coord
       common / control_blkchar / 
-     >                         pspnames,
      >                         output_wavefunction_filename,
      >                         input_wavefunction_filename,
      >                         output_v_wavefunction_filename,

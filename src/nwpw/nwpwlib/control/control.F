@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.18 2002-01-04 23:20:00 bylaska Exp $
+* $Id: control.F,v 1.19 2002-01-14 18:50:48 bylaska Exp $
 *
 
 *     ***********************************
@@ -29,7 +29,7 @@
       common / control_rtdb1 / trtdb
 
 
-      character*30 cell_name,id
+      character*30 cell_name
       character*30 rtdb_unita,rtdb_ngrid,rtdb_boundry
       character*30 exchange_correlation
       integer i,l
@@ -89,11 +89,11 @@
       value = value.and.
      >        rtdb_get(rtdb,'cpsd:ispin',mt_int,1,ispin)
 
-      do i=1,npsp
-        id = 'cpsd:psp'//CHAR(i)
-        value = value.and.
-     >          rtdb_cget(rtdb,id,1,pspnames(i))
-      end do
+c     do i=1,npsp
+c       id = 'cpsd:psp'//CHAR(i)
+c       value = value.and.
+c    >          rtdb_cget(rtdb,id,1,pspnames(i))
+c     end do
 
 *     **** cpmd code: stuff ****
       else if (code.eq.2) then
@@ -154,11 +154,11 @@
      >        rtdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut)
 
 
-      do i=1,npsp
-        id = 'cpmd:psp'//CHAR(i)
-        value = value.and.
-     >          rtdb_cget(rtdb,id,1,pspnames(i))
-      end do
+c     do i=1,npsp
+c       id = 'cpmd:psp'//CHAR(i)
+c       value = value.and.
+c    >          rtdb_cget(rtdb,id,1,pspnames(i))
+c     end do
 
 *     **** get thermostat information ****
       value = value .and. rtdb_get(rtdb,'cpmd:nose',mt_log,1,nose)
@@ -218,11 +218,11 @@
       value = value.and.
      >        rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin)
 
-      do i=1,npsp
-        id = 'cgsd:psp'//CHAR(i)
-        value = value.and.
-     >          rtdb_cget(rtdb,id,1,pspnames(i))
-      end do
+c     do i=1,npsp
+c       id = 'cgsd:psp'//CHAR(i)
+c       value = value.and.
+c    >          rtdb_cget(rtdb,id,1,pspnames(i))
+c     end do
 
 *     **** pspw_dplot: stuff ****
       else if (code.eq.4) then
@@ -623,42 +623,43 @@
       end
 
 
-*     ***********************************
-*     *					*
-*     *		control_pspnames	*
-*     *					*
-*     ***********************************
-      character*20  function control_pspnames(i)
-      implicit none 
-      integer i
-
-#include "control.fh"
-
-      control_pspnames = pspnames(i)
-      return
-      end
-
-*     ***********************************
-*     *							 		*
-*     *		control_pspstressnames		*
-*     *									*
-*     ***********************************
-      character*20  function control_pspstressnames(i)
-      implicit none 
-      integer i
-
-      integer ind
-      character*20 pspname
-      character*20 control_pspnames
-      external     control_pspnames
-
-      pspname = control_pspnames(i)
-      ind = index(pspname,' ') -1
-      pspname = pspname(1:ind)//'2'
-
-      control_pspstressnames = pspname
-      return
-      end
+c*     ***********************************
+c*     *					*
+c*     *		control_pspnames	*
+c*     *					*
+c*     ***********************************
+c      character*20  function control_pspnames(i)
+c      implicit none 
+c      integer i
+c
+c#include "control.fh"
+c
+c      control_pspnames = pspnames(i)
+c      return
+c      end
+c
+c
+c*     ***********************************
+c*     *							 		*
+c*     *		control_pspstressnames		*
+c*     *									*
+c*     ***********************************
+c      character*20  function control_pspstressnames(i)
+c      implicit none 
+c      integer i
+c
+c      integer ind
+c      character*20 pspname
+c      character*20 control_pspnames
+c      external     control_pspnames
+c
+c      pspname = control_pspnames(i)
+c      ind = index(pspname,' ') -1
+c      pspname = pspname(1:ind)//'2'
+c
+c      control_pspstressnames = pspname
+c      return
+c      end
 
 *     ***********************************
 *     *					*
