@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.110 1999-05-05 16:04:50 d3j191 Exp $
+c     $Id: msgids.fh,v 1.111 1999-05-08 12:59:18 bjohnson Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -32,7 +32,7 @@ c
       integer msg_rak
       integer msg_seqout_ctrl, msg_seqout_text
       integer msg_fock_ex,msg_xc_ex,msg_cd_ex,msg_ga_chol
-      integer msg_iconst,msg_gop_tvec,msg_lagrange,msg_cd_coef
+      integer msg_iconst,msg_gop_tvec,msg_lagrange,msg_cd_coef,msg_Tcgtf
       integer msg_schw1,msg_xc_coef,msg_tmat,msg_excrho
       integer msg_rms_dens,msg_ecoul2
       integer msg_tot_max,msg_nqtot
@@ -889,3 +889,5 @@ c
       parameter(msp_48=msg_ftn_base-698)
       parameter(msp_49=msg_ftn_base-699)
       parameter(msp_50=msg_ftn_base-700)
+c
+      parameter(msg_Tcgtf=msg_ftn_base-701) ! dft_fitcd: temp array dgop
