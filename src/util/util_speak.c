@@ -1,5 +1,5 @@
 /*
- $Id: util_speak.c,v 1.8 1999-11-16 20:51:03 edo Exp $
+ $Id: util_speak.c,v 1.9 2001-11-14 20:26:20 edo Exp $
  */
 
 #include <stdio.h>
@@ -45,7 +45,7 @@ void util_speak(const char *string)
 #endif
 }
 
-#ifdef CRAY_T3D
+#ifdef CRAY
 #define FATR
 void UTIL_SPEAK(const char *string, int len)
 #else
@@ -62,7 +62,7 @@ void util_speak_(const char *string, int len)
 #endif
 }
 
-#if defined(CRAY_T3D) || defined(USE_FCD)
+#if defined(CRAY) || defined(USE_FCD)
 void FATR UTIL_SPEAK_INIT(const char *host, integer *fp, int len)
 #else
 void util_speak_init_(const char *host, integer *fp, int len)

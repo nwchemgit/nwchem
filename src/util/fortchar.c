@@ -1,6 +1,6 @@
-/*$Id: fortchar.c,v 1.7 1999-11-16 20:51:02 edo Exp $*/
+/*$Id: fortchar.c,v 1.8 2001-11-14 20:26:20 edo Exp $*/
 /* Name munging to handle the various conventions for Fortran-C interfacing */
-#if (defined(CRAY_T3D) || defined(ARDENT) || defined(WIN32))
+#if (defined(CRAY) || defined(ARDENT) || defined(WIN32))
 #   define FCSND_  FCSND
 #   define FCRCV_  FCRCV
 #else
@@ -18,10 +18,10 @@
 
 #include "sndrcv.h"
 #include <string.h>
-#ifdef CRAY_T3D
+#ifdef CRAY
 #define FATR
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
-#endif /* CRAY_T3D */
+#endif /* CRAY */
 #ifdef WIN32
 #include "typesf2c.h"
 #endif
@@ -35,30 +35,30 @@
  **/
 
 
-#if defined(CRAY_T3D) || defined(USE_FCD)
+#if defined(CRAY) || defined(USE_FCD)
 void FATR FCSND_(type, fcd, node, sync)
      long *type;
      _fcd fcd;
      long *node;
      long *sync;
-#else /* CRAY_T3D */
+#else /* CRAY */
 void FCSND_(type, fstring, node, sync, flength)
      long *type;
      long *node;
      long *sync;
      char *fstring;
      long flength; /* Length of fstring, implicitly passed by FORTRAN */
-#endif /* CRAY_T3D */
+#endif /* CRAY */
 {
     char cstring[FC_MAXLEN];
     long fpos, clength, lenbuf=sizeof cstring;
-#if defined(CRAY_T3D) || defined(USE_FCD)
+#if defined(CRAY) || defined(USE_FCD)
     char	*fstring;	/* FORTRAN string */
     long	flength;	/* length of fstring */
 
     fstring = _fcdtocp(fcd);
     flength = _fcdlen(fcd);
-#endif /* CRAY_T3D */
+#endif /* CRAY */
 	    
     /* If the Fortran string is too long it is sent in chunks */
     fpos = 0;
@@ -84,7 +84,7 @@ void FCSND_(type, fstring, node, sync, flength)
     }
 }
 
-#if defined(CRAY_T3D) || defined(USE_FCD)
+#if defined(CRAY) || defined(USE_FCD)
 void FATR FCRCV_(type, fcd, flength, nodeselect, nodefrom, sync)
      long *type;
      _fcd fcd;
@@ -92,7 +92,7 @@ void FATR FCRCV_(type, fcd, flength, nodeselect, nodefrom, sync)
      long *nodeselect;
      long *nodefrom;
      long *sync;
-#else /* CRAY_T3D */
+#else /* CRAY */
 void FCRCV_(type, fstring, flength, nodeselect, nodefrom, sync, fsize)
      long *type;
      char *fstring;
@@ -105,13 +105,13 @@ void FCRCV_(type, fstring, flength, nodeselect, nodefrom, sync, fsize)
 {
     char cstring[FC_MAXLEN];
     long i, clength, lenbuf=sizeof cstring;
-#if defined(CRAY_T3D) || defined(USE_FCD)
+#if defined(CRAY) || defined(USE_FCD)
     char	*fstring;	/* FORTRAN string */
     long	fsize;	        /* length of fstring */
 
     fstring = _fcdtocp(fcd);
     fsize = _fcdlen(fcd);
-#endif /* CRAY_T3D */
+#endif /* CRAY */
 	    
     /* Collect the text, which may be broken into multiple messages */
     *flength = 0;

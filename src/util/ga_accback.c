@@ -1,13 +1,13 @@
-#if defined(CRAY_T3D) || defined(ARDENT) || defined(WIN32)
+#if defined(CRAY) || defined(ARDENT) || defined(WIN32)
 #   define ga_access_callback_release_ GA_ACCESS_CALLBACK_RELEASE 
 #endif
 
 #include "global.h"
 #include "macdecls.h"
-#ifdef CRAY_T3D
+#ifdef CRAY
 #define FATR
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
-#endif /* CRAY_T3D */
+#endif /* CRAY */
 #ifdef WIN32
 #include "typesf2c.h"
 #endif
