@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.26 1997-05-15 22:13:03 rg240 Exp $
+c  $Id: moints_2x.F,v 1.27 1997-05-29 16:39:15 d3j191 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -798,7 +798,7 @@ c
 
 c
        integer aoff,nni,nnij,nnj,ab,ivlo,ivhi,jvlo,jvhi,ofroz
-       integer ssij, nvir, ostart
+       integer ssij,ostart
        integer aa,bb,a,b,i,j,v
        double precision cc
 c     
