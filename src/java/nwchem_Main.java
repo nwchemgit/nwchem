@@ -11,7 +11,7 @@ class nwchem_Main extends JFrame implements ActionListener, WindowListener {
   
   JMenuItem quit;
   JMenuItem nwchem, rasmol, gopmol;
-  JMenuItem proper, free, synch, timing;
+  JMenuItem proper, anal, free, synch, timing;
   JMenuItem frgmnt, segmnt, param, seqnce, topol;
 
   // Status TextArea
@@ -76,6 +76,13 @@ class nwchem_Main extends JFrame implements ActionListener, WindowListener {
 	System.out.println("Property Viewer");
 	nwchem_Property proper_View = new nwchem_Property();
 	proper_View.setVisible(true);
+      }});
+    view.add(anal = new JMenuItem("analysis"));
+    anal.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+	System.out.println("Analysis Viewer");
+	nwchem_Analysis anal_View = new nwchem_Analysis();
+	anal_View.setVisible(true);
       }});
     view.add(free   = new JMenuItem("free energy"));
     free.addActionListener(new ActionListener(){

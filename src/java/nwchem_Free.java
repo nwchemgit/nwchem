@@ -118,8 +118,8 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 	    free=0.0;
 	    boolean first=true;
             int j,ndata;
-	    double cnv[] = new double[5000];
-            int mdata=5000;
+	    double cnv[] = new double[10000];
+            int mdata=10000;
             int numdat=0;
 	    while((card=br.readLine()) != null){
 		int nderiv = Integer.parseInt(card.substring(1,7).trim());
