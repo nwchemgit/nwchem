@@ -1,7 +1,7 @@
       logical function pre_bonds(xatm,latm,matm,ilo,ihi,lbnd,mbnd,nbnd,
      + llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_bonds.F,v 1.2 2000-03-21 23:58:04 d3j191 Exp $
+c $Id: pre_bonds.F,v 1.3 2000-07-06 18:48:56 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -19,8 +19,8 @@ c     function returns .false. if mbnd < nbnd
 c
       implicit none
 c
-      real*8 pre_atrad
-      external pre_atrad
+      real*8 pre_atsiz
+      external pre_atsiz
 c
       integer matm,mbnd
       integer nbnd
@@ -44,7 +44,7 @@ c
      + (xatm(2,j)-xatm(2,i))*(xatm(2,j)-xatm(2,i))+
      + (xatm(3,j)-xatm(3,i))*(xatm(3,j)-xatm(3,i)))
       if(dist.gt.0.05d0.and.
-     + dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i))) then
+     + dist.le.pre_atsiz(latm(2,j))+pre_atsiz(latm(2,i))) then
       if(nbnd.ge.mbnd)
      + call errquit('Dimension problem in pre_bonds',nbnd)
       nbnd=nbnd+1

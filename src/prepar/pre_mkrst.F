@@ -1,9 +1,9 @@
       logical function pre_mkrst(irtdb,mdold,source,lfnout,
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
-     + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
+     + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk)
 c
-c $Id: pre_mkrst.F,v 1.55 2000-06-27 18:07:44 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.56 2000-07-06 18:48:56 d3j191 Exp $
 c
       implicit none
 c
@@ -20,17 +20,18 @@ c
       external pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
       logical util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
       external util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
-      logical pre_align,pre_repeat,pre_transl,pre_removw
-      external pre_align,pre_repeat,pre_transl,pre_removw
+      logical pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
+      external pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
-      integer lfnslv,model,mdold,lfnxyz,lfnqqq
+      integer lfnslv,model,mdold,lfnxyz,lfnqqq,lfnpov
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
-      character*255 filxyz,filqqq
+      character*255 filxyz,filqqq,filpov
       character*10 slvmdl
       character*3 slvnam
       character*80 source,card,card2,cfix
       character*1 altloc,chain
+      real*8 scale,cpk
 c
       integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
       integer mat,msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
@@ -633,6 +634,24 @@ c
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
      + nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist))
      + call errquit('pre_wrtpdb failed',9999)
+      endif
+c
+c     write pov file
+c     --------------
+c
+      if(card(1:6).eq.'wr_pov') then
+      filnam=card(8:80)
+      length=index(filnam,' ')-1
+      if(length.eq.0) filnam=filpov
+      len=index(filpov,' ')-1
+      if(.not.pre_wrtpov(lfnout,lfnpov,filnam,iopt,box,
+     + int_mb(i_num),dbl_mb(i_mas),
+     + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
+     + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),
+     + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
+     + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
+     + nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist,scale,cpk))
+     + call errquit('pre_wrtpov failed',9999)
       endif
 c
 c     read coordinates

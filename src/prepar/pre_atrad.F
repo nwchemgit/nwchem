@@ -1,6 +1,6 @@
-      real*8 function pre_atrad(number)
+      real*8 function pre_atsiz(number)
 c
-c $Id: pre_atrad.F,v 1.5 1998-09-11 20:47:34 d3j191 Exp $
+c $Id: pre_atrad.F,v 1.6 2000-07-06 18:48:56 d3j191 Exp $
 c
       implicit none
       integer number
@@ -27,7 +27,7 @@ c
      + 1.93, 1.66, 1.57, 1.81, 2.21, 1.43, 1.42, 1.40, 1.39, 1.38,
      + 1.37, 1.36, 1.34, 1.30, 1.30 /
 c
-      pre_atrad=1.1d-01*radius(number)
+      pre_atsiz=1.1d-01*radius(number)
 c
       return
       end

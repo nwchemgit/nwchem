@@ -2,7 +2,7 @@
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
      + llnk,clnk,mlnk,nlnk,iconst,mang,lang,mdih,ldih,itmp)
 c
-c $Id: pre_bnd.F,v 1.15 2000-06-21 03:48:15 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.16 2000-07-06 18:48:56 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -20,9 +20,9 @@ c     function returns .false. if mbnd < nbnd
 c
       implicit none
 c
-      real*8 pre_atrad
+      real*8 pre_atsiz
       logical pre_ang,pre_dih,pre_ring
-      external pre_atrad,pre_ang,pre_dih,pre_ring
+      external pre_atsiz,pre_ang,pre_dih,pre_ring
 c
       integer matm,mbnd,mato
       integer natm,nbnd,nato,maxscf,iconst
@@ -58,7 +58,7 @@ c
       if(j.eq.llnk(3,k).and.i.eq.llnk(4,k)) linker=.true.
    23 continue
       if(linker.or.(dist.gt.0.05d0.and.
-     + dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i)))) then
+     + dist.le.pre_atsiz(latm(2,j))+pre_atsiz(latm(2,i)))) then
       nn=nn+1
       nl(nn)=j
       if(j.gt.i.and.j.le.ihi) then

@@ -1,0 +1,122 @@
+      logical function pre_wrtpov(lfnout,lfnpov,filpov,iopt,box,
+     + num,amass,mat,
+     + csa,isat,isgm,xs,vs,msa,nsa,cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
+     + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
+     + rdist,scale,cpk)
+c
+c $Id: pre_wrtpov.F,v 1.1 2000-07-06 18:48:57 d3j191 Exp $
+c
+      implicit none
+c
+#include "util.fh"
+#include "mafdecls.fh"
+c
+      character*2 pre_atnam
+      real*8 atom_radius
+      integer pre_atnum
+      character*255 atom_color
+      external pre_atnam,atom_radius,pre_atnum,atom_color
+c
+      integer lfnout,lfnpov,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
+      character*255 filpov
+      integer num(mat),isat(msa),isgm(msa),iwat(mwa)
+      character*16 cwa(mwa),csa(msa)
+      character*3 slvnam
+      real*8 amass(mat),xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
+      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),box(3)
+      integer nxrep,nyrep,nzrep
+      real*8 rdist,drep(3),xh(3)
+      integer msb,nsb
+      integer idsb(2,msb)
+      real*8 scale,cpk
+c
+      integer length,ib,jb
+      character*255 color
+c
+      integer i,j,k,nats,nums,numslv,isoff,iaoff
+      integer ixrep,iyrep,izrep
+      real*8 temp,dbx,dby,dbz,dist,dbz0
+      character*3 sname
+      character*1 charr
+      integer icharr
+c
+      real*8 xbmax,xbmin,ybmax,ybmin,zbmax,zbmin
+c
+      if(scale.le.0.0d0) then
+      xbmax=xs(1,1)
+      xbmin=xs(1,1)
+      ybmax=xs(2,1)
+      ybmin=xs(2,1)
+      zbmax=xs(3,1)
+      zbmin=xs(3,1)
+      do 1 i=2,nsa
+      xbmax=max(xbmax,xs(1,i))
+      xbmin=min(xbmin,xs(1,i))
+      ybmax=max(ybmax,xs(2,i))
+      ybmin=min(ybmin,xs(2,i))
+      zbmax=max(zbmax,xs(3,i))
+      zbmin=min(zbmin,xs(3,i))
+    1 continue
+      xbmax=max(xbmax-xbmin,ybmax-ybmin,zbmax-zbmin)
+      scale=2.0d0/xbmax
+      endif
+c
+c     open POV file
+c
+      length=index(filpov,' ')-1
+      open(unit=lfnpov,file=filpov(1:length),form='formatted',
+     + status='unknown',err=9999)
+      write(lfnpov,8000)
+ 8000 format('#include "camera.inc"',/,'#include "colors.inc"')
+c
+      do 2 i=1,nsa
+      k=pre_atnum(csa(i)(11:12))
+      color=atom_color(k)
+      if(k.gt.0) then
+      if(cpk.gt.0.0d0) then
+      write(lfnpov,8001) (scale*xs(j,i),j=1,3),scale*cpk*atom_radius(k),
+     + color(1:index(color,' ')-1)
+      else
+      write(lfnpov,8001) (scale*xs(j,i),j=1,3),scale*atom_radius(1),
+     + color(1:index(color,' ')-1)
+      endif
+ 8001 format('sphere {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
+     + 3x,f12.6,/,'  texture { pigment { ',a,' } }',/,'}')
+      endif
+    2 continue
+      if(cpk.le.0.0d0) then
+      do 3 i=1,nsb
+      ib=idsb(1,i)
+      jb=idsb(2,i)
+      xh(1)=0.5d0*(xs(1,ib)+xs(1,jb))
+      xh(2)=0.5d0*(xs(2,ib)+xs(2,jb))
+      xh(3)=0.5d0*(xs(3,ib)+xs(3,jb))
+      k=pre_atnum(csa(ib)(11:12))
+      color=atom_color(k) 
+      write(lfnpov,8002) (scale*xs(j,ib),j=1,3),
+     + (scale*xh(j),j=1,3),scale*cpk*atom_radius(1),
+     + color(1:index(color,' ')-1)
+ 8002 format('cylinder {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
+     + '  <',f12.6,',',f12.6,',',f12.6,'>,',/,
+     + 3x,f12.6,/,'  open',/,'  texture { pigment { ',a,' } }',/,'}')
+      k=pre_atnum(csa(jb)(11:12))
+      color=atom_color(k) 
+      write(lfnpov,8002) (scale*xs(j,jb),j=1,3),
+     + (scale*xh(j),j=1,3),scale*cpk*atom_radius(1),
+     + color(1:index(color,' ')-1)
+    3 continue
+      endif
+      close(unit=lfnpov)
+c
+      if(util_print('files',print_default)) then
+      write(lfnout,2000) filpov(1:length)
+ 2000 format(' Created pov',t40,a,/)
+      endif
+c
+      pre_wrtpov=.true.
+      return
+c
+ 9999 continue
+      pre_wrtpov=.false.
+      return
+      end

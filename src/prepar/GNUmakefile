@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.24 2000-05-02 21:17:30 d3j191 Exp $
+# $Id: GNUmakefile,v 1.25 2000-07-06 18:48:56 d3j191 Exp $
 #
 
 include ../config/makefile.h
@@ -88,6 +88,7 @@ OBJ_OPTIMIZE=prepar.o\
              pre_wrtnoe.o\
              pre_wrtpdb.o\
              pre_wrtpmf.o\
+             pre_wrtpov.o\
              pre_wrtrst.o\
              pre_wrtseq.o\
              pre_wrtsgm.o\

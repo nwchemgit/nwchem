@@ -1,6 +1,6 @@
       logical function pre_hybrid(xatm,latm,matm,natm,lbnd,mbnd,nbnd)
 c
-c $Id: pre_hybrid.F,v 1.10 2000-06-21 03:48:16 d3j191 Exp $
+c $Id: pre_hybrid.F,v 1.11 2000-07-06 18:48:56 d3j191 Exp $
 c
 c     in  : xatm(3,matm) = atomic coordinates
 c         : latm(2,matm) = atomic numbers
@@ -9,8 +9,8 @@ c         : natm         = number of atoms
 c
       implicit none
 c
-      real*8 pre_atrad,angl
-      external pre_atrad,angl
+      real*8 angl
+      external angl
 c
       integer matm,natm
       real*8 xatm(3,matm)

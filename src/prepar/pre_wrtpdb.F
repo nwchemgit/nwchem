@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist)
 c
-c $Id: pre_wrtpdb.F,v 1.22 2000-06-27 18:07:44 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.23 2000-07-06 18:48:57 d3j191 Exp $
 c
       implicit none
 c
@@ -12,8 +12,8 @@ c
 #include "mafdecls.fh"
 c
       character*2 pre_atnam
-      real*8 pre_atrad
-      external pre_atnam,pre_atrad
+      real*8 pre_atsiz
+      external pre_atnam,pre_atsiz
 c
       integer lfnout,lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
       character*255 filpdb
@@ -70,7 +70,7 @@ c
       dist=sqrt((xs(1,j)-xs(1,i))*(xs(1,j)-xs(1,i))+
      + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
      + (xs(3,j)-xs(3,i))*(xs(3,j)-xs(3,i)))
-      if(dist.gt.pre_atrad(num(isat(j)))+pre_atrad(num(isat(i)))) then
+      if(dist.gt.pre_atsiz(num(isat(j)))+pre_atsiz(num(isat(i)))) then
       write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i),' ',
      + csa(j)(11:14),csa(j)(1:3),isgm(j)
  1101 format('LINK',t13,a4,1x,a3,1x,a1,i4,16x,a4,1x,a3,2x,i4)
@@ -129,7 +129,7 @@ c
       dist=sqrt((xs(1,j)-xs(1,i))*(xs(1,j)-xs(1,i))+
      + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
      + (xs(3,j)-xs(3,i))*(xs(3,j)-xs(3,i)))
-      if(dist.gt.pre_atrad(num(isat(j)))+pre_atrad(num(isat(i)))) then
+      if(dist.gt.pre_atsiz(num(isat(j)))+pre_atsiz(num(isat(i)))) then
       write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i),char(icharr),
      + csa(j)(11:14),csa(j)(1:3),isgm(j)+isoff
       endif

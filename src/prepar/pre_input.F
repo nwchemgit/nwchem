@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.58 2000-06-10 04:48:17 d3j191 Exp $
+c $Id: pre_input.F,v 1.59 2000-07-06 18:48:56 d3j191 Exp $
 c
       implicit none
 c
@@ -38,6 +38,7 @@ c
       real*8 value1,value2
       character*4 scount(mcount)
       real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
+      real*8 scale,cpk
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
@@ -85,6 +86,8 @@ c
       nzrep=0
       rrep=0.25d0
       rdist=0.0d0
+      scale=-1.0d0
+      cpk=0.0d0
 c
       touch=0.25d0
       xpnd(1)=0.00d0
@@ -223,6 +226,18 @@ c
       endif
       if(inp_compare(.false.,'qscale',item)) then
       if(.not.inp_f(qscale)) call errquit('pre_input: error qscale',0)
+      goto 2
+      endif
+c
+c     povray scaling
+c     --------------
+c
+      if(inp_compare(.false.,'scale',item)) then
+      if(.not.inp_f(scale)) call errquit('pre_input: error qscale',0)
+      goto 2
+      endif
+      if(inp_compare(.false.,'cpk',item)) then
+      if(.not.inp_f(cpk)) cpk=1.0d0
       goto 2
       endif
 c
@@ -1093,6 +1108,9 @@ c
       write(68,6848) item(1:index(item,'.rst_old')+3)
       elseif(index(item,'.xyz').gt.0) then
       write(68,6823) item(1:index(item,' ')-1)
+      elseif(index(item,'.pov').gt.0) then
+      write(68,6826) item(1:index(item,' ')-1)
+ 6826 format('wr_pov ',a)
       else
       call errquit('Problem with write file',0)
       endif
@@ -1318,6 +1336,10 @@ c
       if(.not.rtdb_put(irtdb,'prep:qscale',mt_dbl,1,qscale))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
+      if(.not.rtdb_put(irtdb,'prep:scale',mt_dbl,1,scale))
+     + call errquit('pre_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'prep:cpk',mt_dbl,1,cpk))
+     + call errquit('pre_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'prep:nxlnk',mt_int,1,nxlnk))
      + call errquit('pre_input: rtdb_put failed',0)

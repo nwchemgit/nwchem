@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.36 2000-05-09 21:49:41 d3j191 Exp $
+c $Id: prepar.F,v 1.37 2000-07-06 18:48:57 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -46,7 +46,7 @@ c
       parameter(mfract=250)
 c
       character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
-      character*255 filmod,prefix,filxyz,filqqq,filnoe,filpmf
+      character*255 filmod,prefix,filxyz,filqqq,filnoe,filpmf,filpov
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 sysnam,calc,ffield
       character*10 slvmdl
@@ -56,7 +56,7 @@ c
       character*4 scount(mcount)
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
-      integer lfnxyz,lfnqqq,lfnnoe,lfnpmf
+      integer lfnxyz,lfnqqq,lfnnoe,lfnpmf,lfnpov
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount(mcount)
       integer ncount,icyren,model,iconst
@@ -64,6 +64,7 @@ c
       integer ignore
       real*8 gdist,qscale
       logical lstate
+      real*8 scale,cpk
 c
       irtdb=irtdb0
 c
@@ -91,6 +92,7 @@ c
       lfnqqq=24
       lfnnoe=25
       lfnpmf=26
+      lfnpov=27
 c
 c     node 0 only please
 c     ------------------
@@ -123,7 +125,7 @@ c
      + icount,mgrid,
      + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,iconst,
      + model,nxlnk,mdold,
-     + ignore,scount,mfract,nfract,ifract))
+     + ignore,scount,mfract,nfract,ifract,scale,cpk))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     directories
@@ -153,6 +155,7 @@ c
       lenc=index(calc,' ')-1
       lend=index(dir_t,' ')-1
       filpdb=sysnam(1:len)//'.pdb '
+      filpov=sysnam(1:len)//'.pov '
       if(source.ne.'geometry'.and.source.ne.'pdb'.and.
      + source(1:1).ne.' ') filpdb=source
       filxyz=sysnam(1:len)//'.xyz '
@@ -298,7 +301,7 @@ c
       if(.not.pre_mkrst(irtdb,mdold,source,lfnout,lfntop,filtop,
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
      + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain,model,
-     + lfnxyz,filxyz,lfnqqq,filqqq))
+     + lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk))
      + call errquit('pre_mkrst failed',9999)
 c
     6 continue
