@@ -2,36 +2,31 @@
      &                     ipol, natom, 
      &                    iga_dens, force,
      &                    oactive, nactive)
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+      implicit none
+      
 c****
 c**** compute XC component of energy gradient.  
 c****
 c**** nwchem handles
 c****
       integer rtdb, geom, AO_bas_han
-c**** 
+      integer ipol
+      integer natom
+      integer iga_dens(2)
+      double precision force(3*natom)
+      integer nactive
+      logical oactive(natom)
+
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "bas.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
       
+      double precision zero,one,onem
       parameter(zero = 0.0d0,one = 1.0d0,onem = -1.0d0)
-
-      integer nactive
       logical status
-      logical oactive(natom)
-
       double precision xfac(10),cfac(10)
-c
-c--> Matrix Elements of the XC Potential & Energy
-c
-      Dimension iga_dens(2)
-c
-c--> XC Energy
-c
-      Dimension force(3*natom)
 c
 c****
 c**** comments from getvxc:
@@ -63,6 +58,12 @@ c****
 c**** currently, only the "exact" quadrature (no fit of Coulomb or
 c**** XC terms used) form of gradient available
 c****
+      integer nproc,nbf_ao,itol2e,max_at_bf,lbuf,max1e,max2e,
+     ,     lscratch,mscratch_1e,mscratch_2e,i,lsqa
+      integer l_buf,k_buf,l_scr,k_scr,l_ik,i_ik,l_il,i_il,
+     <     l_jk,i_jk,l_jl,i_jl
+      double precision tol2e,tot
+c
       nproc=ga_nnodes()
       if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
      $     call errquit('xc_getv: rtdb_put failed', 0)

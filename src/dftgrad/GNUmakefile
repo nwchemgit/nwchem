@@ -33,4 +33,3 @@ $(LIBRARY_PATH)(dftg_quadv0a.o):	 ../nwdft/include/timer.fh $(INCDIR)/tcgmsg.fh 
 $(LIBRARY_PATH)(dftg_quadv0b.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(dftg_wderiv.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(grad_dft.o):	 $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(grad_xc.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
