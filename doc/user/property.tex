@@ -2,6 +2,7 @@
 \begin{verbatim}
   PROPERTY
     [property name]
+    [CENTER ((com || coc || origin || arb <real x y z>) default coc)]
     [VECTORS ...]
   END
 \end{verbatim}
@@ -71,6 +72,18 @@ SCF and DFT tasks. For a full description of this subdirective
 the user is refered to the description found in the SCF description.
 By default, the input file used for the calculation of the properties
 has the .movecs name extension. 
+
+The user also has the option to choose the center of expansion for
+the dipole, quadrupole, and octupole calculations.
+
+\begin{verbatim}
+    [CENTER ((com || coc || origin || arb <real x y z>) default coc)]
+\end{verbatim}
+
+com is the center of mass, coc is the center of charge, origin is 
+(0.0, 0.0, 0.0) and arb is any arbitrary point which must be accompanied
+by the coordinated to be used.  Currently the x, y, and z coordinates
+must be given in bohr.
 
 \subsection{Nbofile}
 
