@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.10 2002-07-01 14:27:05 bylaska Exp $
+* $Id: D3dB-new.F,v 1.11 2002-09-18 23:31:57 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2272,7 +2272,7 @@ c     integer i2_start(NFFT3+1)
 
 c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
             do j=1,ny(nb)
-              write(iunit,'(6E13.5)') (tmp(i+(j-1)*nx(nb)), i=1,nx(nb))
+              write(iunit,'(3E26.14)') (tmp(i+(j-1)*nx(nb)), i=1,nx(nb))
             end do
 
          end do
