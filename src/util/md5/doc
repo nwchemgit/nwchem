@@ -1,0 +1,112 @@
+\subsubsection{Checksums}
+
+   Checksums are useful for rapid comparison and validation of data,
+such as digital signatures for verification of important messages, or,
+more relevant to us, to determine if input and disk resident restart
+data are still consistent.  The checksum routines provided here are
+wrappers around the RSA implementation of the RSA Data Security, Inc.\
+MD5 Message-Digest Algorithm.  It is the reference implementation for
+internet RFC 1321, The MD5 Message-Digest Algorithm, and as such has
+been extensively tested and there are no restrictions placed upon its
+distribution or export.  License is granted by RSA to make and use
+derivative works provided that such works are identified as "derived
+from the RSA Data Security, Inc. MD5 Message-Digest Algorithm" in all
+material mentioning or referencing the derived work.  Consider this
+done.  The unmodified network posting is included in md5.txt for
+reference.
+
+\begin{quote}
+MD5 is probably the strongest checksum algorithm most people will need
+for common use.  It is conjectured that the difficulty of coming up
+with two messages having the same message digest is on the order of
+$2^64$ operations, and that the difficulty of coming up with any
+message having a given message digest is on the order of $2^128$
+operations.
+\end{quote}
+
+The checksums are returned (through the NWChem interface) as character
+strings containing a 32 character hexadecimal representation of the
+128 bit binary checksum.  This form loses no information, may be
+readily compared with single statements of standard C/F77, is easily
+printed, and does not suffer from byte ordering problems.  The
+checksum depends on both the value and order of data, and thus
+differing numerical representations, floating-point rounding
+behaviour, and byte ordering, make the checksum of all but simple text
+data usually machine dependent unless great care is taken when moving
+data between machines.  The Fortran test program merely tests the
+Fortran interface.  For a more definitive test of MD5 make
+\verb+mddriver+ and execute it with the \verb+-x+ option, comparing
+output with that in \verb+md5.txt+.
+
+C routines should include \verb+checksum.h+ for prototypes.
+There is no Fortran header file since there are no functions.
+
+The checksum of a contiguous block of data may be generated with 
+\begin{verbatim}
+      call checksum_simple(len, data, sum)
+\end{verbatim}
+--- to get more sophisticated see below and have a look at \verb+ftest.F+.
+
+\begin{verbatim}
+C:   void checksum_init(void);
+F77: subroutine checksum_init()
+\end{verbatim}
+
+  Initialize the internal checksum.  \verb+checksum_update()+ may then
+  be called repeatedly.  The result does NOT depend on the number
+  of calls to \verb+checksum_update()+ - e.g., the checksum of an array
+  element-by-element is the same as the checksum of all elements 
+  (in the same order) at once.
+
+\begin{verbatim}
+C:   void checksum_update(int len, const void *buf)
+F77: subroutine checksum_update(len, buf)
+     integer len                       ! [input] length in bytes
+     <anything but character> buf(*)   ! [input] data to sum
+\end{verbatim}
+
+  Update the internal checksum with len bytes of data from the 
+  location pointed to by buf.  Fortran may use the MA routines
+  for portable conversion of lengths into bytes.
+
+\begin{verbatim}
+F77:  subroutine checksum_char_update(buf)
+      character*(*) buf                ! [input] data to sum
+\end{verbatim}
+
+  Same as \verb+checksum_update()+ but only for Fortran character strings
+  (trailing blanks are included).
+
+\begin{verbatim}
+C:    void checksum_final(char sum[33])
+F77:  subroutine checksum_final(sum)
+      character*32 sum                 ! [output] checksum
+\end{verbatim}
+
+  Finish generating the checksum and return the checksum value
+  as a C (null terminated) or Fortran character string.
+
+\begin{verbatim}
+C:    void checksum_simple(int len, const void *buf, char sum[33]);
+F77:  subroutine checksum_simple(len, buf, sum)
+      integer len                      ! [input] length in bytes
+      <anything but character> buf(*)  ! [input] data to sum
+      character*32 sum                 ! [output] checksum
+\end{verbatim}
+
+  Convenience routine when checksumming a single piece of data.
+  Same as:
+\begin{verbatim}
+            call checksum_init()
+            call checksum_update(len, buf)
+            call checksum_final(sum)
+\end{verbatim}
+
+\begin{verbatim}
+F77:  subroutine checksum_char_simple(buf, sum)
+      character*(*) buf                ! [input] data to sum
+      character*32 sum                 ! [output] checksum
+\end{verbatim}
+
+  Same as \verb+checksum_simple()+ but only for Fortran character strings
+  (trailing blanks are included).
