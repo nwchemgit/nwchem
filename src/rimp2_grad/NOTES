@@ -14,7 +14,6 @@ o Schwarz screening for other than V approximation?
 driver_e:
 o dynamic block sizing out of date
 o either p2ij or p2ab will work only if entire amplitude tensor is in core
-o P2 is wrong size in case of frozen core
 o NMO probably not needed in routine
 o Don't pass in both NFit and FitBas
 

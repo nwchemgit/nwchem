@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.9 1998-07-16 19:59:50 bernhold Exp $
+C$Id: rimp2g.F,v 1.10 1998-07-19 00:08:31 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -61,6 +61,8 @@ C LOCAL VARIABLES
       Character*(1) Mem_Opt
       Integer G_P2(MaxSpin)
 C
+      Double precision Tol2e_Fock
+C
 C     Handles and indices to for the "correlated" basis
 C
       Integer H_Occ, H_EVal
@@ -93,6 +95,8 @@ C
 C     ******************
 C     * Initialization *
 C     ******************
+C
+      Tol2e_Fock = 1.0d-9
 C
       Status = .TRUE.
 C
@@ -227,8 +231,6 @@ C
          Call Occ_Ranges( NMO(I), Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
      $      ILo(I), IHi(I), ALo(I), AHi(I) )
       EndDo
-      Write (6, *) 'NFrzO, NAct, NVir, NFrzV = ',
-     $     NFrzO, NAct, NVir, NFrzV
 C
       If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
      $   'RIMP2G: Unable to free local array H_Occ', H_Occ)
@@ -264,10 +266,14 @@ C
          Write (LuOut, 8520) 'Nr. of MO spin cases:', TopSpin
          Write (LuOut, 8520) 'Nr. of MOs to be correlated:',
      $      (NMO(i), i = 1, TopSpin)
+         Write (LuOut, 8520) 'Nr. of frozen occupied MOs',
+     $        (NFrzOcc, i = 1, TopSpin)
          Write (LuOut, 8520) 'Nr. of occupied MOs correlated:',
-     $      (IHi(i)-ILo(i)+1, i = 1, TopSpin)
+     $      (NAct(i), i = 1, TopSpin)
          Write (LuOut, 8520) 'Nr. of virtual MOs correlated:',
-     $      (AHi(i)-ALo(i)+1, i = 1, TopSpin)
+     $      (NVir(i), i = 1, TopSpin)
+         Write (LuOut, 8520) 'Nr. of frozen virtual MOs',
+     $        (NFrzVir, i = 1, TopSpin)
          Write (LuOut, *)
 C
          If ( BraKetSame ) then
@@ -368,16 +374,17 @@ C
      $     Thresh, MinEVal, Approx, G_AOXF, FN_Int, BraKetSame, DoGrad,
      $     IntRange)
 C
-C     Finished with the AO transformation
+C     If we're not doing gradients, we can clean up some stuff now
 C
-      Status = .TRUE.
-      Do I = TopSpin, 1, -1
-         Status = Status .AND.  GA_Destroy( G_AOXF(I))
-      EndDo
-      If ( .NOT. Status) Call ErrQuit(
-     $   'RIMP2G: Unable to destroy AO transformation', 0)
+      If ( .NOT. DoGrad ) then
+         Do I = TopSpin, 1, -1
+            If ( .NOT. GA_Destroy( G_AOXF(I)) ) Call ErrQuit(
+     $           'RIMP2G: can''t destroy AO transformation matrix', I)
+         EndDo
+      EndIf
 C
-C     Done computing integrals
+C     If we're doing gradients, we'll have to re-initialize again
+C     to do derivative integrals
 C
       Call Int_Terminate
 C
@@ -455,9 +462,17 @@ C     * Gradient *
 C     ************
 C
       If ( DoGrad ) then
-         Call RIMP2_Driver_G(MaxSpin, TopSpin, NFrzOcc, NAct, NVir,
+         Call RIMP2_Driver_G(RTDB, Geom, AOBas, MaxSpin, TopSpin,
+     $        NFrzO, NAct, NVir,
      $        FitBas, FN_Int, FN_Gam, BraKetSame, g_P2,
-     $        Dbl_MB(I_Eval), MxNCorBF)
+     $        Dbl_MB(I_Eval), MxNCorBF, g_AOXF, Tol2e_Fock)
+C
+C        Some clean up only required if doing gradients
+C
+         Do I = TopSpin, 1, -1
+            If ( .NOT. GA_Destroy( G_AOXF(I)) ) Call ErrQuit(
+     $           'RIMP2G: can''t destroy AO transformation matrix', I)
+         EndDo
       EndIf
 C
 C     ***********

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_E -- Master routine for RI-MP2 energy evaluation
 C
 C REVISION
-C     $Id: driver_e.F,v 1.4 1998-07-16 19:59:47 bernhold Exp $
+C     $Id: driver_e.F,v 1.5 1998-07-19 00:08:29 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_DRIVER_E(MaxSpin, BraKetSame, FN_Int,
@@ -371,6 +371,8 @@ C                 Do energy stuff for this IJ batch.
 C                 Keep 3c integrals & t if we're doing gradients.
 C                 Don't keep 4c integrals ever.
 C
+                  If ( PrPrgRpt ) Call Progress_Report(LuOut,
+     $                 '       Beginning energy terms')
                   Call RIMP2_E_IJ(TopSpin, ISpin .eq. JSpin,
      $                 ILo, IHi, NVir(ISpin), JLo, JHi, NVir(JSpin),
      $                 Eig(1+NFrzO(ISpin), ISpin),
@@ -383,13 +385,13 @@ C
      $                 SpinLabel(:Inp_StrLen(SpinLabel)),
      $                 TopN, Int_MB(I_TopN_Ind(ISpin+JSpin-1)),
      $                 Dbl_MB(I_TopN_Val(ISpin+JSpin-1)), ReqI, ReqJ  )
-                  If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $                 '       Energy terms done')
 C
 C                 Do gradient stuff for this IJ batch.  3c integrals,
 C                 t no longer needed.
 C
                   If ( DoGrad ) then
+                     If ( PrPrgRpt ) Call Progress_Report(LuOut,
+     $                    '       Beginning gradient terms')
                      Call RIMP2_G_IJ(TopSpin, ISpin .eq. JSpin,
      $                    NFrzO(ISpin), ILo, IHi, NVir(ISpin),
      $                    NFrzO(JSpin), JLo, JHi, NVir(JSpin),
@@ -398,8 +400,6 @@ C
      $                    NOcc(ISpin), ISpin, NOcc(JSpin), JSpin, G_P2,
      $                    SpinLabel(:Inp_StrLen(SpinLabel)), D_Gam,
      $                    BraKetSame, D_Int(JSpin, 1, 1) )
-                     If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $                    '       Gradient terms done')
 C     
                   EndIf         ! Gradient-only section
 C                 

@@ -3,7 +3,7 @@ C NAME
 C     rimp2_l1 -- Compute RI-MP2 L1 Lagrangian term
 C
 C REVISION
-C     $Id: l1.F,v 1.1 1998-07-14 16:18:34 bernhold Exp $
+C     $Id: l1.F,v 1.2 1998-07-19 00:08:31 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_L1(NFrzO, NAct, NVir, NFit, D_Int, D_Gam,
@@ -74,10 +74,13 @@ C     Allocate the total number of blocks we have space for so as to
 C     minimize the total number of passes through the disk files.
 C
       Do IBlock = NAct, 1, -1
-         PBlock = NTotal - IBlock
+         PBlock = NTotal-IBlock
          If ( PBlock .gt. 0 ) Goto 1000
       EndDo
+      Call ErrQuit('RIMP2_L1: insufficient memory for memory buffers',
+     $     NTotal)
  1000 Continue
+      PBlock = Min( PBlock, NFrzO+NAct+NVir)
 C
 C     Create GAs appropriate for blocking
 C
@@ -119,6 +122,7 @@ C
 C
 C           Now process all gamma and integrals in core
 C
+            Call GA_Sync
             Do P = 1, PHi - PLo + 1
                Do I = 1, IHi - ILo + 1
 C
@@ -134,6 +138,7 @@ C
                   EndIf
                EndDo            ! I
             EndDo               ! P
+            Call GA_Sync
 C
          EndDo                  ! P blocks
       EndDo                     ! I blocks

@@ -1,8 +1,11 @@
 Calling tree (key routines only) for RI-MP2 Gradients module
 
 rimp2g--+
+	corr_mk_ref
+	prep_dra
 	driver_xf
-	|	xf* routines in original rimp2 module
+	|	xform_3cintsg
+	|		(xf* transformation routines from energy code)
 	|
 	driver_e+
 	|	ij_int
@@ -20,5 +23,8 @@ rimp2g--+
 	|
 	driver_g+
 		mk_l----+
-			l1
-			l2
+		|	l1
+		|	l2
+		|	mp2_lai_fock_uhf	(mp2_grad module)
+		|
+		cphf				(cphf module)

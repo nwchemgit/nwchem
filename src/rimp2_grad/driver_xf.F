@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_XF -- Three-center integral transformation driver for RI-MP2
 C
 C REVISION
-C     $Id: driver_xf.F,v 1.3 1998-07-16 19:59:48 bernhold Exp $
+C     $Id: driver_xf.F,v 1.4 1998-07-19 00:08:30 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_XF(RTDB, Geom, AOBas,
@@ -146,64 +146,6 @@ C
       NPass = 0
       PrInfo =   Util_Print('information', Print_Low)
       PrPrgRpt = Util_Print('progress reports', Print_Default)
-c$$$C
-c$$$C     Initialize transformation ranges to 0:-1 (zero trip loop)
-c$$$C
-c$$$      Call IFill(Maxspin*2*2,  0, Lim1(1, 1, 1, 1), 1)
-c$$$      Call IFill(Maxspin*2*2, -1, Lim1(1, 1, 1, 2), 1)
-c$$$      Call IFill(Maxspin*2*2,  0, Lim2(1, 1, 1, 1), 1)
-c$$$      Call IFill(Maxspin*2*2, -1, Lim2(1, 1, 1, 2), 1)
-c$$$C
-c$$$C     Evaluate transformation ranges for different integral files
-c$$$C
-c$$$C     First 3 indices for Lim1 and Lim2 are like D_Int and FN_Int:
-c$$$C     1= Spin, 2=Bra/Ket, 3=Class
-c$$$C     while the 4th is the lower and upper limit of the range to
-c$$$C     be transformed.
-c$$$C
-c$$$      Do ISpin = 1, TopSpin
-c$$$         If ( DoGrad) then
-c$$$C
-c$$$C           (ap|D)
-c$$$C
-c$$$            Lim1(ISpin, 1, 1, 1) = ALo(ISpin)
-c$$$            Lim1(ISpin, 1, 1, 2) = AHi(ISpin)
-c$$$C
-c$$$            Lim2(ISpin, 1, 1, 1) = ILo(ISpin)
-c$$$            Lim2(ISpin, 1, 1, 2) = AHi(ISpin)
-c$$$C
-c$$$C           (ij|D)
-c$$$C
-c$$$            Lim1(ISpin, 1, 2, 1) = ILo(ISpin)
-c$$$            Lim1(ISpin, 1, 2, 2) = IHi(ISpin)
-c$$$C
-c$$$            Lim2(ISpin, 1, 2, 1) = ILo(ISpin)
-c$$$            Lim2(ISpin, 1, 2, 2) = IHi(ISpin)
-c$$$
-c$$$         Else
-c$$$C
-c$$$C           (ai|D)
-c$$$C
-c$$$            Lim1(ISpin, 1, 1, 1) = ALo(ISpin)
-c$$$            Lim1(ISpin, 1, 1, 2) = AHi(ISpin)
-c$$$C
-c$$$            Lim2(ISpin, 1, 1, 1) = ILo(ISpin)
-c$$$            Lim2(ISpin, 1, 1, 2) = IHi(ISpin)
-c$$$         EndIf
-c$$$      EndDo
-c$$$C
-c$$$C     Integrals may not be split symmetrically.  Sizes & ranges are 
-c$$$C     identical, of course.  We _don't_ need the ket integrals for
-c$$$C     class=2
-c$$$C
-c$$$      If ( .NOT. BraKetSame ) then
-c$$$         Do ISpin = 1, TopSpin
-c$$$            Do K = 1, 2
-c$$$               Lim1(ISpin, 2, 1, K) = Lim1(ISpin, 1, 1, K)
-c$$$               Lim2(ISpin, 2, 1, K) = Lim2(ISpin, 1, 1, K)
-c$$$            EndDo
-c$$$         EndDo
-c$$$      EndIf
 C
       If ( PrInfo .or. PrPrgRpt .AND. GA_NodeID() .eq. 0) then
          If ( DoGrad ) then
@@ -220,6 +162,9 @@ C     ********************************************
 C     * Compute the fitting basis transformation *
 C     ********************************************
 C
+C
+      If (PrPrgRpt) Call Progress_Report(LuOut,
+     $        '   Computing fitting transformation matrix')
       Call GA_Sync
       Call PStat_On( PS_Fit_xf)
       Sp = 'N'
@@ -230,9 +175,6 @@ C
       If (.NOT. Status )
      $   Call ErrQuit('Failed to compute fitting transformation', 0)
       Call PStat_Off( PS_Fit_xf )
-C
-      If (PrPrgRpt) Call Progress_Report(LuOut,
-     $        '   Fitting transformation matrix done')
 C
       If ( Util_Print('fit xf', Print_Debug) ) Call GA_Print(G_V)
 C
