@@ -1,4 +1,4 @@
-% $Id: interface.tex,v 1.1 2000-11-07 00:09:54 windus Exp $
+% $Id: interface.tex,v 1.2 2000-11-20 22:31:30 windus Exp $
 \label{sec:interface}
 
 NWChem has interfaces to several different packages which are listed below.
@@ -16,7 +16,8 @@ interface should be reported to the
 \end{verbatim}
 
 This directive is used to run the NBO package within NWChem.  (To only print
-out an input file for NBO, see Section \ref{sec:Nbofile}.)
+out an input file for NBO, see Section \ref{sec:Nbofile}.)  Currently, this
+analysis module only runs sequentially.  This restriction will soon go away.
 
 Inside the NBO block are the typical commands that would be needed for NBO
 (Please see an NBO user's manual for more information.).  The following
