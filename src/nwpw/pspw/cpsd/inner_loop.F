@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop.F,v 1.9 2002-01-16 20:51:14 bylaska Exp $
+* $Id: inner_loop.F,v 1.10 2002-02-16 00:55:35 bylaska Exp $
 *
 
 *  ************************************************************
@@ -49,6 +49,7 @@
       integer index,indext
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
+      real*8  ehsic,phsic,exsic,pxsic
       real*8  deltamm
       real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
@@ -571,13 +572,14 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
 
 *     **** SIC corrections ****
       if (pspw_SIC()) then
-         call pspw_energy_SIC(ispin,psi_r,exc,pxc)
-         E(1) = E(1) + exc
-         E(16) = exc
-         E(17) = 0.0d0
+         call pspw_energy_SIC(ispin,psi_r,ehsic,phsic,exsic,pxsic)
+         E(1) = E(1) + ehsic + exsic
+         E(16) = ehsic
+         E(17) = exsic
          if (pspw_SIC_relaxed()) then
-            E(1)  = E(1) - pxc
-            E(17) = pxc
+            E(1)  = E(1) - phsic - pxsic
+            E(18) = phsic
+            E(19) = pxsic
          end if
       end if
 

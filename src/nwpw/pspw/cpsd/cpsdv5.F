@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.16 2002-02-13 20:02:07 edo Exp $
+* $Id: cpsdv5.F,v 1.17 2002-02-16 00:55:35 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -139,7 +139,7 @@
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(10,0.0d0,0,E,1)
+      call dcopy(20,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -576,16 +576,20 @@
          write(6,1440) E(2),E(2)/n2(ispin)
          write(6,1450) E(3),E(3)/n2(ispin)
          write(6,1460) E(4),E(4)/n2(ispin)
-         if (pspw_SIC())
-     >     write(6,1455) E(16),E(16)/n2(ispin)
+         if (pspw_SIC()) then
+           write(6,1455) E(16),E(16)/n2(ispin)
+           write(6,1456) E(17),E(17)/n2(ispin)
+         end if
          write(6,1470) E(5),E(5)/ion_nion()
          write(6,1480) E(6),E(6)/n2(ispin)
          write(6,1490) E(7),E(7)/n2(ispin)
          write(6,1495) E(8),E(8)/n2(ispin)
          write(6,1496) E(9),E(9)/n2(ispin)
          write(6,1497) E(10),E(10)/n2(ispin)
-         if (pspw_SIC().and.pspw_SIC_relaxed())
-     >     write(6,1499) E(17),E(17)/n2(ispin)
+         if (pspw_SIC().and.pspw_SIC_relaxed())  then
+           write(6,1499) E(18),E(18)/n2(ispin)
+           write(6,1501) E(19),E(19)/n2(ispin)
+         end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(6,1498) virial
  
@@ -800,7 +804,8 @@
  1433 FORMAT( ' total  QM energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
- 1455 FORMAT( ' SIC       energy    :',E19.10,' (',E15.5,'/electron)')
+ 1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
+ 1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
@@ -809,7 +814,10 @@
  1496 FORMAT( ' K.S. V_Hart energy  :',E19.10,' (',E15.5,'/electron)')
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
- 1499 FORMAT( ' K.S. SIC  energy    :',E19.10,' (',E15.5,'/electron)')
+ 1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
+     >        ' (',E15.5,'/electron)')
+ 1501 FORMAT( ' K.S. SIC-exc-corr energy :',E19.10,
+     >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
