@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.293 1999-07-14 16:42:43 d3j191 Exp $
+# $Id: makefile.h,v 1.294 1999-07-21 18:42:33 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1179,7 +1179,7 @@ ifeq ($(NWCHEM_TARGET_CPU),ALPHA)
   COPTIMIZE  = -g -O2
 endif
 ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
-  FOPTIONS   = -fno-second-underscore
+  FOPTIONS   = -fno-second-underscore -fno-globals
   FOPTIMIZE  = -g -O2 
   COPTIONS   = -Wall
   COPTIMIZE  = -g -O2
