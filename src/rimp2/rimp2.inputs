@@ -35,15 +35,23 @@ INPUTS
         Sets threshold for neglect of integral blocks in Schwarz
         screening procedure.
 
-"batch size"	default 10
+"transformation batch size"	default 10
         Maximum number of occupied orbitals constituting a batch in
-        (a) the direct 3-center transformation, and (b) RI-MP2 energy
-        evaluation. This determines the size of the two large global arrays
-        used in these two steps.  The GAs hold integrals (ai|s) where the
-        number of i's are determined by "batch size" and are overall NVir *
-        "batch size" * NFit elements each.  This is really a
-        workaround for the fact that we don't yet have a good way to control
-        and inquire about memory usage by GA routines.
+        the direct 3-center transformation This determines the size of
+	the two large global arrays used in these two steps.  The GAs hold
+	integrals (ai|s) where the number of i's are determined by "batch
+	size" and are overall NVir * "batch size" * NFit elements each.  This
+	is really a workaround for the fact that we don't yet have a good way
+	to control and inquire about memory usage by GA routines.
+
+"energy batch size"	default 10
+        Maximum number of occupied orbitals constituting a batch in
+        RI-MP2 energy evaluation. This determines the size of the two large
+	global arrays used in these two steps.  The GAs hold integrals (ai|s)
+	where the number of i's are determined by "batch size" and are overall
+	NVir * "batch size" * NFit elements each.  This is really a workaround
+	for the fact that we don't yet have a good way to control and inquire
+	about memory usage by GA routines.
 
 "ri approximation"      default "V"
         Selects the RI integral approximation to be used.  Currently
@@ -62,3 +70,5 @@ OUTPUTS
         The RI-MP2 contribution to the correlation energy.
 "total energy"
         SCF + RI-MP2 energy.
+
+
