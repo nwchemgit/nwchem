@@ -1,9 +1,9 @@
 c
-c $Id: integrate.fh,v 1.3 2003-02-19 01:11:22 marat Exp $
+c $Id: integrate.fh,v 1.4 2005-01-30 07:16:18 bylaska Exp $
 c
 
-      real*8   def_integr
-      external def_integr
+      real*8   def_integr,def_integr1
+      external def_integr,def_integr1
 
-      complex*16   c_def_integr
-      external     c_def_integr
+      complex*16   c_def_integr,c_def_integr1
+      external     c_def_integr,c_def_integr1

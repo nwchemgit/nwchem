@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis_data.fh,v 1.8 2003-02-21 18:39:38 marat Exp $
+* $Id: paw_basis_data.fh,v 1.9 2005-01-30 07:16:16 bylaska Exp $
 *
 
       integer tot_ntype
@@ -40,6 +40,10 @@
       integer i_nb(4)
       integer i_ng(4)
       integer i_ngb(4)
+
+      integer i_start(4)
+      integer i_end(4)
+      integer npoints(4)
                                     
 
     
@@ -77,6 +81,7 @@
 
       COMMON /paw_basis_data_pointers/  i_nb,
      >                              i_ng,
-     >                              i_ngb
+     >                              i_ngb,
+     >                              i_start,i_end,npoints
                                     
 

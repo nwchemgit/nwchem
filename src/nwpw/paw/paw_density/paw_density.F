@@ -1,6 +1,22 @@
-!$Id: paw_density.F,v 1.6 2003-10-21 02:05:16 marat Exp $
+!$Id: paw_density.F,v 1.7 2005-01-30 07:16:17 bylaska Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.6  2003/10/21 02:05:16  marat
+!switched to new errquit by running global replace operation
+!see the script below (note it will not work on multiline errquit calls)
+!*********************************************************
+!#!/bin/sh
+!
+!e=`find . -name "*F" -print`
+!
+!for f in $e
+!do
+!cp $f $f.bak
+!sed  's|\(^[ ].*call[ ]*errquit([^,]*\)\(,[^,]*\)\()\)|\1,0\2\3|' $f.bak > $f
+!#rm $f.bak
+!done
+!**********************************************************
+!
 !Revision 1.5  2003/02/18 01:58:33  marat
 !removed write statement
 !MV
@@ -57,7 +73,9 @@
       do in=1,nion
         ia = ion_katm(in)
         int_mb(i_paw_rho(1) + in - 1) = paw_rho_size
-        paw_rho_size = paw_rho_size + paw_basis_i_cut(ia)*
+c        paw_rho_size = paw_rho_size + paw_basis_i_cut(ia)*
+c     >                                (paw_rho_lmax+1)**2
+        paw_rho_size = paw_rho_size + paw_basis_npoints(ia)*
      >                                (paw_rho_lmax+1)**2
       end do
 
@@ -99,7 +117,7 @@
       integer in,ia
       integer nion
       integer nb,nb2
-      integer ig,ng,ic
+      integer ig,ng,ic,igg,istart
       integer i_w,i_w0
       integer i_rgrid
       integer i_rho,i_rho0
@@ -128,7 +146,9 @@
         nb = paw_basis_nbasis(ia)
         nb2 = nb*nb
         ng = paw_basis_ngrid(ia)
-        ic = paw_basis_i_cut(ia)
+c        ic = paw_basis_i_cut(ia)
+        ic = paw_basis_npoints(ia)
+        istart = paw_basis_i_start(ia)
         i_rgrid = paw_basis_i_rgrid(ia)
         i_phi_ae0 = paw_basis_i_phi_ae(ia)
         i_phi_ps0 = paw_basis_i_phi_ps(ia)
@@ -156,13 +176,14 @@
      >             dcpl_mb(paw_ovlp_w_d(1) + i_w)       
           
           do ig=1,ic
+            igg = ig+istart-1
 
             i_rho   = i_rho0-1+ig+
      >            (nlmi+l+m)*ic
           
-            tmp = dbl_mb(i_phi_ae0+(i-1)*ng+ig-1)*       
-     >                 dbl_mb(i_phi_ae0+(j-1)*ng+ig-1)/
-     >                 dbl_mb(i_rgrid+ig-1)**2 
+            tmp = dbl_mb(i_phi_ae0+(i-1)*ng+igg-1)*       
+     >                 dbl_mb(i_phi_ae0+(j-1)*ng+igg-1)/
+     >                 dbl_mb(i_rgrid+igg-1)**2 
 
             dcpl_mb(paw_rho_u_ae(1)+i_rho)=
      >                 dcpl_mb(paw_rho_u_ae(1)+i_rho)+
@@ -172,9 +193,9 @@
      >                 dcpl_mb(paw_rho_d_ae(1)+i_rho)+
      >                 tmp_d*tmp
 
-            tmp = dbl_mb(i_phi_ps0+(i-1)*ng+ig-1)*       
-     >                 dbl_mb(i_phi_ps0+(j-1)*ng+ig-1)/
-     >                 dbl_mb(i_rgrid+ig-1)**2 
+            tmp = dbl_mb(i_phi_ps0+(i-1)*ng+igg-1)*       
+     >                 dbl_mb(i_phi_ps0+(j-1)*ng+igg-1)/
+     >                 dbl_mb(i_rgrid+igg-1)**2 
 
             dcpl_mb(paw_rho_u_ps(1)+i_rho)=
      >                 dcpl_mb(paw_rho_u_ps(1)+i_rho)+

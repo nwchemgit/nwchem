@@ -1,5 +1,5 @@
 c
-c $Id: paw_matrix_kin.F,v 1.5 2003-10-21 02:05:16 marat Exp $
+c $Id: paw_matrix_kin.F,v 1.6 2005-01-30 07:16:17 bylaska Exp $
 c
 
 !**************************************************
@@ -22,6 +22,7 @@ c
       logical ok
       integer it,tot_ntype
       integer matr_size, matr_index
+      integer ic,istart
 
       tot_ntype = paw_basis_tot_ntype()
       ok = my_alloc(mt_int,tot_ntype,"i_paw_kin_matrix",
@@ -49,9 +50,11 @@ c
      > call errquit("init_paw_kin_matrix: error allocating heap",0,1)
   
       do it=1,tot_ntype
+        ic     = paw_basis_npoints(it)
+        istart = paw_basis_i_start(it)
     
         matr_index = int_mb(i_paw_kin_matrix(1) +it-1)
-        call find_kinetic_matrix( int_mb(paw_basis_i_i_cut(it)), 
+        call find_kinetic_matrix(ic,istart,
      >                        int_mb(paw_basis_i_ngrid(it)), 
      >                        int_mb(paw_basis_i_nbasis(it)), 
      >                        int_mb(paw_basis_i_orb_l(it)), 
@@ -98,7 +101,7 @@ c
 !   created :
 !
 !*************************************************
-      subroutine find_kinetic_matrix( ic, 
+      subroutine find_kinetic_matrix(ic,istart,
      >                        ngrid, 
      >                        nbasis, 
      >                        orb_l, 
@@ -110,7 +113,7 @@ c
      >                        phi_ps_prime, 
      >                        matrix)
       implicit none
-      integer    ic
+      integer    ic,istart
       integer    ngrid
       integer    nbasis
       integer    orb_l(nbasis)
@@ -130,13 +133,13 @@ c
 
       !*** local variables ***
       logical  ok
-      integer  i,j,ii
+      integer  i,j,ig,igg,np
       integer  l
       integer  power_r,power_f
       integer  i_f,l_f
       double precision  tmp
 
-
+      call Parallel_np(np)
 
       power_r = 0
 
@@ -151,16 +154,19 @@ c
         do j=1,i
           if(orb_l(i).eq.orb_l(j)) then
 
-            do ii =1,ic
-            dbl_mb(i_f+ii-1) =  
-     >          0.5d0*(phi_ae_prime(ii,i)*phi_ae_prime(ii,j)- 
-     >          phi_ps_prime(ii,i)*phi_ps_prime(ii,j))+ 
-     >          0.5*l*(l+1)*(phi_ae(ii,i)*phi_ae(ii,j) -  
-     >          phi_ps(ii,i)*phi_ps(ii,j))/r(ii)**2
+            do ig =1,ic
+            igg=ig+istart-1
+            dbl_mb(i_f+ig-1) =  
+     >          0.5d0*(phi_ae_prime(igg,i)*phi_ae_prime(igg,j)- 
+     >          phi_ps_prime(igg,i)*phi_ps_prime(igg,j))+ 
+     >          0.5*l*(l+1)*(phi_ae(igg,i)*phi_ae(igg,j) -  
+     >          phi_ps(igg,i)*phi_ps(igg,j))/r(igg)**2
 
             end do
-            tmp = def_integr(power_f,dbl_mb(i_f),power_r,r,
-     >                       log_amesh,ic)
+c            tmp = def_integr(power_f,dbl_mb(i_f),power_r,r,
+c     >                       log_amesh,ic)
+            tmp = def_integr1(power_f,dbl_mb(i_f),power_r,r(istart),
+     >                       log_amesh,ic,istart)
             matrix(i,j) = tmp
             matrix(j,i) = tmp
           else
@@ -170,6 +176,7 @@ c
 
         end do
       end do
+      if (np.gt.1) call D3dB_Vector_SumAll(nbasis*nbasis,matrix)
 
       ok = ma_pop_stack(l_f)
       if (.not.ok)

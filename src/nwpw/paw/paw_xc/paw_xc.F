@@ -1,6 +1,11 @@
-!$Id: paw_xc.F,v 1.18 2004-07-29 15:55:37 bylaska Exp $
+!$Id: paw_xc.F,v 1.19 2005-01-30 07:16:18 bylaska Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.18  2004/07/29 15:55:37  bylaska
+!Temporary array for Gaunt coefficients added.  Speeds up the program considerably, but it is extrememely memory intensive.  Also added timing routines to multipole calculations and fixed the initial total charge calculation.
+!
+! ...EJB
+!
 !Revision 1.17  2003/10/28 01:52:30  edo
 !errquizzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
 !
@@ -194,7 +199,9 @@
       do in=1,nion
         ia = ion_katm(in)
         int_mb(i_paw_vxc(1) + in - 1) = paw_vxc_size
-        paw_vxc_size = paw_vxc_size + paw_basis_i_cut(ia)*
+c        paw_vxc_size = paw_vxc_size + paw_basis_i_cut(ia)*
+c     >                                (paw_xc_lmax+1)**2
+        paw_vxc_size = paw_vxc_size + paw_basis_npoints(ia)*
      >                                (paw_xc_lmax+1)**2
       end do
 
@@ -268,7 +275,8 @@
       paw_xc_work_size = 0
       do in=1,nion
         ia = ion_katm(in)
-        ic = paw_basis_i_cut(ia)
+c        ic = paw_basis_i_cut(ia)
+        ic = paw_basis_npoints(ia)
         if(ic.gt.paw_xc_work_size) then
            paw_xc_work_size = ic
         end if
@@ -321,12 +329,12 @@
 
       double precision gen_gaunt_coeff
       external gen_gaunt_coeff
-      integer i,j
+      integer i,j,np
       integer in,ia
       integer i_t,i_p
       integer nion 
       integer l,m
-      integer ng,ic,ig
+      integer ng,ic,ig,igg,istart
       integer i_rho0,i_rho
       integer n_s
       integer i_ylm,i_ylm1
@@ -348,6 +356,7 @@
 
       call nwpw_timing_start(4)
       nion = ion_nion() 
+      call Parallel_np(np)
 
 *     *** zero out vxc arrays ***
       do i=1,paw_vxc_u_ae(3)
@@ -370,7 +379,9 @@
       do in=1,nion
       ia = ion_katm(in)
       ng = paw_basis_ngrid(ia)
-      ic = paw_basis_i_cut(ia)
+c      ic = paw_basis_i_cut(ia)
+      ic = paw_basis_npoints(ia)
+      istart = paw_basis_i_start(ia)
       i_rho0 = int_mb(i_paw_rho(1) + in - 1)
       i_vxc0 = int_mb(i_paw_vxc(1) + in - 1)
       i_core_ae = paw_basis_i_core_density(ia)
@@ -435,21 +446,22 @@ c        write(*,*) "paw_exc: rho_do_ps(1)",dbl_mb(rho_ps(1)+n_s)
         
 *       *** add core densities***        
         do ig=1,ic
+          igg = ig+istart-1
           dbl_mb(rho_ae(1)+ig-1)=
      >             dbl_mb(rho_ae(1)+ig-1)  + 
-     >             0.5d0*dbl_mb(i_core_ae+ig-1)
+     >             0.5d0*dbl_mb(i_core_ae+igg-1)
 
           dbl_mb(rho_ae(1)+n_s+ig-1)=
      >             dbl_mb(rho_ae(1)+n_s+ig-1) + 
-     >             0.5d0*dbl_mb(i_core_ae+ig-1)
+     >             0.5d0*dbl_mb(i_core_ae+igg-1)
 
               dbl_mb(rho_ps(1)+ig-1)=
      >             dbl_mb(rho_ps(1)+ig-1) + 
-     >             0.5d0*dbl_mb(i_core_ps+ig-1)
+     >             0.5d0*dbl_mb(i_core_ps+igg-1)
 
               dbl_mb(rho_ps(1)+n_s+ig-1)=
      >             dbl_mb(rho_ps(1)+n_s+ig-1) + 
-     >             0.5d0*dbl_mb(i_core_ps+ig-1)
+     >             0.5d0*dbl_mb(i_core_ps+igg-1)
 
         end do !ig
 
@@ -494,8 +506,9 @@ c        write(*,*) "paw_exc: exc_up_ps(1)",dbl_mb(exc_ps(1))
 
 c        write(*,*) "paw_exc: xc_temp(1)",dbl_mb(xc_temp(1))
 
-        exc_tmp = def_integr(0,dbl_mb(xc_temp(1)),2,dbl_mb(i_r),
-     >                       log_amesh,ic)
+        exc_tmp = def_integr1(0,dbl_mb(xc_temp(1)),2,
+     >                       dbl_mb(i_r+istart-1),
+     >                       log_amesh,ic,istart)
 
         dbl_mb(paw_xc_e(1)+in-1)=dbl_mb(paw_xc_e(1)+in-1)+
      >                           exc_tmp*
@@ -545,6 +558,7 @@ c        write(*,*) "paw_exc: xc_temp(1)",dbl_mb(xc_temp(1))
       end do !i_phi
       end do !i_theta
 
+
 c        write(*,*) "******************************"
 c        write(*,*) " paw_xc mult moments
 c        write(*,*) "******************************"
@@ -575,12 +589,17 @@ c        end do
 
 
       end do !in
+      if (np.gt.1) 
+     > call D3dB_Vector_Sumall(paw_xc_e(3),dbl_mb(paw_xc_e(1)))
+
       
 
       do in=1,nion
         ia = ion_katm(in)
         ng = paw_basis_ngrid(ia)
-        ic = paw_basis_i_cut(ia)
+c        ic = paw_basis_i_cut(ia)
+        ic = paw_basis_npoints(ia)
+        istart = paw_basis_i_start(ia)
         i_r = paw_basis_i_rgrid(ia)
         log_amesh = paw_basis_log_amesh(ia)
         nb = paw_basis_nbasis(ia)
@@ -599,17 +618,18 @@ c        end do
         lj = paw_basis_orb_l(j,ia)
 c          write(*,*) "paw_xc loop start",i,j,nb,in
           do ig=1,ic
+           igg = ig+istart-1
           
             i_vxc = i_vxc0-1+ig+
      >            (nlmi+l+m)*ic
 
-            tmp_ae = dbl_mb(i_phi_ae0+(i-1)*ng+ig-1)*       
-     >               dbl_mb(i_phi_ae0+(j-1)*ng+ig-1)/
-     >               dbl_mb(i_r+ig-1)**2 
+            tmp_ae = dbl_mb(i_phi_ae0+(i-1)*ng+igg-1)*       
+     >               dbl_mb(i_phi_ae0+(j-1)*ng+igg-1)/
+     >               dbl_mb(i_r+igg-1)**2 
 
-            tmp_ps = dbl_mb(i_phi_ps0+(i-1)*ng+ig-1)*       
-     >               dbl_mb(i_phi_ps0+(j-1)*ng+ig-1)/
-     >               dbl_mb(i_r+ig-1)**2 
+            tmp_ps = dbl_mb(i_phi_ps0+(i-1)*ng+igg-1)*       
+     >               dbl_mb(i_phi_ps0+(j-1)*ng+igg-1)/
+     >               dbl_mb(i_r+igg-1)**2 
 
 
           dcpl_mb(xc_c_temp(1)+ig-1)= 
@@ -626,13 +646,15 @@ c          write(*,*) "paw_xc loop start",i,j,nb,in
 c          write(*,*) "xc_c_temp(1)",i,j,l,m,dcpl_mb(xc_c_temp(1))
           i_mtr = i_mtr0-1+j+(i-1)*nb+(nlmi+l+m)*nb2
 
-          tmp = c_def_integr(0,dcpl_mb(xc_c_temp(1)),2,dbl_mb(i_r),
-     >                       log_amesh,ic)
+          tmp = c_def_integr1(0,dcpl_mb(xc_c_temp(1)),2,
+     >                       dbl_mb(i_r+istart-1),
+     >                       log_amesh,ic,istart)
 
           dcpl_mb(paw_xc_matr_u(1)+i_mtr)=tmp
 
-          tmp = c_def_integr(0,dcpl_mb(xc_c_temp1(1)),2,dbl_mb(i_r),
-     >                       log_amesh,ic)
+          tmp = c_def_integr1(0,dcpl_mb(xc_c_temp1(1)),2,
+     >                       dbl_mb(i_r+istart-1),
+     >                       log_amesh,ic,istart)
 
           dcpl_mb(paw_xc_matr_d(1)+i_mtr)=tmp
 cc          write(*,*) "exc_matrix_up",tmp
@@ -722,6 +744,13 @@ c            write(*,*) "xc_pot",dcpl_mb(paw_xc_pot_u(1)+i_pot)
 !        end do !i  
  
       end do !in
+
+      if (np.gt.1)  then
+        call D3dB_Vector_Sumall(2*paw_xc_pot_u(3),
+     >                          dcpl_mb(paw_xc_pot_u(1)))
+        call D3dB_Vector_Sumall(2*paw_xc_pot_d(3),
+     >                          dcpl_mb(paw_xc_pot_d(1)))
+      end if
 
       call nwpw_timing_end(4)
       return

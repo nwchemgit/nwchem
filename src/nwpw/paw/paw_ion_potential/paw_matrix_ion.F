@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_ion.F,v 1.6 2003-10-21 02:05:16 marat Exp $
+* $Id: paw_matrix_ion.F,v 1.7 2005-01-30 07:16:17 bylaska Exp $
 *
 
 !**************************************************
@@ -22,6 +22,7 @@
       logical ok
       integer it,tot_ntype
       integer matr_size, matr_index
+      integer ic,istart
 
       tot_ntype = paw_basis_tot_ntype()
       ok = my_alloc(mt_int,tot_ntype,"i_paw_ion_matrix",
@@ -48,9 +49,11 @@
      > call errquit("init_paw_ion_matrix: out of heap memory",0,1)
   
       do it=1,tot_ntype
+       ic     = paw_basis_npoints(it)
+       istart = paw_basis_i_start(it)
     
        matr_index = int_mb(i_paw_ion_matrix(1) +it-1)
-       call find_ion_matrix( int_mb(paw_basis_i_i_cut(it)), 
+       call find_ion_matrix(ic,istart,
      >                        int_mb(paw_basis_i_ngrid(it)),
      >                        int_mb(paw_basis_i_nbasis(it)),
      >                        int_mb(paw_basis_i_orb_l(it)),
@@ -93,7 +96,7 @@
 !   created :
 !
 !*************************************************
-      subroutine find_ion_matrix( ic,
+      subroutine find_ion_matrix(ic,istart,
      >                        ngrid,
      >                        nbasis,
      >                        orb_l,
@@ -103,7 +106,7 @@
      >                        phi_ae,
      >                        matrix)
       implicit none
-      integer    ic
+      integer    ic,istart
       integer    ngrid
       integer    nbasis
       integer    orb_l(nbasis)
@@ -119,11 +122,12 @@
 
       !*** local variables ***
       logical  ok
-      integer  i,j,ii
+      integer  i,j,ig,igg,np
       integer  power_r,power_f
       integer  i_f,l_f
       double precision  tmp
 
+      call Parallel_np(np)
 
       power_r = -1
 
@@ -137,12 +141,15 @@
         power_f = 2*orb_l(i)+2
         do j=1,i
           if(orb_l(i).eq.orb_l(j)) then
-            do ii=1,ic
-              dbl_mb(i_f+ii-1) =  phi_ae(ii,i)*phi_ae(ii,j)
+            do ig=1,ic
+              igg=ig+istart-1
+              dbl_mb(i_f+ig-1) =  phi_ae(igg,i)*phi_ae(igg,j)
             end do
 
-            tmp = def_integr(power_f,dbl_mb(i_f),power_r,r,
-     >                       log_amesh,ic)
+c            tmp = def_integr(power_f,dbl_mb(i_f),power_r,r,
+c     >                       log_amesh,ic)
+            tmp = def_integr1(power_f,dbl_mb(i_f),power_r,r(istart),
+     >                       log_amesh,ic,istart)
         
             tmp = -tmp*ion_charge
             matrix(i,j) = tmp
@@ -154,6 +161,7 @@
 
         end do
       end do
+      if (np.gt.1) call D3dB_Vector_SumAll(nbasis*nbasis,matrix)
 
       ok = ma_pop_stack(l_f)
       if (.not.ok)

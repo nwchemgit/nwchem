@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.29 2004-12-30 04:37:56 bylaska Exp $
+* $Id: paw_basis.F,v 1.30 2005-01-30 07:16:11 bylaska Exp $
 *
 
 !**************************************************
@@ -130,6 +130,25 @@ c     !*** set core charges ***
       do it = 1,nt 
         call calc_paw_basis_core_charge(
      (        it,dbl_mb(paw_basis_i_core_charge(it)))
+      end do
+
+
+c     !*** set paw_radgrid_map ***
+      do it = 1,nt 
+        call paw_radgrid_map(int_mb(paw_basis_i_i_cut(it)),
+     >                       int_mb(paw_basis_i_i_start(it)),
+     >                       int_mb(paw_basis_i_i_end(it)))
+        
+        int_mb(paw_basis_i_npoints(it)) 
+     >  = int_mb(paw_basis_i_i_end(it))
+     >  - int_mb(paw_basis_i_i_start(it)) + 1
+
+c        write(*,*) "nt:",it,int_mb(paw_basis_i_ngrid(it)),
+c     >             int_mb(paw_basis_i_nbasis(it)),
+c     >             int_mb(paw_basis_i_i_cut(it)),
+c     >             paw_basis_i_start(it),
+c     >             paw_basis_i_end(it),
+c     >             paw_basis_npoints(it)
       end do
 
 

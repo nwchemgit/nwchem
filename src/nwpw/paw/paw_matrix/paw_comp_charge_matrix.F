@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge_matrix.F,v 1.8 2003-10-21 02:05:17 marat Exp $
+* $Id: paw_comp_charge_matrix.F,v 1.9 2005-01-30 07:16:17 bylaska Exp $
 *
 !**************************************************
 !
@@ -25,6 +25,7 @@
       integer mult_l
       integer nbasis
       integer matr_size, matr_index
+      integer ic,istart
 
       tot_ntype = paw_basis_tot_ntype()
       ok = my_alloc(mt_int,tot_ntype,"i_comp_charge_matrix",
@@ -61,10 +62,11 @@
      >  "init_paw_comp_charge_matrix: out of heap memory",0,1)
   
       do it=1,tot_ntype
+        ic    = paw_basis_npoints(it)
+        istart = paw_basis_i_start(it)
     
         matr_index = int_mb(i_comp_charge_matrix(1) +it-1)
-        call find_comp_charge_matrix( 
-     >            int_mb(paw_basis_i_i_cut(it)),
+        call find_comp_charge_matrix(ic,istart,
      >            int_mb(paw_basis_i_ngrid(it)),
      >            int_mb(paw_basis_i_nbasis(it)),
      >            int_mb(paw_basis_i_orb_l(it)),
@@ -112,7 +114,7 @@
 !   created :
 !
 !*************************************************
-      subroutine find_comp_charge_matrix( ic,
+      subroutine find_comp_charge_matrix(ic,istart,
      >                        ngrid,
      >                        nbasis,
      >                        orb_l,
@@ -123,7 +125,7 @@
      >                        phi_ps,
      >                        matrix)
       implicit none
-      integer    ic
+      integer    ic,istart
       integer    ngrid
       integer    nbasis
       integer    orb_l(nbasis)
@@ -140,13 +142,14 @@
 
       !*** local variables ***
       logical  ok
-      integer  i,j,ii
+      integer  i,j,ig,igg,np
       integer  la
       integer  power_r
       integer  i_f,l_f
       double precision tmp
 
 
+      call Parallel_np(np)
       power_r = 0
 
       !*** temporary array for calculatcomp_charges ***
@@ -158,14 +161,17 @@
       do i=1,nbasis
         do j=1,i
 
-          do ii=1,ic
-          dbl_mb(i_f+ii-1) = phi_ae(ii,i)*phi_ae(ii,j) 
-     >                         - phi_ps(ii,i)*phi_ps(ii,j)
+          do ig=1,ic
+          igg=ig+istart-1
+          dbl_mb(i_f+ig-1) = phi_ae(igg,i)*phi_ae(igg,j) 
+     >                         - phi_ps(igg,i)*phi_ps(igg,j)
           end do
 
           do la=0,mult_l
 
-            tmp = def_integr(2*la+2,dbl_mb(i_f),la,r,log_amesh,ic)
+c            tmp = def_integr(2*la+2,dbl_mb(i_f),la,r,log_amesh,ic)
+            tmp = def_integr1(2*la+2,dbl_mb(i_f),la,r(istart),
+     >                        log_amesh,ic,istart)
 
             
             matrix(i,j,la+1) = tmp
@@ -175,6 +181,8 @@
 
         end do
       end do
+      if (np.gt.1) 
+     > call D3dB_Vector_SumAll(nbasis*nbasis*(mult_l+1),matrix)
 
       ok = ma_pop_stack(l_f)
       if (.not.ok)

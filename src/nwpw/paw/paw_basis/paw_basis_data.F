@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.19 2003-10-17 22:56:57 carlfahl Exp $
+! $Id: paw_basis_data.F,v 1.20 2005-01-30 07:16:16 bylaska Exp $
 
 !**************************************************
 !
@@ -76,6 +76,10 @@
       ok = ok .AND. my_alloc(MT_INT,tot_ntype,"i_ng",i_ng)
       ok = ok .AND. my_alloc(MT_INT,tot_ntype,"i_ngb",i_ngb)
 
+      ok = ok .AND. my_alloc(MT_INT,tot_ntype,"i_start",i_start)
+      ok = ok .AND. my_alloc(MT_INT,tot_ntype,"i_end",i_end)
+      ok = ok .AND. my_alloc(MT_INT,tot_ntype,"npoints",npoints)
+
       if(.not. ok) then
         call errquit("failed to allocate paw_basis data ",0, MA_ERR)
       end if
@@ -106,13 +110,16 @@
 
       IMPLICIT NONE
 #include "errquit.fh"
-
 #include "paw_ma.fh"
 #include "paw_basis_data.fh"
 
       logical ok
 
         ok = .true.
+        ok = ok .and. my_dealloc(i_start)
+        ok = ok .and. my_dealloc(i_end)
+        ok = ok .and. my_dealloc(npoints)
+
         ok = ok .and. my_dealloc(i_ngb)
         ok = ok .and. my_dealloc(i_ng)
         ok = ok .and. my_dealloc(i_nb)
@@ -149,6 +156,42 @@
 
 
       END !SUBROUTINE
+
+
+c     *********************************
+c     *                               *
+c     *         paw_radgrid_map       *
+c     *                               *
+c     *********************************
+
+      subroutine paw_radgrid_map(tot_nr,i_start,i_end)
+      implicit none
+      integer tot_nr
+      integer i_start
+      integer i_end
+
+c     *** local variables ***
+      integer nr,np,taskid
+      real*8  tmp
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      tmp = dble(tot_nr)/dble(np)
+      nr = FLOOR(tmp)
+
+      i_start = 1 + taskid*nr
+
+      if (taskid .eq. (np-1)) THEN
+        i_end = tot_nr
+      else
+        i_end = i_start + nr
+      end if
+
+      return
+      end
+
+
+
 
 !**************************************************
 !
@@ -405,6 +448,124 @@
       paw_basis_i_i_cut = i_cut(1) +  it-1
       return
       END 
+
+
+!**************************************************
+!
+!       Name: paw_basis_i_i_start
+!
+!       Purpose
+!
+!       Created:        7/9/2002
+!**************************************************
+      INTEGER FUNCTION  paw_basis_i_i_start(it)
+      implicit none
+      integer it
+
+#include "paw_basis_data.fh"
+
+      paw_basis_i_i_start = i_start(1) +  it-1
+      return
+      END
+
+!**************************************************
+!
+!       Name: paw_basis_i_start
+!
+!       Purpose
+!
+!       Created:        7/9/2002
+!**************************************************
+      INTEGER FUNCTION  paw_basis_i_start(it)
+      implicit none
+      integer it
+
+#include "paw_basis_data.fh"
+#include "mafdecls.fh"
+
+      paw_basis_i_start = int_mb(i_start(1) +  it-1)
+      return
+      END
+
+
+!**************************************************
+!
+!       Name: paw_basis_i_i_end
+!
+!       Purpose
+!
+!       Created:        7/9/2002
+!**************************************************
+      INTEGER FUNCTION  paw_basis_i_i_end(it)
+      implicit none
+      integer it
+
+#include "paw_basis_data.fh"
+
+      paw_basis_i_i_end = i_end(1) +  it-1
+      return
+      END
+
+
+!**************************************************
+!
+!       Name: paw_basis_i_end
+!
+!       Purpose
+!
+!       Created:        7/9/2002
+!**************************************************
+      INTEGER FUNCTION  paw_basis_i_end(it)
+      implicit none
+      integer it
+
+#include "paw_basis_data.fh"
+#include "mafdecls.fh"
+
+      paw_basis_i_end = int_mb(i_end(1) +  it-1)
+      return
+      END
+
+
+!**************************************************
+!
+!       Name: paw_basis_i_npoints
+!
+!       Purpose
+!
+!       Created:        7/9/2002
+!**************************************************
+      INTEGER FUNCTION  paw_basis_i_npoints(it)
+      implicit none
+      integer it
+
+#include "paw_basis_data.fh"
+
+      paw_basis_i_npoints = npoints(1) +  it-1
+      return
+      END
+
+
+!**************************************************
+!
+!       Name: paw_basis_npoints
+!
+!       Purpose
+!
+!       Created:        7/9/2002
+!**************************************************
+      INTEGER FUNCTION  paw_basis_npoints(it)
+      implicit none
+      integer it
+
+#include "paw_basis_data.fh"
+#include "mafdecls.fh"
+
+      paw_basis_npoints = int_mb(npoints(1) +  it-1)
+      return
+      END
+
+
 
 !**************************************************
 !
@@ -1132,3 +1293,4 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
         paw_basis_max_mult_l= max_mult_l
 
       end
+

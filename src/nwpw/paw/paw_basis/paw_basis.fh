@@ -90,6 +90,13 @@
       integer   paw_basis_i_rgrid
       integer   paw_basis_max_mult_l
 
+      integer   paw_basis_i_i_start
+      integer   paw_basis_i_i_end
+      integer   paw_basis_i_npoints
+      integer   paw_basis_i_start
+      integer   paw_basis_i_end
+      integer   paw_basis_npoints
+
       external   paw_basis_i_pr_n
       external   paw_basis_i_pr_n_ps
       external   paw_basis_i_eig
@@ -115,6 +122,12 @@
       external   paw_basis_i_core_kin_energy
       external   paw_basis_i_rgrid
       external   paw_basis_max_mult_l
+      external  paw_basis_i_i_start
+      external  paw_basis_i_i_end
+      external  paw_basis_i_npoints
+      external  paw_basis_i_start
+      external  paw_basis_i_end
+      external  paw_basis_npoints
 
 c      double precision dabsmax
 c      external dabsamx
