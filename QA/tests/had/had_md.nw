@@ -1,3 +1,4 @@
+echo
 title; NWChem molecular dynamics
 memory noverify heap 10 mb stack 94 mb global 20 mb
 

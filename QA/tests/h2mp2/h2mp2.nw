@@ -1,3 +1,5 @@
+echo
+
 title; H2 MP2 gradient at this geometry exposed bug in shell pair ordering
 
 start h2o

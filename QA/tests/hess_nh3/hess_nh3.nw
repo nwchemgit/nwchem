@@ -1,3 +1,5 @@
+echo 
+
 start hess_nh3
 
 # This input tests the accuracy of the finite difference

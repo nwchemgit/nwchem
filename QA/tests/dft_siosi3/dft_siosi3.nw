@@ -2,6 +2,8 @@ title; siosi3
 
 start siosi3_64
 
+echo
+
 geometry units au
 O 0.000000 0.000000 0.000000 
 Si 3.014576 0.000000 0.000000 

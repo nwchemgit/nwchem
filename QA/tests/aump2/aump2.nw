@@ -3,6 +3,7 @@
 # between MP2 and CCSD modules.  Cannot reproduce problem
 # but it seems good to compare all three.  Note that the
 # MP2 energy would also probably expose the old Texas instability.
+echo
 
 start Au+
 title; Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]

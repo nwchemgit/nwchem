@@ -1,3 +1,4 @@
+echo
 title; NWChem molecular dynamics
 memory noverify heap 1 mb stack 96 mb global 8 mb
 start myo_sp

@@ -1,3 +1,4 @@
+echo
 start tagbug
 memory global 3 mb heap 3 mb stack 30 mb
 title; tag matching check with ECPs

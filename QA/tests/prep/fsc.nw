@@ -1,3 +1,4 @@
+echo
 memory heap 1 mb stack 36 mb global 12 mb
 start fsc
 

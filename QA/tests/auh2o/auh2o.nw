@@ -1,4 +1,5 @@
 # This input exposed bug in freeze core atomic for centers with ECPs
+echo
 
 start Au+(H2O)2 
 title; Au+(H2O)2, H2O aVTZ using optimal MP2/aVDZ geometry

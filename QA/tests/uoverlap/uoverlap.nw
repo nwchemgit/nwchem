@@ -1,4 +1,4 @@
-
+echo
 
 #From various tests on Si2H6 MP2 gradients (aug-TZ basis) and the following
 #Uranium input I think that the default (standard) integral accuracy needs

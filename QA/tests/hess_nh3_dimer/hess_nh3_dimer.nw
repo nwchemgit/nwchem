@@ -1,3 +1,4 @@
+echo
 start nh3dimer
 
 title; hessian calculation for (NH3)2 MP2/aug-cc-pVTZ

@@ -1,3 +1,4 @@
+echo
 #- 
 #- This test data exposed the now fixed MP2 gradients bug ... 
 #- 

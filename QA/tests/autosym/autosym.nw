@@ -3,6 +3,8 @@ start autosym
 # These two methane geometries should result in the same nuclear
 # repulsion energy
 
+echo
+
 geometry autosym units au
    c       0.00000000     0.00000000     0.00000000
    h       1.18989170     1.18989170     1.18989170

@@ -1,3 +1,4 @@
+echo
 # 
 # The enclosed pair of inputs result in clearly erroneous RI-MP2
 # correlation energies (-22 Eh for Ne2).  The culprit appears to be

@@ -1,3 +1,4 @@
+echo
 start testpy
 # test some basic python wrappers.
 # if it did not abort, it worked.

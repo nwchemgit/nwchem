@@ -1,3 +1,7 @@
+echo
+#
+# This test is designed to fail !
+#
 start h2o
 
 geometry units au

@@ -1,3 +1,4 @@
+echo
 start nh3 trimer
 
 title; Gradient calculation for (NH3)3 MP2/aug-cc-pVTZ
