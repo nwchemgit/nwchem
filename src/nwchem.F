@@ -23,7 +23,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.144 2004-04-22 23:00:08 edo Exp $
+c     $Id: nwchem.F,v 1.145 2004-09-08 23:56:33 edo Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                   2000, 2001, 2002, 2003, 2004                      *
@@ -143,8 +143,8 @@ c
 *     More for amusement then efficiency force all MA allocated entities 
 *     to be aligned at the beginning of a 128 byte cache line
 *
-      if (.not. ma_set_numalign(7))
-     $     call errquit('nwchem.F: ma_set_numalign failed',911, MA_ERR)
+!      if (.not. ma_set_numalign(7))
+!     $     call errquit('nwchem.F: ma_set_numalign failed',911, MA_ERR)
 *
 *
 *old:------------------------------------------------------- START ---------
@@ -182,7 +182,7 @@ c
 #endif
 #ifdef LINUX
 c      uncommenting this line turns on sigfpe trapping under linux
-!      call linux_trapfpe()
+      call linux_trapfpe()
 #endif
 c
 c     Hard fail is good for development but means that we cannot
@@ -217,6 +217,10 @@ c
          if (.not. rtdb_open(rtdb_name, 'old', rtdb))
      $        call errquit('start: rtdb_open old failed ', 0, RTDB_ERR)
       endif
+C
+C     initialize nxtask
+C
+      call nxtask_init(rtdb)
 c!!! BGJ
       bgj_rtdb = rtdb
 c!!! BGJ
@@ -421,6 +425,9 @@ C
       Call Util_GetEnv('QSUB_REQID', batchid)
       If ( Inp_StrLen(batchid) .eq. 0 ) then
          Call Util_GetEnv('LOADL_JOB_NAME', batchid)
+        If ( inp_strlen(batchid) .eq. 0 ) then
+            call util_getenv('LSB_JOBID', batchid)
+         endif
       EndIf
 C
       call util_print_centered(LuOut, 'Job information', 17, .true.)
