@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.58 2003-04-30 19:03:03 edo Exp $
+$Id: INSTALL,v 1.59 2003-05-13 19:30:38 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -389,7 +389,6 @@ F) Contents of the default.nwchemrc file based on the above
    amber_x /usr/local/NWChem/data/amber_x/
    spce /usr/local/NWChem/data/solvents/spce.rst
    charmm_s /usr/local/NWChem/data/charmm_s/
-   charmm_s /usr/local/NWChem/data/charmm_q/
    charmm_x /usr/local/NWChem/data/charmm_x/
 
    Of course users can copy this file instead of making the symbolic
