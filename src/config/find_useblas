@@ -1,0 +1,31 @@
+#!/bin/csh 
+#
+# finds files in tree that have converted blas calls
+#
+
+
+set blas = (daxpy ddot  dscal  dcopy  dnrm2 idamax dasum drot)
+set blas = ($blas drotg dswap  dmach  dgemm dgemv  dgesv dspmv)
+set blas = ($blas dger  dgesvd dspsvx dgetrs dgetrf)
+set blas = ($blas saxpy sdot  sscal  scopy  snrm2 isamax sasum srot)
+set blas = ($blas srotg sswap  smach  sgemm sgemv  sgesv sspmv)
+set blas = ($blas sger  sgesvd sspsvx sgetrs sgetrf)
+
+touch .find_useblas_tmp
+rm -f .find_useblas_tmp
+touch .find_useblas_tmp
+
+foreach tag ($blas)
+   grep -l -i $tag *.[fF] */*.[fF] */*/*.[fF] */*/*/*.[fF] | grep -v -i blas | grep -v -i lapack  >> .find_useblas_tmp
+   grep -l -i $tag *.fh */*.fh */*/*.fh */*/*/*.fh | grep -v -i blas | grep -v -i lapack  >> .find_useblas_tmp
+end
+
+foreach tag ($blas)
+cat .find_useblas_tmp | sort -u | grep -v $tag > .find_useblas_copy
+mv .find_useblas_copy .find_useblas_tmp
+end
+
+cat .find_useblas_tmp
+
+touch .find_useblas_tmp
+rm -f .find_useblas_tmp

@@ -1,0 +1,15 @@
+#!/bin/csh 
+#
+# confirms file(s) that have blas calls removing ga calls in grep
+#
+
+set blas = (daxpy ddot  dscal  dcopy  dnrm2 idamax dasum drot)
+set blas = ($blas drotg dswap  dmach  dgemm dgemv  dgesv dspmv)
+set blas = ($blas dger  dgesvd dspsvx dgetrs dgetrf)
+set blas = ($blas saxpy sdot  sscal  scopy  snrm2 isamax sasum srot)
+set blas = ($blas srotg sswap  smach  sgemm sgemv  sgesv sspmv)
+set blas = ($blas sger  sgesvd sspsvx sgetrs sgetrf)
+
+foreach tag ($blas) 
+	grep -i $tag $argv /dev/null | grep -v -i ga_ddot | grep -v -i ga_dgemm | grep -v -i ga_dasum | grep -v -i ga_dscal
+end
