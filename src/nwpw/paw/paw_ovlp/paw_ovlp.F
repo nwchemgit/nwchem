@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.5 2002-08-15 22:41:14 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.6 2002-09-16 21:57:28 marat Exp $
 *
 
 !**************************************************
@@ -125,6 +125,8 @@
       integer nion,prj,i1,i2,n
       integer indx_psi,indx_prj,indx_coeff
       integer exi(2),tmp(2)
+      integer nx,ny,nz
+      real*8 scal_factor
 
       !*** external functions ****
       integer  paw_proj_l,paw_proj_m
@@ -133,13 +135,31 @@
       integer  ion_nion,ion_katm,psi_ne
       external paw_proj_i_prj_atom,paw_proj_nbasis
       external ion_nion,ion_katm,psi_ne 
-
+      real*8 lattice_omega
+      external lattice_omega
       call Pack_npack(1,npack1)
 
       !*** allocate temporary space ***
       value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
       value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
       if (.not.value) call errquit('paw_ovlp_set: push stack',0)
+
+
+c      call D3DB_nx(1,nx)
+c      call D3DB_ny(1,ny)
+c      call D3DB_nz(1,nz)
+
+c      scal_factor = sqrt(lattice_omega())/(nx*ny*nz)
+c      write(*,*) "scal_factor=",scal_factor
+
+      do n=1,neall
+         indx_psi   = (n-1)*npack1    + 1
+         do ii=1,npack1
+            write(87,*) psi(indx_psi+ii-1)
+         enddo
+      enddo
+c      write(*,*)"neall,npack1",neall,npack1
+c      pause
 
       !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion) ***
       nlmii = 0
@@ -160,15 +180,21 @@
            do n=1,neall
              indx_psi   = (n-1)*npack1    + 1
              indx_coeff = (nlmii-1)*neall + (n-1)
+c             write(*,*) "psi=",psi(indx_psi)
+c             write(*,*) "prj=",dcpl_mb(tmp(1))
+c		pause
              call Pack_cc_izdot(1,
      >                         dcpl_mb(tmp(1)),
      >                         psi(indx_psi),
      >                         dcpl_mb(toeff(1)+indx_coeff))
+c             dcpl_mb(toeff(1)+indx_coeff) = dcpl_mb(toeff(1)+indx_coeff)*scal_factor
            write(*,*) "toeff:",n,nlmii,'(',nlm,ii,')',
      >                 dcpl_mb(toeff(1)+indx_coeff)
            end do
         end do
       end do 
+
+
 
 
       !*** unsrcramble to get true overlap coefficients ***
