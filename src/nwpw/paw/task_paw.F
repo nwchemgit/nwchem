@@ -1,5 +1,5 @@
 *
-* $Id: task_paw.F,v 1.1 2002-07-03 19:00:39 bylaska Exp $
+* $Id: task_paw.F,v 1.2 2002-07-08 20:27:24 marat Exp $
 *
 
       logical function task_paw(rtdb)
@@ -45,6 +45,8 @@ c
 c  steepest_descent
 c
  100  if (ga_nodeid().eq.MASTER) then
+        write(*,*) "generating PAW basis"
+	call init_paw_basis("H")
         write(*,*)  ">>>> PAW Parallel Module - steepest_descent <<<<"
       end if
 
