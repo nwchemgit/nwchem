@@ -1,6 +1,14 @@
 A collection of miscelaneous Python scripts and test cases 
 that have been partially tested.
 
+Xrtdb.py - A Tkinter based graphical RTDB editor
+     Requires Tkinter support be built into the Python that NWChem
+     is linked against.  On some machines this also requires linking
+     against _tkinter.so which is in the python lib-dynload.
+
+testxrtb.nw
+     Example use of Xrtdb
+
 nwgeom.py - look in the file for (a little) more documentation
    Defines the procedures
 
