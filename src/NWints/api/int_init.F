@@ -1,5 +1,6 @@
+
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.16 1994-12-29 07:12:38 og845 Exp $
+c $Id: int_init.F,v 1.17 1994-12-31 07:15:09 og845 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -13,7 +14,30 @@ c::passed
 c::local
       integer ibas, ang2use, angm
       logical status
-      external api_data
+c
+c      block data api_data
+c
+c
+c Block data structure to initialize the common block variables in the
+c  internal basis set object data structures
+c
+c     
+      data mem_2e4c  /0/
+      data init_int  /0/
+      data mem_1e    /0/
+      data isz_2e4c  /0/
+      data isz_1e    /0/
+      data mem_1e_h1 /0/
+      data isz_2e3c  /0/
+      data isz_2e2c  /0/
+      data mem_2e3c  /0/
+      data mem_2e2c  /0/
+      data isz_3ov   /0/
+      data mem_3ov   /0/
+      data init_intd /0/
+      data DCexp     /0.0000000000D00/
+      data DCcoeff   /1.0000000000D00/
+      data val_int_acc /0.0d00/
 c
       if(init_int.eq.1) then
         write(6,*)' warning nested int_inits'
@@ -56,31 +80,6 @@ c
       call init70               ! To generate tables etc.
       call int_acc_std()
       init_int = 1
-      end
-      block data api_data
-c
-c Block data structure to initialize the common block variables in the
-c  internal basis set object data structures
-c
-      implicit none
-#include "apiP.fh"
-c     
-      data mem_2e4c  /0/
-      data init_int  /0/
-      data mem_1e    /0/
-      data isz_2e4c  /0/
-      data isz_1e    /0/
-      data mem_1e_h1 /0/
-      data isz_2e3c  /0/
-      data isz_2e2c  /0/
-      data mem_2e3c  /0/
-      data mem_2e2c  /0/
-      data isz_3ov   /0/
-      data mem_3ov   /0/
-      data init_intd /0/
-      data DCexp     /0.0000000000D00/
-      data DCcoeff   /1.0000000000D00/
-      data val_int_acc /0.0d00/
       end
       subroutine sp_init(nbas,bases)
       implicit none
@@ -250,3 +249,5 @@ c
       data num_intt       /pnum_intt/
       end
 #endif
+
+
