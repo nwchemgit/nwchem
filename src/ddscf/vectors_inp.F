@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.8 2002-12-03 17:16:48 d3k958 Exp $
+C     $Id: vectors_inp.F,v 1.9 2002-12-04 19:36:15 d3k958 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -231,7 +231,9 @@ c
 10000 write(6,10001)
 10001 format(/' vectors [[input] filename|atomic|hcore] '
      $     /'         [output  filename] [lock]'
-     $     /'         [swap [alpha|beta] pair_list]'/)
+     $     /'         [swap [alpha|beta] pair_list]'
+     $     /'         [reorder pair_list]'
+     $     /'         [rotate geometry filename]'/)
       call util_flush(6)
       call errquit('vectors_input: invalid format', 0)
 c     

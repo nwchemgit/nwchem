@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.101 2002-10-01 00:01:19 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.102 2002-12-04 19:36:22 d3k958 Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -829,7 +829,8 @@ c
      $     movecs_out = ' '
       if (movecs_out.eq.' ')then
          if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
-     $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment')then
+     $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment'.or.
+     $        movecs_in.eq.'rotate')then
             call util_file_name('movecs', .false.,.false.,movecs_out)
          else
             movecs_out = movecs_in
@@ -847,7 +848,8 @@ c     Resolve names of MO files to full paths defaulting to the
 c     permanent directory
 c
       if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
-     $     movecs_in.eq.'project' .or. movecs_in.eq.'fragment')then
+     $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment'.or.
+     $        movecs_in.eq.'rotate')then
          continue
       else
          call util_file_name_resolve(movecs_in, .false.)
