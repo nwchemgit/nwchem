@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.29 1996-10-11 10:13:02 d3e129 Exp $
+# $Id: GNUmakefile,v 1.30 1996-10-23 05:48:23 d3g681 Exp $
 
     OBJ          = 
     OBJ_OPTIMIZE = hf3PEabc.o hf3mkr.o hf3pot.o \
@@ -59,8 +59,8 @@ doc:	3ctrpot.tex
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(int_order.o):	./int_order.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(hf1.o):	$(INCDIR)/mafdecls.fh 
 $(LIBRARY_PATH)(hfset.o):	$(INCDIR)/apiP.fh 
-$(LIBRARY_PATH)(hf3pot.o):	$(INCDIR)/stdio.fh 
+$(LIBRARY_PATH)(hf3pot.o):	$(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh 
 $(LIBRARY_PATH)(hf1set3.o):	$(INCDIR)/apiP.fh 
 $(LIBRARY_PATH)(hf1_tran.o):	$(INCDIR)/stdio.fh 
+$(LIBRARY_PATH)(hf1.o):	$(INCDIR)/mafdecls.fh 

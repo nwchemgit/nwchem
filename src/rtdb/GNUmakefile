@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.14 1996-10-01 21:09:58 d3e129 Exp $
+# $Id: GNUmakefile,v 1.15 1996-10-23 05:49:15 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -52,9 +52,9 @@ context:	context.o $(LIBRARY)
 	$(CC) $(CFLAGS) -o $@ context.o $(TEST_LIBS)
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(rtdb_seq.o):	./rtdb.h ./misc.h $(INCDIR)/macdecls.h 
 $(LIBRARY_PATH)(test.o):	./rtdb.fh $(INCDIR)/mafdecls.fh 
 $(LIBRARY_PATH)(rtdbtest.o):	$(INCDIR)/sndrcv.h ./misc.h $(INCDIR)/macdecls.h 
+$(LIBRARY_PATH)(rtdb_seq.o):	./rtdb.h ./misc.h $(INCDIR)/macdecls.h 
 $(LIBRARY_PATH)(rtdb_f2c.o):	./rtdb.h $(INCDIR)/macdecls.h 
 $(LIBRARY_PATH)(rtdb.save.o):	./rtdb.h ./misc.h $(INCDIR)/macdecls.h 
 $(LIBRARY_PATH)(rtdb.o):	$(INCDIR)/sndrcv.h ./rtdb.h $(INCDIR)/macdecls.h 

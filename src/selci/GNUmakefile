@@ -58,9 +58,9 @@ $(LIBRARY_PATH)(select.o):	./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./cselcif
 $(LIBRARY_PATH)(selci.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cselcifiles.fh 
 $(LIBRARY_PATH)(restk.o):	./cselcifiles.fh 
 $(LIBRARY_PATH)(restin.o):	$(INCDIR)/global.fh ./cselcifiles.fh 
+$(LIBRARY_PATH)(readh.o):	./implicit.fh 
 $(LIBRARY_PATH)(rdhint.o):	./implicit.fh 
 $(LIBRARY_PATH)(rdhead.o):	./implicit.fh ./cselcifiles.fh ./ciinfo.fh 
-$(LIBRARY_PATH)(readh.o):	./implicit.fh 
 $(LIBRARY_PATH)(putinb.o):	./implicit.fh ./cbuff.fh 
 $(LIBRARY_PATH)(ptidy.o):	./implicit.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(prtri.o):	./implicit.fh 
