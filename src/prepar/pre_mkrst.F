@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk)
 c
-c $Id: pre_mkrst.F,v 1.56 2000-07-06 18:48:56 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.57 2000-08-31 00:07:00 d3j191 Exp $
 c
       implicit none
 c
@@ -35,7 +35,7 @@ c
 c
       integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
       integer mat,msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
-      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu
+      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu,iropt
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix,drep(3)
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
@@ -632,8 +632,8 @@ c
      + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),
      + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
-     + nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist))
-     + call errquit('pre_wrtpdb failed',9999)
+     + iropt,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist))
+     + call errquit('pre_wrtpdbpre failed',9999)
       endif
 c
 c     write pov file
@@ -1112,6 +1112,7 @@ c
       read(card(13:17),'(i5)') nyrep
       read(card(18:22),'(i5)') nzrep
       read(card(35:46),'(f12.6)') rdist
+      read(card(47:51),'(i5)') iropt
       write(*,1019) nxrep,nyrep,nzrep
  1019 format(/,' Repeating ',3i5,/)
       if(.not.pre_repeat(card,drep,box,

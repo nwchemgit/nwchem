@@ -1,14 +1,14 @@
       logical function pre_center(xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
      + xs,msa,nsa)
 c
-c $Id: pre_center.F,v 1.9 2000-01-10 22:17:28 d3j191 Exp $
+c $Id: pre_center.F,v 1.10 2000-08-31 00:07:00 d3j191 Exp $
 c
       implicit none
 c
       integer mwa,mwm,nwa,nwm,msa,nsa,mwmc,nwmc
       real*8 xw(3,mwa,mwm),xwc(3,mwa,mwmc),xs(3,msa)
 c
-      integer i,j,k
+      integer i,j,k,imax,imin
       real*8 s,smin,smax
 c
       write(*,1000)
@@ -17,7 +17,11 @@ c
       do 1 k=1,3
       smin=xs(k,1)
       smax=xs(k,1)
+      imin=1
+      imax=1
       do 2 i=2,nsa
+      if(xs(k,i).lt.smin) imin=i
+      if(xs(k,i).gt.smax) imax=i
       smin=min(smin,xs(k,i))
       smax=max(smax,xs(k,i))
     2 continue
@@ -39,6 +43,7 @@ c
     7 continue
     6 continue
       endif
+      write(*,'(i2,2i5,3f12.6)') k,imin,imax,smin,smax,s
     1 continue
 c
       pre_center=.true.

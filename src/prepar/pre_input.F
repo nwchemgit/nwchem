@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.62 2000-07-11 16:12:21 windus Exp $
+c $Id: pre_input.F,v 1.63 2000-08-31 00:07:00 d3j191 Exp $
 c
       implicit none
 c
@@ -39,7 +39,7 @@ c
       character*4 scount(mcount)
       real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
       real*8 scale,cpk
-      integer irepeat,nrepeat
+      integer irepeat,nrepeat,iopt
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
@@ -1225,18 +1225,23 @@ c     repeat
 c     ------
 c
       if(inp_compare(.false.,'repeat',item)) then
-      if(.not.inp_i(nxrep)) call errquit('pre_input: repeat',9999)
-      if(.not.inp_i(nyrep)) call errquit('pre_input: repeat',9999)
-      if(.not.inp_i(nzrep)) call errquit('pre_input: repeat',9999)
+      iopt=0
+      if(.not.inp_i(nxrep)) then
+      if(.not.inp_a(item)) call errquit('pre_input: repeat 1',9999)
+      if(inp_compare(.false.,'single',item)) iopt=1
+      if(.not.inp_i(nxrep)) call errquit('pre_input: repeat 2',9999)
+      endif
+      if(.not.inp_i(nyrep)) call errquit('pre_input: repeat 3',9999)
+      if(.not.inp_i(nzrep)) call errquit('pre_input: repeat 4',9999)
       if(.not.inp_f(rrep)) then
       endif
       if(.not.inp_f(rdist)) then
       endif
-      if(nxrep.lt.0) call errquit('pre_input: repeat',9999)
-      if(nyrep.lt.0) call errquit('pre_input: repeat',9999)
-      if(nzrep.lt.-2) call errquit('pre_input: repeat',9999)
-      write(68,6851) nxrep,nyrep,nzrep,rrep,rdist
- 6851 format('repeat ',3i5,2f12.6)
+      if(nxrep.lt.0) call errquit('pre_input: repeat 5',9999)
+      if(nyrep.lt.0) call errquit('pre_input: repeat 6',9999)
+      if(nzrep.lt.-2) call errquit('pre_input: repea 7t',9999)
+      write(68,6851) nxrep,nyrep,nzrep,rrep,rdist,iopt
+ 6851 format('repeat ',3i5,2f12.6,i5)
       numcmd=numcmd+1
       goto 1
       endif
