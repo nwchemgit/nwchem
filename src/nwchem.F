@@ -25,7 +25,7 @@ c!!! BGJ
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.115 1999-06-11 00:19:55 d3g270 Exp $
+c     $Id: nwchem.F,v 1.116 1999-06-28 15:57:18 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -206,6 +206,8 @@ c
       call util_file_info_rtdb(rtdb) ! Save file info for restart
 c
       call movecs_ecce_print_on()
+c
+      call geom_hnd_parallel(.true.)
 c
 c if continue then go right to task stored on rtdb do not further parse
 c input.  If input is required then user should have used restart
