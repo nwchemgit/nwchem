@@ -2,7 +2,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.14 1999-12-12 17:36:07 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.15 2000-01-05 15:28:20 d3j191 Exp $
 c
       implicit none
 c
@@ -420,6 +420,8 @@ c
       imin=imax
       endif
       isfnd(i)=1
+      write(6,6000) qsa(i)*grid(4,imin)*138.9354d0
+ 6000 format(' Added counterion with energy ',f12.6,' kJ/mol')
 c
 c     remove grid point from list
 c
