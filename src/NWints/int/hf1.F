@@ -3,7 +3,7 @@
      &               Cxyz,zan,exinv,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.15 1999-10-26 21:52:25 mg201 Exp $
+c $Id: hf1.F,v 1.16 1999-12-28 19:49:40 mg201 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -129,7 +129,7 @@ c Assign pointers to scratch space.
       i_ESp   = (maxW0+1) - 3*(NPA*NPB)
       i_right = i_ESp
  
-      if( i_left.ge.i_right )then
+      if( i_left.ge.i_right .and. .not.DryRun )then
  
        write(*,*) 'HF1:  Insufficient scratch space.'
        write(*,*) '       needed    ',i_left + (maxW0-(i_right-1))
@@ -160,7 +160,7 @@ c Assign pointers to scratch space.
 
       end if
 
-      if (npp.eq.0) then
+      if (npp.eq.0 .and. .not.DryRun) then
           nintlocal = (La+1)*(La+2)/2*nca
           nintlocal = nintlocal*(Lb+1)*(Lb+2)/2*ncb
           if (O2I) call dfill(nintlocal,0.0d00,bO2I,1)
@@ -192,7 +192,7 @@ c Assign pointers to scratch space.
         i_prim_ints = -1
       endif
       i_left = iptr - 1
-      if( i_left.ge.i_right )then
+      if( i_left.ge.i_right .and. .not.DryRun )then
 
        write(*,*) 'HF1:  Insufficient scratch space.'
        write(*,*) '       needed    ',i_left + (maxW0-(i_right-1))
@@ -259,7 +259,7 @@ c Assign pointers to scratch space.
          i_Ti  = i_Ep + 3*NPP*(MXD+1)*lprod
          i_top = i_Ti + NPP - 1
        endif
-       if( i_top.gt.maxW0 )then
+       if( i_top.gt.maxW0 .and. .not.DryRun )then
 
         write(*,*) 'HF1:  Insufficient scratch space.'
         write(*,*) '       needed    ',i_top
@@ -320,7 +320,7 @@ c Assign scratch space.
        i_Rj  = i_ff  + NPP*2
        i_top = i_Rj  + NPP*(Lp+1)*Lp3 - 1
 
-       if( i_top.gt.maxW0 )then
+       if( i_top.gt.maxW0 .and. .not.DryRun )then
 
         write(*,*) 'HF1:  Insufficient scratch space.'
         write(*,*) '       needed    ',i_top

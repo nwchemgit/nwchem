@@ -4,7 +4,7 @@
      &               Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,
      &               bERI,Nint,canAB,canCD,canPQ,
      &               DryRun,W0,maxW0)
-c $Id: hf2.F,v 1.9 1996-01-17 22:03:48 d3e129 Exp $
+c $Id: hf2.F,v 1.10 1999-12-28 19:49:40 mg201 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -72,7 +72,7 @@ c Assign pointers to scratch space.
       i_ESp   = (maxW0+1) - 3*(NPA*NPB)
       i_right = i_ESp
 
-      if( i_left.ge.i_right )then
+      if( i_left.ge.i_right .and. .not.DryRun )then
 
        write(*,*) 'HF2:  Insufficient scratch space.'
        write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
@@ -112,7 +112,7 @@ c Assign pointers to scratch space.
       i_ESq   = i_right - 3*(NPC*NPD)
       i_right = i_ESq
 
-      if( i_left.ge.i_right )then
+      if( i_left.ge.i_right .and. .not.DryRun )then
 
        write(*,*) 'HF2:  Insufficient scratch space.'
        write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
@@ -150,7 +150,7 @@ c Assign pointers to scratch space.
 
       NPR = NPP*NPQ
 
-      if (NPR.eq.0) then
+      if (NPR.eq.0 .and. .not.DryRun) then
 c... one of the charge distribution either P or Q has no overlap
 c... therefore there are no integrals!!!!!!
         lszp = (la+1)*(la+2)*(lb+1)*(lb+2)/4
@@ -165,7 +165,7 @@ c... therefore there are no integrals!!!!!!
       i_pf   = i_Eq     + 3*NPQ*(MXD+1)*((Lq+1)*(Lc+1)*(Ld+1))
       i_left = i_pf     + 2*max(NPP,NPQ) - 1
 
-      if( i_left.ge.i_right )then
+      if( i_left.ge.i_right .and. .not.DryRun )then
 
        write(*,*) 'HF2:  Insufficient scratch space.'
        write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
@@ -218,7 +218,7 @@ c Assign pointers to scratch space.
       i_Rj  = i_ff  + 2*NPR
       i_top = i_Rj  + NPR*(Lr+1)*Lr3 - 1
 
-      if( i_top.gt.maxW0 )then
+      if( i_top.gt.maxW0 .and. .not.DryRun )then
 
        write(*,*) 'HF2:  Insufficient scratch space.'
        write(*,*) '      needed    ',i_top
@@ -293,7 +293,7 @@ c Assign pointers to scratch space.
         i_beri = i_sum + NPR*Lpq3 
         i_top  = i_beri + ninti
       endif
-      if( i_top.gt.maxW0 )then
+      if( i_top.gt.maxW0 .and. .not.DryRun )then
 
        write(*,*) 'HF2:  Insufficient scratch space.'
        write(*,*) '      needed    ',i_top
