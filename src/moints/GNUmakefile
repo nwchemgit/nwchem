@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.32 1995-06-16 20:51:14 rg240 Exp $
+#$Id: GNUmakefile,v 1.33 1995-06-16 20:59:34 rg240 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -9,8 +9,6 @@
 	      moints_gsh1.o \
 	      moints_mem.o \
 	      moints_mp2.o \
-	      moints_1e.o \
-	      moints_pascii.o \
 	      moints_stats.o 
 
 OBJ_OPTIMIZE = \
